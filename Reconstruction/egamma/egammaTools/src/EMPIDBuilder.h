@@ -23,7 +23,6 @@
 #include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 #include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
-#include "PATCore/IAsgSelectionTool.h"
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 
 class EMPIDBuilder : public egammaBaseTool

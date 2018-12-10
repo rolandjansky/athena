@@ -8,28 +8,28 @@
 #include <string>
 
 //base class
-#include "HitManagement/HitIdHelper.h" 
+#include "HitManagement/HitIdHelper.h"
 
 class sTgcHitIdHelper: public HitIdHelper {
 public:
-	
-	static sTgcHitIdHelper* GetHelper();
-	std::string GetStationName(const int& hid);
-	void SetStationName(std::string name);
-	int GetPhiSector(const int& hid);
-	int GetZSector(const int& hid);
-	int GetMultiLayer(const int& hid);
-	int GetLayer(const int& hid);
-	int GetSide(const int& hid);
-	
-	int BuildsTgcHitId (const std::string, const int, const int, const int,
-		const int, const int); 
+
+  static sTgcHitIdHelper* GetHelper();
+  std::string GetStationName(const int& hid) const;
+  void SetStationName(std::string name, int& hid) const;
+  int GetPhiSector(const int& hid) const;
+  int GetZSector(const int& hid) const;
+  int GetMultiLayer(const int& hid) const;
+  int GetLayer(const int& hid) const;
+  int GetSide(const int& hid) const;
+
+  int BuildsTgcHitId (const std::string, const int, const int, const int,
+                      const int, const int) const;
 
 private:
-	sTgcHitIdHelper();
-	void Initialize();
-	void InitializeStationName();
-	static sTgcHitIdHelper* m_help;
+  sTgcHitIdHelper();
+  void Initialize();
+  void InitializeStationName();
+  static sTgcHitIdHelper* m_help;
 
 };
 

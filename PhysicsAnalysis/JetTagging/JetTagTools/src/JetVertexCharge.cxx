@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -46,8 +46,8 @@ namespace Analysis {
 
   JetVertexCharge::JetVertexCharge(const std::string& t, const std::string& n, const IInterface*  p) :
     AthAlgTool(t,n,p),
-    m_muonSelectorTool("JVC_MuonSelectorTool"),
-    m_muonCorrectionTool( "JVC_MuonCorrectionTool" ),
+    m_muonSelectorTool("JVC_MuonSelectorTool", this),
+    m_muonCorrectionTool( "JVC_MuonCorrectionTool", this),
     m_runModus("analysis")
   { 
 

@@ -7,8 +7,7 @@ atlas_subdir( TrigSerializeResult )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/SGTools
+                          Control/AthenaKernel
                           GaudiKernel
                           PRIVATE
                           AtlasTest/TestTools
@@ -26,25 +25,25 @@ atlas_add_library( TrigSerializeResultLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigSerializeResult
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES SGTools GaudiKernel
+                   LINK_LIBRARIES AthenaKernel GaudiKernel
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools AthenaBaseComps AthenaKernel DataModelRoot PathResolver )
 
 atlas_add_component( TrigSerializeResult
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} SGTools GaudiKernel TestTools AthenaBaseComps AthenaKernel DataModelRoot PathResolver TrigSerializeResultLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel GaudiKernel TestTools AthenaBaseComps AthenaKernel DataModelRoot PathResolver TrigSerializeResultLib )
 
 atlas_add_dictionary( TrigSerializeResultDict
                       TrigSerializeResult/TrigSerializeResultDict.h
                       TrigSerializeResult/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} SGTools GaudiKernel TestTools AthenaBaseComps AthenaKernel DataModelRoot PathResolver TrigSerializeResultLib )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel GaudiKernel TestTools AthenaBaseComps AthenaKernel DataModelRoot PathResolver TrigSerializeResultLib )
 
 atlas_add_test( remap_test
                 SOURCES
                 test/remap_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} SGTools GaudiKernel TestTools AthenaBaseComps AthenaKernel DataModelRoot PathResolver TrigSerializeResultLib
+                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel GaudiKernel TestTools AthenaBaseComps AthenaKernel DataModelRoot PathResolver TrigSerializeResultLib
                 EXTRA_PATTERNS ".*" )
 
 # Install files from the package:

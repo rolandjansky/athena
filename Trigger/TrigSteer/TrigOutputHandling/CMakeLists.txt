@@ -45,4 +45,5 @@ atlas_add_test( void_record_test
       AthLinks AthenaKernel StoreGateLib GaudiKernel TestTools xAODCore 
       ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
       POST_EXEC_SCRIPT nopost.sh     
+      PROPERTIES TIMEOUT 300
        )

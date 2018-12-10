@@ -21,6 +21,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODTracking
    InnerDetector/InDetAlignTools/InDetAlignGenTools
    InnerDetector/InDetConditions/InDetBeamSpotService
+   InnerDetector/InDetConditions/BeamSpotConditionsData
    InnerDetector/InDetConditions/TRT_ConditionsServices
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/InDetReadoutGeometry

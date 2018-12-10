@@ -218,3 +218,18 @@ def _extractFolder(folderstr):
 
     
         
+if __name__ == "__main__":
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=1
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+
+    ConfigFlags.Input.Files = defaultTestFiles.RAW
+    ConfigFlags.lock()
+
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    acc, iovdbSvc = IOVDbSvcCfg(ConfigFlags)
+
+    f=open('test.pkl','w')
+    acc.store(f)
+    f.close()

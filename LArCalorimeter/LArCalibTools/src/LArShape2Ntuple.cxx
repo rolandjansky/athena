@@ -100,6 +100,13 @@ StatusCode LArShape2Ntuple::stop() {
     }
   }
 
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling=*cablingHdl;
+  if(!cabling) {
+     ATH_MSG_WARNING( "Do not have cabling object LArOnOffIdMapping" );
+     return StatusCode::FAILURE;
+  }
+
   unsigned cellCounter=0;  
   for ( unsigned igain=CaloGain::LARHIGHGAIN; 
 	igain<CaloGain::LARNGAIN ; ++igain ) {
@@ -107,7 +114,7 @@ StatusCode LArShape2Ntuple::stop() {
     std::vector<HWIdentifier>::const_iterator it_e = m_onlineId->channel_end();
     for (;it!=it_e;it++) {
       const HWIdentifier chid = *it;
-      if (!m_larCablingSvc->isOnlineConnected(chid)) continue;
+      if (!cabling->isOnlineConnected(chid)) continue;
       unsigned nPhase=1;
       if (larShapeComplete) nPhase=larShapeComplete->nTimeBins(chid,gain);
       for (unsigned iphase=0;iphase<nPhase;iphase++) {

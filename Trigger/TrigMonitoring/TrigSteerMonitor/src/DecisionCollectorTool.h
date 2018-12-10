@@ -21,7 +21,7 @@ public:
   DecisionCollectorTool(const std::string& type, const std::string& name, const IInterface* parent);
   virtual ~DecisionCollectorTool() override;
     
-  virtual StatusCode getDecisions( TrigCompositeUtils::DecisionIDContainer& ) const override;
+  virtual StatusCode getDecisions( std::vector<TrigCompositeUtils::DecisionID>& ) const override;
   
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;

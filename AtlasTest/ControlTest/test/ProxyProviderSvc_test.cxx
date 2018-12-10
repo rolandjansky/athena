@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file ProxyProviderSvc_test.cxx
@@ -27,7 +27,7 @@
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "SGTools/ClassID_traits.h"
+#include "AthenaKernel/ClassID_traits.h"
 #include "AthenaKernel/IAddressProvider.h"
 #include "AthenaKernel/StoreID.h"
 #include "CxxUtils/make_unique.h"
@@ -60,7 +60,7 @@ private:
 };
 int FooBar::s_i=0;
 
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(FooBar, 8109, 0)
 
 template <typename PROXIED>

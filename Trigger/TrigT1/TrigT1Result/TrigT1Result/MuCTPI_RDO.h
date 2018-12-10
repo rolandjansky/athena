@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1RESULT_MUCTPI_RDO_H
@@ -13,7 +13,7 @@
 #include <cstdint>
 
 // Gaudi/Athena include(s):
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 /**
  *   $Date: 2007-07-05 13:26:22 $

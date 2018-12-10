@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -17,6 +17,7 @@
 
 
 #include "D3PDMakerUtils/SingleAssociationTool.h"
+#include "D3PDMakerInterfaces/IObjGetterTool.h"
 #include "xAODTracking/TrackParticle.h"
 #include "TrackD3PDMaker/PerigeePair.h"
 #include "GaudiKernel/ToolHandle.h"

@@ -1,11 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 """
 Lvl1 specific flags
 """
 
-from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
-from TriggerMenu.menu.CommonSliceHelper import AllowedList
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.Logging import logging
 from Limits import Limits
 

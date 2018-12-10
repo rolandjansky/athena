@@ -4,14 +4,15 @@
 
 // Local includes
 #include "G4AtlasAlg.h"
+#include "G4AtlasFluxRecorder.h"
 
 #include "AthenaKernel/RNGWrapper.h"
 
 // Can we safely include all of these?
-#include "G4AtlasMTRunManager.h"
-#include "G4AtlasWorkerRunManager.h"
-#include "G4AtlasUserWorkerThreadInitialization.h"
-#include "G4AtlasRunManager.h"
+#include "G4AtlasAlg/G4AtlasMTRunManager.h"
+#include "G4AtlasAlg/G4AtlasWorkerRunManager.h"
+#include "G4AtlasAlg/G4AtlasUserWorkerThreadInitialization.h"
+#include "G4AtlasAlg/G4AtlasRunManager.h"
 
 // Geant4 includes
 #include "G4StateManager.hh"
@@ -139,7 +140,7 @@ void G4AtlasAlg::initializeOnce()
   else {
     auto* runMgr = G4AtlasRunManager::GetG4AtlasRunManager();
     m_physListTool->SetPhysicsList();
-    runMgr->SetRecordFlux( m_recordFlux );
+    runMgr->SetRecordFlux( m_recordFlux, new G4AtlasFluxRecorder );
     runMgr->SetLogLevel( int(msg().level()) ); // Synch log levels
     runMgr->SetUserActionSvc( m_userActionSvc.typeAndName() );
     runMgr->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
@@ -272,7 +273,7 @@ StatusCode G4AtlasAlg::execute()
   }
 
   // tell TruthService we're starting a new event
-  ATH_CHECK( m_truthRecordSvc->initializeTruthCollection() ); //FIXME POINTLESS - THIS METHOD IS EMPTY IN MASTER
+  ATH_CHECK( m_truthRecordSvc->initializeTruthCollection() );
 
   // Release GeoModel Geometry if necessary
   if (m_releaseGeoModel) {

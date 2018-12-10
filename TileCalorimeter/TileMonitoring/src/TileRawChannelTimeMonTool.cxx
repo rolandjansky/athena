@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -17,7 +17,7 @@
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/ITileBadChanTool.h"
 #include "TileEvent/TileRawChannelContainer.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "TProfile.h"
 #include "TProfile2D.h"
@@ -33,7 +33,6 @@
 /*---------------------------------------------------------*/
 TileRawChannelTimeMonTool::TileRawChannelTimeMonTool(const std::string & type, const std::string & name, const IInterface* parent)
   : TileFatherMonTool(type, name, parent)
-  , m_beamInfo("TileBeamInfoProvider")
   , m_tileBadChanTool("TileBadChanTool")
   , m_dqStatus(0)
   , m_doOnline(false)
@@ -52,6 +51,7 @@ TileRawChannelTimeMonTool::TileRawChannelTimeMonTool(const std::string & type, c
   , m_partitionTimeCorrection{{0}}
   , m_timeDifferenceBetweenROS{{1, 2}, {1, 3}, {1, 4}, {2, 3}, {2, 4}, {3, 4}}
   , m_nLumiblocks(3000)
+  , m_tileDCS("TileDCSTool")
 	 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
@@ -69,6 +69,9 @@ TileRawChannelTimeMonTool::TileRawChannelTimeMonTool(const std::string & type, c
   declareProperty("TimeCorrectionEBA", m_timeCorrectionEBA);
   declareProperty("TimeCorrectionEBC", m_timeCorrectionEBC);
   declareProperty("NumberOfLumiblocks", m_nLumiblocks = 3000);
+  declareProperty("TileDQstatus", m_DQstatusKey = "TileDQstatus");
+  declareProperty("TileDCSTool", m_tileDCS);
+  declareProperty("CheckDCS", m_checkDCS = false);
 
   m_path = "/Tile/RawChannelTime"; 
 }
@@ -86,7 +89,6 @@ StatusCode TileRawChannelTimeMonTool::initialize()
 
   ATH_MSG_INFO("in initialize()");
 
-  CHECK(m_beamInfo.retrieve());
   CHECK(m_tileBadChanTool.retrieve());
 
   m_nEvents = 0;
@@ -100,6 +102,15 @@ StatusCode TileRawChannelTimeMonTool::initialize()
                                 m_timeCorrectionEBC}};
 
   CHECK(TileFatherMonTool::initialize());
+
+  CHECK( m_DQstatusKey.initialize() );
+
+  if (m_checkDCS) {
+    CHECK( m_tileDCS.retrieve() );
+  }
+  else {
+    m_tileDCS.disable();
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -231,7 +242,7 @@ StatusCode TileRawChannelTimeMonTool::fillHists()
   if (m_nEvents % 1000 == 0) ATH_MSG_INFO(m_nEvents<<" events processed so far");
   ++m_nEvents;
 
-  m_dqStatus = m_beamInfo->getDQstatus();
+  m_dqStatus = SG::makeHandle (m_DQstatusKey).get();
   int32_t current_lumiblock = getLumiBlock();
 
   const TileRawChannelContainer* RawChannelCnt;
@@ -270,7 +281,7 @@ StatusCode TileRawChannelTimeMonTool::fillHists()
 
           int adc = m_tileHWID->adc(adc_id);
 
-          bool good  = m_dqStatus->isAdcDQgood(ros, drawer, chan, adc) && m_beamInfo->isChanDCSgood(ros, drawer, chan);
+          bool good  = m_dqStatus->isAdcDQgood(ros, drawer, chan, adc) && isChanDCSgood(ros, drawer, chan);
 
           if (good) {
             TileBchStatus status = m_tileBadChanTool->getAdcStatus(drawerIdx, chan, adc);
@@ -398,5 +409,17 @@ StatusCode TileRawChannelTimeMonTool::checkHists(bool /* fromFinalize */)
 }
 
 
+bool TileRawChannelTimeMonTool::isChanDCSgood (int ros, int drawer, int channel) const
+{
+  if (!m_checkDCS) return true;
+  TileDCSState::TileDCSStatus status = m_tileDCS->getDCSStatus(ros, drawer, channel);
 
+  if (status > TileDCSState::WARNING) {
+    ATH_MSG_DEBUG("Module=" << TileCalibUtils::getDrawerString(ros, drawer)
+                  << " channel=" << channel
+                  << " masking becasue of bad DCS status=" << status);
+    return false;
+  }
 
+  return true;
+}

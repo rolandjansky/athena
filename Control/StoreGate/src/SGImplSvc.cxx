@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
@@ -32,7 +32,7 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/DataHistory.h"
 #include "SGTools/CurrentEventStore.h"
-#include "SGTools/DataBucketBase.h"
+#include "AthenaKernel/DataBucketBase.h"
 #include "SGTools/DataProxy.h"
 #include "SGTools/DataStore.h"
 #include "SGTools/StringPool.h"

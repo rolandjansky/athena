@@ -18,7 +18,6 @@ Most of the informations are given separately for each layer of the EM calorimet
 #include "egammaBaseTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/EventContext.h"
-#include "LArRecConditions/ILArBadChanTool.h"
 #include "LArCabling/LArCablingService.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "Identifier/HWIdentifier.h"

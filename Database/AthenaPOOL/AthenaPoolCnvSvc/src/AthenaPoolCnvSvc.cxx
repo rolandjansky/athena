@@ -90,8 +90,8 @@ StatusCode AthenaPoolCnvSvc::initialize() {
 	   last = m_maxFileSizes.value().end(); iter != last; iter++) {
       if (iter->find('=') != std::string::npos) {
          long long maxFileSize = atoll(iter->substr(iter->find('=') + 1).c_str());
-         if (maxFileSize > 10000000000LL) {
-            ATH_MSG_WARNING("Files larger than 10GB are disallowed by ATLAS policy.");
+         if (maxFileSize > 15000000000LL) {
+            ATH_MSG_WARNING("Files larger than 15GB are disallowed by ATLAS policy.");
             ATH_MSG_WARNING("They should only be produced for private use or in special cases.");
          }
          std::string databaseName = iter->substr(0, iter->find_first_of(" 	="));
@@ -99,8 +99,8 @@ StatusCode AthenaPoolCnvSvc::initialize() {
          m_databaseMaxFileSize.insert(entry);
       } else {
          m_domainMaxFileSize = atoll(iter->c_str());
-         if (m_domainMaxFileSize > 10000000000LL) {
-            ATH_MSG_WARNING("Files larger than 10GB are disallowed by ATLAS policy.");
+         if (m_domainMaxFileSize > 15000000000LL) {
+            ATH_MSG_WARNING("Files larger than 15GB are disallowed by ATLAS policy.");
             ATH_MSG_WARNING("They should only be produced for private use or in special cases.");
          }
       }
@@ -188,6 +188,14 @@ StatusCode AthenaPoolCnvSvc::createObj(IOpaqueAddress* pAddress, DataObject*& re
    }
    if (m_doChronoStat) {
       m_chronoStatSvc->chronoStart("cObj_" + objName);
+   }
+   TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(pAddress);
+   if (tokAddr != nullptr && tokAddr->getToken() != nullptr) {
+      char text[32];
+      // Use ipar field of GenericAddress to create custom input context/persSvc in PoolSvc::setObjPtr() (e.g. for conditions)
+      ::sprintf(text, "[CTXT=%08X]", static_cast<int>(*(pAddress->ipar())));
+      // Or use context label, e.g.: ::sprintf(text, "[CLABEL=%08X]", pAddress->clID()); to create persSvc
+      tokAddr->getToken()->setAuxString(text);
    }
    // Forward to base class createObj
    StatusCode status = ::AthCnvSvc::createObj(pAddress, refpObject);
@@ -569,9 +577,6 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
       ATH_MSG_WARNING("FileSize > domMaxFileSize for " << m_outputConnectionSpec);
       return(StatusCode::RECOVERABLE);
    }
-   // For "safety" we reset the output file and the technology type
-   m_outputConnectionSpec = "";
-   m_dbType = pool::DbType();
    if (m_doChronoStat) {
       m_chronoStatSvc->chronoStop("commitOutput");
    }
@@ -665,13 +670,11 @@ IPoolSvc* AthenaPoolCnvSvc::getPoolSvc() {
    return(&*m_poolSvc);
 }
 //______________________________________________________________________________
-const Token* AthenaPoolCnvSvc::registerForWrite(Placement* placement,
-		const void* obj,
-		const RootType& classDesc) const {
+Token* AthenaPoolCnvSvc::registerForWrite(Placement* placement, const void* obj, const RootType& classDesc) const {
    if (m_doChronoStat) {
       m_chronoStatSvc->chronoStart("cRepR_ALL");
    }
-   const Token* token = nullptr;
+   Token* token = nullptr;
    if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient()) {
       std::size_t streamClient = 0;
       std::string fileName = placement->fileName();
@@ -1132,7 +1135,7 @@ AthenaPoolCnvSvc::AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLoc
 	m_containerPrefix(),
 	m_containerNameHint(),
 	m_branchNameHint(),
-	m_domainMaxFileSize(10000000000LL),
+	m_domainMaxFileSize(15000000000LL),
 	m_doChronoStat(true) {
    declareProperty("UseDetailChronoStat", m_useDetailChronoStat = false);
    declareProperty("PoolContainerPrefix", m_containerPrefixProp = "ROOTTREE:CollectionTree");
@@ -1143,7 +1146,6 @@ AthenaPoolCnvSvc::AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLoc
    declareProperty("OutputPoolFileAllocator", m_streamClientFilesProp);
    declareProperty("PrintInputAttrPerEvt", m_inputPoolAttrPerEvent);
    declareProperty("MaxFileSizes", m_maxFileSizes);
-   declareProperty("CommitInterval", m_commitInterval = 0);
    declareProperty("PersSvcPerOutput", m_persSvcPerOutput = false);
    declareProperty("SkipFirstChronoCommit", m_skipFirstChronoCommit = false);
    declareProperty("InputStreamingTool", m_inputStreamingTool);

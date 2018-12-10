@@ -62,7 +62,8 @@ public:
     m_tauEtCutOffline(tauEtCutOffline),
     m_TruthPdgId(TruthPdgId),
     m_finalised(true),
-    m_printInfo(true)
+    m_printInfo(true),
+    m_ptmin(0)
   {  
     //    std::cout << "AnalysisConfig_Ntuple::AnalysisConfig_Ntuple() " << chainNames.size() << std::endl;
 
@@ -116,6 +117,8 @@ public:
     delete m_event;
   }
 
+  void set_ptmin( double d=0 ) { m_ptmin=d; }
+
 protected:
 
   virtual void loop();
@@ -163,6 +166,8 @@ protected:
   //  bool m_keepAllEvents; // nw in base class
 
   bool m_printInfo;
+
+  double m_ptmin;
 
 };
 

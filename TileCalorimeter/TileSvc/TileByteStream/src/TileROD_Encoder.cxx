@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation of TileROD_Encoder class 
@@ -25,7 +25,8 @@ TileROD_Encoder::TileROD_Encoder():
   m_tileHWID(0), 
   m_verbose(false), 
   m_type(0), 
-  m_unitType(0), 
+  m_unitType(0),
+  m_rChUnit(0),
   m_msg("TileROD_Encoder"), 
   m_maxChannels(TileCalibUtils::MAX_CHAN) {
 }
@@ -86,7 +87,7 @@ void TileROD_Encoder::setTypeAndUnit(TileFragHash::TYPE type, TileRawChannelUnit
     // 24,25,26 - OF type
     // next 8 bits - frag type ( 2,3,4, ... )
     m_unitType = (rChUnit << 30) | (3 << 28) | (0 << 27) | (OFType << 24) | (m_type << 16);
-    m_rc2bytes4.setUnit(rChUnit);
+    m_rChUnit = rChUnit;
   } else if (m_type == 5) {
     // 8 upper bits:
     // UULLLTTT
@@ -94,7 +95,7 @@ void TileROD_Encoder::setTypeAndUnit(TileFragHash::TYPE type, TileRawChannelUnit
     // 29,28,27 - length of Level2 part ( = 3 - sumEt, sumEz, sumE )
     // 24,25,26 - OF type
     m_unitType = (rChUnit << 30) | (3 << 27) | (OFType << 24) | (m_type << 16);
-    m_rc2bytes5.setUnit(rChUnit);
+    m_rChUnit = rChUnit;
   }
 
 }
@@ -416,7 +417,7 @@ void TileROD_Encoder::fillROD4(std::vector<uint32_t>& v) {
     int chan = rc->channel();
     int gain = rc->adc();
     if (chan < m_maxChannels) {
-      v[start + chan] = m_rc2bytes4.getWord(rc, gain);
+      v[start + chan] = m_rc2bytes4.getWord(*rc, m_rChUnit, gain);
     }
 
   } // end of all TileRawChannel

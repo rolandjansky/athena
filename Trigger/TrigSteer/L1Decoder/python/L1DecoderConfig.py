@@ -9,7 +9,7 @@ def L1DecoderCfg(flags):
     from AthenaCommon.Configurable import Configurable,ConfigurableService,ConfigurableAlgorithm,ConfigurableAlgTool
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-    from L1Decoder.L1DecoderConf import L1Decoder, CTPUnpackingTool, EMRoIsUnpackingTool, MURoIsUnpackingTool, METRoIsUnpackingTool
+    from L1Decoder.L1DecoderConf import L1Decoder, CTPUnpackingTool, EMRoIsUnpackingTool, MURoIsUnpackingTool, METRoIsUnpackingTool, JRoIsUnpackingTool
     from L1Decoder.L1DecoderMonitoring import CTPUnpackingMonitoring, RoIsUnpackingMonitoring
 
     acc = ComponentAccumulator()
@@ -23,8 +23,11 @@ def L1DecoderCfg(flags):
                                                       OutputTrigRoIs = recordable("EMRoIs"),
                                                       MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 )) ]
 
-    decoderAlg.roiUnpackers += [METRoIsUnpackingTool( Decisions = recordable("L1MET"),
-                                                      OutputTrigRoI = recordable("METRoI")) ]
+    decoderAlg.roiUnpackers += [METRoIsUnpackingTool( Decisions = recordable("L1MET")) ]
+
+    decoderAlg.roiUnpackers += [JRoIsUnpackingTool( Decisions = recordable("L1J"),
+                                                      OutputTrigRoIs = recordable("JETRoI")) ]
+
 
     from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg, TGCCablingConfigCfg    
     acc.mergeAll( TGCCablingConfigCfg( flags ) )
@@ -33,6 +36,9 @@ def L1DecoderCfg(flags):
                                                       OutputTrigRoIs = recordable("MURoIs"),
                                                       MonTool = RoIsUnpackingMonitoring( prefix="MU", maxCount=20 ) ) ]        
     
+
+
+
     from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvcCfg
     acc.merge( TrigConfigSvcCfg( flags ) )
 

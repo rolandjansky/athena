@@ -1,4 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef TRIGT1INTERFACES_MUCTPITOROIBSLINK_H
 #define TRIGT1INTERFACES_MUCTPITOROIBSLINK_H
 
@@ -42,9 +45,7 @@ namespace L1MUINT {
 
 } // namespace L1MUINT
 
-#ifndef CLIDSVC_CLASSDEF_H
-#include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( L1MUINT::MuCTPIToRoIBSLink, 6103, 0 )
 
 #endif // TRIGT1INTERFACES_MUCTPITOROIBSLINK_H

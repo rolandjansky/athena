@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGOUTPUTHANDLING_HLTEDMCREATOR_H
 #define TRIGOUTPUTHANDLING_HLTEDMCREATOR_H 1
@@ -12,7 +12,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 // OutputHandling includes
-#include "TrigOutputHandling/IHLTOutputTool.h"
+#include "DecisionHandling/IHLTOutputTool.h"
 
 #include "AthViews/View.h"
 

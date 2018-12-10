@@ -68,8 +68,8 @@ namespace InDet
 
   InDetJetFitterUtils::InDetJetFitterUtils(const std::string& t, const std::string& n, const IInterface*  p) :
     AthAlgTool(t,n,p),
-    m_LinearizedTrackFactory("Trk::FullLinearizedTrackFactory/FullLinearizedTrackFactory"),
-    m_extrapolator("Trk::Extrapolator/InDetExtrapolator"),
+    m_LinearizedTrackFactory("Trk::FullLinearizedTrackFactory/FullLinearizedTrackFactory", this),
+    m_extrapolator("Trk::Extrapolator/InDetExtrapolator", this),
     m_extrapolatorIsAvailable(false),
     m_linearizedTrackFactoryIsAvailable(false)
   { 

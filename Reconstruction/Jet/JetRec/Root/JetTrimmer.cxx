@@ -19,7 +19,7 @@ using xAOD::JetContainer;
 //**********************************************************************
 
 JetTrimmer::JetTrimmer(std::string name)
-: AsgTool(name), m_bld("") {
+  : AsgTool(name), m_bld("",this) {
   declareProperty("RClus", m_rclus =0.3);
   declareProperty("PtFrac", m_ptfrac =0.03);
   declareProperty("JetBuilder", m_bld);

@@ -280,7 +280,6 @@ def analyze(oname="merge_candidates.pkl"):
     for k,v in histo.iteritems():
         msg.info ('#diffs: %3s  => #cfgs: %3s', k, v)
 
-    import os
     if os.path.splitext(oname)[1] == ".ascii":
         msg.info ("dumping report in ASCII [%s]", oname)
         with open(oname, "w") as ascii:

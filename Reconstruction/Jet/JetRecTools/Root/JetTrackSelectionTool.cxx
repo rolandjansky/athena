@@ -5,7 +5,7 @@
 #include "JetRecTools/JetTrackSelectionTool.h"
 
 JetTrackSelectionTool::JetTrackSelectionTool(const std::string &name):
-  asg::AsgTool(name), m_hidselector("") {
+  asg::AsgTool(name), m_hidselector("",this) {
   declareProperty("Selector", m_hidselector);
 
   declareProperty("InputContainer",m_inCont_key);

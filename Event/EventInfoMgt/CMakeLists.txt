@@ -30,3 +30,4 @@ atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/EventInfoMgt_jobOptions.py share/TagInfoMgr_jobOptions.py )
 atlas_install_scripts( share/dumpRunNumber.py )
 
+atlas_add_test( TagInfoMgrCfg    SCRIPT python -m EventInfoMgt.TagInfoMgrConfig POST_EXEC_SCRIPT nopost.sh )

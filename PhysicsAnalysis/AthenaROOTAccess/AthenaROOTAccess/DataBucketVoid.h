@@ -18,8 +18,8 @@
 #ifndef DATABUCKETVOID_H
 #define DATABUCKETVOID_H
 
-#include "SGTools/DataBucketBase.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/DataBucketBase.h"
+#include "AthenaKernel/BaseInfo.h"
 #include "TMethodCall.h"
 #include <typeinfo>
 #include <vector>

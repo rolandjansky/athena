@@ -55,7 +55,7 @@ namespace {
 //**********************************************************************
 
 JetPseudojetCopier::JetPseudojetCopier(const std::string& name)
-: asg::AsgTool(name), m_hpjr("")  {
+  : asg::AsgTool(name), m_hpjr("",this)  {
   declareProperty("DestinationContainer", m_dstname);
   declareProperty("Label", m_label ="JetPseudojetMap");
   declareProperty("JetPseudojetRetriever", m_hpjr);

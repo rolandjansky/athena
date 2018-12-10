@@ -943,6 +943,12 @@ IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id,
                   << ccb->id() << " for range " << r2 );
     return StatusCode::FAILURE;
   }
+  else if (CondContBase::Category::isOverlap (sc)) {
+    // Disable this for now... IOVDbSvc can sometimes produce overlapping
+    // ranges.
+    //ATH_MSG_ERROR ("IOV range overlap.");
+    //return StatusCode::FAILURE;
+  }
  
   return sc;
 

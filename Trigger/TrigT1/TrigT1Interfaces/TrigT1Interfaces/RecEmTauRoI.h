@@ -1,21 +1,15 @@
 // Dear emacs, this is -*- c++ -*-
 // $Id: RecEmTauRoI.h 782811 2016-11-07 17:20:40Z smh $
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /***************************************************************************
                          RecEmTauRoI.h  -  description
                             -------------------
    begin                : Mon Jan 22 2001
-   copyright            : (C) 2001 by moyse
    email                : moyse@heppch.ph.qmw.ac.uk
 ***************************************************************************/
 
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
 
 #ifndef TRIGT1INTERFACES_RECEMTAUROI_H
 #define TRIGT1INTERFACES_RECEMTAUROI_H
@@ -167,9 +161,7 @@ namespace LVL1 {
 
 } // namespace LVL1
 
-#ifndef CLIDSVC_CLASSDEF_H
-#include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( DataVector< LVL1::RecEmTauRoI >, 6256, 1 )
 CLASS_DEF( LVL1::RecEmTauRoI, 6257, 1 )
 

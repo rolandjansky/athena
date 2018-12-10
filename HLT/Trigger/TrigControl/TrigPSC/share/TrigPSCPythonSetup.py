@@ -20,7 +20,9 @@ else:
    pscServiceSetupBegin = "TrigServices/TrigServicesCommonBegin.py" # Service definitions
    pscServiceSetupEnd   = "TrigServices/TrigServicesCommonEnd.py"   # Service definitions
 
-   import sys, os, string
+   import sys
+   import os
+   import string
 
    ### Set up some common flags --------------------------------------------------
 
@@ -39,62 +41,14 @@ else:
       
    del TriggerFlags
 
-   ### logging and messages -----------------------------------------------------
+   ### Athena configuration -----------------------------------------------------
+   from GaudiPython import *
+   from AthenaCommon.Configurable import *
+   from AthenaCommon.OldStyleConfig import *
+   from AthenaCommon import CfgMgr
    from AthenaCommon.Logging import *
    from AthenaCommon.Constants import *
    import AthenaCommon.ExitCodes as ExitCodes
-
-   from TrigPSC import PscConfig
-   logLevel=string.upper(PscConfig.optmap['LOGLEVEL'])
-   logLevel=string.split(logLevel,",")
-   if len(logLevel)==0:
-      logLevel=["INFO","ERROR"]
-
-   if len(logLevel)==1:
-      logLevel.append("ERROR")
-
-   ### FOR DEVELOPMENT: force verbose log level
-   logLevel=["VERBOSE","DEBUG","INFO","ERROR"]
-
-   ## test and set log level
-   try:
-      exec( 'log.setLevel( logging.%s )' % logLevel[0] )
-   except:
-      sys.exit( ExitCodes.OPTIONS_UNKNOWN )
-
-   ### file inclusion and tracing -----------------------------------------------
-   from AthenaCommon.Include import Include, IncludeError, include
-   showincludes = eval(PscConfig.optmap['SHOWINCLUDE'])
-   include.setShowIncludes( showincludes )
-   if showincludes:
-      import AthenaCommon.Include as AthCIncMod
-      AthCIncMod.marker = ' -#-'      # distinguish bootstrap from other jo-code
-
-   if PscConfig.optmap['TRACEPATTERN']:
-      import AthenaCommon.Include
-      AthenaCommon.Include.tracePattern = PscConfig.optmap['TRACEPATTERN']
-
-   #
-   ### gaudi --------------------------------------------------------------------
-   try:
-      from GaudiPython import *
-   except ImportError:
-      from gaudimodule import *
-
-   from AthenaCommon.Configurable import *
-   from AthenaCommon.OldStyleConfig import *
-
-   ### set output level  --------------------------------------------------------
-   exec 'OUTPUTLEVEL = %s' % logLevel[0]
-   if not os.environ.has_key( "POOL_OUTMSG_LEVEL" ):
-      exec 'os.environ[ "POOL_OUTMSG_LEVEL" ] = str(%s)' % logLevel[1]
-   del logLevel
-
-   OutputLevel=OUTPUTLEVEL
-   HLTOutputLevel=OUTPUTLEVEL
-            
-   ### Athena configuration -----------------------------------------------------
-   from AthenaCommon import CfgMgr
 
    ## create the application manager and start in a non-initialised state
    from AthenaCommon.AppMgr import theApp
@@ -110,6 +64,21 @@ else:
    ServiceMgr += getConfigurable(theApp.JobOptionsSvcType)("JobOptionsSvc")
    ServiceMgr += getConfigurable(theApp.MessageSvcType   )("MessageSvc"   )
 
+   ## set OutputLevel
+   logLevel = PscConfig.optmap['LOGLEVEL'].upper().split(',')
+
+   if len(logLevel) > 0:
+      from AthenaCommon import Constants
+      theApp.setOutputLevel(getattr(Constants, logLevel[0]))
+
+   if 'POOL_OUTMSG_LEVEL' not in os.environ and len(logLevel)>1:
+      os.environ['POOL_OUTMSG_LEVEL'] = logLevel[1]
+
+   del logLevel
+
+   ## file inclusion and tracing
+   from AthenaCommon.Include import Include, IncludeError, include
+
    ## set the default values
    try:
       include( pscBootstrapFile )
@@ -122,7 +91,6 @@ else:
 
    ## properties of the application manager
    theApp.StatusCodeCheck = False     # enabled via TriggerFlags.Online.doValidation (see below)
-   theApp.setOutputLevel(OUTPUTLEVEL)
 
    # Configure the CoreDumpSvc
    if not hasattr(ServiceMgr,"CoreDumpSvc"):
@@ -133,19 +101,13 @@ else:
    # in case this is not available try for backward compatibility
    # to load the old libAthenaServicesDict and try to install it from there
    #
-   if ServiceMgr.CoreDumpSvc.properties().has_key('FatalHandler'): 
+   if 'FatalHandler' in ServiceMgr.CoreDumpSvc.properties():
       ServiceMgr.CoreDumpSvc.FatalHandler = -1         # make SIG_INT fatal
 
    ## set resource limits
    from AthenaCommon.ResourceLimits import SetMaxLimits
    SetMaxLimits()
    del SetMaxLimits
-
-   ## reset include markers
-   if showincludes:
-      AthCIncMod.marker = AthCIncMod.__marker__      # reset
-      del AthCIncMod
-   del showincludes
 
    ### run optional command before user job options script ----------------------
    if PscConfig.optmap['PRECOMMAND']:
@@ -182,11 +144,6 @@ else:
          sys.exit( theApp._exitstate )      
       raise
 
-   if 'interactive' in dir():   
-      import TrigPSC.PscConfig 
-      TrigPSC.PscConfig.interactive = bool(interactive)
-      del interactive
-      
    ### run user jobOptions file -------------------------------------------------
    try:
       include( "%s" % PscConfig.optmap['JOBOPTIONSPATH'] )
@@ -201,7 +158,7 @@ else:
 
       short_tb = []
       for frame_info in tb:
-         if not 'AthenaCommon' in frame_info[0]:
+         if 'AthenaCommon' not in frame_info[0]:
             short_tb.append( frame_info )
 
       print 'Shortened traceback (most recent user call last):'

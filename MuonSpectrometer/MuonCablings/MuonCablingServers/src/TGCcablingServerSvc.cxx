@@ -63,23 +63,8 @@ TGCcablingServerSvc::initialize()
     } else {
         tagInfoKey = m_tagInfoMgr->tagInfoKey();
     }
-    
 
-    if(m_forcedUse) { // Selected cabling is used without comparison 
-        m_tagsCompared = true;
-    } else { // The cabling to be used and the cabling in tag info will be compared by compareTags method
-        if(m_pDetStore->regFcn(&ITGCcablingServerSvc::compareTags,
-                               dynamic_cast<ITGCcablingServerSvc*>(this),
-                               tagInfoH, 
-                               tagInfoKey) 
-           != StatusCode::SUCCESS) {
-          ATH_MSG_WARNING 
-            ( "Cannot register compareTags function for key "  << tagInfoKey );
-        } else {
-          ATH_MSG_DEBUG 
-            ( "Registered compareTags callback for key: " << tagInfoKey );
-        }
-    }
+    m_tagsCompared = true;
     
     ATH_MSG_DEBUG ( "... done!" );
     return sc;
@@ -95,10 +80,9 @@ TGCcablingServerSvc::giveCabling(const ITGCcablingSvc*& cabling) const {
     ATH_MSG_DEBUG ( "requesting instance of TGCcabling" );
     
     if (!this->isConfigured()) {
-        ATH_MSG_ERROR("The tagsCompared callback has not yet happened! Taking default configuration ("<< (m_atlas ? "12-fold cabling." : "8-fold cabling")
-                      <<" Move this call to execute() / beginRun() to get rid of this WARNING message (or set the forcedUse property to True)");
+        ATH_MSG_ERROR("TGCcablingServerSvc has not been cofigured.");
     }
-    
+
     cabling = 0;
     
     if(m_atlas) {
@@ -115,8 +99,7 @@ TGCcablingServerSvc::isAtlas() const {
     MsgStream log(msgSvc(), name());
     
     if (!this->isConfigured()) {
-      ATH_MSG_ERROR("The tagsCompared callback has not yet happened! Taking default configuration ("<< (m_atlas ? "12-fold cabling." : "8-fold cabling")
-                    <<" Move this call to execute() / beginRun() to get rid of this WARNING message (or set the forcedUse property to True)");
+        ATH_MSG_ERROR("TGCcablingServerSvc has not been cofigured.");
     }
     return m_atlas;
 }
@@ -127,11 +110,10 @@ TGCcablingServerSvc::isConfigured() const {
 }
 
 StatusCode 
-TGCcablingServerSvc::compareTags(IOVSVC_CALLBACK_ARGS)
-{
+TGCcablingServerSvc::compareTags() const {
     bool tagMatch = true;  
     
-    ATH_MSG_INFO ( "compareTags() callback triggered" );
+    ATH_MSG_DEBUG ( "compareTags() callback triggered" );
     
     // Get TagInfo and retrieve tags
     const TagInfo* tagInfo = 0;
@@ -146,7 +128,7 @@ TGCcablingServerSvc::compareTags(IOVSVC_CALLBACK_ARGS)
     } else {
         tagInfo->findInputTag("TGC_CablingType", cablingType);
         
-        ATH_MSG_INFO 
+        ATH_MSG_DEBUG 
           ( "TGC_CablingType from TagInfo: " << cablingType );
 	
 	if(cablingType=="") {
@@ -164,21 +146,16 @@ TGCcablingServerSvc::compareTags(IOVSVC_CALLBACK_ARGS)
     
     if (!tagMatch) {
         std::string cablingName;
-        std::string flagAtlas;
         if (m_atlas) {
             cablingName = "TGCcabling12 (12-fold)";
-            flagAtlas  =  "True";
-            m_atlas = false;
         } else {
             cablingName = "TGCcabling (8-fold)";
-            flagAtlas  =  "False";
-            m_atlas = true;
         }
         
-        ATH_MSG_INFO 
+        ATH_MSG_ERROR
           ( "TGC_CablingType : " << cablingType << " is mismatched "
             << "with TGCcablingServerSvc configuration of "<< cablingName << ". "
-            << "m_atlas flag is flipped to " << (m_atlas ? "true" : "false") << "." 
+            << "m_atlas flag is " << (m_atlas ? "true" : "false") << "." 
             );
         ATH_MSG_INFO 
           ( "If you definitely want to use " << cablingName << ", " 
@@ -196,9 +173,6 @@ TGCcablingServerSvc::compareTags(IOVSVC_CALLBACK_ARGS)
             );
     }
     
-    ATH_MSG_INFO ( "compareTags() callback determined that the cabling is "<< cablingType );
-
-    m_tagsCompared=true;
     return StatusCode::SUCCESS;
 }
 

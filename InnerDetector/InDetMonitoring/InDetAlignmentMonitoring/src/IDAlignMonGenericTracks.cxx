@@ -34,7 +34,6 @@
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "xAODEventInfo/EventInfo.h"
 
 
@@ -68,7 +67,6 @@ IDAlignMonGenericTracks::IDAlignMonGenericTracks( const std::string & type, cons
 	m_z0Range(250.0),
 	m_etaRange(3.0),
 	m_NTracksRange(200),
-        m_beamCondSvc("BeamCondSvc",name),
 	m_hWeightInFile(0),
 	m_etapTWeight(0)
 	
@@ -96,7 +94,6 @@ IDAlignMonGenericTracks::IDAlignMonGenericTracks( const std::string & type, cons
   declareProperty("etaRange"             , m_etaRange);
   declareProperty("pTRange"              , m_pTRange);
   declareProperty("NTracksRange"         , m_NTracksRange);
-  declareProperty("beamCondSvc"          , m_beamCondSvc);
   declareProperty("applyHistWeight"      , m_applyHistWeight = false);
   declareProperty("hWeightInFileName"    , m_hWeightInFileName  = "hWeight.root" ); 
   declareProperty("hWeightHistName"      , m_hWeightHistName    = "trk_pT_vs_eta" );
@@ -494,13 +491,13 @@ StatusCode IDAlignMonGenericTracks::initialize()
     ATH_CHECK (m_trackToVertexIPEstimator.retrieve());
   }
   
-  if ( m_beamCondSvc.retrieve().isFailure() ) {
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to retrieve beamspot service " << m_beamCondSvc << " - will use nominal beamspot at (0,0,0)" << endmsg;
+  if ( m_beamSpotKey.initialize().isFailure() ) {
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to retrieve beamspot service " << m_beamSpotKey << " - will use nominal beamspot at (0,0,0)" << endmsg;
     m_hasBeamCondSvc = false;
   } 
   else {
     m_hasBeamCondSvc = true;
-    ATH_MSG_DEBUG("Retrieved service " << m_beamCondSvc);
+    ATH_MSG_DEBUG("Retrieved service " << m_beamSpotKey);
   }
   
  
@@ -1705,13 +1702,14 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
   float beamTiltX = 0.;
   float beamTiltY = 0.;
   if (m_hasBeamCondSvc) {
-    Amg::Vector3D bpos = m_beamCondSvc->beamPos();
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    Amg::Vector3D bpos = beamSpotHandle->beamPos();
     beamSpotX = bpos.x();
     beamSpotY = bpos.y();
     beamSpotZ = bpos.z();
-    beamTiltX = m_beamCondSvc->beamTilt(0);
-    beamTiltY = m_beamCondSvc->beamTilt(1);
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Beamspot from " << m_beamCondSvc << ": x0 = " << beamSpotX << ", y0 = " << beamSpotY
+    beamTiltX = beamSpotHandle->beamTilt(0);
+    beamTiltY = beamSpotHandle->beamTilt(1);
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Beamspot from " << beamSpotHandle.retrieve() << ": x0 = " << beamSpotX << ", y0 = " << beamSpotY
           << ", z0 = " << beamSpotZ << ", tiltX = " << beamTiltX
           << ", tiltY = " << beamTiltY <<endmsg;
 

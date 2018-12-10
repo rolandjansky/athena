@@ -73,6 +73,9 @@ atlas_add_test( InputConverter_test
                 ENVIRONMENT
                 "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/test"
                 )
+# Needed for the plugin service to see the test components
+# defined in the test binary.
+set_target_properties( ISF_Services_InputConverter_test PROPERTIES ENABLE_EXPORTS True )
 
 atlas_add_test( TruthSvc_test
                 SOURCES
@@ -108,6 +111,9 @@ atlas_add_test( TruthSvc_test
                 ENVIRONMENT
                   "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/test"
                 )
+# Needed for the plugin service to see the test components
+# defined in the test binary.
+set_target_properties( ISF_Services_TruthSvc_test PROPERTIES ENABLE_EXPORTS True )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

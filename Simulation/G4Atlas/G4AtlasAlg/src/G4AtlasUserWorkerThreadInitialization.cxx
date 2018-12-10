@@ -5,8 +5,8 @@
 // Hide multi-threading classes from builds without G4MT
 #ifdef G4MULTITHREADED
 
-#include "G4AtlasUserWorkerThreadInitialization.h"
-#include "G4AtlasWorkerRunManager.h"
+#include "G4AtlasAlg/G4AtlasUserWorkerThreadInitialization.h"
+#include "G4AtlasAlg/G4AtlasWorkerRunManager.h"
 
 G4WorkerRunManager* G4AtlasUserWorkerThreadInitialization::
 CreateWorkerRunManager() const

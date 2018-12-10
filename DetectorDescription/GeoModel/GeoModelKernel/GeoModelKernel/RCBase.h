@@ -19,6 +19,8 @@
 #ifndef GEOMODELKERNEL_RCBASE_H
 #define GEOMODELKERNEL_RCBASE_H
 
+#include <atomic>
+
 class RCBase 
 {
  public:
@@ -42,7 +44,7 @@ class RCBase
   RCBase & operator=(const RCBase &right);
 
   //	The reference count
-  mutable unsigned short int m_count;
+  mutable std::atomic<unsigned> m_count;
 
 };
 

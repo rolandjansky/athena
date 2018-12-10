@@ -15,6 +15,7 @@ from TriggerMenu.menu.HltConfig import L2EFChainDef, mergeRemovingOverlap
 from TrigHIHypo.UE import theUEMaker, theFSCellMaker
 from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
 from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyCopyAllTEAlgo
+from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo as DummyRoI
 from TriggerMenu.commonUtils.makeCaloSequences import getFullScanCaloSequences
 from TrigTRTHighTHitCounter.TrigTRTHighTHitCounterConf import TrigTRTHTHCounter, TrigTRTHTHhypo
 ##################
@@ -69,11 +70,10 @@ class L2EFChain_g(L2EFChainDef):
             self.use_v7=True
         
         self.doIsolation=False
-        if ('ivloose' in self.chainPart['isoInfo'] or
-            'iloose' in self.chainPart['isoInfo'] or
-            'itight' in self.chainPart['isoInfo']):
-           self.doIsolation=True
-
+        caloiso = [x for x in self.chainPart['isoInfo'] if 'icalo' in x]
+        if len(caloiso) > 0:
+            self.doIsolation=True
+        
         log.debug('Sequences %s ', self.ph_sequences)
                 
         # gXX_ID type chains:
@@ -296,13 +296,13 @@ class L2EFChain_g(L2EFChainDef):
         self.setupFromDict(seq_te_dict)
         
         # Now insert additional steps
-        self.EFsequenceList.insert(0,[['L2_g_step2'],[theFSCellMaker], 'EF_g_step1_fs'])
-        self.EFsequenceList.insert(1,[['EF_g_step1_fs'],[theUEMaker], 'EF_g_step1_ue'])
-        self.EFsignatureList.insert(0, [['EF_g_step1_fs']] )
-        self.EFsignatureList.insert(1, [['EF_g_step1_ue']] )
+        self.EFsequenceList.insert(0,[[""],[DummyRoI("MinBiasDummyRoI")], 'L2_dummy_sp'])
+        self.EFsequenceList.insert(1,[['L2_dummy_sp'],[theFSCellMaker], 'EF_AllCells'])
+        self.EFsequenceList.insert(2,[['EF_AllCells'],[theUEMaker], 'EF_UE'])
+        self.EFsignatureList.insert(0, [['L2_dummy_sp']] )
+        self.EFsignatureList.insert(1, [['EF_AllCells']] )
+        self.EFsignatureList.insert(2, [['EF_UE']] )
 
-        self.TErenamingDict['EF_g_step1_fs']=mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'_fs')
-        self.TErenamingDict['EF_g_step1_ue']=mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'_ue')
 
     def setup_gnocut_hiptrt(self):
         # list of required key values for sequences

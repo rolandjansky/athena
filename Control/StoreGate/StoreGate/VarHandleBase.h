@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: VarHandleBase.h 797637 2017-02-17 02:32:11Z ssnyder $
@@ -24,13 +24,13 @@
 #include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/IResetable.h"
 #include "AthenaKernel/StoreID.h"
+#include "AthenaKernel/StorableConversions.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/EventContext.h"
 
 // SGTools includes
 #include "SGTools/DataProxy.h"
 #include "SGTools/ProxyMap.h"
-#include "SGTools/StorableConversions.h"
 #include "SGTools/BuiltinsClids.h"
 #include "SGTools/StlVectorClids.h"
 #include "SGTools/StlMapClids.h"
@@ -276,10 +276,6 @@ namespace SG {
      * This implicitly does a reset().
      */
     virtual StatusCode setProxyDict (IProxyDict* store);
-
-
-    // FIXME: Remove this once IResetable is cleaned up.
-    using IResetable::reset;
 
 
     /**
@@ -604,7 +600,7 @@ namespace SG {
 } /* namespace SG */
 
 // For the ConditionHandles
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondContBase , 34480459 , 1 )
 

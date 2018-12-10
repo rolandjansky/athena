@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 __all__ = ['Logic', 'Not']
 
-from copy import copy,deepcopy
+from copy import copy
 
 from Lvl1MenuUtil import log
 

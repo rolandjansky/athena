@@ -330,13 +330,13 @@ def getTauVertexVariables():
 
     from tauRecTools.tauRecToolsConf import TauVertexVariables
     TauVertexVariables = TauVertexVariables(  name = _name,
-                                            PrimaryVertexKey  = _DefaultVertexContainer,                                            
-                                            TrackToVertexIPEstimator = getTauTrackToVertexIPEstimator(),
-                                            VertexFitter = getTauAdaptiveVertexFitter(),
-                                            #VertexFitter = "Trk::AdaptiveVertexFitter/InDetAdaptiveVxFitterTool",
-                                            SeedFinder = getTauCrossDistancesSeedFinder(),
-                                            TrackParticleContainer = _DefaultTrackContainer, # ATM only needed in case old API is used
-                                            #OutputLevel = 2                                            
+                                              Key_vertexInputContainer = _DefaultVertexContainer,
+                                              TrackToVertexIPEstimator = getTauTrackToVertexIPEstimator(),
+                                              VertexFitter = getTauAdaptiveVertexFitter(),
+                                              #VertexFitter = "Trk::AdaptiveVertexFitter/InDetAdaptiveVxFitterTool",
+                                              SeedFinder = getTauCrossDistancesSeedFinder(),
+                                              Key_trackPartInputContainer = _DefaultTrackContainer # ATM only needed in case old API is used
+                                              #OutputLevel = 2
                                               )
     
     cached_instances[_name] = TauVertexVariables    
@@ -643,14 +643,15 @@ def getTauVertexFinder(doUseTJVA=False):
     from tauRecTools.tauRecToolsConf import TauVertexFinder
     TauVertexFinder = TauVertexFinder(name = _name,
                                       UseTJVA                 = doUseTJVA,
-                                      PrimaryVertexContainer  = _DefaultVertexContainer,
                                       AssociatedTracks="GhostTrack", # OK??
-                                      TrackVertexAssociation=sPrefix+"JetTrackVtxAssoc_forTaus",
                                       InDetTrackSelectionToolForTJVA = getInDetTrackSelectionToolForTJVA(),
+                                      Key_JetTrackVtxAssoc_forTaus= "JetTrackVtxAssoc_forTaus",
+                                      Key_vertexInputContainer = _DefaultVertexContainer,
+                                      Key_trackPartInputContainer= _DefaultTrackContainer,
                                       OnlineMaxTransverseDistance = 2.5*mm,   # ATR-15665
-                                      #OnlineMaxLongitudinalDistance = 2 *mm,
+                                      # OnlineMaxLongitudinalDistance = 2 *mm,
                                       OnlineMaxZ0SinTheta = 3.0 *mm    
-                                  )
+                                      )
     
     cached_instances[_name] = TauVertexFinder         
     return TauVertexFinder 
@@ -688,7 +689,7 @@ def getTauTrackFinder(applyZ0cut=False, maxDeltaZ0=2, noSelector = False, prefix
                                     MaxJetDrTau = 0.2,
                                     MaxJetDrWide          = 0.4,
                                     TrackSelectorToolTau  = getInDetTrackSelectorTool(),
-                                    TrackParticleContainer    = _DefaultTrigTauTrackContainer,  #???
+                                    Key_trackPartInputContainer = _DefaultTrackContainer,
                                     TrackToVertexTool         = getTrackToVertexTool(),
                                     maxDeltaZ0wrtLeadTrk = maxDeltaZ0, #in mm
                                     removeTracksOutsideZ0wrtLeadTrk = applyZ0cut,

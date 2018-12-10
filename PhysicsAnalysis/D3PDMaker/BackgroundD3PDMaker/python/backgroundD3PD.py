@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # $Id: backgroundD3PD.py 535243 2013-01-29 13:14:01Z salekd $
 #
@@ -40,10 +40,8 @@ from MuonD3PDMaker.CscPrepDataD3PDObject                import CscPrepDataD3PDOb
 
 from JetD3PDMaker.JetD3PDObject                         import JetD3PDObject
 
-from TrackD3PDMaker.TrackD3PDObject                     import TrackParticleD3PDObject
-from TrackD3PDMaker.TrackD3PDObject                     import TrackD3PDObject
-from TrackD3PDMaker.TrackD3PDObject                     import TrackD3PDFlags
-from TrackD3PDMaker.VertexD3PDObject                    import PrimaryVertexD3PDObject
+from TrackD3PDMaker.xAODTrackD3PDObject                 import xAODTrackParticleD3PDObject
+from TrackD3PDMaker.xAODVertexD3PDObject                import PrimaryxAODVertexD3PDObject
 
 from HeavyIonD3PDMaker.ZdcD3PDObject                    import ZdcD3PDObject
 
@@ -194,47 +192,8 @@ def backgroundD3PD (alg=None,
                                                allowMissing = True))
 
     if flags.doTrk():    
-        alg += TrackParticleD3PDObject    (**_args (0,  'TrackParticle', kw,
-                                                    prefix='trk_'))
-
-    if flags.doMuonTrk():
-        MooreTrackPartD3PDObject =   TrackD3PDObject(_label='mooreTP',
-                                          _prefix='mooreTP_',
-                                          _sgkey='MooreTrackParticles',
-                                          typeName='Rec::TrackParticleContainer',
-                                          truthTarget='mc',
-                                          truthPrefix='mc_',
-                                          detailedTruthPrefix='detailed_mc_',
-                                          truthMapKey='MooreTrackParticlesTruth',
-                                          detailedTruthMapKey='MooreTracksTruth',
-                                          flags=TrackD3PDFlags)
-
-        MooreTrackD3PDObject =   TrackD3PDObject(_label='moore',
-                                          _prefix='mooreTrk_',
-                                          _sgkey='MooreTracks',
-                                          typeName='TrackCollection',
-                                          truthTarget='mc',
-                                          truthPrefix='mc_',
-                                          detailedTruthPrefix='detailed_mc_',
-                                          truthMapKey='MooreTrackTruthCollection',
-                                          detailedTruthMapKey='DetailedTrackTruth',
-                                          flags=TrackD3PDFlags)
-
-        MboyTrackPartD3PDObject =   TrackD3PDObject(_label='mboyTP',
-                                          _prefix='mboyTP_',
-                                          _sgkey='MuonboyTrackParticles',
-                                          typeName='Rec::TrackParticleContainer',
-                                          truthTarget='mc',
-                                          truthPrefix='mc_',
-                                          detailedTruthPrefix='detailed_mc_',
-                                          truthMapKey='MuonboyTrackTruthCollection',
-                                          detailedTruthMapKey='DetailedTrackTruth',
-                                          flags=TrackD3PDFlags)
-
-        alg += MooreTrackPartD3PDObject(0)
-        alg += MooreTrackD3PDObject(0)
-        alg += MboyTrackPartD3PDObject(0)
-
+        alg += xAODTrackParticleD3PDObject (**_args (0,  'TrackParticle', kw,
+                                                     prefix='trk_'))
 
     if flags.doMuonHits():
         alg += MdtPrepDataD3PDObject (0)
@@ -271,7 +230,7 @@ def backgroundD3PD (alg=None,
                                       exclude = ['JetVertexFraction','JVtx','ActiveArea','TruthMF','TracksMoments']))
 
 
-    alg += PrimaryVertexD3PDObject (0)
+    alg += PrimaryxAODVertexD3PDObject (0)
 
 
     if flags.doBeamBkgd():
@@ -297,7 +256,7 @@ def backgroundD3PD (alg=None,
         if globalflags.DataSource == "data": alg += ZdcD3PDObject(10)
 
     if flags.doPixelClus():
-      from TrackD3PDMaker.PixelClusterD3PDObject import PixelClusterD3PDObject
+      from InDetD3PDMaker.PixelClusterD3PDObject import PixelClusterD3PDObject
       alg += PixelClusterD3PDObject( 0 )
 
     if flags.doCaloClus():

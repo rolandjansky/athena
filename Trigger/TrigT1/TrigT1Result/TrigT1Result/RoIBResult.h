@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -156,9 +156,7 @@ namespace ROIB {
 
 
 /* The RoIBResult class_def part, defining a CLID of 6000 */
-#ifndef CLIDSVC_CLASSDEF_H
-#include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( ROIB::RoIBResult , 6000 , 0 )
 
 #endif // TRIGT1RESULT_ROIBRESULT_H

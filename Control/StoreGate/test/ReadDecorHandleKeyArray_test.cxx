@@ -13,7 +13,7 @@
 
 #undef NDEBUG
 #include "SGTools/TestStore.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "StoreGate/ReadDecorHandleKeyArray.h"
 #include "TestTools/initGaudi.h"
 #include <cassert>

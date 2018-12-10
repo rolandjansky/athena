@@ -15,7 +15,6 @@ atlas_depends_on_subdirs(
    Control/AthToolSupport/AsgTools
    Control/AthenaBaseComps
    Control/AthenaKernel
-   Control/CLIDSvc
    Control/SGTools
    Control/StoreGate
    GaudiKernel
@@ -66,6 +65,7 @@ foreach( name TriggerElement_test Holder_test Registration_test Ownership_test H
       LINK_LIBRARIES ${Boost_LIBRARIES} TrigNavigationLib AthContainers AthContainersRoot
       AthLinks AthenaKernel StoreGateLib GaudiKernel TestTools xAODCore
       TrigSerializeCnvSvcLib
+      PROPERTIES TIMEOUT 300
       ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
       EXTRA_PATTERNS "^ClassIDSvc *VERBOSE|added entry for CLID|no dictionary for class|when retrieved"
        )

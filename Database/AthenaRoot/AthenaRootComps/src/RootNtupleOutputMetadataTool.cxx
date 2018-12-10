@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // RootNtupleOutputMetadataTool.cxx 
@@ -22,10 +22,10 @@
 
 // Athena
 #include "AthenaKernel/IClassIDSvc.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaRootKernel/IIoSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "SGTools/BuiltinsClids.h"
-#include "SGTools/CLASS_DEF.h"
 
 #include "TString.h"
 #include "AthenaRootComps/TransferTree.h"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -248,10 +248,7 @@ bool psc::Config::didUserSetLogLevel() const
 ////////////////////////////////////////////////////////////////////////////////
 void psc::Config::setup_optmap_defaults()
 {
-  optmap["SHOWINCLUDE"]       = "False";
-  optmap["EVENTSELECTOR"]     = "NONE";
   optmap["LOGLEVEL"]          = "INFO";
-  optmap["TRACEPATTERN"]      = "";
   optmap["PRECOMMAND"]        = "";
   optmap["POSTCOMMAND"]       = "";
   optmap["MUONCALBUFFERNAME"] = "";
@@ -262,9 +259,6 @@ void psc::Config::setup_optmap_defaults()
 void psc::Config::fillopt_jo(const ptree& hlt)
 {
   optmap["JOBOPTIONSPATH"]  = hlt.get_child("jobOptionsPath").data();
-  optmap["EVENTSELECTOR"]   = hlt.get_child("evtSel").data();
-  optmap["SHOWINCLUDE"]     = hlt.get_child("showInclude").data();
-  optmap["TRACEPATTERN"]    = hlt.get_child("tracePattern").data();
   optmap["PYTHONSETUPFILE"] = hlt.get_child("pythonSetupFile").data();
   optmap["JOBOPTIONSTYPE"]  = "NONE";
   optmap["LOGLEVEL"]        = plevelToStr(hlt.get_child_optional("logLevels"),
@@ -314,8 +308,6 @@ void psc::Config::fillopt_common(const ptree& hlt)
   const ptree& com = hlt.get_child("HLTCommonParameters.HLTCommonParameters");
   optmap["MESSAGESVCTYPE"]    = com.get_child("messageSvcType").data();
   optmap["JOBOPTIONSSVCTYPE"] = com.get_child("jobOptionsSvcType").data();
-  optmap["DLLNAME"]           = com.get_child("dllName").data();
-  optmap["FACTORYNAME"]       = com.get_child("factoryName").data();
 
   optmap["DF_PARTITION_NAME"] = m_config.get_child("Configuration.Partition.UID").data();
 

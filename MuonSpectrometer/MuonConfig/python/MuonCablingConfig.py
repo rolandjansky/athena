@@ -26,13 +26,14 @@ def RPCCablingConfigCfg(flags):
     rpcCablingSvc.CorrFileName = 'LVL1confAtlas.corr' 
     rpcCablingSvc.ConfFilePath = 'MuonRPC_Cabling/'
     rpcCablingSvc.RPCTriggerRoadsfromCool = True
-    #rpcCablingSvc.CosmicConfiguration     = True  # was set like this in egamma test, looks incorrect ???
+    rpcCablingSvc.CosmicConfiguration     = True  # this was set to true by the modifier openThresholdRPCCabling in runHLT_standalone.py
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
+    dbName = 'RPC_OFL' if flags.Input.isMC else 'RPC'
     acc.merge(addFolders(flags, 
-                   [ '/RPC/TRIGGER/CM_THR_ETA', '/RPC/TRIGGER/CM_THR_ETA', '/RPC/TRIGGER/CM_THR_PHI', 
-                     '/RPC/TRIGGER/CM_THR_PHI', '/RPC/CABLING/MAP_SCHEMA', '/RPC/CABLING/MAP_SCHEMA_CORR' ], 
-                   'RPC' ))
+                   [ '/RPC/TRIGGER/CM_THR_ETA', '/RPC/TRIGGER/CM_THR_PHI', 
+                     '/RPC/CABLING/MAP_SCHEMA', '/RPC/CABLING/MAP_SCHEMA_CORR' ], 
+                   dbName ))
 
     # that should not be here???
     acc.getService('IOVDbSvc').FoldersToMetaData     += ['/GLOBAL/BField/Maps']
@@ -75,7 +76,10 @@ if __name__ == '__main__':
     Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-    ConfigFlags.Input.Files =["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"]
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+
+    ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.lock()
 
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator

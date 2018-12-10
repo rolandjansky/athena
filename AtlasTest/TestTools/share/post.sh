@@ -155,7 +155,7 @@ PP="$PP"'|^TimelineSvc +INFO'
 PP="$PP"'|VERBOSE ServiceLocatorHelper::service: found service IncidentSvc'
 PP="$PP"'|VERBOSE ServiceLocatorHelper::service: found service ProxyProviderSvc'
 # Pathnames / versions / times / hosts
-PP="$PP"'|^IOVDbSvc +INFO (Folder|Connection|Total payload)'
+PP="$PP"'|^IOVDb(Svc|Folder) +INFO (Folder|Connection|Total payload|.*bytes in)'
 PP="$PP"'|^DBReplicaSvc +INFO Read replica configuration'
 PP="$PP"'|^EventInfoMgtInit: Got release version'
 PP="$PP"'|^Py:Athena +INFO using release'

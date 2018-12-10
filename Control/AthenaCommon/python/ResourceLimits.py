@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/ResourceLimits.py
 # Author: Grigori Rybkine (Grigori.Rybkine@rhul.ac.uk)
@@ -28,7 +28,7 @@ def _maxout( what, descr ):
                  soft == -1L and 'unlimited' or str(soft), )
       try:
          resource.setrlimit( what, (hard,hard) )
-      except ValueError, e:
+      except ValueError:
          if what != resource.RLIMIT_AS or hard != -1L: raise
          import platform
          if platform.architecture()[0] != '32bit': raise
@@ -45,7 +45,7 @@ def _max_32bit_address_space( soft, descr ):
                     str(hard),
                     str(soft), )
          resource.setrlimit( resource.RLIMIT_AS, (hard,hard) )
-      except ValueError, e:
+      except ValueError:
          hard -= _64MB
       else:
          log.debug( 'set soft %s limit to %s (was: %s)', descr,

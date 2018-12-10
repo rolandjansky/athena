@@ -13,8 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           Simulation/G4Atlas/G4AtlasInterfaces
                           Simulation/ISF/ISF_Core/ISF_Event
-                          Simulation/ISF/ISF_Core/ISF_Interfaces
-                          Simulation/ISF/ISF_Geant4/ISF_Geant4Interfaces )
+                          Simulation/ISF/ISF_Core/ISF_Interfaces )
 
 # External dependencies:
 find_package( CLHEP )

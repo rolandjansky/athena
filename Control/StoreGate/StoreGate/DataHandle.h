@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file DataHandle.h
@@ -10,10 +10,10 @@
 #ifndef STOREGATE_DATAHANDLE_H
 #define STOREGATE_DATAHANDLE_H
 
-#include "SGTools/DataBucket.h"
-#include "SGTools/ProxyMap.h"
+#include "AthenaKernel/DataBucket.h"
 #include "AthenaKernel/IResetable.h"
 #include "AthenaKernel/IProxyDict.h"
+#include "SGTools/ProxyMap.h"
 #include "SGTools/DataProxy.h"
 #include "SGTools/DataHandleBase.h"
 #include <iterator>
@@ -120,11 +120,7 @@ public:
   const_pointer_type cptr() const;   ///< safer explicit ptr accessor 
   pointer_type ptr();                ///< safer explicit ptr accessor 
 
-  // Should be like this.
-  //virtual void reset (bool /*hard*/) override { m_ptr = 0; }        ///< reset pointer
-  // Temp workaround for TrigDecisionTool back-compat.
-  virtual void reset (bool /*hard*/) override { m_ptr = 0; reset(); }
-  virtual void reset () override { m_ptr = 0; }
+  virtual void reset (bool /*hard*/) override { m_ptr = 0; }        ///< reset pointer
   //@}
 
   /// \name other constructors and methods for SG internal use

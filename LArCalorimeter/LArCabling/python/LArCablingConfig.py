@@ -37,3 +37,18 @@ def LArCalibIdMappingCfg(configFlags):
     return _larCablingCfg(configFlags,LArCalibLineMappingAlg,"/LAR/Identifier/CalibIdMap")
 
 
+if __name__ == "__main__":
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=1
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+
+    ConfigFlags.Input.Files = defaultTestFiles.RAW
+    ConfigFlags.lock()
+
+    acc = LArOnOffIdMappingCfg( ConfigFlags )[0]
+    acc.merge(LArFebRodMappingCfg(ConfigFlags)[0])
+    acc.merge(LArCalibIdMappingCfg(ConfigFlags)[0])
+    acc.store( file( "test.pkl", "w" ) )
+    print "All OK"

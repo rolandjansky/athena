@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArReadoutGeometry/FCAL_ChannelMap.h"
@@ -27,7 +27,6 @@
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoTrap.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
@@ -158,44 +157,44 @@ GeoVFullPhysVol* LArGeo::FCALConstructionH62004::GetEnvelope()
 
 
 
-  DataHandle<StoredMaterialManager> materialManager;
+  const StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) return NULL;
   
-  GeoMaterial *Copper  = materialManager->getMaterial("std::Copper");
+  const GeoMaterial *Copper  = materialManager->getMaterial("std::Copper");
   if (!Copper) throw std::runtime_error("Error in FCALConstructionH62004, std::Copper is not found.");
   
-  GeoMaterial *Iron  = materialManager->getMaterial("std::Iron");
+  const GeoMaterial *Iron  = materialManager->getMaterial("std::Iron");
   if (!Iron) throw std::runtime_error("Error in FCALConstructionH62004, std::Iron is not found.");
   
-  GeoMaterial *Lead  = materialManager->getMaterial("std::Lead");
+  const GeoMaterial *Lead  = materialManager->getMaterial("std::Lead");
   if (!Lead) throw std::runtime_error("Error in FCALConstructionH62004, std::Lead is not found.");
   
-  GeoMaterial *LAr  = materialManager->getMaterial("std::LiquidArgon");
+  const GeoMaterial *LAr  = materialManager->getMaterial("std::LiquidArgon");
   if (!LAr) throw std::runtime_error("Error in FCALConstructionH62004, std::LiquidArgon is not found.");
   
-  GeoMaterial *Air  = materialManager->getMaterial("std::Air");
+  const GeoMaterial *Air  = materialManager->getMaterial("std::Air");
   if (!Air) throw std::runtime_error("Error in FCALConstructionH62004, std::Air is not found.");
   
-  GeoMaterial *Kapton  = materialManager->getMaterial("std::Kapton");
+  const GeoMaterial *Kapton  = materialManager->getMaterial("std::Kapton");
   if (!Kapton) throw std::runtime_error("Error in FCALConstructionH62004, std::Kapton is not found.");
   
-  GeoMaterial *Glue  = materialManager->getMaterial("LAr::Glue");
+  const GeoMaterial *Glue  = materialManager->getMaterial("LAr::Glue");
   if (!Glue) throw std::runtime_error("Error in FCALConstructionH62004, LAr::Glue is not found.");
   
-  GeoMaterial *G10  = materialManager->getMaterial("LAr::G10");
+  const GeoMaterial *G10  = materialManager->getMaterial("LAr::G10");
   if (!G10) throw std::runtime_error("Error in FCALConstructionH62004, LAr::G10 is not found.");
   
   
-  GeoMaterial *FCal1Absorber = materialManager->getMaterial("LAr::FCal1Absorber");
+  const GeoMaterial *FCal1Absorber = materialManager->getMaterial("LAr::FCal1Absorber");
   if (!FCal1Absorber) throw std::runtime_error("Error in FCALConstructionH62004, LAr::FCal1Absorber is not found.");
 
-  GeoMaterial *FCal23Absorber = materialManager->getMaterial("LAr::FCal23Absorber");
+  const GeoMaterial *FCal23Absorber = materialManager->getMaterial("LAr::FCal23Absorber");
   if (!FCal23Absorber) throw std::runtime_error("Error in FCALConstructionH62004, LAr::FCal23Absorber is not found.");
 
-  GeoMaterial *FCalCableHarness = materialManager->getMaterial("LAr::FCalCableHarness");
+  const GeoMaterial *FCalCableHarness = materialManager->getMaterial("LAr::FCalCableHarness");
   if (!FCalCableHarness) throw std::runtime_error("Error in FCALConstructionH62004, LAr::FCalCableHarness is not found.");
 
-  GeoMaterial *FCal23Slugs = materialManager->getMaterial("LAr::FCal23Slugs");
+  const GeoMaterial *FCal23Slugs = materialManager->getMaterial("LAr::FCal23Slugs");
   if (!FCal23Slugs) throw std::runtime_error("Error in FCALConstructionH62004, LAr::FCal23Slugs is not found.");
 
 

@@ -349,7 +349,7 @@ print summMaker
 serialiser = TriggerEDMSerialiserTool(OutputLevel=VERBOSE)
 
 serialiser.CollectionsToSerialize = [ "xAOD::TrigCompositeContainer_v1#EgammaCaloDecisions_remap",
-                                      "xAOD::TrigCompositeAuxContainer_v1#EgammaCaloDecisionsAux.",
+                                      "xAOD::TrigCompositeAuxContainer_v1#EgammaCaloDecisionsAux.name.seed",
                                       "xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex_remap",
                                       "xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux."  ]
 

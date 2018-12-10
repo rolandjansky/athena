@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -29,7 +29,7 @@ namespace Analysis
 
   SVTag::SVTag(const std::string& t, const std::string& n, const IInterface* p)
     : AthAlgTool(t,n,p),
-      m_likelihoodTool("Analysis::NewLikelihoodTool"),
+      m_likelihoodTool("Analysis::NewLikelihoodTool", this),
       m_histoHelper(0),
       m_secVxFinderName("SV1"),
       m_isFlipped(false)

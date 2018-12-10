@@ -48,7 +48,7 @@ class EventViewCreatorAlgorithm : public ::InputMakerBase
     ServiceHandle< IScheduler > m_scheduler{ this, "Scheduler", "AvalancheSchedulerSvc", "The Athena scheduler" };
     Gaudi::Property<bool> m_viewPerRoI{ this, "ViewPerRoI", false, "Create one View per RoI as opposed to one View per Decision object, needs to be true when multiple decisions per RoI exists" };
     Gaudi::Property< std::string > m_viewNodeName{ this, "ViewNodeName", "", "Name of the CF node to attach a view to" };
-    Gaudi::Property< std::string > m_roisLink{ this, "RoIsLink", "Unspecified", "Name of EL to RoI object lined to the decision" };
+    Gaudi::Property< std::string > m_roisLink{ this, "RoIsLink", "initialRoI", "Name of EL to RoI object lined to the decision" };
     Gaudi::Property< bool > m_viewFallThrough { this, "ViewFallThrough", false, "Set whether views may accesas StoreGate directly to retrieve data" };
     Gaudi::Property< bool > m_requireParentView { this, "RequireParentView", false, "Fail if the parent view can not be found" };
 

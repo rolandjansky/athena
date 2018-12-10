@@ -19,7 +19,7 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 
 /**

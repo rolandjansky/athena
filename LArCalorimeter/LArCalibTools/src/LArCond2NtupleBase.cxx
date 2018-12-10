@@ -13,9 +13,8 @@
 LArCond2NtupleBase::LArCond2NtupleBase(const std::string& name, ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator), m_initialized(false), m_nt(NULL), m_log(NULL), 
   m_detStore(NULL), m_emId(NULL), m_hecId(NULL), m_fcalId(NULL),m_onlineId(NULL),m_caloId(NULL),
-  m_larCablingSvc(NULL), m_badChanTool("LArBadChanTool"),m_FEBTempTool("LArFEBTempTool"), m_isSC(false)
+  m_FEBTempTool("LArFEBTempTool"), m_isSC(false)
 {
-  declareProperty("BadChannelTool",m_badChanTool);
   declareProperty("AddBadChannelInfo",m_addBC=true);
   declareProperty("AddFEBTempInfo",m_addFEBTemp=false);
   declareProperty("isSC",m_isSC);
@@ -66,12 +65,6 @@ StatusCode LArCond2NtupleBase::initialize() {
 
   m_detStore= &(*detStore()); //for backward compatiblity 
 
-  //StatusCode sc=service("DetectorStore",m_detStore);
-  //if (sc!=StatusCode::SUCCESS) {
-  //  (*m_log) << MSG::ERROR << "Cannot get DetectorStore!" << endmsg;
-  //  return sc;
-  //}
-
   const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
   if ( m_isSC ){
   m_emId=caloIdMgr->getEM_SuperCell_ID();
@@ -112,40 +105,18 @@ StatusCode LArCond2NtupleBase::initialize() {
       ATH_MSG_DEBUG("Found the LArOnlineID helper");
     }
 
-  ToolHandle<LArSuperCellCablingTool> tool("LArSuperCellCablingTool");
-  sc = tool.retrieve();
-  if (sc!=StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << " Can't get LArCablingSvc." << endmsg;
-    return sc;
-  } else m_larCablingSvc = (LArCablingBase*)&(*tool);
-
   } else { // m_isSC
-  const LArOnlineID* ll;
-  sc = detStore()->retrieve(ll, "LArOnlineID");
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
-    return StatusCode::FAILURE;
-  }
-   else {
+    const LArOnlineID* ll;
+    sc = detStore()->retrieve(ll, "LArOnlineID");
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
+      return StatusCode::FAILURE;
+    } else {
       m_onlineId = (const LArOnlineID_Base*)ll;
       ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
     }
 
-  ToolHandle<LArCablingService> tool("LArCablingService");
-  sc = tool.retrieve();
-  if (sc!=StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << " Can't get LArCablingSvc." << endmsg;
-    return sc;
-  } else m_larCablingSvc = (LArCablingBase*)&(*tool);
   } // end of m_isSC if
-
-  if (m_addBC) {
-    sc = m_badChanTool.retrieve();
-    if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << " Can't get BadChanTool." << endmsg;
-      return sc;
-    }
-  }
 
   if (m_addFEBTemp) {
     sc = m_FEBTempTool.retrieve();
@@ -154,6 +125,10 @@ StatusCode LArCond2NtupleBase::initialize() {
       return sc;
     }
   }
+
+  ATH_CHECK( m_BCKey.initialize() );
+  ATH_CHECK( m_cablingKey.initialize() );
+  ATH_CHECK( m_calibMapKey.initialize() );
 
   //Online-identifier variables
   sc=nt->addItem("channelId",m_onlChanId,0x38000000,0x3A000000);
@@ -293,6 +268,25 @@ StatusCode LArCond2NtupleBase::initialize() {
 
 bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
 
+ SG::ReadCondHandle<LArBadChannelCont> readHandle{m_BCKey};
+ const LArBadChannelCont *bcCont {*readHandle};
+ if(m_addBC && !bcCont) {
+     ATH_MSG_WARNING( "Do not have Bad chan container " << m_BCKey.key() );
+     return false;
+ }
+ SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_calibMapKey};
+ const LArCalibLineMapping *clCont {*clHdl};
+ if(!clCont) {
+     ATH_MSG_WARNING( "Do not have calib line mapping !!!" );
+     return false;
+ }
+ SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+ const LArOnOffIdMapping* cabling=*cablingHdl;
+ if(!cabling) {
+     ATH_MSG_WARNING( "Do not have cabling !" );
+     return false;
+ }
+
  m_onlChanId = hwid.get_identifier32().get_compact();
  
  m_barrel_ec = m_onlineId->barrel_ec(hwid);
@@ -308,7 +302,7 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
 
  if ( !m_isSC) {
  m_calibLine=NOT_VALID;
- const std::vector<HWIdentifier>& calibLineV=((LArCablingService*)m_larCablingSvc)->calibSlotLine(hwid);
+ const std::vector<HWIdentifier>& calibLineV=clCont->calibSlotLine(hwid);
  if(calibLineV.size()) m_calibLine = m_onlineId->channel(calibLineV[0]);
  }
 
@@ -323,8 +317,8 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
  bool connected=false;
 
  try {
-   if (m_larCablingSvc->isOnlineConnected(hwid)) {
-     Identifier id=m_larCablingSvc->cnvToIdentifier(hwid);
+   if (cabling->isOnlineConnected(hwid)) {
+     Identifier id=cabling->cnvToIdentifier(hwid);
      if ( m_OffId ) {
        m_oflChanId = id.get_identifier32().get_compact();
        if (m_addHash) 
@@ -357,7 +351,7 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
  }catch (LArID_Exception & except) {}
 
  //bad-channel word
- if (m_addBC) m_badChanWord=m_badChanTool->status(hwid).packedData();
+ if (m_addBC) m_badChanWord=bcCont->status(hwid).packedData();
  // FEB temperatures
  if (m_addFEBTemp) {
      FEBTemp tv = m_FEBTempTool->getFebTemp(hwid);

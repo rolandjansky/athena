@@ -114,7 +114,7 @@ template <class COLL_T, class ELEM_T, class ELEM_P>
 StatusCode
 T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::objectToAttrListColl(COLL_T* obj,
 								  CondAttrListCollection*& attrListColl,
-								  const Token*& implToken)
+								  Token*& implToken)
 {
     ATH_MSG_DEBUG("Creating a CondAttrListCollection from a collection");
 
@@ -140,7 +140,7 @@ T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::objectToAttrListColl(COLL_T
     // Loop over objects in COLL_T*
     typename COLL_T::chan_const_iterator itChan = obj->chan_begin();
     typename COLL_T::iov_const_iterator  itIOV  = obj->iov_begin();
-    const Token* token = 0;
+    Token* token = 0;
     std::string token_str;
     for (unsigned int chan = 0; chan < obj->size(); ++chan, ++itChan) {
 	ELEM_T* elem = (*obj)[chan];
@@ -208,7 +208,7 @@ StatusCode T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::createRep(DataOb
 	return(StatusCode::FAILURE);
     }
     CondAttrListCollection* coll = 0;
-    const Token* token = 0;
+    Token* token = 0;
     StatusCode sc = objectToAttrListColl(obj, coll, token);
     if (sc != StatusCode::SUCCESS || !token) {
 	ATH_MSG_ERROR("Unable to get objects and fill CondAttrListCollection with tokens");

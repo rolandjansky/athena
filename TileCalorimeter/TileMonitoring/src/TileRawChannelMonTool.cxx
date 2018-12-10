@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -18,7 +18,7 @@
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileEvent/TileDigitsContainer.h" 
 #include "TileEvent/TileRawChannelContainer.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "TH1S.h"
 #include "TH2S.h"
@@ -41,7 +41,6 @@
 TileRawChannelMonTool::TileRawChannelMonTool(const std::string & type, const std::string & name, const IInterface* parent)
   : TilePaterMonTool(type, name, parent)
   , m_tileToolEmscale("TileCondToolEmscale")
-  , m_beamInfo("TileBeamInfoProvider")
   , m_cispar(0)
   , m_nEvents(0)
   , m_calibUnit(TileRawChannelUnit::Invalid)
@@ -75,6 +74,7 @@ TileRawChannelMonTool::TileRawChannelMonTool(const std::string & type, const std
   declareProperty("ResetAfterSummaryUpdate", m_resetAfterSummaryUpdate = false);
   declareProperty("DoLaserSummaryVsPMT", m_doLaserSummaryVsPMT = false);
   declareProperty("MinAmpForCorrectedTime", m_minAmpForCorrectedTime = 0.5);
+  declareProperty("TileDQstatus", m_DQstatusKey = "TileDQstatus");
 }
 
 /*---------------------------------------------------------*/
@@ -91,7 +91,6 @@ StatusCode TileRawChannelMonTool::initialize()
   ATH_MSG_INFO("in initialize()");
 
   m_data = std::make_unique<Data>();
-  CHECK(m_beamInfo.retrieve());
 
   CHECK(m_tileToolEmscale.retrieve());
 
@@ -101,6 +100,8 @@ StatusCode TileRawChannelMonTool::initialize()
   memset(m_data->m_timeCovCorr, 0, sizeof(m_data->m_timeCovCorr));
 
   CHECK(TilePaterMonTool::initialize());
+
+  CHECK( m_DQstatusKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -476,7 +477,8 @@ StatusCode TileRawChannelMonTool::fillHists()
 
   if (m_nEvents % 1000 == 0) ATH_MSG_INFO(m_nEvents<<" events processed so far");
   // array of 16 CIS parameters
-  m_cispar = m_beamInfo->cispar();
+  const TileDQstatus* dqStatus = SG::makeHandle (m_DQstatusKey).get();
+  m_cispar = dqStatus->cispar();
   ++m_nEvents;
 
   m_efitMap.clear();
@@ -548,7 +550,7 @@ StatusCode TileRawChannelMonTool::fillHists()
         int drawer = m_tileHWID->drawer(adc_id);
 
         if (m_data->m_hist1[ros][drawer][0][0].size() == 0) {
-          //        m_bigain = (m_beamInfo->calibMode() == 1); // true if bi-gain run
+          //        m_bigain = (dqStatus->calibMode() == 1); // true if bi-gain run
           // we fill both high and low gain plots
           m_bigain = true;
           if (k == 0) bookHists(ros, drawer); //Lukas

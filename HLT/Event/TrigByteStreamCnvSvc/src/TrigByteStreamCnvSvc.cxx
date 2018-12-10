@@ -16,7 +16,38 @@
 
 // System includes
 #include <sstream>
+#include <iomanip>
 
+// Local helper functions
+namespace {
+  template<typename T> struct printWordHex {
+    printWordHex(const T w) : word(w) {}
+    T word;
+  };
+  template<typename T> std::ostream& operator<<(std::ostream& str, const printWordHex<T>& pw) {
+    str << "0x" << std::hex << std::setfill('0') << std::setw(2*sizeof(T));
+    // Prevent printing char as ASCII character
+    if (sizeof(T)==1)
+      str << static_cast<int>(pw.word);
+    else
+      str << pw.word;
+    str << std::dec;
+    return str;
+  }
+  template<typename T> struct printNWordsHex {
+    printNWordsHex(const size_t n, const T* w, const std::string s=" ") : nwords(n), words(w), sep(s) {}
+    size_t nwords;
+    const T* words;
+    std::string sep;
+  };
+  template<typename T> std::ostream& operator<<(std::ostream& str, const printNWordsHex<T>& pnw) {
+    for (size_t i=0; i<pnw.nwords; ++i) {
+      str << printWordHex<T>(pnw.words[i]);
+      if (i!=pnw.nwords-1) str << pnw.sep;
+    }
+    return str;
+  }
+}
 
 // =============================================================================
 // Standard constructor
@@ -127,24 +158,25 @@ StatusCode TrigByteStreamCnvSvc::commitOutput(const std::string& /*outputFile*/,
   }
 
   // Send output to the DataCollector
+  StatusCode result = StatusCode::SUCCESS;
   try {
     hltinterface::DataCollector::instance()->eventDone(std::move(rawEventPtr));
+    ATH_MSG_DEBUG("Serialised FullEventFragment with HLT result was returned to DataCollector successfully");
   }
   catch (const std::exception& e) {
     ATH_MSG_ERROR("Sending output to DataCollector failed, caught an unexpected std::exception " << e.what());
-    return StatusCode::FAILURE;
+    result = StatusCode::FAILURE;
   }
   catch (...) {
     ATH_MSG_ERROR("Sending output to DataCollector failed, caught an unexpected exception");
-    return StatusCode::FAILURE;
+    result = StatusCode::FAILURE;
   }
-  ATH_MSG_DEBUG("Serialised FullEventFragment with HLT result was returned to DataCollector successfully");
 
   delete m_rawEventWrite;
   m_rawEventWrite = nullptr;
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
-  return StatusCode::SUCCESS;
+  return result;
 }
 
 // =============================================================================
@@ -155,9 +187,12 @@ void TrigByteStreamCnvSvc::printRawEvent() {
   }
   std::ostringstream ss;
   ss << "Dumping header of the FullEventFragment with HLT result:" << std::endl;
-  ss << "--> source_id           = 0x" << MSG::hex << m_rawEventWrite->source_id() << MSG::dec << std::endl;
-  ss << "--> checksum_type       = 0x" << MSG::hex << m_rawEventWrite->checksum_type() << MSG::dec << std::endl;
-  ss << "--> compression_type    = 0x" << MSG::hex << m_rawEventWrite->compression_type() << MSG::dec << std::endl;
+  ss << "--> status              = "
+     << printNWordsHex<uint32_t>(m_rawEventWrite->nstatus(), m_rawEventWrite->status())
+     << std::endl;
+  ss << "--> source_id           = " << printWordHex<uint32_t>(m_rawEventWrite->source_id()) << std::endl;
+  ss << "--> checksum_type       = " << printWordHex<uint32_t>(m_rawEventWrite->checksum_type()) << std::endl;
+  ss << "--> compression_type    = " << printWordHex<uint32_t>(m_rawEventWrite->compression_type()) << std::endl;
   ss << "--> compression_level   = " << m_rawEventWrite->compression_level() << std::endl;
   ss << "--> bc_time_seconds     = " << m_rawEventWrite->bc_time_seconds() << std::endl;
   ss << "--> bc_time_nanoseconds = " << m_rawEventWrite->bc_time_nanoseconds() << std::endl;
@@ -167,46 +202,43 @@ void TrigByteStreamCnvSvc::printRawEvent() {
   ss << "--> lumi_block          = " << m_rawEventWrite->lumi_block() << std::endl;
   ss << "--> lvl1_id             = " << m_rawEventWrite->lvl1_id() << std::endl;
   ss << "--> bc_id               = " << m_rawEventWrite->bc_id() << std::endl;
-  ss << "--> lvl1_trigger_type   = " << (unsigned int)(m_rawEventWrite->lvl1_trigger_type()) << std::endl;
-  ss << "--> run_no              = " << m_rawEventWrite->run_no() << std::endl;
-
-  const uint32_t* lvl1_trigger_info = m_rawEventWrite->lvl1_trigger_info();
-  ss << "--> lvl1_trigger_info   = ";
-  for (size_t i=0; i<m_rawEventWrite->nlvl1_trigger_info(); ++i)
-    ss << std::hex << lvl1_trigger_info[i] << std::dec;
-  ss << std::endl;
-
-  const uint32_t* lvl2_trigger_info = m_rawEventWrite->lvl2_trigger_info();
-  ss << "--> lvl2_trigger_info   = ";
-  for (size_t i=0; i<m_rawEventWrite->nlvl2_trigger_info(); ++i)
-    ss << std::hex << lvl2_trigger_info[i] << std::dec;
-  ss << std::endl;
-
-  const uint32_t* event_filter_info = m_rawEventWrite->event_filter_info();
-  ss << "--> event_filter_info   = ";
-  for (size_t i=0; i<m_rawEventWrite->nevent_filter_info(); ++i)
-    ss << std::hex << event_filter_info[i] << std::dec;
-  ss << std::endl;
-
-  const uint32_t* hlt_info = m_rawEventWrite->hlt_info();
-  ss << "--> hlt_info            = ";
-  for (size_t i=0; i<m_rawEventWrite->nhlt_info(); ++i)
-    ss << std::hex << hlt_info[i] << std::dec;
-  ss << std::endl;
+  ss << "--> lvl1_trigger_type   = " << printWordHex<uint8_t>(m_rawEventWrite->lvl1_trigger_type()) << std::endl;
+  ss << "--> lvl1_trigger_info   = "
+     << printNWordsHex<uint32_t>(m_rawEventWrite->nlvl1_trigger_info(), m_rawEventWrite->lvl1_trigger_info())
+     << std::endl;
+  ss << "--> lvl2_trigger_info   = "
+     << printNWordsHex<uint32_t>(m_rawEventWrite->nlvl2_trigger_info(), m_rawEventWrite->lvl2_trigger_info())
+     << std::endl;
+  ss << "--> event_filter_info   = "
+     << printNWordsHex<uint32_t>(m_rawEventWrite->nevent_filter_info(), m_rawEventWrite->event_filter_info())
+     << std::endl;
+  ss << "--> hlt_info            = "
+     << printNWordsHex<uint32_t>(m_rawEventWrite->nhlt_info(), m_rawEventWrite->hlt_info())
+     << std::endl;
 
   std::vector<eformat::helper::StreamTag> stream_tags;
-  eformat::helper::decode (m_rawEventWrite->nstream_tag(), m_rawEventWrite->stream_tag(), stream_tags);
+  try {
+    eformat::helper::decode(m_rawEventWrite->nstream_tag(), m_rawEventWrite->stream_tag(), stream_tags);
+  }
+  catch (const std::exception& ex) {
+    ATH_MSG_ERROR("StreamTag decoding failed, caught an unexpected std::exception " << ex.what());
+    return;
+  }
+  catch (...) {
+    ATH_MSG_ERROR("StreamTag decoding failed, caught an unexpected exception");
+    return;
+  }
   ss << "--> stream_tags         = ";
   bool first = true;
   for (const auto& st : stream_tags) {
     if (first) first=false;
     else ss << "                          ";
     ss << "{" << st.name << ", " << st.type << ", obeysLB=" << st.obeys_lumiblock << ", robs=[";
-    for (const auto& robid : st.robs) ss << "0x" << std::hex << robid << std::dec << ", ";
+    for (const auto& robid : st.robs) ss << printWordHex<uint32_t>(robid) << ", ";
     ss << "], dets = [";
-    for (const auto& detid : st.dets) ss << "0x" << std::hex << detid << std::dec << ", ";
+    for (const auto& detid : st.dets) ss << printWordHex<uint8_t>(detid) << ", ";
     ss << "]}" << std::endl;
   }
 
-  ATH_MSG_INFO(ss.str());
+  ATH_MSG_DEBUG(ss.str());
 }

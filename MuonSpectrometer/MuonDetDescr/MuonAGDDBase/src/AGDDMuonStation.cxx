@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -33,7 +33,7 @@ void AGDDMuonStation::CreateVolume()
 {
     std::cout<<"this is AGDDMuonStation::CreateVolume()"<<std::endl;
 	static int ifirst=1;
-	static GeoMaterial* air=0;
+	static const GeoMaterial* air=0;
 	if (ifirst)
 	{
 		ifirst=0;
@@ -55,14 +55,14 @@ void AGDDMuonStation::CreateVolume()
 	}
 }
 
-GeoMaterial* AGDDMuonStation::GetMMMaterial(std::string name)
+const GeoMaterial* AGDDMuonStation::GetMMMaterial(std::string name)
 {
 	StoreGateSvc* pDetStore=0;
 	ISvcLocator* svcLocator = Gaudi::svcLocator();
 	StatusCode sc=svcLocator->service("DetectorStore",pDetStore);
 	if(sc.isSuccess())
 	{
-		DataHandle<StoredMaterialManager> theMaterialManager;
+                const StoredMaterialManager* theMaterialManager = nullptr;
 		sc = pDetStore->retrieve(theMaterialManager, "MATERIALS");
 		if(sc.isSuccess())
         {

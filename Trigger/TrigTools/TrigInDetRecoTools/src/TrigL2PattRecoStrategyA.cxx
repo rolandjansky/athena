@@ -37,7 +37,6 @@
 #include "EventInfo/EventID.h"
 #include "eformat/DetectorMask.h"
 #include "TrigInDetToolInterfaces/ITrigRun1ZFinder.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "TrigInDetToolInterfaces/ITrigHitFilter.h"
 #include "TrigInDetRecoTools/ITrigL2DupTrackRemovalTool.h"
 
@@ -118,11 +117,7 @@ StatusCode TrigL2PattRecoStrategyA::initialize()
   }
 
   if (m_useBeamSpot) {
-    sc = service("BeamCondSvc", m_iBeamCondSvc);
-    if (sc.isFailure() || m_iBeamCondSvc == 0) {
-      m_iBeamCondSvc = 0;
-      athenaLog << MSG::WARNING << "Could not retrieve Beam Conditions Service. " << endmsg;
-    }
+    ATH_CHECK(m_beamSpotKey.initialize());
   }
 
   sc = m_hitFilter.retrieve();
@@ -279,15 +274,15 @@ HLT::ErrorCode TrigL2PattRecoStrategyA::findTracks(const std::vector<const TrigS
 
  // Extract the beamspot shift
   double shiftx(0), shifty(0);
-  //if (!m_doShift && m_useBeamSpot && m_iBeamCondSvc) {
-  if (m_useBeamSpot && m_iBeamCondSvc) {
-    Amg::Vector3D vertex = m_iBeamCondSvc->beamPos();
+  if (m_useBeamSpot) {
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    const Amg::Vector3D &vertex = beamSpotHandle->beamPos();
     if (outputLevel <= MSG::DEBUG) athenaLog << MSG::DEBUG << "Beam spot position " << vertex << endmsg;
     double xVTX = vertex.x();
     double yVTX = vertex.y();
     double zVTX = vertex.z();
-    double tiltXZ = m_iBeamCondSvc->beamTilt(0);
-    double tiltYZ = m_iBeamCondSvc->beamTilt(1);
+    double tiltXZ = beamSpotHandle->beamTilt(0);
+    double tiltYZ = beamSpotHandle->beamTilt(1);
     shiftx = xVTX - tiltXZ*zVTX;//correction for tilt
     shifty = yVTX - tiltYZ*zVTX;//correction for tilt
     if (outputLevel <= MSG::DEBUG) athenaLog << MSG::DEBUG << "Center position:  " << shiftx <<"  "<< shifty << endmsg;

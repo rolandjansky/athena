@@ -50,6 +50,14 @@ namespace JetCalibUtils {
     return h;
   }
 
+  TH3 *GetHisto3(TFile *file, TString hname) {
+    TH3* h = (TH3*)file->Get(hname);
+    if (h==NULL)
+      printf("WARNING: Cannot access histogram \"%s\" in file %s",
+             hname.Data(),file->GetName());
+    return h;
+  }
+
   TTree *setTree(TTree *tree) { return tree; }
   
 }

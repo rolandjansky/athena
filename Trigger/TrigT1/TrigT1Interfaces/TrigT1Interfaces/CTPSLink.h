@@ -1,5 +1,8 @@
 // Dear emacs, this is -*- c++ -*-
 #ifndef TRIGT1INTERFACES_CTPSLINK_H
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #define TRIGT1INTERFACES_CTPSLINK_H
 
 // std include(s):
@@ -127,9 +130,7 @@ namespace LVL1CTP {
 
 } // namespace LVL1CTP
 
-#ifndef CLIDSVC_CLASSDEF_H
-#include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( LVL1CTP::CTPSLink, 6013, 0 )
 
 #endif // TRIGT1INTERFACES_CTPSLINK_H

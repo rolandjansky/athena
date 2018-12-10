@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEDIGINOISECALIBALG_H
@@ -23,6 +23,8 @@
 
 // Tile includes
 #include "TileConditions/TileCablingService.h"
+#include "TileEvent/TileDQstatus.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include <cmath>
 #include <vector>
@@ -32,7 +34,6 @@
 
 // Forward declaration
 class TileHWID;
-class TileBeamInfoProvider;
 class TileBeamElemContByteStreamCnv;
 class TileRawChannelBuilderFlatFilter;
 class TileOFCorrelation;
@@ -43,9 +44,9 @@ class TileDigiNoiseCalibAlg: public AthAlgorithm {
     virtual ~TileDigiNoiseCalibAlg();
 
     // Functions
-    StatusCode initialize(); //only array initialization is done here
-    StatusCode execute();
-    StatusCode finalize();
+    virtual StatusCode initialize() override; //only array initialization is done here
+    virtual StatusCode execute() override;
+    virtual StatusCode finalize() override;
 
   private:
 
@@ -59,9 +60,9 @@ class TileDigiNoiseCalibAlg: public AthAlgorithm {
 
     StatusCode FirstEvt_initialize(); // real initialization is done in this method
 
-    StatusCode fillDigits(); //accumulate statistics for pedestal, lfn, hfn, noise_cov calculation
+    StatusCode fillDigits (const TileDQstatus* theDQstatus); //accumulate statistics for pedestal, lfn, hfn, noise_cov calculation
     void finalDigits(); // pedestal, lfn, hfn, noise_cov calculation is done here
-    void StoreRunInfo(); // called only at the first event. General variables
+    void StoreRunInfo (const TileDQstatus* dqStatus); // called only at the first event. General variables
 
     inline int digiChannel2PMT(int ros, int chan) {
       return (abs(m_cabling->channel2hole(ros, chan)) - 1);
@@ -81,8 +82,9 @@ class TileDigiNoiseCalibAlg: public AthAlgorithm {
     // Default: use standard                                                              
     bool m_doRobustCov;
 
-    // Tools / storegate info
-    ToolHandle<TileBeamInfoProvider> m_beamInfo;
+    SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
+
+  // Tools / storegate info
     ToolHandle<TileRawChannelBuilderFlatFilter> m_adderFilterAlgTool;
     TileBeamElemContByteStreamCnv* m_beamCnv;
     const TileCablingService* m_cabling;

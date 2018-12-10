@@ -331,8 +331,6 @@ IOVSvcTool::handle(const Incident &inc) {
     }
   }
 
-
-
   set< const DataProxy*, SortDPptr > proxiesToReset;
 
   // Forcing IOV checks on the first event in the run for AthenaMP (ATEAM-439)
@@ -523,6 +521,16 @@ IOVSvcTool::handle(const Incident &inc) {
       if (itr != proxiesToReset.end()) {
         proxiesToReset.erase( itr );
       }
+    }
+
+    // If MT, must not call any callback functions after first event
+    if (!m_first && proxiesToReset.size() > 0 &&
+        ( (Gaudi::Concurrency::ConcurrencyFlags::numThreads() +
+           Gaudi::Concurrency::ConcurrencyFlags::numConcurrentEvents()) > 0 ) ) {
+      m_log << MSG::FATAL 
+            << "Cannot update Conditions via callback functions in MT after the first event"
+            << endmsg;
+      throw GaudiException("Cannot update Conditions via callback functions in MT after the first event",name(),StatusCode::FAILURE);
     }
 
     //

@@ -167,12 +167,7 @@ def SetupConditionAlgorithm(ConfInstance=None):
   In online mode check that the condition algorithm is not already setup"""
 
   from AthenaCommon.AlgSequence import AthSequencer
-  condSeq = AthSequencer("AthCondSeq")
-  if hasattr(condSeq, "JetTagCalibHistosKey"):
-    if BTaggingFlags.OutputLevel < 3:
-      print(ConfInstance.BTagTag()+" - DEBUG Default key already defined, another scheme must have been setup before")
-    return True
-  
+  condSeq = AthSequencer('AthCondSeq')
  
   from AthenaCommon.GlobalFlags import globalflags
   from IOVDbSvc.CondDB import conddb 
@@ -197,33 +192,34 @@ def SetupConditionAlgorithm(ConfInstance=None):
     #IP3D
     #Same as IP2D. Revisit JetTagCalibCondAlg.cxx if not.
  
-
     from JetTagCalibration.JetTagCalibrationConf import Analysis__JetTagCalibCondAlg as JetTagCalibCondAlg
-    readkeycalibpath = "/GLOBAL/BTagCalib/RUN12"
-    connSchema = "GLOBAL_OFL"
-    if globalflags.DataSource()=='data':
-        readkeycalibpath = readkeycalibpath.replace("/GLOBAL/BTagCalib","/GLOBAL/Onl/BTagCalib")
-        connSchema = "GLOBAL"
-    Taggers = ['IP2D','IP3D','SV1','JetFitterNN','SoftMu', 'MV2c10', 'MV2c100', 'MV2c10mu', 'MV2c10rnn', 'MV2cl100','RNNIP', 'JetVertexCharge', 'MultiSVbb1', 'MultiSVbb2', 'DL1', 'DL1mu', 'DL1rnn']
     jettagcalibcondalg = "JetTagCalibCondAlg"
-    histoskey = "JetTagCalibHistosKey"
-    conddb.addFolder(connSchema, readkeycalibpath, className='CondAttrListCollection')
-    JetTagCalib = JetTagCalibCondAlg(jettagcalibcondalg, ReadKeyCalibPath=readkeycalibpath, HistosKey = histoskey, taggers = Taggers, channelAliases = BTaggingFlags.CalibrationChannelAliases, IP2D_TrackGradePartitions = grades, RNNIP_NetworkConfig = BTaggingFlags.RNNIPConfig)
-    condSeq += JetTagCalib
-
+    if not hasattr(condSeq, jettagcalibcondalg):
+      readkeycalibpath = "/GLOBAL/BTagCalib/RUN12"
+      connSchema = "GLOBAL_OFL"
+      if globalflags.DataSource()=='data':
+          readkeycalibpath = readkeycalibpath.replace("/GLOBAL/BTagCalib","/GLOBAL/Onl/BTagCalib")
+          connSchema = "GLOBAL"
+      Taggers = ['IP2D','IP3D','SV1','JetFitterNN','SoftMu', 'MV2c10', 'MV2c100', 'MV2c10mu', 'MV2c10rnn', 'MV2cl100','RNNIP', 'JetVertexCharge', 'MultiSVbb1', 'MultiSVbb2', 'DL1', 'DL1mu', 'DL1rnn']
+      histoskey = "JetTagCalibHistosKey"
+      conddb.addFolder(connSchema, readkeycalibpath, className='CondAttrListCollection')
+      JetTagCalib = JetTagCalibCondAlg(jettagcalibcondalg, ReadKeyCalibPath=readkeycalibpath, HistosKey = histoskey, taggers = Taggers, channelAliases = BTaggingFlags.CalibrationChannelAliases, IP2D_TrackGradePartitions = grades, RNNIP_NetworkConfig = BTaggingFlags.RNNIPConfig)
+      condSeq += JetTagCalib
 
     if ConfInstance._name == "Trig":
+      jettagcalibcondalg += "_Trig"
+      if hasattr(condSeq, jettagcalibcondalg):
+        #algo exists already,  ignore
+        return True
       readkeycalibpath = "/GLOBAL/TrigBTagCalib/RUN12"
       connSchema = "GLOBAL_OFL"
       if globalflags.DataSource()=='data':
         connSchema = "GLOBAL"
         readkeycalibpath = readkeycalibpath.replace("/GLOBAL/TrigBTagCalib","/GLOBAL/Onl/TrigBTagCalib")
       Taggers = BTaggingFlags.TriggerTaggers
-      jettagcalibcondalg += "_Trig"
       histoskey = "TrigJetTagCalibHistosKey"
       conddb.addFolder(connSchema, readkeycalibpath, className='CondAttrListCollection')
       JetTagCalib = JetTagCalibCondAlg(jettagcalibcondalg, ReadKeyCalibPath=readkeycalibpath, HistosKey = histoskey, taggers = Taggers, channelAliases = BTaggingFlags.CalibrationChannelAliases, IP2D_TrackGradePartitions = grades, RNNIP_NetworkConfig = BTaggingFlags.RNNIPConfig)
-      #JetTagCalib.OutputLevel=2
       condSeq += JetTagCalib
 
     return True
@@ -477,36 +473,31 @@ def SetupJetCollectionDefault(JetCollection, TaggerList, ConfInstance = None):
   mvtm_active_taggers = list(set(mvtm_taggers) & set(TaggerList))
   mvtm_active_flip_taggers = list(set(mvtm_flip_taggers) & set(TaggerList))
 
-  #set up MVTM if any of its taggers are active
-  if (mvtm_active_taggers):
-    MVTM = ConfInstance.addTool('MultivariateTagManager', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-    if 'RNNIP' in TaggerList:
-      MVTM.arbitraryAuxData = BTaggingFlags.MultivariateTagManagerAuxBranches
-    else:
-      MVTM.arbitraryAuxData=[]
-
-  #set up MVTMFlip
-  if (mvtm_active_flip_taggers):
-    MVTMFlip = ConfInstance.addTool('MultivariateFlipTagManager', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-    MVTMFlip.arbitraryAuxData = BTaggingFlags.MultivariateFlipTagManagerAuxBranches
-    MVTMFlip.auxDataNameMap = BTaggingFlags.MultivariateTagManagerAuxNameMap
-
   if 'TagNtupleDumper' in TaggerList:
     tag = ConfInstance.addTool('TagNtupleDumper', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-    MVTM.MVTagToolList.append(tag)
+    BTaggingFlags.MVTagToolList.append(tag)
 
   #add all the taggers that use MVTM
   for mvtm_tagger in mvtm_active_taggers:
     tag = ConfInstance.addTool(mvtm_tagger+'Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-
-    if tag not in MVTM.MVTagToolList:
-      MVTM.MVTagToolList.append(tag)
+    if tag not in BTaggingFlags.MVTagToolList:
+      BTaggingFlags.MVTagToolList.append(tag)
 
   #add all the flip taggers that use MVTM
   for mvtm_tagger in mvtm_active_flip_taggers:
     tag = ConfInstance.addTool(mvtm_tagger+'Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-    if tag not in MVTMFlip.MVTagToolList:
-      MVTMFlip.MVTagToolList.append(tag)
+    if tag not in BTaggingFlags.MVFlipTagToolList:
+      BTaggingFlags.MVFlipTagToolList.append(tag)
+
+  #set up MVTM if any of its taggers are active
+  if (mvtm_active_taggers):
+    if 'RNNIP' not in TaggerList:
+      BTaggingFlags.MultivariateTagManagerAuxBranches = []
+    ConfInstance.addTool('MultivariateTagManager', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+
+  #set up MVTMFlip
+  if (mvtm_active_flip_taggers):
+    ConfInstance.addTool('MultivariateFlipTagManager', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
 
   # -- b-tagging tool is now fully configured.
 
@@ -672,6 +663,7 @@ def SetupJetCollectionTrig(JetCollection, TaggerList, ConfInstance = None):
 
   # Setup associators
   BTagTrackToJetAssociator = ConfInstance.setupTrackAssociator('BTagTrackToJetAssociator', JetCollection, ToolSvc, Verbose = BTaggingFlags.OutputLevel < 3)
+
   if 'SoftMu' in TaggerList or 'SoftMuChi2' in TaggerList:
     BTagMuonToJetAssociator = ConfInstance.setupMuonAssociator('Muons', JetCollection, ToolSvc, Verbose = BTaggingFlags.OutputLevel < 3)
   else:
@@ -742,33 +734,31 @@ def SetupJetCollectionTrig(JetCollection, TaggerList, ConfInstance = None):
   mvtm_active_taggers = list(set(mvtm_taggers) & set(TaggerList))
   mvtm_active_flip_taggers = list(set(mvtm_flip_taggers) & set(TaggerList))
 
-  #set up MVTM if any of its taggers are active
-  if (mvtm_active_taggers):
-    MVTM = ConfInstance.addTool('MultivariateTagManager_Trig', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-    if 'RNNIP' in TaggerList:
-      MVTM.arbitraryAuxData = BTaggingFlags.MultivariateTagManagerAuxBranches
-    else:
-      MVTM.arbitraryAuxData=[]
-
-  #set up MVTMFlip
-  if (mvtm_active_flip_taggers):
-    MVTMFlip = ConfInstance.addTool('MultivariateFlipTagManager_Trig', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-
-  #if 'TagNtupleDumper' in TaggerList:
-  #  tag = ConfInstance.addTool('TagNtupleDumper', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-  #  MVTM.MVTagToolList.append(tag)
-
   #add all the taggers that use MVTM
   for mvtm_tagger in mvtm_active_taggers:
     tag = ConfInstance.addTool(mvtm_tagger+'Tag_Trig', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-    if tag not in MVTM.MVTagToolList:
-      MVTM.MVTagToolList.append(tag)
+    if tag not in BTaggingFlags.MVTagToolList:
+      BTaggingFlags.MVTagToolList.append(tag)
 
   #add all the flip taggers that use MVTM
   for mvtm_tagger in mvtm_active_flip_taggers:
     tag = ConfInstance.addTool(mvtm_tagger+'Tag_Trig', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-    if tag not in MVTMFlip.MVTagToolList:
-      MVTMFlip.MVTagToolList.append(tag)
+    if tag not in BTaggingFlags.MVFlipTagToolList:
+      BTaggingFlags.MVFlipTagToolList.append(tag)
+
+  #set up MVTM if any of its taggers are active
+  if (mvtm_active_taggers):
+    if 'RNNIP' not in TaggerList:
+      BTaggingFlags.MultivariateTagManagerAuxBranches = []
+    MVTM = ConfInstance.addTool('MultivariateTagManager_Trig', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+
+  #set up MVTMFlip
+  #if (mvtm_active_flip_taggers):
+  #  MVTMFlip = ConfInstance.addTool('MultivariateFlipTagManager_Trig', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+
+  #if 'TagNtupleDumper' in TaggerList:
+  #  tag = ConfInstance.addTool('TagNtupleDumper', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  #  MVTM.MVTagToolList.append(tag)
 
   if BTaggingFlags.OutputLevel < 3:
     ConfInstance.printAllTools()

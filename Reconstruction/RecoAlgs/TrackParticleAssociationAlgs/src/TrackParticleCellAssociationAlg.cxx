@@ -3,28 +3,18 @@
 */
 
 #include "TrackParticleCellAssociationAlg.h"
-#include "xAODTracking/TrackParticleContainer.h"
-#include "xAODCaloEvent/CaloClusterContainer.h"
-#include "xAODCaloEvent/CaloClusterAuxContainer.h"
-#include "xAODCaloEvent/CaloCluster.h"
-#include "xAODAssociations/TrackParticleClusterAssociation.h"
-#include "xAODAssociations/TrackParticleClusterAssociationContainer.h"
-#include "xAODAssociations/TrackParticleClusterAssociationAuxContainer.h"
 
-#include "TrkToolInterfaces/ITrackSelectorTool.h"
+
 #include "RecoToolInterfaces/IParticleCaloCellAssociationTool.h"
 #include "TrackToCalo/CrossedCaloCellHelper.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"
 
 TrackParticleCellAssociationAlg::TrackParticleCellAssociationAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
-  m_caloCellAssociationTool("Rec::ParticleCaloCellAssociationTool/ParticleCaloCellAssociationTool"),
-  m_trackSelector("InDet::InDetDetailedTrackSelectorTool/MuonCombinedInDetDetailedTrackSelectorTool") {  
+  m_caloCellAssociationTool("Rec::ParticleCaloCellAssociationTool/ParticleCaloCellAssociationTool") {
 
   declareProperty("ParticleCaloCellAssociationTool",m_caloCellAssociationTool);
-  declareProperty("TrackParticleContainerName",m_trackParticleCollectionName = "InDetTrackParticles" );
   declareProperty("PtCut", m_ptCut = 25000. );
-  declareProperty("OutputCollectionPostFix", m_outputPostFix = "" );
 }
 
 TrackParticleCellAssociationAlg::~TrackParticleCellAssociationAlg()
@@ -35,53 +25,35 @@ TrackParticleCellAssociationAlg::~TrackParticleCellAssociationAlg()
 StatusCode TrackParticleCellAssociationAlg::initialize()
 {
   ATH_CHECK(m_caloCellAssociationTool.retrieve());
-  // ATH_CHECK(m_trackSelector.retrieve());
 
+  ATH_CHECK(m_trackParticleCollectionName.initialize());
+  ATH_CHECK(m_clusterContainerName.initialize());
+  ATH_CHECK(m_associationContainerName.initialize());
+  ATH_CHECK(m_clusterCellLinkName.initialize());
   return StatusCode::SUCCESS; 
 }
 
 StatusCode TrackParticleCellAssociationAlg::execute()
 {
-
   // get track particles
-  const xAOD::TrackParticleContainer* trackParticles = 0;
-  if(evtStore()->contains<xAOD::TrackParticleContainer>(m_trackParticleCollectionName)) {
-    if(evtStore()->retrieve(trackParticles,m_trackParticleCollectionName).isFailure()) {
-      ATH_MSG_FATAL( "Unable to retrieve " << m_trackParticleCollectionName );
-      return StatusCode::FAILURE;
-    }
-  }else{
-    // in case nothing is found return
-    return StatusCode::SUCCESS;
-  }
-
-  // create strings for locations based on input track collection
-  std::string clusterContainerName = m_trackParticleCollectionName + "AssociatedClusters" + m_outputPostFix;
-  std::string associationContainerName = m_trackParticleCollectionName + "ClusterAssociations" + m_outputPostFix;
+  SG::ReadHandle<xAOD::TrackParticleContainer> trackParticles{m_trackParticleCollectionName};
 
   // Create the xAOD container and its auxiliary store:
-  xAOD::CaloClusterContainer* xaod = CaloClusterStoreHelper::makeContainer(&(*evtStore()),clusterContainerName,msg());
-  if ( !xaod ) {
-    ATH_MSG_WARNING ("makeContainer failed");
-    return StatusCode::SUCCESS;
-  }
-  ATH_MSG_DEBUG( "Recorded CaloClusterContainer with key: " << clusterContainerName );    
+  SG::WriteHandle<xAOD::CaloClusterContainer> clusColl( m_clusterContainerName /*,ctx*/);
+  ATH_CHECK(CaloClusterStoreHelper::AddContainerWriteHandle(&(*evtStore()), clusColl, msg()));
 
-  // Create the xAOD container and its auxiliary store:
-  xAOD::TrackParticleClusterAssociationContainer* xaoda = new xAOD::TrackParticleClusterAssociationContainer();
-  ATH_CHECK( evtStore()->record( xaoda, associationContainerName ) );
+  
+  SG::WriteHandle<xAOD::TrackParticleClusterAssociationContainer> xaoda( m_associationContainerName/*,ctx*/);
+  ATH_CHECK(xaoda.record (std::make_unique<xAOD::TrackParticleClusterAssociationContainer>(),
+			  std::make_unique<xAOD::TrackParticleClusterAssociationAuxContainer>()));
 
-  xAOD::TrackParticleClusterAssociationAuxContainer* auxa = new xAOD::TrackParticleClusterAssociationAuxContainer();
-  ATH_CHECK( evtStore()->record( auxa, associationContainerName + "Aux." ) );
-  xaoda->setStore( auxa );
-  ATH_MSG_DEBUG( "Recorded TrackParticleClusterAssociationContainer with key: " << associationContainerName );    
+  
 
   unsigned int ntracks = 0;
   for( unsigned int i=0;i<trackParticles->size();++i ){
 
     // slect track
     const xAOD::TrackParticle* tp = (*trackParticles)[i];
-    // if( !m_trackSelector->decision(*tp) || tp->pt() < m_ptCut ) continue;
     if( tp->pt() < m_ptCut ) continue;
 
     // get ParticleCellAssociation
@@ -99,17 +71,17 @@ StatusCode TrackParticleCellAssociationAlg::execute()
     }
 
     // create cell from ParticleCellAssociation
-    xAOD::CaloCluster* cluster = Rec::CrossedCaloCellHelper::crossedCells( *association,*association->container(), *xaod );
+    xAOD::CaloCluster* cluster = Rec::CrossedCaloCellHelper::crossedCells( *association,*association->container(), *clusColl );
     if( !cluster ){
       ATH_MSG_WARNING("Failed to create cluster from ParticleCellAssociation");
       continue;
     }else{
-      ATH_MSG_DEBUG(" New cluster: eta " << cluster->eta() << " phi " << cluster->phi() << " cells " << cluster->size() << " nclusters " << xaod->size() );
+      ATH_MSG_DEBUG(" New cluster: eta " << cluster->eta() << " phi " << cluster->phi() << " cells " << cluster->size() << " nclusters " << clusColl->size() );
     }
 
     // create element links
-    ElementLink< xAOD::TrackParticleContainer > trackLink(m_trackParticleCollectionName,i);
-    ElementLink< xAOD::CaloClusterContainer >   clusterLink(clusterContainerName,xaod->size()-1);
+    ElementLink< xAOD::TrackParticleContainer > trackLink(m_trackParticleCollectionName.key(),i);
+    ElementLink< xAOD::CaloClusterContainer >   clusterLink(m_clusterContainerName.key(),clusColl->size()-1);
 
     // if valid create TrackParticleClusterAssociation
     if( trackLink.isValid() && clusterLink.isValid() ){
@@ -129,9 +101,9 @@ StatusCode TrackParticleCellAssociationAlg::execute()
 
   ATH_MSG_DEBUG(" Total number of selected tracks: " << ntracks );
 
-  if (CaloClusterStoreHelper::finalizeClusters(&(*evtStore()), xaod,clusterContainerName,msg()).isFailure() ) 
-    ATH_MSG_WARNING("finalizeClusters failed");
-
+  SG::WriteHandle<CaloClusterCellLinkContainer> cellLinks (m_clusterCellLinkName /*, ctx*/);
+  ATH_CHECK(CaloClusterStoreHelper::finalizeClusters (cellLinks,
+                                                      clusColl.ptr()));
   return StatusCode::SUCCESS;
 }
 

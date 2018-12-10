@@ -1,5 +1,8 @@
 // Dear emacs, this is -*- c++ -*-
 #ifndef TRIGT1INTERFACES_LUCID_CTP_H
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #define TRIGT1INTERFACES_LUCID_CTP_H
 
 #include <stdint.h>
@@ -46,10 +49,7 @@ namespace LVL1 {
 
 } // namespace LVL1
 
-#ifndef CLIDSVC_CLASSDEF_H
-#include "CLIDSvc/CLASS_DEF.h"
-#endif
-
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( LVL1::LucidCTP , 48467911 , 1 )
 
 #endif // TRIGT1INTERFACES_LUCID_CTP_H

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -350,7 +350,7 @@ void addto_renameMap (Athena::IInputRename::InputRenameMap_t& map,
   CLID clid = 123;
   sgkey_t from_key = pool.stringToKey (from, clid);
   sgkey_t to_key   = pool.stringToKey (to, clid);
-  map[from_key] = to_key;
+  map[from_key] = Athena::IInputRename::Rename { to_key, to };
 }
 #endif // NOT XAOD_STANDALONE
 

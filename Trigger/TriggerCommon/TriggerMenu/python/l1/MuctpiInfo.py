@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 class MuctpiInfo:
     def __init__(self, low_pt=0, high_pt=0, max_cand=13):

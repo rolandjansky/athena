@@ -44,8 +44,6 @@
 #include "LArElecCalib/ILArRinj.h"
 #include "LArRawConditions/LArCaliWaveContainer.h"
 
-//#include "LArRecConditions/ILArBadChanTool.h"
-
 //#include "LArCalibTriggerAccumulator.h"
 
 #include <vector>
@@ -147,7 +145,6 @@ private:
   std::vector<std::vector<short> > m_adc0;
 
   ToolHandle<LArCablingService> m_larCablingSvc;
-  //ToolHandle<ILArBadChanTool> m_badChannelTool;
   ToolHandle< ILArBadChannelMasker> m_badChannelMask;
   bool m_doBadChannelMask;
 

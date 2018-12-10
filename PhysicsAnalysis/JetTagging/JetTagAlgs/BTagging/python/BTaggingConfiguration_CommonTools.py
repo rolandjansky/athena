@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # Common configuration functions setting up common tools
 # These tools are used by virtually all other tools, be careful
@@ -30,11 +30,8 @@ def toolBTagLeptonTruthTool(name, useBTagFlagsDefaults = True, **options):
 #----------------------------------------------------------------------
 
 metathisBTagLabeling = { 'OneInTotal'    : True,
-                         #'DependsOn'     : ['BTagLeptonTruthTool',
-                         #                   'BTagJetTruthMatching'],
                          'DependsOn'     : ['BTagJetTruthMatching',],
                          'PassByPointer' : {'JetTruthMatchTool' : 'BTagJetTruthMatching',
-                         #                   'LeptonTruthTool'   : 'BTagLeptonTruthTool'} }
                                             } }
 
 def toolthisBTagLabeling(name, useBTagFlagsDefaults = True, **options):
@@ -48,7 +45,9 @@ def toolthisBTagLabeling(name, useBTagFlagsDefaults = True, **options):
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
                   **options: Python dictionary with options for the tool.
     output: The actual tool, which can then be added to ToolSvc via ToolSvc += output."""
+    btagJetTruthMatching = toolBTagJetTruthMatching('BTagJetTruthMatching')
     options['name'] = name
+    options['JetTruthMatchTool'] = btagJetTruthMatching
     from BTagging.BTaggingConf import Analysis__BTagLabeling
     return Analysis__BTagLabeling(**options)
 
@@ -116,10 +115,11 @@ def toolJetTrackTruthMatching(name, useBTagFlagsDefaults = True, **options):
 #----------------------------------------------------------------------
 
 metaBTagTrackToVertexIPEstimator = { 'OneInTotal'    : True,
-                                     'DependsOn'     : ['AtlasExtrapolator',
-                                                        'BTagFullLinearizedTrackFactory'],
-                                     'PassByPointer' : {'Extrapolator'           : 'AtlasExtrapolator',
-                                                        'LinearizedTrackFactory' : 'BTagFullLinearizedTrackFactory'} }
+                                     #'DependsOn'     : ['AtlasExtrapolator',
+                                     #                   'BTagFullLinearizedTrackFactory'],
+                                     #'PassByPointer' : {'Extrapolator'           : 'AtlasExtrapolator',
+                                     #                   'LinearizedTrackFactory' : 'BTagFullLinearizedTrackFactory'} }
+                                   }
 
 def toolBTagTrackToVertexIPEstimator(name, useBTagFlagsDefaults = True, **options):
     """Sets up a TrackToVertexIPEstimator tool and returns it.
@@ -133,7 +133,11 @@ def toolBTagTrackToVertexIPEstimator(name, useBTagFlagsDefaults = True, **option
                   **options: Python dictionary with options for the tool.
     output: The actual tool, which can then be added to ToolSvc via ToolSvc += output."""
     if useBTagFlagsDefaults:
-        defaults = { 'OutputLevel' : BTaggingFlags.OutputLevel }
+        btagFullLinearizedTrackFactory = toolBTagFullLinearizedTrackFactory('FullLinearizedTrkFactory')
+        atlasExtrapolator = toolAtlasExtrapolator('AtlasExtrapolator')
+        defaults = { 'OutputLevel' : BTaggingFlags.OutputLevel,
+                     'Extrapolator' : atlasExtrapolator,
+                     'LinearizedTrackFactory' : btagFullLinearizedTrackFactory, }
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
@@ -182,8 +186,9 @@ def toolBTagTrackToVertexTool(name, useBTagFlagsDefaults = True, **options):
 #----------------------------------------------------------------------
 
 metaBTagFullLinearizedTrackFactory = { 'OneInTotal'    : True,
-                                       'DependsOn'     : ['AtlasExtrapolator',],
-                                       'PassByPointer' : {'Extrapolator' : 'AtlasExtrapolator'} }
+                                       #'DependsOn'     : ['AtlasExtrapolator',],
+                                       #'PassByPointer' : {'Extrapolator' : 'AtlasExtrapolator'}
+                                     }
 
 def toolBTagFullLinearizedTrackFactory(name, useBTagFlagsDefaults = True, **options):
     """Sets up a BTagFullLinearizedTrackFactory tool and returns it.
@@ -195,5 +200,8 @@ def toolBTagFullLinearizedTrackFactory(name, useBTagFlagsDefaults = True, **opti
                   **options: Python dictionary with options for the tool.
     output: The actual tool, which can then be added to ToolSvc via ToolSvc += output."""
     options['name'] = name
+    atlasExtrapolator = toolAtlasExtrapolator('AtlasExtrapolator')
+    options['Extrapolator'] = atlasExtrapolator
+
     from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__FullLinearizedTrackFactory
     return Trk__FullLinearizedTrackFactory(**options)

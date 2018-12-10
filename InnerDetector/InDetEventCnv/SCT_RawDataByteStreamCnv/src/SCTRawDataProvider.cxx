@@ -16,8 +16,7 @@ using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 // Constructor
 
-SCTRawDataProvider::SCTRawDataProvider(const std::string& name,
-                                       ISvcLocator* pSvcLocator) :
+SCTRawDataProvider::SCTRawDataProvider(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_regionSelector{"RegSelSvc", name},
   m_robDataProvider{"ROBDataProviderSvc", name},
@@ -33,6 +32,7 @@ StatusCode SCTRawDataProvider::initialize()
 {
   // Get ROBDataProviderSvc
   ATH_CHECK(m_robDataProvider.retrieve());
+
   // Get the SCT ID helper
   ATH_CHECK(detStore()->retrieve(m_sctID, "SCT_ID"));
   if (m_roiSeeded.value()) {
@@ -45,6 +45,7 @@ StatusCode SCTRawDataProvider::initialize()
     // Retrieve Cabling service
     ATH_CHECK(m_cabling.retrieve());
   }
+
   //Initialize 
   ATH_CHECK(m_rdoContainerKey.initialize());
   ATH_CHECK(m_lvl1CollectionKey.initialize());
@@ -101,7 +102,7 @@ StatusCode SCTRawDataProvider::execute()
     TrigRoiDescriptor superRoI; // Add all RoIs to a super-RoI
     superRoI.setComposite(true);
     superRoI.manageConstituents(false);
-    for (const TrigRoiDescriptor* roi: *roiCollection) {
+    for (const TrigRoiDescriptor* roi : *roiCollection) {
       superRoI.push_back(roi);
     }
     m_regionSelector->DetROBIDListUint(SCT, superRoI, listOfROBs);
@@ -155,7 +156,7 @@ StatusCode SCTRawDataProvider::execute()
     ATH_MSG_WARNING("BS conversion into RDOs failed");
   }
 
-  if (dummyRDO) dummyRDO->MergeToRealContainer(rdoContainer.ptr());
+  if (dummyRDO) ATH_CHECK(dummyRDO->MergeToRealContainer(rdoContainer.ptr()));
   
   return StatusCode::SUCCESS;
 }

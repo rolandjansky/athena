@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetTagTools/IPTag.h"
@@ -88,13 +88,13 @@ namespace Analysis {
       m_sortZ0D0sig(false),
       m_unbiasIPEstimation(true),
       m_secVxFinderName("InDetVKalVxInJetTool"),
-      m_trackToVertexTool("Reco::TrackToVertex"),
-      m_trackSelectorTool("Analysis::TrackSelector"),
-      m_likelihoodTool("Analysis::NewLikelihoodTool"),
-      m_SVForIPTool("Analysis::SVForIPTool"),
-      m_trackGradeFactory("Analysis::BasicTrackGradeFactory"),
-      m_InDetTrackSelectorTool("InDet::InDetTrackSelectionTool"),
-      m_TightTrackVertexAssociationTool("CP::TightTrackVertexAssociationTool")
+      m_trackSelectorTool("Analysis::TrackSelector", this),
+      m_likelihoodTool("Analysis::NewLikelihoodTool", this),
+      m_SVForIPTool("Analysis::SVForIPTool", this),
+      m_trackGradeFactory("Analysis::BasicTrackGradeFactory", this),
+      m_trackToVertexIPEstimator(this),
+      m_InDetTrackSelectorTool("InDet::InDetTrackSelectionTool", this),
+      m_TightTrackVertexAssociationTool("CP::TightTrackVertexAssociationTool", this)
   {
     
     declareInterface<ITagTool>(this);
@@ -438,14 +438,11 @@ namespace Analysis {
     if (m_SignWithSvx) {
       m_SVForIPTool->getDirectionFromSecondaryVertexInfo(SvxDirection,canUseSvxDirection,//output
                                                          jetToTag,BTag,m_secVxFinderName,*m_priVtx);//input
-      //                                                         jetToTag,BTag,m_secVxFinderNameForIPSign,*m_priVtx);//input
     }
     
     // bad tracks from V0s, conversions, interactions:
     m_SVForIPTool->getTrkFromV0FromSecondaryVertexInfo(TrkFromV0,//output
                                                        jetToTag,BTag,m_secVxFinderName);//input
-    //                                                       jetToTag,BTag,m_secVxFinderNameForV0Removal);//input
-    ATH_MSG_VERBOSE("#BTAG# VALERIO TrkFromV0 : number of reconstructed bad tracks: " << TrkFromV0.size());
     if (TrkFromV0.size()!=0)  ATH_MSG_DEBUG("#BTAG# TrkFromV0 : number of reconstructed bad tracks: " << TrkFromV0.size());
 
     /** extract the TrackParticles from the jet and apply track selection: */
@@ -478,7 +475,6 @@ namespace Analysis {
 
 	if (m_trackSelectorTool->selectTrack(aTemp)) sumTrkpT += aTemp->pt();	
       }
-      // m_trackSelectorTool->setSumTrkPt(sumTrkpT);
       
       for( trkIter = associationLinks.begin(); trkIter != associationLinks.end() ; ++trkIter ) {
         const xAOD::TrackParticle* aTemp = **trkIter;

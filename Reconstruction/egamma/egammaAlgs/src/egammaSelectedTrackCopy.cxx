@@ -104,27 +104,30 @@ StatusCode egammaSelectedTrackCopy::execute()
   ATH_MSG_DEBUG ("Track Particle  container  size: "  <<trackTES->size() );
 
   //Local counters
+  auto allClusters = m_AllClusters.buffer();
+  auto selectedClusters = m_SelectedClusters.buffer();
+  auto allTracks= m_AllTracks.buffer();
   auto selectedTracks = m_SelectedTracks.buffer()  ;
   auto allSiTracks = m_AllSiTracks.buffer();  
   auto selectedSiTracks = m_SelectedSiTracks.buffer();  
-  auto allTRTTracks =  m_AllTRTTracks.buffer()  ;
+  auto allTRTTracks =  m_AllTRTTracks.buffer();
   auto selectedTRTTracks = m_SelectedTRTTracks.buffer(); 
 
   // // lets first check which clusters to seed on;
   std::vector<const xAOD::CaloCluster *> passingClusters;
   for(const xAOD::CaloCluster* cluster : *clusterTES ){
+    ++allClusters;   
     if (m_egammaCaloClusterSelector->passSelection(cluster)) {
       passingClusters.push_back(cluster);
+       ++selectedClusters;
     }
   }
 
-  m_AllClusters+=clusterTES->size();
-  m_SelectedClusters+=passingClusters.size();
-  m_AllTracks+=trackTES->size();
-  //Extrapolation Cache
+ //Extrapolation Cache
   IEMExtrapolationTools::Cache cache{};
   for(const xAOD::TrackParticle* track : *trackTES){
     ATH_MSG_DEBUG ("Check Track with Eta "<< track->eta()<< " Phi " << track->phi()<<" Pt " <<track->pt());
+    ++allTracks;
     bool isTRT=false;
     int nhits(0);
     uint8_t dummy(0); 

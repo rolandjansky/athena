@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileGeoSectionBuilder.h"
@@ -46,7 +46,7 @@
 using namespace Genfun;
 using namespace GeoXF;
   
-TileGeoSectionBuilder::TileGeoSectionBuilder(DataHandle<StoredMaterialManager> & matManager,
+TileGeoSectionBuilder::TileGeoSectionBuilder(const StoredMaterialManager* matManager,
 					     TileDddbManager * pDbManager,
                                              int ushape,
                                              int glue,
@@ -1497,15 +1497,15 @@ void TileGeoSectionBuilder::fillFinger(GeoPhysVol*&             mother,
   const GeoMaterial* matElBoard = m_theMaterialManager->getMaterial("tile::SiO2CondEpox");
 
   // Get required elements
-  //GeoElement* oxygen = m_theMaterialManager->getElement("Oxygen");
-  //GeoElement* hydrogen = m_theMaterialManager->getElement("Hydrogen");
-  GeoElement* copper = m_theMaterialManager->getElement("Copper");
+  //const GeoElement* oxygen = m_theMaterialManager->getElement("Oxygen");
+  //const GeoElement* hydrogen = m_theMaterialManager->getElement("Hydrogen");
+  const GeoElement* copper = m_theMaterialManager->getElement("Copper");
 
   // Get some standard materials
-  GeoMaterial *air        = m_theMaterialManager->getMaterial("std::Air");
-  GeoMaterial *iron       = m_theMaterialManager->getMaterial("std::Iron");
-  GeoMaterial *shieldSteel = m_theMaterialManager->getMaterial("shield::ShieldSteel");
-  GeoMaterial *matRubber = m_theMaterialManager->getMaterial("sct::Rubber");
+  const GeoMaterial *air        = m_theMaterialManager->getMaterial("std::Air");
+  const GeoMaterial *iron       = m_theMaterialManager->getMaterial("std::Iron");
+  const GeoMaterial *shieldSteel = m_theMaterialManager->getMaterial("shield::ShieldSteel");
+  const GeoMaterial *matRubber = m_theMaterialManager->getMaterial("sct::Rubber");
 
   // InDetServices
   if (m_matLArServices == 0)

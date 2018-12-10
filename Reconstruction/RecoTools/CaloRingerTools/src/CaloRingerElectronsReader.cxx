@@ -40,12 +40,14 @@ StatusCode CaloRingerElectronsReader::initialize()
 
   ATH_CHECK(m_inputElectronContainerKey.initialize());
 
-
-  m_selectorDecorHandleKeys.setContName(m_inputElectronContainerKey.key());
-
   if ( m_selectorsAvailable ) {
     ATH_CHECK( retrieveSelectors() );
   }
+
+  // initialize the selectors
+  ATH_CHECK(m_selKeys.initialize());
+  ATH_CHECK(m_isEMKeys.initialize());
+  ATH_CHECK(m_lhoodKeys.initialize());
 
   if ( m_builderAvailable ) {
     // Initialize our fctor
@@ -53,7 +55,8 @@ StatusCode CaloRingerElectronsReader::initialize()
       new BuildCaloRingsFctor<xAOD::ElectronContainer>(
         m_inputElectronContainerKey.key(),
         m_crBuilder,
-        msg()
+        msg(),
+	this
       );
     ATH_CHECK( m_clRingsBuilderElectronFctor->initialize() );
   }
@@ -68,17 +71,24 @@ StatusCode CaloRingerElectronsReader::retrieveSelectors()
   ATH_MSG_INFO("Retrieving " << m_ringerSelectors.size() <<
     " reader tools for " << name() );
 
+  ATH_CHECK(m_ringerSelectors.retrieve());
+
+  const std::string& contName = m_inputElectronContainerKey.key();
+
   for (const auto& tool : m_ringerSelectors)
   {
-    if ( tool.retrieve().isFailure() )
-    {
-      ATH_MSG_FATAL( "Could not get tool: " << tool );
-      return StatusCode::FAILURE;
-    }
-
-    ATH_CHECK(m_selectorDecorHandleKeys.addSelector(tool->name()));
-
+    ATH_CHECK(addSelectorDeco(contName, tool->name()));
   }
+  return StatusCode::SUCCESS;
+}
+
+// =============================================================================
+StatusCode CaloRingerElectronsReader::addSelectorDeco(const std::string &contName,
+						      const std::string &selName)
+{
+  m_selKeys.emplace_back(contName + "." + selName);
+  m_isEMKeys.emplace_back(contName + "." + selName + "_isEM");
+  m_lhoodKeys.emplace_back(contName + "." + selName + "_output");
   return StatusCode::SUCCESS;
 }
 
@@ -115,7 +125,9 @@ StatusCode CaloRingerElectronsReader::execute()
 
   StatusCode sc;
 
-  writeDecorHandles<xAOD::ElectronContainer> decoHandles(m_selectorDecorHandleKeys);
+  auto selHandles = m_selKeys.makeHandles();
+  auto isEMHandles = m_isEMKeys.makeHandles();
+  auto lhoodHandles = m_selKeys.makeHandles();
 
   // Run selectors, if available:
   for ( size_t i = 0; i < m_ringerSelectors.size(); i++ ) {
@@ -142,10 +154,10 @@ StatusCode CaloRingerElectronsReader::execute()
           << std::noboolalpha << outputSpace);
 
       // Save the bool result
-      decoHandles.sel(i)(*el) = static_cast<char>(accept);
+      selHandles[i](*el) = static_cast<char>(accept);
 
       //// Save the resulting bitmask
-      decoHandles.isEM(i)(*el) = static_cast<unsigned int>(accept.getCutResultInverted());
+      isEMHandles[i](*el) = static_cast<unsigned int>(accept.getCutResultInverted());
 
       // Check if output space is empty, if so, use error code
       float outputToSave(std::numeric_limits<float>::min());
@@ -154,7 +166,7 @@ StatusCode CaloRingerElectronsReader::execute()
       }
 
       // Save chain output
-      decoHandles.lhood(i)(*el) = outputToSave;
+      lhoodHandles[i](*el) = outputToSave;
     }
   }
 

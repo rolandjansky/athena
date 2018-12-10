@@ -14,9 +14,6 @@
 #include "EventInfo/EventInfo.h"
 #include "StoreGate/StoreGateSvc.h"
 
-// TDAQ includes
-#include "hltinterface/DataCollector.h"
-
 // =============================================================================
 // Standard constructor
 // =============================================================================
@@ -78,12 +75,16 @@ StatusCode TrigEventSelectorByteStream::next(IEvtSelector::Context& /*c*/) const
     ATH_MSG_INFO(e.what());
     throw; // rethrow NoMoreEvents
   }
+  catch (const hltonl::Exception::EventSourceCorrupted& e) {
+    ATH_MSG_ERROR(e.what());
+    throw; // rethrow EventSourceCorrupted
+  }
   catch (const std::exception& e) {
     ATH_MSG_ERROR("Failed to get next event from the event source, std::exception caught: " << e.what());
     return StatusCode::FAILURE;
   }
   catch (...) {
-    ATH_MSG_ERROR("Failed to get next event from the event source, unhandled exception caught");
+    ATH_MSG_ERROR("Failed to get next event from the event source, unknown exception caught");
     return StatusCode::FAILURE;
   }
 

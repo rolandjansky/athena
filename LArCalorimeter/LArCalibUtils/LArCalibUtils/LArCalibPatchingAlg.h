@@ -20,11 +20,14 @@
  
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "LArRecConditions/ILArBadChanTool.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
 #include "LArRawConditions/LArMphysOverMcalComplete.h"
 #include "LArRawConditions/LArRampComplete.h"
 #include "LArRawConditions/LArOFCComplete.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArRecConditions/LArBadChannelCont.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+
 
 
 /** 
@@ -88,7 +91,7 @@ private:
    * @return bool to tell if patching suceeded
    * This method is called for every channel with broken calibration line
    */
-  bool patch(const HWIdentifier chid, const int gain); 
+  bool patch(const HWIdentifier chid, const int gain, const LArBadChannelCont* bcCont, const LArOnOffIdMapping* cabling); 
 
     
  /**
@@ -97,7 +100,7 @@ private:
    * @param gain Gain in question
    * @patch [OUT] Reference to be filled by the average
    */
-  bool getAverage(const HWIdentifier chid, const int gain, LArRampP1& patch, bool isphi=true); 
+  bool getAverage(const HWIdentifier chid, const int gain, LArRampP1& patch, const LArBadChannelCont* bcCont, const LArOnOffIdMapping* cabling, bool isphi=true); 
 
   /**
    * @brief Specialized method to average OFCs over a phi-ring
@@ -105,7 +108,7 @@ private:
    * @param gain Gain in question
    * @patch [OUT] Reference to be filled by the average
    */
-  bool getAverage(const HWIdentifier chid, const int gain, LArOFCP1& patch, bool isphi=true); 
+  bool getAverage(const HWIdentifier chid, const int gain, LArOFCP1& patch, const LArBadChannelCont* bcCont, const LArOnOffIdMapping* cabling, bool isphi=true); 
 
 
 
@@ -124,7 +127,7 @@ private:
    */
 
   //For backward compatiblity only!!! Will be removed at some point
-  bool getAverage(const HWIdentifier chid, const int gain, LArMphysOverMcalP1& patch, bool isphi=true);
+  bool getAverage(const HWIdentifier chid, const int gain, LArMphysOverMcalP1& patch, const LArBadChannelCont* bcCont, bool isphi=true);
 #endif
 
 
@@ -135,21 +138,14 @@ private:
    * @param gain Gain in question
    * @patch [OUT] Reference to be filled by the average
    */
-  bool getAverage(const HWIdentifier chid, const int gain, LArSingleFloatP& patch, bool isphi=true);
+  bool getAverage(const HWIdentifier chid, const int gain, LArSingleFloatP& patch, const LArBadChannelCont* bcCont, const LArOnOffIdMapping* cabling, bool isphi=true);
 #endif
 
 
 
 
-  //bool getAverage(const HWIdentifier chid, const int gain, LArShape& shape);
-  bool getAverage(const HWIdentifier,const int, LArCaliWaveVec&, bool isphi=true) ;
-/*
-  bool getAverage(const HWIdentifier,const int, LArCaliWaveVec&) {
-    //Not implementend and should never be called.
-    assert(0);
-    return false;
-  };
-*/
+  bool getAverage(const HWIdentifier,const int, LArCaliWaveVec&, const LArBadChannelCont* bcCont, const LArOnOffIdMapping* cabling, bool isphi=true) ;
+
    /**
    * @brief Helper method to get a phi-ring
    * @return Reference to a vector of HWIdentfiers
@@ -157,10 +153,10 @@ private:
    * @param distance Step-with in phi. 1..every channel, 2..every second channel, etc.
    * Probably meaningless for the FCAL
    */ 
-  std::vector<HWIdentifier>& getPhiRing(const HWIdentifier chid, unsigned distance=1);
+  std::vector<HWIdentifier>& getPhiRing(const HWIdentifier chid, const LArBadChannelCont* bcCont, const LArOnOffIdMapping* cabling, unsigned distance=1);
   
   /* Get list of channels in the same FEB. Used for FEBAverage method */
-  std::vector<HWIdentifier>& getFEBChans(const HWIdentifier chid);
+  std::vector<HWIdentifier>& getFEBChans(const HWIdentifier chid, const LArBadChannelCont* bcCont);
 
   StatusCode setSymlink(const LArRampComplete* ramp) const;
   StatusCode setSymlink(const LArOFCComplete* ofc) const;
@@ -175,9 +171,9 @@ private:
     FEBAverage
   };
 
-  ToolHandle<ILArBadChanTool> m_badChannelTool;
+  SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
+  SG::ReadCondHandleKey<LArOnOffIdMapping>  m_cablingKey{this, "OnOffMap", "LArOnOffIdMap", "SG key for mapping object"};
   ToolHandle<ILArBadChannelMasker> m_maskingTool;
-  ToolHandle<LArCablingService> m_larCablingSvc;  
 
   bool m_useCorrChannel;
   bool m_patchAllMissing;

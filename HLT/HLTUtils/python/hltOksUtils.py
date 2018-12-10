@@ -7,7 +7,7 @@ Utilities for HLT OKS file generation
 import os
 
 def defaultTags():
-   """Return list of supported CMTCONFIG tags"""
+   """Return list of supported binary tags"""
    
    import pm.common
 
@@ -20,10 +20,10 @@ def defaultTags():
    return tags
 
 def platform():
-   """Return current CMTCONFIG tag"""
+   """Return current BINARY_TAG"""
 
    project = os.environ.get('AtlasProject','')
-   tag = os.environ.get('%s_PLATFORM' % project, os.environ.get('CMTCONFIG',None))
+   tag = os.environ.get('%s_PLATFORM' % project, os.environ.get('BINARY_TAG',None))
 
    return tag
 

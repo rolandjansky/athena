@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 #
 ## @file JetTagD3PDMaker/python/JetTagMuonInJetD3PDObject.py
@@ -10,6 +10,7 @@
 
 import JetTagD3PDMaker
 import TrackD3PDMaker
+import InDetD3PDMaker
 import MuonD3PDMaker
 import EventCommonD3PDMaker
 
@@ -104,11 +105,11 @@ MuonPrimaryTrackAssoc = SimpleAssociation(JetTagMuonInJetD3PDObject,
 
 
 MuonFitQualityAssoc = SimpleAssociation (MuonPrimaryTrackAssoc,
-                                         TrackD3PDMaker.TrackParticleFitQualityAssociationTool,
+                                         InDetD3PDMaker.TrackParticleFitQualityAssociationTool,
                                          level = 0)
 
 MuonFitQualityAssoc.defineBlock (0, 'TrkFitQuality',
-                                 TrackD3PDMaker.TrackFitQualityFillerTool)
+                                 InDetD3PDMaker.TrackFitQualityFillerTool)
 
 MuonExtrapolatedTrackAssoc = SimpleAssociation(JetTagMuonInJetD3PDObject,
                                                MuonD3PDMaker.MuonTrackParticleAssociationTool,

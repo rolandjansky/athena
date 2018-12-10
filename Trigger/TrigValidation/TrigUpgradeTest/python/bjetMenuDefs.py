@@ -47,15 +47,16 @@ def bJetStep1Sequence():
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 
     # input maker
-    from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
-    InputMakerAlg = HLTTest__TestInputMaker("BJetInputMaker_step1")
+    from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
+    InputMakerAlg = InputMakerForRoI("JetInputMaker", OutputLevel = DEBUG, LinkName="initialRoI")
+    InputMakerAlg.RoIs='FSJETRoI'
     InputMakerAlg.OutputLevel = DEBUG
     InputMakerAlg.LinkName = "initialRoI"
-    InputMakerAlg.Output = "FSJETRoIs"
+
 
     # Construct jets
     from TrigUpgradeTest.jetDefs import jetRecoSequence
-    (recoSequence, sequenceOut) = jetRecoSequence( InputMakerAlg.Output )
+    (recoSequence, sequenceOut) = jetRecoSequence( InputMakerAlg.RoIs )
 
     # Start with b-jet-specific algo sequence
     # Construct RoI. Needed input for Fast Tracking

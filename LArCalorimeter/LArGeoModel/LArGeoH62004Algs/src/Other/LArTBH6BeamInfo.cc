@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArGeoH62004Algs/LArTBH6BeamInfo.h"
@@ -80,7 +80,6 @@ StatusCode LArTBH6BeamInfo::execute()
    }
 
    typedef AthenaHitsVector<LArG4H6FrontHit> CONTAINER;
-   const DataHandle< CONTAINER > hitcoll ;
 
    std::vector<std::string>::iterator it = m_HitsCollNames.begin();
 
@@ -97,6 +96,7 @@ StatusCode LArTBH6BeamInfo::execute()
 
       log<<MSG::DEBUG<<" hit container name: "<< *it <<endmsg;
 
+      const CONATAINER* hitcoll = nullptr;
       sc = m_StoreGate->retrieve(hitcoll, *it) ;
 
       if(StatusCode::SUCCESS == sc ) {

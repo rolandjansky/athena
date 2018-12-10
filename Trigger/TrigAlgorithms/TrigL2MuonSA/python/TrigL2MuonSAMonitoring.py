@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+
 from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig
 from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 
@@ -29,14 +30,14 @@ class TrigL2MuonSAMonitoring(GenericMonitoringTool):
                             defineHistogram('TIME_Station_Fitter',        type='TH1F', title="Station fitter time (us)", xbins=100, xmin=0, xmax=5000 ), 
                             defineHistogram('TIME_Track_Fitter',          type='TH1F', title="Track fitter time (us)", xbins=100, xmin=0, xmax=300 ),
                             defineHistogram('TIME_Track_Extrapolator',    type='TH1F', title="Track extrapolator time (us)", xbins=100, xmin=0, xmax=300 ),
-                            defineHistogram('TIME_Calibration_Streamer',  type='TH1F', title="Calibration streamer time (us)", xbins=100, xmin=0, xmax=50000 ) ] 
+                            defineHistogram('TIME_Calibration_Streamer',  type='TH1F', title="Calibration streamer time (us)", xbins=100, xmin=0, xmax=50000 ),
+                            defineHistogram('InvalidRpcRoINumber',        type='TH1F', title="RoI Number of Invalid RPC RoI; RoI Number", xbins=150, xmin=-0.5, xmax=150.5) ]
     
 	
 class TrigL2MuonSAValidationMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="TrigL2MuonSAValidationMonitoring"):
         super(TrigL2MuonSAValidationMonitoring, self).__init__(name)
         self.defineTarget("Validation")
-
         self.Histograms = [ defineHistogram('InnMdtHits', type='TH1F', title="Hit multiplicity in the INNER road; MDT hits",
                                             xbins=50, xmin=-0.5, xmax=50.5) ]
         self.Histograms += [ defineHistogram('MidMdtHits', type='TH1F', title="Hit multiplicity in the MIDDLE road; MDT hits",
@@ -67,7 +68,8 @@ class TrigL2MuonSAValidationMonitoring(TrigGenericMonitoringToolConfig):
                                              xbins=108, xmin=-2.7, xmax=2.7, ybins=96, ymin=-3.1416, ymax=3.1416 ) ]
         self.Histograms += [ defineHistogram('FailedRoIEta, FailedRoIPhi', type='TH2F', title="Location of LVL2 track failure; Eta; Phi",
                                              xbins=108, xmin=-2.7, xmax=2.7, ybins=96, ymin=-3.1416, ymax=3.1416 ) ]
-
+        self.Histograms += [ defineHistogram('InvalidRpcRoINumber', type='TH1F', title="RoI Number of Invalid RPC RoI; RoI Number",
+                                            xbins=150, xmin=-0.5, xmax=150.5) ]
         
 class TrigL2MuonSAOnlineMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="TrigL2MuonSAOnlineMonitoring"):
@@ -104,6 +106,8 @@ class TrigL2MuonSAOnlineMonitoring(TrigGenericMonitoringToolConfig):
                                              xbins=108, xmin=-2.7, xmax=2.7, ybins=96, ymin=-3.1416, ymax=3.1416 ) ]
         self.Histograms += [ defineHistogram('FailedRoIEta, FailedRoIPhi', type='TH2F', title="Location of LVL2 track failure; Eta; Phi",
                                              xbins=108, xmin=-2.7, xmax=2.7, ybins=96, ymin=-3.1416, ymax=3.1416 ) ]
+        self.Histograms += [ defineHistogram('InvalidRpcRoINumber', type='TH1F', title="RoI Number of Invalid RPC RoI ; RoI Number",
+                                            xbins=150, xmin=-0.5, xmax=150.5) ]
 
 
 class TrigL2MuonSACosmicMonitoring(TrigGenericMonitoringToolConfig):
@@ -141,4 +145,6 @@ class TrigL2MuonSACosmicMonitoring(TrigGenericMonitoringToolConfig):
                                              xbins=108, xmin=-2.7, xmax=2.7, ybins=96, ymin=-3.1416, ymax=3.1416 ) ]
         self.Histograms += [ defineHistogram('FailedRoIEta, FailedRoIPhi', type='TH2F', title="Location of LVL2 track failure; Eta; Phi",
                                              xbins=108, xmin=-2.7, xmax=2.7, ybins=96, ymin=-3.1416, ymax=3.1416 ) ]
+        self.Histograms += [ defineHistogram('InvalidRpcRoINumber', type='TH1F', title="RoI Number of Invalid RPC RoI; RoI Number",
+                                            xbins=150, xmin=-0.5, xmax=150.5) ]
         

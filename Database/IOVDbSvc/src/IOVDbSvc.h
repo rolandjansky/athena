@@ -38,6 +38,10 @@
 
 #include "IOVDbConn.h"
 
+//for using the msg service
+	//#include "AthenaKernel/MsgStreamMember.h"
+	//#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
 
 #include <string>
 #include <vector>
@@ -242,7 +246,7 @@ private:
   ToolHandle<IIOVDbMetaDataTool> m_h_metaDataTool;
   ServiceHandle<ITagInfoMgr>     m_h_tagInfoMgr;
   // message stream
-  MsgStream* m_log;
+  //MsgStream* m_log;
         
   // Flag to signal when a pool payload has been requested. This
   // implies that a pool file has been open during an event, and will
@@ -283,6 +287,23 @@ private:
   FolderMap m_foldermap;
   // gloal abort flag
   bool m_abort;
+  
+  protected:
+   /// Log a message using the Athena controlled logging system
+   /**
+          MsgStream&
+          msg(MSG::Level lvl) const {
+            return m_msg.get() << lvl;
+          }
+       
+          /// Check whether the logging system is active at the provided verbosity level
+          bool
+          msgLvl(MSG::Level lvl) {
+            return m_msg.get().level() <= lvl;
+          }
+       
+          /// Private message stream member
+          mutable Athena::MsgStreamMember m_msg;**/
 
 };
 

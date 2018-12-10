@@ -7,7 +7,6 @@
 #include "CaloIdentifier/CaloIdManager.h"
 #include "LArRawConditions/LArCalibParams.h"
 #include "xAODEventInfo/EventInfo.h"
-#include "LArRecConditions/ILArBadChanTool.h"
 #include <algorithm>
 #include <sstream>
 #include <iomanip>
@@ -15,8 +14,6 @@
 LArCablingChecker::LArCablingChecker(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     //m_chan(0),
-    m_larCablingSvc(0),
-    m_caloBadChannelTool(0),
     m_onlineHelper(0),
     m_emId(0),
     m_errorcellsThisEvent(0),
@@ -46,16 +43,11 @@ LArCablingChecker::~LArCablingChecker() {
 
 StatusCode LArCablingChecker::initialize() {
   ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
-  ATH_CHECK( toolSvc()->retrieveTool("LArCablingService", m_larCablingSvc) );
+  ATH_CHECK( m_cablingKey.initialize() );
+  ATH_CHECK( m_CLKey.initialize() );
 
   if (m_useBadChannelTool) {
-    IAlgTool *tool = nullptr;
-    ATH_CHECK ( toolSvc()->retrieveTool("LArBadChanTool", tool) );
-    m_caloBadChannelTool = dynamic_cast<ILArBadChanTool*>(tool);
-    if (!m_caloBadChannelTool) {
-      ATH_MSG_ERROR ( "Failed dynamic_cast to ILArBadChanTool*" );
-      return StatusCode::FAILURE;
-    }
+     ATH_CHECK( m_BCKey.initialize() );
   }
 
   m_outfile.open(m_outFileName.c_str(), std::ios::out);
@@ -97,6 +89,28 @@ StatusCode LArCablingChecker::execute() {
   const DataHandle<LArCalibParams> calibParams;
   ATH_CHECK( detStore()->retrieve(calibParams,"LArCalibParams") );
 
+  SG::ReadCondHandle<LArBadChannelCont> readHandle{m_BCKey};
+  const LArBadChannelCont *bcCont {*readHandle};
+  if(!bcCont) {
+     ATH_MSG_ERROR( "Do not have Bad chan container " << m_BCKey.key() );
+     return StatusCode::FAILURE;
+  }
+
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling=*cablingHdl;
+  if(!cabling) {
+     ATH_MSG_ERROR( "Do not have cabling object LArOnOffIdMapping" );
+     return StatusCode::FAILURE;
+  }
+
+  SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_CLKey};
+  const LArCalibLineMapping *clCont {*clHdl};
+  if(!clCont) {
+     ATH_MSG_ERROR( "Do not have calib line mapping !!!" );
+     return StatusCode::FAILURE;
+  }
+
+
   // Using vectors like this works because the hashes seem to be guaranteed to be collision-free.
   delete m_errorcellsPreviousEvent; // OK to delete 0, Stroustrup 6.2.6
   m_errorcellsPreviousEvent = m_errorcellsThisEvent;
@@ -135,7 +149,7 @@ StatusCode LArCablingChecker::execute() {
     int chNb = m_onlineHelper->channel(online_id);
 
     // Check if channel is connected.
-    if (!m_larCablingSvc->isOnlineConnected(online_id)) {
+    if (!cabling->isOnlineConnected(online_id)) {
       disconnected = true;
       disconnectedCounter++;
     } else
@@ -146,7 +160,7 @@ StatusCode LArCablingChecker::execute() {
     // Get offline id.
     bool noOffline_id = false;
     try {
-      offline_id = m_larCablingSvc->cnvToIdentifier(online_id);
+      offline_id = cabling->cnvToIdentifier(online_id);
     }
     catch (const LArID_Exception&) {
       noOffline_id = true;
@@ -165,7 +179,7 @@ StatusCode LArCablingChecker::execute() {
     pulsed = false;
     int DACvalue = -1;
     std::ostringstream PulserList;
-    const std::vector<HWIdentifier>& calibChannelIDs=m_larCablingSvc->calibSlotLine(online_id);
+    const std::vector<HWIdentifier>& calibChannelIDs=clCont->calibSlotLine(online_id);
 
     std::vector<HWIdentifier>::const_iterator csl_it=calibChannelIDs.begin();
     std::vector<HWIdentifier>::const_iterator csl_it_e=calibChannelIDs.end();
@@ -203,7 +217,7 @@ StatusCode LArCablingChecker::execute() {
  
     // Find out if we have a bad cell.
     if (m_useBadChannelTool && !noOffline_id) {
-      if (m_caloBadChannelTool->offlineStatus(offline_id).good()) {
+      if (bcCont->offlineStatus(offline_id).good()) {
 	badChannel = false;
       } else {
 	badChannel = true;

@@ -32,7 +32,9 @@
 #include "EventContainers/SelectAllObject.h" 
 #include "LArCabling/LArCablingService.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
-#include "LArRecConditions/ILArBadChanTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArRecConditions/LArBadChannelCont.h"
+
 
 #include <string>
 #include <map>
@@ -88,9 +90,12 @@ class LArCoverage: public ManagedMonitorToolBase
   ToolHandle<LArCablingService> m_larCablingService;  
   /** Handle to bad-channel tools */
   ToolHandle<ILArBadChannelMasker> m_badChannelMask;
-  ToolHandle<ILArBadChanTool> m_badChannelTool;
  /** Handle to caloNoiseTool */
   ToolHandle < ICaloNoiseTool > m_caloNoiseTool ;
+
+  SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey{this, "BadChanKey", "LArBadChannel", "SG bad channels key"};
+  SG::ReadCondHandleKey<LArBadFebCont> m_BFKey{this, "MFKey", "LArBadFeb", "SG missing FEBs key"};
+
 
  private:
 

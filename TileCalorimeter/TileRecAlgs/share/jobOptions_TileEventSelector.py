@@ -10,14 +10,14 @@ if RUN2:
     from AthenaCommon.GlobalFlags import jobproperties
 
     if not 'CondDbTag' in dir():
-        CondDbTag = 'CONDBR2-BLKPA-2015-14'
+        CondDbTag = 'CONDBR2-BLKPA-2018-12'
 
     jobproperties.Global.ConditionsTag = CondDbTag
     conddb.setGlobalTag(CondDbTag)
     globalflags.ConditionsTag.set_Value_and_Lock(CondDbTag)
 
     if not 'DetDescrVersion' in dir():
-        DetDescrVersion = 'ATLAS-R2-2015-03-01-00'
+        DetDescrVersion = 'ATLAS-R2-2016-01-00-01'
 
     jobproperties.Global.DetDescrVersion = DetDescrVersion
     globalflags.DetDescrVersion.set_Value_and_Lock(DetDescrVersion)
@@ -68,10 +68,10 @@ if not 'InputFile' in dir():
         if not 'RunStream' in dir():
             RunStream = ("express_express" if ReadESD else "physics_Main") if RUN2 else "physics_JetTauEtmiss"
         if not 'DataProject' in dir():
-            DataProject = "data15_13TeV" if RUN2 else "data12_8TeV"
+            DataProject = "data18_13TeV" if RUN2 else "data12_8TeV"
         if RUN2:
             TopDir="/eos/atlas/atlastier0/rucio/%(D)s/%(S)s/%(R)08d" % {'D':DataProject, 'S':RunStream, 'R':RunNumber}
-            for f in popen("xrd eosatlas dirlist %(path)s | grep %(filt)s | grep -v -i -e log -e tgz | awk '{print $NF}' | sort -r | tail -1" % {'path': TopDir, 'filt':filter }):
+            for f in popen("xrdfs eosatlas ls %(path)s | grep %(filt)s | grep -v -i -e log -e tgz | awk '{print $NF}' | sort -r | tail -1" % {'path': TopDir, 'filt':filter }):
                 temp=f.split('\n')
                 InputDirectory=temp[0]
         else:
@@ -85,9 +85,9 @@ if not 'InputFile' in dir():
     if InputDirectory.startswith('/castor'):
         cmd='nsls'
     elif InputDirectory.startswith('/eos'):
-        cmd='xrd eosatlas dirlist'
+        cmd='xrdfs eosatlas ls'
     else:
-        cmd='ls'
+        cmd='ls -1'
     files=[]
     print "Input directory is ", InputDirectory
     for f in popen("%(cm)s %(path)s | grep %(run)s | grep %(filt)s | grep -v '     0 ' | awk '{print $NF}'" % {'cm': cmd, 'path': InputDirectory, 'run':RunNumber, 'filt':FileFilter }):
@@ -142,7 +142,7 @@ rec.doDetailedPerfMon.set_Value_and_Lock(False)
 rec.doSemiDetailedPerfMon.set_Value_and_Lock(False)
 rec.doMonitoring.set_Value_and_Lock(False)
 
-if not ReadESD and WriteESD:
+if not ReadESD:
     from AthenaCommon.DetFlags import DetFlags
     DetFlags.Calo_setOff()
     DetFlags.ID_setOff()
@@ -180,12 +180,16 @@ if not ReadESD and WriteESD:
         larRODFlags.doLArFebErrorSummary=False
         from CaloRec.CaloCellFlags import jobproperties
         jobproperties.CaloCellFlags.doDeadCellCorr=False
+        jobproperties.CaloCellFlags.doLArHVCorr=False
         jobproperties.CaloCellFlags.doLArCreateMissingCells=False
         jobproperties.CaloCellFlags.doLArDeadOTXCorr=False
         jobproperties.CaloCellFlags.doLArThinnedDigits=False
         jobproperties.CaloCellFlags.doLArNoiseMasking=False
         jobproperties.CaloCellFlags.doLArSporadicMasking=False
         jobproperties.CaloCellFlags.doLArBadFebMasking=False
+        jobproperties.CaloCellFlags.doPedestalCorr=False
+        jobproperties.CaloCellFlags.doCaloCellTimeCorr=False
+        jobproperties.CaloCellFlags.doCaloCellEnergyCorr=False
         from CaloRec.CaloRecFlags import jobproperties
         jobproperties.CaloRecFlags.doLArAffectedRegion=False
         jobproperties.CaloRecFlags.doLArNoisyRO=False
@@ -209,18 +213,22 @@ if 'ForceTimeStamp' in dir():
 include ("RecExCommon/RecExCommon_topOptions.py")
 ##############################
 
-if not ReadESD and WriteESD:
+if not ReadESD:
+    tileCellBuilder = next(tool for tool in topSequence.CaloCellMaker.CaloCellMakerToolNames  if 'TileCellBuilder' in tool.getType())
+    #tileCellBuilder.OutputLevel=2
     if not rec.doLArg:
-        topSequence.CaloCellMaker.CaloCellMakerToolNames = [ ToolSvc.TileCellBuilder.getFullName() ]
-    #ToolSvc.TileCellBuilder.OutputLevel=2
+        #topSequence.CaloCellMaker.CaloCellMakerToolNames = [ tileCellBuilder ]
+        for tool in reversed(topSequence.CaloCellMaker.CaloCellMakerToolNames):
+            if not 'Tile' in tool.getFullName():
+                topSequence.CaloCellMaker.CaloCellMakerToolNames.remove(tool)
 
 
 # define filter
-import AthenaCommon.AlgSequence as acas
-job = acas.AlgSequence()
-
-seq = acas.AthSequencer("AthFilterSeq")
-
+#import AthenaCommon.AlgSequence as acas
+#job = acas.AlgSequence()
+#
+#seq = acas.AthSequencer("AthFilterSeq")
+#
 # example how to copy few events from input to output
 #
 #import AthenaCommon.Constants as Lvl
@@ -241,65 +249,79 @@ seq = acas.AthSequencer("AthFilterSeq")
 #                     (191513, 20422820),
 #                     (191920, 34336488) ]
 
-if RUN2:
-    from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-    #topSequence+=xAODMaker__EventInfoCnvAlg()
-    seq+=xAODMaker__EventInfoCnvAlg()
+
+from TileRecUtils.TileDQstatusDefault import TileDQstatusDefault
+TileDQstatusDefault()
 
 from TileRecAlgs.TileRecAlgsConf import TileCellSelector
-seq += TileCellSelector('TileSelector')
+tileSelector = TileCellSelector('TileSelector')
 if ReadESD:
-    seq.TileSelector.CellContainerName = "AllCalo"
-    seq.TileSelector.DigitsContainerName = "TileDigitsFlt"
-    seq.TileSelector.RawChannelContainerName = "TileRawChannelFlt"
+    tileSelector.CellContainerName = "AllCalo"
+    tileSelector.DigitsContainerName = "TileDigitsFlt"
+    tileSelector.RawChannelContainerName = "TileRawChannelFlt"
 else:
-    seq.TileSelector.CellContainerName = ""
-    seq.TileSelector.DigitsContainerName = "TileDigitsCnt"
-    seq.TileSelector.RawChannelContainerName = "TileRawChannelCnt"
+    tileSelector.CellContainerName = ""
+    tileSelector.DigitsContainerName = "TileDigitsCnt"
+    tileSelector.RawChannelContainerName = "TileRawChannelCnt"
 
-seq.TileSelector.MinEnergyCell=-10000.
-seq.TileSelector.MaxEnergyCell=1000000.
-seq.TileSelector.PtnEnergyCell=101
-seq.TileSelector.MinEnergyChan=-5000.
-seq.TileSelector.MaxEnergyChan=500000.
-seq.TileSelector.PtnEnergyChan=101
-seq.TileSelector.MinEnergyGap=-10000.
-seq.TileSelector.MaxEnergyGap=500000.
-seq.TileSelector.PtnEnergyGap=101
-seq.TileSelector.MinEnergyMBTS=-10000.
-seq.TileSelector.MaxEnergyMBTS=500000.
-seq.TileSelector.PtnEnergyMBTS=101
+# example how to select events with completely masked cells in few drawers
+#tileSelector.DrawerToCheck=[0x30b,0x327,0x400]
+#tileSelector.ChannelToCheck=[20,21,36,37,38,39]
+#tileSelector.MinEnergyCell=0.999
+#tileSelector.MaxEnergyCell=1.001
+#tileSelector.PtnEnergyCell=10010
+#
+# dump all channels of the drawer in all events
+#tileSelector.DrawerToDump=[0x30b]
 
-seq.TileSelector.MinTimeCell=-100.
-seq.TileSelector.MaxTimeCell=100.
-seq.TileSelector.PtnTimeCell=10
-seq.TileSelector.MinTimeChan=-100.
-seq.TileSelector.MaxTimeChan=100.
-seq.TileSelector.PtnTimeChan=10
-seq.TileSelector.MinTimeGap=-100.
-seq.TileSelector.MaxTimeGap=100.
-seq.TileSelector.PtnTimeGap=10
-seq.TileSelector.MinTimeMBTS=-100.
-seq.TileSelector.MaxTimeMBTS=100.
-seq.TileSelector.PtnTimeMBTS=10
+tileSelector.MinEnergyCell=-10000.
+tileSelector.MaxEnergyCell=1000000.
+tileSelector.PtnEnergyCell=101
+tileSelector.MinEnergyChan=-5000.
+tileSelector.MaxEnergyChan=500000.
+tileSelector.PtnEnergyChan=101
+tileSelector.MinEnergyGap=-10000.
+tileSelector.MaxEnergyGap=500000.
+tileSelector.PtnEnergyGap=101
+tileSelector.MinEnergyMBTS=-10000.
+tileSelector.MaxEnergyMBTS=500000.
+tileSelector.PtnEnergyMBTS=101
 
-seq.TileSelector.JumpDeltaHG=50.
-seq.TileSelector.JumpDeltaLG=20.
-seq.TileSelector.PedDetlaHG=4.1
-seq.TileSelector.PedDetlaLG=4.1
-seq.TileSelector.ConstLength=7
-seq.TileSelector.MinBadMB=4
-seq.TileSelector.MinBadDMU=4
-seq.TileSelector.MaxBadDMU=16
-seq.TileSelector.SkipMasked=True
-seq.TileSelector.CheckDCS=TileUseDCS
-seq.TileSelector.SkipMBTS=True
-seq.TileSelector.CheckDMUs=True
-seq.TileSelector.CheckJumps=True
-seq.TileSelector.CheckOverLG=True
-seq.TileSelector.CheckOverHG=False
-seq.TileSelector.MaxVerboseCnt=99999999
-seq.TileSelector.OutputLevel=1
+tileSelector.MinTimeCell=-100.
+tileSelector.MaxTimeCell=100.
+tileSelector.PtnTimeCell=10
+tileSelector.MinTimeChan=-100.
+tileSelector.MaxTimeChan=100.
+tileSelector.PtnTimeChan=10
+tileSelector.MinTimeGap=-100.
+tileSelector.MaxTimeGap=100.
+tileSelector.PtnTimeGap=10
+tileSelector.MinTimeMBTS=-100.
+tileSelector.MaxTimeMBTS=100.
+tileSelector.PtnTimeMBTS=10
+
+tileSelector.JumpDeltaHG=50.
+tileSelector.JumpDeltaLG=20.
+tileSelector.PedDetlaHG=4.1
+tileSelector.PedDetlaLG=4.1
+tileSelector.ConstLength=7
+tileSelector.MinBadMB=4
+tileSelector.MinBadDMU=4
+tileSelector.MaxBadDMU=15
+tileSelector.SkipEmpty=True
+tileSelector.SkipMasked=True
+tileSelector.CheckDCS=TileUseDCS
+tileSelector.SkipMBTS=True
+tileSelector.CheckDMUs=True
+tileSelector.CheckJumps=True
+tileSelector.CheckOverLG=True
+tileSelector.CheckOverHG=False
+tileSelector.MaxVerboseCnt=20
+tileSelector.OutputLevel=1
+
+from AthenaCommon.AlgSequence import AlgSequence
+condSeq = AthSequencer("AthCondSeq")
+condSeq.insert(len(condSeq), tileSelector)
 
 # get a handle on the job main sequence                                         
 def _retrieve_outputstream_name():
@@ -312,7 +334,7 @@ def _retrieve_outputstream_name():
 output_algname = _retrieve_outputstream_name()
 if output_algname:
     output_stream = getattr(topSequence, output_algname)
-    output_stream.AcceptAlgs = [seq.TileSelector.name()]
+    output_stream.AcceptAlgs = [tileSelector.name()]
 
 svcMgr.MessageSvc.OutputLevel = OutputLEVEL
 svcMgr.EventSelector.SkipEvents = EvtMin

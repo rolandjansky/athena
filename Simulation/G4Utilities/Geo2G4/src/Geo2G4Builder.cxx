@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Geo2G4Builder.h"
@@ -24,7 +24,6 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/StoreGate.h"
-#include "StoreGate/DataHandle.h"
 
 #include "G4ReflectionFactory.hh"
 #include "G4LogicalBorderSurface.hh"
@@ -46,7 +45,7 @@ Geo2G4Builder::Geo2G4Builder(std::string detectorName):
     abort();
   }
 
-  const DataHandle<GeoModelExperiment> theExpt;
+  const GeoModelExperiment* theExpt = nullptr;
   sc = m_pDetStore->retrieve( theExpt, "ATLAS" );
   if(sc.isFailure()){
     ATH_MSG_ERROR("Detector "<< detectorName << "could not get GeoModelExperiment!");
@@ -63,7 +62,7 @@ Geo2G4Builder::Geo2G4Builder(std::string detectorName):
     if(m_treeTops.size()>1)
       {
         // -------- -------- MATERIAL MANAGER -------- ----------
-        DataHandle<StoredMaterialManager> theMaterialManager;
+        const StoredMaterialManager* theMaterialManager = nullptr;
         sc = m_pDetStore->retrieve(theMaterialManager, "MATERIALS");
         if(sc.isFailure())
           ATH_MSG_ERROR("Detector "<< detectorName << "could not retrieve Material Manager when number of tree tops > 1");

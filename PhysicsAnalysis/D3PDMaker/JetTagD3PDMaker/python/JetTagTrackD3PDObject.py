@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 #
 ## @file JetTagD3PDMaker/python/JetTagTrackD3PDObject.py
@@ -9,7 +9,7 @@
 import D3PDMakerCoreComps
 from D3PDMakerConfig.D3PDMakerFlags  import D3PDMakerFlags
 from TrackD3PDMaker.TrackD3PDMakerFlags import TrackD3PDFlags
-from TrackD3PDMaker.TrackD3PDObject import TrackD3PDObject
+from TrackD3PDMaker.xAODTrackD3PDObject import xAODTrackD3PDObject
 from RecExConfig.RecFlags import rec
 
 from JetTagD3PDMaker.JetTagD3PDMakerKeys import JetTagD3PDKeys
@@ -49,19 +49,13 @@ def getJetTagTrackD3PDObject(level=20, **kw):
         TrackD3PDFlags.doTruth = False
         
  
-    JetTagTrackParticleD3PDObject = TrackD3PDObject(_label=JetTagD3PDKeys.TrackGetterLabel(),
-                                                    _prefix=JetTagD3PDKeys.TrackPrefix(),
-                                                    _sgkey=JetTagD3PDFlags.TrackParticleSGKey(),
-                                                    typeName='Rec::TrackParticleContainer',
-                                                    vertexSGKey=JetTagD3PDFlags.PrimaryVertexSGKey(),
-                                                    vertexTarget=JetTagD3PDKeys.PrimaryVertexGetterLabel(),
-                                                    vertexPrefix=JetTagD3PDKeys.PrimaryVertexPrefix(),
-                                                    truthTarget=TruthD3PDFlags.GenParticleAssocLabel(),
-                                                    truthPrefix=TruthD3PDKeys.GenParticlePrefix(),
-                                                    truthMapKey=JetTagD3PDFlags.TruthTrackParticleSGKey(),
-                                                    detailedTruthMapKey='',#'DetailedTrackTruth',
-                                                    SGKeyForTruth=JetTagD3PDFlags.TrackParticleSGKey(),
-                                                    flags=TrackD3PDFlags)
+    JetTagTrackParticleD3PDObject = xAODTrackD3PDObject(_label=JetTagD3PDKeys.TrackGetterLabel(),
+                                                        _prefix=JetTagD3PDKeys.TrackPrefix(),
+                                                        _sgkey=JetTagD3PDFlags.TrackParticleSGKey(),
+                                                        vertexSGKey=JetTagD3PDFlags.PrimaryVertexSGKey(),
+                                                        vertexTarget=JetTagD3PDKeys.PrimaryVertexGetterLabel(),
+                                                        vertexPrefix=JetTagD3PDKeys.PrimaryVertexPrefix(),
+                                                        flags=TrackD3PDFlags)
 
     from AthenaCommon.AppMgr import ToolSvc
     from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetTrackSelectorTool
@@ -77,7 +71,7 @@ def getJetTagTrackD3PDObject(level=20, **kw):
     jetTagD3PDInDetTrackSelectorTool.TrackSummaryTool = ToolSvc.InDetTrackSummaryTool
     ToolSvc+=jetTagD3PDInDetTrackSelectorTool
 
-    from TrackD3PDMaker import TrackParticleGetterTool
+    from InDetD3PDMaker import TrackParticleGetterTool
     jetTagD3PDTrackGetterTool = TrackParticleGetterTool("jetTagD3PDTrackGetterTool")
     jetTagD3PDTrackGetterTool.VertexSGKey = JetTagD3PDFlags.PrimaryVertexSGKey() ## no need to resolve for now 
     jetTagD3PDTrackGetterTool.TrackSelector = jetTagD3PDInDetTrackSelectorTool

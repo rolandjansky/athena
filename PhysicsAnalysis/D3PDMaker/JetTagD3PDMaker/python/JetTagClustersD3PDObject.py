@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 #
 ## @file JetTagD3PDMaker/python/JetTagClustersD3PDObject.py
@@ -8,7 +8,6 @@
 ##
 import D3PDMakerCoreComps
 from D3PDMakerConfig.D3PDMakerFlags  import D3PDMakerFlags
-from TrackD3PDMaker.PixelClusterD3PDObject import PixelClusterD3PDObject
 
 def getJetTagClusterD3PDObject(level=0, **kw):
 
@@ -16,5 +15,6 @@ def getJetTagClusterD3PDObject(level=0, **kw):
     ### 1. add link to track and gen particle
     ### 2. configure selection blayer/all pix
 
+    from InDetD3PDMaker.PixelClusterD3PDObject import PixelClusterD3PDObject
     return PixelClusterD3PDObject(level=level, **kw)
 

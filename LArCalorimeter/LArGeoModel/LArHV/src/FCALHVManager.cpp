@@ -21,12 +21,14 @@
 #include "LArCabling/LArHVCablingTool.h"
 #include "Identifier/HWIdentifier.h"
 
+#include <atomic>
 
 class FCALHVManager::Clockwork {
 public:
   FCALHVDescriptor *descriptor;
-  bool init;
   FCALHVModuleConstLink linkArray[2][16][3];
+  std::atomic<bool>          init{false};
+  std::mutex                 mtx;
   std::vector<FCALHVPayload> payloadArray;
 };
 
@@ -98,7 +100,8 @@ FCALHVModuleConstLink FCALHVManager::getHVModule(unsigned int iSide, unsigned in
 }
 
 void FCALHVManager::update() const {
-  if (!m_c->init) {
+  std::lock_guard<std::mutex> lock(m_c->mtx);
+  if (!(m_c->init)) {
     m_c->init=true;
     m_c->payloadArray.reserve(2*16*3*4);
     for (unsigned int i=0;i<384;i++) {

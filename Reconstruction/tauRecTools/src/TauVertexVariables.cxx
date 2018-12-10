@@ -26,17 +26,12 @@
 
 TauVertexVariables::TauVertexVariables(const std::string &name ) :
   TauRecToolBase(name),
-  m_primaryVertexKey("PrimaryVertices"),
   m_fitTool("Trk::AdaptiveVertexFitter"),
-  m_SeedFinder("Trk::CrossDistancesSeedFinder"),
-  m_pSecVtxContainer(0),
-  m_pSecVtxAuxContainer(0){
-  declareProperty("PrimaryVertexKey", m_primaryVertexKey);
-  declareProperty("TrackParticleContainer", m_inputTrackParticleContainerName = "InDetTrackParticles");
+  m_SeedFinder("Trk::CrossDistancesSeedFinder")
+{
   declareProperty("TrackToVertexIPEstimator", m_trackToVertexIPEstimator);
   declareProperty("VertexFitter", m_fitTool);
   declareProperty("SeedFinder", m_SeedFinder);
-  declareProperty("runOnAOD", m_AODmode=false);//AODS are input file 
 }
 
 //-----------------------------------------------------------------------------
@@ -56,35 +51,22 @@ StatusCode TauVertexVariables::initialize() {
   CHECK( m_fitTool.retrieve() );
   CHECK( m_SeedFinder.retrieve() );
 
+  ATH_CHECK(m_vertexInputContainer.initialize() );
+  ATH_CHECK(m_trackPartInputContainer.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
 StatusCode TauVertexVariables::eventInitialize() {
 
-  bool inTrigger = tauEventData()->inTrigger();
-  
-  // Only store the vertex containers if we are offline?
-  if(!inTrigger)
-    {
-      // Secondary Vertex Container for tau decay vertex
-      if(!m_AODmode){
-	m_pSecVtxContainer = new xAOD::VertexContainer();
-	m_pSecVtxAuxContainer = new xAOD::VertexAuxContainer();
-	m_pSecVtxContainer->setStore( m_pSecVtxAuxContainer );
-      
-	CHECK( evtStore()->record( m_pSecVtxContainer, "TauSecondaryVertices" ) );
-	CHECK( evtStore()->record( m_pSecVtxAuxContainer, "TauSecondaryVerticesAux." ) );
-      }
-      else {
-	CHECK( evtStore()->retrieve( m_pSecVtxContainer, "TauSecondaryVertices") );
-	CHECK( evtStore()->retrieve( m_pSecVtxAuxContainer, "TauSecondaryVerticesAux.") );
-      }
-    }
-  
   return StatusCode::SUCCESS;
 
 }
 
+StatusCode TauVertexVariables::eventFinalize() {
+  
+  return StatusCode::SUCCESS;
+}
 
 
 //-----------------------------------------------------------------------------
@@ -98,7 +80,7 @@ StatusCode TauVertexVariables::finalize() {
 //-----------------------------------------------------------------------------
 // Execution
 //-----------------------------------------------------------------------------
-StatusCode TauVertexVariables::execute(xAOD::TauJet& pTau) {
+StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::VertexContainer& pSecVtxContainer) {
 
   ATH_MSG_DEBUG("executing TauVertexVariables");
 
@@ -168,24 +150,29 @@ StatusCode TauVertexVariables::execute(xAOD::TauJet& pTau) {
     return StatusCode::SUCCESS;
   }
 
-  const xAOD::VertexContainer* vxContainer = 0;
-  StatusCode sc=StatusCode::SUCCESS;
-  if (sc.isSuccess() && inTrigger)   sc = tauEventData()->getObject("VxPrimaryCandidate", vxContainer);
-  // retrieve vertex container, exit if not found
-  else sc = evtStore()->retrieve(vxContainer, m_primaryVertexKey);
-
-  if (sc.isFailure() || !vxContainer) {
-    ATH_MSG_WARNING("No vertex container found. Skipping secondary vertex fitting.");
-    return StatusCode::SUCCESS;
+  if (inTrigger){
+    const xAOD::VertexContainer* vxContainer = 0;
+    StatusCode sc=StatusCode::SUCCESS;
+    sc = tauEventData()->getObject("VxPrimaryCandidate", vxContainer);
+    
+    if (sc.isFailure() || !vxContainer) {
+      ATH_MSG_WARNING("No vertex container found. Skipping secondary vertex fitting.");
+      return StatusCode::SUCCESS;
+    }
   }
-
-  const xAOD::TrackParticleContainer* trackParticleCont = 0;
-  if (inTrigger)   sc = tauEventData()->getObject( "TrackContainer", trackParticleCont );
-  // retrieve track particle container, exit if not found
-  else sc = evtStore()->retrieve(trackParticleCont, m_inputTrackParticleContainerName);
-  if (sc.isFailure() || !trackParticleCont) {
-    ATH_MSG_WARNING("No track particle container found. Skipping secondary vertex fitting.");
-    return StatusCode::SUCCESS;
+  else {
+    // retrieve vertex container, exit if not found
+    SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
+    if (!vertexInHandle.isValid()) {
+      ATH_MSG_WARNING("No vertex container found. Skipping secondary vertex fitting.");
+      return StatusCode::SUCCESS;
+    }
+    // retrieve track particle container, exit if not found 
+    SG::ReadHandle<xAOD::TrackParticleContainer> trackPartInHandle( m_trackPartInputContainer );
+    if (!trackPartInHandle.isValid()) {
+      ATH_MSG_WARNING("No track particle container found. Skipping secondary vertex fitting.");
+      return StatusCode::SUCCESS;
+    }
   }
 
   // get xAOD TrackParticles and Trk::Tracks
@@ -226,7 +213,7 @@ StatusCode TauVertexVariables::execute(xAOD::TauJet& pTau) {
     xAODvertex = m_fitTool->fit(xaodTracks, seedPoint);
     if (xAODvertex && !inTrigger) {
       ATH_MSG_VERBOSE("using new xAOD API: Secondary Vertex found and recorded! x="<<xAODvertex->position().x()<< ", y="<<xAODvertex->position().y()<<", perp="<<xAODvertex->position().perp());
-      m_pSecVtxContainer->push_back(xAODvertex);
+      pSecVtxContainer.push_back(xAODvertex);
       xAODvertex->setVertexType(xAOD::VxType::NotSpecified);
     }
 
@@ -242,7 +229,7 @@ StatusCode TauVertexVariables::execute(xAOD::TauJet& pTau) {
 
   // Note, we only attach the 2nd vertex if at offline, otherwise, break the trigger persistency
   if  (!inTrigger) {
-    pTau.setSecondaryVertex(m_pSecVtxContainer, xAODvertex); 		// set the link to the vertex
+    pTau.setSecondaryVertex(&pSecVtxContainer, xAODvertex); 		// set the link to the vertex
   }
   else {
     delete xAODvertex; // delete the vertex when in trigger mode, because we can not save it

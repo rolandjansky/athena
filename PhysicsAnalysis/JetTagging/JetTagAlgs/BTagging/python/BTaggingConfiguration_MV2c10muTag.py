@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # Configuration functions for MV2c10mu (MV2 variant with softmuon variables)
 # Author: Wouter van den Wollenberg (2013-2014)
@@ -6,9 +6,10 @@ from BTagging.BTaggingFlags import BTaggingFlags
 
 metaMV2c10muTag = { 'IsATagger'          : False,#True,
                   'xAODBaseName'       : 'MV2c10mu',
-                  'DependsOn'          : ['AtlasExtrapolator',
-                                          'SoftMuonTag',
-                                          'BTagTrackToVertexTool'],
+                  'DependsOn'          : [#'AtlasExtrapolator',
+                                          #'SoftMuonTag',
+                                          #'BTagTrackToVertexTool'
+                                         ],
                   'CalibrationTaggers' : ['MV2c10mu',],
                   'ToolCollection'     : 'MV2c10muTag'}
 

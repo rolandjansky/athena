@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // H6CryostatConstruction
@@ -23,7 +23,6 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"  
 #include "GeoModelKernel/GeoIdentifierTag.h"  
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
@@ -70,18 +69,18 @@ GeoVFullPhysVol* LArGeo::H6CryostatConstruction::GetEnvelope()
   }
 
   // Material Manager
-  DataHandle<StoredMaterialManager> materialManager;
+  const StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) return 0;
 
-  GeoMaterial *Air  = materialManager->getMaterial("std::Air");
+  const GeoMaterial *Air  = materialManager->getMaterial("std::Air");
   if (!Air) {
     throw std::runtime_error("Error in H6CryostatConstruction, std::Air is not found.");
   }
-  GeoMaterial *Iron  = materialManager->getMaterial("std::Iron");
+  const GeoMaterial *Iron  = materialManager->getMaterial("std::Iron");
   if (!Iron) {
     throw std::runtime_error("Error in H6CryostatConstruction, std::Iron is not found.");
   }
-  GeoMaterial *LAr  = materialManager->getMaterial("std::LiquidArgon");
+  const GeoMaterial *LAr  = materialManager->getMaterial("std::LiquidArgon");
   if (!LAr) {
     throw std::runtime_error("Error in H6CryostatConstruction, std::LiquidArgon is not found.");
   }

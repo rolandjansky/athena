@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkEventUtils
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkFitter/TrkFitterUtils
+                          InnerDetector/InDetConditions/BeamSpotConditionsData
                           PRIVATE
                           InnerDetector/InDetConditions/InDetBeamSpotService
                           Tracking/TrkDetDescr/TrkSurfaces

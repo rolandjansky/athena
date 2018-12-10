@@ -17,8 +17,8 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/exceptions.h"
 
-#include "SGTools/DataBucketBase.h"
-#include "SGTools/StorableConversions.h"
+#include "AthenaKernel/DataBucketBase.h"
+#include "AthenaKernel/StorableConversions.h"
 
 // fwk includes
 #include "GaudiKernel/MsgStream.h"

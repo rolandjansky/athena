@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEBYTESTREAM_TILEROD_ENCODER_H
@@ -148,6 +148,7 @@ class TileROD_Encoder {
     bool m_verbose;
     unsigned int m_type;
     unsigned int m_unitType;
+    unsigned int m_rChUnit;
 
     mutable Athena::MsgStreamMember m_msg;
     int m_maxChannels;

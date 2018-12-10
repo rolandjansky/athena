@@ -62,6 +62,7 @@ from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import (T2CaloEgamma_eGamma,
                                                      T2CaloEgamma_Ringer)
 
 from TrigCaloRec.TrigCaloRecConfig import (TrigCaloCellMaker_eGamma,
+                                           TrigCaloCellMaker_eGamma_LargeRoI,
                                            TrigCaloTowerMaker_eGamma)
 
 from TrigEgammaRec.TrigEgammaToolFactories import TrigCaloClusterMaker_slw
@@ -71,11 +72,13 @@ from TrigEgammaHypo.TrigL2ElectronFexConfig import L2ElectronFex_1
 from TrigEgammaHypo.TrigL2PhotonFexConfig import L2PhotonFex_1
 
 from TrigEgammaRec.TrigEgammaRecConfig import TrigEgammaRec
+
 from TrigEgammaHypo.TrigEFCaloCalibFexConfig import (TrigEFCaloCalibFex_Electron,TrigEFCaloCalibFex_Photon)
 
 
 from TrigMultiVarHypo.TrigL2CaloRingerHypoConfig import (TrigL2CaloRingerFexHypo_e_ID,
                                                          TrigL2CaloRingerFexHypo_e_NoCut,
+                                                         TrigL2CaloRingerFexHypo_g_NoCut,
                                                          TrigL2CaloRingerFexHypo_e_EtCut,
                                                          TrigL2CaloRingerFexHypo_g_EtCut)
 
@@ -120,6 +123,10 @@ from TrigEgammaHypo.TrigEFPhotonHypoConfig import (EFPhotonHypo_g_EtCut,
                                                    EFPhotonHypo_g_ID_CaloOnly_Iso)
 
 from TriggerMenu.egamma.EgammaCleanMonitoring import EgammaChainsToKeepMonitoring
+
+# In order to smartly turn off monitoring, and to avoid turning off monitoring on algorithms previusly selected to keep monitoring The following list will keep track of what is turned on:
+ListOfMonitoredHypos=[]
+
 from TriggerMenu.menu.CleanMonitoring import KeepMonitoring, DisableMonitoringButValAndTime
 
 # Helper utilities
@@ -138,7 +145,6 @@ def update_map(seq):
 
 # Class to hold all possible Fex configurables
 # Can contain both sequences and single instances
-
 class EgammaFexBuilder(object):
     """
     Summary:
@@ -162,15 +168,22 @@ class EgammaFexBuilder(object):
 
         self._fast_calo_egamma          = T2CaloEgamma_eGamma()
         self._fast_calo_ringer          = T2CaloEgamma_Ringer()
-        
+
         self._fast_electron                = L2ElectronFex_1()
         self._fast_photon                 = L2PhotonFex_1()
         self._egamma_rec         = TrigEgammaRec.copy(name = "TrigEgammaRec_eGamma",doPrint=False)()
         self._egamma_rec_conv    = TrigEgammaRec.copy(name = "TrigEgammaRec_Conv_eGamma", doConversions = True,doPrint=False)()
         self._egamma_rec_noid    = TrigEgammaRec.copy(name = "TrigEgammaRec_NoIDEF_eGamma",doTrackMatching = False,doTrackIsolation = False,doPrint=False)()
-        self._egamma_rec_iso    = TrigEgammaRec.copy(name = "TrigEgammaRec_Iso_eGamma",PhotonContainerName="egamma_Iso_Photons",
+        self._egamma_rec_ph_caloiso    = TrigEgammaRec.copy(name = "TrigEgammaRec_CaloIso_photon",PhotonContainerName="egamma_Iso_Photons",
                                                      doTrackMatching = False,doTrackIsolation = False,
                                                      doCaloTopoIsolation=True,doPrint=False)()
+        self._egamma_rec_el_caloiso    = TrigEgammaRec.copy(name = "TrigEgammaRec_CaloIso_electron",
+                                                    ElectronContainerName="egamma_Iso_Electrons",
+                                                    PhotonContainerName="egamma_Iso_Photons",
+                                                    doCaloTopoIsolation=True,doPrint=False)()
+                                                     
+
+                                                     
         self._cell_maker = TrigCaloCellMaker_eGamma()
         self._tower_maker    = TrigCaloTowerMaker_eGamma()
         self._tower_maker_ion    = TrigCaloTowerMaker_eGamma("TrigCaloTowerMaker_eGamma_heavyIon")
@@ -268,14 +281,18 @@ class EgammaFexBuilder(object):
     
     def _get_precisecalo(self,chainDict):
         chain_part = chainDict['chainParts']
+        idinfo = chain_part['IDinfo']
         calo_ion = False
         seq=[]
 
+        
         if 'extra' in chain_part:
             if chain_part['extra'] == 'ion':
                 calo_ion = True
         if calo_ion: 
             seq = [theTrigCaloCellMaker_eGammaHI, self._tower_maker_ion, self._cluster_maker] 
+        elif 'bloose' in idinfo  :
+            seq = [TrigCaloCellMaker_eGamma_LargeRoI(), self._tower_maker_ion, self._cluster_maker] 
         else:
             seq = [self._cell_maker,self._tower_maker,self._cluster_maker]
         
@@ -298,7 +315,7 @@ class EgammaFexBuilder(object):
         chain_part = chainDict['chainParts']
         seq = []
         if(chain_part['trigType'] == 'e'):
-            seq = [self._egamma_rec]
+            seq = [self._get_electronrec(chainDict)]
         elif(chain_part['trigType'] == 'g'):
             seq = [self._get_photonrec(chainDict)]
         else:
@@ -306,27 +323,52 @@ class EgammaFexBuilder(object):
         log.debug('preciserec %s',seq)
         return seq    
 
+    def _get_electronrec(self,chainDict):
+        chain_part = chainDict['chainParts']
+        do_caloiso = False
+
+        log.debug('Electron preciserec')
+        if 'isoInfo' in chain_part:
+            iso = [x for x in chain_part['isoInfo'] if 'icalo' in x]
+            if len(iso)>0:
+                log.debug('Electron calo isolation %s',iso[0])
+                do_caloiso = True
+        if do_caloiso:
+            log.debug('Electron calo + track isolation')
+            return self._egamma_rec_el_caloiso
+        else:
+            log.debug('Electron default rec')
+            return self._egamma_rec
+
+            log.debug('Electron default rec')
+            return self._egamma_rec
+
     def _get_photonrec(self,chainDict):
         chain_part = chainDict['chainParts']
         do_conv = False
-        do_iso = False
+        do_caloiso = False
+
         log.debug('Photon preciserec') 
         if 'addInfo' in chain_part:
             if 'conv' in chain_part['addInfo']:
                 do_conv = True
-        if 'isoInfo' in chain_part: 
-            if chain_part['isoInfo']:
-                do_iso = True
         
-        if do_iso:
+        if 'isoInfo' in chain_part:
+            iso = [x for x in chain_part['isoInfo'] if 'icalo' in x]
+            if len(iso)>0:
+                log.debug('Electron calo isolation %s',iso[0])
+                do_caloiso = True
+        if do_caloiso:
             log.debug('Photon isolation')
-            return self._egamma_rec_iso
+            return self._egamma_rec_ph_caloiso
+
         elif do_conv:
             log.debug('Photon conversions')
             return self._egamma_rec_conv
         else:
             log.debug('Photon default rec')
             return self._egamma_rec_noid
+
 
 class EgammaHypoBuilder(object):
     '''
@@ -349,11 +391,13 @@ class EgammaHypoBuilder(object):
         ''' Properties of chain required to configure the hypos '''
         self._properties = {'threshold':0,
                             'IDinfo':'',
-                            'isoInfo':'',
+                            'isoInfo':[],
                             'lhInfo':'',
                             'etcut':False,
                             'perf':False,
                             'ringer':False,
+                            'sc':False,
+                            'gsf':False,
                             'g':False,
                             'e':False,
                             'hiptrt':False,
@@ -416,7 +460,7 @@ class EgammaHypoBuilder(object):
         suffix = self._base_name
         parts = [self._properties['IDinfo'],
                  self._properties['lhInfo'],
-                 self._properties['isoInfo']]
+                 '_'.join(self._properties['isoInfo'])]
         
         for item in parts:
             if item:
@@ -524,20 +568,24 @@ class EgammaHypoBuilder(object):
         if self._properties['hiptrt']:   
             return [None,None]
         
-        if 'merged' in idinfo:  
+        if 'merged' in idinfo or 'bloose' in idinfo  :  
             fex,hypo = TrigL2CaloRingerFexHypo_e_EtCut(thr)
         elif self._properties['perf']:
             if(tt == 'e'):
                 fex,hypo = TrigL2CaloRingerFexHypo_e_NoCut(thr)
             if(tt == 'g'):
-                fex,hypo = TrigL2CaloRingerFexHypo_e_NoCut(thr)
+                fex,hypo = TrigL2CaloRingerFexHypo_g_NoCut(thr)
         elif self._properties['etcut']:
             if(tt == 'e'):
                 fex,hypo = TrigL2CaloRingerFexHypo_e_EtCut(thr)
             if(tt == 'g'):
                 fex,hypo = TrigL2CaloRingerFexHypo_g_EtCut(thr)
         elif idinfo:
-            fex, hypo = TrigL2CaloRingerFexHypo_e_ID(thr,idinfo,tt)
+            if(tt == 'e'):
+                fex, hypo = TrigL2CaloRingerFexHypo_e_ID(thr,idinfo,tt)
+            if(tt == 'g'):
+                # For now, there is no photon ringer tuning. 
+                fex, hypo = TrigL2CaloRingerFexHypo_g_NoCut(thr)
         else:
             log.error('Cannot configure ringer')
         seq = [fex,hypo]
@@ -853,8 +901,18 @@ class EgammaSequence(object):
             if step not in seq:
                 log.debug('Hypo only step %s ', step)
                 seq[step]=hypo[step]
-        if ( self._disable_mon ):
-            self._config_monitoring(hypo)
+        if ( self._disable_mon):
+            if not hypo in ListOfMonitoredHypos:
+                #only disable monitoring of hypo if both, chain is *not* in list and if hypo NOT in the list of hypos to keep monitoring
+                self._config_monitoring(hypo)
+                log.debug('DISABLED_MON for '+str(hypo))
+            else:
+                log.debug('NOTDISABLED_MON for '+str(hypo))
+        else:
+            # if here it means this hypo IS to be configured. So store it in ListOfMonitoredHypos, unless is already there:
+            if not hypo in ListOfMonitoredHypos:
+                log.debug('ENABLED_MON for '+str(hypo))
+                ListOfMonitoredHypos.append(hypo)
         self.sequences = seq
         return seq       
     

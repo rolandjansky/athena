@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -23,8 +23,8 @@ Modified:
 #define TRIG_BPHYS_CONTAINER
 
 #include "AthContainers/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthenaKernel/BaseInfo.h"
 
 #include "TrigParticle/TrigL2Bphys.h"
 class TrigL2Bphys;

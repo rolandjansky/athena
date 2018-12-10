@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileGeoCutBuilder.h"
@@ -31,7 +31,7 @@
 #include <iostream>
 #include <assert.h>
 
-TileGeoCutBuilder::TileGeoCutBuilder(DataHandle<StoredMaterialManager> & /*matManager*/,
+TileGeoCutBuilder::TileGeoCutBuilder(const StoredMaterialManager* /*matManager*/,
 				     TileDddbManager * /*pDbManager*/,
                                      MsgStream * log)
   : m_log(log)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
  */
 
 // $Id$
@@ -19,7 +19,7 @@
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/AuxStoreInternal.h"
 #include "SGTools/TestStore.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/errorcheck.h"
 #include "TestTools/initGaudi.h"
 #include "TestTools/expect_exception.h"

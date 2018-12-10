@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/ConfigurableDb.py
 # Author: Sebastien Binet (binet@cern.ch)
@@ -97,12 +97,12 @@ class _CfgDb( dict ):
               'module'  : module,
               'lib'     : lib }
 
-      if self.has_key( configurable ):
+      if configurable in self:
        # check if it comes from the same library...
          if cfg['lib'] != self[configurable]['lib']:
             self.msg.verbose( "dup!! [%s] p=%s m=%s lib=%s",
                           configurable, package, module, lib )
-            if self._duplicates.has_key(configurable):
+            if configurable in self._duplicates:
                self._duplicates[configurable] += [ cfg ]
             else:
                self._duplicates[configurable]  = [ cfg ]
@@ -143,11 +143,9 @@ def loadConfigurableDb():
    Configurables available in the release
    """
 
-   import os, sys
-   from glob import glob
+   import os
    from os.path import join as path_join
-   from fnmatch import fnmatch as _fnmatch
-   
+
    global cfgDb
 
    cfgDb.msg.debug( "loading confDb files..." )
@@ -175,8 +173,8 @@ def loadConfigurableDb():
          except Exception, err:
             import traceback
             traceback.print_exc()
-            log.warning( "Could not load file [%s] !", confDb )
-            log.warning( "Reason: %s", err )
+            cfgDb.msg.warning( "Could not load file [%s] !", confDb )
+            cfgDb.msg.warning( "Reason: %s", err )
          nFiles += 1
    cfgDb.msg.debug( "loading confDb files... [DONE]" )
    nPkgs = len( set([k['package'] for k in cfgDb.values()]) )

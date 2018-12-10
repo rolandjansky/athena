@@ -1,10 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// ISimulationSvc.h, (c) ATLAS Detector software
-/////////////////////////////////////////////////////////////////// 
 #ifndef ISF_INTERFACES_ISIMULATIONSVC_H
 #define ISF_INTERFACES_ISIMULATIONSVC_H 1
 
@@ -26,53 +23,53 @@ namespace ISF {
   class IParticleBroker;
 
   /** @ class ISimulationSvc
-  
+
       Main interface of either geometrical of flavor simulation service.
-      The SimulationSvc does not take ownership of the StackParticle. 
+      The SimulationSvc does not take ownership of the StackParticle.
       The IStackSvc and ITruthSvc handles are provided by the kernel to force one unique configuration.
-      
+
       @ author Andreas.Salzburger -at- cern.ch, Michael.Duehrssen -at- cern.ch , Elmar.Ritsch -at- cern.ch
-     */
-  class ISimulationSvc : virtual public IInterface { 
+  */
+  class ISimulationSvc : virtual public IInterface {
 
-      /////////////////////////////////////////////////////////////////// 
-      // Public methods: 
-      /////////////////////////////////////////////////////////////////// 
-    public: 
-      ISimulationSvc() : m_ssvcID( ISF::fUndefinedSimID) { };
+    ///////////////////////////////////////////////////////////////////
+    // Public methods:
+    ///////////////////////////////////////////////////////////////////
+  public:
+    ISimulationSvc() { };
 
-      /// Creates the InterfaceID and interfaceID() method
-      DeclareInterfaceID(ISimulationSvc, 1, 0);
-      
-      /** Inform the SimulationSvc about the ParticleBroker */
-      virtual StatusCode setParticleBroker( IParticleBroker *broker) = 0;
+    /// Creates the InterfaceID and interfaceID() method
+    DeclareInterfaceID(ISimulationSvc, 1, 0);
 
-      /** Simulation call for vectors of particles*/
-      virtual StatusCode simulateVector(const ConstISFParticleVector &particles) = 0;
+    /** Inform the SimulationSvc about the ParticleBroker */
+    virtual StatusCode setParticleBroker( IParticleBroker *broker) = 0;
 
-      /** Simulation call for individual particles*/
-      virtual StatusCode simulate(const ISFParticle& isp) = 0;
+    /** Simulation call for vectors of particles*/
+    virtual StatusCode simulateVector(const ConstISFParticleVector &particles) = 0;
 
-      /** Return the simulation service descriptor */
-      virtual std::string& simSvcDescriptor() = 0;
+    /** Simulation call for individual particles*/
+    virtual StatusCode simulate(const ISFParticle& isp) = 0;
 
-      /** Setup Event chain - in case of a begin-of event action is needed, 
-          to be called by simulation kernel */
-      virtual StatusCode setupEvent() = 0;                             
-                                 
-      /** Release Event chain - in case of an end-of event action is needed,
-          to be called by simulation kernel  */
-      virtual StatusCode releaseEvent() = 0;                             
-    
-      /** Assign a simulation service ID */
-      inline void assignSimSvcID(SimSvcID id);
+    /** Return the simulation service descriptor */
+    virtual std::string& simSvcDescriptor() = 0;
 
-      /** Return the simulation service ID */
-      inline SimSvcID simSvcID();
+    /** Setup Event chain - in case of a begin-of event action is needed,
+        to be called by simulation kernel */
+    virtual StatusCode setupEvent() = 0;
 
-    private:
-      SimSvcID        m_ssvcID;
-  }; 
+    /** Release Event chain - in case of an end-of event action is needed,
+        to be called by simulation kernel  */
+    virtual StatusCode releaseEvent() = 0;
+
+    /** Assign a simulation service ID */
+    inline void assignSimSvcID(SimSvcID id);
+
+    /** Return the simulation service ID */
+    inline SimSvcID simSvcID();
+
+  private:
+    SimSvcID        m_ssvcID{ISF::fUndefinedSimID};
+  };
 
   /** inline methods */
   inline void ISimulationSvc::assignSimSvcID(SimSvcID id) { m_ssvcID = id; }
@@ -81,4 +78,3 @@ namespace ISF {
 }
 
 #endif //> !ISF_INTERFACES_ISIMULATIONSVC_H
-

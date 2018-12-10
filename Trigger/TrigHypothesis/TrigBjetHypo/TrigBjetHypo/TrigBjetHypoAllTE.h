@@ -15,6 +15,8 @@
 #define TRIGBJETHYPOALLTE_H
 
 #include "TrigInterfaces/AllTEAlgo.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
+
 
 class TriggerElement;
 
@@ -114,7 +116,7 @@ class TrigBjetHypoAllTE: public HLT::AllTEAlgo {
       m_count(0) 
     { }
 
-    bool pass(){
+    bool pass() const{
       return bool(m_count >= m_multiplicity);
     }
     
@@ -132,6 +134,8 @@ class TrigBjetHypoAllTE: public HLT::AllTEAlgo {
   /** @ brief And the result of each of these is ORed  */
   std::vector<std::vector<triggerRequirement> > m_triggerReqsOR;
 
+
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 };
 
 #endif

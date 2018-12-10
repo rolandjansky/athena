@@ -151,15 +151,13 @@ namespace Analysis {
                      const std::string& n,
                      const IInterface* p)
     : AthAlgTool(t,n,p),
-      //m_secVxFinderNameForV0Removal("InDetVKalVxInJetTool"),
-      //m_secVxFinderNameForIPSign("InDetVKalVxInJetTool"),
       m_unbiasIPEstimation(true),
       m_calibrationDirectory("RNNIP"),
       m_secVxFinderName("InDetVKalVxInJetTool"),
-      m_trackToVertexTool("Reco::TrackToVertex"),
-      m_trackSelectorTool("Analysis::TrackSelector"),
-      m_SVForIPTool("Analysis::SVForIPTool"),
-      m_trackGradeFactory("Analysis::BasicTrackGradeFactory")
+      m_trackSelectorTool("Analysis::TrackSelector", this),
+      m_SVForIPTool("Analysis::SVForIPTool", this),
+      m_trackGradeFactory("Analysis::BasicTrackGradeFactory", this),
+      m_trackToVertexIPEstimator(this)
   {
 
     declareInterface<ITagTool>(this);
@@ -213,12 +211,6 @@ namespace Analysis {
 
   StatusCode RNNIPTag::initialize() {
 
-    /** retrieving TrackToVertex: */
-    /*if ( m_trackToVertexTool.retrieve().isFailure() ) {
-      ATH_MSG_FATAL("#BTAG# Failed to retrieve tool " <<
-      m_trackToVertexTool); return StatusCode::FAILURE; } else {
-
-    }*/
     // FF: comment out V0 finding
     if (m_SVForIPTool.retrieve().isFailure() )  {
        ATH_MSG_FATAL("#BTAG# Failed to retrieve tool " << m_SVForIPTool);

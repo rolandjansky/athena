@@ -7,14 +7,20 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 #include <string>
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODCaloEvent/CaloClusterAuxContainer.h"
+#include "xAODCaloEvent/CaloCluster.h"
+#include "xAODAssociations/TrackParticleClusterAssociation.h"
+#include "xAODAssociations/TrackParticleClusterAssociationContainer.h"
+#include "xAODAssociations/TrackParticleClusterAssociationAuxContainer.h"
 
 
 namespace Rec {
   class IParticleCaloCellAssociationTool;
-}
-namespace Trk {
-  class ITrackSelectorTool;
 }
 
 class TrackParticleCellAssociationAlg : public AthAlgorithm
@@ -31,11 +37,21 @@ class TrackParticleCellAssociationAlg : public AthAlgorithm
  private:
 
   ToolHandle<Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool;
-  ToolHandle <Trk::ITrackSelectorTool>              m_trackSelector; //!< Tool to select tracks
 
-  std::string m_trackParticleCollectionName;
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleCollectionName{this,"TrackParticleContainerName", 
+      "InDetTrackParticles","SG Key of track particle container"};
+
+  SG::WriteHandleKey<xAOD::CaloClusterContainer> m_clusterContainerName{this,"ClusterContainerName", 
+      "InDetTrackParticlesAssociatedClusters","SG Key of output cluster container"};
+
+  SG::WriteHandleKey<CaloClusterCellLinkContainer> m_clusterCellLinkName{this,"CaloClusterCellLinkName",
+      "InDetTrackParticlesAssociatedClusters_links","SG Key of out CaloCluserCellLInkContainer"};
+
+
+  SG::WriteHandleKey< xAOD::TrackParticleClusterAssociationContainer> m_associationContainerName{this,"AssociationContainerName",
+      "InDetTrackParticlesClusterAssociations","SG Key of association container"};
+
   double m_ptCut;
-  std::string m_outputPostFix;
 };
 
 

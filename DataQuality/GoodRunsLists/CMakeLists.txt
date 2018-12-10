@@ -73,7 +73,8 @@ endif()
 # Test(s) in the package:
 atlas_add_test( GRLSelectionTool_test
    SOURCES test/GRLSelectionTool_test.cxx
-   LINK_LIBRARIES GoodRunsListsLib ${testLibs} )
+   LINK_LIBRARIES GoodRunsListsLib ${testLibs}
+   PROPERTIES TIMEOUT 300 )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

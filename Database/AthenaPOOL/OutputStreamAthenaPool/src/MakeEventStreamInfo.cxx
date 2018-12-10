@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file MakeEventStreamInfo.cxx
@@ -51,12 +51,12 @@ StatusCode MakeEventStreamInfo::initialize() {
 StatusCode MakeEventStreamInfo::postInitialize() {
    // Remove EventStreamInfo with same key if it exists
    if (m_metaDataStore->contains<EventStreamInfo>(m_key.value())) {
-      const DataHandle<EventStreamInfo> pEventStream(0);
+      const EventStreamInfo* pEventStream = nullptr;
       if (!m_metaDataStore->retrieve(pEventStream, m_key.value()).isSuccess()) {
          ATH_MSG_ERROR("Unable to retrieve EventStreamInfo object");
          return(StatusCode::FAILURE);
       }
-      if (!m_metaDataStore->removeDataAndProxy(pEventStream.cptr()).isSuccess()) {
+      if (!m_metaDataStore->removeDataAndProxy(pEventStream).isSuccess()) {
          ATH_MSG_ERROR("Unable to remove proxy for EventStreamInfo object");
          return(StatusCode::FAILURE);
       }
@@ -74,7 +74,7 @@ StatusCode MakeEventStreamInfo::postExecute() {
       ATH_MSG_ERROR("Unable to get parent Algorithm");
       return(StatusCode::FAILURE);
    }
-   const DataHandle<DataHeader> pHeader(0);
+   const DataHeader* pHeader = nullptr;
    const std::string headerKey = parentAlg->name();
    // Check for the DataHeader, return success of no DH in SG, assuming event was vetoed.
    if (!m_eventStore->contains<DataHeader>(headerKey)) {
@@ -85,7 +85,7 @@ StatusCode MakeEventStreamInfo::postExecute() {
       ATH_MSG_ERROR("Unable to retrieve DataHeader for key = " << headerKey);
       return(StatusCode::FAILURE);
    }
-   const DataHandle<EventInfo> pEvent(0);
+   const EventInfo* pEvent = nullptr;
    // Retrieve the EventInfo object
    if (!m_eventStore->retrieve(pEvent).isSuccess()) {
       ATH_MSG_ERROR("Unable to retrieve EventInfo object");
@@ -99,7 +99,7 @@ StatusCode MakeEventStreamInfo::postExecute() {
       }
       // set processingTag for EventStreamInfo object
    }
-   DataHandle<EventStreamInfo> pEventStream(0);
+   EventStreamInfo* pEventStream = nullptr;
    if (!m_metaDataStore->retrieve(pEventStream, m_key.value()).isSuccess()) {
       ATH_MSG_ERROR("Unable to retrieve EventStreamInfo object");
       return(StatusCode::FAILURE);

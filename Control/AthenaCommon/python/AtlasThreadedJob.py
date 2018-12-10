@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 ## @file AtlasThreadedJob.py
 ## @brief py-module to configure the Athena AppMgr for threaded (Hive) jobs
@@ -8,9 +8,7 @@
 def _setupAtlasThreadedJob():
     from AppMgr import theApp
     from AppMgr import ServiceMgr as svcMgr
-
-    import SystemOfUnits as Units
-    from Constants import VERBOSE, DEBUG, INFO, ERROR
+    import Constants
 
     from ConcurrencyFlags import jobproperties as jps
 
@@ -28,10 +26,7 @@ def _setupAtlasThreadedJob():
 
     svcMgr.StatusCodeSvc.AbortOnError = False
 
-    nThreads = jps.ConcurrencyFlags.NumThreads()
     numStores = jps.ConcurrencyFlags.NumConcurrentEvents()
-    numAlgsInFlight = nThreads
-    numThreads = nThreads
 
     from StoreGate.StoreGateConf import SG__HiveMgrSvc
     svcMgr += SG__HiveMgrSvc("EventDataSvc")
@@ -42,7 +37,7 @@ def _setupAtlasThreadedJob():
 
 
     from GaudiHive.GaudiHiveConf import AlgResourcePool
-    arp=AlgResourcePool( OutputLevel = INFO );
+    arp=AlgResourcePool( OutputLevel = Constants.INFO )
     arp.TopAlg=["AthMasterSeq"] #this should enable control flow
     svcMgr += arp
 
@@ -69,7 +64,7 @@ def _setupAtlasThreadedJob():
 
     # enable timeline recording
     from GaudiHive.GaudiHiveConf import TimelineSvc
-    svcMgr += TimelineSvc( RecordTimeline = True, Partial = False );
+    svcMgr += TimelineSvc( RecordTimeline = True, Partial = False )
     
     #
     ## Setup SGCommitAuditor to sweep new DataObjects at end of Alg execute

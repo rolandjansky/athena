@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 #=======================================================================
 # File: JobProperties/python/JobProperties.py
@@ -23,8 +23,8 @@ __all__ = [ "JobProperties"]
 #=======================================================================
 # imports
 #=======================================================================
-import re, os, pickle, pprint 
-import Constants, Logging
+import re, os, pickle, pprint, types
+import Logging
 
 #=======================================================================
 def _isCompatible( allowedTypes, value ):
@@ -74,7 +74,7 @@ class _JobPropertyMeta(type):
      # StoredValue type check
         try:
             sv = dct[ 'StoredValue' ]
-            if sv != None and not _isCompatible( dct[ 'allowedTypes' ], sv ):
+            if sv is not None and not _isCompatible( dct[ 'allowedTypes' ], sv ):
                 raise TypeError(
                     'type of StoredValue (%s) not in allowedTypes (%s)' % 
                     (type(sv).__name__,dct[ 'allowedTypes' ])
@@ -85,7 +85,7 @@ class _JobPropertyMeta(type):
      # StoredValue value check
         try:
             sv = dct[ 'StoredValue' ]
-            if sv != None and dct[ 'allowedValues' ] and sv not in dct[ 'allowedValues' ]:
+            if sv is not None and dct[ 'allowedValues' ] and sv not in dct[ 'allowedValues' ]:
                 raise TypeError(
                     'value of StoredValue (%s) not in allowedValues (%s)' % 
                     (str(sv),dct[ 'allowedValues' ])
@@ -140,7 +140,7 @@ class JobProperty(object):
             self.__name__=self.__class__.__name__
             self._context_name=context+'.'+self.__class__.__name__
         else:
-            self._log.error("There is already an instance of %s at %s ",\
+            self._log.error("There is already an instance of %s at %s ",
                             self.__class__.__name__, context_name)
             raise RuntimeError('JobProperties: JobProperty:: __init__()')
 
@@ -173,7 +173,8 @@ class JobProperty(object):
         return self.StoredValue
         
 
-    def is_locked(self): return self._locked
+    def is_locked(self):
+        return self._locked
     
     def _do_action(self):
         """ A place-holder for actions to be taken at the time 
@@ -245,7 +246,7 @@ class JobProperty(object):
                         self.set_On()
                     elif _isCompatible(self.allowedTypes, n_value):
                         self.__dict__[name] = n_value
-                        if isinstance(n_value, bool) and n_value == False:
+                        if isinstance(n_value, bool) and n_value is False:
                             self.set_Off() 
                         else:
                             self.set_On()
@@ -294,7 +295,7 @@ class JobProperty(object):
            otherwise it gives None. 
         """
         obj_p=object.__getattribute__(self, 'StoredValue')
-        if type(obj_p)==type(True):
+        if isinstance(obj_p, types.BooleanType):
             return  obj_p  & self.statusOn 
         else: 
             if self.statusOn: 
@@ -518,7 +519,8 @@ class JobPropertyContainer (object):
         else: 
             return self.print_JobProperties('print_v') 
 
-    def is_locked(self): return self._locked
+    def is_locked(self):
+        return self._locked
     
     def help(self):
         """ Prints the documentation generated with the JobProperty 

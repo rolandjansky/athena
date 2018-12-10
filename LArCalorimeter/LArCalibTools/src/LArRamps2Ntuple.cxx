@@ -296,6 +296,12 @@ StatusCode LArRamps2Ntuple::stop() {
  }//end-if rampComplete
  
 
+ SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+ const LArOnOffIdMapping* cabling=*cablingHdl;
+ if(!cabling) {
+     ATH_MSG_WARNING( "Do not have cabling object LArOnOffIdMapping" );
+     return StatusCode::FAILURE;
+ }
 
  unsigned cellCounter=0;
  if (hasRawRampContainer) { //Loop over raw ramp container and fill ntuple
@@ -353,7 +359,7 @@ StatusCode LArRamps2Ntuple::stop() {
 	unsigned igain = (unsigned)(*cont_it)->gain();
 	gain = igain;
 	if (m_addCorrUndo) corrUndo=0;
-	if (ramp && m_larCablingSvc->isOnlineConnected(chid)) {
+	if (ramp && cabling->isOnlineConnected(chid)) {
 
           //FT move to here
 	  fillFromIdentifier(chid);
@@ -404,7 +410,7 @@ StatusCode LArRamps2Ntuple::stop() {
      std::vector<HWIdentifier>::const_iterator it_e = m_onlineId->channel_end();
      for (;it!=it_e;it++) {
        const HWIdentifier chid=*it;
-       if (m_larCablingSvc->isOnlineConnected(chid)) {
+       if (cabling->isOnlineConnected(chid)) {
 	 gain  = (long)igain;
 	 if (m_addCorrUndo) corrUndo = 0;
          const ILArRamp::RampRef_t  rampcoeff=ramp->ADC2DAC(chid, gain);

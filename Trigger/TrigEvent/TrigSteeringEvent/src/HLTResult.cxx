@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigSteeringEvent/HLTResult.h"
 #include "TrigSteeringEvent/HLTExtraData.h"
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include <cassert>
 #include <algorithm>
 #include <numeric>

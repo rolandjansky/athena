@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 #
 # $Id: __init__.py,v 1.4 2008-06-10 13:48:37 efeld Exp $

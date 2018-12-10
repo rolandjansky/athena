@@ -40,6 +40,12 @@ StatusCode LArMinBias2Ntuple::stop() {
  NTuple::Item<float> minbias;
  NTuple::Item<float> minbias_av;
 
+ SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+ const LArOnOffIdMapping* cabling=*cablingHdl;
+ if(!cabling) {
+     ATH_MSG_WARNING( "Do not have cabling object LArOnOffIdMapping" );
+     return StatusCode::FAILURE;
+ }
 
  if(!m_isPileup) ATH_CHECK( m_nt->addItem("MinBias",minbias) );
  ATH_CHECK( m_nt->addItem("MinBiasAv",minbias_av) );
@@ -49,7 +55,7 @@ StatusCode LArMinBias2Ntuple::stop() {
    std::vector<HWIdentifier>::const_iterator itOnIdEnd = m_onlineId->channel_end();
    for(; itOnId!=itOnIdEnd;++itOnId){
      const HWIdentifier hwid = *itOnId;
-     if ( m_larCablingSvc->isOnlineConnected(hwid)) {
+     if ( cabling->isOnlineConnected(hwid)) {
 	 fillFromIdentifier(hwid);       
 	 if(!m_isPileup) minbias = LArMinBias->minBiasRMS(hwid);
 	 minbias_av = LArMinBiasAv->minBiasAverage(hwid);
