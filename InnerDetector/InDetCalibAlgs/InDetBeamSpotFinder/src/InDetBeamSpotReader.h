@@ -10,36 +10,29 @@
 //////////////////////////////
 
 
-#include <string>
-#include <vector>
-#include <map>
-
-#include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "VxVertex/VxContainer.h"
 #include "EventInfo/EventInfo.h"
-
-class IBeamCondSvc;
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 namespace InDet {
   /** An example class of how to read beamspot position.
       Currently there must be a valid beamspot entry for the IOV of data that is 
       being read. Otherwise an error will occur.
    */
-  class InDetBeamSpotReader : public AthAlgorithm {
+  class InDetBeamSpotReader : public AthReentrantAlgorithm {
 
   public:
     //Standard constructor and methods
     InDetBeamSpotReader  (const std::string& name, ISvcLocator* pSvcLocator);
-    StatusCode initialize();
-    StatusCode execute();
-    StatusCode finalize();
+    StatusCode initialize() override;
+    StatusCode execute_r(const EventContext& ctx) const override;
+    StatusCode finalize() override;
 
 
   private:
-    ServiceHandle<IToolSvc> m_toolSvc;
-    ServiceHandle<IBeamCondSvc> m_beamSpotSvc;
+    SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
     SG::ReadHandleKey<EventInfo> m_eventInfo
       {this, "EvtInfo", "EventInfo", "EventInfo name"};
