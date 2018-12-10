@@ -41,8 +41,6 @@ class SCTRawDataProviderTool : public extends<AthAlgTool, ISCTRawDataProviderToo
   /** Initialize */
   virtual StatusCode initialize() override;
 
-  // finalize is empty, unnecessary to override
- 
   /** 
    * @brief Main decoding method.
    *

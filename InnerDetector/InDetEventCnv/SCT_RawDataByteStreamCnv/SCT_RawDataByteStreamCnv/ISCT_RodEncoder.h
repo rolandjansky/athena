@@ -3,11 +3,11 @@
 */
 
 /**
- *      @header file for SCT_RodEncoder Class
- *      This class provides conversion from SCT RDO to ROD format ByteStream.
- *      @date 21/06/07:  SCT_RodEncoder turned into An AlgTool 
- *      @author: Nick Barlow nbarlow@mail.cern.ch, Kondo.Gnanvo@cern.ch
- *  
+ * @file SCT_RawDataByteStreamCnv/ISCT_RodEncoder.h
+ * @author: Nick Barlow (nbarlow@mail.cern.ch, Kondo.Gnanvo@cern.ch)
+ * @date 21 June 2007 (SCT_RodEncoder turned into An AlgTool)
+ * 
+ * This class provides conversion from SCT RDO to ROD format ByteStream.
  */
  
 #ifndef SCT_RAWDATABYTESTREAMCNV_ISCT_RODENCODER_H
@@ -20,17 +20,26 @@
 
 class SCT_RDORawData;
 
+/**
+ * @class ISCT_RodEncoder
+ *
+ * @brief Interface for Athena Algorithm Tool to convert from SCT RDO to ROD format BysteStream.
+ * 
+ * Convert collections of RDO's to a vector of 32 bit word.
+ *
+ * This class inherits from IAlgTool.
+ */
 class ISCT_RodEncoder : virtual public IAlgTool 
 {
  public:
 
-  /// Creates the InterfaceID and interfaceID() method
+  /** Creates the InterfaceID and interfaceID() method */
   DeclareInterfaceID(ISCT_RodEncoder, 1, 0);
 
-  /** destructor */
+  /** Destructor */
   virtual ~ISCT_RodEncoder() = default;
 
-  /** convert all collections of RDO's in the current  list to vector of 32bit words */
+  /** Convert method */
   virtual void fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& robID, 
                        const std::vector<const SCT_RDORawData*>& vecRDOs) const = 0;
 }; 
