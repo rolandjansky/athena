@@ -41,7 +41,6 @@
 #include "xAODEgamma/EgammaContainer.h"
 
 //RMW Sept 2013
-#include "PATCore/IAthSelectorTool.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
 #include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 
