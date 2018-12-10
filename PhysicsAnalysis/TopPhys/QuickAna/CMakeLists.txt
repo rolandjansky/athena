@@ -111,7 +111,7 @@ endif()
 # Executable(s) in the package:
 if( XAOD_STANDALONE )
    foreach( exec quickana_basic quickana_multi_wp quickana_event_data_filler quickana_output
-         quickana_systematics quickana_test_or quickana_truth )
+         quickana_systematics quickana_test_or quickana_truth quickana_pflow )
       atlas_add_executable( ${exec}
          util/${exec}.cxx
          INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
@@ -175,6 +175,7 @@ if( XAOD_STANDALONE )
    atlas_add_test( ut_python SCRIPT test/ut_python.py PROPERTIES TIMEOUT 600 )
    atlas_add_test( ut_python_no_qa SCRIPT test/ut_python_no_qa.py )
    atlas_add_test( ut_quickana_basic SCRIPT test/ut_quickana_basic.sh PROPERTIES TIMEOUT 600 )
+   atlas_add_test( ut_quickana_pflow SCRIPT test/ut_quickana_pflow.sh PROPERTIES TIMEOUT 600 )
    atlas_add_test( ut_quickana_hammercloud
       SCRIPT test/ut_quickana_hammercloud.sh PROPERTIES TIMEOUT 600 )
    atlas_add_test( ut_quickana_multi_wp SCRIPT test/ut_quickana_multi_wp.sh )

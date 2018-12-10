@@ -136,15 +136,13 @@ namespace ana
 
     m_isData = conf.isData();
     m_isAF2  = conf.isAFII();
-    m_jetContainer = conf.inputName (OBJECT_JET);
+    if (m_doPFlow) m_jetContainer = conf.inputName (OBJECT_PFLOW_JET);
+    else m_jetContainer = conf.inputName (OBJECT_JET);
+
     if (m_jetContainer.empty())
     {
-      m_jetContainer = conf.inputName (OBJECT_PFLOW_JET);
-      if (m_jetContainer.empty()) 
-      {
-         ATH_MSG_ERROR ("can't use MET without jets");
-         return StatusCode::FAILURE;
-      }
+       ATH_MSG_ERROR ("can't use MET without jets");
+       return StatusCode::FAILURE;
     }
 
     return StatusCode::SUCCESS;
@@ -167,7 +165,9 @@ namespace ana
  
       if (m_doPUmetsig) {
         ATH_CHECK( ASG_MAKE_ANA_TOOL( m_fjvtTool, JetForwardJvtTool) );
-        ATH_CHECK( m_fjvtTool.setProperty("CentralMaxPt",60e3) );
+        ATH_CHECK( m_fjvtTool.setProperty("UseTightOP", true) ); // Tight
+        ATH_CHECK( m_fjvtTool.setProperty("EtaThresh", 2.5) );   //Eta dividing central from forward jets
+        ATH_CHECK( m_fjvtTool.setProperty("ForwardMaxPt", 120.0e3) ); //Max Pt to define fwdJets for JVT
         ATH_CHECK( m_fjvtTool.initialize() );
       }
     } else {
@@ -175,7 +175,9 @@ namespace ana
       m_doFJVT = true;
       ATH_CHECK( m_metutil.setProperty("JetRejectionDec", m_jetSelection) );
       ATH_CHECK( ASG_MAKE_ANA_TOOL( m_fjvtTool, JetForwardJvtTool) );
-      ATH_CHECK( m_fjvtTool.setProperty("CentralMaxPt",60e3) );
+      ATH_CHECK( m_fjvtTool.setProperty("UseTightOP", true) ); 
+      ATH_CHECK( m_fjvtTool.setProperty("EtaThresh", 2.5) );
+      ATH_CHECK( m_fjvtTool.setProperty("ForwardMaxPt", 120.0e3) ); 
       ATH_CHECK( m_fjvtTool.initialize() );
     }
 
@@ -220,10 +222,11 @@ namespace ana
     }
 
     ATH_CHECK( ASG_MAKE_ANA_TOOL(m_metSigni, met::METSignificance) );   
-    ATH_CHECK( m_metSigni.setProperty("SoftTermParam", 0) );
+    ATH_CHECK( m_metSigni.setProperty("SoftTermParam", met::Random) );
     ATH_CHECK( m_metSigni.setProperty("TreatPUJets",  m_doPUmetsig) );
-    // ATH_CHECK( m_metSigni.setProperty("IsData",   true) );
-    // ATH_CHECK( m_metSigni.setProperty("IsAFII",   m_isAF2) );
+    ATH_CHECK( m_metSigni.setProperty("DoPhiReso",  true) );
+    ATH_CHECK( m_metSigni.setProperty("IsAFII",   m_isAF2) );
+    ATH_CHECK( m_metSigni.setProperty("JetCollection",  m_jetContainer.substr(0, m_jetContainer.size()-4)) );
     ATH_CHECK( m_metSigni.retrieve() ); 
 
     return StatusCode::SUCCESS;
@@ -248,8 +251,6 @@ namespace ana
     ATH_CHECK (objects.addNew (m_type));
 
     auto met = objects.get<xAOD::MissingETContainer> (m_type);
-
-    if (m_doPFlow) m_jetContainer = "AntiKt4EMPFlowJets";
 
     // Retrieve the container of object weights. These were filled during
     // reconstruction and will be used to recalculate the MET with our
@@ -402,14 +403,6 @@ namespace ana
 
     ATH_CHECK( m_metutil->buildMETSum("Final", met, (*met)[softTerm]->source()) );
     
-    //if (m_doPFlow) 
-    //{
-    //   if (m_doPUmetsig) m_fjvtTool->modify( *objects.pflow_jets() );
-    //}else if (m_doPUmetsig)
-    //{
-    //   m_fjvtTool->modify( *objects.jets() );
-    //}
-
     ATH_CHECK( m_metSigni->varianceMET(met, objects.eventinfo()->averageInteractionsPerCrossing(), "RefJet", softTerm, "Final"));
 
     std::string met_signi = "met_signi_"+m_jetSelection;
@@ -456,7 +449,7 @@ namespace ana
 
   // Macro for creating a MetTool using the provided function
   QUICK_ANA_MET_DEFINITION_MAKER( "default",   makeMetTool(args) )
-  QUICK_ANA_MET_DEFINITION_MAKER( "pflow",     makeMetTool(args,false,true,true,true,true,false,true,true,"PFlow") )
+  QUICK_ANA_MET_DEFINITION_MAKER( "pflow",     makeMetTool(args,true,true,true,true,true,false,true,true,"Tight") )
   QUICK_ANA_MET_DEFINITION_MAKER( "noTauTerm", makeMetTool(args,true,false,false) )
   QUICK_ANA_MET_DEFINITION_MAKER( "trackmet",  makeMetTool(args,true,false,true,true,true,true) )
   QUICK_ANA_MET_DEFINITION_MAKER( "susy2L",    makeMetTool(args,true,false,true,true,true,false,true,true) )
