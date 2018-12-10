@@ -25,8 +25,7 @@ namespace top{
     m_specifiedSystematics(),
     m_recommendedSystematics(),
 
-    m_calibrationTool("CP::MuonCalibrationAndSmearingTool"),
-    m_calibrationTool2017("CP::MuonCalibrationAndSmearingTool2017"),
+    m_calibrationPeriodTool("CP::MuonCalibrationPeriodTool"),
     m_isolationTool_LooseTrackOnly("CP::IsolationTool_LooseTrackOnly"),
     m_isolationTool_Loose("CP::IsolationTool_Loose"),
     m_isolationTool_Gradient("CP::IsolationTool_Gradient"),
@@ -41,8 +40,7 @@ namespace top{
   {
     declareProperty( "config" , m_config );  
     
-    declareProperty( "MuonCalibrationAndSmearingTool" ,       m_calibrationTool );
-    declareProperty( "MuonCalibrationAndSmearingTool2017" ,   m_calibrationTool2017 );
+    declareProperty( "MuonCalibrationPeriodTool" ,       m_calibrationPeriodTool );
     declareProperty( "IsolationTool_LooseTrackOnly" ,         m_isolationTool_LooseTrackOnly );
     declareProperty( "IsolationTool_Loose" ,                  m_isolationTool_Loose );
     declareProperty( "IsolationTool_Gradient" ,               m_isolationTool_Gradient );
@@ -60,9 +58,7 @@ namespace top{
   {
     ATH_MSG_INFO(" top::MuonObjectCollectionMaker initialize" );  
     
-    top::check( m_calibrationTool.retrieve()     , "Failed to retrieve muon calibration tool" );
-    top::check( m_calibrationTool2017.retrieve() , "Failed to retrieve muon 2017 calibration tool" );
-
+    top::check( m_calibrationPeriodTool.retrieve()     , "Failed to retrieve muon calibration tool" );
     top::check( m_isolationTool_LooseTrackOnly.retrieve() , "Failed to retrieve Isolation Tool" );
     top::check( m_isolationTool_Loose.retrieve() , "Failed to retrieve Isolation Tool" );
     top::check( m_isolationTool_Gradient.retrieve() , "Failed to retrieve Isolation Tool" );
@@ -135,12 +131,7 @@ namespace top{
       if(!executeNominal && m_config->isSystNominal(m_config->systematicName(systematic.hash()))) continue;
         
       ///-- Tell tool which systematic to use --///
-      if(thisYear == "2015" || thisYear == "2016")	 
-	top::check( m_calibrationTool->applySystematicVariation( systematic ) , "Failed to applySystematicVariation" );
-      else if(thisYear == "2017")
-	top::check( m_calibrationTool2017->applySystematicVariation( systematic ) , "Failed to applySystematicVariation 2017" );
-      else
-	ATH_MSG_ERROR("Unknown year found from (Random)RunNumber - Do not know which MCP calibration to apply");
+	top::check( m_calibrationPeriodTool->applySystematicVariation( systematic ) , "Failed to applySystematicVariation" );
       
       ///-- Shallow copy of the xAOD --///
       std::pair< xAOD::MuonContainer*, xAOD::ShallowAuxContainer* > shallow_xaod_copy = xAOD::shallowCopyContainer( *xaod );
@@ -150,12 +141,7 @@ namespace top{
           
 	///-- Apply momentum correction --///
         if (muon->primaryTrackParticle()) {
-	  if(thisYear == "2015" || thisYear == "2016")
-	    top::check( m_calibrationTool->applyCorrection( *muon ) , "Failed to applyCorrection" );
-	  else if(thisYear == "2017")
-	    top::check( m_calibrationTool2017->applyCorrection( *muon ) , "Failed to applyCorrection 2017" );
-	  else
-	    ATH_MSG_ERROR("Unknown year found from (Random)RunNumber - Do not know which MCP calibration to apply");
+	    top::check( m_calibrationPeriodTool->applyCorrection( *muon ) , "Failed to applyCorrection" );
 
           // don't do the decorations unless the muons are at least Loose
           // this is because it may fail if the muons are at just VeryLoose
@@ -250,7 +236,7 @@ namespace top{
   void MuonObjectCollectionMaker::specifiedSystematics( const std::set<std::string>& specifiedSystematics )
   {
     ///-- Get the recommended systematics from the tool, in std::vector format --///
-    const std::vector<CP::SystematicSet> systList = CP::make_systematics_vector( m_calibrationTool->recommendedSystematics() );
+    const std::vector<CP::SystematicSet> systList = CP::make_systematics_vector( m_calibrationPeriodTool->recommendedSystematics() );
     
     for (auto s : systList) {
       m_recommendedSystematics.push_back(s);

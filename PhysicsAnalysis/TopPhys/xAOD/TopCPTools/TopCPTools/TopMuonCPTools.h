@@ -20,6 +20,7 @@
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
 #include "MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h"
+#include "MuonMomentumCorrections/MuonCalibrationPeriodTool.h"
 
 namespace top {
 
@@ -37,7 +38,7 @@ class MuonCPTools final : public asg::AsgTool {
 
   int m_release_series = 25;  // Default to R21
 
-  ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_muonCalibrationAndSmearingTool;
+  ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_muonCalibrationPeriodTool;
   // This is a new tool handle required to manage different sagitta correction recommendations re:2017 data
   // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MCPAnalysisGuidelinesMC16#How_to_setup_for_2015_and_2016_d
   ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_muonCalibrationAndSmearingTool2017;

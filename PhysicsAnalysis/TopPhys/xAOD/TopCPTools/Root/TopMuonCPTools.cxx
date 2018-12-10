@@ -27,8 +27,7 @@ MuonCPTools::MuonCPTools(const std::string& name) :
   declareProperty("config", m_config);
   declareProperty("release_series", m_release_series );
 
-  declareProperty( "MuonCalibrationAndSmearingTool"    , m_muonCalibrationAndSmearingTool );
-  declareProperty( "MuonCalibrationAndSmearingTool2017", m_muonCalibrationAndSmearingTool2017 );
+  declareProperty( "MuonCalibrationPeriodTool"    , m_muonCalibrationPeriodTool );
 
   declareProperty( "MuonSelectionTool" , m_muonSelectionTool );
   declareProperty( "MuonSelectionToolLoose" , m_muonSelectionToolLoose );
@@ -65,66 +64,19 @@ StatusCode MuonCPTools::initialize() {
 StatusCode MuonCPTools::setupCalibration() {
   ///-- Calibration and smearing --///
   using IMuCalibSmearTool = CP::IMuonCalibrationAndSmearingTool;
-  ATH_MSG_INFO("Setting up MuonCalibrationAndSmearingTool configured for 2015+2016 data");
-  const std::string mu_calib_smearing_name = "CP::MuonCalibrationAndSmearingTool";
-  if (asg::ToolStore::contains<IMuCalibSmearTool>(mu_calib_smearing_name)) {
-    m_muonCalibrationAndSmearingTool = asg::ToolStore::get<IMuCalibSmearTool>(mu_calib_smearing_name);
+  ATH_MSG_INFO("Setting up MuonCalibrationPeriodTool for 2015+2016 and 2017 data");
+  const std::string mu_calib_period_name = "CP::MuonCalibrationPeriodTool";
+  if (asg::ToolStore::contains<IMuCalibSmearTool>(mu_calib_period_name)) {
+    m_muonCalibrationPeriodTool = asg::ToolStore::get<IMuCalibSmearTool>(mu_calib_period_name);
   } 
   else {
-    IMuCalibSmearTool* muonCalibrationAndSmearingTool = new CP::MuonCalibrationAndSmearingTool(mu_calib_smearing_name);
+    IMuCalibSmearTool* muonCalibrationPeriodTool = new CP::MuonCalibrationPeriodTool(mu_calib_period_name);
    
-    // 2015+2016
-    top::check(asg::setProperty(muonCalibrationAndSmearingTool, "Year", "Data16"),
-	       "Unable to change Year property in  " + mu_calib_smearing_name);
-    // StatComb recommended to be false in R21
-    top::check(asg::setProperty(muonCalibrationAndSmearingTool, "StatComb", false),
-	       "Unable to change StatComb property in " + mu_calib_smearing_name);    
-    // Sagitta bias file
-    top::check(asg::setProperty(muonCalibrationAndSmearingTool, "SagittaRelease", "sagittaBiasDataAll_25_07_17"),
-	       "Unable to set SagittaBiasFile in " +  mu_calib_smearing_name);
-    // Sagitta correction (apply to data)
-    top::check(asg::setProperty(muonCalibrationAndSmearingTool, "SagittaCorr", true ),
-               "Unable to set Sagitta correction in " + mu_calib_smearing_name);
-    // Sagitta MC distortion (apply to MC)
-    top::check(asg::setProperty(muonCalibrationAndSmearingTool, "doSagittaMCDistortion", false ),
-               "Unable to set Sagitta MC distortion in " + mu_calib_smearing_name);
     // Initialise the tool
-    top::check(muonCalibrationAndSmearingTool->initialize(),
-	       "Failed to initialize " + mu_calib_smearing_name);
+    top::check(muonCalibrationPeriodTool->initialize(),
+	       "Failed to initialize " + mu_calib_period_name);
     
-    m_muonCalibrationAndSmearingTool = muonCalibrationAndSmearingTool;
-  }
-
-  ///-- Additional tool for 2017 data/MC - Different Sagitta recommendation --///
-  ///-- See: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MCPAnalysisGuidelinesMC16#How_to_setup_for_2015_and_2016_d --///
-  ATH_MSG_INFO("Setting up MuonCalibrationAndSmearingTool configured for 2017+2018 data");
-  const std::string mu_calib_smearing_name_2017 = "CP::MuonCalibrationAndSmearingTool2017";
-  if (asg::ToolStore::contains<IMuCalibSmearTool>(mu_calib_smearing_name_2017)) {
-    m_muonCalibrationAndSmearingTool2017 = asg::ToolStore::get<IMuCalibSmearTool>(mu_calib_smearing_name_2017);
-  }
-  else {
-    IMuCalibSmearTool* muonCalibrationAndSmearingTool2017 = new CP::MuonCalibrationAndSmearingTool(mu_calib_smearing_name_2017);
-
-    // 2017
-    top::check(asg::setProperty(muonCalibrationAndSmearingTool2017, "Year", "Data17"),
-	       "Unable to change Year property in  " + mu_calib_smearing_name_2017);
-    // StatComb recommended to be false in R21                                                                  
-    top::check(asg::setProperty(muonCalibrationAndSmearingTool2017, "StatComb", false),
-	       "Unable to change StatComb property in " + mu_calib_smearing_name_2017);
-    // Sagitta bias file                                                                                        
-    top::check(asg::setProperty(muonCalibrationAndSmearingTool2017, "SagittaRelease", "sagittaBiasDataAll_30_07_18"),
-	       "Unable to set SagittaBiasFile in " +  mu_calib_smearing_name_2017);
-    // Sagitta correction (apply to data)                                                                       
-    top::check(asg::setProperty(muonCalibrationAndSmearingTool2017, "SagittaCorr", false ),
-	       "Unable to set Sagitta correction in " + mu_calib_smearing_name_2017);
-    // Sagitta MC distortion (apply to MC)
-    top::check(asg::setProperty(muonCalibrationAndSmearingTool2017, "doSagittaMCDistortion", true ),
-	       "Unable to set Sagitta MC distortion in " + mu_calib_smearing_name_2017);
-    // Initialise the tool                                                                                      
-    top::check(muonCalibrationAndSmearingTool2017->initialize(),
-	       "Failed to initialize " + mu_calib_smearing_name_2017);
-
-    m_muonCalibrationAndSmearingTool2017 = muonCalibrationAndSmearingTool2017;
+    m_muonCalibrationPeriodTool = muonCalibrationPeriodTool;
   }
 
   
