@@ -92,7 +92,8 @@ StatusCode EFMissingETFromJets::execute(xAOD::TrigMissingET *,
                                         const xAOD::CaloClusterContainer * /* caloCluster */,
                                         const xAOD::JetContainer *MHTJetContainer,
                                         const xAOD::TrackParticleContainer * /*trackContainer*/,
-                                        const xAOD::VertexContainer * /*vertexContainer*/ )
+                                        const xAOD::VertexContainer * /*vertexContainer*/,
+                                        const xAOD::MuonContainer * /*muonContainer*/ )
 {
 
   ATH_MSG_DEBUG( "called EFMissingETFromJets::execute()" ); // EFMissingET_Fex_Jets

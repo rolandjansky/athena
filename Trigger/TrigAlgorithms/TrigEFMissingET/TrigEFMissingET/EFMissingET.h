@@ -128,6 +128,7 @@ class EFMissingET : public HLT::AllTEAlgo {
     const xAOD::JetContainer *m_jets;
     const xAOD::TrackParticleContainer *m_tracks;
     const xAOD::VertexContainer *m_vertices;
+    const xAOD::MuonContainer *m_muons;
 
     //    unsigned m_maskEMB_A_Missing;      //!< EMB_A absent in DetMask
     //    unsigned m_maskEMB_C_Missing;      //!< EMB_C absent in DetMask
@@ -162,7 +163,9 @@ class EFMissingET : public HLT::AllTEAlgo {
     bool m_doTimers;         //!< switch on/off detailed timers
     bool m_decodeDetMask;    //!< switch on/off DetMask decoding
     bool m_doTopoClusters;   //!< switch on/off topo. clusters
+    bool m_doTrackTopoClusters; //!< switch on/off track and topo. clusters
     bool m_doJets;           //!< switch on/off jets
+    bool m_doJetVeto;        //!< siwtch on/off jetveto
     bool m_doTracks;         //!< switch on/off tracks
     bool m_doPUC;            //!< switch on/off Pile-up fit
     int  m_n_sizePers;       //!< number of components in pers. objects

@@ -18,9 +18,10 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODCaloEvent
    Event/xAOD/xAODJet
    Event/xAOD/xAODTrigMissingET
+   Event/FourMomUtils
    GaudiKernel
    LArCalorimeter/LArIdentifier
-   LArCalorimeter/LArCabling
+   LArCalorimeter/LArTools
    Trigger/TrigAlgorithms/TrigT2CaloCommon
    Trigger/TrigEvent/TrigCaloEvent
    Trigger/TrigEvent/TrigMissingEtEvent
@@ -28,8 +29,9 @@ atlas_depends_on_subdirs(
    Trigger/TrigSteer/TrigInterfaces
    Trigger/TrigTools/TrigTimeAlgs
    PRIVATE
-   Tools/PathResolver
-   InnerDetector/InDetRecTools/InDetTrackSelectionTool
+   PhysicsAnalysis/AnalysisCommon/PATCore
+   PathResolver
+   InDetTrackSelectionTool
    Control/CxxUtils
    DetectorDescription/Identifier
    Event/EventKernel
@@ -40,6 +42,8 @@ atlas_depends_on_subdirs(
    Trigger/TrigT1/TrigT1Interfaces )
 
 # External dependencies:
+find_package( FastJet )
+find_package( FastJetContrib COMPONENTS SoftKiller ConstituentSubtractor )
 find_package( ROOT COMPONENTS Core Hist Matrix )
 find_package( tdaq-common COMPONENTS eformat )
 
@@ -47,27 +51,22 @@ find_package( tdaq-common COMPONENTS eformat )
 atlas_add_library( TrigEFMissingETLib
    TrigEFMissingET/*.h src/*.cxx
    PUBLIC_HEADERS TrigEFMissingET
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   PRIVATE_INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent CaloGeoHelpers CaloIdentifier
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS} 
+   PRIVATE_INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${FASTJETCONTRIB_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} CaloEvent CaloGeoHelpers CaloIdentifier
    AthenaBaseComps xAODCaloEvent xAODJet xAODTrigMissingET GaudiKernel
    LArIdentifier TrigCaloEvent TrigMissingEtEvent TrigParticle CaloDetDescrLib
-   LArCablingLib TrigT2CaloCommonLib TrigInterfacesLib TrigTimeAlgsLib
-   InDetTrackSelectionToolLib
-   PRIVATE_LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} CxxUtils Identifier
+   LArToolsLib TrigT2CaloCommonLib TrigInterfacesLib TrigTimeAlgsLib
+   PRIVATE_LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${FASTJETCONTRIB_LIBRARIES} CxxUtils Identifier
    EventKernel xAODEventInfo JetEvent TrigMuonEvent TrigSteeringEvent
-   PathResolver
+   PathResolver PATCoreLib
    TrigT1Interfaces )
 
 atlas_add_component( TrigEFMissingET
    src/components/*.cxx
-   LINK_LIBRARIES GaudiKernel TrigEFMissingETLib )
+   LINK_LIBRARIES GaudiKernel TrigEFMissingETLib ${FASTJET_LIBRARIES}  
+   PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES}
+)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )
-
-atlas_add_test( METFexes
-                SCRIPT test/test_met_fexes.sh
-                PROPERTIES TIMEOUT 1000
-                )
