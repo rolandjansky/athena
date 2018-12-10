@@ -20,7 +20,7 @@ namespace Analysis {
 
   JetConeLabeling::JetConeLabeling(const std::string& name) :
     JetModifierBase(name),
-    m_jetTruthMatchTool("Analysis::JetQuarkLabel")//,
+    m_jetTruthMatchTool("Analysis::JetQuarkLabel",this)//,
     //m_LeptonTruthTool("Analysis::LeptonTruthTool")
   {
       declareProperty("JetTruthMatchTool",         m_jetTruthMatchTool);
