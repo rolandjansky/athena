@@ -12,14 +12,10 @@
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
 #include "MuonCombinedEvent/CaloTag.h"
 
-//#include "AthenaBaseComps/AthAlgorithm.h"
-//#include "StoreGate/DataHandle.h"
-
 #include "xAODMuon/Muon.h"
 #include "xAODTracking/TrackParticle.h"
 #include "MuonCombinedEvent/InDetCandidate.h"
 #include "TrkParameters/TrackParameters.h"
-// #include "IsolationTool/ITrackIsolationTool.h"
 #include "RecoToolInterfaces/ITrackIsolationTool.h"
 
 // - NEW
@@ -69,12 +65,10 @@ namespace MuonCombined {
     
     void createMuon(const InDetCandidate & muonCandidate, const std::vector<DepositInCalo>& deposits, int tag, float likelihood, InDetCandidateToTagMap* tagMap) const;
     const Trk::TrackParameters* getTrackParameters(const Trk::Track* trk) const;
-    //bool applyEnergyIsolation(const xAOD::IParticle* muon);
     bool selectTrack(const Trk::Track* trk, const Trk::Vertex* vertex) const;
     bool selectCosmic(const Trk::Track* ptcl) const;
     bool applyTrackIsolation(const xAOD::TrackParticle& tp);
     void showTrackInfo(const Trk::TrackParameters* par) const;
-//    std::vector<DepositInCalo> getDeposits(const xAOD::TrackParticle* tp, const CaloCellContainer* caloCellCont) const;
     
     // --- StoreGate keys ---
     SG::ReadHandleKey<xAOD::CaloClusterContainer> m_caloClusterCont{this,"CaloClusters","CaloTopoCluster","calo cluster container"};
@@ -108,7 +102,6 @@ namespace MuonCombined {
     double m_eIsoPtRatioTransitionCut;  //!< Energy isolation  for a .45 cone in Barrel-EndCap transition region, normalized to track pt
     double m_eIsoPtRatioEndCapCut;      //!< Energy isolation for a .45 cone in Endcap, normalized to track pt
     double m_CaloLRlikelihoodCut;       //!< CaloLR likelihood cut
-    //double m_coreDR;                    //!< deltaR of the core
     double m_trackIsoCone;              //!< Cone size for track isolation
     double m_energyIsoCone;             //!< Cone size for energy isolation
     

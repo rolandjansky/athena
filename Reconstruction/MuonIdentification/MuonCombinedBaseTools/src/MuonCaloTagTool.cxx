@@ -56,8 +56,7 @@ namespace MuonCombined {
     declareInterface<IMuonCombinedInDetExtensionTool>(this);
     declareInterface<IMuonCombinedTrigCaloTagExtensionTool>(this);
     
-    // --- Muon Dressing ---    //declareProperty("CoreDeltaR",                        m_coreDR       =  0.05                );
-    //declareProperty("doMuonDressing",                    m_doDressing   =  true                );
+    // --- Muon Dressing ---
     declareProperty("doCosmicTrackSelection",            m_doCosmicTrackSelection  = false     );
     
     // --- Track Preselection Cuts ---
@@ -104,11 +103,6 @@ namespace MuonCombined {
     }
     
     // --- Get an Identifier helper object ---
-    //StoreGateSvc* detStore(0);
-    //if (service("DetectorStore", detStore).isFailure()) {
-    //  msg(MSG::ERROR) << "Detector service not found !" << endmsg;
-    //  return StatusCode::FAILURE;
-    //}
     if( m_doCaloLR ) ATH_CHECK( m_caloMuonLikelihood.retrieve() );
     else m_caloMuonLikelihood.disable();
     ATH_CHECK( m_caloMuonTagLoose.retrieve()   );
@@ -165,14 +159,11 @@ namespace MuonCombined {
                                 const xAOD::CaloClusterContainer* caloClusterCont) {
 
 
-    //return;
-    //
     // --- Retrieve primary vertex (not retrieving for now) ---
     const Trk::Vertex* vertex = 0;
-//    const Trk::TrackParticleOrigin prtOrigin =  Trk::TrackParticleOrigin::PriVtx; // we only consider trks form primary vtx
     
     // --- Big loop over all the particles in the container ---                                                                                                              
-//-- make sure CaloCellContainer is there
+    //-- make sure CaloCellContainer is there
     if (!caloCellCont){
       ATH_MSG_VERBOSE("Called with no CaloCellContainer in argument");
     }
@@ -186,7 +177,6 @@ namespace MuonCombined {
       }
       // ensure that the id trackparticle has a track
       const Trk::Track* track = idTP->indetTrackParticle().track(); //->originalTrack()
-      //const xAOD::TrackParticle& tp =  (*idTP).indetTrackParticle(); //->originalTrackParticle()
       const xAOD::TrackParticle* tp =  &(*idTP).indetTrackParticle(); //->originalTrackParticle()
       if( !track ){
 	ATH_MSG_DEBUG("Particle with no track associated. Skipping this particle.");
@@ -201,15 +191,10 @@ namespace MuonCombined {
       // --- Get pdgId (when requested) ---
       int pdgId = 0;
 
-//      bool truthMuon = false;
       ElementLink< xAOD::TruthParticleContainer > truthLink;
-      // const xAOD::TrackParticle* tp  = ElementLink< xAOD::TruthParticleContainer > truthLink;
       if( tp->isAvailable< ElementLink< xAOD::TruthParticleContainer > > ("truthParticleLink") ){
 	truthLink = tp->auxdata< ElementLink< xAOD::TruthParticleContainer >  >("truthParticleLink");
 	if(m_doTruth && truthLink.isValid()) {
-	  //         truthMuon = (  abs((*truthLink)->pdgId())==13 && ((*truthLink)->auxdata<int>("truthType") == 6 ||
-	  //           (*truthLink)->auxdata<int>("truthType") == 7 )  && // prompt muon
-	  //           (*truthLink)->auxdata<int>("truthOrigin") > 0 && (*truthLink)->auxdata<int>("truthOrigin") <= 34 );
 	  // no decay in flight
 	  pdgId = (*truthLink)->pdgId();
 	} else {
@@ -218,7 +203,6 @@ namespace MuonCombined {
       }
 
       // --- Track selection ---
-//      if(!selectTrack(track, vertex)) continue;
 
       if(!selectTrack(track, vertex)){                                                                                                                           
 	// --- in debug mode, monitor the number of muons rejected by track selection ---
@@ -283,7 +267,6 @@ namespace MuonCombined {
       // --- Count number of muons written to container 
       if ( abs(pdgId) == 13 )  m_nMuonsTagged++;
       m_nTracksTagged++;
-//        delete trackParticle;
     }
     
   } //end of the extend method
@@ -309,7 +292,6 @@ namespace MuonCombined {
     
     if (m_doTrkSelection) {
       bool result = (m_trkSelTool->decision(*trk, vertex)) && (trk->perigeeParameters()->momentum().mag()>2000); //;p()>2000); to check
-      //bool result = trk->perigeeParameters()->momentum().perp()>5000; //;p()>2000); to check
       
       if (!result&&m_showCutFlow)
 	ATH_MSG_DEBUG("Track selection wrt primary vertex: Veto on this track");
@@ -331,7 +313,7 @@ namespace MuonCombined {
   bool MuonCaloTagTool::selectCosmic(const Trk::Track* ptcl) const{
     
     // --- Only ask some hits with eta information ---
-    if(ptcl->perigeeParameters()->momentum().mag()>2000) //cl->p() < 2000)
+    if(ptcl->perigeeParameters()->momentum().mag()>2000) 
       return false;
     const Trk::TrackSummary* trkSummary = ptcl->trackSummary();
     if (trkSummary) {
@@ -354,7 +336,6 @@ namespace MuonCombined {
 
     if( m_trackIsolationTool.empty() ) return true;
 
-    //std::vector<xAOD::Iso::IsolationType> ptcones = { xAOD::Iso::ptcone45 };
     xAOD::TrackCorrection corrlist;
     corrlist.trackbitset.set(static_cast<unsigned int>(xAOD::Iso::IsolationTrackCorrection::coreTrackPtr));
     std::vector<xAOD::Iso::IsolationType> ptcones = { xAOD::Iso::ptcone40 };
@@ -399,53 +380,6 @@ namespace MuonCombined {
     
   }
   
-  /*
-  //applyEnergyIsolation -> DON'T WORK with Trk::Track (require particle)
-  
-  bool MuonCaloTagTool::applyEnergyIsolation(const xAOD::IParticle* muon){
-    
-    double eIso = m_muonIsolationTool->isolationEnergy(muon, m_energyIsoCone);
-    double eIsoRatio = -9999.;
-    double pt = muon->pt();
-    double eta= muon->eta();
-    if (eIso>0) {
-      if (pt>0) {
-  	eIsoRatio  = eIso/pt;
-      }
-    }
-    
-    double eIsoCut = 0;
-    double ratioCutEt = 0;
-    if( fabs(eta)<1.5 ) {
-      eIsoCut     =   m_eIsoBarrelCut;
-      ratioCutEt  =   m_eIsoPtRatioBarrelCut;
-    }
-    else if (fabs(eta) > 1.5 && fabs(eta) < 1.8) {
-      eIsoCut     =   m_eIsoTransitionCut;
-      ratioCutEt  =   m_eIsoPtRatioTransitionCut;
-    }
-    else {
-      eIsoCut     =   m_eIsoEndCapCut;
-      ratioCutEt  =   m_eIsoPtRatioEndCapCut;
-    } 
-    
-    if (m_showCutFlow) {
-      ATH_MSG_DEBUG("Isolation Energy in " << m_energyIsoCone << " cone is: " << eIso << ", eta: " << eta << ",  pt: " << pt);
-      ATH_MSG_DEBUG("Et Iso: " << eIso << " Et Iso over pt: " << eIsoRatio);
-    }
-    
-    if( eIso < eIsoCut && eIsoRatio < ratioCutEt ) {
-      if (m_showCutFlow)
-  	ATH_MSG_DEBUG("EtIso and EtIso over pt cut passed.");
-      return true;
-    }
-    else
-      return false;
-  
-  }
-  */
-
-  
   void MuonCaloTagTool::createMuon(const InDetCandidate& muonCandidate,
                                    const std::vector<DepositInCalo>& deposits, int tag, float likelihood, InDetCandidateToTagMap* tagMap) const {
     
@@ -468,8 +402,6 @@ namespace MuonCombined {
       caloTag->set_caloMuonIdTag(tag);
       caloTag->set_caloLRLikelihood(likelihood);
       
-//      eLoss = m_muonIsolationTool->summedCellEnergy(ptcl, m_coreDR);
-//      caloTag->set_etCore(eLoss);
       tagMap->addEntry(&muonCandidate,caloTag);
     }
   }
