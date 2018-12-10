@@ -206,8 +206,8 @@ def getStreamRDO_ItemList(log):
 
     if DetFlags.writeRDOPool.any_on():
         ## TimingAlg
-        StreamRDO_ItemList +=["RecoTimingObj#EVNTtoHITS_timings"]
-        StreamRDO_ItemList +=["RecoTimingObj#HITStoRDO_timings"]
+        StreamRDO_ItemList +=["RecoTimingObj#*EVNTtoHITS_timings"]
+        StreamRDO_ItemList +=["RecoTimingObj#*HITStoRDO_timings"]
 
     if DetFlags.writeRDOPool.any_on():
         # Pool Output

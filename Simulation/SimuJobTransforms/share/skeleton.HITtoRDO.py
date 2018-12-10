@@ -401,8 +401,13 @@ topSeq = AlgSequence()
 topSeq.TimeOut = 43200 * Units.s
 
 try:
+    timingOutput = "HITStoRDO_timings"
+    if 'OverlayMT' in digitizationFlags.experimentalDigi():
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        timingOutput = overlayFlags.bkgPrefix() + timingOutput
+
     from RecAlgs.RecAlgsConf import TimingAlg
-    topSeq+=TimingAlg("DigiTimerBegin", TimingObjOutputName = "HITStoRDO_timings")
+    topSeq += TimingAlg("DigiTimerBegin", TimingObjOutputName = timingOutput)
 except:
     digilog.warning('Could not add TimingAlg, no timing info will be written out.')
 

@@ -6,7 +6,13 @@ from AthenaCommon import CfgMgr
 ############################################################################
 
 def genericMergeMcEventCollTool(name="MergeMcEventCollTool", **kwargs):
-    kwargs.setdefault("TruthCollKey", "TruthEvent")
+    if 'OverlayMT' in digitizationFlags.experimentalDigi():
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        kwargs.setdefault("TruthCollOutputKey", overlayFlags.bkgPrefix() + "TruthEvent")
+    else:
+        kwargs.setdefault("TruthCollOutputKey", "TruthEvent")
+    kwargs.setdefault("TruthCollInputKey", "TruthEvent")
+    
     kwargs.setdefault("LowTimeToKeep", -50.5)
     kwargs.setdefault("HighTimeToKeep", 50.5)
     kwargs.setdefault("KeepUnstable", False)
@@ -196,6 +202,13 @@ def MergeRecoTimingObjTool(name="MergeRecoTimingObjTool", **kwargs):
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
         kwargs.setdefault("FirstXing", TimingObj_FirstXing() )
         kwargs.setdefault("LastXing",  TimingObj_LastXing() )
+
+    kwargs.setdefault("RecoTimingObjInputKey", "EVNTtoHITS_timings")
+    if 'OverlayMT' in digitizationFlags.experimentalDigi():
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        kwargs.setdefault("RecoTimingObjOutputKey", overlayFlags.bkgPrefix() + "EVNTtoHITS_timings")
+    else:
+        kwargs.setdefault("RecoTimingObjOutputKey", "EVNTtoHITS_timings")
 
     return CfgMgr.MergeRecoTimingObjTool(name, **kwargs)
 
