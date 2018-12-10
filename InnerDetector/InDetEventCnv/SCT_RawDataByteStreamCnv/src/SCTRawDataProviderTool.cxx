@@ -66,7 +66,7 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
     tmpROBIDSet.insert(robid);
 
     sc = m_decoder->fillCollection(*robFrag, rdoIDCont, errs, bsFracCont);
-    if (sc==StatusCode::FAILURE) {
+    if (sc == StatusCode::FAILURE) {
       if (m_decodeErrCount <= 100) {
         if (100 == m_decodeErrCount) {
           ATH_MSG_ERROR("Too many Problem with SCT Decoding messages, turning message off.");
@@ -83,7 +83,7 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
   m_robIDSet.insert(tmpROBIDSet.begin(), tmpROBIDSet.end());
   m_mutex.unlock();
 
-  if (sc==StatusCode::FAILURE) {
+  if (sc == StatusCode::FAILURE) {
     ATH_MSG_ERROR("There was a problem with SCT ByteStream conversion");
     return sc;
   }

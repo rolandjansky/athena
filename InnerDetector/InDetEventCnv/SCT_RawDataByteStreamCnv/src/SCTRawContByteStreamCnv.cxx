@@ -53,7 +53,7 @@ StatusCode SCTRawContByteStreamCnv::createRep(DataObject* pDataObject, IOpaqueAd
   // Get IDC for SCT Raw Data
   SCT_RDO_Container* sctRDOCont{nullptr};
   StoreGateSvc::fromStorable(pDataObject, sctRDOCont);
-  if (sctRDOCont==nullptr) {
+  if (sctRDOCont == nullptr) {
     m_log << MSG::ERROR << " Can not cast to SCTRawContainer " << endmsg;
     return StatusCode::FAILURE;
   }

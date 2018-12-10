@@ -125,7 +125,7 @@ void SCT_RodEncoder::fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& r
   // Loop over RDOs to check for duplicates and fill vec_isDuplicated vector
   for (unsigned int iRDO1{0}; iRDO1<vecRDOs.size(); iRDO1++) {
     const SCT_RDORawData* rdo1{vecRDOs.at(iRDO1)};
-    if (rdo1==nullptr) {
+    if (rdo1 == nullptr) {
       ATH_MSG_ERROR("RDO pointer is NULL. skipping this hit.");
       vec_isDuplicated.at(iRDO1) = true;
       continue;
@@ -136,9 +136,9 @@ void SCT_RodEncoder::fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& r
       const SCT_RDORawData* rdo2{vecRDOs.at(iRDO2)};
       if (vec_isDuplicated.at(iRDO2)) continue;
 
-      if (rdo1->identify()==rdo2->identify()) {
+      if (rdo1->identify() == rdo2->identify()) {
         // Keep RDO with larger cluster size. If cluster sizes are the same, keep the first one.
-        if (rdo1->getGroupSize()>=rdo2->getGroupSize()) {
+        if (rdo1->getGroupSize() >= rdo2->getGroupSize()) {
           vec_isDuplicated.at(iRDO2) = true;
         } 
         else {
@@ -165,7 +165,7 @@ void SCT_RodEncoder::fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& r
 
     const uint16_t header{this->getHeaderUsingRDO(rdo)};
     if (header != lastHeader) {
-      if (!firstInROD) {
+      if (not firstInROD) {
         vec16Data.push_back(lastTrailer);
       }
       firstInROD = false;
@@ -188,9 +188,9 @@ void SCT_RodEncoder::fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& r
 
         for (int chip{chipFirst}; chip<=chipLast; chip++) {
           int tmpGroupSize = 0;
-          if (chipFirst==chipLast) tmpGroupSize = groupSize; // In case of one chip
-          else if (chip==chipLast) tmpGroupSize = strip+groupSize-chip*128; // In case of last chip
-          else if (chip==chipFirst) tmpGroupSize = (chip+1)*128-strip; // In case of first chip
+          if (chipFirst == chipLast) tmpGroupSize = groupSize; // In case of one chip
+          else if (chip == chipLast) tmpGroupSize = strip+groupSize-chip*128; // In case of last chip
+          else if (chip == chipFirst) tmpGroupSize = (chip+1)*128-strip; // In case of first chip
           else tmpGroupSize = 128; // In case of middle chip
           const int tmpStrip1{chip==chipFirst ? strip : 128*chip};
 
@@ -228,7 +228,7 @@ void SCT_RodEncoder::fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& r
     }  // End of Expanded mode
   } // End of RDO decode loop
 
-  if (!firstInROD and lastTrailer!=0) {
+  if ((not firstInROD) and (lastTrailer != 0)) {
     vec16Data.push_back(lastTrailer);
   }
   
@@ -247,7 +247,7 @@ void SCT_RodEncoder::encodeData(const std::vector<int>& vecTimeBins, std::vector
   
   const Identifier idColl{offlineID(rdo)};
   int tmpStrip{strip};
-  if (m_swapModuleID.find(idColl)!= m_swapModuleID.end()) { // Check if the strip has to be swapped (swap phi readout direction)
+  if (m_swapModuleID.find(idColl) != m_swapModuleID.end()) { // Check if the strip has to be swapped (swap phi readout direction)
     tmpStrip= 767 - tmpStrip;
     tmpStrip= tmpStrip-(groupSize-1);
   }
@@ -290,7 +290,7 @@ void SCT_RodEncoder::encodeData(const std::vector<int>& vecTimeBins, std::vector
       vec16Words.push_back(hitExpEven);
     }
     // Last bin of the Odd next hits
-    if ((not vecTimeBins.empty() ) and isEven(vecTimeBins.size())) {
+    if ((not vecTimeBins.empty()) and isEven(vecTimeBins.size())) {
       const uint16_t hitExpLast{static_cast<uint16_t>(0x8008 | (vecTimeBins[vecTimeBins.size()-1] & 0xF))};
       vec16Words.push_back(hitExpLast);
     }  
