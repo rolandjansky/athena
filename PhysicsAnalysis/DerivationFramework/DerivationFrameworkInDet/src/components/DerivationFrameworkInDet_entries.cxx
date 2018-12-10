@@ -20,6 +20,7 @@
 #include "DerivationFrameworkInDet/EventInfoPixelDecorator.h"
 #include "DerivationFrameworkInDet/TCCTrackParticleThinning.h"
 #include "DerivationFrameworkInDet/VsiTrackThinningTool.h"
+#include "DerivationFrameworkInDet/PixeldEdxTrackParticleThinning.h"
 #include "DerivationFrameworkInDet/VertexParticleThinning.h"
 
 using namespace DerivationFramework;
@@ -45,7 +46,9 @@ DECLARE_TOOL_FACTORY( TrackMeasurementThinning )
 DECLARE_TOOL_FACTORY( EventInfoPixelDecorator )
 DECLARE_TOOL_FACTORY( TCCTrackParticleThinning )
 DECLARE_TOOL_FACTORY( VsiTrackThinningTool )
+DECLARE_TOOL_FACTORY( PixeldEdxTrackParticleThinning )
 DECLARE_TOOL_FACTORY( VertexParticleThinning )
+
 
 DECLARE_FACTORY_ENTRIES( DerivationFrameworkInDet ) {
    DECLARE_TOOL( InDetTrackSelectionToolWrapper )
@@ -69,6 +72,7 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkInDet ) {
    DECLARE_TOOL( EventInfoPixelDecorator )
    DECLARE_TOOL( TCCTrackParticleThinning )
    DECLARE_TOOL( VsiTrackThinningTool )
+   DECLARE_TOOL( PixeldEdxTrackParticleThinning )
    DECLARE_TOOL( VertexParticleThinning )
 }
 

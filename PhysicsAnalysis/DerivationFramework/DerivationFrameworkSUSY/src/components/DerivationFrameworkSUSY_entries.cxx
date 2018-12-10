@@ -8,6 +8,7 @@
 #include "DerivationFrameworkSUSY/CaloIsolationDecorator.h"
 #include "DerivationFrameworkSUSY/TrackParametersKVU.h"
 #include "DerivationFrameworkSUSY/LongLivedTruthJetKinematics.h"
+#include "DerivationFrameworkSUSY/TauTracksThinning.h"
 #include "DerivationFrameworkSUSY/TauDecorator.h"
 
 using namespace DerivationFramework;
@@ -20,6 +21,7 @@ DECLARE_TOOL_FACTORY( trackIsolationDecorator )
 DECLARE_TOOL_FACTORY( CaloIsolationDecorator )
 DECLARE_TOOL_FACTORY( TrackParametersKVU )
 DECLARE_TOOL_FACTORY( LongLivedTruthJetKinematics )
+DECLARE_TOOL_FACTORY( TauTracksThinning )
 DECLARE_TOOL_FACTORY( TauDecorator )
 
 DECLARE_FACTORY_ENTRIES( DerivationFrameworkSUSY ) {
@@ -31,5 +33,6 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkSUSY ) {
    DECLARE_TOOL( CaloIsolationDecorator )
    DECLARE_TOOL( TrackParametersKVU )
    DECLARE_TOOL( LongLivedTruthJetKinematics )
+   DECLARE_TOOL( TauTracksThinning )
    DECLARE_TOOL( TauDecorator )
 }
