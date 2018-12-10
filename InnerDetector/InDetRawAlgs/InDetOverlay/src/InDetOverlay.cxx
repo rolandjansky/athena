@@ -305,7 +305,7 @@ InDetOverlay::InDetOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   
   
   declareProperty("TRTinputSDO_Name", m_TRTinputSDO_Name="TRT_SDO_Map");
-  declareProperty("TRT_HT_OccupancyCorrectionBarrel",m_HTOccupancyCorrectionB=0.100);
+  declareProperty("TRT_HT_OccupancyCorrectionBarrel",m_HTOccupancyCorrectionB=0.110);
   declareProperty("TRT_HT_OccupancyCorrectionEndcap",m_HTOccupancyCorrectionEC=0.090);
   declareProperty("TRT_HT_OccupancyCorrectionBarrelNoE",m_HTOccupancyCorrectionB_noE=0.06);
   declareProperty("TRT_HT_OccupancyCorrectionEndcapNoE",m_HTOccupancyCorrectionEC_noE=0.05);
