@@ -41,10 +41,10 @@ namespace DerivationFramework {
     dec_originm(0),
     m_jetPtAssociationTool(""),
     m_decorateptassociation(false),
-    dec_AssociatedNTracks(0), // QGTaggerTool ---
+    m_decorateQGVariables(false), // QGTaggerTool ---
+    dec_AssociatedNTracks(0),
     dec_AssociatedTracksWidth(0),
     dec_AssociatedTracksC1(0),
-    m_decorateQGVariables(false), 
     m_trkSelectionTool("")
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
