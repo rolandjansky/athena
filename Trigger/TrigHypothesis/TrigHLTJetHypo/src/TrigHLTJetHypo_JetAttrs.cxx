@@ -45,8 +45,8 @@ TrigHLTJetHypo_JetAttrs::~TrigHLTJetHypo_JetAttrs(){
 
 HLT::ErrorCode TrigHLTJetHypo_JetAttrs::hltInitialize()
 {
-  ATH_MSG_INFO("amanda - in initialize()");
-  ATH_MSG_INFO("amanda - momentstr = " << m_momentstr);
+  ATH_MSG_DEBUG("in initialize()");
+  ATH_MSG_DEBUG("momentstr = " << m_momentstr);
 
   //initialize map (m_conversionMap)
   m_conversionMap["width"] = std::make_unique<WidthInterpreter>();
@@ -58,7 +58,7 @@ HLT::ErrorCode TrigHLTJetHypo_JetAttrs::hltInitialize()
 
 Conditions TrigHLTJetHypo_JetAttrs::getConditions() const {
     
-    ATH_MSG_INFO("amanda - in getConditions()");
+    ATH_MSG_DEBUG("in getConditions()");
 
     //define vectors to be passed to condition    
     std::string match ("yes");
@@ -67,7 +67,7 @@ Conditions TrigHLTJetHypo_JetAttrs::getConditions() const {
     std::vector<double> limitMaxVec ;
 
     if(m_E.size() == 0){
-      ATH_MSG_INFO("amanda - no defined jet moments, return false");    
+      ATH_MSG_DEBUG("no defined jet moments, return false");    
       auto conditions = conditionsFactoryFalse(0.0,1.0);
       std::sort(conditions.begin(), conditions.end(),ConditionsSorter());
       return conditions;
@@ -77,15 +77,15 @@ Conditions TrigHLTJetHypo_JetAttrs::getConditions() const {
        for(unsigned int count=0; count<m_jetVars.size(); count++){
            if(m_has[count].compare(match)==0){
              jetVarVec.push_back(m_jetVars[(count)% m_jetVars.size()]);
-             ATH_MSG_INFO("amanda - getting limits for " << m_jetVars[count % m_jetVars.size()]);
+             ATH_MSG_DEBUG("getting limits for " << m_jetVars[count % m_jetVars.size()]);
              std::pair<double,double> limits = (*m_conversionMap.at(m_jetVars[count % m_jetVars.size()]))(m_limitMins[count], m_limitMaxs[count]);
 
-             ATH_MSG_INFO("amanda - got limits " << limits);
+             ATH_MSG_DEBUG("got limits " << limits);
              limitMinVec.push_back(limits.first);
              limitMaxVec.push_back(limits.second);
            }
            else{
-             ATH_MSG_INFO("amanda - m_has=false, return true");
+             ATH_MSG_DEBUG("m_has=false, return true");
              jetVarVec.push_back(" "); // will return true in JetAttrsCondition and essentially be ignored
              limitMinVec.push_back(-10.0); //placeholder values
              limitMaxVec.push_back(-10.0);
@@ -96,7 +96,7 @@ Conditions TrigHLTJetHypo_JetAttrs::getConditions() const {
    auto conditions = conditionsFactoryJetAttrs(jetVarVec, limitMinVec, limitMaxVec);
 
 
-   ATH_MSG_INFO("amanda - passing to conditionsFactory " << jetVarVec);
+   ATH_MSG_DEBUG("passing to conditionsFactory " << jetVarVec);
 
    //print inputs given to condition
    for(auto& c : conditions){ATH_MSG_INFO(c.toString());}
