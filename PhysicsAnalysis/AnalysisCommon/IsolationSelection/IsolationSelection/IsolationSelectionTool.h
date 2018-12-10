@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
  */
 
-// $Id: IsolationSelectionTool.h 704447 2015-10-29 12:00:39Z jdevivi $
 #ifndef ISOLATIONSELECTION_ISOLATIONSELECTIONTOOL_H
 #define ISOLATIONSELECTION_ISOLATIONSELECTIONTOOL_H
 
@@ -53,16 +52,16 @@ namespace CP {
             enum IsoWPType {
                 Efficiency, Cut
             };
-            virtual const Root::TAccept& accept(const xAOD::Photon& x) const;
-            virtual const Root::TAccept& accept(const xAOD::Electron& x) const;
-            virtual const Root::TAccept& accept(const xAOD::Muon& x) const;
-            virtual const Root::TAccept& accept(const strObj& x) const;
-            virtual const Root::TAccept& accept(const xAOD::IParticle& x) const; // for tracks, and others?
+            virtual const asg::AcceptData accept(const xAOD::Photon& x) const;
+            virtual const asg::AcceptData accept(const xAOD::Electron& x) const;
+            virtual const asg::AcceptData accept(const xAOD::Muon& x) const;
+            virtual const asg::AcceptData accept(const strObj& x) const;
+            virtual const asg::AcceptData accept(const xAOD::IParticle& x) const; // for tracks, and others?
 
-            virtual const Root::TAccept& getPhotonTAccept() const;
-            virtual const Root::TAccept& getElectronTAccept() const;
-            virtual const Root::TAccept& getMuonTAccept() const;
-            virtual const Root::TAccept& getObjTAccept() const;
+            virtual const asg::AcceptInfo& getPhotonAcceptInfo() const;
+            virtual const asg::AcceptInfo& getElectronAcceptInfo() const;
+            virtual const asg::AcceptInfo& getMuonAcceptInfo() const;
+            virtual const asg::AcceptInfo& getObjAcceptInfo() const;
 
             virtual const std::vector<IsolationWP*>& getMuonWPs() const;
             virtual const std::vector<IsolationWP*>& getElectronWPs() const;
@@ -86,7 +85,7 @@ namespace CP {
 
         private:
             //same interface for xAOD::IParticle and StrObj -> use  template
-            template<typename T> void evaluateWP(const T& x, const std::vector<IsolationWP*>& WP, Root::TAccept& accept) const;
+            template<typename T> void evaluateWP(const T& x, const std::vector<IsolationWP*>& WP, asg::AcceptData& accept) const;
             void clearWPs(std::vector<IsolationWP*>& WP);
 
             // Stupid ROOT
@@ -109,15 +108,15 @@ namespace CP {
             std::vector<IsolationWP*> m_phWPs;
             std::vector<IsolationWP*> m_objWPs;
 
-            /// TAccept's
-            mutable Root::TAccept m_photonAccept;
-            mutable Root::TAccept m_electronAccept;
-            mutable Root::TAccept m_muonAccept;
-            mutable Root::TAccept m_objAccept;
+            ///AcceptInfo
+            asg::AcceptInfo m_photonAcceptInfo;
+            asg::AcceptInfo m_electronAcceptInfo;
+            asg::AcceptInfo m_muonAcceptInfo;
+            asg::AcceptInfo m_objAcceptInfo;
 
             /// Iparticle interface
             std::vector<IsolationWP*>* m_iparWPs;
-            mutable Root::TAccept* m_iparAccept;
+            asg::AcceptInfo*  m_iparAcceptInfo;
 
             // for cut interpolation
             bool m_doInterpM, m_doInterpE;
