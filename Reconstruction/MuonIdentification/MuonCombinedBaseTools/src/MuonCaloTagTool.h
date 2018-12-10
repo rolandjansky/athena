@@ -114,8 +114,8 @@ namespace MuonCombined {
     
     // --- CaloTrkMuIdTools ---
     ToolHandle<ICaloMuonLikelihoodTool>  m_caloMuonLikelihood; //!< CaloTrkMuIdTools::CaloMuonLikelihoodTool
-    ToolHandle<ICaloMuonTag>             m_caloMuonTagLoose;   //!< CaloTrkMuIdTools::CaloMuonTag for loose tagging
-    ToolHandle<ICaloMuonTag>             m_caloMuonTagTight;   //!< CaloTrkMuIdTools::CaloMuonTag for tight tagging
+    ToolHandle<ICaloMuonTag>             m_caloMuonTagLoose{this,"caloMuonTagLoose","CaloMuonTag/CaloMuonTagLoose","CaloTrkMuIdTools::CaloMuonTag for loose tagging"}; 
+    ToolHandle<ICaloMuonTag>             m_caloMuonTagTight{this,"caloMuonTagTight","CaloMuonTag/CaloMuonTag","CaloTrkMuIdTools::CaloMuonTag for tight tagging"}; 
     ToolHandle<ITrackDepositInCaloTool>  m_trkDepositInCalo;   //!< CaloTrkMuIdTools::TrackDepositInCaloTool
     
     // --- External tools ---

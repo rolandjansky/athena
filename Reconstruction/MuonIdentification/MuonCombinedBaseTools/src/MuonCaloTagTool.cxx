@@ -49,8 +49,6 @@ namespace MuonCombined {
 	m_nTracksTagged(0),
 	m_nMuonsTagged(0),
 	m_caloMuonLikelihood("CaloMuonLikelihoodTool/CaloMuonLikelihoodTool",this),
-        m_caloMuonTagLoose("CaloMuonTag/CaloMuonTagLoose"),
-        m_caloMuonTagTight("CaloMuonTag/CaloMuonTag"),
         m_trkDepositInCalo("TrackDepositInCaloTool/TrackDepositInCaloTool"),
 	m_trackIsolationTool("xAOD::TrackIsolationTool"),
         m_trkSelTool("InDet::InDetDetailedTrackSelectorTool/CaloTrkMuIdAlgTrackSelectorTool")
@@ -75,8 +73,6 @@ namespace MuonCombined {
     declareProperty("EnergyIsoConeSize",                 m_energyIsoCone             =  0.4    );
     
     // --- Calorimeter ID Tools ---
-    declareProperty("CaloMuonTagLoose",                  m_caloMuonTagLoose             );
-    declareProperty("CaloMuonTagTight",                  m_caloMuonTagTight             );
     declareProperty("doCaloMuonTag",                     m_doCaloMuonTag        =  true );
     declareProperty("doCaloLR",                          m_doCaloLR             =  true );
     declareProperty("ShowTruth",                         m_doTruth              =  true);
