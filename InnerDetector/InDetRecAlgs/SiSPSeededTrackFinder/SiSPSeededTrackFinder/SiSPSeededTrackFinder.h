@@ -17,7 +17,7 @@
 
 // For new strategy reconstruction
 #include "TrkTrack/TrackCollection.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
 #include "TrkExInterfaces/IPatternParametersPropagator.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkSurfaces/PerigeeSurface.h"
@@ -114,9 +114,9 @@ namespace InDet {
       double*                        m_zhistogram;
       double*                        m_phistogram;
 
-      std::string                    m_beamconditions          ;
+
       std::string                    m_fieldmode               ; 
-      IBeamCondSvc*                                 m_beam     ;
+      SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
       ToolHandle<Trk::IPatternParametersPropagator> m_proptool ;
       Trk::MagneticFieldProperties                  m_fieldprop;
 

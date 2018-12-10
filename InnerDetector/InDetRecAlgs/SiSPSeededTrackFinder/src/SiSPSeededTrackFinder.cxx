@@ -35,8 +35,6 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   m_fieldmode("MapSolenoid")                                           ,
   m_proptool   ("Trk::RungeKuttaPropagator/InDetPropagator"  )
 {
-  m_beamconditions         = "BeamCondSvc"     ;
-  m_beam                   = 0                 ;
   m_histsize               = 1400              ;
   m_nvertex                = 4                 ;
   m_zcut                   = 350.              ;
@@ -69,7 +67,6 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   declareProperty("useZBoundFinding"    ,m_useZBoundaryFinding );
   declareProperty("maxVertices"         ,m_nvertex             );
   declareProperty("PropagatorTool"      ,m_proptool            );
-  declareProperty("BeamConditionsService",m_beamconditions     ); 
   declareProperty("HistSize"            ,m_histsize            );
   declareProperty("Zcut"                ,m_zcut                );
   declareProperty("MagneticFieldMode"   ,m_fieldmode           );
@@ -93,15 +90,11 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
   //
   ATH_CHECK(m_trackmaker.retrieve());
 
-  if(m_useNewStrategy && m_beamconditions=="") {m_useNewStrategy = false; m_useZBoundaryFinding = false;}
+  if(m_useNewStrategy && m_beamSpotKey.key().empty()) {m_useNewStrategy = false; m_useZBoundaryFinding = false;}
 
   if(m_useNewStrategy || m_useZBoundaryFinding || m_ITKGeometry) {
 
-    // Get beam condition service 
-    // 
-    if(m_beamconditions!="") {service(m_beamconditions,m_beam);} 
-
-    if(m_beam) {
+    if(!m_beamSpotKey.key().empty()) {
     
       // Get RungeKutta propagator tool
       //
@@ -252,9 +245,8 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
 
   // Get beam information and preparation for z -histogramming
   //
-  Amg::Vector3D       cb = m_beam->beamPos();
-  Amg::Vector3D       gBeam(cb.x(),cb.y(),cb.z());
-  Trk::PerigeeSurface per(gBeam);
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  Trk::PerigeeSurface per(beamSpotHandle->beamPos());
  
   // Initiate histograms
   //
