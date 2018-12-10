@@ -88,7 +88,7 @@ class CaloClusterMaker : public AthReentrantAlgorithm
    *
    * If true, we keep in StoreGate the complete list of clusters
    * before each correction has been performed. */
-  bool m_keep_each_correction;
+  //MT-unfriendly:bool m_keep_each_correction;
 
   /** 
    * @brief controls saving the uncalibrated signal state just before
