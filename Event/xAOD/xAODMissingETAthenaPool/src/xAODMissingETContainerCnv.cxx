@@ -77,6 +77,7 @@ xAOD::MissingETContainer* xAODMissingETContainerCnv::createTransient() {
   if( compareClassGuid( v1_guid ) ) {
     xAOD::MissingETContainer* c = poolReadObject< xAOD::MissingETContainer >();
     setStoreLink( c, m_key );
+    for(xAOD::MissingET* metObj : *c) metObj->updateHash();
     return c;
   }
 
