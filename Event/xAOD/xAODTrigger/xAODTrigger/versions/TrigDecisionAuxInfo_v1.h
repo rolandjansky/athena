@@ -70,14 +70,6 @@ namespace xAOD {
       std::vector< uint32_t > efResurrected;
       /// @}
 
-      /// @name HLT result variables. Run 3. Extended July 2018
-      /// @{
-      // typedef unsigned int DecisionID;
-      std::vector< ::TrigCompositeUtils::DecisionID > chainMTPassedRaw;
-      std::vector< ::TrigCompositeUtils::DecisionID > chainMTPrescaled;
-      std::vector< ::TrigCompositeUtils::DecisionID > chainMTRerun;
-      /// @}
-
    }; // class TrigDecisionAuxInfo_v1
 
 } // namespace xAOD
