@@ -7,7 +7,13 @@ def getLArRawChannelBuilder(name="LArRawChannelBuilder" , **kwargs):
     from AthenaCommon.AppMgr import ToolSvc
 
     kwargs.setdefault('LArRawChannelKey', "LArRawChannels")
-    kwargs.setdefault('LArDigitKey', 'LArDigitContainer_MC')
+
+    from Digitization.DigitizationFlags import digitizationFlags
+    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        kwargs.setdefault('LArDigitKey', overlayFlags.bkgPrefix() + 'LArDigitContainer_MC')
+    else:
+        kwargs.setdefault('LArDigitKey', 'LArDigitContainer_MC')
 
     #Call required Cond-Algos:
     from LArRecUtils.LArAutoCorrTotalCondAlgDefault import  LArAutoCorrTotalCondAlgDefault

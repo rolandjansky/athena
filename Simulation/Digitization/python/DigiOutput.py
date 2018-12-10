@@ -136,7 +136,7 @@ def getStreamRDO_ItemList(log):
             if 'AddCaloDigi' in digitizationFlags.experimentalDigi():
                 StreamRDO_ItemList+=["LArDigitContainer#*"]
             elif digitizationFlags.PileUpPremixing:
-                StreamRDO_ItemList+=["LArDigitContainer#LArDigitContainer_MC"]
+                StreamRDO_ItemList+=["LArDigitContainer#*LArDigitContainer_MC"]
             else:
                 StreamRDO_ItemList+=["LArDigitContainer#LArDigitContainer_MC_Thinned"]
     if hasattr(DetFlags.digitize, 'HGTD_on') and DetFlags.digitize.HGTD_on():
