@@ -108,15 +108,15 @@ StatusCode TriggerEDMSerialiserTool::fillDynAux( const Address& address, DataObj
   DataBucketBase* dObjAux = dynamic_cast<DataBucketBase*>(dObj);
   ATH_CHECK( dObjAux != nullptr );  
 
-  const xAOD::AuxContainerBase* auxStore = dObjAux->template cast<xAOD::AuxContainerBase> (nullptr, true);
-  if ( auxStore == nullptr ) {
+  const SG::IAuxStoreIO* auxStoreIO = dObjAux->template cast<SG::IAuxStoreIO> (nullptr, true);
+  if ( auxStoreIO == nullptr ) {
     ATH_MSG_DEBUG( "Can't obtain AuxContainerBase of " << address.key <<  " no dynamic variables presumably" );
     return StatusCode::SUCCESS;
   }
-  ATH_MSG_DEBUG( "dump aux store" );
-  SGdebug::dump_aux_vars( *auxStore );
+  //  ATH_MSG_DEBUG( "dump aux store" );
+  //  SGdebug::dump_aux_vars( *auxStore );
   
-  const SG::auxid_set_t& selected = address.sel.getSelectedAuxIDs( auxStore->getDynamicAuxIDs() );
+  const SG::auxid_set_t& selected = address.sel.getSelectedAuxIDs( auxStoreIO->getDynamicAuxIDs() );
   
   if ( selected.empty() ) {
     ATH_MSG_VERBOSE( "Empty set of dynamic variables to store, do nothing" );
@@ -140,22 +140,11 @@ StatusCode TriggerEDMSerialiserTool::fillDynAux( const Address& address, DataObj
 
     RootType classDesc = RootType::ByName( typeName );  
 
-
-    const void* rawptr = auxStore->getData( auxVarID );
+    const void* rawptr = auxStoreIO->getIOData( auxVarID );
     ATH_CHECK( rawptr != nullptr );
-
-    if ( clid == ClassID_traits<std::vector<float>>::ID() )  {
-      const std::vector<float>* fvec = reinterpret_cast<const std::vector<float>*> (rawptr);
-      ATH_MSG_DEBUG("Aux size " << fvec->size() );
-      for ( float v : *fvec ) {
-	ATH_MSG_DEBUG("  v:  " << v );
-      }
-    }
 
     size_t sz=0;    
     void* mem = m_serializerSvc->serialize( rawptr, classDesc, sz );
-
-
     
     if ( mem == nullptr or sz == 0 ) {
       ATH_MSG_ERROR( "Serialisation of " << address.type <<"#" << address.key << "."<< name << " unsuccessful" );
