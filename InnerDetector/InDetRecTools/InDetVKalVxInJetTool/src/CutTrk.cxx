@@ -127,7 +127,7 @@ namespace InDet{
 
     std::vector<const xAOD::TrackParticle*>::const_iterator   i_ntrk;
     std::vector<double> Impact,ImpactError;
-    std::map<double,const xAOD::TrackParticle*> orderedTrk;
+    std::multimap<double,const xAOD::TrackParticle*> orderedTrk;
     int NPrimTrk=0;
     for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) {
 //
@@ -215,7 +215,7 @@ namespace InDet{
           if( sc.isFailure() )                 continue;
 	  //double rankBTrk=RankBTrk((*i_ntrk)->pt(),JetDir.Perp(),ImpactSignif);
 	  if(trkRank[1]>0.5)NPrimTrk += 1;
-	  orderedTrk[trkRank[0]]= *i_ntrk;
+	  orderedTrk.emplace(trkRank[0],*i_ntrk);
       }
 //---- Order tracks according to ranks
       std::map<double,const xAOD::TrackParticle*>::reverse_iterator rt=orderedTrk.rbegin();

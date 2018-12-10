@@ -79,11 +79,14 @@ namespace InDet {
    private:
 
     TMVA::Reader* m_tmvaReader;
-    double m_trkMinPtCut;
-    float m_d0_limLow;
-    float m_d0_limUpp;
-    float m_Z0_limLow;
-    float m_Z0_limUpp;
+    int m_trkSctHitsCut{};
+    int m_trkPixelHitsCut{};
+    float m_trkChi2Cut{};
+    float m_trkMinPtCut{};
+    float m_d0_limLow{};
+    float m_d0_limUpp{};
+    float m_Z0_limLow{};
+    float m_Z0_limUpp{};
     std::string m_calibFileName;
     ToolHandle < Trk::IVertexFitter >  m_fitterSvc;
     Trk::TrkVKalVrtFitter*   m_fitSvc{};
