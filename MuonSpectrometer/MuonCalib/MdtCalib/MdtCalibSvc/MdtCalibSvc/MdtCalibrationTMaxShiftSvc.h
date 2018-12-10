@@ -14,8 +14,6 @@
 #include <map>
 
 #include "AthenaBaseComps/AthService.h"
-#include "GaudiKernel/IInterface.h"
-#include "GaudiKernel/ServiceHandle.h"
 
 #include "MdtCalibSvc/MdtCalibrationShiftMapBase.h"
 
@@ -34,20 +32,11 @@ public:
   /** destructor */
   virtual ~MdtCalibrationTMaxShiftSvc();
 
-  /** implements IInterface */
-  static const InterfaceID &interfaceID() {
-    static InterfaceID s_iID("MdtCalibrationTMaxShiftSvc", 1, 0);
-    return s_iID;
-  }
-
-  /* implements IInterface */
-  virtual StatusCode queryInterface(const InterfaceID &riid, void **ppvIF);
-
   /*
    * initalization of map cannot happen before first event
    * special function required
    */
-  StatusCode initializeMap();
+  StatusCode initializeMap() override;
 
   StatusCode setTUpper(float tUpper);
   float getTUpper() { return m_tUpper; }

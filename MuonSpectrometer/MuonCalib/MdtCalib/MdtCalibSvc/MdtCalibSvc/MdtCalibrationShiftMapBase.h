@@ -13,11 +13,13 @@
 
 #include <map>
 
+// Framework includes
 #include "AthenaBaseComps/AthService.h"
-#include "GaudiKernel/IInterface.h"
-#include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
 
+// MDT interfaces
+#include "MdtCalibInterfaces/IShiftMapTools.h"
+
+// MDT includes
 #include "MuonMDT_Cabling/MuonMDT_CablingSvc.h"
 
 class Identifier;
@@ -29,47 +31,36 @@ class TTree;
    MdtCalibT0ShiftTool & MdtCalibTMaxShiftTool.
    @author Andreas Hoenle
 */
-class MdtCalibrationShiftMapBase : virtual public IInterface, public AthService {
-public:
+class MdtCalibrationShiftMapBase : public extends<AthService, IG4FieldSvc> {
+ public:
   /* constructor */
-  MdtCalibrationShiftMapBase(const std::string &name, ISvcLocator *sl);
+  MdtCalibrationShiftMapBase(const std::string& name);
 
   /* destructor */
   virtual ~MdtCalibrationShiftMapBase() = 0;
 
-  /* implements IInterface */
-  static const InterfaceID &interfaceID() {
-    static InterfaceID s_iID("MdtCalibrationShiftMapBase", 1, 0);
-    return s_iID;
-  }
-
-  /* implements IInterface */
-  virtual StatusCode queryInterface(const InterfaceID &riid, void **ppvIF);
-
   /* initialization */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   /* finalization */
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
 
   /*
    * initalization of map cannot happen before first event
    * special function required
    */
-  virtual StatusCode initializeMap() = 0;
+  virtual StatusCode initializeMap() override = 0;
 
   /* dump the map in binary file, given a path */
-  StatusCode dumpMapAsFile();
+  StatusCode dumpMapAsFile() override;
 
   /* load the map from a binary file, given a path */
-  StatusCode loadMapFromFile();
+  StatusCode loadMapFromFile() override;
 
   /* get shift */
-  float getValue(const Identifier& id);
+  float getValue(const Identifier& id) override;
 
-protected:
-  /// please don't add any data members here!!
-  /// they should be added to Imp to keep the class free from data exposed to clients
+ protected:
   ServiceHandle<MuonMDT_CablingSvc> m_cablingSvc;
   std::map<Identifier, float> m_shiftValues;
   bool m_mapIsInitialized;
@@ -80,8 +71,7 @@ protected:
   float m_sigma;
   bool m_forceMapRecreate;
 
-
-private:
+ private:
 };
 
 #endif
