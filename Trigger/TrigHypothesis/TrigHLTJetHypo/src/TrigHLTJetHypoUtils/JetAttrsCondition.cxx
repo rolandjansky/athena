@@ -35,7 +35,7 @@ bool JetAttrsCondition::isSatisfied(const HypoJetVector& ips) const{
 
 
   auto jet = ips[0];
-//  auto trigDecision = true; //all chain bits must be satisfied to keep this true. Any failure will make false
+  auto trigDecision = true; //all chain bits must be satisfied to keep this true. Any failure will make false
 //  auto nmbVars = m_jetVar.size() / m_E.size(); // number of moments considered at each energy point
 
   std::cout << "amanda - in JetAttrsCondition \n";
@@ -57,7 +57,6 @@ bool JetAttrsCondition::isSatisfied(const HypoJetVector& ips) const{
   */
 
   //second working try - good for single E
-  /*
   //For each jet (defined by energy value), consider all appropriate moments and return true/false for each
   //for (unsigned int jetEn=0; jetEn < m_E.size(); jetEn++){
   if(m_E.size()==1){    
@@ -72,9 +71,8 @@ bool JetAttrsCondition::isSatisfied(const HypoJetVector& ips) const{
 
 
   return false;
-  */
 
-
+  /*
   //Create vector of decisions. If/when every element is "true" then condition is fully satisfied
   //If has=false, fill decision vector with "true" to ignore. Fill other elements with false. The "false" entries must now be checked with passCut methods below
   std::vector<bool> trigDecision;
@@ -97,16 +95,16 @@ bool JetAttrsCondition::isSatisfied(const HypoJetVector& ips) const{
       }
     }
   }
-  
+  */
 
 
   //if(checkDecision(trigDecision)){return true;}
   //return false;
-  return checkDecision(trigDecision);
+  //return checkDecision(trigDecision);
 
 }
 
-
+/*
 bool JetAttrsCondition::checkDecision(std::vector<bool> dec) const {
   //if vector is full of "true" statments, the product will also be true and trigger satisfied
   //Check multiplication here
@@ -127,7 +125,7 @@ bool JetAttrsCondition::checkDecision(std::vector<bool> dec) const {
   return result;
 
 }
-
+*/
 
 
 bool JetAttrsCondition::passWidthCut(pHypoJet j0, int i) const {
