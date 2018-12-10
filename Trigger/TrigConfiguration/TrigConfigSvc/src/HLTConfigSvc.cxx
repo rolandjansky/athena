@@ -117,7 +117,42 @@ HLTConfigSvc::initialize() {
 
    CHECK(ConfigSvcBase::initialize());
 
-   if( !fromDB() and m_xmlFile=="NONE" ) {
+   //////////////////////////////////////////////////////////////
+   // BEGIN RUN-3 TESTING BLOCK - THIS SHOULD BE TEMPORARY
+   ////////////////////////////////////////////////////////////// 
+   string s(boost::to_lower_copy(m_configSourceString)); // lower case
+   if (s == "run3_dummy") {
+
+      std::map<std::string, std::string> dummyChains;
+      dummyChains["HLT_e3_etcut1step"] = "L1_EM3";
+      dummyChains["HLT_e3_etcut"] = "L1_EM3";
+      dummyChains["HLT_e5_etcut"] = "L1_EM3";
+      dummyChains["HLT_e7_etcut"] = "L1_EM3";
+      dummyChains["HLT_g5_etcut"] = "L1_EM3";
+      dummyChains["HLT_mu6"] = "L1_MU6";
+      dummyChains["HLT_2mu6"] = "L1_MU6";
+      dummyChains["HLT_mu6Comb"] = "L1_MU6";
+      dummyChains["HLT_2mu6Comb"] = "L1_MU6";
+      dummyChains["HLT_j85"] = "L1_J20";
+      dummyChains["HLT_j100"] = "L1_J20";
+      dummyChains["HLT_e3_etcut_mu6"] = "L1_EM8I_MU10";
+      m_HLTFrame.setMergedHLT( m_setMergedHLT );
+      for (const auto& mapPair : dummyChains) {
+         const std::string& chainName = mapPair.first;
+         const std::string& chainSeed = mapPair.second;
+         const int chainCounter = std::distance(dummyChains.begin(), dummyChains.find(chainName));
+         HLTChain* chain = new HLTChain( chainName, chainCounter, 1, "HLT", chainSeed, 0, vector<HLTSignature*>() );
+         // Note: the ownership of chain is transfered to the frame, the frame will delete it on deconstruct.
+         m_HLTFrame.theHLTChainList().addHLTChain( chain );
+         ATH_MSG_INFO(" RUN 3 TESTING MODE! Adding dummy chain " << chainName << " [" << chainCounter << "] <- " << chainSeed);
+      }
+
+      return StatusCode::SUCCESS;
+
+   //////////////////////////////////////////////////////////////
+   // END RUN-3 TESTING BLOCK - THIS SHOULD BE TEMPORARY
+   //////////////////////////////////////////////////////////////
+   } else if( !fromDB() and m_xmlFile=="NONE" ) {
       ATH_MSG_INFO("xml file set to NONE, will not load HLT Menu");
       return StatusCode::SUCCESS;
    }
