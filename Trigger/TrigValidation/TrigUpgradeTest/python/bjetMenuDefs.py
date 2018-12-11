@@ -48,7 +48,7 @@ def bJetStep1Sequence():
 
     # input maker
     from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-    InputMakerAlg = InputMakerForRoI("JetInputMaker",OutputLevel="INFO")
+    InputMakerAlg = InputMakerForRoI("JetInputMaker",OutputLevel=INFO)
     InputMakerAlg.LinkName = "initialRoI"
     InputMakerAlg.RoIs='FSJETRoI'
 
@@ -125,7 +125,7 @@ def bJetStep1SequenceALLTE():
 
     # input maker
     from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-    InputMakerAlg = InputMakerForRoI("JetInputMaker",OutputLevel="INFO")
+    InputMakerAlg = InputMakerForRoI("JetInputMaker",OutputLevel=INFO)
     InputMakerAlg.LinkName="initialRoI"
     InputMakerAlg.RoIs='FSJETRoI'
 
@@ -282,7 +282,7 @@ def bJetStep2SequenceALLTE():
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlg_step2ALLTE")
     hypo.OutputLevel = DEBUG
     hypo.Jets = theGSC.JetOutputKey
-    hypo.RoIs = InputMakerAlg.Output
+    hypo.RoIs = InputMakerAlg.RoIs
     hypo.PrimaryVertex = "PrimaryVertex"
     hypo.RoILink = "initialRoI"
     hypo.JetLink = "jets"
