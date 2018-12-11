@@ -113,7 +113,7 @@ public:
     SiLocalPosition localPositionOfCell(const SiCellId &cellId) const;
     SiLocalPosition localPositionOfCluster(const SiCellId &cellId, int clusterSize) const;
     
-    // these return local position in STRIP PC (obviously)
+    // these return local position in STRIP PC
     SiLocalPosition localPositionOfCellPC(const SiCellId &cellId) const;
     SiLocalPosition localPositionOfClusterPC(const SiCellId &cellId, int clusterSize) const;
 
