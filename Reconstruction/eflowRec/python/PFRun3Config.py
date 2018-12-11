@@ -14,6 +14,13 @@ def PFCfg(inputFlags,**kwargs):
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
     result.mergeAll(GeoModelCfg(inputFlags))
 
+    from TrkDetDescrSvc.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+    acc, geom_svc = TrackingGeometrySvcCfg(inputFlags)
+    result.merge(acc)
+
+    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
+    result.merge(MuonGeoModelCfg(inputFlags))    
+
     from GeometryDBSvc.GeometryDBSvcConf import GeometryDBSvc
     result.addService(GeometryDBSvc("InDetGeometryDBSvc"))
     
