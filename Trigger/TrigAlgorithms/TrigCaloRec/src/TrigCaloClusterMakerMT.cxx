@@ -177,12 +177,12 @@ StatusCode TrigCaloClusterMakerMT::execute()
 
   // We now take care of the Cluster Making... 
   auto  clusterContainer =   SG::makeHandle (m_outputClustersKey, ctx); 
-  ATH_MSG_DEBUG(" Output Clusters : " <<  clusterContainer.name());
+  ATH_MSG_VERBOSE(" Output Clusters : " <<  clusterContainer.name());
 
   ATH_CHECK( clusterContainer.record (std::make_unique<xAOD::CaloClusterContainer>(),  std::make_unique<xAOD::CaloClusterTrigAuxContainer> () ));
 
   xAOD::CaloClusterContainer* pCaloClusterContainer = clusterContainer.ptr();
-  ATH_MSG_DEBUG(" created ClusterContainer at 0x" << std::hex << pCaloClusterContainer<< std::dec);
+  ATH_MSG_VERBOSE(" created ClusterContainer at 0x" << std::hex << pCaloClusterContainer<< std::dec);
 
 
   // monitored variables 
@@ -208,7 +208,7 @@ StatusCode TrigCaloClusterMakerMT::execute()
   auto  pTrigCaloQuality =   SG::makeHandle (m_inputCaloQualityKey, ctx); 
   //TrigCaloQuality*  pTrigCaloQuality = trigCaloQuality.ptr();
 
-  ATH_MSG_DEBUG(" Input CaloQuality : " <<  pTrigCaloQuality.name());
+  ATH_MSG_VERBOSE(" Input CaloQuality : " <<  pTrigCaloQuality.name());
 
 
   // Looping over cluster maker tools... 
@@ -216,7 +216,7 @@ StatusCode TrigCaloClusterMakerMT::execute()
   time_clusMaker.start();
 
   auto cells = SG::makeHandle(m_inputCellsKey, ctx);
-  ATH_MSG_DEBUG(" Input Cells : " << cells.name() <<" of size " <<cells->size() );
+  ATH_MSG_VERBOSE(" Input Cells : " << cells.name() <<" of size " <<cells->size() );
 
   auto towers = SG::makeHandle(m_inputTowersKey, ctx);
   //  ATH_MSG_DEBUG(" Input Towers : " << towers.name() <<" of size "<< towers->size());
@@ -257,7 +257,7 @@ StatusCode TrigCaloClusterMakerMT::execute()
     if ( clproc->execute(pCaloClusterContainer).isFailure() ) {
       ATH_MSG_ERROR("Error executing tool " << m_clusterMakerNames[index] );
     } else {
-      ATH_MSG_DEBUG("Executed tool " << m_clusterMakerNames[index] );
+      ATH_MSG_VERBOSE("Executed tool " << m_clusterMakerNames[index] );
     }
 
     ++index;
@@ -270,16 +270,16 @@ StatusCode TrigCaloClusterMakerMT::execute()
     {
       ATH_MSG_VERBOSE("found cluster with state "
 		      << cl->signalState() <<  ", calE: " << cl->calE() << ", calEta: " << cl->calEta() << ", calPhi: " << cl->calPhi() << " calM: " <<cl->calM());
-      ATH_MSG_DEBUG(" Cluster Et  = " << cl->et() );
-      ATH_MSG_DEBUG(" Cluster eta = " << cl->eta() );
-      ATH_MSG_DEBUG(" Cluster phi = " << cl->phi() );
+      ATH_MSG_VERBOSE(" Cluster Et  = " << cl->et() );
+      ATH_MSG_VERBOSE(" Cluster eta = " << cl->eta() );
+      ATH_MSG_VERBOSE(" Cluster phi = " << cl->phi() );
       cl->setRawE(cl->calE());
       cl->setRawEta(cl->calEta());
       cl->setRawPhi(cl->calPhi());
       cl->setRawM(cl->calM());
-      ATH_MSG_DEBUG(" before correction=>Cluster Et  = " << cl->et() );
-      ATH_MSG_DEBUG(" before correction=>Cluster eta = " << cl->eta() );
-      ATH_MSG_DEBUG(" before correction=>Cluster phi = " << cl->phi() );
+      ATH_MSG_VERBOSE(" before correction=>Cluster Et  = " << cl->et() );
+      ATH_MSG_VERBOSE(" before correction=>Cluster eta = " << cl->eta() );
+      ATH_MSG_VERBOSE(" before correction=>Cluster phi = " << cl->phi() );
     }
   
   
@@ -287,14 +287,14 @@ StatusCode TrigCaloClusterMakerMT::execute()
   // Looping over cluster correction tools... 
   
   time_clusCorr.start();
-  ATH_MSG_DEBUG(" Running cluster correction tools");
+  ATH_MSG_VERBOSE(" Running cluster correction tools");
   std::vector<CaloClusterProcessor*>::const_iterator itrcct = m_clusterCorrectionPointers.begin();
   std::vector<CaloClusterProcessor*>::const_iterator endcct = m_clusterCorrectionPointers.end();
     
   index=0;
   for (; itrcct!=endcct; ++itrcct) {
 
-    ATH_MSG_DEBUG(" Running " << (*itrcct)->name());
+    ATH_MSG_VERBOSE(" Running " << (*itrcct)->name());
     ISetCaloCellContainerName* setter =
       dynamic_cast<ISetCaloCellContainerName*> (*itrcct);
     if (setter) {
@@ -317,7 +317,7 @@ StatusCode TrigCaloClusterMakerMT::execute()
 	//        return HLT::TOOL_FAILURE;
 	return StatusCode::SUCCESS;
       } else {
-	ATH_MSG_DEBUG("Executed correction tool " << m_clusterCorrectionNames[index] );
+	ATH_MSG_VERBOSE("Executed correction tool " << m_clusterCorrectionNames[index] );
       }
       } // Check conditions
     }
