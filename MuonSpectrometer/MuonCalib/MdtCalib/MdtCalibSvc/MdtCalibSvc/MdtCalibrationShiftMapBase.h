@@ -31,34 +31,30 @@ class TTree;
    MdtCalibT0ShiftTool & MdtCalibTMaxShiftTool.
    @author Andreas Hoenle
 */
-class MdtCalibrationShiftMapBase : public extends<AthService, MuonCalib::IShiftMapTools> {
+class MdtCalibrationShiftMapBase
+    : public extends<AthService, MuonCalib::IShiftMapTools> {
  public:
   /* constructor */
   MdtCalibrationShiftMapBase(const std::string& name, ISvcLocator* pSvcLocator);
 
   /* destructor */
-  virtual ~MdtCalibrationShiftMapBase() = 0;
+  ~MdtCalibrationShiftMapBase();
 
-  /* initialization */
-  virtual StatusCode initialize() override;
-
-  /* finalization */
-  virtual StatusCode finalize() override;
+  /* get shift value, override from IShiftMapTools */
+  float getValue(const Identifier& id) override;
 
   /*
-   * initalization of map cannot happen before first event
+   * initialization of map cannot happen before first event
    * special function required
+   * we need the cabling service to be ready first
    */
-  virtual StatusCode initializeMap() override = 0;
+  virtual StatusCode initializeMap();
 
   /* dump the map in binary file, given a path */
-  StatusCode dumpMapAsFile() override;
+  StatusCode dumpMapAsFile();
 
   /* load the map from a binary file, given a path */
-  StatusCode loadMapFromFile() override;
-
-  /* get shift */
-  float getValue(const Identifier& id) override;
+  StatusCode loadMapFromFile();
 
  protected:
   ServiceHandle<MuonMDT_CablingSvc> m_cablingSvc;

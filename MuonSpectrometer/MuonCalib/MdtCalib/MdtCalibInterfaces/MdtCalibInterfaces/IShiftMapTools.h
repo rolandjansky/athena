@@ -17,6 +17,9 @@
 // from Gaudi
 #include "GaudiKernel/IService.h"
 
+// forward declarations
+class Identifier;
+
 namespace MuonCalib {
 
 /**
@@ -31,28 +34,10 @@ class IShiftMapTools : virtual public IService {
   IShiftMapTools() { ; }
   virtual ~IShiftMapTools() = 0;
 
-  // Creates the InterfaceID and interfaceID() method
+  /* Creates the InterfaceID and interfaceID() method */
   DeclareInterfaceID(IShiftMapTools, 1, 0);
 
-  /* initialization */
-  virtual StatusCode initialize();
-
-  /* finalization */
-  virtual StatusCode finalize();
-
-  /*
-   * initalization of map cannot happen before first event
-   * special function required
-   */
-  virtual StatusCode initializeMap() = 0;
-
-  /* dump the map in binary file, given a path */
-  virtual StatusCode dumpMapAsFile() = 0;
-
-  /* load the map from a binary file, given a path */
-  virtual StatusCode loadMapFromFile() = 0;
-
-  /* get shift */
+  /* get shift value */
   virtual float getValue(const Identifier& id) = 0;
 };
 
