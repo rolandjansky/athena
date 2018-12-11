@@ -95,7 +95,7 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
   if(m_useNewStrategy || m_useZBoundaryFinding || m_ITKGeometry) {
 
     if(!m_beamSpotKey.key().empty()) {
-    
+      ATH_CHECK(m_beamSpotKey.initialize());
       // Get RungeKutta propagator tool
       //
       ATH_CHECK( m_proptool.retrieve() );
