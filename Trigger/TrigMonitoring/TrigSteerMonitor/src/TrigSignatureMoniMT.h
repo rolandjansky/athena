@@ -33,7 +33,7 @@ class TrigSignatureMoniMT : public ::AthAlgorithm
  
  private: 
   TrigSignatureMoniMT();
-  SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_l1DecisionsKey{ this, "L1Decisions", "HLTChainsResult", "Chains activated after the L1" };
+  SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_l1DecisionsKey{ this, "L1Decisions", "L1DecoderSummary", "Chains activated after the L1" };
 
     
   SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_finalDecisionKey{ this, "FinalDecisionKey", "HLTFinalDecisions", "Final stage of all decisions" };

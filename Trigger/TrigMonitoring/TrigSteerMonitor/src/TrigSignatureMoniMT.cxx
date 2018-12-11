@@ -153,9 +153,12 @@ StatusCode TrigSignatureMoniMT::execute()  {
   const int row = m_passHistogram->GetYaxis()->GetNbins();
   auto finalDecisionsHandle = SG::makeHandle( m_finalDecisionKey );
   ATH_CHECK( finalDecisionsHandle.isValid() );
-  ATH_CHECK( finalDecisionsHandle->size() == 1 );
   TrigCompositeUtils::DecisionIDContainer finalIDs;
-  TrigCompositeUtils::decisionIDs( finalDecisionsHandle->at(0), finalIDs );
+  for (const TrigCompositeUtils::Decision* decisionObject : *finalDecisionsHandle) {
+    if (decisionObject->name() == "HLTPassRaw") {
+      TrigCompositeUtils::decisionIDs(decisionObject, finalIDs);
+    }
+  }
   ATH_CHECK( fillPass( finalIDs, row ) );
   
   if ( not finalIDs.empty() ) {
