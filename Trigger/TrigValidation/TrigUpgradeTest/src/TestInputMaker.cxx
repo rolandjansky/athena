@@ -64,19 +64,18 @@ namespace HLTTest {
 	for (auto input: inputLinks){
 	  ATH_MSG_DEBUG( "followed seed link to input "<< input.key() );
 	  const Decision* inputDecision = *input;
-	  auto roiEL = inputDecision->objectLink<TrigRoiDescriptorCollection>( m_roisLink.value() );
-	  CHECK( roiEL.isValid() );
+	  auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( inputDecision,  m_roisLink.value());
+	  //auto roiEL = inputDecision->objectLink<TrigRoiDescriptorCollection>( m_roisLink.value() );
+	  CHECK( roiELInfo.isValid() );
 	
- 	// retrieve input feature from input decision (TrigComposite), will in this case be a TrigRoiDescriptor
-	  auto featureLink = inputDecision->objectLink<FeatureContainer>( m_linkName.value() );
-	  if ( not featureLink.isValid() )  {
-	    ATH_MSG_ERROR( " Can not find reference to " + m_linkName.value() + " from the decision" );
-	    return StatusCode::FAILURE;
-	  }
-        
+	  // retrieve input feature from input decision (TrigComposite), will in this case be a TrigRoiDescriptor	  
+	  //	  auto featureLink = inputDecision->objectLink<FeatureContainer>( m_linkName.value() );
+	  auto featureLinkInfo = TrigCompositeUtils::findLink<FeatureContainer>( inputDecision,  m_linkName.value());
+	  CHECK( featureLinkInfo.isValid() );
+	
 	  // link input reco object to outputDecision
-	  outputDecision->setObjectLink(m_linkName.value(), featureLink);
-
+	  //outputDecision->setObjectLink(m_linkName.value(), featureLink);
+	  auto featureLink = featureLinkInfo.link;
 	  const FeatureOBJ* feature = *featureLink;
 	  ATH_MSG_DEBUG(" Found feature " <<m_linkName.value() );
 	  
@@ -90,7 +89,7 @@ namespace HLTTest {
 	    auto newFeature = new xAOD::TrigComposite;
 	    reco_output->push_back(newFeature); 
 	    // 
-	    newFeature->setObjectLink(m_roisLink.value(), roiEL);
+	    newFeature->setObjectLink(m_roisLink.value(), roiELInfo.link);
 	    newFeature->setObjectLink(m_linkName.value(), featureLink);
 	    ATH_MSG_DEBUG(" Added " <<m_linkName.value() << " and " << m_roisLink.value() << " to reco object");
 	  }

@@ -177,8 +177,8 @@ namespace TrigCompositeUtils {
   };
 
   /**
-   * @brief search back the TC links for the object of type T linked to the one of TC
-   * @arg start the TC where from where the link back is to be looked for
+   * @brief search back the TC links for the object of type T linked to the one of TC (recursively throough the seeds)
+   * @arg start the TC from where the link back is to be looked for
    * @arg linkName the name with which the Link was added to the source TC
    * @return pair of link and TC with which it was associated, 
    */
@@ -197,10 +197,6 @@ namespace TrigCompositeUtils {
       }
       return LinkInfo<T>(); // invalid link
     }
-
-	//
-    /* if ( not source ) */
-    /*   return LinkInfo<T>(); // invalid link */
     return LinkInfo<T>( source, source->objectLink<T>( linkName ) );
   }
 

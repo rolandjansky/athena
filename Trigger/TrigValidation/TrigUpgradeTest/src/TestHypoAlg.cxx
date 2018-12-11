@@ -93,7 +93,7 @@ namespace HLTTest {
 	 auto d = newDecisionIn(decisions.get());
 	 d->setObjectLink( "feature", ElementLink<xAOD::TrigCompositeContainer>(m_recoInput.key(), reco_counter) );// feature used by the Tool
 	 d->setObjectLink( m_linkName.value(), featurelink );
-	 d->setObjectLink( "initialRoI", roiEL );
+	 //d->setObjectLink( "initialRoI", roiEL );
 	 linkToPrevious( d, decisionInput().key(), pos );
        }
        else{

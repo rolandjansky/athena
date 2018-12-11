@@ -23,6 +23,7 @@ const SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer>& InputMaker
 
 StatusCode InputMakerBase::sysInitialize() {
   CHECK( AthReentrantAlgorithm::sysInitialize() ); // initialise base class
+  ATH_MSG_DEBUG("mergeOutputs is "<<m_mergeOutputs);
   CHECK( m_inputs.initialize() );
   renounceArray(m_inputs); // make inputs implicit, i.e. not required by scheduler
   ATH_MSG_DEBUG("Will consume implicit decisions:" );
@@ -38,11 +39,12 @@ StatusCode InputMakerBase::sysInitialize() {
 }
 
 
-// For each input Decision container, create an output decision container
 // For each input Decision in the input container, create an output Decision in the corresponding output container and link them.
 StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> > & outputHandles) const{
   if (m_mergeOutputs) return decisionInputToMergedOutput(context, outputHandles);
+
   
+  ATH_MSG_DEBUG("Creating one output per input");
   outputHandles = decisionOutputs().makeHandles(context);
   countInputHandles( context );
  
@@ -74,7 +76,7 @@ StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, st
       TrigCompositeUtils::insertDecisionIDs( decision, newDec );
 
       copyBaseLinks( decision, newDec);
-      //ATH_MSG_DEBUG("New decision has "<< newDec->hasObjectLink(m_roisLink.value() ) <<" "<< m_roisLink.value());      
+      ATH_MSG_DEBUG("New decision has "<< newDec->hasObjectLink(m_roisLink.value() ) <<" " <<m_roisLink.value() );     
       input_counter++;	
     } // loop over decisions
 
@@ -87,10 +89,11 @@ StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, st
 }
 
 
-// For each input Decision container, create an output decision container
+
 // For each input Decision in the input container that links to one RoI, create an output Decision per RoI (mergeing them into one) and linking to all previous
 StatusCode InputMakerBase::decisionInputToMergedOutput(const EventContext& context, std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> > & outputHandles) const{
 
+  ATH_MSG_DEBUG("Creating one merged output per RoI");
   outputHandles = decisionOutputs().makeHandles(context);
   countInputHandles( context );
 
@@ -128,7 +131,7 @@ StatusCode InputMakerBase::decisionInputToMergedOutput(const EventContext& conte
 	RoIsFromDecision.push_back(roiEL); // just to keep track of which we have used 
 	const TrigRoiDescriptor* roi = *roiEL;
 	ATH_MSG_DEBUG( "Found RoI:" <<*roi<<" FS="<<roi->isFullscan());
-	ATH_MSG_DEBUG( "making new decision" );
+	ATH_MSG_DEBUG( "Making new decision" );
 	newDec = TrigCompositeUtils::newDecisionIn( outDecisions.get() );
 	output_counter++;
       }
@@ -140,7 +143,7 @@ StatusCode InputMakerBase::decisionInputToMergedOutput(const EventContext& conte
       TrigCompositeUtils::linkToPrevious( newDec, inputKey.key(), input_counter );
       TrigCompositeUtils::insertDecisionIDs( decision, newDec );     	
       copyBaseLinks( decision, newDec);
-      //ATH_MSG_DEBUG("New decision has "<< newDec->hasObjectLink(m_roisLink.value() ) <<" "<< m_roisLink.value());     
+      ATH_MSG_DEBUG("New decision has "<< newDec->hasObjectLink(m_roisLink.value()  ) <<" "<<m_roisLink.value() <<" and "<< TrigCompositeUtils::getLinkToPrevious(newDec).size() <<" previous decisions");     
       input_counter++;	
     } // loop over decisions
 
@@ -202,17 +205,6 @@ StatusCode InputMakerBase::debugPrintOut(const EventContext& context, const std:
   return StatusCode::SUCCESS;
 }
 
-
-
-// StatusCode InputMakerBase::insertDecisions( const Decision* src, Decision* dest ) const  {
-
-//   DecisionIDContainer ids;
-//   decisionIDs( dest, ids );
-//   decisionIDs( src, ids );
-//   decisionIDs( dest ).clear(); 
-//   decisionIDs(dest).insert( decisionIDs(dest).end(), ids.begin(), ids.end() );
-//   return StatusCode::SUCCESS;
-// }
 
 
 size_t InputMakerBase::countInputHandles( const EventContext& context ) const {

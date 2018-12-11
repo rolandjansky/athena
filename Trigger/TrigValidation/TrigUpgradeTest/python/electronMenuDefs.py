@@ -48,7 +48,6 @@ fastCaloInViewAlgs = seqAND("fastCaloInViewAlgs", [theFastCaloAlgo])
 
 fastCaloViewsMaker = EventViewCreatorAlgorithm("fastCaloViewsMaker", OutputLevel=DEBUG)
 fastCaloViewsMaker.ViewFallThrough = True
-fastCaloViewsMaker.mergeOutputs = True
 fastCaloViewsMaker.RoIsLink = "initialRoI" # -||-
 fastCaloViewsMaker.InViewRoIs = "EMCaloRoIs" # contract with the fastCalo
 fastCaloViewsMaker.Views = "EMCaloViews"
@@ -114,7 +113,6 @@ theElectronFex.OutputLevel=VERBOSE
 
 
 l2ElectronViewsMaker = EventViewCreatorAlgorithm("l2ElectronViewsMaker", OutputLevel=DEBUG)
-l2ElectronViewsMaker.mergeOutputs=True
 l2ElectronViewsMaker.RoIsLink = "roi" # -||-
 l2ElectronViewsMaker.InViewRoIs = "EMIDRoIs" # contract with the fastCalo
 l2ElectronViewsMaker.Views = "EMElectronViews"
