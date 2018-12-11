@@ -129,6 +129,8 @@ HLTConfigSvc::initialize() {
       dummyChains["HLT_e5_etcut"] = "L1_EM3";
       dummyChains["HLT_e7_etcut"] = "L1_EM3";
       dummyChains["HLT_g5_etcut"] = "L1_EM3";
+      dummyChains["HLT_g10_etcut"] = "L1_EM7";
+      dummyChains["HLT_g15_etcut"] = "L1_EM12";
       dummyChains["HLT_mu6"] = "L1_MU6";
       dummyChains["HLT_2mu6"] = "L1_MU6";
       dummyChains["HLT_mu6Comb"] = "L1_MU6";
@@ -144,7 +146,7 @@ HLTConfigSvc::initialize() {
          HLTChain* chain = new HLTChain( chainName, chainCounter, 1, "HLT", chainSeed, 0, vector<HLTSignature*>() );
          // Note: the ownership of chain is transfered to the frame, the frame will delete it on deconstruct.
          m_HLTFrame.theHLTChainList().addHLTChain( chain );
-         ATH_MSG_INFO(" RUN 3 TESTING MODE! Adding dummy chain " << chainName << " [" << chainCounter << "] <- " << chainSeed);
+         ATH_MSG_INFO(" RUN 3 TESTING MODE! Adding dummy chain with hash:" << chain->chain_hash_id() << " : " << chainName << " [" << chainCounter << "] <- " << chainSeed); 
       }
 
       return StatusCode::SUCCESS;
