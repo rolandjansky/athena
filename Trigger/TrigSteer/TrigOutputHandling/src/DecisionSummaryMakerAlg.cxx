@@ -20,6 +20,11 @@ StatusCode DecisionSummaryMakerAlg::initialize() {
     m_collectionFilter[ conf.collection ].insert( HLT::Identifier( conf.chain).numeric() );
     ATH_MSG_DEBUG( "Final decision of the chain " << conf.chain << " will be read from " << conf.collection );
   }
+
+  if (m_enableCostMonitoring) {
+    CHECK( m_trigCostSvcHandle.retrieve() );
+    CHECK( m_costWriteHandleKey.initialize() );
+  }
   
   return StatusCode::SUCCESS;
 }
@@ -65,6 +70,13 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
     for ( auto d: TrigCompositeUtils::decisionIDs( output ) ) {
       ATH_MSG_DEBUG( HLT::Identifier( d ) );
     }
+  }
+
+  // Do cost monitoring
+  if (m_enableCostMonitoring) {
+    SG::WriteHandle<xAOD::TrigCompositeContainer> costMonOutput = TrigCompositeUtils::createAndStore(m_costWriteHandleKey, context);
+    // Populate collection (assuming monitored event, otherwise collection will remain empty)
+    ATH_CHECK(m_trigCostSvcHandle->endEvent(context, costMonOutput));
   }
 
   return StatusCode::SUCCESS;

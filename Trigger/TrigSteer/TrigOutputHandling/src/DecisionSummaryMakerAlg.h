@@ -7,6 +7,7 @@
 #include <string>
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCostMonitorMT/ITrigCostMTSvc.h"
 
 
 /**
@@ -27,8 +28,18 @@ private:
       "location of final decision" };
   SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_finalDecisionKeys{ this, "FinalDecisionKeys", {}, 
       "Final stage of all decisions" };
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_costWriteHandleKey { this, "CostWriteHandleKey", "TrigCostContainer",
+    "Trig composite collections summarising the HLT execution" };
+
+  ServiceHandle<ITrigCostMTSvc> m_trigCostSvcHandle { this, "TrigCostMTSvc", "TrigCostMTSvc", 
+    "The trigger cost service" };
   Gaudi::Property< std::map< std::string, std::string > > m_lastStepForChain{ this, "FinalStepDecisions", {}, 
       "The map of chain name to name of the collection in which the final decision is found" };
+  SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_l1Dec { this, "L1DecoderSummaryKey", "L1DecoderSummary",
+    "Trig composite collections summarising the HLT execution" };
+  Gaudi::Property<bool> m_enableCostMonitoring{this, "EnableCostMonitoring", false, 
+    "Enables end-of-event cost monitoring behavior."};
+
   std::map<std::string, TrigCompositeUtils::DecisionIDContainer> m_collectionFilter;
 
 };
