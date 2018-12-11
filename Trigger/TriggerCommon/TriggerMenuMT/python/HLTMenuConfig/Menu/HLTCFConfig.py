@@ -21,7 +21,7 @@ def makeSummary(name, flatDecisions):
     """ Returns a TriggerSummaryAlg connected to given decisions"""
     from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
     summary = TriggerSummaryAlg( name, OutputLevel = 2 )
-    summary.InputDecision = "HLTChains"
+    summary.InputDecision = "L1DecoderSummary"
   
     summary.FinalDecisions = flatDecisions
     summary.HLTSummary = "MonitoringSummary" + name
