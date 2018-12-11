@@ -22,7 +22,7 @@ StatusCode L1Decoder::initialize() {
   else
     ATH_CHECK( m_RoIBResultKey.initialize( ) );
   
-  ATH_CHECK( m_chainsKey.initialize() );
+  ATH_CHECK( m_summaryKey.initialize() );
   ATH_CHECK( m_startStampKey.initialize() );
 
   ATH_CHECK( m_ctpUnpacker.retrieve() );
