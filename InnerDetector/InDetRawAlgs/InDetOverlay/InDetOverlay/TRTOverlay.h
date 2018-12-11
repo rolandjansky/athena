@@ -12,6 +12,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "TRT_ElectronPidTools/ITRT_LocalOccupancy.h"
+#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
 
 class TRT_ID;
 
@@ -63,6 +64,8 @@ private:
   double                                 m_HTOccupancyCorrectionB_noE;
   double                                 m_HTOccupancyCorrectionEC_noE;
   ToolHandle<InDet::ITRT_LocalOccupancy> m_TRT_LocalOccupancyTool; 
+  ServiceHandle<ITRT_StrawStatusSummarySvc>   m_TRTStrawSummarySvc;
+
 };
 
 #endif // INDETOVERLAY_TRTOVERLAY_H
