@@ -52,10 +52,13 @@ def TrigInDetConfig( flags ):
     acc.addEventAlgo(InDetPixelRawDataProvider)
     from SCT_Cabling.SCT_CablingConfig import SCT_CablingCondAlgCfg
     acc.merge(SCT_CablingCondAlgCfg(flags))
+    from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConfigurationConditionsTool
+    acc.addPublicTool(SCT_ConfigurationConditionsTool())
     from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ConfigurationCondAlg
     acc.addCondAlgo(SCT_ConfigurationCondAlg(ReadKeyChannel = "/SCT/DAQ/Config/Chip",
                                              ReadKeyModule = "/SCT/DAQ/Config/Module",
                                              ReadKeyMur = "/SCT/DAQ/Config/MUR"))
+    from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
     # Set up SCTSiLorentzAngleCondAlg
     from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConfigurationConditionsTool
     from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
@@ -80,7 +83,6 @@ def TrigInDetConfig( flags ):
     acc.addPublicTool(SCTLorentzAngleTool)
 
 
-    from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
     acc.merge(addFoldersSplitOnline(flags, "INDET", "/Indet/Onl/Beampos", "/Indet/Beampos", className="AthenaAttributeList"))
     acc.merge(addFolders(flags, "/TRT/Onl/ROD/Compress","TRT_ONL", className='CondAttrListCollection'))
     acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Calib/RT","/TRT/Calib/RT",className="TRTCond::RtRelationMultChanContainer"))
