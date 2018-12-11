@@ -99,12 +99,8 @@ namespace HLTTest {
     for ( auto i: *inputHandle.cptr() ) {     
       auto featureInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( i, "initialRoI"  );
       auto roiLink = featureInfo.link;
-      //      auto roiLink = i->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
       CHECK( roiLink.isValid() );
-
       if ( roiLink.isValid() ) {
-	//	const FeatureOBJ* feature = *featurelink;
-	//	auto roiPtr(roiLink.link.cptr());
 	auto roiPtr(roiLink.cptr());
 	ATH_MSG_DEBUG("RoI" << **roiPtr );
 	// create new outpu objects and add the properties
@@ -115,13 +111,6 @@ namespace HLTTest {
 	  // maintain link to previous collections
 	  xobj->setObjectLink( "initialRoI", roiLink );// this is used by the HypoAlg
 
-
-	  // auto tc = new xAOD::TrigComposite;
-	  // reco_output->push_back(tc);	  
-	  // // copy all features to a single output collection 
-	  // tc->setObjectLink(m_linkName.value(), featurelink);
-
-	  
 	  ATH_MSG_DEBUG( "Reconstructed object" );
 	  for ( auto prop : object )  {
 	    xobj->setDetail( prop.first, prop.second );
@@ -135,9 +124,6 @@ namespace HLTTest {
 	ATH_MSG_DEBUG("RoI information missing");
       }
     }
-
-      
-    
   
 
     ATH_MSG_DEBUG("Reconstructed "<<output->size() <<" objects");

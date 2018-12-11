@@ -58,7 +58,6 @@ StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) c
 	const Decision* inputDecision = *input;
 	// find the RoI
 	auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( inputDecision, m_roisLink.value() );
-	//	auto roiEL = inputDecision->objectLink<TrigRoiDescriptorCollection>(m_roisLink.value() );
 	auto roiEL = roiELInfo.link;
 	ATH_CHECK( roiEL.isValid() );
 	// check if already found

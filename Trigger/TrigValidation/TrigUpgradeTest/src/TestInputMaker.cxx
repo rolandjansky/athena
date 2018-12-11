@@ -65,16 +65,13 @@ namespace HLTTest {
 	  ATH_MSG_DEBUG( "followed seed link to input "<< input.key() );
 	  const Decision* inputDecision = *input;
 	  auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( inputDecision,  m_roisLink.value());
-	  //auto roiEL = inputDecision->objectLink<TrigRoiDescriptorCollection>( m_roisLink.value() );
 	  CHECK( roiELInfo.isValid() );
 	
 	  // retrieve input feature from input decision (TrigComposite), will in this case be a TrigRoiDescriptor	  
-	  //	  auto featureLink = inputDecision->objectLink<FeatureContainer>( m_linkName.value() );
 	  auto featureLinkInfo = TrigCompositeUtils::findLink<FeatureContainer>( inputDecision,  m_linkName.value());
 	  CHECK( featureLinkInfo.isValid() );
 	
 	  // link input reco object to outputDecision
-	  //outputDecision->setObjectLink(m_linkName.value(), featureLink);
 	  auto featureLink = featureLinkInfo.link;
 	  const FeatureOBJ* feature = *featureLink;
 	  ATH_MSG_DEBUG(" Found feature " <<m_linkName.value() );
@@ -88,8 +85,6 @@ namespace HLTTest {
 	    // create the "reco" output: this would normally be a copy of the reco input or something derived from it, e.g. detector data inside a RoI. A TrigComposite is used here just for a trivial example.
 	    auto newFeature = new xAOD::TrigComposite;
 	    reco_output->push_back(newFeature); 
-	    // 
-	    //newFeature->setObjectLink(m_roisLink.value(), roiELInfo.link);
 	    newFeature->setObjectLink(m_linkName.value(), featureLink);
 	    ATH_MSG_DEBUG(" Added " <<m_linkName.value() << " and " << m_roisLink.value() << " to reco object");
 	  }

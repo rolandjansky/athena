@@ -95,29 +95,6 @@ StatusCode ComboHypo::copyDecisions( const DecisionIDContainer& passing, const E
 	for ( auto id: common ) {
 	  addDecisionID( id, newDec );
 	}
-	// // add RoI: at least one RoI link must exist
-	// auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( inputDecision, "roi" );
-	// //	auto roiEL = inputDecision->objectLink<TrigRoiDescriptorCollection>(m_roisLink.value() );
-	// auto roiEL = roiELInfo.link;
-
-	// if (roiEL.isValid()){
-	// // if ( inputDecision->hasObjectLink("roi" ) ){
-	  
-	// //   auto roiEL = inputDecision->objectLink<TrigRoiDescriptorCollection>( "roi" );
-	// //  CHECK( roiEL.isValid() );
-	//   newDec->setObjectLink( "roi", roiEL );
-	// }
-	// else {
-	//   auto InroiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( inputDecision, "initialRoI" );
-	//   auto InroiEL = InroiELInfo.link;	 
-	//   if ( InroiEL.isValid() ){
-	//     newDec->setObjectLink( "initialRoI", InroiEL );
-	//   }	
-	//   else {
-	//     ATH_MSG_ERROR( "Input decision " << i <<" from "<<inputHandle.key() <<" does not link any RoI");
-	//     return StatusCode::FAILURE;
-	//   }
-	// }
 	
 	// add View?
 	if ( inputDecision->hasObjectLink( "view" ) ) {

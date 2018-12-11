@@ -75,7 +75,7 @@ StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, st
       TrigCompositeUtils::linkToPrevious( newDec, inputKey.key(), input_counter );
       TrigCompositeUtils::insertDecisionIDs( decision, newDec );
 
-      copyBaseLinks( decision, newDec);
+      //      copyBaseLinks( decision, newDec);
       ATH_MSG_DEBUG("New decision has "<< newDec->hasObjectLink(m_roisLink.value() ) <<" " <<m_roisLink.value() );     
       input_counter++;	
     } // loop over decisions
@@ -147,7 +147,7 @@ StatusCode InputMakerBase::decisionInputToMergedOutput(const EventContext& conte
       
       TrigCompositeUtils::linkToPrevious( newDec, inputKey.key(), input_counter );
       TrigCompositeUtils::insertDecisionIDs( decision, newDec );     	
-      copyBaseLinks( decision, newDec);
+      //copyBaseLinks( decision, newDec);
       ATH_MSG_DEBUG("New decision has "<< (TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( newDec,  m_roisLink.value())).isValid() <<" valid "<<m_roisLink.value() <<" and "<< TrigCompositeUtils::getLinkToPrevious(newDec).size() <<" previous decisions");     
       input_counter++;	
     } // loop over decisions
@@ -162,19 +162,15 @@ StatusCode InputMakerBase::decisionInputToMergedOutput(const EventContext& conte
 
 
 
-StatusCode InputMakerBase::copyBaseLinks(const TrigCompositeUtils::Decision* src, TrigCompositeUtils::Decision* dest) const  {
+//StatusCode InputMakerBase::copyBaseLinks(const TrigCompositeUtils::Decision* src, TrigCompositeUtils::Decision* dest) const  {
   // do we need to filter the links to be copied? if not, we can copy all of them
   // for (auto link: baseLinks){
   //   if ( src->hasObjectLink(link ) ) dest->copyLinkFrom(src,link);
   // }
-
-
   //    copyLinks(decision, newDec);
   //  if ( src->hasObjectLink("self" ) ) dest->copyLinkFrom(src,"self","seed"); // make use of self-link 
-
-
-  return StatusCode::SUCCESS;
-}
+//  return StatusCode::SUCCESS;
+//}
 
 
 StatusCode InputMakerBase::debugPrintOut(const EventContext& context, const std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> >& outputHandles) const{

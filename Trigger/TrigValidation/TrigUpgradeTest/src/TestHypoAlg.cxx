@@ -55,7 +55,6 @@ namespace HLTTest {
     for ( auto previousDecision: *previousDecisionsHandle ) {
       auto linkInfo = TrigCompositeUtils::findLink<FeatureContainer>(previousDecision, m_linkName.value());
       auto featureLink = linkInfo.link;
-      //auto featureLink = (previousDecision)->objectLink<FeatureContainer>( m_linkName.value() );
       CHECK( featureLink.isValid() );
       const FeatureOBJ* feature = *featureLink;
       featureFromDecision.push_back( feature);
@@ -67,12 +66,10 @@ namespace HLTTest {
     for (auto recoobj: *recoInput){
       auto roiInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( recoobj, "initialRoI"  );
       auto roiEL = roiInfo.link;
-      //auto roiEL = recoobj->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
       CHECK( roiEL.isValid() );
       
       auto featureInfo = TrigCompositeUtils::findLink<FeatureContainer>( recoobj, m_linkName.value()  );
       auto featurelink = featureInfo.link;
-      //      auto featurelink = (recoobj)->objectLink<FeatureContainer>( m_linkName.value() );
       CHECK( featurelink.isValid() );
       if ( not featurelink.isValid() )  {
 	ATH_MSG_ERROR( " Can not find reference to " + m_linkName.value() + " from the decision" );
@@ -93,7 +90,6 @@ namespace HLTTest {
 	 auto d = newDecisionIn(decisions.get());
 	 d->setObjectLink( "feature", ElementLink<xAOD::TrigCompositeContainer>(m_recoInput.key(), reco_counter) );// feature used by the Tool
 	 d->setObjectLink( m_linkName.value(), featurelink );
-	 //d->setObjectLink( "initialRoI", roiEL );
 	 linkToPrevious( d, decisionInput().key(), pos );
        }
        else{
