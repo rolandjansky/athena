@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 import BackgroundD3PDMaker
 import D3PDMakerCoreComps
@@ -10,6 +10,7 @@ from D3PDMakerCoreComps.D3PDObject import DeferArg
 
 import EventCommonD3PDMaker
 import CaloD3PDMaker
+import CaloSysD3PDMaker
 import JetD3PDMaker
 
 
@@ -44,7 +45,7 @@ ClusterAssoc.defineBlock (1, 'bbClusterKinematics',
                                WriteM = False)
 ClusterAssoc.defineBlock (1, 'bbClusterSamplingBasics',
                                CaloD3PDMaker.ClusterSamplingFillerTool)
-from CaloD3PDMaker import ClusterMomentFillerTool as CMFT
+from CaloSysD3PDMaker import ClusterMomentFillerTool as CMFT
 ClusterAssoc.defineBlock (1, 'bbClusterMoments', CMFT,
                                Moments = [CMFT.FIRST_ENG_DENS,   'firstEdens',
                                           CMFT.ENG_FRAC_MAX,     'cellmaxfrac',
@@ -58,7 +59,7 @@ ClusterAssoc.defineBlock (1, 'bbClusterMoments', CMFT,
                                           CMFT.DELTA_PHI,        'deltaPhi'
                                           ])
 ClusterAssoc.defineBlock (1, 'bbClusterTime',
-                               CaloD3PDMaker.ClusterTimeFillerTool)
+                               CaloSysD3PDMaker.ClusterTimeFillerTool)
 
 ClusterAssoc.defineBlock (1, 'bbClusterIndex', D3PDMakerCoreComps.IndexFillerTool,
     Target = '')
