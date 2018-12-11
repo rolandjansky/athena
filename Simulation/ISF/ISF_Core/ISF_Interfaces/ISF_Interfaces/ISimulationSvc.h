@@ -17,6 +17,8 @@
 #include "ISF_Event/ISFParticleVector.h"
 #include "ISF_Event/SimSvcID.h"
 
+class McEventCollection;
+
 namespace ISF {
 
   class ISFParticle;
@@ -45,10 +47,10 @@ namespace ISF {
     virtual StatusCode setParticleBroker( IParticleBroker *broker) = 0;
 
     /** Simulation call for vectors of particles*/
-    virtual StatusCode simulateVector(const ConstISFParticleVector &particles) = 0;
+    virtual StatusCode simulateVector(const ConstISFParticleVector &particles, McEventCollection* mcEventCollection) = 0;
 
     /** Simulation call for individual particles*/
-    virtual StatusCode simulate(const ISFParticle& isp) = 0;
+    virtual StatusCode simulate(const ISFParticle& isp, McEventCollection* mcEventCollection) = 0;
 
     /** Return the simulation service descriptor */
     virtual std::string& simSvcDescriptor() = 0;

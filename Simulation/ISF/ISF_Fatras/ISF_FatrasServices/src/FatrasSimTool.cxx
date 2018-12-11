@@ -37,7 +37,7 @@ StatusCode ISF::FatrasSimTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode ISF::FatrasSimTool::simulate( const ISFParticle& isp, ISFParticleContainer& secondaries) {
+StatusCode ISF::FatrasSimTool::simulate( const ISFParticle& isp, ISFParticleContainer& secondaries, McEventCollection* ) {
 
   // give a screen output that you entered FatrasSimSvc
   ATH_MSG_VERBOSE( "Particle " << isp << " received for simulation." );

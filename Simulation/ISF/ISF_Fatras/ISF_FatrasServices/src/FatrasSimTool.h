@@ -26,7 +26,7 @@ namespace ISF {
 
     virtual StatusCode initialize() override;
 
-    virtual StatusCode simulate( const ISFParticle& isp, ISFParticleContainer& ) override;
+    virtual StatusCode simulate( const ISFParticle& isp, ISFParticleContainer&, McEventCollection* ) override;
 
     virtual StatusCode setupEvent() override { return StatusCode::SUCCESS; };
 

@@ -36,7 +36,7 @@ namespace iFatras {
       virtual StatusCode  finalize() override;
 
       /** Simulation Call  */
-      virtual StatusCode simulate(const ISF::ISFParticle& isp) override;
+      virtual StatusCode simulate(const ISF::ISFParticle& isp, McEventCollection* mcEventCollection) override;
 
       /** Setup Event chain - in case of a begin-of event action is needed */
       virtual StatusCode setupEvent() override;

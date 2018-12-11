@@ -60,7 +60,7 @@ namespace ISF {
       StatusCode  finalize();
       
       /** Simulation Call */
-      StatusCode simulate(const ISFParticle& isp);
+      StatusCode simulate(const ISFParticle& isp, McEventCollection* mcEventCollection);
       
       /** Setup Event chain - in case of a begin-of event action is needed */
       StatusCode setupEvent();
