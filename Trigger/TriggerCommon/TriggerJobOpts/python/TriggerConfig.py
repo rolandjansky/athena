@@ -175,7 +175,7 @@ def triggerAddMissingEDMCfg( flags, decObj ):
     from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg    
     EDMFillerAlg = TriggerSummaryAlg( "EDMFillerAlg" )
     EDMFillerAlg.InputDecision  = "HLTChains"
-    EDMFillerAlg.HLTSummary     = "HLTSummaryOutput" # we do not care about this object, configure in order not to clash
+    EDMFillerAlg.HLTSummary     = "HLTSummaryOutput" # we do not care about this o
 
     from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
     DecisionObjectsFiller = HLTEDMCreator("DecisionObjectsFiller")
