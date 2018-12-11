@@ -53,8 +53,8 @@ namespace HLTTest {
     // find features:
     std::vector<const FeatureOBJ*> featureFromDecision;
     for ( auto previousDecision: *previousDecisionsHandle ) {
-      TrigCompositeUtils::LinkInfo<FeatureContainer> linkInfo = TrigCompositeUtils::findLink<FeatureContainer>(previousDecision, m_linkName.value());
-      ElementLink<FeatureContainer> featureLink = linkInfo.link;
+      auto linkInfo = TrigCompositeUtils::findLink<FeatureContainer>(previousDecision, m_linkName.value());
+      auto featureLink = linkInfo.link;
       //auto featureLink = (previousDecision)->objectLink<FeatureContainer>( m_linkName.value() );
       CHECK( featureLink.isValid() );
       const FeatureOBJ* feature = *featureLink;
@@ -65,9 +65,14 @@ namespace HLTTest {
     //map reco object and decision: find in reco obejct the initial RoI and map it to the correct decision
     size_t reco_counter = 0;
     for (auto recoobj: *recoInput){
-      auto roiEL = recoobj->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
+      auto roiInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( recoobj, "initialRoI"  );
+      auto roiEL = roiInfo.link;
+      //auto roiEL = recoobj->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
       CHECK( roiEL.isValid() );
-      auto featurelink = (recoobj)->objectLink<FeatureContainer>( m_linkName.value() );
+      
+      auto featureInfo = TrigCompositeUtils::findLink<FeatureContainer>( recoobj, m_linkName.value()  );
+      auto featurelink = featureInfo.link;
+      //      auto featurelink = (recoobj)->objectLink<FeatureContainer>( m_linkName.value() );
       CHECK( featurelink.isValid() );
       if ( not featurelink.isValid() )  {
 	ATH_MSG_ERROR( " Can not find reference to " + m_linkName.value() + " from the decision" );

@@ -57,7 +57,10 @@ namespace HLTTest {
 
   bool TestComboHypoAlg::passed( const Decision* d1, const Decision* d2 ) const {
     {
-      auto feature1 = d1->objectLink<xAOD::TrigCompositeContainer>( "feature" );
+      auto featureInfo = TrigCompositeUtils::findLink<xAOD::TrigCompositeContainer>( d1, "feature"  );
+      auto feature1 = featureInfo.link;
+      //	auto roiEL = inputDecision->objectLink<TrigRoiDescriptorCollection>(m_roisLink.value() );
+      //auto feature1 = d1->objectLink<xAOD::TrigCompositeContainer>( "feature" );
       if ( not feature1.isValid() )  {
 	ATH_MSG_ERROR( "Can not find reference to the object from the decision1" );
 	return false; //StatusCode::FAILURE;
@@ -71,8 +74,11 @@ namespace HLTTest {
       else ATH_MSG_ERROR( "Cannot find detail "<<m_property1<<" in feature1");
     }
     
-    {      
-      auto feature2 = d2->objectLink<xAOD::TrigCompositeContainer>( "feature" );
+    {
+      auto featureInfo = TrigCompositeUtils::findLink<xAOD::TrigCompositeContainer>( d2, "feature"  );
+      auto feature2 = featureInfo.link;
+
+      //auto feature2 = d2->objectLink<xAOD::TrigCompositeContainer>( "feature" );
       if ( not feature2.isValid() )  {
 	ATH_MSG_ERROR( "Can not find reference to the object from the decision2" );
 	return false;//StatusCode::FAILURE;
@@ -89,79 +95,6 @@ namespace HLTTest {
   }
 
 
-  // StatusCode TestComboHypoAlg::execute_oninput( int inputCounter, const EventContext& context ) const {
-  //   ReadHandle<DecisionContainer> previousDecisionsHandle;
-  //   if (inputCounter==0)       previousDecisionsHandle = SG::makeHandle( m_previousDecisions1, context );
-  //   else if (inputCounter==1)  previousDecisionsHandle = SG::makeHandle( m_previousDecisions2, context );
-
-  //   if( not previousDecisionsHandle.isValid() ) {//implicit
-  //     ATH_MSG_ERROR( "No implicit RH for previous decisions on input "<<inputCounter<<": is this expected?" );
-  //     return StatusCode::SUCCESS;      
-  //   }
-    
-  //   ATH_MSG_DEBUG( "Running on input "<<inputCounter<<" with "<< previousDecisionsHandle->size() <<" implicit ReadHandles for previous decisions");
-
-  //   ReadHandle<DecisionContainer> recoInput;
-  //   if (inputCounter==0)  recoInput = SG::makeHandle(m_recoInput1, context);
-  //   else if (inputCounter==1)  recoInput = SG::makeHandle(m_recoInput2, context);
-  //   ATH_MSG_DEBUG( "and with "<< recoInput->size() <<" reco inputs");
-    
-  //   // new output decisions
-  //   auto decisions = std::make_unique<DecisionContainer>();
-  //   auto aux = std::make_unique<DecisionAuxContainer>();
-  //   decisions->setStore( aux.get() );
-
-    
-  //   std::vector<const FeatureOBJ*> featureFromDecision;
-  //   for ( auto previousDecision: *previousDecisionsHandle ) {     
-  //     auto featurelink = (previousDecision)->objectLink<FeatureContainer>( m_linkName.value() );
-  //     CHECK( featurelink.isValid() );
-  //     const FeatureOBJ* feature = *featurelink;
-  //     featureFromDecision.push_back( feature);
-  //   }
-
-  //   // reduce if same feature is found
-  //   //
-    
-  //   ATH_MSG_DEBUG("Found "<<featureFromDecision.size()<<" features "<<m_linkName.value() <<" mapped from previous decisions");
-    
-  //   size_t counter = 0;
-  //   //map reco object and decision: find in reco obejct the initial RoI and map it to the correct decision
-  //   for (auto recoobj: *recoInput){
-  //     auto roiEL = recoobj->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
-  //     CHECK( roiEL.isValid() );
-  //     auto featurelink = (recoobj)->objectLink<FeatureContainer>( m_linkName.value() );
-  //     CHECK( featurelink.isValid() );
-  //     if ( not featurelink.isValid() )  {
-  // 	ATH_MSG_ERROR( " Can not find reference to " + m_linkName.value() + " from the decision" );
-  // 	return StatusCode::FAILURE;
-  //     }
-      
-  //     ATH_MSG_DEBUG("Found link from the reco object to feature "<<m_linkName.value() );
-  //     const FeatureOBJ* feature = *featurelink;
-  //     // find the same roi in the previous decisions
-  //     bool foundRoIInDecision=false;
-  //      size_t pos=distance(featureFromDecision.begin(), find(featureFromDecision.begin(), featureFromDecision.end(), feature));
-  //      if (pos < featureFromDecision.size()){
-  // 	 foundRoIInDecision=true;	 
-  //      }
-       
-  //      if (foundRoIInDecision){
-  // 	 ATH_MSG_DEBUG("Found link from the reco object to the previous decision at position "<<pos);
-  // 	 auto d = newDecisionIn(decisions.get());
-  // 	 d->setObjectLink( "feature", ElementLink<xAOD::TrigCompositeContainer>(m_recoInput.key(), counter) );// feature used by the Tool
-  // 	 d->setObjectLink( "initialRoI", featurelink );// this is used by the InputMaker
-  // 	 d->setObjectLink( "previousDecisions", ElementLink<DecisionContainer>(m_previousDecisions.key(), pos) );// link to previous decision object
-  //      }
-  //      else{
-  // 	 ATH_MSG_ERROR( " Can not find reference to previous decision from feature " + m_linkName.value() + " from reco object " << counter );
-  // 	 return StatusCode::FAILURE;
-  //      }
-  //      counter++;
-  //   }
-    
-
-  // }
 
   StatusCode TestComboHypoAlg::execute_r( const EventContext& context ) const {  
 
@@ -198,7 +131,10 @@ namespace HLTTest {
     // find RoIs from previous decisions
     std::vector<const FeatureOBJ*> featureFromDecision1;
     for ( auto previousDecision: *previousDecisionsHandle1 ) {
-      auto featurelink = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
+      auto featureInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, "initialRoI"  );
+      auto featurelink = featureInfo.link;
+
+      //auto featurelink = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
       CHECK( featurelink.isValid() );
       const FeatureOBJ* feature = *featurelink;
       featureFromDecision1.push_back( feature);
@@ -207,7 +143,9 @@ namespace HLTTest {
 
    std::vector<const FeatureOBJ*> featureFromDecision2;
     for ( auto previousDecision: *previousDecisionsHandle2 ) {
-      auto featurelink = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
+      auto featureInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, "initialRoI"  );
+      auto featurelink = featureInfo.link;
+      //auto featurelink = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
       CHECK( featurelink.isValid() );
       const FeatureOBJ* feature = *featurelink;
       featureFromDecision2.push_back( feature);
@@ -217,7 +155,9 @@ namespace HLTTest {
     //map reco object and decision: find in reco obejct the initial RoI and map it to the correct decision
     size_t counter1 = 0;
     for (auto recoobj: *recoInput1){
-      auto featurelink = recoobj->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
+      auto featureInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( recoobj, "initialRoI"  );
+      auto featurelink = featureInfo.link;
+      //auto featurelink = recoobj->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
       CHECK( featurelink.isValid() );      
       ATH_MSG_DEBUG("Found link from the reco object1 to RoI" );
       const FeatureOBJ* feature = *featurelink;
@@ -245,7 +185,10 @@ namespace HLTTest {
 
     size_t counter2 = 0;
      for (auto recoobj: *recoInput2){
-      auto featurelink = recoobj->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
+       auto featureInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( recoobj, "initialRoI"  );
+       auto featurelink = featureInfo.link;
+ 
+       //      auto featurelink = recoobj->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
       CHECK( featurelink.isValid() );      
       ATH_MSG_DEBUG("Found link from the reco object2 to RoI" );
       const FeatureOBJ* feature = *featurelink;

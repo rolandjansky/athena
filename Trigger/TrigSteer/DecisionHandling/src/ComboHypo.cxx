@@ -94,19 +94,27 @@ StatusCode ComboHypo::copyDecisions( const DecisionIDContainer& passing, const E
 	  addDecisionID( id, newDec );
 	}
 	// add RoI: at least one RoI link must exist
-	if ( inputDecision->hasObjectLink("roi" ) ){
-	  auto roiEL = inputDecision->objectLink<TrigRoiDescriptorCollection>( "roi" );
-	  CHECK( roiEL.isValid() );
+	auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( inputDecision, "roi" );
+	//	auto roiEL = inputDecision->objectLink<TrigRoiDescriptorCollection>(m_roisLink.value() );
+	auto roiEL = roiELInfo.link;
+
+	if (roiEL.isValid()){
+	// if ( inputDecision->hasObjectLink("roi" ) ){
+	  
+	//   auto roiEL = inputDecision->objectLink<TrigRoiDescriptorCollection>( "roi" );
+	//  CHECK( roiEL.isValid() );
 	  newDec->setObjectLink( "roi", roiEL );
 	}
-	else if ( inputDecision->hasObjectLink("initialRoI" ) ){
-	  auto roiEL = inputDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
-	  CHECK( roiEL.isValid() );
-	  newDec->setObjectLink( "initialRoI", roiEL );
-	}
 	else {
-	  ATH_MSG_ERROR( "Input decision " << i <<" from "<<inputHandle.key() <<" does not link any RoI");
-	  return StatusCode::FAILURE;
+	  auto InroiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( inputDecision, "initialRoI" );
+	  auto InroiEL = InroiELInfo.link;	 
+	  if ( roiEL.isValid() ){
+	    newDec->setObjectLink( "initialRoI", roiEL );
+	  }	
+	  else {
+	    ATH_MSG_ERROR( "Input decision " << i <<" from "<<inputHandle.key() <<" does not link any RoI");
+	    return StatusCode::FAILURE;
+	  }
 	}
 	
 	// add View

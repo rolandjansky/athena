@@ -96,9 +96,10 @@ namespace HLTTest {
     
     auto inputHandle = SG::makeHandle(m_input);
     ATH_MSG_DEBUG("Input " << m_input.key() << " has "<<inputHandle->size() <<" elements, scanning it");
-    for ( auto i: *inputHandle.cptr() ) {
-      //      auto roiLink = findLink<TrigRoiDescriptorCollection>(i, "initialRoI");
-      auto roiLink = i->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
+    for ( auto i: *inputHandle.cptr() ) {     
+      auto featureInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( i, "initialRoI"  );
+      auto roiLink = featureInfo.link;
+      //      auto roiLink = i->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
       CHECK( roiLink.isValid() );
 
       if ( roiLink.isValid() ) {
