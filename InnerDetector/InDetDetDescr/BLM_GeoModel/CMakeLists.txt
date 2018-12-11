@@ -9,8 +9,7 @@ atlas_subdir( BLM_GeoModel )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Control/CLIDSvc
-                          Control/SGTools
+                          Control/AthenaKernel
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           DetectorDescription/GeoModel/GeoModelKernel
                           GaudiKernel
@@ -27,7 +26,7 @@ atlas_add_component( BLM_GeoModel
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel SGTools GeoModelKernel GaudiKernel GeoModelUtilities )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel AthenaKernel GeoModelKernel GaudiKernel GeoModelUtilities )
 
 # Install files from the package:
 atlas_install_headers( BLM_GeoModel )
