@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERECUTILS_TILECELLBUILDERFROMHIT_H
@@ -28,6 +28,9 @@
 #include "TileIdentifier/TileFragHash.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
 #include "TileRecUtils/TileCellBuilder.h"
+#include "TileConditions/ITileBadChanTool.h"
+#include "TileConditions/TileCondToolEmscale.h"
+#include "TileConditions/TileCondToolTiming.h"
 
 // Calo includes
 #include "CaloInterface/ICaloCellMakerTool.h"
@@ -61,8 +64,6 @@ class MbtsDetDescrManager;
 class TileDetDescrManager;
 class TileCellCollection;
 class CaloCellContainer;
-class ITileBadChanTool;
-class TileCondToolEmscale;
 class TileCablingService;
 class ICalorimeterNoiseTool;
 class IAtRndmGenSvc;
@@ -140,8 +141,12 @@ class TileCellBuilderFromHit: public AthAlgTool, virtual public ICaloCellMakerTo
     CLHEP::HepRandomEngine * m_pHRengine;    //!< Random number generator engine to use
     ServiceHandle<IAtRndmGenSvc> m_rndmSvc;  //!< Random number service to use
 
-    ToolHandle<ITileBadChanTool> m_tileBadChanTool; //!< Tile Bad Channel tool
-    ToolHandle<TileCondToolEmscale> m_tileToolEmscale; //!< main Tile Calibration tool
+    ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
+        "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
+
+    ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
+        "TileCondToolEmscale", "TileCondToolEmscale", "Tile EM scale calibration tool"};
+
     ToolHandle<ICalorimeterNoiseTool> m_noiseTool; //!< Calo Noise tool with noise values
 
     const TileDetDescrManager* m_tileMgr; //!< Pointer to TileDetDescrManager

@@ -12,13 +12,10 @@
 #include "CaloDetDescr/MbtsDetDescrManager.h"
 #include "TileDetDescr/TileDetDescrManager.h"
 #include "TileConditions/TileInfo.h"
-#include "TileConditions/ITileBadChanTool.h"
 #include "TileSimEvent/TileHit.h"
 #include "TileSimEvent/TileHitVector.h"
 #include "TileEvent/TileHitContainer.h"
 #include "TileEvent/TileCellCollection.h"
-#include "TileConditions/TileCondToolEmscale.h"
-#include "TileConditions/TileCondToolTiming.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 
 // Calo includes
@@ -89,8 +86,6 @@ TileCellBuilderFromHit::TileCellBuilderFromHit(const std::string& type, const st
   , m_tileInfo(0)
   , m_pHRengine(0)
   , m_rndmSvc ("AtRndmGenSvc", name)
-  , m_tileBadChanTool("TileBadChanTool")
-  , m_tileToolEmscale("TileCondToolEmscale")
   , m_noiseTool("CaloNoiseTool")
   , m_tileMgr(0)
   , m_mbtsMgr(0)
@@ -108,8 +103,6 @@ TileCellBuilderFromHit::TileCellBuilderFromHit(const std::string& type, const st
   m_zeroEnergy = 0.5 * MeV; // half a MeV in both PMTs i.e. one MeV in a cell
 
   declareProperty("TileInfoName"                ,m_infoName);        // Name of TileInfo store (default=TileInfo);
-  declareProperty("TileBadChanTool"        , m_tileBadChanTool);
-  declareProperty("TileCondToolEmscale"         , m_tileToolEmscale);
   declareProperty("RndmSvc"             ,m_rndmSvc, "Random Number Service used in TileCellBuildetFromHit");
 
   // Noise Sigma
@@ -166,28 +159,28 @@ StatusCode TileCellBuilderFromHit::initialize() {
   ATH_CHECK( m_eventInfoKey.initialize() );
   ATH_CHECK( m_hitContainerKey.initialize() );
 
-  CHECK( detStore()->retrieve(m_tileMgr) );
-  CHECK( detStore()->retrieve(m_tileID) );
-  CHECK( detStore()->retrieve(m_tileTBID) );
-  CHECK( detStore()->retrieve(m_tileHWID) );
-  CHECK( detStore()->retrieve(m_tileInfo, m_infoName) );
+  ATH_CHECK( detStore()->retrieve(m_tileMgr) );
+  ATH_CHECK( detStore()->retrieve(m_tileID) );
+  ATH_CHECK( detStore()->retrieve(m_tileTBID) );
+  ATH_CHECK( detStore()->retrieve(m_tileHWID) );
+  ATH_CHECK( detStore()->retrieve(m_tileInfo, m_infoName) );
 
   //=== get TileBadChanTool
-  CHECK( m_tileBadChanTool.retrieve() );
+  ATH_CHECK( m_tileBadChanTool.retrieve() );
 
   //=== get TileCondToolEmscale
-  CHECK( m_tileToolEmscale.retrieve() );
+  ATH_CHECK( m_tileToolEmscale.retrieve() );
 
   //---- retrieve the noise tool ----------------
   if (m_useNoiseTool) {
     ATH_MSG_INFO( "Reading electronic noise from DB" );
-    CHECK( m_noiseTool.retrieve() );
+    ATH_CHECK( m_noiseTool.retrieve() );
   } else {
     ATH_MSG_INFO( "Noise Sigma " << m_noiseSigma << " MeV is selected!" );
     m_noiseTool.disable();
   }
 
-  CHECK( m_rndmSvc.retrieve());
+  ATH_CHECK( m_rndmSvc.retrieve());
   m_pHRengine = m_rndmSvc->GetEngine("Tile_DigitsMaker");
 
   ATH_MSG_INFO( "max time thr  " << m_maxTime << " ns" );

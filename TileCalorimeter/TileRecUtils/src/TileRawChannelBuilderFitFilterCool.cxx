@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileEvent/TileRawChannel.h"
@@ -49,11 +49,6 @@ TileRawChannelBuilderFitFilterCool::TileRawChannelBuilderFitFilterCool(const std
   , m_minTau(0)
   , m_maxTau(0.0)
   , m_pulseShapes(0)
-  , m_tileToolPulseShape("TileCondToolPulseShape")
-  , m_tileToolLeak100Shape("TileCondToolLeak100Shape")
-  , m_tileToolLeak5p2Shape("TileCondToolLeak5p2Shape")
-  , m_tileToolPulse5p2Shape("TileCondToolPulse5p2Shape")
-  , m_tileToolNoiseSample("TileCondToolNoiseSample")
   , m_shapes(nullptr)
 {  
   //declare interfaces
@@ -63,22 +58,17 @@ TileRawChannelBuilderFitFilterCool::TileRawChannelBuilderFitFilterCool(const std
   m_rawChannelContainerKey = "TileRawChannelFitCool";
 
   //declare properties
-  declareProperty("FrameLength",m_frameLength = 9);
-  declareProperty("MaxIterate",m_maxIterate = 9);
-  declareProperty("NoiseLowGain",m_noiseLow = 0.6);
-  declareProperty("NoiseHighGain",m_noiseHigh = 1.5);
-  declareProperty("RMSChannelNoise",m_channelNoiseRMS = 3);
-  declareProperty("ExtraSamplesLeft",m_extraSamplesLeft=0);   // increase window on left side
-  declareProperty("ExtraSamplesRight",m_extraSamplesRight=0); // increase window on right side
-  declareProperty("SaturatedSampleError",m_saturatedSampleError = 6.0);
-  declareProperty("ZeroSampleError",m_zeroSampleError = 100.0);
-  declareProperty("NoiseThresholdRMS",m_noiseThresholdRMS = 3.0);
-  declareProperty("MaxTimeFromPeak",m_maxTimeFromPeak = 250.0);
-  declareProperty("TileCondToolPulseShape" , m_tileToolPulseShape);
-  declareProperty("TileCondToolLeak100Shape" , m_tileToolLeak100Shape);
-  declareProperty("TileCondToolLeak5p2Shape" , m_tileToolLeak5p2Shape);
-  declareProperty("TileCondToolPulse5p2Shape" , m_tileToolPulse5p2Shape);
-  declareProperty("TileCondToolNoiseSample", m_tileToolNoiseSample);
+  declareProperty("FrameLength", m_frameLength = 9);
+  declareProperty("MaxIterate", m_maxIterate = 9);
+  declareProperty("NoiseLowGain", m_noiseLow = 0.6);
+  declareProperty("NoiseHighGain", m_noiseHigh = 1.5);
+  declareProperty("RMSChannelNoise", m_channelNoiseRMS = 3);
+  declareProperty("ExtraSamplesLeft", m_extraSamplesLeft=0);   // increase window on left side
+  declareProperty("ExtraSamplesRight", m_extraSamplesRight=0); // increase window on right side
+  declareProperty("SaturatedSampleError", m_saturatedSampleError = 6.0);
+  declareProperty("ZeroSampleError", m_zeroSampleError = 100.0);
+  declareProperty("NoiseThresholdRMS", m_noiseThresholdRMS = 3.0);
+  declareProperty("MaxTimeFromPeak", m_maxTimeFromPeak = 250.0);
 }
 
 /**
@@ -98,7 +88,7 @@ StatusCode TileRawChannelBuilderFitFilterCool::initialize() {
   m_rChType = TileFragHash::FitFilterCool;
 
   // init in superclass
-  CHECK( TileRawChannelBuilder::initialize() );
+  ATH_CHECK( TileRawChannelBuilder::initialize() );
   
   // Get pulse shapes from TileInfo
   m_pulseShapes = m_tileInfo->getPulseShapes();
@@ -129,12 +119,12 @@ StatusCode TileRawChannelBuilderFitFilterCool::initialize() {
                 << " ypmax=" << m_pulseShapes->m_ylphys[MAX_LO_PULSE_PHYS - 1] );
   
   //=== get TileCondToolPulseShape
-  CHECK( m_tileToolPulseShape.retrieve() );
+  ATH_CHECK( m_tileToolPulseShape.retrieve() );
 
   if (m_idocis) {
-    CHECK( m_tileToolLeak100Shape.retrieve() );
-    CHECK( m_tileToolLeak5p2Shape.retrieve() );
-    CHECK( m_tileToolPulse5p2Shape.retrieve() );
+    ATH_CHECK( m_tileToolLeak100Shape.retrieve() );
+    ATH_CHECK( m_tileToolLeak5p2Shape.retrieve() );
+    ATH_CHECK( m_tileToolPulse5p2Shape.retrieve() );
   } else {
     m_tileToolLeak100Shape.disable();
     m_tileToolLeak5p2Shape.disable();
@@ -142,11 +132,11 @@ StatusCode TileRawChannelBuilderFitFilterCool::initialize() {
   }
 
   //=== TileCondToolNoiseSample
-  CHECK( m_tileToolNoiseSample.retrieve() );
+  ATH_CHECK( m_tileToolNoiseSample.retrieve() );
 
   // Incident Service:
   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
-  CHECK(incSvc.retrieve());
+  ATH_CHECK(incSvc.retrieve());
   //start listening to "BeginRun"
   incSvc->addListener(this, "BeginRun");
 

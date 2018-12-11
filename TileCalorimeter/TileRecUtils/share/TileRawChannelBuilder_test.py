@@ -428,7 +428,6 @@ ToolSvc += beaminfo2
 beaminfo4 = TileBeamInfoProvider ('beaminfo4')
 ToolSvc += beaminfo4
 noisefilter = TileRawChannelNoiseFilter ('noisefilter')
-ToolSvc += noisefilter
 
 ToolSvc += TileRawChannelBuilderTest ('tool1')
 ToolSvc += TileRawChannelBuilderTest ('tool2', BeamInfo = beaminfo2)

@@ -27,6 +27,10 @@
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileIdentifier/TileFragHash.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
+#include "TileConditions/ITileBadChanTool.h"
+#include "TileConditions/TileCondToolEmscale.h"
+#include "TileConditions/TileCondToolTiming.h"
+#include "TileRecUtils/ITileRawChannelTool.h"
 //#include "TileRecUtils/TileBeamInfoProvider.h"
 
 // Calo includes
@@ -61,10 +65,6 @@ class MbtsDetDescrManager;
 class TileDetDescrManager;
 class TileCellCollection;
 class CaloCellContainer;
-class ITileBadChanTool;
-class TileCondToolEmscale;
-class TileCondToolTiming;
-class ITileRawChannelTool;
 class TileBeamInfoProvider;
 class TileDQstatus;
 
@@ -200,11 +200,19 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
     const TileCablingService* m_cabling; //!< TileCabling instance
     const TileDQstatus* m_DQstatus;
 
-    ToolHandle<ITileBadChanTool> m_tileBadChanTool; //!< Tile Bad Channel tool
-    ToolHandle<TileCondToolEmscale> m_tileToolEmscale; //!< main Tile Calibration tool
-    ToolHandle<TileCondToolTiming> m_tileToolTiming;  //!< Tile Timing Calibration tool
+    ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
+        "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
+
+    ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
+        "TileCondToolEmscale", "TileCondToolEmscale", "Tile EM scale calibration tool"};
+
+    ToolHandle<TileCondToolTiming> m_tileToolTiming{this,
+        "TileCondToolTiming", "TileCondToolTiming", "Tile timing tool"};
+
     ToolHandle<TileBeamInfoProvider> m_beamInfo; //!< Beam Info tool to get the DQ Status object
-    ToolHandleArray<ITileRawChannelTool> m_noiseFilterTools; //!< noise filter tools to apply
+
+    ToolHandleArray<ITileRawChannelTool> m_noiseFilterTools{this,
+        "NoiseFilterTools", {}, "Tile noise filter tools"};
 
     const TileDetDescrManager* m_tileMgr; //!< Pointer to TileDetDescrManager
     const MbtsDetDescrManager* m_mbtsMgr; //!< Pointer to MbtsDetDescrManager

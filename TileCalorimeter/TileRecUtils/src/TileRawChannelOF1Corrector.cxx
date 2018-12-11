@@ -9,10 +9,6 @@
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
 #include "TileIdentifier/TileHWID.h"
-#include "TileConditions/TileCondToolNoiseSample.h"
-#include "TileConditions/TileCondToolOfc.h"
-#include "TileConditions/TileCondToolTiming.h"
-#include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/TileCondToolDspThreshold.h"
 
 // Atlas includes
@@ -25,18 +21,7 @@ TileRawChannelOF1Corrector::TileRawChannelOF1Corrector(const std::string& type,
     const std::string& name, const IInterface* parent)
     : base_class(type, name, parent)
     , m_tileHWID(0)
-    , m_tileToolNoiseSample("TileCondToolNoiseSample")
-    , m_tileCondToolOfc("TileCondToolOfcCool/TileCondToolOfcCoolOF1")
-    , m_tileToolTiming("TileCondToolTiming/TileCondToolOnlineTiming")
-    , m_tileToolEms("TileCondToolEmscale")
-    , m_tileDspThreshold("TileCondToolDspThreshold")
 {
-  declareProperty("TileCondToolNoiseSample", m_tileToolNoiseSample);
-  declareProperty("TileCondToolOfc", m_tileCondToolOfc);
-  declareProperty("TileCondToolTiming", m_tileToolTiming);
-  declareProperty("TileCondToolEmscale", m_tileToolEms);
-  declareProperty("TileCondToolDspThreshold", m_tileDspThreshold);
-
   declareProperty("ZeroAmplitudeWithoutDigits", m_zeroAmplitudeWithoutDigits = true);
   declareProperty("CorrectPedestalDifference", m_correctPedestalDifference = true);
 }
@@ -47,18 +32,18 @@ StatusCode TileRawChannelOF1Corrector::initialize() {
 
   ATH_MSG_INFO("Initializing...");
 
-  CHECK( detStore()->retrieve(m_tileHWID) );
+  ATH_CHECK( detStore()->retrieve(m_tileHWID) );
 
 
   if (m_correctPedestalDifference) {
     //=== get TileCondToolOfc
-    CHECK( m_tileCondToolOfc.retrieve() );
+    ATH_CHECK( m_tileCondToolOfc.retrieve() );
 
     //=== get TileCondToolNoiseSample
-    CHECK( m_tileToolNoiseSample.retrieve() );
+    ATH_CHECK( m_tileToolNoiseSample.retrieve() );
 
     //=== get TileToolTiming
-    CHECK( m_tileToolTiming.retrieve() );
+    ATH_CHECK( m_tileToolTiming.retrieve() );
   } else {
     m_tileCondToolOfc.disable();
     m_tileToolNoiseSample.disable();
@@ -67,10 +52,10 @@ StatusCode TileRawChannelOF1Corrector::initialize() {
 
   //=== TileCondToolEmscale
   if (m_zeroAmplitudeWithoutDigits) {
-    CHECK( m_tileToolEms.retrieve() );
+    ATH_CHECK( m_tileToolEms.retrieve() );
 
     //=== get TileToolTiming
-    CHECK( m_tileDspThreshold.retrieve() );
+    ATH_CHECK( m_tileDspThreshold.retrieve() );
   } else {
     m_tileToolEms.disable();
     m_tileDspThreshold.disable();

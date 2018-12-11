@@ -28,6 +28,7 @@
 #include "TileEvent/TileMutableRawChannelContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileDigitsCollection.h"
+#include "TileRecUtils/ITileRawChannelTool.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -47,7 +48,6 @@ class TileID;
 class TileHWID;
 class TileInfo;
 class TileBeamInfoProvider;
-class ITileRawChannelTool;
 class StoreGateSvc;
 
 typedef std::vector<std::pair<TileRawChannel*, const TileDigits*> > Overflows_t;
@@ -172,7 +172,8 @@ class TileRawChannelBuilder: public AthAlgTool {
     const TileInfo* m_tileInfo;
 
     ToolHandle<TileBeamInfoProvider> m_beamInfo;
-    ToolHandleArray<ITileRawChannelTool> m_noiseFilterTools;
+    ToolHandleArray<ITileRawChannelTool> m_noiseFilterTools{this,
+        "NoiseFilterTools", {}, "Tile nose filter tools"};
 
     int m_trigType;
     bool m_idophys;   // Phys fitting

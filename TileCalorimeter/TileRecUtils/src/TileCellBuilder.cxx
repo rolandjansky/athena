@@ -6,7 +6,6 @@
 #include "TileRecUtils/TileCellBuilder.h"
 #include "TileRecUtils/TileRawChannelBuilder.h"
 #include "TileRecUtils/TileBeamInfoProvider.h"
-#include "TileRecUtils/ITileRawChannelTool.h"
 #include "TileEvent/TileMutableRawChannelContainer.h"
 #include "TileEvent/TileCell.h"
 #include "TileEvent/TileCellCollection.h"
@@ -16,9 +15,6 @@
 #include "TileIdentifier/TileHWID.h"
 #include "CaloDetDescr/MbtsDetDescrManager.h"
 #include "TileDetDescr/TileDetDescrManager.h"
-#include "TileConditions/ITileBadChanTool.h"
-#include "TileConditions/TileCondToolEmscale.h"
-#include "TileConditions/TileCondToolTiming.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
  
 // Calo includes
@@ -68,11 +64,7 @@ TileCellBuilder::TileCellBuilder(const std::string& type, const std::string& nam
   , m_tileHWID(0)
   , m_cabling(0)
   , m_DQstatus(0)
-  , m_tileBadChanTool("TileBadChanTool")
-  , m_tileToolEmscale("TileCondToolEmscale")
-  , m_tileToolTiming("TileCondToolTiming")
   , m_beamInfo("TileBeamInfoProvider/TileBeamInfoProvider")
-  , m_noiseFilterTools() // "TileRawChannelNoiseFilter/TileRawChannelNoiseFilter")
   , m_tileMgr(0)
   , m_mbtsMgr(0)
   , m_RChType(TileFragHash::Default)
@@ -99,11 +91,7 @@ TileCellBuilder::TileCellBuilder(const std::string& type, const std::string& nam
   //!< MBTS channel energy threshold for masking (not used currently(
   m_minEneChan[2] = -999999. * MeV;
 
-  declareProperty("TileBadChanTool"        , m_tileBadChanTool);
-  declareProperty("TileCondToolEmscale"    , m_tileToolEmscale);
-  declareProperty("TileCondToolTiming"     , m_tileToolTiming);
   declareProperty("BeamInfo", m_beamInfo);
-  declareProperty("NoiseFilterTools", m_noiseFilterTools);
 
   declareProperty( "MinEnergyChan", m_minEneChan[0]);
   declareProperty( "MinEnergyGap",  m_minEneChan[1]);
@@ -188,25 +176,25 @@ StatusCode TileCellBuilder::initialize() {
 
   ATH_CHECK( m_eventInfoKey.initialize() );
 
-  CHECK( detStore()->retrieve(m_tileMgr) );
-  CHECK( detStore()->retrieve(m_tileID) );
-  CHECK( detStore()->retrieve(m_tileTBID) );
-  CHECK( detStore()->retrieve(m_tileHWID) );
+  ATH_CHECK( detStore()->retrieve(m_tileMgr) );
+  ATH_CHECK( detStore()->retrieve(m_tileID) );
+  ATH_CHECK( detStore()->retrieve(m_tileTBID) );
+  ATH_CHECK( detStore()->retrieve(m_tileHWID) );
 
   //=== get TileBadChanTool
-  CHECK( m_tileBadChanTool.retrieve() );
+  ATH_CHECK( m_tileBadChanTool.retrieve() );
 
   //=== get TileBeamInfo
-  CHECK( m_beamInfo.retrieve() );
+  ATH_CHECK( m_beamInfo.retrieve() );
 
   // access tools and store them
-  CHECK( m_noiseFilterTools.retrieve() );
+  ATH_CHECK( m_noiseFilterTools.retrieve() );
 
   //=== get TileCondToolEmscale
-  CHECK( m_tileToolEmscale.retrieve() );
+  ATH_CHECK( m_tileToolEmscale.retrieve() );
 
   //=== get TileCondToolTiming
-  CHECK( m_tileToolTiming.retrieve() );
+  ATH_CHECK( m_tileToolTiming.retrieve() );
 
   m_cabling = TileCablingService::getInstance();
 
