@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARDIGITCONTAINER_H
@@ -7,6 +7,7 @@
 
 #include "AthContainers/DataVector.h"
 #include "AthenaKernel/CLASS_DEF.h"
+#include "AthenaKernel/BaseInfo.h"
 #include "LArRawEvent/LArDigit.h"
 
 /**
@@ -47,5 +48,6 @@ private:
 
 
 CLASS_DEF(LArDigitContainer,2711,0)
+SG_BASE(LArDigitContainer, DataVector<LArDigit> );
 
 #endif
