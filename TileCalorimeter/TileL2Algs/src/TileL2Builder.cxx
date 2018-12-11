@@ -24,11 +24,9 @@
 #include "TileIdentifier/TileRawChannelUnit.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
-#include "TileConditions/TileCondToolEmscale.h"
-#include "TileConditions/TileCondToolNoiseRawChn.h"
+
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/TileCablingSvc.h"
-#include "TileConditions/ITileBadChanTool.h"
 #include "TileDetDescr/TileDetDescrManager.h"
 
 // Calo includes
@@ -55,19 +53,13 @@ TileL2Builder::TileL2Builder(const std::string& type, const std::string& name,
     : AthAlgTool(type, name, parent)
   , m_noiseThreshold(100.0) // 100 MeV universal cut for now
   , m_noiseType(9999)       // this huge value means that noise cut is taken from JO
-  , m_tileHWID(0)
-  , m_tileToolEmscale("TileCondToolEmscale")
-  , m_tileToolNoiseRawChn("TileCondToolNoiseRawChn")
-  , m_tileBadChanTool("TileBadChanTool")
+  , m_tileHWID(nullptr)
 {
 
   declareInterface<TileL2Builder>(this);
 
   declareProperty("NoiseThreshold", m_noiseThreshold);       // use channels only above noise cut
   declareProperty("Noise", m_noiseType);            // choose between electronic or total noise
-  declareProperty("TileCondToolEmscale", m_tileToolEmscale);      // Name of calibration tool
-  declareProperty("TileCondToolNoiseRawChn", m_tileToolNoiseRawChn=nullptr);  // Name of tool with noise RMS
-  declareProperty("TileBadChanTool", m_tileBadChanTool);      // Name of bad channel tool
 }
 
 TileL2Builder::~TileL2Builder() {
@@ -75,29 +67,29 @@ TileL2Builder::~TileL2Builder() {
 
 StatusCode TileL2Builder::initialize() {
 
-  CHECK( detStore()->retrieve(m_tileHWID) );
+  ATH_CHECK( detStore()->retrieve(m_tileHWID) );
 
   // get TileCondToolEmscale
-  CHECK( m_tileToolEmscale.retrieve() );
+  ATH_CHECK( m_tileToolEmscale.retrieve() );
 
   // get TileBadChanTool
-  CHECK( m_tileBadChanTool.retrieve() );
+  ATH_CHECK( m_tileBadChanTool.retrieve() );
 
   // Initialize
   this->m_hashFunc.initialize(m_tileHWID);
 
   const TileID* tileID;
-  CHECK( detStore()->retrieve(tileID) );
+  ATH_CHECK( detStore()->retrieve(tileID) );
 
   const TileTBID* tileTBID;
-  CHECK( detStore()->retrieve(tileTBID) );
+  ATH_CHECK( detStore()->retrieve(tileTBID) );
 
   // retrieve Tile detector manager and TileID helper from det store
   const TileDetDescrManager* tileMgr;
-  CHECK( detStore()->retrieve(tileMgr) );
+  ATH_CHECK( detStore()->retrieve(tileMgr) );
 
   ServiceHandle<TileCablingSvc> cablingSvc("TileCablingSvc", name());
-  CHECK( cablingSvc.retrieve());
+  ATH_CHECK( cablingSvc.retrieve());
 
   const TileCablingService* cabling = cablingSvc->cablingService();
   if (!cabling) {
