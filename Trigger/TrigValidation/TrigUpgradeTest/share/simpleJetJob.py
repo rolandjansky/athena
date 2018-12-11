@@ -85,7 +85,7 @@ if TriggerFlags.doCalo:
      def summarySteps ( name, decisions ):
         from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
         summarySteps = TriggerSummaryAlg( "TriggerSummary"+name )
-        summarySteps.InputDecision = "HLTChains"
+        summarySteps.InputDecision = "L1DecoderSummary"
         summarySteps.HLTSummary = "MonitoringSummary"+name
         summarySteps.OutputLevel = DEBUG
         summarySteps.FinalDecisions = decisions

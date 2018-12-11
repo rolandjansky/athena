@@ -229,7 +229,7 @@ egammaEFCaloStep = stepSeq("egammaEFCalotep", filterL2ElectronRoIsAlg, [ efClust
 
 from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
 summaryStep0 = TriggerSummaryAlg( "TriggerSummaryStep1" )
-summaryStep0.InputDecision = "HLTChains"
+summaryStep0.InputDecision = "L1DecoderSummary"
 summaryStep0.HLTSummary = "MonitoringSummaryStep1"
 summaryStep0.FinalDecisions = [ caloHypoDecisions ]
 summaryStep0.OutputLevel = DEBUG
@@ -245,12 +245,12 @@ egammaCaloStepRR = createFastCaloSequence( rerun=True )
 step0r = parOR("step0r", [ egammaCaloStepRR ])
 
 summary = TriggerSummaryAlg( "TriggerSummaryAlg" )
-summary.InputDecision = "HLTChains"
+summary.InputDecision = "L1DecoderSummary"
 summary.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions" ]
 
 from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
 egammaViewsMerger = HLTEDMCreator("egammaViewsMerger")
-egammaViewsMerger.TrigCompositeContainer = [ "L2ElectronLinks", "filterCaloRoIsAlg", "EgammaCaloDecisions","ElectronL2Decisions", "MuonL2Decisions", "EMRoIDecisions", "METRoIDecisions", "MURoIDecisions", "HLTChainsResult", "JRoIDecisions", "MonitoringSummaryStep1", "RerunEMRoIDecisions", "RerunMURoIDecisions", "TAURoIDecisions", "L2CaloLinks", "FilteredEMRoIDecisions", "FilteredEgammaCaloDecisions" ]
+egammaViewsMerger.TrigCompositeContainer = [ "L2ElectronLinks", "filterCaloRoIsAlg", "EgammaCaloDecisions","ElectronL2Decisions", "MuonL2Decisions", "EMRoIDecisions", "METRoIDecisions", "MURoIDecisions", "L1DecoderSummary", "JRoIDecisions", "MonitoringSummaryStep1", "RerunEMRoIDecisions", "RerunMURoIDecisions", "TAURoIDecisions", "L2CaloLinks", "FilteredEMRoIDecisions", "FilteredEgammaCaloDecisions" ]
 
 egammaViewsMerger.TrackParticleContainerViews = [ l2ElectronViewsMaker.Views ]
 egammaViewsMerger.TrackParticleContainerInViews = [ TrackParticlesName ]
