@@ -50,11 +50,86 @@ def TrigInDetConfig( flags ):
     InDetPixelRawDataProvider.RDOCacheKey = InDetCacheCreatorTrigViews.PixRDOCacheKey
 
     acc.addEventAlgo(InDetPixelRawDataProvider)
+    from SCT_Cabling.SCT_CablingConfig import SCT_CablingCondAlgCfg
+    acc.merge(SCT_CablingCondAlgCfg(flags))
+    # Set up SCTSiLorentzAngleCondAlg
+    from SCT_ConditionsTools.SCT_SiliconConditionsToolSetup import SCT_SiliconConditionsToolSetup
+    sct_SiliconConditionsToolSetup = SCT_SiliconConditionsToolSetup()
+    sct_SiliconConditionsToolSetup.setDcsTool(self.dcsTool)
+    sct_SiliconConditionsToolSetup.setToolName("InDetSCT_SiliconConditionsTool")
+    sct_SiliconConditionsToolSetup.setup()
+    sctSiliconConditionsTool = sct_SiliconConditionsToolSetup.getTool()
+    sctSiliconConditionsTool.CheckGeoModel = False
+    sctSiliconConditionsTool.ForceUseGeoModel = False
+    from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SCTSiLorentzAngleCondAlg
+    acc.addCondAlgo(SCTSiLorentzAngleCondAlg(name = "SCTSiLorentzAngleCondAlg",
+                                        SiConditionsTool = sctSiliconConditionsTool,
+                                        UseMagFieldSvc = True,
+                                        UseMagFieldDcs = False))
+    from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleTool
+    SCTLorentzAngleTool = SiLorentzAngleTool(DetectorName="SCT", SiLorentzAngleCondData="SCTSiLorentzAngleCondData")
+    SCTLorentzAngleTool.UseMagFieldSvc = True #may need also MagFieldSvc instance
+    acc.addPublicTool(SCTLorentzAngleTool)
 
 
-    from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
-    extra_folders = addFoldersSplitOnline(flags, "INDET", "/Indet/Onl/Beampos", "/Indet/Beampos", className="AthenaAttributeList")
-    acc.merge(extra_folders)
+    from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
+    acc.merge(addFoldersSplitOnline(flags, "INDET", "/Indet/Onl/Beampos", "/Indet/Beampos", className="AthenaAttributeList"))
+    acc.merge(addFolders(flags, "/TRT/Onl/ROD/Compress","TRT_ONL", className='CondAttrListCollection'))
+    acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Calib/RT","/TRT/Calib/RT",className="TRTCond::RtRelationMultChanContainer"))
+    acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Calib/T0","/TRT/Calib/T0",className="TRTCond::StrawT0MultChanContainer"))
+    acc.merge(addFoldersSplitOnline (flags, "TRT","/TRT/Onl/Calib/errors","/TRT/Calib/errors",className="TRTCond::RtRelationMultChanContainer"))
+    acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Calib/ToTCalib","/TRT/Calib/ToTCalib",className="CondAttrListCollection"))
+    acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Calib/HTCalib","/TRT/Calib/HTCalib",className="CondAttrListCollection"))
+
+    PixelTDAQFolder   = "/TDAQ/Resources/ATLAS/PIXEL/Modules"
+    PixelTDAQInstance = "TDAQ_ONL"
+    acc.merge(addFolders(flags, PixelTDAQFolder, PixelTDAQInstance, className="CondAttrListCollection"))
+
+    from PixelConditionsTools.PixelConditionsToolsConf import PixelDCSConditionsTool
+    TrigPixelDCSConditionsTool = PixelDCSConditionsTool(name="PixelDCSConditionsTool", UseConditions=True, IsDATA=True)
+    acc.addPublicTool(TrigPixelDCSConditionsTool)
+
+    PixelHVFolder = "/PIXEL/DCS/HV"
+    PixelTempFolder = "/PIXEL/DCS/TEMPERATURE"
+    PixelDBInstance = "DCS_OFL"
+
+    acc.merge(addFolders(flags, PixelHVFolder, PixelDBInstance, className="CondAttrListCollection"))
+    acc.merge(addFolders(flags, PixelTempFolder, PixelDBInstance, className="CondAttrListCollection"))
+
+    from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondHVAlg
+    acc.addCondAlgo(PixelDCSCondHVAlg(name="PixelDCSCondHVAlg", ReadKey=PixelHVFolder))
+
+    from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondTempAlg
+    acc.addCondAlgo(PixelDCSCondTempAlg(name="PixelDCSCondTempAlg", ReadKey=PixelTempFolder))
+
+
+    from PixelConditionsTools.PixelConditionsToolsConf import PixelDCSConditionsTool
+    TrigPixelDCSConditionsTool = PixelDCSConditionsTool(name="PixelDCSConditionsTool", UseConditions=True, IsDATA=True)
+
+    acc.addPublicTool(TrigPixelDCSConditionsTool)
+
+    from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelTDAQCondAlg
+    acc.addCondAlgo(PixelTDAQCondAlg(name="PixelTDAQCondAlg", ReadKey=PixelTDAQFolder))
+
+    from SiPropertiesSvc.SiPropertiesSvcConf import PixelSiPropertiesCondAlg
+    acc.addCondAlgo(PixelSiPropertiesCondAlg(name="PixelSiPropertiesCondAlg", PixelDCSConditionsTool=TrigPixelDCSConditionsTool))
+
+    from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesTool
+    TrigSiPropertiesTool = SiPropertiesTool(name="PixelSiPropertiesTool", DetectorName="Pixel", ReadKey="PixelSiliconPropertiesVector")
+
+    acc.addPublicTool(TrigSiPropertiesTool)
+
+    from SiLorentzAngleSvc.SiLorentzAngleSvcConf import PixelSiLorentzAngleCondAlg
+    acc.addCondAlgo(PixelSiLorentzAngleCondAlg(name="PixelSiLorentzAngleCondAlg",
+                                            PixelDCSConditionsTool=TrigPixelDCSConditionsTool,
+                                            SiPropertiesTool=TrigSiPropertiesTool,
+                                            UseMagFieldSvc = True,
+                                            UseMagFieldDcs = False))
+
+    from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleTool
+    TrigPixelLorentzAngleTool = SiLorentzAngleTool(DetectorName="Pixel", SiLorentzAngleCondData="PixelSiLorentzAngleCondData")
+
+    acc.addPublicTool(TrigPixelLorentzAngleTool)
 
     from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
     acc.addCondAlgo(BeamSpotCondAlg( "BeamSpotCondAlg" ))
