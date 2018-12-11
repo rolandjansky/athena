@@ -338,7 +338,6 @@ unsigned int TrigCaloDataAccessSvc::lateInit() { // non-const this thing
   }
   m_tileDecoder->loadMBTS_Ptr( tilecell->MBTS_collection(),
 	tilecell->MBTS_map(), tilecell->MBTS_channel() );
-  m_tileDecoder->load_list_of_masked_drawers( tilecell->masked_drawers() );
   for(unsigned int lcidx=0; lcidx < tilecell->size(); lcidx++){
           TileCellCollection* lcc = tilecell->at(lcidx);
           unsigned int lccsize = lcc->size();

@@ -48,15 +48,15 @@ const CLID& TileBeamElemContByteStreamCnv::classID() {return ClassID_traits<Tile
 
 StatusCode TileBeamElemContByteStreamCnv::initialize() {
 
-  CHECK( Converter::initialize() );
+  ATH_CHECK( Converter::initialize() );
 
   ATH_MSG_DEBUG( " initialize " );
 
   // retrieve Tool
-  CHECK( m_decoder.retrieve() );
+  ATH_CHECK( m_decoder.retrieve() );
   m_hid2re = m_decoder->getHid2re();
 
-  CHECK( m_robSvc.retrieve() );
+  ATH_CHECK( m_robSvc.retrieve() );
 
   m_ROBID.clear();
   m_ROBID.push_back( m_hid2re->getRobFromFragID(DIGI_PAR_FRAG) );
