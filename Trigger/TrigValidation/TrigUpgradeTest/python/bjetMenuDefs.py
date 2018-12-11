@@ -48,10 +48,9 @@ def bJetStep1Sequence():
 
     # input maker
     from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-    InputMakerAlg = InputMakerForRoI("JetInputMaker", OutputLevel = DEBUG, LinkName="initialRoI")
-    InputMakerAlg.RoIs='FSJETRoI'
-    InputMakerAlg.OutputLevel = DEBUG
+    InputMakerAlg = InputMakerForRoI("JetInputMaker",OutputLevel="INFO")
     InputMakerAlg.LinkName = "initialRoI"
+    InputMakerAlg.RoIs='FSJETRoI'
 
     # Construct jets
     from TrigUpgradeTest.jetDefs import jetRecoSequence
@@ -71,7 +70,7 @@ def bJetStep1Sequence():
 
     from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Jet    
     theFTF_Jet = TrigFastTrackFinder_Jet()
-    theFTF_Jet.OutputLevel = DEBUG
+#    theFTF_Jet.OutputLevel = DEBUG
     theFTF_Jet.isRoI_Seeded = True
     theFTF_Jet.RoIs = RoIBuilder.RoIOutputKey
     viewAlgs.append( theFTF_Jet )
@@ -79,6 +78,7 @@ def bJetStep1Sequence():
     # Getting output track particle container name
     TrackParticlesName = ""
     for viewAlg in viewAlgs:
+        viewAlg.OutputLevel = INFO
         if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
             TrackParticlesName = viewAlg.TrackParticlesName
 
@@ -124,14 +124,14 @@ def bJetStep1SequenceALLTE():
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 
     # input maker
-    from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
-    InputMakerAlg = HLTTest__TestInputMaker("BJetInputMaker_step1")
-    InputMakerAlg.LinkName = "initialRoI"
-    InputMakerAlg.Output = "FSJETRoIs"
+    from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
+    InputMakerAlg = InputMakerForRoI("JetInputMaker",OutputLevel="INFO")
+    InputMakerAlg.LinkName="initialRoI"
+    InputMakerAlg.RoIs='FSJETRoI'
 
     # Construct jets
     from TrigUpgradeTest.jetDefs import jetRecoSequence
-    (recoSequence, sequenceOut) = jetRecoSequence( InputMakerAlg.Output )
+    (recoSequence, sequenceOut) = jetRecoSequence( InputMakerAlg.RoIs )
 
     # Start with b-jet-specific algo sequence
     # Construct RoI. Needed input for Fast Tracking
@@ -262,10 +262,11 @@ def bJetStep2SequenceALLTE():
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 
     # input maker
-    from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
-    InputMakerAlg = HLTTest__TestInputMaker("BJetInputMaker_step2_ALLTE")
-    InputMakerAlg.LinkName = "initialRoI"
-    InputMakerAlg.Output = "SplitJets"
+    from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
+    InputMakerAlg = InputMakerForRoI("BJetInputMaker_step2_ALLTE")
+#    InputMakerAlg.OutputLevel = DEBUG
+    InputMakerAlg.LinkName="initialRoI"
+    InputMakerAlg.RoIs="SplitJets"
     
     # gsc correction
     from TrigBjetHypo.TrigGSCFexMTConfig import getGSCFexSplitInstance
