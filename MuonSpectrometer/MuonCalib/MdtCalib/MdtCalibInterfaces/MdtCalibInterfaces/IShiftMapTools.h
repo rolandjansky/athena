@@ -32,7 +32,7 @@ namespace MuonCalib {
 class IShiftMapTools : virtual public IService {
  public:
   IShiftMapTools() { ; }
-  virtual ~IShiftMapTools() = 0;
+  virtual ~IShiftMapTools() { ; }
 
   /* Creates the InterfaceID and interfaceID() method */
   DeclareInterfaceID(IShiftMapTools, 1, 0);

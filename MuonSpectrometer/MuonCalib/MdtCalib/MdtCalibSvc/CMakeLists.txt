@@ -12,20 +12,19 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/Identifier
                           GaudiKernel
-			  MuonSpectrometer/MuonCablings/MuonMDT_Cabling
-			  MuonSpectrometer/MuonCablings/MuonCablingData
+			              MuonSpectrometer/MuonCablings/MuonMDT_Cabling
+            			  MuonSpectrometer/MuonCablings/MuonCablingData
                           MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibData
                           MuonSpectrometer/MuonCalib/MuonCalibIdentifier
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
                           PRIVATE
                           Control/StoreGate
                           MagneticField/MagFieldInterfaces
-			  MuonSpectrometer/MuonCablings/MuonMDT_Cabling
                           MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibInterfaces
                           MuonSpectrometer/MuonCalib/MuonCalibEvent
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
                           MuonSpectrometer/MuonIdHelpers
-			  Tools/PathResolver )
+			              Tools/PathResolver )
 
 # External dependencies:
 find_package( Eigen )

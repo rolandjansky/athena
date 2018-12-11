@@ -24,13 +24,13 @@ class Identifier;
    Provides a per-tube shifting of the TMax value.
    @author Andreas Hoenle
 */
-class MdtCalibrationTMaxShiftSvc : public MdtCalibrationShiftMapBase {
+class MdtCalibrationTMaxShiftSvc : virtual public MdtCalibrationShiftMapBase {
 public:
   /* constructor */
   MdtCalibrationTMaxShiftSvc(const std::string &name, ISvcLocator* pSvcLocator);
 
   /* destructor */
-  virtual ~MdtCalibrationTMaxShiftSvc();
+  ~MdtCalibrationTMaxShiftSvc();
 
   /*
    * initalization of map cannot happen before first event

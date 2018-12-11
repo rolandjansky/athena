@@ -25,7 +25,7 @@ class TTree;
    Provides a per-tube smearing of the T0 value.
    @author Andreas Hoenle
 */
-class MdtCalibrationT0ShiftSvc : public MdtCalibrationShiftMapBase {
+class MdtCalibrationT0ShiftSvc : virtual public MdtCalibrationShiftMapBase {
 public:
   /** constructor */
   MdtCalibrationT0ShiftSvc(const std::string &name, ISvcLocator* pSvcLocator);
