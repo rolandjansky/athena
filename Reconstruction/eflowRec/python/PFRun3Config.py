@@ -8,18 +8,11 @@ def PFCfg(inputFlags,**kwargs):
     #Some such items may be best placed elsewehere (e.g. put magnetic field setup in magnetic field git folder etc)
     result=ComponentAccumulator()
 
-    from TrkDetDescrSvc.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-    acc, geom_svc = TrackingGeometrySvcCfg(inputFlags)
-    result.merge(acc)
-
-    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_AlignCondAlg
-    result.addCondAlgo(SCT_AlignCondAlg(name = "SCT_AlignCondAlg",UseDynamicAlignFolders = False))
-
-    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DetectorElementCondAlg
-    result.addCondAlgo(SCT_DetectorElementCondAlg(name = "SCT_DetectorElementCondAlg"))
+    from StoreGate.StoreGateConf import StoreGateSvc
+    result.addService(StoreGateSvc("DetectorStore"))
     
-    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
-    result.merge(MuonGeoModelCfg(inputFlags))    
+    from AtlasGeoModel.GeoModelConfig import GeoModelCfg
+    result.mergeAll(GeoModelCfg(inputFlags))
 
     from GeometryDBSvc.GeometryDBSvcConf import GeometryDBSvc
     result.addService(GeometryDBSvc("InDetGeometryDBSvc"))
@@ -35,7 +28,7 @@ def PFCfg(inputFlags,**kwargs):
     from InDetServMatGeoModel.InDetServMatGeoModelConf import InDetServMatTool
     result.getService("GeoModelSvc").DetectorTools += [ InDetServMatTool() ]
 
-    from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline,IOVDbSvcCfg
+    from IOVDbSvc.IOVDbSvcConfig import addFolders,IOVDbSvcCfg
     result.merge(addFolders(inputFlags,['/GLOBAL/BField/Maps <noover/>'],'GLOBAL_OFL'))
     result.merge(addFolders(inputFlags,['/EXT/DCS/MAGNETS/SENSORDATA'],'DCS_OFL'))
     
@@ -47,9 +40,9 @@ def PFCfg(inputFlags,**kwargs):
     result.addService(MagField__AtlasFieldSvc("AtlasFieldSvc",**kwargs))
 
     #load folders needed for Run2 ID alignment
-    result.merge(addFoldersSplitOnline(inputFlags,"INDET","/Indet/Onl/Align","/Indet/Align",className="AlignableTransformContainer"))
+    result.merge(addFolders(inputFlags,['/Indet/Align'],'INDET_OFL'))
     result.merge(addFolders(inputFlags,['/TRT/Align'],'TRT_OFL'))
-
+                 
     #load folders needed for IBL
     result.merge(addFolders(inputFlags,['/Indet/IBLDist'],'INDET_OFL'))
 
