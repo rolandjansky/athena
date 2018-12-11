@@ -58,31 +58,6 @@ StatusCode TrigJetSplitterMT::execute() {
 
   const EventContext& context = getContext();
 
-  // For the moment, lets create our custom jets starting from RoIs
-  SG::ReadHandle< TrigRoiDescriptorCollection > inputRoICollectionHandle = SG::makeHandle( m_inputRoIKey,context );
-  ATH_MSG_DEBUG( "Retrieved RoIs from : " << m_inputRoIKey.key() );
-  CHECK( inputRoICollectionHandle.isValid() );
-
-  const TrigRoiDescriptorCollection *inputRoICollection = inputRoICollectionHandle.get();
-  ATH_MSG_DEBUG( "Found " << inputRoICollection->size() <<" RoIs. Creating input Jets from this/these" );
-
-  xAOD::JetContainer *inputJetCollection = new xAOD::JetContainer();
-  xAOD::JetAuxContainer *inputJetAuxContainer = new xAOD::JetAuxContainer();
-  inputJetCollection->setStore( inputJetAuxContainer );
-
-  for ( auto *roi : *inputRoICollection ) {
-    ATH_MSG_DEBUG( "RoI eta=" << roi->eta()<<" phi="<< roi->phi() );
-    xAOD::Jet *toAdd = new xAOD::Jet();
-    inputJetCollection->push_back( toAdd );
-    toAdd->setJetP4( xAOD::JetFourMom_t(50000,roi->eta(),roi->phi(),0) );
-  }
-
-  ATH_MSG_DEBUG( "Found " << inputJetCollection->size() << " jets."  );
-  for ( const xAOD::Jet *jet : * inputJetCollection )
-    ATH_MSG_INFO("   -- Jet pt=" << jet->p4().Et() <<" eta="<< jet->eta() << " phi="<< jet->phi() );
-
-  // This is the right way of doing it 
-  /*
   SG::ReadHandle< xAOD::JetContainer > inputJetContainerHandle = SG::makeHandle( m_inputJetsKey,context );
   ATH_MSG_DEBUG( "Retrieved jets from : " << m_inputJetsKey.key() );
   CHECK( inputJetContainerHandle.isValid() );
@@ -91,7 +66,6 @@ StatusCode TrigJetSplitterMT::execute() {
   ATH_MSG_DEBUG( "Found " << inputJetCollection->size() << " jets."  );
   for ( const xAOD::Jet *jet : * inputJetCollection )
     ATH_MSG_INFO("   -- Jet pt=" << jet->p4().Et() <<" eta="<< jet->eta() << " phi="<< jet->phi() );
-  */
 
   // Retrieve Primary Vertex
   // Right now vertexing is not available. Using dummy vertex at (0,0,0) // TMP
