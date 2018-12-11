@@ -28,18 +28,12 @@ class EventViewCreatorAlgorithmForBjet : public EventViewCreatorAlgorithm {
     StatusCode placeJetInView( const xAOD::Jet* theObject,
 			       SG::View* view,
 			       const EventContext& context ) const;
-    StatusCode placeVertexInView( const xAOD::Vertex* theObject,
-				  SG::View* view,
-				  const EventContext& context ) const;
 
     EventViewCreatorAlgorithmForBjet();
 
     SG::WriteHandleKey< ConstDataVector<xAOD::JetContainer> > m_inViewJets {this,"InViewJets","Unspecified","Name with which the Jets should be inserted into the views"};
-    SG::WriteHandleKey< ConstDataVector<xAOD::VertexContainer> > m_inViewPrimaryVertex {this,"InViewPrimaryVertex","Unspecified","Name with which the Prmary Vertex should be inserted into the views"};
 
     Gaudi::Property< std::string > m_jetsLink {this,"JetsLink","Unspecified","Name of EL to Jet object linked to the decision"};
-    Gaudi::Property< std::string > m_primaryVertexLink {this,"PrimaryVertexLink","Unspecified","Name of EL to primary vertex linked to the decision"};
-
 };
 
 #endif

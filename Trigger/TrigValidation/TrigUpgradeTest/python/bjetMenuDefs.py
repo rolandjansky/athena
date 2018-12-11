@@ -107,7 +107,6 @@ def bJetStep1Sequence():
     hypo.PrimaryVertex = jetSplitter.OutputVertex
     hypo.RoILink = "initialRoI" # To be used in following step EventView
     hypo.JetLink = "jets" # To be used in following step with EventView
-    hypo.PrimaryVertexLink = "primaryVertex" # To be used in following step with EventView  
     hypo.MultipleDecisions = True # For creating multiple decisions in the next step  
 
     # Sequence     
@@ -180,7 +179,6 @@ def bJetStep1SequenceALLTE():
     hypo.PrimaryVertex = jetSplitter.OutputVertex
     hypo.RoILink = "initialRoI" # To be used in following step EventView
     hypo.JetLink = "jets" # To be used in following step with EventView
-    hypo.PrimaryVertexLink = "primaryVertex" # To be used in following step with EventView  
     hypo.MultipleDecisions = False # For creating multiple decisions in the next step  
 
     # Sequence     
@@ -215,9 +213,6 @@ def bJetStep2Sequence():
     # Jets
     InputMakerAlg.InViewJets = "InViewJets" # Name Jets are inserted in the view
     InputMakerAlg.JetsLink = "jets" # Jets linked to previous decision
-    # Primary Vertex
-    InputMakerAlg.InViewPrimaryVertex = "InViewPrimaryVertex" # Name Primary Vertex are inserted in the view      
-    InputMakerAlg.PrimaryVertexLink = "primaryVertex" # Primary Vertex linked to previous decision
 
     # Precision Tracking
 
@@ -227,7 +222,7 @@ def bJetStep2Sequence():
     theGSC.OutputLevel = DEBUG
     theGSC.RoIs = InputMakerAlg.InViewRoIs
     theGSC.JetKey = InputMakerAlg.InViewJets
-    theGSC.PriVtxKey = InputMakerAlg.InViewPrimaryVertex
+    theGSC.PriVtxKey = "PrimaryVertex"
     theGSC.JetOutputKey = "GSCJets"
 
     step2Sequence = seqAND("step2Sequence",[theGSC]);
@@ -240,11 +235,9 @@ def bJetStep2Sequence():
     hypo.OutputLevel = DEBUG
     hypo.RoIs = "initialRoI" #InputMakerAlg.InViewRoIs
     hypo.Jets = theGSC.JetOutputKey
-    hypo.PrimaryVertex = InputMakerAlg.InViewPrimaryVertex
-
+    hypo.PrimaryVertex = "PrimaryVertex"
     hypo.RoILink = InputMakerAlg.RoIsLink #"initialRoI" # To be used in following step EventView
     hypo.JetLink = InputMakerAlg.JetsLink #"jets" # To be used in following step with EventView
-    hypo.PrimaryVertexLink = InputMakerAlg.PrimaryVertexLink
     hypo.UseView = True
 
     # Sequence

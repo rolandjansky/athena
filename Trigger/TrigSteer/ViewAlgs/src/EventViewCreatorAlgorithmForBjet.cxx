@@ -21,7 +21,6 @@ StatusCode EventViewCreatorAlgorithmForBjet::initialize() {
   EventViewCreatorAlgorithm::initialize();
 
   ATH_CHECK( m_inViewJets.initialize() );
-  ATH_CHECK( m_inViewPrimaryVertex.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -73,14 +72,6 @@ StatusCode EventViewCreatorAlgorithmForBjet::execute_r( const EventContext& cont
       ATH_MSG_DEBUG( "Placing xAOD::JetContainer " );
       ATH_MSG_DEBUG( "   -- pt="<< jet->p4().Et() <<" eta="<< jet->eta() << " phi="<< jet->phi() );
 
-      // Retrieve primary vertex ...
-      ATH_MSG_DEBUG( "Checking there are primary vertices linked to decision object" );
-      TrigCompositeUtils::LinkInfo< xAOD::VertexContainer > vertexELInfo = TrigCompositeUtils::findLink< xAOD::VertexContainer >( inputDecision,m_primaryVertexLink );
-      ATH_CHECK( vertexELInfo.isValid() );
-      const xAOD::Vertex *primaryVertex = *vertexELInfo.link;
-      ATH_MSG_DEBUG( "Placing xAOD::VertexContainer" );
-      ATH_MSG_DEBUG( "   -- PV = " << primaryVertex->x() << "," << primaryVertex->y() << "," << primaryVertex->z() );
-
       // pull RoI descriptor
       TrigCompositeUtils::LinkInfo<TrigRoiDescriptorCollection> roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(inputDecision, m_roisLink );
       ATH_CHECK( roiELInfo.isValid() );
@@ -131,7 +122,6 @@ StatusCode EventViewCreatorAlgorithmForBjet::execute_r( const EventContext& cont
 	ATH_CHECK( linkViewToParent( inputDecision, viewVector->back() ) );
 	ATH_CHECK( placeRoIInView( roiDescriptor, viewVector->back(), contexts.back() ) );	
 	ATH_CHECK( placeJetInView( jet, viewVector->back(), contexts.back() ) );
-	ATH_CHECK( placeVertexInView( primaryVertex, viewVector->back(), contexts.back() ) );
       }
     }
     
@@ -179,19 +169,4 @@ StatusCode EventViewCreatorAlgorithmForBjet::placeJetInView( const xAOD::Jet* th
   ATH_CHECK( handle.record( std::move( oneObjectCollection ) ) ); 
   return StatusCode::SUCCESS;
 }
-
-StatusCode EventViewCreatorAlgorithmForBjet::placeVertexInView( const xAOD::Vertex* theObject, SG::View* view, const EventContext& context ) const {
-  // fill the Primary Vertex output collection
-  ATH_MSG_DEBUG( "Adding Primary Vertex to View : " << m_inViewPrimaryVertex.key() );
-  auto oneObjectCollection = std::make_unique< ConstDataVector< xAOD::VertexContainer > >();
-  oneObjectCollection->clear( SG::VIEW_ELEMENTS );
-  oneObjectCollection->push_back( theObject );
-
-  // store in the View
-  auto handle = SG::makeHandle( m_inViewPrimaryVertex,context);
-  ATH_CHECK( handle.setProxyDict( view ) );
-  ATH_CHECK( handle.record( std::move( oneObjectCollection ) ) );
-  return StatusCode::SUCCESS;
-}
-
 

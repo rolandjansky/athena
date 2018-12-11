@@ -21,7 +21,6 @@ StatusCode TrigBjetEtHypoAlgMT::initialize()
   ATH_MSG_DEBUG(  "   " << m_useView           );
   ATH_MSG_DEBUG(  "   " << m_roiLink           );
   ATH_MSG_DEBUG(  "   " << m_jetLink           );
-  ATH_MSG_DEBUG(  "   " << m_primaryVertexLink );
   ATH_MSG_DEBUG(  "   " << m_multipleDecisions );
 
   ATH_MSG_DEBUG( "Initializing Tools" );
@@ -33,10 +32,8 @@ StatusCode TrigBjetEtHypoAlgMT::initialize()
   CHECK( m_inputPrimaryVertexKey.initialize()  );
 
   // Deal with what is stored into View
-  if ( m_useView ) {
+  if ( m_useView ) 
     renounce( m_inputJetsKey          ); 
-    renounce( m_inputPrimaryVertexKey );
-  }
 
   return StatusCode::SUCCESS;
 }
@@ -86,8 +83,7 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
 
   // Retrieve Primary Vertex
   const xAOD::VertexContainer *vertexContainer = nullptr;
-  if ( not m_useView ) CHECK( retrievePrimaryVertexFromStoreGate( context,vertexContainer ) );
-  else CHECK( retrievePrimaryVertexFromEventView( context,vertexContainer,prevDecisionHandle ) );
+  CHECK( retrievePrimaryVertexFromStoreGate( context,vertexContainer ) );
 
   ATH_MSG_DEBUG( "Found " << vertexContainer->size() << " vertices." );
   for ( const xAOD::Vertex *primVertex : *vertexContainer )
@@ -142,10 +138,6 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
        for( unsigned int index(0); index<nDecisions; index++ )
 	newDecisions.at(index)->setObjectLink( m_jetLink.value(),ElementLink< xAOD::JetContainer >( m_inputJetsKey.key(),index ) );
       ATH_MSG_DEBUG( "Linking Jets `" << m_jetLink.value() << "` to output decision." );
-
-      for ( unsigned int index(0); index<nDecisions; index++ )
-	newDecisions.at(index)->setObjectLink( m_primaryVertexLink.value(),ElementLink< xAOD::VertexContainer >(  m_inputPrimaryVertexKey.key(),0 ) );
-      ATH_MSG_DEBUG( "Linking Primary Vertex `" << m_primaryVertexLink.value() << "` to output decision." );
     }
     
     for( unsigned int index(0); index<nDecisions; index++ )
@@ -223,49 +215,6 @@ StatusCode TrigBjetEtHypoAlgMT::retrieveJetsFromEventView( const EventContext& c
   }
 
   jetCollection = new xAOD::JetContainer( *output );
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TrigBjetEtHypoAlgMT::retrievePrimaryVertexFromEventView( const EventContext& context,
-								    const xAOD::VertexContainer*& vertexCollection, 
-								    SG::ReadHandle< TrigCompositeUtils::DecisionContainer >& prevDecisionHandle ) const {
-  xAOD::VertexContainer *output = new xAOD::VertexContainer();
-  std::unique_ptr< xAOD::VertexAuxContainer > outputAux( new xAOD::VertexAuxContainer() );
-  output->setStore( outputAux.release() );
-
-  std::map< const TrigRoiDescriptor*,int > mapRoIs;
-
-  for ( auto previousDecision: *prevDecisionHandle ) {
-    //get RoI
-    auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
-    ATH_CHECK( roiEL.isValid() );
-    const TrigRoiDescriptor* roi = *roiEL;
-    ATH_MSG_DEBUG( "Retrieved RoI from previous decision " );
-    ATH_MSG_DEBUG( "   ** eta=" << roi->eta() <<" phi="<< roi->phi() );
-
-    // Check the jet has not been already retrieved
-    if ( mapRoIs.find( roi ) != mapRoIs.end() or mapRoIs.size() != 0 ) continue;
-    mapRoIs[ roi ] = 1;
-
-    // get View
-    auto viewEL = previousDecision->objectLink< ViewContainer >( "view" );
-    ATH_CHECK( viewEL.isValid() );
-    ATH_MSG_DEBUG( "Retrieved View" );
-    SG::ReadHandle< xAOD::VertexContainer > vertexContainerHandle = ViewHelper::makeHandle( *viewEL, m_inputPrimaryVertexKey, context);
-    ATH_CHECK( vertexContainerHandle.isValid() );
-    ATH_MSG_DEBUG ( "vertex container handle size: " << vertexContainerHandle->size() << "..." );
-    const xAOD::VertexContainer *vertexContainer = vertexContainerHandle.get();
-    for ( const xAOD::Vertex *primVertex : *vertexContainer ) {
-      ATH_MSG_DEBUG( "   *** PV=" << primVertex->x() << "," << primVertex->y() << "," << primVertex->z() );
-
-      // Make a Copy
-      xAOD::Vertex *copyVertex = new xAOD::Vertex();
-      output->push_back( copyVertex );
-      *copyVertex = *primVertex;
-    }
-  }
-
-  vertexCollection = new xAOD::VertexContainer( *output );
   return StatusCode::SUCCESS;
 }
 

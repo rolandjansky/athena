@@ -46,9 +46,6 @@ class TrigBjetEtHypoAlgMT : public ::HypoBase {
   StatusCode retrieveJetsFromEventView( const EventContext& context,
 					const xAOD::JetContainer*&,
 					SG::ReadHandle< TrigCompositeUtils::DecisionContainer >& ) const;
-  StatusCode retrievePrimaryVertexFromEventView( const EventContext& context,
-						 const xAOD::VertexContainer*&,
-						 SG::ReadHandle< TrigCompositeUtils::DecisionContainer >& ) const;
 
  private:
   ToolHandleArray< TrigBjetEtHypoTool > m_hypoTools {this,"HypoTools",{},"Hypo Tools"};
@@ -58,7 +55,6 @@ class TrigBjetEtHypoAlgMT : public ::HypoBase {
   Gaudi::Property< bool > m_multipleDecisions {this,"MultipleDecisions",false,"Create multiple decisions, one per input RoI"};
   Gaudi::Property< std::string > m_roiLink {this,"RoILink","roi","RoI link to attach to the output decision"};
   Gaudi::Property< std::string > m_jetLink {this,"JetLink","jets","Jets link to attach to the output decision"};
-  Gaudi::Property< std::string > m_primaryVertexLink {this,"PrimaryVertexLink","primaryVertex","Primary Vertex link to attach to the output decision"};
 
   SG::ReadHandleKey< xAOD::JetContainer > m_inputJetsKey {this,"Jets","Undefined","Input Jet Container Key"};
   SG::ReadHandleKey< TrigRoiDescriptorCollection > m_inputRoIKey {this,"RoIs","Undefined","Input RoIs that will be linked to the output decision"};
