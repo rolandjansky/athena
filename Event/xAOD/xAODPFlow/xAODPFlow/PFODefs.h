@@ -91,6 +91,10 @@ namespace PFODetails
     eflowRec_radiusVectorCellOrdering,
     eflowRec_avgEdensityVectorCellOrdering,
     eflowRec_layerHED,
+    eflowRec_ENG_CALIB_TOT,
+    eflowRec_ENG_CALIB_FRAC_EM,
+    eflowRec_ENG_CALIB_FRAC_HAD,
+    eflowRec_ENG_CALIB_FRAC_REST,
     /* These are all of the DigiTruth attributes */
     eflowRec_ENERGY_DigiHSTruth,
     eflowRec_ETA_DigiHSTruth,
