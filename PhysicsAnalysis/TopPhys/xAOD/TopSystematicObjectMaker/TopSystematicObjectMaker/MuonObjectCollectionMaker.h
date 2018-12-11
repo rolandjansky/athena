@@ -36,7 +36,7 @@
 #include "IsolationSelection/IIsolationSelectionTool.h"
 // the following is needed to make sure all muons for which d0sig is calculated are at least Loose
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
-
+#include "MuonMomentumCorrections/MuonCalibrationPeriodTool.h"
 // Forward declaration(s):
 namespace top{
   class TopConfig;
@@ -75,7 +75,7 @@ namespace top{
       std::list<CP::SystematicSet> m_specifiedSystematics;
       std::list<CP::SystematicSet> m_recommendedSystematics;
 
-      ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_calibrationTool;
+      ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_calibrationPeriodTool;
       ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_calibrationTool2017;
 
       ///-- Isolation --///
