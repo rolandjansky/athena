@@ -210,13 +210,11 @@ def construct_NNLOPS_weight_list(NNLO_output_weights, powheg_LHE_output):
     with open(powheg_LHE_output, "rb") as f_input:
         for line in f_input:
             if "weight id=" in line:
-                print "weight_id =", str(int(line.split("'")[1])), "weight_name =", line.split(">")[1].split("<")[0].strip()
                 existing_weights.append((str(int(line.split("'")[1])), line.split(">")[1].split("<")[0].strip()))
 
     # Construct weight descriptor sets for consistent ordering
     logger.info("Constructing list of weights")
     for idx, (NNLO_weight_name, NNLOPS_command) in enumerate(NNLO_output_weights.items(), start=4001):
-        print "idx:", idx, "NNLO_weight_name:", NNLO_weight_name, "NNLOPS_command:", NNLOPS_command
         NNLOPS_command = NNLOPS_command.replace("muR = 1.0, muF = 1.0", "nominal")
         # Check whether any of the NNLO descriptions refer to existing weights
         for weight_ID, weight_name in existing_weights:
@@ -226,24 +224,6 @@ def construct_NNLOPS_weight_list(NNLO_output_weights, powheg_LHE_output):
                 NNLOPS_command = NNLOPS_command.replace(re_match.group(0), re_match.group(0).replace(weight_name, weight_ID))
                 logger.info("... identified '{}' as weight ID '{}'".format(weight_name, weight_ID))
         # Add this to the list of known weights
-        print "Adding weight:", (NNLO_weight_name, NNLOPS_command)
-        print "weight_id =", idx, "weight_name =", NNLO_weight_name
         existing_weights.append((idx, NNLO_weight_name))
         NNLO_weights.append((idx, NNLO_weight_name, NNLOPS_command))
-
-        # # If a match is found then replace description -> ID in the string and store in the map
-        # configurator.weight_name_to_ID[weight_name] = weight_ID
-        # self._NNLO_weight_descriptors.append((idx, weight_ID, weight_name))
     return NNLO_weights
-
-
-#     # Determine the path to the appropriate executable
-#     def get_executable(self, powheg_executable):
-#         process = powheg_executable.split("/")[-2]
-#         if process == "HJ":
-#             relative_path = "nnlopsreweighter"
-#         elif process == "Wj":
-#             relative_path = "DYNNLOPS/WNNLOPS/Reweighter/minnlo"
-#         elif process == "Zj":
-#             relative_path = "DYNNLOPS/ZNNLOPS/Reweighter/minnlo"
-#         return powheg_executable.replace("pwhg_main", relative_path)

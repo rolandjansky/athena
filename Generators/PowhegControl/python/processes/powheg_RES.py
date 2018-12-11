@@ -20,7 +20,6 @@ class PowhegRES(PowhegBase):
         @param is_LO           True if this is a leading-order process.
         """
         super(PowhegRES, self).__init__(base_directory, "POWHEG-BOX-RES", executable_name, **kwargs)
-        self.add_keyword("numevts", kwargs.get("nEvents", None))
 
     @property
     def default_PDFs(self):

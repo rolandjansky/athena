@@ -106,12 +106,12 @@ class HZj_EW(PowhegRES):
         self.add_keyword("minlo", 1)
         self.add_keyword("mint_density_map")
         self.add_keyword("mintupbratlim", 1000)
-        self.add_keyword("ncall1", 25000)
+        self.add_keyword("ncall1", 120000)
         self.add_keyword("ncall1btl")
         self.add_keyword("ncall1btlbrn")
         self.add_keyword("ncall1reg")
         self.add_keyword("ncall1rm")
-        self.add_keyword("ncall2", 200000)
+        self.add_keyword("ncall2", 600000)
         self.add_keyword("ncall2btl")
         self.add_keyword("ncall2btlbrn")
         self.add_keyword("ncall2reg")
@@ -121,7 +121,7 @@ class HZj_EW(PowhegRES):
         self.add_keyword("nohad")
         self.add_keyword("nores")
         self.add_keyword("novirtual")
-        self.add_keyword("nubound", 40000)
+        self.add_keyword("nubound", 400000)
         self.add_keyword("olpreset")
         self.add_keyword("olverbose")
         self.add_keyword("onshellhiggs")
@@ -190,3 +190,4 @@ class HZj_EW(PowhegRES):
                                "ve ve~": 4, "vm vm~": 5, "vt vt~": 6,
                                "j j": 0, "l l~": 11, "v v~": 12, "all": 10}
         self.parameters_by_keyword("vdecaymode")[0].value = __decay_mode_lookup[self.decay_mode.split("> ")[1]]
+
