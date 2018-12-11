@@ -880,7 +880,7 @@ bool TileROD_Encoder::checkBit(const uint32_t* p, int chan) {
 }
 
 void TileROD_Encoder::dumpROD(const std::vector<uint32_t>& v) {
-  std::cout << " Dump of Tile ROD block, size =  " << v.size() << std::endl;
+  msg(MSG::VERBOSE) << " Dump of Tile ROD block, size =  " << v.size() << endmsg;
 
   int count = 0, newCount = 3;
   for (const uint32_t data : v) {

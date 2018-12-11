@@ -50,22 +50,22 @@ return ClassID_traits<TileMuonReceiverContainer>::ID() ;
 
 StatusCode TileMuRcvContByteStreamCnv::initialize()
 {
-  CHECK(Converter::initialize());
+  ATH_CHECK(Converter::initialize());
 
   ATH_MSG_DEBUG(" initialize ");
 
   // Get ByteStreamCnvSvc
-  CHECK( m_byteStreamEventAccess.retrieve() );
+  ATH_CHECK( m_byteStreamEventAccess.retrieve() );
   m_byteStreamCnvSvc = dynamic_cast<ByteStreamCnvSvc*>(&*m_byteStreamEventAccess);
 
   // retrieve Tool
-  CHECK( m_decoder.retrieve() );
+  ATH_CHECK( m_decoder.retrieve() );
 
-  CHECK( m_tool.retrieve() );
+  ATH_CHECK( m_tool.retrieve() );
 
-  CHECK( m_robSvc.retrieve() );
+  ATH_CHECK( m_robSvc.retrieve() );
 
-  CHECK( m_storeGate.retrieve() );
+  ATH_CHECK( m_storeGate.retrieve() );
 
   return StatusCode::SUCCESS ;
 }
@@ -108,7 +108,7 @@ StatusCode TileMuRcvContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddres
   FullEventAssembler<TileHid2RESrcID>* fea = 0;
   std::string key("Tile");
 
-  CHECK( m_byteStreamCnvSvc->getFullEventAssembler(fea, key) );
+  ATH_CHECK( m_byteStreamCnvSvc->getFullEventAssembler(fea, key) );
 
   // create TileMuonReceiverContainer
   //
@@ -125,7 +125,7 @@ StatusCode TileMuRcvContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddres
   pAddr = addr;
 
   // call TileMuRcvContByteStreamTool
-  CHECK( m_tool->convert(muRcvCont,fea) );
+  ATH_CHECK( m_tool->convert(muRcvCont,fea) );
 
   return StatusCode::SUCCESS;
 }

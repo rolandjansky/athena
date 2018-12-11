@@ -60,21 +60,21 @@ const CLID& TileDigitsContByteStreamCnv::classID(){ return ClassID_traits<TileDi
 
 StatusCode TileDigitsContByteStreamCnv::initialize() {
   
-  CHECK(Converter::initialize());
+  ATH_CHECK(Converter::initialize());
 
   ATH_MSG_DEBUG(" initialize ");
 
   // Get ByteStreamCnvSvc
-  CHECK( m_byteStreamEventAccess.retrieve() );
+  ATH_CHECK( m_byteStreamEventAccess.retrieve() );
   m_byteStreamCnvSvc = dynamic_cast<ByteStreamCnvSvc*>(&*m_byteStreamEventAccess);
 
   // retrieve Tool
-  CHECK( m_decoder.retrieve() );
+  ATH_CHECK( m_decoder.retrieve() );
   m_hid2re = m_decoder->getHid2re();
 
-  CHECK( m_tool.retrieve() );
+  ATH_CHECK( m_tool.retrieve() );
 
-  CHECK( m_robSvc.retrieve() );
+  ATH_CHECK( m_robSvc.retrieve() );
 
   // create empty TileDigitsContainer and all collections inside
   m_containers[0] = new TileDigitsContainer(true); 
@@ -91,7 +91,7 @@ StatusCode TileDigitsContByteStreamCnv::initialize() {
     incSvc->addListener(this, "StoreCleared");
   }
   
-  CHECK( m_activeStore.retrieve() );
+  ATH_CHECK( m_activeStore.retrieve() );
   
   return StatusCode::SUCCESS;
 }
@@ -153,7 +153,7 @@ StatusCode TileDigitsContByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObj
     ATH_MSG_DEBUG( "Creating digits container " << *(pRE_Addr->par()) );
 
     if (isTMDB) {
-      CHECK( m_activeStore->activeStore()->record( m_containers[icnt], "MuRcvDigitsCnt" ) );
+      ATH_CHECK( m_activeStore->activeStore()->record( m_containers[icnt], "MuRcvDigitsCnt" ) );
     } else {
       pObj = SG::asStorable( m_containers[icnt] ) ;
     }
@@ -174,7 +174,7 @@ StatusCode TileDigitsContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddre
   // get Full Event Assembler
   FullEventAssembler<TileHid2RESrcID>* fea = 0;
   std::string key("Tile");
-  CHECK( m_byteStreamCnvSvc->getFullEventAssembler(fea, key) );
+  ATH_CHECK( m_byteStreamCnvSvc->getFullEventAssembler(fea, key) );
 
   // create TileDigitsContainer
   TileDigitsContainer* digicont(0) ; 

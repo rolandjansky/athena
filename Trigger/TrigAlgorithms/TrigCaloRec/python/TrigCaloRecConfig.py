@@ -1991,5 +1991,5 @@ class HLTCaloCellMaker (_HLTCaloCellMaker):
     __slots__ = []
     def __init__(self, name):
         super( HLTCaloCellMaker, self ).__init__(name)
-        self.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale')]
+        self.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
 

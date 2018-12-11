@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -56,18 +56,18 @@ StatusCode TileRawChannelContByteStreamTool::initialize() {
 
   ATH_MSG_INFO ("Initializing TileRawChannelContByteStreamTool");
 
-  CHECK( detStore()->retrieve(m_tileHWID, "TileHWID") );
+  ATH_CHECK( detStore()->retrieve(m_tileHWID, "TileHWID") );
 
   ToolHandle<TileROD_Decoder> dec("TileROD_Decoder");
-  CHECK( dec.retrieve() );
+  ATH_CHECK( dec.retrieve() );
 
   m_hid2re = dec->getHid2reHLT();
 
   // get TileCondToolEmscale
-  CHECK( m_tileToolEmscale.retrieve() );
+  ATH_CHECK( m_tileToolEmscale.retrieve() );
 
   // get TileBadChanTool
-  CHECK( m_tileBadChanTool.retrieve() );
+  ATH_CHECK( m_tileBadChanTool.retrieve() );
 
   m_maxChannels = TileCablingService::getInstance()->getMaxChannels();
 

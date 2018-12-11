@@ -52,10 +52,10 @@ StatusCode TileLaserObjByteStreamTool::initialize() {
 
   ATH_MSG_INFO ("Initializing TileLaserObjByteStreamTool");
 
-  CHECK( detStore()->retrieve(m_tileHWID, "TileHWID") );
+  ATH_CHECK( detStore()->retrieve(m_tileHWID, "TileHWID") );
 
   ToolHandle<TileROD_Decoder> dec("TileROD_Decoder");
-  CHECK( dec.retrieve() );
+  ATH_CHECK( dec.retrieve() );
 
   m_hid2re = dec->getHid2reHLT();
 

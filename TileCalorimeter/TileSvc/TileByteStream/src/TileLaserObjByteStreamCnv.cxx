@@ -53,14 +53,14 @@ const CLID& TileLaserObjByteStreamCnv::classID(){ return ClassID_traits<TileLase
 
 StatusCode TileLaserObjByteStreamCnv::initialize() {
 
-  CHECK(Converter::initialize());
+  ATH_CHECK(Converter::initialize());
 
   ATH_MSG_DEBUG(" initialize ");
 
-  CHECK( m_robSvc.retrieve() );
+  ATH_CHECK( m_robSvc.retrieve() );
 
   // retrieve Tool
-  CHECK( m_decoder.retrieve() );
+  ATH_CHECK( m_decoder.retrieve() );
 
   m_hid2re = m_decoder->getHid2re();
 

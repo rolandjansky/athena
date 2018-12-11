@@ -58,19 +58,19 @@ StatusCode TileRawChannelContByteStreamCnv::initialize() {
 
   ATH_MSG_DEBUG(" initialize ");
 
-  CHECK(Converter::initialize());
+  ATH_CHECK(Converter::initialize());
 
   // Get ByteStreamCnvSvc
-  CHECK( m_byteStreamEventAccess.retrieve() );
+  ATH_CHECK( m_byteStreamEventAccess.retrieve() );
   m_byteStreamCnvSvc = dynamic_cast<ByteStreamCnvSvc*>(&*m_byteStreamEventAccess);
 
   // retrieve Tool
-  CHECK( m_decoder.retrieve() );
+  ATH_CHECK( m_decoder.retrieve() );
   m_hid2re = m_decoder->getHid2re();
 
-  CHECK( m_tool.retrieve() );
+  ATH_CHECK( m_tool.retrieve() );
 
-  CHECK( m_robSvc.retrieve() );
+  ATH_CHECK( m_robSvc.retrieve() );
 
   TileFragHash::TYPE type;
   TileRawChannelUnit::UNIT unit;
@@ -95,7 +95,7 @@ StatusCode TileRawChannelContByteStreamCnv::initialize() {
     incSvc->addListener(this, "StoreCleared");
   }
 
-  CHECK( m_activeStore.retrieve() );
+  ATH_CHECK( m_activeStore.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -157,7 +157,7 @@ StatusCode TileRawChannelContByteStreamCnv::createObj(IOpaqueAddress* pAddr, Dat
     ATH_MSG_DEBUG( "Creating Container " << *(pRE_Addr->par()) );  
 
     if (isTMDB) {
-      CHECK( m_activeStore->activeStore()->record( m_containers[icnt], "MuRcvRawChCnt" ) );
+      ATH_CHECK( m_activeStore->activeStore()->record( m_containers[icnt], "MuRcvRawChCnt" ) );
     } else {
       pObj = SG::asStorable( m_containers[icnt] ) ;
     }
@@ -177,7 +177,7 @@ StatusCode TileRawChannelContByteStreamCnv::createRep(DataObject* pObj, IOpaqueA
   
   // get Full Event Assembler 
   FullEventAssembler<TileHid2RESrcID> *fea = 0;
-  CHECK( m_byteStreamCnvSvc->getFullEventAssembler(fea, key) );
+  ATH_CHECK( m_byteStreamCnvSvc->getFullEventAssembler(fea, key) );
 
   // create TileRawChannelContainer
   TileRawChannelContainer* rccont(0) ; 
@@ -191,7 +191,7 @@ StatusCode TileRawChannelContByteStreamCnv::createRep(DataObject* pObj, IOpaqueA
   ByteStreamAddress* addr = new ByteStreamAddress(classID(), name, ""); 
   pAddr = addr; 
 
-  CHECK( m_tool->convert(rccont, fea) ); 
+  ATH_CHECK( m_tool->convert(rccont, fea) );
 
   return StatusCode::SUCCESS;
 }
