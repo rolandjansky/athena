@@ -57,22 +57,24 @@ StatusCode  InputMakerForRoI::execute_r( const EventContext& context ) const {
     ATH_MSG_DEBUG( "Got output "<< outputHandle.key()<<" with " << outputHandle->size() << " elements" );
     // loop over output decisions in container of outputHandle, follow link to inputDecision
     for ( auto outputDecision : *outputHandle){ 
-      ElementLink<DecisionContainer> inputLink = linkToPrevious(outputDecision);
-      const Decision* inputDecision = *inputLink;
-      auto roiEL = inputDecision->objectLink<TrigRoiDescriptorCollection>(m_roisLink.value() );  
-      ATH_CHECK( roiEL.isValid() );
+      ElementLinkVector<DecisionContainer> inputLinks = getLinkToPrevious(outputDecision);
+      for (auto input: inputLinks){
+	const Decision* inputDecision = *input;
+	auto roiEL = inputDecision->objectLink<TrigRoiDescriptorCollection>(m_roisLink.value() );  
+	ATH_CHECK( roiEL.isValid() );
       
-      // avoid adding the same feature multiple times: check if not in container, if not add it
-      if ( find(RoIsFromDecision.begin(), RoIsFromDecision.end(), roiEL)
-	   == RoIsFromDecision.end() ){
-	RoIsFromDecision.push_back(roiEL); // just to keep track of which we have used 
-	const TrigRoiDescriptor* roi = *roiEL;
-	ATH_MSG_DEBUG("Found RoI:" <<*roi<<" FS="<<roi->isFullscan());
-	//make a new one:
-	TrigRoiDescriptor* newroi= new TrigRoiDescriptor(*roi); //use copy constructor
-	oneRoIColl->push_back(newroi);
-	ATH_MSG_DEBUG("Added RoI:" <<*newroi<<" FS="<<newroi->isFullscan());
-      }            
+	// avoid adding the same feature multiple times: check if not in container, if not add it
+	if ( find(RoIsFromDecision.begin(), RoIsFromDecision.end(), roiEL)
+	     == RoIsFromDecision.end() ){
+	  RoIsFromDecision.push_back(roiEL); // just to keep track of which we have used 
+	  const TrigRoiDescriptor* roi = *roiEL;
+	  ATH_MSG_DEBUG("Found RoI:" <<*roi<<" FS="<<roi->isFullscan());
+	  //make a new one:
+	  TrigRoiDescriptor* newroi= new TrigRoiDescriptor(*roi); //use copy constructor
+	  oneRoIColl->push_back(newroi);
+	  ATH_MSG_DEBUG("Added RoI:" <<*newroi<<" FS="<<newroi->isFullscan());
+	}
+      } // loop over previous input links           
     } // loop over decisions      
   } // loop over output keys
   

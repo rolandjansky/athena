@@ -88,7 +88,12 @@ namespace TrigCompositeUtils {
   }
 
   void linkToPrevious( Decision* d, const std::string& previousCollectionKey, size_t previousIndex ) {
-    d->setObjectLink( "seed", ElementLink<DecisionContainer>( previousCollectionKey, previousIndex ) );
+    ElementLinkVector<DecisionContainer> seeds = d->objectCollectionLinks<DecisionContainer>( "seed" );
+    seeds.push_back(ElementLink<DecisionContainer>( previousCollectionKey, previousIndex ));
+    d->addObjectCollectionLinks("seed", seeds);
+    
+    //copyLinksFromPrevious()
+    //    d->setObjectLink( "seed", ElementLink<DecisionContainer>( previousCollectionKey, previousIndex ) );
   }
 
 
@@ -96,8 +101,9 @@ namespace TrigCompositeUtils {
     return d->hasObjectLink( "seed" );
   }
 
-  ElementLink<DecisionContainer> linkToPrevious( const Decision* d ) {
-    return d->objectLink<DecisionContainer>( "seed" );
+  ElementLinkVector <DecisionContainer> getLinkToPrevious( const Decision* d ) {
+    return d->objectCollectionLinks<DecisionContainer>( "seed" );
+    //    return d->objectLink<DecisionContainer>( "seed" );
   }
 
 
@@ -105,7 +111,40 @@ namespace TrigCompositeUtils {
     return dest->copyAllLinksFrom(src);
   }
 
+  // bool copyLinksFromPrevious(const Decision* src, Decision* dest){
+  //   bool didCopy = false;
 
+  //   for (const std::string& name : src->linkColNames()) {
+  //     const std::string new_name = name.insert(0,"_");
+  //     // Cannot copy any 'self' links as *this does not know its own location in its parent container
+  //     if (name == "self") continue;
+  //     // Check we don't have one (or more) entries with this raw name (raw = might be mangled).
+  //     if (dest->hasObjectLink(new_name)) continue;
+  //     // Check if the link is for a single object or collection of objects by looking for the mangled suffix
+  //     const bool isCollection = (name.size() > s_collectionSuffix.size() && 
+  // 				 std::equal(s_collectionSuffix.rbegin(), s_collectionSuffix.rend(), name.rbegin()));
+  //     if (isCollection) {
+  // 	// The copyLinkCollectionFrom call needs the un-mangled name as it is a public fn. It will re-mangle.
+  // 	const std::string unmangledName = name.substr(0, name.size() - s_collectionSuffix.size());
+  // 	const std::string new_unmangledName = unmangledName.insert(0,"_");
+  // 	copyLinkCollectionFrom(other, unmangledName, new_unmangledName);
+  //     } else { // !isCollection
+  // 	copyLinkFrom(other, name, new_name);
+  //     }
+  //     didCopy = true;
+  //   }
+  //   return didCopy;
+
+  // }
+    
+  // // for (auto link: baseLinks){
+  // //   if ( src->hasObjectLink(link ) ) dest->copyLinkFrom(src,link);
+  // // }
+
+  // }
+
+
+  
   const xAOD::TrigComposite* find( const xAOD::TrigComposite* start, const std::function<bool( const xAOD::TrigComposite* )>& filter ) {
     if ( filter( start ) ) return start;
 

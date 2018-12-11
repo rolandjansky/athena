@@ -49,7 +49,7 @@ This is a base class for HLT InputMakers to reduce boilerplate and enforce the c
    /// does the standard handling of input decisions: read from handles with all the checks, create corresponding output handles and link them, copies links and return outputHandles
   StatusCode decisionInputToOutput(const EventContext& context, std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> > & outputHandles) const;
 
-  /// does the standard handling of input decisions: read from handles with all the checks, create corresponding output handles and link them, copies links and return outputHandles
+  /// does the standard handling of input decisions: read from handles with all the checks, create merged output handles and link them, copies links and return outputHandles
   StatusCode decisionInputToMergedOutput(const EventContext& context, std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> > & outputHandles) const;
 
   /// counts valid input decisions
@@ -63,10 +63,11 @@ This is a base class for HLT InputMakers to reduce boilerplate and enforce the c
   /// output decisions
   SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_outputs { this, "InputMakerOutputDecisions", {}, "Ouput Decisions" };
 
-  //  static const std::vector<std::string> m_baseLinks;
+  // setting strategy for output creation: merged means one decision per ROI
+  Gaudi::Property<bool>  m_mergeOutputs { this, "mergeOutputs", false, "true=outputs are merged, false=one output per input" };
 
   StatusCode copyBaseLinks(const TrigCompositeUtils::Decision* src, TrigCompositeUtils::Decision* dest) const;
-
+  
  
   /// copies decisions ID from unput to output
   //  StatusCode insertDecisions( const Decision* src, Decision* dest ) const;

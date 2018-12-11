@@ -52,37 +52,42 @@ StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) c
     ATH_MSG_DEBUG( "Got output "<< outputHandle.key()<<" with " << outputHandle->size() << " elements" );
     // loop over output decisions in container of outputHandle, follow link to inputDecision
     for ( auto outputDecision : *outputHandle){ 
-      ElementLink<DecisionContainer> inputLink = linkToPrevious(outputDecision);
-      const Decision* inputDecision = *inputLink;
-      // find the RoI
-      auto roiEL = inputDecision->objectLink<TrigRoiDescriptorCollection>(m_roisLink.value() );
-      ATH_CHECK( roiEL.isValid() );
-      // check if already found
-      auto roiIt=find(RoIsFromDecision.begin(), RoIsFromDecision.end(), roiEL);
-      if ( roiIt == RoIsFromDecision.end() ){
-	RoIsFromDecision.push_back(roiEL); // just to keep track of which we have used 
-	const TrigRoiDescriptor* roi = *roiEL;
-	ATH_MSG_DEBUG("Found RoI:" <<*roi<<" FS="<<roi->isFullscan());
-	ATH_MSG_DEBUG( "Positive decisions on RoI, preparing view" );
-	
-	// make the view
-	ATH_MSG_DEBUG( "Making the View" );
-	auto newView = ViewHelper::makeView( name()+"_view", viewCounter++, m_viewFallThrough ); //pointer to the view
-	viewVector->push_back( newView );
-	contexts.emplace_back( context );
-	contexts.back().setExtension( Atlas::ExtendedEventContext( viewVector->back(), conditionsRun ) );
-	
-	// link decision to this view
-	outputDecision->setObjectLink( "view", ElementLink< ViewContainer >(m_viewsKey.key(), viewVector->size()-1 ));//adding view to TC
-	ATH_MSG_DEBUG( "Adding new view to new decision; storing view in viewVector component " << viewVector->size()-1 );
-	ATH_CHECK( linkViewToParent( inputDecision, viewVector->back() ) );
-	ATH_CHECK( placeRoIInView( roi, viewVector->back(), contexts.back() ) );	
-      }
-      else {
-	int iview = roiIt-RoIsFromDecision.begin();
-	outputDecision->setObjectLink( "view", ElementLink< ViewContainer >(m_viewsKey.key(), iview ) ); //adding view to TC
-	ATH_MSG_DEBUG( "Adding already mapped view " << iview << " in ViewVector , to new decision");
-      }
+      ElementLinkVector<DecisionContainer> inputLinks = getLinkToPrevious(outputDecision);
+      // loop over input links as predecessors
+      for (auto input: inputLinks){
+	const Decision* inputDecision = *input;
+	// find the RoI
+	auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( inputDecision, m_roisLink.value() );
+	//	auto roiEL = inputDecision->objectLink<TrigRoiDescriptorCollection>(m_roisLink.value() );
+	auto roiEL = roiELInfo.link;
+	ATH_CHECK( roiEL.isValid() );
+	// check if already found
+	auto roiIt=find(RoIsFromDecision.begin(), RoIsFromDecision.end(), roiEL);
+	if ( roiIt == RoIsFromDecision.end() ){
+	  RoIsFromDecision.push_back(roiEL); // just to keep track of which we have used 
+	  const TrigRoiDescriptor* roi = *roiEL;
+	  ATH_MSG_DEBUG("Found RoI:" <<*roi<<" FS="<<roi->isFullscan());
+	  ATH_MSG_DEBUG( "Positive decisions on RoI, preparing view" );
+	  
+	  // make the view
+	  ATH_MSG_DEBUG( "Making the View" );
+	  auto newView = ViewHelper::makeView( name()+"_view", viewCounter++, m_viewFallThrough ); //pointer to the view
+	  viewVector->push_back( newView );
+	  contexts.emplace_back( context );
+	  contexts.back().setExtension( Atlas::ExtendedEventContext( viewVector->back(), conditionsRun ) );
+	  
+	  // link decision to this view
+	  outputDecision->setObjectLink( "view", ElementLink< ViewContainer >(m_viewsKey.key(), viewVector->size()-1 ));//adding view to TC
+	  ATH_MSG_DEBUG( "Adding new view to new decision; storing view in viewVector component " << viewVector->size()-1 );
+	  ATH_CHECK( linkViewToParent( inputDecision, viewVector->back() ) );
+	  ATH_CHECK( placeRoIInView( roi, viewVector->back(), contexts.back() ) );	
+	}
+	else {
+	  int iview = roiIt-RoIsFromDecision.begin();
+	  outputDecision->setObjectLink( "view", ElementLink< ViewContainer >(m_viewsKey.key(), iview ) ); //adding view to TC
+	  ATH_MSG_DEBUG( "Adding already mapped view " << iview << " in ViewVector , to new decision");
+	}
+      }// loop over previous inputs
     } // loop over decisions   
   }// loop over output keys
 

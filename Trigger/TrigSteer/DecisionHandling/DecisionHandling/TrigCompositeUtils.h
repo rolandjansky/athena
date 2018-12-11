@@ -104,7 +104,7 @@ namespace TrigCompositeUtils {
   /**
    * @brief returns link to previous decision object
    **/
-  ElementLink<DecisionContainer> linkToPrevious(const Decision*);
+  ElementLinkVector<DecisionContainer> getLinkToPrevious(const Decision*);
 
   /**
    * @brief copy all links from src to dest TC objects
@@ -113,8 +113,15 @@ namespace TrigCompositeUtils {
    **/
   bool copyLinks(const Decision* src, Decision* dest);
 
+ /**
+   * @brief copy all links from src, that is the predecessor, to dest TC objects 
+   * @warning Links are copied as old links (_name) to distinguish from new ones
+   * @warning if there are links already in the dest TC, the operation is not performed and false returned
+   * @ret true if success
+   **/
 
-
+  //  bool copyLinksFromPrevious(const Decision* src, Decision* dest);
+  
 
   /**
    * @brief traverses TC links for another TC fufilling the prerequisite specified by the filter
@@ -179,8 +186,21 @@ namespace TrigCompositeUtils {
   LinkInfo<T>
   findLink(const xAOD::TrigComposite* start, const std::string& linkName) {
     auto source = find(start, HasObject(linkName) );
-    if ( not source )
+    //
+    if ( not source ){
+      auto seeds = getLinkToPrevious(start);
+      for (auto seed: seeds){
+	const xAOD::TrigComposite* dec = *seed;//deference
+	LinkInfo<T> link= findLink<T>( dec, linkName );
+	// return the first found
+	if (link.isValid()) return link;
+      }
       return LinkInfo<T>(); // invalid link
+    }
+
+	//
+    /* if ( not source ) */
+    /*   return LinkInfo<T>(); // invalid link */
     return LinkInfo<T>( source, source->objectLink<T>( linkName ) );
   }
 
