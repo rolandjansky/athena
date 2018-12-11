@@ -14,9 +14,9 @@ formatList = ['PHYSVAL',
               'HIGG5D1', 'HIGG5D2', 'HIGG5D3',
               'HIGG6D1', 'HIGG6D2',
               'HIGG8D1',
-              'STDM2', 'STDM3', 'STDM4', 'STDM5', 'STDM6', 'STDM7', 'STDM8', 'STDM9',
+              'STDM2', 'STDM3', 'STDM4', 'STDM5', 'STDM6', 'STDM7', 'STDM8', 'STDM9','STDM11',
               'TAUP1', 'TAUP2', 'TAUP3', 'TAUP4',
-              'SUSY1', 'SUSY2', 'SUSY3', 'SUSY4', 'SUSY5', 'SUSY6', 'SUSY7', 'SUSY8', 'SUSY9', 'SUSY10', 'SUSY11', 'SUSY12', 'SUSY15', 'SUSY16', 'SUSY17', 'SUSY18',
+              'SUSY1', 'SUSY2', 'SUSY3', 'SUSY4', 'SUSY5', 'SUSY6', 'SUSY7', 'SUSY8', 'SUSY9', 'SUSY10', 'SUSY11', 'SUSY12', 'SUSY15', 'SUSY16', 'SUSY17', 'SUSY18','SUSY19',
               'EXOT0', 'EXOT2', 'EXOT3', 'EXOT4', 'EXOT5', 'EXOT6', 'EXOT7', 'EXOT8', 'EXOT9', 'EXOT10', 'EXOT12', 'EXOT13', 'EXOT15', 'EXOT17', 'EXOT19', 'EXOT20', 'EXOT21', 'EXOT22', 'EXOT23','EXOT24','EXOT25','EXOT26', 'EXOT27',
               'JETM1', 'JETM2', 'JETM3', 'JETM4', 'JETM5', 'JETM6', 'JETM7', 'JETM8', 'JETM9', 'JETM10', 'JETM11', 'JETM12', 'JETM13','JETM14',
               'IDTR1',
@@ -25,8 +25,7 @@ formatList = ['PHYSVAL',
               'BPHY1', 'BPHY2', 'BPHY3', 'BPHY4', 'BPHY5', 'BPHY6', 'BPHY7', 'BPHY8', 'BPHY9', 'BPHY10', 'BPHY11', 'BPHY12', 'BPHY14','BPHY15','BPHY16',
               'MUON0', 'MUON1', 'MUON2', 'MUON3', 'MUON4',
               'TCAL1',
-              'HION3','HION4','HION5','HION7','HION8',
-              'SUSY19'
+              'HION3','HION4','HION5','HION7','HION8'
               #'HION1', 'HION2', 'HION3', 'HION4', 'HION5', 'HION6', 'HION7', 'HION8', 'HION9', 'HION10'
 ]
 
