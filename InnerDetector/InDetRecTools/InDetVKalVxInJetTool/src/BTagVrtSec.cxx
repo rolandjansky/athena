@@ -36,10 +36,20 @@ namespace InDet{
   float median(std::vector<float> &Vec){
     int N=Vec.size();
     if(N==1) return Vec[0];
-    if(N>1){
+    if(N==2) return (Vec[0]+Vec[1])/2.;
+    if(N==3) return Vec[1];
+    if(N>3){
       std::vector<float> tmp(Vec);
-      std::sort(tmp.begin(),tmp.end());  //can use nth_element instead of completely sorting, it's quicker
-      return (tmp[(N-1)/2]+tmp[N/2])/2.; //only true if the number of elements is even?
+      int N05m=(N-1)/2, N05p=N/2;
+      //std::sort(tmp.begin(),tmp.end());  //can use nth_element instead of completely sorting, it's quicker
+      if(N05m==N05p){ 
+         std::nth_element(tmp.begin(),tmp.begin()+N05m,tmp.end());
+         return tmp[N05m];
+      } else { 
+         std::nth_element(tmp.begin(),tmp.begin()+N05m,tmp.end());
+         std::nth_element(tmp.begin(),tmp.begin()+N05p,tmp.end());
+         return (tmp[N05m]+tmp[N05p])/2.;
+      }
     }
     return 0.;
   }
@@ -508,6 +518,7 @@ namespace InDet{
           float R=JetDir.DeltaR(TLorentzVector(FitVertex.x()-PrimVrt.x(),FitVertex.y()-PrimVrt.y(),
 	                                       FitVertex.z()-PrimVrt.z(), 1.e4));
           m_hb_deltaRSVPV->Fill( R, m_w_1);
+          if(m_curTup)m_curTup->TotM=Momentum.M();
        }
 
 //-------------------------------------------------------------------------------------
@@ -713,7 +724,6 @@ namespace InDet{
 //
       std::vector<float> covPV=PrimVrt.covariance(); 
       double SignifR=0.,SignifZ=0.;
-      int nTrkHF=0;
       std::vector<int> hitIBL(NTracks,0), hitBL(NTracks,0);
       std::vector<double> TrackSignif(NTracks),TrkSig3D(NTracks);
       std::vector< std::vector<float> > trkScore(NTracks);
@@ -731,7 +741,6 @@ namespace InDet{
 	 int hL1=0, nLays=0; getPixelLayers(SelectedTracks[i] , hitIBL[i] , hitBL[i], hL1, nLays );
          //----
          trkScore[i]=m_trackClassificator->trkTypeWgts(SelectedTracks[i], PrimVrt, JetDir);
-	 if( trkScore[i][0]>trkScore[i][1] && trkScore[i][0]>trkScore[i][2] ) nTrkHF++;  //Good HF track
          if(m_fillHist){
 	    m_hb_impactR->Fill( SignifR, m_w_1); 
             m_hb_impactZ->Fill( SignifZ, m_w_1); 
@@ -743,7 +752,7 @@ namespace InDet{
                  m_curTup->SigR[i]=SignifR; m_curTup->SigZ[i]=SignifZ; 
                  m_curTup->d0[i]=Impact[0]; m_curTup->Z0[i]=Impact[1];
 	         m_curTup->idMC[i]=getG4Inter(SelectedTracks[i]); 
-	         if(isBTrk(SelectedTracks[i]))m_curTup->idMC[i]=2;
+                 if(getIdHF(SelectedTracks[i]))m_curTup->idMC[i]=2;
 	         if(getMCPileup(SelectedTracks[i]))m_curTup->idMC[i]=3;
 		 m_curTup->wgtB[i]=trkScore[i][0]; m_curTup->wgtL[i]=trkScore[i][1]; m_curTup->wgtG[i]=trkScore[i][2]; 
 		 m_curTup->Sig3D[i]=TrkSig3D[i];
@@ -759,10 +768,8 @@ namespace InDet{
             }
 	 }
       }
-      if (not m_curTup) return; //something very wrong
       if(m_fillHist){  m_curTup->ptjet=JetDir.Perp();  m_curTup->etajet=fabs(JetDir.Eta()); m_curTup->phijet=JetDir.Phi();
                        m_curTup->nTrkInJet=std::min(NTracks,DevTuple::maxNTrk); };
-      if(nTrkHF==0) return; //======  No at all good HF tracks 
 
       ListSecondTracks.reserve(2*NTracks);                 // Reserve memory for single vertex
 
@@ -776,8 +783,13 @@ namespace InDet{
              if(trkScore[i][0]==0.)continue;
              if(trkScore[j][0]==0.)continue;
  	     if(!m_multiWithPrimary) {  // Not used for multi-vertex with primary one search
-                if( trkScore[i][0]<m_cutHFClass )continue;  //Not classified HF tracks
-                if( trkScore[j][0]<m_cutHFClass )continue;  //Not classified HF tracks
+                if( std::max(trkScore[i][1],trkScore[j][1]) > m_antiFragmentCut ) continue; // Remove definite fragmentation tracks
+		bool goodPair=false;
+		float minWgtB=std::min(trkScore[i][0],trkScore[j][0]);
+		float maxWgtB=std::max(trkScore[i][0],trkScore[j][0]);
+                if( minWgtB>m_cutHFClass ) goodPair=true;
+		if( maxWgtB>0.5 && minWgtB>m_cutHFClass/2. )goodPair=true;
+                if( !goodPair ) continue;
 	     }
 	     int BadTracks = 0;                                       //Bad tracks identification 
              TracksForFit.resize(2);
@@ -805,12 +817,15 @@ namespace InDet{
              Dist2D=tmpVrt.FitVertex.perp(); 
 	     if(Dist2D    > 180. )             continue;  // can't be from B decay
              double mass_PiPi =  tmpVrt.Momentum.M();  
-	     if(mass_PiPi > c_vrtBCMassLimit)      continue;  // can't be from B decay
+	     if(mass_PiPi > m_Vrt2TrMassLimit)      continue;  // can't be from B decay
              VrtVrtDist(PrimVrt, tmpVrt.FitVertex, tmpVrt.ErrorMatrix, Signif3D);
 	     tmpVrt.Signif3D=Signif3D;
              VrtVrtDist2D(PrimVrt, tmpVrt.FitVertex, tmpVrt.ErrorMatrix, tmpVrt.Signif2D);
 //---
              TVector3 SVmPV(tmpVrt.FitVertex.x()-PrimVrt.x(),tmpVrt.FitVertex.y()-PrimVrt.y(),tmpVrt.FitVertex.z()-PrimVrt.z());
+             tmpVrt.dRSVPV=JetDir.DeltaR(TLorentzVector(SVmPV, 1.)); //DeltaR SV-PV vs jet
+             if(tmpVrt.dRSVPV > m_coneForTag ) continue;  // SV is outside of the jet cone
+//---
              JetVrtDir = SVmPV.Dot(JetDir.Vect());
  	     double vPos=SVmPV.Dot(tmpVrt.Momentum.Vect())/tmpVrt.Momentum.Rho();
              if((!m_multiWithPrimary) &&(!m_getNegativeTail) && (!m_getNegativeTag) &&  JetVrtDir<0. )  continue; /* secondary vertex behind primary*/
@@ -972,18 +987,27 @@ namespace InDet{
 //             { if( trkTypeSV[all2TrVrt[iv].i]>0 && trkTypeSV[all2TrVrt[iv].j]>0) all2TrVrt.erase(all2TrVrt.begin()+iv); else iv++; }
 //
 */
+//-- Cleaning. Remove small wgtB tracks attached to one vertex only. 
+//      std::vector<int> inVrt(NTracks,0);
+//      for( auto vv : all2TrVrt){ inVrt[vv.i]++; inVrt[vv.j]++; }
+//      ////std::map<float,int> trkInOneV; for( int kt=0; kt<NTracks; kt++) if(inVrt[kt]==1) trkInOneV[trkScore[kt][0]]=kt;
+//      for(int kk=0; kk<NTracks; kk++){
+//        if( inVrt[kk]==1 && trkScore[kk][0]<2.5*m_cutHFClass ) {
+//           int iv=0;   while (iv<(int)all2TrVrt.size()){ if( all2TrVrt[iv].i==kk || all2TrVrt[iv].j==kk ) { all2TrVrt.erase(all2TrVrt.begin()+iv); break;} else iv++; }
+//      } }
+//============================================================================
 //-- Save results
       ListSecondTracks.clear();
       std::map<float,int> trkHF;
-      for( auto vv : all2TrVrt){ 
+      for( auto &vv : all2TrVrt){ 
         if( m_multiWithPrimary || m_multiVertex) add_edge(vv.i,vv.j,*m_compatibilityGraph);
         trkHF[trkScore[vv.i][0]]=vv.i; trkHF[trkScore[vv.j][0]]=vv.j;
       }
       for( auto it : trkHF) { ListSecondTracks.push_back(SelectedTracks[it.second]); }
 //-Debug
       if( m_fillHist && m_curTup ){ 
-         for( auto it : trkHF) { m_curTup->itHF[m_curTup->NTHF++]=it.second; }
-         for( auto vv : all2TrVrt){ m_curTup->nVrtT[vv.i]++; m_curTup->nVrtT[vv.j]++; }
+         for( auto &it : trkHF) { m_curTup->itHF[m_curTup->NTHF++]=it.second; }
+         for( auto &vv : all2TrVrt){ m_curTup->nVrtT[vv.i]++; m_curTup->nVrtT[vv.j]++; }
          fillVrtNTup(all2TrVrt);
       }
 //

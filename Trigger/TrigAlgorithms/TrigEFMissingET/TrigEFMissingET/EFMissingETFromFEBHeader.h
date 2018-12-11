@@ -54,7 +54,8 @@ class EFMissingETFromFEBHeader : public EFMissingETBaseTool
                                const xAOD::CaloClusterContainer *caloCluster,
                                const xAOD::JetContainer *jets,
                                const xAOD::TrackParticleContainer *track,
-                               const xAOD::VertexContainer *vertex);
+                               const xAOD::VertexContainer *vertex,
+                               const xAOD::MuonContainer *muon);
 
     // slow calo data access via RegionSelector
     StatusCode addFebEnergyToHelper(TrigEFMissingEtHelper* met);

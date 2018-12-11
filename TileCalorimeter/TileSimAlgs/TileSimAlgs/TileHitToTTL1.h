@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -30,6 +30,8 @@
 // Tile includes
 #include "TileEvent/TileHitContainer.h"
 #include "TileEvent/TileTTL1Container.h"
+#include "TileConditions/TileCondToolEmscale.h"
+#include "TileConditions/ITileBadChanTool.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -51,8 +53,6 @@ class TileHWID;
 class TileInfo;
 class CaloLVL1_ID;
 class TileCablingService;
-class TileCondToolEmscale;
-class ITileBadChanTool;
 
 /**
  @class TileHitToTTL1
@@ -122,10 +122,12 @@ class TileHitToTTL1: public AthAlgorithm {
 
     ServiceHandle<IAtRndmGenSvc> m_rndmSvc; //!< Random number generator engine to use
 
-    ToolHandle<TileCondToolEmscale> m_tileToolEmscale; //!< main Tile Calibration tool
+    ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
+        "TileCondToolEmscale", "TileCondToolEmscale", "Tile EM scale calibration tool"};
 
     bool m_maskBadChannels;      //!< if true then bad channels are masked
-    ToolHandle<ITileBadChanTool> m_tileBadChanTool; //!< Tile Bad Channel tool
+    ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
+        "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
 
 };
 

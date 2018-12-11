@@ -38,6 +38,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "TileConditions/TileCondToolEmscale.h"
 
 // Gaudi includes
 #include "GaudiKernel/ToolHandle.h"
@@ -57,7 +58,6 @@ class TileHWID;
 class TileInfo;
 class HWIdentifier;
 class TileCablingService;
-class TileCondToolEmscale;
 
 
 /**
@@ -114,7 +114,8 @@ class TileHitToRawChannel: public AthAlgorithm {
     IAtRndmGenSvc * m_atRndmGenSvc; //!< Random number generator engine to use
     CLHEP::HepRandomEngine * m_pHRengine;  //!< Random number service to use
 
-    ToolHandle<TileCondToolEmscale> m_tileToolEmscale; //!< main Tile Calibration tool
+    ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
+        "TileCondToolEmscale", "TileCondToolEmscale", "Tile EM scale calibration tool"};
 
     ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample{this,
         "TileCondToolNoiseSample", "TileCondToolNoiseSample", "Tile sample noise tool"};

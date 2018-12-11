@@ -51,7 +51,9 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_a0TrkErrorCut(1.0),
     m_zTrkErrorCut(5.0),
     m_cutHFClass(0.1),
-    m_antiGarbageCut(0.85),
+    m_antiGarbageCut(0.80),
+    m_antiFragmentCut(0.80),
+    m_Vrt2TrMassLimit(4000.),
     m_fillHist(false),
     m_existIBL(true),
     m_RobustFit(1),
@@ -105,7 +107,9 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     declareProperty("A0TrkErrorCut",  m_a0TrkErrorCut, "Track A0 error cut" );
     declareProperty("ZTrkErrorCut",   m_zTrkErrorCut,  "Track Z impact error cut" );
     declareProperty("CutHFClass",     m_cutHFClass,  "Cut on HF classification weight" );
-    declareProperty("AntiGarbageCut", m_antiGarbageCut,  "Cut on Garbage classification weight for removal" );
+    declareProperty("AntiGarbageCut", m_antiGarbageCut,   "Cut on Garbage classification weight for track removal" );
+    declareProperty("AntiFragmentCut",m_antiFragmentCut,  "Cut on Fragmentation classification weight for track removal" );
+    declareProperty("Vrt2TrMassLimit",m_Vrt2TrMassLimit,  "Maximal allowed mass for 2-track vertices" );
 
     declareProperty("Sel2VrtChi2Cut",    m_sel2VrtChi2Cut, "Cut on Chi2 of 2-track vertex for initial selection"  );
     declareProperty("Sel2VrtSigCut",     m_sel2VrtSigCut,  "Cut on significance of 3D distance between initial 2-track vertex and PV"  );
@@ -339,7 +343,9 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 //-------------------------------------------------------
        m_curTup=new DevTuple();
        m_tuple = new TTree("Tracks","Tracks");
-       std::string TreeDir("/file1/stat/SVrtInJet"+m_instanceName+"/");
+       std::string TreeDir;
+       if(m_multiVertex) TreeDir="/file1/stat/MSVrtInJet"+m_instanceName+"/";
+       else              TreeDir="/file1/stat/SVrtInJet"+m_instanceName+"/";
        sc = hist_root->regTree(TreeDir,m_tuple);
        if (sc.isSuccess()) {
           m_tuple->Branch("ptjet",       &m_curTup->ptjet,     "ptjet/F");
@@ -363,17 +369,32 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
           m_tuple->Branch("prodTJ",      &m_curTup->prodTJ,    "prodTJ[ntrk]/F");
           m_tuple->Branch("nVrtT",       &m_curTup->nVrtT,     "nVrtT[ntrk]/I");
           m_tuple->Branch("chg",         &m_curTup->chg,       "chg[ntrk]/I");
+          //-----
+          m_tuple->Branch("TotM",        &m_curTup->TotM,      "TotM/F");
+          //-----
           m_tuple->Branch("nvrt",        &m_curTup->nVrt,      "nvrt/I");
           m_tuple->Branch("VrtDist2D",   &m_curTup->VrtDist2D, "VrtDist2D[nvrt]/F");
           m_tuple->Branch("VrtSig3D",    &m_curTup->VrtSig3D,  "VrtSig3D[nvrt]/F");
           m_tuple->Branch("VrtSig2D",    &m_curTup->VrtSig2D,  "VrtSig2D[nvrt]/F");
+          m_tuple->Branch("VrtDR",       &m_curTup->VrtDR,     "VrtDR[nvrt]/F");
           m_tuple->Branch("itrk",        &m_curTup->itrk,      "itrk[nvrt]/I");
           m_tuple->Branch("jtrk",        &m_curTup->jtrk,      "jtrk[nvrt]/I");
           m_tuple->Branch("badV",        &m_curTup->badVrt,    "badV[nvrt]/I");
           m_tuple->Branch("mass",        &m_curTup->mass,      "mass[nvrt]/F");
           m_tuple->Branch("Chi2",        &m_curTup->Chi2,      "Chi2[nvrt]/F");
+          //-----
           m_tuple->Branch("ntHF",        &m_curTup->NTHF,      "ntHF/I");
           m_tuple->Branch("itHF",        &m_curTup->itHF,      "itHF[ntHF]/I");
+          //-----
+          m_tuple->Branch("nNVrt",       &m_curTup->nNVrt,      "nNVrt/I");
+          m_tuple->Branch("NVrtDist2D",  &m_curTup->NVrtDist2D, "NVrtDist2D[nNVrt]/F");
+          m_tuple->Branch("NVrtNT",      &m_curTup->NVrtNT,     "NVrtNT[nNVrt]/I");
+          m_tuple->Branch("NVrtTrkI",    &m_curTup->NVrtTrkI,   "NVrttrkI[nNVrt]/I");
+          m_tuple->Branch("NVrtM",       &m_curTup->NVrtM,      "NVrtM[nNVrt]/F");
+          m_tuple->Branch("NVrtChi2",    &m_curTup->NVrtChi2,   "NVrtChi2[nNVrt]/F");
+          m_tuple->Branch("NVrtMaxW",    &m_curTup->NVrtMaxW,   "NVrtMaxW[nNVrt]/F");
+          m_tuple->Branch("NVrtAveW",    &m_curTup->NVrtAveW,   "NVrtAveW[nNVrt]/F");
+          m_tuple->Branch("NVrtDR",      &m_curTup->NVrtDR,     "NVrtDR[nNVrt]/F");
        }
      }
 
@@ -425,7 +446,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     double EnergyJet  =   0.;
     int N2trVertices  =   0 ;
     int NBigImpTrk    =   0 ;
-    if(m_curTup){ m_curTup->nVrt=0; m_curTup->nTrkInJet=0; m_curTup->NTHF=0; }
+    if(m_curTup){ m_curTup->nVrt=0; m_curTup->nTrkInJet=0; m_curTup->NTHF=0; m_curTup->nNVrt=0;}
 
     int pseudoVrt = 0;
 
@@ -498,7 +519,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     double RatioE     =   0.;
     double EnergyJet  =   0.;
     int N2trVertices  =   0 ;
-    if(m_curTup){ m_curTup->nVrt=0; m_curTup->nTrkInJet=0; }
+    if(m_curTup){ m_curTup->nVrt=0; m_curTup->nTrkInJet=0; m_curTup->nNVrt=0; m_curTup->NTHF=0; }
 
     xAOD::Vertex xaodPrimVrt; 
                             xaodPrimVrt.setPosition(PrimVrt.position());

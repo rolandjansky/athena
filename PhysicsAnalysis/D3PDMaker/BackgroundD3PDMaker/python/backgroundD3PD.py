@@ -260,7 +260,7 @@ def backgroundD3PD (alg=None,
       alg += PixelClusterD3PDObject( 0 )
 
     if flags.doCaloClus():
-      from CaloD3PDMaker.ClusterD3PDObject import ClusterD3PDObject
+      from CaloSysD3PDMaker.ClusterD3PDObject import ClusterD3PDObject
       alg += ClusterD3PDObject( 1 )
 
     return alg

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -49,6 +49,9 @@
 #ifndef TILESIMALGS_TILEDIGITSFROMPULSE_H
 #define TILESIMALGS_TILEDIGITSFROMPULSE_H
 
+// Tile includes
+#include "TileConditions/TileCondToolNoiseSample.h"
+
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -95,7 +98,8 @@ private:
     TileRawChannelUnit::UNIT m_rChUnit; //!< Units used for the TileRawChannels (ADC, pCb, etc.)(see TileInfo.h)
     TileFragHash::TYPE m_rChType; //!< Type of TileRawChannels (Digitizar, OF1, OF2, Fit, etc.)(see TileFragHash.h)
     
-    ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample;
+    ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample{this,
+        "TileCondToolNoiseSample", "TileCondToolNoiseSample", "Tile sample noise tool"};
     
     CLHEP::HepRandomEngine * m_pHRengine; //!< Random number generator engine to use
     ServiceHandle <IAtRndmGenSvc> m_rndmSvc;  //!< Random number service to use

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
  */
 
 #include <xAODPrimitives/IsolationType.h>
@@ -18,14 +18,12 @@ namespace CP {
                 asg::AsgTool(name),
                 /// input file
                 m_calibFile(nullptr),
-
-                /// TAccept's
-                m_photonAccept("IsolationSelectionToolPhotonTAccept"),
-                m_electronAccept("IsolationSelectionToolElectronTAccept"),
-                m_muonAccept("IsolationSelectionToolMuonTAccept"),
-                m_objAccept("IsolationSelectionToolObjTAccept"),
-                m_iparWPs(0),
-                m_iparAccept(0),
+                m_photonAcceptInfo("IsolationSelectionToolPhotonAccept"),
+                m_electronAcceptInfo("IsolationSelectionToolElectronAccept"),
+                m_muonAcceptInfo("IsolationSelectionToolMuonAccept"),
+                m_objAcceptInfo("IsolationSelectionToolObjAccept"),
+                m_iparWPs(nullptr),
+                m_iparAcceptInfo(nullptr),
                 m_Interp(nullptr),
                 m_TwikiLoc("https://twiki.cern.ch/twiki/bin/view/AtlasProtected/IsolationSelectionTool#List_of_current_official_working") {
         declareProperty("CalibFileName", m_calibFileName = "IsolationSelection/v2/MC15_Z_Jpsi_cutMap.root", "The config file to use");
@@ -123,13 +121,13 @@ namespace CP {
 
     StatusCode IsolationSelectionTool::setIParticleCutsFrom(xAOD::Type::ObjectType ObjType) {
         if (ObjType == xAOD::Type::Electron) {
-            m_iparAccept = &m_electronAccept;
+            m_iparAcceptInfo = &m_electronAcceptInfo;
             m_iparWPs = &m_elWPs;
         } else if (ObjType == xAOD::Type::Muon) {
-            m_iparAccept = &m_muonAccept;
+            m_iparAcceptInfo = &m_muonAcceptInfo;
             m_iparWPs = &m_muWPs;
         } else if (ObjType == xAOD::Type::Photon) {
-            m_iparAccept = &m_photonAccept;
+            m_iparAcceptInfo = &m_photonAcceptInfo;
             m_iparWPs = &m_phWPs;
         } else {
             return StatusCode::FAILURE;
@@ -197,7 +195,7 @@ namespace CP {
             return StatusCode::FAILURE;
         }
         m_muWPs.push_back(wp);
-        m_muonAccept.addCut(wp->name(), wp->name());
+        m_muonAcceptInfo.addCut(wp->name(), wp->name());
         return StatusCode::SUCCESS;
     }
 
@@ -231,7 +229,7 @@ namespace CP {
         }
 
         m_phWPs.push_back(wp);
-        m_photonAccept.addCut(wp->name(), wp->name());
+        m_photonAcceptInfo.addCut(wp->name(), wp->name());
 
         // Return gracefully:
         return StatusCode::SUCCESS;
@@ -281,31 +279,33 @@ namespace CP {
         }
 
         m_elWPs.push_back(wp);
-        m_electronAccept.addCut(wp->name(), wp->name());
+        m_electronAcceptInfo.addCut(wp->name(), wp->name());
 
         // Return gracefully:
         return StatusCode::SUCCESS;
     }
 
-    StatusCode IsolationSelectionTool::addUserDefinedWP(std::string WPname, xAOD::Type::ObjectType ObjType, std::vector<std::pair<xAOD::Iso::IsolationType, std::string> >& cuts, std::string key, IsoWPType type) {
+    StatusCode IsolationSelectionTool::addUserDefinedWP(std::string WPname, xAOD::Type::ObjectType ObjType, 
+                                                        std::vector<std::pair<xAOD::Iso::IsolationType, 
+                                                        std::string> >& cuts, std::string key, IsoWPType type) {
         std::vector<IsolationWP*>* wps(nullptr);
-        Root::TAccept* ac(nullptr);
+        asg::AcceptInfo* ac(nullptr);
         if (ObjType == xAOD::Type::Electron) {
             if (key == "") key = m_elWPKey;
             wps = &m_elWPs;
-            ac = &m_electronAccept;
+            ac = &m_electronAcceptInfo;
         } else if (ObjType == xAOD::Type::Muon) {
             if (key == "") key = m_muWPKey;
             wps = &m_muWPs;
-            ac = &m_muonAccept;
+            ac = &m_muonAcceptInfo;
         } else if (ObjType == xAOD::Type::Photon) {
             if (key == "") key = m_phWPKey;
             wps = &m_phWPs;
-            ac = &m_photonAccept;
+            ac = &m_photonAcceptInfo;
         } else if (ObjType == xAOD::Type::Other) {
             if (key == "") return StatusCode::FAILURE;
             wps = &m_objWPs;
-            ac = &m_objAccept;
+            ac = &m_objAcceptInfo;
         } else {
             return StatusCode::FAILURE;
         }
@@ -322,10 +322,8 @@ namespace CP {
             delete wp;
             return StatusCode::FAILURE;
         }
-
         wps->push_back(wp);
         ac->addCut(wp->name(), wp->name());
-
         return StatusCode::SUCCESS;
     }
 
@@ -343,94 +341,104 @@ namespace CP {
     StatusCode IsolationSelectionTool::addWP(IsolationWP* wp, xAOD::Type::ObjectType ObjType) {
         if (ObjType == xAOD::Type::Electron) {
             m_elWPs.push_back(wp);
-            m_electronAccept.addCut(wp->name(), wp->name());
+            m_electronAcceptInfo.addCut(wp->name(), wp->name());
         } else if (ObjType == xAOD::Type::Muon) {
             m_muWPs.push_back(wp);
-            m_muonAccept.addCut(wp->name(), wp->name());
+            m_muonAcceptInfo.addCut(wp->name(), wp->name());
         } else if (ObjType == xAOD::Type::Photon) {
             m_phWPs.push_back(wp);
-            m_photonAccept.addCut(wp->name(), wp->name());
+            m_photonAcceptInfo.addCut(wp->name(), wp->name());
         } else if (ObjType == xAOD::Type::Other) {
             m_objWPs.push_back(wp);
-            m_objAccept.addCut(wp->name(), wp->name());
+            m_objAcceptInfo.addCut(wp->name(), wp->name());
         } else {
             return StatusCode::FAILURE;
         }
-
         return StatusCode::SUCCESS;
     }
-    template<typename T> void IsolationSelectionTool::evaluateWP(const T& x, const std::vector<IsolationWP*>& WP, Root::TAccept& accept) const {
+    
+    template<typename T> void IsolationSelectionTool::evaluateWP(const T& x, 
+                                                                 const std::vector<IsolationWP*>& WP, 
+                                                                 asg::AcceptData& accept) const {
         accept.clear();
         for (auto& i : WP) {
-            if (i->accept(x)) accept.setCutResult(i->name(), true);
+            if (i->accept(x)) {
+              accept.setCutResult(i->name(), true);
+            }
         }
     }
-    const Root::TAccept& IsolationSelectionTool::accept(const xAOD::Photon& x) const {
-        evaluateWP(x, m_phWPs, m_photonAccept);
-        return m_photonAccept;
+
+    const asg::AcceptData IsolationSelectionTool::accept(const xAOD::Photon& x) const {
+      asg::AcceptData acceptData(&m_photonAcceptInfo);
+      evaluateWP(x, m_phWPs, acceptData);
+      return acceptData;
     }
 
-    const Root::TAccept& IsolationSelectionTool::accept(const xAOD::Electron& x) const {
-        evaluateWP(x, m_elWPs, m_electronAccept);
-        return m_electronAccept;
+    const asg::AcceptData IsolationSelectionTool::accept(const xAOD::Electron& x) const {
+      asg::AcceptData acceptData(&m_electronAcceptInfo);  
+      evaluateWP(x, m_elWPs, acceptData);
+      return acceptData;
     }
 
-    const Root::TAccept& IsolationSelectionTool::accept(const xAOD::Muon& x) const {
-        evaluateWP(x, m_muWPs, m_muonAccept);
-        return m_muonAccept;
+    const asg::AcceptData IsolationSelectionTool::accept(const xAOD::Muon& x) const {
+      asg::AcceptData acceptData(&m_muonAcceptInfo);  
+      evaluateWP(x, m_muWPs, acceptData);
+      return acceptData;
     }
 
-    const Root::TAccept& IsolationSelectionTool::accept(const xAOD::IParticle& x) const {
+    const asg::AcceptData IsolationSelectionTool::accept(const xAOD::IParticle& x) const {
 
-        if (x.type() == xAOD::Type::Electron) {
-            evaluateWP(x, m_elWPs, m_electronAccept);
-            return m_electronAccept;
-        } else if (x.type() == xAOD::Type::Muon) {
-            evaluateWP(x, m_muWPs, m_muonAccept);
-            return m_muonAccept;
-        } else if (x.type() == xAOD::Type::Photon) {
-            evaluateWP(x, m_phWPs, m_photonAccept);
-            return m_photonAccept;
-        }
-
-        else if (m_iparAccept && m_iparWPs) {
-            evaluateWP(x, *m_iparWPs, *m_iparAccept);
-            return *m_iparAccept;
-        }
-        ATH_MSG_ERROR("Someting here makes really no  sense");
-        m_objAccept.clear();
-        return m_objAccept;
+      if (x.type() == xAOD::Type::Electron) {
+        const xAOD::Electron& el = static_cast<const xAOD::Electron&> (x);  
+        return accept(el);
+      } else if (x.type() == xAOD::Type::Muon) {
+        const xAOD::Muon& muon = static_cast<const xAOD::Muon&> (x);
+        return accept(muon);
+      } else if (x.type() == xAOD::Type::Photon) {
+        const xAOD::Photon& ph = static_cast<const xAOD::Photon&> (x);
+        return accept(ph);  
+      }
+      else if (m_iparAcceptInfo && m_iparWPs) {
+        asg::AcceptData acceptData(m_iparAcceptInfo);
+        evaluateWP(x, *m_iparWPs, acceptData);
+        return acceptData;
+      }
+      ATH_MSG_ERROR("Someting here makes really no  sense");
+      return asg::AcceptData(&m_objAcceptInfo);
     }
 
-    const Root::TAccept& IsolationSelectionTool::accept(const strObj& x) const {
-        if (x.type == xAOD::Type::Electron) {
-            evaluateWP(x, m_elWPs, m_electronAccept);
-            return m_electronAccept;
-        } else if (x.type == xAOD::Type::Muon) {
-            evaluateWP(x, m_muWPs, m_muonAccept);
-            return m_muonAccept;
-        } else if (x.type == xAOD::Type::Photon) {
-            evaluateWP(x, m_phWPs, m_photonAccept);
-            return m_photonAccept;
-        } else {
-            evaluateWP(x, m_objWPs, m_objAccept);
-        }
-        return m_objAccept;
+    const asg::AcceptData IsolationSelectionTool::accept(const strObj& x) const {
+      if (x.type == xAOD::Type::Electron) {
+        asg::AcceptData acceptData(&m_electronAcceptInfo);  
+        evaluateWP(x, m_elWPs, acceptData);
+        return acceptData;
+      } else if (x.type == xAOD::Type::Muon) {
+        asg::AcceptData acceptData(&m_muonAcceptInfo); 
+        evaluateWP(x, m_muWPs, acceptData);
+        return acceptData;
+      } else if (x.type == xAOD::Type::Photon) {
+        asg::AcceptData acceptData(&m_photonAcceptInfo); 
+        evaluateWP(x, m_phWPs, acceptData);
+        return acceptData;
+      } 
+      asg::AcceptData acceptData(&m_objAcceptInfo);
+      evaluateWP(x, m_objWPs, acceptData);
+      return acceptData;
     }
 
-    const Root::TAccept& IsolationSelectionTool::getPhotonTAccept() const {
-        return m_photonAccept;
+    const asg::AcceptInfo& IsolationSelectionTool::getPhotonAcceptInfo() const {
+        return m_photonAcceptInfo;
     }
 
-    const Root::TAccept& IsolationSelectionTool::getElectronTAccept() const {
-        return m_electronAccept;
+    const asg::AcceptInfo& IsolationSelectionTool::getElectronAcceptInfo() const {
+        return m_electronAcceptInfo;
     }
 
-    const Root::TAccept& IsolationSelectionTool::getMuonTAccept() const {
-        return m_muonAccept;
+    const asg::AcceptInfo& IsolationSelectionTool::getMuonAcceptInfo() const {
+        return m_muonAcceptInfo;
     }
-    const Root::TAccept& IsolationSelectionTool::getObjTAccept() const {
-        return m_objAccept;
+    const asg::AcceptInfo& IsolationSelectionTool::getObjAcceptInfo() const {
+        return m_objAcceptInfo;
     }
 
     TDirectory* IsolationSelectionTool::getTemporaryDirectory(void) const {

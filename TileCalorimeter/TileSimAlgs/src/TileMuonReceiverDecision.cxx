@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -26,7 +26,6 @@
 #include "TileIdentifier/TileHWID.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/TileCablingService.h"
-#include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/TileInfo.h"
 #include "TileEvent/TileMuonReceiverObj.h"
 
@@ -46,7 +45,6 @@ TileMuonReceiverDecision::TileMuonReceiverDecision(std::string name, ISvcLocator
     m_tileHWID(0),
     m_cablingService(0),
     m_tileInfo(0),
-    m_tileToolEmscale("TileCondToolEmscale"),
     m_run2(true)
 {
   // declare properties...
@@ -55,7 +53,6 @@ TileMuonReceiverDecision::TileMuonReceiverDecision(std::string name, ISvcLocator
   declareProperty( "MuonReceiverEneThreshCellD6High"      , m_threshold_d6_hi   = 600. , "Setting the highest trigger threshold for cell D6 in MeV (Def=600 MeV)");
   declareProperty( "MuonReceiverEneThreshCellD6andD5High" , m_threshold_d5d6_hi = 600. , "Setting the highest trigger threshold for cell D5+D6 in MeV (Def=600 MeV)");
   declareProperty( "SelectionCutForMatchedFilterQf"       , m_selCutQf=0.              , "Selection cut for the quality factor of the matched filters");
-  declareProperty( "TileCondToolEmscale"                  , m_tileToolEmscale          , "Service to calibrate all channels");
   declareProperty( "TileInfoName"                         , m_infoName = "TileInfo" );
 }
  

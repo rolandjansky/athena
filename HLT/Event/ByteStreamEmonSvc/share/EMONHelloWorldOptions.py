@@ -138,8 +138,9 @@ if False:
 # Private Application Configuration options, replace with
 # your configuration.
 #--------------------------------------------------------------
-from TrigExMTHelloWorld.TrigExMTHelloWorldConf import MTHelloWorld
-HelloWorld = MTHelloWorld("HelloWorld")
+from AthExHelloWorld.AthExHelloWorldConf import HelloAlg
+
+HelloWorld = HelloAlg("HelloWorld")
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()

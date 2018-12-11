@@ -31,7 +31,7 @@ class G4AtlasRunManager: public G4RunManager {
 
 public:
 
-  virtual ~G4AtlasRunManager() {delete m_fluxRecorder;m_fluxRecorder=nullptr;}
+  virtual ~G4AtlasRunManager() {}
 
   /// Retrieve the singleton instance
   static G4AtlasRunManager* GetG4AtlasRunManager();
@@ -69,7 +69,7 @@ public:
     m_physListTool.setTypeAndName(typeAndName);
   }
 
-  void SetRecordFlux(bool b, IFluxRecorder *f) { m_recordFlux = b; m_fluxRecorder=f;}
+  void SetRecordFlux(bool b, std::unique_ptr<IFluxRecorder> f) { m_recordFlux = b; m_fluxRecorder=std::move(f);}
   void SetLogLevel(int) { /* Not implemented */ }
   /// @}
 
@@ -109,7 +109,7 @@ private:
   
   /// Interface to flux recording
   
-  IFluxRecorder *m_fluxRecorder;
+  std::unique_ptr<IFluxRecorder> m_fluxRecorder;
 };
 
 #endif // G4ATLASALG_G4AtlasRunManager_h

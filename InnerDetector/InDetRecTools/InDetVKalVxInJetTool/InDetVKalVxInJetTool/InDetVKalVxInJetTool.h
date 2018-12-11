@@ -48,6 +48,7 @@
 //
 #include  "Particle/TrackParticle.h"
 #include  "xAODTracking/TrackParticleContainer.h"
+#include "xAODTruth/TruthEventContainer.h"
 //
 //
 #include "InDetRecToolInterfaces/ISecVertexInJetFinder.h"
@@ -120,17 +121,6 @@ namespace InDet {
                                                 const TLorentzVector & jetMomentum,
                                                 const std::vector<const xAOD::IParticle*> & inputTracks) const;
 
-//--------------------------------------------- For package debugging
-  public:
-      void setVBTrk(std::vector<const xAOD::TrackParticle*> * BTrk) const { m_dbgVBTrk=BTrk; };
-  private:
-      int isBTrk(const xAOD::TrackParticle* prt) const
-        { if(!m_dbgVBTrk) return 0;
-          if(std::find((*m_dbgVBTrk).begin(),(*m_dbgVBTrk).end(), prt) != (*m_dbgVBTrk).end()) return 1;
-          return 0;
-        }
-      int isBTrk(const Rec::TrackParticle*) const { return 0; }
-      mutable std::vector<const xAOD::TrackParticle*> *m_dbgVBTrk=nullptr;
 //------------------------------------------------------------------------------------------------------------------
 // Private data and functions
 //
@@ -212,6 +202,8 @@ namespace InDet {
       double m_zTrkErrorCut{};
       double m_cutHFClass{};
       double m_antiGarbageCut{};
+      double m_antiFragmentCut{};
+      double m_Vrt2TrMassLimit{};
 
       bool m_fillHist{};
 
@@ -261,6 +253,10 @@ namespace InDet {
 //-------------------------------------------
 //For ntuples (only for development/tuning!)
 
+      int notFromBC(int PDGID) const;
+      const xAOD::TruthParticle * getPreviousParent(const xAOD::TruthParticle * child, int & ParentPDG) const;
+      int getIdHF(const  Rec::TrackParticle* TP ) const;
+      int getIdHF(const xAOD::TrackParticle* TP ) const;
       int getG4Inter( const  Rec::TrackParticle* TP ) const;
       int getG4Inter( const xAOD::TrackParticle* TP ) const;
       int getMCPileup(const  Rec::TrackParticle* TP ) const;
@@ -269,6 +265,7 @@ namespace InDet {
       struct DevTuple 
      { 
        static const int maxNTrk=100;
+       static const int maxNVrt=100;
        int nTrkInJet;
        float ptjet;
        float etajet;
@@ -288,19 +285,31 @@ namespace InDet {
        float   Sig3D[maxNTrk];
        int    chg[maxNTrk];
        int  nVrtT[maxNTrk];
-       int  nVrt;
-       float VrtDist2D[maxNTrk];
-       float VrtSig3D[maxNTrk];
-       float VrtSig2D[maxNTrk];
-       float mass[maxNTrk];
-       float Chi2[maxNTrk];
-       int   itrk[maxNTrk];
-       int   jtrk[maxNTrk];
-       int badVrt[maxNTrk];
-       int    ibl[maxNTrk];
-       int     bl[maxNTrk];
+       float TotM;
+       int   nVrt;
+       float VrtDist2D[maxNVrt];
+       float VrtSig3D[maxNVrt];
+       float VrtSig2D[maxNVrt];
+       float VrtDR[maxNVrt];
+       float mass[maxNVrt];
+       float Chi2[maxNVrt];
+       int   itrk[maxNVrt];
+       int   jtrk[maxNVrt];
+       int badVrt[maxNVrt];
+       int    ibl[maxNVrt];
+       int     bl[maxNVrt];
        int        NTHF;
-       int   itHF[maxNTrk];
+       int   itHF[maxNVrt];
+       //---
+       int   nNVrt;
+       float NVrtDist2D[maxNVrt];
+       int   NVrtNT[maxNVrt];
+       int   NVrtTrkI[maxNVrt];
+       float NVrtM[maxNVrt];
+       float NVrtChi2[maxNVrt];
+       float NVrtMaxW[maxNVrt];
+       float NVrtAveW[maxNVrt];
+       float NVrtDR[maxNVrt];
      };
      DevTuple*  m_curTup;
 
@@ -317,6 +326,7 @@ namespace InDet {
          double Signif3DProj=0.;
          double Signif2D=0.;
          double Chi2=0.;
+         double dRSVPV=-1.;
      };
 
 
@@ -326,7 +336,7 @@ namespace InDet {
       float m_chiScale[11]{};
       VKalVxInJetTemp*  m_WorkArray{};     
       struct WrkVrt 
-     {   bool Good{};
+     {   bool Good=true;
          std::deque<long int> SelTrk;
          Amg::Vector3D     vertex;
          TLorentzVector    vertexMom;
@@ -335,9 +345,9 @@ namespace InDet {
          std::vector<double> Chi2PerTrk;
          std::vector< std::vector<double> > TrkAtVrt;
          double Chi2{};
-         int nCloseVrt{};
-         double dCloseVrt{};
-	 double ProjectedVrt{};
+         int nCloseVrt=0;
+         double dCloseVrt=1000000.;
+	 double ProjectedVrt=0.;
          int detachedTrack=-1;
       };
 
@@ -411,7 +421,9 @@ namespace InDet {
       double           VrtRadiusError(const Amg::Vector3D & SecVrt, const std::vector<double>  & VrtErr) const;
 
       bool  insideMatLayer(float ,float ) const;
-      void  fillVrtNTup( std::vector<Vrt2Tr>  & all2TrVrt) const;
+      void  fillVrtNTup( std::vector<Vrt2Tr> & all2TrVrt) const;
+      void  fillNVrtNTup(std::vector<WrkVrt> & VrtSet, std::vector< std::vector<float> > & trkScore,
+                         const xAOD::Vertex   & PrimVrt, const TLorentzVector & JetDir)const;
 
       TLorentzVector GetBDir( const xAOD::TrackParticle* trk1,
                               const xAOD::TrackParticle* trk2,
@@ -482,6 +494,9 @@ namespace InDet {
       template <class Particle>
       double mergeAndRefitVertices( std::vector<WrkVrt> *WrkVrtSet, int V1, int V2, WrkVrt & newvrt,
                                      std::vector<const Particle*> & AllTrackList) const;
+      template <class Particle>
+      void   mergeAndRefitOverlapVertices( std::vector<WrkVrt> *WrkVrtSet, int V1, int V2,
+                                                               std::vector<const Particle*> & AllTrackList) const;
 
       template <class Particle>
       double  improveVertexChi2( std::vector<WrkVrt> *WrkVrtSet, int V, std::vector<const Particle*> & AllTracks)const;

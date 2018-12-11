@@ -140,7 +140,7 @@ void G4AtlasAlg::initializeOnce()
   else {
     auto* runMgr = G4AtlasRunManager::GetG4AtlasRunManager();
     m_physListTool->SetPhysicsList();
-    runMgr->SetRecordFlux( m_recordFlux, new G4AtlasFluxRecorder );
+    runMgr->SetRecordFlux( m_recordFlux, std::make_unique<G4AtlasFluxRecorder>() );
     runMgr->SetLogLevel( int(msg().level()) ); // Synch log levels
     runMgr->SetUserActionSvc( m_userActionSvc.typeAndName() );
     runMgr->SetDetGeoSvc( m_detGeoSvc.typeAndName() );

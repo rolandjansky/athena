@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
  */
 
 #include <IsolationSelection/IsolationCloseByCorrectionTool.h>
@@ -79,8 +79,9 @@ namespace CP {
     }
 
     StatusCode IsolationCloseByCorrectionTool::initialize() {
-
-        //set default properties of track selection tool, if the user hasn't configured it
+      m_corrAcceptInfo.addCut( "NoToolCut", "No IsolationSelectionTool" );
+      m_corrAcceptInfo.addCut("castCut", "Could not cast to right Object type");
+     //set default properties of track selection tool, if the user hasn't configured it
         if (!m_trkselTool.isUserConfigured()) {
             SET_DUAL_TOOL(m_trkselTool, InDet::InDetTrackSelectionTool, "TackParticleSelectionTool");
             ATH_MSG_INFO("No TrackSelectionTool provided, so I will create and configure my own, called: " << m_trkselTool.name());
@@ -172,8 +173,10 @@ namespace CP {
                 ATH_MSG_ERROR("Failed to correct the isolation of particle with pt: " << Particle->pt() / 1.e3 << " GeV" << " eta: " << Particle->eta() << " phi: " << Particle->phi());
                 return CorrectionCode::Error;
             }
-            if (m_dec_isoselection) m_dec_isoselection->operator()(*Particle) = m_selectorTool->accept(*Particle);
-        }
+            if (m_dec_isoselection) {
+              m_dec_isoselection->operator()(*Particle) = static_cast<bool>(m_selectorTool->accept(*Particle));
+            }
+            }
         return CorrectionCode::Ok;
     }
     const IsoVector* IsolationCloseByCorrectionTool::getIsolationTypes(const xAOD::IParticle* particle) const {
@@ -515,27 +518,32 @@ namespace CP {
             }
         }
     }
-    Root::TAccept IsolationCloseByCorrectionTool::acceptCorrected(const xAOD::IParticle& x, const xAOD::IParticleContainer& closePar, int topoetconeModel) const {
-        Root::TAccept accept;
+
+    asg::AcceptData IsolationCloseByCorrectionTool::acceptCorrected(const xAOD::IParticle& x, 
+                                                                  const xAOD::IParticleContainer& closePar, 
+                                                                  int topoetconeModel) const {
+        asg::AcceptData acceptData(&m_corrAcceptInfo);
         if (!m_isInitialised) {
             ATH_MSG_WARNING("The IsolationCloseByCorrectionTool was not initialised!!!");
         }
         if (m_selectorTool.empty()) {
             ATH_MSG_ERROR("Please set the IsolationSelectionTool property with a valid IsolationSelectionTool");
-            accept.clear();
-            if (m_dec_isoselection) m_dec_isoselection->operator()(x) = false;
-            return accept;
+            acceptData.clear();
+            acceptData.setCutResult("NoToolCut", false);
+            if (m_dec_isoselection) {m_dec_isoselection->operator()(x) = false;}
+            return acceptData;
         }
         if (!getIsolationTypes(&x)) {
             ATH_MSG_WARNING("Could not cast particle for acceptCorrected. Will return false.");
-            accept.setCutResult("castCut", false);
-            if (m_dec_isoselection) m_dec_isoselection->operator()(x) = false;
-            return accept;
+            acceptData.setCutResult("castCut", false);
+            if (m_dec_isoselection) {m_dec_isoselection->operator()(x) = false;}
+            return acceptData;
         }
 
-        if (closePar.empty()) return m_selectorTool->accept(x);
-
-        accept.clear();
+        if (closePar.empty()) {
+          return m_selectorTool->accept(x);
+        }
+        acceptData.clear();
         strObj strPar;
         strPar.isolationValues.resize(xAOD::Iso::numIsolationTypes);
         strPar.pt = x.pt();
@@ -543,22 +551,22 @@ namespace CP {
         strPar.type = x.type();
         std::vector<float> corrections;
         if (getCloseByCorrection(corrections, x, *getIsolationTypes(&x), closePar, topoetconeModel) == CorrectionCode::Error) {
-            ATH_MSG_WARNING("Could not calculate the corrections. acceptCorrected(x) is done without the corrections.");
-            if (m_dec_isoselection) m_dec_isoselection->operator()(x) = m_selectorTool->accept(x);
-            return m_selectorTool->accept(x);
+          ATH_MSG_WARNING("Could not calculate the corrections. acceptCorrected(x) is done without the corrections.");
+          if (m_dec_isoselection) m_dec_isoselection->operator()(x) = static_cast<bool>(m_selectorTool->accept(x));
+          return m_selectorTool->accept(x);
         }
         for (unsigned int i = 0; i < getIsolationTypes(&x)->size(); i++) {
-            const SG::AuxElement::Accessor<float> *acc = xAOD::getIsolationAccessor(getIsolationTypes(&x)->at(i));
-            float old = acc->operator()(x);
-            ATH_MSG_DEBUG("Correcting " << xAOD::Iso::toCString(getIsolationTypes(&x)->at(i)) << " from " << old << " to " << corrections.at(i));
-            strPar.isolationValues[getIsolationTypes(&x)->at(i)] = corrections.at(i);
+          const SG::AuxElement::Accessor<float> *acc = xAOD::getIsolationAccessor(getIsolationTypes(&x)->at(i));
+          float old = acc->operator()(x);
+          ATH_MSG_DEBUG("Correcting " << xAOD::Iso::toCString(getIsolationTypes(&x)->at(i)) << " from " << old << " to " << corrections.at(i));
+          strPar.isolationValues[getIsolationTypes(&x)->at(i)] = corrections.at(i);
         }
-        accept = m_selectorTool->accept(strPar);
-        if (m_dec_isoselection) m_dec_isoselection->operator()(x) = accept;
-        return accept;
+        acceptData = m_selectorTool->accept(strPar);
+        if (m_dec_isoselection) m_dec_isoselection->operator()(x) = static_cast<bool>(acceptData);
+        return acceptData;
     }
 
-    Root::TAccept IsolationCloseByCorrectionTool::acceptCorrected(const xAOD::IParticle& x, const std::vector<const xAOD::IParticle*>& closePar, int topoetconeModel) const {
+    asg::AcceptData IsolationCloseByCorrectionTool::acceptCorrected(const xAOD::IParticle& x, const std::vector<const xAOD::IParticle*>& closePar, int topoetconeModel) const {
         xAOD::IParticleContainer Container(SG::VIEW_ELEMENTS);
         for (auto&P : closePar)
             Container.push_back(const_cast<xAOD::IParticle*>(P));

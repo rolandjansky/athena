@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -60,7 +60,6 @@ TileDigitsFromPulse::TileDigitsFromPulse(std::string name, ISvcLocator* pSvcLoca
   AthAlgorithm(name, pSvcLocator),
   m_tileHWID(0),
   m_tileInfo(0),
-  m_tileToolNoiseSample("TileCondToolNoiseSample"),
   m_pHRengine(0),
   m_rndmSvc("AtRndmGenSvc", name)
 
@@ -142,8 +141,10 @@ TileDigitsFromPulse::~TileDigitsFromPulse() {
 StatusCode TileDigitsFromPulse::initialize() {
 	ATH_MSG_DEBUG("in initialize()");
 
-	CHECK(detStore()->retrieve(m_tileHWID, "TileHWID"));
-	CHECK(detStore()->retrieve(m_tileInfo, "TileInfo"));
+	ATH_CHECK(detStore()->retrieve(m_tileHWID, "TileHWID"));
+	ATH_CHECK(detStore()->retrieve(m_tileInfo, "TileInfo"));
+
+        ATH_CHECK(m_tileToolNoiseSample.retrieve());
 
 	ATH_MSG_INFO("output container: " << m_outputContainer);
 

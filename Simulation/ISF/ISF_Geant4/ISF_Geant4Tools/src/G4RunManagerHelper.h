@@ -8,7 +8,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "ISF_Geant4Tools/IG4RunManagerHelper.h"
 
-#include "ISF_Geant4Tools/G4AtlasRunManager.h"
+#include "G4AtlasAlg/G4AtlasRunManager.h"
 
 namespace iGeant4 {
 

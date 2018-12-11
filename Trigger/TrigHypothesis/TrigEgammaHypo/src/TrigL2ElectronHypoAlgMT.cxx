@@ -74,18 +74,18 @@ StatusCode TrigL2ElectronHypoAlgMT::execute_r( const EventContext& context ) con
  
   for ( auto previousDecision: *previousDecisionsHandle ) {
       // get View
-    auto viewEL = previousDecision->objectLink< ViewContainer >( "view" );
-    CHECK( viewEL.isValid() );
+    auto viewELInfo = TrigCompositeUtils::findLink< ViewContainer >( previousDecision, "view" );
+    CHECK( viewELInfo.isValid() );
 
     // get electron from that view:
     size_t electronCounter = 0;
-    auto electronsHandle = ViewHelper::makeHandle( *viewEL, m_electronsKey, context );
+    auto electronsHandle = ViewHelper::makeHandle( *viewELInfo.link, m_electronsKey, context );
     ATH_CHECK( electronsHandle.isValid() );
     ATH_MSG_DEBUG ( "electron handle size: " << electronsHandle->size() << "..." );
 
     for ( auto electronIter = electronsHandle->begin(); electronIter != electronsHandle->end(); ++electronIter, electronCounter++ ) {
       auto d = newDecisionIn( decisions.get() );
-      d->setObjectLink( "feature", ViewHelper::makeLink<xAOD::TrigElectronContainer>( *viewEL, electronsHandle, electronCounter ) );
+      d->setObjectLink( "feature", ViewHelper::makeLink<xAOD::TrigElectronContainer>( *viewELInfo.link, electronsHandle, electronCounter ) );
       
       auto clusterPtr = (*electronIter)->emCluster();
       CHECK( clusterPtr != nullptr );

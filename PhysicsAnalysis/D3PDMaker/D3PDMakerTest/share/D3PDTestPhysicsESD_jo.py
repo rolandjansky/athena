@@ -34,7 +34,7 @@ alg = TrackD3PD (tupleFileOutput,
                  PrimaryVertex_storeDiagonalCovarianceAsErrors = True)
 
 # And a calorimeter tree!
-from CaloD3PDMaker.CaloD3PD import CaloD3PD
+from CaloSysD3PDMaker.CaloD3PD import CaloD3PD
 alg = CaloD3PD (file = tupleFileOutput)
 
 # Make supercells into a separate file, if available.

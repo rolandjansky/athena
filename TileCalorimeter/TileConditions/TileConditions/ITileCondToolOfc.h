@@ -22,14 +22,11 @@ class ITileCondToolOfc : public virtual IAlgTool {
 
   virtual ~ITileCondToolOfc() {}
 
-  static const InterfaceID& interfaceID() { 
-    static const InterfaceID IID_ITileCondToolOfc("ITileCondToolOfc", 1 , 0);
-    return IID_ITileCondToolOfc; 
-  }
-
   virtual const TileOfcWeightsStruct * getOfcWeights(unsigned int drawerIdx, unsigned int channel, unsigned int adc, float& phase, bool of2) = 0 ;
 
   virtual int getNSamples(void) = 0 ;
+
+  DeclareInterfaceID(ITileCondToolOfc, 1, 0);
 
 };
 

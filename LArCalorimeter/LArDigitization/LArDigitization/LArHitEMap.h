@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARDIGITIZATION_LARHITEMAP_H
@@ -17,7 +17,7 @@
 #include "CaloIdentifier/LArFCAL_ID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "LArRawEvent/LArDigit.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 class ISvcLocator;
 class LArCablingService;

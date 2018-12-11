@@ -53,16 +53,16 @@ StatusCode TrigL2PhotonHypoAlgMT::execute_r( const EventContext& context ) const
   std::map<const xAOD::TrigEMCluster*, size_t> clusterToIndexMap;
   size_t clusterCounter = 0;
   for ( auto previousDecision : *previousDecisionsHandle){
-    ElementLink<xAOD::TrigEMClusterContainer> clusterLink;
-    recursivelyFindFeature(previousDecision, clusterLink);
-    if( not clusterLink.isValid() ) {
+    auto clusterELInfo = TrigCompositeUtils::findLink<xAOD::TrigEMClusterContainer>( previousDecision, "feature" );
+    
+    if( not clusterELInfo.isValid() ) {
       ATH_MSG_ERROR("Can not obtain the link to Cluster");
       ATH_MSG_ERROR( TrigCompositeUtils::dump( previousDecision, [](const xAOD::TrigComposite* tc){
 	    return tc->name() + " " + (tc->object<xAOD::TrigEMCluster>("feature") == 0 ? "has no cluster": "has cluster");
 	  }) );
       return StatusCode::FAILURE;
     }
-    const xAOD::TrigEMCluster* cluster = *clusterLink;
+    const xAOD::TrigEMCluster* cluster = *(clusterELInfo.link);
     clusterToIndexMap.insert( std::make_pair( cluster, clusterCounter ) );
     clusterCounter++;
   }
@@ -76,20 +76,21 @@ StatusCode TrigL2PhotonHypoAlgMT::execute_r( const EventContext& context ) const
   std::vector<TrigL2PhotonHypoTool::PhotonInfo> hypoToolInput;
  
   for ( auto previousDecision: *previousDecisionsHandle ) {
-
-    auto viewEL = previousDecision->objectLink< ViewContainer >( "view" );
-    ATH_CHECK( viewEL.isValid() );
+    //previousDecision->objectLink< ViewContainer >( "view" );
+    auto viewELInfo = TrigCompositeUtils::findLink< ViewContainer >( previousDecision, "view" );
+      
+    ATH_CHECK( viewELInfo.isValid() );
     
     // get electron from that view:
     size_t photonCounter = 0;
-    auto photonsHandle = ViewHelper::makeHandle( *viewEL, m_photonsKey, context );  
+    auto photonsHandle = ViewHelper::makeHandle( *viewELInfo.link, m_photonsKey, context );  
 
     ATH_CHECK( photonsHandle.isValid() );
     ATH_MSG_DEBUG ( "electron handle size: " << photonsHandle->size() << "..." );
 
     for ( auto photonIter = photonsHandle->begin(); photonIter != photonsHandle->end(); ++photonIter, photonCounter++ ) {
       auto d = newDecisionIn( decisions.get(), name() );
-      d->setObjectLink( "feature", ViewHelper::makeLink<xAOD::TrigPhotonContainer>( *viewEL, photonsHandle, photonCounter ) );
+      d->setObjectLink( "feature", ViewHelper::makeLink<xAOD::TrigPhotonContainer>( *viewELInfo.link, photonsHandle, photonCounter ) );
       
       auto clusterPtr = (*photonIter)->emCluster();
       ATH_CHECK( clusterPtr != nullptr );
@@ -135,17 +136,4 @@ StatusCode TrigL2PhotonHypoAlgMT::execute_r( const EventContext& context ) const
   return StatusCode::SUCCESS;
 }
 
-
-bool TrigL2PhotonHypoAlgMT::recursivelyFindFeature( const TrigCompositeUtils::Decision* start, ElementLink<xAOD::TrigEMClusterContainer>& clusterlink) const{
-  //recursively find in the seeds
-  if ( start->hasObjectLink( "feature" ) ) {
-    clusterlink=start->objectLink<xAOD::TrigEMClusterContainer>( "feature" );
-    return true;
-  }
-  if  (TrigCompositeUtils::hasLinkToPrevious(start) ){
-    auto thelinkToPrevious =TrigCompositeUtils::linkToPrevious( start);      
-    return recursivelyFindFeature( *thelinkToPrevious, clusterlink);
-  }
-  return false;
-}
 

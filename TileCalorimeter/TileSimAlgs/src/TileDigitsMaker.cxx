@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -23,11 +23,7 @@
 #include "TileConditions/TileInfo.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/TileCablingService.h"
-#include "TileConditions/TileCondToolEmscale.h"
-#include "TileConditions/TileCondToolNoiseSample.h"
 #include "TileConditions/TilePulseShapes.h"
-#include "TileConditions/TileCondToolPulseShape.h"
-#include "TileConditions/ITileBadChanTool.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileRecUtils/TileBeamInfoProvider.h"
 
@@ -93,10 +89,6 @@ TileDigitsMaker::TileDigitsMaker(std::string name, ISvcLocator* pSvcLocator)
     m_timeStepLo(0.0),
     m_pHRengine(0),
     m_rndmSvc ("AtRndmGenSvc", name),
-    m_tileToolEmscale("TileCondToolEmscale"),
-    m_tileToolNoiseSample("TileCondToolNoiseSample"),
-    m_tileToolPulseShape("TileCondToolPulseShape"),
-    m_tileBadChanTool("TileBadChanTool"),
     m_beamInfo("TileBeamInfoProvider/TileBeamInfoProvider")
 {
   declareProperty("FilterThreshold",       m_filterThreshold = 100.0 * MeV, "Threshold on filtered digits (default - 100 MeV)");
@@ -105,12 +97,8 @@ TileDigitsMaker::TileDigitsMaker(std::string name, ISvcLocator* pSvcLocator)
   declareProperty("IntegerDigits",  m_integerDigits = true);
   declareProperty("CalibrationRun", m_calibRun = false);
   declareProperty("RndmSvc", m_rndmSvc, "Random Number Service used in TileDigitsMaker");
-  declareProperty("TileCondToolEmscale", m_tileToolEmscale, "Service to calibrate all channels");
-  declareProperty("TileCondToolNoiseSample", m_tileToolNoiseSample);
   declareProperty("RndmEvtOverlay",m_rndmEvtOverlay = false,"Pileup and/or noise added by overlaying random events (default=false)");
-  declareProperty("TileCondToolPulseShape",m_tileToolPulseShape);
   declareProperty("UseCoolPulseShapes",m_useCoolPulseShapes = true,"Pulse shapes from database (default=true)");
-  declareProperty("TileBadChanTool",m_tileBadChanTool);
   declareProperty("MaskBadChannels",m_maskBadChannels = false,"Remove channels tagged bad (default=false)");
   declareProperty("DoHSTruthReconstruction",m_doDigiTruth = true);
   declareProperty("AllChannels", m_allChannels = -1, "Create all channels, use 0 or 1 or 2 (default=-1 - unset)");
