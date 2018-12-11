@@ -52,7 +52,12 @@ def TrigInDetConfig( flags ):
     acc.addEventAlgo(InDetPixelRawDataProvider)
     from SCT_Cabling.SCT_CablingConfig import SCT_CablingCondAlgCfg
     acc.merge(SCT_CablingCondAlgCfg(flags))
+    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ConfigurationCondAlg
+    acc.addCondAlgo(SCT_ConfigurationCondAlg(ReadKeyChannel = "/SCT/DAQ/Config/Chip",
+                                             ReadKeyModule = "/SCT/DAQ/Config/Module",
+                                             ReadKeyMur = "/SCT/DAQ/Config/MUR"))
     # Set up SCTSiLorentzAngleCondAlg
+    from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConfigurationConditionsTool
     from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
     sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
 
