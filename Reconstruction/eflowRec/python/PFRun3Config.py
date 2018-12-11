@@ -18,6 +18,12 @@ def PFCfg(inputFlags,**kwargs):
     acc, geom_svc = TrackingGeometrySvcCfg(inputFlags)
     result.merge(acc)
 
+    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_AlignCondAlg
+    result.addCondAlgo(SCT_AlignCondAlg(name = "SCT_AlignCondAlg",UseDynamicAlignFolders = False))
+
+    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DetectorElementCondAlg
+    result.addCondAlgo(SCT_DetectorElementCondAlg(name = "SCT_DetectorElementCondAlg"))
+    
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
     result.merge(MuonGeoModelCfg(inputFlags))    
 
@@ -35,7 +41,7 @@ def PFCfg(inputFlags,**kwargs):
     from InDetServMatGeoModel.InDetServMatGeoModelConf import InDetServMatTool
     result.getService("GeoModelSvc").DetectorTools += [ InDetServMatTool() ]
 
-    from IOVDbSvc.IOVDbSvcConfig import addFolders,IOVDbSvcCfg
+    from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline,IOVDbSvcCfg
     result.merge(addFolders(inputFlags,['/GLOBAL/BField/Maps <noover/>'],'GLOBAL_OFL'))
     result.merge(addFolders(inputFlags,['/EXT/DCS/MAGNETS/SENSORDATA'],'DCS_OFL'))
     
@@ -47,9 +53,9 @@ def PFCfg(inputFlags,**kwargs):
     result.addService(MagField__AtlasFieldSvc("AtlasFieldSvc",**kwargs))
 
     #load folders needed for Run2 ID alignment
-    result.merge(addFolders(inputFlags,['/Indet/Align'],'INDET_OFL'))
+    result.merge(addFoldersSplitOnline(inputFlags,"INDET","/Indet/Onl/Align","/Indet/Align",className="AlignableTransformContainer"))
     result.merge(addFolders(inputFlags,['/TRT/Align'],'TRT_OFL'))
-                 
+
     #load folders needed for IBL
     result.merge(addFolders(inputFlags,['/Indet/IBLDist'],'INDET_OFL'))
 
