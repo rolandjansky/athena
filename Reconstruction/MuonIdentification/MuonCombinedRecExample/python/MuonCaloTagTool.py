@@ -37,14 +37,6 @@ def TrackEnergyInCaloTool( name ='TrackEnergyInCaloTool', **kwargs ):
 def TrackDepositInCaloTool( name ='TrackDepositInCaloTool', **kwargs ):
     return CfgMgr.TrackDepositInCaloTool(name,**kwargs)
 
-def CaloMuonTagLoose( name='CaloMuonTagLoose', **kwargs ):
-    kwargs.setdefault("TagMode","Loose")
-    return CfgMgr.CaloMuonTag(name,**kwargs)
-
-### Configure CaloMuonTag (tight is default) ###
-def CaloMuonTag( name='CaloMuonTag', **kwargs ):
-    return CfgMgr.CaloMuonTag(name,**kwargs)
-
 def CaloMuonLikelihoodTool(name='CaloMuonLikelihoodTool', **kwargs ):
     kwargs.setdefault("TrackEnergyInCaloTool", getPublicTool("TrackEnergyInCaloTool") )
     return CfgMgr.CaloMuonLikelihoodTool(name,**kwargs)
