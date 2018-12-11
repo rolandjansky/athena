@@ -6,6 +6,7 @@ __doc__="Class containing all the information of an HLT chain"
 import re
 from TriggerMenu.api.TriggerEnums import TriggerType, TriggerPeriod
 from collections import Counter
+from copy import deepcopy
 
 class TriggerInfo:
     ''' Object containing all the HLT information related to a given period.
@@ -25,7 +26,6 @@ class TriggerInfo:
 
     @classmethod
     def merge(cls,listofTI):
-        from copy import deepcopy
         mergedTI = TriggerInfo()
         mergedHLTmap = {}
         for ti in listofTI:
@@ -203,7 +203,6 @@ class TriggerLeg:
             Returns  0 if other is lower than self.
             Returns  1 if self  is lower than other.
         '''
-        from copy import deepcopy
 
         if debug: print "compareDetails:",len(self.details), len(other.details),(self.l1seed == other.l1seed),(self.details == other.details) 
         compl1seed  = self.compareTags(self.l1seed, other.l1seed, stringSubset=True, is2015=is2015, debug=debug)
@@ -226,7 +225,7 @@ class TriggerLeg:
             if all(["loose" in x or "medium" in x or "tight" in x for x in s]): return True
             if any(["bmv" in x for x in s]): return True
             #tags with numeric values that don't reflect a strict ordering
-            noncutable = ("bVertex","bBmumuxv","a","rcu","rcc","nscan","kaonpi","dipion","nod","nomucomb")
+            noncutable = ("bVertex","bBmumuxv","a","rcu","rcc","nscan","kaonpi","dipion","nod","nomucomb","LArH")
             if any([x in s for x in noncutable]): return 0
             return [is_number(x) for x in s].count(True)==1
         def is_number(s):
@@ -338,7 +337,6 @@ class TriggerChain:
         self.triggerType = self.getTriggerType(self.legs, l1seed)
 
     def splitAndOrderLegs(self, legs):
-        from copy import deepcopy
         newLegs = []
         for triggerType in TriggerType:
             for l in legs:
