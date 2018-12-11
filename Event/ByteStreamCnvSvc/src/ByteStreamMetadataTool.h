@@ -13,6 +13,7 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "AthenaKernel/SourceID.h"
 #include "AthenaKernel/IMetaDataTool.h"
 
 #include <string>
@@ -37,6 +38,9 @@ public:
    /// Incident service handle listening for BeginInputFile and EndInputFile.
    virtual StatusCode beginInputFile();
    virtual StatusCode endInputFile();
+   virtual StatusCode metaDataStop(const SG::SourceID&);
+   virtual StatusCode beginInputFile(const SG::SourceID&);
+   virtual StatusCode endInputFile(const SG::SourceID&);
    virtual StatusCode metaDataStop();
 
 private:

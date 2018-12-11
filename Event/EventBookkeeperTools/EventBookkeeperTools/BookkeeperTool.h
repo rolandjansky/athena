@@ -49,6 +49,13 @@ public:
    virtual StatusCode metaDataStop();
    virtual StatusCode beginInputFile();
    virtual StatusCode endInputFile();
+   /// Function collecting the metadata from a new input file
+   virtual StatusCode beginInputFile(const SG::SourceID&) {return this->beginInputFile();}
+   /// Function collecting the metadata from a new input file
+   virtual StatusCode endInputFile(const SG::SourceID&) {return this->endInputFile();}
+   /// Function writing the collected metadata to the output
+   virtual StatusCode metaDataStop(const SG::SourceID&) {return this->metaDataStop();}
+   //
    virtual StatusCode initialize();
    virtual StatusCode finalize();
 

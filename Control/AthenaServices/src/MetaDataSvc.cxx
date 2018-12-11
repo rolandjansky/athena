@@ -117,10 +117,11 @@ StatusCode MetaDataSvc::initialize() {
       ATH_MSG_FATAL("Cannot get IncidentSvc.");
       return(StatusCode::FAILURE);
    }
-   if (!m_metaDataTools.retrieve().isSuccess()) {
+   if (m_metaDataTools.retrieve().isFailure()) {
       ATH_MSG_FATAL("Cannot get " << m_metaDataTools);
       return(StatusCode::FAILURE);
    }
+   ATH_MSG_INFO("Found " << m_metaDataTools);
 
    m_incSvc->addListener(this, "FirstInputFile", 90);
    m_incSvc->addListener(this, "BeginInputFile", 90);
@@ -204,13 +205,9 @@ StatusCode MetaDataSvc::stop() {
       }
    }
 
-   // Set to be listener for end of event
-   Incident metaDataStopIncident(name(), "MetaDataStop");
-   m_incSvc->fireIncident(metaDataStopIncident);
-
    // finalizing tools via metaDataStop
    ATH_CHECK(this->prepareOutput());
-
+       
    return(StatusCode::SUCCESS);
 }
 //_______________________________________________________________________
@@ -275,6 +272,7 @@ StatusCode MetaDataSvc::newMetadataSource(const Incident& inc)
       ATH_MSG_ERROR("Unable to get FileName from EndInputFile incident");
       return StatusCode::FAILURE;
    }
+   const std::string guid = fileInc->fileGuid();
    const std::string fileName = fileInc->fileName();
    m_allowMetaDataStop = false;
    if (fileName.find("BSF:") != 0) {
@@ -292,7 +290,7 @@ StatusCode MetaDataSvc::newMetadataSource(const Incident& inc)
    StatusCode rc(StatusCode::SUCCESS);
    for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
       ATH_MSG_DEBUG(" calling beginInputFile for " << (*it)->name());
-      if ( (*it)->beginInputFile().isFailure() ) {
+      if ( (*it)->beginInputFile(guid).isFailure() ) {
          ATH_MSG_ERROR("Unable to call beginInputFile for " << it->name());
          rc = StatusCode::FAILURE;
       }
@@ -300,10 +298,16 @@ StatusCode MetaDataSvc::newMetadataSource(const Incident& inc)
    return rc;
 }
 
-StatusCode MetaDataSvc::retireMetadataSource(const Incident&)
+StatusCode MetaDataSvc::retireMetadataSource(const Incident& inc)
 {
+   const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
+   if (fileInc == nullptr) {
+      ATH_MSG_ERROR("Unable to get FileName from EndInputFile incident");
+      return StatusCode::FAILURE;
+   }
+   const std::string guid = fileInc->fileGuid();
    for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
-      if ( (*it)->endInputFile().isFailure() ) {
+      if ( (*it)->endInputFile(guid).isFailure() ) {
          ATH_MSG_ERROR("Unable to call endInputFile for " << it->name());
          return StatusCode::FAILURE;
       }
@@ -377,7 +381,7 @@ void MetaDataSvc::handle(const Incident& inc) {
          ATH_MSG_ERROR("Could not retire metadata source " << fileName);
       }
    } else if (inc.type() == "LastInputFile") {
-      if (!m_metaDataTools.release().isSuccess()) {
+      if (m_metaDataTools.release().isFailure()) {
          ATH_MSG_WARNING("Cannot release " << m_metaDataTools);
       }
    } else if (inc.type() == "ShmProxy") {
@@ -392,8 +396,6 @@ StatusCode MetaDataSvc::transitionMetaDataFile(bool ignoreInputFile) {
    if (!m_allowMetaDataStop && !ignoreInputFile) {
       return(StatusCode::FAILURE);
    }
-   Incident metaDataStopIncident(name(), "MetaDataStop");
-   m_incSvc->fireIncident(metaDataStopIncident);
 
    // Set to be listener for end of event
    ATH_CHECK(this->prepareOutput());
