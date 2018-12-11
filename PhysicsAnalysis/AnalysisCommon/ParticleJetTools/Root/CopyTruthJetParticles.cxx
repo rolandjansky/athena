@@ -27,7 +27,7 @@ CopyTruthJetParticles::CopyTruthJetParticles(const std::string& name)
   , m_barcodeOffset(200000)
   , m_barcodeFromMetadata(2)
   , m_photonCone(0.1)
-  , m_classif("")
+  , m_classif("",this)
 {
   declareProperty("IncludeNeutrinos",  m_includeNu=false, "Include neutrinos in the output collection");
   declareProperty("IncludeMuons",      m_includeMu=false, "Include muons in the output collection");
