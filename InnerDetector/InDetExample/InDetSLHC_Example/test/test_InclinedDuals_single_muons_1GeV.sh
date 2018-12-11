@@ -136,24 +136,24 @@ if [ $dorec -ne 0 ]; then
   # Reco step: based on RecoInclinedDuals_GMX RTT job
   # some preExecs for E2D step are workarounds - should be revisited. 
   run Reco_tf.py \
-    --inputHITSFile    "$hits_muons_1GeV" \
-    --outputRDOFile    physval_muons_1GeV.RDO.root \
-    --outputESDFile    "$esd_muons_1GeV" \
-    --outputAODFile    "$daod_muons_1GeV" \
-    --outputDAOD_IDTRKVALIDFile physval_muons_1GeV.DAOD_IDTRKVALID.root \
-    --maxEvents        -1 \
-    --digiSteeringConf StandardInTimeOnlyTruth \
-    --geometryVersion  ATLAS-P2-ITK-20-00-00 \
-    --conditionsTag    OFLCOND-MC15c-SDR-14-03 \
-    --DataRunNumber    242000 \
-    --steering doRAWtoALL \
-    --postInclude all:'InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py' \
-                  HITtoRDO:'InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py,InDetSLHC_Example/postInclude.RDOAnalysis.py' \
-                  RAWtoALL:'InDetSLHC_Example/postInclude.DigitalClustering.py' \
-    --preExec     all:'from AthenaCommon.GlobalFlags import globalflags; globalflags.DataSource.set_Value_and_Lock("geant4"); from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags; SLHC_Flags.doGMX.set_Value_and_Lock(True); SLHC_Flags.LayoutOption="InclinedDuals";' \
-                  HITtoRDO:'from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.doInDetNoise.set_Value_and_Lock(False); digitizationFlags.doBichselSimulation.set_Value_and_Lock(False); digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"];' \
-                 RAWtoALL:'from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doStandardPlots.set_Value_and_Lock(True);from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc;ServiceMgr +=PixelCalibSvc();InDetFlags.useDCS.set_Value_and_Lock(True);ServiceMgr.PixelCalibSvc.DisableDB=True;from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags;InDetDxAODFlags.DumpLArCollisionTime.set_Value_and_Lock(False);InDetDxAODFlags.DumpSctInfo.set_Value_and_Lock(True);InDetDxAODFlags.ThinHitsOnTrack.set_Value_and_Lock(False)' \
-                  ESDtoDPD:'rec.DPDMakerScripts.set_Value_and_Lock(["PrimaryDPDMaker/PrimaryDPDMaker.py"]);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.useDCS.set_Value_and_Lock(True);from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc;ServiceMgr +=PixelCalibSvc();ServiceMgr.PixelCalibSvc.DisableDB=True' \
+      --inputHITSFile    "$hits_muons_1GeV" \
+      --outputRDOFile    physval_muons_1GeV.RDO.root \
+      --outputESDFile    "$esd_muons_1GeV" \
+      --outputAODFile    physval_muons_10GeV.AOD.root \
+      --outputDAOD_IDTRKVALIDFile "$daod_muons_1GeV" \
+      --maxEvents        -1 \
+      --digiSteeringConf StandardInTimeOnlyTruth \
+      --geometryVersion  ATLAS-P2-ITK-20-00-00 \
+      --conditionsTag    OFLCOND-MC15c-SDR-14-03 \
+      --DataRunNumber    242000 \
+      --steering doRAWtoALL \
+      --postInclude all:'InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py' \
+      HITtoRDO:'InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py,InDetSLHC_Example/postInclude.RDOAnalysis.py' \
+      RAWtoALL:'InDetSLHC_Example/postInclude.DigitalClustering.py' \
+      --preExec     all:'from AthenaCommon.GlobalFlags import globalflags; globalflags.DataSource.set_Value_and_Lock("geant4"); from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags; SLHC_Flags.doGMX.set_Value_and_Lock(True); SLHC_Flags.LayoutOption="InclinedDuals";' \
+      HITtoRDO:'from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.doInDetNoise.set_Value_and_Lock(False); digitizationFlags.doBichselSimulation.set_Value_and_Lock(False); digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"];' \
+      RAWtoALL:'from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doStandardPlots.set_Value_and_Lock(True);from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc;ServiceMgr +=PixelCalibSvc();InDetFlags.useDCS.set_Value_and_Lock(True);ServiceMgr.PixelCalibSvc.DisableDB=True;from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags;InDetDxAODFlags.DumpLArCollisionTime.set_Value_and_Lock(False);InDetDxAODFlags.DumpSctInfo.set_Value_and_Lock(True);InDetDxAODFlags.ThinHitsOnTrack.set_Value_and_Lock(False)' \
+      ESDtoDPD:'rec.DPDMakerScripts.set_Value_and_Lock(["PrimaryDPDMaker/PrimaryDPDMaker.py"]);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.useDCS.set_Value_and_Lock(True);from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc;ServiceMgr +=PixelCalibSvc();ServiceMgr.PixelCalibSvc.DisableDB=True' \
       --preInclude  all:'InDetSLHC_Example/preInclude.SLHC_Setup_InclBrl_4.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py,InDetSLHC_Example/preInclude.SLHC_Calorimeter_mu0.py' \
       HITtoRDO:'InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py' \
       default:'InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py,InDetSLHC_Example/SLHC_Setup_Reco_TrackingGeometry_GMX.py' \
@@ -161,12 +161,12 @@ if [ $dorec -ne 0 ]; then
       POOLMergeAthenaMPAOD0:'InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Ana.py,InDetSLHC_Example/SLHC_Setup_Reco_Alpine.py' \
       POOLMergeAthenaMPDAODIDTRKVALID0:'InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Ana.py,InDetSLHC_Example/SLHC_Setup_Reco_Alpine.py' \
       --postExec    HITtoRDO:'pixeldigi.EnableSpecialPixels=False; CfgMgr.MessageSvc().setError+=["HepMcParticleLink"];' \
-     RAWtoALL:'ToolSvc.InDetSCT_ClusteringTool.useRowInformation=True; from AthenaCommon.AppMgr import ToolSvc; ToolSvc.InDetTrackSummaryTool.OutputLevel=INFO;from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValDecoratorAlg;decorators = InDetPhysValDecoratorAlg();topSequence += decorators'
+      RAWtoALL:'ToolSvc.InDetSCT_ClusteringTool.useRowInformation=True; from AthenaCommon.AppMgr import ToolSvc; ToolSvc.InDetTrackSummaryTool.OutputLevel=INFO;from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValDecoratorAlg;decorators = InDetPhysValDecoratorAlg();topSequence += decorators'
   reco_stat=$?
   echo "art-result: $reco_stat reco"
   if [ "$reco_stat" -ne 0 ]; then
-    echo "$script: Reco_tf.py isn't working yet. Remove jobReport.json to prevent pilot declaring a failed job."
-    run rm -f jobReport.json
+      echo "$script: Reco_tf.py isn't working yet. Remove jobReport.json to prevent pilot declaring a failed job."
+      run rm -f jobReport.json
   fi
   
   mv ./PixelRDOAnalysis.root ./$dcubemon_muons_1GeV_digi_pixel
