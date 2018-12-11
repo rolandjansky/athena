@@ -34,12 +34,15 @@ MODIFIED:
 #include "TrkTrack/Track.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
+#include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 #include "xAODEgamma/ElectronFwd.h"
 #include "xAODTracking/TrackParticleFwd.h"
+#include "TRandom.h"
 
 class IBeamCondSvc;
 class ICaloCluster_OnTrackBuilder;
 class AtlasDetectorID ;
+class PixelID;
 
 #include "VxVertex/RecVertex.h"
 #include "TrkVertexFitterInterfaces/IVertexLinearizedTrackFactory.h"
@@ -107,6 +110,7 @@ class egammaTrkRefitterTool : virtual public IegammaTrkRefitterTool, public AthA
  private:
  
   std::vector<const Trk::MeasurementBase*> getIDHits(const Trk::Track* track) ;
+  std::vector<const Trk::MeasurementBase*> PseudoMeasurements;
 
   /** @brief Pointer to the refitted track*/  
   Trk::Track                  *m_refittedTrack; 
@@ -150,9 +154,13 @@ class egammaTrkRefitterTool : virtual public IegammaTrkRefitterTool, public AthA
   /** @brief Returns the amount of material transversed by the track (using X0)*/
   double getMaterialTraversed(Trk::Track* track);
 
-  /** @brief Adds a beam spot to the Measurements passed to the track refitter*/  
-  std::vector<const Trk::MeasurementBase*> addPointsToTrack(const Trk::Track* track, const xAOD::Electron* eg = 0 ); 
-  
+  /** @brief Smears an IBL hit */
+  const Trk::PseudoMeasurementOnTrack* SmearHit(const Trk::TrackStateOnSurface* trackStateOnSurface);
+
+  /** @brief Adds a beam spot to the Measurements passed to the track refitter*/
+  std::vector<const Trk::MeasurementBase*> addPointsToTrack(const Trk::Track* track, const xAOD::Electron* eg = 0 );
+
+
   const Trk::VertexOnTrack*   provideVotFromBeamspot(const Trk::Track* track) const;
   const xAOD::TrackParticle*  getTrackParticle(Trk::VxTrackAtVertex*) const;
 
@@ -168,7 +176,19 @@ class egammaTrkRefitterTool : virtual public IegammaTrkRefitterTool, public AthA
   
   /** @brief Option to remove TRT hits from track*/
   bool m_RemoveTRT;
+  
+  
+  /** @brief Option to remove the hits on track */
+  bool m_removeIBL;
+  bool m_removeBL;
+  
+  /** @brief Option to randomize hits around their original position */
+  bool m_doHitSmearing;
+  float m_smearingX;
+  float m_smearingY;
+  
   const AtlasDetectorID*  m_idHelper  ;
+  const PixelID*          m_pixelID;
 
   std::vector<const Trk::MeasurementBase*>  m_trash;
 };

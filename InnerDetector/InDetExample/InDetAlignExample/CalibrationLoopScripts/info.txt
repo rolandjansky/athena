@@ -1,8 +1,0 @@
-#Steps to run the alignment. All configuration is made in create_pickle.py
-
-source setupRel.sh
-python create_pickle.py
-python Accumulate_trf.py --argdict=reco1_01.pickle
-python Solve_trf.py --argdict=solve1.pickle
-python MergeMon_trf.py --argdict=merge1.pickle
-

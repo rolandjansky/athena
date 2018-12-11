@@ -30,6 +30,7 @@
 #include "egammaInterfaces/ICaloCluster_OnTrackBuilder.h"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
+#include "InDetIdentifier/PixelID.h"
 #include "IdDictDetDescr/IdDictManager.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 
@@ -61,8 +62,9 @@ egammaTrkRefitterTool::egammaTrkRefitterTool(const std::string& type, const std:
   m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
   m_linFactory("Trk::FullLinearizedTrackFactory"),
   m_beamCondSvc("BeamCondSvc",name),
-  m_CCOTBuilder("CaloCluster_OnTrackBuilder"),
-  m_idHelper(0) 
+  m_idHelper(0),
+  m_pixelID(0)
+
 {
   // declare interface
   declareInterface< IegammaTrkRefitterTool >(this) ;
@@ -107,10 +109,17 @@ egammaTrkRefitterTool::egammaTrkRefitterTool(const std::string& type, const std:
                   m_useClusterPosition = false, 
                   "Switch to control use of Cluster position measurement");
 
-  declareProperty("CCOTBuilder", 
-                   m_CCOTBuilder);
-                   
-  declareProperty("RemoveTRTHits",m_RemoveTRT  = false,"RemoveTRT Hits");	  
+  declareProperty("RemoveTRTHits",m_RemoveTRT  = false,"RemoveTRT Hits");
+  
+  declareProperty("RemoveIBLHits",m_removeIBL = false, "RemoveIBL Hits");
+  
+  declareProperty("RemoveBLHits", m_removeBL  = false, "RemoveBL Hits");
+  
+  declareProperty("doHitSmearing"  ,m_doHitSmearing=false, "Do Hit randomization - Only IBL for the moment");
+  declareProperty("SmearingX", m_smearingX=0, "Randomisation size in X");
+  declareProperty("SmearingY", m_smearingY=0, "Randomisation size in Y");
+  
+
 }
 
   
@@ -149,7 +158,7 @@ StatusCode egammaTrkRefitterTool::initialize()
   ATH_MSG_INFO("Retrieved " << m_extrapolator);
 
   // configure Atlas extrapolator
-  if (m_CCOTBuilder.retrieve().isFailure()) {
+  if (m_useClusterPosition && m_CCOTBuilder.retrieve().isFailure()) {
     ATH_MSG_FATAL( "Failed to retrieve tool " << m_CCOTBuilder );
     return StatusCode::FAILURE;
   }
@@ -171,6 +180,15 @@ StatusCode egammaTrkRefitterTool::initialize()
     return StatusCode::FAILURE;
   } 
   ATH_MSG_INFO("Retrieved ID helpers");
+
+  if (detStore()->retrieve(m_pixelID, "PixelID").isFailure()) {
+    ATH_MSG_FATAL( "Could not get PixelID helper" );
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_INFO("Retrieved Pixel ID helper");
+
+
+  
 
 
   // Set the particle hypothesis to match the material effects
@@ -330,6 +348,12 @@ StatusCode  egammaTrkRefitterTool::refitTrack(const Trk::Track* track, const xAO
     ATH_MSG_DEBUG("Refit Failed");
     return StatusCode::FAILURE;
   }
+  //Clear the pseudo measurements vector
+  for (std::vector<const Trk::MeasurementBase*>::iterator psIt = PseudoMeasurements.begin(); psIt!=PseudoMeasurements.end(); ++psIt) {
+    delete (*psIt);
+  }
+  PseudoMeasurements.clear();
+  
 }
 
 // ================================================================
@@ -585,10 +609,39 @@ const Trk::VertexOnTrack* egammaTrkRefitterTool::provideVotFromBeamspot(const Tr
 }
 
 
-std::vector<const Trk::MeasurementBase*> egammaTrkRefitterTool::getIDHits(const Trk::Track* track) 
-{ 
+
+const Trk::PseudoMeasurementOnTrack* egammaTrkRefitterTool::SmearHit(const Trk::TrackStateOnSurface* trackStateOnSurface) { 
+  
+  TRandom random((int) std::time(0));
+
+  const Trk::RIO_OnTrack* rio = dynamic_cast <const Trk::RIO_OnTrack*>( trackStateOnSurface->measurementOnTrack() );
+  double localPositionX = rio->localParameters()[Trk::loc1];
+  double localPositionY = rio->localParameters()[Trk::loc2];
+    
+  double newlocalPositionX = random.Gaus(localPositionX,m_smearingX);
+  double newlocalPositionY = random.Gaus(localPositionY,m_smearingY);
+   
+    
+  Amg::Vector2D locp(newlocalPositionX,newlocalPositionY);
+  
+  //New Local Parameters:
+  Trk::LocalParameters smearedLocalParameters(locp);
+  
+  //New RIO on Track: I need: LocalParameters,LocalCovariance and Identifier
+  const Trk::PseudoMeasurementOnTrack* SmearedPseudoMeasurement = new Trk::PseudoMeasurementOnTrack(smearedLocalParameters,rio->localCovariance(),rio->associatedSurface());
+  return SmearedPseudoMeasurement;
+  
+}
+
+
+std::vector<const Trk::MeasurementBase*> egammaTrkRefitterTool::getIDHits(const Trk::Track* track)
+{
+  
+  std::unique_ptr<Trk::RIO_OnTrack> smearedTrackStateOnSurface;
   std::vector<const Trk::MeasurementBase*> measurementSet;
   //store all silicon measurements into the measurementset
+
+  
   DataVector<const Trk::TrackStateOnSurface>::const_iterator trackStateOnSurface = track->trackStateOnSurfaces()->begin();
   for ( ; trackStateOnSurface != track->trackStateOnSurfaces()->end(); ++trackStateOnSurface ) {
     
@@ -602,10 +655,34 @@ std::vector<const Trk::MeasurementBase*> egammaTrkRefitterTool::getIDHits(const 
         const Trk::RIO_OnTrack* rio = dynamic_cast <const Trk::RIO_OnTrack*>( (*trackStateOnSurface)->measurementOnTrack() );
         if (rio != 0) {
           const Identifier& surfaceID = (rio->identify()) ;
+	  
           if( m_idHelper->is_sct(surfaceID) || m_idHelper->is_pixel(surfaceID) ) {
-            measurementSet.push_back( (*trackStateOnSurface)->measurementOnTrack() );
+	    //Only do this if we want to remove the IBL or BL hits 
+	    if (m_removeIBL || m_removeBL || m_doHitSmearing) {
+	      if (m_idHelper->is_pixel(surfaceID)) { //Pixel hit 
+		const Identifier& id = m_pixelID->wafer_id(surfaceID);
+		int barrelEC  = m_pixelID -> barrel_ec(id);
+		int layerDisk = m_pixelID -> layer_disk(id);
+		if (m_removeIBL && barrelEC ==0 && layerDisk ==0) {
+		  continue;
+		}
+		if (m_removeBL && barrelEC ==0 && layerDisk == 1) {
+		  continue;
+		}
+		
+		if (m_doHitSmearing && barrelEC == 0 && layerDisk == 0) { 
+		  
+		  const Trk::PseudoMeasurementOnTrack* pseudoMeas = SmearHit((*trackStateOnSurface));
+		  measurementSet.push_back(pseudoMeas);
+		  PseudoMeasurements.push_back(pseudoMeas);
+		  continue; //Skip this hit and put the smeared one in the PseudoMeasurements container.
+		}
+
+	      }
+	    }
+	    measurementSet.push_back( (*trackStateOnSurface)->measurementOnTrack() );
           } else if( !m_RemoveTRT && m_idHelper->is_trt(surfaceID) ) {
-            measurementSet.push_back( (*trackStateOnSurface)->measurementOnTrack() );
+	    measurementSet.push_back( (*trackStateOnSurface)->measurementOnTrack() );
           }
         }        				
       }
@@ -614,14 +691,34 @@ std::vector<const Trk::MeasurementBase*> egammaTrkRefitterTool::getIDHits(const 
         if (rio != 0) {
           const Identifier& surfaceID = (rio->identify()) ;
           if( m_idHelper->is_sct(surfaceID) || m_idHelper->is_pixel(surfaceID) ) {
+	    
+	    //Only do this if we want to remove the IBL or BL hits   - todo, make it a function
+	    if (m_removeIBL || m_removeBL) {
+	      if (m_idHelper->is_pixel(surfaceID)) { //Pixel hit 
+		const Identifier& id = m_pixelID->wafer_id(surfaceID);
+		int barrelEC  = m_pixelID -> barrel_ec(id);
+		int layerDisk = m_pixelID -> layer_disk(id);
+		if (m_removeIBL && barrelEC ==0 && layerDisk ==0) {
+		  continue;
+		}
+		if (m_removeBL && barrelEC ==0 && layerDisk == 1) {
+		  continue;
+		}
+	      }
+	    }
+	    
+
             measurementSet.push_back( (*trackStateOnSurface)->measurementOnTrack() );
           } else if( !m_RemoveTRT && m_idHelper->is_trt(surfaceID) ) {
+	    
             measurementSet.push_back( (*trackStateOnSurface)->measurementOnTrack() );
           }
         }
       } 
     }
   }
+  
+
   return measurementSet;
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -57,19 +57,19 @@ StatusCode InDetAlignMon::TrackSelectionTool::initialize()
   if ( ! m_useIDTrackSelectionTool )
     {
       if ( m_trackSelectorTool.retrieve().isFailure() ) {
-	msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackSelectorTool << endreq;
+	msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackSelectorTool << endmsg;
 	return StatusCode::FAILURE;
       } else {
-	if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved tool " << m_trackSelectorTool << endreq;
+	if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved tool " << m_trackSelectorTool << endmsg;
       }
     }
   else
     {
       if (   m_idtrackSelectionTool.retrieve().isFailure() ) {
-	msg(MSG::FATAL) << "Failed to retrieve tool " << m_idtrackSelectionTool << endreq;
+	msg(MSG::FATAL) << "Failed to retrieve tool " << m_idtrackSelectionTool << endmsg;
 	return StatusCode::FAILURE;
       } else {
-	if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved tool " << m_idtrackSelectionTool << endreq;
+	if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved tool " << m_idtrackSelectionTool << endmsg;
       }
     }
   
@@ -112,10 +112,10 @@ DataVector<xAOD::TrackParticle>* InDetAlignMon::TrackSelectionTool::selectTracks
     const xAOD::VertexContainer* vxContainer = NULL;
     StatusCode sc = evtStore()->retrieve (vxContainer,m_VtxContainerName);
     if (sc.isFailure()) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No PrimVtxCollection with name  "<<m_VtxContainerName<<" found in StoreGate" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No PrimVtxCollection with name  "<<m_VtxContainerName<<" found in StoreGate" << endmsg;
       return return_tracks; //return empty track collection (but not NULL)
     } else {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "PrimVtxCollection with name  "<<m_VtxContainerName<< " with nvertices =  " << vxContainer->size() <<" found  in StoreGate" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "PrimVtxCollection with name  "<<m_VtxContainerName<< " with nvertices =  " << vxContainer->size() <<" found  in StoreGate" << endmsg;
     }
 
     //loop over vertices and look for good primary vertex
@@ -131,7 +131,7 @@ DataVector<xAOD::TrackParticle>* InDetAlignMon::TrackSelectionTool::selectTracks
       
       if ((*vxIter)->nTrackParticles()==0 || (*vxIter)->nTrackParticles() < m_minTracksPerVtx) continue;
 
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found a primary vertex built with " << (*vxIter)->nTrackParticles() << " tracks" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found a primary vertex built with " << (*vxIter)->nTrackParticles() << " tracks" << endmsg;
       pVtx = *vxIter;//set pointer to identified primary vertex
       break;//best pvtx is the first one, so can quit loop once find it
     }
@@ -141,11 +141,11 @@ DataVector<xAOD::TrackParticle>* InDetAlignMon::TrackSelectionTool::selectTracks
   //if track collection cannot be found an empty track collection is returned
   StatusCode sc = evtStore()->retrieve(tracks,trackColName);
   if (sc.isFailure()) {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TrackCollection with name "<<trackColName<<" found in StoreGate" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TrackCollection with name "<<trackColName<<" found in StoreGate" << endmsg;
     return return_tracks; //return empty track collection (but not NULL)
   } else {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<trackColName<<" found in StoreGate" << endreq;
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracks->size() <<" reconstructed tracks from StoreGate" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<trackColName<<" found in StoreGate" << endmsg;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracks->size() <<" reconstructed tracks from StoreGate" << endmsg;
   }
     
   //TrackCollection::const_iterator trksItr  = tracks->begin();
@@ -160,16 +160,16 @@ DataVector<xAOD::TrackParticle>* InDetAlignMon::TrackSelectionTool::selectTracks
     
 
     if(m_passAllTracks) {
-      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Track automatically passes TrackSelectionTool since passAllTracks=True" << endreq;
+      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Track automatically passes TrackSelectionTool since passAllTracks=True" << endmsg;
       //selected_tracks->push_back(track);//allow all tracks into new collection, regardless of decision 
       return_tracks->push_back(const_cast<xAOD::TrackParticle*> (track) );
     }
     else {
-      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Testing track using trackSelectorTool..." << endreq;
+      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Testing track using trackSelectorTool..." << endmsg;
       
       bool trackPassed = false;
       if(pVtx){
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Using primary vertex in track selection" << endreq;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Using primary vertex in track selection" << endmsg;
 
 	
 	if (m_useIDTrackSelectionTool)
@@ -181,7 +181,7 @@ DataVector<xAOD::TrackParticle>* InDetAlignMon::TrackSelectionTool::selectTracks
 	  trackPassed = m_trackSelectorTool->decision(*track,pVtx);
       }
       else {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Not using primary vertex in track selection" << endreq;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Not using primary vertex in track selection" << endmsg;
 
 	
 	if (m_useIDTrackSelectionTool)
@@ -200,7 +200,7 @@ DataVector<xAOD::TrackParticle>* InDetAlignMon::TrackSelectionTool::selectTracks
 	ComTime* theComTime(0);
 	StatusCode sc = evtStore()->retrieve(theComTime, m_commTimeName);
 	if(sc.isFailure()){
-	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ComTime object not found with name TRT_Phase !!!" << endreq;
+	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ComTime object not found with name TRT_Phase !!!" << endmsg;
 	  trackPassed = false;
 	}
 	
@@ -209,7 +209,7 @@ DataVector<xAOD::TrackParticle>* InDetAlignMon::TrackSelectionTool::selectTracks
 	  eventPhase = theComTime->getTime();
 	}
 	
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Event phase is " << eventPhase << endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Event phase is " << eventPhase << endmsg;
 	
 	// Cut on event phase
 	if(eventPhase == -99.0 || eventPhase <= m_minEventPhase || eventPhase >= m_maxEventPhase) {
@@ -221,9 +221,9 @@ DataVector<xAOD::TrackParticle>* InDetAlignMon::TrackSelectionTool::selectTracks
       if(trackPassed) {
 	//selected_tracks->push_back(track);//allow only tracks that pass decision into the new collection
 	return_tracks->push_back(const_cast<xAOD::TrackParticle*> (track));
-	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Track passed trackSelectorTool" << endreq;
+	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Track passed trackSelectorTool" << endmsg;
       }
-      else if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Track failed trackSelectorTool" << endreq;
+      else if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Track failed trackSelectorTool" << endmsg;
     }
   }
 
@@ -247,10 +247,10 @@ DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracks(const st
     const VxContainer* vxContainer = 0;
     StatusCode sc = evtStore()->retrieve (vxContainer,m_VtxContainerName);
     if (sc.isFailure()) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No PrimVtxCollection with name  "<<m_VtxContainerName<<" found in StoreGate" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No PrimVtxCollection with name  "<<m_VtxContainerName<<" found in StoreGate" << endmsg;
       return selected_tracks; //return empty track collection (but not NULL)
     } else {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "PrimVtxCollection with name  "<<m_VtxContainerName<< " with nvertices =  " << vxContainer->size() <<" found  in StoreGate" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "PrimVtxCollection with name  "<<m_VtxContainerName<< " with nvertices =  " << vxContainer->size() <<" found  in StoreGate" << endmsg;
     }
 
     //loop over vertices and look for good primary vertex
@@ -261,7 +261,7 @@ DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracks(const st
       if ((*vxIter)->recVertex().fitQuality().numberDoF() <= 0) continue;
       std::vector<Trk::VxTrackAtVertex*>* vxTrackAtVertex = (*vxIter)->vxTrackAtVertex();
       if (vxTrackAtVertex==0 || vxTrackAtVertex->size() < m_minTracksPerVtx) continue;
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found a primary vertex built with " << vxTrackAtVertex->size() << " tracks" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found a primary vertex built with " << vxTrackAtVertex->size() << " tracks" << endmsg;
       pVtx = &((*vxIter)->recVertex());//set pointer to identified primary vertex
       break;//best pvtx is the first one, so can quit loop once find it
     }
@@ -271,11 +271,11 @@ DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracks(const st
   //if track collection cannot be found an empty track collection is returned
   StatusCode sc = evtStore()->retrieve(tracks,trackColName);
   if (sc.isFailure()) {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TrackCollection with name "<<trackColName<<" found in StoreGate" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TrackCollection with name "<<trackColName<<" found in StoreGate" << endmsg;
     return selected_tracks; //return empty track collection (but not NULL)
   } else {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<trackColName<<" found in StoreGate" << endreq;
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracks->size() <<" reconstructed tracks from StoreGate" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<trackColName<<" found in StoreGate" << endmsg;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracks->size() <<" reconstructed tracks from StoreGate" << endmsg;
   }
     
   TrackCollection::const_iterator trksItr  = tracks->begin();
@@ -285,15 +285,15 @@ DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracks(const st
     Trk::Track* track = *trksItr;
 
     if(m_passAllTracks) {
-      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Track automatically passes TrackSelectionTool since passAllTracks=True" << endreq;
+      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Track automatically passes TrackSelectionTool since passAllTracks=True" << endmsg;
       selected_tracks->push_back(track);//allow all tracks into new collection, regardless of decision 
     }
     else {
-      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Testing track using trackSelectorTool..." << endreq;
+      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Testing track using trackSelectorTool..." << endmsg;
       
       bool trackPassed = false;
       if(pVtx){
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Using primary vertex in track selection" << endreq;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Using primary vertex in track selection" << endmsg;
 
 	
 	if (m_useIDTrackSelectionTool)
@@ -305,7 +305,7 @@ DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracks(const st
 	  trackPassed = m_trackSelectorTool->decision(*track,pVtx);
       }
       else {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Not using primary vertex in track selection" << endreq;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Not using primary vertex in track selection" << endmsg;
 
 	
 	if (m_useIDTrackSelectionTool)
@@ -324,7 +324,7 @@ DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracks(const st
 	ComTime* theComTime(0);
 	StatusCode sc = evtStore()->retrieve(theComTime, m_commTimeName);
 	if(sc.isFailure()){
-	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ComTime object not found with name TRT_Phase !!!" << endreq;
+	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ComTime object not found with name TRT_Phase !!!" << endmsg;
 	  trackPassed = false;
 	}
 	
@@ -333,7 +333,7 @@ DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracks(const st
 	  eventPhase = theComTime->getTime();
 	}
 	
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Event phase is " << eventPhase << endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Event phase is " << eventPhase << endmsg;
 	
 	// Cut on event phase
 	if(eventPhase == -99.0 || eventPhase <= m_minEventPhase || eventPhase >= m_maxEventPhase) {
@@ -344,9 +344,9 @@ DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracks(const st
       
       if(trackPassed) {
 	selected_tracks->push_back(track);//allow only tracks that pass decision into the new collection    
-	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Track passed trackSelectorTool" << endreq;
+	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Track passed trackSelectorTool" << endmsg;
       }
-      else if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Track failed trackSelectorTool" << endreq;
+      else if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Track failed trackSelectorTool" << endmsg;
     }
   }
 
@@ -375,10 +375,10 @@ DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracksNew(const
     const xAOD::VertexContainer* vxContainer = NULL;
     StatusCode sc = evtStore()->retrieve (vxContainer,m_VtxContainerName);
     if (sc.isFailure()) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No PrimVtxCollection with name  "<<m_VtxContainerName<<" found in StoreGate" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No PrimVtxCollection with name  "<<m_VtxContainerName<<" found in StoreGate" << endmsg;
       return return_tracks; //return empty track collection (but not NULL)
     } else {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "PrimVtxCollection with name  "<<m_VtxContainerName<< " with nvertices =  " << vxContainer->size() <<" found  in StoreGate" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "PrimVtxCollection with name  "<<m_VtxContainerName<< " with nvertices =  " << vxContainer->size() <<" found  in StoreGate" << endmsg;
     }
 
     //loop over vertices and look for good primary vertex
@@ -394,7 +394,7 @@ DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracksNew(const
 
       if ((*vxIter)->nTrackParticles()==0 || (*vxIter)->nTrackParticles() < m_minTracksPerVtx) continue;
 
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found a primary vertex built with " << (*vxIter)->nTrackParticles() << " tracks" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found a primary vertex built with " << (*vxIter)->nTrackParticles() << " tracks" << endmsg;
       pVtx = *vxIter;//set pointer to identified primary vertex
       break;//best pvtx is the first one, so can quit loop once find it
     }
@@ -407,11 +407,11 @@ DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracksNew(const
   StatusCode sc = evtStore()->retrieve(tracks,"InDetTrackParticles");
 
   if (sc.isFailure()) {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TrackCollection with name "<<trackColName<<" found in StoreGate" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TrackCollection with name "<<trackColName<<" found in StoreGate" << endmsg;
     return return_tracks; //return empty track collection (but not NULL)
   } else {
-    if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "TrackCollection with name "<<trackColName<<" found in StoreGate" << endreq;
-    if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved "<< tracks->size() <<" reconstructed tracks from StoreGate" << endreq;
+    if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "TrackCollection with name "<<trackColName<<" found in StoreGate" << endmsg;
+    if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved "<< tracks->size() <<" reconstructed tracks from StoreGate" << endmsg;
   }
     
   //TrackCollection::const_iterator trksItr  = tracks->begin();
@@ -429,22 +429,22 @@ DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracksNew(const
    
     if (!trk_p)
       {
-	msg(MSG::DEBUG)<<" IDAlignMon::TrackSelectorTool  ---NULL TRACK POINTER--- skipping track"<<endreq;
+	msg(MSG::DEBUG)<<" IDAlignMon::TrackSelectorTool  ---NULL TRACK POINTER--- skipping track"<<endmsg;
 	continue;
       }
 
         
     if(m_passAllTracks) {
-      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Track automatically passes TrackSelectionTool since passAllTracks=True" << endreq;
+      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Track automatically passes TrackSelectionTool since passAllTracks=True" << endmsg;
       //selected_tracks->push_back(track);//allow all tracks into new collection, regardless of decision 
       return_tracks->push_back(trk_p);
     }
     else {
-      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Testing track using trackSelectorTool..." << endreq;
+      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Testing track using trackSelectorTool..." << endmsg;
       
       bool trackPassed = false;
       if(pVtx){
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Using primary vertex in track selection" << endreq;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Using primary vertex in track selection" << endmsg;
 
 	
 	if (m_useIDTrackSelectionTool)
@@ -456,7 +456,7 @@ DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracksNew(const
 	  trackPassed = m_trackSelectorTool->decision(*track,pVtx);
       }
       else {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Not using primary vertex in track selection" << endreq;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Not using primary vertex in track selection" << endmsg;
 
 	
 	if (m_useIDTrackSelectionTool)
@@ -475,7 +475,7 @@ DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracksNew(const
 	ComTime* theComTime(0);
 	StatusCode sc = evtStore()->retrieve(theComTime, m_commTimeName);
 	if(sc.isFailure()){
-	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ComTime object not found with name TRT_Phase !!!" << endreq;
+	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ComTime object not found with name TRT_Phase !!!" << endmsg;
 	  trackPassed = false;
 	}
 	
@@ -484,7 +484,7 @@ DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracksNew(const
 	  eventPhase = theComTime->getTime();
 	}
 	
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Event phase is " << eventPhase << endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Event phase is " << eventPhase << endmsg;
 	
 	// Cut on event phase
 	if(eventPhase == -99.0 || eventPhase <= m_minEventPhase || eventPhase >= m_maxEventPhase) {
@@ -496,9 +496,9 @@ DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracksNew(const
       if(trackPassed) {
 	//selected_tracks->push_back(track);//allow only tracks that pass decision into the new collection
 	return_tracks->push_back(trk_p);
-	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Track passed trackSelectorTool" << endreq;
+	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Track passed trackSelectorTool" << endmsg;
       }
-      else if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Track failed trackSelectorTool" << endreq;
+      else if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Track failed trackSelectorTool" << endmsg;
     }
   }
 
@@ -522,11 +522,11 @@ DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracks()
 
   StatusCode sc = evtStore()->retrieve(tracks,m_trackColName);
   if (sc.isFailure()) {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TrackCollection with name "<<m_trackColName<<" found in StoreGate" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TrackCollection with name "<<m_trackColName<<" found in StoreGate" << endmsg;
     return selected_tracks; //return empty track collection (but not NULL)
   } else {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_trackColName<<" found in StoreGate" << endreq;
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracks->size() <<" reconstructed tracks from StoreGate" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_trackColName<<" found in StoreGate" << endmsg;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracks->size() <<" reconstructed tracks from StoreGate" << endmsg;
   }
 
   TrackCollection::const_iterator trksItr  = tracks->begin();
