@@ -12,7 +12,7 @@
 #define ISCT_CalibHistoTool_h
 
 //Gaudi includes
-//#include "GaudiKernel/IInterface.h"
+#include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/IAlgTool.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -61,7 +61,7 @@ class ISCT_CalibHistoTool: virtual public IAlgTool {
       std::vector<TH1F *> m_phistoVector;
       std::vector<TH2F *> m_phistoVector2D;
       TH1I * m_numberOfEventsHisto;
-      ITHistSvc * m_thisSvc;
+      ITHistSvc * m_thistSvc;
       //need to implement retrieval for these
       //ServiceHandle<StoreGateSvc> m_detStore;
       //ServiceHandle<StoreGateSvc> m_evtStore;

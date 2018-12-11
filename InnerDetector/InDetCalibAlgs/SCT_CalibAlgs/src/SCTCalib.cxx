@@ -21,9 +21,9 @@
 #include "SCT_CalibAlgs/SCTCalib.h"
 #include "SCT_CalibAlgs/SCT_LorentzAngleFunc.h"
 #include "SCT_CalibUtilities.h"
-#include "SCT_CalibBsErrorSvc.h"
-#include "SCT_CalibLbSvc.h"
-#include "SCT_CalibModuleListSvc.h"
+#include "SCT_CalibBsErrorTool.h"
+#include "SCT_CalibLbTool.h"
+#include "SCT_CalibModuleListTool.h"
 #include "SCT_CalibEventInfo.h"
 #include "SCT_CalibHitmapTool.h"
 
@@ -158,29 +158,29 @@ normalizeList( const std::string& strList ) {
 
 SCTCalib::SCTCalib( const std::string& name, ISvcLocator* pSvcLocator ) :
    AthAlgorithm( name, pSvcLocator ),
-   p_sgSvc                     ("StoreGateSvc",name),
+   p_sgSvc                   ("StoreGateSvc",name),
    m_thistSvc(0),
    m_pSCTHelper(0),
    m_eventInfoKey(std::string("ByteStreamEventInfo")),
-   m_pCalibWriteSvc            ("SCTCalibWriteSvc",name),
-   m_calibHitmapTool           ("SCT_CalibHitmapTool"),
-   m_calibBsErrSvc             ("SCT_CalibBsErrorSvc",name),
-   m_calibLbSvc                ("SCT_CalibLbSvc",name),
-   m_calibModuleListSvc        ("SCT_CalibModuleListSvc",name),
-   m_calibEvtInfoSvc           ("SCT_CalibEventInfo",name),
+   //m_pCalibWriteTool         ("SCTCalibWriteTool"),
+   //m_calibHitmapTool         ("SCT_CalibHitmapTool"),
+   //m_calibBsErrTool          ("SCT_CalibBsErrorTool"),
+   //m_calibLbTool             ("SCT_CalibLbTool"),
+   //m_calibModuleListTool     ("SCT_CalibModuleListTool"),
+   //m_calibEvtInfoTool        ("SCT_CalibEventInfo"),
    m_numOfEventsProcessed(0),
-
    m_numOfLBsProcessed(0),
    m_absolutetriplimit(0),
    m_relativetriplimit(0),
    m_numberOfEventsHist(0),
    m_inputHist(0),
    /* m_readHist(false), */
-   m_MAXHASH(0) {
+   m_MAXHASH(0)
+{
    declareProperty( "RunNumber",                 m_runNumber );
    declareProperty( "RunStartTime",              m_runStartTime );
    declareProperty( "RunEndTime",                m_runEndTime );
-   declareProperty( "LBMax",                     m_LBMax = "1000");
+   declareProperty( "LBMax",                     m_LBMax                      = "1000");
    declareProperty( "UseDCS",                    m_useDCS                     = false );
    declareProperty( "UseConfiguration",          m_useConfiguration           = true );
    declareProperty( "UseCalibration",            m_useCalibration             = true );
@@ -192,7 +192,6 @@ SCTCalib::SCTCalib( const std::string& name, ISvcLocator* pSvcLocator ) :
    declareProperty( "HistBefore2010",            m_histBefore2010             = false );
    declareProperty( "DoHitMaps",                 m_doHitMaps                  = true );
    declareProperty( "LbsPerWindow",              m_nLbsMerged                  = 20 );
-   //  declareProperty( "EventsPerWindow",           m_eventsPerWindow            = 10000 );
    declareProperty( "ReadHitMaps",               m_readHitMaps                = false );
    declareProperty( "DoBSErrors",                m_doBSErrors                 = false );
    declareProperty( "DoNoisyStrip",              m_doNoisyStrip               = true );
@@ -206,15 +205,15 @@ SCTCalib::SCTCalib( const std::string& name, ISvcLocator* pSvcLocator ) :
    declareProperty( "DoBSErrorDB",               m_doBSErrorDB                = false );
    declareProperty( "DoLorentzAngle",            m_doLorentzAngle             = false );
    declareProperty( "WriteToCool",               m_writeToCool                = true );
-   //reinstated 21 May
-   declareProperty( "NoisyUpdate",                m_noisyUpdate               = true );
-   declareProperty( "NoisyUploadTest",            m_noisyUploadTest           = true );
-   declareProperty( "NoisyModuleAverageInDB",     m_noisyModuleAverageInDB    = -1. );
-   declareProperty( "NoisyStripLastRunInDB",      m_noisyStripLastRunInDB     = -999 );
-   declareProperty( "NoisyStripAverageInDB",      m_noisyStripAverageInDB     = -999. );
-   declareProperty( "NoisyModuleList",            m_noisyModuleList           = 200 );
-   declareProperty( "NoisyModuleDiff",            m_noisyModuleDiff           = 0.200 );
-   declareProperty( "NoisyStripDiff",             m_noisyStripDiff            = 128. );
+
+   declareProperty( "NoisyUpdate",               m_noisyUpdate                = true );
+   declareProperty( "NoisyUploadTest",           m_noisyUploadTest            = true );
+   declareProperty( "NoisyModuleAverageInDB",    m_noisyModuleAverageInDB     = -1. );
+   declareProperty( "NoisyStripLastRunInDB",     m_noisyStripLastRunInDB      = -999 );
+   declareProperty( "NoisyStripAverageInDB",     m_noisyStripAverageInDB      = -999. );
+   declareProperty( "NoisyModuleList",           m_noisyModuleList            = 200 );
+   declareProperty( "NoisyModuleDiff",           m_noisyModuleDiff            = 0.200 );
+   declareProperty( "NoisyStripDiff",            m_noisyStripDiff             = 128. );
 
    declareProperty( "NoisyMinStat",              m_noisyMinStat               = 50000 );
    declareProperty( "NoisyStripAll",             m_noisyStripAll              = true );
@@ -317,7 +316,7 @@ StatusCode SCTCalib::initialize() {
    m_waferItrBegin  = m_pSCTHelper->wafer_begin();
    m_waferItrEnd  = m_pSCTHelper->wafer_end();
    //
-   if ( not retrievedService(m_pCalibWriteSvc)) return StatusCode::FAILURE;
+   if ( not retrievedService(m_pCalibWriteTool)) return StatusCode::FAILURE;
    if ( m_doHV) msg( MSG::FATAL ) << "Not yet properly implemented and tested!" << endmsg;
 
    ATH_CHECK(m_ConfigurationConditionsTool.retrieve( EnableTool {m_useConfiguration} ) );
@@ -337,29 +336,29 @@ StatusCode SCTCalib::initialize() {
 
    if ( not retrievedService(m_calibHitmapTool)) return StatusCode::FAILURE;
 
-   if ( not retrievedService(m_calibModuleListSvc)) return StatusCode::FAILURE;
+   if ( not retrievedService(m_calibModuleListTool)) return StatusCode::FAILURE;
 
-   if ( not retrievedService(m_calibEvtInfoSvc)) return StatusCode::FAILURE;
+   if ( not retrievedService(m_calibEvtInfoTool)) return StatusCode::FAILURE;
 
    if ( !m_useBSError ) {
       ATH_MSG_DEBUG( "ByteStreamErrorsSvc was removed in initialization" );
    } else {
-      if ( not retrievedService(m_calibBsErrSvc)) return StatusCode::FAILURE;
+      if ( not retrievedService(m_calibBsErrTool)) return StatusCode::FAILURE;
    }
-   if ( not retrievedService(m_calibLbSvc) ) return StatusCode::FAILURE;
+   if ( not retrievedService(m_calibLbTool) ) return StatusCode::FAILURE;
 
    ATH_CHECK(m_CablingTool.retrieve());
 
    //--- LB range
    try {
       m_LBRange = std::stoi( m_LBMax );
-      ISCT_CalibHistoSvc::setNumberOfLb(m_LBRange);
+      ISCT_CalibHistoTool::setNumberOfLb(m_LBRange);
    } catch (...) {
       ATH_MSG_ERROR( "Couldn't cast m_LBMax=\""<< m_LBMax <<"\" to m_LBRange...");
       m_LBRange = 0;
    }
 
-   ISCT_CalibHistoSvc::setLbToMerge(m_nLbsMerged);
+   ISCT_CalibHistoTool::setLbToMerge(m_nLbsMerged);
 
 
    m_readHIST = m_doNoiseOccupancy || m_doRawOccupancy || m_doEfficiency || m_doBSErrorDB || m_doLorentzAngle;
@@ -372,7 +371,7 @@ StatusCode SCTCalib::initialize() {
    //--- Open BS
    if ( m_readBS ) {
       ATH_MSG_INFO( "------------> Reading from ByteStream <-------------");
-      m_calibEvtInfoSvc->setSource("BS");
+      m_calibEvtInfoTool->setSource("BS");
       ATH_CHECK(m_eventInfoKey.initialize());
    }
 
@@ -380,7 +379,7 @@ StatusCode SCTCalib::initialize() {
    //--- Open HIST
    if ( m_readHIST ) {
       ATH_MSG_INFO( "------------> Reading from HIST <-------------" );
-      m_calibEvtInfoSvc->setSource("HIST");
+      m_calibEvtInfoTool->setSource("HIST");
       //--- List of HIST
       std::string hist("");
       std::vector<std::string> histCollection = m_input_hist.value();
@@ -405,7 +404,7 @@ StatusCode SCTCalib::initialize() {
          const std::string os=std::to_string((int)m_runNumber);
          ATH_MSG_INFO( "Getting HIST directory : " << (int)m_runNumber );
          if ( not m_inputHist->GetDirectory( "/run_"+TString(os) ) ) return msg( MSG::ERROR ) << "RunNumber in HIST is inconsistent with jobO : " << os << endmsg, StatusCode::FAILURE ;
-         ATH_MSG_INFO( "Getting Number of events: " << m_calibEvtInfoSvc->counter() );
+         ATH_MSG_INFO( "Getting Number of events: " << m_calibEvtInfoTool->counter() );
          //--- Read number of events : Get an entry of "tier0ESD" in "/GLOBAL/DQTDataFlow/events_lb"
          std::string osHist= std::string( "/run_") + std::to_string((int)m_runNumber)+"/GLOBAL/DQTDataFlow/events_lb";
          TH1I* hist_events = (TH1I *) m_inputHist->Get( osHist.c_str() );
@@ -419,26 +418,26 @@ StatusCode SCTCalib::initialize() {
 
       ATH_MSG_INFO( "Initialization of TimeStamp/LB, taken from runInfo.txt" );
       //--- Initialization of TimeStamp/LB, taken from runInfo.txt
-      m_calibEvtInfoSvc->setSource("HIST");
-      m_calibEvtInfoSvc->setTimeStamp(m_runStartTime,m_runEndTime);
-      m_calibEvtInfoSvc->setRunNumber(m_runNumber);
+      m_calibEvtInfoTool->setSource("HIST");
+      m_calibEvtInfoTool->setTimeStamp(m_runStartTime,m_runEndTime);
+      m_calibEvtInfoTool->setRunNumber(m_runNumber);
    }
 
    //--- Booking histograms for hitmaps
    if ( m_doHitMaps ) m_calibHitmapTool->book();
    //--- Reading histograms for hitmaps
    if ( ( not m_doHitMaps && not m_doNoisyLB) && m_readHitMaps) {
-      m_calibEvtInfoSvc->setSource("HIST");
+      m_calibEvtInfoTool->setSource("HIST");
       m_calibHitmapTool->read("./SCTHitMaps.root");
       m_numberOfEventsHist = m_calibHitmapTool->size();
-      m_calibEvtInfoSvc->setTimeStamp(m_runStartTime,m_runEndTime);
-      m_calibEvtInfoSvc->setRunNumber(m_runNumber);
-      m_calibLbSvc->read("./SCTLB.root");
+      m_calibEvtInfoTool->setTimeStamp(m_runStartTime,m_runEndTime);
+      m_calibEvtInfoTool->setRunNumber(m_runNumber);
+      m_calibLbTool->read("./SCTLB.root");
    }
    //--- Booking histograms for BSErrors
-   if ( m_doBSErrors ) m_calibBsErrSvc->book();
+   if ( m_doBSErrors ) m_calibBsErrTool->book();
    //--- Hit-vs-LB for LBs in noisy links/chips
-   if ( m_doNoisyLB ) m_calibLbSvc->book();
+   if ( m_doNoisyLB ) m_calibLbTool->book();
 
    //--- Check statistics for NoiseOccupancy
    if ( m_doNoiseOccupancy and notEnoughStatistics(m_noiseOccupancyMinStat, m_numberOfEventsHist)) return StatusCode::FAILURE;
@@ -491,14 +490,14 @@ StatusCode SCTCalib::execute() {
       const int lumiBlock = evt->event_ID()->lumi_block();
       int timeStampBeginOld;
       int timeStampEndOld;
-      m_calibEvtInfoSvc->getTimeStamps(timeStampBeginOld, timeStampEndOld);
-      m_calibEvtInfoSvc->setTimeStamp(std::min(timeStamp, timeStampBeginOld), std::max(timeStamp, timeStampEndOld));
+      m_calibEvtInfoTool->getTimeStamps(timeStampBeginOld, timeStampEndOld);
+      m_calibEvtInfoTool->setTimeStamp(std::min(timeStamp, timeStampBeginOld), std::max(timeStamp, timeStampEndOld));
       int lbBeginOld;
       int lbEndOld;
-      m_calibEvtInfoSvc->getLumiBlock(lbBeginOld, lbEndOld);
-      m_calibEvtInfoSvc->setLumiBlock(std::min(lumiBlock, lbBeginOld), std::max(lumiBlock, lbEndOld));
-      m_calibEvtInfoSvc->setLumiBlock(lumiBlock);
-      m_calibEvtInfoSvc->setTimeStamp(timeStamp);
+      m_calibEvtInfoTool->getLumiBlock(lbBeginOld, lbEndOld);
+      m_calibEvtInfoTool->setLumiBlock(std::min(lumiBlock, lbBeginOld), std::max(lumiBlock, lbEndOld));
+      m_calibEvtInfoTool->setLumiBlock(lumiBlock);
+      m_calibEvtInfoTool->setTimeStamp(timeStamp);
    }
 
    const bool majorityIsGoodOrUnused=( m_useMajority and m_MajorityConditionsTool->isGood() ) or !m_useMajority;
@@ -506,13 +505,13 @@ StatusCode SCTCalib::execute() {
    if ( m_doHitMaps  and majorityIsGoodOrUnused ) m_calibHitmapTool->fill(m_readBS);
 
    //--- Fill histograms for (1) Number of events and (2) Hits as a function of LB
-   if ( m_doNoisyLB and majorityIsGoodOrUnused ) m_calibLbSvc->fill(m_readBS);
+   if ( m_doNoisyLB and majorityIsGoodOrUnused ) m_calibLbTool->fill(m_readBS);
 
    //--- Fill histograms for (1) Number of events and (2) BSErrors
-   if ( m_doBSErrors ) m_calibBsErrSvc->fill(m_readBS);
+   if ( m_doBSErrors ) m_calibBsErrTool->fill(m_readBS);
 
    //--- Increment event counter : to be ready for the next event loop
-   m_calibEvtInfoSvc->incrementCounter();
+   m_calibEvtInfoTool->incrementCounter();
 
    return StatusCode::SUCCESS;
 }
@@ -524,11 +523,11 @@ StatusCode SCTCalib::execute() {
 StatusCode SCTCalib::endRun() {
    ATH_MSG_INFO( "----- in endRun() ----- " );
    //--- Number of events processed
-   m_numberOfEvents = (m_readHIST || (!m_doHitMaps && m_readHitMaps)) ? m_numberOfEventsHist : m_calibEvtInfoSvc->counter();
-   m_calibEvtInfoSvc->getTimeStamps(m_utcBegin,m_utcEnd);
+   m_numberOfEvents = (m_readHIST || (!m_doHitMaps && m_readHitMaps)) ? m_numberOfEventsHist : m_calibEvtInfoTool->counter();
+   m_calibEvtInfoTool->getTimeStamps(m_utcBegin,m_utcEnd);
 
 
-   //  if ( m_doNoisyLB ) m_calibLbSvc->binHistograms(m_nLbsMerged);
+   //  if ( m_doNoisyLB ) m_calibLbTool->binHistograms(m_nLbsMerged);
 
    //--- IOV range defined by RunNumber and LB
    unsigned int beginRun = (int) m_runNumber;
@@ -661,8 +660,8 @@ StatusCode SCTCalib::doHVPrintXML(const std::pair<int, int> & timeInterval, cons
 StatusCode SCTCalib::getNoisyStrip() {
    enum Categories {ALL, NEW, REF, N_CATEGORIES};
    //--- Check statistics
-   //msg( MSG::INFO ) << m_calibEvtInfoSvc->counter() << "   " <<m_calibHitmapTool->size() << endmsg;
-   //int numOfEventsProcessed=m_calibEvtInfoSvc->counter();
+   //msg( MSG::INFO ) << m_calibEvtInfoTool->counter() << "   " <<m_calibHitmapTool->size() << endmsg;
+   //int numOfEventsProcessed=m_calibEvtInfoTool->counter();
    m_numOfEventsProcessed=m_calibHitmapTool->size();
    //sroe: This looks like a bug, so I change the code here
 
@@ -682,7 +681,7 @@ StatusCode SCTCalib::getNoisyStrip() {
    //--- Number of LBs processed
    m_numOfLBsProcessed = 0;
    for ( int iLB = 0; iLB != m_LBRange; ++iLB ) {
-      if ( m_calibLbSvc and m_calibLbSvc->getNumberOfEventsInBin( iLB + 1 ) > 0 ) ++m_numOfLBsProcessed;
+      if ( m_calibLbTool and m_calibLbTool->getNumberOfEventsInBin( iLB + 1 ) > 0 ) ++m_numOfLBsProcessed;
    }
 
    //--- Choice of threshold
@@ -691,7 +690,7 @@ StatusCode SCTCalib::getNoisyStrip() {
    ModuleList_t moduleLists[N_CATEGORIES];
    //Reading data from COOL
    // original code switched on this :if (m_noisyUpdate)
-   if (m_calibModuleListSvc->readModuleList(moduleLists[REF]).isFailure()) return msg( MSG::ERROR ) << "Could not read moduleList" << endmsg, StatusCode::FAILURE;
+   if (m_calibModuleListTool->readModuleList(moduleLists[REF]).isFailure()) return msg( MSG::ERROR ) << "Could not read moduleList" << endmsg, StatusCode::FAILURE;
 
    //two bad strip lists: all, new
    typedef std::set<Identifier> StripList_t;
@@ -936,7 +935,7 @@ StatusCode SCTCalib::getDeadStrip() {
 
       //check BS Error
       bool hasBSError=false;
-      if(m_calibBsErrSvc->size((int)waferHash)>0) hasBSError=true;
+      if(m_calibBsErrTool->size((int)waferHash)>0) hasBSError=true;
       if(disabled || hasBSError) { //goto WRITE_DB; //<-- who ever put this in should be shot; http://xkcd.com/292/
          if(side==1) {
             //write to DB & .xml.
@@ -954,7 +953,7 @@ StatusCode SCTCalib::getDeadStrip() {
 
             if(!(defectStrip.empty())) {
                if(m_writeToCool) {
-                  if (m_pCalibWriteSvc->createListStrip(moduleId,m_pSCTHelper,10000,"DEAD",m_deadStripSignificance,defectStrip).isFailure())
+                  if (m_pCalibWriteTool->createListStrip(moduleId,m_pSCTHelper,10000,"DEAD",m_deadStripSignificance,defectStrip).isFailure())
                      return msg( MSG::ERROR ) << "Could not create list" << endmsg, StatusCode::FAILURE;
                }
 
@@ -966,7 +965,7 @@ StatusCode SCTCalib::getDeadStrip() {
 
             if(!(defectChip.empty())) {
                if(m_writeToCool) {
-                  if ( m_pCalibWriteSvc->createListChip(moduleId,m_pSCTHelper,10000,"DEAD",m_deadChipSignificance,defectChip).isFailure())
+                  if ( m_pCalibWriteTool->createListChip(moduleId,m_pSCTHelper,10000,"DEAD",m_deadChipSignificance,defectChip).isFailure())
                      return msg( MSG::ERROR ) << "Could not create list" << endmsg, StatusCode::FAILURE;
                }
 
@@ -1052,7 +1051,7 @@ StatusCode SCTCalib::getDeadStrip() {
 
             if(!(defectStrip.empty())) {
                if(m_writeToCool) {
-                  if (m_pCalibWriteSvc->createListStrip(moduleId,m_pSCTHelper,10000,"DEAD",m_deadStripSignificance,defectStrip).isFailure())
+                  if (m_pCalibWriteTool->createListStrip(moduleId,m_pSCTHelper,10000,"DEAD",m_deadStripSignificance,defectStrip).isFailure())
                      return msg( MSG::ERROR ) << "Could not create strip list" << endmsg, StatusCode::FAILURE;
                }
 
@@ -1064,7 +1063,7 @@ StatusCode SCTCalib::getDeadStrip() {
             }
             if(!(defectChip.empty())) {
                if(m_writeToCool) {
-                  if (m_pCalibWriteSvc->createListChip(moduleId,m_pSCTHelper,10000,"DEAD",m_deadChipSignificance,defectChip).isFailure())
+                  if (m_pCalibWriteTool->createListChip(moduleId,m_pSCTHelper,10000,"DEAD",m_deadChipSignificance,defectChip).isFailure())
                      return msg( MSG::ERROR ) << "Could not create strip list" << endmsg, StatusCode::FAILURE;
                }
 
@@ -1097,14 +1096,14 @@ StatusCode SCTCalib::getDeadStrip() {
             if(m_doDeadStrip) {
                if(side==0) beginDead=0, endDead=767;
                else beginDead=768, endDead=1535;
-               defectStrip = m_pCalibWriteSvc->addDefect(defectStrip,beginDead,endDead);
+               defectStrip = m_pCalibWriteTool->addDefect(defectStrip,beginDead,endDead);
             }
 
             //For DeadChip
             if(m_doDeadChip) {
                if(side==0) beginDead=0, endDead=5;
                else beginDead=6, endDead=11;
-               defectChip = m_pCalibWriteSvc->addDefect(defectChip,beginDead,endDead);
+               defectChip = m_pCalibWriteTool->addDefect(defectChip,beginDead,endDead);
             }
 
             if(side==1) {
@@ -1123,7 +1122,7 @@ StatusCode SCTCalib::getDeadStrip() {
                }
                if(!(defectStrip.empty())) {
                   if(m_writeToCool) {
-                     if (m_pCalibWriteSvc->createListStrip(moduleId,m_pSCTHelper,10000,"DEAD",m_deadStripSignificance,defectStrip).isFailure())
+                     if (m_pCalibWriteTool->createListStrip(moduleId,m_pSCTHelper,10000,"DEAD",m_deadStripSignificance,defectStrip).isFailure())
                         return msg( MSG::ERROR ) << "Could not create strip list" << endmsg, StatusCode::FAILURE;
                   }
 
@@ -1136,7 +1135,7 @@ StatusCode SCTCalib::getDeadStrip() {
 
                if(!(defectChip.empty())) {
                   if(m_writeToCool) {
-                     if ( m_pCalibWriteSvc->createListChip(moduleId,m_pSCTHelper,10000,"DEAD",m_deadChipSignificance,defectChip).isFailure())
+                     if ( m_pCalibWriteTool->createListChip(moduleId,m_pSCTHelper,10000,"DEAD",m_deadChipSignificance,defectChip).isFailure())
                         return msg( MSG::ERROR ) << "Could not create chip list" << endmsg, StatusCode::FAILURE;
                   }
 
@@ -1182,7 +1181,7 @@ StatusCode SCTCalib::getDeadStrip() {
             }
 
             if(m_doDeadChip) {
-               if((beforeIsDead && !isDead) || (j==5 && isDead)) defectChip = m_pCalibWriteSvc->addDefect(defectChip,beginDead,endDead);
+               if((beforeIsDead && !isDead) || (j==5 && isDead)) defectChip = m_pCalibWriteTool->addDefect(defectChip,beginDead,endDead);
             }
             beforeIsDead = isDead;
          }//end chip loop
@@ -1207,7 +1206,7 @@ StatusCode SCTCalib::getDeadStrip() {
                }
 
                if(m_doDeadStrip) {
-                  if((beforeIsDead && !isDead) || (j==5 && isDead)) defectStrip = m_pCalibWriteSvc->addDefect(defectStrip,beginDead,endDead);
+                  if((beforeIsDead && !isDead) || (j==5 && isDead)) defectStrip = m_pCalibWriteTool->addDefect(defectStrip,beginDead,endDead);
                }
                beforeIsDead = isDead;
             }
@@ -1246,13 +1245,13 @@ StatusCode SCTCalib::getDeadStrip() {
 
    if( m_writeToCool ) {
       if(m_doDeadStrip && hasDeadStrip) {
-         if ( m_pCalibWriteSvc->wrapUpDeadStrips().isFailure() ) {
+         if ( m_pCalibWriteTool->wrapUpDeadStrips().isFailure() ) {
             msg( MSG::ERROR ) << "Could not get DeadStrips Info" << endmsg;
             return StatusCode::FAILURE;
          }
       }
       if(m_doDeadChip && hasDeadChip) {
-         if ( m_pCalibWriteSvc->wrapUpDeadChips().isFailure() ) {
+         if ( m_pCalibWriteTool->wrapUpDeadChips().isFailure() ) {
             msg( MSG::ERROR ) << "Could not get DeadChips Info" << endmsg;
             return StatusCode::FAILURE;
          }
@@ -1374,7 +1373,7 @@ StatusCode SCTCalib::getNoiseOccupancy()
                outFile << xmlChannelNoiseOccDataString(waferId, occupancy, sn)<<endl;
                //--- DB output
                if ( m_writeToCool ) {
-                  if ( m_pCalibWriteSvc->createListNO( waferId, m_pSCTHelper, 10000, occupancy ).isFailure() ) {
+                  if ( m_pCalibWriteTool->createListNO( waferId, m_pSCTHelper, 10000, occupancy ).isFailure() ) {
                      msg( MSG::ERROR ) << "Unable to run createListNO" << endmsg;
                      return StatusCode::FAILURE;
                   }
@@ -1400,7 +1399,7 @@ StatusCode SCTCalib::getNoiseOccupancy()
                outFile << xmlChannelNoiseOccDataString(waferId, occupancy, sn)<<endl;
                //--- DB output
                if ( m_writeToCool ) {
-                  if ( m_pCalibWriteSvc->createListNO( waferId, m_pSCTHelper, 10000, occupancy ).isFailure() ) {
+                  if ( m_pCalibWriteTool->createListNO( waferId, m_pSCTHelper, 10000, occupancy ).isFailure() ) {
                      msg( MSG::ERROR ) << "Unable to run createListNO" << endmsg;
                      return StatusCode::FAILURE;
                   }
@@ -1425,7 +1424,7 @@ StatusCode SCTCalib::getNoiseOccupancy()
                outFile << xmlChannelNoiseOccDataString(waferId, occupancy, sn)<<endl;
                //--- DB output
                if ( m_writeToCool ) {
-                  if ( m_pCalibWriteSvc->createListNO( waferId, m_pSCTHelper, 10000, occupancy ).isFailure() ) {
+                  if ( m_pCalibWriteTool->createListNO( waferId, m_pSCTHelper, 10000, occupancy ).isFailure() ) {
                      msg( MSG::ERROR ) << "Unable to run createListNO" << endmsg;
                      return StatusCode::FAILURE;
                   }
@@ -1472,7 +1471,7 @@ StatusCode SCTCalib::getNoiseOccupancy()
 
    //--- DB output
    if( m_writeToCool ) {
-      if ( m_pCalibWriteSvc->wrapUpNoiseOccupancy().isFailure() ) {
+      if ( m_pCalibWriteTool->wrapUpNoiseOccupancy().isFailure() ) {
          msg( MSG::ERROR ) << "Could not get NoiseOccupancy" << endmsg;
          return StatusCode::FAILURE;
       }
@@ -1551,7 +1550,7 @@ StatusCode SCTCalib::getRawOccupancy()
                   }
                   //--- DB writing
                   if( m_writeToCool ) {
-                     if( m_pCalibWriteSvc->createListRawOccu(waferId, m_pSCTHelper, m_numberOfEvents, raw_occu).isFailure() ) {
+                     if( m_pCalibWriteTool->createListRawOccu(waferId, m_pSCTHelper, m_numberOfEvents, raw_occu).isFailure() ) {
                         msg( MSG::ERROR ) << "Unable to run createListRawOccu" << endmsg;
                         return StatusCode::FAILURE;
                      }
@@ -1578,7 +1577,7 @@ StatusCode SCTCalib::getRawOccupancy()
                }
                //--- DB writing
                if( m_writeToCool ) {
-                  if( m_pCalibWriteSvc->createListRawOccu(waferId, m_pSCTHelper, m_numberOfEvents, raw_occu).isFailure() ) {
+                  if( m_pCalibWriteTool->createListRawOccu(waferId, m_pSCTHelper, m_numberOfEvents, raw_occu).isFailure() ) {
                      msg( MSG::ERROR ) << "Unable to run createListRawOccu" << endmsg;
                      return StatusCode::FAILURE;
                   }
@@ -1619,7 +1618,7 @@ StatusCode SCTCalib::getRawOccupancy()
 
    //--- DB output
    if( m_writeToCool ) {
-      if ( m_pCalibWriteSvc->wrapUpRawOccupancy().isFailure() ) {
+      if ( m_pCalibWriteTool->wrapUpRawOccupancy().isFailure() ) {
          msg( MSG::ERROR ) << "Could not get RawOccupancy" << endmsg;
          return StatusCode::FAILURE;
       }
@@ -1685,7 +1684,7 @@ StatusCode SCTCalib::getEfficiency() {
    outFile << xmlValue("RunNumber",  (int)m_runNumber                  ) << linefeed
            << xmlValue("StartTime",  m_utcBegin                        ) << linefeed
            << xmlValue("EndTime",  m_utcEnd                            ) << linefeed
-           << xmlValue("Duration",  m_calibEvtInfoSvc->duration()      ) << linefeed
+           << xmlValue("Duration",  m_calibEvtInfoTool->duration()      ) << linefeed
            << xmlValue("LB",  m_LBRange                                ) << linefeed
            << xmlValue("Events",  m_numberOfEvents                     ) << linefeed
            << "  <modules>"<< endl;
@@ -1731,7 +1730,7 @@ StatusCode SCTCalib::getEfficiency() {
                   outFile << xmlChannelEfficiencyDataString(waferId, eff, sn)<<endl;
                   //--- DB writing
                   if( m_writeToCool ) {
-                     if( m_pCalibWriteSvc->createListEff(waferId, m_pSCTHelper, eff_entry, eff).isFailure() ) {
+                     if( m_pCalibWriteTool->createListEff(waferId, m_pSCTHelper, eff_entry, eff).isFailure() ) {
                         msg( MSG::ERROR ) << "Unable to run createListEff" << endmsg;
                         return StatusCode::FAILURE;
                      }
@@ -1760,7 +1759,7 @@ StatusCode SCTCalib::getEfficiency() {
                outFile << xmlChannelEfficiencyDataString(waferId, eff, sn)<<endl;
                //--- DB writing
                if( m_writeToCool ) {
-                  if( m_pCalibWriteSvc->createListEff(waferId, m_pSCTHelper, eff_entry, eff).isFailure() ) {
+                  if( m_pCalibWriteTool->createListEff(waferId, m_pSCTHelper, eff_entry, eff).isFailure() ) {
                      msg( MSG::ERROR ) << "Unable to run createListEff" << endmsg;
                      return StatusCode::FAILURE;
                   }
@@ -1810,7 +1809,7 @@ StatusCode SCTCalib::getEfficiency() {
 
    //--- DB output
    if( m_writeToCool ) {
-      if ( m_pCalibWriteSvc->wrapUpEfficiency().isFailure() ) {
+      if ( m_pCalibWriteTool->wrapUpEfficiency().isFailure() ) {
          msg( MSG::ERROR ) << "Could not get Efficiency" << endmsg;
          return StatusCode::FAILURE;
       }
@@ -1947,8 +1946,8 @@ StatusCode SCTCalib::getBSErrors() {
                         n_errors = (unsigned long long)prof_tmp->GetBinContent( iEta+1, iPhi+1 );
                         //		    unsigned long long n_errors = (unsigned long long)prof_tmp->GetBinContent( iEta+1, iPhi+1 );
                         if(n_errors!=0) {
-                           defecttype = m_pCalibWriteSvc->addNumber( defecttype, errItr->first );
-                           n_defect = m_pCalibWriteSvc->addNumber( n_defect, n_errors );
+                           defecttype = m_pCalibWriteTool->addNumber( defecttype, errItr->first );
+                           n_defect = m_pCalibWriteTool->addNumber( n_defect, n_errors );
                            errorProb = (float) n_errors / (float) m_numberOfEvents;
                            nErrs_ECC_module[iDisk][iSide][iEta][iPhi][errItr->first] = n_errors;
                            if( thisBec==ENDCAP_C ) {
@@ -1978,7 +1977,7 @@ StatusCode SCTCalib::getBSErrors() {
                         nErrLink_ECA[iDisk][iEta]++;
                      }
                      if( m_writeToCool ) {
-                        if( m_pCalibWriteSvc->createListBSErr(waferId, m_pSCTHelper, m_numberOfEvents, osErrorList.str(),osProbList.str()).isFailure() ) {
+                        if( m_pCalibWriteTool->createListBSErr(waferId, m_pSCTHelper, m_numberOfEvents, osErrorList.str(),osProbList.str()).isFailure() ) {
                            msg( MSG::ERROR ) << "Unable to run createListBSError" << endmsg;
                            return StatusCode::FAILURE;
                         }
@@ -2026,8 +2025,8 @@ StatusCode SCTCalib::getBSErrors() {
                      n_errors = (unsigned long long)prof_tmp->GetBinContent( iEta+1, iPhi+1 );
                      //		  unsigned long long n_errors = (unsigned long long)prof_tmp->GetBinContent( iEta+1, iPhi+1 );
                      if(n_errors!=0) {
-                        defecttype = m_pCalibWriteSvc->addNumber( defecttype, errItr->first );
-                        n_defect = m_pCalibWriteSvc->addNumber( n_defect, n_errors );
+                        defecttype = m_pCalibWriteTool->addNumber( defecttype, errItr->first );
+                        n_defect = m_pCalibWriteTool->addNumber( n_defect, n_errors );
                         errorProb = (float) n_errors / (float) m_numberOfEvents;
                         nErrs_Barrel_module[iLayer][iSide][iEta][iPhi][errItr->first] = n_errors;
                         nErrLink_Barrel_module[iLayer][iSide][iEta][iPhi]+=n_errors;
@@ -2047,7 +2046,7 @@ StatusCode SCTCalib::getBSErrors() {
                   n_errorLink++;
                   nErrLink_Barrel[iLayer]++;
                   if( m_writeToCool ) {
-                     if( m_pCalibWriteSvc->createListBSErr(waferId, m_pSCTHelper, m_numberOfEvents, osErrorList.str(), osProbList.str()).isFailure() ) {
+                     if( m_pCalibWriteTool->createListBSErr(waferId, m_pSCTHelper, m_numberOfEvents, osErrorList.str(), osProbList.str()).isFailure() ) {
                         msg( MSG::ERROR ) << "Unable to run createListBSError" << endmsg;
                         return StatusCode::FAILURE;
                      }//end of if m_pCalib
@@ -2165,7 +2164,7 @@ StatusCode SCTCalib::getBSErrors() {
 
    //--- DB output
    if( m_writeToCool ) {
-      if ( m_pCalibWriteSvc->wrapUpBSErrors().isFailure() ) {
+      if ( m_pCalibWriteTool->wrapUpBSErrors().isFailure() ) {
          msg( MSG::ERROR ) << "Could not get ByteStream Errors" << endmsg;
          return StatusCode::FAILURE;
       }
@@ -2424,8 +2423,8 @@ StatusCode SCTCalib::getLorentzAngle() {
 
             //--- DB output
             if ( m_writeToCool ) {
-               //	if ( m_pCalibWriteSvc->createListLA( waferId, m_pSCTHelper, 10000, moduleint[iModule], LA_BarrelSide[iLayer][iSide][iModule],MCW_BarrelSide[iLayer][iSide][iModule] ).isFailure() ) {
-               if ( m_pCalibWriteSvc->createListLA( waferId, m_pSCTHelper, 10000, moduleint[iModule], LA_BarrelSide[iLayer][iSide][iModule], Err_LA_BarrelSide[iLayer][iSide][iModule],  Chisq_BarrelSide[iLayer][iSide][iModule], A_BarrelSide[iLayer][iSide][iModule], Err_A_BarrelSide[iLayer][iSide][iModule], B_BarrelSide[iLayer][iSide][iModule], Err_B_BarrelSide[iLayer][iSide][iModule], Sigma_BarrelSide[iLayer][iSide][iModule], Err_Sigma_BarrelSide[iLayer][iSide][iModule], MCW_BarrelSide[iLayer][iSide][iModule], Err_MCW_BarrelSide[iLayer][iSide][iModule] ).isFailure() ) {
+               //	if ( m_pCalibWriteTool->createListLA( waferId, m_pSCTHelper, 10000, moduleint[iModule], LA_BarrelSide[iLayer][iSide][iModule],MCW_BarrelSide[iLayer][iSide][iModule] ).isFailure() ) {
+               if ( m_pCalibWriteTool->createListLA( waferId, m_pSCTHelper, 10000, moduleint[iModule], LA_BarrelSide[iLayer][iSide][iModule], Err_LA_BarrelSide[iLayer][iSide][iModule],  Chisq_BarrelSide[iLayer][iSide][iModule], A_BarrelSide[iLayer][iSide][iModule], Err_A_BarrelSide[iLayer][iSide][iModule], B_BarrelSide[iLayer][iSide][iModule], Err_B_BarrelSide[iLayer][iSide][iModule], Sigma_BarrelSide[iLayer][iSide][iModule], Err_Sigma_BarrelSide[iLayer][iSide][iModule], MCW_BarrelSide[iLayer][iSide][iModule], Err_MCW_BarrelSide[iLayer][iSide][iModule] ).isFailure() ) {
                   msg( MSG::ERROR ) << "Unable to run createListLA" << endmsg;
                   return StatusCode::FAILURE;
                }
@@ -2478,7 +2477,7 @@ StatusCode SCTCalib::getLorentzAngle() {
    file << xmlValue("RunNumber",  (int)m_runNumber) << linefeed
         << xmlValue("StartTime",  m_utcBegin) << linefeed
         << xmlValue("EndTime",  m_utcEnd) << linefeed
-        << xmlValue("Duration",  m_calibEvtInfoSvc->duration() ) << linefeed
+        << xmlValue("Duration",  m_calibEvtInfoTool->duration() ) << linefeed
         << xmlValue("LB",  m_LBRange) << linefeed
         << xmlValue("Events",  m_numberOfEvents) << linefeed
         << xmlValue("Flag",  DBUploadFlag) << linefeed
@@ -2492,7 +2491,7 @@ StatusCode SCTCalib::getLorentzAngle() {
 
    //--- DB output
    if( m_writeToCool ) {
-      if ( m_pCalibWriteSvc->wrapUpLorentzAngle().isFailure() ) {
+      if ( m_pCalibWriteTool->wrapUpLorentzAngle().isFailure() ) {
          msg( MSG::ERROR ) << "Could not get LorentzAngle" << endmsg;
          return StatusCode::FAILURE;
       }
@@ -2596,8 +2595,8 @@ StatusCode SCTCalib::openXML4DeadSummary( std::ofstream& file, const char* type,
    file <<xmlValue("RunNumber",(int) m_runNumber)                       << linefeed
         <<xmlValue("StartTime",      m_utcBegin)                        << linefeed
         <<xmlValue("EndTime",        m_utcEnd)                          << linefeed
-        <<xmlValue("Duration",       m_calibEvtInfoSvc->duration())     << linefeed
-        <<xmlValue("LB",             m_calibEvtInfoSvc->numLumiBlocks())<< linefeed
+        <<xmlValue("Duration",       m_calibEvtInfoTool->duration())     << linefeed
+        <<xmlValue("LB",             m_calibEvtInfoTool->numLumiBlocks())<< linefeed
         <<xmlValue("Events",         m_numberOfEvents )                 << linefeed
         <<xmlValue("Modules",        n_Module)                          << linefeed
         <<xmlValue("Links",          n_Link)                            << linefeed
@@ -2638,7 +2637,7 @@ StatusCode SCTCalib::openXML4MonSummary( std::ofstream& file, const char* type )
    file << xmlValue("RunNumber",  (int)m_runNumber                  ) << linefeed
         << xmlValue("StartTime",  m_utcBegin                        ) << linefeed
         << xmlValue("EndTime",  m_utcEnd                          ) << linefeed
-        << xmlValue("Duration",  m_calibEvtInfoSvc->duration() ) << linefeed
+        << xmlValue("Duration",  m_calibEvtInfoTool->duration() ) << linefeed
         << xmlValue("LB",  m_LBRange                         ) << linefeed
         << xmlValue("Events",  m_numberOfEvents                  ) << linefeed
         << "  <data>"<< endl;
@@ -2834,16 +2833,16 @@ SCTCalib::writeModuleListToCool( const std::map< Identifier, std::set<Identifier
          std::string defectStripsRef =  moduleRefItr != moduleListRef.end() ? getStripList( (*moduleRefItr).second ) : "";
          if ( m_noisyUpdate ) { //--- UPD1/UPD4
             if ( defectStripsAll != defectStripsRef ) {
-               if(m_pCalibWriteSvc->createCondObjects( moduleId, m_pSCTHelper, 10000, "NOISY", noisyStripThr, defectStripsAll ).isFailure()) {
-                  msg( MSG::ERROR ) << "Could not create defect strip entry in the CalibWriteSvc." << endmsg;
+               if(m_pCalibWriteTool->createCondObjects( moduleId, m_pSCTHelper, 10000, "NOISY", noisyStripThr, defectStripsAll ).isFailure()) {
+                  msg( MSG::ERROR ) << "Could not create defect strip entry in the CalibWriteTool." << endmsg;
                }
                nDefects++;
             } else msg( MSG::DEBUG ) << "Module "<< moduleId  <<" is identical to the reference output" << endmsg;
          } else {
             if ( m_noisyStripAll ) { //--- ALL noisy strips
-               if ( !defectStripsAll.empty() ) m_pCalibWriteSvc->createCondObjects( moduleId, m_pSCTHelper, 10000, "NOISY", noisyStripThr, defectStripsAll );
+               if ( !defectStripsAll.empty() ) m_pCalibWriteTool->createCondObjects( moduleId, m_pSCTHelper, 10000, "NOISY", noisyStripThr, defectStripsAll );
             } else { //--- Only NEW noisy strips
-               if ( !defectStripsNew.empty() ) m_pCalibWriteSvc->createCondObjects( moduleId, m_pSCTHelper, 10000, "NOISY", noisyStripThr, defectStripsNew );
+               if ( !defectStripsNew.empty() ) m_pCalibWriteTool->createCondObjects( moduleId, m_pSCTHelper, 10000, "NOISY", noisyStripThr, defectStripsNew );
             }
          }
       }
@@ -2852,7 +2851,7 @@ SCTCalib::writeModuleListToCool( const std::map< Identifier, std::set<Identifier
    if ( moduleListAll.empty() || nDefects==0 ) {
       msg( MSG::INFO ) << "Number of noisy strips was zero or the same list of noisy strips. No local DB was created." << endmsg;
    } else {
-      if ( m_pCalibWriteSvc->wrapUpNoisyChannel().isFailure() ) {
+      if ( m_pCalibWriteTool->wrapUpNoisyChannel().isFailure() ) {
          msg( MSG::ERROR ) << "Could not get NoisyStrips info" << endmsg;
          return StatusCode::FAILURE;
       }
@@ -2884,7 +2883,7 @@ SCTCalib::getStripList( const std::set<Identifier>& stripIdList ) const {
             } else {
                int stripBegin = firstStrip;
                int stripEnd   = firstStrip + groupSize -1;
-               strList = m_pCalibWriteSvc->addDefect( strList, stripBegin, stripEnd );
+               strList = m_pCalibWriteTool->addDefect( strList, stripBegin, stripEnd );
                firstStrip = stripNum;
                groupSize  = 1;
             }
@@ -2892,7 +2891,7 @@ SCTCalib::getStripList( const std::set<Identifier>& stripIdList ) const {
          if ( stripItr == stripItrLast ) {
             int stripBegin = firstStrip;
             int stripEnd   = stripNum;
-            strList = m_pCalibWriteSvc->addDefect( strList, stripBegin, stripEnd );
+            strList = m_pCalibWriteTool->addDefect( strList, stripBegin, stripEnd );
          }
       }
    }
@@ -2946,6 +2945,7 @@ SCTCalib::noisyStripsToXml( const std::map< Identifier, std::set<Identifier> >& 
 
    return StatusCode::SUCCESS;
 }
+
 StatusCode SCTCalib::noisyStripsToSummaryXml( const std::map< Identifier, std::set<Identifier> >& moduleListAll,
       const std::map< Identifier, std::set<Identifier> >& moduleListNew,
       const std::map< Identifier, std::set<Identifier> >& moduleListRef,
@@ -2991,7 +2991,7 @@ StatusCode SCTCalib::noisyStripsToSummaryXml( const std::map< Identifier, std::s
       bool isNoisyWafer = getNumNoisyStrips( waferId ).second; // true if this wafer is noisy
       if ( isNoisyWafer ) {
          int link = m_pSCTHelper->side( waferId );
-         defectLinks = m_pCalibWriteSvc->addDefect( defectLinks, link, link );
+         defectLinks = m_pCalibWriteTool->addDefect( defectLinks, link, link );
          ++numLinksAll;
       }
 
@@ -3029,7 +3029,7 @@ StatusCode SCTCalib::noisyStripsToSummaryXml( const std::map< Identifier, std::s
                for ( ; chipItr != chipItrE; ++chipItr ) {
                   int chipId = *chipItr;
                   //--- To be written into module list
-                  defectChips = m_pCalibWriteSvc->addDefect( defectChips, chipId, chipId );
+                  defectChips = m_pCalibWriteTool->addDefect( defectChips, chipId, chipId );
                   //--- LBs where this chip was noisy
                   std::pair< string, float > defectLB = getNoisyLB( moduleId, chipId );
                   //--- Chip list written to XML
@@ -3119,7 +3119,7 @@ StatusCode SCTCalib::noisyStripsToSummaryXml( const std::map< Identifier, std::s
            << "  <value name=\"RunNumber\">"        << (int) m_runNumber                 << "</value>" << linefeed
            << "  <value name=\"StartTime\">"        << m_utcBegin                        << "</value>" << linefeed
            << "  <value name=\"EndTime\">"          << m_utcEnd                          << "</value>" << linefeed
-           << "  <value name=\"Duration\">"         << m_calibEvtInfoSvc->duration() << "</value>" << linefeed
+           << "  <value name=\"Duration\">"         << m_calibEvtInfoTool->duration() << "</value>" << linefeed
            << "  <value name=\"LB\">"               << m_numOfLBsProcessed               << "</value>" << linefeed
            << "  <value name=\"Events\">"           << m_numberOfEvents            << "</value>" << linefeed
            << "  <value name=\"Modules\">"          << numModulesAll                     << "</value>" << linefeed
@@ -3211,15 +3211,15 @@ SCTCalib::getNoisyLB( const Identifier& moduleId, int& chipId ) const {
    double chipOccupancyThr = noisyStripThr*n_stripPerChip*m_noisyChipFraction;
    std::set<int> LBList;
    LBList.clear();
-   if (!m_calibLbSvc) {
-      msg( MSG::ERROR ) << "NULL pointer m_calibLbSvc line "<<__LINE__ << endmsg;
+   if (!m_calibLbTool) {
+      msg( MSG::ERROR ) << "NULL pointer m_calibLbTool line "<<__LINE__ << endmsg;
       return std::make_pair( defectLB, defectLBFrac );
    }
 
    for ( int iLB = 0; iLB != m_LBRange; ++iLB ) {
-      double numEventsInLB = m_calibLbSvc->getNumberOfEventsInBin( iLB + 1 );
+      double numEventsInLB = m_calibLbTool->getNumberOfEventsInBin( iLB + 1 );
       if ( numEventsInLB == 0 ) continue;
-      double chipOccupancy = m_calibLbSvc->getBinForHistogramIndex( iLB + 1, histIndex )/numEventsInLB;
+      double chipOccupancy = m_calibLbTool->getBinForHistogramIndex( iLB + 1, histIndex )/numEventsInLB;
       if ( chipOccupancy > chipOccupancyThr ) LBList.insert( iLB );
    }
    //--- Transform LBList to string and calculate a fraction of noisy LBs
@@ -3254,7 +3254,7 @@ std::string SCTCalib::getLBList( const std::set<int>& LBList ) const {
             } else {
                int LBBegin = firstLB;
                int LBEnd   = firstLB + LBSize -1;
-               strList = m_pCalibWriteSvc->addDefect( strList, LBBegin, LBEnd );
+               strList = m_pCalibWriteTool->addDefect( strList, LBBegin, LBEnd );
                firstLB = iLB;
                LBSize  = 1;
             }
@@ -3262,7 +3262,7 @@ std::string SCTCalib::getLBList( const std::set<int>& LBList ) const {
          if ( LBItr == LBItrLast ) {
             int LBBegin = firstLB;
             int LBEnd   = iLB;
-            strList = m_pCalibWriteSvc->addDefect( strList, LBBegin, LBEnd );
+            strList = m_pCalibWriteTool->addDefect( strList, LBBegin, LBEnd );
          }
       }
    }

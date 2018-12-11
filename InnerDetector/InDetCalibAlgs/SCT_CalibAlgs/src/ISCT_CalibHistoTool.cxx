@@ -18,7 +18,7 @@
 int ISCT_CalibHistoTool::m_nLb=0;
 int ISCT_CalibHistoTool::m_nLbMerge=0;
 
-ISCT_CalibHistoTool::ISCT_CalibHistoTool():m_numberOfEventsHisto(0),m_thisSvc(0),m_pSCTHelper(0) {
+ISCT_CalibHistoTool::ISCT_CalibHistoTool():m_numberOfEventsHisto(0),m_thistSvc(0),m_pSCTHelper(0) {
    //std::cout<<"Instantiation of ISCT_CalibHistoTool"<<std::endl;
    //nop
 }

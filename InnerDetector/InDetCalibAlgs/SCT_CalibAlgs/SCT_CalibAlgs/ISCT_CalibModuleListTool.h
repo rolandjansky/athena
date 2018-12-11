@@ -23,7 +23,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "Identifier/Identifier.h"
 
-class ISCT_CalibModuleListTool:virtual public IAlgTool {
+class ISCT_CalibModuleListTool : virtual public IAlgTool {
    public:
       //@name Service methods, reimplemented
       //@{

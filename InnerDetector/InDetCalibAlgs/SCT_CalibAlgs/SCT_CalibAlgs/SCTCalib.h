@@ -19,11 +19,10 @@
 #define SCTCalib_H
 
 // Local
-#include "SCT_CalibAlgs/ISCT_CalibHistoSvc.h"
 #include "SCT_CalibAlgs/ISCT_CalibHistoTool.h"
 #include "SCT_CalibAlgs/ISCT_CalibEvtInfo.h"
-#include "SCT_CalibAlgs/ISCT_CalibModuleListSvc.h"
-#include "SCT_CalibAlgs/SCTCalibWriteSvc.h" //template parameter
+#include "SCT_CalibAlgs/ISCT_CalibModuleListTool.h"
+#include "SCT_CalibAlgs/SCTCalibWriteTool.h" //template parameter
 
 //Athena
 #include "AthenaBaseComps/AthAlgorithm.h"  //baseclass
@@ -102,19 +101,16 @@ class SCTCalib : public AthAlgorithm {
       SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
       SG::ReadHandleKey<EventInfo>                                m_eventInfoKey;
 
-      ServiceHandle<SCTCalibWriteSvc>                 m_pCalibWriteSvc;
+      ToolHandle<SCTCalibWriteTool>                   m_pCalibWriteTool{this, "SCTCalibWriteTool", "SCTCalibWriteTool", "Tool to write out data from calibration loop"};
       ToolHandle<ISCT_ConfigurationConditionsTool>    m_ConfigurationConditionsTool{this, "SCT_ConfigurationConditionsTool", "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration"};
       ToolHandle<ISCT_ReadCalibDataTool>              m_ReadCalibDataTool{this, "SCT_ReadCalibDataTool", "SCT_ReadCalibDataTool/InDetSCT_ReadCalibDataTool", "Tool to retrieve SCT calibration data"};
       ToolHandle<ISCT_DetectorLevelConditionsTool>    m_MajorityConditionsTool{this, "SCT_MajorityConditionsTool", "SCT_MajorityConditionsTool", "Tool to retrieve the majority conditions of SCT"};
       ToolHandle<ISCT_CablingTool>                    m_CablingTool{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
-      ToolHandle<ISCT_CalibHistoTool>                 m_calibHitmapTool;
-
-      //shaun added
-      //ServiceHandle<ISCT_CalibHistoSvc>               m_calibHitmapSvc; //convert to Tool
-      ServiceHandle<ISCT_CalibHistoSvc>               m_calibBsErrSvc;
-      ServiceHandle<ISCT_CalibHistoSvc>               m_calibLbSvc;
-      ServiceHandle<ISCT_CalibModuleListSvc>          m_calibModuleListSvc;
-      ServiceHandle<ISCT_CalibEvtInfo>                m_calibEvtInfoSvc;
+      ToolHandle<ISCT_CalibHistoTool>                 m_calibHitmapTool{this, "SCT_CalibHitMapTool", "SCT_CalibHitMapTool", "Tool for reading and writing HitMap histograms"};
+      ToolHandle<ISCT_CalibHistoTool>                 m_calibLbTool{this, "SCT_CalibLbTool", "SCT_CalibLbTool", "Tool for reading and writing Lb dependent HitMap histograms"};
+      ToolHandle<ISCT_CalibHistoTool>                 m_calibBsErrTool{this, "SCT_CalibBsErrTool", "SCT_CalibBsErrTool", "Tool for reading and writing BS error histograms"};
+      ToolHandle<ISCT_CalibModuleListTool>            m_calibModuleListTool{this, "SCT_CalibModuleListTool", "SCT_CalibModuleListTool", "Tool for handling list of modules"};
+      ToolHandle<ISCT_CalibEvtInfo>                   m_calibEvtInfoTool{this, "SCT_CalibEvtInfo", "SCT_CalibEvtInfo", "Tool for handling event info"};
 
       // Book histograms
 
@@ -219,7 +215,7 @@ class SCTCalib : public AthAlgorithm {
       BooleanProperty m_doBSErrorDB;
       BooleanProperty m_doLorentzAngle;
       BooleanProperty m_writeToCool;
-      //reinstated 21 May, sroe
+
       BooleanProperty m_noisyUpdate;
       BooleanProperty m_noisyUploadTest;
       FloatProperty   m_noisyModuleAverageInDB; // Average number of modules with at least 1 noisy strip in COOL
@@ -387,8 +383,7 @@ class SCTCalib : public AthAlgorithm {
                                const std::map< Identifier, std::set<Identifier> >& moduleListNew,
                                const std::map< Identifier, std::set<Identifier> >& moduleListRef,
                                const std::string& badStripsFile) const;
-      /* StatusCode  */
-      /* noisyStripsToSummaryXmlFake( const std::string& badStripsFile) const; */
+
       std::set<int>
       getNoisyChips( const std::set<Identifier>& stripIdList ) const;
       //

@@ -87,7 +87,7 @@ SCT_CalibHitmapTool::book() {
    string histoName=pathRoot+"GENERAL/";
    //histogram for numbers of events
    m_numberOfEventsHisto=new TH1I("events","Events",1,0.5,1.5);
-   if( m_thisSvc->regHist( histoName.c_str(), m_numberOfEventsHisto ).isFailure() ) {
+   if( m_thistSvc->regHist( histoName.c_str(), m_numberOfEventsHisto ).isFailure() ) {
       msg( MSG::ERROR ) << "Error in booking EventNumber histogram" << endmsg;
    }
    //histograms for each wafer
@@ -105,7 +105,7 @@ SCT_CalibHitmapTool::book() {
       TH1F* hitmapHisto_tmp = new TH1F( TString( formattedPosition ), TString( histotitle ), nbins, firstStrip-0.5, lastStrip+0.5 );
 
       //cout<<name.c_str()<<endl;
-      if( m_thisSvc->regHist( name.c_str(), hitmapHisto_tmp ).isFailure()) {
+      if( m_thistSvc->regHist( name.c_str(), hitmapHisto_tmp ).isFailure()) {
          msg( MSG::ERROR ) << "Error in booking Hitmap histogram" << endmsg;
       } else {
          m_phistoVector.push_back( hitmapHisto_tmp );

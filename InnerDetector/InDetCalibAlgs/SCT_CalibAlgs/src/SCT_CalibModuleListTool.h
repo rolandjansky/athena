@@ -40,7 +40,7 @@ class SCT_CalibModuleListTool : public extends<AthAlgTool, ISCT_CalibModuleListT
    public:
       //@name Tool methods, reimplemented
       //@{
-      SCT_CalibModuleListTool(const std::string& type, const std::string& name, const IInterface* parent);
+      SCT_CalibModuleListTool(const std::string&, const std::string&, const IInterface*);
       virtual ~SCT_CalibModuleListTool() {};
       virtual StatusCode initialize();
       virtual StatusCode finalize();

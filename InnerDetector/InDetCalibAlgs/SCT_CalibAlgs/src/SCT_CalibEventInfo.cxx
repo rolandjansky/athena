@@ -7,14 +7,15 @@
  * Implementation file for the SCT_CalibEventInfo class
  * @author Shaun Roe
 **/
+
 #include <limits>
-//STL, boost
+
 #include "SCT_CalibEventInfo.h"
 #include "SCT_CalibUtilities.h"
-#include "EventInfo/EventInfo.h"
 
+#include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
-//coral/cool
+
 #include "CoralBase/TimeStamp.h"
 
 namespace {
@@ -23,7 +24,8 @@ const int INTMAX(std::numeric_limits<int>::max());
 const long long oneBillion(1000000000LL);
 }
 
-SCT_CalibEventInfo::SCT_CalibEventInfo(const std::string &name, ISvcLocator * svc):AthService(name,svc),
+SCT_CalibEventInfo::SCT_CalibEventInfo(const std::string& type, const std::string& name, const IInterface* parent) :
+   base_class(type, name, parent),
    m_timeStampBegin(INTMAX),
    m_tsBeginString(""),
    m_tsEndString(""),
@@ -59,7 +61,7 @@ SCT_CalibEventInfo::queryInterface(const InterfaceID & riid, void** ppvInterface
    if ( ISCT_CalibEvtInfo::interfaceID().versionMatch(riid) ) {
       *ppvInterface = dynamic_cast<ISCT_CalibEvtInfo*>(this);
    } else {
-      return AthService::queryInterface(riid, ppvInterface);
+      return AthAlgTool::queryInterface(riid, ppvInterface);
    }
    addRef();
    return StatusCode::SUCCESS;
@@ -106,18 +108,22 @@ SCT_CalibEventInfo::setLumiBlock(const int begin, const int end) {
    m_LBEnd=end;
    m_numLB=end-begin+1;
 }
+
 void
 SCT_CalibEventInfo::setLumiBlock(const int lb) {
    m_lumiBlock=lb;
 }
+
 void
 SCT_CalibEventInfo::setSource(const std::string source) {
    m_source=source;
 }
+
 void
 SCT_CalibEventInfo::setRunNumber(const int rn) {
-  m_runNumber=rn;
+   m_runNumber=rn;
 }
+
 void
 SCT_CalibEventInfo::setBunchCrossing(const int bc) {
    m_bunchCrossing=bc;

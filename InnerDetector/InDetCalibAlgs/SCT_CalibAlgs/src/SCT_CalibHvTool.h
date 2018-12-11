@@ -36,13 +36,13 @@ class ISvcLocator;
 class IdentifierHash;
 class EventInfo;
 
-class SCT_CalibHvTool : : public extends<AthAlgTool, ISCT_CalibHistoTool>
+class SCT_CalibHvTool : public extends<AthAlgTool, ISCT_CalibHistoTool>
 {
 
    public:
       //@name Tool methods, reimplemented
       //@{
-      SCT_CalibHvTool(const std::string& type, const std::string& name, const IInterface* parent);
+      SCT_CalibHvTool(const std::string&, const std::string&, const IInterface*);
       virtual ~SCT_CalibHvTool() {};
       virtual StatusCode initialize();
       virtual StatusCode finalize();

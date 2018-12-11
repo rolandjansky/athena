@@ -37,7 +37,7 @@ class SCT_CalibBsErrorTool : public extends<AthAlgTool, ISCT_CalibHistoTool>
    public:
       //@name Tool methods, reimplemented
       //@{
-      SCT_CalibBsErrorTool(const std::string& type, const std::string& name, const IInterface* parent);
+      SCT_CalibBsErrorTool(const std::string&, const std::string&, const IInterface*);
       virtual ~SCT_CalibBsErrorTool() {};
       virtual StatusCode initialize();
       virtual StatusCode finalize();

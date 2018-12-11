@@ -43,7 +43,7 @@ class SCT_CalibLbTool : public extends<AthAlgTool, ISCT_CalibHistoTool>
    public:
       //@name Tool methods, reimplemented
       //@{
-      SCT_CalibLbTool(const std::string& type, const std::string& name, const IInterface* parent);
+      SCT_CalibLbTool(const std::string&, const std::string&, const IInterface*);
       virtual ~SCT_CalibLbTool() {};
       virtual StatusCode initialize();
       virtual StatusCode finalize();

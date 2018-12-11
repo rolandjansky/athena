@@ -3,7 +3,7 @@
 */
 
 /**
- * @file SCT_CalibHitmapSvc.h
+ * @file SCT_CalibHitmapTool.h
  * Header file for the SCT_CalibHitmapTool class
  * @author Shaun Roe
 **/
@@ -28,6 +28,7 @@
 #include "SCT_CalibAlgs/ISCT_CalibHistoTool.h"
 
 //fwd declarations
+
 class StatusCode;
 
 //class SCT_CalibHitmapTool : virtual public ISCT_CalibHistoTool, public AthAlgTool
@@ -37,9 +38,8 @@ class SCT_CalibHitmapTool : public extends<AthAlgTool, ISCT_CalibHistoTool>
    public:
       //@name Tool methods, reimplemented
       //@{
-      SCT_CalibHitmapTool(const std::string& type, const std::string& name, const IInterface* parent);
-      //SCT_CalibHitmapTool(const std::string&);
-      virtual ~SCT_CalibHitmapTool(){};
+      SCT_CalibHitmapTool(const std::string&, const std::string&, const IInterface*);
+      virtual ~SCT_CalibHitmapTool() {};
       virtual StatusCode initialize();
       virtual StatusCode finalize();
       //interfaceID() implementation is in the baseclass
@@ -51,8 +51,9 @@ class SCT_CalibHitmapTool : public extends<AthAlgTool, ISCT_CalibHistoTool>
       virtual bool read(const std::string & fileName);
       virtual bool fill(const bool fromData=false);
       virtual bool fillFromData();
-      //  virtual bool binHistograms(const int eventsPerWindow);
+      //virtual bool binHistograms(const int eventsPerWindow);
       //@}
+
    private:
       ServiceHandle<StoreGateSvc> m_detStore;
       ServiceHandle<StoreGateSvc> m_evtStore;
