@@ -54,18 +54,38 @@ def TrigInDetConfig( flags ):
     acc.merge(SCT_CablingCondAlgCfg(flags))
     from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConfigurationConditionsTool
     acc.addPublicTool(SCT_ConfigurationConditionsTool())
+    channelFolder = "/SCT/DAQ/Config/Chip"
+    moduleFolder = "/SCT/DAQ/Config/Module"
+    murFolder = "/SCT/DAQ/Config/MUR"
     from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ConfigurationCondAlg
-    acc.addCondAlgo(SCT_ConfigurationCondAlg(ReadKeyChannel = "/SCT/DAQ/Config/Chip",
-                                             ReadKeyModule = "/SCT/DAQ/Config/Module",
-                                             ReadKeyMur = "/SCT/DAQ/Config/MUR"))
+    acc.addCondAlgo(SCT_ConfigurationCondAlg(ReadKeyChannel = channelFolder,
+                                             ReadKeyModule = moduleFolder,
+                                             ReadKeyMur = murFolder))
     from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
+    acc.merge(addFolders(flags, [channelFolder, moduleFolder, murFolder], "SCT", className="CondAttrListVec"))
     # Set up SCTSiLorentzAngleCondAlg
     from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConfigurationConditionsTool
-    from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
-    sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
+    stateFolder = "/SCT/DCS/CHANSTAT"
+    hvFolder = "/SCT/DCS/HV"
+    tempFolder = "/SCT/DCS/MODTEMP"
+    dbInstance = "DCS_OFL"
+    acc.merge(addFolders(flags, [stateFolder, hvFolder, tempFolder], dbInstance, className="CondAttrListCollection"))
+    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DCSConditionsStatCondAlg
+    acc.addCondAlgo(SCT_DCSConditionsStatCondAlg(ReturnHVTemp = True,
+                                                 ReadKeyHV = hvFolder,
+                                                 ReadKeyState = stateFolder))
+    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DCSConditionsHVCondAlg
+    acc.addCondAlgo(SCT_DCSConditionsHVCondAlg(ReadKey = hvFolder))
+
+    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DCSConditionsTempCondAlg
+    acc.addCondAlgo(SCT_DCSConditionsTempCondAlg(ReadKey = tempFolder))
+
+    from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_DCSConditionsTool
 
     from SCT_ConditionsTools.SCT_SiliconConditionsToolSetup import SCT_SiliconConditionsToolSetup
     sct_SiliconConditionsToolSetup = SCT_SiliconConditionsToolSetup()
+    from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
+    sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
     sct_SiliconConditionsToolSetup.setDcsTool(sct_DCSConditionsToolSetup.getTool())
     sct_SiliconConditionsToolSetup.setToolName("InDetSCT_SiliconConditionsTool")
     sct_SiliconConditionsToolSetup.setup()
