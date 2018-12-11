@@ -13,6 +13,7 @@
 #include <xAODTruth/TruthParticleContainer.h>
 #include <xAODTruth/TruthParticle.h>
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/AnaToolHandle.h"
 #include "GammaORTools/IVGammaORTool.h"
 
 /****************************************************************************//**
@@ -37,7 +38,7 @@
 class VGammaORTool: public asg::AsgTool, virtual public IVGammaORTool {
   ASG_TOOL_CLASS(VGammaORTool, IVGammaORTool)
 public:
-  VGammaORTool(const std::string& name, const std::vector<float>& photon_pT_cuts={});
+  VGammaORTool(const std::string& name);
   virtual ~VGammaORTool() override;
 
   /// Determine whether current event is in overlap region (set via reference).
@@ -100,7 +101,6 @@ public:
                         const xAOD::TruthParticleContainer& truthParticles,
                         float dR0, float exponent, float epsilon) const override;
 
-private:
 
   /// Get final state (determined by status and barcode) photons (determined by pdg id) from truthParticleContainer
   /// A minimum pT cut and isolation is applied according to tool configuration
@@ -110,6 +110,8 @@ private:
   /// Get final state (determined by status and barcode) leptons (determined by pdg id) from truthParticleContainer
   /// Filter function is applied, only leptons from relevant origins are kept
   std::vector<TLorentzVector> getLeptonP4s(const xAOD::TruthParticleContainer& truthParticleContainer) const;
+
+private:
 
   // This function performs the actual algorithm needed for OR, if one of the public functions is called
   // It returns a vector of ordered photon pTs for multiple lepton-photon dR cuts
@@ -146,8 +148,7 @@ private:
   float frixioneFunc(float dR, float dR0, float exponent, float epsilon) const;
 
   // MCTruthClassifier
-  // Is pointer because otherwise non-const function m_truthClassifier.particleTruthClassifier would spoil constness
-  MCTruthClassifier* m_truthClassifier;
+  asg::AnaToolHandle<MCTruthClassifier> m_truthClassifier;
 
   // CONFIGURATION =================================================
 

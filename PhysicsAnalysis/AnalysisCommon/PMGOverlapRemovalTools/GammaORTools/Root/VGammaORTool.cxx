@@ -4,9 +4,9 @@
 
 #include "GammaORTools/VGammaORTool.h"
 
-VGammaORTool::VGammaORTool(const std::string& name, const std::vector<float>& photon_pT_cuts)
+VGammaORTool::VGammaORTool(const std::string& name)
   : asg::AsgTool(name),
-  m_truthClassifier(new MCTruthClassifier("MCTruthClassifier")) {
+    m_truthClassifier("MCTruthClassifier",this) {
 
   declareProperty("max_barcode", m_max_barcode = 1e5);
 
@@ -19,7 +19,7 @@ VGammaORTool::VGammaORTool(const std::string& name, const std::vector<float>& ph
   declareProperty("veto_photon_origins", m_veto_photon_origins = {9, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35,
                                                                   42});
 
-  declareProperty("photon_pT_cuts", m_photon_pT_cuts = photon_pT_cuts);
+  declareProperty("photon_pT_cuts", m_photon_pT_cuts = {});
   declareProperty("dR_lepton_photon_cut", m_dR_lepton_photon_cut = 0.1);
   declareProperty("dR_lepton_photon_cuts", m_dR_lepton_photon_cuts = {0.0, 0.05, 0.075, 0.1, 0.125, 0.15, 0.2});
 
@@ -43,7 +43,6 @@ VGammaORTool::VGammaORTool(const std::string& name, const std::vector<float>& ph
 }
 
 VGammaORTool::~VGammaORTool() {
-  delete m_truthClassifier;
 }
 
 
@@ -296,7 +295,7 @@ std::vector<TLorentzVector> VGammaORTool::getLeptonP4s(const xAOD::TruthParticle
   std::vector<TLorentzVector> lepton_p4s;
   std::vector<int> lepton_origins;
   for (const auto& p : lepton_candidates) {
-    auto res = m_truthClassifier->particleTruthClassifier(p);
+    auto res = const_cast<asg::AnaToolHandle<MCTruthClassifier>*>(&m_truthClassifier)->get()->particleTruthClassifier(p);
     lepton_origins.push_back(res.second);
     lepton_p4s.push_back(p->p4());
   }
@@ -318,7 +317,7 @@ std::vector<TLorentzVector> VGammaORTool::getPhotonP4s(const xAOD::TruthParticle
       continue;
     }
     // determine photon origin
-    auto res = m_truthClassifier->particleTruthClassifier(p);
+    auto res = const_cast<asg::AnaToolHandle<MCTruthClassifier>*>(&m_truthClassifier)->get()->particleTruthClassifier(p);
     photon_origins.push_back(res.second);
     photon_p4s.push_back(p->p4());
   }
