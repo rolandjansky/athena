@@ -30,20 +30,12 @@
 // ROOT forward declarations
 class TTree;
 
-class IIncidentSvc;
-//class AtlasDetectorID;
-
 namespace ISF {
     class ISFParticle;
 }
 
 namespace iFatras 
 {
- 
-  class IParticleDecayHelper;
-  class ITrackCreator;    
-  class ISimHitCreator;    
-    
   /** @class PhysicsValidationTool 
       
       Fatras AlgTool to validate the physics content 
