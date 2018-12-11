@@ -148,6 +148,7 @@ HLTConfigSvc::initialize() {
          m_HLTFrame.theHLTChainList().addHLTChain( chain );
          ATH_MSG_INFO(" RUN 3 TESTING MODE! Adding dummy chain with hash:" << chain->chain_hash_id() << " : " << chainName << " [" << chainCounter << "] <- " << chainSeed); 
       }
+      ATH_MSG_INFO(" RUN 3 TESTING MODE! Total number of chains: " << chains().size()); 
 
       return StatusCode::SUCCESS;
 

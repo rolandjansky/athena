@@ -111,7 +111,10 @@ namespace TrigDec {
 
     // Tools & services
     ServiceHandle<TrigConf::ITrigConfigSvc> m_trigConfigSvc; //!< handle to the full (L1 & HLT) trigger config service
+    Gaudi::Property<std::string> m_trigConfigLocation{this, "TrigConfigLocation", "TrigConf::TrigConfigSvc/TrigConfigSvc", "Trigger configuration service to fetch"};
+
     ToolHandle<HLT::ILvl1ResultAccessTool> m_lvl1Tool;  //!< tool to ease the access to the L1 results (RoIs, items, etc)
+    Gaudi::Property<std::string> m_lvl1ToolLocation{this, "Lvl1ToolLocation", "HLT::Lvl1ResultAccessTool/Lvl1ResultAccessTool", "L1 tool to fetch"};
 
     // Input keys configuration
     SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_HLTSummaryKeyIn {this, "HLTSummary", "HLTSummary", "HLT summary container Key"};

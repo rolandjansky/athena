@@ -33,8 +33,8 @@ using namespace TrigDec;
 
 TrigDecisionMakerMT::TrigDecisionMakerMT(const std::string &name, ISvcLocator *pSvcLocator)
   : ::AthReentrantAlgorithm(name, pSvcLocator),
-    m_trigConfigSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
-    m_lvl1Tool("HLT::Lvl1ResultAccessTool/Lvl1ResultAccessTool", this)
+    m_trigConfigSvc(m_trigConfigLocation, name),
+    m_lvl1Tool(m_lvl1ToolLocation, this)
 {}
 
 TrigDecisionMakerMT::~TrigDecisionMakerMT() {}
@@ -253,9 +253,9 @@ int32_t TrigDecisionMakerMT::getChainCounter(const TrigCompositeUtils::DecisionI
     ATH_MSG_ERROR("Unable to locate chain with hash:" << chainID << " in the TrigConf, the error reported was:" << chainName);
     return -1;
   }
-  const TrigConf::HLTChain* chain = m_trigConfigSvc->chainList()->chain(chainName);
+  const TrigConf::HLTChain* chain = m_trigConfigSvc->chains().chain(chainName);
   if (chain == nullptr) {
-    ATH_MSG_ERROR("Unable to fetch HLTChain object for chain with ID:'" << chainID << "' and name:'" << chainName << "' (number of chains:" << m_trigConfigSvc->chainList()->size() << ")");
+    ATH_MSG_ERROR("Unable to fetch HLTChain object for chain with ID:'" << chainID << "' and name:'" << chainName << "' (number of chains:" << m_trigConfigSvc->chains().size() << ")");
     return -1;        
   }
   return chain->chain_counter();
