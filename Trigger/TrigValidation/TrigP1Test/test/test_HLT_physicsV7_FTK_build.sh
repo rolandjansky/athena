@@ -2,6 +2,7 @@
 
 # art-description: athenaHLT on data with Physics_pp_v7 menu and doFTK currently from 2016 EB data with FTK added 
 # art-type: build
+# art-include: 21.3/Athena
 # art-include: 21.1/AthenaP1
 # art-include: 21.1-dev/AthenaP1
 # art-include: 21.0/AthenaP1

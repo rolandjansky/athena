@@ -2,6 +2,7 @@
 
 # art-description: athenaHLT on online test data including L1Topo ROI & DAQ ROB decoding with Physics_pp_v7 menu on events selected from data15_13TeV.00278748.physics_Main 
 # art-type: build
+# art-include: 21.3/Athena
 # art-include: 21.1/AthenaP1
 # art-include: 21.1-dev/AthenaP1
 # art-include: 21.0/AthenaP1

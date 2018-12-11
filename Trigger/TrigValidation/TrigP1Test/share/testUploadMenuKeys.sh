@@ -165,7 +165,7 @@ cmd="/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuE
 
 # create script to upload keys
 echo "# setup release" >> uploadSMK_"$stump"_"$prescale_type".sh
-echo "asetup AthenaP1,21.1,r${rel}" >> uploadSMK_"$stump"_"$prescale_type".sh
+echo "asetup Athena,21.3,r${rel}" >> uploadSMK_"$stump"_"$prescale_type".sh
 echo "# creating SMK" >> uploadSMK_"$stump"_"$prescale_type".sh
 echo "if [ -f MenusKeys.txt ]; then" >> uploadSMK_"$stump"_"$prescale_type".sh
 echo "   rm MenusKeys.txt" >> uploadSMK_"$stump"_"$prescale_type".sh
