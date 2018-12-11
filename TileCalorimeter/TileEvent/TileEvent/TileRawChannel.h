@@ -51,6 +51,8 @@ class TileRawChannel: public TileRawData {
                    float ped = 0.0);
     TileRawChannel(const Identifier& id, float amplitude, float time, float quality, float ped = 0.0);
 
+    TileRawChannel& operator=(const TileRawChannel&) = default;
+
     /* Destructor */
 
     ~TileRawChannel() {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -37,7 +37,7 @@ public:
 
     TileTTL1(const Identifier& id, std::vector<float>&& digits );
 
-    ~TileTTL1() {}
+    ~TileTTL1() = default;
 
     /* Access methods */
 

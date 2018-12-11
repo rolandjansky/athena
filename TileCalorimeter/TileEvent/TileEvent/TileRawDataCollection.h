@@ -54,7 +54,7 @@ template <typename TELEMENT> class TileRawDataCollection
         m_id(0), m_lvl1Id(0), m_lvl1Type(0), m_detEvType(0), m_rodBCID(0) { this->reserve(48); }
 
     // destructor               
-    virtual ~TileRawDataCollection<TELEMENT> () { }
+    virtual ~TileRawDataCollection<TELEMENT> () = default;
 
     // clear everything for next event
     virtual void clear ();
