@@ -67,7 +67,7 @@ namespace Muon {
       m_intersectSvc("MuonStationIntersectSvc",name()),
       m_extrapolator("Trk::Extrapolator/MuonExtrapolator"),
       m_mdtRotCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
-      m_cscRotCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator"),
+      m_cscRotCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator", this),
       m_clusRotCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
       m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
       m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"), 

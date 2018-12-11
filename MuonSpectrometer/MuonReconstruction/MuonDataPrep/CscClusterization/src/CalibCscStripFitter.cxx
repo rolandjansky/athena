@@ -23,7 +23,7 @@ CalibCscStripFitter::
 CalibCscStripFitter(string type, string aname, const IInterface* parent)
   : AthAlgTool(type, aname, parent),m_noiseOption(rms),
     m_pmuon_detmgr(0), m_phelper(0),
-    m_cscCalibTool("CscCalibTool/CscCalibTool") {
+    m_cscCalibTool("CscCalibTool/CscCalibTool", this) {
   
   declareInterface<ICscStripFitter>(this);
   declareProperty("timeError", m_terr =5.0);

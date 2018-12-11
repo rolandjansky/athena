@@ -17,7 +17,6 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandleKey.h"
 //#include "CscClusterization/CalibCscStripFitter.h"
-//#include "CscClusterization/ICscStripFitter.h"
 
 namespace MuonGM {
   class MuonDetectorManager;
@@ -29,12 +28,10 @@ namespace Trk {
 namespace Muon {
   class MuonIdHelperTool;
   class MuonSegment;
-  class IMuonClusterOnTrackCreator;
+  class ICscClusterOnTrackCreator;
   class CscPrepData;
 }
 class ICscSegmentFinder;
-class ICscClusterFitter;
-class ICscStripFitter;
 
 class CscSegmentUtilTool : virtual public ICscSegmentUtilTool, public AthAlgTool {
 
@@ -118,11 +115,9 @@ private:  // data
   bool m_remove3Overlap; 
   int  m_nunspoil;
  
-  ToolHandle<ICscClusterFitter> m_pfitter_prec;
-  ToolHandle<Muon::IMuonClusterOnTrackCreator> m_rotCreator;
+  ToolHandle<Muon::ICscClusterOnTrackCreator> m_rotCreator;
   ToolHandle<Muon::MuonIdHelperTool> m_idHelper;
-  ToolHandle<ICscClusterUtilTool> m_clusterTool;
-  ToolHandle<ICscStripFitter>   m_stripFitter;
+  
   ServiceHandle<MuonCalib::CscICoolStrSvc> m_cscCoolStrSvc;
 
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","event info"};

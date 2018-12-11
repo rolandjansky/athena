@@ -30,8 +30,8 @@ CscClusterUtilTool::
 CscClusterUtilTool(string type, string aname, const IInterface* parent)
   : AthAlgTool(type, aname, parent),
     m_pmuon_detmgr(0), m_phelper(0),
-    m_stripFitter("CalibCscStripFitter/CalibCscStripFitter"),
-    m_precClusterFitter("QratCscClusterFitter/QratCscClusterFitter"),
+    m_stripFitter("CalibCscStripFitter/CalibCscStripFitter", this),
+    m_precClusterFitter("QratCscClusterFitter/QratCscClusterFitter", this),
     m_cscStripLocation("CSC_Measurements")
 {
   declareInterface<ICscClusterUtilTool>(this);

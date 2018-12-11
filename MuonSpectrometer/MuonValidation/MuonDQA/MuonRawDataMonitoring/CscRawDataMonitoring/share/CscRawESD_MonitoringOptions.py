@@ -28,6 +28,7 @@ from AthenaCommon.AppMgr import ToolSvc
 
 from AthenaCommon import CfgMgr
 from AthenaCommon.CfgGetter import getPublicTool,getPublicToolClone
+from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone
 
 CalibCscStripFitter = getPublicTool("CalibCscStripFitter")
 ToolSvc += CalibCscStripFitter
@@ -68,8 +69,8 @@ cscClusterESDValAlg = CscClusterValAlg( name = 'cscClusterESDValAlg',
                                         CSCClusterKey = 'CSC_Clusters',
                                         CSCPrepRawDataKey = 'CSC_Measurements',
                                         CSCQmaxCutADC = 0,
-                                        CSCCalibTool = ToolSvc.CscCalibTool,
-                                        CSCStripFitter = ToolSvc.CalibCscStripFitter,
+                                        CSCCalibTool = getPrivateTool("CscCalibTool"),
+                                        CSCStripFitter = getPrivateTool("CalibCscStripFitter"),
                                         #CSCTrigDecisionTool = ToolSvc.TrigDecisionTool,
                                         CSCDoEventSelection = False,
                                         CSCEventSelTriggers = csc_evtSelectionTriggers                                    
