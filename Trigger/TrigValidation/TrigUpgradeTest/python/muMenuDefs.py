@@ -208,38 +208,26 @@ def muEFSAStep():
 ### l2Muiso step ###
 def muIsoStep():
 
-    l2muIsoViewNode = parOR("l2muIsoViewNode")
-    
     l2muIsoViewsMaker = EventViewCreatorAlgorithm("l2muIsoViewsMaker", OutputLevel=DEBUG)
     l2muIsoViewsMaker.ViewFallThrough = True
     l2muIsoViewsMaker.RoIsLink = "roi" # -||-
     l2muIsoViewsMaker.InViewRoIs = "MUIsoRoIs" # contract with the consumer
     l2muIsoViewsMaker.Views = "MUIsoViewRoIs"
-    l2muIsoViewsMaker.ViewNodeName = l2muIsoViewNode.name()
 
-    ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muCombViewDataVerifier")
-    ViewVerify.DataObjects = [('xAOD::TrackParticleContainer' , 'StoreGateSvc+'+TrackParticlesName),
-                              ('xAOD::L2CombinedMuonContainer','StoreGateSvc+'+muCombInfo)]
-    l2muIsoViewNode += ViewVerify 
+    ### get EF reco sequence ###    
+    from TrigUpgradeTest.MuonSetup import l2muisoRecoSequence
+    l2muisoRecoSequence, sequenceOut = l2muisoRecoSequence( l2muIsoViewsMaker.InViewRoIs, OutputLevel=DEBUG )
  
-    # set up algs    
-    from TrigmuIso.TrigmuIsoConfig import TrigmuIsoMTConfig
-    trigL2muIso = TrigmuIsoMTConfig("TrigL2muIso")
-    trigL2muIso.OutputLevel = DEBUG
-    trigL2muIso.MuonL2CBInfoName = muCombInfo
-    trigL2muIso.TrackParticlesName = TrackParticlesName
-    trigL2muIso.MuonL2ISInfoName = muL2ISInfo
-    
-    l2muIsoViewNode += trigL2muIso
-
+    l2muIsoViewsMaker.ViewNodeName = l2muisoRecoSequence.name()
+ 
     # set up hypo    
     from TrigMuonHypo.TrigMuonHypoConf import TrigMuisoHypoAlg
     trigmuIsoHypo = TrigMuisoHypoAlg("L2MuisoHypoAlg")
     trigmuIsoHypo.OutputLevel = DEBUG
-    trigmuIsoHypo.MuonL2ISInfoName = muL2ISInfo
+    trigmuIsoHypo.MuonL2ISInfoName = sequenceOut
     
     ### Define a Sequence to run for muIso ### 
-    l2muIsoSequence = seqAND("l2muIsoSequence", [ l2muIsoViewsMaker, l2muIsoViewNode ] )
+    l2muIsoSequence = seqAND("l2muIsoSequence", [ l2muIsoViewsMaker, l2muisoRecoSequence ] )
     
     from TrigMuonHypo.testTrigMuonHypoConfig import TrigMuisoHypoToolFromName
 
