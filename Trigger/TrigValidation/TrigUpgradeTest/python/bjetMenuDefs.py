@@ -201,8 +201,8 @@ def bJetStep2Sequence():
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 
     # Event View Creator Algorithm
-    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmForBjet
-    InputMakerAlg = EventViewCreatorAlgorithmForBjet("BJetInputMaker_step2")
+    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithJets
+    InputMakerAlg = EventViewCreatorAlgorithmWithJets("BJetInputMaker_step2")
     InputMakerAlg.OutputLevel = DEBUG
     InputMakerAlg.ViewFallThrough = True # Access Store Gate for retrieving data
     InputMakerAlg.ViewPerRoI = True # If True it creates one view per RoI

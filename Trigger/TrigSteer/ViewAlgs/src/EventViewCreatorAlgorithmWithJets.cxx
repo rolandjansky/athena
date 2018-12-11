@@ -4,7 +4,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "EventViewCreatorAlgorithmForBjet.h"
+#include "EventViewCreatorAlgorithmWithJets.h"
 #include "AthLinks/ElementLink.h"
 #include "AthViews/ViewHelper.h"
 #include "AthViews/View.h"
@@ -12,12 +12,12 @@
 #include "DecisionHandling/HLTIdentifier.h"
 
 
-EventViewCreatorAlgorithmForBjet::EventViewCreatorAlgorithmForBjet( const std::string& name, ISvcLocator* pSvcLocator )
+EventViewCreatorAlgorithmWithJets::EventViewCreatorAlgorithmWithJets( const std::string& name, ISvcLocator* pSvcLocator )
   : EventViewCreatorAlgorithm( name, pSvcLocator ) {}
 
-EventViewCreatorAlgorithmForBjet::~EventViewCreatorAlgorithmForBjet() {}
+EventViewCreatorAlgorithmWithJets::~EventViewCreatorAlgorithmWithJets() {}
 
-StatusCode EventViewCreatorAlgorithmForBjet::initialize() {
+StatusCode EventViewCreatorAlgorithmWithJets::initialize() {
   EventViewCreatorAlgorithm::initialize();
 
   ATH_CHECK( m_inViewJets.initialize() );
@@ -25,7 +25,7 @@ StatusCode EventViewCreatorAlgorithmForBjet::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode EventViewCreatorAlgorithmForBjet::execute_r( const EventContext& context ) const { 
+StatusCode EventViewCreatorAlgorithmWithJets::execute_r( const EventContext& context ) const { 
   auto outputHandles = decisionOutputs().makeHandles( context );     
   // make the views
   auto viewVector = std::make_unique< ViewContainer >();
@@ -156,7 +156,7 @@ StatusCode EventViewCreatorAlgorithmForBjet::execute_r( const EventContext& cont
   return StatusCode::SUCCESS;
 }
 
-StatusCode EventViewCreatorAlgorithmForBjet::placeJetInView( const xAOD::Jet* theObject, SG::View* view, const EventContext& context ) const {
+StatusCode EventViewCreatorAlgorithmWithJets::placeJetInView( const xAOD::Jet* theObject, SG::View* view, const EventContext& context ) const {
   // fill the Jet output collection  
   ATH_MSG_DEBUG( "Adding Jet To View : " << m_inViewJets.key() );
   auto oneObjectCollection = std::make_unique< ConstDataVector< xAOD::JetContainer > >();
