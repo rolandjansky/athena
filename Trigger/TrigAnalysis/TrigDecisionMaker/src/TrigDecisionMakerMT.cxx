@@ -101,50 +101,73 @@ StatusCode TrigDecisionMakerMT::execute(const EventContext& context) const
 
   // Output bitsets (stored in a vector<uint32_t>)
   std::vector<uint32_t> hltPassBits;
-  std::vector<uint32_t> hltPrescaleBits;
-  std::vector<uint32_t> hltResurrectBits;
+  std::vector<uint32_t> hltPrescaledBits;
+  std::vector<uint32_t> hltRerunBits;
 
   std::set< std::vector<uint32_t>* > outputVectors;
   outputVectors.insert( &hltPassBits );
-  outputVectors.insert( &hltPrescaleBits );
-  outputVectors.insert( &hltResurrectBits );
+  outputVectors.insert( &hltPrescaledBits );
+  outputVectors.insert( &hltRerunBits );
 
   if (hltResult) {
     ATH_MSG_DEBUG("Got a DecisionContainer '" << m_HLTSummaryKeyIn.key() << "' of size " << hltResult->size());
-    TrigCompositeUtils::DecisionIDContainer allPassedSet;
-    // Expect only one object in this container, but allow many.
-    // Accumulate in a set to preserve ordering and remove any duplicates
+    TrigCompositeUtils::DecisionIDContainer passRawInput; //!< The chains which returned a positive decision
+    TrigCompositeUtils::DecisionIDContainer prescaledInput; //!< The chains which did not run due to being prescaled out
+    TrigCompositeUtils::DecisionIDContainer rerunInput; //!< The chains which were activate only in the rerun (not physics decisions)
+
+    // Read the sets of chain IDs
     for (const TrigCompositeUtils::Decision* decisionObject : *hltResult) {
-      // Collect all decisions (IDs of passed chains) from decisionObject into allPassedSet
-      TrigCompositeUtils::decisionIDs(decisionObject, allPassedSet);
+      // Collect all decisions (IDs of passed/prescaled/rerun chains) from named decisionObjects
+      if (decisionObject->name() == "HLTPassRaw") {
+        TrigCompositeUtils::decisionIDs(decisionObject, passRawInput);
+      } else if (decisionObject->name() == "HLTPrescaled") {
+        TrigCompositeUtils::decisionIDs(decisionObject, prescaledInput);
+      } else if (decisionObject->name() == "HLTRerun") {
+        TrigCompositeUtils::decisionIDs(decisionObject, rerunInput);
+      } else {
+        ATH_MSG_WARNING("TrigDecisionMakerMT encountered an unknown set of decisions with name '" << decisionObject->name() << "'");
+      }
     }
-    if (allPassedSet.size()) {
+    if (passRawInput.size()) {
       ++m_hltPassed;
     }
   
-    for (const TrigCompositeUtils::DecisionID id : allPassedSet) {
-      // Need to go from hash-ID to chain-counter. HLTChain counter currently does not give this a category
-      const std::string chainName = TrigConf::HLTUtils::hash2string(id);
-      if (chainName == "UNKNOWN HASH ID" || chainName == "UNKNOWN CATEGORY") {
-        ATH_MSG_ERROR("Unable to locate chain with hash:'" << id << "' in the TrigConf");
-        continue;
-      }
-      const TrigConf::HLTChain* chain = m_trigConfigSvc->chainList()->chain(chainName);
-      if (chain == nullptr) {
-        ATH_MSG_ERROR("Unable to fetch HLTChain object for chain with ID:'" << id << "' and name:'" << chainName << "'");
-        continue;        
-      }
-      const size_t chainCounter = static_cast<size_t>( chain->chain_counter() );
+    // Make bitmap for passed raw
+    size_t countHltPass = 0;
+    for (const TrigCompositeUtils::DecisionID id : passRawInput) {
+      const int32_t chainCounter = getChainCounter(id);
+      if (chainCounter == -1) continue; // Could not decode, prints error
       resizeVectors(chainCounter, outputVectors); // Make sure we have enough room to be able to set the required bit
       setBit(chainCounter, hltPassBits);
+      ++countHltPass;
     }
-
+    ATH_MSG_DEBUG ("Number of HLT chains passed raw: " << countHltPass);
     trigDec->setEFPassedRaw(hltPassBits);
+
+    // Make bitmap for prescaled
+    size_t countHltPrescaled = 0;
+    for (const TrigCompositeUtils::DecisionID id : prescaledInput) {
+      const int32_t chainCounter = getChainCounter(id);
+      if (chainCounter == -1) continue; // Could not decode, prints error
+      resizeVectors(chainCounter, outputVectors); // Make sure we have enough room to be able to set the required bit
+      setBit(chainCounter, hltPassBits);
+      ++countHltPrescaled;
+    }
+    ATH_MSG_DEBUG ("Number of HLT chains prescaled out: " << countHltPrescaled);
+    trigDec->setEFPrescaled(hltPrescaledBits);
+
+    // Make bitmap for rerun a.k.a. resurrection
+    size_t countHLTRerun = 0;
+    for (const TrigCompositeUtils::DecisionID id : rerunInput) {
+      const int32_t chainCounter = getChainCounter(id);
+      if (chainCounter == -1) continue; // Could not decode, prints error
+      resizeVectors(chainCounter, outputVectors); // Make sure we have enough room to be able to set the required bit
+      setBit(chainCounter, hltRerunBits);
+      ++countHLTRerun;
+    }
+    ATH_MSG_DEBUG ("Number of HLT chains in rerun / second pass / resurrection : " << countHLTRerun);
+    trigDec->setEFResurrected(hltRerunBits);
   }
-
-  // TODO prescaled
-
-  // TODO resurrected
 
   // get the bunch crossing id
   const xAOD::EventInfo* eventInfo = SG::get(m_EventInfoKeyIn, context);
@@ -220,4 +243,20 @@ void TrigDecisionMakerMT::setBit(const size_t bit, std::vector<uint32_t>& bits) 
   const size_t block = bit / 32;
   const size_t offset = bit % 32;
   bits.at(block) |= (uint32_t)1 << offset;
+}
+
+
+int32_t TrigDecisionMakerMT::getChainCounter(const TrigCompositeUtils::DecisionID chainID) const {
+  // Need to go from hash-ID to chain-counter. HLTChain counter currently does not give this a category
+  const std::string chainName = TrigConf::HLTUtils::hash2string(chainID);
+  if (chainName == "UNKNOWN HASH ID" || chainName == "UNKNOWN CATEGORY") {
+    ATH_MSG_ERROR("Unable to locate chain with hash:" << chainID << " in the TrigConf, the error reported was:" << chainName);
+    return -1;
+  }
+  const TrigConf::HLTChain* chain = m_trigConfigSvc->chainList()->chain(chainName);
+  if (chain == nullptr) {
+    ATH_MSG_ERROR("Unable to fetch HLTChain object for chain with ID:'" << chainID << "' and name:'" << chainName << "' (number of chains:" << m_trigConfigSvc->chainList()->size() << ")");
+    return -1;        
+  }
+  return chain->chain_counter();
 }

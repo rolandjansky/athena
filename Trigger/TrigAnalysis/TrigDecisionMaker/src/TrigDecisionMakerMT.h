@@ -99,6 +99,13 @@ namespace TrigDec {
      **/
     void setBit(const size_t bit, std::vector<uint32_t>& bits) const;
 
+    /**
+     * @param chainID The identifier (name hash) of the chain to fetch the ChainCounter for.
+     * @return the Chain Counter or -1 if error.
+     **/
+    int32_t getChainCounter(const TrigCompositeUtils::DecisionID chainID) const;
+
+
     Gaudi::Property<bool> m_doL1{this, "doL1",  true, "Read L1 trigger information"};
     Gaudi::Property<bool> m_doHLT{this, "doHLT", true, "Read HLT trigger information"};
 
