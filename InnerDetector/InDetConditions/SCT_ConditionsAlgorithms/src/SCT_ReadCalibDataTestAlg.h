@@ -57,12 +57,9 @@ class SCT_ReadCalibDataTestAlg:public AthAlgorithm
   ToolHandle<ISCT_ReadCalibDataTool> m_ReadCalibDataTool{this, "SCT_ReadCalibDataTool", "SCT_ReadCalibDataTool", "Tool to retrieve calibration information"};
   ToolHandle<ISCT_CablingTool>       m_cabling{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
 
-  BooleanProperty                  m_doTestmyConditionsSummary;   //!< Test return bool conditions summary?
-  BooleanProperty                  m_doTestmyDefectIsGood;        //!< Test isGood for all strips?
-  BooleanProperty                  m_doTestmyDefectType;          //!< Test return defect type?
-  BooleanProperty                  m_doTestmyDefectsSummary;      //!< Test return module defect summary?
-  BooleanProperty                  m_doTestmyDefectList;          //!< Test return defectList?
-  IntegerArrayProperty             m_moduleOfflinePosition;       //!< Offline pos. as: B-EC,layer-disk,phi,eta
+  BooleanProperty m_doTestmyConditionsSummary{this, "DoTestmyConditionsSummary", false, "Test return bool conditions summary?"};
+  BooleanProperty m_doTestmyDefectIsGood{this, "DoTestmyDefectIsGood", false, "Test return defect type summary?"};
+  IntegerArrayProperty m_moduleOfflinePosition{this, "ModuleOfflinePosition", {}, "Offline pos. as: B-EC,layer-disk,phi,eta"};       //!< Offline pos. as: B-EC,layer-disk,phi,eta
 };
 //---------------------------------------------------------------------- 
 

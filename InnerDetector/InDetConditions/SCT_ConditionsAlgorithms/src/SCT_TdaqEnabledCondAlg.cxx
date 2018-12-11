@@ -16,7 +16,6 @@ SCT_TdaqEnabledCondAlg::SCT_TdaqEnabledCondAlg(const std::string& name, ISvcLoca
   : ::AthAlgorithm(name, pSvcLocator)
   , m_condSvc{"CondSvc", name}
 {
-  declareProperty("EventInfoKey", m_eventInfoKey=std::string{"ByteStreamEventInfo"}, "Key of non-xAOD EventInfo");
 }
 
 StatusCode SCT_TdaqEnabledCondAlg::initialize()

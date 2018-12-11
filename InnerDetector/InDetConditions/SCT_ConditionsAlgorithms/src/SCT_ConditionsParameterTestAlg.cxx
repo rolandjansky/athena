@@ -52,7 +52,7 @@ StatusCode SCT_ConditionsParameterTestAlg::execute() {
   // so the INFO level messages have no impact on performance of these services when used by clients
   ATH_MSG_DEBUG("in execute()");
   //
-  StatusCode sc{StatusCode::SUCCESS};
+  StatusCode sc{StatusCode::SUCCESS, true};
   
   // Get the current event
   SG::ReadHandle<xAOD::EventInfo> currentEvent{m_currentEventKey};

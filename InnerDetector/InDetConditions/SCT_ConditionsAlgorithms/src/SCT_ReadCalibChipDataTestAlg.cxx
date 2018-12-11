@@ -23,17 +23,11 @@
 SCT_ReadCalibChipDataTestAlg::SCT_ReadCalibChipDataTestAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_id_sct{nullptr},
-  m_currentEventKey{std::string("EventInfo")},
   m_moduleId{0},
   m_waferId{0},
-  m_stripId{0},
-  m_doTestmyConditionsSummary{false},
-  m_doTestmyDataSummary{false},
-  m_moduleOfflinePosition{} {
-    declareProperty("DoTestmyConditionsSummary", m_doTestmyConditionsSummary = false, "Test return bool conditions summary?");
-    declareProperty("DoTestmyDataSummary",       m_doTestmyDataSummary       = false, "Test return data summary?");
-    declareProperty("ModuleOfflinePosition",     m_moduleOfflinePosition            , "Offline pos. as: B-EC,layer-disk,phi,eta");
-  }
+  m_stripId{0}
+{
+}
 
 //----------------------------------------------------------------------
 StatusCode SCT_ReadCalibChipDataTestAlg::initialize() {
@@ -98,10 +92,10 @@ StatusCode SCT_ReadCalibChipDataTestAlg::processProperties()
 StatusCode SCT_ReadCalibChipDataTestAlg::execute() {
   //This method is only used to test the summary service, and only used within this package,
   // so the INFO level messages have no impact on performance of these services when used by clients
-  
+
   // Print where you are
   ATH_MSG_DEBUG("in execute()");
-  
+
   // Get the current event
   SG::ReadHandle<xAOD::EventInfo> currentEvent{m_currentEventKey};
   if (not currentEvent.isValid()) {
@@ -113,22 +107,22 @@ StatusCode SCT_ReadCalibChipDataTestAlg::execute() {
                 << "." << currentEvent->eventNumber()
                 << "," << currentEvent->timeStamp()
                 << "]");
-  
+
   //Test Chip Data ConditionsSummary
-  if (m_doTestmyConditionsSummary) {
+  if (m_doTestmyConditionsSummary.value()) {
     // Test summmary, ask status of strip in module
     Identifier IdM{m_moduleId};
     Identifier IdS{m_waferId};
     bool Sok{m_ReadCalibChipDataTool->isGood(IdS, InDetConditions::SCT_SIDE)};
     ATH_MSG_INFO("Side " << IdS << " on module " << IdM << " is " << (Sok ? "good" : "bad"));
   }
-  
+
   //Test data summary
-  if (m_doTestmyDataSummary) {
+  if (m_doTestmyDataSummary.value()) {
     // Test to get some data from the NPtGain or NoiseOccupancy
-    Identifier Id{m_moduleId}; 
-    const int side{1}; 
-    
+    Identifier Id{m_moduleId};
+    const int side{1};
+
     // Try to get some NPtGain data
     // GainByChip, GainRMSByChip, NoiseByChip, NoiseRMSByChip, OffsetByChip, OffsetRMSByChip
     std::string whatNPdata{"GainByChip"};
@@ -136,7 +130,7 @@ StatusCode SCT_ReadCalibChipDataTestAlg::execute() {
     for (unsigned int i{0}; i<NPdata.size(); i++) {
       ATH_MSG_INFO("The " << whatNPdata << " for chip number " << i << " on side " << side << " is: " << NPdata[i]);
     }
-    
+
     // Try to get some NO data
     // occupancy, occupancyRMS, noise, offset
     std::string whatNOdata{"OccupancyRMSByChip"};
@@ -145,7 +139,7 @@ StatusCode SCT_ReadCalibChipDataTestAlg::execute() {
     for (unsigned int i{0}; i<NOdata.size(); i++) {
       ATH_MSG_INFO("The " << whatNOdata << " for chip number " << i << " on side " << side << " is: " << NOdata[i]);
     }
-      
+
     // Try to get some INVALID NPtGain data
     // GainByChip, GainRMSByChip, NoiseByChip, NoiseRMSByChip, OffsetByChip, OffsetRMSByChip
     Identifier invalidId;//constructor forms invalid Id
@@ -164,7 +158,7 @@ StatusCode SCT_ReadCalibChipDataTestAlg::execute() {
 StatusCode SCT_ReadCalibChipDataTestAlg::finalize() {
   // Print where you are
   ATH_MSG_DEBUG("in finalize()");
-  
+
   return StatusCode::SUCCESS;
 } // SCT_ReadCalibChipDataTestAlg::finalize()
 

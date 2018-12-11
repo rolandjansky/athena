@@ -42,10 +42,6 @@ SCT_TestCablingAlg::SCT_TestCablingAlg(const std::string& name, ISvcLocator* pSv
   //nop
 }
 
-SCT_TestCablingAlg::~SCT_TestCablingAlg() {
-  //nop
-}
-
 StatusCode
 SCT_TestCablingAlg::initialize() {
   ATH_CHECK(detStore()->retrieve(m_idHelper, "SCT_ID"));

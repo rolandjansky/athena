@@ -80,8 +80,8 @@ StatusCode SCT_ModuleVetoCondAlg::execute() {
   std::vector<int> v{string2Vector<int>(badModuleString)};
   int numberInDb{static_cast<int>(v.size())};
   ATH_MSG_INFO(numberInDb << " elements were declared bad in the database.");
-  for (std::vector<int>::const_iterator i{v.begin()}; i!=v.end(); ++i) {
-    writeCdo->setBadWaferId(Identifier{*i});
+  for (const int badWaferId: v) {
+    writeCdo->setBadWaferId(Identifier{badWaferId});
   }
 
   // Record the output cond object

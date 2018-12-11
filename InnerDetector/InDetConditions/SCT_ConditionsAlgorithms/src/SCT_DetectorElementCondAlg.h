@@ -8,15 +8,17 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "GeoModelUtilities/GeoAlignmentStore.h"
+#include "InDetReadoutGeometry/SiCommonItems.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 
 #include "GaudiKernel/ICondSvc.h"
 
+#include <memory>
+
 namespace InDetDD {
   class SCT_DetectorManager;
-  class SiCommonItems;
 }
 
 class SCT_DetectorElementCondAlg : public AthAlgorithm
@@ -35,7 +37,7 @@ class SCT_DetectorElementCondAlg : public AthAlgorithm
 
   ServiceHandle<ICondSvc> m_condSvc;
   const InDetDD::SCT_DetectorManager* m_detManager;
-  InDetDD::SiCommonItems* m_commonItems;
+  std::unique_ptr<InDetDD::SiCommonItems> m_commonItems;
 };
 
 #endif // SCT_CONDITIONSALGORITHMS_SCT_DETECTORELEMENTCONDALG_H

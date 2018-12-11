@@ -19,9 +19,6 @@
 // Include Gaudi stuff
 #include "GaudiKernel/ToolHandle.h"
 
-// Include STL stuff
-#include <string>
-
 /** This class acts as a test/sample client the ConditionsParameter class.
  */
 class SCT_ConditionsParameterTestAlg : public AthAlgorithm {

@@ -12,10 +12,6 @@
 // Include Athena stuff
 #include "Identifier/Identifier.h"
 
-// Include STL stuff
-#include <string>
-using namespace std;
-
 SCT_DCSConditionsTestAlg::SCT_DCSConditionsTestAlg(const std::string& name, 
                                                    ISvcLocator* pSvcLocator) : 
   AthAlgorithm(name, pSvcLocator)
@@ -82,7 +78,7 @@ StatusCode SCT_DCSConditionsTestAlg::execute() {
 } // SCT_DCSConditionsTestAlg::execute()
 
 //----------------------------------------------------------------------
-StatusCode SCT_DCSConditionsTestAlg::finalize(){
+StatusCode SCT_DCSConditionsTestAlg::finalize() {
   // Get the messaging service, print where you are
   ATH_MSG_INFO("in finalize()");
   return StatusCode::SUCCESS;

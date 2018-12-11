@@ -13,15 +13,16 @@
 
 #ifndef SCT_RODVetoTestAlg_H
 #define SCT_RODVetoTestAlg_H 
-//STL
-#include <string>
+
+//Athena
+#include "SCT_ConditionsTools/ISCT_ConditionsTool.h"
 
 //Gaudi
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
-//Athena
-#include "SCT_ConditionsTools/ISCT_ConditionsTool.h"
+//STL
+#include <string>
 
 ///Example algorithm to show calling the SCT_RODVeto to exclude bad components
 class SCT_RODVetoTestAlg : public AthAlgorithm {

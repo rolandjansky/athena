@@ -271,8 +271,8 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* 
       } else { // Good chip
         if (not isBadModule) nDisabledStripsExclusive += thisChip->numberOfMaskedChannels(); // Bad strips in a good chip of a good module
       }
-
     }
+
     // Store chip status if not all good (==0)
     if (chipStatusWord!=0) {
       writeCdo->setBadChips(moduleId, chipStatusWord);
