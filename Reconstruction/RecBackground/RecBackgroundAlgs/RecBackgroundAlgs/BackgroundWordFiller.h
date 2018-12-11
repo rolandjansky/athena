@@ -13,6 +13,14 @@ Updated Mark Tibbetts 6/3/2012
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "xAODEventInfo/EventInfo.h"
+
+#include "RecBackgroundEvent/BeamBackgroundData.h"
+#include "LUCID_RawEvent/LUCID_RawDataContainer.h"
+#include "BCM_CollisionTime/BcmCollisionTime.h"
+#include "TagEvent/RawInfoSummaryForTag.h"
+#include "TileEvent/TileContainer.h"
+#include "LArRecEvent/LArCollisionTime.h"
+
 #include <array>
 
 class BackgroundWordFiller : public AthAlgorithm
@@ -29,6 +37,27 @@ class BackgroundWordFiller : public AthAlgorithm
 
  private:
 
+  /** ReadHandleKey for EventInfo object */
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "eventInfoKey", "EventInfo", "Key for EventInfo object"};
+
+  /** ReadHandleKey for BeamBackgroundData */
+  SG::ReadHandleKey<BeamBackgroundData> m_beamBackgroundDataKey{this,"BeamBackgroundDataKey","BeamBackgroundData","Key for BeamBackgroundData object"};
+
+  /** ReadHandleKey for LUCID_RawDataContainer */
+  SG::ReadHandleKey<LUCID_RawDataContainer> m_LUCID_rawDataContainerKey{this,"LUCID_rawDataContainerKey","Lucid_RawData","Key for LUCID_RawDataContainer object"};
+
+  /** ReadHandleKey for BcmCollisionTime */
+  SG::ReadHandleKey<BcmCollisionTime> m_bcmCollisionTimeKey{this,"BcmCollisionTimeKey","BcmCollisionTime","Key for BcmCollisionTime"};
+
+  /** ReadHandleKey for RawInfoSummaryForTag */
+  SG::ReadHandleKey<RawInfoSummaryForTag> m_rawIngoSummaryForTagKey{this,"RawInfoSummaryForTagKey","RawInfoSummaryForTag","Key for RawInfoSummaryForTag"};
+
+  /** ReadHandleKey for TileCellContainer */
+  SG::ReadHandleKey<TileCellContainer> m_tileCellContainerKey{this,"TileCellContainerKey","MBTSContainer","Key for TileCellContainer"};
+
+  /** ReadHandleKey for LArCollisionTime */
+  SG::ReadHandleKey<LArCollisionTime> m_lArCollisionTimeKey{this,"LArCollisionTimeKey","LArCollisionTime","Key for LArCollisionTime"};
+  
   int m_HaloNumSegment_Cut;
   int m_HaloNumClusterShape_Cut;
   int m_HaloNumOneSidedLoose_Cut;
@@ -38,7 +67,6 @@ class BackgroundWordFiller : public AthAlgorithm
   int m_SCTMultiplicityHuge_Cut;
   int m_SCTSPNonEmpty_Cut;
   int m_LUCIDBeamVeto_Cut;
-  int m_MBTS_SideCut;
   float m_BCMTimeDiffCol_Cut;
   float m_BCMTimeDiffHalo_CutLo;
   int  m_BCMHiGainCut;
