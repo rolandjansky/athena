@@ -110,7 +110,7 @@ StatusCode L1Decoder::execute (const EventContext& ctx) const {
   ATH_CHECK( saveChainsInfo( l1SeededChains, chainsInfo, "l1seeded", ctx ) );
   ATH_CHECK( saveChainsInfo( activeChains, chainsInfo, "unprescaled", ctx ) );
 
-  // for now all the chains that were pre-scaled are st to re-run
+  // for now all the chains that were pre-scaled are set to re-run
   HLT::IDVec rerunChains;  
   std::set_difference( l1SeededChains.begin(), l1SeededChains.end(),
 		       activeChains.begin(), activeChains.end(),
