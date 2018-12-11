@@ -53,9 +53,12 @@ def TrigInDetConfig( flags ):
     from SCT_Cabling.SCT_CablingConfig import SCT_CablingCondAlgCfg
     acc.merge(SCT_CablingCondAlgCfg(flags))
     # Set up SCTSiLorentzAngleCondAlg
+    from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
+    sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
+
     from SCT_ConditionsTools.SCT_SiliconConditionsToolSetup import SCT_SiliconConditionsToolSetup
     sct_SiliconConditionsToolSetup = SCT_SiliconConditionsToolSetup()
-    sct_SiliconConditionsToolSetup.setDcsTool(self.dcsTool)
+    sct_SiliconConditionsToolSetup.setDcsTool(sct_DCSConditionsToolSetup.getTool())
     sct_SiliconConditionsToolSetup.setToolName("InDetSCT_SiliconConditionsTool")
     sct_SiliconConditionsToolSetup.setup()
     sctSiliconConditionsTool = sct_SiliconConditionsToolSetup.getTool()
@@ -67,7 +70,7 @@ def TrigInDetConfig( flags ):
                                         UseMagFieldSvc = True,
                                         UseMagFieldDcs = False))
     from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleTool
-    SCTLorentzAngleTool = SiLorentzAngleTool(DetectorName="SCT", SiLorentzAngleCondData="SCTSiLorentzAngleCondData")
+    SCTLorentzAngleTool = SiLorentzAngleTool(name = "SCTLorentzAngleTool", DetectorName="SCT", SiLorentzAngleCondData="SCTSiLorentzAngleCondData")
     SCTLorentzAngleTool.UseMagFieldSvc = True #may need also MagFieldSvc instance
     acc.addPublicTool(SCTLorentzAngleTool)
 
@@ -127,7 +130,7 @@ def TrigInDetConfig( flags ):
                                             UseMagFieldDcs = False))
 
     from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleTool
-    TrigPixelLorentzAngleTool = SiLorentzAngleTool(DetectorName="Pixel", SiLorentzAngleCondData="PixelSiLorentzAngleCondData")
+    TrigPixelLorentzAngleTool = SiLorentzAngleTool(name = "PixelLorentzAngleTool", DetectorName="Pixel", SiLorentzAngleCondData="PixelSiLorentzAngleCondData")
 
     acc.addPublicTool(TrigPixelLorentzAngleTool)
 
