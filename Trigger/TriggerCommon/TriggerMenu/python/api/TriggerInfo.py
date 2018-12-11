@@ -206,46 +206,8 @@ class TriggerLeg:
         from copy import deepcopy
 
         if debug: print "compareDetails:",len(self.details), len(other.details),(self.l1seed == other.l1seed),(self.details == other.details) 
-        if len(self.details) != len(other.details): 
-            if not is2015 and any([x.startswith("noL1") for x in self.details]):
-                cloneself = deepcopy(self)
-                cloneself.details = [ x for x in self.details if not x.startswith("noL1")]
-                compno = cloneself.compareDetails(other,is2015,debug)
-                if compno ==1 or compno == -1: 
-                    return 1
-            if not is2015 and any([x.startswith("noL1") for x in other.details]):
-                cloneother = deepcopy(other)
-                cloneother.details = [ x for x in other.details if not x.startswith("noL1")]
-                compno = self.compareDetails(cloneother,is2015,debug)
-                if compno ==0 or compno == -1:
-                    return 0
-            if not is2015 and any([x.startswith("nod0") for x in self.details]):
-                cloneself = deepcopy(self)
-                cloneself.details = [ x for x in self.details if not x.startswith("nod0")]
-                compno = cloneself.compareDetails(other,is2015,debug)
-                if compno ==1 or compno == -1: 
-                    return 1
-            if not is2015 and any([x.startswith("nod0") for x in other.details]):
-                cloneother = deepcopy(other)
-                cloneother.details = [ x for x in other.details if not x.startswith("nod0")]
-                compno = self.compareDetails(cloneother,is2015,debug)
-                if compno ==0 or compno == -1:
-                    return 0
-            if any([x.startswith("cut") for x in self.details]):
-                cloneself = deepcopy(self)
-                cloneself.details = [ x for x in self.details if not x.startswith("cut")]
-                compno = cloneself.compareDetails(other,is2015,debug)
-                if compno ==0 or compno == -1: 
-                    return 0
-            if any([x.startswith("cut") for x in other.details]):
-                cloneother = deepcopy(other)
-                cloneother.details = [ x for x in other.details if not x.startswith("cut")]
-                compno = self.compareDetails(cloneother,is2015,debug)
-                if compno ==1 or compno == -1:
-                    return 1
-            return -9
-        compl1seed  = self.compareTags(self.l1seed, other.l1seed, stringSubset=True, debug=debug)
-        compdetails = self.compareTags(" ".join(self.details), " ".join(other.details), debug=debug )
+        compl1seed  = self.compareTags(self.l1seed, other.l1seed, stringSubset=True, is2015=is2015, debug=debug)
+        compdetails = self.compareTags(self.details, other.details, is2015=is2015, debug=debug )
         if self.l1seed == other.l1seed:
             if self.details == other.details: return -1
             if debug: print "compareTags 1:",compdetails
@@ -259,7 +221,20 @@ class TriggerLeg:
             return compl1seed
         return -9
 
-    def compareTags(self, tag1, tag2, stringSubset=False,debug=False):
+    def compareTags(self, tags1, tags2, stringSubset=False,is2015=False,debug=False):
+        def is_cutable(s):
+            if all(["loose" in x or "medium" in x or "tight" in x for x in s]): return True
+            if any(["bmv" in x for x in s]): return True
+            #tags with numeric values that don't reflect a strict ordering
+            noncutable = ("bVertex","bBmumuxv","a","rcu","rcc","nscan","kaonpi","dipion","nod","nomucomb")
+            if any([x in s for x in noncutable]): return 0
+            return [is_number(x) for x in s].count(True)==1
+        def is_number(s):
+            try:
+                float(s)
+                return True
+            except ValueError:
+                return False
         def mycomp(x,y):
             ''' Return -9 for different strings, 
                 -1 for identical strings/nums, 
@@ -283,19 +258,51 @@ class TriggerLeg:
                     if y in x: return 0
                 return -9
 
-        if tag1 == tag2: return -1
-        #lower mv2 and deltaR/deltaZ/deltaPhi values are tighter, put a minus sign to trick it
-        inverseCuts = ("mv2c","dr","dz","dphi")
-        for cut in inverseCuts:
-            tag1 = tag1.replace(cut,cut+"-")
-            tag2 = tag2.replace(cut,cut+"-")
-        #only make a statement on the numerical values, with everything else identical
-        reself  = self.detailpattern.findall(tag1)
-        reother = self.detailpattern.findall(tag2)
+        if tags1 == tags2: return -1
+        if not isinstance(tags1, basestring):
+            settags1 = set(tags1)
+            settags2 = set(tags2)
+            assert len(tags1)==len(settags1),(tags1,settags1)
+            assert len(tags2)==len(settags2),(tags2,settags2)
+            loosercut = ('noEF','noL1','noL2','nod0','noiso','nodeta','noL2','nodphires','noos','novtx')
+            if settags1.issubset(settags2):
+                diff = settags2.difference(settags1)
+                #diff = [x.replace("nomucomb","mucomb") for x in diff]
+                if is2015: diff = [x.replace("nod0","hack") for x in diff]
+                if all([x in loosercut for x in diff]):
+                    return 0
+                if all([is_cutable(self.detailpattern.findall(x)) for x in diff]):
+                    return 1
+            elif settags2.issubset(settags1):
+                diff = settags1.difference(settags2)
+                if is2015: diff = [x.replace("nod0","hack") for x in diff]
+                if debug: print diff
+                if all([x in loosercut for x in diff]):
+                    return 1
+                if all([is_cutable(self.detailpattern.findall(x)) for x in diff]):
+                    return 0
+            elif len(settags1)!=len(settags2):
+                minlen = min(len(settags1),len(settags2))
+                comp1 = self.compareTags(tags1[:minlen],tags2[:minlen],stringSubset,is2015,debug)
+                comp2 = self.compareTags(tags1[minlen:],tags2[minlen:],stringSubset,is2015,debug)
+                if comp1==comp2: return comp1
+                return -9
+            thecomp = [ self.compareTags(tag1,tag2,stringSubset,is2015,debug) for tag1, tag2 in zip(tags1,tags2) ]
+        else: #single string
+            tag1, tag2 = tags1.replace("-"," "), tags2.replace("-"," ") #avoid MJJ-X confusion
+            #lower mv2 and deltaR/deltaZ/deltaPhi values are tighter, put a minus sign to trick it
+            inverseCuts = ("mv2c","dr","dz","dphi","bDimu")
+            for cut in inverseCuts:
+                tag1 = tag1.replace(cut,cut+"-")
+                tag2 = tag2.replace(cut,cut+"-")
+            #only make a statement on the numerical values, with everything else identical
+            reself  = self.detailpattern.findall(tag1)
+            reother = self.detailpattern.findall(tag2)
 
-        if len(reself) != len(reother): return -9
-        thecomp = [mycomp(a,b) for a,b in zip(reself,reother)]
-        if debug: print "thecomp:",thecomp,reself,reother
+            if len(reself) != len(reother): return -9
+            if not stringSubset and not is_cutable(reself): return -9
+            thecomp = [mycomp(a,b) for a,b in zip(reself,reother)]
+            if debug: print "thecomp:",thecomp,reself,reother
         if any([x == -9 for x in thecomp]): return -9
         if all([x !=0 for x in thecomp]) and any([x == 1 for x in thecomp]): return 1
         if all([x !=1 for x in thecomp]) and any([x == 0 for x in thecomp]): return 0
@@ -468,7 +475,7 @@ class TriggerChain:
         else: return 0
         return -1
 
-    def isLowerThan(self, other,period=TriggerPeriod.future):
+    def isLowerThan(self, other,period=TriggerPeriod.future, debug=False):
         ''' Returns -1 if none of them is lower than the other (e.g. asymmetric dilepton).
             Returns  0 if other is lower than self.
             Returns  1 if self  is lower than other.
@@ -478,7 +485,6 @@ class TriggerChain:
         if self.triggerType != other.triggerType: return -1
         if len(self.legs) != len(other.legs): return -1
         comp = -1
-        debug = False
         #if re.search("HLT_j55_gsc75_bmv2c1040_split_3j55_gsc75_boffperf_split", self.name): debug = True
         if debug: print "DEBUG:",self.name,other.name
         for selfleg, otherleg in zip(self.legs, other.legs):
