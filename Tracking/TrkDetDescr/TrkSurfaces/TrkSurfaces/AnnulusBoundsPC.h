@@ -21,6 +21,8 @@ namespace Trk {
 
 class AnnulusBounds;
 
+/// @brief Class that implements the asymmetric shape of the ITk strip
+///        endcap modules.
 class AnnulusBoundsPC : public SurfaceBounds {
 
   using Rotation2D = Eigen::Rotation2D<double>;
@@ -41,6 +43,14 @@ public:
     bv_originY
   };
 
+  /// @brief Default constructor from parameters
+  /// @param minR inner radius, in module system
+  /// @param maxR outer radius, in module system
+  /// @param phiMin right angular edge, in strip system
+  /// @param phiMax left angular edge, in strip system
+  /// @param moduleOrigin The origin offset between the two systems. 
+  /// @param phiAvg (Optional) internal rotation of this bounds object's local frame
+  /// @note For @c moduleOrigin you need to actually calculate the cartesian offset
   AnnulusBoundsPC(double minR,
                   double maxR,
                   double phiMin,
@@ -49,6 +59,16 @@ public:
                   double phiAvg = 0);
 
 
+  /// @brief Static factory method to produce an instance of this class from the 
+  ///        cartesian implementation
+  /// @param annbo A reference to the original cartesian bounds object
+  /// @return pair containing the PC bounds, and an angular shift @c phiShift
+  ///
+  /// @note The local frame of the cartesian implementation is such that the
+  ///       module sits around the y-axis. This implementation sits around
+  ///       the x axis. The local frame needs to be rotated to account for this.
+  ///       @c phiShift contains necessary information to (re)construct a transform
+  ///       that will perform this rotation.
   static
   std::pair<AnnulusBoundsPC, double>
   fromCartesian(const AnnulusBounds& annbo);
@@ -58,23 +78,65 @@ public:
 
   SurfaceBounds::BoundsType type() const override;
 
+  /// @brief Returns if a point in local coordinates is inside the bounds
+  /// @param locpo Local position
+  /// @param tol1 Tolerance in r
+  /// @param tol2 Tolerance in phi
+  /// @return true if is inside, false if not
   bool inside(const Amg::Vector2D& locpo, double tol1 = 0., double tol2 = 0.) const override;
+  
+  /// @brief Returns if a point in local coordinates is inside the bounds
+  /// @param locpo Local position
+  /// @param bchk The boundary check object to consult for inside checks
+  /// @return true if is inside, false if not
   bool inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const override;
 
+  /// @brief Check if local point is inside of r bounds
+  /// @param locpo Local position
+  /// @param tol1 Tolerance in r
+  /// @return true if is inside, false if not
   bool insideLoc1(const Amg::Vector2D& locpo, double tol1 = 0.) const override;
+  
+  /// @brief Check if local point is inside of phi bounds
+  /// @param locpo Local position
+  /// @param tol2 Tolerance in phi
+  /// @return true if is inside, false if not
   bool insideLoc2(const Amg::Vector2D& locpo, double tol2 = 0.) const override;
 
+  /// @brief Return minimum distance a point is away from the bounds
+  /// @param locpo Local position
+  /// @note Even though @c locpo is considered in STRIP system, the distance
+  ///       will be calculated with cartesian metric.
   double minDistance(const Amg::Vector2D& locpo) const override;
+
+  /// @brief Returns middle radius
+  /// @return The middle radius
   double r() const override;
 
+  /// @brief Returns inner radial bounds (module system)
+  /// @return The inner radius
   double rMin() const { return m_minR; }
+
+  /// @brief Returns outer radial bounds (module system)
+  /// @return The outer radius
   double rMax() const { return m_maxR; }
+
+  /// @brief Returns the right angular edge of the module
+  /// @return The right side angle
   double phiMin() const { return m_phiMin + m_phiAvg; }
+
+  /// @brief Returns the left angular edge of the module
+  /// @return The left side angle
   double phiMax() const { return m_phiMax + m_phiAvg; }
 
-  // returns moduleOrigin, but rotated out, so avgPhi is already considered.
+  /// @brief Returns moduleOrigin, but rotated out, so @c avgPhi is already considered.
+  /// The module origin needs to consider the rotation introduced by @c avgPhi
+  /// @return The origin of the local frame
   Amg::Vector2D moduleOrigin() const;
 
+  /// @brief helper which dumps the configuration into a stream.
+  /// @param sl The stream
+  /// @return the stream given in @c sl
   MsgStream& dump(MsgStream& sl) const override;
   std::ostream& dump(std::ostream& sl) const override;
       

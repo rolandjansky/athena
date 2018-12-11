@@ -388,13 +388,6 @@ Trk::AnnulusBoundsPC::minDistance(const Amg::Vector2D& locpo) const
   double rMod = locpoModuleXY.norm();
   double phiMod = locpoModuleXY.phi();
 
-  //auto shift = m_shiftXY;
-  //auto modPC2StripPC = [shift](const Amg::Vector2D &a) {
-    //auto modXY = Amg::Vector2D(a[0] * std::cos(a[1]) - shift[0], a[0] * std::sin(a[1]) - shift[1]);
-    //return Amg::Vector2D(modXY.norm(), modXY.phi());
-  //};
-
-
   Amg::Vector2D closestStripPC;
   double minDist = std::numeric_limits<double>::max();;
   double curDist;
@@ -467,7 +460,7 @@ Trk::AnnulusBoundsPC::minDistance(const Amg::Vector2D& locpo) const
 double
 Trk::AnnulusBoundsPC::r() const
 {
-  return 0;
+  return (rMax() + rMin()) / 2.;
 }
 
 MsgStream& Trk::AnnulusBoundsPC::dump( MsgStream& sl ) const
