@@ -92,7 +92,7 @@ bool PFTrackSelector::selectTrack(const xAOD::TrackParticle& track) {
 	if (foundVertex) break;
       }
     }
-    return m_trackSelectorTool->accept(track, foundVertex);
+    return static_cast<bool>(m_trackSelectorTool->accept(track, foundVertex));
   }
   else return false;
 }

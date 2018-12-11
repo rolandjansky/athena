@@ -171,18 +171,18 @@ InDetIterativePriVxFinderTool::findVertex(const TrackCollection* trackTES)
 
   typedef DataVector<Trk::Track>::const_iterator TrackDataVecIter;
 
-  Root::TAccept selectionPassed;
+  bool selectionPassed;
   for (TrackDataVecIter itr = (*trackTES).begin(); itr != (*trackTES).end(); itr++) {
 
     if (m_useBeamConstraint && beamSpot != nullptr) 
     {
       Trk::RecVertex beamPosition { beamSpot->beamVtx() };
-      selectionPassed=m_trkFilter->accept(**itr, &beamPosition);
+      selectionPassed=static_cast<bool>(m_trkFilter->accept(**itr, &beamPosition));
     }
     else
     {
       Trk::Vertex null(Amg::Vector3D(0,0,0));
-      selectionPassed=m_trkFilter->accept(**itr, &null);
+      selectionPassed=static_cast<bool>(m_trkFilter->accept(**itr, &null));
       }
       if (selectionPassed) {
         ElementLink<TrackCollection> link;
@@ -215,14 +215,14 @@ InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection
 
     typedef DataVector<Trk::TrackParticleBase>::const_iterator TrackParticleDataVecIter;
 
-    Root::TAccept selectionPassed;
+    bool selectionPassed;
     for (TrackParticleDataVecIter itr = (*trackTES).begin(); itr != (*trackTES).end(); itr++) {
       if (m_useBeamConstraint && beamSpot != nullptr) {
         Trk::RecVertex beamPosition { beamSpot->beamVtx() };
-        selectionPassed = m_trkFilter->accept(*((*itr)->originalTrack()), &beamPosition);
+        selectionPassed = static_cast<bool>(m_trkFilter->accept(*((*itr)->originalTrack()), &beamPosition));
       } else {
         Trk::Vertex null(Amg::Vector3D(0, 0, 0));
-        selectionPassed = m_trkFilter->accept(*((*itr)->originalTrack()), &null);
+        selectionPassed = static_cast<bool>(m_trkFilter->accept(*((*itr)->originalTrack()), &null));
       }
 
       if (selectionPassed) {
@@ -254,7 +254,7 @@ InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection
 
     typedef DataVector<xAOD::TrackParticle>::const_iterator TrackParticleDataVecIter;
 
-    Root::TAccept selectionPassed;
+    bool selectionPassed;
     for (TrackParticleDataVecIter itr = trackParticles->begin(); itr != trackParticles->end(); ++itr) {
 
       if (m_useBeamConstraint && beamSpot != nullptr) 
@@ -263,7 +263,7 @@ InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection
         beamPosition.makePrivateStore();
         beamPosition.setPosition( beamSpot->beamVtx().position());
         beamPosition.setCovariancePosition( beamSpot->beamVtx().covariancePosition() );
-        selectionPassed=m_trkFilter->accept(**itr, &beamPosition);
+        selectionPassed=static_cast<bool>(m_trkFilter->accept(**itr, &beamPosition));
       }
       else
       {
@@ -274,7 +274,7 @@ InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection
         AmgSymMatrix(3) vertexError;
         vertexError.setZero();
         null.setCovariancePosition(vertexError);
-        selectionPassed = m_trkFilter->accept(**itr, &null);
+        selectionPassed = static_cast<bool>(m_trkFilter->accept(**itr, &null));
       }
 
       if (selectionPassed) {

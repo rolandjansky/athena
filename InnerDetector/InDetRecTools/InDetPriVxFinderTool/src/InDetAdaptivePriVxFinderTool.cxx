@@ -133,7 +133,7 @@ namespace InDet
     std::vector<const Trk::TrackParameters*> origParameters;
     origParameters.clear();
     for (TrackCollection::const_iterator itr = trackTES->begin(); itr != trackTES->end(); itr++) {
-      if (m_trkFilter->accept(**itr, &beamposition) == false) continue;
+      if (static_cast<bool>(m_trkFilter->accept(**itr, &beamposition)) == false) continue;
       origParameters.push_back((*itr)->perigeeParameters());
     }
     if (msgLvl(MSG::DEBUG)) msg() << "Of " << trackTES->size() << " tracks " << origParameters.size() <<
@@ -193,7 +193,7 @@ namespace InDet
     // if (msgLvl(MSG::VERBOSE)) msg() << "TrackParticleBaseContainer @ " << trackTES << endmsg;
     // if (msgLvl(MSG::VERBOSE)) msg() << "Size of the container: " << size << endmsg;
     for (Trk::TrackParticleBaseCollection::const_iterator itr = trackTES->begin(); itr != trackTES->end(); itr++) {
-      if (m_trkFilter->accept(*((*itr)->originalTrack()), &beamposition) == false) continue;
+      if (static_cast<bool> (m_trkFilter->accept(*((*itr)->originalTrack()), &beamposition)) == false) continue;
       origParameters.push_back(&(*itr)->definingParameters());
       // std::cout << "originalPerigee at " << & ( *itr )->definingParameters() << std::endl;
     }
@@ -254,7 +254,7 @@ namespace InDet
 
     typedef DataVector<xAOD::TrackParticle>::const_iterator TrackParticleDataVecIter;
     for (TrackParticleDataVecIter itr = trackParticles->begin(); itr != trackParticles->end(); ++itr) {
-      if (m_trkFilter->accept(**itr, &beamposition) == false) continue;
+      if (static_cast<bool>(m_trkFilter->accept(**itr, &beamposition)) == false) continue;
       origParameters.push_back(&(*itr)->perigeeParameters());
       ATH_MSG_DEBUG("originalPerigee at " << &(*itr)->perigeeParameters());
     }

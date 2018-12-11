@@ -1103,8 +1103,7 @@ namespace met {
   ////////////////
   bool METMaker::acceptTrack(const xAOD::TrackParticle* trk, const xAOD::Vertex* vx) const
   {
-    const Root::TAccept& accept = m_trkseltool->accept( *trk, vx );
-    return accept;
+    return static_cast<bool>(m_trkseltool->accept( *trk, vx ));
   }
 
   const xAOD::Vertex* METMaker::getPV() const {

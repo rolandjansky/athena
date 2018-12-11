@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETPHYSVALMONITORING_INDETPHYSVALMONITORINGTOOL_H
@@ -46,9 +46,6 @@
 //fwd declaration
 class IInDetPhysValDecoratorTool;
 class InDetRttPlots;
-namespace Root {
-  class TAccept;
-}
 namespace IDPVM{
   class CachedGetAssocTruth;
 }
@@ -75,8 +72,8 @@ private:
 	///prevent default construction
 	InDetPhysValMonitoringTool();
   // Private utility methods
-  void fillTrackCutFlow(Root::TAccept& accept);
-  void fillCutFlow(Root::TAccept& accept, std::vector<std::string> & names, std::vector<int> & cutFlow);
+  void fillTrackCutFlow(const asg::AcceptData& accept);
+  void fillCutFlow(const asg::AcceptData& accept, std::vector<std::string> & names, std::vector<int> & cutFlow);
   // Get truth particles into a vector, possibly using the pileup from the event
 	const std::vector<const xAOD::TruthParticle *> getTruthParticles();
 	//

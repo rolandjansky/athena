@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
  */
 
 /***************************************************************************
@@ -162,13 +162,13 @@ namespace InDet
 
     typedef DataVector<Trk::Track>::const_iterator TrackDataVecIter;
 
-    Root::TAccept selectionPassed;
+    bool selectionPassed;
     for (TrackDataVecIter itr = (*trackTES).begin(); itr != (*trackTES).end(); itr++) {
       if (m_useBeamConstraint) {
-        selectionPassed = m_trkFilter->accept(**itr, &beamposition);
+        selectionPassed = static_cast<bool>(m_trkFilter->accept(**itr, &beamposition));
       } else {
         Trk::Vertex null(Amg::Vector3D(0, 0, 0));
-        selectionPassed = m_trkFilter->accept(**itr, &null); // TODO: change trkFilter?
+        selectionPassed = static_cast<bool>(m_trkFilter->accept(**itr, &null)); // TODO: change trkFilter?
       }
       if (selectionPassed) {
         ElementLink<TrackCollection> link;
@@ -213,13 +213,13 @@ namespace InDet
 
     typedef DataVector<Trk::TrackParticleBase>::const_iterator TrackParticleDataVecIter;
 
-    Root::TAccept selectionPassed;
+    bool  selectionPassed;
     for (TrackParticleDataVecIter itr = (*trackTES).begin(); itr != (*trackTES).end(); itr++) {
       if (m_useBeamConstraint) {
-        selectionPassed = m_trkFilter->accept(*((*itr)->originalTrack()), &beamposition);
+        selectionPassed = static_cast<bool>(m_trkFilter->accept(*((*itr)->originalTrack()), &beamposition));
       } else {
         Trk::Vertex null(Amg::Vector3D(0, 0, 0));
-        selectionPassed = m_trkFilter->accept(*((*itr)->originalTrack()), &null); // TODO: change trkFilter?
+        selectionPassed = static_cast<bool>(m_trkFilter->accept(*((*itr)->originalTrack()), &null)); // TODO: change trkFilter?
       }
 
       if (selectionPassed) {
@@ -260,10 +260,10 @@ namespace InDet
 
     typedef DataVector<xAOD::TrackParticle>::const_iterator TrackParticleDataVecIter;
 
-    Root::TAccept selectionPassed;
+    bool selectionPassed;
     for (TrackParticleDataVecIter itr = (*trackParticles).begin(); itr != (*trackParticles).end(); itr++) {
       if (m_useBeamConstraint) {
-        selectionPassed = m_trkFilter->accept(**itr, &beamposition);
+        selectionPassed = static_cast<bool>(m_trkFilter->accept(**itr, &beamposition));
       } else {
         xAOD::Vertex null;
         null.makePrivateStore();
@@ -271,7 +271,7 @@ namespace InDet
         AmgSymMatrix(3) vertexError;
         vertexError.setZero();
         null.setCovariancePosition(vertexError);
-        selectionPassed = m_trkFilter->accept(**itr, &null);
+        selectionPassed = static_cast<bool>(m_trkFilter->accept(**itr, &null));
       }
 
       if (selectionPassed) {
