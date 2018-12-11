@@ -31,9 +31,6 @@
 // private helper functions
 //
 
-#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
-#define FILEANDLINE  " (" << __FILENAME__ << ":" << __LINE__ << ")"
-
 MdtCalibrationT0ShiftSvc::MdtCalibrationT0ShiftSvc(const std::string &name,
                                                    ISvcLocator* pSvcLocator)
     : MdtCalibrationShiftMapBase(name, pSvcLocator) {}
@@ -158,7 +155,7 @@ StatusCode MdtCalibrationT0ShiftSvc::initializeMap()
             float rn = rng.Gaus(m_centralValue, m_sigma);
             // Fatal if entry exists
             if (m_shiftValues.find(channelIdentifier) != m_shiftValues.end()) {
-              ATH_MSG_FATAL("Double counting in initilization of map");
+              ATH_MSG_FATAL("Double counting in initialization of map");
               return StatusCode::FAILURE;
             }
             m_shiftValues[channelIdentifier] = rn;

@@ -3,19 +3,19 @@
 */
 
 // std
-#include <fstream>
-#include <string>
-#include <iostream>
-#include <cstring>
 #include <sys/stat.h>
+#include <cstring>
+#include <fstream>
+#include <iostream>
+#include <string>
 
 // other packages
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/GaudiException.h"
+#include "GaudiKernel/MsgStream.h"
 #include "Identifier/Identifier.h"
-#include "PathResolver/PathResolver.h"
 #include "MuonCablingData/MuonMDT_CablingMap.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
+#include "PathResolver/PathResolver.h"
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 
@@ -31,35 +31,27 @@
 // private helper functions
 //
 
-#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
-#define FILEANDLINE  " (" << __FILENAME__ << ":" << __LINE__ << ")"
-
-MdtCalibrationShiftMapBase::MdtCalibrationShiftMapBase(const std::string &name, ISvcLocator* pSvcLocator)
-    : base_class(name, pSvcLocator), m_cablingSvc("MuonMDT_CablingSvc", name),
+MdtCalibrationShiftMapBase::MdtCalibrationShiftMapBase(const std::string &name,
+                                                       ISvcLocator *pSvcLocator)
+    : base_class(name, pSvcLocator),
+      m_cablingSvc("MuonMDT_CablingSvc", name),
       m_mapIsInitialized(false),
       m_mapFileName(""),
       m_centralValue(0),
       m_sigma(10),
       m_forceMapRecreate(false) {
   declareProperty("MapFile", m_mapFileName);
-  declareProperty("CentralValue", m_centralValue=0);
-  declareProperty("Sigma", m_sigma=10);
-  declareProperty("ForceMapRecreate", m_forceMapRecreate=false);
+  declareProperty("CentralValue", m_centralValue = 0);
+  declareProperty("Sigma", m_sigma = 10);
+  declareProperty("ForceMapRecreate", m_forceMapRecreate = false);
 }
 
 MdtCalibrationShiftMapBase::~MdtCalibrationShiftMapBase() { ; }
 
-StatusCode MdtCalibrationShiftMapBase::initialize() {
-  ATH_MSG_DEBUG( "Initializing" );
-  if( AthService::initialize().isFailure() ) return StatusCode::FAILURE;
-
-  return StatusCode::SUCCESS;
-}  //end MdtCalibrationShiftMapBase::initialize
-
-StatusCode MdtCalibrationShiftMapBase::finalize() {
-  ATH_MSG_DEBUG( "Finalizing " );
-  return AthService::finalize();
-}  //end MdtCalibrationShiftMapBase::finalize()
+// return failure if not overloaded
+StatusCode MdtCalibrationShiftMapBase::initializeMap() {
+  return StatusCode::FAILURE;
+}
 
 StatusCode MdtCalibrationShiftMapBase::dumpMapAsFile() {
   /* initialize map if it's not there */
@@ -74,7 +66,8 @@ StatusCode MdtCalibrationShiftMapBase::dumpMapAsFile() {
     /* see if opening the file was successful */
     if (!file.is_open()) {
       ATH_MSG_FATAL(
-          "Cannot open map output file for writing. Tried accessing file at \"./"
+          "Cannot open map output file for writing. Tried accessing file at "
+          "\"./"
           << m_mapFileName.c_str() << "\"");
       return StatusCode::FAILURE;
     }
@@ -86,10 +79,9 @@ StatusCode MdtCalibrationShiftMapBase::dumpMapAsFile() {
       file.write(reinterpret_cast<const char *>(&(shift.second)),
                  sizeof(float));
     }
-  } // '}' flushes file
+  }  // '}' flushes file
   return StatusCode::SUCCESS;
 }
-
 
 StatusCode MdtCalibrationShiftMapBase::loadMapFromFile() {
   /* check if map was already initialized */
@@ -124,11 +116,11 @@ StatusCode MdtCalibrationShiftMapBase::loadMapFromFile() {
   }
   m_mapIsInitialized = true;
   ATH_MSG_INFO("Successfully initialized shift map from file \""
-                << fileWithPath.c_str() << "\"");
+               << fileWithPath.c_str() << "\"");
   return StatusCode::SUCCESS;
 }
 
-float MdtCalibrationShiftMapBase::getValue(const Identifier& id) {
+float MdtCalibrationShiftMapBase::getValue(const Identifier &id) {
   if (!m_mapIsInitialized) {
     StatusCode sc = initializeMap();
     if (sc.isFailure()) {

@@ -34,10 +34,6 @@
 // private helper functions
 //
 
-#define __FILENAME__ \
-  (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
-#define FILEANDLINE " (" << __FILENAME__ << ":" << __LINE__ << ")"
-
 MdtCalibrationTMaxShiftSvc::MdtCalibrationTMaxShiftSvc(const std::string &name,
                                                        ISvcLocator *pSvcLocator)
     : MdtCalibrationShiftMapBase(name, pSvcLocator), m_tUpper(688.1818) {}
