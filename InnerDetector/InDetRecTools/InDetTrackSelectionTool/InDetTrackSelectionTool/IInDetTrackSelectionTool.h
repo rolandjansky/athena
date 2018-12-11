@@ -8,7 +8,9 @@
 #define INDETTRACKSELECTIONTOOL_IINDETTRACKSELECTIONTOOL_H
 
 // Framework include(s):
-#include "PATCore/IAsgSelectionTool.h"
+#include "AsgAnalysisInterfaces/ISelectionTool.h"
+#include "PATCore/AcceptData.h"
+#include "PATCore/AcceptInfo.h"
 
 // EDM include(s):
 #include "xAODTracking/TrackParticle.h"
@@ -49,8 +51,8 @@ namespace InDet {
   /// @author Michael Clark <michael.ryan.clark@cern.ch>
   /// 
   ///
-  class IInDetTrackSelectionTool : public virtual ::IAsgSelectionTool {
-    
+  class IInDetTrackSelectionTool : public virtual CP::ISelectionTool
+{ 
     /// Declare the interface that the class provides
     ASG_TOOL_INTERFACE( InDet::IInDetTrackSelectionTool )
 
@@ -61,17 +63,17 @@ namespace InDet {
     virtual StatusCode finalize() = 0;
 
     /// Get an object describing the "selection steps" of the tool
-    virtual const Root::TAccept& getTAccept() const = 0;
+    virtual const asg::AcceptInfo& getAcceptInfo() const = 0;
 
     /// Get the decision using a generic IParticle pointer
-    virtual const Root::TAccept& accept( const xAOD::IParticle* p ) const = 0;
+    virtual  asg::AcceptData accept( const xAOD::IParticle* p ) const = 0;
 
     /// Decide whether the track in question is a "good track" or not
-    virtual const Root::TAccept& accept( const xAOD::TrackParticle& track,
+    virtual  asg::AcceptData accept( const xAOD::TrackParticle& track,
 					 const xAOD::Vertex* vertex = 0 ) const = 0;
 
 #ifndef XAOD_ANALYSIS
-    virtual const Root::TAccept& accept( const Trk::Track& track,
+    virtual  asg::AcceptData accept( const Trk::Track& track,
 					 const Trk::Vertex* vertex = 0 ) const = 0;
 #endif
 

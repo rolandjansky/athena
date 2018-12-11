@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -29,7 +29,6 @@
 #include "xAODTruth/TruthPileupEventAuxContainer.h"
 
 #include "TrkTrack/TrackCollection.h"
-#include "PATCore/TAccept.h"
 //
 #include <algorithm>
 #include <limits>
@@ -617,8 +616,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
   if (m_useTrackSelection) {
     for (const auto& thisTrack: *ptracks) { // Inner loop over all track particle
       if (m_useTrackSelection) {
-        Root::TAccept trackAccept = m_trackSelectionTool->accept(*thisTrack, pvtx);
-        fillTrackCutFlow(trackAccept);
+        fillTrackCutFlow(m_trackSelectionTool->accept(*thisTrack, pvtx));
       }
     }
   }
@@ -764,13 +762,13 @@ InDetPhysValMonitoringTool::getTruthParticles() {
 }
 
 void
-InDetPhysValMonitoringTool::fillTrackCutFlow(Root::TAccept& accept) {
+InDetPhysValMonitoringTool::fillTrackCutFlow(const asg::AcceptData& accept) {
   fillCutFlow(accept, m_trackCutflowNames, m_trackCutflow);
   return;
 }
 
 void
-InDetPhysValMonitoringTool::fillCutFlow(Root::TAccept& accept, std::vector<std::string>& names,
+InDetPhysValMonitoringTool::fillCutFlow(const asg::AcceptData& accept, std::vector<std::string>& names,
                                         std::vector<int>& cutFlow) {
   // initialise cutflows
   if (cutFlow.empty()) {

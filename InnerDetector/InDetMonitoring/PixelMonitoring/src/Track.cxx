@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -153,7 +153,7 @@ StatusCode PixelMainMon::fillTrackMon(void) {
       track = m_holeSearchTool->getTrackWithHoles(*track0);
     }
     int nPixelHits = 0;
-    bool passJOTrkTightCut = m_trackSelTool->accept(*track0);
+    bool passJOTrkTightCut = static_cast<bool>(m_trackSelTool->accept(*track0));
     bool pass1hole1GeVptTightCut = (passJOTrkTightCut && (measPerigee->pT() / 1000.0 > 1.0));  // misshit ratios
     bool pass1hole5GeVptTightCut = (passJOTrkTightCut && (measPerigee->pT() / 1000.0 > 5.0));  // eff vs lumi
 

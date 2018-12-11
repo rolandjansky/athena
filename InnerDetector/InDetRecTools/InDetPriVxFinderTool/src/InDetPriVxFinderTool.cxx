@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
  */
 
 /***************************************************************************
@@ -166,7 +166,7 @@ namespace InDet
     for (TrackCollection::const_iterator itr = trackTES->begin(); itr != trackTES->end(); itr++) {
       // if it should not look for multiple vertices it needs to do the track cuts here
       if (!m_enableMultipleVertices) {
-        if (m_trkFilter->accept(**itr, &beamposition) == false) continue;
+        if (!m_trkFilter->accept(**itr, &beamposition)) continue;
       }
       origTracks.push_back(*itr);
     }//end of loop over available tracks with pre-selection
@@ -281,7 +281,7 @@ namespace InDet
     for (Trk::TrackParticleBaseCollection::const_iterator itr = trackTES->begin(); itr != trackTES->end(); itr++) {
       // if it should not look for multiple vertices it needs to do the track cuts here
       if (!m_enableMultipleVertices) {
-        if (m_trkFilter->accept(*((*itr)->originalTrack()), &beamposition) == false) continue;
+        if (!m_trkFilter->accept(*((*itr)->originalTrack()), &beamposition)) continue;
       }
       origTrackParticles.push_back(*itr);
     }//endo of loop over all available trajectories
@@ -403,7 +403,7 @@ namespace InDet
     typedef DataVector<xAOD::TrackParticle>::const_iterator TrackParticleDataVecIter;
     for (TrackParticleDataVecIter itr = trackParticles->begin(); itr != trackParticles->end(); ++itr) {
       if (!m_enableMultipleVertices) {
-        if (m_trkFilter->accept(**itr, &beamposition) == false) continue;
+        if (!m_trkFilter->accept(**itr, &beamposition)) continue;
       }
       origTPs.push_back(*itr);
       origParameters.push_back(&(*itr)->perigeeParameters());

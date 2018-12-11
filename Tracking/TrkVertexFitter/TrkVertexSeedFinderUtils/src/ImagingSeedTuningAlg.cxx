@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ImagingSeedTuningAlg.cxx 
@@ -468,14 +468,14 @@ void ImagingSeedTuningAlg::analyzeTracks(const std::vector<Trk::ITrackLink*>& tr
 void ImagingSeedTuningAlg::selectTracks(const xAOD::TrackParticleContainer* trackParticles, 
 					std::vector<Trk::ITrackLink*>& trackVector)
 {
-  Root::TAccept selectionPassed;
+  bool selectionPassed{false};
   for (auto itr  = trackParticles->begin(); itr != trackParticles->end(); ++itr) {
     if (m_useBeamConstraint) {
       xAOD::Vertex beamposition;
       beamposition.makePrivateStore();
       beamposition.setPosition(m_iBeamCondSvc->beamVtx().position());
       beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
-      selectionPassed=m_trackFilter->accept(**itr,&beamposition);
+      selectionPassed=static_cast<bool> (m_trackFilter->accept(**itr,&beamposition));
     }
     else
     {
@@ -485,7 +485,7 @@ void ImagingSeedTuningAlg::selectTracks(const xAOD::TrackParticleContainer* trac
       AmgSymMatrix(3) vertexError;
       vertexError.setZero();
       null.setCovariancePosition(vertexError);
-      selectionPassed=m_trackFilter->accept(**itr,&null);
+      selectionPassed=static_cast<bool>(m_trackFilter->accept(**itr,&null));
     }
     if (selectionPassed)
     {

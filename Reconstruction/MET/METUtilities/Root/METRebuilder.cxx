@@ -728,8 +728,12 @@ namespace met {
 
     // if(trk->d0()>m_trk_d0Max) return false;
     // if(fabs(trk->z0()+trk->vz() - pv->z()) > m_trk_z0Max) return false;
-    if(m_trk_doPVsel && pv) {return m_trkseltool->accept( *trk, pv );}
-    else              {return m_trkseltool->accept( trk );}
+    if(m_trk_doPVsel && pv) {
+      return static_cast<bool>(m_trkseltool->accept( *trk, pv ));
+    }
+    else  {
+      return static_cast<bool>(m_trkseltool->accept( trk ));
+    }
   }
 
   void METRebuilder::associateTracks(const xAOD::IParticle* obj) {
