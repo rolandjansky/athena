@@ -117,7 +117,7 @@ def jetRecoSequence(RoIs):
     jetFinder.VariableRMassScale = -1
     jetFinder.GhostArea = 0.01
     jetFinder.JetRadius = 0.4
-    jetFinder.PtMin = 70000. 
+    jetFinder.PtMin = 7000. 
     jetFinder.RandomOption = 1  #  1: used run/evt number to make seed
 
     ToolSvc += jetFinder
