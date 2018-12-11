@@ -313,9 +313,11 @@ public:
    * @param ptr Payload for this element.
    * @param ctx Execution context.
    *
-   * Returns true if the new element was successfully inserted.
-   * Returns false if the range compared equal to an existing one. In that case,
+   * Returns SUCCESS if the new element was successfully inserted.
+   * Returns DUPLICATE if the range compared equal to an existing one. In that case,
    * no new element is inserted (and @c ptr gets deleted).
+   * Returns OVERLAP if the range of the new element overlaps
+   * an existing element (the new element is still inserted).
    */
   EmplaceResult emplace (const RANGE& range,
                          payload_unique_ptr ptr,
