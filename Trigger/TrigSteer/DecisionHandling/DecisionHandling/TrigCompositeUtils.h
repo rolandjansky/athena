@@ -177,8 +177,8 @@ namespace TrigCompositeUtils {
   };
 
   /**
-   * @brief search back the TC links for the object of type T linked to the one of TC (recursively throough the seeds)
-   * @arg start the TC from where the link back is to be looked for
+   * @brief search back the TC links for the object of type T linked to the one of TC (recursively)
+   * @arg start the TC  from where the link back is to be looked for
    * @arg linkName the name with which the Link was added to the source TC
    * @return pair of link and TC with which it was associated, 
    */
@@ -189,6 +189,7 @@ namespace TrigCompositeUtils {
     //
     if ( not source ){
       auto seeds = getLinkToPrevious(start);
+      // std::cout<<"Looking for seeds: found " <<seeds.size()<<std::endl;
       for (auto seed: seeds){
 	const xAOD::TrigComposite* dec = *seed;//deference
 	LinkInfo<T> link= findLink<T>( dec, linkName );
@@ -197,6 +198,9 @@ namespace TrigCompositeUtils {
       }
       return LinkInfo<T>(); // invalid link
     }
+
+    //std::cout<<"Found source for "<<linkName<<std::endl;
+
     return LinkInfo<T>( source, source->objectLink<T>( linkName ) );
   }
 

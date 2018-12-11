@@ -88,9 +88,22 @@ namespace TrigCompositeUtils {
   }
 
   void linkToPrevious( Decision* d, const std::string& previousCollectionKey, size_t previousIndex ) {
-    ElementLinkVector<DecisionContainer> seeds = d->objectCollectionLinks<DecisionContainer>( "seed" );
-    seeds.push_back(ElementLink<DecisionContainer>( previousCollectionKey, previousIndex ));
+    ElementLinkVector<DecisionContainer> seeds;
+    ElementLink<DecisionContainer> new_seed= ElementLink<DecisionContainer>( previousCollectionKey, previousIndex );
+    // do we need this link to self link?
+    if ( (*new_seed)->hasObjectLink("self" ) )
+      seeds.push_back( (*new_seed)->objectLink<DecisionContainer>("self")); // make use of self-link 
+    else
+      seeds.push_back(ElementLink<DecisionContainer>( previousCollectionKey, previousIndex ));
+    
+    if (hasLinkToPrevious(d) ){
+      ElementLinkVector<DecisionContainer> oldseeds = d->objectCollectionLinks<DecisionContainer>( "seed" );
+      seeds.reserve( seeds.size() + oldseeds.size() );
+      std::move( oldseeds.begin(), oldseeds.end(), std::back_inserter( seeds ) );
+    }
+
     d->addObjectCollectionLinks("seed", seeds);
+    
   }
 
 

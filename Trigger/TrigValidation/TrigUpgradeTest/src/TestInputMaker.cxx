@@ -89,7 +89,7 @@ namespace HLTTest {
 	    auto newFeature = new xAOD::TrigComposite;
 	    reco_output->push_back(newFeature); 
 	    // 
-	    newFeature->setObjectLink(m_roisLink.value(), roiELInfo.link);
+	    //newFeature->setObjectLink(m_roisLink.value(), roiELInfo.link);
 	    newFeature->setObjectLink(m_linkName.value(), featureLink);
 	    ATH_MSG_DEBUG(" Added " <<m_linkName.value() << " and " << m_roisLink.value() << " to reco object");
 	  }

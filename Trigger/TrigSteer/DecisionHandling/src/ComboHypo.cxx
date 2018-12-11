@@ -89,7 +89,9 @@ StatusCode ComboHypo::copyDecisions( const DecisionIDContainer& passing, const E
 			       std::inserter( common, common.end() ) );
 	
 	Decision*  newDec = newDecisionIn( outDecisions.get() );
-	linkToPrevious( newDec, inputHandle.key(), i );      
+	linkToPrevious( newDec, inputHandle.key(), i );
+	ATH_MSG_DEBUG("New decision has "<< (TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( newDec, "initialRoI")).isValid() <<" valid initialRoI and "<< TrigCompositeUtils::getLinkToPrevious(newDec).size() <<" previous decisions");   
+
 	for ( auto id: common ) {
 	  addDecisionID( id, newDec );
 	}
@@ -117,7 +119,7 @@ StatusCode ComboHypo::copyDecisions( const DecisionIDContainer& passing, const E
 	//   }
 	// }
 	
-	// add View
+	// add View?
 	if ( inputDecision->hasObjectLink( "view" ) ) {
 	   auto viewEL = inputDecision->objectLink< ViewContainer >( "view" );
 	   CHECK( viewEL.isValid() );

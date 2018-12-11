@@ -124,7 +124,12 @@ StatusCode InputMakerBase::decisionInputToMergedOutput(const EventContext& conte
     size_t input_counter =0;
     size_t output_counter =0;
     for ( auto decision : *inputHandle){
-      auto roiEL = decision->objectLink<TrigRoiDescriptorCollection>(m_roisLink.value() );
+      ATH_MSG_DEBUG( "Input Decision "<<input_counter <<" has " <<TrigCompositeUtils::getLinkToPrevious(decision).size()<<" previous links");
+      auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( decision,  m_roisLink.value());
+      CHECK( roiELInfo.isValid() );
+
+      
+      auto roiEL = roiELInfo.link;//decision->objectLink<TrigRoiDescriptorCollection>(m_roisLink.value() );
       auto roiIt=find(RoIsFromDecision.begin(), RoIsFromDecision.end(), roiEL);
       TrigCompositeUtils::Decision*  newDec;
       if ( roiIt == RoIsFromDecision.end() ){
@@ -143,7 +148,7 @@ StatusCode InputMakerBase::decisionInputToMergedOutput(const EventContext& conte
       TrigCompositeUtils::linkToPrevious( newDec, inputKey.key(), input_counter );
       TrigCompositeUtils::insertDecisionIDs( decision, newDec );     	
       copyBaseLinks( decision, newDec);
-      ATH_MSG_DEBUG("New decision has "<< newDec->hasObjectLink(m_roisLink.value()  ) <<" "<<m_roisLink.value() <<" and "<< TrigCompositeUtils::getLinkToPrevious(newDec).size() <<" previous decisions");     
+      ATH_MSG_DEBUG("New decision has "<< (TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( newDec,  m_roisLink.value())).isValid() <<" valid "<<m_roisLink.value() <<" and "<< TrigCompositeUtils::getLinkToPrevious(newDec).size() <<" previous decisions");     
       input_counter++;	
     } // loop over decisions
 
@@ -165,7 +170,7 @@ StatusCode InputMakerBase::copyBaseLinks(const TrigCompositeUtils::Decision* src
 
 
   //    copyLinks(decision, newDec);
-  if ( src->hasObjectLink("self" ) ) dest->copyLinkFrom(src,"self","seed"); // make use of self-link 
+  //  if ( src->hasObjectLink("self" ) ) dest->copyLinkFrom(src,"self","seed"); // make use of self-link 
 
 
   return StatusCode::SUCCESS;
