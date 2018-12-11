@@ -30,7 +30,7 @@ from .Decorators import memoize
 # Set buffer size, in bytes.
 # The argument to SetSize is in elements, not bytes.
 def _set_byte_size (buf, sz):
-    if ROOT.gROOT.GetVersionInt() >= 61400:
+    if ROOT.gROOT.GetVersionInt() >= 61200:
         eltsz = array(buf.typecode).itemsize
         buf.SetSize (sz / eltsz)
     else:
