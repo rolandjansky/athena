@@ -67,8 +67,9 @@ StatusCode TriggerEDMDeserialiserAlg::execute_r(const EventContext& context) con
     resize( bsize );
     toBuffer( start, buff.get() );
 
-    
-    RootType classDesc = RootType::ByName( transientType+"_v1" ); // TODO remove this dirty hack, needsdiscussion how to find the real type
+    /* TODO find out how to read the type informatin that is encoded in the payload, we will need to have less configuration, and thus more robust decoding
+       // this code is commented but will be used once this one bit is understood
+    RootType classDesc = RootType::ByName( transientType+"_v1" );
     size_t usedBytes{ bsize };
     void* obj = m_serializerSvc->deserialize( buff.get(), usedBytes, classDesc );
     ATH_MSG_DEBUG( "Obtained object " << obj << " which used " << usedBytes << " bytes from available " << bsize  );
@@ -84,7 +85,7 @@ StatusCode TriggerEDMDeserialiserAlg::execute_r(const EventContext& context) con
     } else {
       ATH_MSG_WARNING( "Deserialisation of object of CLID " << clid << " and name " << name << " failed" );
     }
-    
+    */
     start = toNextFragment( start );
   }
   
