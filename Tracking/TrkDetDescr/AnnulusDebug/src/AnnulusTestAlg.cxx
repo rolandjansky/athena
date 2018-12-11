@@ -341,12 +341,13 @@ AnnulusTestAlg::testBoundsOnSurface()
     
     std::stringstream act_corners_ss;
     first = true;
-    for(const auto& corner : annbopc->cornerPoints()) {
+    for(const auto& corner : annbopc->corners()) {
       if(!first) act_corners_ss << ",";
-      double x = corner[0] * std::cos(corner[1]);
-      double y = corner[0] * std::sin(corner[1]);
+      double x = corner.first * std::cos(corner.second);
+      double y = corner.first * std::sin(corner.second);
       Amg::Vector3D corner_glob;
-      discSrf.localToGlobal(corner, Amg::Vector3D(), corner_glob);
+      Amg::Vector2D corner_loc(corner.first, corner.second);
+      discSrf.localToGlobal(corner_loc, Amg::Vector3D(), corner_glob);
       //act_corners_ss << corner_glob.x() << "," << corner_glob.y() << "," << corner_glob.z();
       act_corners_ss << x << "," << y << ",0";
       first = false;

@@ -78,18 +78,10 @@ public:
   MsgStream& dump(MsgStream& sl) const override;
   std::ostream& dump(std::ostream& sl) const override;
       
-  std::array<Amg::Vector2D, 4>
-  cornerPoints() const {
-    auto rot = m_rotationStripPC.inverse();
-
-    return {
-      rot * m_inLeftStripPC,
-      rot * m_outLeftStripPC,
-      rot * m_outRightStripPC,
-      rot * m_inRightStripPC,
-    };
-
-  }
+  /**This method returns the four corners of the bounds*/
+  /**Starting from the upper right (max R, pos locX) and proceding clock-wise */
+  /**i.e. (max R; pos locX), (min R; pos locX), (min R; neg loc X), (max R: neg locX) */
+  std::vector< std::pair < double, double > > corners() const;
 
 private:
   double m_minR;

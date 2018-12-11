@@ -495,6 +495,24 @@ std::ostream& Trk::AnnulusBoundsPC::dump( std::ostream& sl ) const
   return sl;
 }
 
+std::vector<std::pair<double, double>>
+Trk::AnnulusBoundsPC::corners() const {
+  auto rot = m_rotationStripPC.inverse();
+
+  auto to_pair = [](const Amg::Vector2D& v) -> std::pair<double, double>
+  {
+    return {v[0], v[1]};
+  };
+
+  return {
+    to_pair(rot * m_outRightStripPC),
+    to_pair(rot * m_outLeftStripPC),
+    to_pair(rot * m_inLeftStripPC),
+    to_pair(rot * m_inRightStripPC)
+  };
+
+}
+
 Amg::Vector2D
 Trk::AnnulusBoundsPC::stripXYToModulePC(const Amg::Vector2D& vStripXY) const
 {
