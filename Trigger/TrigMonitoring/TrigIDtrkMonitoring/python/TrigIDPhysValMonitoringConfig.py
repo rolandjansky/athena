@@ -18,7 +18,7 @@ def TrigIDPhysValMonitoringTool():
     from AthenaCommon.AppMgr import release_metadata
     d = release_metadata()
 
-    def makePhysvalMon(name, pdgid, chainnames, useHighestPT, cosmic = False):
+    def makePhysvalMon(name, pdgid, chainnames, useHighestPT, cosmic = False ):
       Monname = "TestIDPhysValMon" + name
       TestIDPhysValMon = TrigTestPhysValMon(name=Monname)
       TestIDPhysValMon.SliceTag = "HLT/IDMon/" + name
@@ -126,6 +126,81 @@ def TrigIDPhysValMonitoringTool():
       'HLT_.*id.*cosmic.*:InDetTrigTrackingxAODCnv_CosmicsN_EFID'
     ]
     outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT, cosmic=True)]
+
+
+
+
+    ################################################
+    # FTK monitoring              
+    ################################################
+
+    name = "FTK"
+    pdgid = 0
+    useHighestPT = False
+
+    chainnames = [
+       #jets                   
+      "HLT_j.*perf_.*FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit:roi=SplitJet",
+      "HLT_j.*perf_.*FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig:roi=SplitJet",
+      "HLT_j.*perf_.*FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK:roi=SplitJet",
+      "HLT_j.*perf_.*FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig:roi=SplitJet",
+      #taus
+      "HLT_tau.*idperf_.*FTK:key=InDetTrigTrackingxAODCnv_Tau_FTK",
+      "HLT_tau.*idperf_.*FTK:key=InDetTrigTrackingxAODCnv_Tau_FTK_IDTrig",
+      "HLT_tau.*FTKNoPrec:key=InDetTrigTrackingxAODCnv_Tau_FTK",
+      "HLT_tau.*FTKRefit:key=InDetTrigTrackingxAODCnv_Tau_FTKRefit",
+      "HLT_tau.*FTKRefit:key=InDetTrigTrackingxAODCnv_Tau_FTKRefit_IDTrig",
+      #muons 
+      "HLT_mu.*idperf_FTK:key=InDetTrigTrackingxAODCnv_Muon_FTK",
+      "HLT_mu.*idperf_FTK:key=InDetTrigTrackingxAODCnv_Muon_FTK_IDTrig",
+      "HLT_mu.*idperf_FTKRefit:key=InDetTrigTrackingxAODCnv_Muon_FTKRefit",
+      "HLT_mu.*idperf_FTKRefit:key=InDetTrigTrackingxAODCnv_Muon_FTKRefit_IDTrig"
+    ]
+
+    outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT)]
+
+    ################################################
+    # FTK fullscan monitoring              
+    ################################################
+
+    name = "FTKFS"
+    pdgid = 0
+    useHighestPT = False
+
+    chainnames = [
+      # full scan analysis
+      ":key=FTK_TrackParticleContainer",
+      ":key=FTK_TrackParticleContainerRefit"
+    ]
+    
+    outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT)]
+
+
+    # # purity analysis
+
+    # name = "IDFTKFSPurity",
+    # pdgid = 0
+    # useHighestPT = False
+
+    # tidaftkfs_purity.RunPurity = True
+    
+    # tidaftkfs_purity.pTCutOffline      = 500
+
+    # tidaftkfs_purity.pixHitsOffline    = -1
+    # tidaftkfs_purity.sctHitsOffline    =  4
+    # #               tidaftkfs_purity.blayerHitsOffline = -1
+    # #               tidaftkfs_purity.pixHolesOffline   = 20
+    # tidaftkfs_purity.siHitsOffline     = 6
+    # tidaftkfs_purity.siHolesOffline    = 20
+
+    # chainnames = [
+    #   # full scan analysis
+    #   ":key=FTK_TrackParticleContainer",
+    #   ":key=FTK_TrackParticleContainerRefit"
+    # ]
+    
+    # outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT)]
+
 
 
   return outputlist
