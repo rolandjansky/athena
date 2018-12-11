@@ -439,36 +439,20 @@ const InDet::SCT_ClusterOnTrack* InDet::SCT_ClusterOnTrackTool::correctAnnulusPC
   int lastStrip = sct_ID->strip(lastStripId);
   int lastStripRow = sct_ID->row(lastStripId);
   
-  
-  ATH_MSG_VERBOSE("rdoList.size(): " << SC->rdoList().size());
-  ATH_MSG_VERBOSE("first|last strip|row: " << firstStrip << " " << lastStrip << " " << firstStripRow << " " << lastStripRow);
-
   int clusterSizeFromId = lastStrip - firstStrip + 1;
 
-  //Amg::Vector3D glob(SC->globalPosition());
   // cell id from cluster
-  // @TODO: Do we want to have this from TP?
   InDetDD::SiCellId lp = EL->cellIdOfPosition(SC->localPosition()); 
   IdentifierHash iH = EL->identifyHash();
-  auto locpos_orig = SC->localPosition();
-  ATH_MSG_VERBOSE("orig SC localpos:" << locpos_orig[0] << ", " << locpos_orig[1]);
-  int orig_strip, orig_row;
-  design->getStripRow(lp, &orig_strip, &orig_row);
-  ATH_MSG_VERBOSE("orig cell id:" << orig_strip << ", " << orig_row);
 
-
+  // use the original center lp to get pitch and length
   double striplength = design->stripLength(lp); // in mm I assume
   double pitch = design->phiPitchPhi(lp); // in units of phi
-  ATH_MSG_VERBOSE("STRIPLENGTH:" << striplength);
 
   // build covariance
   Amg::MatrixX cov(2,2);
   cov.setZero();
   cov(0, 0) = striplength*striplength / 12.;
-  ATH_MSG_VERBOSE("lp = " << lp);
-  ATH_MSG_VERBOSE("striplength = " << striplength);
-  // @TODO: Is this right? Do we need the width of the cluster in phi for this?
-  ATH_MSG_VERBOSE("phiPitch = " << pitch);
   cov(1, 1) = pitch*pitch / 12.;
   
   // ??
@@ -476,103 +460,37 @@ const InDet::SCT_ClusterOnTrack* InDet::SCT_ClusterOnTrackTool::correctAnnulusPC
 
   const InDet::SiWidth width = SC->width();
   const Amg::Vector2D& colRow = width.colRow();
-  // get local position of cluster in PC
-  int clusterSize = std::lround(colRow.x()); // clusterSize == number of strips
-  ATH_MSG_VERBOSE("ClusterSizes fromID|colRow: " << clusterSizeFromId << "|" << clusterSize);
 
-  //InDetDD::SiCellId clusterStartLp(firstStrip, firstStripRow);
   InDetDD::SiCellId clusterStartLp = design->strip1Dim(firstStrip, firstStripRow);
 
   InDetDD::SiLocalPosition siLocPC = design->localPositionOfClusterPC(clusterStartLp, clusterSizeFromId);
-  InDetDD::SiLocalPosition siLocXY = design->localPositionOfCluster(clusterStartLp, clusterSizeFromId);
-  Amg::Vector2D siLocXY_flip(siLocXY.xPhi(), siLocXY.xEta());
 
-  ATH_MSG_VERBOSE("siLocXY(orig): " << siLocXY.xEta() << " " << siLocXY.xPhi());
-
-  // xPhi is just phi, xEta is r
-  // pi/2 is offset in the bounds definition, so module local phi=0 is surface local phi=pi/2
-  // @TODO: is this correct? Could that be done nicer?
+  // xPhi is phi, xEta is r
   Amg::Vector2D locposPC(siLocPC.xEta(), siLocPC.xPhi());
 
   // Apply Lorentz correction, it is given in Y direction of the design,
   // which is xPhi, but straight line, and not curved. 
   // Apply it as arc length now
-  // @TODO: Make it accurate
+  // @TODO: This is not really correct
   double shiftY = EL->getLorentzCorrection();
-  ATH_MSG_VERBOSE("EL lorentz correction straight: " << shiftY);
   double shiftArc = shiftY / locposPC[0]; // phiLorentz = yLorentz / R
-  ATH_MSG_VERBOSE("lorentz arc: " << shiftArc);
-
   Amg::Vector2D lorentz(0, shiftArc);
   locposPC += lorentz;
 
-
+  // build local parameters from measurement position
   Trk::LocalParameters locparPC(locposPC);
   
-  const Amg::Vector3D& glob_xy = SC->globalPosition();
-  // BEGIN HACK: use global pars from XY SC and convert to local PC
-  // this converts glob_xy -> loc_pc
-  //Amg::Vector2D glob_xy_in_loc_pc = *(trackPar.associatedSurface().globalToLocal(glob_xy));
-  //Amg::Vector2D locposPC = glob_xy_in_loc_pc;
-  //Trk::LocalParameters locparPC(locposPC);
-  // END HACK
-
   // use track parameters' surface for loc to glob
+  // that is the disc surface
   const Trk::Surface* srf = &trackPar.associatedSurface();
   const Amg::Vector3D* glob_ptr = trackPar.associatedSurface().localToGlobal(locposPC);
 
   Amg::Vector3D glob = *glob_ptr;
   delete glob_ptr;
 
-  //ATH_MSG_VERBOSE("ABPC locParPC: " << locparPC);
-  //ATH_MSG_VERBOSE("ABPC locParXY was: " << locpar);
-
-  ATH_MSG_VERBOSE("----------------------------");
-  ATH_MSG_VERBOSE("ABPC comparison");
-  ATH_MSG_VERBOSE("----------------------------");
-
-  ATH_MSG_VERBOSE("global position from XY:" << glob_xy.x() << " " << glob_xy.y() << " " << glob_xy.z());
-  ATH_MSG_VERBOSE("global position from PC:" << glob.x() << " " << glob.y() << " " << glob.z());
-
-  Amg::Vector2D loc_PC_from_XY_glob;
-  srf->globalToLocal(glob_xy, {}, loc_PC_from_XY_glob);
-  ATH_MSG_VERBOSE("local position from XY:" << loc_PC_from_XY_glob[0] << " " << loc_PC_from_XY_glob[1]);
-  ATH_MSG_VERBOSE("local position from PC:" << locposPC[0] << " " << locposPC[1]);
-
-  double diffR = loc_PC_from_XY_glob[0] - locposPC[0];
-  double diffPhi = loc_PC_from_XY_glob[1] - locposPC[1];
-  ATH_MSG_VERBOSE("diff r, phi:           " << diffR << " " << diffPhi);
-
-
-  std::stringstream ss;
-  ss << std::setprecision(10);
-  ss << "CLUSTER GLOPO: " << glob[0] << ";" << glob[1] << ";" << glob[2];
-  ss << ";" << glob_xy[0] << ";" << glob_xy[1] << ";" << glob_xy[2];
-  const Amg::Vector3D& ctr = srf->center();
-  ss << ";" << ctr[0] << ";" << ctr[1] << ";" << ctr[2];
-
-  //const SCT_ID* sct_ID;
-  //if (detStore()->retrieve(sct_ID, "SCT_ID").isFailure()) {
-    //ATH_MSG_ERROR ( "Could not get SCT ID helper" );
-    //throw std::runtime_error("Unable to get SCT_ID helper");
-  //}
-  
-  auto id = EL->identify();
-  ss << ";" << (EL->isSCT() && EL->isEndcap());
-  ss << ";" << sct_ID->side(id) << ";" << sct_ID->barrel_ec(id) << ";" << sct_ID->layer_disk(id);
-  ss << ";" << sct_ID->eta_module(id) << ";" << sct_ID->phi_module(id);
-
-    
-  std::cout << ss.str() << std::endl;
-
-  ATH_MSG_VERBOSE("ABPC cov: \n" << cov);
-  ATH_MSG_VERBOSE("ABPC cov before: \n" << SC->localCovariance());
-
-
   InDet::SCT_ClusterOnTrack* cot = new InDet::SCT_ClusterOnTrack(SC, locparPC, cov, iH, glob, isbroad);
 
   // set to surface coming from track par
-  //const Trk::Surface* srf = &(trackPar.associatedSurface());
   cot->setAssociatedSurface(srf);
   return cot;
 }
