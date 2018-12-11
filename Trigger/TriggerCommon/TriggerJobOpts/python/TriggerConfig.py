@@ -106,7 +106,7 @@ def triggerSummaryCfg(flags, hypos):
         __log.info("Final decision of chain  " + c + " will be red from " + cont ) 
     decisionSummaryAlg.FinalDecisionKeys = list(set(allChains.values()))
     decisionSummaryAlg.FinalStepDecisions = allChains
-    decisionSummaryAlg.DecisionsSummaryKey ="HLTSummary"
+    decisionSummaryAlg.DecisionsSummaryKey = "HLTSummary"
     return acc, decisionSummaryAlg
         
 
@@ -118,8 +118,8 @@ def triggerMonitoringCfg(flags, hypos, l1Decoder):
     acc = ComponentAccumulator()
     from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
     mon = TrigSignatureMoniMT()
-    mon.L1Decisions="HLTChains"
-    mon.FinalDecisionKey="HLTSummary"
+    mon.L1Decisions = "L1DecoderSummary"
+    mon.FinalDecisionKey = "HLTSummary"
     if len(hypos) == 0:
         __log.warning("Menu is not configured")
         return acc, mon
@@ -138,7 +138,7 @@ def triggerMonitoringCfg(flags, hypos, l1Decoder):
 
     
     #mon.FinalChainStep = allChains
-    mon.L1Decisions  = l1Decoder.getProperties()['Chains'] if l1Decoder.getProperties()['Chains'] != '<no value>' else l1Decoder.getDefaultProperty('Chains')
+    mon.L1Decisions  = l1Decoder.getProperties()['L1DecoderSummaryKey'] if l1Decoder.getProperties()['L1DecoderSummaryKey'] != '<no value>' else l1Decoder.getDefaultProperty('L1DecoderSummary')
     allChains.update( l1Decoder.ChainToCTPMapping.keys() )
     mon.ChainsList = list( allChains )    
     return acc, mon
@@ -156,7 +156,8 @@ def triggerOutputStreamCfg( flags, decObj, outputType ):
     [ itemsToRecord.extend( __TCKeys(d) ) for d in decObj ]
     # the rest of triger EDM
     itemsToRecord.extend( __TCKeys( "HLTSummary" ) )
-
+    itemsToRecord.append( "EventInfo#ByteStreamEventInfo" )
+    itemsToRecord.append( "ROIB::RoIBResult#*" )
 
     from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTList
     EDMCollectionsToRecord=filter( lambda x: outputType in x[1] and "TrigCompositeContainer" not in x[0],  TriggerHLTList )
@@ -174,7 +175,7 @@ def triggerAddMissingEDMCfg( flags, decObj ):
 
     from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg    
     EDMFillerAlg = TriggerSummaryAlg( "EDMFillerAlg" )
-    EDMFillerAlg.InputDecision  = "HLTChains"
+    EDMFillerAlg.InputDecision  = "L1DecoderSummary"
     EDMFillerAlg.HLTSummary     = "HLTSummaryOutput" # we do not care about this o
 
     from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
