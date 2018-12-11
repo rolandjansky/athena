@@ -103,11 +103,6 @@ if __name__ == "__main__":
     Configurable.configurableRun3Behavior = 1
 
     # Provide input
-    #ConfigFlags.Input.Files = ["myRDO.pool.root",]
-    #ConfigFlags.Input.Files = [
-    #    "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/"
-    #    "SimCoreTests/ttbar_muplusjets-pythia6-7000.evgen.pool.root"
-    #    ]
     ConfigFlags.Input.Files = [
         "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/"
         "SimCoreTests/e_E50_eta34_49.EVNT.pool.root"
@@ -119,7 +114,7 @@ if __name__ == "__main__":
     ConfigFlags.lock()
 
     ## Initialize a new component accumulator
-    cfg = MainServicesSerialCfg() #This syntax for toregate
+    cfg = MainServicesSerialCfg() #This syntax for storegate
     # Add configuration to read EVNT pool file
     cfg.merge(PoolReadCfg(ConfigFlags))
 
