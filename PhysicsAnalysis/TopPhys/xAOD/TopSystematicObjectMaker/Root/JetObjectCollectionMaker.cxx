@@ -573,7 +573,7 @@ void JetObjectCollectionMaker::specifiedSystematics(const std::set<std::string>&
 
   
   ///-- Get the recommended systematics from the tool, in std::vector format --///
-  const std::vector<CP::SystematicSet> systList = CP::make_systematics_vector( tool->recommendedSystematics() );
+  const std::vector<CP::SystematicSet>& systList = CP::make_systematics_vector( tool->recommendedSystematics() );
 
   for (auto s : systList) {
     if (s.size() == 1) {
@@ -592,7 +592,7 @@ void JetObjectCollectionMaker::specifiedSystematics(const std::set<std::string>&
 	    m_specifiedSystematicsLargeR.push_back(modSet);
 	  map.insert( std::make_pair(modSet,s) );
 	} else if (specifiedSystematics.size()  > 0) {
-	  for (auto i : specifiedSystematics) {
+	  for (auto& i : specifiedSystematics) {
 	    if ( i == modSet.name() ) {
 	      if (!isLargeR)
 		m_specifiedSystematics.push_back(modSet);
