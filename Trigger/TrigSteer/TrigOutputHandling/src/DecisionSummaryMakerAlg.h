@@ -24,12 +24,15 @@ public:
   virtual StatusCode finalize() override;
 
 private:
-  SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_summaryKey{ this, "DecisionsSummaryKey", "HLTFinalDecisions", 
+  SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_summaryKey{ this, "DecisionsSummaryKey", "HLTSummary", 
       "location of final decision" };
   SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_finalDecisionKeys{ this, "FinalDecisionKeys", {}, 
       "Final stage of all decisions" };
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_costWriteHandleKey { this, "CostWriteHandleKey", "TrigCostContainer",
     "Trig composite collections summarising the HLT execution" };
+  SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_l1SummaryKey { this, "L1DecoderSummaryKey", "L1DecoderSummary",
+    "Chains status after L1 and prescaling" };
+
 
   ServiceHandle<ITrigCostMTSvc> m_trigCostSvcHandle { this, "TrigCostMTSvc", "TrigCostMTSvc", 
     "The trigger cost service" };
