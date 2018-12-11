@@ -14,21 +14,7 @@ SCT_DCSConditionsStatCondAlg::SCT_DCSConditionsStatCondAlg(const std::string& na
   : ::AthAlgorithm(name, pSvcLocator)
   , m_condSvc{"CondSvc", name}
   , m_doState{true}
-  , m_chanstatCut{"NORM"}
-  , m_hvLowLimit{0.0}
-  , m_hvUpLimit{1000000.0}
-  , m_useHV{false}
-  , m_useHVLowLimit{19.}
-  , m_useHVUpLimit{1000000.0}
-  , m_useHVChanCut{"LOOSE"}
 {
-  declareProperty("HVCutLow", m_hvLowLimit);
-  declareProperty("HVCutUp", m_hvUpLimit);
-  declareProperty("StateCut", m_chanstatCut);
-  declareProperty("UseDefaultHV", m_useHV);
-  declareProperty("useHVLow", m_useHVLowLimit);
-  declareProperty("useHVUp", m_useHVUpLimit);
-  declareProperty("useHVChan", m_useHVChanCut);
 }
 
 StatusCode SCT_DCSConditionsStatCondAlg::initialize() {
@@ -55,7 +41,7 @@ StatusCode SCT_DCSConditionsStatCondAlg::initialize() {
     }
   }
 
-  if (m_useHV) {
+  if (m_useHV.value()) {
     m_hvLowLimit = m_useHVLowLimit;
     m_hvUpLimit = m_useHVUpLimit;
     m_chanstatCut = m_useHVChanCut;

@@ -46,8 +46,8 @@ class SCT_ReadCalibDataCondAlg : public AthAlgorithm
   // Defect type map, contains Fit, NPtGain and No defects for now
   std::map<int, std::string> m_defectMapIntToString;
   // Arrays to hold defects to ignore/limits
-  std::vector<std::string> m_ignoreDefects;
-  std::vector<float> m_ignoreDefectParameters;
+  StringArrayProperty m_ignoreDefects{this, "IgnoreDefects", {}, "Defects to ignore"};
+  FloatArrayProperty m_ignoreDefectParameters{this, "IgnoreDefectsParameters", {}, "Limit on defect to ignore parameters"};
 
   ServiceHandle<ICondSvc> m_condSvc;
   const SCT_ID* m_id_sct; //!< Handle to SCT ID helper

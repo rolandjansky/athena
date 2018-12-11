@@ -45,7 +45,7 @@ class SCT_MonitorConditionsTestAlg : public AthAlgorithm {
   const SCT_ID* m_sctId;
 
   // Parameters to control the db access 
-  SG::ReadHandleKey<xAOD::EventInfo>       m_evtKey;
+  SG::ReadHandleKey<xAOD::EventInfo>       m_evtKey{this, "EventInfoKey", "EventInfo"};
 
 }; // end of class
 

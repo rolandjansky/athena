@@ -4,20 +4,20 @@
 
 #include "SCT_ReadCalibDataCondAlg.h"
 
-// Include STL stuff
-#include <limits>
-#include <memory>
-
-#include "GaudiKernel/EventIDRange.h"
-
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "SCT_ConditionsData/SCT_ConditionsParameters.h"
 
+#include "GaudiKernel/EventIDRange.h"
+
 // Include boost stuff
 #include "boost/lexical_cast.hpp"
 #include "boost/tokenizer.hpp"
+
+// Include STL stuff
+#include <limits>
+#include <memory>
 
 using namespace SCT_ConditionsData;
 
@@ -51,22 +51,17 @@ namespace {
 SCT_ReadCalibDataCondAlg::SCT_ReadCalibDataCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
   , m_defectMapIntToString{}
-  , m_ignoreDefects{}
-  , m_ignoreDefectParameters{}
   , m_condSvc{"CondSvc", name}
   , m_id_sct{nullptr}
 {
-  declareProperty("IgnoreDefects", m_ignoreDefects, "Defects to ignore");
-  declareProperty("IgnoreDefectsParameters", m_ignoreDefectParameters, "Limit on defect to ignore parameters");
-
-  m_ignoreDefects.push_back("NOISE_SLOPE");
-  m_ignoreDefects.push_back("OFFSET_SLOPE");
-  m_ignoreDefects.push_back("GAIN_SLOPE");
-  m_ignoreDefects.push_back("BAD_OPE");
-  m_ignoreDefectParameters.push_back(-1000.);
-  m_ignoreDefectParameters.push_back(-1000.);
-  m_ignoreDefectParameters.push_back(-1000.);
-  m_ignoreDefectParameters.push_back(-1000.);
+  m_ignoreDefects.value().push_back("NOISE_SLOPE");
+  m_ignoreDefects.value().push_back("OFFSET_SLOPE");
+  m_ignoreDefects.value().push_back("GAIN_SLOPE");
+  m_ignoreDefects.value().push_back("BAD_OPE");
+  m_ignoreDefectParameters.value().push_back(-1000.);
+  m_ignoreDefectParameters.value().push_back(-1000.);
+  m_ignoreDefectParameters.value().push_back(-1000.);
+  m_ignoreDefectParameters.value().push_back(-1000.);
 }
 
 StatusCode SCT_ReadCalibDataCondAlg::initialize() {
@@ -127,7 +122,7 @@ StatusCode SCT_ReadCalibDataCondAlg::initialize() {
   m_defectMapIntToString[38] = "DOUBTR_HI";     //<! High double trigger noise occupancy, > 5
 
   //Check ignoreDefects vectors are the same size
-  if (m_ignoreDefects.size() != m_ignoreDefectParameters.size()) {
+  if (m_ignoreDefects.value().size() != m_ignoreDefectParameters.value().size()) {
     ATH_MSG_FATAL("IgnoreDefect != IgnoreDefectsParameters, check job options!");
     return StatusCode::FAILURE;
   }
@@ -272,17 +267,17 @@ StatusCode SCT_ReadCalibDataCondAlg::execute() {
           // Check for defects and their limits not to take into account in isGood
           bool ignoreDefect{false};
           unsigned int ig{0};
-          while (ig<m_ignoreDefects.size()) { //loop until found defect or end of ignoredefects
-            if (m_ignoreDefects[ig] == theseDefects.typeOfDefect[i]) {
-              if (                                                   m_ignoreDefectParameters[ig]<-999.                   ) ignoreDefect = true; //no check on parameter value, defect ignored
-              else if (theseDefects.typeOfDefect[i]=="NO_HI"     and m_ignoreDefectParameters[ig]>theseDefects.parValue[i]) ignoreDefect = true; //noise below threshold, > 0.0005 (in DB, so default values printed here)
-              else if (theseDefects.typeOfDefect[i]=="NOISY"     and m_ignoreDefectParameters[ig]>theseDefects.parValue[i]) ignoreDefect = true; //noise below threshold, > 1.15* av chip average
-              else if (theseDefects.typeOfDefect[i]=="V_NOISY"   and m_ignoreDefectParameters[ig]>theseDefects.parValue[i]) ignoreDefect = true; //noise below threshold, > 1.25* av chip average
-              else if (theseDefects.typeOfDefect[i]=="VLO_GAIN"  and m_ignoreDefectParameters[ig]<theseDefects.parValue[i]) ignoreDefect = true; // gain to low, < 0.3 * chip average
-              else if (theseDefects.typeOfDefect[i]=="LO_GAIN"   and m_ignoreDefectParameters[ig]<theseDefects.parValue[i]) ignoreDefect = true; // gain to low < 0.75 * chip average
-              else if (theseDefects.typeOfDefect[i]=="HI_GAIN"   and m_ignoreDefectParameters[ig]>theseDefects.parValue[i]) ignoreDefect = true; // gain to high > 1.25 * chip average
-              else if (theseDefects.typeOfDefect[i]=="LO_OFFSET" and m_ignoreDefectParameters[ig]>theseDefects.parValue[i]) ignoreDefect = true; // offset to low < -100
-              else if (theseDefects.typeOfDefect[i]=="HI_OFFSET" and m_ignoreDefectParameters[ig]<theseDefects.parValue[i]) ignoreDefect = true; // offset to high > 200
+          while (ig<m_ignoreDefects.value().size()) { //loop until found defect or end of ignoredefects
+            if (m_ignoreDefects.value()[ig] == theseDefects.typeOfDefect[i]) {
+              if (                                                   m_ignoreDefectParameters.value()[ig]<-999.                   ) ignoreDefect = true; //no check on parameter value, defect ignored
+              else if (theseDefects.typeOfDefect[i]=="NO_HI"     and m_ignoreDefectParameters.value()[ig]>theseDefects.parValue[i]) ignoreDefect = true; //noise below threshold, > 0.0005 (in DB, so default values printed here)
+              else if (theseDefects.typeOfDefect[i]=="NOISY"     and m_ignoreDefectParameters.value()[ig]>theseDefects.parValue[i]) ignoreDefect = true; //noise below threshold, > 1.15* av chip average
+              else if (theseDefects.typeOfDefect[i]=="V_NOISY"   and m_ignoreDefectParameters.value()[ig]>theseDefects.parValue[i]) ignoreDefect = true; //noise below threshold, > 1.25* av chip average
+              else if (theseDefects.typeOfDefect[i]=="VLO_GAIN"  and m_ignoreDefectParameters.value()[ig]<theseDefects.parValue[i]) ignoreDefect = true; // gain to low, < 0.3 * chip average
+              else if (theseDefects.typeOfDefect[i]=="LO_GAIN"   and m_ignoreDefectParameters.value()[ig]<theseDefects.parValue[i]) ignoreDefect = true; // gain to low < 0.75 * chip average
+              else if (theseDefects.typeOfDefect[i]=="HI_GAIN"   and m_ignoreDefectParameters.value()[ig]>theseDefects.parValue[i]) ignoreDefect = true; // gain to high > 1.25 * chip average
+              else if (theseDefects.typeOfDefect[i]=="LO_OFFSET" and m_ignoreDefectParameters.value()[ig]>theseDefects.parValue[i]) ignoreDefect = true; // offset to low < -100
+              else if (theseDefects.typeOfDefect[i]=="HI_OFFSET" and m_ignoreDefectParameters.value()[ig]<theseDefects.parValue[i]) ignoreDefect = true; // offset to high > 200
             }
             ig++;
           }

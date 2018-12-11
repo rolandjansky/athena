@@ -43,7 +43,7 @@ class SCT_CablingCondAlgFromText: public AthAlgorithm {
 private:
 
   bool insert(const IdentifierHash& hash, const SCT_OnlineId& onlineId, const SCT_SerialNumber& sn, SCT_CablingData* data);
-  std::string m_source;
+  StringProperty m_source{this, "DataSource", "SCT_MC_FullCabling_svc.dat", "a plain text file for the SCT Cabing"};
   SG::WriteCondHandleKey<SCT_CablingData> m_writeKey{this, "WriteKey", "SCT_CablingData", "Key of output (derived) conditions folder"};
   ServiceHandle<ICondSvc> m_condSvc;
 

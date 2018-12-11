@@ -13,11 +13,9 @@
 
 SCT_SiliconTempCondAlg::SCT_SiliconTempCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
-  , m_useState{true}
   , m_condSvc{"CondSvc", name}
   , m_pHelper{nullptr}
 {
-  declareProperty("UseState", m_useState, "Flag to use state conditions folder");
 }
 
 StatusCode SCT_SiliconTempCondAlg::initialize() {
@@ -31,7 +29,7 @@ StatusCode SCT_SiliconTempCondAlg::initialize() {
   // CondSvc
   ATH_CHECK(m_condSvc.retrieve());
   // Read Cond Handle
-  if (m_useState) {
+  if (m_useState.value()) {
     ATH_CHECK(m_readKeyState.initialize());
   }
   ATH_CHECK(m_readKeyTemp0.initialize());
@@ -74,7 +72,7 @@ StatusCode SCT_SiliconTempCondAlg::execute() {
 
   EventIDRange rangeW{rangeTemp0};
 
-  if (m_useState) {
+  if (m_useState.value()) {
     // Read Cond Handle (state)
     SG::ReadCondHandle<SCT_DCSStatCondData> readHandleState{m_readKeyState};
     const SCT_DCSStatCondData* readCdoState{*readHandleState};

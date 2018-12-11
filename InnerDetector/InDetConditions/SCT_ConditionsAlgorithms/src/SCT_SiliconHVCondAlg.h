@@ -27,7 +27,7 @@ class SCT_SiliconHVCondAlg : public AthAlgorithm
   StatusCode finalize() override;
 
  private:
-  bool m_useState;
+  BooleanProperty m_useState{this, "UseState", true, "Flag to use state conditions folder"};
   SG::ReadCondHandleKey<SCT_DCSStatCondData> m_readKeyState{this, "ReadKeyState", "SCT_DCSStatCondData", "Key of input state conditions data"};
   SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_readKeyHV{this, "ReadKeyHV", "SCT_DCSHVCondData", "Key of input HV conditions data"};
   SG::WriteCondHandleKey<SCT_DCSFloatCondData> m_writeKey{this, "WriteKey", "SCT_SiliconBiasVoltCondData", "Key of output bias voltage conditions data"};

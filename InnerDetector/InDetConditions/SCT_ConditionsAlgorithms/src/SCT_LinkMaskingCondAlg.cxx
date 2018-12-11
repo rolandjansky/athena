@@ -4,9 +4,9 @@
 
 #include "SCT_LinkMaskingCondAlg.h"
 
-#include <memory>
-
 #include "GaudiKernel/EventIDRange.h"
+
+#include <memory>
 
 SCT_LinkMaskingCondAlg::SCT_LinkMaskingCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
@@ -75,7 +75,7 @@ StatusCode SCT_LinkMaskingCondAlg::execute() {
     if (not lastProbedState) writeCdo->setBadWaferId(waferId);
     ATH_MSG_INFO("LINK " << waferId << " (" << waferId.get_identifier32().get_compact() << " in 32 bit): " << lastProbedState);
   }
-  if (writeCdo->size()!=0) writeCdo->setFilled();
+  if (writeCdo->size()>0) writeCdo->setFilled();
 
   // Record the output cond object
   if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {

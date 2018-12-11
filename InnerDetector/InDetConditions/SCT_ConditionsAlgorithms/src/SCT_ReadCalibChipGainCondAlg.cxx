@@ -4,15 +4,14 @@
 
 #include "SCT_ReadCalibChipGainCondAlg.h"
 
-#include <limits>
-#include <memory>
-
-#include "GaudiKernel/EventIDRange.h"
-
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "SCT_ConditionsData/SCT_ConditionsParameters.h"
 #include "SCT_ConditionsTools/SCT_ReadCalibChipUtilities.h"
+
+#include "GaudiKernel/EventIDRange.h"
+
+#include <memory>
 
 using namespace SCT_ConditionsData;
 using namespace SCT_ReadCalibChipUtilities;

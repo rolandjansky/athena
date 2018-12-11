@@ -61,19 +61,18 @@ SCT_CablingCondAlgFromText::SCT_CablingCondAlgFromText(const std::string& name, 
   AthAlgorithm(name, pSvcLocator),
   m_condSvc{"CondSvc", name}
 {
-  declareProperty("DataSource", m_source="SCT_MC_FullCabling_svc.dat", "a plain text file for the SCT Cabing");
 }
 
 //
 StatusCode
 SCT_CablingCondAlgFromText::initialize() {
-  ATH_MSG_INFO("The SCT data file for cabling, " << m_source << ", will be searched.");
-  m_source = PathResolver::find_file(m_source, "DATAPATH");
-  if (m_source.empty()) {
-    ATH_MSG_FATAL("The SCT data file for cabling, " << m_source << ", was not found.");
+  ATH_MSG_INFO("The SCT data file for cabling, " << m_source.value() << ", will be searched.");
+  m_source = PathResolver::find_file(m_source.value(), "DATAPATH");
+  if (m_source.value().empty()) {
+    ATH_MSG_FATAL("The SCT data file for cabling, " << m_source.value() << ", was not found.");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("Reading cabling from " << m_source);
+  ATH_MSG_INFO("Reading cabling from " << m_source.value());
 
   // CondSvc
   ATH_CHECK(m_condSvc.retrieve());
@@ -117,9 +116,9 @@ SCT_CablingCondAlgFromText::execute() {
   IdentifierHash offlineIdHash;
   unsigned int onlineId;
   int robid{0};
-  std::ifstream fromDataFile{m_source.c_str()};
+  std::ifstream fromDataFile{m_source.value().c_str()};
   if (not fromDataFile) {
-    ATH_MSG_FATAL("The cable mapping file could not be opened: " << m_source);
+    ATH_MSG_FATAL("The cable mapping file could not be opened: " << m_source.value());
     return StatusCode::FAILURE;
   }
   std::string inString;
@@ -148,14 +147,14 @@ SCT_CablingCondAlgFromText::execute() {
         offlineId = idHelper->wafer_id(barrelOrEndcap,layer,phi,eta,side);
         offlineIdHash = idHelper->wafer_hash(offlineId);
       } catch (const std::ios_base::failure&) {
-        ATH_MSG_ERROR("An error occurred while reading the cabling file " << m_source
+        ATH_MSG_ERROR("An error occurred while reading the cabling file " << m_source.value()
                       << ", it may be badly formatted in the following line: \n" << inString);
         continue;
       } 
       // Check Link variable looks OK
       // The maximum value of an int is 2147483647 in decimal and 0x7fffffff in hexadecimal.
       if (Link.size()==0 or Link.size()>10) {
-        ATH_MSG_ERROR("An error occurred while reading the cabling file " << m_source
+        ATH_MSG_ERROR("An error occurred while reading the cabling file " << m_source.value()
                       << ", Link (" << Link << ") cannot be converted to an integer");
         continue;
       }

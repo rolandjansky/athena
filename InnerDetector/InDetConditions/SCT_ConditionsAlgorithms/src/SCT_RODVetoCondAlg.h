@@ -19,7 +19,7 @@
 
 #include "SCT_Cabling/ISCT_CablingTool.h"
 #include "SCT_ConditionsData/IdentifierSet.h"
-#include "StoreGate/WriteHandle.h"
+#include "StoreGate/WriteHandleKey.h"
 
 // STL
 #include <string>
@@ -41,8 +41,8 @@ class SCT_RODVetoCondAlg : public AthAlgorithm {
  private:
   ToolHandle<ISCT_CablingTool> m_cabling{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
   const SCT_ID* m_pHelper;
-  SG::WriteHandle<IdentifierSet> m_badIds;
-  std::vector<unsigned int> m_badRODElementsInput;
+  SG::WriteHandleKey<IdentifierSet> m_badIds{this, "BadModuleIds", "BadSCTModuleIds_RODVeto", "Write key for bad module identifiers"};
+  UnsignedIntegerArrayProperty m_badRODElementsInput{this, "BadRODIds", {}, "Input list of RODs to be vetoed"};
 }; //end of class
 
 #endif // SCT_RODVetoCondAlg_H
