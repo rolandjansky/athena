@@ -9,7 +9,7 @@ import math, os, subprocess, time
 from AthenaCommon import Logging
 athMsgLog = Logging.logging.getLogger('Herwig7Utils')
 
-integration_grids_precision_threshold = 0.002 # warn if integration xsec below
+integration_grids_precision_threshold = 0.05 # warn if integration xsec below
 
 
 ## Class for handling commands to modify the generator configuration
@@ -145,7 +145,8 @@ def get_cross_section(run_name, integration_jobs=1):
 
   if err / xsec > integration_grids_precision_threshold:
     threshold = '{}%'.format(integration_grids_precision_threshold*100.0)
-    athMsgLog.warn(ansi_format_warning('! WARNING: The integration grids only have a low precision (worse than {}): xsec = {} +/- {} nb (accuracy: {:.3f}%)'.format(threshold, xsec, err, err/xsec*100.0)))
+    athMsgLog.warn(ansi_format_warning('! The integration grids only have a low precision (worse than {}): xsec = {} +/- {} nb (accuracy: {:.3f}%)'.format(threshold, xsec, err, err/xsec*100.0)))
+    athMsgLog.warn(ansi_format_warning('! In order to speed up the event generation you should consider improving the statistics of the integration / phase space sampling stage (see the sampler_commands() function).'))
   else:
     athMsgLog.info(ansi_format_info('After integration the estimated cross section was found to be: xsec = {} +/- {} nb (accuracy: {:.3f}%)'.format(xsec, err, err/xsec*100.0)))
 

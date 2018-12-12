@@ -58,12 +58,16 @@ import Herwig7Utils as hw7Utils
 class Hw7ConfigLHEF(hw7Config.Hw7Config):
 
 
-  def __init__(self, genSeq, runArgs, run_name="Herwig"):
+  def __init__(self, genSeq, runArgs, run_name="Herwig", beams="pp"):
+
+    beams = beams.upper()
+    if not beams in ["EE", "EP" , "PP"]:
+      raise RuntimeError(hw7Utils.ansi_format_error("Parameter 'beams' must be one of the following: ['EE', 'EP' , 'PP']"))
 
     ## provide variables initialized by the parent class
     super(Hw7ConfigLHEF, self).__init__(genSeq, runArgs, run_name)
 
-    self.event_generator = "LHCGenerator"
+    self.beams = beams
 
     self.set_lhef_mg5amc_commands = False
     self.set_lhef_powhegbox_commands = False
@@ -87,7 +91,7 @@ class Hw7ConfigLHEF(hw7Config.Hw7Config):
 ## Local Post-Commands from Herwig7ConfigLHEF.py
 ## =============================================
 
-saverun {} /Herwig/Generators/LHCGenerator
+saverun {} /Herwig/Generators/EventGenerator
 """.format(self.run_name)
 
 
@@ -101,6 +105,7 @@ saverun {} /Herwig/Generators/LHCGenerator
 
     ## add default settings if they were not overwritten in the JobOptions
 
+    self.default_commands += self.beam_commands()
     self.default_commands += self.random_seed_commands()
     
     if not self.set_printout_commands:
@@ -135,6 +140,24 @@ saverun {} /Herwig/Generators/LHCGenerator
       if not os.path.isfile(lhe_filename):
         raise RuntimeError(hw7Utils.ansi_format_error("Herwig7ConfigLHEF.py:__lhef_commands: Could not find decompressed LHE file '{}'!".format(lhe_filename)))
 
+    momentum_treatment = ""
+    beam_commands = ""
+    if self.beams == "EE":
+      momentum_treatment = "Accept"
+    elif self.beams == "EP":
+      momentum_treatment = "RescaleEnergy"
+      beam_commands = """
+## Set the PDF for the LHE reader
+# set /Herwig/EventHandlers/LHEReader:PDFA /Herwig/Partons/Hard{MEPDFOrder}PDF
+""".format(MEPDFOrder = me_pdf_order)
+    elif self.beams == "PP":
+      momentum_treatment = "RescaleEnergy"
+      beam_commands = """
+## Set the PDF for the LHE reader
+# set /Herwig/EventHandlers/LHEReader:PDFA /Herwig/Partons/Hard{MEPDFOrder}PDF
+# set /Herwig/EventHandlers/LHEReader:PDFB /Herwig/Partons/Hard{MEPDFOrder}PDF
+""".format(MEPDFOrder = me_pdf_order)
+
     self.commands += """
 ## ----------------------------
 ## Read in Events from LHE File
@@ -148,34 +171,36 @@ create ThePEG::LesHouchesEventHandler /Herwig/EventHandlers/LHEHandler
 ## Set LHE filename
 set /Herwig/EventHandlers/LHEReader:FileName {FileName}
 
-## Setup event handlers
-set /Herwig/Generators/LHCGenerator:EventHandler /Herwig/EventHandlers/LHEHandler
+## Setup LHE event handler and LHE reader
+set /Herwig/Generators/EventGenerator:EventHandler /Herwig/EventHandlers/LHEHandler
 insert /Herwig/EventHandlers/LHEHandler:LesHouchesReaders 0 /Herwig/EventHandlers/LHEReader
-set /Herwig/EventHandlers/LHEHandler:PartonExtractor /Herwig/Partons/QCDExtractor
+set /Herwig/EventHandlers/LHEHandler:PartonExtractor /Herwig/Partons/{Beams}Extractor
 set /Herwig/EventHandlers/LHEHandler:CascadeHandler /Herwig/Shower/ShowerHandler
 set /Herwig/EventHandlers/LHEHandler:HadronizationHandler /Herwig/Hadronization/ClusterHadHandler
 set /Herwig/EventHandlers/LHEHandler:DecayHandler /Herwig/Decays/DecayHandler
-
-##
-set /Herwig/EventHandlers/LHEReader:IncludeSpin {IncludeSpin}
-set /Herwig/EventHandlers/LHEReader:MomentumTreatment RescaleEnergy
-set /Herwig/EventHandlers/LHEReader:AllowedToReOpen No
 set /Herwig/EventHandlers/LHEHandler:WeightNormalization CrossSection
 set /Herwig/EventHandlers/LHEHandler:WeightOption VarNegWeight
+set /Herwig/EventHandlers/LHEReader:IncludeSpin {IncludeSpin}
+set /Herwig/EventHandlers/LHEReader:MomentumTreatment {MomentumTreatment}
+set /Herwig/EventHandlers/LHEReader:AllowedToReOpen No
 
 ## Parton shower settings
-set /Herwig/Shower/Evolver:HardVetoMode Yes
-set /Herwig/Shower/Evolver:HardVetoScaleSource Read
+set /Herwig/Shower/ShowerHandler:MaxPtIsMuF Yes
+set /Herwig/Shower/ShowerHandler:RestrictPhasespace Yes
+# treatment of wide angle radiation
+set /Herwig/Shower/PartnerFinder:PartnerMethod Random
+set /Herwig/Shower/PartnerFinder:ScaleChoice Partner
 
 ## Don't use any cuts on LHE files
 create ThePEG::Cuts /Herwig/Cuts/NoCuts
 set /Herwig/EventHandlers/LHEReader:Cuts /Herwig/Cuts/NoCuts
 
-## Set the PDF for the LHE reader.
-set /Herwig/EventHandlers/LHEReader:PDFA /Herwig/Partons/Hard{MEPDFOrder}PDF
-set /Herwig/EventHandlers/LHEReader:PDFB /Herwig/Partons/Hard{MEPDFOrder}PDF
-""".format(FileName = lhe_filename, MEPDFOrder = me_pdf_order,
-           IncludeSpin = "Yes" if usespin==True else "No")
+{BeamCommands}
+""".format(FileName = lhe_filename,
+           Beams = self.beams,
+           IncludeSpin = "Yes" if usespin==True else "No",
+           MomentumTreatment = momentum_treatment,
+           BeamCommands = beam_commands)
 
 
   ## Commands specific to showering of events produced with MG5_aMC@NLO
@@ -212,12 +237,7 @@ set /Herwig/Shower/KinematicsReconstructor:ReconstructionOption General
 set /Herwig/Shower/KinematicsReconstructor:InitialInitialBoostOption LongTransBoost
 set /Herwig/Shower/KinematicsReconstructor:InitialStateReconOption Rapidity
 set /Herwig/Shower/KinematicsReconstructor:FinalStateReconOption Default
-set /Herwig/Shower/ShowerHandler:RestrictPhasespace On
-
-## matrix element corrections were switched off by us in the past
-## now the Herwig7 authors recommend to go with the default, which is MECorrMode 1 [Yes]
-## keeping it for the moment for mg5amc, though, until new settings validated
-set /Herwig/Shower/Evolver:MECorrMode 0 ## keeping this here at the moment
+set /Herwig/Shower/ShowerHandler:SpinCorrelations No
 """
 
 
@@ -259,11 +279,3 @@ set /Herwig/Shower/Evolver:MECorrMode 0 ## keeping this here at the moment
     self.set_lhef_powhegbox_commands = True
 
     self.__lhef_commands(lhe_filename, me_pdf_order, usespin)
-
-    self.commands += """
-## Commands specific to showering of events produced with PowhegBox
-set /Herwig/Shower/ShowerHandler:RestrictPhasespace On
-set /Herwig/Shower/ShowerHandler:MaxPtIsMuF Yes
-set /Herwig/Shower/PartnerFinder:PartnerMethod Random
-set /Herwig/Shower/PartnerFinder:ScaleChoice Partner
-"""
