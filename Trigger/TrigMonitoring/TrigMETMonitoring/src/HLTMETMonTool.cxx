@@ -1,12 +1,11 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMETMonitoring/HLTMETMonTool.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/PropertyMgr.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrigConfL1Data/TriggerItem.h"
 #include "TrigMissingEtEvent/TrigMissingETContainer.h"
