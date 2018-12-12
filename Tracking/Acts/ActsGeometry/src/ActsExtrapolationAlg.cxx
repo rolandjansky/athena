@@ -94,7 +94,8 @@ StatusCode ActsExtrapolationAlg::execute(const EventContext& ctx) const
 
   double qop =  charge / momentum.norm();
     
-  Acts::PerigeeSurface surface(Acts::Vector3D(0, 0, 0));
+  std::shared_ptr<Acts::PerigeeSurface> surface 
+    = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3D(0, 0, 0));
 
 
   Acts::ActsVectorD<5> pars;
@@ -106,7 +107,7 @@ StatusCode ActsExtrapolationAlg::execute(const EventContext& ctx) const
   if(charge != 0.) {
       // charged extrapolation - with hit recording
       Acts::BoundParameters startParameters(
-          std::move(cov), std::move(pars), surface);
+          std::move(cov), std::move(pars), std::move(surface));
       steps = m_extrapolationTool->propagate(startParameters);
       writeStepsObj(steps);
       m_propStepWriterSvc->write(steps);

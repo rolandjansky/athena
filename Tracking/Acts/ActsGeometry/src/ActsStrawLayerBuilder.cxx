@@ -88,7 +88,7 @@ ActsStrawLayerBuilder::centralLayers()
 
     double fudge = 0;
     // RING in TRT speak is translated to Layer in ACTS speak
-    std::vector<const Acts::Surface*> layerSurfaces;
+    std::vector<std::shared_ptr<const Acts::Surface>> layerSurfaces;
 
     size_t nBarrelLayers = trtNums->getNBarrelLayers(iring);
     ACTS_VERBOSE("  - Numerology reports: " << nBarrelLayers << " layers in ring " << iring);
@@ -132,7 +132,7 @@ ActsStrawLayerBuilder::centralLayers()
             pl.maxZ = std::max(pl.maxZ, ctr.z() + length);
             pl.minZ = std::min(pl.minZ, ctr.z() - length);
 
-            layerSurfaces.push_back(straw);
+            layerSurfaces.push_back(straw->getSharedPtr());
           }
         }
       }
@@ -146,7 +146,8 @@ ActsStrawLayerBuilder::centralLayers()
       pl.minR = prev.maxR + prev.envR.second + pl.envR.first + fudge;
     }
 
-    std::shared_ptr<Acts::Layer> layer = m_cfg.layerCreator->cylinderLayer(layerSurfaces, 100, 1, pl);
+    std::shared_ptr<Acts::Layer> layer 
+      = m_cfg.layerCreator->cylinderLayer(std::move(layerSurfaces), 100, 1, pl);
     layers.push_back(layer);
 
     protoLayers.push_back(pl);
@@ -177,7 +178,7 @@ ActsStrawLayerBuilder::endcapLayers(int side)
     size_t nEndcapLayers = trtNums->getNEndcapLayers(iwheel);
     ACTS_VERBOSE("  - Numerology reports: " << nEndcapLayers << " layers in wheel " << iwheel);
     for(size_t ilayer=0;ilayer<nEndcapLayers;++ilayer) {
-      std::vector<const Acts::Surface*> wheelSurfaces;
+      std::vector<std::shared_ptr<const Acts::Surface>> wheelSurfaces;
 
             
       Acts::ProtoLayer pl;
@@ -226,13 +227,14 @@ ActsStrawLayerBuilder::endcapLayers(int side)
               pl.minR = std::min(pl.minR, ctr.perp() - length);
               pl.envZ = {radius/2., radius/2.};
 
-              wheelSurfaces.push_back(straw);
+              wheelSurfaces.push_back(straw->getSharedPtr());
             }
           }
         }
       }
 
-      std::shared_ptr<Acts::Layer> layer = m_cfg.layerCreator->discLayer(wheelSurfaces, 1, 100, pl);
+      std::shared_ptr<Acts::Layer> layer 
+        = m_cfg.layerCreator->discLayer(std::move(wheelSurfaces), 1, 100, pl);
       layers.push_back(layer);
       ACTS_VERBOSE("  - Collected " << wheelSurfaces.size() << " straws");
     }
