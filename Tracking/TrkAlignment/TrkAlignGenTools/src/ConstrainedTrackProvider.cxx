@@ -323,7 +323,7 @@ namespace Trk {
           trackCollection->push_back(constrainedFittedTrack);
           ++m_constrainedTracks;
         } else{
-          ATH_MSG_INFO("Constrained fit was unsuccessful");          
+          ATH_MSG_DEBUG("Constrained fit was unsuccessful");          
         }
       } else {
       
@@ -350,7 +350,7 @@ namespace Trk {
       return StatusCode::SUCCESS;
     }    
 
-    ATH_MSG_INFO(" The final trackCollection size: " << trackCollection->size() << " name of track collection: ..." );
+    ATH_MSG_DEBUG(" The final trackCollection size: " << trackCollection->size() << " name of track collection: ..." );
     //track Collection cannot be null here; it has already been dereferenced
     finalTracks = trackCollection;
 
