@@ -48,8 +48,9 @@ if doAllHits:
     
   ##Other parameters                                                                                                                  
 
-  if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-    InDetPixelMainsMon.FilterTools += [monFilledBunchFilterTool]
+  if jobproperties.Beam.beamType()=='collisions':
+    from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
+    InDetPixelMainsMon.FilterTools += [GetFilledBunchFilterTool()]
                                                                                                                                        
   #ToolSvc += InDetPixelMainsMon                 
   if (InDetFlags.doPrintConfigurables()): 
@@ -114,8 +115,9 @@ if doHitsOnTrack:
   InDetPixelMainsMonOnTrack.TrackSelectionTool.Extrapolator        = InDetExtrapolator
   ##Other parameters                                                                                                                  
 
-  if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-    InDetPixelMainsMonOnTrack.FilterTools += [monFilledBunchFilterTool]
+  if jobproperties.Beam.beamType()=='collisions':
+    from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
+    InDetPixelMainsMonOnTrack.FilterTools += [GetFilledBunchFilterTool()]
   
   #ToolSvc += InDetPixelMainsMonOnTrack                
   if (InDetFlags.doPrintConfigurables()): 

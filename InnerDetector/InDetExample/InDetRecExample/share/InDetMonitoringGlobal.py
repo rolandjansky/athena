@@ -36,8 +36,9 @@ if InDetFlags.doMonitoringGlobal():
                                                     histoPathBase = "/GLOBAL",
                                                     checkRate     = 2000)
   
-  if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-    InDetGlobalSynchMonTool.FilterTools += [monFilledBunchFilterTool]
+  if jobproperties.Beam.beamType()=='collisions':
+    from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
+    InDetGlobalSynchMonTool.FilterTools += [GetFilledBunchFilterTool()]
   
   #ToolSvc += InDetGlobalSynchMonTool
   if (InDetFlags.doPrintConfigurables()):
@@ -100,8 +101,9 @@ if InDetFlags.doMonitoringGlobal():
     InDetGlobalTrackMonTool.trackMax = 10
     InDetGlobalTrackMonTool.trackBin = 10
 
-  if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-    InDetGlobalTrackMonTool.FilterTools += [monFilledBunchFilterTool]
+  if jobproperties.Beam.beamType()=='collisions':
+    from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
+    InDetGlobalTrackMonTool.FilterTools += [GetFilledBunchFilterTool()]
       
   #ToolSvc += InDetGlobalTrackMonTool
   if (InDetFlags.doPrintConfigurables()):
@@ -116,8 +118,9 @@ if InDetFlags.doMonitoringGlobal():
       from InDetGlobalMonitoring.InDetGlobalMonitoringConf import InDetGlobalPixelTool
       InDetGlobalPixelTool=InDetGlobalPixelTool( name          = "InDetGlobalPixelTool")
 
-      if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-        InDetGlobalPixelTool.FilterTools += [monFilledBunchFilterTool]
+      if jobproperties.Beam.beamType()=='collisions':
+        from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
+        InDetGlobalPixelTool.FilterTools += [GetFilledBunchFilterTool()]
       #ToolSvc += InDetGlobalPixelTool
       if (InDetFlags.doPrintConfigurables()):
           print InDetGlobalPixelTool
@@ -130,8 +133,9 @@ if InDetFlags.doMonitoringGlobal():
   # from InDetGlobalMonitoring.InDetGlobalMonitoringConf import InDetGlobalBCMTool
   # InDetGlobalBCMTool=InDetGlobalBCMTool( name          = "InDetGlobalBCMTool")
 
-  # if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-  #   InDetGlobalBCMTool.FilterTools += [monFilledBunchFilterTool]
+  # if jobproperties.Beam.beamType()=='collisions':
+  #   from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
+  #   InDetGlobalBCMTool.FilterTools += [GetFilledBunchFilterTool()]
   # ToolSvc += InDetGlobalBCMTool
   # if (InDetFlags.doPrintConfigurables()):
   #     print InDetGlobalBCMTool
@@ -149,8 +153,9 @@ if InDetFlags.doMonitoringGlobal():
                                                              trackContainerName = InDetKeys.xAODTrackParticleContainer(),
                                                              useBeamspot = InDetFlags.useBeamConstraint()) 
       
-      if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-        InDetGlobalBeamSpotMonTool.FilterTools += [monFilledBunchFilterTool]
+      if jobproperties.Beam.beamType()=='collisions':
+        from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
+        InDetGlobalBeamSpotMonTool.FilterTools += [GetFilledBunchFilterTool()]
       #ToolSvc += InDetGlobalBeamSpotMonTool
       if (InDetFlags.doPrintConfigurables()):
           print InDetGlobalBeamSpotMonTool
@@ -189,8 +194,9 @@ if InDetFlags.doMonitoringGlobal() or InDetFlags.doMonitoringPrimaryVertexingEnh
                                                                    vxContainerNameWithOutBeamConstraint = InDetKeys.PrimaryVerticesWithoutBeamConstraint(),
                                                                    vxContainerNameSplit = InDetKeys.PrimaryVerticesSplitStream(),
                                                                    doEnhancedMonitoring = InDetFlags.doMonitoringPrimaryVertexingEnhanced())
-  if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-     InDetGlobalPrimaryVertexMonTool.FilterTools += [monFilledBunchFilterTool]
+  if jobproperties.Beam.beamType()=='collisions':
+    from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
+    InDetGlobalPrimaryVertexMonTool.FilterTools += [GetFilledBunchFilterTool()]
 
   #ToolSvc += InDetGlobalPrimaryVertexMonTool
   if (InDetFlags.doPrintConfigurables()):

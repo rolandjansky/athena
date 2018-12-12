@@ -397,7 +397,7 @@ ManagedMonitorToolBase( const std::string & type, const std::string & name,
    , m_THistSvc("THistSvc",name)
    , m_trigDecTool("")
    , m_trigTranslator("")
-   , m_DQFilterTools()
+   , m_DQFilterTools(this)
    , m_procNEventsProp(0)
    , m_path("")
    , m_preScaleProp(0)

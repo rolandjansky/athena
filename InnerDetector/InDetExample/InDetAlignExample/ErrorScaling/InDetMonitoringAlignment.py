@@ -381,12 +381,13 @@ else:
                                                    vxContainerName               = InDetKeys.PrimaryVertices(),
                                                    vxContainerWithBeamConstraint = InDetFlags.useBeamConstraint())
 
-    if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-        InDetAlignMonSivsTRT.FilterTools += [monFilledBunchFilterTool]
-        InDetAlignMonResiduals.FilterTools += [monFilledBunchFilterTool]
-        InDetAlignMonEfficiencies.FilterTools += [monFilledBunchFilterTool]
-        InDetAlignMonGenericTracks.FilterTools += [monFilledBunchFilterTool]
-        InDetAlignMonBeamSpot.FilterTools += [monFilledBunchFilterTool]
+    if jobproperties.Beam.beamType()=='collisions':
+        from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
+        InDetAlignMonSivsTRT.FilterTools += [GetFilledBunchFilterTool()]
+        InDetAlignMonResiduals.FilterTools += [GetFilledBunchFilterTool()]
+        InDetAlignMonEfficiencies.FilterTools += [GetFilledBunchFilterTool()]
+        InDetAlignMonGenericTracks.FilterTools += [GetFilledBunchFilterTool()]
+        InDetAlignMonBeamSpot.FilterTools += [GetFilledBunchFilterTool()]
 
     InDetAlignMonSivsTRT.TrigDecisionTool         = monTrigDecTool
     InDetAlignMonResiduals.TrigDecisionTool       = monTrigDecTool
@@ -451,12 +452,13 @@ InDetAlignMonManager.AthenaMonTools         += [ InDetAlignMonResiduals_noTrig ]
 InDetAlignMonManager.AthenaMonTools         += [ InDetAlignMonEfficiencies_noTrig ]
 InDetAlignMonManager.AthenaMonTools         += [ InDetAlignMonGenericTracks_noTrig ]
 
-if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-    InDetAlignMonSivsTRT_noTrig.FilterTools += [monFilledBunchFilterTool]
-    InDetAlignMonResiduals_noTrig.FilterTools += [monFilledBunchFilterTool]
-    InDetAlignMonEfficiencies_noTrig.FilterTools += [monFilledBunchFilterTool]
-    InDetAlignMonGenericTracks_noTrig.FilterTools += [monFilledBunchFilterTool]
-    InDetAlignMonBeamSpot_noTrig.FilterTools += [monFilledBunchFilterTool]
+if jobproperties.Beam.beamType()=='collisions':
+    from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
+    InDetAlignMonSivsTRT_noTrig.FilterTools += [GetFilledBunchFilterTool()]
+    InDetAlignMonResiduals_noTrig.FilterTools += [GetFilledBunchFilterTool()]
+    InDetAlignMonEfficiencies_noTrig.FilterTools += [GetFilledBunchFilterTool()]
+    InDetAlignMonGenericTracks_noTrig.FilterTools += [GetFilledBunchFilterTool()]
+    InDetAlignMonBeamSpot_noTrig.FilterTools += [GetFilledBunchFilterTool()]
 
 
 if InDetAlignMonDoTruth:

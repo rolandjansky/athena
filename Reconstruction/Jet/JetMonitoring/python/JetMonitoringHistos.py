@@ -8,7 +8,6 @@ from JetSelectorTools.JetSelectorToolsConf import JetCleaningTool
 from RecExConfig.ObjKeyStore import cfgKeyStore
 #New AthenaMonitoring filter tool to be added to filter out events in non-filled BCIDs
 from AthenaMonitoring.BadLBFilterTool import GetLArBadLBFilterTool
-monbadlb = GetLArBadLBFilterTool()
 
 monitorTracks = cfgKeyStore.isInTransient('xAOD::JetContainer','AntiKt3PV0TrackJets')
 
@@ -145,14 +144,14 @@ if monitorTracks :
 #    athenaMonTool.HistoTools += [ commonMonitoringTool( "AntiKt3PV0TrackJets" ) ]
 
 #cbg
-athenaMonTool.FilterTools += [ monbadlb ]
+athenaMonTool.FilterTools += [ GetLArBadLBFilterTool() ]
 
 #ToolSvc += athenaMonTool
 
 athenaMonTool_LB = JetMonitoringTool("JetMonitoring_LB", HistoTools = [commonMonitoringTool_LB("AntiKt4EMTopoJets") ], IntervalType = 2)
 
 #cbg
-athenaMonTool_LB.FilterTools += [ monbadlb ]
+athenaMonTool_LB.FilterTools += [ GetLArBadLBFilterTool() ]
 
 #ToolSvc += athenaMonTool_LB
 
@@ -165,7 +164,7 @@ if DQMonFlags.useTrigger() :
                                                commonMonitoringTool( "AntiKt10LCTopoJets", pathSuffix='_trig' )
                                                ] , IntervalType = 6 )
     #cbg
-    athenaMonTool_trig.FilterTools += [ monbadlb ]
+    athenaMonTool_trig.FilterTools += [ GetLArBadLBFilterTool() ]
     #ToolSvc += athenaMonTool_trig
     athenaMonTool_trig.TrigDecisionTool =  getattr(ToolSvc, DQMonFlags.nameTrigDecTool())
     athenaMonTool_trig.TriggerChain =  "CATEGORY_monitoring_jet"

@@ -12,7 +12,7 @@ from AthenaCommon.GlobalFlags  import globalflags
 from AthenaMonitoring.DQMonFlags import DQMonFlags
 
 from AthenaMonitoring.BadLBFilterTool import GetLArBadLBFilterTool
-include ("AthenaMonitoring/AtlasReadyFilterTool_jobOptions.py")
+from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
 
 if (DQMonFlags.monManEnvironment == 'online' or globalflags.DataSource.get_Value() == 'geant4' or globalflags.DataSource.get_Value() == 'geant3'):
   tmp_useBadLBTool=FALSE
@@ -51,7 +51,7 @@ LArCosmicsClusterMon = CaloClusterVecMon(
   BadLBTool = GetLArBadLBFilterTool(),
 
   useReadyFilterTool = tmp_useReadyFilterTool,
-  ReadyFilterTool = monAtlasReadyFilterTool,
+  ReadyFilterTool = GetAtlasReadyFilterTool(),
 
   useLArNoisyAlg = tmp_useLArNoisyAlg,
   

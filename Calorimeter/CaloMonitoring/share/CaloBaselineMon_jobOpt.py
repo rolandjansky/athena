@@ -13,7 +13,7 @@ if not 'rec' in dir():
    from RecExConfig.RecFlags import rec
 
 from AthenaMonitoring.BadLBFilterTool import GetLArBadLBFilterTool
-include ("AthenaMonitoring/AtlasReadyFilterTool_jobOptions.py")
+from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
 
 from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
 
@@ -45,7 +45,7 @@ CaloBaseline = CaloBaselineMon(
    BadLBTool = GetLArBadLBFilterTool(),
    BunchCrossingTool=BunchCrossingTool(),
    useReadyFilterTool = tmp_CaloBaselineMon["useReadyFilterTool"],
-   ReadyFilterTool = monAtlasReadyFilterTool,
+   ReadyFilterTool = GetAtlasReadyFilterTool(),
    useLArCollisionFilterTool = tmp_CaloBaselineMon["useLArCollisionFilter"],
    useLArNoisyAlg = tmp_CaloBaselineMon["useLArNoisyAlg"],
    useBeamBackgroundRemoval = tmp_CaloBaselineMon["useBeamBackgroundRemoval"],
