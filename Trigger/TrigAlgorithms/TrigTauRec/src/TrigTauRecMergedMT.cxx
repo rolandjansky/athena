@@ -163,40 +163,40 @@ StatusCode TrigTauRecMergedMT::execute()
 
    auto nCells             = MonitoredScalar::declare<int>("nRoI_EFTauCells",    0);
    auto nTracks            = MonitoredScalar::declare<int>("nRoI_EFTauTracks", -10);
-   auto dEta               = MonitoredScalar::declare("dEtaEFTau_RoI",    -10);
-   auto dPhi               = MonitoredScalar::declare("dPhiEFTau_RoI",    -10);
+   auto dEta               = MonitoredScalar::declare<float>("dEtaEFTau_RoI",    -10.);
+   auto dPhi               = MonitoredScalar::declare<float>("dPhiEFTau_RoI",    -10.);
    auto emRadius           = MonitoredScalar::declare<float>("EF_EMRadius", -0.099);
    auto hadRadius          = MonitoredScalar::declare<float>("EF_EMRadius", -0.099);
    auto EtFinal            = MonitoredScalar::declare<float>("EF_EtFinal", 0.);
    auto Et                 = MonitoredScalar::declare<float>("EF_Et", 0.);
    auto EtHad              = MonitoredScalar::declare<float>("EF_EtHad",-10.);
    auto EtEm               = MonitoredScalar::declare<float>("EF_EtEm",-10.);
-   auto EMFrac             = MonitoredScalar::declare("EF_EMFrac",-10.);
+   auto EMFrac             = MonitoredScalar::declare<float>("EF_EMFrac",-10.);
    auto IsoFrac            = MonitoredScalar::declare<float>("EF_IsoFrac",-1.);
-   auto centFrac           = MonitoredScalar::declare("EF_centFrac",-10);
+   auto centFrac           = MonitoredScalar::declare<float>("EF_centFrac",-10.);
    auto nWideTrk           = MonitoredScalar::declare<int>("EF_nWideTrk",0);
-   auto ipSigLeadTrk       = MonitoredScalar::declare("EF_ipSigLeadTrk",-1000);
-   auto trFlightPathSig    = MonitoredScalar::declare("EF_trFlightPathSig",-10);
-   auto massTrkSys         = MonitoredScalar::declare("EF_massTrkSys",-10);
+   auto ipSigLeadTrk       = MonitoredScalar::declare<float>("EF_ipSigLeadTrk",-1000.);
+   auto trFlightPathSig    = MonitoredScalar::declare<float>("EF_trFlightPathSig",-10.);
+   auto massTrkSys         = MonitoredScalar::declare<float>("EF_massTrkSys",-10.);
    auto dRmax              = MonitoredScalar::declare<float>("EF_dRmax",-10.);
    auto numTrack           = MonitoredScalar::declare<int>("EF_NTrk", -10);
    auto trkAvgDist         = MonitoredScalar::declare<float>("EF_TrkAvgDist",-1.0);
    auto etovPtLead         = MonitoredScalar::declare<float>("EF_EtovPtLead",-10.);
-   auto PSSFraction        = MonitoredScalar::declare("EF_PSSFraction",-999);
-   auto EMPOverTrkSysP     = MonitoredScalar::declare("EF_EMPOverTrkSysP",-999);
-   auto ChPiEMEOverCaloEME = MonitoredScalar::declare("EF_ChPiEMEOverCaloEME",-999);
-   auto SumPtTrkFrac       = MonitoredScalar::declare("EF_SumPtTrkFrac",-999);
+   auto PSSFraction        = MonitoredScalar::declare<float>("EF_PSSFraction",-999.9);
+   auto EMPOverTrkSysP     = MonitoredScalar::declare<float>("EF_EMPOverTrkSysP",-999.9);
+   auto ChPiEMEOverCaloEME = MonitoredScalar::declare<float>("EF_ChPiEMEOverCaloEME",-999.9);
+   auto SumPtTrkFrac       = MonitoredScalar::declare<float>("EF_SumPtTrkFrac",-999.9);
    auto innerTrkAvgDist    = MonitoredScalar::declare<float>("EF_innerTrkAvgDist",-1.0);
    auto Ncand              = MonitoredScalar::declare<int>("EF_nCand",0);
-   auto ActualInteractions = MonitoredScalar::declare("EF_ActualInteractions",-999.9);
-   auto AvgInteractions    = MonitoredScalar::declare("EF_AvgInteractions",-999.9);
-   auto beamspot_x         = MonitoredScalar::declare("EF_beamspot_x",-999.9);
-   auto beamspot_y         = MonitoredScalar::declare("EF_beamspot_y",-999.9);
-   auto beamspot_z         = MonitoredScalar::declare("EF_beamspot_z",-999.9);
-   auto EtaL1                 = MonitoredScalar::declare("EtaL1",-99);
-   auto PhiL1                 = MonitoredScalar::declare("PhiL1",-99);
-   auto EtaEF                 = MonitoredScalar::declare("EtaEF",-99);
-   auto PhiEF                 = MonitoredScalar::declare("PhiEF",-99);
+   auto ActualInteractions = MonitoredScalar::declare<float>("EF_ActualInteractions",-999.9);
+   auto AvgInteractions    = MonitoredScalar::declare<float>("EF_AvgInteractions",-999.9);
+   auto beamspot_x         = MonitoredScalar::declare<float>("EF_beamspot_x",-999.9);
+   auto beamspot_y         = MonitoredScalar::declare<float>("EF_beamspot_y",-999.9);
+   auto beamspot_z         = MonitoredScalar::declare<float>("EF_beamspot_z",-999.9);
+   auto EtaL1                 = MonitoredScalar::declare<float>("EtaL1",-99.9);
+   auto PhiL1                 = MonitoredScalar::declare<float>("PhiL1",-99.9);
+   auto EtaEF                 = MonitoredScalar::declare<float>("EtaEF",-99.9);
+   auto PhiEF                 = MonitoredScalar::declare<float>("PhiEF",-99.9);
 
    auto EF_calo_errors        = MonitoredCollection::declare("calo_errors",calo_errors);
    auto EF_track_errors       = MonitoredCollection::declare("track_errors",track_errors);
@@ -409,7 +409,7 @@ StatusCode TrigTauRecMergedMT::execute()
 			return StatusCode::FAILURE;
 		}
 	}
-	ATH_MSG_ERROR(" initialize all good ");
+	ATH_MSG_DEBUG(" initialize all good ");
 
 	//-------------------------------------------------------------------------
 	// using Jet collection
