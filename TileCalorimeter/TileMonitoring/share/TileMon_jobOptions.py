@@ -125,7 +125,8 @@ if tileESDMon:
                                          , do_jet_cleaning   = False
                                          # , useJVTTool        = jvt
                                          # , useJetCleaning    = cleaning
-                                         , jet_JVT_threshold = 0.64
+                                         , jet_JVT_threshold = 0.59
+                                         , jet_JVT_pTmax     = 120000 # MeV
                                          , histoPathBase     = "/Tile/Jet")
 
         from JetRec.JetRecFlags import jetFlags

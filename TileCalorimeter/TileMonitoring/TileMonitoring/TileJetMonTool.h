@@ -125,6 +125,7 @@ class TileJetMonTool: public TileFatherMonTool {
     bool m_do_jet_cleaning;
     float m_jet_tracking_eta_limit;
     float m_jet_jvt_threshold;
+    float m_jet_jvt_ptmax;
     bool m_first_event;
     // JVT
     ToolHandle<IJetUpdateJvt> m_jvt;

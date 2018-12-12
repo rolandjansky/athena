@@ -44,7 +44,7 @@
 #include "xAODEventInfo/EventInfo.h"
 
 #include "JetMomentTools/JetVertexTaggerTool.h"
-//#include "JetJvtEfficiency/JetJvtEfficiency.h"
+
 //#include "CaloIdentifier/Tile_Base_ID.h"
 //#include "TH2F.h"
 //#include "TH1F.h"
@@ -85,6 +85,7 @@ TileJetMonTool::TileJetMonTool(const std::string & type, const std::string & nam
   declareProperty("OrDecorator",m_OrDecorator = "passOR");
   declareProperty("jet_tracking_eta_limit",m_jet_tracking_eta_limit = 2.4);
   declareProperty("jet_JVT_threshold",m_jet_jvt_threshold = 0.59);
+  declareProperty("jet_JVT_pTmax",m_jet_jvt_ptmax = 120000);
   m_path = "/Tile/Jet";
 
   m_partname[0] = "LBA";
@@ -749,7 +750,7 @@ bool TileJetMonTool::isGoodEvent() {
 
 bool TileJetMonTool::passesJvt(const xAOD::Jet& jet) {
   if (jet.pt() > 20000 
-      && jet.pt() < 60000 
+      && jet.pt() < m_jet_jvt_ptmax
       && fabs(jet.getAttribute<float>("DetectorEta")) < m_jet_tracking_eta_limit
       && m_jvt->updateJvt(jet) < m_jet_jvt_threshold)
     return false;
