@@ -40,7 +40,12 @@ namespace DerivationFramework {
     dec_originphi(0),
     dec_originm(0),
     m_jetPtAssociationTool(""),
-    m_decorateptassociation(false)
+    m_decorateptassociation(false),
+    m_decorateQGVariables(false), // QGTaggerTool ---
+    dec_AssociatedNTracks(0),
+    dec_AssociatedTracksWidth(0),
+    dec_AssociatedTracksC1(0),
+    m_trkSelectionTool("")
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     declareProperty("MomentPrefix",   m_momentPrefix = "DFCommonJets_");
@@ -56,6 +61,7 @@ namespace DerivationFramework {
     declareProperty("JetTrackSumMomentsTool", m_jetTrackSumMomentsTool);
     declareProperty("JetPtAssociationTool", m_jetPtAssociationTool);
     declareProperty("JetOriginCorrectionTool",m_jetOriginCorrectionTool);
+    declareProperty("TrackSelectionTool", m_trkSelectionTool); // QGTaggerTool ---
   }
 
   StatusCode JetAugmentationTool::initialize()
@@ -107,13 +113,25 @@ namespace DerivationFramework {
     }
 
     // This tool creates the GhostTruthAssociation decorations recommended for truth matching //
-    if(!m_jetPtAssociationTool.empty()) {
-      CHECK(m_jetPtAssociationTool.retrieve());
-      ATH_MSG_INFO("Augmenting jets with GhostTruthAssociation moments Link and Fraction");
-      m_decorateptassociation = true;
-      dec_GhostTruthAssociationFraction = new SG::AuxElement::Decorator<float>("GhostTruthAssociationFraction");
-      dec_GhostTruthAssociationLink     = new SG::AuxElement::Decorator< ElementLink<xAOD::JetContainer> >("GhostTruthAssociationLink");
+    if(!m_jetPtAssociationTool.empty()) 
+      {
+	CHECK(m_jetPtAssociationTool.retrieve());
+	ATH_MSG_INFO("Augmenting jets with GhostTruthAssociation moments Link and Fraction");
+	m_decorateptassociation = true;
+	dec_GhostTruthAssociationFraction = new SG::AuxElement::Decorator<float>("GhostTruthAssociationFraction");
+	dec_GhostTruthAssociationLink     = new SG::AuxElement::Decorator< ElementLink<xAOD::JetContainer> >("GhostTruthAssociationLink");
     }
+    
+    // Here it for ntracks decoration --- QGTaggerTool ---
+    // set up InDet selection tool
+    if(!m_trkSelectionTool.empty()) {
+      CHECK( m_trkSelectionTool.retrieve() );
+      m_decorateQGVariables = true; 
+      dec_AssociatedNTracks     = new SG::AuxElement::Decorator<int>(m_momentPrefix + "QGTagger_NTracks");
+      dec_AssociatedTracksWidth = new SG::AuxElement::Decorator<float>(m_momentPrefix + "QGTagger_TracksWidth");
+      dec_AssociatedTracksC1    = new SG::AuxElement::Decorator<float>(m_momentPrefix + "QGTagger_TracksC1");
+    } // now works
+
 
     if(!m_jetOriginCorrectionTool.empty()) {
       CHECK(m_jetOriginCorrectionTool.retrieve());
@@ -153,10 +171,19 @@ namespace DerivationFramework {
       delete dec_tracksumpt;
     }
 
-    if(m_decorateptassociation){
+    if(m_decorateptassociation)
+      {
       delete dec_GhostTruthAssociationFraction;
       delete dec_GhostTruthAssociationLink;
     }
+    
+    // QGTaggerTool ---
+    if(m_decorateQGVariables)
+      {
+	delete dec_AssociatedNTracks;
+	delete dec_AssociatedTracksWidth;
+        delete dec_AssociatedTracksC1;
+      }
     
     if(m_decorateorigincorrection){
       delete dec_origincorrection;
@@ -221,6 +248,7 @@ namespace DerivationFramework {
       }
     }
 
+
     // loop over the copies
     for(const auto& jet : *jets_copy) {
       // get the original jet so we can decorate it
@@ -274,8 +302,108 @@ namespace DerivationFramework {
         (*dec_GhostTruthAssociationLink)(jet_orig) = jet->getAttribute< ElementLink<xAOD::JetContainer> >("GhostTruthAssociationLink");
         ATH_MSG_VERBOSE("GhostTruthAssociationLink: " << (*dec_GhostTruthAssociationLink)(jet_orig) );
       }
-    }
+
+      // QGTaggerTool ---
+      if(m_decorateQGVariables)
+	{
+	  ATH_MSG_DEBUG("Test Decorate QG ");
+	  std::vector<const xAOD::IParticle*> jettracks;
+	  jet->getAssociatedObjects<xAOD::IParticle>(xAOD::JetAttribute::GhostTrack,jettracks);
+	  
+	  int nTracksCount = 0;
+	  double TracksWidth = 0., SumTracks_pTs = 0., TracksC1 = 0., beta = 0.2;
+	  bool invalidJet = false;
+	  
+	  const xAOD::Vertex *pv = 0;
+	  const xAOD::VertexContainer* vxCont = 0;
+	  if(evtStore()->retrieve( vxCont, "PrimaryVertices" ).isFailure()){
+	    ATH_MSG_WARNING("Unable to retrieve primary vertex container PrimaryVertices");
+	    nTracksCount = -1;
+	    TracksWidth = -1.;
+            TracksC1 = -1.;
+	    invalidJet = true;
+	  }
+	  else if(vxCont->empty()){
+	    ATH_MSG_WARNING("Event has no primary vertices!");
+	    nTracksCount = -1;
+	    TracksWidth = -1.;
+            TracksC1 = -1.;
+	    invalidJet = true;
+	  }
+	  else{
+	    for(const auto& vx : *vxCont){
+	      // take the first vertex in the list that is a primary vertex
+	      if(vx->vertexType()==xAOD::VxType::PriVtx){
+		pv = vx;
+		break;
+	      }
+	    }
+	  }
+
+	  std::vector<bool> IsGoodTrack;
+          TLorentzVector tracki_TLV, trackj_TLV;
+          TLorentzVector jet_TLV = jet -> p4();
+	  for (size_t i = 0; i < jettracks.size(); i++) {
+	    
+	    if(invalidJet) continue;
+	    
+	    const xAOD::TrackParticle* trk = static_cast<const xAOD::TrackParticle*>(jettracks[i]);
+
+	    // only count tracks with selections
+	    // 1) pt>500 MeV
+	    // 2) accepted track from InDetTrackSelectionTool with CutLevel==Loose
+	    // 3) associated to primary vertex OR within 3mm of the primary vertex
+	    bool accept = (trk->pt()>500 &&
+			   m_trkSelectionTool->accept(*trk) &&
+			   (trk->vertex()==pv || (!trk->vertex() && fabs((trk->z0()+trk->vz()-pv->z())*sin(trk->theta()))<3.))
+			   );	    
+	    
+	    ATH_MSG_DEBUG("Test Decorate QG: trkSelTool output " << m_trkSelectionTool->accept(*trk) );
+
+	    IsGoodTrack.push_back(accept);
+	    if (!accept) continue;
+	    
+	    nTracksCount++;
+
+	    tracki_TLV = trk -> p4();
+	    double DR_tracki_jet = tracki_TLV.DeltaR(jet_TLV);
+            TracksWidth += trk -> pt() * DR_tracki_jet;
+            SumTracks_pTs += trk -> pt();
+	    
+	  }// end loop over jettracks
+	  
+	  if(SumTracks_pTs>0.) TracksWidth = TracksWidth / SumTracks_pTs;
+	  else TracksWidth = -1.;
+
+	  for(size_t i = 0; i < jettracks.size(); i++) {
+            if(invalidJet) continue;
+            const xAOD::TrackParticle* trki = static_cast<const xAOD::TrackParticle*>(jettracks[i]);
+	    if( !( IsGoodTrack.at(i) ) ) continue;
+	    
+            for(size_t j = i+1; j < jettracks.size(); j++) {
+              const xAOD::TrackParticle* trkj = static_cast<const xAOD::TrackParticle*>(jettracks[j]);
+	      if( !( IsGoodTrack.at(j) ) ) continue;
+
+              tracki_TLV = trki -> p4();
+              trackj_TLV = trkj -> p4();
+              double DR_tracki_trackj = tracki_TLV.DeltaR(trackj_TLV);
+              TracksC1 += trki -> pt() * trkj -> pt() * pow( DR_tracki_trackj, beta) ;
+
+            }//end loop over j
+          }//end double loop over ij
+
+          if(SumTracks_pTs>0.) TracksC1 = TracksC1 / ( pow(SumTracks_pTs, 2.) );
+	  else TracksC1 = -1.;
+
+	  (*dec_AssociatedNTracks)(jet_orig)     = nTracksCount;
+	  (*dec_AssociatedTracksWidth)(jet_orig) = TracksWidth;
+          (*dec_AssociatedTracksC1)(jet_orig)    = TracksC1;
+
+	}// end if m_decorateQGVariables
+
+    }//end loop on jets copies
 
     return StatusCode::SUCCESS;
-  }
+  }//end addBranches
+
 }

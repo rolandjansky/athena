@@ -20,6 +20,7 @@ from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 stdm9Seq = CfgMgr.AthSequencer("STDM9Sequence")
 
+
 #====================================================================
 # SET UP STREAM   
 #====================================================================
@@ -173,6 +174,9 @@ stdm9Seq += CfgMgr.DerivationFramework__DerivationKernel("STDM9Kernel_skim", Ski
 stdm9Seq += CfgMgr.DerivationFramework__DerivationKernel("STDM9Kernel", ThinningTools = thinningTools)
 
 addRscanJets("AntiKt",0.6,"LCTopo",stdm9Seq,"STDM9")
+
+# QGTaggerTool ###
+addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=stdm9Seq, algname="QGTaggerToolAlg")
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

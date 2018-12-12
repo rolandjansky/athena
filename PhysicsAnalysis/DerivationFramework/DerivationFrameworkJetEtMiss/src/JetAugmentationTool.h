@@ -23,6 +23,8 @@
 #include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 #include "xAODJet/JetContainer.h"
 
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h" // QGTaggerTool
+
 namespace DerivationFramework {
 
   class JetAugmentationTool : public AthAlgTool, public IAugmentationTool {
@@ -39,6 +41,7 @@ namespace DerivationFramework {
     //
     // implement augmentations explicitly to avoid need to parse lists of moments to copy
     //
+    
     // calibration
     SG::AuxElement::Decorator<float>* dec_calibpt;
     SG::AuxElement::Decorator<float>* dec_calibeta;
@@ -84,6 +87,14 @@ namespace DerivationFramework {
     bool m_decorateptassociation;
     SG::AuxElement::Decorator<float>* dec_GhostTruthAssociationFraction;
     SG::AuxElement::Decorator< ElementLink<xAOD::JetContainer> >* dec_GhostTruthAssociationLink;
+
+    // Ntracks for QGTaggerTool ---
+    bool m_decorateQGVariables;
+    SG::AuxElement::Decorator<int>* dec_AssociatedNTracks;
+    SG::AuxElement::Decorator<float>* dec_AssociatedTracksWidth;
+    SG::AuxElement::Decorator<float>* dec_AssociatedTracksC1;
+    ToolHandle<InDet::IInDetTrackSelectionTool> m_trkSelectionTool;
+
   };
 }
 

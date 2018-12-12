@@ -210,6 +210,9 @@ if DerivationFrameworkIsMonteCarlo:
 from DerivationFrameworkJetEtMiss.PFlowCommon import applyPFOAugmentation
 applyPFOAugmentation(DerivationFrameworkJob)
 
+# QGTaggerTool ###
+addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=jetm3Seq, algname="QGTaggerToolAlg")
+
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================

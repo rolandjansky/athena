@@ -25,7 +25,9 @@ atlas_depends_on_subdirs( PUBLIC
                           PhysicsAnalysis/Interfaces/FTagAnalysisInterfaces
                           PhysicsAnalysis/Interfaces/JetAnalysisInterfaces
                           Reconstruction/PFlow/PFlowUtils
-                          Tools/PathResolver )
+                          Tools/PathResolver 
+			  InnerDetector/InDetRecTools/InDetTrackSelectionTool # QGTaggerTool for nTracks ###
+			  )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -36,7 +38,9 @@ atlas_add_library( DerivationFrameworkJetEtMissLib
                    NO_PUBLIC_HEADERS
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps xAODCore xAODJet xAODPFlow xAODTracking xAODTrigger xAODTruth JetInterface FTagAnalysisInterfacesLib JetJvtEfficiency JetAnalysisInterfacesLib PathResolver PFlowUtils AssociationUtilsLib )
+                   PRIVATE_LINK_LIBRARIES AthenaBaseComps xAODCore xAODJet xAODPFlow xAODTracking xAODTrigger xAODTruth JetInterface FTagAnalysisInterfacesLib JetJvtEfficiency JetAnalysisInterfacesLib PathResolver PFlowUtils AssociationUtilsLib 
+InDetTrackSelectionToolLib # QGTaggerTool for nTracks ### 
+			   )
 
 atlas_add_component( DerivationFrameworkJetEtMiss
                      src/components/*.cxx
