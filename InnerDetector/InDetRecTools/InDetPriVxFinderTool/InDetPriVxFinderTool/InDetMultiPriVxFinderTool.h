@@ -38,8 +38,7 @@
 /**
  * Forward declarations 
  */
- 
-class IBeamCondSvc;
+#include "BeamSpotConditionsData/BeamSpotData.h"
 #include "xAODTracking/VertexFwd.h"
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTracking/VertexContainerFwd.h"
@@ -119,7 +118,7 @@ public:
    ToolHandle< Trk::IVertexSeedFinder > m_SeedFinder;
    ToolHandle< Trk::IImpactPoint3dEstimator > m_ImpactPoint3dEstimator;
 
-   ServiceHandle<IBeamCondSvc> m_iBeamCondSvc; //!< pointer to the beam condition service
+   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
    bool m_useBeamConstraint;
    double m_significanceCutSeeding;

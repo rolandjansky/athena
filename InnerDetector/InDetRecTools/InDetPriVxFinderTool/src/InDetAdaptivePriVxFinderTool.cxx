@@ -34,7 +34,6 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
 //#include "VxVertex/VxContainer.h"
@@ -75,13 +74,12 @@ namespace InDet
                                                              const IInterface* p)
     : AthAlgTool(t, n, p),
     m_iVertexFitter("Trk::AdaptiveVertexFitter"),
-    m_trkFilter("InDet::InDetTrackSelection"),
-    m_iBeamCondSvc("BeamCondSvc", n) {
+    m_trkFilter("InDet::InDetTrackSelection")
+  {
     declareInterface<IVertexFinder>(this);//by GP: changed from InDetAdaptivePriVxFinderTool to IPriVxFinderTool
     /* Retrieve StoreGate container and tool names from job options */
     declareProperty("VertexFitterTool", m_iVertexFitter);
     declareProperty("TrackSelector", m_trkFilter);
-    declareProperty("BeamPositionSvc", m_iBeamCondSvc);
     /* Cuts for track preselection */
   }
 
@@ -98,11 +96,7 @@ namespace InDet
       return StatusCode::FAILURE;
     }
 
-    sc = m_iBeamCondSvc.retrieve();
-    if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not find BeamCondSvc." << endmsg;
-      return sc;
-    }
+    ATH_CHECK(m_beamSpotKey.initialize());
 
     if (m_trkFilter.retrieve().isFailure()) {
       msg(MSG::ERROR) << " Unable to retrieve " << m_trkFilter << endmsg;
@@ -123,11 +117,11 @@ namespace InDet
     /*
        xAOD::Vertex beamposition;
        beamposition.makePrivateStore();
-       beamposition.setPosition(m_iBeamCondSvc->beamVtx().position());
-       beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+       beamposition.setPosition(beamSpotHandle->beamVtx().position());
+       beamposition.setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
      */
-
-    Trk::RecVertex beamposition(m_iBeamCondSvc->beamVtx());
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    const Trk::RecVertex &beamposition(beamSpotHandle->beamVtx());
 
     //---- Start of preselection of tracks ---------------//
     std::vector<const Trk::TrackParameters*> origParameters;
@@ -179,11 +173,12 @@ namespace InDet
     /*
        xAOD::Vertex beamposition;
        beamposition.makePrivateStore();
-       beamposition.setPosition(m_iBeamCondSvc->beamVtx().position());
-       beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+       beamposition.setPosition(beamSpotHandle->beamVtx().position());
+       beamposition.setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
      */
 
-    Trk::RecVertex beamposition(m_iBeamCondSvc->beamVtx());
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    const Trk::RecVertex &beamposition(beamSpotHandle->beamVtx());
 
     //---- Start of preselection of tracks ---------------//
     std::vector<const Trk::TrackParameters*> origParameters;
@@ -242,11 +237,13 @@ namespace InDet
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
   InDetAdaptivePriVxFinderTool::findVertex(const xAOD::TrackParticleContainer* trackParticles) {
     ATH_MSG_DEBUG(" Number of input tracks before track selection: " << trackParticles->size());
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+
 
     xAOD::Vertex beamposition;
     beamposition.makePrivateStore();
-    beamposition.setPosition(m_iBeamCondSvc->beamVtx().position());
-    beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+    beamposition.setPosition(beamSpotHandle->beamVtx().position());
+    beamposition.setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
 
     //---- Start of preselection of tracks ---------------//
     std::vector<const Trk::TrackParameters*> origParameters;
@@ -328,11 +325,12 @@ namespace InDet
 
     //---- Start of fitting section ------------------------------------------------------//
     if (origParameters.size() >= 1) {
+      SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
       xAOD::Vertex beamposition;
       beamposition.makePrivateStore();
-      beamposition.setPosition(m_iBeamCondSvc->beamVtx().position());
-      beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
-      beamposition.setFitQuality(m_iBeamCondSvc->beamVtx().fitQuality().chiSquared(), m_iBeamCondSvc->beamVtx().fitQuality().doubleNumberDoF());
+      beamposition.setPosition(beamSpotHandle->beamVtx().position());
+      beamposition.setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
+      beamposition.setFitQuality(beamSpotHandle->beamVtx().fitQuality().chiSquared(), beamSpotHandle->beamVtx().fitQuality().doubleNumberDoF());
       myxAODVertex = m_iVertexFitter->fit(origParameters, beamposition);
       /* @TODO? The fit tool does not return tracks chi2 ordered anymore
                 We have to do it */
@@ -392,11 +390,12 @@ namespace InDet
     }
     //---- if no vertex is there let dummy be at beam spot
     else if (theVertexContainer->size() == 0) {
+      SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
       xAOD::Vertex* dummyxAODVertex = new xAOD::Vertex;
       theVertexContainer->push_back(dummyxAODVertex); // have to add vertex to container here first so it can use its
                                                       // aux store
-      dummyxAODVertex->setPosition(m_iBeamCondSvc->beamVtx().position());
-      dummyxAODVertex->setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+      dummyxAODVertex->setPosition(beamSpotHandle->beamVtx().position());
+      dummyxAODVertex->setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
       dummyxAODVertex->vxTrackAtVertex() = std::vector<Trk::VxTrackAtVertex>();
       dummyxAODVertex->setVertexType(xAOD::VxType::NoVtx);
     }

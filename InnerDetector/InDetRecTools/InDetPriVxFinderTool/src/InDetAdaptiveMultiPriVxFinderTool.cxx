@@ -34,7 +34,7 @@
 
 #include "NN.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
+
 
 #include "VxMultiVertex/MvfFitInfo.h"
 #include "VxMultiVertex/MVFVxTrackAtVertex.h"
@@ -67,7 +67,6 @@ namespace InDet
     m_MultiVertexFitter("Trk::AdaptiveMultiVertexFitter"),
     m_SeedFinder("Trk::ZScanSeedFinder"),
     m_trkFilter("InDet::InDetTrackSelection"),
-    m_iBeamCondSvc("BeamCondSvc", n),
     m_useBeamConstraint(true),
     m_TracksMaxZinterval(1.),
     m_maxVertexChi2(18.42),
@@ -98,7 +97,6 @@ namespace InDet
     declareProperty("realMultiVertex", m_realMultiVertex);
     declareProperty("useFastCompatibility", m_useFastCompatibility);
     declareProperty("useBeamConstraint", m_useBeamConstraint);
-    declareProperty("BeamPositionSvc", m_iBeamCondSvc);
     declareProperty("addSingleTrackVertices", m_addSingleTrackVertices);
     //********* signal vertex selection (for pile up) ****
     declareProperty("selectiontype", m_selectiontype);
@@ -121,7 +119,7 @@ namespace InDet
 
     ATH_CHECK(m_SeedFinder.retrieve());
 
-    ATH_CHECK(m_iBeamCondSvc.retrieve());
+    ATH_CHECK(m_beamSpotKey.initialize());
 
     ATH_CHECK(m_trkFilter.retrieve());
 
@@ -152,11 +150,12 @@ namespace InDet
     /*
        xAOD::Vertex beamposition;
        beamposition.makePrivateStore();
-       beamposition.setPosition(m_iBeamCondSvc->beamVtx().position());
-       beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+       beamposition.setPosition(beamSpotHandle->beamVtx().position());
+       beamposition.setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
      */
 
-    Trk::RecVertex beamposition(m_iBeamCondSvc->beamVtx());
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    const Trk::RecVertex &beamposition(beamSpotHandle->beamVtx());
 
     std::vector<const Trk::ITrackLink*> selectedTracks;
 
@@ -205,11 +204,12 @@ namespace InDet
     /*
        xAOD::Vertex beamposition;
        beamposition.makePrivateStore();
-       beamposition.setPosition(m_iBeamCondSvc->beamVtx().position());
-       beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+       beamposition.setPosition(beamSpotHandle->beamVtx().position());
+       beamposition.setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
      */
 
-    Trk::RecVertex beamposition(m_iBeamCondSvc->beamVtx());
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    const Trk::RecVertex &beamposition(beamSpotHandle->beamVtx());
 
     typedef DataVector<Trk::TrackParticleBase>::const_iterator TrackParticleDataVecIter;
 
@@ -252,11 +252,11 @@ namespace InDet
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
   InDetAdaptiveMultiPriVxFinderTool::findVertex(const xAOD::TrackParticleContainer* trackParticles) {
     std::vector<const Trk::ITrackLink*> selectedTracks;
-
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
     xAOD::Vertex beamposition;
     beamposition.makePrivateStore();
-    beamposition.setPosition(m_iBeamCondSvc->beamVtx().position());
-    beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+    beamposition.setPosition(beamSpotHandle->beamVtx().position());
+    beamposition.setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
 
     typedef DataVector<xAOD::TrackParticle>::const_iterator TrackParticleDataVecIter;
 
@@ -354,7 +354,7 @@ namespace InDet
     //prepare iterators for tracks only necessary for seeding
     std::vector<const Trk::ITrackLink*>::iterator seedtrkbegin = seedTracks.begin();
     std::vector<const Trk::ITrackLink*>::iterator seedtrkend = seedTracks.end();
-
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
     int iteration = 0;
     unsigned int seedtracknumber = seedTracks.size();
     do {
@@ -381,10 +381,10 @@ namespace InDet
       if (m_useBeamConstraint) {
         constraintVertex = new xAOD::Vertex();
         constraintVertex->makePrivateStore();
-        constraintVertex->setPosition(m_iBeamCondSvc->beamVtx().position());
-        constraintVertex->setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
-        constraintVertex->setFitQuality(m_iBeamCondSvc->beamVtx().fitQuality().chiSquared(),
-                                        m_iBeamCondSvc->beamVtx().fitQuality().doubleNumberDoF());
+        constraintVertex->setPosition(beamSpotHandle->beamVtx().position());
+        constraintVertex->setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
+        constraintVertex->setFitQuality(beamSpotHandle->beamVtx().fitQuality().chiSquared(),
+                                        beamSpotHandle->beamVtx().fitQuality().doubleNumberDoF());
         actualVertex = m_SeedFinder->findSeed(perigeeList, constraintVertex);
       } else {
         actualVertex = m_SeedFinder->findSeed(perigeeList);
@@ -801,8 +801,8 @@ namespace InDet
       ATH_MSG_WARNING("No vertices found: returning a place-holder at the beam spot center.");
       xAOD::Vertex* beamspotCandidate = new xAOD::Vertex;
       beamspotCandidate->makePrivateStore();
-      beamspotCandidate->setPosition(m_iBeamCondSvc->beamVtx().position());
-      beamspotCandidate->setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+      beamspotCandidate->setPosition(beamSpotHandle->beamVtx().position());
+      beamspotCandidate->setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
       beamspotCandidate->vxTrackAtVertex() = std::vector<Trk::VxTrackAtVertex>();
       // TODO: I don't need to set fitQuality too do I?
       myxAODVertices.push_back(xAODVertex_pair(0, beamspotCandidate));
@@ -889,8 +889,8 @@ namespace InDet
       xAOD::Vertex* dummyxAODVertex = new xAOD::Vertex;
       theVertexContainer->push_back(dummyxAODVertex); // have to add vertex to container here first so it can use its
                                                       // aux store
-      dummyxAODVertex->setPosition(m_iBeamCondSvc->beamVtx().position());
-      dummyxAODVertex->setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+      dummyxAODVertex->setPosition(beamSpotHandle->beamVtx().position());
+      dummyxAODVertex->setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
       dummyxAODVertex->vxTrackAtVertex() = std::vector<Trk::VxTrackAtVertex>();
       dummyxAODVertex->setVertexType(xAOD::VxType::NoVtx);
     }
