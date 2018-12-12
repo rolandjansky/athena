@@ -102,15 +102,8 @@ StatusCode TauOverlappingElectronLLHDecorator::setEleOlrLhScoreDecorationName(co
 //______________________________________________________________________________
 StatusCode TauOverlappingElectronLLHDecorator::decorate(const xAOD::TauJet& xTau) const
 {
-  SG::ReadHandle<xAOD::ElectronContainer> h_ElectronContainer;
-
   if (m_bNewEvent)
   {
-    h_ElectronContainer = SG::makeHandle(m_sElectronContainerName);
-    if (!h_ElectronContainer.isValid()) {
-      ATH_MSG_FATAL("Electron container with name " << m_sElectronContainerName << " was not found in event store, but is needed for electron OLR. Ensure that it is there with the correct name");
-      return StatusCode::FAILURE;
-    }
     m_bNewEvent = false;
 
     m_bEleOLRMatchAvailable = (xTau.isAvailable<char>(m_sEleOlrPassDecorationName) || xTau.isAvailable<float>(m_sEleOlrLhScoreDecorationName));
@@ -122,6 +115,11 @@ StatusCode TauOverlappingElectronLLHDecorator::decorate(const xAOD::TauJet& xTau
   if (m_bEleOLRMatchAvailable)
     return StatusCode::SUCCESS;
 
+  SG::ReadHandle<xAOD::ElectronContainer> h_ElectronContainer(m_sElectronContainerName);
+  if (!h_ElectronContainer.isValid()) {
+    ATH_MSG_FATAL("Electron container with name " << m_sElectronContainerName << " was not found in event store, but is needed for electron OLR. Ensure that it is there with the correct name");
+    return StatusCode::FAILURE;
+  }
 
   const xAOD::Electron * xEleMatch = 0;
   float fLHScore = -4.; // default if no match was found
