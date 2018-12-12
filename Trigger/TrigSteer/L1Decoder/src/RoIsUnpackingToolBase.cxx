@@ -30,13 +30,16 @@ StatusCode RoIsUnpackingToolBase::decodeMapping( std::function< bool(const TrigC
     auto itemsIterator = l1Items.get<TrigConf::tag_name_hash>().find(itemName);
     
     if ( itemsIterator != l1Items.get<TrigConf::tag_name_hash>().end() ) {
+
       const TrigConf::TriggerItem* item = *itemsIterator;
       const TrigConf::TriggerItemNode* node = item->topNode();
       std::vector<TrigConf::TriggerThreshold*> itemThresholds;
       node->getAllThresholds(itemThresholds);
+      ATH_MSG_DEBUG( "Item " << item->name() << " with thresholds " << itemThresholds.size() );
       for ( const TrigConf::TriggerThreshold* th: itemThresholds ) {
 	if ( filter(th) ) {
 	  m_thresholdToChainMapping[HLT::Identifier(th->name())].push_back( HLT::Identifier(chainName) );
+	  ATH_MSG_DEBUG( "Associating " << chainName << " with threshold " << th->name() );
 	}
       }
     } else {
