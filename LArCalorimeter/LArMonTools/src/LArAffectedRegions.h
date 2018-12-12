@@ -14,6 +14,9 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "StoreGate/StoreGateSvc.h"
 
+#include "StoreGate/ReadCondHandleKey.h"
+#include "CaloConditions/CaloAffectedRegionInfoVec.h"
+
 #include <string>
 #include <map>
 
@@ -57,6 +60,8 @@ class LArAffectedRegions: public ManagedMonitorToolBase
 
  private:
 
+  SG::ReadCondHandleKey<CaloAffectedRegionInfoVec> m_affKey{this,
+       "LArAffectedRegionKey", "LArAffectedRegionInfo", "SG key for affected regions cond object"};
   // Properties
   bool m_isonline;
   float m_delta_phi;

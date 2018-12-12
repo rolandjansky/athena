@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -7,6 +7,7 @@
 ///
 /// \author G.Unal
 /// \date March 2010
+/// \updated Dec 2018 by P. Strizenec
 ///
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -15,6 +16,9 @@
 
 // Includes for Gaudi
 #include "GaudiKernel/IAlgTool.h"
+#include "AthenaKernel/CondCont.h"
+#include "CaloConditions/CaloAffectedRegionInfoVec.h"
+
 #include <vector>
 
 namespace xAOD {
@@ -26,7 +30,7 @@ class ICaloAffectedTool: virtual public IAlgTool {
 public:
 
   static const InterfaceID& interfaceID() { 
-    static const InterfaceID IID_ICaloAffectedTool("ICaloAffectedTool", 1 , 0);
+    static const InterfaceID IID_ICaloAffectedTool("ICaloAffectedTool", 2 , 0);
     return IID_ICaloAffectedTool; 
   }
 
@@ -35,6 +39,7 @@ public:
     and with a problemType (0= deadReadout, 1 = deadHV, 2 = affectedHV,  -1= all problems)
     
     @param p  4 momentum pointer to check
+    @param vAff pointer to conditions object with affected regions
     @param deta = eta tolerance
     @param dphi = phi tolerance
     @param layer_min = min calo layer to check
@@ -42,13 +47,14 @@ public:
     @param problemType = type of problem in affacted region
   */
 
-  virtual bool isAffected(const xAOD::IParticle *p, float deta=0, float dphi=0, int layer_min=0, int layer_max=-1, int problemType=-1) const = 0;
+  virtual bool isAffected(const xAOD::IParticle *p, const CaloAffectedRegionInfoVec *vAff, float deta=0, float dphi=0, int layer_min=0, int layer_max=-1, int problemType=-1) const = 0;
 
   /*
     Return list of layers affected with their problem for a given 4 momentum
     Return true is any problem is fonund
 
     @param p 4 momentum pointer to check
+    @param vAff pointer to conditions object with affected regions
     @param deta = eta tolerance
     @param dphi = phi tolerance
     @param problemType = filters only a given type of problem (-1 : all problems)
@@ -56,7 +62,7 @@ public:
     @param problem_list = reference of vector to store list of problems
    */
 
-  virtual bool listAffected(const xAOD::IParticle* p, std::vector<int>& layer_list, std::vector<int>& problem_list, float deta=0, float dphi=0, int problemType=-1) const =0;
+  virtual bool listAffected(const xAOD::IParticle* p, const CaloAffectedRegionInfoVec *vAff, std::vector<int>& layer_list, std::vector<int>& problem_list, float deta=0, float dphi=0, int problemType=-1) const =0;
 
  
 };
