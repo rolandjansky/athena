@@ -52,7 +52,8 @@ atlas_add_test( Type_test
                 SOURCES
                 test/Type_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} ${PYTHON_LIBRARIES} ${Boost_LIBRARIES} TestTools RootUtils RootUtilsPyROOT )
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${PYTHON_LIBRARIES} ${Boost_LIBRARIES} TestTools RootUtils RootUtilsPyROOT
+                PROPERTIES TIMEOUT 300 )
 
 atlas_add_test( TSMethodCall_test
                 SOURCES
