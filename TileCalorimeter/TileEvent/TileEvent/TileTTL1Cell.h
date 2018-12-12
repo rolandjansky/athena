@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -63,7 +63,7 @@ public:
 	       uint16_t quality);
 
   /** @brief destructor */
-  ~TileTTL1Cell() {}
+  ~TileTTL1Cell() = default;
 
   /** all set methods */
   /** @brief set total tower energy*/

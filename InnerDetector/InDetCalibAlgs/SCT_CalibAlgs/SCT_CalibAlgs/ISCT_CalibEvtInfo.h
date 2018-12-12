@@ -14,6 +14,7 @@
 #define ISCT_CalibEvtInfo_H
 
 //Gaudi includes
+#include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/IInterface.h"
 #include <vector>
 #include <string>
@@ -23,7 +24,7 @@
 *  Interface to class to deal with run/event information for SCTCalib
 **/
 
-class ISCT_CalibEvtInfo: virtual public IInterface{
+class ISCT_CalibEvtInfo: virtual public IAlgTool{
   public:
     /// no-op c/tor
     ISCT_CalibEvtInfo(){}
@@ -59,7 +60,6 @@ class ISCT_CalibEvtInfo: virtual public IInterface{
     virtual int numLumiBlocks() const=0;
 
 };
-
 
 inline const InterfaceID & ISCT_CalibEvtInfo::interfaceID(){
   static const InterfaceID IID("ISCT_CalibEvtInfo",1,0);

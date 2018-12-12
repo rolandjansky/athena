@@ -66,9 +66,14 @@ class TileRawChannelBuilderOpt2Filter: public TileRawChannelBuilder {
 
   private:
 
-    ToolHandle<TileCondToolTiming> m_tileToolTiming;
-    ToolHandle<ITileCondToolOfc> m_tileCondToolOfc;
-    ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample; //!< tool which provides noise values
+    ToolHandle<TileCondToolTiming> m_tileToolTiming{this,
+        "TileCondToolTiming", "TileCondToolTiming", "Tile timing tool"};
+
+    ToolHandle<ITileCondToolOfc> m_tileCondToolOfc{this,
+        "TileCondToolOfc", "TileCondToolOfc", "Tile OFC tool"};
+
+    ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample{this,
+        "TileCondToolNoiseSample", "TileCondToolNoiseSample", "Tile noise sample tool"};
 
     //!< Applies OF algorithm
     double filter(int ros, int drawer, int channel, int &gain, double &pedestal, double &amplitude, double &time);

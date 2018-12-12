@@ -72,7 +72,9 @@ private:
   //** New McEventCollection to be written out to file
   McEventCollection* m_pOvrlMcEvColl;
   //** Name of input McEventCollection
-  StringProperty m_truthCollKey;
+  StringProperty m_truthCollInputKey;
+  //** Name of output McEventCollection
+  StringProperty m_truthCollOutputKey;
   //** Should unstable particles should be kept?
   BooleanProperty m_keepUnstable;
   //** Eta cut-off for INTIME GenParticles

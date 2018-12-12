@@ -91,8 +91,9 @@ InDetTRT_Monitoring_Tool = TRT_Monitoring_Tool (name                         = "
                                                 min_trt_hits                 = 10
                                                 )
 
-if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-  InDetTRT_Monitoring_Tool.FilterTools += [monFilledBunchFilterTool]
+if jobproperties.Beam.beamType()=='collisions':
+  from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
+  InDetTRT_Monitoring_Tool.FilterTools += [GetFilledBunchFilterTool()]
   
 #ToolSvc += InDetTRT_Monitoring_Tool
 if (InDetFlags.doPrintConfigurables()):

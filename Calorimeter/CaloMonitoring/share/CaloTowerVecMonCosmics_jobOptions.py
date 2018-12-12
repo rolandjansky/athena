@@ -7,7 +7,7 @@ from AthenaMonitoring.DQMonFlags import DQMonFlags
 from AthenaCommon.GlobalFlags  import globalflags
 
 from AthenaMonitoring.BadLBFilterTool import GetLArBadLBFilterTool
-include ("AthenaMonitoring/AtlasReadyFilterTool_jobOptions.py")
+from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
 
 if DQMonFlags.monManEnvironment() == 'online':
    tmp_timeGran = "run"
@@ -45,7 +45,7 @@ CaloTowerMonCosmicsNoTA = CaloTowerVecMon(
    BadLBTool = GetLArBadLBFilterTool(),
 
    useReadyFilterTool = tmp_useReadyFilterTool,
-   ReadyFilterTool = monAtlasReadyFilterTool,
+   ReadyFilterTool = GetAtlasReadyFilterTool(),
 
    useLArNoisyAlg = tmp_useLArNoisyAlg,
 

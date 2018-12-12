@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloIdentifier
                           Calorimeter/CaloInterface
                           Calorimeter/CaloUtils
+                          Calorimeter/CaloConditions
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/AthAllocators
@@ -49,18 +50,18 @@ atlas_add_library( LArRecUtilsLib
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${CORAL_LIBRARIES} ${EIGEN_LIBRARIES} CaloEvent CaloIdentifier AthenaBaseComps AthenaKernel AthAllocators AthenaPoolUtilities Identifier GaudiKernel LArIdentifier LArRawEvent LArRecEvent CaloDetDescrLib CaloUtilsLib StoreGateLib SGtests LArCablingLib LArRawUtilsLib LArRecConditions LArRawConditions
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} TestTools CaloGeoHelpers SGTools xAODEventInfo LArCOOLConditions PathResolver )
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} TestTools CaloGeoHelpers SGTools xAODEventInfo LArCOOLConditions PathResolver CaloConditions )
 
 atlas_add_component( LArRecUtils
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} CaloDetDescrLib CaloEvent CaloIdentifier CaloUtilsLib AthenaBaseComps AthenaKernel AthAllocators StoreGateLib SGtests AthenaPoolUtilities Identifier GaudiKernel LArCablingLib LArIdentifier LArRawConditions LArRawEvent LArRecEvent TestTools CaloGeoHelpers SGTools xAODEventInfo LArCOOLConditions LArRawUtilsLib PathResolver LArRecUtilsLib LArRecConditions LArRawConditions)
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} CaloDetDescrLib CaloEvent CaloIdentifier CaloUtilsLib AthenaBaseComps AthenaKernel AthAllocators StoreGateLib SGtests AthenaPoolUtilities Identifier GaudiKernel LArCablingLib LArIdentifier LArRawConditions LArRawEvent LArRecEvent TestTools CaloGeoHelpers SGTools xAODEventInfo LArCOOLConditions LArRawUtilsLib PathResolver LArRecUtilsLib LArRecConditions LArRawConditions CaloConditions)
 
 atlas_add_test( dummy_test
                 SOURCES
                 test/dummy_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} CaloDetDescrLib CaloEvent CaloIdentifier CaloUtilsLib AthenaBaseComps AthenaKernel AthAllocators StoreGateLib SGtests AthenaPoolUtilities Identifier GaudiKernel LArCablingLib LArIdentifier LArRawConditions LArRawEvent LArRecEvent TestTools CaloGeoHelpers SGTools xAODEventInfo LArCOOLConditions LArRawUtilsLib PathResolver LArRecUtilsLib )
+                LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} CaloDetDescrLib CaloEvent CaloIdentifier CaloUtilsLib AthenaBaseComps AthenaKernel AthAllocators StoreGateLib SGtests AthenaPoolUtilities Identifier GaudiKernel LArCablingLib LArIdentifier LArRawConditions LArRawEvent LArRecEvent TestTools CaloGeoHelpers SGTools xAODEventInfo LArCOOLConditions LArRawUtilsLib CaloConditions PathResolver LArRecUtilsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

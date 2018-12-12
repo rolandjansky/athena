@@ -88,10 +88,12 @@ LArAffectedRegions::~LArAffectedRegions()
 StatusCode 
 LArAffectedRegions::initialize()
 {
-  ATH_MSG_INFO( "Initialize LArAffectedRegions"  );
+  ATH_MSG_DEBUG( "Initialize LArAffectedRegions"  );
 
-  // End Initialize
   ManagedMonitorToolBase::initialize().ignore();
+
+  ATH_CHECK(m_affKey.initialize());
+
   ATH_MSG_DEBUG( "Successful Initialize LArAffectedRegions "  );
 
   return StatusCode::SUCCESS;
@@ -219,9 +221,10 @@ LArAffectedRegions::fillHistograms()
   
   // Retrieve CaloAffected Regions
   if(!m_isonline){
-    const CaloAffectedRegionInfoVec* affRegVec=0;
-    StatusCode sc = detStore()->retrieve(affRegVec, "LArAffectedRegion");
-    if (sc.isFailure() || !affRegVec) {
+    //Get affected info for this event
+    SG::ReadCondHandle<CaloAffectedRegionInfoVec> affHdl{m_affKey};
+    const CaloAffectedRegionInfoVec* affRegVec=*affHdl;
+    if (!affRegVec) {
       ATH_MSG_WARNING( " Cannot find LArAffectedRegion in DetectorStore "  );
       return StatusCode::SUCCESS;
     }

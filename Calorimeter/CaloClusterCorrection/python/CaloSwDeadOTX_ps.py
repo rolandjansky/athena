@@ -55,10 +55,8 @@ def make_CaloSwDeadOTX_ps(name = None,
                     confclass = None,
                     **kw):
 
-    from CaloTools.CaloAffectedToolDefault import CaloAffectedToolDefault
-    theAffectedTool = CaloAffectedToolDefault()
-    from AthenaCommon.AppMgr import ToolSvc
-    ToolSvc += theAffectedTool
+    from CaloTools.CaloToolsConf import CaloAffectedTool
+    theAffectedTool = CaloAffectedTool("CaloAffectedToolForDeadOTX_ps")
 
     # Make the tool.
     return makecorr (versions     = CaloSwDeadOTX_ps_versions,

@@ -15,22 +15,13 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+// Tile includes
 #include "TileEvent/TileRawChannel.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
-
-// Gaudi includes
-#include "GaudiKernel/Property.h"
-
-// Atlas includes
-#include "AthAllocators/DataPool.h"
-#include "AthenaKernel/errorcheck.h"
-
-// Tile includes
 #include "TileRecUtils/TileRawChannelBuilderOpt2Filter.h"
 #include "TileRecUtils/TileRawChannelBuilderOpt2FilterLookup.h"
 #include "TileConditions/TileOptFilterWeights.h"
 #include "TileConditions/TilePulseShapes.h"
-#include "CLHEP/Matrix/Matrix.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileDigits.h"
@@ -39,6 +30,14 @@
 #include "TileConditions/TileInfo.h"
 #include "TileConditions/TileOptFilterWeights.h"
 
+// Atlas includes
+#include "AthAllocators/DataPool.h"
+#include "AthenaKernel/errorcheck.h"
+
+// Gaudi includes
+#include "GaudiKernel/Property.h"
+
+#include "CLHEP/Matrix/Matrix.h"
 //using namespace std;
 #include <algorithm>
 
@@ -56,9 +55,6 @@ const InterfaceID& TileRawChannelBuilderOpt2Filter::interfaceID() {
 TileRawChannelBuilderOpt2Filter::TileRawChannelBuilderOpt2Filter(const std::string& type,
     const std::string& name, const IInterface *parent)
   : TileRawChannelBuilder(type, name, parent)
-  , m_tileToolTiming("TileCondToolTiming")
-  , m_tileCondToolOfc("TileCondToolOfc")
-  , m_tileToolNoiseSample("TileCondToolNoiseSample")
   , m_nSignal(0)
   , m_nNegative(0)
   , m_nCenter(0)
@@ -73,23 +69,20 @@ TileRawChannelBuilderOpt2Filter::TileRawChannelBuilderOpt2Filter(const std::stri
   m_rawChannelContainerKey = "TileRawChannelOpt2";
   
   //declare properties
-  declareProperty("TileCondToolTiming", m_tileToolTiming);
-  declareProperty("TileCondToolOfc",    m_tileCondToolOfc  ,"TileCondToolOfc");
-  declareProperty("TileCondToolNoiseSample", m_tileToolNoiseSample,"TileCondToolNoiseSample");
-  declareProperty("MaxIterations",m_maxIterations = 5);
-  declareProperty("PedestalMode",m_pedestalMode = 17);
-  declareProperty("TimeForConvergence",m_timeForConvergence = 0.5);
-  declareProperty("ConfTB",m_confTB = false);
-  declareProperty("OF2",m_of2 = true);
-  declareProperty("Minus1Iteration",m_minus1Iter = false);
-  declareProperty("AmplitudeCorrection",m_correctAmplitude = false);
+  declareProperty("MaxIterations", m_maxIterations = 5);
+  declareProperty("PedestalMode", m_pedestalMode = 17);
+  declareProperty("TimeForConvergence", m_timeForConvergence = 0.5);
+  declareProperty("ConfTB", m_confTB = false);
+  declareProperty("OF2", m_of2 = true);
+  declareProperty("Minus1Iteration", m_minus1Iter = false);
+  declareProperty("AmplitudeCorrection", m_correctAmplitude = false);
   declareProperty("TimeCorrection", m_correctTimeNI = false);
-  declareProperty("BestPhase",m_bestPhase = false);
-  declareProperty("EmulateDSP",m_emulateDsp = false);
-  declareProperty("NoiseThresholdHG",m_noiseThresholdHG = 5);
-  declareProperty("NoiseThresholdLG",m_noiseThresholdLG = 3);
-  declareProperty("MinTime",m_minTime =  0.0);
-  declareProperty("MaxTime",m_maxTime = -1.0);
+  declareProperty("BestPhase", m_bestPhase = false);
+  declareProperty("EmulateDSP", m_emulateDsp = false);
+  declareProperty("NoiseThresholdHG", m_noiseThresholdHG = 5);
+  declareProperty("NoiseThresholdLG", m_noiseThresholdLG = 3);
+  declareProperty("MinTime", m_minTime =  0.0);
+  declareProperty("MaxTime", m_maxTime = -1.0);
 }
 
 
@@ -104,7 +97,7 @@ StatusCode TileRawChannelBuilderOpt2Filter::initialize() {
   m_rChType = TileFragHash::OptFilterOffline; // type for offline Opt Filter
 
   // init in superclass
-  CHECK( TileRawChannelBuilder::initialize() );
+  ATH_CHECK( TileRawChannelBuilder::initialize() );
 
   if (m_maxIterations != 1) m_correctTimeNI = false;
 
@@ -157,14 +150,14 @@ StatusCode TileRawChannelBuilderOpt2Filter::initialize() {
   m_nConst = 0;
 
   //=== get TileCondToolOfc
-  CHECK( m_tileCondToolOfc.retrieve() );
+  ATH_CHECK( m_tileCondToolOfc.retrieve() );
   
   //=== get TileCondToolNoiseSample
-  CHECK( m_tileToolNoiseSample.retrieve() );
+  ATH_CHECK( m_tileToolNoiseSample.retrieve() );
 
   if (m_bestPhase) {
     //=== get TileToolTiming
-    CHECK( m_tileToolTiming.retrieve() );
+    ATH_CHECK( m_tileToolTiming.retrieve() );
   } else {
     m_tileToolTiming.disable();
   }

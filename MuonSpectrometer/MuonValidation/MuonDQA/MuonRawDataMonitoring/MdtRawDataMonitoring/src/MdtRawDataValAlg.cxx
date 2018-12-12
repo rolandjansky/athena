@@ -83,6 +83,7 @@ MdtRawDataValAlg::MdtRawDataValAlg( const std::string & type, const std::string 
  m_masked_tubes(NULL),
  m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
  m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
+ m_DQFilterTools(this),
  m_atlas_ready(0),
  m_trig_BARREL(false),
  m_trig_ENDCAP(false),

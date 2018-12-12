@@ -10,3 +10,7 @@ digitizationFlags.rndmSeedList.addSeed("LArTTL1Maker", 335242, 7306589 )
 
 #include( "CaloConditions/CaloConditions_jobOptions.py" )
 
+if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    theLArTTL1Maker.EmTTL1ContainerName = overlayFlags.bkgPrefix() + "LArTTL1EM"
+    theLArTTL1Maker.HadTTL1ContainerName = overlayFlags.bkgPrefix() + "LArTTL1HAD"

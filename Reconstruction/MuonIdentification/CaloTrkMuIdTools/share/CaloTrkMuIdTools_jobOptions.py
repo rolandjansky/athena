@@ -55,17 +55,6 @@ from CaloTrkMuIdTools.CaloTrkMuIdToolsConf import TrackDepositInCaloTool as Conf
 TrackDepositInCaloTool = ConfiguredTrackDepositInCaloTool(name = "TrackDepositInCaloTool")
 ToolSvc += TrackDepositInCaloTool
 
-### Configure the loose CaloMuon tagger ###
-from CaloTrkMuIdTools.CaloTrkMuIdToolsConf import CaloMuonTag as ConfiguredCaloMuonTag
-CaloMuonTagLoose = ConfiguredCaloMuonTag(name = "CaloMuonTagLoose")
-ToolSvc += CaloMuonTagLoose
-print CaloMuonTagLoose
-
-### Configure CaloMuonTag (tight is default) ###
-CaloMuonTag = ConfiguredCaloMuonTag(name = "CaloMuonTag")
-ToolSvc += CaloMuonTag
-print CaloMuonTag
-
 ### Configure CaloMuonLikelihoodTool ###
 from CaloTrkMuIdTools.CaloTrkMuIdToolsConf import CaloMuonLikelihoodTool as ConfiguredCaloMuonLikelihoodTool
 CaloMuonLikelihoodTool = ConfiguredCaloMuonLikelihoodTool(TrackEnergyInCaloTool = TrackEnergyInCaloTool)

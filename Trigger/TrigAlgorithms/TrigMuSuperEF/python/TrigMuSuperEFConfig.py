@@ -254,10 +254,12 @@ class TrigMuSuperEFHypoConfig(TrigMuonEFCombinerHypoConfig):
 
 
 def TrigMuSuperEF_MuonCaloTagTool( name='OnlineMuonCaloTagTool', **kwargs ):
-    #from AthenaCommon.AppMgr import ToolSvc
-    #import TrigMuSuperEF.CombinedMuonTrackSummary_Trig
-    kwargs.setdefault("CaloMuonTagLoose",       getPublicTool("CaloMuonTagLoose") )
-    kwargs.setdefault("CaloMuonTagTight",       getPublicTool("CaloMuonTag") )
+    from CaloTrkMuIdTools.CaloTrkMuIdToolsConf import CaloMuonTag as ConfiguredCaloMuonTag
+    TrigMuSuperEF_CaloMuonTagLoose = ConfiguredCaloMuonTag(name = "TrigMuSuperEF_CaloMuonTagLoose")
+    TrigMuSuperEF_CaloMuonTagLoose.TagMode="Loose"
+    TrigMuSuperEF_CaloMuonTagTight = ConfiguredCaloMuonTag(name = "TrigMuSuperEF_CaloMuonTag")
+    kwargs.setdefault("CaloMuonTagLoose",       TrigMuSuperEF_CaloMuonTagLoose )
+    kwargs.setdefault("CaloMuonTagTight",       TrigMuSuperEF_CaloMuonTagTight )
     kwargs.setdefault("CaloMuonLikelihoodTool", getPublicTool("CaloMuonLikelihoodTool") )
     kwargs.setdefault("TrackDepositInCaloTool", getPublicTool("TrigMuSuperEF_TrackDepositInCaloTool") )
     kwargs.setdefault("TrackSelectorTool",      getPublicTool("TrigMuSuperEF_CaloTrkSelectorTool") )

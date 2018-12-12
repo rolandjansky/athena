@@ -4,7 +4,6 @@
 
 // Tile includes
 #include "TileRecUtils/TileRawChannelMaker.h"
-#include "TileRecUtils/TileRawChannelBuilder.h"
  
 // Atlas includes
 #include "AthenaKernel/errorcheck.h"
@@ -25,13 +24,9 @@
 TileRawChannelMaker::TileRawChannelMaker(const std::string& name,
     ISvcLocator* pSvcLocator)
     : AthAlgorithm(name, pSvcLocator)
-    , m_tileRawChannelBuilderList()
     , m_fitOverflow(false)      
-    , m_tileRawChannelBuilderFitOverflow("TileRawChannelBuilder")
 {
-  declareProperty("TileRawChannelBuilder", m_tileRawChannelBuilderList, "List Of Tools");
   declareProperty("FitOverflow", m_fitOverflow, "Fit or not overflows");
-  declareProperty("TileRawChannelBuilderFitOverflow", m_tileRawChannelBuilderFitOverflow, "Tool to fit overflows");
 
   m_overflowReplaceTimeCut = 50.0;
   m_overflowReplacePedestalCut  = 170.0;
@@ -50,7 +45,7 @@ TileRawChannelMaker::~TileRawChannelMaker() {
 StatusCode TileRawChannelMaker::initialize() {
 
   ATH_MSG_DEBUG( "starting to retrieve list " << m_tileRawChannelBuilderList);
-  CHECK( m_tileRawChannelBuilderList.retrieve());
+  ATH_CHECK( m_tileRawChannelBuilderList.retrieve());
 
   ATH_MSG_DEBUG( m_tileRawChannelBuilderList << "retrieved");
 
@@ -60,7 +55,7 @@ StatusCode TileRawChannelMaker::initialize() {
   }
   
   if (m_fitOverflow) {
-    CHECK( m_tileRawChannelBuilderFitOverflow.retrieve() );
+    ATH_CHECK( m_tileRawChannelBuilderFitOverflow.retrieve() );
   } else {
     m_tileRawChannelBuilderFitOverflow.disable();
   }
@@ -91,7 +86,7 @@ StatusCode TileRawChannelMaker::execute() {
 
   // create  RawChannel Containers for all sub-algs
   for (ToolHandle<TileRawChannelBuilder>& rawChannelBuilder : m_tileRawChannelBuilderList) {
-    CHECK( rawChannelBuilder->createContainer() );
+    ATH_CHECK( rawChannelBuilder->createContainer() );
   }
 
   //make sure that we clean memory about errors in a drawer
@@ -122,7 +117,7 @@ StatusCode TileRawChannelMaker::execute() {
 
   // commit RawChannel Containers for all sub-algs
   for (ToolHandle<TileRawChannelBuilder>& rawChannelBuilder : m_tileRawChannelBuilderList) {
-    CHECK( rawChannelBuilder->commitContainer() );
+    ATH_CHECK( rawChannelBuilder->commitContainer() );
   }
 
   ATH_MSG_DEBUG( "execute completed successfully" );

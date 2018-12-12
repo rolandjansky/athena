@@ -5,6 +5,7 @@
 #include "AthenaMonitoring/DQFilledBunchFilterTool.h"
 #include "AthenaMonitoring/DQDummyFilterTool.h"
 #include "AthenaMonitoring/DQBadLBFilterTool.h"
+#include "AthenaMonitoring/DQBadLBFilterAlg.h"
 #include "AthenaMonitoring/TriggerTranslatorSimple.h"
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 
@@ -16,6 +17,6 @@ DECLARE_COMPONENT( DQAtlasReadyFilterTool )
 DECLARE_COMPONENT( DQFilledBunchFilterTool )
 DECLARE_COMPONENT( DQDummyFilterTool )
 DECLARE_COMPONENT( DQBadLBFilterTool )
+DECLARE_COMPONENT( DQBadLBFilterAlg )
 DECLARE_COMPONENT( TriggerTranslatorToolSimple )
 DECLARE_COMPONENT( GenericMonitoringTool )
-

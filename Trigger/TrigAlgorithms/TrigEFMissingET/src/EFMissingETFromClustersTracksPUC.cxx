@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -31,8 +31,8 @@ namespace {
     float pt() { return sqrt(px*px+py*py); }
     float cosPhi() { return pt() > 0 ? px/pt() : 1.; }
     float sinPhi() { return pt() > 0 ? py/pt() : 0.; }
-    Tower& operator=(bool m_saveuncalibrated) {
-      if(m_saveuncalibrated) m_clusterstate = xAOD::CaloCluster::UNCALIBRATED;
+    Tower& operator=(bool saveuncalibrated) {
+      if(saveuncalibrated) m_clusterstate = xAOD::CaloCluster::UNCALIBRATED;
       else m_clusterstate = xAOD::CaloCluster::CALIBRATED;
       return *this;
     }

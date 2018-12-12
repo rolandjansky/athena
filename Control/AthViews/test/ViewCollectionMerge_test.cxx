@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -32,8 +32,15 @@
 #include "AthenaKernel/ExtendedEventContext.h"
 
 // Google Test and Google Mock
+#if __GNUC__ >= 9
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wdeprecated-copy"
+#endif
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
+#if __GNUC__ >= 9
+# pragma GCC diagnostic pop
+#endif
 
 
 // Names for storing collections

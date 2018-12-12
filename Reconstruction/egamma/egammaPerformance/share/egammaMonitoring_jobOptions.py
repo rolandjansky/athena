@@ -18,7 +18,7 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
         topSequence += monManEgamma
 
         from AthenaMonitoring.BadLBFilterTool import GetLArBadLBFilterTool
-        monbadlb = GetLArBadLBFilterTool()
+        from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
         
         egammaMonOutputLevel = INFO
         #egammaMonOutputLevel = VERBOSE
@@ -112,11 +112,10 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
                                       OutputLevel = egammaMonOutputLevel,
                                       )
             
-            phMonTool.FilterTools += [ monbadlb ]
+            phMonTool.FilterTools += [ GetLArBadLBFilterTool() ]
 
-            if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-                phMonTool.FilterTools += [monFilledBunchFilterTool]
-            #ToolSvc+=phMonTool
+            if jobproperties.Beam.beamType()=='collisions':
+                phMonTool.FilterTools += [GetFilledBunchFilterTool()]
             monManEgamma.AthenaMonTools += [ phMonTool ]
 
             if DQMonFlags.useTrigger():
@@ -129,11 +128,10 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
                                                      OutputLevel = egammaMonOutputLevel,
                                                      )
             
-                phMonToolWithTrigger.FilterTools += [ monbadlb ]
+                phMonToolWithTrigger.FilterTools += [ GetLArBadLBFilterTool() ]
                 
-                if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-                    phMonToolWithTrigger.FilterTools += [monFilledBunchFilterTool]
-                #ToolSvc+=phMonToolWithTrigger
+                if jobproperties.Beam.beamType()=='collisions':
+                    phMonToolWithTrigger.FilterTools += [GetFilledBunchFilterTool()]
                 monManEgamma.AthenaMonTools += [ phMonToolWithTrigger ]
 
 
@@ -147,10 +145,9 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
                                         ElectronContainer = "Electrons",
                                         OutputLevel = egammaMonOutputLevel,
                                         )
-            elMonTool.FilterTools += [ monbadlb ]
-            if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-                elMonTool.FilterTools += [monFilledBunchFilterTool]
-            #ToolSvc+=elMonTool
+            elMonTool.FilterTools += [ GetLArBadLBFilterTool() ]
+            if jobproperties.Beam.beamType()=='collisions':
+                elMonTool.FilterTools += [GetFilledBunchFilterTool()]
             monManEgamma.AthenaMonTools += [ elMonTool ]
             print elMonTool
 
@@ -163,10 +160,9 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
                                                        ElectronContainer = "Electrons",
                                                        OutputLevel = egammaMonOutputLevel,
                                                        )
-                elMonToolWithTrigger.FilterTools += [ monbadlb ]
-                if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-                    elMonToolWithTrigger.FilterTools += [monFilledBunchFilterTool]
-                #ToolSvc+=elMonToolWithTrigger
+                elMonToolWithTrigger.FilterTools += [ GetLArBadLBFilterTool() ]
+                if jobproperties.Beam.beamType()=='collisions':
+                    elMonToolWithTrigger.FilterTools += [GetFilledBunchFilterTool()]
                 monManEgamma.AthenaMonTools += [ elMonToolWithTrigger ]
                 print elMonToolWithTrigger
             
@@ -181,11 +177,10 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
                                                 OutputLevel = egammaMonOutputLevel,
                                               )
             
-            fwdMonTool.FilterTools += [ monbadlb ]
+            fwdMonTool.FilterTools += [ GetLArBadLBFilterTool() ]
             
-            if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-                fwdMonTool.FilterTools += [monFilledBunchFilterTool]
-            #ToolSvc+=fwdMonTool
+            if jobproperties.Beam.beamType()=='collisions':
+                fwdMonTool.FilterTools += [GetFilledBunchFilterTool()]
             monManEgamma.AthenaMonTools += [ fwdMonTool ]    
 
         if(egammaMonitorZee):
@@ -204,9 +199,8 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
                                        OutputLevel = egammaMonOutputLevel,
                                        )
             
-            if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-                ZeeMonTool.FilterTools += [monFilledBunchFilterTool]
-            #ToolSvc+=ZeeMonTool
+            if jobproperties.Beam.beamType()=='collisions':
+                ZeeMonTool.FilterTools += [GetFilledBunchFilterTool()]
             monManEgamma.AthenaMonTools += [ ZeeMonTool ]
 
         if(egammaMonitorJPsi):
@@ -224,9 +218,8 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
                                         #PhiBinning = 40,
                                         OutputLevel = egammaMonOutputLevel,
                                         )
-            if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-                JPsiMonTool.FilterTools += [monFilledBunchFilterTool]
-            #ToolSvc+=JPsiMonTool
+            if jobproperties.Beam.beamType()=='collisions':
+                JPsiMonTool.FilterTools += [GetFilledBunchFilterTool()]
             monManEgamma.AthenaMonTools += [ JPsiMonTool ]
 
         if(egammaMonitorUpsilon1S):
@@ -245,7 +238,6 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
                                               TrigDecisionTool = MyTrigDecisionTool,
                                               UseTrigger = MyDoTrigger)
             
-            #ToolSvc+=Upsilon1SMonTool
             monManEgamma.AthenaMonTools += [ Upsilon1SMonTool ]
 
 
@@ -265,7 +257,6 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
                                               TrigDecisionTool = MyTrigDecisionTool,
                                               UseTrigger = MyDoTrigger)
             
-            #ToolSvc+=Upsilon2SMonTool
             monManEgamma.AthenaMonTools += [ Upsilon2SMonTool ]
 
         if(egammaMonitorWenu):
@@ -290,7 +281,6 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
                                           TrigDecisionTool = MyTrigDecisionTool,
                                           UseTrigger = MyDoTrigger)
             
-            #ToolSvc+=WenuMonTool
             monManEgamma.AthenaMonTools += [ WenuMonTool ]
 
         if(egammaMonitorTop):
@@ -315,7 +305,6 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
                                           TrigDecisionTool = MyTrigDecisionTool,
                                           UseTrigger = MyDoTrigger)
 
-            #ToolSvc+=TopMonTool
             monManEgamma.AthenaMonTools += [ TopMonTool ]
         
             

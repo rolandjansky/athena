@@ -12,7 +12,20 @@ def PFCfg(inputFlags,**kwargs):
     result.addService(StoreGateSvc("DetectorStore"))
     
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-    result.addConfig(GeoModelCfg,inputFlags)
+    result.mergeAll(GeoModelCfg(inputFlags))
+
+    from TrkDetDescrSvc.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+    acc, geom_svc = TrackingGeometrySvcCfg(inputFlags)
+    result.merge(acc)
+
+    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_AlignCondAlg
+    result.addCondAlgo(SCT_AlignCondAlg(name = "SCT_AlignCondAlg",UseDynamicAlignFolders = False))
+
+    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DetectorElementCondAlg
+    result.addCondAlgo(SCT_DetectorElementCondAlg(name = "SCT_DetectorElementCondAlg"))
+    
+    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
+    result.merge(MuonGeoModelCfg(inputFlags))    
 
     from GeometryDBSvc.GeometryDBSvcConf import GeometryDBSvc
     result.addService(GeometryDBSvc("InDetGeometryDBSvc"))
@@ -28,9 +41,9 @@ def PFCfg(inputFlags,**kwargs):
     from InDetServMatGeoModel.InDetServMatGeoModelConf import InDetServMatTool
     result.getService("GeoModelSvc").DetectorTools += [ InDetServMatTool() ]
 
-    from IOVDbSvc.IOVDbSvcConfig import addFolders,IOVDbSvcCfg
-    result.addConfig(addFolders,inputFlags,['/GLOBAL/BField/Maps <noover/>'],'GLOBAL_OFL')
-    result.addConfig(addFolders,inputFlags,['/EXT/DCS/MAGNETS/SENSORDATA'],'DCS_OFL')
+    from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline,IOVDbSvcCfg
+    result.merge(addFolders(inputFlags,['/GLOBAL/BField/Maps <noover/>'],'GLOBAL_OFL'))
+    result.merge(addFolders(inputFlags,['/EXT/DCS/MAGNETS/SENSORDATA'],'DCS_OFL'))
     
     iovDbSvc=result.getService("IOVDbSvc")
     iovDbSvc.FoldersToMetaData+=['/GLOBAL/BField/Maps']
@@ -40,14 +53,14 @@ def PFCfg(inputFlags,**kwargs):
     result.addService(MagField__AtlasFieldSvc("AtlasFieldSvc",**kwargs))
 
     #load folders needed for Run2 ID alignment
-    result.addConfig(addFolders,inputFlags,['/Indet/Align'],'INDET_OFL')
-    result.addConfig(addFolders,inputFlags,['/TRT/Align'],'TRT_OFL')
+    result.merge(addFoldersSplitOnline(inputFlags,"INDET","/Indet/Onl/Align","/Indet/Align",className="AlignableTransformContainer"))
+    result.merge(addFolders(inputFlags,['/TRT/Align'],'TRT_OFL'))
 
     #load folders needed for IBL
-    result.addConfig(addFolders,inputFlags,['/Indet/IBLDist'],'INDET_OFL')
+    result.merge(addFolders(inputFlags,['/Indet/IBLDist'],'INDET_OFL'))
 
     #hard-code MC conditions tag needed for my ESD file - must be a better way? how to auto-configure?
-    iovDbSvc.GlobalTag="OFLCOND-MC16-SDR-13"
+    iovDbSvc.GlobalTag="OFLCOND-MC16-SDR-20"
     
     from eflowRec.eflowRecConf import PFLeptonSelector
     PFLeptonSelector=PFLeptonSelector("PFLeptonSelector")
@@ -74,19 +87,21 @@ def PFCfg(inputFlags,**kwargs):
     return result
 
 if __name__=="__main__":
-    cfg=ComponentAccumulator()
+
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior = True
+    
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as cfgFlags
 
-    cfgFlags.set("global.isMC",True)
-    cfgFlags.set("global.InputFiles",["/data/hodgkinson/scratchFiles/mc15_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s2832_r7968/ESD.08355655._001904.pool.root.1"])
+    cfgFlags.Input.isMC=True
+    cfgFlags.Input.Files=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root"]
     cfgFlags.lock()
     
-    from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg.addConfig(PoolReadCfg,cfgFlags)
-    
-    cfg.addConfig(PFCfg,cfgFlags)
+    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
+    cfg=MainServicesSerialCfg() 
 
-    f=open("PF.pkl","w")
-    cfg.store(f)
-    f.close()
-    
+    from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
+    cfg.merge(PoolReadCfg(cfgFlags))
+    cfg.merge(PFCfg(cfgFlags))
+
+    cfg.run()
