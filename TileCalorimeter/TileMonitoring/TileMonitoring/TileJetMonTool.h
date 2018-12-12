@@ -17,16 +17,13 @@
 #include "xAODJet/Jet.h"
 
 #include "TileMonitoring/TileFatherMonTool.h"
-// to use JVT
 #include "AsgTools/ToolHandle.h"
-//#include "JetMomentTools/JetVertexTaggerTool.h"
-#define JVT
-#ifdef JVT
+// JVT
 #include "JetInterface/IJetUpdateJvt.h"
-#endif
 // Jet cleaning
 #include "JetInterface/IJetSelector.h"
-//#include "JetSelectorTools/JetCleaningTool.h"
+// Event cleaning
+#include "JetSelectorTools/IEventCleaningTool.h"
 
 class ITileBadChanTool;
 
@@ -61,6 +58,7 @@ class TileJetMonTool: public TileFatherMonTool {
 
     unsigned int find_index(const int gain, const float energy);
     bool isGoodChannel(int part, int mod, int pmt, uint32_t bad, unsigned int qbit, Identifier id);
+    bool passesJvt(const xAOD::Jet& jet);
     bool isGoodJet(const xAOD::Jet& jet);
     bool isGoodEvent();
 
@@ -71,10 +69,6 @@ class TileJetMonTool: public TileFatherMonTool {
       LooseBad, MediumBad, TightBad
     } BadJetCategory;
 
-    bool isBad(BadJetCategory criteria, double quality, double NegE, double emf, double hecf,
-        double time, double fmax, double eta, double chf, double HecQ);
-  
-  
   private:
 
     float m_jetPtMin;
@@ -131,14 +125,15 @@ class TileJetMonTool: public TileFatherMonTool {
     bool m_do_jet_cleaning;
     float m_jet_tracking_eta_limit;
     float m_jet_jvt_threshold;
+    float m_jet_jvt_ptmax;
     bool m_first_event;
     // JVT
-#ifdef JVT
     ToolHandle<IJetUpdateJvt> m_jvt;
-#endif
+    std::string m_JvtDecorator;
+    std::string m_OrDecorator;
     // event/jet cleaning
     ToolHandle<IJetSelector> m_cleaningTool;
-    //  JetCleaningTool* m_cleaningTool;
+    ToolHandle<ECUtils::IEventCleaningTool> m_ECTool;
 };
 
 #endif
