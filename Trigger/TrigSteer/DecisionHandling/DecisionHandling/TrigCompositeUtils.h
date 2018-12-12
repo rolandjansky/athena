@@ -113,15 +113,6 @@ namespace TrigCompositeUtils {
    **/
   bool copyLinks(const Decision* src, Decision* dest);
 
- /**
-   * @brief copy all links from src, that is the predecessor, to dest TC objects 
-   * @warning Links are copied as old links (_name) to distinguish from new ones
-   * @warning if there are links already in the dest TC, the operation is not performed and false returned
-   * @ret true if success
-   **/
-
-  //  bool copyLinksFromPrevious(const Decision* src, Decision* dest);
-  
 
   /**
    * @brief traverses TC links for another TC fufilling the prerequisite specified by the filter

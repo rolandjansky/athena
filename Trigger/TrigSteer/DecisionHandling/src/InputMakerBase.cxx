@@ -162,17 +162,6 @@ StatusCode InputMakerBase::decisionInputToMergedOutput(const EventContext& conte
 
 
 
-//StatusCode InputMakerBase::copyBaseLinks(const TrigCompositeUtils::Decision* src, TrigCompositeUtils::Decision* dest) const  {
-  // do we need to filter the links to be copied? if not, we can copy all of them
-  // for (auto link: baseLinks){
-  //   if ( src->hasObjectLink(link ) ) dest->copyLinkFrom(src,link);
-  // }
-  //    copyLinks(decision, newDec);
-  //  if ( src->hasObjectLink("self" ) ) dest->copyLinkFrom(src,"self","seed"); // make use of self-link 
-//  return StatusCode::SUCCESS;
-//}
-
-
 StatusCode InputMakerBase::debugPrintOut(const EventContext& context, const std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> >& outputHandles) const{
   size_t validInput=0;
   for ( auto inputKey: decisionInputs() ) {

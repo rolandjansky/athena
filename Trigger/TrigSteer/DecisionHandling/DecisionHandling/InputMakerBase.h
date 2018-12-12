@@ -65,8 +65,6 @@ This is a base class for HLT InputMakers to reduce boilerplate and enforce the c
 
   // setting strategy for output creation: merged means one decision per ROI
   Gaudi::Property<bool>  m_mergeOutputs { this, "mergeOutputs", true, "true=outputs are merged, false=one output per input" };
-
-  // StatusCode copyBaseLinks(const TrigCompositeUtils::Decision* src, TrigCompositeUtils::Decision* dest) const;
   
   
 };
