@@ -176,6 +176,13 @@ atlas_add_test( bJetMenu
    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_bJetMenu
    )
 
+
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met )
+atlas_add_test( met
+                SCRIPT test/test_met.sh
+                PROPERTIES TIMEOUT 500
+                PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met)
+
 atlas_install_joboptions( share/*.py )
 atlas_install_data( share/*.ref )
 atlas_install_python_modules( python/*.py )
