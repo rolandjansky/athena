@@ -1,17 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // small hack to enable datapool usage
 #include "TileEvent/TileRawChannel.h"
-
-// Gaudi includes
-#include "GaudiKernel/Property.h"
-
-// Atlas includes
-#include "AthAllocators/DataPool.h"
-#include "AthenaKernel/errorcheck.h"
-
 // Tile includes
 #include "TileRecUtils/TileRawChannelBuilderMF.h"
 #include "TileEvent/TileRawChannelContainer.h"
@@ -22,6 +14,13 @@
 #include "TileConditions/TileOptFilterWeights.h"
 #include "TileConditions/TilePulseShapes.h"
 #include "CLHEP/Matrix/Matrix.h"
+
+// Atlas includes
+#include "AthAllocators/DataPool.h"
+#include "AthenaKernel/errorcheck.h"
+
+// Gaudi includes
+#include "GaudiKernel/Property.h"
 
 // lang include
 #include <algorithm>
@@ -39,10 +38,6 @@
 TileRawChannelBuilderMF::TileRawChannelBuilderMF(const std::string& type, const std::string& name,
     const IInterface *parent)
     : TileRawChannelBuilder(type, name, parent)
-    , m_tileToolTiming("TileCondToolTiming")
-    , m_tileCondToolOfc("TileCondToolOfc")
-    , m_tileCondToolOfcOnFly("TileCondToolOfc")
-    , m_tileToolNoiseSample("TileCondToolNoiseSample")
     , m_nSamples(0)
     , m_t0SamplePosition(0)
     , m_maxTime(0.0)
@@ -56,10 +51,6 @@ TileRawChannelBuilderMF::TileRawChannelBuilderMF(const std::string& type, const 
   m_rawChannelContainerKey = "TileRawChannelMF";
 
   //declare properties
-  declareProperty("TileCondToolTiming", m_tileToolTiming);
-  declareProperty("TileCondToolOfc", m_tileCondToolOfc, "TileCondToolOfc");
-  declareProperty("TileCondToolOfcOnFly", m_tileCondToolOfcOnFly, "TileCondToolOfc");
-  declareProperty("TileCondToolNoiseSample", m_tileToolNoiseSample);
   declareProperty("AmplitudeCorrection", m_correctAmplitude = false);
   declareProperty("PedestalMode", m_pedestalMode = 1);
   declareProperty("DefaultPedestal", m_defaultPedestal = 0.0);
@@ -89,7 +80,7 @@ StatusCode TileRawChannelBuilderMF::initialize() {
   memset(m_chPed, 0, sizeof(m_chPed));
 
   // init in superclass
-  CHECK(TileRawChannelBuilder::initialize());
+  ATH_CHECK(TileRawChannelBuilder::initialize());
 
   // bits 12-15 - various options
   if (m_correctAmplitude) m_bsflags |= 0x2000;
@@ -101,20 +92,20 @@ StatusCode TileRawChannelBuilderMF::initialize() {
   m_maxTime = 25 * (m_nSamples - m_t0SamplePosition - 1);
   m_minTime = -25 * m_t0SamplePosition;
 
-  CHECK(m_tileCondToolOfcOnFly.retrieve());
+  ATH_CHECK(m_tileCondToolOfcOnFly.retrieve());
   //=== get TileCondToolOfc
-  CHECK(m_tileCondToolOfc.retrieve());
+  ATH_CHECK(m_tileCondToolOfc.retrieve());
 
 
   if (m_bestPhase) {
     //=== get TileToolTiming
-    CHECK(m_tileToolTiming.retrieve());
+    ATH_CHECK(m_tileToolTiming.retrieve());
   } else {
     m_tileToolTiming.disable();
   }
 
   //=== get TileCondToolNoiseSample
-  CHECK(m_tileToolNoiseSample.retrieve());
+  ATH_CHECK(m_tileToolNoiseSample.retrieve());
 
   ATH_MSG_DEBUG("TileRawChannelBuilderMF::initialize() completed successfully");
 

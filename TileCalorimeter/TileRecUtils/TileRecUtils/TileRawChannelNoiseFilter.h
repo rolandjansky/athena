@@ -8,32 +8,31 @@
 #ifndef TILERAWCHANNELNOISEFILTER_H
 #define TILERAWCHANNELNOISEFILTER_H
 
-// Atlas includes
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-
 // Tile includes
 #include "TileIdentifier/TileRawChannelUnit.h"
 #include "TileRecUtils/ITileRawChannelTool.h"
 #include "TileConditions/TileCondToolEmscale.h"
+#include "TileConditions/ITileBadChanTool.h"
+#include "TileConditions/TileCondToolNoiseSample.h"
+
+// Atlas includes
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 // forward declarations
 class TileHWID;
 class TileRawChannel;
 class TileRawChannelContainer;
 class TileRawChannelCollection;
-class ITileBadChanTool;
-//class TileCondToolEmscale;
-class TileCondToolNoiseSample;
 class TileBeamInfoProvider;
 
 /**
  @class TileRawChannelNoiseFilter
  @brief This tool subtracts common-mode noise from all TileRawChannels in one container
  */
-class TileRawChannelNoiseFilter: public extends<AthAlgTool, ITileRawChannelTool>
-{
+class TileRawChannelNoiseFilter: public extends<AthAlgTool, ITileRawChannelTool> {
+
   public:
 
     /** AlgTool like constructor */
@@ -56,9 +55,15 @@ class TileRawChannelNoiseFilter: public extends<AthAlgTool, ITileRawChannelTool>
 
     const TileHWID* m_tileHWID; //!< Pointer to TileHWID
 
-    ToolHandle<TileCondToolEmscale> m_tileToolEmscale; //!< main Tile Calibration tool
-    ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample; //!< tool which provided noise values
-    ToolHandle<ITileBadChanTool> m_tileBadChanTool;   //!< Tile Bad Channel tool
+    ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
+        "TileCondToolEmscale", "TileCondToolEmscale", "Tile EM scale calibration tool"};
+
+    ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample{this,
+        "TileCondToolNoiseSample", "TileCondToolNoiseSample", "Tile noise sample tool"};
+
+    ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
+        "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
+
     ToolHandle<TileBeamInfoProvider> m_beamInfo; //!< Beam Info tool to get the DQ Status object
 
     // properties

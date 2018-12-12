@@ -26,6 +26,7 @@
 
 // Tile includes
 #include "TileEvent/TileDigitsContainer.h"
+#include "TileRecUtils/TileRawChannelBuilder.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -66,10 +67,12 @@ class TileRawChannelMaker: public AthAlgorithm {
      * Vector of builder algtools
      */
     //  std::vector<TileRawChannelBuilder*> m_TileRawChannelBuilderVec;
-    ToolHandleArray<TileRawChannelBuilder> m_tileRawChannelBuilderList;
+    ToolHandleArray<TileRawChannelBuilder> m_tileRawChannelBuilderList{this,
+       "TileRawChannelBuilder", {}, "Tile raw channels builder tools"};
 
     bool m_fitOverflow;
-    ToolHandle<TileRawChannelBuilder> m_tileRawChannelBuilderFitOverflow;
+    ToolHandle<TileRawChannelBuilder> m_tileRawChannelBuilderFitOverflow{this,
+       "TileRawChannelBuilderFitOverflow", "", "Tile raw channels builder tool to fit overflows"};
 
     float m_overflowReplaceTimeCut;
     float m_overflowReplacePedestalCut;

@@ -1,16 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
-// Atlas includes
-#include "AthenaKernel/errorcheck.h"
-#include "Identifier/Identifier.h"
-#include "Identifier/IdentifierHash.h"
-
-// Calo includes
-#include "CaloEvent/CaloCell.h"
-#include "CaloEvent/CaloCellContainer.h"
-#include "CaloDetDescr/CaloDetDescrElement.h"
 
 // Tile includes
 #include "CaloIdentifier/TileID.h"
@@ -18,10 +8,16 @@
 #include "TileEvent/TileCell.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileRecUtils/TileCellNoiseFilter.h"
-#include "TileConditions/TileCondToolEmscale.h"
-#include "TileConditions/TileCondToolNoiseSample.h"
 
+// Calo includes
+#include "CaloEvent/CaloCell.h"
+#include "CaloEvent/CaloCellContainer.h"
+#include "CaloDetDescr/CaloDetDescrElement.h"
 
+// Atlas includes
+#include "AthenaKernel/errorcheck.h"
+#include "Identifier/Identifier.h"
+#include "Identifier/IdentifierHash.h"
 
 #include <cmath>
 #include <algorithm>
@@ -37,23 +33,18 @@ const InterfaceID& TileCellNoiseFilter::interfaceID() {
 // constructor
 TileCellNoiseFilter::TileCellNoiseFilter(const std::string& type,
     const std::string& name, const IInterface* parent)
-    : AthAlgTool(type, name, parent)
+    : base_class(type, name, parent)
     , m_tileID(0)
     , m_tileHWID(0)
-    , m_tileToolEmscale("TileCondToolEmscale")
-    , m_tileToolNoiseSample("TileCondToolNoiseSample")
     , m_noiseTool("CaloNoiseTool")
-    , m_tileBadChanTool("TileBadChanTool")
     , m_truncationThresholdOnAbsEinSigma(4.0) // 4 sigma of ADC HF noise by default
     , m_minimumNumberOfTruncatedChannels(0.6) // at least 60% of channels should be below threshold
     , m_useTwoGaussNoise(false) // do not use 2G - has no sense for ADC HF noise for the moment
     , m_useTileNoiseDB(true)         // Tile DB with ADC HF noise by defaul
 {
-  declareInterface<ICaloCellMakerTool>(this);
+
   declareInterface<TileCellNoiseFilter>(this);
 
-  declareProperty("TileCondToolEmscale", m_tileToolEmscale);
-  declareProperty("TileCondToolNoiseSample", m_tileToolNoiseSample);
   declareProperty("CaloNoiseTool", m_noiseTool);
 
   declareProperty("UseTwoGaussNoise", m_useTwoGaussNoise);
@@ -68,24 +59,24 @@ TileCellNoiseFilter::TileCellNoiseFilter(const std::string& type,
 StatusCode TileCellNoiseFilter::initialize() {
   ATH_MSG_INFO("Initializing...");
 
-  CHECK( detStore()->retrieve(m_tileID));
-  CHECK( detStore()->retrieve(m_tileHWID));
+  ATH_CHECK( detStore()->retrieve(m_tileID));
+  ATH_CHECK( detStore()->retrieve(m_tileHWID));
 
   //=== get TileCondToolEmscale
-  CHECK( m_tileToolEmscale.retrieve() );
+  ATH_CHECK( m_tileToolEmscale.retrieve() );
 
   if (m_useTileNoiseDB) {
     //=== get TileCondToolNoiseSample
-    CHECK( m_tileToolNoiseSample.retrieve());
+    ATH_CHECK( m_tileToolNoiseSample.retrieve());
 
     //=== get TileBadChanTool
-    CHECK( m_tileBadChanTool.retrieve() );
+    ATH_CHECK( m_tileBadChanTool.retrieve() );
 
     m_noiseTool.disable();
 
   } else {
     //=== CaloNoiseTool
-    CHECK( m_noiseTool.retrieve());
+    ATH_CHECK( m_noiseTool.retrieve());
 
     m_tileToolNoiseSample.disable();
     m_tileBadChanTool.disable();

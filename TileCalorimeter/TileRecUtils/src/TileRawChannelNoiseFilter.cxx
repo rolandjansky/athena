@@ -2,21 +2,18 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-// Atlas includes
-#include "AthenaKernel/errorcheck.h"
-#include "Identifier/Identifier.h"
-
 // Tile includes
+#include "TileRecUtils/TileRawChannelNoiseFilter.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileEvent/TileRawChannel.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileMutableRawChannelContainer.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
-#include "TileRecUtils/TileRawChannelNoiseFilter.h"
-#include "TileConditions/ITileBadChanTool.h"
-//#include "TileConditions/TileCondToolEmscale.h"
-#include "TileConditions/TileCondToolNoiseSample.h"
 #include "TileRecUtils/TileBeamInfoProvider.h"
+
+// Atlas includes
+#include "AthenaKernel/errorcheck.h"
+#include "Identifier/Identifier.h"
 
 
 //========================================================
@@ -25,18 +22,12 @@ TileRawChannelNoiseFilter::TileRawChannelNoiseFilter(const std::string& type,
     const std::string& name, const IInterface* parent)
     : base_class(type, name, parent)
     , m_tileHWID(0)
-    , m_tileToolEmscale("TileCondToolEmscale")
-    , m_tileToolNoiseSample("TileCondToolNoiseSample")
-    , m_tileBadChanTool("TileBadChanTool")
     , m_beamInfo( "TileBeamInfoProvider/TileBeamInfoProvider")
     , m_truncationThresholdOnAbsEinSigma(3.0) // 3 sigma of ADC HF noise by default
     , m_minimumNumberOfTruncatedChannels(0.6) // at least 60% of channels should be below threshold
     , m_useTwoGaussNoise(false) // do not use 2G - has no sense for ADC HF noise for the moment
     , m_useGapCells(false) // use gap cells for noise filter as all normal cells
 {
-  declareProperty("TileCondToolEmscale", m_tileToolEmscale);
-  declareProperty("TileCondToolNoiseSample", m_tileToolNoiseSample);
-  declareProperty("TileBadChanTool", m_tileBadChanTool);
   declareProperty("BeamInfo", m_beamInfo);
 
   declareProperty("TruncationThresholdOnAbsEinSigma", m_truncationThresholdOnAbsEinSigma);
@@ -62,19 +53,19 @@ StatusCode TileRawChannelNoiseFilter::initialize() {
                       << ((m_useGapCells)?"true":"false") << endmsg;
   }
 
-  CHECK( detStore()->retrieve(m_tileHWID) );
+  ATH_CHECK( detStore()->retrieve(m_tileHWID) );
 
   //=== get TileCondToolEmscale
-  CHECK( m_tileToolEmscale.retrieve() );
+  ATH_CHECK( m_tileToolEmscale.retrieve() );
 
   //=== get TileCondToolNoiseSample
-  CHECK( m_tileToolNoiseSample.retrieve() );
+  ATH_CHECK( m_tileToolNoiseSample.retrieve() );
 
   //=== get TileBadChanTool
-  CHECK( m_tileBadChanTool.retrieve() );
+  ATH_CHECK( m_tileBadChanTool.retrieve() );
 
   //=== get TileBeamInfo
-  CHECK( m_beamInfo.retrieve() );
+  ATH_CHECK( m_beamInfo.retrieve() );
 
   return StatusCode::SUCCESS;
 }

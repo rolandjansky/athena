@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////
@@ -8,32 +8,34 @@
 #ifndef TILERECUTILS_TILECELLNOISEFILTER_H
 #define TILERECUTILS_TILECELLNOISEFILTER_H
 
-// Atlas includes
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
+// Tile includes
+#include "TileConditions/ITileBadChanTool.h"
+#include "TileConditions/TileCondToolEmscale.h"
+#include "TileConditions/TileCondToolNoiseSample.h"
 
 // Calo includes
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "CaloInterface/ICalorimeterNoiseTool.h"
 
-// Tile includes
-#include "TileConditions/ITileBadChanTool.h"
+// Atlas includes
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+
 
 // forward declarations
 class TileID;
 class TileHWID;
 class TileCell;
 class CaloCellContainer;
-class TileCondToolEmscale;
-class TileCondToolNoiseSample;
 
 /**
  @class TileCellNoiseFilter
  @brief This tool subtracts common-mode noise from all TileCells
  */
-class TileCellNoiseFilter: public AthAlgTool, virtual public ICaloCellMakerTool {
+class TileCellNoiseFilter: public extends<AthAlgTool, ICaloCellMakerTool> {
+
   public:
 
     /** AlgTool like constructor */
@@ -70,10 +72,16 @@ class TileCellNoiseFilter: public AthAlgTool, virtual public ICaloCellMakerTool 
     const TileID* m_tileID;   //!< Pointer to TileID
     const TileHWID* m_tileHWID; //!< Pointer to TileHWID
 
-    ToolHandle<TileCondToolEmscale> m_tileToolEmscale; //!< main Tile Calibration tool
-    ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample; //!< tool which provided noise values
+    ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
+        "TileCondToolEmscale", "TileCondToolEmscale", "Tile EM scale calibration tool"};
+
+    ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample{this,
+        "TileCondToolNoiseSample", "TileCondToolNoiseSample", "Tile noise sample tool"};
+
     ToolHandle<ICalorimeterNoiseTool> m_noiseTool;       //!< Calo Noise tool
-    ToolHandle<ITileBadChanTool> m_tileBadChanTool;   //!< Tile Bad Channel tool
+
+    ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
+        "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
 
     // properties
     float m_truncationThresholdOnAbsEinSigma;
