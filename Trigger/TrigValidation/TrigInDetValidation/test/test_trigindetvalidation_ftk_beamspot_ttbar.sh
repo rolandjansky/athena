@@ -9,7 +9,7 @@
 # art-output: cost-perEvent
 # art-output: cost-perCall-chain
 # art-output: cost-perEvent-chain
-# art-input:  mc16_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e5602_s3126_d1455_d1457
+# art-input:  mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.digit.RDO_FTK.e6337_e5984_s3126_d1480_d1471
 # art-output: *.dat 
 # art-output: *.root
 # art-output: *.log
