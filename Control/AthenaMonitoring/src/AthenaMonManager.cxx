@@ -492,35 +492,21 @@ initialize()
     if( root_backend_for_lwhists != LWHistControls::hasROOTBackend() )
         LWHistControls::setROOTBackend(root_backend_for_lwhists);
 
-//    if( m_monTools.size() > 0 ) {
-//       sc = m_monTools.retrieve();
-//       if( !sc.isSuccess() ) {
-//          msg(MSG::ERROR) << "!! Unable to retrieve monitoring tool " << m_monTools << endmsg;
-//          return sc;
-//       }
-//       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  --> Retrieved AthenaMonTools" << endmsg;
-//    }
+    if( m_monTools.size() > 0 ) {
+      sc = m_monTools.retrieve();
+      if( !sc.isSuccess() ) {
+	msg(MSG::ERROR) << "!! Unable to retrieve monitoring tool " << m_monTools << endmsg;
+	return sc;
+      }
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  --> Retrieved AthenaMonTools" << endmsg;
+    }
 
     m_d->m_eventCounter = m_d->m_everyNevents;
 
     ToolHandleArray<IMonitorToolBase>::iterator monToolsEnd = m_monTools.end();
     for( ToolHandleArray<IMonitorToolBase>::iterator i = m_monTools.begin(); i != monToolsEnd; ++i ) {
         ToolHandle<IMonitorToolBase>& tool = *i;
-        m_d->toolAudStart(tool);
         AthMonBench bench_tmp;
-        if (m_d->m_doResourceMon)
-            bench_tmp.startMeasurement();
-        StatusCode sc_toolret = tool.retrieve();
-        if (m_d->m_doResourceMon)
-            bench_tmp.finishMeasurement();
-        m_d->toolAudEnd();
-        if( sc_toolret.isFailure() ) {
-            msg(MSG::ERROR) << "Failed to retrieve monitoring tool " << tool << endmsg;
-            return StatusCode::FAILURE;
-        }
-        else {
-            msg(MSG::INFO) << "Retrieved tool " << tool << endmsg;
-        }
         IMonitorToolBase* mon = tool.operator->();
         ManagedMonitorToolBase* managed = dynamic_cast<ManagedMonitorToolBase*>( mon );
         if( managed != 0 ) {

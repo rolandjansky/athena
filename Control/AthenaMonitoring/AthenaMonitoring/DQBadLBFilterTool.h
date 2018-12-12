@@ -8,6 +8,8 @@
 #include "AthenaMonitoring/IDQFilterTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/StatusCode.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "AthenaPoolUtilities/AthenaAttributeList.h"
 
 #include <string>
 #include <vector>
@@ -25,17 +27,10 @@ class DQBadLBFilterTool :  public AthAlgTool, virtual public IDQFilterTool   {
         
   virtual bool accept() const override;
 
-  virtual StatusCode updateCache();
-
-  StatusCode callback( IOVSVC_CALLBACK_ARGS );
-
  private:
   bool m_fallbackValue;
-  bool m_ignoreRecoverable;
   bool m_alwaysReturnTrue;
-  bool m_valueCache;
-  std::vector<int> m_listofdefects;
-  std::vector<std::string> m_listofdefects_str;
+  SG::ReadCondHandleKey<AthenaAttributeList> m_key;
 };
 
 #endif //DQATLASREADYFILTERTOOL_H

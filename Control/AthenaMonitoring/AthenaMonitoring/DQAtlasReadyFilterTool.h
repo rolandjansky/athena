@@ -8,6 +8,8 @@
 #include "AthenaMonitoring/IDQFilterTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/StatusCode.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 // This filter tool rejects events where the ATLAS READY flag is not set
 // @author Peter Onyisi <ponyisi@cern.ch>
@@ -22,14 +24,11 @@ class DQAtlasReadyFilterTool :  public AthAlgTool, virtual public IDQFilterTool 
         
   virtual bool accept() const override;
 
-  virtual StatusCode updateCache();
-
-  StatusCode callback( IOVSVC_CALLBACK_ARGS );
-
  private:
   bool m_fallbackValue;
   bool m_alwaysReturnTrue;
   bool m_valueCache;
+  SG::ReadCondHandleKey<AthenaAttributeList> m_key;
 };
 
 #endif //DQATLASREADYFILTERTOOL_H

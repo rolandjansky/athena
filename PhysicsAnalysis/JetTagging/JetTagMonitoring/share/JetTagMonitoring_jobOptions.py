@@ -19,12 +19,12 @@ jetTagMonTool = JetTagMonitoring (
     )
 # remove events with non-collision BCIDs from your monitoring tools 
 # see https://indico.cern.ch/getFile.py/access?contribId=1&resId=1&materialId=slides&confId=135968
-jetTagMonTool.FilterTools += [ monFilledBunchFilterTool ]
+from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
+jetTagMonTool.FilterTools += [ GetFilledBunchFilterTool() ]
 
 # remove events with intolerable LAr defects
 from AthenaMonitoring.BadLBFilterTool import GetLArBadLBFilterTool
-monbadlb = GetLArBadLBFilterTool()
-jetTagMonTool.FilterTools += [ monbadlb ] 
+jetTagMonTool.FilterTools += [ GetLArBadLBFilterTool() ] 
 
 jetTagMonTool.OutputLevel = INFO
 jetTagMonTool.JetContainer = "AntiKt4EMTopoJets"

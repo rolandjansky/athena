@@ -14,7 +14,7 @@ from AthenaMonitoring.DQMonFlags import DQMonFlags
 from AthenaCommon.GlobalFlags  import globalflags
 
 from AthenaMonitoring.BadLBFilterTool import GetLArBadLBFilterTool
-include ("AthenaMonitoring/AtlasReadyFilterTool_jobOptions.py")
+from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
 
 from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 theCaloNoiseTool=CaloNoiseToolDefault()
@@ -48,7 +48,7 @@ LArCellMon = LArCellMonTool(
 
     BadLBTool = GetLArBadLBFilterTool(),
 
-    ReadyFilterTool = monAtlasReadyFilterTool,
+    ReadyFilterTool = GetAtlasReadyFilterTool(),
 
     useElectronicNoiseOnly = False,
     #useTwoGaus = True, Tile-only
@@ -164,7 +164,9 @@ LArCellMon = LArCellMonTool(
 #Tile monitoring:
 from CaloMonitoring.CaloMonitoringConf import TileCalCellMonTool
 TileCalCellMon=TileCalCellMonTool("TileCalCellMon",
-                             CaloNoiseTool=theCaloNoiseTool
+                             CaloNoiseTool=theCaloNoiseTool,
+                                  BadLBTool = GetLArBadLBFilterTool(),
+                                  ReadyFilterTool = GetAtlasReadyFilterTool(),
                             )
 
 

@@ -34,8 +34,8 @@ if DQMonFlags.doMonitoring():
          from LumiBlockComps.TrigLivefractionToolDefault import TrigLivefractionToolDefault 
          ToolSvc+=TrigLivefractionToolDefault()
 
-   include("AthenaMonitoring/AtlasReadyFilterTool_jobOptions.py")
-   include("AthenaMonitoring/FilledBunchFilterTool_jobOptions.py")
+   from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
+   from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
 
    #---------------------------#
    # Inner detector monitoring #
@@ -247,9 +247,6 @@ if DQMonFlags.doMonitoring():
    #--------------------------#
    # Post-setup configuration #
    #--------------------------#
-   if rec.triggerStream()=='express':
-      include("AthenaMonitoring/AtlasReadyFilterTool_jobOptions.py")
-
    local_logger.debug('DQ Post-Setup Configuration')
 
    # now the DQ tools are private, extract them from the set of monitoring algorithms
@@ -273,7 +270,7 @@ if DQMonFlags.doMonitoring():
          local_logger.debug('Setting up filters for tool %s', tool)
          if rec.triggerStream()=='express':
             local_logger.info('Stream is express and we will add ready tool for %s', tool)
-            tool.FilterTools += [monAtlasReadyFilterTool]
+            tool.FilterTools += [GetAtlasReadyFilterTool()]
          # give all the tools the trigger translator
          if DQMonFlags.useTrigger():
             tool.TrigDecisionTool = monTrigDecTool

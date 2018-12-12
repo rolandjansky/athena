@@ -13,8 +13,8 @@ CaloMonToolBase::CaloMonToolBase(const std::string& type, const std::string& nam
    m_lb(0),
    m_passBeamBackgroundRemoval(false),
    m_h_EvtRejSumm(nullptr),
-   m_BadLBTool("DQBadLBFilterTool"),
-   m_ReadyFilterTool("DQAtlasReadyFilterTool")
+   m_BadLBTool(this, "DQBadLBFilterTool"),
+   m_ReadyFilterTool(this, "DQAtlasReadyFilterTool")
  {
   declareProperty("useBadLBTool", m_useBadLBTool=false);
   declareProperty("BadLBTool", m_BadLBTool);
