@@ -17,6 +17,7 @@
 #include "BoostedJetTaggers/JSSWTopTaggerDNN.h"
 #include "BoostedJetTaggers/TopoclusterTopTagger.h"
 #include "BoostedJetTaggers/JetQGTagger.h"
+#include "BoostedJetTaggers/JetQGTaggerBDT.h"
 #include "BoostedJetTaggers/HbbTaggerDNN.h"
 
 #endif // BOOSTEDJETTAGGERS_BOOSTEDJETTAGGERSDICT_H

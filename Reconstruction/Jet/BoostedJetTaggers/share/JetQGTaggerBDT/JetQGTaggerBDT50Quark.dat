@@ -1,0 +1,7 @@
+
+
+CalibArea: BoostedJetTaggers/JetQGTaggerBDT/Oct18/
+
+TMVAConfigFile: TMVAClassification_BDTQGTagger_Oct18_BDT.weights.xml
+
+ScoreCut: -0.14
