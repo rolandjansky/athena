@@ -211,8 +211,6 @@ StatusCode TrigBjetEtHypoAlgMT::retrieveJetsFromEventView( const EventContext& c
   std::unique_ptr< xAOD::JetAuxContainer > outputAux( new xAOD::JetAuxContainer() );
   output->setStore( outputAux.release() );
 
-  std::map< const TrigRoiDescriptor*,int > mapRoIs;
-
   for ( auto previousDecision: *prevDecisionHandle ) {
     //get RoI
     auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
@@ -220,10 +218,6 @@ StatusCode TrigBjetEtHypoAlgMT::retrieveJetsFromEventView( const EventContext& c
     const TrigRoiDescriptor* roi = *roiEL;
     ATH_MSG_DEBUG( "Retrieved RoI from previous decision " );
     ATH_MSG_DEBUG( "   ** eta=" << roi->eta() <<" phi="<< roi->phi() );
-
-    // Check the jet has not been already retrieved  
-    if ( mapRoIs.find( roi ) != mapRoIs.end() ) continue;
-    mapRoIs[ roi ] = 1;
 
     // get View
     auto viewEL = previousDecision->objectLink< ViewContainer >( "view" );
