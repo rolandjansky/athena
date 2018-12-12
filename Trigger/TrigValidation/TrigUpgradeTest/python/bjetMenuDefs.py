@@ -125,8 +125,7 @@ def bJetStep1SequenceALLTE():
 
     # input maker
     from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-    InputMakerAlg = InputMakerForRoI("JetInputMaker",OutputLevel=INFO)
-    InputMakerAlg.LinkName="initialRoI"
+    InputMakerAlg = InputMakerForRoI("JetInputMaker",OutputLevel=INFO, RoIsLink="initialRoI")
     InputMakerAlg.RoIs='FSJETRoI'
 
     # Construct jets
