@@ -9,6 +9,7 @@ atlas_subdir( CaloInterface )
 atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloEvent
                           Calorimeter/CaloIdentifier
+                          Calorimeter/CaloConditions
                           Control/AthenaKernel
                           DetectorDescription/Identifier
                           Event/xAOD/xAODCaloEvent
@@ -22,7 +23,7 @@ atlas_add_dictionary( CaloInterfaceDict
                       CaloInterface/CaloInterfaceDict.h
                       CaloInterface/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent CaloIdentifier AthenaKernel Identifier xAODCaloEvent GaudiKernel )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent CaloIdentifier CaloConditions AthenaKernel Identifier xAODCaloEvent GaudiKernel )
 
 # Install files from the package:
 atlas_install_headers( CaloInterface )

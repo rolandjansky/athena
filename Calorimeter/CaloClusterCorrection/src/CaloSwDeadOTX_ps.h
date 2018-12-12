@@ -15,6 +15,7 @@ PACKAGE:  offline/Calorimeter/CaloClusterCorrection
 #include "CaloInterface/ICaloAffectedTool.h"
 #include "CaloClusterCorrection/CaloClusterCorrectionCommon.h"
 #include "CaloConditions/Array.h"
+#include "CaloConditions/CaloAffectedRegionInfoVec.h"
 
 class CaloSwDeadOTX_ps : public CaloClusterCorrectionCommon
 {
@@ -57,8 +58,9 @@ public:
 
  private:
 
-  //  std::string m_affectedTool;
-  ToolHandle<ICaloAffectedTool> m_affectedTool;
+  SG::ReadCondHandleKey<CaloAffectedRegionInfoVec> m_affKey{this,
+     "LArAffectedRegionKey", "LArAffectedRegionInfo", "SG key for affected regions cond object"};
+  ToolHandle<ICaloAffectedTool> m_affectedTool{this, "AffectedTool", "CaloAffectedTool", "affected tool instance"};
   
   CaloRec::Array<3>     m_correction;
   CaloRec::Array<2>     m_sampling_depth;

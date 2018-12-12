@@ -57,7 +57,7 @@ if 'LArDigitKey'  in dir() :
 if jobproperties.Beam.beamType() == 'cosmics':
     if larESDMon and not athenaCommonFlags.isOnline():
         if LArMonFlags.doLArAffectedRegions():
-            include ("LArAffectedRegion/LArAffectedRegion_read.py")
+            include ("LArRecUtils/LArAffectedRegion.py")
             include ("LArMonTools/LArAffectedRegions_jobOptions.py")
     if larRawMon:
             if jobproperties.Global.DataSource.get_Value() == 'data':
@@ -84,7 +84,7 @@ if jobproperties.Beam.beamType() == 'cosmics':
 elif jobproperties.Beam.beamType() == 'singlebeam':
     if larESDMon and not athenaCommonFlags.isOnline():
         if LArMonFlags.doLArAffectedRegions():
-            include ("LArAffectedRegion/LArAffectedRegion_read.py")
+            include ("LArRecUtils/LArAffectedRegion.py")
             include ("LArMonTools/LArAffectedRegions_jobOptions.py")
     if larRawMon:
             if jobproperties.Global.DataSource.get_Value() == 'data':
@@ -108,7 +108,7 @@ elif jobproperties.Beam.beamType() == 'singlebeam':
 else:  # should be jobproperties.Beam.beamType() =='collisions'
     if larESDMon and not athenaCommonFlags.isOnline():
         if LArMonFlags.doLArAffectedRegions():
-            include ("LArAffectedRegion/LArAffectedRegion_read.py")
+            include ("LArRecUtils/LArAffectedRegion.py")
             include ("LArMonTools/LArAffectedRegions_jobOptions.py")
     if larRawMon:
             if jobproperties.Global.DataSource.get_Value() == 'data':

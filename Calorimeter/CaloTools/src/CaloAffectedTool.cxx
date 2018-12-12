@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTools/CaloAffectedTool.h" 
-//#include "EventKernel/I4Momentum.h"
 #include "xAODBase/IParticle.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "CaloConditions/CaloAffectedRegionInfoVec.h"
@@ -14,145 +13,37 @@
 CaloAffectedTool::CaloAffectedTool (const std::string& type, 
 				  const std::string& name, 
 				  const IInterface* parent) :
-    AthAlgTool(type, name, parent),
-    m_read(false),
-    m_readRaw(true)
+    AthAlgTool(type, name, parent)
 { 
-  m_affectedRegions=nullptr;
   declareInterface<ICaloAffectedTool>(this);
-  declareProperty("readRaw",m_readRaw);
 }
                                                                                 
 //-----------------------------------------------------------------
 
 CaloAffectedTool::~CaloAffectedTool() {
-  if (m_affectedRegions && !m_readRaw) delete m_affectedRegions;
 }
 
 
 //-------------------------------------------------------------------
 
 StatusCode CaloAffectedTool::initialize() {
-
-  if (!m_readRaw) {
-   if (detStore()->contains<CondAttrListCollection>("/LAR/LArAffectedRegionInfo")) {
-      const DataHandle<CondAttrListCollection> affectedRegionH;
-      if (detStore()->regFcn(&CaloAffectedTool::updateAffectedRegionsFromDB,
-                          this,
-                          affectedRegionH,
-                          "/LAR/LArAffectedRegionInfo").isSuccess()) {
-        ATH_MSG_DEBUG( "Registered callback for  LArAffectedRegion "  );
-      }
-        else {
-          ATH_MSG_WARNING( "Cannot register callback for LArAffectedRegion "  );
-      }
-   }
-    else {  
-      ATH_MSG_WARNING( " no LArAffectedRegion information available from metadata "  );
-   }
-  }
-  else {
-    // register incident handler for begin event
-    IIncidentSvc* incSvc = nullptr; 
-    ATH_CHECK( service( "IncidentSvc", incSvc ) );
-    long int priority=100;
-    incSvc->addListener(this,"BeginEvent",priority);
-
-  }
-
-  m_read=false;
   return StatusCode::SUCCESS;
 }
 
 //---------------------------------------------------------
 
-void CaloAffectedTool::handle(const Incident& inc) {
 
-  if (inc.type()!="BeginEvent")
-    return; 
-
-  if (detStore()->contains<CaloAffectedRegionInfoVec>("LArAffectedRegion")) {
-     if (detStore()->retrieve(m_affectedRegions,"LArAffectedRegion").isFailure()) {
-       ATH_MSG_WARNING( " cannot read LArAffectedRegion at begin of event "  );
-       return;
-     }
-     m_read=true;
-     //std::cout << " got affected regions at beginning of event " << std::endl;
-     return;
-  }
-  return;
-
-}
-
-
-//--------------------------------------------------
-
-StatusCode CaloAffectedTool::updateAffectedRegionsFromDB(IOVSVC_CALLBACK_ARGS) {
-
-  return this->readDB();
-}
-
-StatusCode  CaloAffectedTool::readDB() {
-
-  ATH_MSG_INFO( "updateAffectedRegionsFromDB()"  );
-
-  // retrieve from detStore
-  const CondAttrListCollection* attrListColl = nullptr;
-  StatusCode sc = detStore()->retrieve(attrListColl, "/LAR/LArAffectedRegionInfo");
-  if (sc.isFailure()) {
-    ATH_MSG_WARNING( "attrrListColl not found for /LAR/CaloAffectedRegionInfo "  );
-     return StatusCode::SUCCESS;
-  }
-
-  if (m_affectedRegions) {
-     m_affectedRegions->clear();
-  }
-  else  {
-     m_affectedRegions =  new CaloAffectedRegionInfoVec();
-  }
-
-  // Loop over collection
-  CondAttrListCollection::const_iterator first = attrListColl->begin();
-  CondAttrListCollection::const_iterator last  = attrListColl->end();
-  for (; first != last; ++first) {
-      std::ostringstream attrStr1;
-      (*first).second.toOutputStream( attrStr1 );
-      ATH_MSG_DEBUG( "ChanNum " << (*first).first <<
-                     " Attribute list " << attrStr1.str()  );
-      //      const AttributeList& attrList = (*first).second;
-      const coral::AttributeList& attrList = (*first).second;
-      CaloAffectedRegionInfo info;
-      float eta_min = attrList["eta_min"].data<float>();
-      float eta_max = attrList["eta_max"].data<float>();
-      float phi_min = attrList["phi_min"].data<float>();
-      float phi_max = attrList["phi_max"].data<float>();
-      int layer_min = attrList["layer_min"].data<int>();
-      int layer_max = attrList["layer_max"].data<int>();
-      //std::cout << " affected region found " << eta_min << " " << eta_max << " " << phi_min << " " << phi_max << " " << layer_min << " " << layer_max << " " << attrList["problem"].data<int>() << std::endl;
-      CaloAffectedRegionInfo::type_problem problem = (CaloAffectedRegionInfo::type_problem)(attrList["problem"].data<int>());
-
-      info.FillCaloAffectedRegionInfo(eta_min,eta_max,phi_min,phi_max,layer_min,layer_max,problem);
-      m_affectedRegions->push_back(info);
-  }
-
-  m_read = true;
-  return StatusCode::SUCCESS;
-
-}
-
-//-------------------------------------------------
-
-bool CaloAffectedTool::isAffected(const xAOD::IParticle *p, float deta, float dphi, int layer_min, int layer_max, int problemType) const
+bool CaloAffectedTool::isAffected(const xAOD::IParticle *p, const CaloAffectedRegionInfoVec *vAff, float deta, float dphi, int layer_min, int layer_max, int problemType) const
 {
+
+   if(!vAff) return false;
 
  static float epsilon=1e-6;
 
   //std::cout << " in isAffected " << p->eta() << " " << p->phi() << std::endl;
-  if (!m_read) return false;
-  if (!m_affectedRegions) return false;
 
-  std::vector<CaloAffectedRegionInfo>::const_iterator reg1 = m_affectedRegions->begin();
-  std::vector<CaloAffectedRegionInfo>::const_iterator reg2 = m_affectedRegions->end();
+  std::vector<CaloAffectedRegionInfo>::const_iterator reg1 = vAff->begin();
+  std::vector<CaloAffectedRegionInfo>::const_iterator reg2 = vAff->end();
   for (;reg1 != reg2; ++reg1) {
     const CaloAffectedRegionInfo* region = &(*reg1);
 
@@ -194,8 +85,10 @@ bool CaloAffectedTool::isAffected(const xAOD::IParticle *p, float deta, float dp
 }
 //-------------------------------------------------
 
-bool CaloAffectedTool::listAffected(const xAOD::IParticle*p, std::vector<int>& layer_list, std::vector<int>& problem_list, float deta, float dphi, int problemType) const
+bool CaloAffectedTool::listAffected(const xAOD::IParticle*p, const CaloAffectedRegionInfoVec *vAff, std::vector<int>& layer_list, std::vector<int>& problem_list, float deta, float dphi, int problemType) const
 {
+
+  if(!vAff) return false;
 
   bool found = false;
 
@@ -204,11 +97,9 @@ bool CaloAffectedTool::listAffected(const xAOD::IParticle*p, std::vector<int>& l
   layer_list.clear();
   problem_list.clear();
 
-  if (!m_read) return false;
-  if (!m_affectedRegions) return false;
 
-  std::vector<CaloAffectedRegionInfo>::const_iterator reg1 = m_affectedRegions->begin();
-  std::vector<CaloAffectedRegionInfo>::const_iterator reg2 = m_affectedRegions->end();
+  std::vector<CaloAffectedRegionInfo>::const_iterator reg1 = vAff->begin();
+  std::vector<CaloAffectedRegionInfo>::const_iterator reg2 = vAff->end();
   for (;reg1 != reg2; ++reg1) {
     const CaloAffectedRegionInfo* region = &(*reg1);
 

@@ -291,12 +291,12 @@ if jobproperties.CaloRecFlags.doTileMuId() :
 
     
 #
-# information on Calo AffectedRegion, write metadata
+# information on Calo AffectedRegion, write conditions object
 #
 if DetFlags.dcs.LAr_on():
-    if jobproperties.CaloRecFlags.doLArAffectedRegion() and rec.doESD and (not rec.readESD):
+    if jobproperties.CaloRecFlags.doLArAffectedRegion():
         try:
-            include ("LArAffectedRegion/LArAffectedRegion_write.py")
+            include ("LArRecUtils/LArAffectedRegion.py")
         except Exception: 
             treatException("Could not setup LArAffectedRegion")
 

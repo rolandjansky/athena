@@ -59,14 +59,16 @@ class egammaOQFlagsBuilder : public egammaBaseTool
  private:
   /** Handle to bad-channel CDO */
   SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey{this,
-      "LArBadChannelKey","LArBadChannel","Key of the LArBadChannelCont CDO"};
+      "LArBadChannelKey", "LArBadChannel", "Key of the LArBadChannelCont CDO"};
   
+  SG::ReadCondHandleKey<CaloAffectedRegionInfoVec> m_affKey{this,
+      "LArAffectedRegionKey", "LArAffectedRegionInfo", "SG key for affected regions cond object"};
+
   ToolHandle<ICaloAffectedTool> m_affectedTool {this,
       "affectedTool", "CaloAffectedTool", "CaloAffectedTool"};
 
   const LArEM_ID* m_emHelper;
   const CaloCell_ID* m_calocellId;
-  const CaloAffectedRegionInfoVec* m_affRegVec;
 
   SG::ReadHandleKey<CaloCellContainer> m_cellsKey {this,
       "CellsName", "AllCalo","Names of container which contain cells"};

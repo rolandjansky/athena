@@ -32,8 +32,7 @@ CaloSwDeadOTX_ps::CaloSwDeadOTX_ps
   (const std::string& type,
    const std::string& name,
    const IInterface* parent)
-   : CaloClusterCorrectionCommon(type, name, parent) ,
-        m_affectedTool("CaloAffectedTool")
+   : CaloClusterCorrectionCommon(type, name, parent) 
 {
    declareConstant("correction"      , m_correction);
    declareConstant("sampling_depth"  , m_sampling_depth);
@@ -41,7 +40,6 @@ CaloSwDeadOTX_ps::CaloSwDeadOTX_ps
    declareConstant("eta_end_crack"   , m_eta_end_crack);
    declareConstant("etamax"          , m_etamax);
    declareConstant("use_raw_eta"     , m_use_raw_eta);
-   declareProperty("affectedTool"    , m_affectedTool); 
 }
 
 StatusCode CaloSwDeadOTX_ps::initialize()
@@ -52,6 +50,7 @@ StatusCode CaloSwDeadOTX_ps::initialize()
   // the template in AlgTool.
   //  CHECK( setProperty ("isDummy", std::string("1")) );
 
+  ATH_CHECK(m_affKey.initialize());
 
   ATH_MSG_DEBUG( " --------------->>>>> CaloSwDeadOTX_ps :: retrieving affectedTool" << endmsg);
 
@@ -66,7 +65,7 @@ StatusCode CaloSwDeadOTX_ps::initialize()
 }
 
 void CaloSwDeadOTX_ps::makeTheCorrection
-   (const EventContext& /*ctx*/,
+   (const EventContext& ctx,
     CaloCluster* cluster,
     const CaloDetDescrElement* /*elt*/,
     float eta,
@@ -79,6 +78,13 @@ void CaloSwDeadOTX_ps::makeTheCorrection
 // ??? In principle, we should use adj_eta for the interpolation
 //     and range checks.  However, the v2 corrections were derived
 //     using regular eta instead.
+
+   //Get affected info for this event
+   SG::ReadCondHandle<CaloAffectedRegionInfoVec> affHdl{m_affKey,ctx};
+   const CaloAffectedRegionInfoVec* affCont=*affHdl;
+   if(!affCont) {
+     ATH_MSG_WARNING("Do not have affected regions info, is this expected ?");
+   }
 
    float the_aeta;
    if (m_use_raw_eta)
@@ -129,10 +135,8 @@ void CaloSwDeadOTX_ps::makeTheCorrection
    float dphi = 0.025;     
 
    int layer = si * 4 ;
-   bool check = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,0) ; //  check dead OTX in barrel PS 
+   bool check = m_affectedTool->isAffected(cluster, affCont, deta , dphi ,layer,layer,0) ; //  check dead OTX in barrel PS 
 
-// bool checke = m_affectedTool->isAffected(cluster ,deta , dphi ,4,4,0) ; //  check dead OTX in endcap PS 
-// bool checkb = m_affectedTool->isAffected(cluster ,deta , dphi ,0,0,0) ; //  check dead OTX in barrel PS 
  
 // if a cluster is in an affected region set the PS energy to zero else return
 
