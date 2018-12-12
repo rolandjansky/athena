@@ -22,7 +22,7 @@
 // PACKAGE
 #include "ActsGeometry/ActsExtrapolationTool.h"
 #include "ActsInterop/Logger.h"
-#include "ActsGeometry/IActsMaterialTrackWriterSvc.h"
+//#include "ActsGeometry/IActsMaterialTrackWriterSvc.h"
 
 // OTHER
 #include "CLHEP/Random/RandomEngine.h"
@@ -36,8 +36,8 @@ ActsExtrapolationAlg::ActsExtrapolationAlg(const std::string& name,
                                  ISvcLocator* pSvcLocator)
     : AthReentrantAlgorithm(name, pSvcLocator),
       m_propStepWriterSvc("ActsPropStepRootWriterSvc", name),
-      m_rndmGenSvc("AthRNGSvc", name),
-      m_materialTrackWriterSvc("ActsMaterialTrackWriterSvc", name)
+      m_rndmGenSvc("AthRNGSvc", name)//,
+      //m_materialTrackWriterSvc("ActsMaterialTrackWriterSvc", name)
 {
 }
 
@@ -49,9 +49,9 @@ StatusCode ActsExtrapolationAlg::initialize() {
   ATH_CHECK( m_extrapolationTool.retrieve() );
   ATH_CHECK( m_propStepWriterSvc.retrieve() );
 
-  if (m_writeMaterialTracks) {
-    ATH_CHECK( m_materialTrackWriterSvc.retrieve() );
-  }
+  //if (m_writeMaterialTracks) {
+    //ATH_CHECK( m_materialTrackWriterSvc.retrieve() );
+  //}
 
   m_objOut = std::make_unique<std::ofstream>("steps.obj");
 

@@ -38,7 +38,7 @@ namespace Acts {
   }
 }
 
-class IActsMaterialTrackWriterSvc;
+//class IActsMaterialTrackWriterSvc;
 
 template<typename>
 class RootExCellWriter;
@@ -69,7 +69,7 @@ private:
 
   // this does not work right now
   Gaudi::Property<bool> m_writeMaterialTracks{this, "WriteMaterialTracks", false, ""};
-  ServiceHandle<IActsMaterialTrackWriterSvc> m_materialTrackWriterSvc;
+  //ServiceHandle<IActsMaterialTrackWriterSvc> m_materialTrackWriterSvc;
   
   mutable std::mutex m_writeMutex{};
   mutable std::unique_ptr<std::ofstream> m_objOut;

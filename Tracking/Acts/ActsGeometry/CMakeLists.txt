@@ -51,7 +51,7 @@ atlas_add_component( ActsGeometry
                      src/ActsExtrapolationTool.cxx
                      src/ActsObjWriterTool.cxx
                      #src/ActsExCellWriterSvc.cxx
-                     src/ActsMaterialTrackWriterSvc.cxx
+                     #src/ActsMaterialTrackWriterSvc.cxx
                      #src/GeomShiftCondAlg.cxx
                      src/NominalAlignmentCondAlg.cxx
                      src/ActsTrackingGeometryTool.cxx
