@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_ITILECONDPROXY_H
@@ -25,8 +25,6 @@ class ITileCondProxy : virtual public IAlgTool {
       static const InterfaceID IID_ITileCondProxy("ITileCondProxy", 1 , 0);
       return IID_ITileCondProxy;
     }
-
-    virtual const T* getCalibDrawer(unsigned int drawerIdx) const = 0;
 
    /**
     * @brief Fill TileCalibData with Tile conditions data from source (file, DB)

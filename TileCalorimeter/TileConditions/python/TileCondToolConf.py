@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 #file: TileCondToolConf.py
 #author: nils.gollub@cern.ch
@@ -474,44 +474,6 @@ def getTileBadChanTool(source = 'FILE', name = 'TileBadChanTool', **kwargs):
     #=== set the arguments passed and return tool
     for n,v in kwargs.items():
         setattr(tool, n, v)
-    return tool
-
-
-#
-#____________________________________________________________________________
-def getTileBadChanLegacyTool(source = 'FILE', name = 'TileBadChanLegacyTool', **kwargs):
-
-    if not source in validSources: raise(Exception("Invalid source: %s"%source))
-    from TileConditions.TileConditionsConf import TileBadChanLegacyTool
-
-    #do some check for global flag here: if source='' and flag set, adopt flag
-
-    tool = None
-    if source=='COOL':
-        #====================================================
-        #=== Connect COOL TileCondProxies to the tool
-        #====================================================
-        if isOnline and isUsedDataBaseRun2: oflBchProxy = None
-        else: oflBchProxy = getTileCondProxy('COOL','Bch','oflStatAdc','TileCondProxyCool_OflBch')
-
-        tool = TileBadChanLegacyTool(name
-                                     , ProxyOnlBch = getTileCondProxy('COOL','Bch','onlStatAdc','TileCondProxyCool_OnlBch')
-                                     , ProxyOflBch = oflBchProxy)
-
-
-    else:
-        #========================================================
-        #=== Connect FILE TileCondProxies to the tool (default)
-        #========================================================
-        tool = TileBadChanLegacyTool(name
-                                     , ProxyOnlBch = getTileCondProxy('FILE','Bch','TileDefault.onlBch','TileCondProxyFile_OnlBch')
-                                     , ProxyOflBch = getTileCondProxy('FILE','Bch','TileDefault.oflBch','TileCondProxyFile_OflBch'))
-
-
-    #=== set the arguments passed and return tool
-    for n,v in kwargs.items():
-        setattr(tool, n, v)
-
     return tool
 
 #

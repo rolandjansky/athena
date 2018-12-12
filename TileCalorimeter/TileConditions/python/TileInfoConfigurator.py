@@ -84,10 +84,6 @@ class _TileInfoConfigurator( TileInfoLoader ):
         from .TileCondToolConf import getTileBadChanTool
         ToolSvc += getTileBadChanTool('COOL')
 
-        self._msg.info("Changing default TileBadChanLegacyTool configuration to COOL source")
-        from .TileCondToolConf import getTileBadChanLegacyTool
-        ToolSvc += getTileBadChanLegacyTool('COOL')
-
         self._msg.info("Changing default TileCondToolEmscale configuration to COOL source")
         from .TileCondToolConf import getTileCondToolEmscale
         ToolSvc += getTileCondToolEmscale('COOL')

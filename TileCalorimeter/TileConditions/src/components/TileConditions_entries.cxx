@@ -6,7 +6,6 @@
 #include "TileConditions/TileCablingSvc.h"
 #include "TileConditions/TileCondIdTransforms.h"
 #include "TileConditions/TileBadChanTool.h"
-#include "TileConditions/TileBadChanLegacyTool.h"
 #include "TileConditions/TileCondToolOfc.h"
 #include "TileConditions/TileCondToolOfcCool.h"
 #include "TileConditions/TileCellNoiseTool.h"
@@ -35,7 +34,6 @@ DECLARE_COMPONENT( TileCablingSvc )
 DECLARE_COMPONENT( TileDCSSvc )
 DECLARE_COMPONENT( TileCondIdTransforms )
 DECLARE_COMPONENT( TileBadChanTool )
-DECLARE_COMPONENT( TileBadChanLegacyTool )
 DECLARE_COMPONENT( TileCondToolOfc )
 DECLARE_COMPONENT( TileCondToolOfcCool )
 DECLARE_COMPONENT( TileCellNoiseTool )
