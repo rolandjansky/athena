@@ -45,7 +45,7 @@ if 'coherent_noise_calibration_run' in dir():
         theLArNoiseCorrelationMon.TriggerChain=""
         theLArNoiseCorrelationMon.TrigDecisionTool=""
         pass
-pass                
+    pass                
 
 if 'coherent_noise_PublishPartialSums' in dir():
     theLArNoiseCorrelationMon.PublishPartialSums = coherent_noise_PublishPartialSums
