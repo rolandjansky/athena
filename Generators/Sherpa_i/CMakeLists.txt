@@ -37,3 +37,5 @@ atlas_add_component( Sherpa_i
    GaudiKernel GeneratorModulesLib TruthUtils AthenaBaseComps AthenaKernel )
 
 add_definitions(-DSHERPA_ROOT="${SHERPA_ROOT}")
+
+atlas_install_joboptions( share/common/*.py )
