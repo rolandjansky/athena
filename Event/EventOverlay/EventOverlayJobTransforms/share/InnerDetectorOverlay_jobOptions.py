@@ -62,7 +62,7 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
 
         job += CfgGetter.getAlgorithm("TRT_OverlayDigitization")
         job += CfgGetter.getAlgorithm("TRTOverlay")
-        job.TRTOverlay.TRT_LocalOccupancy  = TRT_LocalOccupancy
+        job.TRTOverlay.TRT_LocalOccupancyTool  = TRT_LocalOccupancy
         
         from InDetRecExample.InDetJobProperties import InDetFlags
         include("InDetRecExample/InDetRecConditionsAccess.py")
