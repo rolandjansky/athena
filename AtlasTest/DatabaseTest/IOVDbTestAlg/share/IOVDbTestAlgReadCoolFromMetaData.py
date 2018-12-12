@@ -6,9 +6,6 @@
 ## basic job configuration
 import AthenaCommon.AtlasUnixStandardJob
 
-# Set handler for traceback
-gbl.AthenaServices.SetFatalHandler(438)
-
 ## get a handle on the default top-level algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
@@ -30,6 +27,9 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
 ## get a handle on the ToolSvc
 from AthenaCommon.AppMgr import ToolSvc
+
+# Set handler for traceback
+svcMgr.CoreDumpSvc.FatalHandler = 438
 
 #svcMgr.EventSelector.InputCollections = [ "SimplePoolFile1.root" ]
 svcMgr.EventSelector.InputCollections = [ "SimpleEventPoolFile.root" ]
