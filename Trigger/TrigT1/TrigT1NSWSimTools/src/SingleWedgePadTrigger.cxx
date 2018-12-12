@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1NSWSimTools/SingleWedgePadTrigger.h"
@@ -7,13 +7,9 @@
 #include "TrigT1NSWSimTools/tdr_compat_enum.h"
 #include <algorithm>
 #include <cassert>
-#include <cmath>
-#include <iostream>
 #include <sstream>
 
 namespace NSWL1{
-
-    //using SingleWedgePadTrigger=SingleWedgePadTrigger;
 
     bool sortByLayer(const PadWithHits &p0, const PadWithHits& p1) {
         return p0.layer<p1.layer;
@@ -39,7 +35,7 @@ namespace NSWL1{
         size_t nPads(pads.size());
         bool haveEnoughPads(nPads>2);
         if(not haveEnoughPads)
-        std::cerr<<"SingleWedgePadTrigger::halfPadCoordinates: need at least 3 pads"<<std::endl;
+	  ATH_MSG_ERROR("SingleWedgePadTrigger::halfPadCoordinates: need at least 3 pads");
         assert(haveEnoughPads);
         
         const PadWithHits &pad0=pads[0], &pad1=pads[1], &pad2=pads[2];
@@ -116,7 +112,7 @@ namespace NSWL1{
         size_t nPads(pads.size());
         bool haveEnoughPads(nPads>2);
         if(not haveEnoughPads){
-            std::cerr<<"SingleWedgePadTrigger::halfPadCoordinates: need at least 3 pads"<<std::endl;
+	  std::cerr<<"SingleWedgePadTrigger::halfPadCoordinates: need at least 3 pads"<<std::endl;
         }
         assert(haveEnoughPads);
         const PadWithHits &pad0=pads[0], &pad1=pads[1], &pad2=pads[2];
@@ -127,7 +123,6 @@ namespace NSWL1{
         bool hasL2L3(l0==STGC_LAYER_2 && l1==STGC_LAYER_3);
         bool validLayerCombination(hasL1L2 || hasL1L4 || hasL2L3);
         //S.I if buggy combination so ??
-        //if(!validLayerCombination) cout<<"buggy layer combination? layers: "<<l0<<","<<l1<<","<<l2<<endl;
         assert(validLayerCombination); // probably got a pattern we don't know how to interpret
         (void) validLayerCombination;//not o.k
         
@@ -177,14 +172,12 @@ namespace NSWL1{
     bool SingleWedgePadTrigger::areInnerOuterConsistent(const EtaPhiHalf &inner, const EtaPhiHalf &outer, bool verbose) {
         // ASM-2016-10-4 : Figure out the logic behind this, the staggering changed now relaxing this a bit
         //S.I : Relaxing?  what is "this"?
-        //  bool mismatchEta(outer.ieta < inner.ieta || outer.ieta > inner.ieta + 1);
-        //  bool mismatchPhi(outer.iphi < inner.iphi || outer.iphi > inner.iphi + 1);
         bool mismatchEta(outer.ieta < inner.ieta - 4 || outer.ieta > inner.ieta + 4);
         bool mismatchPhi(outer.iphi < inner.iphi - 4 || outer.iphi > inner.iphi + 4);
         bool mismatch(mismatchEta || mismatchPhi);
         //S.I a remnant of verbose plague... will cleanup later
         (void) verbose;
-        //
+
         return !mismatch;
     }
 

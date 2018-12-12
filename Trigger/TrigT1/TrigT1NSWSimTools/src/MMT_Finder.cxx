@@ -1,32 +1,30 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1NSWSimTools/MMT_Finder.h"
 
-MMT_Finder::MMT_Finder(MMT_Parameters *par, int nUVRoads, int outputLevel){
+MMT_Finder::MMT_Finder(MMT_Parameters *par, int nUVRoads){
 
-  m_msg.get().setLevel(outputLevel);
-
-  msg(MSG::DEBUG) << "MMT_Finder::building finder" << endmsg;
+  ATH_MSG_DEBUG("MMT_Finder::building finder");
 
   m_par = par;
   m_nUVRoads = nUVRoads;
 
-  m_nRoads = ceil(  ( ( m_par->slope_max - m_par->slope_min ) / m_par->h.getFixed()  ).getFixed()  ); //initialization, can use floats
+  m_nRoads = ceil(  ( ( m_par->m_slope_max - m_par->m_slope_min ) / m_par->m_h.getFixed()  ).getFixed()  ); //initialization, can use floats
 
   if(m_nUVRoads>1){
     m_nRoads *= m_nUVRoads; // This should probably be configurable and dynamic based on the geometry of the chamber
   }
 
-  int nplanes=m_par->setup.size();
+  int nplanes=m_par->m_setup.size();
 
-  msg(MSG::DEBUG) << "MMT_Find::finder entries " << m_nRoads << " " << m_par->slope_max.getFixed() << " " << m_par->slope_min.getFixed() << " " << m_par->h.getFixed() << endmsg;
+  ATH_MSG_DEBUG("MMT_Find::finder entries " << m_nRoads << " " << m_par->m_slope_max.getFixed() << " " << m_par->m_slope_min.getFixed() << " " << m_par->m_h.getFixed());
 
   m_gateFlags = vector<vector<double> >(m_nRoads,(vector<double>(2,0)));// sloperoad,
   m_finder    = vector<vector<finder_entry> >(m_nRoads,(vector<finder_entry>(nplanes,finder_entry())));  //[strip,slope,hit_index];
 
-  msg(MSG::DEBUG) << "MMT_Find::built finder" << endmsg;
+  ATH_MSG_DEBUG("MMT_Find::built finder");
 
   return;
 
@@ -38,27 +36,27 @@ void MMT_Finder::fillHitBuffer( map< pair<int,int> , finder_entry > & hitBuffer,
 
   //Get initial parameters: tolerance, step size (h), slope of hit
   float32fixed<3> tol;
-  float32fixed<3> h=m_par->h.getFixed();
+  float32fixed<3> h=m_par->m_h.getFixed();
 
   //Conver hit to slope here
   float32fixed<3> slope=hit.info.slope.getFixed();
-  msg(MSG::DEBUG) << "SLOPE " << hit.info.slope.getFixed() << endmsg;
+  ATH_MSG_DEBUG("SLOPE " << hit.info.slope.getFixed());
 
   //Plane and key info of the hit
   int plane=hit.info.plane;
 
-  string plane_type=m_par->setup.substr(plane,1);
+  string plane_type=m_par->m_setup.substr(plane,1);
 
-  if(plane_type=="x") tol=m_par->x_error.getFixed();
-  else if(plane_type=="u"||plane_type=="v") tol=m_par->uv_error.getFixed();
+  if(plane_type=="x") tol=m_par->m_x_error.getFixed();
+  else if(plane_type=="u"||plane_type=="v") tol=m_par->m_uv_error.getFixed();
   else return;  //if it's an unsupported plane option, don't fill
 
 
   //---slope road boundaries based on hit_slope +/- tolerance---; if min or max is out of bounds, put it at the limit
   float32fixed<3> s_min = slope - tol, s_max = slope + tol;
 
-  int road_min = round( (  (s_min - m_par->slope_min)/h  ).getFixed() );
-  int road_max = round( (  (s_max - m_par->slope_min)/h  ).getFixed() );
+  int road_min = round( (  (s_min - m_par->m_slope_min)/h  ).getFixed() );
+  int road_max = round( (  (s_max - m_par->m_slope_min)/h  ).getFixed() );
 
   if( road_min < 0 ) road_min = 0 ;
   if( road_max >= (m_nRoads/m_nUVRoads) ){ road_max = (m_nRoads/m_nUVRoads) - 1 ; }
@@ -141,7 +139,7 @@ void MMT_Finder::checkBufferForHits(vector<bool>& plane_is_hit,
                                     ) const{
   //Loops through the buffer which should have entries = nplanes
   //Takes the hit and bool for each plane (if it exists)
-  int nplanes=m_par->setup.size();
+  int nplanes=m_par->m_setup.size();
 
   pair<int,int> key (road,0);
 
@@ -163,7 +161,7 @@ int MMT_Finder::Coincidence_Gate(const vector<bool>& plane_hits) const{
 
   //8 for eight detector planes
   if(plane_hits.size()!=8){
-    msg(MSG::DEBUG) << "Coincidence_Gate: Don't have 8 plane hit!" << endmsg;
+    ATH_MSG_DEBUG("Coincidence_Gate: Don't have 8 plane hit!");
   }
   //Might want to establish a heirarchy of gates
   //Eg, 4X+4UV > 3+3.   Also,
@@ -180,16 +178,16 @@ int MMT_Finder::Coincidence_Gate(const vector<bool>& plane_hits) const{
   for(unsigned int ip=0;ip<u_planes.size();ip++) U_count+=plane_hits[u_planes[ip]];
   for(unsigned int ip=0;ip<v_planes.size();ip++) V_count+=plane_hits[v_planes[ip]];
   int UV_count = U_count + V_count;
-  bool xpass=X_count>=m_par->CT_x,uvpass=UV_count>=m_par->CT_uv,fbpass=front&&back;
+  bool xpass=X_count>=m_par->m_CT_x,uvpass=UV_count>=m_par->m_CT_uv,fbpass=front&&back;
   value = 10*X_count+UV_count;
   if(!xpass||!uvpass){
     value*=-1;
-    if(value<-10) msg(MSG::DEBUG) << "Coincidence_Gate: hit count fail with value: "<<value<< endmsg;
+    if(value<-10) ATH_MSG_DEBUG("Coincidence_Gate: hit count fail with value: "<<value);
   }
   else if(!fbpass&&X_count+UV_count>0){
     if(value>0)value*=-1;
     value-=5;
-    msg(MSG::DEBUG) << "Coincidence_Gate: quadruplet fail with value: "<<value<< endmsg;
+    ATH_MSG_DEBUG("Coincidence_Gate: quadruplet fail with value: "<<value);
   }
   return value;
 }

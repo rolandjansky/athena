@@ -1,7 +1,7 @@
 //  -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef NSWL1_PADDATA_H
@@ -9,7 +9,6 @@
 
 #include "TrigT1NSWSimTools/TriggerTypes.h"
 #include "TrigT1NSWSimTools/GeoUtils.h"
-#include <ostream>
 #include <vector>
 
 
@@ -79,7 +78,5 @@ namespace NSWL1 {
 
 } // namespace NSWL1
 
-/// \todo
-// std::ostream& operator<<(std::ostream& stream, NSWL1::PadTrigger& pt);
 
 #endif

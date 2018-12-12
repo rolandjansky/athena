@@ -7,13 +7,14 @@
 
 
 #include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 #include "MMT_struct.h"
 
 
 class MMT_Finder{
  public:
-  MMT_Finder(MMT_Parameters *par, int nUVRoads = 1, int outputLevel = MSG::WARNING);
+  MMT_Finder(MMT_Parameters *par, int nUVRoads = 1);
   ~MMT_Finder(){}
   int Coincidence_Gate(const vector<bool>& plane_hits) const;
   void set_roads(int _roads) { m_nRoads=_roads; }
