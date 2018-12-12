@@ -206,12 +206,13 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
   }
 
 
-  /// for anti protons and anti neutrinos the kinetic energy should be 
+  /// for anti protons and anti neutrons the kinetic energy should be 
   /// calculated as Ekin = E() + M() instead of E() - M()
   /// this is achieved by constructing the TFCSTruthState with negative mass 
   float isfp_mass = isfp.mass(); 
   if(isfp.pdgCode() == -2212 or isfp.pdgCode() == -2112) {
-    isfp_mass = - isfp.mass();
+    isfp_mass = - isfp_mass;
+    ATH_MSG_VERBOSE("Found anti-proton/neutron, negative mass is used for TFCSTruthState "); 
   }
 
   // TFCSTruthState truth(isfp.momentum().x(),isfp.momentum().y(),isfp.momentum().z(),sqrt(isfp.momentum().mag2()+pow(isfp.mass(),2)),isfp.pdgCode());
