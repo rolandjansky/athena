@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -57,10 +57,6 @@ public:
     /** @return a reference to a stl vector containing the sample values */
     const std::vector < float > & samples() const { return m_digits; } 
   
-    /* Destructor */
-
-    ~TileDigits() { }
-
     /* Inline access methods */
 
     inline int NtimeSamples(void) const { return m_digits.size(); }
