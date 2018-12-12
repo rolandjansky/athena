@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -9,26 +9,21 @@
 
 #include "SCT_RawDataToxAOD.h"
 
-#include "GaudiKernel/ServiceHandle.h"
+#include "InDetIdentifier/SCT_ID.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
-
-#include "InDetIdentifier/SCT_ID.h"
-
 // xAOD container type
 #include "xAODTracking/SCTRawHitValidationAuxContainer.h"
 
 SCT_RawDataToxAOD::SCT_RawDataToxAOD(const std::string &name,
                                      ISvcLocator *pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
-    m_SCTHelper(0)
+    m_SCTHelper{nullptr}
 {
-  declareProperty("SctRdoContainer", m_rdoContainerName = std::string("SCT_RDOs"));
-  declareProperty("SctxAodRawHitContainer", m_xAodRawHitContainerName = std::string("SCT_RawHits"));
 }
 
 StatusCode SCT_RawDataToxAOD::initialize() {
-  CHECK(detStore()->retrieve(m_SCTHelper, "SCT_ID"));
+  ATH_CHECK(detStore()->retrieve(m_SCTHelper, "SCT_ID"));
   ATH_CHECK(m_rdoContainerName.initialize());
   ATH_CHECK(m_xAodRawHitContainerName.initialize());
   return StatusCode::SUCCESS;
@@ -47,8 +42,8 @@ StatusCode SCT_RawDataToxAOD::execute() {
 
   // Create the output xAOD container and its auxiliary store:
   SG::WriteHandle<xAOD::SCTRawHitValidationContainer> xaod(m_xAodRawHitContainerName);
-  ATH_CHECK( xaod.record(std::make_unique<xAOD::SCTRawHitValidationContainer>(), 
-			 std::make_unique<xAOD::SCTRawHitValidationAuxContainer>()) );
+  ATH_CHECK(xaod.record(std::make_unique<xAOD::SCTRawHitValidationContainer>(),
+                        std::make_unique<xAOD::SCTRawHitValidationAuxContainer>()));
 
   /// loop over input RDOs
   for (const SCT_RDO_Collection* collection : *rdoContainer) {
@@ -62,7 +57,7 @@ StatusCode SCT_RawDataToxAOD::execute() {
       xrdo->setWord(rdo->getWord());
       // setting additional decorations based on identifier
       bec_acc(*xrdo) = m_SCTHelper->barrel_ec(id);
-      layer_acc(*xrdo) = m_SCTHelper->layer_disk(id);   
+      layer_acc(*xrdo) = m_SCTHelper->layer_disk(id);
       phi_module_acc(*xrdo) = m_SCTHelper->phi_module(id);
       eta_module_acc(*xrdo) = m_SCTHelper->eta_module(id);
       side_acc(*xrdo) = m_SCTHelper->side(id);
