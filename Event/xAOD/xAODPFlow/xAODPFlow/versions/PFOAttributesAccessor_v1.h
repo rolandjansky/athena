@@ -90,10 +90,6 @@ namespace xAOD{
         DEFINE_PFO_ACCESSOR(eflowRec_LAYERENERGY_MINIFCAL1);
         DEFINE_PFO_ACCESSOR(eflowRec_LAYERENERGY_MINIFCAL2);
         DEFINE_PFO_ACCESSOR(eflowRec_LAYERENERGY_MINIFCAL3);
-        DEFINE_PFO_ACCESSOR(eflowRec_layerVectorCellOrdering);
-        DEFINE_PFO_ACCESSOR(eflowRec_radiusVectorCellOrdering);
-        DEFINE_PFO_ACCESSOR(eflowRec_avgEdensityVectorCellOrdering);
-        DEFINE_PFO_ACCESSOR(eflowRec_layerHED);
 	DEFINE_PFO_ACCESSOR(eflowRec_EM_PROBABILITY);
 	DEFINE_PFO_ACCESSOR(eflowRec_layerVectorCellOrdering);
 	DEFINE_PFO_ACCESSOR(eflowRec_radiusVectorCellOrdering);
