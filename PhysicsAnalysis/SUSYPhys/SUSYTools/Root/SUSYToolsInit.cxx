@@ -125,13 +125,13 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_MSG_DEBUG("Will now init the PRW tool");
     std::vector<std::string> file_conf;
     for (UInt_t i = 0; i < m_prwConfFiles.size(); i++) {
-      file_conf.push_back(PathResolverFindCalibFile(m_prwConfFiles.at(i)));
+      file_conf.push_back(m_prwConfFiles.at(i));
     }
 
     std::vector<std::string> file_ilumi;
     for (UInt_t i = 0; i < m_prwLcalcFiles.size(); i++) {
       ATH_MSG_INFO("Adding ilumicalc file: " << m_prwLcalcFiles.at(i));
-      file_ilumi.push_back(PathResolverFindCalibFile(m_prwLcalcFiles.at(i)));
+      file_ilumi.push_back(m_prwLcalcFiles.at(i));
     }
 
     m_prwTool.setTypeAndName("CP::PileupReweightingTool/PrwTool");
@@ -140,6 +140,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_prwTool.setProperty("DataScaleFactor",     m_prwDataSF) ); // 1./1.03 -> default for mc16, see: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ExtendedPileupReweighting#Tool_Properties
     ATH_CHECK( m_prwTool.setProperty("DataScaleFactorUP",   m_prwDataSF_UP) ); // 1. -> old value (mc15), as the one for mc16 is still missing
     ATH_CHECK( m_prwTool.setProperty("DataScaleFactorDOWN", m_prwDataSF_DW) ); // 1./1.18 -> old value (mc15), as the one for mc16 is still missing
+    ATH_CHECK( m_prwTool.setProperty("TrigDecisionTool", m_trigDecTool.getHandle()) );
+    ATH_CHECK( m_prwTool.setProperty("UseRunDependentPrescaleWeight", m_runDepPrescaleWeightPRW) );
     ATH_CHECK( m_prwTool.setProperty("OutputLevel", MSG::WARNING) );
     ATH_CHECK( m_prwTool.retrieve() );
   } else {
@@ -158,7 +160,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_jetCalibTool.isUserConfigured()) {
     toolName = "JetCalibTool_" + jetname;
     m_jetCalibTool.setTypeAndName("JetCalibrationTool/"+toolName);
-    std::string JES_config_file, calibseq; 
+    std::string JES_config_file, calibseq;
 
     if (m_jetInputType == xAOD::JetInput::EMTopo) {
       JES_config_file = m_jesConfig;
@@ -279,7 +281,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("MCType", isAtlfast() ? "AFII" : "MC16") );
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("IsData", JERUncPDsmearing) );
     //  https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2018SmallR
-    ATH_CHECK( m_jetUncertaintiesTool.setProperty("ConfigFile", m_jetUncertaintiesConfig) ); 
+    ATH_CHECK( m_jetUncertaintiesTool.setProperty("ConfigFile", m_jetUncertaintiesConfig) );
     if (m_jetUncertaintiesCalibArea != "default") ATH_CHECK( m_jetUncertaintiesTool.setProperty("CalibArea", m_jetUncertaintiesCalibArea) );
     ATH_CHECK( m_jetUncertaintiesTool.retrieve() );
   }
@@ -293,7 +295,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_fatjetUncertaintiesTool.setProperty("MCType", "MC16a") );
     ATH_CHECK( m_fatjetUncertaintiesTool.setProperty("IsData", isData()) );
     // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Moriond2018LargeR
-    ATH_CHECK( m_fatjetUncertaintiesTool.setProperty("ConfigFile", m_fatJetUncConfig) ); 
+    ATH_CHECK( m_fatjetUncertaintiesTool.setProperty("ConfigFile", m_fatJetUncConfig) );
     if (m_jetUncertaintiesCalibArea != "default") ATH_CHECK( m_fatjetUncertaintiesTool.setProperty("CalibArea", m_jetUncertaintiesCalibArea) );
 
     //Restrict variables to be shifted if (required)
@@ -877,8 +879,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_photonEfficiencySFTool.isUserConfigured() && !isData()) {
     m_photonEfficiencySFTool.setTypeAndName("AsgPhotonEfficiencyCorrectionTool/AsgPhotonEfficiencyCorrectionTool_" + m_photonId);
 
-    if (m_photonId != "Tight" ) { 
-      ATH_MSG_WARNING( "No Photon efficiency available for " << m_photonId << ", using Tight instead..." );  
+    if (m_photonId != "Tight" ) {
+      ATH_MSG_WARNING( "No Photon efficiency available for " << m_photonId << ", using Tight instead..." );
     }
 
     ATH_CHECK( m_photonEfficiencySFTool.setProperty("ForceDataType", 1) ); // Set data type: 1 for FULLSIM, 3 for AF2
@@ -892,7 +894,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_MSG_WARNING( "No Photon efficiency available for " << m_photonIso_WP);
     }
 
-    ATH_CHECK( m_photonIsolationSFTool.setProperty("IsoKey", m_photonIso_WP.substr(8) ));    // Set isolation WP: Loose,Tight,TightCaloOnly 
+    ATH_CHECK( m_photonIsolationSFTool.setProperty("IsoKey", m_photonIso_WP.substr(8) ));    // Set isolation WP: Loose,Tight,TightCaloOnly
     ATH_CHECK( m_photonIsolationSFTool.setProperty("ForceDataType", 1) ); // Set data type: 1 for FULLSIM, 3 for AF2
     ATH_CHECK( m_photonIsolationSFTool.retrieve() );
   }
@@ -1278,7 +1280,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
         ATH_CHECK( m_metSystTool.setProperty("JetConstitScaleMom","JetLCScaleMomentum") );
       }
     }
- 
+
     if (m_trkJetsyst) {
       ATH_CHECK( m_metSystTool.setProperty("ConfigJetTrkFile", "JetTrackSyst.config") );
     }
@@ -1417,7 +1419,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK(m_isoCloseByTool.setProperty("BackupPrefix", "ORIG"));
     // The isolation selection decorator is updated as well by the tool
     ATH_CHECK(m_isoCloseByTool.setProperty("IsolationSelectionDecorator", "isol"));
-         
+
     ATH_CHECK( m_isoCloseByTool.retrieve() );
   }
 

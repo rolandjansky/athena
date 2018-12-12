@@ -82,23 +82,23 @@ namespace ST {
   // Define types of weights
   // This doesn't work with enums: class enums can't be assigned to an std::int8_t easily
   // Normal enums means redefinitions of e.g. "Trigger" and "Isolation"
-  namespace Weights { 
+  namespace Weights {
     static const unsigned int Unknown = 0;
-    
+
     namespace Jet {
       static const unsigned int Btag = 1001;
       static const unsigned int JVT = 1002;
       static const unsigned int Btag_Track = 1003;
       static const unsigned int FJVT = 1004;
     }
-    
+
     namespace Muon {
       static const unsigned int Reconstruction = 1101;
       static const unsigned int Isolation = 1102;
       static const unsigned int ID = 1103;
       static const unsigned int Trigger = 1104;
     }
-    
+
     namespace Electron {
       static const unsigned int Reconstruction = 1201;
       static const unsigned int Isolation = 1202;
@@ -106,12 +106,12 @@ namespace ST {
       static const unsigned int Trigger = 1204;
       static const unsigned int ChargeID = 1205;
     }
-    
+
     namespace Tau {
       static const unsigned int Reconstruction = 1301;
       static const unsigned int Trigger = 1302;
     }
-    
+
     namespace Photon {
       static const unsigned int Reconstruction = 1401;
       static const unsigned int Isolation = 1402;
@@ -119,7 +119,7 @@ namespace ST {
       static const unsigned int Trigger = 1404;
     }
   }
-  
+
   static const double DUMMYDEF = -999.;
 
   // Helper method for affected objects
@@ -195,10 +195,10 @@ namespace ST {
   //
   //
   class ISUSYObjDef_xAODTool : public virtual asg::IAsgTool {
-	
+
     // Declare the interface that the class provides
     ASG_TOOL_INTERFACE( ST::ISUSYObjDef_xAODTool )
-	    
+
     public:
     virtual StatusCode readConfig() = 0;
 
@@ -220,7 +220,7 @@ namespace ST {
     virtual StatusCode FillPhoton(xAOD::Photon& input, const float ptcut, const float etacut) = 0;
 
     virtual const xAOD::Vertex* GetPrimVtx() const = 0;
-		
+
     virtual StatusCode GetJets(xAOD::JetContainer*& copy,xAOD::ShallowAuxContainer*& copyaux,const bool recordSG=true, const std::string& jetkey="", const xAOD::JetContainer* containerToBeCopied = 0) = 0;
     virtual StatusCode GetTrackJets(xAOD::JetContainer*& copy,xAOD::ShallowAuxContainer*& copyaux,const bool recordSG=true, const std::string& jetkey="", const xAOD::JetContainer* containerToBeCopied = 0) = 0;
     virtual StatusCode GetJetsSyst(const xAOD::JetContainer& calibjets,xAOD::JetContainer*& copy,xAOD::ShallowAuxContainer*& copyaux, const bool recordSG=true, const std::string& jetkey="") = 0;
@@ -255,7 +255,7 @@ namespace ST {
 
     virtual bool IsBadJet(const xAOD::Jet& input) const = 0;
 
-    virtual bool IsBJetLoose(const xAOD::Jet& input) const = 0; 
+    virtual bool IsBJetLoose(const xAOD::Jet& input) const = 0;
     virtual bool JetPassJVT(xAOD::Jet& input, bool update_jvt) = 0;
 
     virtual bool IsHighPtMuon(const xAOD::Muon& input) const = 0;
@@ -263,7 +263,7 @@ namespace ST {
     virtual bool IsSignalMuon(const xAOD::Muon& input, const float ptcut, const float d0sigcut, const float z0cut, const float etacut = DUMMYDEF) const = 0;
 
     virtual bool IsSignalElectron(const xAOD::Electron& input, const float etcut, const float d0sigcut, const float z0cut, const float etacut = DUMMYDEF) const = 0;
- 
+
     virtual bool IsCosmicMuon(const xAOD::Muon& input,const float z0cut, const float d0cut) const = 0;
 
     virtual bool IsSignalTau(const xAOD::TauJet& input, const float ptcut, const float etacut) const = 0;
@@ -319,6 +319,7 @@ namespace ST {
     virtual double GetTriggerGlobalEfficiencySFsys(const xAOD::PhotonContainer& photons, const CP::SystematicSet& systConfig, const std::string& trigExpr = "diPhoton") = 0;
 
     virtual double GetMuonTriggerEfficiency(const xAOD::Muon& mu, const std::string& trigExpr = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50", const bool isdata = false) = 0; 
+
     virtual double GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons, const std::string& trigExpr) = 0;
 
     virtual double GetTotalMuonSF(const xAOD::MuonContainer& muons, const bool recoSF = true, const bool isoSF = true, const std::string& trigExpr = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50", const bool bmhptSF = true) = 0;
@@ -330,7 +331,7 @@ namespace ST {
     virtual float GetTotalElectronSFsys(const xAOD::ElectronContainer& electrons, const CP::SystematicSet& systConfig, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "singleLepton", const bool chfSF = false) = 0;   // singleLepton == Ele.TriggerSFStringSingle value
 
     virtual double GetSignalTauSF(const xAOD::TauJet& tau, const bool idSF = true, const bool triggerSF = true,  const std::string& trigExpr = "tau25_medium1_tracktwo") = 0;
-  
+
     virtual double GetSignalTauSFsys(const xAOD::TauJet& tau, const CP::SystematicSet& systConfig, const bool idSF = true, const bool triggerSF = true,  const std::string& trigExpr = "tau25_medium1_tracktwo") = 0;
 
     virtual double GetTauTriggerEfficiencySF(const xAOD::TauJet& tau, const std::string& trigExpr = "tau25_medium1_tracktwo") = 0;
@@ -360,7 +361,7 @@ namespace ST {
     virtual bool IsTrigMatched(const xAOD::IParticle *part1, const xAOD::IParticle *part2, const std::string& tr_item) = 0;
     virtual bool IsTrigMatched(const std::vector<const xAOD::IParticle*>& v, const std::string& tr_item) = 0;
     virtual bool IsTrigMatched(const std::initializer_list<const xAOD::IParticle*> &v, const std::string& tr_item) = 0;
-  
+
     virtual void TrigMatch(const xAOD::IParticle* p, std::initializer_list<std::string>::iterator, std::initializer_list<std::string>::iterator) = 0;
     virtual void TrigMatch(const xAOD::IParticle* p, const std::vector<std::string>& items) = 0;
     virtual void TrigMatch(const xAOD::IParticle* p, const std::initializer_list<std::string>& items) = 0;
@@ -378,25 +379,27 @@ namespace ST {
     virtual const Trig::ChainGroup* GetTrigChainGroup(const std::string&) const = 0;
 
     virtual float GetPileupWeight() = 0;
-    
+
+    virtual float GetPileupWeightPrescaledTrigger(const std::string & trigger_expr) = 0;
+
     virtual ULong64_t GetPileupWeightHash( ) = 0;
 
     virtual float GetDataWeight(const std::string&) = 0;
- 
+
     virtual float GetCorrectedAverageInteractionsPerCrossing(bool includeDataSF=false) = 0;
 
     virtual float GetCorrectedActualInteractionsPerCrossing(bool includeDataSF=false) = 0;
 
     virtual double GetSumOfWeights(int channel) = 0;
-    
+
     virtual unsigned int GetRandomRunNumber(bool muDependentRRN = true) = 0;
 
     virtual StatusCode ApplyPRWTool(bool muDependentRRN = true) = 0;
-    
+
     virtual unsigned int GetRunNumber() const = 0;
 
     virtual int treatAsYear(const int runNumber=-1) const = 0;
-     
+
     virtual StatusCode OverlapRemoval(const xAOD::ElectronContainer *electrons, const xAOD::MuonContainer *muons, const xAOD::JetContainer *jets,
 				      const xAOD::PhotonContainer* gamma = 0, const xAOD::TauJetContainer* taujet = 0, const xAOD::JetContainer *fatjets = 0) = 0;
 
@@ -416,7 +419,7 @@ namespace ST {
 
     virtual std::string TrigSingleLep() const = 0;
 
-    // Temporary function for Sherpa 2.2 V+jets n-jets reweighting 
+    // Temporary function for Sherpa 2.2 V+jets n-jets reweighting
     // (see https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/CentralMC15ProductionList#NEW_Sherpa_v2_2_V_jets_NJet_rewe)
     virtual float getSherpaVjetsNjetsWeight() const = 0;
     virtual float getSherpaVjetsNjetsWeight(const std::string& jetContainer) const = 0;
@@ -429,7 +432,7 @@ namespace ST {
     };
 
   }; // class ISUSYObjDef_xAODTool
-    
+
 } // namespace ST
 
 #endif // SUSYTOOLS_SUSYOBJDEF_XAODTOOL_H

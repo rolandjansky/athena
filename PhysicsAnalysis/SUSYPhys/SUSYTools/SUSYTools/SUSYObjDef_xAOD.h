@@ -319,6 +319,8 @@ namespace ST {
 
     float GetPileupWeight() override final;
 
+    float GetPileupWeightPrescaledTrigger(const std::string & trigger_expr) override final;
+
     ULong64_t GetPileupWeightHash() override final;
 
     float GetDataWeight(const std::string&) override final;
@@ -516,6 +518,7 @@ namespace ST {
     double m_prwDataSF;
     double m_prwDataSF_UP;
     double m_prwDataSF_DW;
+    bool   m_runDepPrescaleWeightPRW;
 
     // bookkeep supported configurations (in increasing order of tightness)
     std::vector<std::string> m_el_id_support;
@@ -560,7 +563,7 @@ namespace ST {
     std::string m_BtagSystStrategy;
     std::string m_BtagWP_trkJet;
     std::string m_BtagTagger_trkJet;
-    double m_BtagMinPt_trkJet;  
+    double m_BtagMinPt_trkJet;
 
     //configurable cuts here
     double m_eleBaselinePt;
@@ -656,11 +659,11 @@ namespace ST {
     bool m_doElIsoSignal;
     bool m_doPhIsoSignal;
     bool m_doMuIsoSignal;
-    
+
     bool m_useSigLepForIsoCloseByOR;
     std::string m_IsoCloseByORpassLabel;
-    
-    
+
+
     std::string m_metJetSelection;
 
     int  m_showerType;

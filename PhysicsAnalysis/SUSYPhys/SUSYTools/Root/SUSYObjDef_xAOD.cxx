@@ -127,6 +127,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_prwDataSF(-99.),
     m_prwDataSF_UP(-99.),
     m_prwDataSF_DW(-99.),
+    m_runDepPrescaleWeightPRW(false),
     m_electronTriggerSFStringSingle(""),
     m_eleId(""),
     m_eleIdBaseline(""),
@@ -242,7 +243,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_doElIsoSignal(true),
     m_doPhIsoSignal(true),
     m_doMuIsoSignal(true),
-    
+
     m_useSigLepForIsoCloseByOR(false),
     m_IsoCloseByORpassLabel(""),
 
@@ -353,7 +354,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     //
     m_pmgSHnjetWeighter(""),
     m_pmgSHnjetWeighterWZ(""),
-    // 
+    //
     m_acc_eleIdBaseline(""),
     m_acc_eleId(""),
     m_acc_photonIdBaseline(""),
@@ -508,7 +509,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   //Isolation correction for leptons and photons
   declareProperty( "UseSigLepForIsoCloseByOR", m_useSigLepForIsoCloseByOR );
   declareProperty( "IsoCloseByORpassLabel", m_IsoCloseByORpassLabel );
- 
+
   //--- Tools configuration
   //PRW
   declareProperty( "AutoconfigurePRWTool", m_autoconfigPRW );
@@ -521,6 +522,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "PRWDataScaleFactor",   m_prwDataSF);
   declareProperty( "PRWDataScaleFactorUP", m_prwDataSF_UP);
   declareProperty( "PRWDataScaleFactorDOWN", m_prwDataSF_DW);
+  declareProperty( "PRWUseRunDependentPrescaleWeight", m_runDepPrescaleWeightPRW);
   //LargeR uncertainties config, as from https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/JetUncertainties2016PrerecLargeR#Understanding_which_configuratio
   declareProperty( "JetLargeRuncConfig",  m_fatJetUncConfig );
   declareProperty( "JetLargeRuncVars",  m_fatJetUncVars );
@@ -784,7 +786,7 @@ StatusCode SUSYObjDef_xAOD::initialize() {
   m_eleIdDFName = "DFCommonElectronsLH";
   m_eleIdDFName += TString(m_eleId).ReplaceAll("LooseAndBLayer","LooseBL").ReplaceAll("LLH","").Data();
   m_acc_eleId = m_eleIdDFName;
- 
+
   m_photonIdBaselineDFName = "DFCommonPhotonsIsEM";
   m_photonIdBaselineDFName += TString(m_photonIdBaseline).Data();
   m_acc_photonIdBaseline = m_photonIdBaselineDFName;
@@ -796,10 +798,10 @@ StatusCode SUSYObjDef_xAOD::initialize() {
   // autoconfigure PRW tool if m_autoconfigPRW==true
   if (m_autoconfigPRWPath == "dev/PileupReweighting/share/")
     ATH_CHECK( autoconfigurePileupRWTool() );
-  else 
+  else
     // need to set a full path if you don't use the one in CVMFS
     ATH_CHECK( autoconfigurePileupRWTool(m_autoconfigPRWPath, false) );
-    
+
   ATH_CHECK( this->SUSYToolsInit() );
 
   ATH_MSG_VERBOSE("Done with tool retrieval");
@@ -846,7 +848,7 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
       ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
       dsid = evtInfo->mcChannelNumber();
 
-      if ( m_mcCampaign == "mc16a" || m_mcCampaign == "mc16c" || m_mcCampaign == "mc16d" || m_mcCampaign == "mc16e") { 
+      if ( m_mcCampaign == "mc16a" || m_mcCampaign == "mc16c" || m_mcCampaign == "mc16d" || m_mcCampaign == "mc16e") {
         std::string NoMetadataButPropertyOK("");
         NoMetadataButPropertyOK += "autoconfigurePileupRWTool(): 'mcCampaign' is used and passed to SUSYTools as '";
         NoMetadataButPropertyOK += m_mcCampaign;
@@ -881,12 +883,12 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
     }
     m_prwConfFiles.clear();
     m_prwConfFiles.push_back( prwConfigFile );
-    if ( mcCampaignMD == "mc16c" || mcCampaignMD == "mc16d") { 
+    if ( mcCampaignMD == "mc16c" || mcCampaignMD == "mc16d") {
       m_prwConfFiles.push_back( PathResolverFindCalibFile(m_prwActualMu2017File) );
     } else if (mcCampaignMD == "mc16e") {
       m_prwConfFiles.push_back( PathResolverFindCalibFile(m_prwActualMu2018File) );
     }
-    
+
     ATH_MSG_INFO( "autoconfigurePileupRWTool(): configuring PRW tool using " << prwConfigFile.data() );
   }
   // Return gracefully
@@ -1258,7 +1260,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_orBtagWP, "OR.BtagWP", rEnv, "FixedCutBEff_85");
   configFromFile(m_orInputLabel, "OR.InputLabel", rEnv, "selected"); //"baseline"
   configFromFile(m_orBJetPtUpperThres, "OR.BJetPtUpperThres", rEnv, -1.); // upper pt threshold of b-jet in OR in unit of MeV, -1 means no pt threshold
-  configFromFile(m_orLinkOverlapObjects, "OR.LinkOverlapObjects", rEnv, false); 
+  configFromFile(m_orLinkOverlapObjects, "OR.LinkOverlapObjects", rEnv, false);
   //
   configFromFile(m_orDoFatjets, "OR.DoFatJets", rEnv, false);
   configFromFile(m_EleFatJetDR, "OR.EleFatJetDR", rEnv, -999.);
@@ -1270,7 +1272,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_doPhIsoSignal, "SigPh.RequireIso", rEnv, m_doIsoSignal);
   configFromFile(m_useSigLepForIsoCloseByOR, "SigLepPh.UseSigLepForIsoCloseByOR", rEnv, false);
   configFromFile(m_IsoCloseByORpassLabel, "SigLepPh.IsoCloseByORpassLabel", rEnv, "None");
- 
+
   //
   configFromFile(m_eleTerm, "MET.EleTerm", rEnv, "RefEle");
   configFromFile(m_gammaTerm, "MET.GammaTerm", rEnv, "RefGamma");
@@ -1300,7 +1302,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_prwDataSF, "PRW.DataSF", rEnv, 1./1.03); // default for mc16, see: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ExtendedPileupReweighting#Tool_Properties
   configFromFile(m_prwDataSF_UP, "PRW.DataSF_UP", rEnv, 1./0.99); // mc16 uncertainty? defaulting to the value in PRWtool
   configFromFile(m_prwDataSF_DW, "PRW.DataSF_DW", rEnv, 1./1.07); // mc16 uncertainty? defaulting to the value in PRWtool
-  configFromFile(m_autoconfigPRWPath, "PRW.autoconfigPRWPath", rEnv, "dev/PileupReweighting/share/"); 
+  configFromFile(m_runDepPrescaleWeightPRW, "PRW.UseRunDependentPrescaleWeight", rEnv, false); // If set to true, the prescale weight is the luminosity-average prescale over the lumiblocks in the unprescaled lumicalc file in the PRW tool.
+  configFromFile(m_autoconfigPRWPath, "PRW.autoconfigPRWPath", rEnv, "dev/PileupReweighting/share/");
   //
   configFromFile(m_strictConfigCheck, "StrictConfigCheck", rEnv, false);
 
@@ -1916,7 +1919,7 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     } else {
       ATH_MSG_VERBOSE("Configured xAODBTaggingEfficiency (track jets) for systematic var. " << systConfig.name() );
     }
-  }  
+  }
   if (!m_tauSmearingTool.empty()) {
     CP::SystematicCode ret = m_tauSmearingTool->applySystematicVariation(systConfig);
     if ( ret != CP::SystematicCode::Ok) {
@@ -2418,7 +2421,7 @@ StatusCode SUSYObjDef_xAOD::OverlapRemoval(const xAOD::ElectronContainer *electr
 }
 
 
-StatusCode SUSYObjDef_xAOD::NearbyLeptonCorrections(xAOD::ElectronContainer *electrons, xAOD::MuonContainer *muons) const {  
+StatusCode SUSYObjDef_xAOD::NearbyLeptonCorrections(xAOD::ElectronContainer *electrons, xAOD::MuonContainer *muons) const {
   // This getCloseByIsoCorrection is computationally less expensive and actually corrects the isoaltion
   // variables from the contribution of the close by leptons
   if (m_isoCloseByTool->getCloseByIsoCorrection(electrons,muons) != CP::CorrectionCode::Ok) {
@@ -2436,6 +2439,23 @@ float SUSYObjDef_xAOD::GetPileupWeight() {
   ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
 
   float pu_weight = m_prwTool->getCombinedWeight(*evtInfo);
+
+  if(!isfinite(pu_weight)) pu_weight = 1.;
+
+  return pu_weight;
+}
+
+float SUSYObjDef_xAOD::GetPileupWeightPrescaledTrigger(const std::string & trigger_expr) {
+  /* This requires the setup of the PRW tool using your own prescaled lumicalc
+     files with syntax "HLT_PrescaledTriggerA.lumicalc.root:HLT_PrescaledTriggerA".
+     For further informations, please refer to:
+     https://twiki.cern.ch/twiki/bin/view/AtlasProtected/ExtendedPileupReweighting#Prescaling%20MC
+  */
+
+  const xAOD::EventInfo* evtInfo = 0;
+  ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
+
+  float pu_weight = m_prwTool->getCombinedWeight(*evtInfo,trigger_expr);
 
   if(!isfinite(pu_weight)) pu_weight = 1.;
 
