@@ -59,19 +59,6 @@ from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
 ServiceMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection = False
 
-### Output data name ###
-muFastInfo = "MuonL2SAInfo"
-muCombInfo = "MuonL2CBInfo"
-muEFSAInfo = "Muons"
-muL2ISInfo = "MuonL2ISInfo"
-# get Track container name
-TrackParticlesName = ""
-from TrigUpgradeTest.InDetSetup import makeInDetAlgs
-(nameAlgs, evAlgs) = makeInDetAlgs()
-for nameAlg in nameAlgs:
-    if nameAlg.name() == "InDetTrigTrackParticleCreatorAlg":
-        TrackParticlesName = nameAlg.TrackParticlesName
- 
 
 ### ************* Step1  ************* ###
 
@@ -121,7 +108,7 @@ def muCombStep():
     
     ### get muComb reco sequence ###    
     from TrigUpgradeTest.MuonSetup import muCombRecoSequence
-    muCombRecoSequence, eventAlgs, sequenceOut = muCombRecoSequence( l2muCombViewsMaker.InViewRoIs, OutputLevel=DEBUG )
+    muCombRecoSequence, eventAlgs, sequenceOut, TrackParticlesName = muCombRecoSequence( l2muCombViewsMaker.InViewRoIs, OutputLevel=DEBUG )
  
     l2muCombViewsMaker.ViewNodeName = muCombRecoSequence.name()
    
@@ -194,7 +181,7 @@ def muEFSAStep():
     from TrigMuonHypo.TrigMuonHypoConf import TrigMuonEFMSonlyHypoAlg
     trigMuonEFSAHypo = TrigMuonEFMSonlyHypoAlg( "TrigMuonEFSAHypoAlg" )
     trigMuonEFSAHypo.OutputLevel = DEBUG
-    trigMuonEFSAHypo.MuonDecisions = muEFSAInfo
+    trigMuonEFSAHypo.MuonDecisions = sequenceOut
     
     muonEFSAonlySequence = seqAND( "muonEFSAonlySequence", [efsaViewsMaker, muEFSARecoSequence ] )
     

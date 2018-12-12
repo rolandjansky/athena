@@ -9,14 +9,7 @@ muFastInfo = "MuonL2SAInfo"
 muCombInfo = "MuonL2CBInfo"
 muEFSAInfo = "Muons"
 muL2ISInfo = "MuonL2ISInfo"
-# get Track container name
-TrackParticlesName = ""
-from TrigUpgradeTest.InDetSetup import makeInDetAlgs
-(nameAlgs, evAlgs) = makeInDetAlgs()
-for nameAlg in nameAlgs:
-    if nameAlg.name() == "InDetTrigTrackParticleCreatorAlg":
-        TrackParticlesName = nameAlg.TrackParticlesName
-
+TrackParticlesName = "xAODTracks"
 
 ### ==================== Data prepartion needed for the EF and L2 SA ==================== ###
 def makeMuonPrepDataAlgs():
@@ -394,6 +387,7 @@ def muCombRecoSequence( RoIs, OutputLevel=INFO ):
   ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+'+muFastInfo)]
   viewAlgs.append(ViewVerify)
 
+  #TrackParticlesName = ""
   for viewAlg in viewAlgs:
       muCombRecoSequence += viewAlg
       viewAlg.OutputLevel = OutputLevel
@@ -401,6 +395,8 @@ def muCombRecoSequence( RoIs, OutputLevel=INFO ):
           viewAlg.RoIs = RoIs
       if viewAlg.properties().has_key("roiCollectionName"):
           viewAlg.roiCollectionName = RoIs
+      if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
+          TrackParticlesName = viewAlg.TrackParticlesName
 
   ### please read out TrigmuCombMTConfig file ###
   ### and set up to run muCombMT algorithm    ###
@@ -414,7 +410,7 @@ def muCombRecoSequence( RoIs, OutputLevel=INFO ):
   muCombRecoSequence += muCombAlg
   sequenceOut = muCombAlg.L2CombinedMuonContainerName
 
-  return muCombRecoSequence, eventAlgs, sequenceOut
+  return muCombRecoSequence, eventAlgs, sequenceOut, TrackParticlesName
 
 
 def l2muisoRecoSequence( RoIs, OutputLevel=INFO ):
@@ -569,4 +565,5 @@ def muEFSARecoSequence( RoIs, OutputLevel=INFO ):
 
   
   return muEFSARecoSequence, sequenceOut
+
 
