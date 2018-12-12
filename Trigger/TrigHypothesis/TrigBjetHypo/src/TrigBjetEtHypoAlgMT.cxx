@@ -18,10 +18,10 @@ StatusCode TrigBjetEtHypoAlgMT::initialize()
   ATH_MSG_INFO ( "Initializing " << name() << "..." );
 
   ATH_MSG_DEBUG(  "declareProperty review:"    );
-  ATH_MSG_DEBUG(  "   " << m_useView           );
+  ATH_MSG_DEBUG(  "   " << m_readFromView           );
   ATH_MSG_DEBUG(  "   " << m_roiLink           );
   ATH_MSG_DEBUG(  "   " << m_jetLink           );
-  ATH_MSG_DEBUG(  "   " << m_multipleDecisions );
+  ATH_MSG_DEBUG(  "   " << m_produceMultipleDecisions );
 
   ATH_MSG_DEBUG( "Initializing Tools" );
   ATH_CHECK( m_hypoTools.retrieve()   );
@@ -32,7 +32,7 @@ StatusCode TrigBjetEtHypoAlgMT::initialize()
   CHECK( m_inputPrimaryVertexKey.initialize()  );
 
   // Deal with what is stored into View
-  if ( m_useView ) 
+  if ( m_readFromView ) 
     renounce( m_inputJetsKey          ); 
 
   return StatusCode::SUCCESS;
@@ -61,7 +61,7 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
 
   // Retrieve Jets
   const xAOD::JetContainer *jetCollection = nullptr;
-  if ( not m_useView ) CHECK( retrieveJetsFromStoreGate( context,jetCollection ) );
+  if ( not m_readFromView ) CHECK( retrieveJetsFromStoreGate( context,jetCollection ) );
   else CHECK( retrieveJetsFromEventView( context,jetCollection,prevDecisionHandle ) );
 
   ATH_MSG_DEBUG( "Found " << jetCollection->size()<< " jets."  );
@@ -70,7 +70,7 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
 
   // Retrieve RoI to be linked to the output decision
   const TrigRoiDescriptorCollection *roiContainer = nullptr;
-  if ( not m_useView ) {
+  if ( not m_readFromView ) {
     ATH_MSG_DEBUG( "Retrieving input TrigRoiDescriptorCollection with key: " << m_inputRoIKey );
     SG::ReadHandle< TrigRoiDescriptorCollection > roiContainerHandle = SG::makeHandle( m_inputRoIKey,context );
     CHECK( roiContainerHandle.isValid() );
@@ -105,44 +105,73 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
   //    ** Compute Decisions
   // ==========================================================================================================================
 
-  const unsigned int nDecisions = m_multipleDecisions ? jetCollection->size() : 1;
-  
-  unsigned int counter = 0;
-  for ( const ToolHandle< TrigBjetEtHypoTool >& tool : m_hypoTools ) {   
+  // We need nDecisions (one per RoI if we run on Event Views). Each decision having m chains ( m=m_hypoTools.size() ) 
+  const unsigned int nDecisions = m_produceMultipleDecisions ? jetCollection->size() : 1;
+
+  // Create output decisions
+  ATH_MSG_DEBUG("Creating Output Decisions and Linking Stuff to it");
+  std::vector< TrigCompositeUtils::Decision* > newDecisions;
+  for ( unsigned int index(0); index<nDecisions; index++ ) 
+    newDecisions.push_back( TrigCompositeUtils::newDecisionIn( outputDecision.get() ) );
+
+  // Adding Links
+  for ( unsigned int index(0); index<nDecisions; index++ ) {
+
+    if ( m_produceMultipleDecisions ) { // Case we want multiple output decision (one per RoI/Jet)    
+      newDecisions.at( index )->setObjectLink( m_roiLink.value(),ElementLink< TrigRoiDescriptorCollection >( m_inputRoIKey.key(),index ) );
+      newDecisions.at( index )->setObjectLink( m_jetLink.value(),ElementLink< xAOD::JetContainer >( m_inputJetsKey.key(),index ) );
+    } else { // Case we want only one output decision 
+      ElementLinkVector< xAOD::JetContainer > linkVectorJets;
+      for (unsigned int indexJet(0); indexJet<jetCollection->size(); indexJet++ )
+        linkVectorJets.push_back( ElementLink< xAOD::JetContainer >( m_inputJetsKey.key(), indexJet) );
+      newDecisions.at( index )->addObjectCollectionLinks( m_jetLink.value(), linkVectorJets );
+
+      ElementLinkVector< TrigRoiDescriptorCollection > linkVectorRoIs;
+      for (unsigned int indexJet(0); indexJet<jetCollection->size(); indexJet++ )
+	linkVectorRoIs.push_back( ElementLink< TrigRoiDescriptorCollection >( m_inputRoIKey.key(), indexJet) );
+      newDecisions.at( index )->addObjectCollectionLinks( m_roiLink.value(), linkVectorRoIs );
+    }
+
+  }
+  ATH_MSG_DEBUG("   ** SUCCESSFULLY added object links to output decision");
+
+  ATH_MSG_DEBUG("Ready to Link Output Decision to Input Decision");
+  // Link To previous decision
+  // *** If we are NOT reading from event views it means we are in step1,
+  // Thus, we may have one or more output decision, but only one input decision (1-to-many correspondance)
+  // *** If we are reading from event views it means we are are in step2,
+  // Thus, we have out output decision for each input decision (1-to-1 correspendance)
+  for ( unsigned int index(0); index<nDecisions; index++ ) {
+    if ( m_readFromView ) TrigCompositeUtils::linkToPrevious( newDecisions.at( index ),decisionInput().key(),index );
+    else TrigCompositeUtils::linkToPrevious( newDecisions.at( index ),decisionInput().key(),0 );
+  }
+
+  // if ( m_readFromView ) {
+  //   // We have n output/input decisions (with n = jet collection size)
+  //   for ( unsigned int index(0); index<nDecisions; index++ )
+  //     TrigCompositeUtils::linkToPrevious( newDecisions.at( index ),decisionInput().key(),index );
+  // } else {
+  //   // We are producing one or several output decisions, all linked to the same input decision
+  //   for( unsigned int index(0); index<nDecisions; index++ )
+  //     TrigCompositeUtils::linkToPrevious( newDecisions.at( index ),decisionInput().key(),0 );
+  // }
+  ATH_MSG_DEBUG("   ** Done with Linking Output Decision to Input Decision");
+
+
+  // Run on Trigger Chains
+  for ( const ToolHandle< TrigBjetEtHypoTool >& tool : m_hypoTools ) {
     const HLT::Identifier  decisionId = tool->getId();
 
-    ATH_MSG_DEBUG( "Creating " << nDecisions << " output decision" );
-    std::vector< TrigCompositeUtils::Decision* > newDecisions;
-    for ( unsigned int index(0); index<nDecisions; index++ ) {
-      //      const std::string decisionName = name()+"_roi_"+std::to_string(index);
-      //      ATH_MSG_DEBUG( "   ** " << decisionName );
-      newDecisions.push_back( TrigCompositeUtils::newDecisionIn( outputDecision.get() ) );//,decisionName ) );
-    }
-
+    // At this point the JetCollection size is equal to the number of jets reconstructed in the entire event
+    // independently of the stage (stage1 or stage2) of b-jet chains.
+    // In case we are reading from Event Views, the jets are retrieved and merged together inside the
+    // `retrieveJetsFromEventView` method. In this way I can require multeplicity requirements inside the 'decide method.'
     bool pass = false;
-    CHECK( tool->decide( jetCollection,pass ) );   
+    CHECK( tool->decide( jetCollection,pass ) );
     if ( pass ) {
-      for( unsigned int index(0); index<nDecisions; index++ ) 
+      for( unsigned int index(0); index<nDecisions; index++ )
 	TrigCompositeUtils::addDecisionID( decisionId,newDecisions.at(index) );
     }
-
-    // ==========================================================================================================================  
-    //    ** Linking objects to decision (inside Hypo Tool loop)
-    // ==========================================================================================================================  
-    
-    if ( not m_useView ) {
-       for( unsigned int index(0); index<nDecisions; index++ )
-	newDecisions.at(index)->setObjectLink( m_roiLink.value(),ElementLink< TrigRoiDescriptorCollection >( m_inputRoIKey.key(),index ) );
-      ATH_MSG_DEBUG( "Linking RoIs `" << m_roiLink.value() << "` to output decision." );
-      
-       for( unsigned int index(0); index<nDecisions; index++ )
-	newDecisions.at(index)->setObjectLink( m_jetLink.value(),ElementLink< xAOD::JetContainer >( m_inputJetsKey.key(),index ) );
-      ATH_MSG_DEBUG( "Linking Jets `" << m_jetLink.value() << "` to output decision." );
-    }
-    
-    for( unsigned int index(0); index<nDecisions; index++ )
-      TrigCompositeUtils::linkToPrevious( newDecisions.at(index),decisionInput().key(),counter );
-    counter++;
   }
 
   // ==========================================================================================================================
