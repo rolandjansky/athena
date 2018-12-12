@@ -37,11 +37,18 @@ void TFCSExtrapolationState::clear()
       m_distetaCaloBorder[i][j]=0;
     }
   }
-  
-  m_IDCaloBoundary_eta=-999;
-  m_IDCaloBoundary_phi=-999;
-  m_IDCaloBoundary_r=0;
-  m_IDCaloBoundary_z=0;
+
+  m_CaloSurface_sample = -1;
+  m_CaloSurface_eta = -999;
+  m_CaloSurface_phi = -999;
+  m_CaloSurface_r = 0;
+  m_CaloSurface_z = 0;
+
+  m_IDCaloBoundary_eta = -999;
+  m_IDCaloBoundary_phi = -999;
+  m_IDCaloBoundary_r = 0;
+  m_IDCaloBoundary_z = 0;
+
+  m_IDCaloBoundary_AngleEta = -999;
+  m_IDCaloBoundary_Angle3D = -999;
 }
-
-
