@@ -103,7 +103,12 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
        kwargs.setdefault('HighGainThreshEMECIW',0)
 
     kwargs.setdefault('RndmEvtOverlay', isOverlay() )
-    kwargs.setdefault('DigitContainer', 'LArDigitContainer_MC' ) ##FIXME - should not be hard-coded
+
+    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        kwargs.setdefault('DigitContainer', overlayFlags.bkgPrefix() + 'LArDigitContainer_MC')
+    else:
+        kwargs.setdefault('DigitContainer', 'LArDigitContainer_MC') ##FIXME - should not be hard-coded
 
     # if doing MC+MC overlay 
     from AthenaCommon.GlobalFlags import globalflags

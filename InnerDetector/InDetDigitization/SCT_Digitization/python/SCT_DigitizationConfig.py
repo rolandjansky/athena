@@ -207,8 +207,15 @@ def commonSCT_DigitizationConfig(name,**kwargs):
 ######################################################################################
 
 def SCT_DigitizationTool(name="SCT_DigitizationTool", **kwargs):
-    kwargs.setdefault("OutputObjectName", "SCT_RDOs")
-    kwargs.setdefault("OutputSDOName", "SCT_SDO_Map")
+    from Digitization.DigitizationFlags import digitizationFlags
+    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        kwargs.setdefault("OutputObjectName", overlayFlags.bkgPrefix() + "SCT_RDOs")
+        kwargs.setdefault("OutputSDOName", overlayFlags.bkgPrefix() + "SCT_SDO_Map")
+    else:
+        kwargs.setdefault("OutputObjectName", "SCT_RDOs")
+        kwargs.setdefault("OutputSDOName", "SCT_SDO_Map")
+
     kwargs.setdefault("HardScatterSplittingMode", 0)
     return commonSCT_DigitizationConfig(name,**kwargs)
 

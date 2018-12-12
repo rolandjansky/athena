@@ -15,6 +15,12 @@ from AthenaCommon.Logging import logging
 
 overlayflaglog = logging.getLogger('Overlay_Flags')
 
+class isOverlayMT(JobProperty):
+    """Flag to separate the new MT-ready overlay from the old one"""
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue = False
+
 class isDataOverlay(JobProperty):
     """Flag to separate data vs MC overlay"""
     statusOn=True
@@ -50,6 +56,18 @@ class outputStore(JobProperty):
     statusOn=True
     allowedTypes=['str']
     StoredValue = 'StoreGateSvc'
+
+class bkgPrefix(JobProperty):
+    """Overlay background StoreGate key prefix"""
+    statusOn=True
+    allowedTypes=['str']
+    StoredValue = 'Bkg_'
+
+class sigPrefix(JobProperty):
+    """Overlay signal StoreGate key prefix"""
+    statusOn=True
+    allowedTypes=['str']
+    StoredValue = 'Sig_'
 
 class extraTagInfoPairs(JobProperty):
     """ workaround to correctly populate the /TagInfo metadata container
