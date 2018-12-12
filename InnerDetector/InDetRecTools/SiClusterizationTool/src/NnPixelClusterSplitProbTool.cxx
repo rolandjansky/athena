@@ -18,7 +18,6 @@
 #include "InDetIdentifier/PixelID.h"
 #include "InDetPrepRawData/PixelClusterSplitProb.h"
 #include "VxVertex/RecVertex.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 
 
@@ -29,7 +28,6 @@ namespace InDet
   NnPixelClusterSplitProbTool::NnPixelClusterSplitProbTool(const std::string& t, const std::string& n, const IInterface*  p)
           :AthAlgTool(t,n,p),
            m_NnClusterizationFactory("InDet::NnClusterizationFactory/NnClusterizationFactory", this),
-           m_iBeamCondSvc("BeamCondSvc",n),
            m_useBeamSpotInfo(true)
   {
 
@@ -41,7 +39,6 @@ namespace InDet
     declareInterface<IPixelClusterSplitProbTool>(this);
 
     declareProperty("NnClusterizationFactory",m_NnClusterizationFactory);
-    declareProperty("BeamCondSv",m_iBeamCondSvc);
     declareProperty("PriorMultiplicityContent",m_priorMultiplicityContent);
     declareProperty("useBeamSpotInfo",m_useBeamSpotInfo);
 
@@ -59,11 +56,7 @@ namespace InDet
       return StatusCode::FAILURE;
     }
 
-    if (m_iBeamCondSvc.retrieve().isFailure())
-    {
-      ATH_MSG_ERROR( "Could not find BeamCondSvc." );
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(m_beamSpotKey.initialize());
 
     ATH_MSG_INFO(" Cluster split prob tool initialized successfully "<< m_NnClusterizationFactory );
     return StatusCode::SUCCESS;
@@ -72,13 +65,12 @@ namespace InDet
   
   InDet::PixelClusterSplitProb NnPixelClusterSplitProbTool::splitProbability(const InDet::PixelCluster& origCluster ) const
   {
-    
-    Trk::RecVertex beamposition(m_iBeamCondSvc->beamVtx());
-    Amg::Vector3D beamSpotPosition(beamposition.position()[0],
-                                beamposition.position()[1],
-                                beamposition.position()[2]);
 
-    if (!m_useBeamSpotInfo) beamSpotPosition=Amg::Vector3D(0,0,0);
+    Amg::Vector3D beamSpotPosition(0,0,0);
+    if(m_useBeamSpotInfo){
+       SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+       beamSpotPosition = beamSpotHandle->beamPos();
+    }
 
     std::vector<double> vectorOfProbs=m_NnClusterizationFactory->estimateNumberOfParticles(origCluster,beamSpotPosition);
 
@@ -106,12 +98,11 @@ namespace InDet
   InDet::PixelClusterSplitProb NnPixelClusterSplitProbTool::splitProbability(const InDet::PixelCluster& origCluster, const Trk::TrackParameters& trackParameters ) const
   {
     
-    Trk::RecVertex beamposition(m_iBeamCondSvc->beamVtx());
-    Amg::Vector3D beamSpotPosition(beamposition.position()[0],
-                                beamposition.position()[1],
-                                beamposition.position()[2]);
-
-    if (!m_useBeamSpotInfo) beamSpotPosition=Amg::Vector3D(0,0,0);
+    Amg::Vector3D beamSpotPosition(0,0,0);
+    if(m_useBeamSpotInfo){
+       SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+       beamSpotPosition = beamSpotHandle->beamPos();
+    }
 
     std::vector<double> vectorOfProbs=m_NnClusterizationFactory->estimateNumberOfParticles(origCluster, trackParameters.associatedSurface(), trackParameters);
 

@@ -21,7 +21,6 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           DetectorDescription/AtlasDetDescr
                           Event/xAOD/xAODEventInfo
-                          InnerDetector/InDetConditions/InDetBeamSpotService
                           InnerDetector/InDetDetDescr/InDetIdentifier )
 
 # External dependencies:

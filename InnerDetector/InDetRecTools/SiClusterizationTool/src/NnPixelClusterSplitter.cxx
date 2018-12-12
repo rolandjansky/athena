@@ -20,7 +20,6 @@
 #include "SiClusterizationTool/NnPixelClusterSplitter.h"
 #include "VxVertex/RecVertex.h"
 #include "InDetPrepRawData/PixelCluster.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "SiClusterizationTool/NnClusterizationFactory.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
@@ -35,13 +34,11 @@ InDet::NnPixelClusterSplitter::NnPixelClusterSplitter(const std::string &type,
         const IInterface *parent) :
         AthAlgTool(type,name,parent),
         m_NnClusterizationFactory("InDet::NnClusterizationFactory/NnClusterizationFactory", this),
-        m_iBeamCondSvc("BeamCondSvc",name),
         m_useBeamSpotInfo(true)
 {
    declareInterface<IPixelClusterSplitter>(this);
 
    declareProperty("NnClusterizationFactory",m_NnClusterizationFactory);
-   declareProperty("BeamCondSv",m_iBeamCondSvc);
    declareProperty("ThresholdSplittingIntoTwoClusters",m_thresholdSplittingIntoTwoClusters=0.95);
    declareProperty("ThresholdSplittingIntoThreeClusters",m_thresholdSplittingIntoThreeClusters=0.90);
    declareProperty("SplitOnlyOnBLayer",m_splitOnlyOnBLayer=true);
@@ -60,11 +57,7 @@ StatusCode InDet::NnPixelClusterSplitter::initialize() {
     return StatusCode::FAILURE;
   }
   
-  if (m_iBeamCondSvc.retrieve().isFailure())
-  {
-    ATH_MSG_ERROR( "Could not find BeamCondSvc." );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_beamSpotKey.initialize());
   
   ATH_MSG_INFO(" Cluster splitter initialized successfully "<< m_NnClusterizationFactory );
   return StatusCode::SUCCESS;
@@ -80,7 +73,6 @@ std::vector<InDet::PixelClusterParts> InDet::NnPixelClusterSplitter::splitCluste
 
   //add treatment for b-layer only HERE
 
-  Trk::RecVertex beamposition(m_iBeamCondSvc->beamVtx());
 
   const std::vector<Identifier>& rdos  = origCluster.rdoList();  
   const std::vector<int>&  totList     = origCluster.totList();
@@ -102,12 +94,11 @@ std::vector<InDet::PixelClusterParts> InDet::NnPixelClusterSplitter::splitCluste
   
   std::vector<Amg::MatrixX> errorMatrix;
 
-  Amg::Vector3D beamSpotPosition=Amg::Vector3D(
-      beamposition.position()[0],
-      beamposition.position()[1],
-      beamposition.position()[2]);
-  
-  if (!m_useBeamSpotInfo) beamSpotPosition=Amg::Vector3D(0,0,0);
+  Amg::Vector3D beamSpotPosition(0,0,0);
+  if(m_useBeamSpotInfo){
+     SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+     beamSpotPosition = beamSpotHandle->beamPos();
+  }
 
   std::vector<Amg::Vector2D> localPosition=m_NnClusterizationFactory->estimatePositions(origCluster,
                                                                                              beamSpotPosition,
@@ -169,8 +160,6 @@ std::vector<InDet::PixelClusterParts> InDet::NnPixelClusterSplitter::splitCluste
 
   //add treatment for b-layer only HERE
 
-  Trk::RecVertex beamposition(m_iBeamCondSvc->beamVtx());
-
   const std::vector<Identifier>& rdos  = origCluster.rdoList();  
   const std::vector<int>&  totList     = origCluster.totList();
 
@@ -214,12 +203,11 @@ std::vector<InDet::PixelClusterParts> InDet::NnPixelClusterSplitter::splitCluste
   std::vector<Amg::Vector2D>     allLocalPositions;
   std::vector<Amg::MatrixX>       allErrorMatrix;
 
- Amg::Vector3D beamSpotPosition=Amg::Vector3D(
-      beamposition.position()[0],
-      beamposition.position()[1],
-      beamposition.position()[2]);
-   
- if (!m_useBeamSpotInfo) beamSpotPosition=Amg::Vector3D(0,0,0);
+  Amg::Vector3D beamSpotPosition(0,0,0);
+  if(m_useBeamSpotInfo){
+     SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+     beamSpotPosition = beamSpotHandle->beamPos();
+  }
   
   std::vector<InDet::PixelClusterParts> allMultiPClusters;
   
