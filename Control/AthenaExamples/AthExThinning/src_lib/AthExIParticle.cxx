@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthExIParticle.cxx 
@@ -14,13 +14,6 @@
 
 // AthExThinning includes
 #include "AthExThinning/AthExIParticle.h"
-
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-AthExIParticle::~AthExIParticle()
-{}
 
 /////////////////////////////////////////////////////////////////// 
 // Const methods: 
