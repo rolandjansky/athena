@@ -71,6 +71,22 @@ ConcurrentBitset::ConcurrentBitset (std::initializer_list<bit_t> l,
 
 
 /**
+ * @brief Move constructor.
+ * @param other Container to move.
+ *
+ * No concurrent access may be in progress on @c other.
+ * After this returns, @c other can only be deleted.
+ */
+ConcurrentBitset::ConcurrentBitset (ConcurrentBitset&& other)
+{
+  other.emptyGarbage();
+  Impl* impl = other.m_impl;
+  other.m_impl = nullptr;
+  m_impl = impl;
+}
+
+
+/**
  * @brief Destructor.
  */
 ConcurrentBitset::~ConcurrentBitset()
@@ -93,6 +109,27 @@ ConcurrentBitset& ConcurrentBitset::operator= (const ConcurrentBitset& other)
     const Impl* otherImpl = other.m_impl;
     expand (otherImpl->nbits());
     (*m_impl).assign (*otherImpl);
+  }
+  return *this;
+}
+
+
+/**
+ * @brief Move.
+ * @param other Bitset from which to move.
+ *
+ * No concurrent access may be in progress on @c other.
+ * After this returns, @c other can only be deleted.
+ */
+ConcurrentBitset& ConcurrentBitset::operator= (ConcurrentBitset&& other)
+{
+  if (this != &other) {
+    emptyGarbage();
+    other.emptyGarbage();
+    delete m_impl;
+    Impl* impl = other.m_impl;
+    other.m_impl = nullptr;
+    m_impl = impl;
   }
   return *this;
 }

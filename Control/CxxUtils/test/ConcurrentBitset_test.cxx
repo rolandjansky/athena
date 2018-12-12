@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
  */
 
 // $Id$
@@ -320,7 +320,7 @@ void test_insert()
 }
 
 
-// Copy/assign
+// Copy/assign/move
 void test_copy()
 {
   std::cout << "test_copy\n";
@@ -365,6 +365,15 @@ void test_copy()
   bs3 = bs1;
   std::vector<size_t> v3 (bs3.begin(), bs3.end());
   assert (v3 == (std::vector<size_t> {5, 45, 87, 501}));
+
+  CxxUtils::ConcurrentBitset bs4 = std::move(bs1);
+  std::vector<size_t> v4 (bs4.begin(), bs4.end());
+  assert (v4 == (std::vector<size_t> {5, 45, 87, 501}));
+
+  CxxUtils::ConcurrentBitset bs5;
+  bs5 = std::move(bs4);
+  std::vector<size_t> v5 (bs5.begin(), bs5.end());
+  assert (v5 == (std::vector<size_t> {5, 45, 87, 501}));
 }
 
 
