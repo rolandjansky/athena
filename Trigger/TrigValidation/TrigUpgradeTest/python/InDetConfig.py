@@ -48,8 +48,34 @@ def TrigInDetConfig( flags ):
     InDetPixelRawDataProvider.isRoI_Seeded = True
     InDetPixelRawDataProvider.RoIs = "EMRoIs"
     InDetPixelRawDataProvider.RDOCacheKey = InDetCacheCreatorTrigViews.PixRDOCacheKey
-
     acc.addEventAlgo(InDetPixelRawDataProvider)
+
+    from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
+    acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/AlignL1/ID","/Indet/AlignL1/ID",className="CondAttrListCollection"))
+    acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/AlignL2/PIX","/Indet/AlignL2/PIX",className="CondAttrListCollection"))
+    acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/AlignL2/SCT","/Indet/AlignL2/SCT",className="CondAttrListCollection"))
+    acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/AlignL3","/Indet/AlignL3",className="AlignableTransformContainer"))
+
+    from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
+    from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_DCSConditionsTool
+    dcsTool = SCT_DCSConditionsTool(ReadAllDBFolders = True, ReturnHVTemp = True)
+
+    from SCT_ConditionsTools.SCT_SiliconConditionsToolSetup import SCT_SiliconConditionsToolSetup
+    sct_SiliconConditionsToolSetup = SCT_SiliconConditionsToolSetup()
+    sct_SiliconConditionsToolSetup.setDcsTool(dcsTool)
+    sct_SiliconConditionsToolSetup.setToolName("InDetSCT_SiliconConditionsTool")
+    sct_SiliconConditionsToolSetup.setup()
+
+    sctSiliconConditionsTool = sct_SiliconConditionsToolSetup.getTool()
+    sctSiliconConditionsTool.CheckGeoModel = False
+    sctSiliconConditionsTool.ForceUseGeoModel = False
+
+
+    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_AlignCondAlg
+    acc.addCondAlgo(SCT_AlignCondAlg(UseDynamicAlignFolders =  True))
+
+    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DetectorElementCondAlg
+    acc.addCondAlgo(SCT_DetectorElementCondAlg(name = "SCT_DetectorElementCondAlg"))
     from SCT_Cabling.SCT_CablingConfig import SCT_CablingCondAlgCfg
     acc.merge(SCT_CablingCondAlgCfg(flags))
     from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConfigurationConditionsTool
@@ -61,7 +87,6 @@ def TrigInDetConfig( flags ):
     acc.addCondAlgo(SCT_ConfigurationCondAlg(ReadKeyChannel = channelFolder,
                                              ReadKeyModule = moduleFolder,
                                              ReadKeyMur = murFolder))
-    from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
     acc.merge(addFolders(flags, [channelFolder, moduleFolder, murFolder], "SCT", className="CondAttrListVec"))
     # Set up SCTSiLorentzAngleCondAlg
     from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConfigurationConditionsTool
@@ -70,6 +95,9 @@ def TrigInDetConfig( flags ):
     tempFolder = "/SCT/DCS/MODTEMP"
     dbInstance = "DCS_OFL"
     acc.merge(addFolders(flags, [stateFolder, hvFolder, tempFolder], dbInstance, className="CondAttrListCollection"))
+
+    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DCSConditionsTempCondAlg
+    acc.addCondAlgo(SCT_DCSConditionsTempCondAlg( ReadKey = tempFolder ))
     from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DCSConditionsStatCondAlg
     acc.addCondAlgo(SCT_DCSConditionsStatCondAlg(ReturnHVTemp = True,
                                                  ReadKeyHV = hvFolder,
@@ -77,21 +105,13 @@ def TrigInDetConfig( flags ):
     from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DCSConditionsHVCondAlg
     acc.addCondAlgo(SCT_DCSConditionsHVCondAlg(ReadKey = hvFolder))
 
-    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DCSConditionsTempCondAlg
-    acc.addCondAlgo(SCT_DCSConditionsTempCondAlg(ReadKey = tempFolder))
+    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_SiliconHVCondAlg
+    acc.addCondAlgo(SCT_SiliconHVCondAlg(UseState = dcsTool.ReadAllDBFolders,
+                         DCSConditionsTool = dcsTool))
+    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_SiliconTempCondAlg
+    acc.addCondAlgo(SCT_SiliconTempCondAlg(UseState = dcsTool.ReadAllDBFolders, DCSConditionsTool = dcsTool))
 
-    from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_DCSConditionsTool
 
-    from SCT_ConditionsTools.SCT_SiliconConditionsToolSetup import SCT_SiliconConditionsToolSetup
-    sct_SiliconConditionsToolSetup = SCT_SiliconConditionsToolSetup()
-    from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
-    sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
-    sct_SiliconConditionsToolSetup.setDcsTool(sct_DCSConditionsToolSetup.getTool())
-    sct_SiliconConditionsToolSetup.setToolName("InDetSCT_SiliconConditionsTool")
-    sct_SiliconConditionsToolSetup.setup()
-    sctSiliconConditionsTool = sct_SiliconConditionsToolSetup.getTool()
-    sctSiliconConditionsTool.CheckGeoModel = False
-    sctSiliconConditionsTool.ForceUseGeoModel = False
     from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SCTSiLorentzAngleCondAlg
     acc.addCondAlgo(SCTSiLorentzAngleCondAlg(name = "SCTSiLorentzAngleCondAlg",
                                         SiConditionsTool = sctSiliconConditionsTool,
@@ -409,9 +429,23 @@ if __name__ == "__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"]
     ConfigFlags.Trigger.LVL1ConfigFile = "LVL1config_Physics_pp_v7.xml"
+    #ConfigFlags.IOVDb.GlobalTag = "CONDBR2-BLKPA-2018-13"
     ConfigFlags.lock()
 
+    from AthenaCommon.Constants import INFO,DEBUG
+
+
     acc = ComponentAccumulator()
+
+    nThreads=1
+
+    from StoreGate.StoreGateConf import SG__HiveMgrSvc
+    eventDataSvc = SG__HiveMgrSvc("EventDataSvc")
+    eventDataSvc.NSlots = nThreads
+    eventDataSvc.OutputLevel = DEBUG
+    acc.addService( eventDataSvc )
+    #from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
+    #acc.merge( MainServicesThreadedCfg( ConfigFlags ) )
     from L1Decoder.L1DecoderConfig import L1DecoderCfg
     l1DecoderAcc, l1DecoderAlg = L1DecoderCfg( ConfigFlags )
     acc.addEventAlgo(l1DecoderAlg)
@@ -426,8 +460,6 @@ if __name__ == "__main__":
     acc.merge( rsc )
     acc.addService(regSel)
 
-    #from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
-    #acc.merge( MainServicesSerialCfg( ) )
 
     acc.printConfig()
     acc.store( open("test.pkl", "w") )
