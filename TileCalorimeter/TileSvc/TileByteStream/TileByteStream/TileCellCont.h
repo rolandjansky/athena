@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECELLCONT_H
@@ -73,9 +73,6 @@ class TileCellCont : public std::vector<TileCellCollection*>
   const std::vector<int>& Rw2PmtMap ( int section ) {
     return m_Rw2Pmt[section];
   }
-  const std::vector<int>& masked_drawers() {
-	return m_masked;
-  }
   
 private:
   
@@ -96,7 +93,6 @@ private:
 	TileCellCollection* m_MBTS;
 	std::map<unsigned int, unsigned int> m_mapMBTS;
 	int m_MBTS_channel;
-	std::vector<int> m_masked;
         /** map Hash ID to ROD */
         const TileHid2RESrcID* m_src;
   

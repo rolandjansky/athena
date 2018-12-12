@@ -56,11 +56,11 @@ namespace Trk{
 //class constructor implementation
  SequentialVertexFitter::SequentialVertexFitter(const std::string& t, const std::string& n, const IInterface*  p):
     AthAlgTool(t,n,p),
-    m_Updator("Trk::KalmanVertexUpdator"),
+    m_Updator("Trk::KalmanVertexUpdator", this),
     
 //    m_Smoother("Trk::KalmanVertexSmoother"),
-    m_Smoother("Trk::DummyVertexSmoother"),
-    m_LinTrkFactory("Trk::FullPerigeeLinearizedTrackFactory"),
+    m_Smoother("Trk::DummyVertexSmoother",this),
+    m_LinTrkFactory("Trk::FullPerigeeLinearizedTrackFactory",this),
     m_doSmoothing(true),
     m_maxStep(20),
     m_maxShift(0.0001),

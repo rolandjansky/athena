@@ -37,13 +37,13 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/System.h"
-//#include "IOVDbSvc/IIOVCondDbSvc.h"
+
+// Athena includes
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 
 // CORAL includes
 #include "CoralKernel/Context.h"
 #include "RelationalAccess/IConnectionService.h"
-
 
 #include <sstream>
 #include <algorithm>
@@ -77,8 +77,6 @@ psc::Psc::Psc () :
       m_pesaAppMgr(0),
       m_nameEventLoopMgr("EventLoopMgr"),
       m_interactive(false),
-      m_failNextUsrCmd(false),
-      m_sleepNextUsrCmd(0),
       m_config(0)
 {
 }
@@ -119,31 +117,7 @@ bool psc::Psc::configure(const ptree& config)
   // Create C++ ApplicationMgr
   // -----------------------------
   ERS_DEBUG(1,"---> Create Pesa Application Manager");
-  if ((m_config->getOption("DLLNAME").size() != 0) && (m_config->getOption("FACTORYNAME").size() != 0)) {
-    const std::string dllname = m_config->getOption("DLLNAME");
-    const std::string factname = m_config->getOption("FACTORYNAME");
-
-    if (m_config->getOption("FACTORYNAME")=="ApplicationMgr") {
-      /*
-       * We have to pre-load the DLL in case the factory name is identical
-       * to the original application manager. Otherwise the ApplicationMgr from GaudiSvc
-       * will be loaded since Gaudi::createApplicationMgr seems to trigger loading
-       * of libGaudiSvc.
-       */
-      void* libHandle = 0;
-      auto retval = System::loadDynamicLib(dllname, &libHandle);
-      if (retval == 1) {
-        ERS_DEBUG(1,"Successfully pre-loaded " << dllname << "library");
-      }
-      else {
-        ERS_DEBUG(1,"Failed pre-loading " << dllname << "library, returned code " << retval);
-      }
-    }
-
-    m_pesaAppMgr = Gaudi::createApplicationMgr(dllname, factname);
-  } else {
-    m_pesaAppMgr = Gaudi::createApplicationMgr();
-  }
+  m_pesaAppMgr = Gaudi::createApplicationMgr();
   ERS_DEBUG(1,"m_pesaAppMgr = " << m_pesaAppMgr);
 
   if( !m_pesaAppMgr ) {
@@ -185,13 +159,6 @@ bool psc::Psc::configure(const ptree& config)
   sc = propMgr->setProperty( "MessageSvcType", m_config->getOption("MESSAGESVCTYPE"));
   if (sc.isFailure()) {
     ERS_PSC_ERROR("Can not set Property = MessageSvcType");
-    return false;
-  }
-
-  // Set EventSelector (should be NONE)
-  sc = propMgr->setProperty( "EvtSel", m_config->getOption("EVENTSELECTOR"));
-  if (sc.isFailure()) {
-    ERS_PSC_ERROR("Can not set Property = EvtSel");
     return false;
   }
 
@@ -372,7 +339,6 @@ bool psc::Psc::configure(const ptree& config)
     if ( sc.isFailure() ) {
       ERS_PSC_ERROR("psc::Psc::configure: Error could not write list of configured ROB IDs in JobOptions Catalogue: "
                       <<" number of ROB IDs read from OKS = " << m_config->enabled_robs.size()) ;
-      p_jobOptionSvc->release();
       return false;
     }
 
@@ -388,7 +354,6 @@ bool psc::Psc::configure(const ptree& config)
     if ( sc.isFailure() ) {
       ERS_PSC_ERROR("psc::Psc::configure: Error could not write list of configured sub detector IDs in JobOptions Catalogue: "
                       <<" number of Sub Det IDs read from OKS = " << m_config->enabled_SubDets.size()) ;
-      p_jobOptionSvc->release();
       return false;
     }
 
@@ -409,7 +374,6 @@ bool psc::Psc::configure(const ptree& config)
         ERS_PSC_ERROR("psc::Psc::configure: Error could not write HLT Muon Calibration buffer parameter: "
             << it->first << " = "
             << m_config->getOption(it->second) << " in JobOptions Catalogue.") ;
-        p_jobOptionSvc->release();
         return false;
       }
     }
@@ -539,7 +503,6 @@ bool psc::Psc::prepareForRun (const ptree& args)
     ERS_LOG("Cleaning up RDBAccessSvc connections");
   } else {
     ERS_PSC_ERROR("Cleaning up RDBAccessSvc connections failed");
-    p_rdbAccessSvc->release();
     return false;
   }
 
@@ -605,37 +568,6 @@ bool psc::Psc::disconnect (const ptree& /*args*/)
 bool psc::Psc::unconfigure (const ptree& /*args*/)
 {
   psc::Utils::ScopeTimer timer("Psc unconfigure");
-
-  /*
-  StatusCode sc ;
-  // Finalize the application manager
-  sc = m_pesaAppMgr->finalize();
-  ERS_DEBUG(1,"Finalize ApplicationMgr: " << m_pesaAppMgr->FSMState()
-      << ". Status : " << sc.getCode());
-
-  if( sc.isFailure() ) {
-    ERS_PSC_ERROR("Error while finalizing the ApplicationMgr.");
-    return false;
-  }
-
-
-  // Terminate the application manager
-  sc = m_pesaAppMgr->terminate();
-  ERS_DEBUG(1,"Terminate ApplicationMgr: " << m_pesaAppMgr->FSMState() 
-      << ". Status : " << sc.getCode());
-
-  if ( sc.isFailure() ) {
-    ERS_PSC_ERROR("Error while terminating the ApplicationMgr.");
-    return false;
-  }
-
-  // Make sure we get a new instance the next time
-  Gaudi::setInstance(static_cast<IAppMgrUI*>(0));
-
-  //this object belongs to the real Psc implementation, so don't delete it!
-  m_config = 0;
-  */
-
   return true;
 }
 
@@ -652,145 +584,13 @@ bool psc::Psc::publishStatistics (const ptree& /*args*/)
 
 
 //--------------------------------------------------------------------------------
-// User command. Can be sent via:
+// User command can be sent via:
 //     partition: rc_sendcommand -p [PART] -n [APP] USER command args
-//     athenaXT:  hlt_user_command_client command args
+// But they are no longer supported because they don't propagate from mother to child
 //--------------------------------------------------------------------------------
-
-namespace {
-// Helper to format the user command and parameters
-std::string fmtUserCommand(const std::string& usrCmd, const std::vector<std::string>& usrParam)
-{
-  std::ostringstream os;
-  os << "['" << usrCmd << "'";
-  std::vector<std::string>::const_iterator iter;
-  for (iter=usrParam.begin(); iter!=usrParam.end(); ++iter) {
-    os << " '" << *iter << "'";
-  }
-  os << "]";
-  return os.str();
-}
-}
-
-
 bool psc::Psc::hltUserCommand(const ptree& args)
 {
-  // TODO: change this once the parameters are decided
-
   ERS_DEBUG(1, "psc::Psc::hltUserCommand ptree:\n" << to_string(args));
-
-  const std::string& usrCmd = args.get_child("COMMAND").data();
-  std::vector<std::string> usrParam;
-  for(auto p : args.get_child("PARAMS"))
-    usrParam.push_back(p.second.data());
-
-  // Print all received user commands to log file
-  if (ers::debug_level()>=1) {
-    ERS_DEBUG(1, "Received user command " << fmtUserCommand(usrCmd,usrParam));
-  }
-
-  /*
-   * In tdaq-02-00-01 the first usrParam will contain all parameters separated
-   * by spaces. This might change in future releases.
-   */
-  std::vector<std::string> params;
-  if ( !usrParam.empty() ) {
-    std::stringstream ss(usrParam[0]);
-    std::string buf;
-    // Split the first parameter
-    while ( ss >> buf ) params.push_back(buf);
-
-    // Append any remaining parameters
-    if ( usrParam.size() > 1 ) params.insert(params.end(), usrParam.begin()+1, usrParam.end());
-  }
-
-
-  // Check if user command overrides were requested
-  if ( m_sleepNextUsrCmd > 0 ) {
-    ERS_PSC_WARNING("Sleeping for " << m_sleepNextUsrCmd << " seconds before executing " << usrCmd);
-    sleep(m_sleepNextUsrCmd);
-    m_sleepNextUsrCmd = 0;
-  }
-
-  if ( m_failNextUsrCmd ) {
-    ERS_PSC_WARNING("Will not execute " << usrCmd << ". Return failure instead.");
-    m_failNextUsrCmd = false;
-    return false;
-  }
-
-  // ------------------------------------------------
-  // HLT_SetProperty Client Property VALUE
-  // ------------------------------------------------
-  if ( usrCmd == "HLT_SetProperty" ) {
-
-    if ( params.size()!=3 ) {
-      ERS_PSC_ERROR("User command " << fmtUserCommand(usrCmd,usrParam) << " has " << params.size() <<
-          " arguments, expected 3");
-      return true;
-    }
-    ERS_LOG("Processing command " << fmtUserCommand(usrCmd,usrParam));
-
-    // Try to find algorithm with this name
-    SmartIF<IProperty> prop;
-    ServiceHandle<IAlgManager> algMgr("ApplicationMgr", "psc::Psc");
-    prop = algMgr->algorithm<IProperty>(params[0], false);
-    algMgr->release();
-
-    // If not found, try services (Tools are not supported at this point)
-    if (!prop.isValid()) {
-      ServiceHandle<ISvcLocator> svcLoc("ApplicationMgr", "psc::Psc");
-      prop = svcLoc->service<IProperty>(params[0], false);
-      svcLoc->release();
-    }
-
-    if (!prop.isValid()) {
-      ERS_LOG("Cannot retrieve " << params[0]);
-      return true;
-    }
-
-    if (prop->setProperty(params[1], params[2]).isSuccess()) {
-      ERS_PSC_WARNING("HLT property changed: " << params[0] << "." << params[1]
-                                               << " = " << params[2]);
-    }
-    else {
-      ERS_LOG("ERROR setting property " << params[0] << "." << params[1]);
-    }
-
-    return true;
-  }
-  // ---------------------------
-  // HLT_FailNextUserCommand
-  // ---------------------------
-  else if ( usrCmd == "HLT_FailNextUsrCmd" ) {
-    m_failNextUsrCmd = true;
-    ERS_PSC_WARNING("Will return failure instead of executing next user command");
-  }
-  // ------------------------------
-  // HLT_TimeoutNextUserCommand SEC
-  // ------------------------------
-  else if ( usrCmd == "HLT_SleepNextUsrCmd" ) {
-    if ( params.empty() ) {
-      ERS_PSC_ERROR("User command '" << usrCmd <<"' has no parameters.");
-      return false;
-    }
-
-    // Convert time to uint
-    try {
-      m_sleepNextUsrCmd = boost::lexical_cast<uint>(params[0]);
-    }
-    catch (boost::bad_lexical_cast &) {
-      ERS_PSC_ERROR("Cannot convert parameter '" << params[0]
-                                                           << "' of user command '" << usrCmd << "' to unsigned integer.");
-      m_sleepNextUsrCmd = 0;
-      return false;
-    }
-
-    ERS_PSC_WARNING("Will sleep for " << m_sleepNextUsrCmd <<
-        " seconds before executing next user command");
-  }
-  else {
-    ERS_DEBUG(1, "Ignoring unknown user command '" << usrCmd << "'");
-  }
 
   // Default if no action on command
   return true;
@@ -909,7 +709,6 @@ bool psc::Psc::setDFProperties(std::map<std::string, std::string> name_tr_table)
     {
       ERS_PSC_ERROR("Error could not write Data Flow parameter: "
           << prop.first << " = " << val << " in JobOptions Catalogue.") ;
-      p_jobOptionSvc->release();
       return false;
     }
     else
@@ -945,13 +744,11 @@ bool psc::Psc::setAthenaProperties() {
     if (sc.isFailure()) {
       ERS_PSC_ERROR("Error could not write the " << eventLoopMgrName
                     << ".HardTimeout property in JobOptions Catalogue");
-      p_jobOptionSvc->release();
       return false;
     }
   }
   else {
     ERS_PSC_ERROR("Failed to get the HARDTIMEOUT property from the configuration tree");
-    p_jobOptionSvc->release();
     return false;
   }
 
@@ -964,13 +761,11 @@ bool psc::Psc::setAthenaProperties() {
     if (sc.isFailure()) {
       ERS_PSC_ERROR("Error could not write the " << eventLoopMgrName
                     << ".SoftTimeoutFraction property in JobOptions Catalogue");
-      p_jobOptionSvc->release();
       return false;
     }
   }
   else {
     ERS_PSC_ERROR("Failed to get the SOFTTIMEOUTFRACTION property from the configuration tree");
-    p_jobOptionSvc->release();
     return false;
   }
 
@@ -986,13 +781,11 @@ bool psc::Psc::setAthenaProperties() {
     );
     if (sc.isFailure()) {
       ERS_PSC_ERROR("Error could not write the EventDataSvc.NSlots property in JobOptions Catalogue");
-      p_jobOptionSvc->release();
       return false;
     }
   }
   else {
     ERS_PSC_ERROR("Failed to get the NEVENTSLOTS property from the configuration tree");
-    p_jobOptionSvc->release();
     return false;
   }
 
@@ -1004,18 +797,17 @@ bool psc::Psc::setAthenaProperties() {
     );
     if (sc.isFailure()) {
       ERS_PSC_ERROR("Error could not write the AvalancheSchedulerSvc.ThreadPoolSize property in JobOptions Catalogue");
-      p_jobOptionSvc->release();
       return false;
     }
   }
   else {
     ERS_PSC_ERROR("Failed to get the NTHREADS property from the configuration tree");
-    p_jobOptionSvc->release();
     return false;
   }
 
   return true;
 }
+
 
 template <typename T>
 StatusCode psc::Psc::callOnEventLoopMgr(std::function<StatusCode (T*)> func,

@@ -16,7 +16,6 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetConditions/BeamSpotConditionsData
                           PRIVATE
                           Control/StoreGate
-                          InnerDetector/InDetConditions/InDetBeamSpotService
                           Reconstruction/Particle
                           Tracking/TrkDetDescr/TrkDetDescrUtils
                           Tracking/TrkDetDescr/TrkSurfaces

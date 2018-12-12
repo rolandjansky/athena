@@ -155,7 +155,7 @@ PP="$PP"'|^TimelineSvc +INFO'
 PP="$PP"'|VERBOSE ServiceLocatorHelper::service: found service IncidentSvc'
 PP="$PP"'|VERBOSE ServiceLocatorHelper::service: found service ProxyProviderSvc'
 # Pathnames / versions / times / hosts
-PP="$PP"'|^IOVDbSvc +INFO (Folder|Connection|Total payload)'
+PP="$PP"'|^IOVDb(Svc|Folder) +INFO (Folder|Connection|Total payload|.*bytes in)'
 PP="$PP"'|^DBReplicaSvc +INFO Read replica configuration'
 PP="$PP"'|^EventInfoMgtInit: Got release version'
 PP="$PP"'|^Py:Athena +INFO using release'
@@ -200,6 +200,7 @@ PP="$PP"'|INFO TopAlg list empty.'
 PP="$PP"'|^ChronoStatSvc +INFO +Number of skipped events for MemStat'
 PP="$PP"'|^Py:Athena +INFO +including file'
 PP="$PP"'|^Athena +INFO +including file'
+PP="$PP"'|statistics are unreliable'
 
 # Ignore annoying error from root 6.10.06
 PP="$PP"'|no interpreter information for class TSelectorCint'

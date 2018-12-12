@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATE_SGIMPLSVC_H
@@ -10,7 +10,7 @@
 //FIXME the CLASS_DEF header is not needed here but was added to work around
 //bad include statements in client code: when using CLASS_DEF put the
 //include below in your header file!
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 //base classes
 #include "GaudiKernel/IIncidentListener.h"

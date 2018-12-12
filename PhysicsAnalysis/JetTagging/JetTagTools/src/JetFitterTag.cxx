@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /******************************************************
@@ -50,9 +50,9 @@ namespace Analysis {
       m_ipinfo_tagger_name(""), 
       // m_store_only_base_object(false), 
       // m_save_temporary_variables(false), 
-      m_ntupleWriter("Analysis::JetFitterNtupleWriter"),
+      m_ntupleWriter("Analysis::JetFitterNtupleWriter", this),
       // m_variablesFactory("Analysis::JetFitterVariablesFactory"),
-      m_classifier("Analysis::JetFitterNNTool")
+      m_classifier("Analysis::JetFitterNNTool", this)
   {
     
 

@@ -30,12 +30,11 @@
 #include "TrkNeutralParameters/NeutralParameters.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
-
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 // Forward declaration
 class StoreGateSvc;
 class IIncidentSvc;
-class IBeamCondSvc;
 class VxContainer;
 
 namespace Trk {
@@ -98,7 +97,7 @@ namespace Reco {
       
    // Services
    ServiceHandle<StoreGateSvc>                   m_storeGate;     //!< Event store
-   ServiceHandle<IBeamCondSvc>                   m_beamCondSvc;   //!< BeamCondSvc to get the beam parameters
+   SG::ReadCondHandleKey<InDet::BeamSpotData>    m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };   //!< BeamCondSvc to get the beam parameters
    ServiceHandle<IIncidentSvc>                   m_incidentSvc;   //!< IncidentSvc to catch begin of event and end of envent
                                                  
    // Tools                                      

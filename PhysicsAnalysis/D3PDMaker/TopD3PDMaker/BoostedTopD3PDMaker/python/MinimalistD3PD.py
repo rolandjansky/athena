@@ -1,11 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from D3PDMakerConfig.D3PDMakerFlags           import D3PDMakerFlags
 
 D3PDMakerFlags.TruthWriteHadrons = True
 D3PDMakerFlags.TruthDoPileup = False
 
-from CaloD3PDMaker.ClusterD3PDObject          import ClusterD3PDObject
+from CaloSysD3PDMaker.ClusterD3PDObject          import ClusterD3PDObject
 
 from egammaD3PDMaker.ElectronD3PDObject  import ElectronD3PDObject
 from MuonD3PDMaker.MuonD3PDObject        import MuonD3PDObject
@@ -52,7 +52,7 @@ MuonD3PDObject.defineBlock(99, "miniiso15", BoostedTopD3PDMaker.MiniIsolationMuo
 
 def MinimalistD3PD(alg):
 
-  from CaloD3PDMaker import ClusterMomentFillerTool as CMFT
+  from CaloSysD3PDMaker import ClusterMomentFillerTool as CMFT
   ClusterD3PDObject.defineBlock (0, 'CenterMagMoments', CMFT, Moments = [CMFT.CENTER_MAG, 'centermag'])
   alg += ClusterD3PDObject(level=0, sgkey='CaloCalTopoCluster', prefix='cl_')
  # alg.cl_Filler.cl_Filler_Kinematics.WriteE = True

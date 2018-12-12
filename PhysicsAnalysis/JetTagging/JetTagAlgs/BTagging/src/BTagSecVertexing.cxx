@@ -52,9 +52,9 @@ namespace Analysis {
 
   BTagSecVertexing::BTagSecVertexing(const std::string& t, const std::string& n, const IInterface* p) :
     AthAlgTool(t,n,p),
-    m_secVertexFinderToolsHandleArray(),
-    m_JFvarFactory("Analysis::JetFitterVariablesFactory"),
-    m_MSVvarFactory("Analysis::MSVVariablesFactory"),
+    m_secVertexFinderToolsHandleArray(this),
+    m_JFvarFactory("Analysis::JetFitterVariablesFactory",this),
+    m_MSVvarFactory("Analysis::MSVVariablesFactory",this),
     m_vxPrimaryName("PrimaryVertices")
   {
     declareInterface<IBTagSecVertexing>(this);
@@ -82,6 +82,11 @@ namespace Analysis {
     /* ----------------------------------------------------------------------------------- */
     /*                        RETRIEVE SERVICES FROM STOREGATE                             */
     /* ----------------------------------------------------------------------------------- */
+
+    if ( m_secVertexFinderToolsHandleArray.empty()) {
+      ATH_MSG_ERROR("SecVtxFinderList is empty");
+      return StatusCode::FAILURE;
+    }
 
     if(m_secVertexFinderTrackNameList.size() != m_secVertexFinderToolsHandleArray.size()){
       ATH_MSG_ERROR("#BTAG# Size mismatch between secVertexFinderToolsHandleArray and track name list ");
@@ -715,7 +720,7 @@ namespace Analysis {
         std::vector<ElementLink< xAOD::TrackParticleContainer > >::iterator itELend = tracksInJet.end();
 
         if(tracksInJet.size()==0){
-          ATH_MSG_DEBUG("#BTAG# no tracks associated to the jet" << trackname);
+          ATH_MSG_DEBUG("#BTAG# no tracks associated to the jet. Set some with the track selection tool " << trackname << " for VertexFinderxAODBaseName "<< basename);
           if("SV1" == basename){
             std::vector<ElementLink<xAOD::TrackParticleContainer> > TrkList;
             (*btagIter)->setSV1_TrackParticleLinks(TrkList);

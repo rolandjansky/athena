@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetRecTools/JetTrackSelectionTool.h"
@@ -57,7 +57,7 @@ int JetTrackSelectionTool::execute() const {
 }
 
 int JetTrackSelectionTool::keep(const xAOD::TrackParticle& trk) const {
-  return m_hidselector->accept(trk, 0);
+  return static_cast<bool>(m_hidselector->accept(trk, 0));
 }
 
 template<class T>

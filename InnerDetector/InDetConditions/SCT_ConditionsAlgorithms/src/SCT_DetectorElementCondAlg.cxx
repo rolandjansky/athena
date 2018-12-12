@@ -4,14 +4,12 @@
 
 #include "SCT_DetectorElementCondAlg.h"
 
-#include <memory>
-#include <map>
-
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
-#include "InDetReadoutGeometry/SiCommonItems.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "TrkSurfaces/Surface.h"
 #include "TrkGeometry/Layer.h"
+#include "TrkSurfaces/Surface.h"
+
+#include <map>
 
 SCT_DetectorElementCondAlg::SCT_DetectorElementCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
@@ -88,16 +86,16 @@ StatusCode SCT_DetectorElementCondAlg::execute()
   InDetDD::SiDetectorElementCollection::iterator newEl{writeCdo->begin()};
   for (const InDetDD::SiDetectorElement* oldEl: *oldColl) {
     // At the first time access, SiCommonItems are prepared using the first old element
-    if (m_commonItems==nullptr) {
+    if (m_commonItems.get()==nullptr) {
       const InDetDD::SiCommonItems* oldCommonItems{oldEl->getCommonItems()};
-      m_commonItems = new InDetDD::SiCommonItems(oldCommonItems->getIdHelper());
+      m_commonItems = std::make_unique<InDetDD::SiCommonItems>(oldCommonItems->getIdHelper());
       m_commonItems->setSolenoidFrame(oldCommonItems->solenoidFrame());
     }
 
     *newEl = new InDetDD::SiDetectorElement(oldEl->identify(),
                                             &(oldEl->design()),
                                             oldEl->GeoVDetectorElement::getMaterialGeom(),
-                                            m_commonItems,
+                                            m_commonItems.get(),
                                             readCdo);
     oldToNewMap[oldEl] = *newEl;
     newEl++;
@@ -144,8 +142,6 @@ StatusCode SCT_DetectorElementCondAlg::execute()
 StatusCode SCT_DetectorElementCondAlg::finalize()
 {
   ATH_MSG_DEBUG("finalize " << name());
-
-  delete m_commonItems;
 
   return StatusCode::SUCCESS;
 }

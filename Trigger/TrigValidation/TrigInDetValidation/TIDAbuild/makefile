@@ -84,7 +84,8 @@ SCRIPTDIR = ../scripts
 
 install : all 
 
-all: $(XMLFILE) artfiles checkdata
+# all: $(XMLFILE) artfiles checkdata
+all: artfiles checkdata
 
 $(FILES) : $(JOBS)
 

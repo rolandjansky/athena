@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ProxyMap.cxx,v 1.29 2009-05-02 05:01:29 ssnyder Exp $
@@ -24,7 +24,7 @@
 #include "PersistentDataModel/DataHeader.h"
 #include "PersistentDataModelTPCnv/DataHeaderCnv_p5.h"
 #include "SGTools/DataProxy.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 #include "RootUtils/TBranchElementClang.h"
 #include "TError.h"
 #include "TBranch.h"

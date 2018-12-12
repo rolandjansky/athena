@@ -573,11 +573,14 @@ class ConfiguredNewTrackingCuts :
         self.__minPT            = 0.300 * Units.GeV
         self.__seedFilterLevel  = 2
         self.__maxdImpactSSSSeeds        = 20.0 # apply cut on SSS seeds
-        self.__useParameterizedTRTCuts   = False
-        self.__useNewParameterizationTRT = False
+        self.__useParameterizedTRTCuts   = False #Make these false on all HI cut levels >=3, since standard cut levels set it true from levels >=3
+        self.__useNewParameterizationTRT = False 
       elif self.__indetflags.cutLevel() == 4: # ==CutLevel 2 with loosened hole cuts and chi^2 cuts
        self.__seedFilterLevel  = 2
        self.__maxdImpactSSSSeeds        = 20.0 # apply cut on SSS seeds
+       self.__maxdImpactPPSSeeds      = 1.7 #set this to 1.7 for all HI cut levels >=4, since standard cut levels set it to 2.0 from levels >=4. Not sure it has any effect, since we don't usually run mixed seeds (also true for HI?)
+       self.__useParameterizedTRTCuts   = False
+       self.__useNewParameterizationTRT = False
        self.__maxHoles               = 2 
        self.__maxPixelHoles       = 1 
        self.__maxSctHoles         = 1
@@ -588,6 +591,7 @@ class ConfiguredNewTrackingCuts :
        self.__minPT            = 0.300 * Units.GeV
        self.__seedFilterLevel  = 2
        self.__maxdImpactSSSSeeds        = 20.0 # apply cut on SSS seeds
+       self.__maxdImpactPPSSeeds      = 1.7
        self.__useParameterizedTRTCuts   = False
        self.__useNewParameterizationTRT = False
        self.__maxHoles               = 2

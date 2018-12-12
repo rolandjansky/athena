@@ -7,7 +7,7 @@ from AthenaCommon.AlgSequence import AthSequencer
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 import GaudiKernel.GaudiHandles as GaudiHandles
-from GaudiKernel.GaudiHandles import PublicToolHandle, PublicToolHandleArray, ServiceHandle, PrivateToolHandle
+from GaudiKernel.GaudiHandles import PublicToolHandle, PublicToolHandleArray, ServiceHandle, PrivateToolHandle, PrivateToolHandleArray
 import ast
 import collections
 
@@ -56,10 +56,33 @@ class ComponentAccumulator(object):
     
 
 
-    def printConfig(self, withDetails=False):
+    def printConfig(self, withDetails=False, summariseProps=False):
         self._msg.info( "Event Inputs" )
         self._msg.info( self._eventInputs )
         self._msg.info( "Event Algorithm Sequences" )
+
+        def printProperties(c, nestLevel = 0):
+            from AthenaCommon.Configurable import ConfigurableAlgTool
+            for propname, propval in c.getProperties().iteritems():
+                # Ignore unset or empty lists
+                if propval=='<no value>' or propval==[]:
+                    continue
+                # Printing EvtStore could be relevant for Views?
+                if propname in ["DetStore","EvtStore"]:
+                    continue
+
+                propstr = str(propval)
+                if isinstance(propval,PublicToolHandleArray):
+                    ths = [th.getFullName() for th in propval]
+                    propstr = "PublicToolHandleArray([ {0} ])".format(', '.join(ths))
+                elif isinstance(propval,PrivateToolHandleArray):
+                    ths = [th.getFullName() for th in propval]
+                    propstr = "PrivateToolHandleArray([ {0} ])".format(', '.join(ths))
+                elif isinstance(propval,ConfigurableAlgTool):
+                    propstr = propval.getFullName()
+                self._msg.info( " "*nestLevel +"    * {0}: {1}".format(propname,propstr) )
+            return
+
         if withDetails:
             self._msg.info( self._sequence )     
         else:
@@ -76,6 +99,8 @@ class ComponentAccumulator(object):
                         printSeqAndAlgs(c, nestLevel )
                     else:
                         self._msg.info( " "*nestLevel +"\__ "+ c.name() +" (alg)" )
+                        if summariseProps:
+                            printProperties(c, nestLevel)
             printSeqAndAlgs(self._sequence) 
 
         self._msg.info( "Condition Algorithms" )
@@ -84,6 +109,14 @@ class ComponentAccumulator(object):
         self._msg.info( [ s.getName() for s in self._services ] )
         self._msg.info( "Outputs" )
         self._msg.info( self._outputPerStream )
+        self._msg.info( "Public Tools" )
+        self._msg.info( "[" )
+        for t in self._publicTools:
+            self._msg.info( "  {0},".format(t.getFullName()) )
+            # Not nested, for now
+            if summariseProps:
+                printProperties(t)
+        self._msg.info( "]" )
 
 
     def addSequence(self, newseq, parentName = None ):
@@ -396,7 +429,7 @@ class ComponentAccumulator(object):
                     existingAlg = findAlgorithm( dest, c.name(), depth=1 )
                     if existingAlg:
                         if existingAlg != c: # if it is the same we can just skip it, else this indicates an error
-                            raise ConfigurationError( "Duplicate algorithm %s in source and destination sequences %s" % ( c.name(), src.name()  ) )           
+                            raise ConfigurationError( "Duplicate algorithm %s in source and destination sequences %s" % ( c.name(), src.name()  ) )
                     else: # absent, adding
                         self._msg.debug("  Merging algorithm %s to a sequence %s", c.name(), dest.name() )
                         dest += c

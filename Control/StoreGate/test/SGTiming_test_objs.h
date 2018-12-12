@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATE_SGTEST_OBJS_H
@@ -224,7 +224,7 @@ private:
    int m_i{0};
 };
 
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( SGTObj_ATNGGE , 146467055 , 1 )
 CLASS_DEF( SGTObj_BJBLBR , 10968191 , 1 )
 CLASS_DEF( SGTObj_BKTYOQ , 111600905 , 1 )

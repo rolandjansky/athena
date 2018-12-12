@@ -4,6 +4,7 @@
 #include "TrigConfL1Data/ThresholdConfig.h"
 #include "TrigT1Result/JetEnergyResult.h"
 #include "TrigT1Result/RoIBResult.h"
+#include "TrigConfL1Data/CTPConfig.h"
 #include "METRoIsUnpackingTool.h"
 
 METRoIsUnpackingTool::METRoIsUnpackingTool( const std::string& type, 
@@ -26,8 +27,14 @@ StatusCode METRoIsUnpackingTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode METRoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::SeedingMap& ) {
-  using namespace TrigConf;
+StatusCode METRoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::SeedingMap& seeding ) {
+  using namespace TrigConf;  
+  ATH_CHECK( decodeMapping( [](const TriggerThreshold* th){ return L1DataDef::TE == th->ttype() or L1DataDef::XE == th->ttype() or  L1DataDef::XS == th->ttype(); }, 
+			    m_configSvc->ctpConfig()->menu().itemVector(),
+			    seeding ) );
+
+
+
   const ThresholdConfig* thresholdConfig = m_configSvc->thresholdConfig();
   std::vector<const TriggerThreshold*> filtered;
   {

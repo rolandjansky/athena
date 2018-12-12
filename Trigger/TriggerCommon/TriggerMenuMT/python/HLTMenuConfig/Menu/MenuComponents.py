@@ -678,3 +678,7 @@ class HLTMenuAccumulator( ComponentAccumulator ):
     def steps( self ):
         """ returns step seqeuncers """
         return self.getSequence("HLTSteps")
+
+
+def getChainStepName(chainName, stepNumber):
+    return '{}_step{}'.format(chainName, stepNumber)

@@ -53,7 +53,8 @@ class EFMissingETFromTrackAndJets : public EFMissingETBaseTool
                   			       const xAOD::CaloClusterContainer *caloCluster,
                   			       const xAOD::JetContainer *jets,
                                const xAOD::TrackParticleContainer *track,
-                               const xAOD::VertexContainer *vertex);
+                               const xAOD::VertexContainer *vertex,
+                               const xAOD::MuonContainer *muon);
 
     TH1* getHistogramFromFile(TString hname, TString fname);
 
@@ -67,7 +68,6 @@ class EFMissingETFromTrackAndJets : public EFMissingETBaseTool
     TH2F* m_jvtLikelihood;
 
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trackselTool;
-    ToolHandle<InDet::IInDetTrackSelectionTool> m_muontrackselTool;
 };
 
 #endif // TRIGEFMISSINGET_EFMISSINGETFROMTRACKANDJETS_H

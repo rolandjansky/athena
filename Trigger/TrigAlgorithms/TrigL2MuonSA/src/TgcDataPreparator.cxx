@@ -72,7 +72,7 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::initialize()
    sc = AthAlgTool::initialize();
    if (!sc.isSuccess()) {
      ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
-      return sc;
+     return sc;
    }
 
    ATH_CHECK( m_storeGateSvc.retrieve() );

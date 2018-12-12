@@ -172,9 +172,6 @@ namespace Analysis {
     const xAOD::Vertex* m_priVtx = 0;
 
     //// VD: list of tools below
-    /** TrackToVertex tool */
-    ToolHandle< Reco::ITrackToVertex > m_trackToVertexTool;
-
     /** Track selection cuts for IPTagging */
     ToolHandle< TrackSelector >        m_trackSelectorTool;
 

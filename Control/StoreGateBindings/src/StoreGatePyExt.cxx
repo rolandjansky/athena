@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StoreGateBindings/StoreGatePyExt.h"
@@ -14,11 +14,11 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/DataObject.h"
 #include "AthenaKernel/IClassIDSvc.h"
+#include "AthenaKernel/DataBucketBase.h"
+#include "AthenaKernel/BaseInfo.h"
+#include "AthenaKernel/ClassID_traits.h"
 
 // SGTools includes
-#include "SGTools/DataBucketBase.h"
-#include "SGTools/BaseInfo.h"
-#include "SGTools/ClassID_traits.h"
 #include "SGTools/BuiltinsClids.h"
 
 // ROOT includes

@@ -27,7 +27,7 @@ class ITGCcablingServerSvc : virtual public IInterface
   virtual bool isAtlas(void) const=0;
   virtual bool isConfigured(void) const=0;
 
-  virtual StatusCode compareTags(IOVSVC_CALLBACK_ARGS)=0;
+  virtual StatusCode compareTags() const=0;
 
 };
  

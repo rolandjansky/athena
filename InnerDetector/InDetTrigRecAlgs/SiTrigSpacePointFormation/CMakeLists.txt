@@ -11,11 +11,11 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           Trigger/TrigSteer/TrigInterfaces
+                          InnerDetector/InDetConditions/BeamSpotConditionsData
                           PRIVATE
                           Control/AthenaBaseComps
                           DetectorDescription/IRegionSelector
                           Event/EventPrimitives
-                          InnerDetector/InDetConditions/InDetBeamSpotService
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecAlgs/SiSpacePointFormation

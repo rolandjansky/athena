@@ -11,7 +11,7 @@
 // Gaudi
 #include "GaudiKernel/IAlgTool.h"
 
-#include "ISF_Geant4Tools/G4AtlasRunManager.h"
+#include "G4AtlasAlg/G4AtlasRunManager.h"
 
 namespace ISF {
 
@@ -31,7 +31,7 @@ namespace ISF {
        DeclareInterfaceID(IG4RunManagerHelper, 1, 0);
        
        /** get the fully configured G4RunManager */
-       virtual iGeant4::G4AtlasRunManager* g4RunManager() const = 0;
+       virtual G4AtlasRunManager* g4RunManager() const = 0;
 
        /** get the light version of G4RunManager */
        virtual G4RunManager* fastG4RunManager() const = 0;

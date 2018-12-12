@@ -11,7 +11,7 @@
 using namespace TrigCompositeUtils;
 
 TrigL2CaloHypoAlgMT::TrigL2CaloHypoAlgMT( const std::string& name, 
-				      ISvcLocator* pSvcLocator ) :
+					  ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator ) {}
 
 TrigL2CaloHypoAlgMT::~TrigL2CaloHypoAlgMT() {}
@@ -32,23 +32,6 @@ StatusCode TrigL2CaloHypoAlgMT::finalize() {
   return StatusCode::SUCCESS;
 }
 
-  /*
-OLD
-    ITC -> get 1 RoI/TC
-    loop over views
-       make one TC per view
-       get RoIs of view - from RoI input
-       get clusters of view -from View input
-       map the roi to a decision - from input decisions
-       create new decision with one cluster, one roi, one view
-
-NEW
-    loop over ITC
-       get RoI and view of TC
-       get cluster of that view
-       create new decision with one cluster, one roi, one view
-
-   */
 
 StatusCode TrigL2CaloHypoAlgMT::execute_r( const EventContext& context ) const {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
@@ -72,15 +55,16 @@ StatusCode TrigL2CaloHypoAlgMT::execute_r( const EventContext& context ) const {
   // loop over previous decisions
   size_t counter=0;
   for ( auto previousDecision: *previousDecisionsHandle ) {
-    //get RoI
-    auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
-    ATH_CHECK( roiEL.isValid() );
-    const TrigRoiDescriptor* roi = *roiEL;
+    //get RoI  
+    auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, "initialRoI" );
+    
+    ATH_CHECK( roiELInfo.isValid() );
+    const TrigRoiDescriptor* roi = *(roiELInfo.link);
 
     // get View
-    auto viewEL = previousDecision->objectLink< ViewContainer >( "view" );
-    ATH_CHECK( viewEL.isValid() );
-    auto clusterHandle = ViewHelper::makeHandle( *viewEL, m_clustersKey, context);
+    auto viewELInfo = TrigCompositeUtils::findLink< ViewContainer >( previousDecision, "view" );
+    ATH_CHECK( viewELInfo.isValid() );
+    auto clusterHandle = ViewHelper::makeHandle( *(viewELInfo.link), m_clustersKey, context);
     ATH_CHECK( clusterHandle.isValid() );
     ATH_MSG_DEBUG ( "Cluster handle size: " << clusterHandle->size() << "..." );
 
@@ -90,16 +74,16 @@ StatusCode TrigL2CaloHypoAlgMT::execute_r( const EventContext& context ) const {
 
     toolInput.emplace_back( d, roi, clusterHandle.cptr()->at(0), previousDecision );
 
-     {
-       auto el = ViewHelper::makeLink( *viewEL, clusterHandle, 0 );
+    {
+      auto el = ViewHelper::makeLink( *(viewELInfo.link), clusterHandle, 0 );
       ATH_CHECK( el.isValid() );
       d->setObjectLink( "feature",  el );
     }
-     d->setObjectLink( "roi", roiEL );
-     d->setObjectLink( "view", viewEL );
-     TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
-     ATH_MSG_DEBUG( "Added view, roi, cluster, previous decision to new decision " << counter << " for view " << (*viewEL)->name()  );
-     counter++;
+    d->setObjectLink( "roi", roiELInfo.link );
+    
+    TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
+    ATH_MSG_DEBUG( "Added view, roi, cluster, previous decision to new decision " << counter << " for view " << (*viewELInfo.link)->name()  );
+    counter++;
 
   }
 

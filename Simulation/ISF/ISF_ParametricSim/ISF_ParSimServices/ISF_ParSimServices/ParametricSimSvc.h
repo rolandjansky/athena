@@ -52,7 +52,7 @@ namespace iParSim {
       StatusCode  finalize();
 
       /** Simulation Call  */
-      StatusCode simulate(const ISF::ISFParticle& isp);
+      StatusCode simulate(const ISF::ISFParticle& isp, McEventCollection* mcEventCollection);
                                                                  
       /** Setup Event chain - in case of a begin-of event action is needed */
       StatusCode setupEvent();

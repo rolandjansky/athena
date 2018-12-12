@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATE_STOREGATESVC_H
@@ -10,7 +10,7 @@
 //FIXME the CLASS_DEF header is not needed here but was added to work around
 //bad include statements in client code: when using CLASS_DEF put the
 //include below in your header file!
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 //HIVE wrapper implementation
 //base classes
@@ -1098,13 +1098,13 @@ public:
   }  
 
   /// DEPRECATED put a dobj pointer in a bucket as appropriate
-  /// see tools/StorableConversion.h for replacement
+  /// see AthenaKernel/StorableConversion.h for replacement
   template <typename T>
   static 
   DataObject* SG_DEPRECATED asStorable(T* pDObj);
 
   /// DEPRECATED gets a dobj pointer from a bucket as appropriate
-  /// see tools/StorableConversion.h for replacement
+  /// see AthenaKernel/StorableConversion.h for replacement
   template <typename T>
   static 
   bool SG_DEPRECATED fromStorable(DataObject* pObject, T*& pData);

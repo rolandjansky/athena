@@ -2,7 +2,8 @@
 
 from TrigUpgradeTest.ElectronMenuConfig import l2CaloRecoCfg, l2CaloHypoCfg
 from TrigUpgradeTest.PhotonMenuConfig import l2PhotonRecoCfg, l2PhotonHypoCfg
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, ChainStep, Chain, RecoFragmentsPool
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, \
+    ChainStep, Chain, RecoFragmentsPool, getChainStepName
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName
@@ -27,7 +28,7 @@ def generateChains(flags, chainDict):
                                     Hypo=l2CaloHypo,
                                     HypoToolGen=TrigL2CaloHypoToolFromName)
 
-    fastCaloStep = ChainStep("Photon_step1", [fastCaloSequence])
+    fastCaloStep = ChainStep(getChainStepName('Photon', 1), [fastCaloSequence])
 
     l2PhotonReco = RecoFragmentsPool.retrieve(l2PhotonRecoCfg, flags)
     acc.merge(l2PhotonReco)
@@ -42,7 +43,7 @@ def generateChains(flags, chainDict):
                                     Hypo=l2PhotonHypo,
                                     HypoToolGen=TrigL2PhotonHypoToolFromName)
 
-    l2PhotonStep = ChainStep("Photon_step2", [l2PhotonSequence])
+    l2PhotonStep = ChainStep(getChainStepName('Photon', 2), [l2PhotonSequence])
 
     import pprint
     pprint.pprint(chainDict)

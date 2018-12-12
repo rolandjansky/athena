@@ -24,9 +24,6 @@
 #include "TileIdentifier/TileHWID.h"
 #include "TileIdentifier/TileTBFrag.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
-#include "TileConditions/TileCondToolOfcCool.h"
-#include "TileConditions/TileCondToolTiming.h"
-#include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/TileCablingService.h"
 #include "TileRecUtils/TileRawChannelBuilder.h"
 #include "TileByteStream/TileROD_Decoder.h"
@@ -42,9 +39,6 @@ static const InterfaceID IID_ITileROD_Decoder("TileROD_Decoder", 1, 0);
 TileROD_Decoder::TileROD_Decoder(const std::string& type, const std::string& name,
                                  const IInterface* parent)
   : AthAlgTool(type, name, parent)
-  , m_tileToolTiming("TileCondToolTiming")
-  , m_tileCondToolOfcCool("TileCondToolOfcCool")
-  , m_tileToolEmscale("TileCondToolEmscale")
   , m_hid2re(0)
   , m_hid2reHLT(0)
   , m_maxChannels(TileCalibUtils::MAX_CHAN)
@@ -58,10 +52,6 @@ TileROD_Decoder::TileROD_Decoder(const std::string& type, const std::string& nam
   declareProperty("useFrag5Raw", m_useFrag5Raw = false);
   declareProperty("useFrag5Reco", m_useFrag5Reco = false);
   declareProperty("ignoreFrag4HLT", m_ignoreFrag4HLT = false);
-  
-  declareProperty("TileCondToolTiming", m_tileToolTiming);
-  declareProperty("TileCondToolOfcCool", m_tileCondToolOfcCool, "TileCondToolOfcCool");
-  declareProperty("TileCondToolEmscale", m_tileToolEmscale);
   
   declareProperty("TileCellEthresholdMeV", m_TileCellEthreshold = -100000.);
   declareProperty("TileDefaultChannelBuilder", m_TileDefaultChannelBuilder = "TileRawChannelBuilderFlatFilter/TileROD_RCBuilder");
@@ -140,17 +130,17 @@ StatusCode TileROD_Decoder::initialize() {
   m_d2Bytes.setVerbose(m_verbose);
   
   ServiceHandle<IToolSvc> toolSvc("ToolSvc", this->name());
-  CHECK( toolSvc.retrieve() );
+  ATH_CHECK( toolSvc.retrieve() );
   
   // retrieve TileHWID helper from det store
-  CHECK( detStore()->retrieve(m_tileHWID, "TileHWID") );
+  ATH_CHECK( detStore()->retrieve(m_tileHWID, "TileHWID") );
   
   if (m_useFrag5Raw || m_useFrag5Reco) {
     //=== get TileCondToolOfcCool
-    CHECK( m_tileCondToolOfcCool.retrieve() );
+    ATH_CHECK( m_tileCondToolOfcCool.retrieve() );
     
     //=== get TileToolTiming
-    CHECK( m_tileToolTiming.retrieve() );
+    ATH_CHECK( m_tileToolTiming.retrieve() );
   }
   else {
     m_tileCondToolOfcCool.disable();
@@ -158,15 +148,22 @@ StatusCode TileROD_Decoder::initialize() {
   }
   
   //=== get TileCondToolEmscale
-  CHECK( m_tileToolEmscale.retrieve() );
+  ATH_CHECK( m_tileToolEmscale.retrieve() );
  
+  //=== get TileBadChanTool
+  if ( m_tileBadChanTool.empty() ) {
+    m_tileBadChanTool.disable();
+  } else {
+    ATH_CHECK( m_tileBadChanTool.retrieve() );
+  }
+
   // Get Tool to TileChannelBuilder, to be used to convert automatically digits->channels.
   //ATH_MSG_DEBUG( "creating algtool " << m_TileDefaultChannelBuilder );
   //ListItem algRC(m_TileDefaultChannelBuilder);
-  //CHECK( toolSvc->retrieveTool(algRC.type(), algRC.name(), m_RCBuilder, this) );
+  //ATH_CHECK( toolSvc->retrieveTool(algRC.type(), algRC.name(), m_RCBuilder, this) );
   
   //ATH_MSG_DEBUG( "algtool " << m_TileDefaultChannelBuilder << " created " );
-  //CHECK( m_RCBuilder->setProperty(BooleanProperty("calibrateEnergy", m_calibrateEnergy)) );
+  //ATH_CHECK( m_RCBuilder->setProperty(BooleanProperty("calibrateEnergy", m_calibrateEnergy)) );
   
   m_maxChannels = TileCablingService::getInstance()->getMaxChannels();
 
@@ -187,7 +184,7 @@ StatusCode TileROD_Decoder::initialize() {
   if (m_TileDefaultL2Builder.size() > 0) {
     ATH_MSG_DEBUG( "creating algtool " << m_TileDefaultL2Builder );
     ListItem algL2(m_TileDefaultL2Builder);
-    CHECK( toolSvc->retrieveTool(algL2.type(), algL2.name(), m_L2Builder, this) );
+    ATH_CHECK( toolSvc->retrieveTool(algL2.type(), algL2.name(), m_L2Builder, this) );
     ATH_MSG_DEBUG( "algtool " << m_TileDefaultL2Builder << " created " );
   } else {
     m_L2Builder = 0;
@@ -197,6 +194,48 @@ StatusCode TileROD_Decoder::initialize() {
   this->m_hashFunc.initialize(m_tileHWID);
   
   return StatusCode::SUCCESS;
+}
+
+bool TileROD_Decoder::is_drawer_masked(int frag_id, int run) {
+
+  if (m_list_of_masked_drawers.size()==0 || m_list_of_masked_drawers[0]!=run) {
+
+    m_list_of_masked_drawers.clear();
+    m_list_of_masked_drawers.push_back(run);
+
+    if ( !m_tileBadChanTool.empty() ) {
+      TileCablingService* cabling = TileCablingService::getInstance();
+
+      for (unsigned int ros = 1; ros < TileCalibUtils::MAX_ROS; ++ros) {
+        for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
+          unsigned int channel = 0;
+          for ( ; channel < m_maxChannels; ++channel) {
+            int index=-1, pmt=-1;
+            HWIdentifier channelID = m_tileHWID->channel_id(ros, drawer, channel);
+            cabling->h2s_cell_id_index(channelID, index, pmt);
+            if (index >= 0 && !m_tileBadChanTool->getChannelStatus(channelID).isBad()) { // good normal cell
+              break;
+            }
+          }
+          if (channel == m_maxChannels) m_list_of_masked_drawers.push_back(m_tileHWID->frag(ros, drawer));
+        }
+      }
+    }
+
+    if (msgLvl(MSG::DEBUG)) {
+      if (m_list_of_masked_drawers.size()>1) {
+        msg(MSG::DEBUG) << "List of fully masked drawers in run " << run << " : " << MSG::hex;
+        for(size_t i=1; i<m_list_of_masked_drawers.size(); ++i)
+          msg(MSG::DEBUG) << " 0x" << m_list_of_masked_drawers[i];
+        msg(MSG::DEBUG) << MSG::dec << endmsg;
+      } else {
+        msg(MSG::DEBUG) << "No bad drawers in run " << run << endmsg;
+      }
+    }
+  }
+
+  return (std::find(++m_list_of_masked_drawers.begin(),
+                    m_list_of_masked_drawers.end(), frag_id) != m_list_of_masked_drawers.end());
 }
 
 StatusCode TileROD_Decoder::finalize() {
@@ -3147,13 +3186,13 @@ void TileROD_Decoder::fillTileLaserObj(const ROBData * rob, TileLaserObject & v)
     int frag = *(p + 1) & 0xFFFF;
     int type = *(p + 1) >> 16;
     
-    msg(MSG::DEBUG) << wc << " / " << size << " HEX = 0x" << MSG::hex << count << " DEC = " << MSG::dec << count << " ( FRAG , TYPE ) = " << frag << " , " << type << endmsg;
+    ATH_MSG_DEBUG( wc << " / " << size << " HEX = 0x" << MSG::hex << count << " DEC = " << MSG::dec << count << " ( FRAG , TYPE ) = " << frag << " , " << type );
     
     if (count < sizeOverhead || count > size - wc) {
       int cnt = 0;
       for (; wc < size; ++wc, ++cnt, ++p) {
         if ((*p) == 0xff1234ff) {
-          msg(MSG::DEBUG) << "DATA POINTER: HEX = " << MSG::hex << (*p) << " DEC = " << MSG::dec << (*p) << endmsg;
+          ATH_MSG_DEBUG( "DATA POINTER: HEX = " << MSG::hex << (*p) << " DEC = " << MSG::dec << (*p) );
           ++cnt;
           ++wc;
           ++p;
@@ -3253,12 +3292,6 @@ uint32_t TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollect
   uint16_t DQuality = 0x0;
   bool fragFound = false;
   bool DQfragMissing = true;
-  bool masked_drawer = false;
-  for (size_t m = 0; m < m_list_of_masked_drawers.size(); ++m)
-    if (m_list_of_masked_drawers[m] == frag_id) {
-      masked_drawer = true;
-      break;
-    }
   
   while (wc < size) { // iterator over all words in a ROD
     
@@ -3359,7 +3392,9 @@ uint32_t TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollect
     p += count;
     wc += count;
   }
-  
+
+  bool masked_drawer = is_drawer_masked(frag_id,rob->rod_run_no());
+
   if (DQfragMissing && !masked_drawer) error |= 0x40000;
   
   if (fragFound) {
@@ -4258,7 +4293,7 @@ StatusCode TileROD_Decoder::convertTMDBDecision(const RawEvent* re, TileMuonRece
     //eformat::helper::SourceIdentifier id = eformat::helper::SourceIdentifier(robFrag.source_id());
     uint32_t sourceid = robFrag.source_id();
     uint32_t modid = sourceid >> 16;
-    //msg(MSG::VERBOSE) <<MSG::hex<<" sourceId: 0x"<< robFrag.source_id() <<MSG::dec<< endmsg;
+    //ATH_MSG_VERBOSE( MSG::hex<<" sourceId: 0x"<< robFrag.source_id() <<MSG::dec );
 
     if ((modid == 0x51 || modid == 0x52 || modid == 0x53 || modid == 0x54) && (sourceid & 0xf00)) {
       fillContainer_TileMuRcv_Decision(&robFrag, *tileMuRcv);

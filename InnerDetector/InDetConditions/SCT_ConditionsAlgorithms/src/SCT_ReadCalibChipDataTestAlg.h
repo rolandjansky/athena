@@ -47,7 +47,7 @@ class SCT_ReadCalibChipDataTestAlg : public AthAlgorithm
   
   //----------Private Attributes----------//
   const SCT_ID*                       m_id_sct;        //!< ID helper for SCT
-  SG::ReadHandleKey<xAOD::EventInfo>  m_currentEventKey;  //!< Current event
+  SG::ReadHandleKey<xAOD::EventInfo>  m_currentEventKey{this, "EventInfoKey", "EventInfo", "EventInfoKey"};
   Identifier                          m_moduleId;      //!< Module identifier
   Identifier                          m_waferId;       //!< Wafer identifier
   Identifier                          m_stripId;       //!< Strip identifier
@@ -55,9 +55,9 @@ class SCT_ReadCalibChipDataTestAlg : public AthAlgorithm
   // Get Tool Handle
   ToolHandle<ISCT_ReadCalibChipDataTool> m_ReadCalibChipDataTool{this, "SCT_ReadCalibChipDataTool", "SCT_ReadCalibChipDataTool", "Tool to retrieve chip calibration information"};
 
-  BooleanProperty                  m_doTestmyConditionsSummary;   //!< Test return bool conditions summary?
-  BooleanProperty                  m_doTestmyDataSummary;         //!< Test return data summary?
-  IntegerArrayProperty             m_moduleOfflinePosition;       //!< Offline pos. as: B-EC,layer-disk,phi,eta
+  BooleanProperty m_doTestmyConditionsSummary{this, "DoTestmyConditionsSummary", false, "Test return bool conditions summary?"};
+  BooleanProperty m_doTestmyDataSummary{this, "DoTestmyDataSummary", false, "Test return data summary?"};
+  IntegerArrayProperty m_moduleOfflinePosition{this, "ModuleOfflinePosition", {}, "Offline pos. as: B-EC,layer-disk,phi,eta"};
 };
 //---------------------------------------------------------------------- 
 

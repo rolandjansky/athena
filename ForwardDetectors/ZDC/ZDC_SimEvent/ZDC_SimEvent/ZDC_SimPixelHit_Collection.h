@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ZDC_SIMPIXELHIT_COLLECTION
@@ -7,11 +7,7 @@
 
 #include "ZDC_SimPixelHit.h"
 #include "HitManagement/AtlasHitsVector.h"
-
-#ifndef __CINT__
-  #include "CLIDSvc/CLASS_DEF.h"
-#endif
-
+#include "AthenaKernel/CLASS_DEF.h"
 #include <string>
 
 typedef AtlasHitsVector<ZDC_SimPixelHit> ZDC_SimPixelHit_Collection1;

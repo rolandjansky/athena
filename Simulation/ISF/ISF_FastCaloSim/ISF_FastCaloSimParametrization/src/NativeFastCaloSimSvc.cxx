@@ -269,7 +269,7 @@ StatusCode ISF::NativeFastCaloSimSvc::releaseEvent()
 
 
 /** Simulation Call */
-StatusCode ISF::NativeFastCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
+StatusCode ISF::NativeFastCaloSimSvc::simulate(const ISF::ISFParticle& isfp, McEventCollection*)
 {
   // read the particle's barcode
   Barcode::ParticleBarcode bc = isfp.barcode();

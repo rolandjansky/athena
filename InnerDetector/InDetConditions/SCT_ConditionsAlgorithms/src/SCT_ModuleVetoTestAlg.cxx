@@ -65,7 +65,6 @@ SCT_ModuleVetoTestAlg::execute() {
   return StatusCode::SUCCESS;
 }
 
-
 //Finalize
 StatusCode
 SCT_ModuleVetoTestAlg::finalize() {

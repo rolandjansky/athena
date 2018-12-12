@@ -8,6 +8,7 @@
 #include "xAODEgamma/Egamma.h"
 #include "PATCore/AcceptData.h"
 
+
 // ===========================================================================
 EMPIDBuilder::EMPIDBuilder(const std::string& type,
         const std::string& name,

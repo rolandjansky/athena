@@ -12,6 +12,10 @@
 static const InterfaceID IID_IMuonClusterOnTrackCreator
     ("Muon::IMuonClusterOnTrackCreator",1,0);
 
+class ICscStripFitter;
+class ICscClusterFitter;
+class ICscClusterUtilTool;
+
 namespace Trk {
     class PrepRawData;
 }

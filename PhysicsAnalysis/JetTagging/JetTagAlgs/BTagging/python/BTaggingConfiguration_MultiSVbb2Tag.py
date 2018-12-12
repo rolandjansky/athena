@@ -6,9 +6,10 @@ from BTagging.BTaggingFlags import BTaggingFlags
 
 metaMultiSVbb2Tag = { 'IsATagger'         : True,
                       'xAODBaseName'      : 'MSV',
-                      'DependsOn'         : ['AtlasExtrapolator',
-                                             'BTagTrackToVertexTool',
-                                             'InDetVKalMultiVxInJetTool',],
+                      'DependsOn'         : [#'AtlasExtrapolator',
+                                             #'BTagTrackToVertexTool',
+                                             ],
+                                             #'InDetVKalMultiVxInJetTool',],
                       'CalibrationTaggers' : ['MultiSVbb2',],
                       'JetCollectionList' : 'jetCollectionList',
                       'DefaultTracks'     : 'BTagTrackToJetAssociatorBB',

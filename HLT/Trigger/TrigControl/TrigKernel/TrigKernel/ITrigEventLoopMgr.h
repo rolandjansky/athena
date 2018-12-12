@@ -8,12 +8,6 @@
 #include "GaudiKernel/IInterface.h"
 #include <boost/property_tree/ptree.hpp>
 
-namespace hltinterface
-{
-  struct EventId;
-  struct HLTResult;
-}
-
 /**@class ITrigEventLoopMgr
  * @brief EventLoopMgr interface implemented by the HLT event loop manager
  *

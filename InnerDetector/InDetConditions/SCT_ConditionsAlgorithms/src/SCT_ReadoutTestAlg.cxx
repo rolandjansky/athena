@@ -20,17 +20,10 @@
 // C++
 #include <vector>
 
+// Constructor
 SCT_ReadoutTestAlg::SCT_ReadoutTestAlg(const std::string& name, ISvcLocator* pSvcLocator) : 
-  AthAlgorithm(name, pSvcLocator),
-  m_moduleId{168497152},
-  m_link0ok{true},
-  m_link1ok{true}
+  AthAlgorithm(name, pSvcLocator)
 {
-  // Constructor
-  declareProperty("ChipConfigurationList", m_chipConfigs);
-  declareProperty("ModuleId",              m_moduleId);
-  declareProperty("Link0Status",           m_link0ok);
-  declareProperty("Link1Status",           m_link1ok);
 }
 
 // Initialize
@@ -66,7 +59,7 @@ StatusCode SCT_ReadoutTestAlg::execute() {
   for (; itr != end; ++itr) ATH_MSG_INFO(*(*itr));
 
   // Determin readout for this module
-  ATH_CHECK(m_readout->determineReadout(Identifier(m_moduleId), m_chips, m_link0ok, m_link1ok));
+  ATH_CHECK(m_readout->determineReadout(Identifier(m_moduleId.value()), m_chips, m_link0ok.value(), m_link1ok.value()));
   
   ATH_MSG_INFO("Chips after readout ...");
   for (itr = m_chips.begin(); itr != end; ++itr) ATH_MSG_INFO(*(*itr));
@@ -82,7 +75,6 @@ StatusCode SCT_ReadoutTestAlg::finalize() {
   // Free up the memory associated to the chips
   std::vector<SCT_Chip*>::const_iterator itr{m_chips.begin()};
   std::vector<SCT_Chip*>::const_iterator end{m_chips.end()};
-
   while (itr != end) {
     delete *itr;
     ++itr;

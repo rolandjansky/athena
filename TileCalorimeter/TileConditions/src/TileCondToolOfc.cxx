@@ -2,40 +2,28 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Athena includes
-#include "AthenaKernel/errorcheck.h"
-
 // Tile includes
 #include "TileConditions/TileCondToolOfc.h"
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/TileCablingSvc.h"
 
+// Athena includes
+#include "AthenaKernel/errorcheck.h"
 
-//
-//____________________________________________________________________
-const InterfaceID& TileCondToolOfc::interfaceID() {
-  return ITileCondToolOfc::interfaceID();
-}
 
 //
 //____________________________________________________________________
 TileCondToolOfc::TileCondToolOfc(const std::string& type, const std::string& name,
-    const IInterface* parent)
-    : AthAlgTool(type, name, parent)
-    , m_tileToolPulseShape("TileCondToolPulseShape")
-    , m_tileToolAutoCr("TileCondToolAutoCr")
-//  , m_tileToolNoiseSample("TileCondToolNoiseSample")
+                                 const IInterface* parent)
+    : base_class(type, name, parent)
     , m_tileInfo(0)
     , m_maxChannels(0)
     , m_maxGains(0)
     , m_drawerCacheSize(0)
 {
-  declareInterface<ITileCondToolOfc>(this);
   declareProperty("nSamples", m_nSamples = 7, "number of samples used in the run");
   declareProperty("OptFilterDeltaCorrelation", m_deltaCorrelation = false
                   , "true=> use delta correlation; false=>use calculation obtained from data");
-  declareProperty("TileCondToolPulseShape", m_tileToolPulseShape);
-  declareProperty("TileCondToolAutoCr", m_tileToolAutoCr);
   declareProperty("CacheSize", m_cache = 0, ">0 create cache; ==0 calculate on-fly");
 
   m_t0Sample = (m_nSamples - 1) / 2;
@@ -54,16 +42,16 @@ StatusCode TileCondToolOfc::initialize() {
   ATH_MSG_INFO( "In initialize()" );
 
   //=== Get TileCondToolPulseShape
-  CHECK( m_tileToolPulseShape.retrieve() );
+  ATH_CHECK( m_tileToolPulseShape.retrieve() );
 
   if (!m_deltaCorrelation) {
-    CHECK(m_tileToolAutoCr.retrieve());
+    ATH_CHECK(m_tileToolAutoCr.retrieve());
   } else {
     m_tileToolAutoCr.disable();
   }
 
   //==== TileInfo
-  CHECK( detStore()->retrieve(m_tileInfo, "TileInfo") );
+  ATH_CHECK( detStore()->retrieve(m_tileInfo, "TileInfo") );
 
   if (m_nSamples != m_tileInfo->NdigitSamples()) {
     ATH_MSG_WARNING( "Changing number of samples from " << m_nSamples
@@ -89,7 +77,7 @@ StatusCode TileCondToolOfc::initialize() {
 
   //=== Initialize max values
   ServiceHandle<TileCablingSvc> cablingSvc("TileCablingSvc", name());
-  CHECK( cablingSvc.retrieve());
+  ATH_CHECK( cablingSvc.retrieve());
 
   const TileCablingService* cabling = cablingSvc->cablingService();
   if (!cabling) {

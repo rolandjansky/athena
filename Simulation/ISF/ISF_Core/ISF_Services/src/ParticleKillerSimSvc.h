@@ -36,7 +36,7 @@ namespace ISF {
     virtual StatusCode  initialize() override;
 
     /** Simulation Call  */
-    virtual StatusCode simulate(const ISF::ISFParticle& isp) override;
+    virtual StatusCode simulate(const ISF::ISFParticle& isp, McEventCollection* mcEventCollection) override;
 
   private:
     PublicToolHandle<ISF::ISimulatorTool> m_simulatorTool{this, "SimulatorTool", "ISF__ParticleKillerSimTool", ""};

@@ -51,53 +51,6 @@ StatusCode TrigBjetHypoAlgMT::execute_r( const EventContext& context ) const {
   ATH_MSG_DEBUG( "Running with "<< prevDecisionContainer->size() <<" previous decisions");
 
   return StatusCode::SUCCESS;
-
-  SG::ReadHandle< xAOD::BTaggingContainer > bTagHandle = SG::makeHandle( m_bTagKey, context );
-  SG::ReadHandle< TrigRoiDescriptorCollection > roisHandle = SG::makeHandle( m_roisKey, context );
-  
-  std::unique_ptr< DecisionContainer > decisions = std::make_unique< DecisionContainer >();
-  std::unique_ptr< DecisionAuxContainer > aux = std::make_unique< DecisionAuxContainer >();
-  decisions->setStore( aux.get() );
-
-  // prepare decision storage ( we could simplify it )
-  // Lidija: should be checked once more
-  size_t counter = 0;
-  // ---->>>>>>
-  xAOD::BTaggingContainer::const_iterator bTagIter = bTagHandle->begin();
-  for ( ;  bTagIter != bTagHandle->end(); ++bTagIter, ++counter ) {
-    TrigCompositeUtils::Decision *d = newDecisionIn( decisions.get() );
-    d->setObjectLink( "feature", ElementLink<xAOD::BTaggingContainer>( m_bTagKey.key(), counter ) );
-    d->setObjectLink( "roi", ElementLink<TrigRoiDescriptorCollection>( m_roisKey.key(), counter ) );
-  }
-
-
-  size_t index = 0;
-  for ( ; index < decisions->size(); ++index ) {
-
-    const xAOD::BTagging *bTag = bTagHandle->at( index );
-    const TrigRoiDescriptor *roiDescriptor = roisHandle->at( index );
-    TrigCompositeUtils::Decision *decision = decisions->at( index );
-
-
-    for ( const ToolHandle< TrigBjetHypoTool >& tool : m_hypoTools ) {
-      // interface of the tool needs to be suitable for current system, so no TrigComposite
-      // also no support for the multi-electrons yet ( will be additional method )
-      if ( tool->decide( bTag, roiDescriptor ) ) {   
-	addDecisionID( tool->decisionId(), decision );	  
-	ATH_MSG_DEBUG( " + " << tool->name() );
-      } else {
-	ATH_MSG_DEBUG( " - " << tool->name() );
-      }
-    }
-    
-  }
-
-  {
-    SG::WriteHandle< TrigCompositeUtils::DecisionContainer > handle =  SG::makeHandle( m_decisionsKey, context );
-    CHECK( handle.record( std::move( decisions ), std::move( aux ) ) );
-  }
-
-  return StatusCode::SUCCESS;
 }
 
 

@@ -15,25 +15,27 @@ elif conddb.isMC:
 
 metaIP3DTag = { 'IsATagger'         : True,
                 'xAODBaseName'      : 'IP3D',
-                'DependsOn'         : ['AtlasExtrapolator',
-                                       'BTagTrackToVertexTool',
-                                       'InDetVKalVxInJetTool',
-                                       'BTagFullLinearizedTrackFactory',
-                                       'BTagTrackToVertexIPEstimator',
-                                       'IP3DNewLikelihoodTool',
-                                       'IP3DTrackSelector',
-                                       'InDetTrackSelector',
-                                       'SpecialTrackAssociator',
-                                       'SVForIPTool_IP3D',
-                                       'IP3DBasicTrackGradeFactory',
-                                       'IP3DDetailedTrackGradeFactory'],
-                'PassByPointer'     : {'SVForIPTool'                : 'SVForIPTool_IP3D',
-                                       'trackSelectorTool'          : 'IP3DTrackSelector',
-                                       'InDetTrackSelectionTool'    : 'InDetTrackSelector',
-                                       'TrackVertexAssociationTool' : 'SpecialTrackAssociator',
-                                       'trackGradeFactory'          : 'IP3DDetailedTrackGradeFactory',
-                                       'TrackToVertexIPEstimator'   : 'BTagTrackToVertexIPEstimator',
-                                       'LikelihoodTool'             : 'IP3DNewLikelihoodTool'},
+                'DependsOn'         : [#'AtlasExtrapolator',
+                                       #'BTagTrackToVertexTool',
+                                       #'InDetVKalVxInJetTool',
+                                       #'BTagFullLinearizedTrackFactory',
+                                       #'BTagTrackToVertexIPEstimator',
+                                       #'IP3DNewLikelihoodTool',
+                                       #'IP3DTrackSelector',
+                                       #'InDetTrackSelector',
+                                       #'SpecialTrackAssociator',
+                                       #'SVForIPTool_IP3D',
+                                       #'IP3DBasicTrackGradeFactory',
+                                       #'IP3DDetailedTrackGradeFactory'],
+                                      ],
+                'PassByPointer'     : {#'SVForIPTool'                : 'SVForIPTool_IP3D',
+                                       #'trackSelectorTool'          : 'IP3DTrackSelector',
+                                       #'InDetTrackSelectionTool'    : 'InDetTrackSelector',
+                                       #'TrackVertexAssociationTool' : 'SpecialTrackAssociator',
+                                       #'trackGradeFactory'          : 'IP3DDetailedTrackGradeFactory',
+                                       #'TrackToVertexIPEstimator'   : 'BTagTrackToVertexIPEstimator',
+                                       #'LikelihoodTool'             : 'IP3DNewLikelihoodTool'
+                                      },
                 'PassTracksAs'      : 'trackAssociationName',
                 'JetCollectionList' : 'jetCollectionList',
                 'ToolCollection'    : 'IP3DTag' }
@@ -69,6 +71,14 @@ def toolIP3DTag(name, useBTagFlagsDefaults = True, **options):
                   "Good"]
         if btagrun1: grades=[ "Good", "BlaShared", "PixShared", "SctShared", "0HitBLayer" ]
 
+        from BTagging.BTaggingConfiguration_CommonTools import toolBTagTrackToVertexIPEstimator as toolBTagTrackToVertexIPEstimator
+        trackToVertexIPEstimator = toolBTagTrackToVertexIPEstimator('TrkToVxIPEstimator')
+        svForIPTool = toolSVForIPTool_IP3D('SVForIPTool')
+        trackGradeFactory= toolIP3DDetailedTrackGradeFactory('IP3DDetailedTrackGradeFactory')
+        trackSelectorTool = toolIP3DTrackSelector('IP3DTrackSelector')
+        inDetTrackSelectionTool = toolInDetTrackSelector('InDetTrackSelector')
+        trackVertexAssociationTool = toolSpecialTrackAssociator('SpecialTrackAssociator')
+        likelihood = toolIP3DNewLikelihoodTool('IP3DNewLikelihoodTool')
         defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
                      'Runmodus'                         : BTaggingFlags.Runmodus,
                      'referenceType'                    : BTaggingFlags.ReferenceType,
@@ -86,7 +96,14 @@ def toolIP3DTag(name, useBTagFlagsDefaults = True, **options):
                      'SecVxFinderName'                  : 'SV1',
                      'storeTrackParameters': True,
                      'storeTrackParticles': True,
-                     'storeIpValues': True
+                     'storeIpValues': True,
+                     'LikelihoodTool'                   : likelihood,
+                     'trackSelectorTool'                : trackSelectorTool,
+                     'InDetTrackSelectionTool'          : inDetTrackSelectionTool,
+                     'SVForIPTool'                      : svForIPTool,
+                     'trackGradeFactory'                : trackGradeFactory,
+                     'TrackToVertexIPEstimator'         : trackToVertexIPEstimator,
+                     'TrackVertexAssociationTool'       : trackVertexAssociationTool,
                      }
         for option in defaults:
             options.setdefault(option, defaults[option])
@@ -178,8 +195,8 @@ def toolSVForIPTool_IP3D(name, useBTagFlagsDefaults = True, **options):
 
 #------------------------------------------------------------------
 
-metaIP3DTrackSelector = { 'DependsOn'      : ['BTagTrackToVertexTool',],
-                          'PassByPointer'  : {'trackToVertexTool' : 'BTagTrackToVertexTool'},
+metaIP3DTrackSelector = { #'DependsOn'      : ['BTagTrackToVertexTool',],
+                          #'PassByPointer'  : {'trackToVertexTool' : 'BTagTrackToVertexTool'},
                           'ToolCollection' : 'IP3DTag' }
 
 def toolIP3DTrackSelector(name, useBTagFlagsDefaults = True, **options):
@@ -197,10 +214,13 @@ def toolIP3DTrackSelector(name, useBTagFlagsDefaults = True, **options):
                   **options: Python dictionary with options for the tool.
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     if useBTagFlagsDefaults:
+        from BTagging.BTaggingConfiguration_CommonTools import toolBTagTrackToVertexTool as toolBTagTrackToVertexTool
+        trackToVertexTool = toolBTagTrackToVertexTool('BTagTrackToVertexTool')
         defaults = { 'OutputLevel'            : BTaggingFlags.OutputLevel,
                      'useBLayerHitPrediction' : True ,
                      'nHitBLayer'             : 0 ,
-                     'usepTDepTrackSel'       : False }
+                     'usepTDepTrackSel'       : False,
+                     'trackToVertexTool'      : trackToVertexTool, }
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name

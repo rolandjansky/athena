@@ -7,3 +7,4 @@ TriggerSummaryStep2                     8   0     DEBUG  +++ HLT_g5_etcut ID#140
 TriggerSummaryStep1                     9   0     DEBUG  +++ HLT_g5_etcut ID#1407390618
 TriggerSummaryStep2                     9   0     DEBUG  +++ HLT_g5_etcut ID#1407390618
 TrigSignatureMoniMT                                INFO HLT_g5_etcut                  10        10        4         4         4         
+TrigSignatureMoniMT                                INFO HLT_g5_etcut decisions                            12        12        

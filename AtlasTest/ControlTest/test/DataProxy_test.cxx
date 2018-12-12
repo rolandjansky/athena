@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -12,10 +12,10 @@
 #include "AthenaKernel/IProxyProviderSvc.h"
 #include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
-#include "SGTools/TransientAddress.h"
-#include "SGTools/StorableConversions.h"
+#include "AthenaKernel/StorableConversions.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "SGTools/T2pMap.h"
-#include "SGTools/CLASS_DEF.h"
+#include "SGTools/TransientAddress.h"
 #include <iostream>
 
 #include <cassert>

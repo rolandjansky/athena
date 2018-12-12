@@ -163,6 +163,7 @@ from AthenaCommon.AppMgr import ToolSvc
 
 from AthenaCommon import CfgMgr
 from AthenaCommon.CfgGetter import getPublicTool,getPublicToolClone
+from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone
 
 ###############################
 # CSC monitoring algorithms
@@ -221,8 +222,8 @@ if doCSCClus:
                                        CSCClusterKey = 'CSC_Clusters',
                                        CSCPrepRawDataKey = 'CSC_Measurements',
                                        CSCQmaxCutADC = 200,
-                                       CSCCalibTool = ToolSvc.CscCalibTool,
-                                       CSCStripFitter = ToolSvc.CalibCscStripFitter,
+                                       CSCCalibTool = getPrivateTool("CscCalibTool"),
+                                       CSCStripFitter = getPrivateTool("CalibCscStripFitter"),
                                        CSCTrigDecisionTool = ToolSvc.TrigDecisionTool,
                                        CSCDoEventSelection = False,
                                        CSCEventSelTriggers = csc_evtSelectionTriggers

@@ -57,12 +57,10 @@ class TrigBjetEtHypoTool : virtual public ::AthAlgTool {
 
   /** @brief DeclareProperty: if acceptAll flag is set to true, every event is taken. */ 
   Gaudi::Property< bool > m_acceptAll {this,"AcceptAll",false,"if acceptAll flag is set to true, every event is taken"};
-  /** @brief DeclareProperty: Et calibration on which to apply cut */
-  Gaudi::Property< std::string > m_etCalibration {this,"EtCalibration","Split","Et calibration [Split or Gsc] on which to apply cut"};
+  /** @brief DeclareProperty: Multeplicity requirement. */
+  Gaudi::Property< int > m_multeplicity {this,"Multeplicity",1,"Multeplicity requirement"};
   /** @brief DeclareProperty: Et threshold cut. */
   Gaudi::Property< float > m_etThreshold {this,"EtThreshold",0.0,"Et threshold cut"};
-  /** @brief DeclareProperty: Gsc threshold cut. */
-  Gaudi::Property< float > m_gscThreshold {this,"GscThreshold",0.0,"Gsc threshold cut"};
 };
 
 inline const InterfaceID& TrigBjetEtHypoTool::interfaceID()

@@ -7,7 +7,6 @@
 #include "TrkNeutralParameters/NeutralParameters.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include  "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
-#include "xAODTruth/TruthParticleContainer.h"
 //-------------------------------------------------
 // Other stuff
 #include <cmath>
@@ -742,8 +741,8 @@ namespace InDet{
   const
   {	 if(!m_curTup)return;
          int ipnt=0;
-         for(auto vrt : all2TrVrt) {
-	   if(ipnt==100)break;
+         for(auto & vrt : all2TrVrt) {
+	   if(ipnt==DevTuple::maxNTrk)break;
 	   m_curTup->VrtDist2D[ipnt]=vrt.FitVertex.perp();
 	   m_curTup->VrtSig3D[ipnt]=vrt.Signif3D;
 	   m_curTup->VrtSig2D[ipnt]=vrt.Signif2D;
@@ -752,9 +751,82 @@ namespace InDet{
 	   m_curTup->mass[ipnt]=vrt.Momentum.M();
 	   m_curTup->Chi2[ipnt]=vrt.Chi2;
 	   m_curTup->badVrt[ipnt]=vrt.badVrt;
+	   m_curTup->VrtDR[ipnt]=vrt.dRSVPV;
            ipnt++; m_curTup->nVrt=ipnt;
         }
   } 
+
+  void InDetVKalVxInJetTool::fillNVrtNTup(std::vector<WrkVrt> & VrtSet, std::vector< std::vector<float> > & trkScore,
+                                          const xAOD::Vertex  & PV, const TLorentzVector & JetDir)
+  const
+  {	 if(!m_curTup)return;
+         int ipnt=0;
+         TLorentzVector VertexMom;
+         for(auto & vrt : VrtSet) {
+	   if(ipnt==DevTuple::maxNVrt)break;
+	   m_curTup->NVrtDist2D[ipnt]=vrt.vertex.perp();
+	   m_curTup->NVrtNT[ipnt]=vrt.SelTrk.size();
+           m_curTup->NVrtTrkI[ipnt]=vrt.SelTrk[0];
+	   m_curTup->NVrtM[ipnt]=vrt.vertexMom.M();
+	   m_curTup->NVrtChi2[ipnt]=vrt.Chi2;
+           float maxW=0., sumW=0.;
+           for(auto trk : vrt.SelTrk){ sumW+=trkScore[trk][0]; maxW=std::max(trkScore[trk][0], maxW);}
+	   m_curTup->NVrtMaxW[ipnt]=maxW;
+	   m_curTup->NVrtAveW[ipnt]=sumW/vrt.SelTrk.size();
+           TLorentzVector SVPV(vrt.vertex.x()-PV.x(),vrt.vertex.y()-PV.y(),vrt.vertex.z()-PV.z(),1.);
+           m_curTup->NVrtDR[ipnt]=JetDir.DeltaR(SVPV);
+           VertexMom += vrt.vertexMom;
+           ipnt++; m_curTup->nNVrt=ipnt;
+        }
+        m_curTup->TotM=VertexMom.M();
+  } 
+
+
+  int InDetVKalVxInJetTool::getIdHF(const xAOD::TrackParticle* TP ) const {
+      if( TP->isAvailable< ElementLink< xAOD::TruthParticleContainer> >( "truthParticleLink") ) {
+        const ElementLink<xAOD::TruthParticleContainer>& tplink = 
+                               TP->auxdata< ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink");
+        if( !tplink.isValid() ) return 0;
+        if( TP->auxdata< float >( "truthMatchProbability" ) < 0.75 ) return 0;
+        if( (*tplink)->barcode() > 200000) return 0;
+        if( (*tplink)->hasProdVtx()){
+          if( (*tplink)->prodVtx()->nIncomingParticles()==1){
+             int PDGID1=0, PDGID2=0, PDGID3=0;
+	     const xAOD::TruthParticle * parTP1=getPreviousParent(*tplink, PDGID1);
+	     const xAOD::TruthParticle * parTP2=0;
+	     int noBC1=notFromBC(PDGID1);
+             if(noBC1)  parTP2 = getPreviousParent(parTP1, PDGID2);
+	     int noBC2=notFromBC(PDGID2);
+             if(noBC2 && parTP2) getPreviousParent(parTP2, PDGID3);
+	     int noBC3=notFromBC(PDGID3);
+             if(noBC1 && noBC2 && noBC3)return 0;
+             return 1;  //This is a reconstructed track from B/C decays
+      } } }
+      return 0;
+  }
+
+  int InDetVKalVxInJetTool::notFromBC(int PDGID) const {
+    int noBC=0;
+    if(PDGID<=0)return 1;
+    if(PDGID>600 && PDGID<4000)noBC=1;
+    if(PDGID<400 || PDGID>5600)noBC=1;
+    if(PDGID==513  || PDGID==523  || PDGID==533  || PDGID==543)noBC=1;  //Remove tracks from B* (they are in PV)
+    if(PDGID==5114 || PDGID==5214 || PDGID==5224 || PDGID==5314 || PDGID==5324)noBC=1; //Remove tracks from B_Barions* (they are in PV)
+  //if(PDGID==413  || PDGID==423  || PDGID==433 )continue;  //Keep tracks from D* (they are from B vertex)
+  //if(PDGID==4114 || PDGID==4214 || PDGID==4224 || PDGID==4314 || PDGID==4324)continue;
+    return noBC;
+  }
+  const xAOD::TruthParticle * InDetVKalVxInJetTool::getPreviousParent(const xAOD::TruthParticle * child, int & ParentPDG) const {
+    ParentPDG=0;
+    if( child->hasProdVtx() ){
+       if( child->prodVtx()->nIncomingParticles()==1 ){
+            ParentPDG = abs((*(child->prodVtx()->incomingParticleLinks())[0])->pdgId());
+            return *(child->prodVtx()->incomingParticleLinks())[0];
+       }
+    }
+    return 0;
+  }
+
 
   int InDetVKalVxInJetTool::getG4Inter(const xAOD::TrackParticle* TP ) const {
       if( TP->isAvailable< ElementLink< xAOD::TruthParticleContainer> >( "truthParticleLink") ) {
@@ -772,6 +844,7 @@ namespace InDet{
       } else { return 1; }
       return 0;
   }
+  int InDetVKalVxInJetTool::getIdHF(const Rec::TrackParticle*) const { return 0; }
   int InDetVKalVxInJetTool::getG4Inter(const Rec::TrackParticle* ) const { return 0; }
   int InDetVKalVxInJetTool::getMCPileup(const Rec::TrackParticle* ) const { return 0; }
 

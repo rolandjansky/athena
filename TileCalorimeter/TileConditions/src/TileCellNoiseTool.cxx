@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
 // Tile includes
 #include "TileConditions/TileCellNoiseTool.h"
-#include "TileConditions/ITileCondToolNoise.h"
 #include "TileConditions/TileCablingSvc.h"
-#include "TileConditions/TileCondIdTransforms.h"
 #include "TileConditions/Exception.h"
 
 // Athena includes
@@ -16,26 +14,14 @@
 #include <cmath>
 #include <algorithm>
 
-//
-//____________________________________________________________________
-static const InterfaceID IID_TileCellNoiseTool("TileCellNoiseTool", 1, 0);
-const InterfaceID&
-TileCellNoiseTool::interfaceID() {
-  return IID_TileCellNoiseTool;
-}
 
 //
 //____________________________________________________________________
 TileCellNoiseTool::TileCellNoiseTool(const std::string& type, const std::string& name,
-    const IInterface* parent)
-    : AthAlgTool(type, name, parent)
+                                     const IInterface* parent)
+  : base_class(type, name, parent)
   , m_tileCabling("TileCablingSvc", name)
-  , m_tileIdTrans("TileCondIdTransforms")
-  , m_tileToolNoise("TileCondToolNoiseSample")
 {
-  declareInterface<ITileCellNoiseTool>(this);
-  declareInterface<TileCellNoiseTool>(this);
-  declareProperty("NoiseSource", m_tileToolNoise, "Source for cell noise computation");
 }
 
 //

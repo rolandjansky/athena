@@ -18,8 +18,6 @@
 #include "InDetIdentifier/PixelID.h"
 #include "InDetPrepRawData/PixelClusterSplitProb.h"
 #include "VxVertex/RecVertex.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
-
 
 
 namespace InDet

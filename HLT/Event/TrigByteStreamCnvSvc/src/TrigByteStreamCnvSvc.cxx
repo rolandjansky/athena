@@ -158,24 +158,25 @@ StatusCode TrigByteStreamCnvSvc::commitOutput(const std::string& /*outputFile*/,
   }
 
   // Send output to the DataCollector
+  StatusCode result = StatusCode::SUCCESS;
   try {
     hltinterface::DataCollector::instance()->eventDone(std::move(rawEventPtr));
+    ATH_MSG_DEBUG("Serialised FullEventFragment with HLT result was returned to DataCollector successfully");
   }
   catch (const std::exception& e) {
     ATH_MSG_ERROR("Sending output to DataCollector failed, caught an unexpected std::exception " << e.what());
-    return StatusCode::FAILURE;
+    result = StatusCode::FAILURE;
   }
   catch (...) {
     ATH_MSG_ERROR("Sending output to DataCollector failed, caught an unexpected exception");
-    return StatusCode::FAILURE;
+    result = StatusCode::FAILURE;
   }
-  ATH_MSG_DEBUG("Serialised FullEventFragment with HLT result was returned to DataCollector successfully");
 
   delete m_rawEventWrite;
   m_rawEventWrite = nullptr;
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
-  return StatusCode::SUCCESS;
+  return result;
 }
 
 // =============================================================================
@@ -216,7 +217,17 @@ void TrigByteStreamCnvSvc::printRawEvent() {
      << std::endl;
 
   std::vector<eformat::helper::StreamTag> stream_tags;
-  eformat::helper::decode(m_rawEventWrite->nstream_tag(), m_rawEventWrite->stream_tag(), stream_tags);
+  try {
+    eformat::helper::decode(m_rawEventWrite->nstream_tag(), m_rawEventWrite->stream_tag(), stream_tags);
+  }
+  catch (const std::exception& ex) {
+    ATH_MSG_ERROR("StreamTag decoding failed, caught an unexpected std::exception " << ex.what());
+    return;
+  }
+  catch (...) {
+    ATH_MSG_ERROR("StreamTag decoding failed, caught an unexpected exception");
+    return;
+  }
   ss << "--> stream_tags         = ";
   bool first = true;
   for (const auto& st : stream_tags) {

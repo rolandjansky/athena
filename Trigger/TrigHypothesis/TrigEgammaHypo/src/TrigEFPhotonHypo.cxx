@@ -41,8 +41,6 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include <TH1F.h>
-//#include "PATCore/IAthSelectorTool.h"
-//#include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
 #include "xAODEgammaCnv/xAODPhotonMonFuncs.h"

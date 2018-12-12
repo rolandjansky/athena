@@ -33,7 +33,7 @@ namespace {
 
 InDet::InDetTrackSelectionTool::InDetTrackSelectionTool(const std::string& name, const std::string& cutLevel)
   : asg::AsgTool(name)
-  , m_accept( "InDetTrackSelection" )
+  , m_acceptInfo( "InDetTrackSelection" )
   , m_cutLevel(cutLevel)
 #ifndef XAOD_ANALYSIS
   , m_trackSumTool("Trk::TrackSummaryTool/TrackSummaryTool", this)
@@ -660,7 +660,7 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
     }
     const std::string& cutFamilyName = cutFamily.first;
     m_numTracksPassedCuts.push_back(0);
-    if (m_accept.addCut( cutFamilyName, "Selection of tracks according to " + cutFamilyName ) < 0) {
+    if (m_acceptInfo.addCut( cutFamilyName, "Selection of tracks according to " + cutFamilyName ) < 0) {
       ATH_MSG_ERROR( "Failed to add cut family " << cutFamilyName << " because the TAccept object is full." );
       return StatusCode::FAILURE;
     }
@@ -685,7 +685,7 @@ StatusCode InDet::InDetTrackSelectionTool::finalize()
   ATH_MSG_INFO( m_numTracksPassed << " / " << m_numTracksProcessed << " = "
 		<< m_numTracksPassed*100./m_numTracksProcessed << "% passed all cuts." );
   for (const auto& cutFamily : m_trackCuts) {
-    ULong64_t numPassed = m_numTracksPassedCuts.at(m_accept.getCutPosition(cutFamily.first));
+    ULong64_t numPassed = m_numTracksPassedCuts.at(m_acceptInfo.getCutPosition(cutFamily.first));
     ATH_MSG_INFO( numPassed << " = " << numPassed*100./m_numTracksProcessed << "% passed "
 		  << cutFamily.first << " cut." );
   }
@@ -697,9 +697,9 @@ StatusCode InDet::InDetTrackSelectionTool::finalize()
 /// the last accept(...) call. The TAccept object itself is expensive to copy,
 /// and so should be accessed by const reference.
 /// 
-const Root::TAccept& InDet::InDetTrackSelectionTool::getTAccept() const
+const asg::AcceptInfo& InDet::InDetTrackSelectionTool::getAcceptInfo() const
 {  
-  return m_accept;
+  return m_acceptInfo;
 }
 
 
@@ -713,16 +713,15 @@ const Root::TAccept& InDet::InDetTrackSelectionTool::getTAccept() const
 ///          will be cast as such and funnelled into the corresponding function. If it
 ///          is of some different type, then the particle will not pass.
 /// 
-const Root::TAccept&
+asg::AcceptData
 InDet::InDetTrackSelectionTool::accept( const xAOD::IParticle* p ) const
 {
-  // Reset the result:
-  m_accept.clear();
-    
+  
+  asg::AcceptData acceptData(&m_acceptInfo); 
   // Check if this is a track:
   if( p->type() != xAOD::Type::TrackParticle ) {
     ATH_MSG_ERROR( "accept(...) Function received a non-track" );
-    return m_accept;
+    return acceptData;
   }
     
   // Cast it to a track (we have already checked its type so we do not have to dynamic_cast):
@@ -751,14 +750,14 @@ InDet::InDetTrackSelectionTool::accept( const xAOD::IParticle* p ) const
 ///            this does not affect d0 cuts. If a vertex is not provided then the z0
 ///            cuts are performed with respect to the beamspot. More information can
 ///            be found at the InDetTrackingDC14 TWiki.
-/// @returns A Root::TAccept object that can be treated as a boolean for a simple
+/// @returns A asg::AcceptData object that can be treated as a boolean for a simple
 ///          pass/fail. It does store more detailed information about which cuts
 ///          passed and which failed, by organizing the results into cut families.
 ///          For example, TAccept::getCutResult("Z0SinTheta") will be true if the
 ///          track passed cuts on Z0*Sin(theta), its uncertainty, and its
 ///          significance.
 /// 
-const Root::TAccept& InDet::InDetTrackSelectionTool::accept( const xAOD::TrackParticle& trk,
+asg::AcceptData InDet::InDetTrackSelectionTool::accept( const xAOD::TrackParticle& trk,
 							     const xAOD::Vertex* vtx ) const
 {
   if (!m_isInitialized) {
@@ -768,9 +767,8 @@ const Root::TAccept& InDet::InDetTrackSelectionTool::accept( const xAOD::TrackPa
     }
   }
 
-  // Reset the result:
-  m_accept.clear();
 
+  asg::AcceptData acceptData(&m_acceptInfo); 
   bool passAll = true;
   // access all the track properties we will need
   for ( auto& accessor : m_trackAccessors ) {
@@ -793,7 +791,7 @@ const Root::TAccept& InDet::InDetTrackSelectionTool::accept( const xAOD::TrackPa
 	break;
       }
     }
-    m_accept.setCutResult( cutFamilyIndex, pass );
+    acceptData.setCutResult( cutFamilyIndex, pass );
     if (pass) m_numTracksPassedCuts.at(cutFamilyIndex)++; // number of tracks that pass each cut family
     cutFamilyIndex++;
   }
@@ -801,7 +799,7 @@ const Root::TAccept& InDet::InDetTrackSelectionTool::accept( const xAOD::TrackPa
   if (passAll) m_numTracksPassed++;
   m_numTracksProcessed++;
   
-  return m_accept;
+  return acceptData;
 }
 
 #ifndef XAOD_ANALYSIS
@@ -812,19 +810,18 @@ const Root::TAccept& InDet::InDetTrackSelectionTool::accept( const xAOD::TrackPa
 /// functionality to the user as the xAOD version above, but of course it
 /// does need to access track information differently.
 /// 
-const Root::TAccept&
+asg::AcceptData
 InDet::InDetTrackSelectionTool::accept( const Trk::Track& track,
 					const Trk::Vertex* vertex ) const
 {
   if (!m_isInitialized) ATH_MSG_WARNING( "Tool is not initialized! Calling accept() will not be very helpful." );
 
-  m_accept.clear();
-
+  asg::AcceptData acceptData(&m_acceptInfo);
   const Trk::TrackParameters* perigee = track.perigeeParameters();
 
   if ( perigee == nullptr || !perigee->covariance() ) {
     ATH_MSG_WARNING( "Track preselection: Zero pointer to parameterbase* received (most likely a track without perigee). This track will not pass any cuts." );
-    return m_accept;
+    return acceptData;
   }
 
   std::unique_ptr<const Trk::TrackParameters> paramsAtVertex;
@@ -840,7 +837,7 @@ InDet::InDetTrackSelectionTool::accept( const Trk::Track& track,
     ATH_MSG_INFO( "Track preselection: cannot make a measured perigee. This track will not pass any cuts." );
     if (!m_initTrkTools)
       ATH_MSG_INFO( "The user should set \"UseTrkTrackTools\" to true if they want the extrapolation tool to try to get a perigee." );
-    return m_accept;
+    return acceptData;
   }
 
   const Trk::TrackSummary* summary = track.trackSummary();
@@ -856,7 +853,7 @@ InDet::InDetTrackSelectionTool::accept( const Trk::Track& track,
     ATH_MSG_INFO( "Track preselection: cannot get a track summary. This track will not pass any cuts." );
     if (!m_initTrkTools)
       ATH_MSG_INFO( "The Trk::Track tools were not set to be initialized. The user should set the property \"UseTrkTrackTools\" to true if they wish to use the summary tool." );
-    return m_accept;
+    return acceptData;
   }
 
   bool passAll = true;
@@ -877,7 +874,7 @@ InDet::InDetTrackSelectionTool::accept( const Trk::Track& track,
 	break;
       }
     }
-    m_accept.setCutResult( cutFamilyIndex, pass );
+    acceptData.setCutResult( cutFamilyIndex, pass );
     if (pass)
       m_numTracksPassedCuts.at(cutFamilyIndex)++; // increment the number of tracks that passed this cut family
     cutFamilyIndex++;
@@ -887,7 +884,7 @@ InDet::InDetTrackSelectionTool::accept( const Trk::Track& track,
     m_numTracksPassed++;
   m_numTracksProcessed++;
 
-  return m_accept;
+  return acceptData;
 }
 
 #endif // XAOD_ANALYSIS

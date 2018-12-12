@@ -181,8 +181,9 @@ def HLTMPPy_cfgdict(args):
    }
 
    cdict['trigger'] = {
-      'library': ['TrigServices', 'TrigPSC'],
-      'joType' : args.joboptionsvc_type
+      'library': ['TrigPSC'],
+      'joType' : args.joboptionsvc_type,
+      'msgType' : args.msgsvc_type
    }
    if not args.use_database:      # job options
       cdict['trigger'].update({
@@ -339,6 +340,10 @@ def main():
 
    # Modify pre/postcommands if necessary
    update_pcommands(args, cdict)
+
+   # Tell the PSC if we are in interactive mode (relevant for state machine)
+   import TrigPSC.PscConfig
+   TrigPSC.PscConfig.interactive = args.interactive
 
    # Run HLTMPPU
    from HLTMPPy.runner import runHLTMPPy

@@ -43,15 +43,15 @@
 #include "TileEvent/TileCellCollection.h"
 #include "TileEvent/TileL2.h"
 #include "TileEvent/TileContainer.h"
+#include "TileConditions/TileCondToolOfcCool.h"
+#include "TileConditions/TileCondToolTiming.h"
+#include "TileConditions/TileCondToolEmscale.h"
+#include "TileConditions/ITileBadChanTool.h"
 
-// class TileInfo;
 class TileRawChannelBuilder;
 class TileCellBuilder;
 class TileL2Builder;
-class TileCondToolEmscale;
 class TileHid2RESrcID;
-class TileCondToolOfcCool;
-class TileCondToolTiming;
 
 /**
  *
@@ -180,10 +180,7 @@ class TileROD_Decoder: public AthAlgTool {
     }
 
     /** Check the list of masked drawers */
-    void load_list_of_masked_drawers(const std::vector<int>& vec) {
-      for (size_t i = 0; i < vec.size(); ++i)
-        m_list_of_masked_drawers.push_back(vec[i]);
-    }
+    bool is_drawer_masked(int frag_id, int run);
 
     void setUseFrag0 (bool f) { m_useFrag0 = f; }
     void setUseFrag1 (bool f) { m_useFrag1 = f; }
@@ -487,9 +484,14 @@ class TileROD_Decoder: public AthAlgTool {
     float m_allowedTimeMin; //!< set amp to zero if time is below allowed time min
     float m_allowedTimeMax; //!< set amp to zero if time is above allowed time max
 
-    ToolHandle<TileCondToolTiming> m_tileToolTiming;      //!< Tile Timing tool
-    ToolHandle<TileCondToolOfcCool> m_tileCondToolOfcCool; //!< OF Coefficients from Cool
-    ToolHandle<TileCondToolEmscale> m_tileToolEmscale; //!< main Tile Calibration tool
+    ToolHandle<TileCondToolTiming> m_tileToolTiming{this,
+          "TileCondToolTiming", "TileCondToolTiming", "Tile timing tool"};
+    ToolHandle<TileCondToolOfcCool> m_tileCondToolOfcCool{this,
+          "TileCondToolOfcCool", "TileCondToolOfcCool", "Tile OFC tool"};
+    ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
+          "TileCondToolEmscale", "TileCondToolEmscale", "Tile EM scale calibration tool"};
+    ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
+	        "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
 
     // OFWeights for different units and different drawers:
     // every element contains pointers to OFC for single drawer and one of 4 different units

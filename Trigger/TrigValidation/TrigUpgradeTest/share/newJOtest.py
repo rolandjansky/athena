@@ -81,7 +81,14 @@ acc.getService("IOVDbSvc").Folders += ['/TagInfo<metaOnly/>']
 
 # setup algorithm sequences here, need few additional components
 from RegionSelector.RegSelConfig import RegSelConfig
-acc.merge( RegSelConfig( flags ) )
+rsc, regSel = RegSelConfig( ConfigFlags )
+regSel.enableCalo=True
+regSel.enableID=False
+regSel.enablePixel = False
+regSel.enableSCT = False
+regSel.enableTRT = False
+acc.merge( rsc )
+acc.addService(regSel)
 
 acc.getEventAlgo( "TrigSignatureMoniMT" ).OutputLevel=DEBUG
 print acc.getEventAlgo( "TrigSignatureMoniMT" )

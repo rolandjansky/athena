@@ -1,4 +1,6 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaCommon.Configurable import Configurable
+Configurable.configurableRun3Behavior=1
 
 def GeoModelCfg(configFlags):
     version=configFlags.GeoModel.AtlasVersion
@@ -32,3 +34,17 @@ def GeoModelCfg(configFlags):
     #TagInfoMgr used by GeoModelSvc but no ServiceHandle. Relies on string-name
 
     return result,gms
+
+
+
+if __name__ == "__main__":
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    acc = ComponentAccumulator()
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+
+    ConfigFlags.Input.Files = defaultTestFiles.RAW
+
+    acc, gms = GeoModelCfg( ConfigFlags )
+    acc.store( file( "test.pkl", "w" ) )
+    print "All OK"

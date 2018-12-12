@@ -36,10 +36,10 @@ namespace iGeant4 {
     virtual StatusCode finalize() override;
 
     /** Simulation Call  */
-    virtual StatusCode simulate(const ISF::ISFParticle& isp) override;
+    virtual StatusCode simulate(const ISF::ISFParticle& isp, McEventCollection* mcEventCollection) override;
 
     /** Simulation Call for vector of ISF particles */
-    virtual StatusCode simulateVector(const ISF::ConstISFParticleVector& particles) override;
+    virtual StatusCode simulateVector(const ISF::ConstISFParticleVector& particles, McEventCollection* mcEventCollection) override;
 
     /** Setup Event chain - in case of a begin-of event action is needed */
     virtual StatusCode setupEvent() override;

@@ -1,7 +1,5 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // GaussianDensityTestAlg.cxx 
@@ -137,7 +135,7 @@ void GaussianDensityTestAlg::analyzeTracks(const std::vector<Trk::ITrackLink*>& 
 void GaussianDensityTestAlg::selectTracks(const xAOD::TrackParticleContainer* trackParticles, 
 					std::vector<Trk::ITrackLink*>& trackVector)
 {
-  Root::TAccept selectionPassed;
+  bool selectionPassed{false};
   const InDet::BeamSpotData* beamspot = nullptr;
   if(m_useBeamConstraint){
      SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
@@ -149,7 +147,7 @@ void GaussianDensityTestAlg::selectTracks(const xAOD::TrackParticleContainer* tr
       beamposition.makePrivateStore();
       beamposition.setPosition(beamspot->beamVtx().position());
       beamposition.setCovariancePosition(beamspot->beamVtx().covariancePosition());
-      selectionPassed=m_trackFilter->accept(**itr,&beamposition);
+      selectionPassed=static_cast<bool>(m_trackFilter->accept(**itr,&beamposition));
     }
     else
     {
@@ -159,7 +157,7 @@ void GaussianDensityTestAlg::selectTracks(const xAOD::TrackParticleContainer* tr
       AmgSymMatrix(3) vertexError;
       vertexError.setZero();
       null.setCovariancePosition(vertexError);
-      selectionPassed=m_trackFilter->accept(**itr,&null);
+      selectionPassed=static_cast<bool>(m_trackFilter->accept(**itr,&null));
     }
     if (selectionPassed)
     {

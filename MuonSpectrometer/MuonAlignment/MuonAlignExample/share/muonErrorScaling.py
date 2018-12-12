@@ -21,7 +21,7 @@ MdtDriftCircleOnTrackCreator.ScaleErrorsManually=False
 MdtDriftCircleOnTrackCreator.OutputLevel = outputLevel
 MdtDriftCircleOnTrackCreator.ErrorScalingTool=muonErrorScalingTool
     
-CscClusterOnTrackCreator = MuonRecTools.getPublicTool("CscClusterOnTrackCreator")
+CscClusterOnTrackCreator = MuonRecTools.getPrivateTool("CscClusterOnTrackCreator")
 CscClusterOnTrackCreator.DoRpcErrorScaling = True
 CscClusterOnTrackCreator.DoTgcErrorScaling = True
 CscClusterOnTrackCreator.DoCscErrorScaling = True

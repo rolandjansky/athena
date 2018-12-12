@@ -4,15 +4,15 @@
 
 #include "SCT_ReadCalibChipNoiseCondAlg.h"
 
-#include <limits>
-#include <memory>
-
-#include "GaudiKernel/EventIDRange.h"
-
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "SCT_ConditionsData/SCT_ConditionsParameters.h"
 #include "SCT_ConditionsTools/SCT_ReadCalibChipUtilities.h"
+
+#include "GaudiKernel/EventIDRange.h"
+
+#include <limits>
+#include <memory>
 
 using namespace SCT_ConditionsData;
 using namespace SCT_ReadCalibChipUtilities;
@@ -55,12 +55,12 @@ StatusCode SCT_ReadCalibChipNoiseCondAlg::execute() {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
                   << ". In theory this should not be called, but may happen"
                   << " if multiple concurrent events are being processed out of order.");
-    return StatusCode::SUCCESS; 
+    return StatusCode::SUCCESS;
   }
 
   // Read Cond Handle
   SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey};
-  const CondAttrListCollection* readCdo{*readHandle}; 
+  const CondAttrListCollection* readCdo{*readHandle};
   if (readCdo==nullptr) {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
     return StatusCode::FAILURE;

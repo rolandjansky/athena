@@ -25,7 +25,7 @@
 #include "TrkSurfaces/RotatedTrapezoidBounds.h"
 
 #include "CscSegmentMakers/ICscSegmentFinder.h"
-#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
+#include "MuonRecToolInterfaces/ICscClusterOnTrackCreator.h"
 #include "CscClusterization/ICscClusterFitter.h"
 #include "CscClusterization/ICscStripFitter.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
@@ -96,11 +96,8 @@ namespace {
 CscSegmentUtilTool::CscSegmentUtilTool
 (const std::string& type, const std::string& name, const IInterface* parent)
   : AthAlgTool(type,name,parent), m_gm(0), m_phelper(0), 
-    m_pfitter_prec("QratCscClusterFitter/QratCscClusterFitter"),
     m_rotCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator"),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    m_clusterTool("CscClusterUtilTool/CscClusterUtilTool"),
-    m_stripFitter("CalibCscStripFitter/CalibCscStripFitter"),
     m_cscCoolStrSvc("MuonCalib::CscCoolStrSvc", name)
 {
   declareInterface<ICscSegmentUtilTool>(this);
@@ -121,12 +118,12 @@ CscSegmentUtilTool::CscSegmentUtilTool
   declareProperty("IPconstraint", m_IPconstraint = true);
   declareProperty("IPerror", m_IPerror = 250.);
   declareProperty("allEtaPhiMatches", m_allEtaPhiMatches = true);  
-  declareProperty("precision_fitter", m_pfitter_prec);
   declareProperty("rot_creator", m_rotCreator);
   declareProperty("TightenChi2", m_TightenChi2 = true);
   declareProperty("Remove4Overlap", m_remove4Overlap = true);
   declareProperty("Remove3Overlap", m_remove3Overlap = true);
   declareProperty("UnspoiledHits", m_nunspoil = -1);
+
 }
 
 //******************************************************************************
@@ -148,7 +145,7 @@ StatusCode CscSegmentUtilTool::initialize()
   ATH_MSG_DEBUG ( "  ROT tan(theta) tolerance: "
                   << m_fitsegment_tantheta_tolerance );
   ATH_MSG_DEBUG ( " cluster_error_scaler " << m_cluster_error_scaler);
-  ATH_MSG_DEBUG ( "  Precision cluster fitter is " << m_pfitter_prec.typeAndName() );
+  //ATH_MSG_DEBUG ( "  Precision cluster fitter is " << m_rotCreator->GetICscClusterFitter().typeAndName() );
   ATH_MSG_DEBUG ( "  ROT creator: " << m_rotCreator.typeAndName() );
 
 
@@ -165,29 +162,15 @@ StatusCode CscSegmentUtilTool::initialize()
 
   m_phelper = m_gm->cscIdHelper();
 
-  
-  // Retrieve the precision cluster fitting tool.
-  if ( m_pfitter_prec.retrieve().isFailure() ) {
-    ATH_MSG_FATAL ( "Unable to retrieve CSC precision cluster fitting tool "
-                    << m_pfitter_prec->name() );
-    return StatusCode::FAILURE;
-  }else{
-    ATH_MSG_DEBUG( "Retrieved " << m_pfitter_prec );
-  }
-
   if ( m_rotCreator.retrieve().isFailure() ) {
     ATH_MSG_ERROR ( "Could not get " << m_rotCreator ); 
     return StatusCode::FAILURE;
   }else{
     ATH_MSG_DEBUG ( "Got " << m_rotCreator ); 
   }
+
   if ( m_idHelper.retrieve().isFailure() ) {
     ATH_MSG_ERROR ( "Could not get " << m_idHelper ); 
-    return StatusCode::FAILURE;
-  }
-
-  if(m_clusterTool.retrieve().isFailure() ){
-    ATH_MSG_ERROR( "Could not get "<< m_clusterTool );
     return StatusCode::FAILURE;
   }
 
@@ -381,7 +364,7 @@ fit_detailCalcPart1(const ICscSegmentFinder::TrkClusters& clus, const Amg::Vecto
     double d = Amg::error(clu->localCovariance(),Trk::locX);
     if (isunspoiled) {
       if ( IsSlopeGiven && outlierHitLayer != ( iclu - clus.begin() ) )
-        d = m_pfitter_prec->getCorrectedError(prd, s1);
+        d = m_rotCreator->GetICscClusterFitter()->getCorrectedError(prd, s1);
 //      if ( outlierHitLayer == ( iclu - clus.begin() ) )
 //        d = getDefaultError(id, measphi, prd);
     }
@@ -451,7 +434,7 @@ fit_detailCalcPart1(const ICscSegmentFinder::TrkClusters& clus, const Amg::Vecto
     double d = Amg::error(clu->localCovariance(),Trk::locX);
     if (isunspoiled) {
       if ( IsSlopeGiven )
-        d = m_pfitter_prec->getCorrectedError(prd, s1);
+        d = m_rotCreator->GetICscClusterFitter()->getCorrectedError(prd, s1);
       if ( outlierHitLayer == ( iclu - clus.begin() ) ) 
         d = getDefaultError(id, measphi, prd);
     }
@@ -1500,11 +1483,11 @@ void CscSegmentUtilTool::add_2dseg2hits(ICscSegmentFinder::Segments &segs, ICscS
         const Muon::CscClusterOnTrack* cot = iseg->clus[iclus].cl;
 	if(checkCrossTalk){
 	  const Muon::CscPrepData* prep = cot->prepRawData();
-	  std::vector<const Muon::CscStripPrepData*> strips = m_clusterTool->getStrips(prep);
+	  std::vector<const Muon::CscStripPrepData*> strips = m_rotCreator->GetICscClusterUtilTool()->getStrips(prep);
 	  std::vector<double> stripCharges;
 	  for (unsigned int s=0; s<strips.size(); ++s) {
 	    ICscClusterFitter::StripFit sfit;
-	    sfit = m_stripFitter->fit(*strips[s]);
+	    sfit = m_rotCreator->GetICscStripFitter()->fit(*strips[s]);
 	    stripCharges.push_back(sfit.charge);
 	  }
 	  double maxCharge=0,centCharge=0;

@@ -1,0 +1,11 @@
+Tool calibration data can be obtained by running the InDetVKalVxInJetTool with the following jobO:
+
+FillHist       = 1
+AntiGarbageCut = 1.0
+
+Produce calibation files using different MC samples (ttbar, Zp, dijet,...)
+Edit Train.C to provide correct pathes to all this calibration files
+Run corrected Train.C using root 6.12 or above.
+
+Use HF tracks from b-jets
+Use fragmentation tracks from L+HF jets

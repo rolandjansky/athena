@@ -46,11 +46,9 @@ Reco_tf.py \
 --inputRDOFile testRTT.RDO.pool.root --outputESDFile testRTT.ESD.pool.root $aodout $rdotrig \
 --preInclude 'EventOverlayJobTransforms/custom.py,EventOverlayJobTransforms/recotrfpre.py' \
 --postInclude 'r2e:EventOverlayJobTransforms/Rt_override_CONDBR2-BLKPA-2015-12.py,EventOverlayJobTransforms/muAlign_reco.py' \
---preExec "from LArConditionsCommon.LArCondFlags import larCondFlags;larCondFlags.OFCShapeFolder.set_Value_and_Lock('4samples1phase'); $dotrig $trigflag $domon $dojive " \
---postExec "r2e:from AthenaCommon import CfgGetter;CfgGetter.getPublicTool('LArCellBuilderFromLArRawChannelTool').RawChannelsName='LArRawChannels_FromDigits';"
+--preExec "from LArConditionsCommon.LArCondFlags import larCondFlags;larCondFlags.OFCShapeFolder.set_Value_and_Lock('4samples1phase'); $dotrig $trigflag $domon $dojive "
 
 #svcMgr.MdtCalibrationSvc.OutputLevel=VERBOSE; svcMgr.MessageSvc.verboseLimit=100000; '
 fi
 
 #Reco_tf.py --inputESDFile testRTT.ESD.pool.root --outputAODFile testRTT.AOD.pool.root
-

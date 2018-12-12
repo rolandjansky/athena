@@ -45,12 +45,15 @@ class SCT_ReadoutTestAlg : public AthAlgorithm {
   StatusCode                          finalize() override;
    
  private:
-  ToolHandle<ISCT_ReadoutTool>        m_readout{this, "SCT_ReadoutTool", "SCT_ReadoutTool", "Handle to the SCT_ReadoutTool"};      //!< Handle to the SCT_ReadoutTool
-  std::vector<SCT_Chip*>              m_chips;        //!< List of chips for that module. *Modified in execute*
-  std::vector<std::string>            m_chipConfigs;  //!< The configuration of the chips in that module (from job options)
-  int                                 m_moduleId;     //!< The Module identifier (from job options)
-  bool                                m_link0ok;      //!< Status of link 0 (from job options)
-  bool                                m_link1ok;      //!< Status of link 1 (from job options)
+  ToolHandle<ISCT_ReadoutTool>        m_readout{this, "SCT_ReadoutTool", "SCT_ReadoutTool", "Handle to the SCT_ReadoutTool"};
+
+  //!< List of chips for that module. *Modified in execute* This should be OK because this is a test alg.
+  std::vector<SCT_Chip*> m_chips;
+
+  StringArrayProperty m_chipConfigs{this, "ChipConfigurationList", {}, "The configuration of the chips in that module (from job options)"};
+  IntegerProperty m_moduleId{this, "ModuleId", 168497152, "The Module identifier (from job options)"};
+  BooleanProperty m_link0ok{this, "Link0Status", true, "Status of link 0 (from job options)"};
+  BooleanProperty m_link1ok{this, "Link1Status", true, "Status of link 1 (from job options)"};
 
   /** Function to convert the configuration string into an int*/
   short                               bin2dec(const char *bin);

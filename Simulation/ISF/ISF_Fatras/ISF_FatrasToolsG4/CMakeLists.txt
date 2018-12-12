@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/StoreGate
                           Simulation/Barcode/BarcodeEvent
+                          Simulation/G4Atlas/G4AtlasAlg
                           Simulation/ISF/ISF_Core/ISF_Interfaces
                           Simulation/ISF/ISF_Geant4/ISF_Geant4Tools
                           Tracking/TrkDetDescr/TrkGeometry )

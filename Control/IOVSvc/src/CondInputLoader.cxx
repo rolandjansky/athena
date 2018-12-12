@@ -23,7 +23,7 @@
 #include "AthenaKernel/CondContMaker.h"
 
 #include "xAODEventInfo/EventInfo.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 #include "TClass.h"
 

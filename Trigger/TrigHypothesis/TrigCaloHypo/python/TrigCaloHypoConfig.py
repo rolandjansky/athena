@@ -4,7 +4,7 @@
 from AthenaCommon.SystemOfUnits import GeV
 from TrigCaloHypo.TrigCaloHypoConf import TrigEFCaloHypoNoise
 from LArCellRec.LArCellRecConf import LArNoisyROTool
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
+from LArBadChannelTool.LArBadChannelToolConf import LArBadChanLegacyTool
 from IOVDbSvc.CondDB import conddb
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
@@ -20,7 +20,7 @@ class EFCaloHypoNoiseConfig (TrigEFCaloHypoNoise):
         self.BadFEBCut=3
         if 'COMP200' not in conddb.GetInstance() and not conddb.isMC:
            if not hasattr(svcMgr.ToolSvc, "KnownBADFEBsTool"):
-              theBadFebTool=LArBadChanTool("KnownBADFEBsTool")
+              theBadFebTool=LArBadChanLegacyTool("KnownBADFEBsTool")
               theBadFebTool.CoolMissingFEBsFolder="/LAR/BadChannels/KnownBADFEBs"
               havefolder=False
               for fld in conddb.iovdbsvc.Folders:
@@ -32,7 +32,7 @@ class EFCaloHypoNoiseConfig (TrigEFCaloHypoNoise):
            else:
               theBadFebTool=svcMgr.ToolSvc.KnownBADFEBsTool
            if not hasattr(svcMgr.ToolSvc, "KnownMNBFEBsTool"):
-              theMNBFebTool=LArBadChanTool("KnownMNBFEBsTool")
+              theMNBFebTool=LArBadChanLegacyTool("KnownMNBFEBsTool")
               theMNBFebTool.CoolMissingFEBsFolder="/LAR/BadChannels/KnownMNBFEBs"
               havefolder=False
               for fld in conddb.iovdbsvc.Folders:

@@ -237,8 +237,8 @@ StatusCode TrigEgammaAnalysisBaseTool::execute() {
         return StatusCode::FAILURE;
     } catch(...) {
         sc.ignore();
-        ATH_MSG_ERROR("Unknown exception caught, while filling histograms");
-        return StatusCode::FAILURE;
+        ATH_MSG_WARNING("Unknown exception caught, while filling histograms");
+        return StatusCode::SUCCESS;
     }
     return sc;
 }
@@ -411,7 +411,14 @@ void TrigEgammaAnalysisBaseTool::parseTriggerName(const std::string trigger, std
             pidname = defaultPid;
             etcut=true;
         }
-        else pidname = getProbePid(strs.at(1));
+        else {
+	    if (type == "electron" && boost::contains(trigger, "ion")){
+		    ATH_MSG_DEBUG("Heavy ion electron chain being used. Using LHMediumHI tune for offline.");
+		        pidname="LHMediumHI";
+	    } else {
+		pidname = getProbePid(strs.at(1));
+	    }
+	}
 
         //Get the L1 information
 

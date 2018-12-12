@@ -6,15 +6,16 @@ from BTagging.BTaggingFlags import BTaggingFlags
 
 metaSoftMuonTag = { 'IsATagger'            : True,
                     'NeedsMuonAssociator'  : True,
-                    'DependsOn'            : ['AtlasExtrapolator',
-                                              'BTagTrackToVertexTool',
-                                              'BTagFullLinearizedTrackFactory',
-                                              'BTagTrackToVertexIPEstimator',
-                                              'SoftMuonTagNewLikelihoodTool',
-                                               'MuonSelectorTool'],
-                    'PassByPointer'        : {'LikelihoodTool'    : 'SoftMuonTagNewLikelihoodTool',
-                                              'TrackToVertexIPEstimator'   : 'BTagTrackToVertexIPEstimator',
-                                              'muonSelectorTool': 'MuonSelectorTool',
+                    'DependsOn'            : [#'AtlasExtrapolator',
+                                              #'BTagTrackToVertexTool',
+                                              #'BTagFullLinearizedTrackFactory',
+                                              #'BTagTrackToVertexIPEstimator',
+                                              #'SoftMuonTagNewLikelihoodTool',
+                                              # 'MuonSelectorTool'],
+                                             ],
+                    'PassByPointer'        : {#'LikelihoodTool'    : 'SoftMuonTagNewLikelihoodTool',
+                                              #'TrackToVertexIPEstimator'   : 'BTagTrackToVertexIPEstimator',
+                                              #'muonSelectorTool': 'MuonSelectorTool',
 										   },
 #                                              'TrackToVertexTool' : 'BTagTrackToVertexTool'},
                     'JetCollectionList'    : 'jetCollectionList',
@@ -37,11 +38,21 @@ def toolSoftMuonTag(name, useBTagFlagsDefaults = True, **options):
                   **options: Python dictionary with options for the tool.
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     if useBTagFlagsDefaults:
+        from BTagging.BTaggingConfiguration_CommonTools import toolBTagTrackToVertexIPEstimator as toolBTagTrackToVertexIPEstimator
+        trackToVertexIPEstimator = toolBTagTrackToVertexIPEstimator('TrkToVxIPEstimator')
+        #from BTagging.BTaggingConfiguration_CommonTools import toolBTagTrackToVertexTool as toolBTagTrackToVertexTool
+        #trackToVertexTool = toolBTagTrackToVertexTool('BTagTrackToVertexTool')
+        muonSelectorTool = toolMuonSelectorTool('MuonSelectorTool')
+        likelihood = toolSoftMuonTagNewLikelihoodTool('SoftMuonTagNewLikelihoodTool')
         defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
                      'Runmodus'                         : BTaggingFlags.Runmodus,
                      'jetCollectionList'                : BTaggingFlags.Jets,
                      'originalMuCollectionName'         : BTaggingFlags.MuonCollectionName,
-                     'MuonQuality'                      : 2}
+                     'MuonQuality'                      : 2,
+                     'muonSelectorTool'                 : muonSelectorTool,
+                     'LikelihoodTool'                   : likelihood,
+                     #'TrackToVertexTool'                : trackToVertexTool,
+                     'TrackToVertexIPEstimator'         : trackToVertexIPEstimator, }
         if(BTaggingFlags.Runmodus == 'reference'):
             defaults['BTagJetEtamin'] = 2.5
         for option in defaults:

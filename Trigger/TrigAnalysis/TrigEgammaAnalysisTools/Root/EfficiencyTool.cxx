@@ -5,6 +5,7 @@
 /**********************************************************************
  **********************************************************************/
 #include "TrigEgammaAnalysisTools/EfficiencyTool.h"
+#include "TrigEgammaAnalysisTools/ValidationException.h"
 
 #include "xAODEventInfo/EventInfo.h"
 
@@ -48,17 +49,30 @@ bool EfficiencyTool::analyseIsEMLH(const xAOD::Electron *eg, const std::string p
     const std::string fail = "Fail" + pidword;
     const std::string ineff = "Ineff" + pidword;
 
-    unsigned int isem = eg->selectionisEM(pidword);
+    bool failIsEMLH = true;
+    unsigned int isem = 9999;
+    try{
+	ATH_MSG_DEBUG("Running selectionisEM("<<pidword<<")");
+	isem = eg->selectionisEM(pidword);
 
-    bool failIsEMLH = false;
-    for (int ii = 0; ii < 11; ii++) {
-        if ((isem >> ii) & 0x1) {
-            failIsEMLH = true;
-            hist1(fail)->Fill(ii + 0.5);
-            hist1(ineff)->Fill(ii + 3.5, 1);
-        }
+	failIsEMLH = false;
+	for (int ii = 0; ii < 11; ii++) {
+	    if ((isem >> ii) & 0x1) {
+		failIsEMLH = true;
+		hist1(fail)->Fill(ii + 0.5);
+		hist1(ineff)->Fill(ii + 3.5, 1);
+	    }
+	}
+    } catch (const ValidationException &e) {
+	ATH_MSG_WARNING("Exception thrown: " << e.msg() );
+	ATH_MSG_WARNING("Is " << pidword << " is a valid one? returning failed....");
+	failIsEMLH = true;
+    } catch(...) {
+	ATH_MSG_WARNING("Unknown exception caught in analyseIsEMLH ... Is " << pidword << " is a valid one? returning failed....");
+	failIsEMLH = true;
     }
     return failIsEMLH;
+
 }
 
 bool EfficiencyTool::analyseIsEM(const xAOD::Electron *eg, const std::string pid)
@@ -76,7 +90,18 @@ bool EfficiencyTool::analyseIsEM(const xAOD::Electron *eg, const std::string pid
     bool failtrt = false;
     bool failisem = false;
 
-    unsigned int isem = eg->selectionisEM(pidword);
+    unsigned int isem = 9999;
+    try{
+	isem = eg->selectionisEM(pidword);
+    } catch (const ValidationException &eg) {
+	ATH_MSG_WARNING("Exception thrown: " << eg.msg() );
+	ATH_MSG_WARNING("Is " << pidword << " is a valid one? returning failed....");
+	return(true);
+    } catch(...) {
+	ATH_MSG_WARNING("Unknown exception caught in analyseIsEMLH ... Is " << pidword << " is a valid one? returning failed....");
+	return(true);
+    }
+
 
     for (int ii = 0; ii < 29; ii++) {
         if ((isem >> ii) & 0x1) {
@@ -438,7 +463,7 @@ void EfficiencyTool::fillEfficiency(const std::string dir,bool isPassed,const fl
 
     float eta = eg->caloCluster()->etaBE(2);
     float phi = eg->phi();
-    float pt = eg->pt();
+    float pt = eg->pt()/1e3;
     float avgmu=getAvgMu();
     float npvtx=getNPVtx();
     ATH_MSG_DEBUG("Mu " << avgmu << " " << getAvgOnlineMu() << " "  << getAvgOfflineMu()); 
@@ -533,6 +558,12 @@ StatusCode EfficiencyTool::toolExecute(const std::string basePath,const TrigInfo
         else if(pairObj.first->type()==xAOD::Type::Photon){
             float et = getCluster_et(pairObj.first)/1e3;
             if(et < info.trigThrHLT-5.0) continue; // return StatusCode::SUCCESS;
+            if(boost::contains(info.trigName,"icalovloose")) {
+                if (getIsolation_topoetcone20(pairObj.first)/getCluster_et(pairObj.first) >= 0.065) continue; // pass FixedCutLoose offline isolation
+            }
+            else {
+                if ((getIsolation_topoetcone40(pairObj.first)-2450.0)/getCluster_et(pairObj.first) >= 0.022) continue; // pass FixedCutTightCaloOnly offline isolation
+            }
         } // Offline photon
 
 

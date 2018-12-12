@@ -147,6 +147,9 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
   // set to false the flag indicating whether the roi is a fake one.
   m_isFakeRoi = false;
 
+  if( m_emulateNoRpcHit )
+    return StatusCode::SUCCESS;
+
   // check the roi ID
   
   //  decode  roIWord

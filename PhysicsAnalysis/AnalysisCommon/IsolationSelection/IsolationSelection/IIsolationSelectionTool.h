@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
  */
 
-// $Id: IIsolationSelectionTool.h 764207 2016-07-25 18:16:03Z alesage $
 // #ifndef ISOLATIONSELECTION_IISOLATIONSELECTIONTOOL_H
 // #define ISOLATIONSELECTION_IISOLATIONSELECTIONTOOL_H
 #ifndef ISOLATIONSELECTION_IISOLATIONSELECTIONTOOL_H
@@ -12,8 +11,8 @@
 
 // Framework include(s):
 #include "AsgTools/IAsgTool.h"
-#include "PATCore/TAccept.h"
-
+#include "PATCore/AcceptData.h"
+#include "PATCore/AcceptInfo.h"
 // EDM include(s):
 #include "xAODPrimitives/IsolationType.h"
 #include "xAODEgamma/Photon.h"
@@ -44,17 +43,17 @@ namespace CP {
 
         public:
             // Cut on object
-            virtual const Root::TAccept& accept(const xAOD::Photon& x) const = 0;
-            virtual const Root::TAccept& accept(const xAOD::Electron& x) const = 0;
-            virtual const Root::TAccept& accept(const xAOD::Muon& x) const = 0;
-            virtual const Root::TAccept& accept(const strObj& x) const = 0;
-            virtual const Root::TAccept& accept(const xAOD::IParticle& x) const = 0;
+            virtual const asg::AcceptData accept(const xAOD::Photon& x) const = 0;
+            virtual const asg::AcceptData accept(const xAOD::Electron& x) const = 0;
+            virtual const asg::AcceptData accept(const xAOD::Muon& x) const = 0;
+            virtual const asg::AcceptData accept(const strObj& x) const = 0;
+            virtual const asg::AcceptData accept(const xAOD::IParticle& x) const = 0;
             virtual StatusCode setIParticleCutsFrom(xAOD::Type::ObjectType ObjType) = 0;
 
-            virtual const Root::TAccept& getPhotonTAccept() const = 0;
-            virtual const Root::TAccept& getElectronTAccept() const = 0;
-            virtual const Root::TAccept& getMuonTAccept() const = 0;
-            virtual const Root::TAccept& getObjTAccept() const = 0;
+            virtual const asg::AcceptInfo& getPhotonAcceptInfo() const = 0;
+            virtual const asg::AcceptInfo& getElectronAcceptInfo() const = 0;
+            virtual const asg::AcceptInfo& getMuonAcceptInfo() const = 0;
+            virtual const asg::AcceptInfo& getObjAcceptInfo() const = 0;
 
             virtual const std::vector<IsolationWP*>& getMuonWPs() const=0;
             virtual const std::vector<IsolationWP*>& getElectronWPs() const=0;

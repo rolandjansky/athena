@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@ JetFitterNNTool::JetFitterNNTool(const std::string& name,
         AthAlgTool(name, n,p),
         m_calibrationDirectory("JetFitter"),
         m_calibrationSubDirectory("NeuralNetwork"),
-        m_networkToHistoTool("Trk::NeuralNetworkToHistoTool"),
+        m_networkToHistoTool("Trk::NeuralNetworkToHistoTool", this),
         m_useCombinedIPNN(true),
         m_maximumRegisteredLayers(4)
 {

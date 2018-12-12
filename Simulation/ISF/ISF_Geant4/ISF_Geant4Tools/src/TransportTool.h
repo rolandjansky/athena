@@ -33,6 +33,8 @@
 
 class G4Event;
 
+class G4AtlasRunManager;
+
 namespace ISF {
   class ISFParticle;
 }
@@ -51,8 +53,6 @@ namespace iGeant4
 
       @author Robert Harrington
   */
-
-  class G4AtlasRunManager;
 
   class G4TransportTool : public ISF::BaseSimulatorTool {
 
@@ -77,9 +77,9 @@ namespace iGeant4
     /// This is done (for now) because we get multiple tool instances in hive.
     void finalizeOnce();
 
-    virtual StatusCode simulate( const ISF::ISFParticle& isp, ISF::ISFParticleContainer& secondaries ) override;
+    virtual StatusCode simulate( const ISF::ISFParticle& isp, ISF::ISFParticleContainer& secondaries, McEventCollection* mcEventCollection ) override;
 
-    virtual StatusCode simulateVector( const ISF::ConstISFParticleVector& particles, ISF::ISFParticleContainer& secondaries ) override;
+    virtual StatusCode simulateVector( const ISF::ConstISFParticleVector& particles, ISF::ISFParticleContainer& secondaries, McEventCollection* mcEventCollection ) override;
 
     virtual StatusCode setupEvent() override;
 
@@ -98,7 +98,7 @@ namespace iGeant4
     /// This command prints a message about a G4Command depending on its returnCode
     void commandLog(int returnCode, const std::string& commandString) const;
 
-    HepMC::GenEvent* genEvent() const;
+    HepMC::GenEvent* genEvent(McEventCollection* mcEventCollection) const;
 
     /// @name Configurable Properties
     /// @{

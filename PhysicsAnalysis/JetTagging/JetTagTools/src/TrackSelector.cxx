@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetTagTools/TrackSelector.h"
@@ -28,7 +28,7 @@ namespace Analysis {
     m_primaryVertex(Amg::Vector3D()),
     m_ntri(0),
     m_ntrf(0),
-    m_trackToVertexTool("Reco::TrackToVertex") {
+    m_trackToVertexTool("Reco::TrackToVertex", this) {
 
     declareInterface<TrackSelector>(this);
     declareProperty("trackToVertexTool", m_trackToVertexTool);

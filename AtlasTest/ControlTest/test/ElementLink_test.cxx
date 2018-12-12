@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TestTools/FLOATassert.h"
@@ -11,7 +11,7 @@
 #include "AthLinks/ElementLink.h"
 #include "AthLinks/ElementLinkVector.h"
 #include "AthLinks/DeclareIndexingPolicy.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "SGTools/StlVectorClids.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "TestTools/initGaudi.h"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,7 +13,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
-#include "PATCore/IAsgSelectionTool.h"
+#include "AsgAnalysisInterfaces/ISelectionTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
 namespace DerivationFramework {
@@ -27,7 +27,7 @@ namespace DerivationFramework {
       virtual StatusCode addBranches() const;
 
     private:
-      ToolHandle<IAsgSelectionTool> m_tool;
+      ToolHandle<CP::ISelectionTool> m_tool;
       std::string m_cut;
       std::string m_sgName;
       std::string m_containerName;

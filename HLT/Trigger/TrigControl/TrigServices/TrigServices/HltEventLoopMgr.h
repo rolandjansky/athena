@@ -6,7 +6,6 @@
 #define TRIGSERVICES_HLTEVENTLOOPMGR_H
 
 // Trigger includes
-#include "TrigKernel/IHltTHistSvc.h"
 #include "TrigKernel/ITrigEventLoopMgr.h"
 #include "TrigKernel/HltPscErrorCode.h"
 #include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
@@ -192,8 +191,6 @@ private:
   ToolHandle<HLTResultMTMaker> m_hltResultMaker;
 
   // ------------------------- Optional services/tools -------------------------
-  /// Reference to a THistSvc which implements also the Hlt additions
-  SmartIF<IHltTHistSvc> m_hltTHistSvc;
   /// Reference to a ROBDataProviderSvc which implements also the Hlt additions
   SmartIF<ITrigROBDataProviderSvc> m_hltROBDataProviderSvc;
 

@@ -125,17 +125,6 @@ RegistrationStream::initialize()
       ATH_MSG_DEBUG (" Tool initialized");
     }
 
-    ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
-    status = incSvc.retrieve();
-    if (!status.isSuccess()) {
-       ATH_MSG_ERROR("Cannot get the IncidentSvc");
-       return(status);
-    } else {
-       ATH_MSG_DEBUG("Retrieved IncidentSvc");
-    }
-    incSvc->addListener(this, "MetaDataStop", 30);
-    ATH_MSG_DEBUG("Added MetaDataStop listener");
-
     // Register this algorithm for 'I/O' events
     ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", name());
     status = iomgr.retrieve();
@@ -177,17 +166,13 @@ RegistrationStream::finalize()
   return StatusCode::SUCCESS;
 }
 
-void RegistrationStream::handle(const Incident& inc) 
+StatusCode 
+RegistrationStream::stop() 
 {
-  // Now commit the results
-  ATH_MSG_DEBUG("handle() incident type: " << inc.type());
-  if (inc.type() == "MetaDataStop") {
-    StatusCode sc = m_regTool->commit();
-    if (!sc.isSuccess()) ATH_MSG_INFO("Unable to commit");
-
-  }
+  StatusCode sc = m_regTool->commit();
+  if (!sc.isSuccess()) ATH_MSG_INFO("Unable to commit");
+  return StatusCode::SUCCESS;
 }
-
 
 // Work entry point
 StatusCode 
@@ -220,7 +205,6 @@ RegistrationStream::execute()
             return sc;
         }
         
-        //sc = m_regTool->fill(refs,inputRefs,refnames,this->getAttListKey());
         sc = m_regTool->fill(refs,this->getAttListKey());
     
     } // end of isEventAccepted clause
@@ -324,7 +308,6 @@ StatusCode RegistrationStream::getRefs(std::vector< std::pair<std::string,std::s
 	// Retrieve DataHeader to check if it is input
 	const DataHeader* hdr=0;
 	if (i->key() == "*") {
-            //ATH_MSG_DEBUG("xxx" << evtStore()->dump());
 	    // For wildcard key, must go and fetch all DataHeaders  
 	    const DataHandle<DataHeader> beg; 
 	    const DataHandle<DataHeader> ending; 
@@ -523,24 +506,10 @@ std::vector<std::string> RegistrationStream::getCollMetadataKeys()
 StatusCode RegistrationStream::io_reinit() 
 {
    ATH_MSG_DEBUG("I/O reinitialization...");
-   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
-   if (!incSvc.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get the IncidentSvc");
-      return StatusCode::FAILURE;
-   }
-   incSvc->addListener(this, "MetaDataStop", 30);
    return StatusCode::SUCCESS;
 }
 
 StatusCode RegistrationStream::io_finalize() {
    ATH_MSG_INFO("I/O finalization...");
-   const Incident metaDataStopIncident(name(), "MetaDataStop");
-   this->handle(metaDataStopIncident);
-   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
-   if (!incSvc.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get the IncidentSvc");
-      return StatusCode::FAILURE;
-   }
-   incSvc->removeListener(this, "MetaDataStop");
    return StatusCode::SUCCESS;
 }

@@ -11,7 +11,6 @@ atlas_depends_on_subdirs( PRIVATE
                           Calorimeter/CaloTrackingGeometry
                           Control/AthenaKernel
                           Control/Navigation
-                          Control/SGTools
                           Control/StoreGate
                           Event/EventKernel
                           Event/FourMomUtils
@@ -45,7 +44,7 @@ atlas_add_component( egammaD3PDMaker
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} CaloIdentifier AthenaKernel Navigation SGTools StoreGateLib SGtests EventKernel FourMomUtils xAODBase xAODCaloEvent xAODEgamma xAODJet xAODTracking xAODTruth GaudiKernel AnalysisTriggerEvent D3PDMakerUtils TriggerD3PDMakerLib MCTruthClassifierLib egammaEvent TrkParameters TrkExInterfaces TrkVertexFitterInterfaces TrigObjectMatchingLib TrigCaloEvent TrigInDetEvent TrigParticle )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} CaloIdentifier AthenaKernel Navigation StoreGateLib SGtests EventKernel FourMomUtils xAODBase xAODCaloEvent xAODEgamma xAODJet xAODTracking xAODTruth GaudiKernel AnalysisTriggerEvent D3PDMakerUtils TriggerD3PDMakerLib MCTruthClassifierLib egammaEvent TrkParameters TrkExInterfaces TrkVertexFitterInterfaces TrigObjectMatchingLib TrigCaloEvent TrigInDetEvent TrigParticle )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

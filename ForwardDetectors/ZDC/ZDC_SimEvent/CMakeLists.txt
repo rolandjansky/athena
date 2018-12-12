@@ -7,8 +7,7 @@ atlas_subdir( ZDC_SimEvent )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/SGTools
+                          Control/AthenaKernel
                           Simulation/HitManagement )
 
 # External dependencies:
@@ -19,12 +18,12 @@ atlas_add_library( ZDC_SimEvent
                    src/*.cxx
                    PUBLIC_HEADERS ZDC_SimEvent
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES SGTools HitManagement
+                   LINK_LIBRARIES AthenaKernel HitManagement
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( ZDC_SimEventDict
                       ZDC_SimEvent/ZDC_SimEventDict.h
                       ZDC_SimEvent/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} SGTools HitManagement ZDC_SimEvent )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel HitManagement ZDC_SimEvent )
 

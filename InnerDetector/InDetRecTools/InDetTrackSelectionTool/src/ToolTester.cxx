@@ -9,7 +9,8 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
-
+#include "PATCore/AcceptInfo.h"
+#include "PATCore/AcceptData.h"
 #ifndef XAOD_ANALYSIS
 #include "TrkTrack/Track.h"
 #include "TrkTrackSummary/TrackSummary.h"
@@ -62,12 +63,6 @@ StatusCode InDet::ToolTester::execute_r(const EventContext &ctx) const {
     return StatusCode::FAILURE;
   }
 
-  // we will be copying TAccepts to see if the cuts are consistent for each version of accept().
-  // this is not how the tool should be used outside of testing, as it is expensive to copy
-  // the TAccepts.
-  Root::TAccept acceptxAOD;
-  Root::TAccept acceptTrk;
-
   Int_t numberOfGoodTracks = 0;
 
   // Loop over them:
@@ -88,12 +83,15 @@ StatusCode InDet::ToolTester::execute_r(const EventContext &ctx) const {
     // Select "good" tracks:
     if( ! m_selTool->accept( *track , foundVertex ) ) continue;
     numberOfGoodTracks++;
-    acceptxAOD = m_selTool->accept( *track, foundVertex );
+    asg::AcceptData acceptxAOD = m_selTool->accept( *track, foundVertex );
+    ATH_MSG_VERBOSE( " TrackParticle AcceptData to bool " << static_cast<bool>(acceptxAOD));
+
 #ifndef XAOD_ANALYSIS // if we are in full athena we have access to Trk::Tracks
      if (track->track()) {
        Trk::Track trkTrack = *(track->track());
-       acceptTrk = m_selTool->accept( trkTrack, nullptr );
-       assert( acceptxAOD == acceptTrk );
+       asg::AcceptData acceptTrk = m_selTool->accept( trkTrack, nullptr );   
+       ATH_MSG_VERBOSE( " Trk::Track AcceptData to bool " << static_cast<bool>(acceptTrk));
+       assert( static_cast<bool>(acceptxAOD) == static_cast<bool>(acceptTrk) );
      }
 #endif // XAOD_ANALYSIS
 

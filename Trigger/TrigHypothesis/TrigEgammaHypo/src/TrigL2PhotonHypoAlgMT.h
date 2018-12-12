@@ -44,11 +44,7 @@ class TrigL2PhotonHypoAlgMT  :  public ::HypoBase
   Gaudi::Property< bool > m_runInView { this, "RunInView", false , "Set input DH for running in views" };
   // internally used to getch from views
   SG::ReadHandleKey< xAOD::TrigPhotonContainer > m_photonsKey {this, "Photons", "L2PhotonContainer", "Input"};
-
   
-  bool  recursivelyFindFeature( const TrigCompositeUtils::Decision* d, ElementLink<xAOD::TrigEMClusterContainer>& clusterlink) const;
-  
-
 }; 
 
 #endif //> !TRIGEGAMMAHYPO_TRIGL2PHOTONHYPOALGMT_H                                                                                                                                                          

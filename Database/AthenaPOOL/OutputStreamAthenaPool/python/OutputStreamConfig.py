@@ -30,13 +30,33 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[] ):
    outputStream = AthenaOutputStream(
       outputAlgName,
       WritingTool = writingTool,
-      ItemList    = [ "xAOD::EventInfo#*" ]+ItemList, 
+      ItemList    = [ "xAOD::EventInfo#*", "xAOD::EventAuxInfo#*"  ]+ItemList, 
       OutputFile = fileName,
       HelperTools = [ streamInfoTool ],
       )
    #outputStream.MetadataStore = svcMgr.MetaDataStore
    #outputStream.MetadataItemList = [ "EventStreamInfo#" + streamName, "IOVMetaDataContainer#*" ]
 
+   # For xAOD output
+   if streamName=="xAOD":
+      from xAODEventFormatCnv.xAODEventFormatCnvConf import xAODMaker__EventFormatSvc
+      # Simplifies naming 
+      result.addService(xAODMaker__EventFormatSvc())
+      outputStream.MetadataItemList.append( "xAOD::EventFormat#EventFormat" )
+
+      from xAODMetaDataCnv.xAODMetaDataCnvConf import xAODMaker__FileMetaDataMarkUpTool
+      streamMarkUpTool = xAODMaker__FileMetaDataMarkUpTool( streamName + "_FileMetaDataMarkUpTool" )
+      streamMarkUpTool.Key = streamName
+      outputStream.HelperTools += [ streamMarkUpTool ]
+      outputStream.WritingTool.SubLevelBranchName = "<key>"
+
+      from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
+      poolcnvsvc = AthenaPoolCnvSvc()
+      result.addService(poolcnvsvc)
+      poolcnvsvc.PoolAttributes += [ "DatabaseName = '" + fileName + "'; COMPRESSION_LEVEL = '5'" ]
+      poolcnvsvc.PoolAttributes += [ "DatabaseName = '" + fileName + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '-10000000'" ]
+      poolcnvsvc.PoolAttributes += [ "DatabaseName = '" + fileName + "'; ContainerName = 'TTree=CollectionTree'; CONTAINER_SPLITLEVEL = '1'" ]
+      poolcnvsvc.PoolAttributes += [ "DatabaseName = '" + fileName + "'; ContainerName = 'TTree=Aux.'; CONTAINER_SPLITLEVEL = '1'"]
 
    result.addEventAlgo(outputStream)
    return result

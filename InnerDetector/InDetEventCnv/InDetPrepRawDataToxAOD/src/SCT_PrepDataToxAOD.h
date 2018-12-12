@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -25,11 +25,11 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
+#include <atomic>
 #include <string>
 
 class SCT_ID;
 class SiHit;
-class InDetSimDataCollection;
 class SCT_RDORawData;
 class Identifier;
 
@@ -70,26 +70,25 @@ private:
  
  
   const SCT_ID *m_SCTHelper;
-  SG::ReadHandleKey<InDet::SCT_ClusterContainer>  m_clustercontainer;
-  SG::ReadHandleKey<InDetSimDataCollection>  m_SDOcontainer;
-  SG::ReadHandleKey<SiHitCollection>  m_sihitContainer;
-  SG::ReadHandleKey<PRD_MultiTruthCollection>  m_multiTruth;
-  SG::ReadHandleKey<SCT_RDO_Container>  m_rdoContainer;
-  SG::WriteHandleKey<xAOD::TrackMeasurementValidationContainer>  m_xAodContainer;
-  SG::WriteHandleKey<std::vector<unsigned int> >  m_xAodOffset;
+  SG::ReadHandleKey<InDet::SCT_ClusterContainer>  m_clustercontainer{this, "SiClusterContainer", "SCT_Clusters"};
+  SG::ReadHandleKey<InDetSimDataCollection>  m_SDOcontainer{this, "MC_SDOs", "SCT_SDO_Map"};
+  SG::ReadHandleKey<SiHitCollection>  m_sihitContainer{this, "MC_Hits", "SCT_Hits"};
+  SG::ReadHandleKey<PRD_MultiTruthCollection>  m_multiTruth{this, "PRD_MultiTruth", "PRD_MultiTruthSCT"};
+  SG::ReadHandleKey<SCT_RDO_Container>  m_rdoContainer{this, "SctRdoContainer", "SCT_RDOs"};
+  SG::WriteHandleKey<xAOD::TrackMeasurementValidationContainer>  m_xAodContainer{this, "SctxAodContainer", "SCT_Clusters"};
+  SG::WriteHandleKey<std::vector<unsigned int> >  m_xAodOffset{this, "SctxAodOffset", "SCT_ClustersOffsets"};
 
   // For P->T converter of SCT_Clusters
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
-  bool  m_useTruthInfo;
-  bool  m_writeRDOinformation;
-  bool  m_writeSDOs;
-  bool  m_writeSiHits;
+  BooleanProperty m_useTruthInfo{this, "UseTruthInfo", false};
+  BooleanProperty m_writeRDOinformation{this, "WriteRDOinformation", true};
+  BooleanProperty m_writeSDOs{this, "WriteSDOs", true};
+  BooleanProperty m_writeSiHits{this, "WriteSiHits", true};
   
   // --- private members
-  bool m_firstEventWarnings;
+  std::atomic_bool m_firstEventWarnings;
   
 };
 
-
-#endif 
+#endif // SCT_PREPDATATOXAOD_H

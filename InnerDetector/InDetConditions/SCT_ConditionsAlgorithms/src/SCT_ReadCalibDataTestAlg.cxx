@@ -26,20 +26,8 @@ SCT_ReadCalibDataTestAlg::SCT_ReadCalibDataTestAlg(const std::string& name, ISvc
   m_id_sct{nullptr},
   m_moduleId{0},
   m_waferId{0},
-  m_stripId{0},
-  m_doTestmyConditionsSummary{false},
-  m_doTestmyDefectIsGood{false},
-  m_doTestmyDefectType{false},
-  m_doTestmyDefectsSummary{false},
-  m_doTestmyDefectList{false},
-  m_moduleOfflinePosition{}
+  m_stripId{0}
 {
-  declareProperty("DoTestmyConditionsSummary",   m_doTestmyConditionsSummary = false, "Test return bool conditions summary?");
-  declareProperty("DoTestmyDefectIsGood",        m_doTestmyDefectIsGood      = false, "Test return defect type summary?");
-  declareProperty("DoTestmyDefectType",          m_doTestmyDefectType        = false, "Test return defect type summary?");
-  declareProperty("DoTestmyDefectsSummary",      m_doTestmyDefectsSummary    = false, "Test return module defects summary?");
-  declareProperty("DoTestmyDefectList",          m_doTestmyDefectList        = false, "Test return defectList?");
-  declareProperty("ModuleOfflinePosition",       m_moduleOfflinePosition            , "Offline pos. as: B-EC,layer-disk,phi,eta");
 }
 
 //----------------------------------------------------------------------
@@ -112,7 +100,7 @@ StatusCode SCT_ReadCalibDataTestAlg::execute()
   ATH_MSG_DEBUG("in execute()");
   
   //Test ConditionsSummary
-  if (m_doTestmyConditionsSummary) {
+  if (m_doTestmyConditionsSummary.value()) {
     // Test summmary, ask status of strip in module
     Identifier IdM{m_moduleId};
     Identifier IdS{m_stripId};
@@ -121,7 +109,7 @@ StatusCode SCT_ReadCalibDataTestAlg::execute()
   }
 
   // Loop over all strips and check if good or not using isGood, and print the bad ones
-  if (m_doTestmyDefectIsGood) {
+  if (m_doTestmyDefectIsGood.value()) {
     int ngood{0};
     int nbad{0};
     //Loop over all wafers using hashIds from the cabling service

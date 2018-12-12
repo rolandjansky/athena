@@ -153,7 +153,7 @@ namespace InDet
 
     typedef DataVector<Trk::Track>::const_iterator TrackDataVecIter;
 
-    Root::TAccept selectionPassed;
+    bool selectionPassed{false};
     for (TrackDataVecIter itr = (*trackTES).begin(); itr != (*trackTES).end(); itr++) {
       if (m_useBeamConstraint) {
         // TODO: change trkFilter to allow for this replacement
@@ -164,10 +164,10 @@ namespace InDet
            beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
          */
         Trk::RecVertex beamposition(m_iBeamCondSvc->beamVtx());
-        selectionPassed = m_trkFilter->accept(**itr, &beamposition);
+        selectionPassed = static_cast<bool>(m_trkFilter->accept(**itr, &beamposition));
       } else {
         Trk::Vertex null(Amg::Vector3D(0, 0, 0));
-        selectionPassed = m_trkFilter->accept(**itr, &null);
+        selectionPassed = static_cast<bool> (m_trkFilter->accept(**itr, &null));
       }
       if (selectionPassed) {
         ElementLink<TrackCollection> link;
@@ -194,7 +194,7 @@ namespace InDet
 
     typedef DataVector<Trk::TrackParticleBase>::const_iterator TrackParticleDataVecIter;
 
-    Root::TAccept selectionPassed;
+    bool  selectionPassed{false};
     for (TrackParticleDataVecIter itr = (*trackTES).begin(); itr != (*trackTES).end(); itr++) {
       if (m_useBeamConstraint) {
         // TODO: change trkFilter to allow for this replacement
@@ -205,10 +205,10 @@ namespace InDet
            beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
          */
         Trk::RecVertex beamposition(m_iBeamCondSvc->beamVtx());
-        selectionPassed = m_trkFilter->accept(*((*itr)->originalTrack()), &beamposition);
+        selectionPassed = static_cast<bool>(m_trkFilter->accept(*((*itr)->originalTrack()), &beamposition));
       } else {
         Trk::Vertex null(Amg::Vector3D(0, 0, 0));
-        selectionPassed = m_trkFilter->accept(*((*itr)->originalTrack()), &null);
+        selectionPassed = static_cast<bool>(m_trkFilter->accept(*((*itr)->originalTrack()), &null));
       }
 
       if (selectionPassed) {
@@ -236,14 +236,14 @@ namespace InDet
 
     typedef DataVector<xAOD::TrackParticle>::const_iterator TrackParticleDataVecIter;
 
-    Root::TAccept selectionPassed;
+    bool selectionPassed{false};
     for (TrackParticleDataVecIter itr = trackParticles->begin(); itr != trackParticles->end(); ++itr) {
       if (m_useBeamConstraint) {
         xAOD::Vertex beamposition;
         beamposition.makePrivateStore();
         beamposition.setPosition(m_iBeamCondSvc->beamVtx().position());
         beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
-        selectionPassed = m_trkFilter->accept(**itr, &beamposition);
+        selectionPassed = static_cast<bool> (m_trkFilter->accept(**itr, &beamposition));
       } else {
         xAOD::Vertex null;
         null.makePrivateStore();
@@ -251,7 +251,7 @@ namespace InDet
         AmgSymMatrix(3) vertexError;
         vertexError.setZero();
         null.setCovariancePosition(vertexError);
-        selectionPassed = m_trkFilter->accept(**itr, &null);
+        selectionPassed = static_cast<bool>(m_trkFilter->accept(**itr, &null));
       }
 
       if (selectionPassed) {

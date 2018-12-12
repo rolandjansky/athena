@@ -12,6 +12,7 @@ if( XAOD_STANDALONE )
       Control/AthToolSupport/AsgTools
       Event/xAOD/xAODTracking
       PhysicsAnalysis/AnalysisCommon/PATCore
+      PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
       PRIVATE
       Control/xAODRootAccess )
 elseif( XAOD_ANALYSIS )
@@ -20,6 +21,7 @@ elseif( XAOD_ANALYSIS )
       Control/AthToolSupport/AsgTools
       Event/xAOD/xAODTracking
       PhysicsAnalysis/AnalysisCommon/PATCore
+      PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
       GaudiKernel
       PRIVATE
       Control/AthenaBaseComps )
@@ -30,6 +32,7 @@ else()
       Event/xAOD/xAODTracking
       GaudiKernel
       PhysicsAnalysis/AnalysisCommon/PATCore
+      PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
       Tracking/TrkEvent/TrkParameters
       Tracking/TrkExtrapolation/TrkExInterfaces
       Tracking/TrkTools/TrkToolInterfaces
@@ -57,7 +60,7 @@ endif()
 atlas_add_library( InDetTrackSelectionToolLib
    InDetTrackSelectionTool/*.h Root/*.h Root/*.cxx
    PUBLIC_HEADERS InDetTrackSelectionTool
-   LINK_LIBRARIES PATCoreLib xAODTracking ${extra_libs} )
+   LINK_LIBRARIES PATCoreLib AsgAnalysisInterfaces xAODTracking ${extra_libs} )
 
 if( NOT XAOD_STANDALONE )
    set( extra_libs )

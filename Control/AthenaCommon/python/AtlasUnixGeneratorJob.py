@@ -3,21 +3,24 @@
 ## @file AtlasUnixGeneratorJob.py
 ## @brief py-module to configure the Athena AppMgr for generator (UNIX) jobs
 ## @author Sebastien Binet <binet@cern.ch>
-## $Id: AtlasUnixGeneratorJob.py,v 1.5 2009-02-10 22:49:02 wlav Exp $
 ###############################################################
 
 def _setupAtlasUnixGeneratorJob():
     import AtlasUnixStandardJob    # noqa: F401
     from AppMgr import theApp
     from AppMgr import ServiceMgr as svcMgr
+    from AthenaCommon.Logging import logging
+    log = logging.getLogger('AtlasUnixGeneratorJob')
 
     # General Application Configuration options
     from McEventSelector.McEventSelectorConf import McCnvSvc
-    from McEventSelector.McEventSelectorConf import McEventSelector
     svcMgr += McCnvSvc()
-    if hasattr(svcMgr, 'EventSelector'): del svcMgr.EventSelector
-    svcMgr += McEventSelector("EventSelector")
-    theApp.EvtSel = svcMgr.EventSelector.getFullName()
+    if hasattr(svcMgr, 'EventSelector'):
+        log.warning('EventSelector of type %s already exists. Will not add McEventSelector.' % svcMgr.EventSelector.getType())
+    else:
+        from McEventSelector.McEventSelectorConf import McEventSelector
+        svcMgr += McEventSelector("EventSelector")
+        theApp.EvtSel = svcMgr.EventSelector.getFullName()
 
     # Persistency services
     svcMgr.EventPersistencySvc.CnvServices += [ "McCnvSvc" ]

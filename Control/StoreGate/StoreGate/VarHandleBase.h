@@ -24,13 +24,13 @@
 #include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/IResetable.h"
 #include "AthenaKernel/StoreID.h"
+#include "AthenaKernel/StorableConversions.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/EventContext.h"
 
 // SGTools includes
 #include "SGTools/DataProxy.h"
 #include "SGTools/ProxyMap.h"
-#include "SGTools/StorableConversions.h"
 #include "SGTools/BuiltinsClids.h"
 #include "SGTools/StlVectorClids.h"
 #include "SGTools/StlMapClids.h"
@@ -600,7 +600,7 @@ namespace SG {
 } /* namespace SG */
 
 // For the ConditionHandles
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondContBase , 34480459 , 1 )
 

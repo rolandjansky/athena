@@ -226,7 +226,6 @@ StatusCode TrigDataAccess::beginRunHandle(IOVSVC_CALLBACK_ARGS){
 	}
 	m_tiledecoder->loadMBTS_Ptr(m_tilecell->MBTS_collection(),
 		m_tilecell->MBTS_map(), m_tilecell->MBTS_channel() );
-	m_tiledecoder->load_list_of_masked_drawers( m_tilecell->masked_drawers() );
 	// ROD Address for MBTS
         m_mbts_rods = m_tilecell->MBTS_RODs();
 	// unique set

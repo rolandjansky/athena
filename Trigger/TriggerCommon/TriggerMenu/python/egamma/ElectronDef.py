@@ -14,6 +14,9 @@ from TrigHIHypo.UE import theUEMaker, theFSCellMaker, theElectronUEMonitoring
 from TrigMultiVarHypo.TrigL2CaloRingerHypoConfig import TrigL2CaloRingerFexHypo_e_NoCut
 from TrigEgammaHypo.TrigEFCaloHypoConfig import TrigEFCaloHypo_EtCut
 from TrigEgammaHypo.TrigL2ElectronFexConfig import L2ElectronFex_Clean
+from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyCopyAllTEAlgo
+from TriggerMenu.commonUtils.makeCaloSequences import getFullScanCaloSequences
+from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo as DummyRoI
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger("TriggerMenu.egamma.ElectronDef")
@@ -27,7 +30,8 @@ log = logging.getLogger("TriggerMenu.egamma.ElectronDef")
 class L2EFChain_e(L2EFChainDef):
 
     # Define frequently used instances here as class variables
-
+    DummyMergerAlgo = PESA__DummyCopyAllTEAlgo("DummyMergerAlgo")
+    fullScanSeqMap = getFullScanCaloSequences()
     def __init__(self, chainDict, seqObj):
 
         self.L2sequenceList   = []
@@ -69,6 +73,10 @@ class L2EFChain_e(L2EFChainDef):
         if '_v7' in TriggerFlags.triggerMenuSetup():
             self.use_v7=True
         
+        self.doCaloIsolation=False
+        for item in self.chainPart['isoInfo']:
+            if 'icalo' in item:
+                self.doCaloIsolation=True
         # eXXvh_ID type chains:
         if self.use_v7:
             self.setup_electron()
@@ -122,9 +130,20 @@ class L2EFChain_e(L2EFChainDef):
         thr = self.chainPart['threshold']
         log.debug("Apply ringer %s",self._ringer_selection)
 
-        if TriggerFlags.EgammaSlice.doRinger:
+        if 'noringer' in self.chainPart['addInfo'] or 'ion' in self.chainPart['extra']:
+          log.debug('No Ringer selection used. Disable the ringer for this chain.')
+          self._ringer_selection=False
+        elif TriggerFlags.EgammaSlice.doRinger:
             log.debug('Ringer selection applied for all chains above 15 GeV %s',thr)
-            if float(thr)>15.0:
+            if 'merged' in self.chainPart['IDinfo']:
+                self._ringer_selection=False
+            elif 'bloose' in self.chainPart['IDinfo']:
+                self._ringer_selection=False
+            elif float(thr)>15.0:
+                log.debug('Ringer selection applied for all chains above 15 GeV %s',thr)
+                self._ringer_selection=True
+            elif float(thr) <= 15.0 and TriggerFlags.EgammaSlice.doRingerBelow15GeV:
+                log.debug('Ringer selection applied for all chains below 15 GeV %s',thr)
                 self._ringer_selection=True
             else:
                 self._ringer_selection=False
@@ -133,8 +152,11 @@ class L2EFChain_e(L2EFChainDef):
         elif self.chainPart['trkInfo']=='idperf': 
             if float(thr)>15.0:
                 self._ringer_selection=True
+            elif float(thr) <= 15.0 and TriggerFlags.EgammaSlice.doRingerBelow15GeV:
+                self._ringer_selection=True
             else:
                 self._ringer_selection=False
+        
         log.debug("Apply ringer is set %s",self._ringer_selection)
 
 
@@ -194,7 +216,7 @@ class L2EFChain_e(L2EFChainDef):
         name = str(self.chainPart['threshold'])
         name = name.split('.')[0]
         dofastrecseq = TriggerFlags.EgammaSlice.doFastElectronFex
-        if 'perf' in self.chainName: 
+        if 'perf' in self.chainPartName: 
             dofastrecseq=False
         log.debug('setup_electron %s, apply ringer %s for %s',self.chainName,self._ringer_selection,thr )
         # Ringer chains not tuned for low-et
@@ -207,7 +229,7 @@ class L2EFChain_e(L2EFChainDef):
         # but 
         algo = TrigEFCaloHypo_EtCut("TrigEFCaloHypo_e"+name+"_EtCut",thr)
         fastrec_algo = L2ElectronFex_Clean()
-        fastrec_hypo = self.el_sequences['fastrec'].pop()
+        fastrec_hypo = self.el_sequences['fastrec'][-1]
         precisecalocalib =  self.el_sequences['precisecalocalib']
         precisecalocalib.pop()
         precisecalocalib.extend([algo])
@@ -226,15 +248,19 @@ class L2EFChain_e(L2EFChainDef):
         if dofastrecseq:
             seq_dict['fastrec']=[fastrec_algo,fastrec_hypo]
             log.debug('FastRec sequence %s'%seq_dict['fastrec'])
-            
+            # remove track hypo from precisetrack step
+            precisetrack = self.el_sequences['precisetrack']
+            precisetrack.pop()
+            seq_dict['precisetrack']=precisetrack
             seq_te_dict['fastcalorec']=('L2_e_step1','cl')
             seq_te_dict['fastringerhypo']=('L2_e_step2','clhypo')
-            seq_te_dict['fasttrack']=('L2_e_step3','id')
+            seq_te_dict['fasttrack']=('L2_e_step3','ftf')
             seq_te_dict['fastrec']=('L2_e_step4','')
             seq_te_dict['precisecalo']=('EF_e_step1','calo')
             seq_te_dict['precisecalocalib']=('EF_e_step2','calocalib')    
-            seq_te_dict['precisetrack']=('EF_e_step3','id') 
-            seq_te_dict['preciserec']=('EF_e_step4','')
+            seq_te_dict['precisetrack']=('EF_e_step3','idtrig') 
+            if not self.doCaloIsolation:
+                seq_te_dict['preciserec']=('EF_e_step4','')
         else:    
             seq_te_dict['fastcalorec']=('L2_e_step1','cl')
             seq_te_dict['fastringerhypo']=('L2_e_step2','clhypo')
@@ -242,9 +268,52 @@ class L2EFChain_e(L2EFChainDef):
             seq_te_dict['fastrec']=('L2_e_step4','') 
             seq_te_dict['precisecalo']=('EF_e_step1','cl')
             seq_te_dict['precisecalocalib']=('EF_e_step2','calocalib')    
-            seq_te_dict['preciserec']=('EF_e_step4','')
+            if not self.doCaloIsolation:
+                seq_te_dict['preciserec']=('EF_e_step3','')
 
         self.setupFromDict(seq_te_dict,seq_dict)
+        
+        if self.doCaloIsolation:
+            # full scan topo and merging w/ RoI TEs
+            te_in=''
+            if dofastrecseq:
+                pos=3
+                for step in self.fullScanSeqMap:
+                    self.EFsequenceList.insert(pos,[[te_in],self.fullScanSeqMap[step],step])
+                    self.EFsignatureList.insert(pos,[[step]] )
+                    te_in=step
+                    pos+=1
+                
+                self.EFsequenceList.insert(pos,[ ['EF_e_step3',te_in],[self.DummyMergerAlgo],'EF_eCache_step3'])
+                self.EFsignatureList.insert(pos,[['EF_eCache_step3']])
+                self.EFsequenceList.insert(pos+1,[['EF_eCache_step3'],self.el_sequences['preciserec'],'EF_e_step4'])
+                self.EFsignatureList.insert(pos+1,[['EF_e_step4']*self.mult])
+            else:
+                pos=2
+                for step in self.fullScanSeqMap:
+                    self.EFsequenceList.insert(pos,[[te_in],self.fullScanSeqMap[step],step])
+                    self.EFsignatureList.insert(pos,[[step]] )
+                    te_in=step
+                    pos+=1
+                
+                self.EFsequenceList.insert(pos,[ ['EF_e_step2',te_in],[self.DummyMergerAlgo],'EF_eCache_step2'])
+                self.EFsignatureList.insert(pos,[['EF_eCache_step2']])
+                self.EFsequenceList.insert(pos+1,[['EF_eCache_step2'],self.el_sequences['preciserec'],'EF_e_step3'])
+                self.EFsignatureList.insert(pos+1,[['EF_e_step3']*self.mult])
+
+            ########### TE renaming ###########
+
+            self.TErenamingDict['EF_full']=mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'_fs')
+            self.TErenamingDict['EF_full_cell']=mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'_fscalocell')
+            self.TErenamingDict['EF_FSTopoClusters']=mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'_fscalotopo')
+            self.TErenamingDict['EF_FSTopoClustersED']=mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'_fscalotopoed')
+            
+            if dofastrecseq:
+                self.TErenamingDict['EF_eCache_step3']=mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'_ED')
+                self.TErenamingDict['EF_e_step4']=mergeRemovingOverlap('EF_', self.chainPartNameNoMult)
+            else:
+                self.TErenamingDict['EF_eCache_step2']=mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'_ED')
+                self.TErenamingDict['EF_e_step3']=mergeRemovingOverlap('EF_', self.chainPartNameNoMult)
     
     def setup_eXXvh_idperf(self):
 
@@ -275,8 +344,9 @@ class L2EFChain_e(L2EFChainDef):
         precisecalocalib.insert(1,theElectronUEMonitoring) 
         
         self.L2sequenceList += [[self.L2InputTE,self.el_sequences['fastcalo'],'L2_e_step1']]                      
-        self.EFsequenceList += [[['L2_e_step1'],[theFSCellMaker], 'EF_e_step1_fs']] 
-        self.EFsequenceList += [[['EF_e_step1_fs'],[theUEMaker], 'EF_e_step1_ue']] 
+        self.EFsequenceList += [[[""],[DummyRoI("MinBiasDummyRoI")], 'L2_dummy_sp']]
+        self.EFsequenceList += [[['L2_dummy_sp'],[theFSCellMaker], 'EF_AllCells']]
+        self.EFsequenceList += [[['EF_AllCells'],[theUEMaker], 'EF_UE']]
         self.EFsequenceList += [[['L2_e_step1'],self.el_sequences['precisecalo'],'EF_e_step1']]                      
         self.EFsequenceList += [[['EF_e_step1'],precisecalocalib,'EF_e_step2']] 
         self.EFsequenceList += [[['EF_e_step2'],self.el_sequences['trackrec'],'EF_e_step3']] 
@@ -285,8 +355,9 @@ class L2EFChain_e(L2EFChainDef):
         ########### Signatures ###########
 
         self.L2signatureList += [ [['L2_e_step1']*self.mult] ]
-        self.L2signatureList += [ [['EF_e_step1_fs']] ]
-        self.L2signatureList += [ [['EF_e_step1_ue']] ]
+        self.EFsignatureList += [ [['L2_dummy_sp']] ]
+        self.EFsignatureList += [ [['EF_AllCells']] ]
+        self.EFsignatureList += [ [['EF_UE']] ]
         self.EFsignatureList += [ [['EF_e_step1']*self.mult] ]
         self.EFsignatureList += [ [['EF_e_step2']*self.mult] ]
         self.EFsignatureList += [ [['EF_e_step3']*self.mult] ]
@@ -296,8 +367,8 @@ class L2EFChain_e(L2EFChainDef):
 
         self.TErenamingDict = {
             'L2_e_step1': mergeRemovingOverlap('L2_', self.chainPartNameNoMult+'cl'),
-            'EF_e_step1_fs': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'fs'),
-            'EF_e_step1_ue': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'ue'),
+            #'EF_e_step1_fs': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'fs'),
+            #'EF_e_step1_ue': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'ue'),
             'EF_e_step1': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'cl'),
             'EF_e_step2': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'calocalib'),
             'EF_e_step3': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'trk'),
@@ -349,11 +420,11 @@ class L2EFChain_e(L2EFChainDef):
         self.setupFromDict(seq_te_dict,seq_dict)
         
         # Now insert additional steps
-        self.EFsequenceList.insert(0,[['L2_e_step3'],[theFSCellMaker], 'EF_e_step1_fs'])
-        self.EFsequenceList.insert(1,[['EF_e_step1_fs'],[theUEMaker], 'EF_e_step1_ue'])
-        self.EFsignatureList.insert(0, [['EF_e_step1_fs']] )
-        self.EFsignatureList.insert(1, [['EF_e_step1_ue']] )
+        self.EFsequenceList.insert(0,[[""],[DummyRoI("MinBiasDummyRoI")], 'L2_dummy_sp'])
+        self.EFsequenceList.insert(1,[['L2_dummy_sp'],[theFSCellMaker], 'EF_AllCells'])
+        self.EFsequenceList.insert(2,[['EF_AllCells'],[theUEMaker], 'EF_UE'])
+        self.EFsignatureList.insert(0, [['L2_dummy_sp']] )
+        self.EFsignatureList.insert(1, [['EF_AllCells']] )
+        self.EFsignatureList.insert(2, [['EF_UE']] )
 
-        self.TErenamingDict['EF_e_step1_fs']=mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'fs')
-        self.TErenamingDict['EF_e_step1_ue']=mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'ue')
         

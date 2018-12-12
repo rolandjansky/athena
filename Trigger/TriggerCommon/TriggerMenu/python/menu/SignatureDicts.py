@@ -298,14 +298,15 @@ METChainParts = {
     'threshold'    : '',
     'multiplicity' : '',
     'topo'         : AllowedTopos_xe,
-    'trigType'     : ['xe'],   
+    'trigType'     : ['xe'],
     'extra'        : ['noL1'],
-    'calib'        : ['lcw','had','em'],    
+    'calib'        : ['lcw','had','em'],
+    'jetCalib'     : JetChainParts['jetCalib'],
     'L2recoAlg'    : ['','l2fsperf','L2FS'],
-    'EFrecoAlg'    : ['tc','cell','pueta','mht','pufit'],
+    'EFrecoAlg'    : ['tc','cell','pueta','mht','trkmht','pufit', 'pufittrack', 'trktc'],
     'L2muonCorr'   : ['','wL2MuFEB','wEFMuFEB'],
     'EFmuonCorr'   : ['','wEFMu'],
-    'addInfo'      : ['FStracks'],
+    'addInfo'      : ['FStracks','FTK','LArH11offMETphi','LArH12offMETphi','LArH11offLArH12offMETphi','LArH11offMETphiJpt1','LArH11offMETphiJpt2','LArH11offMETphiJpt5','LArH11offMETphiJpt10','LArH11offMETphiJpt20','LArH11offMETphiJpt30','LArH12offMETphiJpt1','LArH12offMETphiJpt2','LArH12offMETphiJpt5','LArH12offMETphiJpt10','LArH12offMETphiJpt20','LArH12offMETphiJpt30','LArH11offLArH12offMETphiJpt1','LArH11offLArH12offMETphiJpt2','LArH11offLArH12offMETphiJpt5','LArH11offLArH12offMETphiJpt10','LArH11offLArH12offMETphiJpt20','LArH11offLArH12offMETphiJpt30','LArH11offJpt1','LArH11offJpt2','LArH11offJpt5','LArH11offJpt10','LArH11offJpt20','LArH11offJpt30','LArH12offJpt1','LArH12offJpt2','LArH12offJpt5','LArH12offJpt10','LArH12offJpt20','LArH12offJpt30','LArH11offLArH12offJpt1','LArH11offLArH12offJpt2','LArH11offLArH12offJpt5','LArH11offLArH12offJpt10','LArH11offLArH12offJpt20','LArH11offLArH12offJpt30'],
     }
 # ---- MetDictinary of default Values ----
 METChainParts_Default = {
@@ -315,6 +316,7 @@ METChainParts_Default = {
     'threshold'      : '',
     'extra'          : '',
     'calib'          : 'lcw',
+    'jetCalib'       : JetChainParts_Default['jetCalib'],
     'L2recoAlg'      : '',
     'EFrecoAlg'      : 'cell',
     'L2muonCorr'     : '',

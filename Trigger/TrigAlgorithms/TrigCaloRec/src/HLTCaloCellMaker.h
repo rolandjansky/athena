@@ -25,6 +25,7 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "CaloEvent/CaloCellContainerVector.h"
 #include "AthContainers/ConstDataVector.h"
+#include "CaloEvent/CaloConstCellContainer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "TileConditions/TileEMScale.h"
 
@@ -44,7 +45,7 @@ class HLTCaloCellMaker: public AthReentrantAlgorithm {
 
 	SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
 	SG::WriteHandleKey<ConstDataVector<CaloCellContainerVector> > m_cellContainerVKey;
-	SG::WriteHandleKey<ConstDataVector<CaloCellContainer> > m_cellContainerKey;
+	SG::WriteHandleKey<CaloConstCellContainer > m_cellContainerKey;
         /// FIXME: Temporary (i hope) to get dependency needed by BS converter.
         SG::ReadCondHandleKey<TileEMScale> m_tileEMScaleKey;
 

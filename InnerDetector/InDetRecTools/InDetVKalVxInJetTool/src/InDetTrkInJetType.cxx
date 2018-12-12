@@ -20,6 +20,9 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
                                            const IInterface* parent):
   AthAlgTool(type,name,parent),
   m_tmvaReader(0),
+  m_trkSctHitsCut(4),
+  m_trkPixelHitsCut(1),
+  m_trkChi2Cut(5.),
   m_trkMinPtCut(700.),
   m_d0_limLow(-3.),
   m_d0_limUpp( 5.),
@@ -29,6 +32,9 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
   m_fitterSvc("Trk::TrkVKalVrtFitter/VertexFitterTool",this)
   {
      declareInterface<IInDetTrkInJetType>(this);
+     declareProperty("trkSctHits",   m_trkSctHitsCut   ,  "Cut on track SCT hits number" );
+     declareProperty("trkPixelHits", m_trkPixelHitsCut ,  "Cut on track Pixel hits number" );
+     declareProperty("trkChi2",   m_trkChi2Cut   ,  "Cut on track Chi2/Ndf" );
      declareProperty("trkMinPt",  m_trkMinPtCut  ,  "Minimal track Pt cut" );
      declareProperty("d0_limLow", m_d0_limLow    ,  "Low d0 impact cut" );
      declareProperty("d0_limUpp", m_d0_limUpp    ,  "Upper d0 impact cut" );
@@ -97,9 +103,21 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
 
    std::vector<float> InDetTrkInJetType::trkTypeWgts(const xAOD::TrackParticle * Trk, const xAOD::Vertex & PV, const TLorentzVector & Jet)
    {  
+//-- Track quality checks
       std::vector<float> safeReturn(3,0.);
-      if( !m_initialised ) return safeReturn;
-      if(Jet.Perp()>2500000.)return safeReturn;
+      if( !m_initialised )          return safeReturn;
+      if(Jet.Perp() > 2500000.)     return safeReturn;
+      if(Trk->pt() < m_trkMinPtCut) return safeReturn;
+      if(Trk->pt() > Jet.Pt())      return safeReturn;
+      if(Trk->numberDoF() == 0)                             return safeReturn; //Safety
+      if(Trk->chiSquared()/Trk->numberDoF() > m_trkChi2Cut) return safeReturn;
+      uint8_t PixelHits,SctHits;
+      if( !(Trk->summaryValue(PixelHits,xAOD::numberOfPixelHits)) ) return safeReturn; // No Pixel hits. Bad.
+      if( !(Trk->summaryValue(  SctHits,xAOD::numberOfSCTHits))   ) return safeReturn; // No SCT hits. Bad.
+      if( PixelHits < m_trkPixelHitsCut ) return safeReturn;
+      if( SctHits   < m_trkSctHitsCut )   return safeReturn;
+ 
+
       std::vector<double> Impact,ImpactError;
       m_Sig3D=m_fitSvc->VKalGetImpact(Trk, PV.position(), 1, Impact, ImpactError);
       AmgVector(5) tmpPerigee = Trk->perigeeParameters().parameters(); 
@@ -110,7 +128,7 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
       double SignifR = Impact[0]/ sqrt(ImpactError[0]);
       double SignifZ = Impact[1]/ sqrt(ImpactError[2]);
       double trkSignif = sqrt(  (SignifR+0.6)*(SignifR+0.6) + (SignifZ+0.0)*(SignifZ+0.0) );
-//---
+//---Calibrated range selection
       if(Impact[0]<m_d0_limLow || Impact[0]>m_d0_limUpp) return safeReturn;
       if(Impact[0]<m_Z0_limLow || Impact[0]>m_Z0_limUpp) return safeReturn;
       if( sqrt(SignifR*SignifR +SignifZ*SignifZ) < 1.)   return safeReturn;

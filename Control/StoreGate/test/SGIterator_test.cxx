@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -9,7 +9,7 @@
 #include "TestTools/expect_exception.h"
 #include "SGTools/TransientAddress.h"
 #include "SGTools/DataProxy.h"
-#include "SGTools/StorableConversions.h"
+#include "AthenaKernel/StorableConversions.h"
 
 #include <algorithm>
 #include <cassert>
@@ -33,7 +33,7 @@ typedef std::list<int> IntList;
  * $Id: SGIterator_test.cxx,v 1.1 2008-09-26 23:37:53 calaf Exp $
  ***************************************************************************/
 
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(IntList, 8001, 3)
 CLASS_DEF(MyDataObj, 8000, 1)
 

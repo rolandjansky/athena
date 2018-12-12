@@ -10,8 +10,8 @@ atlas_subdir( xAODRootAccess )
 set( extra_deps )
 set( extra_libs )
 if( NOT XAOD_STANDALONE )
-   set( extra_deps Control/SGTools )
-   set( extra_libs SGTools )
+   set( extra_deps Control/SGTools Control/AthenaKernel )
+   set( extra_libs SGTools AthenaKernel )
 endif()
 
 # The dependencies of the package:

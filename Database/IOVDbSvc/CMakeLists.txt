@@ -59,3 +59,7 @@ atlas_add_test( IOVDbSvc_test
                 PROPERTIES TIMEOUT 300
                 EXTRA_PATTERNS "^HistogramPersis.* INFO|^IOVSvc +DEBUG|^IOVSvcTool +DEBUG" 
                 ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+
+if( NOT SIMULATIONBASE )
+  atlas_add_test( IOVDbSvcCfgTest SCRIPT python -m IOVDbSvc.IOVDbSvcConfig POST_EXEC_SCRIPT nopost.sh )
+endif()

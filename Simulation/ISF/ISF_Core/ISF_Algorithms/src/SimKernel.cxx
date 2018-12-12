@@ -388,7 +388,6 @@ StatusCode ISF::SimKernel::execute()
     // block defines scope for Benchmarks
     //  -> benchmarks will be stared/stopped automatically via the CustomBenchmarkGuard
     //     constructor and destructor, respectively
-    StatusCode simSC;
     {
       // setup sim svc benchmarks
       //PMonUtils::CustomBenhmarkGuard benchPDG  ( m_benchPDGCode, pdgCode );
@@ -396,9 +395,12 @@ StatusCode ISF::SimKernel::execute()
       PMonUtils::CustomBenchmarkGuard benchSimID( m_benchSimID  , simID , numParticles );
 
       // ===> simulate particle
-      simSC = m_simSvcs[simID]->simulateVector( particles);
-      if ( simSC.isFailure())
+      // NB Passing only the hard-scatter McEventCollection is not
+      // correct if Geant4 simulation were to be used for pile-up Hits
+      // in Fast Chain.
+      if (m_simSvcs[simID]->simulateVector(particles, m_outputHardScatterTruth.ptr()).isFailure()) {
         ATH_MSG_WARNING( "Simulation of particles failed in Simulator: " << m_simSvcNames[simID]);
+      }
     }
 
   }

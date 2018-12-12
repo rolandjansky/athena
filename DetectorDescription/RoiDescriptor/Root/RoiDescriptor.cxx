@@ -229,7 +229,8 @@ RoiDescriptor::operator std::string() const {
   std::stringstream ss;
   ss << " z: "   << zed() << " (" <<  zedMinus() << " - " << zedPlus() << ")" 
      << " eta: " << eta() << " (" <<  etaMinus() << " - " << etaPlus() << ")" 
-     << " phi: " << phi() << " (" <<  phiMinus() << " - " << phiPlus() << ")"; 
+     << " phi: " << phi() << " (" <<  phiMinus() << " - " << phiPlus() << ")"
+     << ( isFullscan() ? " - fullscan": "" );
   if ( composite() ) { 
     ss << "\t : components: " << size() << "\n";
     for ( unsigned i=0 ; i<size() ; i++ ) ss << "\t\t" << i << *at(i) << "\n";

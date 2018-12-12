@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -39,6 +39,10 @@
 #include "TileEvent/TileHitContainer.h"
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"
+#include "TileConditions/TileCondToolPulseShape.h"
+#include "TileConditions/TileCondToolEmscale.h"
+#include "TileConditions/TileCondToolNoiseSample.h"
+#include "TileConditions/ITileBadChanTool.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -60,14 +64,7 @@ class TileHWID;
 class TileInfo;
 class TileCablingService;
 class TileEvent;
-
-class TileCondToolEmscale;
-class TileCondToolNoiseSample;
-class TileCondToolPulseShape;
-
 class TileDQstatus;
-class ITileBadChanTool;
-
 class TileBeamInfoProvider;
 class TileRawChannelBuilderMF;
 
@@ -134,10 +131,18 @@ class TilePulseForTileMuonReceiver: public AthAlgorithm {
     CLHEP::HepRandomEngine* m_pHRengine;    //!< Random number generator engine to use
     ServiceHandle<IAtRndmGenSvc> m_rndmSvc; //!< Random number service to use
 
-    ToolHandle<TileCondToolEmscale> m_tileToolEmscale;         //!< main Tile Calibration tool
-    ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample; //!< tool which provided noise values
-    ToolHandle<TileCondToolPulseShape> m_tileToolPulseShape;   //!< tool which provides pulse shapes
-    ToolHandle<ITileBadChanTool> m_tileBadChanTool;            //!< tool which provides status of every channel
+    ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample{this,
+        "TileCondToolNoiseSample", "TileCondToolNoiseSample", "Tile sample noise tool"};
+
+    ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
+        "TileCondToolEmscale", "TileCondToolEmscale", "Tile EM scale calibration tool"};
+
+    ToolHandle<TileCondToolPulseShape> m_tileToolPulseShape{this,
+        "TileCondToolPulseShape", "TileCondToolPulseShape", "Tile pulse shape tool"};
+
+    ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
+        "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
+
     ToolHandle<TileBeamInfoProvider> m_beamInfo;               //!< tool which provides DQstatus (for overlay)
     ToolHandle<TileRawChannelBuilderMF> m_MuRcvBuildTool;      //!< tool to set up the reconstruction algorithm
     

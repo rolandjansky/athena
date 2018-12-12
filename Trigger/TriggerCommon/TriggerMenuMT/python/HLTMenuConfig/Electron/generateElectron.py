@@ -1,7 +1,8 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from TrigUpgradeTest.ElectronMenuConfig import l2CaloRecoCfg, l2CaloHypoCfg
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, ChainStep, Chain, RecoFragmentsPool
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, \
+    ChainStep, Chain, RecoFragmentsPool, getChainStepName
 
 from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlgMT
@@ -27,7 +28,7 @@ def generateChains( flags,  chainDict ):
                                      Hypo        = l2CaloHypo,
                                      HypoToolGen = TrigL2CaloHypoToolFromName )
 
-    fastCaloStep = ChainStep("Electron_step1", [fastCaloSequence])
+    fastCaloStep = ChainStep(getChainStepName('Electron', 1), [fastCaloSequence])
 
            
     # # # fast ID 

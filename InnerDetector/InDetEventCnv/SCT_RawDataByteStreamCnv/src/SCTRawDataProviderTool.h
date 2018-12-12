@@ -33,8 +33,7 @@ class SCTRawDataProviderTool : public extends<AthAlgTool, ISCTRawDataProviderToo
  public:
    
   /** Constructor */
-  SCTRawDataProviderTool(const std::string& type, const std::string& name,
-                         const IInterface* parent);
+  SCTRawDataProviderTool(const std::string& type, const std::string& name, const IInterface* parent);
 
   /** Destructor */
   virtual ~SCTRawDataProviderTool() = default;
@@ -42,8 +41,6 @@ class SCTRawDataProviderTool : public extends<AthAlgTool, ISCTRawDataProviderToo
   /** Initialize */
   virtual StatusCode initialize() override;
 
-  // finalize is empty, unnecessary to override
- 
   /** 
    * @brief Main decoding method.
    *

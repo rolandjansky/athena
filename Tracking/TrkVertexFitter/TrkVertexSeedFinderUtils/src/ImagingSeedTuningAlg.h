@@ -36,7 +36,7 @@
 #include "TH1F.h"
 #include "TTree.h"
 
-class IBeamCondSvc;
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 namespace InDet
 {
@@ -144,7 +144,7 @@ class ImagingSeedTuningAlg
   SmartIF<IProperty> m_imageMakerProperty;
   SmartIF<IProperty> m_clusterFinderProperty;
 
-  ServiceHandle< IBeamCondSvc > m_iBeamCondSvc;
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
   ServiceHandle< ITHistSvc > m_iTHistSvc;
 
   std::vector<float>::const_iterator m_i_angularCutoffParameter;

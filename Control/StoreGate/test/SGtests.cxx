@@ -90,7 +90,7 @@ SG_BASE (D1, B1);
 
 
 
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(Base, 8100, 1)
 CLASS_DEF(Foo, 8101, 1)
 CLASS_DEF(Bar, 8107, 1)

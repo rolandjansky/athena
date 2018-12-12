@@ -27,7 +27,7 @@ class SCT_SiliconTempCondAlg : public AthAlgorithm
   StatusCode finalize() override;
 
  private:
-  bool m_useState;
+  BooleanProperty m_useState{this, "UseState", true, "Flag to use state conditions folder"};
   SG::ReadCondHandleKey<SCT_DCSStatCondData> m_readKeyState{this, "ReadKeyState", "SCT_DCSStatCondData", "Key of input state conditions data"};
   SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_readKeyTemp0{this, "ReadKeyTemp", "SCT_DCSTemp0CondData", "Key of input (hybrid) temperature conditions data"};
   SG::WriteCondHandleKey<SCT_DCSFloatCondData> m_writeKey{this, "WriteKey", "SCT_SiliconTempCondData", "Key of output (sensor) temperature conditions data"};

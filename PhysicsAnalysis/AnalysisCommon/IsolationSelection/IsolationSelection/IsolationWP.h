@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef ISOLATIONSELECTION_ISOLATIONWP_H
@@ -7,7 +7,8 @@
 
 #include <xAODPrimitives/tools/getIsolationAccessor.h>
 #include <IsolationSelection/IsolationCondition.h>
-#include "PATCore/TAccept.h"
+#include "PATCore/AcceptData.h"
+#include "PATCore/AcceptInfo.h"
 #include <map>
 
 namespace CP {
@@ -19,28 +20,18 @@ namespace CP {
             void name(const std::string &name);
 
 
-            const Root::TAccept& accept(const xAOD::IParticle& p) const;
-            const Root::TAccept& accept(const strObj& p) const;
+            const asg::AcceptData accept(const xAOD::IParticle& p) const;
+            const asg::AcceptData accept(const strObj& p) const;
             void addCut(IsolationCondition* cut);
-            const Root::TAccept& getAccept() const;
+            const asg::AcceptInfo& getAcceptInfo() const;
             const std::vector<IsolationCondition*>& conditions() const;
 
-
-//            void saveCutValues(bool yes = true) {
-//                if (yes && (!m_cutValues)) m_cutValues = new std::map<xAOD::Iso::IsolationType, float>();
-//                else if ((!yes) && m_cutValues) {
-//                    delete m_cutValues;
-//                }
-//            }
-//            std::map<xAOD::Iso::IsolationType, float>* cutValues() {
-//                return m_cutValues;
-//            }
 
         private:
             std::string m_name;
             std::vector<IsolationCondition*> m_cuts;
             std::map<xAOD::Iso::IsolationType, float>* m_cutValues;
-            mutable Root::TAccept m_accept;
+            asg::AcceptInfo m_acceptInfo;
     };
 }
 #endif // ISOLATIONSELECTION_ISOLATIONWP_H
