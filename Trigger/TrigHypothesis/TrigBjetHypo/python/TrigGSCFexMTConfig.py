@@ -1,53 +1,49 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from TrigBjetHypo.TrigBjetHypoConf import TrigGSCFexMT
-#from TrigBjetHypo.TrigGSCFexTuning import *
+#from TrigBjetHypo.TrigGSCFexTuning import *   
 
 from AthenaCommon.Logging import logging
-#from AthenaCommon.SystemOfUnits import mm, GeV
+from AthenaCommon.SystemOfUnits import mm, GeV   #commented here
 
 from AthenaCommon.AppMgr import ToolSvc
-#from BTagging.BTaggingFlags import BTaggingFlags
-#from BTagging.BTaggingConfiguration import getConfiguration
-#BTagConfig = getConfiguration("Trig")
-#BTagConfig.PrefixxAODBaseName(False)
-#BTagConfig.PrefixVertexFinderxAODBaseName(False)
-#BTagConfigSetupStatus = BTagConfig.setupJetBTaggerTool(ToolSvc, "AntiKt4EMTopo", SetupScheme="Trig", TaggerList=BTaggingFlags.TriggerTaggers)
+#from BTagging.BTaggingFlags import BTaggingFlags #commented here
+#from BTagging.BTaggingConfiguration import getConfiguration #commented here
+#BTagConfig = getConfiguration("Trig")   #commented here
+#BTagConfig.PrefixxAODBaseName(False)   #commented here
+#BTagConfig.PrefixVertexFinderxAODBaseName(False)   #commented here
+#BTagConfigSetupStatus = BTagConfig.setupJetBTaggerTool(ToolSvc, "AntiKt4EMTopo", SetupScheme="Trig", TaggerList=BTaggingFlags.TriggerTaggers)   #commented here
 from JetRec.JetRecCalibrationFinder import jrcf
 JetConfigSetupStatus = True
 
-# johns hack
 from JetCalibTools.JetCalibToolsConf import JetCalibrationTool
 
-def getGSCFexInstance( instance, version, algo ):
-    if instance=="EF" :
-        return GSCFex( instance=instance, version=version, algo=algo, name="EFGSCFex_"+algo )
+def getGSCFexInstance( theName ):
+    return GSCFex( name=theName, instance="EF" )
 
-def getGSCFexSplitInstance( instance, version, algo):
-    return GSCFexSplit( instance=instance, version=version, algo=algo, name=instance+"GSCFexSplit_"+algo )
+def getGSCFexSplitInstance( theName ):
+    return GSCFexSplit( name=theName, instance="EF" ) 
+                        
 
+#############################################################
+### EF Configuration
+#############################################################
 
 class GSCFex (TrigGSCFexMT):
     __slots__ = []
     
-    def __init__(self, instance, version, algo, name):
+    def __init__(self, instance, name):
         super( GSCFex, self ).__init__( name )
         
         mlog = logging.getLogger('BtagHypoConfig.py')
         
         AllowedInstances = ["EF"]
-        AllowedVersions  = ["2012"]
-        AllowedAlgos     = ["EFID"]
         
         if instance not in AllowedInstances :
             mlog.error("Instance "+instance+" is not supported!")
             return None
         
-        if version not in AllowedVersions :
-            mlog.error("Version "+version+" is not supported!")
-            return None
-        
-        self.JetKey = "EFJet"       
+        self.JetKey = "EFJet"
         self.PriVtxKey = "EFHistoPrmVtx"
         self.TrackKey  = "InDetTrigTrackingxAODCnv_Bjet_EFID"
 
@@ -61,37 +57,30 @@ class GSCFex (TrigGSCFexMT):
                 print self.JetGSCCalibrationTool
 
 
-###########################################
+#############################################################
 # For split configuration
-###########################################
+#############################################################
 
 class GSCFexSplit (TrigGSCFexMT):
     __slots__ = []
     
-    def __init__(self, instance, version, algo, name):
+    def __init__(self, instance, name, PriVtxKey="xPrimVx", TrackKey="InDetTrigTrackingxAODCnv_Bjet_IDTrig"):
         super( GSCFexSplit, self ).__init__( name )
         
         mlog = logging.getLogger('BtagHypoConfig.py')
         
         AllowedInstances = ["EF", "MuJetChain"]
-        AllowedVersions  = ["2012"]
-        AllowedAlgos     = ["EFID"]
         
         if instance not in AllowedInstances :
             mlog.error("Instance "+instance+" is not supported!")
-            return None
-        
-        if version not in AllowedVersions :
-            mlog.error("Version "+version+" is not supported!")
             return None
 
         self.JetKey = "SplitJet"
         if instance=="MuJetChain" :
             self.JetKey = "FarawayJet"
-            instance = "EF"
         
-        self.PriVtxKey = "xPrimVx" #"EFHistoPrmVtx"
-        self.TrackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig"
+        self.PriVtxKey = PriVtxKey
+        self.TrackKey  = TrackKey
         
         # IMPORT OFFLINE TOOLS
         self.setupOfflineTools = True
@@ -112,11 +101,11 @@ class GSCFexSplit (TrigGSCFexMT):
                 from AthenaCommon.AppMgr import ToolSvc
                 ToolSvc += myGSCTool
                 self.JetGSCCalibrationTool = myGSCTool
-                print "Printing GSCCalibrationTool"
                 print self.JetGSCCalibrationTool
                 #JetCalibrationTool("myJCTool_trigger",
                 #   IsData=True,
                 #   ConfigFile="JES_2015dataset_recommendation_Feb2016.config",
                 #   CalibSequence="JetArea_EtaJES_GSC",
                 #   JetCollection="AntiKt4EMTopo")
+
 

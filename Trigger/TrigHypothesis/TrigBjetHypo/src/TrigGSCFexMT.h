@@ -27,6 +27,8 @@
 #include "TrigInterfaces/FexAlgo.h"
 #include "JetCalibTools/IJetCalibrationTool.h"
 
+#include "xAODJet/JetContainer.h"
+#include "xAODJet/JetAuxContainer.h"
 
 class MsgStream;
 
@@ -64,6 +66,7 @@ class TrigGSCFexMT : public AthAlgorithm {
   Gaudi::Property< bool > m_setupOfflineTools {this,"setupOfflineTools",false,"Switch for offline tools"};
 
  private :
+  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_roiContainerKey {this,"RoIs","initialRoI","Initial RoIs"}; 
   SG::ReadHandleKey< xAOD::JetContainer > m_JetContainerKey {this,"JetKey","SplitJet","Key for input jets to TrigGSCFexMT"};
   SG::ReadHandleKey< xAOD::VertexContainer > m_VertexContainerKey {this,"PriVtxKey","xPrimVx","Key of primary vertexes to TrigGSCFexMT"};
   SG::ReadHandleKey< xAOD::TrackParticleContainer > m_TrackParticleContainerKey {this,"TrackKey","InDetTrigTrackingxAODCnv_Bjet_IDTrig","Key for track particle container to TrigGSCFexMT"};

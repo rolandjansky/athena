@@ -53,13 +53,14 @@ StatusCode TrigGSCFexMT::initialize() {
   ATH_MSG_DEBUG( "   "     << m_TrackParticleContainerKey );
   ATH_MSG_DEBUG( "   "     << m_jetOutputKey              );
 
-  ATH_MSG_DEBUG( "Initializing ReadHandleKeys" );
+  ATH_MSG_DEBUG( "Initializing ReadHandleKeys"        );
+  ATH_CHECK( m_roiContainerKey.initialize()           );
   ATH_CHECK( m_JetContainerKey.initialize()           );
   ATH_CHECK( m_VertexContainerKey.initialize()        );
   ATH_CHECK( m_TrackParticleContainerKey.initialize() );
-  ATH_CHECK( m_jetOutputKey.initialize() );
+  ATH_CHECK( m_jetOutputKey.initialize()              );
 
-  ATH_MSG_DEBUG( "Retrieving Tools" );
+  ATH_MSG_DEBUG( "Retrieving Tools"        );
   ATH_CHECK( m_jetGSCCalib_tool.retrieve() );
 
   return StatusCode::SUCCESS;
@@ -72,38 +73,48 @@ StatusCode TrigGSCFexMT::initialize() {
 StatusCode TrigGSCFexMT::execute() {
   ATH_MSG_DEBUG( "Executing TrigGSCFexMT" );
 
-  // RETRIEVE INPUT CONTAINERS
   const EventContext& ctx = getContext();
+
+  // ==============================================================================================================================
+  //    ** Retrieve Ingredients
+  // ==============================================================================================================================
+
+  // Jets
+  ATH_MSG_DEBUG( "Ready to retrieve jets : " << m_JetContainerKey.key() );
   SG::ReadHandle< xAOD::JetContainer > jetContainerHandle = SG::makeHandle( m_JetContainerKey,ctx );
-  SG::ReadHandle< xAOD::VertexContainer > prmVtxContainerHandle = SG::makeHandle( m_VertexContainerKey,ctx );
-  SG::ReadHandle< xAOD::TrackParticleContainer > trkParticlesHandle = SG::makeHandle( m_TrackParticleContainerKey,ctx );
+  CHECK( jetContainerHandle.isValid() );
 
-  // PREPARE PROCESSING AND OUTPUT CONTAINERS
-  //
-  // get primary vertex 
-  //  
-  xAOD::VertexContainer::const_iterator prmVtxIter = prmVtxContainerHandle->begin();
-  const xAOD::Vertex *primaryVertex = *prmVtxIter;
+  const xAOD::JetContainer *jetContainer = jetContainerHandle.get();
+  ATH_MSG_DEBUG( "Retrieved " << jetContainer->size() << " input Jets for GSC correction : " << m_JetContainerKey );
+  for ( const xAOD::Jet *jet : *jetContainer )
+    ATH_MSG_DEBUG( "  ** Jet pt=" << jet->p4().Et() <<" eta="<< jet->eta()<< " phi="<< jet->phi() );
 
-  // Prepare jet tagging - create temporary jet copy 
-  xAOD::Jet jet;
-  jet.makePrivateStore( **jetContainerHandle->begin() );
+  // Primary Vertex
+  ATH_MSG_DEBUG( "Ready to retrieve primary vertex : " << m_VertexContainerKey );
+  SG::ReadHandle< xAOD::VertexContainer > vertexContainerHandle = SG::makeHandle( m_VertexContainerKey,ctx );
+  CHECK( vertexContainerHandle.isValid() );
 
-  //=======================================================  
+  const xAOD::VertexContainer *vertexContainer = vertexContainerHandle.get();
+  for ( const xAOD::Vertex *primVtx : *vertexContainer )
+    ATH_MSG_DEBUG( "  ** PV = " << primVtx->x() << "," << primVtx->y() << "," << primVtx->z() );
 
-  //std::cout << "TrigGSCFex: jet"
-  //	    << " pt: "  << jet.p4().Pt()
-  //	    << " eta: " << jet.p4().Eta()
-  //	    << " phi: " << jet.p4().Phi()
-  //	    << " m: "   << jet.p4().M()
-  //	    << std::endl;
-  //
-  //std::cout << "primaryVertex z" << primaryVertex->z() << std::endl;  
+  //  SG::ReadHandle< xAOD::VertexContainer > prmVtxContainerHandle = SG::makeHandle( m_VertexContainerKey,ctx );
+  //  SG::ReadHandle< xAOD::TrackParticleContainer > trkParticlesHandle = SG::makeHandle( m_TrackParticleContainerKey,ctx );
 
-  //=======================================================  
 
-  // Compute and store GSC moments from precision tracks
+  // ==============================================================================================================================
+  //    ** Prepare Output
+  // ==============================================================================================================================
 
+  std::unique_ptr< xAOD::JetContainer > calibrateJets( new xAOD::JetContainer() );
+  std::unique_ptr< xAOD::JetAuxContainer > calibratedJetsAux( new xAOD::JetAuxContainer() );
+  calibrateJets->setStore( calibratedJetsAux.get() );
+
+  // ==============================================================================================================================
+  //    ** Calibrate Jets
+  // ==============================================================================================================================
+
+  /*
   unsigned int nTrk(0);
   double       width(0);
   double       ptsum(0);
@@ -169,13 +180,27 @@ StatusCode TrigGSCFexMT::execute() {
   //	    << " m: "   << calJet->p4().M()
   //	    << std::endl;
 
-  std::unique_ptr< xAOD::JetContainer > jc( new xAOD::JetContainer() );
-  std::unique_ptr< xAOD::JetTrigAuxContainer > trigJetTrigAuxContainer( new xAOD::JetTrigAuxContainer() );
-  jc->setStore( trigJetTrigAuxContainer.get() );
-  jc->push_back ( calJet );
+  */
+  ATH_MSG_DEBUG( "Ready to perform calibration" );
+  for ( const xAOD::Jet *inJet : *jetContainer ) {
+    /*
+    xAOD::Jet *outJet = nullptr;
+    m_jetGSCCalib_tool->calibratedCopy( inJet,outJet ); 
+    */
+    xAOD::Jet *outJet = new xAOD::Jet();
+    calibrateJets->push_back( outJet );
+    *outJet = *inJet;
+  }
+  ATH_MSG_DEBUG( "  ** Calibration performed" );
+  for ( const xAOD::Jet *calJet : *calibrateJets )
+    ATH_MSG_DEBUG( "      -- pt=" << calJet->p4().Et() << " eta="<< calJet->eta() << " phi="<< calJet->phi() );
 
-  SG::WriteHandle< xAOD::JetContainer > OutputjetContainerHandle = SG::makeHandle( m_jetOutputKey,ctx );
-  ATH_CHECK( OutputjetContainerHandle.record( std::move(jc),std::move(trigJetTrigAuxContainer) ) );
+  // ==============================================================================================================================
+  //    ** Store Output
+  // ==============================================================================================================================
+
+  SG::WriteHandle< xAOD::JetContainer > outputJetContainerHandle = SG::makeHandle( m_jetOutputKey,ctx );
+  ATH_CHECK( outputJetContainerHandle.record( std::move(calibrateJets),std::move(calibratedJetsAux) ) ); 
 
   return StatusCode::SUCCESS;
 }

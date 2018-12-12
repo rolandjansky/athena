@@ -52,7 +52,7 @@ def jetRecoSequence(RoIs):
     algo1.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
     algo1.roiMode = True
     algo1.CellsName="CellsClusters"
-    algo1.OutputLevel=VERBOSE
+#    algo1.OutputLevel=VERBOSE
     jetRecoSequence += algo1
 
 
@@ -60,7 +60,7 @@ def jetRecoSequence(RoIs):
     from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
     algo2 = TrigCaloClusterMakerMT_topo(doMoments=True, doLC=False, cells="CellsClusters")
 #    algo2.Cells = "CellsClusters"
-    algo2.OutputLevel = VERBOSE
+#    algo2.OutputLevel = VERBOSE
     jetRecoSequence += algo2
     print algo2
     for tool in algo2.ClusterMakerTools:
@@ -78,12 +78,12 @@ def jetRecoSequence(RoIs):
     pseudoJetGetter.InputContainer = 'StoreGateSvc+caloclusters'
     pseudoJetGetter.OutputContainer = 'StoreGateSvc+PseudoJetEMTopo'
     pseudoJetGetter.Label = ''
-    pseudoJetGetter.OutputLevel = DEBUG
+#    pseudoJetGetter.OutputLevel = DEBUG
 
     ToolSvc += pseudoJetGetter
 
     algo3 = PseudoJetAlgorithm()
-    algo3.OutputLevel = VERBOSE
+#    algo3.OutputLevel = VERBOSE
     algo3.PJGetter = pseudoJetGetter
 
     jetRecoSequence += algo3
@@ -106,12 +106,12 @@ def jetRecoSequence(RoIs):
 
     from JetRec.JetRecConf import JetFromPseudojet  
     jetBuilder = JetFromPseudojet(name+'JetBuilder')
-    jetBuilder.OutputLevel = DEBUG
+#    jetBuilder.OutputLevel = DEBUG
     ToolSvc += jetBuilder
 
     jetFinder = JetFinder(name+'JetFinder')
     jetFinder.JetBuilder = jetBuilder
-    jetFinder.OutputLevel = DEBUG
+#    jetFinder.OutputLevel = DEBUG
     jetFinder.JetAlgorithm = 'AntiKt'
     jetFinder.VariableRMinRadius = -1
     jetFinder.VariableRMassScale = -1
@@ -128,7 +128,7 @@ def jetRecoSequence(RoIs):
     jetRecTool.JetFinder = jetFinder
     jetRecTool.JetModifiers = []
     jetRecTool.Trigger = False
-    jetRecTool.OutputLevel = DEBUG
+#    jetRecTool.OutputLevel = DEBUG
     jetRecTool.InputPseudoJets = ['StoreGateSvc+PseudoJetEMTopo'] 
 
     ToolSvc += jetRecTool
