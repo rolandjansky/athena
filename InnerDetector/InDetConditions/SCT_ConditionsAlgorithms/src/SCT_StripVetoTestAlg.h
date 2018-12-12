@@ -32,6 +32,6 @@ class SCT_StripVetoTestAlg : public AthAlgorithm {
    
  private:
   ToolHandle<ISCT_ConditionsTool> m_stripVetoTool{this, "StripVetoTool", "SCT_StripVetoTool", "Tool to retrieve vetoed strips"};
-}; 
+};
 
 #endif // SCT_StripVetoTestAlg_H

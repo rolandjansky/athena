@@ -64,7 +64,7 @@ class TileRawChannelToL2: public AthAlgorithm {
   private:
 
     /** Pointer to TileL2Builder */
-    PublicToolHandle<TileL2Builder> m_tileL2Builder{this, "L2Builder", "TileL2Builder", ""};
+    ToolHandle<TileL2Builder> m_tileL2Builder{this, "TileL2Builder", "TileL2Builder", "Tile L2 builder tool"};
 
     /** TileL2Container in detector store */
     SG::WriteHandleKey<TileL2Container> m_l2ContainerKey{this,"TileL2Container","TileL2Cnt",

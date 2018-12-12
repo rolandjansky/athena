@@ -17,7 +17,7 @@ StatusCode ISF::ParticleKillerSimTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode ISF::ParticleKillerSimTool::simulate( const ISFParticle& isp, ISFParticleContainer& ) {
+StatusCode ISF::ParticleKillerSimTool::simulate( const ISFParticle& isp, ISFParticleContainer&, McEventCollection* ) {
 
   // give a screen output that you entered ParticleKillerSimSvc
   ATH_MSG_VERBOSE( "Particle '" << isp << "' received for simulation." );
@@ -29,9 +29,9 @@ StatusCode ISF::ParticleKillerSimTool::simulate( const ISFParticle& isp, ISFPart
   return StatusCode::SUCCESS;
 }
 
-StatusCode ISF::ParticleKillerSimTool::simulateVector(const ConstISFParticleVector& particles, ISFParticleContainer& secondaries) {
+StatusCode ISF::ParticleKillerSimTool::simulateVector(const ConstISFParticleVector& particles, ISFParticleContainer& secondaries, McEventCollection* mcEventCollection) {
   for (auto isp : particles) {
-    ATH_CHECK(simulate(*isp, secondaries));
+    ATH_CHECK(simulate(*isp, secondaries, mcEventCollection));
   }
   return StatusCode::SUCCESS;
 }

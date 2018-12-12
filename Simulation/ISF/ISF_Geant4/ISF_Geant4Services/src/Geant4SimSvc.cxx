@@ -38,18 +38,18 @@ StatusCode iGeant4::Geant4SimSvc::releaseEvent()
 }
 
 /** Simulation Call */
-StatusCode iGeant4::Geant4SimSvc::simulate(const ISF::ISFParticle& isp)
+StatusCode iGeant4::Geant4SimSvc::simulate(const ISF::ISFParticle& isp, McEventCollection* mcEventCollection)
 {
   ISF::ISFParticleContainer secondaries; // filled, but not used
-  ATH_CHECK(m_simulatorTool->simulate(isp, secondaries));
+  ATH_CHECK(m_simulatorTool->simulate(isp, secondaries, mcEventCollection));
   return StatusCode::SUCCESS;
 }
 
 /** Simulation Call */
-StatusCode iGeant4::Geant4SimSvc::simulateVector(const ISF::ConstISFParticleVector& particles)
+StatusCode iGeant4::Geant4SimSvc::simulateVector(const ISF::ConstISFParticleVector& particles, McEventCollection* mcEventCollection)
 {
   ISF::ISFParticleContainer secondaries; // filled, but not used
-  ATH_CHECK (m_simulatorTool->simulateVector(particles,secondaries));
+  ATH_CHECK (m_simulatorTool->simulateVector(particles,secondaries, mcEventCollection));
   return StatusCode::SUCCESS;
 }
 

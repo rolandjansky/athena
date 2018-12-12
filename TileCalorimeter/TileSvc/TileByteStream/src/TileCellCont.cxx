@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/TileID.h"
 #include "TileIdentifier/TileHWID.h"
-#include "TileConditions/ITileBadChanTool.h"
 #include "TileConditions/TileCablingService.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloDetDescr/MbtsDetDescrManager.h"
@@ -79,17 +78,6 @@ StatusCode TileCellCont::initialize() {
     mbtsMgr = 0;
   }
 
-  ToolHandle<ITileBadChanTool> badChanTool("TileBadChanLegacyTool");
-  if (badChanTool.retrieve().isFailure()) {
-    std::cout << "TileCellCont:initialize ERROR: Can not retrieve TileBadChanTool" << std::endl;
-    return StatusCode::FAILURE;
-  }
-
-  if ((badChanTool->initialize()).isFailure()) {
-    std::cout << "TileCellCont:initialize ERROR: Can not initialize TileBadChanTool" << std::endl;
-    return StatusCode::FAILURE;
-  }
-
   if ( !m_src ){ // if nothing set, use 2017
        std::cout << "TileCellCont::initialize ERROR : TileHid2RESrc has to be initialized before this" << std::endl;
   }
@@ -122,7 +110,6 @@ StatusCode TileCellCont::initialize() {
       Rw2Cell.resize(maxChannels, -1);
       std::vector<int_pair> tmp;
 
-      bool one_good = false;
       for (int channel = 0; channel < maxChannels; ++channel) {
         HWIdentifier channelID = tileHWID->channel_id(ros, drawer, channel);
         Identifier cell_id = cabling->h2s_cell_id_index(channelID, index, pmt);
@@ -136,7 +123,6 @@ StatusCode TileCellCont::initialize() {
           mbts_count++;
           m_MBTS_channel = channel;
         } else if (index >= 0) { // normal cell
-          one_good = one_good || (!badChanTool->getChannelStatus(channelID).isBad());
           Rw2Pmt[channel] = pmt;
           if (channel > 0 || ros != 2) { // ignoring D0 (first channel) in negative barrel
             cell_hash = tileID->cell_hash(cell_id);
@@ -149,7 +135,6 @@ StatusCode TileCellCont::initialize() {
       // create new cell collection which will own all elements
       TileCellCollection* newColl = new TileCellCollection(frag, SG::OWN_ELEMENTS);
       this->push_back(newColl);
-      if (!one_good) m_masked.push_back(frag);
 
       // sort index according to cell hash and put it in Rw2Cell vector
       // create TileCells in appropriate order and put them in newColl
@@ -233,7 +218,6 @@ StatusCode TileCellCont::finalize() {
   m_mapMBTS.clear();
   m_mbts_rods.clear();
   m_mbts_IDs.clear();
-  m_masked.clear();
   this->clear();
   return StatusCode::SUCCESS;
 

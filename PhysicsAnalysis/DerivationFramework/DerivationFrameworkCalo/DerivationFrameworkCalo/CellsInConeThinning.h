@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,6 +15,12 @@
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODEgamma/EgammaFwd.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "xAODEgamma/EgammaContainer.h"
+#include "CaloEvent/CaloCellContainer.h"
+#include "xAODCaloEvent/CaloCluster.h"
+
 
 namespace ExpressionParsing {
     class ExpressionParser;
@@ -33,9 +39,11 @@ namespace DerivationFramework {
     StatusCode addBranches() const;
 
     private:
-    std::string m_SGKey;
-    std::string m_InputCellsSGKey;
-    std::string m_OutputClusterSGKey;
+    SG::ReadHandleKey<xAOD::EgammaContainer> m_SGKey{this, "InputSGKey", "Electrons", "SG key for input container"};
+    SG::ReadHandleKey<CaloCellContainer>  m_InputCellsSGKey{this, "InputCellsSGKey", "AllCalo", "SG key for input cells container"};
+    SG::WriteHandleKey<xAOD::CaloClusterContainer> m_OutputClusterSGKey{this, "OutputClusterSGKey", "EgammaDummyClusters", "SG key for output"};
+    SG::WriteHandleKey<CaloClusterCellLinkContainer> m_OutputCellLinkSGKey{this, "OutputCellLinksSGKey", "EgammaDummyCellLink", "SG key for output cell links"};
+
     std::string m_selectionString;
     double m_dr;
     ExpressionParsing::ExpressionParser *m_parser;

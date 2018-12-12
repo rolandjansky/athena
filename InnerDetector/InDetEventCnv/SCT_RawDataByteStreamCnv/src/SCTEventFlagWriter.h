@@ -37,13 +37,13 @@ class SCTEventFlagWriter : public AthAlgorithm
   /** Execute */
   virtual StatusCode execute() override;
 
-  // Finalize empty, no need to override
-
  private:
 
+  /** Tool that keeps track of modules that give rise to errors in the bytestream. */
   ToolHandle<ISCT_ByteStreamErrorsTool> m_bsErrTool{this, "ErrorsTool", "SCT_ByteStreamErrorsTool", 
                                                     "Tool to retrieve SCT ByteStream Errors"};
 
+  /** Read handle for the xAOD event info. */
   SG::ReadHandleKey<xAOD::EventInfo> m_xAODEvtInfoKey{this, "xAODEventInfoKey", "EventInfo", 
                                                       "xAOD event info key"};
 };

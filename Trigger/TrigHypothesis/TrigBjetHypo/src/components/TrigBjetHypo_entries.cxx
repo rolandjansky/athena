@@ -18,6 +18,7 @@
 #include "../TrigGSCFexMT.h"
 #include "../TrigBtagFexMT.h"
 #include "../TrigRoiBuilderMT.h"
+#include "../TrigJetSplitterMT.h"
 
 
 DECLARE_COMPONENT( TrigBjetHypoAllTE )
@@ -40,4 +41,5 @@ DECLARE_COMPONENT( TrigBjetEtHypoTool )
 DECLARE_COMPONENT( TrigGSCFexMT )
 DECLARE_COMPONENT( TrigBtagFexMT )
 DECLARE_COMPONENT( TrigRoiBuilderMT )
+DECLARE_COMPONENT( TrigJetSplitterMT )
 

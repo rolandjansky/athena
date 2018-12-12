@@ -20,7 +20,6 @@
 namespace ISF {
 
   /** @class FastCaloSimSvc
-
       @author Michael.Duehrssen -at- cern.ch
   */
   class FastCaloSimSvc : public BaseSimulationSvc {
@@ -36,7 +35,7 @@ namespace ISF {
     virtual StatusCode  initialize() override;
 
     /** Simulation Call */
-    virtual StatusCode simulate(const ISFParticle& isp) override;
+    virtual StatusCode simulate(const ISFParticle& isp, McEventCollection* mcEventCollection) override;
 
     /** Setup Event chain - in case of a begin-of event action is needed */
     virtual StatusCode setupEvent() override;

@@ -172,7 +172,7 @@ file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_bJetMenu )
 atlas_add_test( bJetMenu
    SCRIPT test/test_bjet_menu.sh
    PROPERTIES TIMEOUT 1000
-   EXTRA_PATTERNS "-s TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"
+   EXTRA_PATTERNS "-s TrigSignatureMoniMT.*HLT_.*"
    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_bJetMenu
    )
 

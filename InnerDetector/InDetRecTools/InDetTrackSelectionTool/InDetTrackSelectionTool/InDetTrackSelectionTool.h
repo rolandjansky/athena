@@ -9,7 +9,6 @@
 
 // Local include(s):
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
-
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
 #ifndef XAOD_ANALYSIS
@@ -38,7 +37,7 @@ namespace InDet {
 
     /// Create a proper constructor for Athena
     ASG_TOOL_CLASS2( InDetTrackSelectionTool,
-		     IAsgSelectionTool,
+		     CP::ISelectionTool,
 		     InDet::IInDetTrackSelectionTool )
     
   public:
@@ -63,10 +62,10 @@ namespace InDet {
     /// @{
     
     /// Get an object describing the "selection steps" of the tool
-    virtual const Root::TAccept& getTAccept() const override;
+    virtual const asg::AcceptInfo& getAcceptInfo() const override;
     
     /// Get the decision using a generic IParticle pointer
-    virtual const Root::TAccept& accept( const xAOD::IParticle* ) const override;
+    virtual  asg::AcceptData accept( const xAOD::IParticle* ) const override;
     
     /// @}
     
@@ -74,11 +73,11 @@ namespace InDet {
     /// @{
     
     /// Get the decision for a specific track object
-    virtual const Root::TAccept& accept( const xAOD::TrackParticle& track,
+    virtual  asg::AcceptData accept( const xAOD::TrackParticle& track,
 					 const xAOD::Vertex* vertex = nullptr ) const override;
 
 #ifndef XAOD_ANALYSIS
-    virtual const Root::TAccept& accept( const Trk::Track& track,
+    virtual  asg::AcceptData accept( const Trk::Track& track,
 					 const Trk::Vertex* vertex = nullptr ) const override;
 #endif
     
@@ -174,7 +173,7 @@ namespace InDet {
     std::vector< Int_t > m_vecMinNSctHitsAbovePt; //!< the minimum SCT hits above each pt level
 
     /// Object used to store the last decision
-    mutable Root::TAccept m_accept; //!< Object that stores detailed selection information
+    asg::AcceptInfo m_acceptInfo; //!< Object that stores detailed selection information
 
     // to set to a pre-defined cut level in Athena, we need to save the cut level
     // as a string so we can do a soft set in initialize()

@@ -92,7 +92,7 @@ class JetToolManager:
       from AthenaCommon.AppMgr import ToolSvc
 
       # Hardcoded Public tools to support Public ToolHandles in other packages
-      if self.usePublic or  "JetMCTruth" in myname or "jetquark" in myname or "trackselloose" in myname:
+      if self.usePublic:
         ToolSvc += mytool
         mytool.lock()
 

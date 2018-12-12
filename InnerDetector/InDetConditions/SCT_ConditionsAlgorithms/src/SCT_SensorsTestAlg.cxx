@@ -39,8 +39,8 @@ StatusCode SCT_SensorsTestAlg::execute() {
   ATH_MSG_INFO("Calling execute");
   std::vector<std::string> values;
   m_SensorsTool->getSensorsData(values);
-  for (std::vector<std::string>::const_iterator i{values.begin()}; i!=values.end(); ++i) {
-    ATH_MSG_INFO("------------" << *i << "------------");
+  for (const std::string& value: values) {
+    ATH_MSG_INFO("------------" << value << "------------");
   }
   m_SensorsTool->printManufacturers();
   return StatusCode::SUCCESS;

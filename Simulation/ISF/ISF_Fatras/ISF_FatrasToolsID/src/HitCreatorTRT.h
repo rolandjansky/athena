@@ -28,13 +28,8 @@
 #include "InDetSimEvent/TRTUncompressedHitCollection.h"
 
 class ITRT_StrawStatusSummarySvc;
-class ITRT_DriftFunctionTool;
 class TRT_ID;
 class StoreGateSvc;
-
-namespace Trk {    
-    class ITRT_ElectronPidTool;
-}
 
 namespace ISF {
     class ISFParticle;

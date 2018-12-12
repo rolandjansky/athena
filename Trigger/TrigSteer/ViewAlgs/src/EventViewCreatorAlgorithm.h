@@ -34,10 +34,10 @@ class EventViewCreatorAlgorithm : public ::InputMakerBase
     virtual StatusCode initialize() override;
     virtual StatusCode execute_r(const EventContext&) const override;
     virtual StatusCode finalize() override { return StatusCode::SUCCESS; }
-  private:
+ protected:
 
     EventViewCreatorAlgorithm();
-       
+
     //Output views for merging
     SG::WriteHandleKey< ViewContainer > m_viewsKey{ this, "Views", "Unspecified", "The key of views collection produced" };
 

@@ -18,15 +18,10 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "StoreGate/ReadHandle.h"
 
-//Gaudi includes
-#include "GaudiKernel/StatusCode.h"
-
 SCT_MonitorConditionsTestAlg::SCT_MonitorConditionsTestAlg(const std::string& name, ISvcLocator* pSvcLocator) : 
   AthAlgorithm(name, pSvcLocator), 
-  m_sctId{nullptr},
-  m_evtKey{std::string{"EventInfo"}}
+  m_sctId{nullptr}
 {
-  declareProperty("EventInfoKey", m_evtKey);
 }
 
 // -------------------------------------------------------------------------

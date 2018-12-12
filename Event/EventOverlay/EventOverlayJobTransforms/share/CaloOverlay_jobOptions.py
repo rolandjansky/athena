@@ -27,25 +27,30 @@ if DetFlags.overlay.LAr_on():
     #include( "LArAthenaPool/LArAthenaPool_joboptions.py" )
     # We also need the conditions svc for MC constants:
     if overlayFlags.isDataOverlay():
+       from LArROD.LArRODFlags import larRODFlags
+       larRODFlags.keepDSPRaw = False
+
        theApp.Dlls += [ "LArByteStream"]
        LArDigitKey = "FREE"
        ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/"+LArDigitKey]
        ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArFebHeaderContainer/LArFebHeader"]
        ServiceMgr.ByteStreamAddressProviderSvc.TypeNames+=["LArDigitContainer/LArDigitContainer_MC"]
 
-    from LArROD.LArRawChannelGetter import LArRawChannelGetter
-    LArRawChannelGetter()
+    from LArDigitization.LArDigitGetter import LArDigitGetter
+    theLArDigitGetter = LArDigitGetter()
+
+    if overlayFlags.isDataOverlay():
+        from LArROD.LArRawChannelBuilderDefault import LArRawChannelBuilderDefault
+        LArRawChannelBuilderDefault()
+    else:
+        job += CfgGetter.getAlgorithm("LArRawChannelBuilder", tryDefaultConfigurable=True)
 
     from LArROD.LArDigits import DefaultLArDigitThinner
     LArDigitThinner = DefaultLArDigitThinner('LArDigitThinner') # automatically added to topSequence
+
     if overlayFlags.isDataOverlay():
-       job.LArDigitThinner.InputContainerName = overlayFlags.dataStore()+"+FREE"
-       job.LArDigitThinner.RawChannelContainerName = "LArRawChannels_FromDigits"
-       #job.digitmaker1.LArPileUpTool.OutputLevel=DEBUG
-       #MessageSvc.debugLimit = 100000
-       #job.digitmaker1.LArPileUpTool.useLArFloat=False
-       job.digitmaker1.LArPileUpTool.PedestalKey = "LArPedestal"
-       job.LArRawChannelBuilder.DataLocation = "LArDigitContainer_MC"
+        job.LArDigitThinner.InputContainerName = overlayFlags.dataStore()+"+FREE"
+        job.LArRawChannelBuilderAlg.LArDigitKey = "LArDigitContainer_MC"
 
 #----------------------------------------------------------------
 if DetFlags.overlay.Tile_on():

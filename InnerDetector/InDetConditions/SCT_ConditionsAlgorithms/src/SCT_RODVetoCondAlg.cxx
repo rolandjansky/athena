@@ -14,6 +14,7 @@
 #include "SCT_RODVetoCondAlg.h"
 
 #include "InDetIdentifier/SCT_ID.h"
+#include "StoreGate/WriteHandle.h"
 
 #include <algorithm>
 #include <ios>
@@ -21,12 +22,8 @@
 SCT_RODVetoCondAlg::SCT_RODVetoCondAlg(const std::string& name, 
                                        ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_pHelper{nullptr},
-  m_badIds{"BadSCTModuleIds_RODVeto"},
-  m_badRODElementsInput{}
+  m_pHelper{nullptr}
 {
-  declareProperty("BadModuleIds", m_badIds, "Write key for bad module identifiers");
-  declareProperty("BadRODIds", m_badRODElementsInput, "Input list of RODs to be vetoed");
 }
 
 StatusCode SCT_RODVetoCondAlg::initialize() {
@@ -38,7 +35,7 @@ StatusCode SCT_RODVetoCondAlg::initialize() {
 }
 
 StatusCode SCT_RODVetoCondAlg::execute() {
-  ATH_MSG_INFO(m_badRODElementsInput.size() <<" RODs were declared bad");
+  ATH_MSG_INFO(m_badRODElementsInput.value().size() <<" RODs were declared bad");
 
   std::vector<unsigned int> allRods;
   m_cabling->getAllRods(allRods);
@@ -46,7 +43,7 @@ StatusCode SCT_RODVetoCondAlg::execute() {
   SG::WriteHandle<IdentifierSet> badIds{m_badIds};
   ATH_CHECK(badIds.record(std::make_unique<IdentifierSet>()));
 
-  for (unsigned int thisRod: m_badRODElementsInput) {
+  for (unsigned int thisRod: m_badRODElementsInput.value()) {
     ATH_MSG_DEBUG("This rod is " << std::hex << "0x" << thisRod << std::dec);
 
     //check whether rod exists

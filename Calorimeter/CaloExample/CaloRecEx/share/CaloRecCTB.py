@@ -77,10 +77,14 @@ jobproperties.TileRecFlags.TileRawChannelContainer = "TileRawChannelFit"
 
 include ("CaloRec/CaloRec_jobOptions.py")
 
-from TileL2Algs.TileL2AlgsConf import TileL2Builder
-TileL2Builder = TileL2Builder("TileL2Builder")
-ToolSvc += TileL2Builder
-TileL2Builder.TileRawChannelContainer = "TileRawChannelFit"
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
+
+if hasattr(topSequence, "TileRawChannelToL2"):
+    from TileL2Algs.TileL2AlgsConf import TileL2Builder
+    TileL2Builder = TileL2Builder("TileL2Builder")
+    TileL2Builder.TileRawChannelContainer = "TileRawChannelFit"
+    topSequence.TileRawChannelToL2.TileL2Builder = TileL2Builder
 
 from CaloRec.CaloRecConf import CaloClusterMaker
 LArTBClusterMaker = CaloClusterMaker("LArTBClusterMaker")
@@ -96,8 +100,6 @@ theLArTBClusterBuilder.LArCaloRegion="BARREL"
 ToolSvc += theLArTBClusterBuilder
 LArTBClusterMaker.ClusterMakerTools = [ ToolSvc.theLArTBClusterBuilder.getFullName() ]
 
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
 topSequence += LArTBClusterMaker
 
 

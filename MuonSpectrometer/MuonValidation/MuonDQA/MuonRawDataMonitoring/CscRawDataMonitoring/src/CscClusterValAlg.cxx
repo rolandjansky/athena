@@ -70,8 +70,8 @@ CscClusterValAlg::CscClusterValAlg(const std::string & type,
     const std::string & name, const IInterface* parent) :
   ManagedMonitorToolBase( type, name, parent ), 
   m_cscIdHelper(0),
-  m_stripFitter(name),
-  m_cscCalibTool(name),
+  m_stripFitter(name, this),
+  m_cscCalibTool(name, this),
   m_trigDec( "Trig::TrigDecisionTool/TrigDecisionTool" ),
   m_cscclus_oviewEA(0),
   m_cscclus_oviewEC(0)

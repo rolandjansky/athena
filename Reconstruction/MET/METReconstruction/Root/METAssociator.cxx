@@ -343,9 +343,8 @@ namespace met {
   {
 
     if (!vx) return false;//in events with no pv, we will just reject all tracks, and therefore build only the calo MET
-    const Root::TAccept& accept = m_trkseltool->accept( *trk, vx );
-    return accept;
-  }
+    return static_cast<bool>  (m_trkseltool->accept( *trk, vx ));
+ }
 
 
   bool METAssociator::isGoodEoverP(const xAOD::TrackParticle* trk) const

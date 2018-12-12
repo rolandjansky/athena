@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/AtlasDetDescr
                           DetectorDescription/GeoPrimitives
                           GaudiKernel
+                          Generators/GeneratorObjects
                           Simulation/Barcode/BarcodeEvent
                           Simulation/ISF/ISF_Core/ISF_Event )
 
@@ -26,5 +27,5 @@ atlas_add_library( ISF_Interfaces
                    PUBLIC_HEADERS ISF_Interfaces
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel AtlasDetDescr GeoPrimitives GaudiKernel ISF_Event StoreGateLib SGtests )
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel AtlasDetDescr GeoPrimitives GaudiKernel GeneratorObjects ISF_Event StoreGateLib SGtests )
 

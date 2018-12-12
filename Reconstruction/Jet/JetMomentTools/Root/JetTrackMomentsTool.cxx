@@ -14,7 +14,7 @@ JetTrackMomentsTool::JetTrackMomentsTool(const std::string& name)
     , m_assocTracksName("")
       // , m_tva("")
     , m_minTrackPt()
-    , m_htsel("")
+    , m_htsel("",this)
 {
   declareProperty("AssociatedTracks",m_assocTracksName);
   declareProperty("TrackMinPtCuts",m_minTrackPt);

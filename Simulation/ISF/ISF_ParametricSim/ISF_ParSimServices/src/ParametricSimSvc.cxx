@@ -67,7 +67,7 @@ StatusCode iParSim::ParametricSimSvc::releaseEvent()
 }
 
 /** Simulation Call */
-StatusCode iParSim::ParametricSimSvc::simulate(const ISF::ISFParticle& isp)
+StatusCode iParSim::ParametricSimSvc::simulate(const ISF::ISFParticle& isp, McEventCollection*)
 {
   // give a screen output that you entered ParametricSimSvc
   ATH_MSG_VERBOSE( m_screenOutputPrefix << "Particle " << isp << " received for simulation." );

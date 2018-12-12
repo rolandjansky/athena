@@ -25,11 +25,11 @@ StatusCode ISF::ParticleKillerSimSvc::initialize()
 }
 
 /** Simulation Call */
-StatusCode ISF::ParticleKillerSimSvc::simulate(const ISF::ISFParticle& particle)
+StatusCode ISF::ParticleKillerSimSvc::simulate(const ISF::ISFParticle& particle, McEventCollection* mcEventCollection)
 {
   ATH_MSG_VERBOSE( m_screenOutputPrefix << " simulate" );
   ISFParticleContainer secondaries;
-  ATH_CHECK(m_simulatorTool->simulate( particle,  secondaries));
+  ATH_CHECK(m_simulatorTool->simulate( particle,  secondaries, mcEventCollection));
   ATH_MSG_VERBOSE( "Returned "<< secondaries.size() << " secondaries.");
   return StatusCode::SUCCESS;
 }

@@ -13,9 +13,6 @@
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
 
-// C++ includes
-#include <string>
-
 SCT_ConfigurationConditionsTestAlg::SCT_ConfigurationConditionsTestAlg(const std::string& name, ISvcLocator* pSvcLocator) : 
   AthAlgorithm(name, pSvcLocator),
   m_sctId{nullptr}
@@ -36,14 +33,13 @@ StatusCode SCT_ConfigurationConditionsTestAlg::execute() {
   ATH_MSG_INFO("in execute()");
 
   // Bad modules
-  unsigned int nBadMods = m_configConditions->badModules()->size();
+  unsigned int nBadMods{static_cast<unsigned int>(m_configConditions->badModules()->size())};
 
   // Bad links
+  unsigned int nBadLink0{0}, nBadLink1{0}, nBadLinkBoth{0};
   const std::map<IdentifierHash, std::pair<bool, bool>>* badLinks{m_configConditions->badLinks()};
   std::map<IdentifierHash, std::pair<bool, bool>>::const_iterator linkItr{badLinks->begin()};
   std::map<IdentifierHash, std::pair<bool, bool>>::const_iterator linkEnd{badLinks->end()};
-
-  unsigned int nBadLink0{0}, nBadLink1{0}, nBadLinkBoth{0};
   while (linkItr != linkEnd) {
     std::pair<bool, bool> status{(*linkItr).second};
     if (status.first == false and status.second == true ) ++nBadLink0;
@@ -53,11 +49,10 @@ StatusCode SCT_ConfigurationConditionsTestAlg::execute() {
   }
 
   // Bad chips
+  unsigned int nBadChips{0};
   const std::map<Identifier, unsigned int>* badChips{m_configConditions->badChips()};
   std::map<Identifier, unsigned int>::const_iterator chipItr{badChips->begin()};
   std::map<Identifier, unsigned int>::const_iterator chipEnd{badChips->end()};
-
-  unsigned int nBadChips{0};
   while (chipItr != chipEnd) {
     unsigned int status{(*chipItr).second};
     for (unsigned int i{0}; i<12; i++) nBadChips += ((status & (1<<i)) == 0 ? 0 : 1);
@@ -67,13 +62,13 @@ StatusCode SCT_ConfigurationConditionsTestAlg::execute() {
   // Bad strips 
   std::set<Identifier> badStripsAll;
   m_configConditions->badStrips(badStripsAll);
-  unsigned int nBadStrips = badStripsAll.size();
+  unsigned int nBadStrips{static_cast<unsigned int>(badStripsAll.size())};
 
   // Bad strips (w/o bad modules and chips)
   std::set<Identifier> badStripsExclusive;
   m_configConditions->badStrips(badStripsExclusive, true, true);
-  int nBadStripsExclusive = badStripsExclusive.size();
-  int nBadStripsExclusiveBEC[]{0,0,0};
+  unsigned int nBadStripsExclusive{static_cast<unsigned int>(badStripsExclusive.size())};
+  unsigned int nBadStripsExclusiveBEC[]{0,0,0};
 
   std::set<Identifier>::const_iterator stripItr{badStripsExclusive.begin()};
   std::set<Identifier>::const_iterator stripEnd{badStripsExclusive.end()};

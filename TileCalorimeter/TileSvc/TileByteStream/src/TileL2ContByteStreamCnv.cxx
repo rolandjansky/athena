@@ -53,20 +53,20 @@ const CLID& TileL2ContByteStreamCnv::classID(){ return ClassID_traits<TileL2Cont
 
 StatusCode TileL2ContByteStreamCnv::initialize() {
 
-  CHECK(Converter::initialize());
+  ATH_CHECK(Converter::initialize());
 
   ATH_MSG_DEBUG(" initialize ");
 
   // Get ByteStreamCnvSvc
-  CHECK( m_byteStreamEventAccess.retrieve() );
+  ATH_CHECK( m_byteStreamEventAccess.retrieve() );
   m_byteStreamCnvSvc = dynamic_cast<ByteStreamCnvSvc*>(&*m_byteStreamEventAccess);
 
   // retrieve Tool
-  CHECK( m_decoder.retrieve() );
+  ATH_CHECK( m_decoder.retrieve() );
 
-  CHECK( m_tool.retrieve() );
+  ATH_CHECK( m_tool.retrieve() );
 
-  CHECK( m_robSvc.retrieve() );
+  ATH_CHECK( m_robSvc.retrieve() );
   
   // create empty TileL2Container and all TileL2 inside
   m_container = new TileL2Container(); 
@@ -86,7 +86,7 @@ StatusCode TileL2ContByteStreamCnv::initialize() {
     incSvc->addListener(this, "StoreCleared");
   }
 
-  CHECK( m_storeGate.retrieve() );
+  ATH_CHECK( m_storeGate.retrieve() );
 
   return StatusCode::SUCCESS ;
 }
@@ -130,7 +130,7 @@ StatusCode TileL2ContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*&
   FullEventAssembler<TileHid2RESrcID>* fea = 0;
   std::string key("Tile");
   
-  CHECK( m_byteStreamCnvSvc->getFullEventAssembler(fea, key) );
+  ATH_CHECK( m_byteStreamCnvSvc->getFullEventAssembler(fea, key) );
 
   // create TileL2Container
   TileL2Container* l2cont(0);
@@ -146,7 +146,7 @@ StatusCode TileL2ContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*&
   pAddr = addr;
 
   // call TileL2ContByteStreamTool
-  CHECK( m_tool->convert(l2cont, fea) );
+  ATH_CHECK( m_tool->convert(l2cont, fea) );
 
   return StatusCode::SUCCESS;
 }

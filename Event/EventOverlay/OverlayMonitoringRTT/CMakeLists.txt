@@ -11,5 +11,3 @@ atlas_depends_on_subdirs( PRIVATE
 
 # Install files from the package:
 atlas_install_headers( OverlayMonitoringRTT )
-atlas_install_runtime( test/OverlayMonitoringRTT_TestConfiguration.xml )
-

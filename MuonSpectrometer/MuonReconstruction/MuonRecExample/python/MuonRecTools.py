@@ -52,9 +52,9 @@ def getMuonRIO_OnTrackErrorScalingCondAlg() :
                                               CondDataAssociation = error_scaling_def)
 
 def CscClusterOnTrackCreator(name="CscClusterOnTrackCreator",**kwargs):
-    kwargs.setdefault("CscStripFitter", getPublicTool("CalibCscStripFitter") )
-    kwargs.setdefault("CscClusterFitter", getPublicTool("QratCscClusterFitter") )
-    kwargs.setdefault("CscClusterUtilTool", getPublicTool("CscClusterUtilTool") )
+    kwargs.setdefault("CscStripFitter", getPrivateTool("CalibCscStripFitter") )
+    kwargs.setdefault("CscClusterFitter", getPrivateTool("QratCscClusterFitter") )
+    kwargs.setdefault("CscClusterUtilTool", getPrivateTool("CscClusterUtilTool") )
     if False  : # enable CscClusterOnTrack error scaling :
         from InDetRecExample.TrackingCommon import getRIO_OnTrackErrorScalingCondAlg,createAndAddCondAlg
         createAndAddCondAlg(getMuonRIO_OnTrackErrorScalingCondAlg,'RIO_OnTrackErrorScalingCondAlg')
@@ -439,8 +439,8 @@ if DetFlags.detdescr.Muon_on() and rec.doMuon():
     getPublicTool("MuonEDMPrinterTool")
     getPublicTool("MuonSegmentMomentum")
     getPublicTool("MuonClusterOnTrackCreator")
-    getPublicTool("CscClusterOnTrackCreator")
-    getPublicTool("CscBroadClusterOnTrackCreator")
+    getPrivateTool("CscClusterOnTrackCreator")
+    getPrivateTool("CscBroadClusterOnTrackCreator")
     getPublicTool("MdtDriftCircleOnTrackCreator")
     getPublicTool("MdtTubeHitOnTrackCreator")
         

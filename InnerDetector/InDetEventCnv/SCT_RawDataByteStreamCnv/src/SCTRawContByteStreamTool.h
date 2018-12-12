@@ -63,8 +63,8 @@ class SCTRawContByteStreamTool : public extends<AthAlgTool, ISCTRawContByteStrea
    * @param rawEvtWrite Data type for writing raw event.
    * @param log Object used to transmit messages and log errors.
    * */
-  StatusCode convert(const SCT_RDO_Container* sctRDOCont, 
-                     RawEventWrite* rawEvtWrite, MsgStream& log) const;
+  virtual StatusCode convert(const SCT_RDO_Container* sctRDOCont, 
+                             RawEventWrite* rawEvtWrite, MsgStream& log) const override;
   
  private: 
 

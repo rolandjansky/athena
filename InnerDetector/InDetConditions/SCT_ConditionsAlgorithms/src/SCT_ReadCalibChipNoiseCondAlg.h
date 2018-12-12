@@ -8,16 +8,16 @@
 // Include parent class
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-// Include Gaudi classes
-#include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/Property.h"
-
 // Include Athena classes
-#include "StoreGate/ReadCondHandleKey.h"
-#include "StoreGate/WriteCondHandleKey.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "SCT_ConditionsData/SCT_NoiseCalibData.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/WriteCondHandleKey.h"
+
+// Include Gaudi classes
+#include "GaudiKernel/ICondSvc.h"
+#include "GaudiKernel/Property.h"
 
 // Include boost stuff
 #include "boost/array.hpp"

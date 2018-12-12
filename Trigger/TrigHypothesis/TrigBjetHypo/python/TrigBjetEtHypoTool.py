@@ -9,7 +9,7 @@ from AthenaCommon.Constants import VERBOSE,DEBUG
 
 ####################################################################################################
 
-def TrigBjetEtHypoToolFromName( name, conf ):
+def TrigBjetEtHypoToolFromName_j( name, conf ):
     from AthenaCommon.Constants import DEBUG
     """ set the name of the EtHypoTool (name=chain) and figure out the threshold and selection from conf """
     
@@ -26,26 +26,45 @@ def TrigBjetEtHypoToolFromName( name, conf ):
     for k, v in default_conf.items():
         if k not in conf_dict: conf_dict[k] = v
         if conf_dict[k] == None: conf_dict[k] = v
-        
-    tool = getBjetEtHypoConfiguration( name,conf_dict )
-    print "TrigBjetEtHypoToolFromName: name = %s, cut_j = %s, cut_gsc = %s "%(name,tool.EtThreshold,tool.GscThreshold )
+
+    from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoTool        
+    tool = TrigBjetEtHypoTool( name )
+    tool.OutputLevel = DEBUG
+    tool.AcceptAll   = False
+    tool.Multeplicity = int( conf_dict['multiplicity'] )
+    tool.EtThreshold  = float(conf_dict['threshold']) * GeV
+
+    print "TrigBjetEtHypoToolFromName_j: name = %s, cut_j = %s "%(name,tool.EtThreshold)
+    return tool
+
+def TrigBjetEtHypoToolFromName_gsc( name, conf ):
+    from AthenaCommon.Constants import DEBUG
+    """ set the name of the EtHypoTool (name=chain) and figure out the threshold and selection from conf """
+    
+    default_conf = { 'threshold' : '0',
+                     'multiplicity' : '1',
+                     'gscThreshold' : '0',
+                     'bTag' : 'offperf',
+                     'bConfig' : 'split' }
+    
+    chain = conf
+    match = re_Bjet.match( chain )
+    conf_dict = match.groupdict()
+
+    for k, v in default_conf.items():
+        if k not in conf_dict: conf_dict[k] = v
+        if conf_dict[k] == None: conf_dict[k] = v
+
+    from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoTool        
+    tool = TrigBjetEtHypoTool( name )
+    tool.OutputLevel = DEBUG
+    tool.AcceptAll   = False
+    tool.Multeplicity = int( conf_dict['multiplicity'] )
+    tool.EtThreshold  = float(conf_dict['gscThreshold']) * GeV
+
+    print "TrigBjetEtHypoToolFromName_gsc: name = %s, cut_j = %s "%(name,tool.EtThreshold)
     return tool
     
-####################################################################################################  
-
-def getBjetEtHypoConfiguration( name,conf_dict ):
-    # Common for both gsc and non-gsc configurations
-    from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoTool
-
-    tool = TrigBjetEtHypoTool( name )
-    tool.OutputLevel     = DEBUG
-    tool.AcceptAll       = False
-    # Set Cut Thresholds
-    tool.EtThreshold  = float(conf_dict['threshold']) * GeV
-    tool.GscThreshold = float(conf_dict['gscThreshold']) * GeV
-
-    return tool
-
 ####################################################################################################
 
 if __name__ == "__main__":

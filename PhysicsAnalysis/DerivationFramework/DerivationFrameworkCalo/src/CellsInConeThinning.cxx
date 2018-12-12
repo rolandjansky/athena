@@ -1,12 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "xAODCaloEvent/CaloCluster.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"
-#include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloCellLinkContainer.h"
-#include "xAODEgamma/EgammaContainer.h"
 
 #include "ExpressionEvaluation/ExpressionParser.h"
 #include "ExpressionEvaluation/SGxAODProxyLoader.h"
@@ -20,21 +17,20 @@ DerivationFramework::CellsInConeThinning::CellsInConeThinning(const std::string&
 							      const std::string& name, 
 							      const IInterface* parent) :
   AthAlgTool(type, name, parent),
-  m_SGKey("Electrons"),
-  m_InputCellsSGKey("AllCalo"),
-  m_OutputClusterSGKey("EgammaDummyClusters"),
   m_selectionString(""),
   m_dr(0.5),
   m_parser(0)
 {
   declareInterface<DerivationFramework::IAugmentationTool>(this);
-  declareProperty("InputSGKey",  m_SGKey="Electrons");		
-  declareProperty("InputCellsSGKey",m_InputCellsSGKey="AllCalo");		
-  declareProperty("OutputClusterSGKey",m_OutputClusterSGKey="dummyCluster");		
   declareProperty("deltaR",m_dr=0.5);		
 }
 
 StatusCode DerivationFramework::CellsInConeThinning::initialize(){
+
+  ATH_CHECK(m_SGKey.initialize());
+  ATH_CHECK(m_InputCellsSGKey.initialize());
+  ATH_CHECK(m_OutputClusterSGKey.initialize());
+  ATH_CHECK(m_OutputCellLinkSGKey.initialize());
 
   if (m_selectionString!="") {
     ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
@@ -59,11 +55,11 @@ StatusCode DerivationFramework::CellsInConeThinning::finalize(){
 StatusCode DerivationFramework::CellsInConeThinning::addBranches() const{
 
   ///Make new container
-  xAOD::CaloClusterContainer* dummyClusterContainer = CaloClusterStoreHelper::makeContainer(&*evtStore(),                                                                        
-											    m_OutputClusterSGKey,                                                         
-											    msg());                                                                              
+  SG::WriteHandle<xAOD::CaloClusterContainer> dclHdl(m_OutputClusterSGKey);
+  ATH_CHECK(CaloClusterStoreHelper::AddContainerWriteHandle(&(*evtStore()), dclHdl, msg()));
   /// Input objects
-  const xAOD::EgammaContainer* egammas = evtStore()->retrieve< const xAOD::EgammaContainer >(m_SGKey);
+  SG::ReadHandle<xAOD::EgammaContainer> egHdl(m_SGKey);
+  const xAOD::EgammaContainer *egammas = egHdl.cptr();
   if(!egammas ) {
     ATH_MSG_ERROR( "Couldn't retrieve egamma container with key: " <<m_SGKey);
     return StatusCode::FAILURE;
@@ -74,7 +70,8 @@ StatusCode DerivationFramework::CellsInConeThinning::addBranches() const{
     return StatusCode::SUCCESS;
   }
 
-  const CaloCellContainer* cells = evtStore()->retrieve< const CaloCellContainer >(m_InputCellsSGKey);
+  SG::ReadHandle<CaloCellContainer> cellHdl(m_InputCellsSGKey);
+  const CaloCellContainer* cells = cellHdl.cptr();
   if(!cells) {
       ATH_MSG_ERROR( "Couldn't retrieve cell container with key: " <<m_InputCellsSGKey);
       return StatusCode::FAILURE;
@@ -94,7 +91,7 @@ StatusCode DerivationFramework::CellsInConeThinning::addBranches() const{
       if(entries.at(index)==true){
 	xAOD::CaloCluster *dummy = CaloClusterStoreHelper::makeCluster(cells);
 	DerivationFramework::CellsInCone::egammaSelect(dummy,cells,eg,m_dr);
-	dummyClusterContainer->push_back(dummy);
+	dclHdl->push_back(dummy);
       }
       ++index;
     }
@@ -104,14 +101,12 @@ StatusCode DerivationFramework::CellsInConeThinning::addBranches() const{
     for (const xAOD::Egamma* eg : *egammas){
       xAOD::CaloCluster *dummy = CaloClusterStoreHelper::makeCluster(cells);
       DerivationFramework::CellsInCone::egammaSelect(dummy,cells,eg,m_dr);
-      dummyClusterContainer->push_back(dummy);
+      dclHdl->push_back(dummy);
     }
   }
   ///Finalize clusters
-  CHECK( CaloClusterStoreHelper::finalizeClusters(&*evtStore(),                                                                                                                    
-						  dummyClusterContainer,                                           
-						  m_OutputClusterSGKey,                                          
-						  msg()));               
+  SG::WriteHandle<CaloClusterCellLinkContainer> cellLinks(m_OutputCellLinkSGKey);
+  ATH_CHECK( CaloClusterStoreHelper::finalizeClusters(cellLinks, dclHdl.ptr()));
   ///Return
   return StatusCode::SUCCESS;
 }

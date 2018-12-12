@@ -70,11 +70,11 @@ namespace ISF {
     { return StatusCode::FAILURE; }
 
     /** */
-    virtual StatusCode simulate( const ISFParticle& , ISFParticleContainer& ) override
+    virtual StatusCode simulate( const ISFParticle& , ISFParticleContainer&, McEventCollection*) override
     { return StatusCode::FAILURE; }
 
     /** Simulation call for vectors of particles */
-    virtual StatusCode simulateVector(const ConstISFParticleVector& particles, ISFParticleContainer& secondaries) override
+    virtual StatusCode simulateVector(const ConstISFParticleVector& particles, ISFParticleContainer& secondaries, McEventCollection* mcEventCollection) override
     {
       // this implementation is a wrapper in case the simulator does
       // implement particle-vector input
@@ -82,7 +82,7 @@ namespace ISF {
       // simulate each particle individually
       for (auto* cisp : particles) {
         ATH_MSG_VERBOSE( "Starting simulation of particle: " << (*cisp) );
-        ATH_CHECK(this->simulate(*cisp, secondaries));
+        ATH_CHECK(this->simulate(*cisp, secondaries, mcEventCollection));
       }
       return StatusCode::SUCCESS;
 

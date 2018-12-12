@@ -172,7 +172,7 @@ StatusCode ISF::SimKernelMT::execute() {
         if (not particles.empty()) {
           ISFParticleContainer newSecondaries;
           //ATH_CHECK( simTool.simulate( std::move(curParticle), newSecondaries ) );
-          ATH_CHECK( simTool.simulateVector( particles, newSecondaries ) );
+          ATH_CHECK( simTool.simulateVector( particles, newSecondaries, outputTruth.ptr() ) );
           // add any returned ISFParticles to the list of particles to be simulated
           simParticles.splice( end(simParticles), std::move(newSecondaries) );
           // delete simulated particles
@@ -190,7 +190,7 @@ StatusCode ISF::SimKernelMT::execute() {
     if (not particles.empty()) {
       ISFParticleContainer newSecondaries;
       if(!lastSimulator) { ATH_MSG_FATAL("Particles with no assigned simulator. Bail!"); return StatusCode::FAILURE; }
-      ATH_CHECK( lastSimulator->simulateVector( particles, newSecondaries ) );
+      ATH_CHECK( lastSimulator->simulateVector( particles, newSecondaries, outputTruth.ptr() ) );
       // add any returned ISFParticles to the list of particles to be simulated
       simParticles.splice( end(simParticles), std::move(newSecondaries) );
       // delete simulated particles
