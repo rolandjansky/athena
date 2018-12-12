@@ -11,7 +11,7 @@ import Herwig7Control as hw7Control
 import Herwig7Utils as hw7Utils
 
 from AthenaCommon import Logging
-athMsgLog = Logging.logging.getLogger('Herwig7ConfigMatchbox')
+athMsgLog = Logging.logging.getLogger('Herwig7ConfigMerging')
 
 
 ## Configuration class for Matchbox runs with %Herwig7
@@ -207,7 +207,7 @@ athMsgLog = Logging.logging.getLogger('Herwig7ConfigMatchbox')
 ##       `Herwig-scratch` folders from a different location which will allow for
 ##       a full batch parallelization of the integration in athena.
 ##
-class Hw7ConfigMatchbox(hw7Config.Hw7Config):
+class Hw7ConfigMerging(hw7Config.Hw7Config):
 
 
   ## \brief Initialize a generator configuration object for the Matchbox run mode
@@ -218,7 +218,7 @@ class Hw7ConfigMatchbox(hw7Config.Hw7Config):
       raise RuntimeError(hw7Utils.ansi_format_error("Parameter 'beams' must be one of the following ['EE', 'EP', 'PP']!"))
 
     ## provide variables initialized by the parent class
-    super(Hw7ConfigMatchbox, self).__init__(genSeq, runArgs, run_name)
+    super(Hw7ConfigMerging, self).__init__(genSeq, runArgs, run_name)
 
     self.beams = beams
 
@@ -248,9 +248,11 @@ class Hw7ConfigMatchbox(hw7Config.Hw7Config):
     if not os.path.isdir(os.path.join(OpenLoops_path, "proclib")):
       athMsgLog.warn(hw7Utils.ansi_format_warning("The OpenLoops process libraries can't be found from $OPENLOOPS_PATH = {}".format(OpenLoops_path)))
 
+
+      
     return """
 ## ================================================
-## Local Pre-Commands from Herwig7ConfigMatchbox.py
+## Local Pre-Commands from Herwig7ConfigMerging.py
 ## ================================================
 
 ## Fixing interface locations for MadGraph
@@ -265,10 +267,14 @@ set /Herwig/MatrixElements/Matchbox/Amplitudes/GoSam:GoSamPrefix {3}
 
 ##Fixing interface locations of Openloops
 set /Herwig/MatrixElements/Matchbox/Amplitudes/OpenLoops:OpenLoopsLibs {5}
-set /Herwig/MatrixElements/Matchbox/Amplitudes/OpenLoops:OpenLoopsPrefix {6}
+set /Herwig/MatrixElements/Matchbox/Amplitudes/OpenLoops:OpenLoopsPrefix {6}    
 
-read snippets/Matchbox.in
+# Currently the Dipole Snippet is broken (reads to the Rivet interface which we don't build)
+# For now manually copy all the relevant settings in
+read snippets/DipoleMerging.in
 read snippets/{4}Collider.in
+read Merging/Merging-Dipole-FactorCMWSchemeTune.in
+read Merging/FactorCMWScheme.in
 """.format(hw7Control.herwig7_bin_path,
            hw7Control.herwig7_share_path,
            MG5aMC_path,
@@ -277,15 +283,14 @@ read snippets/{4}Collider.in
            os.path.join(OpenLoops_path,"proclib"),
            OpenLoops_path)
 
-
   def local_post_commands(self):
 
     return """
 ## =================================================
-## Local Post-Commands from Herwig7ConfigMatchbox.py
+## Local Post-Commands from Herwig7ConfigMerging.py
 ## =================================================
 
-do /Herwig/MatrixElements/Matchbox/Factory:ProductionMode
+do /Herwig/Merging/MergingFactory:ProductionMode
 saverun {} /Herwig/Generators/EventGenerator
 """.format(self.run_name)
 
@@ -411,3 +416,19 @@ set /Herwig/Samplers/Sampler:BinSampler:RemapperPoints {}
 set /Herwig/Samplers/CellGridSampler:ExplorationSteps {}
 set /Herwig/Samplers/CellGridSampler:ExplorationPoints {}
 """.format(exploration_steps, exploration_points)
+
+    if bin_sampler == "MonacoSampler":
+      self.commands += """
+read snippets/MonacoSampler.in"""
+
+  def merging_weight(self, htPower=0, maxPtPower=0, onlyColoured="No"):
+    if not onlyColoured in ["Yes","No"]:
+      raise RuntimeError(hw7Utils.ansi_format_error("OnlyColoured must be Yes or No"))
+
+    self.commands+="""
+##Merging Weighter for better phase space coverage
+set /Herwig/Merging/MPreWeight:HTPower {}
+set /Herwig/Merging/MPreWeight:MaxPTPower {}
+set /Herwig/Merging/MPreWeight:OnlyColoured {}
+""".format(htPower,maxPtPower,onlyColoured)
+

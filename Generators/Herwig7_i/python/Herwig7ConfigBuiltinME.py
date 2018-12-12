@@ -16,12 +16,16 @@ import Herwig7Utils as hw7Utils
 class Hw7ConfigBuiltinME(hw7Config.Hw7Config):
 
 
-  def __init__(self, genSeq, runArgs, run_name="Herwig"):
+  def __init__(self, genSeq, runArgs, run_name="Herwig", beams="pp"):
+
+    beams = beams.upper()
+    if not beams in ["EE", "EP" , "PP"]:
+      raise RuntimeError(hw7Utils.ansi_format_error("Parameter 'beams' must be one of the following: ['EE', 'EP' , 'PP']"))
 
     ## provide variables initialized by the parent class
     super(Hw7ConfigBuiltinME, self).__init__(genSeq, runArgs, run_name)
 
-    self.event_generator = "LHCGenerator"
+    self.beams = beams
 
 
   def local_pre_commands(self):
@@ -41,7 +45,7 @@ class Hw7ConfigBuiltinME(hw7Config.Hw7Config):
 ## Local Post-Commands from Herwig7ConfigBuiltinME.py
 ## ==================================================
 
-saverun {} /Herwig/Generators/LHCGenerator
+saverun {} /Herwig/Generators/EventGenerator
 """.format(self.run_name)
 
 
@@ -54,6 +58,7 @@ saverun {} /Herwig/Generators/LHCGenerator
 
     ## add default settings if they were not overwritten in the JobOptions
 
+    self.default_commands += self.beam_commands()
     self.default_commands += self.energy_commands()
     self.default_commands += self.random_seed_commands()
 
@@ -72,5 +77,5 @@ saverun {} /Herwig/Generators/LHCGenerator
   def powheg_commands():
     return """
 ## Set up Powheg truncated shower
-set /Herwig/Shower/Evolver:HardEmissionMode POWHEG
+set /Herwig/Shower/ShowerHandler:HardEmission POWHEG
 """
