@@ -49,7 +49,7 @@ namespace SG {
         return StatusCode::FAILURE;
       }
       else {
-        msg << MSG::INFO << "MetaCont found with key= " 
+        msg << MSG::DEBUG << "MetaCont found with key= " 
             << SG::VarHandleKey::key() << endmsg;
       }
     } else {
