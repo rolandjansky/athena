@@ -825,7 +825,7 @@ void MMT_Parameters::fill_yzmod(){
         //gamma--do here if necessary...problematic if so
 
         //beta angle--rotation around the y axis; the x coordinate or phi taken care of in correction to slope road limits in x in constructor
-        //z is changed, and so y must be scaled (should it?): THIS SHIT DOESN'T WORK....
+        //z is changed, and so y must be scaled (should it?): THIS DOESN'T WORK....
         // 	zadd-=1.*x*sin(beta)/MMTStructConst;yadd+=yup*zadd/zflt/MMTStructConst;
         zadd-=tan(beta)*tan(theta)*sin(phi)*zflt/MMTStructConst;
         yadd-=tan(beta)*tan(theta)*sin(phi)*yflt/MMTStructConst;
