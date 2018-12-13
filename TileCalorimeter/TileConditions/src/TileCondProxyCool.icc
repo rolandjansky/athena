@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -14,7 +14,6 @@
 // Athena includes
 #include "AthenaKernel/errorcheck.h"
 #include "StoreGate/ReadCondHandle.h"
-#include "StoreGate/WriteCondHandle.h"
 
 
 //
@@ -37,24 +36,7 @@ StatusCode TileCondProxyCool<T>::initialize() {
   ATH_MSG_INFO( "Creating TileCondProxyCool(" << name()
                 << ") for folder: \"" << m_sourceKey.key() << "\"" );
 
-  const INamedInterface* owner = dynamic_cast<const INamedInterface*>(parent());
-  std::string parentName = (owner) ? owner->name() : "";
-  std::string condAlgSuffix("CondAlg");
-  if (parentName.size() < condAlgSuffix.size()
-      || parentName.compare(parentName.size() - condAlgSuffix.size(),
-                            condAlgSuffix.size(), condAlgSuffix) != 0) {
-
-    //=== Register callback for this data handle
-    CHECK( detStore()->regFcn(&TileCondProxyCool<T>::callback, this, m_dataHandle, m_sourceKey.key(), true) );
-
-    ATH_MSG_DEBUG("It seems that parent [" << parentName << "] is not condition algorithm." << endmsg
-                  << "Callback function has been registered for " << m_sourceKey.key() << ".");
-  } else {
-    ATH_CHECK( m_sourceKey.initialize() );
-    ATH_MSG_DEBUG("It seems that parent [" << parentName << "] is condition algorithm." << endmsg
-                  << "No callback functions have been registered for " << m_sourceKey.key() << ".");
-  }
-
+  ATH_CHECK( m_sourceKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -124,63 +106,4 @@ StatusCode TileCondProxyCool<T>::fillCalibData(TileCalibData<T>& calibData,
 
 
   return StatusCode::SUCCESS;
-}
-
-
-//
-//_____________________________________________________________________________
-template<typename T>
-StatusCode TileCondProxyCool<T>::callback( IOVSVC_CALLBACK_ARGS_K(keys)) {
-  //=== Status message
-  msg(MSG::INFO) << name() << ": callback has been triggered by: ";
-  std::list<std::string>::const_iterator itr;
-  for (itr = keys.begin(); itr != keys.end(); ++itr) {
-    msg(MSG::INFO) << *itr << " ";
-  }
-  msg(MSG::INFO) << endmsg;
-
-  m_calibData = std::make_unique<TileCalibData<T>>();
-
-  //=== Loop over collection by increasing channel number (defaults first!)
-  for (unsigned int drawerIdx = 0; drawerIdx < TileCalibUtils::MAX_DRAWERIDX; ++drawerIdx) {
-
-    //=== get the BLOB
-    CondAttrListCollection::const_iterator attrListPair = m_dataHandle->chanAttrListPair(drawerIdx);
-    const coral::Blob& blob = (attrListPair->second)[0].data<coral::Blob>();
-
-    if (blob.size()) {
-
-      //=== Get new TileCalibDrawer instance, interpreting current blob
-      std::unique_ptr<const T> calibDrawer(T::getInstance(blob));
-      m_calibData->setCalibDrawer(drawerIdx, calibDrawer.release());
-
-    } else {
-      //=== Default policy
-      if (drawerIdx == 0) {
-        ATH_MSG_ERROR( "No default available!?" );
-        return StatusCode::FAILURE;
-      }
-
-      //=== Determine default index
-      unsigned int defaultDrawerIdx = TileCalibUtils::getDefaultDrawerIdx(drawerIdx);
-      m_calibData->setCalibDrawer(drawerIdx, m_calibData->getCalibDrawer(defaultDrawerIdx));
-
-      ATH_MSG_VERBOSE( "Using default drawer " << defaultDrawerIdx
-                       << " for drawerIdx=" << drawerIdx << endmsg
-                       << "... i.e. TileCalibDrawer @ " << m_calibData->getCalibDrawer(drawerIdx));
-
-    }
-
-  } // End drawerIdx
-
-  return StatusCode::SUCCESS;
-}
-
-//
-//_____________________________________________________________________________
-template<typename T> const T*
-TileCondProxyCool<T>::getCalibDrawer(unsigned int drawerIdx) const {
-
-  return (m_calibData) ? m_calibData->getCalibDrawer(drawerIdx) : nullptr;
-
 }

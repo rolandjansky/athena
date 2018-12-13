@@ -11,7 +11,6 @@
 
 #include "PathResolver/PathResolver.h"
 
-#include "DetectorStatus/IDetStatusSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -29,11 +28,9 @@ GoodRunsListSelectorTool::GoodRunsListSelectorTool( const std::string& type, con
  , m_reader(0)
  , m_boolop(0)
  , m_passthrough(true)
- , m_usecool(false)
  , m_verbose(false)
  , m_rejectanybrl(false)
  , m_eventselectormode(false)
- , m_detstatussvc(0)
 {
   declareInterface<IGoodRunsListSelectorTool>(this);
   declareInterface<IAthenaEvtLoopPreSelectTool>(this);
@@ -42,10 +39,7 @@ GoodRunsListSelectorTool::GoodRunsListSelectorTool( const std::string& type, con
   declareProperty( "BlackRunsListVec", m_blackrunslistVec, "list of input xml files" );
   declareProperty( "BoolOperation", m_boolop );
   declareProperty( "PassThrough", m_passthrough = true);
-  declareProperty( "DQFlagsFromCOOL", m_usecool = false);
   declareProperty( "VerboseDetStatus", m_verbose = false);
-  declareProperty( "DQFlagsQueryVec", m_dqflagsqueryVec, "vector of dqflags query strings");
-  declareProperty( "RunRangeExpressionCOOL", m_runrangeexpr = "1" );
   declareProperty( "RejectBlackRunsInEventSelector", m_rejectanybrl = false );
   declareProperty( "EventSelectorMode", m_eventselectormode = false );
 
@@ -172,34 +166,6 @@ GoodRunsListSelectorTool::initialize()
     }
   }
 
-  if (m_dqflagsqueryVec.empty()) { m_usecool = false; }
-  /// get DetStatusSvc interface
-  if (!m_dqflagsqueryVec.empty() && m_usecool) {
-    if (service("DetStatusSvc",m_detstatussvc).isFailure()) {
-      ATH_MSG_ERROR ("Cannot get DetStatusSvc.");
-      return StatusCode::FAILURE;
-    }
-  }
-
-  /// parse dqflags queries for cool
-  for (itr=m_dqflagsqueryVec.begin(); itr!=m_dqflagsqueryVec.end() && m_usecool; ++itr) {
-    ATH_MSG_DEBUG ("Parsing dqflags query : " << *itr);
-    std::vector<std::string> dqvec = GRLStrUtil::split(*itr);
-    if (dqvec.size()==3) { // assume that dqvec[2] == "LBSUMM"
-      m_dqformula[dqvec[0]] = new TFormula(dqvec[0].c_str(),dqvec[1].c_str());
-    } else { 
-      ATH_MSG_ERROR ("Error parsing dq query : " << *itr);  
-      return StatusCode::FAILURE;
-    }
-  }
-
-  /// parse any run-range expression
-  int formOk = m_inrunrange.setFormula(m_runrangeexpr.c_str()) ;
-  if ( 0!=formOk ) {
-    ATH_MSG_ERROR ("Cannot parse run range expression : " << m_runrangeexpr << " . Return Failure.");
-    return StatusCode::FAILURE;
-  }
-
   return StatusCode::SUCCESS;
 }
 
@@ -227,48 +193,8 @@ GoodRunsListSelectorTool::passEvent(const EventInfo* pEvent)
     pass = true;
   }
   /// decide from XML files
-  else if (!m_usecool) {
-    pass = this->passRunLB(runNumber,lumiBlockNr);
-  }
-  /// Cool based decision
   else {
-    /// check if run is in runrange, only done for Cool decision
-    if (m_inrunrange.getNPars()==1) {
-      double dummy(0);
-      double drunNr = static_cast<double>(runNumber);
-      pass = static_cast<bool>(m_inrunrange.EvalPar(&dummy,&drunNr));
-      if (!pass) {
-        ATH_MSG_DEBUG ("passEvent() :: Event rejected based on provided run range.");
-        return false;
-      }
-    }
-    /// loop over all status words, print those which are bad
-    if (m_verbose) {
-      ATH_MSG_WARNING ("Now printing list of DQ flags:");
-      DetStatusMap::const_iterator begin,end;
-      m_detstatussvc->getIter(begin,end);
-      for (DetStatusMap::const_iterator itr=begin;itr!=end;++itr) {
-        ATH_MSG_WARNING ("Status of " << itr->first << " is fullcode : " << itr->second.fullCode());
-      }
-    }
-    /// decide based on COOL
-    double color(0.);
-    TFormula* form(0);
-    std::map< std::string,TFormula* >::iterator itr= m_dqformula.begin();
-    for (; itr!=m_dqformula.end() && pass; ++itr) {
-      form = itr->second;
-      const DetStatus* ptr = m_detstatussvc->findStatus( (itr->first).c_str() );
-      if (ptr!=0) {
-        ATH_MSG_DEBUG (itr->first << " status in LBSUMM found to be : " << ptr->colour()) ;
-        color = static_cast<double>( ptr->code() ) ;
-        pass = pass && static_cast<bool>( form->EvalPar( &color ) );
-      } else {
-        ATH_MSG_ERROR ( "Could not find status for flag : " << itr->first << ". Do not pass LB." );
-        pass = false;
-      }
-    }
-    if (pass) ATH_MSG_DEBUG ("passEvent() :: Event accepted based on info in LBSUMM.");
-    else      ATH_MSG_DEBUG ("passEvent() :: Event rejected based on info in LBSUMM.");
+    pass = this->passRunLB(runNumber,lumiBlockNr);
   }
 
   return pass;
@@ -307,48 +233,8 @@ GoodRunsListSelectorTool::passThisRunLB( const std::vector<std::string>& grlname
     pass = true;
   } 
   /// decide from XML files
-  else if (!m_usecool) {
-    pass = this->passRunLB(runNumber,lumiBlockNr,grlnameVec,brlnameVec);
-  }
-  /// Cool based decision
   else {
-    /// check if run is in runrange, only done for Cool decision
-    if (m_inrunrange.getNPars()==1) {
-      double dummy(0);
-      double drunNr = static_cast<double>(runNumber);
-      pass = static_cast<bool>(m_inrunrange.EvalPar(&dummy,&drunNr));
-      if (!pass) {
-        ATH_MSG_DEBUG ("passThisRunLB() :: Event rejected based on provided run range.");
-        return false;
-      }
-    }
-    /// loop over all status words, print those which are bad
-    if (m_verbose) {
-      ATH_MSG_WARNING ("Now printing list of DQ flags:");
-      DetStatusMap::const_iterator begin,end;
-      m_detstatussvc->getIter(begin,end);
-      for (DetStatusMap::const_iterator itr=begin;itr!=end;++itr) {
-        ATH_MSG_WARNING ("Status of " << itr->first << " is fullcode : " << itr->second.fullCode());
-      }
-    }
-    /// decide based on COOL
-    double color(0.);
-    TFormula* form(0);
-    std::map< std::string,TFormula* >::iterator itr= m_dqformula.begin();
-    for (; itr!=m_dqformula.end() && pass; ++itr) {
-      form = itr->second;
-      const DetStatus* ptr = m_detstatussvc->findStatus( (itr->first).c_str() );
-      if (ptr!=0) {
-        ATH_MSG_DEBUG (itr->first << " status in LBSUMM found to be : " << ptr->colour()) ;
-        color = static_cast<double>( ptr->code() ) ;
-        pass = pass && static_cast<bool>( form->EvalPar( &color ) );
-      } else {
-        ATH_MSG_ERROR ( "Could not find status for flag : " << itr->first << ". Do not pass LB." );
-        pass = false;
-      }
-    }
-    if (pass) ATH_MSG_DEBUG ("passThisRunLB() :: Event accepted based on info in LBSUMM.");
-    else      ATH_MSG_DEBUG ("passThisRunLB() :: Event rejected based on info in LBSUMM.");
+    pass = this->passRunLB(runNumber,lumiBlockNr,grlnameVec,brlnameVec);
   }
 
   return pass;

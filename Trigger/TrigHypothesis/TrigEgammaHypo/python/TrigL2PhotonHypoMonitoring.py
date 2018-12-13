@@ -39,7 +39,7 @@ class TrigL2PhotonHypoValidationMonitoring(TrigGenericMonitoringToolConfig):
         for c in cuts:
             labelsDescription +=  c+':'
 
-        self.Histograms += [ defineHistogram('CutCounter', 	type='TH1I', title="L2Photon Hypo Passed Cuts;Cut",
+        self.Histograms += [ defineHistogram('CutCounter', 	type='TH1F', title="L2Photon Hypo Passed Cuts;Cut",
                                              xbins=10, xmin=-1.5, xmax=10.5, opt="kCumulative", labels=labelsDescription) ]        
 
 
@@ -62,7 +62,7 @@ class TrigL2PhotonHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
         for c in cuts:
             labelsDescription +=  c+':'
 
-        self.Histograms += [ defineHistogram('CutCounter', 	type='TH1I', title="L2Photon Hypo Passed Cuts;Cut",
+        self.Histograms += [ defineHistogram('CutCounter', 	type='TH1F', title="L2Photon Hypo Passed Cuts;Cut",
                                              xbins=10, xmin=-1.5, xmax=10.5, opt="kCumulative", labels=labelsDescription) ]   
             
       
@@ -101,7 +101,7 @@ class TrigL2PhotonHypoCosmicMonitoring(TrigGenericMonitoringToolConfig):
         for c in cuts:
             labelsDescription +=  c+':'
 
-        self.Histograms += [ defineHistogram('CutCounter', 	type='TH1I', title="L2Photon Hypo Passed Cuts;Cut",
+        self.Histograms += [ defineHistogram('CutCounter', 	type='TH1F', title="L2Photon Hypo Passed Cuts;Cut",
                                              xbins=10, xmin=-1.5, xmax=10.5, opt="kCumulative", labels=labelsDescription) ]   
        
       

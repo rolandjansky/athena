@@ -46,7 +46,6 @@ recFlags.doMuon                 = True
 recFlags.doMuonCombined         = False
 recFlags.doHist                 = True
 #======================================================================
-recFlags.doDetStatus            = False # because of bug in DetectorStatus/DetStatusSvc_CondDB.py"
 recFlags.doInDet                = False
 recFlags.doCalo                 = False
 recFlags.doLArg                 = False

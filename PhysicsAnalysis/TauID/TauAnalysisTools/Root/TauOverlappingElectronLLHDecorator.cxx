@@ -23,8 +23,6 @@ using namespace TauAnalysisTools;
 TauOverlappingElectronLLHDecorator::TauOverlappingElectronLLHDecorator( const std::string& name )
   : asg::AsgMetadataTool( name )
   , m_tEMLHTool(0)
-  , m_xElectronContainer(0)
-  , m_sElectronContainerName("Electrons")
   , m_bElectonsAvailable(true)
   , m_hCutValues(0)
   , m_bEleOLRMatchAvailable(false)
@@ -40,7 +38,6 @@ TauOverlappingElectronLLHDecorator::TauOverlappingElectronLLHDecorator( const st
 {
   m_sEleOLRFilePath = "TauAnalysisTools/"+std::string(sSharedFilesVersion)+"/Selection/eveto_cutvals.root";
 
-  declareProperty( "ElectronContainerName", m_sElectronContainerName);
   declareProperty( "EleOLRFilePath", m_sEleOLRFilePath);
 }
 
@@ -55,6 +52,10 @@ TauOverlappingElectronLLHDecorator::~TauOverlappingElectronLLHDecorator()
 StatusCode TauOverlappingElectronLLHDecorator::initialize()
 {
   ATH_MSG_INFO( "Initializing TauOverlappingElectronLLHDecorator" );
+
+  // This will check that the properties were initialized properly
+  ATH_CHECK( m_sElectronContainerName.initialize() );
+
   // create a EM LH tool
   m_tEMLHTool = new AsgElectronLikelihoodTool (name()+"_ELHTool");
   ATH_CHECK(m_tEMLHTool->setProperty("OutputLevel", msg().level() ));
@@ -103,7 +104,6 @@ StatusCode TauOverlappingElectronLLHDecorator::decorate(const xAOD::TauJet& xTau
 {
   if (m_bNewEvent)
   {
-    ATH_CHECK(retrieveElectrons());
     m_bNewEvent = false;
 
     m_bEleOLRMatchAvailable = (xTau.isAvailable<char>(m_sEleOlrPassDecorationName) || xTau.isAvailable<float>(m_sEleOlrLhScoreDecorationName));
@@ -115,13 +115,18 @@ StatusCode TauOverlappingElectronLLHDecorator::decorate(const xAOD::TauJet& xTau
   if (m_bEleOLRMatchAvailable)
     return StatusCode::SUCCESS;
 
+  SG::ReadHandle<xAOD::ElectronContainer> h_ElectronContainer(m_sElectronContainerName);
+  if (!h_ElectronContainer.isValid()) {
+    ATH_MSG_FATAL("Electron container with name " << m_sElectronContainerName << " was not found in event store, but is needed for electron OLR. Ensure that it is there with the correct name");
+    return StatusCode::FAILURE;
+  }
 
   const xAOD::Electron * xEleMatch = 0;
   float fLHScore = -4.; // default if no match was found
 
   float fEleMatchPt = -1.;
   // find electron with pt>5GeV within 0.4 cone with largest pt
-  for( auto xElectron : *(m_xElectronContainer) )
+  for( const auto& xElectron : *h_ElectronContainer )
   {
     if(xElectron->pt() < 5000.) continue;
     if(xElectron->p4().DeltaR( xTau.p4() ) > 0.4 ) continue;
@@ -206,11 +211,3 @@ StatusCode TauOverlappingElectronLLHDecorator::beginEvent()
 }
 
 //______________________________________________________________________________
-StatusCode TauOverlappingElectronLLHDecorator::retrieveElectrons() const
-{
-  if (evtStore()->contains<xAOD::ElectronContainer>(m_sElectronContainerName))
-    if ( evtStore()->retrieve(m_xElectronContainer,m_sElectronContainerName).isSuccess() )
-      return StatusCode::SUCCESS;
-  ATH_MSG_FATAL("Electron container with name " << m_sElectronContainerName << " was not found in event store, but is needed for electron OLR. Ensure that it is there with the correct name");
-  return StatusCode::FAILURE;
-}
