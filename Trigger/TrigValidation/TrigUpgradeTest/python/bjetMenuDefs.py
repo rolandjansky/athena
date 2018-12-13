@@ -270,7 +270,7 @@ def bJetStep2SequenceALLTE():
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlg_step2ALLTE")
     hypo.OutputLevel = DEBUG
     hypo.Jets = theGSC.JetOutputKey
-    hypo.RoIs = InputMakerAlg.RoIs
+    hypo.RoIs = "SplitJets"
     hypo.RoILink = "initialRoI"
     hypo.JetLink = "jets"
 
