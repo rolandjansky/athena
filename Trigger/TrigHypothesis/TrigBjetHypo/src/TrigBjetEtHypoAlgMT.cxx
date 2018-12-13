@@ -183,7 +183,7 @@ StatusCode TrigBjetEtHypoAlgMT::retrieveJetsFromEventView( const EventContext& c
 
   for ( auto previousDecision: *prevDecisionHandle ) {
     //get RoI
-    auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision,"initialRoI" );
+    auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision," initialRoI" );
     auto roiEL = roiELInfo.link;
     //auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
     ATH_CHECK( roiEL.isValid() );
