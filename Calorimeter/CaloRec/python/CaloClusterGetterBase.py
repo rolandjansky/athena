@@ -48,9 +48,6 @@ class CaloClusterGetterBase (Configured):
     # The primary output class we produce.
     _outputType = "xAOD::CaloClusterContainer"
 
-    # This defaults to false.
-    _keepEachCorrection = False
-
     def __init__ (self, seq = AlgSequence(), *args, **kw):
         self.seq = seq
         Configured.__init__ (self, *args, **kw)
@@ -68,7 +65,6 @@ class CaloClusterGetterBase (Configured):
             maker = make_CaloClusterMaker (\
                 self._name,
                 self._outputKey,
-                self._keepEachCorrection,
                 maker_tools = self.makeMakerTools (input_getter.outputKey()),
                 correction_tools = self.makeCorrectionTools ())
         except:
