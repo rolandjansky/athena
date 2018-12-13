@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///*****************************************************************************
@@ -17,26 +17,12 @@
 //
 //*****************************************************************************
 
-// Gaudi includes
-#include "GaudiKernel/ITHistSvc.h"
-
-//Atlas include
-#include "AthenaKernel/errorcheck.h"
-#include "xAODEventInfo/EventInfo.h"
-
-// Calo includes
-#include "CaloDetDescr/CaloDetDescrElement.h"
-#include "CaloDetDescr/MbtsDetDescrManager.h"
-#include "Identifier/IdentifierHash.h"
-#include "CaloIdentifier/TileID.h"
-
 //Tile includes
 #include "TileRec/TileAANtuple.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/ITileBadChanTool.h"
-#include "TileConditions/TileDCSSvc.h"
 #include "TileDetDescr/TileDetDescrManager.h"
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileEvent/TileDigitsContainer.h"
@@ -48,6 +34,19 @@
 #include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileByteStream/TileBeamElemContByteStreamCnv.h"
 #include "TileL2Algs/TileL2Builder.h"
+
+// Calo includes
+#include "CaloDetDescr/CaloDetDescrElement.h"
+#include "CaloDetDescr/MbtsDetDescrManager.h"
+#include "Identifier/IdentifierHash.h"
+#include "CaloIdentifier/TileID.h"
+
+//Atlas include
+#include "AthenaKernel/errorcheck.h"
+#include "xAODEventInfo/EventInfo.h"
+
+// Gaudi includes
+#include "GaudiKernel/ITHistSvc.h"
 
 #include "TTree.h"
 #include <iomanip>
@@ -191,7 +190,6 @@ TileAANtuple::TileAANtuple(std::string name, ISvcLocator* pSvcLocator)
 , m_tileToolEmscale("TileCondToolEmscale")
 , m_beamInfo("TileBeamInfoProvider/TileBeamInfoProvider")
 , m_beamCnv(0)
-, m_tileDCSSvc("TileDCSSvc",name)
 , m_l2Builder()
 , m_sumEt_xx()
 , m_sumEz_xx()
@@ -205,7 +203,6 @@ TileAANtuple::TileAANtuple(std::string name, ISvcLocator* pSvcLocator)
 , m_bad()
 {
   declareProperty("TileCondToolEmscale", m_tileToolEmscale);
-  declareProperty("TileDCSSvc", m_tileDCSSvc);
   declareProperty("TileDigitsContainer", m_digitsContainer = "TileDigitsCnt");
   declareProperty("TileDigitsContainerFlt", m_fltDigitsContainer = "" /* "TileDigitsFlt" */);
   declareProperty("TileBeamElemContainer", m_beamElemContainer = "TileBeamElemCnt");
@@ -239,7 +236,6 @@ TileAANtuple::TileAANtuple(std::string name, ISvcLocator* pSvcLocator)
   declareProperty("SkipEvents", m_skipEvents = 0);
   
   m_evtNr = -1;
-  m_DCScounter = 0;
   
   // LASERII
   memset(m_chan, 0, sizeof(m_chan));
@@ -283,42 +279,44 @@ StatusCode TileAANtuple::initialize() {
   m_cabling = TileCablingService::getInstance();
   
   // retrieve TileDetDescr Manager det store
-  CHECK( detStore()->retrieve(m_tileMgr) );
+  ATH_CHECK( detStore()->retrieve(m_tileMgr) );
   
   // retrieve TileID helper from det store
-  CHECK( detStore()->retrieve(m_tileID) );
-  CHECK( detStore()->retrieve(m_tileHWID) );
+  ATH_CHECK( detStore()->retrieve(m_tileID) );
+  ATH_CHECK( detStore()->retrieve(m_tileHWID) );
   
-  //=== get TileDCSSvc
+  //=== get TileDCSTool
   if (m_checkDCS) {
-    CHECK( m_tileDCSSvc.retrieve() );
+    ATH_CHECK( m_tileDCS.retrieve() );
+  } else {
+    m_tileDCS.disable();
   }
   
   //=== get TileBadChanTool
-  CHECK( m_tileBadChanTool.retrieve() );
+  ATH_CHECK( m_tileBadChanTool.retrieve() );
   
   //=== get TileCondToolEmscale
-  CHECK( m_tileToolEmscale.retrieve() );
+  ATH_CHECK( m_tileToolEmscale.retrieve() );
   
   //=== get TileBeamInfo
-  CHECK( m_beamInfo.retrieve() );
+  ATH_CHECK( m_beamInfo.retrieve() );
   
   //=== get TileL2Builder
   if (m_compareMode) {
-    CHECK( m_l2Builder.retrieve() );
+    ATH_CHECK( m_l2Builder.retrieve() );
   }
   
   //=== change properties of TileBeamInfo - to make sure that all parameters are consistent
   if (m_beamElemContainer.size() > 0) {
-    CHECK( m_beamInfo->setProperty("TileBeamElemContainer",m_beamElemContainer) );
+    ATH_CHECK( m_beamInfo->setProperty("TileBeamElemContainer",m_beamElemContainer) );
   }
   
   if (m_digitsContainer.size() > 0) {
-    CHECK( m_beamInfo->setProperty("TileDigitsContainer",m_digitsContainer) );
+    ATH_CHECK( m_beamInfo->setProperty("TileDigitsContainer",m_digitsContainer) );
   }
   
   if (m_dspRawChannelContainer.size() > 0) {
-    CHECK( m_beamInfo->setProperty("TileRawChannelContainer",m_dspRawChannelContainer) );
+    ATH_CHECK( m_beamInfo->setProperty("TileRawChannelContainer",m_dspRawChannelContainer) );
   }
   
   ATH_MSG_INFO( "initialization completed" ) ;
@@ -379,7 +377,7 @@ StatusCode TileAANtuple::ntuple_initialize() {
   // set event number to 0 before first event
   m_evtNr = 0;
   
-  CHECK( m_thistSvc.retrieve() );
+  ATH_CHECK( m_thistSvc.retrieve() );
   
   if(initNTuple().isFailure()) {
     ATH_MSG_ERROR( " Error during ntuple initialization" );
@@ -546,7 +544,7 @@ StatusCode TileAANtuple::storeLaser() {
   ATH_MSG_DEBUG("TileAANtuple::storeLaser()");
   
   const TileLaserObject* laserObj;
-  CHECK( evtStore()->retrieve(laserObj, m_laserObject) );
+  ATH_CHECK( evtStore()->retrieve(laserObj, m_laserObject) );
   
   m_las_BCID = laserObj->getBCID();
   
@@ -721,7 +719,7 @@ TileAANtuple::storeRawChannels(std::string containerId
   
   // get named container
   const TileRawChannelContainer* rcCnt;
-  CHECK( evtStore()->retrieve(rcCnt, containerId) );
+  ATH_CHECK( evtStore()->retrieve(rcCnt, containerId) );
   ATH_MSG_VERBOSE( "Conteiner ID " << containerId );
   
   TileRawChannelUnit::UNIT rChUnit = rcCnt->get_unit();
@@ -890,7 +888,7 @@ TileAANtuple::storeRawChannels(std::string containerId
   if (m_compareMode && dspCont) {
     
     const TileL2Container* l2Cnt;
-    CHECK( evtStore()->retrieve(l2Cnt, "TileL2Cnt") );
+    ATH_CHECK( evtStore()->retrieve(l2Cnt, "TileL2Cnt") );
     
     TileL2Container::const_iterator it = l2Cnt->begin();
     TileL2Container::const_iterator end= l2Cnt->end();
@@ -923,7 +921,7 @@ TileAANtuple::storeMFRawChannels(std::string containerId
   
   // get named container
   const TileRawChannelContainer* rcCnt;
-  CHECK( evtStore()->retrieve(rcCnt, containerId) );
+  ATH_CHECK( evtStore()->retrieve(rcCnt, containerId) );
   
   TileRawChannelUnit::UNIT rChUnit = rcCnt->get_unit();
   ATH_MSG_VERBOSE( "RawChannel unit is " << rChUnit );
@@ -1094,7 +1092,7 @@ TileAANtuple::storeMFRawChannels(std::string containerId
   if (m_compareMode && dspCont) {
     
     const TileL2Container* l2Cnt;
-    CHECK( evtStore()->retrieve(l2Cnt, "TileL2Cnt") );
+    ATH_CHECK( evtStore()->retrieve(l2Cnt, "TileL2Cnt") );
     
     TileL2Container::const_iterator it = l2Cnt->begin();
     TileL2Container::const_iterator end= l2Cnt->end();
@@ -1125,7 +1123,7 @@ TileAANtuple::storeDigits(std::string containerId
   
   // Read Digits from TES
   const TileDigitsContainer* digitsCnt;
-  CHECK( evtStore()->retrieve(digitsCnt, containerId) );
+  ATH_CHECK( evtStore()->retrieve(digitsCnt, containerId) );
   
   bool emptyColl = true;
   
@@ -1304,7 +1302,7 @@ StatusCode TileAANtuple::storeTMDBDecision() {
     ATH_MSG_VERBOSE( "reading TMDB decision from " << m_tileMuRcvContainer ); 
 
     const TileMuonReceiverContainer *decisionCnt;
-    CHECK( evtStore()->retrieve(decisionCnt, m_tileMuRcvContainer) );
+    ATH_CHECK( evtStore()->retrieve(decisionCnt, m_tileMuRcvContainer) );
   
     TileMuonReceiverContainer::const_iterator it = decisionCnt->begin();
     TileMuonReceiverContainer::const_iterator itLast = decisionCnt->end();
@@ -1360,7 +1358,7 @@ StatusCode TileAANtuple::storeTMDBDigits() {
     ATH_MSG_VERBOSE( "reading TMDB digits from " << m_tileMuRcvDigitsContainer ); 
 
     const TileDigitsContainer* digitsCnt;
-    CHECK( evtStore()->retrieve(digitsCnt, m_tileMuRcvDigitsContainer) );
+    ATH_CHECK( evtStore()->retrieve(digitsCnt, m_tileMuRcvDigitsContainer) );
   
     TileDigitsContainer::const_iterator itColl1 = (*digitsCnt).begin();
     TileDigitsContainer::const_iterator itCollEnd1 = (*digitsCnt).end();
@@ -1432,7 +1430,7 @@ StatusCode TileAANtuple::storeTMDBRawChannel() {
     ATH_MSG_VERBOSE( "reading TMDB energies from " << m_tileMuRcvRawChannelContainer ); 
 
     const TileRawChannelContainer* rcCnt;
-    CHECK( evtStore()->retrieve(rcCnt, m_tileMuRcvRawChannelContainer) );
+    ATH_CHECK( evtStore()->retrieve(rcCnt, m_tileMuRcvRawChannelContainer) );
 
     TileRawChannelContainer::const_iterator itColl2 = (*rcCnt).begin();
     TileRawChannelContainer::const_iterator itCollEnd2 = (*rcCnt).end();
@@ -1520,7 +1518,7 @@ TileAANtuple::initNTuple(void) {
     CISPAR_addBranch();
     if (m_laserObject.size() > 0) {
       const TileLaserObject* laserObj;
-      CHECK( evtStore()->retrieve(laserObj, m_laserObject) );
+      ATH_CHECK( evtStore()->retrieve(laserObj, m_laserObject) );
       m_las_version = laserObj->getVersion();
       LASER_addBranch();
     }
@@ -2425,102 +2423,94 @@ void TileAANtuple::DCS_addBranch() {
   }
 }
 
-StatusCode TileAANtuple::storeDCS()
-{
-  if (m_DCScounter != m_tileDCSSvc->getNcalls()) {
-    
-    ATH_MSG_DEBUG( "Filling DCS ntuple: cnt=" << m_DCScounter
-                  <<" evtCnt=" << m_evtNr
-                  << " evt=" << m_evt
-                  << " lumi=" << m_lumiBlock << "  " << m_dateTime );
-    
-    m_DCScounter = m_tileDCSSvc->getNcalls();
-    
-    CLEAR(m_TEMP);
-    CLEAR(m_HV);
-    CLEAR(m_HVSET);
-    CLEAR(m_DRSTATES);
-    CLEAR(m_HVSTATUS);
-    CLEAR(m_DRSTATUS);
-    CLEAR(m_CHSTATUS);
-    
-    m_nBadDr = 0;
-    m_nBadHV = 0;
-    m_nBadDCS = 0;
-    m_nBadDB  = 0;
-    m_nBadTotal = 0;
-    for (int ROS = 1; ROS < 5; ++ROS) {
-      int rosI = ROS - 1;
+StatusCode TileAANtuple::storeDCS() {
+
+  ATH_MSG_DEBUG( "Filling DCS ntuple:"
+                 <<" evtCnt=" << m_evtNr
+                 << " evt=" << m_evt
+                 << " lumi=" << m_lumiBlock << "  " << m_dateTime );
+
+  CLEAR(m_TEMP);
+  CLEAR(m_HV);
+  CLEAR(m_HVSET);
+  CLEAR(m_DRSTATES);
+  CLEAR(m_HVSTATUS);
+  CLEAR(m_DRSTATUS);
+  CLEAR(m_CHSTATUS);
+
+  m_nBadDr = 0;
+  m_nBadHV = 0;
+  m_nBadDCS = 0;
+  m_nBadDB  = 0;
+  m_nBadTotal = 0;
+  for (int ROS = 1; ROS < 5; ++ROS) {
+    int rosI = ROS - 1;
       
-      for (int drawer = 0; drawer < 64; ++drawer) {
-        int module = drawer + 1;
-        m_DRSTATES[rosI][drawer] = m_tileDCSSvc->getDCSSTATES(ROS, module);
-        m_DRSTATUS[rosI][drawer] = m_tileDCSSvc->getDCSSTATUS(ROS, drawer);
-        bool drbad = m_tileDCSSvc->statusIsBad(ROS, drawer);
+    for (int drawer = 0; drawer < 64; ++drawer) {
+      m_DRSTATES[rosI][drawer] = m_tileDCS->getDrawerStates(ROS, drawer);
+      m_DRSTATUS[rosI][drawer] = m_tileDCS->getDCSStatus(ROS, drawer);
+      bool drbad = m_tileDCS->isStatusBad(ROS, drawer);
         
-        if (drbad) {
-          ++m_nBadDr;
-        }
+      if (drbad) {
+        ++m_nBadDr;
+      }
         
-        if (msgLvl(MSG::VERBOSE) || m_DRSTATUS[rosI][drawer] != TileDCSSvc::OK_DRAWER) {
-          ATH_MSG_VERBOSE( "Module=" << m_tileDCSSvc->partitionName(ROS)
-                           << std::setw(2) << std::setfill('0') << module
-                           << " DRSTATES=" << m_DRSTATES[rosI][drawer]
-                           << " DRSTATUS=" << m_DRSTATUS[rosI][drawer]
-                           << " => " << ((drbad) ? "bad" : "good")  );
-        }
+      if (msgLvl(MSG::VERBOSE) || m_DRSTATUS[rosI][drawer] != TileDCSState::OK_DRAWER) {
+        ATH_MSG_VERBOSE( "Module=" << TileCalibUtils::getDrawerString(ROS, drawer)
+                         << " DRSTATES=" << m_DRSTATES[rosI][drawer]
+                         << " DRSTATUS=" << m_DRSTATUS[rosI][drawer]
+                         << " => " << ((drbad) ? "bad" : "good")  );
+      }
         
-        unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ROS,drawer);
-        for (int channel=0; channel<48; ++channel){
-          TileBchStatus chStat = m_tileBadChanTool->getChannelStatus(drawerIdx,channel);
-          int pmt=abs(m_cabling->channel2hole(ROS,channel));
-          m_HV[rosI][drawer][channel]       = m_tileDCSSvc->getDCSHV(ROS, module, pmt);
-          m_HVSET[rosI][drawer][channel]    = m_tileDCSSvc->getDCSHVSET(ROS, module, pmt);
-          m_HVSTATUS[rosI][drawer][channel] = m_tileDCSSvc->getDCSHVSTATUS(ROS, drawer, channel);
-          m_CHSTATUS[rosI][drawer][channel] = m_tileDCSSvc->getDCSSTATUS(ROS, drawer, channel)
+      unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ROS,drawer);
+      for (int channel=0; channel<48; ++channel){
+        TileBchStatus chStat = m_tileBadChanTool->getChannelStatus(drawerIdx,channel);
+        int pmt=abs(m_cabling->channel2hole(ROS,channel));
+        m_HV[rosI][drawer][channel]       = m_tileDCS->getChannelHV(ROS, drawer, channel);
+        m_HVSET[rosI][drawer][channel]    = m_tileDCS->getChannelHVSet(ROS, drawer, channel);
+        m_HVSTATUS[rosI][drawer][channel] = m_tileDCS->getDCSHVStatus(ROS, drawer, channel);
+        m_CHSTATUS[rosI][drawer][channel] = m_tileDCS->getDCSStatus(ROS, drawer, channel)
           + 100 * m_tileBadChanTool->encodeStatus(chStat);
-          bool chbad=m_tileDCSSvc->statusIsBad(ROS,drawer,channel);
+        bool chbad = m_tileDCS->isStatusBad(ROS, drawer, channel);
           
-          if (chbad || chStat.isBad()) {
-            ++m_nBadTotal;
-            if (chbad) ++m_nBadDCS;
-            if (chStat.isBad()) ++m_nBadDB;
-          }
-          
-          if (m_tileDCSSvc->statusHVIsBad(ROS,drawer,channel)) {
-            ++m_nBadHV;
-          }
-          
-          if (msgLvl(MSG::VERBOSE) || (chbad && !drbad)) {
-            ATH_MSG_VERBOSE( "Module=" << m_tileDCSSvc->partitionName(ROS)
-                             << std::setw(2) << std::setfill('0') << module
-                             << " channel=" << channel << " pmt=" << pmt
-                             << " HV=" << m_HV[rosI][drawer][channel]
-                             << " HVSET=" << m_HVSET[rosI][drawer][channel]
-                             << " HVSTATUS=" << m_HVSTATUS[rosI][drawer][channel]
-                             << " CHSTATUS=" << m_CHSTATUS[rosI][drawer][channel]
-                             << " => " << ((chbad) ? "bad" : "good")  );
-          }
+        if (chbad || chStat.isBad()) {
+          ++m_nBadTotal;
+          if (chbad) ++m_nBadDCS;
+          if (chStat.isBad()) ++m_nBadDB;
         }
-        
-        for (int ind=0; ind<7; ++ind){
-          m_TEMP[rosI][drawer][ind] = m_tileDCSSvc->getDCSHV(ROS, module, ind+49);
-          ATH_MSG_VERBOSE( "Module=" << m_tileDCSSvc->partitionName(ROS)
-                          << std::setw(2) << std::setfill('0') << module
-                          << " TEMP" << ind+1 << "=" << m_TEMP[rosI][drawer][ind] );
           
+        if (m_tileDCS->isStatusHVBad(ROS, drawer, channel)) {
+          ++m_nBadHV;
+        }
+          
+        if (msgLvl(MSG::VERBOSE) || (chbad && !drbad)) {
+          ATH_MSG_VERBOSE( "Module=" << TileCalibUtils::getDrawerString(ROS, drawer)
+                           << " channel=" << channel << " pmt=" << pmt
+                           << " HV=" << m_HV[rosI][drawer][channel]
+                           << " HVSET=" << m_HVSET[rosI][drawer][channel]
+                           << " HVSTATUS=" << m_HVSTATUS[rosI][drawer][channel]
+                           << " CHSTATUS=" << m_CHSTATUS[rosI][drawer][channel]
+                           << " => " << ((chbad) ? "bad" : "good")  );
         }
       }
+        
+      for (int ind=0; ind<7; ++ind){
+        m_TEMP[rosI][drawer][ind] = m_tileDCS->getChannelHV(ROS, drawer, ind+49);
+        ATH_MSG_VERBOSE( "Module=" << TileCalibUtils::getDrawerString(ROS, drawer)
+                         << " TEMP" << ind+1 << "=" << m_TEMP[rosI][drawer][ind] );
+          
+      }
     }
-    
-    ATH_MSG_DEBUG( "BAD status in DCS: nBadDr=" << m_nBadDr
-                  << " nBadHV=" << m_nBadHV
-                  << " nBadDCS=" << m_nBadDCS
-                  << " nBadDB="  << m_nBadDB
-                  << " nBadTotal=" << m_nBadTotal );
-    
-    m_DCSntuplePtr->Fill();
   }
+    
+  ATH_MSG_DEBUG( "BAD status in DCS: nBadDr=" << m_nBadDr
+                 << " nBadHV=" << m_nBadHV
+                 << " nBadDCS=" << m_nBadDCS
+                 << " nBadDB="  << m_nBadDB
+                 << " nBadTotal=" << m_nBadTotal );
+    
+  m_DCSntuplePtr->Fill();
+
   
   return StatusCode::SUCCESS;
 }

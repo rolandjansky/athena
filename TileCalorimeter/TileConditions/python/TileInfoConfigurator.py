@@ -387,7 +387,7 @@ class _TileInfoConfigurator( TileInfoLoader ):
             return
         self._coolDCSIsConfigured = True
 
-        ##     #=== ensure the availability of TileDCSSvc
+        ##     #=== ensure the availability of TileDCS information
         from AthenaCommon.GlobalFlags import globalflags
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
         TileUseDCS = (not athenaCommonFlags.isOnline()) and globalflags.DataSource()=='data'
@@ -409,20 +409,6 @@ class _TileInfoConfigurator( TileInfoLoader ):
                                            ReadHVSET = useHVSET,
                                            ReadSTATES = useSTATUS,
                                            TileDCS = dcs)
-
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        if TileUseDCS and not hasattr(svcMgr, "TileDCSSvc"):
-
-            self._msg.info("Adding TileDCSSvc to ServiceMgr")
-            svcMgr += CfgMgr.TileDCSSvc()
-
-            from IOVDbSvc.CondDB import conddb
-            if (conddb.GetInstance() == 'CONDBR2'):
-                self._msg.info("setting up TileDCSSvc for RUN2")
-                svcMgr.TileDCSSvc.Version=2
-            else:
-                self._msg.info("setting up TileDCSSvc for RUN1")
-                svcMgr.TileDCSSvc.Version=1
 
 
     #_______________________________________________________________

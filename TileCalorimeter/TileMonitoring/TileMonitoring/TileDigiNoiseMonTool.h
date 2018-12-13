@@ -75,7 +75,7 @@ class TileDigiNoiseMonTool : public TileFatherMonTool {
     bool m_fillPedestalDifference;
     std::vector<uint32_t> m_triggerTypes;
     SG::ReadHandleKey<TileDQstatus> m_DQstatusKey;
-    ToolHandle<ITileDCSTool> m_tileDCS;
+    ToolHandle<ITileDCSTool> m_tileDCS{this, "TileDCSTool", "TileDCSTool", "Tile DCS tool"};
     bool m_checkDCS;
     bool m_histogramsNotBooked;
 };

@@ -11,6 +11,10 @@ from AthenaCommon.BeamFlags import jobproperties
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
+from AthenaCommon.AlgSequence import AthSequencer
+condSequence = AthSequencer("AthCondSeq")
+tileCheckDCS = hasattr(condSequence, 'TileDCSCondAlg')
+
 from AthenaMonitoring.DQMonFlags import DQMonFlags
 
 if not 'rec' in dir():
@@ -204,7 +208,7 @@ if  tileRawMon:
                                                , TriggerChain        = "HLT_noalg_cosmiccalo_L1RD1_EMPTY"
                                                , TrigDecisionTool    = getattr(ToolSvc, DQMonFlags.nameTrigDecTool()) if DQMonFlags.useTrigger() else ""
                                                , TriggerTypes        = [ 0x82 ]
-                                               , CheckDCS                 = hasattr(ServiceMgr, "TileDCSSvc"))
+                                               , CheckDCS                 = tileCheckDCS)
 
         if globalflags.InputFormat() == 'pool':
             TileDigiNoiseMon.TileDigitsContainer = 'TileDigitsFlt'
@@ -221,7 +225,7 @@ if  tileRawMon:
                                           , SkipMasked               = True
                                           , SkipGapCells             = True
                                           , doOnline                 = athenaCommonFlags.isOnline()
-                                          , CheckDCS                 = hasattr(ServiceMgr, "TileDCSSvc")
+                                          , CheckDCS                 = tileCheckDCS
                                           , histoPathBase            = "/Tile/DMUErrors")
 
 

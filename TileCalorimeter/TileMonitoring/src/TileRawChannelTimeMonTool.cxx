@@ -12,11 +12,14 @@
 //
 // ********************************************************************
 
+// Tile includes
 #include "TileMonitoring/TileRawChannelTimeMonTool.h"
 
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/ITileBadChanTool.h"
 #include "TileEvent/TileRawChannelContainer.h"
+
+// Athena includes
 #include "StoreGate/ReadHandle.h"
 
 #include "TProfile.h"
@@ -51,7 +54,6 @@ TileRawChannelTimeMonTool::TileRawChannelTimeMonTool(const std::string & type, c
   , m_partitionTimeCorrection{{0}}
   , m_timeDifferenceBetweenROS{{1, 2}, {1, 3}, {1, 4}, {2, 3}, {2, 4}, {3, 4}}
   , m_nLumiblocks(3000)
-  , m_tileDCS("TileDCSTool")
 	 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
@@ -70,7 +72,6 @@ TileRawChannelTimeMonTool::TileRawChannelTimeMonTool(const std::string & type, c
   declareProperty("TimeCorrectionEBC", m_timeCorrectionEBC);
   declareProperty("NumberOfLumiblocks", m_nLumiblocks = 3000);
   declareProperty("TileDQstatus", m_DQstatusKey = "TileDQstatus");
-  declareProperty("TileDCSTool", m_tileDCS);
   declareProperty("CheckDCS", m_checkDCS = false);
 
   m_path = "/Tile/RawChannelTime"; 
@@ -89,7 +90,7 @@ StatusCode TileRawChannelTimeMonTool::initialize()
 
   ATH_MSG_INFO("in initialize()");
 
-  CHECK(m_tileBadChanTool.retrieve());
+  ATH_CHECK(m_tileBadChanTool.retrieve());
 
   m_nEvents = 0;
   m_thresholds[0] = m_lowGainThreshold;
@@ -101,14 +102,13 @@ StatusCode TileRawChannelTimeMonTool::initialize()
                                 m_timeCorrectionEBA, 
                                 m_timeCorrectionEBC}};
 
-  CHECK(TileFatherMonTool::initialize());
+  ATH_CHECK(TileFatherMonTool::initialize());
 
-  CHECK( m_DQstatusKey.initialize() );
+  ATH_CHECK( m_DQstatusKey.initialize() );
 
   if (m_checkDCS) {
-    CHECK( m_tileDCS.retrieve() );
-  }
-  else {
+    ATH_CHECK( m_tileDCS.retrieve() );
+  } else {
     m_tileDCS.disable();
   }
 
@@ -246,7 +246,7 @@ StatusCode TileRawChannelTimeMonTool::fillHists()
   int32_t current_lumiblock = getLumiBlock();
 
   const TileRawChannelContainer* RawChannelCnt;
-  CHECK(evtStore()->retrieve(RawChannelCnt, m_contName));
+  ATH_CHECK(evtStore()->retrieve(RawChannelCnt, m_contName));
 
   std::vector<double> avgTimePerPart(TileCalibUtils::MAX_ROS, 0.0);
   std::vector<double> sumTimeCh(TileCalibUtils::MAX_ROS, 0.0);
