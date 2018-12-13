@@ -1,5 +1,3 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 ############################################
 ## EF Photon Hypo Configuration
 ## Ryan Mackenzie White <ryan.white@cern.ch>
@@ -13,6 +11,31 @@ from TrigEgammaHypo.TrigEgammaPidTools import PhotonToolName
 from TrigEgammaHypo.TrigEgammaPidTools import PhotonIsEMBits
 
 from AthenaCommon.SystemOfUnits import GeV
+logging.getLogger().info("Importing %s",__name__)
+log = logging.getLogger("TrigEgammaHypo.TrigEFPhotonHypoConfig")
+
+class TrigEFPhotonIsoCutDefs ():
+    def __init__(self):
+        self.EtCone = {'icalovloose':[-1.,-1.,-1.],
+                'icaloloose':[-1.,-1.,-1.],
+                'icalomedium':[-1.,-1.,-1.],
+                'icalotight':[-1.,-1.,-1.]
+                }
+        self.RelEtCone = {'icalovloose':[0.1,0.,0.],
+                'icaloloose':[0.07,0.,0.],
+                'icalomedium':[0.,0.,0],
+                'icalotight':[0.,0.,0.03]
+                }
+        self.Offset = {'icalovloose':[0.,0.,0.],
+                'icaloloose':[0.,0.,0.],
+                'icalomedium':[0.,0.,0],
+                'icalotight':[0.,0.,2.45*GeV]
+                }
+    def IsolationCuts(self,isoinfo):
+        return self.RelEtCone[isoinfo]
+    
+    def OffsetValue(self,isoinfo):
+        return self.Offset[isoinfo]
 
 class TrigEFPhotonIsoCutDefs ():
     def __init__(self):
@@ -56,7 +79,6 @@ class TrigEFPhotonHypoBase (TrigEFPhotonHypo):
         
         #-----------------------------------------------------------
         from AthenaCommon.AppMgr import ToolSvc
-        mlog = logging.getLogger( 'TrigEFPhotonHypoBase:' )
 
 #-----------------------------------------------------------------------
 # --- RMWhite 2014
@@ -105,8 +127,18 @@ class EFPhotonHypo_g_ID_CaloOnly_Iso (EFPhotonHypo_g_ID_CaloOnly):
         #Isolation
         isoCuts = TrigEFPhotonIsoCutDefs()
         self.ApplyIsolation = True
-        #EtCone Size              =  20, 30, 40
-        self.EtConeSizes = 3
-        self.EtConeCut          = [-1, -1, -1]
-        self.RelEtConeCut = isoCuts.IsolationCuts(isoInfo)
-        self.IsoOffset = isoCuts.OffsetValue(isoInfo)
+        caloiso = [x for x in isoInfo if 'icalo' in x]
+        # Following is hack to allow us to switch the trigger names
+        # Please remove once moved to icalo
+        if(len(caloiso)!=1):
+            log.warning('WARNING, no calo isolation in chain dict, update trigger names')
+            self.EtConeSizes  = 3
+            self.EtConeCut    = [-1, -1, -1]
+            self.RelEtConeCut = [-1,-1,-1] 
+            self.IsoOffset    = [0,0,0] 
+        else:
+            #EtCone Size              =  20, 30, 40
+            self.EtConeSizes  = 3
+            self.EtConeCut    = [-1, -1, -1]
+            self.RelEtConeCut = isoCuts.IsolationCuts(caloiso[0])
+            self.IsoOffset    = isoCuts.OffsetValue(caloiso[0])

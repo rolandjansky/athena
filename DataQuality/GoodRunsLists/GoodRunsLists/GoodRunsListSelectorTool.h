@@ -33,7 +33,6 @@ namespace Root {
   class TGoodRunsListReader;
 }
 
-class IDetStatusSvc;
 class StoreGateSvc;
 
 class GoodRunsListSelectorTool : virtual public AthAlgTool, virtual public IGoodRunsListSelectorTool, virtual public IAthenaEvtLoopPreSelectTool
@@ -80,7 +79,6 @@ class GoodRunsListSelectorTool : virtual public AthAlgTool, virtual public IGood
 
   std::vector<std::string> m_goodrunslistVec;
   std::vector<std::string> m_blackrunslistVec;
-  std::vector<std::string> m_dqflagsqueryVec;
 
   Root::TGRLCollection* m_grlcollection;
   Root::TGRLCollection* m_brlcollection;
@@ -96,13 +94,10 @@ class GoodRunsListSelectorTool : virtual public AthAlgTool, virtual public IGood
   bool m_rejectanybrl;
   bool m_eventselectormode;
 
-  const IDetStatusSvc* m_detstatussvc;
   StoreGateSvc* m_storeGate;
 
   std::map< std::string, vvPair > m_registry;
 
-  std::string  m_runrangeexpr;
-  Root::RegularFormula m_inrunrange;
 };
 
 #endif

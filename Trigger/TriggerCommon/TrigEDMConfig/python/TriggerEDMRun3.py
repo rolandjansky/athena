@@ -39,17 +39,27 @@ TriggerHLTList = [
     
 
     
-    ('xAOD::TrigCompositeContainer#L1Seeds',     'BS ESD AODFULL AODSLIM',  'Steer'),
-    ('xAOD::TrigCompositeContainer#L1EM',     'BS ESD AODFULL AODSLIM',  'Steer'),
-    ('xAOD::TrigCompositeContainer#L1MU',     'BS ESD AODFULL AODSLIM',  'Steer'),
-    ('xAOD::TrigCompositeContainer#L1MET',     'BS ESD AODFULL AODSLIM',  'Steer'),
-    ('xAOD::TrigCompositeContainer#L1J',     'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('xAOD::TrigCompositeContainer#L1Seeds',     'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeContainer#L1EM',        'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeContainer#L1MU',        'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeContainer#L1MET',       'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeContainer#L1J',         'BS ESD AODFULL AODSLIM', 'Steer'),
+
+
     
+    
+    ('xAOD::TrigEMClusterContainer#L2CaloEMClusters',           'BS ESD AODFULL', 'Egamma', 'inViews:FastCaloEMRecoViews'), # last arg specifies in which view container the fragments are
+    ('xAOD::TrigEMClusterAuxContainer#L2CaloEMClustersAux.',    'BS ESD AODFULL', 'Egamma'),
+    ('xAOD::TrigPhotonContainer#L2Photons',                     'BS ESD AODFULL', 'Egamma', 'inViews:L2PhotonRecoViews'),
+    ('xAOD::TrigPhotonAuxContainer#L2PhotonsAux.',              'BS ESD AODFULL', 'Egamma'),
+    
+    ('EventInfo#ByteStreamEventInfo',              'ESD', 'Misc'),
+    ('ROIB::RoIBResult#*',                         'ESD', 'Misc'),
 ]
 
 EDMDetails = {}
 
-EDMDetails[ "TrigRoiDescriptor" ]         = {'persistent':"TrigRoiDescriptorCollection_p3",     'typealias':'Roi', 'collection':'TrigRoiDescriptorCollection' }
+EDMDetails[ "TrigRoiDescriptorCollection" ]         = {'persistent':"TrigRoiDescriptorCollection_p3",     'typealias':'Roi', 'collection':'TrigRoiDescriptorCollection' }
 
 
 
