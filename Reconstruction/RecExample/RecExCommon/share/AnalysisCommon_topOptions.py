@@ -120,24 +120,6 @@ except Exception:
 protectedInclude( "PartPropSvc/PartPropSvc.py" )
 include.block( "PartPropSvc/PartPropSvc.py" )
 
-# Detector Status
-if rec.doDetStatus() and not athenaCommonFlags.isOnline():
-    try:
-        include("DetectorStatus/DetStatusSvc_CondDB.py")
-        pass
-    except Exception:
-        treatException("Could not load DetStatusSvc_CondDb !")
-        rec.doFileMetaData=False
-        pass
-
-    if rec.doFileMetaData():
-        #DR FIXME not sure about commissioing exception, filemetadata should be in filteredESD as well
-        if rec.doWriteRDO() or rec.doWriteESD() or rec.doWriteAOD() or rec.doDPD():
-            protectedInclude("DetectorStatus/DetStatusSvc_ToFileMetaData.py")
-            pass
-        pass
-    pass
-
 #Output file TagInfo and metadata
 #from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 #svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_type", jobproperties.Beam.beamType()]

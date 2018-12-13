@@ -550,13 +550,6 @@ class OutputLevel(JobProperty):
     allowedValues=[ ALL,VERBOSE,DEBUG,INFO,WARNING,ERROR,FATAL ]
     StoredValue=INFO
 #
-class doDetStatus(JobProperty):
-    """ If True, include DetStatusSvc_CondDB.py and optionaly DetStatusSvc_ToFileMetaData.py
-    """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=True
-#
 class readAOD(JobProperty):
     """ If True reads AOD file
     """
@@ -1035,7 +1028,7 @@ doDumpTDS, doDumpTES, doFloatingPointException, abortOnUncheckedStatusCode, abor
 doEdmMonitor, doHist, doJiveXML, doPersint,doVP1, doNameAuditor, \
 doRestrictedESD, doShowSizeStatistics, doTimeLimit, doTruth,\
 doWriteAOD, doWritexAOD, doWriteESD, doWriteDPD, doWriteBS, doWriteRDO, doWriteTAG, doWriteTAGCOM, PoolTAGCOMOutput, readAOD, readTAG, readRDO, \
-readESD, doDetStatus, AMITag, AutoConfiguration, RunNumber, triggerStream, projectName, \
+readESD, AMITag, AutoConfiguration, RunNumber, triggerStream, projectName, \
 doInDet,doLArg,doTile,doCalo,doMuon,doForwardDet,doLucid,doZdc,doAlfa,doAFP,doFwdRegion,doJetMissingETTag,doEgamma,doMuonCombined,doTau,doFTK,doTrigger,doBTagging, Production, doPhysValMonHists, \
 doHeavyIon, doHIP, doLowPt, doMinimalRec, noESDTrigger,doFileMetaData,ScopingLevel, Commissioning, oldRecExCommissionConfig, mergingStreamName, LCGCMTVersion, \
 AtlasReleaseVersion, inputFileFromAthenaVersion, doApplyAODFix, doAODSelect, doRDOTrigger, doFastPhysMonitoring, RootFastPhysMonOutput,doWriteCalibHits, doTriggerFilter, triggerFilterList, doContainerRemapping, doPhysicsValidationAugmentation, doESDReconstruction, doExpressProcessing, doPersistencyOptimization, doCaloRinger, doAODMerging]
