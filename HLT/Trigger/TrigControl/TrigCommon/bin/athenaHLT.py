@@ -1,4 +1,5 @@
 #!/bin/sh
+# -*- mode: python -*-
 #
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
@@ -71,7 +72,6 @@ def arg_eval(s):
    """Argument handler for pyton types (list, dict, ...)"""
    return ast.literal_eval(s)
 
-
 def update_pcommands(args, cdict):
    """Apply modifications to pre/postcommands"""
 
@@ -107,7 +107,6 @@ def update_run_params(args):
          dmask = hex(dmask)
       args.detector_mask = arg_detector_mask(dmask)
 
-
 def update_nested_dict(d, u):
    """Update nested dictionary (https://stackoverflow.com/q/3232943)"""
    for k, v in u.iteritems():
@@ -117,6 +116,13 @@ def update_nested_dict(d, u):
          d[k] = v
    return d
 
+def set_athena_flags(args):
+   """Set athena flags based on command line args"""
+
+   from AthenaCommon.ConcurrencyFlags import jobproperties as jp
+   jp.ConcurrencyFlags.NumThreads = args.threads
+   jp.ConcurrencyFlags.NumConcurrentEvents = args.concurrent_events
+   jp.ConcurrencyFlags.NumProcs = args.nprocs
 
 def HLTMPPy_cfgdict(args):
    """
@@ -133,7 +139,7 @@ def HLTMPPy_cfgdict(args):
       'module' : 'HLTMPPU',
       'num_forks' : args.nprocs,
       'num_threads' : args.threads,
-      'num_slots' : args.threads,
+      'num_slots' : args.concurrent_events,
       'partition_name' : args.partition,
       'hard_timeout' : args.timeout,
       'soft_timeout_fraction' : 0.9
@@ -141,7 +147,7 @@ def HLTMPPy_cfgdict(args):
 
    cdict['datasource'] = {
       'module': 'dffileds',
-      'dslibrary': 'DFFileBackend',
+      'dslibrary': 'DFDcmEmuBackend',
       'compressionFormat': 'ZLIB',
       'compressionLevel': 2,
       'file': args.file,
@@ -257,6 +263,7 @@ def main():
    g.add_argument('--skip-events', '-k', metavar='N', default=0, help='skip N first events')
    g.add_argument('--threads', metavar='N', type=int, default=1, help='number of threads')
    g.add_argument('--nprocs', metavar='N', type=int, default=1, help='number of children to fork')
+   g.add_argument('--concurrent-events', metavar='N', type=int, help='number of concurrent events if different from --threads')
    g.add_argument('--log-level', '-l', metavar='LVL', type=arg_log_level, default='INFO,ERROR', help='OutputLevel of athena,POOL')
    g.add_argument('--precommand', '-c', metavar='CMD', action='append', default=[],
                   help='Python commands executed before job options or database configuration')
@@ -329,8 +336,13 @@ def main():
    from AthenaCommon.Include import include
    include.setShowIncludes( args.show_includes )
 
-   # update parameters based on SOR
+   # consistency checks for arguments
+   if not args.concurrent_events:
+      args.concurrent_events = args.threads
+
+   # Update args and set athena flags
    update_run_params(args)
+   set_athena_flags(args)
 
    # get HLTMPPY config dictionary
    cdict = HLTMPPy_cfgdict(args)
