@@ -39,7 +39,8 @@ if  TriggerFlags.doMuon==True:
     ##########################################
 
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
-    from TrigUpgradeTest.muMenuDefs import muFastStep, muCombStep, muEFMSStep, muEFSAStep, muIsoStep
+    from TrigUpgradeTest.muMenuDefs import muFastStep, muCombStep, muEFMSStep, muEFSAStep, muIsoStep, muEFCBStep
+
 
     MenuChains  = []
 
@@ -51,17 +52,19 @@ if  TriggerFlags.doMuon==True:
     # step3
     step3muEFSA=ChainStep("Step3_muEFSA", [ muEFSAStep() ])
     step3muIso =ChainStep("Step3_muIso",  [ muIsoStep() ])
+    # step4
+    step4muEFCB=ChainStep("Step4_muEFCB", [ muEFCBStep() ])
 
     ## single muon trigger  
     MenuChains += [Chain(name='HLT_mu6fast',   Seed="L1_MU6",  ChainSteps=[ step1mufast ])]
     MenuChains += [Chain(name='HLT_mu6Comb',   Seed="L1_MU6",  ChainSteps=[ step1mufast, step2muComb ])]
     #MenuChains += [Chain(name='HLT_mu6msonly', Seed="L1_MU6",  ChainSteps=[ step1mufast, step2muEFMS ])] # removed due to muEFSA isuue(?)
-    MenuChains += [Chain(name='HLT_mu6',       Seed="L1_MU6",  ChainSteps=[ step1mufast, step2muComb, step3muEFSA ])]
+    MenuChains += [Chain(name='HLT_mu6',       Seed="L1_MU6",  ChainSteps=[ step1mufast, step2muComb, step3muEFSA, step4muEFCB ])]
     MenuChains += [Chain(name='HLT_mu20_ivar', Seed="L1_MU6", ChainSteps=[ step1mufast, step2muComb, step3muIso ])]
 
     # multi muon trigger 
     MenuChains += [Chain(name='HLT_2mu6Comb', Seed="L1_MU6", ChainSteps=[ step1mufast, step2muComb ])]
-    MenuChains += [Chain(name='HLT_2mu6',     Seed="L1_MU6", ChainSteps=[ step1mufast, step2muComb, step3muEFSA ])]        
+    MenuChains += [Chain(name='HLT_2mu6',     Seed="L1_MU6", ChainSteps=[ step1mufast, step2muComb, step3muEFSA, step4muEFCB ])]        
  
     
     #################################

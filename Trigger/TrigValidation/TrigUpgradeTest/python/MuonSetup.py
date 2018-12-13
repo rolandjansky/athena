@@ -394,7 +394,7 @@ def makeMuEFSAAlgs():
   MuonTrackSteering.DoSummary=True
   MuonTrackSteering.DoSummary=DEBUG
   TrackBuilder = CfgMgr.MuPatTrackBuilder("MuPatTrackBuilder" )
-  TrackBuilder.TrackSteering=CfgGetter.getPublicToolClone("MuonTrackSteering", "MuonTrackSteering")
+  TrackBuilder.TrackSteering=CfgGetter.getPublicToolClone("TrigMuonTrackSteering", "MuonTrackSteering")
   
   from AthenaCommon.Include import include
   include("InDetBeamSpotService/BeamCondSvc.py" )        
@@ -434,5 +434,82 @@ def makeMuEFSAAlgs():
   efAlgs.append( theMuonCandidateAlg )
   efAlgs.append( themuoncreatoralg )
   
+  return efAlgs
+
+
+
+def makeMuEFCBAlgs():
+
+  from MuonRecExample.MuonRecFlags import muonRecFlags
+  from AthenaCommon.DetFlags import DetFlags
+  from AthenaCommon.AppMgr import ToolSvc
+  from AthenaCommon.AppMgr import ServiceMgr
+  import AthenaCommon.CfgMgr as CfgMgr
+  import AthenaCommon.CfgGetter as CfgGetter
+
+  from AthenaCommon.CfgGetter import getPublicTool, getPublicToolClone
+  from AthenaCommon import CfgMgr
+  
+  efAlgs = [] 
+
+  
+  #Make InDetCandidates
+  theIndetCandidateAlg = CfgMgr.MuonCombinedInDetCandidateAlg("TrigMuonCombinedInDetCandidateAlg",TrackSelector=getPublicTool("MuonCombinedInDetDetailedTrackSelectorTool"),TrackParticleLocation = ["xAODTracks"],ForwardParticleLocation="xAODTracks",OutputLevel=DEBUG)
+
+  #MuonCombinedCandidates
+  theCaloMeasTool = getPublicToolClone("TrigCaloMeasTool", "MuidCaloEnergyMeas", CaloNoiseTool="", UseCaloNoiseTool=False,CellContainerLocation="")
+  theCaloEnergyTool = getPublicToolClone("TrigCaloEnergyTool", "MuidCaloEnergyTool", CaloMeasTool = theCaloMeasTool, EnergyLossMeasurement=False, MopParametrization=True, TrackIsolation=False)
+
+  from TrkExRungeKuttaIntersector.TrkExRungeKuttaIntersectorConf import Trk__IntersectorWrapper as Propagator
+  TrigMuonPropagator = Propagator(name = 'TrigMuonPropagator')
+  ToolSvc += TrigMuonPropagator
+
+  theCaloTSOS = getPublicToolClone("TrigCaloTrackStateOnSurface", "MuidCaloTrackStateOnSurface", CaloEnergyDeposit=theCaloEnergyTool, CaloEnergyParam=theCaloEnergyTool, Propagator =TrigMuonPropagator, MinRemainingEnergy= 200, ParamPtCut= 3000)
+  from MuidCaloScatteringTools.MuidCaloScatteringToolsConf import Rec__MuidMaterialEffectsOnTrackProvider
+  Rec__MuidMaterialEffectsOnTrackProvider.TSOSTool=theCaloTSOS
+
+  theErrorOptimiser = getPublicToolClone("TrigMuonErrorOptimiser", "MuonErrorOptimisationTool", PrepareForFit=False, RecreateStartingParameters=False,RefitTool=getPublicToolClone("TrigMuidRefitTool", "MuonRefitTool", AlignmentErrors = False, Fitter = CfgGetter.getPublicTool("iPatFitter")))
+
+  theTrackCleaner = getPublicToolClone("TrigMuonTrackCleaner", "MuonTrackCleaner", Fitter='TMEF_iPatFitter', SLFitter='TMEF_iPatFitter')
+
+
+  theTrackBuilderTool = getPublicToolClone("TrigCombinedMuonTrackBuilder","CombinedMuonTrackBuilder", UseCaloTG = True, CaloTSOS=theCaloTSOS, CaloMaterialProvider='TMEF_TrkMaterialProviderTool', MuonHoleRecovery="",OutputLevel=DEBUG,CaloEnergyParam=theCaloEnergyTool,MuonErrorOptimizer=theErrorOptimiser, Fitter='TMEF_iPatFitter', MaterialAllocator="TMEF_MaterialAllocator", Propagator=TrigMuonPropagator, LargeMomentumError=0.5, PerigeeAtSpectrometerEntrance=True, ReallocateMaterial=False, TrackSummaryTool=getPublicTool("CombinedMuonTrackSummary"), Cleaner=theTrackCleaner)
+  theTrackQuery = getPublicToolClone("TrigMuonTrackQuery", "MuonTrackQuery", Fitter=theTrackBuilderTool)
+
+  theCandidateToolCB = getPublicToolClone("TrigMuonCandidateTool_CB", "MuonCandidateTool", TrackBuilder=theTrackBuilderTool,OutputLevel=DEBUG)
+  theMuonCombinedCandidateAlg = CfgMgr.MuonCombinedMuonCandidateAlg("TrigMuonCombinedMuonCandidateAlg",MuonCandidateTool=theCandidateToolCB,MuonCandidateLocation="CombinedMuonCandidates", OutputLevel=DEBUG)
+
+  #MS ID combination
+  theMuonCombinedFitTagTool = getPublicToolClone("TrigMuonCombinedFitTagTool", "MuonCombinedFitTagTool",TrackBuilder=theTrackBuilderTool,MuonRecovery=getPublicToolClone("TrigMuonRecovery","MuidMuonRecovery", TrackBuilder=theTrackBuilderTool),OutputLevel=DEBUG, TrackQuery=theTrackQuery, MatchQuality = getPublicToolClone("TrigMuonMatchQuality", "MuonMatchQuality", TrackQuery=theTrackQuery))
+  tools=[]
+  tools.append(theMuonCombinedFitTagTool)
+  theMuonCombinedTool = getPublicToolClone("TrigMuonCombinedToolCB", "MuonCombinedTool", MuonCombinedTagTools=tools, OutputLevel=DEBUG)
+  theMuonCombinedAlg = CfgMgr.MuonCombinedAlg("TrigMuonCombinedAlg", MuonCandidateLocation="CombinedMuonCandidates", MuonCombinedTool=theMuonCombinedTool, CombinedTagMaps=["muidcoTagMap"], OutputLevel=DEBUG)
+
+  #Build muon candidates
+  theCandidateToolCB = getPublicToolClone("MuonCandidateTool_CB", "MuonCandidateTool", TrackBuilder=theTrackBuilderTool)
+  theMuonCandidateAlgCB=CfgMgr.MuonCombinedMuonCandidateAlg("MuonCandidateAlgCB",MuonCandidateTool=theCandidateToolCB,MuonCandidateLocation="MuonCandidates")
+
+  #Create xAOD Muons
+  thecreatortoolCB= getPublicToolClone("MuonCreatorTool_triggerCB", "MuonCreatorTool", ScatteringAngleTool="", CaloMaterialProvider='TMEF_TrkMaterialProviderTool', MuonSelectionTool="", FillTimingInformation=False, OutputLevel=DEBUG, DoCaloNoiseCut=False, UseCaloCells=False)
+
+  themuoncbcreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlgCB", OutputLevel=DEBUG, MuonCandidateLocation="CombinedMuonCandidates")
+  themuoncbcreatoralg.MuonCreatorTool=thecreatortoolCB
+  themuoncbcreatoralg.MakeClusters=False
+  themuoncbcreatoralg.ClusterContainerName=""
+  themuoncbcreatoralg.MuonContainerLocation = "CBMuons"
+  themuoncbcreatoralg.SegmentContainerName = "CBSegments"
+  themuoncbcreatoralg.CombinedTrackLocation = "CBCombinedMuons"
+  themuoncbcreatoralg.ExtrapolatedLocation = "CBExtrapolatedMuons"
+  themuoncbcreatoralg.MSOnlyExtrapolatedLocation = "CBMSOnlyExtrapolatedMuons"
+  themuoncbcreatoralg.CombinedLocation = "CBCombinedMuon"
+
+  #Add all algorithms
+  efAlgs.append(theIndetCandidateAlg)
+  efAlgs.append(theMuonCombinedCandidateAlg)
+  efAlgs.append(theMuonCombinedAlg)
+  efAlgs.append(theMuonCandidateAlgCB)
+  efAlgs.append(themuoncbcreatoralg)
+
   return efAlgs
 
