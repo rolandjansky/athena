@@ -20,12 +20,11 @@
 // this is needed to distribute the algorithm to the workers
 //ClassImp(ZdcNtuple)
 
-//const bool debug=0;
-
 ZdcNtuple :: ZdcNtuple (const std::string& name,ISvcLocator *pSvcLocator) 
   : EL::AnaAlgorithm(name,pSvcLocator),  
-    m_trigDecisionTool ("Trig::TrigDecisionTool/TrigDecisionTool"),
-    m_trigConfigTool("TrigConf::xAODConfigTool/xAODConfigTool"),
+    m_trigConfigTool("TrigConf::xAODConfigTool/xAODConfigTool",this),
+    m_trigDecisionTool ("Trig::TrigDecisionTool/TrigDecisionTool",this),
+    m_trigMatchingTool("Trig::MatchingTool/TrigMatchingTool",this),
     m_grl ("GoodRunsListSelectionTool/grl", this),
     m_jetCleaning ("JetCleaningTool/JetCleaning", this),
     m_muonSelection ("CP::MuonSelectionTool", this),
@@ -33,8 +32,8 @@ ZdcNtuple :: ZdcNtuple (const std::string& name,ISvcLocator *pSvcLocator)
     m_electronLooseEMSelector ("AsgElectronIsEMSelector/ElectronLooseEMSelector",this),
     m_electronMediumEMSelector ("AsgElectronIsEMSelector/ElectronMediumEMSelector",this),
     m_electronLooseLHSelector ("AsgElectronLikelihoodTool/ElectronLooseLHSelector",this),
-    m_electronMediumLHSelector ("AsgElectronLikelihoodTool/ElectronMediumLHSelector",this)//,
-    //m_zdcAnalysisTool("ZdcAnalysisTool",this)
+    m_electronMediumLHSelector ("AsgElectronLikelihoodTool/ElectronMediumLHSelector",this),
+    m_zdcAnalysisTool("ZdcAnalysisTool",this)
     //m_photonLooseIsEMSelector ("AsgPhotonIsEMSelector/PhotonLooseEMSelector",this),
     //m_photonMediumIsEMSelector ("AsgPhotonIsEMSelector/PhotonMediumEMSelector",this)
     //m_isoTool("CP::IsolationSelectionTool/IsolationSelector",this);
@@ -48,13 +47,13 @@ ZdcNtuple :: ZdcNtuple (const std::string& name,ISvcLocator *pSvcLocator)
   m_setupTrigHist = false;
   m_eventCounter = 0;
 
+  declareProperty("isMC",  m_isMC = false, "MC mode");
   declareProperty("enableOutputTree",  enableOutputTree = false, "Enable output tree");
   declareProperty("enableOutputSamples",  enableOutputSamples = false, "comment");
   declareProperty("enableTrigger",  enableTrigger = false, "comment");
   declareProperty("writeOnlyTriggers",  writeOnlyTriggers = false, "comment");
   declareProperty("useGRL",  useGRL = true, "comment");
   declareProperty("grlFilename",  grlFilename = "$ROOTCOREBIN/data/ZdcNtuple/data16_hip8TeV.periodAllYear_DetStatus-v86-pro20-19_DQDefects-00-02-04_PHYS_HeavyIonP_All_Good.xml", "comment");
-  declareProperty("debug",  debug = false, "comment");
   declareProperty("slimmed",  slimmed = false, "comment");
   declareProperty("zdcCalib",  zdcCalib = false, "comment");
   declareProperty("zdcLaser",  zdcLaser = false, "comment");
@@ -86,7 +85,9 @@ ZdcNtuple :: ZdcNtuple (const std::string& name,ISvcLocator *pSvcLocator)
   declareProperty("express2016B",  express2016B = false, "comment");
   declareProperty("upc2016B",  upc2016B = false, "comment");
   declareProperty("upc2016C",  upc2016C = false, "comment");
+  declareProperty("upc2018",  upc2018 = false, "comment");
   declareProperty("mboverlay2016",  mboverlay2016 = false, "comment");
+  m_zdcAnalysisTool.declarePropertyFor (this, "zdcAnalysisTool");
   
   m_jetContainerNames.clear();
   // m_jetContainerNames.push_back("AntiKt4HIJets");
@@ -141,7 +142,7 @@ StatusCode ZdcNtuple :: setupJob (EL::Job& job)
 */
 
 
-StatusCode ZdcNtuple :: histInitialize ()
+StatusCode ZdcNtuple :: initialize ()
 {
   // Here you do everything that needs to be done at the very
   // beginning on each worker node, e.g. create histograms and output
@@ -150,7 +151,7 @@ StatusCode ZdcNtuple :: histInitialize ()
 
   ANA_MSG_INFO("Howdy from histInitialize!");
 
-  char name[50];
+  //char name[50];
 
   if (enableOutputTree)
     {
@@ -206,7 +207,9 @@ StatusCode ZdcNtuple :: histInitialize ()
       m_outputTree->Branch("zdc_sumLG_rp",&t_sumLG_rp,"zdc_sumLG_rp[2]/F");
 
       m_outputTree->Branch("zdc_ZdcAmp",&t_ZdcAmp,"zdc_ZdcAmp[2]/F");
+      m_outputTree->Branch("zdc_ZdcAmpErr",&t_ZdcAmpErr,"zdc_ZdcAmpErr[2]/F");
       m_outputTree->Branch("zdc_ZdcEnergy",&t_ZdcEnergy,"zdc_ZdcEnergy[2]/F");
+      m_outputTree->Branch("zdc_ZdcEnergyErr",&t_ZdcEnergyErr,"zdc_ZdcEnergyErr[2]/F");
       m_outputTree->Branch("zdc_ZdcTime",&t_ZdcTime,"zdc_ZdcTime[2]/F");
       m_outputTree->Branch("zdc_ZdcStatus",&t_ZdcStatus,"zdc_ZdcStatus[2]/S");
       m_outputTree->Branch("zdc_ZdcTrigEff",&t_ZdcTrigEff,"zdc_ZdcTrigEff[2]/F");
@@ -550,36 +553,7 @@ StatusCode ZdcNtuple :: histInitialize ()
 
   ANA_MSG_INFO("Anti-howdy from histInitialize!");
 
-  return StatusCode::SUCCESS;
-}
 
-
-/*
-StatusCode ZdcNtuple :: fileExecute ()
-{
-  // Here you do everything that needs to be done exactly once for every
-  // single file, e.g. collect a list of all lumi-blocks processed
-  return StatusCode::SUCCESS;
-}
-*/
-
-
-/*
-StatusCode ZdcNtuple :: changeInput (bool firstFile)
-{
-  // Here you do everything you need to do when we change input files,
-  // e.g. resetting branch addresses on trees.  If you are using
-  // D3PDReader or a similar service this method is not needed.
-  if (firstFile)
-    {
-      ANA_MSG_INFO("changeInput()","firstFile=true!");
-    }
-  return StatusCode::SUCCESS;
-}
-*/
-
-StatusCode ZdcNtuple :: initialize ()
-{
   // Here you do everything that you need to do after the first input
   // file has been connected and before the first event is processed,
   // e.g. create additional histograms based on which variables are
@@ -608,7 +582,7 @@ StatusCode ZdcNtuple :: initialize ()
   if (auxSuffix != "") auxSuffix = "_" + auxSuffix; // prepend "_"
 
   //xAOD::TEvent* event = wk()->xaodEvent();
-  if (debug) ANA_MSG_INFO("initialize: Initialize!");
+  ANA_MSG_DEBUG("initialize: Initialize!");
 
   // Event
   ANA_CHECK(evtStore()->retrieve( m_eventInfo, "EventInfo"));  
@@ -616,7 +590,9 @@ StatusCode ZdcNtuple :: initialize ()
   if (enableTrigger)
     {
       // Trigger
+      ANA_MSG_INFO("Initializing trigConfigTool");
       ANA_CHECK (m_trigConfigTool.initialize());
+      ANA_MSG_INFO("Initializing trigDecisionTool");
       ANA_CHECK (m_trigDecisionTool.setProperty ("ConfigTool", m_trigConfigTool.getHandle())); // connect the TrigDecisionTool to the ConfigTool
       ANA_CHECK (m_trigDecisionTool.setProperty ("TrigDecisionKey", "xTrigDecision"));
       ANA_CHECK (m_trigDecisionTool.initialize());
@@ -691,7 +667,7 @@ StatusCode ZdcNtuple :: initialize ()
   if (enableTrigger)
     {
 
-      if (!upc2015 && !mb2015 && !upcL2015)
+      if (!upc2015 && !mb2015 && !upcL2015 && !upc2018)
 	{
 	  m_muon_triggers.push_back("HLT_mu15_L1MU10");
 	  m_muon_triggers.push_back("HLT_mu20_L1MU15");
@@ -705,6 +681,18 @@ StatusCode ZdcNtuple :: initialize ()
 	  m_ph_triggers.push_back("HLT_g35_loose");
 	}
 
+      if (upc2018)
+	{
+	  m_muon_triggers.push_back("HLT_mu4_L1MU4_VTE50");
+	  m_muon_triggers.push_back("HLT_mu4_L1MU4_VZDC_AORC_VTE200");
+	  m_muon_triggers.push_back("HLT_mu6_L1MU4_VTE50");
+	  m_muon_triggers.push_back("HLT_mu8_L1MU6_VTE50");
+	  m_muon_triggers.push_back("HLT_mu4_hi_upc_FgapAC3_L1MU4_VTE50");
+	}
+
+      ANA_MSG_INFO("Initializing trig matching tool");
+      ANA_CHECK(m_trigMatchingTool.setProperty("TrigDecisionTool", m_trigDecisionTool.getHandle())); 
+      ANA_CHECK(m_trigMatchingTool.initialize());           
       /*
       m_muonTrigMatchTool = new Trig::TrigMuonMatching("MuonTrigMatchTool");
       ANA_CHECK(m_muonTrigMatchTool->setProperty("TriggerTool",trigDecisionHandle));
@@ -827,11 +815,26 @@ StatusCode ZdcNtuple :: initialize ()
   //m_zdcRecTool = new ZDC::ZdcRecTool("ZdcRecTool");
   if (reprocZdc)
     {
-      m_zdcAnalysisTool = new ZDC::ZdcAnalysisTool("ZdcAnalysisTool");
-      m_zdcAnalysisTool->setProperty("FlipEMDelay",flipDelay);
-      m_zdcAnalysisTool->setProperty("LowGainOnly",zdcLowGainOnly);
-      m_zdcAnalysisTool->setProperty("ForceCalibRun",-1);
-      m_zdcAnalysisTool->setProperty("AuxSuffix",auxSuffix);
+      m_zdcAnalysisTool.setProperty("Configuration","PbPb2018");
+      m_zdcAnalysisTool.setProperty("FlipEMDelay",flipDelay);
+      m_zdcAnalysisTool.setProperty("LowGainOnly",zdcLowGainOnly);
+      m_zdcAnalysisTool.setProperty("ForceCalibRun",-1);
+      //m_zdcAnalysisTool.setProperty("T0",68);
+      m_zdcAnalysisTool.setProperty("AuxSuffix",auxSuffix);
+      m_zdcAnalysisTool.setProperty("DoCalib",false);
+      if (flipDelay) 
+	ANA_MSG_INFO("FLIP ZDC DELAY IN EM MODULES");
+      else
+	ANA_MSG_INFO("NO FLIP ZDC DELAY IN EM MODULES");
+      ANA_CHECK(m_zdcAnalysisTool.initialize());
+
+      /*
+      m_zdcAnalysisTool.setProperty("Configuration","PbPb2018");
+      m_zdcAnalysisTool.setProperty("FlipEMDelay",flipDelay);
+      m_zdcAnalysisTool.setProperty("LowGainOnly",zdcLowGainOnly);
+      m_zdcAnalysisTool.setProperty("ForceCalibRun",-1);
+      m_zdcAnalysisTool.setProperty("AuxSuffix",auxSuffix);
+      m_zdcAnalysisTool.setProperty("DoCalib",false);
       if (flipDelay) 
 	ANA_MSG_INFO("FLIP ZDC DELAY IN EM MODULES");
       else
@@ -839,6 +842,8 @@ StatusCode ZdcNtuple :: initialize ()
       
       ANA_CHECK(m_zdcAnalysisTool->initialize());
       ANA_MSG_INFO( "ZDC analysis tool initialized?");
+      */
+
     }
 
 
@@ -853,11 +858,33 @@ StatusCode ZdcNtuple :: initialize ()
   // as a check, let's see the number of events in our xAOD
   //ANA_MSG_INFO( "Number of events = "<< evtStore()->getEntries() ); // print long long int
 
-  ANA_MSG_INFO("trying to run histInitialize!");
-  histInitialize();
-
   return StatusCode::SUCCESS;
 }
+
+
+/*
+StatusCode ZdcNtuple :: fileExecute ()
+{
+  // Here you do everything that needs to be done exactly once for every
+  // single file, e.g. collect a list of all lumi-blocks processed
+  return StatusCode::SUCCESS;
+}
+*/
+
+
+/*
+StatusCode ZdcNtuple :: changeInput (bool firstFile)
+{
+  // Here you do everything you need to do when we change input files,
+  // e.g. resetting branch addresses on trees.  If you are using
+  // D3PDReader or a similar service this method is not needed.
+  if (firstFile)
+    {
+      ANA_MSG_INFO("changeInput()","firstFile=true!");
+    }
+  return StatusCode::SUCCESS;
+}
+*/
 
 
 StatusCode ZdcNtuple :: execute ()
@@ -882,18 +909,23 @@ StatusCode ZdcNtuple :: execute ()
  
   if (!m_setupTrigHist) setupTriggerHistos();
 
- if (!(zdcCalib||zdcLaser))
+  //tracks used to go here
+
+  m_trackParticles=0;
+
+  if (!(zdcCalib||zdcLaser))
     {
-      ANA_MSG_INFO("Trying to extract InDetTrackParticles from evtStore()=" << evtStore());
+      ANA_MSG_DEBUG("Trying to extract InDetTrackParticles from evtStore()=" << evtStore());
       ANA_CHECK(evtStore()->retrieve( m_trackParticles, "InDetTrackParticles") );
-      ANA_MSG_INFO("Done w/ extracting InDetTrackParticles");
       size_t n = m_trackParticles->size();
+      ANA_MSG_DEBUG("Done w/ extracting InDetTrackParticles with size = " << n);
+      
       if (n>trackLimit && trackLimitReject)  return StatusCode::SUCCESS;
     }
 
 
   bool passTrigger = true;
-
+  m_trigDecision=0;
   if (enableTrigger)
     {
       ANA_CHECK(evtStore()->retrieve( m_trigDecision, "xTrigDecision"));  
@@ -907,12 +939,12 @@ StatusCode ZdcNtuple :: execute ()
 	  m_zdcAnalysisTool->reprocessZdc();
 	}
       else
-	if (debug) std::cout << "No reprocessing" << std::endl;
+	ANA_MSG_DEBUG ("No reprocessing");
 
       m_zdcSums=0;
       ANA_CHECK( evtStore()->retrieve( m_zdcSums, "ZdcSums"+auxSuffix) );      
 
-      m_zdcModules;
+      m_zdcModules=0;
       ANA_CHECK(evtStore()->retrieve( m_zdcModules, "ZdcModules" ) ); // ZDC modules keep same name, but the aux data get different suffix during reprocessing
 
       processModules();
@@ -936,10 +968,12 @@ StatusCode ZdcNtuple :: execute ()
       ANA_CHECK(evtStore()->retrieve( m_caloSums, "CaloSums") );
       ANA_CHECK(evtStore()->retrieve( m_eventShapes, "HIEventShape") );
       m_TTeventShapes = 0;
+      /*
       if (t_runNumber>312000)
 	{
 	  ANA_CHECK(evtStore()->retrieve( m_TTeventShapes, "HLT_xAOD__HIEventShapeContainer_HIFCAL") );
 	}
+      */
 
       m_lvl1EnergySumRoI = 0;
       ANA_CHECK(evtStore()->retrieve( m_lvl1EnergySumRoI,"LVL1EnergySumRoI") );
@@ -999,12 +1033,10 @@ StatusCode ZdcNtuple :: execute ()
   if (enableTrigger && !passTrigger && !m_isMC && writeOnlyTriggers) return StatusCode::SUCCESS;
 
   // if tree is enabled, write it out
-  /*
   if (t_ZdcTrigEff[0]<0 || t_ZdcTrigEff[1]<0)
-    {
-      std::cout << "Negative trigger efficiencies for Run/LB/Event=" << t_runNumber << "/" << t_lumiBlock << "/" << t_eventNumber << std::endl;
-    }
-  */
+  {
+    ANA_MSG_VERBOSE ("Negative trigger efficiencies for Run/LB/Event=" << t_runNumber << "/" << t_lumiBlock << "/" << t_eventNumber);
+  }
 
   if (enableOutputTree)
     {
@@ -1018,16 +1050,14 @@ StatusCode ZdcNtuple :: execute ()
 void ZdcNtuple::processZdcNtupleFromModules()
 {
 
-  if (debug) ANA_MSG_INFO( "copying already processed info!" );
+  ANA_MSG_DEBUG ("copying already processed info!");
   if (m_zdcSums)
     {
       
-      if (debug) std::cout << "Sum 0 = " << m_zdcSums->at(0)->auxdataConst<float>("CalibEnergy") 
-		<< ", Sum 1 = " << m_zdcSums->at(1)->auxdataConst<float>("CalibEnergy")
-		<< std::endl;
-      if (debug) std::cout << "Final 0 = " << m_zdcSums->at(0)->auxdataConst<float>("FinalEnergy") 
-		<< ", Final 1 = " << m_zdcSums->at(1)->auxdataConst<float>("FinalEnergy")
-		<< std::endl;
+      ANA_MSG_DEBUG ("Sum 0 = " << m_zdcSums->at(0)->auxdataConst<float>("CalibEnergy") 
+                     << ", Sum 1 = " << m_zdcSums->at(1)->auxdataConst<float>("CalibEnergy"));
+      ANA_MSG_DEBUG ("Final 0 = " << m_zdcSums->at(0)->auxdataConst<float>("FinalEnergy") 
+                     << ", Final 1 = " << m_zdcSums->at(1)->auxdataConst<float>("FinalEnergy"));
       
     }
   else
@@ -1050,7 +1080,7 @@ void ZdcNtuple::processZdcNtupleFromModules()
 
   if (m_zdcSums)
     {
-      if (debug) ANA_MSG_INFO( "accessing ZdcSums" );
+      ANA_MSG_DEBUG( "accessing ZdcSums" );
       for (const auto zdcSum : *m_zdcSums)
 	{
 	  int iside = 0;
@@ -1060,7 +1090,12 @@ void ZdcNtuple::processZdcNtupleFromModules()
 	  //t_ZdcEnergy[iside] = acc(*zdcSum);
 	  
 	  t_ZdcEnergy[iside] = zdcSum->auxdataConst<float>("CalibEnergy");
-	  //if (debug) ANA_MSG_INFO("processZdcNtupleFromModules","ZdcSum energy = %6.2f",t_ZdcEnergy[iside]);
+	  t_ZdcEnergyErr[iside] = zdcSum->auxdataConst<float>("CalibEnergyErr");
+
+	  t_ZdcAmp[iside] = zdcSum->auxdataConst<float>("UncalibSum");
+	  t_ZdcAmpErr[iside] = zdcSum->auxdataConst<float>("UncalibSumErr");
+	  
+	  ANA_MSG_VERBOSE("processZdcNtupleFromModules: ZdcSum energy = " << t_ZdcEnergy[iside]);
 	  
 	  t_ZdcTime[iside] = zdcSum->auxdataConst<float>("AverageTime");
 	  t_ZdcStatus[iside] = zdcSum->auxdataConst<unsigned int>("Status");
@@ -1068,7 +1103,7 @@ void ZdcNtuple::processZdcNtupleFromModules()
 	}
     }
 
-  if (debug) ANA_MSG_INFO(  "accessing ZdcModules" );
+  ANA_MSG_DEBUG(  "accessing ZdcModules" );
   if (m_zdcModules)
     {
       for (const auto zdcMod : *m_zdcModules)
@@ -1077,7 +1112,7 @@ void ZdcNtuple::processZdcNtupleFromModules()
 	  if (zdcMod->side()>0) iside=1;
 	  int imod = zdcMod->zdcModule();
 	  
-	  //if (debug) std::cout << "Module " << zdcMod->side() << " " << zdcMod->zdcModule() << " amp:" << zdcMod->auxdataConst<float>("Amplitude") << std::endl;
+	  ANA_MSG_VERBOSE ("Module " << zdcMod->side() << " " << zdcMod->zdcModule() << " amp:" << zdcMod->auxdataConst<float>("Amplitude"));
 	  
 	  if (zdcMod->type()!=0) continue;
 	  
@@ -1103,21 +1138,18 @@ void ZdcNtuple::processZdcNtupleFromModules()
       ANA_MSG_INFO("No ZdcModules" << auxSuffix << " when expected!");
     }
 
-  /*
-  if (debug)
+  if (msgLvl (MSG::VERBOSE))
+  {
+    std::ostringstream message;
+    message << "Dump zdc_ZdcModuleAmp: ";
+    for (int iside=0;iside<2;iside++)
     {
-      std::cout << "Dump zdc_ZdcModuleAmp: ";
-      for (int iside=0;iside<2;iside++)
-	{
-	  for (int imod=0;imod<4;imod++)
-	    {
-	      std::cout << t_ZdcModuleAmp[iside][imod] << " ";
-	    }
-	}      
-      std::cout << std::endl;
-    }
-  */
-
+      for (int imod=0;imod<4;imod++)
+      {
+        message << t_ZdcModuleAmp[iside][imod] << " ";
+      }
+    }      
+  }
 }
 
 /*
@@ -1128,12 +1160,10 @@ void ZdcNtuple::processZdcNtuple()
   
   if (m_zdcSums)
     {
-      if (debug) std::cout << "Sum 0 = " << m_zdcSums->at(0)->auxdataConst<float>("CalibEnergy") 
-		<< ", Sum 1 = " << m_zdcSums->at(1)->auxdataConst<float>("CalibEnergy")
-		<< std::endl;
-      if (debug) std::cout << "Final 0 = " << m_zdcSums->at(0)->auxdataConst<float>("FinalEnergy") 
-		<< ", Final 1 = " << m_zdcSums->at(1)->auxdataConst<float>("FinalEnergy")
-		<< std::endl;
+      ANA_MSG_DEBUG ("Sum 0 = " << m_zdcSums->at(0)->auxdataConst<float>("CalibEnergy") 
+		<< ", Sum 1 = " << m_zdcSums->at(1)->auxdataConst<float>("CalibEnergy"));
+      ANA_MSG_DEBUG ("Final 0 = " << m_zdcSums->at(0)->auxdataConst<float>("FinalEnergy") 
+		<< ", Final 1 = " << m_zdcSums->at(1)->auxdataConst<float>("FinalEnergy"));
     }
   else
     {
@@ -1185,18 +1215,18 @@ void ZdcNtuple::processZdcNtuple()
 	  t_ZdcTrigEff[iside] = m_zdcAnalysisTool->getTriggerEfficiency(iside);
 	  if (t_ZdcTrigEff[iside]<0) 
 	    {
-	      std::cout << "LB/event=" << t_lumiBlock << "/" << t_eventNumber << "  Trigger efficiency  " << iside << " == " << t_ZdcTrigEff[iside] << std::endl;
+	      ANA_MSG_INFO ("LB/event=" << t_lumiBlock << "/" << t_eventNumber << "  Trigger efficiency  " << iside << " == " << t_ZdcTrigEff[iside]);
 	    }
 	}
     }
 
-  if (debug) std::cout << "Tool Sum 0 = " << t_ZdcEnergy[0] << " Sum 1 = " << t_ZdcEnergy[1] << std::endl;
+  ANA_MSG_DEBUG ("Tool Sum 0 = " << t_ZdcEnergy[0] << " Sum 1 = " << t_ZdcEnergy[1]);
 }
 */
 
 bool ZdcNtuple::processTriggerDecision()
 {
-  if (debug) ANA_MSG_INFO( "Processing trigger");
+  ANA_MSG_DEBUG ("Processing trigger");
 
   bool passTrigger = false;
 
@@ -1270,7 +1300,7 @@ bool ZdcNtuple::processTriggerDecision()
 
 void ZdcNtuple::processEventInfo()
 {
-  if (debug) ANA_MSG_INFO( "processing event info");
+  ANA_MSG_DEBUG( "processing event info");
 
   t_bcid = m_eventInfo->bcid();
   t_runNumber = m_eventInfo->runNumber();
@@ -1288,7 +1318,7 @@ void ZdcNtuple::processEventInfo()
     }   
 
 
-  if ( !(m_eventCounter++%1000) || debug)
+  if ( !(m_eventCounter++%1000) || msgLvl(MSG::DEBUG))
     {
       ANA_MSG_INFO("Event# " << m_eventCounter << "Run " << m_eventInfo->runNumber() << " Event " << m_eventInfo->eventNumber() << " LB " << m_eventInfo->lumiBlock() );
     }
@@ -1297,7 +1327,7 @@ void ZdcNtuple::processEventInfo()
 
 void ZdcNtuple::processFCal()
 {
-  if (debug) ANA_MSG_INFO("processFCal: processing FCal");
+  ANA_MSG_DEBUG("processFCal: processing FCal");
 
   t_fcalEt = 0.;
   t_fcalEtA = 0.;
@@ -1310,13 +1340,13 @@ void ZdcNtuple::processFCal()
       if (name=="FCal")
 	{
 	  t_fcalEt = calosum->et();
-	  if (debug) ANA_MSG_INFO("processFCal: fcalEt = " << t_fcalEt);
+	  ANA_MSG_DEBUG("processFCal: fcalEt = " << t_fcalEt);
 	}
 
       if (name=="All")
 	{
 	  t_totalEt = calosum->et();
-	  if (debug) ANA_MSG_INFO("processFCal: totalEt = " << t_totalEt);
+	  ANA_MSG_DEBUG("processFCal: totalEt = " << t_totalEt);
 	}
     }
 
@@ -1346,6 +1376,7 @@ void ZdcNtuple::processFCal()
       //t_L1ET24 = m_lvl1EnergySumRoI->energyTRestricted();
     }  
 
+  /*
   if (m_TTeventShapes)
     {
       for (const auto eventShape : *m_TTeventShapes) 
@@ -1360,13 +1391,14 @@ void ZdcNtuple::processFCal()
 	    }
 	}      
     }
+  */
 
   return;
 }
 
 void ZdcNtuple::processJets()
 {
-  if (debug) ANA_MSG_INFO("processJets: processing Jets");
+  ANA_MSG_DEBUG("processJets: processing Jets");
 
   for (size_t ijet =0;ijet<m_jetContainerNames.size();ijet++)
     {
@@ -1434,7 +1466,7 @@ void ZdcNtuple::processJets()
 
 int ZdcNtuple::processMuons()
 {
-  if (debug) ANA_MSG_INFO("processMuons: processing Muons");
+  ANA_MSG_DEBUG("processMuons: processing Muons");
 
   t_muroi_eta.clear();
   t_muroi_phi.clear();
@@ -1601,6 +1633,9 @@ int ZdcNtuple::processMuons()
 	      for (size_t imutr=0;imutr<m_muon_triggers.size();imutr++)
 		{
 		  uint8_t muon_HLT_match = 0;
+
+		  muon_HLT_match = m_trigMatchingTool->match(*muon,m_muon_triggers.at(imutr));
+
 		  /*
 		  if (m_muonTrigMatchTool)
 		    {
@@ -1871,7 +1906,7 @@ int ZdcNtuple::processMuons()
       if (t_nmuon>1 && enableMuons)
 	{
 
-	  if (debug) ANA_MSG_INFO("processMuons(): processing dimuons from " << t_nmuon << " muons, size =" << m_muons->size());
+	  ANA_MSG_DEBUG("processMuons(): processing dimuons from " << t_nmuon << " muons, size =" << m_muons->size());
       
 	  for (int imu0=0;imu0<t_nmuon-1;imu0++)
 	    {
@@ -1887,7 +1922,7 @@ int ZdcNtuple::processMuons()
 		  t_dimuon_phi.push_back(dimu.Phi());
 		  t_dimuon_pt.push_back(dimu.Pt());
 		  std::pair<Bool_t,Bool_t> result1, result2; 
-		  if (debug) ANA_MSG_INFO("processMuons(): processing dimuon pair trigger match for " << imu0 << " " << imu1);
+		  ANA_MSG_DEBUG("processMuons(): processing dimuon pair trigger match for " << imu0 << " " << imu1);
 		  for (size_t idimutr=0;idimutr<m_dimuon_triggers.size();idimutr++)
 		    {
 		      /*
@@ -1905,7 +1940,7 @@ int ZdcNtuple::processMuons()
 		    }
 		}
 	    }
-	  if (debug) ANA_MSG_INFO("processMuons(): finished processing dimuons");
+	  ANA_MSG_DEBUG("processMuons(): finished processing dimuons");
 	}
 
 
@@ -2048,7 +2083,7 @@ void ZdcNtuple::processTruthMuons()
 
 void ZdcNtuple::processPhotons()
 {
-  if (debug) ANA_MSG_INFO("processPhotons(): Processing photons!");
+  ANA_MSG_DEBUG("processPhotons(): Processing photons!");
 
   t_ph_author.clear();
   t_ph_conv.clear();
@@ -2129,7 +2164,7 @@ void ZdcNtuple::processPhotons()
 
 void ZdcNtuple::processElectrons()
 {
-  if (debug) ANA_MSG_INFO("processElectrons(): Processing electrons!");
+  ANA_MSG_DEBUG("processElectrons(): Processing electrons!");
 
   t_el_author.clear();
   t_el_oq.clear();
@@ -2252,7 +2287,7 @@ void ZdcNtuple::processTriggerTowers()
 
   if (m_TTcontainer)
     {
-      if (debug) ANA_MSG_INFO("processTriggerTowers(): size = %zd, " << m_TTcontainer->size() << " TTsums before: %f %f" << t_fcalEtA_TTsum << " " << t_fcalEtC_TTsum);
+      ANA_MSG_DEBUG("processTriggerTowers(): size = %zd, " << m_TTcontainer->size() << " TTsums before: %f %f" << t_fcalEtA_TTsum << " " << t_fcalEtC_TTsum);
       
       for (const auto tt: *m_TTcontainer)
 	{
@@ -2274,7 +2309,7 @@ void ZdcNtuple::processTriggerTowers()
 	}
     }
   
-  if (debug) ANA_MSG_INFO("processTriggerTowers(): TTsums after: " <<  t_fcalEtA_TTsum << " " <<  t_fcalEtC_TTsum);
+  ANA_MSG_DEBUG("processTriggerTowers(): TTsums after: " <<  t_fcalEtA_TTsum << " " <<  t_fcalEtC_TTsum);
   
 }
 
@@ -2295,7 +2330,7 @@ void ZdcNtuple::processGaps()
       float sig = cl->getMomentValue(xAOD::CaloCluster::CELL_SIGNIFICANCE);
       int cl_cell_sig_samp=static_cast<int>(cl->getMomentValue(xAOD::CaloCluster::CELL_SIG_SAMPLING));
 
-      //if (debug) std::cout << "gapclus: etabin " << etabin << " sig_cut=" << sig_cut << " sig=" << sig << " samp=" << cl_cell_sig_samp << std::endl;
+      ANA_MSG_VERBOSE ("gapclus: etabin " << etabin << " sig_cut=" << sig_cut << " sig=" << sig << " samp=" << cl_cell_sig_samp);
 
       if(sig < sig_cut) continue;
 
@@ -2308,13 +2343,13 @@ void ZdcNtuple::processGaps()
 
   t_edgeGapA = 4.9 - eta_max;
   t_edgeGapC = eta_min + 4.9;
-  if (debug) ANA_MSG_INFO("processGaps(): egA " << t_edgeGapA << " , egC " << t_edgeGapC);
+  ANA_MSG_DEBUG("processGaps(): egA " << t_edgeGapA << " , egC " << t_edgeGapC);
 
 }
 
 void ZdcNtuple::processMBTS()
 {
-  if (debug) ANA_MSG_INFO("processMBTS: trying to process!");
+  ANA_MSG_DEBUG("processMBTS: trying to process!");
   t_mbts_countA = 0;
   t_mbts_countC = 0;
   t_T2mbts_countAin = 0;
@@ -2354,7 +2389,7 @@ void ZdcNtuple::processMBTS()
 	}
     }
 
-  if (debug) std::cout << "filling MBTS" << std::endl;
+  ANA_MSG_DEBUG ("filling MBTS");
 
   if (m_mbtsModules==0)
     {
@@ -2413,7 +2448,7 @@ void ZdcNtuple::processMBTS()
 	    }
 	  int iside = (side==0) ? 1 : 0; // code maps side 1 into first 16 bits and side -1 into second set
 
-	  //std::cout << "imbts=" << imbts << " isInner=" << isInner << " iside=" << iside << " index=" << index << " e=" << energies.at(imbts) << " t=" << times.at(imbts) << std::endl;
+          ANA_MSG_VERBOSE ("imbts=" << imbts << " isInner=" << isInner << " iside=" << iside << " index=" << index << " e=" << energies.at(imbts) << " t=" << times.at(imbts));
 	  if (isInner)
 	    {
 	      t_T2mbts_in_e[iside][index] = energies.at(imbts);
@@ -2437,7 +2472,7 @@ void ZdcNtuple::processMBTS()
 
 void ZdcNtuple::processInDet()
 {
-  if (debug) ANA_MSG_INFO("processInDet(): processing tracks & vertices!");
+  ANA_MSG_DEBUG("processInDet(): processing tracks & vertices!");
   t_ntrk = 0;
   t_nvx = 0;
   t_vxntrk = 0;
@@ -2475,7 +2510,7 @@ void ZdcNtuple::processInDet()
 
   if (m_primaryVertices)
     {
-      if (debug) ANA_MSG_INFO("processInDet: processing vertices");
+      ANA_MSG_DEBUG("processInDet: processing vertices");
 
       t_nvx = m_primaryVertices->size();
 
@@ -2606,7 +2641,7 @@ void ZdcNtuple::processInDet()
   
   if (m_trackParticles)
     {
-      if (debug) ANA_MSG_INFO("processInDet: processing trackss");
+      ANA_MSG_DEBUG("processInDet: processing trackss");
 
       t_trk_pt.clear();
       t_trk_eta.clear();
@@ -2711,6 +2746,9 @@ void ZdcNtuple::writeTrack(const xAOD::TrackParticle* track,const xAOD::Vertex* 
 int ZdcNtuple::trackQuality(const xAOD::TrackParticle* track, const xAOD::Vertex* vertex)
 {
   // Code from Soumya
+
+  // dummy
+  if (vertex){}
 
   if (!track) return -1;
 
@@ -2860,10 +2898,10 @@ void ZdcNtuple::processClusters()
 	}
 
       double cell_sig = 0;
-      if (!cluster->retrieveMoment(xAOD::CaloCluster::CELL_SIGNIFICANCE,cell_sig)){ANA_MSG_INFO("processClusters() : No CELL_SIGNIFICANCE!");}
+      if (!cluster->retrieveMoment(xAOD::CaloCluster::CELL_SIGNIFICANCE,cell_sig)){ANA_MSG_DEBUG("processClusters() : No CELL_SIGNIFICANCE!");}
       t_cc_sig.push_back(cell_sig);
       double cell_layer = 0;
-      if (!cluster->retrieveMoment(xAOD::CaloCluster::CELL_SIG_SAMPLING,cell_layer)){ANA_MSG_INFO("processClusters() : No CELL_SIG_SAMPLING!");}
+      if (!cluster->retrieveMoment(xAOD::CaloCluster::CELL_SIG_SAMPLING,cell_layer)){ANA_MSG_DEBUG("processClusters() : No CELL_SIG_SAMPLING!");}
       t_cc_layer.push_back(int(cell_layer));
       //t_nclus++;
     }
@@ -2883,14 +2921,14 @@ void ZdcNtuple::processClusters()
     }
   else
     {
-      if (debug) ANA_MSG_INFO("processClusters(): keeping clusters");
+      ANA_MSG_DEBUG("processClusters(): keeping clusters");
     }
   return;
 }
 
 void ZdcNtuple::processModules()
 {
-  if (debug) ANA_MSG_INFO("processModules: processing ZDC modules");
+  ANA_MSG_DEBUG("processModules: processing ZDC modules");
 
   // make shallow copy
 
@@ -2922,7 +2960,7 @@ void ZdcNtuple::processModules()
 	      ANA_MSG_INFO("execute: Integrity check failed, bigtube channel!=0");
 	      continue;
 	    }
-	  int h_index = side_index*4 + zdcmod->zdcModule();
+	  //int h_index = side_index*4 + zdcmod->zdcModule();
 
 	  t_amp[side_index][mod_index] = zdcmod->amplitude();
 	  t_time[side_index][mod_index] = zdcmod->time();
@@ -2967,12 +3005,11 @@ void ZdcNtuple::processModules()
 			  t_raw7[side_index][mod_index][0][1][isamp] = (*(zdcmod->TTg0d1Link()))->adc().at(isamp);
 			  t_raw7[side_index][mod_index][1][0][isamp] = (*(zdcmod->TTg1d0Link()))->adc().at(isamp);
 			  t_raw7[side_index][mod_index][1][1][isamp] = (*(zdcmod->TTg1d1Link()))->adc().at(isamp);
-			  if (debug) std::cout << side_index << " " << mod_index << " " 
+			  ANA_MSG_DEBUG (side_index << " " << mod_index << " " 
 					       << t_raw7[side_index][mod_index][0][0][isamp] << " "
 					       << t_raw7[side_index][mod_index][0][1][isamp] << " "
 					       << t_raw7[side_index][mod_index][1][0][isamp] << " "
-					       << t_raw7[side_index][mod_index][1][1][isamp] << " "
-					       << std::endl;
+                                         << t_raw7[side_index][mod_index][1][1][isamp] << " ");
 			}
 
 		      if (nsamplesZdc==15)
@@ -2997,26 +3034,25 @@ void ZdcNtuple::processModules()
   t_sumLG_rp[0] = sum_C_LG_reproc;
   t_sumLG_rp[1] = sum_A_LG_reproc;
 
-  /*
-  // test code for reprocessing tool
-  float checkSumLG_A_mf = ZDC::getAmplitudeSumG0(m_zdcModules,ZDC::sideA,"_mf");
-  float checkSumLG_C_mf = ZDC::getAmplitudeSumG0(m_zdcModules,ZDC::sideC,"_mf");
-  float checkSumLG_A_pf = ZDC::getAmplitudeSumG0(m_zdcModules,ZDC::sideA,"_pf");
-  float checkSumLG_C_pf = ZDC::getAmplitudeSumG0(m_zdcModules,ZDC::sideC,"_pf");
-  float checkSumLG_A_si = ZDC::getAmplitudeSumG0(m_zdcModules,ZDC::sideA,"_si");
-  float checkSumLG_C_si = ZDC::getAmplitudeSumG0(m_zdcModules,ZDC::sideC,"_si");
+  // if (msgLvl (MSG::VERBOSE))
+  // {
+  //   // test code for reprocessing tool
+  //   float checkSumLG_A_mf = ZDC::getAmplitudeSumG0(m_zdcModules,ZDC::sideA,"_mf");
+  //   float checkSumLG_C_mf = ZDC::getAmplitudeSumG0(m_zdcModules,ZDC::sideC,"_mf");
+  //   float checkSumLG_A_pf = ZDC::getAmplitudeSumG0(m_zdcModules,ZDC::sideA,"_pf");
+  //   float checkSumLG_C_pf = ZDC::getAmplitudeSumG0(m_zdcModules,ZDC::sideC,"_pf");
+  //   float checkSumLG_A_si = ZDC::getAmplitudeSumG0(m_zdcModules,ZDC::sideA,"_si");
+  //   float checkSumLG_C_si = ZDC::getAmplitudeSumG0(m_zdcModules,ZDC::sideC,"_si");
 
-  std::cout << "sum_A_LG_reproc=" << sum_A_LG_reproc 
-	    << " checkSumLG_A_mf=" << checkSumLG_A_mf 
-	    << " checkSumLG_A_pf=" << checkSumLG_A_pf 
-	    << " checkSumLG_A_si=" << checkSumLG_A_si
-	    << std::endl;
-  std::cout << "sum_C_LG_reproc=" << sum_C_LG_reproc 
-	    << " checkSumLG_C_mf=" << checkSumLG_C_mf 
-	    << " checkSumLG_C_pf=" << checkSumLG_C_pf 
-	    << " checkSumLG_C_si=" << checkSumLG_C_si
-	    << std::endl;
-  */
+  //   ANA_MSG_VERBOSE ("sum_A_LG_reproc=" << sum_A_LG_reproc 
+  //                    << " checkSumLG_A_mf=" << checkSumLG_A_mf 
+  //                    << " checkSumLG_A_pf=" << checkSumLG_A_pf 
+  //                    << " checkSumLG_A_si=" << checkSumLG_A_si);
+  //   ANA_MSG_VERBOSE ("sum_C_LG_reproc=" << sum_C_LG_reproc 
+  //                    << " checkSumLG_C_mf=" << checkSumLG_C_mf 
+  //                    << " checkSumLG_C_pf=" << checkSumLG_C_pf 
+  //                    << " checkSumLG_C_si=" << checkSumLG_C_si);
+  // }
 
   /*
   xAOD::TStore* store = wk()->xaodStore();
@@ -3031,7 +3067,7 @@ void ZdcNtuple::reprocessZdcModule(const xAOD::ZdcModule* zdcmod, bool flipdelay
 
   float newAmpG0 =  zdcmod->amplitudeG0();
   float newAmpG1 = zdcmod->amplitudeG1();
-  //std::cout << "Old  G0=" << newAmpG0 << " G1=" << newAmpG1 << std::endl;
+  ANA_MSG_VERBOSE ("Old  G0=" << newAmpG0 << " G1=" << newAmpG1);
 
   zdcmod->auxdecor<float>("amplitudeG0_reproc") = newAmpG0;
   zdcmod->auxdecor<float>("amplitudeG1_reproc") = newAmpG1;
@@ -3052,7 +3088,7 @@ void ZdcNtuple::reprocessZdcModule(const xAOD::ZdcModule* zdcmod, bool flipdelay
   
   newAmpG0 = maxv0 - v0.at(0);
   newAmpG1 = maxv1 - v1.at(0);
-  //std::cout << "Flip G0=" << newAmpG0 << " G1=" << newAmpG1 << std::endl;
+  ANA_MSG_VERBOSE ("Flip G0=" << newAmpG0 << " G1=" << newAmpG1);
 
   zdcmod->auxdecor<float>("amplitudeG0_reproc") = newAmpG0;
   zdcmod->auxdecor<float>("amplitudeG1_reproc") = newAmpG1;
@@ -3106,6 +3142,7 @@ void ZdcNtuple::setupTriggerHistos()
   bool limitedupc_triggers = upcL2015 &&!(zdcCalib||zdcLaser);
   bool express2016A_triggers = express2016A &&!(zdcCalib||zdcLaser);
   bool upc2016A_triggers = upc2016A &&!(zdcCalib||zdcLaser);
+  bool upc2018_triggers = upc2018 &&!(zdcCalib||zdcLaser);
   //bool main2016A_triggers = main2016A &&!(zdcCalib||zdcLaser);
   bool express2016B_triggers = express2016B &&!(zdcCalib||zdcLaser);
   bool upc2016B_triggers = upc2016B &&!(zdcCalib||zdcLaser);
@@ -3120,6 +3157,7 @@ void ZdcNtuple::setupTriggerHistos()
       triggers.push_back("L1_ZDC_C");
       triggers.push_back("L1_ZDC_AND");
       triggers.push_back("L1_ZDC_A_C");
+      triggers.push_back("L1_MBTS_2");
     }
 
 
@@ -3246,6 +3284,28 @@ void ZdcNtuple::setupTriggerHistos()
       triggers.push_back("HLT_hi_upc_FgapC_j10_0eta490_L1MBTS_2_A");
     }
 
+  if (upc2018_triggers)
+    {
+      triggers.push_back("HLT_mu4_L1MU4_VZDC_AORC_VTE200");
+      triggers.push_back("HLT_mu4_L1MU4_VTE50");
+      triggers.push_back("HLT_2mu4_L12MU4_VTE50");
+      triggers.push_back("HLT_mu4_mu4noL1_L1MU4_VTE50");
+      triggers.push_back("HLT_mu6_L1MU4_VTE50");
+      triggers.push_back("HLT_mu8_L1MU6_VTE50");
+      triggers.push_back("HLT_mb_sptrk_exclusiveloose_vetosp1500_L1VTE20");
+      triggers.push_back("HLT_mb_sptrk_exclusivetight_vetosp1500_L1VTE20");
+      triggers.push_back("HLT_mb_sp_L1VTE50");
+      triggers.push_back("HLT_hi_upc_FgapAC3_mb_sptrk_exclusiveloose2_L12TAU1_VTE50");
+      triggers.push_back("HLT_hi_upc_FgapAC3_mb_sptrk_exclusiveloose2_L12TAU2_VTE200");
+      triggers.push_back("HLT_hi_upc_FgapAC3_mb_sptrk_exclusiveloose1_L1ZDC_XOR_VTE50");
+      triggers.push_back("HLT_hi_upc_FgapAC3_mb_sptrk_exclusiveloose2_L1ZDC_XOR_VTE50");
+      triggers.push_back("HLT_hi_upc_FgapAC3_mb_sptrk_exclusiveloose1_L1MU4_VTE50");
+      triggers.push_back("HLT_hi_upc_FgapAC3_mb_sptrk_exclusiveloose2_L1MU4_VTE50");
+      triggers.push_back("HLT_hi_upc_FgapAC3_mb_sptrk_exclusiveloose2_L1ZDC_A_C_VTE50");
+      triggers.push_back("HLT_hi_upc_FgapAC3_mb_sptrk_exclusiveloose2_L1VZDC_A_C_VTE50");
+      triggers.push_back("HLT_mu4_hi_upc_FgapAC3_L1MU4_VTE50");
+      
+    }
   if (upc2016A_triggers)
     {
       triggers.push_back("HLT_e5_etcut_L1EM3_VZDC_A");
@@ -3759,7 +3819,7 @@ void ZdcNtuple::setupTriggerHistos()
 
   m_setupTrigHist = true;
 
-  if (debug) ANA_MSG_INFO("setupTriggerHistos(): Finished setting up trigger");
+  ANA_MSG_DEBUG("setupTriggerHistos(): Finished setting up trigger");
 
 }
 

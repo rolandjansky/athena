@@ -26,18 +26,17 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
   
  public:
   ZdcAnalysisTool(const std::string& name);
-  virtual ~ZdcAnalysisTool();
+  virtual ~ZdcAnalysisTool() override;
 
   //interface from AsgTool
-  StatusCode initializeTool();
-  StatusCode initialize() {return initializeTool();}
+  StatusCode initialize() override;
   void initialize80MHz();
   void initialize40MHz();
   void initializeTriggerEffs(unsigned int runNumber);
 
-  StatusCode recoZdcModule(const xAOD::ZdcModule& module);
-  StatusCode recoZdcModules(const xAOD::ZdcModuleContainer& moduleContainer);
-  StatusCode reprocessZdc();
+  StatusCode recoZdcModule(const xAOD::ZdcModule& module) override;
+  StatusCode recoZdcModules(const xAOD::ZdcModuleContainer& moduleContainer) override;
+  StatusCode reprocessZdc() override;
 
   // methods for processing, used for decoration
   bool sigprocMaxFinder(const std::vector<unsigned short>& adc, float deltaT, float& amp, float& time, float& qual);
@@ -59,6 +58,11 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
   //float getModuleCalibTime(int side, int imod);
 
   float getCalibModuleSum(int side);
+  float getCalibModuleSumErr(int side);
+
+  float getUncalibModuleSum(int side);
+  float getUncalibModuleSumErr(int side);
+
   float getAverageTime(int side);
   bool  sideFailed(int side);
   unsigned int getModuleMask();
@@ -67,14 +71,14 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
   double getTriggerEfficiencyUncertainty(int side);
   bool m_doTimeCalib;
 
-  const ZDCDataAnalyzer* getDataAnalyzer() {return m_zdcDataAnalyzer;}
+  const ZDCDataAnalyzer* getDataAnalyzer() {return m_zdcDataAnalyzer.get();}
 
  private:
   // Private methods
   //
-  ZDCDataAnalyzer* initializeDefault();
-  ZDCDataAnalyzer* initializepPb2016();
-  ZDCDataAnalyzer* initializePbPb2018();
+  std::unique_ptr<ZDCDataAnalyzer> initializeDefault();
+  std::unique_ptr<ZDCDataAnalyzer> initializepPb2016();
+  std::unique_ptr<ZDCDataAnalyzer> initializePbPb2018();
 
   StatusCode configureNewRun(unsigned int runNumber);
 
@@ -96,10 +100,10 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
   unsigned int m_lumiBlock;
 
   // internal functions
-  TF1* m_tf1SincInterp;
+  std::unique_ptr<TF1> m_tf1SincInterp;
 
   std::string m_zdcModuleContainerName;
-  const xAOD::ZdcModuleContainer* m_zdcModules;
+  const xAOD::ZdcModuleContainer* m_zdcModules {nullptr};
   bool m_flipEMDelay;
   bool m_lowGainOnly;
   bool m_combineDelay;
@@ -123,17 +127,15 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
   float m_deltaTCut;
   float m_ChisqRatioCut;
 
-  std::array<std::array<TSpline*, 4>, 2> m_splines;
-
-  ZDCDataAnalyzer* m_zdcDataAnalyzer;
-  ZDCDataAnalyzer* m_zdcDataAnalyzer_40MHz;
-  ZDCDataAnalyzer* m_zdcDataAnalyzer_80MHz;
+  std::shared_ptr<ZDCDataAnalyzer> m_zdcDataAnalyzer;
+  std::shared_ptr<ZDCDataAnalyzer> m_zdcDataAnalyzer_40MHz;
+  std::shared_ptr<ZDCDataAnalyzer> m_zdcDataAnalyzer_80MHz;
   ZDCDataAnalyzer::ZDCModuleFloatArray m_peak2ndDerivMinSamples;
   ZDCDataAnalyzer::ZDCModuleFloatArray m_peak2ndDerivMinThresholdsHG;
   ZDCDataAnalyzer::ZDCModuleFloatArray m_peak2ndDerivMinThresholdsLG;
 
 
-  ZDCTriggerEfficiency* m_zdcTriggerEfficiency;
+  std::shared_ptr<ZDCTriggerEfficiency> m_zdcTriggerEfficiency;
 
 };
 

@@ -17,8 +17,6 @@ class IZdcAnalysisTool : virtual public asg::IAsgTool
   
  public:
 
-  /// Initialize the tool.
-  virtual StatusCode initializeTool() = 0;
   virtual StatusCode recoZdcModule(const xAOD::ZdcModule& module) = 0;
   virtual StatusCode recoZdcModules(const xAOD::ZdcModuleContainer& moduleContainer) = 0;
   virtual StatusCode reprocessZdc() = 0;

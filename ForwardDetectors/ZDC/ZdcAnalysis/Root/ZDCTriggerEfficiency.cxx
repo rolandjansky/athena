@@ -3,9 +3,9 @@
 */
 
 #include "ZdcAnalysis/ZDCTriggerEfficiency.h"
+#include <AsgTools/MessageCheck.h>
 #include <vector>
 
-using namespace std;
 double ZDCTriggerEfficiency::GetEfficiency(int side, float ADCSum){
   double alpha = _currentParams[side][0];
 	double  beta = _currentParams[side][1];
@@ -20,7 +20,7 @@ double ZDCTriggerEfficiency::GetEfficiency(int side, float ADCSum){
   return efficiency;
 }
 
-std::pair<double, double> ZDCTriggerEfficiency::GetEfficiencyAndError(int side, float ADCSum){
+std::pair<double, double> ZDCTriggerEfficiency::GetEfficiencyAndError(MsgStream& msg, int side, float ADCSum){
   double alpha = _currentParams[side][0];
 	double  beta = _currentParams[side][1];
 	double  theta = _currentParams[side][2];
@@ -55,7 +55,7 @@ std::pair<double, double> ZDCTriggerEfficiency::GetEfficiencyAndError(int side, 
 	if (efficiencyErr<0)
 	  {
 	    efficiencyErr = 0;
-	    std::cout<<"Efficiency Uncertainty calculation abnormal.";
+            msg << MSG::INFO << "Efficiency Uncertainty calculation abnormal." << endmsg;
 	  }
 
 	return std::make_pair(efficiency, efficiencyErr);
