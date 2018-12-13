@@ -23,10 +23,9 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetRecToolInterfaces/IPixelClusterSplitProbTool.h"
 //Beam Spot Condition
-#include "InDetBeamSpotService/IBeamCondSvc.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
 #include "TrkParameters/TrackParameters.h"
 
-class IBeamCondSvc;
 
 namespace InDet {
 
@@ -52,7 +51,7 @@ namespace InDet {
     InDet::PixelClusterSplitProb compileSplitProbability(std::vector<double>& vectorOfProbs ) const;
     
     ToolHandle<NnClusterizationFactory> m_NnClusterizationFactory;
-    ServiceHandle<IBeamCondSvc> m_iBeamCondSvc;
+    SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
     std::vector<double> m_priorMultiplicityContent;
 

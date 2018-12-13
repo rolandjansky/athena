@@ -10,8 +10,10 @@
 
 #ifndef SCT_CalibEventInfo_h
 #define SCT_CalibEventInfo_h
-#include "AthenaBaseComps/AthService.h"    //baseclass
-#include "GaudiKernel/ServiceHandle.h"     //member
+//#include "AthenaBaseComps/AthService.h"    //baseclass
+//#include "GaudiKernel/ServiceHandle.h"     //member
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ToolHandle.h"     //member
 
 #include "SCT_CalibAlgs/ISCT_CalibEvtInfo.h"
 #include <string>
@@ -20,12 +22,12 @@ class StatusCode;
 class ISvcLocator;
 class InterfaceID;
 
-class SCT_CalibEventInfo: virtual public ISCT_CalibEvtInfo,  public AthService {
-      friend class SvcFactory<SCT_CalibEventInfo>;
+class SCT_CalibEventInfo: public extends<AthAlgTool, ISCT_CalibEvtInfo>
+{
    public:
       //@name Service methods, reimplemented
       //@{
-      SCT_CalibEventInfo(const std::string &name, ISvcLocator * svc);
+      SCT_CalibEventInfo(const std::string&, const std::string&, const IInterface*);
       virtual ~SCT_CalibEventInfo() {}
       virtual StatusCode initialize();
       virtual StatusCode finalize();

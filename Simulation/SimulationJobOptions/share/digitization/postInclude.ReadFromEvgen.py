@@ -35,7 +35,8 @@ PileUpEventLoopMgr.bkgCaches += [ minBiasCache ]
 
 MergeMcEventCollection = Algorithm( "MergeMcEventCollection" )
 if hasattr(MergeMcEventCollection, 'MergeMcEventCollTool'):
-    MergeMcEventCollection.MergeMcEventCollTool.TruthCollKey = "GEN_EVENT"
+    MergeMcEventCollection.MergeMcEventCollTool.TruthCollInputKey = "GEN_EVENT"
+    MergeMcEventCollection.MergeMcEventCollTool.TruthCollOutputKey = "GEN_EVENT"
 else:
     MergeMcEventCollection.TruthCollKey = "GEN_EVENT"
 
@@ -52,5 +53,3 @@ print 'ZLM container thingy:',itemlist
 itemlist += [ "IOVMetaDataContainer#_Digitization_Parameters" ]
 
 print StreamRDO.MetaDataItemList
-
-

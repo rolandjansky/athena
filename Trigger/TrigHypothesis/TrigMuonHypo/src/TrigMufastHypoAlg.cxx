@@ -65,9 +65,9 @@ StatusCode TrigMufastHypoAlg::execute_r( const EventContext& context ) const
   }  
   ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" implicit ReadHandles for previous decisions");
 
-  auto decisions = std::make_unique<DecisionContainer>();
-  auto aux = std::make_unique<DecisionAuxContainer>();
-  decisions->setStore(aux.get());
+  // new output decisions
+  SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 
+  auto decisions = outputHandle.ptr();
   // end of common
  
 
@@ -94,7 +94,7 @@ StatusCode TrigMufastHypoAlg::execute_r( const EventContext& context ) const
     const xAOD::L2StandAloneMuon* muon = *muonEL;
 
     // create new decision
-    auto newd = newDecisionIn( decisions.get() );
+    auto newd = newDecisionIn( decisions );
 
     // push_back to toolInput
     toolInput.emplace_back( newd, roi, muon, previousDecision );
@@ -129,8 +129,6 @@ StatusCode TrigMufastHypoAlg::execute_r( const EventContext& context ) const
 
 
   {// make output handle and debug, in the base class
-    auto outputHandle = SG::makeHandle(decisionOutput(), context);
-    ATH_CHECK( outputHandle.record( std::move( decisions ), std::move( aux ) ) );
     ATH_MSG_DEBUG ( "Exit with "<<outputHandle->size() <<" decisions");
     TrigCompositeUtils::DecisionIDContainer allPassingIDs;
     if ( outputHandle.isValid() ) {

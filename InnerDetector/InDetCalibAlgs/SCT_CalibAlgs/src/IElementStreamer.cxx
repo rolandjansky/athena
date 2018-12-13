@@ -8,39 +8,38 @@
  */
 #include "IElementStreamer.h"
 
+namespace SCT_CalibAlgs {
 
-namespace SCT_CalibAlgs{
-  unsigned int IElementStreamer::m_depth=0;
-  unsigned int IElementStreamer::m_nodeIndex=0;
+unsigned int IElementStreamer::m_depth=0;
+unsigned int IElementStreamer::m_nodeIndex=0;
+
 IElementStreamer::IElementStreamer(const std::string & name, const std::map<std::string, std::string> & attributeMap, std::ostream & os):
-m_name(name), m_os(os),m_nodeId(m_nodeIndex){
-  std::map<std::string, std::string>::const_iterator i(attributeMap.begin());
-  std::map<std::string, std::string>::const_iterator end(attributeMap.end());
-  for(;i!=end;++i){
-    m_attributeNames.push_back(i->first); 
-    m_attributeValues.push_back(i->second);
-  }
-  ++m_depth;
-  ++m_nodeIndex;
+   m_name(name), m_os(os),m_nodeId(m_nodeIndex) {
+   std::map<std::string, std::string>::const_iterator i(attributeMap.begin());
+   std::map<std::string, std::string>::const_iterator end(attributeMap.end());
+   for(; i!=end; ++i) {
+      m_attributeNames.push_back(i->first);
+      m_attributeValues.push_back(i->second);
+   }
+   ++m_depth;
+   ++m_nodeIndex;
 }
 
 IElementStreamer::IElementStreamer(const std::string & name, const std::vector<std::string> & attributeNames, const std::vector<std::string> & attributeValues, std::ostream & os):
-m_name(name), m_attributeNames(attributeNames), m_attributeValues(attributeValues),m_os(os),m_nodeId(m_nodeIndex){
-  ++m_depth;
-  ++m_nodeIndex;
+   m_name(name), m_attributeNames(attributeNames), m_attributeValues(attributeValues),m_os(os),m_nodeId(m_nodeIndex) {
+   ++m_depth;
+   ++m_nodeIndex;
 }
 
-IElementStreamer::IElementStreamer(const std::string & name, const std::string & attributeName, const std::string & attributeValue, std::ostream & os):m_name(name),m_os(os), m_nodeId(m_nodeIndex){
-  m_attributeNames.push_back(attributeName);
-  m_attributeValues.push_back(attributeValue);
-  ++m_depth;
-  ++m_nodeIndex;
-}
-IElementStreamer::~IElementStreamer(){
-  --m_depth;
-}
+IElementStreamer::IElementStreamer(const std::string & name, const std::string & attributeName, const std::string & attributeValue, std::ostream & os):m_name(name),m_os(os), m_nodeId(m_nodeIndex) {
+   m_attributeNames.push_back(attributeName);
+   m_attributeValues.push_back(attributeValue);
+   ++m_depth;
+   ++m_nodeIndex;
 }
 
+IElementStreamer::~IElementStreamer() {
+   --m_depth;
+}
 
-
-
+}

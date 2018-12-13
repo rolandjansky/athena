@@ -5,7 +5,6 @@
 // Tile includes
 #include "TileRecUtils/TileRawChannelBuilder.h"
 #include "TileRecUtils/TileBeamInfoProvider.h"
-#include "TileRecUtils/ITileRawChannelTool.h"
 #include "TileEvent/TileDigits.h"
 #include "TileEvent/TileRawChannel.h"
 #include "TileIdentifier/TileHWID.h"
@@ -62,7 +61,6 @@ TileRawChannelBuilder::TileRawChannelBuilder(const std::string& type
   , m_tileHWID(0) 
   , m_tileInfo(0)
   , m_beamInfo("TileBeamInfoProvider/TileBeamInfoProvider")
-  , m_noiseFilterTools() // "TileRawChannelNoiseFilter/TileRawChannelNoiseFilter")
   , m_trigType(0)
   , m_idophys(false)
   , m_idolas(false)
@@ -89,7 +87,6 @@ TileRawChannelBuilder::TileRawChannelBuilder(const std::string& type
   declareProperty("TimeMaxForAmpCorrection", m_timeMaxThresh =  25.0);
   declareProperty("RunType", m_runType = 0);
   declareProperty("BeamInfo", m_beamInfo);
-  declareProperty("NoiseFilterTools", m_noiseFilterTools);
   declareProperty("DataPoolSize", m_dataPoollSize = -1);
   declareProperty("UseDSPCorrection", m_useDSP = true);
 
@@ -122,15 +119,15 @@ StatusCode TileRawChannelBuilder::initialize() {
   m_RChSumL = m_RChSumH = 0.0;
 
   // retrieve TileID helpers and TileIfno from det store
-  CHECK( detStore()->retrieve(m_tileID, "TileID") );
-  CHECK( detStore()->retrieve(m_tileHWID, "TileHWID") );
+  ATH_CHECK( detStore()->retrieve(m_tileID, "TileID") );
+  ATH_CHECK( detStore()->retrieve(m_tileHWID, "TileHWID") );
 
-  CHECK( detStore()->retrieve(m_tileInfo, "TileInfo") );
+  ATH_CHECK( detStore()->retrieve(m_tileInfo, "TileInfo") );
 
-  CHECK( m_beamInfo.retrieve() );
+  ATH_CHECK( m_beamInfo.retrieve() );
 
   // access tools and store them
-  CHECK( m_noiseFilterTools.retrieve() );
+  ATH_CHECK( m_noiseFilterTools.retrieve() );
   ATH_MSG_DEBUG( "Successfully retrieve  NoiseFilterTools: " << m_noiseFilterTools );
 
   if(m_calibrateEnergy){
@@ -168,7 +165,7 @@ StatusCode TileRawChannelBuilder::initialize() {
   if (m_dataPoollSize < 0) m_dataPoollSize = m_tileHWID->channel_hash_max();
 
   ServiceHandle<TileCablingSvc> cablingSvc("TileCablingSvc", name());
-  CHECK( cablingSvc.retrieve());
+  ATH_CHECK( cablingSvc.retrieve());
     
   const TileCablingService* cabling = cablingSvc->cablingService();
   if (!cabling) {

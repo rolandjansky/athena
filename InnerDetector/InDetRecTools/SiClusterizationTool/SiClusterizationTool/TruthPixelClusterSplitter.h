@@ -17,8 +17,6 @@
 #include "InDetPrepRawData/PixelClusterParts.h"
 #include "InDetPrepRawData/PixelClusterSplitProb.h"
 
-class IBeamCondSvc;
-
 namespace InDet
 {
     
@@ -52,13 +50,10 @@ namespace InDet
     private:
 
       ToolHandle<TruthClusterizationFactory> m_truthClusterizationFactory;
-      ServiceHandle<IBeamCondSvc> m_iBeamCondSvc;
 
       double m_thresholdSplittingIntoTwoClusters;
       double m_thresholdSplittingIntoThreeClusters;
       bool m_splitOnlyOnBLayer;
-      
-      bool m_useBeamSpotInfo;
 
     };
 }

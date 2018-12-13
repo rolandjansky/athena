@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /* date of creation : 10/X/2002 */
@@ -38,7 +38,7 @@ public:
     /**
      * return error message <br> 
      */
-    virtual std::string message() const ;
+    std::string message() const ;
 
     /**
      * set error code number<br> 
@@ -56,14 +56,10 @@ public:
      * 4 : LArDM::zone_id Error <br>
      * 999 : undefined error <br>
      */
-    virtual int code() const ;
+    int code() const ;
 
-    virtual operator std::string();
+    operator std::string();
 
-    /**
-     * destructor 
-     */
-    virtual ~CaloID_Exception() ;
 
 private:
 

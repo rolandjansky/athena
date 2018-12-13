@@ -24,7 +24,7 @@
 #include "InDetRecToolInterfaces/ISiSpacePointsSeedMaker.h"
 #include "TrkSpacePoint/SpacePointContainer.h" 
 #include "TrkSpacePoint/SpacePointOverlapCollection.h"
-
+#include "BeamSpotConditionsData/BeamSpotData.h"
 #include "SiSpacePointsSeedTool_xk/SiSpacePointForSeed.h"
 #include "SiSpacePointsSeedTool_xk/SiSpacePointsProSeed.h" 
 #include <iosfwd>
@@ -34,7 +34,6 @@
 #include <vector>
 
 class MsgStream   ;
-class IBeamCondSvc;
 
 namespace Trk {
   class IPRD_AssociationTool;
@@ -123,7 +122,7 @@ namespace InDet {
       ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle ;
       MagField::IMagFieldSvc*                m_fieldService{}       ;
         
-      IBeamCondSvc*               p_beam {}                         ;
+      SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
       bool                        m_pixel{}                         ;
       bool                        m_sct{}                           ;
       bool                        m_endlist{}                       ;
@@ -247,7 +246,6 @@ namespace InDet {
       // Space points container
       ///////////////////////////////////////////////////////////////////
  
-      std::string                        m_beamconditions         ;
       SG::ReadHandle<SpacePointContainer>         m_spacepointsSCT         ;
       SG::ReadHandle<SpacePointContainer>         m_spacepointsPixel       ;
       SG::ReadHandle<SpacePointOverlapCollection> m_spacepointsOverlap     ;

@@ -392,7 +392,6 @@ def make_tileBadChanTool (name, chans = [], lines = ''):
 
     bct = TileBadChanTool (name,
                            TileBadChannels = name + 'CondData')
-    ToolSvc += bct
     return bct
 
 

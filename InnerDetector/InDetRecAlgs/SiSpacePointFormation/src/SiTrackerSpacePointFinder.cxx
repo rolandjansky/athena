@@ -29,7 +29,6 @@ ATLAS Collaboration
 // general Atlas classes
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "xAODEventInfo/EventInfo.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "StoreGate/ReadCondHandle.h"
 
 namespace InDet {

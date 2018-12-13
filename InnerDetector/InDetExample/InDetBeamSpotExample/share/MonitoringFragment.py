@@ -57,7 +57,7 @@ if not jobConfig['doMonitoringGlobal']:
         monFilledBunchFilterTool = DQFilledBunchFilterTool()
         monFilledBunchFilterTool.bunchCrossingTool  = bunchCrossingTool
         #ToolSvc += monFilledBunchFilterTool
-        InDetGlobalBeamSpotMonTool.FilterTools.append(monFilledBunchFilterTool)
+        InDetGlobalBeamSpotMonTool.FilterTools += [monFilledBunchFilterTool]
 
 
     print ToolSvc.InDetGlobalBeamSpotMonTool

@@ -54,18 +54,14 @@ bool MissingETComponent_v1::Weight::operator==(const Weight& wght) const
 //////////////////////////////////
 
 MissingETComponent_v1::MissingETComponent_v1( bool createStore )
-   : SG::AuxElement(),
-     m_lastObjectPointer( 0 ),
-     m_lastObjectIndex( MissingETBase::Numerical::invalidIndex() ) {
+   : SG::AuxElement(){
 
    if( createStore ) createPrivateStore();
 }
 
 MissingETComponent_v1::MissingETComponent_v1( const MissingET* pmetObj,
                                               MissingETBase::Types::bitmask_t sw )
-   : SG::AuxElement(),
-     m_lastObjectPointer( 0 ),
-     m_lastObjectIndex( MissingETBase::Numerical::invalidIndex() ) {
+   : SG::AuxElement(){
 
    createPrivateStore();
    setMET( pmetObj );
@@ -76,9 +72,7 @@ MissingETComponent_v1::MissingETComponent_v1( const MissingET* pmetObj,
                                               const IParticle* pPart,
                                               double wpx, double wpy, double wet,
                                               MissingETBase::Types::bitmask_t sw )
-   : SG::AuxElement(),
-     m_lastObjectPointer( 0 ),
-     m_lastObjectIndex( MissingETBase::Numerical::invalidIndex() ) {
+   : SG::AuxElement(){
 
    createPrivateStore();
    setMET( pmetObj );
@@ -90,9 +84,7 @@ MissingETComponent_v1::MissingETComponent_v1( const MissingET* pmetObj,
                                               const IParticle* pPart,
                                               const Weight& wght,
                                               MissingETBase::Types::bitmask_t sw )
-   : SG::AuxElement(),
-     m_lastObjectPointer( 0 ),
-     m_lastObjectIndex( MissingETBase::Numerical::invalidIndex() ) {
+   : SG::AuxElement(){
 
    createPrivateStore();
    setMET( pmetObj );
@@ -102,21 +94,15 @@ MissingETComponent_v1::MissingETComponent_v1( const MissingET* pmetObj,
 
 MissingETComponent_v1::MissingETComponent_v1(const MissingETComponent_v1& compDescr)
   : SG::AuxElement()
-  , m_lastObjectPointer(compDescr.m_lastObjectPointer)
-  , m_lastObjectIndex(compDescr.m_lastObjectIndex)
 { this->makePrivateStore(&compDescr); }
 
 MissingETComponent_v1::MissingETComponent_v1(const MissingETComponent_v1& compDescr,MissingETBase::Types::bitmask_t sw)
   : SG::AuxElement()
-  , m_lastObjectPointer(compDescr.m_lastObjectPointer)
-  , m_lastObjectIndex(compDescr.m_lastObjectIndex)
 { this->makePrivateStore(compDescr); this->setStatusWord(sw); }
 
 MissingETComponent_v1& MissingETComponent_v1::operator=(const MissingETComponent_v1& compDescr)
 { 
   if((&compDescr) != this) {
-    m_lastObjectPointer = compDescr.m_lastObjectPointer;
-    m_lastObjectIndex   = compDescr.m_lastObjectIndex;
     this->setStatusWord(compDescr.statusWord());
     this->setMetLink(compDescr.metLink());
     this->setObjectLinks(compDescr.objectLinks());
@@ -226,16 +212,11 @@ bool MissingETComponent_v1::resetContrib()
 
 size_t MissingETComponent_v1::findIndex(const IParticle* pPart) const
 {
-  if ( m_lastObjectPointer != pPart )
-    {
-      objlink_vector_t::const_iterator fLnk(this->objectLinks().begin());
-      while ( fLnk != this->objectLinks().end() && *(*fLnk) != pPart ) { ++fLnk; }
-      if ( fLnk != this->objectLinks().end() ) 
-	{ m_lastObjectPointer = pPart; m_lastObjectIndex = std::distance(this->objectLinks().begin(),fLnk); }
-      else
-	{ m_lastObjectPointer = (const IParticle*)0; m_lastObjectIndex = MissingETBase::Numerical::invalidIndex();  }
-    }
-  return m_lastObjectIndex;
+  objlink_vector_t::const_iterator fLnk(this->objectLinks().begin());
+  while(fLnk != this->objectLinks().end() && *(*fLnk) != pPart){ ++fLnk; }
+  if(fLnk != this->objectLinks().end())
+    return std::distance(this->objectLinks().begin(),fLnk);
+  return MissingETBase::Numerical::invalidIndex();
 }
 
 /////////////

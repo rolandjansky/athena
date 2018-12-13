@@ -24,9 +24,6 @@ using namespace xAOD;
 
 size_t MissingETComponentMap_v1::m_clusterLinkReserve = 10000; 
 size_t MissingETComponentMap_v1::m_trackLinkReserve   = 10000;
-size_t MissingETComponentMap_v1::m_maxClusterSize     = 5000;
-size_t MissingETComponentMap_v1::m_maxTrackSize       = 5000;
-size_t MissingETComponentMap_v1::m_maxSignalSize      = fmax(m_maxTrackSize,m_maxClusterSize);
 
 /////////////////////////////////
 // Constructors and destructor //
@@ -34,8 +31,6 @@ size_t MissingETComponentMap_v1::m_maxSignalSize      = fmax(m_maxTrackSize,m_ma
 
 MissingETComponentMap_v1::MissingETComponentMap_v1(SG::OwnershipPolicy own, SG::IndexTrackingPolicy trackIndices)
   : DataVector<MissingETComponent_v1>(own,trackIndices)
-  , m_lastMETObject((const MissingET*)0)
-  , m_lastContribIndex(MissingETBase::Numerical::invalidIndex())
 {
   this->f_setupLookupCache(m_clusterLinks,m_clusterLinkReserve); 
   this->f_setupLookupCache(m_trackLinks,m_trackLinkReserve); 
@@ -44,8 +39,6 @@ MissingETComponentMap_v1::MissingETComponentMap_v1(SG::OwnershipPolicy own, SG::
 MissingETComponentMap_v1::MissingETComponentMap_v1(MissingETComponentMap_v1::iterator first, MissingETComponentMap_v1::iterator last,
 						   SG::OwnershipPolicy own, SG::IndexTrackingPolicy trackIndices)
   : DataVector<MissingETComponent_v1>(first,last,own,trackIndices)
-  , m_lastMETObject((const MissingET*)0)
-  , m_lastContribIndex(MissingETBase::Numerical::invalidIndex())
 {
   this->f_setupLookupCache(m_clusterLinks,m_clusterLinkReserve); 
   this->f_setupLookupCache(m_trackLinks,m_trackLinkReserve); 
@@ -59,127 +52,78 @@ MissingETComponentMap_v1::~MissingETComponentMap_v1()
 /////////////
 
 MissingETComponentMap_v1::const_iterator MissingETComponentMap_v1::find(const MissingET* pMET) const
-{ 
-  if ( pMET == m_lastMETObject ) 
-    { const_iterator fCont(this->begin()); std::advance<const_iterator>(fCont,m_lastContribIndex);  return fCont; }
-  else { return this->f_findConst(pMET); }
-}
-
-MissingETComponentMap_v1::iterator MissingETComponentMap_v1::find(const MissingET* pMET)
-{ 
-  if ( pMET == m_lastMETObject ) { iterator fCont(this->begin()); std::advance<iterator>(fCont,m_lastContribIndex); return fCont; }
-  else { return this->f_find(pMET); }
-}
-
-MissingETComponentMap_v1::const_iterator MissingETComponentMap_v1::find(const std::string& name) const
-{ 
-  if ( m_lastMETObject == 0 || m_lastMETObject->name() != name ) { return this->f_findConst(name); }
-  else { const_iterator fCont(this->begin()); std::advance<const_iterator>(fCont,m_lastContribIndex); return fCont; }
-}
-
-MissingETComponentMap_v1::iterator MissingETComponentMap_v1::find(const std::string& name)
-{ 
-  if ( m_lastMETObject == 0 || m_lastMETObject->name() != name ) { return this->f_find(name); } 
-  else { iterator fCont(this->begin()); std::advance<iterator>(fCont,m_lastContribIndex); return fCont; }
-}
-
-MissingETComponentMap_v1::const_iterator MissingETComponentMap_v1::find(MissingETBase::Types::bitmask_t src) const
-{ 
-  if ( m_lastMETObject == 0 || m_lastMETObject->source() != src ) { return this->f_findConst(src); }
-  else { const_iterator fCont(this->begin()); std::advance<const_iterator>(fCont,m_lastContribIndex); return fCont; }
-}
-
-MissingETComponentMap_v1::iterator MissingETComponentMap_v1::find(MissingETBase::Types::bitmask_t src)
-{ 
-  if ( m_lastMETObject == 0 || m_lastMETObject->source() != src ) { return this->f_find(src); }
-  else { iterator fCont(this->begin()); std::advance<iterator>(fCont,m_lastContribIndex); return fCont; }
-}
-
-size_t MissingETComponentMap_v1::findIndex(const MissingET* pMET) const
-{ if ( m_lastMETObject != pMET ) { this->f_findConst(pMET); } return m_lastContribIndex; }
-
-size_t MissingETComponentMap_v1::findIndex(const std::string& name) const
-{ if ( m_lastMETObject == 0 || this->at(m_lastContribIndex)->metObject()->name() != name ) { this->f_findConst(name); } return m_lastContribIndex; }
-
-size_t MissingETComponentMap_v1::findIndex(MissingETBase::Types::bitmask_t sw) const
-{ if ( m_lastMETObject == 0 || this->at(m_lastContribIndex)->statusWord() != sw ) { this->f_findConst(sw); } return m_lastContribIndex; }
-
-///////////////////////
-// Protected finders //
-///////////////////////
-
-MissingETComponentMap_v1::const_iterator MissingETComponentMap_v1::f_findConst(const MissingET* pMET) const
 {
   const_iterator fCont(this->begin());
   const_iterator lCont(this->end());
   while ( fCont != lCont && (*fCont)->metObject() != pMET ) { ++fCont; }
-  this->f_setConstCache(fCont);
   return fCont;
 }
 
-MissingETComponentMap_v1::iterator MissingETComponentMap_v1::f_find(const MissingET* pMET)
+MissingETComponentMap_v1::iterator MissingETComponentMap_v1::find(const MissingET* pMET)
 {
   iterator fCont(this->begin());
   iterator lCont(this->end());
   while ( fCont != lCont && (*fCont)->metObject() != pMET ) { ++fCont; }
-  this->f_setCache(fCont);
   return fCont;
 }
 
-MissingETComponentMap_v1::const_iterator MissingETComponentMap_v1::f_findConst(const std::string& name) const
+MissingETComponentMap_v1::const_iterator MissingETComponentMap_v1::find(const std::string& name) const
 {
   const_iterator fCont(this->begin());
   const_iterator lCont(this->end());
   while (fCont != lCont && (*fCont)->metObject()->name() != name ) { ++fCont; }
-  this->f_setConstCache(fCont);
   return fCont;
 }
 
-MissingETComponentMap_v1::iterator MissingETComponentMap_v1::f_find(const std::string& name)
+MissingETComponentMap_v1::iterator MissingETComponentMap_v1::find(const std::string& name)
 {
   iterator fCont(this->begin());
   iterator lCont(this->end());
   while ( fCont != lCont && (*fCont)->metObject()->name() != name ) { ++fCont; }
-  this->f_setCache(fCont);
   return fCont;
 }
 
-MissingETComponentMap_v1::const_iterator MissingETComponentMap_v1::f_findConst(MissingETBase::Types::bitmask_t src) const
+MissingETComponentMap_v1::const_iterator MissingETComponentMap_v1::find(MissingETBase::Types::bitmask_t src) const
 {
   const_iterator fCont(this->begin());
   const_iterator lCont(this->end());
   while ( fCont != lCont && (*fCont)->metObject()->source() != src ) { ++fCont; }
-  this->f_setConstCache(fCont);
   return fCont;
 }
 
-MissingETComponentMap_v1::iterator MissingETComponentMap_v1::f_find(MissingETBase::Types::bitmask_t src)
+MissingETComponentMap_v1::iterator MissingETComponentMap_v1::find(MissingETBase::Types::bitmask_t src)
 {
   iterator fCont(this->begin());
   iterator lCont(this->end());
   while ( fCont != lCont && (*fCont)->metObject()->source() != src ) { ++fCont; }
-  this->f_setCache(fCont);
   return fCont;
 }
 
-void MissingETComponentMap_v1::f_setConstCache(const_iterator fCont) const
+size_t MissingETComponentMap_v1::findIndex(const MissingET* pMET) const
 {
-  if ( fCont != this->end() )
-    { 
-      m_lastMETObject    = (*fCont)->metObject();
-      m_lastContribIndex = (size_t)std::distance<const_iterator>(this->begin(),fCont);
-    } 
-  else { m_lastMETObject = (const MissingET*)0; m_lastContribIndex = MissingETBase::Numerical::invalidIndex(); }
+  const_iterator fCont(this->begin());
+  const_iterator lCont(this->end());
+  while ( fCont != lCont && (*fCont)->metObject() != pMET ) { ++fCont; }
+  if ( fCont != lCont ) return (size_t)std::distance<const_iterator>(this->begin(),fCont);
+  return MissingETBase::Numerical::invalidIndex();
 }
 
-void MissingETComponentMap_v1::f_setCache(iterator fCont)
+size_t MissingETComponentMap_v1::findIndex(const std::string& name) const
 {
-  if ( fCont != this->end() )
-    { 
-      m_lastMETObject    = const_cast<const MissingET*>((*fCont)->metObject());
-      m_lastContribIndex =  std::distance<iterator>(this->begin(),fCont);
-    }
-  else  { m_lastMETObject = (const MissingET*)0; m_lastContribIndex = MissingETBase::Numerical::invalidIndex(); }
+  const_iterator fCont(this->begin());
+  const_iterator lCont(this->end());
+  while ( fCont != lCont && (*fCont)->metObject()->name() != name ) { ++fCont; }
+  if ( fCont != lCont ) return (size_t)std::distance<const_iterator>(this->begin(),fCont);
+  return MissingETBase::Numerical::invalidIndex();
+}
+
+size_t MissingETComponentMap_v1::findIndex(MissingETBase::Types::bitmask_t src) const
+{
+  const_iterator fCont(this->begin());
+  const_iterator lCont(this->end());
+  while ( fCont != lCont && (*fCont)->metObject()->source() != src ) { ++fCont; }
+  if ( fCont != lCont ) return (size_t)std::distance<const_iterator>(this->begin(),fCont);
+  return MissingETBase::Numerical::invalidIndex();
 }
 
 /////////////////////////
@@ -187,7 +131,13 @@ void MissingETComponentMap_v1::f_setCache(iterator fCont)
 /////////////////////////
 
 const MissingET* MissingETComponentMap_v1::retrieveMissingET(const std::string& name) const
-{ if ( m_lastMETObject == 0 || m_lastMETObject->name() != name ) { this->f_findConst(name); } return m_lastMETObject; }
+{
+  const_iterator fCont(this->begin());
+  const_iterator lCont(this->end());
+  while ( fCont != lCont && (*fCont)->metObject()->name() != name ) { ++fCont; }
+  if ( fCont != lCont ) return (*fCont)->metObject();
+  return 0;
+}
 
 const MissingET* MissingETComponentMap_v1::retrieveMissingET(MissingETBase::Types::bitmask_t src,bool excl) const
 { return excl ? this->f_retrieveMissingETExcl(src) :  this->f_retrieveMissingETIncl(src); }
@@ -200,42 +150,40 @@ const MissingET* MissingETComponentMap_v1::retrieveMissingET(MissingETBase::Type
 ///////////////////////////////////
 
 const MissingET* MissingETComponentMap_v1::f_retrieveMissingETExcl(MissingETBase::Types::bitmask_t src)  const
-{ if ( m_lastMETObject == 0 || m_lastMETObject->source() != src ) { this->f_findConst(src); } return m_lastMETObject; }
+{
+  const_iterator fCont(this->begin());
+  const_iterator lCont(this->end());
+  while ( fCont != lCont && (*fCont)->metObject()->source() != src ) { ++fCont; }
+  if ( fCont != lCont ) return (*fCont)->metObject();
+  return 0;
+}
 
 const MissingET* MissingETComponentMap_v1::f_retrieveMissingETExcl(MissingETBase::Types::bitmask_t src,MissingETBase::Types::bitmask_t sw) const
 { 
-  if ( m_lastMETObject == 0 || ( m_lastMETObject->source() != src || this->at(m_lastContribIndex)->statusWord() != sw ) )
-    {
-      const_iterator fCont(this->begin()); const_iterator lCont(this->end());
-      while ( fCont != lCont && ( (*fCont)->metObject()->source() != src || (*fCont)->statusWord() != sw ) ) { ++fCont; }
-      this->f_setConstCache(fCont);
-    }
-  return m_lastMETObject; 
+  const_iterator fCont(this->begin());
+  const_iterator lCont(this->end());
+  while ( fCont != lCont && ( (*fCont)->metObject()->source() != src || (*fCont)->statusWord() != sw ) ) { ++fCont; }
+  if ( fCont != lCont ) return (*fCont)->metObject();
+  return 0;
 }
 
 const MissingET* MissingETComponentMap_v1::f_retrieveMissingETIncl(MissingETBase::Types::bitmask_t src) const
 { 
-  if ( m_lastMETObject == 0 || !MissingETBase::Source::hasPattern(m_lastMETObject->source(),src) ) 
-    {
-      const_iterator fCont(this->begin()); const_iterator lCont(this->end());
-      while ( fCont != lCont && !MissingETBase::Source::hasPattern((*fCont)->metObject()->source(),src) ) { ++fCont; }
-      this->f_setConstCache(fCont);
-    }
-  return m_lastMETObject;
+  const_iterator fCont(this->begin());
+  const_iterator lCont(this->end());
+  while ( fCont != lCont && !MissingETBase::Source::hasPattern((*fCont)->metObject()->source(),src) ) { ++fCont; }
+  if ( fCont != lCont ) return (*fCont)->metObject();
+  return 0;
 }
 
 const MissingET* MissingETComponentMap_v1::f_retrieveMissingETIncl(MissingETBase::Types::bitmask_t src,MissingETBase::Types::bitmask_t sw) const
 {
-  if ( m_lastMETObject == 0 || (!MissingETBase::Source::hasPattern(m_lastMETObject->source(),src) || 
-					 !MissingETBase::Status::Tags::hasPattern(this->at(m_lastContribIndex)->statusWord(),sw) ) )
-    {
-      const_iterator fCont(this->begin()); const_iterator lCont(this->end());
-      while ( fCont!= lCont && ( !MissingETBase::Source::hasPattern((*fCont)->metObject()->source(),src) ||
-				 !MissingETBase::Status::Tags::hasPattern((*fCont)->statusWord(),sw) ) )
-	{ ++fCont; }
-      this->f_setConstCache(fCont);
-    }
-  return m_lastMETObject; 
+  const_iterator fCont(this->begin());
+  const_iterator lCont(this->end());
+  while ( fCont != lCont && ( !MissingETBase::Source::hasPattern((*fCont)->metObject()->source(),src) ||
+                              !MissingETBase::Status::Tags::hasPattern((*fCont)->statusWord(),sw) ) ) { ++fCont; }
+  if ( fCont != lCont ) return (*fCont)->metObject();
+  return 0;
 }
 
 /////////////////////////////
@@ -274,22 +222,9 @@ bool MissingETComponentMap_v1::checkUsage(MissingETBase::Types::object_vector_t&
   return retVal;
 }
 
-bool MissingETComponentMap_v1::f_checkObjectUsage(MissingETBase::Types::object_vector_t& signals,signal_vector_t& signalLinks) const
+bool MissingETComponentMap_v1::f_checkObjectUsage(MissingETBase::Types::object_vector_t& signals, const signal_vector_t& signalLinks) const
 {
-  if ( signals.empty() ) { return false; }
-  // check if new event
-  if ( signalLinks.empty() )  // this also an indication that there is no overlap!
-    {
-      size_t nSig(m_maxSignalSize);
-      const IParticleContainer* pCont = static_cast<const IParticleContainer*>(signals.front()->container());
-      // if ( pCont == 0 ) 
-      // 	{ printf("MissingETComponentMap::f_checkObjectUsage(...) - WARNING - cannot cast container pointer %p to IParticleContainer\n",(void*)signals.front()->container()); }
-      // else
-      nSig = pCont->size();
-      indexedlink_t sw(MissingETBase::Numerical::invalidLink().get<0>(),MissingETBase::Numerical::invalidLink().get<1>());
-      signalLinks.resize(nSig,sw);
-      return false;
-    }
+  if ( signals.empty() || signalLinks.empty() ) return false;
   // loop on signals
   size_t oldSize(signals.size());
   MissingETBase::Types::object_vector_t::iterator fSig(signals.begin());
@@ -310,7 +245,7 @@ bool MissingETComponentMap_v1::f_checkObjectUsage(MissingETBase::Types::object_v
   return oldSize != signals.size(); 
 }
 
-bool MissingETComponentMap_v1::f_checkObjectUsage(MissingETBase::Types::object_vector_t& objects,particle_map_t& physicsLinks) const
+bool MissingETComponentMap_v1::f_checkObjectUsage(MissingETBase::Types::object_vector_t& objects, const particle_map_t& physicsLinks) const
 {
   if ( objects.empty() ) { return false; }
   //
@@ -361,13 +296,11 @@ bool MissingETComponentMap_v1::setClusters(const MissingET* pMET,const IParticle
       if(firstCluster) {
 	firstCluster = false;
 	if ( m_clusterLinks.empty() )  { 
-	  size_t nClus(m_maxClusterSize);
 	  const IParticleContainer* pCont(static_cast<const IParticleContainer*>((*fSig)->container()));
 	  // if ( pCont == 0 )
 	  //   { printf("MissingETComponentMap::setClusters(...) - WARNING   - cannot access cluster container (invalid NULL pointer), use %i words\n",(int)nClus); }
 	  // else
-	  nClus = pCont->size();
-	  m_clusterLinks.resize(nClus,MissingETBase::Numerical::invalidLink());
+	  m_clusterLinks.resize(pCont->size(), MissingETBase::Numerical::invalidLink());
 	} // empty cluster link list
       } //first cluster
       // all clusters refer to the same MET contribution
@@ -388,7 +321,6 @@ bool MissingETComponentMap_v1::setTracks(const MissingET* pMET,const IParticle* 
   indexedlink_t ld(cIdx,pIdx); 
   // make sure cache is not cleared
   bool firstTrack = true;
-  size_t nTrack(m_maxTrackSize);
   MissingETBase::Types::object_vector_t::const_iterator fSig(signalList.begin());
   MissingETBase::Types::object_vector_t::const_iterator lSig(signalList.end());
   for ( ; fSig != lSig; ++fSig ) {
@@ -400,8 +332,7 @@ bool MissingETComponentMap_v1::setTracks(const MissingET* pMET,const IParticle* 
 	  // if ( pCont == 0 )
 	  //   { printf("MissingETComponentMap::setTracks(...) - WARNING   - cannot access track container (invalid NULL pointer), use %i words\n",(int)nTrack); }
 	  // else
-	  nTrack = pCont->size();
-	  m_trackLinks.resize(nTrack,MissingETBase::Numerical::invalidLink());
+	  m_trackLinks.resize(pCont->size(), MissingETBase::Numerical::invalidLink());
 	} // empty track link list
       } // first track
       // all tracks refer to the same MET contribution

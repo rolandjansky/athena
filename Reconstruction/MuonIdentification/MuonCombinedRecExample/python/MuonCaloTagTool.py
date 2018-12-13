@@ -37,21 +37,17 @@ def TrackEnergyInCaloTool( name ='TrackEnergyInCaloTool', **kwargs ):
 def TrackDepositInCaloTool( name ='TrackDepositInCaloTool', **kwargs ):
     return CfgMgr.TrackDepositInCaloTool(name,**kwargs)
 
-def CaloMuonTagLoose( name='CaloMuonTagLoose', **kwargs ):
-    kwargs.setdefault("TagMode","Loose")
-    return CfgMgr.CaloMuonTag(name,**kwargs)
-
-### Configure CaloMuonTag (tight is default) ###
-def CaloMuonTag( name='CaloMuonTag', **kwargs ):
-    return CfgMgr.CaloMuonTag(name,**kwargs)
-
 def CaloMuonLikelihoodTool(name='CaloMuonLikelihoodTool', **kwargs ):
     kwargs.setdefault("TrackEnergyInCaloTool", getPublicTool("TrackEnergyInCaloTool") )
     return CfgMgr.CaloMuonLikelihoodTool(name,**kwargs)
 
 def MuonCaloTagTool( name='MuonCaloTagTool', **kwargs ):
-    kwargs.setdefault("CaloMuonTagLoose",       getPublicTool("CaloMuonTagLoose") )
-    kwargs.setdefault("CaloMuonTagTight",       getPublicTool("CaloMuonTag") )
+    from CaloTrkMuIdTools.CaloTrkMuIdToolsConf import CaloMuonTag as ConfiguredCaloMuonTag
+    CaloMuonTagLoose = ConfiguredCaloMuonTag(name = "CaloMuonTagLoose")
+    CaloMuonTagLoose.TagMode="Loose"
+    CaloMuonTagTight = ConfiguredCaloMuonTag(name = "CaloMuonTag")
+    kwargs.setdefault("CaloMuonTagLoose",       CaloMuonTagLoose )
+    kwargs.setdefault("CaloMuonTagTight",       CaloMuonTagTight )
     kwargs.setdefault("CaloMuonLikelihoodTool", getPublicTool("CaloMuonLikelihoodTool") )
     kwargs.setdefault("TrackDepositInCaloTool", getPublicTool("TrackDepositInCaloTool") )
     kwargs.setdefault("TrackSelectorTool",      getPublicTool("CaloTrkMuIdAlgTrackSelectorTool") )

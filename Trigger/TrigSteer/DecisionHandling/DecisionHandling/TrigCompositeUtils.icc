@@ -1,0 +1,37 @@
+/*
+ *
+ */
+namespace TrigCompositeUtils {
+
+  /**
+   * @brief Creates and right away records the Container CONT with the key.
+   * No Aux store.
+   * Returns the WriteHandle. 
+   * If possible provide the context that comes via an argument to execute_r otherwise it will default to looking it up which is slower.
+   **/
+  template<class CONT>
+  SG::WriteHandle<CONT> createAndStoreNoAux( const SG::WriteHandleKey<CONT>& key, const EventContext& ctx ) {
+    SG::WriteHandle<CONT> handle( key, ctx );
+    auto data = std::make_unique<CONT>() ;
+    handle.record( std::move( data ) ).ignore();
+    return handle;
+  }
+
+  /**
+   * @brief Creates and right away records the Container CONT with the key.
+   * With Aux store.
+   * Returns the WriteHandle. 
+   * If possible provide the context that comes via an argument to execute_r otherwise it will default to looking it up which is slower.
+   **/
+  template<class CONT, class AUX>
+  SG::WriteHandle<CONT> createAndStoreWithAux( const SG::WriteHandleKey<CONT>& key, const EventContext& ctx ) {
+    SG::WriteHandle<CONT> handle( key, ctx );
+    auto data = std::make_unique<CONT>() ;
+    auto aux = std::make_unique<AUX>() ;
+    data->setStore( aux.get() );
+    handle.record( std::move( data ), std::move( aux )  ).ignore();
+    return handle;
+  }
+
+
+}

@@ -126,12 +126,21 @@ class TileRawChannelBuilderFitFilterCool: public TileRawChannelBuilder
     // Pulse shapes
     TilePulseShapesStruct* m_pulseShapes;
 
-    ToolHandle<TileCondToolPulseShape> m_tileToolPulseShape;
-    ToolHandle<TileCondToolPulseShape> m_tileToolLeak100Shape;
-    ToolHandle<TileCondToolPulseShape> m_tileToolLeak5p2Shape;
-    ToolHandle<TileCondToolPulseShape> m_tileToolPulse5p2Shape;
+    ToolHandle<TileCondToolPulseShape> m_tileToolPulseShape{this,
+        "TileCondToolPulseShape", "TileCondToolPulseShape", "Tile pulse shape tool"};
 
-    ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample;
+    ToolHandle<TileCondToolPulseShape> m_tileToolLeak100Shape{this,
+        "TileCondToolLeak100Shape", "", "Tile CIS leakage shape for 100 pF capacitor tool"};
+
+    ToolHandle<TileCondToolPulseShape> m_tileToolLeak5p2Shape{this,
+        "TileCondToolLeak5p2Shape", "", "Tile CIS leakage shape for 5.2 pF capacitor tool"};
+
+    ToolHandle<TileCondToolPulseShape> m_tileToolPulse5p2Shape{this,
+        "TileCondToolPulse5p2Shape", "", "Tile CIS pulse shape for 5.2 pF capacitor tool"};
+
+    ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample{this,
+        "TileCondToolNoiseSample", "TileCondToolNoiseSample", "Tile sample noise tool"};
+
     TilePulseShapesStruct* m_shapes;
 
 };

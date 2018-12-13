@@ -22,3 +22,11 @@ if not DetFlags.simulate.any_on() :
        from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
        condSeq += BeamSpotCondAlg( "BeamSpotCondAlg" )
 
+#Code to help transition to MT system, remove once this package is removed
+if not DetFlags.simulate.any_on() :
+   from AthenaCommon.AlgSequence import AthSequencer
+   condSeq = AthSequencer("AthCondSeq")
+   if not hasattr(condSeq, "BeamSpotCondAlg"):
+       from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
+       condSeq += BeamSpotCondAlg( "BeamSpotCondAlg" )
+

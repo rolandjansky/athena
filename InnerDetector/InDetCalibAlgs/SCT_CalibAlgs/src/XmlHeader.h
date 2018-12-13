@@ -14,16 +14,15 @@
 #include <iosfwd>
 #include <string>
 
-namespace SCT_CalibAlgs{
-  class XmlHeader{
-  public:
-    XmlHeader(std::ostream & output);
-    void addStylesheet(const std::string & stylesheetPath);
+namespace SCT_CalibAlgs {
+class XmlHeader {
+   public:
+      XmlHeader(std::ostream & output);
+      void addStylesheet(const std::string & stylesheetPath);
 
-  private:
-    std::ostream & m_os;
-  };
+   private:
+      std::ostream & m_os;
+};
 }
-
 
 #endif

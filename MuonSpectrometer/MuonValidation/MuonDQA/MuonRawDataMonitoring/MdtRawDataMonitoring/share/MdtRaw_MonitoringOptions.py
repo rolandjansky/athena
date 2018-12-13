@@ -19,6 +19,8 @@ if not 'MuonDQAFlags' in dir():
     print "MuonDQAFlags.py: MuonDQAFlags not yet imported - I import them now"
     from MuonDQAMonFlags.MuonDQAFlags import MuonDQAFlags as MuonDQAFlags
 
+from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
+
 mdtRawMonMan = AthenaMonManager(name="MdtRawMonManager",
                                 FileKey             = DQMonFlags.monManFileKey(),
                                 Environment         = DQMonFlags.monManEnvironment(),
@@ -42,7 +44,7 @@ mdtRawDataValAlg_main = MdtRawDataValAlg(name='mdtRawDataValAlg_main',
                                          #MaxTDCCutForBackground = 0.,
                                          #TGCTrigKey = 136,                                    
                                          #RPCTrigKey = 144,
-                                         AtlasFilterTool = [ monAtlasReadyFilterTool ],
+                                         AtlasFilterTool = [ GetAtlasReadyFilterTool() ],
                                          do_mdtChamberHits = isTier0Flag,
                                          do_mdttdccut_sector = isTier0Flag,  
                                          do_mdtchamberstatphislice = isTier0Flag,
@@ -91,7 +93,7 @@ if( isTier0Flag ) :
                                                 #MaxTDCCutForBackground = 0.,
                                                 #TGCTrigKey = 136,       
                                                 #RPCTrigKey = 144,
-                                                AtlasFilterTool = [ monAtlasReadyFilterTool ],
+                                                AtlasFilterTool = [ GetAtlasReadyFilterTool() ],
                                                 do_mdtChamberHits = False,
                                                 do_mdttdccut_sector = False,                                         
                                                 do_mdtchamberstatphislice = False,

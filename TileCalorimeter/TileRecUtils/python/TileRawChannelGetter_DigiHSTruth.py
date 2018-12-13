@@ -16,8 +16,7 @@ class TileRawChannelGetter_DigiHSTruth ( Configured)  :
     algorithm to obtain TileRawChannel objects from the TileDigits stored
     in a TileDigitsContainer.
     According to the values of the TileRecFlags jobProperties, the
-    corresponding AlgTools are added tothe ToolSvc and associated to
-    TileRawChannelMaker algorithm.
+    corresponding AlgTools are added to TileRawChannelMaker algorithm.
     """
     
     _outputType = "TileRawChannelContainer"
@@ -79,7 +78,6 @@ class TileRawChannelGetter_DigiHSTruth ( Configured)  :
         if jobproperties.TileRecFlags.noiseFilter() == 1:
             from TileRecUtils.TileRecUtilsConf import TileRawChannelNoiseFilter
             theTileRawChannelNoiseFilter = TileRawChannelNoiseFilter()
-            ToolSvc += theTileRawChannelNoiseFilter
             NoiseFilterTools += [theTileRawChannelNoiseFilter]
 
         TileFrameLength = ServiceMgr.TileInfoLoader.NSamples
@@ -101,10 +99,13 @@ class TileRawChannelGetter_DigiHSTruth ( Configured)  :
                     return False
                 
                 # setup COOL to get OFCs
+                toolOfcCool = None
                 if jobproperties.TileRecFlags.OfcFromCOOL():
                     from TileConditions.TileInfoConfigurator import TileInfoConfigurator
                     tileInfoConfigurator = TileInfoConfigurator()
                     tileInfoConfigurator.setupCOOLOFC()
+                    from TileConditions.TileCondToolConf import getTileCondToolOfcCool
+                    toolOfcCool = getTileCondToolOfcCool('COOL')
                 else:
                     from TileConditions.TileInfoConfigurator import TileInfoConfigurator
                     tileInfoConfigurator = TileInfoConfigurator()
@@ -126,18 +127,18 @@ class TileRawChannelGetter_DigiHSTruth ( Configured)  :
                 theTileRawChannelBuilderOptATLAS.MaxIterations = 1; # just one iteration
                 theTileRawChannelBuilderOptATLAS.Minus1Iteration = FALSE; # assume that max sample is at t=0
                 theTileRawChannelBuilderOptATLAS.AmplitudeCorrection = jobproperties.TileRecFlags.correctAmplitude()
-                #theTileRawChannelBuilderOptATLAS.OfcfromCool = jobproperties.TileRecFlags.OfcFromCOOL()            
-                theTileRawChannelBuilderOptATLAS.TileCondToolOfc = ToolSvc.TileCondToolOfcCool
+                if jobproperties.TileRecFlags.OfcFromCOOL():
+                    theTileRawChannelBuilderOptATLAS.TileCondToolOfc = toolOfcCool
 
                 theTileRawChannelBuilderOptATLAS.AmpMinForAmpCorrection = jobproperties.TileRecFlags.AmpMinForAmpCorrection()
                 if jobproperties.TileRecFlags.TimeMaxForAmpCorrection() > jobproperties.TileRecFlags.TimeMinForAmpCorrection():
                     theTileRawChannelBuilderOptATLAS.TimeMinForAmpCorrection = jobproperties.TileRecFlags.TimeMinForAmpCorrection()
                     theTileRawChannelBuilderOptATLAS.TimeMaxForAmpCorrection = jobproperties.TileRecFlags.TimeMaxForAmpCorrection()
                 
-                mlog.info(" adding now TileRawChannelBuilderOpt2Filter with name TileRawChannelBuilderOptATLAS to ToolSvc")
-                ToolSvc += theTileRawChannelBuilderOptATLAS
-                
-                theTileRawChannelMaker.TileRawChannelBuilder += [ToolSvc.TileRawChannelBuilderOptATLAS_DigiHSTruth]
+                mlog.info(" adding now TileRawChannelBuilderOpt2Filter with name TileRawChannelBuilderOptATLAS to the aglorithm: %s"
+                          % theTileRawChannelMaker.name())
+
+                theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderOptATLAS]
             
 
             #jobproperties.TileRecFlags.print_JobProperties('tree&value')

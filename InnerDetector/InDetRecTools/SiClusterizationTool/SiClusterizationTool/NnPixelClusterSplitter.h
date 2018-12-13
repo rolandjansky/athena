@@ -16,8 +16,7 @@
 #include "InDetRecToolInterfaces/IPixelClusterSplitter.h"
 #include "InDetPrepRawData/PixelClusterParts.h"
 #include "InDetPrepRawData/PixelClusterSplitProb.h"
-
-class IBeamCondSvc;
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 namespace InDet
 {
@@ -52,7 +51,7 @@ namespace InDet
     private:
 
       ToolHandle<NnClusterizationFactory> m_NnClusterizationFactory;
-      ServiceHandle<IBeamCondSvc> m_iBeamCondSvc;
+      SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
       double m_thresholdSplittingIntoTwoClusters;
       double m_thresholdSplittingIntoThreeClusters;

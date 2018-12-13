@@ -27,8 +27,12 @@ StatusCode EventViewCreatorAlgorithmWithJets::initialize() {
 
 StatusCode EventViewCreatorAlgorithmWithJets::execute_r( const EventContext& context ) const { 
   auto outputHandles = decisionOutputs().makeHandles( context );     
-  // make the views
-  auto viewVector = std::make_unique< ViewContainer >();
+  // make and store the views
+  auto viewsHandle = SG::makeHandle( m_viewsKey ); 
+  auto viewVector1 = std::make_unique< ViewContainer >();
+  ATH_CHECK( viewsHandle.record(  std::move( viewVector1 ) ) );
+  auto viewVector = viewsHandle.ptr();
+
   auto contexts = std::vector<EventContext>( );
   unsigned int viewCounter = 0;
   unsigned int conditionsRun = getContext().getExtension<Atlas::ExtendedEventContext>().conditionsRun();
@@ -56,10 +60,9 @@ StatusCode EventViewCreatorAlgorithmWithJets::execute_r( const EventContext& con
     ATH_MSG_DEBUG( "Got input " << inputKey.key() << " with " << inputHandle->size() << " elements" );
     
      // prepare output decisions
-    auto outputDecisions = std::make_unique<TrigCompositeUtils::DecisionContainer>();    
-    auto decAux = std::make_unique<TrigCompositeUtils::DecisionAuxContainer>();
-    outputDecisions->setStore( decAux.get() );
-
+    TrigCompositeUtils::createAndStore(outputHandles[outputIndex]);
+    TrigCompositeUtils::DecisionContainer* outputDecisions = outputHandles[outputIndex].ptr();
+    
     const TrigRoiDescriptor* prevRoIDescriptor = nullptr;
     int inputCounter = -1;
     for ( auto inputDecision: *inputHandle ) {
@@ -83,14 +86,14 @@ StatusCode EventViewCreatorAlgorithmWithJets::execute_r( const EventContext& con
       TrigCompositeUtils::Decision* newDecision = nullptr;      
       if ( prevRoIDescriptor != roiDescriptor ) {
 	//make one TC decision output per input and connect to previous
-	newDecision = TrigCompositeUtils::newDecisionIn( outputDecisions.get(), name() );
+	newDecision = TrigCompositeUtils::newDecisionIn( outputDecisions, name() );
 	TrigCompositeUtils::linkToPrevious( newDecision, inputKey.key(), inputCounter );
 	insertDecisions( inputDecision, newDecision );
 	newDecision->setObjectLink( "initialRoI", roiELInfo.link );
 	newDecision->setObjectLink( "jets", jetELInfo.link );
 	prevRoIDescriptor = roiDescriptor;
       } else {
-	newDecision = outputDecisions.get()->back();
+	newDecision = outputDecisions->back();
 	newDecision->setObjectLink( "seedEnd", ElementLink<TrigCompositeUtils::DecisionContainer>( inputHandle.key(), inputCounter ) );
 	insertDecisions( inputDecision, newDecision );
 	ATH_MSG_DEBUG("No need to create another output decision object, just adding decision IDs");
@@ -126,18 +129,15 @@ StatusCode EventViewCreatorAlgorithmWithJets::execute_r( const EventContext& con
     }
     
     ATH_MSG_DEBUG( "Recording output key " <<  decisionOutputs()[ outputIndex ].key() <<" of size "<< outputDecisions->size()  <<" at index "<< outputIndex);
-    ATH_CHECK( outputHandles[outputIndex].record( std::move( outputDecisions ), std::move( decAux ) ) );
   }
 
   ATH_MSG_DEBUG( "Launching execution in " << viewVector->size() << " views" );
-  ATH_CHECK( ViewHelper::ScheduleViews( viewVector.get(),           // Vector containing views
+  ATH_CHECK( ViewHelper::ScheduleViews( viewVector,           // Vector containing views
 					m_viewNodeName,             // CF node to attach views to
 					context,                    // Source context
 					m_scheduler.get() ) );
   
-  // store views
-  auto viewsHandle = SG::makeHandle( m_viewsKey );
-  ATH_CHECK( viewsHandle.record(  std::move( viewVector ) ) );
+  // report number of views, stored already when container was created
   ATH_MSG_DEBUG( "Store "<< viewsHandle->size() <<" Views");
 
   size_t validInputCount = countInputHandles( context );  

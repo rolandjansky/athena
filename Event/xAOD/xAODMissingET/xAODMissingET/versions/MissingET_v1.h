@@ -57,13 +57,14 @@ namespace xAOD
     /*!@{*/
     const std::string& name() const;                /*!< @brief MET object name */
     MissingETBase::Types::bitmask_t source() const; /*!< @brief MET object source tag */
-    const std::size_t& nameHash() const;            /*!< @brief Return hash associated to the MET object name */
+    std::size_t nameHash() const;                   /*!< @brief Return hash associated to the MET object name */
     /*!@}*/
 
     /*! @name Identifier setters */
     /*!@{*/
     void setName(const std::string& name);               /*!< @brief Set the name of the MET object */
     void setSource(MissingETBase::Types::bitmask_t src); /*!< @brief Set the source of the MET object */
+    void updateHash();                                   /*!< @brief Update the hash to match the current name */
     /*!@}*/
 
     /*! @name Manipulating the kinematic data */
@@ -107,11 +108,12 @@ namespace xAOD
     double&                           f_mpy();     /*!< @brief Returns reference to @f$ p_{y} @f$ store */
     double&                           f_sumet();  /*!< @brief Returns reference to @f$ \Sigma E_{\rm T} @f$ store */
     std::string&                      f_name();   /*!< @brief Returns reference to MET object name store */
+    const std::string&                f_nameConst(); /*!< @brief Returns const reference to the MET object name store*/
     MissingETBase::Types::bitmask_t&  f_source(); /*!< @brief Returns reference to MET object source store */
     /*!@}*/
 
   private:
-    mutable std::pair< std::string , std::size_t> m_nameHashPair;/*!< @brief Stores the hash function for the current f_name string */
+    std::size_t m_nameHash;/*!< @brief Stores the hash for the current f_name string */
   };
 }
 

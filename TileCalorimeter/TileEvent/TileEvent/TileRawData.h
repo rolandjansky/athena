@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -46,7 +46,7 @@ public:
     TileRawData(const Identifier& id);
 
     /* Destructor */
-    virtual ~TileRawData() {}
+    virtual ~TileRawData() = default;
 
     /*  Inline accessor methods: */
     inline Identifier   identify(void)  const   { return adc_ID();   }

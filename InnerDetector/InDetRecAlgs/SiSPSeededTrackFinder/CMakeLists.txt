@@ -10,7 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/StoreGate
                           GaudiKernel
-                          InnerDetector/InDetConditions/InDetBeamSpotService
+                          InnerDetector/InDetConditions/BeamSpotConditionsData
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
                           Tracking/TrkDetDescr/TrkGeometry
                           Tracking/TrkDetDescr/TrkSurfaces

@@ -10,8 +10,6 @@
 
 // TrackToVertex includes
 #include "TrackToVertex/TrackToVertexAssociator.h"
-// Inner Detector includes
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 // Tracking includes
 #include "TrkTrack/Track.h"
 #include "TrkParticleBase/TrackParticleBase.h"
@@ -33,7 +31,6 @@ Reco::TrackToVertexAssociator::TrackToVertexAssociator( const std::string& type,
 		      const IInterface* parent ) : 
   ::AthAlgTool  ( type, name, parent   ),
   m_storeGate( "StoreGateSvc", name ),
-  m_beamCondSvc("BeamCondSvc", name),
   m_incidentSvc("IncidentSvc", name),
   m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
   m_primaryVertexContainer("VxPrimaryVertices"),
@@ -46,7 +43,6 @@ Reco::TrackToVertexAssociator::TrackToVertexAssociator( const std::string& type,
   // Property declaration
   // Services 
   declareProperty( "EventStore",            m_storeGate );
-  declareProperty( "BeamConditionsService", m_beamCondSvc );
   declareProperty( "IncidentService",       m_incidentSvc );
   // Tools
   declareProperty( "Extrapolator",          m_extrapolator );
@@ -69,10 +65,7 @@ StatusCode Reco::TrackToVertexAssociator::initialize()
       ATH_MSG_WARNING("Can not retrieve " << m_storeGate << ". Exiting.");
       return StatusCode::FAILURE;
   }
-  if (m_beamCondSvc.retrieve().isFailure()){
-      ATH_MSG_WARNING("Can not retrieve " << m_beamCondSvc << ". Exiting.");
-      return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_beamSpotKey.initialize());
   if (m_incidentSvc.retrieve().isFailure()){
       ATH_MSG_WARNING("Can not retrieve " << m_incidentSvc << ". Exiting.");
       return StatusCode::FAILURE;
@@ -146,10 +139,10 @@ StatusCode Reco::TrackToVertexAssociator::updateCache() const
   delete m_beamLine; m_beamLine = 0;
 
   // get the transform
-
-  Amg::Transform3D* beamTransform = new Amg::Transform3D(Amg::AngleAxis3D(m_beamCondSvc->beamTilt(0),Amg::Vector3D(0.,1.,0.)));
-  (*beamTransform) *= Amg::AngleAxis3D(m_beamCondSvc->beamTilt(1),Amg::Vector3D(1.,0.,0.));
-  beamTransform->pretranslate(m_beamCondSvc->beamPos());
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  Amg::Transform3D* beamTransform = new Amg::Transform3D(Amg::AngleAxis3D(beamSpotHandle->beamTilt(0),Amg::Vector3D(0.,1.,0.)));
+  (*beamTransform) *= Amg::AngleAxis3D(beamSpotHandle->beamTilt(1),Amg::Vector3D(1.,0.,0.));
+  beamTransform->pretranslate(beamSpotHandle->beamPos());
   m_beamLine = new Trk::StraightLineSurface(beamTransform);
 	 
   

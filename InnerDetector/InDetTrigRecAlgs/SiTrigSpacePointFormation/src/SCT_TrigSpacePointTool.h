@@ -36,7 +36,7 @@
 
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
-
+#include "BeamSpotConditionsData/BeamSpotData.h"
 #include <string>
 
 class SCT_ID;
@@ -46,7 +46,6 @@ class SpacePointContainer;
 class SvcLocator;
 class StoreGateSvc;
 class SCT_NeighboursTable;
-class IBeamCondSvc;
 
 namespace InDet { class SiElementPropertiesTable;}
 namespace InDetDD { class SiDetectorElementCollection; }
@@ -130,8 +129,7 @@ namespace InDet {
     float m_yVertex;
     float m_zVertex;
 
-    ServiceHandle<IBeamCondSvc> m_iBeamCondSvc;
-    std::string  m_beamCondSvcName;
+    SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
     SpacePointOverlapCollection* m_spacepointoverlapCollection; 
 
     

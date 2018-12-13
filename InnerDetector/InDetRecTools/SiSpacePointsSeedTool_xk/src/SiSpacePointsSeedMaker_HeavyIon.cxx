@@ -16,7 +16,6 @@
 #include <iomanip>
 
 #include "SiSpacePointsSeedTool_xk/SiSpacePointsSeedMaker_HeavyIon.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
@@ -82,7 +81,6 @@ InDet::SiSpacePointsSeedMaker_HeavyIon::SiSpacePointsSeedMaker_HeavyIon
   m_zbeam[0]  = 0.      ; m_zbeam[1]= 0.; m_zbeam[2]=0.; m_zbeam[3]=1.;
   
 
-  m_beamconditions         = "BeamCondSvc"       ;
 //  m_spacepointsSCT         = 0                   ;
 //  m_spacepointsPixel       = 0                   ;
 //  m_spacepointsOverlap     = 0                   ;
@@ -121,7 +119,6 @@ InDet::SiSpacePointsSeedMaker_HeavyIon::SiSpacePointsSeedMaker_HeavyIon
   declareProperty("SpacePointsSCTName"    ,m_spacepointsSCT    );
   declareProperty("SpacePointsPixelName"  ,m_spacepointsPixel  );
   declareProperty("SpacePointsOverlapName",m_spacepointsOverlap);
-  declareProperty("BeamConditionsService" ,m_beamconditions        ); 
   declareProperty("useOverlapSpCollection", m_useOverlap           );
   declareProperty("MagFieldSvc"           , m_fieldServiceHandle   );
 }
@@ -168,10 +165,7 @@ StatusCode InDet::SiSpacePointsSeedMaker_HeavyIon::initialize()
 
   // Get beam geometry
   //
-  p_beam = 0;
-  if(m_beamconditions!="") {
-    sc = service(m_beamconditions,p_beam);
-  }
+  ATH_CHECK(m_beamSpotKey.initialize());
 
   // Get magnetic field service
   //
@@ -518,7 +512,7 @@ MsgStream& InDet::SiSpacePointsSeedMaker_HeavyIon::dumpConditions( MsgStream& ou
   std::string s3; for(int i=0; i<n; ++i) s3.append(" "); s3.append("|");
   n     = 42-m_spacepointsOverlap.name().size();
   std::string s4; for(int i=0; i<n; ++i) s4.append(" "); s4.append("|");
-  n     = 42-m_beamconditions.size();
+  n     = 42-m_beamSpotKey.key().size();
   std::string s5; for(int i=0; i<n; ++i) s5.append(" "); s5.append("|");
 
 
@@ -530,7 +524,7 @@ MsgStream& InDet::SiSpacePointsSeedMaker_HeavyIon::dumpConditions( MsgStream& ou
      <<std::endl;
   out<<"| Overlap  space points   | "<<m_spacepointsOverlap.name()<<s4
      <<std::endl;
-  out<<"| BeamConditionsService   | "<<m_beamconditions<<s5
+  out<<"| BeamConditionsService   | "<<m_beamSpotKey.key()<<s5
      <<std::endl;
   out<<"| usePixel                | "
      <<std::setw(12)<<m_pixel 
@@ -942,11 +936,11 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::buildFrameWork()
 
 void InDet::SiSpacePointsSeedMaker_HeavyIon::buildBeamFrameWork() 
 { 
-  if(!p_beam) return;
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
 
-  Amg::Vector3D cb =     p_beam->beamPos();
-  double     tx = tan(p_beam->beamTilt(0));
-  double     ty = tan(p_beam->beamTilt(1));
+  const Amg::Vector3D &cb =     beamSpotHandle->beamPos();
+  double     tx = tan(beamSpotHandle->beamTilt(0));
+  double     ty = tan(beamSpotHandle->beamTilt(1));
 
   double ph   = atan2(ty,tx);
   double th   = acos(1./sqrt(1.+tx*tx+ty*ty));

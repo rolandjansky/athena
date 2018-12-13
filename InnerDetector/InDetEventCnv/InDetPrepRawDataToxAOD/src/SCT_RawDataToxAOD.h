@@ -1,13 +1,11 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_RAWDATATOXAOD_H
 #define SCT_RAWDATATOXAOD_H
-
-#include <string>
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
@@ -18,6 +16,8 @@
 #include "InDetRawData/SCT_RDO_Container.h"
 // xAOD container type
 #include "xAODTracking/SCTRawHitValidationContainer.h"
+
+#include <string>
 
 class ISvcLocator;
 class SCT_ID;
@@ -35,9 +35,8 @@ public:
 private:
   const SCT_ID* m_SCTHelper;
 
-  std::string m_clustercontainer;
-  SG::ReadHandleKey<SCT_RDO_Container> m_rdoContainerName;
-  SG::WriteHandleKey<xAOD::SCTRawHitValidationContainer> m_xAodRawHitContainerName;
+  SG::ReadHandleKey<SCT_RDO_Container> m_rdoContainerName{this, "SctRdoContainer", "SCT_RDOs"};
+  SG::WriteHandleKey<xAOD::SCTRawHitValidationContainer> m_xAodRawHitContainerName{this, "SctxAodRawHitContainer", "SCT_RawHits"};
 };
 
-#endif
+#endif // SCT_RAWDATATOXAOD_H

@@ -29,13 +29,10 @@ StatusCode DecisionSummaryMakerAlg::finalize() {
 }
 
 StatusCode DecisionSummaryMakerAlg::execute_r(const EventContext& context) const {
-  auto outputHandle{ SG::makeHandle( m_summaryKey, context) };
-  auto container = std::make_unique<TrigCompositeUtils::DecisionContainer>();
-  auto aux = std::make_unique<TrigCompositeUtils::DecisionAuxContainer>();
-  container->setStore( aux.get() );
+  SG::WriteHandle<TrigCompositeUtils::DecisionContainer> outputHandle = TrigCompositeUtils::createAndStore( m_summaryKey, context );
+  auto container = outputHandle.ptr();
 
-
-  TrigCompositeUtils::Decision* output = TrigCompositeUtils::newDecisionIn( container.get(), "HLTSummary" );
+  TrigCompositeUtils::Decision* output = TrigCompositeUtils::newDecisionIn( container, "HLTSummary" );
   
   for ( auto& key: m_finalDecisionKeys ) {
     auto handle{ SG::makeHandle(key, context) };
@@ -69,7 +66,6 @@ StatusCode DecisionSummaryMakerAlg::execute_r(const EventContext& context) const
       ATH_MSG_DEBUG( HLT::Identifier( d ) );
     }
   }
-  ATH_CHECK( outputHandle.record( std::move( container), std::move( aux )) );
 
   return StatusCode::SUCCESS;
 }

@@ -40,8 +40,9 @@ InDetSCTTracksMonTool = SCTTracksMonTool ( name             = "InDetSCTTracksMon
 
 InDetSCTTracksMonTool.tracksName = InDetKeys.SCTTracks() if  InDetFlags.doTrackSegmentsSCT() else InDetKeys.UnslimmedTracks()
 
-if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-  InDetSCTTracksMonTool.FilterTools += [monFilledBunchFilterTool]
+if jobproperties.Beam.beamType()=='collisions':
+  from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
+  InDetSCTTracksMonTool.FilterTools += [GetFilledBunchFilterTool()]
 
 #ToolSvc += InDetSCTTracksMonTool
 if (InDetFlags.doPrintConfigurables()):
@@ -56,8 +57,9 @@ InDetSCTErrMonTool = SCTErrMonTool ( name             = "InDetSCTErrMonTool",
                                      doPositiveEndcap = True,
                                      doNegativeEndcap = True)
 
-if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-  InDetSCTErrMonTool.FilterTools += [monFilledBunchFilterTool]
+if jobproperties.Beam.beamType()=='collisions':
+  from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
+  InDetSCTErrMonTool.FilterTools += [GetFilledBunchFilterTool()]
   
 #ToolSvc += InDetSCTErrMonTool
 if (InDetFlags.doPrintConfigurables()):
@@ -91,8 +93,9 @@ InDetSCTHitEffMonTool = SCTHitEffMonTool(name = "InDetSCTHitEffMonTool",
 
 InDetSCTHitEffMonTool.TrackName = InDetKeys.SCTTracks() if  InDetFlags.doTrackSegmentsSCT() else InDetKeys.UnslimmedTracks()
 
-if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-  InDetSCTHitEffMonTool.FilterTools += [monFilledBunchFilterTool]
+if jobproperties.Beam.beamType()=='collisions':
+  from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
+  InDetSCTHitEffMonTool.FilterTools += [GetFilledBunchFilterTool()]
   
 #ToolSvc += InDetSCTHitEffMonTool
 if (InDetFlags.doPrintConfigurables()):
@@ -109,8 +112,9 @@ InDetSCTLorentzMonTool = SCTLorentzMonTool ( name             = "InDetSCTLorentz
 
 InDetSCTLorentzMonTool.tracksName = InDetKeys.SCTTracks() if  InDetFlags.doTrackSegmentsSCT() else InDetKeys.UnslimmedTracks()
 
-if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-  InDetSCTLorentzMonTool.FilterTools += [monFilledBunchFilterTool]
+if jobproperties.Beam.beamType()=='collisions':
+  from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
+  InDetSCTLorentzMonTool.FilterTools += [GetFilledBunchFilterTool()]
   
 #ToolSvc += InDetSCTLorentzMonTool
 if (InDetFlags.doPrintConfigurables()):

@@ -1825,10 +1825,13 @@ class TrigCaloClusterMakerMT_topo (TrigCaloClusterMakerMTBase):
         #self.ClusterCorrectionTools += [TrigBadChannelListCorr.getFullName()]
         
         self += TrigTopoMaker
+        self.TrigTopoMaker.OutputLevel=5
         self += TrigTopoSplitter
+        self.TrigTopoSplitter.OutputLevel=5
         #self += TrigBadChannelListCorr
         if doMoments:
           self += TrigTopoMoments
+          self.TrigTopoMoments.OutputLevel=5
 
         self.ClusterCorrectionTools = [  ]
         #self.ClusterCorrectionTools = [ TrigLockVariables.getFullName() ]

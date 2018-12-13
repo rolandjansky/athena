@@ -37,7 +37,6 @@ egammaOQFlagsBuilder::egammaOQFlagsBuilder(const std::string& type,
   // declare interface
   declareInterface<IegammaBaseTool>(this);
 
-  m_affRegVec = 0;
   m_calocellId = 0;
 }
 
@@ -60,6 +59,7 @@ StatusCode egammaOQFlagsBuilder::initialize()
  
   ATH_CHECK(m_cellsKey.initialize());
   ATH_CHECK(m_bcContKey.initialize());
+  ATH_CHECK(m_affKey.initialize());
 
    //Get CaloAffectedTool
   StatusCode sc = m_affectedTool.retrieve();
@@ -342,12 +342,19 @@ StatusCode egammaOQFlagsBuilder::execute(const EventContext& ctx, xAOD::Egamma* 
   dphi=0.5*0.025*phiSize;
   layer=CaloSampling::PreSamplerE;
 
-  bool checkNNHV_PSE   = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,1) ; //nnHVPS
-  bool checkDEADHV_PSE = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,2) ; //deadHVPS
+  //Get affected info for this event
+  SG::ReadCondHandle<CaloAffectedRegionInfoVec> affHdl{m_affKey,ctx};
+  const CaloAffectedRegionInfoVec* affCont=*affHdl;
+  if(!affCont) {
+     ATH_MSG_WARNING("Do not have affected regions info, is this expected ?");
+  }
+    
+  bool checkNNHV_PSE   = m_affectedTool->isAffected(cluster, affCont, deta , dphi ,layer,layer,1) ; //nnHVPS
+  bool checkDEADHV_PSE = m_affectedTool->isAffected(cluster, affCont, deta , dphi ,layer,layer,2) ; //deadHVPS
   layer=CaloSampling::PreSamplerB;
 
-  bool checkNNHV_PSB   = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,1) ; //nnHVPS
-  bool checkDEADHV_PSB = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,2) ; //deadHVPS
+  bool checkNNHV_PSB   = m_affectedTool->isAffected(cluster, affCont, deta , dphi ,layer,layer,1) ; //nnHVPS
+  bool checkDEADHV_PSB = m_affectedTool->isAffected(cluster, affCont, deta , dphi ,layer,layer,2) ; //deadHVPS
   if(checkNNHV_PSE || checkNNHV_PSB)      iflag |= ( 0x1 << xAOD::EgammaParameters::NonNominalHVPS); 
   if(checkDEADHV_PSE || checkDEADHV_PSB)  iflag |= ( 0x1 << xAOD::EgammaParameters::DeadHVPS);
 
@@ -357,9 +364,9 @@ StatusCode egammaOQFlagsBuilder::execute(const EventContext& ctx, xAOD::Egamma* 
   //   dphi=0.;
   deta=0.5*0.025*3.;
   dphi=0.5*0.025*3.;
-  bool checkDEADHV_CORE_B = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,2) ; //deadHVPS
+  bool checkDEADHV_CORE_B = m_affectedTool->isAffected(cluster, affCont, deta , dphi ,layer,layer,2) ; //deadHVPS
   layer=CaloSampling::EME2;
-  bool checkDEADHV_CORE_E = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,2) ; //deadHVPS
+  bool checkDEADHV_CORE_E = m_affectedTool->isAffected(cluster, affCont, deta , dphi ,layer,layer,2) ; //deadHVPS
   if(checkDEADHV_CORE_B || checkDEADHV_CORE_E)  iflag |= ( 0x1 << xAOD::EgammaParameters::DeadHVS1S2S3Core); 
 
   //----------------> SAMPLINGS 1,2,3 : CLUSTER EDGE
@@ -367,28 +374,28 @@ StatusCode egammaOQFlagsBuilder::execute(const EventContext& ctx, xAOD::Egamma* 
   dphi=0.5*0.025*phiSize;
   layer=CaloSampling::EMB1;
 
-  bool checkNNHV_EMB1   = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,1) ; //nnHVPS
-  bool checkDEADHV_EMB1 = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,2) ; //deadHVPS
+  bool checkNNHV_EMB1   = m_affectedTool->isAffected(cluster, affCont, deta , dphi ,layer,layer,1) ; //nnHVPS
+  bool checkDEADHV_EMB1 = m_affectedTool->isAffected(cluster, affCont, deta , dphi ,layer,layer,2) ; //deadHVPS
   layer=CaloSampling::EMB2;
 
-  bool checkNNHV_EMB2   = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,1) ; //nnHVPS
-  bool checkDEADHV_EMB2 = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,2) ; //deadHVPS
+  bool checkNNHV_EMB2   = m_affectedTool->isAffected(cluster, affCont, deta , dphi ,layer,layer,1) ; //nnHVPS
+  bool checkDEADHV_EMB2 = m_affectedTool->isAffected(cluster, affCont, deta , dphi ,layer,layer,2) ; //deadHVPS
   layer=CaloSampling::EMB3;
 
-  bool checkNNHV_EMB3   = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,1) ; //nnHVPS
-  bool checkDEADHV_EMB3 = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,2) ; //deadHVPS
+  bool checkNNHV_EMB3   = m_affectedTool->isAffected(cluster, affCont, deta , dphi ,layer,layer,1) ; //nnHVPS
+  bool checkDEADHV_EMB3 = m_affectedTool->isAffected(cluster, affCont, deta , dphi ,layer,layer,2) ; //deadHVPS
   layer=CaloSampling::EME1;
 
-  bool checkNNHV_EME1   = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,1) ; //nnHVPS
-  bool checkDEADHV_EME1 = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,2) ; //deadHVPS
+  bool checkNNHV_EME1   = m_affectedTool->isAffected(cluster, affCont, deta , dphi ,layer,layer,1) ; //nnHVPS
+  bool checkDEADHV_EME1 = m_affectedTool->isAffected(cluster, affCont, deta , dphi ,layer,layer,2) ; //deadHVPS
   layer=CaloSampling::EME2;
 
-  bool checkNNHV_EME2   = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,1) ; //nnHVPS
-  bool checkDEADHV_EME2 = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,2) ; //deadHVPS
+  bool checkNNHV_EME2   = m_affectedTool->isAffected(cluster, affCont, deta , dphi ,layer,layer,1) ; //nnHVPS
+  bool checkDEADHV_EME2 = m_affectedTool->isAffected(cluster, affCont, deta , dphi ,layer,layer,2) ; //deadHVPS
   layer=CaloSampling::EME3;
 
-  bool checkNNHV_EME3   = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,1) ; //nnHVPS
-  bool checkDEADHV_EME3 = m_affectedTool->isAffected(cluster ,deta , dphi ,layer,layer,2) ; //deadHVPS
+  bool checkNNHV_EME3   = m_affectedTool->isAffected(cluster, affCont, deta , dphi ,layer,layer,1) ; //nnHVPS
+  bool checkDEADHV_EME3 = m_affectedTool->isAffected(cluster, affCont, deta , dphi ,layer,layer,2) ; //deadHVPS
   if(checkNNHV_EMB1 || checkNNHV_EME1 || checkNNHV_EMB2 || checkNNHV_EME2 ||checkNNHV_EMB3 || checkNNHV_EME3) 
     iflag |= ( 0x1 << xAOD::EgammaParameters::NonNominalHVS1S2S3); 
   if(checkDEADHV_EMB1 || checkDEADHV_EME1 || checkDEADHV_EMB2 || checkDEADHV_EME2 ||checkDEADHV_EMB3 || checkDEADHV_EME3)  

@@ -27,8 +27,12 @@ StatusCode EventViewCreatorAlgorithm::initialize() {
 
 StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) const { 
   auto outputHandles = decisionOutputs().makeHandles( context );     
-  // make the views
-  auto viewVector = std::make_unique< ViewContainer >();
+  // make and store the views
+  auto viewsHandle = SG::makeHandle( m_viewsKey ); 
+  auto viewVector1 = std::make_unique< ViewContainer >();
+  ATH_CHECK( viewsHandle.record(  std::move( viewVector1 ) ) );
+  auto viewVector = viewsHandle.ptr();
+  
   auto contexts = std::vector<EventContext>( );
   unsigned int viewCounter = 0;
   unsigned int conditionsRun = getContext().getExtension<Atlas::ExtendedEventContext>().conditionsRun();
@@ -48,17 +52,15 @@ StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) c
       ATH_MSG_DEBUG( "Got no decisions from input " << inputKey.key() );
       continue;
     }
-    
     if( inputHandle->size() == 0 ) { // input filtered out
-      ATH_MSG_ERROR( "Got 0 decisions from valid input "<< inputKey.key()<<". Is it expected?");
-      return StatusCode::FAILURE;
+      ATH_MSG_DEBUG( "Got no decisions from input " << inputKey.key() );
+      continue;
     }
     ATH_MSG_DEBUG( "Got input " << inputKey.key() << " with " << inputHandle->size() << " elements" );
     
      // prepare output decisions
-    auto outputDecisions = std::make_unique<TrigCompositeUtils::DecisionContainer>();    
-    auto decAux = std::make_unique<TrigCompositeUtils::DecisionAuxContainer>();
-    outputDecisions->setStore( decAux.get() );
+    TrigCompositeUtils::createAndStore(outputHandles[outputIndex]);
+    TrigCompositeUtils::DecisionContainer* outputDecisions = outputHandles[outputIndex].ptr();
 
     const TrigRoiDescriptor* prevRoIDescriptor = nullptr;
     int inputCounter = -1;
@@ -74,13 +76,13 @@ StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) c
       TrigCompositeUtils::Decision* newDecision = nullptr;      
       if ( prevRoIDescriptor != roiDescriptor ) {
 	//make one TC decision output per input and connect to previous
-	newDecision = TrigCompositeUtils::newDecisionIn( outputDecisions.get(), name() );
+	newDecision = TrigCompositeUtils::newDecisionIn( outputDecisions, name() );
 	TrigCompositeUtils::linkToPrevious( newDecision, inputKey.key(), inputCounter );
 	insertDecisions( inputDecision, newDecision );
 	newDecision->setObjectLink( "initialRoI", roiELInfo.link );
 	prevRoIDescriptor = roiDescriptor;
       } else {
-	newDecision = outputDecisions.get()->back();
+	newDecision = outputDecisions->back();
 	newDecision->setObjectLink( "seedEnd", ElementLink<TrigCompositeUtils::DecisionContainer>( inputHandle.key(), inputCounter ) );
 	insertDecisions( inputDecision, newDecision );
 	ATH_MSG_DEBUG("No need to create another output decision object, just adding decision IDs");
@@ -114,19 +116,16 @@ StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) c
       }
     }
     
-    ATH_MSG_DEBUG( "Recording output key " <<  decisionOutputs()[ outputIndex ].key() <<" of size "<< outputDecisions->size()  <<" at index "<< outputIndex);
-    ATH_CHECK( outputHandles[outputIndex].record( std::move( outputDecisions ), std::move( decAux ) ) );
+    ATH_MSG_DEBUG( "Recorded output key " <<  decisionOutputs()[ outputIndex ].key() <<" of size "<< outputDecisions->size()  <<" at index "<< outputIndex);
   }
 
   ATH_MSG_DEBUG( "Launching execution in " << viewVector->size() << " views" );
-  ATH_CHECK( ViewHelper::ScheduleViews( viewVector.get(),           // Vector containing views
+  ATH_CHECK( ViewHelper::ScheduleViews( viewVector,           // Vector containing views
 					m_viewNodeName,             // CF node to attach views to
 					context,                    // Source context
 					m_scheduler.get() ) );
   
-  // store views
-  auto viewsHandle = SG::makeHandle( m_viewsKey );
-  ATH_CHECK( viewsHandle.record(  std::move( viewVector ) ) );
+  // report number of views, stored already when container was created
   ATH_MSG_DEBUG( "Store "<< viewsHandle->size() <<" Views");
 
   size_t validInputCount = countInputHandles( context );  
@@ -150,7 +149,7 @@ size_t EventViewCreatorAlgorithm::countInputHandles( const EventContext& context
   for ( auto inputKey: decisionInputs() ) {
     auto inputHandle = SG::makeHandle( inputKey, context );
     ATH_MSG_DEBUG(" " << inputKey.key() << (inputHandle.isValid()? "valid": "not valid" ) );
-    if (inputHandle.isValid()) validInputCount++;
+    if (inputHandle.isValid() and inputHandle->size() > 0 ) validInputCount++;
   }
   ATH_MSG_DEBUG( "number of implicit ReadHandles is " << decisionInputs().size() << ", " << validInputCount << " are valid" );
   

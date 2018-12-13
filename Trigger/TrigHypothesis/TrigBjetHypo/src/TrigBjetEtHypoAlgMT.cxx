@@ -97,9 +97,8 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
   // ========================================================================================================================== 
 
   // Decisions
-  std::unique_ptr< TrigCompositeUtils::DecisionContainer > outputDecision( new TrigCompositeUtils::DecisionContainer() );
-  std::unique_ptr< TrigCompositeUtils::DecisionAuxContainer > outputAuxDecision( new TrigCompositeUtils::DecisionAuxContainer() );
-  outputDecision->setStore( outputAuxDecision.get() );
+  SG::WriteHandle< TrigCompositeUtils::DecisionContainer > handle = TrigCompositeUtils::createAndStore( decisionOutput(), context ); 
+  TrigCompositeUtils::DecisionContainer *outputDecisions = handle.ptr();
 
   // ==========================================================================================================================
   //    ** Compute Decisions
@@ -112,7 +111,7 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
   ATH_MSG_DEBUG("Creating Output Decisions and Linking Stuff to it");
   std::vector< TrigCompositeUtils::Decision* > newDecisions;
   for ( unsigned int index(0); index<nDecisions; index++ ) 
-    newDecisions.push_back( TrigCompositeUtils::newDecisionIn( outputDecision.get() ) );
+    newDecisions.push_back( TrigCompositeUtils::newDecisionIn( outputDecisions ) );
 
   // Adding Links
   for ( unsigned int index(0); index<nDecisions; index++ ) {
@@ -133,7 +132,7 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
     }
 
   }
-  ATH_MSG_DEBUG("   ** SUCCESSFULLY added object links to output decision");
+  ATH_MSG_DEBUG("   ** Added object links to output decision");
 
   ATH_MSG_DEBUG("Ready to Link Output Decision to Input Decision");
   // Link To previous decision
@@ -146,15 +145,6 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
     else TrigCompositeUtils::linkToPrevious( newDecisions.at( index ),decisionInput().key(),0 );
   }
 
-  // if ( m_readFromView ) {
-  //   // We have n output/input decisions (with n = jet collection size)
-  //   for ( unsigned int index(0); index<nDecisions; index++ )
-  //     TrigCompositeUtils::linkToPrevious( newDecisions.at( index ),decisionInput().key(),index );
-  // } else {
-  //   // We are producing one or several output decisions, all linked to the same input decision
-  //   for( unsigned int index(0); index<nDecisions; index++ )
-  //     TrigCompositeUtils::linkToPrevious( newDecisions.at( index ),decisionInput().key(),0 );
-  // }
   ATH_MSG_DEBUG("   ** Done with Linking Output Decision to Input Decision");
 
 
@@ -174,13 +164,6 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
     }
   }
 
-  // ==========================================================================================================================
-  //    ** Store Output
-  // ==========================================================================================================================
-
-  // Save Output Decisions
-  SG::WriteHandle< TrigCompositeUtils::DecisionContainer > handle =  SG::makeHandle( decisionOutput(), context );
-  CHECK( handle.record( std::move(outputDecision),std::move(outputAuxDecision) ) );
   ATH_MSG_DEBUG( "Exiting with " << handle->size() << " decisions" );
 
   return StatusCode::SUCCESS;
