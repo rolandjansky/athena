@@ -211,10 +211,6 @@ class TileCondProxyMock: public AthAlgTool, virtual public ITileCondProxy<T> {
       return StatusCode::SUCCESS;
     };
 
-    virtual const T* getCalibDrawer(unsigned int /*drawerIdx*/ ) const override {
-      return nullptr;
-    };
-
 };
 
 

@@ -98,15 +98,6 @@ def tileCondCfg( flags ):
     badChanTool = TileBadChanTool(name = 'TileBadChanTool', TileBadChannels = badChannels)
     acc.addPublicTool( badChanTool )
 
-    from TileConditions.TileConditionsConf import TileBadChanLegacyTool
-    from AthenaCommon.Constants import DEBUG
-    badChanLegacyTool = TileBadChanLegacyTool( 'TileBadChanLegacyTool' )
-    badChanLegacyTool.ProxyOflBch = TileCondProxyCoolBch('TileCondProxyCool_OflBchLegacy', Source = '/TILE/OFL02/STATUS/ADC' )
-    badChanLegacyTool.ProxyOnlBch = TileCondProxyCoolBch('TileCondProxyCool_OnlBchLegacy', Source = '/TILE/ONL01/STATUS/ADC', OutputLevel=DEBUG )    
-    acc.addPublicTool( badChanLegacyTool )
-
-
-
     acc.merge( addFolders(flags, ['/LAR/BadChannelsOfl/BadChannels <key>/LAR/BadChannels/BadChannels</key>', 
                                   '/LAR/BadChannelsOfl/MissingFEBs<key>/LAR/BadChannels/MissingFEBs</key>'], 'LAR_OFL'))
     

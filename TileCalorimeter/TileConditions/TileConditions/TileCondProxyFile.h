@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILECONDPROXYFILE_H
@@ -40,7 +40,6 @@ class TileCondProxyFile: public AthAlgTool, virtual public ITileCondProxy<T> {
     * @param[out] eventRange EventIDRange during wich Tile conditions data are valid
     */
     virtual StatusCode fillCalibData(TileCalibData<T>& calibData, EventIDRange& eventRange) const override;
-    virtual const T* getCalibDrawer(unsigned int drawerIdx) const override;
 
   private:
 
@@ -53,9 +52,6 @@ class TileCondProxyFile: public AthAlgTool, virtual public ITileCondProxy<T> {
 
     /** Source = COOL folder */
     std::string m_source;
-
-    /** CalibDrawer vector to keep updated */
-    std::unique_ptr<TileCalibData<T>> m_calibData;
 
 };
 
