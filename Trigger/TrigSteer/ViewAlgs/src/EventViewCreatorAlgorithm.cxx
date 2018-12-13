@@ -32,7 +32,14 @@ StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) c
   ATH_CHECK (decisionInputToOutput(context, outputHandles));
  
   // make the views
-  auto viewVector = std::make_unique< ViewContainer >();
+  auto viewsHandle = SG::makeHandle( m_viewsKey ); 
+  auto viewVector1 = std::make_unique< ViewContainer >();
+  ATH_CHECK( viewsHandle.record(  std::move( viewVector1 ) ) );
+  auto viewVector = viewsHandle.ptr();
+
+
+
+    // auto viewVector = std::make_unique< ViewContainer >();
   auto contexts = std::vector<EventContext>( );
   unsigned int viewCounter = 0;
   unsigned int conditionsRun = getContext().getExtension<Atlas::ExtendedEventContext>().conditionsRun();
@@ -102,6 +109,8 @@ StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) c
 					m_scheduler.get() ) );
   
   // report number of views, stored already when container was created
+  // auto viewsHandle = SG::makeHandle( m_viewsKey );
+  // ATH_CHECK( viewsHandle.record(  std::move( viewVector ) ) );
   ATH_MSG_DEBUG( "Store "<< viewsHandle->size() <<" Views");
   
   ATH_CHECK( debugPrintOut(context, outputHandles) );
