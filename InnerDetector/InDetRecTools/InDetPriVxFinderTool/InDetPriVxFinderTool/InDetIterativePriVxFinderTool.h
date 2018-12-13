@@ -47,7 +47,6 @@
  * Forward declarations 
  */
  
-class IBeamCondSvc;
 #include "xAODTracking/VertexFwd.h"
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTracking/VertexContainerFwd.h"

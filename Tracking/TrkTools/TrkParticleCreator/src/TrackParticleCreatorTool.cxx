@@ -18,7 +18,6 @@
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "ITrackToVertex/ITrackToVertex.h" 
 #include "MagFieldInterfaces/IMagFieldSvc.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "TrkTrack/Track.h"
 #include "Particle/TrackParticle.h"
 #include "VxVertex/VxCandidate.h"

@@ -9,7 +9,7 @@ atlas_subdir( SiTrackMakerTool_xk )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           GaudiKernel
-                          InnerDetector/InDetConditions/InDetBeamSpotService
+                          InnerDetector/InDetConditions/BeamSpotConditionsData
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
                           MagneticField/MagFieldInterfaces
                           Tracking/TrkDetDescr/TrkGeometry

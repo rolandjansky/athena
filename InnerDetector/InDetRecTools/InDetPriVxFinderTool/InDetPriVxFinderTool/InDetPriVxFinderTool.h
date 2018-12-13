@@ -86,12 +86,12 @@
 */
 
 /* Forward declarations */
-class IBeamCondSvc;
+
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
-
+#include "BeamSpotConditionsData/BeamSpotData.h"
 namespace Trk
 {
 class IVertexFitter;
@@ -120,7 +120,7 @@ private:
     ToolHandle < Trk::IVertexFitter > m_iVertexFitter;
     ToolHandle< InDet::IInDetTrackSelectionTool > m_trkFilter;
 
-    ServiceHandle<IBeamCondSvc> m_iBeamCondSvc; //!< pointer to the beam condition service
+    SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" }; //!< pointer to the beam condition service
     
     /** Define a beam constraint for the fit */
     bool m_useBeamConstraint; //!<  Use a vertex/beam constraint
