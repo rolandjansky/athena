@@ -24,7 +24,6 @@ atlas_depends_on_subdirs(
   Event/xAOD/xAODEventInfo
   Event/xAOD/xAODTrigger
   Event/xAOD/xAODMuon
-  PhysicsAnalysis/JetMissingEtID/JetSelectorTools
   Reconstruction/Jet/JetMomentTools
   Reconstruction/Jet/JetUtils
   TileCalorimeter/TileCalib/TileCalibBlobObjs
