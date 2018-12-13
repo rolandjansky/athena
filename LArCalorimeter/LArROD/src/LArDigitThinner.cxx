@@ -136,7 +136,7 @@ StatusCode LArDigitThinner::finalize()
 }
 
 
-StatusCode LArDigitThinner::execute_r(const EventContext& ctx) const {
+StatusCode LArDigitThinner::execute(const EventContext& ctx) const {
   
   initCutValues(ctx); //Should return right away if the cut values are already initialized
 

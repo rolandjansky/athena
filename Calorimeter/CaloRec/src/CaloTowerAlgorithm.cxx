@@ -114,7 +114,7 @@ StatusCode CaloTowerAlgorithm::initialize()
 // Execute //
 /////////////
 
-StatusCode CaloTowerAlgorithm::execute_r (const EventContext& ctx) const
+StatusCode CaloTowerAlgorithm::execute (const EventContext& ctx) const
 {
 
   //////////////////////////

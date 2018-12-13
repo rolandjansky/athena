@@ -91,7 +91,7 @@ StatusCode egammaForwardBuilder::finalize()
 }
 
 // ======================================================================
-StatusCode egammaForwardBuilder::execute_r(const EventContext& ctx) const
+StatusCode egammaForwardBuilder::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG("Executing egammaForwardBuilder ");
 

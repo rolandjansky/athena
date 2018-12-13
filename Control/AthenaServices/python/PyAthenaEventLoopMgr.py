@@ -130,7 +130,7 @@ class PyAthenaEventLoopMgr( PyGaudi.iService ):
             if not alg._ialg:
                alg.retrieveInterface()
             ialg = alg._ialg
-            ialg.resetExecuted()
+            ialg.execState(ctx).reset()
             result = ialg.sysExecute(ctx)
             if result.isFailure():
                from AthenaCommon.Logging import log as msg

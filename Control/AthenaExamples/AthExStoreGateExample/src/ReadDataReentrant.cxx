@@ -69,7 +69,7 @@ StatusCode ReadDataReentrant::initialize()
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-StatusCode ReadDataReentrant::execute_r (const EventContext& ctx) const
+StatusCode ReadDataReentrant::execute (const EventContext& ctx) const
 {
 
   // An algorithm, like this one, retrieving an object from the StoreGate(SG)

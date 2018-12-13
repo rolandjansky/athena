@@ -4,18 +4,17 @@
 
 #include <vector>
 #include <string>
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 class IIncidentSvc;
 
-class AthIncFirerAlg : public AthAlgorithm{
+class AthIncFirerAlg : public AthReentrantAlgorithm{
 public:
   AthIncFirerAlg( const std::string& name, ISvcLocator* pSvcLocator );  
   StatusCode initialize() override;
-  StatusCode execute() override;
-  StatusCode execute_r(const EventContext& ctx) const ;
+  StatusCode execute(const EventContext& ctx) const ;
   StatusCode finalize() override;
 private:
   // Gaudi::Property<std::vector<std::string>> m_incLists{this, "Incidents", {},"List of incidents to fire"};

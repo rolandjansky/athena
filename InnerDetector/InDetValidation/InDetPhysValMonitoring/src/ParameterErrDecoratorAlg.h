@@ -28,7 +28,7 @@ public:
   ~ParameterErrDecoratorAlg();
   virtual StatusCode initialize();
   virtual StatusCode finalize();
-  virtual StatusCode execute_r(const EventContext &ctx) const;
+  virtual StatusCode execute(const EventContext &ctx) const;
 private:
   virtual bool decorateTrack(const xAOD::TrackParticle& particle,
                              std::vector< SG::WriteDecorHandle<xAOD::TrackParticleContainer,float> > &float_decor) const;

@@ -36,7 +36,7 @@ StatusCode HLTCaloCellSumMaker::initialize() {
         return StatusCode::SUCCESS;
 }
 
-StatusCode HLTCaloCellSumMaker::execute_r( const EventContext& /*context*/ ) const {
+StatusCode HLTCaloCellSumMaker::execute( const EventContext& /*context*/ ) const {
 
 
   if ( m_roiMode ) {

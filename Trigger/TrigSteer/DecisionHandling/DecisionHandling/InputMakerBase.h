@@ -24,7 +24,7 @@ This is a base class for HLT InputMakers to reduce boilerplate and enforce the c
   /// initialise this base class and renounce input decision key handles
   virtual StatusCode sysInitialize() override;
   /// execute to be implemented in derived clas
-  virtual StatusCode execute_r(const EventContext&) const override = 0;
+  virtual StatusCode execute(const EventContext&) const override = 0;
   virtual StatusCode finalize() override = 0;
   virtual StatusCode initialize() override = 0;  
  protected:

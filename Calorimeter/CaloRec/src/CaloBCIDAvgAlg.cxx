@@ -46,7 +46,7 @@ StatusCode  CaloBCIDAvgAlg::finalize() {
 
 //----------------------------------------------------------------------------------------
 
-StatusCode CaloBCIDAvgAlg::execute_r(const EventContext& ctx) const {
+StatusCode CaloBCIDAvgAlg::execute(const EventContext& ctx) const {
 
   SG::ReadHandle<xAOD::EventInfo> ei(m_eventInfoKey,ctx);
 

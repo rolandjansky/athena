@@ -47,7 +47,7 @@ using namespace AANTupleParams;
 
 // Standard Constructor
 AANTupleStream::AANTupleStream(const std::string& name, ISvcLocator* pSvcLocator) 
-  : AthAlgorithm(name, pSvcLocator),
+  : AthLegacySequence(name, pSvcLocator),
     m_persSvc      ("EventPersistencySvc", name),
     m_attribSpec(0),
     m_schemaDone(false),
@@ -153,8 +153,8 @@ StatusCode AANTupleStream::initialize()
     }      
 
   ATH_MSG_DEBUG ("End initialize ");
-  
-  return StatusCode::SUCCESS;
+
+  return AthLegacySequence::initialize();
 }
 
 
@@ -195,7 +195,7 @@ StatusCode AANTupleStream::finalize()
       gDirectory->cd(curDir.c_str());
     }
 
-  return StatusCode::SUCCESS;
+  return AthLegacySequence::finalize();
 }
 
 
@@ -606,6 +606,8 @@ StatusCode AANTupleStream::execute_subAlgos()
   
   ATH_MSG_DEBUG ("in execute_subAlgos() ...");
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  
   // -- run subalgorithms
   for ( unsigned int i=0; i < m_membersNames.size(); ++i )
     {
@@ -613,7 +615,7 @@ StatusCode AANTupleStream::execute_subAlgos()
       // skip disabled algo
       if (! (*(this->subAlgorithms()))[i]->isEnabled()) continue ;
       
-      sc = (*(this->subAlgorithms()))[i]->execute();
+      sc = (*(this->subAlgorithms()))[i]->execute(ctx);
       if ( sc.isFailure())
 	{
 	  ATH_MSG_ERROR
@@ -695,14 +697,17 @@ bool AANTupleStream::isEventAccepted() const
   // no filter
   if (m_acceptAlgs.empty())
     return true;
-    
+
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  
   // loop over all algs
   std::vector<Algorithm*>::const_iterator it;
   std::vector<Algorithm*>::const_iterator itend = m_acceptAlgs.end();
   for (it = m_acceptAlgs.begin(); it != itend; ++it)
     {
       const Algorithm* theAlgorithm = (*it);
-      if ( theAlgorithm->isExecuted() && (! theAlgorithm->filterPassed()))
+      if ( theAlgorithm->execState(ctx).state() == AlgExecState::State::Done &&
+             ( ! theAlgorithm->execState(ctx).filterPassed() ) )
 	return false;
     }
 

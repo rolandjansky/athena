@@ -62,7 +62,7 @@ StatusCode xAODTestReadDecor::initialize()
 /**
  * @brief Algorithm event processing.
  */
-StatusCode xAODTestReadDecor::execute_r (const EventContext& ctx) const
+StatusCode xAODTestReadDecor::execute (const EventContext& ctx) const
 {
   {
     std::ostringstream ss;

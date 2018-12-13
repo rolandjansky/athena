@@ -27,7 +27,7 @@ StatusCode CreateFullScanRoI::finalize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode CreateFullScanRoI::execute_r(const EventContext& ctx) const
+StatusCode CreateFullScanRoI::execute(const EventContext& ctx) const
 {
   using namespace TrigCompositeUtils;
   SG::WriteHandle<TrigRoiDescriptorCollection> handle1 = createAndStoreNoAux(m_roisKey, ctx ); 

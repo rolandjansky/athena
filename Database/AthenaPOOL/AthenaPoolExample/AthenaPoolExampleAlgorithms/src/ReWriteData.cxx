@@ -41,7 +41,7 @@ StatusCode ReWriteData::initialize() {
    return StatusCode::SUCCESS;
 }
 //___________________________________________________________________________
-StatusCode ReWriteData::execute_r (const EventContext& ctx) const {
+StatusCode ReWriteData::execute (const EventContext& ctx) const {
    ATH_MSG_DEBUG("in execute()");
 
    if (!m_exampleHitKey.key().empty()) {

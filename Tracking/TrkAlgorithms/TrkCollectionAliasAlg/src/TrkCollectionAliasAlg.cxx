@@ -43,7 +43,7 @@ StatusCode Trk::TrkCollectionAliasAlg::finalize()
 
 //================ Execution ====================================================
 
-StatusCode Trk::TrkCollectionAliasAlg::execute_r(const EventContext& ctx) const
+StatusCode Trk::TrkCollectionAliasAlg::execute(const EventContext& ctx) const
 {
   SG::ReadHandle<TrackCollection> tracks(m_collectionName, ctx );
   return tracks.alias(m_aliasName);

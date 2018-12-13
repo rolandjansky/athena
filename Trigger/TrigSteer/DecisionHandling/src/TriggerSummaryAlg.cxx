@@ -45,7 +45,7 @@ StatusCode TriggerSummaryAlg::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TriggerSummaryAlg::execute_r(const EventContext& context) const
+StatusCode TriggerSummaryAlg::execute(const EventContext& context) const
 {
   
   // that is certain input

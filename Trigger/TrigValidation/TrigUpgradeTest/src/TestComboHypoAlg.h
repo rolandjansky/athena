@@ -29,7 +29,7 @@ namespace HLTTest {
   //TestComboHypoAlg &operator=(const TestComboHypoAlg &alg); 
 
   StatusCode  initialize() override;
-  virtual StatusCode  execute_r( const EventContext& context ) const override;
+  virtual StatusCode  execute( const EventContext& context ) const override;
   //StatusCode  execute() override;
   StatusCode  finalize() override;
   

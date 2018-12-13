@@ -53,7 +53,7 @@ namespace xAODMaker {
     /// Function initialising the algorithm
     virtual StatusCode initialize() override;
     /// Function executing the algorithm
-    virtual StatusCode execute_r (const EventContext& ctx) const override;
+    virtual StatusCode execute (const EventContext& ctx) const override;
 
 
   private:

@@ -50,7 +50,7 @@ StatusCode WriteTag::initialize() {
    return StatusCode::SUCCESS;
 }
 //___________________________________________________________________________
-StatusCode WriteTag::execute_r (const EventContext& ctx) const {
+StatusCode WriteTag::execute (const EventContext& ctx) const {
    ATH_MSG_DEBUG("in execute()");
 
    unsigned int eventNumber = ctx.eventID().event_number();

@@ -38,7 +38,7 @@ StatusCode TrigL2PhotonHypoAlgMT::finalize() {
 }
 
   
-StatusCode TrigL2PhotonHypoAlgMT::execute_r( const EventContext& context ) const {  
+StatusCode TrigL2PhotonHypoAlgMT::execute( const EventContext& context ) const {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
   if( not previousDecisionsHandle.isValid() ) {//implicit

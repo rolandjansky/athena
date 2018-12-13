@@ -38,7 +38,7 @@ StatusCode xAODTestReadSymlink::initialize()
 }
 
 
-StatusCode xAODTestReadSymlink::execute_r (const EventContext& ctx) const
+StatusCode xAODTestReadSymlink::execute (const EventContext& ctx) const
 {
   SG::ReadHandle<SG::AuxElement> c (m_objKey, ctx);
   SG::ReadHandle<DMTest::S1> s1 (m_s1Key, ctx);

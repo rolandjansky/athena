@@ -27,7 +27,7 @@ StatusCode InDet::InDetBeamSpotReader::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode InDet::InDetBeamSpotReader::execute_r(const EventContext& ctx) const {
+StatusCode InDet::InDetBeamSpotReader::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG( "in execute()");
 
   //get the set of 

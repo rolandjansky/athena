@@ -35,7 +35,7 @@ namespace LVL1 {
       virtual ~RoiB2TopoInputDataCnv(); 
 
       // Athena algorithm's Hooks
-      virtual StatusCode  execute_r (const EventContext& ctx) const override;
+      virtual StatusCode  execute (const EventContext& ctx) const override;
       virtual StatusCode  initialize() override;
       //Finalize not overriden because no work is required
 

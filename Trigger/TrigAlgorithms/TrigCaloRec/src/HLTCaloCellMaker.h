@@ -39,7 +39,7 @@ class HLTCaloCellMaker: public AthReentrantAlgorithm {
 	HLTCaloCellMaker(const std::string & name, ISvcLocator* pSvcLocator);
 	~HLTCaloCellMaker();
 
-	StatusCode execute_r(const EventContext& context ) const ;
+	StatusCode execute(const EventContext& context ) const ;
 	StatusCode initialize();
      private:
 

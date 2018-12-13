@@ -22,13 +22,7 @@
 #include "AthenaBaseComps/AthMemMacros.h"
 
 
-// Framework includes
-#ifndef REENTRANT_GAUDI
- #define ReEntAlgorithm Algorithm
- #include "GaudiKernel/Algorithm.h"
-#else
- #include "GaudiKernel/ReEntAlgorithm.h"
-#endif
+#include "Gaudi/Algorithm.h"
 
 
 /**
@@ -40,19 +34,19 @@
  * derives from @c AthReentrantAlgorithm, then the same algorithm object may
  * be used in multiple threads without cloning.
  *
- * Rather than @c execute, a reentrant algorithm will call @c execute_r,
- * which has two differences.  First, @c execute_r is @c const.  If the
+ * Rather than @c execute, a reentrant algorithm will call @c execute,
+ * which has two differences.  First, @c execute is @c const.  If the
  * same object is being used in multiple threads, it should not have any
  * state which is being changed.  Any attempt to get around this with
  * @c mutable or @c const_cast should be viewed with great suspicion:
  * that may not be thread-safe.
  *
- * Second, the @c execute_r method takes an explicit event context argument.
+ * Second, the @c execute method takes an explicit event context argument.
  * This may be used to find the proper store for the event being processed
  * by the current thread.
  *
  * The typical usage will be to declare a key object as a property of the
- * algorithm and then construct a transient handle instance during @c execute_r
+ * algorithm and then construct a transient handle instance during @c execute
  * from the key and the event context.  For example:
  *
  *@code
@@ -74,7 +68,7 @@
  *    return StatusCode::SUCCESS;
  *  }
  *
- *  StatusCode MyAlg::execute_r (const EventContext& ctx) const
+ *  StatusCode MyAlg::execute (const EventContext& ctx) const
  *  {
  *    SG::ReadHandle<MyObj> myobj (m_rhandle, ctx);
  *    const MyObj& p = *myobj;
@@ -85,7 +79,7 @@
 
 
 class AthReentrantAlgorithm
-  : public AthCommonDataStore<AthCommonMsg<ReEntAlgorithm>>
+  : public AthCommonDataStore<AthCommonMsg<Gaudi::Algorithm>>
 { 
   /////////////////////////////////////////////////////////////////// 
   // Public methods: 
@@ -102,27 +96,6 @@ class AthReentrantAlgorithm
   /// Destructor: 
   virtual ~AthReentrantAlgorithm() override; 
 
-
-#ifndef REENTRANT_GAUDI
-  /**
-   * @brief Standard Gaudi execute method.
-   *
-   * This cannot be overridden; you should override the reentrant method
-   * @c execute_r instead.
-   */
-  virtual StatusCode execute() override final;
-
-
-  /**
-   * @brief Reentrant execute method.
-   * @param ctx The current event context.
-   *
-   * Override this for your algorithm.
-   */
-  virtual StatusCode execute_r (const EventContext& ctx) const = 0;
-#endif
-
-
   /** Specify if the algorithm is clonable
    *
    * Reentrant algorithms are clonable.
@@ -138,16 +111,6 @@ class AthReentrantAlgorithm
 
 
   /**
-   * @brief Return the current event context.
-   *
-   * Override this because the base class version won't work correctly
-   * for reentrant algorithms.  (We shouldn't really be using this
-   * for reentrant algorithms, but just in case.).
-   */
-  virtual const EventContext& getContext() const override;
-
-
-  /**
    * @brief Execute an algorithm.
    *
    * We override this in order to work around an issue with the Algorithm
@@ -155,7 +118,6 @@ class AthReentrantAlgorithm
    * cause crashes in MT jobs.
    */
   virtual StatusCode sysExecute (const EventContext& ctx) override;
-
 
   
   /**

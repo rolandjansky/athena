@@ -64,9 +64,9 @@ StatusCode InDetDetailedTrackTruthMaker::finalize()
 }
 
 // -----------------------------------------------------------------------------------------------------
-StatusCode InDetDetailedTrackTruthMaker::execute_r(const EventContext &ctx) const
+StatusCode InDetDetailedTrackTruthMaker::execute(const EventContext &ctx) const
 {
-  ATH_MSG_DEBUG ("InDetDetailedTrackTruthMaker::execute_r(...)");
+  ATH_MSG_DEBUG ("InDetDetailedTrackTruthMaker::execute(...)");
 
   //----------------------------------------------------------------
   // Retrieve track collection

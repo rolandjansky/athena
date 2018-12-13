@@ -88,7 +88,7 @@ using namespace HLT;
 using namespace std;
 
 TrigSteer::TrigSteer(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator),
+  : AthLegacySequence(name, pSvcLocator),
     m_config(0),
     m_stepForEB(0),
     m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
@@ -417,12 +417,10 @@ StatusCode TrigSteer::initialize()
    }
 
 
-
-
- 
    ATH_MSG_DEBUG("initializing done");
 
-   return StatusCode::SUCCESS;
+   ATH_MSG_DEBUG("initializing subAlgs");
+   return AthLegacySequence::initialize();
 }
 
 
@@ -449,7 +447,7 @@ StatusCode TrigSteer::finalize()
 
    delete m_config; m_config=0;
 
-   return StatusCode::SUCCESS;
+   return AthLegacySequence::finalize();
 }
 
 
@@ -1023,7 +1021,7 @@ HLT::Algo* TrigSteer::getAlgo(std::string name)
   if (iter != m_algos.end())
     algo = iter->second;
   else {
-    Algorithm* algPointer;
+    Gaudi::Algorithm* algPointer;
     if (createSubAlgorithm(subAlg_type, subAlg_name, algPointer).isSuccess()) {
       algo = static_cast<HLT::Algo*>(algPointer);
       algo->setConfig(m_config);
@@ -1136,7 +1134,7 @@ HLT::Sequence* TrigSteer::createSequence(const TrigConf::HLTSequence& seq, const
  
    // get input TE types and sequences
    std::vector<unsigned int> inputTypes;
-   std::vector< Sequence* > inputSequences;
+   std::vector< HLT::Sequence* > inputSequences;
    for( TrigConf::HLTTriggerElement* inputTE : seq.inputTEs() ) {
 
       unsigned int inputId = inputTE->id();
@@ -1144,7 +1142,7 @@ HLT::Sequence* TrigSteer::createSequence(const TrigConf::HLTSequence& seq, const
       // make sure we have the sequences producing these inputTEs:
       if ( producedFirstAtLevel(inputId) == m_hltLevel ) {
 
-         Sequence* newseq = findSeqForOutputTeType( inputId );
+        HLT::Sequence* newseq = findSeqForOutputTeType( inputId );
          // if seq not NULL and not in vector already, save it:
          if (newseq && find(inputSequences.begin(), inputSequences.end(), newseq) == inputSequences.end() ) {
             inputSequences.push_back(newseq);
@@ -1160,7 +1158,7 @@ HLT::Sequence* TrigSteer::createSequence(const TrigConf::HLTSequence& seq, const
    // get topo_start_from TE types
    const TrigConf::HLTTriggerElement* hltTopoTE = seq.topoStartTE();
    std::vector<unsigned int> topoStartTypes;
-   Sequence * topoStartFromSequence = 0;
+   HLT::Sequence * topoStartFromSequence = 0;
    // only add an entry if pointer not NULL
    if (hltTopoTE) {
       topoStartTypes.push_back( hltTopoTE->id() );
@@ -1188,7 +1186,7 @@ HLT::Sequence* TrigSteer::createSequence(const TrigConf::HLTSequence& seq, const
    HLT::Sequence* newseq = new HLT::Sequence(inputTypes, outputType,
                                              firstAlgo, tailAlgos, m_config, topoStartTypes);
 
-   for (std::vector< Sequence* >::const_iterator it = inputSequences.begin();
+   for (std::vector< HLT::Sequence* >::const_iterator it = inputSequences.begin();
         it != inputSequences.end(); ++it) {
       newseq->m_previousSequences.push_back( *it );
    }
@@ -1238,7 +1236,8 @@ StatusCode TrigSteer::start()
 
   ATH_MSG_DEBUG("monitoring tools bookHists done " << m_monTools << " " << m_opiTools);
 
-  return StatusCode::SUCCESS;
+  return AthLegacySequence::start();
+  
 }
 
 
@@ -1281,7 +1280,7 @@ StatusCode TrigSteer::stop()
 
    ATH_MSG_DEBUG("monitoring tools finalHists done " << m_monTools << " " << m_opiTools);
 
-   return StatusCode::SUCCESS;
+   return AthLegacySequence::stop();
 }
 
 

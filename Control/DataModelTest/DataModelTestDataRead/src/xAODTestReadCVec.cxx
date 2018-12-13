@@ -65,7 +65,7 @@ StatusCode xAODTestReadCVec::initialize()
 /**
  * @brief Algorithm event processing.
  */
-StatusCode xAODTestReadCVec::execute_r (const EventContext& ctx) const
+StatusCode xAODTestReadCVec::execute (const EventContext& ctx) const
 {
   SG::ReadHandle<DMTest::CVec> cvec (m_cvecKey, ctx);
 

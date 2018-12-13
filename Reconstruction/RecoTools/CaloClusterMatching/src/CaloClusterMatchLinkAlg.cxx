@@ -73,7 +73,7 @@ namespace ClusterMatching {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode CaloClusterMatchLinkAlg::execute_r(const EventContext& ctx) const
+  StatusCode CaloClusterMatchLinkAlg::execute(const EventContext& ctx) const
   {  
     ATH_MSG_DEBUG ("Executing " << name() << "...");
 

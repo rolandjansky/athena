@@ -34,7 +34,7 @@ StatusCode TriggerEDMDeserialiserAlg::finalize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TriggerEDMDeserialiserAlg::execute_r(const EventContext& context) const
+StatusCode TriggerEDMDeserialiserAlg::execute(const EventContext& context) const
 {
 
   size_t  buffSize = m_initialSerialisationBufferSize;

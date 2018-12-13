@@ -26,7 +26,7 @@ class TriggerSummaryAlg : public ::AthReentrantAlgorithm {
   virtual ~TriggerSummaryAlg(); 
 
   virtual StatusCode  initialize() override;
-  virtual StatusCode  execute_r( const EventContext& context ) const override;
+  virtual StatusCode  execute( const EventContext& context ) const override;
   
  
  private: 

@@ -132,7 +132,7 @@ StatusCode CaloClusterMaker::finalize() {
 
 //###############################################################################
 
-StatusCode CaloClusterMaker::execute_r (const EventContext& ctx) const
+StatusCode CaloClusterMaker::execute (const EventContext& ctx) const
 {
 
   // make a Cluster Container 

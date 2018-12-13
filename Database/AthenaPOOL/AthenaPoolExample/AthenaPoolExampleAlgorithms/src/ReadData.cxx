@@ -54,7 +54,7 @@ StatusCode ReadData::initialize() {
    return StatusCode::SUCCESS;
 }
 //___________________________________________________________________________
-StatusCode ReadData::execute_r (const EventContext& ctx) const {
+StatusCode ReadData::execute (const EventContext& ctx) const {
    ATH_MSG_DEBUG("in execute()");
 
    SG::ConstIterator<EventStreamInfo> esi1, esi2;

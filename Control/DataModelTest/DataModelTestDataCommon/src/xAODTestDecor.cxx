@@ -69,7 +69,7 @@ StatusCode xAODTestDecor::initialize()
 /**
  * @brief Algorithm event processing.
  */
-StatusCode xAODTestDecor::execute_r (const EventContext& ctx) const
+StatusCode xAODTestDecor::execute (const EventContext& ctx) const
 {
   SG::ReadHandle<EventInfo> eventInfo (m_eventInfoKey, ctx);
   unsigned int count = eventInfo->event_ID()->event_number() + 1;

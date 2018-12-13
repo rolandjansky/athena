@@ -45,7 +45,7 @@ StatusCode WriteCond::initialize() {
    return StatusCode::SUCCESS;
 }
 //___________________________________________________________________________
-StatusCode WriteCond::execute_r (const EventContext& ctx) const {
+StatusCode WriteCond::execute (const EventContext& ctx) const {
    ATH_MSG_DEBUG("in execute()");
 
    SG::ReadHandle<ExampleHitContainer> hits (m_exampleHitKey, ctx);

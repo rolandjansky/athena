@@ -44,7 +44,7 @@ class CaloClusterROI_Selector : public AthReentrantAlgorithm
   /** @brief finalize method*/
   StatusCode finalize();
   /** @brief execute method*/
-  StatusCode execute_r(const EventContext& ctx) const;
+  StatusCode execute(const EventContext& ctx) const;
 
  private:
 

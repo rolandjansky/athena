@@ -34,7 +34,7 @@ OnlineLumiCalibrationCondAlg::initialize()
 
 
 StatusCode
-OnlineLumiCalibrationCondAlg::execute_r (const EventContext& ctx) const
+OnlineLumiCalibrationCondAlg::execute (const EventContext& ctx) const
 {
   SG::ReadCondHandle<CondAttrListCollection> calibrationFolder
     (m_calibrationFolderName, ctx);

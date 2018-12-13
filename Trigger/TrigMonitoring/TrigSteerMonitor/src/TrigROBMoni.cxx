@@ -84,7 +84,7 @@ StatusCode TrigROBMoni::initialize()
   
   if ( m_steering ) {
     // Make list of algorithms able to request data (all but Hypo)
-    vector<Algorithm*>::const_iterator a;
+    vector<Gaudi::Algorithm*>::const_iterator a;
     for ( a = m_steering->subAlgorithms()->begin();
           a != m_steering->subAlgorithms()->end(); ++a ) {
       if ( dynamic_cast<const HLT::TECreateAlgo*>(*a) ) m_fexAlgos.push_back(*a);
@@ -153,7 +153,7 @@ StatusCode TrigROBMoni::bookHists()
 				 m_fexAlgos.size(), 0, m_fexAlgos.size(),
 				 m_fexAlgos.size(), 0, m_fexAlgos.size());
   
-  vector<Algorithm*>::const_iterator a;
+  vector<Gaudi::Algorithm*>::const_iterator a;
   int bin;
   for ( a = m_fexAlgos.begin(), bin=1; a != m_fexAlgos.end(); ++a, ++bin ) {
     m_h_shared_requests->GetXaxis()->SetBinLabel(bin, (*a)->name().c_str());
@@ -341,7 +341,7 @@ StatusCode HistSet<HTYPE>::book(TrigMonitorToolBase::TrigMonGroup& monGroup,
     hist[SDGROUP]->GetXaxis()->SetBinLabel(bin, (*sdg).second.c_str());
   }
 
-  //vector<Algorithm*>::const_iterator a;
+  //vector<Gaudi::Algorithm*>::const_iterator a;
   //for ( a = montool->m_fexAlgos.begin(), bin=1;
   //      a != montool->m_fexAlgos.end(); ++a, ++bin ) {
   //  hist[ALGO]->GetXaxis()->SetBinLabel(bin, (*a)->name().c_str());

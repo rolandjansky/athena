@@ -9,7 +9,7 @@ class MergeViews : virtual public AthReentrantAlgorithm {
 public:
   MergeViews(const std::string& name, ISvcLocator* pSvcLocator);
   StatusCode initialize() override;
-  StatusCode execute_r( const EventContext& context ) const override;
+  StatusCode execute( const EventContext& context ) const override;
 private:
   SG::ReadHandleKey< ViewContainer > m_viewsKey { this, "Views", "Views", "Collection of views to read from" };  
   ToolHandleArray<IViewsMergerTool> m_mergingTools {this, "MergingTools", {}, "Merging tools used to perform the merging action" };

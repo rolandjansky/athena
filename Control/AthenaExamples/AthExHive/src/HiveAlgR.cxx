@@ -38,7 +38,7 @@ StatusCode HiveAlgR::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode HiveAlgR::execute_r(const EventContext& ctx) const {
+StatusCode HiveAlgR::execute(const EventContext& ctx) const {
 
   info() << "execute_R: " << index() << " on " << ctx << endmsg;
 

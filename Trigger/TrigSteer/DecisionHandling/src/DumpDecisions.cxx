@@ -42,7 +42,7 @@ StatusCode DumpDecisions::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode DumpDecisions:: execute_r( const EventContext& ctx ) const {  
+StatusCode DumpDecisions:: execute( const EventContext& ctx ) const {  
   using namespace TrigCompositeUtils;
   //  DecisionInput decisionInput;
   auto decisionInput = SG::makeHandle( m_decisionKey, ctx );

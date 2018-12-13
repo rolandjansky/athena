@@ -25,7 +25,7 @@ public:
   // ------------------------- AthReentrantAlgorithm methods -------------------
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
-  virtual StatusCode execute_r(const EventContext& eventContext) const override;
+  virtual StatusCode execute(const EventContext& eventContext) const override;
 
 private:
   // ------------------------- Properties --------------------------------------

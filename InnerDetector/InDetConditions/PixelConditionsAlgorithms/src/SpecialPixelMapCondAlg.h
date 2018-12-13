@@ -23,7 +23,7 @@ class SpecialPixelMapCondAlg: public AthReentrantAlgorithm {
   ~SpecialPixelMapCondAlg();
   
   virtual StatusCode initialize() override;
-  virtual StatusCode execute_r (const EventContext&) const override;
+  virtual StatusCode execute (const EventContext&) const override;
 
 
 private:

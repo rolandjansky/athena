@@ -28,7 +28,7 @@ StatusCode DecisionSummaryMakerAlg::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode DecisionSummaryMakerAlg::execute_r(const EventContext& context) const {
+StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
   SG::WriteHandle<TrigCompositeUtils::DecisionContainer> outputHandle = TrigCompositeUtils::createAndStore( m_summaryKey, context );
   auto container = outputHandle.ptr();
 

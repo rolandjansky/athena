@@ -326,7 +326,7 @@ void TestCaloDataAccess::emulateFixedRoIs( const EventContext& context, std::vec
 
 }
 
-StatusCode TestCaloDataAccess::execute_r( const EventContext& context ) const {  
+StatusCode TestCaloDataAccess::execute( const EventContext& context ) const {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   
   std::vector<ParallelCallTest*> allRoIs;

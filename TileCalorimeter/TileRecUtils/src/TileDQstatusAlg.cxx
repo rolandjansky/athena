@@ -55,7 +55,7 @@ StatusCode TileDQstatusAlg::initialize()
  * @brief Gaudi execute method.
  * @param ctx Event context.
  */
-StatusCode TileDQstatusAlg::execute_r (const EventContext& ctx) const
+StatusCode TileDQstatusAlg::execute (const EventContext& ctx) const
 {
   auto dqstatus = std::make_unique<TileDQstatus>();
 
