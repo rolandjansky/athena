@@ -19,7 +19,6 @@
 #include "TileConditions/TileCondToolNoiseSample.h"
 #include "TileConditions/TileCondToolNoiseRawChn.h"
 #include "TileConditions/TileCondProxyWrapper.h"
-#include "TileConditions/TileDCSSvc.h"
 #include "TileConditions/TileCondDCS_Data.h"
 #include "TileConditions/TileCondToolAutoCr.h"
 #include "TileConditions/TileCondToolTMDB.h"
@@ -32,7 +31,6 @@
 
 DECLARE_COMPONENT( TileInfoLoader )
 DECLARE_COMPONENT( TileCablingSvc )
-DECLARE_COMPONENT( TileDCSSvc )
 DECLARE_COMPONENT( TileCondIdTransforms )
 DECLARE_COMPONENT( TileBadChanTool )
 DECLARE_COMPONENT( TileBadChanLegacyTool )
