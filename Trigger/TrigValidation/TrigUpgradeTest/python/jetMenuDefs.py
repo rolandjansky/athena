@@ -11,7 +11,7 @@ def jetSequence():
 
     #input maker
     from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-    InputMakerAlg = InputMakerForRoI("JetInputMaker", OutputLevel = DEBUG, LinkName="initialRoI")
+    InputMakerAlg = InputMakerForRoI("JetInputMaker", OutputLevel = DEBUG, RoIsLink="initialRoI")
     InputMakerAlg.RoIs='FSJETRoI'
     
     #reco sequence

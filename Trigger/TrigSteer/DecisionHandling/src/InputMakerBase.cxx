@@ -6,16 +6,20 @@
 #include "DecisionHandling/HLTIdentifier.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
+
+
+const std::vector<std::string> InputMakerBase::m_baseLinks = {"initialRoI", "roi", "view", "feature"};
+
 InputMakerBase::InputMakerBase( const std::string& name, ISvcLocator* pSvcLocator )
   : ::AthReentrantAlgorithm( name, pSvcLocator ) {}
 
 InputMakerBase::~InputMakerBase() {}
 
-const SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer>& InputMakerBase::decisionInputs() const{
+const SG::ReadHandleKeyArray<DecisionContainer>& InputMakerBase::decisionInputs() const{
   return m_inputs;
 }
 
-const SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer>& InputMakerBase::decisionOutputs() const{
+const SG::WriteHandleKeyArray<DecisionContainer>& InputMakerBase::decisionOutputs() const{
   return m_outputs;
 }
 
@@ -36,7 +40,7 @@ StatusCode InputMakerBase::sysInitialize() {
 }
 
 
-StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> > & outputHandles) const{
+StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, std::vector< SG::WriteHandle<DecisionContainer> > & outputHandles) const{
 
   outputHandles = decisionOutputs().makeHandles(context);
 
@@ -67,28 +71,20 @@ StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, st
     }
     ATH_MSG_DEBUG( "Got input "<< inputKey.key()<<" with " << inputHandle->size() << " elements" );
     // create the output container
-    auto outDecisions = std::make_unique<TrigCompositeUtils::DecisionContainer>();
-    auto outDecAux = std::make_unique<TrigCompositeUtils::DecisionAuxContainer>();
+    auto outDecisions = std::make_unique<DecisionContainer>();
+    auto outDecAux = std::make_unique<DecisionAuxContainer>();
     outDecisions->setStore( outDecAux.get() );
        
     // loop over decisions retrieved from this input
     size_t input_counter =0;
     for ( auto decision : *inputHandle){
       // create new decision for each input	
-      TrigCompositeUtils::Decision*  newDec = TrigCompositeUtils::newDecisionIn( outDecisions.get() );
-      TrigCompositeUtils::linkToPrevious( newDec, inputKey.key(), input_counter );
-      {
-        //copy decisions ID
-        TrigCompositeUtils::DecisionIDContainer objDecisions;      
-        TrigCompositeUtils::decisionIDs( decision, objDecisions );
-        for ( const HLT::Identifier& id: objDecisions ){
-          TrigCompositeUtils::addDecisionID( id, newDec );
-        }
-      }
-      CHECK( decision->hasObjectLink("initialRoI" ) );  
-      auto roiEL = decision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
-      CHECK( roiEL.isValid() );
-      newDec->setObjectLink( "initialRoI", roiEL );
+      Decision*  newDec = newDecisionIn( outDecisions.get() );
+      linkToPrevious( newDec, inputKey.key(), input_counter );
+      insertDecisions( decision, newDec );
+
+      copyBaseLinks( decision, newDec);
+      ATH_MSG_DEBUG("New decision has "<< newDec->hasObjectLink(m_roisLink.value() ) <<" "<< m_roisLink.value());      
       input_counter++;	
     } // loop over decisions
 
@@ -100,7 +96,22 @@ StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, st
   return StatusCode::SUCCESS;
 }
 
-StatusCode InputMakerBase::debugPrintOut(const EventContext& context, const std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> >& outputHandles) const{
+
+StatusCode InputMakerBase::copyBaseLinks(const Decision* src, Decision* dest) const  {
+  for (auto link: m_baseLinks){
+    if ( src->hasObjectLink(link ) ) dest->copyLinkFrom(src,link);
+  }
+
+  // do we need to filter the links to be copied? if not, we can copy all of them
+  //    copyLinks(decision, newDec);
+  if ( src->hasObjectLink("self" ) ) dest->copyLinkFrom(src,"self","seed"); // make use of self-link 
+
+
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode InputMakerBase::debugPrintOut(const EventContext& context, const std::vector< SG::WriteHandle<DecisionContainer> >& outputHandles) const{
   size_t validInput=0;
   for ( auto inputKey: decisionInputs() ) {
     auto inputHandle = SG::makeHandle( inputKey, context );
@@ -122,13 +133,35 @@ StatusCode InputMakerBase::debugPrintOut(const EventContext& context, const std:
     if( not outHandle.isValid() ) continue;
     ATH_MSG_DEBUG(outHandle.key() <<" with "<< outHandle->size() <<" decisions:");
     for (auto outdecision:  *outHandle){
-      TrigCompositeUtils::DecisionIDContainer objDecisions;      
-      TrigCompositeUtils::decisionIDs( outdecision, objDecisions );    
+      DecisionIDContainer objDecisions;      
+      decisionIDs( outdecision, objDecisions );    
       ATH_MSG_DEBUG("Number of positive decisions for this output: " << objDecisions.size() );
-      for ( TrigCompositeUtils::DecisionID id : objDecisions ) {
+      for ( DecisionID id : objDecisions ) {
         ATH_MSG_DEBUG( " ---  decision " << HLT::Identifier( id ) );
       }  
     }
   }
   return StatusCode::SUCCESS;
+}
+
+
+
+StatusCode InputMakerBase::insertDecisions( const Decision* src, Decision* dest ) const  {
+
+  DecisionIDContainer ids;
+  decisionIDs( dest, ids );
+  decisionIDs( src, ids );
+  decisionIDs( dest ).clear(); 
+  decisionIDs(dest).insert( decisionIDs(dest).end(), ids.begin(), ids.end() );
+  return StatusCode::SUCCESS;
+}
+
+
+size_t InputMakerBase::countInputHandles( const EventContext& context ) const {
+  size_t validInputCount=0;
+  for ( auto inputKey: decisionInputs() ) {
+    auto inputHandle = SG::makeHandle( inputKey, context );
+    if (inputHandle.isValid()) validInputCount++;
+  }
+  return validInputCount;
 }

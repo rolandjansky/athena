@@ -59,7 +59,7 @@ StatusCode  InputMakerForRoI::execute_r( const EventContext& context ) const {
     for ( auto outputDecision : *outputHandle){ 
       ElementLink<DecisionContainer> inputLink = linkToPrevious(outputDecision);
       const Decision* inputDecision = *inputLink;
-      auto roiEL = inputDecision->objectLink<TrigRoiDescriptorCollection>(m_linkName.value() ); //"initialRoI" 
+      auto roiEL = inputDecision->objectLink<TrigRoiDescriptorCollection>(m_roisLink.value() );  
       ATH_CHECK( roiEL.isValid() );
       
       // avoid adding the same feature multiple times: check if not in container, if not add it
@@ -74,7 +74,7 @@ StatusCode  InputMakerForRoI::execute_r( const EventContext& context ) const {
 	ATH_MSG_DEBUG("Added RoI:" <<*newroi<<" FS="<<newroi->isFullscan());
       }            
     } // loop over decisions      
-  } // loop over input keys
+  } // loop over output keys
   
   
     // Finally, record output
@@ -83,7 +83,7 @@ StatusCode  InputMakerForRoI::execute_r( const EventContext& context ) const {
   ATH_CHECK( roi_outputHandle.record(std::move(oneRoIColl)) );
   
   // call base class helper method to print some debug messages summarising the content of the outputHandles.
-  CHECK( debugPrintOut(context, outputHandles) );
+  ATH_CHECK( debugPrintOut(context, outputHandles) );
   
   return StatusCode::SUCCESS;
 }

@@ -63,7 +63,7 @@ namespace HLTTest {
         ElementLink<DecisionContainer> inputLink = linkToPrevious(outputDecision);
         ATH_MSG_DEBUG( "followed seed link to input "<< inputLink.key() );
         const Decision* inputDecision = *inputLink;
- 	auto roiEL = inputDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
+ 	auto roiEL = inputDecision->objectLink<TrigRoiDescriptorCollection>( m_roisLink.value() );
  	CHECK( roiEL.isValid() );
 	
  	// retrieve input feature from input decision (TrigComposite), will in this case be a TrigRoiDescriptor
@@ -89,9 +89,9 @@ namespace HLTTest {
  	  auto newFeature = new xAOD::TrigComposite;
  	  reco_output->push_back(newFeature); 
           // 
- 	  newFeature->setObjectLink("initialRoI", roiEL);
+ 	  newFeature->setObjectLink(m_roisLink.value(), roiEL);
  	  newFeature->setObjectLink(m_linkName.value(), featureLink);
- 	  ATH_MSG_DEBUG(" Added " <<m_linkName.value() << " and initialRoI " << " to reco object");
+ 	  ATH_MSG_DEBUG(" Added " <<m_linkName.value() << " and " << m_roisLink.value() << " to reco object");
  	}
         // For early tests, create TC, link to RoiD, push back onto TCC.
         // Later will output RoID collection directly via tool.        

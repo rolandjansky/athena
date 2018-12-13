@@ -48,9 +48,10 @@ def bJetStep1Sequence():
 
     # input maker
     from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-    InputMakerAlg = InputMakerForRoI("JetInputMaker",OutputLevel=INFO)
-    InputMakerAlg.LinkName = "initialRoI"
+    InputMakerAlg = InputMakerForRoI("JetInputMaker", OutputLevel = DEBUG, RoIsLink="initialRoI")
     InputMakerAlg.RoIs='FSJETRoI'
+    InputMakerAlg.OutputLevel = DEBUG
+
 
     # Construct jets
     from TrigUpgradeTest.jetDefs import jetRecoSequence

@@ -22,6 +22,7 @@ def l2PhotonRecoCfg( flags ):
 
     reco = InViewReco("L2PhotonReco")
     reco.inputMaker().RequireParentView = True
+    reco.inputMaker().RoIsLink="roi"
     import AthenaCommon.CfgMgr as CfgMgr
 
     moveClusters = CfgMgr.AthViews__ViewDataVerifier("photonViewDataVerifier")
