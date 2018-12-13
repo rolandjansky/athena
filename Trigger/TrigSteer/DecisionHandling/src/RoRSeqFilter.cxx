@@ -65,6 +65,8 @@ StatusCode RoRSeqFilter::execute() {
 
   auto inputHandles  = m_inputKeys.makeHandles();
   auto outputHandles = m_outputKeys.makeHandles();
+  //std::vector<SG::ReadHandle<DecisionContainer>> inputHandles;
+  //std::vector<SG::WriteHandle<DecisionContainer>> outputHandles;
 
   bool validInputs=false;
   for ( auto inputHandle: inputHandles ) {
@@ -84,37 +86,32 @@ StatusCode RoRSeqFilter::execute() {
   size_t outputIndex = 0;
   if ( m_mergeInputs ) {
 
-    auto output    = std::make_unique< TrigCompositeUtils::DecisionContainer > ();
-    auto outputAux = std::make_unique< TrigCompositeUtils::DecisionAuxContainer > ();
-    output->setStore( outputAux.get() );
-
+    ATH_MSG_DEBUG( "Recording " <<  m_outputKeys[ 0 ].key() ); 
+    TrigCompositeUtils::createAndStore(outputHandles[0]);
+    TrigCompositeUtils::DecisionContainer* output = outputHandles[0].ptr();
     for ( auto inputKey: m_inputKeys ) {
       auto inputHandle = SG::makeHandle( inputKey );
       if( inputHandle.isValid() )
         passCounter += copyPassing( *inputHandle, inputKey.key(),  *output );
     }
-
-    ATH_MSG_DEBUG( "Recording " <<  m_outputKeys[ 0 ].key() ); 
-    CHECK( outputHandles[0].record( std::move(output), std::move(outputAux) ) );
     outputIndex++;
 
   } else {
 
     for ( auto inputKey: m_inputKeys ) {
+      // already made handles, so this code could be simplified to a loop over inputHandles.
       auto inputHandle = SG::makeHandle( inputKey );
 
       if( not inputHandle.isValid() ) continue;  // implicit
       
       ATH_MSG_DEBUG( "Checking inputHandle "<< inputKey.key() <<" with " << inputHandle->size() <<" elements");
-      auto output    = std::make_unique< TrigCompositeUtils::DecisionContainer > ();
-      auto outputAux = std::make_unique< TrigCompositeUtils::DecisionAuxContainer > ();
-      output->setStore( outputAux.get() );
-      
+      TrigCompositeUtils::createAndStore(outputHandles[outputIndex]);
+      TrigCompositeUtils::DecisionContainer* output = outputHandles[outputIndex].ptr();
       passCounter += copyPassing( *inputHandle, inputKey.key(), *output );
 
       if (output->size() >0){ // data handle reduction       
-        ATH_MSG_DEBUG( "Recording output key " <<  m_outputKeys[ outputIndex ].key() <<" of size "<<output->size()  <<" at index "<< outputIndex);
-        CHECK( outputHandles[outputIndex].record( std::move(output), std::move(outputAux) ) );
+        ATH_MSG_DEBUG( "Recorded output key " <<  m_outputKeys[ outputIndex ].key() <<" of size "<<output->size()  <<" at index "<< outputIndex);
+        // record done by createAndStore above
       }
       outputIndex++; // Keep the mapping of inputKey<->outputKey correct
     }
@@ -153,6 +150,7 @@ size_t RoRSeqFilter::copyPassing( const TrigCompositeUtils::DecisionContainer& i
     if ( not intersection.empty() ) {      
       TrigCompositeUtils::Decision* decisionCopy = TrigCompositeUtils::newDecisionIn( &output, name() );
       *decisionCopy = *inputDecision; // copies auxdata from one auxstore to the other
+      // future improvement: could use newDecisionIn(&output,input,name which internally does the linkToPrevious, then no longer need to pass the key
       TrigCompositeUtils::linkToPrevious(decisionCopy, inputKey, i); // Update seed
       passCounter ++;
       ATH_MSG_DEBUG("Input satisfied at least one active chain");

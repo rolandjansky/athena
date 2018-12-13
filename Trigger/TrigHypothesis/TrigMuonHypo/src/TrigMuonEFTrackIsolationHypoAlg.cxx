@@ -66,9 +66,8 @@ StatusCode TrigMuonEFTrackIsolationHypoAlg::execute_r( const EventContext& conte
   ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" implicit ReadHandles for previous decisions");
 
   // prepare output decisions
-  auto decisions = std::make_unique<DecisionContainer>();
-  auto aux = std::make_unique<DecisionAuxContainer>();
-  decisions->setStore(aux.get());
+  SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 
+  auto decisions = outputHandle.ptr();
 
   std::vector<TrigMuonEFTrackIsolationHypoTool::EFIsolationMuonInfo> toolInput;
   size_t counter = 0;
@@ -96,7 +95,7 @@ StatusCode TrigMuonEFTrackIsolationHypoAlg::execute_r( const EventContext& conte
     const xAOD::Muon* muon = *muonEL;
 
     // create new dicions
-    auto newd = newDecisionIn( decisions.get() );
+    auto newd = newDecisionIn( decisions );
 
     toolInput.emplace_back( newd, roi, muon, previousDecision );
 
@@ -128,9 +127,7 @@ StatusCode TrigMuonEFTrackIsolationHypoAlg::execute_r( const EventContext& conte
     }
   } // End of tool algorithm
 
-  { // make output handle and debug, in the base class
-    auto outputHandle = SG::makeHandle( decisionOutput(), context );
-    ATH_CHECK( outputHandle.record( std::move( decisions ), std::move( aux ) ) );
+  { //  debu printout
     ATH_MSG_DEBUG ( "Exit with "<< outputHandle->size() <<" decisions");
     TrigCompositeUtils::DecisionIDContainer allPassingIDs;
     if ( outputHandle.isValid() ) {   

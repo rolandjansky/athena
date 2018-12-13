@@ -61,14 +61,21 @@ int populateObject(xAOD::TrigComposite* obj) {
 
    std::cout << "Set detail ok." << std::endl;
 
+   // create a MuonRoIContainer in order to have "valid" ElementLinks
+   // they will have made up SG key hashes but they are internally "valid"
+   auto mrc = new xAOD::MuonRoIContainer();
+   for (unsigned int i = 0; i<20; i++){
+     xAOD::MuonRoI* roi = new xAOD::MuonRoI();
+     mrc->push_back( roi );
+   }
    // Now test the ElementLink functionality in a basic way:
    obj->setObjectLink( "MuonRoI",
-                       ElementLink<xAOD::MuonRoIContainer>( 123, 456 ) );
+                       ElementLink<xAOD::MuonRoIContainer>( 123, 11, mrc->at(11)) );
 
    // Test the ElementLinkVector functionality in a basic way:
    ElementLinkVector<xAOD::MuonRoIContainer> elementLinks;
-   elementLinks.push_back( ElementLink<xAOD::MuonRoIContainer>( 789, 012 ) );
-   elementLinks.push_back( ElementLink<xAOD::MuonRoIContainer>( 345, 678 ) );
+   elementLinks.push_back( ElementLink<xAOD::MuonRoIContainer>( 789, 13, mrc->at(13) ) );
+   elementLinks.push_back( ElementLink<xAOD::MuonRoIContainer>( 345, 17, mrc->at(17) ) );
    obj->addObjectCollectionLinks("ManyMuonRoIs", elementLinks);
 
    return 0;
@@ -179,19 +186,19 @@ int testLinks(const xAOD::TrigComposite* obj, const size_t expectedSize = 3) {
    SIMPLE_ASSERT( obj->linkColIndices().size() == expectedSize );
    SIMPLE_ASSERT( obj->linkColClids().size() == expectedSize );
    SIMPLE_ASSERT( obj->linkColKeys()[ 0 ] == 123 );
-   SIMPLE_ASSERT( obj->linkColIndices()[ 0 ] == 456 );
+   SIMPLE_ASSERT( obj->linkColIndices()[ 0 ] == 11 );
    SIMPLE_ASSERT( obj->linkColClids()[ 0 ] ==
                   ClassID_traits< xAOD::MuonRoIContainer >::ID() );
 
    std::cout << "Basic link functionality OK" << std::endl;
 
    ElementLink< xAOD::MuonRoIContainer > getMuonRoILink = obj->objectLink<xAOD::MuonRoIContainer>("MuonRoI");
-   SIMPLE_ASSERT(getMuonRoILink == ElementLink<xAOD::MuonRoIContainer>( 123, 456 ));
+   SIMPLE_ASSERT(getMuonRoILink == ElementLink<xAOD::MuonRoIContainer>( 123, 11 ));
 
    ElementLinkVector<xAOD::MuonRoIContainer> getMuonRoILinks = obj->objectCollectionLinks<xAOD::MuonRoIContainer>("ManyMuonRoIs");
    ElementLinkVector<xAOD::MuonRoIContainer> elementLinks;
-   elementLinks.push_back( ElementLink<xAOD::MuonRoIContainer>( 789, 012 ) );
-   elementLinks.push_back( ElementLink<xAOD::MuonRoIContainer>( 345, 678 ) );
+   elementLinks.push_back( ElementLink<xAOD::MuonRoIContainer>( 789, 13 ) );
+   elementLinks.push_back( ElementLink<xAOD::MuonRoIContainer>( 345, 17 ) );
    SIMPLE_ASSERT(getMuonRoILinks == elementLinks);
 
    std::cout << "Link recovery OK" << std::endl;
@@ -254,7 +261,12 @@ int main() {
    // Copy over all other links
    SIMPLE_ASSERT( fullCopy->copyAllLinksFrom( obj ) == true );
    // Add another too
-   fullCopy->setObjectLink( "feature", ElementLink<xAOD::MuonRoIContainer>( 111, 222 ) );
+   auto mrc = new xAOD::MuonRoIContainer();
+   for (unsigned int i = 0; i<20; i++){
+     xAOD::MuonRoI* roi = new xAOD::MuonRoI();
+     mrc->push_back( roi );
+   }
+   fullCopy->setObjectLink( "feature", ElementLink<xAOD::MuonRoIContainer>( 111, 19, mrc->at(0) ) );
    SIMPLE_ASSERT( testLinks(fullCopy, 4) == 0 );
 
    std::cout << "Full-copy of element links OK" << std::endl;
@@ -285,7 +297,7 @@ int main() {
 
    // Check we can still access the element link unique to fullCopy
    ElementLink<xAOD::MuonRoIContainer> getFeatureLink = fullCopy->objectLink<xAOD::MuonRoIContainer>("feature");
-   SIMPLE_ASSERT(getFeatureLink == ElementLink<xAOD::MuonRoIContainer>( 111, 222 ));
+   SIMPLE_ASSERT(getFeatureLink == ElementLink<xAOD::MuonRoIContainer>( 111, 19, mrc->at(0) ));
 
    // Make new objects to test the manual link copy
    xAOD::TrigComposite* manualCopy = new xAOD::TrigComposite();
@@ -298,7 +310,7 @@ int main() {
    SIMPLE_ASSERT( testLinks(manualCopy, 4) == 0 );
 
    ElementLink<xAOD::MuonRoIContainer> getFeatureLinkAgain = manualCopy->objectLink<xAOD::MuonRoIContainer>("featureWithNewName");
-   SIMPLE_ASSERT(getFeatureLinkAgain == ElementLink<xAOD::MuonRoIContainer>( 111, 222 ));
+   SIMPLE_ASSERT(getFeatureLinkAgain == ElementLink<xAOD::MuonRoIContainer>( 111, 19, mrc->at(0) ));
 
    std::cout << "Copy link-by-link OK" << std::endl;
 

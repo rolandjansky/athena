@@ -67,33 +67,26 @@ StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, st
     }
     ATH_MSG_DEBUG( "Got input "<< inputKey.key()<<" with " << inputHandle->size() << " elements" );
     // create the output container
-    auto outDecisions = std::make_unique<TrigCompositeUtils::DecisionContainer>();
-    auto outDecAux = std::make_unique<TrigCompositeUtils::DecisionAuxContainer>();
-    outDecisions->setStore( outDecAux.get() );
-       
-    // loop over decisions retrieved from this input
+    TrigCompositeUtils::createAndStore(outputHandles[outputIndex]);
+    auto outDecisions = outputHandles[outputIndex].ptr();
+
+    // loop over input decisions retrieved from this input handle
     size_t input_counter =0;
-    for ( auto decision : *inputHandle){
+    for ( auto inpDecision : *inputHandle){
       // create new decision for each input	
-      TrigCompositeUtils::Decision*  newDec = TrigCompositeUtils::newDecisionIn( outDecisions.get() );
-      TrigCompositeUtils::linkToPrevious( newDec, inputKey.key(), input_counter );
+      TrigCompositeUtils::Decision*  newDec = TrigCompositeUtils::newDecisionIn( outDecisions, inpDecision, "", context );
       {
         //copy decisions ID
         TrigCompositeUtils::DecisionIDContainer objDecisions;      
-        TrigCompositeUtils::decisionIDs( decision, objDecisions );
+        TrigCompositeUtils::decisionIDs( inpDecision, objDecisions );
         for ( const HLT::Identifier& id: objDecisions ){
           TrigCompositeUtils::addDecisionID( id, newDec );
         }
       }
-      CHECK( decision->hasObjectLink("initialRoI" ) );  
-      auto roiEL = decision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
-      CHECK( roiEL.isValid() );
-      newDec->setObjectLink( "initialRoI", roiEL );
       input_counter++;	
-    } // loop over decisions
+    } // loop over input decisions
 
-    ATH_MSG_DEBUG( "Recording output key " <<  decisionOutputs()[ outputIndex ].key() <<" of size "<<outDecisions->size()  <<" at index "<< outputIndex);
-    CHECK( outputHandles[outputIndex].record( std::move( outDecisions ), std::move( outDecAux ) ) );
+    ATH_MSG_DEBUG( "Recorded output key " <<  decisionOutputs()[ outputIndex ].key() <<" of size "<<outDecisions->size()  <<" at index "<< outputIndex);
     outputIndex++;	       
   } // end of first loop over input keys
 

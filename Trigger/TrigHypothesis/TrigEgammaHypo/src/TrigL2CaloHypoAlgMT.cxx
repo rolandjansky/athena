@@ -45,9 +45,10 @@ StatusCode TrigL2CaloHypoAlgMT::execute_r( const EventContext& context ) const {
 
 
   // new decisions
-  auto decisions = std::make_unique<DecisionContainer>();
-  auto aux = std::make_unique<DecisionAuxContainer>();
-  decisions->setStore( aux.get() );
+
+  // new output decisions
+  SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 
+  auto decisions = outputHandle.ptr();
 
   // input for decision
   std::vector<ITrigL2CaloHypoTool::ClusterInfo> toolInput;
@@ -69,7 +70,7 @@ StatusCode TrigL2CaloHypoAlgMT::execute_r( const EventContext& context ) const {
     ATH_MSG_DEBUG ( "Cluster handle size: " << clusterHandle->size() << "..." );
 
     // create new decision
-    auto d = newDecisionIn( decisions.get(), name() );
+    auto d = newDecisionIn( decisions, name() );
 
 
     toolInput.emplace_back( d, roi, clusterHandle.cptr()->at(0), previousDecision );
@@ -95,8 +96,7 @@ StatusCode TrigL2CaloHypoAlgMT::execute_r( const EventContext& context ) const {
   }
  
   {// make output handle and debug
-    auto outputHandle = SG::makeHandle(decisionOutput(), context);
-    ATH_CHECK( outputHandle.record( std::move( decisions ), std::move( aux ) ) );
+
     ATH_MSG_DEBUG ( "Exit with "<<outputHandle->size() <<" decisions");
     TrigCompositeUtils::DecisionIDContainer allPassingIDs;
     if ( outputHandle.isValid() ) {

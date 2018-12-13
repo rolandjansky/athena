@@ -2,8 +2,11 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
+#include "StoreGate/WriteHandle.h"
+#include "GaudiKernel/EventContext.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 #include "TrigConfHLTData/HLTUtils.h"
+#include "DecisionHandling/TrigCompositeUtils.h"
 #include "L1Decoder.h"
 
 L1Decoder::L1Decoder(const std::string& name, ISvcLocator* pSvcLocator)
@@ -84,9 +87,18 @@ StatusCode L1Decoder::execute_r (const EventContext& ctx) const {
     ATH_CHECK( handle.record ( std::move( fsRoIsColl ) ) );
   }
 
+
+  SG::WriteHandle<DecisionContainer> handle = TrigCompositeUtils::createAndStore( m_chainsKey, ctx );
+  auto chainsInfo = handle.ptr();
+
+  /*
   auto chainsInfo = std::make_unique<DecisionContainer>();
   auto chainsAux = std::make_unique<DecisionAuxContainer>();
   chainsInfo->setStore(chainsAux.get());  
+  ATH_MSG_DEBUG("Recording chains");
+  auto handle = SG::makeHandle( m_chainsKey, ctx );
+  ATH_CHECK( handle.record( std::move( chainsInfo ), std::move( chainsAux ) ) );
+  */
 
   HLT::IDVec l1SeededChains;
   ATH_CHECK( m_ctpUnpacker->decode( *roib, l1SeededChains ) );
@@ -95,8 +107,8 @@ StatusCode L1Decoder::execute_r (const EventContext& ctx) const {
   HLT::IDVec activeChains;  
 
   ATH_CHECK( m_prescaler->prescaleChains( ctx, l1SeededChains, activeChains ) );    
-  ATH_CHECK( saveChainsInfo( l1SeededChains, chainsInfo.get(), "l1seeded" ) );
-  ATH_CHECK( saveChainsInfo( activeChains, chainsInfo.get(), "unprescaled" ) );
+  ATH_CHECK( saveChainsInfo( l1SeededChains, chainsInfo, "l1seeded", ctx ) );
+  ATH_CHECK( saveChainsInfo( activeChains, chainsInfo, "unprescaled", ctx ) );
 
   // for now all the chains that were pre-scaled are st to re-run
   HLT::IDVec rerunChains;  
@@ -104,7 +116,7 @@ StatusCode L1Decoder::execute_r (const EventContext& ctx) const {
 		       activeChains.begin(), activeChains.end(),
 		       std::back_inserter(rerunChains) );
 
-  ATH_CHECK( saveChainsInfo( rerunChains, chainsInfo.get(), "rerun" ) );
+  ATH_CHECK( saveChainsInfo( rerunChains, chainsInfo, "rerun", ctx ) );
 
   // Do cost monitoring, this utilises the HLT_costmonitor chain
   if (m_enableCostMonitoring) {
@@ -128,12 +140,6 @@ StatusCode L1Decoder::execute_r (const EventContext& ctx) const {
   }
 
 
-
-  ATH_MSG_DEBUG("Recording chains");
-
-  auto handle = SG::makeHandle( m_chainsKey, ctx );
-  ATH_CHECK( handle.record( std::move( chainsInfo ), std::move( chainsAux ) ) );
-
   return StatusCode::SUCCESS;  
 }
 
@@ -142,10 +148,9 @@ StatusCode L1Decoder::finalize() {
 }
 
 
-StatusCode L1Decoder::saveChainsInfo(const HLT::IDVec& chains, xAOD::TrigCompositeContainer* storage, const std::string& type) const {
+StatusCode L1Decoder::saveChainsInfo(const HLT::IDVec& chains, xAOD::TrigCompositeContainer* storage, const std::string& type, const EventContext& ctx) const {
   using namespace TrigCompositeUtils;
-  Decision* d = newDecisionIn( storage );
-  d->setName(type);
+  Decision* d = newDecisionIn( storage, type, ctx );
   for ( auto c: chains)
     addDecisionID(c.numeric(), d);
   return StatusCode::SUCCESS;

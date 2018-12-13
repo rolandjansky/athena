@@ -7,6 +7,7 @@
 #include "AthViews/ViewHelper.h"
 
 
+using TrigCompositeUtils::createAndStore; 
 using TrigCompositeUtils::DecisionContainer;
 using TrigCompositeUtils::DecisionAuxContainer;
 using TrigCompositeUtils::DecisionIDContainer;
@@ -47,10 +48,9 @@ StatusCode TrigL2ElectronHypoAlgMT::execute_r( const EventContext& context ) con
 
   ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" implicit ReadHandles for previous decisions");
   
-  // new output
-  auto decisions = std::make_unique<DecisionContainer>();
-  auto aux = std::make_unique<DecisionAuxContainer>();
-  decisions->setStore( aux.get() );
+  // new output decisions
+  SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 
+  auto decisions = outputHandle.ptr();
 
   // // extract mapping of cluster pointer to an index in the cluster decision collection
 
@@ -84,7 +84,7 @@ StatusCode TrigL2ElectronHypoAlgMT::execute_r( const EventContext& context ) con
     ATH_MSG_DEBUG ( "electron handle size: " << electronsHandle->size() << "..." );
 
     for ( auto electronIter = electronsHandle->begin(); electronIter != electronsHandle->end(); ++electronIter, electronCounter++ ) {
-      auto d = newDecisionIn( decisions.get() );
+      auto d = newDecisionIn( decisions );
       d->setObjectLink( "feature", ViewHelper::makeLink<xAOD::TrigElectronContainer>( *viewELInfo.link, electronsHandle, electronCounter ) );
       
       auto clusterPtr = (*electronIter)->emCluster();
@@ -111,9 +111,6 @@ StatusCode TrigL2ElectronHypoAlgMT::execute_r( const EventContext& context ) con
     ATH_CHECK( tool->decide( hypoToolInput ) );    
   } 
 
-  auto outputHandle = SG::makeHandle(decisionOutput(), context);
-  CHECK( outputHandle.record(std::move(decisions), std::move(aux) ) );
-  
   ATH_MSG_DEBUG( "Exiting with "<< outputHandle->size() <<" decisions");
   //debug
   for (auto outh: *outputHandle){
