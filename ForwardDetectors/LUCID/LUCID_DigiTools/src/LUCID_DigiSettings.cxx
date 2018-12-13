@@ -45,7 +45,7 @@ void LUCID_DigiSettings::SetDefaultValues() {
   m_tdcFedNoiseFactor = 0.8;
 }
 
-void LUCID_DigiSettings::OverwriteDigiParProperties(Algorithm* alg) {
+void LUCID_DigiSettings::OverwriteDigiParProperties(Gaudi::Algorithm* alg) {
   
   std::map <std::string, parDouble>::iterator doubleMapIt  = m_doubleMap.begin();
   std::map <std::string, parInt>::iterator    intMapIt     = m_intMap.begin();

@@ -63,7 +63,7 @@ StatusCode L1Decoder::readConfiguration() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode L1Decoder::execute_r (const EventContext& ctx) const {
+StatusCode L1Decoder::execute (const EventContext& ctx) const {
   {
     auto timeStampHandle = SG::makeHandle( m_startStampKey, ctx );
     ATH_CHECK( timeStampHandle.record( std::make_unique<TrigTimeStamp>() ) );

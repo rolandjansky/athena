@@ -55,7 +55,7 @@ class LArHVCondAlg: public AthReentrantAlgorithm
 
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
-  StatusCode execute_r(const EventContext& ctx) const override;
+  StatusCode execute(const EventContext& ctx) const override;
 
 
   private:

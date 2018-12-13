@@ -60,7 +60,7 @@ class egammaForwardBuilder : public AthReentrantAlgorithm
   /** @brief finalize method*/
   virtual StatusCode finalize() override final;
   /** @brief execute method*/
-  virtual StatusCode execute_r(const EventContext& ctx) const override final;
+  virtual StatusCode execute(const EventContext& ctx) const override final;
 
  private:
 

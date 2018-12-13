@@ -59,7 +59,7 @@ namespace xAODMaker {
       return StatusCode::SUCCESS;
    }
 
-   StatusCode EventInfoCnvAlg::execute_r (const EventContext& ctx) const {
+   StatusCode EventInfoCnvAlg::execute (const EventContext& ctx) const {
 
       // Check if anything needs to be done:
       // FIXME: Job configuration should be fixed so we don't need this test.
@@ -158,7 +158,7 @@ namespace xAODMaker {
        ATH_MSG_DEBUG( "Preparing xAOD::EventInfo object in beginRun()" );
        
        // Run the conversion using the execute function:
-       CHECK( execute_r (Gaudi::Hive::currentContext()) );
+       CHECK( execute (Gaudi::Hive::currentContext()) );
      }
 
       // Return gracefully:

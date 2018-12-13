@@ -41,7 +41,7 @@ StatusCode TileMuonReceiverDumper::initialize()
  * @brief Algorithm event processing.
  * @param ctx Event Context.
  */
-StatusCode TileMuonReceiverDumper::execute_r (const EventContext& ctx) const
+StatusCode TileMuonReceiverDumper::execute (const EventContext& ctx) const
 {
   std::string fname = CxxUtils::strformat ("%s%s_%08u_%08lu.dump",
                                            m_prefix.value().c_str(),

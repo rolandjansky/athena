@@ -54,7 +54,7 @@ StatusCode xAODTestFilterCVec::initialize()
 /**
  * @brief Algorithm event processing.
  */
-StatusCode xAODTestFilterCVec::execute_r (const EventContext& ctx) const
+StatusCode xAODTestFilterCVec::execute (const EventContext& ctx) const
 {
   SG::ReadHandle<DMTest::CVec> cvec (m_cvecKey, ctx);
   const static C::Accessor<ElementLink<DMTest::CVec> > cEL ("cEL");

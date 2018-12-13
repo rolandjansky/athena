@@ -32,7 +32,7 @@ class EFMissingETAlgMT : public ::AthReentrantAlgorithm
   //EFMissingETMT &operator=(const EFMissingETMT &alg); 
 
   virtual StatusCode  initialize() override;
-  virtual StatusCode  execute_r(const EventContext& context) const override;
+  virtual StatusCode  execute(const EventContext& context) const override;
  
  private: 
   

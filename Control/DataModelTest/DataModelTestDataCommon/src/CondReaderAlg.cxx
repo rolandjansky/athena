@@ -61,7 +61,7 @@ StatusCode CondReaderAlg::initialize()
 /**
  * @brief Algorithm event processing.
  */
-StatusCode CondReaderAlg::execute_r (const EventContext& ctx) const
+StatusCode CondReaderAlg::execute (const EventContext& ctx) const
 {
   SG::ReadHandle<EventInfo> eventInfo (m_eventInfoKey, ctx);
 

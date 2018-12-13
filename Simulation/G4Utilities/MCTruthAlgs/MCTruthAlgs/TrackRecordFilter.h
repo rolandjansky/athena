@@ -26,7 +26,7 @@ public:
 
   StatusCode initialize() override;
   StatusCode finalize() override;
-  StatusCode execute_r(const EventContext& ctx) const override;
+  StatusCode execute(const EventContext& ctx) const override;
 
 private:
   SG::ReadHandleKey<TrackRecordCollection> m_inputKey;

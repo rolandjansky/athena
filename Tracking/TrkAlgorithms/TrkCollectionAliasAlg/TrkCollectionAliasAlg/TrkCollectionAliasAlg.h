@@ -39,7 +39,7 @@ namespace Trk
        /** standard Athena-Algorithm method */
        StatusCode          initialize();
        /** standard Athena-Algorithm method */
-       StatusCode          execute_r(const EventContext& ctx) const;
+       StatusCode          execute(const EventContext& ctx) const;
        /** standard Athena-Algorithm method */
        StatusCode          finalize();
 

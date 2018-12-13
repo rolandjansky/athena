@@ -144,7 +144,7 @@ StatusCode InDet::TrackClusterAssValidation::initialize()
 // Execute
 ///////////////////////////////////////////////////////////////////
 
-StatusCode InDet::TrackClusterAssValidation::execute_r(const EventContext& ctx) const
+StatusCode InDet::TrackClusterAssValidation::execute(const EventContext& ctx) const
 {
 
   if(!m_usePIX && !m_useSCT) return StatusCode::SUCCESS;

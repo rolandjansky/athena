@@ -38,9 +38,9 @@ StatusCode HLTResultMTByteStreamDecoderAlg::finalize() {
 }
 
 // =============================================================================
-// Implementation of AthReentrantAlgorithm::execute_r
+// Implementation of AthReentrantAlgorithm::execute
 // =============================================================================
-StatusCode HLTResultMTByteStreamDecoderAlg::execute_r(const EventContext& eventContext) const {
+StatusCode HLTResultMTByteStreamDecoderAlg::execute(const EventContext& eventContext) const {
   ATH_MSG_DEBUG("Executing " << name());
 
   // Create and record the HLTResultMT object

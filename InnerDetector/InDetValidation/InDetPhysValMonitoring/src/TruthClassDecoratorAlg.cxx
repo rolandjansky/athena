@@ -13,7 +13,7 @@
 
 
 TruthClassDecoratorAlg::TruthClassDecoratorAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name,pSvcLocator)
+  AthReentrantAlgorithm(name,pSvcLocator)
 {
 }
 
@@ -37,15 +37,9 @@ TruthClassDecoratorAlg::finalize() {
 }
 
 
-StatusCode
-TruthClassDecoratorAlg::execute() {
-  const EventContext context{ Gaudi::Hive::currentContext() };
-  return execute_r(context);
-}
-
 // to migrate to AthReentrantAlgorithm later
 StatusCode
-TruthClassDecoratorAlg::execute_r(const EventContext &ctx) const {
+TruthClassDecoratorAlg::execute(const EventContext &ctx) const {
   SG::ReadHandle<xAOD::TruthParticleContainer> ptruth(m_truthParticleName);
   if ((not ptruth.isValid())) {
     return StatusCode::FAILURE;

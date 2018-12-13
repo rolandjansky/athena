@@ -31,7 +31,7 @@ class LArHVPathologyDbCondAlg: public AthReentrantAlgorithm
 
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
-  virtual StatusCode execute_r(const EventContext& ctx) const override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
 
  private:
 

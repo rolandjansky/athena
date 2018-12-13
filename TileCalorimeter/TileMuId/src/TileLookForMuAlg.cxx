@@ -100,7 +100,7 @@ StatusCode TileLookForMuAlg::initialize() {
 /////////////////////////////////////////////////////////////////////////////////
 //Execution                                                                     /
 /////////////////////////////////////////////////////////////////////////////////
-StatusCode TileLookForMuAlg::execute_r (const EventContext& ctx) const {
+StatusCode TileLookForMuAlg::execute (const EventContext& ctx) const {
 
   ATH_MSG_DEBUG("TileLookForMuAlg execution  started");
 

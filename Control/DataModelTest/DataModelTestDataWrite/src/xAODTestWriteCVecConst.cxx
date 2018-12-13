@@ -50,7 +50,7 @@ StatusCode xAODTestWriteCVecConst::initialize()
 /**
  * @brief Algorithm event processing.
  */
-StatusCode xAODTestWriteCVecConst::execute_r (const EventContext& ctx) const
+StatusCode xAODTestWriteCVecConst::execute (const EventContext& ctx) const
 {
   auto coll = CxxUtils::make_unique<DMTest::CVec>();
   auto store = CxxUtils::make_unique<DMTest::CAuxContainer>();

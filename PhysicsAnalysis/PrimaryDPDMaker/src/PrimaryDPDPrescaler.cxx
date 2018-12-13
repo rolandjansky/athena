@@ -74,13 +74,13 @@ StatusCode PrimaryDPDPrescaler::initialize()
 
   //Print summary info and declare all child filters to CutFlwSvc
   ATH_MSG_DEBUG( "Accept Algs, Size: "  <<  m_theAcceptAlgs.size()  <<  " Empty: " << m_theAcceptAlgs.empty() );
-  for(std::vector<Algorithm*>::iterator i=m_theAcceptAlgs.begin(),end=m_theAcceptAlgs.end(); i != end; ++i) {
+  for(std::vector<Gaudi::Algorithm*>::iterator i=m_theAcceptAlgs.begin(),end=m_theAcceptAlgs.end(); i != end; ++i) {
     ATH_MSG_DEBUG( (*i)->name() );
     cutFlowSvc()->registerCut((*i)->name(), "", cutID());
   }
 
   ATH_MSG_DEBUG( "Require Algs, Size: " <<  m_theRequireAlgs.size()  <<  " Empty: " << m_theRequireAlgs.empty() );
-  for(std::vector<Algorithm*>::iterator i=m_theRequireAlgs.begin(),end=m_theRequireAlgs.end(); i != end; ++i) {
+  for(std::vector<Gaudi::Algorithm*>::iterator i=m_theRequireAlgs.begin(),end=m_theRequireAlgs.end(); i != end; ++i) {
     ATH_MSG_DEBUG(  (*i)->name() );
     cutFlowSvc()->registerCut((*i)->name(), "", cutID());
   }
@@ -270,7 +270,7 @@ void PrimaryDPDPrescaler::handle(const Incident& inc) {
 
 
 //__________________________________________________________________________
-StatusCode PrimaryDPDPrescaler::decodeAlgorithms(StringArrayProperty *theAlgNames, std::vector<Algorithm*> *theAlgs)
+StatusCode PrimaryDPDPrescaler::decodeAlgorithms(StringArrayProperty *theAlgNames, std::vector<Gaudi::Algorithm*> *theAlgs)
 {
   // Reset the list of Algorithms
   theAlgs->clear( );
@@ -291,21 +291,21 @@ StatusCode PrimaryDPDPrescaler::decodeAlgorithms(StringArrayProperty *theAlgName
       // Algorithm object.
       const std::string& theName = (*it);
       IAlgorithm* theIAlg;
-      Algorithm*  theAlgorithm;
+      Gaudi::Algorithm*  theAlgorithm;
       result = theAlgMgr->getAlgorithm( theName, theIAlg );
       if ( result.isSuccess( ) ) {
 	try{
-	  theAlgorithm = dynamic_cast<Algorithm*>(theIAlg);
+	  theAlgorithm = dynamic_cast<Gaudi::Algorithm*>(theIAlg);
 	} catch(...){
           result = StatusCode::FAILURE;
 	}
       }
       if ( result.isSuccess( ) ) {
 	// Check that the specified algorithm doesn't already exist in the list
-	std::vector<Algorithm*>::iterator ita;
-	std::vector<Algorithm*>::iterator itaend = theAlgs->end( );
+	std::vector<Gaudi::Algorithm*>::iterator ita;
+	std::vector<Gaudi::Algorithm*>::iterator itaend = theAlgs->end( );
 	for (ita = theAlgs->begin(); ita != itaend; ita++) {
-	  Algorithm* existAlgorithm = (*ita);
+          Gaudi::Algorithm* existAlgorithm = (*ita);
 	  if ( theAlgorithm == existAlgorithm ) {
 	    result = StatusCode::FAILURE;
 	    break;
@@ -332,7 +332,7 @@ StatusCode PrimaryDPDPrescaler::decodeAlgorithms(StringArrayProperty *theAlgName
 //__________________________________________________________________________
 bool PrimaryDPDPrescaler::isEventAccepted()
 {
-  typedef std::vector<Algorithm*>::iterator AlgIter;
+  typedef std::vector<Gaudi::Algorithm*>::iterator AlgIter;
   bool result = true;
  
   // Loop over all Algorithms in the accept list to see
@@ -352,6 +352,8 @@ bool PrimaryDPDPrescaler::isEventAccepted()
       bool passRequireAlgs(true);
 
 
+      const EventContext& ctx = Gaudi::Hive::currentContext();
+
       // Accept Algs (OR)
       bool isPassed(false);
       if ( m_theAcceptAlgs.empty() )
@@ -360,7 +362,8 @@ bool PrimaryDPDPrescaler::isEventAccepted()
         }
       for(AlgIter i=m_theAcceptAlgs.begin(),end=m_theAcceptAlgs.end(); i != end; ++i)
         {
-          if ( (*i)->isExecuted() && (*i)->filterPassed() )
+          if ( (*i)->execState(ctx).state() == AlgExecState::State::Done &&
+               (*i)->execState(ctx).filterPassed() )
             {
               isPassed = true;
               break;
@@ -373,7 +376,8 @@ bool PrimaryDPDPrescaler::isEventAccepted()
       bool isFailed(false);
       for(AlgIter i=m_theRequireAlgs.begin(),end=m_theRequireAlgs.end(); i != end; ++i)
         {
-          if ( (*i)->isExecuted() && !(*i)->filterPassed() )
+          if ( (*i)->execState(ctx).state() == AlgExecState::State::Done &&
+               ! (*i)->execState(ctx).filterPassed() )
             {
               isFailed = true;
               break;

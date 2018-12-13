@@ -104,7 +104,7 @@ void test1 (ISvcLocator* svcloc)
   ServiceHandle<StoreGateSvc> conditionStore ("ConditionStore", "test");
   assert( conditionStore->record (std::move (cc1), "testcalib") );
 
-  assert( alg.execute_r (ctx).isSuccess() );
+  assert( alg.execute (ctx).isSuccess() );
 
   CondCont<OnlineLumiCalibrationCondData>* cc2 = nullptr;
   assert( conditionStore->retrieve (cc2, "OnlineLumiCalibrationCondData").isSuccess() );

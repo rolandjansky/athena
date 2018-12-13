@@ -43,7 +43,7 @@ StatusCode TrackRecordFilter::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrackRecordFilter::execute_r(const EventContext& ctx) const {
+StatusCode TrackRecordFilter::execute(const EventContext& ctx) const {
 
   // Get message service
   ATH_MSG_DEBUG ( "TrackRecordFilter::execute()" );

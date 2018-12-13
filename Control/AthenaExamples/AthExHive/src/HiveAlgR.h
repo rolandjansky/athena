@@ -24,7 +24,7 @@ public:
   // Define the initialize, execute and finalize methods:
   
   StatusCode initialize();
-  StatusCode execute_r(const EventContext&) const;
+  StatusCode execute(const EventContext&) const;
   StatusCode finalize();
   
 private:

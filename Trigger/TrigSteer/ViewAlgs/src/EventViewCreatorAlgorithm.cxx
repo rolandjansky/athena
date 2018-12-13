@@ -25,7 +25,7 @@ StatusCode EventViewCreatorAlgorithm::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) const { 
+StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) const { 
   auto outputHandles = decisionOutputs().makeHandles( context );     
   // make and store the views
   auto viewsHandle = SG::makeHandle( m_viewsKey ); 
@@ -35,7 +35,7 @@ StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) c
   
   auto contexts = std::vector<EventContext>( );
   unsigned int viewCounter = 0;
-  unsigned int conditionsRun = getContext().getExtension<Atlas::ExtendedEventContext>().conditionsRun();
+  unsigned int conditionsRun = context.getExtension<Atlas::ExtendedEventContext>().conditionsRun();
 
   //  const TrigRoiDescriptor* previousRoI = 0;
   // mapping RoI with index of the View in the vector

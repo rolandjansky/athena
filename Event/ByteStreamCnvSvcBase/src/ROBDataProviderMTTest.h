@@ -28,7 +28,7 @@ class ROBDataProviderMTTest
   //ROBDataProviderMTTest &operator=(const ROBDataProviderMTTest &alg); 
 
   StatusCode  initialize() override;
-  StatusCode  execute_r(const EventContext& context) const override;
+  StatusCode  execute(const EventContext& context) const override;
   StatusCode  finalize() override;
  
  private: 

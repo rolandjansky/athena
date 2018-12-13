@@ -53,7 +53,7 @@ StatusCode xAODTestWriteSymlinks::initialize()
 /**
  * @brief Algorithm event processing.
  */
-StatusCode xAODTestWriteSymlinks::execute_r (const EventContext& ctx) const
+StatusCode xAODTestWriteSymlinks::execute (const EventContext& ctx) const
 {
   SG::ReadHandle<EventInfo> eventInfo (m_eventInfoKey, ctx);
   SG::WriteHandle<DMTest::S2> s2 (m_s2Key, ctx);

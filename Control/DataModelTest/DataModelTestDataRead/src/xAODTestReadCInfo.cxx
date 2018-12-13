@@ -51,7 +51,7 @@ StatusCode xAODTestReadCInfo::initialize()
 /**
  * @brief Algorithm event processing.
  */
-StatusCode xAODTestReadCInfo::execute_r (const EventContext& ctx) const
+StatusCode xAODTestReadCInfo::execute (const EventContext& ctx) const
 {
   static const C::Accessor<int> anInt2 ("anInt2");
   static const C::Accessor<int> anInt10 ("anInt10");

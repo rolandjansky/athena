@@ -50,10 +50,10 @@ StatusCode TrigMuisoHypoAlg::finalize()
 }
 
 
-StatusCode TrigMuisoHypoAlg::execute_r( const EventContext& context) const
+StatusCode TrigMuisoHypoAlg::execute( const EventContext& context) const
 {
   // common for all Hypos, to move in the base class
-  ATH_MSG_DEBUG("StatusCode TrigMuisoHypoAlg::execute_r start");
+  ATH_MSG_DEBUG("StatusCode TrigMuisoHypoAlg::execute start");
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
   if( not previousDecisionsHandle.isValid() ) {//implicit
     ATH_MSG_DEBUG( "No implicit RH for previous decisions "<<  decisionInput().key()<<": is this expected?" );
@@ -128,7 +128,7 @@ StatusCode TrigMuisoHypoAlg::execute_r( const EventContext& context) const
   }
 
 
-  ATH_MSG_DEBUG("StatusCode TrigMuisoHypoAlg::execute_r success");
+  ATH_MSG_DEBUG("StatusCode TrigMuisoHypoAlg::execute success");
   return StatusCode::SUCCESS;
 }
 

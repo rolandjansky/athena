@@ -115,7 +115,7 @@ StatusCode InDet::InDetExtensionProcessor::initialize()
 //==================================================================================================
 
 // Execute method:
-StatusCode InDet::InDetExtensionProcessor::execute_r(const EventContext& ctx) const
+StatusCode InDet::InDetExtensionProcessor::execute(const EventContext& ctx) const
 {
   // process the extensions
   SG::ReadHandle<TrackCollection>   tracks(m_trackName, ctx);

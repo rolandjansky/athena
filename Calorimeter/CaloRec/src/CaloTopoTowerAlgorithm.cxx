@@ -206,7 +206,7 @@ StatusCode CaloTopoTowerAlgorithm::initialize()
 // Execute //
 /////////////
 
-StatusCode CaloTopoTowerAlgorithm::execute_r (const EventContext& ctx) const
+StatusCode CaloTopoTowerAlgorithm::execute (const EventContext& ctx) const
 {
 
   //////////////////////////

@@ -43,7 +43,7 @@ StatusCode do_declare (ToolWithConstantsMixin* self,
   if (AlgTool* x = dynamic_cast<AlgTool*> (self)) {
     x->declareProperty (name, c);
     return StatusCode::SUCCESS;
-  } else if (Algorithm* x = dynamic_cast<Algorithm*> (self)) {
+  } else if (Gaudi::Algorithm* x = dynamic_cast<Gaudi::Algorithm*> (self)) {
     x->declareProperty (name, c);
     return StatusCode::SUCCESS;
   } else if (Service* x = dynamic_cast<Service*> (self)) {

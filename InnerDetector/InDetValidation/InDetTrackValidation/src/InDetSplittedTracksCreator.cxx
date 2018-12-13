@@ -47,7 +47,7 @@ StatusCode InDet::InDetSplittedTracksCreator::initialize(){
    return StatusCode::SUCCESS;
 }   
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-StatusCode InDet::InDetSplittedTracksCreator::execute_r(const EventContext& ctx) const {
+StatusCode InDet::InDetSplittedTracksCreator::execute(const EventContext& ctx) const {
    ATH_MSG_DEBUG("InDetSplittedTracksCreator execute()");
    ATH_MSG_DEBUG("Input Track Collection: " << m_TrackCol);
 
