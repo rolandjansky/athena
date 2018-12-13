@@ -21,7 +21,6 @@ StatusCode TrigBjetEtHypoAlgMT::initialize()
   ATH_MSG_DEBUG(  "   " << m_readFromView           );
   ATH_MSG_DEBUG(  "   " << m_roiLink           );
   ATH_MSG_DEBUG(  "   " << m_jetLink           );
-  ATH_MSG_DEBUG(  "   " << m_produceMultipleDecisions );
 
   ATH_MSG_DEBUG( "Initializing Tools" );
   ATH_CHECK( m_hypoTools.retrieve()   );
@@ -29,11 +28,6 @@ StatusCode TrigBjetEtHypoAlgMT::initialize()
   ATH_MSG_DEBUG( "Initializing HandleKeys" );
   CHECK( m_inputJetsKey.initialize()       );
   CHECK( m_inputRoIKey.initialize()        );
-  CHECK( m_inputPrimaryVertexKey.initialize()  );
-
-  // Deal with what is stored into View
-  if ( m_readFromView ) 
-    renounce( m_inputJetsKey          ); 
 
   return StatusCode::SUCCESS;
 }
@@ -81,17 +75,6 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
       ATH_MSG_DEBUG( "   ** eta="<< roi->eta() << " phi=" << roi->phi() );
   }
 
-  // Retrieve Primary Vertex
-  const xAOD::VertexContainer *vertexContainer = nullptr;
-  CHECK( retrievePrimaryVertexFromStoreGate( context,vertexContainer ) );
-
-  ATH_MSG_DEBUG( "Found " << vertexContainer->size() << " vertices." );
-  for ( const xAOD::Vertex *primVertex : *vertexContainer )
-    ATH_MSG_DEBUG( "   ** vertex = " 
-		   << primVertex->x() << ","
-		   << primVertex->y() << "," 
-		   << primVertex->z() );
-
   // ========================================================================================================================== 
   //    ** Prepare Outputs
   // ========================================================================================================================== 
@@ -105,7 +88,7 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
   // ==========================================================================================================================
 
   // We need nDecisions (one per RoI if we run on Event Views). Each decision having m chains ( m=m_hypoTools.size() ) 
-  const unsigned int nDecisions = m_produceMultipleDecisions ? jetCollection->size() : 1;
+  const unsigned int nDecisions = jetCollection->size();
 
   // Create output decisions
   ATH_MSG_DEBUG("Creating Output Decisions and Linking Stuff to it");
@@ -115,22 +98,9 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
 
   // Adding Links
   for ( unsigned int index(0); index<nDecisions; index++ ) {
-
-    if ( m_produceMultipleDecisions ) { // Case we want multiple output decision (one per RoI/Jet)    
-      newDecisions.at( index )->setObjectLink( m_roiLink.value(),ElementLink< TrigRoiDescriptorCollection >( m_inputRoIKey.key(),index ) );
-      newDecisions.at( index )->setObjectLink( m_jetLink.value(),ElementLink< xAOD::JetContainer >( m_inputJetsKey.key(),index ) );
-    } else { // Case we want only one output decision 
-      ElementLinkVector< xAOD::JetContainer > linkVectorJets;
-      for (unsigned int indexJet(0); indexJet<jetCollection->size(); indexJet++ )
-        linkVectorJets.push_back( ElementLink< xAOD::JetContainer >( m_inputJetsKey.key(), indexJet) );
-      newDecisions.at( index )->addObjectCollectionLinks( m_jetLink.value(), linkVectorJets );
-
-      ElementLinkVector< TrigRoiDescriptorCollection > linkVectorRoIs;
-      for (unsigned int indexJet(0); indexJet<jetCollection->size(); indexJet++ )
-	linkVectorRoIs.push_back( ElementLink< TrigRoiDescriptorCollection >( m_inputRoIKey.key(), indexJet) );
-      newDecisions.at( index )->addObjectCollectionLinks( m_roiLink.value(), linkVectorRoIs );
-    }
-
+    // We want multiple output decision (one per RoI/Jet)    
+    newDecisions.at( index )->setObjectLink( m_roiLink.value(),ElementLink< TrigRoiDescriptorCollection >( m_inputRoIKey.key(),index ) );
+    newDecisions.at( index )->setObjectLink( m_jetLink.value(),ElementLink< xAOD::JetContainer >( m_inputJetsKey.key(),index ) );
   }
   ATH_MSG_DEBUG("   ** Added object links to output decision");
 
@@ -175,15 +145,6 @@ StatusCode TrigBjetEtHypoAlgMT::retrieveJetsFromStoreGate( const EventContext& c
   ATH_MSG_DEBUG( "Retrieved jets from : " << m_inputJetsKey.key() );
   CHECK( jetContainerHandle.isValid() );
   jetCollection = jetContainerHandle.get();
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TrigBjetEtHypoAlgMT::retrievePrimaryVertexFromStoreGate( const EventContext& context,
-								    const xAOD::VertexContainer*& vertexContainer ) const {
-  SG::ReadHandle< xAOD::VertexContainer > vertexContainerHandle = SG::makeHandle( m_inputPrimaryVertexKey,context );
-  ATH_MSG_DEBUG( "Retrieved primary vertex from : " << m_inputPrimaryVertexKey.key() );
-  CHECK( vertexContainerHandle.isValid() );
-  vertexContainer = vertexContainerHandle.get();
   return StatusCode::SUCCESS;
 }
 

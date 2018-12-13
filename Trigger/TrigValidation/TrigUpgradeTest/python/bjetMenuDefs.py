@@ -104,10 +104,8 @@ def bJetStep1Sequence():
     hypo.OutputLevel = DEBUG
     hypo.Jets = jetSplitter.OutputJets
     hypo.RoIs = jetSplitter.OutputRoi
-    hypo.PrimaryVertex = jetSplitter.OutputVertex
     hypo.RoILink = "initialRoI" # To be used in following step EventView
     hypo.JetLink = "jets" # To be used in following step with EventView
-    hypo.ProduceMultipleDecisions = True # For creating multiple decisions in the next step  
 
     # Sequence     
     BjetAthSequence = seqAND("BjetAthSequence_step1",eventAlgs + [InputMakerAlg,recoSequence,bJetEtSequence])
@@ -176,10 +174,8 @@ def bJetStep1SequenceALLTE():
     hypo.OutputLevel = DEBUG
     hypo.Jets = jetSplitter.OutputJets
     hypo.RoIs = jetSplitter.OutputRoi
-    hypo.PrimaryVertex = jetSplitter.OutputVertex
     hypo.RoILink = "initialRoI" # To be used in following step EventView
     hypo.JetLink = "jets" # To be used in following step with EventView
-    hypo.ProduceMultipleDecisions = False # For creating multiple decisions in the next step  
 
     # Sequence     
     BjetAthSequence = seqAND("BjetAthSequence_step1_ALLTE",eventAlgs + [InputMakerAlg,recoSequence,bJetEtSequence])
@@ -235,7 +231,6 @@ def bJetStep2Sequence():
     hypo.OutputLevel = DEBUG
     hypo.RoIs = "initialRoI" #InputMakerAlg.InViewRoIs
     hypo.Jets = theGSC.JetOutputKey
-    hypo.PrimaryVertex = "PrimaryVertex"
     hypo.RoILink = InputMakerAlg.RoIsLink # To be used in following step EventView
     hypo.JetLink = InputMakerAlg.JetsLink # To be used in following step with EventView
     hypo.ReadFromView = True
@@ -276,7 +271,6 @@ def bJetStep2SequenceALLTE():
     hypo.OutputLevel = DEBUG
     hypo.Jets = theGSC.JetOutputKey
     hypo.RoIs = InputMakerAlg.RoIs
-    hypo.PrimaryVertex = "PrimaryVertex"
     hypo.RoILink = "initialRoI"
     hypo.JetLink = "jets"
 

@@ -41,8 +41,6 @@ class TrigBjetEtHypoAlgMT : public ::HypoBase {
   TrigBjetEtHypoAlgMT();
 
   StatusCode retrieveJetsFromStoreGate( const EventContext& context,const xAOD::JetContainer*& ) const;
-  StatusCode retrievePrimaryVertexFromStoreGate( const EventContext& context,const xAOD::VertexContainer*& ) const;
-
   StatusCode retrieveJetsFromEventView( const EventContext& context,
 					const xAOD::JetContainer*&,
 					SG::ReadHandle< TrigCompositeUtils::DecisionContainer >& ) const;
@@ -52,13 +50,11 @@ class TrigBjetEtHypoAlgMT : public ::HypoBase {
 
  private:
   Gaudi::Property< bool > m_readFromView {this,"ReadFromView",false,"Use configuration that supports Event View"};
-  Gaudi::Property< bool > m_produceMultipleDecisions {this,"ProduceMultipleDecisions",false,"Create multiple decisions, one per input RoI"};
   Gaudi::Property< std::string > m_roiLink {this,"RoILink","roi","RoI link to attach to the output decision"};
   Gaudi::Property< std::string > m_jetLink {this,"JetLink","jets","Jets link to attach to the output decision"};
 
   SG::ReadHandleKey< xAOD::JetContainer > m_inputJetsKey {this,"Jets","Undefined","Input Jet Container Key"};
   SG::ReadHandleKey< TrigRoiDescriptorCollection > m_inputRoIKey {this,"RoIs","Undefined","Input RoIs that will be linked to the output decision"};
-  SG::ReadHandleKey< xAOD::VertexContainer > m_inputPrimaryVertexKey {this,"PrimaryVertex","Undefined","Input Primary Vertex that will be linked to the output decision"};
 }; 
 
 #endif //> !TRIGBJETHYPO_TRIGBJETETHYPOALG_H
