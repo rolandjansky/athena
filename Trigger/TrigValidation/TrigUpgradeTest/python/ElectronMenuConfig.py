@@ -4,7 +4,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import *
-
+from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 def CaloLUMIBCIDToolCfg( flags, name='CaloLumiBCIDToolDefault' ):
     acc = ComponentAccumulator()
@@ -123,7 +123,7 @@ def l2CaloAlgCfg( flags, roisKey="EMCaloRoIs" ):
     from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgammaFastAlgo
     fastCalo                         = T2CaloEgammaFastAlgo( 'FastEMCaloAlgo' )
     fastCalo.OutputLevel             = DEBUG
-    fastCalo.ClustersName            = 'L2CaloEMClusters'
+    fastCalo.ClustersName            = recordable('L2CaloEMClusters')
     fastCalo.RoIs                    = roisKey
     fastCalo.EtaWidth                = 0.2
     fastCalo.PhiWidth                = 0.2

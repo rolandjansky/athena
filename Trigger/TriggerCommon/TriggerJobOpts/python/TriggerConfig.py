@@ -106,6 +106,7 @@ def triggerSummaryCfg(flags, hypos):
         __log.info("Final decision of chain  " + c + " will be red from " + cont ) 
     decisionSummaryAlg.FinalDecisionKeys = list(set(allChains.values()))
     decisionSummaryAlg.FinalStepDecisions = allChains
+    decisionSummaryAlg.DecisionsSummaryKey ="HLTSummary"
     return acc, decisionSummaryAlg
         
 
@@ -118,6 +119,7 @@ def triggerMonitoringCfg(flags, hypos, l1Decoder):
     from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
     mon = TrigSignatureMoniMT()
     mon.L1Decisions="HLTChains"
+    mon.FinalDecisionKey="HLTSummary"
     if len(hypos) == 0:
         __log.warning("Menu is not configured")
         return acc, mon
@@ -144,34 +146,57 @@ def triggerMonitoringCfg(flags, hypos, l1Decoder):
 def triggerOutputStreamCfg( flags, decObj, outputType ):
     """ 
     Configure output stream according to the menu setup (decision objects)
-    and TrigEDMCOnfig (this is still on TODO)
+    and TrigEDMCOnfig
     """
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     itemsToRecord = []
     # decision objects and their Aux stores
-    [ itemsToRecord.extend( [ "xAOD::TrigCompositeContainer#%s"%d, "xAOD::TrigCompositeAuxContainer#%sAux."%d] ) for d in decObj ]
+    def __TCKeys( name ):
+        return [ "xAOD::TrigCompositeContainer#%s" % name, "xAOD::TrigCompositeAuxContainer#%sAux." % name]
+    [ itemsToRecord.extend( __TCKeys(d) ) for d in decObj ]
     # the rest of triger EDM
+    itemsToRecord.extend( __TCKeys( "HLTSummary" ) )
 
+
+    from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTList
+    EDMCollectionsToRecord=filter( lambda x: outputType in x[1] and "TrigCompositeContainer" not in x[0],  TriggerHLTList )
+    itemsToRecord.extend( [ el[0] for el in EDMCollectionsToRecord ] )
+    
     # summary objects
     __log.debug( outputType + " trigger content "+str( itemsToRecord ) )
     acc = OutputStreamCfg( flags, outputType, ItemList=itemsToRecord )
     streamAlg = acc.getEventAlgo("OutputStream"+outputType)
-    streamAlg.ExtraInputs = [("xAOD::TrigCompositeContainer", "HLTFinalDecisions")]
+    streamAlg.ExtraInputs = [("xAOD::TrigCompositeContainer", "HLTSummary")]
+
     return acc
     
 def triggerAddMissingEDMCfg( flags, decObj ):
 
     from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg    
     EDMFillerAlg = TriggerSummaryAlg( "EDMFillerAlg" )
-    EDMFillerAlg.InputDecision = "HLTChains"
+    EDMFillerAlg.InputDecision  = "HLTChains"
+    EDMFillerAlg.HLTSummary     = "HLTSummaryOutput" # we do not care about this object, configure in order not to clash
 
     from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
     DecisionObjectsFiller = HLTEDMCreator("DecisionObjectsFiller")
     DecisionObjectsFiller.TrigCompositeContainer = list(decObj)
-
-    # TODO add configuration for the rest of the EDM
-
     EDMFillerAlg.OutputTools += [ DecisionObjectsFiller ]
+
+    from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTList
+    collectionsThatNeedMerging = filter( lambda x: len(x) >= 4 and x[3].startswith("inViews:"),  TriggerHLTList )
+    for c in collectionsThatNeedMerging:
+        tool = HLTEDMCreator(c[0].split("#")[1]+"merger")
+        ctype, cname = c[0].split("#")
+        ctype = ctype.split(":")[-1]        
+        viewsColl = c[3].split(":")[-1]
+        setattr(tool, ctype+"Views", [ viewsColl ] )
+        setattr(tool, ctype+"InViews", [ cname ] )
+        setattr(tool, ctype, [ cname ] )
+        EDMFillerAlg.OutputTools += [ tool ]
+#egammaViewsMerger.TrigEMClusterContainerViews = [ "EMCaloViews" ]
+#egammaViewsMerger.TrigEMClusterContainerInViews = [ clustersKey ]
+#egammaViewsMerger.TrigEMClusterContainer = [ clustersKey ]
+
     return EDMFillerAlg
     
     
