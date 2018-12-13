@@ -11,6 +11,7 @@
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "DecisionHandling/HLTIdentifier.h"
 
+using namespace TrigCompositeUtils;
 
 EventViewCreatorAlgorithmWithJets::EventViewCreatorAlgorithmWithJets( const std::string& name, ISvcLocator* pSvcLocator )
   : EventViewCreatorAlgorithm( name, pSvcLocator ) {}

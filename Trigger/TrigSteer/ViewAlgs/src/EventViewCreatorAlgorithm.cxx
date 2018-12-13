@@ -10,6 +10,7 @@
 #include "AthViews/View.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 
+using namespace TrigCompositeUtils;
 
 EventViewCreatorAlgorithm::EventViewCreatorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
   : InputMakerBase( name, pSvcLocator ) {}
