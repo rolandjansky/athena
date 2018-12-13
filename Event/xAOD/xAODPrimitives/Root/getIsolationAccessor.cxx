@@ -5,6 +5,9 @@
 // Local include(s):
 #include "xAODPrimitives/tools/getIsolationAccessor.h"
 
+// System include(s):
+#include <iostream>
+
 /// Helper macro for Accessor objects
 #define DEFINE_ACCESSOR(TYPE)                                 \
   case xAOD::Iso::TYPE:                                       \

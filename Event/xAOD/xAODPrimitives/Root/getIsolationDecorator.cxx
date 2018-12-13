@@ -1,9 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s):
 #include "xAODPrimitives/tools/getIsolationDecorator.h"
+
+// System include(s):
+#include <iostream>
 
 /// Helper macro for Accessor objects
 #define DEFINE_DECORATOR(TYPE)                                 \
