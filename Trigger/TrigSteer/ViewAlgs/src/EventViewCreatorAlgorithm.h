@@ -26,7 +26,6 @@
    * @brief Used at the start of a sequence to create the EventViews: retrieves filtered collection via menu decision from previous step and writes it out directly so it can be used as input by the reco alg that follows in sequence.
    **/
 
-using namespace TrigCompositeUtils;
 
 class EventViewCreatorAlgorithm : public ::InputMakerBase
 {
