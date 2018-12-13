@@ -110,13 +110,13 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
     } else {
       // No need to link RoIs, they are already stored in the previous decisions
       // I need to take the view from the previous decision, make the link, and then make the link in the output decision
-      auto viewEL = prevDecisionContainer->at(index)->objectLink< ViewContainer >( "view" );
+      ElementLink< ViewContainer > viewEL = prevDecisionContainer->at(index)->objectLink< ViewContainer >( "view" );
       ATH_CHECK( viewEL.isValid() );
 
-      auto calJetHandle = ViewHelper::makeHandle( *viewEL, m_inputJetsKey, context );
+      SG::ReadHandle< xAOD::JetContainer > calJetHandle = ViewHelper::makeHandle( *viewEL, m_inputJetsKey, context );
       ATH_CHECK( calJetHandle.isValid() );
 
-      auto jetEL = ViewHelper::makeLink( *viewEL, calJetHandle, 0 );
+      ElementLink< xAOD::JetContainer > jetEL = ViewHelper::makeLink( *viewEL, calJetHandle, 0 );
       ATH_CHECK( jetEL.isValid() );
 
       newDecisions.at( index )->setObjectLink( m_jetLink.value(),jetEL);
@@ -178,16 +178,17 @@ StatusCode TrigBjetEtHypoAlgMT::retrieveJetsFromEventView( const EventContext& c
 
   for ( auto previousDecision: *prevDecisionHandle ) {
     //get RoI
-    auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
+    ElementLink< TrigRoiDescriptorCollection > roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
     ATH_CHECK( roiEL.isValid() );
     const TrigRoiDescriptor* roi = *roiEL;
     ATH_MSG_DEBUG( "Retrieved RoI from previous decision " );
     ATH_MSG_DEBUG( "   ** eta=" << roi->eta() <<" phi="<< roi->phi() );
 
     // get View
-    auto viewEL = previousDecision->objectLink< ViewContainer >( "view" );
+    ElementLink< ViewContainer > viewEL = previousDecision->objectLink< ViewContainer >( "view" );
     ATH_CHECK( viewEL.isValid() );
     ATH_MSG_DEBUG( "Retrieved View" );
+
     SG::ReadHandle< xAOD::JetContainer > jetContainerHandle = ViewHelper::makeHandle( *viewEL, m_inputJetsKey, context);
     ATH_CHECK( jetContainerHandle.isValid() );
     ATH_MSG_DEBUG ( "jet container handle size: " << jetContainerHandle->size() << "..." );
