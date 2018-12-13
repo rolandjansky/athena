@@ -67,6 +67,7 @@ int main() {
    SIMPLE_CHECK( tool.setProperty( "OutputLevel", MSG::INFO ) );
    SIMPLE_CHECK( tool.setProperty( "ServerAddress",
                                    "atlas-trigconf.cern.ch" ) );
+   SIMPLE_CHECK( tool.setProperty( "ServerTimeout", 60000 ) );
 
    // Loop over the events in the file:
    const ::Long64_t entries = event.getEntries();
