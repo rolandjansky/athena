@@ -7,6 +7,8 @@
 
 @section DetectorStatus_introductionDetectorStatus Introduction
 
+*** THIS PACKAGE IS COMPLETELY DEPRECATED ***
+
 The DetectorStatus package implements a service to manage detector status 
 information, primarily to flag events where some or all subdetectors are 
 unusable, or should be used with caution. The service maintains a DetStatusMap
@@ -19,16 +21,6 @@ DetDescrConditons data objects package.
 
 For more details on detector status handling, see the CoolDetStatus wiki page
 at https://twiki.cern.ch/twiki/bin/view/Atlas/CoolDetStatus
-
-The DetStatusSvc reads detector status information
-from the conditions database, or from file-level meta-data.
-A common interface is used to query the DetStatusMap object, which resides
-in the transient detector store. To read detector status 
-information from the conditions database, include the following in your
-job options:
-<pre>
-include("DetectorStatus/DetStatusSvc_CondDB.py")
-</pre>
 
 @section DetectorStatus_flagsDetectorStatus Flags and conditions DB storage
 
@@ -175,109 +167,7 @@ The LBSUMM folder in the OFLP200 database contains a default set
 of entries valid for all runs, given GREEN status for all detectors with 
 zero dead fraction, tagged with the COOL tag DetStatusLBSumm_nominal. 
 Entering the status for a particular run will then
-override this default information. For testing purposes, it is possible to
-enter information using a different tag, for example the predefined tag 
-DetStatusLBSumm_undefined has all status flags set to undefined for all runs,
-and can be selected by using the job option line:
-<pre>
-include("DetectorStatus/DetStatusSvc_CondDB.py")
-from IOVDbSvc.CondDB import conddb
-conddb.addOverride('/GLOBAL/DETSTATUS/LBSUMM','DetStatusLBSumm_BadEMB')
-</pre>
-
-@section DetectorStatus_queryDetectorStatus Querying the Detector Status in Athena algorithms
-
-The DetStatusSvc has various methods which provide access to the DetStatus
-object asociated with a particular identifier string. You can retrieve a 
-pointer to the DetStatus for a given identifier, or retrieve iterators to 
-let you loop over all the status objects.  The following code shows how
-to do this:
-<pre>
-  // get DetStatusSvc interface
-  const IDetStatusSvc* p_detstatussvc;
-  if (StatusCode::SUCCESS!=service("DetStatusSvc",p_detstatussvc)) {
-    m_log << MSG::ERROR << "Cannot get DetStatusSvc" << endmsg;
-    return StatusCode::FAILURE;
-  }
-
-  // print all status information to MsgSvc
-  if (par_print) p_detstatussvc->print();
-
-  // test a particular one - SCTB
-  const DetStatus* ptr=p_detstatussvc->findStatus("SCTB");
-  if (ptr!=0) {
-    m_log << MSG::INFO << "SCTB status found to be " << ptr->colour() << endmsg;
-  } else {
-    m_log << MSG::ERROR << "Could not find status of SCTB" << endmsg;
-  }
-  // loop over all status words, print those which are bad
-  DetStatusMap::const_iterator begin,end;
-  p_detstatussvc->getIter(begin,end);
-  for (DetStatusMap::const_iterator itr=begin;itr!=end;++itr) {
-    if (itr->second.code()<3) m_log << MSG::WARNING << "Status of " <<
-      itr->first << " is bad: fullcode " << itr->second.fullCode() << endmsg;
-  }
-</pre>
-
-The DetStatusSvc also implements a veto functionality, allowing you to specify
-status requirements on events to be analysed. The joboption properties 
-StatusNames and StatusReqs are used to specify pairs of names and minimum
-status levels (red=1, yellow=2, green=3). For example:
-<pre>
-DetStatusSvc.StatusNames=['SCTB','SCTECA']
-DetStatusSvc.StatusReqs=[2,3]
-</pre>
-specifies that the SCTB status must be at least 2 (yellow) and the SCTECA 
-(endcap A)
-status must be at least 3 (green). There must be an equal number of entries
-in the two lists. Once this is specified, the bool vetoed() method will be true
-if the event should be vetoed according to these criteria. Detector status
-identifiers whose first letters match up to the length of the matching 
-string will be considered to match, so e.g. the string SCT will match
-SCTB, SCTECA and SCTECB. This is an easy way to set status requirements
-on all parts of a detector.
-
-An alternative way to specify detector status is with a string of the form:
-<pre>
-DetStatusSvc.StringReqs='SCTB 2 SCTEA 3'
-</pre>
-This is of the same form as detector status requirements specifications in 
-the LumiCalc.py tool.
-
-@section DetectorStatus_algDetectorStatus The DetStatusAlg algorithm
-
-The DetStatusAlg algorithm provides a way to trigger use of the services, and
-also serves as an example for accessing detector status information in user
-code. It has the following joboption properties:
- - Print: call DetStatusSvc::print() to print the current status objects
- - Veto: call DetStatusSvc::vetoed() and count how many events are vetoed.
-The veto functionality also sets the DetStatusAlg filterPassed property to
-false, allowing it to be used in algorithm sequences.
-
-@section DetectorStatus_detStatustools Command-line tools
-
-Two command-line tools are provided to interact with the detector status 
-information: detStatus_query.py and detStatus_set.py. They can be used to
-query or set the detector status for one or all of the status flags, and
-print their options if given without arguments. For more
-details, see the CoolDetStatus wiki page.
-
-@section DetectorStatus_jobOptionsDetectorStatus Job-option files
-
-The package has two main job-options, that setup the DetStatusSvc to 
-enable detector status to be read
-from the conditions database, and write it to file-level meta-data.
-
-@subsection jobOptions1DetectorStatus DetStatusSvc_CondDB.py
-
-@include DetStatusSvc_CondDB.py
-
-@subsection joboptions2DetectorStatus DetStatusSvc_ToFileMetaData.py
-
-@include DetStatusSvc_ToFileMetaData.py
-
-
-
+override this default information. 
 
 
 */
