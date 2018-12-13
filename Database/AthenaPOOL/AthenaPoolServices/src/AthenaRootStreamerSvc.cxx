@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file AthenaRootStreamerSvc.cxx
@@ -48,7 +48,7 @@ StatusCode AthenaRootStreamerSvc::initialize()
    // create ROOT-type database object -
    // this loads the ROOT storage service plugin and
    // initializes POOL/ROOT class loader needed by GetClass()
-   if( ! session.db(pool::ROOT_StorageType) ) {
+   if( rc != pool::DbStatus::Success || ! session.db(pool::ROOT_StorageType) ) {
       ATH_MSG_ERROR ( "Failed to open POOL/ROOT session" );
       return StatusCode::FAILURE;
    }
