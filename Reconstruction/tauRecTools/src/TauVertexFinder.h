@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAUVERTEXFINDER_H
@@ -66,7 +66,6 @@ private:
   float getJetVertexFraction(const xAOD::Vertex* vertex, const std::vector<const xAOD::TrackParticle*>& tracks) const;      
   
 private:
-  bool m_printMissingContainerINFO;
   ToolHandle< InDet::IInDetTrackSelectionTool > m_TrackSelectionToolForTJVA;
 
   // for online

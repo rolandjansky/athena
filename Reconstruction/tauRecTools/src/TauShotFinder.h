@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAUSHOTFINDER_H
@@ -60,13 +60,7 @@ private:
     /** @brief tool handles */
     ToolHandle<IHadronicCalibrationTool> m_caloWeightTool;
     
-    /** @brief new shot cluster container and name */ 
-    xAOD::CaloClusterContainer* m_shotClusterContainer;
-
     /** @brief new shot PFO container and name */
-    xAOD::PFOContainer* m_PFOShotContainer;
-    xAOD::PFOAuxContainer* m_PFOShotAuxStore;
-    xAOD::CaloClusterAuxContainer* m_shotClusterAuxStore; 
     /** @brief calo cell navigation */
     const CaloDetDescrManager* m_calo_dd_man;
     const CaloCell_ID* m_calo_id;

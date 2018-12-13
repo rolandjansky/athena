@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -17,7 +17,6 @@
 
 TauVertexFinder::TauVertexFinder(const std::string& name ) :
   TauRecToolBase(name),
-  m_printMissingContainerINFO(true),
   m_TrackSelectionToolForTJVA(""),
   m_assocTracksName("")
 {

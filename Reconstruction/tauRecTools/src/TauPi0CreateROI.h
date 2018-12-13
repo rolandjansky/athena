@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAUPI0CREATEROI_H
@@ -54,9 +54,6 @@ private:
     const CaloDetDescrManager* m_calo_dd_man;
     const CaloCell_ID* m_calo_id;
   
-    /** @brief output cell container*/ 
-    CaloCellContainer *m_pPi0CellContainer;
-
     /** @brief hash map in order to keep track, which cells have been added to output cell container*/
     std::vector<CaloCell*> m_addedCellsMap;
 
