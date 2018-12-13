@@ -60,16 +60,6 @@ TrigTauGenericHypoMT::TrigTauGenericHypoMT( const std::string& type,
   declareProperty("Formulas", m_formula);
 }
 
-/*
-TrigTauGenericHypoMT::TrigTauGenericHypoMT(const std::string& name, 
-				     ISvcLocator* pSvcLocator):
-  HLT::HypoAlgo(name, pSvcLocator)
-{
-  declareProperty("Details", m_member);
-  declareProperty("Formulas", m_formula);
-}
-*/
-
 TrigTauGenericHypoMT::~TrigTauGenericHypoMT()
 {}
 
@@ -119,23 +109,6 @@ bool TrigTauGenericHypoMT::decide( const ITrigTauGenericHypoTool::ClusterInfo& i
     pass = false;
     ATH_MSG_DEBUG( "AcceptAll property not set: applying selection" );
   }
-  auto roiDescriptor = input.roi;
-
-  if ( fabs( roiDescriptor->eta() ) > 2.6 ) {
-      ATH_MSG_DEBUG( "REJECT The cluster had eta coordinates beyond the EM fiducial volume : " << roiDescriptor->eta() << "; stop the chain now" );
-      pass=false; // special case       
-      return pass;
-  } 
-
-  ATH_MSG_DEBUG( "; RoI ID = " << roiDescriptor->roiId()
-       << ": Eta = " << roiDescriptor->eta()
-       << ", Phi = " << roiDescriptor->phi() );
-
-  // fill local variables for RoI reference position
-  double etaRef = roiDescriptor->eta();
-  double phiRef = roiDescriptor->phi();
-  // correct phi the to right range ( probably not needed anymore )   
-  if ( fabs( phiRef ) > M_PI ) phiRef -= 2*M_PI; // correct phi if outside range
 
   // get tau collection
   auto pTauCont = input.taucontainer;
