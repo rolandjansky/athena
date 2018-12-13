@@ -154,6 +154,11 @@ public:
    /// Get the key that we reference, as a hash
    sgkey_t key() const { return persKey(); }
 
+   /// Comparison operator
+   bool operator==( const ElementLink& rhs ) const;
+   /// Comparison operator
+   bool operator!=( const ElementLink& rhs ) const;
+
    /// Get a reference to the object in question
    ElementConstReference operator*() const;
 

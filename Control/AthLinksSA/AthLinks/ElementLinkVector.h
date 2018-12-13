@@ -79,6 +79,11 @@ public:
    /// Assignment operator
    ElemLinkVec& operator=( const ElemLinkVec& rhs );
 
+   /// Comparison operator
+   bool operator==( const ElementLinkVector& rhs ) const;
+   /// Comparison operator
+   bool operator!=( const ElementLinkVector& rhs ) const;   
+
    /// @name Vector iterator functions
    /// @{
 
