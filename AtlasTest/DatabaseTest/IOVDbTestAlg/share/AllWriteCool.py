@@ -1,5 +1,4 @@
 import AthenaCommon.AtlasUnixGeneratorJob
-gbl.AthenaServices.SetFatalHandler(438)
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -9,6 +8,8 @@ from AthenaCommon.AppMgr import theApp
 from devdb10_pwd import devdb10pwd
 
 import IOVDbSvc.IOVDb
+
+svcMgr.CoreDumpSvc.FatalHandler = 438
 
 from IOVDbTestAlg.IOVDbTestAlgConf import IOVDbTestAlg
 topSequence += IOVDbTestAlg( "IOVDbTestAlg" )

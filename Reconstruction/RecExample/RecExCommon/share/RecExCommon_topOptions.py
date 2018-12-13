@@ -4,7 +4,6 @@ include.block ("RecExCommon/RecExCommon_topOptions.py")
 ## Common job preparation ##
 ############################
 
-# gbl.AthenaServices.SetFatalHandler(438)
 svcMgr.CoreDumpSvc.FatalHandler = 438
 import traceback
 
