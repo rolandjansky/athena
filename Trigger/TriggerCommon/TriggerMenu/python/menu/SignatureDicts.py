@@ -197,7 +197,7 @@ MuonChainParts = {
     'reccalibInfo'   : ['msonly', 'l2msonly', 'l2idonly', 'nomucomb', 'idperf','muoncalib', 'mucombTag','muL2', 'mgonly'],
     'trkInfo'        : ['fasttr', 'hlttr', 'ftk', 'IDT'],
     'hypoInfo'       : [],
-    'FSinfo'         : ['ftkFS', 'nscan03', 'l2nscan03', 'nscan05', 'l2nscan05', 'JpsimumuFS', 'JpsimumuL2','calotag'],
+    'FSinfo'         : ['FTKFS', 'nscan03', 'l2nscan03', 'nscan05', 'l2nscan05', 'JpsimumuFS', 'JpsimumuL2','calotag'],
     'L2IDAlg'        : ['L2Star','IdScan','FTK','FTKRefit'],
     'L2SAAlg'        : ['muFast', 'l2muonSA',],
     'L2CBAlg'        : ['muComb',],
@@ -417,7 +417,7 @@ PhotonChainParts = {
     'caloInfo'       : ['HLTCalo'],
     'hypoInfo'       : '',
     'recoAlg'        : [],
-    'FSinfo'         : ['ftkFS',],
+    'FSinfo'         : ['FTKFS',],
     'addInfo'        : ['etcut', 'jetcalibdelayed', 'cosmic', 'perf', 'hiptrt','ringer','conv','larpeb',],
     }
 
