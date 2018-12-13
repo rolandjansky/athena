@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -68,7 +68,6 @@ class TileHWID;
 class TileInfo;
 //class TileCablingSvc;
 class TileRawChannelBuilderFlatFilter;
-class TileBeamInfoProvider;
 class TileBeamElemContByteStreamCnv;
 class TileLaserObject;
 class TileCondToolEmscale;
@@ -533,8 +532,6 @@ class TileTBAANtuple: public AthAlgorithm {
     const TileCablingService* m_cabling;
 
     ToolHandle<TileCondToolEmscale> m_tileToolEmscale; //!< main Tile Calibration tool
-
-    ToolHandle<TileBeamInfoProvider> m_beamInfo;
 
     TileBeamElemContByteStreamCnv* m_beamCnv;
 

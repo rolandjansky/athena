@@ -339,6 +339,11 @@ topSequence += theTileTBDump
 theTileTBDump.dumpOnce = True
 theTileTBDump.dumpUnknown = False
 
+from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
+TileDQstatusAlgDefault (TileBeamElemContainer = 'TileBeamElemCnt',
+                        TileDigitsContainer = 'TileDigitsCnt',
+                        TileRawChannelContainer = 'TileRawChannelCnt')
+
 from TileTBRec.TileTBRecConf import TileTBStat
 theTileTBStat = TileTBStat()
 topSequence += theTileTBStat

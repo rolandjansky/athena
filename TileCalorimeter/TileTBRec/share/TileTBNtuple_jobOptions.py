@@ -42,6 +42,9 @@ TileTBNtuple.TileRawChannelContainerFit  = ""
 TileTBNtuple.TileRawChannelContainerFitCool  = ""
 TileTBNtuple.TileRawChannelContainerOpt  = ""
 
+#xxx TileDQstatusAlg.TileBeamElemContainer = 'TileBeamElemCnt'
+#xxx TileDQstatusAlg.TileDigitsContainer = 'TileDigitsCnt' if TBPeriod != 2017
+
 if doSim:
     theApp.Dlls += [ "TileRecUtils", "TileByteStream" ]
     TileTBNtuple.BSInput = FALSE
@@ -56,6 +59,8 @@ if doSim:
     # TileTBNtuple.TileRawChannelContainerFlat = "TileRawChannelCnt"
     TileTBNtuple.TileDigitsContainer = ""
     TileTBNtuple.TileBeamElemContainer = ""
+    #xxx TileDQstatusAlg.TileBeamElemContainer = ''
+    #xxx TileDQstatusAlg.TileDigitsContainer = '' if TBPeriod != 2017
     TileTBNtuple.TileLaserObject = ""
     if TileBarrelOnly:
         TileTBNtuple.drawerList = [ "0x200", "0x201", "0x202", "0x100", "0x101", "0x102" ]
