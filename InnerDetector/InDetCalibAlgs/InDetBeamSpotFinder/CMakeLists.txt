@@ -13,7 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Event/EventInfo
                           Event/xAOD/xAODEventInfo
-                          InnerDetector/InDetConditions/InDetBeamSpotService
+                          InnerDetector/InDetConditions/BeamSpotConditionsData
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/VxVertex
                           Trigger/TrigAnalysis/TrigAnalysisInterfaces

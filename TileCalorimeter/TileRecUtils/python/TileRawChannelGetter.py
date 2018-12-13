@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # Author: J. Poveda (Ximo.Poveda@cern.ch)
 # TileRawChannel creation from TileDigits 
@@ -20,8 +20,7 @@ class TileRawChannelGetter ( Configured)  :
     algorithm to obtain TileRawChannel objects from the TileDigits stored
     in a TileDigitsContainer.
     According to the values of the TileRecFlags jobProperties, the
-    corresponding AlgTools are added tothe ToolSvc and associated to
-    TileRawChannelMaker algorithm.
+    corresponding AlgTools are added to TileRawChannelMaker algorithm.
     """
     
     _outputType = "TileRawChannelContainer"
@@ -95,38 +94,6 @@ class TileRawChannelGetter ( Configured)  :
 
         ToolSvc += theTileBeamInfoProvider
         
-        NoiseFilterTools = []
-        if jobproperties.TileRecFlags.noiseFilter() == 1:
-
-            if globalflags.DataSource() == 'data':
-
-                # check if there are DSP thresholds in DB
-                if jobproperties.TileRecFlags.zeroAmplitudeWithoutDigits() and not tileInfoConfigurator.setupCOOLDspThreshold():
-                    jobproperties.TileRecFlags.zeroAmplitudeWithoutDigits = False
-
-                if jobproperties.TileRecFlags.correctPedestalDifference():
-                    # check if offline and there are OFCs in DB for OF1 method
-                    if athenaCommonFlags.isOnline() or not tileInfoConfigurator.setupCOOLOFC(ofcType = 'OF1'):
-                        jobproperties.TileRecFlags.correctPedestalDifference = False
-                    else:
-                        tileInfoConfigurator.setupCOOLTIME(online = True)
-
-                if jobproperties.TileRecFlags.zeroAmplitudeWithoutDigits() or jobproperties.TileRecFlags.correctPedestalDifference():
-                    from TileRecUtils.TileRecUtilsConf import TileRawChannelOF1Corrector
-                    theTileRawChannelOF1Corrector = TileRawChannelOF1Corrector()
-                    theTileRawChannelOF1Corrector.CorrectPedestalDifference = jobproperties.TileRecFlags.correctPedestalDifference()
-                    theTileRawChannelOF1Corrector.ZeroAmplitudeWithoutDigits = jobproperties.TileRecFlags.zeroAmplitudeWithoutDigits()
-
-                    ToolSvc += theTileRawChannelOF1Corrector
-                    NoiseFilterTools += [theTileRawChannelOF1Corrector]
-
-            from TileRecUtils.TileRecUtilsConf import TileRawChannelNoiseFilter
-            theTileRawChannelNoiseFilter = TileRawChannelNoiseFilter()
-            ToolSvc += theTileRawChannelNoiseFilter
-            NoiseFilterTools += [theTileRawChannelNoiseFilter]
-
-
-
         TileFrameLength = ServiceMgr.TileInfoLoader.NSamples
         if TileFrameLength!=7:
             mlog.info("disabling reading of OFC from COOL because Nsamples!=7")
@@ -139,6 +106,46 @@ class TileRawChannelGetter ( Configured)  :
 
             TilePulseTypes = {0 : 'PHY', 1 : 'PHY', 2 : 'LAS', 4 : 'PHY', 8 : 'CIS'}
             TilePulse = TilePulseTypes[jobproperties.TileRecFlags.TileRunType()]
+
+            from TileConditions.TileCondToolConf import getTileCondToolOfcCool
+            toolOfcCool = None
+            toolOfcCoolOF1 = None
+
+            NoiseFilterTools = []
+            if jobproperties.TileRecFlags.noiseFilter() == 1:
+
+                if globalflags.DataSource() == 'data':
+
+                    # check if there are DSP thresholds in DB
+                    if jobproperties.TileRecFlags.zeroAmplitudeWithoutDigits() and not tileInfoConfigurator.setupCOOLDspThreshold():
+                        jobproperties.TileRecFlags.zeroAmplitudeWithoutDigits = False
+
+                    if jobproperties.TileRecFlags.correctPedestalDifference():
+                        # check if offline and there are OFCs in DB for OF1 method
+                        toolOfcCoolOF1 = getTileCondToolOfcCool('COOL', TilePulse, 'OF1', 'TileCondToolOfcCoolOF1')
+                        if athenaCommonFlags.isOnline() or not toolOfcCoolOF1:
+                            jobproperties.TileRecFlags.correctPedestalDifference = False
+                        else:
+                            tileInfoConfigurator.setupCOOLTIME(online = True)
+
+                    if jobproperties.TileRecFlags.zeroAmplitudeWithoutDigits() or jobproperties.TileRecFlags.correctPedestalDifference():
+                        from TileRecUtils.TileRecUtilsConf import TileRawChannelOF1Corrector
+                        theTileRawChannelOF1Corrector = TileRawChannelOF1Corrector()
+                        theTileRawChannelOF1Corrector.CorrectPedestalDifference = jobproperties.TileRecFlags.correctPedestalDifference()
+                        theTileRawChannelOF1Corrector.ZeroAmplitudeWithoutDigits = jobproperties.TileRecFlags.zeroAmplitudeWithoutDigits()
+
+                        if jobproperties.TileRecFlags.correctPedestalDifference():
+                            from TileConditions.TileCondToolConf import getTileCondToolTiming
+                            toolOnlineTiming = getTileCondToolTiming('COOL', TilePulse, True, 'TileCondToolOnlineTiming')
+                            theTileRawChannelOF1Corrector.TileCondToolTiming = toolOnlineTiming
+                            theTileRawChannelOF1Corrector.TileCondToolOfc = toolOfcCoolOF1
+
+                        NoiseFilterTools += [theTileRawChannelOF1Corrector]
+
+                from TileRecUtils.TileRecUtilsConf import TileRawChannelNoiseFilter
+                theTileRawChannelNoiseFilter = TileRawChannelNoiseFilter()
+                NoiseFilterTools += [theTileRawChannelNoiseFilter]
+
 
             if (jobproperties.TileRecFlags.doTileMF()
                 or (not jobproperties.TileRecFlags.OfcFromCOOL()
@@ -158,9 +165,13 @@ class TileRawChannelGetter ( Configured)  :
                     or jobproperties.TileRecFlags.doTileOptATLAS()):
 
                     tileInfoConfigurator.setupCOOLOFC(type = TilePulse)
+                    toolOfcCool = getTileCondToolOfcCool('COOL', TilePulse)
 
                 if jobproperties.TileRecFlags.doTileOF1():
                     tileInfoConfigurator.setupCOOLOFC(type = TilePulse, ofcType = 'OF1')
+
+                    if not toolOfcCoolOF1:
+                        toolOfcCoolOF1 = getTileCondToolOfcCool('COOL', TilePulse, 'OF1', 'TileCondToolOfcCoolOF1')
 
 
             if jobproperties.TileRecFlags.doTileQIE():
@@ -181,10 +192,9 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderQIEFilter.NoiseFilterTools= NoiseFilterTools
                 theTileRawChannelBuilderQIEFilter.PedestalMode = 1
       
-                mlog.info(" adding now TileRawChannelBuilderQIEFilter to ToolSvc")   
-                ToolSvc += theTileRawChannelBuilderQIEFilter
+                mlog.info(" adding now TileRawChannelBuilderQIEFilter to the aglorithm: %s" % theTileRawChannelMaker.name())
       
-                theTileRawChannelMaker.TileRawChannelBuilder += [ToolSvc.TileRawChannelBuilderQIEFilter]
+                theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderQIEFilter]
             
             # fit with several amplitudes 
             if jobproperties.TileRecFlags.doTileManyAmps():
@@ -205,10 +215,9 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderManyAmps.correctTime     = jobproperties.TileRecFlags.correctTime()    
                 theTileRawChannelBuilderManyAmps.NoiseFilterTools= NoiseFilterTools
                  
-                mlog.info(" adding now TileRawChannelBuilderManyAmps to ToolSvc")   
-                ToolSvc += theTileRawChannelBuilderManyAmps
+                mlog.info(" adding now TileRawChannelBuilderManyAmps to the aglorithm: %s" % theTileRawChannelMaker.name())
       
-                theTileRawChannelMaker.TileRawChannelBuilder += [ToolSvc.TileRawChannelBuilderManyAmps]
+                theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderManyAmps]
       
             # flat filter - sum of 5 samples
             if jobproperties.TileRecFlags.doTileFlat():
@@ -231,10 +240,9 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderFlatFilter.FrameLength = TileFrameLength
                 theTileRawChannelBuilderFlatFilter.SignalLength = TileFrameLength - 1
       
-                mlog.info(" adding now TileRawChannelBuilderFlatFilter to ToolSvc")   
-                ToolSvc += theTileRawChannelBuilderFlatFilter
+                mlog.info(" adding now TileRawChannelBuilderFlatFilter to the aglorithm: %s" % theTileRawChannelMaker.name())
       
-                theTileRawChannelMaker.TileRawChannelBuilder += [ToolSvc.TileRawChannelBuilderFlatFilter]
+                theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderFlatFilter]
       
             # Fit method
             if jobproperties.TileRecFlags.doTileFit() or jobproperties.TileRecFlags.doTileOverflowFit():
@@ -256,18 +264,17 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderFitFilter.FrameLength = TileFrameLength
                 
                 # add the tool to list of tool ( should use ToolHandle eventually)
-                mlog.info(" adding now TileRawChannelBuilderFitFilter to ToolSvc")   
-                ToolSvc += theTileRawChannelBuilderFitFilter
+                mlog.info(" adding now TileRawChannelBuilderFitFilter to the aglorithm: %s" % theTileRawChannelMaker.name())
 
                 if jobproperties.TileRecFlags.doTileFit():
                     jobproperties.TileRecFlags.TileRawChannelContainer = "TileRawChannelFit"
                     theTileRawChannelBuilderFitFilter.TileRawChannelContainer = "TileRawChannelFit"
-                    theTileRawChannelMaker.TileRawChannelBuilder += [ToolSvc.TileRawChannelBuilderFitFilter]    
+                    theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderFitFilter]
                     
                 if jobproperties.TileRecFlags.doTileOverflowFit(): 
                     theTileRawChannelMaker.FitOverflow = True
-                    theTileRawChannelMaker.TileRawChannelBuilderFitOverflow = ToolSvc.TileRawChannelBuilderFitFilter
-                    mlog.info(" set up TileRawChannelBuilderFitOverflow to TileRawChannelBuilderFitFilter") 
+                    theTileRawChannelMaker.TileRawChannelBuilderFitOverflow = theTileRawChannelBuilderFitFilter
+                    mlog.info(" set up TileRawChannelBuilderFitOverflow to TileRawChannelBuilderFitFilter")
                 
             # Fit method with reading from COOL
             if jobproperties.TileRecFlags.doTileFitCool():
@@ -291,10 +298,9 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderFitFilterCool.FrameLength = TileFrameLength
                 
                 # add the tool to list of tool ( should use ToolHandle eventually)
-                mlog.info(" adding now TileRawChannelBuilderFitFilterCool to ToolSvc")   
-                ToolSvc += theTileRawChannelBuilderFitFilterCool
+                mlog.info(" adding now TileRawChannelBuilderFitFilterCool to the aglorithm: %s" % theTileRawChannelMaker.name())
       
-                theTileRawChannelMaker.TileRawChannelBuilder += [ToolSvc.TileRawChannelBuilderFitFilterCool]
+                theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderFitFilterCool]
                 
             # matched filter 
             if jobproperties.TileRecFlags.doTileMF():
@@ -309,7 +315,7 @@ class TileRawChannelGetter ( Configured)  :
                                     
                 # setup COOL to get OFCs, needed for COF to retrieve pulse shape and derivatives
                 if jobproperties.TileRecFlags.OfcFromCOOL():
-                    theTileRawChannelBuilderMF.TileCondToolOfc = ToolSvc.TileCondToolOfcCool
+                    theTileRawChannelBuilderMF.TileCondToolOfc = toolOfcCool
 
                 #TileRawChannelBuilderMF Options:
                 jobproperties.TileRecFlags.TileRawChannelContainer = "TileRawChannelMF"
@@ -330,10 +336,9 @@ class TileRawChannelGetter ( Configured)  :
                     theTileRawChannelBuilderMF.TimeMinForAmpCorrection = jobproperties.TileRecFlags.TimeMinForAmpCorrection()
                     theTileRawChannelBuilderMF.TimeMaxForAmpCorrection = jobproperties.TileRecFlags.TimeMaxForAmpCorrection()
 
-                mlog.info(" adding now TileRawChannelBuilderMF to ToolSvc")   
-                ToolSvc += theTileRawChannelBuilderMF
+                mlog.info(" adding now TileRawChannelBuilderMF to the aglorithm: %s" % theTileRawChannelMaker.name())
       
-                theTileRawChannelMaker.TileRawChannelBuilder += [ToolSvc.TileRawChannelBuilderMF]
+                theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderMF]
 
             if jobproperties.TileRecFlags.doTileOpt():
                 try:
@@ -359,10 +364,9 @@ class TileRawChannelGetter ( Configured)  :
                 
                 ServiceMgr.TileInfoLoader.LoadOptFilterWeights=True
                 
-                mlog.info(" adding now TileRawChannelBuilderOptFilter to ToolSvc")   
-                ToolSvc += theTileRawChannelBuilderOptFilter
+                mlog.info(" adding now TileRawChannelBuilderOptFilter to the aglorithm: %s" % theTileRawChannelMaker.name())
       
-                theTileRawChannelMaker.TileRawChannelBuilder += [ToolSvc.TileRawChannelBuilderOptFilter]
+                theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderOptFilter]
       
             if jobproperties.TileRecFlags.doTileOF1():
                 try:
@@ -375,8 +379,8 @@ class TileRawChannelGetter ( Configured)  :
                 
                 # setup COOL to get OFCs
                 if jobproperties.TileRecFlags.OfcFromCOOL():
-                    if hasattr(ToolSvc, 'TileCondToolOfcCoolOF1'):
-                        theTileRawChannelBuilderOF1.TileCondToolOfc = ToolSvc.TileCondToolOfcCoolOF1
+                    if toolOfcCoolOF1:
+                        theTileRawChannelBuilderOF1.TileCondToolOfc = toolOfcCoolOF1
                     else:
                         # There are no OF1 OFC in the COOL
                         # OFC will be calculated on the fly
@@ -405,10 +409,9 @@ class TileRawChannelGetter ( Configured)  :
                     theTileRawChannelBuilderOF1.TimeMinForAmpCorrection = jobproperties.TileRecFlags.TimeMinForAmpCorrection()
                     theTileRawChannelBuilderOF1.TimeMaxForAmpCorrection = jobproperties.TileRecFlags.TimeMaxForAmpCorrection()
       
-                mlog.info(" adding now TileRawChannelBuilderOF1 to ToolSvc")   
-                ToolSvc += theTileRawChannelBuilderOF1
+                mlog.info(" adding now TileRawChannelBuilderOF1 to the aglorithm: %s" % theTileRawChannelMaker.name())
       
-                theTileRawChannelMaker.TileRawChannelBuilder += [ToolSvc.TileRawChannelBuilderOF1]
+                theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderOF1]
 
             if jobproperties.TileRecFlags.doTileOpt2():
                 try:
@@ -421,7 +424,7 @@ class TileRawChannelGetter ( Configured)  :
                 
                 # setup COOL to get OFCs
                 if jobproperties.TileRecFlags.OfcFromCOOL():
-                    theTileRawChannelBuilderOpt2Filter.TileCondToolOfc = ToolSvc.TileCondToolOfcCool
+                    theTileRawChannelBuilderOpt2Filter.TileCondToolOfc = toolOfcCool
                     
                 #TileRawChannelBuilderOpt2Filter Options:
                 jobproperties.TileRecFlags.TileRawChannelContainer = "TileRawChannelOpt2"
@@ -438,10 +441,9 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderOpt2Filter.AmplitudeCorrection = False; # don't need correction after iterations
                 theTileRawChannelBuilderOpt2Filter.TimeCorrection    = False; # don't need correction after iterations
       
-                mlog.info(" adding now TileRawChannelBuilderOpt2Filter to ToolSvc")   
-                ToolSvc += theTileRawChannelBuilderOpt2Filter
+                mlog.info(" adding now TileRawChannelBuilderOpt2Filter to the aglorithm: %s" % theTileRawChannelMaker.name())
       
-                theTileRawChannelMaker.TileRawChannelBuilder += [ToolSvc.TileRawChannelBuilderOpt2Filter]
+                theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderOpt2Filter]
       
       
             if jobproperties.TileRecFlags.doTileOptATLAS():
@@ -455,7 +457,7 @@ class TileRawChannelGetter ( Configured)  :
                 
                 # setup COOL to get OFCs
                 if jobproperties.TileRecFlags.OfcFromCOOL():
-                    theTileRawChannelBuilderOptATLAS.TileCondToolOfc = ToolSvc.TileCondToolOfcCool
+                    theTileRawChannelBuilderOptATLAS.TileCondToolOfc = toolOfcCool
                     
                 #TileRawChannelBuilderOptATLAS Options:
                 if globalflags.DataSource()=='data': # don't use the name which is used for reco data from DSP
@@ -484,10 +486,10 @@ class TileRawChannelGetter ( Configured)  :
                     theTileRawChannelBuilderOptATLAS.TimeMinForAmpCorrection = jobproperties.TileRecFlags.TimeMinForAmpCorrection()
                     theTileRawChannelBuilderOptATLAS.TimeMaxForAmpCorrection = jobproperties.TileRecFlags.TimeMaxForAmpCorrection()
                 
-                mlog.info(" adding now TileRawChannelBuilderOpt2Filter with name TileRawChannelBuilderOptATLAS to ToolSvc")
-                ToolSvc += theTileRawChannelBuilderOptATLAS
+                mlog.info(" adding now TileRawChannelBuilderOpt2Filter with name TileRawChannelBuilderOptATLAS to the aglorithm: %s"
+                          % theTileRawChannelMaker.name())
                 
-                theTileRawChannelMaker.TileRawChannelBuilder += [ToolSvc.TileRawChannelBuilderOptATLAS]
+                theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderOptATLAS]
             
 
             # now add algorithm to topSequence

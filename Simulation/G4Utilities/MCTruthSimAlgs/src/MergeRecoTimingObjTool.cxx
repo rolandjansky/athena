@@ -14,10 +14,12 @@ MergeRecoTimingObjTool::MergeRecoTimingObjTool(const std::string& type,
                                                const IInterface* parent) :
   PileUpToolBase(type, name, parent),
   m_pMergeSvc("PileUpMergeSvc", name),
-  m_recTimingObjKey("EVNTtoHITS_timings"),
+  m_recTimingObjInputKey("EVNTtoHITS_timings"),
+  m_recTimingObjOutputKey("EVNTtoHITS_timings"),
   m_firstSubEvent(true)
 {
-  declareProperty("RecoTimingObjKey", m_recTimingObjKey);//=std::string("EVNTtoHITS_timings"));
+  declareProperty("RecoTimingObjInputKey", m_recTimingObjInputKey);
+  declareProperty("RecoTimingObjOutputKey", m_recTimingObjOutputKey);
 }
 
 StatusCode MergeRecoTimingObjTool::prepareEvent(unsigned int nInputEvents)
@@ -38,7 +40,7 @@ StatusCode MergeRecoTimingObjTool::processBunchXing(int bunchXing,
       if (bSubEvents != eSubEvents)
         {
 	  const RecoTimingObj *oldColl(0);
-	  if (m_pMergeSvc->retrieveSingleSubEvtData(m_recTimingObjKey.value(), oldColl,
+	  if (m_pMergeSvc->retrieveSingleSubEvtData(m_recTimingObjInputKey.value(), oldColl,
 						    bunchXing, bSubEvents).isSuccess())
 	    {
 	      CHECK(processRecoTimingObj(oldColl));
@@ -79,7 +81,7 @@ StatusCode MergeRecoTimingObjTool::processAllSubEvents()
     }
 
   const RecoTimingObj *oldColl(NULL);
-  if( !m_pMergeSvc->retrieveOriginal(m_recTimingObjKey.value(), oldColl).isSuccess() || !oldColl)
+  if( !m_pMergeSvc->retrieveOriginal(m_recTimingObjInputKey.value(), oldColl).isSuccess() || !oldColl)
     {
       ATH_MSG_DEBUG ( "processAllSubEventss: Cannot find RecoTimingObj in input HITS file" );
       return StatusCode::SUCCESS;
@@ -91,7 +93,7 @@ StatusCode MergeRecoTimingObjTool::processAllSubEvents()
 StatusCode MergeRecoTimingObjTool::processRecoTimingObj(const RecoTimingObj* inputObj)
 {
   RecoTimingObj *outputRecoTimingObj = new RecoTimingObj(*inputObj); //CHECK copy constructor is OK!!
-  CHECK(evtStore()->record(outputRecoTimingObj, m_recTimingObjKey.value()));
+  CHECK(evtStore()->record(outputRecoTimingObj, m_recTimingObjOutputKey.value()));
   ATH_MSG_DEBUG( "processRecoTimingObj: copied original event RecoTimingObj" );
   return StatusCode::SUCCESS;
 }

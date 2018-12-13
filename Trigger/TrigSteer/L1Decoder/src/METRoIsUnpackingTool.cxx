@@ -4,6 +4,7 @@
 #include "TrigConfL1Data/ThresholdConfig.h"
 #include "TrigT1Result/JetEnergyResult.h"
 #include "TrigT1Result/RoIBResult.h"
+#include "TrigConfL1Data/CTPConfig.h"
 #include "METRoIsUnpackingTool.h"
 
 METRoIsUnpackingTool::METRoIsUnpackingTool( const std::string& type, 
@@ -26,8 +27,14 @@ StatusCode METRoIsUnpackingTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode METRoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::SeedingMap& ) {
-  using namespace TrigConf;
+StatusCode METRoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::SeedingMap& seeding ) {
+  using namespace TrigConf;  
+  ATH_CHECK( decodeMapping( [](const TriggerThreshold* th){ return L1DataDef::TE == th->ttype() or L1DataDef::XE == th->ttype() or  L1DataDef::XS == th->ttype(); }, 
+			    m_configSvc->ctpConfig()->menu().itemVector(),
+			    seeding ) );
+
+
+
   const ThresholdConfig* thresholdConfig = m_configSvc->thresholdConfig();
   std::vector<const TriggerThreshold*> filtered;
   {
@@ -58,9 +65,8 @@ StatusCode METRoIsUnpackingTool::unpack( const EventContext& ctx,
 					const ROIB::RoIBResult& roib,
 					const HLT::IDSet& activeChains ) const {
   using namespace TrigCompositeUtils;
-  auto decisionOutput = std::make_unique<DecisionContainer>();
-  auto decisionAux    = std::make_unique<DecisionAuxContainer>();
-  decisionOutput->setStore( decisionAux.get() );  
+  SG::WriteHandle<DecisionContainer> handle = createAndStore(m_decisionsKey, ctx ); 
+  auto decisionOutput = handle.ptr();
 
   HLT::IDSet activeMETchains;
   // see if any chain we care of is active
@@ -68,7 +74,7 @@ StatusCode METRoIsUnpackingTool::unpack( const EventContext& ctx,
 			m_allMETChains.begin(), m_allMETChains.end(), 
 			std::inserter(activeMETchains, activeMETchains.end() ) );
 			
-  auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput.get() );
+  auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput );
   for ( auto c: activeMETchains ) addDecisionID( c, decision );
   ATH_MSG_DEBUG("Unpacking MET RoI for " << activeMETchains.size() << " chains");
 
@@ -93,10 +99,5 @@ StatusCode METRoIsUnpackingTool::unpack( const EventContext& ctx,
   if ( (not activeMETchains.empty()) and not foundMETRoI) { 
     ATH_MSG_WARNING( "" << activeMETchains.size() << " active MET chains while missing  MET RoI" );
   }
-  {
-    auto handle = SG::makeHandle( m_decisionsKey, ctx );
-    CHECK ( handle.record( std::move( decisionOutput ), std::move( decisionAux )  ) );
-  }
-
   return StatusCode::SUCCESS;
 }

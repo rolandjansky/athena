@@ -24,6 +24,7 @@ StatusCode EventViewCreatorAlgorithm::initialize() {
   return StatusCode::SUCCESS;
 }
 
+
 StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) const {
 
   // create the output decisions, similar to inputs (copy basic links)
@@ -45,6 +46,7 @@ StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) c
       ATH_MSG_DEBUG( "Got no decisions from output "<< outputHandle.key() << " because handle not valid");
       continue;
     }
+
     if( outputHandle->size() == 0){ // input filtered out
       ATH_MSG_ERROR( "Got no decisions from output "<< outputHandle.key()<<": handle is valid but container is empty. Is this expected?");
       return StatusCode::FAILURE;
@@ -92,15 +94,14 @@ StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) c
 
 
   // launch view execution
+
   ATH_MSG_DEBUG( "Launching execution in " << viewVector->size() << " views" );
-  ATH_CHECK( ViewHelper::ScheduleViews( viewVector.get(),           // Vector containing views
+  ATH_CHECK( ViewHelper::ScheduleViews( viewVector,           // Vector containing views
 					m_viewNodeName,             // CF node to attach views to
 					context,                    // Source context
 					m_scheduler.get() ) );
   
-  // store views
-  auto viewsHandle = SG::makeHandle( m_viewsKey );
-  ATH_CHECK( viewsHandle.record(  std::move( viewVector ) ) );
+  // report number of views, stored already when container was created
   ATH_MSG_DEBUG( "Store "<< viewsHandle->size() <<" Views");
   
   ATH_CHECK( debugPrintOut(context, outputHandles) );

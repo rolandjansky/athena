@@ -53,16 +53,17 @@ StatusCode JRoIsUnpackingTool::unpack( const EventContext& ctx,
 				       const ROIB::RoIBResult& roib,
 				       const HLT::IDSet& activeChains ) const {
   using namespace TrigCompositeUtils;
-  auto decisionOutput = std::make_unique<DecisionContainer>();
-  auto decisionAux    = std::make_unique<DecisionAuxContainer>();
-  decisionOutput->setStore( decisionAux.get() );  
-  auto trigRoIs = std::make_unique< TrigRoiDescriptorCollection >();
-  auto recRoIs  = std::make_unique< DataVector<LVL1::RecJetRoI> >();
+  // create and record the collections needed
+  SG::WriteHandle<TrigRoiDescriptorCollection> handle1 = createAndStoreNoAux(m_trigRoIsKey, ctx ); 
+  auto trigRoIs = handle1.ptr();
+  SG::WriteHandle< DataVector<LVL1::RecJetRoI> > handle2 = createAndStoreNoAux( m_recRoIsKey, ctx );
+  auto recRoIs = handle2.ptr();
+  SG::WriteHandle<DecisionContainer> handle3 = createAndStore(m_decisionsKey, ctx ); 
+  auto decisionOutput = handle3.ptr();
 
- 
-  auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput.get() );  
+
+  auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput );  
   decision->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_fsRoIKey, 0 ) );
-  
   auto roiEL = decision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
   CHECK( roiEL.isValid() );
   ATH_MSG_DEBUG("Linked new Decision to the FS roI");
@@ -118,27 +119,13 @@ StatusCode JRoIsUnpackingTool::unpack( const EventContext& ctx,
   {
     using namespace Monitored;
     auto RoIsCount = MonitoredScalar::declare( "count", trigRoIs->size() );
-    auto RoIsPhi   = MonitoredCollection::declare( "phi", *trigRoIs.get(), &TrigRoiDescriptor::phi );
-    auto RoIsEta   = MonitoredCollection::declare( "eta", *trigRoIs.get(), &TrigRoiDescriptor::eta );
+    auto RoIsPhi   = MonitoredCollection::declare( "phi", *trigRoIs, &TrigRoiDescriptor::phi );
+    auto RoIsEta   = MonitoredCollection::declare( "eta", *trigRoIs, &TrigRoiDescriptor::eta );
     MonitoredScope::declare( m_monTool,  RoIsCount, RoIsEta, RoIsPhi );
   }
 
   ATH_MSG_DEBUG( "Number of decision IDs associated with FS RoI: " <<  TrigCompositeUtils::decisionIDs( decision ).size()  );
 
-
-  // recording
-  {
-    SG::WriteHandle<TrigRoiDescriptorCollection> handle( m_trigRoIsKey, ctx );
-    ATH_CHECK( handle.record ( std::move( trigRoIs ) ) );
-  }
-  {
-    auto handle = SG::makeHandle( m_recRoIsKey, ctx );
-    ATH_CHECK( handle.record( std::move( recRoIs ) ) );    
-  }
-  {
-    auto handle = SG::makeHandle( m_decisionsKey, ctx );
-    ATH_CHECK ( handle.record( std::move( decisionOutput ), std::move( decisionAux )  ) );
-  }
 
   return StatusCode::SUCCESS; // what else
 }

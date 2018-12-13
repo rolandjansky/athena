@@ -41,13 +41,12 @@ StatusCode InputMakerBase::sysInitialize() {
 
 // For each input Decision in the input container, create an output Decision in the corresponding output container and link them.
 StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> > & outputHandles) const{
-  if (m_mergeOutputs) return decisionInputToMergedOutput(context, outputHandles);
 
-  
-  ATH_MSG_DEBUG("Creating one output per input");
+  if (!m_mergeOutputs)   ATH_MSG_DEBUG("Creating one output per input");
+  else                   ATH_MSG_DEBUG("Creating one merged output per RoI");
+
   outputHandles = decisionOutputs().makeHandles(context);
-  countInputHandles( context );
- 
+  //size_t tot_inputs = countInputHandles( context );
   size_t outputIndex = 0;
   for ( auto inputKey: decisionInputs() ) {
     auto inputHandle = SG::makeHandle( inputKey, context );
@@ -61,61 +60,11 @@ StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, st
       outputIndex++;
       continue;
     }
-    ATH_MSG_DEBUG( "Got input "<< inputKey.key()<<" with " << inputHandle->size() << " elements" );
+    ATH_MSG_DEBUG( "Running on input "<< inputKey.key()<<" with " << inputHandle->size() << " elements" );
+    
     // create the output container
-    auto outDecisions = std::make_unique<TrigCompositeUtils::DecisionContainer>();
-    auto outDecAux    = std::make_unique<TrigCompositeUtils::DecisionAuxContainer>();
-    outDecisions->setStore( outDecAux.get() );
-       
-    // loop over decisions retrieved from this input
-    size_t input_counter =0;
-    for ( auto decision : *inputHandle){
-      // create new decision for each input	
-      TrigCompositeUtils::Decision*  newDec = TrigCompositeUtils::newDecisionIn( outDecisions.get() );
-      TrigCompositeUtils::linkToPrevious( newDec, inputKey.key(), input_counter );
-      TrigCompositeUtils::insertDecisionIDs( decision, newDec );
-
-      //      copyBaseLinks( decision, newDec);
-      ATH_MSG_DEBUG("Decision "<<input_counter<<" has "<< (TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( newDec,  m_roisLink.value())).isValid() <<" valid "<<m_roisLink.value() <<" and "<< TrigCompositeUtils::getLinkToPrevious(newDec).size() <<" previous decisions");     
-      input_counter++;	
-    } // loop over decisions
-
-    ATH_MSG_DEBUG( "Recording output key " <<  decisionOutputs()[ outputIndex ].key() <<" of size "<<outDecisions->size()  <<" at index "<< outputIndex);
-    CHECK( outputHandles[outputIndex].record( std::move( outDecisions ), std::move( outDecAux ) ) );
-    outputIndex++;	       
-  } // end of first loop over input keys
-
-  return StatusCode::SUCCESS;
-}
-
-
-
-// For each input Decision in the input container that links to one RoI, create an output Decision per RoI (mergeing them into one) and linking to all previous
-StatusCode InputMakerBase::decisionInputToMergedOutput(const EventContext& context, std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> > & outputHandles) const{
-
-  ATH_MSG_DEBUG("Creating one merged output per RoI");
-  outputHandles = decisionOutputs().makeHandles(context);
-  countInputHandles( context );
-
-
-  size_t outputIndex = 0;
-  for ( auto inputKey: decisionInputs() ) {
-    auto inputHandle = SG::makeHandle( inputKey, context );
-    if( not inputHandle.isValid() ) {
-      ATH_MSG_DEBUG( "Got no decisions from input "<< inputKey.key() << " because handle not valid");
-      outputIndex++;
-      continue;
-    }
-    if( inputHandle->size() == 0){ // input filtered out
-      ATH_MSG_WARNING( "Got no decisions from input "<< inputKey.key()<<": handle is valid but container is empty. Is this expected?");
-      outputIndex++;
-      continue;
-    }
-    ATH_MSG_DEBUG( "Got input "<< inputKey.key()<<" with " << inputHandle->size() << " elements" );
-    // create the output container
-    auto outDecisions = std::make_unique<TrigCompositeUtils::DecisionContainer>();
-    auto outDecAux    = std::make_unique<TrigCompositeUtils::DecisionAuxContainer>();
-    outDecisions->setStore( outDecAux.get() );
+    TrigCompositeUtils::createAndStore(outputHandles[outputIndex]);
+    auto outDecisions = outputHandles[outputIndex].ptr();
 
     //map all RoIs that are stored in this input container
     std::vector <ElementLink<TrigRoiDescriptorCollection> > RoIsFromDecision;
@@ -123,37 +72,42 @@ StatusCode InputMakerBase::decisionInputToMergedOutput(const EventContext& conte
     // loop over decisions retrieved from this input
     size_t input_counter =0;
     size_t output_counter =0;
+   
     for ( auto decision : *inputHandle){
       ATH_MSG_DEBUG( "Input Decision "<<input_counter <<" has " <<TrigCompositeUtils::getLinkToPrevious(decision).size()<<" previous links");
-      auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( decision,  m_roisLink.value());
-      CHECK( roiELInfo.isValid() );
-
-      
-      auto roiEL = roiELInfo.link;//decision->objectLink<TrigRoiDescriptorCollection>(m_roisLink.value() );
-      auto roiIt=find(RoIsFromDecision.begin(), RoIsFromDecision.end(), roiEL);
       TrigCompositeUtils::Decision*  newDec;
-      if ( roiIt == RoIsFromDecision.end() ){
-	RoIsFromDecision.push_back(roiEL); // just to keep track of which we have used 
-	const TrigRoiDescriptor* roi = *roiEL;
-	ATH_MSG_DEBUG( "Found RoI:" <<*roi<<" FS="<<roi->isFullscan());
-	ATH_MSG_DEBUG( "Making new decision" );
-	newDec = TrigCompositeUtils::newDecisionIn( outDecisions.get() );
+      bool addDecision=false;
+      int roi_counter=0;
+      if (m_mergeOutputs){
+	auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( decision,  m_roisLink.value());
+	CHECK( roiELInfo.isValid() );      
+	auto roiEL = roiELInfo.link;
+	auto roiIt=find(RoIsFromDecision.begin(), RoIsFromDecision.end(), roiEL);
+	addDecision = (roiIt == RoIsFromDecision.end());
+	if (addDecision) {
+	  RoIsFromDecision.push_back(roiEL); // just to keep track of which we have used
+	  const TrigRoiDescriptor* roi = *roiEL;
+	  ATH_MSG_DEBUG( "Found RoI:" <<*roi<<" FS="<<roi->isFullscan());
+	  roi_counter = roiIt-RoIsFromDecision.begin();
+	}
+      } else
+	addDecision=true;
+
+      if ( addDecision ){
+	newDec = TrigCompositeUtils::newDecisionIn( outDecisions );
 	output_counter++;
       }
       else{
-	int iroi = roiIt-RoIsFromDecision.begin();
-	newDec = outDecisions.get()[outputIndex][iroi];
+	newDec = outDecisions[outputIndex][roi_counter];
       }
       
       TrigCompositeUtils::linkToPrevious( newDec, inputKey.key(), input_counter );
       TrigCompositeUtils::insertDecisionIDs( decision, newDec );     	
-      //copyBaseLinks( decision, newDec);
       ATH_MSG_DEBUG("New decision has "<< (TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( newDec,  m_roisLink.value())).isValid() <<" valid "<<m_roisLink.value() <<" and "<< TrigCompositeUtils::getLinkToPrevious(newDec).size() <<" previous decisions");     
       input_counter++;	
-    } // loop over decisions
+    } // loop over input decisions
 
-    ATH_MSG_DEBUG( "Recording output key " <<  decisionOutputs()[ outputIndex ].key() <<" of size "<<outDecisions->size()  <<" at index "<< outputIndex);
-    CHECK( outputHandles[outputIndex].record( std::move( outDecisions ), std::move( outDecAux ) ) );
+    ATH_MSG_DEBUG( "Filled output key " <<  decisionOutputs()[ outputIndex ].key() <<" of size "<<outDecisions->size()  <<" at index "<< outputIndex);
     outputIndex++;	       
   } // end of first loop over input keys
 

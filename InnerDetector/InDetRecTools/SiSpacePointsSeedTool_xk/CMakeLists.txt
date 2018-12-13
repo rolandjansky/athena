@@ -9,7 +9,7 @@ atlas_subdir( SiSpacePointsSeedTool_xk )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           GaudiKernel
-                          InnerDetector/InDetConditions/InDetBeamSpotService
+                          InnerDetector/InDetConditions/BeamSpotConditionsData
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           InnerDetector/InDetRecEvent/SiSpacePointsSeed

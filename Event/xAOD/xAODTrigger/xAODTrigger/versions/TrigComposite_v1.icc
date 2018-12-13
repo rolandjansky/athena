@@ -50,41 +50,56 @@ namespace xAOD {
     bool result = getDetail(name, temp);
     return std::make_pair(result, temp);
   }
-
-   template< class CONTAINER >
-   bool
-   TrigComposite_v1::setObjectLink( const std::string& name,
-                                    const ElementLink< CONTAINER >& link ) {
-
-      // Do different things depending on whether this variable already
-      // exists or not:
-      if( hasObjectLink( name ) ) {
-         // Find the right object:
-         const std::vector< std::string >& names = linkColNames();
-         for( size_t i = 0; i < names.size(); ++i ) {
-            if( names[ i ] != name ) continue;
-            // Extract the information out of the ElementLink:
-            linkColKeysNC()[ i ] = link.key();
-            linkColIndicesNC()[ i ] = link.index();
-            linkColClidsNC()[ i ] = ClassID_traits< CONTAINER >::ID();
-            // We're done:
-            return true;
-         }
-         // Some error happened...
-         std::cerr << "xAOD::TrigComposite_v1::setObjectLink ERROR Internal "
-                   << "logic error found" << std::endl;
-         return false;
-      } else {
-         // Add a new object:
-         linkColNamesNC().push_back( name );
-         linkColKeysNC().push_back( link.key() );
-         linkColIndicesNC().push_back( link.index() );
-         linkColClidsNC().push_back( ClassID_traits< CONTAINER >::ID() );
-         // And we're done:
-         return true;
+  
+  template< class CONTAINER >
+  bool
+  TrigComposite_v1::setObjectLink( const std::string& name,
+                                   const ElementLink< CONTAINER >& link ) {
+    
+    // Check link has valid persistent state, i.e. hash key is not
+    // zero, otherwise attempting to access its string key will seg
+    // fault later, e.g. in remapping.
+    if( link.key() == 0 ) {
+      std::cerr << "xAOD::TrigComposite_v1::setObjectLink ERROR "
+                << "link has invalid key hash of zero" << std::endl;
+      return false;
+    }
+       
+    if( ! link.isValid() ) {
+      std::cerr << "xAOD::TrigComposite_v1::setObjectLink ERROR "
+                << "link is not valid" << std::endl;
+      return false;
+    }
+       
+    // Do different things depending on whether this variable already
+    // exists or not:
+    if( hasObjectLink( name ) ) {
+      // Find the right object:
+      const std::vector< std::string >& names = linkColNames();
+      for( size_t i = 0; i < names.size(); ++i ) {
+        if( names[ i ] != name ) continue;
+        // Extract the information out of the ElementLink:
+        linkColKeysNC()[ i ] = link.key();
+        linkColIndicesNC()[ i ] = link.index();
+        linkColClidsNC()[ i ] = ClassID_traits< CONTAINER >::ID();
+        // We're done:
+        return true;
       }
-   }
-
+      // Some error happened...
+      std::cerr << "xAOD::TrigComposite_v1::setObjectLink ERROR Internal "
+                << "logic error found" << std::endl;
+      return false;
+    } else {
+      // Add a new object:
+      linkColNamesNC().push_back( name );
+      linkColKeysNC().push_back( link.key() );
+      linkColIndicesNC().push_back( link.index() );
+      linkColClidsNC().push_back( ClassID_traits< CONTAINER >::ID() );
+      // And we're done:
+      return true;
+    }
+  }
+  
    template< class CONTAINER >
    ElementLink< CONTAINER >
    TrigComposite_v1::objectLink( const std::string& name ) const {

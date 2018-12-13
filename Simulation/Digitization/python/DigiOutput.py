@@ -136,7 +136,7 @@ def getStreamRDO_ItemList(log):
             if 'AddCaloDigi' in digitizationFlags.experimentalDigi():
                 StreamRDO_ItemList+=["LArDigitContainer#*"]
             elif digitizationFlags.PileUpPremixing:
-                StreamRDO_ItemList+=["LArDigitContainer#LArDigitContainer_MC"]
+                StreamRDO_ItemList+=["LArDigitContainer#*LArDigitContainer_MC"]
             else:
                 StreamRDO_ItemList+=["LArDigitContainer#LArDigitContainer_MC_Thinned"]
     if hasattr(DetFlags.digitize, 'HGTD_on') and DetFlags.digitize.HGTD_on():
@@ -206,8 +206,8 @@ def getStreamRDO_ItemList(log):
 
     if DetFlags.writeRDOPool.any_on():
         ## TimingAlg
-        StreamRDO_ItemList +=["RecoTimingObj#EVNTtoHITS_timings"]
-        StreamRDO_ItemList +=["RecoTimingObj#HITStoRDO_timings"]
+        StreamRDO_ItemList +=["RecoTimingObj#*EVNTtoHITS_timings"]
+        StreamRDO_ItemList +=["RecoTimingObj#*HITStoRDO_timings"]
 
     if DetFlags.writeRDOPool.any_on():
         # Pool Output

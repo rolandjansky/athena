@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: IConstAuxStore.h 612954 2014-08-21 19:25:01Z ssnyder $
@@ -64,7 +64,7 @@ class IConstAuxStore
 {
 public:
   /// Destructor.
-  virtual ~IConstAuxStore() {}
+  virtual ~IConstAuxStore() = default;
 
 
   /**

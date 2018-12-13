@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -38,12 +38,8 @@ public:
     // with pyroot.
     TileBeamElem(const Identifier& id, const std::vector<uint32_t>& digits );
 
-  TileBeamElem(const HWIdentifier& HWid, uint32_t digit );
+    TileBeamElem(const HWIdentifier& HWid, uint32_t digit );
   
-    /* Destructor */
-
-    ~TileBeamElem() {}
-
     /* Inline access methods */
 
     inline int size(void) const { return m_digits.size(); }

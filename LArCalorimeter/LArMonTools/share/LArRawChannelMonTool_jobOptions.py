@@ -1,6 +1,6 @@
 # --- for athena online running ---
 # For Atlas Ready Filter. Not needed.
-#include ("AthenaMonitoring/AtlasReadyFilterTool_jobOptions.py")
+from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
 
 # --- CaloNoiseTool configuration ---
 from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
@@ -23,7 +23,7 @@ LArRawChannelMon = LArRawChannelMonTool(
     OutputLevel               = 3,
     # ATLAS Ready Filter Tool
 
-    ATLASReadyFilterTool     = [monAtlasReadyFilterTool],
+    ATLASReadyFilterTool     = [GetAtlasReadyFilterTool()],
 
     # --- specify trigger options ---
     # These will be specified for different streams below

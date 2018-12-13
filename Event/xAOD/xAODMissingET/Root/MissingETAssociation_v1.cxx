@@ -68,13 +68,6 @@ namespace xAOD {
     return sqrt(this->cpx()*this->cpx()+this->cpy()*this->cpy());
   }
 
-  ///////////////////////////////
-  // Internally used constants //
-  ///////////////////////////////
-
-  size_t MissingETAssociation_v1::m_objConstLinkReserve = 50; 
-  size_t MissingETAssociation_v1::m_contribObjReserve = 10;
-
   //////////////////////////////////
   // Constructors and destructors //
   //////////////////////////////////

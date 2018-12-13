@@ -223,9 +223,9 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___SignalOnlyMcEventCollTool_properties(self):
         tested_configurable_name = 'ToolSvc.SignalOnlyMcEventCollTool'
-        expected_property_list = ['KeepUnstable', 'SaveInTimeMinBias', 'AddBackgroundCollisionVertices', 'zRange', 'TruthCollKey', 'OnlySaveSignalTruth', 'OutOfTimeAbsEtaMax', 'rRange', 'CompressOutputCollection', 'ExtraOutputs', 'AbsEtaMax', 'LastXing', 'SaveOutOfTimeMinBias', 'ExtraInputs', 'DetStore', 'SaveCavernBackground', 'FirstXing', 'SaveRestOfMinBias', 'EvtStore', 'HighTimeToKeep', 'LowTimeToKeep']
+        expected_property_list = ['KeepUnstable', 'SaveInTimeMinBias', 'AddBackgroundCollisionVertices', 'zRange', 'TruthCollInputKey', 'TruthCollOutputKey', 'OnlySaveSignalTruth', 'OutOfTimeAbsEtaMax', 'rRange', 'CompressOutputCollection', 'ExtraOutputs', 'AbsEtaMax', 'LastXing', 'SaveOutOfTimeMinBias', 'ExtraInputs', 'DetStore', 'SaveCavernBackground', 'FirstXing', 'SaveRestOfMinBias', 'EvtStore', 'HighTimeToKeep', 'LowTimeToKeep']
         expected_nonstring_properties = {'KeepUnstable': 'False', 'SaveInTimeMinBias': 'True', 'AddBackgroundCollisionVertices': 'True', 'zRange': '200.0', 'OnlySaveSignalTruth': 'True', 'OutOfTimeAbsEtaMax': '3.0', 'rRange': '20.0', 'CompressOutputCollection': 'False', 'ExtraOutputs': '[]', 'AbsEtaMax': '5.0', 'LastXing': '0', 'SaveOutOfTimeMinBias': 'True', 'ExtraInputs': '[]', 'SaveCavernBackground': 'True', 'FirstXing': '0', 'SaveRestOfMinBias': 'False', 'HighTimeToKeep': '50.5', 'LowTimeToKeep': '-50.5'}
-        expected_string_properties = {'TruthCollKey': 'TruthEvent'}
+        expected_string_properties = {'TruthCollInputKey': 'TruthEvent', 'TruthCollOutputKey': 'TruthEvent'}
         self._detailed_ConfigurablePropertiesCheck(
             tested_configurable_name,
             expected_property_list,

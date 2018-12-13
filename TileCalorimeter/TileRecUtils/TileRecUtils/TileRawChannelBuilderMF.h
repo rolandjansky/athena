@@ -47,10 +47,18 @@ class TileRawChannelBuilderMF: public TileRawChannelBuilder {
     virtual TileRawChannel * rawChannel(const TileDigits* digits);
 
   private:
-    ToolHandle<TileCondToolTiming> m_tileToolTiming;
-    ToolHandle<ITileCondToolOfc> m_tileCondToolOfc;
-    ToolHandle<ITileCondToolOfc> m_tileCondToolOfcOnFly;
-    ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample;
+
+    ToolHandle<TileCondToolTiming> m_tileToolTiming{this,
+        "TileCondToolTiming", "TileCondToolTiming", "Tile timing tool"};
+
+    ToolHandle<ITileCondToolOfc> m_tileCondToolOfc{this,
+        "TileCondToolOfc", "TileCondToolOfc", "Tile OFC tool"};
+
+    ToolHandle<ITileCondToolOfc> m_tileCondToolOfcOnFly{this,
+        "TileCondToolOfcOnFly", "TileCondToolOfc", "Tile OFC (calculated on the fly) tool"};
+
+    ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample{this,
+        "TileCondToolNoiseSample", "TileCondToolNoiseSample", "Tile noise sample tool"};
 
     bool are3FF(float &dmin, float &dmax); //!< Checks that all the samples are 0x3FF (as sent by the DSP when no data arrives)
 

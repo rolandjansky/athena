@@ -19,7 +19,6 @@
 #include "InDetIdentifier/SCT_ID.h"
 
 #include "EventPrimitives/EventPrimitives.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 
 namespace InDet {
@@ -45,7 +44,6 @@ SCT_TrigSpacePointTool::SCT_TrigSpacePointTool(const std::string &type,
   m_xVertex(0.),
   m_yVertex(0.),
   m_zVertex(0.),
-  m_iBeamCondSvc("BeamCondSvc",name),
   m_spacepointoverlapCollection(0)
 {
   declareInterface<InDet::ITrigSCT_SpacePointTool>( this );
@@ -67,7 +65,6 @@ SCT_TrigSpacePointTool::SCT_TrigSpacePointTool(const std::string &type,
  declareProperty("VertexX", m_xVertex);
  declareProperty("VertexY", m_yVertex);
  declareProperty("VertexZ", m_zVertex);
- declareProperty("BeamConditionService",m_iBeamCondSvc);
 }
 
 //---------------------------------------------------------------------------
@@ -86,8 +83,8 @@ StatusCode SCT_TrigSpacePointTool::initialize()  {
                                      m_SiSpacePointMakerTool, this) );
 
   if (!m_overrideBS){
-    ATH_CHECK( m_iBeamCondSvc.retrieve() );
-    ATH_MSG_INFO( "Retrieved beam spot service " << m_iBeamCondSvc );
+    ATH_CHECK( m_beamSpotKey.initialize() );
+    ATH_MSG_INFO( "Retrieved beam spot Cond Key " << m_beamSpotKey );
   }
 
   return StatusCode::SUCCESS;
@@ -249,9 +246,10 @@ checkForSCT_Points(const SCT_ClusterCollection* clusters1,
   const SCT_ClusterCollection * clusters2 = *it;
  
   Amg::Vector3D beampos;
-  if (!m_overrideBS && m_iBeamCondSvc)
-    beampos = m_iBeamCondSvc->beamPos();
-  else {
+  if (!m_overrideBS){
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle(m_beamSpotKey);
+    beampos = beamSpotHandle->beamPos();
+  } else {
     Amg::Vector3D ovtx(m_xVertex,m_yVertex,m_zVertex); 
     beampos = ovtx;
   }
@@ -285,9 +283,10 @@ void SCT_TrigSpacePointTool::
 
 
   Amg::Vector3D beampos;
-  if (m_iBeamCondSvc && !m_overrideBS)
-    beampos = m_iBeamCondSvc->beamPos();
-  else {
+  if (!m_overrideBS){
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle(m_beamSpotKey);
+    beampos = beamSpotHandle->beamPos();
+  }else {
     Amg::Vector3D ovtx(m_xVertex,m_yVertex,m_zVertex); 
     beampos = ovtx;
   }

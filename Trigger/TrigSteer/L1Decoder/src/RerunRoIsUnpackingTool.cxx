@@ -38,10 +38,9 @@ StatusCode RerunRoIsUnpackingTool::unpack(const EventContext& ctx,
 					  const ROIB::RoIBResult& ,
 					  const HLT::IDSet& activeChains) const {
   using namespace TrigCompositeUtils;
-  auto decisionOutput = std::make_unique<DecisionContainer>();
-  auto decisionAux    = std::make_unique<DecisionAuxContainer>();
-  decisionOutput->setStore( decisionAux.get() );  
-  
+  SG::WriteHandle<DecisionContainer> outputHandle = createAndStore( m_decisionsKey, ctx );
+  auto decisionOutput = outputHandle.ptr();
+
   auto sourceHandle = SG::makeHandle( m_sourceKey, ctx );
 
   for ( auto sourceDecision: *sourceHandle.cptr() ) {
@@ -59,7 +58,7 @@ StatusCode RerunRoIsUnpackingTool::unpack(const EventContext& ctx,
       sourceDecision->getDetail( "thresholds", thresholds );
       
       ATH_MSG_DEBUG( "Thresholds in this RoI " << thresholds );
-      auto decision = newDecisionIn( decisionOutput.get() );
+      auto decision = newDecisionIn( decisionOutput );
       for ( auto th: thresholds ) {
 	ATH_MSG_DEBUG( "Activating because there are some chains to be rerun seeded from the threshold of ID " << th );
 	addChainsToDecision( th, decision, activeChains );    
@@ -71,9 +70,6 @@ StatusCode RerunRoIsUnpackingTool::unpack(const EventContext& ctx,
       
     }
   }
-  
-  auto handle = SG::makeHandle( m_decisionsKey, ctx );
-  CHECK ( handle.record( std::move( decisionOutput ), std::move( decisionAux )  ) );
   
 
 

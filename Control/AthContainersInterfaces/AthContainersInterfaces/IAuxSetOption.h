@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -36,7 +36,7 @@ class IAuxSetOption
 {
 public:
   /// Make sure this class has a vtable.
-  virtual ~IAuxSetOption() {}
+  virtual ~IAuxSetOption() = default;
 
 
   /**

@@ -137,41 +137,63 @@ if doTileDigitToRawChannel:
       theTileRawChannelGetter_DigiHSTruth.TileDigitsContainer = "TileDigitsCnt_DigiHSTruth"
       theTileRawChannelGetter_DigiHSTruth.TileRawChannelContainer = "TileRawChannelCnt_DigiHSTruth"
 
+    TileRChMaker = theTileRawChannelGetter.TileRChMaker()
+
+    TileRawChannelBuilderOptATLAS = None
+    if jobproperties.TileRecFlags.doTileOptATLAS():
+        TileRawChannelBuilderOptATLAS = TileRChMaker.TileRawChannelBuilder['TileRawChannelBuilderOptATLAS']
+
+    TileRawChannelBuilderOpt2Filter = None
+    if jobproperties.TileRecFlags.doTileOpt2():
+        TileRawChannelBuilderOpt2Filter = TileRChMaker.TileRawChannelBuilder['TileRawChannelBuilderOpt2Filter']
+
+    TileRawChannelBuilderMF = None
+    if jobproperties.TileRecFlags.doTileMF():
+        TileRawChannelBuilderMF = TileRChMaker.TileRawChannelBuilder['TileRawChannelBuilderMF']
+
     # make sure that only one output container has default name "TileRawChannelCnt"
     if jobproperties.Beam.beamType == 'collisions': 
         if OF2asDefault:
             if jobproperties.TileRecFlags.doTileOptATLAS():
-                ToolSvc.TileRawChannelBuilderOptATLAS.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
+                TileRawChannelBuilderOptATLAS.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
                 if jobproperties.TileRecFlags.doTileMF():
-                    ToolSvc.TileRawChannelBuilderMF.TileRawChannelContainer = "TileRawChannelMF"
+                    TileRawChannelBuilderMF.TileRawChannelContainer = "TileRawChannelMF"
                 if jobproperties.TileRecFlags.doTileOpt2():
-                    ToolSvc.TileRawChannelBuilderOpt2Filter.TileRawChannelContainer = "TileRawChannelOpt2"
+                    TileRawChannelBuilderOpt2Filter.TileRawChannelContainer = "TileRawChannelOpt2"
             elif jobproperties.TileRecFlags.doTileMF():
-                ToolSvc.TileRawChannelBuilderMF.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
+                TileRawChannelBuilderMF.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
             elif jobproperties.TileRecFlags.doTileOpt2():
-                ToolSvc.TileRawChannelBuilderOpt2Filter.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
+                TileRawChannelBuilderOpt2Filter.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
         else:
             if jobproperties.TileRecFlags.doTileMF():
-                ToolSvc.TileRawChannelBuilderMF.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
+                TileRawChannelBuilderMF.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
                 if jobproperties.TileRecFlags.doTileOptATLAS():
-                    ToolSvc.TileRawChannelBuilderOptATLAS.TileRawChannelContainer = "TileRawChannelFixed"
+                    TileRawChannelBuilderOptATLAS.TileRawChannelContainer = "TileRawChannelFixed"
                 if jobproperties.TileRecFlags.doTileOpt2():
-                    ToolSvc.TileRawChannelBuilderOpt2Filter.TileRawChannelContainer = "TileRawChannelOpt2"
+                    TileRawChannelBuilderOpt2Filter.TileRawChannelContainer = "TileRawChannelOpt2"
             elif jobproperties.TileRecFlags.doTileOptATLAS():
-                ToolSvc.TileRawChannelBuilderOptATLAS.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
+                TileRawChannelBuilderOptATLAS.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
             elif jobproperties.TileRecFlags.doTileOpt2():
-                ToolSvc.TileRawChannelBuilderOpt2Filter.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
+                TileRawChannelBuilderOpt2Filter.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
     else:
         if jobproperties.TileRecFlags.doTileOpt2():
-            ToolSvc.TileRawChannelBuilderOpt2Filter.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
+            TileRawChannelBuilderOpt2Filter.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
             if jobproperties.TileRecFlags.doTileMF():
-                ToolSvc.TileRawChannelBuilderMF.TileRawChannelContainer = "TileRawChannelMF"
+                TileRawChannelBuilderMF.TileRawChannelContainer = "TileRawChannelMF"
             if jobproperties.TileRecFlags.doTileOptATLAS():
-                ToolSvc.TileRawChannelBuilderOptATLAS.TileRawChannelContainer = "TileRawChannelFixed"
+                TileRawChannelBuilderOptATLAS.TileRawChannelContainer = "TileRawChannelFixed"
         elif jobproperties.TileRecFlags.doTileOptATLAS():
-            ToolSvc.TileRawChannelBuilderOptATLAS.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
+            TileRawChannelBuilderOptATLAS.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
         elif jobproperties.TileRecFlags.doTileMF():
-            ToolSvc.TileRawChannelBuilderMF.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
+            TileRawChannelBuilderMF.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
+
+
+    if jobproperties.TileRecFlags.doTileMF():
+        print  TileRawChannelBuilderMF
+    if jobproperties.TileRecFlags.doTileOptATLAS():
+        print  TileRawChannelBuilderOptATLAS
+    if jobproperties.TileRecFlags.doTileOpt2():
+        print  TileRawChannelBuilderOpt2Filter
 
 
 if not hasattr( ToolSvc, "TileBeamInfoProvider" ):
@@ -187,11 +209,5 @@ ToolSvc.TileBeamInfoProvider.TileRawChannelContainer=""; # disable checking of D
 #
 include( "TileSimAlgs/TileSamplingFraction_jobOptions.py" )
 
-if jobproperties.TileRecFlags.doTileMF():
-    print  ToolSvc.TileRawChannelBuilderMF
-if jobproperties.TileRecFlags.doTileOptATLAS():
-    print  ToolSvc.TileRawChannelBuilderOptATLAS
-if jobproperties.TileRecFlags.doTileOpt2():
-    print  ToolSvc.TileRawChannelBuilderOpt2Filter
 
 

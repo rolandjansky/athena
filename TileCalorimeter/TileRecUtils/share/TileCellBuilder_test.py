@@ -616,7 +616,6 @@ def make_tileBadChanTool (name, chans = [], lines = ''):
 
     bct = TileBadChanTool (name,
                            TileBadChannels = name + 'CondData')
-    ToolSvc += bct
     return bct
 
 
@@ -645,7 +644,6 @@ from TileRecUtils.TileRecUtilsConf import TileCellBuilder, TileBeamInfoProvider,
 beaminfo4 = TileBeamInfoProvider ('beaminfo4')
 ToolSvc += beaminfo4
 noisefilter = TileRawChannelNoiseFilter ('noisefilter')
-ToolSvc += noisefilter
 
 def maketool (name, bct, **kw):
     return TileCellBuilder (name, TileBadChanTool = bct, **kw)

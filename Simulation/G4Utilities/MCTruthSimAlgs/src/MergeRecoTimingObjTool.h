@@ -46,7 +46,8 @@ private:
   /// share code between two approaches
   virtual StatusCode processRecoTimingObj(const RecoTimingObj *inputObj);
   ServiceHandle<PileUpMergeSvc> m_pMergeSvc;
-  StringProperty m_recTimingObjKey;
+  StringProperty m_recTimingObjInputKey;
+  StringProperty m_recTimingObjOutputKey;
   bool m_firstSubEvent;
 };
 #endif

@@ -46,9 +46,8 @@ namespace HLTTest {
     ATH_MSG_DEBUG( "and with "<< recoInput->size() <<" reco inputs");
     
     // new output decisions
-    auto decisions = std::make_unique<DecisionContainer>();
-    auto aux = std::make_unique<DecisionAuxContainer>();
-    decisions->setStore( aux.get() );
+    SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 
+    auto decisions = outputHandle.ptr();
 
     // find features:
     std::vector<const FeatureOBJ*> featureFromDecision;
@@ -87,7 +86,7 @@ namespace HLTTest {
        
        if (foundFeatureInDecision){
 	 ATH_MSG_DEBUG(" Found link from the reco object to the previous decision at position "<<pos);
-	 auto d = newDecisionIn(decisions.get());
+	 auto d = newDecisionIn(decisions);
 	 d->setObjectLink( "feature", ElementLink<xAOD::TrigCompositeContainer>(m_recoInput.key(), reco_counter) );// feature used by the Tool
 	 d->setObjectLink( m_linkName.value(), featurelink );
 	 linkToPrevious( d, decisionInput().key(), pos );
@@ -103,13 +102,10 @@ namespace HLTTest {
 
     if (decisions->size()>0){
       for ( auto tool: m_tools ) {
-	CHECK( tool->decide( decisions.get() ) );
+	CHECK( tool->decide( decisions ) );
       }
     }
 
-    auto outputHandle = SG::makeHandle(decisionOutput(), context);
-    CHECK( outputHandle.record(std::move(decisions), std::move(aux) ) );
-  
     ATH_MSG_DEBUG( "Exiting with "<< outputHandle->size() <<" decisions");
     //debug
     for (auto outh: *outputHandle){

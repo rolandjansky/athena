@@ -32,7 +32,7 @@ class TrigJetHypoAlgMT : public ::HypoBase {
  private:
 
   StatusCode decide(const xAOD::JetContainer*,
-                    std::unique_ptr<TrigCompositeUtils::DecisionContainer>& newDecisions,
+                    TrigCompositeUtils::DecisionContainer* newDecisions,
                     const TrigCompositeUtils::DecisionContainer* previousDecisions
 		    /* , */
                     /* const ToolHandle<ITrigJetHypoToolMT>&xs */

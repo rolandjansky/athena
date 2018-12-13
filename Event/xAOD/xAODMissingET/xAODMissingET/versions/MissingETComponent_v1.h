@@ -254,12 +254,6 @@ namespace xAOD
     template<class POBJ,class LINK> void f_setObject(const POBJ* pObj,LINK& elemLink);
     template<class LINK> bool f_setLink(LINK& elemLink);
     /*!@}*/
-  private:
-    /*! @name Cache remembering the previous search result */
-    /*!@{*/
-    mutable const IParticle* m_lastObjectPointer; /*!< @brief Pointer to last searched object */
-    mutable size_t           m_lastObjectIndex;   /*!< @brief Index of last searched object in list */
-    /*!@}*/
   }; // MissingETComponenet_v1
 }
 

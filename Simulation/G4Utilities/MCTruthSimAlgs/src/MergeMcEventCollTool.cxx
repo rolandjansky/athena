@@ -136,7 +136,8 @@ MergeMcEventCollTool::MergeMcEventCollTool(const std::string& type,
   m_addBackgroundCollisionVertices(true),
   m_signal_event_number(0)
 {
-  declareProperty("TruthCollKey",   m_truthCollKey=std::string("TruthEvent"));
+  declareProperty("TruthCollInputKey",   m_truthCollInputKey=std::string("TruthEvent"));
+  declareProperty("TruthCollOutputKey",   m_truthCollOutputKey=std::string("TruthEvent"));
   declareProperty("KeepUnstable",   m_keepUnstable=false, "do not cut unstable particles");
   declareProperty("AbsEtaMax",      m_absEtaMax=5.0);
   declareProperty("OutOfTimeAbsEtaMax",      m_absEtaMax_outOfTime=3.0);
@@ -188,7 +189,7 @@ StatusCode MergeMcEventCollTool::prepareEvent(unsigned int nInputEvents) {
   if (0 == m_nInputMcEventColls) {
     msg(MSG::ERROR)
       << "prepareEvent: TimedTruthList with key "
-      << m_truthCollKey.value()
+      << m_truthCollInputKey.value()
       << " is empty" << endmsg;
     return StatusCode::RECOVERABLE;
   }
@@ -210,10 +211,10 @@ StatusCode MergeMcEventCollTool::processAllSubEvents() {
   //first get the list of McEventCollections
   typedef PileUpMergeSvc::TimedList<McEventCollection>::type TimedTruthList;
   TimedTruthList truthList;
-  if (!m_pMergeSvc->retrieveSubEvtsData(m_truthCollKey.value(), truthList).isSuccess() ) {
+  if (!m_pMergeSvc->retrieveSubEvtsData(m_truthCollInputKey.value(), truthList).isSuccess() ) {
     msg(MSG::ERROR)
       << "execute: Can not find TimedTruthList with key "
-      << m_truthCollKey.value() << endmsg;
+      << m_truthCollInputKey.value() << endmsg;
     return StatusCode::RECOVERABLE;
   }
 
@@ -225,7 +226,7 @@ StatusCode MergeMcEventCollTool::processAllSubEvents() {
   if (0 == m_nInputMcEventColls) {
     msg(MSG::ERROR)
       << "execute: TimedTruthList with key "
-      << m_truthCollKey.value()
+      << m_truthCollInputKey.value()
       << " is empty" << endmsg;
     return StatusCode::RECOVERABLE;
   }
@@ -281,9 +282,9 @@ StatusCode MergeMcEventCollTool::processBunchXing(int bunchXing,
   //loop over the McEventCollections (each one assumed to containing exactly one GenEvent) of the various input events
   while (iEvt != eSubEvents) {
     const McEventCollection *pMEC(NULL);
-    if (!m_pMergeSvc->retrieveSingleSubEvtData(m_truthCollKey.value(), pMEC,
+    if (!m_pMergeSvc->retrieveSingleSubEvtData(m_truthCollInputKey.value(), pMEC,
 					       bunchXing, iEvt).isSuccess()){
-      ATH_MSG_ERROR("McEventCollection not found for event key " << m_truthCollKey.value());
+      ATH_MSG_ERROR("McEventCollection not found for event key " << m_truthCollInputKey.value());
       return StatusCode::FAILURE;
     }
 
@@ -396,7 +397,7 @@ StatusCode MergeMcEventCollTool::processFirstSubEvent(const McEventCollection *p
   }
   m_startingIndexForBackground=currentMcEventCollectionIndex;
   m_nBkgEventsReadSoFar=0; //number of input events/eventcolls read so far. Used to build index of output GenEvent in ovrl McEvColl
-  sc = evtStore()->record(m_pOvrlMcEvColl, m_truthCollKey);//**BIG TEST**//sc=StatusCode::SUCCESS;
+  sc = evtStore()->record(m_pOvrlMcEvColl, m_truthCollOutputKey);//**BIG TEST**//sc=StatusCode::SUCCESS;
   ATH_MSG_DEBUG( "Starting loop on Background events ... " );
 
   return sc;

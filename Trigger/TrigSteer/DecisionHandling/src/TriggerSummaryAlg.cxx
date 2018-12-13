@@ -71,11 +71,10 @@ StatusCode TriggerSummaryAlg::execute_r(const EventContext& context) const
   // check for an evident error, this is HLT chain not mentioned at the L1
   // that is the only reason we pull the L1 here
 
-  auto summaryCont = std::make_unique<TrigCompositeUtils::DecisionContainer>();
-  auto summaryAuxCont = std::make_unique<TrigCompositeUtils::DecisionAuxContainer>();
-  summaryCont->setStore( summaryAuxCont.get() );
+  SG::WriteHandle<TrigCompositeUtils::DecisionContainer> summaryHandle = TrigCompositeUtils::createAndStore(m_summaryKey, context ); 
+  auto summaryCont = summaryHandle.ptr();
 
-  auto summaryObj = TrigCompositeUtils::newDecisionIn( summaryCont.get() );
+  auto summaryObj = TrigCompositeUtils::newDecisionIn( summaryCont );
   summaryObj->setName( "passing" );
   for ( auto id: allPassingIDs ) {
     TrigCompositeUtils::addDecisionID( id, summaryObj );
@@ -86,8 +85,6 @@ StatusCode TriggerSummaryAlg::execute_r(const EventContext& context) const
   //   CHECK( buildHLTResult( result ) );
   // }
   
-  auto summaryHandle = SG::makeHandle( m_summaryKey, context );
-  CHECK( summaryHandle.record( std::move( summaryCont ), std::move( summaryAuxCont ) ) );
 
   for ( auto& tool: m_outputTools ) {
     CHECK( tool->createOutput( context ) );

@@ -4,8 +4,7 @@ import egammaToolsConf
 from egammaRec.Factories import FcnWrapper, ToolFactory
 from egammaRec import egammaKeys
 
-from CaloTools import CaloAffectedToolDefault as CATD
-CaloAffectedToolDefault = ToolFactory( CATD.CaloAffectedToolDefault )
+from CaloTools.CaloToolsConf import CaloAffectedTool
 
 egammaOQFlagsBuilder = ToolFactory( egammaToolsConf.egammaOQFlagsBuilder,
   QCellCut = 4000.,
@@ -16,4 +15,4 @@ egammaOQFlagsBuilder = ToolFactory( egammaToolsConf.egammaOQFlagsBuilder,
   TCutVsE = 2.,
   RcellCut = 0.8,
   CellsName = egammaKeys.caloCellKey(),
-  affectedTool = CaloAffectedToolDefault)
+  affectedTool = CaloAffectedTool())

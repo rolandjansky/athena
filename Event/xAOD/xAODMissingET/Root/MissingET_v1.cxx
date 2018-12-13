@@ -13,7 +13,10 @@ MissingET_v1::MissingET_v1( bool createStore )
 
    if( createStore ) {
       createPrivateStore();
+      setName(this->name());
    }
+   else
+      m_nameHash = 0;
 }
 
 MissingET_v1::MissingET_v1( const std::string& name,
@@ -51,8 +54,11 @@ MissingET_v1::MissingET_v1( const IParticle* particle, const std::string& name,
 
 // CHECK use makePrivateStore to control that behaviour ??
 MissingET_v1::MissingET_v1(const MissingET_v1& met)
-  : SG::AuxElement()
-{ this->makePrivateStore(&met); }
+  : SG::AuxElement() {
+  
+  this->makePrivateStore(&met);
+  updateHash();
+}
 
 MissingET_v1::~MissingET_v1()
 { }

@@ -97,7 +97,7 @@ namespace xAOD
     iterator find(MissingETBase::Types::bitmask_t src);
     size_t findIndex(const MissingET* pMET) const;
     size_t findIndex(const std::string& name) const;
-    size_t findIndex(MissingETBase::Types::bitmask_t sw) const;
+    size_t findIndex(MissingETBase::Types::bitmask_t src) const;
     /*! @brief Retrieve MissingET object by name
      *
      *  @return Valid pointer to MissingET typed object representing a MET term. If the requested object cannot be found,
@@ -208,15 +208,15 @@ namespace xAOD
 
     /*! @name Internal data for local cache */
     /*!@{*/
-    mutable signal_vector_t m_clusterLinks;  /*!< @brief Store for linked cluuster signal information lookup 
-					      *   @copydetails signal_vector_t
-					      */
-    mutable signal_vector_t m_trackLinks;    /*!< @brief Store for linked track signal information lookup 
-					      *   @copydetails signal_vector_t
-					      */
-    mutable particle_map_t  m_particleLinks; /*!< @brief Store for linked physics object information lookup
-					      *   @copydetails particle_map_t 
-					      */
+    signal_vector_t m_clusterLinks;  /*!< @brief Store for linked cluuster signal information lookup
+                                      *   @copydetails signal_vector_t
+                                      */
+    signal_vector_t m_trackLinks;    /*!< @brief Store for linked track signal information lookup
+                                      *   @copydetails signal_vector_t
+                                      */
+    particle_map_t  m_particleLinks; /*!< @brief Store for linked physics object information lookup
+                                      *   @copydetails particle_map_t
+                                      */
     /*!@}*/
 
     /*! @name Internal functions for local cache handling  */
@@ -247,7 +247,7 @@ namespace xAOD
      *
      *  @note This method does not add yet unused signal  objects to the signal link list, as this decision is controlled by the specific MET reconstruction tool.   
      */
-    bool f_checkObjectUsage(MissingETBase::Types::object_vector_t& sig,signal_vector_t& signalLinks) const ;
+    bool f_checkObjectUsage(MissingETBase::Types::object_vector_t& sig, const signal_vector_t& signalLinks) const ;
     /*! @brief Check physics object usage
      *
      *  @return @c true if any of the physics objects in the input list is already marked as used. In addition, all used objects are removed from the input (physics) object list.
@@ -258,7 +258,7 @@ namespace xAOD
      *
      *  @note This method does not add yet unused physics objects to the signal link list, as this decision is controlled by the specific MET reconstruction tool.   
      */
-    bool f_checkObjectUsage(MissingETBase::Types::object_vector_t& objects,particle_map_t& physicsLinks) const;
+    bool f_checkObjectUsage(MissingETBase::Types::object_vector_t& objects, const particle_map_t& physicsLinks) const;
     /*! @brief Fill the lookup cache from the composition map data content */
     void f_fillLookupCache();
     /*! @brief Clear the lookup cache */
@@ -281,52 +281,6 @@ namespace xAOD
       while ( fSign != sig.end() ) { if ( (*fSign)->type() != OBJTYPE ) { fSign = sig.erase(fSign); } else { ++fSign; } }
       return !sig.empty(); 
     }
-    /*!@}*/
-		
-    /*! @name Internal lookup cache */
-    /*!@{*/
-    /*!@}*/
-
-    /*! @name Internal find methods for constant access */
-    /*!@{*/
-    /*! @brief Find contribution by MET object pointer
-     *
-     *  This method finds a xAOD::MissingETComponent_v1 object linked to the specified xAOD::MissingET object. It is invoked internally by find(const MissingET*).
-     *  It uses an internal cache to determine if this  MET object has been found in the latest invocation of the find method, and returns without further action in this case.
-     *  If a different MET object is searched for, it initiates a linear search and updates the internal cache with the new pointer (will be NULL if referenced MET object 
-     *  not found) and the datawords storing the const_iterator and the iterator referencing the non-modifiable and modifiable xAOD::MissingETComponent_v1 object in the
-     *  composition map, respectively (both iterators will be set to the corresponding end iterator if the MET object is not in the composition map). 
-     *
-     *  @return Valid const iterator referencing the MissingETComponent_v1 object linking ot the requested MET object. If this MET object is not in the list, 
-     *          MissingETComponentMap_v1::end() is returned.
-     * 
-     *  @param[in] pMET pointer to non-modifiable MissingET object to be found in the composition map.  
-     */
-    const_iterator f_findConst(const MissingET* pMET) const;
-    /*! @brief Find contribution by MET object name 
-     *
-     *  This method finds a xAOD::MissingETComponent_v1 object linked to the specified xAOD::MissingET object. It is invoked internally by find(const std::string&).
-     *  It uses an internal cache to determine if this  MET object has been found in the latest invocation of the find method, and returns without further action in this case.
-     *  If a different MET object is searched for, it initiates a linear search and updates the internal cache with the new pointer (will be NULL if referenced MET object 
-     *  not found) and the datawords storing the const_iterator and the iterator referencing the non-modifiable and modifiable xAOD::MissingETComponent_v1 object in the
-     *  composition map, respectively (both iterators will be set to the corresponding end iterator if the MET object is not in the composition map). 
-     *
-     *
-     *  @return Valid const iterator referencing the MissingETComponent_v1 object linking ot the requested MET object. If this MET object is not in the list, 
-     *          MissingETComponentMap_v1::end() is returned.
-     * 
-     *  @param[in] name reference to the non-modifiable data word storing the name of the requested MET object.
-     */
-    const_iterator f_findConst(const std::string& name) const;
-    const_iterator f_findConst(MissingETBase::Types::bitmask_t src) const;
-    void f_setConstCache(const_iterator fCont) const;
-    /*!@}*/
-
-    iterator f_find(const MissingET* pMET);
-    iterator f_find(const std::string& name);
-    iterator f_find(MissingETBase::Types::bitmask_t src);
-    void f_setCache(iterator fCont);
-    void resetCache() const;
 
     const MissingET* f_retrieveMissingETExcl(MissingETBase::Types::bitmask_t src)              const;
     const MissingET* f_retrieveMissingETExcl(MissingETBase::Types::bitmask_t src,MissingETBase::Types::bitmask_t sw) const;
@@ -335,14 +289,8 @@ namespace xAOD
 
   private:
 
-    mutable const MissingET* m_lastMETObject;
-    mutable size_t           m_lastContribIndex;
-
     static size_t m_clusterLinkReserve;
     static size_t m_trackLinkReserve; 
-    static size_t m_maxClusterSize;
-    static size_t m_maxTrackSize;
-    static size_t m_maxSignalSize;
 
   }; // class xAOD::MissingETComponentMap_v1
 } // namespace xAOD
