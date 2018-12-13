@@ -1,10 +1,12 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    ChainString.cxx         
 //   
 //
 //   @author M.Sutton
 // 
-//   Copyright (C) 2015 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: ChainString.cxx, v0.0   Thu 30 Apr 2015 14:06:56 CEST sutt $
 

@@ -15,7 +15,7 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 #if athenaCommonFlags.FilesInput()==[]:
 #  athenaCommonFlags.FilesInput=[
-#    "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7193/RDO.06752771._000001.pool.root.1",
+#    "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7193/RDO.06752771._000001.pool.root.1",
 #    ]
 
 include("TrigInDetValidation/TrigInDetValidation_RTT_Chains.py")
@@ -44,12 +44,8 @@ include("TrigInDetValidation/TrigInDetValidation_RTT_Common.py")
 topSequence.TrigSteer_HLT.terminateAlgo.Prescale=1.
 
 if 'fastZFinder' in dir() and fastZFinder==True:
-  FTF = topSequence.TrigSteer_HLT.TrigFastTrackFinder_BeamSpot_IDTrig
-
-  # set fast ZFinder settings here
-  # from AthenaCommon.ConfigurableDb import getConfigurable
-  # zfinder = getConfigurable("TrigZFinder")
-  zfinder = FTF.trigZFinder
+  from AthenaCommon.AppMgr import ToolSvc
+  zfinder = ToolSvc.TrigZFinder
 
   zfinder.NumberOfPeaks = 4
   zfinder.TripletMode = 1
@@ -59,6 +55,5 @@ if 'fastZFinder' in dir() and fastZFinder==True:
   zfinder.MinVtxSignificance = 10
   zfinder.Percentile = 0.95
 
+  print 'zfinder settings modified by TrigInDetValidation_RTT_topOptions_BeamspotSlice.py'
   print zfinder
-
-

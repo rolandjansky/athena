@@ -1,10 +1,12 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    TIDARoiDescriptor.cxx         
 //   
 //            modified from the TrigRoiDescriptor
 //                   
 // 
-//   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: RoiDescriptor.cxx, v0.0   Tue 10 Nov 2009 10:15:40 GMT sutt $
 

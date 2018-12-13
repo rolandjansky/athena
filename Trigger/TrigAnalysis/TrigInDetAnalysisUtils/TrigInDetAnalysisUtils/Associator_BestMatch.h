@@ -1,11 +1,13 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    Associator_BestMatch.h         
 //   
 //            Erkcan's track matchers 
 //                   
 // 
-//   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: Associator_BestMatch.h, v0.0   Wed 28 Oct 2009 02:23:23 CET sutt $
 

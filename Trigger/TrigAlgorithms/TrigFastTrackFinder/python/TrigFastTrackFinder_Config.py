@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from TrigFastTrackFinder.TrigFastTrackFinderConf import TrigFastTrackFinder
 
@@ -139,23 +139,23 @@ class TrigFastTrackFinder_CommonMonitoring(TrigGenericMonitoringToolConfig):
                                              title="Pure PattReco time",
                                              xbins = nbin , xmin=0.0, xmax=200.0)]
     def addResidualHistograms(self):
-        self.Histograms += [ defineHistogram('IBL_Layer',
+        self.Histograms += [ defineHistogram('layer_IBL',
                                              type='TH1F',
                                              title="IBL layer",
                                              xbins = 10, xmin=0., xmax=10.)]
-        self.Histograms += [ defineHistogram('PixB_Layer',
+        self.Histograms += [ defineHistogram('layer_PixB',
                                              type='TH1F',
                                              title="Pixel Barrel layer",
                                              xbins = 10, xmin=0., xmax=10.)]
-        self.Histograms += [ defineHistogram('PixEC_Layer',
+        self.Histograms += [ defineHistogram('layer_PixE',
                                              type='TH1F',
                                              title="Pixel Endcap layer",
                                              xbins = 10, xmin=0., xmax=10.)]
-        self.Histograms += [ defineHistogram('SCTB_Layer',
+        self.Histograms += [ defineHistogram('layer_SCTB',
                                              type='TH1F',
                                              title="SCT Barrel layer",
                                              xbins = 10, xmin=0., xmax=10.)]
-        self.Histograms += [ defineHistogram('SCTEC_Layer',
+        self.Histograms += [ defineHistogram('layer_SCTE',
                                              type='TH1F',
                                              title="SCT Endcap layer",
                                              xbins = 10, xmin=0., xmax=10.)]
@@ -219,6 +219,22 @@ class TrigFastTrackFinder_CommonMonitoring(TrigGenericMonitoringToolConfig):
                                              type='TH1F',
                                              title="SCT Barrel hit-track residual",
                                              xbins = 100, xmin=-0.5, xmax=0.5)]
+        self.Histograms += [ defineHistogram('hit_SCTBarrelL1PhiResidual',
+                                             type='TH1F',
+                                             title="SCT Barrel L1 hit-track phi residual",
+                                             xbins = 100, xmin=-0.5, xmax=0.5)]
+        self.Histograms += [ defineHistogram('hit_SCTBarrelL2PhiResidual',
+                                             type='TH1F',
+                                             title="SCT Barrel L2 hit-track phi residual",
+                                             xbins = 100, xmin=-0.5, xmax=0.5)]
+        self.Histograms += [ defineHistogram('hit_SCTBarrelL3PhiResidual',
+                                             type='TH1F',
+                                             title="SCT Barrel L3 hit-track phi residual",
+                                             xbins = 100, xmin=-0.5, xmax=0.5)]
+        self.Histograms += [ defineHistogram('hit_SCTBarrelL4PhiResidual',
+                                             type='TH1F',
+                                             title="SCT Barrel L4 hit-track phi residual",
+                                             xbins = 100, xmin=-0.5, xmax=0.5)]
         self.Histograms += [ defineHistogram('hit_SCTBarrelPull',
                                              type='TH1F',
                                              title="SCT Barrel hit-track pull",
@@ -267,6 +283,42 @@ class TrigFastTrackFinder_CommonMonitoring(TrigGenericMonitoringToolConfig):
                                              type='TH1F',
                                              title="SCT EC hit-track residual",
                                              xbins = 100, xmin=-1.0, xmax=1.0)]
+        self.Histograms += [ defineHistogram('hit_SCTEndcapL1PhiResidual',
+                                             type='TH1F',
+                                             title="SCT Endcap L1 hit-track phi residual",
+                                             xbins = 100, xmin=-0.5, xmax=0.5)]
+        self.Histograms += [ defineHistogram('hit_SCTEndcapL2PhiResidual',
+                                             type='TH1F',
+                                             title="SCT Endcap L2 hit-track phi residual",
+                                             xbins = 100, xmin=-0.5, xmax=0.5)]
+        self.Histograms += [ defineHistogram('hit_SCTEndcapL3PhiResidual',
+                                             type='TH1F',
+                                             title="SCT Endcap L3 hit-track phi residual",
+                                             xbins = 100, xmin=-0.5, xmax=0.5)]
+        self.Histograms += [ defineHistogram('hit_SCTEndcapL4PhiResidual',
+                                             type='TH1F',
+                                             title="SCT Endcap L4 hit-track phi residual",
+                                             xbins = 100, xmin=-0.5, xmax=0.5)]
+        self.Histograms += [ defineHistogram('hit_SCTEndcapL5PhiResidual',
+                                             type='TH1F',
+                                             title="SCT Endcap L5 hit-track phi residual",
+                                             xbins = 100, xmin=-0.5, xmax=0.5)]
+        self.Histograms += [ defineHistogram('hit_SCTEndcapL6PhiResidual',
+                                             type='TH1F',
+                                             title="SCT Endcap L6 hit-track phi residual",
+                                             xbins = 100, xmin=-0.5, xmax=0.5)]
+        self.Histograms += [ defineHistogram('hit_SCTEndcapL7PhiResidual',
+                                             type='TH1F',
+                                             title="SCT Endcap L7 hit-track phi residual",
+                                             xbins = 100, xmin=-0.5, xmax=0.5)]
+        self.Histograms += [ defineHistogram('hit_SCTEndcapL8PhiResidual',
+                                             type='TH1F',
+                                             title="SCT Endcap L8 hit-track phi residual",
+                                             xbins = 100, xmin=-0.5, xmax=0.5)]
+        self.Histograms += [ defineHistogram('hit_SCTEndcapL9PhiResidual',
+                                             type='TH1F',
+                                             title="SCT Endcap L9 hit-track phi residual",
+                                             xbins = 100, xmin=-0.5, xmax=0.5)]
         self.Histograms += [ defineHistogram('hit_SCTEndCapPull',
                                              type='TH1F',
                                              title="SCT EC hit-track pull",
@@ -408,7 +460,6 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
                                 TrigFastTrackFinder_OnlineMonitoring("TrigFastTrackFinder_OnlineMonitoring", self.doResMon),
                                 timeHist ]
 
-
         from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
         self.TrackSummaryTool = InDetTrigFastTrackSummaryTool
 
@@ -445,12 +496,15 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
           self.doSeedRedundancyCheck = InDetTrigSliceSettings[('checkRedundantSeeds',remapped_type)]
           self.Triplet_D0Max        = InDetTrigSliceSettings[('d0SeedMax',remapped_type)]
           self.Triplet_D0_PPS_Max   = InDetTrigSliceSettings[('d0SeedPPSMax',remapped_type)] 
-          self.TrackInitialD0Max   = InDetTrigSliceSettings[('d0TrackInitialMax',remapped_type)] 
+          self.TrackInitialD0Max = 20.
+          if remapped_type=='cosmics':
+            self.TrackInitialD0Max = 1000.
+            self.TrackZ0Max   = 1000.
+
           self.TripletDoPSS   = False
           self.pTmin = InDetTrigSliceSettings[('pTmin',remapped_type)]
           self.DoubletDR_Max = InDetTrigSliceSettings[('dRdoubletMax',remapped_type)]
           self.SeedRadBinWidth = InDetTrigSliceSettings[('seedRadBinWidth',remapped_type)]
-          self.doTrigInDetTrack = InDetTrigSliceSettings[('doTrigInDetTrack',remapped_type)]
 
           if remapped_type=="cosmics":
             self.Doublet_FilterRZ = False
@@ -535,11 +589,15 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
             ToolSvc += theTrigZFinder
             self.trigZFinder = theTrigZFinder
             self.doFastZVertexSeeding = True
-            self.zVertexResolution = 7.5
+            self.zVertexResolution = 1
 
           TrackMaker_FTF.InputClusterContainerName = ""
           TrackMaker_FTF.InputHadClusterContainerName = ""
           
+          
+          from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
+          self.TrackSummaryTool = InDetTrigFastTrackSummaryTool
+
           if remapped_type == "tauCore":
             from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigTrackSummaryToolWithHoleSearch
             self.TrackSummaryTool = InDetTrigTrackSummaryToolWithHoleSearch
@@ -578,3 +636,7 @@ class TrigFastTrackFinder_FTK(TrigFastTrackFinderBase):
 class TrigFastTrackFinder_FTKRefit(TrigFastTrackFinderBase):
   def __init__(self, name = "TrigFastTrackFinder_FTKRefit"):
     TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_FTKRefit","FTKRefit")
+
+class TrigFastTrackFinder_FTKMon(TrigFastTrackFinderBase):
+  def __init__(self, name = "TrigFastTrackFinder_FTKMon"):
+    TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_FTKMon","FTKMon")

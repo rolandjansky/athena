@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
 ////////////////////////////////////////////////////////////////////////////////
 // IdScan: TrigZFinder
 // ( see header-file for details )
@@ -56,6 +55,10 @@ TrigZFinder::TrigZFinder( const std::string& type, const std::string& name, cons
   declareProperty( "TripletDK",          m_tripletDK        = 0.005 );
   declareProperty( "TripletDP",          m_tripletDP        = 0.05  );
   declareProperty( "WeightThreshold",    m_weightThreshold  = 0     );
+  declareProperty( "MaxLayer",           m_maxLayer        = 32    );
+  declareProperty( "MinVtxSignificance", m_minVtxSignificance  = 0  );
+  declareProperty( "Percentile",         m_percentile          = 1  );
+
 
   declareProperty( "LayerNumberTool", m_numberingTool);
 
@@ -154,6 +157,14 @@ StatusCode TrigZFinder::initialize()
 
   athenaLog << MSG::INFO << "TrigZFinder::m_tripletMode      = " << m_tripletMode      << endmsg;
 
+  athenaLog << MSG::INFO << "TrigZFinder::m_maxLayer         = " << m_maxLayer        << endmsg;
+
+  athenaLog << MSG::INFO << "TrigZFinder::m_minVtxSignificance = " << m_minVtxSignificance  << endmsg;
+
+  if ( m_minVtxSignificance>0 ) { 
+    athenaLog << MSG::INFO << "TrigZFinder::m_percentile     = " << m_percentile  << endmsg;
+  }
+
   athenaLog << MSG::INFO << "TrigZFinder::m_weigthThreshold  = " << m_weightThreshold  << endmsg;
 
   return sc;
@@ -166,25 +177,18 @@ StatusCode TrigZFinder::finalize() {
 
 TrigVertexCollection* TrigZFinder::findZ( const std::vector<TrigSiSpacePointBase>& spVec, const IRoiDescriptor& roi)
 {
-  MsgStream athenaLog( msgSvc(), name() );
 
   TrigVertexCollection* output = new TrigVertexCollection;
-  //  int outputLevel = msgSvc()->outputLevel( name() );
 
   std::vector<vertex>* vertices = findZInternal( spVec, roi);
-  //athenaLog << MSG::INFO << "RoI: " << *RoI << endmsg;
-  //athenaLog << MSG::INFO << "RoI->phi0(): " << RoI->phi0() << endmsg;
 
-
-  athenaLog << MSG::DEBUG << "roi: "    << roi << endmsg;
-  athenaLog << MSG::DEBUG << "m_NumPhiSlices: " << m_NumPhiSlices << endmsg;
+  ATH_MSG_DEBUG("roi: "    << roi);
+  ATH_MSG_DEBUG("m_NumPhiSlices: " << m_NumPhiSlices);
  
 
   if ( GetInternalStatus()==-1 ) { 
-    //    athenaLog << MSG::ERROR << "phi of spacepoint out of range!" << endmsg;
-    //    athenaLog << MSG::ERROR << "Exiting ZFinder..." << endmsg;
-    athenaLog << MSG::WARNING << "phi of spacepoint out of range! phi=" << GetReturnValue() << endmsg;
-    athenaLog << MSG::WARNING << "Exiting ZFinder..." << endmsg;
+    ATH_MSG_WARNING("phi of spacepoint out of range! phi=" << GetReturnValue());
+    ATH_MSG_WARNING("Exiting ZFinder...");
   }
 
   for ( unsigned int i=0 ; i<vertices->size() ; i++ ) { 

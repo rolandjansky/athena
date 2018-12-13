@@ -1,10 +1,12 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    comparitor.cxx         
 //   
 //
 //   @author M.Sutton
 // 
-//   Copyright (C) 2012 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: comparitor.cxx, v0.0   Fri 12 Oct 2012 13:39:05 BST sutt $
 

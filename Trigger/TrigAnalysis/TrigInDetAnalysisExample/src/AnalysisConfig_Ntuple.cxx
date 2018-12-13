@@ -1,10 +1,12 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    AnalysisConfig_Ntuple.cxx         
 //   
 //
 //   @author M.Sutton
 // 
-//   Copyright (C) 2010 M.Sutton (sutt@cern.ch)    
 
 
 #include <cstdio>
@@ -994,11 +996,14 @@ void AnalysisConfig_Ntuple::loop() {
 	  for ( int it=0 ; it<7 ; it++ ) if ( m_electronType[ielec]==ElectronRef[it] ) itype = it; 
 	  if ( itype<0 ) continue;
 
+	  std::vector<TrackTrigObject> elevec;
+	  
 	  //	  std::cout << "\tElectrons selection " << ielec << " " << m_electronType[ielec] 
 	  //		    << "\t" << itype << " " << ElectronRef[itype] << "\t" << m_rawElectrons[ielec] << std::endl;
 	  
-	  int Nel_ = processElectrons( selectorRef, itype, ( m_rawElectrons[ielec]=="raw" ? true : false ) );
-
+	  int Nel_ = processElectrons( selectorRef, &elevec, itype, ( m_rawElectrons[ielec]=="raw" ? true : false ) );
+	  
+	  	  
           if ( Nel_ < 1 ) continue;
       
           Nel += Nel_;	
@@ -1010,6 +1015,11 @@ void AnalysisConfig_Ntuple::loop() {
 	  m_event->addChain( echain );
 	  m_event->back().addRoi(TIDARoiDescriptor(true));
 	  m_event->back().back().addTracks(selectorRef.tracks());
+	  m_event->back().back().addObjects( elevec );
+
+	  // leave this in util fully validated ...
+	  // std::cout << m_event->back() << std::endl;
+	  
 	  if ( selectorRef.getBeamX()!=0 || selectorRef.getBeamY()!=0 || selectorRef.getBeamZ()!=0 ) { 
 	    std::vector<double> _beamline;
 	    _beamline.push_back( selectorRef.getBeamX() );
@@ -1104,7 +1114,9 @@ void AnalysisConfig_Ntuple::loop() {
 	  if  ( m_tauProngs[itau]=="3Prong" ) requireNtracks = 3;	
 	  if  ( m_tauProngs[itau]=="1Prong" ) requireNtracks = 1;
 
-	  int Ntau_ = processTaus( selectorRef, itype, requireNtracks, 20000 ); 
+	  std::vector<TrackTrigObject> tauvec; 
+
+	  int Ntau_ = processTaus( selectorRef, &tauvec, itype, requireNtracks, 20000 ); 
 
 	  Ntau += Ntau_;
 
@@ -1118,7 +1130,12 @@ void AnalysisConfig_Ntuple::loop() {
 	    m_event->addChain( tchain );
 	    m_event->back().addRoi(TIDARoiDescriptor(true));
 	    m_event->back().back().addTracks(selectorRef.tracks());
-	    
+
+	    m_event->back().back().addObjects( tauvec ) ; 
+
+	    // leave this in util fully validated ...
+	    //	    std::cout << m_event->back() << std::endl;
+
 	    if ( selectorRef.getBeamX()!=0 || selectorRef.getBeamY()!=0 || selectorRef.getBeamZ()!=0 ) { 
 	      std::vector<double> _beamline;
 	      _beamline.push_back( selectorRef.getBeamX() );

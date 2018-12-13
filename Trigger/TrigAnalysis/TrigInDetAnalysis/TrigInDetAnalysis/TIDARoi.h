@@ -1,11 +1,13 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    TIDARoi.h        
 //
 //            Roi class, contains RoiDescriptor and also a 
 //            vector of Tracks       
 // 
-//   Copyright (C) 2010 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: TIDARoi.h, v0.0   Mon  1 Feb 2010 11:34:52 GMT sutt $
 
@@ -60,6 +62,7 @@ public:
   const std::vector<TrackTrigObject>& objects() const { return m_objects; }
   std::vector<TrackTrigObject>&       objects()       { return m_objects; }
   void addObject( const TrackTrigObject& o) {  m_objects.push_back(o); }
+  void addObjects( const std::vector<TrackTrigObject>& ob) {  m_objects.insert( m_objects.end(), ob.begin(), ob.end() ); }
 
   /// access the user data
   const std::vector<double>& user() const { return m_user; }

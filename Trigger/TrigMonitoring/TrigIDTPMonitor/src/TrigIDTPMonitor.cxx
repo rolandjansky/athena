@@ -169,6 +169,7 @@ HLT::ErrorCode TrigIDTPMonitor::hltExecute(const HLT::TriggerElement* inputTE, H
       }
     
     ptype = bphys->particleType();
+
   }
 
   m_invBS = invMass;
@@ -244,11 +245,10 @@ HLT::ErrorCode TrigIDTPMonitor::hltExecute(const HLT::TriggerElement* inputTE, H
     float deltaPhi = roi1->phi() - roi2->phi();
     while (deltaPhi >= kPI) deltaPhi -= kTWOPI;
     while (deltaPhi < -kPI) deltaPhi += kTWOPI;
-
+    
     ATH_MSG_VERBOSE("Delta Phi between two muons:" << deltaPhi);
     ATH_MSG_VERBOSE("Delta Eta between two muons:" << deltaEta);
   }
-
   //retrieve Muon Containers
 
   const xAOD::MuonContainer *mc1;

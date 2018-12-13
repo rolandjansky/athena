@@ -1,10 +1,12 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    TrigTrackSelector.cxx         
 //   
 //
 //   @author M.Sutton
 // 
-//   Copyright (C) 2014 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: TrigTrackSelector.cxx, v0.0   Sun  2 Nov 2014 11:10:06 CET sutt $
 
@@ -18,7 +20,7 @@ TrigTrackSelector::TrigTrackSelector( TrackFilter* selector ) :
     m_correctTrkTracks(false) {  } 
 
 
-void TrigTrackSelector::selectTrack( const TrigInDetTrack* track, const TrigInDetTrackTruthMap* truthMap ) {     
+bool TrigTrackSelector::selectTrack( const TrigInDetTrack* track, const TrigInDetTrackTruthMap* truthMap ) {     
     // do the track extraction stuff here....
     if ( track ) { 
 
@@ -79,8 +81,13 @@ void TrigTrackSelector::selectTrack( const TrigInDetTrack* track, const TrigInDe
 	
 	//	std::cout << "SUTT ID track " << *t << "\t0x" << std::hex << track->HitPattern() << std::dec << std::endl;
 	
-	if ( !addTrack( t ) ) delete t;
+	if ( !addTrack( t ) ){
+	  delete t;
+	  return false;
+	}	
+	return true;
     }
+    return false;
 }
 
 
@@ -97,7 +104,7 @@ void TrigTrackSelector::selectTracks( const TrigInDetTrackCollection* trigtracks
 
 
 // add a TrackParticle 
-void TrigTrackSelector::selectTrack( const Rec::TrackParticle* track ) { 
+bool TrigTrackSelector::selectTrack( const Rec::TrackParticle* track ) { 
         
     // do the track extraction stuff here....
 
@@ -225,9 +232,14 @@ void TrigTrackSelector::selectTrack( const Rec::TrackParticle* track ) {
 
       //      std::cout << "SUTT TP track " << *t << "\t0x" << std::hex << bitmap << std::dec << std::endl; 
       
-      if ( !addTrack( t ) ) delete t;
+      if ( !addTrack( t ) ){
+	delete t;
+	return false;
+      }
+      return true;
       
     }
+    return false;
 }
   
 
@@ -272,26 +284,39 @@ void TrigTrackSelector::selectTracks( const TruthParticleContainer* truthtracks 
 
 
 // add a TruthParticle from a GenParticle - easy, bet it doesn't work 
-void TrigTrackSelector::selectTrack( const HepMC::GenParticle* track ) {
+bool TrigTrackSelector::selectTrack( const HepMC::GenParticle* track ) {
   
     /// not a "final state" particle
-    if ( track->status() != 1 ) return;
+    if ( track->status() != 1 ) return false;
 
     /// set this so can use it as the identifier - don't forget to reset!!
-    m_id = (unsigned long)track; 
-    selectTrack( TruthParticle(track) );
+    m_id = (unsigned long)track;
+    bool sel;
+    sel = selectTrack( TruthParticle(track) );
     m_id = 0;
+    
+    return sel; 
+    
 }
 
 
 // add a TruthParticle 
-void TrigTrackSelector::selectTrack( const TruthParticle& track ) { selectTrack( &track ); }
+bool TrigTrackSelector::selectTrack( const TruthParticle& track ) {
+
+  return selectTrack( &track );
+  
+}
 
 
 // add a TruthParticle 
-void TrigTrackSelector::selectTrack( const TruthParticle* track ) { 
+bool TrigTrackSelector::selectTrack( const TruthParticle* track ) { 
     TIDA::Track* t = makeTrack( track, m_id );
-     if ( t && !addTrack(t) ) delete t;
+    if ( t == 0 ) return false;
+    if ( !addTrack(t) ) {
+      delete t;
+      return false;
+    }
+    return true;
 }
 
 
@@ -507,7 +532,7 @@ TIDA::Track* TrigTrackSelector::makeTrack( const TruthParticle* track, unsigned 
 
 
 // add a Trk::Track
-void TrigTrackSelector::selectTrack( const Trk::Track* track ) { 
+bool TrigTrackSelector::selectTrack( const Trk::Track* track ) { 
         
     // do the track extraction stuff here....
 
@@ -673,13 +698,19 @@ void TrigTrackSelector::selectTrack( const Trk::Track* track ) {
                                          trackAuthor,  false, -1, -1,  
                                          expectBL, id) ;  
 
-	 if ( !addTrack( t ) ) delete t;
-
-	 //std::cout << "SUTT TP track " << *t << "\t0x" << std::hex << bitmap << std::dec << std::endl; 
+	if ( !addTrack( t ) ){
+	  delete t;
+	  return false;
+	}
+	return true;
+	
+	//std::cout << "SUTT TP track " << *t << "\t0x" << std::hex << bitmap << std::dec << std::endl; 
       }
     }
+    
+    return false;
 }
-  
+
 // extract all the tracks from a TrackCollection and add them
 void  TrigTrackSelector::selectTracks( const TrackCollection* trigtracks ) { 
     
@@ -698,7 +729,7 @@ void  TrigTrackSelector::selectTracks( const TrackCollection* trigtracks ) {
 
 #ifdef XAODTRACKING_TRACKPARTICLE_H
 
-void TrigTrackSelector::selectTrack( const xAOD::TrackParticle* track, void* ) {
+bool TrigTrackSelector::selectTrack( const xAOD::TrackParticle* track, void* ) {
      
     // do the track extraction stuff here....
 
@@ -754,7 +785,6 @@ void TrigTrackSelector::selectTrack( const xAOD::TrackParticle* track, void* ) {
       uint8_t sum_nBlayerHits = 0;
       track->summaryValue( sum_nBlayerHits, xAOD::numberOfInnermostPixelLayerHits);
       int nBlayerHits = 2*sum_nBlayerHits;
-
       uint8_t  sum_nPixelHits = 0;
       track->summaryValue( sum_nPixelHits, xAOD::numberOfPixelHits);
       int nPixelHits = 2*sum_nPixelHits;
@@ -823,11 +853,6 @@ void TrigTrackSelector::selectTrack( const xAOD::TrackParticle* track, void* ) {
       const Trk::Track*   _track =  track->track().getDataPtr();
       if ( _track ) { 
       
-	/// This is Soooo isHit, xAOD::TrackParticle::track() is supposed to produce a 
-	/// Trk::Track* in the new code, but an ElementLink<TrackContainer> in the old version
-	/// so to test with the old release use the ElementLink, but this just doesn't
-	/// compile, so give up on this ***REMOVED*** code.   
-	//   const Trk::TrackSummary*  summary = track->track()->trackSummary();
 	const Trk::TrackSummary*  summary = _track->trackSummary();
 	
 	if(summary==0){
@@ -841,15 +866,6 @@ void TrigTrackSelector::selectTrack( const xAOD::TrackParticle* track, void* ) {
       }
 #endif
 #endif
-
-      /// Now some *ridiculous* code to get the author of the 
-      /// TrackParticle (offline) tracks
-      
-      //      std::cout << "fetching author info :" << track->info().trackFitter() << ":" 
-      //		<< track->info().dumpInfo() << ": bm 0x" << std::hex << bitmap << std::dec << std::endl;
-
-
-      //      int trackAuthor = -1; 
 
       int trackAuthor = 0;
 
@@ -904,10 +920,14 @@ void TrigTrackSelector::selectTrack( const xAOD::TrackParticle* track, void* ) {
 
       //      std::cout << "SUTT TP track " << *t << "\t0x" << std::hex << bitmap << std::dec << std::endl; 
       
-      if ( !addTrack( t ) ) delete t;
+      if ( !addTrack( t ) ){
+	delete t;
+	return false;
+      }
+      return true;
       
     }
-
+    return false;
      
 
 }

@@ -74,6 +74,9 @@ StatusCode TrigSpacePointConversionTool::initialize() {
   ATH_CHECK(m_pixelSpacePointsContainerKey.initialize());
   ATH_CHECK(m_sctSpacePointsContainerKey.initialize());
 
+  ATH_CHECK(m_pixelSpacePointsContainerKey.initialize());
+  ATH_CHECK(m_sctSpacePointsContainerKey.initialize());
+
   ATH_MSG_INFO("TrigSpacePointConversionTool initialized ");
 
   return sc;
