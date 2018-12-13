@@ -31,7 +31,7 @@ namespace Trig {
    /// Port of the trigger configuration web server
    static const Int_t TRIGCONF_PORT = 80;
    /// Default timeout in miliseconds for reading the webpages
-   static const Long_t TRIGCONF_TIMEOUT = 20000;
+   static const Long_t TRIGCONF_TIMEOUT = 60000;
    /// Code of the collision bunch crossings
    static const Int_t COLLISION_BUNCHGROUP_INDEX = 1;
    /// First index of the unpaired bunch crossings
