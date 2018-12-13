@@ -128,8 +128,6 @@ InDet::SiTrackMaker_xk::~SiTrackMaker_xk()
 
 StatusCode InDet::SiTrackMaker_xk::initialize()
 {
-  StatusCode sc = AlgTool::initialize(); 
-
   // Get beam geometry
   //
   ATH_CHECK( m_beamSpotKey.initialize() );
