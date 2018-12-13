@@ -55,7 +55,7 @@ if TriggerFlags.doCalo:
   from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
   algo=T2CaloEgamma_ReFastAlgo("testReFastAlgo")
   # temporary fix for Tile
-  algo.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale')]
+  algo.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
   algo.OutputLevel=VERBOSE
 
   algo.RoIs="StoreGateSvc+EMRoIs"
