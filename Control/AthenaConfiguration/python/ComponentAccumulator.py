@@ -48,11 +48,10 @@ class ComponentAccumulator(object):
 
     def __del__(self):
         if not self._wasMerged and not self.empty():
-            #raise ConfigurationError("This componentAccumulator was never merged!")
-            log = logging.getLogger("ComponentAccumulator")
-            log.error("The ComponentAccumulator listed below was never merged!")
-            self.printConfig()
-        pass
+            raise RuntimeError("ComponentAccumulator was not merged!")
+            #log = logging.getLogger("ComponentAccumulator")
+            #log.error("The ComponentAccumulator listed below was never merged!")
+        #pass
     
 
 
@@ -395,7 +394,7 @@ class ComponentAccumulator(object):
     def merge(self,other):
         """ Merging in the other accumulator """
         if other is None: 
-            return
+            raise RuntimeError("merge called on object of type None: did you forget to return a CA from a config function?")
 
         if isinstance(other,collections.Sequence):
             self._msg.error("Merge called with a: %s "  % str(type(other)) + " of length: %d " % len(other))

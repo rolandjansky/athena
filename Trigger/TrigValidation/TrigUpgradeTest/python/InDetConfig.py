@@ -294,7 +294,7 @@ def TrigInDetConfig( flags ):
   acc.addService(mag_field_svc)
 
 
-  return acc
+  #return acc
 
 if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
