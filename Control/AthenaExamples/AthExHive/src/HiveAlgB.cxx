@@ -72,7 +72,7 @@ HiveAlgB::dump() {
   
   std::ostringstream ost;
   
-  m_di.for_all([this, &ost] (size_t s, const int i) 
+  m_di.for_all([&ost] (size_t s, const int i) 
   	       { ost << " s: " << s << " v: " << i  << std::endl; } );
 
   ATH_MSG_INFO("dumping m_di: \n" << ost.str());
