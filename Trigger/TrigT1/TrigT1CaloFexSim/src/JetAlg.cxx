@@ -4,6 +4,7 @@
 
 #include "TrigT1CaloFexSim/JetAlg.h"
 #include "TrigT1CaloFexSim/JGTower.h"
+#include "TrigT1CaloFexSim/Objects.h"
 // attempting to get ATH_MSG to work, but no joy
 // #include "AthenaBaseComps/AthAlgorithm.h"
 // #include "AthAnalysisBaseComps/AthAnalysisAlgorithm.h"
@@ -189,6 +190,66 @@ StatusCode JetAlg::SeedFinding(const xAOD::JGTowerContainer*towers, JetAlg::Seed
   return StatusCode::SUCCESS;
 }
 
+StatusCode JetAlg::BuildFatJet(const xAOD::JGTowerContainer towers, std::vector<JetAlg::L1Jet>& js, float jet_r, std::vector<float> noise){
+
+  std::vector<TowerObject::Block> blocks;
+
+  TowerObject::TowerGrid grid = TowerObject::TowerGrid(towers);
+
+  for(const xAOD::JGTower* seed: towers){
+    int seedIndex = std::find(towers.begin(), towers.end(), seed) - towers.begin();
+
+    std::vector<int> neighbors = grid.neighbors(*seed, 3, 3);
+    float seed_Et = seed->et();
+
+    double block_area(0.0);
+    double block_pt(seed_Et);
+    double neighbor_pt = 0;
+
+    for(const int& neighborIndex: neighbors){
+      const xAOD::JGTower* neighbor = towers.at(neighborIndex);
+      block_area += neighbor->deta()*neighbor->dphi();
+      neighbor_pt = neighbor->et();
+
+      block_pt += neighbor_pt;
+    }
+
+    TowerObject::Block block(block_pt, seed->eta(), seed->phi(), 0.0);
+    block.seedIndex(seedIndex);
+    block.numEta(3);
+    block.numPhi(3);
+    block.area(block_area);
+    block.numConstituents(neighbors.size());
+
+    blocks.push_back(block);
+  }
+  std::sort(blocks.rbegin(), blocks.rend());
+
+  float pt_cone_cut = 25*Gaudi::Units::GeV;
+
+  for(unsigned b = 0; b < blocks.size(); b++){
+    const xAOD::JGTower* seed = towers.at(blocks[b].seedIndex());
+    float block_phi = blocks[b].Phi();
+    float block_eta = blocks[b].Eta();
+    float pt_cone = blocks[b].Pt();
+    float seed_Et = seed->et();
+
+    float j_Et = 0;
+
+    if(pt_cone > pt_cone_cut){
+      for(unsigned int t = 0; t < towers.size(); t++){
+	const xAOD::JGTower* tower = towers.at(t);
+	if(fabs(tower->et()) < noise.at(t)) continue;
+	if(!inBox(block_eta, tower->eta(), jet_r, block_phi, tower->phi(), jet_r)) continue;
+	j_Et += tower->et();
+      }
+    }
+    if(j_Et < 10*Gaudi::Units::GeV) continue;
+    JetAlg::L1Jet j = JetAlg::L1Jet(block_eta, block_phi, j_Et);
+    js.push_back(j);
+  }
+  return StatusCode::SUCCESS;
+}
 
 StatusCode JetAlg::BuildJet(const xAOD::JGTowerContainer*towers,JetAlg::Seed*seeds, std::vector<JetAlg::L1Jet>& js, float jet_r, std::vector<float> noise, bool m_debug){
   for(unsigned eta_ind=0; eta_ind<seeds->eta.size(); eta_ind++){
