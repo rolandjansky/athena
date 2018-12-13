@@ -70,12 +70,13 @@ class TrigInDetFTKSequence(TrigInDetSequence):
       fullseq.append(algos)
       algos = list()
 
+    if "noFTFxAODCnv" not in sequenceFlavour:
+      algos += [("TrigFastTrackFinder",ftfname),
+                ("InDetTrigTrackingxAODCnv",cnvname),
+      ]
 
-    algos += [("TrigFastTrackFinder",ftfname),
-              ("InDetTrigTrackingxAODCnv",cnvname),
-              ]
-    fullseq.append(algos)
-
+    if len(algos):
+      fullseq.append(algos)
 
     if "PT" in sequenceFlavour:
       algos = list()
