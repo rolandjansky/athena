@@ -76,7 +76,7 @@ StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, st
       TrigCompositeUtils::insertDecisionIDs( decision, newDec );
 
       //      copyBaseLinks( decision, newDec);
-      ATH_MSG_DEBUG("New decision has "<< newDec->hasObjectLink(m_roisLink.value() ) <<" " <<m_roisLink.value() );     
+      ATH_MSG_DEBUG("Decision "<<input_counter<<" has "<< (TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( newDec,  m_roisLink.value())).isValid() <<" valid "<<m_roisLink.value() <<" and "<< TrigCompositeUtils::getLinkToPrevious(newDec).size() <<" previous decisions");     
       input_counter++;	
     } // loop over decisions
 

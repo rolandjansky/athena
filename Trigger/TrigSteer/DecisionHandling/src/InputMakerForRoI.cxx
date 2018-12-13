@@ -60,7 +60,8 @@ StatusCode  InputMakerForRoI::execute_r( const EventContext& context ) const {
       ElementLinkVector<DecisionContainer> inputLinks = getLinkToPrevious(outputDecision);
       for (auto input: inputLinks){
 	const Decision* inputDecision = *input;
-	auto roiEL = inputDecision->objectLink<TrigRoiDescriptorCollection>(m_roisLink.value() );  
+	auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( inputDecision, m_roisLink.value() );
+	auto roiEL = roiELInfo.link;
 	ATH_CHECK( roiEL.isValid() );
       
 	// avoid adding the same feature multiple times: check if not in container, if not add it

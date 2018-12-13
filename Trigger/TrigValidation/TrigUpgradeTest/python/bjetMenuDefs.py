@@ -202,14 +202,13 @@ def bJetStep2Sequence():
 
     # Event View Creator Algorithm
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithJets
-    InputMakerAlg = EventViewCreatorAlgorithmWithJets("BJetInputMaker_step2")
+    InputMakerAlg = EventViewCreatorAlgorithmWithJets("BJetInputMaker_step2", RoIsLink="initialRoI")
     InputMakerAlg.OutputLevel = DEBUG
     InputMakerAlg.ViewFallThrough = True # Access Store Gate for retrieving data
     InputMakerAlg.ViewPerRoI = True # If True it creates one view per RoI
     InputMakerAlg.Views = "BJetViews" # Name of output view
     # RoIs
     InputMakerAlg.InViewRoIs = "InViewRoIs" # Name RoIs are inserted in the view
-    InputMakerAlg.RoIsLink = "initialRoI" # RoIs linked to previous decision
     # Jets
     InputMakerAlg.InViewJets = "InViewJets" # Name Jets are inserted in the view
     InputMakerAlg.JetsLink = "jets" # Jets linked to previous decision
@@ -256,9 +255,8 @@ def bJetStep2SequenceALLTE():
 
     # input maker
     from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-    InputMakerAlg = InputMakerForRoI("BJetInputMaker_step2_ALLTE")
+    InputMakerAlg = InputMakerForRoI("BJetInputMaker_step2_ALLTE", RoIsLink="initialRoI")
     InputMakerAlg.OutputLevel = DEBUG
-    InputMakerAlg.LinkName="initialRoI"
     InputMakerAlg.RoIs="SplitJets"
     
     # gsc correction
