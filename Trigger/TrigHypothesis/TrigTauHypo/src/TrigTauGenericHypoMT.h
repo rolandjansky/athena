@@ -67,7 +67,6 @@ class TrigTauGenericHypoMT : public extends<AthAlgTool, ITrigTauGenericHypoTool>
 
   Gaudi::Property<bool>  m_decisionPerCluster{ this, "DecisionPerCluster", true, "Is multiplicity requirement refering to taus ( false ) or RoIs/clusters with taus ( false ), relevant only in when multiplicity > 1" };
 
-  Gaudi::Property<bool>  m_respectPreviousDecision{ this, "RespectPreviousDecision", false, "If false, ( do not even check ), the decision made for the cluster" };
   Gaudi::Property<bool>  m_acceptAll{ this, "AcceptAll", false, "Ignore selection" };
 
   ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Monitoring tool" };

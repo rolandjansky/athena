@@ -50,14 +50,6 @@ class TrigTauRecMergedMT: public AthAlgorithm {
 
  public:
 
-  typedef std::string                          tool_key;
-  typedef ITauToolBase                         tool_type;
-  typedef std::vector<tool_type*>              tool_store;
-  typedef tool_store::const_iterator           tool_iterator;
-  typedef std::map<tool_key,unsigned int>      tool_stats;
-  typedef tool_stats::const_iterator           tool_stats_iterator;
-  typedef std::string                          tool_containers;
-
   TrigTauRecMergedMT(const std::string& name, ISvcLocator* pSvcLocator);
   ~TrigTauRecMergedMT();
 

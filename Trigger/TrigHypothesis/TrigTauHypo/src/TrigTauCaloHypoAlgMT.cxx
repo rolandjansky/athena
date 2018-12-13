@@ -33,24 +33,6 @@ StatusCode TrigTauCaloHypoAlgMT::finalize() {
   return StatusCode::SUCCESS;
 }
 
-  /*
-OLD
-    ITC -> get 1 RoI/TC
-    loop over views
-       make one TC per view
-       get RoIs of view - from RoI input
-       get clusters of view -from View input
-       map the roi to a decision - from input decisions
-       create new decision with one cluster, one roi, one view
-
-NEW
-    loop over ITC
-       get RoI and view of TC
-       get cluster of that view
-       create new decision with one cluster, one roi, one view
-
-   */
-
 StatusCode TrigTauCaloHypoAlgMT::execute_r( const EventContext& context ) const {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
