@@ -10,7 +10,6 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKeyArray.h"
 
-//using namespace TrigCompositeUtils;
 
 class InputMakerBase : public ::AthReentrantAlgorithm {
   /**

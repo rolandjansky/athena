@@ -6,7 +6,8 @@
 #include "DecisionHandling/HLTIdentifier.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
-const std::vector<std::string> baseLinks = {"initialRoI", "roi", "view", "feature"};
+using namespace TrigCompositeUtils;
+
 
 InputMakerBase::InputMakerBase( const std::string& name, ISvcLocator* pSvcLocator )
   : ::AthReentrantAlgorithm( name, pSvcLocator ) {}
