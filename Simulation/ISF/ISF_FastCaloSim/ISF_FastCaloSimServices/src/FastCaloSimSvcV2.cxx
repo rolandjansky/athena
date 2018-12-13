@@ -215,8 +215,10 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
     ATH_MSG_VERBOSE("Found anti-proton/neutron, negative mass is used for TFCSTruthState "); 
   }
 
-  // TFCSTruthState truth(isfp.momentum().x(),isfp.momentum().y(),isfp.momentum().z(),sqrt(isfp.momentum().mag2()+pow(isfp.mass(),2)),isfp.pdgCode());
-  TFCSTruthState truth(particle_direction.perp(), particle_direction.eta(), particle_direction.phi(), isfp_mass, isfp.pdgCode()); 
+
+  TFCSTruthState truth;
+  truth.SetPtEtaPhiM(particle_direction.perp(), particle_direction.eta(), particle_direction.phi(), isfp_mass);
+  truth.set_pdgid(isfp.pdgCode());  
   truth.set_vertex(particle_position[Amg::x], particle_position[Amg::y], particle_position[Amg::z]);
 
   TFCSExtrapolationState extrapol;
