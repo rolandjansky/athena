@@ -186,14 +186,10 @@ namespace HLTTest {
 
     ATH_MSG_DEBUG( "and with "<< recoInput1->size() <<" reco1 inputs, and "<<recoInput2->size() <<" reco2 inputs");
     
-    auto decisions1 = std::make_unique<DecisionContainer>();
-    auto aux1 = std::make_unique<DecisionAuxContainer>();
-    decisions1->setStore( aux1.get() );
-    
-    auto decisions2 = std::make_unique<DecisionContainer>();
-    auto aux2 = std::make_unique<DecisionAuxContainer>();
-    decisions2->setStore( aux2.get() );
-
+    SG::WriteHandle<DecisionContainer> outputHandle1 = createAndStore(m_output1, context ); 
+    auto decisions1 = outputHandle1.ptr();
+    SG::WriteHandle<DecisionContainer> outputHandle2 = createAndStore(m_output1, context ); 
+    auto decisions2 = outputHandle2.ptr();
 
     // find RoIs from previous decisions
     std::vector<const FeatureOBJ*> featureFromDecision1;
@@ -230,7 +226,7 @@ namespace HLTTest {
        
        if (foundRoIInDecision){
 	 ATH_MSG_DEBUG("Found the same RoI on decision at pos "<<pos);
-	 auto d = newDecisionIn(decisions1.get());
+	 auto d = newDecisionIn(decisions1);
 	 d->setObjectLink( "feature", ElementLink<xAOD::TrigCompositeContainer>(m_recoInput1.key(), counter1) );// feature used by the Tool
 	 d->setObjectLink( "initialRoI", featurelink );// this is used by the InputMaker
 	 d->setObjectLink( "previousDecisions", ElementLink<DecisionContainer>(m_previousDecisions1.key(), pos) );// link to previous decision object
@@ -258,7 +254,7 @@ namespace HLTTest {
        
        if (foundRoIInDecision){
 	 ATH_MSG_DEBUG("Found the same RoI on decision at pos "<<pos);
-	 auto d = newDecisionIn(decisions2.get());
+	 auto d = newDecisionIn(decisions2);
 	 d->setObjectLink( "feature", ElementLink<xAOD::TrigCompositeContainer>(m_recoInput2.key(), counter2) );// feature used by the Tool
 	 d->setObjectLink( "initialRoI", featurelink );// this is used by the InputMaker
 	 d->setObjectLink( "previousDecisions", ElementLink<DecisionContainer>(m_previousDecisions2.key(), pos) );// link to previous decision object
@@ -275,7 +271,7 @@ namespace HLTTest {
     // for ( auto previousDecision: *previousDecisionsHandle1 ) {
     //   auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
     //   CHECK( roiEL.isValid() );
-    //   auto d = newDecisionIn( decisions1.get() );
+    //   auto d = newDecisionIn( decisions1 );
     //   if (counter1<input1->size())
     // 	d->setObjectLink( "feature", ElementLink<xAOD::TrigCompositeContainer>( m_recoInput1.key(),  counter1) );
     //   else
@@ -290,7 +286,7 @@ namespace HLTTest {
     // for ( auto previousDecision: *previousDecisionsHandle2 ) {
     //   auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
     //   CHECK( roiEL.isValid() );    
-    //   auto d = newDecisionIn( decisions2.get() );
+    //   auto d = newDecisionIn( decisions2 );
     //   //get the feature
     //   if (counter2<input2->size())
     // 	d->setObjectLink( "feature", ElementLink<xAOD::TrigCompositeContainer>( m_recoInput2.key(),  counter2) );
@@ -359,8 +355,8 @@ namespace HLTTest {
 	      for ( const HLT::Identifier& did: intersection2 ){
 		//	      auto did = HLT::Identifier( m_decisionLabel ).numeric();
 		ATH_MSG_DEBUG("Adding "<<did<<" to both candaites");
-		addDecisionID( did,  decisions1.get()->at(counter1) );
-		addDecisionID( did,  decisions2.get()->at(counter2) );
+		addDecisionID( did,  decisions1->at(counter1) );
+		addDecisionID( did,  decisions2->at(counter2) );
 	      }
 	    }
 	    
@@ -369,14 +365,6 @@ namespace HLTTest {
       }
     }
     
-    {
-      auto h = SG::makeHandle( m_output1 );
-      CHECK( h.record( std::move( decisions1 ) , std::move( aux1 ) ) );
-    }
-    {
-      auto h = SG::makeHandle( m_output2 );
-      CHECK( h.record( std::move( decisions2 ) , std::move( aux2 ) ) );
-    }
     //    ATH_MSG_DEBUG ( "Exit with "<<decisions1->size() <<" decision from input 1 and " <<decisions2->size()<<" form input 2");
     return StatusCode::SUCCESS;
   }

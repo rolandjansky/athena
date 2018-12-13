@@ -68,10 +68,9 @@ StatusCode ComboHypo::copyDecisions( const DecisionIDContainer& passing, const E
   ATH_MSG_DEBUG( "Copying "<<passing.size()<<" positive decisions to outputs");
   for ( size_t input_counter = 0; input_counter < m_inputs.size(); ++input_counter ) {
 
-    auto outDecisions = std::make_unique<DecisionContainer>();
-    auto outDecAux = std::make_unique<DecisionAuxContainer>();
-    outDecisions->setStore( outDecAux.get() );
-    
+    // new output decisions
+    SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(m_outputs[input_counter], context ); 
+    auto outDecisions = outputHandle.ptr();    
 
     auto inputHandle = SG::makeHandle( m_inputs[input_counter], context );
     if ( inputHandle.isValid() ) {
@@ -88,7 +87,7 @@ StatusCode ComboHypo::copyDecisions( const DecisionIDContainer& passing, const E
 	std::set_intersection( inputDecisionIDs.begin(), inputDecisionIDs.end(), passing.begin(), passing.end(),
 			       std::inserter( common, common.end() ) );
 	
-	Decision*  newDec = newDecisionIn( outDecisions.get() );
+	Decision*  newDec = newDecisionIn( outDecisions );
 	linkToPrevious( newDec, inputHandle.key(), i );      
 	for ( auto id: common ) {
 	  addDecisionID( id, newDec );
@@ -117,13 +116,11 @@ StatusCode ComboHypo::copyDecisions( const DecisionIDContainer& passing, const E
 	}
       }
     }
-    auto outHandle = SG::makeHandle( m_outputs[input_counter], context );
-    ATH_CHECK( outHandle.record( std::move( outDecisions ), std::move( outDecAux ) ) );
 
-    // debug:
+    // debug printout:
     if ( msgLvl(MSG::DEBUG)) {
-      ATH_MSG_DEBUG(outHandle.key() <<" with "<< outHandle->size() <<" decisions:");
-      for (auto outdecision:  *outHandle){
+      ATH_MSG_DEBUG(outputHandle.key() <<" with "<< outputHandle->size() <<" decisions:");
+      for (auto outdecision:  *outputHandle){
 	TrigCompositeUtils::DecisionIDContainer objDecisions;      
 	TrigCompositeUtils::decisionIDs( outdecision, objDecisions );    
 	ATH_MSG_DEBUG("Number of positive decisions for this output: " << objDecisions.size() );

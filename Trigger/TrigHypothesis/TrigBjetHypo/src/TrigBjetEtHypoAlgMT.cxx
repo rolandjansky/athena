@@ -97,9 +97,8 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
   // ========================================================================================================================== 
 
   // Decisions
-  std::unique_ptr< TrigCompositeUtils::DecisionContainer > outputDecision( new TrigCompositeUtils::DecisionContainer() );
-  std::unique_ptr< TrigCompositeUtils::DecisionAuxContainer > outputAuxDecision( new TrigCompositeUtils::DecisionAuxContainer() );
-  outputDecision->setStore( outputAuxDecision.get() );
+  SG::WriteHandle<TrigCompositeUtils::DecisionContainer> handle = TrigCompositeUtils::createAndStore( decisionOutput(), context ); 
+  auto outputDecisions = handle.ptr();
 
   // ==========================================================================================================================
   //    ** Compute Decisions
@@ -116,7 +115,7 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
     for ( unsigned int index(0); index<nDecisions; index++ ) {
       //      const std::string decisionName = name()+"_roi_"+std::to_string(index);
       //      ATH_MSG_DEBUG( "   ** " << decisionName );
-      newDecisions.push_back( TrigCompositeUtils::newDecisionIn( outputDecision.get() ) );//,decisionName ) );
+      newDecisions.push_back( TrigCompositeUtils::newDecisionIn( outputDecisions ) );//,decisionName ) );
     }
 
     bool pass = false;
@@ -140,18 +139,16 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
       ATH_MSG_DEBUG( "Linking Jets `" << m_jetLink.value() << "` to output decision." );
     }
     
-    for( unsigned int index(0); index<nDecisions; index++ )
-      TrigCompositeUtils::linkToPrevious( newDecisions.at(index),decisionInput().key(),counter );
+    for( unsigned int index(0); index<nDecisions; index++ ){
+      TrigCompositeUtils::linkToPrevious( newDecisions.at(index),decisionInput().key(),0 );
+    }
+
     counter++;
-  }
+    }
 
   // ==========================================================================================================================
   //    ** Store Output
   // ==========================================================================================================================
-
-  // Save Output Decisions
-  SG::WriteHandle< TrigCompositeUtils::DecisionContainer > handle =  SG::makeHandle( decisionOutput(), context );
-  CHECK( handle.record( std::move(outputDecision),std::move(outputAuxDecision) ) );
   ATH_MSG_DEBUG( "Exiting with " << handle->size() << " decisions" );
 
   return StatusCode::SUCCESS;
