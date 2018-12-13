@@ -254,7 +254,7 @@ def bJetStep2SequenceALLTE():
     InputMakerAlg = InputMakerForRoI("BJetInputMaker_step2_ALLTE")
     InputMakerAlg.OutputLevel = DEBUG
     InputMakerAlg.LinkName="initialRoI"
-    InputMakerAlg.RoIs="SplitJets"
+#    InputMakerAlg.RoIs="SplitJets" # TMP commenting
     
     # gsc correction
     from TrigBjetHypo.TrigGSCFexMTConfig import getGSCFexSplitInstance
