@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEID_EXCEPTION_H
@@ -34,7 +34,7 @@ public:
     /**
      * return error message  
      */
-    virtual std::string message() const { return m_message;}
+    std::string message() const { return m_message;}
 
     /**
      * set error code number 
@@ -56,14 +56,10 @@ public:
      *19 : no IDCompactor available ( null pointer ) 
      * 999 : undefined error
      */
-    virtual int code() const { return m_code;}
+    int code() const { return m_code;}
 
-    virtual operator std::string();
+    operator std::string();
 
-    /**
-     * destructor 
-     */
-    virtual ~TileID_Exception() {}
 
 private:
 
