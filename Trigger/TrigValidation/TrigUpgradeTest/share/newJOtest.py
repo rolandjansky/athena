@@ -3,7 +3,7 @@
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
 from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq
 from AthenaCommon.AlgSequence import dumpMasterSequence
 from AthenaCommon.AppMgr import theApp
@@ -14,7 +14,7 @@ from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior=1
 
 
-flags = ConfigFlags
+
 setupMenu(flags)
 
 
@@ -30,33 +30,9 @@ flags.lock()
 from AthenaCommon.Constants import INFO,DEBUG
 acc = ComponentAccumulator()
 
-# make sure we run the right scheduler
-# need to move elsewhere
-
-nThreads=1
-
-from StoreGate.StoreGateConf import SG__HiveMgrSvc
-eventDataSvc = SG__HiveMgrSvc("EventDataSvc")
-eventDataSvc.NSlots = nThreads
-eventDataSvc.OutputLevel = DEBUG
-acc.addService( eventDataSvc )
-
-from SGComps.SGCompsConf import SGInputLoader
-inputLoader = SGInputLoader(DetStore = 'StoreGateSvc/DetectorStore',
-                            EvtStore = 'StoreGateSvc',
-                            ExtraInputs = [],
-                            ExtraOutputs = [],
-                            FailIfNoProxy = False,
-                            Load = [],
-                            NeededResources = [])
-
-acc.addEventAlgo( inputLoader)
-
 from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
 acc.merge(TrigBSReadCfg(flags ))
 
-#from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-#acc.merge(GeoModelCfg(flags ))
 
 from TrigUpgradeTest.TriggerHistSvcConfig import TriggerHistSvcConfig
 acc.merge(TriggerHistSvcConfig(flags ))
@@ -66,22 +42,9 @@ from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT_newJO import generateMenu
 from TriggerJobOpts.TriggerConfig import triggerRunCfg
 acc.merge( triggerRunCfg( flags, generateMenu ) )
 
-
-
-from EventInfoMgt.EventInfoMgtConf import TagInfoMgr
-tagInfoMgr = TagInfoMgr()
-tagInfoMgr.ExtraTagValuePairs    = ['AtlasRelease', 'Athena-22.0.1'] # this has to come from somewhere else
-acc.addService( tagInfoMgr )
-
-acc.getService("EventPersistencySvc").CnvServices += [ tagInfoMgr.getName() ]
-acc.getService("ProxyProviderSvc").ProviderNames  += [ tagInfoMgr.getName() ]
-acc.getService("IOVDbSvc").Folders += ['/TagInfo<metaOnly/>']
-
-
-
-# setup algorithm sequences here, need few additional components
+# TODO take care of merging RegSel, and remove it from here
 from RegionSelector.RegSelConfig import RegSelConfig
-rsc, regSel = RegSelConfig( ConfigFlags )
+rsc, regSel = RegSelConfig( flags )
 regSel.enableCalo=True
 regSel.enableID=False
 regSel.enablePixel = False
