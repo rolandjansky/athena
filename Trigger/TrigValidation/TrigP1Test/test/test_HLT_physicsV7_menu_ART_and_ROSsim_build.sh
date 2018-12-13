@@ -2,7 +2,7 @@
 
 # art-description:  Run athenaHLT on all events to create trigger configuration, generates and uploads SMKs with rerunLVL1 physics menu, then run ROS simulation with prescale keys for 17000 and 9000. RB configured such that new chains are unprescaled. Only in 21.1! 
 # art-type: build
-# art-include: 21.1/AthenaP1
+# art-include: 21.3/Athena
 
 if [ -z ${TEST} ]; then
   export TEST="TrigP1Test"

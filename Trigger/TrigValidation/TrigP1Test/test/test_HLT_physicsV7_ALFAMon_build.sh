@@ -2,6 +2,7 @@
 
 # art-description: athenaHLT with ALFA monitoring enabled, with Physics_pp_v6 menu, on run 2 data with ALFA in (see ATR-12448) 
 # art-type: build
+# art-include: 21.3/Athena
 # art-include: 21.1/AthenaP1
 # art-include: 21.1-dev/AthenaP1
 # art-include: 21.0/AthenaP1
