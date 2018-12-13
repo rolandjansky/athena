@@ -28,7 +28,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigAnalysis/TrigAnalysisInterfaces)
 
 # External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( ROOT COMPONENTS Core Tree MathCore Hist Matrix RIO pthread)
+
 
 # Component(s) in the package:
 atlas_add_component( TrigT1CaloFexSim
