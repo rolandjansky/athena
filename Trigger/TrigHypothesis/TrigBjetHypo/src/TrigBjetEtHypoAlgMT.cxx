@@ -46,9 +46,7 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
   //    ** Retrieve Ingredients
   // ========================================================================================================================== 
 
-  // Taken from Jet code
   // Read in previous Decisions made before running this Hypo Alg.
-  // The container should have only one such Decision in case we are cutting on 'j' threshold (for L1)
   ATH_MSG_DEBUG( "Retrieving Previous Decision" );
   SG::ReadHandle< TrigCompositeUtils::DecisionContainer > prevDecisionHandle = SG::makeHandle( decisionInput(),context );
   CHECK( prevDecisionHandle.isValid() );
@@ -102,8 +100,28 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
   // Adding Links
   for ( unsigned int index(0); index<nDecisions; index++ ) {
     // We want multiple output decision (one per RoI/Jet)    
-    newDecisions.at( index )->setObjectLink( m_roiLink.value(),ElementLink< TrigRoiDescriptorCollection >( m_inputRoIKey.key(),index ) );
-    newDecisions.at( index )->setObjectLink( m_jetLink.value(),ElementLink< xAOD::JetContainer >( m_inputJetsKey.key(),index ) );
+
+    // A little bit tricky here, we may need to revise this in the future
+    // In case what we want to link lives inside a view we have to do a few additional things 
+    // in order to be able to link it to the output decision
+    if ( not m_readFromView ) { // TMP
+      newDecisions.at( index )->setObjectLink( m_roiLink.value(),ElementLink< TrigRoiDescriptorCollection >( m_inputRoIKey.key(),index ) );
+      newDecisions.at( index )->setObjectLink( m_jetLink.value(),ElementLink< xAOD::JetContainer >( m_inputJetsKey.key(),index ) );
+    } else {
+      // No need to link RoIs, they are already stored in the previous decisions
+      // I need to take the view from the previous decision, make the link, and then make the link in the output decision
+      auto viewEL = prevDecisionContainer->at(index)->objectLink< ViewContainer >( "view" );
+      ATH_CHECK( viewEL.isValid() );
+
+      auto calJetHandle = ViewHelper::makeHandle( *viewEL, m_inputJetsKey, context );
+      ATH_CHECK( calJetHandle.isValid() );
+
+      auto jetEL = ViewHelper::makeLink( *viewEL, calJetHandle, 0 );
+      ATH_CHECK( jetEL.isValid() );
+
+      newDecisions.at( index )->setObjectLink( m_jetLink.value(),jetEL);
+    }
+
   }
   ATH_MSG_DEBUG("   ** Added object links to output decision");
 
@@ -117,7 +135,6 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
     if ( m_readFromView ) TrigCompositeUtils::linkToPrevious( newDecisions.at( index ),decisionInput().key(),index );
     else TrigCompositeUtils::linkToPrevious( newDecisions.at( index ),decisionInput().key(),0 );
   }
-
   ATH_MSG_DEBUG("   ** Done with Linking Output Decision to Input Decision");
 
 
