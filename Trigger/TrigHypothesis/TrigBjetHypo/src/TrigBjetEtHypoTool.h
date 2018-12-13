@@ -50,15 +50,13 @@ class TrigBjetEtHypoTool : virtual public ::AthAlgTool {
     return m_id;
   }
 
-  StatusCode decide(  const xAOD::JetContainer*,bool& ) const;
+  StatusCode decide(  const xAOD::Jet*,bool& ) const;
 
  private:
   HLT::Identifier m_id;
 
   /** @brief DeclareProperty: if acceptAll flag is set to true, every event is taken. */ 
   Gaudi::Property< bool > m_acceptAll {this,"AcceptAll",false,"if acceptAll flag is set to true, every event is taken"};
-  /** @brief DeclareProperty: Multeplicity requirement. */
-  Gaudi::Property< int > m_multeplicity {this,"Multeplicity",1,"Multeplicity requirement"};
   /** @brief DeclareProperty: Et threshold cut. */
   Gaudi::Property< float > m_etThreshold {this,"EtThreshold",0.0,"Et threshold cut"};
 };

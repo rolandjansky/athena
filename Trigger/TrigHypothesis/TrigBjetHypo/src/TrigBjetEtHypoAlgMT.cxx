@@ -29,6 +29,9 @@ StatusCode TrigBjetEtHypoAlgMT::initialize()
   CHECK( m_inputJetsKey.initialize()       );
   CHECK( m_inputRoIKey.initialize()        );
 
+  if ( m_readFromView )
+    renounce( m_inputJetsKey );
+
   return StatusCode::SUCCESS;
 }
 
@@ -126,14 +129,15 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
     // independently of the stage (stage1 or stage2) of b-jet chains.
     // In case we are reading from Event Views, the jets are retrieved and merged together inside the
     // `retrieveJetsFromEventView` method. In this way I can require multeplicity requirements inside the 'decide method.'
-    bool pass = false;
-    CHECK( tool->decide( jetCollection,pass ) );
-    if ( pass ) {
-      for( unsigned int index(0); index<nDecisions; index++ )
-	TrigCompositeUtils::addDecisionID( decisionId,newDecisions.at(index) );
+
+    // Since we have one jet per decision, we run on nDecisions and compute the decide outcome
+    for( unsigned int index(0); index<nDecisions; index++ ) {
+      bool pass = false;
+      CHECK( tool->decide( jetCollection->at(index),pass ) );
+      if ( pass ) TrigCompositeUtils::addDecisionID( decisionId,newDecisions.at(index) );      
     }
   }
-
+  
   ATH_MSG_DEBUG( "Exiting with " << handle->size() << " decisions" );
 
   return StatusCode::SUCCESS;
