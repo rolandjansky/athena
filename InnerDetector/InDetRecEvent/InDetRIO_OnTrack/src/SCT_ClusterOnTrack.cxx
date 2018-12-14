@@ -96,7 +96,6 @@ InDet::SCT_ClusterOnTrack& InDet::SCT_ClusterOnTrack::operator=( const InDet::SC
     m_rio                 = rot.m_rio;
     m_detEl               = rot.m_detEl;
     m_positionAlongStrip  = rot.m_positionAlongStrip;
-    m_associatedSurface   = rot.m_associatedSurface;
   }
   return *this;
 }
