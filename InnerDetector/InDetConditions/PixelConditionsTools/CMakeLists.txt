@@ -9,7 +9,9 @@ atlas_subdir( PixelConditionsTools )
 set( extra_dep )
 set( extra_lib )
 if( NOT SIMULATIONBASE )
-  set( extra_dep InnerDetector/InDetConditions/InDetConditionsSummaryService InnerDetector/InDetDetDescr/PixelGeoModel InnerDetector/InDetConditions/InDetByteStreamErrors InnerDetector/InDetConditions/PixelConditionsServices )
+  # DO NOT ADD A DEPENDENCY ON PixelConditionsServices UNLESS YOU ALSO REMOVE
+  # THE DEPENDENCY OF PixelConditionsServices ON THIS PACKAGE!!!!
+  set( extra_dep InnerDetector/InDetConditions/InDetConditionsSummaryService InnerDetector/InDetDetDescr/PixelGeoModel InnerDetector/InDetConditions/InDetByteStreamErrors )
 set( extra_lib PixelGeoModelLib InDetByteStreamErrors )
 endif()
 

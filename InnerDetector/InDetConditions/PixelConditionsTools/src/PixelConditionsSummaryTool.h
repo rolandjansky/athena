@@ -11,7 +11,7 @@
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 
 #include "PixelConditionsTools/IPixelDCSConditionsTool.h"
-#include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
+#include "PixelConditionsTools/IPixelByteStreamErrorsSvc.h"
 
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
