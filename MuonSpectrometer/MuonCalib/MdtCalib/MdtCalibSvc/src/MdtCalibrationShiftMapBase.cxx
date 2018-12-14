@@ -61,7 +61,7 @@ StatusCode MdtCalibrationShiftMapBase::dumpMapAsFile() {
 
   /* write the map to a file */
   {
-    std::ofstream file(m_mapFileName.c_str(), std::ios::binary);
+    std::ofstream file(m_mapFileName.c_str(), std::ios::out | std::ios::trunc);
 
     /* see if opening the file was successful */
     if (!file.is_open()) {
@@ -72,12 +72,21 @@ StatusCode MdtCalibrationShiftMapBase::dumpMapAsFile() {
       return StatusCode::FAILURE;
     }
 
+    /* write header, comments can start with '#' or '//' */
+    file << "# This file contains shift values for MDT tubes\n";
+    file << "# Each Identifier is mapped to a float\n";
+    file << "# Below are comma separated values with formatting\n";
+    file << "# Identifier.get_compact(),float\n";
+    file << "# ------------------------------------------------\n";
+
     /* dump map contents */
     for (auto shift : m_shiftValues) {
-      file.write(reinterpret_cast<const char *>(&(shift.first)),
-                 sizeof(Identifier));
-      file.write(reinterpret_cast<const char *>(&(shift.second)),
-                 sizeof(float));
+      Identifier::value_type identifierCompact = shift.first.get_compact();
+      float shiftValue = shift.second;
+      file << identifierCompact;
+      file << ",";
+      file << shiftValue;
+      file << "\n";
     }
   }  // '}' flushes file
   return StatusCode::SUCCESS;
@@ -106,17 +115,50 @@ StatusCode MdtCalibrationShiftMapBase::loadMapFromFile() {
     return StatusCode::FAILURE;
   }
 
-  /* check if the map is already stored as a binary file */
-  std::ifstream fin(fileWithPath.c_str(), std::ios::binary);
-  Identifier id;
-  float shift;
-  while (fin.read(reinterpret_cast<char *>(&id), sizeof(Identifier)) &&
-         fin.read(reinterpret_cast<char *>(&shift), sizeof(float))) {
-    m_shiftValues[id] = shift;
+  /* check if the map is already stored */
+  std::ifstream fin(fileWithPath.c_str(), std::ios::in);
+  std::string line;
+  bool initializedWithWarnings = false;
+  // get all lines in file
+  while (std::getline(fin, line)) {
+    // check if file is empty, begins with '#', or '//'
+    if (line.empty() || line.compare(0, 1, "#") == 0 ||
+        line.compare(0, 2, "//")) {
+      continue;
+    }
+    // need a stringstream for readline
+    std::stringstream lineStream(line);
+    // get all csv tokens in line
+    std::string token;
+    std::vector<std::string> tokenVector;
+    while (std::getline(lineStream, token, ',')) {
+      tokenVector.push_back(token);
+    }
+    // expect exactly two tokens: identifier and value
+    if (tokenVector.size() == 2) {
+      // we are careful about the type here
+      // watch out for compiler warnings warning about casting ull to value_type
+      // they might occur of Identifier::value_type is changed at some point
+      Identifier::value_type identifierCompact = std::stoull(tokenVector[0]);
+      Identifier id(identifierCompact);
+      float shift = std::stof(tokenVector[1]);
+      m_shiftValues[id] = shift;
+    } else {
+      ATH_MSG_WARNING("Unexpected input format in shift map file "
+                      << fileWithPath.c_str());
+      ATH_MSG_WARNING("Expected 2 tokens, got " << tokenVector.size());
+      ATH_MSG_WARNING("Broken line: \"" << line.c_str() << "\"");
+      initializedWithWarnings = true;
+    }
   }
   m_mapIsInitialized = true;
-  ATH_MSG_INFO("Successfully initialized shift map from file \""
-               << fileWithPath.c_str() << "\"");
+  if (initializedWithWarnings) {
+    ATH_MSG_WARNING("Initialized shift map WITH WARNINGS from file \""
+                    << fileWithPath.c_str() << "\"");
+  } else {
+    ATH_MSG_INFO("Successfully initialized shift map from file \""
+                 << fileWithPath.c_str() << "\"");
+  }
   return StatusCode::SUCCESS;
 }
 
