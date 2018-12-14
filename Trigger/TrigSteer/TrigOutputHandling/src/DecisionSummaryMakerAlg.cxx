@@ -39,9 +39,9 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
   auto container = outputHandle.ptr();
 
 
-  TrigCompositeUtils::Decision* passRawOutput = TrigCompositeUtils::newDecisionIn( container.get(), "HLTPassRaw" );
-  TrigCompositeUtils::Decision* prescaledOutput = TrigCompositeUtils::newDecisionIn( container.get(), "HLTPrescaled" );
-  TrigCompositeUtils::Decision* rerunOutput = TrigCompositeUtils::newDecisionIn( container.get(), "HLTRerun" );
+  TrigCompositeUtils::Decision* passRawOutput = TrigCompositeUtils::newDecisionIn( container, "HLTPassRaw" );
+  TrigCompositeUtils::Decision* prescaledOutput = TrigCompositeUtils::newDecisionIn( container, "HLTPrescaled" );
+  TrigCompositeUtils::Decision* rerunOutput = TrigCompositeUtils::newDecisionIn( container, "HLTRerun" );
 
   // Collate final decisions into the passRawOutput object
   for ( auto& key: m_finalDecisionKeys ) {
