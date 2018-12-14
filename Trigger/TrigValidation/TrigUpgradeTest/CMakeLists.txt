@@ -176,6 +176,14 @@ atlas_add_test( bJetMenu
    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_bJetMenu
    )
 
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_bJetMenuALLTE )
+atlas_add_test( bJetMenuALLTE
+   SCRIPT test/test_bjet_menuALLTE.sh
+   PROPERTIES TIMEOUT 1000
+   EXTRA_PATTERNS "-s TrigSignatureMoniMT.*HLT_.*"
+   PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_bJetMenuALLTE
+   )
+
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met )
 atlas_add_test( met
