@@ -75,7 +75,11 @@ class JetQGTaggerBDT : public JSSTaggerBase {
     std::string m_tmvaConfigFileName;
     std::string m_tmvaConfigFilePath;
 
-    mutable float m_ScoreCut;
+    //string for cut function
+    std::string m_strScoreCut;
+
+    //TF1 for pT dependent cut
+    std::unique_ptr<TF1> m_funcScoreCut;
 
     // variables for TMVA
     mutable float m_pt;
