@@ -48,9 +48,10 @@ def bJetStep1Sequence():
 
     # input maker
     from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-    InputMakerAlg = InputMakerForRoI("JetInputMaker",OutputLevel=INFO)
-    InputMakerAlg.LinkName = "initialRoI"
+    InputMakerAlg = InputMakerForRoI("JetInputMaker", OutputLevel = DEBUG, RoIsLink="initialRoI")
     InputMakerAlg.RoIs='FSJETRoI'
+    InputMakerAlg.OutputLevel = DEBUG
+
 
     # Construct jets
     from TrigUpgradeTest.jetDefs import jetRecoSequence
@@ -122,8 +123,7 @@ def bJetStep1SequenceALLTE():
 
     # input maker
     from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-    InputMakerAlg = InputMakerForRoI("JetInputMaker",OutputLevel=INFO)
-    InputMakerAlg.LinkName="initialRoI"
+    InputMakerAlg = InputMakerForRoI("JetInputMaker",OutputLevel=INFO, RoIsLink="initialRoI")
     InputMakerAlg.RoIs='FSJETRoI'
 
     # Construct jets
@@ -198,7 +198,7 @@ def bJetStep2Sequence():
 
     # Event View Creator Algorithm
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithJets
-    InputMakerAlg = EventViewCreatorAlgorithmWithJets("BJetInputMaker_step2")
+    InputMakerAlg = EventViewCreatorAlgorithmWithJets("BJetInputMaker_step2", RoIsLink="initialRoI")
     InputMakerAlg.OutputLevel = DEBUG
     InputMakerAlg.ViewFallThrough = True # Access Store Gate for retrieving data
     InputMakerAlg.ViewPerRoI = True # If True it creates one view per RoI
@@ -251,9 +251,8 @@ def bJetStep2SequenceALLTE():
 
     # input maker
     from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-    InputMakerAlg = InputMakerForRoI("BJetInputMaker_step2_ALLTE")
+    InputMakerAlg = InputMakerForRoI("BJetInputMaker_step2_ALLTE", RoIsLink="initialRoI")
     InputMakerAlg.OutputLevel = DEBUG
-    InputMakerAlg.LinkName="initialRoI"
 #    InputMakerAlg.RoIs="SplitJets" # TMP commenting
     
     # gsc correction

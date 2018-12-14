@@ -6,6 +6,9 @@
 #include "DecisionHandling/HLTIdentifier.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
+using namespace TrigCompositeUtils;
+
+
 InputMakerBase::InputMakerBase( const std::string& name, ISvcLocator* pSvcLocator )
   : ::AthReentrantAlgorithm( name, pSvcLocator ) {}
 
@@ -21,6 +24,7 @@ const SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer>& InputMaker
 
 StatusCode InputMakerBase::sysInitialize() {
   CHECK( AthReentrantAlgorithm::sysInitialize() ); // initialise base class
+  ATH_MSG_DEBUG("mergeOutputs is "<<m_mergeOutputs);
   CHECK( m_inputs.initialize() );
   renounceArray(m_inputs); // make inputs implicit, i.e. not required by scheduler
   ATH_MSG_DEBUG("Will consume implicit decisions:" );
@@ -36,22 +40,14 @@ StatusCode InputMakerBase::sysInitialize() {
 }
 
 
+// For each input Decision in the input container, create an output Decision in the corresponding output container and link them.
 StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> > & outputHandles) const{
 
-  outputHandles = decisionOutputs().makeHandles(context);
+  if (!m_mergeOutputs)   ATH_MSG_DEBUG("Creating one output per input");
+  else                   ATH_MSG_DEBUG("Creating one merged output per RoI");
 
-  // check inputs
-  size_t validInput=0;
-  for ( auto inputKey: decisionInputs() ) {
-    auto inputHandle = SG::makeHandle( inputKey, context );
-    ATH_MSG_DEBUG(" "<<inputKey.key()<<(inputHandle.isValid()? " is valid": " is not valid" ) );
-    if (inputHandle.isValid()) validInput++;
-  }
-  ATH_MSG_DEBUG( "number of implicit ReadHandles is " << decisionInputs().size() <<", "<< validInput<<" are valid" );
-  
-  // Input is array of input decision containers
-  // Loop over them. For each input decision container, create an output decision container
-  // For each input Decision in the input container, create and output Decision in the corresponding output container and link them.
+  outputHandles = decisionOutputs().makeHandles(context);
+  //size_t tot_inputs = countInputHandles( context );
   size_t outputIndex = 0;
   for ( auto inputKey: decisionInputs() ) {
     auto inputHandle = SG::makeHandle( inputKey, context );
@@ -65,33 +61,61 @@ StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, st
       outputIndex++;
       continue;
     }
-    ATH_MSG_DEBUG( "Got input "<< inputKey.key()<<" with " << inputHandle->size() << " elements" );
+    ATH_MSG_DEBUG( "Running on input "<< inputKey.key()<<" with " << inputHandle->size() << " elements" );
+    
     // create the output container
     TrigCompositeUtils::createAndStore(outputHandles[outputIndex]);
     auto outDecisions = outputHandles[outputIndex].ptr();
 
-    // loop over input decisions retrieved from this input handle
+    //map all RoIs that are stored in this input container
+    std::vector <ElementLink<TrigRoiDescriptorCollection> > RoIsFromDecision;
+       
+    // loop over decisions retrieved from this input
     size_t input_counter =0;
-    for ( auto inpDecision : *inputHandle){
-      // create new decision for each input	
-      TrigCompositeUtils::Decision*  newDec = TrigCompositeUtils::newDecisionIn( outDecisions, inpDecision, "", context );
-      {
-        //copy decisions ID
-        TrigCompositeUtils::DecisionIDContainer objDecisions;      
-        TrigCompositeUtils::decisionIDs( inpDecision, objDecisions );
-        for ( const HLT::Identifier& id: objDecisions ){
-          TrigCompositeUtils::addDecisionID( id, newDec );
-        }
+    size_t output_counter =0;
+   
+    for ( auto decision : *inputHandle){
+      ATH_MSG_DEBUG( "Input Decision "<<input_counter <<" has " <<TrigCompositeUtils::getLinkToPrevious(decision).size()<<" previous links");
+      TrigCompositeUtils::Decision*  newDec;
+      bool addDecision=false;
+      int roi_counter=0;
+      if (m_mergeOutputs){
+	auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( decision,  m_roisLink.value());
+	CHECK( roiELInfo.isValid() );      
+	auto roiEL = roiELInfo.link;
+	auto roiIt=find(RoIsFromDecision.begin(), RoIsFromDecision.end(), roiEL);
+	addDecision = (roiIt == RoIsFromDecision.end());
+	if (addDecision) {
+	  RoIsFromDecision.push_back(roiEL); // just to keep track of which we have used
+	  const TrigRoiDescriptor* roi = *roiEL;
+	  ATH_MSG_DEBUG( "Found RoI:" <<*roi<<" FS="<<roi->isFullscan());
+	  roi_counter = roiIt-RoIsFromDecision.begin();
+	}
+      } else
+	addDecision=true;
+
+      if ( addDecision ){
+	newDec = TrigCompositeUtils::newDecisionIn( outDecisions );
+	output_counter++;
       }
+      else{
+	newDec = outDecisions[outputIndex][roi_counter];
+      }
+      
+      TrigCompositeUtils::linkToPrevious( newDec, inputKey.key(), input_counter );
+      TrigCompositeUtils::insertDecisionIDs( decision, newDec );     	
+      ATH_MSG_DEBUG("New decision has "<< (TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( newDec,  m_roisLink.value())).isValid() <<" valid "<<m_roisLink.value() <<" and "<< TrigCompositeUtils::getLinkToPrevious(newDec).size() <<" previous decisions");     
       input_counter++;	
     } // loop over input decisions
 
-    ATH_MSG_DEBUG( "Recorded output key " <<  decisionOutputs()[ outputIndex ].key() <<" of size "<<outDecisions->size()  <<" at index "<< outputIndex);
+    ATH_MSG_DEBUG( "Filled output key " <<  decisionOutputs()[ outputIndex ].key() <<" of size "<<outDecisions->size()  <<" at index "<< outputIndex);
     outputIndex++;	       
   } // end of first loop over input keys
 
   return StatusCode::SUCCESS;
 }
+
+
 
 StatusCode InputMakerBase::debugPrintOut(const EventContext& context, const std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> >& outputHandles) const{
   size_t validInput=0;
@@ -125,3 +149,20 @@ StatusCode InputMakerBase::debugPrintOut(const EventContext& context, const std:
   }
   return StatusCode::SUCCESS;
 }
+
+
+
+size_t InputMakerBase::countInputHandles( const EventContext& context ) const {
+  size_t validInputCount=0;
+  for ( auto &inputKey: decisionInputs() ) {
+    auto inputHandle = SG::makeHandle( inputKey, context );
+    ATH_MSG_DEBUG(" "<<inputKey.key()<<(inputHandle.isValid()? " is valid": " is not valid" ) );
+    if (inputHandle.isValid()) validInputCount++;
+  }
+  ATH_MSG_DEBUG( "number of implicit ReadHandles is " << decisionInputs().size() <<", "<< validInputCount<<" are valid" );
+  return validInputCount;
+}
+
+
+
+  

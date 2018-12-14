@@ -76,7 +76,9 @@ StatusCode TrigMufastHypoAlg::execute( const EventContext& context ) const
   size_t counter=0;
   for ( auto previousDecision: *previousDecisionsHandle ) {
     //get RoI
-    auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
+    auto roiInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, "initialRoI"  );
+    auto roiEL = roiInfo.link;
+    //    auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
     ATH_CHECK( roiEL.isValid() );
     const TrigRoiDescriptor* roi = *roiEL;
 

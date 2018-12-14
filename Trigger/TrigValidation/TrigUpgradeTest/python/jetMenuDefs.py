@@ -11,13 +11,14 @@ def jetSequence():
 
     #input maker
     from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-    InputMakerAlg = InputMakerForRoI("JetInputMaker", OutputLevel = DEBUG, LinkName="initialRoI")
+    InputMakerAlg = InputMakerForRoI("JetInputMaker", OutputLevel = DEBUG, RoIsLink="initialRoI")
     InputMakerAlg.RoIs='FSJETRoI'
     
     #reco sequence
     from TrigUpgradeTest.jetDefs import jetRecoSequence
     (recoSequence, sequenceOut) = jetRecoSequence(InputMakerAlg.RoIs)
 
+     
     #hypo
     from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoAlgMT
     from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromName

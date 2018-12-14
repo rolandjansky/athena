@@ -10,6 +10,7 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKeyArray.h"
 
+
 class InputMakerBase : public ::AthReentrantAlgorithm {
   /**
    * @class InputMakerBase
@@ -26,22 +27,45 @@ This is a base class for HLT InputMakers to reduce boilerplate and enforce the c
   /// execute to be implemented in derived clas
   virtual StatusCode execute(const EventContext&) const override = 0;
   virtual StatusCode finalize() override = 0;
-  virtual StatusCode initialize() override = 0;  
+  virtual StatusCode initialize() override = 0;
+  
  protected:
   /// methods for derived classes to access handles of the base class input and output decisions; other read/write handles may be implemented by derived classes
   const SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer>& decisionInputs() const;
+
   /// methods for derived classes to access handles of the base class input and output decisions; other read/write handles may be implemented by derived classes
   const SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer>& decisionOutputs() const;
-  // helper methods for derived classes to reduce boiler plate code
+
+  // name of link to the RoI
+  StringProperty m_roisLink { this, "RoIsLink", "initialRoI", "Name of EL to RoI object linked to the decision" };
+  
+  // helper methods for derived classes to reduce boiler plate code  //
+  /////////////////////////////////////////////////////////////////////
+  
   /// provides debug printout of the output of the algorithm
   StatusCode debugPrintOut(const EventContext& context, const std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> >& outputHandles) const;
-  /// does the standard handling of input decisions: read from handles with all the checks, create corresponding output handles and link them, return outputHandles
+
+   /// does the standard handling of input decisions: read from handles with all the checks, create corresponding output handles and link them, copies links and return outputHandles
   StatusCode decisionInputToOutput(const EventContext& context, std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> > & outputHandles) const;
+
+  /// does the standard handling of input decisions: read from handles with all the checks, create merged output handles and link them, copies links and return outputHandles
+  StatusCode decisionInputToMergedOutput(const EventContext& context, std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> > & outputHandles) const;
+
+  /// counts valid input decisions
+  size_t countInputHandles( const EventContext& context ) const;
+  
  private:
+  
   /// input decisions, will be implicit (renounced).
   SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_inputs { this, "InputMakerInputDecisions", {}, "Input Decisions (implicit)" };
+
   /// output decisions
   SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_outputs { this, "InputMakerOutputDecisions", {}, "Ouput Decisions" };
+
+  // setting strategy for output creation: merged means one decision per ROI
+  Gaudi::Property<bool>  m_mergeOutputs { this, "mergeOutputs", true, "true=outputs are merged, false=one output per input" };
+  
+  
 };
 
 

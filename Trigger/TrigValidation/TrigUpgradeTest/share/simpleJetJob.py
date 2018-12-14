@@ -55,7 +55,7 @@ if TriggerFlags.doCalo:
          
          #inputmaker
          from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-         InputMakerAlg = InputMakerForRoI("JetInputMaker", OutputLevel = DEBUG, LinkName="initialRoI")
+         InputMakerAlg = InputMakerForRoI("JetInputMaker", OutputLevel = DEBUG, RoIsLink="initialRoI")
          InputMakerAlg.RoIs='FSJETRoI'
          InputMakerAlg.InputMakerInputDecisions = filterL1RoIsAlg.Output 
          InputMakerAlg.InputMakerOutputDecisions = ["JETRoIDecisionsOutput"]

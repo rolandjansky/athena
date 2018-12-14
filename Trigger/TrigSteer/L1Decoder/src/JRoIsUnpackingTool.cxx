@@ -105,14 +105,9 @@ StatusCode JRoIsUnpackingTool::unpack( const EventContext& ctx,
 
     }     
   }
-  TrigCompositeUtils::DecisionIDContainer uniqueDecisions; // this is set
-  std::vector<int>& storedIDs = TrigCompositeUtils::decisionIDs( decision );
-  TrigCompositeUtils::decisionIDs( decision, uniqueDecisions ); // copy to set -> unique
-  storedIDs.clear();
-  storedIDs.insert( storedIDs.end(), uniqueDecisions.begin(), uniqueDecisions.end() );
-  //copy back
-  
 
+  TrigCompositeUtils::uniqueDecisionIDs( decision);
+ 
 
   if ( msgLvl(MSG::DEBUG) ) {
     for ( auto roi: *trigRoIs ) {

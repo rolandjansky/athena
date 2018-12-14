@@ -89,6 +89,21 @@ namespace TrigCompositeUtils {
     return readWriteAccessor( *d );
   }
 
+  void insertDecisionIDs( const Decision* src, Decision* dest ){
+    DecisionIDContainer ids;
+    decisionIDs( src, ids );
+    decisionIDs( dest, ids );
+    decisionIDs( dest ).clear(); 
+    decisionIDs( dest ).insert( decisionIDs(dest).end(), ids.begin(), ids.end() );
+  }
+
+  void uniqueDecisionIDs( Decision* dest){
+    DecisionIDContainer ids;
+    decisionIDs( dest, ids );
+    decisionIDs( dest ).clear(); 
+    decisionIDs( dest ).insert( decisionIDs(dest).end(), ids.begin(), ids.end() );
+  }
+
   bool allFailed( const Decision* d ) {
     const std::vector<int>& decisions = readOnlyAccessor( *d );    
     return decisions.empty();
@@ -107,15 +122,30 @@ namespace TrigCompositeUtils {
   }
 
   void linkToPrevious( Decision* d, const std::string& previousCollectionKey, size_t previousIndex ) {
-    d->setObjectLink( "seed", ElementLink<DecisionContainer>( previousCollectionKey, previousIndex ) );
+    ElementLinkVector<DecisionContainer> seeds;
+    ElementLink<DecisionContainer> new_seed= ElementLink<DecisionContainer>( previousCollectionKey, previousIndex );
+    // do we need this link to self link?
+    if ( (*new_seed)->hasObjectLink("self" ) )
+      seeds.push_back( (*new_seed)->objectLink<DecisionContainer>("self")); // make use of self-link 
+    else
+      seeds.push_back(ElementLink<DecisionContainer>( previousCollectionKey, previousIndex ));
+    
+    if (hasLinkToPrevious(d) ){
+      ElementLinkVector<DecisionContainer> oldseeds = d->objectCollectionLinks<DecisionContainer>( "seed" );
+      seeds.reserve( seeds.size() + oldseeds.size() );
+      std::move( oldseeds.begin(), oldseeds.end(), std::back_inserter( seeds ) );
+    }
+
+    d->addObjectCollectionLinks("seed", seeds);
+    
   }
 
   bool hasLinkToPrevious( const Decision* d ) {
     return d->hasObjectLink( "seed" );
   }
 
-  ElementLink<DecisionContainer> linkToPrevious( const Decision* d ) {
-    return d->objectLink<DecisionContainer>( "seed" );
+  ElementLinkVector <DecisionContainer> getLinkToPrevious( const Decision* d ) {
+    return d->objectCollectionLinks<DecisionContainer>( "seed" );
   }
 
 
@@ -123,7 +153,8 @@ namespace TrigCompositeUtils {
     return dest->copyAllLinksFrom(src);
   }
 
-
+ 
+  
   const xAOD::TrigComposite* find( const xAOD::TrigComposite* start, const std::function<bool( const xAOD::TrigComposite* )>& filter ) {
     if ( filter( start ) ) return start;
 

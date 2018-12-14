@@ -87,6 +87,20 @@ Decision* newDecisionIn( DecisionContainer* dc, const Decision* dOld, const std:
    **/
   void addDecisionID( DecisionID id,  Decision* d);
 
+ /**
+   * @brief Appends the decision IDs of src to the dest decision object
+   * @warning Performing merging of IDs and solving the duples (via set)
+   * This helps when making copies of Decision obejcts
+   **/
+  void insertDecisionIDs( const Decision* src, Decision* dest );
+
+ /**
+   * @brief Make unique list of decision IDs of dest Decision object
+   * @warning Use vector->set->vector
+   * This helps solving multiple inserts of the Decision obejcts
+   **/
+  void uniqueDecisionIDs( Decision* dest);
+
       
   /**
    * @brief Extracts DecisionIDs stored in the Decision object 
@@ -133,7 +147,7 @@ Decision* newDecisionIn( DecisionContainer* dc, const Decision* dOld, const std:
   /**
    * @brief returns link to previous decision object
    **/
-  ElementLink<DecisionContainer> linkToPrevious(const Decision*);
+  ElementLinkVector<DecisionContainer> getLinkToPrevious(const Decision*);
 
   /**
    * @brief copy all links from src to dest TC objects
@@ -141,8 +155,8 @@ Decision* newDecisionIn( DecisionContainer* dc, const Decision* dOld, const std:
    * @ret true if success
    **/
   bool copyLinks(const Decision* src, Decision* dest);
-  
- /**
+
+  /**
    * @brief traverses TC links for another TC fufilling the prerequisite specified by the filter
    * @return matching TC or nullptr
    **/
@@ -196,8 +210,8 @@ Decision* newDecisionIn( DecisionContainer* dc, const Decision* dOld, const std:
   };
 
   /**
-   * @brief search back the TC links for the object of type T linked to the one of TC
-   * @arg start the TC where from where the link back is to be looked for
+   * @brief search back the TC links for the object of type T linked to the one of TC (recursively)
+   * @arg start the TC  from where the link back is to be looked for
    * @arg linkName the name with which the Link was added to the source TC
    * @return pair of link and TC with which it was associated, 
    */
@@ -205,8 +219,21 @@ Decision* newDecisionIn( DecisionContainer* dc, const Decision* dOld, const std:
   LinkInfo<T>
   findLink(const xAOD::TrigComposite* start, const std::string& linkName) {
     auto source = find(start, HasObject(linkName) );
-    if ( not source )
+    //
+    if ( not source ){
+      auto seeds = getLinkToPrevious(start);
+      // std::cout<<"Looking for seeds: found " <<seeds.size()<<std::endl;
+      for (auto seed: seeds){
+	const xAOD::TrigComposite* dec = *seed;//deference
+	LinkInfo<T> link= findLink<T>( dec, linkName );
+	// return the first found
+	if (link.isValid()) return link;
+      }
       return LinkInfo<T>(); // invalid link
+    }
+
+    //std::cout<<"Found source for "<<linkName<<std::endl;
+
     return LinkInfo<T>( source, source->objectLink<T>( linkName ) );
   }
 

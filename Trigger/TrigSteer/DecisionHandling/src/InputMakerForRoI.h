@@ -30,14 +30,9 @@
   private: 
      InputMakerForRoI();
  
-    // Use this to customise the example for a different input feature
-    typedef TrigRoiDescriptor FeatureOBJ;
-    typedef TrigRoiDescriptorCollection FeatureContainer;
-
     SG::WriteHandleKey<TrigRoiDescriptorCollection> m_RoIs {this,"RoIs", "Unspecified", "Nam eof the RoIs extracted from the decisions"};
-
-    StringProperty m_linkName   {this, "LinkName", "initialRoI",  "name of the link to the features in the decision, e.g. 'feature', 'initialRoI'"};
-
+    // want to try also const?
+    //SG::WriteHandleKey< ConstDataVector<TrigRoiDescriptorCollection> > m_RoIs{ this, "RoIs", "Unspecified", "Name of the RoIs extracted from the decisions" };
 
   }; 
 

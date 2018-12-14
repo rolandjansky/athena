@@ -52,9 +52,8 @@ namespace HLTTest {
     // find features:
     std::vector<const FeatureOBJ*> featureFromDecision;
     for ( auto previousDecision: *previousDecisionsHandle ) {
-      TrigCompositeUtils::LinkInfo<FeatureContainer> linkInfo = TrigCompositeUtils::findLink<FeatureContainer>(previousDecision, m_linkName.value());
-      ElementLink<FeatureContainer> featureLink = linkInfo.link;
-      //auto featureLink = (previousDecision)->objectLink<FeatureContainer>( m_linkName.value() );
+      auto linkInfo = TrigCompositeUtils::findLink<FeatureContainer>(previousDecision, m_linkName.value());
+      auto featureLink = linkInfo.link;
       CHECK( featureLink.isValid() );
       const FeatureOBJ* feature = *featureLink;
       featureFromDecision.push_back( feature);
@@ -64,9 +63,12 @@ namespace HLTTest {
     //map reco object and decision: find in reco obejct the initial RoI and map it to the correct decision
     size_t reco_counter = 0;
     for (auto recoobj: *recoInput){
-      auto roiEL = recoobj->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
+      auto roiInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( recoobj, "initialRoI"  );
+      auto roiEL = roiInfo.link;
       CHECK( roiEL.isValid() );
-      auto featurelink = (recoobj)->objectLink<FeatureContainer>( m_linkName.value() );
+      
+      auto featureInfo = TrigCompositeUtils::findLink<FeatureContainer>( recoobj, m_linkName.value()  );
+      auto featurelink = featureInfo.link;
       CHECK( featurelink.isValid() );
       if ( not featurelink.isValid() )  {
 	ATH_MSG_ERROR( " Can not find reference to " + m_linkName.value() + " from the decision" );
@@ -87,7 +89,6 @@ namespace HLTTest {
 	 auto d = newDecisionIn(decisions);
 	 d->setObjectLink( "feature", ElementLink<xAOD::TrigCompositeContainer>(m_recoInput.key(), reco_counter) );// feature used by the Tool
 	 d->setObjectLink( m_linkName.value(), featurelink );
-	 d->setObjectLink( "initialRoI", roiEL );
 	 linkToPrevious( d, decisionInput().key(), pos );
        }
        else{

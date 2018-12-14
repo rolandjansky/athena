@@ -73,7 +73,9 @@ StatusCode TrigMuonEFTrackIsolationHypoAlg::execute( const EventContext& context
   size_t counter = 0;
   for ( auto previousDecision: *previousDecisionsHandle ) {
     // get RoIs
-    auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>("roi");
+    auto roiInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, "initialRoI"  );
+    auto roiEL = roiInfo.link;
+    //    auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>("roi");
     ATH_CHECK( roiEL.isValid() );
     const TrigRoiDescriptor *roi = *roiEL;
 

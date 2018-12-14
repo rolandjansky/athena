@@ -77,7 +77,9 @@ StatusCode TrigMuonEFMSonlyHypoAlg::execute( const EventContext& context ) const
   // loop over previous decisions
   for ( auto previousDecision: *previousDecisionsHandle ) {
      // get RoIs
-    auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
+    auto roiInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, "initialRoI"  );
+    auto roiEL = roiInfo.link;
+    //auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
     ATH_CHECK( roiEL.isValid() );
     const TrigRoiDescriptor* roi = *roiEL;
 

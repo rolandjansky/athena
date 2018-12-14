@@ -87,28 +87,17 @@ StatusCode ComboHypo::copyDecisions( const DecisionIDContainer& passing, const E
 	std::set_intersection( inputDecisionIDs.begin(), inputDecisionIDs.end(), passing.begin(), passing.end(),
 			       std::inserter( common, common.end() ) );
 	
+
 	Decision*  newDec = newDecisionIn( outDecisions );
-	linkToPrevious( newDec, inputHandle.key(), i );      
+	linkToPrevious( newDec, inputHandle.key(), i );
+	ATH_MSG_DEBUG("New decision has "<< (TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( newDec, "initialRoI")).isValid()
+		      <<" valid initialRoI and "<< TrigCompositeUtils::getLinkToPrevious(newDec).size() <<" previous decisions");   
+
 	for ( auto id: common ) {
 	  addDecisionID( id, newDec );
 	}
-	// add RoI: at least one RoI link must exist
-	if ( inputDecision->hasObjectLink("roi" ) ){
-	  auto roiEL = inputDecision->objectLink<TrigRoiDescriptorCollection>( "roi" );
-	  CHECK( roiEL.isValid() );
-	  newDec->setObjectLink( "roi", roiEL );
-	}
-	else if ( inputDecision->hasObjectLink("initialRoI" ) ){
-	  auto roiEL = inputDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
-	  CHECK( roiEL.isValid() );
-	  newDec->setObjectLink( "initialRoI", roiEL );
-	}
-	else {
-	  ATH_MSG_ERROR( "Input decision " << i <<" from "<<inputHandle.key() <<" does not link any RoI");
-	  return StatusCode::FAILURE;
-	}
 	
-	// add View
+	// add View?
 	if ( inputDecision->hasObjectLink( "view" ) ) {
 	   auto viewEL = inputDecision->objectLink< ViewContainer >( "view" );
 	   CHECK( viewEL.isValid() );
