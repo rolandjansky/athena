@@ -60,7 +60,7 @@ namespace Muon {
 
     /** add new MuonCandidate */
     virtual bool addMuonCandidate( const xAOD::TrackParticle& indetTrackParticle, const MuonCandidate* candidate, 
-                                   const Trk::Track* combinedTrack, int ntimes, float beta, float chi2ndof, int stage ) = 0;
+                                   Trk::Track* combinedTrack, int ntimes, float beta, float chi2ndof, int stage ) = 0;
 
     /** add StauHits to ntuple */
     virtual bool addTimeMeasurements( const xAOD::TrackParticle& indetTrackParticle, const MuGirlNS::StauHits& stauHits ) = 0;

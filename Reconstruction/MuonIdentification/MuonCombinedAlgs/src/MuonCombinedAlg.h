@@ -14,6 +14,7 @@
 #include "MuonCombinedEvent/MuonCandidate.h"
 #include "MuonCombinedEvent/InDetCandidateToTagMap.h"
 #include "MuonCombinedToolInterfaces/IMuonCombinedTool.h"
+#include "TrkTrack/TrackCollection.h"
 #include <string>
 #include <vector>
 
@@ -39,6 +40,8 @@ class MuonCombinedAlg : public AthAlgorithm
   SG::ReadHandleKey<InDetCandidateCollection> m_indetCandidateCollectionName{this,"InDetCandidateLocation","InDetCandidates","name of ID candidate collection"};
   SG::ReadHandleKey<MuonCandidateCollection> m_muonCandidateCollectionName{this,"MuonCandidateLocation","MuonCandidates","name of muon candidate collection"};
   SG::WriteHandleKeyArray<MuonCombined::InDetCandidateToTagMap> m_combTagMaps{this,"CombinedTagMaps",{"muidcoTagMap","stacoTagMap"},"combined muon tag maps"};
+  SG::WriteHandleKey<TrackCollection> m_muidCombinedTracks{this,"MuidCombinedTracksLocation","MuidCombinedTracks","Muidco combined Tracks"};
+  SG::WriteHandleKey<TrackCollection> m_muidMETracks{this,"MuidMETracksLocation","MuidMETracks","Muidco ME Tracks"};
 
 };
 

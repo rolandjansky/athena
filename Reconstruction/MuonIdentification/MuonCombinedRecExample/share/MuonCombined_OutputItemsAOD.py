@@ -24,6 +24,8 @@ if DetFlags.detdescr.Muon_on():
    MuonCombinedAODList+=[ "xAOD::MuonContainer#Muons" ]
    MuonCombinedAODList+=[ "xAOD::MuonAuxContainer#MuonsAux." ]
    MuonCombinedAODList+=["MuonCaloEnergyContainer#MuonCaloEnergyCollection"]
+   MuonCombinedAODList+=["xAOD::MuonSegmentContainer#"+MuonCbKeys.MuGirlxAODSegments()]
+   MuonCombinedAODList+=["xAOD::MuonSegmentAuxContainer#"+MuonCbKeys.MuGirlxAODSegments()+"Aux."]
 
    ### stau
    MuonCombinedAODList+=[ "xAOD::TrackParticleContainer#CombinedStauTrackParticles"]

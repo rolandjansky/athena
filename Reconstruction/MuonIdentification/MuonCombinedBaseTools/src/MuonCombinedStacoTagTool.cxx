@@ -55,7 +55,10 @@ namespace MuonCombined {
     return StatusCode::SUCCESS;
   }
 
-  void MuonCombinedStacoTagTool::combine( const MuonCandidate& muonCandidate, const std::vector<const InDetCandidate*>& indetCandidates, InDetCandidateToTagMap& tagMap ) const {  
+  void MuonCombinedStacoTagTool::combine( const MuonCandidate& muonCandidate, const std::vector<const InDetCandidate*>& indetCandidates, InDetCandidateToTagMap& tagMap,
+					  TrackCollection* combTracks, TrackCollection* METracks) const {  
+
+    if(!combTracks || !METracks) ATH_MSG_WARNING("No TrackCollection passed");
 
     // only combine if the back extrapolation was successfull
     if( !muonCandidate.extrapolatedTrack() ||

@@ -12,6 +12,12 @@ if DetFlags.detdescr.Muon_on():
     # ========================Muons===============================================
     MuonCombinedESDList+=["TrackCollection#"+MuonCbKeys.ExtrapolatedMSTracks()]
     MuonCombinedESDList+=["TrackCollection#"+MuonCbKeys.CombinedFitTracks()]
+    MuonCombinedESDList+=["TrackCollection#"+MuonCbKeys.ExtrapolatedMSOnlyTracks()]
+    MuonCombinedESDList+=["TrackCollection#"+MuonCbKeys.MuGirlCombinedFitTracks()]
+    MuonCombinedESDList+=["TrackCollection#"+MuonCbKeys.MuGirlExtrapolatedTracks()]
+    MuonCombinedESDList+=["TrackCollection#"+MuonCbKeys.MuGirlStauCombinedFitTracks()]
+    MuonCombinedESDList+=["Trk::SegmentCollection#"+MuonCbKeys.MuGirlSegments()]
+    MuonCombinedESDList+=["Trk::SegmentCollection#"+MuonCbKeys.MuGirlStauSegments()]
 
   # Calo
   MuonCombinedESDList+=["MuonCaloEnergyContainer#MuonCaloEnergyCollection"]

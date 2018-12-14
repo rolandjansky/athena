@@ -48,16 +48,34 @@ class SpectrometerTracks(JobProperty): # clarify with MS if to be replaced by jo
     StoredValue  = 'MuonSpectrometerTracks'
 
 class ExtrapolatedMSTracks(JobProperty):
-    """StoreGate key for tracks from MS standalone tracking expressed at IP and eventually refined using IP constraint"""
+    """StoreGate key for tracks from MS standalone tracking expressed at IP and eventually refined using IP constraint from MuidCo"""
     statusOn     = True
     allowedTypes = ['str']
-    StoredValue  = 'ExtrapolatedMuonTracks'
+    StoredValue  = 'MuidMETracks'
 
 class CombinedFitTracks(JobProperty):
-    """StoreGate key for tracks from ID+Calo+MS combined fit"""
+    """StoreGate key for tracks from MuidCo combined fit"""
     statusOn     = True
     allowedTypes = ['str']
-    StoredValue  = 'CombinedMuonTracks'
+    StoredValue  = 'MuidCombinedTracks'
+
+class MuGirlCombinedFitTracks(JobProperty):
+    """StoreGate key for tracks from MuGirl combined fit"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'MuGirlCombinedTracks'
+
+class MuGirlExtrapolatedTracks(JobProperty):
+    """StoreGate key for ME tracks from MuGirl combined fit"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'MuGirlMETracks'
+
+class MuGirlStauCombinedFitTracks(JobProperty):
+    """StoreGate key for tracks from MuGirl combined fit"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'MuGirlStauCombinedTracks'
 
 class RefittedExtrapolatedMSTracks(JobProperty):
     """StoreGate key for tracks with refitted extrapolation using the MS part of the combined track"""
@@ -90,6 +108,12 @@ class ExtrapolatedMSOnlyParticles(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'MSOnlyExtrapolatedMuonTrackParticles'
 
+class ExtrapolatedMSOnlyTracks(JobProperty):
+    """StoreGate key for trackparticles from MS standalone tracking, expressed at IP"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'MSOnlyExtrapolatedMuonTracks'
+
 class CombinedFitParticles(JobProperty):
     """StoreGate key for trackparticles from combined muon track fit """
     statusOn     = True
@@ -107,6 +131,24 @@ class StatCombinedParticles(JobProperty):
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'StatCombinedMuonParticles'
+
+class MuGirlSegments(JobProperty):
+    """StoreGate key for segments created by MuGirl"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'MuGirlSegments'
+
+class MuGirlStauSegments(JobProperty):
+    """StoreGate key for segments created by MuGirlStau"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'MuGirlStauSegments'
+
+class MuGirlxAODSegments(JobProperty):
+    """StoreGate key for xAOD::MuonSegments created by MuGirl and MuGirlStau"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'MuGirlMuonSegments'
 
 
 ## classes for internal helper objects
@@ -254,6 +296,13 @@ jobproperties.MuonCombinedContainerKeys.add_JobProperty(SegmentTagTrackParticles
 jobproperties.MuonCombinedContainerKeys.add_JobProperty(SegmentTagMuons)
 jobproperties.MuonCombinedContainerKeys.add_JobProperty(SegmentTagMuonSegments)
 jobproperties.MuonCombinedContainerKeys.add_JobProperty(InternalMuTagTracksContainer)
+jobproperties.MuonCombinedContainerKeys.add_JobProperty(ExtrapolatedMSOnlyTracks)
+jobproperties.MuonCombinedContainerKeys.add_JobProperty(MuGirlCombinedFitTracks)
+jobproperties.MuonCombinedContainerKeys.add_JobProperty(MuGirlExtrapolatedTracks)
+jobproperties.MuonCombinedContainerKeys.add_JobProperty(MuGirlStauCombinedFitTracks)
+jobproperties.MuonCombinedContainerKeys.add_JobProperty(MuGirlSegments)
+jobproperties.MuonCombinedContainerKeys.add_JobProperty(MuGirlStauSegments)
+jobproperties.MuonCombinedContainerKeys.add_JobProperty(MuGirlxAODSegments)
 
 ##-----------------------------------------------------------------------------
 ## 5th step

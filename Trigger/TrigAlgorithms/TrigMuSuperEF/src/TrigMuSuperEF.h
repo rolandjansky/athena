@@ -31,6 +31,7 @@
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
 #include "MuonCombinedEvent/InDetCandidateToTagMap.h"
+#include "TrkSegment/SegmentCollection.h"
 
 #include "InternalCache.h"
 
@@ -128,13 +129,11 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
   HLT::ErrorCode buildMuons(const MuonCandidateCollection* muonCandidates,
 			    InDetCandidateCollection* inDetCandidates,
 			    xAOD::TrackParticleContainer* combinedTrackParticles,
-			    TrackCollection* extrapolatedTracks,
 			    xAOD::TrackParticleContainer* extrapolatedTrackParticles);
   
   // attach all the different output collections to the TE
   HLT::ErrorCode attachOutput(HLT::TriggerElement* TEout,
 			      xAOD::TrackParticleContainer* combinedTrackParticles,
-			      const TrackCollection* extrapolatedTracks,
 			      xAOD::TrackParticleContainer* extrapolatedTrackParticles, std::unique_ptr<xAOD::MuonContainer> muonContainerOwn);
 
   HLT::ErrorCode attachMuonSegmentCombinationCollection(HLT::TriggerElement* TEout);
@@ -153,11 +152,11 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
   bool buildL2InDetCandidates(const ElementLinkVector<xAOD::TrackParticleContainer>&, InDetCandidateCollection*, const xAOD::L2CombinedMuonContainer*);
   void runMuGirl(const ElementLinkVector<xAOD::TrackParticleContainer>&, InDetCandidateCollection*);
 
-  bool retrieveFromCache(std::map<std::vector<std::vector<IdentifierHash> >, InternalCache*>::iterator itmap, MuonCandidateCollection* muonCandidates, xAOD::TrackParticleContainer* combTrackParticleCont, xAOD::TrackParticleContainer* saTrackParticleCont, TrackCollection* extrapolatedTracks );
+  bool retrieveFromCache(std::map<std::vector<std::vector<IdentifierHash> >, InternalCache*>::iterator itmap, MuonCandidateCollection* muonCandidates, xAOD::TrackParticleContainer* combTrackParticleCont, xAOD::TrackParticleContainer* saTrackParticleCont);
 
-  void retrieveTrackContainersFromCache(InternalCache* cache, xAOD::TrackParticleContainer* combTrackParticleCont, xAOD::TrackParticleContainer* saTrackParticleCont, TrackCollection* extrapolatedTracks );
+  void retrieveTrackContainersFromCache(InternalCache* cache, xAOD::TrackParticleContainer* combTrackParticleCont, xAOD::TrackParticleContainer* saTrackParticleCont);
 
-  HLT::ErrorCode rebuildCache(const IRoiDescriptor*, HLT::TriggerElement*, MuonCandidateCollection* muonCandidates, InDetCandidateCollection* inDetCandidates, xAOD::TrackParticleContainer* combTrackParticleCont, xAOD::TrackParticleContainer* saTrackParticleCont, TrackCollection* extrapolatedTracks, std::unique_ptr<xAOD::MuonContainer>& muonContainerOwn, const ElementLinkVector<xAOD::TrackParticleContainer>& elv_idtrks );
+  HLT::ErrorCode rebuildCache(const IRoiDescriptor*, HLT::TriggerElement*, MuonCandidateCollection* muonCandidates, InDetCandidateCollection* inDetCandidates, xAOD::TrackParticleContainer* combTrackParticleCont, xAOD::TrackParticleContainer* saTrackParticleCont, std::unique_ptr<xAOD::MuonContainer>& muonContainerOwn, const ElementLinkVector<xAOD::TrackParticleContainer>& elv_idtrks );
 
   HLT::ErrorCode runOutsideInOnly(const IRoiDescriptor*, HLT::TriggerElement*, MuonCandidateCollection* muonCandidates, InDetCandidateCollection* inDetCandidates, std::unique_ptr<xAOD::MuonContainer>& muonContainerOwn, const ElementLinkVector<xAOD::TrackParticleContainer>& elv_idtrks);
   void printCounterStats( const PassCounters& counter, const std::string& source, int precision = 3 ) const;
@@ -198,8 +197,17 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
   // Output combined TrackCollection
   TrackCollection* m_combTrkTrackColl;
 
+  //Output extrapolated TrackCollection
+  TrackCollection* m_extrTrkTrackColl;
+
   /// holder for containers that we create and may need to be deleted at end of event
   std::vector< TrackCollection* > m_tracksCache;
+
+  //collection for segments created by MuGirl and MuonStau
+  Trk::SegmentCollection* m_muGirlTrkSegColl;
+
+  // holder for segment containers that may need to be deleted
+  std::vector<Trk::SegmentCollection*> m_segsCache;
 
   //Trigger pass/fail counts
   PassCounters m_counter_TrigMuonEF;

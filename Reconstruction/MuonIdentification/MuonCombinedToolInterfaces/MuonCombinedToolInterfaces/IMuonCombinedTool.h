@@ -12,6 +12,7 @@
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
 #include "MuonCombinedEvent/InDetCandidateToTagMap.h"
+#include "TrkTrack/TrackCollection.h"
 #include <vector>
 
 namespace MuonCombined {
@@ -30,7 +31,8 @@ namespace MuonCombined {
 
 
     /**IMuonCombinedTool interface: build combined muons from ID and MS candidates */    
-    virtual void combine( const MuonCandidateCollection& muonCandidates,  const InDetCandidateCollection& inDetCandidates, std::vector<InDetCandidateToTagMap*> tagMaps ) const = 0;
+    virtual void combine( const MuonCandidateCollection& muonCandidates,  const InDetCandidateCollection& inDetCandidates, std::vector<InDetCandidateToTagMap*> tagMaps,
+			  TrackCollection* combTracks, TrackCollection* METracks) const = 0;
 
   };
 

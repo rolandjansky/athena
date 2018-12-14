@@ -8,15 +8,14 @@
 
 namespace MuonCombined {
 
-  MuGirlTag::MuGirlTag( const Trk::Track* combinedTrack, const std::vector<const Muon::MuonSegment*>& segments ) :
-    TagBase(TagBase::Author::MuGirl,TagBase::Type::Combined), m_combinedTrack(combinedTrack),m_segments(segments) {}
+  MuGirlTag::MuGirlTag( ElementLink<TrackCollection> comblink, const std::vector<ElementLink<Trk::SegmentCollection> >& segments ) :
+    TagBase(TagBase::Author::MuGirl,TagBase::Type::Combined), m_combLink(comblink), m_meLink(ElementLink<TrackCollection>()), m_segments(segments) {}
 
-  MuGirlTag::MuGirlTag( const std::vector<const Muon::MuonSegment*>& segments ) :
-    TagBase(TagBase::Author::MuGirl,TagBase::Type::SegmentTagged), m_combinedTrack(0),m_segments(segments) {}
+  MuGirlTag::MuGirlTag( const std::vector<ElementLink<Trk::SegmentCollection> >& segments ) :
+    TagBase(TagBase::Author::MuGirl,TagBase::Type::SegmentTagged), m_combLink(ElementLink<TrackCollection>()),m_meLink(ElementLink<TrackCollection>()),m_segments(segments) {}
 
   MuGirlTag::~MuGirlTag() {
-    delete m_combinedTrack;
-    for( auto x : m_segments ) delete x;
+    m_segments.clear();
   }
 
 }

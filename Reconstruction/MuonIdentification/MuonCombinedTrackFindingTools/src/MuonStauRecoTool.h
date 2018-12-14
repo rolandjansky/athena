@@ -126,7 +126,7 @@ namespace MuonCombined {
       
       // information filled by the final tracking: MuonCandidate and the track
       std::unique_ptr<const Muon::MuonCandidate> muonCandidate;
-      std::unique_ptr<const Trk::Track>          combinedTrack;
+      std::unique_ptr<Trk::Track>                combinedTrack;
       MuGirlNS::StauHits                         stauHits;
       Muon::TimePointBetaFit::FitResult          finalBetaFitResult;
 
@@ -152,15 +152,15 @@ namespace MuonCombined {
     virtual StatusCode finalize() override;
 
     /**IMuonCombinedInDetExtensionTool interface: extend ID candidate */   
-    virtual void extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap ) override;
+    virtual void extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks, TrackCollection* meTracks,
+			 Trk::SegmentCollection* segments) override;
 
-    virtual void extendWithPRDs(const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, 
-				const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs, const Muon::RpcPrepDataContainer* rpcPRDs, 
-				const Muon::TgcPrepDataContainer* tgcPRDs, const Muon::sTgcPrepDataContainer* sTGCPRDs, const Muon::MMPrepDataContainer* mmPRDs) override;
+    virtual void extendWithPRDs(const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, IMuonCombinedInDetExtensionTool::MuonPrdData prdData,
+				TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments ) override;
 
   private:
     /** handle a single candidate */
-    void handleCandidate( const InDetCandidate& inDetCandidate, InDetCandidateToTagMap* tagMap );
+    void handleCandidate( const InDetCandidate& inDetCandidate, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks, Trk::SegmentCollection* segments );
 
     /** associate Hough maxima to intersection */
     void associateHoughMaxima( LayerData& layerData );
@@ -208,7 +208,7 @@ namespace MuonCombined {
     bool resolveAmbiguities( CandidateVec& candidates );
     
     /** create final tag object and add it to the inDetCandidate */
-    void addTag( const InDetCandidate& inDetCandidate, Candidate& candidate, InDetCandidateToTagMap* tagMap ) const;
+    void addTag( const InDetCandidate& inDetCandidate, Candidate& candidate, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks, Trk::SegmentCollection* segments ) const;
     
     /** extract time measurements from the track associated with the candidate */
     void extractTimeMeasurementsFromTrack( Candidate& candidate  );

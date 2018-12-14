@@ -153,21 +153,24 @@ namespace MuonCombined {
     return StatusCode::SUCCESS;
   }
 
-  void MuonStauRecoTool::extendWithPRDs( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap,
-					 const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs, const Muon::RpcPrepDataContainer* rpcPRDs,
-					 const Muon::TgcPrepDataContainer *tgcPRDs, const Muon::sTgcPrepDataContainer* stgcPRDs, const Muon::MMPrepDataContainer* mmPRDs ) {
+  void MuonStauRecoTool::extendWithPRDs( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, IMuonCombinedInDetExtensionTool::MuonPrdData prdData,
+					 TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) {
     //Maybe we'll need this later, I wouldn't be surprised if the PRDs are retrieved somewhere down the chain
     //For now it's just a placeholder though
-    if(mdtPRDs && cscPRDs && rpcPRDs && tgcPRDs && stgcPRDs && mmPRDs) extend(inDetCandidates, tagMap);
+    if(!prdData.mdtPrds) ATH_MSG_DEBUG("empty PRDs passed");
+    extend(inDetCandidates, tagMap, combTracks, meTracks, segments);
   }
 
-  void MuonStauRecoTool::extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap ) {
+  void MuonStauRecoTool::extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks, TrackCollection* meTracks,
+				 Trk::SegmentCollection* segments) {
     ATH_MSG_DEBUG(" extending " << inDetCandidates.size() );
+
+    if(meTracks) ATH_MSG_DEBUG("Not currently creating ME tracks for staus");
 
     InDetCandidateCollection::const_iterator it = inDetCandidates.begin();
     InDetCandidateCollection::const_iterator it_end = inDetCandidates.end();
     for( ; it!=it_end;++it ){
-      handleCandidate( **it, tagMap );
+      handleCandidate( **it, tagMap, combTracks, segments );
     }
   }
   
@@ -184,7 +187,7 @@ namespace MuonCombined {
   }
 
 
-  void MuonStauRecoTool::handleCandidate( const InDetCandidate& indetCandidate, InDetCandidateToTagMap* tagMap ) {
+  void MuonStauRecoTool::handleCandidate( const InDetCandidate& indetCandidate, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks, Trk::SegmentCollection* segments ) {
     
     if( m_ignoreSiAssocated && indetCandidate.isSiliconAssociated() ) {
       ATH_MSG_DEBUG(" skip silicon associated track for extension ");
@@ -299,7 +302,7 @@ namespace MuonCombined {
     /** STAGE 6
         create tag
     */
-    addTag( indetCandidate, *candidates.front(), tagMap );
+    addTag( indetCandidate, *candidates.front(), tagMap, combTracks, segments );
 
   }
   
@@ -396,7 +399,7 @@ namespace MuonCombined {
   
   void MuonStauRecoTool::extractTimeMeasurementsFromTrack( MuonStauRecoTool::Candidate& candidate ) {
     
-    const Trk::Track* combinedTrack = candidate.combinedTrack.get();
+    Trk::Track* combinedTrack = candidate.combinedTrack.get();
     if( !combinedTrack ) return;
     
     // select around seed
@@ -805,19 +808,23 @@ namespace MuonCombined {
     candidate.finalBetaFitResult = betaFitResult;
   }
     
-  void MuonStauRecoTool::addTag( const InDetCandidate& indetCandidate, MuonStauRecoTool::Candidate& candidate, InDetCandidateToTagMap* tagMap ) const {
+  void MuonStauRecoTool::addTag( const InDetCandidate& indetCandidate, MuonStauRecoTool::Candidate& candidate, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks,
+				 Trk::SegmentCollection* segments) const {
     
     // get combined track and the segments
-    const Trk::Track* combinedTrack = candidate.combinedTrack.release();
-    std::vector<const Muon::MuonSegment*> segments;
+    combTracks->push_back(candidate.combinedTrack.release());
+    ElementLink<TrackCollection> comblink( *combTracks,combTracks->size()-1);
+    std::vector<ElementLink<Trk::SegmentCollection> > segmentLinks;
     for( const auto& layer : candidate.allLayers ) {
       for( const auto& segment : layer.segments ){
-        segments.push_back(segment->clone());
+        segments->push_back(segment->clone());
+	ElementLink<Trk::SegmentCollection> segLink(*segments,segments->size()-1);
+	segmentLinks.push_back(segLink);
       }
     }
     
     // create tag 
-    MuonCombined::MuGirlLowBetaTag* tag = new MuonCombined::MuGirlLowBetaTag(combinedTrack,segments);
+    MuonCombined::MuGirlLowBetaTag* tag = new MuonCombined::MuGirlLowBetaTag(comblink,segmentLinks);
 
     // add additional info
     tag->setMuBeta(candidate.betaFitResult.beta);
@@ -848,10 +855,10 @@ namespace MuonCombined {
     if( m_doSummary || msgLvl(MSG::DEBUG) ) {
       msg(MSG::INFO) << " Summary::addTag ";
       msg(MSG::INFO) << std::endl << "  candidate: beta fit result: beta " <<  candidate.betaFitResult.beta << " chi2/ndof " << candidate.betaFitResult.chi2PerDOF()
-                     << "  segments" << segments.size();
-      for( const auto& segment :  segments ) msg(MSG::INFO) << std::endl << "     " << m_printer->print(*segment);
-      if( combinedTrack ) msg(MSG::INFO) << std::endl << "   track " << m_printer->print(*combinedTrack) 
-                                         << std::endl << m_printer->printStations(*combinedTrack);
+                     << "  segments" << segmentLinks.size();
+      for( const auto& segment :  segmentLinks ) msg(MSG::INFO) << std::endl << "     " << m_printer->print(**segment);
+      if( *comblink ) msg(MSG::INFO) << std::endl << "   track " << m_printer->print(**comblink) 
+                                         << std::endl << m_printer->printStations(**comblink);
       msg(MSG::INFO) << endmsg;
     }
 
@@ -867,11 +874,11 @@ namespace MuonCombined {
     
     // push tracks into a collection and run ambi-solver
     TrackCollection tracks(SG::VIEW_ELEMENTS);
-    std::map<const Trk::Track*, std::shared_ptr<Candidate> > trackCandidateLookup;
+    std::map<Trk::Track*, std::shared_ptr<Candidate> > trackCandidateLookup;
     for( const auto& candidate : candidates ){
-      const Trk::Track* track = candidate->combinedTrack.get();
+      Trk::Track* track = candidate->combinedTrack.get();
       if( track ){
-        tracks.push_back(const_cast<Trk::Track*>(track));
+        tracks.push_back(track);
         trackCandidateLookup[track] = candidate;
       }
     }
@@ -881,8 +888,8 @@ namespace MuonCombined {
     if( tracks.size() == 1 ) return true;
 
     // more than 1 track call ambiguity solver and select first track
-    std::unique_ptr<const TrackCollection> resolvedTracks(m_trackAmbibuityResolver->process(&tracks));
-    const Trk::Track* selectedTrack = resolvedTracks->front();
+    TrackCollection* resolvedTracks=m_trackAmbibuityResolver->process(&tracks);
+    Trk::Track* selectedTrack = resolvedTracks->front();
 
     // get candidate
     auto pos = trackCandidateLookup.find(selectedTrack);
@@ -925,14 +932,14 @@ namespace MuonCombined {
       ATH_MSG_DEBUG("   candidate: beta " << beta << " associated layers with segments " << candidate->allLayers.size() );
 
       // find best matching track
-      std::pair<std::unique_ptr<const Muon::MuonCandidate>,std::unique_ptr<const Trk::Track> > result = 
+      std::pair<std::unique_ptr<const Muon::MuonCandidate>,Trk::Track*> result = 
         m_insideOutRecoTool->findBestCandidate( indetTrackParticle, candidate->allLayers);
       
       if( result.first && result.second ){
         ATH_MSG_DEBUG("   combined track found " << std::endl << m_printer->print(*result.second) << std::endl << m_printer->printStations(*result.second) );
         // add segments and track pointer to the candidate
         candidate->muonCandidate = std::unique_ptr<const Muon::MuonCandidate>(result.first.release());
-        candidate->combinedTrack = std::unique_ptr<const Trk::Track>(result.second.release());
+        candidate->combinedTrack.reset(result.second);
         
         // extract times form track
         extractTimeMeasurementsFromTrack(*candidate);
@@ -947,7 +954,7 @@ namespace MuonCombined {
     // remove all candidates that were not combined
     candidates = combinedCandidates;
 
-    // print results afer createCandidate
+    // print results afer combineCandidate
     if( m_doSummary || msgLvl(MSG::DEBUG) ) {
       msg(MSG::INFO) << " Summary::combineCandidates ";
       if( candidates.empty() ) msg(MSG::INFO) << " No candidated found ";
@@ -1021,7 +1028,10 @@ namespace MuonCombined {
         ATH_MSG_DEBUG(" New candidate: time measurements " << newCandidate->hits.size() << " status " << newCandidate->betaFitResult.status 
                       << " beta " << newCandidate->betaFitResult.beta << " chi2/ndof " << newCandidate->betaFitResult.chi2PerDOF() );
         // if the fit was successfull add the candidate to the candidate vector
-        if( newCandidate->betaFitResult.status != 0 ) candidates.push_back(newCandidate);
+        if( newCandidate->betaFitResult.status != 0 ){
+	  newCandidate->combinedTrack=nullptr; //no track exists at this stage
+	  candidates.push_back(newCandidate);
+	}
       }
     }
 
@@ -1530,6 +1540,7 @@ namespace MuonCombined {
   void MuonStauRecoTool::addCandidatesToNtuple( const xAOD::TrackParticle& indetTrackParticle, const MuonStauRecoTool::CandidateVec& candidates, int stage ) {
     if( m_recoValidationTool.empty() ) return;
 
+    ATH_MSG_DEBUG("add candidates to ntuple, stage "<<stage);
     for( const auto& candidate : candidates ){
       int ntimes = 0; 
       float beta = -1.;
@@ -1547,6 +1558,7 @@ namespace MuonCombined {
         beta     = candidate->betaSeed.beta;
         chi2ndof = 0;
       }
+      if(candidate->combinedTrack) ATH_MSG_DEBUG("candidate has combined track");
       m_recoValidationTool->addMuonCandidate( indetTrackParticle, candidate->muonCandidate.get(), candidate->combinedTrack.get(), 
                                               ntimes, beta, chi2ndof, stage );
     }

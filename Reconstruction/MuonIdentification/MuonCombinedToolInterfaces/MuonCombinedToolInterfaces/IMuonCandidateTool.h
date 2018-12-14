@@ -11,6 +11,7 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "TrkTrack/TrackCollection.h"
 
 namespace MuonCombined {
 
@@ -28,7 +29,7 @@ namespace MuonCombined {
 
 
     /**IMuonCandidateTool interface: build a MuonCandidateCollection from a TrackCollection of spectrometer tracks */
-    virtual void create( const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection ) = 0;
+    virtual void create( const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection, TrackCollection& outputTracks ) = 0;
 
   };
 

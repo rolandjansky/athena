@@ -51,7 +51,7 @@ namespace Muon {
     return StatusCode::SUCCESS;
   }
 
-  const Trk::Track* MuonCandidateTrackBuilderTool::buildCombinedTrack( const Trk::Track& idTrack, const MuonCandidate& candidate ) const {
+  Trk::Track* MuonCandidateTrackBuilderTool::buildCombinedTrack( const Trk::Track& idTrack, const MuonCandidate& candidate ) const {
 
   
     ATH_MSG_DEBUG("Building track from candidate with " << candidate.layerIntersections.size() << " layers ");

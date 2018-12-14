@@ -19,19 +19,21 @@ if rec.doTruth() and muonCombinedRecFlags.doxAOD() and rec.doMuonCombined():
     from TrkTruthAlgs.TrkTruthAlgsConf import TrackTruthSelector
 
     colsTP = [ "ExtrapolatedMuonTrackParticles", "CombinedMuonTrackParticles", "MSOnlyExtrapolatedMuonTrackParticles" ]
-    cols = [ "ExtrapolatedMuonTracks", "CombinedMuonTracks", "MSOnlyExtrapolatedMuonTracks" ]
+    fcols = [ "ExtrapolatedMuonTracks", "CombinedMuonTracks", "MSOnlyExtrapolatedMuonTracks" ]
+    cols = ["MuidMETracks","MuidCombinedTracks","MSOnlyExtrapolatedMuonTracks","MuGirlCombinedTracks","MuGirlMETracks","MuGirlStauCombinedTracks"]
     topSequence+= MuonDetailedTrackTruthMaker("MuonCombinedDetailedTrackTruthMaker")
     topSequence.MuonCombinedDetailedTrackTruthMaker.TrackCollectionNames = cols 
+    topSequence.MuonCombinedDetailedTrackTruthMaker.DetailedTrackTruthNames = fcols
     if muonRecFlags.doNSWNewThirdChain():
         topSequence.MuonCombinedDetailedTrackTruthMaker.doNSW=True
         
     from TrkTruthAlgs.TrkTruthAlgsConf import TrackParticleTruthAlg
-    for i in range(0, len(cols)):
+    for i in range(0, len(fcols)):
         topSequence += TrackTruthSelector(name= cols[i] + "Selector",
-                                          DetailedTrackTruthName   = cols[i] + "DetailedTruth",
-                                          OutputName               = cols[i] + "Truth" )
-        topSequence += TrackParticleTruthAlg(name = cols[i]+"TruthAlg",
-                                             TrackTruthName=cols[i]+"Truth",
+                                          DetailedTrackTruthName   = fcols[i] + "DetailedTruth",
+                                          OutputName               = fcols[i] + "Truth" )
+        topSequence += TrackParticleTruthAlg(name = fcols[i]+"TruthAlg",
+                                             TrackTruthName=fcols[i]+"Truth",
                                              TrackParticleName = colsTP[i] )
 
     from MuonTruthAlgs.MuonTruthAlgsConf import MuonTruthAssociationAlg

@@ -32,7 +32,8 @@ namespace MuonCombined {
     StatusCode initialize();
     StatusCode finalize();
 
-    void combine(const MuonCandidateCollection& muonCandidates,const InDetCandidateCollection& inDetCandidates, std::vector<InDetCandidateToTagMap*> tagMaps) const;
+    void combine(const MuonCandidateCollection& muonCandidates,const InDetCandidateCollection& inDetCandidates, std::vector<InDetCandidateToTagMap*> tagMaps, 
+		 TrackCollection* combinedTracks, TrackCollection* METracks) const;
 
   private:
 

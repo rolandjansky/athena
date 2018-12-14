@@ -74,7 +74,7 @@ namespace Muon {
     StatusCode finalize();
 
     /**IMuonCandidateTrackBuilderTool interface: buildCombinedTrack */   
-    const Trk::Track* buildCombinedTrack( const Trk::Track& idTrack, const MuonCandidate& candidate ) const;
+    Trk::Track* buildCombinedTrack( const Trk::Track& idTrack, const MuonCandidate& candidate ) const;
 
   private:
 

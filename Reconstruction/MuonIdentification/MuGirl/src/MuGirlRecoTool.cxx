@@ -474,7 +474,7 @@ bool MuGirlRecoTool::RunFromID(MuGirlNS::CandidateSummaryList& summaryList) {
 
             std::vector<const Muon::MuonSegment*> stauSegmentList = *m_pStauTool->newMdtSegments();
             m_pSegmentManager->setInStore(stauSegmentList, true);
-
+	    /*
             std::unique_ptr<MuonCombined::MuGirlLowBetaTag> lowbetatag{new MuonCombined::MuGirlLowBetaTag(stauRefittedTrack,
                                                                                             stauSegmentList)};
 
@@ -483,7 +483,7 @@ bool MuGirlRecoTool::RunFromID(MuGirlNS::CandidateSummaryList& summaryList) {
             lowbetatag->setMuBeta(Beta);
             lowbetatag->setStauSummary(stauSummary.release());
             lowbetatag->setStauExtras(stauExtras.release());
-
+	    */
             //pParticle->pInDetCandidate->addTag(*lowbetatag);
           } else {
             ATH_MSG_DEBUG("stauRefittedTrack is NULL");
@@ -509,10 +509,11 @@ bool MuGirlRecoTool::RunFromID(MuGirlNS::CandidateSummaryList& summaryList) {
           ATH_MSG_DEBUG("RunFromID: doRH == true");
           std::unique_ptr<MuGirlNS::RHExtras> rhExtras(new MuGirlNS::RHExtras);
           if (m_pStauTool->fillRHExtras(rhExtras.get()).isFailure()) ATH_MSG_DEBUG("RunFromID: Cannot fill rhExtras");
-          if (rhExtras->numCaloCells > 0) {
+          if (rhExtras->numCaloCells > 0) {/*
             std::unique_ptr<MuonCombined::MuGirlLowBetaTag> lowbetatag
               {new MuonCombined::MuGirlLowBetaTag(pTrackParticle->track(), std::vector<const Muon::MuonSegment*>())};
             lowbetatag->setRHExtras(rhExtras.release());
+					   */
             //pParticle->pInDetCandidate->addTag(*lowbetatag);
           }
           ATH_MSG_DEBUG("RunFromID: doRH == true - done");
@@ -527,7 +528,7 @@ bool MuGirlRecoTool::RunFromID(MuGirlNS::CandidateSummaryList& summaryList) {
       //Generate the MuGirlTag according to the new running schema: MuGirlTag will delete the segments
       //Otherwise put the list of MuGirl Segments into Storegate: Storegate will delete the segments
 
-
+      /*
       ATH_MSG_DEBUG("RunFromID: delivering the muon pTrkRefitted track to the MuGirl tag");
       std::vector<const Muon::MuonSegment*> muonSegmentList = summary->muonSegmentList;
       std::unique_ptr<MuonCombined::MuGirlTag> tag{};
@@ -536,9 +537,10 @@ bool MuGirlRecoTool::RunFromID(MuGirlNS::CandidateSummaryList& summaryList) {
         tag.reset(new MuonCombined::MuGirlTag(muonSegmentList));
       } else tag.reset(new MuonCombined::MuGirlTag(summary->pTrkRefitted, muonSegmentList));
       tag->setUpdatedExtrapolatedTrack(std::move(summary->pTrkMSRefitted));
+      */
       //pParticle->pInDetCandidate->addTag(*tag);
       //set the segment into SegmentManager undeletable
-      m_pSegmentManager->setInStore(muonSegmentList, true);
+      //m_pSegmentManager->setInStore(muonSegmentList, true);
       summary->saveStau = 0;
       //m_pCandidate->releaseMuonSegments(false);   //the segments released from Candidate ownership
       //summaryList.push_back(summary.release());
@@ -547,14 +549,15 @@ bool MuGirlRecoTool::RunFromID(MuGirlNS::CandidateSummaryList& summaryList) {
 
       //  m_pCandidate->releaseMuonSegments(true);
       //Generate the MuGirlTag according to the new running schema: MuGirlTag will delete the segments
-
+      /*
       ATH_MSG_DEBUG("RunFromID: delivering the pTrkLowBeta to the MuGirl tag");
       std::vector<const Muon::MuonSegment*> muonSegmentList = summary->muonSegmentList;
       MuonCombined::MuGirlTag* tag = new MuonCombined::MuGirlTag(summary->pTrkLowBeta, muonSegmentList);
       tag->setUpdatedExtrapolatedTrack(nullptr);
+      */
       //pParticle->pInDetCandidate->addTag(*tag);
       //set the segment into SegmentManager undeletable
-      m_pSegmentManager->setInStore(muonSegmentList, true);
+      //m_pSegmentManager->setInStore(muonSegmentList, true);
     }
 
     if (m_doNTuple) {

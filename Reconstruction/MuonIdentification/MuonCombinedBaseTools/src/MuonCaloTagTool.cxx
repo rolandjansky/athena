@@ -128,15 +128,17 @@ namespace MuonCombined {
   
   }
 
-  void MuonCaloTagTool::extendWithPRDs( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap,
-					const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs, const Muon::RpcPrepDataContainer* rpcPRDs, 
-					const Muon::TgcPrepDataContainer *tgcPRDs, const Muon::sTgcPrepDataContainer* stgcPRDs, const Muon::MMPrepDataContainer* mmPRDs ) {
+  void MuonCaloTagTool::extendWithPRDs( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, IMuonCombinedInDetExtensionTool::MuonPrdData prdData,
+					TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) {
     //shouldn't need this interface for this tool, I don't think
-    if(!mdtPRDs || !cscPRDs || !rpcPRDs || !tgcPRDs || !stgcPRDs || !mmPRDs) ATH_MSG_DEBUG("calo-tagging doesn't need PRDs");
-    extend(inDetCandidates, tagMap);
+    if(!prdData.mdtPrds) ATH_MSG_DEBUG("calo-tagging doesn't need PRDs");
+    extend(inDetCandidates, tagMap, combTracks, meTracks, segments);
   }
 
-  void MuonCaloTagTool::extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap ) {
+  void MuonCaloTagTool::extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks, TrackCollection* meTracks,
+				Trk::SegmentCollection* segments) {
+
+    if(combTracks || meTracks || segments) ATH_MSG_DEBUG("track collections passed to MuonCaloTagTool?");
     const xAOD::CaloClusterContainer* caloClusterCont=0;
     const CaloCellContainer* caloCellCont=0;
     if(m_doCaloLR){ //retrieve the xAOD::CaloClusterContainer

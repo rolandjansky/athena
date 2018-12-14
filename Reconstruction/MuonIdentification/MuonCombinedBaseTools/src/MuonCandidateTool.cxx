@@ -55,7 +55,7 @@ namespace MuonCombined {
     return StatusCode::SUCCESS;
   }
 
-  void MuonCandidateTool::create( const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection ) {
+  void MuonCandidateTool::create( const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection, TrackCollection& outputTracks ) {
     ATH_MSG_DEBUG("Producing MuonCandidates for " << tracks.size() );
     unsigned int ntracks = 0;
     SG::ReadHandle<xAOD::EventInfo> eventInfo(m_evInfo); 
@@ -69,13 +69,11 @@ namespace MuonCombined {
       beamSpotZ = eventInfo->beamPosZ();
     } 
     ATH_MSG_DEBUG( " Beamspot position  bs_x " << beamSpotX << " bs_y " << beamSpotY << " bs_z " << beamSpotZ);  
-
       
     // Temporary collection for extrapolated tracks and links with correspondent MS tracks
-    std::map<const Trk::Track*, std::pair<ElementLink<xAOD::TrackParticleContainer>, const Trk::Track*> > trackLinks;
-    TrackCollection* extrapTracks = new TrackCollection(SG::VIEW_ELEMENTS);
+    std::map<const Trk::Track*, std::pair<ElementLink<xAOD::TrackParticleContainer>, Trk::Track*> > trackLinks;
+    std::unique_ptr<TrackCollection> extrapTracks(new TrackCollection(SG::VIEW_ELEMENTS));
     
-    // keep track of track to be deleted
     std::set<const Trk::Track*> tracksToBeDeleted;
     
     unsigned int index = 0;
@@ -103,17 +101,17 @@ namespace MuonCombined {
 	if( !standaloneTrack->perigeeParameters() )                    ATH_MSG_WARNING(" Track without perigee " << standaloneTrack);
         else if( !standaloneTrack->perigeeParameters()->covariance() ) ATH_MSG_WARNING(" Track with perigee without covariance " << standaloneTrack);
 	trackLinks[ standaloneTrack ] = std::make_pair(trackLink,standaloneTrack);
-	extrapTracks->push_back( standaloneTrack );
-        tracksToBeDeleted.insert( standaloneTrack ); // insert track for deletion
       }else{
-	trackLinks[ &msTrack ] = std::make_pair(trackLink,standaloneTrack);
-	extrapTracks->push_back( const_cast<Trk::Track*>(&msTrack) );	
+	standaloneTrack=new Trk::Track(msTrack);
+	trackLinks[ standaloneTrack ] = std::make_pair(trackLink,nullptr);
       }      
+      extrapTracks->push_back( standaloneTrack );
+      tracksToBeDeleted.insert( standaloneTrack ); // insert track for deletion
     }
     ATH_MSG_DEBUG("Finished back-tracking, total number of successfull fits " << ntracks);
 
     // Resolve ambiguity between extrapolated tracks (where available)
-    TrackCollection* resolvedTracks = m_ambiguityProcessor->process(extrapTracks); 
+    std::unique_ptr<TrackCollection> resolvedTracks(m_ambiguityProcessor->process(extrapTracks.get()));
     
     ATH_MSG_DEBUG("Finished ambiguity solving: "<<extrapTracks->size()<<" track(s) in -> "<<resolvedTracks->size()<<" track(s) out");
     
@@ -124,12 +122,17 @@ namespace MuonCombined {
       if(tLink == trackLinks.end()) {
 	ATH_MSG_WARNING("Unable to find internal link between MS and SA tracks!");
 	continue;
-      }      
+      }
       auto tpair = tLink->second;
-      
-      outputCollection.push_back( new MuonCandidate(tpair.first, tpair.second) );
-      // remove track from set so it is not deleted
-      tracksToBeDeleted.erase(tpair.second);
+
+      if(tpair.second){
+	outputTracks.push_back(tpair.second);
+	ElementLink<TrackCollection> saLink(outputTracks,outputTracks.size()-1);
+	outputCollection.push_back( new MuonCandidate(tpair.first, saLink) );
+	// remove track from set so it is not deleted
+	tracksToBeDeleted.erase(tpair.second);
+      }
+      else outputCollection.push_back( new MuonCandidate(tpair.first, ElementLink<TrackCollection>()));
     }
     
     if( extrapTracks->size() != resolvedTracks->size() + tracksToBeDeleted.size() )
@@ -138,7 +141,5 @@ namespace MuonCombined {
 
     // delete all remaining tracks in the set
     for( auto it = tracksToBeDeleted.begin();it!=tracksToBeDeleted.end();++it ) delete *it;
-    delete extrapTracks;
-    delete resolvedTracks;
   }
 }	// end of namespace

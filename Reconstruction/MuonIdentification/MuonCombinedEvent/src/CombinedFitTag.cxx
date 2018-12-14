@@ -9,10 +9,10 @@
 namespace MuonCombined {
 
   CombinedFitTag::CombinedFitTag( xAOD::Muon::Author author, const MuonCandidate& muonCandidate, 
-        const Trk::Track& combinedTrack, const Trk::TrackScore& score ) : 
+				  const Trk::TrackScore& score ) : 
     TagBase(author,TagBase::Type::Combined), m_muonCandidate(&muonCandidate), 
-    m_combinedTrack(&combinedTrack), m_trackScore(score),
-    m_updatedExtrapolatedTrack(0),
+    m_trackScore(score),
+    m_MELink(ElementLink<TrackCollection>()),
     m_matchChi2(0.0), 
     m_matchDoF(0), 
     m_matchProb(0.0),
@@ -20,8 +20,6 @@ namespace MuonCombined {
   {}
 
   CombinedFitTag::~CombinedFitTag() {
-    delete m_combinedTrack;
-    delete m_updatedExtrapolatedTrack;
   }
 
   std::string CombinedFitTag::toString() const { 

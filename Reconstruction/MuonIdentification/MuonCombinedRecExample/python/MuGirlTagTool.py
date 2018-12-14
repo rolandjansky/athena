@@ -15,6 +15,8 @@ from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from MuonRecExample.MooreTools import MuonSeededSegmentFinder, MuonChamberHoleRecoveryTool
 from MuonRecExample.MuonRecTools import DCMathSegmentMaker
 
+from MuonRecExample.MuonRecFlags import muonRecFlags
+
 ###logfile
 from AthenaCommon.Logging import log
 
@@ -65,6 +67,12 @@ def MuonStauSeededSegmentFinder( name="MuonStauSeededSegmentFinder", **kwargs ):
     kwargs.setdefault("MdtRotCreator", getPublicTool("MdtDriftCircleOnTrackCreatorStau") )
     kwargs.setdefault("SegmentMaker", getPublicTool("DCMathStauSegmentMaker") )
     kwargs.setdefault("SegmentMakerNoHoles", getPublicTool("DCMathStauSegmentMaker") )
+    if muonRecFlags.doNSWNewThirdChain():
+       kwargs.setdefault("CscPrepDataContainer","")
+    else:
+       kwargs.setdefault("sTgcPrepDataContainer","")
+       kwargs.setdefault("MMPrepDataContainer","")
+
     return MuonSeededSegmentFinder(name,**kwargs)
 
 def MuonStauSegmentRegionRecoveryTool(name="MuonStauSegmentRegionRecoveryTool",**kwargs ):
@@ -88,7 +96,6 @@ def MuonStauCandidateTrackBuilderTool( name="MuonStauCandidateTrackBuilderTool",
    return CfgMgr.Muon__MuonCandidateTrackBuilderTool(name,**kwargs)
 
 def MuonStauInsideOutRecoTool( name="MuonStauInsideOutRecoTool", **kwargs ):
-
    kwargs.setdefault("MuonCandidateTrackBuilderTool", getPublicTool("MuonStauCandidateTrackBuilderTool") )
    return CfgMgr.MuonCombined__MuonInsideOutRecoTool(name,**kwargs )
 

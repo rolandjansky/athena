@@ -103,19 +103,17 @@ namespace MuonCombined {
     /** add muon candidate info to a muon, if an updateExtrapolatedTrack is provided, the routine takes ownership of the track.
         The track will be used instead of the extrapolatedTrack of the MuonCandidate. The extrapolatedTrack of the MuonCandidate will be release during the operation.
      */
-    void addMuonCandidate( const MuonCandidate& candidate, xAOD::Muon& muon, OutputData& outputData, const Trk::Track* updatedExtrapolatedTrack = 0 ) const;
+    void addMuonCandidate( const MuonCandidate& candidate, xAOD::Muon& muon, OutputData& outputData, ElementLink<TrackCollection> meLink=ElementLink<TrackCollection>() ) const;
 
     /// function creates an element link to a track particle from the track and the TrackParticle collection.
     /// if a TrackCollection is also provided, the element link to the track will also be set
     /// takes ownership of the track
     ElementLink<xAOD::TrackParticleContainer>
-      createTrackParticleElementLink( std::unique_ptr<const Trk::Track> track, 
-        xAOD::TrackParticleContainer& trackParticleContainer, 
-        TrackCollection* trackCollection = 0 ) const ;
+      createTrackParticleElementLink( ElementLink<TrackCollection> trackLink,
+        xAOD::TrackParticleContainer& trackParticleContainer) const ;
 
-    ElementLink<xAOD::MuonSegmentContainer> createMuonSegmentElementLink( const Muon::MuonSegment & muonSegment,
-        xAOD::MuonSegmentContainer& xaodSegments,
-        Trk::SegmentCollection* muonSegmentCollection = 0 ) const ;
+    ElementLink<xAOD::MuonSegmentContainer> createMuonSegmentElementLink( ElementLink<Trk::SegmentCollection> segLink,
+        xAOD::MuonSegmentContainer& xaodSegments) const ;
 
   private:
     void resolveOverlaps( const InDetCandidateCollection* inDetCandidates, const MuonCandidateCollection* muonCandidates, std::vector<const InDetCandidateToTagMap*> tagMaps,
