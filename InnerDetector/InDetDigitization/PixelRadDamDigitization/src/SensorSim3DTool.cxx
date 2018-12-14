@@ -98,49 +98,49 @@
 
         mapsPath_list.push_back(PathResolverFindCalibFile("/afs/cern.ch/user/v/vewallan/public/TCADmaps/outputfiles/phi_0_20V.root")); 
 
-        fluence_layers.push_back(1e-10);
+        m_fluence_layers.push_back(1e-10);
 
     } else if (m_fluence == 2) {
 
         mapsPath_list.push_back(PathResolverFindCalibFile("/afs/cern.ch/user/v/vewallan/public/TCADmaps/outputfiles/phi_1e14_20V.root"));
 
-        fluence_layers.push_back(1e14);
+        m_fluence_layers.push_back(1e14);
 
     } else if (m_fluence == 3) {
 
         mapsPath_list.push_back(PathResolverFindCalibFile("/afs/cern.ch/user/v/vewallan/public/TCADmaps/outputfiles/phi_2e14_30V.root"));
 
-        fluence_layers.push_back(2e14);
+        m_fluence_layers.push_back(2e14);
 
     } else if (m_fluence == 4) {
 
         mapsPath_list.push_back(PathResolverFindCalibFile("/afs/cern.ch/user/v/vewallan/public/TCADmaps/outputfiles/phi_5e14_40V.root")); 
 
-        fluence_layers.push_back(5e14);
+        m_fluence_layers.push_back(5e14);
 
     } else if (m_fluence == 5) {
 
         mapsPath_list.push_back(PathResolverFindCalibFile("/afs/cern.ch/user/v/vewallan/public/TCADmaps/outputfiles/phi_1e15_50V.root"));
 
-        fluence_layers.push_back(1e15); 
+        m_fluence_layers.push_back(1e15); 
 
     } else if (m_fluence == 6) {
 
         mapsPath_list.push_back(PathResolverFindCalibFile("/afs/cern.ch/user/v/vewallan/public/TCADmaps/outputfiles/phi_5e15_160V.root"));
 
-        fluence_layers.push_back(5e15);
+        m_fluence_layers.push_back(5e15);
 
     } else if (m_fluence == 7) {
 
         mapsPath_list.push_back(PathResolverFindCalibFile("/afs/cern.ch/user/v/vewallan/public/TCADmaps/outputfiles/phi_6e15_190V_new.root"));       
 
-        fluence_layers.push_back(6e15);
+        m_fluence_layers.push_back(6e15);
 
     } else if (m_fluence == 8) {
 
         mapsPath_list.push_back(PathResolverFindCalibFile("/afs/cern.ch/user/v/vewallan/public/TCADmaps/outputfiles/phi_1e16_260V_new.root"));
 
-        fluence_layers.push_back(1e16);
+        m_fluence_layers.push_back(1e16);
     }
 
     // *****************************
@@ -172,9 +172,9 @@
         }
         //ramoPotentialMap.push_back(ramoPotentialMap_hold);
         ramoPotentialMap[Layer] = ramoPotentialMap_hold;
-        fluence_layersMaps[Layer] = fluence_layers.at(i);
+        m_fluence_layersMaps[Layer] = m_fluence_layers.at(i);
 
-        ATH_MSG_INFO("Using fluence " << fluence_layers.at(i));
+        ATH_MSG_INFO("Using fluence " << m_fluence_layers.at(i));
 
         //Now setup the E-field.
         TH2F * eFieldMap_hold;
@@ -270,7 +270,7 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr < SiHit > & phit, SiC
 
     //Calculate trapping times based on fluence (already includes check for fluence=0)
     if (m_doRadDamage) {
-                std::pair < double, double > trappingTimes = m_radDamageUtil->getTrappingTimes(fluence_layers.at(0));   //0 = IBL
+                std::pair < double, double > trappingTimes = m_radDamageUtil->getTrappingTimes(m_fluence_layers.at(0));   //0 = IBL
                 m_trappingTimeElectrons = trappingTimes.first;
                 m_trappingTimeHoles = trappingTimes.second;
             }
@@ -286,7 +286,7 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr < SiHit > & phit, SiC
     double ncharges = initialConditions[6];
     double iTotalLength = initialConditions[7];
     ncharges = 50;
-    temperature = 300; // K 
+    m_temperature = 300; // K 
 
     ATH_MSG_VERBOSE("Applying 3D sensor simulation.");
     double sensorThickness = Module.design().thickness();
@@ -401,7 +401,7 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr < SiHit > & phit, SiC
                         double phiRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
 
                         //Apply diffusion. rdif is teh max. diffusion
-                        double Dt = getMobility(efield, isHole) * (0.024) * std::min(driftTime, timeToElectrode) * temperature / 273.;
+                        double Dt = getMobility(efield, isHole) * (0.024) * std::min(driftTime, timeToElectrode) * m_temperature / 273.;
                         double rdif = sqrt(Dt) / 1000; //in mm
                         double xposDiff = x_pix + rdif * phiRand;
                         double etaRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
@@ -639,14 +639,14 @@ double SensorSim3DTool::getMobility(double electricField, bool isHoleBit) {
     //These parameterizations come from C. Jacoboni et al., Solid‐State Electronics 20 (1977) 77‐89. (see also https://cds.cern.ch/record/684187/files/indet-2001-004.pdf).
 
     if (!isHoleBit) {
-        vsat = 15.3 * pow(temperature, -0.87); // mm/ns
-        ecrit = 1.01E-7 * pow(temperature, 1.55); // MV/mm
-        beta = 2.57E-2 * pow(temperature, 0.66);
+        vsat = 15.3 * pow(m_temperature, -0.87); // mm/ns
+        ecrit = 1.01E-7 * pow(m_temperature, 1.55); // MV/mm
+        beta = 2.57E-2 * pow(m_temperature, 0.66);
     }
     if (isHoleBit) {
-        vsat = 1.62 * pow(temperature, -0.52); // mm/ns
-        ecrit = 1.24E-7 * pow(temperature, 1.68); // MV/mm
-        beta = 0.46 * pow(temperature, 0.17);
+        vsat = 1.62 * pow(m_temperature, -0.52); // mm/ns
+        ecrit = 1.24E-7 * pow(m_temperature, 1.68); // MV/mm
+        beta = 0.46 * pow(m_temperature, 0.17);
     }
 
     double mobility = (vsat / ecrit) / pow(1 + pow((electricField / ecrit), beta), (1 / beta));
