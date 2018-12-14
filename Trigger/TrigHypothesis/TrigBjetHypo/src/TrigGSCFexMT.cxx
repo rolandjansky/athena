@@ -199,9 +199,10 @@ StatusCode TrigGSCFexMT::execute() {
   //    ** Store Output
   // ==============================================================================================================================
 
+  ATH_MSG_DEBUG( "Storing calibrated jets as " << m_jetOutputKey.key() );
   SG::WriteHandle< xAOD::JetContainer > outputJetContainerHandle = SG::makeHandle( m_jetOutputKey,ctx );
   ATH_CHECK( outputJetContainerHandle.record( std::move(calibrateJets),std::move(calibratedJetsAux) ) ); 
-
+  ATH_MSG_DEBUG( "Exiting" );
   return StatusCode::SUCCESS;
 }
 
