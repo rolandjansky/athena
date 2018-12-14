@@ -18,6 +18,8 @@
  * @class TriggerEDMSerialiserTool is tool responsible for creation of HLT Result filled with streamed EDM collections
  **/
 
+class DataObject;
+
 class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
 { 
   
@@ -35,16 +37,15 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
  private: 
   Gaudi::Property<std::vector<std::string>> m_collectionsToSerialize { this, "CollectionsToSerialize", {}, "TYPE#SG.aux1.aux2..etc key of collections to be streamed (like in StreamAOD), the type has to be an exact type i.e. with _vN not the alias type" };
 
-
   Gaudi::Property<int> m_moduleID { this, "ModuleID", 0, "The HLT result fragment to which the output should be added"};
   
   // internal structure to keep configuration organised conveniently
   struct Address {
     std::string type;
     CLID clid;
-    RootType rt;
     std::string key;
-    xAOD::AuxSelection sel;
+    bool isAux = false;
+    xAOD::AuxSelection sel = {}; // xAOD dynamic varaibles selection
   };
   
   std::vector< Address > m_toSerialize; // postprocessed configuration info
@@ -63,9 +64,13 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
    * This function is candidate to be made global function at some point
    * and we will need also readPayload function
    */  
-  StatusCode fillPayload( const void* data, size_t sz, std::vector<uint32_t>& buffer ) const ;
+  StatusCode fillPayload( const void* data, size_t sz, std::vector<uint32_t>& buffer ) const;
 
-  
+
+  /**
+   * Adds dynamic variables to the payload
+   */
+  StatusCode fillDynAux( const Address& address, DataObject* dObject, std::vector<uint32_t>& buffer ) const;
 }; 
 
 

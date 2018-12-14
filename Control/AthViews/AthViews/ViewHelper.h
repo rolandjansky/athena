@@ -178,6 +178,7 @@ namespace ViewHelper
       //Make accessor for bookkeeping
       SG::AuxElement::Accessor< int > viewBookkeeper( "viewIndex" );
 
+      
       //Loop over all views
       unsigned int offset = 0;
       for ( unsigned int viewIndex = 0; viewIndex < ViewVector.size(); ++viewIndex )

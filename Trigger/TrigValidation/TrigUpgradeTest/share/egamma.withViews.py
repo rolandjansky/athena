@@ -1,4 +1,5 @@
 
+
 #
 #  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
@@ -58,7 +59,7 @@ clustersKey = "HLT_xAOD__TrigEMClusterContainer_L2CaloClusters" #"L2CaloClusters
 
 def createFastCaloSequence(rerun=False):
    __prefix = "Rerurn_" if rerun else ""
-   __l1RoIDecisions = "RerunEMRoIDecisions" if rerun else "EMRoIDecisions"
+   __l1RoIDecisions = "RerunL1EM" if rerun else "L1EM"
    __forViewDecsions = "RerunEMRoIDecisions"  if rerun else "Filtered"+__l1RoIDecisions 
 
    from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_FastAlgo
@@ -346,12 +347,15 @@ print summMaker
 ################################################################################
 # test online HLT Result maker
 
-serialiser = TriggerEDMSerialiserTool(OutputLevel=VERBOSE)
+serialiser = TriggerEDMSerialiserTool(name="Serialiser", OutputLevel=VERBOSE)
 
-serialiser.CollectionsToSerialize = [ "xAOD::TrigCompositeContainer_v1#EgammaCaloDecisions_remap",
-                                      "xAOD::TrigCompositeAuxContainer_v1#EgammaCaloDecisionsAux.name.seed",
-                                      "xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex_remap",
-                                      "xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux."  ]
+serialiser.CollectionsToSerialize = [ "xAOD::TrigCompositeContainer_v1#remap_EgammaCaloDecisions",
+                                      "xAOD::TrigCompositeAuxContainer_v1#remap_EgammaCaloDecisionsAux.",
+                                      "xAOD::TrigEMClusterContainer_v1#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters",
+                                      "xAOD::TrigEMClusterAuxContainer_v2#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux.RoIword.clusterQuality.e233.e237.e277.e2tsts1.ehad1.emaxs1.energy.energySample.et.eta.eta1.fracs1.nCells.phi.rawEnergy.rawEnergySample.rawEt.rawEta.rawPhi.viewIndex.weta2.wstot",
+                                      "xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex",
+                                      "xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux.pt.eta.phi.rawEnergy.rawEt.rawEta.nCells.energy.et.e237.e277.fracs1.weta2.ehad1.e232.wstot"  ]
+                                      #"xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux."  ]
 
 stmaker = StreamTagMakerTool()
 stmaker.OutputLevel = DEBUG
@@ -363,11 +367,11 @@ bitsmaker.ChainDecisions = "HLTFinalDecisions"
 bitsmaker.ChainToBit = dict( [ (chain, 10*num) for num,chain in enumerate(testChains) ] ) 
 bitsmaker.OutputLevel = DEBUG
 
-hltResultMakerTool =  HLTResultMTMaker()
+hltResultMakerTool =  HLTResultMTMaker("MKTool")
 hltResultMakerTool.MakerTools = [ stmaker, bitsmaker, serialiser ]
 hltResultMakerTool.OutputLevel = DEBUG
 
-hltResultMakerAlg =  HLTResultMTMakerAlg()
+hltResultMakerAlg =  HLTResultMTMakerAlg("HLTRMakerAlg")
 
 
 from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
