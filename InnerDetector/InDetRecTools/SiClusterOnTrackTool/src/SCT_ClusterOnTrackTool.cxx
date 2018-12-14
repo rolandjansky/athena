@@ -489,8 +489,7 @@ const InDet::SCT_ClusterOnTrack* InDet::SCT_ClusterOnTrackTool::correctAnnulusPC
   delete glob_ptr;
 
   InDet::SCT_ClusterOnTrack* cot = new InDet::SCT_ClusterOnTrack(SC, locparPC, cov, iH, glob, isbroad);
-
-  // set to surface coming from track par
-  cot->setAssociatedSurface(srf);
+  // note: cot has the original surface set. cot->associatedSurface() will return the XY plane surface,
+  // NOT the PC disc surface
   return cot;
 }

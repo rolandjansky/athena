@@ -86,8 +86,7 @@ InDet::SCT_ClusterOnTrack::SCT_ClusterOnTrack( const InDet::SCT_ClusterOnTrack& 
   SiClusterOnTrack(rot),
   m_rio(rot.m_rio),
   m_detEl(rot.m_detEl),
-  m_positionAlongStrip(rot.m_positionAlongStrip),
-  m_associatedSurface(rot.m_associatedSurface)
+  m_positionAlongStrip(rot.m_positionAlongStrip)
 {}
 
 // assignment operator:
@@ -104,12 +103,7 @@ InDet::SCT_ClusterOnTrack& InDet::SCT_ClusterOnTrack::operator=( const InDet::SC
 
 const Trk::Surface& InDet::SCT_ClusterOnTrack::associatedSurface() const
 { 
-  if(m_associatedSurface != nullptr) {
-    // have explicit
-    return *m_associatedSurface;
-  }
-  // return from detector element
-  return detectorElement()->surface();
+    return ( detectorElement()->surface()); 
 }
   
 void InDet::SCT_ClusterOnTrack::setValues(const Trk::TrkDetElementBase* detEl, const Trk::PrepRawData* )
