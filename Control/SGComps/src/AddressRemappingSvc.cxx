@@ -465,7 +465,7 @@ void AddressRemappingSvc::initDeletes()
   m_haveDeletes = true;
 
   for (IAlgorithm* ialg : m_algResourcePool->getFlatAlgList()) {
-    if (Algorithm* alg = dynamic_cast<Algorithm*> (ialg)) {
+    if (Gaudi::Algorithm* alg = dynamic_cast<Gaudi::Algorithm*> (ialg)) {
       // Need to ignore SGInputLoader; it'll have output deps
       // on everything being read.
       if (alg->name() == "SGInputLoader") continue;
@@ -488,7 +488,10 @@ void AddressRemappingSvc::initDeletes()
           }
         }
       }
+    } else {
+      ATH_MSG_WARNING(ialg->name() << " doesn't seem to be an Algorithm" );
     }
+    
   }
 }
 //______________________________________________________________________________

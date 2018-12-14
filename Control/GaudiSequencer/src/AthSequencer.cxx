@@ -31,6 +31,10 @@
 #include <execinfo.h>
 #endif
 
+/// timer will abort job once timeout for any algorithm or sequence is reached
+thread_local Athena::AlgorithmTimer s_abortTimer{ 0, NULL, Athena::AlgorithmTimer::DEFAULT };
+
+
 #include "valgrind/valgrind.h"
 
 /**
@@ -49,7 +53,7 @@ bool AthSequencer::m_installedSignalHandler;
  **/
 AthSequencer::AthSequencer( const std::string& name, 
                             ISvcLocator* pSvcLocator ):
-  AthAlgorithm (name, pSvcLocator),
+  ::AthCommonDataStore<AthCommonMsg<Gaudi::Sequence>>   ( name, pSvcLocator ),
   m_timeoutMilliseconds(0),
   m_abortTimer(0, NULL, Athena::AlgorithmTimer::DEFAULT ),
   m_continueEventloopOnFPE(false)
@@ -89,13 +93,6 @@ AthSequencer::AthSequencer( const std::string& name,
 AthSequencer::~AthSequencer()
 {}
 
-/// Mark as a sequencer.
-bool AthSequencer::isSequence() const
-{
-  return true;
-}
-
-
 StatusCode
 AthSequencer::initialize()
 {
@@ -107,52 +104,60 @@ AthSequencer::initialize()
       m_timeoutMilliseconds = 0;
     }
   
-  std::vector<Algorithm*>* theAlgs;
-  std::vector<Algorithm*>::iterator it;
-  std::vector<Algorithm*>::iterator itend;
+  std::vector<Gaudi::Algorithm*>* theAlgs;
+  std::vector<Gaudi::Algorithm*>::iterator it;
+  std::vector<Gaudi::Algorithm*>::iterator itend;
   
   if (!decodeMemberNames().isSuccess()) {
     ATH_MSG_ERROR ("Unable to configure one or more sequencer members ");
     return StatusCode::FAILURE;
   }
   
+  StatusCode sc(StatusCode::SUCCESS);
   // Loop over all sub-algorithms
   theAlgs = subAlgorithms( );
   itend   = theAlgs->end( );
   for (it = theAlgs->begin(); it != itend; it++) {
-    Algorithm* theAlgorithm = (*it);
+    Gaudi::Algorithm* theAlgorithm = (*it);
     if (!theAlgorithm->sysInitialize( ).isSuccess()) {
-      ATH_MSG_ERROR ("Unable to initialize Algorithm " << theAlgorithm->name());
-      return StatusCode::FAILURE;
+      ATH_MSG_ERROR ("Unable to initialize Algorithm "
+                     << theAlgorithm->type() << "/" << theAlgorithm->name());
+      sc= StatusCode::FAILURE;      
     }
   }
 
-  return StatusCode::SUCCESS;
+  return sc;
 }
 
 StatusCode
 AthSequencer::reinitialize()
 {
+  StatusCode sc(StatusCode::SUCCESS);
   // Bypass the loop if this sequencer is disabled
   if ( isEnabled( ) ) {
     
     // Loop over all members calling their reinitialize functions
     // if they are not disabled.
-    std::vector<Algorithm*>* theAlgms = subAlgorithms( );
-    std::vector<Algorithm*>::iterator it;
-    std::vector<Algorithm*>::iterator itend = theAlgms->end( );
+    std::vector<Gaudi::Algorithm*>* theAlgms = subAlgorithms( );
+    std::vector<Gaudi::Algorithm*>::iterator it;
+    std::vector<Gaudi::Algorithm*>::iterator itend = theAlgms->end( );
     for (it = theAlgms->begin(); it != itend; it++) {
-      Algorithm* theAlgorithm = (*it);
-      if ( ! theAlgorithm->isEnabled( ) ) {
-        theAlgorithm->reinitialize( ).ignore();
+      Gaudi::Algorithm* theAlgorithm = (*it);
+      if ( theAlgorithm->isEnabled( ) ) {
+        if (theAlgorithm->sysReinitialize( ).isFailure()) {
+          ATH_MSG_ERROR ("Unable to reinitialize Algorithm "
+                         << theAlgorithm->type () << "/"
+                         << theAlgorithm->name());
+          sc = StatusCode::FAILURE;
+        }
       }
     }
   }
-  return StatusCode::SUCCESS;
+  return sc;
 }
 
 StatusCode
-AthSequencer::execute()
+AthSequencer::execute( const EventContext& ctx ) const
 {
   volatile bool all_good = true;
   volatile bool caughtfpe= false;
@@ -160,34 +165,32 @@ AthSequencer::execute()
   bool seqPass = !m_modeOR;
 
   ATH_MSG_DEBUG ("Executing " << name() << "...");
+
+  auto& state = execState( ctx );
   
   // Bypass the loop if this sequencer is disabled or has already been executed
-  if ( isEnabled( ) && ! isExecuted( ) ) {
+  if ( isEnabled( ) && state.state() != AlgExecState::State::Done ) {
 
     // Prevent multiple executions of this sequencer for the current event
-    setExecuted( true );
+    state.setState( AlgExecState::State::Executing );
 
     // Loop over all algorithms calling their execute functions if they
     // are (a) not disabled, and (b) aren't already executed. Note that
     // in the latter case the filter state is still examined. Terminate
     // the loop if an algorithm indicates that it's filter didn't pass.
-    std::vector<Algorithm*>* subAlgms = subAlgorithms( );
-    //volatile std::vector<Algorithm*>::iterator it;
-    //std::vector<Algorithm*>::iterator itend = subAlgms->end( );
-    //for (it = subAlgms->begin(); it != itend; it++) {
-    //volatile Algorithm* theAlgorithm = (*it);
-    for (Algorithm* theAlgorithm : *subAlgms) {
+    const std::vector<Gaudi::Algorithm*>* subAlgms = subAlgorithms( );
+    for (auto theAlgorithm : *subAlgms) {
       if ( theAlgorithm->isEnabled( ) ) {
-        if ( ! theAlgorithm->isExecuted( ) ) {
-          sc = executeAlgorithm (theAlgorithm, all_good, caughtfpe);
+        if ( theAlgorithm->execState(ctx).state() == AlgExecState::State::None ) {
+          sc = executeAlgorithm (theAlgorithm, ctx, all_good, caughtfpe);
         }
 	
         if ( all_good ) {
 	  
           if ( !m_ignoreFilter ) {
             // Take the filter passed status of this algorithm as my own status
-            bool passed = theAlgorithm->filterPassed( );
-            setFilterPassed( passed );
+            bool passed = theAlgorithm->execState( ctx ).filterPassed();
+            state.setFilterPassed( passed );
             
             // The behaviour when the filter fails depends on the 
             // StopOverride property.
@@ -206,16 +209,18 @@ AthSequencer::execute()
     }
   }
 
-  if ( !m_ignoreFilter && !m_names.empty() ) setFilterPassed( seqPass );
+  if ( !m_ignoreFilter && !m_names.empty() ) state.setFilterPassed( seqPass );
 
+  state.setState( AlgExecState::State::Done );
 
   return caughtfpe ? StatusCode::RECOVERABLE : sc;
 }
 
 
-StatusCode AthSequencer::executeAlgorithm (Algorithm* theAlgorithm,
+StatusCode AthSequencer::executeAlgorithm (Gaudi::Algorithm* theAlgorithm,
+                                           const EventContext& ctx,
                                            volatile bool& all_good,
-                                           volatile bool& caughtfpe)
+                                           volatile bool& caughtfpe) const
 {
   StatusCode sc = StatusCode::SUCCESS;
 
@@ -226,13 +231,11 @@ StatusCode AthSequencer::executeAlgorithm (Algorithm* theAlgorithm,
        !sigsetjmp(s_fpe_landing_zone, 1) )
   {
     // Call the sysExecute() of the method the algorithm
-    m_abortTimer.start(m_timeoutMilliseconds);
-    sc = theAlgorithm->sysExecute( getContext() );
+    s_abortTimer.start(m_timeoutMilliseconds);
+    sc = theAlgorithm->sysExecute( ctx );
     all_good = sc.isSuccess();
-    // I think this should be done by the algorithm itself, 
-    // but just in case...
-    theAlgorithm->setExecuted( true );
-    int tmp=m_abortTimer.stop();
+
+    int tmp=s_abortTimer.stop();
     // but printout only if non-zero timeout was used
     if (m_timeoutMilliseconds) {
       ATH_MSG_DEBUG ("Time left before interrupting <" 
@@ -254,91 +257,97 @@ StatusCode AthSequencer::executeAlgorithm (Algorithm* theAlgorithm,
 }
 
 StatusCode
-AthSequencer::finalize()
-{
-  ATH_MSG_DEBUG ("Finalizing " << name() << "...");
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
 AthSequencer::start()
 {
+  StatusCode sc(StatusCode::SUCCESS);
 #ifdef GAUDIKERNEL_STATEMACHINE_H_
 
-  std::vector<Algorithm*>* theAlgs;
-  std::vector<Algorithm*>::iterator it;
-  std::vector<Algorithm*>::iterator itend;
+  std::vector<Gaudi::Algorithm*>* theAlgs;
+  std::vector<Gaudi::Algorithm*>::iterator it;
+  std::vector<Gaudi::Algorithm*>::iterator itend;
   
   // Loop over all sub-algorithms
   theAlgs = subAlgorithms( );
   itend   = theAlgs->end( );
   for (it = theAlgs->begin(); it != itend; it++) {
-    Algorithm* theAlgorithm = (*it);
+    Gaudi::Algorithm* theAlgorithm = (*it);
     if (!theAlgorithm->sysStart( ).isSuccess()) {
-      ATH_MSG_ERROR ("Unable to start Algorithm " << theAlgorithm->name());
-      return StatusCode::FAILURE;
+      ATH_MSG_ERROR ("Unable to start Algorithm "
+                     << theAlgorithm->type () << "/"
+                     << theAlgorithm->name());
+      sc = StatusCode::FAILURE;
     }
   }
 
 #endif // !GAUDIKERNEL_STATEMACHINE_H_
-
-  return StatusCode::SUCCESS;
+  return sc;
 }
 
 StatusCode
 AthSequencer::stop()
 {
+  StatusCode sc(StatusCode::SUCCESS);
 #ifdef GAUDIKERNEL_STATEMACHINE_H_
   // Loop over all sub-algorithms if they are not disabled.
-  std::vector<Algorithm*>* theAlgs;
-  std::vector<Algorithm*>::iterator it;
-  std::vector<Algorithm*>::iterator itend;
+  std::vector<Gaudi::Algorithm*>* theAlgs;
+  std::vector<Gaudi::Algorithm*>::iterator it;
+  std::vector<Gaudi::Algorithm*>::iterator itend;
   
   theAlgs = subAlgorithms( );
   itend   = theAlgs->end( );
   for (it = theAlgs->begin(); it != itend; it++) {
-    Algorithm* theAlgorithm = (*it);
+    Gaudi::Algorithm* theAlgorithm = (*it);
     if (theAlgorithm->sysStop( ).isFailure()) {
-      ATH_MSG_ERROR ("Unable to stop Algorithm " << theAlgorithm->name());
+      ATH_MSG_ERROR ("Unable to stop Algorithm "
+                     << theAlgorithm->type () << "/"
+                     << theAlgorithm->name());
+      sc = StatusCode::FAILURE;
     }
   }
   
 #endif // !GAUDIKERNEL_STATEMACHINE_H_
-  return StatusCode::SUCCESS;
+  return sc;
 }
 
 StatusCode
 AthSequencer::beginRun()
 {
   // Bypass the loop if this sequencer is disabled
+  StatusCode sc(StatusCode::SUCCESS);
   if ( isEnabled( ) ) {
     
     // Loop over all members calling their sysInitialize functions
     // if they are not disabled. Note that the Algoriithm::sysInitialize
     // function protects this from affecting Algorithms that have already
     // been initialized.
-    std::vector<Algorithm*>* theAlgs = subAlgorithms( );
-    std::vector<Algorithm*>::iterator it;
-    std::vector<Algorithm*>::iterator itend = theAlgs->end( );
+    std::vector<Gaudi::Algorithm*>* theAlgs = subAlgorithms( );
+    std::vector<Gaudi::Algorithm*>::iterator it;
+    std::vector<Gaudi::Algorithm*>::iterator itend = theAlgs->end( );
     for (it = theAlgs->begin(); it != itend; it++) {
-      Algorithm* theAlgorithm = (*it);
+      Gaudi::Algorithm* theAlgorithm = (*it);
       if (!theAlgorithm->sysInitialize( ).isSuccess()) {
         ATH_MSG_ERROR 
           ("Unable to initialize Algorithm " << theAlgorithm->name());
-        return StatusCode::FAILURE;
+        sc = StatusCode::FAILURE;
+        return sc;
       }
     }
     
     // Loop over all members calling their beginRun functions
     // if they are not disabled.
     for (it = theAlgs->begin(); it != itend; it++) {
-      Algorithm* theAlgorithm = (*it);
-      if ( ! theAlgorithm->isEnabled( ) ) {
+      Gaudi::Algorithm* theAlgorithm = (*it);
+      if ( theAlgorithm->isEnabled( ) ) {
 #ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
-        theAlgorithm->beginRun( ).ignore();
+        if (theAlgorithm->sysBeginRun( ).isFailure()) {
+          ATH_MSG_ERROR("Unable to BeginRun Algorithm "
+                        << theAlgorithm->type() << "/"
+                        << theAlgorithm->name());
+          sc = StatusCode::FAILURE;
+        }
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif
@@ -347,50 +356,56 @@ AthSequencer::beginRun()
     
   }
 
-  return StatusCode::SUCCESS;
+  return sc;
 }
 
 StatusCode
 AthSequencer::endRun()
 {
+  StatusCode sc(StatusCode::SUCCESS);
   // Bypass the loop if this sequencer is disabled
   if ( isEnabled( ) ) {
     
     // Loop over all members calling their endRun functions
     // if they are not disabled.
-    std::vector<Algorithm*>* theAlgms = subAlgorithms( );
-    std::vector<Algorithm*>::iterator it;
-    std::vector<Algorithm*>::iterator itend = theAlgms->end( );
+    std::vector<Gaudi::Algorithm*>* theAlgms = subAlgorithms( );
+    std::vector<Gaudi::Algorithm*>::iterator it;
+    std::vector<Gaudi::Algorithm*>::iterator itend = theAlgms->end( );
     for (it = theAlgms->begin(); it != itend; it++) {
-      Algorithm* theAlgorithm = (*it);
-      if ( ! theAlgorithm->isEnabled( ) ) {
+      Gaudi::Algorithm* theAlgorithm = (*it);
+      if ( theAlgorithm->isEnabled( ) ) {
 #ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
-        theAlgorithm->endRun( ).ignore();
+        if ( theAlgorithm->sysEndRun( ).isFailure() ) {
+          ATH_MSG_ERROR("Unable to EndRun Algorithm "
+                        << theAlgorithm->type() << "/"
+                        << theAlgorithm->name());
+          sc = StatusCode::FAILURE;
+        }
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif
       }
     }
   }
-  return StatusCode::SUCCESS;
+  return sc;
 }
 
 void
-AthSequencer::resetExecuted( )
+AthSequencer::resetExecuted( const EventContext& ctx ) const
 {
-  Algorithm::resetExecuted( );
+  execState(ctx).reset();
   
   // Loop over all members calling their resetExecuted functions
   // if they are not disabled.
-  std::vector<Algorithm*>* subAlgms = subAlgorithms( );
-  std::vector<Algorithm*>::iterator it;
-  std::vector<Algorithm*>::iterator itend = subAlgms->end( );
+  const std::vector<Gaudi::Algorithm*>* subAlgms = subAlgorithms( );
+  std::vector<Gaudi::Algorithm*>::const_iterator it;
+  std::vector<Gaudi::Algorithm*>::const_iterator itend = subAlgms->end( );
   for (it = subAlgms->begin(); it != itend; it++) {
-    Algorithm* theAlgorithm = (*it);
-    theAlgorithm->resetExecuted( );
+    Gaudi::Algorithm* theAlgorithm = (*it);
+    theAlgorithm->execState(ctx).reset();
   }
 }
 
@@ -401,7 +416,7 @@ AthSequencer::isStopOverride( ) const
 }
 
 StatusCode
-AthSequencer::append( Algorithm* pAlgorithm )
+AthSequencer::append( Gaudi::Algorithm* pAlgorithm )
 {
   return append( pAlgorithm, subAlgorithms( ) );
 }
@@ -409,13 +424,13 @@ AthSequencer::append( Algorithm* pAlgorithm )
 StatusCode
 AthSequencer::createAndAppend( const std::string& type,
                                const std::string& name,
-                               Algorithm*& pAlgorithm )
+                               Gaudi::Algorithm*& pAlgorithm )
 {
   return createAndAppend( type, name, pAlgorithm, subAlgorithms( ) );
 }
 
 StatusCode
-AthSequencer::remove( Algorithm* pAlgorithm )
+AthSequencer::remove( Gaudi::Algorithm* pAlgorithm )
 {
   return remove (pAlgorithm->name());
 }
@@ -444,16 +459,16 @@ AthSequencer::membershipHandler( Property& /* theProp */ )
  **/
 
 StatusCode
-AthSequencer::append( Algorithm* pAlgorithm,
-                      std::vector<Algorithm*>* theAlgs )
+AthSequencer::append( Gaudi::Algorithm* pAlgorithm,
+                      std::vector<Gaudi::Algorithm*>* theAlgs )
 {
   bool all_good = true;
   // Check that the specified algorithm doesn't already exist 
   // in the membership list
-  std::vector<Algorithm*>::iterator it;
-  std::vector<Algorithm*>::iterator itend = theAlgs->end( );
+  std::vector<Gaudi::Algorithm*>::iterator it;
+  std::vector<Gaudi::Algorithm*>::iterator itend = theAlgs->end( );
   for (it = theAlgs->begin(); it != itend; it++) {
-    Algorithm* theAlgorithm = (*it);
+    Gaudi::Algorithm* theAlgorithm = (*it);
     if ( theAlgorithm == pAlgorithm ) {
       all_good = false;
       break;
@@ -469,8 +484,8 @@ AthSequencer::append( Algorithm* pAlgorithm,
 StatusCode 
 AthSequencer::createAndAppend( const std::string& type,
                                const std::string& algName,
-                               Algorithm*& pAlgorithm,
-                               std::vector<Algorithm*>* theAlgs )
+                               Gaudi::Algorithm*& pAlgorithm,
+                               std::vector<Gaudi::Algorithm*>* theAlgs )
 {
   StatusCode result = StatusCode::FAILURE;
   IAlgManager* theAlgMgr;
@@ -484,7 +499,7 @@ AthSequencer::createAndAppend( const std::string& type,
     result = theAlgMgr->createAlgorithm( type, algName, tmp );
     if ( result.isSuccess( ) ) {
       try{
-        pAlgorithm = dynamic_cast<Algorithm*>(tmp);
+        pAlgorithm = dynamic_cast<Gaudi::Algorithm*>(tmp);
         theAlgs->push_back( pAlgorithm );
       } catch(...){
         ATH_MSG_ERROR ("Unable to create Algorithm " << algName);
@@ -498,7 +513,7 @@ AthSequencer::createAndAppend( const std::string& type,
 
 StatusCode
 AthSequencer::decodeNames( Gaudi::Property<std::vector<std::string>>& theNames,
-                           std::vector<Algorithm*>* theAlgs )
+                           std::vector<Gaudi::Algorithm*>* theAlgs )
 {
   StatusCode result;
   IAlgManager* theAlgMgr;
@@ -536,10 +551,10 @@ AthSequencer::decodeNames( Gaudi::Property<std::vector<std::string>>& theNames,
       // Check whether the suppied name corresponds to an existing
       // Algorithm object.
       IAlgorithm* theIAlg;
-      Algorithm*  theAlgorithm;
+      Gaudi::Algorithm*  theAlgorithm;
       StatusCode status = theAlgMgr->getAlgorithm( theName, theIAlg );
       if ( status.isSuccess( ) ) {
-        theAlgorithm = dynamic_cast<Algorithm*>(theIAlg);
+        theAlgorithm = dynamic_cast<Gaudi::Algorithm*>(theIAlg);
         if (!theAlgorithm) {
           ATH_MSG_WARNING 
             (theName << " is not an Algorithm - Failed dynamic cast");
@@ -581,7 +596,7 @@ AthSequencer::decodeNames( Gaudi::Property<std::vector<std::string>>& theNames,
   if ( result.isSuccess() && !theAlgs->empty() ) {
     msg(MSG::DEBUG) << "Member list: ";
     bool first = true;
-    for (Algorithm* alg : *theAlgs) {
+    for (Gaudi::Algorithm* alg : *theAlgs) {
       if (first)
         first = false;
       else
@@ -599,15 +614,15 @@ AthSequencer::decodeNames( Gaudi::Property<std::vector<std::string>>& theNames,
 
 StatusCode
 AthSequencer::remove( const std::string& algname, 
-                      std::vector<Algorithm*>* theAlgs )
+                      std::vector<Gaudi::Algorithm*>* theAlgs )
 {
   StatusCode result = StatusCode::FAILURE;
   
   // Test that the algorithm exists in the member list
-  std::vector<Algorithm*>::iterator it;
-  std::vector<Algorithm*>::iterator itend = theAlgs->end( );
+  std::vector<Gaudi::Algorithm*>::iterator it;
+  std::vector<Gaudi::Algorithm*>::iterator itend = theAlgs->end( );
   for (it = theAlgs->begin(); it != itend; it++) {
-    Algorithm* theAlgorithm = (*it);
+    Gaudi::Algorithm* theAlgorithm = (*it);
     if ( theAlgorithm->name( ) == algname ) {
       
       // Algorithm with specified name exists in the algorithm list - remove it
@@ -671,7 +686,7 @@ void AthSequencer::fpe_callback( int /* sig_number */, siginfo_t *info, void* /*
 }
 
 void
-AthSequencer::cleanupAfterFPE(siginfo_t *info)
+AthSequencer::cleanupAfterFPE(siginfo_t *info) const
 {
   if (info->si_signo != SIGFPE)                      /* should never happen */
     {
@@ -696,6 +711,7 @@ AthSequencer::cleanupAfterFPE(siginfo_t *info)
       // now have to unwind gaudi stack
       // Check if the AlgContextSvc is running
       IAlgContextSvc* algContextSvc(0);
+      EventContext ctx = Gaudi::Hive::currentContext();
       if (service("AlgContextSvc", algContextSvc, /*createIf=*/ false).isSuccess() && algContextSvc)
         {
           IAlgorithm* alg = algContextSvc->currentAlg();
@@ -718,7 +734,7 @@ AthSequencer::cleanupAfterFPE(siginfo_t *info)
                   }
               }
               while ( algContextSvc->algorithms().size() && algContextSvc->currentAlg()->name() != this->name() )
-                if ( algContextSvc->unSetCurrentAlg(algContextSvc->currentAlg()).isFailure() )
+                if ( algContextSvc->unSetCurrentAlg(algContextSvc->currentAlg(),ctx).isFailure() )
                   this->msg() << "cannot unwind: " << algContextSvc->currentAlg();
               this->msg() << endmsg;
             }

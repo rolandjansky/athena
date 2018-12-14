@@ -62,7 +62,7 @@ namespace met {
 
   //**********************************************************************
 
-  StatusCode METReaderAlg::execute_r (const EventContext& ctx) const{ 
+  StatusCode METReaderAlg::execute (const EventContext& ctx) const{ 
     ATH_MSG_VERBOSE("Executing " << name() << "...");
     // Loop over tools.
 

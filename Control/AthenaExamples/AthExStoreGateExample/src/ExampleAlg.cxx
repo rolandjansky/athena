@@ -33,7 +33,7 @@ StatusCode ExampleAlg::initialize()
 }
 
 
-StatusCode ExampleAlg::execute_r (const EventContext& ctx) const
+StatusCode ExampleAlg::execute (const EventContext& ctx) const
 {
   // Construct handles from the keys.
   // Since this is a reentrant algorithm, we have an explicit event context,

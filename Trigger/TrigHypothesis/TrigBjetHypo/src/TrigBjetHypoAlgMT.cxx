@@ -42,7 +42,7 @@ StatusCode TrigBjetHypoAlgMT::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigBjetHypoAlgMT::execute_r( const EventContext& context ) const {  
+StatusCode TrigBjetHypoAlgMT::execute( const EventContext& context ) const {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
 
   SG::ReadHandle< TrigCompositeUtils::DecisionContainer > prevDecisionHandle = SG::makeHandle( decisionInput(),context );

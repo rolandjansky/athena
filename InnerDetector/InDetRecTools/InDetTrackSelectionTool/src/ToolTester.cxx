@@ -44,7 +44,7 @@ StatusCode InDet::ToolTester::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode InDet::ToolTester::execute_r(const EventContext &ctx) const {
+StatusCode InDet::ToolTester::execute(const EventContext &ctx) const {
 
   // Retrieve the tracks:
   SG::ReadHandle<xAOD::TrackParticleContainer> tracks(m_sgKey,ctx);

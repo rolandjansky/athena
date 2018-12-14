@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -43,7 +43,6 @@
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileLaserObject.h"
 #include "TileRecUtils/TileRawChannelBuilderFlatFilter.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileByteStream/TileBeamElemContByteStreamCnv.h"
 #include "TileByteStream/TileLaserObjByteStreamCnv.h"
 #include "TileEvent/TileHitContainer.h"
@@ -228,7 +227,6 @@ TileTBAANtuple::TileTBAANtuple(std::string name, ISvcLocator* pSvcLocator)
   , m_tileInfo(0)
   , m_cabling(0)
   , m_tileToolEmscale("TileCondToolEmscale")
-  , m_beamInfo("TileBeamInfoProvider/TileBeamInfoProvider")
   , m_beamCnv(0)
   , m_currentFileNum(0)
   , m_eventsPerFile(0)
@@ -384,13 +382,7 @@ StatusCode TileTBAANtuple::ntuple_initialize() {
   //=== get TileCondToolEmscale
   CHECK( m_tileToolEmscale.retrieve() );
 
-  CHECK( m_beamInfo.retrieve() );
-
-  CHECK( m_beamInfo->setProperty("TileBeamElemContainer", m_beamElemContainer) );
-
   if (m_TBperiod != 2017)
-    CHECK( m_beamInfo->setProperty("TileDigitsContainer", m_digitsContainer) );
-
   if (m_TBperiod >= 2015)  {
     m_unpackAdder = false;
 

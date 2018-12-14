@@ -13,7 +13,7 @@
 // STL includes
 #include <string>
 #include "xAODTruth/TruthParticleContainer.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/EventContext.h"
 #include "StoreGate/WriteDecorHandleKey.h"
@@ -24,7 +24,7 @@
 #include "InDetPhysValMonitoring/IAthSelectionTool.h"
 
 // class to decorate xAOD::TruthParticles with type and origin, required by validation
-class TruthClassDecoratorAlg: public AthAlgorithm {
+class TruthClassDecoratorAlg: public AthReentrantAlgorithm {
 public:
   TruthClassDecoratorAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~TruthClassDecoratorAlg () {/*nop*/
@@ -32,10 +32,7 @@ public:
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
 
-  virtual StatusCode execute() override;
-
-  // to migrate to AthReentrantAlgorithm later
-  virtual StatusCode execute_r(const EventContext &ctx) const;
+  virtual StatusCode execute(const EventContext &ctx) const;
 
 private:
   bool decorateTruth(const xAOD::TruthParticle& particle,

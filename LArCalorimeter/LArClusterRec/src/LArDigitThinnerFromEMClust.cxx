@@ -47,7 +47,7 @@ StatusCode LArDigitThinnerFromEMClust::finalize() {
 }
 
 
-StatusCode LArDigitThinnerFromEMClust::execute_r(const EventContext& ctx) const {
+StatusCode LArDigitThinnerFromEMClust::execute(const EventContext& ctx) const {
 
   //Get inputs from read handles:
   SG::ReadHandle<LArDigitContainer> inputContainer(m_inputContainerKey,ctx);

@@ -16,12 +16,12 @@
 
 #include "TileMonitoring/TileFatherMonTool.h"
 #include "TileEvent/TileDQstatus.h"
+#include "TileConditions/ITileDCSTool.h"
 #include "StoreGate/ReadHandleKey.h"
 
 #include <array>
 
 class ITileBadChanTool;
-class TileDCSSvc;
 class TileDQstatus;
 class TileRawChannel;
 class TileRawChannelCollection;
@@ -67,7 +67,7 @@ class TileDQFragLWMonTool: public TileFatherMonTool {
     void fillBadDrawer(void);
 
     ToolHandle<ITileBadChanTool> m_tileBadChanTool; //!< Tile Bad Channel tool
-    ServiceHandle<TileDCSSvc> m_tileDCSSvc; //!< Pointer to TileDCSSvc
+    ToolHandle<ITileDCSTool> m_tileDCS{this, "TileDCSTool", "TileDCSTool", "Tile DCS tool"};
 
     /*---------------------------------------------------------*/
     /* properties*/
@@ -84,7 +84,7 @@ class TileDQFragLWMonTool: public TileFatherMonTool {
     bool m_skipMasked;
     bool m_skipGapCells;
     bool m_doOnline;
-    bool m_checkDCS;  //!< if false, do not use TileDCSSvc at all
+    bool m_checkDCS;  //!< if false, do not use TileDCS at all
 
     /* njunior@cern.ch */
     const TileDQstatus* m_dqStatus;

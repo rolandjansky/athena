@@ -45,7 +45,7 @@ StatusCode LArTimeVetoAlg::finalize()
   }
   
 //__________________________________________________________________________
-StatusCode LArTimeVetoAlg::execute_r( const EventContext& ctx ) const
+StatusCode LArTimeVetoAlg::execute( const EventContext& ctx ) const
 {
   ATH_MSG_DEBUG("LArTimeVetoAlg execute()");
 

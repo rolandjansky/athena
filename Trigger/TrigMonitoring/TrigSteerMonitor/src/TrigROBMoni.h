@@ -148,7 +148,7 @@ private:
   const HLT::TrigSteer* m_steering;
 
   /// Steering FEX algos (the ones that can request data)
-  std::vector<Algorithm*> m_fexAlgos;
+  std::vector<Gaudi::Algorithm*> m_fexAlgos;
 
   /// Map to assign ROB history codes to bins
   std::map<robmonitor::ROBHistory, short> m_ROBHistoryToBin;

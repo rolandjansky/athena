@@ -12,7 +12,7 @@
  **/
 // STL includes
 #include <string>
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "StoreGate/WriteDecorHandle.h"
@@ -33,7 +33,7 @@ namespace Trk {
 
 
 // class to decorate xAOD::TruthParticles with additional information required by validation
-class InDetPhysHitDecoratorAlg: public AthAlgorithm {
+class InDetPhysHitDecoratorAlg: public AthReentrantAlgorithm {
 public:
   // L0PIXBARR : layer0 of pixel barrel (IBL in Run2)
   // PIXEL : in barrel all layers appart from layer0. In end-caps all disks/rings.
@@ -48,8 +48,7 @@ public:
   ~InDetPhysHitDecoratorAlg ();
   virtual StatusCode initialize() override;
   virtual StatusCode finalize()   override;
-  virtual StatusCode execute()    override;
-  virtual StatusCode execute_r(const EventContext &ctx) const;
+  virtual StatusCode execute(const EventContext &ctx) const;
 
 private:
   bool

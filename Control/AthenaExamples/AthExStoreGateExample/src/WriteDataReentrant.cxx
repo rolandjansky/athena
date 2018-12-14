@@ -78,7 +78,7 @@ StatusCode WriteDataReentrant::initialize()
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-StatusCode WriteDataReentrant::execute_r (const EventContext& ctx) const
+StatusCode WriteDataReentrant::execute (const EventContext& ctx) const
 {
   //this example illustrates how to record objects into the StoreGate(SG)
   //with and without providing a key

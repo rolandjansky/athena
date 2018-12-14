@@ -77,7 +77,7 @@ StatusCode InDet::CaloClusterROI_Selector::finalize()
 }
 
 // ======================================================================
-StatusCode InDet::CaloClusterROI_Selector::execute_r(const EventContext& ctx) const
+StatusCode InDet::CaloClusterROI_Selector::execute(const EventContext& ctx) const
 {
     //
     // athena execute method

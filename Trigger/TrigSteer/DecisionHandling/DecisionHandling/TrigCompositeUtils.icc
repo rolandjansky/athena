@@ -7,7 +7,7 @@ namespace TrigCompositeUtils {
    * @brief Creates and right away records the Container CONT with the key.
    * No Aux store.
    * Returns the WriteHandle. 
-   * If possible provide the context that comes via an argument to execute_r otherwise it will default to looking it up which is slower.
+   * If possible provide the context that comes via an argument to execute otherwise it will default to looking it up which is slower.
    **/
   template<class CONT>
   SG::WriteHandle<CONT> createAndStoreNoAux( const SG::WriteHandleKey<CONT>& key, const EventContext& ctx ) {
@@ -21,7 +21,7 @@ namespace TrigCompositeUtils {
    * @brief Creates and right away records the Container CONT with the key.
    * With Aux store.
    * Returns the WriteHandle. 
-   * If possible provide the context that comes via an argument to execute_r otherwise it will default to looking it up which is slower.
+   * If possible provide the context that comes via an argument to execute otherwise it will default to looking it up which is slower.
    **/
   template<class CONT, class AUX>
   SG::WriteHandle<CONT> createAndStoreWithAux( const SG::WriteHandleKey<CONT>& key, const EventContext& ctx ) {

@@ -32,7 +32,7 @@ public:
   WriteDataReentrant (const std::string& name, ISvcLocator* pSvcLocator);
   virtual StatusCode initialize() override final;
   virtual StatusCode finalize() override final;
-  virtual StatusCode execute_r (const EventContext& ctx) const override final;
+  virtual StatusCode execute (const EventContext& ctx) const override final;
 
 private:
   SG::WriteHandleKey<MyDataObj> m_dobjKey;

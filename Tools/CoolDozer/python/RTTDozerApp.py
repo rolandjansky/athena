@@ -338,7 +338,7 @@ class RTTDozerApp( DozerApp ):
             
 
         else:
-            self.panic("--> db is closed, crap!")
+            self.panic("--> db is closed!")
             self.html( "Cannot open db..." )
         self.info("-> exiting reader")
         

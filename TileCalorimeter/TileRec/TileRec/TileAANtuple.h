@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -39,21 +39,22 @@
 /// 
 /// 
 //****************************************************************************
-#ifndef TileAANtuple_H
-#define TileAANtuple_H
-
-// Gauid includes
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-
-// Athena includes
-#include "AthenaKernel/IOVSvcDefs.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+#ifndef TILEREC_TILEAANTUPLE_H
+#define TILEREC_TILEAANTUPLE_H
 
 // Tile includes
 #include "TileConditions/TileCablingService.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
 #include "TileEvent/TileLaserObject.h"
+#include "TileConditions/ITileDCSTool.h"
+
+// Athena includes
+#include "AthenaKernel/IOVSvcDefs.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
+
+// Gauid includes
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include <string>
 #include <stdint.h>
@@ -82,7 +83,6 @@ class TileBeamInfoProvider;
 class TileBeamElemContByteStreamCnv;
 class ITileBadChanTool;
 class TileCondToolEmscale;
-class TileDCSSvc;
 class TileL2Builder;
 class ITHistSvc;
 
@@ -348,7 +348,7 @@ class TileAANtuple : public AthAlgorithm {
     int m_finalUnit;  //!< calibrate everything to this level
     bool m_calibMode;  //!< If data should be put in calib mode
     bool m_compareMode;  //!< If two sets of data should be compared (e.g. frag4 and frag5)
-    bool m_checkDCS;   //!< if false, do not use TileDCSSvc at all
+    bool m_checkDCS;   //!< if false, do not use TileDCS at all
     int m_DCSBranches;   //!< mask like 110101 - which DCS branches to fill
 
     // energy units
@@ -363,7 +363,6 @@ class TileAANtuple : public AthAlgorithm {
     // The ntuple
     TTree* m_ntuplePtr;
     TTree* m_DCSntuplePtr;
-    int m_DCScounter;
 
     // handle to THistSvc
     ServiceHandle<ITHistSvc> m_thistSvc;
@@ -384,7 +383,7 @@ class TileAANtuple : public AthAlgorithm {
 
     TileBeamElemContByteStreamCnv* m_beamCnv;
 
-    ServiceHandle<TileDCSSvc> m_tileDCSSvc; //!< Pointer to TileDCSSvc
+    ToolHandle<ITileDCSTool> m_tileDCS{this, "TileDCSTool", "TileDCSTool", "Tile DCS tool"};
 
     // variables to check SumEt in frag5
     ToolHandle<TileL2Builder> m_l2Builder;  //<! Pointer to TileL2Builder
@@ -402,4 +401,4 @@ class TileAANtuple : public AthAlgorithm {
     int m_skipEvents;
 };
 
-#endif
+#endif // TILEREC_TILEAANTUPLE_H

@@ -27,7 +27,7 @@ namespace HLTTest {
   }
 
 
-  StatusCode TestHypoAlg::execute_r( const EventContext& context ) const {  
+  StatusCode TestHypoAlg::execute( const EventContext& context ) const {  
     ATH_MSG_DEBUG( "Executing " << name() << "..." );
     if ( m_recoInput.key().empty() ) {
       ATH_MSG_DEBUG( "No input configured, not producing the output" );

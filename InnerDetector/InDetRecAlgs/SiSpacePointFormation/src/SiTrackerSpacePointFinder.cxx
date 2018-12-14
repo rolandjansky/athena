@@ -164,7 +164,7 @@ StatusCode SiTrackerSpacePointFinder::initialize()
 
 //-------------------------------------------------------------------------
 
-StatusCode SiTrackerSpacePointFinder::execute_r (const EventContext& ctx) const
+StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
 {
 
 

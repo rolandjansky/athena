@@ -53,7 +53,7 @@ StatusCode TrigMuonEFTrackIsolationHypoAlg::finalize()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigMuonEFTrackIsolationHypoAlg::execute_r( const EventContext& context ) const
+StatusCode TrigMuonEFTrackIsolationHypoAlg::execute( const EventContext& context ) const
 {
 
   ATH_MSG_DEBUG("Executing ...");

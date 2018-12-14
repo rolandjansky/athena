@@ -89,7 +89,7 @@ namespace HLTTest {
 
 
 
-  StatusCode TestComboHypoAlg::execute_r( const EventContext& context ) const {  
+  StatusCode TestComboHypoAlg::execute( const EventContext& context ) const {  
 
     ATH_MSG_DEBUG ("Executing " << name() << "...");
 

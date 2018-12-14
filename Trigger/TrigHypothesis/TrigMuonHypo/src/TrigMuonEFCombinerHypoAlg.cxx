@@ -54,9 +54,9 @@ StatusCode TrigMuonEFCombinerHypoAlg::finalize()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigMuonEFCombinerHypoAlg::execute_r( const EventContext& context ) const
+StatusCode TrigMuonEFCombinerHypoAlg::execute( const EventContext& context ) const
 {
-  ATH_MSG_DEBUG("StatusCode TrigMuonEFCombinerHypoAlg::execute_r start");
+  ATH_MSG_DEBUG("StatusCode TrigMuonEFCombinerHypoAlg::execute start");
 
   // common for all hypos, to move in the base class
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
@@ -148,7 +148,7 @@ StatusCode TrigMuonEFCombinerHypoAlg::execute_r( const EventContext& context ) c
     } else ATH_MSG_WARNING( "Output decisions are NOT valid with key : " << decisionOutput().key() );
   }
 
-  ATH_MSG_DEBUG("StatusCode TrigMuonEFCombinerHypoAlg::execute_r success");
+  ATH_MSG_DEBUG("StatusCode TrigMuonEFCombinerHypoAlg::execute success");
   return StatusCode::SUCCESS;
 }
 

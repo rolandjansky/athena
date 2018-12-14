@@ -34,7 +34,7 @@ namespace HLTTest {
   }
 
 
-  StatusCode TestInputMaker::execute_r( const EventContext& context ) const {  
+  StatusCode TestInputMaker::execute( const EventContext& context ) const {  
     ATH_MSG_DEBUG( "Executing " << name() << "..." );
  
     // call base class helper method to read input decisions, loop over them create outputs and connect them, returns with outputHandles filled

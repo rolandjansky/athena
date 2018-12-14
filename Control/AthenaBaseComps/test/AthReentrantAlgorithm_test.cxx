@@ -45,7 +45,7 @@ public:
   MyAlg (const std::string& name, ISvcLocator* svcLoc);
 
   virtual StatusCode initialize() override;
-  virtual StatusCode execute_r (const EventContext& ctx) const override;
+  virtual StatusCode execute (const EventContext& ctx) const override;
 
   virtual void declare(Gaudi::DataHandle& hnd) override;
   virtual void addDependency (const DataObjID& obj, const Gaudi::DataHandle::Mode& mode) override;
@@ -83,7 +83,7 @@ StatusCode MyAlg::initialize()
 }
 
 
-StatusCode MyAlg::execute_r (const EventContext& ctx) const
+StatusCode MyAlg::execute (const EventContext& ctx) const
 {
   pdict = ctx.getExtension<Atlas::ExtendedEventContext>().proxy();
   return StatusCode::SUCCESS;
@@ -171,7 +171,7 @@ void test1 (ISvcLocator* svcLoc)
 
   Gaudi::Hive::setCurrentContext (ctx);
 
-  assert (alg.execute().isSuccess());
+  assert (alg.execute( ctx ).isSuccess());
   assert (pdict == xdict);
 
   DataObjIDColl exp = {
@@ -193,7 +193,7 @@ class MyArrAlg : public AthReentrantAlgorithm
 public:
   MyArrAlg (const std::string& name, ISvcLocator* svcLoc);
 
-  virtual StatusCode execute_r (const EventContext& ctx) const override;
+  virtual StatusCode execute (const EventContext& ctx) const override;
 
   SG::ReadHandleKey<MyObj> rkey;
   SG::WriteHandleKey<MyObj> wkey;
@@ -215,7 +215,7 @@ MyArrAlg::MyArrAlg  (const std::string& name, ISvcLocator* svcLoc)
 }
 
 
-StatusCode MyArrAlg::execute_r (const EventContext& /*ctx*/) const
+StatusCode MyArrAlg::execute (const EventContext& /*ctx*/) const
 {
   return StatusCode::SUCCESS;
 }

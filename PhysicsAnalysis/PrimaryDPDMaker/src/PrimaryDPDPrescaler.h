@@ -46,7 +46,7 @@ public:
   // Private methods
 private:
 
-  StatusCode decodeAlgorithms(StringArrayProperty *theAlgNames, std::vector<Algorithm*> *theAlgs);
+  StatusCode decodeAlgorithms(StringArrayProperty *theAlgNames, std::vector<Gaudi::Algorithm*> *theAlgs);
   bool       isEventAccepted();
 
   void ResetSelfDescription();
@@ -78,10 +78,10 @@ private:
   double m_prescale;
   
   /// List of algorithms to combine with logical OR
-  std::vector<Algorithm*>  m_theAcceptAlgs;
+  std::vector<Gaudi::Algorithm*>  m_theAcceptAlgs;
 
   /// List of algorithms to combine with logical AND
-  std::vector<Algorithm*>  m_theRequireAlgs;
+  std::vector<Gaudi::Algorithm*>  m_theRequireAlgs;
   
 
   /// List of algorithms names to combine with logical OR

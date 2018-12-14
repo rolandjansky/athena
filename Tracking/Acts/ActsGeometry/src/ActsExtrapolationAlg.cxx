@@ -58,7 +58,7 @@ StatusCode ActsExtrapolationAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode ActsExtrapolationAlg::execute_r(const EventContext& ctx) const 
+StatusCode ActsExtrapolationAlg::execute(const EventContext& ctx) const 
 {
 
   ATH_MSG_VERBOSE(name() << "::" << __FUNCTION__);

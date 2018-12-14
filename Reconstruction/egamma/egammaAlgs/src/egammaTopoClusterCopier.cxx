@@ -62,7 +62,7 @@ StatusCode egammaTopoClusterCopier::finalize() {
 }
 
 // =========================================================================
-StatusCode egammaTopoClusterCopier::execute_r(const EventContext& ctx) const {
+StatusCode egammaTopoClusterCopier::execute(const EventContext& ctx) const {
 
   SG::ReadHandle<xAOD::CaloClusterContainer> inputTopoclusters(m_inputTopoCollection, ctx);
   SG::WriteHandle<xAOD::CaloClusterContainer> outputTopoclustersShallow(m_outputTopoCollectionShallow, ctx);

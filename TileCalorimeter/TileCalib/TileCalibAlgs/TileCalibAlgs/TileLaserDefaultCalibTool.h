@@ -5,19 +5,22 @@
 #ifndef TILECALIBALG_TILELASERDEFAULTCALIBTOOL_H
 #define TILECALIBALG_TILELASERDEFAULTCALIBTOOL_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
 
+// Tile includes
 #include "TileCalibAlgs/ITileCalibTool.h"
 #include "TileEvent/TileDQstatus.h"
-#include "StoreGate/ReadHandleKey.h"
-#include <string> 
-#include <map>
-#include <cmath>
-
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/ITileBadChanTool.h"
+#include "TileConditions/ITileDCSTool.h"
 
+// Athena includes
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "StoreGate/ReadHandleKey.h"
+
+#include <string>
+#include <map>
+#include <cmath>
 
 
 #define NDIODES 10
@@ -39,7 +42,6 @@ class TileLaserObject;
 class TileHWID;
 class TFile;
 class RunningStat;
-class TileDCSSvc;
 class ITileStuckBitsProbsTool;
 
 class TileLaserDefaultCalibTool : public AthAlgTool, virtual public ITileCalibTool
@@ -74,8 +76,7 @@ class TileLaserDefaultCalibTool : public AthAlgTool, virtual public ITileCalibTo
   ToolHandle<ITileStuckBitsProbsTool> m_stuckBitsProbs;
   SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
 
-  ServiceHandle<TileDCSSvc>   m_tileDCSSvc; //!< Pointer to TileDCSSvc
-
+  ToolHandle<ITileDCSTool> m_tileDCS{this, "TileDCSTool", "TileDCSTool", "Tile DCS tool"};
 
   // Parameter which will end up in the ROOTuple
   //

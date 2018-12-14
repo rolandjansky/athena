@@ -85,7 +85,7 @@ namespace xAODMaker {
     }
     
     
-    StatusCode xAODTruthCnvAlg::execute_r (const EventContext& ctx) const {
+    StatusCode xAODTruthCnvAlg::execute (const EventContext& ctx) const {
         
         SG::WriteHandle<xAODTruthParticleLinkVector> truthLinkVec(m_truthLinkContainerKey, ctx);
 	ATH_CHECK(truthLinkVec.record(std::make_unique<xAODTruthParticleLinkVector>()));

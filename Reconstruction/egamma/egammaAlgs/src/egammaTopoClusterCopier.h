@@ -23,7 +23,7 @@ class egammaTopoClusterCopier : public AthReentrantAlgorithm {
   /** @brief initialize method */
   virtual StatusCode initialize() override final;
   /** @brief execute on container */
-  virtual StatusCode execute_r(const EventContext& ctx) const override final;
+  virtual StatusCode execute(const EventContext& ctx) const override final;
   /** @brief finalize method */
   virtual StatusCode finalize() override final;
   

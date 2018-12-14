@@ -66,7 +66,7 @@ StatusCode TrigDecisionMakerMT::finalize()
 }
 
 
-StatusCode TrigDecisionMakerMT::execute_r(const EventContext& context) const 
+StatusCode TrigDecisionMakerMT::execute(const EventContext& context) const 
 {
   // increment event counter
   m_nEvents++;

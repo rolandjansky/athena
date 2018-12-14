@@ -73,7 +73,7 @@ StatusCode T2CaloEgammaReFastAlgo::initialize()
 }
 
 
-StatusCode T2CaloEgammaReFastAlgo::execute_r(const EventContext& context) const
+StatusCode T2CaloEgammaReFastAlgo::execute(const EventContext& context) const
 {
   // Time total T2CaloEgamma execution time.
 //  if ( m_timersvc ) m_timer[0]->start();

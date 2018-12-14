@@ -34,7 +34,7 @@ StatusCode TrigL2CaloRingerHypoAlgMT::initialize() {
 }
 
 
-StatusCode TrigL2CaloRingerHypoAlgMT::execute_r( const EventContext& context ) const {  
+StatusCode TrigL2CaloRingerHypoAlgMT::execute( const EventContext& context ) const {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   
   // prepare decisions container and link back to the clusters, and decision on clusters

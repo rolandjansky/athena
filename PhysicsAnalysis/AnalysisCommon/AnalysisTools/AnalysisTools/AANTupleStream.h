@@ -10,7 +10,7 @@
 #include "GaudiKernel/IAddressCreator.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIoComponent.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthLegacySequence.h"
 
 #include <map>
 #include <vector>
@@ -30,7 +30,7 @@ class TTree;
 class TBranch;
 
 class AANTupleStream : virtual public IIoComponent,
-                               public AthAlgorithm
+                               public AthLegacySequence
 {
 public:
     

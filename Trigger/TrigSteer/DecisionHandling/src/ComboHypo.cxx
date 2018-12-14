@@ -156,7 +156,7 @@ void ComboHypo::fillDecisionsMap( std::vector< MultiplicityMap >&  dmap, const E
   }
 }
 
-StatusCode ComboHypo::execute_r(const EventContext& context ) const {
+StatusCode ComboHypo::execute(const EventContext& context ) const {
   ATH_MSG_DEBUG( "Executing " << name() << "..." );
  
   

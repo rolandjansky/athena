@@ -19,6 +19,6 @@ StatusCode HLTResultMTMakerAlg::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode HLTResultMTMakerAlg::execute_r(const EventContext& context) const {
+StatusCode HLTResultMTMakerAlg::execute(const EventContext& context) const {
   return m_resultMaker->makeResult(context);
 }

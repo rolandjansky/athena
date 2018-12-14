@@ -26,7 +26,7 @@ StatusCode EventViewCreatorAlgorithm::initialize() {
 }
 
 
-StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) const {
+StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) const {
 
   // create the output decisions, similar to inputs (copy basic links)
   std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> > outputHandles;
@@ -43,7 +43,7 @@ StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) c
     // auto viewVector = std::make_unique< ViewContainer >();
   auto contexts = std::vector<EventContext>( );
   unsigned int viewCounter = 0;
-  unsigned int conditionsRun = getContext().getExtension<Atlas::ExtendedEventContext>().conditionsRun();
+  unsigned int conditionsRun = context.getExtension<Atlas::ExtendedEventContext>().conditionsRun();
 
   //map all RoIs that are stored
   std::vector <ElementLink<TrigRoiDescriptorCollection> > RoIsFromDecision;

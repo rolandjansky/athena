@@ -31,7 +31,7 @@ namespace TrigCompositeUtils {
    * @brief Creates and right away records the Container CONT with the key.
    * Returns the WriteHandle. 
    * No Aux store.
-   * If possible provide the context that comes via an argument to execute_r otherwise it will default to looking it up which is slower.
+   * If possible provide the context that comes via an argument to execute otherwise it will default to looking it up which is slower.
    **/
   template<class CONT>
     SG::WriteHandle<CONT> createAndStoreNoAux( const SG::WriteHandleKey<CONT>& key, const EventContext& ctx = Gaudi::Hive::currentContext());
@@ -40,7 +40,7 @@ namespace TrigCompositeUtils {
    * @brief Creates and right away records the Container CONT with the key.
    * Returns the WriteHandle. 
    * With Aux store.
-   * If possible provide the context that comes via an argument to execute_r otherwise it will default to looking it up which is slower.
+   * If possible provide the context that comes via an argument to execute otherwise it will default to looking it up which is slower.
    **/
   template<class CONT, class AUX>
     SG::WriteHandle<CONT> createAndStoreWithAux( const SG::WriteHandleKey<CONT>& key, const EventContext& ctx = Gaudi::Hive::currentContext());
@@ -48,7 +48,7 @@ namespace TrigCompositeUtils {
   /**
    * @brief Creates and right away records the DecisionContainer with the key.
    * Returns the WriteHandle. 
-   * If possible provide the context that comes via an argument to execute_r otherwise it will default to looking it up which is slower.
+   * If possible provide the context that comes via an argument to execute otherwise it will default to looking it up which is slower.
    **/
   SG::WriteHandle<DecisionContainer> createAndStore( const SG::WriteHandleKey<DecisionContainer>& key, const EventContext& ctx = Gaudi::Hive::currentContext() );
 
@@ -67,7 +67,7 @@ namespace TrigCompositeUtils {
    * output->push_back(d);    
    * If provided, the name is assigned to the TC object
    * Note that the supplied DecisionContainer must have been recorded in the event store.
-   * If possible provide the context that comes via an argument to execute_r otherwise it will default to looking it up which is slower.
+   * If possible provide the context that comes via an argument to execute otherwise it will default to looking it up which is slower.
    **/  
   Decision* newDecisionIn ( DecisionContainer* dc, const std::string& name = "", const EventContext& ctx = Gaudi::Hive::currentContext() );
 

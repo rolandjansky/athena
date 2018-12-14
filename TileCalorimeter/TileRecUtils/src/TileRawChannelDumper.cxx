@@ -43,7 +43,7 @@ StatusCode TileRawChannelDumper::initialize()
  * @brief Algorithm event processing.
  * @param ctx Event Context.
  */
-StatusCode TileRawChannelDumper::execute_r (const EventContext& ctx) const
+StatusCode TileRawChannelDumper::execute (const EventContext& ctx) const
 {
   if (!m_altContKey.key().empty()) {
     SG::ReadHandle<TileRawChannelContainer> altCont (m_altContKey, ctx);

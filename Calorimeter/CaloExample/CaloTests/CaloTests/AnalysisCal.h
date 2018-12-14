@@ -42,7 +42,7 @@ namespace MyAnalysisCal {
     /** standard Athena-Algorithm method */
     virtual StatusCode          initialize() override;
     /** standard Athena-Algorithm method */
-    virtual StatusCode          execute_r(const EventContext& ctx) const override;
+    virtual StatusCode          execute(const EventContext& ctx) const override;
     /** standard Athena-Algorithm method */
     virtual StatusCode          finalize() override;
   private:

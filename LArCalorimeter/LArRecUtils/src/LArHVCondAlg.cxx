@@ -127,7 +127,7 @@ StatusCode LArHVCondAlg::initialize(){
 }
 
 
-StatusCode LArHVCondAlg::execute_r(const EventContext& ctx) const {
+StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
 
   ATH_MSG_DEBUG("executing");
   bool doHVData=false;

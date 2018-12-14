@@ -317,7 +317,7 @@ StatusCode AthenaOutputStream::initialize() {
 
 StatusCode AthenaOutputStream::stop()
 {
-   ATH_MSG_INFO("AthenaOutputStream " << this->name() << " ::stop()");
+   ATH_MSG_DEBUG("AthenaOutputStream " << this->name() << " ::stop()");
    for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator iter = m_helperTools.begin();
         iter != m_helperTools.end(); iter++) {
       if (!(*iter)->preFinalize().isSuccess()) {

@@ -13,8 +13,11 @@
 #define GAUDISEQUENCER_ATHSEQUENCER_H
 
 // Include files
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthCommonDataStore.h"
+#include "AthenaBaseComps/AthCommonMsg.h"
+
 #include "GaudiKernel/Property.h"
+#include "Gaudi/Sequence.h"
 
 #include "AthenaKernel/AlgorithmTimer.h"
 
@@ -34,7 +37,8 @@
  **             terminated and the AthSequencer assumes the same filtered state as the
  **             last member.
  **/
-class AthSequencer : public AthAlgorithm 
+class AthSequencer
+  : public AthCommonDataStore<AthCommonMsg<Gaudi::Sequence>>
 {
 public:
 
@@ -54,8 +58,6 @@ public:
    ** Public Function Members **
    *****************************/
 
-  /// Mark as a sequencer.
-  virtual bool isSequence() const override final;
 
   /**
    ** Initialization of a sequencer. Typically things like histogram creation,
@@ -74,13 +76,8 @@ public:
    ** The actions to be performed by the sequencer on an event. This method
    ** is invoked once per event.
    **/
-  virtual StatusCode execute( ) override;
-  
-  /**
-   ** AthSequencer finalization.
-   **/
-  virtual StatusCode finalize( ) override;
-  
+  virtual StatusCode execute( const EventContext& ctx ) const override;
+    
   /**
    ** AthSequencer beginRun.
    **/
@@ -102,7 +99,7 @@ public:
   /**
    ** Reset the AthSequencer executed state for the current event.
    **/
-  virtual void resetExecuted( ) override;
+  virtual void resetExecuted( const EventContext& ctx ) const;
 
   /**
    ** Has the StopOverride mode been set?
@@ -112,7 +109,7 @@ public:
   /**
    ** Append an algorithm to the sequencer.
    **/
-  StatusCode append( Algorithm* pAlgorithm );
+  StatusCode append( Gaudi::Algorithm* pAlgorithm );
 
   /**
    ** Create a algorithm and append it to the sequencer. A call to this method
@@ -126,13 +123,13 @@ public:
   StatusCode createAndAppend(
                              const std::string& type,  // The concrete algorithm class of the algorithm
                              const std::string& name,  // The name to be given to the algorithm
-                             Algorithm*& pAlgorithm    // Set to point to the newly created algorithm object
+                             Gaudi::Algorithm*& pAlgorithm    // Set to point to the newly created algorithm object
                              );
 
   /**
    ** Remove the specified algorithm from the sequencer
    **/
-  StatusCode remove( Algorithm* pAlgorithm );
+  StatusCode remove( Gaudi::Algorithm* pAlgorithm );
   StatusCode remove( const std::string& name );
 
   /// Decode Member Name list
@@ -152,8 +149,8 @@ protected:
   /**
    ** Append an algorithm to the sequencer.
    **/
-  StatusCode append( Algorithm* pAlgorithm,
-                     std::vector<Algorithm*>* theAlgs );
+  StatusCode append( Gaudi::Algorithm* pAlgorithm,
+                     std::vector<Gaudi::Algorithm*>* theAlgs );
 
   /**
    ** Create a algorithm and append it to the sequencer. A call to this method
@@ -167,21 +164,21 @@ protected:
   StatusCode createAndAppend(
                              const std::string& type,  // The concrete algorithm class of the algorithm
                              const std::string& name,  // The name to be given to the algorithm
-                             Algorithm*& pAlgorithm,    // Set to point to the newly created algorithm object
-                             std::vector<Algorithm*>* theAlgs
+                             Gaudi::Algorithm*& pAlgorithm,    // Set to point to the newly created algorithm object
+                             std::vector<Gaudi::Algorithm*>* theAlgs
                              );
 
   /**
    ** Decode algorithm names, creating or appending algorithms as appropriate
    **/
   StatusCode decodeNames( Gaudi::Property<std::vector<std::string>>& theNames,
-                          std::vector<Algorithm*>* theAlgs );
+                          std::vector<Gaudi::Algorithm*>* theAlgs );
 
   /**
    ** Remove the specified algorithm from the sequencer
    **/
 
-  StatusCode remove( const std::string& algname, std::vector<Algorithm*>* theAlgs );
+  StatusCode remove( const std::string& algname, std::vector<Gaudi::Algorithm*>* theAlgs );
 
 private:
 
@@ -201,9 +198,10 @@ private:
 
   /// Run one algorithm.
   /// Broken out to avoid warnings related to longjmp.
-  StatusCode executeAlgorithm (Algorithm* theAlgorithm,
+  StatusCode executeAlgorithm (Gaudi::Algorithm* theAlgorithm,
+                               const EventContext& ctx,
                                volatile bool& all_good,
-                               volatile bool& caughtfpe);
+                               volatile bool& caughtfpe) const;
 
   /**************************
    ** Private Data Members **
@@ -247,7 +245,7 @@ private:
   static void fpe_trap_enable();
   static void fpe_callback(int, siginfo_t*, void*);
   static bool prepareCatchAndEnableFPE();
-  void cleanupAfterFPE(siginfo_t*);
+  void cleanupAfterFPE(siginfo_t*) const;
   static void uninstallFPESignalHandler();
   
   static const size_t s_maxArraySize = 50;

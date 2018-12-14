@@ -26,7 +26,7 @@ class TestCaloDataAccess
   TestCaloDataAccess( const std::string& name, ISvcLocator* pSvcLocator );
   virtual ~TestCaloDataAccess(); 
   virtual StatusCode  initialize() override;
-  virtual StatusCode  execute_r(const EventContext& context) const override;
+  virtual StatusCode  execute(const EventContext& context) const override;
  
  private: 
   TestCaloDataAccess();

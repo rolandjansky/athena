@@ -22,7 +22,7 @@ public:
   // ------------------------- AthReentrantAlgorithm methods -------------------
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
-  virtual StatusCode execute_r(const EventContext& eventContext) const override;
+  virtual StatusCode execute(const EventContext& eventContext) const override;
 private:
   ToolHandleArray<MTCalibPebHypoTool> m_hypoTools {this, "HypoTools", {}, "Tools to perform selection"};
 };

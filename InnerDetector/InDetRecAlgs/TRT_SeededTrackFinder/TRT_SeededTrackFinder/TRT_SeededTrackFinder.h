@@ -32,7 +32,7 @@
 #include "InDetRecToolInterfaces/ITRT_TrackExtensionTool.h"
 
 #include "TrkExInterfaces/IExtrapolator.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
 #include "InDetRecToolInterfaces/ITRT_SeededTrackFinder.h" 
 
 
@@ -100,7 +100,7 @@ namespace InDet {
 
 
       ToolHandle<Trk::IExtrapolator>   m_extrapolator; //!< the extrapoator
-      ServiceHandle<IBeamCondSvc>      m_iBeamCondSvc; //!< pointer to the beam condition service
+      SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
       bool   m_SiExtensionCuts; //!< enable cuts after Si segment finding
       double m_minPt;           //!< minimal Pt cut
       double m_maxEta;          //!< maximal Eta cut

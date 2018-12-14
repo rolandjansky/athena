@@ -1,6 +1,5 @@
 include.block ("L1TopoSimulation/L1Simulation_topOptions.py")
 
-# gbl.AthenaServices.SetFatalHandler(438)
 svcMgr.CoreDumpSvc.FatalHandler = 438
 import traceback
 

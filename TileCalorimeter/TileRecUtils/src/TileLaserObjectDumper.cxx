@@ -41,7 +41,7 @@ StatusCode TileLaserObjectDumper::initialize()
  * @brief Algorithm event processing.
  * @param ctx Event Context.
  */
-StatusCode TileLaserObjectDumper::execute_r (const EventContext& ctx) const
+StatusCode TileLaserObjectDumper::execute (const EventContext& ctx) const
 {
   std::string fname = CxxUtils::strformat ("%s%s_%08u_%08lu.dump",
                                            m_prefix.value().c_str(),

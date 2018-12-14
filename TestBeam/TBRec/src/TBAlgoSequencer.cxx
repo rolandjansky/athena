@@ -16,7 +16,7 @@
 
 TBAlgoSequencer::TBAlgoSequencer(const std::string& name,
 				 ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name,pSvcLocator)
+  ::AthLegacySequence   ( name, pSvcLocator )
   , m_timingOn(true)
   , m_eventPrintFreq(100)
   , m_eventCounter(0)
@@ -56,7 +56,7 @@ TBAlgoSequencer::initialize()
 	  ! registerAlgs.isFailure() )
     {
       ListItem   theAlgItem(*subAlgos);
-      Algorithm* theAlgo;
+      Gaudi::Algorithm* theAlgo;
       registerAlgs = createSubAlgorithm(theAlgItem.type(),theAlgItem.name(), 
 					theAlgo);
       if ( ! registerAlgs.isFailure() && theAlgo != 0 )
@@ -93,9 +93,14 @@ TBAlgoSequencer::initialize()
 
   m_rejectPattern.clear();
   
-  return numberOfAlgorithms > 0
-    ? StatusCode::SUCCESS
-    : StatusCode::FAILURE;
+  // return numberOfAlgorithms > 0
+  //   ? StatusCode::SUCCESS
+  //   : StatusCode::FAILURE;
+
+  if (numberOfAlgorithms == 0) return StatusCode::FAILURE;
+
+  return AthLegacySequence::initialize();
+  
 }
 
 /////////////
@@ -137,12 +142,14 @@ TBAlgoSequencer::execute()
   AlgoIterator algoCounter = m_subAlgos.begin();
   StatusCode executeAlgs;
 
+  const EventContext& ctx = getContext();
+
   unsigned int algoIndex = 0;
   while ( ! executeAlgs.isFailure() && algoCounter != m_subAlgos.end() )
     {
       // execute the algorithm
       if ( m_timingOn ) theTicker->chronoStart(m_algoNameStore[algoIndex]);
-      executeAlgs = (*algoCounter)->execute();
+      executeAlgs = (*algoCounter)->execute(ctx);
       if ( m_timingOn ) theTicker->chronoStop(m_algoNameStore[algoIndex]);
       // failure/reject
       if ( executeAlgs.isFailure() )
@@ -264,6 +271,7 @@ TBAlgoSequencer::finalize()
   ATH_MSG_INFO
     ( "======================================================== " );
 
-  return StatusCode::SUCCESS;
+
+  return AthLegacySequence::finalize();
 
 }

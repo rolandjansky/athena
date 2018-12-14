@@ -18,7 +18,8 @@
 // default constructor
 InDet::CompetingSCT_ClustersOnTrack::CompetingSCT_ClustersOnTrack():
         Trk::CompetingRIOsOnTrack(),
-        m_globalPosition(0),
+        m_globalPosition(nullptr),
+        m_mutex(),
         m_containedChildRots(0)
         //
         {}
@@ -26,7 +27,8 @@ InDet::CompetingSCT_ClustersOnTrack::CompetingSCT_ClustersOnTrack():
 // copy constructor
 InDet::CompetingSCT_ClustersOnTrack::CompetingSCT_ClustersOnTrack(const InDet::CompetingSCT_ClustersOnTrack& compROT) :
         Trk::CompetingRIOsOnTrack(compROT),
-        m_globalPosition(compROT.m_globalPosition ? new Amg::Vector3D(*compROT.m_globalPosition) : 0),
+        m_globalPosition(compROT.m_globalPosition ? new Amg::Vector3D(*compROT.m_globalPosition) : nullptr),
+        m_mutex(),
         m_containedChildRots(0) {
     m_containedChildRots = new std::vector< const InDet::SCT_ClusterOnTrack* >;
     std::vector< const InDet::SCT_ClusterOnTrack* >::const_iterator rotIter = compROT.m_containedChildRots->begin();
@@ -43,7 +45,8 @@ InDet::CompetingSCT_ClustersOnTrack::CompetingSCT_ClustersOnTrack(
     
 ):
 Trk::CompetingRIOsOnTrack(assgnProb),
-m_globalPosition(0),
+m_globalPosition(nullptr),
+m_mutex(),
 m_containedChildRots(childrots)
 {
   // initialize local position and error matrix
@@ -61,10 +64,12 @@ InDet::CompetingSCT_ClustersOnTrack& InDet::CompetingSCT_ClustersOnTrack::operat
         delete m_globalPosition;
         m_containedChildRots = new std::vector<const InDet::SCT_ClusterOnTrack*>;
 
-        m_globalPosition     = compROT.m_globalPosition ? new Amg::Vector3D(*compROT.m_globalPosition) : 0;
         std::vector<const InDet::SCT_ClusterOnTrack*>::const_iterator rotIter = compROT.m_containedChildRots->begin();
         for (; rotIter!=compROT.m_containedChildRots->end(); ++rotIter)
             m_containedChildRots->push_back((*rotIter)->clone());
+
+        std::lock_guard<std::mutex> lock{m_mutex};
+        m_globalPosition     = compROT.m_globalPosition ? new Amg::Vector3D(*compROT.m_globalPosition) : nullptr;
     }
     return (*this);
 }
@@ -90,7 +95,7 @@ MsgStream& InDet::CompetingSCT_ClustersOnTrack::dump( MsgStream& out ) const {
                     "over different surfaces") << "  (given prob>cut)" << std::endl;
   Trk::CompetingRIOsOnTrack::dump(out);
   out << "  - GlobalPosition        : ";
-  if (m_globalPosition==NULL) out << "null pointer"<<endmsg;
+  if (m_globalPosition==nullptr) out << "null pointer"<<endmsg;
   else out << *m_globalPosition<<endmsg;
   return out;
 }
@@ -103,7 +108,7 @@ std::ostream& InDet::CompetingSCT_ClustersOnTrack::dump( std::ostream& out ) con
                     "over different surfaces") << "  (given prob>cut)" << std::endl;
   Trk::CompetingRIOsOnTrack::dump(out);
   out << "  - GlobalPosition        : ";
-  if (m_globalPosition==NULL) out << "null pointer"<<std::endl;
+  if (m_globalPosition==nullptr) out << "null pointer"<<std::endl;
   else out << *m_globalPosition<<std::endl;
   return out;
 }

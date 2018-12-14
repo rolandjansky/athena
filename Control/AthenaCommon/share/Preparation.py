@@ -81,22 +81,6 @@ if min_cppyy_vmem_growth:
    del vmem_before_cppyy
 del min_cppyy_vmem_growth, grow_vmem, vmem_mb
 
-from cppyy import gbl
-## backward compat...
-class _AthenaServicesDictBwd:
-  @staticmethod
-  def SetFatalHandler(flags=-1):
-     import AthenaCommon.Logging as L
-     info = L.log.info
-     info("'gbl.AthenaServices.SetFatalHandler(flag)' is DEPRECATED")
-     info("instead, please consider using:")
-     info(" svcMgr.CoreDumpSvc.FatalHandler = flag")
-
-     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-     svcMgr.CoreDumpSvc.FatalHandler = flags
-setattr(gbl, 'AthenaServices', _AthenaServicesDictBwd)
-del _AthenaServicesDictBwd
-## end --
 if not (not opts.run_batch and theApp.EventLoop == "PyAthenaEventLoopMgr"):
    # make SIG_INT fatal
    svcMgr.CoreDumpSvc.FatalHandler = -1

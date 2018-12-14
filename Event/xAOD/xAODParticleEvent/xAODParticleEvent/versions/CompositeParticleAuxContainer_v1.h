@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CompositeParticleAuxContainer_v1.h 677235 2015-06-22 16:08:20Z kkoeneke $
@@ -35,7 +35,7 @@ namespace xAOD {
     /// Default constructor
     CompositeParticleAuxContainer_v1();
     /// Destructor
-    ~CompositeParticleAuxContainer_v1() {}
+    ~CompositeParticleAuxContainer_v1() = default;
 
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // TileCal includes
@@ -234,6 +234,8 @@ void TileBeamInfoProvider::handle(const Incident& inc) {
   // retrive all containers from detector store and cache pointers for future use
 
   if (m_checkBeam) {
+    // Needed due to back-door setting of the property.
+    m_beamElemContainerKey.initialize().ignore();
     SG::ReadHandle<TileBeamElemContainer> beamElemContainer(m_beamElemContainerKey);
     if (beamElemContainer.isValid()) {
       m_beamElemCnt = beamElemContainer.cptr();

@@ -98,7 +98,7 @@ class TileRawChannelTimeMonTool: public TileFatherMonTool {
     std::vector<std::pair<int, int> > m_timeDifferenceBetweenROS;
     int m_nLumiblocks;
     SG::ReadHandleKey<TileDQstatus> m_DQstatusKey;
-    ToolHandle<ITileDCSTool> m_tileDCS;
+    ToolHandle<ITileDCSTool> m_tileDCS{this, "TileDCSTool", "TileDCSTool", "Tile DCS tool"};
     bool m_checkDCS;
 };
 

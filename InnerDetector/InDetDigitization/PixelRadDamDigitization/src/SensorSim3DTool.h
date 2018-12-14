@@ -70,14 +70,14 @@ class SensorSim3DTool : public SensorSimTool {
     int    m_numberOfCharges;  
     double m_diffusionConstant;
 
-    double temperature;
+    double m_temperature;
 
     bool m_doRadDamage;
     bool m_doChunkCorrection;
     double m_fluence; //eventually, this should be pulled from the conditions.
 
-    std::vector<double> fluence_layers;
-    std::map<std::pair<int, int>, double> fluence_layersMaps;
+    std::vector<double> m_fluence_layers;
+    std::map<std::pair<int, int>, double> m_fluence_layersMaps;
     double m_trappingTimeElectrons;
     double m_trappingTimeHoles;
     ServiceHandle<IChargeCollProbSvc> m_chargeCollSvc;

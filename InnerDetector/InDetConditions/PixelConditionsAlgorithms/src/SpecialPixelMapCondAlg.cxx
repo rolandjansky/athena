@@ -151,7 +151,7 @@ StatusCode SpecialPixelMapCondAlg::initialize()
     return StatusCode::SUCCESS;
 }
 
-StatusCode SpecialPixelMapCondAlg::execute_r (const EventContext& ctx) const
+StatusCode SpecialPixelMapCondAlg::execute (const EventContext& ctx) const
 {
     ATH_MSG_DEBUG("Entering SpecialPixelMapCondAlg");
     const std::array<const SG::ReadCondHandleKey<CondAttrListCollection>*, s_max> condarray{{ &m_ConAttrList1, &m_ConAttrList2, &m_ConAttrList3, &m_ConAttrList4 }};

@@ -24,7 +24,7 @@
     InputMakerForRoI( const std::string& name, ISvcLocator* pSvcLocator );
     virtual ~ InputMakerForRoI(); 
     virtual StatusCode  initialize() override;
-    virtual StatusCode  execute_r(const EventContext&) const override;
+    virtual StatusCode  execute(const EventContext&) const override;
     virtual StatusCode  finalize() override;
 
   private: 

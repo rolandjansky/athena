@@ -327,7 +327,7 @@ const std::vector<float>* SCT_DistortionsTool::readDistortions(int RegionID, int
 }
 
 
-bool SCT_DistortionsTool::loadData() const
+bool SCT_DistortionsTool::loadData()
 {
 
   int temp(0);
@@ -528,7 +528,7 @@ int SCT_DistortionsTool::identifyRegion(IdentifierHash id) const
   ATH_MSG_DEBUG( "Identifying module common profile region: " ); 
   //int REGION=0;//1=J1,2=J2,3=UK,4=USA,5=Scand
   //Identifier::value_type ID = id.get_compact();
-  std::map<int,int>::iterator it;
+  std::map<int,int>::const_iterator it;
   
   int ID = id;
   it = m_moduleSites.find(ID);

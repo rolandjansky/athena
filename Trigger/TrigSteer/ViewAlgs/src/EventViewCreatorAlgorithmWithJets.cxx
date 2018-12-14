@@ -26,12 +26,10 @@ StatusCode EventViewCreatorAlgorithmWithJets::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode EventViewCreatorAlgorithmWithJets::execute_r( const EventContext& context ) const {
+StatusCode EventViewCreatorAlgorithmWithJets::execute( const EventContext& context ) const {
  // create the output decisions, similar to inputs (copy basic links)
   std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> > outputHandles;
   ATH_CHECK (decisionInputToOutput(context, outputHandles));
-
-    // make the views
 
     // make the views
   auto viewsHandle = SG::makeHandle( m_viewsKey ); 
@@ -42,7 +40,7 @@ StatusCode EventViewCreatorAlgorithmWithJets::execute_r( const EventContext& con
     //  auto viewVector = std::make_unique< ViewContainer >();
   auto contexts = std::vector<EventContext>( );
   unsigned int viewCounter = 0;
-  unsigned int conditionsRun = getContext().getExtension<Atlas::ExtendedEventContext>().conditionsRun();
+  unsigned int conditionsRun = context.getExtension<Atlas::ExtendedEventContext>().conditionsRun();
 
    //map all RoIs that are stored
   std::vector <ElementLink<TrigRoiDescriptorCollection> > RoIsFromDecision;

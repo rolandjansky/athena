@@ -32,7 +32,7 @@ public:
   PRD_MultiTruthMaker(const std::string &name,ISvcLocator *pSvcLocator);
 
   virtual StatusCode initialize();
-  virtual StatusCode execute_r(const EventContext &ctx) const;
+  virtual StatusCode execute(const EventContext &ctx) const;
   virtual StatusCode finalize();
 
 private:

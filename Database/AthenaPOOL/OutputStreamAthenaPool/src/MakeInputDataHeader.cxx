@@ -34,7 +34,7 @@ StatusCode MakeInputDataHeader::initialize() {
    return(StatusCode::SUCCESS);
 }
 //___________________________________________________________________________
-StatusCode MakeInputDataHeader::execute_r (const EventContext& ctx) const
+StatusCode MakeInputDataHeader::execute (const EventContext& ctx) const
 {
   SG::ReadHandle<DataHeader> dh (m_streamName, ctx);
   ATH_CHECK( dh.alias (m_aliasName) );

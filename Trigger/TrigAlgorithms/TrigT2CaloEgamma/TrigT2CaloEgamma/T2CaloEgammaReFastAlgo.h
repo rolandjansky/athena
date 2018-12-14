@@ -47,7 +47,7 @@ class T2CaloEgammaReFastAlgo: public AthReentrantAlgorithm {
 
     /** main execute will call FEX IAlgToolCalo::execute() to process RoI.
 	called by the Steering per EMRoI. */
-    StatusCode execute_r(const EventContext& context ) const;
+    StatusCode execute(const EventContext& context ) const;
     /** initialize. Called by the Steering. */
     StatusCode initialize();
     /** hltFinalize. Called by the Steering. */

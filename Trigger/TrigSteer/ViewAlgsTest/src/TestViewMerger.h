@@ -26,7 +26,7 @@ public:
   TestViewMerger( const std::string& name, ISvcLocator* pSvcLocator );
   StatusCode initialize();
   StatusCode execute();
-  //  StatusCode execute_r( const EventContext& ctx ) const;
+  //  StatusCode execute( const EventContext& ctx ) const;
 
 private:
   SG::ReadHandleKey< ViewContainer > m_viewsKey; // will be used in evt context

@@ -52,7 +52,7 @@ LVL1::RoiB2TopoInputDataCnv::initialize()
 }
 
 StatusCode
-LVL1::RoiB2TopoInputDataCnv::execute_r (const EventContext& ctx) const
+LVL1::RoiB2TopoInputDataCnv::execute (const EventContext& ctx) const
 {  
    ATH_MSG_DEBUG ("Executing " << name() << "...");
    

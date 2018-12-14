@@ -52,7 +52,10 @@ class TileRawChannelGetter_DigiHSTruth ( Configured)  :
         from TileRecUtils.TileRecFlags import jobproperties
         from TileRecUtils.TileRecUtilsConf import TileBeamInfoProvider
         theTileBeamInfoProvider = TileBeamInfoProvider()
-        if hasattr( ServiceMgr, "TileDCSSvc" ):
+
+        from AthenaCommon.AlgSequence import AthSequencer
+        condSequence = AthSequencer("AthCondSeq")
+        if hasattr(condSequence, 'TileDCSCondAlg'):
             theTileBeamInfoProvider.CheckDCS = True
 
         # true for nominal ATLAS configuration - GlobalFlags.DetGeo.is_atlas()

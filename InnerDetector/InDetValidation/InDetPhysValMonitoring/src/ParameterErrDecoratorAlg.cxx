@@ -44,7 +44,7 @@ ParameterErrDecoratorAlg::finalize() {
 }
 
 StatusCode
-ParameterErrDecoratorAlg::execute_r(const EventContext &ctx) const {
+ParameterErrDecoratorAlg::execute(const EventContext &ctx) const {
   SG::ReadHandle<xAOD::TrackParticleContainer> ptracks(m_trkParticleName);
   if ((not ptracks.isValid())) {
     return StatusCode::FAILURE;
