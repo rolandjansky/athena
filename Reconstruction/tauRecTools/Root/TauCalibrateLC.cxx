@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //tau
@@ -32,7 +32,6 @@ TauCalibrateLC::TauCalibrateLC(const std::string& name) :
   m_doPtResponse(false),
   m_doAxisCorr(false),
   m_usePantauAxis(false),
-  m_printMissingContainerINFO(true),
   m_isCaloOnly(false)
 {
   declareProperty("ConfigPath", m_configPath);

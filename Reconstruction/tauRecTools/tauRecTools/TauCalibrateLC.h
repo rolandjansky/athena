@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAUCALIBRATELC_H
@@ -63,7 +63,6 @@ private:
     bool m_countOnlyPileupVertices; //!< switch for counting vertices by nTracks or VxType::PileUp
     bool m_doAxisCorr;   //!< switch for eta correction
     bool m_usePantauAxis; //!< switch for overwriting calo (eta,phi) with Pantau (eta,phi) 
-    bool m_printMissingContainerINFO;
     bool m_isCaloOnly;   //!< switch for CaloOnly corrections
 
     SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,"Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
