@@ -177,13 +177,6 @@ StatusCode TrigBjetEtHypoAlgMT::retrieveJetsFromEventView( const EventContext& c
   output->setStore( outputAux.release() );
 
   for ( auto previousDecision: *prevDecisionHandle ) {
-    //get RoI
-    ElementLink< TrigRoiDescriptorCollection > roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
-    ATH_CHECK( roiEL.isValid() );
-    const TrigRoiDescriptor* roi = *roiEL;
-    ATH_MSG_DEBUG( "Retrieved RoI from previous decision " );
-    ATH_MSG_DEBUG( "   ** eta=" << roi->eta() <<" phi="<< roi->phi() );
-
     // get View
     ElementLink< ViewContainer > viewEL = previousDecision->objectLink< ViewContainer >( "view" );
     ATH_CHECK( viewEL.isValid() );

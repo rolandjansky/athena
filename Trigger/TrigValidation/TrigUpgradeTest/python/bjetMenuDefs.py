@@ -104,7 +104,7 @@ def bJetStep1Sequence():
     hypo.OutputLevel = DEBUG
     hypo.Jets = jetSplitter.OutputJets
     hypo.RoIs = jetSplitter.OutputRoi
-    hypo.RoILink = "initialRoI" # To be used in following step EventView
+    hypo.RoILink = "step1RoI" # To be used in following step EventView
     hypo.JetLink = "jets" # To be used in following step with EventView
 
     # Sequence     
@@ -205,7 +205,7 @@ def bJetStep2Sequence():
     InputMakerAlg.Views = "BJetViews" # Name of output view
     # RoIs
     InputMakerAlg.InViewRoIs = "InViewRoIs" # Name RoIs are inserted in the view
-    InputMakerAlg.RoIsLink = "initialRoI" # RoIs linked to previous decision
+    InputMakerAlg.RoIsLink = "step1RoI" # RoIs linked to previous decision
     # Jets
     InputMakerAlg.InViewJets = "InViewJets" # Name Jets are inserted in the view
     InputMakerAlg.JetsLink = "jets" # Jets linked to previous decision
@@ -229,7 +229,7 @@ def bJetStep2Sequence():
     from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromName_gsc
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlg_step2")
     hypo.OutputLevel = DEBUG
-    hypo.RoIs = "initialRoI" #InputMakerAlg.InViewRoIs
+    hypo.RoIs = "step1RoI"
     hypo.Jets = theGSC.JetOutputKey
     hypo.RoILink = InputMakerAlg.RoIsLink # To be used in following step EventView
     hypo.JetLink = InputMakerAlg.JetsLink # To be used in following step with EventView
