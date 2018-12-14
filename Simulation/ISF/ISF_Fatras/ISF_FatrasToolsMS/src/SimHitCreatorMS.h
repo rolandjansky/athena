@@ -16,7 +16,6 @@
 #include "GaudiKernel/IIncidentListener.h"
 // ISF includes
 #include "ISF_FatrasInterfaces/ISimHitCreator.h"
-//#include "ISF_FatrasInterfaces/IHitCreator.h"
 // Tracking includes
 #include "TrkParameters/TrackParameters.h"
 #include "TrkExInterfaces/ITimedExtrapolator.h"
@@ -34,8 +33,6 @@ class MdtHitIdHelper;
 class RpcHitIdHelper;
 class CscHitIdHelper;
 class TgcHitIdHelper;
-class sTgcHitIdHelper;
-class MicromegasHitIdHelper;
 
 namespace MuonGM {
   class MuonDetectorManager;
@@ -48,8 +45,6 @@ namespace Muon {
 
 namespace Trk {
   class Layer;
-  class Track;
-  class TrackingGeometry;
 }
 
 namespace ISF {
@@ -62,8 +57,6 @@ struct sTgcSimIdToOfflineId;
 namespace iFatras 
 {
 
-   class IHitCreator;
-    
   /** @class SimHitCreatorMS 
 
       A dedicated instance for Fatras sim hit creation
@@ -131,8 +124,6 @@ namespace iFatras
       RpcHitIdHelper*                      m_rpcHitIdHelper;
       CscHitIdHelper*                      m_cscHitIdHelper;
       TgcHitIdHelper*                      m_tgcHitIdHelper;
-      //sTgcHitIdHelper*                     m_sTgcHitIdHelper;
-      //MicromegasHitIdHelper*               m_mmHitIdHelper;
       MM_SimIdToOfflineId*                 m_mmOffToSimId;
       sTgcSimIdToOfflineId*                m_stgcOffToSimId;
 

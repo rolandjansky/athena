@@ -20,18 +20,10 @@
 // Fatras
 #include "ISF_FatrasInterfaces/ISimHitCreator.h"
 
-// Tracking includes
-#include "TrkExInterfaces/ITimedExtrapolator.h"
-
 // STL
 #include <utility>
 
 class AtlasDetectorID;
-
-namespace Trk {
-  class Track;
-}
-
 
 namespace iFatras {
   
