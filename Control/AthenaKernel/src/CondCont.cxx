@@ -10,6 +10,7 @@
 #include "AthenaKernel/CondCont.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "CxxUtils/AthUnlikelyMacros.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/MsgStream.h"
 #include <iostream>
 
@@ -95,20 +96,6 @@ void CondContBase::setProxy (SG::DataProxy* proxy)
 
 
 /**
- * @brief Dump the container contents for debugging.
- * @param ost Stream to which to write the dump.
- */
-void CondContBase::list (std::ostream& ost) const
-{
-  ost << "id: " << m_id << "  proxy: " << m_proxy << " ["
-      << m_condSet.size() << "] entries" << std::endl;
-  for (const typename CondContSet::value_type& ent : m_condSet.range()) {
-    ost << ent.first.m_range << " " << ent.second << std::endl;
-  }
-}
-
-
-/**
  * @brief Dump the container to cout.  For calling from the debugger.
  */
 void CondContBase::print() const
@@ -123,108 +110,6 @@ void CondContBase::print() const
 size_t CondContBase::entries() const
 {
   return m_condSet.size();
-}
-
-
-/**
- * @brief Return all IOV validity ranges defined in this container.
- */
-std::vector<EventIDRange> 
-CondContBase::ranges() const
-{
-  std::vector<EventIDRange> r;
-  r.reserve (m_condSet.size());
-  for (const typename CondContSet::value_type& ent : m_condSet.range()) {
-    r.push_back( ent.first.m_range );
-  }
-
-  return r;
-}
-
-
-/** 
- * @brief Insert a new conditions object.
- * @param r Range of validity of this object.
- * @param obj Pointer to the object being inserted.
- * @param ctx Event context for the current thread.
- *
- * @c obj must point to an object of type @c T,
- * except in the case of inheritance, where the type of @c obj must
- * correspond to the most-derived @c CondCont type.
- * The container will take ownership of this object.
- *
- * Returns SUCCESS if the object was successfully inserted;
- * OVERLAP if the object was inserted but the range partially overlaps
- * with an existing one;
- * DUPLICATE if the object wasn't inserted because the range
- * duplicates an existing one, and FAILURE otherwise
- * (ownership of the object will be taken in any case).
- */
-StatusCode
-CondContBase::typelessInsert (const EventIDRange& r,
-                              void* obj,
-                              const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
-{
-  return insertBase (r,
-                     CondContSet::payload_unique_ptr (obj, m_condSet.delfcn()),
-                     ctx);
-}
-
-
-/**
- * @brief Return the mapped validity range for an IOV time.
- * @param t IOV time to check.
- * @param r[out] The range containing @c t.
- *
- * Returns true if @c t is mapped; false otherwise.
- */
-bool
-CondContBase::range(const EventIDBase& t, EventIDRange& r) const
-{
-  const EventIDRange* rp = nullptr;
-  if (findBase (t, &rp) != nullptr) {
-    r = *rp;
-    return true;
-  }
-  return false;
-}
-
-
-/**
- * @brief Erase the first element not less than @c t.
- * @param IOV time of element to erase.
- * @param ctx Event context for the current thread.
- */
-StatusCode CondContBase::erase (const EventIDBase& t,
-                                const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
-{
-  switch (m_keyType) {
-  case KeyType::RUNLBN:
-    if (!t.isRunLumi()) {
-      MsgStream msg (Athena::getMessageSvc(), m_id.fullKey());
-      msg << MSG::ERROR << "CondContBase::erase: "
-          << "Non-Run/LBN key used in Run/LBN container."
-          << endmsg;
-      return StatusCode::FAILURE;
-    }
-    m_condSet.erase (CondContBase::keyFromRunLBN (t), ctx);
-    break;
-  case KeyType::TIMESTAMP:
-    if (!t.isTimeStamp()) {
-      MsgStream msg (Athena::getMessageSvc(), m_id.fullKey());
-      msg << MSG::ERROR << "CondContBase::erase: "
-          << "Non-Timestamp key used in timestamp container."
-          << endmsg;
-      return StatusCode::FAILURE;
-    }
-    m_condSet.erase (CondContBase::keyFromTimestamp (t), ctx);
-    break;
-  case KeyType::SINGLE:
-    break;
-  default:
-    std::abort();
-  }
-  return StatusCode::SUCCESS;
 }
 
 
@@ -287,62 +172,9 @@ size_t CondContBase::maxSize() const
 
 
 /**
- * @brief Extend the range of the last IOV.
- * @param newRange New validity range.
- * @param ctx Event context.
- *
- * Returns failure if the start time of @c newRange does not match the start time
- * of the last IOV in the container.  Otherwise, the end time for the last
- * IOV is changed to the end time for @c newRange.  (If the end time for @c newRange
- * is before the end of the last IOV, then nothing is changed.)
- */
-StatusCode
-CondContBase::extendLastRange (const EventIDRange& newRange,
-                               const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
-{
-  key_type start;
-  key_type stop;
-  switch (m_keyType) {
-  case KeyType::RUNLBN:
-    if (!newRange.start().isRunLumi()) {
-      MsgStream msg (Athena::getMessageSvc(), m_id.fullKey());
-      msg << MSG::ERROR << "CondContBase::extendLastRange: "
-          << "Non-Run/LBN range used in Run/LBN container."
-          << endmsg;
-      return StatusCode::FAILURE;
-    }
-    start = keyFromRunLBN (newRange.start());
-    stop  = keyFromRunLBN (newRange.stop());
-    break;
-  case KeyType::TIMESTAMP:
-    if (!newRange.start().isTimeStamp()) {
-      MsgStream msg (Athena::getMessageSvc(), m_id.fullKey());
-      msg << MSG::ERROR << "CondContBase::extendLastRange: "
-          << "Non-timestamp range used in timestamp container."
-          << endmsg;
-      return StatusCode::FAILURE;
-    }
-    start = keyFromTimestamp (newRange.start());
-    stop  = keyFromTimestamp (newRange.stop());
-    break;
-  case KeyType::SINGLE:
-    // Empty container.
-    return StatusCode::FAILURE;
-  default:
-    std::abort();
-  }
-  
-  if (m_condSet.extendLastRange (RangeKey (newRange, start, stop), ctx) != nullptr)
-  {
-    return StatusCode::SUCCESS;
-  }
-  return StatusCode::FAILURE;
-}
-
-
-/**
  * @brief Internal constructor.
  * @param rcusvc RCU service instance.
+ * @param keyType Key type for this container.
  * @param CLID of the most-derived @c CondCont.
  * @param id CLID+key for this object.
  * @param proxy @c DataProxy for this object.
@@ -350,12 +182,13 @@ CondContBase::extendLastRange (const EventIDRange& newRange,
  * @param capacity Initial capacity of the container.
  */
 CondContBase::CondContBase (Athena::IRCUSvc& rcusvc,
+                            KeyType keyType,
                             CLID clid,
                             const DataObjID& id,
                             SG::DataProxy* proxy,
                             CondContSet::delete_function* delfcn,
                             size_t capacity)
-  : m_keyType (KeyType::SINGLE),
+  : m_keyType (keyType),
     m_clid (clid),
     m_id (id),
     m_proxy (proxy),
@@ -391,12 +224,26 @@ CondContBase::insertBase (const EventIDRange& r,
 
   key_type start_key, stop_key;
 
-  if (start.isTimeStamp() && stop.isTimeStamp()) {
+  if (m_keyType == KeyType::MIXED) {
+    if (start.run_number() == EventIDBase::UNDEFNUM ||
+        stop.run_number() == EventIDBase::UNDEFNUM)
+    {
+      MsgStream msg (Athena::getMessageSvc(), title());
+      msg << MSG::ERROR << "CondContBase::insertBase: "
+          << "Run part of range invalid in mixed container."
+          << endmsg;
+      return StatusCode::FAILURE;
+    }
+
+    start_key = keyFromRunLBN (start);
+    stop_key  = keyFromRunLBN (stop);
+  }
+  else if (start.isTimeStamp() && stop.isTimeStamp()) {
     if (m_keyType == KeyType::SINGLE) {
       m_keyType = KeyType::TIMESTAMP;
     }
     else if (m_keyType != KeyType::TIMESTAMP) {
-      MsgStream msg (Athena::getMessageSvc(), m_id.fullKey());
+      MsgStream msg (Athena::getMessageSvc(), title());
       msg << MSG::ERROR << "CondContBase::insertBase: "
           << "Timestamp key used in non-timestamp container."
           << endmsg;
@@ -414,7 +261,7 @@ CondContBase::insertBase (const EventIDRange& r,
       m_keyType = KeyType::RUNLBN;
     }
     else if (m_keyType != KeyType::RUNLBN) {
-      MsgStream msg (Athena::getMessageSvc(), m_id.fullKey());
+      MsgStream msg (Athena::getMessageSvc(), title());
       msg << MSG::ERROR << "CondContBase::insertBase: "
           << "Run/LBN key used in non-Run/LBN container."
           << endmsg;
@@ -426,7 +273,7 @@ CondContBase::insertBase (const EventIDRange& r,
   }
 
   else {
-    MsgStream msg (Athena::getMessageSvc(), m_id.fullKey());
+    MsgStream msg (Athena::getMessageSvc(), title());
     msg << MSG::ERROR << "CondContBase::insertBase: EventIDRange " << r 
         << " is neither fully RunEvent nor TimeStamp" 
         << endmsg;
@@ -449,6 +296,99 @@ CondContBase::insertBase (const EventIDRange& r,
 }
 
 
+/**
+ * @brief Erase the first element not less than @c t.
+ * @param IOV time of element to erase.
+ * @param ctx Event context for the current thread.
+ */
+StatusCode
+CondContBase::eraseBase (const EventIDBase& t,
+                         const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
+{
+  switch (m_keyType) {
+  case KeyType::RUNLBN:
+    if (!t.isRunLumi()) {
+      MsgStream msg (Athena::getMessageSvc(), title());
+      msg << MSG::ERROR << "CondContBase::erase: "
+          << "Non-Run/LBN key used in Run/LBN container."
+          << endmsg;
+      return StatusCode::FAILURE;
+    }
+    m_condSet.erase (CondContBase::keyFromRunLBN (t), ctx);
+    break;
+  case KeyType::TIMESTAMP:
+    if (!t.isTimeStamp()) {
+      MsgStream msg (Athena::getMessageSvc(), title());
+      msg << MSG::ERROR << "CondContBase::erase: "
+          << "Non-Timestamp key used in timestamp container."
+          << endmsg;
+      return StatusCode::FAILURE;
+    }
+    m_condSet.erase (CondContBase::keyFromTimestamp (t), ctx);
+    break;
+  case KeyType::SINGLE:
+    break;
+  default:
+    std::abort();
+  }
+  return StatusCode::SUCCESS;
+}
+
+
+/**
+ * @brief Extend the range of the last IOV.
+ * @param newRange New validity range.
+ * @param ctx Event context.
+ *
+ * Returns failure if the start time of @c newRange does not match the start time
+ * of the last IOV in the container.  Otherwise, the end time for the last
+ * IOV is changed to the end time for @c newRange.  (If the end time for @c newRange
+ * is before the end of the last IOV, then nothing is changed.)
+ */
+StatusCode
+CondContBase::extendLastRangeBase (const EventIDRange& newRange,
+                                   const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
+{
+  key_type start;
+  key_type stop;
+  switch (m_keyType) {
+  case KeyType::RUNLBN:
+    if (!newRange.start().isRunLumi()) {
+      MsgStream msg (Athena::getMessageSvc(), title());
+      msg << MSG::ERROR << "CondContBase::extendLastRange: "
+          << "Non-Run/LBN range used in Run/LBN container."
+          << endmsg;
+      return StatusCode::FAILURE;
+    }
+    start = keyFromRunLBN (newRange.start());
+    stop  = keyFromRunLBN (newRange.stop());
+    break;
+  case KeyType::TIMESTAMP:
+    if (!newRange.start().isTimeStamp()) {
+      MsgStream msg (Athena::getMessageSvc(), title());
+      msg << MSG::ERROR << "CondContBase::extendLastRange: "
+          << "Non-timestamp range used in timestamp container."
+          << endmsg;
+      return StatusCode::FAILURE;
+    }
+    start = keyFromTimestamp (newRange.start());
+    stop  = keyFromTimestamp (newRange.stop());
+    break;
+  case KeyType::SINGLE:
+    // Empty container.
+    return StatusCode::FAILURE;
+  default:
+    std::abort();
+  }
+  
+  if (m_condSet.extendLastRange (RangeKey (newRange, start, stop), ctx) != nullptr)
+  {
+    return StatusCode::SUCCESS;
+  }
+  return StatusCode::FAILURE;
+}
+
+
 /** 
  * @brief Internal lookup function.
  * @param clid CLID for the desired pointer type.
@@ -466,8 +406,9 @@ const void* CondContBase::findBase (const EventIDBase& t,
   key_type key;
   switch (m_keyType) {
   case KeyType::RUNLBN:
+  case KeyType::MIXED:
     if (ATH_UNLIKELY (!t.isRunLumi())) {
-      MsgStream msg (Athena::getMessageSvc(), m_id.fullKey());
+      MsgStream msg (Athena::getMessageSvc(), title());
       msg << MSG::ERROR << "CondContBase::findBase: "
           << "Non-Run/LBN key used in Run/LBN container."
           << endmsg;
@@ -477,7 +418,7 @@ const void* CondContBase::findBase (const EventIDBase& t,
     break;
   case KeyType::TIMESTAMP:
     if (ATH_UNLIKELY (!t.isTimeStamp())) {
-      MsgStream msg (Athena::getMessageSvc(), m_id.fullKey());
+      MsgStream msg (Athena::getMessageSvc(), title());
       msg << MSG::ERROR << "CondContBase::findBase: "
           << "Non-timestamp key used in timestamp container."
           << endmsg;
@@ -530,9 +471,464 @@ void CondContBase::setCleanerSvcName (const std::string& name)
  */
 void CondContBase::insertError (CLID usedCLID) const
 {
-  MsgStream msg (Athena::getMessageSvc(), m_id.fullKey());
+  MsgStream msg (Athena::getMessageSvc(), title());
   msg << MSG::ERROR << "CondCont<T>::insert: Not most-derived class; "
       << "CLID used: " << usedCLID
       << "; container CLID: " << m_clid
       << endmsg;
+}
+
+
+/**
+ * @brief Return the deletion function for this container.
+ */
+CondContBase::delete_function* CondContBase::delfcn() const
+{
+  return m_condSet.delfcn();
+}
+
+
+/**
+ * @brief Description of this container to use for Msgstream.
+ */
+std::string CondContBase::title() const
+{
+  return m_id.fullKey();
+}
+
+
+//****************************************************************************
+
+
+/**
+ * @brief Dump the container contents for debugging.
+ * @param ost Stream to which to write the dump.
+ */
+void CondContSingleBase::list (std::ostream& ost) const
+{
+  ost << "id: " << id() << "  proxy: " << proxy() << " ["
+      << entries() << "] entries" << std::endl;
+  forEach ([&] (const CondContSet::value_type& ent)
+           { ost << ent.first.m_range << " " << ent.second << std::endl; });
+}
+
+
+/**
+ * @brief Return all IOV validity ranges defined in this container.
+ */
+std::vector<EventIDRange> 
+CondContSingleBase::ranges() const
+{
+  std::vector<EventIDRange> r;
+  r.reserve (entries());
+
+  forEach ([&] (const CondContSet::value_type& ent)
+           { r.push_back (ent.first.m_range); });
+
+  return r;
+}
+
+
+/** 
+ * @brief Insert a new conditions object.
+ * @param r Range of validity of this object.
+ * @param obj Pointer to the object being inserted.
+ * @param ctx Event context for the current thread.
+ *
+ * @c obj must point to an object of type @c T,
+ * except in the case of inheritance, where the type of @c obj must
+ * correspond to the most-derived @c CondCont type.
+ * The container will take ownership of this object.
+ *
+ * Returns SUCCESS if the object was successfully inserted;
+ * OVERLAP if the object was inserted but the range partially overlaps
+ * with an existing one;
+ * DUPLICATE if the object wasn't inserted because the range
+ * duplicates an existing one, and FAILURE otherwise
+ * (ownership of the object will be taken in any case).
+ */
+StatusCode
+CondContSingleBase::typelessInsert (const EventIDRange& r,
+                                    void* obj,
+                                    const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
+{
+  return insertBase (r,
+                     CondContSet::payload_unique_ptr (obj, delfcn()),
+                     ctx);
+}
+
+
+/**
+ * @brief Return the mapped validity range for an IOV time.
+ * @param t IOV time to check.
+ * @param r[out] The range containing @c t.
+ *
+ * Returns true if @c t is mapped; false otherwise.
+ */
+bool
+CondContSingleBase::range (const EventIDBase& t, EventIDRange& r) const
+{
+  const EventIDRange* rp = nullptr;
+  if (findBase (t, &rp) != nullptr) {
+    r = *rp;
+    return true;
+  }
+  return false;
+}
+
+
+/**
+ * @brief Erase the first element not less than @c t.
+ * @param IOV time of element to erase.
+ * @param ctx Event context for the current thread.
+ */
+StatusCode
+CondContSingleBase::erase (const EventIDBase& t,
+                           const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
+{
+  return CondContBase::eraseBase (t, ctx);
+}
+
+
+/**
+ * @brief Extend the range of the last IOV.
+ * @param newRange New validity range.
+ * @param ctx Event context.
+ *
+ * Returns failure if the start time of @c newRange does not match the start time
+ * of the last IOV in the container.  Otherwise, the end time for the last
+ * IOV is changed to the end time for @c newRange.  (If the end time for @c newRange
+ * is before the end of the last IOV, then nothing is changed.)
+ */
+StatusCode
+CondContSingleBase::extendLastRange (const EventIDRange& newRange,
+                                     const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
+{
+  return CondContBase::extendLastRangeBase (newRange, ctx);
+}
+
+
+/**
+ * @brief Internal constructor.
+ * @param rcusvc RCU service instance.
+ * @param CLID of the most-derived @c CondCont.
+ * @param id CLID+key for this object.
+ * @param proxy @c DataProxy for this object.
+ * @param delfcn Deletion function for the actual payload type.
+ * @param capacity Initial capacity of the container.
+ */
+CondContSingleBase::CondContSingleBase (Athena::IRCUSvc& rcusvc,
+                                        CLID clid,
+                                        const DataObjID& id,
+                                        SG::DataProxy* proxy,
+                                        CondContSet::delete_function* delfcn,
+                                        size_t capacity)
+  : CondContBase (rcusvc, KeyType::SINGLE, clid, id, proxy, delfcn, capacity)
+{
+}
+
+
+//****************************************************************************
+
+
+/**
+ * @brief Internal constructor.
+ * @param rcusvc RCU service instance.
+ * @param CLID of the most-derived @c CondCont.
+ * @param id CLID+key for this object.
+ * @param proxy @c DataProxy for this object.
+ * @param payloadDelfcn Deletion function for the actual payload type.
+ * @param capacity Initial capacity of the container.
+ */
+CondContMixedBase::CondContMixedBase (Athena::IRCUSvc& rcusvc,
+                                      CLID clid,
+                                      const DataObjID& id,
+                                      SG::DataProxy* proxy,
+                                      CondContSet::delete_function* payloadDelfcn,
+                                      size_t capacity)
+  : CondContBase (rcusvc, KeyType::MIXED, clid, id, proxy, delfcn, capacity),
+    m_rcusvc (rcusvc),
+    m_payloadDelfcn (payloadDelfcn)
+{
+}
+
+
+/**
+ * @brief Dump the container contents for debugging.
+ * @param ost Stream to which to write the dump.
+ */
+void CondContMixedBase::list (std::ostream& ost) const
+{
+  ost << "id: " << id() << "  proxy: " << proxy() << " ["
+      << entries() << "] run+lbn entries" << std::endl;
+  forEach ([&] (const CondContSet::value_type& ent)
+           {
+             const CondContSet* tsmap =
+               reinterpret_cast<const CondContSet*> (ent.second);
+             for (const CondContSet::value_type& ent2 : tsmap->range()) {
+               ost << ent2.first.m_range << " " << ent2.second << std::endl;
+             }
+           });
+}
+
+
+/**
+ * @brief Return all IOV validity ranges defined in this container.
+ */
+std::vector<EventIDRange> 
+CondContMixedBase::ranges() const
+{
+  std::vector<EventIDRange> r;
+  r.reserve (entries()*2);
+
+  forEach ([&] (const CondContSet::value_type& ent)
+           {
+             const CondContSet* tsmap =
+               reinterpret_cast<const CondContSet*> (ent.second);
+             for (const CondContSet::value_type& ent2 : tsmap->range()) {
+               r.push_back (ent2.first.m_range);
+             }
+           });
+
+  return r;
+}
+
+
+/** 
+ * @brief Insert a new conditions object.
+ * @param r Range of validity of this object.
+ * @param obj Pointer to the object being inserted.
+ * @param ctx Event context for the current thread.
+ *
+ * @c obj must point to an object of type @c T,
+ * except in the case of inheritance, where the type of @c obj must
+ * correspond to the most-derived @c CondCont type.
+ * The container will take ownership of this object.
+ *
+ * Returns SUCCESS if the object was successfully inserted;
+ * OVERLAP if the object was inserted but the range partially overlaps
+ * with an existing one;
+ * DUPLICATE if the object wasn't inserted because the range
+ * duplicates an existing one, and FAILURE otherwise
+ * (ownership of the object will be taken in any case).
+ */
+StatusCode
+CondContMixedBase::typelessInsert (const EventIDRange& r,
+                                   void* obj,
+                                   const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
+{
+  return insertMixed (r,
+                      CondContSet::payload_unique_ptr (obj, payloadDelfcn()),
+                      ctx);
+}
+
+
+/**
+ * @brief Return the mapped validity range for an IOV time.
+ * @param t IOV time to check.
+ * @param r[out] The range containing @c t.
+ *
+ * Returns true if @c t is mapped; false otherwise.
+ */
+bool
+CondContMixedBase::range (const EventIDBase& t, EventIDRange& r) const
+{
+  const EventIDRange* rp = nullptr;
+  if (findMixed (t, &rp) != nullptr) {
+    r = *rp;
+    return true;
+  }
+  return false;
+}
+
+
+/**
+ * @brief Erase the first element not less than @c t.
+ * @param IOV time of element to erase.
+ * @param ctx Event context for the current thread.
+ *
+ * This is not implemented for mixed containers.
+ */
+StatusCode
+CondContMixedBase::erase (const EventIDBase& /*t*/,
+                          const EventContext& /*ctx = Gaudi::Hive::currentContext()*/)
+{
+  MsgStream msg (Athena::getMessageSvc(), title());
+  msg << MSG::ERROR << "CondContMixedBase::erase: "
+      << "erase() is not implemented for mixed containers."
+      << endmsg;
+  return StatusCode::FAILURE;
+}
+
+
+/**
+ * @brief Extend the range of the last IOV.
+ * @param newRange New validity range.
+ * @param ctx Event context.
+ *
+ * Returns failure if the start time of @c newRange does not match the start time
+ * of the last IOV in the container.  Otherwise, the end time for the last
+ * IOV is changed to the end time for @c newRange.  (If the end time for @c newRange
+ * is before the end of the last IOV, then nothing is changed.)
+ *
+ * This is not implemented for mixed containers.
+ */
+StatusCode
+CondContMixedBase::extendLastRange (const EventIDRange& /*newRange*/,
+                                    const EventContext& /*ctx = Gaudi::Hive::currentContext()*/)
+{
+  MsgStream msg (Athena::getMessageSvc(), title());
+  msg << MSG::ERROR << "CondContMixedBase::extendLastRange: "
+      << "extendLastRange() is not implemented for mixed containers."
+      << endmsg;
+  return StatusCode::FAILURE;
+}
+
+
+/** 
+ * @brief Insert a new conditions object.
+ * @param r Range of validity of this object.
+ * @param t Pointer to the object being inserted.
+ * @param ctx Event context for the current thread.
+ *
+ * Returns SUCCESS if the object was successfully inserted;
+ * OVERLAP if the object was inserted but the range partially overlaps
+ * with an existing one;
+ * DUPLICATE if the object wasn't inserted because the range
+ * duplicates an existing one, and FAILURE otherwise
+ * (ownership of the object will be taken in any case).
+ */
+StatusCode
+CondContMixedBase::insertMixed (const EventIDRange& r,
+                                CondContBase::CondContSet::payload_unique_ptr t,
+                                const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
+{
+  // Serialize insertions.  This may not actually be needed, but just in case.
+  std::lock_guard<std::mutex> lock (m_mutex);
+
+  const EventIDRange* range = nullptr;
+  const void* tsmap_void = findBase (r.start(), &range);
+  CondContSet* tsmap ATLAS_THREAD_SAFE =
+    const_cast<CondContSet*>(reinterpret_cast<const CondContSet*> (tsmap_void));
+
+  StatusCode sc = StatusCode::SUCCESS;
+  sc.ignore();
+  if (tsmap) {
+    if (r.start().run_number() != range->start().run_number() ||
+        r.stop().run_number() != range->stop().run_number() ||
+        r.start().lumi_block() != range->start().lumi_block() ||
+        r.stop().lumi_block() != range->stop().lumi_block())
+    {
+      MsgStream msg (Athena::getMessageSvc(), title());
+      msg << MSG::ERROR << "CondContMixedBase::insertMixed: "
+          << "Run+lbn part of new range doesn't match existing range. "
+          << "New: " << r << "; existing: " << *range
+          << endmsg;
+      return StatusCode::FAILURE;
+    }
+  }
+  else {
+    auto newmap = std::make_unique<CondContSet>
+      (Updater_t (m_rcusvc, m_payloadDelfcn), m_payloadDelfcn, 16);
+    tsmap = newmap.get();
+    sc = insertBase (r, std::move (newmap), ctx);
+    if (sc.isFailure()) {
+      return sc;
+    }
+    else if (Category::isDuplicate (sc)) {
+      // Shouldn't happen...
+      std::abort();
+    }
+  }
+
+  if (!r.start().isTimeStamp() || !r.stop().isTimeStamp())
+  {
+    MsgStream msg (Athena::getMessageSvc(), title());
+    msg << MSG::ERROR << "CondContMixedBase::insertMixed: "
+        << "Range does not have both start and stop timestamps defined."
+        << endmsg;
+    return StatusCode::FAILURE;
+  }
+
+  key_type start_key = keyFromTimestamp (r.start());
+  key_type stop_key  = keyFromTimestamp (r.stop());
+
+  CondContSet::EmplaceResult reslt =
+    tsmap->emplace ( RangeKey(r, start_key, stop_key),
+                     std::move(t), ctx );
+
+  if (reslt == CondContSet::EmplaceResult::DUPLICATE)
+  {
+    return CondContStatusCode::DUPLICATE;
+  }
+  else if (reslt == CondContSet::EmplaceResult::OVERLAP) {
+    return CondContStatusCode::OVERLAP;
+  }
+  
+  return sc;
+}
+
+
+/** 
+ * @brief Internal lookup function.
+ * @param t IOV time to find.
+ * @param r If non-null, copy validity range of the object here.
+ *
+ * Looks up the conditions object corresponding to the IOV time @c t.
+ * If found, return the pointer (as a pointer to the payload type
+ * of the most-derived CondCont).  Otherwise, return nullptr.
+ */
+const void*
+CondContMixedBase::findMixed (const EventIDBase& t,
+                              EventIDRange const** r) const
+{
+  const void* ptr = CondContBase::findBase (t, nullptr);
+  if (!ptr) return nullptr;
+
+  if (!t.isTimeStamp()) {
+    MsgStream msg (Athena::getMessageSvc(), title());
+    msg << MSG::ERROR << "CondContMixedBase::findMixed: "
+        << "No valid timestamp in key used with mixed container."
+        << endmsg;
+    return nullptr;
+  }
+
+  const CondContSet* tsmap = reinterpret_cast<const CondContSet*> (ptr);
+  key_type key = keyFromTimestamp (t);
+  CondContSet::const_iterator it = tsmap->find (key);
+
+  if (it && key < it->first.m_stop) {
+    if (r) {
+      *r = &it->first.m_range;
+    }
+    ptr = it->second;
+  }
+  else {
+    ptr = nullptr;
+  }
+
+  return ptr;
+}
+
+
+/**
+ * @brief Return the payload deletion function for this container.
+ */
+CondContBase::delete_function* CondContMixedBase::payloadDelfcn() const
+{
+  return m_payloadDelfcn;
+}
+
+
+/**
+ * @brief Do pointer conversion for the payload type.
+ * @param clid CLID for the desired pointer type.
+ * @param ptr Pointer of type @c T*.
+ *
+ * This just aborts, since we don't currently implement inheritance
+ * for mixed types.
+ */
+const void* CondContMixedBase::doCast (CLID /*clid*/, const void* /*ptr*/) const
+{
+  std::abort();
 }

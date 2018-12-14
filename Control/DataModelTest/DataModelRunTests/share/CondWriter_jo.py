@@ -29,7 +29,29 @@ include ('DataModelRunTests/loadWriteDicts.py')
 #--------------------------------------------------------------
 # Event related parameters
 #--------------------------------------------------------------
-theApp.EvtMax = 20
+theApp.EvtMax = 30
+
+#
+# For purposes of this test, we assume that timestamp (in sec) matches
+# the event number (starting with 0) and that LBN counts every 3 events.
+#
+# We write four folders:
+# /DMTest/TestAttrList (runlbn):
+#  Attribute list.  New IOV for every LBN.  xint=(lbn+1)*10
+# /DMTest/S2 (runlbn):
+#  DMTest::S2.  New IOV for every 2 LBNs.  payload: lbn*50
+# /DMTest/RLTest (runlbn):
+#  Attribute list, defined as below.
+# /DMTest/TSTest (timestamp):
+#  Attribute list, defined as below.
+
+#  lbn:     0..1..2..3..4..5..6..7..8..9..
+#
+# lbn iov:  1..2.....3..4........5..6..7..
+#  ts iov:  1..2..34..5......6.7..8...9...   * 100
+#
+# event:              11111111112222222222
+# (ts)      012345678901234567890123456789
 
 #--------------------------------------------------------------
 # Output options
@@ -38,7 +60,7 @@ theApp.EvtMax = 20
 
 from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
 condstream = AthenaOutputStreamTool ('CondStream',
-                                         OutputFile = 'condtest.pool.root')
+                                     OutputFile = 'condtest.pool.root')
 
 from DataModelTestDataCommon.DataModelTestDataCommonConf import \
      DMTest__CondWriterAlg

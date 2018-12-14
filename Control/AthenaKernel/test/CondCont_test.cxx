@@ -130,6 +130,14 @@ CONDCONT_BASE(D, B);
 CLASS_DEF(CondCont<B>, 932847546, 0)
 CLASS_DEF(CondCont<D>, 932847547, 0)
 
+CLASS_DEF(CondContMixed<B>, 932847548, 0)
+
+
+bool succ (StatusCode sc)
+{
+  return sc.getCode() == static_cast<StatusCode::code_t>(StatusCode::SUCCESS);
+}
+
 
 EventIDBase runlbn (int run, int lbn)
 {
@@ -146,6 +154,16 @@ EventIDBase timestamp (int t)
   return EventIDBase (EventIDBase::UNDEFNUM,  // run
                       EventIDBase::UNDEFEVT,  // event
                       t);
+}
+
+
+EventIDBase mixed (int run, int lbn, float t)
+{
+  return EventIDBase (run,  // run
+                      EventIDBase::UNDEFEVT,  // event
+                      int(t),
+                      int((t - int(t)) * 1e9), // timestamp ns
+                      lbn);
 }
 
 
@@ -183,9 +201,9 @@ void fillit (CondCont<T>& cc_rl, CondCont<T>& cc_ts, std::vector<T*> & ptrs)
   ptrs.push_back (new T(2));
   ptrs.push_back (new T(3));
 
-  assert( cc_rl.typelessInsert (r1, ptrs[0]).isSuccess() );
-  assert( cc_rl.typelessInsert (r2, ptrs[1]).isSuccess() );
-  assert( cc_ts.insert (r3, std::unique_ptr<T> (ptrs[2])).isSuccess() );
+  assert(succ( cc_rl.typelessInsert (r1, ptrs[0]) ));
+  assert(succ( cc_rl.typelessInsert (r2, ptrs[1]) ));
+  assert(succ( cc_ts.insert (r3, std::unique_ptr<T> (ptrs[2])) ));
   {
     StatusCode sc = cc_ts.insert (r3, std::make_unique<T> (99));
     assert (sc.isSuccess());
@@ -421,7 +439,155 @@ void test3 (TestRCUSvc& rcusvc)
 }
 
 
-//*******************************************************************************
+class CondContMixedTest
+  : public CondContMixed<B>
+{
+public:
+  CondContMixedTest (Athena::IRCUSvc& rcusvc, const DataObjID& id)
+    : CondContMixed<B> (rcusvc, ClassID_traits<CondContMixed<B> >::ID(),
+                        id, nullptr, 16)
+  {
+  }
+};
+
+
+// Testing mixed keys.
+void test4 (TestRCUSvc& rcusvc)
+{
+  std::cout << "test4\n";
+  DataObjID id ("cls", "key");
+
+  std::vector<B*> bptrs;
+  for (int i=0; i < 6; i++) {
+    bptrs.push_back (new B(i+1));
+  }
+
+  // Insert
+
+  CondContMixedTest cc (rcusvc, id);
+  assert (cc.keyType() == CondContBase::KeyType::MIXED);
+
+  assert (succ (cc.insert (EventIDRange (mixed(1, 10, 1),
+                                         mixed(1, 20, 2)),
+                           std::unique_ptr<B>(bptrs[0]))) );
+  assert (succ (cc.insert (EventIDRange (mixed(1, 10, 2),
+                                         mixed(1, 20, 4.5)),
+                           std::unique_ptr<B>(bptrs[1]))) );
+
+  assert (succ (cc.insert (EventIDRange (mixed(1, 30, 25),
+                                         mixed(1, 40, 30)),
+                           std::unique_ptr<B>(bptrs[2]))) );
+
+  assert (succ (cc.insert (EventIDRange (mixed(2, 10, 100),
+                                         mixed(2, 20, 103.5)),
+                           std::unique_ptr<B>(bptrs[3]))) );
+  assert (succ (cc.insert (EventIDRange (mixed(2, 10, 103.5),
+                                         mixed(2, 20, 110)),
+                           std::unique_ptr<B>(bptrs[4]))) );
+  assert (succ (cc.typelessInsert (EventIDRange (mixed(2, 10, 120),
+                                                 mixed(2, 20, 130)),
+                                   bptrs[5])) );
+
+  assert (cc.insert (EventIDRange (mixed(2, 10, 150),
+                                   mixed(2, 15, 150)),
+                     std::make_unique<B>(7)).isFailure());
+  assert (cc.insert (EventIDRange (mixed(2, 10, 150),
+                                   runlbn(2, 20)),
+                     std::make_unique<B>(8)).isFailure());
+
+  StatusCode sc = cc.insert (EventIDRange (mixed(2, 10, 120),
+                                           mixed(2, 20, 130)),
+                             std::make_unique<B>(9));
+  assert (sc.isSuccess());
+  assert (CondContBase::Category::isDuplicate (sc));
+
+
+  // List
+  std::ostringstream ss1;
+  cc.list (ss1);
+  std::ostringstream exp1;
+  exp1 << "id:  ( 'UNKNOWN_CLASS:cls' , 'key' )   proxy: 0 [3] run+lbn entries\n";
+  exp1 << "{[1,t:1,l:10] - [1,t:2,l:20]} " << bptrs[0] << "\n";
+  exp1 << "{[1,t:2,l:10] - [1,t:4.500000000,l:20]} " << bptrs[1] << "\n";
+  exp1 << "{[1,t:25,l:30] - [1,t:30,l:40]} " << bptrs[2] << "\n";
+  exp1 << "{[2,t:100,l:10] - [2,t:103.500000000,l:20]} " << bptrs[3] << "\n";
+  exp1 << "{[2,t:103.500000000,l:10] - [2,t:110,l:20]} " << bptrs[4] << "\n";
+  exp1 << "{[2,t:120,l:10] - [2,t:130,l:20]} " << bptrs[5] << "\n";
+  //std::cout << "ss1: " << ss1.str() << "\nexp1: " << exp1.str() << "\n";
+  assert (ss1.str() == exp1.str());
+
+
+  // Ranges
+  std::vector<EventIDRange> rvec = cc.ranges();
+  assert (rvec.size() == 6);
+  assert (rvec[0] == EventIDRange (mixed(1, 10,   1),   mixed(1, 20,   2)));
+  assert (rvec[1] == EventIDRange (mixed(1, 10,   2),   mixed(1, 20,   4.5)));
+  assert (rvec[2] == EventIDRange (mixed(1, 30,  25),   mixed(1, 40,  30)));
+  assert (rvec[3] == EventIDRange (mixed(2, 10, 100),   mixed(2, 20, 103.5)));
+  assert (rvec[4] == EventIDRange (mixed(2, 10, 103.5), mixed(2, 20, 110)));
+  assert (rvec[5] == EventIDRange (mixed(2, 10, 120),   mixed(2, 20, 130)));
+
+
+  // Find
+  const EventIDRange* range = nullptr;
+  const B* obj = nullptr;
+  assert (!cc.find (runlbn(1, 10), obj, &range));
+  assert (!cc.find (timestamp(110), obj, &range));
+
+  assert (cc.find (mixed(1, 12, 3), obj, &range));
+  assert (obj->m_x == 2);
+  assert (*range == EventIDRange (mixed(1, 10,   2),   mixed(1, 20,   4.5)));
+
+  assert (cc.find (mixed(1, 35, 25), obj, &range));
+  assert (obj->m_x == 3);
+  assert (*range == EventIDRange (mixed(1, 30,  25),   mixed(1, 40,  30)));
+                             
+  assert (cc.find (mixed(2, 12, 103.7), obj, &range));
+  assert (obj->m_x == 5);
+  assert (*range == EventIDRange (mixed(2, 10, 103.5), mixed(2, 20, 110)));
+
+  assert (!cc.find (mixed(1, 12, 10), obj, &range));
+  assert (!cc.find (mixed(1,  8,  3), obj, &range));
+  assert (!cc.find (mixed(1, 35, 20), obj, &range));
+  assert (!cc.find (mixed(2, 15, 115), obj, &range));
+
+
+  // Valid
+  assert (!cc.valid (runlbn(1, 10)));
+  assert (!cc.valid (timestamp(110)));
+
+  assert (cc.valid (mixed(1, 12, 3)));
+  assert (cc.valid (mixed(1, 35, 25)));
+  assert (cc.valid (mixed(2, 12, 103.7)));
+
+  assert (!cc.valid (mixed(1, 12, 10)));
+  assert (!cc.valid (mixed(1,  8,  3)));
+  assert (!cc.valid (mixed(1, 35, 20)));
+  assert (!cc.valid (mixed(2, 15, 115)));
+
+
+  // Range
+  EventIDRange r2;
+  assert (cc.range (mixed(1, 35, 25), r2));
+  assert (r2 == EventIDRange (mixed(1, 30,  25),   mixed(1, 40,  30)));
+  assert (!cc.range (mixed(1, 35, 20), r2));
+
+
+  // Insert w/overlap
+  sc = cc.insert (EventIDRange (mixed (2, 10, 125),
+                                mixed (2, 20, 127)),
+                  std::make_unique<B> (11));
+  assert (CondContBase::Category::isOverlap (sc));
+
+
+  // Erase/extendLastRange
+  assert (cc.erase (mixed(2, 10, 100)).isFailure());
+  assert (cc.extendLastRange (EventIDRange (mixed(2, 10, 125),
+                                            mixed(2, 20, 200))).isFailure());
+}
+
+
+//******************************************************************************
 
 
 std::shared_timed_mutex start_mutex;
@@ -631,6 +797,210 @@ void testThread (TestRCUSvc& rcusvc)
 }
 
 
+//******************************************************************************
+
+
+class testThread_MixedWriter
+  : public testThread_Base
+{
+public:
+  testThread_MixedWriter (int slot, CondContMixedTest& map);
+  void operator()();
+  EventIDRange makeRange (int i);
+
+private:
+  CondContMixedTest& m_map;
+};
+
+
+testThread_MixedWriter::testThread_MixedWriter (int slot, CondContMixedTest& map)
+  : testThread_Base (slot),
+    m_map (map)
+{
+}
+
+
+void testThread_MixedWriter::operator()()
+{
+  setContext();
+  std::shared_lock<std::shared_timed_mutex> lock (start_mutex);
+
+  for (int i=0; i < nwrites; i++) {
+    if (i >= ninflight/2) {
+      std::vector<CondContBase::key_type> keys;
+      keys.reserve (ninflight/2);
+      for (int j = i/2-ninflight/2; j<i/2; j++) {
+        keys.push_back (j);
+      }
+      m_map.trim (keys);
+    }
+    EventIDRange r = makeRange(i);
+    int payload = r.start().lumi_block() + r.start().time_stamp();
+    assert (m_map.insert (r, std::make_unique<B> (payload), ctx()).isSuccess());
+    m_map.quiescent (ctx());
+    if (((i+1)%128) == 0) {
+      usleep (1000);
+    }
+  }
+}
+
+
+EventIDRange testThread_MixedWriter::makeRange (int i)
+{
+  //                  111111111
+  //        0123456789012345678  // i
+  //
+  //        0011223344556677889  // lb
+  //        0112233445566778899  // ts
+
+  unsigned int lbn = i / 2;
+  unsigned int ts = (i+1)/2 * 1000;
+  EventIDBase start (0, 0, ts,   0, lbn);
+  EventIDBase stop  (0, 0, ts+1, 0, lbn+1);
+  return EventIDRange (start, stop);
+}
+
+
+class testThread_MixedIterator
+  : public testThread_Base
+{
+public:
+  testThread_MixedIterator (int slot, CondContMixedTest& map);
+  void operator()();
+
+private:
+  CondContMixedTest& m_map;
+};
+
+
+testThread_MixedIterator::testThread_MixedIterator (int slot, CondContMixedTest& map)
+  : testThread_Base (slot),
+    m_map (map)
+{
+}
+
+
+void testThread_MixedIterator::operator()()
+{
+  setContext();
+  std::shared_lock<std::shared_timed_mutex> lock (start_mutex);
+
+  bool full = false;
+  while (true) {
+    int sz = static_cast<int>(m_map.entries());
+    if (full) {
+      assert (std::abs (sz - ninflight/2) <= 1);
+    }
+    std::vector<EventIDRange> rvec = m_map.ranges();
+    sz = rvec.size();
+    if (full) {
+      assert (std::abs (sz - ninflight) <= 2);
+    }
+
+    if (sz >= ninflight) {
+      full = true;
+    }
+
+    for (const EventIDRange& r : rvec) {
+      const B* obj;
+      if (m_map.find (r.start(), obj)) {
+        assert (obj->m_x == static_cast<int>(r.start().lumi_block() + r.start().time_stamp()));
+      }
+    }
+
+    if (sz > 0 && (rvec.end()-1)->start().lumi_block() == (nwrites-1)/2) break;
+
+    m_map.quiescent (ctx());
+  }
+}
+
+
+class testThread_MixedReader
+  : public testThread_Base
+{
+public:
+  testThread_MixedReader (int slot, CondContMixedTest& map);
+  void operator()();
+
+private:
+  CondContMixedTest& m_map;
+  uint32_t m_seed;
+};
+
+
+testThread_MixedReader::testThread_MixedReader (int slot, CondContMixedTest& map)
+  : testThread_Base (slot),
+    m_map (map),
+    m_seed (slot * 123)
+{
+}
+
+
+void testThread_MixedReader::operator()()
+{
+  setContext();
+  std::shared_lock<std::shared_timed_mutex> lock (start_mutex);
+
+  while (true) {
+    std::vector<EventIDRange> rvec = m_map.ranges();
+    if (rvec.empty()) continue;
+    const EventIDBase& stop = (rvec.end()-1)->stop();
+    const EventIDBase& start = rvec.begin()->start();
+    unsigned int lb = Athena_test::randi_seed (m_seed,
+                                               stop.lumi_block()-1,
+                                               start.lumi_block());
+    unsigned int ts = Athena_test::randi_seed (m_seed,
+                                               stop.time_stamp()-1,
+                                               start.time_stamp());
+    EventIDBase key (0, 0, ts, 0, lb);
+    const B* obj = nullptr;
+    const EventIDRange* rr = nullptr;
+    if (m_map.find (key, obj, &rr)) {
+      assert (lb >= rr->start().lumi_block() && lb < rr->stop().lumi_block());
+      assert (ts >= rr->start().time_stamp() && ts < rr->stop().time_stamp());
+      assert (obj->m_x == static_cast<int> (rr->start().lumi_block() + rr->start().time_stamp()));
+    }
+
+    if ((rvec.end()-1)->start().lumi_block() == (nwrites-1)/2) break;
+    m_map.quiescent (ctx());
+  }
+}
+
+
+void testThreadMixed_iter (TestRCUSvc& rcusvc)
+{
+  DataObjID id ("cls", "key");
+  CondContMixedTest condcont (rcusvc, id);
+
+  const int nthread = 4;
+  std::thread threads[nthread];
+  start_mutex.lock();
+
+  threads[0] = std::thread (testThread_MixedWriter (0, condcont));
+  threads[1] = std::thread (testThread_MixedIterator (1, condcont));
+  threads[2] = std::thread (testThread_MixedReader (2, condcont));
+  threads[3] = std::thread (testThread_MixedReader (3, condcont));
+
+  // Try to get the threads starting as much at the same time as possible.
+  start_mutex.unlock();
+  for (int i=0; i < nthread; i++)
+    threads[i].join();
+}
+
+
+void testThreadMixed (TestRCUSvc& rcusvc)
+{
+  std::cout << "testThreadMixed\n";
+
+  for (int i=0; i < 10; i++) {
+    testThreadMixed_iter (rcusvc);
+  }
+}
+
+
+//******************************************************************************
+
+
 int main ATLAS_NOT_THREAD_SAFE ()
 {
   CondContBase::setCleanerSvcName ("ConditionsCleanerTest");
@@ -647,6 +1017,8 @@ int main ATLAS_NOT_THREAD_SAFE ()
   test1 (rcusvc);
   test2 (rcusvc);
   test3 (rcusvc);
+  test4 (rcusvc);
   testThread (rcusvc);
+  testThreadMixed (rcusvc);
   return 0;
 }

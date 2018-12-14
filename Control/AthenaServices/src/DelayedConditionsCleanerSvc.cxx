@@ -225,6 +225,7 @@ DelayedConditionsCleanerSvc::event (const EventContext& ctx, bool allowAsync)
         case KeyType::SINGLE:
           break;
         case KeyType::RUNLBN:
+        case KeyType::MIXED:
           ci_runlbn.push_back (ci);
           break;
         case KeyType::TIMESTAMP:

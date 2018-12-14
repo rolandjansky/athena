@@ -42,10 +42,42 @@ class CondContTest
 {
 public:
   CondContTest (Athena::IRCUSvc& rcusvc, const DataObjID& id)
-    : CondContBase (rcusvc, 123, id, nullptr, nullptr, 0)
+    : CondContBase (rcusvc, KeyType::SINGLE, 123, id, nullptr, nullptr, 0)
   {}
 
   virtual const void* doCast (CLID /*clid*/, const void* /*ptr*/) const override
+  { std::abort(); }
+
+  virtual
+  void list (std::ostream& /*ost*/) const override
+  { std::abort(); }
+
+  virtual
+  std::vector<EventIDRange> ranges() const override
+  { std::abort(); }
+
+  virtual
+  StatusCode typelessInsert (const EventIDRange& /*r*/,
+                             void* /*obj*/,
+                             const EventContext& /*ctx*/ = Gaudi::Hive::currentContext()) override
+  { std::abort(); }
+
+  virtual
+  bool valid( const EventIDBase& /*t*/) const override
+  { std::abort(); }
+
+  virtual
+  bool range (const EventIDBase& /*t*/, EventIDRange& /*r*/) const override
+  { std::abort(); }
+
+  virtual
+  StatusCode erase (const EventIDBase& /*t*/,
+                    const EventContext& /*ctx*/ = Gaudi::Hive::currentContext()) override
+  { std::abort(); }
+
+  virtual
+  StatusCode extendLastRange (const EventIDRange& /*newRange*/,
+                              const EventContext& /*ctx*/ = Gaudi::Hive::currentContext()) override
   { std::abort(); }
 };
 

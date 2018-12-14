@@ -72,7 +72,7 @@ public:
   static void delfcn (const void*) {}
   CondContTest (Athena::IRCUSvc& rcusvc, const DataObjID& id, int n,
                 CondContBase::KeyType keyType)
-    : CondContBase (rcusvc, 123, id, nullptr, delfcn, 0),
+    : CondContBase (rcusvc, KeyType::SINGLE, 123, id, nullptr, delfcn, 0),
       m_n (n)
   {
     // Do a dummy insert to set the key type.
@@ -113,7 +113,44 @@ public:
     return v;
   }
 
+  virtual
+  void list (std::ostream& /*ost*/) const override
+  { std::abort(); }
+
+  virtual
+  bool valid( const EventIDBase& /*t*/) const override
+  { std::abort(); }
+
+  virtual
+  bool range (const EventIDBase& /*t*/, EventIDRange& /*r*/) const override
+  { std::abort(); }
+
+  virtual
+  StatusCode erase (const EventIDBase& /*t*/,
+                    const EventContext& /*ctx*/ = Gaudi::Hive::currentContext()) override
+  { std::abort(); }
   
+  virtual
+  std::vector<EventIDRange> ranges() const override
+  { std::abort(); }
+
+  virtual
+  StatusCode typelessInsert (const EventIDRange& r,
+                             void* obj,
+                             const EventContext& ctx = Gaudi::Hive::currentContext()) override
+  {
+    return insertBase (r,
+                       CondContSet::payload_unique_ptr (obj, delfcn),
+                       ctx);
+  }
+
+
+  virtual
+  StatusCode extendLastRange (const EventIDRange& /*newRange*/,
+                              const EventContext& /*ctx*/ = Gaudi::Hive::currentContext()) override
+  { std::abort(); }
+
+
 private:
   int m_n;
   std::list<std::vector<key_type> > m_keys;
