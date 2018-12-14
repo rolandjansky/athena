@@ -206,6 +206,9 @@ namespace xAOD {
       /// Raw access to the persistent link CLIDs
       const std::vector< uint32_t >& linkColClids() const;
 
+      /// Add a link without type
+      void typelessSetObjectLink( const std::string& name, const uint32_t key, const uint32_t clid, const uint16_t beginIndex, const uint16_t endIndex = 0 );
+
       /// @}
 
       /// For use in validation, when copying element links from one object to another

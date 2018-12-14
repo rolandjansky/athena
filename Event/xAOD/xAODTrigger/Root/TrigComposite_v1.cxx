@@ -472,6 +472,37 @@ namespace xAOD {
       return acc( *this );
    }
 
+   void TrigComposite_v1::typelessSetObjectLink( const std::string& name, const uint32_t key, const uint32_t clid, const uint16_t beginIndex, const uint16_t endIndex ) {
+
+     // Loop over collections
+     if ( endIndex - beginIndex > 1 ) {
+
+       const std::string mangledName = name + s_collectionSuffix;
+       for ( unsigned int index = beginIndex; index < endIndex; ++index ) {
+
+         // Check uniqueness
+         if ( std::find( linkColNamesNC().begin(), linkColNamesNC().end(), mangledName ) == linkColNamesNC().end() ) {
+
+           this->linkColNamesNC().push_back( mangledName );
+           this->linkColKeysNC().push_back( key );
+           this->linkColIndicesNC().push_back( index );
+           this->linkColClidsNC().push_back( clid );
+         }
+       }
+     }
+     else {
+
+       // Check uniqueness
+       if ( std::find( linkColNamesNC().begin(), linkColNamesNC().end(), name ) == linkColNamesNC().end() ) {
+
+         this->linkColNamesNC().push_back( name );
+         this->linkColKeysNC().push_back( key );
+         this->linkColIndicesNC().push_back( beginIndex );
+         this->linkColClidsNC().push_back( clid );
+       }
+     }
+   }
+
    //
    /////////////////////////////////////////////////////////////////////////////
 
