@@ -37,11 +37,14 @@ void HepMcParticleLinkCnv_p2::persToTrans( const HepMcParticleLink_p2* persObj,
   return;
 }
 
-void HepMcParticleLinkCnv_p2::transToPers( const HepMcParticleLink*,
-                                           HepMcParticleLink_p2*,
+void HepMcParticleLinkCnv_p2::transToPers( const HepMcParticleLink* transObj,
+                                           HepMcParticleLink_p2* persObj,
                                            MsgStream &/*msg*/ )
 {
-  throw std::runtime_error("HepMcParticleLinkCnv_p2::transToPers is not supported in this release!");
+  persObj->m_mcEvtIndex = transObj->eventIndex();
+  persObj->m_barcode    = transObj->m_extBarcode.barcode();
+  persObj->m_evtColl    = 'a'; // hard-coded until we change the transient class implementation
+  return;
 }
 
 ///////////////////////////////////////////////////////////////////
