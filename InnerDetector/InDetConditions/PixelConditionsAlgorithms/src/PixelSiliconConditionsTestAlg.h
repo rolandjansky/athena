@@ -24,9 +24,9 @@ class PixelSiliconConditionsTestAlg : public AthAlgorithm {
     virtual StatusCode finalize() override;
 
   private:
-    ToolHandle<IPixelDCSConditionsTool>     m_siliconTool{this, "PixelDCSConditionsTool", "PixelDCSConditionsTool", "Tool to retrieve Pixel information"};
+    ToolHandle<IPixelDCSConditionsTool> m_siliconTool{this, "PixelDCSConditionsTool", "PixelDCSConditionsTool", "Tool to retrieve Pixel information"};
+    SG::ReadCondHandleKey<PixelModuleData> m_moduleDataKey{this, "PixelModuleData", "PixelModuleData", "Output key"};
 
-    SG::ReadCondHandleKey<PixelModuleData> m_condKey{this, "PixelModuleData", "PixelModuleData", "Pixel dead map"};
 };
 
-#endif // PIXELSILICONcONDITIONSTESTALG_H
+#endif

@@ -46,7 +46,6 @@ from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
  
 InDetTrigBroadPixelClusterOnTrackToolFTK = \
                                          FTK_PixelClusterOnTrackTool("InDetTrigBroadPixelClusterOnTrackToolFTK",
-                                                                     PixelOfflineCalibSvc=PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
                                                                      ErrorStrategy = 0) # use broad errors
  
   

@@ -90,19 +90,6 @@ if DetFlags.haveRIO.pixel_on():
         if (InDetFlags.doPrintConfigurables()):
             print InDetPixelByteStreamErrorsSvc
             
-    # Load Pixel reconstruction parameters
-    from PixelConditionsTools.PixelConditionsToolsConf import PixelRecoDbTool
-    ToolSvc += PixelRecoDbTool(name = "PixelRecoDbTool")
-
-    if athenaCommonFlags.isOnline() :
-        ToolSvc.PixelRecoDbTool.InputSource = 1
-    else :
-        if not conddb.folderRequested('/PIXEL/Pixreco'):
-            conddb.addFolder("PIXEL_OFL","/PIXEL/PixReco",className='DetCondCFloat')
-            from PixelCalibAlgs.PixelCalibAlgsConf import PixelCalibCondAlg
-            condSeq += PixelCalibCondAlg( "PixelCalibCondAlg" )
-        ToolSvc.PixelRecoDbTool.InputSource = 2
-
     if not athenaCommonFlags.isOnline():
         if not conddb.folderRequested('/PIXEL/PixdEdx'):
             if (globalflags.DataSource() == 'data'):
@@ -110,11 +97,20 @@ if DetFlags.haveRIO.pixel_on():
             else:
                 conddb.addFolder("PIXEL_OFL","/PIXEL/PixdEdx")
 
-    from PixelConditionsServices.PixelConditionsServicesConf import PixelOfflineCalibSvc
-    InDetPixelOfflineCalibSvc = PixelOfflineCalibSvc( PixelRecoDbTool = ToolSvc.PixelRecoDbTool)
-    ServiceMgr += InDetPixelOfflineCalibSvc
-    if (InDetFlags.doPrintConfigurables()):
-        print InDetPixelOfflineCalibSvc
+    if not conddb.folderRequested("/PIXEL/PixReco"):
+        conddb.addFolder("PIXEL_OFL", "/PIXEL/PixReco", className="DetCondCFloat")
+
+    if not hasattr(condSeq, 'PixelOfflineCalibCondAlg'):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelOfflineCalibCondAlg
+        condSeq += PixelOfflineCalibCondAlg(name="PixelOfflineCalibCondAlg", ReadKey="/PIXEL/PixReco")
+        if athenaCommonFlags.isOnline() :
+          PixelOfflineCalibCondAlg.InputSource = 1
+        else :
+          PixelOfflineCalibCondAlg.InputSource = 2
+
+    if not hasattr(condSeq, 'PixelConfigCondAlg'):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
+      condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg")
 
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
         from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup

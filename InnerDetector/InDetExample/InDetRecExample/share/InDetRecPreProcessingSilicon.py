@@ -40,14 +40,12 @@ if InDetFlags.doPRDFormation():
       from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
       InDetClusterMakerTool = InDet__ClusterMakerTool(name                 = "InDetClusterMakerTool",
                                                       PixelCalibSvc        = None,
-                                                      PixelOfflineCalibSvc = None,
                                                       UsePixelCalibCondDB  = False,
                                                       PixelLorentzAngleTool = ToolSvc.PixelLorentzAngleTool,
                                                       SCTLorentzAngleTool = sctLorentzAngleToolSetup.SCTLorentzAngleTool)
 
       if DetFlags.makeRIO.pixel_on() and not (athenaCommonFlags.isOnline() or InDetFlags.doSLHC()):
          InDetClusterMakerTool.PixelCalibSvc        = InDetPixelCalibSvc
-         InDetClusterMakerTool.PixelOfflineCalibSvc = InDetPixelOfflineCalibSvc
          InDetClusterMakerTool.UsePixelCalibCondDB  = True
 
       ToolSvc += InDetClusterMakerTool

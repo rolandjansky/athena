@@ -12,11 +12,13 @@
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
 
+#include "PixelConditionsData/PixelModuleData.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 #include<string>
 #include<vector>
 
 class IPixelCalibSvc;
-class IPixelOfflineCalibSvc;
 class IBLParameterSvc;
 
 class PixelChargeToTConversion: public AthAlgorithm{
@@ -32,12 +34,12 @@ class PixelChargeToTConversion: public AthAlgorithm{
  private:
   ServiceHandle<IPixelCalibSvc> m_calibsvc;
   ServiceHandle<IBLParameterSvc> m_IBLParameterSvc;
-  int                                  m_overflowIBLToT;                                                                                          
-  ServiceHandle<IPixelOfflineCalibSvc> m_offlineCalibSvc;
   
   //std::vector<unsigned int> m_modules;
   std::string m_PixelsClustersName;
   const InDet::PixelClusterContainer* m_Pixel_clcontainer;
+  
+  SG::ReadCondHandleKey<PixelModuleData> m_moduleDataKey{this, "PixelModuleData", "PixelModuleData", "Output key of pixel module"};
 
 };
 

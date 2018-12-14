@@ -17,12 +17,12 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkAmbiguityProcessor/dRMap.h"
 
+#include "PixelConditionsData/PixelOfflineCalibData.h"
 #include "InDetCondServices/ISiLorentzAngleTool.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 class PixelID;
-class IPixelOfflineCalibSvc;
 class IModuleDistortionsTool;
 
 class StoreGateSvc;
@@ -121,13 +121,13 @@ public:
   ///////////////////////////////////////////////////////////////////
 
   ToolHandle<IModuleDistortionsTool>            m_pixDistoTool    ;
-  ServiceHandle<IPixelOfflineCalibSvc>          m_calibSvc        ;
   StoreGateSvc*                                 m_detStore        ;
 
   ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool", "Tool to retreive Lorentz angle"};
 
   //  SG::ReadCondHandleKey<PixelRIO_OnTrackErrorScaling> m_pixelErrorScalingKey
   //    {this,"PixelErrorScalingKey", "/Indet/TrkErrorScalingPixel", "Key for pixel error scaling conditions data."};
+  SG::ReadCondHandleKey<PixelCalib::PixelOfflineCalibData> m_clusterErrorKey{this, "PixelOfflineCalibData", "PixelOfflineCalibData", "Output key of pixel cluster"};
   SG::ReadCondHandleKey<RIO_OnTrackErrorScaling> m_pixelErrorScalingKey
     {this,"PixelErrorScalingKey", "/Indet/TrkErrorScalingPixel", "Key for pixel error scaling conditions data."};
 

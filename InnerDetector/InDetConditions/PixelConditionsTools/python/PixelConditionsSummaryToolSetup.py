@@ -84,9 +84,11 @@ class PixelConditionsSummaryToolSetup:
       if not (conddb.folderRequested("/PIXEL/PixMapOverlay") or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
         conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay","/PIXEL/PixMapOverlay", className='CondAttrListCollection')
 
-      if not hasattr(condSeq, "PixelDeadMapCondAlg"):
-        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
-        condSeq += PixelDeadMapCondAlg(name="PixelDeadMapCondAlg", ReadKey=PixelDeadMapFolder)
+    if not hasattr(condSeq, "PixelConfigCondAlg"):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
+      condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
+                                    UseDeadMap=self.useDeadMap,
+                                    ReadDeadMapKey=PixelDeadMapFolder)
 
     if not hasattr(ToolSvc, self.toolName):
       from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool

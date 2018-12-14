@@ -33,7 +33,6 @@ IBLParameterSvc::IBLParameterSvc(const std::string& name,ISvcLocator* svc)
     m_disableCalibCondDB(false),
     m_disableAlignable(false),
     m_disableAllClusterSplitting(false),
-    m_disableClusterMakerOfflineCalib(false),
     m_disableDCS(true)
 {
 	declareProperty("GeoDbTagSvc",m_geoDbTagSvc);
@@ -43,7 +42,6 @@ IBLParameterSvc::IBLParameterSvc(const std::string& name,ISvcLocator* svc)
  	declareProperty("DisableCalibCondDB",m_disableCalibCondDB);
  	declareProperty("DisableAlignable",m_disableAlignable);
  	declareProperty("DisableAllClusterSplitting",m_disableAllClusterSplitting);
- 	declareProperty("DisableClusterMakerOfflineCalib",m_disableClusterMakerOfflineCalib);
  	declareProperty("DisableDCS",m_disableDCS);
 }
  

@@ -5,10 +5,8 @@
 #include "FEI4SimTool.h"
 
 FEI4SimTool::FEI4SimTool( const std::string& type, const std::string& name,const IInterface* parent):
-  FrontEndSimTool(type,name,parent),
-  m_HitDiscConfig(2)
+  FrontEndSimTool(type,name,parent)
 {
-  declareProperty("HitDiscConfig", m_HitDiscConfig);
 }
 
 FEI4SimTool::~FEI4SimTool() { }
@@ -17,10 +15,6 @@ StatusCode FEI4SimTool::initialize() {
   CHECK(FrontEndSimTool::initialize());
   ATH_MSG_DEBUG("FEI4SimTool::initialize()");
 
-  if (m_HitDiscConfig<0 || m_HitDiscConfig>2) {
-    ATH_MSG_FATAL("HitDisConfig must be [0-2], but not " << m_HitDiscConfig);
-    return StatusCode::FAILURE;
-  }
 	return StatusCode::SUCCESS;
 }
 
@@ -42,11 +36,10 @@ void FEI4SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
 
   if (abs(barrel_ec)!=m_BarrelEC) { return; }
 
+  SG::ReadCondHandle<PixelModuleData> module_data(m_moduleDataKey);
+
   int maxFEI4SmallHit = 2;
-  int overflowToT     = 16;
-  if (m_HitDiscConfig==0) { maxFEI4SmallHit=0; overflowToT=14; }
-  if (m_HitDiscConfig==1) { maxFEI4SmallHit=1; overflowToT=15; }
-  if (m_HitDiscConfig==2) { maxFEI4SmallHit=2; overflowToT=16; }
+  int overflowToT     = module_data->getIBLOverflowToT();
 
   std::vector<Pixel1RawData*> p_rdo_small_fei4;
   int nSmallHitsFEI4 = 0;
@@ -56,10 +49,10 @@ void FEI4SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
   std::vector<std::vector<int>> FEI4Map(maxRow+16,std::vector<int>(maxCol+16));
 
   // Add cross-talk
-  CrossTalk(m_CrossTalk.at(layerIndex), chargedDiodes);
+  CrossTalk(module_data->getCrossTalk(barrel_ec,layerIndex),chargedDiodes);
 
   // Add thermal noise
-  ThermalNoise(m_ThermalNoise.at(layerIndex), chargedDiodes);
+  ThermalNoise(module_data->getThermalNoise(barrel_ec,layerIndex),chargedDiodes);
 
   // Add random noise
   RandomNoise(chargedDiodes);
@@ -93,7 +86,7 @@ void FEI4SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
       SiHelper::belowThreshold((*i_chargedDiode).second,true,true);
     }
 
-    if (charge<m_Analogthreshold.at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (charge<module_data->getAnalogThreshold(barrel_ec,layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
 
     // charge to ToT conversion
     double tot    = m_pixelCalibSvc->getTotMean(diodeID,charge);
@@ -111,7 +104,7 @@ void FEI4SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
     if (nToT==2 && maxFEI4SmallHit==2) { nToT=1; }
     if (nToT>=overflowToT) { nToT=overflowToT; }
 
-    if (nToT<=m_ToTthreshold.at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (nToT<=module_data->getToTThreshold(barrel_ec,layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
 
     // Filter events
     if (SiHelper::isMaskOut((*i_chargedDiode).second))  { continue; } 

@@ -17,6 +17,7 @@ atlas_depends_on_subdirs(
    InnerDetector/InDetRawEvent/InDetSimData
    InnerDetector/InDetConditions/BeamSpotConditionsData
    InnerDetector/InDetConditions/InDetConditionsSummaryService
+   InnerDetector/InDetConditions/PixelConditionsData
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
    InnerDetector/InDetRawEvent/InDetRawData
@@ -50,13 +51,13 @@ atlas_add_library( SiClusterizationToolLib
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives
    Identifier EventPrimitives GaudiKernel InDetSimData InDetIdentifier
    InDetReadoutGeometry InDetRawData InDetPrepRawData InDetRecToolInterfaces
-   TrkParameters TrkNeuralNetworkUtilsLib
+   TrkParameters TrkNeuralNetworkUtilsLib PixelConditionsData
    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaPoolUtilities FileCatalog AtlasDetDescr
    TrkSurfaces TrkEventPrimitives VxVertex PixelGeoModelLib )
 
 atlas_add_component( SiClusterizationTool
    src/components/*.cxx
-   LINK_LIBRARIES GaudiKernel SiClusterizationToolLib )
+   LINK_LIBRARIES GaudiKernel PixelConditionsData SiClusterizationToolLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

@@ -33,7 +33,6 @@ InDetTrigClusterMakerTool = \
     InDet__ClusterMakerTool( name = "InDetTrigClusterMakerTool",
                              UsePixelCalibCondDB = False,  #simpler setup for EFID
                              #UsePixelCalibCondDB = True,  #simpler setup for EFID
-                             PixelOfflineCalibSvc = PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
                              #pixLorentzAnleSvc = "InDetTrigPixLorentzAngleSvc",
                              #UseLorentzAngleCorrections = False
                              PixelLorentzAngleTool = TrigPixelLorentzAngleTool,
@@ -128,7 +127,6 @@ if InDetTrigFlags.loadRotCreator():
     print TrigNnClusterizationFactory
 
   InDetTrigPixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("InDetTrigPixelClusterOnTrackTool",
-                                                                    PixelOfflineCalibSvc=PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
                                                                     ErrorStrategy = 2,
                                                                     LorentzAngleTool = TrigPixelLorentzAngleTool,
                                                                     NnClusterizationFactory= TrigNnClusterizationFactory,
@@ -152,7 +150,6 @@ if InDetTrigFlags.loadRotCreator():
   #--
   from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
   InDetTrigBroadPixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("InDetTrigBroadPixelClusterOnTrackTool",
-                                                                         PixelOfflineCalibSvc=PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
                                                                          ErrorStrategy = 0,
                                                                          LorentzAngleTool = TrigPixelLorentzAngleTool,
                                                                          NnClusterizationFactory= TrigNnClusterizationFactory

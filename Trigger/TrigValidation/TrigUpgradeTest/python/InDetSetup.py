@@ -125,7 +125,6 @@ def makeInDetAlgs():
   from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
   InDetClusterMakerTool = InDet__ClusterMakerTool(name                 = "InDetClusterMakerTool",
                                                   PixelCalibSvc        = None,
-                                                  PixelOfflineCalibSvc = None,
                                                   UsePixelCalibCondDB  = False,
                                                   SCTLorentzAngleTool = TrigSCTLorentzAngleTool,
                                                   PixelLorentzAngleTool = TrigPixelLorentzAngleTool)

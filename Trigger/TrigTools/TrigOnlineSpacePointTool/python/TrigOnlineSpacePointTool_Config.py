@@ -30,7 +30,6 @@ class ConfiguredOnlineSpacePointProviderTool(OnlineSpacePointProviderTool) :
         
         InDetL2TrigClusterMakerTool = InDet__ClusterMakerTool( name = "InDetL2TrigClusterMakerTool",
                                                                UsePixelCalibCondDB = False,
-                                                               PixelOfflineCalibSvc =  PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
                                                                PixelLorentzAngleTool = TrigPixelLorentzAngleTool,
                                                                SCTLorentzAngleTool = TrigSCTLorentzAngleTool
                                                                )

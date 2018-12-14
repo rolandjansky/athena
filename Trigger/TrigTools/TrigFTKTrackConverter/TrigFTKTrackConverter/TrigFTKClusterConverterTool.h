@@ -12,7 +12,7 @@
 
 #include "InDetCondServices/ISiLorentzAngleTool.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
+#include "PixelConditionsData/PixelOfflineCalibData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "TrigFTKSim/FTKTrack.h"
 #include "TrkFitterInterfaces/ITrackFitter.h" 
@@ -69,8 +69,6 @@ class TrigFTKClusterConverterTool : public AthAlgTool, virtual public ITrigFTKCl
 
 private:
 
-  ServiceHandle<IPixelOfflineCalibSvc> m_offlineCalibSvc;
-
   bool m_usePixelCalibSvc;
 
   StoreGateSvc* m_evtStore;
@@ -84,6 +82,7 @@ private:
   ToolHandle<ISiLorentzAngleTool> m_sctLorentzAngleTool{this, "SCTLorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle of SCT"};
   ToolHandle<Trk::ITrackFitter> m_trackFitter;
 
+  SG::ReadCondHandleKey<PixelCalib::PixelOfflineCalibData> m_clusterErrorKey{this, "PixelOfflineCalibData", "PixelOfflineCalibData", "Output key of pixel cluster"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   bool m_doFit;

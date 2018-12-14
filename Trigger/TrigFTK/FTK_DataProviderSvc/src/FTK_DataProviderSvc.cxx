@@ -49,7 +49,6 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
-#include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "FTK_RecToolInterfaces/IFTK_DuplicateTrackRemovalTool.h"
@@ -95,7 +94,6 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   AthService(name, svc),
   m_RDO_key("FTK_RDO_Tracks"),
   m_storeGate(0),
-  m_offlineCalibSvc("PixelOfflineCalibSvc", name),
   m_pixelId(0),
   m_sctId(0),
   m_pixelManager(0),
@@ -247,7 +245,7 @@ StatusCode FTK_DataProviderSvc::initialize() {
   ATH_CHECK(service( "StoreGateSvc", m_storeGate ));
   StoreGateSvc* detStore;
   ATH_CHECK(service("DetectorStore", detStore));
-  ATH_CHECK(m_offlineCalibSvc.retrieve());
+  ATH_CHECK(m_clusterErrorKey.initialize());
   ATH_CHECK(detStore->retrieve(m_pixelId, "PixelID"));
   ATH_CHECK(detStore->retrieve(m_sctId, "SCT_ID"));
   ATH_CHECK(detStore->retrieve(m_pixelManager));
@@ -1944,45 +1942,41 @@ const Trk::RIO_OnTrack*  FTK_DataProviderSvc::createPixelCluster(const FTK_RawPi
 
   ATH_MSG_VERBOSE("Setting defaulterrors (*cov)(0,0) " <<  (*cov)(0,0) << " (*cov)(1,1)" << (*cov)(1,1) );
 
-  if(m_offlineCalibSvc != 0) {
-    ATH_MSG_VERBOSE("Using offlineCalibSvc" );
-    const Amg::Vector2D& colRow = siWidth.colRow();
-    double averageZPitch = siWidth.z()/colRow.y();
-    ATH_MSG_VERBOSE(" siWidth.colRow() " << siWidth.colRow());
-    ATH_MSG_VERBOSE(" siWidth.z() " << siWidth.z() <<   " colRow.y() " << colRow.y() << "  averageZpitch " << averageZPitch  );
+  ATH_MSG_VERBOSE("Using offlineCalibSvc" );
+  const Amg::Vector2D& colRow = siWidth.colRow();
+  double averageZPitch = siWidth.z()/colRow.y();
+  ATH_MSG_VERBOSE(" siWidth.colRow() " << siWidth.colRow());
+  ATH_MSG_VERBOSE(" siWidth.z() " << siWidth.z() <<   " colRow.y() " << colRow.y() << "  averageZpitch " << averageZPitch  );
 
+  // use parameterization only if the cluster does not
+  // contain long pixels or ganged pixels
+  // Also require calibration service is available....
 
-    // use parameterization only if the cluster does not
-    // contain long pixels or ganged pixels
-    // Also require calibration service is available....
+  double eta = -std::log(std::tan(trkPerigee.parameters()[Trk::theta]/2.));
 
-    double eta = -std::log(std::tan(trkPerigee.parameters()[Trk::theta]/2.));
-
-
-    if(averageZPitch > 399*micrometer && averageZPitch < 401*micrometer){
-      if(pixelDetectorElement->isBarrel()){
-        // Barrel corrections //
-        (*cov)(0,0) =  square(m_offlineCalibSvc->getBarrelErrorPhi(eta,int(colRow.y()),int(colRow.x())));
-        (*cov)(1,1) = square(m_offlineCalibSvc->getBarrelErrorEta(eta,int(colRow.y()),int(colRow.x())));
-        ATH_MSG_VERBOSE("Barrel Corrections " << (*cov)(0,0)<< " " <<  (*cov)(1,1) );
-      } else{
-        // End-cap corrections //
-        (*cov)(0,0) = square(m_offlineCalibSvc->getEndCapErrorPhi(int(colRow.y()),int(colRow.x())));
-        (*cov)(1,1) = square(m_offlineCalibSvc->getEndCapErrorEta(int(colRow.y()),int(colRow.x())));
-        ATH_MSG_VERBOSE("Endcap Corrections " << (*cov)(0,0)<< " " <<  (*cov)(1,1) );
-      }
-    } else {
-      ATH_MSG_VERBOSE(" Corrections for pixel with length!=400um " << averageZPitch);
-      (*cov)(0,0) = square(siWidth.phiR()/colRow.x()) * ONE_TWELFTH  ;
-      (*cov)(1,1) = square(averageZPitch)* ONE_TWELFTH  ;
+  if(averageZPitch > 399*micrometer && averageZPitch < 401*micrometer){
+    SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData> offlineCalibData(m_clusterErrorKey);
+    if(pixelDetectorElement->isBarrel()){
+      // Barrel corrections //
+      int ibin = offlineCalibData->getPixelClusterErrorData()->getBarrelBin(eta,int(colRow.y()),int(colRow.x()));
+      (*cov)(0,0) = square(offlineCalibData->getPixelClusterErrorData()->getPixelBarrelPhiError(ibin));
+      (*cov)(1,1) = square(offlineCalibData->getPixelClusterErrorData()->getPixelBarrelEtaError(ibin));
+      ATH_MSG_VERBOSE("Barrel Corrections " << (*cov)(0,0)<< " " <<  (*cov)(1,1) );
+    } else{
+      // End-cap corrections //
+      int ibin = offlineCalibData->getPixelClusterErrorData()->getEndcapBin(int(colRow.y()),int(colRow.x()));
+      (*cov)(0,0) = square(offlineCalibData->getPixelClusterErrorData()->getPixelEndcapPhiError(ibin));
+      (*cov)(1,1) = square(offlineCalibData->getPixelClusterErrorData()->getPixelEndcapRError(ibin));
+      ATH_MSG_VERBOSE("Endcap Corrections " << (*cov)(0,0)<< " " <<  (*cov)(1,1) );
     }
+  } else {
+    ATH_MSG_VERBOSE(" Corrections for pixel with length!=400um " << averageZPitch);
+    (*cov)(0,0) = square(siWidth.phiR()/colRow.x()) * ONE_TWELFTH  ;
+    (*cov)(1,1) = square(averageZPitch)* ONE_TWELFTH  ;
   }
-  InDet::PixelCluster* pixel_cluster = new InDet::PixelCluster(pixel_id, position, rdoList, siWidth,
-      pixelDetectorElement, cov);
+  InDet::PixelCluster* pixel_cluster = new InDet::PixelCluster(pixel_id, position, rdoList, siWidth, pixelDetectorElement, cov);
   ATH_MSG_VERBOSE("covariance " << (*cov)(0,0) << ", " << (*cov)(0,1));
   ATH_MSG_VERBOSE("           " << (*cov)(1,0) << ", " <<   (*cov)(1,1)) ;
-
-
 
   const IdentifierHash idHash = m_pixelId->wafer_hash(m_pixelId->wafer_id(pixel_cluster->identify()));
   ATH_MSG_VERBOSE(" hash " << hash << " wafer hash " << idHash);

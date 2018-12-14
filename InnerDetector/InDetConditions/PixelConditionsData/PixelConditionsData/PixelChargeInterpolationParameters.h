@@ -86,7 +86,7 @@ class PixelChargeInterpolationParameters {
     const std::vector<float> getClusterSizeYBins() const{return m_csy;}
     
     void setParameters(const int ncsx, const int ncsy, const int neta, 
-                       const int nalpha, int offset, const float* constants);
+                       const int nalpha, int offset, std::vector<float> constants);
 
     void Print(std::string filename) const;
     void Load(std::string filename);

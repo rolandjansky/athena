@@ -15,7 +15,6 @@
 #include "SiClusterOnTrackTool/PixelClusterOnTrackTool.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 #include "InDetIdentifier/PixelID.h"
-#include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
 #include "PixelConditionsTools/IModuleDistortionsTool.h"
 #include "TrkSurfaces/PlaneSurface.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -75,7 +74,6 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   (const std::string &t, const std::string &n, const IInterface *p) :
   ::AthAlgTool(t, n, p),
   m_pixDistoTool("PixelDistortionsTool", this),
-  m_calibSvc("PixelOfflineCalibSvc", n),
   m_detStore(nullptr),
   m_disableDistortions(false),
   m_rel13like(false),
@@ -100,7 +98,6 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   declareProperty("ErrorStrategy", m_errorStrategy = 2, "Which calibration of cluster position errors");
   declareProperty("DisableDistortions", m_disableDistortions, "Disable simulation of module distortions");
   declareProperty("Release13like", m_rel13like, "Activate release-13 like settigs");
-  declareProperty("PixelOfflineCalibSvc", m_calibSvc, "Offline calibration svc");
   declareProperty("applyNNcorrection", m_applyNNcorrection);
   declareProperty("applydRcorrection", m_applydRcorrection);
   declareProperty("NNIBLcorrection", m_NNIBLcorrection);
@@ -138,10 +135,7 @@ InDet::PixelClusterOnTrackTool::initialize() {
     m_IBLParameterSvc->setBoolParameters(m_IBLAbsent, "IBLAbsent");
   }
 
-  // get the offline calibration service
-  ATH_CHECK( m_calibSvc.retrieve());
-  ATH_MSG_DEBUG("Retrieved tool " << m_calibSvc.type());
-
+  ATH_CHECK(m_clusterErrorKey.initialize());
 
   // get the error scaling tool
   if (!m_pixelErrorScalingKey.key().empty()) {
@@ -446,6 +440,7 @@ InDet::PixelClusterOnTrackTool::correctDefault
 
     // TOT interpolation for collision data
     // Force IBL to use digital clustering and broad errors.
+    SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData> offlineCalibData(m_clusterErrorKey);
     if (m_positionStrategy > 0 && omegaphi > -0.5 && omegaeta > -0.5) {
       localphi = centroid.xPhi() + shift;
       localeta = centroid.xEta();
@@ -454,7 +449,7 @@ InDet::PixelClusterOnTrackTool::correctDefault
         ang = 180 * angle * M_1_PI; //M_1_PI in cmath, = 1/pi
         double delta = 0.;
         if (m_IBLAbsent || !blayer) {
-          delta = m_calibSvc->getBarrelDeltaX(nrows, ang);
+          delta = offlineCalibData->getPixelChargeInterpolationParameters()->getDeltaXbarrel(nrows, ang, 1);
         } else {             // special calibration for IBL
           if (angle < m_phix[0] || angle > m_phix[s_nbinphi] || nrows != 2) {
             delta = 0.;
@@ -469,8 +464,9 @@ InDet::PixelClusterOnTrackTool::correctDefault
               ATH_MSG_ERROR("bin out of range in line " << __LINE__ << " of PixelClusterOnTrackTool.cxx.");
             }
           }
-          if (m_calibSvc->includesIBLParams()) {
-            delta = m_calibSvc->getIBLDeltaX(nrows, ang);
+
+          if (offlineCalibData->getPixelChargeInterpolationParameters()->getVersion()<-1) {
+            delta = offlineCalibData->getPixelChargeInterpolationParameters()->getDeltaXbarrel(nrows, ang, 0);
           }
         }
         localphi += delta * (omegaphi - 0.5);
@@ -485,7 +481,7 @@ InDet::PixelClusterOnTrackTool::correctDefault
         }
         double etaloc = -1 * log(tan(thetaloc * 0.5));
         if (m_IBLAbsent || !blayer) {
-          delta = m_calibSvc->getBarrelDeltaY(ncol, etaloc);
+          delta = offlineCalibData->getPixelChargeInterpolationParameters()->getDeltaYbarrel(ncol, etaloc, 1);
         } else {     // special calibration for IBL
           etaloc = std::fabs(etaloc);
           if (etaloc < m_etax[0] || etaloc > m_etax[s_nbineta]) {
@@ -509,16 +505,16 @@ InDet::PixelClusterOnTrackTool::correctDefault
               ATH_MSG_ERROR("bin out of range in line " << __LINE__ << " of PixelClusterOnTrackTool.cxx.");
             }
           }
-          if (m_calibSvc->includesIBLParams()) {
-            delta = m_calibSvc->getIBLDeltaY(ncol, etaloc);
+          if (offlineCalibData->getPixelChargeInterpolationParameters()->getVersion()<-1) {
+            delta = offlineCalibData->getPixelChargeInterpolationParameters()->getDeltaYbarrel(ncol, std::fabs(etaloc), 0);
           }
         }
         localeta += delta * (omegaeta - 0.5);
       }else {
         // collision endcap data
         if (m_positionStrategy == 1) {
-          double deltax = m_calibSvc->getEndcapDeltaX();
-          double deltay = m_calibSvc->getEndcapDeltaY();
+          double deltax = offlineCalibData->getPixelChargeInterpolationParameters()->getDeltaXendcap();
+          double deltay = offlineCalibData->getPixelChargeInterpolationParameters()->getDeltaYendcap();
           localphi += deltax * (omegaphi - 0.5);
           localeta += deltay * (omegaeta - 0.5);
         }
@@ -564,7 +560,8 @@ InDet::PixelClusterOnTrackTool::correctDefault
     }else if (m_errorStrategy == 2) {
       if (element->isBarrel()) {
         if (m_IBLAbsent || !blayer) {
-          errphi = m_calibSvc->getBarrelNewErrorPhi(ang, nrows);
+          int ibin = offlineCalibData->getPixelClusterOnTrackErrorData()->getBarrelBinPhi(ang, nrows);
+          errphi = offlineCalibData->getPixelClusterOnTrackErrorData()->getPixelBarrelPhiError(ibin);
         } else {       // special calibration for IBL
           if (angle < m_phix[0] || angle > m_phix[s_nbinphi]) {
             errphi = width.phiR() * TOPHAT_SIGMA;
@@ -588,9 +585,11 @@ InDet::PixelClusterOnTrackTool::correctDefault
         }
 
         if (m_rel13like) {
-          erreta = m_calibSvc->getBarrelErrorEta(eta, ncol, nrows);
+          int ibin = offlineCalibData->getPixelClusterErrorData()->getBarrelBin(eta, ncol, nrows);
+          erreta = offlineCalibData->getPixelClusterErrorData()->getPixelBarrelEtaError(ibin);
         }else if (m_IBLAbsent || !blayer) {
-          erreta = m_calibSvc->getBarrelNewErrorEta(std::fabs(etatrack), nrows, ncol);
+          int ibin = offlineCalibData->getPixelClusterOnTrackErrorData()->getBarrelBinEta(std::fabs(etatrack), ncol, nrows);
+          erreta = offlineCalibData->getPixelClusterOnTrackErrorData()->getPixelBarrelEtaError(ibin);
         } else {    // special calibration for IBL
           double etaloc = std::fabs(etatrack);
           if (etaloc < m_etax[0] || etaloc > m_etax[s_nbineta]) {
@@ -616,8 +615,9 @@ InDet::PixelClusterOnTrackTool::correctDefault
           }
         }
       }else {
-        errphi = m_calibSvc->getEndCapErrorPhi(ncol, nrows);
-        erreta = m_calibSvc->getEndCapErrorEta(ncol, nrows);
+        int ibin = offlineCalibData->getPixelClusterErrorData()->getEndcapBin(ncol, nrows);
+        errphi = offlineCalibData->getPixelClusterErrorData()->getPixelEndcapPhiError(ibin);
+        erreta = offlineCalibData->getPixelClusterErrorData()->getPixelEndcapRError(ibin);
       }
       if (errphi > erreta) {
         erreta = width.z() * TOPHAT_SIGMA;

@@ -37,7 +37,6 @@
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "TrkSurfaces/RectangleBounds.h"
 #include "PixelGeoModel/IBLParameterSvc.h"
-#include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
@@ -75,9 +74,7 @@ namespace InDet {
     m_splitOrigClusters(0),   
     m_splitProdClusters(0),   
     m_largeClusters(0),
-    m_overflowIBLToT(0),
-    m_minToT({0,0,0,0,0,0,0}),
-    m_pixofflinecalibSvc("PixelOfflineCalibSvc", name)
+    m_minToT({0,0,0,0,0,0,0})
     //m_detStore("DetectorStore", name),
     //m_idHelper(0)
     {
@@ -118,7 +115,6 @@ namespace InDet {
 // for the cluster splitting
         ATH_CHECK(m_splitProbTool.retrieve( EnableTool{not m_splitProbTool.empty()}));
         ATH_CHECK(m_clusterSplitter.retrieve( EnableTool{not m_clusterSplitter.empty()} ));
-        ATH_CHECK(m_pixofflinecalibSvc.retrieve());
 
         if (m_minToT.size() != 7){
  		ATH_MSG_ERROR("Number of entries for ToT Cut is:" << m_minToT.size() << " . 7 Values are needed, so fix jO.");
@@ -684,8 +680,6 @@ PixelCluster* MergedPixelsTool::makeCluster
     std::vector<int>::const_iterator tot = totgroup.begin();    
     std::vector<int>::const_iterator lvl1= lvl1group.begin();    
 
-    if(m_IBLParameterSvc->containsIBL()) m_overflowIBLToT = m_pixofflinecalibSvc->getIBLToToverflow();
-
     // Flag to tag clusters with any ganged pixel
     bool hasGanged = false;  
     for (; rdosBegin!= rdosEnd; ++rdosBegin)
@@ -708,10 +702,6 @@ PixelCluster* MergedPixelsTool::makeCluster
 
         // check overflow for IBL
         int realtot = *tot;
-	if( m_IBLParameterSvc->containsIBL() && pixelID.barrel_ec(rId) == 0 && pixelID.layer_disk(rId) == 0 ) {
-	  if (*tot >= m_overflowIBLToT ) realtot = m_overflowIBLToT;
-          msg(MSG::DEBUG) << "barrel_ec = " << pixelID.barrel_ec(rId) << " layer_disque = " <<  pixelID.layer_disk(rId) << " ToT = " << *tot << " Real ToT = " << realtot << endmsg;
-	}
 	   
         if (row == rowMin) qRowMin += realtot;
         if (row < rowMin){ 

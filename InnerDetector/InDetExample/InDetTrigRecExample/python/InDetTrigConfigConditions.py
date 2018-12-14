@@ -121,13 +121,15 @@ class PixelConditionsServicesSetup:
       if not (conddb.folderRequested(PixelDeadMapFolder) or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
         conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay",PixelDeadMapFolder, className='CondAttrListCollection')
 
-      if not hasattr(condSeq, "PixelDeadMapCondAlg"):
-        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
-        condSeq += PixelDeadMapCondAlg(name="PixelDeadMapCondAlg", ReadKey=PixelDeadMapFolder)
-
     ############################
     # Conditions Summary Setup #
     ############################
+    # This is future replacement of the PixelConditionsSummaryTool...
+    from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
+    condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
+                                  UseDeadMap=self.usePixMap,
+                                  ReadDeadMapKey=PixelDeadMapFolder)
+
     from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
     TrigPixelConditionsSummaryTool = PixelConditionsSummaryTool(name=self.instanceName('PixelConditionsSummaryTool'), 
                                                                 PixelDCSConditionsTool=TrigPixelDCSConditionsTool, 
@@ -143,7 +145,7 @@ class PixelConditionsServicesSetup:
     self.summaryTool = TrigPixelConditionsSummaryTool
 
     if self._print: print TrigPixelConditionsSummaryTool
-   
+  
     #####################
     # Calibration Setup #
     #####################
@@ -160,33 +162,27 @@ class PixelConditionsServicesSetup:
 
       svcMgr += PixelCalibSvc
 
-      #only when inputsource=1
-      #if not conddb.folderRequested("/PIXEL/PixReco"):
-      #  conddb.addFolder("PIXEL_OFL","/PIXEL/PixReco")
-
     if not conddb.folderRequested("/PIXEL/PixReco"):
-      conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixReco","/PIXEL/PixReco") 
+      conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixReco","/PIXEL/PixReco",className="DetCondCFloat") 
 
-    #Configure PixelRecoDbTool
-    from PixelConditionsTools.PixelConditionsToolsConf import PixelRecoDbTool
-    PixelRecoDbTool = PixelRecoDbTool(name=self.instanceName('PixelRecoDbTool'))
-    ToolSvc += PixelRecoDbTool
-    PixelRecoDbTool.InputSource = 2
-    # if self.onlineMode:
-    #   PixelRecoDbTool.InputSource = 1      #after change of run1 conditions
-    # else:
-    #   PixelRecoDbTool.InputSource = 2
+    if not hasattr(condSeq, 'PixelOfflineCalibCondAlg'):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelOfflineCalibCondAlg
+      condSeq += PixelOfflineCalibCondAlg(name="PixelOfflineCalibCondAlg", ReadKey="/PIXEL/PixReco")
+      PixelOfflineCalibCondAlg.InputSource = 2
 
-    if self._print:  print PixelRecoDbTool
 
-    #use corresponding PixelRecoDBTool
-    from PixelConditionsServices.PixelConditionsServicesConf import PixelOfflineCalibSvc
-    PixelOfflineCalibSvc = PixelOfflineCalibSvc(self.instanceName('PixelOfflineCalibSvc'))
-    PixelOfflineCalibSvc.PixelRecoDbTool = PixelRecoDbTool
-    ServiceMgr += PixelOfflineCalibSvc
+    ### configure the special pixel map service
+    if not (conddb.folderRequested("/PIXEL/PixMapShort") or conddb.folderRequested("/PIXEL/Onl/PixMapShort")):
+      conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapShort","/PIXEL/PixMapShort", className='CondAttrListCollection') 
+    if not (conddb.folderRequested("/PIXEL/PixMapLong") or conddb.folderRequested("/PIXEL/Onl/PixMapLong")):
+      conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapLong","/PIXEL/PixMapLong", className='CondAttrListCollection')
+    if not (conddb.folderRequested("/PIXEL/NoiseMapShort") or conddb.folderRequested("/PIXEL/Onl/NoiseMapShort")):      
+      conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/NoiseMapShort","/PIXEL/NoiseMapShort", className='CondAttrListCollection')
+    if not (conddb.folderRequested("/PIXEL/NoiseMapLong") or conddb.folderRequested("/PIXEL/Onl/NoiseMapLong")):      
+      conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/NoiseMapLong","/PIXEL/NoiseMapLong", className='CondAttrListCollection')
+    if not (conddb.folderRequested("/PIXEL/PixMapOverlay") or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
+      conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay","/PIXEL/PixMapOverlay", className='CondAttrListCollection')
 
-    if self._print:  print PixelOfflineCalibSvc
-                                                
     #######################
     # Lorentz Angle Setup #
     #######################

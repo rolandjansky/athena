@@ -21,9 +21,6 @@ class FEI3SimTool:public FrontEndSimTool {
   private:
     FEI3SimTool();
 
-    std::vector<bool> m_HitDuplication;
-    std::vector<int>  m_SmallHitToT;
-
     int m_timingTune;
 
     int relativeBunch2009(const double threshold, const double intimethreshold, const SiTotalCharge &totalCharge) const;

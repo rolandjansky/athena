@@ -26,7 +26,9 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "InDetCondServices/ISiLorentzAngleTool.h"
 
-class IPixelOfflineCalibSvc;
+#include "PixelConditionsData/PixelOfflineCalibData.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 class IPixelCalibSvc;
 template <class T> class ServiceHandle;
 class Identifier;
@@ -141,7 +143,6 @@ private:
   //  mutable MsgStream m_log;
   bool m_calibrateCharge;
   ServiceHandle<IPixelCalibSvc> m_calibSvc;
-  ServiceHandle<IPixelOfflineCalibSvc> m_offlineCalibSvc;
   ToolHandle<ISiLorentzAngleTool> m_pixelLorentzAngleTool{this, "PixelLorentzAngleTool", "SiLorentzAngleTool/PixelLorentzAngleTool", "Tool to retreive Lorentz angle of Pixel"};
   ToolHandle<ISiLorentzAngleTool> m_sctLorentzAngleTool{this, "SCTLorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle of SCT"};
 
@@ -150,6 +151,7 @@ private:
   
   double getPixelCTBPhiError(int layer, int phi, int PhiClusterSize) const;
  
+  SG::ReadCondHandleKey<PixelCalib::PixelOfflineCalibData> m_clusterErrorKey{this, "PixelOfflineCalibData", "PixelOfflineCalibData", "Output key of pixel cluster"};
 
 };
 

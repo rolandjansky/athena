@@ -24,13 +24,12 @@
 #include "TrkAmbiguityProcessor/dRMap.h"
 #include "SiClusterizationTool/NnClusterizationFactory.h"
 
-//#include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
 //#include "PixelConditionsTools/IModuleDistortionsTool.h"
 
+#include "PixelConditionsData/PixelOfflineCalibData.h"
 #include "InDetCondServices/ISiLorentzAngleTool.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 class PixelID;
-class IPixelOfflineCalibSvc;
 class IModuleDistortionsTool;
 
 class StoreGateSvc;
@@ -132,7 +131,6 @@ public:
 
   ToolHandle<IModuleDistortionsTool>            m_pixDistoTool    ;
   ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool", "Tool to retreive Lorentz angle"};
-  ServiceHandle<IPixelOfflineCalibSvc>          m_calibSvc        ;
   StoreGateSvc*                                 m_detStore        ;
   /* ME: Test histos have nothing to do with production code, use a flag
     IHistogram1D* m_h_Resx;
@@ -147,6 +145,7 @@ public:
 
   //! toolhandle for central error scaling
   //! flag storing if errors need scaling or should be kept nominal
+  SG::ReadCondHandleKey<PixelCalib::PixelOfflineCalibData> m_clusterErrorKey{this, "PixelOfflineCalibData", "PixelOfflineCalibData", "Output key of pixel cluster"};
   SG::ReadCondHandleKey<RIO_OnTrackErrorScaling> m_pixelErrorScalingKey
     {this,"PixelErrorScalingKey", "" /* "/Indet/TrkErrorScalingPixel" */, "Key for pixel error scaling conditions data. No error scaling if empty"};
 

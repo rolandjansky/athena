@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // DetCondCFloat.cxx
@@ -46,6 +46,10 @@ int DetCondCFloat::findindex(const Identifier& ident) const {
     // identifier not in map, return -ve offset to signal error
     return -1;
   }
+}
+
+float DetCondCFloat::get(const Identifier& ident, int k) const {
+  return m_buf.at(findindex(ident)+k);
 }
 
 void DetCondCFloat::print() const {

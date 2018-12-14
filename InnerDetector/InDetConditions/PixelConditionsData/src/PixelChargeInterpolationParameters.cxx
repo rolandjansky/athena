@@ -92,7 +92,7 @@ namespace PixelCalib{
       const int n3,   // number of eta bins
       const int n4,   // number of incidence angle bins
       int offset,     // start from c[offset]
-      const float* c){  // vector with bin values
+      std::vector<float> c){  // vector with bin values
     m_csx.clear();
     m_csy.clear();
     m_etabins.clear();
@@ -103,33 +103,33 @@ namespace PixelCalib{
     m_etabins.reserve(n3+1);
     m_phibins.reserve(n4+1);  
     for(int i=0; i<n1+1; i++){
-      m_csx.push_back(c[i+offset]);
+      m_csx.push_back(c.at(i+offset));
     }   
     offset += n1+1;
     for(int i=0; i<n2+1; i++){
-      m_csy.push_back(c[i+offset]);
+      m_csy.push_back(c.at(i+offset));
     }   
     offset += n2+1;
     if(m_etaibl>0){ // IBL eta
       m_ibletabins.reserve(m_etaibl+1);
       for(int i = 0; i<m_etaibl+1; i++){
-        m_ibletabins.push_back(c[i+offset]);
+        m_ibletabins.push_back(c.at(i+offset));
       }
       offset +=m_etaibl+1;
     }
     if(m_alphaibl>0){ // IBL phi 
       m_iblphibins.reserve(m_alphaibl+1);
       for(int i = 0; i<m_alphaibl+1; i++){
-        m_iblphibins.push_back(c[i+offset]);
+        m_iblphibins.push_back(c.at(i+offset));
       }
       offset +=m_alphaibl+1;
     }    
     for(int i=0; i<n3+1; i++){
-      m_etabins.push_back(c[i+offset]);
+      m_etabins.push_back(c.at(i+offset));
     }   
     offset += n3+1;
     for(int i=0; i<n4+1; i++){
-      m_phibins.push_back(c[i+offset]);
+      m_phibins.push_back(c.at(i+offset));
     }   
 
     offset +=n4+1;
