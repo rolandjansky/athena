@@ -36,6 +36,3 @@ atlas_add_component( TrigHLTJetHypo
 # Install files from the package:
 atlas_install_python_modules( python/*.py ) 
 
-# Install files from the package:
-atlas_install_python_modules( python/*.py ) 
-
