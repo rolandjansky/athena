@@ -12,6 +12,7 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
 #include "MuonCombinedToolInterfaces/IMuonCandidateTool.h"
+#include "TrkTrack/TrackCollection.h"
 #include <string>
 
 namespace MuonCombined {
@@ -33,7 +34,7 @@ class MuonCombinedMuonCandidateAlg : public AthAlgorithm
   ToolHandle<MuonCombined::IMuonCandidateTool> m_muonCandidateTool{this,"MuonCandidateTool","MuonCombined::MuonCandidateTool/MuonCandidateTool","Muon Candidate Tool"};
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_muonTrackParticleLocation{this,"MuonSpectrometerTrackParticleLocation","MuonSpectrometerTrackParticles","MS Track Particle collection"};
   SG::WriteHandleKey<MuonCandidateCollection> m_candidateCollectionName{this,"MuonCandidateLocation","MuonCandidates","Muon candidate collection"};
-
+  SG::WriteHandleKey<TrackCollection> m_msOnlyTracks{this,"MSOnlyExtrapolatedTrackLocation","MSOnlyExtrapolatedMuonTracks","MS extrapolated muon tracks"};
 };
 
 

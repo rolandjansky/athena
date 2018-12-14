@@ -631,6 +631,7 @@ TrigMuonEFStandaloneTrackTool::getSpectrometerTracks(const IRoiDescriptor* muonR
 //________________________________________________________________________
 HLT::ErrorCode TrigMuonEFStandaloneTrackTool::getExtrapolatedTracks(const IRoiDescriptor* muonRoI,
 								    MuonCandidateCollection& candidateCollection,
+								    TrackCollection& extrapolatedTracks,
 								    SegmentCache*& cache,
 								    TrigMuonEFMonVars& monVars,
 								    std::vector<TrigTimer*>& timers) 
@@ -659,7 +660,7 @@ HLT::ErrorCode TrigMuonEFStandaloneTrackTool::getExtrapolatedTracks(const IRoiDe
   //
   // extrapolation
   //
-  hltStatus = extrapolate(m_spectrometerTrackParticles, candidateCollection, cache, monVars.SA, timers, 6);
+  hltStatus = extrapolate(m_spectrometerTrackParticles, candidateCollection, extrapolatedTracks, cache, monVars.SA, timers, 6);
   if (hltStatus!=HLT::OK && hltStatus !=HLT::MISSING_FEATURE) {
     ATH_MSG_DEBUG( "Failed to extrapolate spectrometer tracks to IP" );
     return hltStatus;
@@ -1897,6 +1898,7 @@ TrigMuonEFStandaloneTrackTool::buildTracks(const MuonSegmentCombinationCollectio
 HLT::ErrorCode
 TrigMuonEFStandaloneTrackTool::extrapolate(const xAOD::TrackParticleContainer* spectrometerTrackParticles,
 					   MuonCandidateCollection& candidateCollection,
+					   TrackCollection& extrapolatedTracks,
 					   SegmentCache* cache,
 					   TrigMuonEFSAMonVars& monVars,
 					   std::vector<TrigTimer*>& timers, unsigned int firstTimerIndex )
@@ -1931,7 +1933,7 @@ TrigMuonEFStandaloneTrackTool::extrapolate(const xAOD::TrackParticleContainer* s
   else{
     ///// Call extrapolator tool
     ATH_MSG_DEBUG("Call MuonCandidateTool");
-    m_muonCandidateTool->create( *spectrometerTrackParticles, candidateCollection );
+    m_muonCandidateTool->create( *spectrometerTrackParticles, candidateCollection, extrapolatedTracks );
     needToCacheExtrapTrks=true;
     monVars.wasCached = 0;
   }//end of else
@@ -1943,13 +1945,8 @@ TrigMuonEFStandaloneTrackTool::extrapolate(const xAOD::TrackParticleContainer* s
   ATH_MSG_DEBUG("REGTEST MuonEF Found " << candidateCollection.size() << " tracks.");
 
   unsigned int nTrack=0;
-  for(auto cand : candidateCollection) {
+  for(auto trk : extrapolatedTracks) {
     
-    const Trk::Track* trk = cand->extrapolatedTrack();
-    if(!trk) {
-      ATH_MSG_DEBUG("REGTEST MuonEF - MuonCandidate with no extrapolated Track");
-      continue;
-    }
     ATH_MSG_DEBUG("REGTEST MuonEF - extrapolated track has Author " << trk->info().dumpInfo());
     
     ++nTrack;
@@ -1988,9 +1985,8 @@ TrigMuonEFStandaloneTrackTool::extrapolate(const xAOD::TrackParticleContainer* s
     
     // update track summary
     const Trk::TrackSummary* summary = NULL;
-    Trk::Track& nonConstTrack = const_cast<Trk::Track&>(*trk);
-    m_trackSummaryTool->updateTrack(nonConstTrack);
-    summary = (nonConstTrack.trackSummary());
+    m_trackSummaryTool->updateTrack(*trk);
+    summary = (trk->trackSummary());
     if(summary==0) {
       ATH_MSG_DEBUG("trackSummary not found for this track, cannot get number of subdetector hits.");
     }
@@ -2430,12 +2426,13 @@ TrigMuonEFStandaloneTrackTool::getSpectrometerTracks(const IRoiDescriptor* muonR
 HLT::ErrorCode 
 TrigMuonEFStandaloneTrackTool::getExtrapolatedTracks(const IRoiDescriptor* muonRoI,
 						     MuonCandidateCollection& candidateCollection,
+						     TrackCollection& extrapolatedTracks,
 						     TrigMuonEFMonVars& monVars,
 						     std::vector<TrigTimer*>& timers) 
 {
   SegmentCache* cache = 0;
   ATH_MSG_DEBUG("In getExtrapolatedTracks without cache");
-  return getExtrapolatedTracks( muonRoI, candidateCollection, cache, monVars, timers );
+  return getExtrapolatedTracks( muonRoI, candidateCollection, extrapolatedTracks, cache, monVars, timers );
 }
 
 //________________________________________________________________________

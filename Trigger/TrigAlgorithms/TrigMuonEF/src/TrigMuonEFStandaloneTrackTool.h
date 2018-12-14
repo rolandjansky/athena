@@ -121,6 +121,7 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   /** Run segment finding, spectrometer track building and extrapolation */
   virtual HLT::ErrorCode getExtrapolatedTracks(const IRoiDescriptor* muonRoI,
 					       MuonCandidateCollection& candidateCollection,
+					       TrackCollection& extrapolatedTracks,
 					       TrigMuonEFMonVars& monvars,
 					       std::vector<TrigTimer*>& timers);
   
@@ -223,6 +224,7 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   /** Run segment finding, spectrometer track building and extrapolation */
   HLT::ErrorCode getExtrapolatedTracks(const IRoiDescriptor* muonRoI,
 				       MuonCandidateCollection& candidateCollection,
+				       TrackCollection& extrapolatedTracks,
 				       SegmentCache*& cache,
 				       TrigMuonEFMonVars& monvars,
 				       std::vector<TrigTimer*>& timers);
@@ -244,6 +246,7 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   /** Extrapolate input track to IP */
   HLT::ErrorCode extrapolate(const xAOD::TrackParticleContainer* spectrometerTrackParticles,
 			     MuonCandidateCollection& candidateCollection,			     
+			     TrackCollection&extrapolatedTracks,
 			     SegmentCache* cache,
 			     TrigMuonEFSAMonVars& monvars,
 			     std::vector<TrigTimer*>& timers, unsigned int firstTimerIndex );

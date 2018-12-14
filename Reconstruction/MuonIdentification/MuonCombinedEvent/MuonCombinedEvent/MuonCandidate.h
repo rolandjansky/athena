@@ -47,11 +47,8 @@ namespace MuonCombined {
     */
     MuonCandidate( const ElementLink<xAOD::TrackParticleContainer>& msTrackLink, const Trk::Track* extrapolatedTrack );
 
-    /** constructor taking an const reference for the MS track and an
-	ElementLink to an xAOD::TrackParticle for the extrapolated track.
-	Use this function when you don't want MuonCandidate to take ownership of the extrapolated track
-    */
-    MuonCandidate( const Trk::Track& msTrack, const ElementLink<xAOD::TrackParticleContainer>& saTrackLink );
+    /*Constructor taking two ElementLinks, should be the new default (second may be empty)*/
+    MuonCandidate( const ElementLink<xAOD::TrackParticleContainer>& msTrackLink, const ElementLink<TrackCollection>& saTrackLink );
 
     /** destructor */
     ~MuonCandidate();
@@ -71,8 +68,8 @@ namespace MuonCombined {
     /** access extrapolated track, can be zero if back extrapolation failed */
     const Trk::Track* releaseExtrapolatedTrack();
 
-    /** access extrapolated track element link, will not point to anything if we own the Track */
-    const ElementLink<xAOD::TrackParticleContainer>& extrapolatedTrackLink() const;
+    /** access extrapolated track element link*/
+    const ElementLink<TrackCollection>& extrapolatedTrackLink() const;
 
     /** ask if the MuonCandidate owns the extrapolated track */
     bool ownsExtrapolatedTrack() const;
@@ -85,7 +82,7 @@ namespace MuonCombined {
     const ElementLink<xAOD::TrackParticleContainer>   m_muonSpectrometerTrackLink;
 
     /** element link to extrapolated track */
-    const ElementLink<xAOD::TrackParticleContainer>   m_extrapolatedTrackLink;
+    const ElementLink<TrackCollection>   m_extrapolatedTrackLink;
 
     /** pointer to extrapolated track, may be owned */
     const Trk::Track*   m_extrapolatedTrack;
@@ -117,7 +114,7 @@ namespace MuonCombined {
 
   inline bool MuonCandidate::ownsExtrapolatedTrack() const { return m_ownsExtrapolatedTrack; }
 
-  inline const ElementLink<xAOD::TrackParticleContainer>& MuonCandidate::extrapolatedTrackLink() const { return m_extrapolatedTrackLink; }
+  inline const ElementLink<TrackCollection>& MuonCandidate::extrapolatedTrackLink() const { return m_extrapolatedTrackLink; }
 }
 
 

@@ -198,7 +198,7 @@ namespace Muon {
 
     auto pos = std::find(m_trackParticles.begin(),m_trackParticles.end(),&indetTrackParticle);
     if( pos == m_trackParticles.end() ) {
-      ATH_MSG_WARNING("addMuonCandidate: indetTrackParticle not found ");
+      ATH_MSG_WARNING("addTimeMeasurement: indetTrackParticle not found ");
       return false;
     }
     int index = std::distance(m_trackParticles.begin(),pos);
@@ -502,7 +502,7 @@ namespace Muon {
   }
 
   bool MuonRecoValidationTool::addMuonCandidate( const xAOD::TrackParticle& indetTrackParticle, const MuonCandidate* candidate, 
-                                                 const Trk::Track* combinedTrack, int ntimes, float beta, float chi2ndof, int stage ) {
+                                                 Trk::Track* combinedTrack, int ntimes, float beta, float chi2ndof, int stage ) {
 
     auto pos = std::find(m_trackParticles.begin(),m_trackParticles.end(),&indetTrackParticle);
     if( pos == m_trackParticles.end() ) {
@@ -515,8 +515,9 @@ namespace Muon {
     int ntrigPhi = 0;
     int ntrigEta = 0;
     int nseg = candidate ? candidate->layerIntersections.size() : 0;
+    const Trk::Track* track=combinedTrack;
     if( combinedTrack ){
-      IMuonHitSummaryTool::CompactSummary summary = m_hitSummaryTool->summary(*combinedTrack);
+      IMuonHitSummaryTool::CompactSummary summary = m_hitSummaryTool->summary(*track);
       nprec = summary.nprecisionLayers;
       ntrigPhi = summary.nphiLayers;  
       ntrigEta = summary.ntrigEtaLayers;  

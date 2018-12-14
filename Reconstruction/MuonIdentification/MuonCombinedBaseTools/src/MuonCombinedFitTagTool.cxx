@@ -110,11 +110,17 @@ namespace MuonCombined {
     return StatusCode::SUCCESS;
   }
 
-  void MuonCombinedFitTagTool::combine( const MuonCandidate& muonCandidate, const std::vector<const InDetCandidate*>& indetCandidates, InDetCandidateToTagMap& tagMap) const {  
+  void MuonCombinedFitTagTool::combine( const MuonCandidate& muonCandidate, const std::vector<const InDetCandidate*>& indetCandidates, InDetCandidateToTagMap& tagMap,
+					TrackCollection* combTracks, TrackCollection* METracks) const {  
 
     ATH_MSG_DEBUG("muon candidate: "<<muonCandidate.toString());
 
-    CombinedFitTag* bestTag=0;
+    std::unique_ptr<CombinedFitTag> bestTag=0;
+    std::unique_ptr<Trk::Track> bestCombTrack=0;
+    std::unique_ptr<Trk::Track> bestMETrack=0;
+    std::unique_ptr<Trk::Track> combinedTrack;
+    std::unique_ptr<Trk::Track> METrack;
+    std::unique_ptr<CombinedFitTag> currentTag;
     const InDetCandidate* bestCandidate=0;
     std::multimap<double,const InDetCandidate*> sortedInDetCandidates; //map of ID candidates by max probability of match (based on match chi2 at IP and MS entrance)
     float probCut=.00001; //cut on max probability: below this cut, we don't attempt to form a combined track unless no combined track has yet been successfully created
@@ -138,7 +144,7 @@ namespace MuonCombined {
       ATH_MSG_DEBUG("in det candidate prob: "<<(*rit).first);
 
       if((*rit).first<probCut && !fitBadMatches){
-        if(!bestCandidate){ ATH_MSG_DEBUG("no combined track yet, keep fitting"); fitBadMatches=true;}
+        if(!bestCombTrack){ ATH_MSG_DEBUG("no combined track yet, keep fitting"); fitBadMatches=true;}
         else{ ATH_MSG_DEBUG("combined track found, we're done here"); break;}
       }
       
@@ -151,16 +157,16 @@ namespace MuonCombined {
       }
 
       // fit the combined ID-MS track
-      const Trk::Track* combinedTrack = buildCombinedTrack (*((*rit).second->indetTrackParticle().track()),
-                                                            muonCandidate.muonSpectrometerTrack(),
-                                                            muonCandidate.extrapolatedTrack());
+      combinedTrack.reset(buildCombinedTrack (*((*rit).second->indetTrackParticle().track()),
+					      muonCandidate.muonSpectrometerTrack(),
+					      muonCandidate.extrapolatedTrack()));
       if( !combinedTrack ) {
         ATH_MSG_DEBUG("Combination fit failed");
         continue;
       }
 
       if(msgLevel() >= MSG::DEBUG) {
-        dumpCaloEloss(combinedTrack, "Combined Track ");
+        dumpCaloEloss(combinedTrack.get(), "Combined Track ");
         dumpCaloEloss(muonCandidate.extrapolatedTrack(), "Extrapolated Track ");
       }
 
@@ -168,19 +174,18 @@ namespace MuonCombined {
       Trk::TrackScore score = m_trackScoringTool->score(*combinedTrack,true);
 
       // add fit info into tag object
-      CombinedFitTag* currentTag = new CombinedFitTag(xAOD::Muon::MuidCo, muonCandidate, *combinedTrack, score);
+      currentTag.reset(new CombinedFitTag(xAOD::Muon::MuidCo, muonCandidate, score));
 
       // re-fit standalone track (if needed) and store output into tag object
-      evaluateMatchProperties(*currentTag, *((*rit).second->indetTrackParticle().track()), (*rit).second->indetTrackParticle());
+      METrack.reset(evaluateMatchProperties(combinedTrack.get(), *currentTag, *((*rit).second->indetTrackParticle().track()), (*rit).second->indetTrackParticle()));
       
       // select the best combined track
-      if(!bestCandidate || bestMatchChooser(*((*rit).second), *currentTag,
-      *bestCandidate, *bestTag)) {
-        if( bestTag ) delete bestTag;
+      if(!bestCandidate || bestMatchChooser(*((*rit).second), *currentTag, *combinedTrack, METrack.get(),
+					    *bestCandidate, *bestTag, *bestCombTrack, bestMETrack.get())) {
         bestCandidate = (*rit).second;
-        bestTag       = currentTag;
-      }else{
-        delete currentTag;
+        bestTag.swap(currentTag);
+	bestCombTrack.swap(combinedTrack);
+	bestMETrack.swap(METrack);
       }
     }
     if(!bestCandidate){
@@ -188,7 +193,7 @@ namespace MuonCombined {
       if (! m_muonRecovery.empty()){
         //for(auto& sidTP : sortedInDetCandidates){
         for(rit=sortedInDetCandidates.rbegin();rit!=sortedInDetCandidates.rend();++rit){
-          const Trk::Track* combinedTrack	= m_muonRecovery->recoverableMatch(*((*rit).second->indetTrackParticle().track()),muonCandidate.muonSpectrometerTrack());
+          combinedTrack.reset(m_muonRecovery->recoverableMatch(*((*rit).second->indetTrackParticle().track()),muonCandidate.muonSpectrometerTrack()));
           if (combinedTrack && combinedTrackQualityCheck(*combinedTrack,*((*rit).second->indetTrackParticle().track()))){
             combinedTrack->info().addPatternReco((*rit).second->indetTrackParticle().track()->info());
             combinedTrack->info().addPatternReco(muonCandidate.muonSpectrometerTrack().info());
@@ -198,24 +203,23 @@ namespace MuonCombined {
             Trk::TrackScore score = m_trackScoringTool->score(*combinedTrack,true);
 	    
             // add fit info into tag object
-            CombinedFitTag* currentTag = new CombinedFitTag(xAOD::Muon::MuidCo, muonCandidate, *combinedTrack, score);
+            currentTag.reset(new CombinedFitTag(xAOD::Muon::MuidCo, muonCandidate, score));
 
             if(msgLevel() >= MSG::DEBUG) {
-              dumpCaloEloss(combinedTrack, "Recovery Combined Track ");
+              dumpCaloEloss(combinedTrack.get(), "Recovery Combined Track ");
               dumpCaloEloss(muonCandidate.extrapolatedTrack(), "Recovery Extrapolated Track ");
             }
 
             // re-fit standalone track (if needed) and store output into tag object
-            evaluateMatchProperties(*currentTag, *((*rit).second->indetTrackParticle().track()), (*rit).second->indetTrackParticle());
+	    METrack.reset(evaluateMatchProperties(combinedTrack.get(), *currentTag, *((*rit).second->indetTrackParticle().track()), (*rit).second->indetTrackParticle()));
 	    
             // select the best combined track
-            if(!bestCandidate || bestMatchChooser(*((*rit).second), *currentTag,
-            *bestCandidate, *bestTag)) {
-              if( bestTag ) delete bestTag;
+            if(!bestCandidate || bestMatchChooser(*((*rit).second), *currentTag, *combinedTrack, METrack.get(),
+						  *bestCandidate, *bestTag, *bestCombTrack, bestMETrack.get())) {
               bestCandidate = (*rit).second;
-              bestTag       = currentTag;
-            }else{
-              delete currentTag;
+              bestTag.swap(currentTag);
+	      bestCombTrack.swap(combinedTrack);
+	      bestMETrack.swap(METrack);
             }
           }
         }
@@ -225,24 +229,38 @@ namespace MuonCombined {
     if( bestCandidate ){
       double outerMatchChi2 = 1e19;
       // take the best MS Track, first the update extrapolated, than the extrapolated, last the spectrometer track
-      const Trk::Track* extrapolatedTrack = bestTag->updatedExtrapolatedTrack();
-      if( !extrapolatedTrack ) extrapolatedTrack = muonCandidate.extrapolatedTrack();
-      if( !extrapolatedTrack ) extrapolatedTrack = &muonCandidate.muonSpectrometerTrack();
+      bool haveME=true;
+      if( !bestMETrack ){
+	if(muonCandidate.extrapolatedTrack()) bestMETrack.reset(new Trk::Track(*muonCandidate.extrapolatedTrack()));
+	else bestMETrack.reset(new Trk::Track(muonCandidate.muonSpectrometerTrack()));
+	haveME=false;
+      }
 
-      if( bestCandidate->indetTrackParticle().trackLink().isValid() && extrapolatedTrack ){
-        outerMatchChi2 = m_tagTool->chi2(*bestCandidate->indetTrackParticle().track(),*extrapolatedTrack);
+      if( bestCandidate->indetTrackParticle().trackLink().isValid() && bestMETrack ){
+        outerMatchChi2 = m_tagTool->chi2(*bestCandidate->indetTrackParticle().track(),*bestMETrack);
         
         if(msgLevel() >= MSG::DEBUG) {
-          dumpCaloEloss(&(bestTag->combinedTrack()), " bestCandidate Combined Track ");
-          dumpCaloEloss(extrapolatedTrack, " bestCandidate Extrapolated Track ");
+          dumpCaloEloss(bestCombTrack.get(), " bestCandidate Combined Track ");
+          dumpCaloEloss(bestMETrack.get(), " bestCandidate Extrapolated Track ");
         }
 
       }
-      ATH_MSG_DEBUG("Final combined muon: "<<m_printer->print(bestTag->combinedTrack()));
-      ATH_MSG_DEBUG(m_printer->printStations(bestTag->combinedTrack()));
+      ATH_MSG_DEBUG("Final combined muon: "<<m_printer->print(*bestCombTrack));
+      ATH_MSG_DEBUG(m_printer->printStations(*bestCombTrack));
       ATH_MSG_DEBUG("Combined Muon with ID " << m_printer->print(bestCandidate->indetTrackParticle().perigeeParameters())
         << " match chi2 " << bestTag->matchChi2() << " outer match " << outerMatchChi2 );
-      tagMap.addEntry(bestCandidate,bestTag);
+      combTracks->push_back(bestCombTrack.release());
+      ElementLink<TrackCollection> comblink( *combTracks,combTracks->size()-1);
+      bestTag->setCombinedTrackLink(comblink);
+      if(haveME){
+	METracks->push_back(bestMETrack.release());
+	ElementLink<TrackCollection> melink( *METracks,METracks->size()-1);
+	bestTag->setUpdatedExtrapolatedTrackLink(melink);
+      }
+      else{
+	bestTag->setUpdatedExtrapolatedTrackLink(ElementLink<TrackCollection>());
+      }
+      tagMap.addEntry(bestCandidate,bestTag.release());
     }   
   }
 
@@ -250,7 +268,7 @@ namespace MuonCombined {
 
 
 
-  const Trk::Track* MuonCombinedFitTagTool::buildCombinedTrack(const Trk::Track& indetTrack,					     
+  Trk::Track* MuonCombinedFitTagTool::buildCombinedTrack(const Trk::Track& indetTrack,					     
   const Trk::Track& spectrometerTrack,
   const Trk::Track* extrapolatedTrack) const
   {
@@ -258,7 +276,7 @@ namespace MuonCombined {
     if(!extrapolatedTrack) extrapolatedTrack = &spectrometerTrack;
 
     // build and fit the combined track
-    const Trk::Track* combinedTrack	= 0;
+    Trk::Track* combinedTrack	= 0;
     double	      combinedFitChi2	= 9999.;
     if (! m_trackBuilder.empty()) {
       combinedTrack = m_trackBuilder->combinedFit(indetTrack,
@@ -271,7 +289,7 @@ namespace MuonCombined {
       }
     }
     if (combinedFitChi2 > m_badFitChi2 && ! m_outwardsBuilder.empty()) {
-      const Trk::Track* outwardsTrack	= m_outwardsBuilder->combinedFit(indetTrack,
+      Trk::Track* outwardsTrack	= m_outwardsBuilder->combinedFit(indetTrack,
       *extrapolatedTrack,
       spectrometerTrack);
       if (outwardsTrack &&
@@ -299,7 +317,7 @@ namespace MuonCombined {
   }
 
 
-  bool MuonCombinedFitTagTool::combinedTrackQualityCheck(const Trk::Track& combinedTrack,
+  bool MuonCombinedFitTagTool::combinedTrackQualityCheck(Trk::Track& combinedTrack,
   const Trk::Track& indetTrack) const
   {
     // require calo correctly associated to track
@@ -343,11 +361,13 @@ namespace MuonCombined {
   }
 
 
-  void MuonCombinedFitTagTool::evaluateMatchProperties(CombinedFitTag& tag, const Trk::Track& idTrack, const xAOD::TrackParticle& idTrackParticle) const
+  Trk::Track* MuonCombinedFitTagTool::evaluateMatchProperties(Trk::Track* combinedTrack, CombinedFitTag& tag,
+								    const Trk::Track& idTrack, const xAOD::TrackParticle& idTrackParticle) const
   {
     // evaluate field integral and momentum balance significance for combined track
-    tag.fieldIntegral(m_trackQuery->fieldIntegral(tag.combinedTrack()));
-    tag.momentumBalanceSignificance(m_momentumBalanceTool->momentumBalanceSignificance(tag.combinedTrack()));
+    const Trk::Track* combTrack=combinedTrack;
+    tag.fieldIntegral(m_trackQuery->fieldIntegral(*combTrack));
+    tag.momentumBalanceSignificance(m_momentumBalanceTool->momentumBalanceSignificance(*combTrack));
     
     // keep original SA fit if no change to MS or Calo TSOS
     /*bool alwaysRefit = true;
@@ -378,7 +398,7 @@ namespace MuonCombined {
     }	
     
     // refit extrapolated from combined track (i.e. after cleaning)
-    const Trk::Track*  refittedExtrapolatedTrack = 0;
+    Trk::Track*  refittedExtrapolatedTrack = 0;
     bool dorefit = true;
     
     // no SA refit for Toroid off 
@@ -420,8 +440,8 @@ namespace MuonCombined {
 
     ATH_MSG_DEBUG( " refit SA track " << dorefit);  
     if(dorefit) {
-      if (! m_trackBuilder.empty())                                   refittedExtrapolatedTrack = m_trackBuilder->standaloneRefit(tag.combinedTrack(), bs_x, bs_y, bs_z);
-      if (! refittedExtrapolatedTrack && ! m_outwardsBuilder.empty()) refittedExtrapolatedTrack = m_outwardsBuilder->standaloneRefit(tag.combinedTrack(), bs_x, bs_y, bs_z);
+      if (! m_trackBuilder.empty())                                   refittedExtrapolatedTrack = m_trackBuilder->standaloneRefit(*combTrack, bs_x, bs_y, bs_z);
+      if (! refittedExtrapolatedTrack && ! m_outwardsBuilder.empty()) refittedExtrapolatedTrack = m_outwardsBuilder->standaloneRefit(*combTrack, bs_x, bs_y, bs_z);
     } 
     // include vertex region pseudo for extrapolation failure
     unsigned numberPseudo = tag.muonCandidate().extrapolatedTrack() ? 
@@ -430,12 +450,10 @@ namespace MuonCombined {
     // get track quality and store
     if (refittedExtrapolatedTrack) {
 
-      // store the refit track in the tag object
-      tag.setUpdatedExtrapolatedTrack(refittedExtrapolatedTrack);
-
-      double matchChi2 = m_matchQuality->innerMatchChi2(idTrack, *refittedExtrapolatedTrack);
-      int matchDoF     = m_matchQuality->innerMatchDOF(idTrack, *refittedExtrapolatedTrack);
-      double matchProb = m_matchQuality->innerMatchProbability(idTrack, *refittedExtrapolatedTrack);
+      const Trk::Track* METrack=refittedExtrapolatedTrack;
+      double matchChi2 = m_matchQuality->innerMatchChi2(idTrack, *METrack);
+      int matchDoF     = m_matchQuality->innerMatchDOF(idTrack, *METrack);
+      double matchProb = m_matchQuality->innerMatchProbability(idTrack, *METrack);
       
       // store the inner matching quality in the tag object
       tag.innerMatch(matchChi2, matchDoF, matchProb);
@@ -458,17 +476,24 @@ namespace MuonCombined {
       // failed re-evaluation of match chi2
       ATH_MSG_WARNING( " evaluateMatchProperties: fail re-evaluation of match chi2");
     }
+    return refittedExtrapolatedTrack;
   }
 
-  void MuonCombinedFitTagTool::dumpCaloEloss(const Trk::Track* track, std::string txt ) const
+  void MuonCombinedFitTagTool::dumpCaloEloss(Trk::Track* track, std::string txt ) const
+  {
+    const Trk::Track* inTrack=track;
+    dumpCaloEloss(inTrack,txt);
+  }
+
+  void MuonCombinedFitTagTool::dumpCaloEloss(const Trk::Track* inTrack, std::string txt ) const
   {
     // will refit if extrapolated track was definitely bad
-    if (! track) return;
-    if (! m_trackQuery->isCaloAssociated(*track)) {
+    if (! inTrack) return;
+    if (! m_trackQuery->isCaloAssociated(*inTrack)) {
       ATH_MSG_DEBUG( txt << " no TSOS in Calorimeter ");   
       return;
     }   
-    const Trk::Track& originalTrack = *track;
+    const Trk::Track& originalTrack = *inTrack;
     const CaloEnergy* caloEnergy	= m_trackQuery->caloEnergy(originalTrack);
     if(caloEnergy) {
       ATH_MSG_DEBUG( txt << " Calorimeter Eloss " << caloEnergy->deltaE());     
@@ -476,7 +501,7 @@ namespace MuonCombined {
       ATH_MSG_DEBUG( txt << " No Calorimeter Eloss");
     }
 
-    const DataVector <const Trk::TrackStateOnSurface>* trackTSOS =  track->trackStateOnSurfaces(); 
+    const DataVector <const Trk::TrackStateOnSurface>* trackTSOS =  inTrack->trackStateOnSurfaces(); 
 
     double Eloss = 0.;
     double idEloss = 0.;
@@ -630,15 +655,15 @@ namespace MuonCombined {
   }
 
 
-  bool MuonCombinedFitTagTool::bestMatchChooser(const InDetCandidate& curCandidate, const CombinedFitTag& curTag,
-  const InDetCandidate& /*bestCandidate*/, const CombinedFitTag& bestTag) const
+  bool MuonCombinedFitTagTool::bestMatchChooser(const InDetCandidate& curCandidate, const CombinedFitTag& curTag, Trk::Track& curTrack, Trk::Track* curMETrack,
+						const InDetCandidate& /*bestCandidate*/, const CombinedFitTag& bestTag, Trk::Track& bestTrack, Trk::Track* bestMETrack) const
     
   {
     // pointers to extrapolated track
-    const Trk::Track* curExtrTrack = curTag.updatedExtrapolatedTrack() ? 
-      curTag.updatedExtrapolatedTrack() : curTag.muonCandidate().extrapolatedTrack();
-    const Trk::Track* bestExtrTrack = bestTag.updatedExtrapolatedTrack() ? 
-      bestTag.updatedExtrapolatedTrack() : bestTag.muonCandidate().extrapolatedTrack();
+    const Trk::Track* curExtrTrack = curMETrack ?
+      curMETrack : curTag.muonCandidate().extrapolatedTrack();
+    const Trk::Track* bestExtrTrack = bestMETrack ? 
+      bestMETrack : bestTag.muonCandidate().extrapolatedTrack();
 
     // 1 current
     // 2 best
@@ -646,8 +671,8 @@ namespace MuonCombined {
 
     double matchChiSq1			= curTag.matchChi2();
     double matchChiSq2			= bestTag.matchChi2();
-    const Trk::TrackSummary* summary1	= curTag.combinedTrack().trackSummary();
-    const Trk::TrackSummary* summary2	= bestTag.combinedTrack().trackSummary();
+    const Trk::TrackSummary* summary1	= curTrack.trackSummary();
+    const Trk::TrackSummary* summary2	= bestTrack.trackSummary();
     ATH_MSG_VERBOSE("bestMatchChooser: matchChiSq " << matchChiSq1 << "  " << matchChiSq2);
     if (summary1 && summary2)
     {
@@ -667,12 +692,12 @@ namespace MuonCombined {
     }
     
     // selection when only one match has a good combined fit
-    double fitChiSq1	= curTag.combinedTrack().fitQuality()->chiSquared() /
-      curTag.combinedTrack().fitQuality()->doubleNumberDoF();
-    int numberDoF1	= curTag.combinedTrack().fitQuality()->numberDoF();
-    double fitChiSq2	= bestTag.combinedTrack().fitQuality()->chiSquared() /
-      bestTag.combinedTrack().fitQuality()->doubleNumberDoF();
-    int numberDoF2	= bestTag.combinedTrack().fitQuality()->numberDoF();
+    double fitChiSq1	= curTrack.fitQuality()->chiSquared() /
+      curTrack.fitQuality()->doubleNumberDoF();
+    int numberDoF1	= curTrack.fitQuality()->numberDoF();
+    double fitChiSq2	= bestTrack.fitQuality()->chiSquared() /
+      bestTrack.fitQuality()->doubleNumberDoF();
+    int numberDoF2	= bestTrack.fitQuality()->numberDoF();
     ATH_MSG_VERBOSE("bestMatchChooser: fitChiSq " << fitChiSq1 << "  " << fitChiSq2);
     if (fabs(fitChiSq1 - fitChiSq2) > m_badFitChi2) {
       if (fitChiSq1 < m_badFitChi2) {

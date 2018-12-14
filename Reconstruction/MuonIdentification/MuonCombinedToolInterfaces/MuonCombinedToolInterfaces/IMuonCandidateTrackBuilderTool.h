@@ -26,7 +26,7 @@ namespace Muon {
     static const InterfaceID& interfaceID();
 
     /** @brief build a track out of a MuonCandidate */
-    virtual const Trk::Track* buildCombinedTrack( const Trk::Track& idTrack, const MuonCandidate& candidate ) const = 0;
+    virtual Trk::Track* buildCombinedTrack( const Trk::Track& idTrack, const MuonCandidate& candidate ) const = 0;
 
   };
  

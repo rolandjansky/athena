@@ -45,8 +45,8 @@ public:
 
     /**IMuidMuonRecovery interface:
        algorithmic code for recovering muon spectrometer using the inner detector track */    
-    virtual const Trk::Track*           recoverableMatch (const Trk::Track& indetTrack, 
-							  const Trk::Track& spectrometerTrack) const = 0;
+    virtual Trk::Track*           recoverableMatch (const Trk::Track& indetTrack, 
+						    const Trk::Track& spectrometerTrack) const = 0;
 };
  
 }	// end of namespace

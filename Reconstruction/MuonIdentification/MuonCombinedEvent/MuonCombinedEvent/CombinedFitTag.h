@@ -9,6 +9,7 @@
 #include "MuidEvent/FieldIntegral.h"
 #include "MuonCombinedEvent/TagBase.h"
 #include "TrkEventPrimitives/TrackScore.h"
+#include "TrkTrack/TrackCollection.h"
 #include <vector>
 
 namespace Trk {
@@ -23,24 +24,24 @@ namespace MuonCombined {
   class CombinedFitTag : public TagBase {
   public:
     
-    /** Constructor taking a MuonCandidate and a combined track as input
+    /** Constructor taking a MuonCandidate as input
 	Users should ensure that the life time of the MuonCandidate 
-	The class takes ownership of the combined track and the track score
+	The class takes ownership of the track score
     */
     CombinedFitTag( xAOD::Muon::Author author, const MuonCandidate& muonCandidate, 
-		    const Trk::Track& combinedTrack, const Trk::TrackScore& score );
+		    const Trk::TrackScore& score );
 
     /** destructor */
     ~CombinedFitTag();
 
     /** access combined track */
-    const Trk::Track& combinedTrack() const;
+    const Trk::Track* combinedTrack() const;
 
-    /** set combined track */
-    void setCombinedTrack(const Trk::Track& combinedTrack, const Trk::TrackScore& score );
+    /*ElementLink to combined track*/
+    ElementLink<TrackCollection> combinedTrackLink() const {return m_combLink;}
 
-    /** release combined track, user gets ownership */
-    const Trk::Track* releaseCombinedTrack();
+    /** set combined track ElementLink*/
+    void setCombinedTrackLink(ElementLink<TrackCollection> combLink){m_combLink=combLink;}
 
     /** access to MuonCandidate */
     const MuonCandidate& muonCandidate() const;
@@ -48,11 +49,11 @@ namespace MuonCombined {
     /** access update extrapolated track, returns zero if none are available */
     const Trk::Track* updatedExtrapolatedTrack() const;
 
-    /** set update extrapolated track, takes ownership */
-    void setUpdatedExtrapolatedTrack(const Trk::Track* track);
+    /* ElementLink to ME track*/
+    ElementLink<TrackCollection> updatedExtrapolatedTrackLink() const {return m_MELink;}
 
-    /** release combined track, user gets ownership */
-    const Trk::Track* releaseUpdatedExtrapolatedTrack();
+    /** set update extrapolated track ElementLink */
+    void setUpdatedExtrapolatedTrackLink(ElementLink<TrackCollection> MELink){m_MELink=MELink;}
 
     /** store inner match quality info */
     void innerMatch(double chi2, int dof, double prob);
@@ -97,9 +98,9 @@ namespace MuonCombined {
 
     /** data content */
     const MuonCandidate* m_muonCandidate;  /// MuonCandidate 
-    const Trk::Track*    m_combinedTrack;  /// combined track 
+    ElementLink<TrackCollection> m_combLink; //link to combined track
     Trk::TrackScore      m_trackScore;
-    const Trk::Track*    m_updatedExtrapolatedTrack; /// updated extrapolated track
+    ElementLink<TrackCollection> m_MELink; //link to ME track
 
     Rec::FieldIntegral m_fieldIntegral;
 
@@ -114,35 +115,12 @@ namespace MuonCombined {
     return t1.trackScore() < t2.trackScore();
   }
 
-  inline const Trk::Track& CombinedFitTag::combinedTrack() const { return *m_combinedTrack; }
+  inline const Trk::Track* CombinedFitTag::combinedTrack() const { return m_combLink.isValid() ? *m_combLink : nullptr; }
 
-  inline void CombinedFitTag::setCombinedTrack(const Trk::Track& combinedTrack, const Trk::TrackScore& score) {
-    delete m_combinedTrack;
-    m_combinedTrack = &combinedTrack;
-    m_trackScore = score;
-  }
-    
-  inline const Trk::Track* CombinedFitTag::releaseCombinedTrack() { 
-    const Trk::Track* tmp = m_combinedTrack;   
-    m_combinedTrack=0;
-    return tmp;
-  }
-  
   inline const MuonCandidate& CombinedFitTag::muonCandidate() const { return *m_muonCandidate; }
   
-  inline const Trk::Track* CombinedFitTag::updatedExtrapolatedTrack() const { return m_updatedExtrapolatedTrack; }
+  inline const Trk::Track* CombinedFitTag::updatedExtrapolatedTrack() const { return m_MELink.isValid() ? *m_MELink : nullptr; }
   
-  inline void CombinedFitTag::setUpdatedExtrapolatedTrack(const Trk::Track* track) {
-    delete m_updatedExtrapolatedTrack;
-    m_updatedExtrapolatedTrack = track; 
-  }
-
-  inline const Trk::Track* CombinedFitTag::releaseUpdatedExtrapolatedTrack() { 
-    const Trk::Track* tmp = m_updatedExtrapolatedTrack;
-    m_updatedExtrapolatedTrack = 0;
-    return tmp;
-  }
-
   inline void CombinedFitTag::innerMatch(double chi2, int dof, double prob) 
   {
     m_matchChi2=chi2; 
@@ -151,7 +129,7 @@ namespace MuonCombined {
   }
 
   inline const Trk::Track* CombinedFitTag::primaryTrack() const {
-    return &combinedTrack();
+    return combinedTrack();
   }
 
 }

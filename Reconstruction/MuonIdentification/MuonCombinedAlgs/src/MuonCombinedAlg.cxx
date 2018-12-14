@@ -16,6 +16,8 @@ StatusCode MuonCombinedAlg::initialize()
   ATH_CHECK(m_indetCandidateCollectionName.initialize());
   ATH_CHECK(m_muonCandidateCollectionName.initialize());
   ATH_CHECK(m_combTagMaps.initialize());
+  ATH_CHECK(m_muidCombinedTracks.initialize());
+  ATH_CHECK(m_muidMETracks.initialize());
 
   return StatusCode::SUCCESS; 
 }
@@ -50,9 +52,16 @@ StatusCode MuonCombinedAlg::execute()
     maps.push_back(h.ptr());
   }
 
+  SG::WriteHandle<TrackCollection> muidCombTracks(m_muidCombinedTracks);
+  ATH_CHECK(muidCombTracks.record(std::make_unique<TrackCollection>()));
+
+  SG::WriteHandle<TrackCollection> muidMETracks(m_muidMETracks);
+  ATH_CHECK(muidMETracks.record(std::make_unique<TrackCollection>()));
+
   if(inDetCandidateCollection->empty() || muonCandidateCollection->empty()) return StatusCode::SUCCESS;
 
-  m_muonCombinedTool->combine(*muonCandidateCollection,*inDetCandidateCollection,maps);
+  //note that STACO does not create new Trk::Tracks so it doesn't need collections here
+  m_muonCombinedTool->combine(*muonCandidateCollection,*inDetCandidateCollection,maps,muidCombTracks.ptr(),muidMETracks.ptr());
 
   return StatusCode::SUCCESS;
 }

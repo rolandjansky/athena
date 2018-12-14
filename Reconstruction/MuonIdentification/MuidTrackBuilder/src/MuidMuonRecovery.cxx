@@ -36,6 +36,7 @@
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrackSummary/TrackSummary.h"
+#include "TrkSegment/SegmentCollection.h"
 
 namespace Rec
 {
@@ -147,7 +148,7 @@ MuidMuonRecovery::finalize()
 }
 
 
-const Trk::Track*
+Trk::Track*
 MuidMuonRecovery::recoverableMatch (const Trk::Track& indetTrack,
 				    const Trk::Track& spectrometerTrack) const
 {
@@ -390,7 +391,7 @@ if (msgLvl(MSG::DEBUG))
     }
 
     // fit the combined track
-    const Trk::Track* combinedTrack = 0;
+    Trk::Track* combinedTrack = 0;
     if (! m_trackBuilder.empty())
     {
 	combinedTrack	= m_trackBuilder->indetExtension(indetTrack,

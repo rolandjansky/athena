@@ -58,30 +58,30 @@ namespace Muon {
     StatusCode finalize();
     
     /** add a new TrackParticle with it's muon system extension */
-    bool addTrackParticle(  const xAOD::TrackParticle& indetTrackParticle, const MuonSystemExtension& muonSystemExtention );
+    bool addTrackParticle(  const xAOD::TrackParticle& indetTrackParticle, const MuonSystemExtension& muonSystemExtention ) override;
 
     /** add a new segment */
-    bool add( const MuonSystemExtension::Intersection& intersection, const MuonSegment& segment, int stage );
+    bool add( const MuonSystemExtension::Intersection& intersection, const MuonSegment& segment, int stage ) override;
 
     /** add a new hough maximum */
-    bool add( const MuonSystemExtension::Intersection& intersection, const MuonHough::MuonLayerHough::Maximum& maximum );
+    bool add( const MuonSystemExtension::Intersection& intersection, const MuonHough::MuonLayerHough::Maximum& maximum ) override;
 
     /** add a new prd */
-    bool add( const MuonSystemExtension::Intersection& intersection, const Trk::PrepRawData& prd, float expos, float expos_err );
+    bool add( const MuonSystemExtension::Intersection& intersection, const Trk::PrepRawData& prd, float expos, float expos_err ) override;
 
     /** add a new time measurement */
-    bool addTimeMeasurement( const MuonSystemExtension::Intersection& intersection, const Trk::MeasurementBase& meas );
+    bool addTimeMeasurement( const MuonSystemExtension::Intersection& intersection, const Trk::MeasurementBase& meas ) override;
 
     /** add a new time measurement */
     bool addTimeMeasurement( const MuonSystemExtension::Intersection& intersection, const Identifier& id,
-                             const Amg::Vector3D& gpos, float time, float errorTime );
+                             const Amg::Vector3D& gpos, float time, float errorTime ) override;
 
     /** add StauHits to ntuple */
-    bool addTimeMeasurements( const xAOD::TrackParticle& indetTrackParticle, const MuGirlNS::StauHits& stauHits );
+    bool addTimeMeasurements( const xAOD::TrackParticle& indetTrackParticle, const MuGirlNS::StauHits& stauHits ) override;
 
     /** add a new muon candidate */
     bool addMuonCandidate( const xAOD::TrackParticle& indetTrackParticle, const MuonCandidate* candidate, 
-                           const Trk::Track* combinedTrack, int ntimes, float beta, float chi2ndof, int stage );
+                           Trk::Track* combinedTrack, int ntimes, float beta, float chi2ndof, int stage ) override;
 
     /**  incident service handle for EndEvent */
     void handle(const Incident& inc);

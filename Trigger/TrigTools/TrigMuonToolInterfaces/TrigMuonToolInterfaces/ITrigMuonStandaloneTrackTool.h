@@ -63,6 +63,7 @@ class ITrigMuonStandaloneTrackTool : virtual public IAlgTool {
   /** Run segment finding, spectrometer track building and extrapolation */
   virtual HLT::ErrorCode getExtrapolatedTracks(const IRoiDescriptor* muonRoI,
 					       MuonCandidateCollection& candidateCollection,
+					       TrackCollection& extrapolatedTracks,
 					       TrigMuonEFMonVars& monvars,
 					       std::vector<TrigTimer*>& timers) = 0;
   

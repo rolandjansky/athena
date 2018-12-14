@@ -22,10 +22,11 @@ namespace MuonCombined{
     void addEntry(const InDetCandidate* idcand, TagBase* tag);
     const TagBase* getTag(const InDetCandidate* idcand) const;
     unsigned int size() const;
-    std::map<const InDetCandidate*,TagBase*> getMap() const;
+    std::map<const InDetCandidate*,std::unique_ptr<TagBase> >::iterator mapBegin() {return m_tagMap.begin();}
+    std::map<const InDetCandidate*,std::unique_ptr<TagBase> >::iterator mapEnd() {return m_tagMap.end();}
 
   private:
-    std::map<const InDetCandidate*,TagBase*> m_tagMap;
+    std::map<const InDetCandidate*,std::unique_ptr<TagBase> > m_tagMap;
 
   };
 }

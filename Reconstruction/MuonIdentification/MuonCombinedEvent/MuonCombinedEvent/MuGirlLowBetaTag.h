@@ -11,6 +11,9 @@
 
 #include "MuonCombinedEvent/CandidateSummary.h"
 
+#include "TrkTrack/TrackCollection.h"
+#include "TrkSegment/SegmentCollection.h"
+
 namespace Trk {
   class Track; 
 }
@@ -26,42 +29,30 @@ namespace MuonCombined {
   public:
     
     /** Constructor a combined track and a list of segments as input
-	The class takes ownership of the combined track and the segments
     */
-    MuGirlLowBetaTag( const Trk::Track* combinedTrack, const std::vector<const Muon::MuonSegment*>& segments );
+    MuGirlLowBetaTag( ElementLink<TrackCollection> combLink, const std::vector<ElementLink<Trk::SegmentCollection> >& segments );
 
-    /** Constructor taking a list of 
-	Users should ensure that the life time of the MuonCandidate 
-	The class takes ownership of the combined track 
+    /** Constructor taking a list of segments
     */
-    MuGirlLowBetaTag( const std::vector<const Muon::MuonSegment*>& segments );
+    MuGirlLowBetaTag( const std::vector<ElementLink<Trk::SegmentCollection> >& segments );
 
     /** destructor */
     ~MuGirlLowBetaTag();
 
     /** access combined track */
-    const Trk::Track* getCombinedTrack() const;
-    const Trk::Track& combinedTrack() const;
+    const Trk::Track* combinedTrack() const;
 
-    /** release combined track, user gets ownership */
-    const Trk::Track* releaseCombinedTrack();
+    /*ElementLink to the combined track*/
+    ElementLink<TrackCollection> combinedTrackLink() const {return m_combLink;}
 
     /** access update extrapolated track, returns zero if none are available */
     const Trk::Track* updatedExtrapolatedTrack() const;
 
-    /** set update extrapolated track, takes ownership */
-    void setUpdatedExtrapolatedTrack(const Trk::Track* track);
-
-    /** release combined track, user gets ownership */
-    const Trk::Track* releaseUpdatedExtrapolatedTrack();
+    /** set update extrapolated track*/
+    void setUpdatedExtrapolatedTrack(ElementLink<TrackCollection> meLink);
 
     /** access segments */
-    const std::vector<const Muon::MuonSegment*>& segments() const ;
-
-    /** release segments, user gets ownership */
-    void releaseSegments( std::vector<const Muon::MuonSegment*>& segments );
-
-    void releaseSegments();
+    const std::vector<ElementLink<Trk::SegmentCollection> >& segments() const ;
 
     /* stau Dressing */
     void setMuBeta(float muBeta);
@@ -91,9 +82,9 @@ namespace MuonCombined {
     MuGirlLowBetaTag& operator=(const MuGirlLowBetaTag&) = delete;
 
     /** data content */
-    const Trk::Track*    m_combinedTrack;  /// combined track 
-    const Trk::Track*    m_updatedExtrapolatedTrack; /// updated extrapolated track
-    std::vector<const Muon::MuonSegment*> m_segments; /// list of segments
+    ElementLink<TrackCollection> m_combLink;
+    ElementLink<TrackCollection> m_meLink;
+    std::vector<ElementLink<Trk::SegmentCollection> > m_segments; /// list of segments
 
     //dressing
     float m_muBeta; 
@@ -102,8 +93,8 @@ namespace MuonCombined {
     MuGirlNS::RHExtras* m_rhExtras;
   };
   inline bool operator<( const MuGirlLowBetaTag& t1,  const MuGirlLowBetaTag& t2 ){
-    const Trk::FitQuality* t1FQ = (t1.getCombinedTrack()!=NULL)? t1.getCombinedTrack()->fitQuality() : 0;
-    const Trk::FitQuality* t2FQ = (t2.getCombinedTrack()!=NULL)? t2.getCombinedTrack()->fitQuality() : 0;
+    const Trk::FitQuality* t1FQ = (t1.combinedTrack()!=nullptr)? t1.combinedTrack()->fitQuality() : 0;
+    const Trk::FitQuality* t2FQ = (t2.combinedTrack()!=nullptr)? t2.combinedTrack()->fitQuality() : 0;
     if (t1FQ!=NULL && t2FQ!=NULL)
     {
         return t1FQ->chiSquared() < t2FQ->chiSquared();
@@ -111,39 +102,16 @@ namespace MuonCombined {
     return t1.segments().size() < t2.segments().size(); 
   }
 
-  inline const Trk::Track* MuGirlLowBetaTag::getCombinedTrack() const { return m_combinedTrack; }
+  inline const Trk::Track* MuGirlLowBetaTag::combinedTrack() const { return m_combLink.isValid() ? *m_combLink : nullptr; }
 
-  inline const Trk::Track& MuGirlLowBetaTag::combinedTrack() const { return *m_combinedTrack; }
-
-  inline const Trk::Track* MuGirlLowBetaTag::releaseCombinedTrack() { 
-    const Trk::Track* tmp = m_combinedTrack;   
-    m_combinedTrack=0;
-    return tmp;
-  }
+  inline const Trk::Track* MuGirlLowBetaTag::updatedExtrapolatedTrack() const { return m_meLink.isValid() ? *m_meLink : nullptr; }
   
-  inline const Trk::Track* MuGirlLowBetaTag::updatedExtrapolatedTrack() const { return m_updatedExtrapolatedTrack; }
-  
-  inline void MuGirlLowBetaTag::setUpdatedExtrapolatedTrack(const Trk::Track* track) { m_updatedExtrapolatedTrack = track; }
+  inline void MuGirlLowBetaTag::setUpdatedExtrapolatedTrack(ElementLink<TrackCollection> meLink) { m_meLink=meLink;}
 
-  inline const Trk::Track* MuGirlLowBetaTag::releaseUpdatedExtrapolatedTrack() { 
-    const Trk::Track* tmp = m_updatedExtrapolatedTrack;
-    m_updatedExtrapolatedTrack = 0;
-    return tmp;
-  }
-
-  inline void MuGirlLowBetaTag::releaseSegments() {
-    m_segments.clear();
-  }
-
-
-  inline const std::vector<const Muon::MuonSegment*>& MuGirlLowBetaTag::segments() const { return m_segments; }
-
-  inline void MuGirlLowBetaTag::releaseSegments( std::vector<const Muon::MuonSegment*>& segments ) {
-    std::swap(m_segments,segments);
-  }
+  inline const std::vector<ElementLink<Trk::SegmentCollection> >& MuGirlLowBetaTag::segments() const { return m_segments; }
 
   inline const Trk::Track* MuGirlLowBetaTag::primaryTrack() const {
-    return &combinedTrack();
+    return combinedTrack();
   }
 
 //stau dressing

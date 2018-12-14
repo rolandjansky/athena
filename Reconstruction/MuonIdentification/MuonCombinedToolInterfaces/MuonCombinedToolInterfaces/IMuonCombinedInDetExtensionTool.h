@@ -14,6 +14,8 @@
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPrepRawData/MMPrepDataContainer.h"
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
+#include "TrkTrack/TrackCollection.h"
+#include "TrkSegment/SegmentCollection.h"
 
 namespace MuonCombined {
 
@@ -27,16 +29,26 @@ namespace MuonCombined {
 
   class IMuonCombinedInDetExtensionTool : virtual public IAlgTool {
   public:
+    struct MuonPrdData{
+    MuonPrdData() : mdtPrds(0), rpcPrds(0), tgcPrds(0), cscPrds(0), stgcPrds(0), mmPrds(0) {}
+      const Muon::MdtPrepDataContainer* mdtPrds;
+      const Muon::RpcPrepDataContainer* rpcPrds;
+      const Muon::TgcPrepDataContainer* tgcPrds;
+      const Muon::CscPrepDataContainer* cscPrds;
+      const Muon::sTgcPrepDataContainer* stgcPrds;
+      const Muon::MMPrepDataContainer* mmPrds;
+    };
+
     static const InterfaceID& interfaceID( ) ;
 
 
     /**IMuonCombinedInDetExtensionTool interface: build combined muons from ID candidates */    
-    virtual void extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap) = 0;
+    virtual void extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks, TrackCollection* meTracks, 
+			 Trk::SegmentCollection* segments) = 0;
     
     /*New interface including PRDs for MuGirl segment-finding*/
-    virtual void extendWithPRDs( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap,
-				 const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs, const Muon::RpcPrepDataContainer* rpdPRDs, 
-				 const Muon::TgcPrepDataContainer* tgcPRDs, const Muon::sTgcPrepDataContainer* sTGCPRDs, const Muon::MMPrepDataContainer* mmPRDs) =0;
+    virtual void extendWithPRDs( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, IMuonCombinedInDetExtensionTool::MuonPrdData prdData,
+				 TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) =0;
 
   };
 

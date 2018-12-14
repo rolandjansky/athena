@@ -660,9 +660,8 @@ namespace MuonCombined {
       if( outputData.combinedTrackParticleContainer ){
 
         // create element link from the track, const_cast for now until we sort out the constness of the tags
-        ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( std::unique_ptr<const Trk::Track>(const_cast<CombinedFitTag&>(*tag).releaseCombinedTrack()),
-                                                                                         *outputData.combinedTrackParticleContainer,
-                                                                                         outputData.combinedTrackCollection  );
+        ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( tag->combinedTrackLink(),
+                                                                                         *outputData.combinedTrackParticleContainer);
 
         if( link.isValid() ) {
           //link.toPersistent();
@@ -674,9 +673,7 @@ namespace MuonCombined {
     }
 
     // add muon candidate
-    const Trk::Track* updatedExtrapolatedTrack = m_useUpdatedExtrapolatedTrack ? const_cast<CombinedFitTag&>(*tag).releaseUpdatedExtrapolatedTrack() : 0;
-
-    addMuonCandidate(tag->muonCandidate(),muon,outputData,updatedExtrapolatedTrack);
+    addMuonCandidate(tag->muonCandidate(),muon,outputData,tag->updatedExtrapolatedTrackLink());
 
     // Add inner match chi^2
     muon.setParameter(static_cast<int>(tag->matchDoF()),     xAOD::Muon::msInnerMatchDOF);
@@ -752,14 +749,13 @@ namespace MuonCombined {
       slowMuon->auxdata< std::vector<float> >("hitPropagationTime") = propagationTimeVec;
     }
 
-    if( !muon.combinedTrackParticleLink().isValid() && tag->getCombinedTrack()){  
+    if( !muon.combinedTrackParticleLink().isValid() && tag->combinedTrack()){  
       
       // if the combined track particle is part of a container set the link
       if( outputData.combinedTrackParticleContainer ){
         // create element link 
-        ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( std::unique_ptr<const Trk::Track>(const_cast<MuGirlLowBetaTag&>(*tag).releaseCombinedTrack()), 
-                                                                                         *outputData.combinedTrackParticleContainer,
-                                                                                         outputData.combinedTrackCollection  );                    
+        ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( tag->combinedTrackLink(),
+                                                                                         *outputData.combinedTrackParticleContainer );                    
         
         if( link.isValid() ) {
           //link.toPersistent();
@@ -787,25 +783,23 @@ namespace MuonCombined {
     }
     */
     
-    if (outputData.muonSegmentCollection){
+    if (outputData.xaodSegmentContainer){
       ATH_MSG_DEBUG( "Adding MuGirlLowBeta muonSegmentColection");
       
       std::vector< ElementLink< xAOD::MuonSegmentContainer > > segments;
-      for( const auto& segs : tag->segments() ){ 
+      for( const auto& seglink : tag->segments() ){ 
 	
-        ElementLink<xAOD::MuonSegmentContainer> link = createMuonSegmentElementLink(*segs,
-                                                                                    *outputData.xaodSegmentContainer,
-                                                                                    outputData.muonSegmentCollection);             
-        
+        ElementLink<xAOD::MuonSegmentContainer> link = createMuonSegmentElementLink(seglink,
+                                                                                    *outputData.xaodSegmentContainer);        
         if( link.isValid() ) {
           //link.toPersistent();
           segments.push_back(link);
           ATH_MSG_DEBUG("Adding MuGirlLowBeta: xaod::MuonSegment px " << (*link)->px() << " py " << (*link)->py() << " pz " << (*link)->pz() ); 
         }
         else ATH_MSG_WARNING("Creating of MuGirlLowBeta segment Link failed");         	
-      }  
-      const_cast<MuGirlLowBetaTag&>(*tag).releaseSegments();  
-    }  
+      }
+      muon.setMuonSegmentLinks(segments);  
+    }
   }
   
   void MuonCreatorTool::addMuGirl( xAOD::Muon& muon, const MuGirlTag* tag, OutputData& outputData ) const {
@@ -817,14 +811,13 @@ namespace MuonCombined {
     
     ATH_MSG_DEBUG("Adding MuGirl Muon  " << tag->author() << " type " << tag->type());
 
-    if( !muon.combinedTrackParticleLink().isValid() && tag->getCombinedTrack()){
+    if( !muon.combinedTrackParticleLink().isValid() && tag->combinedTrack()){
       // if the combined track particle is part of a container set the link
       if( outputData.combinedTrackParticleContainer ){
         
         // create element link 
-        ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( std::unique_ptr<const Trk::Track>(const_cast<MuGirlTag&>(*tag).releaseCombinedTrack()),
-                                                                                         *outputData.combinedTrackParticleContainer,
-                                                                                         outputData.combinedTrackCollection  );                    
+        ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( tag->combinedTrackLink(),
+                                                                                         *outputData.combinedTrackParticleContainer );                    
         
         if( link.isValid() ) {
           //link.toPersistent();
@@ -836,9 +829,8 @@ namespace MuonCombined {
 
       if( outputData.extrapolatedTrackParticleContainer &&  tag->updatedExtrapolatedTrack()){
         // create element link 
-        ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( std::unique_ptr<const Trk::Track>(const_cast<MuGirlTag&>(*tag).releaseUpdatedExtrapolatedTrack()),
-                                                                                         *outputData.extrapolatedTrackParticleContainer,
-                                                                                         outputData.extrapolatedTrackCollection  );                
+        ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( tag->updatedExtrapolatedTrackLink(),
+                                                                                         *outputData.extrapolatedTrackParticleContainer );                
                 
         if( link.isValid() ) {
           //link.toPersistent();
@@ -850,15 +842,13 @@ namespace MuonCombined {
     }
 
     if (outputData.xaodSegmentContainer){
-      ATH_MSG_DEBUG( "Adding MuGirl muonSegmentColection");
+      ATH_MSG_DEBUG( "Adding MuGirl muonSegmentCollection");
 
       std::vector< ElementLink< xAOD::MuonSegmentContainer > > segments;
-      for( const auto& segs : tag->segments() ){ 
+      for( const auto& segLink : tag->segments() ){ 
 	
-        ElementLink<xAOD::MuonSegmentContainer> link = createMuonSegmentElementLink(*segs,
-                                                                                    *outputData.xaodSegmentContainer,
-                                                                                    outputData.muonSegmentCollection);             
-        
+        ElementLink<xAOD::MuonSegmentContainer> link = createMuonSegmentElementLink(segLink,
+                                                                                    *outputData.xaodSegmentContainer);        
         if( link.isValid() ) {
           //link.toPersistent();
           segments.push_back(link);
@@ -866,9 +856,8 @@ namespace MuonCombined {
         }
         else ATH_MSG_WARNING("Creating of MuGirl segment Link failed");         
       }
+      muon.setMuonSegmentLinks(segments);
     }  
-    const_cast<MuGirlTag&>(*tag).releaseSegments();
-    
     ATH_MSG_DEBUG("Done Adding MuGirl Muon  " << tag->author() << " type " << tag->type());    
   }
 
@@ -937,55 +926,29 @@ namespace MuonCombined {
     // FIXME - calo deposits
   }
   
-  ElementLink<xAOD::TrackParticleContainer> MuonCreatorTool::createTrackParticleElementLink( std::unique_ptr<const Trk::Track> track, 
-                                                                                             xAOD::TrackParticleContainer& trackParticleContainer, 
-                                                                                             TrackCollection* trackCollection  ) const {
+  ElementLink<xAOD::TrackParticleContainer> MuonCreatorTool::createTrackParticleElementLink( ElementLink<TrackCollection> trackLink,
+                                                                                             xAOD::TrackParticleContainer& trackParticleContainer) const {
     const xAOD::TrackParticle* tp = 0;
-    const Trk::Track* track_ref = track.get();
     
-    if( trackCollection ) {
-      // if a track collection is provided add the track to the collection and create the TP using the element link
-      trackCollection->push_back(const_cast<Trk::Track*>(track.release()));
-      ElementLink<TrackCollection> link( *trackCollection,trackCollection->size()-1);
-      if( link.isValid() ) {
-        //link.toPersistent();
-        tp = m_particleCreator->createParticle( link, &trackParticleContainer, 0, xAOD::muon );
-      } else ATH_MSG_WARNING("Track Collection link invalid, creating TrackParticle from track");
-    }
-    if( !tp ){
-      // create extrapolated track particle without a link to the track
-      tp = m_particleCreator->createParticle( *track_ref, &trackParticleContainer, 0, xAOD::muon );
-    }
+    if( trackLink.isValid() ) tp = m_particleCreator->createParticle( trackLink, &trackParticleContainer, 0, xAOD::muon );
+    else ATH_MSG_WARNING("Track Collection link invalid, no TrackParticle created");
+
     if( tp ){
       ElementLink<xAOD::TrackParticleContainer> link( trackParticleContainer,trackParticleContainer.size()-1);
-      //link.toPersistent();
       return link;
     }
     return ElementLink<xAOD::TrackParticleContainer>();
   }
 
-  ElementLink<xAOD::MuonSegmentContainer> MuonCreatorTool::createMuonSegmentElementLink( const Muon::MuonSegment & muonSegment, 
-                                                                                         xAOD::MuonSegmentContainer& xaodSegmentContainer,
-                                                                                         Trk::SegmentCollection* muonSegmentCollection
-                                                                                         ) const {
+  ElementLink<xAOD::MuonSegmentContainer> MuonCreatorTool::createMuonSegmentElementLink( ElementLink<Trk::SegmentCollection> segLink,
+                                                                                         xAOD::MuonSegmentContainer& xaodSegmentContainer) const {
     const xAOD::MuonSegment* ms = 0;
-    if( muonSegmentCollection ) {
 
-      // if a muon segment collection is provided create the MS using the element link
-      muonSegmentCollection->push_back(const_cast<Muon::MuonSegment*>(&muonSegment));
-
-      ElementLink<Trk::SegmentCollection> link( *muonSegmentCollection,muonSegmentCollection->size()-1);
-      if( link.isValid() ) {
-        link.toPersistent();
-        ms = m_muonSegmentConverterTool->convert(link, &xaodSegmentContainer);
-      } else ATH_MSG_WARNING("Segment Collection link invalid");
-    }
+    if( segLink.isValid() ) {
+      segLink.toPersistent();
+      ms = m_muonSegmentConverterTool->convert(segLink, &xaodSegmentContainer);
+    } else ATH_MSG_WARNING("Segment Collection link invalid");
     
-    if( !ms ){
-      // create muon segments without a link to the track
-      ms = m_muonSegmentConverterTool->convert( muonSegment, &xaodSegmentContainer);
-    }
-    if( !muonSegmentCollection ) delete &muonSegment;
     if( ms ){
       ElementLink<xAOD::MuonSegmentContainer> link( xaodSegmentContainer,xaodSegmentContainer.size()-1);
       link.toPersistent();
@@ -994,11 +957,10 @@ namespace MuonCombined {
     return ElementLink<xAOD::MuonSegmentContainer>();
   }
 
-  void MuonCreatorTool::addMuonCandidate( const MuonCandidate& candidate, xAOD::Muon& muon, OutputData& outputData, const Trk::Track* updatedExtrapolatedTrack ) const {
+  void MuonCreatorTool::addMuonCandidate( const MuonCandidate& candidate, xAOD::Muon& muon, OutputData& outputData, ElementLink<TrackCollection> meLink ) const {
 
     // only set once 
     if( muon.muonSpectrometerTrackParticleLink().isValid() ) {
-      delete updatedExtrapolatedTrack;
       return;
     }
 
@@ -1010,13 +972,11 @@ namespace MuonCombined {
     muon.setTrackParticleLink(xAOD::Muon::MuonSpectrometerTrackParticle, candidate.muonSpectrometerTrackLink() );
     
     // we need both the container and the extrapolated muon track to add the link
-    if( !outputData.extrapolatedTrackParticleContainer || (!candidate.extrapolatedTrack() && !updatedExtrapolatedTrack) ) {
-      delete updatedExtrapolatedTrack;
+    if( !outputData.extrapolatedTrackParticleContainer || (!candidate.extrapolatedTrack() && !meLink.isValid()) ) {
       return;
     }
     
-    // now a bit of nasty logic to ensure the extrapolated track of the candidate is always released so the candidate is flagged as 'used'
-    const Trk::Track* extrapolatedTrack = const_cast<MuonCandidate&>(candidate).releaseExtrapolatedTrack();
+    const Trk::Track* extrapolatedTrack = candidate.extrapolatedTrack();
 
     if (! extrapolatedTrack || !extrapolatedTrack->perigeeParameters()) {
       ATH_MSG_DEBUG("Something is wrong with this track.");
@@ -1028,11 +988,10 @@ namespace MuonCombined {
       //Now we just add the original extrapolated track itself
       //but not for SA muons, for consistency they will still have extrapolatedTrackParticle
       if(muon.muonType()!=xAOD::Muon::MuonStandAlone){
-	if(updatedExtrapolatedTrack){ //add ME track and MS-only extrapolated track
+	if(meLink.isValid()){ //add ME track and MS-only extrapolated track
 	  if(outputData.msOnlyExtrapolatedTrackParticleContainer){ //add un-refitted extrapolated track as MS-only extrapolated track
-	    ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( std::unique_ptr<const Trk::Track>(extrapolatedTrack),
-											     *outputData.msOnlyExtrapolatedTrackParticleContainer,
-											     outputData.msOnlyExtrapolatedTrackCollection );
+	    ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( candidate.extrapolatedTrackLink(),
+											     *outputData.msOnlyExtrapolatedTrackParticleContainer );
 	    
 	    if( link.isValid() ) {
 	      ATH_MSG_DEBUG("Adding MS-only extrapolated track: pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
@@ -1040,22 +999,18 @@ namespace MuonCombined {
 	      muon.setTrackParticleLink(xAOD::Muon::MSOnlyExtrapolatedMuonSpectrometerTrackParticle, link );
 	    }
 	    else ATH_MSG_WARNING("failed to create MS-only extrapolated track particle");
-	  } else {
-	    //original extrapolatedTrack is not needed anymore:
-	    delete extrapolatedTrack;
 	  }
 	  //now add refitted track as ME track
-	  ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( std::unique_ptr<const Trk::Track>(updatedExtrapolatedTrack),
-											   *outputData.extrapolatedTrackParticleContainer,
-											   outputData.extrapolatedTrackCollection );
+	  ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( meLink,
+											   *outputData.extrapolatedTrackParticleContainer );
 	  if( link.isValid() ) {
 	    ATH_MSG_DEBUG("Adding standalone fit (refitted): pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
 	    //link.toPersistent();
 	    muon.setTrackParticleLink(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle, link );
-	    float fieldInt=m_trackQuery->fieldIntegral(*updatedExtrapolatedTrack).betweenSpectrometerMeasurements();
+	    float fieldInt=m_trackQuery->fieldIntegral(**meLink).betweenSpectrometerMeasurements();
 	    muon.setParameter(fieldInt,xAOD::Muon::spectrometerFieldIntegral);
 	    //TrackSummary* tsum=updatedExtrapolatedTrack->trackSummary();
-	    int nunspoiled=updatedExtrapolatedTrack->trackSummary()->get(Trk::numberOfCscUnspoiltEtaHits);
+	    int nunspoiled=(*meLink)->trackSummary()->get(Trk::numberOfCscUnspoiltEtaHits);
 	    muon.auxdata<int>("nUnspoiledCscHits")=nunspoiled;
 	  }
 	}
@@ -1063,44 +1018,41 @@ namespace MuonCombined {
 	  if(muon.author()==xAOD::Muon::MuGirl && muon.extrapolatedMuonSpectrometerTrackParticleLink().isValid()){
 	    //MuGirl case: ME track is already set, but now we have the extrapolated track from the STACO tag
 	    //add this as the MS-only extrapolated track instead
-	    ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( std::unique_ptr<const Trk::Track>(extrapolatedTrack),
-											     *outputData.msOnlyExtrapolatedTrackParticleContainer,
-											     outputData.msOnlyExtrapolatedTrackCollection );
+	    ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( candidate.extrapolatedTrackLink(),
+											     *outputData.msOnlyExtrapolatedTrackParticleContainer );
 
 	    if( link.isValid() ) {
 	      ATH_MSG_DEBUG("Adding MS-only extrapolated track to MuGirl muon: pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
 	      //link.toPersistent();                                                                                                                                              
 	      muon.setTrackParticleLink(xAOD::Muon::MSOnlyExtrapolatedMuonSpectrometerTrackParticle, link );
-	      float fieldInt=m_trackQuery->fieldIntegral(*extrapolatedTrack).betweenSpectrometerMeasurements();
+	      float fieldInt=m_trackQuery->fieldIntegral(**candidate.extrapolatedTrackLink()).betweenSpectrometerMeasurements();
 	      muon.setParameter(fieldInt,xAOD::Muon::spectrometerFieldIntegral);
 	    }
 	  }
 	  else{
-	    ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( std::unique_ptr<const Trk::Track>(extrapolatedTrack),
-											     *outputData.extrapolatedTrackParticleContainer,
-											     outputData.extrapolatedTrackCollection );
+	    ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( candidate.extrapolatedTrackLink(),
+											     *outputData.extrapolatedTrackParticleContainer );
 	    
 	    if( link.isValid() ) {
 	      ATH_MSG_DEBUG("Adding standalone fit (un-refitted): pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
 	      //link.toPersistent();
 	      muon.setTrackParticleLink(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle, link );
-	      float fieldInt=m_trackQuery->fieldIntegral(*extrapolatedTrack).betweenSpectrometerMeasurements();
+	      float fieldInt=m_trackQuery->fieldIntegral(**candidate.extrapolatedTrackLink()).betweenSpectrometerMeasurements();
 	      muon.setParameter(fieldInt,xAOD::Muon::spectrometerFieldIntegral);
 	    }
 	  }
 	}
       }
       else{ //SA tracks only get un-refitted track as ME track
-	// create element link from the track, const_cast for now until we sort out the constness of the MuonCandidates
-	ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( std::unique_ptr<const Trk::Track>(extrapolatedTrack),
-											 *outputData.extrapolatedTrackParticleContainer,
-											 outputData.extrapolatedTrackCollection );
+	// create element link from the track
+	ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( candidate.extrapolatedTrackLink(),
+											 *outputData.extrapolatedTrackParticleContainer );
 	
 	if( link.isValid() ) {
 	  ATH_MSG_DEBUG("Adding standalone fit: pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
 	  //link.toPersistent();
 	  muon.setTrackParticleLink(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle, link );
-	  float fieldInt=m_trackQuery->fieldIntegral(*extrapolatedTrack).betweenSpectrometerMeasurements();
+	  float fieldInt=m_trackQuery->fieldIntegral(**candidate.extrapolatedTrackLink()).betweenSpectrometerMeasurements();
 	  muon.setParameter(fieldInt,xAOD::Muon::spectrometerFieldIntegral);
 	  int nunspoiled=extrapolatedTrack->trackSummary()->get(Trk::numberOfCscUnspoiltEtaHits);
 	  muon.auxdata<int>("nUnspoiledCscHits")=nunspoiled;
@@ -1436,7 +1388,8 @@ namespace MuonCombined {
 
     if( m_fillTimingInformationOnMuon  ) addRpcTiming(muon);
     
-    if( !m_trackSegmentAssociationTool.empty() && muon.author()!=xAOD::Muon::MuTagIMO && (muon.author()!=xAOD::Muon::MuGirlLowBeta || m_segLowBeta)) addSegmentsOnTrack(muon);
+    if( !m_trackSegmentAssociationTool.empty() && muon.author()!=xAOD::Muon::MuTagIMO && muon.author()!=xAOD::Muon::MuGirl && 
+	(muon.author()!=xAOD::Muon::MuGirlLowBeta || m_segLowBeta)) addSegmentsOnTrack(muon);
 
     addMSIDScatteringAngles(muon);
     if(muon.combinedTrackParticleLink().isValid()) addMSIDScatteringAngles(**(muon.combinedTrackParticleLink()));

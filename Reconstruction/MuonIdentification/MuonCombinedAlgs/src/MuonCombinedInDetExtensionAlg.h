@@ -13,6 +13,8 @@
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPrepRawData/MMPrepDataContainer.h"
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
+#include "TrkTrack/TrackCollection.h"
+#include "TrkSegment/SegmentCollection.h"
 #include <string>
 
 namespace MuonCombined {
@@ -40,6 +42,9 @@ class MuonCombinedInDetExtensionAlg : public AthAlgorithm
   SG::ReadHandleKey<Muon::sTgcPrepDataContainer> m_sTGC_ContainerName{this,"sTGCPrepDataLocation","sTGC_Clusters","sTGC prep data"};
   SG::ReadHandleKey<Muon::MMPrepDataContainer> m_MM_ContainerName{this,"MMPrepDataLocation","MM_Clusters","MM prep data"};
   SG::WriteHandleKey<MuonCombined::InDetCandidateToTagMap> m_tagMap{this,"TagMap","muGirlTagMap","tag map"};
+  SG::WriteHandleKey<TrackCollection> m_combTracks{this,"CombinedTrackCollection","MuGirlCombinedTracks","combined track collection"};
+  SG::WriteHandleKey<TrackCollection> m_METracks{this,"METrackCollection","MuGirlMETracks","ME track collection"};
+  SG::WriteHandleKey<Trk::SegmentCollection> m_segments{this,"SegmentCollection","MuGirlSegments","Segment collection"};
   bool m_usePRDs;
   bool m_useNSW;
 };

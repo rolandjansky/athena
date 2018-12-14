@@ -59,24 +59,28 @@ namespace MuonCombined {
 
     /**IMuonCombinedTagTool interface: build combined  muons from a muon and a vector of indet candidates */    
     virtual 
-      void combine( const MuonCandidate& muonCandidate, const std::vector<const InDetCandidate*>& indetCandidates, InDetCandidateToTagMap& tagMap ) const override;
+      void combine( const MuonCandidate& muonCandidate, const std::vector<const InDetCandidate*>& indetCandidates, InDetCandidateToTagMap& tagMap,
+		    TrackCollection* combTracks, TrackCollection* METracks) const override;
 
   private:
 
-    const Trk::Track* buildCombinedTrack(const Trk::Track& indetTrack,					     
-					 const Trk::Track& spectrometerTrack,
-					 const Trk::Track* extrapolatedTrack) const;
+    Trk::Track* buildCombinedTrack(const Trk::Track& indetTrack,					     
+				   const Trk::Track& spectrometerTrack,
+				   const Trk::Track* extrapolatedTrack) const;
     
-    bool combinedTrackQualityCheck(const Trk::Track& combinedTrack,
+    bool combinedTrackQualityCheck(Trk::Track& combinedTrack,
 				   const Trk::Track& indetTrack) const;
       
-    void evaluateMatchProperties(CombinedFitTag& tag, const Trk::Track& idTrack, const xAOD::TrackParticle& idTrackParticle) const;
+    Trk::Track* evaluateMatchProperties(Trk::Track* combinedTrack, CombinedFitTag& tag, 
+					const Trk::Track& idTrack, const xAOD::TrackParticle& idTrackParticle) const;
 
     bool extrapolatedNeedsRefit(const Trk::Track& combTrack,
 				const Trk::Track* extrTrack) const;
 
-    bool bestMatchChooser(const InDetCandidate& curCandidate, const CombinedFitTag& curTag,
-			  const InDetCandidate& bestCandidate, const CombinedFitTag& bestTag) const;
+    bool bestMatchChooser(const InDetCandidate& curCandidate, const CombinedFitTag& curTag, Trk::Track& curTrack, Trk::Track* curMETrack,
+			  const InDetCandidate& bestCandidate, const CombinedFitTag& bestTag, Trk::Track& bestTrack, Trk::Track* bestMETrack) const;
+
+    void dumpCaloEloss(Trk::Track* track, std::string txt ) const;
 
     void dumpCaloEloss(const Trk::Track* track, std::string txt ) const;
 

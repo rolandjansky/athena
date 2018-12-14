@@ -61,7 +61,8 @@ namespace MuonCombined {
     return StatusCode::SUCCESS;
   }
 
-  void MuonCombinedTool::combine( const MuonCandidateCollection& muonCandidates, const InDetCandidateCollection& inDetCandidates, std::vector<InDetCandidateToTagMap*> tagMaps) const {
+  void MuonCombinedTool::combine( const MuonCandidateCollection& muonCandidates, const InDetCandidateCollection& inDetCandidates, std::vector<InDetCandidateToTagMap*> tagMaps, 
+				  TrackCollection* combinedTracks, TrackCollection* METracks) const {
    
       // check that there are tracks in both systems
     if( inDetCandidates.empty() ) return;
@@ -88,7 +89,7 @@ namespace MuonCombined {
       // build combined muons
       int count=0;
       for(auto& tool : m_muonCombinedTagTools){
-	tool->combine(*muonCandidate,associatedIdCandidates,*(tagMaps.at(count)));
+	tool->combine(*muonCandidate,associatedIdCandidates,*(tagMaps.at(count)),combinedTracks,METracks);
 	count++;
       }
     }    

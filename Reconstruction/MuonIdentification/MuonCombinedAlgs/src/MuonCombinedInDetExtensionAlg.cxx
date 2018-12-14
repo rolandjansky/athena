@@ -28,6 +28,9 @@ StatusCode MuonCombinedInDetExtensionAlg::initialize()
   ATH_CHECK(m_sTGC_ContainerName.initialize(m_usePRDs && m_useNSW));
   ATH_CHECK(m_MM_ContainerName.initialize(m_usePRDs && m_useNSW));
   ATH_CHECK(m_tagMap.initialize());
+  ATH_CHECK(m_combTracks.initialize(m_combTracks.key()!=""));
+  ATH_CHECK(m_METracks.initialize(m_METracks.key()!=""));
+  ATH_CHECK(m_segments.initialize(m_segments.key()!=""));
 
   return StatusCode::SUCCESS; 
 }
@@ -44,23 +47,50 @@ StatusCode MuonCombinedInDetExtensionAlg::execute()
   SG::WriteHandle<MuonCombined::InDetCandidateToTagMap> tagMap(m_tagMap);
   ATH_CHECK( tagMap.record (std::make_unique<MuonCombined::InDetCandidateToTagMap>()) );
 
+  TrackCollection* combTracks=nullptr;
+  TrackCollection* meTracks=nullptr;
+  Trk::SegmentCollection* segments=nullptr;
+
+  if(m_combTracks.key()!=""){
+    SG::WriteHandle<TrackCollection> wh_combTracks(m_combTracks);
+    ATH_CHECK(wh_combTracks.record(std::make_unique<TrackCollection>()));
+    combTracks=wh_combTracks.ptr();
+  }
+  if(m_METracks.key()!=""){
+    SG::WriteHandle<TrackCollection> wh_meTracks(m_METracks);
+    ATH_CHECK(wh_meTracks.record(std::make_unique<TrackCollection>()));
+    meTracks=wh_meTracks.ptr();
+  }
+
+  if(m_segments.key()!=""){
+    SG::WriteHandle<Trk::SegmentCollection> wh_segs(m_segments);
+    ATH_CHECK(wh_segs.record(std::make_unique<Trk::SegmentCollection>()));
+    segments=wh_segs.ptr();
+  }
+
   if(m_usePRDs){
+    MuonCombined::IMuonCombinedInDetExtensionTool::MuonPrdData prdData;
     SG::ReadHandle<Muon::MdtPrepDataContainer> mdtPRDContainer(m_MDT_ContainerName);
-    SG::ReadHandle<Muon::CscPrepDataContainer> cscPRDContainer(m_CSC_ContainerName);
-    SG::ReadHandle<Muon::RpcPrepDataContainer> rpcPRDContainer(m_RPC_ContainerName);
-    SG::ReadHandle<Muon::TgcPrepDataContainer> tgcPRDContainer(m_TGC_ContainerName);
-    if (m_useNSW) {
+    prdData.mdtPrds=mdtPRDContainer.cptr();
+    if(!m_useNSW){
+      SG::ReadHandle<Muon::CscPrepDataContainer> cscPRDContainer(m_CSC_ContainerName);
+      prdData.cscPrds=cscPRDContainer.cptr();
+    }
+    else{
       SG::ReadHandle<Muon::sTgcPrepDataContainer> stgcPRDContainer(m_sTGC_ContainerName);
       SG::ReadHandle<Muon::MMPrepDataContainer> mmPRDContainer(m_MM_ContainerName);
-      for(auto& tool : m_muonCombinedInDetExtensionTools)
-        tool->extendWithPRDs(*indetCandidateCollection,tagMap.ptr(),mdtPRDContainer.cptr(),cscPRDContainer.cptr(),rpcPRDContainer.cptr(),tgcPRDContainer.cptr(),stgcPRDContainer.cptr(),mmPRDContainer.cptr());
-     } else {
-       for(auto& tool : m_muonCombinedInDetExtensionTools)
-         tool->extendWithPRDs(*indetCandidateCollection,tagMap.ptr(),mdtPRDContainer.cptr(),cscPRDContainer.cptr(),rpcPRDContainer.cptr(),tgcPRDContainer.cptr(),0,0);
-     }
+      prdData.stgcPrds=stgcPRDContainer.cptr();
+      prdData.mmPrds=mmPRDContainer.cptr();
+    }
+    SG::ReadHandle<Muon::RpcPrepDataContainer> rpcPRDContainer(m_RPC_ContainerName);
+    prdData.rpcPrds=rpcPRDContainer.cptr();
+    SG::ReadHandle<Muon::TgcPrepDataContainer> tgcPRDContainer(m_TGC_ContainerName);
+    prdData.tgcPrds=tgcPRDContainer.cptr();
+    for(auto& tool : m_muonCombinedInDetExtensionTools)
+      tool->extendWithPRDs(*indetCandidateCollection,tagMap.ptr(),prdData,combTracks,meTracks,segments); 
   } else{
     for(auto& tool : m_muonCombinedInDetExtensionTools)
-      tool->extend(*indetCandidateCollection,tagMap.ptr());
+      tool->extend(*indetCandidateCollection,tagMap.ptr(),combTracks,meTracks,segments);
   }
   
   return StatusCode::SUCCESS;

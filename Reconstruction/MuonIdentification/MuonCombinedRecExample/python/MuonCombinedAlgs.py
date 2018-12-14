@@ -29,7 +29,10 @@ def MuGirlAlg(name="MuGirlAlg",**kwargs):
 def MuonCaloTagAlg(name="MuonCaloTagAlg",**kwargs):
     tools = [getPublicTool("MuonCaloTagTool")]
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
-    kwargs.setdefault("TagMap","caloTagMap");
+    kwargs.setdefault("TagMap","caloTagMap")
+    kwargs.setdefault("CombinedTrackCollection","")
+    kwargs.setdefault("METrackCollection","")
+    kwargs.setdefault("SegmentCollection","")
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
 def MuonSegmentTagAlg( name="MuonSegmentTagAlg", **kwargs ):
@@ -40,6 +43,7 @@ def MuonInsideOutRecoAlg( name="MuonInsideOutRecoAlg", **kwargs ):
     tools = [getPublicTool("MuonInsideOutRecoTool") ]
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     kwargs.setdefault("usePRDs",True)
+    kwargs.setdefault("useNSW", muonRecFlags.dosTGCs() and muonRecFlags.doMicromegas() )
     kwargs.setdefault("TagMap","muGirlTagMap")
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
@@ -47,6 +51,10 @@ def MuGirlStauAlg(name="MuGirlStauAlg",**kwargs):
     tools = [getPublicTool("MuonStauRecoTool")]
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     kwargs.setdefault("TagMap","stauTagMap")
+    kwargs.setdefault("useNSW", muonRecFlags.dosTGCs() and muonRecFlags.doMicromegas() )
+    kwargs.setdefault("CombinedTrackCollection","MuGirlStauCombinedTracks")
+    kwargs.setdefault("METrackCollection","")
+    kwargs.setdefault("SegmentCollection","MuGirlStauSegments")
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
       
 def MuonCombinedInDetCandidateAlg( name="MuonCombinedInDetCandidateAlg",**kwargs ):
