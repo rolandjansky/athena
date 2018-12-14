@@ -59,7 +59,7 @@ class L2ElectronHypo_e_ID (L2ElectronHypoBase):
         # cuts
         self.TrackPt = 1.0 * GeV
         self.CaloTrackdETA = 0.2 
-        self.CaloTrackdPHI = 999.
+        self.CaloTrackdPHI = 0.3
         if(float(threshold) < 15):
             self.TrackPt = 1.0 * GeV
         elif (float(threshold) >= 15 and float(threshold) < 20):

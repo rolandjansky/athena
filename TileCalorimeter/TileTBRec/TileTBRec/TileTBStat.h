@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -37,11 +37,13 @@
 
 // Athena incldues
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+
+#include "TileEvent/TileDQstatus.h"
 
 class IROBDataProviderSvc;
 class TileID;
 class TileHWID;
-class TileBeamInfoProvider;
 class TileBeamElemContByteStreamCnv;
 
 #include <string>
@@ -78,9 +80,9 @@ class TileTBStat: public AthAlgorithm {
     virtual ~TileTBStat();
 
     //Gaudi Hooks
-    StatusCode initialize();
-    StatusCode execute();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute() override;
+    virtual StatusCode finalize() override;
 
   private:
 
@@ -90,10 +92,9 @@ class TileTBStat: public AthAlgorithm {
 
     bool m_printAllEvents;
     bool m_detectDummyFragments;
+    SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
 
     ServiceHandle<IROBDataProviderSvc> m_RobSvc;
-
-    ToolHandle<TileBeamInfoProvider> m_beamInfo;
 
     TileBeamElemContByteStreamCnv* m_beamCnv;
 

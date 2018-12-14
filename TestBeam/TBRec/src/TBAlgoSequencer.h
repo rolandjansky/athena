@@ -11,7 +11,8 @@
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthLegacySequence.h"
+
 
 #include <string>
 #include <vector>
@@ -19,11 +20,11 @@
 
 class StoreGateSvc;
 
-class TBAlgoSequencer : public AthAlgorithm
+class TBAlgoSequencer : public AthLegacySequence
 {
 
   typedef std::string             KeyType;
-  typedef std::vector<Algorithm*> AlgoStore;
+  typedef std::vector<Gaudi::Algorithm*> AlgoStore;
   typedef AlgoStore::iterator     AlgoIterator;
 
  public:

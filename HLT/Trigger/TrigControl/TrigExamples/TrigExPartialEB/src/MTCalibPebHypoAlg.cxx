@@ -42,9 +42,9 @@ StatusCode MTCalibPebHypoAlg::finalize() {
 }
 
 // =============================================================================
-// Implementation of AthReentrantAlgorithm::execute_r
+// Implementation of AthReentrantAlgorithm::execute
 // =============================================================================
-StatusCode MTCalibPebHypoAlg::execute_r(const EventContext& eventContext) const {
+StatusCode MTCalibPebHypoAlg::execute(const EventContext& eventContext) const {
   ATH_MSG_DEBUG("Executing " << name());
 
   // New output

@@ -56,7 +56,7 @@
  * Forward declarations 
  */
  
-class IBeamCondSvc;
+#include "BeamSpotConditionsData/BeamSpotData.h"
 #include "xAODTracking/VertexFwd.h"
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTracking/VertexContainerFwd.h"
@@ -113,7 +113,7 @@ public:
    ToolHandle< Trk::IVertexFitter > m_iVertexFitter;
    ToolHandle< InDet::IInDetTrackSelectionTool > m_trkFilter;
    
-   ServiceHandle<IBeamCondSvc> m_iBeamCondSvc; //!< pointer to the beam condition service
+    SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
    
 
    void SGError(std::string errService);

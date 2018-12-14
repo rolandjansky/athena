@@ -27,7 +27,7 @@ public:
   /// @name @c AthAlgorithm interface implementation
   /// @{
   virtual StatusCode initialize() override;     ///< @brief Initialize algorithm
-  virtual StatusCode execute_r(const EventContext&) const override;        ///< @brief Execute algorithm
+  virtual StatusCode execute(const EventContext&) const override;        ///< @brief Execute algorithm
   virtual StatusCode finalize() override;       ///< @brief Finalize algorithm
   /// @}
 

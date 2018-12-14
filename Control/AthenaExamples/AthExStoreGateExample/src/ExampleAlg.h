@@ -29,7 +29,7 @@ class ExampleAlg
 public:
   ExampleAlg (const std::string& name, ISvcLocator* svcLocator);
   virtual StatusCode initialize() override;
-  virtual StatusCode execute_r (const EventContext& ctx) const override;
+  virtual StatusCode execute (const EventContext& ctx) const override;
 
 private:
   // Declare the keys used to access the data: one for reading and one

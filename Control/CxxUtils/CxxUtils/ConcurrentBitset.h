@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
  */
 // $Id$
 /**
@@ -210,6 +210,16 @@ public:
 
 
   /**
+   * @brief Move constructor.
+   * @param other Container to move.
+   *
+   * No concurrent access may be in progress on @c other.
+   * After this returns, @c other can only be deleted.
+   */
+  ConcurrentBitset (ConcurrentBitset&& other);
+
+
+  /**
    * @brief Destructor.
    */
   ~ConcurrentBitset();
@@ -223,6 +233,16 @@ public:
    * to @c other, then the copy may have this update only partially completed.
    */
   ConcurrentBitset& operator= (const ConcurrentBitset& other);
+
+
+  /**
+   * @brief Move.
+   * @param other Bitset from which to move.
+   *
+   * No concurrent access may be in progress on @c other.
+   * After this returns, @c other can only be deleted.
+   */
+  ConcurrentBitset& operator= (ConcurrentBitset&& other);
 
 
   /**

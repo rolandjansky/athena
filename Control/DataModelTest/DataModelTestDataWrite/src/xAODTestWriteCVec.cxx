@@ -71,7 +71,7 @@ StatusCode xAODTestWriteCVec::initialize()
 /**
  * @brief Algorithm event processing.
  */
-StatusCode xAODTestWriteCVec::execute_r (const EventContext& ctx) const
+StatusCode xAODTestWriteCVec::execute (const EventContext& ctx) const
 {
   //SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey, ctx);
   //unsigned int count = eventInfo->eventNumber()  + 1;

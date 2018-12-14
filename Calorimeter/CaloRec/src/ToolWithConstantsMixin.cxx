@@ -75,7 +75,7 @@ ToolWithConstantsMixin::finish_ctor (const std::string& toolcls /*= ""*/)
     if (m_toolcls.empty())
       m_toolcls = thistool->type();
   }
-  else if (Algorithm* thisalg = dynamic_cast<Algorithm*> (this)) {
+  else if (Gaudi::Algorithm* thisalg = dynamic_cast<Gaudi::Algorithm*> (this)) {
     thisalg->declareProperty ("detStoreKey", m_detStoreKey);
     thisalg->declareProperty ("prefix",      m_prefix);
     thisalg->declareProperty ("useCallback", m_use_callback);

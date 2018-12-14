@@ -45,7 +45,7 @@ StatusCode MetaReaderAlg::initialize()
  * @brief Algorithm execute method.
  * @param ctx Event context.
  */
-StatusCode MetaReaderAlg::execute_r (const EventContext& ctx) const
+StatusCode MetaReaderAlg::execute (const EventContext& ctx) const
 {
   // Get proper dbkey.
   const DataHeader* thisDH = nullptr;

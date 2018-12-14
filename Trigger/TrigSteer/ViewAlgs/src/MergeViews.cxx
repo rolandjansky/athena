@@ -11,7 +11,7 @@ StatusCode MergeViews::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode MergeViews::execute_r( const EventContext& context ) const {
+StatusCode MergeViews::execute( const EventContext& context ) const {
   auto viewsHandle = SG::makeHandle( m_viewsKey, context );
   const ViewContainer& viewsRef = *viewsHandle;
 

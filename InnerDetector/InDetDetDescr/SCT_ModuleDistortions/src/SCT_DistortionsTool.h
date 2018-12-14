@@ -60,7 +60,7 @@ class SCT_DistortionsTool : public AthAlgTool, virtual public ISCT_ModuleDistort
 
     float m_distortionsScale;
 
-    mutable std::map<int,int> m_moduleSites;
+    std::map<int,int> m_moduleSites;
     
     std::vector<float>* m_dataJap1_S0;
     std::vector<float>* m_dataJap2_S0;
@@ -74,7 +74,7 @@ class SCT_DistortionsTool : public AthAlgTool, virtual public ISCT_ModuleDistort
     std::vector<float>* m_dataUSA_S1;
     std::vector<float>* m_dataScand_S1;
     
-    bool loadData() const;
+    bool loadData();
 
 };
 

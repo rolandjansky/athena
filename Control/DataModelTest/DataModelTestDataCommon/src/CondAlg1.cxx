@@ -45,7 +45,7 @@ StatusCode CondAlg1::initialize()
 /**
  * @brief Algorithm event processing.
  */
-StatusCode CondAlg1::execute_r (const EventContext& ctx) const
+StatusCode CondAlg1::execute (const EventContext& ctx) const
 {
   SG::ReadCondHandle<AthenaAttributeList> attrList (m_attrListKey, ctx);
   int xint = (**attrList)["xint"].data<int>();

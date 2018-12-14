@@ -34,7 +34,7 @@ StatusCode LArNoisyROAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode LArNoisyROAlg::execute_r (const EventContext& ctx) const
+StatusCode LArNoisyROAlg::execute (const EventContext& ctx) const
 {
   SG::ReadHandle<CaloCellContainer> cellContainer(m_CaloCellContainerName, ctx);
   if (!cellContainer.isValid()) { 

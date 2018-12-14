@@ -32,7 +32,7 @@
 
 
 InDetPhysHitDecoratorAlg::InDetPhysHitDecoratorAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name,pSvcLocator),
+  AthReentrantAlgorithm(name,pSvcLocator),
   m_holeSearchTool("InDet::InDetTrackHoleSearchTool"),
   m_updatorHandle("Trk::KalmanUpdator/TrkKalmanUpdator"),
   m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
@@ -109,15 +109,9 @@ InDetPhysHitDecoratorAlg::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode
-InDetPhysHitDecoratorAlg::execute() {
-  const EventContext context{ Gaudi::Hive::currentContext() };
-  return execute_r(context);
-}
-
 // to migrate to AthReentrantAlgorithm later
 StatusCode
-InDetPhysHitDecoratorAlg::execute_r(const EventContext &ctx) const {
+InDetPhysHitDecoratorAlg::execute(const EventContext &ctx) const {
   SG::ReadHandle<xAOD::TrackParticleContainer> ptracks(m_trkParticleName);
   if ((not ptracks.isValid())) {
     return StatusCode::FAILURE;

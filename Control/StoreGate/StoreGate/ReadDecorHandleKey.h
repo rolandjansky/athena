@@ -55,7 +55,7 @@ namespace SG {
  *    ...
  *  }
  *
- *  StatusCode MyAlgorithm::execute_r (const EventContext& ctx) const
+ *  StatusCode MyAlgorithm::execute (const EventContext& ctx) const
  *  {
  *    SG::ReadDecorHandle<MyCont, float> h (m_key, ctx);
  *    for (const MyObj& o : *h) {  // Access the container.

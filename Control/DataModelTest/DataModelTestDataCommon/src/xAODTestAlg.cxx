@@ -44,7 +44,7 @@ StatusCode xAODTestAlg::initialize()
 /**
  * @brief Algorithm event processing.
  */
-StatusCode xAODTestAlg::execute_r (const EventContext& ctx) const
+StatusCode xAODTestAlg::execute (const EventContext& ctx) const
 {
   for (const auto& t : m_tools)
     ATH_CHECK( t->doit (ctx) );

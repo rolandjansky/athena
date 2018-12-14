@@ -55,10 +55,10 @@ StatusCode TrigmuCombHypoAlg::finalize()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigmuCombHypoAlg::execute_r(const EventContext& context) const
+StatusCode TrigmuCombHypoAlg::execute(const EventContext& context) const
 {
   // common for all Hypos, to move in the base class
-  ATH_MSG_DEBUG("StatusCode TrigmuCombHypoAlg::execute_r start");
+  ATH_MSG_DEBUG("StatusCode TrigmuCombHypoAlg::execute start");
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context);
   if ( not previousDecisionsHandle.isValid() ) {//implicit
     ATH_MSG_DEBUG( "No implicit ReadHandles for previous decisions " << decisionInput().key() << ": is this expected?");
@@ -133,7 +133,7 @@ StatusCode TrigmuCombHypoAlg::execute_r(const EventContext& context) const
     }
   }
 
-  ATH_MSG_DEBUG("StatusCode TrigmuCombHypoAlg::execute_r success");
+  ATH_MSG_DEBUG("StatusCode TrigmuCombHypoAlg::execute success");
   return StatusCode::SUCCESS;
 }
 

@@ -59,56 +59,32 @@ from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
 ServiceMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection = False
 
-### Output data name ###
-muFastInfo = "MuonL2SAInfo"
-muCombInfo = "MuonL2CBInfo"
-muEFSAInfo = "Muons"
-muEFCBInfo = "CBMuons"
-muL2ISInfo = "MuonL2ISInfo"
-# get Track container name
-TrackParticlesName = ""
-from TrigUpgradeTest.InDetSetup import makeInDetAlgs
-(nameAlgs, evAlgs) = makeInDetAlgs()
-for nameAlg in nameAlgs:
-    if nameAlg.name() == "InDetTrigTrackParticleCreatorAlg":
-        TrackParticlesName = nameAlg.TrackParticlesName
- 
 
 ### ************* Step1  ************* ###
 
 def muFastStep():
 
     ### set the EVCreator ###
-    l2MuViewNode = parOR("l2MuViewNode")
-    
     l2MuViewsMaker = EventViewCreatorAlgorithm("l2MuViewsMaker", OutputLevel=DEBUG)
     l2MuViewsMaker.ViewFallThrough = True
     l2MuViewsMaker.RoIsLink = "initialRoI" # -||-
     l2MuViewsMaker.InViewRoIs = "MURoIs" # contract with the consumer
     l2MuViewsMaker.Views = "MUViewRoIs"
-    l2MuViewsMaker.ViewNodeName = l2MuViewNode.name()
 
-     ### set up muFast algs ###    
-    from TrigUpgradeTest.MuonSetup import makeMuFastAlgs
-    muFastAlg = makeMuFastAlgs()
-    muFastAlg.OutputLevel = DEBUG
-    muFastAlg.RecMuonRoI = "RecMURoIs"
-    muFastAlg.MuRoIs = l2MuViewsMaker.InViewRoIs 
-    muFastAlg.MuonL2SAInfo = muFastInfo 
-    muFastAlg.MuonCalibrationStream = "MuonCalibrationStream"
-    muFastAlg.forID = "forID"
-    muFastAlg.forMS = "forMS"
+    ### get muFast reco sequence ###    
+    from TrigUpgradeTest.MuonSetup import muFastRecoSequence
+    muFastRecoSequence, sequenceOut = muFastRecoSequence( l2MuViewsMaker.InViewRoIs, OutputLevel=DEBUG )
     
-    l2MuViewNode += muFastAlg
+    l2MuViewsMaker.ViewNodeName = muFastRecoSequence.name() 
     
     ### set up MuFastHypo ###
     from TrigMuonHypo.TrigMuonHypoConf import TrigMufastHypoAlg
     trigMufastHypo = TrigMufastHypoAlg("TrigL2MufastHypoAlg")
     trigMufastHypo.OutputLevel = DEBUG
-    trigMufastHypo.MuonL2SAInfoFromMuFastAlg = muFastInfo
+    trigMufastHypo.MuonL2SAInfoFromMuFastAlg = sequenceOut
     
     
-    l2muFastSequence = seqAND("l2muFastSequence", [ l2MuViewsMaker, l2MuViewNode ])
+    l2muFastSequence = seqAND("l2muFastSequence", [ l2MuViewsMaker, muFastRecoSequence ])
     
     
     from TrigMuonHypo.testTrigMuonHypoConfig import TrigMufastHypoToolFromName
@@ -124,58 +100,26 @@ def muFastStep():
 def muCombStep():
 
     ### set the EVCreator ###
-    l2muCombViewNode = parOR("l2muCombViewNode")
-    
     l2muCombViewsMaker = EventViewCreatorAlgorithm("l2muCombViewsMaker", OutputLevel=DEBUG)
     l2muCombViewsMaker.ViewFallThrough = True
     l2muCombViewsMaker.RoIsLink = "roi" # -||-
     l2muCombViewsMaker.InViewRoIs = "EMIDRoIs" # contract with the consumer
     l2muCombViewsMaker.Views = "EMCombViewRoIs"
-    l2muCombViewsMaker.ViewNodeName = l2muCombViewNode.name()
     
-    ### Define input data of Inner Detector algorithms  ###
-    ### and Define EventViewNodes to run the algorithms ###
-    from TrigUpgradeTest.InDetSetup import makeInDetAlgs
-    (viewAlgs, eventAlgs) = makeInDetAlgs()
-    
-    from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Muon
-    theFTF_Muon = TrigFastTrackFinder_Muon()
-    theFTF_Muon.OutputLevel = DEBUG
-    theFTF_Muon.isRoI_Seeded = True
-    viewAlgs.append(theFTF_Muon)
-    
-    ### A simple algorithm to confirm that data has been inherited from parent view ###
-    ### Required to satisfy data dependencies                                       ###
-    ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muFastViewDataVerifier")
-    ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+'+muFastInfo)]
-    viewAlgs.append(ViewVerify)
-    
-    for viewAlg in viewAlgs:
-        l2muCombViewNode += viewAlg
-        if viewAlg.properties().has_key("RoIs"):
-            viewAlg.RoIs = l2muCombViewsMaker.InViewRoIs
-        if viewAlg.properties().has_key("roiCollectionName"):
-            viewAlg.roiCollectionName = l2muCombViewsMaker.InViewRoIs
-    
-    ### please read out TrigmuCombMTConfig file ###
-    ### and set up to run muCombMT algorithm    ###
-    from TrigmuComb.TrigmuCombMTConfig import TrigmuCombMTConfig
-    muCombAlg = TrigmuCombMTConfig("Muon", theFTF_Muon.getName())
-    muCombAlg.OutputLevel = DEBUG
-    muCombAlg.L2StandAloneMuonContainerName = muFastInfo
-    muCombAlg.TrackParticlesContainerName = TrackParticlesName
-    muCombAlg.L2CombinedMuonContainerName = muCombInfo
-    
-    l2muCombViewNode += muCombAlg
-
+    ### get muComb reco sequence ###    
+    from TrigUpgradeTest.MuonSetup import muCombRecoSequence
+    muCombRecoSequence, eventAlgs, sequenceOut, TrackParticlesName = muCombRecoSequence( l2muCombViewsMaker.InViewRoIs, OutputLevel=DEBUG )
+ 
+    l2muCombViewsMaker.ViewNodeName = muCombRecoSequence.name()
+   
     ### set up muCombHypo algorithm ###
     from TrigMuonHypo.TrigMuonHypoConf import TrigmuCombHypoAlg
     #trigmuCombHypo = TrigmuCombHypoAlg("L2muCombHypoAlg") # avoid to have "Comb" string in the name due to HLTCFConfig.py. 
     trigmuCombHypo = TrigmuCombHypoAlg("TrigL2MuCBHypoAlg")
     trigmuCombHypo.OutputLevel = DEBUG
-    trigmuCombHypo.MuonL2CBInfoFromMuCombAlg = muCombInfo 
+    trigmuCombHypo.MuonL2CBInfoFromMuCombAlg = sequenceOut
     
-    l2muCombSequence = seqAND("l2muCombSequence", eventAlgs + [l2muCombViewsMaker, l2muCombViewNode ] )
+    l2muCombSequence = seqAND("l2muCombSequence", eventAlgs + [l2muCombViewsMaker, muCombRecoSequence] )
     
     from TrigMuonHypo.testTrigMuonHypoConfig import TrigmuCombHypoToolFromName
     
@@ -190,31 +134,25 @@ def muCombStep():
 ###  EFMSonly step ###
 def muEFMSStep():
 
-    efmsViewNode = parOR("efmsViewNode")
-    
     efmsViewsMaker = EventViewCreatorAlgorithm("efmsViewsMaker", OutputLevel=DEBUG)
     efmsViewsMaker.ViewFallThrough = True
     efmsViewsMaker.RoIsLink = "initialRoI" # -||-
     efmsViewsMaker.InViewRoIs = "MUEFMSRoIs" # contract with the consumer
     efmsViewsMaker.Views = "MUEFMSViewRoIs"
-    efmsViewsMaker.ViewNodeName = efmsViewNode.name()
 
-
-    # setup muEFMsonly algs
-    from TrigUpgradeTest.MuonSetup import makeMuEFSAAlgs
-    efAlgs = makeMuEFSAAlgs()    
-    for efAlg in efAlgs:
-        if efAlg.properties().has_key("RoIs"):
-            efAlg.RoIs = efmsViewsMaker.InViewRoIs
-        efmsViewNode += efAlg
+    ### get EF reco sequence ###    
+    from TrigUpgradeTest.MuonSetup import muEFSARecoSequence
+    muEFMSRecoSequence, sequenceOut = muEFSARecoSequence( efmsViewsMaker.InViewRoIs, OutputLevel=DEBUG )
+ 
+    efmsViewsMaker.ViewNodeName = muEFMSRecoSequence.name()
     
     # setup MS-only hypo
     from TrigMuonHypo.TrigMuonHypoConf import TrigMuonEFMSonlyHypoAlg
     trigMuonEFMSHypo = TrigMuonEFMSonlyHypoAlg( "TrigMuonEFMSHypoAlg" )
     trigMuonEFMSHypo.OutputLevel = DEBUG
-    trigMuonEFMSHypo.MuonDecisions = muEFSAInfo
+    trigMuonEFMSHypo.MuonDecisions = sequenceOut
     
-    muonEFMSonlySequence = seqAND( "muonEFMSonlySequence", [efmsViewsMaker, efmsViewNode] )
+    muonEFMSonlySequence = seqAND( "muonEFMSonlySequence", [efmsViewsMaker, muEFMSRecoSequence] )
     
     from TrigMuonHypo.testTrigMuonHypoConfig import TrigMuonEFMSonlyHypoToolFromName
     
@@ -226,33 +164,25 @@ def muEFMSStep():
 ###  EFSA step ###
 def muEFSAStep():
 
-    efsaViewNode = parOR("efsaViewNode")
-    
     efsaViewsMaker = EventViewCreatorAlgorithm("efsaViewsMaker", OutputLevel=DEBUG)
     efsaViewsMaker.ViewFallThrough = True
-    #efsaViewsMaker.RoIsLink = "initialRoI" # -||-
     efsaViewsMaker.RoIsLink = "roi" # -||-
     efsaViewsMaker.InViewRoIs = "MUEFSARoIs" # contract with the consumer
     efsaViewsMaker.Views = "MUEFSAViewRoIs"
-    efsaViewsMaker.ViewNodeName = efsaViewNode.name()
-
-
    
-    # setup muEFMsonly algs
-    from TrigUpgradeTest.MuonSetup import makeMuEFSAAlgs
-    efAlgs = makeMuEFSAAlgs()    
-    for efAlg in efAlgs:
-        if efAlg.properties().has_key("RoIs"):
-            efAlg.RoIs = efsaViewsMaker.InViewRoIs
-        efsaViewNode += efAlg
+    ### get EF reco sequence ###    
+    from TrigUpgradeTest.MuonSetup import muEFSARecoSequence
+    muEFSARecoSequence, sequenceOut = muEFSARecoSequence( efsaViewsMaker.InViewRoIs, OutputLevel=DEBUG )
+ 
+    efsaViewsMaker.ViewNodeName = muEFSARecoSequence.name()
     
     # setup EFSA hypo
     from TrigMuonHypo.TrigMuonHypoConf import TrigMuonEFMSonlyHypoAlg
     trigMuonEFSAHypo = TrigMuonEFMSonlyHypoAlg( "TrigMuonEFSAHypoAlg" )
     trigMuonEFSAHypo.OutputLevel = DEBUG
-    trigMuonEFSAHypo.MuonDecisions = muEFSAInfo
+    trigMuonEFSAHypo.MuonDecisions = sequenceOut
     
-    muonEFSAonlySequence = seqAND( "muonEFSAonlySequence", [efsaViewsMaker, efsaViewNode] )
+    muonEFSAonlySequence = seqAND( "muonEFSAonlySequence", [efsaViewsMaker, muEFSARecoSequence ] )
     
     from TrigMuonHypo.testTrigMuonHypoConfig import TrigMuonEFMSonlyHypoToolFromName
     
@@ -272,16 +202,13 @@ def muEFCBStep():
     efcbViewsMaker.Views = "MUEFCBViewRoIs"
     efcbViewsMaker.ViewNodeName = efcbViewNode.name()
    
-    #Need ID tracking related objects and MS tracks from previous steps
-    ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("muonCBViewDataVerifier")
-    ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+xAODTracks' ),( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData' ), ( 'InDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ), ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),( 'xAOD::IParticleContainer' , 'StoreGateSvc+xAODTracks' ),( 'SCT_ByteStreamFractionContainer' , 'StoreGateSvc+SCT_ByteStreamFrac' ),( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),  ( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),  ( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+MuonSpectrometerTrackParticles' ) ]
-    efcbViewNode += ViewVerifyTrk
 
-    # setup muEFCombined algs
-    from TrigUpgradeTest.MuonSetup import makeMuEFCBAlgs
-    efcbAlgs = makeMuEFCBAlgs()    
-    for efcbAlg in efcbAlgs:
-        efcbViewNode += efcbAlg
+    ### get EF reco sequence ###    
+    from TrigUpgradeTest.MuonSetup import muEFCBRecoSequence
+    muEFCBRecoSequence, sequenceOut = muEFCBRecoSequence( efcbViewsMaker.InViewRoIs, OutputLevel=DEBUG )
+ 
+    efsaViewsMaker.ViewNodeName = muEFSARecoSequence.name()
+    
     
     # setup EFCB hypo
     from TrigMuonHypo.TrigMuonHypoConfigMT import TrigMuonEFCombinerHypoConfig
@@ -303,38 +230,26 @@ def muEFCBStep():
 ### l2Muiso step ###
 def muIsoStep():
 
-    l2muIsoViewNode = parOR("l2muIsoViewNode")
-    
     l2muIsoViewsMaker = EventViewCreatorAlgorithm("l2muIsoViewsMaker", OutputLevel=DEBUG)
     l2muIsoViewsMaker.ViewFallThrough = True
     l2muIsoViewsMaker.RoIsLink = "roi" # -||-
     l2muIsoViewsMaker.InViewRoIs = "MUIsoRoIs" # contract with the consumer
     l2muIsoViewsMaker.Views = "MUIsoViewRoIs"
-    l2muIsoViewsMaker.ViewNodeName = l2muIsoViewNode.name()
 
-    ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muCombViewDataVerifier")
-    ViewVerify.DataObjects = [('xAOD::TrackParticleContainer' , 'StoreGateSvc+'+TrackParticlesName),
-                              ('xAOD::L2CombinedMuonContainer','StoreGateSvc+'+muCombInfo)]
-    l2muIsoViewNode += ViewVerify 
+    ### get EF reco sequence ###    
+    from TrigUpgradeTest.MuonSetup import l2muisoRecoSequence
+    l2muisoRecoSequence, sequenceOut = l2muisoRecoSequence( l2muIsoViewsMaker.InViewRoIs, OutputLevel=DEBUG )
  
-    # set up algs    
-    from TrigmuIso.TrigmuIsoConfig import TrigmuIsoMTConfig
-    trigL2muIso = TrigmuIsoMTConfig("TrigL2muIso")
-    trigL2muIso.OutputLevel = DEBUG
-    trigL2muIso.MuonL2CBInfoName = muCombInfo
-    trigL2muIso.TrackParticlesName = TrackParticlesName
-    trigL2muIso.MuonL2ISInfoName = muL2ISInfo
-    
-    l2muIsoViewNode += trigL2muIso
-
+    l2muIsoViewsMaker.ViewNodeName = l2muisoRecoSequence.name()
+ 
     # set up hypo    
     from TrigMuonHypo.TrigMuonHypoConf import TrigMuisoHypoAlg
     trigmuIsoHypo = TrigMuisoHypoAlg("L2MuisoHypoAlg")
     trigmuIsoHypo.OutputLevel = DEBUG
-    trigmuIsoHypo.MuonL2ISInfoName = muL2ISInfo
+    trigmuIsoHypo.MuonL2ISInfoName = sequenceOut
     
     ### Define a Sequence to run for muIso ### 
-    l2muIsoSequence = seqAND("l2muIsoSequence", [ l2muIsoViewsMaker, l2muIsoViewNode ] )
+    l2muIsoSequence = seqAND("l2muIsoSequence", [ l2muIsoViewsMaker, l2muisoRecoSequence ] )
     
     from TrigMuonHypo.testTrigMuonHypoConfig import TrigMuisoHypoToolFromName
 

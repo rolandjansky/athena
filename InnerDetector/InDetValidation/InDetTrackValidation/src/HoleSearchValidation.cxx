@@ -154,7 +154,7 @@ StatusCode HoleSearchValidation::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode HoleSearchValidation::execute_r(const EventContext& ctx) const {
+StatusCode HoleSearchValidation::execute(const EventContext& ctx) const {
 
   std::array<bool,Parts::kNParts> remove_parts;
   for (unsigned int part_i=0; part_i<Parts::kNParts; ++part_i) {

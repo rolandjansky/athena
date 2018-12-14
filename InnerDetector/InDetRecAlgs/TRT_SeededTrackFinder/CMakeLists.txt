@@ -9,7 +9,7 @@ atlas_subdir( TRT_SeededTrackFinder )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           GaudiKernel
-                          InnerDetector/InDetConditions/InDetBeamSpotService
+                          InnerDetector/InDetConditions/BeamSpotConditionsData
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
                           Tracking/TrkEvent/TrkSegment
                           Tracking/TrkEvent/TrkTrack

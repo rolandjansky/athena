@@ -39,8 +39,7 @@ InDet::TRT_SeededTrackFinder::TRT_SeededTrackFinder
     m_fitterTool("Trk::KalmanFitter/InDetTrackFitter"),
     m_trtExtension("InDet::TRT_TrackExtensionTool_xk"),
     m_Segments("TRTSegments"),
-    m_outTracks("TRTSeededTracks"),
-    m_iBeamCondSvc("BeamCondSvc",name)
+    m_outTracks("TRTSeededTracks")
 {
   m_doRefit          = false                                ;       //Do a final careful refit of tracks
   m_doExtension      = false                                ;       //Find the track TRT extension
@@ -69,7 +68,6 @@ InDet::TRT_SeededTrackFinder::TRT_SeededTrackFinder
   declareProperty("maxRPhiImp",        m_maxRPhiImp         = 10.);
   declareProperty("maxZImp",           m_maxZImp            = 250.);
   declareProperty("Extrapolator",      m_extrapolator);
-  declareProperty("BeamPositionSvc",   m_iBeamCondSvc );
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -98,9 +96,10 @@ StatusCode InDet::TRT_SeededTrackFinder::initialize()
     // get extrapolator
     ATH_CHECK( m_extrapolator.retrieve());
     // get beam spot service
-    ATH_CHECK( m_iBeamCondSvc.retrieve());
+    ATH_CHECK( m_beamSpotKey.initialize() );
   } else {
     m_extrapolator.disable();
+    //disable m_beamSpotKey when able to
   }
 
   // Get tool for track extension to TRT
@@ -298,7 +297,10 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
 
 	      // --- beam spot position
 	      Amg::Vector3D beamSpotPosition(0,0,0);
-	      if (m_iBeamCondSvc) beamSpotPosition = m_iBeamCondSvc->beamVtx().position();
+	      if (m_SiExtensionCuts){
+              SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+              beamSpotPosition = beamSpotHandle->beamVtx().position();
+          }
 	      // --- create surface
 	      Trk::PerigeeSurface perigeeSurface(beamSpotPosition);
 

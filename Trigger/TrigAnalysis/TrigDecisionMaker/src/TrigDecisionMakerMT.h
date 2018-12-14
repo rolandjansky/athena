@@ -76,7 +76,7 @@ namespace TrigDec {
 
     // IAlgorithm virtual methods to implement
     virtual StatusCode initialize() override; //!< std Gaudi initialize method -> read-in trigger configuration
-    virtual StatusCode execute_r( const EventContext& context ) const override; //!< Re-entrant execute to create the xAOD::TrigDecision
+    virtual StatusCode execute( const EventContext& context ) const override; //!< Re-entrant execute to create the xAOD::TrigDecision
     virtual StatusCode finalize() override;    //!< std Gaudi finalize method -> print out statistics
 
     StatusCode getL1Result (const LVL1CTP::Lvl1Result*& result, const EventContext& context) const; //!< retrieve LVL1 result (called in execute)

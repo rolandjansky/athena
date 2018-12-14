@@ -548,7 +548,7 @@ class ComponentAccumulator(object):
             # if local bootstrap is missing, use one from the release
             bsfilename=find_datafile("bootstrap.pkl")
         else:
-            bsfilename = localbs[0]
+            bsfilename = "./"+localbs[0]
 
         bsfile=open(bsfilename)
         self._jocat=pickle.load(bsfile)
@@ -565,8 +565,11 @@ class ComponentAccumulator(object):
                 evtalgseq.append( alg.getFullName() )
 
 
-        for seqName, algoList  in flatSequencers( self._sequence ).iteritems():
-            self._jocat[seqName]["Members"]=str( [alg.getFullName() for alg in algoList] )
+        for seqName, algoList  in flatSequencers( self._sequence ).iteritems():            
+            # part of the sequence may come from the bootstrap, we need to retain the content, that is done here
+            mergedSequence = ast.literal_eval(self._jocat[seqName]["Members"]) +  [alg.getFullName() for alg in algoList] 
+            self._jocat[seqName]["Members"] = str( mergedSequence )
+                
 
         #Conditions Algorithms:
         condalgseq=[]

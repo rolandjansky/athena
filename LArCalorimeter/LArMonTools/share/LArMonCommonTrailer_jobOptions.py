@@ -4,7 +4,7 @@ if not online:
     if os.path.exists(RootHistOutputFileName): 
         os.remove(RootHistOutputFileName)
     svcMgr += THistSvc()
-    svcMgr.THistSvc.Output = ["AllMon DATAFILE='"+RootHistOutputFileName+"' OPT='New'"] 
+    svcMgr.THistSvc.Output = ["AllMon DATAFILE='"+RootHistOutputFileName+"' OPT='APPEND'"] 
     if Type == 'Delay' and DelayNtuple:
         theApp.Dlls += [ "RootHistCnv" ]
         theApp.HistogramPersistency = "ROOT"

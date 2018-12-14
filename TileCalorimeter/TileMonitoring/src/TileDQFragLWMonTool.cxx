@@ -16,7 +16,6 @@
 
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/ITileBadChanTool.h"
-#include "TileConditions/TileDCSSvc.h"
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileRecUtils/TileRawChannelBuilder.h"
@@ -35,7 +34,6 @@
 TileDQFragLWMonTool::TileDQFragLWMonTool(const std::string & type, const std::string & name, const IInterface* parent)
   : TileFatherMonTool(type, name, parent)
   , m_tileBadChanTool("TileBadChanTool")
-  , m_tileDCSSvc("TileDCSSvc",name)
   , m_dqStatus(0)
   , m_globalErrCount{}
   , m_global{}
@@ -151,14 +149,16 @@ StatusCode TileDQFragLWMonTool:: initialize() {
 
   ATH_MSG_INFO(  "in initialize()" );
 
-  CHECK(  m_tileBadChanTool.retrieve() );
+  ATH_CHECK(  m_tileBadChanTool.retrieve() );
 
-  CHECK( TileFatherMonTool::initialize() );
+  ATH_CHECK( TileFatherMonTool::initialize() );
 
-  CHECK( m_DQstatusKey.initialize() );
+  ATH_CHECK( m_DQstatusKey.initialize() );
 
   if (m_checkDCS) {
-    CHECK( m_tileDCSSvc.retrieve() );
+    ATH_CHECK( m_tileDCS.retrieve() );
+  } else {
+    m_tileDCS.disable();
   }
 
   return StatusCode::SUCCESS;
@@ -460,7 +460,7 @@ void TileDQFragLWMonTool::fillBadDrawer() {
 
             if ((pedestal > 80000. || quality > m_qualityCut)
                 && !(m_tileBadChanTool->getAdcStatus(adcId).isBad()
-                     || (m_checkDCS && m_tileDCSSvc->statusIsBad(ROS, drawer, channel)))) {
+                     || (m_checkDCS && m_tileDCS->isStatusBad(ROS, drawer, channel)))) {
 
               m_badPulseQuality[partition]->Fill(module, channel);
 
@@ -660,13 +660,13 @@ void TileDQFragLWMonTool::fillErrorsHistograms(unsigned int ros, unsigned int dr
 
       unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros + 1, drawer);
       if (m_checkDCS 
-          && ((m_tileDCSSvc->statusIsBad(ros + 1, drawer, ichn)
+          && ((m_tileDCS->isStatusBad(ros + 1, drawer, ichn)
                && !m_tileBadChanTool->getChannelStatus(drawerIdx, ichn).contains(TileBchPrbs::NoHV)
                && !m_tileBadChanTool->getChannelStatus(drawerIdx, ichn).contains(TileBchPrbs::WrongHV))
-              || (m_tileDCSSvc->statusIsBad(ros + 1, drawer, ichn + 1) 
+              || (m_tileDCS->isStatusBad(ros + 1, drawer, ichn + 1)
                   && !m_tileBadChanTool->getChannelStatus(drawerIdx, ichn + 1).contains(TileBchPrbs::NoHV)
                   && !m_tileBadChanTool->getChannelStatus(drawerIdx, ichn + 1).contains(TileBchPrbs::WrongHV))
-              || (m_tileDCSSvc->statusIsBad(ros + 1, drawer, ichn + 2) 
+              || (m_tileDCS->isStatusBad(ros + 1, drawer, ichn + 2)
                   && !m_tileBadChanTool->getChannelStatus(drawerIdx, ichn + 2).contains(TileBchPrbs::NoHV)
                   && !m_tileBadChanTool->getChannelStatus(drawerIdx, ichn + 2).contains(TileBchPrbs::WrongHV)))) {
         
@@ -830,8 +830,8 @@ bool TileDQFragLWMonTool::isModuleDCSgood(unsigned int partition, unsigned int d
 /*---------------------------------------------------------*/
 
   if (m_checkDCS) {
-    TileDCSSvc::TileDCSStatus Status = m_tileDCSSvc->getDCSSTATUS(partition, drawer);
-    if (Status > TileDCSSvc::WARNING) {
+    TileDCSState::TileDCSStatus status = m_tileDCS->getDCSStatus(partition, drawer);
+    if (status > TileDCSState::WARNING) {
       return false;
     } else {
       return true;

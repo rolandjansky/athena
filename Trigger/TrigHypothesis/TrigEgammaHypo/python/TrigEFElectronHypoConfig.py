@@ -1,5 +1,3 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 #################################################
 # EF Electron Hypothesis Algorithm Configuration:
 # Ryan Mackenzie White <ryan.white@cern.ch>
@@ -12,6 +10,22 @@ from AthenaCommon.SystemOfUnits import GeV
 # Include EGammaPIDdefs for loose,medium,tight definitions
 from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefElectron
 from TrigEgammaHypo.TrigEgammaPidTools import * 
+from AthenaCommon.Logging import logging
+logging.getLogger().info("Importing %s",__name__)
+log = logging.getLogger("TrigEgammaHypo.TrigEFElectronHypoConfig")
+
+isolation_dict = {'ivarloose':[-1, -1, -1,0.100,-1,-1],
+                  'ivarmedium':[-1, -1, -1,0.065,-1,-1],
+                  'ivartight':[-1, -1, -1,0.05,-1,-1],
+                  'iloose':[0.100, -1, -1,-1,-1,-1]}
+
+caloisolation_dict = {'icaloloose':[-1, -1, -1,0.2,-1,-1],
+                  'icalomedium':[-1, -1, -1,0.15,-1,-1],
+                  'icalotight':[-1, -1, -1,0.1,-1,-1]}
+
+log.debug("Track isolation %s",isolation_dict)
+log.debug("Calo isolation %s",caloisolation_dict)
+
 class TrigEFElectronHypoBase (TrigEFElectronHypo):
     __slots__ = []
     def __init__(self, name):
@@ -84,6 +98,10 @@ class TrigEFElectronHypo_e_ID (TrigEFElectronHypoBase):
         if( 'lh' in IDinfo):
             self.AthenaElectronLHIDSelectorToolName='AsgElectronLikelihoodTool/'+ElectronToolName[IDinfo]
             self.UseAthenaElectronLHIDSelectorTool = True
+        elif( 'bloose' in IDinfo  ):
+            from TrigEgammaHypo.TrigEgammaPidTools import BLooseISEMBits
+            self.IsEMrequiredBits =  BLooseISEMBits[IDinfo]
+            self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronToolName[IDinfo]
         else:
             self.IsEMrequiredBits =  ElectronIsEMBits[IDinfo]
             self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronToolName[IDinfo]
@@ -105,7 +123,13 @@ class TrigEFElectronHypo_e_ID_HI (TrigEFElectronHypoBase):
         if( 'lh' in IDinfo):
             self.AthenaElectronLHIDSelectorToolName='AsgElectronLikelihoodTool/'+ElectronToolName[IDinfo]
             self.UseAthenaElectronLHIDSelectorTool = True
+        elif( 'bloose' in IDinfo):
+            from TrigEgammaHypo.TrigEgammaPidTools import BLooseISEMBits
+            self.IsEMrequiredBits =  BLooseISEMBits[IDinfo]
+            self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronToolName[IDinfo]
         else:
+            # Note that HI use different isEM bits than standard ones
+            from TrigEgammaHypo.TrigEGammaPIDdefsHI import ElectronIsEMBits
             self.IsEMrequiredBits =  ElectronIsEMBits[IDinfo]
             self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronToolName[IDinfo]
 
@@ -145,17 +169,24 @@ class TrigEFElectronHypo_e_LH_Iso (TrigEFElectronHypo_e_LH):
         self.ApplyIsolation = True
         self.useClusETforCaloIso = True
         self.useClusETforTrackIso = True
-        #EtCone Size              =  20, 30, 40
-        self.EtConeSizes = 3
-        self.RelEtConeCut       = [-1, -1, -1]
-        self.EtConeCut          = [-1, -1, -1]
-        #PtCone Size              =  20, 30, 40
+        caloiso = [x for x in isoInfo if 'icalo' in x]
+        trkiso = [x for x in isoInfo if 'icalo' not in x]
+
         self.PtConeSizes = 6
-        if 'ivarloose' in isoInfo:
-            self.RelPtConeCut       = [-1, -1, -1,0.100,-1,-1]
+        #EtCone Size              =  20, 30, 40
+        self.EtConeSizes = 6
+        self.PtConeCut          = [-1, -1, -1,-1,-1,-1]   
+        self.EtConeCut          = [-1, -1, -1,-1, -1, -1]
+        
+        if(len(trkiso)>0):
+            self.RelPtConeCut       = isolation_dict[trkiso[0]] 
         else:
-            self.RelPtConeCut       = [0.100, -1, -1,-1,-1,-1]
-        self.PtConeCut          = [-1, -1, -1,-1,-1,-1]
+            self.RelPtConeCut       = [-1, -1, -1,-1,-1,-1]
+
+        if len(caloiso) > 0:
+            self.RelEtConeCut       = caloisolation_dict[caloiso[0]]
+        else:
+            self.RelEtConeCut = [-1, -1, -1,-1, -1, -1]
 
 # --- W T&P supporting trigger
 #-----------------------------------------------------------------------
@@ -208,17 +239,25 @@ class TrigEFElectronHypo_e_Iso (TrigEFElectronHypo_e_ID):
         self.ApplyIsolation = True
         self.useClusETforCaloIso = True
         self.useClusETforTrackIso = True
-        #EtCone Size              =  20, 30, 40
-        self.EtConeSizes = 3
-        self.RelEtConeCut       = [-1, -1, -1]
-        self.EtConeCut          = [-1, -1, -1]
-        #PtCone Size              =  20, 30, 40
+        caloiso = [x for x in isoInfo if 'icalo' in x]
+        trkiso = [x for x in isoInfo if 'icalo' not in x]
+
         self.PtConeSizes = 6
-        if 'ivarloose' in isoInfo:
-            self.RelPtConeCut       = [-1, -1, -1,0.100,-1,-1]
+        #EtCone Size              =  20, 30, 40
+        self.EtConeSizes = 6
+        self.PtConeCut          = [-1, -1, -1,-1,-1,-1]   
+        self.EtConeCut          = [-1, -1, -1,-1, -1, -1]
+        
+        if(len(trkiso)>0):
+            self.RelPtConeCut       = isolation_dict[trkiso[0]] 
         else:
-            self.RelPtConeCut       = [0.100, -1, -1,-1,-1,-1]
-        self.PtConeCut          = [-1, -1, -1,-1,-1,-1]
+            self.RelPtConeCut       = [-1, -1, -1,-1,-1,-1]
+
+        if len(caloiso) > 0:
+            self.RelEtConeCut       = caloisolation_dict[caloiso[0]]
+        else:
+            self.RelEtConeCut = [-1, -1, -1,-1, -1, -1]
+
 
 #-----------------------------------------------------------------------
 # --- eXX Particle ID and Isolation performance chains

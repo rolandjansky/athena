@@ -34,7 +34,7 @@ namespace InDet {
       /// Function initialising the algorithm
       virtual StatusCode initialize();
       /// Function executing the algorithm
-      virtual StatusCode execute_r(const EventContext &ctx) const;
+      virtual StatusCode execute(const EventContext &ctx) const;
 
    private:
       /// StoreGate key for the track container to investigate

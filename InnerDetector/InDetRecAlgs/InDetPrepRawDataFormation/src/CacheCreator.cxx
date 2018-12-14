@@ -55,7 +55,7 @@ namespace InDet{
 
     CacheCreator::~CacheCreator() {}
 
-    StatusCode CacheCreator::execute_r (const EventContext& ctx) const
+    StatusCode CacheCreator::execute (const EventContext& ctx) const
     {
 
         if(!m_disableTRT) ATH_CHECK(CreateContainer(m_rioContainerCacheKey, m_pTRTHelper->straw_layer_hash_max(), ctx));

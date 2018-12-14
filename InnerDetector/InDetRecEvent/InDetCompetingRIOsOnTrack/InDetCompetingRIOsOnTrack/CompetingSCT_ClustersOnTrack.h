@@ -11,13 +11,11 @@
 
 // Trk
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
-//#include "TrkEventPrimitives/GlobalPosition.h"
-//#include "TrkEventPrimitives/ErrorMatrix.h"
-// #include "TrkParameters/TrackParameters.h"
 #include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h" // cannot fwd-declare because of covariant method
-#include <iosfwd>
 
-//#include <iostream.h>
+#include <iosfwd>
+#include <mutex>
+
 class MsgStream;
 
 namespace Trk {class Surface;}
@@ -107,8 +105,10 @@ private:
     void                               clearChildRotVector();
 
 
-    /** The global Position */
+    /** The global position */
     mutable const Amg::Vector3D*        m_globalPosition;
+    /** Mutex to protect the global position */
+    mutable std::mutex m_mutex;
 
     /** The vector of contained InDet::SCT_ClusterOnTrack objects */
     std::vector<const InDet::SCT_ClusterOnTrack*>*   m_containedChildRots;
@@ -139,10 +139,11 @@ inline const InDet::SCT_ClusterOnTrack& CompetingSCT_ClustersOnTrack::rioOnTrack
         return * m_containedChildRots->operator[](indx);
 }
 
- inline const Amg::Vector3D& CompetingSCT_ClustersOnTrack::globalPosition() const {
-    if (m_globalPosition)
-        return (*m_globalPosition);
-    m_globalPosition = associatedSurface().localToGlobal(localParameters());
+inline const Amg::Vector3D& CompetingSCT_ClustersOnTrack::globalPosition() const {
+    if (m_globalPosition==nullptr) {
+        std::lock_guard<std::mutex> lock{m_mutex};
+        m_globalPosition = associatedSurface().localToGlobal(localParameters());
+    }
     return (*m_globalPosition);
 }
 

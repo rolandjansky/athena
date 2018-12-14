@@ -18,15 +18,16 @@
 //
 // ********************************************************************
 
-#include "xAODEventInfo/EventInfo.h"
-
+// Tile includes
 #include "TileMonitoring/TileDigiNoiseMonTool.h"
-
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/TileBadChanTool.h"
 #include "TileConditions/TileCondToolNoiseSample.h"
+
+// Athena includes
+#include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandle.h"
 
 #include <iostream>
@@ -42,7 +43,6 @@ TileDigiNoiseMonTool::TileDigiNoiseMonTool(const std::string & type, const std::
   , m_tileToolNoiseSample("TileCondToolNoiseSample")
   , m_DQstatus(0)
   , m_nEventsProcessed(0)
-  , m_tileDCS("TileDCSTool")
   , m_histogramsNotBooked(true)
 /*---------------------------------------------------------*/
 {
@@ -58,7 +58,6 @@ TileDigiNoiseMonTool::TileDigiNoiseMonTool(const std::string & type, const std::
   declareProperty("FillPedestalDifference", m_fillPedestalDifference = true);
   declareProperty("TriggerTypes", m_triggerTypes);
   declareProperty("TileDQstatus", m_DQstatusKey = "TileDQstatus");
-  declareProperty("TileDCSTool", m_tileDCS);
   declareProperty("CheckDCS", m_checkDCS = false);
 
   m_path = "/Tile/DigiNoise"; //ROOT File relative directory
@@ -77,8 +76,8 @@ StatusCode TileDigiNoiseMonTool:: initialize() {
 
   ATH_MSG_INFO( "in initialize()" );
 
-  CHECK(m_tileBadChanTool.retrieve());
-  if (m_fillEmtyFromDB || m_fillPedestalDifference) CHECK(m_tileToolNoiseSample.retrieve());
+  ATH_CHECK(m_tileBadChanTool.retrieve());
+  if (m_fillEmtyFromDB || m_fillPedestalDifference) ATH_CHECK(m_tileToolNoiseSample.retrieve());
 
   memset(m_sumPed1, 0, sizeof(m_sumPed1));
   memset(m_sumPed2, 0, sizeof(m_sumPed2));
@@ -98,12 +97,11 @@ StatusCode TileDigiNoiseMonTool:: initialize() {
     msg(MSG::INFO) << endmsg;
   }
 
-  CHECK( m_DQstatusKey.initialize() );
+  ATH_CHECK( m_DQstatusKey.initialize() );
 
   if (m_checkDCS) {
-    CHECK( m_tileDCS.retrieve() );
-  }
-  else {
+    ATH_CHECK( m_tileDCS.retrieve() );
+  } else {
     m_tileDCS.disable();
   }
 
@@ -217,12 +215,12 @@ StatusCode TileDigiNoiseMonTool::fillHistograms() {
   if (m_triggerTypes.empty()
       || std::find( m_triggerTypes.begin(), m_triggerTypes.end(), m_lvl1info) != m_triggerTypes.end()) {
 
-    if (m_histogramsNotBooked) CHECK( bookNoiseHistograms() );
+    if (m_histogramsNotBooked) ATH_CHECK( bookNoiseHistograms() );
 
     m_DQstatus = SG::makeHandle (m_DQstatusKey).get();
 
     const TileDigitsContainer* digitsContainer;
-    CHECK( evtStore()->retrieve(digitsContainer, m_digitsContainerName) );
+    ATH_CHECK( evtStore()->retrieve(digitsContainer, m_digitsContainerName) );
     
     for (const TileDigitsCollection* digitsCollection : *digitsContainer) {
 

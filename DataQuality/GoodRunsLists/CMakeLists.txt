@@ -26,7 +26,6 @@ else()
       GaudiKernel
       PRIVATE
       Control/StoreGate
-      DetectorDescription/DetDescrCond/DetectorStatus
       Event/EventInfo
       Tools/PathResolver
       AtlasTest/TestTools )
@@ -56,7 +55,7 @@ if( NOT XAOD_STANDALONE )
    atlas_add_component( GoodRunsLists
       src/*.cxx src/components/*.cxx
       LINK_LIBRARIES AthenaBaseComps AthenaKernel xAODEventInfo GaudiKernel
-      StoreGateLib DetectorStatusLib EventInfo PathResolver GoodRunsListsLib )
+      StoreGateLib EventInfo PathResolver GoodRunsListsLib )
 endif()
 
 atlas_add_dictionary( GoodRunsListsDict

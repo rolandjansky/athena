@@ -57,7 +57,7 @@ private:
 
 
 
-StatusCode ROBDataProviderMTTest::execute_r( const EventContext& context ) const
+StatusCode ROBDataProviderMTTest::execute( const EventContext& context ) const
 {  
   // will be asking for many ROBs from the list and check if all of them come from the same physical event
   const RawEvent* ev = m_robDataProvider->getEvent( context );

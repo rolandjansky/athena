@@ -48,7 +48,7 @@ class TileLookForMuAlg: public AthReentrantAlgorithm {
     virtual ~TileLookForMuAlg();
 
     virtual StatusCode initialize() override;
-    virtual StatusCode execute_r (const EventContext& ctx) const override;
+    virtual StatusCode execute (const EventContext& ctx) const override;
     virtual StatusCode finalize() override;
 
 

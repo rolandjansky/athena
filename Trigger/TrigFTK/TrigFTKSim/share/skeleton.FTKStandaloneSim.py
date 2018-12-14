@@ -927,13 +927,6 @@ elif hasattr(runArgs, 'inputRDOFile') :
     protectedInclude( "PartPropSvc/PartPropSvc.py" )
     include.block( "PartPropSvc/PartPropSvc.py" )
 
-    # Detector Status
-    if rec.doDetStatus() and not athenaCommonFlags.isOnline():
-        try:
-            include("DetectorStatus/DetStatusSvc_CondDB.py")
-        except Exception:
-            treatException("Could not load DetStatusSvc_CondDb !")
-        rec.doFileMetaData=False
 else:
     raise RuntimeError('No FTK inputs given. A TXT_FTKIP, NTUP_FTKIP or RDO file is mandatory.')
 

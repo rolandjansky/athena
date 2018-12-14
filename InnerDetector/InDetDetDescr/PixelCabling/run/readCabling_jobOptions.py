@@ -4,8 +4,6 @@
 ## basic job configuration (for generator)
 import AthenaCommon.AtlasUnixGeneratorJob
 
-# Set handler for traceback
-#gbl.AthenaServices.SetFatalHandler(438)
 from AthenaCommon.GlobalFlags import globalflags
 globalflags.DataSource = 'data'
 

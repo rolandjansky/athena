@@ -32,7 +32,7 @@ StatusCode WriteData::initialize() {
    return StatusCode::SUCCESS;
 }
 //___________________________________________________________________________
-StatusCode WriteData::execute_r (const EventContext& ctx) const {
+StatusCode WriteData::execute (const EventContext& ctx) const {
    ATH_MSG_DEBUG("in execute()");
 
    int eventNumber = ctx.eventID().event_number();

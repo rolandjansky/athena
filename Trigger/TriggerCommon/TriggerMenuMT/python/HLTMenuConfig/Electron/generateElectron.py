@@ -18,7 +18,7 @@ def generateChains( flags,  chainDict ):
     l2CaloHypo = RecoFragmentsPool.retrieve(l2CaloHypoCfg,
                                             flags,
                                             name = 'L2ElectronCaloHypo',
-                                            CaloClusters ='L2CaloEMClusters')
+                                            CaloClusters = 'L2CaloEMClusters' )
 
     l2CaloReco = RecoFragmentsPool.retrieve(l2CaloRecoCfg, flags)
     acc.merge(l2CaloReco)

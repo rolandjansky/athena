@@ -125,7 +125,7 @@ SteeringChain::SteeringChain( const TrigConf::HLTChain* configChain, ISequencePr
      m_config->getMsgStream() << MSG::WARNING << "Navigation tool not available" << endmsg;
      return;
    }
-   const Algorithm* parentAlg = dynamic_cast<const Algorithm*>(ntool->parent()); // this is the way to get parent alg name (TrigSteer_L2/EF) ugh we need better way.
+   const Gaudi::Algorithm* parentAlg = dynamic_cast<const Gaudi::Algorithm*>(ntool->parent()); // this is the way to get parent alg name (TrigSteer_L2/EF) ugh we need better way.
    if ( !parentAlg ) {
      m_config->getMsgStream() << MSG::WARNING << "Parent alg not available" << endmsg;
      return;

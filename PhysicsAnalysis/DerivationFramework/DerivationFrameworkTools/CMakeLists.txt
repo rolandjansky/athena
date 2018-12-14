@@ -11,8 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODBase
                           GaudiKernel
                           PhysicsAnalysis/AnalysisCommon/PATCore
-			  PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
-			  PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
+                          PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
                           Trigger/TrigAnalysis/TrigDecisionTool
                           PRIVATE
                           Control/AthenaKernel
@@ -26,12 +25,11 @@ atlas_add_library( DerivationFrameworkToolsLib
                    src/*.cxx
                    PUBLIC_HEADERS DerivationFrameworkTools
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-		   LINK_LIBRARIES AthenaBaseComps xAODBase GaudiKernel PATCoreLib AsgAnalysisInterfaces TrigDecisionToolLib ExpressionEvaluationLib
+                   LINK_LIBRARIES AthenaBaseComps xAODBase GaudiKernel PATCoreLib TrigDecisionToolLib ExpressionEvaluationLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel )
 
 atlas_add_component( DerivationFrameworkTools
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-		     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODBase GaudiKernel  AsgAnalysisInterfaces PATCoreLib TrigDecisionToolLib AthenaKernel 
-		     ExpressionEvaluationLib DerivationFrameworkToolsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODBase GaudiKernel PATCoreLib TrigDecisionToolLib AthenaKernel ExpressionEvaluationLib DerivationFrameworkToolsLib )
 

@@ -637,6 +637,9 @@ from AthenaCommon.BeamFlags import jobproperties
 #jobproperties.Beam.beamType.set_Value_and_Lock('cosmics')
 jobproperties.Beam.beamType.set_Value_and_Lock('collisions')
 
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+athenaCommonFlags.FilesInput.set_Value_and_Lock(FileNameVec)
+
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOff()  #Switched off to avoid geometry
 DetFlags.ID_setOff()
@@ -651,8 +654,6 @@ DetFlags.detdescr.LAr_setOn()
 DetFlags.detdescr.Tile_setOn()
 if TileL1CaloRun:
     DetFlags.detdescr.LVL1_setOn()
-    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-    athenaCommonFlags.FilesInput.set_Value_and_Lock(FileNameVec)
 if ReadPool:
     DetFlags.readRDOPool.Tile_setOn()
     if TileL1CaloRun:
@@ -827,8 +828,20 @@ if not OfcFromCOOL and (doTileOpt2 or doTileOptATLAS or doTileOF1):
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-topSequence+=xAODMaker__EventInfoCnvAlg()
+if not 'newRDO' in dir() or newRDO is None:
+    if 'ReadRDO' in dir() and ReadRDO:
+        from RecExConfig.InputFilePeeker import inputFileSummary
+        from RecExConfig.ObjKeyStore import objKeyStore
+        objKeyStore.addManyTypesInputFile(inputFileSummary['eventdata_itemsList'])
+        newRDO = objKeyStore.isInInput( "xAOD::EventInfo" )
+    else:
+        newRDO = True
+
+if ReadPool and newRDO:
+    topSequence += CfgMgr.xAODMaker__EventInfoNonConstCnvAlg()
+else:
+    from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+    topSequence+=xAODMaker__EventInfoCnvAlg()
 
 #=============================================================
 #=== read ByteStream and reconstruct data
@@ -1189,20 +1202,6 @@ if doTileNtuple:
     dqStatus.TileBeamElemContainer   = getattr (TileNtuple, 'TileBeamElemContainer', '')
     dqStatus.TileDigitsContainer     = getattr (TileNtuple, 'TileDigitsContainer', '')
     dqStatus.TileRawChannelContainer = getattr (TileNtuple, 'TileRawChannelContainer', '')
-
-    # FIXME: TileAANtuple does a back-door set of properties
-    #        in TileBeamInfoProvider.  That doesn't really work with
-    #        handles and MT.  To compensate, also set the properties here.
-    def moveprop (pname):
-        pval = TileNtuple.properties()[pname]
-        if pval == TileNtuple.propertyNoValue:
-            pval = TileNtuple.getDefaultProperty(pname)
-        if pval:
-            setattr (ToolSvc.TileBeamInfoProvider, pname, pval)
-
-    moveprop ('TileBeamElemContainer')
-    moveprop ('TileDigitsContainer')
-    moveprop ('TileRawChannelContainer')
 
 if doTileMon:
     # Monitoring historgrams

@@ -80,7 +80,7 @@ StatusCode CaloCell2ClusterMapper::finalize()
 
 //###############################################################################
 
-StatusCode CaloCell2ClusterMapper::execute_r(const EventContext& ctx) const {
+StatusCode CaloCell2ClusterMapper::execute(const EventContext& ctx) const {
 
   // make a DataVector of Navigable CaloClusterContainer 
   ATH_MSG_DEBUG(" Recording Cell2Cluster Map " << m_mapOutputKey.key());

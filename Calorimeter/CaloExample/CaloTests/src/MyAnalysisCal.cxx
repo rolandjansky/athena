@@ -51,7 +51,7 @@ namespace MyAnalysisCal {
   }
   
   //__________________________________________________________________________
-  StatusCode AnalysisCal::execute_r (const EventContext& ctx) const
+  StatusCode AnalysisCal::execute (const EventContext& ctx) const
   {
     //.............................................
     

@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -35,24 +35,6 @@ TileCondProxyFile<T>::TileCondProxyFile(const std::string& type, const std::stri
 //_____________________________________________________________________________
 template<typename T>
 StatusCode TileCondProxyFile<T>::initialize() {
-
-  const INamedInterface* owner = dynamic_cast<const INamedInterface*>(parent());
-  std::string parentName = (owner) ? owner->name() : "";
-  std::string condAlgSuffix("CondAlg");
-  if (parentName.size() < condAlgSuffix.size()
-      || parentName.compare(parentName.size() - condAlgSuffix.size(),
-                            condAlgSuffix.size(), condAlgSuffix) != 0) {
-
-    EventIDRange eventRange;
-    m_calibData = std::make_unique<TileCalibData<T>>();
-    ATH_CHECK(fillCalibData(*m_calibData, eventRange));
-
-    ATH_MSG_DEBUG("It seems that parent [" << parentName << "] is not condition algorithm." << endmsg
-                  << "Tile calibration drawers have been prepared in advance.");
-  } else {
-    ATH_MSG_DEBUG("It seems that parent [" << parentName << "] is condition algorithm." << endmsg
-                  << "Tile calibration drawers have not been prepared in advance." );
-  }
 
   return StatusCode::SUCCESS;
 }
@@ -311,13 +293,4 @@ StatusCode TileCondProxyFile<T>::finalize() {
 
   ATH_MSG_DEBUG( "finalize called for " << name() );
   return StatusCode::SUCCESS;
-}
-
-//
-//_____________________________________________________________________________
-template<typename T>
-const T* TileCondProxyFile<T>::getCalibDrawer(unsigned int drawerIdx) const {
-
-  return (m_calibData) ? m_calibData->getCalibDrawer(drawerIdx) : nullptr;
-
 }

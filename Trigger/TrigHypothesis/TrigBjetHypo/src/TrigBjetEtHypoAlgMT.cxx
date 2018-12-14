@@ -42,7 +42,7 @@ StatusCode TrigBjetEtHypoAlgMT::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {  
+StatusCode TrigBjetEtHypoAlgMT::execute( const EventContext& context ) const {  
   ATH_MSG_INFO ( "Executing " << name() << "..." );
 
   // ========================================================================================================================== 

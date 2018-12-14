@@ -41,7 +41,7 @@ double toLinGeV( double x, double fallback = 0, double epsilon = 1e-6 ) {
 }
 
 
-StatusCode EFMissingETAlgMT::execute_r( const EventContext& context ) const {  
+StatusCode EFMissingETAlgMT::execute( const EventContext& context ) const {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   using namespace Monitored;
   auto totalTimer = MonitoredTimer::declare( "TIME_Total" );

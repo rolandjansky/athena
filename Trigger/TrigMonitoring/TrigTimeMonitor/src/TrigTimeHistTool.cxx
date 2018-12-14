@@ -66,7 +66,7 @@ StatusCode TrigTimeHistTool::bookHists()
   ATH_CHECK(timerSvc.retrieve());
 
   // find out for whom we are running (i.e. Algo)    
-  const Algorithm *parentAlg = dynamic_cast<const Algorithm*>(parent());
+  const Gaudi::Algorithm *parentAlg = dynamic_cast<const Gaudi::Algorithm*>(parent());
   if ( parentAlg ) 
     m_parentName = parentAlg->name();
   

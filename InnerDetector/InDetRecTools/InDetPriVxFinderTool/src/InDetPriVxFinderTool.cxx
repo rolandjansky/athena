@@ -36,7 +36,6 @@
 #include "VxVertex/VxCandidate.h"
 #include "VxVertex/VxTrackAtVertex.h"
 
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "TrkVertexFitterInterfaces/IVertexFitter.h"
 #include "InDetRecToolInterfaces/IMultiPVSeedFinder.h"
@@ -73,7 +72,6 @@ namespace InDet
     m_iPriVxSeedFinder("InDet::SlidingWindowMultiSeedFinder"),
     m_iVertexFitter("Trk::FastVertexFitter"),
     m_trkFilter("InDet::InDetTrackSelection"),
-    m_iBeamCondSvc("BeamCondSvc", n),
     m_useBeamConstraint(false),
     m_chi2CutMethod(1),
     m_enableMultipleVertices(true),
@@ -90,7 +88,6 @@ namespace InDet
     declareProperty("maxChi2PerTrack", m_maxChi2PerTrack);
     declareProperty("enableMultipleVertices", m_enableMultipleVertices);
     declareProperty("clusterLength", m_clusterLength);
-    declareProperty("BeamPositionSvc", m_iBeamCondSvc);
     declareProperty("createSplitVertices", m_createSplitVertices);
     declareProperty("splitVerticesTrkInvFraction", m_splitVerticesTrkInvFraction,
                     "inverse fraction to split tracks (1:N)");
@@ -136,10 +133,7 @@ namespace InDet
       msg(MSG::INFO) << "Retrieved tool " << m_iVertexFitter << endmsg;
     }
 
-    if (m_iBeamCondSvc.retrieve().isFailure()) {
-      msg(MSG::ERROR) << "Could not find BeamCondSvc." << endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(m_beamSpotKey.initialize());
 
     msg(MSG::INFO) << "Initialization successful" << endmsg;
     return StatusCode::SUCCESS;
@@ -153,11 +147,12 @@ namespace InDet
     /*
        xAOD::Vertex beamposition;
        beamposition.makePrivateStore();
-       beamposition.setPosition(m_iBeamCondSvc->beamVtx().position());
-       beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+       beamposition.setPosition(beamSpotHandle->beamVtx().position());
+       beamposition.setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
      */
-
-    Trk::RecVertex beamposition(m_iBeamCondSvc->beamVtx());
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    
+    const Trk::RecVertex &beamposition(beamSpotHandle->beamVtx());
 
     //---- create a vector of track particle base objects ---------------//
     std::vector<const Trk::Track*> origTracks;
@@ -269,11 +264,11 @@ namespace InDet
     /*
        xAOD::Vertex beamposition;
        beamposition.makePrivateStore();
-       beamposition.setPosition(m_iBeamCondSvc->beamVtx().position());
-       beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+       beamposition.setPosition(beamSpotHandle->beamVtx().position());
+       beamposition.setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
      */
-
-    Trk::RecVertex beamposition(m_iBeamCondSvc->beamVtx());
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    const Trk::RecVertex &beamposition(beamSpotHandle->beamVtx());
 
     //---- create a vector of track particle base objects ---------------//
     std::vector<const Trk::TrackParticleBase*> origTrackParticles;
@@ -387,11 +382,12 @@ namespace InDet
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
   InDetPriVxFinderTool::findVertex(const xAOD::TrackParticleContainer* trackParticles) {
     ATH_MSG_DEBUG(" Number of input tracks before track selection: " << trackParticles->size());
-
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    
     xAOD::Vertex beamposition;
     beamposition.makePrivateStore();
-    beamposition.setPosition(m_iBeamCondSvc->beamVtx().position());
-    beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+    beamposition.setPosition(beamSpotHandle->beamVtx().position());
+    beamposition.setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
 
     std::vector<const xAOD::TrackParticle*> origTPs;
     origTPs.clear();
@@ -510,6 +506,7 @@ namespace InDet
     std::vector<xAOD::Vertex*> splitVtxVector;
     double vertexPt;
     xAOD::Vertex* myxAODVertex = 0;
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
     for (unsigned int i = 0; i < zTrackColl.size(); i++) {
       // std::cout<<"Inside the loop"<<std::endl;
       if (msgLvl(MSG::DEBUG)) msg() << "Fitting vertex of Z-Cluster " << i << " with " << zTrackColl[i].size() << " Tracks" << endmsg;
@@ -521,26 +518,26 @@ namespace InDet
       if (origParameters.size() == 1 && m_useBeamConstraint) {
         xAOD::Vertex theconstraint;
         theconstraint.makePrivateStore();
-        theconstraint.setPosition(m_iBeamCondSvc->beamVtx().position());
-        theconstraint.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
-        theconstraint.setFitQuality(m_iBeamCondSvc->beamVtx().fitQuality().chiSquared(), m_iBeamCondSvc->beamVtx().fitQuality().doubleNumberDoF());
+        theconstraint.setPosition(beamSpotHandle->beamVtx().position());
+        theconstraint.setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
+        theconstraint.setFitQuality(beamSpotHandle->beamVtx().fitQuality().chiSquared(), beamSpotHandle->beamVtx().fitQuality().doubleNumberDoF());
         myxAODVertex = m_iVertexFitter->fit(origParameters, theconstraint);
       } else if (origParameters.size() < 2 && m_createSplitVertices) {
         // in the case this is a split vertex and it has only one track
         // we make a dummy vertex and push it back to the container
         myxAODVertex = new xAOD::Vertex;
         myxAODVertex->makePrivateStore();
-        myxAODVertex->setPosition(m_iBeamCondSvc->beamVtx().position());
-        myxAODVertex->setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+        myxAODVertex->setPosition(beamSpotHandle->beamVtx().position());
+        myxAODVertex->setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
         myxAODVertex->vxTrackAtVertex() = std::vector<Trk::VxTrackAtVertex>();
         myxAODVertex->setVertexType(xAOD::VxType::NoVtx);
       } else if (origParameters.size() > 1) {
         if (m_useBeamConstraint) {
           xAOD::Vertex theconstraint;
           theconstraint.makePrivateStore();
-          theconstraint.setPosition(m_iBeamCondSvc->beamVtx().position());
-          theconstraint.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
-          theconstraint.setFitQuality(m_iBeamCondSvc->beamVtx().fitQuality().chiSquared(), m_iBeamCondSvc->beamVtx().fitQuality().doubleNumberDoF());
+          theconstraint.setPosition(beamSpotHandle->beamVtx().position());
+          theconstraint.setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
+          theconstraint.setFitQuality(beamSpotHandle->beamVtx().fitQuality().chiSquared(), beamSpotHandle->beamVtx().fitQuality().doubleNumberDoF());
           myxAODVertex = m_iVertexFitter->fit(origParameters, theconstraint);
         } else {
           myxAODVertex = m_iVertexFitter->fit(origParameters, vertex);
@@ -584,9 +581,9 @@ namespace InDet
             if (m_useBeamConstraint) {
               xAOD::Vertex theconstraint;
               theconstraint.makePrivateStore();
-              theconstraint.setPosition(m_iBeamCondSvc->beamVtx().position());
-              theconstraint.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
-              theconstraint.setFitQuality(m_iBeamCondSvc->beamVtx().fitQuality().chiSquared(), m_iBeamCondSvc->beamVtx().fitQuality().doubleNumberDoF());
+              theconstraint.setPosition(beamSpotHandle->beamVtx().position());
+              theconstraint.setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
+              theconstraint.setFitQuality(beamSpotHandle->beamVtx().fitQuality().chiSquared(), beamSpotHandle->beamVtx().fitQuality().doubleNumberDoF());
               myxAODVertex = m_iVertexFitter->fit(origParameters, theconstraint);
             } else {
               myxAODVertex = m_iVertexFitter->fit(origParameters, vertex);
@@ -619,9 +616,9 @@ namespace InDet
               if (m_useBeamConstraint) {
                 xAOD::Vertex theconstraint;
                 theconstraint.makePrivateStore();
-                theconstraint.setPosition(m_iBeamCondSvc->beamVtx().position());
-                theconstraint.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
-                theconstraint.setFitQuality(m_iBeamCondSvc->beamVtx().fitQuality().chiSquared(), m_iBeamCondSvc->beamVtx().fitQuality().doubleNumberDoF());
+                theconstraint.setPosition(beamSpotHandle->beamVtx().position());
+                theconstraint.setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
+                theconstraint.setFitQuality(beamSpotHandle->beamVtx().fitQuality().chiSquared(), beamSpotHandle->beamVtx().fitQuality().doubleNumberDoF());
                 myxAODVertex = m_iVertexFitter->fit(origParameters, theconstraint);
               } else {
                 myxAODVertex = m_iVertexFitter->fit(origParameters, vertex);
@@ -661,8 +658,8 @@ namespace InDet
         } else {
           xAOD::Vertex* dummyxAODVertex = new xAOD::Vertex;
           dummyxAODVertex->makePrivateStore();
-          dummyxAODVertex->setPosition(m_iBeamCondSvc->beamVtx().position());
-          dummyxAODVertex->setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+          dummyxAODVertex->setPosition(beamSpotHandle->beamVtx().position());
+          dummyxAODVertex->setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
           dummyxAODVertex->vxTrackAtVertex() = std::vector<Trk::VxTrackAtVertex>();
           dummyxAODVertex->setVertexType(xAOD::VxType::NoVtx);
           splitVtxVector.push_back(dummyxAODVertex);
@@ -708,8 +705,8 @@ namespace InDet
       xAOD::Vertex* dummyxAODVertex = new xAOD::Vertex;
       theVertexContainer->push_back(dummyxAODVertex); // have to add vertex to container here first so it can use its
                                                       // aux store
-      dummyxAODVertex->setPosition(m_iBeamCondSvc->beamVtx().position());
-      dummyxAODVertex->setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+      dummyxAODVertex->setPosition(beamSpotHandle->beamVtx().position());
+      dummyxAODVertex->setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
       dummyxAODVertex->vxTrackAtVertex() = std::vector<Trk::VxTrackAtVertex>();
       dummyxAODVertex->setVertexType(xAOD::VxType::NoVtx);
     }
@@ -719,8 +716,8 @@ namespace InDet
       xAOD::Vertex* dummyxAODVertex = new xAOD::Vertex;
       theVertexContainer->push_back(dummyxAODVertex); // have to add vertex to container here first so it can use its
                                                       // aux store
-      dummyxAODVertex->setPosition(m_iBeamCondSvc->beamVtx().position());
-      dummyxAODVertex->setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+      dummyxAODVertex->setPosition(beamSpotHandle->beamVtx().position());
+      dummyxAODVertex->setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
       dummyxAODVertex->vxTrackAtVertex() = std::vector<Trk::VxTrackAtVertex>();
       dummyxAODVertex->setVertexType(xAOD::VxType::NoVtx);
       if (m_createSplitVertices) {
@@ -728,8 +725,8 @@ namespace InDet
         xAOD::Vertex* new_dummyxAODVertex = new xAOD::Vertex;
         theVertexContainer->push_back(new_dummyxAODVertex); // have to add vertex to container here first so it can use
                                                             // its aux store
-        new_dummyxAODVertex->setPosition(m_iBeamCondSvc->beamVtx().position());
-        new_dummyxAODVertex->setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+        new_dummyxAODVertex->setPosition(beamSpotHandle->beamVtx().position());
+        new_dummyxAODVertex->setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
         new_dummyxAODVertex->vxTrackAtVertex() = std::vector<Trk::VxTrackAtVertex>();
         new_dummyxAODVertex->setVertexType(xAOD::VxType::NoVtx);
       }

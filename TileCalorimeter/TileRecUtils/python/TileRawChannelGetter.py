@@ -56,7 +56,10 @@ class TileRawChannelGetter ( Configured)  :
         from TileRecUtils.TileRecFlags import jobproperties
         from TileRecUtils.TileRecUtilsConf import TileBeamInfoProvider
         theTileBeamInfoProvider = TileBeamInfoProvider()
-        if hasattr( ServiceMgr, "TileDCSSvc" ):
+
+        from AthenaCommon.AlgSequence import AthSequencer
+        condSequence = AthSequencer("AthCondSeq")
+        if hasattr(condSequence, 'TileDCSCondAlg'):
             theTileBeamInfoProvider.CheckDCS = True
 
         # true for real data, false for MC - GlobalFlags.DataSource.is_data()

@@ -27,7 +27,7 @@
 
 
 InDetPhysValTruthDecoratorAlg::InDetPhysValTruthDecoratorAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
+  AthReentrantAlgorithm(name, pSvcLocator),
   m_beamSpotSvc("BeamCondSvc", name) {
 }
 
@@ -71,14 +71,7 @@ InDetPhysValTruthDecoratorAlg::finalize() {
 }
 
 StatusCode
-InDetPhysValTruthDecoratorAlg::execute() {
-  const EventContext context{ Gaudi::Hive::currentContext() };
-  return execute_r(context);
-}
-
-// to migrate to AthReentrantAlgorithm later
-StatusCode
-InDetPhysValTruthDecoratorAlg::execute_r(const EventContext &ctx) const {
+InDetPhysValTruthDecoratorAlg::execute(const EventContext &ctx) const {
   SG::ReadHandle<xAOD::TruthParticleContainer> ptruth(m_truthParticleName);
   if ((not ptruth.isValid())) {
     return StatusCode::FAILURE;

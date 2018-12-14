@@ -34,7 +34,6 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 
 #include "TrkVertexFitterInterfaces/IImpactPoint3dEstimator.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "TrkVertexFitterInterfaces/IVertexSeedFinder.h"
 
@@ -68,7 +67,6 @@ namespace InDet
     m_trkFilter("InDet::InDetTrackSelection"),
     m_SeedFinder("Trk::ImagingSeedFinder"),
     m_ImpactPoint3dEstimator("Trk::ImpactPoint3dEstimator"),
-    m_iBeamCondSvc("BeamCondSvc", n),
     m_useBeamConstraint(false),
     m_significanceCutSeeding(10),
     m_maximumChi2cutForSeeding(6. * 6.),
@@ -80,7 +78,6 @@ namespace InDet
 
     declareProperty("VertexFitterTool", m_iVertexFitter);
     declareProperty("TrackSelector", m_trkFilter);
-    declareProperty("BeamPositionSvc", m_iBeamCondSvc);
     declareProperty("SeedFinder", m_SeedFinder);
     declareProperty("ImpactPoint3dEstimator", m_ImpactPoint3dEstimator);
 
@@ -99,9 +96,7 @@ namespace InDet
 
   StatusCode
   InDetMultiPriVxFinderTool::initialize() {
-    StatusCode sc;
-
-
+    
     if (m_createSplitVertices == true && m_useBeamConstraint == true) {
       msg(MSG::FATAL) << " Split vertices cannot be obtained if beam spot constraint is true! Change settings..." <<
       endmsg;
@@ -124,11 +119,7 @@ namespace InDet
       return StatusCode::FAILURE;
     }
 
-    sc = m_iBeamCondSvc.retrieve();
-    if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not find BeamCondSvc." << endmsg;
-      return sc;
-    }
+    ATH_CHECK(m_beamSpotKey.initialize());
 
     if (m_trkFilter.retrieve().isFailure()) {
       msg(MSG::ERROR) << " Unable to retrieve " << m_trkFilter << endmsg;
@@ -154,16 +145,20 @@ namespace InDet
     typedef DataVector<Trk::Track>::const_iterator TrackDataVecIter;
 
     bool selectionPassed{false};
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    const InDet::BeamSpotData* beamdata = nullptr;
+    if(m_useBeamConstraint && beamSpotHandle.isValid()) beamdata = beamSpotHandle.retrieve();
+    
     for (TrackDataVecIter itr = (*trackTES).begin(); itr != (*trackTES).end(); itr++) {
       if (m_useBeamConstraint) {
         // TODO: change trkFilter to allow for this replacement
         /*
            xAOD::Vertex beamposition;
            beamposition.makePrivateStore();
-           beamposition.setPosition(m_iBeamCondSvc->beamVtx().position());
-           beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+           beamposition.setPosition(beamdata->beamVtx().position());
+           beamposition.setCovariancePosition(beamdata->beamVtx().covariancePosition());
          */
-        Trk::RecVertex beamposition(m_iBeamCondSvc->beamVtx());
+        Trk::RecVertex beamposition(beamdata->beamVtx());
         selectionPassed = static_cast<bool>(m_trkFilter->accept(**itr, &beamposition));
       } else {
         Trk::Vertex null(Amg::Vector3D(0, 0, 0));
@@ -195,16 +190,20 @@ namespace InDet
     typedef DataVector<Trk::TrackParticleBase>::const_iterator TrackParticleDataVecIter;
 
     bool  selectionPassed{false};
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    const InDet::BeamSpotData* beamdata = nullptr;
+    if(m_useBeamConstraint && beamSpotHandle.isValid()) beamdata = beamSpotHandle.retrieve();
+    
     for (TrackParticleDataVecIter itr = (*trackTES).begin(); itr != (*trackTES).end(); itr++) {
       if (m_useBeamConstraint) {
         // TODO: change trkFilter to allow for this replacement
         /*
            xAOD::Vertex beamposition;
            beamposition.makePrivateStore();
-           beamposition.setPosition(m_iBeamCondSvc->beamVtx().position());
-           beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+           beamposition.setPosition(beamdata->beamVtx().position());
+           beamposition.setCovariancePosition(beamdata->beamVtx().covariancePosition());
          */
-        Trk::RecVertex beamposition(m_iBeamCondSvc->beamVtx());
+        Trk::RecVertex beamposition(beamdata->beamVtx());
         selectionPassed = static_cast<bool>(m_trkFilter->accept(*((*itr)->originalTrack()), &beamposition));
       } else {
         Trk::Vertex null(Amg::Vector3D(0, 0, 0));
@@ -233,7 +232,10 @@ namespace InDet
     ATH_MSG_DEBUG(" Number of input tracks before track selection: " << trackParticles->size());
 
     std::vector<Trk::ITrackLink*> selectedTracks;
-
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    const InDet::BeamSpotData* beamdata = nullptr;
+    if(m_useBeamConstraint && beamSpotHandle.isValid()) beamdata = beamSpotHandle.retrieve();
+    
     typedef DataVector<xAOD::TrackParticle>::const_iterator TrackParticleDataVecIter;
 
     bool selectionPassed{false};
@@ -241,8 +243,8 @@ namespace InDet
       if (m_useBeamConstraint) {
         xAOD::Vertex beamposition;
         beamposition.makePrivateStore();
-        beamposition.setPosition(m_iBeamCondSvc->beamVtx().position());
-        beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+        beamposition.setPosition(beamdata->beamVtx().position());
+        beamposition.setCovariancePosition(beamdata->beamVtx().covariancePosition());
         selectionPassed = static_cast<bool> (m_trkFilter->accept(**itr, &beamposition));
       } else {
         xAOD::Vertex null;
@@ -302,10 +304,11 @@ namespace InDet
     xAOD::Vertex theconstraint;
     theconstraint.makePrivateStore();
     if (m_useBeamConstraint) {
-      theconstraint.setPosition(m_iBeamCondSvc->beamVtx().position());
-      theconstraint.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
-      theconstraint.setFitQuality(m_iBeamCondSvc->beamVtx().fitQuality().chiSquared(),
-                                  m_iBeamCondSvc->beamVtx().fitQuality().doubleNumberDoF());
+      SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+      theconstraint.setPosition(beamSpotHandle->beamVtx().position());
+      theconstraint.setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
+      theconstraint.setFitQuality(beamSpotHandle->beamVtx().fitQuality().chiSquared(),
+                                  beamSpotHandle->beamVtx().fitQuality().doubleNumberDoF());
       seedVertices = m_SeedFinder->findMultiSeeds(perigeeList, &theconstraint);
     } else {
       seedVertices = m_SeedFinder->findMultiSeeds(perigeeList);
@@ -520,8 +523,9 @@ namespace InDet
       xAOD::Vertex* dummyxAODVertex = new xAOD::Vertex;
       theVertexContainer->push_back(dummyxAODVertex); // have to add vertex to container here first so it can use its
                                                       // aux store
-      dummyxAODVertex->setPosition(m_iBeamCondSvc->beamVtx().position());
-      dummyxAODVertex->setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+      SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+      dummyxAODVertex->setPosition(beamSpotHandle->beamVtx().position());
+      dummyxAODVertex->setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
       dummyxAODVertex->vxTrackAtVertex() = std::vector<Trk::VxTrackAtVertex>();
       dummyxAODVertex->setVertexType(xAOD::VxType::NoVtx);
     }

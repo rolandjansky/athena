@@ -28,7 +28,7 @@ public:
 
   // Algorithm virtual methods 
   StatusCode initialize();
-  StatusCode execute_r(const EventContext& ctx) const;
+  StatusCode execute(const EventContext& ctx) const;
   StatusCode finalize();
 
 private:

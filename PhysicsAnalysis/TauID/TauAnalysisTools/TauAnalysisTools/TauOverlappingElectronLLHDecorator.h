@@ -26,6 +26,7 @@
 
 // Local include(s):
 #include "TauAnalysisTools/ITauOverlappingElectronLLHDecorator.h"
+#include "StoreGate/ReadHandleKey.h"
 
 // ROOT include(s):
 #include "TH2D.h"
@@ -64,15 +65,13 @@ public:
 
 private:
   AsgElectronLikelihoodTool* m_tEMLHTool;
-  mutable const xAOD::ElectronContainer* m_xElectronContainer;
-  std::string m_sElectronContainerName;
+  SG::ReadHandleKey<xAOD::ElectronContainer> m_sElectronContainerName { this, "ElectronContainerName", "Electrons", "Input electron container"};
   bool m_bElectonsAvailable;
   std::string m_sEleOLRFilePath;
   TH2D* m_hCutValues;
 
 private:
   float getCutVal(float fEta, float fPt) const;
-  StatusCode retrieveElectrons() const;
   virtual StatusCode beginEvent();
 
 private:

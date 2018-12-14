@@ -2,7 +2,15 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
+// Tile includes
 #include "TileCalibAlgs/TileLaserDefaultCalibTool.h"
+#include "TileEvent/TileRawChannelContainer.h"
+#include "TileEvent/TileLaserObject.h"
+#include "TileConditions/TileCablingService.h"
+#include "TileCalibBlobObjs/TileCalibUtils.h"
+#include "TileConditions/ITileBadChanTool.h"
+#include "TileMonitoring/ITileStuckBitsProbsTool.h"
+
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Service.h"
@@ -13,14 +21,6 @@
 #include "Identifier/HWIdentifier.h"
 #include "StoreGate/ReadHandle.h"
 
-#include "TileEvent/TileRawChannelContainer.h"
-#include "TileEvent/TileLaserObject.h"
-#include "TileConditions/TileCablingService.h"
-#include "TileCalibBlobObjs/TileCalibUtils.h"
-#include "TileConditions/ITileBadChanTool.h"
-#include "TileConditions/TileDCSSvc.h"
-
-#include "TileMonitoring/ITileStuckBitsProbsTool.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -46,7 +46,6 @@ TileLaserDefaultCalibTool::TileLaserDefaultCalibTool(const std::string& type, co
   m_tileToolEmscale("TileCondToolEmscale"),
   m_tileBadChanTool("TileBadChanTool"),
   m_stuckBitsProbs(""),
-  m_tileDCSSvc("TileDCSSvc",name),
   m_toolRunNo(0),
   m_ADC_problem(0),
   m_las_filter(0),
@@ -123,7 +122,6 @@ TileLaserDefaultCalibTool::TileLaserDefaultCalibTool(const std::string& type, co
   declareProperty("rawChannelContainer", m_rawChannelContainerName="");
   declareProperty("laserObjContainer", m_laserContainerName="");
   declareProperty("pisaMethod2", m_pisaMethod2=true);
-  declareProperty("TileDCSSvc",m_tileDCSSvc);
   declareProperty("StuckBitsProbsTool", m_stuckBitsProbs);
   declareProperty("TileDQstatus", m_dqStatusKey = "TileDQstatus");
 } // TileLaserDefaultCalibTool::TileLaserDefaultCalibTool
@@ -273,9 +271,9 @@ StatusCode TileLaserDefaultCalibTool::initialize(){
   ATH_CHECK( m_tileBadChanTool.retrieve() );
   
 
-  ATH_CHECK( m_tileDCSSvc.retrieve() );
+  ATH_CHECK( m_tileDCS.retrieve() );
 
-  CHECK( m_dqStatusKey.initialize() );
+  ATH_CHECK( m_dqStatusKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -895,11 +893,9 @@ StatusCode TileLaserDefaultCalibTool::finalizeCalculations(){
   for(int part=0; part<NPARTITIONS; ++part){
     int ros = part+1;
     for(int drawer=0; drawer<NDRAWERS; ++drawer){
-      int module = drawer+1;
       for(int channel=0; channel<NCHANNELS; ++channel){
-        int pmt = abs(m_cabling->channel2hole(ros,channel));
-        m_HV[part][drawer][channel] = m_tileDCSSvc->getDCSHV(ros, module, pmt);
-        m_HVSet[part][drawer][channel] = m_tileDCSSvc->getDCSHVSET(ros, module, pmt);
+        m_HV[part][drawer][channel] = m_tileDCS->getChannelHV(ros, drawer, channel);
+        m_HVSet[part][drawer][channel] = m_tileDCS->getChannelHVSet(ros, drawer, channel);
       } // channel
     } // drawers
   } // partitions

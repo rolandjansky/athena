@@ -11,6 +11,7 @@
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileDQstatus.h"
+#include "TileConditions/ITileDCSTool.h"
 
 // Calo includes
 #include "CaloEvent/CaloCellContainer.h"
@@ -31,7 +32,6 @@ class TileHWID;
 class TileCell;
 class TileCablingService;
 class ITileBadChanTool;
-class TileDCSSvc;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -69,7 +69,7 @@ class TileCellSelector: public AthAlgorithm {
     const TileCablingService* m_cabling;
     ToolHandle<ITileBadChanTool> m_tileBadChanTool; //!< Tile Bad Channel tool
     SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
-    ServiceHandle<TileDCSSvc> m_tileDCSSvc; //!< Pointer to TileDCSSvc
+    ToolHandle<ITileDCSTool> m_tileDCS{this, "TileDCSTool", "TileDCSTool", "Tile DCS tool"};
 
     unsigned int m_runNum;
     unsigned int m_lumiBlock;

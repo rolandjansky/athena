@@ -29,7 +29,7 @@ StatusCode RegSelTestAlg::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode RegSelTestAlg::execute_r(const EventContext& /*context*/) const {  
+StatusCode RegSelTestAlg::execute(const EventContext& /*context*/) const {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
   if ( m_mt ) 
     CHECK( mt() );
