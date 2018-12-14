@@ -58,7 +58,7 @@ conddb.setGlobalTag("OFLCOND-SDR-BS7T-04-00")
 # Define input
 #--------------------------------------------------------------
 
-svcMgr.EventSelector.InputCollections        = [ "SimplePoolFile.root" ]
+svcMgr.EventSelector.InputCollections        = [ "LArRDO.root" ]
 
 #--------------------------------------------------------------
 # Event related parameters

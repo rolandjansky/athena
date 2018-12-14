@@ -2,17 +2,16 @@
 #
 # Job options file
 #
-## @file LArCellContWriter_jobOptions.py
+## @file ReadCombinedRDO.py
 ##
-## @brief For Athena POOL test: write out LArCellContainers
+## @brief For Athena POOL test: read back the combined RDO
 ##
-## @author RD Schaffer <R.D.Schaffer@cern.ch>
+## @author Miha Muskinja <miha.muskinja@cern.ch>
 #
 #==============================================================
 
-# MC Event Selector
-## basic job configuration (for generator)
-import AthenaCommon.AtlasUnixGeneratorJob
+## basic job configuration
+import AthenaCommon.AtlasUnixStandardJob
 
 ## get a handle to the default top-level algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence
@@ -23,6 +22,11 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
 ## get a handle to the ApplicationManager
 from AthenaCommon.AppMgr import theApp
+
+#--------------------------------------------------------------
+# Load POOL support
+#--------------------------------------------------------------
+import AthenaPoolCnvSvc.ReadAthenaPool
 
 #--------------------------------------------------------------
 # Set flags and load det descr
@@ -38,8 +42,8 @@ rec.doWriteTAG  = False
 DetDescrVersion = "ATLAS-GEO-17-00-00"
 
 # Set local flags - only need LAr DetDescr
+DetFlags.detdescr.ID_setOn()
 DetFlags.detdescr.Calo_setOn()
-DetFlags.detdescr.ID_setOff()
 DetFlags.detdescr.Tile_setOff()
 DetFlags.detdescr.Muon_setOff()
       
@@ -51,9 +55,10 @@ from IOVDbSvc.CondDB import conddb
 conddb.setGlobalTag("OFLCOND-SDR-BS7T-04-00")
 
 #--------------------------------------------------------------
-# Load POOL support
+# Input options
 #--------------------------------------------------------------
-import AthenaPoolCnvSvc.WriteAthenaPool
+
+svcMgr.EventSelector.InputCollections        = [ "CombinedRDO.root" ]
 
 #--------------------------------------------------------------
 # Event related parameters
@@ -62,37 +67,20 @@ theApp.EvtMax = 20
 #--------------------------------------------------------------
 # Application: AthenaPoolTest InDetRawData options
 #--------------------------------------------------------------
-from AthenaPoolTest.AthenaPoolTestConf import LArCellContFakeWriter
-topSequence += LArCellContFakeWriter( "LArCellContFakeWriter" )
+from AthenaPoolTest.AthenaPoolTestConf import InDetRawDataFakeReader
+topSequence += InDetRawDataFakeReader( "InDetRawDataFakeReader" )
+InDetRawDataFakeReader.OutputLevel = DEBUG
 
-#--------------------------------------------------------------
-# JobOptions for the loading of the AthenaSealSvc
-#--------------------------------------------------------------
+from AthenaPoolTest.AthenaPoolTestConf import LArCellContFakeReader
+topSequence += LArCellContFakeReader( "LArCellContFakeReader" )
+LArCellContFakeReader.OutputLevel = DEBUG
 
-# Check the dictionary in memory for completeness
-#include( "AthenaSealSvc/AthenaSealSvc_joboptions.py" )
-svcMgr.AthenaSealSvc.CheckDictionary = True
-
-#--------------------------------------------------------------
-# Output options
-#--------------------------------------------------------------
-
-# Stream's output file
-from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-Stream1 = AthenaPoolOutputStream( "Stream1", noTag=True )
-Stream1.OutputFile =   "LArRDO.root"
-# List of DO's to write out
-Stream1.ItemList+=["CaloCellContainer#*"]
-Stream1.ItemList+=["EventInfo#*"]
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 #--------------------------------------------------------------
-
-svcMgr.MessageSvc.OutputLevel     = WARNING
-svcMgr.MessageSvc.debugLimit      = 100000
-svcMgr.MessageSvc.errorLimit      = 100000
-#svcMgr.ClassIDSvc.OutputLevel     = DEBUG
-LArCellContFakeWriter.OutputLevel = DEBUG
+svcMgr.MessageSvc = Service( "MessageSvc" )
+svcMgr.MessageSvc.OutputLevel = WARNING
+svcMgr.MessageSvc.debugLimit  = 100000
 
 AthenaEventLoopMgr = Service( "AthenaEventLoopMgr" )
 AthenaEventLoopMgr.OutputLevel = INFO
