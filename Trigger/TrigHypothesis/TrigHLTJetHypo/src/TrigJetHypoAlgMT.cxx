@@ -34,7 +34,7 @@ StatusCode TrigJetHypoAlgMT::initialize() {
 }
 
 
-StatusCode TrigJetHypoAlgMT::execute( const EventContext& context ) const {  
+StatusCode TrigJetHypoAlgMT::execute_r( const EventContext& context ) const {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
 
 

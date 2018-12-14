@@ -28,11 +28,11 @@ IndexedJetsGrouper::IndexedJetsGrouper(const std::vector<unsigned int>& indices)
     std::string m = "IndexedJetsGrouper: Attempt to iniatialize with an ";
     m += "empty indices vector";
     throw std::out_of_range(m); 
-    
-    //sort the indices because the last one will be used to 
-    // check there are enough jets to process;
-    std::sort(m_indices.begin(), m_indices.end());
   }
+    
+  //sort the indices because the last one will be used to 
+  // check there are enough jets to process;
+  std::sort(m_indices.begin(), m_indices.end());
 }
 
 

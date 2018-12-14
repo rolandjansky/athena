@@ -80,13 +80,6 @@ TrigEFDPhiMetJetAllTE::~TrigEFDPhiMetJetAllTE(){
 HLT::ErrorCode TrigEFDPhiMetJetAllTE::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& tes_in,
 				     unsigned int output)
 {
-
-  //  if (m_executedEvent_EFDPhiMetJet) {
-  //     if (msgLvl() <= MSG::DEBUG) {
-  //           msg() << MSG::DEBUG << "*** Not Executing this TrigCheckForTracks " << name() << ", already executed"  << endmsg;
-  //     }
-  //     return HLT::OK;
-  //  }
   
   ATH_MSG_DEBUG("***  Executing this TrigJetHypo : " << name());
   
@@ -311,11 +304,6 @@ HLT::ErrorCode TrigEFDPhiMetJetAllTE::hltExecute(std::vector<std::vector<HLT::Tr
   
 
 
-  // attach the bits
-  // if ( attachFeature(out_te, bits, "passbits") != HLT::OK ) {
-  //   msg() << MSG::ERROR << "Problem attaching TrigPassBits for the Jets " << endmsg;
-  // }
-
   auto sc = attachFeature(out_te, xBits.release(), "passbits");
   if(sc != HLT::OK) {
     ATH_MSG_ERROR("Could not store TrigPassBits");
@@ -342,12 +330,3 @@ HLT::ErrorCode TrigEFDPhiMetJetAllTE::hltFinalize(){
   return HLT::OK;
 }
 
-
-/* PS 9/2/2015 remove as does not appear to do anything useful
-   bool TrigEFDPhiMetJetAllTE::reset() {
-   if ( !AllTEAlgo::reset() ) return false;
-   //    m_executedEvent_EFDPhiMetJet = false;
-   AllTEAlgo::reset();   
-   return true;
-   }
-*/
