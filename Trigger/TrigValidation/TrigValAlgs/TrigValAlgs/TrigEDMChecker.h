@@ -9,11 +9,19 @@
 #include "GaudiKernel/ObjectVector.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthAnalysisBaseComps/AthAnalysisAlgorithm.h"
 
 #include "xAODTrigger/TrigCompositeContainer.h"
 
 #include "AthenaKernel/IClassIDSvc.h"
+
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "xAODTrigger/TrigNavigation.h"
+#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigNavigation/Navigation.h"
+#include "GaudiKernel/ToolHandle.h"
+
 
 #include <string>
 
@@ -28,7 +36,7 @@ namespace Rec {
   class IMuonPrintingTool;
 }
 
-class TrigEDMChecker : public AthAlgorithm  {
+class TrigEDMChecker : public AthAnalysisAlgorithm  {
 
  public:
 
@@ -173,6 +181,9 @@ class TrigEDMChecker : public AthAlgorithm  {
    bool m_doDumpAllTrigComposite;
    std::vector<std::string> m_dumpTrigCompositeContainers;
 
+   bool m_doDumpNavigation;
+   StatusCode dumpNavigation();
+
    /**
     * @brief Dump information on TrigComposite collections
     *
@@ -201,6 +212,9 @@ class TrigEDMChecker : public AthAlgorithm  {
 
    ServiceHandle< ::IClassIDSvc > m_clidSvc;
 
+   SG::ReadHandleKey< xAOD::TrigNavigation > m_navigationHandleKey{ this, "TrigNavigation", "TrigNavigation", "" };
+   SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_decisionsKey{ this, "Decisions", "RoIDecisions", "Decisions created from TEs" };
+   ToolHandle< HLT::Navigation > m_navigationTool{ this, "NavigationTool", "HLT::Navigation/Navigation", "" };
 };
 
 #endif // TRIG_EDM_CHECKER_H

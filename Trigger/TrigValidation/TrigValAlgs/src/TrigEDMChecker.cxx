@@ -13,6 +13,10 @@
 
 #include "xAODTrigger/TrigPassBitsContainer.h"
 #include "xAODTrigger/TrigPassBits.h"
+#include "xAODTrigger/TriggerMenuContainer.h"
+#include "TrigNavStructure/TriggerElement.h"
+#include "TrigConfHLTData/HLTUtils.h"
+
 #include "AthContainers/debug.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetConstituentVector.h"
@@ -98,6 +102,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <queue>
 
 static  int trackWarningNum;
 static  int vertexWarningNum;
@@ -105,7 +110,7 @@ static  int  maxRepWarnings;
 
 
 TrigEDMChecker::TrigEDMChecker(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator),
+  : AthAnalysisAlgorithm(name, pSvcLocator),
     m_muonPrinter("Rec::MuonPrintingTool/MuonPrintingTool"),
     m_clidSvc( "ClassIDSvc", name )
 {
@@ -155,6 +160,7 @@ TrigEDMChecker::TrigEDMChecker(const std::string& name, ISvcLocator* pSvcLocator
   declareProperty("doDumpAllTrigComposite", m_doDumpAllTrigComposite = false );
   declareProperty("dumpTrigCompositeContainers", m_dumpTrigCompositeContainers, "List of TC to dump" );
   declareProperty("doDumpTrigCompsiteNavigation", m_doDumpTrigCompsiteNavigation = false );
+  declareProperty("doDumpNavigation", m_doDumpNavigation = false );
   declareProperty( "ClassIDSvc", m_clidSvc, "Service providing CLID info" );
 }
 
@@ -163,6 +169,10 @@ TrigEDMChecker::TrigEDMChecker(const std::string& name, ISvcLocator* pSvcLocator
 TrigEDMChecker::~TrigEDMChecker() {}
 
 StatusCode TrigEDMChecker::initialize() {
+
+  ATH_CHECK( m_navigationHandleKey.initialize() );
+  ATH_CHECK( m_decisionsKey.initialize() );
+  ATH_CHECK( m_navigationTool.retrieve() );
 
   ATH_MSG_DEBUG("Initializing TrigEDMChecker");
 
@@ -518,6 +528,15 @@ StatusCode TrigEDMChecker::execute() {
     ATH_MSG_DEBUG(evtStore()->dump());
   }
 
+  if (m_doDumpAll || m_doDumpNavigation) {
+    StatusCode sc = dumpNavigation();
+    if ( sc.isFailure() ) {
+      ATH_MSG_ERROR("The method dumpNavigation() failed");
+    }
+  }
+
+	ATH_CHECK( dumpTrigComposite() );
+
   if (m_doDumpAll || m_doDumpTrigCompsiteNavigation) {
     std::string trigCompositeSteering;
     ATH_CHECK(TrigCompositeNavigationToDot(trigCompositeSteering));
@@ -532,8 +551,9 @@ StatusCode TrigEDMChecker::execute() {
     ofile << trigCompositeSteering;
   }
 
-	ATH_CHECK( dumpTrigComposite() );
-	
+
+
+
 	return StatusCode::SUCCESS;
 
 }
@@ -4053,10 +4073,16 @@ StatusCode TrigEDMChecker::checkTrigCompositeElementLink(const xAOD::TrigComposi
 
 
 StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue) {
-  std::vector<std::string> keys;
+
   // This constexpr is evaluated at compile time
   const CLID TrigCompositeCLID = static_cast<CLID>( ClassID_traits< xAOD::TrigCompositeContainer >::ID() );
-  evtStore()->keys(TrigCompositeCLID, keys);
+  std::vector<std::string> keys;
+  if ( m_doDumpAll ) {
+    evtStore()->keys(TrigCompositeCLID, keys);
+  }
+  else {
+    std::vector<std::string> keys = m_dumpTrigCompositeContainers;
+  }
   std::string typeNameTC;
   ATH_CHECK(m_clidSvc->getTypeNameOfID(TrigCompositeCLID, typeNameTC));
   ATH_MSG_DEBUG("Got " <<  keys.size() << " keys for " << typeNameTC);
@@ -4130,5 +4156,166 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
   ss << "}" << std::endl;
 
   returnValue.assign( ss.str() );
+  return StatusCode::SUCCESS;
+}
+
+StatusCode TrigEDMChecker::dumpNavigation()
+{
+  // Get object from store
+  const xAOD::TrigNavigation * navigationHandle = nullptr;
+  ATH_CHECK( evtStore()->retrieve( navigationHandle, m_navigationHandleKey.key() ) );
+  // Proper version doesn't work - conversion issue?
+  //SG::ReadHandle< xAOD::TrigNavigation > navigationHandle = SG::ReadHandle< xAOD::TrigNavigation >( m_navigationHandleKey );
+  //if ( !navigationHandle.isValid() ) ATH_MSG_FATAL( "Could not retrieve navigation" );
+
+  // Get serialised navigation info
+  const std::vector< unsigned int > serialisedNavigation = navigationHandle->serialized();
+  ATH_MSG_INFO( "Serialised navigation size: " << serialisedNavigation.size() );
+
+  // Convert the input
+  HLT::Navigation* testNav = m_navigationTool.get();
+  testNav->deserialize( serialisedNavigation );
+
+  // Make a map of TE name hashes
+  const xAOD::TriggerMenuContainer * testMenu = nullptr;
+  ATH_CHECK( inputMetaStore()->retrieve( testMenu, "TriggerMenu" ) );
+  std::map< int, std::string > hash2string;
+  for ( auto const& sequence : testMenu->front()->sequenceInputTEs() ) {
+    for ( auto const& name : sequence ) {
+      int hash = TrigConf::HLTUtils::string2hash( name );
+      hash2string[ hash ] = name;
+    }
+  }
+
+  // Map TE names to chain names
+  unsigned int chainCounter = 0;
+  std::map< int, std::string > hash2chain;
+  for ( auto const& chain : testMenu->front()->chainSignatureOutputTEs() ) {
+
+    // Find the chain name
+    std::string chainName = testMenu->front()->chainNames()[ chainCounter ];
+    ++chainCounter;
+
+    // Find all associated TEs
+    for ( auto const& signature : chain ) {
+      for ( auto const& name : signature ) {
+        int hash = TrigConf::HLTUtils::string2hash( name );
+        hash2string[ hash ] = name; // for decoding
+        hash2chain[ hash ] = chainName;
+      }
+    }
+  }
+
+  // Define a map of TE features, to the TEs that use them. Needs a custom sort lambda
+  auto cmpLambda = []( const HLT::TriggerElement::FeatureAccessHelper &lhs, const HLT::TriggerElement::FeatureAccessHelper &rhs) { 
+
+    // Compare indices if CLID matches
+    if ( lhs.getCLID() == rhs.getCLID() ) return ( lhs.getIndex() < rhs.getIndex() );
+
+    // Compare CLIDs
+    else return ( lhs.getCLID() < rhs.getCLID() );
+  };
+  std::map< HLT::TriggerElement::FeatureAccessHelper, std::vector< HLT::TriggerElement* >, decltype(cmpLambda) > feature2element(cmpLambda);
+
+  // Retrieve all TE features and add them to the map
+  std::vector< HLT::TriggerElement* > allTEs;
+  testNav->getAll( allTEs, false );
+  for ( auto element : allTEs ) {
+
+    // Add TE features to the big map 
+    for ( auto helper : element->getFeatureAccessHelpers() ) {
+      feature2element[ helper ].push_back( element );
+    }
+  }
+
+  // Debug - output all TEs and their ancestors
+  // No duplication - only print terminal nodes
+  for ( auto element : allTEs ) {
+    if ( testNav->isTerminalNode( element ) ) {
+      ATH_MSG_INFO( "+++++++++++ " << hash2string[ element->getId() ] << " is terminal node" );
+      ATH_MSG_INFO( "ptr: " << element );
+      std::queue< HLT::TriggerElement* > allAncestors;
+      allAncestors.push( element );
+      while ( allAncestors.size() ) {
+
+        HLT::TriggerElement * thisElement = allAncestors.front();
+        allAncestors.pop();
+        auto theseAncestors = thisElement->getRelated( HLT::TriggerElement::Relation::seededByRelation );
+
+        // Dump TE
+        ATH_MSG_INFO( "te: " << thisElement->getId() << " " << hash2string[ thisElement->getId() ] );
+        ATH_MSG_INFO( "  chain: " << hash2chain[ thisElement->getId() ] );
+        for ( auto helper : thisElement->getFeatureAccessHelpers() ) {
+          ATH_MSG_INFO( "   feat: " << helper );
+        }
+        ATH_MSG_INFO( theseAncestors.size() << " ancestors" );
+
+        // Examine ancestors
+        for ( auto ancestor : theseAncestors ) {
+          allAncestors.push( ancestor );
+        }
+      }
+    }
+  }
+
+  // Make the decision container
+  SG::WriteHandle< TrigCompositeUtils::DecisionContainer > outputNavigation = TrigCompositeUtils::createAndStore( m_decisionsKey, getContext() ); 
+  auto decisionOutput = outputNavigation.ptr();
+
+  // Find unique chains associated with a feature
+  std::map< HLT::TriggerElement const*, std::vector< int > > element2decisions;
+  for ( auto pair : feature2element ) {
+
+    // Get the feature info
+    std::string featureName = testNav->label( pair.first.getCLID(), pair.first.getIndex().subTypeIndex() );
+    auto sgKey = evtStore()->stringToKey( featureName, pair.first.getCLID() );
+
+    // Store RoIs with appropriate label ?
+    std::string storeFeatureName = "feature";
+/*    if ( pair.first.getCLID() == ClassID_traits< TrigRoiDescriptor >::ID() ) {
+      storeFeatureName = "roi";
+    }*/
+
+    // Make a decision object for the feature
+    auto decision = TrigCompositeUtils::newDecisionIn( decisionOutput );
+    decision->typelessSetObjectLink( storeFeatureName, sgKey, pair.first.getCLID(), pair.first.getIndex().objectsBegin(), pair.first.getIndex().objectsEnd() );
+
+    // Examine associated TEs, look for chains
+    std::set< std::string > passedChains;
+    for ( HLT::TriggerElement const* element : pair.second ) {
+
+      // TODO - find out what chains actually passed!
+      passedChains.insert( hash2chain[ element->getId() ] );
+
+      // Index the TE
+      int decisionNumber = decisionOutput->size() - 1;
+      element2decisions[ element ].push_back( decisionNumber );
+    }
+
+    // Store unique chains in the decision
+    for ( auto& chain : passedChains ) {
+      TrigCompositeUtils::addDecisionID( TrigConf::HLTUtils::string2hash( chain ), decision );
+    }
+  }
+
+  // Store decision ancestry (had to go through once before to ensure indices populated)
+  unsigned int decisionCounter = 0;
+  for ( auto pair : feature2element ) {
+
+    // Get current decision
+    auto decision = decisionOutput->at( decisionCounter );
+    ++decisionCounter;
+
+    // Find ancestor TEs
+    for ( auto element : pair.second ) {
+      auto theseAncestors = element->getRelated( HLT::TriggerElement::Relation::seededByRelation );
+      for ( auto ancestor : theseAncestors ) {
+        for ( int decisionIndex : element2decisions[ ancestor ] ) {
+          TrigCompositeUtils::linkToPrevious( decision, m_decisionsKey.key(), decisionIndex );
+        }
+      }
+    }
+  }
+
   return StatusCode::SUCCESS;
 }
