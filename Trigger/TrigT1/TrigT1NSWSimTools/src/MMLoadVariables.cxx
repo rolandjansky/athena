@@ -504,7 +504,7 @@ MMLoadVariables::~MMLoadVariables() {
 
   void MMLoadVariables::hit_rot_stereo_fwd(TVector3& hit)const{
     double degree=TMath::DegToRad()*(m_par->stereo_degree.getFixed());
-    if(striphack) hit.SetY(hit.Y()*cos(degree));
+    if(m_striphack) hit.SetY(hit.Y()*cos(degree));
     else{
       double xnew=hit.X()*std::cos(degree)+hit.Y()*std::sin(degree),ynew=-hit.X()*std::sin(degree)+hit.Y()*std::cos(degree);
       hit.SetX(xnew);hit.SetY(ynew);
@@ -535,11 +535,11 @@ MMLoadVariables::~MMLoadVariables() {
     }
     string xuv=setup.substr(plane,1);
     if(xuv=="u"){//||xuv=="v"){
-      if(striphack)return ceil(Y*cos(degree)/strip_width);
+      if(m_striphack)return ceil(Y*cos(degree)/strip_width);
       y_hit = X*sin(degree)+Y*cos(degree);
     }
     else if(xuv=="v"){
-      if(striphack)return ceil(Y*cos(degree)/strip_width);
+      if(m_striphack)return ceil(Y*cos(degree)/strip_width);
       y_hit = -X*sin(degree)+Y*cos(degree);
     }
     else if(xuv!="x"){
