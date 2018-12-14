@@ -1,13 +1,13 @@
-Thu Dec  6 06:25:07 CET 2018
+Tue Dec 11 15:25:53 CET 2018
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AthenaWorkDir-22.0.1] [x86_64-slc6-gcc62-opt] [atlas-work3/fa0fd6d0989] -- built on [2018-12-06T0538]
+Py:Athena            INFO using release [WorkDir-22.0.1] [x86_64-slc6-gcc62-opt] [atlas-work3g/fc1ea6b7761] -- built on [2018-12-11T1514]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/CondReader_jo.py"
 Py:Athena            INFO including file "AthenaPoolCnvSvc/AthenaPool_jobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5473 configurables from 53 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5443 configurables from 42 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "DataModelRunTests/loadReadDicts.py"
 EventInfoMgtInit: Got release version  Athena-22.0.1
@@ -18,7 +18,7 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v30r5)
-                                          running on lxplus077.cern.ch on Thu Dec  6 06:25:23 2018
+                                          running on lxplus079.cern.ch on Tue Dec 11 15:26:12 2018
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -30,7 +30,7 @@ ClassIDSvc           INFO  getRegistryEntries: read 2946 CLIDRegistry entries fo
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 1818 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1877 CLIDRegistry entries for module ALL
 CondInputLoader      INFO Initializing CondInputLoader...
 MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
 AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
@@ -38,8 +38,8 @@ PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.x
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-12-04T2300/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus077.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-12-10T2259/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus079.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
@@ -49,20 +49,26 @@ IOVDbSvc             INFO Opened read transaction for POOL PersistencySvc
 IOVDbSvc             INFO Only 5 POOL conditions files will be open at once
 IOVDbSvc             INFO Cache alignment will be done in 3 slices
 IOVDbFolder          INFO Read from meta data only for folder /TagInfo
-IOVDbSvc             INFO Initialised with 2 connections and 3 folders
+IOVDbSvc             INFO Initialised with 2 connections and 5 folders
 IOVDbSvc             INFO Service IOVDbSvc initialised successfully
 IOVDbSvc             INFO preLoadAddresses: Removing folder /TagInfo. It should only be in the file meta data and was not found.
 IOVDbSvc             INFO Opening COOL connection for sqlite://;schema=condtest.db;dbname=OFLP200
-ClassIDSvc           INFO  getRegistryEntries: read 1341 CLIDRegistry entries for module ALL
 IOVSvc               INFO No IOVSvcTool associated with store "StoreGateSvc"
 IOVSvcTool           INFO IOVRanges will be checked at every Event
+ClassIDSvc           INFO  getRegistryEntries: read 1341 CLIDRegistry entries for module ALL
 IOVDbSvc             INFO Disconnecting from sqlite://;schema=condtest.db;dbname=OFLP200
+IOVDbSvc             INFO Added taginfo remove for /DMTest/RLTest
 IOVDbSvc             INFO Added taginfo remove for /DMTest/S2
+IOVDbSvc             INFO Added taginfo remove for /DMTest/TSTest
 IOVDbSvc             INFO Added taginfo remove for /DMTest/TestAttrList
 CondInputLoader      INFO Adding base classes:
+  +  ( 'AthenaAttributeList' , 'ConditionStore+/DMTest/RLTest' )   ->
+  +  ( 'AthenaAttributeList' , 'ConditionStore+/DMTest/TSTest' )   ->
   +  ( 'AthenaAttributeList' , 'ConditionStore+/DMTest/TestAttrList' )   ->
   +  ( 'DMTest::S2' , 'ConditionStore+/DMTest/S2' )   -> DMTest::S1 (243020043)
 CondInputLoader      INFO Will create WriteCondHandle dependencies for the following DataObjects:
+    +  ( 'AthenaAttributeList' , 'ConditionStore+/DMTest/RLTest' ) 
+    +  ( 'AthenaAttributeList' , 'ConditionStore+/DMTest/TSTest' ) 
     +  ( 'AthenaAttributeList' , 'ConditionStore+/DMTest/TestAttrList' ) 
     +  ( 'DMTest::S1' , 'ConditionStore+/DMTest/S2' ) 
     +  ( 'DMTest::S2' , 'ConditionStore+/DMTest/S2' ) 
@@ -73,7 +79,9 @@ HistogramPersis...WARNING Histograms saving not required.
 EventSelector        INFO  Enter McEventSelector Initialization 
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
-ClassIDSvc           INFO  getRegistryEntries: read 7219 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 7221 CLIDRegistry entries for module ALL
+CondInputLoader      INFO created CondCont<AthenaAttributeList> with key 'ConditionStore+/DMTest/RLTest'
+CondInputLoader      INFO created CondCont<AthenaAttributeList> with key 'ConditionStore+/DMTest/TSTest'
 CondInputLoader      INFO created CondCont<AthenaAttributeList> with key 'ConditionStore+/DMTest/TestAttrList'
 CondInputLoader      INFO created CondCont<DMTest::S2> with key 'ConditionStore+/DMTest/S2'
 ApplicationMgr       INFO Application Manager Started successfully
@@ -85,130 +93,280 @@ ClassIDSvc           INFO  getRegistryEntries: read 109 CLIDRegistry entries for
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
 IOVDbSvc             INFO Opening COOL connection for sqlite://;schema=condtest.db;dbname=OFLP200
 IOVDbSvc             INFO Disconnecting from sqlite://;schema=condtest.db;dbname=OFLP200
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] F67004F9-6082-4B4C-B52D-88A1A76CF991
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] A834E12A-0572-2942-88EC-5A969061BCA7
 Domain[ROOT_All]     INFO                           condtest.pool.root
 RootDatabase.open    INFO condtest.pool.root File version:61404
 DMTest::CondRea...   INFO Event 0 LBN 0
 DMTest::CondRea...   INFO   xint xint (int) : 10
 DMTest::CondRea...   INFO   scond 1000
 DMTest::CondRea...   INFO   s2 0
+DMTest::CondRea...   INFO   rl xint (int) : 1
+DMTest::CondRea...   INFO   ts xint (int) : 100
+DMTest::CondRea...   INFO   s3 101
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #0 1 events processed so far  <<<===
 DMTest::CondRea...   INFO Event 1 LBN 0
 DMTest::CondRea...   INFO   xint xint (int) : 10
 DMTest::CondRea...   INFO   scond 1000
 DMTest::CondRea...   INFO   s2 0
+DMTest::CondRea...   INFO   rl xint (int) : 1
+DMTest::CondRea...   INFO   ts xint (int) : 100
+DMTest::CondRea...   INFO   s3 101
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #0 2 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #0 2 events processed so far  <<<===
-DMTest::CondRea...   INFO Event 2 LBN 1
-DMTest::CondRea...   INFO   xint xint (int) : 20
-DMTest::CondRea...   INFO   scond 2000
+DMTest::CondRea...   INFO Event 2 LBN 0
+DMTest::CondRea...   INFO   xint xint (int) : 10
+DMTest::CondRea...   INFO   scond 1000
 DMTest::CondRea...   INFO   s2 0
+DMTest::CondRea...   INFO   rl xint (int) : 1
+DMTest::CondRea...   INFO   ts xint (int) : 100
+DMTest::CondRea...   INFO   s3 101
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #0 3 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #0 3 events processed so far  <<<===
 DMTest::CondRea...   INFO Event 3 LBN 1
 DMTest::CondRea...   INFO   xint xint (int) : 20
 DMTest::CondRea...   INFO   scond 2000
 DMTest::CondRea...   INFO   s2 0
+DMTest::CondRea...   INFO   rl xint (int) : 2
+DMTest::CondRea...   INFO   ts xint (int) : 200
+DMTest::CondRea...   INFO   s3 202
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #0 4 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #0 4 events processed so far  <<<===
-DMTest::CondRea...   INFO Event 4 LBN 2
-DMTest::CondRea...   INFO   xint xint (int) : 30
-DMTest::CondRea...   INFO   scond 3000
-DMTest::CondRea...   INFO   s2 100
+DMTest::CondRea...   INFO Event 4 LBN 1
+DMTest::CondRea...   INFO   xint xint (int) : 20
+DMTest::CondRea...   INFO   scond 2000
+DMTest::CondRea...   INFO   s2 0
+DMTest::CondRea...   INFO   rl xint (int) : 2
+DMTest::CondRea...   INFO   ts xint (int) : 200
+DMTest::CondRea...   INFO   s3 202
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #0 5 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #0 5 events processed so far  <<<===
-DMTest::CondRea...   INFO Event 5 LBN 2
+DMTest::CondRea...   INFO Event 5 LBN 1
+DMTest::CondRea...   INFO   xint xint (int) : 20
+DMTest::CondRea...   INFO   scond 2000
+DMTest::CondRea...   INFO   s2 0
+DMTest::CondRea...   INFO   rl xint (int) : 2
+DMTest::CondRea...   INFO   ts xint (int) : 200
+DMTest::CondRea...   INFO   s3 202
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #0 6 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #6, run #0 6 events processed so far  <<<===
+DMTest::CondRea...   INFO Event 6 LBN 2
 DMTest::CondRea...   INFO   xint xint (int) : 30
 DMTest::CondRea...   INFO   scond 3000
 DMTest::CondRea...   INFO   s2 100
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #0 6 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #6, run #0 6 events processed so far  <<<===
-DMTest::CondRea...   INFO Event 6 LBN 3
-DMTest::CondRea...   INFO   xint xint (int) : 40
-DMTest::CondRea...   INFO   scond 4000
-DMTest::CondRea...   INFO   s2 100
+DMTest::CondRea...   INFO   rl xint (int) : 2
+DMTest::CondRea...   INFO   ts xint (int) : 300
+DMTest::CondRea...   INFO   s3 302
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #0 7 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #7, run #0 7 events processed so far  <<<===
-DMTest::CondRea...   INFO Event 7 LBN 3
+DMTest::CondRea...   INFO Event 7 LBN 2
+DMTest::CondRea...   INFO   xint xint (int) : 30
+DMTest::CondRea...   INFO   scond 3000
+DMTest::CondRea...   INFO   s2 100
+DMTest::CondRea...   INFO   rl xint (int) : 2
+DMTest::CondRea...   INFO   ts xint (int) : 400
+DMTest::CondRea...   INFO   s3 402
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #0 8 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #8, run #0 8 events processed so far  <<<===
+DMTest::CondRea...   INFO Event 8 LBN 2
+DMTest::CondRea...   INFO   xint xint (int) : 30
+DMTest::CondRea...   INFO   scond 3000
+DMTest::CondRea...   INFO   s2 100
+DMTest::CondRea...   INFO   rl xint (int) : 2
+DMTest::CondRea...   INFO   ts xint (int) : 400
+DMTest::CondRea...   INFO   s3 402
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #0 9 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #9, run #0 9 events processed so far  <<<===
+DMTest::CondRea...   INFO Event 9 LBN 3
 DMTest::CondRea...   INFO   xint xint (int) : 40
 DMTest::CondRea...   INFO   scond 4000
 DMTest::CondRea...   INFO   s2 100
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #0 8 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #8, run #0 8 events processed so far  <<<===
-DMTest::CondRea...   INFO Event 8 LBN 4
-DMTest::CondRea...   INFO   xint xint (int) : 50
-DMTest::CondRea...   INFO   scond 5000
-DMTest::CondRea...   INFO   s2 200
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #0 9 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #9, run #0 9 events processed so far  <<<===
-DMTest::CondRea...   INFO Event 9 LBN 4
-DMTest::CondRea...   INFO   xint xint (int) : 50
-DMTest::CondRea...   INFO   scond 5000
-DMTest::CondRea...   INFO   s2 200
+DMTest::CondRea...   INFO   rl xint (int) : 3
+DMTest::CondRea...   INFO   ts xint (int) : 400
+DMTest::CondRea...   INFO   s3 403
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #9, run #0 10 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #10, run #0 10 events processed so far  <<<===
-DMTest::CondRea...   INFO Event 10 LBN 5
-DMTest::CondRea...   INFO   xint xint (int) : 60
-DMTest::CondRea...   INFO   scond 6000
-DMTest::CondRea...   INFO   s2 200
+DMTest::CondRea...   INFO Event 10 LBN 3
+DMTest::CondRea...   INFO   xint xint (int) : 40
+DMTest::CondRea...   INFO   scond 4000
+DMTest::CondRea...   INFO   s2 100
+DMTest::CondRea...   INFO   rl xint (int) : 3
+DMTest::CondRea...   INFO   ts xint (int) : 500
+DMTest::CondRea...   INFO   s3 503
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #10, run #0 11 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #11, run #0 11 events processed so far  <<<===
-DMTest::CondRea...   INFO Event 11 LBN 5
+DMTest::CondRea...   INFO Event 11 LBN 3
+DMTest::CondRea...   INFO   xint xint (int) : 40
+DMTest::CondRea...   INFO   scond 4000
+DMTest::CondRea...   INFO   s2 100
+DMTest::CondRea...   INFO   rl xint (int) : 3
+DMTest::CondRea...   INFO   ts xint (int) : 500
+DMTest::CondRea...   INFO   s3 503
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #0 12 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #12, run #0 12 events processed so far  <<<===
+DMTest::CondRea...   INFO Event 12 LBN 4
+DMTest::CondRea...   INFO   xint xint (int) : 50
+DMTest::CondRea...   INFO   scond 5000
+DMTest::CondRea...   INFO   s2 200
+DMTest::CondRea...   INFO   rl xint (int) : 4
+DMTest::CondRea...   INFO   ts xint (int) : 500
+DMTest::CondRea...   INFO   s3 504
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #12, run #0 13 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #13, run #0 13 events processed so far  <<<===
+DMTest::CondRea...   INFO Event 13 LBN 4
+DMTest::CondRea...   INFO   xint xint (int) : 50
+DMTest::CondRea...   INFO   scond 5000
+DMTest::CondRea...   INFO   s2 200
+DMTest::CondRea...   INFO   rl xint (int) : 4
+DMTest::CondRea...   INFO   ts xint (int) : 500
+DMTest::CondRea...   INFO   s3 504
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #13, run #0 14 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #14, run #0 14 events processed so far  <<<===
+DMTest::CondRea...   INFO Event 14 LBN 4
+DMTest::CondRea...   INFO   xint xint (int) : 50
+DMTest::CondRea...   INFO   scond 5000
+DMTest::CondRea...   INFO   s2 200
+DMTest::CondRea...   INFO   rl xint (int) : 4
+DMTest::CondRea...   INFO   ts xint (int) : 500
+DMTest::CondRea...   INFO   s3 504
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #14, run #0 15 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #15, run #0 15 events processed so far  <<<===
+DMTest::CondRea...   INFO Event 15 LBN 5
 DMTest::CondRea...   INFO   xint xint (int) : 60
 DMTest::CondRea...   INFO   scond 6000
 DMTest::CondRea...   INFO   s2 200
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #0 12 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #12, run #0 12 events processed so far  <<<===
-DMTest::CondRea...   INFO Event 12 LBN 6
-DMTest::CondRea...   INFO   xint xint (int) : 70
-DMTest::CondRea...   INFO   scond 7000
-DMTest::CondRea...   INFO   s2 300
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #12, run #0 13 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #13, run #0 13 events processed so far  <<<===
-DMTest::CondRea...   INFO Event 13 LBN 6
-DMTest::CondRea...   INFO   xint xint (int) : 70
-DMTest::CondRea...   INFO   scond 7000
-DMTest::CondRea...   INFO   s2 300
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #13, run #0 14 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #14, run #0 14 events processed so far  <<<===
-DMTest::CondRea...   INFO Event 14 LBN 7
-DMTest::CondRea...   INFO   xint xint (int) : 80
-DMTest::CondRea...   INFO   scond 8000
-DMTest::CondRea...   INFO   s2 300
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #14, run #0 15 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #15, run #0 15 events processed so far  <<<===
-DMTest::CondRea...   INFO Event 15 LBN 7
-DMTest::CondRea...   INFO   xint xint (int) : 80
-DMTest::CondRea...   INFO   scond 8000
-DMTest::CondRea...   INFO   s2 300
+DMTest::CondRea...   INFO   rl xint (int) : 4
+DMTest::CondRea...   INFO   ts xint (int) : 500
+DMTest::CondRea...   INFO   s3 504
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #15, run #0 16 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #16, run #0 16 events processed so far  <<<===
-DMTest::CondRea...   INFO Event 16 LBN 8
-DMTest::CondRea...   INFO   xint xint (int) : 90
-DMTest::CondRea...   INFO   scond 9000
-DMTest::CondRea...   INFO   s2 400
+DMTest::CondRea...   INFO Event 16 LBN 5
+DMTest::CondRea...   INFO   xint xint (int) : 60
+DMTest::CondRea...   INFO   scond 6000
+DMTest::CondRea...   INFO   s2 200
+DMTest::CondRea...   INFO   rl xint (int) : 4
+DMTest::CondRea...   INFO   ts xint (int) : 500
+DMTest::CondRea...   INFO   s3 504
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #16, run #0 17 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #17, run #0 17 events processed so far  <<<===
-DMTest::CondRea...   INFO Event 17 LBN 8
+DMTest::CondRea...   INFO Event 17 LBN 5
+DMTest::CondRea...   INFO   xint xint (int) : 60
+DMTest::CondRea...   INFO   scond 6000
+DMTest::CondRea...   INFO   s2 200
+DMTest::CondRea...   INFO   rl xint (int) : 4
+DMTest::CondRea...   INFO   ts xint (int) : 600
+DMTest::CondRea...   INFO   s3 604
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #17, run #0 18 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #18, run #0 18 events processed so far  <<<===
+DMTest::CondRea...   INFO Event 18 LBN 6
+DMTest::CondRea...   INFO   xint xint (int) : 70
+DMTest::CondRea...   INFO   scond 7000
+DMTest::CondRea...   INFO   s2 300
+DMTest::CondRea...   INFO   rl xint (int) : 4
+DMTest::CondRea...   INFO   ts xint (int) : 600
+DMTest::CondRea...   INFO   s3 604
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #0 19 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #0 19 events processed so far  <<<===
+DMTest::CondRea...   INFO Event 19 LBN 6
+DMTest::CondRea...   INFO   xint xint (int) : 70
+DMTest::CondRea...   INFO   scond 7000
+DMTest::CondRea...   INFO   s2 300
+DMTest::CondRea...   INFO   rl xint (int) : 4
+DMTest::CondRea...   INFO   ts xint (int) : 700
+DMTest::CondRea...   INFO   s3 704
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #20, run #0 20 events processed so far  <<<===
+DMTest::CondRea...   INFO Event 20 LBN 6
+DMTest::CondRea...   INFO   xint xint (int) : 70
+DMTest::CondRea...   INFO   scond 7000
+DMTest::CondRea...   INFO   s2 300
+DMTest::CondRea...   INFO   rl xint (int) : 4
+DMTest::CondRea...   INFO   ts xint (int) : 700
+DMTest::CondRea...   INFO   s3 704
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #20, run #0 21 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #21, run #0 21 events processed so far  <<<===
+DMTest::CondRea...   INFO Event 21 LBN 7
+DMTest::CondRea...   INFO   xint xint (int) : 80
+DMTest::CondRea...   INFO   scond 8000
+DMTest::CondRea...   INFO   s2 300
+DMTest::CondRea...   INFO   rl xint (int) : 5
+DMTest::CondRea...   INFO   ts xint (int) : 700
+DMTest::CondRea...   INFO   s3 705
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #21, run #0 22 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #22, run #0 22 events processed so far  <<<===
+DMTest::CondRea...   INFO Event 22 LBN 7
+DMTest::CondRea...   INFO   xint xint (int) : 80
+DMTest::CondRea...   INFO   scond 8000
+DMTest::CondRea...   INFO   s2 300
+DMTest::CondRea...   INFO   rl xint (int) : 5
+DMTest::CondRea...   INFO   ts xint (int) : 800
+DMTest::CondRea...   INFO   s3 805
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #22, run #0 23 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #23, run #0 23 events processed so far  <<<===
+DMTest::CondRea...   INFO Event 23 LBN 7
+DMTest::CondRea...   INFO   xint xint (int) : 80
+DMTest::CondRea...   INFO   scond 8000
+DMTest::CondRea...   INFO   s2 300
+DMTest::CondRea...   INFO   rl xint (int) : 5
+DMTest::CondRea...   INFO   ts xint (int) : 800
+DMTest::CondRea...   INFO   s3 805
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #23, run #0 24 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #24, run #0 24 events processed so far  <<<===
+DMTest::CondRea...   INFO Event 24 LBN 8
 DMTest::CondRea...   INFO   xint xint (int) : 90
 DMTest::CondRea...   INFO   scond 9000
 DMTest::CondRea...   INFO   s2 400
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #17, run #0 18 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #18, run #0 18 events processed so far  <<<===
-DMTest::CondRea...   INFO Event 18 LBN 9
+DMTest::CondRea...   INFO   rl xint (int) : 6
+DMTest::CondRea...   INFO   ts xint (int) : 800
+DMTest::CondRea...   INFO   s3 806
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #24, run #0 25 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #25, run #0 25 events processed so far  <<<===
+DMTest::CondRea...   INFO Event 25 LBN 8
+DMTest::CondRea...   INFO   xint xint (int) : 90
+DMTest::CondRea...   INFO   scond 9000
+DMTest::CondRea...   INFO   s2 400
+DMTest::CondRea...   INFO   rl xint (int) : 6
+DMTest::CondRea...   INFO   ts xint (int) : 800
+DMTest::CondRea...   INFO   s3 806
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #25, run #0 26 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #26, run #0 26 events processed so far  <<<===
+DMTest::CondRea...   INFO Event 26 LBN 8
+DMTest::CondRea...   INFO   xint xint (int) : 90
+DMTest::CondRea...   INFO   scond 9000
+DMTest::CondRea...   INFO   s2 400
+DMTest::CondRea...   INFO   rl xint (int) : 6
+DMTest::CondRea...   INFO   ts xint (int) : 900
+DMTest::CondRea...   INFO   s3 906
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #26, run #0 27 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #27, run #0 27 events processed so far  <<<===
+DMTest::CondRea...   INFO Event 27 LBN 9
 DMTest::CondRea...   INFO   xint xint (int) : 100
 DMTest::CondRea...   INFO   scond 10000
 DMTest::CondRea...   INFO   s2 400
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #0 19 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #0 19 events processed so far  <<<===
-DMTest::CondRea...   INFO Event 19 LBN 9
+DMTest::CondRea...   INFO   rl xint (int) : 7
+DMTest::CondRea...   INFO   ts xint (int) : 900
+DMTest::CondRea...   INFO   s3 907
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #27, run #0 28 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #28, run #0 28 events processed so far  <<<===
+DMTest::CondRea...   INFO Event 28 LBN 9
 DMTest::CondRea...   INFO   xint xint (int) : 100
 DMTest::CondRea...   INFO   scond 10000
 DMTest::CondRea...   INFO   s2 400
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
+DMTest::CondRea...   INFO   rl xint (int) : 7
+DMTest::CondRea...   INFO   ts xint (int) : 900
+DMTest::CondRea...   INFO   s3 907
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #28, run #0 29 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #29, run #0 29 events processed so far  <<<===
+DMTest::CondRea...   INFO Event 29 LBN 9
+DMTest::CondRea...   INFO   xint xint (int) : 100
+DMTest::CondRea...   INFO   scond 10000
+DMTest::CondRea...   INFO   s2 400
+DMTest::CondRea...   INFO   rl xint (int) : 7
+DMTest::CondRea...   INFO   ts xint (int) : 900
+DMTest::CondRea...   INFO   s3 907
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #29, run #0 30 events processed so far  <<<===
 condtest.pool.root   INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] F67004F9-6082-4B4C-B52D-88A1A76CF991
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] A834E12A-0572-2942-88EC-5A969061BCA7
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
 IncidentProcAlg1     INFO Finalize
@@ -217,11 +375,13 @@ LoadReadDicts        INFO Finalizing LoadReadDicts...
 IncidentProcAlg2     INFO Finalize
 EventSelector        INFO finalize
 PyComponentMgr       INFO Finalizing PyComponentMgr...
-IOVDbFolder          INFO Folder /DMTest/S2 (PoolRef) db-read 1/5 objs/chan/bytes 10/1/1810 ((     0.01 ))s
-IOVDbFolder          INFO Folder /DMTest/TestAttrList (AttrList) db-read 1/10 objs/chan/bytes 20/1/80 ((     0.00 ))s
-IOVDbSvc             INFO  bytes in ((      0.02 ))s
+IOVDbFolder          INFO Folder /DMTest/RLTest (AttrList) db-read 1/7 objs/chan/bytes 7/1/28 ((     0.01 ))s
+IOVDbFolder          INFO Folder /DMTest/S2 (PoolRef) db-read 1/5 objs/chan/bytes 15/1/2715 ((     0.00 ))s
+IOVDbFolder          INFO Folder /DMTest/TSTest (AttrList) db-read 1/9 objs/chan/bytes 9/1/36 ((     0.00 ))s
+IOVDbFolder          INFO Folder /DMTest/TestAttrList (AttrList) db-read 1/10 objs/chan/bytes 30/1/120 ((     0.00 ))s
+IOVDbSvc             INFO  bytes in ((      0.01 ))s
 IOVDbSvc             INFO Connection sqlite://;schema=mycool.db;dbname=OFLP200 : nConnect: 0 nFolders: 0 ReadTime: ((     0.00 ))s
-IOVDbSvc             INFO Connection sqlite://;schema=condtest.db;dbname=OFLP200 : nConnect: 2 nFolders: 2 ReadTime: ((     0.02 ))s
+IOVDbSvc             INFO Connection sqlite://;schema=condtest.db;dbname=OFLP200 : nConnect: 2 nFolders: 4 ReadTime: ((     0.01 ))s
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
 ChronoStatSvc.f...   INFO  Service finalized successfully 

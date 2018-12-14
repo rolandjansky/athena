@@ -63,13 +63,12 @@ SG::DataProxy* CondContBase::proxy()
 
 
 /**
- * @brief Test to see if a given IOV time is mapped in the container.
- * @param t IOV time to check.
+ * @brief Return the associated @c DataProxy, if any.
  */
 inline
-bool CondContBase::valid (const EventIDBase& t) const
+const SG::DataProxy* CondContBase::proxy() const
 {
-  return findBase (t, nullptr) != nullptr;
+  return m_proxy;
 }
 
 
@@ -114,7 +113,26 @@ CondContBase::key_type CondContBase::keyFromRunLBN (const EventIDBase& b)
 inline
 CondContBase::key_type CondContBase::keyFromTimestamp (const EventIDBase& b)
 {
-  return (static_cast<key_type> (b.time_stamp())<<32) + b.time_stamp_ns_offset();
+  return (static_cast<key_type> (b.time_stamp())*1000000000) + b.time_stamp_ns_offset();
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/**
+ * @brief Call @c func on each entry in the container.
+ * @param func Functional to call on each entry.
+ *
+ * @c func will be called on each container element
+ * (being passed const CondContSet::value_type&).
+ */
+template <class FUNC>
+void CondContBase::forEach (const FUNC& func) const
+{
+  for (const typename CondContSet::value_type& ent : m_condSet.range()) {
+    func (ent);
+  }
 }
 
 
@@ -149,6 +167,20 @@ CondContBase::RangeKey::RangeKey (const EventIDRange& r,
     m_stop (stop),
     m_range (r)
 {
+}
+
+
+///////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * @brief Test to see if a given IOV time is mapped in the container.
+ * @param t IOV time to check.
+ */
+inline
+bool CondContSingleBase::valid (const EventIDBase& t) const
+{
+  return findBase (t, nullptr) != nullptr;
 }
 
 
@@ -288,7 +320,7 @@ CondCont<T>::CondCont (Athena::IRCUSvc& rcusvc,
                        CLID clid,
                        const DataObjID& id,
                        SG::DataProxy* proxy,
-                       const typename CondContSet::delete_function* delfcn,
+                       typename CondContSet::delete_function* delfcn,
                        size_t capacity)
   : Base (rcusvc, clid, id, proxy, delfcn, capacity)
 {
@@ -330,6 +362,123 @@ template <class T>
 void CondCont<T>::registerBaseInit()
 {
   static const SG::RegisterBaseInit<CondCont> rbi;
+}
+
+
+///////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * @brief Test to see if a given IOV time is mapped in the container.
+ * @param t IOV time to check.
+ */
+inline
+bool CondContMixedBase::valid (const EventIDBase& t) const
+{
+  return findMixed (t, nullptr) != nullptr;
+}
+
+
+///////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * @brief Destructor.
+ */
+template <typename T>
+CondContMixed<T>::~CondContMixed<T>()
+{
+}    
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/** 
+ * @brief Insert a new conditions object.
+ * @param r Range of validity of this object.
+ * @param t Pointer to the object being inserted.
+ * @param ctx Event context for the current thread.
+ *
+ * @c t must point to an object of type @c T.
+ * This will give an error if this is not called
+ * on the most-derived @c CondCont.
+ *
+ * Returns SUCCESS if the object was successfully inserted;
+ * OVERLAP if the object was inserted but the range partially overlaps
+ * with an existing one;
+ * DUPLICATE if the object wasn't inserted because the range
+ * duplicates an existing one, and FAILURE otherwise
+ * (ownership of the object will be taken in any case).
+ */
+template <typename T>
+StatusCode CondContMixed<T>::insert (const EventIDRange& r,
+                                     std::unique_ptr<T> t,
+                                     const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
+{
+  // Not checking CLID here, since we don't support inheritance for mixed
+  // containers.
+
+  return Base::insertMixed (r, std::move(t), ctx);
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/** 
+ * @brief Look up a conditions object for a given time.
+ * @param t IOV time to find.
+ * @param obj[out] Object found.
+ * @param r If non-null, copy validity range of the object here.
+ *
+ * Returns true if the object was found; false otherwide.
+ */
+template <typename T>
+bool CondContMixed<T>::find (const EventIDBase& t,
+                             T const *& obj,
+                             EventIDRange const** r) const
+{
+  obj = reinterpret_cast<const T*> (Base::findMixed (t, r));
+  return obj != nullptr;
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/** 
+ * @brief Constructor.
+ * @param rcusvc RCU service instance.
+ * @param CLID of the most-derived @c CondCont.
+ * @param id CLID+key for this object.
+ * @param proxy @c DataProxy for this object.
+ * @param capacity Initial capacity of the container.
+ */
+template <class T>
+inline
+CondContMixed<T>::CondContMixed (Athena::IRCUSvc& rcusvc,
+                                 CLID clid,
+                                 const DataObjID& id,
+                                 SG::DataProxy* proxy,
+                                 size_t capacity)
+  : Base (rcusvc, clid, id, proxy, payloadDelfcn, capacity)
+{
+  CondContMixed<T>::registerBaseInit();
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/**
+ * @brief Helper to ensure that the inheritance information for this class
+ *               gets initialized.
+ */
+template <class T>
+void CondContMixed<T>::registerBaseInit()
+{
+  static const SG::RegisterBaseInit<CondContMixed> rbi;
 }
 
 

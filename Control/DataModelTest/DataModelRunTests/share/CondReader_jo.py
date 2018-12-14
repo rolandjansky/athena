@@ -44,12 +44,16 @@ conddb.addFolder ('condtest.db', '/DMTest/TestAttrList <tag>AttrList_noTag</tag>
                   className='AthenaAttributeList')
 conddb.addFolder ('condtest.db', '/DMTest/S2 <tag>S2_noTag</tag>',
                   className='DMTest::S2')
+conddb.addFolder ('condtest.db', '/DMTest/RLTest <tag>RL_noTag</tag>',
+                  className='AthenaAttributeList')
+conddb.addFolder ('condtest.db', '/DMTest/TSTest <tag>TS_noTag</tag>',
+                  className='AthenaAttributeList')
 
 
 #--------------------------------------------------------------
 # Event related parameters
 #--------------------------------------------------------------
-theApp.EvtMax = 20
+theApp.EvtMax = 30
 
 
 #--------------------------------------------------------------
@@ -65,13 +69,16 @@ if nThreads >= 1:
 
 
 from DataModelTestDataCommon.DataModelTestDataCommonConf import \
-     DMTest__CondReaderAlg, DMTest__CondAlg1
-topSequence += DMTest__CondReaderAlg()
+     DMTest__CondReaderAlg, DMTest__CondAlg1, DMTest__CondAlg2
+topSequence += DMTest__CondReaderAlg (RLTestKey = '/DMTest/RLTest',
+                                      TSTestKey = '/DMTest/TSTest',
+                                      S3Key = 'scond3')
 
 
 from AthenaCommon.AlgSequence import AthSequencer             
 condSequence = AthSequencer("AthCondSeq")             
 condSequence += DMTest__CondAlg1()
+condSequence += DMTest__CondAlg2()
 
 
 #--------------------------------------------------------------
@@ -87,9 +94,11 @@ ChronoStatSvc.ChronoPrintOutTable = FALSE
 ChronoStatSvc.PrintUserTime       = FALSE
 ChronoStatSvc.StatPrintOutTable   = FALSE
 
-# Increment LBN every two events.
+# Increment LBN every three events, TS each event.
 from McEventSelector import McEventSelectorConf
-svcMgr+=McEventSelectorConf.McEventSelector('EventSelector',EventsPerLB=2)
+svcMgr+=McEventSelectorConf.McEventSelector('EventSelector',
+                                            EventsPerLB=3,
+                                            TimeStampInterval=1)
 
 PoolSvc = Service( "PoolSvc" )
 PoolSvc.ReadCatalog = ["file:CondWriter_catalog.xml"]

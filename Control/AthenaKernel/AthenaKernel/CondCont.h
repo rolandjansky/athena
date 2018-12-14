@@ -7,6 +7,61 @@
  * @author Vakho, Charles, Scott
  * @date 2017
  * @brief Hold mappings of ranges to condition objects.
+ *
+ * Conditions objects of type @c T are managed by @c CondCont<T>, which are
+ * recorded in the conditions store.  @c CondCont<T> is a map of IOV ranges
+ * to payload objects of type @c T.
+ *
+ * A conditions container must be declared as such and given a CLID using
+ * the macro @c CONDCONT_DEF:
+ *@code
+ *  CONDCONT_DEF (MyType, 12345);
+ @endcode
+ *
+ * If one payload class derives from another, it is possible declare
+ * conditions containers so that they have the same inheritance by adding
+ * the payload base class as a thir argument to @c CONDCONT_DEF.  For example,
+ * if @c MyType derived from @c MyBase then you can use
+ *@code
+ *  CONDCONT_DEF (MyType, 12345, MyBase);
+ @endcode
+ *
+ * A conditions container declared in this way should have keys that
+ * are either ranges in run+lbn or timestamp; they cannot be mixed.
+ * However, in the case where one has a conditions algorithm that takes
+ * as input both a run+lbn and a timestamp condition, the result
+ * will be IOVs that have both run+lbn and timestamp ranges.  Such conditions
+ * may be stored in a mixed conditions container, declared as:
+ @code
+ *  CONDCONT_MIXED_DEF (MyType, 12345);
+ @endcode
+ *
+ * @c CondCont<MyType> is now declared as a mixed container.
+ * Inheritance of conditions containers is not currently implemented
+ * for mixed containers.
+ *
+ * Implementation notes:
+ * All conditions containers derive from @c CondContBase.  This defines
+ * virtual functions that are used by the IOV services.  @c CondContSingleBase
+ * derives from this and collects non-templated implementations used by
+ * non-mixed containers; most virtual functions can be declared @c final here.
+ * Finally, @c CondCont<T> derives from @c CondContSingleBase and implements
+ * the type-specific part.
+ *
+ * We reduce the amount of templated code that must be instantiated by storing
+ * the payloads as void* in the underlying @c ConcurrentRangeMap.  All this
+ * needs to do with the payloads is to be able to delete them; we handle
+ * this by giving @c ConcurrentRangeMap a function to call to delete a payload.
+ *
+ * For the case of mixed containers, rather than having the @c ConcurrentRangeMap
+ * store the payload directly, it instead holds another @c ConcurrentRangeMap
+ * which in turn hold the payload.  The top map is indexed by run+lbn
+ * and the secondary ones by timestamp.
+ *
+ * For mixed containers, we have @c CondContMixedBase deriving from
+ * @c CondContBase and @c CondContMixed<T> deriving from that.
+ * The @c CONDCONT_MIXED_DEF macro then specializes @c CondCont<T>
+ * so that it derives from @c CondContMixed<T>
  */
 
 #ifndef ATHENAKERNEL_CONDCONT_H
@@ -66,6 +121,9 @@ enum class CondContStatusCode : StatusCode::code_t
 STATUSCODE_ENUM_DECL (CondContStatusCode)
 
 
+/**
+ * @brief Base class for all conditions containers.
+ */
 class CondContBase
 {
 public:
@@ -111,7 +169,10 @@ public:
     TIMESTAMP,
 
     /// Container uses run+lbn keys.
-    RUNLBN
+    RUNLBN,
+
+    /// Mixed Run+lbn / timestamp container.
+    MIXED,
   };
 
 
@@ -155,6 +216,12 @@ public:
 
 
   /**
+   * @brief Return the associated @c DataProxy, if any.
+   */
+  const SG::DataProxy* proxy() const;
+
+
+  /**
    * @brief Set the associated @c DataProxy.
    * @param proxy The proxy to set.
    */
@@ -166,7 +233,7 @@ public:
    * @param ost Stream to which to write the dump.
    */
   virtual
-  void list (std::ostream& ost) const;
+  void list (std::ostream& ost) const = 0;
 
 
   /**
@@ -185,7 +252,7 @@ public:
    * @brief Return all IOV validity ranges defined in this container.
    */
   virtual
-  std::vector<EventIDRange> ranges() const;
+  std::vector<EventIDRange> ranges() const = 0;
 
 
   /** 
@@ -209,7 +276,7 @@ public:
   virtual
   StatusCode typelessInsert (const EventIDRange& r,
                              void* obj,
-                             const EventContext& ctx = Gaudi::Hive::currentContext());
+                             const EventContext& ctx = Gaudi::Hive::currentContext()) = 0;
 
 
   /**
@@ -217,7 +284,7 @@ public:
    * @param t IOV time to check.
    */
   virtual
-  bool valid( const EventIDBase& t) const;
+  bool valid( const EventIDBase& t) const = 0;
 
 
   /**
@@ -228,7 +295,7 @@ public:
    * Returns true if @c t is mapped; false otherwise.
    */
   virtual
-  bool range (const EventIDBase& t, EventIDRange& r) const;
+  bool range (const EventIDBase& t, EventIDRange& r) const = 0;
 
 
   /**
@@ -238,7 +305,7 @@ public:
    */
   virtual
   StatusCode erase (const EventIDBase& t,
-                    const EventContext& ctx = Gaudi::Hive::currentContext());
+                    const EventContext& ctx = Gaudi::Hive::currentContext()) = 0;
 
 
   /**
@@ -299,7 +366,7 @@ public:
    */
   virtual
   StatusCode extendLastRange (const EventIDRange& newRange,
-                              const EventContext& ctx = Gaudi::Hive::currentContext());
+                              const EventContext& ctx = Gaudi::Hive::currentContext()) = 0;
 
 
   /**
@@ -399,10 +466,12 @@ protected:
     CondContSet;
 
   typedef CondContSet::Updater_t Updater_t;
+  typedef CondContSet::delete_function delete_function;
 
   /**
    * @brief Internal constructor.
    * @param rcusvc RCU service instance.
+   * @param keyType Key type for this container.
    * @param CLID of the most-derived @c CondCont.
    * @param id CLID+key for this object.
    * @param proxy @c DataProxy for this object.
@@ -410,6 +479,7 @@ protected:
    * @param capacity Initial capacity of the container.
    */
   CondContBase (Athena::IRCUSvc& rcusvc,
+                KeyType keytype,
                 CLID clid,
                 const DataObjID& id,
                 SG::DataProxy* proxy,
@@ -433,6 +503,30 @@ protected:
   StatusCode insertBase (const EventIDRange& r,
                          CondContSet::payload_unique_ptr t,
                          const EventContext& ctx = Gaudi::Hive::currentContext());
+
+
+  /**
+   * @brief Erase the first element not less than @c t.
+   * @param IOV time of element to erase.
+   * @param ctx Event context for the current thread.
+   */
+  StatusCode eraseBase (const EventIDBase& t,
+                        const EventContext& ctx = Gaudi::Hive::currentContext());
+
+
+  /**
+   * @brief Extend the range of the last IOV.
+   * @param newRange New validity range.
+   * @param ctx Event context.
+   *
+   * Returns failure if the start time of @c newRange does not match the start time
+   * of the last IOV in the container.  Otherwise, the end time for the last
+   * IOV is changed to the end time for @c newRange.  (If the end time for @c newRange
+   * is before the end of the last IOV, then nothing is changed.)
+   */
+  StatusCode
+  extendLastRangeBase (const EventIDRange& newRange,
+                       const EventContext& ctx = Gaudi::Hive::currentContext());
 
 
   /** 
@@ -476,6 +570,17 @@ protected:
 
 
   /**
+   * @brief Call @c func on each entry in the container.
+   * @param func Functional to call on each entry.
+   *
+   * @c func will be called on each container element
+   * (being passed const CondContSet::value_type&).
+   */
+  template <class FUNC>
+  void forEach (const FUNC& func) const;
+
+
+  /**
    * @brief Tell the cleaner that a new object was added to the container.
    */
   StatusCode inserted (const EventContext& ctx);
@@ -486,6 +591,18 @@ protected:
    * @param usedCLID CLID of the class used for insertion.
    */
   void insertError (CLID usedCLID) const;
+
+
+  /**
+   * @brief Return the deletion function for this container.
+   */
+  delete_function* delfcn() const;
+
+
+  /**
+   * @brief Description of this container to use for Msgstream.
+   */
+  std::string title() const;
 
 
 private:
@@ -516,6 +633,119 @@ private:
 ///////////////////////////////////////////////////////////////////////////
 
 
+/**
+ * @brief Base class for conditions containers that are either
+ *        Run+LBN or timestamp.
+ */
+class CondContSingleBase
+  : public CondContBase
+{
+public:
+  /**
+   * @brief Dump the container contents for debugging.
+   * @param ost Stream to which to write the dump.
+   */
+  virtual
+  void list (std::ostream& ost) const override final;
+
+
+  /**
+   * @brief Return all IOV validity ranges defined in this container.
+   */
+  virtual
+  std::vector<EventIDRange> ranges() const override final;
+
+
+  /** 
+   * @brief Insert a new conditions object.
+   * @param r Range of validity of this object.
+   * @param obj Pointer to the object being inserted.
+   * @param ctx Event context for the current thread.
+   *
+   * @c obj must point to an object of type @c T,
+   * except in the case of inheritance, where the type of @c obj must
+   * correspond to the most-derived @c CondCont type.
+   * The container will take ownership of this object.
+   *
+   * Returns SUCCESS if the object was successfully inserted;
+   * OVERLAP if the object was inserted but the range partially overlaps
+   * with an existing one;
+   * DUPLICATE if the object wasn't inserted because the range
+   * duplicates an existing one, and FAILURE otherwise
+   * (ownership of the object will be taken in any case).
+   */
+  virtual
+  StatusCode typelessInsert (const EventIDRange& r,
+                             void* obj,
+                             const EventContext& ctx = Gaudi::Hive::currentContext()) override final;
+
+
+  /**
+   * @brief Test to see if a given IOV time is mapped in the container.
+   * @param t IOV time to check.
+   */
+  virtual
+  bool valid( const EventIDBase& t) const override final;
+
+
+  /**
+   * @brief Return the mapped validity range for an IOV time.
+   * @param t IOV time to check.
+   * @param r[out] The range containing @c t.
+   *
+   * Returns true if @c t is mapped; false otherwise.
+   */
+  virtual
+  bool range (const EventIDBase& t, EventIDRange& r) const override final;
+
+
+  /**
+   * @brief Erase the first element not less than @c t.
+   * @param IOV time of element to erase.
+   * @param ctx Event context for the current thread.
+   */
+  virtual
+  StatusCode erase (const EventIDBase& t,
+                    const EventContext& ctx = Gaudi::Hive::currentContext()) override final;
+
+
+  /**
+   * @brief Extend the range of the last IOV.
+   * @param newRange New validity range.
+   * @param ctx Event context.
+   *
+   * Returns failure if the start time of @c newRange does not match the start time
+   * of the last IOV in the container.  Otherwise, the end time for the last
+   * IOV is changed to the end time for @c newRange.  (If the end time for @c newRange
+   * is before the end of the last IOV, then nothing is changed.)
+   */
+  virtual
+  StatusCode extendLastRange (const EventIDRange& newRange,
+                              const EventContext& ctx = Gaudi::Hive::currentContext()) override final;
+
+
+protected:
+  /**
+   * @brief Internal constructor.
+   * @param rcusvc RCU service instance.
+   * @param CLID of the most-derived @c CondCont.
+   * @param id CLID+key for this object.
+   * @param proxy @c DataProxy for this object.
+   * @param delfcn Deletion function for the actual payload type.
+   * @param capacity Initial capacity of the container.
+   */
+  CondContSingleBase (Athena::IRCUSvc& rcusvc,
+                      CLID clid,
+                      const DataObjID& id,
+                      SG::DataProxy* proxy,
+                      CondContSet::delete_function* delfcn,
+                      size_t capacity);
+};
+
+
+///////////////////////////////////////////////////////////////////////////
+
+
 template <class T> class CondCont;
 
 
@@ -530,7 +760,7 @@ template <typename T>
 class CondContBaseInfo
 {
 public:
-  typedef CondContBase Base;
+  typedef CondContSingleBase Base;
 };
 
 
@@ -679,7 +909,7 @@ protected:
             CLID clid,
             const DataObjID& id,
             SG::DataProxy* proxy,
-            const typename CondContSet::delete_function* delfcn,
+            typename CondContSet::delete_function* delfcn,
             size_t capacity);
 
 
@@ -717,14 +947,294 @@ public:
 
 
 private:
-  typedef CondContBase::RangeKey RangeKey;
-
-
   /// Deletion function to pass to @c ConcurrentRangeMap.
   static void delfcn (const void* p) {
     delete reinterpret_cast<const T*>(p);
   }
 };
+
+
+///////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * @brief Base class for conditions containers for which keys are ranges
+ *        in both Run+LBN and timestamp.
+ */
+class CondContMixedBase
+  : public CondContBase
+{
+public:
+  /**
+   * @brief Dump the container contents for debugging.
+   * @param ost Stream to which to write the dump.
+   */
+  virtual
+  void list (std::ostream& ost) const override final;
+
+
+  /**
+   * @brief Return all IOV validity ranges defined in this container.
+   */
+  virtual
+  std::vector<EventIDRange> ranges() const override final;
+
+
+  /** 
+   * @brief Insert a new conditions object.
+   * @param r Range of validity of this object.
+   * @param obj Pointer to the object being inserted.
+   * @param ctx Event context for the current thread.
+   *
+   * @c obj must point to an object of type @c T,
+   * except in the case of inheritance, where the type of @c obj must
+   * correspond to the most-derived @c CondCont type.
+   * The container will take ownership of this object.
+   *
+   * Returns SUCCESS if the object was successfully inserted;
+   * OVERLAP if the object was inserted but the range partially overlaps
+   * with an existing one;
+   * DUPLICATE if the object wasn't inserted because the range
+   * duplicates an existing one, and FAILURE otherwise
+   * (ownership of the object will be taken in any case).
+   */
+  virtual
+  StatusCode typelessInsert (const EventIDRange& r,
+                             void* obj,
+                             const EventContext& ctx = Gaudi::Hive::currentContext()) override final;
+
+
+  /**
+   * @brief Test to see if a given IOV time is mapped in the container.
+   * @param t IOV time to check.
+   */
+  virtual
+  bool valid( const EventIDBase& t) const override final;
+
+
+  /**
+   * @brief Return the mapped validity range for an IOV time.
+   * @param t IOV time to check.
+   * @param r[out] The range containing @c t.
+   *
+   * Returns true if @c t is mapped; false otherwise.
+   */
+  virtual
+  bool range (const EventIDBase& t, EventIDRange& r) const override final;
+
+
+  /**
+   * @brief Erase the first element not less than @c t.
+   * @param IOV time of element to erase.
+   * @param ctx Event context for the current thread.
+   *
+   * This is not implemented for mixed containers.
+   */
+  virtual
+  StatusCode erase (const EventIDBase& t,
+                    const EventContext& ctx = Gaudi::Hive::currentContext()) override final;
+
+
+  /**
+   * @brief Extend the range of the last IOV.
+   * @param newRange New validity range.
+   * @param ctx Event context.
+   *
+   * Returns failure if the start time of @c newRange does not match the start time
+   * of the last IOV in the container.  Otherwise, the end time for the last
+   * IOV is changed to the end time for @c newRange.  (If the end time for @c newRange
+   * is before the end of the last IOV, then nothing is changed.)
+   *
+   * This is not implemented for mixed containers.
+   */
+  virtual
+  StatusCode extendLastRange (const EventIDRange& newRange,
+                              const EventContext& ctx = Gaudi::Hive::currentContext()) override final;
+
+
+protected:
+  /**
+   * @brief Internal constructor.
+   * @param rcusvc RCU service instance.
+   * @param CLID of the most-derived @c CondCont.
+   * @param id CLID+key for this object.
+   * @param proxy @c DataProxy for this object.
+   * @param payloadDelfcn Deletion function for the actual payload type.
+   * @param capacity Initial capacity of the container.
+   */
+  CondContMixedBase (Athena::IRCUSvc& rcusvc,
+                     CLID clid,
+                     const DataObjID& id,
+                     SG::DataProxy* proxy,
+                     CondContSet::delete_function* payloadDelfcn,
+                     size_t capacity);
+
+
+  /** 
+   * @brief Insert a new conditions object.
+   * @param r Range of validity of this object.
+   * @param t Pointer to the object being inserted.
+   * @param ctx Event context for the current thread.
+   *
+   * Returns SUCCESS if the object was successfully inserted;
+   * OVERLAP if the object was inserted but the range partially overlaps
+   * with an existing one;
+   * DUPLICATE if the object wasn't inserted because the range
+   * duplicates an existing one, and FAILURE otherwise
+   * (ownership of the object will be taken in any case).
+   */
+  StatusCode insertMixed (const EventIDRange& r,
+                          CondContBase::CondContSet::payload_unique_ptr t,
+                          const EventContext& ctx = Gaudi::Hive::currentContext());
+
+
+  /** 
+   * @brief Internal lookup function.
+   * @param t IOV time to find.
+   * @param r If non-null, copy validity range of the object here.
+   *
+   * Looks up the conditions object corresponding to the IOV time @c t.
+   * If found, return the pointer (as a pointer to the payload type
+   * of the most-derived CondCont).  Otherwise, return nullptr.
+   */
+  const void* findMixed (const EventIDBase& t,
+                         EventIDRange const** r) const;
+
+
+  /**
+   * @brief Return the payload deletion function for this container.
+   */
+  delete_function* payloadDelfcn() const;
+
+
+  /**
+   * @brief Do pointer conversion for the payload type.
+   * @param clid CLID for the desired pointer type.
+   * @param ptr Pointer of type @c T*.
+   *
+   * This just aborts, since we don't currently implement inheritance
+   * for mixed types.
+   */
+  virtual const void* doCast(CLID /*clid*/, const void* /*ptr*/) const override;
+
+
+private:
+  /// Deletion function to pass to @c ConcurrentRangeMap.
+  static void delfcn (const void* p) {
+    delete reinterpret_cast<const CondContSet*>(p);
+  }
+
+  /// Need to remember the RCU svc here in order to pass it to the
+  /// TS maps.
+  Athena::IRCUSvc& m_rcusvc;
+
+  /// Function to delete payload objects.
+  delete_function* m_payloadDelfcn;
+
+  /// Mutex for insertions.
+  std::mutex m_mutex;
+};
+
+
+///////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * @brief Conditions container for which keys are ranges  in both Run+LBN
+ *        and timestamp.
+ *
+ * Don't use this directly; instead declare your container with
+ * @c CONDCONT_MIXED_DEF and then use @c CondCont<T>.
+ */
+template <typename T>
+class CondContMixed: public CondContMixedBase
+{
+public:
+  /// Base class.
+  typedef CondContMixedBase Base;
+
+  typedef typename Base::CondContSet CondContSet;
+
+  /// Payload type held by this class.
+  typedef T Payload;
+
+  typedef CondContBase::key_type key_type;
+
+
+  /// Destructor.
+  virtual ~CondContMixed();
+
+  /// No copying.
+  CondContMixed (const CondContMixed&) = delete;
+  CondContMixed& operator= (const CondContMixed&) = delete;
+
+
+  /** 
+   * @brief Insert a new conditions object.
+   * @param r Range of validity of this object.
+   * @param obj Pointer to the object being inserted.
+   * @param ctx Event context for the current thread.
+   *
+   * @c obj must point to an object of type @c T.
+   * This will give an error if this is not called
+   * on the most-derived @c CondCont.
+   *
+   * Returns SUCCESS if the object was successfully inserted;
+   * OVERLAP if the object was inserted but the range partially overlaps
+   * with an existing one;
+   * DUPLICATE if the object wasn't inserted because the range
+   * duplicates an existing one, and FAILURE otherwise
+   * (ownership of the object will be taken in any case).
+   */
+  StatusCode insert (const EventIDRange& r,
+                     std::unique_ptr<T> obj,
+                     const EventContext& ctx = Gaudi::Hive::currentContext());
+
+
+  /** 
+   * @brief Look up a conditions object for a given time.
+   * @param t IOV time to find.
+   * @param obj[out] Object found.
+   * @param r If non-null, copy validity range of the object here.
+   *
+   * Returns true if the object was found; false otherwide.
+   */
+  bool find (const EventIDBase& t,
+             T const*& obj,
+             EventIDRange const** r = nullptr) const;
+
+
+protected:
+  /** 
+   * @brief Internal Constructor.
+   * @param rcusvc RCU service instance.
+   * @param CLID of the most-derived @c CondCont.
+   * @param id CLID+key for this object.
+   * @param proxy @c DataProxy for this object.
+   * @param capacity Initial capacity of the container.
+   */
+  CondContMixed (Athena::IRCUSvc& rcusvc,
+                 CLID clid,
+                 const DataObjID& id,
+                 SG::DataProxy* proxy,
+                 size_t capacity);
+
+
+public:
+  /// Helper to ensure that the inheritance information for this class
+  /// gets initialized.
+  static void registerBaseInit();
+
+
+private:
+  /// Deletion function to for payload objects.
+  static void payloadDelfcn (const void* p) {
+    delete reinterpret_cast<const T*>(p);
+  }
+};
+
+
+///////////////////////////////////////////////////////////////////////////
 
 
 #include "AthenaKernel/CondCont.icc"
@@ -750,6 +1260,18 @@ private:
   CONDCONT_DEF_2(T, CLID)
 #define CONDCONT_DEF(...)  \
   BOOST_PP_OVERLOAD(CONDCONT_DEF_, __VA_ARGS__)(__VA_ARGS__)
+
+
+/// Declare a mixed conditions container along with its CLID.
+#define CONDCONT_MIXED_DEF(T, CLID) \
+  template<> class CondCont<T> : public CondContMixed<T> {          \
+  public:                                                           \
+    CondCont (Athena::IRCUSvc& rcusvc, const DataObjID& id,         \
+              SG::DataProxy* proxy =nullptr, size_t capacity = 16)  \
+      : CondContMixed<T> (rcusvc, CLID, id, proxy, capacity) {}     \
+  };                                                                \
+  CLASS_DEF( CondCont<T>, CLID, 1)                                  \
+  static CondContainer::CondContMaker<T> maker_ ## CLID {}
 
   
 #endif // not ATHENAKERNEL_CONDCONT_H

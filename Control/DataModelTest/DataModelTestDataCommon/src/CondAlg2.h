@@ -4,32 +4,29 @@
  */
 // $Id$
 /**
- * @file DataModelTestDataCommon/src/CondReaderAlg.h
+ * @file DataModelTestDataCommon/src/CondAlg2.h
  * @author scott snyder <snyder@bnl.gov>
- * @date Jul, 2017
- * @brief Testing conditions handling.
+ * @date Nov, 2018
+ * @brief Testing conditions algorithm taking both RL and TS inputs
+ *        and producing mixed output.
  */
 
 
-#ifndef DATAMODELTESTDATACOMMON_CONDREADERALG_H
-#define DATAMODELTESTDATACOMMON_CONDREADERALG_H
+#ifndef DATAMODELTESTDATACOMMON_CONDALG2_H
+#define DATAMODELTESTDATACOMMON_CONDALG2_H
 
 
-#include "DataModelTestDataCommon/S1Cond.h"
 #include "DataModelTestDataCommon/S3Cond.h"
-#include "EventInfo/EventInfo.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
-#include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IChronoStatSvc.h"
+#include "StoreGate/WriteCondHandleKey.h"
 
 
 namespace DMTest {
 
 
-class CondReaderAlg
+class CondAlg2
   : public AthReentrantAlgorithm
 {
 public:
@@ -38,7 +35,7 @@ public:
    * @param name The algorithm name.
    * @param pSvcLocator The service locator.
    */
-  CondReaderAlg (const std::string &name, ISvcLocator *pSvcLocator);
+  CondAlg2 (const std::string &name, ISvcLocator *pSvcLocator);
 
 
   /**
@@ -50,23 +47,17 @@ public:
   /**
    * @brief Algorithm event processing.
    */
-  virtual StatusCode execute (const EventContext& ctx) const override;
+  virtual StatusCode execute_r (const EventContext& ctx) const override;
 
 
 private:
-  ServiceHandle<IChronoStatSvc> m_chronoSvc;
-  SG::ReadHandleKey<EventInfo> m_eventInfoKey;
-  SG::ReadCondHandleKey<AthenaAttributeList> m_attrListKey;
-  SG::ReadCondHandleKey<DMTest::S1> m_scondKey;
-  SG::ReadCondHandleKey<DMTest::S1> m_s2Key;
-  SG::ReadCondHandleKey<DMTest::S3> m_s3Key;
   SG::ReadCondHandleKey<AthenaAttributeList> m_rltestKey;
   SG::ReadCondHandleKey<AthenaAttributeList> m_tstestKey;
-  size_t m_spins;
+  SG::WriteCondHandleKey<DMTest::S3> m_outKey;
 };
 
 
 } // namespace DMTest
 
 
-#endif // not DATAMODELTESTDATACOMMON_CONDREADERALG_H
+#endif // not DATAMODELTESTDATACOMMON_CONDALG2_H

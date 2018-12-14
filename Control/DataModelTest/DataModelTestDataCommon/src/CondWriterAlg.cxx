@@ -35,6 +35,8 @@ CondWriterAlg::CondWriterAlg (const std::string &name, ISvcLocator *pSvcLocator)
   declareProperty ("EventInfoKey", m_eventInfoKey = "McEventInfo");
   declareProperty ("AttrListKey",  m_attrListKey = "/DMTest/TestAttrList");
   declareProperty ("S2Key",        m_s2Key       = "/DMTest/S2");
+  declareProperty ("RLTestKey",    m_rltestKey   = "/DMTest/RLTest");
+  declareProperty ("TSTestKey",    m_tstestKey   = "/DMTest/TSTest");
 }
 
 
@@ -72,6 +74,61 @@ StatusCode CondWriterAlg::writeSCond (unsigned int count)
 }
 
 
+StatusCode CondWriterAlg::writeRLTest (unsigned int count)
+{
+  // Bound in LBN.
+  static const unsigned int bounds[] = { 0, 1, 3, 4, 7, 8, 9 };
+
+  unsigned int lbn = count / 3;
+  const unsigned int* pos = std::find (std::begin(bounds),
+                                       std::end(bounds),
+                                       lbn);
+  if (pos != std::end(bounds)) {
+    unsigned int niov = pos - std::begin(bounds) + 1;
+
+    auto attrList = std::make_unique<AthenaAttributeList>();
+    attrList->extend ("xint", "int");
+    (*attrList)["xint"].setValue(static_cast<int> (niov));
+    ATH_CHECK( detStore()->overwrite (std::move (attrList), m_rltestKey) );
+
+    ATH_CHECK( m_regSvc->registerIOV ("AthenaAttributeList",
+                                      m_rltestKey,
+                                      "RL_noTag",
+                                      0, 0,
+                                      lbn, IOVTime::MAXEVENT) );
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode CondWriterAlg::writeTSTest (unsigned int count)
+{
+  // Bound in count.
+  static const unsigned int bounds[] = { 0, 3, 6, 7, 10, 17, 19, 22, 26 };
+
+  const unsigned int* pos = std::find (std::begin(bounds),
+                                       std::end(bounds),
+                                       count);
+  if (pos != std::end(bounds)) {
+    unsigned int niov = pos - std::begin(bounds) + 1;
+
+    auto attrList = std::make_unique<AthenaAttributeList>();
+    attrList->extend ("xint", "int");
+    (*attrList)["xint"].setValue(static_cast<int> (niov * 100));
+    ATH_CHECK( detStore()->overwrite (std::move (attrList), m_tstestKey) );
+
+    ATH_CHECK( m_regSvc->registerIOV ("AthenaAttributeList",
+                                      m_tstestKey,
+                                      "TS_noTag",
+                                      static_cast<uint64_t>(count) * 1000000000,
+                                      IOVTime::MAXTIMESTAMP) );
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+
 /**
  * @brief Algorithm event processing.
  */
@@ -95,6 +152,9 @@ StatusCode CondWriterAlg::execute()
   if (count%2 == 0) {
     ATH_CHECK( writeSCond (count) );
   }
+
+  ATH_CHECK( writeRLTest (count) );
+  ATH_CHECK( writeTSTest (count) );
 
   return StatusCode::SUCCESS;
 }

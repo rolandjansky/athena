@@ -30,13 +30,19 @@ CondReaderAlg::CondReaderAlg (const std::string& name, ISvcLocator *pSvcLocator)
     m_chronoSvc ("ChronoStatSvc", name),
     m_attrListKey ("/DMTest/TestAttrList"),
     m_scondKey ("scond", "DMTest"),
-    m_s2Key ("/DMTest/S2")
+    m_s2Key ("/DMTest/S2"),
+    m_s3Key(""),
+    m_rltestKey (""),
+    m_tstestKey ("")
 {
   declareProperty ("ChronoSvc",    m_chronoSvc);
   declareProperty ("EventInfoKey", m_eventInfoKey = "McEventInfo");
   declareProperty ("AttrListKey",  m_attrListKey);
   declareProperty ("SCondKey",     m_scondKey);
   declareProperty ("S2Key",        m_s2Key);
+  declareProperty ("S3Key",        m_s3Key);
+  declareProperty ("RLTestKey",    m_rltestKey);
+  declareProperty ("TSTestKey",    m_tstestKey);
   declareProperty ("Spins",        m_spins = 0);
 }
 
@@ -53,6 +59,10 @@ StatusCode CondReaderAlg::initialize()
 
   // Allow running without POOL payload
   if ( !m_s2Key.key().empty()) ATH_CHECK( m_s2Key.initialize() );
+
+  if ( !m_s3Key.key().empty())     ATH_CHECK( m_s3Key.initialize() );
+  if ( !m_rltestKey.key().empty()) ATH_CHECK( m_rltestKey.initialize() );
+  if ( !m_tstestKey.key().empty()) ATH_CHECK( m_tstestKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -77,6 +87,21 @@ StatusCode CondReaderAlg::execute (const EventContext& ctx) const
   if (!m_s2Key.key().empty()) {
     SG::ReadCondHandle<DMTest::S1> s2 (m_s2Key, ctx);
     ATH_MSG_INFO ("  s2 " << s2->m_x );
+  }
+
+  if (!m_rltestKey.key().empty()) {
+    SG::ReadCondHandle<AthenaAttributeList> rl (m_rltestKey, ctx);
+    ATH_MSG_INFO ("  rl " << (**rl)["xint"]);
+  }
+
+  if (!m_tstestKey.key().empty()) {
+    SG::ReadCondHandle<AthenaAttributeList> ts (m_tstestKey, ctx);
+    ATH_MSG_INFO ("  ts " << (**ts)["xint"]);
+  }
+
+  if (!m_s3Key.key().empty()) {
+    SG::ReadCondHandle<DMTest::S3> s3 (m_s3Key, ctx);
+    ATH_MSG_INFO ("  s3 " << s3->m_x );
   }
 
   {

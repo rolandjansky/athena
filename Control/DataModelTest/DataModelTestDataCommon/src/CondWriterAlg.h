@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
  */
 // $Id$
 /**
@@ -53,12 +53,16 @@ public:
 
 private:
   StatusCode writeSCond (unsigned int count);
+  StatusCode writeRLTest (unsigned int count);
+  StatusCode writeTSTest (unsigned int count);
 
   ServiceHandle<IIOVRegistrationSvc> m_regSvc;
   ToolHandle<IAthenaOutputStreamTool> m_streamer;
   SG::ReadHandleKey<EventInfo> m_eventInfoKey;
   std::string m_attrListKey;
   std::string m_s2Key;
+  std::string m_rltestKey;
+  std::string m_tstestKey;
 };
 
 

@@ -1,12 +1,12 @@
-Thu Dec  6 06:22:29 CET 2018
+Tue Dec 11 15:25:02 CET 2018
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AthenaWorkDir-22.0.1] [x86_64-slc6-gcc62-opt] [atlas-work3/fa0fd6d0989] -- built on [2018-12-06T0538]
+Py:Athena            INFO using release [WorkDir-22.0.1] [x86_64-slc6-gcc62-opt] [atlas-work3g/fc1ea6b7761] -- built on [2018-12-11T1514]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/CondWriter_jo.py"
-Py:ConfigurableDb    INFO Read module info for 5473 configurables from 53 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5443 configurables from 42 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "DataModelRunTests/loadWriteDicts.py"
 EventInfoMgtInit: Got release version  Athena-22.0.1
@@ -17,7 +17,7 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v30r5)
-                                          running on lxplus077.cern.ch on Thu Dec  6 06:22:54 2018
+                                          running on lxplus079.cern.ch on Tue Dec 11 15:25:24 2018
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -29,7 +29,7 @@ ClassIDSvc           INFO  getRegistryEntries: read 2946 CLIDRegistry entries fo
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 1796 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1855 CLIDRegistry entries for module ALL
 PyComponentMgr       INFO Initializing PyComponentMgr...
 LoadWriteDicts       INFO Initializing LoadWriteDicts...
 MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
@@ -37,8 +37,8 @@ AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version Athena
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-12-04T2300/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus077.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-12-10T2259/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus079.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is file:CondWriter_catalog.xml
@@ -61,13 +61,13 @@ AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 EventPersistenc...   INFO Added successfully Conversion service:TagInfoMgr
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
-ClassIDSvc           INFO  getRegistryEntries: read 8990 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 8992 CLIDRegistry entries for module ALL
 IOVDbSvc             INFO Opening COOL connection for sqlite://;schema=condtest.db;dbname=OFLP200
 IOVDbSvc             INFO *** COOL  exception caught: The database does not exist
 IOVDbSvc             INFO Create a new conditions database: sqlite://;schema=condtest.db;dbname=OFLP200
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     UPDATE    [ROOT_All] 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   CREATE    [ROOT_All] A9C970C0-3C58-8C41-8200-4F1137A07773
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   CREATE    [ROOT_All] A834E12A-0572-2942-88EC-5A969061BCA7
 Domain[ROOT_All]     INFO                           condtest.pool.root
 RootDatabase.open    INFO condtest.pool.root File version:61404
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
@@ -119,9 +119,29 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #18, run #0 18 events
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #0 19 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #0 19 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #20, run #0 20 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #20, run #0 21 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #21, run #0 21 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #21, run #0 22 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #22, run #0 22 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #22, run #0 23 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #23, run #0 23 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #23, run #0 24 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #24, run #0 24 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #24, run #0 25 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #25, run #0 25 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #25, run #0 26 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #26, run #0 26 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #26, run #0 27 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #27, run #0 27 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #27, run #0 28 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #28, run #0 28 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #28, run #0 29 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #29, run #0 29 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #29, run #0 30 events processed so far  <<<===
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 condtest.pool.root   INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] A9C970C0-3C58-8C41-8200-4F1137A07773
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] A834E12A-0572-2942-88EC-5A969061BCA7
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     UPDATE    [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
 IncidentProcAlg1     INFO Finalize
