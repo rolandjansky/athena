@@ -33,7 +33,7 @@ StatusCode TrigTauCaloHypoAlgMT::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigTauCaloHypoAlgMT::execute_r( const EventContext& context ) const {  
+StatusCode TrigTauCaloHypoAlgMT::execute( const EventContext& context ) const {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
   if( not previousDecisionsHandle.isValid() ) {//implicit
