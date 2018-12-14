@@ -70,17 +70,20 @@ TRTOverlay::TRTOverlay(const std::string &name, ISvcLocator *pSvcLocator)
     m_rndmSvc("AtRndmGenSvc",name),
     m_rndmEngineName("TRTOverlay"),
     m_rndmEngine(nullptr),
-    m_TRT_LocalOccupancyTool("TRT_LocalOccupancy")
+    m_TRT_LocalOccupancyTool("TRT_LocalOccupancy",this),
+    m_TRTStrawSummarySvc("TRT_StrawStatusSummarySvc","TRT_StrawStatusSummarySvc")
 {
   declareProperty("RndmSvc", m_rndmSvc, "Random Number Service");
   declareProperty("RndmEngine", m_rndmEngineName, "Random engine name");
 
   declareProperty("TRT_LocalOccupancyTool", m_TRT_LocalOccupancyTool);
 
-  declareProperty("TRT_HT_OccupancyCorrectionBarrel", m_HTOccupancyCorrectionB=0.160);
-  declareProperty("TRT_HT_OccupancyCorrectionEndcap", m_HTOccupancyCorrectionEC=0.130);
-  declareProperty("TRT_HT_OccupancyCorrectionBarrelNoE", m_HTOccupancyCorrectionB_noE=0.105);
-  declareProperty("TRT_HT_OccupancyCorrectionEndcapNoE", m_HTOccupancyCorrectionEC_noE=0.080);
+  declareProperty("TRT_HT_OccupancyCorrectionBarrel", m_HTOccupancyCorrectionB=0.110);
+  declareProperty("TRT_HT_OccupancyCorrectionEndcap", m_HTOccupancyCorrectionEC=0.090);
+  declareProperty("TRT_HT_OccupancyCorrectionBarrelNoE", m_HTOccupancyCorrectionB_noE=0.060);
+  declareProperty("TRT_HT_OccupancyCorrectionEndcapNoE", m_HTOccupancyCorrectionEC_noE=0.050);
+  
+  declareProperty("TRTStrawSummarySvc",  m_TRTStrawSummarySvc);  
 }
 
 StatusCode TRTOverlay::initialize()
@@ -120,6 +123,17 @@ StatusCode TRTOverlay::initialize()
 
   // Retrieve TRT local occupancy tool
   CHECK(m_TRT_LocalOccupancyTool.retrieve());
+
+  if (!m_TRTStrawSummarySvc.empty() && m_TRTStrawSummarySvc.retrieve().isFailure() ) {
+    ATH_MSG_ERROR ("Failed to retrieve StrawStatus Summary " << m_TRTStrawSummarySvc);
+    ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
+    return StatusCode::FAILURE;
+  } else {
+    if ( !m_TRTStrawSummarySvc.empty()) 
+      ATH_MSG_INFO( "Retrieved tool " << m_TRTStrawSummarySvc );
+  }
+
+
 
   return StatusCode::SUCCESS;
 }
@@ -335,6 +349,15 @@ void TRTOverlay::mergeTRTCollections(TRT_RDO_Collection *bkgCollection,
               }
             }
 
+            // Determine what type of straw was hit
+            bool isXenonStraw = false;
+            if (!m_TRTStrawSummarySvc.empty()) {
+              if (m_TRTStrawSummarySvc->getStatusHT(rdoId) == TRTCond::StrawStatus::Good) {
+                isXenonStraw = true;
+              }
+            }
+
+
 
             unsigned int newword = 0;
             //Get random number
@@ -346,7 +369,7 @@ void TRTOverlay::mergeTRTCollections(TRT_RDO_Collection *bkgCollection,
               HTOccupancyCorrection = abs(det) > 1 ? m_HTOccupancyCorrectionEC_noE : m_HTOccupancyCorrectionB_noE;
             }
 
-            if( occupancy * HTOccupancyCorrection > CLHEP::RandFlat::shoot( m_rndmEngine, 0, 1) )
+            if( isXenonStraw && occupancy * HTOccupancyCorrection > CLHEP::RandFlat::shoot( m_rndmEngine, 0, 1) )
               newword += 1 << (26-9);
             //
             TRT_LoLumRawData newrdo( pr1->identify(), newword);
@@ -364,3 +387,4 @@ void TRTOverlay::mergeTRTCollections(TRT_RDO_Collection *bkgCollection,
     outputCollection->push_back(p_rdo);
   } // <= while
 }
+

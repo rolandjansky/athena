@@ -59,14 +59,15 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
 
         from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
         TRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name="TRT_LocalOccupancy", isTrigger= False )
-        ToolSvc += TRT_LocalOccupancy
 
         job += CfgGetter.getAlgorithm("TRT_OverlayDigitization")
         job += CfgGetter.getAlgorithm("TRTOverlay")
-
+        job.TRTOverlay.TRT_LocalOccupancyTool  = TRT_LocalOccupancy
+        
         from InDetRecExample.InDetJobProperties import InDetFlags
         include("InDetRecExample/InDetRecConditionsAccess.py")
-
+        job.InDetTRTStrawStatusSummarySvc  = InDetTRTStrawStatusSummarySvc 
+        
         if overlayFlags.isDataOverlay():
             job.InDetTRTRawDataProvider.RDOKey = overlayFlags.dataStore()+"+TRT_RDOs"
             #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TRT_RDO_Container/TRT_RDOs" ]

@@ -44,8 +44,10 @@ def getTRTOverlay(name="TRTOverlay", **kwargs):
     kwargs.setdefault("TRT_LocalOccupancyTool", "TRT_LocalOccupancy")
 
     # HT hit correction fraction
-    kwargs.setdefault("TRT_HT_OccupancyCorrectionBarrel", 0.160)
-    kwargs.setdefault("TRT_HT_OccupancyCorrectionEndcap", 0.130)
+    kwargs.setdefault("TRT_HT_OccupancyCorrectionBarrel", 0.110)
+    kwargs.setdefault("TRT_HT_OccupancyCorrectionEndcap", 0.090)
+    kwargs.setdefault("TRT_HT_OccupancyCorrectionBarrelNoE", 0.060)
+    kwargs.setdefault("TRT_HT_OccupancyCorrectionEndcapNoE", 0.050)
 
     return CfgMgr.TRTOverlay(name, **kwargs)
 
