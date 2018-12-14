@@ -97,7 +97,8 @@ public:
 
 
     // above methods return mm
-    // for PC, need pitch in phi units
+    // Use these methods if you're working with polar coordinates
+    // AnnulusBoundsPC, in all other cases use phiPitch() from above
     double phiPitchPhi(const SiLocalPosition &localPosition) const;
     double phiPitchPhi(const SiCellId &cellId) const;
     double phiPitchPhi() const;
@@ -114,6 +115,8 @@ public:
     SiLocalPosition localPositionOfCluster(const SiCellId &cellId, int clusterSize) const;
     
     // these return local position in STRIP PC
+    // Use only if you work with the polar coordinates, in all other
+    // cases, use the un-suffixes methods above
     SiLocalPosition localPositionOfCellPC(const SiCellId &cellId) const;
     SiLocalPosition localPositionOfClusterPC(const SiCellId &cellId, int clusterSize) const;
 
