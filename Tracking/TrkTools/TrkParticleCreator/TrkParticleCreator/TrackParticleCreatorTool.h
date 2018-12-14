@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -73,8 +73,8 @@ namespace Trk {
 
     virtual ~TrackParticleCreatorTool();
 
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
     /** Method to construct a TrackParticle from a passed Track. Currently, it will ONLY fill the MeasuredPerigee
     i.e. the TrackParticle will not be complete
@@ -85,6 +85,7 @@ namespace Trk {
     @warning In my opinion, the interface is not optimal - we're not taking ownership of the Trk::Track or Vx::Candidate, 
     so they should be passed by reference.
     */
+    virtual
     Rec::TrackParticle* createParticle( const Trk::Track* track,
     const Trk::VxCandidate* vxCandidate,
     Trk::TrackParticleOrigin prtOrigin) override;
@@ -93,7 +94,8 @@ namespace Trk {
     @param track particle 
     @param TrackParticleContainer needed to have an AuxStore, if provided particle will be added to store which takes ownership
     */
-    xAOD::TrackParticle* createParticle( const Rec::TrackParticle& trackParticle,  xAOD::TrackParticleContainer* container ) const ;
+    virtual
+    xAOD::TrackParticle* createParticle( const Rec::TrackParticle& trackParticle,  xAOD::TrackParticleContainer* container ) const override;
 
     /** Method to construct a xAOD::TrackParticle from a passed Track. Currently, it will ONLY fill the MeasuredPerigee
     i.e. the TrackParticle will not be complete
@@ -104,6 +106,7 @@ namespace Trk {
     @warning In my opinion, the interface is not optimal - we're not taking ownership of the Trk::Track or Vx::Candidate, 
     so they should be passed by reference.
     */
+    virtual
     xAOD::TrackParticle* createParticle( const Trk::Track& track,
                                          xAOD::TrackParticleContainer* container,
                                          const xAOD::Vertex* vxCandidate,
@@ -116,17 +119,19 @@ namespace Trk {
     @param xAOD::Vertex Pointer to a valid vxCandidate (i.e. do not pass a zero!). Ownership is not taken (i.e. it will not be deleted)
     @param prtOrigin 
     */
+    virtual
     xAOD::TrackParticle* createParticle( const ElementLink<TrackCollection>& trackLink,
                                          xAOD::TrackParticleContainer* container,
                                          const xAOD::Vertex* vxCandidate,
                                          xAOD::ParticleHypothesis prtOrigin) const override;
 
     /** create a xAOD::TrackParticle out of constituents */
+    virtual
   xAOD::TrackParticle* createParticle( const Perigee* perigee, const FitQuality* fq, const TrackInfo* trackInfo, const TrackSummary* summary,
                                        const std::vector<const Trk::TrackParameters*>& parameters, 
                                        const std::vector< xAOD::ParameterPosition>& positions, 
                                        xAOD::ParticleHypothesis prtOrigin,
-                                       xAOD::TrackParticleContainer* container ) const;
+                                       xAOD::TrackParticleContainer* container ) const override;
 
     /** Method to set FitQuality of a xAOD::TrackParticle */
   void setFitQuality( xAOD::TrackParticle& tp, const FitQuality& fq ) const;
