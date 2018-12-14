@@ -158,7 +158,7 @@ int main( int argc, char* argv[] ) {
   m_Tagger.setType("JetQGTaggerBDT");
   m_Tagger.setName("MyTagger");
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::DEBUG);
-  m_Tagger.setProperty( "ConfigFile",   "JetQGTaggerBDT/JetQGTaggerBDT90Gluon.dat");
+  m_Tagger.setProperty( "ConfigFile",   "JetQGTaggerBDT/JetQGTaggerBDT50Gluon.dat");
   m_Tagger.retrieve();
 
   ////////////////////////////////////////////////////
@@ -199,7 +199,7 @@ int main( int argc, char* argv[] ) {
     // Loop over jet container
     for(const xAOD::Jet* jet : * myJets ){
       int truthlabel = jet->getAttribute<int>("PartonTruthLabelID");
-      if(jet->pt()<30000 || TMath::Abs(jet->eta())>2.5 || truthlabel==-1 || truthlabel==5)
+      if(jet->pt()<20000 || TMath::Abs(jet->eta())>2.5 || truthlabel==-1 || truthlabel==5)
     	continue;
       if(verbose) std::cout<<std::endl;
 

@@ -74,9 +74,9 @@ StatusCode JetQGTaggerBDT::initialize(){
     // get the name/path of the JSON config
     m_tmvaConfigFileName = configReader.GetValue("TMVAConfigFile" ,"");
 
-    m_ScoreCut = configReader.GetValue("ScoreCut" ,-1.);
+    m_strScoreCut = configReader.GetValue("ScoreCut" ,"");
 
-    ATH_MSG_INFO( "scoreCut: "<<m_ScoreCut );
+    ATH_MSG_INFO( "scoreCut: "<<m_strScoreCut );
 
   }
   // if the calibarea is specified to be "Local" then it looks in the same place as the top level configs
@@ -97,6 +97,14 @@ StatusCode JetQGTaggerBDT::initialize(){
     m_tmvaConfigFilePath = PathResolverFindCalibFile( (m_calibarea+m_tmvaConfigFileName).c_str() );
   }
 
+  //transform string to TF1
+  if(m_strScoreCut.empty()){
+    ATH_MSG_ERROR( "Score cut function is empty!" );
+    return StatusCode::FAILURE;
+  }
+  else{
+    m_funcScoreCut = std::unique_ptr<TF1> (new TF1("strScoreCut",    m_strScoreCut.c_str(),    0, 14000));
+  }
   // set up InDet selection tool
   ANA_CHECK( ASG_MAKE_ANA_TOOL( m_trkSelectionTool,  InDet::InDetTrackSelectionTool ) );
   ANA_CHECK( m_trkSelectionTool.setProperty( "CutLevel", "Loose" ) );
@@ -165,7 +173,9 @@ Root::TAccept JetQGTaggerBDT::tag(const xAOD::Jet& jet) const {
   // get BDT score
   float jet_score = getScore(jet);
   ATH_MSG_DEBUG(TString::Format("jet score %g",jet_score) );
-  float cut = m_ScoreCut;
+
+  //get cut from cut function
+  float cut = m_funcScoreCut->Eval(jet.pt()/1000.);
 
   if(jet_score < cut) m_accept.setCutResult("QuarkJetTag", true);
 
@@ -193,8 +203,6 @@ float JetQGTaggerBDT::getScore(const xAOD::Jet& jet) const{
 void JetQGTaggerBDT::getJetProperties(const xAOD::Jet& jet) const{
   /* Update the jet substructure variables for this jet */
 
-  //mass and pT
-  //it is assumed that these are the combined and calibrated mass and pT
   m_pt   = jet.pt()/1000.0;
   m_eta   = jet.eta();
 
