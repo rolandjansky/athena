@@ -49,7 +49,7 @@ StatusCode CondAlg2::initialize()
 /**
  * @brief Algorithm event processing.
  */
-StatusCode CondAlg2::execute_r (const EventContext& ctx) const
+StatusCode CondAlg2::execute (const EventContext& ctx) const
 {
   SG::ReadCondHandle<AthenaAttributeList> rltest (m_rltestKey, ctx);
   int xint_rl = (**rltest)["xint"].data<int>();
