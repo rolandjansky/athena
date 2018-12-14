@@ -224,8 +224,8 @@ StatusCode EFMissingETFromTrackAndJets::execute(xAOD::TrigMissingET *,
 
         bool accept = (itrk->pt()>500 && m_trackselTool->accept(*itrk, primaryVertex));
         if (accept) ptsum_all += itrk->pt();
-        if (accept && ((!itrk->vertex() && fabs((itrk->z0()+itrk->vz()-primaryVertex->z())*sin(itrk->theta()))<3.) || itrk->vertex()==primaryVertex)) ptsum_pv += itrk->pt();
-        if (accept && !(!itrk->vertex() && fabs((itrk->z0()+itrk->vz()-primaryVertex->z())*sin(itrk->theta()))<3.)) ptsum_pileup += itrk->pt();
+        if (accept &&  ((!itrk->vertex() && fabs((itrk->z0()+itrk->vz()-primaryVertex->z())*sin(itrk->theta()))<3.) || itrk->vertex()==primaryVertex)) ptsum_pv += itrk->pt();
+        if (accept && !((!itrk->vertex() && fabs((itrk->z0()+itrk->vz()-primaryVertex->z())*sin(itrk->theta()))<3.) || itrk->vertex()==primaryVertex)) ptsum_pileup += itrk->pt();
       }
       //double JVF = ptsum_all>0 ? ptsum_pv/ptsum_all : -1;
       double Rpt = ptsum_pv/jet->pt();
