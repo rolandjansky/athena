@@ -50,10 +50,10 @@ StatusCode TrigMuisoHypoAlg::finalize()
 }
 
 
-StatusCode TrigMuisoHypoAlg::execute_r( const EventContext& context) const
+StatusCode TrigMuisoHypoAlg::execute( const EventContext& context) const
 {
   // common for all Hypos, to move in the base class
-  ATH_MSG_DEBUG("StatusCode TrigMuisoHypoAlg::execute_r start");
+  ATH_MSG_DEBUG("StatusCode TrigMuisoHypoAlg::execute start");
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
   if( not previousDecisionsHandle.isValid() ) {//implicit
     ATH_MSG_DEBUG( "No implicit RH for previous decisions "<<  decisionInput().key()<<": is this expected?" );
@@ -61,9 +61,9 @@ StatusCode TrigMuisoHypoAlg::execute_r( const EventContext& context) const
   }  
   ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" implicit ReadHandles for previous decisions");
 
-  auto decisions = std::make_unique<DecisionContainer>();
-  auto aux = std::make_unique<DecisionAuxContainer>();
-  decisions->setStore(aux.get());
+  // new output decisions
+  SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 
+  auto decisions = outputHandle.ptr();
   // end of common
  
   std::vector<TrigMuisoHypoTool::MuisoInfo> toolInput; 
@@ -83,7 +83,7 @@ StatusCode TrigMuisoHypoAlg::execute_r( const EventContext& context) const
     const xAOD::L2IsoMuon* muon = *muonEL;
 
     // create new decision
-    auto newd = newDecisionIn( decisions.get() );
+    auto newd = newDecisionIn( decisions );
 
     // push_back to toolInput
     toolInput.emplace_back( newd, muon, previousDecision );
@@ -115,8 +115,6 @@ StatusCode TrigMuisoHypoAlg::execute_r( const EventContext& context) const
 
 
   {// make output handle and debug, in the base class
-    auto outputHandle = SG::makeHandle(decisionOutput(), context);
-    ATH_CHECK( outputHandle.record( std::move( decisions ), std::move( aux ) ) );
     ATH_MSG_DEBUG ( "Exit with "<<outputHandle->size() <<" decisions");
     TrigCompositeUtils::DecisionIDContainer allPassingIDs;
     if ( outputHandle.isValid() ) {
@@ -130,7 +128,7 @@ StatusCode TrigMuisoHypoAlg::execute_r( const EventContext& context) const
   }
 
 
-  ATH_MSG_DEBUG("StatusCode TrigMuisoHypoAlg::execute_r success");
+  ATH_MSG_DEBUG("StatusCode TrigMuisoHypoAlg::execute success");
   return StatusCode::SUCCESS;
 }
 

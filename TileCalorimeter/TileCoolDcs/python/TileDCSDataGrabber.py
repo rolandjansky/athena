@@ -658,7 +658,7 @@ class TileDCSDataGrabber:
                             while stmt.NextResultRow():
                                 if   varType==self.info.type_int:    value = stmt.GetInt(   1)
                                 elif varType==self.info.type_float:  value = stmt.GetDouble(1)
-                                #=== catch crap in oracle
+                                #=== catch in oracle
                                 if value < -10000:
                                     nCrap += 1
                                     continue
@@ -683,7 +683,7 @@ class TileDCSDataGrabber:
                         if not isDebug: bar.done()
                     folderVarSetList.append(folderVarSet)
                 if nCrap > 0:
-                    logging.warning("Found %i \"crap\" entries for %s, ignored those!"%(nCrap,var))
+                    logging.warning("Found %i \"bad\" entries for %s, ignored those!"%(nCrap,var))
         return folderVarSetList
 
 

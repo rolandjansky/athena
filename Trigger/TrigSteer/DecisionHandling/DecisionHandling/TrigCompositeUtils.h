@@ -8,6 +8,7 @@
 #include <set>
 #include <memory>
 #include <functional>
+#include <iostream>
 
 #include "AthLinks/ElementLink.h"
 #include "AthLinks/ElementLinkVector.h"
@@ -15,6 +16,7 @@
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "AthContainers/AuxElement.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
@@ -22,25 +24,61 @@
 
 namespace TrigCompositeUtils {
 
-  // alias types, for readability and to simplify future evolution
+  /// alias types, for readability and to simplify future evolution
   typedef SG::WriteHandle<DecisionContainer> DecisionWriteHandle;
-  /**
-   * @brief creates and right away stores the DecisionContainer under the key
-   **/
-  DecisionWriteHandle createAndStore(const SG::WriteHandleKey<DecisionContainer>& key, const EventContext& ctx);
 
   /**
-   * @brief helper method to that created the Decision objects, places it in the container and returns
+   * @brief Creates and right away records the Container CONT with the key.
+   * Returns the WriteHandle. 
+   * No Aux store.
+   * If possible provide the context that comes via an argument to execute otherwise it will default to looking it up which is slower.
+   **/
+  template<class CONT>
+    SG::WriteHandle<CONT> createAndStoreNoAux( const SG::WriteHandleKey<CONT>& key, const EventContext& ctx = Gaudi::Hive::currentContext());
+
+  /**
+   * @brief Creates and right away records the Container CONT with the key.
+   * Returns the WriteHandle. 
+   * With Aux store.
+   * If possible provide the context that comes via an argument to execute otherwise it will default to looking it up which is slower.
+   **/
+  template<class CONT, class AUX>
+    SG::WriteHandle<CONT> createAndStoreWithAux( const SG::WriteHandleKey<CONT>& key, const EventContext& ctx = Gaudi::Hive::currentContext());
+
+  /**
+   * @brief Creates and right away records the DecisionContainer with the key.
+   * Returns the WriteHandle. 
+   * If possible provide the context that comes via an argument to execute otherwise it will default to looking it up which is slower.
+   **/
+  SG::WriteHandle<DecisionContainer> createAndStore( const SG::WriteHandleKey<DecisionContainer>& key, const EventContext& ctx = Gaudi::Hive::currentContext() );
+
+  /**
+   * @brief Creates and right away records the DecisionContainer using the provided WriteHandle.
+   **/
+
+  void createAndStore( SG::WriteHandle<DecisionContainer>& handle );
+
+  /**
+   * @brief Helper method to create a Decision object, place it in the container and return a pointer to it.
    * This is to make this:
    * auto d = newDecisionIn(output);
    * instead of:
    * auto d = new Decision; 
    * output->push_back(d);    
-   * a version with the name assigns the name to the TC object
+   * If provided, the name is assigned to the TC object
+   * Note that the supplied DecisionContainer must have been recorded in the event store.
+   * If possible provide the context that comes via an argument to execute otherwise it will default to looking it up which is slower.
    **/  
-  Decision* newDecisionIn (DecisionContainer* dc);
-  Decision* newDecisionIn (DecisionContainer* dc, const std::string& name);
+  Decision* newDecisionIn ( DecisionContainer* dc, const std::string& name = "", const EventContext& ctx = Gaudi::Hive::currentContext() );
 
+  /**
+   * @brief Helper method to create a Decision object, place it in the container and return a pointer to it. RoI, view and feature links will be copied from the previous to the new decision and a "seed" link made between them
+   * @arg the container in which to place the new Decision
+   * @arg the previous decision to which the new one should be connected
+   * If provided, the name is assigned to the TC object
+   * Note that the supplied DecisionContainer must have been recorded in the event store.
+   **/ 
+Decision* newDecisionIn( DecisionContainer* dc, const Decision* dOld, const std::string& name = "", const EventContext& ctx = Gaudi::Hive::currentContext() );
 
   /**
    * @brief Appends the decision (given as ID) to the decision object
@@ -49,21 +87,40 @@ namespace TrigCompositeUtils {
    **/
   void addDecisionID( DecisionID id,  Decision* d);
 
+ /**
+   * @brief Appends the decision IDs of src to the dest decision object
+   * @warning Performing merging of IDs and solving the duples (via set)
+   * This helps when making copies of Decision obejcts
+   **/
+  void insertDecisionIDs( const Decision* src, Decision* dest );
+
+ /**
+   * @brief Make unique list of decision IDs of dest Decision object
+   * @warning Use vector->set->vector
+   * This helps solving multiple inserts of the Decision obejcts
+   **/
+  void uniqueDecisionIDs( Decision* dest);
+
       
   /**
-   * @brief Extracts DecisionIDs stored in the Decsion object 
+   * @brief Extracts DecisionIDs stored in the Decision object 
    **/
   void decisionIDs( const Decision* d, DecisionIDContainer& id );
 
   /**
-   * @brief Another variant of the above method
+   * @brief Another variant of the above method to access DecisionIDs stored in
+ the Decision object, returns const accessor
    **/
   const std::vector<int>& decisionIDs( const Decision* d ); 
+
+  /**
+   * @brief Another variant of the above method to access DecisionIDs stored in the Decision object, returns read/write accessor
+   **/ 
   std::vector<int>& decisionIDs( Decision* d );
 
   
   /**
-   * @brief return true if thre is no positive decision stored
+   * @brief return true if there is no positive decision stored
    **/
   bool allFailed( const Decision* d );
   
@@ -73,7 +130,7 @@ namespace TrigCompositeUtils {
   bool isAnyIDPassing( const Decision* d,  const DecisionIDContainer& required);
 
   /**
-   * @brief checks if required ID is in the set of the decisions
+   * @brief checks if required decision ID is in the set of IDs in the container
    **/
   bool passed( DecisionID id, const DecisionIDContainer& );
   
@@ -90,7 +147,7 @@ namespace TrigCompositeUtils {
   /**
    * @brief returns link to previous decision object
    **/
-  ElementLink<DecisionContainer> linkToPrevious(const Decision*);
+  ElementLinkVector<DecisionContainer> getLinkToPrevious(const Decision*);
 
   /**
    * @brief copy all links from src to dest TC objects
@@ -98,9 +155,6 @@ namespace TrigCompositeUtils {
    * @ret true if success
    **/
   bool copyLinks(const Decision* src, Decision* dest);
-
-
-
 
   /**
    * @brief traverses TC links for another TC fufilling the prerequisite specified by the filter
@@ -156,8 +210,8 @@ namespace TrigCompositeUtils {
   };
 
   /**
-   * @brief search back the TC links for the object of type T linked to the one of TC
-   * @arg start the TC where from where the link back is to be looked for
+   * @brief search back the TC links for the object of type T linked to the one of TC (recursively)
+   * @arg start the TC  from where the link back is to be looked for
    * @arg linkName the name with which the Link was added to the source TC
    * @return pair of link and TC with which it was associated, 
    */
@@ -165,8 +219,21 @@ namespace TrigCompositeUtils {
   LinkInfo<T>
   findLink(const xAOD::TrigComposite* start, const std::string& linkName) {
     auto source = find(start, HasObject(linkName) );
-    if ( not source )
+    //
+    if ( not source ){
+      auto seeds = getLinkToPrevious(start);
+      // std::cout<<"Looking for seeds: found " <<seeds.size()<<std::endl;
+      for (auto seed: seeds){
+	const xAOD::TrigComposite* dec = *seed;//deference
+	LinkInfo<T> link= findLink<T>( dec, linkName );
+	// return the first found
+	if (link.isValid()) return link;
+      }
       return LinkInfo<T>(); // invalid link
+    }
+
+    //std::cout<<"Found source for "<<linkName<<std::endl;
+
     return LinkInfo<T>( source, source->objectLink<T>( linkName ) );
   }
 
@@ -178,5 +245,6 @@ namespace TrigCompositeUtils {
 
 }
 
+#include "DecisionHandling/TrigCompositeUtils.icc"
 
 #endif // DecisionHandling_TrigCompositeUtils_h

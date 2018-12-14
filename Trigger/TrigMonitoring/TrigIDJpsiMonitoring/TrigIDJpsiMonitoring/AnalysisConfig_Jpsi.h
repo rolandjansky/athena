@@ -154,7 +154,7 @@ namespace TrigInDetAnalysis {
         std::string idChainName;
         if(chain.find("2mu4T_")     != std::string::npos) idChainName = "L2_mu4T_IDTrkNoCut";
         //if(chain.find("2mu4T_")     != std::string::npos) idChainName = "L2_muon_standalone_mu4T";
-        //if(chain.find("2mu4T_")     != std::string::npos) idChainName = "***REMOVED***";
+        //if(chain.find("2mu4T_")     != std::string::npos) idChainName = "somestuff";
         if(chain.find("2mu4_")      != std::string::npos) idChainName = "L2_mu4_IDTrkNoCut";
         if(chain.find("2mu13_")     != std::string::npos) idChainName = "L2_mu13_IDTrkNoCut";
         if(chain.find("e4_etcut_Jpsi") != std::string::npos) idChainName = "L2_e4_etcutid";

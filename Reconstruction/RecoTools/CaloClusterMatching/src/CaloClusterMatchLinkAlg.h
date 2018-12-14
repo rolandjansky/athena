@@ -44,7 +44,7 @@ namespace ClusterMatching {
 
     // Athena algorithm's Hooks
     virtual StatusCode  initialize();
-    virtual StatusCode  execute_r(const EventContext& ctx) const;
+    virtual StatusCode  execute(const EventContext& ctx) const;
     virtual StatusCode  finalize();
 
     /////////////////////////////////////////////////////////////////// 

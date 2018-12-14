@@ -476,3 +476,14 @@ namespace xAOD {
    /////////////////////////////////////////////////////////////////////////////
 
 } // namespace xAOD
+
+std::ostream& operator<<(std::ostream& os, const xAOD::TrigComposite_v1& tc) {
+  os << "TrigComposite_v1 '" << tc.name() << "' link: name, key, index, CLID" << std::endl;
+  for (size_t i=0; i<tc.linkColNames().size(); ++i){
+    os << tc.linkColNames()[i] << ", ";
+    os << tc.linkColKeys()[i] << ", ";
+    os << tc.linkColIndices()[i] << ", ";
+    os << tc.linkColClids()[i] << std::endl;
+  }
+  return os;
+}

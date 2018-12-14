@@ -7,7 +7,7 @@
 #include "AthViews/ViewHelper.h"
 
 
-
+using TrigCompositeUtils::createAndStore; 
 using TrigCompositeUtils::DecisionContainer;
 using TrigCompositeUtils::DecisionAuxContainer; 
 using TrigCompositeUtils::DecisionIDContainer; 
@@ -38,7 +38,7 @@ StatusCode TrigL2PhotonHypoAlgMT::finalize() {
 }
 
   
-StatusCode TrigL2PhotonHypoAlgMT::execute_r( const EventContext& context ) const {  
+StatusCode TrigL2PhotonHypoAlgMT::execute( const EventContext& context ) const {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
   if( not previousDecisionsHandle.isValid() ) {//implicit
@@ -68,10 +68,9 @@ StatusCode TrigL2PhotonHypoAlgMT::execute_r( const EventContext& context ) const
   }
   ATH_MSG_DEBUG( "Cluster ptr to decision map has size " << clusterToIndexMap.size() );
 
-  auto decisions = std::make_unique<DecisionContainer>();
-  auto aux = std::make_unique<DecisionAuxContainer>();
-  decisions->setStore( aux.get() );
-
+  // new output decisions
+  SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 
+  auto decisions = outputHandle.ptr();
 
   std::vector<TrigL2PhotonHypoTool::PhotonInfo> hypoToolInput;
  
@@ -89,7 +88,7 @@ StatusCode TrigL2PhotonHypoAlgMT::execute_r( const EventContext& context ) const
     ATH_MSG_DEBUG ( "electron handle size: " << photonsHandle->size() << "..." );
 
     for ( auto photonIter = photonsHandle->begin(); photonIter != photonsHandle->end(); ++photonIter, photonCounter++ ) {
-      auto d = newDecisionIn( decisions.get(), name() );
+      auto d = newDecisionIn( decisions, name() );
       d->setObjectLink( "feature", ViewHelper::makeLink<xAOD::TrigPhotonContainer>( *viewELInfo.link, photonsHandle, photonCounter ) );
       
       auto clusterPtr = (*photonIter)->emCluster();
@@ -116,8 +115,6 @@ StatusCode TrigL2PhotonHypoAlgMT::execute_r( const EventContext& context ) const
     ATH_CHECK( tool->decide( hypoToolInput ) );    
   } 
 
-  auto outputHandle = SG::makeHandle(decisionOutput(), context);
-  ATH_CHECK( outputHandle.record(std::move(decisions), std::move(aux) ) );
   
   ATH_MSG_DEBUG( "Exiting with "<< outputHandle->size() <<" decisions");
   //debug

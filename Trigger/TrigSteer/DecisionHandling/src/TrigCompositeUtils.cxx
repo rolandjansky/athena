@@ -4,6 +4,8 @@
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadHandle.h"
 #include "AthContainers/AuxElement.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/GaudiException.h"
 
 #include "StoreGate/WriteHandle.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
@@ -15,7 +17,7 @@ static SG::AuxElement::ConstAccessor< std::vector<int> > readOnlyAccessor( "deci
 
 namespace TrigCompositeUtils {  
 
-  DecisionWriteHandle createAndStore( const SG::WriteHandleKey<DecisionContainer>& key, const EventContext& ctx ) {
+  SG::WriteHandle<DecisionContainer> createAndStore( const SG::WriteHandleKey<DecisionContainer>& key, const EventContext& ctx ) {
     SG::WriteHandle<DecisionContainer> handle( key, ctx );
     auto data = std::make_unique<DecisionContainer>() ;
     auto aux = std::make_unique<DecisionAuxContainer>() ;
@@ -23,17 +25,49 @@ namespace TrigCompositeUtils {
     handle.record( std::move( data ), std::move( aux )  ).ignore();
     return handle;
   }
-  
-  Decision* newDecisionIn ( DecisionContainer* dc ) {
+
+  void createAndStore( SG::WriteHandle<DecisionContainer>& handle ) {
+    auto data = std::make_unique<DecisionContainer>() ;
+    auto aux = std::make_unique<DecisionAuxContainer>() ;
+    data->setStore( aux.get() );
+    handle.record( std::move( data ), std::move( aux )  ).ignore();
+  }
+
+  Decision* newDecisionIn ( DecisionContainer* dc, const std::string& name, const EventContext& ctx ) {
     Decision * x = new Decision;
     dc->push_back( x );
-    readWriteAccessor( *x ).size(); // fake operation just to make the decsions decoration
+    readWriteAccessor( *x ).size(); // fake operation just to make the decisions decoration
+    size_t index = dc->size() - 1;
+    // make self link, useful to copy for seed link in a successor, but requires that DecisionContainer is already recorded in SG.
+    ElementLink<DecisionContainer> el(*dc, index, ctx);
+    if ( ! x->setObjectLink( "self", el ) ){ 
+      std::cerr << "TrigCompositeUtils::newDecisionIn ERROR failed to set self EL with key, maybe the DecisionContainer is not yet recorded in the event store? " << el.key() << std::endl;
+      throw GaudiException(" failed to set self EL ", "TrigCompositeUtils::newDecisionIn", StatusCode::FAILURE);
+    }
+    if ( ! name.empty() ) {
+      x->setName( name );
+    }
     return x;
   }
-  Decision* newDecisionIn (DecisionContainer* dc, const std::string& name) {
-    Decision* d = newDecisionIn( dc );
-    d->setName( name );
-    return d;
+
+  Decision* newDecisionIn ( DecisionContainer* dc, const Decision* dOld, const std::string& name, const EventContext& ctx ) {
+    Decision* dNew =  newDecisionIn( dc, name, ctx);
+   if ( dOld->hasObjectLink("roi" ) ){
+     dNew->copyLinkFrom(dOld,"roi");
+   }
+   else if ( dOld->hasObjectLink("initialRoI") ){
+     dNew->copyLinkFrom(dOld,"initialRoI","roi");
+   }
+   if ( dOld->hasObjectLink("view" ) ){
+     dNew->copyLinkFrom(dOld,"view");
+   }
+   if ( dOld->hasObjectLink("feature" ) ){
+     dNew->copyLinkFrom(dOld,"feature");
+   }
+   if ( dOld->hasObjectLink("self" ) ){
+     dNew->copyLinkFrom(dOld,"self","seed"); // make use of self-link 
+   }
+   return dNew;
   }
 
   void addDecisionID( DecisionID id,  Decision* d ) {   
@@ -55,6 +89,21 @@ namespace TrigCompositeUtils {
     return readWriteAccessor( *d );
   }
 
+  void insertDecisionIDs( const Decision* src, Decision* dest ){
+    DecisionIDContainer ids;
+    decisionIDs( src, ids );
+    decisionIDs( dest, ids );
+    decisionIDs( dest ).clear(); 
+    decisionIDs( dest ).insert( decisionIDs(dest).end(), ids.begin(), ids.end() );
+  }
+
+  void uniqueDecisionIDs( Decision* dest){
+    DecisionIDContainer ids;
+    decisionIDs( dest, ids );
+    decisionIDs( dest ).clear(); 
+    decisionIDs( dest ).insert( decisionIDs(dest).end(), ids.begin(), ids.end() );
+  }
+
   bool allFailed( const Decision* d ) {
     const std::vector<int>& decisions = readOnlyAccessor( *d );    
     return decisions.empty();
@@ -73,16 +122,30 @@ namespace TrigCompositeUtils {
   }
 
   void linkToPrevious( Decision* d, const std::string& previousCollectionKey, size_t previousIndex ) {
-    d->setObjectLink( "seed", ElementLink<DecisionContainer>( previousCollectionKey, previousIndex ) );
-  }
+    ElementLinkVector<DecisionContainer> seeds;
+    ElementLink<DecisionContainer> new_seed= ElementLink<DecisionContainer>( previousCollectionKey, previousIndex );
+    // do we need this link to self link?
+    if ( (*new_seed)->hasObjectLink("self" ) )
+      seeds.push_back( (*new_seed)->objectLink<DecisionContainer>("self")); // make use of self-link 
+    else
+      seeds.push_back(ElementLink<DecisionContainer>( previousCollectionKey, previousIndex ));
+    
+    if (hasLinkToPrevious(d) ){
+      ElementLinkVector<DecisionContainer> oldseeds = d->objectCollectionLinks<DecisionContainer>( "seed" );
+      seeds.reserve( seeds.size() + oldseeds.size() );
+      std::move( oldseeds.begin(), oldseeds.end(), std::back_inserter( seeds ) );
+    }
 
+    d->addObjectCollectionLinks("seed", seeds);
+    
+  }
 
   bool hasLinkToPrevious( const Decision* d ) {
     return d->hasObjectLink( "seed" );
   }
 
-  ElementLink<DecisionContainer> linkToPrevious( const Decision* d ) {
-    return d->objectLink<DecisionContainer>( "seed" );
+  ElementLinkVector <DecisionContainer> getLinkToPrevious( const Decision* d ) {
+    return d->objectCollectionLinks<DecisionContainer>( "seed" );
   }
 
 
@@ -90,7 +153,8 @@ namespace TrigCompositeUtils {
     return dest->copyAllLinksFrom(src);
   }
 
-
+ 
+  
   const xAOD::TrigComposite* find( const xAOD::TrigComposite* start, const std::function<bool( const xAOD::TrigComposite* )>& filter ) {
     if ( filter( start ) ) return start;
 
@@ -140,3 +204,4 @@ namespace TrigCompositeUtils {
   }
   
 }
+

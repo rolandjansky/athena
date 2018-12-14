@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -9,6 +9,5 @@
 #include "TileConditions/TileBadChanTool.h"
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/TileCablingSvc.h"
-#include "TileConditions/TileDCSSvc.h"
 
-#endif
+#endif // TILECONDITIONS_TILECONDITIONSDICT_H

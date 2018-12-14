@@ -4,6 +4,13 @@
 
 from AthenaCommon.Constants import VERBOSE,DEBUG, INFO
 
+### Output data name ###
+muFastInfo = "MuonL2SAInfo"
+muCombInfo = "MuonL2CBInfo"
+muEFSAInfo = "Muons"
+muL2ISInfo = "MuonL2ISInfo"
+TrackParticlesName = "xAODTracks"
+
 ### ==================== Data prepartion needed for the EF and L2 SA ==================== ###
 def makeMuonPrepDataAlgs():
 
@@ -174,25 +181,31 @@ def makeMuonPrepDataAlgs():
 
 # This def should be removed in the future. 
 # We have not yet integrated muon decoding tool, so this def is used now.
-def makeMuFastAlgs():
+def muFastRecoSequence( RoIs, OutputLevel=INFO ):
    
 
   from MuonRecExample.MuonRecFlags import muonRecFlags
   from AthenaCommon.AppMgr import ToolSvc
   from AthenaCommon.DetFlags import DetFlags
+  from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
 
+  muFastRecoSequence = parOR("l2MuViewNode")
+
+  ### These configurations for decoding tools should be removed. ###
   ### CSC RDO data ###
   from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscROD_Decoder
   CSCRodDecoder = Muon__CscROD_Decoder(name		= "CscROD_Decoder_L2SA",
                                        IsCosmics	= False,
-                                       IsOldCosmics 	= False )
+                                       IsOldCosmics 	= False,
+                                       OutputLevel      = OutputLevel )
   ToolSvc += CSCRodDecoder
 
 
   from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CSC_RawDataProviderTool
   MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderTool(name        = "CSC_RawDataProviderTool_L2SA",
                                                              RdoLocation = "CSCRDO_L2SA",
-                                                             Decoder     = CSCRodDecoder )
+                                                             Decoder     = CSCRodDecoder,
+                                                             OutputLevel = OutputLevel )
   ToolSvc += MuonCscRawDataProviderTool
 
   from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataTool
@@ -200,35 +213,39 @@ def makeMuFastAlgs():
                                                           RawDataProviderTool = MuonCscRawDataProviderTool,
                                                           RDOContainer        = MuonCscRawDataProviderTool.RdoLocation,
                                                           OutputCollection    = "CSC_Measurements_L2SA",
-                                                          useBStoRdoTool      = True)
+                                                          useBStoRdoTool      = True,
+                                                          OutputLevel         = OutputLevel )
   ToolSvc += CscRdoToCscPrepDataTool
 
 
   from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilderTool
   CscClusterBuilderTool = CscThresholdClusterBuilderTool(name        = "CscThesholdClusterBuilderTool_L2SA",
                                                          digit_key   = CscRdoToCscPrepDataTool.OutputCollection,
-                                                         cluster_key = "CSC_Clusters_L2SA" )
+                                                         cluster_key = "CSC_Clusters_L2SA",
+                                                         OutputLevel = OutputLevel )
 
   ToolSvc += CscClusterBuilderTool
 
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__CscDataPreparator
-  L2CscDataPreparator = TrigL2MuonSA__CscDataPreparator(#OutputLevel = DEBUG,
-                                                        CscPrepDataProvider  = CscRdoToCscPrepDataTool,
+  L2CscDataPreparator = TrigL2MuonSA__CscDataPreparator(CscPrepDataProvider  = CscRdoToCscPrepDataTool,
                                                         CscClusterProvider   = CscClusterBuilderTool,
-                                                        CSCPrepDataContainer = CscClusterBuilderTool.cluster_key)
+                                                        CSCPrepDataContainer = CscClusterBuilderTool.cluster_key,
+                                                        OutputLevel          = OutputLevel )
   ToolSvc += L2CscDataPreparator
 
  
   ### MDT RDO data ###
   from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import MdtROD_Decoder
-  MDTRodDecoder = MdtROD_Decoder(name	   = "MdtROD_Decoder_L2SA" )
+  MDTRodDecoder = MdtROD_Decoder(name	     = "MdtROD_Decoder_L2SA",
+                                 OutputLevel = OutputLevel )
 
   ToolSvc += MDTRodDecoder
 
   from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MDT_RawDataProviderTool
   MuonMdtRawDataProviderTool = Muon__MDT_RawDataProviderTool(name        = "MDT_RawDataProviderTool_L2SA",
                                                              RdoLocation = "MDTCSM_L2SA",
-                                                             Decoder     = MDTRodDecoder )
+                                                             Decoder     = MDTRodDecoder,
+                                                             OutputLevel = OutputLevel )
   ToolSvc += MuonMdtRawDataProviderTool
 
   from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataTool
@@ -236,23 +253,25 @@ def makeMuFastAlgs():
                                                        #RawDataProviderTool = MuonMdtRawDataProviderTool,
                                                        #useBStoRdoTool      = True,
                                                        RDOContainer        = MuonMdtRawDataProviderTool.RdoLocation,
-                                                       OutputCollection    = "MDT_DriftCircles_L2SA")
+                                                       OutputCollection    = "MDT_DriftCircles_L2SA",
+                                                       OutputLevel         = OutputLevel )
   ToolSvc += MdtRdoToMdtPrepDataTool
 
  
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MdtDataPreparator
-  L2MdtDataPreparator = TrigL2MuonSA__MdtDataPreparator(#OutputLevel = DEBUG,
-                                                        DecodeBS = DetFlags.readRDOBS.MDT_on(),
+  L2MdtDataPreparator = TrigL2MuonSA__MdtDataPreparator(DecodeBS = DetFlags.readRDOBS.MDT_on(),
                                                         MdtPrepDataProvider  = MdtRdoToMdtPrepDataTool,
                                                         MDTPrepDataContainer = MdtRdoToMdtPrepDataTool.OutputCollection,
                                                         MDT_RawDataProvider  = MuonMdtRawDataProviderTool,
-                                                        MDTCSMContainer      = MuonMdtRawDataProviderTool.RdoLocation )
+                                                        MDTCSMContainer      = MuonMdtRawDataProviderTool.RdoLocation,
+                                                        OutputLevel          = OutputLevel )
   ToolSvc += L2MdtDataPreparator
   
 
   ### RPC RDO data ###
   from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcROD_Decoder
-  RPCRodDecoder = Muon__RpcROD_Decoder(name  = "RpcROD_Decoder_L2SA" )
+  RPCRodDecoder = Muon__RpcROD_Decoder(name        = "RpcROD_Decoder_L2SA",
+                                       OutputLevel = OutputLevel )
 
   ToolSvc += RPCRodDecoder
 
@@ -260,35 +279,39 @@ def makeMuFastAlgs():
   MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderTool(name        = "RPC_RawDataProviderTool_L2SA",
                                                              RdoLocation = "RPCPAD_L2SA",
                                                              RPCSec      = "RPC_SECTORLOGIC_L2SA",
-                                                             Decoder     = RPCRodDecoder )
+                                                             Decoder     = RPCRodDecoder,
+                                                             OutputLevel = OutputLevel )
   ToolSvc += MuonRpcRawDataProviderTool
 
   from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
   RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name                    = "RpcRdoToPrepDataTool_L2SA",
                                                        OutputCollection        = MuonRpcRawDataProviderTool.RdoLocation,
                                                        TriggerOutputCollection = "RPC_Measurements_L2SA",
-                                                       InputCollection         = "RPC_triggerHits_L2SA")
+                                                       InputCollection         = "RPC_triggerHits_L2SA",
+                                                       OutputLevel             = OutputLevel )
   ToolSvc += RpcRdoToRpcPrepDataTool
 
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__RpcDataPreparator
-  L2RpcDataPreparator = TrigL2MuonSA__RpcDataPreparator(#OutputLevel = DEBUG,
-                                                        RpcPrepDataProvider  = RpcRdoToRpcPrepDataTool,
+  L2RpcDataPreparator = TrigL2MuonSA__RpcDataPreparator(RpcPrepDataProvider  = RpcRdoToRpcPrepDataTool,
                                                         RpcPrepDataContainer = RpcRdoToRpcPrepDataTool.TriggerOutputCollection,
                                                         RpcRawDataProvider   = MuonRpcRawDataProviderTool,
-                                                        DecodeBS = DetFlags.readRDOBS.RPC_on() )
+                                                        DecodeBS             = DetFlags.readRDOBS.RPC_on(),
+                                                        OutputLevel          = OutputLevel )
   ToolSvc += L2RpcDataPreparator
 
 
   ### TGC RDO data ###
   from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TGC_RodDecoderReadout
-  TGCRodDecoder = Muon__TGC_RodDecoderReadout(name	    = "TGC_RodDecoderReadout_L2SA" )
+  TGCRodDecoder = Muon__TGC_RodDecoderReadout(name	  = "TGC_RodDecoderReadout_L2SA",
+                                              OutputLevel = OutputLevel )
 
   ToolSvc += TGCRodDecoder
 
   from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TGC_RawDataProviderTool
   MuonTgcRawDataProviderTool = Muon__TGC_RawDataProviderTool(name        = "TGC_RawDataProviderTool_L2SA",
                                                              RdoLocation = "TGCRDO_L2SA",
-                                                             Decoder     = TGCRodDecoder )
+                                                             Decoder     = TGCRodDecoder,
+                                                             OutputLevel = OutputLevel )
   ToolSvc += MuonTgcRawDataProviderTool
     
   from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataTool
@@ -297,14 +320,15 @@ def makeMuFastAlgs():
                                                        RDOContainer         = MuonTgcRawDataProviderTool.RdoLocation,
                                                        OutputCollection     = "TGC_Measurements_L2SA",
                                                        OutputCoinCollection = "TrigT1CoinDataCollection_L2SA",
-                                                       useBStoRdoTool       = True)
+                                                       useBStoRdoTool       = True,
+                                                       OutputLevel = OutputLevel )
 
   ToolSvc += TgcRdoToTgcPrepDataTool
 
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__TgcDataPreparator
-  L2TgcDataPreparator = TrigL2MuonSA__TgcDataPreparator(#OutputLevel          = DEBUG,
-                                                        TgcPrepDataProvider  = TgcRdoToTgcPrepDataTool,
-                                                        TGCPrepDataContainer = TgcRdoToTgcPrepDataTool.OutputCollection )
+  L2TgcDataPreparator = TrigL2MuonSA__TgcDataPreparator(TgcPrepDataProvider  = TgcRdoToTgcPrepDataTool,
+                                                        TGCPrepDataContainer = TgcRdoToTgcPrepDataTool.OutputCollection,
+                                                        OutputLevel          = OutputLevel )
   ToolSvc += L2TgcDataPreparator
 
 
@@ -320,11 +344,105 @@ def makeMuFastAlgs():
   MuFastDataPreparator.TGCDataPreparator = L2TgcDataPreparator
 
   muFastAlg.DataPreparator = MuFastDataPreparator
+  muFastAlg.OutputLevel    = OutputLevel
+  muFastAlg.OutputLevel = DEBUG
+  muFastAlg.RecMuonRoI = "RecMURoIs"
+  muFastAlg.MuRoIs = RoIs
+  muFastAlg.MuonL2SAInfo = muFastInfo
+  muFastAlg.MuonCalibrationStream = "MuonCalibrationStream"
+  muFastAlg.forID = "forID"
+  muFastAlg.forMS = "forMS"
 
-  return muFastAlg
+  muFastRecoSequence += muFastAlg
+  sequenceOut = muFastAlg.MuonL2SAInfo
+
+  return muFastRecoSequence, sequenceOut
 
 
-def makeMuEFSAAlgs():
+def muCombRecoSequence( RoIs, OutputLevel=INFO ):
+   
+
+  from MuonRecExample.MuonRecFlags import muonRecFlags
+  from AthenaCommon.AppMgr import ToolSvc
+  from AthenaCommon.DetFlags import DetFlags
+  from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
+  import AthenaCommon.CfgMgr as CfgMgr
+
+  muCombRecoSequence = parOR("l2muCombViewNode")
+
+  ### Define input data of Inner Detector algorithms  ###
+  ### and Define EventViewNodes to run the algorithms ###
+  from TrigUpgradeTest.InDetSetup import makeInDetAlgs
+  (viewAlgs, eventAlgs) = makeInDetAlgs()
+
+  from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Muon
+  theFTF_Muon = TrigFastTrackFinder_Muon()
+  theFTF_Muon.OutputLevel = OutputLevel
+  theFTF_Muon.isRoI_Seeded = True
+  viewAlgs.append(theFTF_Muon)
+
+  ### A simple algorithm to confirm that data has been inherited from parent view ###
+  ### Required to satisfy data dependencies                                       ###
+  ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muFastViewDataVerifier")
+  ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+'+muFastInfo)]
+  viewAlgs.append(ViewVerify)
+
+  #TrackParticlesName = ""
+  for viewAlg in viewAlgs:
+      muCombRecoSequence += viewAlg
+      viewAlg.OutputLevel = OutputLevel
+      if viewAlg.properties().has_key("RoIs"):
+          viewAlg.RoIs = RoIs
+      if viewAlg.properties().has_key("roiCollectionName"):
+          viewAlg.roiCollectionName = RoIs
+      if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
+          TrackParticlesName = viewAlg.TrackParticlesName
+
+  ### please read out TrigmuCombMTConfig file ###
+  ### and set up to run muCombMT algorithm    ###
+  from TrigmuComb.TrigmuCombMTConfig import TrigmuCombMTConfig
+  muCombAlg = TrigmuCombMTConfig("Muon", theFTF_Muon.getName())
+  muCombAlg.OutputLevel = OutputLevel
+  muCombAlg.L2StandAloneMuonContainerName = muFastInfo
+  muCombAlg.TrackParticlesContainerName = TrackParticlesName
+  muCombAlg.L2CombinedMuonContainerName = muCombInfo
+
+  muCombRecoSequence += muCombAlg
+  sequenceOut = muCombAlg.L2CombinedMuonContainerName
+
+  return muCombRecoSequence, eventAlgs, sequenceOut, TrackParticlesName
+
+
+def l2muisoRecoSequence( RoIs, OutputLevel=INFO ):
+
+  import AthenaCommon.CfgMgr as CfgMgr
+
+  from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
+
+  l2muisoRecoSequence = parOR("l2muIsoViewNode")
+ 
+  ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muCombViewDataVerifier")
+  ViewVerify.DataObjects = [('xAOD::TrackParticleContainer' , 'StoreGateSvc+'+TrackParticlesName),
+                            ('xAOD::L2CombinedMuonContainer','StoreGateSvc+'+muCombInfo)]
+
+  l2muisoRecoSequence += ViewVerify
+
+  # set up algs
+  from TrigmuIso.TrigmuIsoConfig import TrigmuIsoMTConfig
+  trigL2muIso = TrigmuIsoMTConfig("TrigL2muIso")
+  trigL2muIso.OutputLevel = OutputLevel
+  trigL2muIso.MuonL2CBInfoName = muCombInfo
+  trigL2muIso.TrackParticlesName = TrackParticlesName
+  trigL2muIso.MuonL2ISInfoName = muL2ISInfo
+
+  l2muisoRecoSequence += trigL2muIso
+
+  sequenceOut = trigL2muIso.MuonL2ISInfoName
+
+  return l2muisoRecoSequence, sequenceOut
+
+
+def muEFSARecoSequence( RoIs, OutputLevel=INFO ):
 
   from MuonRecExample.MuonRecFlags import muonRecFlags
   from AthenaCommon.DetFlags import DetFlags
@@ -335,7 +453,10 @@ def makeMuEFSAAlgs():
 
   from AthenaCommon.CfgGetter import getPublicTool, getPublicToolClone
   from AthenaCommon import CfgMgr
-  
+  from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
+
+  muEFSARecoSequence = parOR("efmsViewNode")
+ 
   efAlgs = [] 
   
   ### Provide Muon_PrepDataAlgorithms ###
@@ -347,9 +468,9 @@ def makeMuEFSAAlgs():
     efAlgs.append( viewAlg_MuonPRD )
    
   from TrkDetDescrSvc.TrkDetDescrSvcConf import Trk__TrackingVolumesSvc
-  ServiceMgr += Trk__TrackingVolumesSvc("TrackingVolumesSvc",BuildVolumesFromTagInfo = False)
+  ServiceMgr += Trk__TrackingVolumesSvc("TrackingVolumesSvc",BuildVolumesFromTagInfo = False, OutputLevel=OutputLevel )
   
-  theSegmentFinder = CfgGetter.getPublicToolClone("MuonSegmentFinder","MooSegmentFinder")
+  theSegmentFinder = CfgGetter.getPublicToolClone("MuonSegmentFinder","MooSegmentFinder", OutputLevel=OutputLevel )
   theSegmentFinder.DoSummary=True
   CfgGetter.getPublicTool("MuonLayerHoughTool").DoTruth=False
   theSegmentFinderAlg=CfgMgr.MooSegmentFinderAlg( "MuonSegmentMaker",
@@ -363,11 +484,12 @@ def makeMuEFSAAlgs():
                                                   UseTGCPriorBC = False,
                                                   UseTGCNextBC  = False,
                                                   doTGCClust = muonRecFlags.doTGCClusterSegmentFinding(),
-                                                  doRPCClust = muonRecFlags.doRPCClusterSegmentFinding(), OutputLevel=DEBUG )
+                                                  doRPCClust = muonRecFlags.doRPCClusterSegmentFinding(), OutputLevel=OutputLevel )
   
   
   
   theNCBSegmentFinderAlg=CfgMgr.MooSegmentFinderAlg( "MuonSegmentMaker_NCB",
+                                                     OutputLevel = OutputLevel,
                                                      SegmentFinder = getPublicToolClone("MooSegmentFinder_NCB","MuonSegmentFinder",
                                                                                         DoSummary=False,
                                                                                         Csc2dSegmentMaker = getPublicToolClone("Csc2dSegmentMaker_NCB","Csc2dSegmentMaker",
@@ -424,7 +546,7 @@ def makeMuEFSAAlgs():
   muonparticlecreator = getPublicToolClone("MuonParticleCreator", "TrackParticleCreatorTool", UseTrackSummaryTool=False, UseMuonSummaryTool=True, KeepAllPerigee=True)
   thecreatortool= getPublicToolClone("MuonCreatorTool_SA", "MuonCreatorTool", ScatteringAngleTool="", MuonSelectionTool="", FillTimingInformation=False, UseCaloCells=False, MakeSAMuons=True, MomentumBalanceTool="",  TrackParticleCreator=muonparticlecreator, OutputLevel=DEBUG)
   
-  themuoncreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlg", MuonCreatorTool=thecreatortool, CreateSAmuons=True, MakeClusters=False, TagMaps=[])
+  themuoncreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlg", MuonCreatorTool=thecreatortool, CreateSAmuons=True, MakeClusters=False, TagMaps=[], MuonContainerLocation=muEFSAInfo)
   
   #Algorithms to views
   efAlgs.append( theSegmentFinderAlg )
@@ -433,6 +555,15 @@ def makeMuEFSAAlgs():
   efAlgs.append( xAODTrackParticleCnvAlg )
   efAlgs.append( theMuonCandidateAlg )
   efAlgs.append( themuoncreatoralg )
+
+  # setup muEFMsonly algs
+  for efAlg in efAlgs:
+      if efAlg.properties().has_key("RoIs"):
+          efAlg.RoIs = RoIs
+      muEFSARecoSequence += efAlg
+  sequenceOut = themuoncreatoralg.MuonContainerLocation
+
   
-  return efAlgs
+  return muEFSARecoSequence, sequenceOut
+
 

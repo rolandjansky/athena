@@ -27,7 +27,7 @@ class LUCID_DigiSettings {
   double GetDigiParDouble(std::string);
   int    GetDigiParInt   (std::string);
   
-  void   OverwriteDigiParProperties(Algorithm*);
+  void   OverwriteDigiParProperties(Gaudi::Algorithm*);
   void   OverwriteDigiParValues();
   
   void Print() const;

@@ -38,36 +38,40 @@ namespace HLTTest {
     size_t counter = 0;
     for ( auto d: *decisions )  {
       //get previous decisions
-      auto previousDecisions = linkToPrevious( d);
-      TrigCompositeUtils::DecisionIDContainer objDecisions;      
-      TrigCompositeUtils::decisionIDs( *previousDecisions, objDecisions );
+      ElementLinkVector<DecisionContainer> inputLinks = getLinkToPrevious(d);
+      ATH_MSG_DEBUG("Got "<<inputLinks.size()<<" previous decisions");
+      for (auto previousDecisions: inputLinks){
+	
+	//auto previousDecisions = linkToPrevious( d);
+	TrigCompositeUtils::DecisionIDContainer objDecisions;      
+	TrigCompositeUtils::decisionIDs( *previousDecisions, objDecisions );
       
-      ATH_MSG_DEBUG("Number of previous decisions for input "<< counter <<"= " << objDecisions.size() );
+	ATH_MSG_DEBUG("Number of previous decisions ID for input "<< counter <<"= " << objDecisions.size() );
       
-      for ( TrigCompositeUtils::DecisionID id : objDecisions ) {
-	ATH_MSG_DEBUG( " -- found decision " << HLT::Identifier( id ) );
-      }
+	for ( TrigCompositeUtils::DecisionID id : objDecisions ) {
+	  ATH_MSG_DEBUG( " -- found decision " << HLT::Identifier( id ) );
+	}
 
-      auto it= find(objDecisions.begin(), objDecisions.end(),  m_decisionId);
-      if (it != objDecisions.end()){
-      
-	auto feature = d->objectLink<xAOD::TrigCompositeContainer>( "feature" );
-	//auto feature = d->objectLink<xAOD::TrigCompositeContainer>( m_linkName.value() );
-	if ( not feature.isValid() )  {
-	  ATH_MSG_ERROR( " Can not find reference to the object from the decision" );
-	  return StatusCode::FAILURE;
+	auto it= find(objDecisions.begin(), objDecisions.end(),  m_decisionId);
+	if (it != objDecisions.end()){      
+	  auto feature = d->objectLink<xAOD::TrigCompositeContainer>( "feature" );
+	  //auto feature = d->objectLink<xAOD::TrigCompositeContainer>( m_linkName.value() );
+	  if ( not feature.isValid() )  {
+	    ATH_MSG_ERROR( " Can not find reference to the object from the decision" );
+	    return StatusCode::FAILURE;
+	  }
+	  float v = (*feature)->getDetail<float>( m_property );
+	  if ( v > m_threshold ) { // actual cut will be more complex of course
+	    ATH_MSG_DEBUG( "  threshold " << m_threshold << " passed by value: " << v );	
+	    addDecisionID(  m_decisionId, d );
+	  }
+	  else ATH_MSG_DEBUG( "  threshold " << m_threshold << " not passed by value " << v );
 	}
-	float v = (*feature)->getDetail<float>( m_property );
-	if ( v > m_threshold ) { // actual cut will be more complex of course
-	  ATH_MSG_DEBUG( "  threshold " << m_threshold << " passed by value: " << v );	
-	  addDecisionID(  m_decisionId, d );
-	}
-	else ATH_MSG_DEBUG( "  threshold " << m_threshold << " not passed by value " << v );
+	else {
+	  ATH_MSG_DEBUG("No Input decisions requested by active chain "<< m_decisionId);
+	}       
+	counter++;
       }
-      else {
-	ATH_MSG_DEBUG("No Input decisions requested by active chain "<< m_decisionId);
-      }
-      counter++;
     }
     
     return StatusCode::SUCCESS;

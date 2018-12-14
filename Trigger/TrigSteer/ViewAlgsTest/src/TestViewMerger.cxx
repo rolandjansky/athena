@@ -34,7 +34,7 @@ StatusCode TestViewMerger::initialize() {
 }
 
 
-//StatusCode TestViewMerger::execute_r( const EventContext& ctx ) const {
+//StatusCode TestViewMerger::execute( const EventContext& ctx ) const {
 StatusCode TestViewMerger::execute(){
   //  auto viewsHandle = SG::makeHandle( m_viewsKey, ctx );
   auto viewsHandle = SG::makeHandle( m_viewsKey );

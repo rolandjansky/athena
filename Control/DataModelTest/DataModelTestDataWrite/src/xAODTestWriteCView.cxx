@@ -52,7 +52,7 @@ StatusCode xAODTestWriteCView::initialize()
 /**
  * @brief Algorithm event processing.
  */
-StatusCode xAODTestWriteCView::execute_r (const EventContext& ctx) const
+StatusCode xAODTestWriteCView::execute (const EventContext& ctx) const
 {
   SG::ReadHandle<DMTest::CVec> cvec (m_cvecKey, ctx);
   auto cview = std::make_unique<ConstDataVector<DMTest::CView> >(SG::VIEW_ELEMENTS);

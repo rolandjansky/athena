@@ -48,9 +48,10 @@ def bJetStep1Sequence():
 
     # input maker
     from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-    InputMakerAlg = InputMakerForRoI("JetInputMaker",OutputLevel=INFO)
-    InputMakerAlg.LinkName = "initialRoI"
+    InputMakerAlg = InputMakerForRoI("JetInputMaker", OutputLevel = DEBUG, RoIsLink="initialRoI")
     InputMakerAlg.RoIs='FSJETRoI'
+    InputMakerAlg.OutputLevel = DEBUG
+
 
     # Construct jets
     from TrigUpgradeTest.jetDefs import jetRecoSequence
@@ -104,10 +105,8 @@ def bJetStep1Sequence():
     hypo.OutputLevel = DEBUG
     hypo.Jets = jetSplitter.OutputJets
     hypo.RoIs = jetSplitter.OutputRoi
-    hypo.PrimaryVertex = jetSplitter.OutputVertex
-    hypo.RoILink = "initialRoI" # To be used in following step EventView
+    hypo.RoILink = "step1RoI" # To be used in following step EventView
     hypo.JetLink = "jets" # To be used in following step with EventView
-    hypo.MultipleDecisions = True # For creating multiple decisions in the next step  
 
     # Sequence     
     BjetAthSequence = seqAND("BjetAthSequence_step1",eventAlgs + [InputMakerAlg,recoSequence,bJetEtSequence])
@@ -124,8 +123,7 @@ def bJetStep1SequenceALLTE():
 
     # input maker
     from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-    InputMakerAlg = InputMakerForRoI("JetInputMaker",OutputLevel=INFO)
-    InputMakerAlg.LinkName="initialRoI"
+    InputMakerAlg = InputMakerForRoI("JetInputMaker",OutputLevel=INFO, RoIsLink="initialRoI")
     InputMakerAlg.RoIs='FSJETRoI'
 
     # Construct jets
@@ -176,10 +174,8 @@ def bJetStep1SequenceALLTE():
     hypo.OutputLevel = DEBUG
     hypo.Jets = jetSplitter.OutputJets
     hypo.RoIs = jetSplitter.OutputRoi
-    hypo.PrimaryVertex = jetSplitter.OutputVertex
     hypo.RoILink = "initialRoI" # To be used in following step EventView
     hypo.JetLink = "jets" # To be used in following step with EventView
-    hypo.MultipleDecisions = False # For creating multiple decisions in the next step  
 
     # Sequence     
     BjetAthSequence = seqAND("BjetAthSequence_step1_ALLTE",eventAlgs + [InputMakerAlg,recoSequence,bJetEtSequence])
@@ -202,14 +198,14 @@ def bJetStep2Sequence():
 
     # Event View Creator Algorithm
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithJets
-    InputMakerAlg = EventViewCreatorAlgorithmWithJets("BJetInputMaker_step2")
+    InputMakerAlg = EventViewCreatorAlgorithmWithJets("BJetInputMaker_step2", RoIsLink="initialRoI")
     InputMakerAlg.OutputLevel = DEBUG
     InputMakerAlg.ViewFallThrough = True # Access Store Gate for retrieving data
     InputMakerAlg.ViewPerRoI = True # If True it creates one view per RoI
     InputMakerAlg.Views = "BJetViews" # Name of output view
     # RoIs
     InputMakerAlg.InViewRoIs = "InViewRoIs" # Name RoIs are inserted in the view
-    InputMakerAlg.RoIsLink = "initialRoI" # RoIs linked to previous decision
+    InputMakerAlg.RoIsLink = "step1RoI" # RoIs linked to previous decision
     # Jets
     InputMakerAlg.InViewJets = "InViewJets" # Name Jets are inserted in the view
     InputMakerAlg.JetsLink = "jets" # Jets linked to previous decision
@@ -233,12 +229,11 @@ def bJetStep2Sequence():
     from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromName_gsc
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlg_step2")
     hypo.OutputLevel = DEBUG
-    hypo.RoIs = "initialRoI" #InputMakerAlg.InViewRoIs
+    hypo.RoIs = "step1RoI"
     hypo.Jets = theGSC.JetOutputKey
-    hypo.PrimaryVertex = "PrimaryVertex"
     hypo.RoILink = InputMakerAlg.RoIsLink # To be used in following step EventView
     hypo.JetLink = InputMakerAlg.JetsLink # To be used in following step with EventView
-    hypo.UseView = True
+    hypo.ReadFromView = True
 
     # Sequence
     BjetAthSequence = seqAND("BjetAthSequence_step2",[InputMakerAlg,step2Sequence])
@@ -256,10 +251,9 @@ def bJetStep2SequenceALLTE():
 
     # input maker
     from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-    InputMakerAlg = InputMakerForRoI("BJetInputMaker_step2_ALLTE")
+    InputMakerAlg = InputMakerForRoI("BJetInputMaker_step2_ALLTE", RoIsLink="initialRoI")
     InputMakerAlg.OutputLevel = DEBUG
-    InputMakerAlg.LinkName="initialRoI"
-    InputMakerAlg.RoIs="SplitJets"
+#    InputMakerAlg.RoIs="SplitJets" # TMP commenting
     
     # gsc correction
     from TrigBjetHypo.TrigGSCFexMTConfig import getGSCFexSplitInstance
@@ -275,8 +269,7 @@ def bJetStep2SequenceALLTE():
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlg_step2ALLTE")
     hypo.OutputLevel = DEBUG
     hypo.Jets = theGSC.JetOutputKey
-    hypo.RoIs = InputMakerAlg.RoIs
-    hypo.PrimaryVertex = "PrimaryVertex"
+    hypo.RoIs = "SplitJets"
     hypo.RoILink = "initialRoI"
     hypo.JetLink = "jets"
 

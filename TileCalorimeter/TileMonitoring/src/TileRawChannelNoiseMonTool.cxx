@@ -18,11 +18,10 @@
 //
 // ********************************************************************
 
-#include "xAODEventInfo/EventInfo.h"
 
+// Tile includes
 #include "TileMonitoring/TileRawChannelNoiseMonTool.h"
 #include "TileMonitoring/PairBuilder.h"
-
 
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileIdentifier/TileHWID.h"
@@ -33,7 +32,11 @@
 
 #include "TileEvent/TileCell.h"
 #include "TileEvent/TileRawChannelContainer.h"
+
+// Athena includes
+#include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandle.h"
+
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -65,7 +68,6 @@ TileRawChannelNoiseMonTool::TileRawChannelNoiseMonTool(const std::string & type,
   , m_gain(1)
   , m_nEventsProcessed(0)
   , m_minimumEventsNumberToFit(100)
-  , m_tileDCS("TileDCSTool")
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
@@ -87,7 +89,6 @@ TileRawChannelNoiseMonTool::TileRawChannelNoiseMonTool(const std::string & type,
   declareProperty("TriggerTypes", m_triggerTypes);
   declareProperty("MinimumEventsNumberToFit", m_minimumEventsNumberToFit);
   declareProperty("TileDQstatus", m_DQstatusKey = "TileDQstatus");
-  declareProperty("TileDCSTool", m_tileDCS);
   declareProperty("CheckDCS", m_checkDCS = false);
 
   m_path = "/Tile/RawChannelNoise";
@@ -106,7 +107,7 @@ StatusCode TileRawChannelNoiseMonTool::initialize() {
   ATH_MSG_INFO("in initialize() - m_path = " << m_path);
 
   //=== get TileBadChanTool
-  CHECK(m_tileBadChanTool.retrieve());
+  ATH_CHECK(m_tileBadChanTool.retrieve());
 
   if (m_gainName == "HG"){
     m_gain = 1;
@@ -129,12 +130,11 @@ StatusCode TileRawChannelNoiseMonTool::initialize() {
     msg(MSG::INFO) << endmsg;
   }
 
-  CHECK( m_DQstatusKey.initialize() );
+  ATH_CHECK( m_DQstatusKey.initialize() );
 
   if (m_checkDCS) {
-    CHECK( m_tileDCS.retrieve() );
-  }
-  else {
+    ATH_CHECK( m_tileDCS.retrieve() );
+  } else {
     m_tileDCS.disable();
   }
 
@@ -502,7 +502,7 @@ StatusCode TileRawChannelNoiseMonTool::fillHistoPerRawChannel() {
   m_DQstatus = SG::makeHandle (m_DQstatusKey).get();
 
   const TileRawChannelContainer* rawChannelContainer;
-  CHECK(evtStore()->retrieve(rawChannelContainer, m_rawChannelContainerName));
+  ATH_CHECK(evtStore()->retrieve(rawChannelContainer, m_rawChannelContainerName));
 
   // What is the unit used to store info in the RawChannelContainer ?
   TileRawChannelUnit::UNIT RChUnit = rawChannelContainer->get_unit();
@@ -515,7 +515,7 @@ StatusCode TileRawChannelNoiseMonTool::fillHistoPerRawChannel() {
   std::string module_name;
 
   const TileRawChannelContainer* rawChannelContainerDSP(nullptr);
-  CHECK(evtStore()->retrieve(rawChannelContainerDSP, m_rawChannelContainerDspName));
+  ATH_CHECK(evtStore()->retrieve(rawChannelContainerDSP, m_rawChannelContainerDspName));
 
 
   // Loop over the containers
@@ -620,7 +620,7 @@ StatusCode TileRawChannelNoiseMonTool::fillHistograms() {
   if (m_triggerTypes.empty()
       || std::find( m_triggerTypes.begin(), m_triggerTypes.end(), m_lvl1info) != m_triggerTypes.end()) {
 
-    CHECK(fillHistoPerRawChannel());
+    ATH_CHECK(fillHistoPerRawChannel());
   }
 
   if ((m_summaryUpdateFrequency > 0) 

@@ -64,3 +64,7 @@
 
 # Don't build PerfMonVTune which has external Intel tool dependency
 - Control/PerformanceMonitoring/PerfMonVTune
+
+# Old packages that don't work with AthenaMT
+- LArCalorimeter/LArSim
+- PhysicsAnalysis/HiggsPhys/HSG5/HSG5DPDUtils

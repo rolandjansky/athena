@@ -81,7 +81,7 @@ StatusCode PRD_MultiTruthMaker::finalize()
 }
 
 // -----------------------------------------------------------------------------------------------------
-StatusCode PRD_MultiTruthMaker::execute_r(const EventContext &ctx) const {
+StatusCode PRD_MultiTruthMaker::execute(const EventContext &ctx) const {
 
   ATH_MSG_DEBUG ("PRD_MultiTruthMaker::execute()");
 

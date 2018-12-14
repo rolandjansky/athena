@@ -7,8 +7,6 @@ atlas_subdir( RegSelSvcTest )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/SGTools
                           DetectorDescription/IRegionSelector
                           DetectorDescription/Identifier
                           GaudiKernel
@@ -27,11 +25,11 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( RegSelSvcTestLib
                    NO_PUBLIC_HEADERS
                    src/*.cxx
-                   PRIVATE_LINK_LIBRARIES SGTools IRegionSelector Identifier GaudiKernel StoreGateLib SGtests AthenaBaseComps AthenaPoolUtilities RegSelLUT PathResolver TrigSteeringEvent )
+                   PRIVATE_LINK_LIBRARIES IRegionSelector Identifier GaudiKernel StoreGateLib SGtests AthenaBaseComps AthenaPoolUtilities RegSelLUT PathResolver TrigSteeringEvent )
 
 atlas_add_component( RegSelSvcTest
                      src/components/*.cxx
-                     LINK_LIBRARIES SGTools IRegionSelector Identifier GaudiKernel AthenaBaseComps StoreGateLib SGtests AthenaPoolUtilities RegSelLUT PathResolver TrigSteeringEvent RegionSelectorLib RegSelSvcTestLib )
+                     LINK_LIBRARIES IRegionSelector Identifier GaudiKernel AthenaBaseComps StoreGateLib SGtests AthenaPoolUtilities RegSelLUT PathResolver TrigSteeringEvent RegionSelectorLib RegSelSvcTestLib )
 
 atlas_add_test( RegSel_dump SCRIPT test/test_RegSel_dump.sh
 		PROPERTIES TIMEOUT 1200

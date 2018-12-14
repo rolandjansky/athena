@@ -33,7 +33,7 @@
 #include "TrigConfHLTData/HLTSequence.h"
 #include "TrigNavigation/Navigation.h"
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthLegacySequence.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
@@ -101,7 +101,7 @@ namespace HLT {
       @author Nicolas Berger  <Nicolas.Berger@cern.ch>
       @author Tomasz Bold     <Tomasz.Bold@cern.ch>
    */
-   class TrigSteer : public AthAlgorithm,
+   class TrigSteer : public AthLegacySequence,
                      public Athena::TimeoutMaster,
                      public virtual ISequenceProvider,
                      public virtual IIncidentListener

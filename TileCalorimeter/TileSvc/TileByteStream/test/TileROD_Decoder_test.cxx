@@ -148,8 +148,7 @@ void test1 (TileROD_Decoder* decoder)
   {
     TileRawChannelContainer cont;
     TileRawChannelCollection coll (256);
-    decoder->PtrRChContainer (&cont);
-    decoder->fillCollection (&data01.rob(), coll);
+    decoder->fillCollection (&data01.rob(), coll, &cont);
     std::cout << "TileRawChannelCollection: " << coll.size() << " "
               << cont.get_unit() << " "
               << cont.get_type() << " "

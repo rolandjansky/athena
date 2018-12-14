@@ -34,7 +34,7 @@ namespace HLTTest {
   }
 
 
-  StatusCode TestInputMaker::execute_r( const EventContext& context ) const {  
+  StatusCode TestInputMaker::execute( const EventContext& context ) const {  
     ATH_MSG_DEBUG( "Executing " << name() << "..." );
  
     // call base class helper method to read input decisions, loop over them create outputs and connect them, returns with outputHandles filled
@@ -60,39 +60,35 @@ namespace HLTTest {
       ATH_MSG_DEBUG( "Got output "<< outputHandle.key()<<" with " << outputHandle->size() << " elements" );
       // loop over output decisions in container of outputHandle, follow link to inputDecision
       for ( auto outputDecision : *outputHandle){ 
-        ElementLink<DecisionContainer> inputLink = linkToPrevious(outputDecision);
-        ATH_MSG_DEBUG( "followed seed link to input "<< inputLink.key() );
-        const Decision* inputDecision = *inputLink;
- 	auto roiEL = inputDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
- 	CHECK( roiEL.isValid() );
+        ElementLinkVector<DecisionContainer> inputLinks = getLinkToPrevious(outputDecision);
+	for (auto input: inputLinks){
+	  ATH_MSG_DEBUG( "followed seed link to input "<< input.key() );
+	  const Decision* inputDecision = *input;
+	  auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( inputDecision,  m_roisLink.value());
+	  CHECK( roiELInfo.isValid() );
 	
- 	// retrieve input feature from input decision (TrigComposite), will in this case be a TrigRoiDescriptor
- 	auto featureLink = inputDecision->objectLink<FeatureContainer>( m_linkName.value() );
- 	if ( not featureLink.isValid() )  {
- 	  ATH_MSG_ERROR( " Can not find reference to " + m_linkName.value() + " from the decision" );
- 	  return StatusCode::FAILURE;
- 	}
-        
-        // link input reco object to outputDecision
-        outputDecision->setObjectLink(m_linkName.value(), featureLink);
-
- 	const FeatureOBJ* feature = *featureLink;
- 	ATH_MSG_DEBUG(" Found feature " <<m_linkName.value() );
-        
-        // merge reco outputs that are linked to the same feature (RoI): this avoids processing the same RoI from TC decisions from different chains
-
-        // avoid adding the same feature multiple times: check if not in container, if not add it
-        if ( find(featuresFromDecision.begin(), featuresFromDecision.end(), feature)
-             == featuresFromDecision.end() ){
- 	  featuresFromDecision.push_back(feature); // just to keep track of which we have used 
- 	  // create the "reco" output: this would normally be a copy of the reco input or something derived from it, e.g. detector data inside a RoI. A TrigComposite is used here just for a trivial example.
- 	  auto newFeature = new xAOD::TrigComposite;
- 	  reco_output->push_back(newFeature); 
-          // 
- 	  newFeature->setObjectLink("initialRoI", roiEL);
- 	  newFeature->setObjectLink(m_linkName.value(), featureLink);
- 	  ATH_MSG_DEBUG(" Added " <<m_linkName.value() << " and initialRoI " << " to reco object");
- 	}
+	  // retrieve input feature from input decision (TrigComposite), will in this case be a TrigRoiDescriptor	  
+	  auto featureLinkInfo = TrigCompositeUtils::findLink<FeatureContainer>( inputDecision,  m_linkName.value());
+	  CHECK( featureLinkInfo.isValid() );
+	
+	  // link input reco object to outputDecision
+	  auto featureLink = featureLinkInfo.link;
+	  const FeatureOBJ* feature = *featureLink;
+	  ATH_MSG_DEBUG(" Found feature " <<m_linkName.value() );
+	  
+	  // merge reco outputs that are linked to the same feature (RoI): this avoids processing the same RoI from TC decisions from different chains
+	  
+	  // avoid adding the same feature multiple times: check if not in container, if not add it
+	  if ( find(featuresFromDecision.begin(), featuresFromDecision.end(), feature)
+	       == featuresFromDecision.end() ){
+	    featuresFromDecision.push_back(feature); // just to keep track of which we have used 
+	    // create the "reco" output: this would normally be a copy of the reco input or something derived from it, e.g. detector data inside a RoI. A TrigComposite is used here just for a trivial example.
+	    auto newFeature = new xAOD::TrigComposite;
+	    reco_output->push_back(newFeature); 
+	    newFeature->setObjectLink(m_linkName.value(), featureLink);
+	    ATH_MSG_DEBUG(" Added " <<m_linkName.value() << " and " << m_roisLink.value() << " to reco object");
+	  }
+	}//loop over previous inputs
         // For early tests, create TC, link to RoiD, push back onto TCC.
         // Later will output RoID collection directly via tool.        
       } // loop over decisions      

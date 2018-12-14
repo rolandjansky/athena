@@ -19,7 +19,7 @@
 AthReentrantAlgorithm::AthReentrantAlgorithm( const std::string& name, 
 			    ISvcLocator* pSvcLocator,
 			    const std::string& version ) : 
-  ::AthCommonDataStore<AthCommonMsg<ReEntAlgorithm>>   ( name, pSvcLocator, version )
+  ::AthCommonDataStore<AthCommonMsg<Gaudi::Algorithm>>   ( name, pSvcLocator, version )
 {
 
   // Set up to run AthAlgorithmDHUpdate in sysInitialize before
@@ -37,19 +37,6 @@ AthReentrantAlgorithm::~AthReentrantAlgorithm()
 { 
   ATH_MSG_DEBUG ("Calling destructor");
 }
-
-#ifndef REENTRANT_GAUDI
-/**
- * @brief Standard Gaudi execute method.
- *
- * Find the event context and call @c execute_r.
- */
-StatusCode AthReentrantAlgorithm::execute()
-{
-  return execute_r (Gaudi::Hive::currentContext());
-}
-#endif
-
 
 /** Specify if the algorithm is clonable
  */
@@ -70,18 +57,6 @@ unsigned int AthReentrantAlgorithm::cardinality() const
 }
 
 /**
- * @brief Return the current event context.
- *
- * Override this because the base class version won't work correctly
- * for reentrant algorithms.  (We shouldn't really be using this
- * for reentrant algorithms, but just in case.).
- */
-const EventContext& AthReentrantAlgorithm::getContext() const
-{
-  return Gaudi::Hive::currentContext();
-}
-
-/**
  * @brief Execute an algorithm.
  *
  * We override this in order to work around an issue with the Algorithm
@@ -90,23 +65,7 @@ const EventContext& AthReentrantAlgorithm::getContext() const
  */
 StatusCode AthReentrantAlgorithm::sysExecute (const EventContext& ctx)
 {
-  EventContext ctx2 = ctx;
-  // sysExecute will assign the context we pass in to a member variable of 
-  // the algorithm.  If the context is referencing any dynamic memory,
-  // then we can end up with a double-delete.  So clear out any extension ---
-  // we won't actually use the context we pass to here for anything anyway.
-
-  if (ctx.hasExtension<Atlas::ExtendedEventContext>()) {
-    ctx2.setExtension( Atlas::ExtendedEventContext() );
-  } else if (ctx.hasExtension()) {
-    ATH_MSG_ERROR("EventContext " << ctx
-                  << " has an extended context of an unknown type: \""
-                  << System::typeinfoName( ctx.getExtensionType() )
-                  << "\". Can't progress.");
-    return StatusCode::FAILURE;
-  }
-
-  return ::ReEntAlgorithm::sysExecute (ctx2);
+  return Gaudi::Algorithm::sysExecute (ctx);
 }
 
 

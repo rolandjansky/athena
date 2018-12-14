@@ -6,8 +6,6 @@
 
 include("TrigUpgradeTest/testHLT_MT.py") 
 
-from AthenaCommon.DetFlags import DetFlags
-
 TriggerFlags.doID   = False;
 TriggerFlags.doMuon = True;
 
@@ -24,24 +22,6 @@ if not 'doEFSA' in dir():
 if not 'doEFISO' in dir():
   doEFISO=True
 
-### workaround to prevent online trigger folders to be enabled ###
-if doL2CB or doL2ISO:
-  from InDetRecExample.InDetJobProperties import InDetFlags
-  InDetFlags.doCaloSeededBrem = False
-  InDetFlags.InDet25nsec = True 
-  InDetFlags.doPrimaryVertex3DFinding = False 
-  InDetFlags.doPrintConfigurables = False
-  InDetFlags.doResolveBackTracks = True 
-  InDetFlags.doSiSPSeededTrackFinder = True
-  InDetFlags.doTRTPhaseCalculation = True
-  InDetFlags.doTRTSeededTrackFinder = True
-  InDetFlags.doTruth = False
-  InDetFlags.init()
-  
-  from InDetRecExample.InDetKeys import InDetKeys
-
-### PixelLorentzAngleSvc and SCTLorentzAngleSvc ###
-include("InDetRecExample/InDetRecConditionsAccess.py")
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
@@ -64,10 +44,6 @@ from AthenaCommon.AppMgr import ServiceMgr
 ServiceMgr.StoreGateSvc=Service("StoreGateSvc") 
 ServiceMgr.StoreGateSvc.Dump=True 
  
-### for Control Flow ###
-from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
-from DecisionHandling.DecisionHandlingConf import RoRSeqFilter, DumpDecisions
-
  
 from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.CheckDependencies( True )
@@ -75,9 +51,6 @@ AlgScheduler.OutputLevel( DEBUG )
 AlgScheduler.ShowDataDependencies( True )
 AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
 
-
-from AthenaCommon.CfgGetter import getPublicTool, getPublicToolClone
-from AthenaCommon import CfgMgr
 
 ### muon thresholds ###
 CTPToChainMapping = { "HLT_mu6" :  "L1_MU6",
@@ -115,26 +88,24 @@ def __mon(finalCollName, stepColls=[]):
 #               Setup the standard muon chain 
 # ===============================================================================================
 
-## Used the algorithms as Step2 "muComb step" ###
-viewAlgs = []
-if doL2CB:
-  # Only do setup of ID stuff if we run combined muon finding
-  from TrigUpgradeTest.InDetSetup import makeInDetAlgs
-  (viewAlgs, eventAlgs) = makeInDetAlgs()
+### workaround to prevent online trigger folders to be enabled ###
+from AthenaCommon.DetFlags import DetFlags
+from InDetRecExample.InDetJobProperties import InDetFlags
+InDetFlags.doCaloSeededBrem = False
+InDetFlags.InDet25nsec = True 
+InDetFlags.doPrimaryVertex3DFinding = False 
+InDetFlags.doPrintConfigurables = False
+InDetFlags.doResolveBackTracks = True 
+InDetFlags.doSiSPSeededTrackFinder = True
+InDetFlags.doTRTPhaseCalculation = True
+InDetFlags.doTRTSeededTrackFinder = True
+InDetFlags.doTruth = False
+InDetFlags.init()
 
-  from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Muon
-  theFTF = TrigFastTrackFinder_Muon()
-  theFTF.OutputLevel = DEBUG
-  theFTF.TracksName = "TrigFastTrackFinder_MuTracks"
-  theFTF.isRoI_Seeded = True
-  viewAlgs.append(theFTF)
+from InDetRecExample.InDetKeys import InDetKeys
 
-  ### A simple algorithm to confirm that data has been inherited from parent view ###
-  ### Required to satisfy data dependencies                                       ###
-  ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muFastViewDataVerifier")
-  ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+MuonL2SAInfo')]
-  viewAlgs.append(ViewVerify)
-
+### PixelLorentzAngleSvc and SCTLorentzAngleSvc ###
+include("InDetRecExample/InDetRecConditionsAccess.py")
 
 ### Load data from Muon detectors ###
 import MuonRecExample.MuonRecStandaloneOnlySetup
@@ -149,11 +120,19 @@ from RecExConfig.RecFlags import rec
 from AthenaCommon.AlgSequence import AthSequencer
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
+svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection = False
+
+### for Control Flow ###
+from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
+from DecisionHandling.DecisionHandlingConf import RoRSeqFilter, DumpDecisions
+
+### for Cfg Getter and Manager ###
+from AthenaCommon.CfgGetter import getPublicTool, getPublicToolClone
+from AthenaCommon import CfgMgr
+
 
 ### ************* Step1  ************* ###
 if TriggerFlags.doMuon:
-
-  svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection = False
 
   ### set up L1RoIsFilter ###
   filterL1RoIsAlg = RoRSeqFilter("filterL1RoIsAlg")
@@ -163,9 +142,8 @@ if TriggerFlags.doMuon:
   filterL1RoIsAlg.OutputLevel = DEBUG
 
   if doL2SA:
-    ### set the EVCreator ###
-    l2MuViewNode = parOR("l2MuViewNode")
 
+    ### set the EVCreator ###
     l2MuViewsMaker = EventViewCreatorAlgorithm("l2MuViewsMaker", OutputLevel=DEBUG)
     l2MuViewsMaker.ViewFallThrough = True
     l2MuViewsMaker.InputMakerInputDecisions = filterL1RoIsAlg.Output 
@@ -173,26 +151,18 @@ if TriggerFlags.doMuon:
     l2MuViewsMaker.RoIsLink = "initialRoI" # -||-
     l2MuViewsMaker.InViewRoIs = "MURoIs" # contract with the consumer
     l2MuViewsMaker.Views = "MUViewRoIs"
-    l2MuViewsMaker.ViewNodeName = l2MuViewNode.name()
 
-    ### set up MuFastSteering ###
-    from TrigUpgradeTest.MuonSetup import makeMuFastAlgs
-    muFastAlg = makeMuFastAlgs()
-    muFastAlg.OutputLevel = DEBUG
-    muFastAlg.RecMuonRoI = "RecMURoIs"
-    muFastAlg.MuRoIs = l2MuViewsMaker.InViewRoIs 
-    muFastAlg.MuonL2SAInfo = "MuonL2SAInfo"
-    muFastAlg.MuonCalibrationStream = "MuonCalibrationStream"
-    muFastAlg.forID = "forID"
-    muFastAlg.forMS = "forMS"
+    ### get muFast reco sequence ###
+    from TrigUpgradeTest.MuonSetup import muFastRecoSequence
+    muFastRecoSequence, muFastSequenceOut = muFastRecoSequence( l2MuViewsMaker.InViewRoIs, OutputLevel=DEBUG )
 
-    l2MuViewNode += muFastAlg
- 
+    l2MuViewsMaker.ViewNodeName = muFastRecoSequence.name()
+
     ### set up MuFastHypo ###
     from TrigMuonHypo.TrigMuonHypoConfigMT import TrigMufastHypoConfig
     trigMufastHypo = TrigMufastHypoConfig("TrigL2MufastHypoAlg")
     trigMufastHypo.OutputLevel = DEBUG
-    trigMufastHypo.MuonL2SAInfoFromMuFastAlg = muFastAlg.MuonL2SAInfo
+    trigMufastHypo.MuonL2SAInfoFromMuFastAlg = muFastSequenceOut
     trigMufastHypo.HypoOutputDecisions = "L2MuonFastDecisions"
     trigMufastHypo.HypoInputDecisions = l2MuViewsMaker.InputMakerOutputDecisions[0]
     trigMufastHypo.HypoTools = [ trigMufastHypo.TrigMufastHypoToolFromName( "TrigL2MufastHypoTool", c ) for c in testChains ] 
@@ -201,14 +171,16 @@ if TriggerFlags.doMuon:
     muFastDecisionsDumper = DumpDecisions("muFastDecisionsDumper", OutputLevel=DEBUG, Decisions = trigMufastHypo.HypoOutputDecisions )
 
     ### make sequences ###
-    l2muFastSequence = seqAND("l2muFastSequence", [ l2MuViewsMaker, l2MuViewNode, trigMufastHypo ])
+    l2muFastSequence = seqAND("l2muFastSequence", [ l2MuViewsMaker, muFastRecoSequence, trigMufastHypo ])
 
+    ### make step ###
     muFastStep = stepSeq("muFastStep", filterL1RoIsAlg, [ l2muFastSequence,  muFastDecisionsDumper ] )
 
 
 ### ************* Step2  ************* ###
 
   if doL2CB:
+
     ### RoRSeqFilter step2 ###
     filterL2SAAlg = RoRSeqFilter("filterL2SAAlg")
     filterL2SAAlg.Input = [trigMufastHypo.HypoOutputDecisions]
@@ -217,41 +189,19 @@ if TriggerFlags.doMuon:
     filterL2SAAlg.OutputLevel = DEBUG
 
     ### set the EVCreator ###
-    l2muCombViewNode = parOR("l2muCombViewNode")
-
     l2muCombViewsMaker = EventViewCreatorAlgorithm("l2muCombViewsMaker", OutputLevel=DEBUG)
     l2muCombViewsMaker.ViewFallThrough = True
- 
     l2muCombViewsMaker.InputMakerInputDecisions = [ filterL2SAAlg.Output[0] ] # Output of TrigMufastHypo
     l2muCombViewsMaker.InputMakerOutputDecisions = [ "MUL2SADecisionsOutput" ] 
     l2muCombViewsMaker.RoIsLink = "roi" # -||-
     l2muCombViewsMaker.InViewRoIs = "MUTrkRoIs" # contract with the consumer
     l2muCombViewsMaker.Views = "MUTrkViewRoIs"
-    l2muCombViewsMaker.ViewNodeName = l2muCombViewNode.name()
 
-    ### Define input data of Inner Detector algorithms  ###
-    ### and Define EventViewNodes to run the algprithms ###
-    TrackParticlesName = ""
-    for viewAlg in viewAlgs:
-      l2muCombViewNode += viewAlg
-      if viewAlg.properties().has_key("RoIs"):
-        viewAlg.RoIs = l2muCombViewsMaker.InViewRoIs
-      if viewAlg.properties().has_key("roiCollectionName"):
-        viewAlg.roiCollectionName = l2muCombViewsMaker.InViewRoIs
-      if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
-        TrackParticlesName = viewAlg.TrackParticlesName
-        viewAlg.TrackName = theFTF.TracksName
+    ### get muComb reco sequence ###
+    from TrigUpgradeTest.MuonSetup import muCombRecoSequence
+    muCombRecoSequence, eventAlgs, muCombSequenceOut, TrackParticlesName = muCombRecoSequence( l2muCombViewsMaker.InViewRoIs, OutputLevel=DEBUG )
 
-    ### please read out TrigmuCombMTConfig file ###
-    ### and set up to run muCombMT algorithm    ###
-    from TrigmuComb.TrigmuCombMTConfig import TrigmuCombMTConfig
-    muCombAlg = TrigmuCombMTConfig("Muon", theFTF.getName())
-    muCombAlg.OutputLevel = DEBUG
-    muCombAlg.L2StandAloneMuonContainerName = muFastAlg.MuonL2SAInfo
-    muCombAlg.TrackParticlesContainerName = TrackParticlesName
-    muCombAlg.L2CombinedMuonContainerName = "MuonL2CBInfo"
-
-    l2muCombViewNode += muCombAlg
+    l2muCombViewsMaker.ViewNodeName = muCombRecoSequence.name()
 
     ### set up muCombHypo algorithm ###
     from TrigMuonHypo.TrigMuonHypoConfigMT import TrigmuCombHypoConfig
@@ -259,15 +209,16 @@ if TriggerFlags.doMuon:
     trigmuCombHypo.OutputLevel = DEBUG 
     trigmuCombHypo.HypoOutputDecisions = "MuonL2CBDecisions"
     trigmuCombHypo.HypoInputDecisions = l2muCombViewsMaker.InputMakerOutputDecisions[0]
-    trigmuCombHypo.MuonL2CBInfoFromMuCombAlg = muCombAlg.L2CombinedMuonContainerName 
+    trigmuCombHypo.MuonL2CBInfoFromMuCombAlg = muCombSequenceOut
     trigmuCombHypo.HypoTools = [ trigmuCombHypo.TrigmuCombHypoToolFromName( "TrigL2muCombHypoTool", c ) for c in testChains ] 
   
     ### set the dumper ###
     muCombDecisionsDumper = DumpDecisions("muCombDecisionsDumper", OutputLevel=DEBUG, Decisions = trigmuCombHypo.HypoOutputDecisions )
- 
-    ### Define a Sequence to run for muComb ### 
-    l2muCombSequence = seqAND("l2muCombSequence", eventAlgs + [l2muCombViewsMaker, l2muCombViewNode, trigmuCombHypo ] )
 
+    ### make sequence ### 
+    l2muCombSequence = seqAND("l2muCombSequence", eventAlgs + [l2muCombViewsMaker, muCombRecoSequence, trigmuCombHypo ] )
+
+    ### make step ### 
     muCombStep = stepSeq("muCombStep", filterL2SAAlg, [ l2muCombSequence,  muCombDecisionsDumper ] )
 
 
@@ -288,8 +239,6 @@ if TriggerFlags.doMuon:
     filterEFSAAlg.OutputLevel = DEBUG
 
     ### set the EVCreator ###
-    efMuViewNode = parOR("efMuViewNode")
-
     efMuViewsMaker = EventViewCreatorAlgorithm("efMuViewsMaker", OutputLevel=DEBUG)
     efMuViewsMaker.ViewFallThrough = True
     # probably wrong input to the EVMaker
@@ -298,36 +247,35 @@ if TriggerFlags.doMuon:
     efMuViewsMaker.RoIsLink = "initialRoI" # -||-
     efMuViewsMaker.InViewRoIs = "MURoIs" # contract with the consumer
     efMuViewsMaker.Views = "EFMUViewRoIs"
-    efMuViewsMaker.ViewNodeName = efMuViewNode.name()
 
-    # setup muEFMsonly algs
-    from TrigUpgradeTest.MuonSetup import makeMuEFSAAlgs
-    efAlgs = makeMuEFSAAlgs()
-    muEFSAInfo = ""
-    for efAlg in efAlgs:
-      if efAlg.properties().has_key("RoIs"):
-        efAlg.RoIs = efMuViewsMaker.InViewRoIs
-      if efAlg.properties().has_key("MuonContainerLocation"):
-        muEFSAInfo = "Muons"
-        efAlg.MuonContainerLocation = muEFSAInfo
-      efMuViewNode += efAlg
+    ### get EF reco sequence ###
+    from TrigUpgradeTest.MuonSetup import muEFSARecoSequence
+    muEFMSRecoSequence, muEFSASequenceOut = muEFSARecoSequence( efMuViewsMaker.InViewRoIs, OutputLevel=DEBUG )
+ 
+    efMuViewsMaker.ViewNodeName = muEFMSRecoSequence.name()
 
     #Setup MS-only hypo
     from TrigMuonHypo.TrigMuonHypoConfigMT import TrigMuonEFMSonlyHypoConfig
     trigMuonEFSAHypo = TrigMuonEFMSonlyHypoConfig("TrigMuonEFSAHypoAlg")
     trigMuonEFSAHypo.OutputLevel = DEBUG
-    trigMuonEFSAHypo.MuonDecisions = muEFSAInfo
+    trigMuonEFSAHypo.MuonDecisions = muEFSASequenceOut
     trigMuonEFSAHypo.HypoOutputDecisions = "EFMuonSADecisions"
     trigMuonEFSAHypo.HypoInputDecisions = efMuViewsMaker.InputMakerOutputDecisions[0]
 
     trigMuonEFSAHypo.HypoTools = [ trigMuonEFSAHypo.TrigMuonEFMSonlyHypoToolFromName( "TrigMuonEFMSonlyHypoTool", c ) for c in testChains ] 
 
+    ### set the dumper ###
     muonEFSADecisionsDumper = DumpDecisions("muonEFSADecisionsDumper", OutputLevel=DEBUG, Decisions = trigMuonEFSAHypo.HypoOutputDecisions )
-    muEFSASequence = seqAND("muEFSASequence", [efMuViewsMaker, efMuViewNode, trigMuonEFSAHypo])
+
+    ### make sequence ### 
+    muEFSASequence = seqAND("muEFSASequence", [efMuViewsMaker, muEFMSRecoSequence, trigMuonEFSAHypo])
+
+    ### make step ### 
     muonEFSAStep = stepSeq("muonEFSAStep", filterEFSAAlg, [muEFSASequence, muonEFSADecisionsDumper])
 
 
   if doL2CB and doL2ISO:
+
     ### RoRSeqFilter step2 for muIso ###
     filterL2MuisoAlg = RoRSeqFilter("filterL2MuisoAlg")
     filterL2MuisoAlg.Input = [trigmuCombHypo.HypoOutputDecisions]
@@ -336,8 +284,6 @@ if TriggerFlags.doMuon:
     filterL2MuisoAlg.OutputLevel = DEBUG
     
     ### set the EVCreator ###    
-    l2muIsoViewNode = parOR("l2muIsoViewNode")
-
     l2muIsoViewsMaker = EventViewCreatorAlgorithm("l2muIsoViewsMaker", OutputLevel=DEBUG)
     l2muIsoViewsMaker.ViewFallThrough = True 
     l2muIsoViewsMaker.InputMakerInputDecisions = [ filterL2MuisoAlg.Output[0] ] # Output of TrigMufastHypo
@@ -345,30 +291,29 @@ if TriggerFlags.doMuon:
     l2muIsoViewsMaker.RoIsLink = "roi" # -||-
     l2muIsoViewsMaker.InViewRoIs = "MUIsoRoIs" # contract with the consumer
     l2muIsoViewsMaker.Views = "MUIsoViewRoIs"
-    l2muIsoViewsMaker.ViewNodeName = l2muIsoViewNode.name()
 
-    from TrigmuIso.TrigmuIsoConfig import TrigmuIsoMTConfig
-    trigL2muIso = TrigmuIsoMTConfig("L2muIso")
-    trigL2muIso.OutputLevel = DEBUG
-    trigL2muIso.MuonL2CBInfoName = muCombAlg.L2CombinedMuonContainerName
-    trigL2muIso.TrackParticlesName = TrackParticlesName
-    trigL2muIso.MuonL2ISInfoName = "MuonL2ISInfo"
+    ### get EF reco sequence ###
+    from TrigUpgradeTest.MuonSetup import l2muisoRecoSequence
+    l2muisoRecoSequence, l2muIsoSequenceOut = l2muisoRecoSequence( l2muIsoViewsMaker.InViewRoIs, OutputLevel=DEBUG )
 
-    l2muIsoViewNode += trigL2muIso
+    l2muIsoViewsMaker.ViewNodeName = l2muisoRecoSequence.name()
 
     from TrigMuonHypo.TrigMuonHypoConfigMT import TrigMuisoHypoConfig
     trigmuIsoHypo = TrigMuisoHypoConfig("TrigL2MuisoHypoAlg")
     trigmuIsoHypo.OutputLevel = DEBUG
-    trigmuIsoHypo.MuonL2ISInfoName = trigL2muIso.MuonL2ISInfoName
+    trigmuIsoHypo.MuonL2ISInfoName = l2muIsoSequenceOut
     trigmuIsoHypo.HypoOutputDecisions = "MuonL2IsoDecisions"
     trigmuIsoHypo.HypoInputDecisions = l2muIsoViewsMaker.InputMakerOutputDecisions[0]
     trigmuIsoHypo.HypoTools = [ trigmuIsoHypo.TrigMuisoHypoToolFromName( "TrigL2MuisoHypoTool", c ) for c in testChains ] 
 
     ### set the dumper ###
     muIsoDecisionsDumper = DumpDecisions("muIsoDecisionsDumper", OutputLevel=DEBUG, Decisions = trigmuIsoHypo.HypoOutputDecisions )
-    
-    ### Define a Sequence to run for muIso ### 
-    muIsoStep = seqAND("muIsoStep", [ filterL2MuisoAlg, l2muIsoViewsMaker, l2muIsoViewNode, trigmuIsoHypo, muIsoDecisionsDumper ] )
+
+    ### make sequence ### 
+    l2muIsoSequence = seqAND("l2muIsoSequence", [ l2muIsoViewsMaker, l2muisoRecoSequence, trigmuIsoHypo ])
+
+    ### make step ### 
+    l2muIsoStep = seqAND("l2muIsoStep", filterL2MuisoAlg, [ l2muIsoSequence, muIsoDecisionsDumper ] )
 
 
 # ===============================================================================================
@@ -395,8 +340,8 @@ def muonViewsMergers( name ):
   if doL2SA==True:
     muonViewsMerger.TrigCompositeContainer += [ filterL1RoIsAlg.Output[0], trigMufastHypo.HypoOutputDecisions ]
     muonViewsMerger.L2StandAloneMuonContainerViews = [ l2MuViewsMaker.Views ]
-    muonViewsMerger.L2StandAloneMuonContainerInViews = [ muFastAlg.MuonL2SAInfo ]
-    muonViewsMerger.L2StandAloneMuonContainer = [ muFastAlg.MuonL2SAInfo ]
+    muonViewsMerger.L2StandAloneMuonContainerInViews = [ muFastSequenceOut ]
+    muonViewsMerger.L2StandAloneMuonContainer = [ muFastSequenceOut ]
 
   if doL2CB==True:
     muonViewsMerger.TrigCompositeContainer += [ filterL2SAAlg.Output[0], trigmuCombHypo.HypoOutputDecisions ]
@@ -405,21 +350,20 @@ def muonViewsMergers( name ):
     muonViewsMerger.TrackParticleContainer = [ TrackParticlesName ]
 
     muonViewsMerger.L2CombinedMuonContainerViews = [ l2muCombViewsMaker.Views ]
-    muonViewsMerger.L2CombinedMuonContainerInViews = [ muCombAlg.L2CombinedMuonContainerName ]
-    muonViewsMerger.L2CombinedMuonContainer = [ muCombAlg.L2CombinedMuonContainerName ]
+    muonViewsMerger.L2CombinedMuonContainerInViews = [ muCombSequenceOut ]
+    muonViewsMerger.L2CombinedMuonContainer = [ muCombSequenceOut ]
 
   if doEFSA==True:
     muonViewsMerger.TrigCompositeContainer += [ filterEFSAAlg.Output[0], trigMuonEFSAHypo.HypoOutputDecisions ]
     muonViewsMerger.MuonContainerViews = [ efMuViewsMaker.Views ]
-    muonViewsMerger.MuonContainerInViews = [ muEFSAInfo ]
-    muonViewsMerger.MuonContainer = [ muEFSAInfo ]
+    muonViewsMerger.MuonContainerInViews = [ muEFSASequenceOut ]
+    muonViewsMerger.MuonContainer = [ muEFSASequenceOut ]
 
   if doL2CB==True and doL2ISO==True: # L2CB should be also executed with L2ISO
     muonViewsMerger.TrigCompositeContainer += [ filterL2MuisoAlg.Output[0], trigmuIsoHypo.HypoOutputDecisions ]
     muonViewsMerger.L2IsoMuonContainerViews = [ l2muIsoViewsMaker.Views ]
-    muonViewsMerger.L2IsoMuonContainerInViews = [ trigL2muIso.MuonL2ISInfoName ]
-    muonViewsMerger.L2IsoMuonContainer = [ trigL2muIso.MuonL2ISInfoName ]
-
+    muonViewsMerger.L2IsoMuonContainerInViews = [ l2muIsoSequenceOut ]
+    muonViewsMerger.L2IsoMuonContainer = [ l2muIsoSequenceOut ]
 
   return muonViewsMerger
 
@@ -449,22 +393,22 @@ def muonStreamESD( muonViewsMerger ):
   StreamESD.ItemList += [ "ROIB::RoIBResult#*" ]
 
   if doL2SA==True:
-    StreamESD.ItemList += [ "xAOD::L2StandAloneMuonContainer#"+muFastAlg.MuonL2SAInfo ]
-    StreamESD.ItemList += [ "xAOD::L2StandAloneMuonAuxContainer#"+muFastAlg.MuonL2SAInfo+"Aux." ]
+    StreamESD.ItemList += [ "xAOD::L2StandAloneMuonContainer#"+muFastSequenceOut ]
+    StreamESD.ItemList += [ "xAOD::L2StandAloneMuonAuxContainer#"+muFastSequenceOut+"Aux." ]
 
   if doL2CB==True:
     StreamESD.ItemList += [ "xAOD::TrackParticleContainer#"+TrackParticlesName,
-                            "xAOD::L2CombinedMuonContainer#"+muCombAlg.L2CombinedMuonContainerName ]
+                            "xAOD::L2CombinedMuonContainer#"+muCombSequenceOut ]
     StreamESD.ItemList += [ "xAOD::TrackParticleAuxContainer#"+TrackParticlesName+"Aux.",
-                            "xAOD::L2CombinedMuonAuxContainer#"+muCombAlg.L2CombinedMuonContainerName+"Aux." ]
+                            "xAOD::L2CombinedMuonAuxContainer#"+muCombSequenceOut+"Aux." ]
 
   if doEFSA==True:
-    StreamESD.ItemList += [ "xAOD::MuonContainer#"+muEFSAInfo ]
-    StreamESD.ItemList += [ "xAOD::MuonAuxContainer#"+muEFSAInfo+"Aux." ]
+    StreamESD.ItemList += [ "xAOD::MuonContainer#"+muEFSASequenceOut ]
+    StreamESD.ItemList += [ "xAOD::MuonAuxContainer#"+muEFSASequenceOut+"Aux." ]
 
   if doL2CB==True and doL2ISO==True:
-    StreamESD.ItemList += [ "xAOD::L2IsoMuonContainer#"+trigL2muIso.MuonL2ISInfoName ]
-    StreamESD.ItemList += [ "xAOD::L2IsoMuonAuxContainer#"+trigL2muIso.MuonL2ISInfoName+"Aux." ]
+    StreamESD.ItemList += [ "xAOD::L2IsoMuonContainer#"+l2muIsoSequenceOut ]
+    StreamESD.ItemList += [ "xAOD::L2IsoMuonAuxContainer#"+l2muIsoSequenceOut+"Aux." ]
 
   print "ESD file content "
   num = 0;
@@ -591,7 +535,7 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
     summary1 = summarySteps("Step2", ["MuonL2CBDecisions"] )
     step1 = parOR("step1", [ muCombStep, summary1 ] )
     summary2 = summarySteps("Step3", ["MuonL2IsoDecisions"] )
-    step2 = parOR("step2", [ muIsoStep, summary2 ] )
+    step2 = parOR("step2", [ l2muIsoStep, summary2 ] )
     step0filter = parOR("step0filter", [ filterL1RoIsAlg ] )
     step1filter = parOR("step1filter", [ filterL2SAAlg ] )
     step2filter = parOR("step2filter", [ filterL2MuisoAlg] )
@@ -615,7 +559,7 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
     summary1 = summarySteps("Step2", ["MuonL2CBDecisions"] )
     step1 = parOR("step1", [ muCombStep, summary1 ] )
     summary2 = summarySteps("Step3", ["EFMuonSADecisions", "MuonL2IsoDecisions"] )
-    step2 = parOR("step2", [ muonEFSAStep, muIsoStep, summary2 ] )
+    step2 = parOR("step2", [ muonEFSAStep, l2muIsoStep, summary2 ] )
     step0filter = parOR("step0filter", [ filterL1RoIsAlg ] )
     step1filter = parOR("step1filter", [ filterL2SAAlg ] )
     step2filter = parOR("step2filter", [ filterEFSAAlg, filterL2MuisoAlg] )

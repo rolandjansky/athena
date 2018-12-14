@@ -80,7 +80,6 @@ StatusCode TileRawChannelContByteStreamCnv::initialize() {
   unit = TileRawChannelUnit::ADCcounts;
   m_containers[0] = new TileRawChannelContainer(true, type, unit); 
   m_containers[0]->addRef(); // make sure it's not deleted at the end of event
-  m_decoder->PtrRChContainer( m_containers[0] );
 
   type = TileFragHash::MF;
   unit = TileRawChannelUnit::ADCcounts;
@@ -147,7 +146,7 @@ StatusCode TileRawChannelContByteStreamCnv::createObj(IOpaqueAddress* pAddr, Dat
         if (isTMDB) {// reid for TMDB 0x5x010x
 	  m_decoder->fillCollection_TileMuRcv_RawChannel(robf[0], *rawChannelCollection);
         } else {
-          m_decoder->fillCollection(robf[0], *rawChannelCollection);
+          m_decoder->fillCollection(robf[0], *rawChannelCollection, m_containers[icnt]);
         }
       } else {
         rawChannelCollection->setFragGlobalCRC(TileROD_Decoder::NO_ROB);

@@ -57,12 +57,13 @@ StatusCode MURoIsUnpackingTool::unpack( const EventContext& ctx,
                                         const ROIB::RoIBResult& roib,
                                         const HLT::IDSet& activeChains ) const {
   using namespace TrigCompositeUtils;
-  auto decisionOutput = std::make_unique<DecisionContainer>();
-  auto decisionAux    = std::make_unique<DecisionAuxContainer>();
-  decisionOutput->setStore( decisionAux.get() );
-
-  auto trigRoIs = std::make_unique< TrigRoiDescriptorCollection >();
-  auto recRoIs  = std::make_unique< DataVector<LVL1::RecMuonRoI> >();
+  // create and record the collections needed
+  SG::WriteHandle<TrigRoiDescriptorCollection> handle1 = createAndStoreNoAux(m_trigRoIsKey, ctx ); 
+  auto trigRoIs = handle1.ptr();
+  SG::WriteHandle< DataVector<LVL1::RecMuonRoI> > handle2 = createAndStoreNoAux( m_recRoIsKey, ctx );
+  auto recRoIs = handle2.ptr();
+  SG::WriteHandle<DecisionContainer> handle3 = createAndStore(m_decisionsKey, ctx ); 
+  auto decisionOutput = handle3.ptr();
 
   for ( auto& roi : roib.muCTPIResult().roIVec() ) {    
     const uint32_t roIWord = roi.roIWord();
@@ -82,7 +83,7 @@ StatusCode MURoIsUnpackingTool::unpack( const EventContext& ctx,
     
     ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw( 8 ) << roIWord );
     
-    auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput.get() );
+    auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput );
     decision->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_trigRoIsKey.key(), trigRoIs->size()-1 ) );
     decision->setObjectLink( "initialRecRoI", ElementLink<DataVector<LVL1::RecMuonRoI>>( m_recRoIsKey.key(), recRoIs->size()-1 ) );
     
@@ -104,22 +105,9 @@ StatusCode MURoIsUnpackingTool::unpack( const EventContext& ctx,
   {
     using namespace Monitored;
     auto RoIsCount = MonitoredScalar::declare( "count", trigRoIs->size() );
-    auto RoIsPhi   = MonitoredCollection::declare( "phi", *trigRoIs.get(), &TrigRoiDescriptor::phi );
-    auto RoIsEta   = MonitoredCollection::declare( "eta", *trigRoIs.get(), &TrigRoiDescriptor::eta );
+    auto RoIsPhi   = MonitoredCollection::declare( "phi", *trigRoIs, &TrigRoiDescriptor::phi );
+    auto RoIsEta   = MonitoredCollection::declare( "eta", *trigRoIs, &TrigRoiDescriptor::eta );
     MonitoredScope::declare( m_monTool,  RoIsCount, RoIsEta, RoIsPhi );
-  }
-  // recording
-  {
-    auto handle = SG::makeHandle( m_trigRoIsKey, ctx );
-    CHECK( handle.record( std::move( trigRoIs ) ) );
-  }
-  {
-    auto handle = SG::makeHandle( m_recRoIsKey, ctx );
-    CHECK( handle.record( std::move( recRoIs ) ) );
-  }
-  {
-    auto handle = SG::makeHandle(  m_decisionsKey, ctx );
-    CHECK( handle.record( std::move( decisionOutput ), std::move( decisionAux ) ) );
   }
   return StatusCode::SUCCESS;
 }

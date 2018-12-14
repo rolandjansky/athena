@@ -85,7 +85,7 @@ namespace InDet {
       TrackClusterAssValidation(const std::string &name, ISvcLocator *pSvcLocator);
       virtual ~TrackClusterAssValidation() {}
       StatusCode initialize();
-      StatusCode execute_r(const EventContext& ctx) const;
+      StatusCode execute(const EventContext& ctx) const;
       StatusCode finalize();
 
     protected:

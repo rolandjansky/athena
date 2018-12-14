@@ -109,7 +109,7 @@ AthenaAttributeList* LArHVPathologyDbCondAlg::hvPathology2AttrList(const LArHVPa
 }
 */
 
-StatusCode LArHVPathologyDbCondAlg::execute_r(const EventContext& ctx) const {
+StatusCode LArHVPathologyDbCondAlg::execute(const EventContext& ctx) const {
 
   SG::WriteCondHandle<LArHVPathology > writeHandle{m_hvPAthologyKey, ctx};
 

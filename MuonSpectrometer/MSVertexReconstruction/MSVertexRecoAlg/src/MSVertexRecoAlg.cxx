@@ -48,7 +48,7 @@ StatusCode MSVertexRecoAlg::initialize(){
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-StatusCode MSVertexRecoAlg::execute_r (const EventContext& ctx) const {
+StatusCode MSVertexRecoAlg::execute (const EventContext& ctx) const {
 
   std::vector<Tracklet> tracklets;
   std::vector<MSVertex*> vertices;

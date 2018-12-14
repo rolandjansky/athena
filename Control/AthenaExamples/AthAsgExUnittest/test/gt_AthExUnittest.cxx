@@ -46,7 +46,7 @@ namespace Athena_test {
       IAlgorithm* ialg= Algorithm::Factory::create( "MyPackageAlg",
 						    "MyPackageAlg",
 						    Gaudi::svcLocator() ).release();
-      myAlg= dynamic_cast<Algorithm*>( ialg );
+      myAlg= dynamic_cast<Gaudi::Algorithm*>( ialg );
 
     }
 
@@ -64,7 +64,7 @@ namespace Athena_test {
       return std::stoi( prop );
     }
 
-    Algorithm* myAlg;
+    Gaudi::Algorithm* myAlg;
 
   };
   

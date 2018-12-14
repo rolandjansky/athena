@@ -34,7 +34,7 @@ StatusCode TrigJetHypoAlgMT::initialize() {
 }
 
 
-StatusCode TrigJetHypoAlgMT::execute_r( const EventContext& context ) const {  
+StatusCode TrigJetHypoAlgMT::execute( const EventContext& context ) const {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
 
 
@@ -53,11 +53,9 @@ StatusCode TrigJetHypoAlgMT::execute_r( const EventContext& context ) const {
 
   auto prevDecisions = h_prevDecisions.get();
 
-  // Make a new Decisions container which will contain the previous
-  // decisions, and the one for this hypo.
-  auto newDecisions = std::make_unique<DecisionContainer>();
-  auto aux = std::make_unique<DecisionAuxContainer>();
-  newDecisions->setStore(aux.get());
+  // new output decisions                                                      
+  SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 
+  auto newDecisions = outputHandle.ptr();
 
   // read in a jets collection, and obtain a bare pointer to it
   auto h_jets = SG::makeHandle(m_jetsKey, context );
@@ -77,8 +75,6 @@ StatusCode TrigJetHypoAlgMT::execute_r( const EventContext& context ) const {
  
 
   // output the decisions for all chains for this event.
-  auto outputHandle = SG::makeHandle(decisionOutput(), context);
-  CHECK( outputHandle.record( std::move( newDecisions ), std::move( aux ) ) );
   ATH_MSG_DEBUG ( "Exit with "<<outputHandle->size() <<" decisions"); 
 
 
@@ -100,12 +96,12 @@ StatusCode TrigJetHypoAlgMT::execute_r( const EventContext& context ) const {
 
 StatusCode
 TrigJetHypoAlgMT::decide(const xAOD::JetContainer* jets,
-                         std::unique_ptr<DecisionContainer>& nDecisions,
+                         DecisionContainer* nDecisions,
                          const DecisionContainer* oDecisions) const{
 
  
   auto previousDecision = (*oDecisions)[0];
-  auto newdecision = TrigCompositeUtils::newDecisionIn(nDecisions.get());
+  auto newdecision = TrigCompositeUtils::newDecisionIn(nDecisions);
 
   
   const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs{
@@ -151,7 +147,7 @@ TrigJetHypoAlgMT::decide(const xAOD::JetContainer* jets,
 //     if (pass) {
 //       // create a new Decision object. This object has been placed in the
 //       // nDecisions container.
-//       auto decision = TrigCompositeUtils::newDecisionIn(nDecisions.get());
+//       auto decision = TrigCompositeUtils::newDecisionIn(nDecisions);
 //       TrigCompositeUtils::addDecisionID(decisionId, decision);
 //     }
 //     // what if does not pass?

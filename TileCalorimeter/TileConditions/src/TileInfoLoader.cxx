@@ -41,7 +41,6 @@
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/TilePulseShapes.h"
 #include "TileConditions/TileOptFilterWeights.h"
-#include "TileConditions/TileBadChanLegacyTool.h"
 
 #include "TMatrixD.h"
 #include "cstdio"
@@ -376,12 +375,6 @@ StatusCode TileInfoLoader::initialize() {
   ATH_MSG_INFO(  "Placed TileInfo object in the detector store."  );
 
   m_eorCalled = false;
-
-
-  // This retrieval of TileBadChanLegacyTool is needed to avoid crash in trigger-related jobs,
-  // when TileByteStream wants to use bad channel tool at start of run
-  ToolHandle<ITileBadChanTool> tileBadChanTool("TileBadChanLegacyTool");
-  CHECK( tileBadChanTool.retrieve() );
 
   // Listen for end of run
   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());

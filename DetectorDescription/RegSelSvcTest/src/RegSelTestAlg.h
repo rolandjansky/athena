@@ -25,7 +25,7 @@ class RegSelTestAlg
 
 
   virtual StatusCode  initialize() override;
-  virtual StatusCode  execute_r(const EventContext& context) const override;
+  virtual StatusCode  execute(const EventContext& context) const override;
   virtual StatusCode  finalize() override;
   StatusCode dump() const;
   StatusCode mt() const;

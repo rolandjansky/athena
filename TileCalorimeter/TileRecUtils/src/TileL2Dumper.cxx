@@ -40,7 +40,7 @@ StatusCode TileL2Dumper::initialize()
  * @brief Algorithm event processing.
  * @param ctx Event Context.
  */
-StatusCode TileL2Dumper::execute_r (const EventContext& ctx) const
+StatusCode TileL2Dumper::execute (const EventContext& ctx) const
 {
   std::string fname = CxxUtils::strformat ("%s%s_%08u_%08lu.dump",
                                            m_prefix.value().c_str(),

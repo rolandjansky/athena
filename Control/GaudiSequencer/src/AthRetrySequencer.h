@@ -47,7 +47,7 @@ class AthRetrySequencer
   //AthRetrySequencer &operator=(const AthRetrySequencer &alg); 
 
   // Athena algorithm's Hooks
-  virtual StatusCode  execute();
+  virtual StatusCode  execute( const EventContext& ) const override;
 
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 

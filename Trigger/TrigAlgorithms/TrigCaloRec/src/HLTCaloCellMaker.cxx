@@ -44,7 +44,7 @@ StatusCode HLTCaloCellMaker::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode HLTCaloCellMaker::execute_r( const EventContext& context ) const {
+StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 
 
   auto roisHandle = SG::makeHandle( m_roiCollectionKey );

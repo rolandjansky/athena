@@ -64,7 +64,7 @@ StatusCode xAODTestReadHVec::initialize()
 /**
  * @brief Algorithm event processing.
  */
-StatusCode xAODTestReadHVec::execute_r (const EventContext& ctx) const
+StatusCode xAODTestReadHVec::execute (const EventContext& ctx) const
 {
   const DMTest::HVec* hvec = SG::get (m_hvecKey, ctx);
   std::cout << m_hvecKey.key() << ":";

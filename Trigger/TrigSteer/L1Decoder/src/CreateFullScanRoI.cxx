@@ -3,6 +3,7 @@
 */
 
 #include "CreateFullScanRoI.h"
+#include "DecisionHandling/TrigCompositeUtils.h"
 
 CreateFullScanRoI::CreateFullScanRoI(const std::string& name, ISvcLocator* pSvcLocator) :
   AthReentrantAlgorithm(name, pSvcLocator)
@@ -26,16 +27,12 @@ StatusCode CreateFullScanRoI::finalize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode CreateFullScanRoI::execute_r(const EventContext& context) const
+StatusCode CreateFullScanRoI::execute(const EventContext& ctx) const
 {
-
-  auto roisCollection = std::make_unique<TrigRoiDescriptorCollection>();
+  using namespace TrigCompositeUtils;
+  SG::WriteHandle<TrigRoiDescriptorCollection> handle1 = createAndStoreNoAux(m_roisKey, ctx ); 
+  auto roisCollection = handle1.ptr();
   auto roi = new TrigRoiDescriptor( true ); // this is FullScan RoI
   roisCollection->push_back( roi );
-
-
-  auto handle = SG::makeHandle( m_roisKey, context );
-  CHECK( handle.record( std::move( roisCollection ) ) );
   return StatusCode::SUCCESS;
 }
-

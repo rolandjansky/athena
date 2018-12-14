@@ -44,16 +44,16 @@ AthRetrySequencer::AthRetrySequencer( const std::string& name,
 AthRetrySequencer::~AthRetrySequencer()
 {}
 
-StatusCode AthRetrySequencer::execute()
+StatusCode AthRetrySequencer::execute( const EventContext& ctx ) const
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
   int iloop = 0;
 
   while (iloop < m_maxRetries || m_maxRetries == -1) {
     iloop += 1;
-    this->AthSequencer::resetExecuted();
-    if (this->AthSequencer::execute().isSuccess() && 
-        filterPassed()) {
+    this->AthSequencer::resetExecuted( ctx );
+    if (this->AthSequencer::execute( ctx ).isSuccess() &&
+        this->execState(ctx).filterPassed()) {
       return StatusCode::SUCCESS;
     }
   }

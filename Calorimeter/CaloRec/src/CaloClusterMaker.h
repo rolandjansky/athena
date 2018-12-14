@@ -40,7 +40,7 @@ class CaloClusterMaker : public AthReentrantAlgorithm
   CaloClusterMaker(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~CaloClusterMaker() override;
   virtual StatusCode initialize() override;
-  virtual StatusCode execute_r(const EventContext& ctx) const override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
   virtual StatusCode finalize() override;
 
   const std::string& getOutputContainerName() const;
@@ -88,7 +88,7 @@ class CaloClusterMaker : public AthReentrantAlgorithm
    *
    * If true, we keep in StoreGate the complete list of clusters
    * before each correction has been performed. */
-  bool m_keep_each_correction;
+  //MT-unfriendly:bool m_keep_each_correction;
 
   /** 
    * @brief controls saving the uncalibrated signal state just before

@@ -30,7 +30,7 @@ StatusCode LArRawChannelBuilderAlg::finalize() {
   return StatusCode::SUCCESS;
 } 
 
-StatusCode LArRawChannelBuilderAlg::execute_r(const EventContext& ctx) const {
+StatusCode LArRawChannelBuilderAlg::execute(const EventContext& ctx) const {
 
   //Get event inputs from read handles:
   SG::ReadHandle<LArDigitContainer> inputContainer(m_digitKey,ctx);

@@ -26,13 +26,12 @@
 #include "InDetRecToolInterfaces/ISeedToTrackConversionTool.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 #include <list>
-#include <map>
 #include <iosfwd>
 
 class MsgStream;
-class IBeamCondSvc;
 
 namespace InDet{
 
@@ -102,7 +101,7 @@ namespace InDet{
       ToolHandle<InDet::ISiDetElementsRoadMaker>     m_roadmaker   ;
       ToolHandle<InDet::ISiCombinatorialTrackFinder> m_tracksfinder;
       ToolHandle<InDet::ISeedToTrackConversionTool>  m_seedtrack   ;
-      IBeamCondSvc*                                  m_beam  {}      ;
+      SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
       int                            m_nprint{}        ;  // Kind output information
       int                            m_inputseeds{}    ;  // Number input seeds
@@ -116,7 +115,6 @@ namespace InDet{
 //      std::string      m_inputHadClusterContainerName;
       SG::ReadHandleKey<CaloClusterROI_Collection> m_caloCluster;
       SG::ReadHandleKey<CaloClusterROI_Collection> m_caloHad;
-      std::string                    m_beamconditions;
       Trk::TrackInfo                 m_trackinfo     ;
       bool                           m_pix{}           ;
       bool                           m_sct{}           ;

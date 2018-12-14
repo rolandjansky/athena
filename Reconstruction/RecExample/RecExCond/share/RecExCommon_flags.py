@@ -125,7 +125,6 @@ RecExCommonFlags = {
       'doAODall' : True, # write all ID track particles if available
       'doAODCaloCells' : True, # make AOD cell container
       'OutputLevel': INFO,  # general msg output level VERBOSE DEBUG INFO
-      'doDetStatus' : True, # include DetStatusSvc_CondDB.py and optionaly DetStatusSvc_ToFileMetaData.py
       'doTimeLimit': False, # if stop execution when allocated time elapsed
       'doTruth' : True, # id use the truth
       'doDumpMC' : False, # if dump mc truth in log file
@@ -539,10 +538,6 @@ if rec.doWriteRDO():
    if rec.readESD or rec.readAOD:
       raise RuntimeError, "Cannot have readESD or readAOD if doWriteRDO"
 
-   if rec.readRDO() and globalflags.InputFormat()!='bytestream':
-      # this is a RDO to RDO copy, do not put detector status
-      rec.doDetStatus=False
-   
 # in case several read specified, favour the highest one
 if rec.readAOD():
    logRecExCommon_flags.info( "read AOD : all algs switched off " )
@@ -665,7 +660,6 @@ if rec.Commissioning():
        rec.doWriteTAG = False
        rec.doWriteTAGCOM = False    
        rec.doWriteESD = False
-       rec.doDetStatus=False
        rec.doHist=False
        
    #--------------------------------------------------------------

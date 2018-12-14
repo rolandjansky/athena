@@ -11,7 +11,6 @@
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/ITileBadChanTool.h"
-#include "TileConditions/TileDCSSvc.h"
 
 // Calo includes
 #include "CaloIdentifier/TileID.h"
@@ -53,7 +52,6 @@ TileCellSelector::TileCellSelector(const std::string& name, ISvcLocator* pSvcLoc
   , m_tileHWID(0)
   , m_cabling(0)
   , m_tileBadChanTool("TileBadChanTool")
-  , m_tileDCSSvc("TileDCSSvc",name)
   , m_runNum(0)
   , m_lumiBlock(0)
   , m_evtNum(0)
@@ -142,15 +140,17 @@ StatusCode TileCellSelector::initialize() {
 
   ATH_CHECK( m_eventInfoKey.initialize() );
 
-  CHECK(detStore()->retrieve(m_tileID, "TileID"));
-  CHECK(detStore()->retrieve(m_tileHWID, "TileHWID"));
+  ATH_CHECK(detStore()->retrieve(m_tileID, "TileID"));
+  ATH_CHECK(detStore()->retrieve(m_tileHWID, "TileHWID"));
 
   m_cabling = TileCablingService::getInstance();
 
-  CHECK(m_tileBadChanTool.retrieve());
+  ATH_CHECK(m_tileBadChanTool.retrieve());
 
   if (m_checkDCS) {
-    CHECK(m_tileDCSSvc.retrieve());
+    ATH_CHECK(m_tileDCS.retrieve());
+  } else {
+    m_tileDCS.disable();
   }
 
   ATH_MSG_INFO( "Cell container " 
@@ -320,7 +320,7 @@ StatusCode TileCellSelector::initialize() {
     m_drawerToSkip.resize(1+TileCalibUtils::getDrawerIdx(4,63),false);
   }
 
-  CHECK( m_dqStatusKey.initialize() );
+  ATH_CHECK( m_dqStatusKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -449,7 +449,7 @@ StatusCode TileCellSelector::execute() {
         int drmax = 65;
         for (int dr = 0; dr < drmax; ++dr) {
           int drawer = dr % 64;
-          if (m_tileDCSSvc->getDCSSTATUS(ros, drawer) == TileDCSSvc::ALERT_DRAWER) {
+          if (m_tileDCS->getDCSStatus(ros, drawer) == TileDCSState::ALERT_DRAWER) {
             if (m1 < 0) m1 = dr;
             m2 = dr;
             if (dr < 64) allmod.push_back((ros << 8) + dr);
@@ -1194,7 +1194,7 @@ StatusCode TileCellSelector::execute() {
               int adc = m_tileHWID->adc(adcId);
               m_chanBad[hash] = m_tileBadChanTool->getAdcStatus(drawerIdx,channel,adc).isBad() ||
                 (DQstatus && !DQstatus->isAdcDQgood(ros,drawer,channel,adc)) ||
-                (m_checkDCS && m_tileDCSSvc->getDCSSTATUS(ros,drawer,channel) > TileDCSSvc::WARNING);
+                (m_checkDCS && m_tileDCS->getDCSStatus(ros, drawer, channel) > TileDCSState::WARNING);
             }
 
             if (allowAmpCheck) {
@@ -1426,7 +1426,7 @@ StatusCode TileCellSelector::execute() {
               ++nChBad;
               ++nChBadDmu[dmu];
             }
-          } else if (m_checkDCS && m_tileDCSSvc->getDCSSTATUS(ros,drawer,channel) > TileDCSSvc::WARNING) {
+          } else if (m_checkDCS && m_tileDCS->getDCSStatus(ros, drawer, channel) > TileDCSState::WARNING) {
             badname = " BADDCS";
           } else if (m_tileBadChanTool->getAdcStatus(drawerIdx,channel,adc).isBad()) {
             badname = " BADDB";
@@ -1788,7 +1788,7 @@ StatusCode TileCellSelector::execute() {
                   badname = " BADDB";
                 } else if (DQstatus && !DQstatus->isAdcDQgood(ros, drawer, channel, adc)) {
                   badname = " BADDQ";
-                } else if (m_checkDCS && m_tileDCSSvc->getDCSSTATUS(ros, drawer, channel) > TileDCSSvc::WARNING) {
+                } else if (m_checkDCS && m_tileDCS->getDCSStatus(ros, drawer, channel) > TileDCSState::WARNING) {
                   badname = " BADDCS";
                 } else if (m_chanBad[hash]) {
                   if (badFromCell) {

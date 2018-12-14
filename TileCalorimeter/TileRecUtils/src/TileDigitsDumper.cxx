@@ -43,7 +43,7 @@ StatusCode TileDigitsDumper::initialize()
  * @brief Algorithm event processing.
  * @param ctx Event Context.
  */
-StatusCode TileDigitsDumper::execute_r (const EventContext& ctx) const
+StatusCode TileDigitsDumper::execute (const EventContext& ctx) const
 {
   if (!m_altContKey.key().empty()) {
     SG::ReadHandle<TileDigitsContainer> altCont (m_altContKey, ctx);

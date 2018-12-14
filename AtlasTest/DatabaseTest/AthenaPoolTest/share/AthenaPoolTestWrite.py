@@ -13,10 +13,6 @@
 ## basic job configuration (for generator)
 import AthenaCommon.AtlasUnixGeneratorJob
 
-# Set handler for traceback
-gbl.AthenaServices.SetFatalHandler(438)
-
-
 ## get a handle to the default top-level algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
@@ -26,6 +22,9 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
 ## get a handle to the ApplicationManager
 from AthenaCommon.AppMgr import theApp
+
+# Set handler for traceback
+svcMgr.CoreDumpSvc.FatalHandler = 438
 
 #--------------------------------------------------------------
 # Load POOL support

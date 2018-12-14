@@ -10,6 +10,7 @@
 #include <string>
 #include <iostream>
 #include <cassert>
+#include <atomic>
 #include <stdint.h>
 
 // Gaudi includes
@@ -52,6 +53,35 @@ class TileRawChannelBuilder;
 class TileCellBuilder;
 class TileL2Builder;
 class TileHid2RESrcID;
+
+namespace TileROD_Helper {
+
+
+// Helper to find the Tile container type corresponding to a container.
+template <class COLLECTION>
+struct ContainerForCollection {};
+
+template <>
+struct ContainerForCollection<TileBeamElemCollection>
+{
+  typedef TileBeamElemContainer type;
+};
+
+template <>
+struct ContainerForCollection<TileDigitsCollection>
+{
+  typedef TileDigitsContainer type;
+};
+
+template <>
+struct ContainerForCollection<TileRawChannelCollection>
+{
+  typedef TileRawChannelContainer type;
+};
+
+
+} // namespace TileROD_Helper
+
 
 /**
  *
@@ -113,7 +143,9 @@ class TileROD_Decoder: public AthAlgTool {
     /** This method calls the unpacking methods to decode the ROD data and fills
      the TileDigitsContainer and/or the TileRawChannelContainer
      */
-    void fillCollection(const ROBData * rob, COLLECTION& v);
+    void fillCollection(const ROBData * rob,
+                        COLLECTION& v,
+                        typename TileROD_Helper::ContainerForCollection<COLLECTION>::type* container = nullptr);
     uint32_t fillCollectionHLT(const ROBData * rob, TileCellCollection & v,
                                D0CellsHLT& d0cells);
     void fillCollectionL2(const ROBData * rob, TileL2Container & v);
@@ -140,8 +172,6 @@ class TileROD_Decoder: public AthAlgTool {
 
     void mergeD0cellsHLT (const D0CellsHLT& d0cells, TileCellCollection&);
 
-    // Set Pointer to container with raw channels
-    inline void PtrRChContainer(TileRawChannelContainer * container) { m_container = container; }
     void loadRw2Pmt(const int section, const std::vector<int>& vec) {
       for (unsigned int i = 0; i < vec.size(); ++i) {
         //	std::cout << vec[i] << std::endl;
@@ -149,6 +179,7 @@ class TileROD_Decoder: public AthAlgTool {
       }
     }
 
+    // Error reporting
     void printErrorCounter(bool printIfNoError);
     int getErrorCounter();
 
@@ -417,24 +448,28 @@ class TileROD_Decoder: public AthAlgTool {
                           DigitsMetaData_t& digitsMetaData,
                           RawChannelMetaData_t& rawchannelMetaData,
                           const ROBData * rob, pDigiVec & pDigits, pRwChVec & pChannel,
-        TileBeamElemCollection& v) const;
+                          TileBeamElemCollection& v,
+                          TileBeamElemContainer* container) const;
     inline void make_copy(uint32_t bsflags,
                           TileFragHash::TYPE rChType,
                           TileRawChannelUnit::UNIT rChUnit,
                           DigitsMetaData_t& digitsMetaData,
                           RawChannelMetaData_t& rawchannelMetaData,
                           const ROBData * rob, pDigiVec & pDigits, pRwChVec & pChannel,
-        TileDigitsCollection& v) const;
+                          TileDigitsCollection& v,
+                          TileDigitsContainer* container) const;
     inline void make_copy(uint32_t bsflags,
                           TileFragHash::TYPE rChType,
                           TileRawChannelUnit::UNIT rChUnit,
                           DigitsMetaData_t& digitsMetaData,
                           RawChannelMetaData_t& rawchannelMetaData,
                           const ROBData * rob, pDigiVec & pDigits, pRwChVec & pChannel,
-        TileRawChannelCollection& v) const;
+                          TileRawChannelCollection& v,
+                          TileRawChannelContainer* container) const;
 
     uint32_t make_copyHLT(bool of2,
                           TileRawChannelUnit::UNIT rChUnit,
+                          bool correctAmplitude,
                           pFRwChVec & pChannel, TileCellCollection& v, const uint16_t DQuality,
                           D0CellsHLT& d0cells);
 
@@ -520,9 +555,6 @@ class TileROD_Decoder: public AthAlgTool {
 
     bool m_of2Default;
 
-    // TileRawChannelContainer
-    TileRawChannelContainer * m_container;
-
     bool m_maskBadDigits;
     // Pointer to a MBTS cell collection
     TileCellCollection* m_MBTS;
@@ -538,9 +570,8 @@ class TileROD_Decoder: public AthAlgTool {
     TileL2Builder* m_L2Builder;
     std::string m_TileDefaultL2Builder;
 
-    int m_WarningCounter;
-    int m_ErrorCounter;
-    bool m_correctAmplitude;
+    mutable std::atomic<int> m_WarningCounter;
+    mutable std::atomic<int> m_ErrorCounter;
 
     TileHid2RESrcID * m_hid2re;
     TileHid2RESrcID * m_hid2reHLT;
@@ -574,7 +605,7 @@ class TileROD_Decoder: public AthAlgTool {
         max_allowed_size = 0;
       if (size < 3 && size > 0) {
         if (rob->rod_source_id() > 0x50ffff) error |= 0x10000; // indicate error in frag size, but ignore error in laser ROD
-        if (m_WarningCounter < (m_maxWarningPrint--)) {
+        if (m_WarningCounter++ < m_maxWarningPrint) {
           ATH_MSG_WARNING("ROB " << MSG::hex << rob->source_id()
               << " ROD " << rob->rod_source_id() << MSG::dec
               << " has unexpected data size: " << size << " - assuming zero size " );
@@ -582,7 +613,7 @@ class TileROD_Decoder: public AthAlgTool {
         return 0;
       } else if (rob->rod_header_size_word() >= rob->rod_fragment_size_word()) {
         if (rob->rod_source_id() > 0x50ffff) error |= 0x10000; // indicate error in frag size, but ignore error in laser ROD
-        if (m_WarningCounter < (m_maxWarningPrint--)) {
+        if (m_WarningCounter++ < m_maxWarningPrint) {
           ATH_MSG_WARNING("ROB " << MSG::hex << rob->source_id()
               << " ROD " << rob->rod_source_id() << MSG::dec
               << " has unexpected header size: " << rob->rod_header_size_word()
@@ -655,7 +686,9 @@ void TileROD_Decoder::make_copy(uint32_t /*bsflags*/,
                                 DigitsMetaData_t& digitsMetaData,
                                 RawChannelMetaData_t& /*rawchannelMetaData*/,
                                 const ROBData * rob, pDigiVec & pDigits, pRwChVec & pChannel,
-    TileDigitsCollection & v) const {
+                                TileDigitsCollection & v,
+                                TileDigitsContainer* /*container*/) const
+{
   copy_vec(pDigits, v); // Digits stored
 
   if (pChannel.size() > 0) { // RawChannels deleted
@@ -705,15 +738,16 @@ void TileROD_Decoder::make_copy(uint32_t bsflags,
                                 DigitsMetaData_t& /*digitsMetaData*/,
                                 RawChannelMetaData_t& rawchannelMetaData,
                                 const ROBData * rob, pDigiVec & pDigits, pRwChVec & pChannel,
-    TileRawChannelCollection & v) const {
+                                TileRawChannelCollection & v,
+                                TileRawChannelContainer* container) const {
   if (pChannel.size() > 0) { // take available raw channels
                              // and store in collection
-    if (m_container) {
+    if (container) {
       ATH_MSG_VERBOSE( "RawChannel unit is " << rChUnit
                       << "  - setting unit in TileRawChannelContainer " );
-      m_container->set_unit(rChUnit);
-      m_container->set_type(rChType);
-      m_container->set_bsflags(bsflags);
+      container->set_unit(rChUnit);
+      container->set_type(rChType);
+      container->set_bsflags(bsflags);
     } else {
       ATH_MSG_ERROR( "Can't set unit=" << rChUnit << " in TileRawChannelContainer" );
     }
@@ -788,8 +822,10 @@ void TileROD_Decoder::make_copy(uint32_t /*bsflags*/,
                                 TileRawChannelUnit::UNIT /*rChUnit*/,
                                 DigitsMetaData_t& /*digitsMetaData*/,
                                 RawChannelMetaData_t& /*rawchannelMetaData*/,
-                                const ROBData * /* rob */, pDigiVec & pDigits
-    , pRwChVec & pChannel, TileBeamElemCollection &) const {
+                                const ROBData * /* rob */, pDigiVec & pDigits,
+                                pRwChVec & pChannel, TileBeamElemCollection &,
+                                TileBeamElemContainer* /*container*/) const
+{
   // do nothing
   delete_vec(pDigits);
   delete_vec(pChannel);
@@ -835,7 +871,10 @@ void TileROD_Decoder::make_copy(const ROBData * /* rob */, pBeamVec & pBeam,
  from a BLOCK of integers
  */
 template<class COLLECTION>
-void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
+void TileROD_Decoder::fillCollection(const ROBData * rob,
+                                     COLLECTION & v,
+                                     typename TileROD_Helper::ContainerForCollection<COLLECTION>::type* container /*= nullptr*/)
+{
   //
   // get info from ROD header
   //
@@ -1098,7 +1137,7 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
     } // end of all frags
 
     make_copy(bsflags, rChType, rChUnit, digitsMetaData, rawchannelMetaData,
-              rob, pDigits, pChannel, v);
+              rob, pDigits, pChannel, v, container);
   }
 
   return;

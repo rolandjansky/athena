@@ -30,7 +30,7 @@ StatusCode CaloTowerxAODFromClusters::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode CaloTowerxAODFromClusters::execute_r(const EventContext& ctx) const
+StatusCode CaloTowerxAODFromClusters::execute(const EventContext& ctx) const
 { 
   SG::ReadHandle<xAOD::CaloClusterContainer> inputClusterContainer(m_inputClusterContainerKey, ctx);
 

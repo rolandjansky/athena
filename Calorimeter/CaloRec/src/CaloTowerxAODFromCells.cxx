@@ -45,7 +45,7 @@ StatusCode CaloTowerxAODFromCells::initialize() {
   return initBase();
 }
 
-StatusCode CaloTowerxAODFromCells::execute_r(const EventContext& ctx) const
+StatusCode CaloTowerxAODFromCells::execute(const EventContext& ctx) const
 { 
   SG::ReadHandle<CaloCellContainer> inputCellContainer(m_inputCellContainerKey, ctx);
   if (!inputCellContainer.isValid()) {

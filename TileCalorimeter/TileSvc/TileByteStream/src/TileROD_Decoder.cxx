@@ -67,13 +67,11 @@ TileROD_Decoder::TileROD_Decoder(const std::string& type, const std::string& nam
   declareProperty("AllowedTimeMax", m_allowedTimeMax =  50.); // set amp to zero if time is above allowed time max
   declareProperty("fullTileMode", m_fullTileRODs); // run from which to take the cabling (for the moment, either 320000 - full 2017 mode - or 0 - 2016 mode)
 
-  m_correctAmplitude = false;
   updateAmpThreshold(15.);
   m_timeMinThresh = -25;
   m_timeMaxThresh = 25;
-  
+
   m_of2Default = true;
-  m_container = 0;
   m_MBTS = NULL;
   m_cell2Double.reserve(23); // Maximum number of cells in a drawer
   m_WarningCounter = 0;
@@ -3288,6 +3286,7 @@ uint32_t TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollect
     }
   }
   bool of2 = m_of2Default;
+  bool correctAmplitude = false;
   TileRawChannelUnit::UNIT rChUnit = TileRawChannelUnit::ADCcounts;
   uint16_t DQuality = 0x0;
   bool fragFound = false;
@@ -3332,13 +3331,13 @@ uint32_t TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollect
         case 2:
           fragFound = true;
           DQfragMissing = false;
-          m_correctAmplitude = false;
+          correctAmplitude = false;
           unpack_frag2HLT(version, sizeOverhead, p, m_pRwChVec);
           break;
         case 3:
           fragFound = true;
           DQfragMissing = false;
-          m_correctAmplitude = false;
+          correctAmplitude = false;
           unpack_frag3HLT(version, sizeOverhead, p, m_pRwChVec);
           break;
         case 4:
@@ -3352,13 +3351,13 @@ uint32_t TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollect
               
               of2 = ((idAndType & 0x4000000) != 0);
               int nIter = (idAndType & 0x3000000) >> 24;
-              m_correctAmplitude = (!nIter); // automatic detection of nIter
+              correctAmplitude = (!nIter); // automatic detection of nIter
               rChUnit = (TileRawChannelUnit::UNIT) (unit + TileRawChannelUnit::OnlineOffset); // Online units in real data
               
             } else { // simulated data
               
               DQfragMissing = false;
-              m_correctAmplitude = false;
+              correctAmplitude = false;
               rChUnit = (TileRawChannelUnit::UNIT) (unit); // Offline units in simulated data
             }
             
@@ -3372,7 +3371,7 @@ uint32_t TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollect
             int unit = (idAndType & 0xC0000000) >> 30;
             
             of2 = ((idAndType & 0x4000000) != 0);
-            m_correctAmplitude = true; // fragment 5 will appear only if there is no iterations, so correction required
+            correctAmplitude = true; // fragment 5 will appear only if there is no iterations, so correction required
             rChUnit = (TileRawChannelUnit::UNIT) (unit + TileRawChannelUnit::OnlineOffset);
             
             unpack_frag5HLT(version, sizeOverhead, unit, p, m_pRwChVec);
@@ -3399,7 +3398,8 @@ uint32_t TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollect
   
   if (fragFound) {
     if (masked_drawer) DQuality = 0x0;
-    error |= make_copyHLT(of2, rChUnit, m_pRwChVec, v, DQuality, d0cells);
+    error |= make_copyHLT(of2, rChUnit, correctAmplitude,
+                          m_pRwChVec, v, DQuality, d0cells);
   } else if (!masked_drawer) error |= 0x20000;
   
   return error;
@@ -3407,6 +3407,7 @@ uint32_t TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollect
 
 uint32_t TileROD_Decoder::make_copyHLT(bool of2,
                                        TileRawChannelUnit::UNIT rChUnit,
+                                       bool correctAmplitude,
                                        pFRwChVec & pChannel, TileCellCollection & v,
                                        const uint16_t DQuality,
                                        D0CellsHLT& d0cells) {
@@ -3476,7 +3477,7 @@ uint32_t TileROD_Decoder::make_copyHLT(bool of2,
                                                  TileRawChannelUnit::MegaElectronVolts);
         }
         // parabolic correction for good but slightly out-of-time signals
-        if (m_correctAmplitude) {
+        if (correctAmplitude) {
           if (time<m_allowedTimeMin || time>m_allowedTimeMax) {
             ener = 0.0F;
             time = 0.0F;
@@ -3533,7 +3534,7 @@ uint32_t TileROD_Decoder::make_copyHLT(bool of2,
                                                    TileRawChannelUnit::MegaElectronVolts);
           }
           // parabolic correction for good but slightly out-of-time signals
-          if (m_correctAmplitude) {
+          if (correctAmplitude) {
             if (time<m_allowedTimeMin || time>m_allowedTimeMax) {
               ener = 0.0F;
               time = 0.0F;
@@ -3590,7 +3591,7 @@ uint32_t TileROD_Decoder::make_copyHLT(bool of2,
                                                    rChUnit, TileRawChannelUnit::PicoCoulombs);
           }
           // parabolic correction for good but slightly out-of-time signals
-          if (m_correctAmplitude) {
+          if (correctAmplitude) {
             if (time<m_allowedTimeMin || time>m_allowedTimeMax) {
               ener = 0.0F;
               time = 0.0F;

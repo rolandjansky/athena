@@ -162,7 +162,7 @@ namespace met {
     SG::ReadHandle<xAOD::ElectronContainer> Electrons(m_ElectronContainerKey);
     if (!Electrons.isValid()) {
       ATH_MSG_WARNING("Unable to retrieve ElectronContainer: " << Electrons.key());
-      return StatusCode::SUCCESS;
+      return StatusCode::FAILURE;
     }
 
     /// Photons

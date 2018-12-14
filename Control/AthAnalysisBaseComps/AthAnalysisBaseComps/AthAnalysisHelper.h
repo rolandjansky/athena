@@ -119,7 +119,7 @@ public:
 
    ///setProperty on an alg, even when initialized
    template<typename W> static StatusCode setProperty(IAlgorithm* alg, const std::string& property, const W& value) {
-      Algorithm* theAlg = dynamic_cast<Algorithm*>(alg);
+     Gaudi::Algorithm* theAlg = dynamic_cast<Gaudi::Algorithm*>(alg);
       if(!theAlg) {
          std::cout << "ERROR: alg is not an Algorithm. Cannot AthAnalysisHelper::setProperty on it" << std::endl;
          return StatusCode::FAILURE;

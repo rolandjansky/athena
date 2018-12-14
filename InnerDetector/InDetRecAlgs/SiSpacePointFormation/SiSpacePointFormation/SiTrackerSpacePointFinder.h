@@ -95,7 +95,7 @@ namespace InDet {
     
     StatusCode initialize() override;
     
-    StatusCode execute_r (const EventContext& ctx) const override;
+    StatusCode execute (const EventContext& ctx) const override;
 
     StatusCode finalize() override;
 

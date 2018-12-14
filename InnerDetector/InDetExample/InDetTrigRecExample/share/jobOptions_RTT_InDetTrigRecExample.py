@@ -363,7 +363,7 @@ ServiceMgr.StoreGateSvc.Dump            = False
 # get stack dump
 # ------------------------------------------------------------
 
-gbl.AthenaServices.SetFatalHandler(438)
+ServiceMgr.CoreDumpSvc.FatalHandler = 438
          
 if doAuditors:
  # load AuditorSvc

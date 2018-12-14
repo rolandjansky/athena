@@ -54,7 +54,7 @@ StatusCode xAODTestReadCView::initialize()
 /**
  * @brief Algorithm event processing.
  */
-StatusCode xAODTestReadCView::execute_r (const EventContext& ctx) const
+StatusCode xAODTestReadCView::execute (const EventContext& ctx) const
 {
   SG::ReadHandle<DMTest::CView> cview (m_cviewKey, ctx);
 

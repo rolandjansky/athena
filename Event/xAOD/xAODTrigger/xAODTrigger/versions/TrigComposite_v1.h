@@ -233,4 +233,10 @@ namespace xAOD {
 // Include the template implementation:
 #include "TrigComposite_v1.icc"
 
+/**
+ * @brief print helper for TrigComposite
+ */
+std::ostream& operator<<(std::ostream& os, const xAOD::TrigComposite_v1& tc);
+
+
 #endif // XAODTRIGGER_VERSIONS_TRIGCOMPOSITE_V1_H

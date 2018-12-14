@@ -77,13 +77,11 @@ def make_CaloClusterCopier (name, output_name, copy_cells = False, use_ClusterPo
 
 def make_CaloClusterMaker (name,
                            output_key,
-                           keep_each_correction = False,
                            maker_tools = [],
                            correction_tools = []):
     alg = _makeconf (CaloClusterMaker,
                      name,
-                     ClustersOutputName = output_key,
-                     KeepEachCorrection = keep_each_correction)
+                     ClustersOutputName = output_key)
     alg.ClusterMakerTools = _process_tools (alg, maker_tools)
     alg.ClusterCorrectionTools = _process_tools (alg, correction_tools)
     return alg

@@ -19,12 +19,13 @@
 //            To perform the double gaussian fit use the option: m_do2gfit=true
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#ifndef TILERAWCHANNELMONTOOL_H
-#define TILERAWCHANNELMONTOOL_H
+#ifndef TILEMONITORING_TILERAWCHANNELNOISEMONTOOL_H
+#define TILEMONITORING_TILERAWCHANNELNOISEMONTOOL_H
 
 #include "TileMonitoring/TileFatherMonTool.h"
 #include "TileEvent/TileDQstatus.h"
 #include "TileConditions/ITileDCSTool.h"
+
 #include "StoreGate/ReadHandleKey.h"
 
 class ITileBadChanTool;
@@ -100,8 +101,8 @@ class TileRawChannelNoiseMonTool: public TileFatherMonTool {
     int m_nbins;
     unsigned int m_minimumEventsNumberToFit;
     SG::ReadHandleKey<TileDQstatus> m_DQstatusKey;
-    ToolHandle<ITileDCSTool> m_tileDCS;
+    ToolHandle<ITileDCSTool> m_tileDCS{this, "TileDCSTool", "TileDCSTool", "Tile DCS tool"};
     bool m_checkDCS;
 };
 
-#endif
+#endif // TILEMONITORING_TILERAWCHANNELNOISEMONTOOL_H

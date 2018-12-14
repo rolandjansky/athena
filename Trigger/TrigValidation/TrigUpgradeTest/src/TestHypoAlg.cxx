@@ -27,7 +27,7 @@ namespace HLTTest {
   }
 
 
-  StatusCode TestHypoAlg::execute_r( const EventContext& context ) const {  
+  StatusCode TestHypoAlg::execute( const EventContext& context ) const {  
     ATH_MSG_DEBUG( "Executing " << name() << "..." );
     if ( m_recoInput.key().empty() ) {
       ATH_MSG_DEBUG( "No input configured, not producing the output" );
@@ -46,16 +46,14 @@ namespace HLTTest {
     ATH_MSG_DEBUG( "and with "<< recoInput->size() <<" reco inputs");
     
     // new output decisions
-    auto decisions = std::make_unique<DecisionContainer>();
-    auto aux = std::make_unique<DecisionAuxContainer>();
-    decisions->setStore( aux.get() );
+    SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 
+    auto decisions = outputHandle.ptr();
 
     // find features:
     std::vector<const FeatureOBJ*> featureFromDecision;
     for ( auto previousDecision: *previousDecisionsHandle ) {
-      TrigCompositeUtils::LinkInfo<FeatureContainer> linkInfo = TrigCompositeUtils::findLink<FeatureContainer>(previousDecision, m_linkName.value());
-      ElementLink<FeatureContainer> featureLink = linkInfo.link;
-      //auto featureLink = (previousDecision)->objectLink<FeatureContainer>( m_linkName.value() );
+      auto linkInfo = TrigCompositeUtils::findLink<FeatureContainer>(previousDecision, m_linkName.value());
+      auto featureLink = linkInfo.link;
       CHECK( featureLink.isValid() );
       const FeatureOBJ* feature = *featureLink;
       featureFromDecision.push_back( feature);
@@ -65,9 +63,12 @@ namespace HLTTest {
     //map reco object and decision: find in reco obejct the initial RoI and map it to the correct decision
     size_t reco_counter = 0;
     for (auto recoobj: *recoInput){
-      auto roiEL = recoobj->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
+      auto roiInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( recoobj, "initialRoI"  );
+      auto roiEL = roiInfo.link;
       CHECK( roiEL.isValid() );
-      auto featurelink = (recoobj)->objectLink<FeatureContainer>( m_linkName.value() );
+      
+      auto featureInfo = TrigCompositeUtils::findLink<FeatureContainer>( recoobj, m_linkName.value()  );
+      auto featurelink = featureInfo.link;
       CHECK( featurelink.isValid() );
       if ( not featurelink.isValid() )  {
 	ATH_MSG_ERROR( " Can not find reference to " + m_linkName.value() + " from the decision" );
@@ -85,10 +86,9 @@ namespace HLTTest {
        
        if (foundFeatureInDecision){
 	 ATH_MSG_DEBUG(" Found link from the reco object to the previous decision at position "<<pos);
-	 auto d = newDecisionIn(decisions.get());
+	 auto d = newDecisionIn(decisions);
 	 d->setObjectLink( "feature", ElementLink<xAOD::TrigCompositeContainer>(m_recoInput.key(), reco_counter) );// feature used by the Tool
 	 d->setObjectLink( m_linkName.value(), featurelink );
-	 d->setObjectLink( "initialRoI", roiEL );
 	 linkToPrevious( d, decisionInput().key(), pos );
        }
        else{
@@ -102,13 +102,10 @@ namespace HLTTest {
 
     if (decisions->size()>0){
       for ( auto tool: m_tools ) {
-	CHECK( tool->decide( decisions.get() ) );
+	CHECK( tool->decide( decisions ) );
       }
     }
 
-    auto outputHandle = SG::makeHandle(decisionOutput(), context);
-    CHECK( outputHandle.record(std::move(decisions), std::move(aux) ) );
-  
     ATH_MSG_DEBUG( "Exiting with "<< outputHandle->size() <<" decisions");
     //debug
     for (auto outh: *outputHandle){

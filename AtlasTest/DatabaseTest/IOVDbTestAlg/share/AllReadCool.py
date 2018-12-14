@@ -7,9 +7,6 @@
 ## basic job configuration (for generator)
 import AthenaCommon.AtlasUnixGeneratorJob
 
-# Set handler for traceback
-#gbl.AthenaServices.SetFatalHandler(438)
-
 #import password for devdb10 from devdb10pwd.py
 from devdb10_pwd import devdb10pwd
 

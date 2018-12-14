@@ -54,9 +54,9 @@ StatusCode TrigMuonEFMSonlyHypoAlg::finalize()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigMuonEFMSonlyHypoAlg::execute_r( const EventContext& context ) const
+StatusCode TrigMuonEFMSonlyHypoAlg::execute( const EventContext& context ) const
 {
-  ATH_MSG_DEBUG("StatusCode TrigMuonEFMSonlyHypoAlg::execute_r start");
+  ATH_MSG_DEBUG("StatusCode TrigMuonEFMSonlyHypoAlg::execute start");
 
   // common for all hypos, to move in the base class
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
@@ -66,9 +66,9 @@ StatusCode TrigMuonEFMSonlyHypoAlg::execute_r( const EventContext& context ) con
   }
   ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" implicit ReadHandles for previous decisions");
 
-  auto decisions = std::make_unique<DecisionContainer>();
-  auto aux = std::make_unique<DecisionAuxContainer>();
-  decisions->setStore(aux.get());
+  // new output decisions
+  SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 
+  auto decisions = outputHandle.ptr();
   // end of common
   
   std::vector<TrigMuonEFMSonlyHypoTool::MuonEFInfo> toolInput;
@@ -77,7 +77,9 @@ StatusCode TrigMuonEFMSonlyHypoAlg::execute_r( const EventContext& context ) con
   // loop over previous decisions
   for ( auto previousDecision: *previousDecisionsHandle ) {
      // get RoIs
-    auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
+    auto roiInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, "initialRoI"  );
+    auto roiEL = roiInfo.link;
+    //auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
     ATH_CHECK( roiEL.isValid() );
     const TrigRoiDescriptor* roi = *roiEL;
 
@@ -99,8 +101,8 @@ StatusCode TrigMuonEFMSonlyHypoAlg::execute_r( const EventContext& context ) con
 
     const xAOD::Muon* muon = *muonEL;
 
-    // create new dicions
-    auto newd = newDecisionIn( decisions.get() );
+    // create new decisions
+    auto newd = newDecisionIn( decisions );
 
     // pussh_back to toolInput
     toolInput.emplace_back( newd, roi, muon, previousDecision );
@@ -133,8 +135,6 @@ StatusCode TrigMuonEFMSonlyHypoAlg::execute_r( const EventContext& context ) con
   } // End of tool algorithms */	
 
   { // make output handle and debug, in the base class
-    auto outputHandle = SG::makeHandle( decisionOutput(), context );
-    ATH_CHECK( outputHandle.record( std::move(decisions), std::move(aux) ));
     ATH_MSG_DEBUG ( "Exit with " << outputHandle->size() << " decisions");
     TrigCompositeUtils::DecisionIDContainer allPassingIDs;
     if ( outputHandle.isValid() ) {
@@ -148,7 +148,7 @@ StatusCode TrigMuonEFMSonlyHypoAlg::execute_r( const EventContext& context ) con
     } else ATH_MSG_WARNING( "Output decisions are NOT valid with key : " << decisionOutput().key() );
   }
 
-  ATH_MSG_DEBUG("StatusCode TrigMuonEFMSonlyHypoAlg::execute_r success");
+  ATH_MSG_DEBUG("StatusCode TrigMuonEFMSonlyHypoAlg::execute success");
   return StatusCode::SUCCESS;
 }
 

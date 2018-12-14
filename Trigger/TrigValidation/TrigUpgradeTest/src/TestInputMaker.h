@@ -29,7 +29,7 @@ namespace HLTTest {
     TestInputMaker( const std::string& name, ISvcLocator* pSvcLocator );
     virtual ~TestInputMaker(); 
     virtual StatusCode  initialize() override;
-    virtual StatusCode  execute_r(const EventContext&) const override;
+    virtual StatusCode  execute(const EventContext&) const override;
     virtual StatusCode  finalize() override;
 
   private: 
@@ -43,7 +43,7 @@ namespace HLTTest {
     SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_recoOutput { this, "Output", "undefined", "name of the output collection for input to next reco alg in sequence" };
    
     StringProperty m_linkName   {this, "LinkName", "initialRoI",  "name of the link to the features in the decision, e.g. 'feature', 'initialRoI'"};
-    StringProperty m_outputType {this, "OutputType","outputType", "reserved for future use"};
+    //StringProperty m_outputType {this, "OutputType","outputType", "reserved for future use"};
 
   }; 
 

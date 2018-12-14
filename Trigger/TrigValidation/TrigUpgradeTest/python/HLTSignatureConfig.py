@@ -5,10 +5,19 @@ from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestComboHypoAlg
 from AthenaCommon.Constants import VERBOSE,DEBUG
 from TrigUpgradeTest.HLTSignatureHypoTools import *
 
-from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
-def InputMakerAlg(name):
-    return HLTTest__TestInputMaker(name, OutputLevel = DEBUG, LinkName="initialRoI")
 
+
+
+UseThisLinkName="initialRoI"
+#UseThisLinkName="feature"
+
+
+from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
+def InputMakerForInitialRoIAlg(name):
+    return HLTTest__TestInputMaker(name, OutputLevel = DEBUG, RoIsLink="initialRoI", LinkName="initialRoI")
+
+def InputMakerForFeatureAlg(name):
+    return HLTTest__TestInputMaker(name, OutputLevel = DEBUG, RoIsLink="initialRoI", LinkName=UseThisLinkName)
 
 # here define the sequences from the signatures
 # signatures do this:
@@ -18,9 +27,6 @@ def InputMakerAlg(name):
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 from AthenaCommon.CFElements import parOR, seqAND, stepSeq
 
-
-UseThisLinkName="initialRoI"
-#UseThisLinkName="feature"
 
 #### muon signatures
 #####################
@@ -36,7 +42,7 @@ def MuHypo(name):
 
 
 
-muIM= InputMakerAlg(name="Step1MuInputMaker")
+muIM= InputMakerForInitialRoIAlg(name="Step1MuInputMaker")
 muIM.Output='muIM_out'
 
 #print muIM
@@ -56,7 +62,7 @@ def muStep1Sequence():
     return MenuSequence(Sequence=mustep1_sequence, Maker=muIM, Hypo=muHypo, HypoToolGen=MuTestHypoTool)
 
 # mu step2
-muIM2= InputMakerAlg(name="Step2MuInputMaker")
+muIM2= InputMakerForFeatureAlg(name="Step2MuInputMaker")
 muIM2.Output='muIM2_out'
 
 muAlg2 = muMSRecAlg(name="muMSRecAlg2", FileName="msmu.dat")
@@ -87,7 +93,7 @@ def ElGamHypo(name):
 
 
 
-elIM= InputMakerAlg(name="Step1ElInputMaker")
+elIM= InputMakerForInitialRoIAlg(name="Step1ElInputMaker")
 elIM.Output='elIM_out'
 
 elAlg = CaloClustering(name="CaloClustering", FileName="emclusters.dat")
@@ -112,7 +118,7 @@ def gammStep1Sequence():
 
 
 #step2
-elIM2= InputMakerAlg(name="Step2ElInputMaker")
+elIM2= InputMakerForFeatureAlg(name="Step2ElInputMaker")
 elIM2.Output='elIM2_out'
 
 elAlg2 = CaloClustering(name="CaloClustering2", FileName="emclusters.dat")

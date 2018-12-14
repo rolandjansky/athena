@@ -30,7 +30,7 @@ public:
   L1Decoder(const std::string& name, ISvcLocator* pSvcLocator);
   virtual StatusCode initialize() override;
   virtual void handle(const Incident& incident) override;
-  virtual StatusCode execute_r (const EventContext& ctx) const override;
+  virtual StatusCode execute (const EventContext& ctx) const override;
   virtual StatusCode finalize() override;
 
 protected: // protected to support unit testing
@@ -39,8 +39,9 @@ protected: // protected to support unit testing
   virtual StatusCode readConfiguration(); 
   
   StatusCode saveChainsInfo(const HLT::IDVec& chains,
-			    xAOD::TrigCompositeContainer* storage,
-			    const std::string& type) const;
+                            xAOD::TrigCompositeContainer* storage,
+                            const std::string& type,
+                            const EventContext& ctx) const;
   
 private:
 

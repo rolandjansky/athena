@@ -27,7 +27,6 @@
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "TrkExInterfaces/IExtrapolator.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "VxVertex/VxContainer.h"
 #include "VxVertex/RecVertex.h"
 

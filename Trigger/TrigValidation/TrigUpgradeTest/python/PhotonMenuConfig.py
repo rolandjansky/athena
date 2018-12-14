@@ -4,6 +4,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.Constants import DEBUG,VERBOSE
+from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 def l2PhotonAlgCfg( flags ):
     acc = ComponentAccumulator()
@@ -11,7 +12,7 @@ def l2PhotonAlgCfg( flags ):
 
     photonFex= L2PhotonFex_1()
     photonFex.TrigEMClusterName = "L2CaloEMClusters"
-    photonFex.PhotonsName = "L2Photons"
+    photonFex.PhotonsName = recordable("L2Photons")
     photonFex.RoIs = "L2PhotonRecoRoIs"
     photonFex.OutputLevel=DEBUG
 
@@ -22,6 +23,7 @@ def l2PhotonRecoCfg( flags ):
 
     reco = InViewReco("L2PhotonReco")
     reco.inputMaker().RequireParentView = True
+    reco.inputMaker().RoIsLink="roi"
     import AthenaCommon.CfgMgr as CfgMgr
 
     moveClusters = CfgMgr.AthViews__ViewDataVerifier("photonViewDataVerifier")

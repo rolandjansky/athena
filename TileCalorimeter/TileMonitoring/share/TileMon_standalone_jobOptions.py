@@ -4,10 +4,12 @@
 #
 #==============================================================
 
-
-
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
+
+from AthenaCommon.AlgSequence import AthSequencer
+condSequence = AthSequencer("AthCondSeq")
+tileCheckDCS = hasattr(condSequence, 'TileDCSCondAlg')
 
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
@@ -40,7 +42,7 @@ toolSvc += CfgMgr.TileDQFragMonTool(name                          = 'TileDQFragM
                                     , SkipGapCells                = True
                                     , doOnline                    = athenaCommonFlags.isOnline()
                                     , doPlots                     = False
-                                    , CheckDCS                    = hasattr(svcMgr, "TileDCSSvc")
+                                    , CheckDCS                    = tileCheckDCS
                                     , histoPathBase               = "Tile/DMUErrors")
 
 ManagedAthenaTileMon.AthenaMonTools += [ toolSvc.TileDQFragMon ]

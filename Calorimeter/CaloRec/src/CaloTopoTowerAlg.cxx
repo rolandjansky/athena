@@ -152,7 +152,7 @@ StatusCode CaloTopoTowerAlg::initialize()
 ///==============================================
 /// EXECUTE
 ///==============================================
-StatusCode CaloTopoTowerAlg::execute_r (const EventContext& ctx) const
+StatusCode CaloTopoTowerAlg::execute (const EventContext& ctx) const
 {
   /// Say hello
   ATH_MSG_DEBUG( "In CaloTopoTowerAlg::execute()"  );

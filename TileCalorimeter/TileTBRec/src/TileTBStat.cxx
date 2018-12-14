@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -22,6 +22,7 @@
 //Atlas include
 #include "eformat/FullEventFragment.h"
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
+#include "StoreGate/ReadHandle.h"
 #include "AthenaKernel/errorcheck.h"
 
 //TileCal include
@@ -31,7 +32,6 @@
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileBeamElemContainer.h"
 #include "TileEvent/TileLaserObject.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileByteStream/TileBeamElemContByteStreamCnv.h"
 #include "TileTBRec/TileTBStat.h"
 
@@ -125,7 +125,6 @@ void StatInt::print(const char* s, bool minMaxOnly) {
 TileTBStat::TileTBStat(std::string name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
   , m_RobSvc("ROBDataProviderSvc", name)
-  , m_beamInfo("TileBeamInfoProvider/TileBeamInfoProvider")
   , m_beamCnv(0)
   , m_evtNr(0)
   , m_lasStatus(0)
@@ -156,6 +155,7 @@ TileTBStat::TileTBStat(std::string name, ISvcLocator* pSvcLocator)
 
   declareProperty("PrintAllEvents", m_printAllEvents = false);
   declareProperty("DetectDummyFragments", m_detectDummyFragments = false);
+  declareProperty("TileDQstatus", m_dqStatusKey = "TileDQstatus");
 
   m_runNo = m_evtMin =  m_evtMax = m_evtBegin = m_evtNo = 0;
 
@@ -179,11 +179,6 @@ StatusCode TileTBStat::initialize() {
   
   m_lasStatus = 0;
 
-
-  CHECK(  m_beamInfo.retrieve() );
-  CHECK( m_beamInfo->setProperty("TileBeamElemContainer", m_beamElemContainer) );
-  CHECK( m_beamInfo->setProperty("TileDigitsContainer", m_digitsContainer) );
-
   // start with event 0
   m_evtNr = 0;
   m_runNo = m_evTime = m_evtNo = m_trigType = m_nSpill = m_timeBegin = m_timeLast = m_evtMax = 0;
@@ -196,11 +191,15 @@ StatusCode TileTBStat::initialize() {
   m_timeStart = time(0);
   ATH_MSG_INFO( "initialization completed" );
 
+  CHECK( m_dqStatusKey.initialize() );
+
   return StatusCode::SUCCESS;
 } 
 
 StatusCode TileTBStat::execute() {
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  const TileDQstatus* dqStatus = SG::makeHandle (m_dqStatusKey, ctx).get();
 
   static bool first=true;
   static bool firstORsecond=true;
@@ -296,11 +295,11 @@ StatusCode TileTBStat::execute() {
       }
 
       if (m_printAllEvents)
-        std::cout << "Fragments found in event " << m_beamCnv->eventFragment()->global_id() << "  calib mode=" << m_beamInfo->checkCalibMode() << std::endl;
+        std::cout << "Fragments found in event " << m_beamCnv->eventFragment()->global_id() << "  calib mode=" << dqStatus->calibMode() << std::endl;
       else if (firstORsecond)
-        std::cout << "Fragments found in first event, calib mode=" << m_beamInfo->checkCalibMode() << std::endl;
+        std::cout << "Fragments found in first event, calib mode=" << dqStatus->calibMode() << std::endl;
       else
-        std::cout << "Fragments found in second event, calib mode=" << m_beamInfo->checkCalibMode() << std::endl;
+        std::cout << "Fragments found in second event, calib mode=" << dqStatus->calibMode() << std::endl;
       std::cout << "  ROB ID   ROD ID   Frag IDs" << std::endl;
       for (unsigned int i = 0; i < nrob; ++i) {
         std::cout << std::hex << " 0x" << m_fragMap[i].ROBid << " 0x" << m_fragMap[i].RODid;
@@ -313,7 +312,7 @@ StatusCode TileTBStat::execute() {
   
   // take values from event header
 
-  memcpy(m_cisPar,m_beamInfo->cispar(), sizeof (m_cisPar));
+  memcpy(m_cisPar,dqStatus->cispar(), sizeof (m_cisPar));
   
   unsigned int testsum=0;
   for (int k = 4; k < 16; ++k) testsum += m_cisPar[k];
@@ -342,7 +341,7 @@ StatusCode TileTBStat::execute() {
     m_evTime = m_cisPar[10];
   }
   
-  m_trigType = m_beamInfo->trigType();
+  m_trigType = dqStatus->trigType();
   if (m_trigType < 1 || m_trigType > 0x80 ) {
     if (m_evtNr == 0)
       ATH_MSG_WARNING( "no event trig type available (" << m_trigType << ") , taking trig from cispar (" << m_cisPar[12] << ")" );
@@ -362,11 +361,11 @@ StatusCode TileTBStat::execute() {
 
     m_timeBegin = m_evTime;
     m_evtBegin  = m_evtNo;
-    m_calibMode = m_beamInfo->calibMode();
+    m_calibMode = dqStatus->calibMode();
     memcpy(m_cisBeg,m_cisPar,sizeof(m_cisBeg));
   } else if (m_evtNr == 1) {
     // once again, first event can be junk
-    m_calibMode = m_beamInfo->calibMode();
+    m_calibMode = dqStatus->calibMode();
   }
 
   if ( ( m_evTime < m_timeBegin && (m_timeBegin - m_evTime) < 10*24*3600 ) ||  // less then 10 days shift in neg direction
