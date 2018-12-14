@@ -33,8 +33,8 @@ using namespace TrigDec;
 
 TrigDecisionMakerMT::TrigDecisionMakerMT(const std::string &name, ISvcLocator *pSvcLocator)
   : ::AthReentrantAlgorithm(name, pSvcLocator),
-    m_trigConfigSvc(m_trigConfigLocation, name),
-    m_lvl1Tool(m_lvl1ToolLocation, this)
+    m_trigConfigSvc("", name),
+    m_lvl1Tool("", this)
 {}
 
 TrigDecisionMakerMT::~TrigDecisionMakerMT() {}
@@ -47,7 +47,9 @@ StatusCode TrigDecisionMakerMT::initialize()
 
   ATH_CHECK( m_trigDecisionKeyOut.initialize() );
 
+  m_lvl1Tool.setTypeAndName(m_lvl1ToolLocation);
   ATH_CHECK( m_lvl1Tool.retrieve() );
+  m_trigConfigSvc.setTypeAndName(m_trigConfigLocation);
   ATH_CHECK( m_trigConfigSvc.retrieve() );
 
   return StatusCode::SUCCESS;
@@ -110,7 +112,7 @@ StatusCode TrigDecisionMakerMT::execute(const EventContext& context) const
   outputVectors.insert( &hltRerunBits );
 
   if (hltResult) {
-    ATH_MSG_DEBUG("Got a DecisionContainer '" << m_HLTSummaryKeyIn.key() << "' of size " << hltResult->size());
+    ATH_MSG_DEBUG("Got a DecisionContainer '" << m_HLTSummaryKeyIn.key() << "' of size " << hltResult->size() << " (typically expect size=3)");
     TrigCompositeUtils::DecisionIDContainer passRawInput; //!< The chains which returned a positive decision
     TrigCompositeUtils::DecisionIDContainer prescaledInput; //!< The chains which did not run due to being prescaled out
     TrigCompositeUtils::DecisionIDContainer rerunInput; //!< The chains which were activate only in the rerun (not physics decisions)
@@ -150,7 +152,7 @@ StatusCode TrigDecisionMakerMT::execute(const EventContext& context) const
       const int32_t chainCounter = getChainCounter(id);
       if (chainCounter == -1) continue; // Could not decode, prints error
       resizeVectors(chainCounter, outputVectors); // Make sure we have enough room to be able to set the required bit
-      setBit(chainCounter, hltPassBits);
+      setBit(chainCounter, hltPrescaledBits);
       ++countHltPrescaled;
     }
     ATH_MSG_DEBUG ("Number of HLT chains prescaled out: " << countHltPrescaled);
@@ -230,19 +232,19 @@ char TrigDecisionMakerMT::getBGByte(int BCId) const {
 
 
 void TrigDecisionMakerMT::resizeVectors(const size_t bit, const std::set< std::vector<uint32_t>* >& vectors) const {
-  const size_t block = bit / 32;
+  const size_t block = bit / std::numeric_limits<uint32_t>::digits;
   const size_t requiredSize = block + 1;
   for (std::vector<uint32_t>* vecPtr : vectors) {
-    vecPtr->resize(requiredSize);
+    vecPtr->resize(requiredSize, 0);
   }
   return;
 }
 
 
 void TrigDecisionMakerMT::setBit(const size_t bit, std::vector<uint32_t>& bits) const {
-  const size_t block = bit / 32;
-  const size_t offset = bit % 32;
-  bits.at(block) |= (uint32_t)1 << offset;
+  const size_t block = bit / std::numeric_limits<uint32_t>::digits; // = 32
+  const size_t offset = bit % std::numeric_limits<uint32_t>::digits;
+  bits.at(block) |= static_cast<uint32_t>(1) << offset;
 }
 
 
@@ -250,12 +252,12 @@ int32_t TrigDecisionMakerMT::getChainCounter(const TrigCompositeUtils::DecisionI
   // Need to go from hash-ID to chain-counter. HLTChain counter currently does not give this a category
   const std::string chainName = TrigConf::HLTUtils::hash2string(chainID);
   if (chainName == "UNKNOWN HASH ID" || chainName == "UNKNOWN CATEGORY") {
-    ATH_MSG_ERROR("Unable to locate chain with hash:" << chainID << " in the TrigConf, the error reported was:" << chainName);
+    ATH_MSG_ERROR("Unable to locate chain with hashID:" << chainID << " in the TrigConf, the error reported was: " << chainName);
     return -1;
   }
   const TrigConf::HLTChain* chain = m_trigConfigSvc->chains().chain(chainName);
   if (chain == nullptr) {
-    ATH_MSG_ERROR("Unable to fetch HLTChain object for chain with ID:'" << chainID << "' and name:'" << chainName << "' (number of chains:" << m_trigConfigSvc->chains().size() << ")");
+    ATH_MSG_ERROR("Unable to fetch HLTChain object for chain with hashID:" << chainID << " and name:'" << chainName << "' (number of chains:" << m_trigConfigSvc->chains().size() << ")");
     return -1;        
   }
   return chain->chain_counter();

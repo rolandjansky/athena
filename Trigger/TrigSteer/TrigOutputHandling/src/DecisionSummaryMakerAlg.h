@@ -38,8 +38,6 @@ private:
     "The trigger cost service" };
   Gaudi::Property< std::map< std::string, std::string > > m_lastStepForChain{ this, "FinalStepDecisions", {}, 
       "The map of chain name to name of the collection in which the final decision is found" };
-  SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_l1Dec { this, "L1DecoderSummaryKey", "L1DecoderSummary",
-    "Trig composite collections summarising the HLT execution" };
   Gaudi::Property<bool> m_enableCostMonitoring{this, "EnableCostMonitoring", false, 
     "Enables end-of-event cost monitoring behavior."};
 

@@ -123,7 +123,10 @@ std::ostream& operator<<(std::ostream& s, const xAOD::TrigDecision_v1& td) {
    s << " Error Bits: L2Err=" << td.lvl2ErrorBits() << " L2Truncated=" << td.lvl2Truncated();
    s << " EF/HLTErr=" << td.efErrorBits() << " EF/HLTTrucated=" << td.efTruncated() << std::endl;
    // Run 1 
-   if (td.lvl2PassedPhysics().size()) {
+   bool r1 = false;
+   if (td.lvl2Prescaled().size() || td.lvl2PassedPhysics().size() || td.lvl2PassedRaw().size() 
+    || td.lvl2Resurrected().size() || td.lvl2PassedThrough().size() ) {
+      r1 = true;
       s << " L2 Prescaled: ";
       writeBits(s, td.lvl2Prescaled());
       s << " L2 Passed Physics: ";
@@ -134,19 +137,24 @@ std::ostream& operator<<(std::ostream& s, const xAOD::TrigDecision_v1& td) {
       writeBits(s, td.lvl2Resurrected());
       s << " L2 Passedthrough: ";
       writeBits(s, td.lvl2PassedThrough());
+   } else {
+      s << " No L2 Bits" << std::endl;
    }
-   const std::string level = (td.lvl2PassedPhysics().size() ? "EF" : "HLT");
-   if (td.efPassedPhysics().size()) { // Run 1: EF, Runs 2, 3: HLT
-      s << " " << level << " Prescaled: ";
+   const std::string level = (r1 ? " EF" : " HLT");
+   if (td.efPrescaled().size() || td.efPassedPhysics().size() || td.efPassedRaw().size() 
+    || td.efResurrected().size() || td.efPassedThrough().size() ) { // Run 1: EF, Runs 2, 3: HLT
+      s << level << " Prescaled: ";
       writeBits(s, td.efPrescaled());
-      s << " " << level << " Passed Physics: ";
+      s << level << " Passed Physics: ";
       writeBits(s, td.efPassedPhysics());
-      s << " " << level << " Passed Raw: ";
+      s << level << " Passed Raw: ";
       writeBits(s, td.efPassedRaw());
-      s << " " << level << " Resurrected/Rerun: ";
+      s << level << " Resurrected/Rerun: ";
       writeBits(s, td.efResurrected());
-      s << " " << level << " Passedthrough: ";
+      s << level << " Passedthrough: ";
       writeBits(s, td.efPassedThrough());
+   } else {
+      s << " No EF/HLT Bits" << std::endl;
    }
    return s;
 }
