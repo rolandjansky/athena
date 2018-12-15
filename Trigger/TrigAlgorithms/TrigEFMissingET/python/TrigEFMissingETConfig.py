@@ -1371,13 +1371,14 @@ class EFMissingET_Fex_topoClustersTracksPUC (EFMissingETBase):
 ##### Use topo. clusters for noise suppression #####
 class EFMissingET_Fex_topoClustersPUC (EFMissingETBase):
     __slots__ = []
-    def __init__ (self, name="EFMissingET_Fex_topoClustersPUC"):
+    def __init__ (self, name="EFMissingET_Fex_topoClustersPUC", doLArH11off = False, doLArH12off = False, jptthr = -1.0):
         super(EFMissingET_Fex_topoClustersPUC, self).__init__(name)
 
         # name of TrigMissingET object
-        self.MissingETOutputKey = "TrigEFMissingET_topocl_PUC"
+        self.MissingETOutputKey = "TrigEFMissingET_topocl_PUC" if 'LAr' not in name else "TrigEFMissingET_"+name
         self.doTopoClusters = True
         self.doPUC = True
+        self.doJetVeto = True
 
         # tools
         clusterTool = EFMissingETFromClustersPUC("TheClusterToolPUC")
@@ -1390,9 +1391,12 @@ class EFMissingET_Fex_topoClustersPUC (EFMissingETBase):
         
         clusterTool.SubtractPileup = True
 
-
         is2016 = (TriggerFlags.run2Config() == '2016')
 
+        ##
+        clusterTool.doLArH11off = doLArH11off
+        clusterTool.doLArH12off = doLArH12off
+        clusterTool.Jetptcut = jptthr 
 
         clusterTool.use2016Algo = is2016
 # N.B. - defaults for 2016 running: nSigma = 3.2 and varRhoScale = 4.0

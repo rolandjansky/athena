@@ -17,6 +17,7 @@ UltraCentralHypo::UltraCentralHypo(const std::string& name, ISvcLocator* pSvcLoc
   declareProperty("FcalEtLowerBound",     m_FcalEt_min=-1.e10, "Lower bound of passing values, negative means -inf.");
   declareProperty("EtaMin",               m_Eta_min=-3.25, "Lower bound of slice taken into calculation");
   declareProperty("EtaMax",               m_Eta_max=3.25, "Upper bound of slice taken into calculation");
+  declareProperty("isFgap",               m_isFgap=true, "Eta cuts for FGap or UCC chains");
 
 }
 
@@ -54,14 +55,20 @@ HLT::ErrorCode UltraCentralHypo::hltExecute(const HLT::TriggerElement* outputTE,
     const float Et     =  sh->et();
     const float etaMin =  sh->etaMin();
     const float etaMax =  sh->etaMax();
-    //    ATH_MSG_WARNING("ET " << Et << " etaMin " << etaMin << " etaMax " << etaMax);
+    //ATH_MSG_DEBUG("ET " << Et << " etaMin " << etaMin << " etaMax " << etaMax);
     if(Et==0) continue;
     
-    if ( etaMin < m_Eta_min ) continue;
-    if ( etaMax > m_Eta_max ) continue;
-    //    float eta=(sh->etaMin()+sh->etaMax())/2.0;
-    //    if(fabs(eta)<3.2) continue;//FCal Only
-    
+    //For Fgap chains
+    if (m_isFgap){
+		if ( etaMin < m_Eta_min ) continue;
+		if ( etaMax > m_Eta_max ) continue;
+	}
+	//For UCC chains
+	else{	
+		//if ( fabs(etaMin) < m_Eta_min ) continue;
+		float eta=(etaMin+etaMax)/2.0;
+		if(fabs(eta)<m_Eta_min) continue;//FCal Only
+    }
     m_Tot_Et+=Et;
   }
   

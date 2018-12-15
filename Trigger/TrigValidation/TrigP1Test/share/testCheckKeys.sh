@@ -40,6 +40,8 @@ elif [ "$type" == "HLT_physicsV6" ]; then
   stump="Physics_pp_v6"
 elif [ "$type" == "HLT_physicsV7" ]; then
   stump="Physics_pp_v7"
+elif [ "$type" == "HLT_HIV5" ]; then
+  stump="Physics_HI_v5"
 else 
   stump=""
 fi
@@ -85,6 +87,8 @@ get_files -xmls LVL1config.dtd
 ref_folder=""
 if [ $database == "ART" ]; then
   ref_folder="_ART"
+elif [ "$type" == "HLT_HIV5" ]; then
+  ref_folder="_HI"
 fi
 
 

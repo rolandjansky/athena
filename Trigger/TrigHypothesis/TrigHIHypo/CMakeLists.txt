@@ -17,6 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODHIEvent
                           Event/xAOD/xAODMuon
                           Event/xAOD/xAODTracking
+                          Event/xAOD/xAODCaloEvent
                           GaudiKernel
                           Reconstruction/HeavyIonRec/HIGlobal
                           Reconstruction/Particle
@@ -35,7 +36,7 @@ atlas_add_component( TrigHIHypo
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} TrigCaloEvent TrigInDetEvent TrigSteeringEvent CaloEvent AthenaBaseComps xAODHIEvent xAODMuon xAODTracking GaudiKernel Particle TrkParameters TrigMissingEtEvent TrigMuonEvent TrigParticle TrigInterfacesLib TrigT1Interfaces )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} TrigCaloEvent TrigInDetEvent TrigSteeringEvent CaloEvent AthenaBaseComps xAODHIEvent xAODMuon xAODTracking xAODCaloEvent GaudiKernel Particle TrkParameters TrigMissingEtEvent TrigMuonEvent TrigParticle TrigInterfacesLib TrigT1Interfaces )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

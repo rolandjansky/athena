@@ -74,7 +74,17 @@ Prescales = physics_menu.Prescales
 # # DEFAULT MC prescales
 # ######################################################
 Prescales.L1Prescales = dict([(ctpid,1) for ctpid in Prescales.L1Prescales])  # setting all L1 prescales to 1
-Prescales.HLTPrescales.update({})
+ps_exclusion_list=[
+    'mb_sptrk_L1ZDC_XOR_TE5_VTE200',
+    'mb_sptrk_L1ZDC_XOR_VTE200',
+    'mb_sptrk_L1ZDC_XOR_VTE200_MBTS_1',
+    'mb_perf_L1RD1_FILLED',
+    'mb_sptrk_L1MBTS_1_1_VTE50',
+    'timeburner',
+    'mb_sp',
+]    
+chain_list=ps_exclusion_list
+Prescales.HLTPrescales.update(dict(map(None,chain_list,len(chain_list)*[ [-1, 0, -1] ])))
 # ######################################################
 
 # ######################################################
@@ -98,8 +108,7 @@ Prescales.HLTPrescales.update({})
 Prescales.L1Prescales_tight_mc_prescale  = deepcopy(Prescales.L1Prescales)
 Prescales.HLTPrescales_tight_mc_prescale = deepcopy(Prescales.HLTPrescales)
 Prescales.HLTPrescales_tight_mc_prescale.update({
-        'mb_idperf_ion_L1MBTS_1'          : [    -1,    0,   -1],     
-        'mb_idperf_ion_L1MBTS_1_1'        : [    -1,    0,   -1],
+        'mb_sp'                           : [    -1,    0,   -1],
         #'2e10_loose_ion'                  : [    -1,    0,   -1],
         #'e10_etcut_ion'                   : [    -1,    0,   -1],
         #'e10_etcut'                       : [    -1,    0,   -1],
