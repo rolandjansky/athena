@@ -60,7 +60,7 @@ class ParamsInputFilename(JobProperty):
     """ Filename of the input parametrizations file. """
     statusOn     = True
     allowedTypes = ['str']
-    StoredValue  = 'FastCaloSim/MC16/TFCSparam_v008.root'
+    StoredValue  = 'FastCaloSim/MC16/TFCSparam_v009.root'
 
 ##-----------------------------------------------------------------------------
 ## 2nd step
