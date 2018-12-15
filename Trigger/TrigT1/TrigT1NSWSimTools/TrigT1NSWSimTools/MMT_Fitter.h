@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MMT_FITTER_H
@@ -16,10 +16,9 @@ class MMT_Fitter{
   ~MMT_Fitter(){}
   void Get_Fit(vector<Hit>& track, map<int,evFit_entry>& Event_Fit, map<hitData_key,hitData_entry>& Hits_Data_Set_Time);
   evFit_entry fit_event(int event, vector<Hit>& track, vector<hitData_entry>& hitDatas, int& nfit, vector<pair<double,double> >&mxmy, double& mxl, double& mv, double& mu) const;
-  int get_last() const {return last;}
-  int SC_ROI_n_x() const {return m_par->n_x;}
-  int SC_ROI_n_y() const {return m_par->n_y;}
-/*   vector<int> xent,yent; */
+  int get_last() const {return m_last;}
+  int SC_ROI_n_x() const {return m_par->m_n_x;}
+  int SC_ROI_n_y() const {return m_par->m_n_y;}
   int find_hitData(const vector<hitData_entry>& hitDatas, const hitData_key& key) const;
 
 
@@ -29,7 +28,7 @@ class MMT_Fitter{
   bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
 
  protected:
-  int last;
+  int m_last;
   //some variables
   MMT_Parameters *m_par;
 
@@ -66,8 +65,8 @@ class MMT_Fitter{
   vector<Hit> q_hits(const string& type,const vector<Hit>& hits) const;
 
   //Fitter components
-  int number_LG_regions,n_fit;
-  float32fixed<2> LG_min,LG_max;
+  int m_number_LG_regions,m_n_fit;
+  float32fixed<2> m_LG_min,m_LG_max;
   vector<int> q_planes(char type) const;//return position of what planes are where
 
   /// Private message stream member

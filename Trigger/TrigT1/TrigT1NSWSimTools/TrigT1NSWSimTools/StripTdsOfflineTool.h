@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STRIPTDSOFFLINETOOL_H
@@ -20,14 +20,9 @@
 
 //forward declarations
 class IIncidentSvc;
-class IAtRndmGenSvc;
 class sTgcIdHelper;
 class sTgcDigit;
 class TTree;
-
-namespace CLHEP {
-  class HepRandomEngine;
-}
 
 namespace MuonGM {
   class MuonDetectorManager;
@@ -93,8 +88,6 @@ namespace NSWL1 {
 
     // needed Servives, Tools and Helpers
     ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
-    ServiceHandle< IAtRndmGenSvc >     m_rndmSvc;           //!< Athena random number service
-    CLHEP::HepRandomEngine*            m_rndmEngine;        //!< Random number engine
     const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
     const sTgcIdHelper*                m_sTgcIdHelper;      //!< sTgc offline Id helper
 
@@ -106,7 +99,6 @@ namespace NSWL1 {
     BooleanProperty  m_doNtuple;                            //!< property, see @link StripTdsOfflineTool::StripTdsOfflineTool @endlink  
 
     // properties: container and service names
-    StringProperty   m_rndmEngineName;                      //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink
     StringProperty   m_sTgcDigitContainer;                  //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink
     StringProperty   m_sTgcSdoContainer;                    //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink
 

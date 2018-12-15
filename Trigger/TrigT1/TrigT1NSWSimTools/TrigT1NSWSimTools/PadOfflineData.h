@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PADOFFLINEDATA_H
@@ -11,11 +11,6 @@
 
 // local includes
 #include "TrigT1NSWSimTools/PadData.h"
-
-
-// forward declarations
-class TVector3;
-
 
 // namespace for the NSW LVL1 related classes
 namespace NSWL1 {
@@ -44,15 +39,12 @@ namespace NSWL1 {
 
   public:
     PadOfflineData(Identifier id, float time, uint16_t bc_tag, const sTgcIdHelper* helper);
-    //PadOfflineData(Identifier id, float time, uint16_t bc_tag, bool isdead, bool ispileup, const sTgcIdHelper* helper);
     ~PadOfflineData();
 
     //! methods for retrieving the bare data
     uint32_t id()              const;  //!< get the 32 bit word identifing the fragment
     uint16_t BC_Tag()          const;  //!< get the BCID
     float    time()            const;  //!< get the arrival time after the delay is applied
-    //bool     isDead()          const;  //!< get the isDead bool 
-    //bool     isPileup()        const;  //!< get the isPileup bool
 
     //! helper  methods decoding the hit fragment position within the NSW detector
     int sideId()               const;  //!< get the side            (0==sideC, 1==sideA)

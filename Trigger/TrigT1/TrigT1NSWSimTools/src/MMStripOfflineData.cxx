@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -13,7 +13,7 @@ namespace NSWL1 {
 
     MMStripOfflineData::MMStripOfflineData(Identifier id, const MmIdHelper* helper) : 
     MMStripData(),
-    m_id(id), m_helper(helper) //,m_mmstrip_charge(charge)
+    m_id(id), m_helper(helper)
     {}
 
     MMStripOfflineData::~MMStripOfflineData() {
@@ -24,10 +24,6 @@ namespace NSWL1 {
       m_trig_bcid = bcid;
     }
 
-
-  //void MMStripOfflineData::setStripCharge(float charge) {
-  //  m_mmstrip_charge = charge;
-  // }
 
     //! methods for retrieving the bare data
     uint32_t MMStripOfflineData::id()     const { return m_id.get_identifier32().get_compact(); }

@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_STRUCT_H
 #define MM_STRUCT_H
 
 #include <fstream>
-// #include "fixed_point.h"
 
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -16,15 +15,10 @@
 #include "AthenaKernel/MsgStreamMember.h"
 
 
-#include "TTree.h"
-#include "TH1F.h"
 #include "TLorentzVector.h"
 #include "TMath.h"
 
-#include<cmath>
-
 using namespace std;
-// using namespace fpml;
 
 //flags
 const double crep_pt=200.;
@@ -36,8 +30,7 @@ const double crep_pt=200.;
 */
 
 //constants and convsersions
-const int yzdex=2,bkdex=13,zbardex=2;
-// double store_const;
+const int m_yzdex=2,m_bkdex=13,m_zbardex=2;
 
 
 template<unsigned char T> class float32fixed
@@ -69,7 +62,6 @@ public:
     //=== return input value with fixed point precision
     return ::roundf(fixp_content * std::pow(2., scale)) / std::pow(2., scale);
 
-    // return fixedPointPrecision(T, fixp_content);
   }
 
 
@@ -191,7 +183,6 @@ struct par_par{
   double h;
   int ctx,ctuv;
   double uverr;
-  //fixed_point<int,1> uverr; //need int here
   string setup;
   bool islarge,q_dlm,genbg;
   double qt;
@@ -206,9 +197,6 @@ struct par_par{
 
 };
 
-// const par_par standard=par_par(0.0009,4,4,0.0035,"xxuvxxuv",true);
-// const par_par dlm=par_par(0.0009,4,4,0.007,"xxuvuvxx",true,true); //.0035 for uv_tol before...
-
 class MMT_Parameters{
  public:
   MMT_Parameters(par_par inputParams,char wedgeSize, const MuonGM::MuonDetectorManager* m_detManager);
@@ -218,22 +206,21 @@ class MMT_Parameters{
   int is_u(int plane);
   int is_v(int plane);
 
-  unsigned int n_multiplets = 2;
-  unsigned int n_layers     = 4;
+  unsigned int m_n_multiplets = 2;
+  unsigned int m_n_layers     = 4;
 
   // start counting at 1 to be consistent with mmIdHelper.
-  std::vector<unsigned int> planes_x = {1, 2, 7, 8};
-  std::vector<unsigned int> planes_u = {3, 5};
-  std::vector<unsigned int> planes_v = {4, 6};
+  std::vector<unsigned int> m_planes_x = {1, 2, 7, 8};
+  std::vector<unsigned int> m_planes_u = {3, 5};
+  std::vector<unsigned int> m_planes_v = {4, 6};
 
   vector<int> q_planes(const string& type) const;
   par_par param_par() const;
   double y_from_eta_wedge(double eta,int plane)const;
   double eta_wedge_from_y(double y,int plane)const;
   int ybin(float32fixed<18> y,int plane=0)const;
-  int ybin(float32fixed<yzdex> y,int plane=0)const;
+  int ybin(float32fixed<m_yzdex> y,int plane=0)const;
   int ybin(double y,int plane=0)const;
-  // double ymid_eta_bin(int bin,int plane)const;
 
   //fill the tables
   void Local_Slope_A_B();
@@ -269,63 +256,61 @@ class MMT_Parameters{
   string bool_to_hit_str(const vector<bool>&track)const;
 
   //table
-  map<vector<int>,pair<float32fixed<2>,float32fixed<2> > > AB_k_local;
-  vector<vector<vector<float32fixed<zbardex> > > > Ak_local_slim;//[x_hit combo][ybin][case #]
-  vector<vector<vector<float32fixed<bkdex> > > > Bk_local_slim;//[x_hit combo][ybin][case #]
-  vector<vector<vector<float32fixed<4> > > > Slope_to_ROI;
-  vector<vector<float32fixed<2> > > DT_Factors;
+  map<vector<int>,pair<float32fixed<2>,float32fixed<2> > > m_AB_k_local;
+  vector<vector<vector<float32fixed<m_zbardex> > > > m_Ak_local_slim;//[x_hit combo][ybin][case #]
+  vector<vector<vector<float32fixed<m_bkdex> > > > m_Bk_local_slim;//[x_hit combo][ybin][case #]
+  vector<vector<vector<float32fixed<4> > > > m_Slope_to_ROI;
+  vector<vector<float32fixed<2> > > m_DT_Factors;
   //theta, phi, hit code, theta/phi/dtheta
   //hit code: binary stuff....
   //old hit code...%mis X, %mis UV: 2-4 X, 1-4 UV possible fractions: 0,1/2,1/3,2/3,1/4,(3/4,not possible with only one misaligned multiplet), 1: 0,3,4,6,8,12
-  vector<vector<vector<vector<float> > > >crep_table;
-  vector<vector<vector<float32fixed<yzdex> > > >ymod,zmod;
+  vector<vector<vector<vector<float> > > >m_crep_table;
+  vector<vector<vector<float32fixed<m_yzdex> > > >m_ymod,m_zmod;
 
   //a toggle
-  bool fill0;
+  bool m_fill0;
 
   //how many etabins (of equal size) for algorithm results
-  int n_etabins,n_phibins;
+  int m_n_etabins,m_n_phibins;
   vector<double>m_etabins,m_phibins;
   //currently configurable parameters
-  bool diag,dlm_new;
-  float32fixed<2> h;
-  int CT_x,CT_uv;
-  float32fixed<2> uv_error;
-  double dtheta_cut;
-  string setup;
-  bool islarge,genbg;
-  double chargeThreshold;
+  bool m_diag,m_dlm_new;
+  float32fixed<2> m_h;
+  int m_CT_x,m_CT_uv;
+  float32fixed<2> m_uv_error;
+  double m_dtheta_cut;
+  string m_setup;
+  bool m_islarge,m_genbg;
+  double m_chargeThreshold;
   //new, standardized, misalignment and correction information
-  std_align misal,correct;
+  std_align m_misal,m_correct;
 
   //misalignment parameters
-  int ybins,n_stations_eta;
-  bool misalign,val_tbl;
+  int m_ybins,m_n_stations_eta;
+  bool m_misalign,m_val_tbl;
 
   //dimensions
-  float32fixed<18> w1, w2, w3, h1, h2, h3, H, Hnom, L, wedge_opening_angle;
-  float32fixed<4> strip_width;
-  float32fixed<4> stereo_degree;
-  double stereo_strip_separation_top;
-  double stereo_strip_separation_bottom;
+  float32fixed<18> m_w1, m_w2, m_w3, m_h1, m_H, m_Hnom, m_wedge_opening_angle;
+  float32fixed<4> m_strip_width;
+  float32fixed<4> m_stereo_degree;
 
-  vector<float32fixed<18> > z_nominal;
-  vector<vector<float32fixed<18> > > z_large;//[y bin][plane]
-  vector<vector<float32fixed<18> > > ybases;//by stationEta--saved from file, hardcoded, alternative is equally spaced, in MMT_Loader::Get_Strip_Id
-  float32fixed<2> m_x_min,m_x_max,m_y_min,m_y_max,h_mx, h_my;
-  int n_x,n_y;
+  vector<float32fixed<18> > m_z_nominal;
+  vector<vector<float32fixed<18> > > m_z_large;//[y bin][plane]
+  vector<vector<float32fixed<18> > > m_ybases;//by stationEta--saved from file, hardcoded, alternative is equally spaced, in MMT_Loader::Get_Strip_Id
+  float32fixed<2> m_x_min,m_x_max,m_y_min,m_y_max,m_h_mx, m_h_my;
+  int m_n_x,m_n_y;
 
-  float32fixed<3> slope_min, slope_max;
-  float32fixed<2> x_error;
-  int CT, CT_u, CT_v;
+  float32fixed<3> m_slope_min, m_slope_max;
+  float32fixed<2> m_x_error;
+  int m_CT, m_CT_u, m_CT_v;
 
-  float32fixed<4> minimum_large_theta, maximum_large_theta;
-  float32fixed<4> minimum_large_phi, maximum_large_phi;
+  float32fixed<4> m_minimum_large_theta, m_maximum_large_theta;
+  float32fixed<4> m_minimum_large_phi, m_maximum_large_phi;
 
-  int n_theta_rois, n_phi_rois, BC_window;
+  int m_n_theta_rois, m_n_phi_rois, m_BC_window;
 
-  float32fixed<18> mid_plane_large_X, mid_plane_large, mid_plane_large_UV;
-  float32fixed<4> vertical_strip_width_UV;
+  float32fixed<18> m_mid_plane_large_X, m_mid_plane_large, m_mid_plane_large_UV;
+  float32fixed<4> m_vertical_strip_width_UV;
 
   /// Log a message using the Athena controlled logging system
   MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
@@ -432,25 +417,14 @@ struct hitData_info{
   //members
   int plane;
   //char addc,vmm,strip;//strip is in a vmm (0-63); char for storage as a byte
-  float32fixed<yzdex> y,z;//actual values divided by store_const() to make fixed point calculations doable--all this stuff is dimensionless in the end, so it's okay.
+  float32fixed<m_yzdex> y,z;//actual values divided by store_const() to make fixed point calculations doable--all this stuff is dimensionless in the end, so it's okay.
   float32fixed<2> slope;
 
-
-  // /// Log a message using the Athena controlled logging system
-  // MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-  // /// Check whether the logging system is active at the provided verbosity level
-  // bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
-
-  // private:
-  //   /// Private message stream member
-  //   mutable Athena::MsgStreamMember m_msg;
 };
 
 struct Hit{
   //make a well-behaved constructor
-/*   Hit(int _plane=-1, int _strip=0, int _station_eta=0, double _slope=0, int bct=0, double t=0, double gt=0, int vmm=0); */
   Hit(const hitData_key&k=hitData_key(),const hitData_info&i=hitData_info());
-/*   double slope()const {return info.slope();} */
   bool operator==(const Hit& rhs) const;
   void print_track(const vector<Hit>& track) const;
   void print() const;

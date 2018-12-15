@@ -1,26 +1,19 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //S.I 26-07-18 : This class and the structure is too problematic in terms of memory management while using raw pointers
 #ifndef NSW_PADWITHITS_H
 #define NSW_PADWITHITS_H
 
-#include "TVector3.h"
-
-#include <cstring> //memset
-#include <iostream>
 #include <string>
 #include <vector>
 
 #include "TrigT1NSWSimTools/PadData.h"
 #include "TrigT1NSWSimTools/TriggerTypes.h"
 
-//namespace NSWL1 {
-//class PadData;
-//}
 namespace NSWL1 {
 
   struct Pad {
@@ -36,7 +29,6 @@ namespace NSWL1 {
     float m_cornerXyz[4][3]; //!< (x,y,z) coordinates of the 4 pad corners (in the order low to high phi, low to high R)
     
     
-     //const NSWL1::PadData *m_padData; ///< if this pad was created from a PadData object, pointer to it
     std::shared_ptr<PadData> m_padData;
     
     Pad(const int &eta, const int &phi,
@@ -62,24 +54,7 @@ namespace NSWL1 {
   float midSectorPhi(int sector);         //!< angle phi at the center of the sector
   float phi_mpi_pi(const double &val);    //!< bring phi to [-pi,+pi)
   float phi_zero_2pi(const double &val);  //!< bring phi to [0, +2pi)
-  // //! function to determine the pad coordinates from the hit information
-  // /*!
-  //   Return false if the position is not consistent with our geometry
-  //  */
-  // bool determinePadFromPos(TVector3 pos, Pad &result, bool verbose=false);
-  // //! both determinePadFromHit and determinePadFromPos rely on determinePad
-  // /*!
-  //   In general, one should not call determinePad directly
-  // */
-  // bool determinePad(int layer, int wedgeId, int wedgeType, int sector, int detectorNumber,
-  //                   TVector3 pos, Pad &result, bool verbose=false);
-  //! scale a H value to account for the difference between the z-pos in the official geom and Daniel's geom
-  /*! N.B. the layer is _not_ a int, but it starts from 0.
-   */
-  // float adjustHforZdifference(const float &h, const int &s, const int &layer);
- 
-    //bool operator== (const Pad &lhs, const Pad &rhs);
-    //std::ostream& operator<<( std::ostream& oo, const Pad &p);
+
 /**
   @brief Class that holds two pieces of information: pad geometry and hit indices.
   
@@ -119,7 +94,6 @@ namespace NSWL1 {
                 const int &multiplet,
                 const int &layerType, const int &sector, const int &sectortype, const int &side, const int &module);
     PadWithHits(const Pad &p);
-    //PadWithHits(const NSWL1::PadData &pData);
     
     PadWithHits(std::shared_ptr<PadData> pData);
     
