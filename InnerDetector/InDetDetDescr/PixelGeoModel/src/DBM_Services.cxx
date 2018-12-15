@@ -2,7 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PixelGeoModel/DBM_Services.h"
+#include "DBM_Services.h"
 
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoTransform.h"

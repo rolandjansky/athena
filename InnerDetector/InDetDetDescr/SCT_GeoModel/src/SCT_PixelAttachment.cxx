@@ -12,7 +12,7 @@
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoPhysVol.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
 // This is the SCT to Pixel attachment. This was originally defined in the 
 // general indet services but it is in the SCT mother volume.

@@ -22,6 +22,7 @@
 #include "GeoModelKernel/GeoTrd.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoPVConstLink.h"
+#include "GeoModelKernel/Units.h"
 #include "GeoModelUtilities/StoredPhysVol.h"
 // Trk
 #include "TrkDetDescrInterfaces/ITrackingVolumeHelper.h"
@@ -46,12 +47,10 @@
 #include "TrkSurfaces/DiscBounds.h"
 #include "TrkGeometrySurfaces/SlidingCylinderSurface.h"
 #include "TrkGeometrySurfaces/SlidingDiscSurface.h"
-// Amg
-#include "GeoPrimitives/CLHEPtoEigenConverter.h"
 // StoreGate
 #include "StoreGate/StoreGateSvc.h"
 
-using CLHEP::mm;
+using GeoModelKernelUnits::mm;
 
 // constructor
 LAr::LArVolumeBuilder::LArVolumeBuilder(const std::string& t, const std::string& n, const IInterface* p) :
@@ -170,7 +169,7 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
     unsigned int currentChilds = currentVPhysVolLink->getNChildVols();
     
     ATH_MSG_DEBUG( "Processing " << currentLogVol->getName() << "... has " 
-		   << currentChilds << " childs, position " << currentVPhysVolLink->getX().getTranslation());
+		   << currentChilds << " childs, position " << currentVPhysVolLink->getX().translation());
     //printInfo( currentVPhysVolLink,2);
   }
 
@@ -677,7 +676,7 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
      const GeoShape*    lArNegativeEndcapShape  = lArNegativeEndcapLogVol->getShape();
 
      // get the transforms
-     const Amg::Transform3D& lArPositiveEndcapTransform = Amg::CLHEPTransformToEigen(lArPositiveEndcapPhysVol->getAbsoluteTransform());
+     const Amg::Transform3D& lArPositiveEndcapTransform = lArPositiveEndcapPhysVol->getAbsoluteTransform();
      //const Amg::Transform3D& lArNegativeEndcapTransform = Amg::CLHEPTransformToEigen(lArNegativeEndcapPhysVol->getAbsoluteTransform());
      Amg::Vector3D lArPositiveEndcapNomPosition = lArPositiveEndcapTransform.translation();
      //Amg::Vector3D lArNegativeEndcapNomPosition = lArNegativeEndcapTransform.translation();
@@ -980,7 +979,7 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
   if (  lArECPresamplerLogVol ) {
   
     const GeoShape*    lArECPresamplerShape  = lArECPresamplerLogVol->getShape();
-    const Amg::Transform3D& lArECPresamplerTransform = Amg::CLHEPTransformToEigen(lArECPresamplerPhysVol->getAbsoluteTransform());
+    const Amg::Transform3D& lArECPresamplerTransform = lArECPresamplerPhysVol->getAbsoluteTransform();
 
     // dynamic cast to 'Tubs' shape
     const GeoTubs* psTubs = dynamic_cast<const GeoTubs*>(lArECPresamplerShape);
@@ -1130,10 +1129,10 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
     const GeoShape*    lArNegativeHec2Shape  = lArNegativeHec2LogVol->getShape();
     
     // get the transforms
-    const Amg::Transform3D& lArPositiveHec1Transform = Amg::CLHEPTransformToEigen(lArPositiveHec1PhysVol->getAbsoluteTransform());
-    const Amg::Transform3D& lArPositiveHec2Transform = Amg::CLHEPTransformToEigen(lArPositiveHec2PhysVol->getAbsoluteTransform());
-    const Amg::Transform3D& lArNegativeHec1Transform = Amg::CLHEPTransformToEigen(lArNegativeHec1PhysVol->getAbsoluteTransform());
-    const Amg::Transform3D& lArNegativeHec2Transform = Amg::CLHEPTransformToEigen(lArNegativeHec2PhysVol->getAbsoluteTransform());
+    const Amg::Transform3D& lArPositiveHec1Transform = lArPositiveHec1PhysVol->getAbsoluteTransform();
+    const Amg::Transform3D& lArPositiveHec2Transform = lArPositiveHec2PhysVol->getAbsoluteTransform();
+    const Amg::Transform3D& lArNegativeHec1Transform = lArNegativeHec1PhysVol->getAbsoluteTransform();
+    const Amg::Transform3D& lArNegativeHec2Transform = lArNegativeHec2PhysVol->getAbsoluteTransform();
     
     Amg::Vector3D lArPositiveHec1NomPosition = lArPositiveHec1Transform.translation();
     Amg::Vector3D lArPositiveHec2NomPosition = lArPositiveHec2Transform.translation();
@@ -1327,13 +1326,13 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
 
 
      // get the transforms
-     const Amg::Transform3D& lArPositiveFcal1Transform = Amg::CLHEPTransformToEigen(lArPositiveFcal1PhysVol->getAbsoluteTransform());
-     const Amg::Transform3D& lArPositiveFcal2Transform = Amg::CLHEPTransformToEigen(lArPositiveFcal2PhysVol->getAbsoluteTransform());
-     const Amg::Transform3D& lArPositiveFcal3Transform = Amg::CLHEPTransformToEigen(lArPositiveFcal3PhysVol->getAbsoluteTransform());
+     const Amg::Transform3D& lArPositiveFcal1Transform = lArPositiveFcal1PhysVol->getAbsoluteTransform();
+     const Amg::Transform3D& lArPositiveFcal2Transform = lArPositiveFcal2PhysVol->getAbsoluteTransform();
+     const Amg::Transform3D& lArPositiveFcal3Transform = lArPositiveFcal3PhysVol->getAbsoluteTransform();
 
-     const Amg::Transform3D& lArNegativeFcal1Transform = Amg::CLHEPTransformToEigen(lArNegativeFcal1PhysVol->getAbsoluteTransform());
-     const Amg::Transform3D& lArNegativeFcal2Transform = Amg::CLHEPTransformToEigen(lArNegativeFcal2PhysVol->getAbsoluteTransform());
-     const Amg::Transform3D& lArNegativeFcal3Transform = Amg::CLHEPTransformToEigen(lArNegativeFcal3PhysVol->getAbsoluteTransform());
+     const Amg::Transform3D& lArNegativeFcal1Transform = lArNegativeFcal1PhysVol->getAbsoluteTransform();
+     const Amg::Transform3D& lArNegativeFcal2Transform = lArNegativeFcal2PhysVol->getAbsoluteTransform();
+     const Amg::Transform3D& lArNegativeFcal3Transform = lArNegativeFcal3PhysVol->getAbsoluteTransform();
 
      Amg::Vector3D lArPositiveFcal1NomPosition = lArPositiveFcal1Transform.translation();
      Amg::Vector3D lArPositiveFcal2NomPosition = lArPositiveFcal2Transform.translation();
@@ -1707,7 +1706,7 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
    // pass MBTS info to CaloTG 
   // MBTS
   const PVConstLink topEC = m_lArMgr->getTreeTop(1U);
-  Amg::Transform3D trIn= Amg::CLHEPTransformToEigen(topEC->getX());   
+  Amg::Transform3D trIn= topEC->getX();   
   Amg::Transform3D tr2(trIn);   
   const PVConstLink mbts= getChild(topEC,"MBTS_mother",trIn);
   if (mbts) {
@@ -2001,7 +2000,7 @@ void LAr::LArVolumeBuilder::printInfo(const PVConstLink pv, int gen) const
 	std::cout<<"polycone:"<<i<<":"<< con->getRMinPlane(i)<<","<<con->getRMaxPlane(i)<<","<<con->getZPlane(i)<< std::endl;
       }
     }
-    Amg::Transform3D transf =  Amg::CLHEPTransformToEigen(pv->getX());
+    Amg::Transform3D transf =  pv->getX();
     std::cout << "position:"<< "R:"<<transf.translation().perp()<<",phi:"<< transf.translation().phi()<<",x:"<<transf.translation().x()<<",y:"<<transf.translation().y()<<",z:"<<transf.translation().z()<<std::endl;
 
     int igen = 0;
@@ -2016,7 +2015,7 @@ void LAr::LArVolumeBuilder::printChildren(const PVConstLink pv,int gen, int igen
   if (gen>-1 && igen>gen) return; 
   std::string cname; 
   for (unsigned int ic=0; ic<nc; ic++) {
-    Amg::Transform3D transf = trIn*Amg::CLHEPTransformToEigen(pv->getXToChildVol(ic));
+    Amg::Transform3D transf = trIn*pv->getXToChildVol(ic);
  
     //
     //std::cout << " dumping transform to subcomponent" << std::endl;
@@ -2059,7 +2058,7 @@ GeoPVConstLink LAr::LArVolumeBuilder::getChild(GeoPVConstLink mother, std::strin
   // subcomponents
   unsigned int nc = mother->getNChildVols();
   for (unsigned int ic=0; ic<nc; ic++) {
-    Amg::Transform3D transf = trIn*Amg::CLHEPTransformToEigen(mother->getXToChildVol(ic));
+    Amg::Transform3D transf = trIn*mother->getXToChildVol(ic);
     GeoPVConstLink cv = mother->getChildVol(ic);
     const GeoLogVol* clv = cv->getLogVol();
     if (clv->getName().substr(0,name.size())==name) { trIn = transf; return cv; } 

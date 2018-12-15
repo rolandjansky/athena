@@ -10,8 +10,8 @@
  * $Id: EMECConstruction.h,v 1.9 2009-02-10 16:50:53 tsulaia Exp $
  */
 
-#ifndef __EMECConstruction_H__
-#define __EMECConstruction_H__
+#ifndef LARGEOENDCAP_EMECCONSTRUCTION_H
+#define LARGEOENDCAP_EMECCONSTRUCTION_H
 
 class GeoFullPhysVol;
 

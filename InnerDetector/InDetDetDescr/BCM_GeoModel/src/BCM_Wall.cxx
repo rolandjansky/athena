@@ -37,9 +37,8 @@ GeoPhysVol* BCM_Wall::Build(double halfX, double halfY, double thick_one, double
   const GeoLogVol* bcmWallOneLog = new GeoLogVol("bcmWallLog", bcmWallOneBox, material_one);
   GeoPhysVol* bcmWallOnePhys = new GeoPhysVol(bcmWallOneLog);
  
-  CLHEP::Hep3Vector WallOnePos(0,0,thick_one/2 - wallthick/2);
-  CLHEP::HepRotation rm;
-  GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(rm,WallOnePos));
+  GeoTrf::Translate3D WallOnePos(0,0,thick_one/2 - wallthick/2);
+  GeoTransform* xform = new GeoTransform(WallOnePos);
   bcmWallPhys->add(xform);
   bcmWallPhys->add(bcmWallOnePhys);
  
@@ -49,8 +48,8 @@ GeoPhysVol* BCM_Wall::Build(double halfX, double halfY, double thick_one, double
   const GeoLogVol* bcmWallTwoLog = new GeoLogVol("bcmWallLog", bcmWallTwoBox, material_two);
   GeoPhysVol* bcmWallTwoPhys = new GeoPhysVol(bcmWallTwoLog);
 
-  CLHEP::Hep3Vector WallTwoPos(0,0,wallthick/2 - thick_two/2);
-  xform = new GeoTransform(HepGeom::Transform3D(rm,WallTwoPos));
+  GeoTrf::Translate3D WallTwoPos(0,0,wallthick/2 - thick_two/2);
+  xform = new GeoTransform(WallTwoPos);
   bcmWallPhys->add(xform);
   bcmWallPhys->add(bcmWallTwoPhys);
 
@@ -73,9 +72,8 @@ GeoPhysVol* BCM_Wall::Build(double halfX, double halfY, double thick_one, double
   const GeoLogVol* bcmWallOneLog = new GeoLogVol("bcmWallLog", bcmWallOneBox, material_one);
   GeoPhysVol* bcmWallOnePhys = new GeoPhysVol(bcmWallOneLog);
  
-  CLHEP::Hep3Vector WallOnePos(0,0,thick_one/2 - wallthick/2);
-  CLHEP::HepRotation rm;
-  GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(rm,WallOnePos));
+  GeoTrf::Translate3D WallOnePos(0,0,thick_one/2 - wallthick/2);
+  GeoTransform* xform = new GeoTransform(WallOnePos);
   bcmWallPhys->add(xform);
   bcmWallPhys->add(bcmWallOnePhys);
  
@@ -85,8 +83,8 @@ GeoPhysVol* BCM_Wall::Build(double halfX, double halfY, double thick_one, double
   const GeoLogVol* bcmWallTwoLog = new GeoLogVol("bcmWallLog", bcmWallTwoBox, material_two);
   GeoPhysVol* bcmWallTwoPhys = new GeoPhysVol(bcmWallTwoLog);
 
-  CLHEP::Hep3Vector WallTwoPos(0,0,thick_one -wallthick/2 + thick_two/2);
-  xform = new GeoTransform(HepGeom::Transform3D(rm,WallTwoPos));
+  GeoTrf::Translate3D WallTwoPos(0,0,thick_one -wallthick/2 + thick_two/2);
+  xform = new GeoTransform(WallTwoPos);
   bcmWallPhys->add(xform);
   bcmWallPhys->add(bcmWallTwoPhys);
 
@@ -96,8 +94,8 @@ GeoPhysVol* BCM_Wall::Build(double halfX, double halfY, double thick_one, double
   const GeoLogVol* bcmWallThreeLog = new GeoLogVol("bcmWallLog", bcmWallThreeBox, material_three);
   GeoPhysVol* bcmWallThreePhys = new GeoPhysVol(bcmWallThreeLog);
 
-  CLHEP::Hep3Vector WallThreePos(0,0,wallthick/2 - thick_three/2);
-  xform = new GeoTransform(HepGeom::Transform3D(rm,WallThreePos));
+  GeoTrf::Translate3D WallThreePos(0,0,wallthick/2 - thick_three/2);
+  xform = new GeoTransform(WallThreePos);
   bcmWallPhys->add(xform);
   bcmWallPhys->add(bcmWallThreePhys);
 

@@ -22,6 +22,7 @@
 // ATLAS headers
 #include "StoreGate/StoreGateSvc.h"
 #include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 #include "GaudiKernel/IToolSvc.h"
 

@@ -5,7 +5,8 @@
 #ifndef SCT_SLHC_GeoModel_SCT_GeneralParameters_H
 #define SCT_SLHC_GeoModel_SCT_GeneralParameters_H
 
-#include "CLHEP/Geometry/Transform3D.h"
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 #include "SCT_SLHC_GeoModel/SCT_ParametersBase.h"
 
 #include <string>
@@ -32,7 +33,7 @@ public:
   // General
   double safety() const;
 
-  const HepGeom::Transform3D & partTransform(const std::string & partName) const; 
+  const GeoTrf::Transform3D & partTransform(const std::string & partName) const; 
   bool partPresent(const std::string & partName) const;
  
   double envelopeRMin() const; 

@@ -38,6 +38,7 @@
 #include "TrkValInterfaces/ITruthNtupleTool.h"
 #include "TrkValInterfaces/IEventPropertyNtupleTool.h"
 
+#include "CLHEP/Vector/LorentzVector.h"
 using CLHEP::HepLorentzVector;
 
 Trk::TrackValidationNtupleWriter::TrackValidationNtupleWriter(const std::string& name, ISvcLocator* pSvcLocator):

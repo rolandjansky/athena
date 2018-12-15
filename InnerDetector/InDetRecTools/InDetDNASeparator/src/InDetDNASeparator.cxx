@@ -15,6 +15,7 @@
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkFitterUtils/DNA_MaterialEffects.h"
+#include "GaudiKernel/SystemOfUnits.h""
 //#include "TrkParameters/MeasuredTrackParameters.h"
 // #include "TrkFitterUtils/ProtoTrajectoryUtility.h"
 
@@ -28,7 +29,7 @@ InDet::InDetDNASeparator::InDetDNASeparator(const std::string& t,
   :
   AthAlgTool(t,n,p),
   m_kutoff(4.50),
-  m_floorseparation_drr(4.00*CLHEP::mm),
+  m_floorseparation_drr(4.00*Gaudi::Units::mm),
   // Initialization of ID SCT helper
   m_SCT_Tool(nullptr),
   // Initialization of ID Pixel helper

@@ -43,7 +43,7 @@
 
 
 #include "PathResolver/PathResolver.h"
-
+#include "GaudiKernel/SystemOfUnits.h"
 
 
 //____________________________________________________________________
@@ -92,8 +92,8 @@ public:
  * DEFINITIONS
  */
 //Fixme: Just some approximate values for now:
-double IParticleCollHandle_CaloCluster::calo_start_r = 1.1*CLHEP::m + 0.05*CLHEP::m;
-double IParticleCollHandle_CaloCluster::calo_start_z = 3.671*CLHEP::m + 0.05*CLHEP::m;
+double IParticleCollHandle_CaloCluster::calo_start_r = 1.1*Gaudi::Units::m + 0.05*Gaudi::Units::m;
+double IParticleCollHandle_CaloCluster::calo_start_z = 3.671*Gaudi::Units::m + 0.05*Gaudi::Units::m;
 double IParticleCollHandle_CaloCluster::calo_crack_eta = fabs(log(tan(0.5*atan(calo_start_r/calo_start_z))));
 
 
@@ -216,7 +216,7 @@ double IParticleCollHandle_CaloCluster::energyToLength(const double&energy) cons
 {
 	VP1Msg::messageDebug("IParticleCollHandle_CaloCluster::energyToLength()");
 
-	return std::max(1*CLHEP::mm, m_d->scale.second*(m_d->scale.first?log(1+fabs(energy)):energy));
+	return std::max(1*Gaudi::Units::mm, m_d->scale.second*(m_d->scale.first?log(1+fabs(energy)):energy));
 }
 
 //____________________________________________________________________

@@ -10,20 +10,18 @@ atlas_depends_on_subdirs( PRIVATE
                           Control/StoreGate
                           Database/RDBAccessSvc
                           DetectorDescription/GeoModel/GeoModelInterfaces
-                          DetectorDescription/GeoModel/GeoModelKernel
                           GaudiKernel )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
-find_package( CLHEP )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
+find_package( GeoModel )
 
 # Component(s) in the package:
 atlas_add_library( LArGeoCode
                    src/*.cxx
                    PUBLIC_HEADERS LArGeoCode
-                   PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                   PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
+                   PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
                    LINK_LIBRARIES StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} GeoModelKernel GaudiKernel )
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${GEOMODEL_LIBRARIES} GaudiKernel )
 

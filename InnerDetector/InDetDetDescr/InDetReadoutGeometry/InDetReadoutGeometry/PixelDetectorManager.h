@@ -11,6 +11,7 @@
 #ifndef InDetReadoutGeometry_PixelDetectorManager_h
 #define InDetReadoutGeometry_PixelDetectorManager_h 1
 
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/GeoVPhysVol.h"
 
 #include "InDetReadoutGeometry/SiDetectorManager.h"

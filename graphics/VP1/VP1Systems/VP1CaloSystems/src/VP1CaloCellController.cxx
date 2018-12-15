@@ -1137,7 +1137,7 @@ VP1CCIntervalMap VP1CaloCellController::selectionIntervals() const
 
 QPair<bool,double> VP1CaloCellController::scale() const
 {
-	double scl = m_d->ui_visopts.chbxLogscale->isChecked() ? m_d->ui_visopts.dspbxScale->value()*CLHEP::m/log(1+10*CLHEP::GeV) : m_d->ui_visopts.dspbxScale->value()*CLHEP::m/(10*CLHEP::GeV);
+	double scl = m_d->ui_visopts.chbxLogscale->isChecked() ? m_d->ui_visopts.dspbxScale->value()*GeoModelKernelUnits::m/log(1+10*GeoModelKernelUnits::GeV) : m_d->ui_visopts.dspbxScale->value()*GeoModelKernelUnits::m/(10*GeoModelKernelUnits::GeV);
 	return QPair<bool,double>(m_d->ui_visopts.chbxLogscale->isChecked(),scl);
 }
 

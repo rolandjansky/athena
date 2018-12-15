@@ -23,7 +23,7 @@
 #include "InDetReadoutGeometry/SiCommonItems.h"
 
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
 using namespace InDetDD;
 
@@ -78,7 +78,7 @@ SCT_Sensor::preBuild()
     
     // Build the subsensor logical volume (same for all segments).
     // We reduce the size by a small amount to avoid touching volumes. 
-    double epsilon = 1e-7*CLHEP::mm;
+    double epsilon = 1e-7*GeoModelKernelUnits::mm;
     const GeoBox * subSensorShape = new GeoBox(0.5*m_thickness-epsilon, 0.5*m_width-epsilon, 0.5*m_subSensorLength-epsilon);
     m_subSensorLog = new GeoLogVol(getName(), subSensorShape, m_material);  
     m_subSensorLog->ref();
@@ -153,7 +153,7 @@ GeoVPhysVol* SCT_Sensor::build(SCT_Identifier id) const{
     if (m_numSegments > 1) {
       double zpos = (iSegment - 0.5*(m_numSegments-1)) * m_subSensorLength;
       subSensor = new GeoFullPhysVol(m_subSensorLog);
-      GeoTransform * trans = new GeoTransform(HepGeom::TranslateZ3D(zpos));
+      GeoTransform * trans = new GeoTransform(GeoTrf::TranslateZ3D(zpos));
       GeoIdentifierTag * idTag = new GeoIdentifierTag(1200+iSegment);
       GeoNameTag * nameTag = new GeoNameTag("SubSensor#"+intToString(iSegment));
       sensor->add(trans);

@@ -29,7 +29,7 @@ LayerNumberAllocator::LayerNumberAllocator (const std::string&	type,
 	// pixel layout independent - always start SCT as if 3 preceding layers !
 	m_pixel_layers		(3),
 	m_pixel_sct_boundary	(0.),
-	m_vertex_spread		(112.0*CLHEP::mm)	// TODO: make configurable
+	m_vertex_spread		(112.0*Gaudi::Units::mm)	// TODO: make configurable
 {
     declareInterface<ILayerNumberAllocator>(this);
     declareProperty("LayerAllocator",	m_layerAllocator);

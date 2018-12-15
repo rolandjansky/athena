@@ -13,6 +13,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "TrkTrack/Track.h"
@@ -929,7 +930,7 @@ void Trk::DistributedKalmanFilter::getMagneticField(double gP[3], double* pB) co
   pB[0]=0.0;pB[1]=0.0;pB[2]=0.0;
   double field[3];
   m_MagFieldSvc->getField(gP,field);//field is returned in kT
-  for(int i=0;i<3;i++) pB[i]=field[i]/CLHEP::kilogauss;//convert to kG
+  for(int i=0;i<3;i++) pB[i]=field[i]/Gaudi::Units::kilogauss;//convert to kG
 }
 
 // fit a set of PrepRawData objects

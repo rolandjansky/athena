@@ -36,7 +36,7 @@ InDet::BeamPipeBuilder::BeamPipeBuilder(const std::string& t, const std::string&
   m_beamPipeOffsetX(0.*Gaudi::Units::mm),
   m_beamPipeOffsetY(0.*Gaudi::Units::mm),
   m_beamPipeRadius(33.1*Gaudi::Units::mm),
-  m_beamPipeHalflength(2.7*CLHEP::m),
+  m_beamPipeHalflength(2.7*Gaudi::Units::m),
   m_beamPipeThickness(1.*Gaudi::Units::mm),
   m_beamPipeX0(352.8*Gaudi::Units::mm),
   m_beamPipeL0(407.*Gaudi::Units::mm),
@@ -109,9 +109,9 @@ const std::vector< const Trk::CylinderLayer* >* InDet::BeamPipeBuilder::cylindri
   if (m_beamPipeMgr){
         // get the central top volume
         PVConstLink beamPipeTopVolume =  m_beamPipeMgr->getTreeTop(0);
-        (*beamPipeTransform) = Amg::Translation3D(beamPipeTopVolume->getX().getTranslation().x(),
-                                                  beamPipeTopVolume->getX().getTranslation().y(),
-                                                  beamPipeTopVolume->getX().getTranslation().z());
+        (*beamPipeTransform) = Amg::Translation3D(beamPipeTopVolume->getX().translation().x(),
+                                                  beamPipeTopVolume->getX().translation().y(),
+                                                  beamPipeTopVolume->getX().translation().z());
         const GeoLogVol* beamPipeLogVolume = beamPipeTopVolume->getLogVol();
         const GeoTube* beamPipeTube = 0;
         if (beamPipeLogVolume){

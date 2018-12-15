@@ -7,8 +7,9 @@
 
 #include "SCT_SLHC_GeoModel/SCT_ComponentFactory.h"
 #include "SCT_SLHC_GeoModel/SCT_Identifier.h"
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Vector/ThreeVector.h"
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+
 #include <string>
 
 class GeoMaterial;

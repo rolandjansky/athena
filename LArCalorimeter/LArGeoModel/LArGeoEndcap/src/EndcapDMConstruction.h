@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __EndcapDMConstruction_H__
-#define __EndcapDMConstruction_H__
+#ifndef LARGEOENDCAP_ENDCAPDMCONSTRUCTION_H
+#define LARGEOENDCAP_ENDCAPDMCONSTRUCTION_H
 
 class GeoFullPhysVol;
 

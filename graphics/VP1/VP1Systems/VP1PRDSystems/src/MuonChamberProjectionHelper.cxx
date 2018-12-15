@@ -215,7 +215,7 @@ bool MuonChamberProjectionHelper::Imp::init()
       av.next();
       continue;
     }
-    Amg::Transform3D toptransform = Amg::CLHEPTransformToEigen(av.getTransform());
+    Amg::Transform3D toptransform = av.getTransform();
     GeoVolumeCursor av2(av.getVolume());
     while (!av2.atEnd()) {
       if (nameIsMDTChamber(av2.getName())) {
@@ -240,7 +240,7 @@ bool MuonChamberProjectionHelper::Imp::init()
 	       && trd->getYHalfLength1() > 0.0
 	       && trd->getYHalfLength2() > 0.0 ) {
 	    trd->ref();
-	    Amg::Transform3D geovolume_transf = Amg::CLHEPTransformToEigen(av2.getTransform());
+	    Amg::Transform3D geovolume_transf = av2.getTransform();
 	    mdtchambervolinfo.insert(std::pair<const GeoPVConstLink,MDTChamberInfo>( av2.getVolume(), Imp::MDTChamberInfo(toptransform * geovolume_transf, trd) ));
 	  } else {
 	    theclass->message("MuonChamberProjectionHelper Error: Chamber trd has non-positive shape parameters!");

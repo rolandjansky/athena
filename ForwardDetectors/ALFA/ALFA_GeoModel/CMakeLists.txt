@@ -11,8 +11,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Database/RDBAccessSvc
                           DetectorDescription/GeoModel/GeoModelInterfaces
-                          DetectorDescription/GeoModel/GeoModelKernel
                           DetectorDescription/GeoModel/GeoModelUtilities
+			  DetectorDescription/GeoPrimitives
                           ForwardDetectors/ALFA/ALFA_Geometry
                           PRIVATE
                           Control/StoreGate
@@ -21,13 +21,14 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
+find_package( GeoModel )
 
 # Component(s) in the package:
 atlas_add_component( ALFA_GeoModel
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaKernel AthenaPoolUtilities GeoModelKernel GeoModelUtilities ALFA_Geometry StoreGateLib SGtests GaudiKernel )
+                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${GEOMODEL_LIBRARIES} AthenaKernel AthenaPoolUtilities GeoModelUtilities ALFA_Geometry StoreGateLib SGtests GaudiKernel )
 
 # Install files from the package:
 atlas_install_headers( ALFA_GeoModel )

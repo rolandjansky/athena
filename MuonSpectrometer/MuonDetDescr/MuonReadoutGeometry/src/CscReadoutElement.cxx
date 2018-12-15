@@ -80,8 +80,8 @@ CscReadoutElement::CscReadoutElement(GeoVFullPhysVol* pv, std::string stName,
             //              <<tname<<" child "
             //              <<ngv<<" is a gas volume  with tag "
             //              <<lgg<<std::endl;
-            const CLHEP::Hep3Vector trans =  
-               (pvc->getXToChildVol(ich)*pc->getXToChildVol(ngv)).getTranslation();
+            const GeoTrf::Vector3D trans =  
+               (pvc->getXToChildVol(ich)*pc->getXToChildVol(ngv)).translation();
             m_wireplanez[lgg] = trans.x();
 	    //std::cerr<<lgg<<" gg - depth is at "<< m_wireplanez[lgg]<<std::endl;
             lgg --;

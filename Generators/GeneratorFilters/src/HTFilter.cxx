@@ -20,6 +20,7 @@
 #include "HepMC/GenEvent.h"
 // #include "GeneratorObjects/McEventCollection.h"
 #include "TruthUtils/HepMCHelpers.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 //--------------------------------------------------------------------------
 

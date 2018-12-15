@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef HECDetDescr_h
-#define HECDetDescr_h 1
+#ifndef LARREADOUTGEOMETRY_HECDETDESCR_H
+#define LARREADOUTGEOMETRY_HECDETDESCR_H
 #include "LArReadoutGeometry/HECDetectorManager.h"
 #include "GeoModelKernel/CellBinning.h"
 #include "GeoModelKernel/RCBase.h"

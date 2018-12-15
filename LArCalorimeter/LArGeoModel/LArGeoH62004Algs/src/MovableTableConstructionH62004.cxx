@@ -24,17 +24,15 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"  
 #include "GeoModelKernel/GeoIdentifierTag.h"  
 #include "GeoModelKernel/GeoSerialDenominator.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 
-// For transforms:
-#include "CLHEP/Geometry/Transform3D.h" 
-#include "CLHEP/GenericFunctions/Variable.hh"
-// For units:
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "GeoGenericFunctions/Variable.h"
 
 // For the database:
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -124,25 +122,25 @@ GeoVPhysVol* LArGeo::MovableTableConstructionH62004::GetEnvelope()
   //
   // Define dimension of Movable part & position of Front part
   //
-  double bttb_x = 15.0*CLHEP::cm;
-  double bttb_y = 15.0*CLHEP::cm;
-  double bttb_z = 120.0*CLHEP::cm;
-  //double bttb_pos = 833.5*CLHEP::cm;
+  double bttb_x = 15.0*GeoModelKernelUnits::cm;
+  double bttb_y = 15.0*GeoModelKernelUnits::cm;
+  double bttb_z = 120.0*GeoModelKernelUnits::cm;
+  //double bttb_pos = 833.5*GeoModelKernelUnits::cm;
   //
   // Define S scintilator dimension and positions
   //
-  double btas_x = 7.5*CLHEP::cm;
-  double btas_y = 7.5*CLHEP::cm;
-  double btas_z = 1.0*CLHEP::cm;
-  double bb2_x = 3.0*CLHEP::cm;
-  double btas_pos[3] = {100.*CLHEP::cm, 219.5*CLHEP::cm, 232.0*CLHEP::cm};
-  double bh_x = 30.0*CLHEP::cm;
-  double bh_d = 6.0*CLHEP::cm;
-  double bh_shift = 12.0*CLHEP::cm;
-  double bb_shift = 2.5*CLHEP::cm;
+  double btas_x = 7.5*GeoModelKernelUnits::cm;
+  double btas_y = 7.5*GeoModelKernelUnits::cm;
+  double btas_z = 1.0*GeoModelKernelUnits::cm;
+  double bb2_x = 3.0*GeoModelKernelUnits::cm;
+  double btas_pos[3] = {100.*GeoModelKernelUnits::cm, 219.5*GeoModelKernelUnits::cm, 232.0*GeoModelKernelUnits::cm};
+  double bh_x = 30.0*GeoModelKernelUnits::cm;
+  double bh_d = 6.0*GeoModelKernelUnits::cm;
+  double bh_shift = 12.0*GeoModelKernelUnits::cm;
+  double bb_shift = 2.5*GeoModelKernelUnits::cm;
 
-  double mwpc_pos[4] =  {44.5*CLHEP::cm, 12.5*CLHEP::cm, 87.0*CLHEP::cm, 185.3*CLHEP::cm};
-  double bpc_pos[2] =  {140.5*CLHEP::cm, 130.5*CLHEP::cm};
+  double mwpc_pos[4] =  {44.5*GeoModelKernelUnits::cm, 12.5*GeoModelKernelUnits::cm, 87.0*GeoModelKernelUnits::cm, 185.3*GeoModelKernelUnits::cm};
+  double bpc_pos[2] =  {140.5*GeoModelKernelUnits::cm, 130.5*GeoModelKernelUnits::cm};
 
   GeoBox* H62004MovableShape = new GeoBox( bttb_x, bttb_y, bttb_z );   
   const GeoLogVol* H62004FrontBeamLogical = new GeoLogVol( H62004MovableName, H62004MovableShape, Air );
@@ -154,8 +152,8 @@ GeoVPhysVol* LArGeo::MovableTableConstructionH62004::GetEnvelope()
   //   In the old stand-alone code, all three were round with a radius of 5cm 
   //   and 7.5mm thickness.
   //   Logbooks in the control-room say that their xyz sizes are:
-  //   B1   : 30 x 30 x 10 CLHEP::mm
-  //   W1,2 : 150 x 150 x 10 CLHEP::mm
+  //   B1   : 30 x 30 x 10 GeoModelKernelUnits::mm
+  //   W1,2 : 150 x 150 x 10 GeoModelKernelUnits::mm
   // They are certainly not round, so stick with the logbook values 
   // The beam sees the instrumentation in the following order:
   // W1, W2, B1, MWPC5
@@ -164,7 +162,7 @@ GeoVPhysVol* LArGeo::MovableTableConstructionH62004::GetEnvelope()
 
   // Create scintillator S1(num=4),S2,S3(num= 6,7)
   
-  GeoBox* ScintShapeS1 = new GeoBox((btas_x-1.*CLHEP::cm)/2., (btas_y-1.*CLHEP::cm)/2., btas_z/2.);  
+  GeoBox* ScintShapeS1 = new GeoBox((btas_x-1.*GeoModelKernelUnits::cm)/2., (btas_y-1.*GeoModelKernelUnits::cm)/2., btas_z/2.);  
   GeoBox* ScintShapeS23 = new GeoBox(btas_x/2., btas_y/2., btas_z/2.);  
   std::string ScintName = H62004MovableName + "::Scintillator";
   GeoLogVol* S1ScintLogical = new GeoLogVol( ScintName, ScintShapeS1, Scint );
@@ -173,11 +171,11 @@ GeoVPhysVol* LArGeo::MovableTableConstructionH62004::GetEnvelope()
   GeoPhysVol* S2ScintPhysical = new GeoPhysVol( S23ScintLogical );    
 
   m_H62004MovableTablePhysical->add( new GeoIdentifierTag(4) );
-  m_H62004MovableTablePhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::cm, 0.*CLHEP::cm, btas_pos[0]-bttb_z ) ) ) ;     
+  m_H62004MovableTablePhysical->add( new GeoTransform( GeoTrf::Translate3D( 0.*GeoModelKernelUnits::cm, 0.*GeoModelKernelUnits::cm, btas_pos[0]-bttb_z ) ) ) ;     
   m_H62004MovableTablePhysical->add(S1ScintPhysical);
   for ( unsigned int i = 1; i <3; ++i ) {
     m_H62004MovableTablePhysical->add( new GeoIdentifierTag(i+5) );
-    m_H62004MovableTablePhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::cm, 0.*CLHEP::cm, btas_pos[i]-bttb_z ) ) ) ; 
+    m_H62004MovableTablePhysical->add( new GeoTransform( GeoTrf::Translate3D( 0.*GeoModelKernelUnits::cm, 0.*GeoModelKernelUnits::cm, btas_pos[i]-bttb_z ) ) ) ; 
     m_H62004MovableTablePhysical->add( S2ScintPhysical ); 
   }
   // Create scintilators H (copy num 5) and B2 (copy num 8)
@@ -187,14 +185,14 @@ GeoVPhysVol* LArGeo::MovableTableConstructionH62004::GetEnvelope()
   GeoLogVol* logHSc = new GeoLogVol( ScintName, &shapeHSc, Scint);
   GeoPhysVol* physHSc = new GeoPhysVol(logHSc);
   m_H62004MovableTablePhysical->add( new GeoIdentifierTag(5) );
-  m_H62004MovableTablePhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::cm, 0.*CLHEP::cm, (btas_pos[0]-bttb_z) + bh_shift) )  ) ;     
+  m_H62004MovableTablePhysical->add( new GeoTransform( GeoTrf::Translate3D( 0.*GeoModelKernelUnits::cm, 0.*GeoModelKernelUnits::cm, (btas_pos[0]-bttb_z) + bh_shift) )  ) ;     
   m_H62004MovableTablePhysical->add(physHSc);
 
-  GeoBox* boxB = new GeoBox(bb2_x/2., bb2_x/2., (btas_z+2.5*CLHEP::cm)/2.);
+  GeoBox* boxB = new GeoBox(bb2_x/2., bb2_x/2., (btas_z+2.5*GeoModelKernelUnits::cm)/2.);
   GeoLogVol* logBSc = new GeoLogVol( ScintName, boxB, Scint);
   GeoPhysVol* physBSc = new GeoPhysVol(logBSc);
   m_H62004MovableTablePhysical->add( new GeoIdentifierTag(8) );
-  m_H62004MovableTablePhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::cm, 0.*CLHEP::cm, (btas_pos[2]-bttb_z) + bb_shift )  ) ) ;     
+  m_H62004MovableTablePhysical->add( new GeoTransform( GeoTrf::Translate3D( 0.*GeoModelKernelUnits::cm, 0.*GeoModelKernelUnits::cm, (btas_pos[2]-bttb_z) + bb_shift )  ) ) ;     
   m_H62004MovableTablePhysical->add(physBSc);
   
   //----- Done with Scintillators
@@ -202,12 +200,12 @@ GeoVPhysVol* LArGeo::MovableTableConstructionH62004::GetEnvelope()
   //------ Now create MWPC N2 & N3 & N4 
   log << MSG::INFO << " Create MWPC's " << endmsg;
   
-  MWPCConstruction MWPC(1.*CLHEP::mm);
+  MWPCConstruction MWPC(1.*GeoModelKernelUnits::mm);
   GeoVPhysVol* MwpcPhysical = MWPC.GetEnvelope();
 
   for(int i = 1; i < 4; ++i){
      m_H62004MovableTablePhysical->add( new GeoIdentifierTag(i+1) );
-     m_H62004MovableTablePhysical->add( new GeoTransform(HepGeom::Translate3D( 0.*CLHEP::cm, 0.*CLHEP::cm, mwpc_pos[i]-bttb_z ) ) );
+     m_H62004MovableTablePhysical->add( new GeoTransform(GeoTrf::Translate3D( 0.*GeoModelKernelUnits::cm, 0.*GeoModelKernelUnits::cm, mwpc_pos[i]-bttb_z ) ) );
      m_H62004MovableTablePhysical->add( MwpcPhysical );
   }
   //----- Done with the MWPC
@@ -219,7 +217,7 @@ GeoVPhysVol* LArGeo::MovableTableConstructionH62004::GetEnvelope()
   GeoVPhysVol* BPCPhysical = BPC.GetEnvelope();
   for(int i=1; i<3; ++i) {
      m_H62004MovableTablePhysical->add( new GeoIdentifierTag(7-i) );
-     m_H62004MovableTablePhysical->add( new GeoTransform(HepGeom::Translate3D( 0.*CLHEP::cm, 0.*CLHEP::cm, bpc_pos[i-1]-bttb_z) ) );
+     m_H62004MovableTablePhysical->add( new GeoTransform(GeoTrf::Translate3D( 0.*GeoModelKernelUnits::cm, 0.*GeoModelKernelUnits::cm, bpc_pos[i-1]-bttb_z) ) );
      m_H62004MovableTablePhysical->add(BPCPhysical);
   }
 

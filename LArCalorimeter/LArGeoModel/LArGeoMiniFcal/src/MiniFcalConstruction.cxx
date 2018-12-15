@@ -19,7 +19,8 @@
 #include "GeoModelKernel/GeoSerialTransformer.h"
 #include "GeoModelKernel/GeoSerialIdentifier.h"
 #include "GeoModelKernel/GeoIdentifierTag.h"  
-#include "CLHEP/GenericFunctions/Variable.hh"
+#include "GeoModelKernel/Units.h"
+#include "GeoGenericFunctions/Variable.h"
 
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
@@ -39,8 +40,8 @@
 typedef std::map<int,int> MapNumToIndex;
 
 LArGeo::MiniFcalConstruction::MiniFcalConstruction(bool posZSide)
-  : m_physiMiniFcal(0)
-  , m_transform()
+  : m_physiMiniFcal(nullptr)
+  , m_transform(GeoTrf::Transform3D::Identity())
   , m_posZSide(posZSide)
 {
 }
@@ -53,7 +54,7 @@ GeoFullPhysVol* LArGeo::MiniFcalConstruction::GetEnvelope()
 {
   // Get message service, GeoModelSvc and RDBAccessSvc
   ISvcLocator* svcLocator = Gaudi::svcLocator();
-  IMessageSvc* msgSvc(0);
+  IMessageSvc* msgSvc{nullptr};
 
   StatusCode sc = svcLocator->service("MessageSvc", msgSvc, true);
   if(sc!=StatusCode::SUCCESS) 
@@ -62,21 +63,21 @@ GeoFullPhysVol* LArGeo::MiniFcalConstruction::GetEnvelope()
   MsgStream log(msgSvc, "LArGeo::MiniFcalConstruction"); 
   log << MSG::DEBUG << "In MiniFcalConstruction GetEnvelope" << endmsg;
 
-  IRDBAccessSvc* pAccessSvc(0);
+  IRDBAccessSvc* pAccessSvc{nullptr};
   sc=svcLocator->service("RDBAccessSvc",pAccessSvc);
   if(sc != StatusCode::SUCCESS) {
     log << MSG::ERROR <<"Cannot locate RDBAccessSvc!!" << endmsg;
     return 0;
   }
 
-  IGeoModelSvc* geoModelSvc(0);
+  IGeoModelSvc* geoModelSvc{nullptr};
   sc = svcLocator->service ("GeoModelSvc",geoModelSvc);
   if (sc != StatusCode::SUCCESS) {
     log << MSG::ERROR <<"Cannot locate GeoModelSvc!!" << endmsg;
     return 0;
   }
   
-  StoreGateSvc* detStore(0);
+  StoreGateSvc* detStore{nullptr};
   sc = svcLocator->service("DetectorStore", detStore, false);
   if(sc!=StatusCode::SUCCESS) {
     log << MSG::ERROR <<"Error in MiniFcalConstruction, cannot access DetectorStore" << endmsg;
@@ -126,9 +127,9 @@ GeoFullPhysVol* LArGeo::MiniFcalConstruction::GetEnvelope()
   //_________ Define geometry __________________________
 
   //__Copper envelope
-  double halfLength = envParameters->getDouble("DZ")*CLHEP::mm; 
-  double Router     = envParameters->getDouble("RMAX")*CLHEP::mm; 
-  double Rinner     = envParameters->getDouble("RMIN")*CLHEP::mm;
+  double halfLength = envParameters->getDouble("DZ")*GeoModelKernelUnits::mm; 
+  double Router     = envParameters->getDouble("RMAX")*GeoModelKernelUnits::mm; 
+  double Rinner     = envParameters->getDouble("RMIN")*GeoModelKernelUnits::mm;
 
   // Buld a Cu block and place layers into that...
   GeoTubs *solidMiniFcal = new GeoTubs(Rinner, Router, halfLength, 0., 2.*M_PI); // Big outer radius
@@ -164,15 +165,15 @@ GeoFullPhysVol* LArGeo::MiniFcalConstruction::GetEnvelope()
     for(unsigned i=0; i<recRings->size(); ++i)
       ringIndexes[(*recRings)[i]->getInt("RINGNUM")] = i;
 
-    double L1         =  (*recCommon)[0]->getDouble("ABSORBERTHICKNESS")*CLHEP::mm; // Cu plates of fixed thickness
-    double LayerThick =  (*recCommon)[0]->getDouble("LAYERTHICKNESS")*CLHEP::mm;    // Layers between the Cu plates 
-    double WaferThick =  (*recCommon)[0]->getDouble("WAFERTHICKNESS")*CLHEP::mm;   // Diamond wafers - thickness
-    double WaferSize  =  (*recCommon)[0]->getDouble("WAFERSIZEX")*CLHEP::mm;    // Square Daimond wafers
+    double L1         =  (*recCommon)[0]->getDouble("ABSORBERTHICKNESS")*GeoModelKernelUnits::mm; // Cu plates of fixed thickness
+    double LayerThick =  (*recCommon)[0]->getDouble("LAYERTHICKNESS")*GeoModelKernelUnits::mm;    // Layers between the Cu plates 
+    double WaferThick =  (*recCommon)[0]->getDouble("WAFERTHICKNESS")*GeoModelKernelUnits::mm;   // Diamond wafers - thickness
+    double WaferSize  =  (*recCommon)[0]->getDouble("WAFERSIZEX")*GeoModelKernelUnits::mm;    // Square Daimond wafers
     int    NLayers    =  (*recCommon)[0]->getInt("NLAYERS");      // Have 11 gaps and 12 Cu plates
 
-    log << MSG::DEBUG << "=====> Build a Mini FCal of length  " << 2.*halfLength << " CLHEP::mm and " 
-	<< NLayers << " layers of  " << LayerThick << " CLHEP::mm thickness each; place them every  "
-	<< L1 << " CLHEP::mm " << endmsg;
+    log << MSG::DEBUG << "=====> Build a Mini FCal of length  " << 2.*halfLength << " GeoModelKernelUnits::mm and " 
+	<< NLayers << " layers of  " << LayerThick << " GeoModelKernelUnits::mm thickness each; place them every  "
+	<< L1 << " GeoModelKernelUnits::mm " << endmsg;
 
     // Make the Layers (all the same) - out of Feldspar (perhaps close to ceramics)
     std::string layerName = moduleName + "::Layer" ;
@@ -181,7 +182,7 @@ GeoFullPhysVol* LArGeo::MiniFcalConstruction::GetEnvelope()
     
     //-- Construct wafers and arrange them in rings inside the ceramic layers.
     std::string waferName = moduleName + "::Wafer" ;
-    GeoBox* solidWafer = new GeoBox( (WaferSize/2.)*CLHEP::mm, (WaferSize/2.)*CLHEP::mm, (WaferThick/2.)*CLHEP::mm);
+    GeoBox* solidWafer = new GeoBox( (WaferSize/2.)*GeoModelKernelUnits::mm, (WaferSize/2.)*GeoModelKernelUnits::mm, (WaferThick/2.)*GeoModelKernelUnits::mm);
     GeoLogVol* logiWafer = new GeoLogVol(waferName,solidWafer,Diamond);
     GeoPhysVol* physiWafer = new GeoPhysVol(logiWafer);
 
@@ -204,12 +205,12 @@ GeoFullPhysVol* LArGeo::MiniFcalConstruction::GetEnvelope()
       GeoPhysVol* physiLayer = new GeoPhysVol(logiLayer);
 
       // Construct layer contents
-      Genfun::Variable Index;
+      GeoGenfun::Variable Index;
       double rwafer(0.);
       int nwafers(0);
 
       double phishift = (*recLayers)[layerIndexes[j]]->getDouble("PHISHIFT");
-      double rshift = (*recLayers)[layerIndexes[j]]->getDouble("RSHIFT")*CLHEP::mm;
+      double rshift = (*recLayers)[layerIndexes[j]]->getDouble("RSHIFT")*GeoModelKernelUnits::mm;
 
       for (unsigned int i=0; i<recRings->size(); i++){  // loop over the number of wafer rings
 	if(ringIndexes.find(i)==ringIndexes.end()) {
@@ -228,18 +229,18 @@ GeoFullPhysVol* LArGeo::MiniFcalConstruction::GetEnvelope()
 	double wAngle = 2.*M_PI/nwafers;
       
 	// for the negative z-side have to add pi to get things right:
-	Genfun::GENFUNCTION RotationAngle = activate*(M_PI) + phisense * (phishift + wAngle/2. + wAngle*Index) ;
+	GeoGenfun::GENFUNCTION RotationAngle = activate*(M_PI) + phisense * (phishift + wAngle/2. + wAngle*Index) ;
 	GeoXF::TRANSFUNCTION t  = 
-	  GeoXF::Pow(HepGeom::RotateZ3D(1.0),RotationAngle) * HepGeom::TranslateX3D(rshift+rwafer+5.*CLHEP::mm) * HepGeom::TranslateZ3D(-LayerThick/2.+ WaferThick/2.) ;
+	  GeoXF::Pow(GeoTrf::RotateZ3D(1.0),RotationAngle) * GeoTrf::TranslateX3D(rshift+rwafer+5.*GeoModelKernelUnits::mm) * GeoTrf::TranslateZ3D(-LayerThick/2.+ WaferThick/2.) ;
 	GeoSerialTransformer *sTF = new GeoSerialTransformer (physiWafer,&t,nwafers);
 	physiLayer->add(sIF);
 	physiLayer->add(sTF);
       }
 
       log << MSG::DEBUG << "- Working on layer " << j << " now. Place it at " 
-	  << ( -halfLength + L1 + double(j)*( L1 + LayerThick) + LayerThick/2. ) << " CLHEP::mm " << endmsg;
+	  << ( -halfLength + L1 + double(j)*( L1 + LayerThick) + LayerThick/2. ) << " GeoModelKernelUnits::mm " << endmsg;
       m_physiMiniFcal->add(new GeoIdentifierTag(j));        
-      GeoTransform *xf = new GeoTransform(HepGeom::TranslateZ3D( -halfLength + L1 + double(j)*( L1 + LayerThick) + LayerThick/2. ));
+      GeoTransform *xf = new GeoTransform(GeoTrf::TranslateZ3D( -halfLength + L1 + double(j)*( L1 + LayerThick) + LayerThick/2. ));
       m_physiMiniFcal->add(xf);
       m_physiMiniFcal->add(physiLayer);
     }
@@ -247,14 +248,14 @@ GeoFullPhysVol* LArGeo::MiniFcalConstruction::GetEnvelope()
 
 
   //________ Construct top transform object _____________
-  m_transform = HepGeom::TranslateZ3D(envParameters->getDouble("ZPOS")*CLHEP::mm);
+  m_transform = GeoTrf::TranslateZ3D(envParameters->getDouble("ZPOS")*GeoModelKernelUnits::mm);
   // Layers should be fully equipeed now. Put them into MiniFcal
  
   return m_physiMiniFcal;
 
 }
 
-const HepGeom::Transform3D&  LArGeo::MiniFcalConstruction::GetTopTransform()
+const GeoTrf::Transform3D&  LArGeo::MiniFcalConstruction::GetTopTransform()
 {
   return m_transform;
 }

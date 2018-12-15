@@ -105,15 +105,15 @@ VP12DGeometrySystem::VP12DGeometrySystem()
   : IVP12DDetViewsSystem("2DGeo",
 		       "This is an illustration of an extremely basic 2D system.\n "
 		       "It is a placeholder for the future 2D geometry system.",
-			 "Thomas.Kittelmann@cern.ch"), d(new Imp)
+			 "Thomas.Kittelmann@cern.ch"), m_d(new Imp)
 {
-  d->theclass=this;
+  m_d->theclass=this;
 }
 
 
 VP12DGeometrySystem::~VP12DGeometrySystem()
 {
-  delete d; d = 0;
+  delete m_d; m_d = nullptr;
 }
 
 //Initializes system members, loads geometry
@@ -122,10 +122,10 @@ void VP12DGeometrySystem::systemcreate(StoreGateSvc *detStore)
   if (detStore)
     {
       //set detector store pointer of geometry reader
-      d->mGeoReader.setDetStore(detStore);
+      m_d->mGeoReader.setDetStore(detStore);
 
       //read geometry and test for success
-      if (!d->mGeoReader.readGeometry())
+      if (!m_d->mGeoReader.readGeometry())
 	{
 	  //here we had an error somewhere while reading geometry
 	  message("Error parsing DetStore geometry!");
@@ -142,7 +142,7 @@ void VP12DGeometrySystem::systemcreate(StoreGateSvc *detStore)
 
   //print number of detector elements found for sanity check
   std::stringstream outputdata;
-  outputdata << "2D Geometry System finds: " << d->mGeoReader.mDetectors.size() << " elements." << std::endl;
+  outputdata << "2D Geometry System finds: " << m_d->mGeoReader.mDetectors.size() << " elements." << std::endl;
   QString qstrout = outputdata.str().c_str();
   message(qstrout);
 }
@@ -154,10 +154,10 @@ void VP12DGeometrySystem::buildPermanentItemCollections(StoreGateSvc* /*detstore
   //todo: Add all four at once, but only make one visible, depending
   //on a UI radio selector
 
-  d->addYXProjectionToCollection(ic_xy);
+  m_d->addYXProjectionToCollection(ic_xy);
   message("Just wrote X-Y Projection");
 
-  d->addRZProjectionToCollection(ic_rz);
+  m_d->addRZProjectionToCollection(ic_rz);
   message("Just wrote Rho-Z Projection");
 
 //   if (PROJECTION == "FR")
@@ -1526,8 +1526,8 @@ void VP12DGeometrySystem::Imp::processMuonDetector(const Detector& theDetector, 
 //   Ui::VP12DGeometryControllerForm ui;
 //   ui.setupUi(theWidget);
 
-//   d->xy_RadioBtn = ui.radio_xy;
-//   d->rz_RadioBtn = ui.radio_rz;
+//   m_d->xy_RadioBtn = ui.radio_xy;
+//   m_d->xrz_RadioBtn = ui.radio_rz;
 
 //   return theWidget;
 // }

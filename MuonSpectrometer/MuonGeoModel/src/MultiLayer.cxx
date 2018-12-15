@@ -19,8 +19,9 @@
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoIdentifierTag.h"
 #include "GeoModelKernel/GeoSerialIdentifier.h"
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/GenericFunctions/Variable.hh"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
+#include "GeoGenericFunctions/Variable.h"
 // for cutouts
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoShapeShift.h"
@@ -87,11 +88,11 @@ GeoFullPhysVol* MultiLayer::build()
 
     if (foamthicknessup > foamthicknesslow) {
       foamthicknesslow = 0.;
-      if (fabs(foamthicknessup - 15*CLHEP::mm) < 0.1) foamthicknessup = 15*CLHEP::mm;
-      else if (fabs(foamthicknessup - 30.75*CLHEP::mm) < 0.1) foamthicknessup = 30.75*CLHEP::mm;
-      else if (fabs(foamthicknessup - 30.00*CLHEP::mm) < 0.1) foamthicknessup = 30.00*CLHEP::mm;
-      else if (fabs(foamthicknessup - 10.00*CLHEP::mm) < 0.1
-               && logVolName.find("BMG") != std::string::npos ) foamthicknessup = 10.00*CLHEP::mm;
+      if (fabs(foamthicknessup - 15*GeoModelKernelUnits::mm) < 0.1) foamthicknessup = 15*GeoModelKernelUnits::mm;
+      else if (fabs(foamthicknessup - 30.75*GeoModelKernelUnits::mm) < 0.1) foamthicknessup = 30.75*GeoModelKernelUnits::mm;
+      else if (fabs(foamthicknessup - 30.00*GeoModelKernelUnits::mm) < 0.1) foamthicknessup = 30.00*GeoModelKernelUnits::mm;
+      else if (fabs(foamthicknessup - 10.00*GeoModelKernelUnits::mm) < 0.1
+               && logVolName.find("BMG") != std::string::npos ) foamthicknessup = 10.00*GeoModelKernelUnits::mm;
       else if ( logVolName == "BME1MDT09" || logVolName == "BME2MDT09" ) { //@@
 	foamthicknesslow = 0.;
 	foamthicknessup  = 0.;
@@ -102,11 +103,11 @@ GeoFullPhysVol* MultiLayer::build()
 
     } else {
       foamthicknessup = 0.;
-      if (fabs(foamthicknesslow - 15*CLHEP::mm) < 0.1) foamthicknesslow = 15*CLHEP::mm;
-      else if (fabs(foamthicknesslow - 30.75*CLHEP::mm) < 0.1) foamthicknesslow = 30.75*CLHEP::mm;
-      else if (fabs(foamthicknesslow - 30.00*CLHEP::mm) < 0.1) foamthicknesslow = 30.00*CLHEP::mm;
-      else if (fabs(foamthicknesslow - 10.00*CLHEP::mm) < 0.1
-               && logVolName.find("BMG") != std::string::npos ) foamthicknesslow = 10.00*CLHEP::mm;
+      if (fabs(foamthicknesslow - 15*GeoModelKernelUnits::mm) < 0.1) foamthicknesslow = 15*GeoModelKernelUnits::mm;
+      else if (fabs(foamthicknesslow - 30.75*GeoModelKernelUnits::mm) < 0.1) foamthicknesslow = 30.75*GeoModelKernelUnits::mm;
+      else if (fabs(foamthicknesslow - 30.00*GeoModelKernelUnits::mm) < 0.1) foamthicknesslow = 30.00*GeoModelKernelUnits::mm;
+      else if (fabs(foamthicknesslow - 10.00*GeoModelKernelUnits::mm) < 0.1
+               && logVolName.find("BMG") != std::string::npos ) foamthicknesslow = 10.00*GeoModelKernelUnits::mm;
       else if ( logVolName == "BME1MDT09" || logVolName == "BME2MDT09" ) { //@@
 	foamthicknesslow = 0.;
 	foamthicknessup  = 0.;
@@ -147,7 +148,7 @@ GeoFullPhysVol* MultiLayer::build()
         lengthPos = -length/2. + sum_len + submllength;
         sum_len += 2.*submllength;
         double widthPos = cutoutXtubes[isub];
-        HepGeom::Transform3D submlpos = HepGeom::Translate3D(0.,widthPos,lengthPos);
+        GeoTrf::Transform3D submlpos = GeoTrf::Translate3D(0.,widthPos,lengthPos);
 
         const GeoTrd* tempSLay = NULL;
         const GeoShape* tempSLay1 = NULL;
@@ -238,41 +239,41 @@ GeoFullPhysVol* MultiLayer::build()
     const GeoShape* stube = NULL;
     double tL = longWidth/2.0 - (tubePitch/2.)*TrdDwoverL;
     stube = new GeoTube(0.0, tubePitch/2., tL);
-    stube = & ( (*stube) << HepGeom::RotateX3D(90.*CLHEP::deg) );
+    stube = & ( (*stube) << GeoTrf::RotateX3D(90.*GeoModelKernelUnits::deg) );
     const GeoShape* stubewithcut = NULL;
     if (cutoutNsteps > 1) {
       double toptubelength = cutoutTubeLength[cutoutNsteps-1];
       if (cutoutFullLength[cutoutNsteps-1]) toptubelength = longWidth;
       stubewithcut = new GeoTube(0.0, tubePitch/2., toptubelength/2.0);
-      stubewithcut = & ( (*stubewithcut) << HepGeom::RotateX3D(90.*CLHEP::deg) );
+      stubewithcut = & ( (*stubewithcut) << GeoTrf::RotateX3D(90.*GeoModelKernelUnits::deg) );
     }
 
     GeoShape* sbox = new GeoTrd(mdtthickness, mdtthickness, longWidth, 
                                 longWidth, tubePitch/2.);
     GeoShape* sboxf = new GeoTrd(mdtthickness, mdtthickness, longWidth, 
-                                 longWidth, tubePitch/4.+1*CLHEP::mm);
-    slay = &(slay->subtract( (*sbox)<<HepGeom::Translate3D(0.,0.,length/2.)));
+                                 longWidth, tubePitch/4.+1*GeoModelKernelUnits::mm);
+    slay = &(slay->subtract( (*sbox)<<GeoTrf::Translate3D(0.,0.,length/2.)));
 
     for (int i = 0; i < nrOfLayers; i++) {
-      if (xx[i] > tubePitch/2. + 10.*CLHEP::mm) {
+      if (xx[i] > tubePitch/2. + 10.*GeoModelKernelUnits::mm) {
         // subtract tube at the start
         if (verbose_multilayer) std::cout << " Cutting tube at xx = " << yy[i]
                                           << " z = " << -length/2. << std::endl;
-        slay = &(slay->subtract( (*stube)<<HepGeom::Translate3D(-mdtthickness/2.+yy[i],0.,-length/2.) ));
+        slay = &(slay->subtract( (*stube)<<GeoTrf::Translate3D(-mdtthickness/2.+yy[i],0.,-length/2.) ));
         // add tube at the end
         // distinguish stations with/without cutouts
         if (cutoutNsteps == 1) {
           // no cutouts
           if (verbose_multilayer) std::cout << " Adding tube at xx = " << yy[i]
                                             << " z = " << length/2. << std::endl;
-          slay = &(slay->add( (*stube)<<HepGeom::Translate3D(-mdtthickness/2.+yy[i],0.,length/2.-tubePitch/2.) ));
+          slay = &(slay->add( (*stube)<<GeoTrf::Translate3D(-mdtthickness/2.+yy[i],0.,length/2.-tubePitch/2.) ));
         } else {
           // there are cutouts
           if (verbose_multilayer) std::cout << " Adding tube at xx = " << yy[i]
                                             << " y(cutout!) = " << cutoutXtubes[cutoutNsteps-1]
                                             << " z = " << length/2. << std::endl;
           slay = &(slay->add( (*stubewithcut)
-                             <<HepGeom::Translate3D(-mdtthickness/2.+yy[i],
+                             <<GeoTrf::Translate3D(-mdtthickness/2.+yy[i],
                                               cutoutXtubes[cutoutNsteps-1],
                                               length/2.-tubePitch/2.) ));
         }      
@@ -297,7 +298,7 @@ GeoFullPhysVol* MultiLayer::build()
         sfoam = new GeoTrd(foamthicknesslow/2.-eps, foamthicknesslow/2.-eps,
                            width/2.-eps, longWidth/2.-eps, length/2.);
       }        
-      sfoam = &(sfoam->subtract( (*sboxf)<<HepGeom::Translate3D(0.,0.,length/2.-tubePitch/4.)));
+      sfoam = &(sfoam->subtract( (*sboxf)<<GeoTrf::Translate3D(0.,0.,length/2.-tubePitch/4.)));
       mfoam = matManager->getMaterial("muo::Foam");
       lfoam = new GeoLogVol("MultiLayerFoam", sfoam, mfoam);
 
@@ -309,7 +310,7 @@ GeoFullPhysVol* MultiLayer::build()
         sfoam = new GeoTrd(foamthicknessup/2.-eps, foamthicknessup/2.-eps, 
                            width/2.-eps, longWidth/2.-eps, length/2.);
       }
-      sfoam = &(sfoam->subtract( (*sboxf)<<HepGeom::Translate3D(0.,0.,length/2.-tubePitch/4.)));
+      sfoam = &(sfoam->subtract( (*sboxf)<<GeoTrf::Translate3D(0.,0.,length/2.-tubePitch/4.)));
       mfoam = matManager->getMaterial("muo::Foam");
       lfoam = new GeoLogVol("MultiLayerFoam", sfoam, mfoam);
 
@@ -322,7 +323,7 @@ GeoFullPhysVol* MultiLayer::build()
     
     if ( logVolName != "BME1MDT09" && logVolName != "BME2MDT09" ) {  //@@
       pfoam = new GeoPhysVol(lfoam);
-      GeoTransform* xf = new GeoTransform (HepGeom::TranslateX3D(foamposition));
+      GeoTransform* xf = new GeoTransform (GeoTrf::TranslateX3D(foamposition));
       GeoNameTag* nt = new GeoNameTag(name+" MultiLayerFoam");
       play->add(new GeoIdentifierTag(0));
       play->add(nt);
@@ -530,10 +531,10 @@ GeoFullPhysVol* MultiLayer::build()
           if (nt > 0 && !internalCutoutBMG[j]) { 
             loffset = nttot*tubePitch;
             lstart = loffset - length/2. + xx[i];
-            Genfun::Variable K;
-            Genfun::GENFUNCTION f = tubePitch*K + lstart;
-            TRANSFUNCTION t = HepGeom::TranslateY3D(0.)*HepGeom::RotateX3D(90*CLHEP::deg)*
-                              HepGeom::TranslateX3D(tstart)*Pow(HepGeom::TranslateY3D(1.0),f);
+            GeoGenfun::Variable K;
+            GeoGenfun::GENFUNCTION f = tubePitch*K + lstart;
+            TRANSFUNCTION t = GeoTrf::TranslateY3D(0.)*GeoTrf::RotateX3D(90*GeoModelKernelUnits::deg)*
+                              GeoTrf::TranslateX3D(tstart)*Pow(GeoTrf::TranslateY3D(1.0),f);
             GeoSerialTransformer* s = new GeoSerialTransformer(tV,&t,nt);
             play->add(new GeoSerialIdentifier(100*(i+1)+nttot + 1));
             play->add(s);
@@ -592,10 +593,10 @@ GeoFullPhysVol* MultiLayer::build()
           if (nt > 0) { 
             loffset = nttot*tubePitch;
             lstart = loffset - length/2. + xx[i];
-            Genfun::Variable K;
-            Genfun::GENFUNCTION f = tubePitch*K + lstart;
-            TRANSFUNCTION t = HepGeom::TranslateY3D(dy)*HepGeom::RotateX3D(90*CLHEP::deg)*
-                              HepGeom::TranslateX3D(tstart)*Pow(HepGeom::TranslateY3D(1.0),f);
+            GeoGenfun::Variable K;
+            GeoGenfun::GENFUNCTION f = tubePitch*K + lstart;
+            TRANSFUNCTION t = GeoTrf::TranslateY3D(dy)*GeoTrf::RotateX3D(90*GeoModelKernelUnits::deg)*
+                              GeoTrf::TranslateX3D(tstart)*Pow(GeoTrf::TranslateY3D(1.0),f);
             GeoSerialTransformer* s = new GeoSerialTransformer(tV,&t,nt);
             play->add(new GeoSerialIdentifier(100*(i+1)+nttot + 1));
             play->add(s);
@@ -617,10 +618,10 @@ GeoFullPhysVol* MultiLayer::build()
         lstart = -length/2. + xx[i];
 //        std::cout << " Tubes starting at t = " << tstart << " , y = " << lstart
 //                  << std::endl;
-        Genfun::Variable K;
-        Genfun::GENFUNCTION f = tubePitch*K + lstart;
-        TRANSFUNCTION t = HepGeom::RotateX3D(90*CLHEP::deg)*HepGeom::TranslateX3D(tstart)*
-                          Pow(HepGeom::TranslateY3D(1.0),f);
+        GeoGenfun::Variable K;
+        GeoGenfun::GENFUNCTION f = tubePitch*K + lstart;
+        TRANSFUNCTION t = GeoTrf::RotateX3D(90*GeoModelKernelUnits::deg)*GeoTrf::TranslateX3D(tstart)*
+                          Pow(GeoTrf::TranslateY3D(1.0),f);
         GeoVPhysVol* tV = tubeVector[0];	
         GeoSerialTransformer* s = new GeoSerialTransformer(tV,&t,nrOfTubes);
 	play->add(new GeoSerialIdentifier(100*(i+1)+1));
@@ -636,10 +637,10 @@ GeoFullPhysVol* MultiLayer::build()
           GeoVPhysVol* tV = tubeVector[j];
           loffset = j*nrTubesPerStep*tubePitch;
           lstart = loffset - length/2. + xx[i]; 
-          Genfun::Variable K;
-          Genfun::GENFUNCTION f = tubePitch*K + lstart;
-          TRANSFUNCTION t = HepGeom::RotateX3D(90*CLHEP::deg)*HepGeom::TranslateX3D(tstart)*
-                            Pow(HepGeom::TranslateY3D(1.0),f);
+          GeoGenfun::Variable K;
+          GeoGenfun::GENFUNCTION f = tubePitch*K + lstart;
+          TRANSFUNCTION t = GeoTrf::RotateX3D(90*GeoModelKernelUnits::deg)*GeoTrf::TranslateX3D(tstart)*
+                            Pow(GeoTrf::TranslateY3D(1.0),f);
           GeoSerialTransformer* s = new GeoSerialTransformer(tV,&t,nrTubesPerStep);
           play->add(new GeoSerialIdentifier(100*(i+1)+j*nrTubesPerStep + 1));
           play->add(s);      

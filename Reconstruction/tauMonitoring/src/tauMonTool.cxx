@@ -15,9 +15,10 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/TrackParticle.h"
 #include "TrigDecisionTool/TrigDecisionTool.h" 
+#include "GaudiKernel/SystemOfUnits.h"
 
 using xAOD::EventInfo;
-using CLHEP::GeV;
+using Gaudi::Units::GeV;
 
 #define CRACK_MIN 1.3
 #define CRACK_MAX 1.7

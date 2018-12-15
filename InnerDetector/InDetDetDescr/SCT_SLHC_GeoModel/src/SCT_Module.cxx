@@ -25,10 +25,10 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Vector/Rotation.h"
+#include "GeoModelKernel/Units.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+
+
 
 #include <cmath>
 
@@ -83,13 +83,13 @@ const GeoLogVol* SCT_Module::preBuild(){
     // Sensor only if placing sensors directly on stave
     m_width   = m_innerSide->width();
     m_length  = m_innerSide->length();
-    m_thickness = m_innerSide->thickness() + 0.01*CLHEP::mm;// Not really necessary but doesn't hurt
+    m_thickness = m_innerSide->thickness() + 0.01*GeoModelKernelUnits::mm;// Not really necessary but doesn't hurt
   } else if(m_doubleSided){
     sideWidth  = std::max(m_innerSide->width(), m_outerSide->width());
     sideLength = std::max(m_innerSide->length(), m_outerSide->length());
-    m_width    = std::max(sideWidth*cos(half_stereo/CLHEP::radian) + sideLength*sin(half_stereo/CLHEP::radian),
+    m_width    = std::max(sideWidth*cos(half_stereo/GeoModelKernelUnits::radian) + sideLength*sin(half_stereo/GeoModelKernelUnits::radian),
 			  m_baseBoard->width());
-    m_length   = std::max(sideWidth*sin(half_stereo/CLHEP::radian) + sideLength*cos(half_stereo/CLHEP::radian), 
+    m_length   = std::max(sideWidth*sin(half_stereo/GeoModelKernelUnits::radian) + sideLength*cos(half_stereo/GeoModelKernelUnits::radian), 
 			  m_baseBoard->length());
     double interSidesGap = std::max(m_baseBoard->thickness(), m_interSidesGap);
     m_thickness = m_innerSide->thickness() + m_outerSide->thickness() + interSidesGap + 0.01;//0.01mm safety necessary
@@ -122,12 +122,12 @@ GeoVPhysVol* SCT_Module::build(SCT_Identifier id) const{
     }
     GeoFullPhysVol* module = new GeoFullPhysVol(m_logVolume); 
     //first, calculate the module components position
-    HepGeom::Transform3D innerSidePos, baseBoardPos, outerSidePos;
+    GeoTrf::Transform3D innerSidePos(GeoTrf::Transform3D::Identity());
+    GeoTrf::Transform3D baseBoardPos(GeoTrf::Transform3D::Identity());
+    GeoTrf::Transform3D outerSidePos(GeoTrf::Transform3D::Identity());
     if (m_doubleSided){
       //inner side position (shift this side towards the intreaction point, ie X negative)
-      CLHEP::HepRotation inner_Rot;
-      inner_Rot.rotateZ(180*CLHEP::deg);
-      inner_Rot.rotateX(-0.5*m_stereoAngle);
+      GeoTrf::Transform3D inner_Rot = GeoTrf::RotateX3D(-0.5*m_stereoAngle)*GeoTrf::RotateZ3D(180*GeoModelKernelUnits::deg);
       double interSidesGap = std::max(m_baseBoard->thickness(), m_interSidesGap);
       double Xpos = -0.5*(interSidesGap + m_innerSide->thickness());
       //std::cerr<<"inner Xpos "<<Xpos<<" thickness "<<m_innerSide->thickness()<<std::endl;
@@ -139,13 +139,11 @@ GeoVPhysVol* SCT_Module::build(SCT_Identifier id) const{
 		    <<". exit athena!"<<std::endl;
 	      exit(1);
       }
-      CLHEP::Hep3Vector  inner_Xpos = CLHEP::Hep3Vector(Xpos, 0., 0.);
-      innerSidePos = HepGeom::Transform3D(inner_Rot, inner_Xpos);
+      GeoTrf::Translation3D  inner_Xpos(Xpos, 0., 0.);
+      innerSidePos = GeoTrf::Transform3D(inner_Xpos*inner_Rot);
       //basebord position (no shift)
-      baseBoardPos = HepGeom::Translate3D(CLHEP::Hep3Vector( 0.0, 0.0, 0.0));
       //outer side (shift towards X positive)
-      CLHEP::HepRotation outer_Rot;
-      outer_Rot.rotateX(+0.5*m_stereoAngle);
+      GeoTrf::RotateX3D outer_Rot(+0.5*m_stereoAngle);
       Xpos = 0.5*(interSidesGap + m_outerSide->thickness());
       //std::cerr<<"inner Xpos "<<Xpos<<" thickness "<<m_outerSide->thickness()<<std::endl;
       //protection
@@ -156,13 +154,11 @@ GeoVPhysVol* SCT_Module::build(SCT_Identifier id) const{
 		    <<". exit athena!"<<std::endl;
 	      exit(1);
       }
-      CLHEP::Hep3Vector outer_Xpos = CLHEP::Hep3Vector(Xpos, 0., 0.);
-      outerSidePos = HepGeom::Transform3D(outer_Rot, outer_Xpos);
+      GeoTrf::Translation3D outer_Xpos(Xpos, 0., 0.);
+      outerSidePos = GeoTrf::Transform3D(outer_Xpos*outer_Rot);
     } else {
       //inner side position (shift this side towards the intreaction point, ie X negative)
-      CLHEP::HepRotation inner_Rot;
-      inner_Rot.rotateZ(180*CLHEP::deg);
-      inner_Rot.rotateX(0);//don't rotate (only one side)
+      GeoTrf::RotateZ3D inner_Rot(180*GeoModelKernelUnits::deg);
       double Xpos = -0.5*m_baseBoard->thickness();
       //protection
       if(fabs(Xpos)+0.5*m_innerSide->thickness() > 0.5*m_thickness){
@@ -172,8 +168,8 @@ GeoVPhysVol* SCT_Module::build(SCT_Identifier id) const{
 		    <<". exit athena!"<<std::endl;
 	     exit(1);
       }
-      CLHEP::Hep3Vector  inner_Xpos = CLHEP::Hep3Vector(Xpos, 0., 0.);
-      innerSidePos = HepGeom::Transform3D(inner_Rot, inner_Xpos);
+      GeoTrf::Translation3D  inner_Xpos(Xpos, 0., 0.);
+      innerSidePos = GeoTrf::Transform3D(inner_Xpos*inner_Rot);
       //basebord position (shift towards X positive)
       Xpos = 0.5*m_innerSide->thickness();
       //protection!
@@ -184,7 +180,7 @@ GeoVPhysVol* SCT_Module::build(SCT_Identifier id) const{
 		      <<". exit athena!"<<std::endl;
 	      exit(1);
       }
-      baseBoardPos = HepGeom::Translate3D(CLHEP::Hep3Vector(Xpos, 0.0, 0.0));
+      baseBoardPos = GeoTrf::Translate3D(Xpos, 0.0, 0.0);
     }
     
     //Add physical innerside to the module

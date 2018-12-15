@@ -109,10 +109,9 @@ GeoPhysVol* BCM_Module::Build(const AbsMaterialManager* mat_mgr, const BCM_Modul
   //wall C  
   GeoPhysVol* WallC = wall.Build(ModLength/2, ReducedModWidth/2, G10Thick, CuThick, g10, copper, mat_mgr);
 		
-  CLHEP::Hep3Vector WallCPos(ModHeight/2 - WallThick/2, 0, 0);
-  CLHEP::HepRotation rmC;
-  rmC.rotateY(90.*CLHEP::deg);
-  GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(rmC,WallCPos));
+  GeoTrf::Translation3D WallCPos(ModHeight/2 - WallThick/2, 0, 0);
+  GeoTrf::RotateY3D rmC(90.*GeoModelKernelUnits::deg);
+  GeoTransform* xform = new GeoTransform(GeoTrf::Transform3D(WallCPos*rmC));
   GeoNameTag* tag = new GeoNameTag("Wall C");
   env_bcmModPhys->add(tag);
   env_bcmModPhys->add(xform);
@@ -121,9 +120,8 @@ GeoPhysVol* BCM_Module::Build(const AbsMaterialManager* mat_mgr, const BCM_Modul
   //wall D
   GeoPhysVol* WallD = wall.Build((ModTailHeight - WallThick - MainWallThick)/2, ReducedModWidth/2, CuThick, G10Thick, copper, g10, mat_mgr);
   
-  CLHEP::Hep3Vector WallDPos(ModHeight/2 - WallThick - (ModTailHeight - WallThick - MainWallThick)/2, 0, WallThick/2 - ModLength/2);
-  CLHEP::HepRotation rmD;
-  xform = new GeoTransform(HepGeom::Transform3D(rmD,WallDPos));
+  GeoTrf::Translate3D WallDPos(ModHeight/2 - WallThick - (ModTailHeight - WallThick - MainWallThick)/2, 0, WallThick/2 - ModLength/2);
+  xform = new GeoTransform(WallDPos);
   tag = new GeoNameTag("Wall D");
   env_bcmModPhys->add(tag);
   env_bcmModPhys->add(xform);
@@ -132,8 +130,8 @@ GeoPhysVol* BCM_Module::Build(const AbsMaterialManager* mat_mgr, const BCM_Modul
   //wall H
   GeoPhysVol* WallH = wall.Build((ModTailHeight - WallThick - MainWallThick)/2, ReducedModWidth/2, LamelCuThick, LamelG10Thick, LamelCuThick, copper, g10, copper, mat_mgr);
   
-  CLHEP::Hep3Vector WallHPos(ModHeight/2 -WallThick - (ModTailHeight - WallThick - MainWallThick)/2, 0, ModLength/2 - LamelHoffset);
-  xform = new GeoTransform(HepGeom::Transform3D(rmD,WallHPos));
+  GeoTrf::Translate3D WallHPos(ModHeight/2 -WallThick - (ModTailHeight - WallThick - MainWallThick)/2, 0, ModLength/2 - LamelHoffset);
+  xform = new GeoTransform(WallHPos);
   tag = new GeoNameTag("Wall H");
   env_bcmModPhys->add(tag);
   env_bcmModPhys->add(xform);
@@ -142,8 +140,8 @@ GeoPhysVol* BCM_Module::Build(const AbsMaterialManager* mat_mgr, const BCM_Modul
   //wall J
   GeoPhysVol* WallJ = wall.Build((ModTailHeight - WallThick - MainWallThick - MainWallBackCuThick)/2, ReducedModWidth/2, LamelCuThick, LamelG10Thick, LamelCuThick, copper, g10, copper, mat_mgr);
 		
-  CLHEP::Hep3Vector WallJPos(ModHeight/2 -WallThick - (ModTailHeight - WallThick - MainWallThick - MainWallBackCuThick)/2, 0, ModLength/2 - LamelJoffset);
-  xform = new GeoTransform(HepGeom::Transform3D(rmD,WallJPos));
+  GeoTrf::Translate3D WallJPos(ModHeight/2 -WallThick - (ModTailHeight - WallThick - MainWallThick - MainWallBackCuThick)/2, 0, ModLength/2 - LamelJoffset);
+  xform = new GeoTransform(WallJPos);
   tag = new GeoNameTag("Wall J");
   env_bcmModPhys->add(tag);
   env_bcmModPhys->add(xform);
@@ -152,8 +150,8 @@ GeoPhysVol* BCM_Module::Build(const AbsMaterialManager* mat_mgr, const BCM_Modul
   //wall E //if changing thickness of E one must also change length and position of MainWall and wallK (extra copper)
   GeoPhysVol* WallE = wall.Build(ModHeight/2 - WallThick, ReducedModWidth/2, parameters->BackWallThickness(), CuThick, g10, copper, mat_mgr);
 		
-  CLHEP::Hep3Vector WallEPos(0, 0,ModLength/2 - (parameters->BackWallThickness()+CuThick)/2);
-  xform = new GeoTransform(HepGeom::Transform3D(rmD,WallEPos));
+  GeoTrf::Translate3D WallEPos(0, 0,ModLength/2 - (parameters->BackWallThickness()+CuThick)/2);
+  xform = new GeoTransform(WallEPos);
   tag = new GeoNameTag("Wall E");
   env_bcmModPhys->add(tag);
   env_bcmModPhys->add(xform);
@@ -163,8 +161,8 @@ GeoPhysVol* BCM_Module::Build(const AbsMaterialManager* mat_mgr, const BCM_Modul
   double heightI = ModHeight - ModTailHeight - WallThick;
   GeoPhysVol* WallI = wall.Build(heightI/2, ReducedModWidth/2, LamelG10Thick, "bcmWallLog", g10);
 		
-  CLHEP::Hep3Vector WallIPos(WallThick + heightI/2 - ModHeight/2, 0, ModLength/2 - LamelIoffset);
-  xform = new GeoTransform(HepGeom::Transform3D(rmD,WallIPos));
+  GeoTrf::Translate3D WallIPos(WallThick + heightI/2 - ModHeight/2, 0, ModLength/2 - LamelIoffset);
+  xform = new GeoTransform(WallIPos);
   tag = new GeoNameTag("Wall I");
   env_bcmModPhys->add(tag);
   env_bcmModPhys->add(xform);
@@ -173,8 +171,8 @@ GeoPhysVol* BCM_Module::Build(const AbsMaterialManager* mat_mgr, const BCM_Modul
   //wall F
   GeoPhysVol* WallF = wall.Build(heightI/2, ReducedModWidth/2, CuThick, G10Thick, copper, g10, mat_mgr);
 		
-  CLHEP::Hep3Vector WallFPos(WallThick + heightI/2 - ModHeight/2, 0, ModLength/2 - ModHeadLength + WallThick/2);
-  xform = new GeoTransform(HepGeom::Transform3D(rmD,WallFPos));
+  GeoTrf::Translate3D WallFPos(WallThick + heightI/2 - ModHeight/2, 0, ModLength/2 - ModHeadLength + WallThick/2);
+  xform = new GeoTransform(WallFPos);
   tag = new GeoNameTag("Wall F");
   env_bcmModPhys->add(tag);
   env_bcmModPhys->add(xform);
@@ -183,8 +181,8 @@ GeoPhysVol* BCM_Module::Build(const AbsMaterialManager* mat_mgr, const BCM_Modul
   //wall G
   GeoPhysVol* WallG = wall.Build(ModHeadLength/2, ReducedModWidth/2, CuThick, G10Thick, copper, g10, mat_mgr);
   
-  CLHEP::Hep3Vector WallGPos(WallThick/2 - ModHeight/2, 0, ModLength/2 - ModHeadLength/2);
-  xform = new GeoTransform(HepGeom::Transform3D(rmC,WallGPos));
+  GeoTrf::Translation3D WallGPos(WallThick/2 - ModHeight/2, 0, ModLength/2 - ModHeadLength/2);
+  xform = new GeoTransform(GeoTrf::Transform3D(WallGPos*rmC));
   tag = new GeoNameTag("Wall G");
   env_bcmModPhys->add(tag);
   env_bcmModPhys->add(xform);
@@ -193,8 +191,8 @@ GeoPhysVol* BCM_Module::Build(const AbsMaterialManager* mat_mgr, const BCM_Modul
   //main wall
   GeoPhysVol* WallMain = wall.Build((ModLength - parameters->BackWallThickness() - CuThick)/2, ReducedModWidth/2, MainWallCuThick, MainWallG10Thick, copper, g10, mat_mgr);
   
-  CLHEP::Hep3Vector WallMainPos(ModHeight/2 + MainWallThick/2 - ModTailHeight, 0, -(parameters->BackWallThickness() + CuThick)/2);
-  xform = new GeoTransform(HepGeom::Transform3D(rmC,WallMainPos));
+  GeoTrf::Translation3D WallMainPos(ModHeight/2 + MainWallThick/2 - ModTailHeight, 0, -(parameters->BackWallThickness() + CuThick)/2);
+  xform = new GeoTransform(GeoTrf::Transform3D(WallMainPos*rmC));
   tag = new GeoNameTag("Wall Main");
   env_bcmModPhys->add(tag);
   env_bcmModPhys->add(xform);
@@ -205,8 +203,8 @@ GeoPhysVol* BCM_Module::Build(const AbsMaterialManager* mat_mgr, const BCM_Modul
   double lengthK = LamelHoffset - LamelHThick/2 - (parameters->BackWallThickness() + CuThick);
   GeoPhysVol* WallK = wall.Build(lengthK/2, ReducedModWidth/2, CuThick, "bcmWallLog",copper);
 		
-  CLHEP::Hep3Vector WallKPos(ModHeight/2 + MainWallThick + CuThick/2 - ModTailHeight, 0, ModLength/2 - lengthK/2 - (parameters->BackWallThickness() + CuThick));
-  xform = new GeoTransform(HepGeom::Transform3D(rmC,WallKPos));
+  GeoTrf::Translation3D WallKPos(ModHeight/2 + MainWallThick + CuThick/2 - ModTailHeight, 0, ModLength/2 - lengthK/2 - (parameters->BackWallThickness() + CuThick));
+  xform = new GeoTransform(GeoTrf::Transform3D(WallKPos*rmC));
   tag = new GeoNameTag("Wall extra cupper");
   env_bcmModPhys->add(tag);
   env_bcmModPhys->add(xform);
@@ -216,8 +214,8 @@ GeoPhysVol* BCM_Module::Build(const AbsMaterialManager* mat_mgr, const BCM_Modul
   GeoPhysVol* DiamondVolA = wall.Build(diamondSize/2, diamondSize/2, diamondThick, "bcmDiamondLog", diamond);
   
   double diamond_x = ModHeight/2 + MainWallThick + diamondThick/2 - ModTailHeight;
-  CLHEP::Hep3Vector DiamondPosA(diamond_x, parameters->DiamondPosition_Y(), parameters->DiamondPosition_Z());
-  xform = new GeoTransform(HepGeom::Transform3D(rmC,DiamondPosA));
+  GeoTrf::Translation3D DiamondPosA(diamond_x, parameters->DiamondPosition_Y(), parameters->DiamondPosition_Z());
+  xform = new GeoTransform(GeoTrf::Transform3D(DiamondPosA*rmC));
   tag = new GeoNameTag("Diamond");
   env_bcmModPhys->add(tag);
   env_bcmModPhys->add(new GeoIdentifierTag(11950));
@@ -226,8 +224,8 @@ GeoPhysVol* BCM_Module::Build(const AbsMaterialManager* mat_mgr, const BCM_Modul
 
   GeoPhysVol* DiamondVolB = wall.Build(diamondSize/2, diamondSize/2, diamondThick, "bcmDiamondLog", diamond);
   
-  CLHEP::Hep3Vector DiamondPosB(diamond_x + diamondThick + parameters->DiamondDelta_X(), parameters->DiamondPosition_Y() + parameters->DiamondDelta_Y(), parameters->DiamondPosition_Z() + parameters->DiamondDelta_Z());
-  xform = new GeoTransform(HepGeom::Transform3D(rmC,DiamondPosB));
+  GeoTrf::Translation3D DiamondPosB(diamond_x + diamondThick + parameters->DiamondDelta_X(), parameters->DiamondPosition_Y() + parameters->DiamondDelta_Y(), parameters->DiamondPosition_Z() + parameters->DiamondDelta_Z());
+  xform = new GeoTransform(GeoTrf::Transform3D(DiamondPosB*rmC));
   tag = new GeoNameTag("Diamond");
   env_bcmModPhys->add(tag);
   env_bcmModPhys->add(new GeoIdentifierTag(11951));
@@ -237,10 +235,9 @@ GeoPhysVol* BCM_Module::Build(const AbsMaterialManager* mat_mgr, const BCM_Modul
   //wall A
   GeoPhysVol* WallA = wall.Build(ModTailHeight/2, (ModLength - ModHeadLength)/2, CuThick, G10Thick, copper, g10, mat_mgr);
   
-  CLHEP::Hep3Vector WallAPos((ModHeight - ModTailHeight)/2 , (ReducedModWidth + WallThick)/2, -ModHeadLength/2);
-  CLHEP::HepRotation rmA;
-  rmA.rotateX(90.*CLHEP::deg);
-  xform = new GeoTransform(HepGeom::Transform3D(rmA,WallAPos));
+  GeoTrf::Translation3D WallAPos((ModHeight - ModTailHeight)/2 , (ReducedModWidth + WallThick)/2, -ModHeadLength/2);
+  GeoTrf::RotateX3D rmA(90.*GeoModelKernelUnits::deg);
+  xform = new GeoTransform(GeoTrf::Transform3D(WallAPos*rmA));
   tag = new GeoNameTag("Wall A");
   env_bcmModPhys->add(tag);
   env_bcmModPhys->add(xform);
@@ -249,8 +246,8 @@ GeoPhysVol* BCM_Module::Build(const AbsMaterialManager* mat_mgr, const BCM_Modul
   //wall AA
   GeoPhysVol* WallAA = wall.Build(ModTailHeight/2, (ModLength - ModHeadLength)/2, G10Thick, CuThick, g10, copper, mat_mgr);
   
-  CLHEP::Hep3Vector WallAAPos((ModHeight - ModTailHeight)/2 , -(ReducedModWidth + WallThick)/2, -ModHeadLength/2);
-  xform = new GeoTransform(HepGeom::Transform3D(rmA,WallAAPos));
+  GeoTrf::Translation3D WallAAPos((ModHeight - ModTailHeight)/2 , -(ReducedModWidth + WallThick)/2, -ModHeadLength/2);
+  xform = new GeoTransform(GeoTrf::Transform3D(WallAAPos*rmA));
   tag = new GeoNameTag("Wall AA");
   env_bcmModPhys->add(tag);
   env_bcmModPhys->add(xform);
@@ -259,8 +256,8 @@ GeoPhysVol* BCM_Module::Build(const AbsMaterialManager* mat_mgr, const BCM_Modul
   //wall B
   GeoPhysVol* WallB = wall.Build(ModHeight/2, ModHeadLength/2, CuThick, G10Thick, copper, g10, mat_mgr);
   
-  CLHEP::Hep3Vector WallBPos(0, (ReducedModWidth + WallThick)/2, (ModLength - ModHeadLength)/2);
-  xform = new GeoTransform(HepGeom::Transform3D(rmA,WallBPos));
+  GeoTrf::Translation3D WallBPos(0, (ReducedModWidth + WallThick)/2, (ModLength - ModHeadLength)/2);
+  xform = new GeoTransform(GeoTrf::Transform3D(WallBPos*rmA));
   tag = new GeoNameTag("Wall B");
   env_bcmModPhys->add(tag);
   env_bcmModPhys->add(xform);
@@ -269,8 +266,8 @@ GeoPhysVol* BCM_Module::Build(const AbsMaterialManager* mat_mgr, const BCM_Modul
   //wall BB
   GeoPhysVol* WallBB = wall.Build(ModHeight/2, ModHeadLength/2, G10Thick, CuThick, g10, copper, mat_mgr);
   
-  CLHEP::Hep3Vector WallBBPos(0, -(ReducedModWidth + WallThick)/2, (ModLength - ModHeadLength)/2);
-  xform = new GeoTransform(HepGeom::Transform3D(rmA,WallBBPos));
+  GeoTrf::Translation3D WallBBPos(0, -(ReducedModWidth + WallThick)/2, (ModLength - ModHeadLength)/2);
+  xform = new GeoTransform(GeoTrf::Transform3D(WallBBPos*rmA));
   tag = new GeoNameTag("Wall BB");
   env_bcmModPhys->add(tag);
   env_bcmModPhys->add(xform);
@@ -281,12 +278,8 @@ GeoPhysVol* BCM_Module::Build(const AbsMaterialManager* mat_mgr, const BCM_Modul
   // Add the BCM envelop inside the new complex encompassing volume
   // --------------------------------------------------------------------------------------
 
-  CLHEP::HepRotation rmEnv;
-  rmEnv.rotateZ(90.*CLHEP::deg);
-  rmEnv.rotateY(90.*CLHEP::deg);
-
-  CLHEP::Hep3Vector WallEnvPos(0., 0., 0.);
-  xform = new GeoTransform(HepGeom::Transform3D(rmEnv,WallEnvPos));
+  GeoTrf::Transform3D rmEnv = GeoTrf::RotateY3D(90.*GeoModelKernelUnits::deg)*GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg);
+  xform = new GeoTransform(rmEnv);
   tag = new GeoNameTag("EnvBcmWallLog");
   bcmModPhys->add(tag);
   bcmModPhys->add(xform);

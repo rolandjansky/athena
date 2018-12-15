@@ -11,6 +11,7 @@
  */
 
 // INCLUDE HEADER
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "TileCellFillerTool.h"
 
 // xAOD tools

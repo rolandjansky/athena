@@ -10,7 +10,9 @@
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 
-#include "CLHEP/Geometry/Transform3D.h"
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 
 #include <map>
 #include <set>
@@ -185,7 +187,7 @@ class VP1CaloCell
             const VP1CC_GlobalCuts& ) = 0;
 
   double cellDepth(const QPair<bool,double>& scale, const double& energy)
-  { return std::max(1.0*CLHEP::mm,scale.second*(scale.first?log(1+fabs(energy)):fabs(energy))); }
+  { return std::max(1.0*GeoModelKernelUnits::mm,scale.second*(scale.first?log(1+fabs(energy)):fabs(energy))); }
 
   virtual bool isInsideClipVolume(const VP1CC_GlobalCuts&  globalCuts) ; // by default uses radius to determine this
   
@@ -386,7 +388,7 @@ class VP1CC_TileCrack : public VP1CC_Tile
 //   1. MBTS scintillator shape parameters (2 different shapes)
 //   2. MBTS scintillator global positions
 
-typedef std::map<int, HepGeom::Transform3D, std::less<int> > VP1CC_MbtsXfMap;
+typedef std::map<int, GeoTrf::Transform3D, std::less<int> > VP1CC_MbtsXfMap;
 
 typedef struct
 {

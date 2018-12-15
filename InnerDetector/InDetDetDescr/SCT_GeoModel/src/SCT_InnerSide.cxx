@@ -32,9 +32,8 @@
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeShift.h"
-
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Geometry/Transform3D.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 
 #include <cmath>
 
@@ -125,11 +124,11 @@ SCT_InnerSide::preBuild()
 
   // *** 16:30 Wed 15th Jun 2005 D.Naito modified. (00)*********************************
   // *** -->>                                      (00)*********************************
-  m_env1RefPointVector = new CLHEP::Hep3Vector(0.0, 0.0, 0.0);
-  m_env2RefPointVector = new CLHEP::Hep3Vector(-ise2PosX, -ise2PosY, -ise2PosZ);
+  m_env1RefPointVector = new GeoTrf::Vector3D(0.0, 0.0, 0.0);
+  m_env2RefPointVector = new GeoTrf::Vector3D(-ise2PosX, -ise2PosY, -ise2PosZ);
   // *** End of modified lines. ------------------ (00)*********************************
 
-  m_hybridPos             = new GeoTransform(HepGeom::Translate3D(hybridPosX, hybridPosY, hybridPosZ));
+  m_hybridPos             = new GeoTransform(GeoTrf::Translate3D(hybridPosX, hybridPosY, hybridPosZ));
   m_hybridPos->ref();
 
   // The depth axis goes from the backside to the implant side 
@@ -142,11 +141,11 @@ SCT_InnerSide::preBuild()
   //
   // Shown is the outer side. The inner side is the same but with a rotation of 180 deg around the z-axis.       
   // 
-  //CLHEP::HepRotation rotSensor;
-  //rotSensor.rotateZ(180*CLHEP::deg);
-  //m_outerSidePos = new HepGeom::Transform3D(rotOuter, CLHEP::Hep3Vector(0.5 * (m_sensorGap + sectThickness), 0., 0.));
-  //m_sensorPos = new GeoTransform(HepGeom::Transform3D(rotSensor, CLHEP::Hep3Vector(sensorPosX, sensorPosY, sensorPosZ)));
-  m_sensorPos             = new GeoTransform(HepGeom::Translate3D(sensorPosX, sensorPosY, sensorPosZ));
+  //GeoModelKernelUnits::HepRotation rotSensor;
+  //rotSensor.rotateZ(180*GeoModelKernelUnits::deg);
+  //m_outerSidePos = new GeoTrf::Transform3D(rotOuter, GeoTrf::Vector3D(0.5 * (m_sensorGap + sectThickness), 0., 0.));
+  //m_sensorPos = new GeoTransform(GeoTrf::Transform3D(rotSensor, GeoTrf::Vector3D(sensorPosX, sensorPosY, sensorPosZ)));
+  m_sensorPos             = new GeoTransform(GeoTrf::Translate3D(sensorPosX, sensorPosY, sensorPosZ));
   m_sensorPos->ref();
 
   //
@@ -160,7 +159,7 @@ SCT_InnerSide::preBuild()
                                         0.5 * l_ise2);
 
   const GeoShape & InnerSideEnvelopeShape = (*ise1Shape).
-    add(*ise2Shape << HepGeom::Translate3D(ise2PosX, ise2PosY, ise2PosZ));
+    add(*ise2Shape << GeoTrf::Translate3D(ise2PosX, ise2PosY, ise2PosZ));
 
   const GeoLogVol * InnerSideEnvelopeLog = new GeoLogVol("InnerSideEnvelope",
                                                          &InnerSideEnvelopeShape,

@@ -14,7 +14,7 @@ class GeoMaterial;
 class GeoVPhysVol;
 class GeoLogVol;
 class GeoTransform;
-#include "CLHEP/Vector/ThreeVector.h"
+
 
 namespace InDetDDSLHC {
 

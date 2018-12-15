@@ -37,6 +37,7 @@
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 
 #include "G4ios.hh"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 /////////// C O N S T R U C T O R
 

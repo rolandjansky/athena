@@ -2,19 +2,13 @@
    Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
  */
 
-
 #include "InDetGeoModelUtils/TopLevelPlacements.h"
-
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Geometry/Transform3D.h"
+#include "GeoModelKernel/Units.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBRecord.h"
+#include <iostream>
 
-
-
-
-HepGeom::Transform3D TopLevelPlacements::s_identityTransform = HepGeom::Transform3D();
-
+GeoTrf::Transform3D TopLevelPlacements::s_identityTransform = GeoTrf::Transform3D::Identity();
 
 TopLevelPlacements::TopLevelPlacements(IRDBRecordset_ptr topLevelTable)
   : m_noTopLevelTable(true) {
@@ -26,7 +20,7 @@ TopLevelPlacements::~TopLevelPlacements() {
   for (iter = m_parts.begin(); iter != m_parts.end(); ++iter) delete iter->second;
 }
 
-const HepGeom::Transform3D&
+const GeoTrf::Transform3D&
 TopLevelPlacements::transform(const std::string& partName) const {
   Part* part = getPart(partName);
 
@@ -63,18 +57,18 @@ TopLevelPlacements::fillPlacements(IRDBRecordset_ptr topLevelTable) {
   }
 }
 
-HepGeom::Transform3D
+GeoTrf::Transform3D
 TopLevelPlacements::partTransform(const IRDBRecord* record) const {
-  double posX = record->getDouble("POSX") * CLHEP::mm;
-  double posY = record->getDouble("POSY") * CLHEP::mm;
-  double posZ = record->getDouble("POSZ") * CLHEP::mm;
-  double rotX = record->getDouble("ROTX") * CLHEP::degree;
-  double rotY = record->getDouble("ROTY") * CLHEP::degree;
-  double rotZ = record->getDouble("ROTZ") * CLHEP::degree;
+  double posX = record->getDouble("POSX") * GeoModelKernelUnits::mm;
+  double posY = record->getDouble("POSY") * GeoModelKernelUnits::mm;
+  double posZ = record->getDouble("POSZ") * GeoModelKernelUnits::mm;
+  double rotX = record->getDouble("ROTX") * GeoModelKernelUnits::degree;
+  double rotY = record->getDouble("ROTY") * GeoModelKernelUnits::degree;
+  double rotZ = record->getDouble("ROTZ") * GeoModelKernelUnits::degree;
   int rotOrder = record->getInt("ROTORDER");
 
   // Translation part
-  HepGeom::Transform3D transform = HepGeom::Translate3D(posX, posY, posZ);
+  GeoTrf::Translate3D transform(posX, posY, posZ);
 
   // If rotation is zero return translation
   if (rotX == 0 && rotY == 0 && rotZ == 0) {
@@ -100,14 +94,14 @@ TopLevelPlacements::partTransform(const IRDBRecord* record) const {
   }
 
   // List of the three transforms
-  HepGeom::Transform3D* xformList[3] = {
+  GeoTrf::Transform3D* xformList[3] = {
     0, 0, 0
   };
-  if (rotX != 0) xformList[0] = new HepGeom::RotateX3D(rotX);
-  if (rotY != 0) xformList[1] = new HepGeom::RotateY3D(rotY);
-  if (rotZ != 0) xformList[2] = new HepGeom::RotateZ3D(rotZ);
+  if (rotX != 0) xformList[0] = new GeoTrf::RotateX3D(rotX);
+  if (rotY != 0) xformList[1] = new GeoTrf::RotateY3D(rotY);
+  if (rotZ != 0) xformList[2] = new GeoTrf::RotateZ3D(rotZ);
 
-  HepGeom::Transform3D rotation;
+  GeoTrf::Transform3D rotation(GeoTrf::Transform3D::Identity());
   if (xformList[ixyz1]) rotation = *(xformList[ixyz1]) * rotation;
   if (xformList[ixyz2]) rotation = *(xformList[ixyz2]) * rotation;
   if (xformList[ixyz3]) rotation = *(xformList[ixyz3]) * rotation;

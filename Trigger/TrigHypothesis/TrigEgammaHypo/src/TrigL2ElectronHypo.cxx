@@ -23,6 +23,7 @@
 
 #include "TrigEgammaHypo/TrigL2ElectronHypo.h"
 #include "xAODTrigger/TrigPassBits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 class ISvcLocator;
 

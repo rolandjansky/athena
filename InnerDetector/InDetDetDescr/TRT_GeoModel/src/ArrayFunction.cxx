@@ -4,7 +4,7 @@
 
 #include "ArrayFunction.h"
 
-namespace Genfun {
+namespace GeoGenfun {
 
 FUNCTION_OBJECT_IMP(ArrayFunction)
   
@@ -17,7 +17,7 @@ ArrayFunction::~ArrayFunction(){}
   
 // Copy constructor
 ArrayFunction::ArrayFunction(const ArrayFunction &right):
-  Genfun::AbsFunction(), m_values(right.m_values) {}
+  GeoGenfun::AbsFunction(), m_values(right.m_values) {}
   
   // Retrieve function value
 double ArrayFunction::operator ()(double argument) const {

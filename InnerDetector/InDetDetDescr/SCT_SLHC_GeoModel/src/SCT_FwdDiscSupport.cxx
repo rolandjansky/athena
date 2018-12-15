@@ -10,7 +10,7 @@
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoPhysVol.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
 namespace InDetDDSLHC {
 
@@ -31,7 +31,7 @@ void SCT_FwdDiscSupport::getParameters(){
   //m_material     = materials.getMaterial(parameters->fwdDiscSupportMaterial(m_iWheel));
   //0.1265 is taken from oracle database (DiskSupport)
   double materialIncreaseFactor = parameters->materialIncreaseFactor(m_iWheel);
-  //double cf_density = 0.1265*materialIncreaseFactor*CLHEP::g/CLHEP::cm3;
+  //double cf_density = 0.1265*materialIncreaseFactor*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3;
   //m_material = materials->getMaterial(parameters->fwdDiscSupportMaterial(m_iWheel), cf_density);
   m_material = materials->getMaterialScaled(parameters->fwdDiscSupportMaterial(m_iWheel), materialIncreaseFactor);
 }

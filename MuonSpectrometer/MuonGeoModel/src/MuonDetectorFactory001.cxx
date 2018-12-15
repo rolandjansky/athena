@@ -51,11 +51,14 @@
 #include "GeoModelKernel/GeoSerialTransformer.h" 
 #include "GeoModelKernel/GeoIdentifierTag.h"
 #include "GeoModelKernel/GeoPerfUtils.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
+#include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 
 #include "StoreGate/StoreGateSvc.h"
 
-#include "CLHEP/GenericFunctions/Variable.hh"
+#include "GeoGenericFunctions/Variable.h"
 
 #include "MuonGeoModel/DBReader.h"
 #include "MuonGeoModel/RDBReaderAtlas.h"
@@ -71,7 +74,7 @@ typedef std::ostringstream my_osstream;
 // The objects for mapping plane indexes in MuonSystem to the record index in RDBRecordset
 typedef std::map<int, unsigned int, std::less<int> > muonsysIndMap;
 
-using namespace Genfun;
+using namespace GeoGenfun;
 using namespace GeoXF;
 
 #define skip_chambers  false
@@ -92,15 +95,15 @@ namespace MuonGM {
   {
     MsgStream log(Athena::getMessageSvc(), "MuonGeoModel");
     m_muon = new MuonSystemDescription( "MuonSystem" );
-    m_muon->barrelInnerRadius =  4.30*CLHEP::m;
-    m_muon->innerRadius       =  0.07*CLHEP::m;
-    m_muon->outerRadius       = 13.00*CLHEP::m;
-    m_muon->endcapFrontFace   =  6.74*CLHEP::m;
-    m_muon->length            = 22.03*CLHEP::m;
-    m_muon->barreLength       =  6.53*CLHEP::m; 
-    m_muon->barrelInterRadius =  3.83*CLHEP::m;
-    m_muon->extraZ = 12.9*CLHEP::m;
-    m_muon->extraR = 12.5*CLHEP::m;
+    m_muon->barrelInnerRadius =  4.30*GeoModelKernelUnits::m;
+    m_muon->innerRadius       =  0.07*GeoModelKernelUnits::m;
+    m_muon->outerRadius       = 13.00*GeoModelKernelUnits::m;
+    m_muon->endcapFrontFace   =  6.74*GeoModelKernelUnits::m;
+    m_muon->length            = 22.03*GeoModelKernelUnits::m;
+    m_muon->barreLength       =  6.53*GeoModelKernelUnits::m; 
+    m_muon->barrelInterRadius =  3.83*GeoModelKernelUnits::m;
+    m_muon->extraZ = 12.9*GeoModelKernelUnits::m;
+    m_muon->extraR = 12.5*GeoModelKernelUnits::m;
 
     m_selectedStations = std::vector<std::string>(0);
     m_selectedStEta    = std::vector<int>(0);
@@ -467,7 +470,7 @@ namespace MuonGM {
   
     const GeoMaterial* m4 = theMaterialManager->getMaterial( "std::Air" );
     GeoLogVol*  l4;
-    GeoPcon* c4 = new GeoPcon( 0, 360*CLHEP::deg );
+    GeoPcon* c4 = new GeoPcon( 0, 360*GeoModelKernelUnits::deg );
     //--- --- --- CREATE ENVELOPE --- --- ---
     // First try to get data from the GeomDB
     IRDBRecordset_ptr muonSysRec = m_pRDBAccess->getRecordsetPtr("MuonSystem",OracleTag,OracleNode);
@@ -549,7 +552,7 @@ namespace MuonGM {
   
     // Cannot (yet) cope with this:
     // G4UserLimits *ul=new G4UserLimits;
-    // ul->SetMaxAllowedStep(5*CLHEP::cm);
+    // ul->SetMaxAllowedStep(5*GeoModelKernelUnits::cm);
     // lv->GetLogicalVolume()->SetUserLimits(ul);
   
     m_manager->addTreeTop(p4); // This is the top!
@@ -681,7 +684,7 @@ namespace MuonGM {
 
             // here define the GeoAlignableTransform associated to the chamber
             // nominal transform first 
-            GeoAlignableTransform *xf = new GeoAlignableTransform( station->getNominalTransform( (*pit).second) );             
+            GeoAlignableTransform *xf = new GeoAlignableTransform(station->getNominalTransform( (*pit).second) );
 
             // add tag, transform and physicalvolume associated to the chamber to the mother-volume
             p4->add(nm);
@@ -697,19 +700,15 @@ namespace MuonGM {
 		continue;
 	      }
 	    mst->setTransform(xf);
-	    HepGeom::Transform3D tsz_to_szt = HepGeom::Transform3D(HepGeom::Point3D<double>(1.,0.,0.),HepGeom::Point3D<double>(0.,1.,0.),
-								   HepGeom::Point3D<double>(0.,0.,1.),HepGeom::Point3D<double>(0.,0.,1.),
-								   HepGeom::Point3D<double>(1.,0.,0.),HepGeom::Point3D<double>(0.,1.,0.));
-	    mst->setNativeToAmdbLRS( tsz_to_szt * station->native_to_tsz_frame( (*pit).second ) );
-	    mst->setNominalAmdbLRSToGlobal( station->tsz_to_global_frame( (*pit).second ) * tsz_to_szt.inverse() );
+	    GeoTrf::Transform3D tsz_to_szt = GeoTrf::RotateZ3D(-90*CLHEP::deg)*GeoTrf::RotateY3D(-90*CLHEP::deg);
+	    mst->setNativeToAmdbLRS( Amg::EigenTransformToCLHEP(tsz_to_szt * station->native_to_tsz_frame( (*pit).second )) );
+	    mst->setNominalAmdbLRSToGlobal( Amg::EigenTransformToCLHEP(station->tsz_to_global_frame( (*pit).second ) * tsz_to_szt.inverse()) );
             
-            HepGeom::Transform3D DummyAline = HepGeom::Transform3D::Identity;
             // find correct alignment information for this position
             // xf->setDelta(DummyAline); // just in case we don't find one
 
             // apit = station->FindAlignPos(zi,fi);
 	    // number of A-lines for this station
-            HepGeom::Transform3D Delta = HepGeom::Transform3D::Identity;
 	    int nAlines = station->CountAlignPos(zi,fi);
 	    //nAlines=-1; 
 	    if (nAlines==0)
@@ -782,7 +781,7 @@ namespace MuonGM {
             // MuonStation* mst = m_manager->getMuonStation (station->GetName(), zi, fi+1);
             // if (mst != NULL) {
             //     mst->setTransform(xf);
-            //     HepGeom::Transform3D tsz_to_szt = HepGeom::Transform3D(HepGeom::Point3D<double>(1.,0.,0.),HepGeom::Point3D<double>(0.,1.,0.),
+            //     GeoTrf::Transform3D tsz_to_szt = GeoTrf::Transform3D(HepGeom::Point3D<double>(1.,0.,0.),HepGeom::Point3D<double>(0.,1.,0.),
             //                                                HepGeom::Point3D<double>(0.,0.,1.),HepGeom::Point3D<double>(0.,0.,1.),
             //                                                HepGeom::Point3D<double>(1.,0.,0.),HepGeom::Point3D<double>(0.,1.,0.));
             //     mst->setNativeToAmdbLRS( tsz_to_szt * station->native_to_tsz_frame( (*pit).second ) );
@@ -801,7 +800,7 @@ namespace MuonGM {
 	    //                     (xf->getTransform())[2][1] << " " <<
 	    //                     (xf->getTransform())[2][2] << " " <<
 	    //                     (xf->getTransform())[2][3] << " " << endmsg;
-	    // HepGeom::Transform3D Delta_amdb_frame = tsz_to_szt*station->getDeltaTransform_tszFrame(ap)*tsz_to_szt.inverse();
+	    // GeoTrf::Transform3D Delta_amdb_frame = tsz_to_szt*station->getDeltaTransform_tszFrame(ap)*tsz_to_szt.inverse();
 	    // mst->setDeltaAmdbLRS(  Delta_amdb_frame );
 	    //                 if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE << "From the Factory:: Delta(amdb) transformation for " << stname << ":"
 	    //                    << endmsg <<

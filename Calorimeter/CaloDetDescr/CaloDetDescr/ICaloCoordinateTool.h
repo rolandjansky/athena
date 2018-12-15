@@ -36,7 +36,7 @@
     - the LAr+Tile local coordinate system, which differs for 2
       reasons : 
 
-       the origin is shifted by x = 2298 CLHEP::mm, and 
+       the origin is shifted by x = 2298 mm, and 
        the two calos sit on a rotating table to allow eta scans.
 
        In the local coordinate system, calorimeters have a pointing 

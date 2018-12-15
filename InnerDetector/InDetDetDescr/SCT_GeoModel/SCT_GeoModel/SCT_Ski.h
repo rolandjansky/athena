@@ -7,8 +7,8 @@
 
 #include "SCT_GeoModel/SCT_ComponentFactory.h"
 
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Vector/ThreeVector.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+
 
 #include <string>
 #include <vector>
@@ -58,8 +58,8 @@ public:
   const SCT_CoolingPipe * coolingPipe() const {return m_coolingPipe;}   
 
   GeoTransform * getRefPointTransform() const {return m_refPointTransform;}
-  CLHEP::Hep3Vector * env1RefPointVector() const {return m_env1RefPointVector;}
-  CLHEP::Hep3Vector * env2RefPointVector() const {return m_env2RefPointVector;}
+  GeoTrf::Vector3D * env1RefPointVector() const {return m_env1RefPointVector;}
+  GeoTrf::Vector3D * env2RefPointVector() const {return m_env2RefPointVector;}
   double env1Thickness() const {return m_env1Thickness;}
   double env1Width()     const {return m_env1Width;}
   double env2Thickness() const {return m_env2Thickness;}
@@ -124,9 +124,9 @@ private:
   GeoTransform * m_coolingPipePos;
 
   //! For calculations of envelopes of SCT_DetailLayer.
-  CLHEP::Hep3Vector * m_env1RefPointVector;
+  GeoTrf::Vector3D * m_env1RefPointVector;
   //! For calculations of envelopes of SCT_DetailLayer.
-  CLHEP::Hep3Vector * m_env2RefPointVector;
+  GeoTrf::Vector3D * m_env2RefPointVector;
 
   double m_env1Thickness;
   double m_env1Width;
@@ -134,7 +134,7 @@ private:
   double m_env2Width;
 
   std::vector<GeoNameTag *> m_nameTag;
-  std::vector<HepGeom::Transform3D> m_modulePos;
+  std::vector<GeoTrf::Transform3D> m_modulePos;
   std::vector<GeoTransform *> m_doglegPos;
   std::vector<GeoTransform *> m_coolingBlockPos;
 

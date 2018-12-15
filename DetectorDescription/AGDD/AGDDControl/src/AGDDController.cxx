@@ -18,7 +18,6 @@
 #include "GeoModelKernel/GeoVDetectorManager.h"
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoVPhysVol.h"
-#include "GeoModelKernel/GeoPVLink.h"
 #include "GeoModelKernel/GeoPVConstLink.h"
 
 #include "StoreGate/StoreGateSvc.h"

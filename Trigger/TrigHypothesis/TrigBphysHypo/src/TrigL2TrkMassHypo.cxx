@@ -35,7 +35,7 @@
 // additions of xAOD objects
 #include "TrigBphysHelperUtilsTool.h"
 #include "xAODTrigBphys/TrigBphysContainer.h"
-
+#include "CLHEP/Units/SystemOfUnits.h"
 
 class ISvcLocator;
 

@@ -75,7 +75,7 @@ StatusCode MDTHitsTestTool::checkIdentifier(Identifier offid) {
   // double mdt_tube_perp  = mdt_gPos.perp();
   // double mdt_tube_z   = mdt_gPos.z();
   // double mdt_tube_cot   = 1./tan(mdt_gPos.theta());
-  HepGeom::Transform3D xf  = descriptor->getMaterialGeom()->getAbsoluteTransform(); //FIXME in the future??
+  //Amg::Transform3D xf  = descriptor->getMaterialGeom()->getAbsoluteTransform(); //FIXME in the future??
   //*AS* Amg::Vector3D xU = xf*Amg::Vector3D((*i_hit).localPosition().x(),-(*i_hit).localPosition().z(), (*i_hit).localPosition().y());
   //*AS*Amg::Vector3D gx = mdt_gPos + xU;
 

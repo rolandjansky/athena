@@ -24,8 +24,6 @@
 #include <stdexcept>
 #include <sstream>
 
-#include "CLHEP/Units/SystemOfUnits.h"
-
 // MBTS
 #include "CaloIdentifier/TileTBID.h"
 #include <Inventor/nodes/SoTransform.h>

@@ -12,7 +12,7 @@
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoPhysVol.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
 
 SCT_FSIFibreMask::SCT_FSIFibreMask(const std::string & name, int iLayer, double length)

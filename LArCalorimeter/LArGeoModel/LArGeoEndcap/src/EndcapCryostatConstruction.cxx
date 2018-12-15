@@ -32,6 +32,8 @@
 #include "GeoModelKernel/GeoSerialIdentifier.h"
 #include "GeoModelKernel/GeoXF.h"
 #include "GeoModelKernel/GeoSerialTransformer.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
@@ -41,17 +43,10 @@
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 
-#include "CLHEP/GenericFunctions/AbsFunction.hh"
-#include "CLHEP/GenericFunctions/Variable.hh"
-
-// For transforms:
-
-#include "CLHEP/Geometry/Transform3D.h" 
-// For units:
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "GeoGenericFunctions/AbsFunction.h"
+#include "GeoGenericFunctions/Variable.h"
 
 // For the database:
-
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
@@ -75,7 +70,7 @@
 
 #include "LArGeoMiniFcal/MiniFcalConstruction.h"
 
-using namespace Genfun;
+using namespace GeoGenfun;
 using namespace GeoXF;
 
 
@@ -304,18 +299,18 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
                 if(currentRecord->getString("CYL_LOCATION")=="Endcap"){
                   if(cylNumber  == 3 )
                     {
-                      rmin_warm=currentRecord->getDouble("RMIN")*CLHEP::cm;
-                      rmax_warm=currentRecord->getDouble("RMIN")*CLHEP::cm + currentRecord->getDouble("DR")*CLHEP::cm;
-                      dz_warm=currentRecord->getDouble("DZ")*CLHEP::cm / 2.;
-                      zInCryostat_warm = currentRecord->getDouble("ZMIN")*CLHEP::cm + currentRecord->getDouble("DZ")*CLHEP::cm / 2.;
+                      rmin_warm=currentRecord->getDouble("RMIN")*GeoModelKernelUnits::cm;
+                      rmax_warm=currentRecord->getDouble("RMIN")*GeoModelKernelUnits::cm + currentRecord->getDouble("DR")*GeoModelKernelUnits::cm;
+                      dz_warm=currentRecord->getDouble("DZ")*GeoModelKernelUnits::cm / 2.;
+                      zInCryostat_warm = currentRecord->getDouble("ZMIN")*GeoModelKernelUnits::cm + currentRecord->getDouble("DZ")*GeoModelKernelUnits::cm / 2.;
                       wallfind=wallfind+1;
                     }
                   if(cylNumber  == 14 )
                     {
-                      rmin_cold=currentRecord->getDouble("RMIN")*CLHEP::cm;
-                      rmax_cold=currentRecord->getDouble("RMIN")*CLHEP::cm + currentRecord->getDouble("DR")*CLHEP::cm;
-                      dz_cold=currentRecord->getDouble("DZ")*CLHEP::cm / 2.;
-                      zInCryostat_cold = currentRecord->getDouble("ZMIN")*CLHEP::cm + currentRecord->getDouble("DZ")*CLHEP::cm / 2.;
+                      rmin_cold=currentRecord->getDouble("RMIN")*GeoModelKernelUnits::cm;
+                      rmax_cold=currentRecord->getDouble("RMIN")*GeoModelKernelUnits::cm + currentRecord->getDouble("DR")*GeoModelKernelUnits::cm;
+                      dz_cold=currentRecord->getDouble("DZ")*GeoModelKernelUnits::cm / 2.;
+                      zInCryostat_cold = currentRecord->getDouble("ZMIN")*GeoModelKernelUnits::cm + currentRecord->getDouble("DZ")*GeoModelKernelUnits::cm / 2.;
                       wallfind=wallfind+1;
                     }
                 }
@@ -343,7 +338,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
                 const GeoLogVol *logicCyl = new GeoLogVol(cylName,solidCyl,mat);
                 GeoPhysVol      *physCyl  = new GeoPhysVol(logicCyl);
 
-                cryoMotherPhysical->add(new GeoTransform(HepGeom::TranslateZ3D(zpos)));
+                cryoMotherPhysical->add(new GeoTransform(GeoTrf::TranslateZ3D(zpos)));
                 cryoMotherPhysical->add(physCyl);
 
                 std::cout<<"**************************************************"<<std::endl;
@@ -393,11 +388,11 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	}
       
 	GeoTubs* solidCyl
-	  = new GeoTubs(currentRecord->getDouble("RMIN")*CLHEP::cm,
-			currentRecord->getDouble("RMIN")*CLHEP::cm + currentRecord->getDouble("DR")*CLHEP::cm,
-			currentRecord->getDouble("DZ")*CLHEP::cm / 2.,
+	  = new GeoTubs(currentRecord->getDouble("RMIN")*GeoModelKernelUnits::cm,
+			currentRecord->getDouble("RMIN")*GeoModelKernelUnits::cm + currentRecord->getDouble("DR")*GeoModelKernelUnits::cm,
+			currentRecord->getDouble("DZ")*GeoModelKernelUnits::cm / 2.,
 			(double) 0.,
-			(double) 2.*M_PI*CLHEP::rad);
+			(double) 2.*M_PI*GeoModelKernelUnits::rad);
 	const GeoMaterial *material  = materialManager->getMaterial(currentRecord->getString("MATERIAL"));
       
 	if (!material) {
@@ -412,7 +407,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
       
 	GeoPhysVol* physCyl = new GeoPhysVol(logicCyl);
       
-	double zInCryostat = currentRecord->getDouble("ZMIN")*CLHEP::cm + currentRecord->getDouble("DZ")*CLHEP::cm / 2.;
+	double zInCryostat = currentRecord->getDouble("ZMIN")*GeoModelKernelUnits::cm + currentRecord->getDouble("DZ")*GeoModelKernelUnits::cm / 2.;
 	// Don't move the pump even if the rest of the cryostat moves.
 
 	//if ( cylNumber == 33 ) zInCryostat -= zEmec;
@@ -420,7 +415,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	// Place each cylinder.
       
 	cryoMotherPhysical->add(new GeoIdentifierTag(cylNumber));
-	cryoMotherPhysical->add(new GeoTransform(HepGeom::TranslateZ3D(zInCryostat)));
+	cryoMotherPhysical->add(new GeoTransform(GeoTrf::TranslateZ3D(zInCryostat)));
       
 	// Front cold wall of Cryostat is a mother for Endcap Presampler 
 	if ( cylNumber == 14 ) {
@@ -432,13 +427,13 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	  GeoFullPhysVol* emecPSEnvelope = endcapPresamplerConstruction.Envelope();
 	  if ( emecPSEnvelope != 0 ) {
 	    // Get the position of the presampler from the geometry helper.
-	    double Zpos = 30.5*CLHEP::mm; 
+	    double Zpos = 30.5*GeoModelKernelUnits::mm; 
 	    
 	    // It is highly debateable whether the endcap presampler is 
 	    // alignable, but in any case we shall not align it here because
 	    // we need to completely redo it, anyway, since it does  not
 	    // even live  "in" this volume, not in real life anyway.
-	    GeoTransform *xfPs = new GeoTransform(HepGeom::TranslateZ3D(Zpos));
+	    GeoTransform *xfPs = new GeoTransform(GeoTrf::TranslateZ3D(Zpos));
 	    
 	    physCyl->add(xfPs);
 	    physCyl->add( emecPSEnvelope );
@@ -553,7 +548,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
     //=>
     const IRDBRecord *posRec = GeoDBUtils::getTransformRecord(larPosition, bPos ? "EMEC_POS":"EMEC_NEG");
     if (!posRec) throw std::runtime_error("Error, no lar position record in the database") ;
-    HepGeom::Transform3D xfPos = GeoDBUtils::getTransform(posRec);
+    GeoTrf::Transform3D xfPos = GeoDBUtils::getTransform(posRec);
     GeoAlignableTransform *xfEmec = new GeoAlignableTransform(xfPos);
 
     std::string tag = bPos? std::string("EMEC_POS") : std::string("EMEC_NEG");
@@ -586,7 +581,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
     //--- Make the Front Wheel alignable:
 
     const IRDBRecord *posHec1 = GeoDBUtils::getTransformRecord(larPosition, bPos ? "HEC1_POS":"HEC1_NEG");
-    HepGeom::Transform3D xfPosHec1 = posHec1 ? GeoDBUtils::getTransform(posHec1) : HepGeom::Translate3D(0.,0.,-2423.0);
+    GeoTrf::Transform3D xfPosHec1 = posHec1 ? GeoDBUtils::getTransform(posHec1) : GeoTrf::Translate3D(0.,0.,-2423.0);
     GeoAlignableTransform *xfHec1 = new GeoAlignableTransform(xfPosHec1);
 
     std::string tag1 = bPos? std::string("HEC1_POS") : std::string("HEC1_NEG");
@@ -611,7 +606,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
     GeoFullPhysVol* EnvelopeR = rearHEC.GetEnvelope();
     
     const IRDBRecord *posHec2 = GeoDBUtils::getTransformRecord(larPosition, bPos ? "HEC2_POS":"HEC2_NEG");
-    HepGeom::Transform3D xfPosHec2 = posHec2 ? GeoDBUtils::getTransform(posHec2) : HepGeom::Translate3D(0.,0.,-1566.0);
+    GeoTrf::Transform3D xfPosHec2 = posHec2 ? GeoDBUtils::getTransform(posHec2) : GeoTrf::Translate3D(0.,0.,-1566.0);
     GeoAlignableTransform *xfHec2 = new GeoAlignableTransform(xfPosHec2);
 
     std::string tag2 = bPos? std::string("HEC2_POS") : std::string("HEC2_NEG");
@@ -655,7 +650,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
     // Get default values for alignable transform deltas from SubdetPosHelper
     const IRDBRecord *posRec = GeoDBUtils::getTransformRecord(larPosition, tag);
     if (!posRec) throw std::runtime_error("Error, no lar position record in the database") ;
-    HepGeom::Transform3D xfPos = GeoDBUtils::getTransform(posRec);
+    GeoTrf::Transform3D xfPos = GeoDBUtils::getTransform(posRec);
     GeoAlignableTransform *fcalXF = new GeoAlignableTransform(xfPos);
 
     StatusCode status;
@@ -674,7 +669,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 
     // Place the FCAL modules.
     cryoMotherPhysical->add(fcalXF);
-    cryoMotherPhysical->add( new GeoTransform( HepGeom::TranslateZ3D(tubs->getZHalfLength()) ) );
+    cryoMotherPhysical->add( new GeoTransform( GeoTrf::TranslateZ3D(tubs->getZHalfLength()) ) );
     cryoMotherPhysical->add( fcalEnvelope );
     
     
@@ -732,10 +727,10 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	}
 
 	// Build mother volume
-	double rminMM = (*itMother)->getDouble("RMIN")*CLHEP::mm; 
-	double rmaxMM = (*itMother)->getDouble("RMAX")*CLHEP::mm;
-	double dzMM = (*itMother)->getDouble("DZ")*CLHEP::mm;
-	zposMM = (*itMother)->getDouble("ZPOS")*CLHEP::mm;
+	double rminMM = (*itMother)->getDouble("RMIN")*GeoModelKernelUnits::mm; 
+	double rmaxMM = (*itMother)->getDouble("RMAX")*GeoModelKernelUnits::mm;
+	double dzMM = (*itMother)->getDouble("DZ")*GeoModelKernelUnits::mm;
+	zposMM = (*itMother)->getDouble("ZPOS")*GeoModelKernelUnits::mm;
 	
 	const GeoMaterial *matMM  = materialManager->getMaterial((*itMother)->getString("MATERIAL"));
 	
@@ -744,8 +739,8 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	GeoTube *tubeJM=NULL;
 	const GeoShape *solidMM=NULL;
 	if (itTube!=mbtsTubs->end()) {
-	  double dzMod   = (*itTube)->getDouble("DZ")*CLHEP::mm;
-	  double rMaxMod = (*itTube)->getDouble("RMAX")*CLHEP::mm;
+	  double dzMod   = (*itTube)->getDouble("DZ")*GeoModelKernelUnits::mm;
+	  double rMaxMod = (*itTube)->getDouble("RMAX")*GeoModelKernelUnits::mm;
 	  
 	  GeoPcon *pcon = new GeoPcon(0,2*M_PI);
 	  pcon->addPlane(-dzMM,rminMM,rmaxMM);
@@ -761,14 +756,14 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	GeoLogVol* lvMM = new GeoLogVol("MBTS_mother",solidMM,matMM);
 	pvMM = new GeoPhysVol(lvMM);
 	
-	cryoMotherPhysical->add(new GeoTransform(HepGeom::TranslateZ3D(zposMM)));
+	cryoMotherPhysical->add(new GeoTransform(GeoTrf::TranslateZ3D(zposMM)));
 	cryoMotherPhysical->add(pvMM);
 
 	// Moderator cylinder
-	//double rminMod  = (*itModerator)->getDouble("RMIN")*CLHEP::mm; 
-	//double rmaxMod = (*itModerator)->getDouble("RMAX")*CLHEP::mm;
-	double dzMod = (*itModerator)->getDouble("DZ")*CLHEP::mm;
-	double zposMod = (*itModerator)->getDouble("ZPOS")*CLHEP::mm;
+	//double rminMod  = (*itModerator)->getDouble("RMIN")*GeoModelKernelUnits::mm; 
+	//double rmaxMod = (*itModerator)->getDouble("RMAX")*GeoModelKernelUnits::mm;
+	double dzMod = (*itModerator)->getDouble("DZ")*GeoModelKernelUnits::mm;
+	double zposMod = (*itModerator)->getDouble("ZPOS")*GeoModelKernelUnits::mm;
 	
 	const GeoMaterial *matMod  = materialManager->getMaterial((*itModerator)->getString("MATERIAL"));
 	
@@ -776,14 +771,14 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	GeoLogVol* lvMod = new GeoLogVol("Moderator",solidMod, matMod);
 	GeoPhysVol* pvMod = new GeoPhysVol(lvMod);
 	
-	pvMM->add(new GeoTransform(HepGeom::TranslateZ3D(zposMod)));
+	pvMM->add(new GeoTransform(GeoTrf::TranslateZ3D(zposMod)));
 	pvMM->add(pvMod);
       
 	if (tubeJM) {
 	  GeoLogVol* lvMod  = new GeoLogVol("ModeratorTube",tubeJM, matMod);
 	  GeoPhysVol* pvMod = new GeoPhysVol(lvMod);
 	  
-	  pvMM->add(new GeoTransform(HepGeom::TranslateZ3D(tubeMM->getZHalfLength()+tubeJM->getZHalfLength())));
+	  pvMM->add(new GeoTransform(GeoTrf::TranslateZ3D(tubeMM->getZHalfLength()+tubeJM->getZHalfLength())));
 	  pvMM->add(pvMod);
 	}
 	tubeMM->ref();  tubeMM->unref();
@@ -845,7 +840,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	pvMM = new GeoPhysVol(lvMM);
 	
 	zposMM = zStartCryoMother - zStartMM;
-	cryoMotherPhysical->add(new GeoTransform(HepGeom::TranslateZ3D(zposMM))); 
+	cryoMotherPhysical->add(new GeoTransform(GeoTrf::TranslateZ3D(zposMM))); 
 	cryoMotherPhysical->add(pvMM);
 
 	// Extra tube for the moderator:
@@ -858,7 +853,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	GeoLogVol* lvJM = new GeoLogVol("ModeratorJMTube",tubeJM, matJM);
 	GeoPhysVol* pvJM = new GeoPhysVol(lvJM);
 
-	pvMM->add(new GeoTransform(HepGeom::TranslateZ3D((*mbtsTubs)[0]->getDouble("ZPOS"))));
+	pvMM->add(new GeoTransform(GeoTrf::TranslateZ3D((*mbtsTubs)[0]->getDouble("ZPOS"))));
 	pvMM->add(pvJM);
 
 	// Moderator+JM polycone
@@ -875,13 +870,13 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	  const IRDBRecord* curScin = (*mbtsScin)[scinId];
 	
 	  int nScin = curScin->getInt("SCINNUM");
-	  double dx1Scin = curScin->getDouble("DX1")*CLHEP::mm;
-	  double dx2Scin = curScin->getDouble("DX2")*CLHEP::mm;
-	  double dy1Scin = curScin->getDouble("DY1")*CLHEP::mm;
-	  double dy2Scin = curScin->getDouble("DY2")*CLHEP::mm;
-	  double dzScin  = curScin->getDouble("DZ")*CLHEP::mm;
-	  double zposScin = curScin->getDouble("ZPOS")*CLHEP::mm;
-	  double rposScin = curScin->getDouble("RPOS")*CLHEP::mm;
+	  double dx1Scin = curScin->getDouble("DX1")*GeoModelKernelUnits::mm;
+	  double dx2Scin = curScin->getDouble("DX2")*GeoModelKernelUnits::mm;
+	  double dy1Scin = curScin->getDouble("DY1")*GeoModelKernelUnits::mm;
+	  double dy2Scin = curScin->getDouble("DY2")*GeoModelKernelUnits::mm;
+	  double dzScin  = curScin->getDouble("DZ")*GeoModelKernelUnits::mm;
+	  double zposScin = curScin->getDouble("ZPOS")*GeoModelKernelUnits::mm;
+	  double rposScin = curScin->getDouble("RPOS")*GeoModelKernelUnits::mm;
 
 	  double startPhi = 0.;
 	  try {
@@ -906,12 +901,12 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	  GeoSerialTransformer* stScin = 0;
 	  
 	  if(bPos) {
-	    GENFUNCTION phiInd = deltaPhi*(varInd + startPhi)*CLHEP::deg;
-	    TRANSFUNCTION xfScin = Pow(HepGeom::RotateZ3D(1.0),phiInd)*HepGeom::TranslateZ3D(zposScin)*HepGeom::TranslateX3D(rposScin)*HepGeom::RotateY3D(90*CLHEP::deg);
+	    GENFUNCTION phiInd = deltaPhi*(varInd + startPhi)*GeoModelKernelUnits::deg;
+	    TRANSFUNCTION xfScin = Pow(GeoTrf::RotateZ3D(1.0),phiInd)*GeoTrf::TranslateZ3D(zposScin)*GeoTrf::TranslateX3D(rposScin)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
 	    stScin = new GeoSerialTransformer(pvScin,&xfScin,nScin);
 	  } else {
-	    GENFUNCTION phiInd = (180 - deltaPhi*(varInd + startPhi))*CLHEP::deg;
-	    TRANSFUNCTION xfScin = Pow(HepGeom::RotateZ3D(1.0),phiInd)*HepGeom::TranslateZ3D(zposScin)*HepGeom::TranslateX3D(rposScin)*HepGeom::RotateY3D(90*CLHEP::deg);
+	    GENFUNCTION phiInd = (180 - deltaPhi*(varInd + startPhi))*GeoModelKernelUnits::deg;
+	    TRANSFUNCTION xfScin = Pow(GeoTrf::RotateZ3D(1.0),phiInd)*GeoTrf::TranslateZ3D(zposScin)*GeoTrf::TranslateX3D(rposScin)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
 	    stScin = new GeoSerialTransformer(pvScin,&xfScin,nScin);
 	  }
 	  
@@ -971,12 +966,12 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	Variable varInd;
 	GeoSerialTransformer* stAirEnv = 0;
 	if(bPos) {
-	  GENFUNCTION phiInd = deltaPhi*(varInd + startPhi)*CLHEP::deg;
-	  TRANSFUNCTION xfAirEnv = Pow(HepGeom::RotateZ3D(1.0),phiInd)*HepGeom::TranslateZ3D(zposAirEnv)*HepGeom::TranslateX3D(rposAirEnv)*HepGeom::RotateY3D(90*CLHEP::deg);
+	  GENFUNCTION phiInd = deltaPhi*(varInd + startPhi)*GeoModelKernelUnits::deg;
+	  TRANSFUNCTION xfAirEnv = Pow(GeoTrf::RotateZ3D(1.0),phiInd)*GeoTrf::TranslateZ3D(zposAirEnv)*GeoTrf::TranslateX3D(rposAirEnv)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
 	  stAirEnv = new GeoSerialTransformer(pvAirEnv,&xfAirEnv,nAirEnv);
 	} else {
-	  GENFUNCTION phiInd = (180 - deltaPhi*(varInd + startPhi))*CLHEP::deg;
-	  TRANSFUNCTION xfAirEnv = Pow(HepGeom::RotateZ3D(1.0),phiInd)*HepGeom::TranslateZ3D(zposAirEnv)*HepGeom::TranslateX3D(rposAirEnv)*HepGeom::RotateY3D(90*CLHEP::deg);
+	  GENFUNCTION phiInd = (180 - deltaPhi*(varInd + startPhi))*GeoModelKernelUnits::deg;
+	  TRANSFUNCTION xfAirEnv = Pow(GeoTrf::RotateZ3D(1.0),phiInd)*GeoTrf::TranslateZ3D(zposAirEnv)*GeoTrf::TranslateX3D(rposAirEnv)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
 	  stAirEnv = new GeoSerialTransformer(pvAirEnv,&xfAirEnv,nAirEnv);
 	}
 
@@ -1000,8 +995,8 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	IRDBRecordset_ptr larPosition = m_pAccessSvc->getRecordsetPtr("LArPosition",detectorKey, detectorNode);
 	const IRDBRecord *posRec = GeoDBUtils::getTransformRecord(larPosition, "LARCRYO_EC_POS");
 	if(!posRec) throw std::runtime_error("Error, no lar position record in the database") ;
-	HepGeom::Transform3D xfPos = GeoDBUtils::getTransform(posRec);
-	double globalZMM = xfPos.getTranslation().z() + zposMM;
+	GeoTrf::Transform3D xfPos = GeoDBUtils::getTransform(posRec);
+	double globalZMM = xfPos.translation().z() + zposMM;
 
 	// Create MBTS manager
 	MbtsDetDescrManager* mbtsManager = new MbtsDetDescrManager();
@@ -1020,15 +1015,15 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	
 		nScin = curScin->getInt("SCINNUM");
 		eta = curScin->getInt("SCIN_ID")-1;
-		dx1Scin = curScin->getDouble("DX1")*CLHEP::mm;
-		dzScin  = curScin->getDouble("DZ")*CLHEP::mm;
-		zposScin = curScin->getDouble("ZPOS")*CLHEP::mm;
-		rposScin = curScin->getDouble("RPOS")*CLHEP::mm;
+		dx1Scin = curScin->getDouble("DX1")*GeoModelKernelUnits::mm;
+		dzScin  = curScin->getDouble("DZ")*GeoModelKernelUnits::mm;
+		zposScin = curScin->getDouble("ZPOS")*GeoModelKernelUnits::mm;
+		rposScin = curScin->getDouble("RPOS")*GeoModelKernelUnits::mm;
 		if(!curScin->isFieldNull("ETA"))
 		  scineta = curScin->getDouble("ETA");
 		if(!curScin->isFieldNull("DETA"))
 		  scindeta = curScin->getDouble("DETA");
-		deltaPhi = 360.*CLHEP::deg/nScin;
+		deltaPhi = 360.*GeoModelKernelUnits::deg/nScin;
 		try {
 		  if(!curScin->isFieldNull("STARTPHI"))
 		    startPhi = curScin->getDouble("STARTPHI");
@@ -1041,14 +1036,14 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 		const IRDBRecord* curScin = (*mbtsTrds)[trdMap[scinName]];
 		nScin = (*mbtsGen)[0]->getInt("NSCIN");
 		eta = curScin->getInt("SCIN_ID")-1;
-		dx1Scin = curScin->getDouble("DX1")*CLHEP::mm;
-		dzScin  = curScin->getDouble("DZ")*CLHEP::mm;
-		zposScin = (*mbtsGen)[0]->getDouble("ZPOSENV")*CLHEP::mm;
-		rposScin = ((*mbtsGen)[0]->getDouble("RPOSENV")+curScin->getDouble("ZPOS"))*CLHEP::mm;
+		dx1Scin = curScin->getDouble("DX1")*GeoModelKernelUnits::mm;
+		dzScin  = curScin->getDouble("DZ")*GeoModelKernelUnits::mm;
+		zposScin = (*mbtsGen)[0]->getDouble("ZPOSENV")*GeoModelKernelUnits::mm;
+		rposScin = ((*mbtsGen)[0]->getDouble("RPOSENV")+curScin->getDouble("ZPOS"))*GeoModelKernelUnits::mm;
 		scineta = curScin->getDouble("ETA");
 		scindeta = curScin->getDouble("DETA");
 		startPhi = (*mbtsGen)[0]->getDouble("STARTPHI");
-		deltaPhi = 360.*CLHEP::deg/nScin;
+		deltaPhi = 360.*GeoModelKernelUnits::deg/nScin;
 	      }
 
 	    for(int phi=0; phi<nScin; phi++) {
@@ -1104,7 +1099,7 @@ GeoPhysVol* LArGeo::EndcapCryostatConstruction::buildMbtsTrd(const IRDBRecord* r
     double xpos = rec->getDouble("XPOS");
     double ypos = rec->getDouble("YPOS");
     double zpos = rec->getDouble("ZPOS");
-    parent->add(new GeoTransform(HepGeom::TranslateZ3D(zpos)*HepGeom::TranslateY3D(ypos)*HepGeom::TranslateX3D(xpos)));
+    parent->add(new GeoTransform(GeoTrf::TranslateZ3D(zpos)*GeoTrf::TranslateY3D(ypos)*GeoTrf::TranslateX3D(xpos)));
     parent->add(pv);
   }
   return pv;

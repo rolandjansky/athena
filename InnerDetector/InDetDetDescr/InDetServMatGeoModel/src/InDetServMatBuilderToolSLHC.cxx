@@ -12,7 +12,7 @@
 #include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "InDetGeoModelUtils/InDetMaterialManager.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
 #include "InDetServMatGeoModel/ServicesTracker.h"
 #include "InDetServMatGeoModel/ServicesTrackerBuilder.h"
@@ -301,14 +301,14 @@ void InDetServMatBuilderToolSLHC::printNewVolume( const ServiceVolume& vol,
 		   << " zmin " << vol.zMin() 
 		   << " zmax " << vol.zMax() << endmsg;
  
-    msg(MSG::DEBUG) << "name " << vol.name() << " density " << dens * CLHEP::cm3 / CLHEP::g 
-		   << " [g/cm3] weight " << dens*param.volume()/CLHEP::kg  << " [kg]" << endmsg;
+    msg(MSG::DEBUG) << "name " << vol.name() << " density " << dens * GeoModelKernelUnits::cm3 / GeoModelKernelUnits::g 
+		   << " [g/cm3] weight " << dens*param.volume()/GeoModelKernelUnits::kg  << " [kg]" << endmsg;
   } 
   if (msgLvl(MSG::DEBUG)) {   // FIXME: change to VERBOSE when done!
     msg(MSG::DEBUG) << "Number of elements: " << mat.getNumElements() << endmsg;
     for (unsigned int i=0; i< mat.getNumElements(); i++) {
       msg(MSG::DEBUG) << "Element " << mat.getElement(i)->getName() 
-		      << " weight " << mat.getFraction(i) * weight / CLHEP::g << endmsg;
+		      << " weight " << mat.getFraction(i) * weight / GeoModelKernelUnits::g << endmsg;
     }
   }
 }
@@ -316,16 +316,16 @@ void InDetServMatBuilderToolSLHC::printNewVolume( const ServiceVolume& vol,
 void InDetServMatBuilderToolSLHC::fixMissingMaterials() 
 {
   /*
-  m_geoMgr->matMgr()->addWeightEntry( "CoaxialHVCable",    "indet::CoaxialHVCableBase",    0.0026*CLHEP::gram, true, "indet"); 
-  m_geoMgr->matMgr()->addWeightEntry( "TwistedPair_awg36", "indet::TwistedPair_awg36Base", 0.000381*CLHEP::gram, true, "indet"); 
-  m_geoMgr->matMgr()->addWeightEntry( "ScreenedTwistP_36", "indet::ScreenedTwistP_36Base", 0.000978*CLHEP::gram, true, "indet"); 
-  m_geoMgr->matMgr()->addWeightEntry( "Twinax",            "indet::TwinaxBase",            0.00517*CLHEP::gram, true, "indet"); 
+  m_geoMgr->matMgr()->addWeightEntry( "CoaxialHVCable",    "indet::CoaxialHVCableBase",    0.0026*GeoModelKernelUnits::gram, true, "indet"); 
+  m_geoMgr->matMgr()->addWeightEntry( "TwistedPair_awg36", "indet::TwistedPair_awg36Base", 0.000381*GeoModelKernelUnits::gram, true, "indet"); 
+  m_geoMgr->matMgr()->addWeightEntry( "ScreenedTwistP_36", "indet::ScreenedTwistP_36Base", 0.000978*GeoModelKernelUnits::gram, true, "indet"); 
+  m_geoMgr->matMgr()->addWeightEntry( "Twinax",            "indet::TwinaxBase",            0.00517*GeoModelKernelUnits::gram, true, "indet"); 
   */
-  //m_geoMgr->matMgr()->addWeightEntry( "ShieldingSleeve",   "indet::ShieldingSleeveBase",   0.033*CLHEP::gram, true, "indet"); 
-  //m_geoMgr->matMgr()->addWeightEntry( "ProtectionSleeve",   "indet::ProtectionSleeveBase", 0.004*CLHEP::gram, true, "indet"); 
+  //m_geoMgr->matMgr()->addWeightEntry( "ShieldingSleeve",   "indet::ShieldingSleeveBase",   0.033*GeoModelKernelUnits::gram, true, "indet"); 
+  //m_geoMgr->matMgr()->addWeightEntry( "ProtectionSleeve",   "indet::ProtectionSleeveBase", 0.004*GeoModelKernelUnits::gram, true, "indet"); 
   /*
   // the wight is 1, because the real weight is in ServiceMaterial NOT NEEDED
-  m_geoMgr->matMgr()->addWeightEntry( "CoolingPipe", "std::Titanium", 1*CLHEP::gram, true, "indet"); 
+  m_geoMgr->matMgr()->addWeightEntry( "CoolingPipe", "std::Titanium", 1*GeoModelKernelUnits::gram, true, "indet"); 
 
   std::vector<std::string> comps(2);
   std::vector<double> fracs(2);

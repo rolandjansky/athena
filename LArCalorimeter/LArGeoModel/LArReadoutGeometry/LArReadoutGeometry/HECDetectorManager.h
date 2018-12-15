@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef HECDetectorManager_h
-#define HECDetectorManager_h 1
+#ifndef LARREADOUTGEOMETRY_HECDETECTORMANAGER_H
+#define LARREADOUTGEOMETRY_HECDETECTORMANAGER_H
 #include "AthenaKernel/CLASS_DEF.h"
 #include "LArReadoutGeometry/HECLongBlock.h"
 #include "GeoModelKernel/GeoVDetectorManager.h"

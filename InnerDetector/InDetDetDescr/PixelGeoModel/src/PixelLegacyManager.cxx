@@ -3,11 +3,12 @@
 */
 
 
-#include "PixelGeoModel/PixelLegacyManager.h"
+#include "PixelLegacyManager.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "GeoModelKernel/Units.h"
 
 #include <sstream>
 #include <string>
@@ -88,36 +89,36 @@ int PixelLegacyManager::PixelBarrelNTFrame()
 double PixelLegacyManager::PixelBarrelBFrameWidth() 
 {
   if (m_BarrelInSFrame) {
-    return (*m_pfba)[0]->getDouble("WIDTH1")*CLHEP::cm;
+    return (*m_pfba)[0]->getDouble("WIDTH1")*GeoModelKernelUnits::cm;
   } else {
-    return (*m_pfec)[0]->getDouble("WIDTH1")*CLHEP::cm;
+    return (*m_pfec)[0]->getDouble("WIDTH1")*GeoModelKernelUnits::cm;
   }
 }
 
 double PixelLegacyManager::PixelBarrelTFrameWidth() 
 {
   if (m_BarrelInSFrame) {
-    return (*m_pfba)[0]->getDouble("WIDTH2")*CLHEP::cm;
+    return (*m_pfba)[0]->getDouble("WIDTH2")*GeoModelKernelUnits::cm;
   } else {
-    return (*m_pfec)[0]->getDouble("WIDTH2")*CLHEP::cm;
+    return (*m_pfec)[0]->getDouble("WIDTH2")*GeoModelKernelUnits::cm;
   }
 }
 
 double PixelLegacyManager::PixelBarrelFrameLength() 
 {
   if (m_BarrelInSFrame) {
-    return (*m_pfba)[0]->getDouble("LENGTH")*CLHEP::cm;
+    return (*m_pfba)[0]->getDouble("LENGTH")*GeoModelKernelUnits::cm;
   } else {
-    return (*m_pfec)[0]->getDouble("LENGTH")*CLHEP::cm;
+    return (*m_pfec)[0]->getDouble("LENGTH")*GeoModelKernelUnits::cm;
   }
 }
 
 double PixelLegacyManager::PixelBarrelFrameOffset() 
 {
   if (m_BarrelInSFrame) {
-    return (*m_pfba)[0]->getDouble("OFFSET")*CLHEP::cm;
+    return (*m_pfba)[0]->getDouble("OFFSET")*GeoModelKernelUnits::cm;
   } else {
-    return (*m_pfec)[0]->getDouble("OFFSET")*CLHEP::cm;
+    return (*m_pfec)[0]->getDouble("OFFSET")*GeoModelKernelUnits::cm;
   }
 }
 
@@ -134,33 +135,33 @@ int PixelLegacyManager::PixelEndcapNTFrame()
 
 double PixelLegacyManager::PixelEndcapBFrameWidth()
 {
-  return (*m_pecf)[0]->getDouble("WIDTH1")*CLHEP::cm;
+  return (*m_pecf)[0]->getDouble("WIDTH1")*GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelEndcapTFrameWidth() 
 {
-  return (*m_pecf)[0]->getDouble("WIDTH2")*CLHEP::cm;
+  return (*m_pecf)[0]->getDouble("WIDTH2")*GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelEndcapFrameLength() 
 {
-  return (*m_pecf)[0]->getDouble("LENGTH")*CLHEP::cm;
+  return (*m_pecf)[0]->getDouble("LENGTH")*GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelEndcapFrameOffset() 
 {
-  return (*m_pecf)[0]->getDouble("OFFSET")*CLHEP::cm;
+  return (*m_pecf)[0]->getDouble("OFFSET")*GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelBFrameHalfLength() 
 {
   if (m_BarrelInSFrame) {
-    return (*m_pbba)[0]->getDouble("DZ")*CLHEP::cm;
+    return (*m_pbba)[0]->getDouble("DZ")*GeoModelKernelUnits::cm;
   } else {
     if (m_EndcapInSFrame) {
-      return (*m_pecb)[0]->getDouble("DZ")*CLHEP::cm;
+      return (*m_pecb)[0]->getDouble("DZ")*GeoModelKernelUnits::cm;
     } else {
-      return (*m_pbec)[0]->getDouble("DZ")*CLHEP::cm;
+      return (*m_pbec)[0]->getDouble("DZ")*GeoModelKernelUnits::cm;
     }
   }
 }
@@ -168,12 +169,12 @@ double PixelLegacyManager::PixelBFrameHalfLength()
 double PixelLegacyManager::PixelBFrameHalfWidth() 
 {
   if (m_BarrelInSFrame) {
-    return (*m_pbba)[0]->getDouble("DY")*CLHEP::cm;
+    return (*m_pbba)[0]->getDouble("DY")*GeoModelKernelUnits::cm;
   } else {
     if (m_EndcapInSFrame) {
-      return (*m_pecb)[0]->getDouble("DY")*CLHEP::cm;
+      return (*m_pecb)[0]->getDouble("DY")*GeoModelKernelUnits::cm;
     } else {
-      return (*m_pbec)[0]->getDouble("DY")*CLHEP::cm;
+      return (*m_pbec)[0]->getDouble("DY")*GeoModelKernelUnits::cm;
     }
   }
 }
@@ -181,12 +182,12 @@ double PixelLegacyManager::PixelBFrameHalfWidth()
 double PixelLegacyManager::PixelBFrameHalfThickness() 
 {
   if (m_BarrelInSFrame) {
-    return (*m_pbba)[0]->getDouble("DX")*CLHEP::cm;
+    return (*m_pbba)[0]->getDouble("DX")*GeoModelKernelUnits::cm;
   } else {
     if (m_EndcapInSFrame) {
-      return (*m_pecb)[0]->getDouble("DX")*CLHEP::cm;
+      return (*m_pecb)[0]->getDouble("DX")*GeoModelKernelUnits::cm;
     } else {
-      return (*m_pbec)[0]->getDouble("DX")*CLHEP::cm;
+      return (*m_pbec)[0]->getDouble("DX")*GeoModelKernelUnits::cm;
     }
   }
 }
@@ -194,15 +195,15 @@ double PixelLegacyManager::PixelBFrameHalfThickness()
 double PixelLegacyManager::PixelTFrameHalfLength() 
 {
   if (m_BarrelInSFrame) {
-    return (*m_ptba)[0]->getDouble("DZ")*CLHEP::cm;
+    return (*m_ptba)[0]->getDouble("DZ")*GeoModelKernelUnits::cm;
   } else {
     if (m_EndcapInSFrame) {
-      return (*m_pect)[0]->getDouble("DZ")*CLHEP::cm;
+      return (*m_pect)[0]->getDouble("DZ")*GeoModelKernelUnits::cm;
     } else {
       if (m_EndConeSFrame) {
-        return (*m_pecn)[0]->getDouble("DZ")*CLHEP::cm;
+        return (*m_pecn)[0]->getDouble("DZ")*GeoModelKernelUnits::cm;
       } else {
-        return (*m_ptec)[0]->getDouble("DZ")*CLHEP::cm;
+        return (*m_ptec)[0]->getDouble("DZ")*GeoModelKernelUnits::cm;
       } 
     }
   }
@@ -211,15 +212,15 @@ double PixelLegacyManager::PixelTFrameHalfLength()
 double PixelLegacyManager::PixelTFrameHalfWidthY() 
 {
   if (m_BarrelInSFrame) {
-    return (*m_ptba)[0]->getDouble("DY")*CLHEP::cm;
+    return (*m_ptba)[0]->getDouble("DY")*GeoModelKernelUnits::cm;
   } else {
     if (m_EndcapInSFrame) {
-      return (*m_pect)[0]->getDouble("DY")*CLHEP::cm;
+      return (*m_pect)[0]->getDouble("DY")*GeoModelKernelUnits::cm;
     } else {
       if (m_EndConeSFrame) {
-        return (*m_pecn)[0]->getDouble("DY")*CLHEP::cm;
+        return (*m_pecn)[0]->getDouble("DY")*GeoModelKernelUnits::cm;
       } else {
-        return (*m_ptec)[0]->getDouble("DY")*CLHEP::cm;
+        return (*m_ptec)[0]->getDouble("DY")*GeoModelKernelUnits::cm;
       } 
     }
   }
@@ -228,15 +229,15 @@ double PixelLegacyManager::PixelTFrameHalfWidthY()
 double PixelLegacyManager::PixelTFrameHalfWidthXzn() 
 {
   if (m_BarrelInSFrame) {
-    return (*m_ptba)[0]->getDouble("DX1")*CLHEP::cm;
+    return (*m_ptba)[0]->getDouble("DX1")*GeoModelKernelUnits::cm;
   } else {
     if (m_EndcapInSFrame) {
-      return (*m_pect)[0]->getDouble("DX1")*CLHEP::cm;
+      return (*m_pect)[0]->getDouble("DX1")*GeoModelKernelUnits::cm;
     } else {    
       if (m_EndConeSFrame) {
-        return (*m_pecn)[0]->getDouble("DX1")*CLHEP::cm;
+        return (*m_pecn)[0]->getDouble("DX1")*GeoModelKernelUnits::cm;
       } else {
-        return (*m_ptec)[0]->getDouble("DX1")*CLHEP::cm;
+        return (*m_ptec)[0]->getDouble("DX1")*GeoModelKernelUnits::cm;
       } 
     }
   }
@@ -245,15 +246,15 @@ double PixelLegacyManager::PixelTFrameHalfWidthXzn()
 double PixelLegacyManager::PixelTFrameHalfWidthXzp() 
 {
   if (m_BarrelInSFrame) {
-    return (*m_ptba)[0]->getDouble("DX2")*CLHEP::cm;
+    return (*m_ptba)[0]->getDouble("DX2")*GeoModelKernelUnits::cm;
   } else {
     if (m_EndcapInSFrame) {
-      return (*m_pect)[0]->getDouble("DX2")*CLHEP::cm;
+      return (*m_pect)[0]->getDouble("DX2")*GeoModelKernelUnits::cm;
     } else {
       if (m_EndConeSFrame) {
-        return (*m_pecn)[0]->getDouble("DX2")*CLHEP::cm;
+        return (*m_pecn)[0]->getDouble("DX2")*GeoModelKernelUnits::cm;
       } else {
-        return (*m_ptec)[0]->getDouble("DX2")*CLHEP::cm;
+        return (*m_ptec)[0]->getDouble("DX2")*GeoModelKernelUnits::cm;
       } 
     }
   }
@@ -262,15 +263,15 @@ double PixelLegacyManager::PixelTFrameHalfWidthXzp()
 double PixelLegacyManager::PixelTFrameDzDr()
 {
   if (m_BarrelInSFrame) {
-    return (*m_ptba)[0]->getDouble("DZDR")*CLHEP::deg;
+    return (*m_ptba)[0]->getDouble("DZDR")*GeoModelKernelUnits::deg;
   } else {
     if (m_EndcapInSFrame) {
-      return (*m_pect)[0]->getDouble("DZDR")*CLHEP::cm;
+      return (*m_pect)[0]->getDouble("DZDR")*GeoModelKernelUnits::cm;
     } else {
       if (m_EndConeSFrame) {
-        return (*m_pecn)[0]->getDouble("DZDR")*CLHEP::deg;
+        return (*m_pecn)[0]->getDouble("DZDR")*GeoModelKernelUnits::deg;
       } else {
-        return (*m_ptec)[0]->getDouble("DZDR")*CLHEP::deg;
+        return (*m_ptec)[0]->getDouble("DZDR")*GeoModelKernelUnits::deg;
       } 
     }
   }
@@ -278,33 +279,33 @@ double PixelLegacyManager::PixelTFrameDzDr()
 
 double PixelLegacyManager::PixelBarrelFrameECRadius()
 {
-  return (*m_pecn)[0]->getDouble("RADIUS")*CLHEP::cm;
+  return (*m_pecn)[0]->getDouble("RADIUS")*GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelBarrelFrameECZPos() 
 {
-  return (*m_pecn)[0]->getDouble("Z")*CLHEP::cm;
+  return (*m_pecn)[0]->getDouble("Z")*GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelBarrelFrameECAlphaX() 
 {
-  return (*m_pecn)[0]->getDouble("ANGLEX")*CLHEP::deg;
+  return (*m_pecn)[0]->getDouble("ANGLEX")*GeoModelKernelUnits::deg;
 }
 
 double PixelLegacyManager::PixelBarrelFrameECAlphaY() 
 {
-  return (*m_pecn)[0]->getDouble("ANGLEY")*CLHEP::deg;
+  return (*m_pecn)[0]->getDouble("ANGLEY")*GeoModelKernelUnits::deg;
 }
 
 
 double PixelLegacyManager::PixelLadderThickness() 
 {
-  return 2 * 1.48972*CLHEP::mm;
+  return 2 * 1.48972*GeoModelKernelUnits::mm;
 }
 
 double PixelLegacyManager::PixelLadderLength() 
 {
-  return 2 * (*m_pxbi)[0]->getDouble("DZLADDER")*CLHEP::cm;
+  return 2 * (*m_pxbi)[0]->getDouble("DZLADDER")*GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelLadderServicesX() 
@@ -314,28 +315,28 @@ double PixelLegacyManager::PixelLadderServicesX()
 
 double PixelLegacyManager::PixelLadderServicesY() 
 {
-  return 3*CLHEP::mm;
+  return 3*GeoModelKernelUnits::mm;
 }
 
 
 double PixelLegacyManager::PixelLadderCableOffsetX() 
 {
-  return 0.099*CLHEP::mm;
+  return 0.099*GeoModelKernelUnits::mm;
 }
 
 double PixelLegacyManager::PixelLadderCableOffsetY() 
 {
-  return 4*CLHEP::mm;
+  return 4*GeoModelKernelUnits::mm;
 }
 
 double PixelLegacyManager::PixelLadderConnectorOffsetX() 
 {
-  return -5.8*CLHEP::mm;
+  return -5.8*GeoModelKernelUnits::mm;
 }
 
 double PixelLegacyManager::PixelLadderPigtailOffsetY() 
 {
-  return -0.5*CLHEP::mm - PixelLadderCableOffsetY();
+  return -0.5*GeoModelKernelUnits::mm - PixelLadderCableOffsetY();
 }
 
 
@@ -352,34 +353,34 @@ double
 PixelLegacyManager::PixelCableZStart(int index)
 {
   // In old code two cables were connected to middle. Correction stops them touching.
-  double correction = (index == 7) ? 0.000001*CLHEP::cm : 0;
-  return ((*m_poci)[index]->getDouble("Z")  -  (*m_poci)[index]->getDouble("DZ")) * CLHEP::cm + correction;
+  double correction = (index == 7) ? 0.000001*GeoModelKernelUnits::cm : 0;
+  return ((*m_poci)[index]->getDouble("Z")  -  (*m_poci)[index]->getDouble("DZ")) * GeoModelKernelUnits::cm + correction;
 }
 
 double 
 PixelLegacyManager::PixelCableZEnd(int index)
 {
   // In old code two cables were connected to middle. Correction stops them touching.
-  double correction = (index == 7) ? 0.000001*CLHEP::cm : 0;
-  return ((*m_poci)[index]->getDouble("Z") +  (*m_poci)[index]->getDouble("DZ")) * CLHEP::cm + correction;
+  double correction = (index == 7) ? 0.000001*GeoModelKernelUnits::cm : 0;
+  return ((*m_poci)[index]->getDouble("Z") +  (*m_poci)[index]->getDouble("DZ")) * GeoModelKernelUnits::cm + correction;
 }
 
 double 
 PixelLegacyManager::PixelCableWidth(int index)
 {
-  return (*m_poci)[index]->getDouble("DY") * CLHEP::cm;
+  return (*m_poci)[index]->getDouble("DY") * GeoModelKernelUnits::cm;
 }
 
 double 
 PixelLegacyManager::PixelCableThickness(int index)
 {
-  return (*m_poci)[index]->getDouble("DX")*CLHEP::cm;
+  return (*m_poci)[index]->getDouble("DX")*GeoModelKernelUnits::cm;
 }
 
 double 
 PixelLegacyManager::PixelCableStackOffset(int index)
 {
-  return (*m_poci)[index]->getDouble("X")*CLHEP::cm;
+  return (*m_poci)[index]->getDouble("X")*GeoModelKernelUnits::cm;
 }
 
 
@@ -416,47 +417,47 @@ double PixelLegacyManager::PixelTMTVariable(int iPart, const std::string & varNa
 
 double PixelLegacyManager::PixelTMTDzdr(int iPart)
 {
-  return PixelTMTVariable(iPart, "DZDR") * CLHEP::deg;
+  return PixelTMTVariable(iPart, "DZDR") * GeoModelKernelUnits::deg;
 }
 
 
 double PixelLegacyManager::PixelTMTPosX(int iPart)
 {
-  return PixelTMTVariable(iPart, "X") * CLHEP::cm;
+  return PixelTMTVariable(iPart, "X") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelTMTPosZ(int iPart)
 {
-  return PixelTMTVariable(iPart, "Z") * CLHEP::cm;
+  return PixelTMTVariable(iPart, "Z") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelTMTLength(int iPart)
 {
-  return 2 * PixelTMTVariable(iPart, "DZ") * CLHEP::cm;
+  return 2 * PixelTMTVariable(iPart, "DZ") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelTMTWidthX2(int iPart)
 {
-  return 2 * PixelTMTVariable(iPart, "DX2") * CLHEP::cm;
+  return 2 * PixelTMTVariable(iPart, "DX2") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelTMTWidthX1(int iPart)
 {
-  return 2 * PixelTMTVariable(iPart, "DX1") * CLHEP::cm;
+  return 2 * PixelTMTVariable(iPart, "DX1") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelTMTWidthY(int iPart)
 {
-  return 2 * PixelTMTVariable(iPart, "DY") * CLHEP::cm;
+  return 2 * PixelTMTVariable(iPart, "DY") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelTMTBaseX1(int iPart)
 {
   double theta = PixelTMTDzdr(iPart);
   if (theta == 0) {
-    return PixelTMTVariable(iPart, "X")*CLHEP::cm + 0.25*(PixelTMTWidthX1(iPart)+PixelTMTWidthX2(iPart));
+    return PixelTMTVariable(iPart, "X")*GeoModelKernelUnits::cm + 0.25*(PixelTMTWidthX1(iPart)+PixelTMTWidthX2(iPart));
   } else {
-    return  PixelTMTVariable(iPart, "X")*CLHEP::cm - 0.5*PixelTMTLength(iPart) * tan(theta) + 0.5*PixelTMTWidthX1(iPart);
+    return  PixelTMTVariable(iPart, "X")*GeoModelKernelUnits::cm - 0.5*PixelTMTLength(iPart) * tan(theta) + 0.5*PixelTMTWidthX1(iPart);
   }
 }
 
@@ -464,15 +465,15 @@ double PixelLegacyManager::PixelTMTBaseX2(int iPart)
 {
   double theta = PixelTMTDzdr(iPart);
   if (theta == 0) {
-    return PixelTMTVariable(iPart, "X")*CLHEP::cm + 0.25*(PixelTMTWidthX1(iPart)+PixelTMTWidthX2(iPart));
+    return PixelTMTVariable(iPart, "X")*GeoModelKernelUnits::cm + 0.25*(PixelTMTWidthX1(iPart)+PixelTMTWidthX2(iPart));
   } else {
-    return PixelTMTVariable(iPart, "X")*CLHEP::cm + 0.5*PixelTMTLength(iPart) * tan(theta) + 0.5*PixelTMTWidthX2(iPart);
+    return PixelTMTVariable(iPart, "X")*GeoModelKernelUnits::cm + 0.5*PixelTMTLength(iPart) * tan(theta) + 0.5*PixelTMTWidthX2(iPart);
   }
 }
 
 double PixelLegacyManager::PixelTMTPosY(int iPart)
 {
-  return PixelTMTVariable(iPart, "Y") * CLHEP::cm;
+  return PixelTMTVariable(iPart, "Y") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelTMTPosZ1(int iPart)
@@ -497,52 +498,52 @@ bool PixelLegacyManager::PixelTMTPerModule(int iPart)
 //
 double PixelLegacyManager::PixelOmegaUpperBendX()
 {
-  return (*m_poti)[2]->getDouble("X") * CLHEP::cm;
+  return (*m_poti)[2]->getDouble("X") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelOmegaUpperBendY()
 {
-  return (*m_poti)[2]->getDouble("Y") * CLHEP::cm;
+  return (*m_poti)[2]->getDouble("Y") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelOmegaUpperBendRadius()
 {
-  return (*m_poti)[2]->getDouble("RMAX") * CLHEP::cm;
+  return (*m_poti)[2]->getDouble("RMAX") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelOmegaLowerBendX()
 {
-  return (*m_poti)[0]->getDouble("X") * CLHEP::cm;
+  return (*m_poti)[0]->getDouble("X") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelOmegaLowerBendY()
 {
-  return (*m_poti)[0]->getDouble("Y") * CLHEP::cm;
+  return (*m_poti)[0]->getDouble("Y") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelOmegaLowerBendRadius()
 {
-  return (*m_poti)[0]->getDouble("RMAX") * CLHEP::cm;
+  return (*m_poti)[0]->getDouble("RMAX") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelOmegaWallThickness()
 {
-  return ((*m_poti)[0]->getDouble("RMAX") - (*m_poti)[0]->getDouble("RMIN")) * CLHEP::cm;
+  return ((*m_poti)[0]->getDouble("RMAX") - (*m_poti)[0]->getDouble("RMIN")) * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelOmegaLength()
 {
-  return 2. * (*m_poti)[0]->getDouble("DZ") * CLHEP::cm;
+  return 2. * (*m_poti)[0]->getDouble("DZ") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelOmegaStartY()
 {
-  return ((*m_posi)[0]->getDouble("Y") + 0.5*(*m_posi)[0]->getDouble("DY")) * CLHEP::cm;
+  return ((*m_posi)[0]->getDouble("Y") + 0.5*(*m_posi)[0]->getDouble("DY")) * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelOmegaEndY()
 {
-  return ((*m_posi)[1]->getDouble("Y") - 0.5*(*m_posi)[1]->getDouble("DY")) * CLHEP::cm;
+  return ((*m_posi)[1]->getDouble("Y") - 0.5*(*m_posi)[1]->getDouble("DY")) * GeoModelKernelUnits::cm;
 }
 
 //
@@ -551,42 +552,42 @@ double PixelLegacyManager::PixelOmegaEndY()
 
 double PixelLegacyManager::PixelAlTubeUpperBendX()
 {
-  return (*m_poti)[5]->getDouble("X") * CLHEP::cm;
+  return (*m_poti)[5]->getDouble("X") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelAlTubeUpperBendY()
 {
-  return (*m_poti)[5]->getDouble("Y") * CLHEP::cm;
+  return (*m_poti)[5]->getDouble("Y") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelAlTubeUpperBendRadius()
 {
-  return (*m_poti)[5]->getDouble("RMAX") * CLHEP::cm;
+  return (*m_poti)[5]->getDouble("RMAX") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelAlTubeLowerBendX()
 {
-  return (*m_poti)[3]->getDouble("X") * CLHEP::cm;
+  return (*m_poti)[3]->getDouble("X") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelAlTubeLowerBendY()
 {
-  return (*m_poti)[3]->getDouble("Y") * CLHEP::cm;
+  return (*m_poti)[3]->getDouble("Y") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelAlTubeLowerBendRadius()
 {
-  return (*m_poti)[3]->getDouble("RMAX") * CLHEP::cm;
+  return (*m_poti)[3]->getDouble("RMAX") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelAlTubeWallThickness()
 {
-  return ((*m_poti)[3]->getDouble("RMAX") - (*m_poti)[3]->getDouble("RMIN")) * CLHEP::cm;
+  return ((*m_poti)[3]->getDouble("RMAX") - (*m_poti)[3]->getDouble("RMIN")) * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelAlTubeLength()
 {
-  return 2 * (*m_poti)[3]->getDouble("DZ") * CLHEP::cm;
+  return 2 * (*m_poti)[3]->getDouble("DZ") * GeoModelKernelUnits::cm;
 }
 
 //
@@ -600,32 +601,32 @@ int PixelLegacyManager::PixelNumOmegaGlueElements()
 
 double PixelLegacyManager::PixelOmegaGlueStartX(int index)
 {
-  return ((*m_posi)[index+2]->getDouble("X") - 0.5*(*m_posi)[index+2]->getDouble("DX")) * CLHEP::cm;
+  return ((*m_posi)[index+2]->getDouble("X") - 0.5*(*m_posi)[index+2]->getDouble("DX")) * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelOmegaGlueThickness(int index)
 {
-  return (*m_posi)[index+2]->getDouble("DX") * CLHEP::cm;
+  return (*m_posi)[index+2]->getDouble("DX") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelOmegaGlueStartY(int index)
 {
-  return ((*m_posi)[index+2]->getDouble("Y") - 0.5*(*m_posi)[index+2]->getDouble("DY")) * CLHEP::cm;
+  return ((*m_posi)[index+2]->getDouble("Y") - 0.5*(*m_posi)[index+2]->getDouble("DY")) * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelOmegaGlueEndY(int index)
 {
-  return ((*m_posi)[index+2]->getDouble("Y") + 0.5*(*m_posi)[index+2]->getDouble("DY")) * CLHEP::cm;
+  return ((*m_posi)[index+2]->getDouble("Y") + 0.5*(*m_posi)[index+2]->getDouble("DY")) * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelOmegaGlueLength(int index)
 {
-  return 2 * (*m_posi)[index+2]->getDouble("DZ") * CLHEP::cm;
+  return 2 * (*m_posi)[index+2]->getDouble("DZ") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelOmegaGluePosZ(int index)
 {
-  return (*m_posi)[index+2]->getDouble("Z") * CLHEP::cm;
+  return (*m_posi)[index+2]->getDouble("Z") * GeoModelKernelUnits::cm;
 }
 
 int PixelLegacyManager::PixelOmegaGlueTypeNum(int index)
@@ -639,24 +640,24 @@ int PixelLegacyManager::PixelOmegaGlueTypeNum(int index)
 
 double PixelLegacyManager::PixelFluidZ1(int index)
 {
-  double dz = (*m_pcff)[index%2]->getDouble("DZ")*CLHEP::cm;
-  double posz = (*m_pcff)[index%2]->getDouble("Z")*CLHEP::cm;
+  double dz = (*m_pcff)[index%2]->getDouble("DZ")*GeoModelKernelUnits::cm;
+  double posz = (*m_pcff)[index%2]->getDouble("Z")*GeoModelKernelUnits::cm;
   return posz-dz;
 }
 
 double PixelLegacyManager::PixelFluidZ2(int index)
 {
-  double dz = (*m_pcff)[index%2]->getDouble("DZ")*CLHEP::cm;
-  double posz = (*m_pcff)[index%2]->getDouble("Z")*CLHEP::cm;
+  double dz = (*m_pcff)[index%2]->getDouble("DZ")*GeoModelKernelUnits::cm;
+  double posz = (*m_pcff)[index%2]->getDouble("Z")*GeoModelKernelUnits::cm;
   return posz+dz;
 }
 
 double PixelLegacyManager::PixelFluidThick1(int index)
 {
   if (index < 2) {
-    return 2*(*m_pcff)[index%2]->getDouble("DX1")*CLHEP::cm;
+    return 2*(*m_pcff)[index%2]->getDouble("DX1")*GeoModelKernelUnits::cm;
   } else {
-    return 2*(*m_pcff)[index%2]->getDouble("DX2")*CLHEP::cm;
+    return 2*(*m_pcff)[index%2]->getDouble("DX2")*GeoModelKernelUnits::cm;
   }
 }
 
@@ -664,26 +665,26 @@ double PixelLegacyManager::PixelFluidThick1(int index)
 double PixelLegacyManager::PixelFluidThick2(int index)
 {
   if (index < 2) {
-    return 2*(*m_pcff)[index%2]->getDouble("DX2")*CLHEP::cm;
+    return 2*(*m_pcff)[index%2]->getDouble("DX2")*GeoModelKernelUnits::cm;
   } else {
-    return 2*(*m_pcff)[index%2]->getDouble("DX1")*CLHEP::cm;
+    return 2*(*m_pcff)[index%2]->getDouble("DX1")*GeoModelKernelUnits::cm;
   }
 }
 
 double PixelLegacyManager::PixelFluidWidth(int index)
 {
-  return 2*(*m_pcff)[index%2]->getDouble("DY")*CLHEP::cm;
+  return 2*(*m_pcff)[index%2]->getDouble("DY")*GeoModelKernelUnits::cm;
 }
 
 
 double PixelLegacyManager::PixelFluidX(int index)
 {
-  return (*m_pcff)[index%2]->getDouble("X")*CLHEP::cm;
+  return (*m_pcff)[index%2]->getDouble("X")*GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelFluidY(int index)
 {
-  return (*m_pcff)[index%2]->getDouble("Y")*CLHEP::cm;
+  return (*m_pcff)[index%2]->getDouble("Y")*GeoModelKernelUnits::cm;
 }
 
 int PixelLegacyManager::PixelFluidType(int index)
@@ -715,17 +716,17 @@ int PixelLegacyManager::PixelFluidOrient(int layer, int phi)
 //
 double PixelLegacyManager::PixelPigtailThickness()
 {
-  return (*m_poai)[0]->getDouble("DX") * CLHEP::cm;
+  return (*m_poai)[0]->getDouble("DX") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelPigtailStartY()
 {
-  return -0.5*(*m_poai)[0]->getDouble("DY") * CLHEP::cm;
+  return -0.5*(*m_poai)[0]->getDouble("DY") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelPigtailEndY()
 {
-  return  0.5*(*m_poai)[0]->getDouble("DY") * CLHEP::cm;
+  return  0.5*(*m_poai)[0]->getDouble("DY") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelPigtailFlatWidthZ()
@@ -733,59 +734,59 @@ double PixelLegacyManager::PixelPigtailFlatWidthZ()
   // Assume its actually the full width but in old geometry it was interpreted as a half width so we
   // multiply by 2. This gives the flat section twice the width of the curved section which I don't think was the 
   // intention.
-  return 2*(*m_poai)[0]->getDouble("DZ") * CLHEP::cm;
+  return 2*(*m_poai)[0]->getDouble("DZ") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelPigtailWidthZ()
 {
-  return 2*(*m_pobi)[0]->getDouble("DZ") * CLHEP::cm;
+  return 2*(*m_pobi)[0]->getDouble("DZ") * GeoModelKernelUnits::cm;
 }
 
 // FIXME some weird offset
 double PixelLegacyManager::PixelPigtailPosX()
 {
-  return (*m_poai)[0]->getDouble("X") * CLHEP::cm + PixelLadderConnectorOffsetX();
+  return (*m_poai)[0]->getDouble("X") * GeoModelKernelUnits::cm + PixelLadderConnectorOffsetX();
 }
 
 double PixelLegacyManager::PixelPigtailPosZ()
 {
-  return (*m_poai)[0]->getDouble("Z") * CLHEP::cm;
+  return (*m_poai)[0]->getDouble("Z") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelPigtailBendX()
 {
-  return (*m_pobi)[0]->getDouble("X") * CLHEP::cm + PixelLadderConnectorOffsetX();
+  return (*m_pobi)[0]->getDouble("X") * GeoModelKernelUnits::cm + PixelLadderConnectorOffsetX();
 }
 
 double PixelLegacyManager::PixelPigtailBendY()
 {
-  return (*m_pobi)[0]->getDouble("Y") * CLHEP::cm + PixelLadderPigtailOffsetY();
+  return (*m_pobi)[0]->getDouble("Y") * GeoModelKernelUnits::cm + PixelLadderPigtailOffsetY();
 }
 
 double PixelLegacyManager::PixelPigtailBendRMin()
 {
-  return (*m_pobi)[0]->getDouble("RMIN") * CLHEP::cm;
+  return (*m_pobi)[0]->getDouble("RMIN") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelPigtailBendRMax()
 {
-  return (*m_pobi)[0]->getDouble("RMAX") * CLHEP::cm;
+  return (*m_pobi)[0]->getDouble("RMAX") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelPigtailBendPhiMin()
 {
-  return (*m_pobi)[0]->getDouble("PHI1") * CLHEP::deg;
+  return (*m_pobi)[0]->getDouble("PHI1") * GeoModelKernelUnits::deg;
 }
 
 double PixelLegacyManager::PixelPigtailBendPhiMax()
 {
-  return (*m_pobi)[0]->getDouble("PHI2") * CLHEP::deg;
+  return (*m_pobi)[0]->getDouble("PHI2") * GeoModelKernelUnits::deg;
 }
 
 double PixelLegacyManager::PixelPigtailEnvelopeLength()
 {
   // FIXME Check
-  return 2*(*m_posi)[9]->getDouble("DZ") * CLHEP::cm;
+  return 2*(*m_posi)[9]->getDouble("DZ") * GeoModelKernelUnits::cm;
 }
 
 //
@@ -798,22 +799,22 @@ int PixelLegacyManager::PixelNumConnectorElements()
 
 double PixelLegacyManager::PixelConnectorWidthX(int index)
 {
-  return (*m_poai)[index+1]->getDouble("DX") * CLHEP::cm;
+  return (*m_poai)[index+1]->getDouble("DX") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelConnectorWidthY(int index)
 {
-  return (*m_poai)[index+1]->getDouble("DY") * CLHEP::cm;
+  return (*m_poai)[index+1]->getDouble("DY") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelConnectorWidthZ(int index)
 {
-  return 2*(*m_poai)[index+1]->getDouble("DZ") * CLHEP::cm;
+  return 2*(*m_poai)[index+1]->getDouble("DZ") * GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::PixelConnectorPosX(int index)
 {
-  return (*m_poai)[index+1]->getDouble("X") * CLHEP::cm + PixelLadderConnectorOffsetX();
+  return (*m_poai)[index+1]->getDouble("X") * GeoModelKernelUnits::cm + PixelLadderConnectorOffsetX();
 }
 
 double PixelLegacyManager::PixelConnectorPosY(int)
@@ -823,8 +824,8 @@ double PixelLegacyManager::PixelConnectorPosY(int)
 
 double PixelLegacyManager::PixelConnectorPosZ(int index)
 {
-  // same as  (*m_pobi)[0]->getDouble("Z") * CLHEP::cm;
-  return (*m_poai)[index+1]->getDouble("Z") * CLHEP::cm;
+  // same as  (*m_pobi)[0]->getDouble("Z") * GeoModelKernelUnits::cm;
+  return (*m_poai)[index+1]->getDouble("Z") * GeoModelKernelUnits::cm;
 }
 
 
@@ -907,19 +908,19 @@ int PixelLegacyManager::EmptyRowConnections(int index)
 
 double PixelLegacyManager::DesignRPActiveArea()
 {
-  return (*m_pxbi)[0]->getDouble("DYACTIVE")*CLHEP::cm;
+  return (*m_pxbi)[0]->getDouble("DYACTIVE")*GeoModelKernelUnits::cm;
 
 }
 
 double PixelLegacyManager::DesignZActiveArea()
 {
-  return (*m_pxbi)[0]->getDouble("DZELEB")*CLHEP::cm;
+  return (*m_pxbi)[0]->getDouble("DZELEB")*GeoModelKernelUnits::cm;
 }
     
 double PixelLegacyManager::DesignPitchRP(bool isBLayer)
 {
   int type = designType(isBLayer);
-  return (*m_pxbd)[type]->getDouble("PITCHRP")*CLHEP::cm;
+  return (*m_pxbd)[type]->getDouble("PITCHRP")*GeoModelKernelUnits::cm;
 }
 
 // FIXME m_dc1Geometry
@@ -929,9 +930,9 @@ double PixelLegacyManager::DesignPitchZ(bool isBLayer)
   double pitchZ;
   if(isBLayer && m_dc1Geometry) {
     // Override NOVA 
-    pitchZ = 300 * CLHEP::micrometer; 
+    pitchZ = 300 * GeoModelKernelUnits::micrometer; 
   } else {
-    pitchZ = (*m_pxbd)[type]->getDouble("PITCHZ") * CLHEP::cm;
+    pitchZ = (*m_pxbd)[type]->getDouble("PITCHZ") * GeoModelKernelUnits::cm;
   }
   return pitchZ;
 }
@@ -944,12 +945,12 @@ double PixelLegacyManager::DesignPitchZLong(bool isBLayer)
 
 double PixelLegacyManager::DesignGapRP()
 {
-  return (*m_pdch)[0]->getDouble("GAPRP")*CLHEP::cm;
+  return (*m_pdch)[0]->getDouble("GAPRP")*GeoModelKernelUnits::cm;
 }
 
 double PixelLegacyManager::DesignGapZ()
 {
-  return (*m_pdch)[0]->getDouble("GAPZ")*CLHEP::cm;
+  return (*m_pdch)[0]->getDouble("GAPZ")*GeoModelKernelUnits::cm;
 }
 
 int PixelLegacyManager::DesignCircuitsEta()

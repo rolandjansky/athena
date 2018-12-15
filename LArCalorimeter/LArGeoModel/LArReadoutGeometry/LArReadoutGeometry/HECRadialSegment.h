@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef HECRadialSegment_h
-#define HECRadialSegment_h 1
+#ifndef LARREADOUTGEOMETRY_HECRADIALSEGMENT_H
+#define LARREADOUTGEOMETRY_HECRADIALSEGMENT_H
 
 /**
  *      @brief Description of a radial segment of a HEC module.

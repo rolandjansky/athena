@@ -7,6 +7,7 @@
  * Author: Carlos.Solans@cern.ch
  */
 
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "TileEopFilterAlg.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "AthContainers/ConstDataVector.h"

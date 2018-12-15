@@ -11,7 +11,6 @@
 #include "GeoModelKernel/GeoLogVol.h"  
 #include "GeoModelKernel/GeoNameTag.h"  
 #include "GeoModelKernel/GeoPhysVol.h"  
-#include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoShapeShift.h"  
 #include "GeoModelKernel/GeoShapeUnion.h"
 
@@ -45,10 +44,10 @@ void ForDetEnvelopeFactory::create(GeoPhysVol *world)
   const GeoMaterial* air = m_materialManager->getMaterial("std::Air");
 
   // Build boolean shape: union of two tubes
-  const GeoTube* tube1 = new GeoTube(0.,2000.*CLHEP::mm,188750.*CLHEP::mm);
-  GeoTube* tube2 = new GeoTube(0.,2000.*CLHEP::mm,188750.*CLHEP::mm);
-  HepGeom::TranslateZ3D xfRelativeA(211250.*CLHEP::mm);
-  HepGeom::TranslateZ3D xfRelativeC(-211250.*CLHEP::mm);
+  const GeoTube* tube1 = new GeoTube(0.,2000.*GeoModelKernelUnits::mm,188750.*GeoModelKernelUnits::mm);
+  GeoTube* tube2 = new GeoTube(0.,2000.*GeoModelKernelUnits::mm,188750.*GeoModelKernelUnits::mm);
+  GeoTrf::TranslateZ3D xfRelativeA(211250.*GeoModelKernelUnits::mm);
+  GeoTrf::TranslateZ3D xfRelativeC(-211250.*GeoModelKernelUnits::mm);
 
   const GeoShapeShift& envShape1 = (*tube1)<<xfRelativeA;
   const GeoShapeUnion& envShape = envShape1.add((*tube2)<<xfRelativeC);

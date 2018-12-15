@@ -2,7 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PixelGeoModel/GeoPixelPigtail.h"
+#include "GeoPixelPigtail.h"
 #include "GeoModelKernel/GeoTubs.h"
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoPhysVol.h"
@@ -41,7 +41,7 @@ GeoVPhysVol* GeoPixelPigtail::Build() {
     GeoPhysVol* pigtailPart = new GeoPhysVol(theTubs);
 
     double zpos = posZ + zShift;
-    GeoTransform* xform = new GeoTransform(HepGeom::TranslateZ3D(zpos));
+    GeoTransform* xform = new GeoTransform(GeoTrf::TranslateZ3D(zpos));
     pigtailPhys->add(xform);
     pigtailPhys->add(pigtailPart);
   }

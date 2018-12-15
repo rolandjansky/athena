@@ -10,9 +10,9 @@
 //-------------------------------------------------------//
 
 
-#include "CLHEP/GenericFunctions/AbsFunction.hh"
+#include "GeoGenericFunctions/AbsFunction.h"
 #include <vector>
-namespace Genfun {
+namespace GeoGenfun {
 class ArrayFunction : public AbsFunction  {
   
   FUNCTION_OBJECT_DEF(ArrayFunction)

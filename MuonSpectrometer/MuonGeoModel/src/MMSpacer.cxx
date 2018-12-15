@@ -20,6 +20,7 @@
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoSerialIdentifier.h"
 #include "GeoModelKernel/GeoIdentifierTag.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 // for cutouts:
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 #include "GeoModelKernel/GeoShapeIntersection.h"
@@ -68,9 +69,8 @@ MMSpacer::build(int minimalgeo, int , std::vector<Cutout*> )
   	double dy=t->lowZCutOutWidth;
 	double dz=t->lowZCutOutDZ;
 	const GeoShape* sbox = new GeoTrd(thickness,thickness,dy,dy,dz);
-	HepGeom::Transform3D cut1,cut2;
-	cut1=HepGeom::Translate3D(0.0, -width/2., -length/2.);
-	cut2=HepGeom::Translate3D(0.0, width/2., -length/2.);
+	GeoTrf::Translate3D cut1(0.0, -width/2., -length/2.);
+	GeoTrf::Translate3D cut2(0.0, width/2., -length/2.);
 	strd= &(strd->subtract( (*sbox) << cut1 ));
 	strd= &(strd->subtract( (*sbox) << cut2 ));
   }
@@ -79,9 +79,8 @@ MMSpacer::build(int minimalgeo, int , std::vector<Cutout*> )
   	double dy=t->highZCutOutWidth;
 	double dz=t->highZCutOutDZ;
 	const GeoShape* sbox = new GeoTrd(thickness,thickness,dy,dy,dz);
-	HepGeom::Transform3D cut1,cut2;
-	cut1=HepGeom::Translate3D(0.0, -longWidth/2., length/2.);
-	cut2=HepGeom::Translate3D(0.0, longWidth/2., length/2.);
+	GeoTrf::Translate3D cut1(0.0, -longWidth/2., length/2.);
+	GeoTrf::Translate3D cut2(0.0, longWidth/2., length/2.);
 	strd= &(strd->subtract( (*sbox) << cut1 ));
 	strd= &(strd->subtract( (*sbox) << cut2 ));
   }

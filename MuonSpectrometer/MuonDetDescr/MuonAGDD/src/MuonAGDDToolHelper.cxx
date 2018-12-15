@@ -4,6 +4,11 @@
 
 #include "MuonAGDD/MuonAGDDToolHelper.h"
 
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonReadoutGeometry/MuonReadoutElement.h"
+#include "MuonReadoutGeometry/MMReadoutElement.h"
+#include "MuonReadoutGeometry/sTgcReadoutElement.h"
+
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/IConversionSvc.h"
@@ -24,10 +29,6 @@
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonReadoutGeometry/MuonReadoutElement.h"
-#include "MuonReadoutGeometry/MMReadoutElement.h"
-#include "MuonReadoutGeometry/sTgcReadoutElement.h"
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 

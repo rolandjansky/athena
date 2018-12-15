@@ -15,7 +15,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Control/StoreGate
                           DetectorDescription/GeoModel/GeoAdaptors
-                          DetectorDescription/GeoModel/GeoModelKernel
                           Event/EventInfo
                           Generators/GeneratorObjects
                           LArCalorimeter/LArSimEvent
@@ -32,8 +31,8 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 atlas_add_component( LArG4Validation
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel CaloDetDescrLib CaloIdentifier AthenaBaseComps StoreGateLib SGtests GeoAdaptors GeoModelKernel EventInfo GeneratorObjects LArSimEvent MagFieldInterfaces egammaEvent )
+                     INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
+                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel CaloDetDescrLib CaloIdentifier AthenaBaseComps StoreGateLib SGtests GeoAdaptors EventInfo GeneratorObjects LArSimEvent MagFieldInterfaces egammaEvent )
 
 # Install files from the package:
 atlas_install_headers( LArG4Validation )

@@ -62,7 +62,7 @@ Jan 2012   - (FF) add cellEnergyRing variables
 #include "tauRecTools/KineUtils.h"
 #include "TauCellVariables.h"
 
-using CLHEP::GeV;
+using Gaudi::Units::GeV;
 
 TauCellVariables::TauCellVariables(const std::string& name) :
   TauRecToolBase(name),

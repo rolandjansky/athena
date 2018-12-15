@@ -2,10 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __MiniFcalConstruction_H__
-#define __MiniFcalConstruction_H__
+#ifndef LARGEOMINIFCAL_MINIFCALCONSTRUCTION_H
+#define LARGEOMINIFCAL_MINIFCALCONSTRUCTION_H
 
-#include "CLHEP/Geometry/Transform3D.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 class GeoFullPhysVol;
 
 namespace LArGeo {
@@ -18,16 +18,16 @@ namespace LArGeo {
     ~MiniFcalConstruction();
     
     GeoFullPhysVol*        GetEnvelope();
-    const HepGeom::Transform3D&  GetTopTransform();
+    const GeoTrf::Transform3D&  GetTopTransform();
 
   private:
 
-    GeoFullPhysVol* m_physiMiniFcal;
-    HepGeom::Transform3D  m_transform;
-    bool            m_posZSide;
+    GeoFullPhysVol*      m_physiMiniFcal;
+    GeoTrf::Transform3D  m_transform;
+    bool                 m_posZSide;
     
   };
 
 } // namespace LArGeo
 
-#endif // __MiniFcalConstruction_H__
+#endif 

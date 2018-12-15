@@ -6,17 +6,17 @@
 #define GEOMODELEXAMPLES_TOYDETECTORTOOL_H
 
 #include "GeoModelUtilities/GeoModelTool.h"
+#include "GeoModelKernel/GeoPVConstLink.h"
 
-class ToyDetectorTool : public GeoModelTool {
+class ToyDetectorTool : public GeoModelTool 
+{
  public:
-
-  // Standard Constructor
   ToyDetectorTool( const std::string& type, const std::string& name, const IInterface* parent );
-  
-  // Standard Destructor
   virtual ~ToyDetectorTool() override final;
   
   virtual StatusCode create() override final;
+ private:
+  void printVolume(GeoPVConstLink volime);
 };
 
 #endif // GEOMODELEXAMPLES_TOYDETECTORTOOL_H

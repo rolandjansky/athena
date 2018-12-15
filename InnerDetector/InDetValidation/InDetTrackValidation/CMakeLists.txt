@@ -34,7 +34,6 @@ atlas_depends_on_subdirs(
    InnerDetector/InDetConditions/TRT_ConditionsServices
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
-   InnerDetector/InDetDetDescr/PixelGeoModel
    InnerDetector/InDetDetDescr/SCT_Cabling
    InnerDetector/InDetRecEvent/InDetRIO_OnTrack
    InnerDetector/InDetValidation/InDetTrackSplitterTool
@@ -60,5 +59,4 @@ atlas_add_component( InDetTrackValidation
    EventPrimitives GeneratorObjects TRT_ConditionsData
    TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry SCT_CablingLib
    InDetRIO_OnTrack TrkSurfaces TrkEventPrimitives TrkMeasurementBase
-   TrkPrepRawData TrkRIO_OnTrack TrkToolInterfaces
-   PixelGeoModelLib )
+   TrkPrepRawData TrkRIO_OnTrack TrkToolInterfaces )

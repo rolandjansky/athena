@@ -24,17 +24,14 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"  
 #include "GeoModelKernel/GeoIdentifierTag.h"  
 #include "GeoModelKernel/GeoSerialDenominator.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeShift.h"
-
-// For transforms:
-#include "CLHEP/Geometry/Transform3D.h" 
-#include "CLHEP/GenericFunctions/Variable.hh"
-// For units:
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "GeoGenericFunctions/Variable.h"
 
 // For the database:
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -107,7 +104,7 @@ GeoVPhysVol* LArGeo::BPCConstruction::GetEnvelope()
   std::string name;
   double density;
   const GeoElement* W=materialManager->getElement("Wolfram");
-  GeoMaterial* Tungsten = new GeoMaterial(name="Tungsten", density=19.3*CLHEP::g/CLHEP::cm3);
+  GeoMaterial* Tungsten = new GeoMaterial(name="Tungsten", density=19.3*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
   Tungsten->add(W,1.);
   Tungsten->lock();
   
@@ -117,21 +114,21 @@ GeoVPhysVol* LArGeo::BPCConstruction::GetEnvelope()
   const GeoElement*  O=materialManager->getElement("Oxygen");
   const GeoElement*  H=materialManager->getElement("Hydrogen");
   const GeoElement*  Al=materialManager->getElement("Aluminium");
-  GeoMaterial* CO2 =  new GeoMaterial(name="CO2", density=1.84E-03*CLHEP::g/CLHEP::cm3);
+  GeoMaterial* CO2 =  new GeoMaterial(name="CO2", density=1.84E-03*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
   CO2->add(C,0.273);
   CO2->add(O,0.727);
   CO2->lock();
-  GeoMaterial* ArCO2_1 = new GeoMaterial(name="ArCO2_1", density=(0.8*1.782e-03 + 0.2*1.84E-03)*CLHEP::g/CLHEP::cm3);
+  GeoMaterial* ArCO2_1 = new GeoMaterial(name="ArCO2_1", density=(0.8*1.782e-03 + 0.2*1.84E-03)*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
   ArCO2_1->add(Ar,0.8);
   ArCO2_1->add(CO2,0.2);
   ArCO2_1->lock();
-  GeoMaterial* ArCO2_2 = new GeoMaterial(name="ArCO2_2", density=(0.9*1.782e-03 + 0.1*1.84E-03)*CLHEP::g/CLHEP::cm3);
+  GeoMaterial* ArCO2_2 = new GeoMaterial(name="ArCO2_2", density=(0.9*1.782e-03 + 0.1*1.84E-03)*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
   ArCO2_2->add(Ar,0.9);
   ArCO2_2->add(CO2,0.1);
   ArCO2_2->lock();
   // AlMylar   AlC5H4O2 ??????    
-  density = 1.39*CLHEP::g/CLHEP::cm3;
-  GeoMaterial* AlMylar=new GeoMaterial(name="AlMylar",density=1.39*CLHEP::g/CLHEP::cm3);
+  density = 1.39*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3;
+  GeoMaterial* AlMylar=new GeoMaterial(name="AlMylar",density=1.39*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
   AlMylar->add(C,0.487980);
   AlMylar->add(O,0.260014);
   AlMylar->add(H,0.032761);
@@ -162,36 +159,36 @@ GeoVPhysVol* LArGeo::BPCConstruction::GetEnvelope()
   //////////////////////////////////////////////////////////////////
   // Define geometry
   //////////////////////////////////////////////////////////////////
-  double bpc_x = 15.0*CLHEP::cm;
-  double bpc_y = 15.0*CLHEP::cm;
-  double bpc_z = (8.684/2)*CLHEP::cm;
-  double bpc_send = (1.14/2)*CLHEP::cm;
-  double bpc_sen = (1.06)*CLHEP::cm;
-  double bpc_div = 5.06*CLHEP::mm;
-  //double bpc_space = 2.6*CLHEP::mm;
-  double bpc_ml = 0.0010*CLHEP::cm;
-  double bpc_alml = 0.0012*CLHEP::cm;
-  double bpc_frame = 12.1*CLHEP::mm;
-  double bpc_alframe = 8.*CLHEP::mm;
-  double bpc_step = 0.6*CLHEP::cm;
-  double bpc_cstep = 0.3*CLHEP::cm;
-  double bpc_wd = 0.0020*CLHEP::cm;
-  double bpc_cwd = 0.0100*CLHEP::cm;
+  double bpc_x = 15.0*GeoModelKernelUnits::cm;
+  double bpc_y = 15.0*GeoModelKernelUnits::cm;
+  double bpc_z = (8.684/2)*GeoModelKernelUnits::cm;
+  double bpc_send = (1.14/2)*GeoModelKernelUnits::cm;
+  double bpc_sen = (1.06)*GeoModelKernelUnits::cm;
+  double bpc_div = 5.06*GeoModelKernelUnits::mm;
+  //double bpc_space = 2.6*GeoModelKernelUnits::mm;
+  double bpc_ml = 0.0010*GeoModelKernelUnits::cm;
+  double bpc_alml = 0.0012*GeoModelKernelUnits::cm;
+  double bpc_frame = 12.1*GeoModelKernelUnits::mm;
+  double bpc_alframe = 8.*GeoModelKernelUnits::mm;
+  double bpc_step = 0.6*GeoModelKernelUnits::cm;
+  double bpc_cstep = 0.3*GeoModelKernelUnits::cm;
+  double bpc_wd = 0.0020*GeoModelKernelUnits::cm;
+  double bpc_cwd = 0.0100*GeoModelKernelUnits::cm;
   
-  double bpc_old_x = 12.0*CLHEP::cm;
-  double bpc_old_y = 12.0*CLHEP::cm;
-  double bpc_old_z = (5.100/2)*CLHEP::cm;
-  double bpc_old_div = 7.6*CLHEP::mm;
-  double bpc_old_alml = 0.0020*CLHEP::cm;
-  double bpc_old_ml = 0.0050*CLHEP::cm;
-  double bpc_old_frame = 10.*CLHEP::mm;
-  double bpc_old_alframe = 2.*CLHEP::mm;
-  double bpc_old_alframe1 = 12.*CLHEP::mm;
-  double bpc_old_send = (1.7/2)*CLHEP::cm;
-  double bpc_old_sen = 0.5*CLHEP::cm;
-  double bpc_old_space = 1.*CLHEP::mm;
-  double bpc_old_step = 0.6*CLHEP::cm;
-  double bpc_old_cstep = 0.3*CLHEP::cm;
+  double bpc_old_x = 12.0*GeoModelKernelUnits::cm;
+  double bpc_old_y = 12.0*GeoModelKernelUnits::cm;
+  double bpc_old_z = (5.100/2)*GeoModelKernelUnits::cm;
+  double bpc_old_div = 7.6*GeoModelKernelUnits::mm;
+  double bpc_old_alml = 0.0020*GeoModelKernelUnits::cm;
+  double bpc_old_ml = 0.0050*GeoModelKernelUnits::cm;
+  double bpc_old_frame = 10.*GeoModelKernelUnits::mm;
+  double bpc_old_alframe = 2.*GeoModelKernelUnits::mm;
+  double bpc_old_alframe1 = 12.*GeoModelKernelUnits::mm;
+  double bpc_old_send = (1.7/2)*GeoModelKernelUnits::cm;
+  double bpc_old_sen = 0.5*GeoModelKernelUnits::cm;
+  double bpc_old_space = 1.*GeoModelKernelUnits::mm;
+  double bpc_old_step = 0.6*GeoModelKernelUnits::cm;
+  double bpc_old_cstep = 0.3*GeoModelKernelUnits::cm;
  
 
   //  Here we creat the envelope for the Moveable FrontBeam Instrumentation.  This code is repeated
@@ -230,7 +227,7 @@ GeoVPhysVol* LArGeo::BPCConstruction::GetEnvelope()
        if(i == 1) mylar_pos = bpc_alml - bpc_z;
     }
     m_BPCPhysical->add( new GeoIdentifierTag( i ) );
-    m_BPCPhysical->add( new GeoTransform( HepGeom::Translate3D(0., 0., mylar_pos) ) );
+    m_BPCPhysical->add( new GeoTransform( GeoTrf::Translate3D(0., 0., mylar_pos) ) );
     m_BPCPhysical->add( phys_bpc_almylar );
   }
 
@@ -252,7 +249,7 @@ GeoVPhysVol* LArGeo::BPCConstruction::GetEnvelope()
        if(i == 1) mylar_pos = bpc_alml - bpc_z + bpc_frame + bpc_alframe;
     }
     m_BPCPhysical->add( new GeoIdentifierTag( i ) );
-    m_BPCPhysical->add( new GeoTransform( HepGeom::Translate3D(0., 0., mylar_pos) ) );
+    m_BPCPhysical->add( new GeoTransform( GeoTrf::Translate3D(0., 0., mylar_pos) ) );
     m_BPCPhysical->add( phys_bpc_mylar );
   }
  
@@ -266,8 +263,8 @@ GeoVPhysVol* LArGeo::BPCConstruction::GetEnvelope()
   else          log_bpc_xplane = new GeoLogVol(BPCName + "::bpc_xplane", shape_bpc_xplane, ArCO2_1);
   GeoPhysVol* phys_bpc_xplane = new GeoPhysVol(log_bpc_xplane);
   m_BPCPhysical->add( new GeoIdentifierTag( 0 ) );
-  if(m_oldType) m_BPCPhysical->add( new GeoTransform( HepGeom::Translate3D(0., 0., bpc_old_sen) ) );
-  else          m_BPCPhysical->add( new GeoTransform( HepGeom::Translate3D(0., 0., -bpc_sen-bpc_send) ) );
+  if(m_oldType) m_BPCPhysical->add( new GeoTransform( GeoTrf::Translate3D(0., 0., bpc_old_sen) ) );
+  else          m_BPCPhysical->add( new GeoTransform( GeoTrf::Translate3D(0., 0., -bpc_sen-bpc_send) ) );
   m_BPCPhysical->add(phys_bpc_xplane); 
   
   // division of X plane 
@@ -281,9 +278,9 @@ GeoVPhysVol* LArGeo::BPCConstruction::GetEnvelope()
   if(m_oldType) log_bpc_xdiv = new GeoLogVol(BPCName + "::bpco_div", shape_bpc_xdiv, ArCO2_2);
   else          log_bpc_xdiv = new GeoLogVol(BPCName + "::bpc_xdiv", shape_bpc_xdiv, ArCO2_1);
   GeoPhysVol* phys_bpc_xdiv = new GeoPhysVol(log_bpc_xdiv);
-  Genfun::Variable Index;
-  GeoXF::TRANSFUNCTION TXO = GeoXF::Pow(HepGeom::TranslateX3D(1.0), -bpc_old_x+(2*Index+1)*bpc_old_step/2.);
-  GeoXF::TRANSFUNCTION TX = GeoXF::Pow(HepGeom::TranslateX3D(1.0), -bpc_x+(2*Index+1)*bpc_step/2.);
+  GeoGenfun::Variable Index;
+  GeoXF::TRANSFUNCTION TXO = GeoXF::Pow(GeoTrf::TranslateX3D(1.0), -bpc_old_x+(2*Index+1)*bpc_old_step/2.);
+  GeoXF::TRANSFUNCTION TX = GeoXF::Pow(GeoTrf::TranslateX3D(1.0), -bpc_x+(2*Index+1)*bpc_step/2.);
   phys_bpc_xplane->add( new GeoSerialIdentifier(0) );
   if(m_oldType) phys_bpc_xplane->add( new GeoSerialTransformer(phys_bpc_xdiv,  &TXO, Ndiv ) );
   else          phys_bpc_xplane->add( new GeoSerialTransformer(phys_bpc_xdiv,  &TX, Ndiv ) );
@@ -296,32 +293,32 @@ GeoVPhysVol* LArGeo::BPCConstruction::GetEnvelope()
      GeoLogVol* log_bpc_yplane = new GeoLogVol(BPCName + "::bpc_yplane",shape_bpc_yplane, ArCO2_1);
      phys_bpc_yplane = new GeoPhysVol(log_bpc_yplane);
      m_BPCPhysical->add( new GeoIdentifierTag( 0 ) );
-     m_BPCPhysical->add( new GeoTransform( HepGeom::Translate3D(0., 0., bpc_sen+bpc_send) ) );
+     m_BPCPhysical->add( new GeoTransform( GeoTrf::Translate3D(0., 0., bpc_sen+bpc_send) ) );
      m_BPCPhysical->add( phys_bpc_yplane );
 
      // division of Y plane 
      GeoBox* shape_bpc_ydiv = new GeoBox(bpc_x, bpc_step/2.,bpc_div);
      GeoLogVol* log_bpc_ydiv = new GeoLogVol(BPCName + "::bpc_ydiv", shape_bpc_ydiv, ArCO2_1);
      phys_bpc_ydiv = new GeoPhysVol(log_bpc_ydiv);
-     GeoXF::TRANSFUNCTION TY = GeoXF::Pow(HepGeom::TranslateY3D(1.0), -bpc_y+(2*Index+1)*bpc_step/2);
+     GeoXF::TRANSFUNCTION TY = GeoXF::Pow(GeoTrf::TranslateY3D(1.0), -bpc_y+(2*Index+1)*bpc_step/2);
      phys_bpc_yplane->add( new GeoSerialIdentifier(0) );
      phys_bpc_yplane->add( new GeoSerialTransformer(phys_bpc_ydiv, &TY, Ndiv ) );
   }
   
   // wires in each division
   GeoTubs* shape_bpc_wire;
-  if(m_oldType) shape_bpc_wire = new GeoTubs(0., bpc_wd, bpc_old_x, 0.*CLHEP::deg, 360.*CLHEP::deg);
-  else          shape_bpc_wire = new GeoTubs(0., bpc_wd, bpc_x, 0.*CLHEP::deg, 360.*CLHEP::deg);
+  if(m_oldType) shape_bpc_wire = new GeoTubs(0., bpc_wd, bpc_old_x, 0.*GeoModelKernelUnits::deg, 360.*GeoModelKernelUnits::deg);
+  else          shape_bpc_wire = new GeoTubs(0., bpc_wd, bpc_x, 0.*GeoModelKernelUnits::deg, 360.*GeoModelKernelUnits::deg);
   GeoLogVol* log_bpc_wire;
   if(m_oldType) log_bpc_wire = new GeoLogVol(BPCName + "::bpco_wire", shape_bpc_wire, Tungsten);
   else          log_bpc_wire = new GeoLogVol(BPCName + "::bpc_wire", shape_bpc_wire, Tungsten);
   GeoPhysVol* phys_bpc_wire = new GeoPhysVol(log_bpc_wire);
   phys_bpc_xdiv->add( new GeoIdentifierTag( 1 ) );
-  phys_bpc_xdiv->add( new GeoTransform( HepGeom::RotateX3D( 90.*CLHEP::deg ) ) );
+  phys_bpc_xdiv->add( new GeoTransform( GeoTrf::RotateX3D( 90.*GeoModelKernelUnits::deg ) ) );
   phys_bpc_xdiv->add(phys_bpc_wire);
   if(!m_oldType) {
      phys_bpc_ydiv->add( new GeoIdentifierTag( 1 ) );
-     phys_bpc_ydiv->add( new GeoTransform( HepGeom::RotateY3D( 90.*CLHEP::deg ) ) );
+     phys_bpc_ydiv->add( new GeoTransform( GeoTrf::RotateY3D( 90.*GeoModelKernelUnits::deg ) ) );
      phys_bpc_ydiv->add(phys_bpc_wire);
   }
 
@@ -329,20 +326,20 @@ GeoVPhysVol* LArGeo::BPCConstruction::GetEnvelope()
   if(m_oldType) Ndiv = int(2.0*bpc_old_x/bpc_cstep);
   else          Ndiv = int(2.0*bpc_x/bpc_cstep);
   GeoTubs* shape_bpc_cwire;
-  if(m_oldType) shape_bpc_cwire = new GeoTubs(0., bpc_cwd, bpc_old_x, 0.*CLHEP::deg, 360.*CLHEP::deg);
-  else          shape_bpc_cwire = new GeoTubs( 0., bpc_cwd, bpc_x, 0.*CLHEP::deg, 360.*CLHEP::deg);
+  if(m_oldType) shape_bpc_cwire = new GeoTubs(0., bpc_cwd, bpc_old_x, 0.*GeoModelKernelUnits::deg, 360.*GeoModelKernelUnits::deg);
+  else          shape_bpc_cwire = new GeoTubs( 0., bpc_cwd, bpc_x, 0.*GeoModelKernelUnits::deg, 360.*GeoModelKernelUnits::deg);
   GeoLogVol* log_bpc_cwire;
   if(m_oldType) log_bpc_cwire = new GeoLogVol(BPCName + "::bpco_cwire",shape_bpc_cwire, Tungsten);
   else          log_bpc_cwire = new GeoLogVol(BPCName + "::bpc_cwire",shape_bpc_cwire, Tungsten);
   GeoPhysVol* phys_bpc_cwire = new GeoPhysVol(log_bpc_cwire);
-//  GeoXF::TRANSFUNCTION TXXMO = HepGeom::RotateX3D( 90.*CLHEP::deg ) * GeoXF::Pow(HepGeom::TranslateX3D(1.0), -bpc_old_x+(2*Index+1)*bpc_old_cstep/2.) * HepGeom::TranslateZ3D(-bpc_old_send-bpc_cwd+bpc_old_space);
-//  GeoXF::TRANSFUNCTION TXXPO = HepGeom::RotateX3D( 90.*CLHEP::deg ) * GeoXF::Pow(HepGeom::TranslateX3D(1.0), -bpc_old_x+(2*Index+1)*bpc_old_cstep/2.) * HepGeom::TranslateZ3D(bpc_old_send-bpc_old_space+bpc_cwd);
-  GeoXF::TRANSFUNCTION TXXMO = GeoXF::Pow(HepGeom::TranslateX3D(1.0), -bpc_old_x+(2*Index+1)*bpc_old_cstep/2.) * HepGeom::TranslateZ3D(-bpc_old_send-2.*bpc_cwd+bpc_old_space) * HepGeom::RotateX3D( 90.*CLHEP::deg );
-  GeoXF::TRANSFUNCTION TXXPO = GeoXF::Pow(HepGeom::TranslateX3D(1.0), -bpc_old_x+(2*Index+1)*bpc_old_cstep/2.) * HepGeom::TranslateZ3D(bpc_old_send-bpc_old_space+2.*bpc_cwd) * HepGeom::RotateX3D( 90.*CLHEP::deg );
-//  GeoXF::TRANSFUNCTION TXXM = HepGeom::RotateX3D( 90.*CLHEP::deg ) * GeoXF::Pow(HepGeom::TranslateX3D(1.0), -bpc_x+(2*Index+1)*bpc_cstep/2.) * HepGeom::TranslateZ3D(-bpc_div-bpc_cwd);
-//  GeoXF::TRANSFUNCTION TXXP = HepGeom::RotateX3D( 90.*CLHEP::deg ) * GeoXF::Pow(HepGeom::TranslateX3D(1.0), -bpc_x+(2*Index+1)*bpc_cstep/2.) * HepGeom::TranslateZ3D(bpc_div+bpc_cwd);
-  GeoXF::TRANSFUNCTION TXXM = GeoXF::Pow(HepGeom::TranslateX3D(1.0), -bpc_x+(2*Index+1)*bpc_cstep/2.) * HepGeom::TranslateZ3D(-bpc_div-bpc_cwd) * HepGeom::RotateX3D( 90.*CLHEP::deg );
-  GeoXF::TRANSFUNCTION TXXP = GeoXF::Pow(HepGeom::TranslateX3D(1.0), -bpc_x+(2*Index+1)*bpc_cstep/2.) * HepGeom::TranslateZ3D(bpc_div+bpc_cwd) * HepGeom::RotateX3D( 90.*CLHEP::deg );
+//  GeoXF::TRANSFUNCTION TXXMO = GeoTrf::RotateX3D( 90.*GeoModelKernelUnits::deg ) * GeoXF::Pow(GeoTrf::TranslateX3D(1.0), -bpc_old_x+(2*Index+1)*bpc_old_cstep/2.) * GeoTrf::TranslateZ3D(-bpc_old_send-bpc_cwd+bpc_old_space);
+//  GeoXF::TRANSFUNCTION TXXPO = GeoTrf::RotateX3D( 90.*GeoModelKernelUnits::deg ) * GeoXF::Pow(GeoTrf::TranslateX3D(1.0), -bpc_old_x+(2*Index+1)*bpc_old_cstep/2.) * GeoTrf::TranslateZ3D(bpc_old_send-bpc_old_space+bpc_cwd);
+  GeoXF::TRANSFUNCTION TXXMO = GeoXF::Pow(GeoTrf::TranslateX3D(1.0), -bpc_old_x+(2*Index+1)*bpc_old_cstep/2.) * GeoTrf::TranslateZ3D(-bpc_old_send-2.*bpc_cwd+bpc_old_space) * GeoTrf::RotateX3D( 90.*GeoModelKernelUnits::deg );
+  GeoXF::TRANSFUNCTION TXXPO = GeoXF::Pow(GeoTrf::TranslateX3D(1.0), -bpc_old_x+(2*Index+1)*bpc_old_cstep/2.) * GeoTrf::TranslateZ3D(bpc_old_send-bpc_old_space+2.*bpc_cwd) * GeoTrf::RotateX3D( 90.*GeoModelKernelUnits::deg );
+//  GeoXF::TRANSFUNCTION TXXM = GeoTrf::RotateX3D( 90.*GeoModelKernelUnits::deg ) * GeoXF::Pow(GeoTrf::TranslateX3D(1.0), -bpc_x+(2*Index+1)*bpc_cstep/2.) * GeoTrf::TranslateZ3D(-bpc_div-bpc_cwd);
+//  GeoXF::TRANSFUNCTION TXXP = GeoTrf::RotateX3D( 90.*GeoModelKernelUnits::deg ) * GeoXF::Pow(GeoTrf::TranslateX3D(1.0), -bpc_x+(2*Index+1)*bpc_cstep/2.) * GeoTrf::TranslateZ3D(bpc_div+bpc_cwd);
+  GeoXF::TRANSFUNCTION TXXM = GeoXF::Pow(GeoTrf::TranslateX3D(1.0), -bpc_x+(2*Index+1)*bpc_cstep/2.) * GeoTrf::TranslateZ3D(-bpc_div-bpc_cwd) * GeoTrf::RotateX3D( 90.*GeoModelKernelUnits::deg );
+  GeoXF::TRANSFUNCTION TXXP = GeoXF::Pow(GeoTrf::TranslateX3D(1.0), -bpc_x+(2*Index+1)*bpc_cstep/2.) * GeoTrf::TranslateZ3D(bpc_div+bpc_cwd) * GeoTrf::RotateX3D( 90.*GeoModelKernelUnits::deg );
   phys_bpc_xplane->add( new GeoSerialIdentifier(0) );
   if(m_oldType) phys_bpc_xplane->add( new GeoSerialTransformer(phys_bpc_cwire, &TXXMO, Ndiv) );
   else          phys_bpc_xplane->add( new GeoSerialTransformer(phys_bpc_cwire, &TXXM, Ndiv) );
@@ -350,10 +347,10 @@ GeoVPhysVol* LArGeo::BPCConstruction::GetEnvelope()
   if(m_oldType) phys_bpc_xplane->add( new GeoSerialTransformer(phys_bpc_cwire, &TXXPO, Ndiv) );
   else          phys_bpc_xplane->add( new GeoSerialTransformer(phys_bpc_cwire, &TXXP, Ndiv) );
   if(!m_oldType) {
-//     GeoXF::TRANSFUNCTION TYYM = HepGeom::RotateY3D( 90.*CLHEP::deg ) * GeoXF::Pow(HepGeom::TranslateY3D(1.0), -bpc_y+(2*Index+1)*bpc_cstep/2.) * HepGeom::TranslateZ3D(-bpc_div-bpc_cwd);
-//     GeoXF::TRANSFUNCTION TYYP = HepGeom::RotateY3D( 90.*CLHEP::deg ) * GeoXF::Pow(HepGeom::TranslateY3D(1.0), -bpc_y+(2*Index+1)*bpc_cstep/2.) * HepGeom::TranslateZ3D(bpc_div+bpc_cwd);
-     GeoXF::TRANSFUNCTION TYYM = GeoXF::Pow(HepGeom::TranslateY3D(1.0), -bpc_y+(2*Index+1)*bpc_cstep/2.) * HepGeom::TranslateZ3D(-bpc_div-bpc_cwd) * HepGeom::RotateY3D( 90.*CLHEP::deg );
-     GeoXF::TRANSFUNCTION TYYP = GeoXF::Pow(HepGeom::TranslateY3D(1.0), -bpc_y+(2*Index+1)*bpc_cstep/2.) * HepGeom::TranslateZ3D(bpc_div+bpc_cwd) * HepGeom::RotateY3D( 90.*CLHEP::deg );
+//     GeoXF::TRANSFUNCTION TYYM = GeoTrf::RotateY3D( 90.*GeoModelKernelUnits::deg ) * GeoXF::Pow(GeoTrf::TranslateY3D(1.0), -bpc_y+(2*Index+1)*bpc_cstep/2.) * GeoTrf::TranslateZ3D(-bpc_div-bpc_cwd);
+//     GeoXF::TRANSFUNCTION TYYP = GeoTrf::RotateY3D( 90.*GeoModelKernelUnits::deg ) * GeoXF::Pow(GeoTrf::TranslateY3D(1.0), -bpc_y+(2*Index+1)*bpc_cstep/2.) * GeoTrf::TranslateZ3D(bpc_div+bpc_cwd);
+     GeoXF::TRANSFUNCTION TYYM = GeoXF::Pow(GeoTrf::TranslateY3D(1.0), -bpc_y+(2*Index+1)*bpc_cstep/2.) * GeoTrf::TranslateZ3D(-bpc_div-bpc_cwd) * GeoTrf::RotateY3D( 90.*GeoModelKernelUnits::deg );
+     GeoXF::TRANSFUNCTION TYYP = GeoXF::Pow(GeoTrf::TranslateY3D(1.0), -bpc_y+(2*Index+1)*bpc_cstep/2.) * GeoTrf::TranslateZ3D(bpc_div+bpc_cwd) * GeoTrf::RotateY3D( 90.*GeoModelKernelUnits::deg );
      phys_bpc_yplane->add( new GeoSerialIdentifier(0) );
      phys_bpc_yplane->add( new GeoSerialTransformer(phys_bpc_cwire, &TYYM, Ndiv) );
      phys_bpc_yplane->add( new GeoSerialIdentifier(Ndiv) );

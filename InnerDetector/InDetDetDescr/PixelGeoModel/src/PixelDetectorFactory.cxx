@@ -2,12 +2,12 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PixelGeoModel/PixelDetectorFactory.h"
+#include "PixelDetectorFactory.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "PixelGeoModel/PixelSwitches.h" 
+#include "PixelSwitches.h" 
 
 // Envelope, as a starting point of the geometry
-#include "PixelGeoModel/GeoPixelEnvelope.h"
+#include "GeoPixelEnvelope.h"
 
 // GeoModel includes
 #include "GeoModelKernel/GeoNameTag.h"  
@@ -20,8 +20,8 @@
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 
-#include "PixelGeoModel/OraclePixGeoManager.h"
-#include "PixelGeoModel/PixelGeoModelAthenaComps.h"
+#include "OraclePixGeoManager.h"
+#include "PixelGeoModelAthenaComps.h"
 
 #include "InDetIdentifier/PixelID.h"
 
@@ -120,12 +120,12 @@ void PixelDetectorFactory::create(GeoPhysVol *world)
   m_geometryManager->SetCurrentLD(0);
   m_geometryManager->SetBarrel();
   if(msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << " B-Layer basic eta pitch: " << m_geometryManager->DesignPitchZ()/CLHEP::micrometer << "um" << endmsg;  
-    msg(MSG::DEBUG) << " B-Layer sensor thickness: " << m_geometryManager->PixelBoardThickness()/CLHEP::micrometer << "um" << endmsg;   
+    msg(MSG::DEBUG) << " B-Layer basic eta pitch: " << m_geometryManager->DesignPitchZ()/GeoModelKernelUnits::micrometer << "um" << endmsg;  
+    msg(MSG::DEBUG) << " B-Layer sensor thickness: " << m_geometryManager->PixelBoardThickness()/GeoModelKernelUnits::micrometer << "um" << endmsg;   
   }
 
   // Top level transform
-  HepGeom::Transform3D topTransform = m_geometryManager->partTransform("Pixel");
+  GeoTrf::Transform3D topTransform = m_geometryManager->partTransform("Pixel");
 
 
   //

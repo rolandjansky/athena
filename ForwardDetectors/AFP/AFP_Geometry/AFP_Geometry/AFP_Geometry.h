@@ -10,7 +10,6 @@
 #include "AFP_Geometry/AFP_ConfigParams.h"
 
 #include "CLHEP/Geometry/Point3D.h"
-#include "GeoModelKernel/GeoTransform.h"
 #include "AthenaKernel/CLASS_DEF.h"
 
 #include <list>

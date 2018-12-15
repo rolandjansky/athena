@@ -7,7 +7,7 @@
 // Each layer is given slightly different mass due to differences
 // in the measured mass.
 
-#include "PixelGeoModel/GeoPixelTMT.h"
+#include "GeoPixelTMT.h"
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoTubs.h"
 #include "GeoModelKernel/GeoTrap.h"
@@ -15,14 +15,15 @@
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoNameTag.h"
-
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
+#include "GeoModelKernel/Units.h"
 #include <utility> //std::swap
 #include <cmath>
 
-GeoPixelTMT::GeoPixelTMT()
+GeoPixelTMT::GeoPixelTMT():
+  m_transform(GeoTrf::Transform3D::Identity())
 {
   m_physVol = Build();
   m_physVol->ref();
@@ -50,7 +51,7 @@ GeoVPhysVol* GeoPixelTMT::Build() {
   GeoNameTag* tag = new GeoNameTag("TMT");
 
   // this part is unchanged: reading the DB, creating the shapes of the volumes and defining their position
-  HepGeom::RotateX3D traprot(180.*CLHEP::deg);
+  GeoTrf::RotateX3D traprot(180.*GeoModelKernelUnits::deg);
 
   int halfNModule = m_gmt_mgr->PixelNModule()/2;
 
@@ -106,7 +107,7 @@ GeoVPhysVol* GeoPixelTMT::Build() {
 
       GeoLogVol* tmpLogVol= new GeoLogVol("TMT",shape,material);
       GeoPhysVol* tmpPhysVol= new GeoPhysVol(tmpLogVol);
-      GeoTransform* trans = new GeoTransform(HepGeom::Translate3D(xpos,ypos,zpos));
+      GeoTransform* trans = new GeoTransform(GeoTrf::Translate3D(xpos,ypos,zpos));
 
       theTMT->add(tag);
       theTMT->add(trans);
@@ -123,12 +124,12 @@ GeoVPhysVol* GeoPixelTMT::Build() {
         // move the dublicates to the correct relative position and add it to the assembly
         double zshift = m_gmt_mgr->PixelModuleZPosition(1) * ii;
 
-        GeoTransform* transPos = new GeoTransform(HepGeom::Translate3D(xpos,ypos,zpos+zshift));
+        GeoTransform* transPos = new GeoTransform(GeoTrf::Translate3D(xpos,ypos,zpos+zshift));
         theTMT->add(tag);
         theTMT->add(transPos);
         theTMT->add(tmpPhysVol);
 
-        GeoTransform* transNeg = new GeoTransform(HepGeom::Translate3D(xpos,ypos,-(zpos+zshift))*HepGeom::RotateX3D(180*CLHEP::deg));
+        GeoTransform* transNeg = new GeoTransform(GeoTrf::Translate3D(xpos,ypos,-(zpos+zshift))*GeoTrf::RotateX3D(180*GeoModelKernelUnits::deg));
         theTMT->add(tag);
         theTMT->add(transNeg);
         theTMT->add(tmpPhysVol);
@@ -143,7 +144,7 @@ GeoVPhysVol* GeoPixelTMT::Build() {
 }
 
 const GeoShape *
-GeoPixelTMT::addShape(const GeoShape * lastShape, const GeoShape * nextShape, const HepGeom::Transform3D & trans)
+GeoPixelTMT::addShape(const GeoShape * lastShape, const GeoShape * nextShape, const GeoTrf::Transform3D & trans)
 {
   const GeoShape * shiftedShape = &(*nextShape << trans);
   if (lastShape) {

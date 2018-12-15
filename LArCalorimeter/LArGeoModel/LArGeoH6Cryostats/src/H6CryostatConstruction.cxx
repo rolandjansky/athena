@@ -22,17 +22,13 @@
 #include "GeoModelKernel/GeoTransform.h"  
 #include "GeoModelKernel/GeoAlignableTransform.h"  
 #include "GeoModelKernel/GeoIdentifierTag.h"  
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeShift.h"
-
-// For transforms:
-
-#include "CLHEP/Geometry/Transform3D.h" 
-// For units:
-#include "CLHEP/Units/PhysicalConstants.h"
 
 // For the database:
 
@@ -104,23 +100,23 @@ GeoVFullPhysVol* LArGeo::H6CryostatConstruction::GetEnvelope()
   // First attempt at creating the H6 cryostat: 
   // (values taken from  HECCommonDetectorParamDef)
   //
-  // A cylinder of half-height:   zcryo = 2000.0 *CLHEP::mm
-  // outer radius of warm-wall:   rwarm = 1295.5 *CLHEP::mm
-  // outer radius of vacuum:      rvac  = 1293.0 *CLHEP::mm
-  // outer radius of cold wall:   rcold = 1258.0 *CLHEP::mm
-  // outer radius of LAr:         rlar  = 1255.0 *CLHEP::mm
+  // A cylinder of half-height:   zcryo = 2000.0 *GeoModelKernelUnits::mm
+  // outer radius of warm-wall:   rwarm = 1295.5 *GeoModelKernelUnits::mm
+  // outer radius of vacuum:      rvac  = 1293.0 *GeoModelKernelUnits::mm
+  // outer radius of cold wall:   rcold = 1258.0 *GeoModelKernelUnits::mm
+  // outer radius of LAr:         rlar  = 1255.0 *GeoModelKernelUnits::mm
 
   // needs to go into database: ---  4databa
-  double  zcryo = 2000.0 *CLHEP::mm;
-  double  rwarm = 1295.5 *CLHEP::mm;
-  double  rvac  = 1293.0 *CLHEP::mm;
-  double  rcold = 1258.0 *CLHEP::mm;
-  double  rlar  = 1255.0 *CLHEP::mm;
+  double  zcryo = 2000.0 *GeoModelKernelUnits::mm;
+  double  rwarm = 1295.5 *GeoModelKernelUnits::mm;
+  double  rvac  = 1293.0 *GeoModelKernelUnits::mm;
+  double  rcold = 1258.0 *GeoModelKernelUnits::mm;
+  double  rlar  = 1255.0 *GeoModelKernelUnits::mm;
 
   std::string cryoMotherName = "LAr::H6::Cryostat::MotherVolume";
 
   // mother volume; cylinder of radius rwarm = outside of the cryostat warm wall 
-  GeoTube* cryoMotherShape = new GeoTube(0.0 , rwarm+10.0, zcryo+10.0*CLHEP::mm);  //  mother is a little bigger than warm wall   
+  GeoTube* cryoMotherShape = new GeoTube(0.0 , rwarm+10.0, zcryo+10.0*GeoModelKernelUnits::mm);  //  mother is a little bigger than warm wall   
 
   const GeoLogVol* cryoMotherLogical = new GeoLogVol(cryoMotherName, cryoMotherShape, Air);
   m_cryoMotherPhysical = new GeoFullPhysVol(cryoMotherLogical);
@@ -146,13 +142,13 @@ GeoVFullPhysVol* LArGeo::H6CryostatConstruction::GetEnvelope()
   m_cryoMotherPhysical->add(cryoWarmWallPhys);
 
   // "Vacuum" gap (filled with air...)
-  GeoTube* cryoVacuumGapShape = new GeoTube(0. , rvac, zcryo-2.0*CLHEP::mm);   // an arbitrary 2mm shorter to avoid confilct  
+  GeoTube* cryoVacuumGapShape = new GeoTube(0. , rvac, zcryo-2.0*GeoModelKernelUnits::mm);   // an arbitrary 2mm shorter to avoid confilct  
   const GeoLogVol* cryoVacuumGapLog = new GeoLogVol(cryoVacuumGapName, cryoVacuumGapShape, Air);
   GeoPhysVol*  cryoVacuumGapPhys = new GeoPhysVol(cryoVacuumGapLog);
   cryoWarmWallPhys->add(cryoVacuumGapPhys);
 
   // Cold Wall
-  GeoTube* cryoColdWallShape = new GeoTube(0. , rcold, zcryo-4.0*CLHEP::mm);  // an arbitrary 4mm shorter to avoid confilct   
+  GeoTube* cryoColdWallShape = new GeoTube(0. , rcold, zcryo-4.0*GeoModelKernelUnits::mm);  // an arbitrary 4mm shorter to avoid confilct   
   const GeoLogVol* cryoColdWallLog = new GeoLogVol(cryoColdWallName, cryoColdWallShape, Iron);
   GeoPhysVol*  cryoColdWallPhys = new GeoPhysVol(cryoColdWallLog);
   cryoVacuumGapPhys->add(cryoColdWallPhys);
@@ -164,7 +160,7 @@ GeoVFullPhysVol* LArGeo::H6CryostatConstruction::GetEnvelope()
   // And the FCal the embedded in the LAr instead of the cryoMother!
 
   // Liquid Argon  
-  GeoTube* cryoLArShape = new GeoTube(0. , rlar, zcryo-6.0*CLHEP::mm);  // an arbitrary 2mm shorter to avoid confilct   
+  GeoTube* cryoLArShape = new GeoTube(0. , rlar, zcryo-6.0*GeoModelKernelUnits::mm);  // an arbitrary 2mm shorter to avoid confilct   
   const GeoLogVol* cryoLArLog = new GeoLogVol(cryoLArName, cryoLArShape, LAr);
   m_cryoMotherPhysical->add(new GeoNameTag(std::string("Cryostat LAr Physical")));    
   // m_cryoLArPhys is a class member so that we can place Detectors inside. 

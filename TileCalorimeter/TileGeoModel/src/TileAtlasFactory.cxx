@@ -25,12 +25,14 @@
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoSerialIdentifier.h"
 #include "GeoModelKernel/GeoIdentifierTag.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 
 //#include "GeoModelKernel/GeoCutVolAction.h"
 //#include "GeoModelKernel/GeoSimplePolygonBrep.h"
 
-#include "CLHEP/GenericFunctions/AbsFunction.hh"
-#include "CLHEP/GenericFunctions/Variable.hh"
+#include "GeoGenericFunctions/AbsFunction.h"
+#include "GeoGenericFunctions/Variable.h"
 #include "GeoModelKernel/GeoXF.h" 
 #include "GeoModelKernel/GeoSerialTransformer.h"
 
@@ -46,7 +48,7 @@
 #include <cmath>
 #include <string>
 
-using namespace Genfun;
+using namespace GeoGenfun;
 using namespace GeoXF;
 
 // Constructor:
@@ -85,13 +87,13 @@ void TileAtlasFactory::create(GeoPhysVol *world)
   //int   NcpFrom = 34, NcpPlus = 29; // ext.barrel, special
 
   double deltaPhi = 360./64; // we know apriory that 64 modules makes full cylinder 
-  double AnglMin = (NcpFrom-1)*deltaPhi*CLHEP::deg, AnglMax = (NcpPlus+1)*deltaPhi*CLHEP::deg;
+  double AnglMin = (NcpFrom-1)*deltaPhi*GeoModelKernelUnits::deg, AnglMax = (NcpPlus+1)*deltaPhi*GeoModelKernelUnits::deg;
 
   // phi range of modules with special C10
-  // double AnglMin1 = 38. * deltaPhi*CLHEP::deg;
-  // double AnglMax1 = 42. * deltaPhi*CLHEP::deg;
-  // double AnglMin2 = 54. * deltaPhi*CLHEP::deg;
-  // double AnglMax2 = 58. * deltaPhi*CLHEP::deg;
+  // double AnglMin1 = 38. * deltaPhi*GeoModelKernelUnits::deg;
+  // double AnglMax1 = 42. * deltaPhi*GeoModelKernelUnits::deg;
+  // double AnglMin2 = 54. * deltaPhi*GeoModelKernelUnits::deg;
+  // double AnglMax2 = 58. * deltaPhi*GeoModelKernelUnits::deg;
 
   (*m_log) << MSG::INFO <<" Entering TileAtlasFactory::create()" << endmsg;
 
@@ -116,8 +118,8 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
      dbManager->SetCurrentSaddle(0);
 
-     DzSaddleSupport = dbManager->DzSaddleSupport()*CLHEP::cm;
-     RadiusSaddle = dbManager->RadiusSaddle()*CLHEP::cm;
+     DzSaddleSupport = dbManager->DzSaddleSupport()*GeoModelKernelUnits::cm;
+     RadiusSaddle = dbManager->RadiusSaddle()*GeoModelKernelUnits::cm;
      if(m_log->level()<=MSG::DEBUG)
        (*m_log) << MSG::DEBUG << " DzSaddleSupport()= "<<DzSaddleSupport<<" RadiusSaddle= "<<RadiusSaddle
 		<< endmsg;
@@ -166,7 +168,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
   // Barrel finger 
   dbManager->SetCurrentTifg(1);
-  BFingerLength  = BFingerLengthNeg  = BFingerLengthPos  = dbManager->TIFGdz()*CLHEP::cm;
+  BFingerLength  = BFingerLengthNeg  = BFingerLengthPos  = dbManager->TIFGdz()*GeoModelKernelUnits::cm;
 
   double EBFingerLength =0;
   double EBFingerLengthNeg =0;
@@ -174,7 +176,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
   // EBarrel finger 
   dbManager->SetCurrentTifg(2);
-  EBFingerLength = EBFingerLengthNeg = EBFingerLengthPos = dbManager->TIFGdz()*CLHEP::cm;
+  EBFingerLength = EBFingerLengthNeg = EBFingerLengthPos = dbManager->TIFGdz()*GeoModelKernelUnits::cm;
 
   int n_env = dbManager->GetNumberOfEnv();
   
@@ -194,13 +196,13 @@ void TileAtlasFactory::create(GeoPhysVol *world)
     if (Type == 3) EBA = true;
     */
 
-    ZLength  [Type] = dbManager->GetEnvZLength()*CLHEP::cm;
-    EnvDZPos [Type] = dbManager->GetEnvDZ()*CLHEP::cm;
+    ZLength  [Type] = dbManager->GetEnvZLength()*GeoModelKernelUnits::cm;
+    EnvDZPos [Type] = dbManager->GetEnvDZ()*GeoModelKernelUnits::cm;
     PhiMin   [Type] = std::min(PhiMin[Type], dbManager->GetEnvDPhi());
     PhiMax   [Type] = std::max(PhiMax[Type], dbManager->GetEnvNModules()*deltaPhi + dbManager->GetEnvDPhi());
-    RInMin   [Type] = std::min(RInMin[Type], dbManager->GetEnvRin()*CLHEP::cm);
-    ROutMax  [Type] = std::max(ROutMax[Type],dbManager->GetEnvRout()*CLHEP::cm);
-    FingerRmax         = std::max(FingerRmax,dbManager->GetEnvRout()*CLHEP::cm);
+    RInMin   [Type] = std::min(RInMin[Type], dbManager->GetEnvRin()*GeoModelKernelUnits::cm);
+    ROutMax  [Type] = std::max(ROutMax[Type],dbManager->GetEnvRout()*GeoModelKernelUnits::cm);
+    FingerRmax         = std::max(FingerRmax,dbManager->GetEnvRout()*GeoModelKernelUnits::cm);
 
     //std::cout << "# Type " <<Type<< " ZLength " <<ZLength [Type]<< " EnvDZPos "<<EnvDZPos [Type]<< "\n"; 
   }
@@ -271,9 +273,9 @@ void TileAtlasFactory::create(GeoPhysVol *world)
   /** setfinger length */
   double BFingerRmin=0, EFingerRmin=0;
   dbManager->SetCurrentSection(TileDddbManager::TILE_BARREL);
-  BFingerRmin = dbManager->TILBrmax()*CLHEP::cm;
+  BFingerRmin = dbManager->TILBrmax()*GeoModelKernelUnits::cm;
   dbManager->SetCurrentSection(TileDddbManager::TILE_EBARREL);
-  EFingerRmin = dbManager->TILBrmax()*CLHEP::cm;
+  EFingerRmin = dbManager->TILBrmax()*GeoModelKernelUnits::cm;
   
   /** calculation PosEnvThickness enlarge mother volume by extra distance between barrel and positive ext.barrel */
   dbManager->SetCurrentEnvByType(3);
@@ -299,7 +301,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
   // R maximal
   double rmaxTotal = ROutMax[1];
     
-  GeoPcon* tileEnvPconeBarrel = new GeoPcon(PhiMin[1]*CLHEP::deg, PhiMax[1]*CLHEP::deg);
+  GeoPcon* tileEnvPconeBarrel = new GeoPcon(PhiMin[1]*GeoModelKernelUnits::deg, PhiMax[1]*GeoModelKernelUnits::deg);
 
    tileEnvPconeBarrel->addPlane(-endEnvelopeNeg,                   BFingerRmin,             rmaxTotal);
    tileEnvPconeBarrel->addPlane(-endCentralBarrel-DzSaddleSupport, BFingerRmin,             rmaxTotal);
@@ -342,7 +344,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
   }
 
   dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG1);
-  double PosEndITC1 = (dbManager->TILBzoffset() + dbManager->TILEzshift() + dbManager->TILBdzmodul()/2)*CLHEP::cm;
+  double PosEndITC1 = (dbManager->TILBzoffset() + dbManager->TILEzshift() + dbManager->TILBdzmodul()/2)*GeoModelKernelUnits::cm;
   double corr = PosEndITC - PosEndITC1;
   if (fabs(corr)>0.01) {
      (*m_log) << MSG::WARNING
@@ -351,19 +353,19 @@ void TileAtlasFactory::create(GeoPhysVol *world)
               <<endmsg;
   }
 
-  //double beginITC1   = corr + (dbManager->TILBzoffset() + dbManager->TILEzshift()-dbManager->TILBdzmodul()/2)*CLHEP::cm;
+  //double beginITC1   = corr + (dbManager->TILBzoffset() + dbManager->TILEzshift()-dbManager->TILBdzmodul()/2)*GeoModelKernelUnits::cm;
   dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG2);
-  double PosBeginITC2  = corr + (dbManager->TILBzoffset() + dbManager->TILEzshift()-dbManager->TILBdzmodul()/2)*CLHEP::cm;
+  double PosBeginITC2  = corr + (dbManager->TILBzoffset() + dbManager->TILEzshift()-dbManager->TILBdzmodul()/2)*GeoModelKernelUnits::cm;
   dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG3);
-  double PosBeginGap = corr + (dbManager->TILBzoffset() + dbManager->TILEzshift()-dbManager->TILBdzmodul()/2)*CLHEP::cm;
-  double PosEndGap   = corr + (dbManager->TILBzoffset() + dbManager->TILEzshift()+dbManager->TILBdzmodul()/2)*CLHEP::cm;
+  double PosBeginGap = corr + (dbManager->TILBzoffset() + dbManager->TILEzshift()-dbManager->TILBdzmodul()/2)*GeoModelKernelUnits::cm;
+  double PosEndGap   = corr + (dbManager->TILBzoffset() + dbManager->TILEzshift()+dbManager->TILBdzmodul()/2)*GeoModelKernelUnits::cm;
   dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG4);
-  double PosBeginCrack = corr + (dbManager->TILBzoffset() + dbManager->TILEzshift()-dbManager->TILBdzmodul()/2)*CLHEP::cm;
-  double PosEndCrack   = corr + (dbManager->TILBzoffset() + dbManager->TILEzshift()+dbManager->TILBdzmodul()/2)*CLHEP::cm;
+  double PosBeginCrack = corr + (dbManager->TILBzoffset() + dbManager->TILEzshift()-dbManager->TILBdzmodul()/2)*GeoModelKernelUnits::cm;
+  double PosEndCrack   = corr + (dbManager->TILBzoffset() + dbManager->TILEzshift()+dbManager->TILBdzmodul()/2)*GeoModelKernelUnits::cm;
 
   if (!spC10) { // recovering old (wrong) positioning of gap scintillators
     double GapWidth = PosEndGap - PosBeginGap;
-    PosBeginGap = PosBeginCrack + 0.9 * CLHEP::cm;
+    PosBeginGap = PosBeginCrack + 0.9 * GeoModelKernelUnits::cm;
     PosEndGap   = PosBeginGap + GapWidth;
   }
   
@@ -377,11 +379,11 @@ void TileAtlasFactory::create(GeoPhysVol *world)
   
   // R minimals 
   dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG1);
-  double PosRminITC1  = dbManager->TILBrminimal()*CLHEP::cm;
+  double PosRminITC1  = dbManager->TILBrminimal()*GeoModelKernelUnits::cm;
   dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG2);
-  double PosRminITC   = rMinC10 /* dbManager->TILBrminimal() */ *CLHEP::cm;
+  double PosRminITC   = rMinC10 /* dbManager->TILBrminimal() */ *GeoModelKernelUnits::cm;
   dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG4);
-  double PosRminCrack = rMinE4pos*CLHEP::cm;
+  double PosRminCrack = rMinE4pos*GeoModelKernelUnits::cm;
 
   double PosRminExt = RInMin[3];
     
@@ -397,7 +399,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
              << " PosRmaxTotal = " << PosRmaxTotal
 	     << endmsg;
 
-  GeoPcon* tileEnvPconePosEndcap = new GeoPcon(PhiMin[3]*CLHEP::deg, PhiMax[3]*CLHEP::deg);
+  GeoPcon* tileEnvPconePosEndcap = new GeoPcon(PhiMin[3]*GeoModelKernelUnits::deg, PhiMax[3]*GeoModelKernelUnits::deg);
 
   // Positive Endcap 
   tileEnvPconePosEndcap->addPlane(PosEndBarrelFinger,             PosRminITC1,              PosRmaxTotal);
@@ -442,7 +444,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
   }
 
   dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG1);
-  double NegEndITC1 = (dbManager->TILBzoffset() + dbManager->TILEzshift() + dbManager->TILBdzmodul()/2)*CLHEP::cm;
+  double NegEndITC1 = (dbManager->TILBzoffset() + dbManager->TILEzshift() + dbManager->TILBdzmodul()/2)*GeoModelKernelUnits::cm;
   corr = NegEndITC - NegEndITC1;
 
   if (fabs(corr)>0.01) { (*m_log) << MSG::WARNING
@@ -450,19 +452,19 @@ void TileAtlasFactory::create(GeoPhysVol *world)
                                   << NegEndITC << " != " << NegEndITC1 << "; take this into account" 
                                   << endmsg;
     }
-  //double NegBeginITC1 = corr + (dbManager->TILBzoffset() + dbManager->TILEzshift()-dbManager->TILBdzmodul()/2)*CLHEP::cm;
+  //double NegBeginITC1 = corr + (dbManager->TILBzoffset() + dbManager->TILEzshift()-dbManager->TILBdzmodul()/2)*GeoModelKernelUnits::cm;
   dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG2);
-  double NegBeginITC2   = corr + (dbManager->TILBzoffset() + dbManager->TILEzshift()-dbManager->TILBdzmodul()/2)*CLHEP::cm;
+  double NegBeginITC2   = corr + (dbManager->TILBzoffset() + dbManager->TILEzshift()-dbManager->TILBdzmodul()/2)*GeoModelKernelUnits::cm;
   dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG3);
-  double NegBeginGap    = corr + (dbManager->TILBzoffset() + dbManager->TILEzshift()-dbManager->TILBdzmodul()/2)*CLHEP::cm;
-  double NegEndGap      = corr + (dbManager->TILBzoffset() + dbManager->TILEzshift()+dbManager->TILBdzmodul()/2)*CLHEP::cm;
+  double NegBeginGap    = corr + (dbManager->TILBzoffset() + dbManager->TILEzshift()-dbManager->TILBdzmodul()/2)*GeoModelKernelUnits::cm;
+  double NegEndGap      = corr + (dbManager->TILBzoffset() + dbManager->TILEzshift()+dbManager->TILBdzmodul()/2)*GeoModelKernelUnits::cm;
   dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG4);
-  double NegBeginCrack  = corr + (dbManager->TILBzoffset() + dbManager->TILEzshift()-dbManager->TILBdzmodul()/2)*CLHEP::cm;
-  double NegEndCrack    = corr + (dbManager->TILBzoffset() + dbManager->TILEzshift()+dbManager->TILBdzmodul()/2)*CLHEP::cm;
+  double NegBeginCrack  = corr + (dbManager->TILBzoffset() + dbManager->TILEzshift()-dbManager->TILBdzmodul()/2)*GeoModelKernelUnits::cm;
+  double NegEndCrack    = corr + (dbManager->TILBzoffset() + dbManager->TILEzshift()+dbManager->TILBdzmodul()/2)*GeoModelKernelUnits::cm;
 
   if (!spC10) { // recovering old (wrong) positioning of gap scintillators
     double GapWidth = NegEndGap - NegBeginGap;
-    NegBeginGap = NegBeginCrack + 0.9 * CLHEP::cm;
+    NegBeginGap = NegBeginCrack + 0.9 * GeoModelKernelUnits::cm;
     NegEndGap = NegBeginGap + GapWidth;
   }
   
@@ -476,11 +478,11 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
   // R minimals 
   dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG1);
-  double NegRminITC1 = dbManager->TILBrminimal()*CLHEP::cm;
+  double NegRminITC1 = dbManager->TILBrminimal()*GeoModelKernelUnits::cm;
   dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG2);
-  double NegRminITC = rMinC10 /* dbManager->TILBrminimal() */ *CLHEP::cm;
+  double NegRminITC = rMinC10 /* dbManager->TILBrminimal() */ *GeoModelKernelUnits::cm;
   dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG4);
-  double NegRminCrack = rMinE4neg*CLHEP::cm;
+  double NegRminCrack = rMinE4neg*GeoModelKernelUnits::cm;
   dbManager->SetCurrentSection(TileDddbManager::TILE_EBARREL);
 
   double NegRminExt = RInMin[2];
@@ -497,7 +499,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
              << " NegRmaxTotal = " << NegRmaxTotal
 	     << endmsg;
 
-  GeoPcon* tileEnvPconeNegEndcap = new GeoPcon(PhiMin[2]*CLHEP::deg, PhiMax[2]*CLHEP::deg);
+  GeoPcon* tileEnvPconeNegEndcap = new GeoPcon(PhiMin[2]*GeoModelKernelUnits::deg, PhiMax[2]*GeoModelKernelUnits::deg);
 
   // Negative Endcap 
   tileEnvPconeNegEndcap->addPlane(-NegEndExtBarrelFinger,          EFingerRmin,              NegRmaxTotal);
@@ -527,8 +529,8 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 	      - (dbManager->TILBnperiod()*2.*(dbManager->TILBdzmast() + dbManager->TILBdzspac()) 
 		 -  dbManager->TILBdzmast()))/(2.*(2.*dbManager->TILBnperiod() - 1));
 
-    sectionBuilder->setBarrelPeriodThickness(2.*(dbManager->TILBdzmast() + dbManager->TILBdzspac() + 2.*dzGlue)*CLHEP::cm);
-    sectionBuilder->setBarrelGlue(dzGlue*CLHEP::cm);
+    sectionBuilder->setBarrelPeriodThickness(2.*(dbManager->TILBdzmast() + dbManager->TILBdzspac() + 2.*dzGlue)*GeoModelKernelUnits::cm);
+    sectionBuilder->setBarrelGlue(dzGlue*GeoModelKernelUnits::cm);
 
     // Ext barrel part
     dbManager->SetCurrentSectionByNumber(2);
@@ -536,20 +538,20 @@ void TileAtlasFactory::create(GeoPhysVol *world)
     dzGlue = (dbManager->TILBdzmodul() - dbManager->TILBdzend1() - dbManager->TILBdzend2() 
 	      - dbManager->TILBnperiod()*2.*(dbManager->TILBdzmast() + dbManager->TILBdzspac()))/(4.*dbManager->TILBnperiod());
 
-    sectionBuilder->setExtendedPeriodThickness(2.*(dbManager->TILBdzmast() + dbManager->TILBdzspac() + 2.*dzGlue)*CLHEP::cm);
+    sectionBuilder->setExtendedPeriodThickness(2.*(dbManager->TILBdzmast() + dbManager->TILBdzspac() + 2.*dzGlue)*GeoModelKernelUnits::cm);
   }
 
-  GeoPhysVol *pvBarrelMother =NULL,     *pvFingerMotherNeg =NULL, *pvFingerMotherPos =NULL, 
-             *pvSaddleMotherNeg =NULL,  *pvSaddleMotherPos =NULL;
-  GeoPhysVol *pvEBarrelMotherNeg =NULL, *pvEBarrelMotherPos =NULL;
-  GeoPhysVol *pvEFingerMotherNeg =NULL, *pvEFingerMotherPos =NULL,
-             *pvESaddleMotherNeg =NULL, *pvESaddleMotherPos =NULL;
-  GeoPhysVol *pvITCMotherNeg =NULL,     *pvITCMotherPos =NULL;
-  GeoPhysVol *pvGapMotherNeg =NULL,     *pvGapMotherPos =NULL;
-  GeoPhysVol *pvCrackMotherNeg =NULL,   *pvCrackMotherPos =NULL;
+  GeoPhysVol *pvBarrelMother{nullptr},     *pvFingerMotherNeg{nullptr}, *pvFingerMotherPos{nullptr}, 
+             *pvSaddleMotherNeg{nullptr},  *pvSaddleMotherPos{nullptr};
+  GeoPhysVol *pvEBarrelMotherNeg{nullptr}, *pvEBarrelMotherPos{nullptr};
+  GeoPhysVol *pvEFingerMotherNeg{nullptr}, *pvEFingerMotherPos{nullptr},
+             *pvESaddleMotherNeg{nullptr}, *pvESaddleMotherPos{nullptr};
+  GeoPhysVol *pvITCMotherNeg{nullptr},     *pvITCMotherPos{nullptr};
+  GeoPhysVol *pvGapMotherNeg{nullptr},     *pvGapMotherPos{nullptr};
+  GeoPhysVol *pvCrackMotherNeg{nullptr},   *pvCrackMotherPos{nullptr};
 
-  GeoLogVol  *lvEBarrelModuleMotherPos =NULL, *lvEBarrelModuleMotherNeg =NULL;
-  GeoPhysVol *pvEBarrelModuleMotherPos =NULL, *pvEBarrelModuleMotherNeg =NULL;
+  GeoLogVol  *lvEBarrelModuleMotherPos{nullptr}, *lvEBarrelModuleMotherNeg{nullptr};
+  GeoPhysVol *pvEBarrelModuleMotherPos{nullptr}, *pvEBarrelModuleMotherNeg{nullptr};
 
   /*
   GeoPhysVol *pvTmp_EBarrelModuleMotherPos =0,*pvTmL_EBarrelModuleMotherPos =0,*pvTmR_EBarrelModuleMotherPos =0;
@@ -651,7 +653,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       checking("Cut2down", false, 1, dX1,dX2,dY1,dY2,dZ2);
       GeoTrd* Cut1down = new GeoTrd(dX1,dX2,dY1,dY2,dZ2);
  
-      HepGeom::Translate3D yPosA(0.,0.,-dZ1-dZ2);
+      GeoTrf::Translate3D yPosA(0.,0.,-dZ1-dZ2);
       
       const GeoShapeUnion& CutA1 = Cut1up->add(*Cut1down<<yPosA);
       CutA = &CutA1;
@@ -772,8 +774,8 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       // nominal position of end plate
       zEndSection = ZLength[1]/2 - BFingerLength;
 
-      GeoTubs* GeneralMother = new GeoTubs(dbManager->GetEnvRin()*CLHEP::cm,
-					   dbManager->GetEnvRout()*CLHEP::cm,
+      GeoTubs* GeneralMother = new GeoTubs(dbManager->GetEnvRin()*GeoModelKernelUnits::cm,
+					   dbManager->GetEnvRout()*GeoModelKernelUnits::cm,
 					   zEndSection,
 					   AnglMin, AnglMax);
 
@@ -784,13 +786,13 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       if(m_log->level()<=MSG::DEBUG)
 	(*m_log) << MSG::DEBUG << "Barrel envelope parameters: " 
 		 << " Length=" << zEndSection
-		 << " Rmin=" << dbManager->GetEnvRin()*CLHEP::cm
-		 << " Rmax=" << dbManager->GetEnvRout()*CLHEP::cm
+		 << " Rmin=" << dbManager->GetEnvRin()*GeoModelKernelUnits::cm
+		 << " Rmax=" << dbManager->GetEnvRout()*GeoModelKernelUnits::cm
 		 << endmsg;
       
       // Envelopes for two barrel fingers, positive finger 
       GeoTubs* fingerMotherPos = new GeoTubs(BFingerRmin,
-                                             dbManager->GetEnvRout()*CLHEP::cm,
+                                             dbManager->GetEnvRout()*GeoModelKernelUnits::cm,
                                              BFingerLengthPos/2,
                                              AnglMin, AnglMax);
 
@@ -810,7 +812,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
        // Negative finger
        GeoTubs* fingerMotherNeg = new GeoTubs(BFingerRmin,
-                                              dbManager->GetEnvRout()*CLHEP::cm,
+                                              dbManager->GetEnvRout()*GeoModelKernelUnits::cm,
                                               BFingerLengthNeg/2,
                                               AnglMin, AnglMax);
 
@@ -820,7 +822,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
        if(m_log->level()<=MSG::DEBUG)
 	 (*m_log) << MSG::DEBUG << "Barrel finger envelope parameters: " 
 		  << " length Pos/Neg=" << BFingerLengthPos << "/" << BFingerLengthNeg
-		  << " Rmin=" << BFingerRmin << " Rmax=" << dbManager->GetEnvRout()*CLHEP::cm
+		  << " Rmin=" << BFingerRmin << " Rmax=" << dbManager->GetEnvRout()*GeoModelKernelUnits::cm
 		  << endmsg;
 
        // Envelopes for two barrel saddle supports, positive
@@ -838,15 +840,15 @@ void TileAtlasFactory::create(GeoPhysVol *world)
     if(EnvType == 3) {   
 
       if(m_log->level()<=MSG::DEBUG)
-	(*m_log) << MSG::DEBUG <<" EBarrelPos DZ "<<(dbManager->GetEnvZLength()*CLHEP::cm- EBFingerLengthPos)/2<< endmsg;
+	(*m_log) << MSG::DEBUG <<" EBarrelPos DZ "<<(dbManager->GetEnvZLength()*GeoModelKernelUnits::cm- EBFingerLengthPos)/2<< endmsg;
 
       checking("EBarrel (+)", false, 0, 
-               dbManager->GetEnvRin()*CLHEP::cm,dbManager->GetEnvRout()*CLHEP::cm,
-               AnglMin,AnglMax,(dbManager->GetEnvZLength()*CLHEP::cm- EBFingerLengthPos)/2);
+               dbManager->GetEnvRin()*GeoModelKernelUnits::cm,dbManager->GetEnvRout()*GeoModelKernelUnits::cm,
+               AnglMin,AnglMax,(dbManager->GetEnvZLength()*GeoModelKernelUnits::cm- EBFingerLengthPos)/2);
 
-      GeoTubs* GeneralMother = new GeoTubs(dbManager->GetEnvRin()*CLHEP::cm,
-					   dbManager->GetEnvRout()*CLHEP::cm,
-					   (dbManager->GetEnvZLength()*CLHEP::cm- EBFingerLengthPos)/2,
+      GeoTubs* GeneralMother = new GeoTubs(dbManager->GetEnvRin()*GeoModelKernelUnits::cm,
+					   dbManager->GetEnvRout()*GeoModelKernelUnits::cm,
+					   (dbManager->GetEnvZLength()*GeoModelKernelUnits::cm- EBFingerLengthPos)/2,
 					   AnglMin, AnglMax);
 
       GeoTubs* ebarrelMotherPos = GeneralMother;
@@ -855,18 +857,18 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
       if(m_log->level()<=MSG::DEBUG)
 	(*m_log) << MSG::DEBUG << "Positive ext.barrel envelope parameters: " 
-		 << " length=" << (dbManager->GetEnvZLength()*CLHEP::cm- EBFingerLength)
-		 << " Rmin=" << dbManager->GetEnvRin()*CLHEP::cm
-		 << " Rmax=" << dbManager->GetEnvRout()*CLHEP::cm
+		 << " length=" << (dbManager->GetEnvZLength()*GeoModelKernelUnits::cm- EBFingerLength)
+		 << " Rmin=" << dbManager->GetEnvRin()*GeoModelKernelUnits::cm
+		 << " Rmax=" << dbManager->GetEnvRout()*GeoModelKernelUnits::cm
 		 << endmsg;
 
       // Envelope for finger separately
       checking("EBarrel (+)", false, 0, 
-               EFingerRmin,dbManager->GetEnvRout()*CLHEP::cm,
+               EFingerRmin,dbManager->GetEnvRout()*GeoModelKernelUnits::cm,
                AnglMin,AnglMax, EBFingerLength/2);
 
       GeoTubs* fingerMother = new GeoTubs(EFingerRmin,
-					  dbManager->GetEnvRout()*CLHEP::cm,
+					  dbManager->GetEnvRout()*GeoModelKernelUnits::cm,
 					  EBFingerLength/2,
 					  AnglMin, AnglMax);
 
@@ -877,7 +879,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 	(*m_log) << MSG::DEBUG << "Positive ext.barrel finger envelope parameters: " 
 		 << " length=" << EBFingerLength
 		 << " Rmin=" << EFingerRmin
-		 << " Rmax=" << (dbManager->GetEnvRout())*CLHEP::cm
+		 << " Rmax=" << (dbManager->GetEnvRout())*GeoModelKernelUnits::cm
 		 << endmsg;
 
       if (dbManager->BoolSaddle())
@@ -898,11 +900,11 @@ void TileAtlasFactory::create(GeoPhysVol *world)
     // Negative Ext.Barrel
     if(EnvType == 2) { 
       if(m_log->level()<=MSG::DEBUG)
-	(*m_log) << MSG::DEBUG <<" EBarrelNeg DZ "<<(dbManager->GetEnvZLength()*CLHEP::cm- EBFingerLengthNeg)/2<< endmsg;
+	(*m_log) << MSG::DEBUG <<" EBarrelNeg DZ "<<(dbManager->GetEnvZLength()*GeoModelKernelUnits::cm- EBFingerLengthNeg)/2<< endmsg;
 
-      GeoTubs* GeneralMother = new GeoTubs(dbManager->GetEnvRin()*CLHEP::cm,
-					   dbManager->GetEnvRout()*CLHEP::cm,
-					   (dbManager->GetEnvZLength()*CLHEP::cm- EBFingerLengthNeg)/2,
+      GeoTubs* GeneralMother = new GeoTubs(dbManager->GetEnvRin()*GeoModelKernelUnits::cm,
+					   dbManager->GetEnvRout()*GeoModelKernelUnits::cm,
+					   (dbManager->GetEnvZLength()*GeoModelKernelUnits::cm- EBFingerLengthNeg)/2,
 					   AnglMin, AnglMax);
 
       GeoTubs* ebarrelMotherNeg = GeneralMother;
@@ -911,14 +913,14 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       
       if(m_log->level()<=MSG::DEBUG)
 	(*m_log) << MSG::DEBUG << "Nevative ext.barrel envelope parameters: " 
-		 << " length=" << (dbManager->GetEnvZLength()*CLHEP::cm- EBFingerLength)
-		 << " Rmin=" << dbManager->GetEnvRin()*CLHEP::cm
-		 << " Rmax=" << dbManager->GetEnvRout()*CLHEP::cm
+		 << " length=" << (dbManager->GetEnvZLength()*GeoModelKernelUnits::cm- EBFingerLength)
+		 << " Rmin=" << dbManager->GetEnvRin()*GeoModelKernelUnits::cm
+		 << " Rmax=" << dbManager->GetEnvRout()*GeoModelKernelUnits::cm
 		 << endmsg;
 
       // Envelope for finger separately
       GeoTubs* fingerMother = new GeoTubs(EFingerRmin,
-					  dbManager->GetEnvRout()*CLHEP::cm,
+					  dbManager->GetEnvRout()*GeoModelKernelUnits::cm,
 					  EBFingerLengthNeg/2,
 					  AnglMin, AnglMax);
       
@@ -929,7 +931,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 	(*m_log) << MSG::DEBUG <<"Negative ext.barrel finger envelope parameters: " 
 		 << " length=" << EBFingerLengthNeg
 		 << " Rmin=" << EFingerRmin
-		 << " Rmax=" << dbManager->GetEnvRout()*CLHEP::cm
+		 << " Rmax=" << dbManager->GetEnvRout()*GeoModelKernelUnits::cm
 		 << endmsg;
 
       if (dbManager->BoolSaddle())
@@ -963,28 +965,28 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       dzITC1   = dbManager->TILBdzmodul();
       
       (*m_log) << MSG::INFO << " Positive ITC envelope parameters: PLUG1 " 
-               <<" Rmin= "<<rMinITC1*CLHEP::cm<<" Rmax= "<<rMaxITC1*CLHEP::cm<<" dzITC1= "<<dzITC1/2*CLHEP::cm<< endmsg;
+               <<" Rmin= "<<rMinITC1*GeoModelKernelUnits::cm<<" Rmax= "<<rMaxITC1*GeoModelKernelUnits::cm<<" dzITC1= "<<dzITC1/2*GeoModelKernelUnits::cm<< endmsg;
       (*m_log) << MSG::INFO << "                                   PLUG2 "
-               <<" Rmin= "<<rMinITC2*CLHEP::cm<<" Rmax= "<<rMaxITC2*CLHEP::cm<<" dzITC2= "<<dzITC2/2*CLHEP::cm<< endmsg;
+               <<" Rmin= "<<rMinITC2*GeoModelKernelUnits::cm<<" Rmax= "<<rMaxITC2*GeoModelKernelUnits::cm<<" dzITC2= "<<dzITC2/2*GeoModelKernelUnits::cm<< endmsg;
 
       checking("ITC itcWheel1 (+)", false, 0, 
-               rMinITC1*CLHEP::cm,rMaxITC1*CLHEP::cm, AnglMin,AnglMax, dzITC1/2*CLHEP::cm);
+               rMinITC1*GeoModelKernelUnits::cm,rMaxITC1*GeoModelKernelUnits::cm, AnglMin,AnglMax, dzITC1/2*GeoModelKernelUnits::cm);
 
-      GeoTubs* itcWheel1 = new GeoTubs(rMinITC1*CLHEP::cm,
-                                       rMaxITC1*CLHEP::cm,
-                                       dzITC1/2*CLHEP::cm,
+      GeoTubs* itcWheel1 = new GeoTubs(rMinITC1*GeoModelKernelUnits::cm,
+                                       rMaxITC1*GeoModelKernelUnits::cm,
+                                       dzITC1/2*GeoModelKernelUnits::cm,
                                        AnglMin, AnglMax);
 
       checking("ITC itcWheel2 (+)", false, 0,
-               rMinITC2*CLHEP::cm,rMaxITC2*CLHEP::cm, AnglMin,AnglMax, dzITC2/2*CLHEP::cm);
+               rMinITC2*GeoModelKernelUnits::cm,rMaxITC2*GeoModelKernelUnits::cm, AnglMin,AnglMax, dzITC2/2*GeoModelKernelUnits::cm);
 
-      GeoTubs* itcWheel2 = new GeoTubs(rMinITC2*CLHEP::cm,
-                                       rMaxITC2*CLHEP::cm,
-                                       dzITC2/2*CLHEP::cm,
+      GeoTubs* itcWheel2 = new GeoTubs(rMinITC2*GeoModelKernelUnits::cm,
+                                       rMaxITC2*GeoModelKernelUnits::cm,
+                                       dzITC2/2*GeoModelKernelUnits::cm,
                                        AnglMin, AnglMax);
       
-      Z = ( dzITC1 - dzITC2)/2*CLHEP::cm;
-      HepGeom::Translate3D itcWheel2OffsetPos(0.,0., Z);
+      Z = ( dzITC1 - dzITC2)/2*GeoModelKernelUnits::cm;
+      GeoTrf::Translate3D itcWheel2OffsetPos(0.,0., Z);
 
       zITCStandard = Z;
 
@@ -997,13 +999,13 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG3);
 
       checking("Gap (+)", false, 0, 
-              dbManager->TILBrminimal()*CLHEP::cm,
-              dbManager->TILBrmaximal()*CLHEP::cm/cos(deltaPhi/2*CLHEP::deg),
-              AnglMin,AnglMax, dbManager->TILBdzmodul()/2*CLHEP::cm);
+              dbManager->TILBrminimal()*GeoModelKernelUnits::cm,
+              dbManager->TILBrmaximal()*GeoModelKernelUnits::cm/cos(deltaPhi/2*GeoModelKernelUnits::deg),
+              AnglMin,AnglMax, dbManager->TILBdzmodul()/2*GeoModelKernelUnits::cm);
 
-      GeoTubs* GapMotherPos = new GeoTubs(dbManager->TILBrminimal()*CLHEP::cm,
-	                                  dbManager->TILBrmaximal()*CLHEP::cm/cos(deltaPhi/2*CLHEP::deg),
-                                          dbManager->TILBdzmodul()/2*CLHEP::cm,
+      GeoTubs* GapMotherPos = new GeoTubs(dbManager->TILBrminimal()*GeoModelKernelUnits::cm,
+	                                  dbManager->TILBrmaximal()*GeoModelKernelUnits::cm/cos(deltaPhi/2*GeoModelKernelUnits::deg),
+                                          dbManager->TILBdzmodul()/2*GeoModelKernelUnits::cm,
                                           AnglMin, AnglMax);
 
       GeoLogVol* lvGapMotherPos = new GeoLogVol("Gap",GapMotherPos,matAir);
@@ -1013,13 +1015,13 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG4);
 
       checking("Crack (+)", spE4, 0, 
-              rMinE4pos*CLHEP::cm,
-              dbManager->TILBrmaximal()*CLHEP::cm/cos(deltaPhi/2*CLHEP::deg),
-              AnglMin,AnglMax, dbManager->TILBdzmodul()/2*CLHEP::cm);
+              rMinE4pos*GeoModelKernelUnits::cm,
+              dbManager->TILBrmaximal()*GeoModelKernelUnits::cm/cos(deltaPhi/2*GeoModelKernelUnits::deg),
+              AnglMin,AnglMax, dbManager->TILBdzmodul()/2*GeoModelKernelUnits::cm);
 
-      GeoTubs* crackMotherPos = new GeoTubs(rMinE4pos*CLHEP::cm,
-				            dbManager->TILBrmaximal()*CLHEP::cm/cos(deltaPhi/2*CLHEP::deg),
-				            dbManager->TILBdzmodul()/2*CLHEP::cm,
+      GeoTubs* crackMotherPos = new GeoTubs(rMinE4pos*GeoModelKernelUnits::cm,
+				            dbManager->TILBrmaximal()*GeoModelKernelUnits::cm/cos(deltaPhi/2*GeoModelKernelUnits::deg),
+				            dbManager->TILBdzmodul()/2*GeoModelKernelUnits::cm,
                                             AnglMin, AnglMax);
     
       GeoLogVol* lvCrackMotherPos = new GeoLogVol("Crack",crackMotherPos,matAir);
@@ -1042,28 +1044,28 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       dzITC1   = dbManager->TILBdzmodul();
       
       (*m_log) << MSG::INFO << " Negative ITC envelope parameters: PLUG1 " 
-               <<" Rmin= "<<rMinITC1*CLHEP::cm<<" Rmax= "<<rMaxITC1*CLHEP::cm<<" dzITC1= "<<dzITC1/2*CLHEP::cm<<endmsg;
+               <<" Rmin= "<<rMinITC1*GeoModelKernelUnits::cm<<" Rmax= "<<rMaxITC1*GeoModelKernelUnits::cm<<" dzITC1= "<<dzITC1/2*GeoModelKernelUnits::cm<<endmsg;
       (*m_log) << MSG::INFO << "                                   PLUG2 "
-               <<" Rmin= "<<rMinITC2*CLHEP::cm<<" Rmax= "<<rMaxITC2*CLHEP::cm<<" dzITC2= "<<dzITC2/2*CLHEP::cm<<endmsg;
+               <<" Rmin= "<<rMinITC2*GeoModelKernelUnits::cm<<" Rmax= "<<rMaxITC2*GeoModelKernelUnits::cm<<" dzITC2= "<<dzITC2/2*GeoModelKernelUnits::cm<<endmsg;
 
       checking("ITC itcWheel1 (-)", false, 0, 
-               rMinITC1*CLHEP::cm,rMaxITC1*CLHEP::cm, AnglMin,AnglMax, dzITC1/2*CLHEP::cm);
+               rMinITC1*GeoModelKernelUnits::cm,rMaxITC1*GeoModelKernelUnits::cm, AnglMin,AnglMax, dzITC1/2*GeoModelKernelUnits::cm);
 
-      GeoTubs* itcWheel1 = new GeoTubs(rMinITC1*CLHEP::cm,
-                                       rMaxITC1*CLHEP::cm,
-                                       dzITC1/2*CLHEP::cm,
+      GeoTubs* itcWheel1 = new GeoTubs(rMinITC1*GeoModelKernelUnits::cm,
+                                       rMaxITC1*GeoModelKernelUnits::cm,
+                                       dzITC1/2*GeoModelKernelUnits::cm,
                                        AnglMin, AnglMax);
 
       checking("ITC itcWheel2 (-)", false, 0,
-               rMinITC2*CLHEP::cm,rMaxITC2*CLHEP::cm, AnglMin,AnglMax, dzITC2/2*CLHEP::cm);
+               rMinITC2*GeoModelKernelUnits::cm,rMaxITC2*GeoModelKernelUnits::cm, AnglMin,AnglMax, dzITC2/2*GeoModelKernelUnits::cm);
 
-      GeoTubs* itcWheel2 = new GeoTubs(rMinITC2*CLHEP::cm,
-                                       rMaxITC2*CLHEP::cm,
-                                       dzITC2/2*CLHEP::cm,
+      GeoTubs* itcWheel2 = new GeoTubs(rMinITC2*GeoModelKernelUnits::cm,
+                                       rMaxITC2*GeoModelKernelUnits::cm,
+                                       dzITC2/2*GeoModelKernelUnits::cm,
                                        AnglMin, AnglMax);
 
-      Z = (-dzITC1 + dzITC2)/2*CLHEP::cm;
-      HepGeom::Translate3D itcWheel2OffsetNeg(0.,0., Z);
+      Z = (-dzITC1 + dzITC2)/2*GeoModelKernelUnits::cm;
+      GeoTrf::Translate3D itcWheel2OffsetNeg(0.,0., Z);
 
       zITCStandard = Z;
 
@@ -1076,13 +1078,13 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG3);
 
       checking("Gap (-)", false, 1, 
-              dbManager->TILBrminimal()*CLHEP::cm,
-              dbManager->TILBrmaximal()*CLHEP::cm/cos(deltaPhi/2*CLHEP::deg),
-              AnglMin,AnglMax, dbManager->TILBdzmodul()/2*CLHEP::cm);
+              dbManager->TILBrminimal()*GeoModelKernelUnits::cm,
+              dbManager->TILBrmaximal()*GeoModelKernelUnits::cm/cos(deltaPhi/2*GeoModelKernelUnits::deg),
+              AnglMin,AnglMax, dbManager->TILBdzmodul()/2*GeoModelKernelUnits::cm);
 
-      GeoTubs* GapMotherNeg = new GeoTubs(dbManager->TILBrminimal()*CLHEP::cm,
-	                                  dbManager->TILBrmaximal()*CLHEP::cm/cos(deltaPhi/2*CLHEP::deg),
-                                          dbManager->TILBdzmodul()/2*CLHEP::cm,
+      GeoTubs* GapMotherNeg = new GeoTubs(dbManager->TILBrminimal()*GeoModelKernelUnits::cm,
+	                                  dbManager->TILBrmaximal()*GeoModelKernelUnits::cm/cos(deltaPhi/2*GeoModelKernelUnits::deg),
+                                          dbManager->TILBdzmodul()/2*GeoModelKernelUnits::cm,
                                           AnglMin, AnglMax);
 
       GeoLogVol* lvGapMotherNeg = new GeoLogVol("Gap",GapMotherNeg,matAir);
@@ -1092,13 +1094,13 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG4);
   
       checking("Crack (-)", spE4, 0, 
-              rMinE4neg*CLHEP::cm,
-              dbManager->TILBrmaximal()*CLHEP::cm/cos(deltaPhi/2*CLHEP::deg),
-              AnglMin,AnglMax, dbManager->TILBdzmodul()/2*CLHEP::cm);
+              rMinE4neg*GeoModelKernelUnits::cm,
+              dbManager->TILBrmaximal()*GeoModelKernelUnits::cm/cos(deltaPhi/2*GeoModelKernelUnits::deg),
+              AnglMin,AnglMax, dbManager->TILBdzmodul()/2*GeoModelKernelUnits::cm);
 
-      GeoTubs* crackMotherNeg = new GeoTubs(rMinE4neg*CLHEP::cm,
-				            dbManager->TILBrmaximal()*CLHEP::cm/cos(deltaPhi/2*CLHEP::deg),
-				            dbManager->TILBdzmodul()/2*CLHEP::cm,
+      GeoTubs* crackMotherNeg = new GeoTubs(rMinE4neg*GeoModelKernelUnits::cm,
+				            dbManager->TILBrmaximal()*GeoModelKernelUnits::cm/cos(deltaPhi/2*GeoModelKernelUnits::deg),
+				            dbManager->TILBdzmodul()/2*GeoModelKernelUnits::cm,
                                             AnglMin, AnglMax);
     
       GeoLogVol* lvCrackMotherNeg = new GeoLogVol("Crack",crackMotherNeg,matAir);
@@ -1117,9 +1119,9 @@ void TileAtlasFactory::create(GeoPhysVol *world)
     // the main loop around all phi modules position
     int ModuleNcp =0;
 
-    GeoTransform* yrotMod = new GeoTransform(HepGeom::RotateY3D(90*CLHEP::deg));
+    GeoTransform* yrotMod = new GeoTransform(GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg));
     yrotMod->ref();
-    GeoTransform* XYrtMod = new GeoTransform(HepGeom::RotateX3D(180*CLHEP::deg) * HepGeom::RotateY3D(90*CLHEP::deg));
+    GeoTransform* XYrtMod = new GeoTransform(GeoTrf::RotateX3D(180*GeoModelKernelUnits::deg) * GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg));
     XYrtMod->ref();
 
     for(int ModCounter = 0; ModCounter < NumberOfMod; ModCounter++){
@@ -1130,9 +1132,9 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       double phi = (double(ModuleNcp-1) + 0.5)*deltaPhi;
       double ph1 = (double(ModuleNcp-1))*deltaPhi;
 
-      GeoTransform* zrotMod = new GeoTransform(HepGeom::RotateZ3D(phi*CLHEP::deg));
+      GeoTransform* zrotMod = new GeoTransform(GeoTrf::RotateZ3D(phi*GeoModelKernelUnits::deg));
       zrotMod->ref();
-      GeoTransform* zrotSaddle =  new GeoTransform(HepGeom::RotateZ3D(ph1*CLHEP::deg));
+      GeoTransform* zrotSaddle =  new GeoTransform(GeoTrf::RotateZ3D(ph1*GeoModelKernelUnits::deg));
       zrotSaddle->ref();
 
       dbManager->SetCurrentModuleByIndex(ModuleNcp-1);
@@ -1159,10 +1161,10 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
 	dbManager->SetCurrentSectionByNumber(ModType);
 
-        thicknessWedgeMother = dbManager->TILBdzmodul() * CLHEP::cm; 
-        heightWedgeMother = (dbManager->TILBrmaximal() - dbManager->TILBrminimal()) * CLHEP::cm;
-        dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
-        dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
+        thicknessWedgeMother = dbManager->TILBdzmodul() * GeoModelKernelUnits::cm; 
+        heightWedgeMother = (dbManager->TILBrmaximal() - dbManager->TILBrminimal()) * GeoModelKernelUnits::cm;
+        dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+        dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
        
         dzGlue = (dbManager->TILBdzmodul() - dbManager->TILBdzend1() - dbManager->TILBdzend2() 
                - (dbManager->TILBnperiod()*2.*(dbManager->TILBdzmast() + dbManager->TILBdzspac()) 
@@ -1186,8 +1188,8 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 				      deltaPhi); 
 	}
        
-        GeoTransform* xtraMod = new GeoTransform(HepGeom::TranslateX3D(
-                                    (dbManager->TILBrmaximal() + dbManager->TILBrminimal())/2 * CLHEP::cm));
+        GeoTransform* xtraMod = new GeoTransform(GeoTrf::TranslateX3D(
+                                    (dbManager->TILBrmaximal() + dbManager->TILBrminimal())/2 * GeoModelKernelUnits::cm));
 
         pvBarrelMother->add(zrotMod);
         pvBarrelMother->add(xtraMod);
@@ -1201,9 +1203,9 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 	dbManager->SetCurrentTifg(1);  // Barrel finger 
         zEndSection = dbManager->TILBzoffset() + dbManager->TILBdzmodul()/2;
 
-        heightWedgeMother = (dbManager->TILErmax() - dbManager->TILBrmax())*CLHEP::cm;
-        dy1WedgeMother = dbManager->TILBrmax() * tan(deltaPhi/2*CLHEP::deg)*CLHEP::cm;
-        dy2WedgeMother = dbManager->TILErmax() * tan(deltaPhi/2*CLHEP::deg)*CLHEP::cm;
+        heightWedgeMother = (dbManager->TILErmax() - dbManager->TILBrmax())*GeoModelKernelUnits::cm;
+        dy1WedgeMother = dbManager->TILBrmax() * tan(deltaPhi/2*GeoModelKernelUnits::deg)*GeoModelKernelUnits::cm;
+        dy2WedgeMother = dbManager->TILErmax() * tan(deltaPhi/2*GeoModelKernelUnits::deg)*GeoModelKernelUnits::cm;
 
 	// Finger Positive, positioning (only Left ModFingpattern == 10) 
 	if ( ModFingpattern != 10 ) {
@@ -1223,9 +1225,9 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 				       deltaPhi,
 				       m_testbeamGeometry,
 				       ModuleNcp,
-				       BFingerLengthPos*(1./CLHEP::cm)); 
+				       BFingerLengthPos*(1./GeoModelKernelUnits::cm)); 
 
-	  GeoTransform* xtraModFingerPos  = new GeoTransform(HepGeom::TranslateX3D((dbManager->TILErmax() + dbManager->TILBrmax())/2*CLHEP::cm));
+	  GeoTransform* xtraModFingerPos  = new GeoTransform(GeoTrf::TranslateX3D((dbManager->TILErmax() + dbManager->TILBrmax())/2*GeoModelKernelUnits::cm));
 
           //(*m_log) << MSG::DEBUG << "R  Index " << ModuleNcp << " Fingpattern "<< ModFingpattern << endmsg;
  
@@ -1256,9 +1258,9 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 				       deltaPhi,
 				       m_testbeamGeometry,
 				       ModuleNcp*100,
-				       BFingerLengthNeg*(1./CLHEP::cm));
+				       BFingerLengthNeg*(1./GeoModelKernelUnits::cm));
 
-	  GeoTransform* xtraModFingerNeg  = new GeoTransform(HepGeom::TranslateX3D((dbManager->TILErmax() + dbManager->TILBrmax())/2*CLHEP::cm));
+	  GeoTransform* xtraModFingerNeg  = new GeoTransform(GeoTrf::TranslateX3D((dbManager->TILErmax() + dbManager->TILBrmax())/2*GeoModelKernelUnits::cm));
 
           // (*m_log) << MSG::DEBUG << "L  Index " << ModuleNcp << " Fingpattern "<< ModFingpattern << endmsg;
 
@@ -1277,7 +1279,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
             GeoTubs* SaddleModule = new GeoTubs(BFingerRmin-RadiusSaddle,
                                                 BFingerRmin,
                                                 DzSaddleSupport/2,
-                                                0.,deltaPhi*CLHEP::deg);
+                                                0.,deltaPhi*GeoModelKernelUnits::deg);
      
             GeoLogVol* lvSaddleModule = new GeoLogVol("SaddleModule",SaddleModule,matIron);
             GeoPhysVol* pvSaddleModule = new GeoPhysVol(lvSaddleModule);
@@ -1300,16 +1302,16 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 	dbManager->SetCurrentSectionByNumber(ModType);
 
         // Mother module 
-        thicknessWedgeMother = dbManager->TILBdzmodul() * CLHEP::cm;
-        heightWedgeMother = (dbManager->TILBrmaximal() - dbManager->TILBrminimal()) * CLHEP::cm;
-        dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
-        dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
+        thicknessWedgeMother = dbManager->TILBdzmodul() * GeoModelKernelUnits::cm;
+        heightWedgeMother = (dbManager->TILBrmaximal() - dbManager->TILBrminimal()) * GeoModelKernelUnits::cm;
+        dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+        dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
         
         dzGlue = (dbManager->TILBdzmodul() - dbManager->TILBdzend1() - dbManager->TILBdzend2() 
                 - dbManager->TILBnperiod()*2.*(dbManager->TILBdzmast() + dbManager->TILBdzspac()))/(4.*
                   dbManager->TILBnperiod());
         
-        double Radius = (dbManager->TILBrmaximal() + dbManager->TILBrminimal())/2 * CLHEP::cm;
+        double Radius = (dbManager->TILBrmaximal() + dbManager->TILBrminimal())/2 * GeoModelKernelUnits::cm;
 
         checking("EBarrelModule (+)", false, 1, 
                  thicknessWedgeMother/2,thicknessWedgeMother/2,dy1WedgeMother,dy2WedgeMother,heightWedgeMother/2);
@@ -1334,19 +1336,19 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 	  if(m_log->level()<=MSG::DEBUG)
 	    (*m_log) << MSG::DEBUG << " BoolCuts YES "<< dbManager->BoolCuts() << endmsg;
  
-           double PoZ2 =0, PoZ1 =0, thicknessEndPlate =dbManager->TILBdzend1()*CLHEP::cm;
+           double PoZ2 =0, PoZ1 =0, thicknessEndPlate =dbManager->TILBdzend1()*GeoModelKernelUnits::cm;
 
-           PoZ1 = thicknessEndPlate + modl_length/4 - (dbManager->GetEnvZLength()*CLHEP::cm- EBFingerLengthPos)/2;
+           PoZ1 = thicknessEndPlate + modl_length/4 - (dbManager->GetEnvZLength()*GeoModelKernelUnits::cm- EBFingerLengthPos)/2;
            PoZ2 = PoZ1 + modl_length/4;
 
            if ((ModuleNcp>=35 && ModuleNcp<=37) || (ModuleNcp>=60 && ModuleNcp<=62))
-	    { HepGeom::Transform3D  TransCut2 = HepGeom::TranslateZ3D(-Radius) * HepGeom::RotateX3D((90-phi)*CLHEP::deg) * HepGeom::RotateY3D(180*CLHEP::deg)
-                                        * HepGeom::Translate3D(-PoZ2,0.,-PosY);
+	    { GeoTrf::Transform3D  TransCut2 = GeoTrf::TranslateZ3D(-Radius) * GeoTrf::RotateX3D((90-phi)*GeoModelKernelUnits::deg) * GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg)
+                                        * GeoTrf::Translate3D(-PoZ2,0.,-PosY);
  
               if (ModuleNcp>=60 && ModuleNcp<=62)
-	       { HepGeom::Transform3D TransCutL = HepGeom::TranslateZ3D(-Radius)
-                                          * HepGeom::RotateY3D(180*CLHEP::deg) * HepGeom::RotateX3D(phi*CLHEP::deg)
-                                          * HepGeom::Translate3D(PoZ1,PosYcut,-PosXcut);
+	       { GeoTrf::Transform3D TransCutL = GeoTrf::TranslateZ3D(-Radius)
+                                          * GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg) * GeoTrf::RotateX3D(phi*GeoModelKernelUnits::deg)
+                                          * GeoTrf::Translate3D(PoZ1,PosYcut,-PosXcut);
 
                  // Cuting of module (Left)
                  const GeoShape& TmL_EBarrelModuleMotherPos = ebarrelModuleMotherPos->subtract((*CutA)<<TransCut2).
@@ -1355,9 +1357,9 @@ void TileAtlasFactory::create(GeoPhysVol *world)
                  lvEBarrelModuleMotherPos = new GeoLogVol("EBarrelModule",&TmL_EBarrelModuleMotherPos,matAir);
 
                } else if (ModuleNcp>=35 && ModuleNcp<=37) 
-	       { HepGeom::Transform3D TransCutR = HepGeom::TranslateZ3D(-Radius)
-                                          * HepGeom::RotateY3D(180*CLHEP::deg) * HepGeom::RotateX3D(phi*CLHEP::deg)
-                                          * HepGeom::Translate3D(PoZ1,PosYcut,PosXcut) * HepGeom::RotateY3D(180*CLHEP::deg);
+	       { GeoTrf::Transform3D TransCutR = GeoTrf::TranslateZ3D(-Radius)
+                                          * GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg) * GeoTrf::RotateX3D(phi*GeoModelKernelUnits::deg)
+                                          * GeoTrf::Translate3D(PoZ1,PosYcut,PosXcut) * GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg);
 
                  // Cuting of module (Right)
                  const GeoShape& TmR_EBarrelModuleMotherPos = ebarrelModuleMotherPos->subtract((*CutA)<<TransCut2).
@@ -1384,7 +1386,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
                                       ModuleNcp);
 	}
 
-        GeoTransform* xtraModPos = new GeoTransform(HepGeom::TranslateX3D(Radius));
+        GeoTransform* xtraModPos = new GeoTransform(GeoTrf::TranslateX3D(Radius));
 
         pvEBarrelMotherPos->add(zrotMod);
         pvEBarrelMotherPos->add(xtraModPos);
@@ -1403,14 +1405,14 @@ void TileAtlasFactory::create(GeoPhysVol *world)
            (*m_log) << MSG::DEBUG << " BoolCuts YES "<< dbManager->BoolCuts() << endmsg;
  
            double PoZ2 =0, PoZ1 =0;
-           double thicknessEndPlate = dbManager->TILBdzend1()*CLHEP::cm;
+           double thicknessEndPlate = dbManager->TILBdzend1()*GeoModelKernelUnits::cm;
 
-           PoZ1 = thicknessEndPlate + modl_length/4 - (dbManager->GetEnvZLength()*CLHEP::cm- EBFingerLengthPos)/2;
+           PoZ1 = thicknessEndPlate + modl_length/4 - (dbManager->GetEnvZLength()*GeoModelKernelUnits::cm- EBFingerLengthPos)/2;
            PoZ2 = modl_length/4 + PoZ1;
 
            if ((ModuleNcp>=35 && ModuleNcp<=37) || (ModuleNcp>=60 && ModuleNcp<=62))
-	    { HepGeom::Transform3D  TransCut2 = HepGeom::TranslateZ3D(-Radius) * HepGeom::RotateX3D((90-phi)*CLHEP::deg) * HepGeom::RotateY3D(180*CLHEP::deg)
-                                        * HepGeom::Translate3D(-PoZ2,0.,-PosY);
+	    { GeoTrf::Transform3D  TransCut2 = GeoTrf::TranslateZ3D(-Radius) * GeoTrf::RotateX3D((90-phi)*GeoModelKernelUnits::deg) * GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg)
+                                        * GeoTrf::Translate3D(-PoZ2,0.,-PosY);
  
               // Cuting of pvEBarrelModuleMotherPos (-)
               GeoCutVolAction action1(*CutA, TransCut2);
@@ -1419,9 +1421,9 @@ void TileAtlasFactory::create(GeoPhysVol *world)
               pvEBarrelModuleMotherPos->unref(); // Cleaning useless volume
 
               if (ModuleNcp>=60 && ModuleNcp<=62)
-	       { HepGeom::Transform3D TransCutL = HepGeom::TranslateZ3D(-Radius)
-                                          * HepGeom::RotateY3D(180*CLHEP::deg) * HepGeom::RotateX3D(phi*CLHEP::deg)
-                                          * HepGeom::Translate3D(PoZ1,PosYcut,-PosXcut);
+	       { GeoTrf::Transform3D TransCutL = GeoTrf::TranslateZ3D(-Radius)
+                                          * GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg) * GeoTrf::RotateX3D(phi*GeoModelKernelUnits::deg)
+                                          * GeoTrf::Translate3D(PoZ1,PosYcut,-PosXcut);
 
                  // Cuting of pvEBarrelModuleMotherPos (Left)
                  GeoCutVolAction action2(*CutB, TransCutL);
@@ -1432,9 +1434,9 @@ void TileAtlasFactory::create(GeoPhysVol *world)
                  pvEBarrelMotherPos->add(pvTmL_EBarrelModuleMotherPos);
 
                } else if (ModuleNcp>=35 && ModuleNcp<=37) 
-	       { HepGeom::Transform3D TransCutR = HepGeom::TranslateZ3D(-Radius)
-                                          * HepGeom::RotateY3D(180*CLHEP::deg) * HepGeom::RotateX3D(phi*CLHEP::deg)
-                                          * HepGeom::Translate3D(PoZ1,PosYcut,PosXcut) * HepGeom::RotateY3D(180*CLHEP::deg);
+	       { GeoTrf::Transform3D TransCutR = GeoTrf::TranslateZ3D(-Radius)
+                                          * GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg) * GeoTrf::RotateX3D(phi*GeoModelKernelUnits::deg)
+                                          * GeoTrf::Translate3D(PoZ1,PosYcut,PosXcut) * GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg);
 
                  // Cuting of pvEBarrelModuleMotherPos (Right)
                  GeoCutVolAction action3(*CutB, TransCutR);
@@ -1457,10 +1459,10 @@ void TileAtlasFactory::create(GeoPhysVol *world)
         dbManager->SetCurrentTifg(2);  //barrel efinger (small)
         
         // Trd - one finger mother
-        thicknessWedgeMother = dbManager->TIFGdz() * CLHEP::cm;
-        heightWedgeMother = (dbManager->TILErmax() - dbManager->TILBrmax()) * CLHEP::cm;
-        dy1WedgeMother = dbManager->TILBrmax() * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
-        dy2WedgeMother = dbManager->TILErmax() * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
+        thicknessWedgeMother = dbManager->TIFGdz() * GeoModelKernelUnits::cm;
+        heightWedgeMother = (dbManager->TILErmax() - dbManager->TILBrmax()) * GeoModelKernelUnits::cm;
+        dy1WedgeMother = dbManager->TILBrmax() * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+        dy2WedgeMother = dbManager->TILErmax() * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
         
         checking("EFingerModule (+)", false,  1, 
                  thicknessWedgeMother/2,thicknessWedgeMother/2,dy1WedgeMother,dy2WedgeMother,heightWedgeMother/2);
@@ -1483,8 +1485,8 @@ void TileAtlasFactory::create(GeoPhysVol *world)
                                       m_testbeamGeometry,
                                       ModuleNcp);
 	 }
-        GeoTransform* xtraModFingerPos  = new GeoTransform(HepGeom::TranslateX3D(
-                                              (dbManager->TILErmax() + dbManager->TILBrmax())/2*CLHEP::cm));
+        GeoTransform* xtraModFingerPos  = new GeoTransform(GeoTrf::TranslateX3D(
+                                              (dbManager->TILErmax() + dbManager->TILBrmax())/2*GeoModelKernelUnits::cm));
         pvEFingerMotherPos->add(zrotMod);
         pvEFingerMotherPos->add(xtraModFingerPos);
         pvEFingerMotherPos->add(XYrtMod);
@@ -1499,7 +1501,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
             GeoTubs* SaddleModule = new GeoTubs(BFingerRmin-RadiusSaddle,
                                                 BFingerRmin,
                                                 DzSaddleSupport/2,
-                                                0.,deltaPhi*CLHEP::deg);
+                                                0.,deltaPhi*GeoModelKernelUnits::deg);
      
             GeoLogVol* lvSaddleModule = new GeoLogVol("SaddleModule",SaddleModule,matIron);
             GeoPhysVol* pvSaddleModule = new GeoPhysVol(lvSaddleModule);
@@ -1519,16 +1521,16 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 	dbManager->SetCurrentSectionByNumber(ModType);
 
         // Mother module
-        thicknessWedgeMother = dbManager->TILBdzmodul() * CLHEP::cm;
-        heightWedgeMother = (dbManager->TILBrmaximal() - dbManager->TILBrminimal()) * CLHEP::cm;
-        dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
-        dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
+        thicknessWedgeMother = dbManager->TILBdzmodul() * GeoModelKernelUnits::cm;
+        heightWedgeMother = (dbManager->TILBrmaximal() - dbManager->TILBrminimal()) * GeoModelKernelUnits::cm;
+        dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+        dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
         
         dzGlue = (dbManager->TILBdzmodul() - dbManager->TILBdzend1() - dbManager->TILBdzend2() 
                 - dbManager->TILBnperiod()*2.*(dbManager->TILBdzmast() 
                 + dbManager->TILBdzspac()))/(4.*dbManager->TILBnperiod());
   
-        double Radius = (dbManager->TILBrmaximal() + dbManager->TILBrminimal())/2 * CLHEP::cm;
+        double Radius = (dbManager->TILBrmaximal() + dbManager->TILBrminimal())/2 * GeoModelKernelUnits::cm;
 
         checking("EBarrelModule (-)", false, 1, 
                  thicknessWedgeMother/2,thicknessWedgeMother/2,dy1WedgeMother,dy2WedgeMother,heightWedgeMother/2);
@@ -1553,20 +1555,20 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 	   if(m_log->level()<=MSG::DEBUG)
 	     (*m_log) << MSG::DEBUG << " BoolCuts YES "<< dbManager->BoolCuts() << endmsg;
  
-           double PoZ2 =0, PoZ1 =0, thicknessEndPlate = dbManager->TILBdzend1()*CLHEP::cm;
+           double PoZ2 =0, PoZ1 =0, thicknessEndPlate = dbManager->TILBdzend1()*GeoModelKernelUnits::cm;
 
-           PoZ1 = thicknessEndPlate + modl_length/4 - (dbManager->GetEnvZLength()*CLHEP::cm- EBFingerLengthNeg)/2;
+           PoZ1 = thicknessEndPlate + modl_length/4 - (dbManager->GetEnvZLength()*GeoModelKernelUnits::cm- EBFingerLengthNeg)/2;
            PoZ2 = PoZ1 + modl_length/4;
 
            if ((ModuleNcp>=35 && ModuleNcp<=37) || (ModuleNcp>=60 && ModuleNcp<=62))
-	    { HepGeom::Transform3D  TransCut2 = HepGeom::TranslateZ3D(-Radius) 
-                                        * HepGeom::RotateX3D((phi-90)*CLHEP::deg) * HepGeom::RotateY3D(180*CLHEP::deg)
-                                        * HepGeom::Translate3D(-PoZ2,0,-PosY);
+	    { GeoTrf::Transform3D  TransCut2 = GeoTrf::TranslateZ3D(-Radius) 
+                                        * GeoTrf::RotateX3D((phi-90)*GeoModelKernelUnits::deg) * GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg)
+                                        * GeoTrf::Translate3D(-PoZ2,0,-PosY);
  
               if (ModuleNcp>=60 && ModuleNcp<=62)
-	       { HepGeom::Transform3D TransCutL = HepGeom::TranslateZ3D(-Radius)
-                                          * HepGeom::RotateY3D(180*CLHEP::deg) * HepGeom::RotateX3D(-phi*CLHEP::deg)
-                                          * HepGeom::Translate3D(PoZ1,-PosYcut,-PosXcut);
+	       { GeoTrf::Transform3D TransCutL = GeoTrf::TranslateZ3D(-Radius)
+                                          * GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg) * GeoTrf::RotateX3D(-phi*GeoModelKernelUnits::deg)
+                                          * GeoTrf::Translate3D(PoZ1,-PosYcut,-PosXcut);
 
                  // Cuting of module (Left)
                  const GeoShape& TmL_EBarrelModuleMotherNeg = ebarrelModuleMotherNeg->subtract((*CutA)<<TransCut2).
@@ -1575,9 +1577,9 @@ void TileAtlasFactory::create(GeoPhysVol *world)
                  lvEBarrelModuleMotherNeg = new GeoLogVol("EBarrelModule",&TmL_EBarrelModuleMotherNeg,matAir);
 
                } else if (ModuleNcp>=35 && ModuleNcp<=37)
-	       { HepGeom::Transform3D TransCutR = HepGeom::TranslateZ3D(-Radius)
-                                          * HepGeom::RotateY3D(180*CLHEP::deg) * HepGeom::RotateX3D(-phi*CLHEP::deg)
-                                          * HepGeom::Translate3D(PoZ1,-PosYcut,PosXcut) * HepGeom::RotateY3D(180*CLHEP::deg);
+	       { GeoTrf::Transform3D TransCutR = GeoTrf::TranslateZ3D(-Radius)
+                                          * GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg) * GeoTrf::RotateX3D(-phi*GeoModelKernelUnits::deg)
+                                          * GeoTrf::Translate3D(PoZ1,-PosYcut,PosXcut) * GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg);
 
                  // Cuting of module (Right)
                  const GeoShape& TmR_EBarrelModuleMotherNeg = ebarrelModuleMotherNeg->subtract((*CutA)<<TransCut2).
@@ -1605,7 +1607,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 				      0.,true);
          }
 
-        GeoTransform* xtraModNeg = new GeoTransform(HepGeom::TranslateX3D(Radius));
+        GeoTransform* xtraModNeg = new GeoTransform(GeoTrf::TranslateX3D(Radius));
 
         pvEBarrelMotherNeg->add(zrotMod);
         pvEBarrelMotherNeg->add(xtraModNeg);
@@ -1623,15 +1625,15 @@ void TileAtlasFactory::create(GeoPhysVol *world)
            (*m_log) << MSG::DEBUG << " BoolCuts YES "<< dbManager->BoolCuts() << endmsg;
 
            double PoZ2 =0, PoZ1 =0;
-           double thicknessEndPlate = dbManager->TILBdzend1()*CLHEP::cm;
+           double thicknessEndPlate = dbManager->TILBdzend1()*GeoModelKernelUnits::cm;
 
-           PoZ1 = thicknessEndPlate + modl_length/4 - (dbManager->GetEnvZLength()*CLHEP::cm- EBFingerLengthPos)/2;
+           PoZ1 = thicknessEndPlate + modl_length/4 - (dbManager->GetEnvZLength()*GeoModelKernelUnits::cm- EBFingerLengthPos)/2;
            PoZ2 = modl_length/4 + PoZ1;
 
           if ((ModuleNcp>=35 && ModuleNcp<=37) || (ModuleNcp>=60 && ModuleNcp<=62))
-	   { HepGeom::Transform3D  TransCut2 = HepGeom::TranslateZ3D(-Radius) 
-                                       * HepGeom::RotateX3D((phi-90)*CLHEP::deg) * HepGeom::RotateY3D(180*CLHEP::deg)   
-                                       * HepGeom::Translate3D(-PoZ2,0.,-PosY);
+	   { GeoTrf::Transform3D  TransCut2 = GeoTrf::TranslateZ3D(-Radius) 
+                                       * GeoTrf::RotateX3D((phi-90)*GeoModelKernelUnits::deg) * GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg)   
+                                       * GeoTrf::Translate3D(-PoZ2,0.,-PosY);
 
              // Cuting of pvEBarrelModuleMotherNeg (-)
              GeoCutVolAction action1(*CutA, TransCut2);
@@ -1640,9 +1642,9 @@ void TileAtlasFactory::create(GeoPhysVol *world)
              pvEBarrelModuleMotherNeg->unref(); // Cleaning useless volume
 
              if (ModuleNcp>=60 && ModuleNcp<=62)
-	      { HepGeom::Transform3D TransCutL = HepGeom::TranslateZ3D(-Radius)
-                                         * HepGeom::RotateY3D(180*CLHEP::deg) * HepGeom::RotateX3D(-phi*CLHEP::deg)
-                                         * HepGeom::Translate3D(PoZ1,-PosYcut,-PosXcut);
+	      { GeoTrf::Transform3D TransCutL = GeoTrf::TranslateZ3D(-Radius)
+                                         * GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg) * GeoTrf::RotateX3D(-phi*GeoModelKernelUnits::deg)
+                                         * GeoTrf::Translate3D(PoZ1,-PosYcut,-PosXcut);
 
                 // Cuting of pvEBarrelModuleMotherNeg (Left)
                 GeoCutVolAction action2(*CutB, TransCutL);
@@ -1653,9 +1655,9 @@ void TileAtlasFactory::create(GeoPhysVol *world)
                 pvEBarrelMotherNeg->add(pvTmL_EBarrelModuleMotherNeg);
 
               } else if (ModuleNcp>=35 && ModuleNcp<=37) 
-	      { HepGeom::Transform3D TransCutR = HepGeom::TranslateZ3D(-Radius)
-                                         * HepGeom::RotateY3D(180*CLHEP::deg) * HepGeom::RotateX3D(-phi*CLHEP::deg)
-                                         * HepGeom::Translate3D(PoZ1,-PosYcut,PosXcut) * HepGeom::RotateY3D(180*CLHEP::deg);
+	      { GeoTrf::Transform3D TransCutR = GeoTrf::TranslateZ3D(-Radius)
+                                         * GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg) * GeoTrf::RotateX3D(-phi*GeoModelKernelUnits::deg)
+                                         * GeoTrf::Translate3D(PoZ1,-PosYcut,PosXcut) * GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg);
 
                 // Cuting of pvEBarrelModuleMotherNeg (Right)
                 GeoCutVolAction action3(*CutB, TransCutR);
@@ -1679,10 +1681,10 @@ void TileAtlasFactory::create(GeoPhysVol *world)
         //zEndSection = extOffset + dbManager->TILBdzmodul()/2 + dbManager->TILEzshift();
 
         // Trd - one finger mother
-        thicknessWedgeMother = dbManager->TIFGdz() * CLHEP::cm;
-        heightWedgeMother = (dbManager->TILErmax() - dbManager->TILBrmax()) * CLHEP::cm;
-        dy1WedgeMother = dbManager->TILBrmax() * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
-        dy2WedgeMother = dbManager->TILErmax() * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
+        thicknessWedgeMother = dbManager->TIFGdz() * GeoModelKernelUnits::cm;
+        heightWedgeMother = (dbManager->TILErmax() - dbManager->TILBrmax()) * GeoModelKernelUnits::cm;
+        dy1WedgeMother = dbManager->TILBrmax() * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+        dy2WedgeMother = dbManager->TILErmax() * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
         
         checking("EFingerModule (-)", false, 1, 
                  thicknessWedgeMother/2,thicknessWedgeMother/2,dy1WedgeMother,dy2WedgeMother,heightWedgeMother/2);
@@ -1705,8 +1707,8 @@ void TileAtlasFactory::create(GeoPhysVol *world)
                                       m_testbeamGeometry,
                                       ModuleNcp*100);
          }
-        GeoTransform* xtraModFingerNeg  = new GeoTransform(HepGeom::TranslateX3D(
-                                              (dbManager->TILErmax() + dbManager->TILBrmax())/2*CLHEP::cm));
+        GeoTransform* xtraModFingerNeg  = new GeoTransform(GeoTrf::TranslateX3D(
+                                              (dbManager->TILErmax() + dbManager->TILBrmax())/2*GeoModelKernelUnits::cm));
         pvEFingerMotherNeg->add(zrotMod);
         pvEFingerMotherNeg->add(xtraModFingerNeg); 
         pvEFingerMotherNeg->add(yrotMod);
@@ -1721,7 +1723,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
             GeoTubs* SaddleModule = new GeoTubs(BFingerRmin-RadiusSaddle,
                                                 BFingerRmin,
                                                 DzSaddleSupport/2,
-                                                0.,deltaPhi*CLHEP::deg);
+                                                0.,deltaPhi*GeoModelKernelUnits::deg);
      
             GeoLogVol* lvSaddleModule = new GeoLogVol("SaddleModule",SaddleModule,matIron);
             GeoPhysVol* pvSaddleModule = new GeoPhysVol(lvSaddleModule);
@@ -1777,7 +1779,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
            }
          } else
          { (*m_log) << MSG::INFO <<" D4 unavailable "<<endmsg;
-	   dzITC1 = 9.485; //sb [CLHEP::cm]
+	   dzITC1 = 9.485; //sb [GeoModelKernelUnits::cm]
          }
 
         bool specialC10 = (Ifd4 && Ifc10 && rMaxITC2 < rMinITC1);
@@ -1792,10 +1794,10 @@ void TileAtlasFactory::create(GeoPhysVol *world)
           if (Ifd4 || Ifc10) {
 
             //  The first sub shape
-            thicknessWedgeMother = dzITC1 * CLHEP::cm;
-            heightWedgeMother = (rMaxITC1 - rMinITC1) * CLHEP::cm;
-            dy1WedgeMother = rMinITC1 * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
-            dy2WedgeMother = rMaxITC1 * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
+            thicknessWedgeMother = dzITC1 * GeoModelKernelUnits::cm;
+            heightWedgeMother = (rMaxITC1 - rMinITC1) * GeoModelKernelUnits::cm;
+            dy1WedgeMother = rMinITC1 * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+            dy2WedgeMother = rMaxITC1 * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
 
             checking("ITCModule tcModuleSub1Neg (-) ", false, 1, 
                  thicknessWedgeMother/2,thicknessWedgeMother/2,dy1WedgeMother,dy2WedgeMother,heightWedgeMother/2);
@@ -1806,10 +1808,10 @@ void TileAtlasFactory::create(GeoPhysVol *world)
                                                   dy2WedgeMother,
                                                   heightWedgeMother/2);
             // The second sub shape
-            thicknessWedgeMother = dzITC2 * CLHEP::cm;
-            heightWedgeMother    = (rMaxITC2 - rMinITC2) * CLHEP::cm;
-            dy1WedgeMother = rMinITC2 * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
-            dy2WedgeMother = rMaxITC2 * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
+            thicknessWedgeMother = dzITC2 * GeoModelKernelUnits::cm;
+            heightWedgeMother    = (rMaxITC2 - rMinITC2) * GeoModelKernelUnits::cm;
+            dy1WedgeMother = rMinITC2 * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+            dy2WedgeMother = rMaxITC2 * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
 
             checking("ITCModule itcModuleSub2Neg (-)", false, 1, 
                  thicknessWedgeMother/2,thicknessWedgeMother/2,dy1WedgeMother,dy2WedgeMother,heightWedgeMother/2);
@@ -1820,15 +1822,15 @@ void TileAtlasFactory::create(GeoPhysVol *world)
                                                   dy2WedgeMother,
                                                   heightWedgeMother/2 );
 
-            X = (dzITC1 - dzITC2)/2*CLHEP::cm; 
-            Z = ((rMinITC2+rMaxITC2)-(rMaxITC1 + rMinITC1))/2*CLHEP::cm;
+            X = (dzITC1 - dzITC2)/2*GeoModelKernelUnits::cm; 
+            Z = ((rMinITC2+rMaxITC2)-(rMaxITC1 + rMinITC1))/2*GeoModelKernelUnits::cm;
 	    if(m_log->level()<=MSG::DEBUG)
 	      (*m_log) << MSG::DEBUG <<"  ITCModule Negative, position X= "<<X<<" Z= "<<Z<< endmsg;
 
-            HepGeom::Translate3D itcModule_SubShiftNeg(X, 0., Z);
+            GeoTrf::Translate3D itcModule_SubShiftNeg(X, 0., Z);
             const GeoShapeUnion& itcModuleMotherNeg = itcModuleSub1Neg->add(*itcModuleSub2Neg<<itcModule_SubShiftNeg);
 
-            HepGeom::Translate3D itcModuleSubShiftNeg(X, 0., Z);
+            GeoTrf::Translate3D itcModuleSubShiftNeg(X, 0., Z);
 
             GeoLogVol* lvITCModuleMotherNeg = new GeoLogVol("ITCModule",&itcModuleMotherNeg,matAir);
             GeoPhysVol* pvITCModuleMotherNeg = new GeoPhysVol(lvITCModuleMotherNeg);
@@ -1841,10 +1843,10 @@ void TileAtlasFactory::create(GeoPhysVol *world)
             // The D4, PLUG1
             dbManager->SetCurrentSectionByNumber(Id4);
 
-            thicknessWedgeMother = dzITC1 * CLHEP::cm;
-            heightWedgeMother = (rMaxITC1 - dbManager->TILBrmin()) * CLHEP::cm;
-            dy1WedgeMother = dbManager->TILBrmin() * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
-            dy2WedgeMother = rMaxITC1 * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
+            thicknessWedgeMother = dzITC1 * GeoModelKernelUnits::cm;
+            heightWedgeMother = (rMaxITC1 - dbManager->TILBrmin()) * GeoModelKernelUnits::cm;
+            dy1WedgeMother = dbManager->TILBrmin() * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+            dy2WedgeMother = rMaxITC1 * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
 	    // ps changes dzITC1 -> dzmodul
             Glue =  dbManager->TILBdzmodul() - dbManager->TILBdzend1() - dbManager->TILBdzend2();
             NbPeriod = dbManager->TILBnperiod();
@@ -1881,7 +1883,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
                                                    heightWedgeMother/2);
             //Second submother for frontplate
             double dzITC2Bis = (specialC10) ? 0.0 : dzITC2; // for special C10 D4 and C10 do not overlap
-            thicknessWedgeMother = (dbManager->TILBdzmodul() - dzITC2Bis) * CLHEP::cm;
+            thicknessWedgeMother = (dbManager->TILBdzmodul() - dzITC2Bis) * GeoModelKernelUnits::cm;
 	    if(m_log->level()<=MSG::DEBUG)
               if (specialC10)
                 (*m_log) << MSG::DEBUG <<" Separate C10 and D4 in module " << ModuleNcp << endmsg;
@@ -1889,9 +1891,9 @@ void TileAtlasFactory::create(GeoPhysVol *world)
             GeoLogVol *lvPlug1ModuleMotherNeg=0;
             if (thicknessWedgeMother > rless)
              { 
-               heightWedgeMother = (dbManager->TILBrmin() - dbManager->TILBrminimal()) * CLHEP::cm;
-               dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
-               dy2WedgeMother = dbManager->TILBrmin() * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
+               heightWedgeMother = (dbManager->TILBrmin() - dbManager->TILBrminimal()) * GeoModelKernelUnits::cm;
+               dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+               dy2WedgeMother = dbManager->TILBrmin() * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
     
                checking("Plug1Module plug2SubMotherNeg (-)", false, 2, 
                    thicknessWedgeMother/2,thicknessWedgeMother/2,dy1WedgeMother,dy2WedgeMother,heightWedgeMother/2);
@@ -1902,8 +1904,8 @@ void TileAtlasFactory::create(GeoPhysVol *world)
                                                       dy2WedgeMother,
                                                       heightWedgeMother/2);
     
-               HepGeom::Translate3D plug1SubOffsetNeg(-dzITC2Bis*CLHEP::cm/2, 0.,
-                                               (dbManager->TILBrminimal()-dbManager->TILBrmaximal())*CLHEP::cm/2);
+               GeoTrf::Translate3D plug1SubOffsetNeg(-dzITC2Bis*GeoModelKernelUnits::cm/2, 0.,
+                                               (dbManager->TILBrminimal()-dbManager->TILBrmaximal())*GeoModelKernelUnits::cm/2);
     
                const GeoShapeUnion& plug1ModuleMotherNeg = 
                                     plug1SubMotherNeg->add(*plug2SubMotherNeg<<plug1SubOffsetNeg);
@@ -1926,8 +1928,8 @@ void TileAtlasFactory::create(GeoPhysVol *world)
                                            dzITC2Bis); 
              }
         
-            Z = (dbManager->TILBrmin()-dbManager->TILBrminimal())*CLHEP::cm/2;
-            GeoTransform* tfPlug1ModuleMotherNeg = new GeoTransform(HepGeom::Translate3D(0.,0.,Z));
+            Z = (dbManager->TILBrmin()-dbManager->TILBrminimal())*GeoModelKernelUnits::cm/2;
+            GeoTransform* tfPlug1ModuleMotherNeg = new GeoTransform(GeoTrf::Translate3D(0.,0.,Z));
 
             pvITCModuleMotherNeg->add(tfPlug1ModuleMotherNeg);
             pvITCModuleMotherNeg->add(pvPlug1ModuleMotherNeg);
@@ -1938,10 +1940,10 @@ void TileAtlasFactory::create(GeoPhysVol *world)
               // TILE_PLUG2
               dbManager->SetCurrentSectionByNumber(Ic10);
 
-              thicknessWedgeMother = dbManager->TILBdzmodul() * CLHEP::cm;
-              heightWedgeMother = (dbManager->TILBrmaximal() - dbManager->TILBrminimal()) * CLHEP::cm;
-              dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
-              dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
+              thicknessWedgeMother = dbManager->TILBdzmodul() * GeoModelKernelUnits::cm;
+              heightWedgeMother = (dbManager->TILBrmaximal() - dbManager->TILBrminimal()) * GeoModelKernelUnits::cm;
+              dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+              dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
 
               if (dbManager->TILBnperiod() > 1)
                { dzGlue = (dbManager->TILBdzmodul() - dbManager->TILBdzend1() - dbManager->TILBdzend2() 
@@ -1984,21 +1986,21 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
           double zShift = 0;
           NbPeriod = dbManager->TILBnperiod();
-	  //          Z = (dbManager->TILBdzmodul()-dzITC2)/2*CLHEP::cm;
+	  //          Z = (dbManager->TILBdzmodul()-dzITC2)/2*GeoModelKernelUnits::cm;
 	  // ps Zshift calculated from length of volumes rather than modules (account for special modules) 
 	  //
-          Z = (dzITC1 - dzITC2)/2*CLHEP::cm;
+          Z = (dzITC1 - dzITC2)/2*GeoModelKernelUnits::cm;
 
-          if (NbPeriod == 6 && !Ifspecialgirder && fabs(Z) < fabs(zITCStandard)) zShift = zITCStandard*(1./CLHEP::cm);
+          if (NbPeriod == 6 && !Ifspecialgirder && fabs(Z) < fabs(zITCStandard)) zShift = zITCStandard*(1./GeoModelKernelUnits::cm);
 
 	  if(m_log->level()<=MSG::DEBUG)
 	    (*m_log) << MSG::DEBUG <<"  ITCModule Negative, position X= "<<X<<" Z= "<<Z
 		     <<" zStandard= "<<zITCStandard<< " zShift= " <<zShift
 		     <<endmsg;
 
-          GeoTransform* xtraITCNeg = new GeoTransform(HepGeom::TranslateX3D(
-                                         (dbManager->TILBrmaximal() + dbManager->TILBrminimal())/2*CLHEP::cm));
-	  GeoTransform* ztraITCNeg = new GeoTransform(HepGeom::TranslateZ3D(zShift*CLHEP::cm));
+          GeoTransform* xtraITCNeg = new GeoTransform(GeoTrf::TranslateX3D(
+                                         (dbManager->TILBrmaximal() + dbManager->TILBrminimal())/2*GeoModelKernelUnits::cm));
+	  GeoTransform* ztraITCNeg = new GeoTransform(GeoTrf::TranslateZ3D(zShift*GeoModelKernelUnits::cm));
 
           pvITCMotherNeg->add(zrotMod);
           pvITCMotherNeg->add(xtraITCNeg);
@@ -2017,10 +2019,10 @@ void TileAtlasFactory::create(GeoPhysVol *world)
           dbManager->SetCurrentSectionByNumber(Igap); 
 
           // Trd - module mother
-          thicknessWedgeMother = dbManager->TILBdzmodul() * CLHEP::cm;
-          heightWedgeMother = (dbManager->TILBrmaximal() - dbManager->TILBrminimal()) * CLHEP::cm;
-          dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
-          dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
+          thicknessWedgeMother = dbManager->TILBdzmodul() * GeoModelKernelUnits::cm;
+          heightWedgeMother = (dbManager->TILBrmaximal() - dbManager->TILBrminimal()) * GeoModelKernelUnits::cm;
+          dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+          dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
 
           dzGlue = 0.;
 
@@ -2046,8 +2048,8 @@ void TileAtlasFactory::create(GeoPhysVol *world)
            }
 
           // Module position inside mother
-          GeoTransform* xtraGapNeg = new GeoTransform(HepGeom::TranslateX3D(
-                                         (dbManager->TILBrmaximal() + dbManager->TILBrminimal())/2*CLHEP::cm));
+          GeoTransform* xtraGapNeg = new GeoTransform(GeoTrf::TranslateX3D(
+                                         (dbManager->TILBrmaximal() + dbManager->TILBrminimal())/2*GeoModelKernelUnits::cm));
           pvGapMotherNeg->add(zrotMod);
           pvGapMotherNeg->add(xtraGapNeg);
           pvGapMotherNeg->add(yrotMod);
@@ -2063,10 +2065,10 @@ void TileAtlasFactory::create(GeoPhysVol *world)
           dbManager->SetCurrentSectionByNumber(Icrack);
 
           // mother
-          thicknessWedgeMother = dbManager->TILBdzmodul() * CLHEP::cm;
-          heightWedgeMother = (dbManager->TILBrmaximal() - dbManager->TILBrminimal()) * CLHEP::cm;
-          dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
-          dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
+          thicknessWedgeMother = dbManager->TILBdzmodul() * GeoModelKernelUnits::cm;
+          heightWedgeMother = (dbManager->TILBrmaximal() - dbManager->TILBrminimal()) * GeoModelKernelUnits::cm;
+          dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+          dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
     
           dzGlue = 0.;
 
@@ -2091,8 +2093,8 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 					 deltaPhi);
            }
           // Module position inside mother
-          GeoTransform* xtraCrackNeg = new GeoTransform(HepGeom::TranslateX3D(
-                                           (dbManager->TILBrmaximal() + dbManager->TILBrminimal())/2*CLHEP::cm));
+          GeoTransform* xtraCrackNeg = new GeoTransform(GeoTrf::TranslateX3D(
+                                           (dbManager->TILBrmaximal() + dbManager->TILBrminimal())/2*GeoModelKernelUnits::cm));
           pvCrackMotherNeg->add(zrotMod);
           pvCrackMotherNeg->add(xtraCrackNeg);
           pvCrackMotherNeg->add(yrotMod);
@@ -2110,10 +2112,10 @@ void TileAtlasFactory::create(GeoPhysVol *world)
         if(Ifd4 || Ifc10) {
 
           // The first sub shape
-          thicknessWedgeMother = dzITC1 * CLHEP::cm;
-          heightWedgeMother = (rMaxITC1 - rMinITC1) * CLHEP::cm;
-          dy1WedgeMother = rMinITC1 * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
-          dy2WedgeMother = rMaxITC1 * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
+          thicknessWedgeMother = dzITC1 * GeoModelKernelUnits::cm;
+          heightWedgeMother = (rMaxITC1 - rMinITC1) * GeoModelKernelUnits::cm;
+          dy1WedgeMother = rMinITC1 * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+          dy2WedgeMother = rMaxITC1 * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
 
           checking("ITCModule itcModuleSub2Pos (+)", false, 1,
 	        thicknessWedgeMother/2,thicknessWedgeMother/2,dy1WedgeMother,dy2WedgeMother,heightWedgeMother/2);
@@ -2124,10 +2126,10 @@ void TileAtlasFactory::create(GeoPhysVol *world)
                                                 dy2WedgeMother        ,
                                                 heightWedgeMother/2  );
           // The second sub shape
-          thicknessWedgeMother = dzITC2 * CLHEP::cm;
-          heightWedgeMother    = (rMaxITC2 - rMinITC2) * CLHEP::cm;
-          dy1WedgeMother = rMinITC2 * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
-          dy2WedgeMother = rMaxITC2 * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
+          thicknessWedgeMother = dzITC2 * GeoModelKernelUnits::cm;
+          heightWedgeMother    = (rMaxITC2 - rMinITC2) * GeoModelKernelUnits::cm;
+          dy1WedgeMother = rMinITC2 * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+          dy2WedgeMother = rMaxITC2 * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
 
           checking("ITCModule itcModuleSub2Pos (+)", false, 1,
 	        thicknessWedgeMother/2,thicknessWedgeMother/2,dy1WedgeMother,dy2WedgeMother,heightWedgeMother/2);
@@ -2138,15 +2140,15 @@ void TileAtlasFactory::create(GeoPhysVol *world)
                                                 dy2WedgeMother        ,
                                                 heightWedgeMother/2  );
 
-          X = (dzITC1 - dzITC2)/2*CLHEP::cm; 
-          Z = ((rMinITC2+rMaxITC2)-(rMaxITC1 + rMinITC1))/2*CLHEP::cm;
+          X = (dzITC1 - dzITC2)/2*GeoModelKernelUnits::cm; 
+          Z = ((rMinITC2+rMaxITC2)-(rMaxITC1 + rMinITC1))/2*GeoModelKernelUnits::cm;
 	  if(m_log->level()<=MSG::DEBUG)
 	    (*m_log) << MSG::DEBUG <<"  ITCModule Positive, position X= "<<X<<" Z= "<<Z<< endmsg;
 
-          HepGeom::Translate3D itcModule_SubShiftPos(X, 0., Z);
+          GeoTrf::Translate3D itcModule_SubShiftPos(X, 0., Z);
           const GeoShapeUnion& itcModuleMotherPos = itcModuleSub1Pos->add(*itcModuleSub2Pos<<itcModule_SubShiftPos);
 
-          HepGeom::Translate3D itcModuleSubShiftPos(X, 0., Z);
+          GeoTrf::Translate3D itcModuleSubShiftPos(X, 0., Z);
 
           GeoLogVol* lvITCModuleMotherPos = new GeoLogVol("ITCModule",&itcModuleMotherPos,matAir);
           GeoPhysVol* pvITCModuleMotherPos = new GeoPhysVol(lvITCModuleMotherPos);
@@ -2159,10 +2161,10 @@ void TileAtlasFactory::create(GeoPhysVol *world)
           // The D4, PLUG1
           dbManager->SetCurrentSectionByNumber(Id4);
 
-          thicknessWedgeMother = dzITC1 * CLHEP::cm;
-          dy1WedgeMother = dbManager->TILBrmin() * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
-          dy2WedgeMother = rMaxITC1 * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
-          heightWedgeMother = (rMaxITC1 - dbManager->TILBrmin()) * CLHEP::cm;
+          thicknessWedgeMother = dzITC1 * GeoModelKernelUnits::cm;
+          dy1WedgeMother = dbManager->TILBrmin() * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+          dy2WedgeMother = rMaxITC1 * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+          heightWedgeMother = (rMaxITC1 - dbManager->TILBrmin()) * GeoModelKernelUnits::cm;
 
 	  // ps changes dzITC1 -> dzmodul
 	  Glue =  dbManager->TILBdzmodul() - dbManager->TILBdzend1() - dbManager->TILBdzend2();
@@ -2202,7 +2204,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
           //Second submother C10, PLUG2
           double dzITC2Bis = (specialC10) ? 0.0 : dzITC2; // for special C10 D4 and C10 do not overlap
-          thicknessWedgeMother = (dbManager->TILBdzmodul() - dzITC2Bis) * CLHEP::cm;
+          thicknessWedgeMother = (dbManager->TILBdzmodul() - dzITC2Bis) * GeoModelKernelUnits::cm;
           if(m_log->level()<=MSG::DEBUG)
             if (specialC10)
               (*m_log) << MSG::DEBUG <<" Separate C10 and D4 in module " << ModuleNcp << endmsg;
@@ -2210,9 +2212,9 @@ void TileAtlasFactory::create(GeoPhysVol *world)
           GeoLogVol *lvPlug1ModuleMotherPos=0;
           if (thicknessWedgeMother > rless)
            { 
-             heightWedgeMother = (dbManager->TILBrmin() - dbManager->TILBrminimal()) * CLHEP::cm;
-             dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
-             dy2WedgeMother = dbManager->TILBrmin() * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
+             heightWedgeMother = (dbManager->TILBrmin() - dbManager->TILBrminimal()) * GeoModelKernelUnits::cm;
+             dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+             dy2WedgeMother = dbManager->TILBrmin() * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
 
              checking("Plug1Module plug2SubMotherPos (+)", false, 2, 
                  thicknessWedgeMother/2,thicknessWedgeMother/2,dy1WedgeMother,dy2WedgeMother,heightWedgeMother/2);
@@ -2223,8 +2225,8 @@ void TileAtlasFactory::create(GeoPhysVol *world)
                                                     dy2WedgeMother        ,
                                                     heightWedgeMother/2   );
 
-             HepGeom::Translate3D plug1SubOffsetPos(-dzITC2Bis/2*CLHEP::cm, 0.,
-                                        (dbManager->TILBrminimal()-dbManager->TILBrmaximal())/2*CLHEP::cm);
+             GeoTrf::Translate3D plug1SubOffsetPos(-dzITC2Bis/2*GeoModelKernelUnits::cm, 0.,
+                                        (dbManager->TILBrminimal()-dbManager->TILBrmaximal())/2*GeoModelKernelUnits::cm);
         
              const GeoShapeUnion& plug1ModuleMotherPos = plug1SubMotherPos->add(*plug2SubMotherPos<<plug1SubOffsetPos);
 
@@ -2246,8 +2248,8 @@ void TileAtlasFactory::create(GeoPhysVol *world)
                                          dzITC2Bis);
            }
         
-          Z = (dbManager->TILBrmin()-dbManager->TILBrminimal())*CLHEP::cm/2;
-          GeoTransform* tfPlug1ModuleMotherPos = new GeoTransform(HepGeom::Translate3D(0.,0.,Z));
+          Z = (dbManager->TILBrmin()-dbManager->TILBrminimal())*GeoModelKernelUnits::cm/2;
+          GeoTransform* tfPlug1ModuleMotherPos = new GeoTransform(GeoTrf::Translate3D(0.,0.,Z));
 
           pvITCModuleMotherPos->add(tfPlug1ModuleMotherPos);
           pvITCModuleMotherPos->add(pvPlug1ModuleMotherPos);
@@ -2258,10 +2260,10 @@ void TileAtlasFactory::create(GeoPhysVol *world)
             // TILE_PLUG2, C10
             dbManager->SetCurrentSectionByNumber(Ic10); 
 
-            thicknessWedgeMother = dzITC2 * CLHEP::cm;
-            heightWedgeMother    = (rMaxITC2 - rMinITC2) * CLHEP::cm;
-            dy1WedgeMother = rMinITC2 * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
-            dy2WedgeMother = rMaxITC2 * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
+            thicknessWedgeMother = dzITC2 * GeoModelKernelUnits::cm;
+            heightWedgeMother    = (rMaxITC2 - rMinITC2) * GeoModelKernelUnits::cm;
+            dy1WedgeMother = rMinITC2 * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+            dy2WedgeMother = rMaxITC2 * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
 
             if (dbManager->TILBnperiod() > 1)
              { dzGlue = (dzITC2 - dbManager->TILBdzend1() - dbManager->TILBdzend2() 
@@ -2304,19 +2306,19 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
           double zShift = 0;
           NbPeriod = dbManager->TILBnperiod();
-	  //ps          Z = (dbManager->TILBdzmodul()-dzITC2)/2*CLHEP::cm;
-          Z = (dzITC1 - dzITC2)/2*CLHEP::cm;
+	  //ps          Z = (dbManager->TILBdzmodul()-dzITC2)/2*GeoModelKernelUnits::cm;
+          Z = (dzITC1 - dzITC2)/2*GeoModelKernelUnits::cm;
 
-          if (NbPeriod == 6 && !Ifspecialgirder && fabs(Z) < fabs(zITCStandard)) zShift = zITCStandard*(1./CLHEP::cm);
+          if (NbPeriod == 6 && !Ifspecialgirder && fabs(Z) < fabs(zITCStandard)) zShift = zITCStandard*(1./GeoModelKernelUnits::cm);
 
 	  if(m_log->level()<=MSG::DEBUG)
 	    (*m_log) << MSG::DEBUG <<"  ITCModule Positive, position X= "<<X<<" Z= "<<Z
 		     <<" zStandard= "<<zITCStandard<< " zShift= " <<zShift
 		     <<endmsg;
 
-	  GeoTransform* xtraITCPos = new GeoTransform(HepGeom::TranslateX3D(
-                                        (dbManager->TILBrmaximal() + dbManager->TILBrminimal())/2*CLHEP::cm));
-	  GeoTransform* ztraITCPos = new GeoTransform(HepGeom::TranslateZ3D(zShift*CLHEP::cm));
+	  GeoTransform* xtraITCPos = new GeoTransform(GeoTrf::TranslateX3D(
+                                        (dbManager->TILBrmaximal() + dbManager->TILBrminimal())/2*GeoModelKernelUnits::cm));
+	  GeoTransform* ztraITCPos = new GeoTransform(GeoTrf::TranslateZ3D(zShift*GeoModelKernelUnits::cm));
 
           pvITCMotherPos->add(zrotMod);
           pvITCMotherPos->add(xtraITCPos);
@@ -2336,10 +2338,10 @@ void TileAtlasFactory::create(GeoPhysVol *world)
           dbManager->SetCurrentSectionByNumber(Igap); 
 
           // Mother
-          thicknessWedgeMother = dbManager->TILBdzmodul() * CLHEP::cm;
-          heightWedgeMother = (dbManager->TILBrmaximal() - dbManager->TILBrminimal()) * CLHEP::cm;
-          dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
-          dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
+          thicknessWedgeMother = dbManager->TILBdzmodul() * GeoModelKernelUnits::cm;
+          heightWedgeMother = (dbManager->TILBrmaximal() - dbManager->TILBrminimal()) * GeoModelKernelUnits::cm;
+          dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+          dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
 
           dzGlue = 0;
 
@@ -2365,8 +2367,8 @@ void TileAtlasFactory::create(GeoPhysVol *world)
            }
 
           // Module position inside mother
-          GeoTransform* xtraGapPos = new GeoTransform(HepGeom::TranslateX3D(
-                                         (dbManager->TILBrmaximal() + dbManager->TILBrminimal())/2*CLHEP::cm));
+          GeoTransform* xtraGapPos = new GeoTransform(GeoTrf::TranslateX3D(
+                                         (dbManager->TILBrmaximal() + dbManager->TILBrminimal())/2*GeoModelKernelUnits::cm));
           pvGapMotherPos->add(zrotMod);
           pvGapMotherPos->add(xtraGapPos);
           pvGapMotherPos->add(XYrtMod);
@@ -2382,10 +2384,10 @@ void TileAtlasFactory::create(GeoPhysVol *world)
           dbManager->SetCurrentSectionByNumber(Icrack); 
 
           // Trd - module mother
-          thicknessWedgeMother = dbManager->TILBdzmodul() * CLHEP::cm;
-          heightWedgeMother = (dbManager->TILBrmaximal() - dbManager->TILBrminimal()) * CLHEP::cm;
-          dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
-          dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2*CLHEP::deg) * CLHEP::cm;
+          thicknessWedgeMother = dbManager->TILBdzmodul() * GeoModelKernelUnits::cm;
+          heightWedgeMother = (dbManager->TILBrmaximal() - dbManager->TILBrminimal()) * GeoModelKernelUnits::cm;
+          dy1WedgeMother = dbManager->TILBrminimal() * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
+          dy2WedgeMother = dbManager->TILBrmaximal() * tan(deltaPhi/2*GeoModelKernelUnits::deg) * GeoModelKernelUnits::cm;
     
           dzGlue = 0.;
     
@@ -2411,8 +2413,8 @@ void TileAtlasFactory::create(GeoPhysVol *world)
            }
     
           // Module position inside mother
-          GeoTransform* xtraCrackPos = new GeoTransform(HepGeom::TranslateX3D(
-                                          (dbManager->TILBrmaximal() + dbManager->TILBrminimal())/2*CLHEP::cm));
+          GeoTransform* xtraCrackPos = new GeoTransform(GeoTrf::TranslateX3D(
+                                          (dbManager->TILBrmaximal() + dbManager->TILBrminimal())/2*GeoModelKernelUnits::cm));
           pvCrackMotherPos->add(zrotMod);
           pvCrackMotherPos->add(xtraCrackPos);
           pvCrackMotherPos->add(XYrtMod);
@@ -2454,9 +2456,9 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       // consider 3 options - with/without ext.barrels and take into account DZ correction
       ztrans = 0;
 
-      tfBarrelMother = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::RotateZ3D((dbManager->GetEnvDPhi())*CLHEP::deg));
+      tfBarrelMother = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * GeoTrf::RotateZ3D((dbManager->GetEnvDPhi())*GeoModelKernelUnits::deg));
 
-      (*m_log) << MSG::INFO <<" Positioning barrel with translation "<<ztrans*CLHEP::cm<< endmsg;
+      (*m_log) << MSG::INFO <<" Positioning barrel with translation "<<ztrans*GeoModelKernelUnits::cm<< endmsg;
 
       GeoNameTag* ntBarrelModuleMother = new GeoNameTag("Barrel"); 
 
@@ -2466,11 +2468,11 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       
       GeoTransform* tfFingerMotherPos;
 
-      ztrans = (dbManager->GetEnvZLength()*CLHEP::cm/2 - BFingerLengthPos/2 + PosDelta)*(1./CLHEP::cm);
+      ztrans = (dbManager->GetEnvZLength()*GeoModelKernelUnits::cm/2 - BFingerLengthPos/2 + PosDelta)*(1./GeoModelKernelUnits::cm);
 
-      tfFingerMotherPos = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm)*HepGeom::RotateZ3D((dbManager->GetEnvDPhi())*CLHEP::deg));
+      tfFingerMotherPos = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm)*GeoTrf::RotateZ3D((dbManager->GetEnvDPhi())*GeoModelKernelUnits::deg));
 
-      (*m_log) << MSG::INFO <<" Positioning positive barrel finger with translation "<<ztrans*CLHEP::cm<< endmsg;
+      (*m_log) << MSG::INFO <<" Positioning positive barrel finger with translation "<<ztrans*GeoModelKernelUnits::cm<< endmsg;
 
       GeoNameTag* ntFingerMotherPos = new GeoNameTag("TileFingerPos");
 
@@ -2481,9 +2483,9 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       if (dbManager->BoolSaddle())
       { GeoTransform* tfSaddleMotherPos;
 
-        ztrans = (dbManager->GetEnvZLength()*CLHEP::cm/2 - BFingerLengthPos + DzSaddleSupport/2 + PosDelta)*(1./CLHEP::cm);
+        ztrans = (dbManager->GetEnvZLength()*GeoModelKernelUnits::cm/2 - BFingerLengthPos + DzSaddleSupport/2 + PosDelta)*(1./GeoModelKernelUnits::cm);
 
-        tfSaddleMotherPos = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm)*HepGeom::RotateZ3D((dbManager->GetEnvDPhi())*CLHEP::deg));
+        tfSaddleMotherPos = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm)*GeoTrf::RotateZ3D((dbManager->GetEnvDPhi())*GeoModelKernelUnits::deg));
 
         GeoNameTag* ntSaddleMotherPos = new GeoNameTag("TileSaddlePos");
 
@@ -2496,11 +2498,11 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
       GeoTransform* tfFingerMotherNeg;
 
-      ztrans = (-dbManager->GetEnvZLength()*CLHEP::cm/2 + BFingerLengthNeg/2 - NegDelta)*(1./CLHEP::cm);
+      ztrans = (-dbManager->GetEnvZLength()*GeoModelKernelUnits::cm/2 + BFingerLengthNeg/2 - NegDelta)*(1./GeoModelKernelUnits::cm);
 
-      tfFingerMotherNeg = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm)*HepGeom::RotateZ3D((dbManager->GetEnvDPhi())*CLHEP::deg));
+      tfFingerMotherNeg = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm)*GeoTrf::RotateZ3D((dbManager->GetEnvDPhi())*GeoModelKernelUnits::deg));
 
-      (*m_log) << MSG::INFO <<" Positioning negative barrel finger with translation "<<ztrans*CLHEP::cm<< endmsg;
+      (*m_log) << MSG::INFO <<" Positioning negative barrel finger with translation "<<ztrans*GeoModelKernelUnits::cm<< endmsg;
 
       GeoNameTag* ntFingerMotherNeg = new GeoNameTag("TileFingerNeg");
       pvTileEnvelopeBarrel->add(tfFingerMotherNeg);
@@ -2510,9 +2512,9 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       if (dbManager->BoolSaddle())
       { GeoTransform* tfSaddleMotherNeg;
 
-        ztrans = (-dbManager->GetEnvZLength()*CLHEP::cm/2 + BFingerLengthNeg - DzSaddleSupport/2 - NegDelta)*(1./CLHEP::cm);
+        ztrans = (-dbManager->GetEnvZLength()*GeoModelKernelUnits::cm/2 + BFingerLengthNeg - DzSaddleSupport/2 - NegDelta)*(1./GeoModelKernelUnits::cm);
 
-        tfSaddleMotherNeg = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm)*HepGeom::RotateZ3D((dbManager->GetEnvDPhi())*CLHEP::deg));
+        tfSaddleMotherNeg = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm)*GeoTrf::RotateZ3D((dbManager->GetEnvDPhi())*GeoModelKernelUnits::deg));
 
         GeoNameTag* ntSaddleMotherNeg = new GeoNameTag("TileSaddleNeg");
 
@@ -2528,9 +2530,9 @@ void TileAtlasFactory::create(GeoPhysVol *world)
     if(EnvType == 3) { // positive ext.barrel is always at positive boundary, after finger
 
       dbManager->SetCurrentSection(TileDddbManager::TILE_EBARREL);
-      double thicknessEndPlate = dbManager->TILBdzend1()*CLHEP::cm;
+      double thicknessEndPlate = dbManager->TILBdzend1()*GeoModelKernelUnits::cm;
 
-      double PoZ1 = thicknessEndPlate + modl_length/4 - (dbManager->GetEnvZLength()*CLHEP::cm- EBFingerLengthPos)/2;
+      double PoZ1 = thicknessEndPlate + modl_length/4 - (dbManager->GetEnvZLength()*GeoModelKernelUnits::cm- EBFingerLengthPos)/2;
       double PoZ2 = modl_length/4 + PoZ1;
 
       //--------------------------------------------------------------------------------------------------------------
@@ -2545,14 +2547,14 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 	if(m_log->level()<=MSG::DEBUG)
 	  (*m_log) << MSG::DEBUG << " Iron1: " << dxIron << " " << dyIron << endmsg;
 
-        GeoTransform* tfIron1 = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::Translate3D(dxIron,PosY-dyIron,PoZ2) 
-	                                       * HepGeom::RotateX3D(90.*CLHEP::deg) * HepGeom::RotateZ3D(90.*CLHEP::deg)); // Left
+        GeoTransform* tfIron1 = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * GeoTrf::Translate3D(dxIron,PosY-dyIron,PoZ2) 
+	                                       * GeoTrf::RotateX3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg)); // Left
         pvEBarrelMotherPos->add(tfIron1);
         pvEBarrelMotherPos->add(new GeoIdentifierTag(1));
         pvEBarrelMotherPos->add(pvIron1);
 
-                      tfIron1 = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::Translate3D(-dxIron,PosY-dyIron,PoZ2) 
-					       * HepGeom::RotateX3D(90.*CLHEP::deg) * HepGeom::RotateZ3D(90.*CLHEP::deg)); // Right
+                      tfIron1 = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * GeoTrf::Translate3D(-dxIron,PosY-dyIron,PoZ2) 
+					       * GeoTrf::RotateX3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg)); // Right
         pvEBarrelMotherPos->add(tfIron1);
         pvEBarrelMotherPos->add(pvIron1);
 
@@ -2563,14 +2565,14 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 	if(m_log->level()<=MSG::DEBUG)
 	  (*m_log) << MSG::DEBUG << " Iron2: " << dxIron << " " << dyIron << endmsg;
 
-        GeoTransform* tfIron2 = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::Translate3D(dxIron,PosY+dyIron,PoZ2) 
-	                      * HepGeom::RotateZ3D(-84.*CLHEP::deg) * HepGeom::RotateX3D(90.*CLHEP::deg) * HepGeom::RotateZ3D(90.*CLHEP::deg)); // Left
+        GeoTransform* tfIron2 = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * GeoTrf::Translate3D(dxIron,PosY+dyIron,PoZ2) 
+	                      * GeoTrf::RotateZ3D(-84.*GeoModelKernelUnits::deg) * GeoTrf::RotateX3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg)); // Left
         pvEBarrelMotherPos->add(tfIron2);
         pvEBarrelMotherPos->add(new GeoIdentifierTag(2));
         pvEBarrelMotherPos->add(pvIron2);
 
-                      tfIron2 = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::Translate3D(-dxIron,PosY+dyIron,PoZ2) 
-	                      * HepGeom::RotateZ3D(84.*CLHEP::deg) * HepGeom::RotateX3D(90.*CLHEP::deg) * HepGeom::RotateZ3D(90.*CLHEP::deg)); // Left
+                      tfIron2 = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * GeoTrf::Translate3D(-dxIron,PosY+dyIron,PoZ2) 
+	                      * GeoTrf::RotateZ3D(84.*GeoModelKernelUnits::deg) * GeoTrf::RotateX3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg)); // Left
         pvEBarrelMotherPos->add(tfIron2);
         pvEBarrelMotherPos->add(pvIron2);
 
@@ -2581,14 +2583,14 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 	if(m_log->level()<=MSG::DEBUG)
 	  (*m_log) << MSG::DEBUG << " Iron3: " << dxIron << " " << dyIron << endmsg;
 
-        GeoTransform* tfIron3 = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::Translate3D(dxIron,PosY+dyIron,PoZ2) 
-	                      * HepGeom::RotateZ3D(90.*CLHEP::deg) * HepGeom::RotateX3D(90.*CLHEP::deg) * HepGeom::RotateZ3D(90.*CLHEP::deg)); // Left
+        GeoTransform* tfIron3 = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * GeoTrf::Translate3D(dxIron,PosY+dyIron,PoZ2) 
+	                      * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateX3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg)); // Left
         pvEBarrelMotherPos->add(tfIron3);
         pvEBarrelMotherPos->add(new GeoIdentifierTag(3));
         pvEBarrelMotherPos->add(pvIron3);
 
-                      tfIron3 = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::Translate3D(-dxIron,PosY+dyIron,PoZ2) 
-	                      * HepGeom::RotateZ3D(90.*CLHEP::deg) * HepGeom::RotateX3D(90.*CLHEP::deg) * HepGeom::RotateZ3D(90.*CLHEP::deg)); // Right
+                      tfIron3 = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * GeoTrf::Translate3D(-dxIron,PosY+dyIron,PoZ2) 
+	                      * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateX3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg)); // Right
         pvEBarrelMotherPos->add(tfIron3);
         pvEBarrelMotherPos->add(pvIron3);
 
@@ -2597,14 +2599,14 @@ void TileAtlasFactory::create(GeoPhysVol *world)
         dxIron = dbManager->CutsXpos();
 	dyIron = dbManager->CutsYpos();
 
-        GeoTransform* tfIrBoxL = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::Translate3D(dxIron,PosY-dyIron,PoZ2) 
-					       * HepGeom::RotateX3D(90.*CLHEP::deg) * HepGeom::RotateZ3D(90.*CLHEP::deg)); // Left
+        GeoTransform* tfIrBoxL = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * GeoTrf::Translate3D(dxIron,PosY-dyIron,PoZ2) 
+					       * GeoTrf::RotateX3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg)); // Left
         pvEBarrelMotherPos->add(tfIrBoxL);
         pvEBarrelMotherPos->add(new GeoIdentifierTag(4));
         pvEBarrelMotherPos->add(pvIrBox);
 
-        GeoTransform* tfIrBoxR = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::Translate3D(-dxIron,PosY-dyIron,PoZ2)
-                                                * HepGeom::RotateX3D(90.*CLHEP::deg) * HepGeom::RotateZ3D(90.*CLHEP::deg)); // Right
+        GeoTransform* tfIrBoxR = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * GeoTrf::Translate3D(-dxIron,PosY-dyIron,PoZ2)
+                                                * GeoTrf::RotateX3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg)); // Right
         pvEBarrelMotherPos->add(tfIrBoxR);
         pvEBarrelMotherPos->add(pvIrBox);
 
@@ -2615,16 +2617,16 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 	if(m_log->level()<=MSG::DEBUG)
 	  (*m_log) << MSG::DEBUG << " IrUp: " <<dxIr<< " " <<dyIr<< endmsg;
 
-        GeoTransform* tfIrUp = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) 
-                             * HepGeom::Translate3D(PosXcut+dxIr,-PosYcut+dyIr,-PoZ1) 
-		             * HepGeom::RotateZ3D(90.*CLHEP::deg) * HepGeom::RotateX3D(90.*CLHEP::deg) * HepGeom::RotateZ3D(90.*CLHEP::deg)); // Left
+        GeoTransform* tfIrUp = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) 
+                             * GeoTrf::Translate3D(PosXcut+dxIr,-PosYcut+dyIr,-PoZ1) 
+		             * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateX3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg)); // Left
         pvEBarrelMotherPos->add(tfIrUp);
         pvEBarrelMotherPos->add(new GeoIdentifierTag(5));
         pvEBarrelMotherPos->add(pvIrUp);
 
-                      tfIrUp = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) 
-                             * HepGeom::Translate3D(-PosXcut-dxIr,-PosYcut+dyIr,-PoZ1) 
-		             * HepGeom::RotateZ3D(90.*CLHEP::deg) * HepGeom::RotateX3D(90.*CLHEP::deg) * HepGeom::RotateZ3D(90.*CLHEP::deg)); // Right
+                      tfIrUp = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) 
+                             * GeoTrf::Translate3D(-PosXcut-dxIr,-PosYcut+dyIr,-PoZ1) 
+		             * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateX3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg)); // Right
         pvEBarrelMotherPos->add(tfIrUp);
         pvEBarrelMotherPos->add(pvIrUp);
 
@@ -2635,16 +2637,16 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 	if(m_log->level()<=MSG::DEBUG)
 	  (*m_log) << MSG::DEBUG << " IrDw: " <<dxIr<< " " <<dyIr<< endmsg;
 
-        GeoTransform* tfIrDw = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) 
-                             * HepGeom::Translate3D(PosXcut+dxIr,-PosYcut+dyIr,-PoZ1) 
-		             * HepGeom::RotateZ3D(70.*CLHEP::deg) * HepGeom::RotateX3D(90.*CLHEP::deg) * HepGeom::RotateZ3D(90.*CLHEP::deg)); // Left
+        GeoTransform* tfIrDw = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) 
+                             * GeoTrf::Translate3D(PosXcut+dxIr,-PosYcut+dyIr,-PoZ1) 
+		             * GeoTrf::RotateZ3D(70.*GeoModelKernelUnits::deg) * GeoTrf::RotateX3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg)); // Left
         pvEBarrelMotherPos->add(tfIrDw);
         pvEBarrelMotherPos->add(new GeoIdentifierTag(6));
         pvEBarrelMotherPos->add(pvIrDw);
 
-                      tfIrDw = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) 
-                             * HepGeom::Translate3D(-PosXcut+dxIr,-PosYcut+dyIr,-PoZ1) 
-		             * HepGeom::RotateZ3D(-70.*CLHEP::deg) * HepGeom::RotateX3D(90.*CLHEP::deg) * HepGeom::RotateZ3D(90.*CLHEP::deg)); // Left
+                      tfIrDw = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) 
+                             * GeoTrf::Translate3D(-PosXcut+dxIr,-PosYcut+dyIr,-PoZ1) 
+		             * GeoTrf::RotateZ3D(-70.*GeoModelKernelUnits::deg) * GeoTrf::RotateX3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg)); // Left
 
         pvEBarrelMotherPos->add(tfIrDw);
         pvEBarrelMotherPos->add(pvIrDw);
@@ -2652,12 +2654,12 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       }
       //--------------------------------------------------------------------------------------------------------------
       // Ext.Barrel
-      ztrans = (PosEndCrack + (dbManager->GetEnvZLength()*CLHEP::cm - EBFingerLengthPos)/2 + 19.5)*(1./CLHEP::cm); 
+      ztrans = (PosEndCrack + (dbManager->GetEnvZLength()*GeoModelKernelUnits::cm - EBFingerLengthPos)/2 + 19.5)*(1./GeoModelKernelUnits::cm); 
 
-      GeoTransform* tfEBarrelMotherPos = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * 
-                                             HepGeom::RotateZ3D(dbManager->GetEnvDPhi()*CLHEP::deg));
+      GeoTransform* tfEBarrelMotherPos = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * 
+                                             GeoTrf::RotateZ3D(dbManager->GetEnvDPhi()*GeoModelKernelUnits::deg));
 
-      (*m_log) << MSG::INFO <<" Positioning positive ext.barrel with translation "<< ztrans*CLHEP::cm << endmsg; 
+      (*m_log) << MSG::INFO <<" Positioning positive ext.barrel with translation "<< ztrans*GeoModelKernelUnits::cm << endmsg; 
 
       //
       GeoNameTag* ntEBarrelMotherPos = new GeoNameTag("EBarrelPos");
@@ -2669,12 +2671,12 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
       //--------------------------------------------------------------------------------------------------------------
       // Finger 
-      ztrans = (PosEndExBarrel + EBFingerLengthPos/2)*(1./CLHEP::cm); 
+      ztrans = (PosEndExBarrel + EBFingerLengthPos/2)*(1./GeoModelKernelUnits::cm); 
 
-      GeoTransform* tfEFingerMotherPos = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * 
-                                                          HepGeom::RotateZ3D(dbManager->GetEnvDPhi() * CLHEP::deg));
+      GeoTransform* tfEFingerMotherPos = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * 
+                                                          GeoTrf::RotateZ3D(dbManager->GetEnvDPhi() * GeoModelKernelUnits::deg));
 
-      (*m_log) << MSG::INFO <<" Positioning positive ext.barrel finger with translation ztrans= "<<ztrans*CLHEP::cm<<endmsg;
+      (*m_log) << MSG::INFO <<" Positioning positive ext.barrel finger with translation ztrans= "<<ztrans*GeoModelKernelUnits::cm<<endmsg;
 
       GeoNameTag* ntEFingerMotherPos = new GeoNameTag("TileEFingerPos");
 
@@ -2685,12 +2687,12 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       //--------------------------------------------------------------------------------------------------------------
       // Ext. Saddle Support
       if (dbManager->BoolSaddle())
-      { ztrans = (PosEndExBarrel + DzSaddleSupport/2)*(1./CLHEP::cm); 
+      { ztrans = (PosEndExBarrel + DzSaddleSupport/2)*(1./GeoModelKernelUnits::cm); 
 
-        GeoTransform* tfESaddleMotherPos = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * 
-                                                            HepGeom::RotateZ3D(dbManager->GetEnvDPhi() * CLHEP::deg));
+        GeoTransform* tfESaddleMotherPos = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * 
+                                                            GeoTrf::RotateZ3D(dbManager->GetEnvDPhi() * GeoModelKernelUnits::deg));
 
-        (*m_log) << MSG::INFO <<" Positioning positive ext.barrel saddle with translation ztrans= "<<ztrans*CLHEP::cm
+        (*m_log) << MSG::INFO <<" Positioning positive ext.barrel saddle with translation ztrans= "<<ztrans*GeoModelKernelUnits::cm
                  << endmsg;
 
         GeoNameTag* ntESaddleMotherPos = new GeoNameTag("TileESaddlePos");
@@ -2708,9 +2710,9 @@ void TileAtlasFactory::create(GeoPhysVol *world)
     if(EnvType == 2) { // negative ext.barrel is always at negative boundary, after finger
 
       dbManager->SetCurrentSection(TileDddbManager::TILE_EBARREL);
-      double thicknessEndPlate = dbManager->TILBdzend1()*CLHEP::cm;
+      double thicknessEndPlate = dbManager->TILBdzend1()*GeoModelKernelUnits::cm;
 
-      double PoZ1 = thicknessEndPlate + modl_length/4 - (dbManager->GetEnvZLength()*CLHEP::cm- EBFingerLengthNeg)/2;
+      double PoZ1 = thicknessEndPlate + modl_length/4 - (dbManager->GetEnvZLength()*GeoModelKernelUnits::cm- EBFingerLengthNeg)/2;
       double PoZ2 = modl_length/4 + PoZ1;
 
       //*>------------------------------------------------------------------------------------------------------
@@ -2722,14 +2724,14 @@ void TileAtlasFactory::create(GeoPhysVol *world)
         dxIron = dbManager->CutsXpos();
 	dyIron = dbManager->CutsYpos();
 
-        GeoTransform* tfIron1 = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::Translate3D(dxIron,PosY-dyIron,-PoZ2) 
-					       * HepGeom::RotateX3D(90.*CLHEP::deg) * HepGeom::RotateZ3D(90.*CLHEP::deg)); // Left
+        GeoTransform* tfIron1 = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * GeoTrf::Translate3D(dxIron,PosY-dyIron,-PoZ2) 
+					       * GeoTrf::RotateX3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg)); // Left
         pvEBarrelMotherNeg->add(tfIron1);
         pvEBarrelMotherNeg->add(new GeoIdentifierTag(1));
         pvEBarrelMotherNeg->add(pvIron1);
 
-                      tfIron1 = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::Translate3D(-dxIron,PosY-dyIron,-PoZ2)
-					       * HepGeom::RotateX3D(90.*CLHEP::deg) * HepGeom::RotateZ3D(90.*CLHEP::deg)); // Right
+                      tfIron1 = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * GeoTrf::Translate3D(-dxIron,PosY-dyIron,-PoZ2)
+					       * GeoTrf::RotateX3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg)); // Right
         pvEBarrelMotherNeg->add(tfIron1);
         pvEBarrelMotherNeg->add(new GeoIdentifierTag(2));
         pvEBarrelMotherNeg->add(pvIron1);
@@ -2739,14 +2741,14 @@ void TileAtlasFactory::create(GeoPhysVol *world)
         dxIron = dbManager->CutsXpos();
 	dyIron = dbManager->CutsYpos();
 
-        GeoTransform* tfIron2 = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::Translate3D(dxIron,PosY+dyIron,-PoZ2) 
-	                      * HepGeom::RotateZ3D(-84.*CLHEP::deg) * HepGeom::RotateX3D(90.*CLHEP::deg) * HepGeom::RotateZ3D(90.*CLHEP::deg)); // Left
+        GeoTransform* tfIron2 = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * GeoTrf::Translate3D(dxIron,PosY+dyIron,-PoZ2) 
+	                      * GeoTrf::RotateZ3D(-84.*GeoModelKernelUnits::deg) * GeoTrf::RotateX3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg)); // Left
         pvEBarrelMotherNeg->add(tfIron2);
         pvEBarrelMotherNeg->add(new GeoIdentifierTag(2));
         pvEBarrelMotherNeg->add(pvIron2);
 
-                      tfIron2 = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::Translate3D(-dxIron,PosY+dyIron,-PoZ2)
-                              * HepGeom::RotateZ3D(84.*CLHEP::deg) * HepGeom::RotateX3D(90.*CLHEP::deg) * HepGeom::RotateZ3D(90.*CLHEP::deg)); // Left
+                      tfIron2 = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * GeoTrf::Translate3D(-dxIron,PosY+dyIron,-PoZ2)
+                              * GeoTrf::RotateZ3D(84.*GeoModelKernelUnits::deg) * GeoTrf::RotateX3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg)); // Left
         pvEBarrelMotherNeg->add(tfIron2);
         pvEBarrelMotherNeg->add(pvIron2);
 
@@ -2755,14 +2757,14 @@ void TileAtlasFactory::create(GeoPhysVol *world)
         dxIron = dbManager->CutsXpos();
 	dyIron = dbManager->CutsYpos();
 
-        GeoTransform* tfIron3 = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::Translate3D(dxIron,PosY+dyIron,-PoZ2) 
-	                      * HepGeom::RotateZ3D(90.*CLHEP::deg) * HepGeom::RotateX3D(90.*CLHEP::deg) * HepGeom::RotateZ3D(90.*CLHEP::deg)); // Left
+        GeoTransform* tfIron3 = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * GeoTrf::Translate3D(dxIron,PosY+dyIron,-PoZ2) 
+	                      * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateX3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg)); // Left
         pvEBarrelMotherNeg->add(tfIron3);
         pvEBarrelMotherNeg->add(new GeoIdentifierTag(3));
         pvEBarrelMotherNeg->add(pvIron3); 
 
-                      tfIron3 = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::Translate3D(-dxIron,PosY+dyIron,-PoZ2)
-                              * HepGeom::RotateZ3D(90.*CLHEP::deg) * HepGeom::RotateX3D(90.*CLHEP::deg) * HepGeom::RotateZ3D(90.*CLHEP::deg)); // Right
+                      tfIron3 = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * GeoTrf::Translate3D(-dxIron,PosY+dyIron,-PoZ2)
+                              * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateX3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg)); // Right
         pvEBarrelMotherNeg->add(tfIron3);
         pvEBarrelMotherNeg->add(pvIron3);
 
@@ -2770,14 +2772,14 @@ void TileAtlasFactory::create(GeoPhysVol *world)
         volname = "IrBox"; dbManager->SetCurrentCuts(volname); //>>
         dxIron = dbManager->CutsXpos();
 	dyIron = dbManager->CutsYpos();
-        GeoTransform* tfIrBoxL = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::Translate3D(dxIron,PosY-dyIron,-PoZ2)
-                               * HepGeom::RotateX3D(90.*CLHEP::deg) * HepGeom::RotateZ3D(90.*CLHEP::deg)); // Left
+        GeoTransform* tfIrBoxL = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * GeoTrf::Translate3D(dxIron,PosY-dyIron,-PoZ2)
+                               * GeoTrf::RotateX3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg)); // Left
         pvEBarrelMotherNeg->add(tfIrBoxL); 
         pvEBarrelMotherNeg->add(new GeoIdentifierTag(4));
         pvEBarrelMotherNeg->add(pvIrBox); 
 
-        GeoTransform* tfIrBoxR = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) *HepGeom::Translate3D(-dxIron,PosY-dyIron,-PoZ2)
-		               * HepGeom::RotateX3D(90.*CLHEP::deg) * HepGeom::RotateZ3D(90.*CLHEP::deg)); // Right
+        GeoTransform* tfIrBoxR = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) *GeoTrf::Translate3D(-dxIron,PosY-dyIron,-PoZ2)
+		               * GeoTrf::RotateX3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg)); // Right
         pvEBarrelMotherNeg->add(tfIrBoxR);
         pvEBarrelMotherNeg->add(pvIrBox);
 
@@ -2786,16 +2788,16 @@ void TileAtlasFactory::create(GeoPhysVol *world)
         dxIr = dbManager->CutsXpos();
 	dyIr = dbManager->CutsYpos();
 
-        GeoTransform* tfIrUp = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) 
-                             * HepGeom::Translate3D(PosXcut+dxIr,-PosYcut+dyIr,PoZ1) 
-		             * HepGeom::RotateZ3D(90.*CLHEP::deg) * HepGeom::RotateX3D(90.*CLHEP::deg) * HepGeom::RotateZ3D(90.*CLHEP::deg)); // Left
+        GeoTransform* tfIrUp = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) 
+                             * GeoTrf::Translate3D(PosXcut+dxIr,-PosYcut+dyIr,PoZ1) 
+		             * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateX3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg)); // Left
         pvEBarrelMotherNeg->add(tfIrUp);
         pvEBarrelMotherNeg->add(new GeoIdentifierTag(5));
         pvEBarrelMotherNeg->add(pvIrUp);
 
-                      tfIrUp = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) 
-                             * HepGeom::Translate3D(-PosXcut-dxIr,-PosYcut+dyIr,PoZ1) 
-		             * HepGeom::RotateZ3D(90.*CLHEP::deg) * HepGeom::RotateX3D(90.*CLHEP::deg) * HepGeom::RotateZ3D(90.*CLHEP::deg)); // Right
+                      tfIrUp = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) 
+                             * GeoTrf::Translate3D(-PosXcut-dxIr,-PosYcut+dyIr,PoZ1) 
+		             * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateX3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg)); // Right
         pvEBarrelMotherNeg->add(tfIrUp);
         pvEBarrelMotherNeg->add(pvIrUp);
 
@@ -2804,16 +2806,16 @@ void TileAtlasFactory::create(GeoPhysVol *world)
         dxIr = dbManager->CutsXpos();
 	dyIr = dbManager->CutsYpos();
 
-        GeoTransform* tfIrDw = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) 
-                             * HepGeom::Translate3D(PosXcut+dxIr,-PosYcut+dyIr,PoZ1) 
-		             * HepGeom::RotateZ3D(70.*CLHEP::deg) * HepGeom::RotateX3D(90.*CLHEP::deg) * HepGeom::RotateZ3D(90.*CLHEP::deg)); // Left
+        GeoTransform* tfIrDw = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) 
+                             * GeoTrf::Translate3D(PosXcut+dxIr,-PosYcut+dyIr,PoZ1) 
+		             * GeoTrf::RotateZ3D(70.*GeoModelKernelUnits::deg) * GeoTrf::RotateX3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg)); // Left
         pvEBarrelMotherNeg->add(tfIrDw);
         pvEBarrelMotherNeg->add(new GeoIdentifierTag(6));
         pvEBarrelMotherNeg->add(pvIrDw);
 
-                      tfIrDw = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) 
-                             * HepGeom::Translate3D(-PosXcut+dxIr,-PosYcut+dyIr,PoZ1) 
-		             * HepGeom::RotateZ3D(-70.*CLHEP::deg) * HepGeom::RotateX3D(90.*CLHEP::deg) * HepGeom::RotateZ3D(90.*CLHEP::deg)); // Left
+                      tfIrDw = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) 
+                             * GeoTrf::Translate3D(-PosXcut+dxIr,-PosYcut+dyIr,PoZ1) 
+		             * GeoTrf::RotateZ3D(-70.*GeoModelKernelUnits::deg) * GeoTrf::RotateX3D(90.*GeoModelKernelUnits::deg) * GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg)); // Left
 
         pvEBarrelMotherNeg->add(tfIrDw);
         pvEBarrelMotherNeg->add(pvIrDw);
@@ -2822,12 +2824,12 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       //
       //*>------------------------------------------------------------------------------------------------------
       // Ext.Barrel
-      ztrans = (-NegEndCrack - (dbManager->GetEnvZLength()*CLHEP::cm - EBFingerLengthNeg)/2 - 19.5)*(1./CLHEP::cm);
+      ztrans = (-NegEndCrack - (dbManager->GetEnvZLength()*GeoModelKernelUnits::cm - EBFingerLengthNeg)/2 - 19.5)*(1./GeoModelKernelUnits::cm);
 
-      GeoTransform* tfEBarrelMotherNeg = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * 
-                                             HepGeom::RotateZ3D(dbManager->GetEnvDPhi()*CLHEP::deg));
+      GeoTransform* tfEBarrelMotherNeg = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * 
+                                             GeoTrf::RotateZ3D(dbManager->GetEnvDPhi()*GeoModelKernelUnits::deg));
 
-      (*m_log) << MSG::INFO <<" Positioning negative ext.barrel with translation ztrans "<<ztrans*CLHEP::cm<<endmsg;
+      (*m_log) << MSG::INFO <<" Positioning negative ext.barrel with translation ztrans "<<ztrans*GeoModelKernelUnits::cm<<endmsg;
       
       GeoNameTag* ntEBarrelMotherNeg = new GeoNameTag("EBarrelNeg");
 
@@ -2838,12 +2840,12 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
       //*>------------------------------------------------------------------------------------------------------
       // Finger
-      ztrans = (-NegEndExBarrel - EBFingerLengthPos/2)*(1./CLHEP::cm); 
+      ztrans = (-NegEndExBarrel - EBFingerLengthPos/2)*(1./GeoModelKernelUnits::cm); 
 
-      GeoTransform* tfEFingerMotherNeg = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * 
-                                             HepGeom::RotateZ3D(dbManager->GetEnvDPhi() * CLHEP::deg));
+      GeoTransform* tfEFingerMotherNeg = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * 
+                                             GeoTrf::RotateZ3D(dbManager->GetEnvDPhi() * GeoModelKernelUnits::deg));
 
-      (*m_log) << MSG::INFO <<" Positioning negative ext.barrel finger with translation ztrans= "<<ztrans*CLHEP::cm<< endmsg;
+      (*m_log) << MSG::INFO <<" Positioning negative ext.barrel finger with translation ztrans= "<<ztrans*GeoModelKernelUnits::cm<< endmsg;
 
       GeoNameTag* ntEFingerMotherNeg = new GeoNameTag("TileEFingerNeg");
 
@@ -2854,12 +2856,12 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       //*>------------------------------------------------------------------------------------------------------
       // Ext. Saddle Support
       if (dbManager->BoolSaddle())
-      { ztrans = (-NegEndExBarrel - DzSaddleSupport/2)*(1./CLHEP::cm); 
+      { ztrans = (-NegEndExBarrel - DzSaddleSupport/2)*(1./GeoModelKernelUnits::cm); 
 
-        GeoTransform* tfESaddleMotherNeg = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * 
-                                               HepGeom::RotateZ3D(dbManager->GetEnvDPhi() * CLHEP::deg));
+        GeoTransform* tfESaddleMotherNeg = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * 
+                                               GeoTrf::RotateZ3D(dbManager->GetEnvDPhi() * GeoModelKernelUnits::deg));
 
-        (*m_log) << MSG::INFO <<" Positioning negative ext.barrel saddle with translation ztrans= "<<ztrans*CLHEP::cm
+        (*m_log) << MSG::INFO <<" Positioning negative ext.barrel saddle with translation ztrans= "<<ztrans*GeoModelKernelUnits::cm
                  << endmsg;
 
         GeoNameTag* ntESaddleMotherNeg = new GeoNameTag("TileESaddleNeg");
@@ -2878,15 +2880,15 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
       dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG1);
 
-      ztrans = PosEndBarrelFinger*(1./CLHEP::cm) + dbManager->TILBdzmodul()/2;
+      ztrans = PosEndBarrelFinger*(1./GeoModelKernelUnits::cm) + dbManager->TILBdzmodul()/2;
 
-      //std::cout <<" ztrans "<<ztrans<<" PosEndBarrelFinger/CLHEP::cm "<<PosEndBarrelFinger/CLHEP::cm
-      //          <<" dbManager->TILBdzmodul()/2*CLHEP::cm"<<dbManager->TILBdzmodul()/2<<"\n";
+      //std::cout <<" ztrans "<<ztrans<<" PosEndBarrelFinger/GeoModelKernelUnits::cm "<<PosEndBarrelFinger/GeoModelKernelUnits::cm
+      //          <<" dbManager->TILBdzmodul()/2*GeoModelKernelUnits::cm"<<dbManager->TILBdzmodul()/2<<"\n";
       
-      (*m_log) << MSG::INFO <<" Positioning positive ITC with translation "<<ztrans*CLHEP::cm<< endmsg;
+      (*m_log) << MSG::INFO <<" Positioning positive ITC with translation "<<ztrans*GeoModelKernelUnits::cm<< endmsg;
 
-      GeoTransform* tfITCMotherPos = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * 
-                                         HepGeom::RotateZ3D(dbManager->GetEnvDPhi() * CLHEP::deg));
+      GeoTransform* tfITCMotherPos = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm) * 
+                                         GeoTrf::RotateZ3D(dbManager->GetEnvDPhi() * GeoModelKernelUnits::deg));
 
       GeoNameTag* ntITCMotherPos = new GeoNameTag("ITCPos");
 
@@ -2895,12 +2897,12 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       pvTileEnvelopePosEndcap->add(pvITCMotherPos);
 
       dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG3);
-      ztrans = PosBeginGap*(1./CLHEP::cm) + dbManager->TILBdzmodul()/2;
+      ztrans = PosBeginGap*(1./GeoModelKernelUnits::cm) + dbManager->TILBdzmodul()/2;
 
-      (*m_log) << MSG::INFO <<" Positioning positive Gap with translation "<<ztrans*CLHEP::cm<<endmsg;
+      (*m_log) << MSG::INFO <<" Positioning positive Gap with translation "<<ztrans*GeoModelKernelUnits::cm<<endmsg;
 
-      GeoTransform* tfGapMotherPos = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm)* 
-                                         HepGeom::RotateZ3D(dbManager->GetEnvDPhi()*CLHEP::deg));
+      GeoTransform* tfGapMotherPos = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm)* 
+                                         GeoTrf::RotateZ3D(dbManager->GetEnvDPhi()*GeoModelKernelUnits::deg));
 
       GeoNameTag* ntGapMotherPos = new GeoNameTag("GapPos");
 
@@ -2910,12 +2912,12 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
       // Crack
       dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG4);
-      ztrans = PosBeginCrack*(1./CLHEP::cm) + dbManager->TILBdzmodul()/2;
+      ztrans = PosBeginCrack*(1./GeoModelKernelUnits::cm) + dbManager->TILBdzmodul()/2;
 
-      (*m_log) << MSG::INFO <<" Positioning positive Crack with translation "<<ztrans*CLHEP::cm<<endmsg;
+      (*m_log) << MSG::INFO <<" Positioning positive Crack with translation "<<ztrans*GeoModelKernelUnits::cm<<endmsg;
 
-      GeoTransform* tfCrackMotherPos = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm)* 
-                                         HepGeom::RotateZ3D(dbManager->GetEnvDPhi()*CLHEP::deg));
+      GeoTransform* tfCrackMotherPos = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm)* 
+                                         GeoTrf::RotateZ3D(dbManager->GetEnvDPhi()*GeoModelKernelUnits::deg));
  
       GeoNameTag* ntCrackMotherPos = new GeoNameTag("CrackPos");
 
@@ -2932,12 +2934,12 @@ void TileAtlasFactory::create(GeoPhysVol *world)
     if(EnvType == 4) { 
 
       dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG1);
-      ztrans = -NegEndBarrelFinger*(1./CLHEP::cm) - dbManager->TILBdzmodul()/2;
+      ztrans = -NegEndBarrelFinger*(1./GeoModelKernelUnits::cm) - dbManager->TILBdzmodul()/2;
 
-      (*m_log) << MSG::INFO <<" Positioning negative ITC with translation "<<ztrans*CLHEP::cm<<endmsg;
+      (*m_log) << MSG::INFO <<" Positioning negative ITC with translation "<<ztrans*GeoModelKernelUnits::cm<<endmsg;
 
-      GeoTransform* tfITCMotherNeg = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm)* 
-                                         HepGeom::RotateZ3D(dbManager->GetEnvDPhi()*CLHEP::deg));
+      GeoTransform* tfITCMotherNeg = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm)* 
+                                         GeoTrf::RotateZ3D(dbManager->GetEnvDPhi()*GeoModelKernelUnits::deg));
 
       GeoNameTag* ntITCMotherNeg = new GeoNameTag("ITCNeg");
 
@@ -2946,12 +2948,12 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       pvTileEnvelopeNegEndcap->add(pvITCMotherNeg);
 
       dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG3);
-      ztrans = -NegBeginGap*(1./CLHEP::cm) - dbManager->TILBdzmodul()/2;
+      ztrans = -NegBeginGap*(1./GeoModelKernelUnits::cm) - dbManager->TILBdzmodul()/2;
 
-      (*m_log) << MSG::INFO <<" Positioning negative Gap with translation "<<ztrans*CLHEP::cm<<endmsg;
+      (*m_log) << MSG::INFO <<" Positioning negative Gap with translation "<<ztrans*GeoModelKernelUnits::cm<<endmsg;
 
-      GeoTransform* tfGapMotherNeg = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm)* 
-                                         HepGeom::RotateZ3D(dbManager->GetEnvDPhi()*CLHEP::deg));
+      GeoTransform* tfGapMotherNeg = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm)* 
+                                         GeoTrf::RotateZ3D(dbManager->GetEnvDPhi()*GeoModelKernelUnits::deg));
 
       GeoNameTag* ntGapMotherNeg = new GeoNameTag("GapNeg");
 
@@ -2961,12 +2963,12 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
       // Crack
       dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG4);
-      ztrans = -NegBeginCrack*(1./CLHEP::cm) - dbManager->TILBdzmodul()/2;
+      ztrans = -NegBeginCrack*(1./GeoModelKernelUnits::cm) - dbManager->TILBdzmodul()/2;
 
-      (*m_log) << MSG::INFO <<" Positioning negative Crack with translation "<<ztrans*CLHEP::cm<<endmsg;
+      (*m_log) << MSG::INFO <<" Positioning negative Crack with translation "<<ztrans*GeoModelKernelUnits::cm<<endmsg;
 
-      GeoTransform* tfCrackMotherNeg = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm)* 
-                                           HepGeom::RotateZ3D(dbManager->GetEnvDPhi()*CLHEP::deg));
+      GeoTransform* tfCrackMotherNeg = new GeoTransform(GeoTrf::TranslateZ3D(ztrans*GeoModelKernelUnits::cm)* 
+                                           GeoTrf::RotateZ3D(dbManager->GetEnvDPhi()*GeoModelKernelUnits::deg));
 
       GeoNameTag* ntCrackMotherNeg = new GeoNameTag("CrackNeg");
 
@@ -2992,13 +2994,13 @@ void TileAtlasFactory::create(GeoPhysVol *world)
        dbManager->SetCurrentEnvByIndex(EnvCounter);
        int EnvType = dbManager->GetEnvType();
        int NumberOfMod = dbManager->GetEnvNModules();
-       double Zshift = dbManager->GetEnvZShift()*CLHEP::cm;
+       double Zshift = dbManager->GetEnvZShift()*GeoModelKernelUnits::cm;
 
        if(m_log->level()<=MSG::DEBUG)
 	 (*m_log) << MSG::DEBUG 
 		  << " EnvCounter is " << EnvCounter
 		  << " EnvType is " << EnvType
-		  << " Zshift is " << Zshift*(1./CLHEP::cm) << " cm"
+		  << " Zshift is " << Zshift*(1./GeoModelKernelUnits::cm) << " cm"
 		  << endmsg;
 
        // Central barrel 
@@ -3047,16 +3049,16 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
     // Top transform for the Central barrel
     dbManager->SetCurrentEnvByType(1);
-    HepGeom::Transform3D mz = HepGeom::RotateZ3D(dbManager->GetEnvDPhi());
-    HepGeom::Transform3D my = HepGeom::RotateY3D(dbManager->GetEnvDTheta());
-    HepGeom::Transform3D mx = HepGeom::RotateZ3D(dbManager->GetEnvDPsi());
-    HepGeom::Transform3D vpos = HepGeom::Translate3D(dbManager->GetEnvDX()*CLHEP::cm,dbManager->GetEnvDY()*CLHEP::cm,dbManager->GetEnvDZ()*CLHEP::cm);
-    GeoTransform* barrelTT = new GeoTransform(HepGeom::Transform3D(vpos*(mx*(my*(mz)))));
+    GeoTrf::Transform3D mz = GeoTrf::RotateZ3D(dbManager->GetEnvDPhi());
+    GeoTrf::Transform3D my = GeoTrf::RotateY3D(dbManager->GetEnvDTheta());
+    GeoTrf::Transform3D mx = GeoTrf::RotateZ3D(dbManager->GetEnvDPsi());
+    GeoTrf::Transform3D vpos = GeoTrf::Translate3D(dbManager->GetEnvDX()*GeoModelKernelUnits::cm,dbManager->GetEnvDY()*GeoModelKernelUnits::cm,dbManager->GetEnvDZ()*GeoModelKernelUnits::cm);
+    GeoTransform* barrelTT = new GeoTransform(GeoTrf::Transform3D(vpos*(mx*(my*(mz)))));
 
     (*m_log) << MSG::INFO << " Global positioning of barrel with rotation ("
              << dbManager->GetEnvDPhi() << "," << dbManager->GetEnvDTheta() << "," << dbManager->GetEnvDPsi() << ")"
              << ") and translation (" << dbManager->GetEnvDX() << "," << dbManager->GetEnvDY() << "," << dbManager->GetEnvDZ()
-             << ") CLHEP::cm" << endmsg;
+             << ") GeoModelKernelUnits::cm" << endmsg;
 
     world->add(barrelTT);
     world->add(pvTileEnvelopeBarrel);
@@ -3069,16 +3071,16 @@ void TileAtlasFactory::create(GeoPhysVol *world)
  
     // Top transform for the Positive endcap
     dbManager->SetCurrentEnvByType(3);
-    HepGeom::Transform3D mz = HepGeom::RotateZ3D(dbManager->GetEnvDPhi());
-    HepGeom::Transform3D my = HepGeom::RotateY3D(dbManager->GetEnvDTheta());
-    HepGeom::Transform3D mx = HepGeom::RotateZ3D(dbManager->GetEnvDPsi());
-    HepGeom::Transform3D vpos = HepGeom::Translate3D(dbManager->GetEnvDX()*CLHEP::cm,dbManager->GetEnvDY()*CLHEP::cm,dbManager->GetEnvDZ()*CLHEP::cm);
-    GeoTransform*  posEcTT = new GeoTransform(HepGeom::Transform3D(vpos*(mx*(my*(mz)))));
+    GeoTrf::Transform3D mz = GeoTrf::RotateZ3D(dbManager->GetEnvDPhi());
+    GeoTrf::Transform3D my = GeoTrf::RotateY3D(dbManager->GetEnvDTheta());
+    GeoTrf::Transform3D mx = GeoTrf::RotateZ3D(dbManager->GetEnvDPsi());
+    GeoTrf::Transform3D vpos = GeoTrf::Translate3D(dbManager->GetEnvDX()*GeoModelKernelUnits::cm,dbManager->GetEnvDY()*GeoModelKernelUnits::cm,dbManager->GetEnvDZ()*GeoModelKernelUnits::cm);
+    GeoTransform*  posEcTT = new GeoTransform(GeoTrf::Transform3D(vpos*(mx*(my*(mz)))));
 
     (*m_log) << MSG::INFO << " Global positioning of positive ext.barrel with rotation ("
              << dbManager->GetEnvDPhi() << "," << dbManager->GetEnvDTheta() << "," << dbManager->GetEnvDPsi() << ")"
              << ") and translation (" << dbManager->GetEnvDX() << "," << dbManager->GetEnvDY() << "," << dbManager->GetEnvDZ()
-             << ") CLHEP::cm" << endmsg;
+             << ") GeoModelKernelUnits::cm" << endmsg;
 
     world->add(posEcTT);
     world->add(pvTileEnvelopePosEndcap);
@@ -3091,16 +3093,16 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
     // Top transform for the Negative endcap
     dbManager->SetCurrentEnvByType(2);
-    HepGeom::Transform3D mz = HepGeom::RotateZ3D(dbManager->GetEnvDPhi());
-    HepGeom::Transform3D my = HepGeom::RotateY3D(dbManager->GetEnvDTheta());
-    HepGeom::Transform3D mx = HepGeom::RotateZ3D(dbManager->GetEnvDPsi());
-    HepGeom::Transform3D vpos = HepGeom::Translate3D(dbManager->GetEnvDX()*CLHEP::cm,dbManager->GetEnvDY()*CLHEP::cm,dbManager->GetEnvDZ()*CLHEP::cm);
-    GeoTransform* negEcTT = new GeoTransform(HepGeom::Transform3D(vpos*(mx*(my*(mz)))));
+    GeoTrf::Transform3D mz = GeoTrf::RotateZ3D(dbManager->GetEnvDPhi());
+    GeoTrf::Transform3D my = GeoTrf::RotateY3D(dbManager->GetEnvDTheta());
+    GeoTrf::Transform3D mx = GeoTrf::RotateZ3D(dbManager->GetEnvDPsi());
+    GeoTrf::Transform3D vpos = GeoTrf::Translate3D(dbManager->GetEnvDX()*GeoModelKernelUnits::cm,dbManager->GetEnvDY()*GeoModelKernelUnits::cm,dbManager->GetEnvDZ()*GeoModelKernelUnits::cm);
+    GeoTransform* negEcTT = new GeoTransform(GeoTrf::Transform3D(vpos*(mx*(my*(mz)))));
 
     (*m_log) << MSG::INFO << " Global positioning of negative ext.barrel with rotation ("
              << dbManager->GetEnvDPhi() << "," << dbManager->GetEnvDTheta() << "," << dbManager->GetEnvDPsi() << ")"
              << ") and translation (" << dbManager->GetEnvDX() << "," << dbManager->GetEnvDY() << "," << dbManager->GetEnvDZ()
-             << ") CLHEP::cm" << endmsg;
+             << ") GeoModelKernelUnits::cm" << endmsg;
 
     world->add(negEcTT);
     world->add(pvTileEnvelopeNegEndcap);

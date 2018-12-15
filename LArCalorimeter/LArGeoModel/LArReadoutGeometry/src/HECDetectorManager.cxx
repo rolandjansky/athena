@@ -12,6 +12,7 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
+#include "GeoModelKernel/Units.h"
 #include "LArReadoutGeometry/HECDetectorManager.h"
 #include "LArHV/LArHVManager.h"
 #include "StoreGate/StoreGate.h"
@@ -59,21 +60,21 @@ HECDetectorManager::HECDetectorManager(bool isTestBeam)
   if (hecPad->size()!=hecLongBlock->size()) throw std::runtime_error("Error.  Hec[LongitudinalBlock,Pad] size discrepancy");
 
   // Get the focal length:
-  m_focalToRef1 = (*hadronicEndcap)[0]->getDouble("ZORIG")*CLHEP::cm;
+  m_focalToRef1 = (*hadronicEndcap)[0]->getDouble("ZORIG")*GeoModelKernelUnits::cm;
   m_focalToRef2 = m_focalToRef1;
-  double betweenWheel=(*hadronicEndcap)[0]->getDouble("GAPWHL")*CLHEP::cm;
+  double betweenWheel=(*hadronicEndcap)[0]->getDouble("GAPWHL")*GeoModelKernelUnits::cm;
   if(!m_isTestBeam) m_focalToRef2 += betweenWheel;
 
   for (unsigned int b=0;b<hecLongBlock->size();b++) {
     double etaBoundary[15];
     const IRDBRecord *block = (*hecLongBlock)[b];
     unsigned int blockNumber= (unsigned int) (block->getDouble("IBLC")+0.01); // will truncate down.
-    double innerRadius= block->getDouble("BLRMN")*CLHEP::cm;
-    double outerRadius= block->getDouble("BLRMX")*CLHEP::cm;
-    double depth= block->getDouble("BLDPTH")*CLHEP::cm;
+    double innerRadius= block->getDouble("BLRMN")*GeoModelKernelUnits::cm;
+    double outerRadius= block->getDouble("BLRMX")*GeoModelKernelUnits::cm;
+    double depth= block->getDouble("BLDPTH")*GeoModelKernelUnits::cm;
     unsigned int numLArGaps= (unsigned int) (block->getDouble("BLMOD") + 0.01); // will truncate down.
-    double frontPlateThickness= block->getDouble("PLATE0")*CLHEP::cm;
-    double backPlateThickness= block->getDouble("PLATEE")*CLHEP::cm;
+    double frontPlateThickness= block->getDouble("PLATE0")*GeoModelKernelUnits::cm;
+    double backPlateThickness= block->getDouble("PLATEE")*GeoModelKernelUnits::cm;
     
     const IRDBRecord *pad = (*hecPad)[b];
     for (int j=0;j<15;j++) etaBoundary[j]=pad->getDouble("ETA",j);

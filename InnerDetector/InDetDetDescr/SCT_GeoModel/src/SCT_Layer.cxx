@@ -39,10 +39,8 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Vector/Rotation.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 
 #include <sstream>
 #include <cmath>
@@ -151,7 +149,7 @@ SCT_Layer::preBuild()
   // Calculations for making active layer components - called ski.
   // This is the modules + doglegs + cooling blocks + coolingpipe 
   // 
-  double divisionAngle  = 360 * CLHEP::degree / m_skisPerLayer;
+  double divisionAngle  = 360 * GeoModelKernelUnits::degree / m_skisPerLayer;
 
   // We define here the first module(id = 0) as the nearest module to phi = 0 with positive phi.
   // We allow slightly negative in case of rounding errors.
@@ -201,7 +199,7 @@ SCT_Layer::preBuild()
   // Build the volume representing the cooling inlets, outlet and U-bends.
   // We cannot do this until we have the dimensions of the clamp
   double coolingInnerRadius = m_clamp->outerRadius();
-  double clearance = 1*CLHEP::mm;
+  double clearance = 1*GeoModelKernelUnits::mm;
   double coolingLength = 0.5*m_cylinderLength - 0.5*m_activeLength - clearance;
   m_coolingEnd = new SCT_CoolingEnd("CoolingEnd"+layerNumStr, m_iLayer, coolingInnerRadius, coolingLength);
 
@@ -273,7 +271,7 @@ SCT_Layer::build(SCT_Identifier id) const
   // We make this a fullPhysVol for alignment code.
   GeoFullPhysVol * layer = new GeoFullPhysVol(m_logVolume);
 
-  double divisionAngle  = 360 * CLHEP::degree / m_skisPerLayer;
+  double divisionAngle  = 360 * GeoModelKernelUnits::degree / m_skisPerLayer;
 
   //
   // Active Layer
@@ -292,17 +290,15 @@ SCT_Layer::build(SCT_Identifier id) const
    
     double phi = m_skiPhiStart + iSki * divisionAngle;
 
-    //    std::cout << "m_skiPhiStart = " << m_skiPhiStart/CLHEP::degree << ", phi = " << phi/CLHEP::degree << std::endl;
+    //    std::cout << "m_skiPhiStart = " << m_skiPhiStart/GeoModelKernelUnits::degree << ", phi = " << phi/GeoModelKernelUnits::degree << std::endl;
 
-    CLHEP::Hep3Vector pos(m_radius, 0, 0);
-    CLHEP::HepRotation rot;
-    rot.rotateZ(phi);
-    rot.rotateZ(m_tilt);
-    pos.rotateZ(phi);
+    GeoTrf::Vector3D pos(m_radius, 0, 0);
+    pos = GeoTrf::RotateZ3D(phi)*pos;
+    GeoTrf::Transform3D rot = GeoTrf::RotateZ3D(m_tilt)*GeoTrf::RotateZ3D(phi);
     
     // Because the ski envelope center is not positioned at the rotation axis for the ski we must first
     // apply the inverse of refPointTransform() of the ski.
-    HepGeom::Transform3D trans(HepGeom::Transform3D(rot,pos) * m_ski->getRefPointTransform()->getTransform().inverse());
+    GeoTrf::Transform3D trans(GeoTrf::Transform3D(GeoTrf::Translate3D(pos.x(),pos.y(),pos.z())*rot) * m_ski->getRefPointTransform()->getTransform().inverse());
 
     //    std::cout << "Adding ski at pos: " << pos << std::endl;
     //    std::cout << " StereoInner = " << m_module->stereoInner() << std::endl;
@@ -315,15 +311,15 @@ SCT_Layer::build(SCT_Identifier id) const
 
   // And add the service material 
   double clampZPos = 0.5 * m_cylinderLength - 0.5 *  m_clamp->length();
-  activeLayer->add(new GeoTransform(HepGeom::TranslateZ3D(clampZPos)));
+  activeLayer->add(new GeoTransform(GeoTrf::TranslateZ3D(clampZPos)));
   activeLayer->add(m_clamp->getVolume());
-  activeLayer->add(new GeoTransform(HepGeom::TranslateZ3D(-clampZPos)));
+  activeLayer->add(new GeoTransform(GeoTrf::TranslateZ3D(-clampZPos)));
   activeLayer->add(m_clamp->getVolume());
 
   double coolingZPos = 0.5 * m_cylinderLength - 0.5 *  m_coolingEnd->length();
-  activeLayer->add(new GeoTransform(HepGeom::TranslateZ3D(coolingZPos)));
+  activeLayer->add(new GeoTransform(GeoTrf::TranslateZ3D(coolingZPos)));
   activeLayer->add(m_coolingEnd->getVolume());
-  activeLayer->add(new GeoTransform(HepGeom::TranslateZ3D(-coolingZPos)));
+  activeLayer->add(new GeoTransform(GeoTrf::TranslateZ3D(-coolingZPos)));
   activeLayer->add(m_coolingEnd->getVolume());
 
   //
@@ -341,9 +337,7 @@ SCT_Layer::build(SCT_Identifier id) const
   for (int iSki = 0; iSki < m_skisPerLayer; iSki++){
     //for (int iSki = 0; iSki < 2; iSki++){
     double phi =  m_skiAuxPhiStart + iSki * divisionAngle;
-    CLHEP::HepRotation rot;
-    rot.rotateZ(phi);
-    auxLayer->add(new GeoTransform(HepGeom::Rotate3D(rot)));
+    auxLayer->add(new GeoTransform(GeoTrf::RotateZ3D(phi)));
     auxLayer->add(m_skiAux->getVolume());
   }
  
@@ -365,9 +359,9 @@ SCT_Layer::build(SCT_Identifier id) const
   
   // Position flanges. One at each end.
   double flangeZPos = 0.5 * m_cylinderLength - 0.5 *  m_flange->length();
-  supportLayer->add(new GeoTransform(HepGeom::TranslateZ3D(flangeZPos)));
+  supportLayer->add(new GeoTransform(GeoTrf::TranslateZ3D(flangeZPos)));
   supportLayer->add(m_flange->getVolume());
-  supportLayer->add(new GeoTransform(HepGeom::TranslateZ3D(-flangeZPos)));
+  supportLayer->add(new GeoTransform(GeoTrf::TranslateZ3D(-flangeZPos)));
   supportLayer->add(m_flange->getVolume());
 
   // Position supportCyl
@@ -376,20 +370,20 @@ SCT_Layer::build(SCT_Identifier id) const
   if(m_includeFSI) {
     // Position FSI fibre masks
     double fibreMaskZPos = 0.5 * m_cylinderLength - m_flange->length() - 0.5 * m_fibreMask->length();
-    supportLayer->add(new GeoTransform(HepGeom::TranslateZ3D(fibreMaskZPos)));
+    supportLayer->add(new GeoTransform(GeoTrf::TranslateZ3D(fibreMaskZPos)));
     supportLayer->add(m_fibreMask->getVolume());
-    supportLayer->add(new GeoTransform(HepGeom::TranslateZ3D(-fibreMaskZPos)));
+    supportLayer->add(new GeoTransform(GeoTrf::TranslateZ3D(-fibreMaskZPos)));
     supportLayer->add(m_fibreMask->getVolume());
 
     // Position FSI End jewels
     double jewelRadius = std::sqrt(m_fibreMask->innerRadius()*m_fibreMask->innerRadius() - 0.25 * m_endJewel->rPhiWidth()*m_endJewel->rPhiWidth()) - 0.5 * m_endJewel->radialWidth();
     //  std::cout << "jewelRadius = " << jewelRadius << std::endl;
     for ( int i=0; i<m_nRepeatEndJewel; i++) {
-      double jewelAngle = m_phiEndJewel + i * 360.*CLHEP::degree/m_nRepeatEndJewel;
+      double jewelAngle = m_phiEndJewel + i * 360.*GeoModelKernelUnits::degree/m_nRepeatEndJewel;
       //    std::cout << "jewelAngle = " << jewelAngle << std::endl;
-      supportLayer->add(new GeoTransform(HepGeom::RotateZ3D(jewelAngle)*HepGeom::TranslateX3D(jewelRadius)*HepGeom::TranslateZ3D(m_zEndJewel)));
+      supportLayer->add(new GeoTransform(GeoTrf::RotateZ3D(jewelAngle)*GeoTrf::TranslateX3D(jewelRadius)*GeoTrf::TranslateZ3D(m_zEndJewel)));
       supportLayer->add(m_endJewel->getVolume());
-      supportLayer->add(new GeoTransform(HepGeom::RotateZ3D(jewelAngle)*HepGeom::TranslateX3D(jewelRadius)*HepGeom::TranslateZ3D(-m_zEndJewel)));
+      supportLayer->add(new GeoTransform(GeoTrf::RotateZ3D(jewelAngle)*GeoTrf::TranslateX3D(jewelRadius)*GeoTrf::TranslateZ3D(-m_zEndJewel)));
       supportLayer->add(m_endJewel->getVolume());
     }
 
@@ -397,11 +391,11 @@ SCT_Layer::build(SCT_Identifier id) const
     double scorpionRadius = std::sqrt(m_supportCyl->innerRadius()*m_supportCyl->innerRadius() - 0.25 * m_scorpion->rPhiWidth()*m_scorpion->rPhiWidth()) - 0.5 * m_scorpion->radialWidth();
     //  std::cout << "scorpionRadius = " << scorpionRadius << std::endl;
     for ( int i=0; i<m_nRepeatScorpion; i++) {
-      double scorpionAngle = m_phiScorpion + i * 360.*CLHEP::degree/m_nRepeatScorpion;
+      double scorpionAngle = m_phiScorpion + i * 360.*GeoModelKernelUnits::degree/m_nRepeatScorpion;
       //    std::cout << "scorpionAngle = " << scorpionAngle << std::endl;
-      supportLayer->add(new GeoTransform(HepGeom::RotateZ3D(scorpionAngle)*HepGeom::TranslateX3D(scorpionRadius)*HepGeom::TranslateZ3D(m_zScorpion)));
+      supportLayer->add(new GeoTransform(GeoTrf::RotateZ3D(scorpionAngle)*GeoTrf::TranslateX3D(scorpionRadius)*GeoTrf::TranslateZ3D(m_zScorpion)));
       supportLayer->add(m_scorpion->getVolume());
-      supportLayer->add(new GeoTransform(HepGeom::RotateZ3D(scorpionAngle)*HepGeom::TranslateX3D(scorpionRadius)*HepGeom::TranslateZ3D(-m_zScorpion)));
+      supportLayer->add(new GeoTransform(GeoTrf::RotateZ3D(scorpionAngle)*GeoTrf::TranslateX3D(scorpionRadius)*GeoTrf::TranslateZ3D(-m_zScorpion)));
       supportLayer->add(m_scorpion->getVolume());
     }
   }
@@ -426,26 +420,26 @@ SCT_Layer::activeEnvelopeExtent(double & rmin, double & rmax)
   // These are the coordinates of the corners of the ski envelope.
   // x is in the radial direction and x is in the phi direction.
 
-  //CLHEP::Hep3Vector c0();
-  CLHEP::Hep3Vector c1(-(m_ski->env1RefPointVector()->x()) - 0.5*(m_ski->env1Thickness()),
+  //GeoTrf::Vector3D c0();
+  GeoTrf::Vector3D c1(-(m_ski->env1RefPointVector()->x()) - 0.5*(m_ski->env1Thickness()),
                        -(m_ski->env1RefPointVector()->y()) + 0.5*(m_ski->env1Width()),
                        0.0);
-  CLHEP::Hep3Vector c2(-(m_ski->env2RefPointVector()->x()) - 0.5*(m_ski->env2Thickness()),
+  GeoTrf::Vector3D c2(-(m_ski->env2RefPointVector()->x()) - 0.5*(m_ski->env2Thickness()),
                        -(m_ski->env2RefPointVector()->y()) + 0.5*(m_ski->env2Width()),
                        0.0);
-  //CLHEP::Hep3Vector c3();
-  CLHEP::Hep3Vector c4(-(m_ski->env1RefPointVector()->x()) + 0.5*(m_ski->env1Thickness()),
+  //GeoTrf::Vector3D c3();
+  GeoTrf::Vector3D c4(-(m_ski->env1RefPointVector()->x()) + 0.5*(m_ski->env1Thickness()),
                        -(m_ski->env1RefPointVector()->y()) - 0.5*(m_ski->env1Width()),
   0.0);
 
   //c0.rotateZ(m_tilt);
-  c1.rotateZ(m_tilt);
-  c2.rotateZ(m_tilt);
+  c1 = GeoTrf::RotateZ3D(m_tilt)*c1;
+  c2 = GeoTrf::RotateZ3D(m_tilt)*c2;
   //c3.rotateZ(m_tilt);
-  c4.rotateZ(m_tilt);
+  c4 = GeoTrf::RotateZ3D(m_tilt)*c4;
 
-  CLHEP::Hep3Vector vxmax = c4;
-  CLHEP::Hep3Vector vxmin;
+  GeoTrf::Vector3D vxmax = c4;
+  GeoTrf::Vector3D vxmin;
   if (c1.x() < c2.x()) {
     vxmin = c1;
   }
@@ -471,7 +465,7 @@ SCT_Layer::calcSkiPhiOffset()
 
   // First calculated for abs(m_tilt). 
 
-  double divisionAngle  = 360 * CLHEP::degree / m_skisPerLayer;
+  double divisionAngle  = 360 * GeoModelKernelUnits::degree / m_skisPerLayer;
 
   // double activeHalfWidth =     0.5 * m_skiAux->ski()->module()->activeWidth();
   // double moduleHalfThickness = 0.5 * m_skiAux->ski()->module()->thickness();
@@ -501,7 +495,7 @@ SCT_Layer::calcSkiPhiOffset()
   //// std::cout << "  Active width = " << m_skiAux->ski()->module()->activeWidth() << std::endl;
   //std::cout << "  Module width = " << m_module->width() << std::endl;
   //std::cout << "  Active width = " << m_module->activeWidth() << std::endl;
-  //std::cout << "  Division angle = " << divisionAngle/CLHEP::degree << " CLHEP::deg" << std::endl;
-  //std::cout << "  Ski phi offset = " << skiPhiOffset/CLHEP::degree  << " CLHEP::deg" << std::endl;
+  //std::cout << "  Division angle = " << divisionAngle/GeoModelKernelUnits::degree << " GeoModelKernelUnits::deg" << std::endl;
+  //std::cout << "  Ski phi offset = " << skiPhiOffset/GeoModelKernelUnits::degree  << " GeoModelKernelUnits::deg" << std::endl;
   return skiPhiOffset;
 }

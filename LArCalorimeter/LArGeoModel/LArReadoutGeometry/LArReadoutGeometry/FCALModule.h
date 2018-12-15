@@ -2,20 +2,24 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef FCALModule_h
-#define FCALModule_h 1
+#ifndef LARREADOUTGEOMETRY_FCALMODULE_H
+#define LARREADOUTGEOMETRY_FCALMODULE_H
 #include <vector>
 #include "Identifier/Identifier.h"
 #include "LArReadoutGeometry/FCALTile.h"
 #include "GeoModelKernel/GeoVDetectorElement.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+
 class FCALDetectorManager;
 
 /**
+ *  @class FCALModule
+ *
  *      @brief Description of an FCAL Module
- */
-
-/**	This class combines a description of the cell
+ *
+ *	This class combines a description of the cell
  *	granularity with a physical volume to create a
  *	description of an FCAL module positioned within ATLAS.
  *	It provides access to the FCAL Tiles.
@@ -38,7 +42,10 @@ class FCALModule : public GeoVDetectorElement
   /**
    * @brief Constructor
    */
-  FCALModule (const GeoVFullPhysVol *physVol, Module module, Endcap endcap, double projectivityDisplacement = 4*CLHEP::cm);
+  FCALModule (const GeoVFullPhysVol *physVol
+	      , Module module
+	      , Endcap endcap
+	      , double projectivityDisplacement = 4*GeoModelKernelUnits::cm);
     
   /**
    * @brief Desctructor
@@ -93,12 +100,12 @@ class FCALModule : public GeoVDetectorElement
   /**
    * @brief Returns the absolute transform of this element.
    */
-  const HepGeom::Transform3D &  getAbsoluteTransform () const;
+  const GeoTrf::Transform3D &  getAbsoluteTransform () const;
       
   /**
    * @brief Returns the absolute transform of this element.
    */
-  const HepGeom::Transform3D &  getDefAbsoluteTransform () const;
+  const GeoTrf::Transform3D &  getDefAbsoluteTransform () const;
 
   /**
    * @brief Returns the absolute transform of this element.

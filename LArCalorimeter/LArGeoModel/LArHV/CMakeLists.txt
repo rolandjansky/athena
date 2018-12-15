@@ -10,7 +10,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Control/IOVSvc
                           Control/StoreGate
-                          DetectorDescription/GeoModel/GeoModelKernel
                           PRIVATE
                           Database/AthenaPOOL/AthenaPoolUtilities
                           DetectorDescription/Identifier
@@ -18,10 +17,14 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArCabling
                           LArCalorimeter/LArIdentifier )
 
+# External dependencies:
+find_package( GeoModel )
+
 # Component(s) in the package:
 atlas_add_library( LArHV
                    src/*.cpp
                    PUBLIC_HEADERS LArHV
-                   LINK_LIBRARIES AthenaKernel GeoModelKernel IOVSvcLib StoreGateLib SGtests LArCablingLib
+		   INCLUDE_DIRS ${GEOMODEL_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${GEOMODEL_LIBRARIES} AthenaKernel IOVSvcLib StoreGateLib SGtests LArCablingLib
                    PRIVATE_LINK_LIBRARIES AthenaPoolUtilities Identifier GaudiKernel LArIdentifier )
 

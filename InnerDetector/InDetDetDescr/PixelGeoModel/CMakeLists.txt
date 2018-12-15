@@ -12,9 +12,9 @@ atlas_depends_on_subdirs(
    Control/AthenaKernel
    Database/RDBAccessSvc
    DetectorDescription/GeoModel/GeoModelInterfaces
-   DetectorDescription/GeoModel/GeoModelKernel
    DetectorDescription/GeoModel/GeoModelUtilities
    DetectorDescription/Identifier
+   DetectorDescription/GeoPrimitives
    GaudiKernel
    InnerDetector/InDetDetDescr/InDetGeoModelUtils
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
@@ -27,14 +27,15 @@ atlas_depends_on_subdirs(
    InnerDetector/InDetDetDescr/InDetIdentifier )
 
 # External dependencies:
-find_package( CLHEP )
+find_package( Eigen )
+find_package( GeoModel )
 
 # Component(s) in the package:
 atlas_add_library( PixelGeoModelLib
    PixelGeoModel/*.h src/*.cxx
    PUBLIC_HEADERS PixelGeoModel
-   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-   LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel GeoModelKernel
+   INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
+   LINK_LIBRARIES ${EIGEN_LIBRARIES} ${GEOMODEL_LIBRARIES} AthenaBaseComps AthenaKernel 
    GeoModelUtilities Identifier GaudiKernel InDetGeoModelUtils
    InDetReadoutGeometry
    PRIVATE_LINK_LIBRARIES SGTools StoreGateLib DetDescrConditions

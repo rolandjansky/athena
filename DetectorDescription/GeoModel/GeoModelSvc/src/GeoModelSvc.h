@@ -5,7 +5,7 @@
 #ifndef GEOMODELSVC_GEOMODELSVC_H
 #define GEOMODELSVC_GEOMODELSVC_H
 
-#include "GeoModelKernel/Query.h"
+#include "GeoModelKernel/GeoPVConstLink.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelInterfaces/IGeoModelTool.h"
@@ -16,6 +16,7 @@
 #include "AthenaBaseComps/AthService.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "EventInfoMgt/ITagInfoMgr.h"
+#include <fstream>
 
 class ISvcLocator;
 

@@ -17,6 +17,7 @@
 #include "GaudiKernel/MsgStream.h"
 //#include "StoreGate/StoreGateSvc.h"
 #include "CLHEP/Vector/ThreeVector.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 #include "TrkSpacePoint/SpacePointCLASS_DEF.h" 
 #include "TRT_SeededSpacePointFinderTool/SimpleTRT_SeededSpacePointFinder_ATL.h"
 #include "InDetIdentifier/SCT_ID.h"

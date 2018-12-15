@@ -7,6 +7,7 @@
  * Author: Carlos.Solans@cern.ch
  */
 
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "TileClusterFilterAlg.h"
 
 TileClusterFilterAlg::TileClusterFilterAlg( const std::string& name, ISvcLocator* pSvcLocator ): 

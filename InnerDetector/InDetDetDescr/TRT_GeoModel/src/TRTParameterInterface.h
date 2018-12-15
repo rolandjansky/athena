@@ -5,7 +5,8 @@
 #ifndef TRT_GEOMODEL_TRTPARAMETERINTERFACE_H
 #define TRT_GEOMODEL_TRTPARAMETERINTERFACE_H
 
-#include "CLHEP/Geometry/Transform3D.h"
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 #include <string>
 
 namespace InDetDD {
@@ -30,7 +31,7 @@ public:
   ///////////////////////////////////////////////////////////
   //                 Top Level Placements                  //
   ///////////////////////////////////////////////////////////
-  virtual const HepGeom::Transform3D & partTransform(const std::string & partName) const = 0;
+  virtual const GeoTrf::Transform3D & partTransform(const std::string & partName) const = 0;
   virtual bool partPresent(const std::string & partName) const = 0;
 
   ///////////////////////////////////////////////////////////

@@ -11,7 +11,7 @@
 //
 // Contains: nothing
 //
-#include "PixelGeoModel/GeoPixelSiCrystal.h"
+#include "GeoPixelSiCrystal.h"
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
@@ -109,17 +109,17 @@ GeoPixelSiCrystal::GeoPixelSiCrystal(bool isBLayer, bool isModule3D)
 
   if ( (m_gmt_mgr->DesignRPActiveArea(m_isModule3D) > width) ||
        (m_gmt_mgr->DesignZActiveArea(m_isModule3D) >  length) || 
-       (width - m_gmt_mgr->DesignRPActiveArea(m_isModule3D) > 4 * CLHEP::mm) || 
-       (length - m_gmt_mgr->DesignZActiveArea(m_isModule3D) > 4 * CLHEP::mm) ) { 
+       (width - m_gmt_mgr->DesignRPActiveArea(m_isModule3D) > 4 * GeoModelKernelUnits::mm) || 
+       (length - m_gmt_mgr->DesignZActiveArea(m_isModule3D) > 4 * GeoModelKernelUnits::mm) ) { 
     m_gmt_mgr->msg(MSG::WARNING) << "GeoPixelSiCrystal: Active area not consistent with sensor size. Sensor: " 
-			       << width/CLHEP::mm << " x " << length/CLHEP::mm << ", Active: " 
-			       << m_gmt_mgr->DesignRPActiveArea(m_isModule3D)/CLHEP::mm << " x " << m_gmt_mgr->DesignZActiveArea(m_isModule3D)/CLHEP::mm 
+			       << width/GeoModelKernelUnits::mm << " x " << length/GeoModelKernelUnits::mm << ", Active: " 
+			       << m_gmt_mgr->DesignRPActiveArea(m_isModule3D)/GeoModelKernelUnits::mm << " x " << m_gmt_mgr->DesignZActiveArea(m_isModule3D)/GeoModelKernelUnits::mm 
 			       << endmsg;
   } else {
     if (m_gmt_mgr->msgLvl(MSG::DEBUG)) m_gmt_mgr->msg(MSG::DEBUG) 
       << "GeoPixelSiCrystal: Sensor: "  
-      << width/CLHEP::mm << " x " << length/CLHEP::mm << ", Active: " 
-      << m_gmt_mgr->DesignRPActiveArea(m_isModule3D)/CLHEP::mm << " x " << m_gmt_mgr->DesignZActiveArea(m_isModule3D)/CLHEP::mm 
+      << width/GeoModelKernelUnits::mm << " x " << length/GeoModelKernelUnits::mm << ", Active: " 
+      << m_gmt_mgr->DesignRPActiveArea(m_isModule3D)/GeoModelKernelUnits::mm << " x " << m_gmt_mgr->DesignZActiveArea(m_isModule3D)/GeoModelKernelUnits::mm 
       << endmsg;		       
   }
 

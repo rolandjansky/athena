@@ -8,7 +8,6 @@ atlas_subdir( LArGeoAlgsNV )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/IOVSvc
-                          DetectorDescription/GeoModel/GeoModelKernel
                           DetectorDescription/GeoModel/GeoModelUtilities
                           LArCalorimeter/LArGeoModel/LArReadoutGeometry
                           PRIVATE
@@ -18,6 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/RDBAccessSvc
                           DetectorDescription/DetDescrCond/DetDescrConditions
                           DetectorDescription/GeoModel/GeoModelInterfaces
+			  DetectorDescription/GeoPrimitives
                           GaudiKernel
                           LArCalorimeter/LArGeoModel/LArGeoBarrel
                           LArCalorimeter/LArGeoModel/LArGeoCode
@@ -30,13 +30,15 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
+find_package( Eigen )
+find_package( GeoModel )
 
 # Component(s) in the package:
 atlas_add_component( LArGeoAlgsNV
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} IOVSvcLib GeoModelKernel GeoModelUtilities LArReadoutGeometry SGTools StoreGateLib SGtests DetDescrConditions GaudiKernel LArGeoBarrel LArGeoCode LArGeoEndcap LArGeoRAL LArGeoTBBarrel LArHV )
+                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${GEOMODEL_LIBRARIES} ${EIGEN_LIBRARIES} IOVSvcLib GeoModelUtilities LArReadoutGeometry SGTools StoreGateLib SGtests DetDescrConditions GaudiKernel LArGeoBarrel LArGeoCode LArGeoEndcap LArGeoRAL LArGeoTBBarrel LArHV )
 
 # Install files from the package:
 atlas_install_headers( LArGeoAlgsNV )

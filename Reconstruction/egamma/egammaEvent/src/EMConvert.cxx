@@ -33,7 +33,7 @@ UPDATED:  Jul 30, 2010 (JM) Add ambiguity result
 #include "AthenaKernel/BaseInfo.h"
 
 
-using CLHEP::Hep3Vector;
+//using CLHEP::Hep3Vector;
 
 
 //  END OF HEADER FILES INCLUDE

@@ -10,7 +10,7 @@
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
 InDetServMatGeometryManager::InDetServMatGeometryManager(const InDetDD::AthenaComps * athenaComps)   
   : m_athenaComps(athenaComps),
@@ -158,14 +158,14 @@ int InDetServMatGeometryManager::pixelNumLayers() const
 // layer radius 
 double InDetServMatGeometryManager::pixelLayerRadius(int layer) const
 {
-  return db()->getDouble(m_PixelLayer,"RLAYER",layer) * CLHEP::mm;
+  return db()->getDouble(m_PixelLayer,"RLAYER",layer) * GeoModelKernelUnits::mm;
 }
 
 // layer length
 double InDetServMatGeometryManager::pixelLayerLength(int layer) const
 {
   int staveIndex = db()->getInt(m_PixelLayer,"STAVEINDEX",layer);
-  return db()->getDouble(m_PixelStave,"ENVLENGTH",staveIndex) * CLHEP::mm;
+  return db()->getDouble(m_PixelStave,"ENVLENGTH",staveIndex) * GeoModelKernelUnits::mm;
 }
 
 // Number of staves/sectors per barrel layer 
@@ -264,7 +264,7 @@ int InDetServMatGeometryManager::pixelNumDisks() const
 // disk Z position
 double InDetServMatGeometryManager::pixelDiskZ(int disk) const 
 {
-  return db()->getDouble(m_PixelDisk,"ZDISK",disk) * CLHEP::mm;
+  return db()->getDouble(m_PixelDisk,"ZDISK",disk) * GeoModelKernelUnits::mm;
 }
 
 // disk min radius
@@ -272,10 +272,10 @@ double InDetServMatGeometryManager::pixelDiskRMin(int disk) const
 {
   std::string route = pixelDiskServiceRoute(disk);   
   if(route=="StdRoute")
-    return db()->getDouble(m_PixelDisk,"RMIN",disk) * CLHEP::mm - 11*CLHEP::mm;
+    return db()->getDouble(m_PixelDisk,"RMIN",disk) * GeoModelKernelUnits::mm - 11*GeoModelKernelUnits::mm;
 
   // support structures - SUP1RMIN is always closest to centre
-  return db()->getDouble(m_PixelDisk,"SUP1RMIN",disk) * CLHEP::mm;
+  return db()->getDouble(m_PixelDisk,"SUP1RMIN",disk) * GeoModelKernelUnits::mm;
 
 }
 
@@ -284,10 +284,10 @@ double InDetServMatGeometryManager::pixelDiskRMax(int disk) const
 {
   std::string route = pixelDiskServiceRoute(disk);   
   if(route=="StdRoute")
-    return db()->getDouble(m_PixelDisk,"RMAX",disk) * CLHEP::mm + 11*CLHEP::mm;
+    return db()->getDouble(m_PixelDisk,"RMAX",disk) * GeoModelKernelUnits::mm + 11*GeoModelKernelUnits::mm;
 
   // support structures - SUP3RMAX is always furthest from centre
-  return db()->getDouble(m_PixelDisk,"SUP3RMAX",disk) * CLHEP::mm;
+  return db()->getDouble(m_PixelDisk,"SUP3RMAX",disk) * GeoModelKernelUnits::mm;
 
 }
 
@@ -297,7 +297,7 @@ double InDetServMatGeometryManager::pixelDiskEOSZOffset(int disk) const
   if (!db()->testField(m_PixelSvcRoute, "EOSZOFFSET")) 
     return 0.0;
   else
-    return db()->getDouble(m_PixelSvcRoute,"EOSZOFFSET",disk) * CLHEP::mm;
+    return db()->getDouble(m_PixelSvcRoute,"EOSZOFFSET",disk) * GeoModelKernelUnits::mm;
 }
 
 // return name of support tube where 
@@ -310,7 +310,7 @@ std::string InDetServMatGeometryManager::pixelDiskServiceRoute(int disk) const
 
 double InDetServMatGeometryManager::pixelEnvelopeRMax() const
 {
-  return db()->getDouble(m_PixelEnvelope,"RMAX") * CLHEP::mm;
+  return db()->getDouble(m_PixelEnvelope,"RMAX") * GeoModelKernelUnits::mm;
 }
 
 int InDetServMatGeometryManager::pixelBarrelModuleType( int layer) const 
@@ -351,13 +351,13 @@ int InDetServMatGeometryManager::sctNumLayers() const
 // layer radius 
 double InDetServMatGeometryManager::sctLayerRadius(int layer) const
 {
-  return db()->getDouble(m_SctBrlLayer,"RADIUS",layer) * CLHEP::mm;
+  return db()->getDouble(m_SctBrlLayer,"RADIUS",layer) * GeoModelKernelUnits::mm;
 }
 
 // layer length
 double InDetServMatGeometryManager::sctLayerLength(int layer) const
 {
-  return db()->getDouble(m_SctBrlLayer,"CYLLENGTH",layer) * CLHEP::mm;
+  return db()->getDouble(m_SctBrlLayer,"CYLLENGTH",layer) * GeoModelKernelUnits::mm;
 }
 
 // layer type. Long(0) or Short (1) strips. NEEDS CHECKING
@@ -395,17 +395,17 @@ int InDetServMatGeometryManager::sctNumDisks() const
 // disk Z position
 double InDetServMatGeometryManager::sctDiskZ(int disk) const 
 {
-  return db()->getDouble(m_SctFwdWheel,"ZPOSITION",disk) * CLHEP::mm;
+  return db()->getDouble(m_SctFwdWheel,"ZPOSITION",disk) * GeoModelKernelUnits::mm;
 }
 
 // disk Z position
 double InDetServMatGeometryManager::sctDiskRMax(int disk) const 
 {
-  return db()->getDouble(m_SctFwdDiscSupport,"OUTERRADIUS",disk) * CLHEP::mm;
+  return db()->getDouble(m_SctFwdDiscSupport,"OUTERRADIUS",disk) * GeoModelKernelUnits::mm;
 }
 
 double InDetServMatGeometryManager::sctInnerSupport() const 
 {
-  return db()->getDouble(m_SctBrlServPerLayer,"SUPPORTCYLINNERRAD",0) * CLHEP::mm;
+  return db()->getDouble(m_SctBrlServPerLayer,"SUPPORTCYLINNERRAD",0) * GeoModelKernelUnits::mm;
 }
 

@@ -11,11 +11,9 @@
 // 2-July-2003 Mikhail Leltchouk: local coordinates for determination
 // of etaBin, phiBin at any Endcap Presamplerposition. 
 
+#include "GeoModelKernel/Units.h"
 #include "LArGeoEndcap/EndcapPresamplerGeometryHelper.h"
 #include "LArGeoCode/VDetectorParameters.h"
-
-// For units:
-#include "CLHEP/Units/PhysicalConstants.h"
 
 #include <cmath>
 #include <string>
@@ -50,22 +48,22 @@ double LArGeo::EndcapPresamplerGeometryHelper::GetValue(const kValue a_valueType
   switch (a_valueType)
     {
     case rMinEndcapPresampler:
-      //return 1231.74 * CLHEP::mm;
+      //return 1231.74 * GeoModelKernelUnits::mm;
       return  m_parameters->GetValue("LArEMECPreMinRadius");
       break;
     case rMaxEndcapPresampler:
-      //return 1701.98 * CLHEP::mm;
+      //return 1701.98 * GeoModelKernelUnits::mm;
       return  m_parameters->GetValue("LArEMECPreMaxRadius");
       break;
       // At nominal (zShift=0) endcap position absolute z-coordinates: 
       // of the faces of the EndcapPresampler
     case zEndcapPresamplerFrontFace:
-      //return 3622. * CLHEP::mm;
+      //return 3622. * GeoModelKernelUnits::mm;
       return (m_parameters->GetValue("LArEMECPreNomPos")
 	      - GetValue(EndcapPresamplerHalfThickness));
       break;
     case zEndcapPresamplerBackFace:
-      //return 3626. * CLHEP::mm;
+      //return 3626. * GeoModelKernelUnits::mm;
       return (m_parameters->GetValue("LArEMECPreNomPos")
 	      + GetValue(EndcapPresamplerHalfThickness)); 
       break;
@@ -75,8 +73,8 @@ double LArGeo::EndcapPresamplerGeometryHelper::GetValue(const kValue a_valueType
       break;
     case EndcapPresamplerZpositionInMother:
       // between cold wall center and presampler center which is at
-      // 3624 CLHEP::mm nominal (zShift=0) absolute position
-      return 30.5 * CLHEP::mm;
+      // 3624 GeoModelKernelUnits::mm nominal (zShift=0) absolute position
+      return 30.5 * GeoModelKernelUnits::mm;
       break;
     default:
       std::cerr << "EndcapPresamplerGeometryHelper::GetValue -- type '"

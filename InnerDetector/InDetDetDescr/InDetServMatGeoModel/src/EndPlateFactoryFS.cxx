@@ -5,6 +5,8 @@
 #include "InDetServMatGeoModel/EndPlateFactoryFS.h"
 
 // GeoModel includes
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 #include "GeoModelKernel/GeoPhysVol.h"  
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoTube.h"  
@@ -62,29 +64,29 @@ void EndPlateFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
 //----------------------------------------------------------------------------------
 //    std::string matName =  mat[(int) (*pbfi)[ii]->getFloat("MAT")];
 //    const GeoMaterial* cylMat = materialManager->getMaterial(matName);
-//    double rmin = (*pbfi)[ii]->getFloat("RIN")*CLHEP::cm;
+//    double rmin = (*pbfi)[ii]->getFloat("RIN")*GeoModelKernelUnits::cm;
 //----------------------------------------------------------------------------------
-    double safety = 0.01*CLHEP::mm;
-    double maxRofEP = 1075.0*CLHEP::mm - safety; // Interfere with TRT PatchPanel1
-    double RibConnection = 550.0*CLHEP::mm;
+    double safety = 0.01*GeoModelKernelUnits::mm;
+    double maxRofEP = 1075.0*GeoModelKernelUnits::mm - safety; // Interfere with TRT PatchPanel1
+    double RibConnection = 550.0*GeoModelKernelUnits::mm;
 
-    maxRofEP      = (*shell)[0]->getDouble("EPMAXR")*CLHEP::mm - safety; 
-    RibConnection = (*ribs)[0]->getDouble("RIBCONNECTION")*CLHEP::mm; 
+    maxRofEP      = (*shell)[0]->getDouble("EPMAXR")*GeoModelKernelUnits::mm - safety; 
+    RibConnection = (*ribs)[0]->getDouble("RIBCONNECTION")*GeoModelKernelUnits::mm; 
 //
 //     Internal shell. Default (initial) values
 //
-    double rminInt = 425.*CLHEP::mm;
-    double rmaxInt = 1040.*CLHEP::mm;
-    double thickShell = 3.*CLHEP::mm;
-    double thick2     = 10.*CLHEP::mm;
-    double zposEP     = 3370.*CLHEP::mm;
-    double zleng      = 42.*CLHEP::mm;
-    rminInt    = (*shell)[0]->getDouble("RMININT")*CLHEP::mm; 
-    rmaxInt    = (*shell)[0]->getDouble("RMAXINT")*CLHEP::mm;
-    thickShell = (*shell)[0]->getDouble("THICKSHELL")*CLHEP::mm;
-    thick2     = (*shell)[0]->getDouble("THICKADD")*CLHEP::mm;
-    zposEP     = (*shell)[0]->getDouble("ZSTART")*CLHEP::mm;
-    zleng      = (*shell)[0]->getDouble("ZSHIFT")*CLHEP::mm;
+    double rminInt = 425.*GeoModelKernelUnits::mm;
+    double rmaxInt = 1040.*GeoModelKernelUnits::mm;
+    double thickShell = 3.*GeoModelKernelUnits::mm;
+    double thick2     = 10.*GeoModelKernelUnits::mm;
+    double zposEP     = 3370.*GeoModelKernelUnits::mm;
+    double zleng      = 42.*GeoModelKernelUnits::mm;
+    rminInt    = (*shell)[0]->getDouble("RMININT")*GeoModelKernelUnits::mm; 
+    rmaxInt    = (*shell)[0]->getDouble("RMAXINT")*GeoModelKernelUnits::mm;
+    thickShell = (*shell)[0]->getDouble("THICKSHELL")*GeoModelKernelUnits::mm;
+    thick2     = (*shell)[0]->getDouble("THICKADD")*GeoModelKernelUnits::mm;
+    zposEP     = (*shell)[0]->getDouble("ZSTART")*GeoModelKernelUnits::mm;
+    zleng      = (*shell)[0]->getDouble("ZSHIFT")*GeoModelKernelUnits::mm;
  
     GeoTube* shellInt1 = new GeoTube(rminInt,rminInt+thick2,zleng*0.5);
     GeoTube* shellInt2 = new GeoTube(rminInt,rmaxInt,thickShell*0.5);
@@ -96,15 +98,15 @@ void EndPlateFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
     const GeoLogVol* shellLogInt2 = new GeoLogVol("EPShellInt",shellInt2,shellMat);
     GeoVPhysVol* shellPhysInt2 = new GeoPhysVol(shellLogInt2);
 
-    CLHEP::Hep3Vector servpos11(0.,0., zposEP+zleng*0.5);
-    CLHEP::Hep3Vector servpos12(0.,0., zposEP+zleng+thickShell*0.5);
-    CLHEP::Hep3Vector servpos21(0.,0., -zposEP-zleng*0.5);
-    CLHEP::Hep3Vector servpos22(0.,0., -zposEP-zleng-thickShell*0.5);
+    GeoTrf::Translate3D servpos11(0.,0., zposEP+zleng*0.5);
+    GeoTrf::Translate3D servpos12(0.,0., zposEP+zleng+thickShell*0.5);
+    GeoTrf::Vector3D servpos21(0.,0., -zposEP-zleng*0.5);
+    GeoTrf::Vector3D servpos22(0.,0., -zposEP-zleng-thickShell*0.5);
 
-    GeoTransform *xform11 = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),servpos11));
-    GeoTransform *xform12 = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),servpos12));
-    GeoTransform *xform21 = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(0.,M_PI,0.),servpos21));
-    GeoTransform *xform22 = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(0.,M_PI,0.),servpos22));
+    GeoTransform *xform11 = new GeoTransform(servpos11);
+    GeoTransform *xform12 = new GeoTransform(servpos12);
+    GeoTransform *xform21 = new GeoTransform(GeoTrf::GeoTransformRT(GeoTrf::GeoRotation(0.,M_PI,0.),servpos21));
+    GeoTransform *xform22 = new GeoTransform(GeoTrf::GeoTransformRT(GeoTrf::GeoRotation(0.,M_PI,0.),servpos22));
     motherP->add(xform11);
     motherP->add(shellPhysInt1);
     motherP->add(xform12);
@@ -118,22 +120,22 @@ void EndPlateFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
 //
 //     External shell (default/initial values)
 
-    double zgap     = 50.*CLHEP::mm;
-    double rminExt  = 250.*CLHEP::mm;
+    double zgap     = 50.*GeoModelKernelUnits::mm;
+    double rminExt  = 250.*GeoModelKernelUnits::mm;
     double rmaxExt  = maxRofEP;
     
-    zgap    = (*shell)[0]->getDouble("ZGAP")*CLHEP::mm;
-    rminExt = (*shell)[0]->getDouble("RMINEXT")*CLHEP::mm;
+    zgap    = (*shell)[0]->getDouble("ZGAP")*GeoModelKernelUnits::mm;
+    rminExt = (*shell)[0]->getDouble("RMINEXT")*GeoModelKernelUnits::mm;
 
 
     const GeoTube*   shellExt    = new GeoTube(rminExt,rmaxExt,thickShell/2.);
     const GeoLogVol* shellLogExt = new GeoLogVol("EPShellExt",shellExt,shellMat);
     GeoVPhysVol* shellPhysExt = new GeoPhysVol(shellLogExt);
 
-    CLHEP::Hep3Vector servpos3(0.,0., zposEP+zleng+thickShell+zgap+thickShell/2.);
-    CLHEP::Hep3Vector servpos4(0.,0.,-zposEP-zleng-thickShell-zgap-thickShell/2.);
-    GeoTransform *xform3 = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),          servpos3));
-    GeoTransform *xform4 = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(0.,M_PI,0.),servpos4));
+    GeoTrf::Translate3D servpos3(0.,0., zposEP+zleng+thickShell+zgap+thickShell/2.);
+    GeoTrf::Vector3D servpos4(0.,0.,-zposEP-zleng-thickShell-zgap-thickShell/2.);
+    GeoTransform *xform3 = new GeoTransform(servpos3);
+    GeoTransform *xform4 = new GeoTransform(GeoTrf::GeoTransformRT(GeoTrf::GeoRotation(0.,M_PI,0.),servpos4));
 
     motherP->add(xform3);
     motherP->add(shellPhysExt);
@@ -144,19 +146,19 @@ void EndPlateFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
 //
 //     Insert - default (initial) values
 
-    double zthick  = 16.0*CLHEP::mm;
-    double zinsert = 3018.*CLHEP::mm-zthick;
-    double rminins = 252.*CLHEP::mm;
-    double rmaxins = 435.*CLHEP::mm;
-    double rthick  = 5.*CLHEP::mm;
-    double zlengi   = 410.*CLHEP::mm;
+    double zthick  = 16.0*GeoModelKernelUnits::mm;
+    double zinsert = 3018.*GeoModelKernelUnits::mm-zthick;
+    double rminins = 252.*GeoModelKernelUnits::mm;
+    double rmaxins = 435.*GeoModelKernelUnits::mm;
+    double rthick  = 5.*GeoModelKernelUnits::mm;
+    double zlengi   = 410.*GeoModelKernelUnits::mm;
 
-    zthick  = (*insert)[0]->getDouble("ZTHICK")*CLHEP::mm;
-    zinsert = (*insert)[0]->getDouble("ZINSERT")*CLHEP::mm;
-    rminins = (*insert)[0]->getDouble("RMININS")*CLHEP::mm;
-    rmaxins = (*insert)[0]->getDouble("RMAXINS")*CLHEP::mm;
-    rthick  = (*insert)[0]->getDouble("RTHICK")*CLHEP::mm;
-    zlengi  = (*insert)[0]->getDouble("ZLENGINS")*CLHEP::mm;
+    zthick  = (*insert)[0]->getDouble("ZTHICK")*GeoModelKernelUnits::mm;
+    zinsert = (*insert)[0]->getDouble("ZINSERT")*GeoModelKernelUnits::mm;
+    rminins = (*insert)[0]->getDouble("RMININS")*GeoModelKernelUnits::mm;
+    rmaxins = (*insert)[0]->getDouble("RMAXINS")*GeoModelKernelUnits::mm;
+    rthick  = (*insert)[0]->getDouble("RTHICK")*GeoModelKernelUnits::mm;
+    zlengi  = (*insert)[0]->getDouble("ZLENGINS")*GeoModelKernelUnits::mm;
 
     GeoTube* Insert1 = new GeoTube(rminins,rmaxins+rthick,zthick*0.5);
     GeoTube* Insert2 = new GeoTube(rmaxins,rmaxins+rthick,(zlengi-zthick)*0.5);
@@ -168,14 +170,14 @@ void EndPlateFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
     const GeoLogVol* InsertLog2 = new GeoLogVol("EPInsert",Insert2,insertMat);
     GeoVPhysVol* InsertPhys2 = new GeoPhysVol(InsertLog2);
 
-    CLHEP::Hep3Vector servpos51(0.,0., zinsert+zthick*0.5);
-    CLHEP::Hep3Vector servpos52(0.,0., zinsert+(zthick+zlengi)*0.5);
-    CLHEP::Hep3Vector servpos61(0.,0., -zinsert-zthick*0.5);
-    CLHEP::Hep3Vector servpos62(0.,0., -zinsert-(zthick+zlengi)*0.5);
-    GeoTransform *xform51 = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),servpos51));
-    GeoTransform *xform52 = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),servpos52));
-    GeoTransform *xform61 = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(0.,M_PI,0.),servpos61));
-    GeoTransform *xform62 = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(0.,M_PI,0.),servpos62));
+    GeoTrf::Translate3D servpos51(0.,0., zinsert+zthick*0.5);
+    GeoTrf::Translate3D servpos52(0.,0., zinsert+(zthick+zlengi)*0.5);
+    GeoTrf::Vector3D servpos61(0.,0., -zinsert-zthick*0.5);
+    GeoTrf::Vector3D servpos62(0.,0., -zinsert-(zthick+zlengi)*0.5);
+    GeoTransform *xform51 = new GeoTransform(servpos51);
+    GeoTransform *xform52 = new GeoTransform(servpos52);
+    GeoTransform *xform61 = new GeoTransform(GeoTrf::GeoTransformRT(GeoTrf::GeoRotation(0.,M_PI,0.),servpos61));
+    GeoTransform *xform62 = new GeoTransform(GeoTrf::GeoTransformRT(GeoTrf::GeoRotation(0.,M_PI,0.),servpos62));
 
     motherP->add(xform51);
     motherP->add(InsertPhys1);
@@ -192,15 +194,15 @@ void EndPlateFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
 //     Short ribs - default (initial) values
 //     Initial position is along X axis then move and rotate
 //
-    double ribY   = 12.0*CLHEP::mm;
+    double ribY   = 12.0*GeoModelKernelUnits::mm;
     double ribZ   = zgap - safety;
-    double ribX   = 380.0*CLHEP::mm;
-    double posX   = 550.0*CLHEP::mm+ribX/2.;
+    double ribX   = 380.0*GeoModelKernelUnits::mm;
+    double posX   = 550.0*GeoModelKernelUnits::mm+ribX/2.;
 
-    ribY   = (*ribs)[0]->getDouble("SHORTWID")*CLHEP::mm;
+    ribY   = (*ribs)[0]->getDouble("SHORTWID")*GeoModelKernelUnits::mm;
     ribZ   = zgap - safety;
-    ribX   = (*ribs)[0]->getDouble("SHORTLENG")*CLHEP::mm;
-    posX   = (*ribs)[0]->getDouble("SHORTRSTART")*CLHEP::mm + ribX/2.;
+    ribX   = (*ribs)[0]->getDouble("SHORTLENG")*GeoModelKernelUnits::mm;
+    posX   = (*ribs)[0]->getDouble("SHORTRSTART")*GeoModelKernelUnits::mm + ribX/2.;
 
     const GeoBox* ribShort = new GeoBox(ribX/2., ribY/2., ribZ/2.);
 
@@ -217,12 +219,12 @@ void EndPlateFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
     for (int ip=1; ip<12; ip++){
       if( ip==3 || ip==6 || ip==9) continue;
       double angl= ip*M_PI/6.;
-      CLHEP::Hep3Vector ribpos_pos( posX*cos(angl), posX*sin(angl), zposEP+zleng+thickShell+zgap/2.);
-      CLHEP::Hep3Vector ribpos_neg( posX*cos(angl), posX*sin(angl),-zposEP-zleng-thickShell-zgap/2.);
-      xrib = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(-angl,0.,0.),ribpos_pos));
+      GeoTrf::Vector3D ribpos_pos( posX*cos(angl), posX*sin(angl), zposEP+zleng+thickShell+zgap/2.);
+      GeoTrf::Vector3D ribpos_neg( posX*cos(angl), posX*sin(angl),-zposEP-zleng-thickShell-zgap/2.);
+      xrib = new GeoTransform(GeoTrf::GeoTransformRT(GeoTrf::GeoRotation(-angl,0.,0.),ribpos_pos));
       motherP->add(xrib);
       motherP->add(ribShortPhys);
-      xrib = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(-angl,0.,0.),ribpos_neg));
+      xrib = new GeoTransform(GeoTrf::GeoTransformRT(GeoTrf::GeoRotation(-angl,0.,0.),ribpos_neg));
       motherM->add(xrib);
       motherM->add(ribShortPhys);
     }
@@ -230,22 +232,22 @@ void EndPlateFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
 //---------------------------------------------------------------------------------
 //     Long ribs (initial position is along X axis then move and rotate)
 //
-    double ribY1   = 20.0*CLHEP::mm;
+    double ribY1   = 20.0*GeoModelKernelUnits::mm;
     double ribZ1   = zgap - safety;
-    double ribX1   = RibConnection-250.*CLHEP::mm;
-    double posX1   = 250.*CLHEP::mm+ribX1/2.;
+    double ribX1   = RibConnection-250.*GeoModelKernelUnits::mm;
+    double posX1   = 250.*GeoModelKernelUnits::mm+ribX1/2.;
 
-    double ribY2   = 30.0*CLHEP::mm;
+    double ribY2   = 30.0*GeoModelKernelUnits::mm;
     double ribZ2   = zgap - safety;
     double ribX2   = maxRofEP - RibConnection;
     double posX2   = RibConnection+ribX2/2.;
 
-    ribY1   = (*ribs)[0]->getDouble("LONGWID1")*CLHEP::mm;
+    ribY1   = (*ribs)[0]->getDouble("LONGWID1")*GeoModelKernelUnits::mm;
     ribZ1   = zgap - safety;
-    ribX1   = RibConnection - (*ribs)[0]->getDouble("LONGLENG1")*CLHEP::mm;  // LONGLENG1 is a RMIN of ribs
-    posX1   = (*ribs)[0]->getDouble("LONGLENG1")*CLHEP::mm + ribX1/2.;       // It's determined by Pixel volume -> so 250.0!!!
+    ribX1   = RibConnection - (*ribs)[0]->getDouble("LONGLENG1")*GeoModelKernelUnits::mm;  // LONGLENG1 is a RMIN of ribs
+    posX1   = (*ribs)[0]->getDouble("LONGLENG1")*GeoModelKernelUnits::mm + ribX1/2.;       // It's determined by Pixel volume -> so 250.0!!!
  
-    ribY2   = (*ribs)[0]->getDouble("LONGWID2")*CLHEP::mm;
+    ribY2   = (*ribs)[0]->getDouble("LONGWID2")*GeoModelKernelUnits::mm;
     ribZ2   = zgap - safety;
     ribX2   = maxRofEP - RibConnection;
     posX2   = RibConnection+ribX2/2.;
@@ -264,21 +266,21 @@ void EndPlateFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
     for (int ip=0; ip<4; ip++){
       double angl= ip*M_PI/2.;
 // 1st part
-      CLHEP::Hep3Vector ribpos_pos1( posX1*cos(angl), posX1*sin(angl), zposEP+zleng+thickShell+zgap/2.);
-      CLHEP::Hep3Vector ribpos_neg1( posX1*cos(angl), posX1*sin(angl),-zposEP-zleng-thickShell-zgap/2.);
-      xrib = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(-angl,0.,0.),ribpos_pos1));
+      GeoTrf::Vector3D ribpos_pos1( posX1*cos(angl), posX1*sin(angl), zposEP+zleng+thickShell+zgap/2.);
+      GeoTrf::Vector3D ribpos_neg1( posX1*cos(angl), posX1*sin(angl),-zposEP-zleng-thickShell-zgap/2.);
+      xrib = new GeoTransform(GeoTrf::GeoTransformRT(GeoTrf::GeoRotation(-angl,0.,0.),ribpos_pos1));
       motherP->add(xrib);
       motherP->add(ribLong1Phys);
-      xrib = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(-angl,0.,0.),ribpos_neg1));
+      xrib = new GeoTransform(GeoTrf::GeoTransformRT(GeoTrf::GeoRotation(-angl,0.,0.),ribpos_neg1));
       motherM->add(xrib);
       motherM->add(ribLong1Phys);
 // 2nd part
-      CLHEP::Hep3Vector ribpos_pos2( posX2*cos(angl), posX2*sin(angl), zposEP+zleng+thickShell+zgap/2.);
-      CLHEP::Hep3Vector ribpos_neg2( posX2*cos(angl), posX2*sin(angl),-zposEP-zleng-thickShell-zgap/2.);
-      xrib = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(-angl,0.,0.),ribpos_pos2));
+      GeoTrf::Vector3D ribpos_pos2( posX2*cos(angl), posX2*sin(angl), zposEP+zleng+thickShell+zgap/2.);
+      GeoTrf::Vector3D ribpos_neg2( posX2*cos(angl), posX2*sin(angl),-zposEP-zleng-thickShell-zgap/2.);
+      xrib = new GeoTransform(GeoTrf::GeoTransformRT(GeoTrf::GeoRotation(-angl,0.,0.),ribpos_pos2));
       motherP->add(xrib);
       motherP->add(ribLong2Phys);
-      xrib = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(-angl,0.,0.),ribpos_neg2));
+      xrib = new GeoTransform(GeoTrf::GeoTransformRT(GeoTrf::GeoRotation(-angl,0.,0.),ribpos_neg2));
       motherM->add(xrib);
       motherM->add(ribLong2Phys);
     }

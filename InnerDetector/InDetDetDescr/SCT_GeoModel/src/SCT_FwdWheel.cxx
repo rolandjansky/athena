@@ -37,10 +37,10 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoShapeShift.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Vector/Rotation.h"
+#include "GeoModelKernel/Units.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+
+
 
 
 #include <sstream>
@@ -111,12 +111,12 @@ SCT_FwdWheel::getParameters()
 
   // FIXME: Check and put these in DB or calculate them
   // We have a maximum width of 80.2. Make it 75 for some clearance.
-  //m_innerRadius = 267 * CLHEP::mm;
-  //m_outerRadius = 590 * CLHEP::mm;
-  //m_thickness = 100 * CLHEP::mm;
+  //m_innerRadius = 267 * GeoModelKernelUnits::mm;
+  //m_outerRadius = 590 * GeoModelKernelUnits::mm;
+  //m_thickness = 100 * GeoModelKernelUnits::mm;
   // These get swapped later if the wheel is rotated.
-  m_thicknessFront = 30 * CLHEP::mm;
-  m_thicknessBack  = 45 * CLHEP::mm;
+  m_thicknessFront = 30 * GeoModelKernelUnits::mm;
+  m_thicknessBack  = 45 * GeoModelKernelUnits::mm;
 
   m_numFSITypes = parameters->fwdFSINumGeomTypes();
   m_fsiVector =  &(parameters->fsiVector(m_iWheel));
@@ -207,7 +207,7 @@ SCT_FwdWheel::preBuild()
   // If first or last wheel there is nothing protruding beyond the rings so we reduce the
   // envelope size. Comes to about 20 mm. Note the front becomes the back later for the last wheel.
   if ((m_iWheel == 0) || (m_iWheel == m_numWheels - 1)) {
-     m_thicknessFront = maxModuleThickness + 1*CLHEP::mm; // We give plenty of safety as we have the room.
+     m_thicknessFront = maxModuleThickness + 1*GeoModelKernelUnits::mm; // We give plenty of safety as we have the room.
   // But now modified by disc fixations
      if(m_discFixationPresent) {
        m_thicknessFront = std::max(m_thicknessFront,m_discFixation->radius() + m_safety);
@@ -249,7 +249,7 @@ SCT_FwdWheel::preBuild()
 
   // TODO. Have to account for FSI and patch panels
   //m_thickness   = 2. * maxRingOffset + maxThickness; 
-  // m_thickness  = 100 * CLHEP::mm;
+  // m_thickness  = 100 * GeoModelKernelUnits::mm;
 
   //  std::cout << "Wheel " << m_iWheel << ":" << std::endl;
   //  std::cout << " innerRadius = " << m_innerRadius << std::endl;
@@ -261,7 +261,7 @@ SCT_FwdWheel::preBuild()
 
   double envelopeShift = 0.5*(m_thicknessBack - m_thicknessFront);
   const GeoTube * tmpShape = new GeoTube(m_innerRadius, m_outerRadius, 0.5 * m_thickness);
-  const GeoShape & fwdWheelEnvelopeShape = *tmpShape <<  HepGeom::Translate3D(0, 0, envelopeShift);
+  const GeoShape & fwdWheelEnvelopeShape = *tmpShape <<  GeoTrf::Translate3D(0, 0, envelopeShift);
 
   const GeoLogVol * fwdWheelLog = 
     new GeoLogVol(getName(), &fwdWheelEnvelopeShape, materials.gasMaterial());
@@ -305,11 +305,10 @@ SCT_FwdWheel::build(SCT_Identifier id) const
     //    std::cout << " ring outer radius = " <<  ring->outerRadius() << std::endl;
 
 
-    CLHEP::Hep3Vector pos(0, 0, ringZpos);
     std::string ringNameTag = "Ring#" + intToString(ring->identifier());
     wheel->add(new GeoNameTag(ringNameTag));
     wheel->add(new GeoIdentifierTag(ring->identifier()));
-    wheel->add(new GeoTransform(HepGeom::Translate3D(pos)));    
+    wheel->add(new GeoTransform(GeoTrf::Translate3D(0, 0, ringZpos)));    
     id.setEtaModule(ring->identifier());
     wheel->add(ring->build(id));
 
@@ -319,7 +318,7 @@ SCT_FwdWheel::build(SCT_Identifier id) const
                                iRing);
     double coolingZpos = ring->ringSide() * (0.5*(m_discSupport->thickness() + cooling.thickness()));
     //std::cout << "coolingZpos, thickness = " <<  coolingZpos << ", " <<  cooling->thickness() << std::endl;
-    wheel->add(new GeoTransform(HepGeom::TranslateZ3D(coolingZpos)));
+    wheel->add(new GeoTransform(GeoTrf::TranslateZ3D(coolingZpos)));
     wheel->add(cooling.getVolume());
  
     // Power Tapes
@@ -356,7 +355,7 @@ SCT_FwdWheel::build(SCT_Identifier id) const
     //std::cout << "  modules min " <<  std::abs(ringZpos) -  0.5*ring->thicknessInner() << std::endl;
  
     //std::cout << "new powerTapeZpos, thickness = " <<  powerTapeZpos << ", " <<  powerTape->thickness() << std::endl;
-    wheel->add(new GeoTransform(HepGeom::TranslateZ3D(powerTapeZpos)));
+    wheel->add(new GeoTransform(GeoTrf::TranslateZ3D(powerTapeZpos)));
     wheel->add(powerTape.getVolume());
   
 
@@ -392,7 +391,7 @@ SCT_FwdWheel::build(SCT_Identifier id) const
     for (int iRepeat = 0; iRepeat < numRepeat; iRepeat++) {
   
       // Calculate the location.
-      double patchPanelAngle = m_patchPanelLocAngle[iPPLoc] + iRepeat * 90*CLHEP::degree;
+      double patchPanelAngle = m_patchPanelLocAngle[iPPLoc] + iRepeat * 90*GeoModelKernelUnits::degree;
       double patchPanelZpos =  patchPanelSide * (powerTapeZMax + 0.5*m_patchPanel[ppType]->thickness() + m_safety);
       double patchPanelR = m_patchPanel[ppType]->midRadius();
 
@@ -404,7 +403,7 @@ SCT_FwdWheel::build(SCT_Identifier id) const
       }
   
       // Add it to the wheel
-      wheel->add(new GeoTransform(HepGeom::RotateZ3D(patchPanelAngle)*HepGeom::TranslateX3D(patchPanelR)*HepGeom::TranslateZ3D(patchPanelZpos)));
+      wheel->add(new GeoTransform(GeoTrf::RotateZ3D(patchPanelAngle)*GeoTrf::TranslateX3D(patchPanelR)*GeoTrf::TranslateZ3D(patchPanelZpos)));
       wheel->add(m_patchPanel[ppType]->getVolume());
 
       // Make and add the connector for PPF0e (type 0)
@@ -419,7 +418,7 @@ SCT_FwdWheel::build(SCT_Identifier id) const
           std::cout << " Wheel outer radius: " << m_outerRadius << std::endl;
         }
         // Add it to the wheel
-      wheel->add(new GeoTransform(HepGeom::RotateZ3D(patchPanelAngle)*HepGeom::TranslateX3D(ppConnectorR)*HepGeom::TranslateZ3D(ppConnectorZpos)));
+      wheel->add(new GeoTransform(GeoTrf::RotateZ3D(patchPanelAngle)*GeoTrf::TranslateX3D(ppConnectorR)*GeoTrf::TranslateZ3D(ppConnectorZpos)));
       wheel->add(m_pPConnector->getVolume());
       }
 
@@ -435,7 +434,7 @@ SCT_FwdWheel::build(SCT_Identifier id) const
           std::cout << " Wheel outer radius: " << m_outerRadius << std::endl;
         }
         // Add it to the wheel
-      wheel->add(new GeoTransform(HepGeom::RotateZ3D(patchPanelAngle)*HepGeom::TranslateX3D(ppCoolingR)*HepGeom::TranslateZ3D(ppCoolingZpos)));
+      wheel->add(new GeoTransform(GeoTrf::RotateZ3D(patchPanelAngle)*GeoTrf::TranslateX3D(ppCoolingR)*GeoTrf::TranslateZ3D(ppCoolingZpos)));
       wheel->add(m_pPCooling->getVolume());
       }
     } 
@@ -454,7 +453,7 @@ SCT_FwdWheel::build(SCT_Identifier id) const
     if(m_numRings > 2) {optoharnessName+="I";}
     SCT_FwdOptoHarness optoharness(optoharnessName+"W"+intToString(m_iWheel),m_numRings);
     double optoHarnessZpos = 0.5*m_rotateWheel*(m_discSupport->thickness() + optoharness.thickness());
-    wheel->add(new GeoTransform(HepGeom::TranslateZ3D(optoHarnessZpos)));
+    wheel->add(new GeoTransform(GeoTrf::TranslateZ3D(optoHarnessZpos)));
     wheel->add(optoharness.getVolume());
     optoHarnessZMax = optoHarnessZpos + 0.5*optoharness.thickness();
   }
@@ -472,8 +471,8 @@ SCT_FwdWheel::build(SCT_Identifier id) const
     //        << "Sim type: " << (*m_fsiVector)[iFSI]->simTypeString() << ", "
     //        << "Actual type: " << (*m_fsiVector)[iFSI]->actualType() << ", "
     //        << "Loc type: " << (*m_fsiVector)[iFSI]->locationType() << ", "
-    //        << "Radius(mm): " << fsiRadius/CLHEP::mm << ", "
-    //        << "Phi(deg): " << fsiPhi/CLHEP::deg << ", "
+    //        << "Radius(mm): " << fsiRadius/GeoModelKernelUnits::mm << ", "
+    //        << "Phi(deg): " << fsiPhi/GeoModelKernelUnits::deg << ", "
     //        << "Thickness(mm): " << m_fsiType[type]->thickness() << ", "
     //        << "ZOffset(mm): " << m_fsiType[type]->zOffset() << ", "
     //        << "RPhi(mm): " << m_fsiType[type]->rphi() << ", "
@@ -504,7 +503,7 @@ SCT_FwdWheel::build(SCT_Identifier id) const
       }
     }    
 
-    wheel->add(new GeoTransform(HepGeom::RotateZ3D(fsiPhi)*HepGeom::TranslateX3D(fsiRadius)*HepGeom::TranslateZ3D(fsiZpos)));
+    wheel->add(new GeoTransform(GeoTrf::RotateZ3D(fsiPhi)*GeoTrf::TranslateX3D(fsiRadius)*GeoTrf::TranslateZ3D(fsiZpos)));
     wheel->add(m_fsiType[type]->getVolume());    
 
 
@@ -516,7 +515,7 @@ SCT_FwdWheel::build(SCT_Identifier id) const
       // The disc fixations repeat in the four quadrants.
       for (int iRepeat = 0; iRepeat < 4; iRepeat++) {
         // Calculate the location.
-        double discFixationAngle = m_discFixationLocAngle[iLoc] + iRepeat * 90*CLHEP::degree;
+        double discFixationAngle = m_discFixationLocAngle[iLoc] + iRepeat * 90*GeoModelKernelUnits::degree;
         double discFixationR = m_ringMaxRadius + 0.5*m_discFixation->thickness() + m_safety;
         // Check is within wheel
         if (discFixationR + 0.5*m_discFixation->thickness() >= m_outerRadius) {
@@ -525,7 +524,7 @@ SCT_FwdWheel::build(SCT_Identifier id) const
           std::cout << " Wheel outer radius: " << m_outerRadius << std::endl;
         }
        // Add it to the wheel
-        wheel->add(new GeoTransform(HepGeom::RotateY3D(90.*CLHEP::degree)*HepGeom::RotateX3D(discFixationAngle)*HepGeom::TranslateZ3D(discFixationR)));
+        wheel->add(new GeoTransform(GeoTrf::RotateY3D(90.*GeoModelKernelUnits::degree)*GeoTrf::RotateX3D(discFixationAngle)*GeoTrf::TranslateZ3D(discFixationR)));
         wheel->add(m_discFixation->getVolume());
       }
     }

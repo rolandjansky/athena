@@ -2,7 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PixelGeoModel/PixelSwitches.h"
+#include "PixelSwitches.h"
 
 PixelSwitches::PixelSwitches()
   : m_services(true),

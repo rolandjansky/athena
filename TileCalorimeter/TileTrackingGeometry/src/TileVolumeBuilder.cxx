@@ -27,8 +27,7 @@
 #include "GeoModelKernel/GeoPVConstLink.h"
 #include "GeoModelKernel/GeoVPhysVol.h"
 #include "GeoModelKernel/GeoVolumeCursor.h"
-// Amg
-#include "GeoPrimitives/CLHEPtoEigenConverter.h"
+#include "GeoModelKernel/Units.h"
 // Trk
 #include "TrkDetDescrInterfaces/ITrackingVolumeHelper.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumeCreator.h"
@@ -49,18 +48,13 @@
 #include "TrkSurfaces/CylinderBounds.h"
 #include "TrkSurfaces/DiscSurface.h"
 #include "TrkSurfaces/DiscBounds.h"
-// CLHEP
-#include "CLHEP/Units/SystemOfUnits.h"
 // Gaudi
 #include "GaudiKernel/MsgStream.h"
 // StoreGate
 #include "StoreGate/StoreGateSvc.h"
 #include "CxxUtils/make_unique.h"
 
-using HepGeom::Transform3D;
-using HepGeom::Translate3D;
-using CLHEP::Hep3Vector;
-using CLHEP::mm;
+using GeoModelKernelUnits::mm;
 using CxxUtils::make_unique;
 
 // constructor
@@ -268,13 +262,13 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
       const GeoTubs* currentTubs  = dynamic_cast<const GeoTubs*>(childShape);
       Trk::CylinderVolumeBounds* childCylVolBounds = currentTubs ? geoShapeToVolumeBounds.convert(currentTubs) : 0;
       // get the transform
-      Transform3D childTransform = currentVPhysVolLink->getXToChildVol(ichild);
-      double childZposition = childTransform.getTranslation().z();
+      GeoTrf::Transform3D childTransform = currentVPhysVolLink->getXToChildVol(ichild);
+      double childZposition = childTransform.translation().z();
       
       if (childCylVolBounds){
 	// screen output    
 	ATH_MSG_VERBOSE( "  ---> CylinderVolumeBounds created as: " );
-	ATH_MSG_VERBOSE( "  ---> Position in z: " << childTransform.getTranslation().z() );
+	ATH_MSG_VERBOSE( "  ---> Position in z: " << childTransform.translation().z() );
 	ATH_MSG_VERBOSE( *childCylVolBounds );
 	
 	  // retrieve split radius from the TileBar2 exit surface
@@ -823,7 +817,7 @@ void Tile::TileVolumeBuilder::printInfo(const PVConstLink pv) const
   std::cout << "New Tile Object:"<<lv->getName()<<", made of"<<lv->getMaterial()->getName()<<","<<lv->getShape()->type()<<std::endl;
   //m_geoShapeConverter->decodeShape(lv->getShape());
   int igen=0;
-  Amg::Transform3D transf =  Amg::CLHEPTransformToEigen(pv->getX());
+  Amg::Transform3D transf =  pv->getX();
   printChildren(pv,igen,transf);
 }
 
@@ -834,7 +828,7 @@ void Tile::TileVolumeBuilder::printChildren(const PVConstLink pv,int igen, Amg::
   igen++; 
   std::string cname; 
   for (unsigned int ic=0; ic<nc; ic++) {
-    Amg::Transform3D transf = trIn*Amg::CLHEPTransformToEigen(pv->getXToChildVol(ic));
+    Amg::Transform3D transf = trIn*pv->getXToChildVol(ic);
  
     //
     //std::cout << " dumping transform to subcomponent" << std::endl;

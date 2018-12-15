@@ -12,17 +12,13 @@
 #include "GeoModelKernel/GeoTubs.h"  
 #include "GeoModelKernel/GeoNameTag.h"  
 #include "GeoModelKernel/GeoIdentifierTag.h"  
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeShift.h"
-
-// For transforms:
-
-#include "CLHEP/Geometry/Transform3D.h" 
-// For units:
-#include "CLHEP/Units/PhysicalConstants.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
@@ -107,14 +103,14 @@ GeoFullPhysVol* EndcapPresamplerConstruction::Envelope()
   ///////////////////////////////////////////////////////////////////
   // LAr Endcap Presampler GEOMETRY
   ///////////////////////////////////////////////////////////////////
-  double Rmin = 1231.74*CLHEP::mm;
-  double Rmax = 1701.98*CLHEP::mm;
-  double HalfZ = ((*presamplerPosition)[0]->getDouble("TCK")/2.)*CLHEP::cm;  
+  double Rmin = 1231.74*GeoModelKernelUnits::mm;
+  double Rmax = 1701.98*GeoModelKernelUnits::mm;
+  double HalfZ = ((*presamplerPosition)[0]->getDouble("TCK")/2.)*GeoModelKernelUnits::cm;  
 
 
   std::string name = "LAr::Endcap::Presampler::LiquidArgon";
 
-  double phi_size = 360.*CLHEP::deg;
+  double phi_size = 360.*GeoModelKernelUnits::deg;
   double start_phi = 0.;
   
   if( m_isModule ){

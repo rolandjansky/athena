@@ -21,7 +21,7 @@
 #include "InDetReadoutGeometry/SiCommonItems.h"
 
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
 using namespace InDetDD;
 
@@ -122,10 +122,10 @@ SCT_Sensor::makeDesign()
   // This is the default and no action is required. 
   // Can force axes not to be swapped by setting to false.
   // 
-  // bool phiSyCLHEP::mmetric = true;
-  // bool etaSyCLHEP::mmetric = true; 
-  // bool depthSyCLHEP::mmetric = true;
-  // m_design->setSyCLHEP::mmetry(phiSyCLHEP::mmetric, etaSyCLHEP::mmetric, depthSyCLHEP::mmetric,
+  // bool phiSyGeoModelKernelUnits::mmetric = true;
+  // bool etaSyGeoModelKernelUnits::mmetric = true; 
+  // bool depthSyGeoModelKernelUnits::mmetric = true;
+  // m_design->setSyGeoModelKernelUnits::mmetry(phiSyGeoModelKernelUnits::mmetric, etaSyGeoModelKernelUnits::mmetric, depthSyGeoModelKernelUnits::mmetric,
   //
 }
 

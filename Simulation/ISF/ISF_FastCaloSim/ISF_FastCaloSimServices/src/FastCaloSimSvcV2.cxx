@@ -35,6 +35,8 @@
 
 #include "PathResolver/PathResolver.h"
 
+#include "CLHEP/Units/SystemOfUnits.h"
+
 #include "TFile.h"
 #include <fstream>
 

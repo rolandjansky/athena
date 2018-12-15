@@ -6,7 +6,7 @@
 // Build detailed stave support : face plate + carbon foam + cable flex + cooling pipe + end blocks
 // This is built one time per layer. 
 
-#include "PixelGeoModel/GeoPixelIFlexServices.h"
+#include "GeoPixelIFlexServices.h"
 
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoTube.h"
@@ -35,7 +35,7 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
 
   m_gmt_mgr->msg(MSG::INFO) <<"Build IBL I-Flex services"<<endmsg;
 
-  double safety = 0.01*CLHEP::mm;
+  double safety = 0.01*GeoModelKernelUnits::mm;
 
   // IBL layer shift ( 2mm shift issue )
   double layerZshift = m_gmt_mgr->PixelLayerGlobalShift();
@@ -45,7 +45,7 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
 
   // check if sectors are properly defined
   if(nSectors==0) return 0;
-  double angle=360./(double)nSectors*CLHEP::deg;
+  double angle=360./(double)nSectors*GeoModelKernelUnits::deg;
 
   double zmin=0., zmax=0.;
   double deltaLength = 0.;
@@ -108,12 +108,12 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
   double cooling_radius = 35.1;
   double TubeOuterDiam = m_gmt_mgr->IBLStaveTubeOuterDiameter();
   double TubeInnerDiam = m_gmt_mgr->IBLStaveTubeInnerDiameter();
-  double cooling_angle = -2.154*CLHEP::deg;
+  double cooling_angle = -2.154*GeoModelKernelUnits::deg;
 
   if(m_gmt_mgr->PixelStaveAxe()==1)   
     {
       cooling_radius = 34.7 + layerRadius-33.25;
-      cooling_angle = -.1*CLHEP::deg;
+      cooling_angle = -.1*GeoModelKernelUnits::deg;
     }
 
   const GeoTube* service_coolingPipeA = new GeoTube(0.0,TubeOuterDiam*0.5,halfLengthA);
@@ -134,8 +134,7 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
   GeoPhysVol * cp_service_inner_logPVC = new GeoPhysVol(cp_service_inner_logC);
 
   GeoNameTag* cp_service_inner_tag = new GeoNameTag("PP0CoolingPipeInner");
-  CLHEP::Hep3Vector cp_service_inner_pos(0.0,0.0,0.0);
-  GeoTransform* cp_service_inner_xform = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),cp_service_inner_pos));
+  GeoTransform* cp_service_inner_xform = new GeoTransform(GeoTrf::Transform3D::Identity());
   cpPhysVolA->add(cp_service_inner_tag);
   cpPhysVolA->add(cp_service_inner_xform);
   cpPhysVolA->add(cp_service_inner_logPVA);
@@ -146,9 +145,9 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
   GeoLogVol* flex_logVolA = 0;
   GeoLogVol* flex_logVolC = 0;
 
-  double flex_angle = -15.001*CLHEP::deg;
+  double flex_angle = -15.001*GeoModelKernelUnits::deg;
   if(m_gmt_mgr->PixelStaveAxe()==1)   
-    flex_angle += 2.14*CLHEP::deg;
+    flex_angle += 2.14*GeoModelKernelUnits::deg;
 
   double flex_rot=0.30265;
   flex_rot=-0.30265*.5;
@@ -174,8 +173,6 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
     
     GeoBox * flex_shapeA = new GeoBox((flex_rmax-flex_rmin)*.5, flex_width*.5, halfLengthA);
     GeoBox * flex_shapeC = new GeoBox((flex_rmax-flex_rmin)*.5, flex_width*.5, halfLengthC);
-    CLHEP::Hep3Vector flex_pos(0.,0.,0.);
-    //    GeoTransform* flex_xform = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(0.0,0.0,fabs(flex_rot)),flex_pos));
     const GeoMaterial* flex_material = m_mat_mgr->getMaterial(flexMatName);
     if(flex_material==0)
     {
@@ -228,7 +225,7 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
     std::ostringstream tmp1; 
     tmp1 << "fl" << ii;
     GeoNameTag * tag1 = new GeoNameTag(tmp1.str());
-    GeoTransform* xform1 = new GeoTransform(HepGeom::RotateZ3D(phiOfCooling)*HepGeom::TranslateX3D(cooling_radius));
+    GeoTransform* xform1 = new GeoTransform(GeoTrf::RotateZ3D(phiOfCooling)*GeoTrf::TranslateX3D(cooling_radius));
     m_supportPhysA->add(tag1);
     m_supportPhysA->add(xform1);
     m_supportPhysA->add(cpPhysVolA);
@@ -247,12 +244,12 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
     if(m_section==2){
 
       // Intermediate flex
-      GeoTransform* xformA2 = new GeoTransform(HepGeom::RotateZ3D(phiOfFlex)*HepGeom::TranslateX3D(flexYmidPos)*HepGeom::RotateZ3D(-90.*CLHEP::deg)*HepGeom::RotateY3D(-90.*CLHEP::deg)*HepGeom::RotateX3D(flex_rot));
+      GeoTransform* xformA2 = new GeoTransform(GeoTrf::RotateZ3D(phiOfFlex)*GeoTrf::TranslateX3D(flexYmidPos)*GeoTrf::RotateZ3D(-90.*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(-90.*GeoModelKernelUnits::deg)*GeoTrf::RotateX3D(flex_rot));
       m_supportPhysA->add(tag2);
       m_supportPhysA->add(xformA2);
       m_supportPhysA->add(flexPhysVolA);
 
-      GeoTransform* xformC2 = new GeoTransform(HepGeom::RotateZ3D(phiOfFlex)*HepGeom::TranslateX3D(flexYmidPos)*HepGeom::RotateZ3D(-90.*CLHEP::deg)*HepGeom::RotateY3D(90.*CLHEP::deg)*HepGeom::RotateX3D(-flex_rot));
+      GeoTransform* xformC2 = new GeoTransform(GeoTrf::RotateZ3D(phiOfFlex)*GeoTrf::TranslateX3D(flexYmidPos)*GeoTrf::RotateZ3D(-90.*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(90.*GeoModelKernelUnits::deg)*GeoTrf::RotateX3D(-flex_rot));
       m_supportPhysC->add(tag2);
       m_supportPhysC->add(xformC2);
       m_supportPhysC->add(flexPhysVolC);
@@ -262,7 +259,7 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
 
       // dogleg and PP0 flexes
 
-      GeoTransform* xform2 = new GeoTransform(HepGeom::RotateZ3D(phiOfFlex)*HepGeom::TranslateX3D((flex_rmin+flex_rmax)*.5)*HepGeom::RotateZ3D(flex_rot));
+      GeoTransform* xform2 = new GeoTransform(GeoTrf::RotateZ3D(phiOfFlex)*GeoTrf::TranslateX3D((flex_rmin+flex_rmax)*.5)*GeoTrf::RotateZ3D(flex_rot));
 
       m_supportPhysA->add(tag2);
       m_supportPhysA->add(xform2);
@@ -279,12 +276,12 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
   double middleA = zStartPosA+halfLengthA;
   double middleC = zStartPosC+halfLengthC;
 
-  HepGeom::Transform3D supportTrfA = HepGeom::TranslateZ3D(middleA);   //(zmin+zmax)*0.5+layerZshift);
+  GeoTrf::Transform3D supportTrfA = GeoTrf::TranslateZ3D(middleA);   //(zmin+zmax)*0.5+layerZshift);
   m_xformSupportA = new GeoTransform(supportTrfA);
   
   //  std::cout<<"Section final A  "<<m_section<<" - "<<middleA-halfLengthA<<" "<<middleA+halfLengthA<<"    "<<middleA<<std::endl;
 
-  HepGeom::Transform3D supportTrfC = HepGeom::TranslateZ3D(middleC);   //(zmin+zmax)*0.5+layerZshift);
+  GeoTrf::Transform3D supportTrfC = GeoTrf::TranslateZ3D(middleC);   //(zmin+zmax)*0.5+layerZshift);
   m_xformSupportC = new GeoTransform(supportTrfC);
 
   //  std::cout<<"Section final C  "<<m_section<<" - "<<middleC-halfLengthC<<" "<<middleC+halfLengthC<<"    "<<middleC<<std::endl;

@@ -14,11 +14,11 @@
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Vector/Rotation.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+
+
 
 #include <cmath>
 

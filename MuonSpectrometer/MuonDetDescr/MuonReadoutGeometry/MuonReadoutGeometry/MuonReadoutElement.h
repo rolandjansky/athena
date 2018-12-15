@@ -210,8 +210,8 @@ private:
    const MuonStation* m_parentMuonStation; 
    MuonDetectorManager* m_muon_mgr;
 
-  mutable const Amg::Transform3D* m_absTransform;
-  mutable const Amg::Transform3D* m_defTransform;
+   mutable const HepGeom::Transform3D* m_absTransform;
+   mutable const HepGeom::Transform3D* m_defTransform;
 };
 
 MsgStream& MuonReadoutElement::reLog() const {return *m_MsgStream;} 
@@ -279,23 +279,23 @@ void MuonReadoutElement::setCachingFlag(int value)
 
 inline const Amg::Transform3D & MuonReadoutElement::absTransform() const
 {
-  if( !m_absTransform ) m_absTransform = new Amg::Transform3D(Amg::CLHEPTransformToEigen(absTransformCLHEP()));
-  return *m_absTransform;
+  return getMaterialGeom()->getAbsoluteTransform();
 }
 
 inline const Amg::Transform3D & MuonReadoutElement::defTransform() const
 {
-  if( !m_defTransform ) m_defTransform = new Amg::Transform3D(Amg::CLHEPTransformToEigen(defTransformCLHEP()));
-  return *m_defTransform;
+  return getMaterialGeom()->getDefAbsoluteTransform();
 }
 inline const HepGeom::Transform3D & MuonReadoutElement::absTransformCLHEP() const
 {
-  return getMaterialGeom()->getAbsoluteTransform();
+  if( !m_absTransform ) m_absTransform = new HepGeom::Transform3D(Amg::EigenTransformToCLHEP(getMaterialGeom()->getAbsoluteTransform()));
+  return *m_absTransform;
 }
 
 inline const HepGeom::Transform3D & MuonReadoutElement::defTransformCLHEP() const
 {
-  return getMaterialGeom()->getDefAbsoluteTransform();
+  if( !m_defTransform ) m_defTransform = new HepGeom::Transform3D(Amg::EigenTransformToCLHEP(getMaterialGeom()->getDefAbsoluteTransform()));
+  return *m_defTransform;
 }
 
 } // namespace MuonGM

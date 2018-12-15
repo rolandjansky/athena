@@ -9,7 +9,6 @@ atlas_subdir( LArGeoEndcap )
 atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           Database/RDBAccessSvc
-                          DetectorDescription/GeoModel/GeoModelKernel
                           LArCalorimeter/LArGeoModel/LArGeoFcal
                           LArCalorimeter/LArGeoModel/LArGeoHec
                           PRIVATE
@@ -24,15 +23,15 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
-find_package( CLHEP )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
+find_package( Eigen )
+find_package( GeoModel )
 
 # Component(s) in the package:
 atlas_add_library( LArGeoEndcap
                    src/*.cxx
                    PUBLIC_HEADERS LArGeoEndcap
-                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                   DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} GeoModelKernel LArGeoFcal LArGeoHec StoreGateLib SGtests CaloDetDescrLib
+                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${EIGEN_LIBRARIES} ${GEOMODEL_LIBRARIES} LArGeoFcal LArGeoHec StoreGateLib SGtests CaloDetDescrLib
                    PRIVATE_LINK_LIBRARIES CaloIdentifier GeoModelUtilities GeoSpecialShapes GaudiKernel LArGeoCode LArGeoMiniFcal )
 

@@ -6,10 +6,10 @@
 // Build detailed stave support : face plate + carbon foam + cable flex + cooling pipe + end blocks
 // This is built one time per layer. 
 
-#include "PixelGeoModel/GeoPixelDetailedStaveSupport.h"
+#include "GeoPixelDetailedStaveSupport.h"
 
-#include "PixelGeoModel/GeoPixelSiCrystal.h"
-#include "PixelGeoModel/GeoPixelModule.h"
+#include "GeoPixelSiCrystal.h"
+#include "GeoPixelModule.h"
 
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoTube.h"
@@ -20,11 +20,13 @@
 #include "GeoModelKernel/GeoNameTag.h"
 
 #include "GeoModelKernel/GeoTransform.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 
 #include <algorithm>
 using std::max;
 
 GeoPixelDetailedStaveSupport::GeoPixelDetailedStaveSupport()
+  : m_transform(GeoTrf::Transform3D::Identity())
 {
   m_staveEnvelopShape=0;
   m_bVerbose = (m_gmt_mgr->msgLvl(MSG::DEBUG));
@@ -199,9 +201,9 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
   double halfMecStaveWidth=MechanicalStaveWidth*0.5;
 
   // SafetyMargin
-  m_SafetyMargin=.001*CLHEP::mm;
+  m_SafetyMargin=.001*GeoModelKernelUnits::mm;
   double xGblOffset=FacePlateThick+m_SafetyMargin;
-  double safetyMarginZ=.001*CLHEP::mm;
+  double safetyMarginZ=.001*GeoModelKernelUnits::mm;
 
   // Compute approximated stave shape based on DB parameters
   ComputeStaveExternalShape();
@@ -406,7 +408,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 
   const GeoMaterial* foam_material = m_mat_mgr->getMaterial(m_gmt_mgr->getMaterialName("CarbonFoam",0,0));
   GeoNameTag* foam_tag = new GeoNameTag("CarbonFoam");
-  GeoTransform* foam_xform = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),CLHEP::Hep3Vector()));
+  GeoTransform* foam_xform = new GeoTransform(GeoTrf::Transform3D::Identity());
   
   GeoLogVol * foam_logVol = new GeoLogVol("CarbonFoam",foam_shape,foam_material);
   GeoPhysVol * foam_logVolPV = new GeoPhysVol(foam_logVol);
@@ -448,16 +450,16 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 										 omegaVolume,
 										 omegaVolume,"pix::Omega_IBL",
 										 glueVolume,"pix::Stycast2850FT");
-      m_gmt_mgr->msg(MSG::INFO)<<"***> new material : "<<omega_material->getName()<<" "<<omega_material->getDensity()/(CLHEP::gram/CLHEP::cm3)<<endmsg;
+      m_gmt_mgr->msg(MSG::INFO)<<"***> new material : "<<omega_material->getName()<<" "<<omega_material->getDensity()/(GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3)<<endmsg;
       omega_logVol = new GeoLogVol("Omega",omega_shape,omega_material);
     }
 
   GeoNameTag* omega_tag = new GeoNameTag("Omega");
-  GeoTransform* omega_xform = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),CLHEP::Hep3Vector()));      
+  GeoTransform* omega_xform = new GeoTransform(GeoTrf::Transform3D::Identity());
 
   //       const GeoMaterial* omega_material = m_mat_mgr->getMaterial(m_gmt_mgr->getMaterialName("Omega",0,0));
   //       GeoNameTag* omega_tag = new GeoNameTag("Omega");
-  //       GeoTransform* omega_xform = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),CLHEP::Hep3Vector()));
+  //       GeoTransform* omega_xform = new GeoTransform(GeoTrf::Transform3D(GeoModelKernelUnits::HepRotation(),GeoTrf::Vector3D()));
   //      GeoLogVol * omega_logVol = new GeoLogVol("Omega",omega_shape,omega_material);
 
   GeoPhysVol * omega_logVolPV = new GeoPhysVol(omega_logVol);
@@ -473,8 +475,8 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
   // ------------------------------------------------------------------------------------------------------------
 
   GeoBox * faceplate_shape = new GeoBox(FacePlateThick*0.5,MechanicalStaveWidth*0.5,MiddleSectionLength*.5);
-  CLHEP::Hep3Vector faceplate_pos((plate1x+plate2x+plate3x+plate4x)*0.25,(plate1y+plate2y+plate3y+plate4y)*0.25,0.0);
-  GeoTransform* faceplate_xform = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),faceplate_pos));
+  GeoTrf::Translate3D faceplate_pos((plate1x+plate2x+plate3x+plate4x)*0.25,(plate1y+plate2y+plate3y+plate4y)*0.25,0.0);
+  GeoTransform* faceplate_xform = new GeoTransform(faceplate_pos);
   
  std::string faceplateMatName;
  const GeoMaterial* faceplate_material;
@@ -498,7 +500,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 								  facePlateVolume,
 								  facePlateVolume,"pix::FacePlate_IBL",
 								  glueVolume,"pix::Stycast2850FT");
-      m_gmt_mgr->msg(MSG::INFO)<<"***> new material : "<<faceplate_material->getName()<<" "<<faceplate_material->getDensity()/(CLHEP::gram/CLHEP::cm3)<<endmsg;
+      m_gmt_mgr->msg(MSG::INFO)<<"***> new material : "<<faceplate_material->getName()<<" "<<faceplate_material->getDensity()/(GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3)<<endmsg;
     }
 
   // Create composite material made of faceplate + grease if a thickness of grease is defined is DB
@@ -523,7 +525,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 										     facePlateVolume,faceplateMatName,
 										     greaseVolume,"pix::ThermGrease_IBL");
       faceplate_logVol = new GeoLogVol("FacePlate",faceplate_shape,faceplate_material);
-      m_gmt_mgr->msg(MSG::INFO)<<"***> new material : "<<faceplate_material->getName()<<" "<<faceplate_material->getDensity()/(CLHEP::gram/CLHEP::cm3)<<endmsg;
+      m_gmt_mgr->msg(MSG::INFO)<<"***> new material : "<<faceplate_material->getName()<<" "<<faceplate_material->getDensity()/(GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3)<<endmsg;
     }
 
   //  const GeoMaterial* faceplate_material = m_mat_mgr->getMaterial(m_gmt_mgr->getMaterialName("FacePlate",0,0));
@@ -623,9 +625,9 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 //       }
 
       // Add flex in 3D model : A component
-      CLHEP::Hep3Vector cableflex_pos((flex1x+flex2x+flex3x+flex4x)*0.25,(flex1y+flex2y+flex3y+flex4y)*0.25,ModulePosZ+flexGapZ*0.5);
-      //      GeoTransform* cableflex_xform = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(0.0,0.0,-fabs(flex_angle)),cableflex_pos));
-      GeoTransform* cableflex_xform = new GeoTransform(HepGeom::Translate3D(cableflex_pos)*HepGeom::RotateZ3D(fabs(flex_angle)));
+      GeoTrf::Translation3D cableflex_pos((flex1x+flex2x+flex3x+flex4x)*0.25,(flex1y+flex2y+flex3y+flex4y)*0.25,ModulePosZ+flexGapZ*0.5);
+      //      GeoTransform* cableflex_xform = new GeoTransform(GeoTrf::Transform3D(GeoModelKernelUnits::HepRotation(0.0,0.0,-fabs(flex_angle)),cableflex_pos));
+      GeoTransform* cableflex_xform = new GeoTransform(GeoTrf::Transform3D(cableflex_pos*GeoTrf::RotateZ3D(fabs(flex_angle))));
 
       GeoLogVol * cableflex_logVol = 0;
       if(bFlexAndWing||bFlexConstantThickness)
@@ -670,8 +672,8 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 	  // Add flex in 3D model : A component
 
 	  double zPos = (iModule+.5)*ModuleLength_flex+(iModule+.5)*ModuleGap_flex;
-	  CLHEP::Hep3Vector wingflex_posA(wingFlexPosX, wingFlexPosY , zPos-ModuleLength_flex*.25);
-	  GeoTransform* wingflex_xformA = new GeoTransform(HepGeom::Translate3D(wingflex_posA)*HepGeom::RotateZ3D(fabs(flex_angle)));
+	  GeoTrf::Translation3D wingflex_posA(wingFlexPosX, wingFlexPosY , zPos-ModuleLength_flex*.25);
+	  GeoTransform* wingflex_xformA = new GeoTransform(GeoTrf::Transform3D(wingflex_posA*GeoTrf::RotateZ3D(fabs(flex_angle))));
 	  
 	  GeoPhysVol * wingflex_logVolPV_1 = new GeoPhysVol(wingflex_logVol);
 	  GeoNameTag* wingflex_tag = new GeoNameTag(wingName.str());
@@ -679,8 +681,8 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 	  logVolPV->add(wingflex_xformA);
 	  logVolPV->add(wingflex_logVolPV_1);
 
-	  CLHEP::Hep3Vector wingflex_posA_2(wingFlexPosX, wingFlexPosY , zPos+ModuleLength_flex*.25);
-	  GeoTransform* wingflex_xformA_2 = new GeoTransform(HepGeom::Translate3D(wingflex_posA_2)*HepGeom::RotateZ3D(fabs(flex_angle)));
+	  GeoTrf::Translation3D wingflex_posA_2(wingFlexPosX, wingFlexPosY , zPos+ModuleLength_flex*.25);
+	  GeoTransform* wingflex_xformA_2 = new GeoTransform(GeoTrf::Transform3D(wingflex_posA_2*GeoTrf::RotateZ3D(fabs(flex_angle))));
 	  
 	  GeoPhysVol * wingflex_logVolPV_2 = new GeoPhysVol(wingflex_logVol);
 	  logVolPV->add(wingflex_tag);
@@ -689,16 +691,16 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 
 
 	  // Add flex in 3D model : C component
-	  CLHEP::Hep3Vector wingflex_posC(wingFlexPosX, wingFlexPosY , -zPos-ModuleLength_flex*.25);
-	  GeoTransform* wingflex_xformC = new GeoTransform(HepGeom::Translate3D(wingflex_posC)*HepGeom::RotateZ3D(fabs(flex_angle)));
+	  GeoTrf::Translation3D wingflex_posC(wingFlexPosX, wingFlexPosY , -zPos-ModuleLength_flex*.25);
+	  GeoTransform* wingflex_xformC = new GeoTransform(GeoTrf::Transform3D(wingflex_posC*GeoTrf::RotateZ3D(fabs(flex_angle))));
 	  
 	  GeoPhysVol * wingflex_logVolPV_C1 = new GeoPhysVol(wingflex_logVol);
 	  logVolPV->add(wingflex_tag);
 	  logVolPV->add(wingflex_xformC);
 	  logVolPV->add(wingflex_logVolPV_C1);
 
-	  CLHEP::Hep3Vector wingflex_posC_2(wingFlexPosX, wingFlexPosY , -zPos+ModuleLength_flex*.25);
-	  GeoTransform* wingflex_xformC_2 = new GeoTransform(HepGeom::Translate3D(wingflex_posC_2)*HepGeom::RotateZ3D(fabs(flex_angle)));
+	  GeoTrf::Translation3D wingflex_posC_2(wingFlexPosX, wingFlexPosY , -zPos+ModuleLength_flex*.25);
+	  GeoTransform* wingflex_xformC_2 = new GeoTransform(GeoTrf::Transform3D(wingflex_posC_2*GeoTrf::RotateZ3D(fabs(flex_angle))));
 	  
 	  GeoPhysVol * wingflex_logVolPV_C2 = new GeoPhysVol(wingflex_logVol);
 	  logVolPV->add(wingflex_tag);
@@ -713,7 +715,9 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
       logVolPV->add(cableflex_xform);
       logVolPV->add(cableflex_logVolPV);
 
-      m_gmt_mgr->msg(MSG::INFO)<<cableflex_pos<<" "<<FlexThicknessRL<<" / ";
+      m_gmt_mgr->msg(MSG::INFO) 
+	  << "(" << cableflex_pos.x() << "," << cableflex_pos.y() << "," << cableflex_pos.z() << ")"
+	  << " " << FlexThicknessRL<<" / ";
      
       // Add flex in 3D model : C component
       if((ModuleNumber_flex%2==1&&iModule>0)||ModuleNumber_flex%2==0)
@@ -721,8 +725,8 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 	  std::ostringstream lname;
 	  lname << "StaveFlex_"<<iFlexModule<<"C";
 
-	  CLHEP::Hep3Vector cableflex_pos2((flex1x+flex2x+flex3x+flex4x)*0.25,(flex1y+flex2y+flex3y+flex4y)*0.25,-ModulePosZ-flexGapZ*0.5);
-	  GeoTransform* cableflex_xform2 = new GeoTransform(HepGeom::Translate3D(cableflex_pos2)*HepGeom::RotateZ3D(fabs(flex_angle)));
+	  GeoTrf::Translation3D cableflex_pos2((flex1x+flex2x+flex3x+flex4x)*0.25,(flex1y+flex2y+flex3y+flex4y)*0.25,-ModulePosZ-flexGapZ*0.5);
+	  GeoTransform* cableflex_xform2 = new GeoTransform(GeoTrf::Transform3D(cableflex_pos2*GeoTrf::RotateZ3D(fabs(flex_angle))));
 	  GeoLogVol * cableflex_logVol = 0;
 
 	  const GeoMaterial* scaledFlexMaterial=0;
@@ -791,8 +795,8 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
       wingName << "WingFlex";
       
       // Add flex in 3D model : A component
-      CLHEP::Hep3Vector wingflex_posA((flex1x+flex2x+flex3x+flex4x)*0.25,(flex1y+flex2y+flex3y+flex4y)*0.25,(wingZmax-wingZmin)*.5+FlexStaveMiddleGap);
-      GeoTransform* wingflex_xformA = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(0.0,0.0,-fabs(flex_angle)),wingflex_posA));
+      GeoTrf::Vector3D wingflex_posA((flex1x+flex2x+flex3x+flex4x)*0.25,(flex1y+flex2y+flex3y+flex4y)*0.25,(wingZmax-wingZmin)*.5+FlexStaveMiddleGap);
+      GeoTransform* wingflex_xformA = new GeoTransform(GeoTrf::GeoTransformRT(GeoTrf::GeoRotation(0.0,0.0,-fabs(flex_angle)),wingflex_posA));
       
       const GeoMaterial* wingflex_material= m_mat_mgr->getMaterial("pix::WingFlexA");
       GeoLogVol * wingflex_logVol = new GeoLogVol(wingName.str(),wingflex_shape,wingflex_material);
@@ -803,8 +807,8 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
       logVolPV->add(wingflex_xformA);
       logVolPV->add(wingflex_logVolPV);
       
-      CLHEP::Hep3Vector wingflex_posC((flex1x+flex2x+flex3x+flex4x)*0.25,(flex1y+flex2y+flex3y+flex4y)*0.25,-((wingZmax-wingZmin)*.5+FlexStaveMiddleGap));
-      GeoTransform* wingflex_xformC = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(0.0,0.0,-fabs(flex_angle)),wingflex_posC));
+      GeoTrf::Vector3D wingflex_posC((flex1x+flex2x+flex3x+flex4x)*0.25,(flex1y+flex2y+flex3y+flex4y)*0.25,-((wingZmax-wingZmin)*.5+FlexStaveMiddleGap));
+      GeoTransform* wingflex_xformC = new GeoTransform(GeoTrf::GeoTransformRT(GeoTrf::GeoRotation(0.0,0.0,-fabs(flex_angle)),wingflex_posC));
       logVolPV->add(wingflex_tag);
       logVolPV->add(wingflex_xformC);
       logVolPV->add(wingflex_logVolPV);
@@ -829,16 +833,16 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
   else
     {
       m_gmt_mgr->msg(MSG::INFO)<<"** TUBE : with Stycast "<<TubeGlueThick<<"  diam "<<TubeOuterDiam*0.5<<" "<<TubeInnerDiam*0.5<<endmsg;
-      double glueVolume = (TubeOuterDiam*0.5+TubeGlueThick)*(TubeOuterDiam*0.5+TubeGlueThick)*CLHEP::pi*MiddleSectionLength;
-      double tubeOuterVolume = TubeOuterDiam*TubeOuterDiam*0.25*CLHEP::pi*MiddleSectionLength;
-      double tubeInnerVolume = TubeInnerDiam*TubeInnerDiam*0.25*CLHEP::pi*MiddleSectionLength;
+      double glueVolume = (TubeOuterDiam*0.5+TubeGlueThick)*(TubeOuterDiam*0.5+TubeGlueThick)*GeoModelKernelUnits::pi*MiddleSectionLength;
+      double tubeOuterVolume = TubeOuterDiam*TubeOuterDiam*0.25*GeoModelKernelUnits::pi*MiddleSectionLength;
+      double tubeInnerVolume = TubeInnerDiam*TubeInnerDiam*0.25*GeoModelKernelUnits::pi*MiddleSectionLength;
 
       const std::string compMatName="CoolingPipeGlue_IBL";
       const GeoMaterial* cp_material = m_mat_mgr->getCompositeMaterialForVolume(compMatName,
 									      tubeOuterVolume-tubeInnerVolume,
 									      tubeOuterVolume-tubeInnerVolume,"pix::CoolingPipe_IBL",
 									      glueVolume-tubeOuterVolume,"pix::Stycast2850FT");
-      m_gmt_mgr->msg(MSG::INFO)<<"***> new material : "<<cp_material->getName()<<" "<<cp_material->getDensity()/(CLHEP::gram/CLHEP::cm3)<<endmsg;
+      m_gmt_mgr->msg(MSG::INFO)<<"***> new material : "<<cp_material->getName()<<" "<<cp_material->getDensity()/(GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3)<<endmsg;
       cp_logVol = new GeoLogVol("CoolingPipe",coolingPipe,cp_material);
     }
 
@@ -849,8 +853,8 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 //   GeoPhysVol * cp_logPV = new GeoPhysVol(cp_log);
   
   GeoNameTag* cp_tag = new GeoNameTag("CoolingPipe");
-  CLHEP::Hep3Vector cp_pos(xGblOffset+TubeMiddlePos,0.0,0.0);
-  GeoTransform* cp_xform = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),cp_pos));
+  GeoTrf::Translate3D cp_pos(xGblOffset+TubeMiddlePos,0.0,0.0);
+  GeoTransform* cp_xform = new GeoTransform(cp_pos);
   foam_logVolPV->add(cp_tag);
   foam_logVolPV->add(cp_xform);
   foam_logVolPV->add(cp_logPV);
@@ -861,8 +865,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
   GeoPhysVol * cp_inner_logPV = new GeoPhysVol(cp_inner_log);
   
   GeoNameTag* cp_inner_tag = new GeoNameTag("CoolingPipeInner");
-  CLHEP::Hep3Vector cp_inner_pos(0.0,0.0,0.0);
-  GeoTransform* cp_inner_xform = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),cp_inner_pos));
+  GeoTransform* cp_inner_xform = new GeoTransform(GeoTrf::Transform3D::Identity());
   cp_logPV->add(cp_inner_tag);
   cp_logPV->add(cp_inner_xform);
   cp_logPV->add(cp_inner_logPV);
@@ -963,8 +966,8 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
   GeoPhysVol * cp_endblock_logPV = new GeoPhysVol(cp_endblock_log);
   
   GeoNameTag* cp_endblock_tag = new GeoNameTag("EndBlockCoolingPipe");
-  CLHEP::Hep3Vector cp_endblock_pos(xGblOffset+TubeMiddlePos,0.0,0.0);
-  GeoTransform* cp_endblock_xform = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),cp_endblock_pos));
+  GeoTrf::Translate3D cp_endblock_pos(xGblOffset+TubeMiddlePos,0.0,0.0);
+  GeoTransform* cp_endblock_xform = new GeoTransform(cp_endblock_pos);
   m_endblockAPhysVol->add(cp_endblock_tag);
   m_endblockAPhysVol->add(cp_endblock_xform);
   m_endblockAPhysVol->add(cp_endblock_logPV);
@@ -980,8 +983,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
   GeoPhysVol * cp_endblock_inner_logPV = new GeoPhysVol(cp_endblock_inner_log);
   
   GeoNameTag* cp_endblock_inner_tag = new GeoNameTag("EndBlockCoolingPipeInner");
-  CLHEP::Hep3Vector cp_endblock_inner_pos(0.0,0.0,0.0);
-  GeoTransform* cp_endblock_inner_xform = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),cp_endblock_inner_pos));
+  GeoTransform* cp_endblock_inner_xform = new GeoTransform(GeoTrf::Transform3D::Identity());
   cp_endblock_logPV->add(cp_endblock_inner_tag);
   cp_endblock_logPV->add(cp_endblock_inner_xform);
   cp_endblock_logPV->add(cp_endblock_inner_logPV);
@@ -1024,8 +1026,8 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 
   // Add flex in 3D model : A component
   //  GeoNameTag* cableflex_tag = new GeoNameTag(lname.str());
-  CLHEP::Hep3Vector cableflex_pos(EndblockFlexXpos,EndblockFlexYpos,0.);
-  m_endblockFlexTrf = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(0.0,0.0,-fabs(flex_angle)),cableflex_pos));
+  GeoTrf::Vector3D cableflex_pos(EndblockFlexXpos,EndblockFlexYpos,0.);
+  m_endblockFlexTrf = new GeoTransform(GeoTrf::GeoTransformRT(GeoTrf::GeoRotation(0.0,0.0,-fabs(flex_angle)),cableflex_pos));
   GeoLogVol * cableflex_logVol = new GeoLogVol(lname.str(),cableflex_shape,scaledFlexMaterial);
   m_endblockFlexPhysVol = new GeoPhysVol(cableflex_logVol);
 
@@ -1047,8 +1049,8 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
     m_serviceCoolPipePhysVol = new GeoPhysVol(cp_service_log);
   
 //   GeoNameTag* cp_service_tag = new GeoNameTag("ServiceCoolingPipe");
-//   CLHEP::Hep3Vector cp_service_pos(xGblOffset+TubeMiddlePos,0.0,0.0);
-//   GeoTransform* cp_service_xform = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),cp_service_pos));
+//   GeoTrf::Vector3D cp_service_pos(xGblOffset+TubeMiddlePos,0.0,0.0);
+//   GeoTransform* cp_service_xform = new GeoTransform(GeoTrf::Transform3D(GeoModelKernelUnits::HepRotation(),cp_service_pos));
 //   //       service_logVolPV->add(cp_service_tag);
 //   //       service_logVolPV->add(cp_service_xform);
 //   //       service_logVolPV->add(cp_service_logPV);
@@ -1062,17 +1064,16 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
     GeoPhysVol * cp_service_inner_logPV = new GeoPhysVol(cp_service_inner_log);
     
     GeoNameTag* cp_service_inner_tag = new GeoNameTag("SrvCoolingPipeInner");
-    CLHEP::Hep3Vector cp_service_inner_pos(0.0,0.0,0.0);
-    GeoTransform* cp_service_inner_xform = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),cp_service_inner_pos));
+    GeoTransform* cp_service_inner_xform = new GeoTransform(GeoTrf::Transform3D::Identity());
     m_serviceCoolPipePhysVol->add(cp_service_inner_tag);
     m_serviceCoolPipePhysVol->add(cp_service_inner_xform);
     m_serviceCoolPipePhysVol->add(cp_service_inner_logPV);
     
-    CLHEP::Hep3Vector cpipe_posA(xGblOffset+TubeMiddlePos,0.0,(MechanicalStaveLength*0.5+m_endblockSrvLength*0.5)-m_serviceZpos);
-    m_serviceCoolPipeTrfA = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),cpipe_posA));
+    GeoTrf::Translate3D cpipe_posA(xGblOffset+TubeMiddlePos,0.0,(MechanicalStaveLength*0.5+m_endblockSrvLength*0.5)-m_serviceZpos);
+    m_serviceCoolPipeTrfA = new GeoTransform(GeoTrf::Transform3D(cpipe_posA));
     
-    CLHEP::Hep3Vector cpipe_posC(xGblOffset+TubeMiddlePos,0.0,-((MechanicalStaveLength*0.5+m_endblockSrvLength*0.5)-m_serviceZpos));
-    m_serviceCoolPipeTrfC = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),cpipe_posC));
+    GeoTrf::Translate3D cpipe_posC(xGblOffset+TubeMiddlePos,0.0,-((MechanicalStaveLength*0.5+m_endblockSrvLength*0.5)-m_serviceZpos));
+    m_serviceCoolPipeTrfC = new GeoTransform(GeoTrf::Transform3D(cpipe_posC));
   }
 
   // ------------------------------------------------------------------------------------------------------------
@@ -1121,7 +1122,7 @@ void GeoPixelDetailedStaveSupport::computeStaveEnvelopTransformAndSize(double mo
   double stave_xOffset=StaveModuleOffset+moduleThickP, stave_yOffset=MechanicalStaveOffset;
   m_gmt_mgr->msg(MSG::INFO)<<" stave xoffset = "<< stave_xOffset <<endmsg; 
   m_gmt_mgr->msg(MSG::INFO)<<" stave yoffset = "<< stave_yOffset <<endmsg; 
-  m_transform = HepGeom::Translate3D(stave_xOffset,stave_yOffset,0);
+  m_transform = GeoTrf::Translate3D(stave_xOffset,stave_yOffset,0);
 
   double staveSupportThickness=FacePlateThick+m_FoamMiddleThick;
   m_thicknessP = staveSupportThickness;
@@ -1310,7 +1311,7 @@ void GeoPixelDetailedStaveSupport::RemoveCoincidentAndColinearPointsFromShape(st
 	  int i2=(iPt+1)%(nbPoint);
 	  
 	  double zDist=fabs(sqrt((xPoint[i1]-xPoint[i2])*(xPoint[i1]-xPoint[i2])+(yPoint[i1]-yPoint[i2])*(yPoint[i1]-yPoint[i2])));
-	  if(zDist<0.01*CLHEP::mm){
+	  if(zDist<0.01*GeoModelKernelUnits::mm){
 	      xPoint.erase(xPoint.begin()+i1);
 	      yPoint.erase(yPoint.begin()+i1);
 	      bRemovedPoint=true;
@@ -1511,13 +1512,13 @@ void GeoPixelDetailedStaveSupport::AddSurroundingXYMargin(double vMarginX, doubl
 void GeoPixelDetailedStaveSupport::ComputeStaveExternalShape()
 {
 
-  HepGeom::Point3D<double> midStaveCenter(m_gmt_mgr->IBLStaveOmegaMidCenterX(),0.0,0.0);
+  GeoTrf::Vector3D midStaveCenter(m_gmt_mgr->IBLStaveOmegaMidCenterX(),0.0,0.0);
   double midStaveRadius=m_gmt_mgr->IBLStaveOmegaMidRadius();
-  double midStaveAngle=90.0*CLHEP::deg-m_gmt_mgr->IBLStaveOmegaMidAngle();
+  double midStaveAngle=90.0*GeoModelKernelUnits::deg-m_gmt_mgr->IBLStaveOmegaMidAngle();
 
-  HepGeom::Point3D<double> endStaveCenter(m_gmt_mgr->IBLStaveOmegaEndCenterX(),m_gmt_mgr->IBLStaveOmegaEndCenterY(),0.0);
+  GeoTrf::Vector3D endStaveCenter(m_gmt_mgr->IBLStaveOmegaEndCenterX(),m_gmt_mgr->IBLStaveOmegaEndCenterY(),0.0);
   double endStaveRadius=m_gmt_mgr->IBLStaveOmegaEndRadius();
-  double endStaveAngle=90.0*CLHEP::deg+m_gmt_mgr->IBLStaveOmegaEndAngle();
+  double endStaveAngle=90.0*GeoModelKernelUnits::deg+m_gmt_mgr->IBLStaveOmegaEndAngle();
 
   double omegaThick = m_gmt_mgr->IBLStaveOmegaThickness();
   double omegaEndStavePointY = m_gmt_mgr->IBLStaveMechanicalStaveWidth()*0.5;
@@ -1543,7 +1544,7 @@ void GeoPixelDetailedStaveSupport::ComputeStaveExternalShape()
   double endStavePt2=-sqrt(endStaveRadius*endStaveRadius-endStaveCenter.x()*endStaveCenter.x())+endStaveCenter.y();
   double endStavePt=endStavePt1;
   if(fabs(endStavePt2-omegaEndStavePointY)<fabs(endStavePt1-omegaEndStavePointY))endStavePt=endStavePt2;
-  HepGeom::Point3D<double> endStavePoint(0.0,endStavePt,0.0);
+  GeoTrf::Vector3D endStavePoint(0.0,endStavePt,0.0);
   m_OmegaEndStaveThick=omegaEndStavePointY-endStavePt;
   m_gmt_mgr->msg(MSG::DEBUG)<<"End stave Y point : "<<endStavePt<<" "<<omegaEndStavePointY<<" -> "<<m_OmegaEndStaveThick<<endmsg;
   m_gmt_mgr->msg(MSG::DEBUG)<<"Angles : "<<midStaveAngle<<" "<<endStaveAngle<<endmsg;
@@ -1551,37 +1552,36 @@ void GeoPixelDetailedStaveSupport::ComputeStaveExternalShape()
   // ***** compute points coordinates defining stave long side
   // midSidePt : point next to cooling pipe 
 
-  HepGeom::Point3D<double> midSidePt(0.0,0.0,0.0);
-  midSidePt=HepGeom::Point3D<double>(midStaveCenter.x()+midStaveRadius*midCos, midStaveCenter.y()+midStaveRadius*midSin, 0.0);
+  GeoTrf::Vector3D midSidePt(midStaveCenter.x()+midStaveRadius*midCos, midStaveCenter.y()+midStaveRadius*midSin, 0.0);
   m_gmt_mgr->msg(MSG::DEBUG)<< "midSidePt : "<<midSidePt.x()<<" "<<midSidePt.y()<<endmsg;
   m_gmt_mgr->msg(MSG::DEBUG)<< "-> verif : "<<(midSidePt.x()-midStaveCenter.x())*(midSidePt.x()-midStaveCenter.x())+(midSidePt.y()-midStaveCenter.y())*(midSidePt.y()-midStaveCenter.y())-midStaveRadius*midStaveRadius<<"  ps : "<<(midSidePt.x()-midStaveCenter.x())*midSin+(midSidePt.y()-midStaveCenter.y())*midCos<<endmsg;
 
-  HepGeom::Point3D<double> midSidePt_omega(0.0,0.0,0.0);
-  CLHEP::Hep3Vector midSideDir(midSidePt.x()-midStaveCenter.x(),midSidePt.y()-midStaveCenter.y(),0.0);
+  GeoTrf::Vector3D midSidePt_omega(0.0,0.0,0.0);
+  GeoTrf::Vector3D midSideDir(midSidePt.x()-midStaveCenter.x(),midSidePt.y()-midStaveCenter.y(),0.0);
   midSidePt_omega=NeighbourPoint_Rad(midSidePt,midSideDir,omegaThick);
 
   // endSidePt : point next to end of stave
-  HepGeom::Point3D<double> endSidePt(0.0,0.0,0.0);
-  endSidePt=HepGeom::Point3D<double>(endStaveCenter.x()+endStaveRadius*midCos, endStaveCenter.y()+endStaveRadius*midSin, 0.0);
+  GeoTrf::Vector3D endSidePt(0.0,0.0,0.0);
+  endSidePt=GeoTrf::Vector3D(endStaveCenter.x()+endStaveRadius*midCos, endStaveCenter.y()+endStaveRadius*midSin, 0.0);
   m_gmt_mgr->msg(MSG::DEBUG)<< "endSidePt : "<<endSidePt.x()<<" "<<endSidePt.y()<<endmsg;
   m_gmt_mgr->msg(MSG::DEBUG)<< "-> verif : "<<(endSidePt.x()-endStaveCenter.x())*(endSidePt.x()-endStaveCenter.x())+(endSidePt.y()-endStaveCenter.y())*(endSidePt.y()-endStaveCenter.y())-endStaveRadius*endStaveRadius<<"  ps : "<<(endSidePt.x()-endStaveCenter.x())*midSin-(endSidePt.y()-endStaveCenter.y())*midCos<<endmsg;
 
-  HepGeom::Point3D<double> endSidePt_omega(0.0,0.0,0.0);
-  CLHEP::Hep3Vector endSideDir(endSidePt.x()-endStaveCenter.x(),endSidePt.y()-endStaveCenter.y(),0.0);
+  GeoTrf::Vector3D endSidePt_omega(0.0,0.0,0.0);
+  GeoTrf::Vector3D endSideDir(endSidePt.x()-endStaveCenter.x(),endSidePt.y()-endStaveCenter.y(),0.0);
   endSidePt_omega=NeighbourPoint_Rad(endSidePt,endSideDir,omegaThick);
 
 
   // ***** Points defining the vertex of foam module and omega module
   
   // Foam module
-  HepGeom::Point3D<double> midStavePoint(0.0,0.0,0.0);
+  GeoTrf::Vector3D midStavePoint(0.0,0.0,0.0);
   midStavePoint=IntersectionPoint(midSidePt.x(),midSidePt.y(),endSidePt.x(),endSidePt.y(),
 				  midSidePt.x(),-midSidePt.y(),endSidePt.x(),-endSidePt.y());
   m_FoamMiddleThick=midStavePoint.x();
   m_gmt_mgr->msg(MSG::DEBUG)<< "Foam thickness (middle) "<<m_FoamMiddleThick<<" ("<<midStavePoint.y()<<") "<<endmsg;
 
   // Omega module
-  HepGeom::Point3D<double> midStavePoint_omega(0.0,0.0,0.0);
+  GeoTrf::Vector3D midStavePoint_omega(0.0,0.0,0.0);
   midStavePoint_omega=IntersectionPoint(midSidePt_omega.x(),midSidePt_omega.y(),endSidePt_omega.x(),endSidePt_omega.y(),
 					midSidePt_omega.x(),-midSidePt_omega.y(),endSidePt_omega.x(),-endSidePt_omega.y());
   m_OmegaMidStaveThick=midStavePoint_omega.x()-midStavePoint.x();
@@ -1591,23 +1591,23 @@ void GeoPixelDetailedStaveSupport::ComputeStaveExternalShape()
   // ***** Points defining the rounded shape at the edge of the stave
 
   // Neighbour endstave point (without omega)
-  HepGeom::Point3D<double> endStavePoint_omega(0.0,0.0,0.0);
-  CLHEP::Hep3Vector endStaveDir(endStavePoint.x()-endStaveCenter.x(),endStavePoint.y()-endStaveCenter.y(),0.0);
+  GeoTrf::Vector3D endStavePoint_omega(0.0,0.0,0.0);
+  GeoTrf::Vector3D endStaveDir(endStavePoint.x()-endStaveCenter.x(),endStavePoint.y()-endStaveCenter.y(),0.0);
   endStavePoint_omega=NeighbourPoint_Rad(endStavePoint,endStaveDir,omegaThick);
 
-  HepGeom::Point3D<double> endSidePt_omega2(0.0,0.0,0.0);
+  GeoTrf::Vector3D endSidePt_omega2(0.0,0.0,0.0);
   endSidePt_omega2=IntersectionPoint(midSidePt_omega.x(),midSidePt_omega.y(),endSidePt_omega.x(),endSidePt_omega.y(),
 				     endStavePoint_omega.x(),endStavePoint_omega.y(),endStavePoint.x(),endStavePoint.y()+m_OmegaEndStaveThick);
   m_gmt_mgr->msg(MSG::DEBUG)<< "EndStave + omega par intersection X/Y "<<endSidePt_omega2.x()<<" "<<endSidePt_omega2.y()<<endmsg;
   m_OmegaEndStavePointX=endSidePt_omega2.x();
   m_OmegaEndStavePointY=endSidePt_omega2.y();
 
-  HepGeom::Point3D<double> endSidePt_inner(0.0,0.0,0.0);
-  CLHEP::Hep3Vector endSidePt_vec(endSidePt_omega2.x()-endStavePoint.x(),endSidePt_omega2.y()-(endStavePoint.y()+m_OmegaEndStaveThick),0.0);
+  GeoTrf::Vector3D endSidePt_inner(0.0,0.0,0.0);
+  GeoTrf::Vector3D endSidePt_vec(endSidePt_omega2.x()-endStavePoint.x(),endSidePt_omega2.y()-(endStavePoint.y()+m_OmegaEndStaveThick),0.0);
   endSidePt_inner=NeighbourPoint_Perp(endSidePt_omega2,endSidePt_vec,omegaThick,-1);
 
   // Compute Rx3,Ry3 coordinates
-  HepGeom::Point3D<double> endSidePt_inter(0.0,0.0,0.0);
+  GeoTrf::Vector3D endSidePt_inter(0.0,0.0,0.0);
   endSidePt_inter=IntersectionPoint(midSidePt.x(),midSidePt.y(),endSidePt.x(),endSidePt.y(),
 				    endSidePt_inner.x(),endSidePt_inner.y(),endStavePoint.x(),endStavePoint.y());
   m_FoamEdgePointX=endSidePt_inter.x();
@@ -1623,7 +1623,7 @@ void GeoPixelDetailedStaveSupport::ComputeStaveExternalShape()
   m_gmt_mgr->msg(MSG::DEBUG)<< "Verfi angles : "<<angle1<<" "<<angle2<<" "<<angle3<<"  / "<<angle1*180.0/3.1415<<" "<<angle2*180.0/3.1415<<endmsg;
 
   // Compute mid stave side point
-  HepGeom::Point3D<double> midSidePoint(0.0,0.0,0.0);
+  GeoTrf::Vector3D midSidePoint(0.0,0.0,0.0);
   midSidePoint=IntersectionPoint(midSidePt_omega.x(),midSidePt_omega.y(),endSidePt_omega.x(),endSidePt_omega.y(),
 				 0.0,(endStavePoint.y()+m_OmegaEndStaveThick)*0.5,10.0,(endStavePoint.y()+m_OmegaEndStaveThick)*0.5);
   m_MidStaveSidePointX=midSidePoint.x();
@@ -1632,50 +1632,50 @@ void GeoPixelDetailedStaveSupport::ComputeStaveExternalShape()
 }
 
 
-HepGeom::Point3D<double> GeoPixelDetailedStaveSupport::IntersectionPoint(double Ax,double Ay,double Bx,double By,double Cx,double Cy,double Dx,double Dy)
+GeoTrf::Vector3D GeoPixelDetailedStaveSupport::IntersectionPoint(double Ax,double Ay,double Bx,double By,double Cx,double Cy,double Dx,double Dy)
 {
   double tmp=(Bx-Ax)*(Dy-Cy)-(By-Ay)*(Dx-Cx);
   double invTmp=1.0/tmp;
     
   double r=((Ay-Cy)*(Dx-Cx)-(Ax-Cx)*(Dy-Cy))*invTmp;
     
-  HepGeom::Point3D<double> inter(Ax+r*(Bx-Ax),Ay+r*(By-Ay),0.0);
+  GeoTrf::Vector3D inter(Ax+r*(Bx-Ax),Ay+r*(By-Ay),0.0);
     
   return inter;
 }
 
 
-CLHEP::Hep3Vector GeoPixelDetailedStaveSupport::NormalizeDir(CLHEP::Hep3Vector v)
+GeoTrf::Vector3D GeoPixelDetailedStaveSupport::NormalizeDir(GeoTrf::Vector3D v)
 {
   double tmp=1.0/sqrt(v.x()*v.x()+v.y()*v.y());
-  return CLHEP::Hep3Vector(v.x()*tmp,v.y()*tmp,0.0);
+  return GeoTrf::Vector3D(v.x()*tmp,v.y()*tmp,0.0);
 }
 
 
-HepGeom::Point3D<double> GeoPixelDetailedStaveSupport::NeighbourPoint_Rad(HepGeom::Point3D<double> p, CLHEP::Hep3Vector v, double delta)
+GeoTrf::Vector3D GeoPixelDetailedStaveSupport::NeighbourPoint_Rad(GeoTrf::Vector3D p, GeoTrf::Vector3D v, double delta)
 {
-  CLHEP::Hep3Vector vNorm=NormalizeDir(v);
+  GeoTrf::Vector3D vNorm=NormalizeDir(v);
   double xnew=p.x()+delta*vNorm.x();
   double ynew=p.y()+delta*vNorm.y();
-  return HepGeom::Point3D<double>(xnew,ynew,0.0);
+  return GeoTrf::Vector3D(xnew,ynew,0.0);
 }
 
-HepGeom::Point3D<double> GeoPixelDetailedStaveSupport::NeighbourPoint_Perp(HepGeom::Point3D<double> p, CLHEP::Hep3Vector v, double delta, int iDir)
+GeoTrf::Vector3D GeoPixelDetailedStaveSupport::NeighbourPoint_Perp(GeoTrf::Vector3D p, GeoTrf::Vector3D v, double delta, int iDir)
 {
-  CLHEP::Hep3Vector vNorm=NormalizeDir(v);
+  GeoTrf::Vector3D vNorm=NormalizeDir(v);
   double xnew=p.x()-iDir*delta*vNorm.y();
   double ynew=p.y()+iDir*delta*vNorm.x();
-  return HepGeom::Point3D<double>(xnew,ynew,0.0);
+  return GeoTrf::Vector3D(xnew,ynew,0.0);
 }
 
 double GeoPixelDetailedStaveSupport::ComputeAngle(double ux, double uy, double vx, double vy)
 {
   
-  CLHEP::Hep3Vector u(ux,uy,0.0);
-  CLHEP::Hep3Vector v(vx,vy,0.0);
+  GeoTrf::Vector3D u(ux,uy,0.0);
+  GeoTrf::Vector3D v(vx,vy,0.0);
 
-  CLHEP::Hep3Vector uNorm=NormalizeDir(u);
-  CLHEP::Hep3Vector vNorm=NormalizeDir(v);
+  GeoTrf::Vector3D uNorm=NormalizeDir(u);
+  GeoTrf::Vector3D vNorm=NormalizeDir(v);
 
   double pScal=uNorm.x()*vNorm.x()+uNorm.y()*vNorm.y();
   double angle=acos(pScal);
@@ -1683,7 +1683,7 @@ double GeoPixelDetailedStaveSupport::ComputeAngle(double ux, double uy, double v
   return angle;
 }
 
-double GeoPixelDetailedStaveSupport::ComputeDistance(HepGeom::Point3D<double> p, HepGeom::Point3D<double> q)
+double GeoPixelDetailedStaveSupport::ComputeDistance(GeoTrf::Vector3D p, GeoTrf::Vector3D q)
 {
   return sqrt((q.x()-p.x())*(q.x()-p.x())+(q.y()-p.y())*(q.y()-p.y()));
 }

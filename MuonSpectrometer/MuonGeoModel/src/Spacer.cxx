@@ -19,7 +19,8 @@
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoSerialIdentifier.h"
-#include "CLHEP/Geometry/Transform3D.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 // for cutouts:
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 
@@ -65,8 +66,8 @@ GeoVPhysVol * Spacer::build(int /*cutoutson*/)
              //         <<excent<<" length = "<<length<<std::endl;
       GeoTrd* upTrd   = new GeoTrd(thickness/2.,thickness/2., longWidth/2., upWidth/2.,
                                    (length-maxwLength)/2.);		
-      strd = & ( (strd->add(  (*upTrd) << HepGeom::TranslateZ3D( length/2. )) )
-                 << HepGeom::TranslateZ3D( (maxwLength - length)/2.) );
+      strd = & ( (strd->add(  (*upTrd) << GeoTrf::TranslateZ3D( length/2. )) )
+                 << GeoTrf::TranslateZ3D( (maxwLength - length)/2.) );
     }
 
     const GeoMaterial* mtrd = matManager->getMaterial("std::Aluminium");
@@ -112,7 +113,7 @@ GeoVPhysVol * Spacer::build(int /*cutoutson*/)
           ptrdtemp = ptrd2;
           tckibeam = dy;
         }
-        GeoTransform* xf = new GeoTransform(HepGeom::Translate3D(wherepos + tckibeam/2, wherewidth+dy/2, 0));
+        GeoTransform* xf = new GeoTransform(GeoTrf::Translate3D(wherepos + tckibeam/2, wherewidth+dy/2, 0));
         if (!skip_spacer) {
           ptrd->add(xf);
           ptrd->add(ptrdtemp);
@@ -134,7 +135,7 @@ GeoVPhysVol * Spacer::build(int /*cutoutson*/)
 
     for (int k1 = 0; k1 < 2; k1++){
       for (int k = 0; k < 2; k++){
-        GeoTransform* ttube = new GeoTransform(HepGeom::RotateX3D(-90*CLHEP::deg)* HepGeom::Translate3D(
+        GeoTransform* ttube = new GeoTransform(GeoTrf::RotateX3D(-90*GeoModelKernelUnits::deg)* GeoTrf::Translate3D(
                                                0.,
                                                -(vtubl+tckibeam)/2.-(k-1)*(vtubl+tckibeam),
                                                -length/4.-(k1-1)*length/2));

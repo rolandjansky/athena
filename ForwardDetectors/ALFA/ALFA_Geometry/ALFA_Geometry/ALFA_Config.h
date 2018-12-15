@@ -9,7 +9,6 @@
 #include "ALFA_constants.h"
 
 #include "CLHEP/Geometry/Point3D.h"
-#include "GeoModelKernel/GeoTransform.h"
 
 #include <list>
 #include <map>

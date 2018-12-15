@@ -94,7 +94,7 @@ Amg::Vector3D SimHitHandle_SiHit::Imp::localToGlobal( const HepGeom::Point3D<dou
 {
   if (!ensureDetElemInit())
     return Amg::Vector3D(0,0,0);
-  return Amg::Vector3D(detelem->transformHit() * local);
+  return Amg::Vector3D(Amg::EigenTransformToCLHEP(detelem->transformHit()) * local);
 }
 
 //____________________________________________________________________

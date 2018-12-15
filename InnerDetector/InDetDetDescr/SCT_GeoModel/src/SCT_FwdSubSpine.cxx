@@ -25,11 +25,11 @@
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Vector/Rotation.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+
+
 
 #include <cmath>
 
@@ -100,7 +100,7 @@ GeoVPhysVol * SCT_FwdSubSpine::build()
   position  = mountPosition - parameters->fwdSubSpineInnerRefDist(m_ringType) - 0.5*m_length1;
   position = position * HybPos;
   position2 = (widthMain + m_width1) / 2.;
-  const GeoShape & spinePos1 = (*spineShape1 << HepGeom::TranslateY3D(m_spineSide * position2) << HepGeom::TranslateZ3D(position) );
+  const GeoShape & spinePos1 = (*spineShape1 << GeoTrf::TranslateY3D(m_spineSide * position2) << GeoTrf::TranslateZ3D(position) );
   
 
   // Middle sub spine
@@ -109,7 +109,7 @@ GeoVPhysVol * SCT_FwdSubSpine::build()
     position  = mountPosition - parameters->fwdSubSpineMiddleRefDist(m_ringType) - 0.5*m_length2;
     position = position * HybPos;
     position2 = (widthMain + m_width2) / 2.;
-    const GeoShape & spinePos2 = (*spineShape2 << HepGeom::TranslateY3D(m_spineSide * position2) << HepGeom::TranslateZ3D(position) );
+    const GeoShape & spinePos2 = (*spineShape2 << GeoTrf::TranslateY3D(m_spineSide * position2) << GeoTrf::TranslateZ3D(position) );
     subSpineMiddle = &spinePos2;
   }
 
@@ -117,7 +117,7 @@ GeoVPhysVol * SCT_FwdSubSpine::build()
   position  = mountPosition - parameters->fwdSubSpineOuterRefDist(m_ringType) - 0.5*m_length3;
   position = position * HybPos;
   position2 = (widthMain + m_width3) / 2.;
-  const GeoShape & spinePos3 = (*spineShape3 << HepGeom::TranslateY3D(m_spineSide * position2) << HepGeom::TranslateZ3D(position) );
+  const GeoShape & spinePos3 = (*spineShape3 << GeoTrf::TranslateY3D(m_spineSide * position2) << GeoTrf::TranslateZ3D(position) );
 
   const GeoShapeUnion & spineTmp  = (spinePos1).add(spinePos3);
   if (m_ringType != 3) {

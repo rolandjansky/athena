@@ -12,6 +12,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
+#include "GeoModelKernel/GeoDefinitions.h"
 #include "CLHEP/Geometry/Transform3D.h"
 
 #include "TrkSurfaces/DiscBounds.h"
@@ -97,7 +98,8 @@ namespace InDetDD {
 
             size_t offsetInto = m_descriptor->getStrawTransformOffset();
 
-            return getMaterialGeom()->getAbsoluteTransform()*((*f)(istraw+offsetInto)) * calculateLocalStrawTransform(straw);
+            return Amg::EigenTransformToCLHEP(getMaterialGeom()->getAbsoluteTransform()*((*f)(istraw+offsetInto))) 
+	      * calculateLocalStrawTransform(straw);
             ////return conditions()->solenoidFrame() 
             ////  * getMaterialGeom()->getAbsoluteTransform()*((*f)(istraw+offsetInto));
 
@@ -108,7 +110,9 @@ namespace InDetDD {
 
             double phi = m_descriptor->startPhi() +  m_descriptor->strawPitch() * straw;
             double r = m_descriptor->innerRadius() + 0.5 * m_descriptor->strawLength() ;
-            CLHEP::Hep3Vector pos(r*cos(phi), r*sin(phi), (getMaterialGeom()->getAbsoluteTransform()*HepGeom::Point3D<double>()).z());
+            CLHEP::Hep3Vector pos(r*cos(phi)
+				  , r*sin(phi)
+				  , (Amg::EigenTransformToCLHEP(getMaterialGeom()->getAbsoluteTransform())*HepGeom::Point3D<double>()).z());
             CLHEP::HepRotation rot;
             // Axis (in local (0,0,1)) points towards beam axis.
             rot.rotateY(-0.5*M_PI); // Make it point along -ve X.
@@ -175,13 +179,15 @@ namespace InDetDD {
             int istraw = m_code.isPosZ() ? straw : m_descriptor->nStraws()-1 - straw;
 
             size_t offsetInto = m_descriptor->getStrawTransformOffset();
-            return getMaterialGeom()->getDefAbsoluteTransform()*((*f)(istraw+offsetInto));
+            return Amg::EigenTransformToCLHEP(getMaterialGeom()->getDefAbsoluteTransform()*((*f)(istraw+offsetInto)));
 
         } else {
 
             double phi = m_descriptor->startPhi() +  m_descriptor->strawPitch() * straw;
             double r = m_descriptor->innerRadius() + 0.5 * m_descriptor->strawLength() ;
-            CLHEP::Hep3Vector pos(r*cos(phi), r*sin(phi), (getMaterialGeom()->getDefAbsoluteTransform()*HepGeom::Point3D<double>()).z());
+            CLHEP::Hep3Vector pos(r*cos(phi)
+				  , r*sin(phi)
+				  , (Amg::EigenTransformToCLHEP(getMaterialGeom()->getDefAbsoluteTransform())*HepGeom::Point3D<double>()).z());
             CLHEP::HepRotation rot;
             rot.rotateY(-0.5*M_PI); // Make it point along -ve X.
             rot.rotateZ(phi);
@@ -228,9 +234,9 @@ namespace InDetDD {
 
         Amg::Transform3D * transform = 0;
         if  (m_code.isPosZ())
-            transform = new Amg::Transform3D(Amg::CLHEPTransformToEigen( (getMaterialGeom()->getAbsoluteTransform() * HepGeom::RotateZ3D(phiCenter))));
+	  transform = new Amg::Transform3D((getMaterialGeom()->getAbsoluteTransform() * GeoTrf::RotateZ3D(phiCenter)));
         else
-            transform = new Amg::Transform3D(Amg::CLHEPTransformToEigen( (getMaterialGeom()->getAbsoluteTransform() * HepGeom::RotateY3D(180*CLHEP::deg) * HepGeom::RotateZ3D(phiCenter))));
+	  transform = new Amg::Transform3D((getMaterialGeom()->getAbsoluteTransform() * GeoTrf::RotateY3D(180*CLHEP::deg) * GeoTrf::RotateZ3D(phiCenter)));
 
         // create the igredients and the cache
         Trk::DiscBounds* bounds = new Trk::DiscBounds(rMin, rMax, phiHalfWidth);

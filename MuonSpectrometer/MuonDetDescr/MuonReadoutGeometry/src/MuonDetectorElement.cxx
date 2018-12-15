@@ -8,9 +8,6 @@
 
 #include "MuonReadoutGeometry/MuonDetectorElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-
-#include "GaudiKernel/MsgStream.h"
 
 namespace MuonGM {
 

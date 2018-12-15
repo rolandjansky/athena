@@ -17,6 +17,8 @@
 
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackingPrimitives.h"
+#include "GaudiKernel/SystemOfUnits.h"
+
 #include <math.h>
 
 namespace Rec {
@@ -28,7 +30,7 @@ namespace Rec {
     m_particleCreator("Trk::TrackParticleCreatorTool/MuonCaloParticleCreator"),
     m_caloNoiseTool("CaloNoiseToolDefault"),
     m_sigmasAboveNoise(4.),
-    m_emEtCut(2.5*CLHEP::GeV),
+    m_emEtCut(2.5*Gaudi::Units::GeV),
     m_emF1Cut(0.15),
     m_emipEM(0.42), // 0.42
     m_emipTile(0.86), // 0.86

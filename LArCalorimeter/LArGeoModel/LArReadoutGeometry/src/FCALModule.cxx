@@ -9,8 +9,6 @@
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoTubs.h"
 
-#include "GeoPrimitives/CLHEPtoEigenConverter.h"
-
 // FCALModule
 #include "LArReadoutGeometry/FCALModule.h"
 
@@ -121,13 +119,13 @@ double FCALModule::getFullDepthZ (const FCALTile& ) const
   return m_dz;
 }
 
-const HepGeom::Transform3D &  FCALModule::getAbsoluteTransform () const
+const GeoTrf::Transform3D &  FCALModule::getAbsoluteTransform () const
 {
   const GeoVFullPhysVol *fullPhysVol = getMaterialGeom();
   return fullPhysVol->getAbsoluteTransform();
 }
 
-const HepGeom::Transform3D &  FCALModule::getDefAbsoluteTransform () const
+const GeoTrf::Transform3D &  FCALModule::getDefAbsoluteTransform () const
 {
   const GeoVFullPhysVol *fullPhysVol = getMaterialGeom();
   return fullPhysVol->getDefAbsoluteTransform();
@@ -135,12 +133,12 @@ const HepGeom::Transform3D &  FCALModule::getDefAbsoluteTransform () const
 
 const Amg::Transform3D  FCALModule::getAbsoluteTransformAmg () const
 {
-  return Amg::CLHEPTransformToEigen(getAbsoluteTransform());
+  return getAbsoluteTransform();
 }
 
 const Amg::Transform3D  FCALModule::getDefAbsoluteTransformAmg () const
 {
-  return Amg::CLHEPTransformToEigen(getDefAbsoluteTransform());
+  return getDefAbsoluteTransform();
 }
 
 void FCALModule::setManager (FCALDetectorManager* fcalManager)

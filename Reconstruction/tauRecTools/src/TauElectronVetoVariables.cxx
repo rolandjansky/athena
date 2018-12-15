@@ -33,7 +33,7 @@
 
 //#include "GaudiKernel/ListItem.h"
 //#include "GaudiKernel/IToolSvc.h"
-//#include "GaudiKernel/Property.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 //#include "CaloUtils/CaloCellList.h"
 //#include "CaloEvent/CaloCluster.h"
@@ -52,7 +52,7 @@
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include "TauElectronVetoVariables.h"
 
-using CLHEP::GeV;
+using Gaudi::Units::GeV;
 
 //-------------------------------------------------------------------------
 // Constructor

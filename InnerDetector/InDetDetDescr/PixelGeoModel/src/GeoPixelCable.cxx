@@ -2,7 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PixelGeoModel/GeoPixelCable.h"
+#include "GeoPixelCable.h"
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoPhysVol.h"
@@ -70,7 +70,7 @@ GeoVPhysVol* GeoPixelCable::Build() {
   std::ostringstream o;
   o << m_gmt_mgr->getLD_Label() << label;
   logName = logName+o.str();
-  //std::cout << logName << ": " << weight/CLHEP::g << " g, " << thickness << std::endl;
+  //std::cout << logName << ": " << weight/GeoModelKernelUnits::g << " g, " << thickness << std::endl;
 
   GeoLogVol* theCable = new GeoLogVol(logName,cableBox,cableMat);
   GeoPhysVol* cablePhys = new GeoPhysVol(theCable);

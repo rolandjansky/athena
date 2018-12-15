@@ -5,6 +5,7 @@
 #ifndef AGDDDetectorPositioner_H
 #define AGDDDetectorPositioner_H
 
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "CLHEP/Geometry/Transform3D.h"
 #include "CLHEP/Vector/ThreeVector.h"

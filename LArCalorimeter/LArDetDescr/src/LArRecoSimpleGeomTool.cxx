@@ -20,8 +20,6 @@
 #include "CaloDetDescr/CaloDetDescriptor.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
-
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBRecord.h"
@@ -29,6 +27,8 @@
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GeoModelUtilities/StoredPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
@@ -155,9 +155,7 @@ LArRecoSimpleGeomTool::get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
   }
 
   GeoFullPhysVol* fullPV  = storedPV->getPhysVol();
-  //const AMG::Transform3D trf_eigen=fullPV->get
-  htrans =  Amg::CLHEPTransformToEigen(fullPV->getAbsoluteTransform())*   
-    Amg::CLHEPTransformToEigen(fullPV->getDefAbsoluteTransform()).inverse();
+  htrans =  fullPV->getAbsoluteTransform()*fullPV->getDefAbsoluteTransform().inverse();
 
   hphi = m_phi_range.twopi();
 
@@ -172,17 +170,17 @@ LArRecoSimpleGeomTool::get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
     if (lar->size()<14) return false;
 
     const IRDBRecord* rec = (*lar)[11];
-    rad =  rec->getDouble("RMIN")*CLHEP::cm;
-    len =  rec->getDouble("DZ")*CLHEP::cm /2.;
-    dep =  rec->getDouble("DR")*CLHEP::cm;
+    rad =  rec->getDouble("RMIN")*GeoModelKernelUnits::cm;
+    len =  rec->getDouble("DZ")*GeoModelKernelUnits::cm /2.;
+    dep =  rec->getDouble("DR")*GeoModelKernelUnits::cm;
     rec = (*lar)[12];
-    dep =  dep +rec->getDouble("DR")*CLHEP::cm;
+    dep =  dep +rec->getDouble("DR")*GeoModelKernelUnits::cm;
     rec = (*lar)[13];
-    dep =  dep +rec->getDouble("DR")*CLHEP::cm;
+    dep =  dep +rec->getDouble("DR")*GeoModelKernelUnits::cm;
 
-    //rad = 124.18*CLHEP::cm;
-    //dep = (.305 + 1.38 + .47 )*CLHEP::cm;
-    //len = 270.*CLHEP::cm;
+    //rad = 124.18*GeoModelKernelUnits::cm;
+    //dep = (.305 + 1.38 + .47 )*GeoModelKernelUnits::cm;
+    //len = 270.*GeoModelKernelUnits::cm;
     
     radius.push_back( rad + dep/2.);
     depth.push_back( dep/2. );
@@ -199,13 +197,13 @@ LArRecoSimpleGeomTool::get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
 
     //  CryoMother nb 10
     const IRDBRecord* rec = (*lar)[10];
-    rad =  rec->getDouble("RMIN")*CLHEP::cm;
-    len =  rec->getDouble("DZ")*CLHEP::cm /2.;
-    dep =  rec->getDouble("DR")*CLHEP::cm;
+    rad =  rec->getDouble("RMIN")*GeoModelKernelUnits::cm;
+    len =  rec->getDouble("DZ")*GeoModelKernelUnits::cm /2.;
+    dep =  rec->getDouble("DR")*GeoModelKernelUnits::cm;
 
-    //rad = 122.9*CLHEP::cm;
-    //dep = 1.28*CLHEP::cm;
-    //len = 270.*CLHEP::cm;
+    //rad = 122.9*GeoModelKernelUnits::cm;
+    //dep = 1.28*GeoModelKernelUnits::cm;
+    //len = 270.*GeoModelKernelUnits::cm;
 
     radius.push_back( rad + dep/2. );
     depth.push_back( dep /2.);
@@ -213,13 +211,13 @@ LArRecoSimpleGeomTool::get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
 
     //  CryoMother nb 14
     rec = (*lar)[14];
-    rad =  rec->getDouble("RMIN")*CLHEP::cm;
-    len =  rec->getDouble("DZ")*CLHEP::cm /2.;
-    dep =  rec->getDouble("DR")*CLHEP::cm;
+    rad =  rec->getDouble("RMIN")*GeoModelKernelUnits::cm;
+    len =  rec->getDouble("DZ")*GeoModelKernelUnits::cm /2.;
+    dep =  rec->getDouble("DR")*GeoModelKernelUnits::cm;
 
-    //rad = 126.335*CLHEP::cm;
-    //dep = 1.2*CLHEP::cm;
-    //len = 284.*CLHEP::cm;
+    //rad = 126.335*GeoModelKernelUnits::cm;
+    //dep = 1.2*GeoModelKernelUnits::cm;
+    //len = 284.*GeoModelKernelUnits::cm;
 
     radius.push_back( rad  + dep/2.);
     depth.push_back( dep /2.);
@@ -227,13 +225,13 @@ LArRecoSimpleGeomTool::get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
 
     // CryoMother nb 0
     rec = (*lar)[0];
-    rad =  rec->getDouble("RMIN")*CLHEP::cm;
-    len =  rec->getDouble("DZ")*CLHEP::cm /2.;
-    dep =  rec->getDouble("DR")*CLHEP::cm;
+    rad =  rec->getDouble("RMIN")*GeoModelKernelUnits::cm;
+    len =  rec->getDouble("DZ")*GeoModelKernelUnits::cm /2.;
+    dep =  rec->getDouble("DR")*GeoModelKernelUnits::cm;
 
     //rad = 2140*mm;
     //dep = 30*mm;
-    //len = 299.6*CLHEP::cm;
+    //len = 299.6*GeoModelKernelUnits::cm;
 
     radius.push_back( rad + dep/2. );
     depth.push_back( dep /2.);
@@ -241,13 +239,13 @@ LArRecoSimpleGeomTool::get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
 
     //  CryoMother nb 5
     rec = (*lar)[5];
-    rad =  rec->getDouble("RMIN")*CLHEP::cm;
-    len =  rec->getDouble("DZ")*CLHEP::cm /2.;
-    dep =  rec->getDouble("DR")*CLHEP::cm;
+    rad =  rec->getDouble("RMIN")*GeoModelKernelUnits::cm;
+    len =  rec->getDouble("DZ")*GeoModelKernelUnits::cm /2.;
+    dep =  rec->getDouble("DR")*GeoModelKernelUnits::cm;
 
     //rad = 2220*mm;
     //dep = 30*mm;
-    //len = 285*CLHEP::cm;
+    //len = 285*GeoModelKernelUnits::cm;
 
     radius.push_back( rad + dep/2. );
     depth.push_back( dep /2.);
@@ -264,18 +262,18 @@ LArRecoSimpleGeomTool::get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
     if (lar->size()==0) return false;
     
     const IRDBRecord* rec = (*lar)[0];
-    rad =  rec->getDouble("RMIN")*CLHEP::cm;
-    dep =  rec->getDouble("RMAX")*CLHEP::cm - rad;
+    rad =  rec->getDouble("RMIN")*GeoModelKernelUnits::cm;
+    dep =  rec->getDouble("RMAX")*GeoModelKernelUnits::cm - rad;
 	
     lar = m_recBarrGeo;
     if ( !lar || lar->size()==0) return false;
 
     rec = (*lar)[0];
-    len =  rec->getDouble("ZMAX")*CLHEP::cm;
+    len =  rec->getDouble("ZMAX")*GeoModelKernelUnits::cm;
 
-    //rad = 138.5*CLHEP::cm;
-    //dep = (144.7 - 138.5)*CLHEP::cm;
-    //len = 316.5*CLHEP::cm;
+    //rad = 138.5*GeoModelKernelUnits::cm;
+    //dep = (144.7 - 138.5)*GeoModelKernelUnits::cm;
+    //len = 316.5*GeoModelKernelUnits::cm;
 
     radius.push_back( rad  + dep/2.);
     depth.push_back( dep /2.);
@@ -292,13 +290,13 @@ LArRecoSimpleGeomTool::get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
     if (lar->size()==0) return false;
 
     const IRDBRecord* rec = (*lar)[0];
-    rad =  rec->getDouble("RMIN")*CLHEP::cm;
-    dep =  rec->getDouble("RMAX")*CLHEP::cm - rad;
-    len =  rec->getDouble("ZMAX")*CLHEP::cm;
+    rad =  rec->getDouble("RMIN")*GeoModelKernelUnits::cm;
+    dep =  rec->getDouble("RMAX")*GeoModelKernelUnits::cm - rad;
+    len =  rec->getDouble("ZMAX")*GeoModelKernelUnits::cm;
 
-    //rad = 1447.3*CLHEP::cm;
-    //dep = (2003.35 - 1447.3)*CLHEP::cm;
-    //len = 316.5*CLHEP::cm;
+    //rad = 1447.3*GeoModelKernelUnits::cm;
+    //dep = (2003.35 - 1447.3)*GeoModelKernelUnits::cm;
+    //len = 316.5*GeoModelKernelUnits::cm;
 
     radius.push_back( rad  + dep/2.);
     depth.push_back( dep /2.);
@@ -335,10 +333,7 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
   }
 
   GeoFullPhysVol* fullPV  = storedPV->getPhysVol();
-  //htrans = fullPV->getAbsoluteTransform()*fullPV->getDefAbsoluteTransform().inverse();
-  htrans =  Amg::CLHEPTransformToEigen(fullPV->getAbsoluteTransform())*
-    Amg::CLHEPTransformToEigen(fullPV->getDefAbsoluteTransform()).inverse();
-
+  htrans =  fullPV->getAbsoluteTransform()*fullPV->getDefAbsoluteTransform().inverse();
 
   hphi = m_phi_range.twopi();
   z.clear();
@@ -358,16 +353,16 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
 
     const IRDBRecord* rec = (*lar)[49];
 
-    ri = rec->getDouble("RMIN")*CLHEP::cm;
-    ra = ri + rec->getDouble("DR")*CLHEP::cm;
-    dep = rec->getDouble("DZ")*CLHEP::cm;
-    zcent = rec->getDouble("ZMIN")*CLHEP::cm + dep/2.;
+    ri = rec->getDouble("RMIN")*GeoModelKernelUnits::cm;
+    ra = ri + rec->getDouble("DR")*GeoModelKernelUnits::cm;
+    dep = rec->getDouble("DZ")*GeoModelKernelUnits::cm;
+    zcent = rec->getDouble("ZMIN")*GeoModelKernelUnits::cm + dep/2.;
     if (alvol == CaloSubdetNames::LARCRYO_EC_NEG) zcent = -1. * zcent;
 
-    //ri = 22.1*CLHEP::cm;
-    //ra = (22.1 + 194.4)*CLHEP::cm;
-    //dep = 6.5*CLHEP::cm;
-    //zcent = (356.1 + dep/2.)*CLHEP::cm;
+    //ri = 22.1*GeoModelKernelUnits::cm;
+    //ra = (22.1 + 194.4)*GeoModelKernelUnits::cm;
+    //dep = 6.5*GeoModelKernelUnits::cm;
+    //zcent = (356.1 + dep/2.)*GeoModelKernelUnits::cm;
 
     rmin.push_back( ri );
     rmax.push_back( ra );
@@ -377,16 +372,16 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
     // DDDb : LAr / CryoCylinders / Endcap nb 6
     rec = (*lar)[44];
 
-    ri = rec->getDouble("RMIN")*CLHEP::cm;
-    ra = ri + rec->getDouble("DR")*CLHEP::cm;
-    dep = rec->getDouble("DZ")*CLHEP::cm;
-    zcent = rec->getDouble("ZMIN")*CLHEP::cm + dep/2.;
+    ri = rec->getDouble("RMIN")*GeoModelKernelUnits::cm;
+    ra = ri + rec->getDouble("DR")*GeoModelKernelUnits::cm;
+    dep = rec->getDouble("DZ")*GeoModelKernelUnits::cm;
+    zcent = rec->getDouble("ZMIN")*GeoModelKernelUnits::cm + dep/2.;
     if (alvol == CaloSubdetNames::LARCRYO_EC_NEG) zcent = -1. * zcent;
 
-    //ri = 79.*CLHEP::cm;
-    //ra = (ri + 173.)*CLHEP::cm;
-    //dep = 6.*CLHEP::cm;
-    //zcent = (660.5 + dep/2.)*CLHEP::cm;
+    //ri = 79.*GeoModelKernelUnits::cm;
+    //ra = (ri + 173.)*GeoModelKernelUnits::cm;
+    //dep = 6.*GeoModelKernelUnits::cm;
+    //zcent = (660.5 + dep/2.)*GeoModelKernelUnits::cm;
 
     rmin.push_back( ri );
     rmax.push_back( ra );
@@ -404,16 +399,16 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
 
     const IRDBRecord* rec = (*lar)[0];
 
-    ri = rec->getDouble("RMIN")*CLHEP::cm;
-    ra = rec->getDouble("RMAX")*CLHEP::cm;
-    dep = rec->getDouble("TCK")*CLHEP::cm;
-    zcent = rec->getDouble("ZPOS")*CLHEP::cm + dep/2.;
+    ri = rec->getDouble("RMIN")*GeoModelKernelUnits::cm;
+    ra = rec->getDouble("RMAX")*GeoModelKernelUnits::cm;
+    dep = rec->getDouble("TCK")*GeoModelKernelUnits::cm;
+    zcent = rec->getDouble("ZPOS")*GeoModelKernelUnits::cm + dep/2.;
     if (alvol == CaloSubdetNames::PRESAMPLER_EC_NEG) zcent = -1. * zcent;
 
-    //ri = 123.174*CLHEP::cm;
-    //ra = 170.2*CLHEP::cm;
-    //dep = 0.4*CLHEP::cm;
-    //zcent = (362.4 + dep/2.)*CLHEP::cm;
+    //ri = 123.174*GeoModelKernelUnits::cm;
+    //ra = 170.2*GeoModelKernelUnits::cm;
+    //dep = 0.4*GeoModelKernelUnits::cm;
+    //zcent = (362.4 + dep/2.)*GeoModelKernelUnits::cm;
 
     rmin.push_back( ri );
     rmax.push_back( ra );
@@ -431,16 +426,16 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
 
     const IRDBRecord* rec = (*lar)[0];
 
-    ri = rec->getDouble("RMIN")*CLHEP::cm;
-    ra = rec->getDouble("RMAX")*CLHEP::cm;
-    dep = rec->getDouble("ETOT")*CLHEP::cm;
-    zcent = rec->getDouble("Z1")*CLHEP::cm + dep/2.;
+    ri = rec->getDouble("RMIN")*GeoModelKernelUnits::cm;
+    ra = rec->getDouble("RMAX")*GeoModelKernelUnits::cm;
+    dep = rec->getDouble("ETOT")*GeoModelKernelUnits::cm;
+    zcent = rec->getDouble("Z1")*GeoModelKernelUnits::cm + dep/2.;
     if (alvol == CaloSubdetNames::EMEC_NEG) zcent = -1. * zcent;
 
-    //ri = 29.*CLHEP::cm;
-    //ra = 210.*CLHEP::cm;
-    //dep = 53.6*CLHEP::cm;
-    //zcent = (369.1 + dep/2.)*CLHEP::cm;
+    //ri = 29.*GeoModelKernelUnits::cm;
+    //ra = 210.*GeoModelKernelUnits::cm;
+    //dep = 53.6*GeoModelKernelUnits::cm;
+    //zcent = (369.1 + dep/2.)*GeoModelKernelUnits::cm;
 
     rmin.push_back( ri );
     rmax.push_back( ra );
@@ -459,19 +454,19 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
 
     const IRDBRecord* rec = (*lar)[0];
 
-    ri = rec->getDouble("ROORIG")*CLHEP::cm;
-    ra = rec->getDouble("REND")*CLHEP::cm;
+    ri = rec->getDouble("ROORIG")*GeoModelKernelUnits::cm;
+    ra = rec->getDouble("REND")*GeoModelKernelUnits::cm;
     // Block0+Block1+Block2
     dep = rec->getDouble("PLATE_0")/2. 
       + 3*8*(rec->getDouble("LARG") + rec->getDouble("PLATE_0"));
-    dep = dep*CLHEP::cm;
-    zcent = rec->getDouble("ZSTART")*CLHEP::cm + dep/2.;
+    dep = dep*GeoModelKernelUnits::cm;
+    zcent = rec->getDouble("ZSTART")*GeoModelKernelUnits::cm + dep/2.;
     if (alvol == CaloSubdetNames::HEC1_NEG) zcent = -1. * zcent;
 
-    //ri = 37.2*CLHEP::cm;
-    //ra = 213.0*CLHEP::cm;
-    //dep = (513.4 - 4.05 - 427.7)*CLHEP::cm;
-    //zcent = 427.7*CLHEP::cm;
+    //ri = 37.2*GeoModelKernelUnits::cm;
+    //ra = 213.0*GeoModelKernelUnits::cm;
+    //dep = (513.4 - 4.05 - 427.7)*GeoModelKernelUnits::cm;
+    //zcent = 427.7*GeoModelKernelUnits::cm;
 
     rmin.push_back( ri );
     rmax.push_back( ra );
@@ -491,24 +486,24 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
 
     const IRDBRecord* rec = (*lar)[0];
 
-    ri = rec->getDouble("ROORIG")*CLHEP::cm;
-    ra = rec->getDouble("REND")*CLHEP::cm;
+    ri = rec->getDouble("ROORIG")*GeoModelKernelUnits::cm;
+    ra = rec->getDouble("REND")*GeoModelKernelUnits::cm;
     // Block 3 + Block 4 + Block 5 + Block 6
     dep =  rec->getDouble("PLATE_1")/2. 
       + 4*4*(rec->getDouble("LARG") + rec->getDouble("PLATE_1"));
-    dep = dep*CLHEP::cm;
+    dep = dep*GeoModelKernelUnits::cm;
     // start+depth of HEC1 + gap
     zcent =  rec->getDouble("ZSTART") 
       + rec->getDouble("PLATE_0")/2. 
       + 3*8*(rec->getDouble("LARG") + rec->getDouble("PLATE_0"))
       +  rec->getDouble("GAPWHL") ;
-    zcent = zcent*CLHEP::cm + dep/2.;
+    zcent = zcent*GeoModelKernelUnits::cm + dep/2.;
     if (alvol == CaloSubdetNames::HEC2_NEG) zcent = -1. * zcent;
 
-    //ri = 37.2*CLHEP::cm;
-    //ra = 213.0*CLHEP::cm;
-    //dep = (609.5 - 513.4)*CLHEP::cm;
-    //zcent = (513.4 + dep/2.)*CLHEP::cm;
+    //ri = 37.2*GeoModelKernelUnits::cm;
+    //ra = 213.0*GeoModelKernelUnits::cm;
+    //dep = (609.5 - 513.4)*GeoModelKernelUnits::cm;
+    //zcent = (513.4 + dep/2.)*GeoModelKernelUnits::cm;
 
     rmin.push_back( ri );
     rmax.push_back( ra );
@@ -522,15 +517,15 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
     
     // see LArNumberHelper
 
-    nb = 8.6*CLHEP::cm;
+    nb = 8.6*GeoModelKernelUnits::cm;
     rmin.push_back( nb );
-    nb = 47.5*CLHEP::cm;
+    nb = 47.5*GeoModelKernelUnits::cm;
     rmax.push_back( nb );
 
-    nb = 45.*CLHEP::cm;
+    nb = 45.*GeoModelKernelUnits::cm;
     depth.push_back( nb/2. );
 
-    nb = (466.85 + nb/2. )*CLHEP::cm;
+    nb = (466.85 + nb/2. )*GeoModelKernelUnits::cm;
     if (alvol == CaloSubdetNames::FCAL1_NEG) nb = -1. * nb;
     z.push_back( nb );
 
@@ -541,15 +536,15 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
     
     // see LArNumberHelper
 
-    nb = 8.6*CLHEP::cm;
+    nb = 8.6*GeoModelKernelUnits::cm;
     rmin.push_back( nb );
-    nb = 47.5*CLHEP::cm;
+    nb = 47.5*GeoModelKernelUnits::cm;
     rmax.push_back( nb );
 
-    nb = 45.*CLHEP::cm;
+    nb = 45.*GeoModelKernelUnits::cm;
     depth.push_back( nb/2. );
 
-    nb = (512.3 + nb/2. )*CLHEP::cm;
+    nb = (512.3 + nb/2. )*GeoModelKernelUnits::cm;
     if (alvol == CaloSubdetNames::FCAL2_NEG) nb = -1. * nb;
     z.push_back( nb );
 
@@ -560,15 +555,15 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
     
     // see LArNumberHelper
 
-    nb = 8.6*CLHEP::cm;
+    nb = 8.6*GeoModelKernelUnits::cm;
     rmin.push_back( nb );
-    nb = 47.5*CLHEP::cm;
+    nb = 47.5*GeoModelKernelUnits::cm;
     rmax.push_back( nb );
 
-    nb = 45.*CLHEP::cm;
+    nb = 45.*GeoModelKernelUnits::cm;
     depth.push_back( nb/2. );
 
-    nb = (559.75 + nb/2. )*CLHEP::cm;
+    nb = (559.75 + nb/2. )*GeoModelKernelUnits::cm;
     if (alvol == CaloSubdetNames::FCAL3_NEG) nb = -1. * nb;
     z.push_back( nb );
 
@@ -605,10 +600,7 @@ LArRecoSimpleGeomTool::ScanBarrelCryo(CaloSubdetNames::ALIGNVOL alvol,
   }
 
   GeoFullPhysVol* fullPV  = storedPV->getPhysVol();
-  htrans =  Amg::CLHEPTransformToEigen(fullPV->getAbsoluteTransform())*
-    Amg::CLHEPTransformToEigen(fullPV->getDefAbsoluteTransform()).inverse();
-
-  //htrans = fullPV->getAbsoluteTransform()*fullPV->getDefAbsoluteTransform().inverse();
+  htrans = fullPV->getAbsoluteTransform()*fullPV->getDefAbsoluteTransform().inverse();
 
   hphi = m_phi_range.twopi();
   radius.clear();
@@ -640,9 +632,7 @@ LArRecoSimpleGeomTool::ScanEMB(CaloSubdetNames::ALIGNVOL alvol,
   }
 
   GeoFullPhysVol* fullPV  = storedPV->getPhysVol();
-  //htrans = fullPV->getAbsoluteTransform()*fullPV->getDefAbsoluteTransform().inverse();
-  htrans =  Amg::CLHEPTransformToEigen(fullPV->getAbsoluteTransform())*
-    Amg::CLHEPTransformToEigen(fullPV->getDefAbsoluteTransform()).inverse();
+  htrans = fullPV->getAbsoluteTransform()*fullPV->getDefAbsoluteTransform().inverse();
 
   hphi = m_phi_range.twopi();
   radius.clear();

@@ -11,6 +11,7 @@
 //<version>	$Name: not supported by cvs2svn $
 
 #include "MuonGeoModel/SimpleVolAction.h"
+#include <iostream>
 
 namespace MuonGM {
 

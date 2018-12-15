@@ -23,6 +23,7 @@
 
 // Gaudi
 #include "GaudiKernel/ITHistSvc.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 // Root
 #include "TTree.h"
@@ -31,7 +32,7 @@
 
 #include <vector>
 
-using CLHEP::GeV;
+using Gaudi::Units::GeV;
 
 CalibrationNtupleMakerTool::CalibrationNtupleMakerTool(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),

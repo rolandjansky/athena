@@ -85,12 +85,8 @@ GeoFullPhysVol* sTGC::build(int minimalgeo, int , std::vector<Cutout*> )
 	if (yCutout) solid->addVertex(longWidth/2.,length/2.-yCutout);
 
   //Transform the mother volume to the correct position
-  CLHEP::Hep3Vector v(0,0,0);
-  CLHEP::HepRotation rot;
-  rot.rotateX(M_PI/2.);
-  rot.rotateZ(M_PI/2.);
-  HepGeom::Transform3D transf(rot,v);
-  const GeoShape *strd=new GeoShapeShift(solid,transf);
+  GeoTrf::Transform3D rot = GeoTrf::RotateZ3D(M_PI/2.)*GeoTrf::RotateX3D(M_PI/2.);
+  const GeoShape *strd=new GeoShapeShift(solid,rot);
 									
   logVolName=name;
   if (!(m_component->subType).empty()) logVolName+=("-"+m_component->subType);
@@ -135,16 +131,12 @@ GeoFullPhysVol* sTGC::build(int minimalgeo, int , std::vector<Cutout*> )
 		if (yCutout) sGasVolume->addVertex(longWidthActive/2.,lengthActive/2.-yCutout);
              
     //Transform gas volume
-    CLHEP::Hep3Vector v(0,0,0);
-    CLHEP::HepRotation rot;
-    rot.rotateX(M_PI/2.);
-    rot.rotateZ(M_PI/2.);
-    HepGeom::Transform3D transf(rot,v);
-    const GeoShape *sGasVolume1=new GeoShapeShift(sGasVolume,transf);
+    GeoTrf::Transform3D rot = GeoTrf::RotateZ3D(M_PI/2.)*GeoTrf::RotateX3D(M_PI/2.);
+    const GeoShape *sGasVolume1=new GeoShapeShift(sGasVolume,rot);
     GeoLogVol* ltrdgas = new GeoLogVol("sTGC_Sensitive", sGasVolume1, matManager->getMaterial("muo::TGCGas"));
     GeoPhysVol* ptrdgas = new GeoPhysVol(ltrdgas);
     GeoNameTag* gastag = new GeoNameTag(name+"muo::TGCGas");
-    GeoTransform* chamberpos = new GeoTransform(HepGeom::TranslateX3D(newXPos));
+    GeoTransform* chamberpos = new GeoTransform(GeoTrf::TranslateX3D(newXPos));
 
     //Build two pcb volumes and add them to the gas at -chamberTck/2 and at +chamberTck/2
     for(int i = 0; i < 2; i++){
@@ -161,19 +153,15 @@ GeoFullPhysVol* sTGC::build(int minimalgeo, int , std::vector<Cutout*> )
       if (yCutout) sPcbVolume->addVertex(longWidthActive/2.,lengthActive/2.-yCutout);
 
       //Transform PCB volume
-      CLHEP::Hep3Vector vv(0,0,0);
-      CLHEP::HepRotation rott;
-      rott.rotateX(M_PI/2.);
-      rott.rotateZ(M_PI/2.);
-      HepGeom::Transform3D transff(rott,vv);
-      const GeoShape *sPcbVolume1=new GeoShapeShift(sPcbVolume,transff);
+      GeoTrf::Transform3D rott = GeoTrf::RotateZ3D(M_PI/2.)*GeoTrf::RotateX3D(M_PI/2.);
+      const GeoShape *sPcbVolume1=new GeoShapeShift(sPcbVolume,rott);
 
       const GeoMaterial* mtrdC = matManager->getMaterial("std::G10");
       GeoLogVol* ltrdC = new GeoLogVol(logVolName, sPcbVolume1, mtrdC);
       GeoPhysVol* ptrdPcb = new GeoPhysVol(ltrdC);
       GeoNameTag* ntrdtmpC = new GeoNameTag(name+"std::G10");
 
-      GeoTransform* ttrdtmpC = new GeoTransform(HepGeom::TranslateX3D(pcbpos));
+      GeoTransform* ttrdtmpC = new GeoTransform(GeoTrf::TranslateX3D(pcbpos));
  
 
       // Place pcb volume inside chamber volume
@@ -196,8 +184,7 @@ GeoFullPhysVol* sTGC::build(int minimalgeo, int , std::vector<Cutout*> )
                                     longWidth/2, length/2);
           const GeoShape* trd2 = new GeoTrd(gasTck,gasTck, W-f6,
                                     lW-f6, length/2-(f4+f5)/2.);
-          HepGeom::Transform3D c;
-          c=HepGeom::Translate3D(0,0,(f5-f4)/2.);
+          GeoTrf::Translate3D c(0,0,(f5-f4)/2.);
           trd1= &(trd1->subtract( (*trd2) << c ));
           GeoLogVol* ltrdframe = new GeoLogVol("sTGC_Frame", trd1,
                                          matManager->getMaterial("std::Aluminium"));
@@ -217,7 +204,7 @@ GeoFullPhysVol* sTGC::build(int minimalgeo, int , std::vector<Cutout*> )
 		sGasV->addVertex(W-f6,-lengthActive/2.+f5);
 		sGasV->addVertex(longWidthActive/2.-f6,lengthActive/2.-yCutout);
 	
-	const GeoShape *sGasV1=new GeoShapeShift(sGasV,transf);
+	const GeoShape *sGasV1=new GeoShapeShift(sGasV,rot);
 	
 	const GeoShape* sGasV2=&(sGasVolume1->subtract(*sGasV1));
 	

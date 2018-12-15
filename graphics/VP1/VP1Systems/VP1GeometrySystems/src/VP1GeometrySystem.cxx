@@ -540,7 +540,7 @@ void VP1GeometrySystem::buildPermanentSceneGraph(StoreGateSvc*/*detstore*/, SoSe
 			  //We did... now, time to extract info:
 			  subsys->treetopinfo.resize(subsys->treetopinfo.size()+1);
 			  subsys->treetopinfo.back().pV = av.getVolume();
-			  subsys->treetopinfo.back().xf = av.getTransform();
+			  subsys->treetopinfo.back().xf = Amg::EigenTransformToCLHEP(av.getTransform());
 			  subsys->treetopinfo.back().volname = av.getName();
 
 			  //Add a switch for this system (turned off for now):
@@ -995,7 +995,7 @@ void VP1GeometrySystem::Imp::buildSystem(SubSystemInfo* si)
 			  if (si->childrenRegExpNameCompatible(av.getName().c_str())) {
 				  PVConstLink pVD = av.getVolume();
 				  SbMatrix matr;
-				  VP1LinAlgUtils::transformToMatrix(av.getTransform(),matr);
+				  VP1LinAlgUtils::transformToMatrix(Amg::EigenTransformToCLHEP(av.getTransform()),matr);
 				  VolumeHandle * vh=0;
           // std::cout<<count++<<": dump SubSystemInfo\n"<<"---"<<std::endl;
           // si->dump();

@@ -2,26 +2,27 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EMECDetectorRegion_h
-#define EMECDetectorRegion_h 1
+#ifndef LARREADOUTGEOMETRY_EMECDETECTORREGION_H
+#define LARREADOUTGEOMETRY_EMECDETECTORREGION_H
 #include "LArReadoutGeometry/EMECCellConstLink.h"
 #include "LArReadoutGeometry/EMECDetDescr.h"
 #include "GeoModelKernel/GeoVDetectorElement.h"
-
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "GeoPrimitives/CLHEPtoEigenConverter.h"
-/** 
- *      @brief Description of a region of homogenous granularity in the 
- *      electromagnetic endcap calorimeter
- */
+#include "CLHEP/Geometry/Point3D.h"
 
 /**
+ * @class EMECDetectorRegion
+ * 
+ *      @brief Description of a region of homogenous granularity in the 
+ *      electromagnetic endcap calorimeter
+ *
  * This class combines a description of the cell	
  * granularity with a physical volume to create a
  * description of an EMEC region positioned within ATLAS.
  * It provides access to the EMEC Cells.
  */
-
 
 
 class EMECDetectorRegion : public GeoVDetectorElement  
@@ -35,7 +36,10 @@ class EMECDetectorRegion : public GeoVDetectorElement
   /**
    * @brief	Constructor.
    */
-  EMECDetectorRegion (const GeoVFullPhysVol *physVol, const EMECDetDescr *emecDescriptor, DetectorSide endcap, double projectivityDisplacement = 4*CLHEP::cm);
+  EMECDetectorRegion(const GeoVFullPhysVol *physVol
+		     , const EMECDetDescr *emecDescriptor
+		     , DetectorSide endcap
+		     , double projectivityDisplacement = 4*GeoModelKernelUnits::cm);
 
   /**
    * @brief    Destructor    
@@ -90,12 +94,12 @@ class EMECDetectorRegion : public GeoVDetectorElement
   /**
    * @brief Returns the absolute transform of this element.
    */
-  const HepGeom::Transform3D &  getAbsoluteTransform () const;
+  const GeoTrf::Transform3D &  getAbsoluteTransform () const;
       
   /**
    * @brief Returns the absolute transform of this element.
    */
-  const HepGeom::Transform3D &  getDefAbsoluteTransform () const;
+  const GeoTrf::Transform3D &  getDefAbsoluteTransform () const;
       
   /**
    * @brief Returns the position of the center of the reference

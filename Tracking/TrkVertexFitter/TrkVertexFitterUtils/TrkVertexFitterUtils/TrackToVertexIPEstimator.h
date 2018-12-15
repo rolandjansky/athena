@@ -11,6 +11,7 @@
 
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTracking/VertexFwd.h"
+#include "CLHEP/Vector/ThreeVector.h"
 
 namespace Trk
 {

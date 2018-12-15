@@ -16,6 +16,7 @@
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
 #include "InDetReadoutGeometry/Version.h"
 #include "InDetReadoutGeometry/TRT_DetElementCollection.h"
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/GeoVPhysVol.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "GeoModelKernel/GeoXF.h"

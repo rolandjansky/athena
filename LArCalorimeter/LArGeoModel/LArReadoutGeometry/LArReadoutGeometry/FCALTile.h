@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef FCALTile_h
-#define FCALTile_h 1
+#ifndef LARREADOUTGEOMETRY_FCALTILE_H
+#define LARREADOUTGEOMETRY_FCALTILE_H
 #include "LArReadoutGeometry/FCAL_ChannelMap.h"
 #include "LArHV/FCALHVModule.h"
 #include "LArReadoutGeometry/FCALTubeConstLink.h"

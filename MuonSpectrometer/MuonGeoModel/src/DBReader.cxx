@@ -4,7 +4,6 @@
 
 #include "MuonGeoModel/DBReader.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 
 // #include "MuonGeoModel/TgcReadoutParams.h"
 

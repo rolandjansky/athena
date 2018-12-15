@@ -14,7 +14,6 @@ atlas_depends_on_subdirs( PRIVATE
                           Control/StoreGate
                           Database/RDBAccessSvc
                           DetectorDescription/GeoModel/GeoModelInterfaces
-                          DetectorDescription/GeoModel/GeoModelKernel
                           DetectorDescription/GeoModel/GeoModelUtilities
                           Event/EventInfo
                           Event/EventInfoMgt
@@ -24,14 +23,17 @@ atlas_depends_on_subdirs( PRIVATE
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 
+
+find_package( GeoModel )
+
 # Component(s) in the package:
 atlas_add_component( GeoModelSvc
                      src/GeoModelSvc.cxx
                      src/GeoDbTagSvc.cxx
                      src/RDBMaterialManager.cxx
                      src/components/GeoModelSvc_entries.cxx
-                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps CxxUtils AthenaKernel SGTools StoreGateLib SGtests GeoModelKernel GeoModelUtilities EventInfo GaudiKernel )
+                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${GEOMODEL_LIBRARIES} AthenaBaseComps CxxUtils AthenaKernel SGTools StoreGateLib SGtests GeoModelUtilities EventInfo GaudiKernel )
 
 # Install files from the package:
 atlas_install_headers( GeoModelSvc )

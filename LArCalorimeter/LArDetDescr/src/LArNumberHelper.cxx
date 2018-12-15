@@ -16,7 +16,6 @@
 #include "RDBAccessSvc/IRDBRecord.h"
 
 #include "CLHEP/Geometry/Point3D.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 
 #include "CaloIdentifier/CaloID.h"
 #include "CaloIdentifier/CaloIdManager.h"
@@ -24,7 +23,7 @@
 #include "LArDetDescr/LArCellVolumes.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
-
+#include "GeoModelKernel/Units.h"
 
 LArNumberHelper::LArNumberHelper(const std::string geometry) :
   m_geometry(geometry),
@@ -496,49 +495,49 @@ LArNumberHelper::db_nb_em()
   //std::cout << " ----- in db_nb_em tags are : " << m_tag << " " << m_node << std::endl;
 
   // PS
-  // m_emb_psin = 141.23*CLHEP::cm;    // this is the TDR number 1385 mm + 27.3 mm   
+  // m_emb_psin = 141.23*GeoModelKernelUnits::cm;    // this is the TDR number 1385 mm + 27.3 mm   
   //  ----> overwritten
 
   m_lar = m_iAccessSvc->getRecordsetPtr("PresamplerGeometry","ATLAS-00","ATLAS");
 
   if (m_lar->size()) {
     m_rec = (*m_lar)[0];
-    m_emb_psin = m_rec->getDouble("RACTIVE")*CLHEP::cm;
+    m_emb_psin = m_rec->getDouble("RACTIVE")*GeoModelKernelUnits::cm;
   }
 
   // ACCG :
-  // m_accg_rin_ac = 144.73*CLHEP::cm; // 1385mm + 27.3mm + 35mm
-  // m_accg_rout_ac = 200.35*CLHEP::cm; // end of active material
+  // m_accg_rin_ac = 144.73*GeoModelKernelUnits::cm; // 1385mm + 27.3mm + 35mm
+  // m_accg_rout_ac = 200.35*GeoModelKernelUnits::cm; // end of active material
   //  ----> overwritten
   m_lar = m_iAccessSvc->getRecordsetPtr("BarrelGeometry",m_tag,m_node);
   if (m_lar->size()) {
     m_rec = (*m_lar)[0];  
-    m_accg_rin_ac = m_rec->getDouble("RMIN") *CLHEP::cm;
-    m_accg_rout_ac = m_rec->getDouble("RMAX") *CLHEP::cm;
+    m_accg_rin_ac = m_rec->getDouble("RMIN") *GeoModelKernelUnits::cm;
+    m_accg_rout_ac = m_rec->getDouble("RMAX") *GeoModelKernelUnits::cm;
   }
 
   // ACCO :
   m_acco_rmx12.resize (8,(double) 0.); 
-  // m_acco_rmx12[0] = 158.6*CLHEP::cm;
-  // m_acco_rmx12[1] = 158.6*CLHEP::cm;
-  // m_acco_rmx12[2] = 157.07*CLHEP::cm;
-  // m_acco_rmx12[3] = 157.07*CLHEP::cm;
-  // m_acco_rmx12[4] = 154.83*CLHEP::cm;
-  // m_acco_rmx12[5] = 154.83*CLHEP::cm;
-  // m_acco_rmx12[6] = 153.23*CLHEP::cm;
-  // m_acco_rmx12[7] = 153.23*CLHEP::cm;
+  // m_acco_rmx12[0] = 158.6*GeoModelKernelUnits::cm;
+  // m_acco_rmx12[1] = 158.6*GeoModelKernelUnits::cm;
+  // m_acco_rmx12[2] = 157.07*GeoModelKernelUnits::cm;
+  // m_acco_rmx12[3] = 157.07*GeoModelKernelUnits::cm;
+  // m_acco_rmx12[4] = 154.83*GeoModelKernelUnits::cm;
+  // m_acco_rmx12[5] = 154.83*GeoModelKernelUnits::cm;
+  // m_acco_rmx12[6] = 153.23*GeoModelKernelUnits::cm;
+  // m_acco_rmx12[7] = 153.23*GeoModelKernelUnits::cm;
   //  ----> overwritten
   m_lar = m_iAccessSvc->getRecordsetPtr("BarrelLongDiv",m_tag,m_node);
   if (m_lar->size()) {
     m_rec = (*m_lar)[0];  
-    m_acco_rmx12[0] = m_rec->getDouble("RMX12_0")*CLHEP::cm;
-    m_acco_rmx12[1] = m_rec->getDouble("RMX12_1")*CLHEP::cm;
-    m_acco_rmx12[2] = m_rec->getDouble("RMX12_2")*CLHEP::cm;
-    m_acco_rmx12[3] = m_rec->getDouble("RMX12_3")*CLHEP::cm;
-    m_acco_rmx12[4] = m_rec->getDouble("RMX12_4")*CLHEP::cm;
-    m_acco_rmx12[5] = m_rec->getDouble("RMX12_5")*CLHEP::cm;
-    m_acco_rmx12[6] = m_rec->getDouble("RMX12_6")*CLHEP::cm;
-    m_acco_rmx12[7] = m_rec->getDouble("RMX12_7")*CLHEP::cm;
+    m_acco_rmx12[0] = m_rec->getDouble("RMX12_0")*GeoModelKernelUnits::cm;
+    m_acco_rmx12[1] = m_rec->getDouble("RMX12_1")*GeoModelKernelUnits::cm;
+    m_acco_rmx12[2] = m_rec->getDouble("RMX12_2")*GeoModelKernelUnits::cm;
+    m_acco_rmx12[3] = m_rec->getDouble("RMX12_3")*GeoModelKernelUnits::cm;
+    m_acco_rmx12[4] = m_rec->getDouble("RMX12_4")*GeoModelKernelUnits::cm;
+    m_acco_rmx12[5] = m_rec->getDouble("RMX12_5")*GeoModelKernelUnits::cm;
+    m_acco_rmx12[6] = m_rec->getDouble("RMX12_6")*GeoModelKernelUnits::cm;
+    m_acco_rmx12[7] = m_rec->getDouble("RMX12_7")*GeoModelKernelUnits::cm;
   }
 
   m_acco_ee12.resize (8,(double) 0.); 
@@ -566,84 +565,84 @@ LArNumberHelper::db_nb_em()
 
   m_acco_rmx23.resize (53,(double) 0.); 
   /*
-    m_acco_rmx23[0] = 192.83*CLHEP::cm;  ... up to :
-    m_acco_rmx23[52] = 178.89*CLHEP::cm;
+    m_acco_rmx23[0] = 192.83*GeoModelKernelUnits::cm;  ... up to :
+    m_acco_rmx23[52] = 178.89*GeoModelKernelUnits::cm;
   */
   //  ----> overwritten
   m_lar = m_iAccessSvc->getRecordsetPtr("BarrelLongDiv",m_tag,m_node);
   if (m_lar->size()) {
     m_rec = (*m_lar)[0];  
-    m_acco_rmx23[0] = m_rec->getDouble("RMX23_0")*CLHEP::cm;
-    m_acco_rmx23[1] = m_rec->getDouble("RMX23_1")*CLHEP::cm;
-    m_acco_rmx23[2] = m_rec->getDouble("RMX23_2")*CLHEP::cm;
-    m_acco_rmx23[3] = m_rec->getDouble("RMX23_3")*CLHEP::cm;
-    m_acco_rmx23[4] = m_rec->getDouble("RMX23_4")*CLHEP::cm;
-    m_acco_rmx23[5] = m_rec->getDouble("RMX23_5")*CLHEP::cm;
-    m_acco_rmx23[6] = m_rec->getDouble("RMX23_6")*CLHEP::cm;
-    m_acco_rmx23[7] = m_rec->getDouble("RMX23_7")*CLHEP::cm;
-    m_acco_rmx23[8] = m_rec->getDouble("RMX23_8")*CLHEP::cm;
-    m_acco_rmx23[9] = m_rec->getDouble("RMX23_9")*CLHEP::cm;
-    m_acco_rmx23[10] = m_rec->getDouble("RMX23_10")*CLHEP::cm;
-    m_acco_rmx23[11] = m_rec->getDouble("RMX23_11")*CLHEP::cm;
-    m_acco_rmx23[12] = m_rec->getDouble("RMX23_12")*CLHEP::cm;
-    m_acco_rmx23[13] = m_rec->getDouble("RMX23_13")*CLHEP::cm;
-    m_acco_rmx23[14] = m_rec->getDouble("RMX23_14")*CLHEP::cm;
-    m_acco_rmx23[15] = m_rec->getDouble("RMX23_15")*CLHEP::cm;
-    m_acco_rmx23[16] = m_rec->getDouble("RMX23_16")*CLHEP::cm;
-    m_acco_rmx23[17] = m_rec->getDouble("RMX23_17")*CLHEP::cm;
-    m_acco_rmx23[18] = m_rec->getDouble("RMX23_18")*CLHEP::cm;
-    m_acco_rmx23[19] = m_rec->getDouble("RMX23_19")*CLHEP::cm;
-    m_acco_rmx23[20] = m_rec->getDouble("RMX23_20")*CLHEP::cm;
-    m_acco_rmx23[21] = m_rec->getDouble("RMX23_21")*CLHEP::cm;
-    m_acco_rmx23[22] = m_rec->getDouble("RMX23_22")*CLHEP::cm;
-    m_acco_rmx23[23] = m_rec->getDouble("RMX23_23")*CLHEP::cm;
-    m_acco_rmx23[24] = m_rec->getDouble("RMX23_24")*CLHEP::cm;
-    m_acco_rmx23[25] = m_rec->getDouble("RMX23_25")*CLHEP::cm;
-    m_acco_rmx23[26] = m_rec->getDouble("RMX23_26")*CLHEP::cm;
-    m_acco_rmx23[27] = m_rec->getDouble("RMX23_27")*CLHEP::cm;
-    m_acco_rmx23[28] = m_rec->getDouble("RMX23_28")*CLHEP::cm;
-    m_acco_rmx23[29] = m_rec->getDouble("RMX23_29")*CLHEP::cm;
-    m_acco_rmx23[30] = m_rec->getDouble("RMX23_30")*CLHEP::cm;
-    m_acco_rmx23[31] = m_rec->getDouble("RMX23_31")*CLHEP::cm;
-    m_acco_rmx23[32] = m_rec->getDouble("RMX23_32")*CLHEP::cm;
-    m_acco_rmx23[33] = m_rec->getDouble("RMX23_33")*CLHEP::cm;
-    m_acco_rmx23[34] = m_rec->getDouble("RMX23_34")*CLHEP::cm;
-    m_acco_rmx23[35] = m_rec->getDouble("RMX23_35")*CLHEP::cm;
-    m_acco_rmx23[36] = m_rec->getDouble("RMX23_36")*CLHEP::cm;
-    m_acco_rmx23[37] = m_rec->getDouble("RMX23_37")*CLHEP::cm;
-    m_acco_rmx23[38] = m_rec->getDouble("RMX23_38")*CLHEP::cm;
-    m_acco_rmx23[39] = m_rec->getDouble("RMX23_39")*CLHEP::cm;
-    m_acco_rmx23[40] = m_rec->getDouble("RMX23_40")*CLHEP::cm;
-    m_acco_rmx23[41] = m_rec->getDouble("RMX23_41")*CLHEP::cm;
-    m_acco_rmx23[42] = m_rec->getDouble("RMX23_42")*CLHEP::cm;
-    m_acco_rmx23[43] = m_rec->getDouble("RMX23_43")*CLHEP::cm;
-    m_acco_rmx23[44] = m_rec->getDouble("RMX23_44")*CLHEP::cm;
-    m_acco_rmx23[45] = m_rec->getDouble("RMX23_45")*CLHEP::cm;
-    m_acco_rmx23[46] = m_rec->getDouble("RMX23_46")*CLHEP::cm;
-    m_acco_rmx23[47] = m_rec->getDouble("RMX23_47")*CLHEP::cm;
-    m_acco_rmx23[48] = m_rec->getDouble("RMX23_48")*CLHEP::cm;
-    m_acco_rmx23[49] = m_rec->getDouble("RMX23_49")*CLHEP::cm;
-    m_acco_rmx23[50] = m_rec->getDouble("RMX23_50")*CLHEP::cm;
-    m_acco_rmx23[51] = m_rec->getDouble("RMX23_51")*CLHEP::cm;
-    m_acco_rmx23[52] = m_rec->getDouble("RMX23_52")*CLHEP::cm;
+    m_acco_rmx23[0] = m_rec->getDouble("RMX23_0")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[1] = m_rec->getDouble("RMX23_1")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[2] = m_rec->getDouble("RMX23_2")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[3] = m_rec->getDouble("RMX23_3")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[4] = m_rec->getDouble("RMX23_4")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[5] = m_rec->getDouble("RMX23_5")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[6] = m_rec->getDouble("RMX23_6")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[7] = m_rec->getDouble("RMX23_7")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[8] = m_rec->getDouble("RMX23_8")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[9] = m_rec->getDouble("RMX23_9")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[10] = m_rec->getDouble("RMX23_10")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[11] = m_rec->getDouble("RMX23_11")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[12] = m_rec->getDouble("RMX23_12")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[13] = m_rec->getDouble("RMX23_13")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[14] = m_rec->getDouble("RMX23_14")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[15] = m_rec->getDouble("RMX23_15")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[16] = m_rec->getDouble("RMX23_16")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[17] = m_rec->getDouble("RMX23_17")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[18] = m_rec->getDouble("RMX23_18")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[19] = m_rec->getDouble("RMX23_19")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[20] = m_rec->getDouble("RMX23_20")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[21] = m_rec->getDouble("RMX23_21")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[22] = m_rec->getDouble("RMX23_22")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[23] = m_rec->getDouble("RMX23_23")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[24] = m_rec->getDouble("RMX23_24")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[25] = m_rec->getDouble("RMX23_25")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[26] = m_rec->getDouble("RMX23_26")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[27] = m_rec->getDouble("RMX23_27")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[28] = m_rec->getDouble("RMX23_28")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[29] = m_rec->getDouble("RMX23_29")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[30] = m_rec->getDouble("RMX23_30")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[31] = m_rec->getDouble("RMX23_31")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[32] = m_rec->getDouble("RMX23_32")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[33] = m_rec->getDouble("RMX23_33")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[34] = m_rec->getDouble("RMX23_34")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[35] = m_rec->getDouble("RMX23_35")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[36] = m_rec->getDouble("RMX23_36")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[37] = m_rec->getDouble("RMX23_37")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[38] = m_rec->getDouble("RMX23_38")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[39] = m_rec->getDouble("RMX23_39")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[40] = m_rec->getDouble("RMX23_40")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[41] = m_rec->getDouble("RMX23_41")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[42] = m_rec->getDouble("RMX23_42")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[43] = m_rec->getDouble("RMX23_43")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[44] = m_rec->getDouble("RMX23_44")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[45] = m_rec->getDouble("RMX23_45")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[46] = m_rec->getDouble("RMX23_46")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[47] = m_rec->getDouble("RMX23_47")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[48] = m_rec->getDouble("RMX23_48")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[49] = m_rec->getDouble("RMX23_49")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[50] = m_rec->getDouble("RMX23_50")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[51] = m_rec->getDouble("RMX23_51")*GeoModelKernelUnits::cm;
+    m_acco_rmx23[52] = m_rec->getDouble("RMX23_52")*GeoModelKernelUnits::cm;
   }
 
   // ENDG
-  // m_endg_zorig = 369.1*CLHEP::cm; // this is the NOVA/Oracle number
-  // m_emb_iwout = 422.7*CLHEP::cm;  // 369.1*CLHEP::cm + 53.6*CLHEP::cm is the end of the active part
-  // m_emec_out = 422.7*CLHEP::cm;  // 369.1*CLHEP::cm + 53.6*CLHEP::cm is the end of the active part
+  // m_endg_zorig = 369.1*GeoModelKernelUnits::cm; // this is the NOVA/Oracle number
+  // m_emb_iwout = 422.7*GeoModelKernelUnits::cm;  // 369.1*GeoModelKernelUnits::cm + 53.6*GeoModelKernelUnits::cm is the end of the active part
+  // m_emec_out = 422.7*GeoModelKernelUnits::cm;  // 369.1*GeoModelKernelUnits::cm + 53.6*GeoModelKernelUnits::cm is the end of the active part
   m_lar = m_iAccessSvc->getRecordsetPtr("EmecGeometry",m_tag,m_node);
   if (m_lar->size()) {
     m_rec = (*m_lar)[0];
-    m_endg_zorig = m_rec->getDouble("Z1")*CLHEP::cm;
-    double epaisseurTotale =  m_rec->getDouble("ETOT")*CLHEP::cm;
+    m_endg_zorig = m_rec->getDouble("Z1")*GeoModelKernelUnits::cm;
+    double epaisseurTotale =  m_rec->getDouble("ETOT")*GeoModelKernelUnits::cm;
     m_emb_iwout = m_endg_zorig + epaisseurTotale;
     m_emec_out  = m_endg_zorig + epaisseurTotale;
 
   } 
 
   // Cryostat
-  // m_emec_psin = 362.5*CLHEP::cm; // notch in cold wall of cryostat
+  // m_emec_psin = 362.5*GeoModelKernelUnits::cm; // notch in cold wall of cryostat
   if ( m_geometry == "Atlas" ) {
     DecodeVersionKey detectorKeyAtl = DecodeVersionKey(m_geoModelSvc, "ATLAS");
     m_lar = m_iAccessSvc->getRecordsetPtr("PresamplerPosition",detectorKeyAtl.tag(),detectorKeyAtl.node());
@@ -653,74 +652,74 @@ LArNumberHelper::db_nb_em()
   }
   if (m_lar->size()) {
     m_rec = (*m_lar)[0];
-    m_emec_psin = m_rec->getDouble("ZPOS")*CLHEP::cm;
+    m_emec_psin = m_rec->getDouble("ZPOS")*GeoModelKernelUnits::cm;
   } 
 
   // ESEP
   m_esep_iw23.resize(7, (double) 0.); 
-  // m_esep_iw23[0] = 413.934*CLHEP::cm;
-  // m_esep_iw23[1] = 412.518*CLHEP::cm;
-  // m_esep_iw23[2] = 411.792*CLHEP::cm;
-  // m_esep_iw23[3] = 409.545*CLHEP::cm;
-  // m_esep_iw23[4] = 407.987*CLHEP::cm;
-  // m_esep_iw23[5] = 407.510*CLHEP::cm;
-  // m_esep_iw23[6] = 404.730*CLHEP::cm;
+  // m_esep_iw23[0] = 413.934*GeoModelKernelUnits::cm;
+  // m_esep_iw23[1] = 412.518*GeoModelKernelUnits::cm;
+  // m_esep_iw23[2] = 411.792*GeoModelKernelUnits::cm;
+  // m_esep_iw23[3] = 409.545*GeoModelKernelUnits::cm;
+  // m_esep_iw23[4] = 407.987*GeoModelKernelUnits::cm;
+  // m_esep_iw23[5] = 407.510*GeoModelKernelUnits::cm;
+  // m_esep_iw23[6] = 404.730*GeoModelKernelUnits::cm;
   //  ----> overwritten
   m_lar = m_iAccessSvc->getRecordsetPtr("EmecSamplingSep",m_tag,m_node);
   if (m_lar->size()) {
     m_rec = (*m_lar)[0];  
-    m_esep_iw23[0] = m_rec->getDouble("ZIW_0")*CLHEP::cm;
-    m_esep_iw23[1] = m_rec->getDouble("ZIW_1")*CLHEP::cm;
-    m_esep_iw23[2] = m_rec->getDouble("ZIW_2")*CLHEP::cm;
-    m_esep_iw23[3] = m_rec->getDouble("ZIW_3")*CLHEP::cm;
-    m_esep_iw23[4] = m_rec->getDouble("ZIW_4")*CLHEP::cm;
-    m_esep_iw23[5] = m_rec->getDouble("ZIW_5")*CLHEP::cm;
-    m_esep_iw23[6] = m_rec->getDouble("ZIW_6")*CLHEP::cm;
+    m_esep_iw23[0] = m_rec->getDouble("ZIW_0")*GeoModelKernelUnits::cm;
+    m_esep_iw23[1] = m_rec->getDouble("ZIW_1")*GeoModelKernelUnits::cm;
+    m_esep_iw23[2] = m_rec->getDouble("ZIW_2")*GeoModelKernelUnits::cm;
+    m_esep_iw23[3] = m_rec->getDouble("ZIW_3")*GeoModelKernelUnits::cm;
+    m_esep_iw23[4] = m_rec->getDouble("ZIW_4")*GeoModelKernelUnits::cm;
+    m_esep_iw23[5] = m_rec->getDouble("ZIW_5")*GeoModelKernelUnits::cm;
+    m_esep_iw23[6] = m_rec->getDouble("ZIW_6")*GeoModelKernelUnits::cm;
 }
 
-  // m_esep_zsep12 = 378.398*CLHEP::cm;   
+  // m_esep_zsep12 = 378.398*GeoModelKernelUnits::cm;   
   // Note that in the gometryDB this is an array, but
   // of very similar numbers -> Zebra was using 1rst value only
   //  ----> overwritten
   m_lar = m_iAccessSvc->getRecordsetPtr("EmecSamplingSep",m_tag,m_node);
   if (m_lar->size()) {
     m_rec = (*m_lar)[0];  
-    m_esep_zsep12 = m_rec->getDouble("ZSEP12_0")*CLHEP::cm;
+    m_esep_zsep12 = m_rec->getDouble("ZSEP12_0")*GeoModelKernelUnits::cm;
   }
 
   m_esep_zsep23.resize(22, (double) 0.); 
   /*
-  m_esep_zsep23 [0] = 999.999*CLHEP::cm;       // inheritance from Zebra.
-  m_esep_zsep23 [1] = 999.999*CLHEP::cm;       // will be skipped in hard_em
-  m_esep_zsep23 [2] = 413.205*CLHEP::cm;   ... up to :
-  m_esep_zsep23 [21] = 401.153*CLHEP::cm;
+  m_esep_zsep23 [0] = 999.999*GeoModelKernelUnits::cm;       // inheritance from Zebra.
+  m_esep_zsep23 [1] = 999.999*GeoModelKernelUnits::cm;       // will be skipped in hard_em
+  m_esep_zsep23 [2] = 413.205*GeoModelKernelUnits::cm;   ... up to :
+  m_esep_zsep23 [21] = 401.153*GeoModelKernelUnits::cm;
   */
   //  ----> overwritten
   m_lar = m_iAccessSvc->getRecordsetPtr("EmecSamplingSep",m_tag,m_node);
   if (m_lar->size()) {
     m_rec = (*m_lar)[0];  
-    m_esep_zsep23 [0] = m_rec->getDouble("ZSEP23_0")*CLHEP::cm;
-    m_esep_zsep23 [1] = m_rec->getDouble("ZSEP23_1")*CLHEP::cm;
-    m_esep_zsep23 [2] = m_rec->getDouble("ZSEP23_2")*CLHEP::cm;
-    m_esep_zsep23 [3] = m_rec->getDouble("ZSEP23_3")*CLHEP::cm;
-    m_esep_zsep23 [4] = m_rec->getDouble("ZSEP23_4")*CLHEP::cm;
-    m_esep_zsep23 [5] = m_rec->getDouble("ZSEP23_5")*CLHEP::cm;
-    m_esep_zsep23 [6] = m_rec->getDouble("ZSEP23_6")*CLHEP::cm;
-    m_esep_zsep23 [7] = m_rec->getDouble("ZSEP23_7")*CLHEP::cm;
-    m_esep_zsep23 [8] = m_rec->getDouble("ZSEP23_8")*CLHEP::cm;
-    m_esep_zsep23 [9] = m_rec->getDouble("ZSEP23_9")*CLHEP::cm;
-    m_esep_zsep23 [10] = m_rec->getDouble("ZSEP23_10")*CLHEP::cm;
-    m_esep_zsep23 [11] = m_rec->getDouble("ZSEP23_11")*CLHEP::cm;
-    m_esep_zsep23 [12] = m_rec->getDouble("ZSEP23_12")*CLHEP::cm;
-    m_esep_zsep23 [13] = m_rec->getDouble("ZSEP23_13")*CLHEP::cm;
-    m_esep_zsep23 [14] = m_rec->getDouble("ZSEP23_14")*CLHEP::cm;
-    m_esep_zsep23 [15] = m_rec->getDouble("ZSEP23_15")*CLHEP::cm;
-    m_esep_zsep23 [16] = m_rec->getDouble("ZSEP23_16")*CLHEP::cm;
-    m_esep_zsep23 [17] = m_rec->getDouble("ZSEP23_17")*CLHEP::cm;
-    m_esep_zsep23 [18] = m_rec->getDouble("ZSEP23_18")*CLHEP::cm;
-    m_esep_zsep23 [19] = m_rec->getDouble("ZSEP23_19")*CLHEP::cm;
-    m_esep_zsep23 [20] = m_rec->getDouble("ZSEP23_20")*CLHEP::cm;
-    m_esep_zsep23 [21] = m_rec->getDouble("ZSEP23_21")*CLHEP::cm;
+    m_esep_zsep23 [0] = m_rec->getDouble("ZSEP23_0")*GeoModelKernelUnits::cm;
+    m_esep_zsep23 [1] = m_rec->getDouble("ZSEP23_1")*GeoModelKernelUnits::cm;
+    m_esep_zsep23 [2] = m_rec->getDouble("ZSEP23_2")*GeoModelKernelUnits::cm;
+    m_esep_zsep23 [3] = m_rec->getDouble("ZSEP23_3")*GeoModelKernelUnits::cm;
+    m_esep_zsep23 [4] = m_rec->getDouble("ZSEP23_4")*GeoModelKernelUnits::cm;
+    m_esep_zsep23 [5] = m_rec->getDouble("ZSEP23_5")*GeoModelKernelUnits::cm;
+    m_esep_zsep23 [6] = m_rec->getDouble("ZSEP23_6")*GeoModelKernelUnits::cm;
+    m_esep_zsep23 [7] = m_rec->getDouble("ZSEP23_7")*GeoModelKernelUnits::cm;
+    m_esep_zsep23 [8] = m_rec->getDouble("ZSEP23_8")*GeoModelKernelUnits::cm;
+    m_esep_zsep23 [9] = m_rec->getDouble("ZSEP23_9")*GeoModelKernelUnits::cm;
+    m_esep_zsep23 [10] = m_rec->getDouble("ZSEP23_10")*GeoModelKernelUnits::cm;
+    m_esep_zsep23 [11] = m_rec->getDouble("ZSEP23_11")*GeoModelKernelUnits::cm;
+    m_esep_zsep23 [12] = m_rec->getDouble("ZSEP23_12")*GeoModelKernelUnits::cm;
+    m_esep_zsep23 [13] = m_rec->getDouble("ZSEP23_13")*GeoModelKernelUnits::cm;
+    m_esep_zsep23 [14] = m_rec->getDouble("ZSEP23_14")*GeoModelKernelUnits::cm;
+    m_esep_zsep23 [15] = m_rec->getDouble("ZSEP23_15")*GeoModelKernelUnits::cm;
+    m_esep_zsep23 [16] = m_rec->getDouble("ZSEP23_16")*GeoModelKernelUnits::cm;
+    m_esep_zsep23 [17] = m_rec->getDouble("ZSEP23_17")*GeoModelKernelUnits::cm;
+    m_esep_zsep23 [18] = m_rec->getDouble("ZSEP23_18")*GeoModelKernelUnits::cm;
+    m_esep_zsep23 [19] = m_rec->getDouble("ZSEP23_19")*GeoModelKernelUnits::cm;
+    m_esep_zsep23 [20] = m_rec->getDouble("ZSEP23_20")*GeoModelKernelUnits::cm;
+    m_esep_zsep23 [21] = m_rec->getDouble("ZSEP23_21")*GeoModelKernelUnits::cm;
   }
 
 }
@@ -731,17 +730,17 @@ LArNumberHelper::db_nb_hec()
   
   // ---- Set default :
   /*  
-  m_hec_in0 = 427.70*CLHEP::cm;  // z_start
-  m_hec_in1 = 455.75*CLHEP::cm;  // z_start+ 28.05*CLHEP::cm
-  m_hec_in2 = 513.40*CLHEP::cm;  // z_start + 28.05*CLHEP::cm + 26.8*CLHEP::cm + 26.8*CLHEP::cm + 4.05*CLHEP::cm
-  m_hec_in3 = 562.70*CLHEP::cm;  // z_start + 28.05*CLHEP::cm + 26.8*CLHEP::cm + 26.8*CLHEP::cm + 4.05*CLHEP::cm 
-                          //        + 25.9*CLHEP::cm + 23.4*CLHEP::cm
-  m_hec_gap = 4.05*CLHEP::cm;    // gap between the two HEC wheels  
+  m_hec_in0 = 427.70*GeoModelKernelUnits::cm;  // z_start
+  m_hec_in1 = 455.75*GeoModelKernelUnits::cm;  // z_start+ 28.05*GeoModelKernelUnits::cm
+  m_hec_in2 = 513.40*GeoModelKernelUnits::cm;  // z_start + 28.05*GeoModelKernelUnits::cm + 26.8*GeoModelKernelUnits::cm + 26.8*GeoModelKernelUnits::cm + 4.05*GeoModelKernelUnits::cm
+  m_hec_in3 = 562.70*GeoModelKernelUnits::cm;  // z_start + 28.05*GeoModelKernelUnits::cm + 26.8*GeoModelKernelUnits::cm + 26.8*GeoModelKernelUnits::cm + 4.05*GeoModelKernelUnits::cm 
+                          //        + 25.9*GeoModelKernelUnits::cm + 23.4*GeoModelKernelUnits::cm
+  m_hec_gap = 4.05*GeoModelKernelUnits::cm;    // gap between the two HEC wheels  
   
   // Comment from Sven Menke :
   // I don't know why the the Nova Z_end is 2.5cm more, but the active
   // volume must be the sum of all blocks plus the gap - thus it's 609.5*cm
-  m_hec_out = 609.5*CLHEP::cm;  // z_end - 2.5*CLHEP::cm (or z_orig + all blocks)
+  m_hec_out = 609.5*GeoModelKernelUnits::cm;  // z_end - 2.5*GeoModelKernelUnits::cm (or z_orig + all blocks)
   */
 
   //std::cout << " ----- in db_nb_hec tags are : " << m_tag << " " << m_node << std::endl;
@@ -758,31 +757,31 @@ LArNumberHelper::db_nb_hec()
     // Block0 = 1.25 cm Front Plate + 
     //          8 times (0.85 cm LAr gap + 2.50 cm Plate) = 28.05 cm 
     double Block0 = ( m_rec->getDouble("PLATE_0")/2. 
-		      + 8*(m_rec->getDouble("LARG") + m_rec->getDouble("PLATE_0")))*CLHEP::cm;
+		      + 8*(m_rec->getDouble("LARG") + m_rec->getDouble("PLATE_0")))*GeoModelKernelUnits::cm;
     
     // HEC1 is Block1 + Block2
     // Block1 = 8 times (0.85 cm LAr gap + 2.50 cm Plate) 
     //         = 26.80 cm
-    double Block1 = 8*(m_rec->getDouble("LARG") + m_rec->getDouble("PLATE_0"))*CLHEP::cm;
+    double Block1 = 8*(m_rec->getDouble("LARG") + m_rec->getDouble("PLATE_0"))*GeoModelKernelUnits::cm;
     double Block2 = Block1 ;
 
     // Gap     = 4.05 cm
-    m_hec_gap = m_rec->getDouble("GAPWHL") *CLHEP::cm;
+    m_hec_gap = m_rec->getDouble("GAPWHL") *GeoModelKernelUnits::cm;
     
     // HEC2 is  Block 3 + Block 4
     // Block3 = 2.5 cm Front Plate + 
     //      4 times (0.85 cm LAr gap + 5.00 cm Plate) = 25.90 cm 
     double Block3 =  ( m_rec->getDouble("PLATE_1")/2. 
-		       + 4*(m_rec->getDouble("LARG") + m_rec->getDouble("PLATE_1")))*CLHEP::cm;
+		       + 4*(m_rec->getDouble("LARG") + m_rec->getDouble("PLATE_1")))*GeoModelKernelUnits::cm;
     
     // Block4 = 4 times (0.85 cm LAr gap + 5.00 cm Plate) = 23.40 cm 
-    double Block4 = 4*(m_rec->getDouble("LARG") + m_rec->getDouble("PLATE_1"))*CLHEP::cm;
+    double Block4 = 4*(m_rec->getDouble("LARG") + m_rec->getDouble("PLATE_1"))*GeoModelKernelUnits::cm;
     
     // HEC3 is  Block 5 + Block 6
     double Block5 = Block4 ;
     double Block6 = Block4;
     
-    double zstart =  m_rec->getDouble("ZSTART") *CLHEP::cm;
+    double zstart =  m_rec->getDouble("ZSTART") *GeoModelKernelUnits::cm;
     
     m_hec_in0 = zstart;
     m_hec_in1 = m_hec_in0 + Block0  ;
@@ -1057,10 +1056,10 @@ LArNumberHelper::hard_fcal()
 
   // x and y are taken from drawings in the TDR
   for ( unsigned int i=0; i < m_fcal_id->module_hash_max(); i++ ) {
-    m_x_min_fcal [i] = 8.6*CLHEP::cm;
-    m_x_max_fcal [i] = 47.5*CLHEP::cm;
+    m_x_min_fcal [i] = 8.6*GeoModelKernelUnits::cm;
+    m_x_max_fcal [i] = 47.5*GeoModelKernelUnits::cm;
     m_y_min_fcal [i] = 8.6;
-    m_y_max_fcal [i] = 47.5*CLHEP::cm;
+    m_y_max_fcal [i] = 47.5*GeoModelKernelUnits::cm;
     m_phi_min_fcal[i] = 0.;
     m_phi_max_fcal[i] = 6.28;   // when too close to 2pi pb
 
@@ -1070,35 +1069,35 @@ LArNumberHelper::hard_fcal()
     //int pos_neg = m_fcal_id->pos_neg (m_region_id_fcal[i]);
     
     if ( mod == 1 ) {
-      m_dx_fcal [i] = 3.*CLHEP::cm;
-      m_dy_fcal [i] = 2.598*CLHEP::cm;
-      z_loc_in [0] = 466.85*CLHEP::cm;
-      z_loc_out [0] = z_loc_in [0]+45.*CLHEP::cm;
+      m_dx_fcal [i] = 3.*GeoModelKernelUnits::cm;
+      m_dy_fcal [i] = 2.598*GeoModelKernelUnits::cm;
+      z_loc_in [0] = 466.85*GeoModelKernelUnits::cm;
+      z_loc_out [0] = z_loc_in [0]+45.*GeoModelKernelUnits::cm;
 
     }
     else if ( mod == 2 ) {
-      m_dx_fcal [i] = 3.272*CLHEP::cm;
-      m_dy_fcal [i] = 4.25*CLHEP::cm;
-      z_loc_in [0] = 512.3*CLHEP::cm;
-      z_loc_out [0] = z_loc_in [0]+45.*CLHEP::cm;
+      m_dx_fcal [i] = 3.272*GeoModelKernelUnits::cm;
+      m_dy_fcal [i] = 4.25*GeoModelKernelUnits::cm;
+      z_loc_in [0] = 512.3*GeoModelKernelUnits::cm;
+      z_loc_out [0] = z_loc_in [0]+45.*GeoModelKernelUnits::cm;
 
     }
     else if ( mod == 3 ) {
-      m_dx_fcal [i] = 5.4*CLHEP::cm;
-      m_dy_fcal [i] = 4.677*CLHEP::cm;
-      z_loc_in [0] = 559.75*CLHEP::cm;
-      z_loc_out [0] = z_loc_in [0]+45.*CLHEP::cm;
+      m_dx_fcal [i] = 5.4*GeoModelKernelUnits::cm;
+      m_dy_fcal [i] = 4.677*GeoModelKernelUnits::cm;
+      z_loc_in [0] = 559.75*GeoModelKernelUnits::cm;
+      z_loc_out [0] = z_loc_in [0]+45.*GeoModelKernelUnits::cm;
 
     }
     else  {
       m_dx_fcal [i] = 0.;
       m_dy_fcal [i] = 0.;
       z_loc_in [0] = 0.;
-      z_loc_out [0] = z_loc_in [0]+45.*CLHEP::cm;
+      z_loc_out [0] = z_loc_in [0]+45.*GeoModelKernelUnits::cm;
     }
 
     m_z_min_fcal [i] = z_loc_in [0];
-    m_z_max_fcal [i] = m_z_min_fcal [i] + 45.*CLHEP::cm ;
+    m_z_max_fcal [i] = m_z_min_fcal [i] + 45.*GeoModelKernelUnits::cm ;
 
     double z = m_z_min_fcal [i];
     double r = m_x_max_fcal [i];
@@ -1125,21 +1124,21 @@ LArNumberHelper::sagging_param( std::vector<double>& Rhocen, std::vector<double>
   if (m_lar->size()) {
     m_rec = (*m_lar)[0];
 
-    Rhocen.push_back(m_rec->getDouble("RHOCEN_0")*CLHEP::cm);
-    Rhocen.push_back(m_rec->getDouble("RHOCEN_1")*CLHEP::cm);
-    Rhocen.push_back(m_rec->getDouble("RHOCEN_2")*CLHEP::cm);
-    Rhocen.push_back(m_rec->getDouble("RHOCEN_3")*CLHEP::cm);
-    Rhocen.push_back(m_rec->getDouble("RHOCEN_4")*CLHEP::cm);
-    Rhocen.push_back(m_rec->getDouble("RHOCEN_5")*CLHEP::cm);
-    Rhocen.push_back(m_rec->getDouble("RHOCEN_6")*CLHEP::cm);
-    Rhocen.push_back(m_rec->getDouble("RHOCEN_7")*CLHEP::cm);
-    Rhocen.push_back(m_rec->getDouble("RHOCEN_8")*CLHEP::cm);
-    Rhocen.push_back(m_rec->getDouble("RHOCEN_9")*CLHEP::cm);
-    Rhocen.push_back(m_rec->getDouble("RHOCEN_10")*CLHEP::cm);
-    Rhocen.push_back(m_rec->getDouble("RHOCEN_11")*CLHEP::cm);
-    Rhocen.push_back(m_rec->getDouble("RHOCEN_12")*CLHEP::cm);
-    Rhocen.push_back(m_rec->getDouble("RHOCEN_13")*CLHEP::cm);
-    Rhocen.push_back(m_rec->getDouble("RHOCEN_14")*CLHEP::cm);
+    Rhocen.push_back(m_rec->getDouble("RHOCEN_0")*GeoModelKernelUnits::cm);
+    Rhocen.push_back(m_rec->getDouble("RHOCEN_1")*GeoModelKernelUnits::cm);
+    Rhocen.push_back(m_rec->getDouble("RHOCEN_2")*GeoModelKernelUnits::cm);
+    Rhocen.push_back(m_rec->getDouble("RHOCEN_3")*GeoModelKernelUnits::cm);
+    Rhocen.push_back(m_rec->getDouble("RHOCEN_4")*GeoModelKernelUnits::cm);
+    Rhocen.push_back(m_rec->getDouble("RHOCEN_5")*GeoModelKernelUnits::cm);
+    Rhocen.push_back(m_rec->getDouble("RHOCEN_6")*GeoModelKernelUnits::cm);
+    Rhocen.push_back(m_rec->getDouble("RHOCEN_7")*GeoModelKernelUnits::cm);
+    Rhocen.push_back(m_rec->getDouble("RHOCEN_8")*GeoModelKernelUnits::cm);
+    Rhocen.push_back(m_rec->getDouble("RHOCEN_9")*GeoModelKernelUnits::cm);
+    Rhocen.push_back(m_rec->getDouble("RHOCEN_10")*GeoModelKernelUnits::cm);
+    Rhocen.push_back(m_rec->getDouble("RHOCEN_11")*GeoModelKernelUnits::cm);
+    Rhocen.push_back(m_rec->getDouble("RHOCEN_12")*GeoModelKernelUnits::cm);
+    Rhocen.push_back(m_rec->getDouble("RHOCEN_13")*GeoModelKernelUnits::cm);
+    Rhocen.push_back(m_rec->getDouble("RHOCEN_14")*GeoModelKernelUnits::cm);
   }
  
   m_lar = m_iAccessSvc->getRecordsetPtr("BarrelSagging",m_tag,m_node);
@@ -1147,21 +1146,21 @@ LArNumberHelper::sagging_param( std::vector<double>& Rhocen, std::vector<double>
   if (m_lar->size()) {
     m_rec = (*m_lar)[0];
 
-    Sag.push_back(m_rec->getDouble("SAG_0")*CLHEP::cm);
-    Sag.push_back(m_rec->getDouble("SAG_1")*CLHEP::cm);
-    Sag.push_back(m_rec->getDouble("SAG_2")*CLHEP::cm);
-    Sag.push_back(m_rec->getDouble("SAG_3")*CLHEP::cm);
-    Sag.push_back(m_rec->getDouble("SAG_4")*CLHEP::cm);
-    Sag.push_back(m_rec->getDouble("SAG_5")*CLHEP::cm);
-    Sag.push_back(m_rec->getDouble("SAG_6")*CLHEP::cm);
-    Sag.push_back(m_rec->getDouble("SAG_7")*CLHEP::cm);
-    Sag.push_back(m_rec->getDouble("SAG_8")*CLHEP::cm);
-    Sag.push_back(m_rec->getDouble("SAG_9")*CLHEP::cm);
-    Sag.push_back(m_rec->getDouble("SAG_10")*CLHEP::cm);
-    Sag.push_back(m_rec->getDouble("SAG_11")*CLHEP::cm);
-    Sag.push_back(m_rec->getDouble("SAG_12")*CLHEP::cm);
-    Sag.push_back(m_rec->getDouble("SAG_13")*CLHEP::cm);
-    Sag.push_back(m_rec->getDouble("SAG_14")*CLHEP::cm);
+    Sag.push_back(m_rec->getDouble("SAG_0")*GeoModelKernelUnits::cm);
+    Sag.push_back(m_rec->getDouble("SAG_1")*GeoModelKernelUnits::cm);
+    Sag.push_back(m_rec->getDouble("SAG_2")*GeoModelKernelUnits::cm);
+    Sag.push_back(m_rec->getDouble("SAG_3")*GeoModelKernelUnits::cm);
+    Sag.push_back(m_rec->getDouble("SAG_4")*GeoModelKernelUnits::cm);
+    Sag.push_back(m_rec->getDouble("SAG_5")*GeoModelKernelUnits::cm);
+    Sag.push_back(m_rec->getDouble("SAG_6")*GeoModelKernelUnits::cm);
+    Sag.push_back(m_rec->getDouble("SAG_7")*GeoModelKernelUnits::cm);
+    Sag.push_back(m_rec->getDouble("SAG_8")*GeoModelKernelUnits::cm);
+    Sag.push_back(m_rec->getDouble("SAG_9")*GeoModelKernelUnits::cm);
+    Sag.push_back(m_rec->getDouble("SAG_10")*GeoModelKernelUnits::cm);
+    Sag.push_back(m_rec->getDouble("SAG_11")*GeoModelKernelUnits::cm);
+    Sag.push_back(m_rec->getDouble("SAG_12")*GeoModelKernelUnits::cm);
+    Sag.push_back(m_rec->getDouble("SAG_13")*GeoModelKernelUnits::cm);
+    Sag.push_back(m_rec->getDouble("SAG_14")*GeoModelKernelUnits::cm);
 
   }
 

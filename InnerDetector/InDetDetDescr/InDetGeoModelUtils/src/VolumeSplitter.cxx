@@ -5,7 +5,7 @@
 #include "InDetGeoModelUtils/VolumeSplitter.h"
 #include "InDetGeoModelUtils/VolumeSplitterUtils.h"
 #include "InDetGeoModelUtils/ServiceVolume.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
 #include <sstream>
 #include <algorithm>
@@ -13,7 +13,7 @@
 namespace InDetDD {
   VolumeSplitter::VolumeSplitter()
     : m_ownVolumes(true),
-    m_epsilon(0.0001 * CLHEP::mm)
+    m_epsilon(0.0001 * GeoModelKernelUnits::mm)
   {}
 
   VolumeSplitter::~VolumeSplitter() {
@@ -150,7 +150,7 @@ namespace InDetDD {
     }
   }
 
-// This takes care of cone like volumes and adjust the CLHEP::radius according to the adjusted z.
+// This takes care of cone like volumes and adjust the radius according to the adjusted z.
   void
   VolumeSplitter::adjustR(const ServiceVolume& param, ServiceVolume* paramNew) {
     double z1 = param.zmin();

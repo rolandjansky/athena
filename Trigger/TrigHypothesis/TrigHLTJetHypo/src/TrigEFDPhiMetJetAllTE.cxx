@@ -19,6 +19,7 @@
 #include "xAODTrigger/TrigPassBits.h"
 #include <math.h>
 
+#include "GaudiKernel/SystemOfUnits.h"
 
 TrigEFDPhiMetJetAllTE::TrigEFDPhiMetJetAllTE(const std::string & name, ISvcLocator* pSvcLocator)
  : HLT::AllTEAlgo(name, pSvcLocator)
@@ -27,7 +28,7 @@ TrigEFDPhiMetJetAllTE::TrigEFDPhiMetJetAllTE(const std::string & name, ISvcLocat
 {
   declareProperty("MinDPhiCut",   m_MinDPhiCut  = 0.3    );
   declareProperty("MaxDPhiJets",  m_MaxDPhiJets = 3      ); 
-  declareProperty("MinJetEt",     m_MinJetEt    = 20*CLHEP::GeV  ); 
+  declareProperty("MinJetEt",     m_MinJetEt    = 20*Gaudi::Units::GeV  ); 
   declareProperty("MinJetEta",    m_MinJetEta   = 0   );   
   declareProperty("MaxJetEta",    m_MaxJetEta   = 3.2 ); 
   

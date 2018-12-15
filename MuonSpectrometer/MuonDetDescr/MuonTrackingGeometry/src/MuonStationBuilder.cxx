@@ -186,7 +186,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 	bool simpleTree = false;
 	if ( !cv->getNChildVols() ) {
 	  std::vector<Amg::Transform3D > volTr;
-	  volTr.push_back(Amg::CLHEPTransformToEigen(vol.getTransform())); 
+	  volTr.push_back(vol.getTransform()); 
 	  std::pair<const GeoLogVol*,Trk::MaterialProperties*> cpair(clv,0);
 	  vols.push_back(std::pair<std::pair<const GeoLogVol*,Trk::MaterialProperties*>,std::vector<Amg::Transform3D> > (cpair,volTr) );
           volNames.push_back(vname);
@@ -1422,7 +1422,7 @@ void Muon::MuonStationBuilder::getNSWStationsForTranslation(const GeoVPhysVol* p
   ATH_MSG_DEBUG("getNSWStationsForTranslation from:"<< pv->getLogVol()->getName()<<","<<pv->getLogVol()->getMaterial()->getName()<<", looping over "<< nc << " children");
 
   for (unsigned int ic=0; ic<nc; ic++) {
-    Amg::Transform3D transf = Amg::CLHEPTransformToEigen( pv->getXToChildVol(ic));
+    Amg::Transform3D transf =  pv->getXToChildVol(ic);
     const GeoVPhysVol* cv = &(*(pv->getChildVol(ic)));
     const GeoLogVol* clv = cv->getLogVol();
     std::string childName = clv->getName();

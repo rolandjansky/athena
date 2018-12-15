@@ -3,12 +3,12 @@
 */
 
 
-#include "PixelGeoModel/PixelDetectorFactoryDC2.h"
+#include "PixelDetectorFactoryDC2.h"
 
 // Envelope, as a starting point of the geometry
-//#include "PixelGeoModel/GeoPixelEnvelope.h"
-#include "PixelGeoModel/PixelDetectorDC1DC2.h"
-#include "PixelGeoModel/PixelSwitches.h" 
+//#include "GeoPixelEnvelope.h"
+#include "PixelDetectorDC1DC2.h"
+#include "PixelSwitches.h" 
 
 // GeoModel includes
 #include "GeoModelKernel/GeoNameTag.h"  
@@ -20,7 +20,7 @@
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 
-#include "PixelGeoModel/PixelGeoModelAthenaComps.h"
+#include "PixelGeoModelAthenaComps.h"
 
 #include "InDetIdentifier/PixelID.h"
 
@@ -125,18 +125,18 @@ void PixelDetectorFactoryDC2::create(GeoPhysVol *world)
     msg(MSG::INFO) << " " << m_detectorManager->getVersion().fullDescription() << endmsg;
 
     // Printout the parameters that are different in DC1 and DC2.
-    msg(MSG::INFO) << " B-Layer basic eta pitch: " << geometryManager->DesignPitchZ(true)/CLHEP::micrometer << "um" << endmsg;
+    msg(MSG::INFO) << " B-Layer basic eta pitch: " << geometryManager->DesignPitchZ(true)/GeoModelKernelUnits::micrometer << "um" << endmsg;
   }  
   geometryManager->SetCurrentLD(0);
   geometryManager->SetBarrel();
   if(msgLvl(MSG::INFO)) 
-    msg(MSG::INFO) << " B-Layer sensor thickness: " << geometryManager->PixelBoardThickness()/CLHEP::micrometer << "um" << endmsg;   
+    msg(MSG::INFO) << " B-Layer sensor thickness: " << geometryManager->PixelBoardThickness()/GeoModelKernelUnits::micrometer << "um" << endmsg;   
   
   //
   // Create the Pixel Envelope...
   GeoPixelEnvelope pe;
   GeoVPhysVol* pephys = pe.Build() ;
-  GeoAlignableTransform * transform = new GeoAlignableTransform(HepGeom::Transform3D());
+  GeoAlignableTransform * transform = new GeoAlignableTransform(GeoTrf::Transform3D::Identity());
   
   //
   // Add this to the world

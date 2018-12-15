@@ -12,7 +12,6 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Calorimeter/CaloDetDescr
                           Control/StoreGate
-                          DetectorDescription/GeoModel/GeoModelKernel
                           GaudiKernel
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
@@ -29,7 +28,7 @@ atlas_add_component( GeometryJiveXML
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps JiveXMLLib CaloDetDescrLib StoreGateLib SGtests GeoModelKernel GaudiKernel InDetIdentifier InDetReadoutGeometry LArReadoutGeometry MuonReadoutGeometry MuonIdHelpersLib TileDetDescr )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps JiveXMLLib CaloDetDescrLib StoreGateLib SGtests GaudiKernel InDetIdentifier InDetReadoutGeometry LArReadoutGeometry MuonReadoutGeometry MuonIdHelpersLib TileDetDescr )
 
 # Install files from the package:
 atlas_install_headers( GeometryJiveXML )

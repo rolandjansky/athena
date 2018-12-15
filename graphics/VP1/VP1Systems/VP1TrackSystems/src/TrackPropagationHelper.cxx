@@ -26,6 +26,7 @@
 #include "TrkVolumes/BoundarySurface.h"
 #include "TrkVolumes/VolumeBounds.h"
 
+#include "CLHEP/Units/PhysicalConstants.h"
 
 #include "VP1Base/VP1QtUtils.h"
 #include <limits>

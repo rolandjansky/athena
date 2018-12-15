@@ -12,6 +12,8 @@
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 
 #include "RDBAccessSvc/IRDBRecord.h"
 
@@ -98,7 +100,7 @@ namespace InDetDD {
       GeoTransform* xform = 0;
       double zOffset = m_volData.zMid() - zParent;
       if (zOffset != 0 || iRepeat > 0) {
-        xform = new GeoTransform(HepGeom::TranslateZ3D(zOffset) * HepGeom::RotateZ3D(phi));
+        xform = new GeoTransform(GeoTrf::TranslateZ3D(zOffset) * GeoTrf::RotateZ3D(phi));
       }
 
       if (parent) {
@@ -111,8 +113,8 @@ namespace InDetDD {
 
       // Place in negative z as well.
       if (m_volData.bothZ()) {
-        GeoTransform* xformNeg = new GeoTransform(HepGeom::RotateY3D(180 * CLHEP::deg) * HepGeom::TranslateZ3D(
-                                                    zOffset) * HepGeom::RotateZ3D(phi));
+        GeoTransform* xformNeg = new GeoTransform(GeoTrf::RotateY3D(180 * GeoModelKernelUnits::deg) * GeoTrf::TranslateZ3D(
+                                                    zOffset) * GeoTrf::RotateZ3D(phi));
         if (parent) {
           parent->add(xformNeg);
           parent->add(child);
@@ -135,20 +137,20 @@ namespace InDetDD {
 
       if (parentPos) {
         if (newXform) {
-          parentPos->add(new GeoTransform(HepGeom::TranslateZ3D(zOffset) * HepGeom::RotateZ3D(phi)));
+          parentPos->add(new GeoTransform(GeoTrf::TranslateZ3D(zOffset) * GeoTrf::RotateZ3D(phi)));
         }
         parentPos->add(child);
       } else if (fullparentPos) {
         if (newXform) {
-          fullparentPos->add(new GeoTransform(HepGeom::TranslateZ3D(zOffset) * HepGeom::RotateZ3D(phi)));
+          fullparentPos->add(new GeoTransform(GeoTrf::TranslateZ3D(zOffset) * GeoTrf::RotateZ3D(phi)));
         }
         fullparentPos->add(child);
       }
 
       // Place in negative z as well.
       if (m_volData.bothZ()) {
-        GeoTransform* xformNeg = new GeoTransform(HepGeom::RotateY3D(180 * CLHEP::deg) * HepGeom::TranslateZ3D(
-                                                    zOffset) * HepGeom::RotateZ3D(phi));
+        GeoTransform* xformNeg = new GeoTransform(GeoTrf::RotateY3D(180 * GeoModelKernelUnits::deg) * GeoTrf::TranslateZ3D(
+                                                    zOffset) * GeoTrf::RotateZ3D(phi));
         if (parentNeg) {
           parentNeg->add(xformNeg);
           parentNeg->add(child);

@@ -23,17 +23,14 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"  
 #include "GeoModelKernel/GeoIdentifierTag.h"  
 #include "GeoModelKernel/GeoSerialDenominator.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
-#include "GeoModelKernel/GeoShapeShift.h"
-
-// For transforms:
-#include "CLHEP/Geometry/Transform3D.h" 
-#include "CLHEP/GenericFunctions/Variable.hh"
-// For units:
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "GeoModelKernel/GeoShapeShift.h" 
+#include "GeoGenericFunctions/Variable.h"
 
 // For the database:
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -143,8 +140,8 @@ GeoVPhysVol* LArGeo::FrontBeamConstructionH62002::GetEnvelope()
   std::string baseName = "LAr::TBH62002";
   std::string H62002FrontBeamName = baseName + "::FrontBeam";
 
-  const double H62002FrontBeamXY  = 2000.*CLHEP::mm;
-  const double H62002FrontBeamZ   =  350.*CLHEP::mm;
+  const double H62002FrontBeamXY  = 2000.*GeoModelKernelUnits::mm;
+  const double H62002FrontBeamZ   =  350.*GeoModelKernelUnits::mm;
 
 
   GeoBox* H62002FrontBeamShape = new GeoBox( H62002FrontBeamXY, H62002FrontBeamXY, H62002FrontBeamZ );   
@@ -161,27 +158,27 @@ GeoVPhysVol* LArGeo::FrontBeamConstructionH62002::GetEnvelope()
   //   In the old stand-alone code, all three were round with a radius of 5cm 
   //   and 7.5mm thickness.
   //   Logbooks in the control-room say that their xyz sizes are:
-  //   B1   : 30 x 30 x 10 CLHEP::mm
-  //   W1,2 : 150 x 150 x 10 CLHEP::mm
+  //   B1   : 30 x 30 x 10 GeoModelKernelUnits::mm
+  //   W1,2 : 150 x 150 x 10 GeoModelKernelUnits::mm
   // They are certainly not round, so stick with the logbook values 
   // The beam sees the instrumentation in the following order:
   // W1, W2, B1, MWPC5
 
   log << "Create Front Scintillators ..." << std::endl;
   
-  const double Wxy=  75.0*CLHEP::mm;
-  const double Wz =   5.0*CLHEP::mm;
-  const double Bxy=  15.0*CLHEP::mm;
-  const double Bz =   5.0*CLHEP::mm;
+  const double Wxy=  75.0*GeoModelKernelUnits::mm;
+  const double Wz =   5.0*GeoModelKernelUnits::mm;
+  const double Bxy=  15.0*GeoModelKernelUnits::mm;
+  const double Bz =   5.0*GeoModelKernelUnits::mm;
 
   std::vector<double> v_ScintXY;
   std::vector<double> v_ScintZ;
   v_ScintXY.push_back(Wxy);
   v_ScintXY.push_back(Wxy); 
   v_ScintXY.push_back(Bxy); 
-  v_ScintZ.push_back(170.*CLHEP::mm); 
-  v_ScintZ.push_back(200.*CLHEP::mm); 
-  v_ScintZ.push_back(340.*CLHEP::mm);
+  v_ScintZ.push_back(170.*GeoModelKernelUnits::mm); 
+  v_ScintZ.push_back(200.*GeoModelKernelUnits::mm); 
+  v_ScintZ.push_back(340.*GeoModelKernelUnits::mm);
 
    // Create one Scintillator and place it twice along z:
  
@@ -196,7 +193,7 @@ GeoVPhysVol* LArGeo::FrontBeamConstructionH62002::GetEnvelope()
   //BScintPhysical->add( new GeoNameTag(ScintName) );
   for ( unsigned int i = 0; i < v_ScintZ.size(); i++ ) {
     m_H62002FrontBeamPhysical->add( new GeoIdentifierTag(i) );
-    m_H62002FrontBeamPhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::cm, 0.*CLHEP::cm, (v_ScintZ[ i ]-H62002FrontBeamZ) ) ) ) ;     m_H62002FrontBeamPhysical->add( new GeoNameTag(ScintName) );
+    m_H62002FrontBeamPhysical->add( new GeoTransform( GeoTrf::Translate3D( 0.*GeoModelKernelUnits::cm, 0.*GeoModelKernelUnits::cm, (v_ScintZ[ i ]-H62002FrontBeamZ) ) ) ) ;     m_H62002FrontBeamPhysical->add( new GeoNameTag(ScintName) );
 
     switch(i) {
     case 0: case 1: { m_H62002FrontBeamPhysical->add( WScintPhysical ); break; }
@@ -211,12 +208,12 @@ GeoVPhysVol* LArGeo::FrontBeamConstructionH62002::GetEnvelope()
 
 
   //------ Get MWPC number 5 from LArGeoH6Cryostats
-  const double MwpcPos = 605.*CLHEP::mm;
-  double WireStep = 2.*CLHEP::mm;
+  const double MwpcPos = 605.*GeoModelKernelUnits::mm;
+  double WireStep = 2.*GeoModelKernelUnits::mm;
   MWPCConstruction  mwpcXConstruction (WireStep);
   GeoVPhysVol* mwpcEnvelope = mwpcXConstruction.GetEnvelope();
   m_H62002FrontBeamPhysical->add(new GeoIdentifierTag(5));
-  m_H62002FrontBeamPhysical->add( new GeoTransform(HepGeom::Translate3D( 0.*CLHEP::cm, 0.*CLHEP::cm, (MwpcPos-H62002FrontBeamZ) ) ) );
+  m_H62002FrontBeamPhysical->add( new GeoTransform(GeoTrf::Translate3D( 0.*GeoModelKernelUnits::cm, 0.*GeoModelKernelUnits::cm, (MwpcPos-H62002FrontBeamZ) ) ) );
   m_H62002FrontBeamPhysical->add(mwpcEnvelope);    
   //------ Done with creating an MWPC from LArGeoH6Cryostats
 

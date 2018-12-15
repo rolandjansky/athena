@@ -153,14 +153,14 @@ SiDetectorElement::updateCache() const
   bool firstTimeTmp = m_firstTime;
   m_firstTime = false;
   
-  const HepGeom::Transform3D & geoTransform = transformHit();
+  const GeoTrf::Transform3D & geoTransform = transformHit();
 
   double radialShift = 0.;
   const InDetDD::StripStereoAnnulusDesign * testDesign = dynamic_cast<const InDetDD::StripStereoAnnulusDesign*>(m_design);
   if(testDesign) radialShift = testDesign->localModuleCentreRadius(); 
       
   HepGeom::Point3D<double> centerGeoModel(radialShift, 0., 0.);
-  m_centerCLHEP = geoTransform * centerGeoModel;
+  m_centerCLHEP = Amg::EigenTransformToCLHEP(geoTransform) * centerGeoModel;
   m_center = Amg::Vector3D(m_centerCLHEP[0],m_centerCLHEP[1],m_centerCLHEP[2]);
   
   //
@@ -193,9 +193,9 @@ SiDetectorElement::updateCache() const
     	const HepGeom::Vector3D<double> &geoModelEtaAxis = localAxes[m_hitEta];
     	const HepGeom::Vector3D<double> &geoModelDepthAxis = localAxes[m_hitDepth];
 
-    	HepGeom::Vector3D<double> globalDepthAxis(geoTransform * geoModelDepthAxis);
-    	HepGeom::Vector3D<double> globalPhiAxis(geoTransform * geoModelPhiAxis);
-	HepGeom::Vector3D<double> globalEtaAxis(geoTransform * geoModelEtaAxis);
+    	HepGeom::Vector3D<double> globalDepthAxis(Amg::EigenTransformToCLHEP(geoTransform) * geoModelDepthAxis);
+    	HepGeom::Vector3D<double> globalPhiAxis(Amg::EigenTransformToCLHEP(geoTransform) * geoModelPhiAxis);
+	HepGeom::Vector3D<double> globalEtaAxis(Amg::EigenTransformToCLHEP(geoTransform) * geoModelEtaAxis);
 
 
 
@@ -298,7 +298,7 @@ SiDetectorElement::updateCache() const
   
 
 
-  m_transformCLHEP = geoTransform * recoToHitTransform();
+  m_transformCLHEP = Amg::EigenTransformToCLHEP(geoTransform) * recoToHitTransform();
   //m_transform = m_commonItems->solenoidFrame() * geoTransform * recoToHitTransform();
   m_transform = Amg::CLHEPTransformToEigen(m_transformCLHEP);
   
@@ -315,7 +315,7 @@ SiDetectorElement::updateCache() const
 	  msg(MSG::DEBUG) << "Local frame is left-handed, Swapping depth axis to make it right handed." 
 			  << endmsg;
 	m_depthDirection = !m_depthDirection;
-	m_transformCLHEP = geoTransform * recoToHitTransform();
+	m_transformCLHEP = Amg::EigenTransformToCLHEP(geoTransform) * recoToHitTransform();
 	 m_transform = Amg::CLHEPTransformToEigen(m_transformCLHEP);
 	//m_transform = m_commonItems->solenoidFrame() * geoTransform * recoToHitTransform();
        } else {
@@ -363,11 +363,11 @@ SiDetectorElement::updateCache() const
 }
 
 
-const HepGeom::Transform3D &
+const GeoTrf::Transform3D &
 SiDetectorElement::transformHit() const
 {
   if (m_geoAlignStore) {
-    const HepGeom::Transform3D* ptrXf = m_geoAlignStore->getAbsPosition(getMaterialGeom());
+    const GeoTrf::Transform3D* ptrXf = m_geoAlignStore->getAbsPosition(getMaterialGeom());
     if(ptrXf) return *ptrXf;
   }
   return getMaterialGeom()->getAbsoluteTransform();
@@ -395,10 +395,10 @@ const HepGeom::Transform3D
 SiDetectorElement::defTransformCLHEP() const
 {
   if (m_geoAlignStore) {
-    const HepGeom::Transform3D* ptrXf = m_geoAlignStore->getDefAbsPosition(getMaterialGeom());
-    if(ptrXf) return *ptrXf * recoToHitTransform();
+    const GeoTrf::Transform3D* ptrXf = m_geoAlignStore->getDefAbsPosition(getMaterialGeom());
+    if(ptrXf) return Amg::EigenTransformToCLHEP(*ptrXf) * recoToHitTransform();
   }
-  return getMaterialGeom()->getDefAbsoluteTransform() * recoToHitTransform();
+  return Amg::EigenTransformToCLHEP(getMaterialGeom()->getDefAbsoluteTransform()) * recoToHitTransform();
 }  
    
 const Amg::Transform3D 

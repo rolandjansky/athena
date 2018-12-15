@@ -11,7 +11,7 @@
 #include "StoreGate/StoreGateSvc.h"
 
 #include "GeoModelKernel/GeoXF.h"
-#include "CLHEP/GenericFunctions/Variable.hh"
+#include "GeoGenericFunctions/Variable.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "DetDescrConditions/AlignableTransformContainer.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
@@ -85,12 +85,11 @@ namespace InDetDD
         const GeoVFullPhysVol* child = extXF->child();
         if (child && extXF->alignableTransform()) {
             // the definitiv absolut transform is in CLHEP -> do the calculation in CLHEP
-            HepGeom::Transform3D localToGlobalXFCLHEP = Amg::EigenTransformToCLHEP(localToGlobalXF);
-            const HepGeom::Transform3D& transform = child->getDefAbsoluteTransform();
+            const GeoTrf::Transform3D& transform = child->getDefAbsoluteTransform();
             // calucluate the corrected delta according to the formula above
-            HepGeom::Transform3D correctedDelta = transform.inverse()*localToGlobalXFCLHEP      // (A*B*C).inverse() * T
-                                                   * Amg::EigenTransformToCLHEP(delta)             // l
-                                                   * localToGlobalXFCLHEP.inverse() * transform;   // T.inverse() * (A*B*C)
+            GeoTrf::Transform3D correctedDelta = transform.inverse()*localToGlobalXF      // (A*B*C).inverse() * T
+	                                         * delta                                  // l
+                                                 * localToGlobalXF.inverse() * transform; // T.inverse() * (A*B*C)
             extXF->alignableTransform()->setDelta(correctedDelta, alignStore);
             return true;
         } else {
@@ -123,8 +122,8 @@ namespace InDetDD
         const GeoVFullPhysVol * child = extXF->child();
         if (child && extXF->alignableTransform()) {
             // do the calculation in CLHEP  
-            const HepGeom::Transform3D& transform = child->getDefAbsoluteTransform();
-            extXF->alignableTransform()->setDelta(transform.inverse() * Amg::EigenTransformToCLHEP(delta) * transform, alignStore);
+            const GeoTrf::Transform3D& transform = child->getDefAbsoluteTransform();
+            extXF->alignableTransform()->setDelta(transform.inverse() * delta * transform, alignStore);
             return true;
         } else {
             return false;

@@ -5,6 +5,8 @@
 #include "InDetServMatGeoModel/PixelServMatFactoryDC3.h"
 
 // GeoModel includes
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 #include "GeoModelKernel/GeoPhysVol.h"  
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoTube.h"  
@@ -72,14 +74,14 @@ void PixelServMatFactoryDC3::create(GeoPhysVol *mother)
   std::cout << "Test Material std::Copper density="<<testMat->getDensity()
       <<" Rad.length="<<testMat->getRadLength()<<" Int.length="<<testMat->getIntLength()<<'\n';
 
-      GeoMaterial* TIN = new GeoMaterial("Sn", 7.31*CLHEP::gram/CLHEP::cm3);
-//        GeoElement *testMat   = new GeoElement("Tin",  "Sn", 50.0, 118.69*CLHEP::amu_c2);
+      GeoMaterial* TIN = new GeoMaterial("Sn", 7.31*GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3);
+//        GeoElement *testMat   = new GeoElement("Tin",  "Sn", 50.0, 118.69*GeoModelKernelUnits::amu_c2);
       const GeoElement *tin   = materialManager->getElement("Tin");
       TIN->add(const_cast<GeoElement *>(tin),1.);
       TIN->lock(); testMat=TIN;
   std::cout << "Test Material Tin density="<<testMat->getDensity()
       <<" Rad.length="<<testMat->getRadLength()<<" Int.length="<<testMat->getIntLength()<<'\n';
-  std::cout << "Atomic mass unit="<<CLHEP::amu_c2<<'\n';
+  std::cout << "Atomic mass unit="<<GeoModelKernelUnits::amu_c2<<'\n';
   std::cout << "gram/cm3 ="<<gram/cm3<<'\n';
 */
  
@@ -99,8 +101,8 @@ void PixelServMatFactoryDC3::create(GeoPhysVol *mother)
 //      <<" Rad.length="<<cylMat->getRadLength()<<'\n';
 
 
-    double rmin = (*pbfi)[jj]->getFloat("RIN")*CLHEP::cm;
-    double rmax = (*pbfi)[jj]->getFloat("ROUT")*CLHEP::cm;
+    double rmin = (*pbfi)[jj]->getFloat("RIN")*GeoModelKernelUnits::cm;
+    double rmax = (*pbfi)[jj]->getFloat("ROUT")*GeoModelKernelUnits::cm;
     double zmin = (*pbfi)[jj]->getFloat("ZIN");
     double zmax = (*pbfi)[jj]->getFloat("ZOUT");
 
@@ -113,7 +115,7 @@ void PixelServMatFactoryDC3::create(GeoPhysVol *mother)
       double rl = cylMat->getRadLength();
       halflength = fabs(zmax) * rl /200. ;
     } else {
-      halflength = fabs(zmax-zmin)*CLHEP::cm;
+      halflength = fabs(zmax-zmin)*GeoModelKernelUnits::cm;
     }
 
 //VK Temporary!!!  To bring thickness to nominal values
@@ -123,7 +125,7 @@ void PixelServMatFactoryDC3::create(GeoPhysVol *mother)
 //    if( ii == 0 ) zmin += 0.7;   // in cm!
 //std::cout << "New="<<halflength<<", "<<zmin<<", "<<ii<<'\n';
 
-    double zpos = fabs(zmin*CLHEP::cm)+halflength+epsilon;
+    double zpos = fabs(zmin*GeoModelKernelUnits::cm)+halflength+epsilon;
     // Build the Phys Vol
     std::ostringstream o;
     o << ii;
@@ -149,17 +151,17 @@ void PixelServMatFactoryDC3::create(GeoPhysVol *mother)
     GeoPhysVol* ServPhys = new GeoPhysVol(ServLog);
     
     if(zmin < 0) zpos = -zpos; 
-    CLHEP::Hep3Vector servpos1(0.,0.,zpos);
-    CLHEP::Hep3Vector servpos2(0.,0.,-zpos);
+    GeoTrf::Vector3D servpos1(0.,0.,zpos);
+    GeoTrf::Vector3D servpos2(0.,0.,-zpos);
 //
     if (ii==0 || ii==2 || ii==6 || ii==1){
 	for (int isec=0; isec<12 ; isec++){
-            std::ostringstream o;
+	    std::ostringstream o;
             o<<"_";  o << isec;
             std::string logNameTmp = logName+o.str();    
 //std::cout<<isec<<", "<<logNameTmp<<'\n';
-	    GeoTransform *xform1 = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(0.,0.,isec*M_PI/6.),servpos1));
-	    GeoTransform *xform2 = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(0.,0.,isec*M_PI/6.),servpos2));
+	    GeoTransform *xform1 = new GeoTransform(GeoTrf::GeoTransformRT(GeoTrf::GeoRotation(0.,0.,isec*M_PI/6.),servpos1));
+	    GeoTransform *xform2 = new GeoTransform(GeoTrf::GeoTransformRT(GeoTrf::GeoRotation(0.,0.,isec*M_PI/6.),servpos2));
 	    xform2->ref();//artificial refcount increment
 	    mother->add(new GeoNameTag(logNameTmp));
 	    mother->add(xform1);//xform1 is always used
@@ -172,8 +174,8 @@ void PixelServMatFactoryDC3::create(GeoPhysVol *mother)
 	    xform2->unref(); //will delete it, if it was never used
         }
     }else{
-	GeoTransform *xform1 = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),servpos1));
-	GeoTransform *xform2 = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),servpos2));
+        GeoTransform *xform1 = new GeoTransform(GeoTrf::GeoTransformRT(GeoTrf::GeoRotation(0,0,0),servpos1));
+	GeoTransform *xform2 = new GeoTransform(GeoTrf::GeoTransformRT(GeoTrf::GeoRotation(0,0,0),servpos2));
 	xform2->ref();//artificial refcount increment
 	mother->add(xform1);
 	mother->add(ServPhys);

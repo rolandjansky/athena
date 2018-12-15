@@ -11,10 +11,10 @@
 // GeoModelKernel
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoElement.h"
-// CLHEP
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
-double Trk::GeoMaterialConverter::s_densityCnvFactor = 1./CLHEP::gram;
+
+double Trk::GeoMaterialConverter::s_densityCnvFactor = 1./GeoModelKernelUnits::gram;
 
 Trk::Material Trk::GeoMaterialConverter::convert(const GeoMaterial* gm) const {
   // get the obvious things 
@@ -30,7 +30,7 @@ Trk::Material Trk::GeoMaterialConverter::convert(const GeoMaterial* gm) const {
   for (int iEl=0; iEl<numberOfElements; iEl++){
         const GeoElement* geoEl = gm->getElement(iEl);
         float fraction = gm->getFraction(iEl);
-        A += fraction*(geoEl->getA()/(CLHEP::gram));
+        A += fraction*(geoEl->getA()/(GeoModelKernelUnits::gram));
         Z += fraction*(geoEl->getZ());             
    }
   // return the result

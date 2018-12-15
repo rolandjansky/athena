@@ -2,11 +2,11 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PixelGeoModel/GeoPixelEndCap.h"
-#include "PixelGeoModel/GeoPixelDisk.h"
-#include "PixelGeoModel/GeoPixelDiskSLHC.h"
-#include "PixelGeoModel/GeoPixelECCable.h"
-#include "PixelGeoModel/GeoPixelServices.h"
+#include "GeoPixelEndCap.h"
+#include "GeoPixelDisk.h"
+#include "GeoPixelDiskSLHC.h"
+#include "GeoPixelECCable.h"
+#include "GeoPixelServices.h"
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoNameTag.h"
@@ -78,7 +78,7 @@ GeoVPhysVol* GeoPixelEndCap::Build( ) {
       std::ostringstream nameTag; 
       nameTag << "Disk" << idisk;
       GeoNameTag * tag = new GeoNameTag(nameTag.str());
-      GeoAlignableTransform* xform = new GeoAlignableTransform(HepGeom::TranslateZ3D(zdisk));
+      GeoAlignableTransform* xform = new GeoAlignableTransform(GeoTrf::TranslateZ3D(zdisk));
 
       GeoVPhysVol * diskPhys = 0;
       if (m_gmt_mgr->slhc()) {
@@ -102,10 +102,10 @@ GeoVPhysVol* GeoPixelEndCap::Build( ) {
       //
       if (pecc && pd) { // Not in SLHC
 	double dz = pd->Thickness()/2. + m_gmt_mgr->PixelECCablesDistance() ;
-	GeoTransform * xformCablesPlus = new GeoTransform(HepGeom::TranslateZ3D(zdisk+dz));
+	GeoTransform * xformCablesPlus = new GeoTransform(GeoTrf::TranslateZ3D(zdisk+dz));
 	ecPhys->add(xformCablesPlus);
 	ecPhys->add(pecc->Build() );
-	GeoTransform * xformCablesMinus = new GeoTransform(HepGeom::TranslateZ3D(zdisk-dz));
+	GeoTransform * xformCablesMinus = new GeoTransform(GeoTrf::TranslateZ3D(zdisk-dz));
 	ecPhys->add(xformCablesMinus);
 	ecPhys->add(pecc->Build() );
       }

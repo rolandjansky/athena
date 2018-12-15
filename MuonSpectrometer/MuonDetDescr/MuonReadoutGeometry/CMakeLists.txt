@@ -9,7 +9,6 @@ atlas_subdir( MuonReadoutGeometry )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          DetectorDescription/GeoModel/GeoModelKernel
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/Identifier
                           GaudiKernel
@@ -25,12 +24,13 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( Eigen )
+find_package( GeoModel )
 
 # Component(s) in the package:
 atlas_add_library( MuonReadoutGeometry
                    src/*.c*
                    PUBLIC_HEADERS MuonReadoutGeometry
-                   INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoModelKernel GeoPrimitives Identifier GaudiKernel MuonAlignmentData TrkDetElementBase TrkDistortedSurfaces TrkSurfaces MuonIdHelpersLib StoreGateLib SGtests
+                   INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} ${GEOMODEL_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives Identifier GaudiKernel MuonAlignmentData TrkDetElementBase TrkDistortedSurfaces TrkSurfaces MuonIdHelpersLib StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES AGDDModel MuonAGDDDescription )
 

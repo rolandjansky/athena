@@ -56,6 +56,8 @@
 #include "LArHV/HECHVSubgap.h"
 #include "LArHV/LArHVManager.h"
 
+#include "GeoPrimitives/CLHEPtoEigenConverter.h"
+
 #include "VP1Utils/VP1LinAlgUtils.h"
 #include <sstream>
 
@@ -1044,7 +1046,7 @@ void VP1CaloReadoutSystem::createHV() {
 
 	  const HECDetectorManager *hecManager = VP1DetInfo::hecDetMgr();
 	  const HECDetectorRegion  *region = hecManager->getDetectorRegion(element->getEndcapIndex(),element->getSamplingIndex(),element->getRegionIndex());
-	  const HepGeom::Transform3D &XF= region->getAbsoluteTransform();
+	  const HepGeom::Transform3D &XF= Amg::EigenTransformToCLHEP(region->getAbsoluteTransform());
 	  double z0 = (XF*HepGeom::Point3D<double>(0,0,element->getZLocal(HECCell::FRONT))).z();
 	  double z1 = (XF*HepGeom::Point3D<double>(0,0,element->getZLocal(HECCell::BACK))).z();
 
@@ -1113,7 +1115,7 @@ void VP1CaloReadoutSystem::createHV() {
 		for (e=fcalManager->beginFCAL();e!=fcalManager->endFCAL();  e++) {
 
 		  const FCALModule *fcalMod = *e;
-		  const HepGeom::Transform3D &xf          =  fcalMod->getAbsoluteTransform();
+		  const HepGeom::Transform3D &xf =  Amg::EigenTransformToCLHEP(fcalMod->getAbsoluteTransform());
 
 		  SoTransform  *XF = VP1LinAlgUtils::toSoTransform(xf);
 		  SoSeparator  *sep = new SoSeparator();
@@ -1174,7 +1176,7 @@ void VP1CaloReadoutSystem::createEtaPhi() {
       EMBDetectorManager::DetectorRegionConstIterator e;
       for (e=manager->beginDetectorRegion();e!=manager->endDetectorRegion();  e++) {
 	const EMBDetectorRegion *region = *e;
-	const HepGeom::Transform3D &xf          =  region->getAbsoluteTransform();
+	const HepGeom::Transform3D &xf = Amg::EigenTransformToCLHEP(region->getAbsoluteTransform());
 	SoTransform  *XF = VP1LinAlgUtils::toSoTransform(xf);
 	SoSeparator *sep[NPHISECTORS]= {new SoSeparator(), new SoSeparator(), new SoSeparator(), new SoSeparator(),
 			       new SoSeparator(), new SoSeparator(), new SoSeparator(), new SoSeparator(),
@@ -1274,7 +1276,7 @@ void VP1CaloReadoutSystem::createEtaPhi() {
       EMECDetectorManager::DetectorRegionConstIterator e;
       for (e=manager->beginDetectorRegion();e!=manager->endDetectorRegion();  e++) {
 	const EMECDetectorRegion *region = *e;
-	const HepGeom::Transform3D &xf          =  region->getAbsoluteTransform();
+	const HepGeom::Transform3D &xf = Amg::EigenTransformToCLHEP(region->getAbsoluteTransform());
 
 	// First Focal Points:
 	try {
@@ -1358,7 +1360,7 @@ void VP1CaloReadoutSystem::createEtaPhi() {
 
 
 	const HECDetectorRegion *region = *e;
-	const HepGeom::Transform3D &xf          =  region->getAbsoluteTransform();
+	const HepGeom::Transform3D &xf = Amg::EigenTransformToCLHEP(region->getAbsoluteTransform());
 
 	// First Focal Points:
 	if (region->getSamplingIndex()==1) {
@@ -1444,7 +1446,7 @@ void VP1CaloReadoutSystem::createEtaPhi() {
      for (e=manager->beginFCAL();e!=manager->endFCAL();  e++) {
 
        const FCALModule *fcalMod = *e;
-       const HepGeom::Transform3D &xf          =  fcalMod->getAbsoluteTransform();
+       const HepGeom::Transform3D &xf = Amg::EigenTransformToCLHEP(fcalMod->getAbsoluteTransform());
 
        SoTransform  *XF = VP1LinAlgUtils::toSoTransform(xf);
 
@@ -1751,7 +1753,7 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 	const FCALModule *fcalMod=element->getModule();
 
 
-	const HepGeom::Transform3D &xf          =  fcalMod->getAbsoluteTransform();
+	const HepGeom::Transform3D &xf = Amg::EigenTransformToCLHEP(fcalMod->getAbsoluteTransform());
 	SoTransform  *XF = VP1LinAlgUtils::toSoTransform(xf);
 
 	SoSeparator * sep = new SoSeparator();
@@ -1800,7 +1802,7 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
       }
       if (m_clockwork->ui.fcalTubesCheckBox->isChecked()) {
 	const FCALModule *fcalMod=element->getModule();
-	const HepGeom::Transform3D &xf          =  fcalMod->getAbsoluteTransform();
+	const HepGeom::Transform3D &xf = Amg::EigenTransformToCLHEP(fcalMod->getAbsoluteTransform());
 	SoTransform  *XF = VP1LinAlgUtils::toSoTransform(xf);
 
 	SoSeparator * sep = new SoSeparator();
@@ -1895,7 +1897,7 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 
 	const HECDetectorManager *hecManager = VP1DetInfo::hecDetMgr();
 	const HECDetectorRegion  *region = hecManager->getDetectorRegion(element->getEndcapIndex(),element->getSamplingIndex(),element->getRegionIndex());
-	const HepGeom::Transform3D &XF= region->getAbsoluteTransform();
+	const HepGeom::Transform3D &XF= Amg::EigenTransformToCLHEP(region->getAbsoluteTransform());
 	double z = (XF*HepGeom::Point3D<double>(0,0,element->getZLocal(HECCell::FRONT))).z();
 
 	double phiMin = module->getPhiMin();

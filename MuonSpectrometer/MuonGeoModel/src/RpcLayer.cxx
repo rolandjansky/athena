@@ -16,6 +16,7 @@
 #include "GeoModelKernel/GeoNameTag.h"
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoIdentifierTag.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 #include "MuonReadoutGeometry/GlobalUtilities.h"
 #include <iomanip>
 // for cutouts:
@@ -94,7 +95,7 @@ RpcLayer::build(int cutoutson, std::vector<Cutout*> vcutdef)
     newpos += strpanThickness/2. + tol/2.;
     GeoPhysVol* pcustrpan11 = new GeoPhysVol(lcustrpan);
     GeoPhysVol* pfoamstrpan11 = new GeoPhysVol(lfoamstrpan);
-    GeoTransform* tx = new GeoTransform(HepGeom::TranslateX3D(newpos) );
+    GeoTransform* tx = new GeoTransform(GeoTrf::TranslateX3D(newpos) );
     GeoTransform* ty1;
     GeoTransform* ty2;
 
@@ -102,8 +103,8 @@ RpcLayer::build(int cutoutson, std::vector<Cutout*> vcutdef)
       if (RPCprint) std::cout << " RpcLayer::NstripPanels_in_s == 2 " << std::endl;
       GeoPhysVol* pcustrpan12 = new GeoPhysVol(lcustrpan);
       GeoPhysVol* pfoamstrpan12 = new GeoPhysVol(lfoamstrpan);
-            ty1 = new GeoTransform(HepGeom::TranslateY3D(-width/4.));
-            ty2 = new GeoTransform(HepGeom::TranslateY3D( width/4.));
+            ty1 = new GeoTransform(GeoTrf::TranslateY3D(-width/4.));
+            ty2 = new GeoTransform(GeoTrf::TranslateY3D( width/4.));
             prpcl->add(tx);
             prpcl->add(ty1);
             if (RPCprint) std::cout<<"RpcLayer:: Locating the 1st phi strip panel at x, y "
@@ -161,13 +162,13 @@ RpcLayer::build(int cutoutson, std::vector<Cutout*> vcutdef)
                                         matManager->getMaterial("muo::RPCgas"));
         GeoPhysVol *pbak1 =  new GeoPhysVol (lbak);
         GeoPhysVol *pgas1 =  new GeoPhysVol (lgas);
-        tx = new GeoTransform(HepGeom::TranslateX3D(newpos));
+        tx = new GeoTransform(GeoTrf::TranslateX3D(newpos));
         if (r->NGasGaps_in_s == 2)
         {
             GeoPhysVol *pbak2 =  new GeoPhysVol (lbak);
             GeoPhysVol *pgas2 =  new GeoPhysVol (lgas);
-            ty1 = new GeoTransform(HepGeom::TranslateY3D(-width/4.));
-            ty2 = new GeoTransform(HepGeom::TranslateY3D(width/4.));
+            ty1 = new GeoTransform(GeoTrf::TranslateY3D(-width/4.));
+            ty2 = new GeoTransform(GeoTrf::TranslateY3D(width/4.));
             prpcl->add(tx);
             prpcl->add(ty1);
             if (RPCprint) std::cout<<"RpcLayer:: put 1st gas gap centre at depth, s "<<newpos<<" "<<-width/4.<<std::endl;
@@ -200,13 +201,13 @@ RpcLayer::build(int cutoutson, std::vector<Cutout*> vcutdef)
                 
         GeoPhysVol *pcustrpan21   = new GeoPhysVol(lcustrpan);
         GeoPhysVol *pfoamstrpan21 = new GeoPhysVol(lfoamstrpan);
-        tx = new GeoTransform(HepGeom::TranslateX3D(newpos));
+        tx = new GeoTransform(GeoTrf::TranslateX3D(newpos));
         if (r->NstripPanels_in_s == 2) 
         {
             GeoPhysVol *pcustrpan22 = new GeoPhysVol(lcustrpan);
             GeoPhysVol *pfoamstrpan22 = new GeoPhysVol(lfoamstrpan);
-            ty1 = new GeoTransform(HepGeom::TranslateY3D(-width/4.));
-            ty2 = new GeoTransform(HepGeom::TranslateY3D( width/4.));
+            ty1 = new GeoTransform(GeoTrf::TranslateY3D(-width/4.));
+            ty2 = new GeoTransform(GeoTrf::TranslateY3D( width/4.));
             prpcl->add(tx);
             prpcl->add(ty1);
             if (RPCprint) std::cout<<"RpcLayer:: Locating the 1st eta panel at x, y "
@@ -239,12 +240,12 @@ RpcLayer::build(int cutoutson, std::vector<Cutout*> vcutdef)
       GeoPhysVol* tempPhys = 0;
       Cutout* cut = 0;
       GeoShape* cutoutShape = 0;
-      HepGeom::Transform3D cutTrans;
+      GeoTrf::Transform3D cutTrans{GeoTrf::Transform3D::Identity()};
       for (unsigned i = 0; i < vcutdef.size(); i++) {
         cut = vcutdef[i];
         cutoutShape = new GeoTrd(thickness/2.+1., thickness/2.+1.,
                                  cut->widthXs/2.+0.5, cut->widthXl/2.+0.5, cut->lengthY/2.+tol);
-        cutTrans = HepGeom::Translate3D(0.0, cut->dx, -length/2 + cut->dy + cut->lengthY/2.);
+        cutTrans = GeoTrf::Translate3D(0.0, cut->dx, -length/2 + cut->dy + cut->lengthY/2.);
 
         GeoCutVolAction cutAction(*cutoutShape, cutTrans);
         prpcl->apply(&cutAction);

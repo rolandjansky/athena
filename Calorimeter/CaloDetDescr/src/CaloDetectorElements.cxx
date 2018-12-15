@@ -10,6 +10,7 @@
 
 #include "CaloGeoHelpers/CaloPhiRange.h"
 
+#include "GaudiKernel/SystemOfUnits.h"
 
 namespace {
 
@@ -196,12 +197,12 @@ void EMECDetectorElement::init_description(bool isTestBeam, const CaloElementPos
 // we need to apply the famous ZShift. 
   Amg::Transform3D xfNominal;
   if(m_cell->getEndcapIndex()==0)
-    xfNominal = Amg::Translation3D(Amg::Vector3D(0.,0.,m_region->getProjectivityDisplacement()*CLHEP::cm))*xfDef; // Negative EMEC
+    xfNominal = Amg::Translation3D(Amg::Vector3D(0.,0.,m_region->getProjectivityDisplacement()*Gaudi::Units::cm))*xfDef; // Negative EMEC
   else
-    xfNominal = Amg::Translation3D(Amg::Vector3D(0.,0.,-m_region->getProjectivityDisplacement()*CLHEP::cm))*xfDef; // Positive EMEC
+    xfNominal = Amg::Translation3D(Amg::Vector3D(0.,0.,-m_region->getProjectivityDisplacement()*Gaudi::Units::cm))*xfDef; // Positive EMEC
 
   if(isTestBeam){
-    xfNominal = Amg::Translation3D(Amg::Vector3D(0.,0.,3689.5*CLHEP::mm));
+    xfNominal = Amg::Translation3D(Amg::Vector3D(0.,0.,3689.5*Gaudi::Units::mm));
   }
 
   const Amg::Transform3D &xfAbs = m_region->getAbsoluteTransformAmg();
@@ -333,12 +334,12 @@ void HECDetectorElement::init_description(bool isTestBeam, const CaloElementPosi
   // we need to apply the famous ZShift.
   Amg::Transform3D xfNominal;
   if(m_cell->getEndcapIndex()==0)
-    xfNominal = Amg::Translation3D(Amg::Vector3D(0.,0.,m_region->getProjectivityDisplacement()*CLHEP::cm))*xfDef; // Negative HEC
+    xfNominal = Amg::Translation3D(Amg::Vector3D(0.,0.,m_region->getProjectivityDisplacement()*Gaudi::Units::cm))*xfDef; // Negative HEC
   else
-    xfNominal = Amg::Translation3D(Amg::Vector3D(0.,0.,-m_region->getProjectivityDisplacement()*CLHEP::cm))*xfDef; // Positive HEC
+    xfNominal = Amg::Translation3D(Amg::Vector3D(0.,0.,-m_region->getProjectivityDisplacement()*Gaudi::Units::cm))*xfDef; // Positive HEC
 
   if(isTestBeam){
-    xfNominal = Amg::Translation3D(Amg::Vector3D(0.,0., 4277.*CLHEP::mm));
+    xfNominal = Amg::Translation3D(Amg::Vector3D(0.,0., 4277.*Gaudi::Units::mm));
   }
 
   const Amg::Transform3D &xfAbs = m_region->getAbsoluteTransformAmg();
@@ -465,18 +466,18 @@ void FCALDetectorElement::init_description(bool isTestBeam, const CaloElementPos
 // we need to apply the famous ZShift. 
   Amg::Transform3D xfNominal;
   if(m_module->getEndcapIndex()==FCALModule::POS)
-    xfNominal = Amg::Translation3D(Amg::Vector3D(0.,0.,-m_module->getProjectivityDisplacement()*CLHEP::cm))*xfDef;
+    xfNominal = Amg::Translation3D(Amg::Vector3D(0.,0.,-m_module->getProjectivityDisplacement()*Gaudi::Units::cm))*xfDef;
   else
-    xfNominal = Amg::Translation3D(Amg::Vector3D(0.,0.,m_module->getProjectivityDisplacement()*CLHEP::cm))*xfDef;
+    xfNominal = Amg::Translation3D(Amg::Vector3D(0.,0.,m_module->getProjectivityDisplacement()*Gaudi::Units::cm))*xfDef;
 
   if(isTestBeam){
      if(m_module->getModuleIndex() == FCALModule::FCAL1)
-           xfNominal = Amg::Translation3D(Amg::Vector3D(0.,0., 4668.5*CLHEP::mm));
+           xfNominal = Amg::Translation3D(Amg::Vector3D(0.,0., 4668.5*Gaudi::Units::mm));
      else if (m_module->getModuleIndex() == FCALModule::FCAL2)
-           xfNominal = Amg::Translation3D(Amg::Vector3D(0.,0., 5128.3*CLHEP::mm));
+           xfNominal = Amg::Translation3D(Amg::Vector3D(0.,0., 5128.3*Gaudi::Units::mm));
      else {
         std::cout<<"Wrong FCAL module for TB, using FCAL1 !!!"<<std::endl;
-        xfNominal = Amg::Translation3D( Amg::Vector3D(0.,0.,4668.5*CLHEP::mm));
+        xfNominal = Amg::Translation3D( Amg::Vector3D(0.,0.,4668.5*Gaudi::Units::mm));
      }
   }
 

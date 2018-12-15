@@ -7,6 +7,7 @@
 
 #include "GeneratorModules/GenFilter.h"
 #include "xAODJet/JetContainer.h"
+#include "CLHEP/Vector/LorentzVector.h"
 
 class IAtRndmGenSvc;
 

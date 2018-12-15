@@ -5,6 +5,8 @@
 #include "InDetServMatGeoModel/SCT_ServMatFactoryFS.h"
 
 // GeoModel includes
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 #include "GeoModelKernel/GeoPhysVol.h"  
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoTubs.h"  
@@ -72,11 +74,11 @@ void SCT_ServMatFactoryFS::create(GeoPhysVol *motherP,GeoPhysVol *motherM)
 
   //------------------------------------------
   //VK  10/09/2005 Construct a gap for rails
-  double outROfIDet =       (*atls)[0]->getDouble("IDETOR")*CLHEP::cm;
-  double endZOfIDet =       (*atls)[0]->getDouble("IDETZMX")*CLHEP::cm;
-  double minRofGap  =       1089.0*CLHEP::mm;
-  double phiWid=(70.*CLHEP::mm)/outROfIDet;   
-  double safetyGap=1.*CLHEP::mm;
+  double outROfIDet =       (*atls)[0]->getDouble("IDETOR")*GeoModelKernelUnits::cm;
+  double endZOfIDet =       (*atls)[0]->getDouble("IDETZMX")*GeoModelKernelUnits::cm;
+  double minRofGap  =       1089.0*GeoModelKernelUnits::mm;
+  double phiWid=(70.*GeoModelKernelUnits::mm)/outROfIDet;   
+  double safetyGap=1.*GeoModelKernelUnits::mm;
   const GeoShape* railGap1=new GeoTubs( minRofGap, outROfIDet+safetyGap ,endZOfIDet+safetyGap , 
 					-phiWid/2.,phiWid);
   const GeoShape* railGap2=new GeoTubs( minRofGap, outROfIDet+safetyGap ,endZOfIDet+safetyGap ,
@@ -157,7 +159,7 @@ void SCT_ServMatFactoryFS::create(GeoPhysVol *motherP,GeoPhysVol *motherM)
 
 	// Shape 2. Cons component of the pcon
 	cons = new GeoCons(servicePcon->getRMinPlane(1),servicePcon->getRMinPlane(2),
-			   servicePcon->getRMaxPlane(1),servicePcon->getRMaxPlane(2)+1E-9*CLHEP::mm,
+			   servicePcon->getRMaxPlane(1),servicePcon->getRMaxPlane(2)+1E-9*GeoModelKernelUnits::mm,
 			   (servicePcon->getZPlane(2)-servicePcon->getZPlane(1))*0.5,
 			   0,2*M_PI);
 
@@ -216,12 +218,12 @@ void SCT_ServMatFactoryFS::create(GeoPhysVol *motherP,GeoPhysVol *motherM)
 
     for (unsigned int ii =0; ii < sctsup->size(); ii++) {
       
-      RMinW        = (*sctsup)[ii]->getFloat("RMIN")*CLHEP::mm;
-      RMaxW        = (*sctsup)[ii]->getFloat("RMAX")*CLHEP::mm;
-      ZHalfLengthW = (*sctsup)[ii]->getFloat("THICK")/2.*CLHEP::mm;
-      WidI         = (*sctsup)[ii]->getFloat("WIDTHINNER")*CLHEP::mm;
-      WidO         = (*sctsup)[ii]->getFloat("WIDTHOUTER")*CLHEP::mm;
-      ZStartW      = (*sctsup)[ii]->getFloat("ZSTART")*CLHEP::mm;
+      RMinW        = (*sctsup)[ii]->getFloat("RMIN")*GeoModelKernelUnits::mm;
+      RMaxW        = (*sctsup)[ii]->getFloat("RMAX")*GeoModelKernelUnits::mm;
+      ZHalfLengthW = (*sctsup)[ii]->getFloat("THICK")/2.*GeoModelKernelUnits::mm;
+      WidI         = (*sctsup)[ii]->getFloat("WIDTHINNER")*GeoModelKernelUnits::mm;
+      WidO         = (*sctsup)[ii]->getFloat("WIDTHOUTER")*GeoModelKernelUnits::mm;
+      ZStartW      = (*sctsup)[ii]->getFloat("ZSTART")*GeoModelKernelUnits::mm;
       DPhi = asin(WidI/2./RMinW);
       
       const GeoShape* pTub1 = new GeoTubs(RMinW, RMaxW, ZHalfLengthW, 0.-DPhi, 2.*DPhi);  //Basic shape
@@ -236,7 +238,7 @@ void SCT_ServMatFactoryFS::create(GeoPhysVol *motherP,GeoPhysVol *motherM)
 	//	double DPhiDop = asin(WidI/2./(Shift-H1));
 	double DPhiDop = atan(WidI/2./(Shift-H1));
 	const GeoShape* pTub2 = new GeoTubs(0., RMaxDop, ZHalfLengthW, M_PI-DPhiDop, 2.*DPhiDop);
-	const GeoShape* pTub3 = (GeoShape*) & ((*pTub2) << HepGeom::TranslateX3D(Shift));
+	const GeoShape* pTub3 = (GeoShape*) & ((*pTub2) << GeoTrf::TranslateX3D(Shift));
 	wing  = (GeoShape*) & (*pTub1).intersect(*pTub3);  
 	
 	// GeoModel calculates the volume incorrectly so we calculate it here.
@@ -269,10 +271,10 @@ void SCT_ServMatFactoryFS::create(GeoPhysVol *motherP,GeoPhysVol *motherM)
       
       const GeoLogVol* wingLog = new GeoLogVol(logName,wing,wingMat);
       GeoVPhysVol* wingPhys    = new GeoPhysVol(wingLog);
-      GeoTransform* wPos1 = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),          CLHEP::Hep3Vector(0.,0., ZStartW+ZHalfLengthW)));
-      GeoTransform* wPos2 = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(M_PI,0.,0.),CLHEP::Hep3Vector(0.,0., ZStartW+ZHalfLengthW)));
-      GeoTransform* wPos3 = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),          CLHEP::Hep3Vector(0.,0.,-ZStartW-ZHalfLengthW)));
-      GeoTransform* wPos4 = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(M_PI,0.,0.),CLHEP::Hep3Vector(0.,0.,-ZStartW-ZHalfLengthW)));
+      GeoTransform* wPos1 = new GeoTransform(GeoTrf::Translate3D(0.,0., ZStartW+ZHalfLengthW));
+      GeoTransform* wPos2 = new GeoTransform(GeoTrf::GeoTransformRT(GeoTrf::GeoRotation(M_PI,0.,0.),GeoTrf::Vector3D(0.,0., ZStartW+ZHalfLengthW)));
+      GeoTransform* wPos3 = new GeoTransform(GeoTrf::Translate3D(0.,0.,-ZStartW-ZHalfLengthW));
+      GeoTransform* wPos4 = new GeoTransform(GeoTrf::GeoTransformRT(GeoTrf::GeoRotation(M_PI,0.,0.),GeoTrf::Vector3D(0.,0.,-ZStartW-ZHalfLengthW)));
       motherP->add(wPos1);
       motherP->add(wingPhys);
       motherP->add(wPos2);

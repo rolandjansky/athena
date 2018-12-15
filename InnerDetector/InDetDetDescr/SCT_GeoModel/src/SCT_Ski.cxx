@@ -28,10 +28,8 @@
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeShift.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Vector/Rotation.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 
 #include <sstream>
 #include <cmath>
@@ -104,8 +102,8 @@ SCT_Ski::getParameters()
 const GeoLogVol * 
 SCT_Ski::preBuild()
 {
-  const double rphiClearance = 0.5*CLHEP::mm;
-  const double radialClearance = 0.5*CLHEP::mm;
+  const double rphiClearance = 0.5*GeoModelKernelUnits::mm;
+  const double radialClearance = 0.5*GeoModelKernelUnits::mm;
 
 
   // Make components.
@@ -136,26 +134,26 @@ SCT_Ski::preBuild()
 
   // *** 18:00 Fri 27th May 2005 D.Naito put some comments.
   // I need to calculate moduleYMax and moduleYMin for yModuleOffset,
-  // because the modules is asyCLHEP::mmetry in y direction.
+  // because the modules is asyGeoModelKernelUnits::mmetry in y direction.
 
   //
   // These are coordinates of corners of module's envelopes.
   //
 
-  //CLHEP::Hep3Vector c0(0.0, 0.5*(m_module->env1Width()), 0.5*(m_module->env1Length()));
-  //CLHEP::Hep3Vector c1(0.0, -0.5*(m_module->env1Width()), 0.5*(m_module->env1Length()));
-  //CLHEP::Hep3Vector c2(0.0, -0.5*(m_module->env1Width()), -0.5*(m_module->env1Length()));
-  //CLHEP::Hep3Vector c3(0.0, 0.5*(m_module->env1Width()), -0.5*(m_module->env1Length()));
-  //CLHEP::Hep3Vector c4(0.0,
+  //GeoTrf::Vector3D c0(0.0, 0.5*(m_module->env1Width()), 0.5*(m_module->env1Length()));
+  //GeoTrf::Vector3D c1(0.0, -0.5*(m_module->env1Width()), 0.5*(m_module->env1Length()));
+  //GeoTrf::Vector3D c2(0.0, -0.5*(m_module->env1Width()), -0.5*(m_module->env1Length()));
+  //GeoTrf::Vector3D c3(0.0, 0.5*(m_module->env1Width()), -0.5*(m_module->env1Length()));
+  //GeoTrf::Vector3D c4(0.0,
   //  -(m_module->env2RefPointVector()->y()) + 0.5*(m_module->env2Width()),
   //  -(m_module->env2RefPointVector()->z()) + 0.5*(m_module->env2Length()));
-  //CLHEP::Hep3Vector c5(0.0,
+  //GeoTrf::Vector3D c5(0.0,
   //  -(m_module->env2RefPointVector()->y()) - 0.5*(m_module->env2Width()),
   //  -(m_module->env2RefPointVector()->z()) + 0.5*(m_module->env2Length()));
-  //CLHEP::Hep3Vector c6(0.0,
+  //GeoTrf::Vector3D c6(0.0,
   //  -(m_module->env2RefPointVector()->y()) - 0.5*(m_module->env2Width()),
   //  -(m_module->env2RefPointVector()->z()) - 0.5*(m_module->env2Length()));
-  //CLHEP::Hep3Vector c7(0.0,
+  //GeoTrf::Vector3D c7(0.0,
   //  -(m_module->env2RefPointVector()->y()) + 0.5*(m_module->env2Width()),
   //  -(m_module->env2RefPointVector()->z()) - 0.5*(m_module->env2Length()));
 
@@ -254,7 +252,7 @@ SCT_Ski::preBuild()
   double xCoolingPipePos = coolingPipeOffsetX() - m_coolingPipeRadialOffset;
   //double yCoolingPipePos = yCoolingBlockPosMin + m_coolingPipePhiOffset;
   double yCoolingPipePos = coolingPipeOffsetY() + m_coolingPipePhiOffset; 
-  m_coolingPipePos = new GeoTransform(HepGeom::Translate3D(xCoolingPipePos, yCoolingPipePos, 0));
+  m_coolingPipePos = new GeoTransform(GeoTrf::Translate3D(xCoolingPipePos, yCoolingPipePos, 0));
   m_coolingPipePos->ref();
   //
   //
@@ -275,13 +273,12 @@ SCT_Ski::preBuild()
     double yModulePos = yModuleOffset;
     // *** End of modified lines. ------------------ (04)*********************************
     double zModulePos = m_zPos[iModule];
-    CLHEP::HepRotation rot;
-
+    
     // There is only one type of module and this is rotated one way or the other
     // to get the phi-v (-ve), u-phi (+ve) orientations
-    rot.rotateX(0.5 * m_stereoSign * m_module->stereoAngle());
-    CLHEP::Hep3Vector pos(xModulePos, yModulePos, zModulePos);
-    m_modulePos.push_back(HepGeom::Transform3D(rot, pos));
+    GeoTrf::RotateX3D rot(0.5 * m_stereoSign * m_module->stereoAngle());
+    GeoTrf::Translation3D pos(xModulePos, yModulePos, zModulePos);
+    m_modulePos.push_back(GeoTrf::Transform3D(pos*rot));
 
     //
     // Calculate position of cooling block
@@ -290,7 +287,7 @@ SCT_Ski::preBuild()
     double  xCoolingBlockPos = xCoolingBlockOffset + xModulePos;
     double  yCoolingBlockPos = yCoolingBlockOffset + yModulePos;
     double  zCoolingBlockPos = zCoolingBlockOffset + zModulePos;
-    m_coolingBlockPos.push_back(new GeoTransform(HepGeom::Translate3D(xCoolingBlockPos, yCoolingBlockPos, zCoolingBlockPos))); 
+    m_coolingBlockPos.push_back(new GeoTransform(GeoTrf::Translate3D(xCoolingBlockPos, yCoolingBlockPos, zCoolingBlockPos))); 
 
     
     //
@@ -299,7 +296,7 @@ SCT_Ski::preBuild()
     double xDoglegPos = xDoglegOffset + xModulePos; 
     double yDoglegPos = yDoglegOffset + yModulePos; 
     double zDoglegPos = zDoglegOffset + zModulePos;
-    m_doglegPos.push_back(new GeoTransform(HepGeom::Translate3D(xDoglegPos, yDoglegPos, zDoglegPos))); 
+    m_doglegPos.push_back(new GeoTransform(GeoTrf::Translate3D(xDoglegPos, yDoglegPos, zDoglegPos))); 
 
     // alternate staggering
     stagger_sign = - stagger_sign; 
@@ -312,41 +309,41 @@ SCT_Ski::preBuild()
   // These are coordinates of corners of module's envelopes.
   //
 
-  CLHEP::Hep3Vector c0(0.0,
+  GeoTrf::Vector3D c0(0.0,
                        -(m_module->env1RefPointVector()->y()) + 0.5*(m_module->env1Width()),
                        -(m_module->env1RefPointVector()->z()) + 0.5*(m_module->env1Length()));
-  CLHEP::Hep3Vector c1(0.0,
+  GeoTrf::Vector3D c1(0.0,
                        -(m_module->env1RefPointVector()->y()) - 0.5*(m_module->env1Width()),
                        -(m_module->env1RefPointVector()->z()) + 0.5*(m_module->env1Length()));
-  CLHEP::Hep3Vector c2(0.0,
+  GeoTrf::Vector3D c2(0.0,
                        -(m_module->env1RefPointVector()->y()) - 0.5*(m_module->env1Width()),
                        -(m_module->env1RefPointVector()->z()) - 0.5*(m_module->env1Length()));
-  CLHEP::Hep3Vector c3(0.0,
+  GeoTrf::Vector3D c3(0.0,
                        -(m_module->env1RefPointVector()->y()) + 0.5*(m_module->env1Width()),
                        -(m_module->env1RefPointVector()->z()) - 0.5*(m_module->env1Length()));
-  CLHEP::Hep3Vector c4(0.0,
+  GeoTrf::Vector3D c4(0.0,
                        -(m_module->env2RefPointVector()->y()) + 0.5*(m_module->env2Width()),
                        -(m_module->env2RefPointVector()->z()) + 0.5*(m_module->env2Length()));
-  CLHEP::Hep3Vector c5(0.0,
+  GeoTrf::Vector3D c5(0.0,
                        -(m_module->env2RefPointVector()->y()) - 0.5*(m_module->env2Width()),
                        -(m_module->env2RefPointVector()->z()) + 0.5*(m_module->env2Length()));
-  CLHEP::Hep3Vector c6(0.0,
+  GeoTrf::Vector3D c6(0.0,
                        -(m_module->env2RefPointVector()->y()) - 0.5*(m_module->env2Width()),
                        -(m_module->env2RefPointVector()->z()) - 0.5*(m_module->env2Length()));
-  CLHEP::Hep3Vector c7(0.0,
+  GeoTrf::Vector3D c7(0.0,
                        -(m_module->env2RefPointVector()->y()) + 0.5*(m_module->env2Width()),
                        -(m_module->env2RefPointVector()->z()) - 0.5*(m_module->env2Length()));
 
   double moduleYMax = c4.y();
   double moduleYMin = c5.y();
-  c0.rotateX(0.5 * m_stereoSign * m_module->stereoAngle());
-  c1.rotateX(0.5 * m_stereoSign * m_module->stereoAngle());
-  c2.rotateX(0.5 * m_stereoSign * m_module->stereoAngle());
-  c3.rotateX(0.5 * m_stereoSign * m_module->stereoAngle());
-  c4.rotateX(0.5 * m_stereoSign * m_module->stereoAngle());
-  c5.rotateX(0.5 * m_stereoSign * m_module->stereoAngle());
-  c6.rotateX(0.5 * m_stereoSign * m_module->stereoAngle());
-  c7.rotateX(0.5 * m_stereoSign * m_module->stereoAngle());
+  c0 = GeoTrf::RotateX3D(0.5 * m_stereoSign * m_module->stereoAngle())*c0;
+  c1 = GeoTrf::RotateX3D(0.5 * m_stereoSign * m_module->stereoAngle())*c1;
+  c2 = GeoTrf::RotateX3D(0.5 * m_stereoSign * m_module->stereoAngle())*c2;
+  c3 = GeoTrf::RotateX3D(0.5 * m_stereoSign * m_module->stereoAngle())*c3;
+  c4 = GeoTrf::RotateX3D(0.5 * m_stereoSign * m_module->stereoAngle())*c4;
+  c5 = GeoTrf::RotateX3D(0.5 * m_stereoSign * m_module->stereoAngle())*c5;
+  c6 = GeoTrf::RotateX3D(0.5 * m_stereoSign * m_module->stereoAngle())*c6;
+  c7 = GeoTrf::RotateX3D(0.5 * m_stereoSign * m_module->stereoAngle())*c7;
   
   moduleYMax = std::max(std::max(c0.y(), c4.y()), std::max(c7.y(), c3.y()));
   moduleYMin = std::min(std::min(c1.y(), c5.y()), std::min(c6.y(), c2.y()));
@@ -419,7 +416,7 @@ SCT_Ski::preBuild()
   //double xCoolingPipeShift = xCoolingPipePos - xCenter;
   //double yCoolingPipeShift = yCoolingPipePos - yCenter;
 
-  m_refPointTransform = new GeoTransform(HepGeom::Translate3D(-xCenter, -yCenter, 0));
+  m_refPointTransform = new GeoTransform(GeoTrf::Translate3D(-xCenter, -yCenter, 0));
   m_refPointTransform->ref();
   //  std::cout << "xCenter, yCenter = " << xCenter << "  " << yCenter << std::endl;
   //  std::cout << "xShift2, yShift2 = " << xShift2 << "  " << yShift2 << std::endl;
@@ -427,8 +424,8 @@ SCT_Ski::preBuild()
 
   // *** 10:00 Tue 31st May 2005 D.Naito modified. (14)*********************************
   // *** -->>                                      (14)*********************************
-  m_env1RefPointVector = new CLHEP::Hep3Vector(-xCenter, -yCenter, 0.0);
-  m_env2RefPointVector = new CLHEP::Hep3Vector(-xShift2, -yShift2, 0.0);
+  m_env1RefPointVector = new GeoTrf::Vector3D(-xCenter, -yCenter, 0.0);
+  m_env2RefPointVector = new GeoTrf::Vector3D(-xShift2, -yShift2, 0.0);
   m_env1Thickness      = xmax1-xmin1;
   m_env1Width          = ymax1-ymin1;
   m_env2Thickness      = xmax2-xmin2;
@@ -441,7 +438,7 @@ SCT_Ski::preBuild()
   const GeoShape * skiEnvelopeShape = 0;
     
   const GeoShape & tmpShape = (*envelope1).
-    add(*envelope2 << HepGeom::Translate3D(xShift2, yShift2, 0));
+    add(*envelope2 << GeoTrf::Translate3D(xShift2, yShift2, 0));
   skiEnvelopeShape = &tmpShape;
   
   

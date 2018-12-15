@@ -10,8 +10,8 @@
  * $Id: LArDetectorFactory.h,v 1.4 2009-02-10 16:43:17 tsulaia Exp $
  */
 
-#ifndef LArGeo_LArDetectorFactory_h
-#define LArGeo_LArDetectorFactory_h
+#ifndef LARGEOALGSNV_LARDETECTORFACTORY_H
+#define LARGEOALGSNV_LARDETECTORFACTORY_H
 #include "LArReadoutGeometry/LArDetectorManager.h"
 #include "GeoModelKernel/GeoVDetectorFactory.h"
 

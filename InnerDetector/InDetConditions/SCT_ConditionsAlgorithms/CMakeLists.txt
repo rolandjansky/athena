@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/Identifier
                           DetectorDescription/DetDescrCond/DetDescrConditions
                           DetectorDescription/GeoModel/GeoModelUtilities
+			  DetectorDescription/GeoPrimitives
                           GaudiKernel
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetConditions/SCT_ConditionsData

@@ -6,6 +6,7 @@
 #define MuonStation_H
 
 #include "MuonReadoutGeometry/GlobalUtilities.h"
+#include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include <map>
 
@@ -188,7 +189,7 @@ MuonStation::getGeoTransform() const
 
 HepGeom::Transform3D
 MuonStation::getTransform() const
-  {return m_transform->getTransform();}
+  {return Amg::EigenTransformToCLHEP(m_transform->getTransform());}
 
 std::string MuonStation::getKey() 
   {

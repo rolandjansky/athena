@@ -12,7 +12,7 @@
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoPhysVol.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
 #include <cmath>
 
@@ -47,13 +47,13 @@ GeoVPhysVol *
 SCT_FwdCoolingPipe::build() 
 {
   // Calculate the dimensions.
-  // area = CLHEP::pi*(pipeRadius)^2 * numPipes
-  // also area = 2*CLHEP::pi*r_ave*delta_r approx= 2 * CLHEP::pi * rMin * delta_r
+  // area = GeoModelKernelUnits::pi*(pipeRadius)^2 * numPipes
+  // also area = 2*GeoModelKernelUnits::pi*r_ave*delta_r approx= 2 * GeoModelKernelUnits::pi * rMin * delta_r
   // solve for delta_r
   // m_thickness = delta_r
 
-  double area = CLHEP::pi * sqr(m_pipeRadius) * m_numPipes;
-  m_thickness = area/(2. * CLHEP::pi * m_innerRadius);
+  double area = GeoModelKernelUnits::pi * sqr(m_pipeRadius) * m_numPipes;
+  m_thickness = area/(2. * GeoModelKernelUnits::pi * m_innerRadius);
   m_outerRadius = m_innerRadius +  m_thickness;
 
 

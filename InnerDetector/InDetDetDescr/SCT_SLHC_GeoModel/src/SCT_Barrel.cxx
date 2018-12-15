@@ -24,7 +24,7 @@
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoMaterial.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
 namespace InDetDDSLHC {
 
@@ -64,8 +64,8 @@ const GeoLogVol* SCT_Barrel::preBuild(){
     const GeoTube* sct_barrel_2 = new GeoTube(m_intermediateRadius, m_outerRadius, 0.25*(m_length-m_intermediateLength));
     //make a single envelope for sct barrel
     const GeoShape & barrelEnvelopeShape = (*sct_barrel_1).
-      add(*sct_barrel_2 << HepGeom::TranslateZ3D(0.25*(m_length+m_intermediateLength))).
-      add(*sct_barrel_2 << HepGeom::TranslateZ3D(-0.25*(m_length+m_intermediateLength)));
+      add(*sct_barrel_2 << GeoTrf::TranslateZ3D(0.25*(m_length+m_intermediateLength))).
+      add(*sct_barrel_2 << GeoTrf::TranslateZ3D(-0.25*(m_length+m_intermediateLength)));
     barrelLog = new GeoLogVol(getName(), &barrelEnvelopeShape, materials->gasMaterial());
   }else if(layoutType == 2){//same length barrels
     const GeoTube* barrelEnvelopeShape = new GeoTube(m_innerRadius, m_outerRadius, 0.5*m_length);
@@ -91,7 +91,7 @@ GeoVPhysVol* SCT_Barrel::build(SCT_Identifier id) const{
     barrel->add(new GeoNameTag("Layer#"+intToString(iLayer))); 
     barrel->add(new GeoIdentifierTag(iLayer)); // Identifier layer= iLayer
     id.setLayerDisk(iLayer); 
-    GeoAlignableTransform* transform = new GeoAlignableTransform(HepGeom::Transform3D());
+    GeoAlignableTransform* transform = new GeoAlignableTransform(GeoTrf::Transform3D());
     barrel->add(transform);
     GeoVPhysVol* layerPV = layer.build(id);
     barrel->add(layerPV);

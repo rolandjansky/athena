@@ -30,7 +30,7 @@ public:
   // delete assignment
   TRT_DetDescrDB_ParameterInterface & operator=(const TRT_DetDescrDB_ParameterInterface &) = delete;
   //
-  virtual const HepGeom::Transform3D & partTransform(const std::string & partName) const;
+  virtual const GeoTrf::Transform3D & partTransform(const std::string & partName) const;
   virtual bool partPresent(const std::string & partName) const;
   virtual const InDetDD::DistortedMaterialManager * distortedMatManager() const;
 

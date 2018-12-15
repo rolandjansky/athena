@@ -28,6 +28,8 @@
 #include "ISF_FatrasDetDescrInterfaces/ISegmentation.h"
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
 
+#include "CLHEP/Geometry/Transform3D.h"
+
 namespace iFatras {
 
   /**
@@ -107,7 +109,7 @@ namespace iFatras {
 
     /// Local (simulation/hit frame) to global transform
     const Amg::Transform3D & HitTransform() const { return m_hitTransform;};
-    const HepGeom::Transform3D & transformHit() const { return m_hitTransformCLHEP;};
+    const Amg::Transform3D & transformHit() const { return m_hitTransform;};
     
     /// Center in global coordinates
     const Amg::Vector3D & center() const {return m_center;};

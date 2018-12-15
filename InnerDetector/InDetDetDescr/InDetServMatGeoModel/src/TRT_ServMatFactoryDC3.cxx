@@ -5,6 +5,8 @@
 #include "InDetServMatGeoModel/TRT_ServMatFactoryDC3.h"
 
 // GeoModel includes
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 #include "GeoModelKernel/GeoPhysVol.h"  
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoTube.h"  
@@ -61,8 +63,8 @@ void TRT_ServMatFactoryDC3::create(GeoPhysVol *mother)
 
 
 //VVK  10/09/2005 Construct a gap for rails
-    double outROfIDet =       (*atls)[0]->getDouble("IDETOR")*CLHEP::cm;
-    double endZOfIDet =       (*atls)[0]->getDouble("IDETZMX")*CLHEP::cm;
+    double outROfIDet =       (*atls)[0]->getDouble("IDETOR")*GeoModelKernelUnits::cm;
+    double endZOfIDet =       (*atls)[0]->getDouble("IDETZMX")*GeoModelKernelUnits::cm;
     double minRofGap  =       1050.0;
     double phiWid=70./outROfIDet;    double safetyGap=1.;
     const GeoShape* railGap1=new GeoTubs( minRofGap, outROfIDet+safetyGap ,endZOfIDet+safetyGap , 
@@ -76,10 +78,10 @@ void TRT_ServMatFactoryDC3::create(GeoPhysVol *mother)
   
   for (int ii=0; ii<NUMBEROFPANEL; ii++) {
     const GeoMaterial* cylMat = materialManager()->getMaterial("trt::PatchOut");
-    double rmin = (*ipan)[ii]->getFloat("RMIN")*CLHEP::cm;
-    double rmax = (*ipan)[ii]->getFloat("RMAX")*CLHEP::cm;
-    double zmin = (*ipan)[ii]->getFloat("ZMIN")*CLHEP::cm;
-    double zmax = (*ipan)[ii]->getFloat("ZMAX")*CLHEP::cm;
+    double rmin = (*ipan)[ii]->getFloat("RMIN")*GeoModelKernelUnits::cm;
+    double rmax = (*ipan)[ii]->getFloat("RMAX")*GeoModelKernelUnits::cm;
+    double zmin = (*ipan)[ii]->getFloat("ZMIN")*GeoModelKernelUnits::cm;
+    double zmax = (*ipan)[ii]->getFloat("ZMAX")*GeoModelKernelUnits::cm;
 
     double halflength = (zmax-zmin)/2.-2*epsilon;
     double zpos = zmin + halflength+2*epsilon;
@@ -102,10 +104,10 @@ void TRT_ServMatFactoryDC3::create(GeoPhysVol *mother)
     
     GeoVPhysVol* ServPhys = new GeoPhysVol(ServLog);
     // place two
-    CLHEP::Hep3Vector servpos1(0.,0.,zpos);
-    CLHEP::Hep3Vector servpos2(0.,0.,-zpos);
-    GeoTransform *xform1 = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),servpos1));
-    GeoTransform *xform2 = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),servpos2));
+    GeoTrf::Translate3D servpos1(0.,0.,zpos);
+    GeoTrf::Translate3D servpos2(0.,0.,-zpos);
+    GeoTransform *xform1 = new GeoTransform(servpos1);
+    GeoTransform *xform2 = new GeoTransform(servpos2);
     mother->add(xform1);
     mother->add(ServPhys);
     mother->add(xform2);
@@ -131,12 +133,12 @@ void TRT_ServMatFactoryDC3::create(GeoPhysVol *mother)
     o << irecold++;
     std::string logName = "TrtInel"+o.str();  
     int volType = (int) (*inel)[ii]->getFloat("VOLTYP");
-    double RMIN1=(*inel)[ii]->getFloat("RMIN1")*CLHEP::cm;
-    double RMAX1=(*inel)[ii]->getFloat("RMAX1")*CLHEP::cm;
-    double RMIN2=(*inel)[ii]->getFloat("RMIN2")*CLHEP::cm;
-    double RMAX2=(*inel)[ii]->getFloat("RMAX2")*CLHEP::cm;
-    double ZMAX= (*inel)[ii]->getFloat("ZMAX")*CLHEP::cm;
-    double ZMIN= (*inel)[ii]->getFloat("ZMIN")*CLHEP::cm;
+    double RMIN1=(*inel)[ii]->getFloat("RMIN1")*GeoModelKernelUnits::cm;
+    double RMAX1=(*inel)[ii]->getFloat("RMAX1")*GeoModelKernelUnits::cm;
+    double RMIN2=(*inel)[ii]->getFloat("RMIN2")*GeoModelKernelUnits::cm;
+    double RMAX2=(*inel)[ii]->getFloat("RMAX2")*GeoModelKernelUnits::cm;
+    double ZMAX= (*inel)[ii]->getFloat("ZMAX")*GeoModelKernelUnits::cm;
+    double ZMIN= (*inel)[ii]->getFloat("ZMIN")*GeoModelKernelUnits::cm;
 
 //VK Change of TRT barrel cables definition
 //    if(ii == 3) { RMIN1 += 0; RMAX1=RMIN1+0.589; ZMIN=950.; ZMAX=3250;}
@@ -182,10 +184,10 @@ void TRT_ServMatFactoryDC3::create(GeoPhysVol *mother)
     GeoVPhysVol* ServPhys = new GeoPhysVol(ServLog);
     double zpos = (ZMAX+ZMIN)/2.+epsilon;
     // place two
-    CLHEP::Hep3Vector servpos1(0.,0.,zpos);
-    CLHEP::Hep3Vector servpos2(0.,0.,-zpos);
-    GeoTransform *xform1 = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),servpos1));
-    GeoTransform *xform2 = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),servpos2));
+    GeoTrf::Translate3D servpos1(0.,0.,zpos);
+    GeoTrf::Translate3D servpos2(0.,0.,-zpos);
+    GeoTransform *xform1 = new GeoTransform(servpos1);
+    GeoTransform *xform2 = new GeoTransform(servpos2);
     mother->add(xform1);
     mother->add(ServPhys);
     mother->add(xform2);
@@ -205,7 +207,7 @@ void TRT_ServMatFactoryDC3::create(GeoPhysVol *mother)
 						double rmax2=0.) 
   
 {
-  const double epsilon = 0.001*CLHEP::mm;
+  const double epsilon = 0.001*GeoModelKernelUnits::mm;
   enum VOLTYPE{Tube=1, Cone, ICone};
   const GeoShape* IDShape = 0;
   if(volType == Tube) {

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef FCALDetectorManager_h
-#define FCALDetectorManager_h 1
+#ifndef LARREADOUTGEOMETRY_FCALDETECTORMANAGER_H
+#define LARREADOUTGEOMETRY_FCALDETECTORMANAGER_H
 #include "LArReadoutGeometry/FCAL_ChannelMap.h"
 #include "LArReadoutGeometry/FCALModule.h"
 #include "AthenaKernel/CLASS_DEF.h"

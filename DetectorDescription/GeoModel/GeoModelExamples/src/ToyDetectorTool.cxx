@@ -8,66 +8,76 @@
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
 
-/**
- ** Constructor(s)
- **/
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/GeoVolumeCursor.h"
+#include <string>
+
 ToyDetectorTool::ToyDetectorTool( const std::string& type, const std::string& name, const IInterface* parent )
-: GeoModelTool( type, name, parent )
+  : GeoModelTool( type, name, parent )
 {
 }
 
-/**
- ** Destructor
- **/
 ToyDetectorTool::~ToyDetectorTool()
 {
-	// This will need to be modified once we register the Toy DetectorNode in
-	// the Transient Detector Store
-	if ( 0 != m_detector ) {
-		delete m_detector;
-		m_detector = 0;
-	}
+  delete m_detector;  
 }
 
-/**
- ** Create the Detector Node corresponding to this tool
- **/
-StatusCode
-ToyDetectorTool::create()
+StatusCode ToyDetectorTool::create()
 { 
-  MsgStream log(msgSvc(), name()); 
-  // 
-  // Locate the top level experiment node 
-  // 
+  ATH_MSG_INFO("ToyDetectorTool::create() ...");
+
+  // Locate the top level experiment
   GeoModelExperiment* theExpt = nullptr;
-  if (StatusCode::SUCCESS != detStore()->retrieve( theExpt, "ATLAS" )) { 
-    log << MSG::ERROR 
-	<< "Could not find GeoModelExperiment ATLAS" 
-	<< endmsg; 
-    return (StatusCode::FAILURE); 
-  } 
+  ATH_CHECK(detStore()->retrieve(theExpt, "ATLAS"));
 
   ToyDetectorFactory theToyFactory(detStore().operator->());
-  if ( 0 == m_detector ) {
-    // Create the ToyDetectorNode instance
+  if(m_detector==nullptr) {
+    // Build geometry
     try {   
       //
       // This strange way of casting is to avoid an
       // utterly brain damaged compiler warning.
       //
-      GeoPhysVol *world=&*theExpt->getPhysVol();
+      GeoPhysVol *world=theExpt->getPhysVol();
       theToyFactory.create(world);
-    } catch (const std::bad_alloc&) {
-      log << MSG::FATAL << "Could not create new ToyDetectorNode!" << endmsg;
+      printVolume(world);
+    } 
+    catch (const std::bad_alloc&) {
+      ATH_MSG_FATAL("Could not Toy Detector Geometry!");
       return StatusCode::FAILURE; 
     }
-    // Register the ToyDetectorNode instance with the Transient Detector Store
+    // Add detector manager to AtlasExperiment and also record it into DetStore
     theExpt->addManager(theToyFactory.getDetectorManager());
-    if (detStore()->record(theToyFactory.getDetectorManager(),theToyFactory.getDetectorManager()->getName())!=StatusCode::SUCCESS) return StatusCode::FAILURE;
-    return StatusCode::SUCCESS;
+    if (detStore()->record(theToyFactory.getDetectorManager(),theToyFactory.getDetectorManager()->getName()).isSuccess()) return StatusCode::SUCCESS;
+    ATH_MSG_FATAL("Failed to record Toy Detector Manager into Detector Store!");
+  }
+  else {
+    ATH_MSG_FATAL("Attempt to build Toy Detector Geometry one more time. The geometry can be built only once!");
   }
   return StatusCode::FAILURE;
+}
+
+void ToyDetectorTool::printVolume(GeoPVConstLink volume)
+{
+  static int level{0};
+  GeoVolumeCursor cursor(volume);
+  while(!cursor.atEnd()) {
+    GeoPVConstLink physChild = cursor.getVolume();
+    GeoTrf::Transform3D position = cursor.getTransform();
+    for(int k{0};k<level;++k) std::cout << "... ";
+    std::cout << cursor.getName() << " " << (cursor.getId().isValid()?std::to_string(cursor.getId()).c_str():"N/A") 
+	      << " Transform:" << "\n";
+    for(int i{0};i<3;++i) {
+      for(int j{0};j<4;++j) {
+      	std::cout << position(i,j) << " ";
+      }
+      std::cout << "\n";
+    }
+    level++;
+    printVolume(physChild);
+    level--;
+    cursor.next();
+  }
 }

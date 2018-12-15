@@ -11,7 +11,7 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 #include <cmath>
 class EMBAccordionDetails::Clockwork {
 
@@ -187,7 +187,7 @@ void EMBAccordionDetails::Clockwork::getRPhi()
 // accordion geometry
 int EMBAccordionDetails::Clockwork::phiGap(double radius, double xhit, const double yhit)
 {
-  const double m2pi = 2.0*CLHEP::pi;
+  const double m2pi = 2.0*GeoModelKernelUnits::pi;
   double phi_0=phi0(radius)+gam0;   // from -M_PI to M_PI
   double phi_hit=atan2(yhit,xhit);  // from -M_PI to M_PI
   double dphi=phi_hit-phi_0;
@@ -244,23 +244,23 @@ EMBAccordionDetails::EMBAccordionDetails():m_c(new Clockwork()) {
   // phi of first absorber
   m_c->gam0 = (*barrelGeometry)[0]->getDouble("PHIFIRST");
   // radius of curvature of neutral fiber in the folds
-  m_c->rint_eleFib = (*barrelGeometry)[0]->getDouble("RINT")*CLHEP::cm;
+  m_c->rint_eleFib = (*barrelGeometry)[0]->getDouble("RINT")*GeoModelKernelUnits::cm;
   
   // r,phi positions of the centre of the folds (nominal geometry)
   for (int idat = 0; idat < m_c->Nbrt1 ; idat++) 
     {
-      m_c->rc[idat]   = (*barrelGeometry)[0]->getDouble("RHOCEN",idat)*CLHEP::cm; 
-      m_c->phic[idat] = (*barrelGeometry)[0]->getDouble("PHICEN",idat)*CLHEP::deg; 
-      m_c->delta[idat] = (*barrelGeometry)[0]->getDouble("DELTA",idat)*CLHEP::deg; 
+      m_c->rc[idat]   = (*barrelGeometry)[0]->getDouble("RHOCEN",idat)*GeoModelKernelUnits::cm; 
+      m_c->phic[idat] = (*barrelGeometry)[0]->getDouble("PHICEN",idat)*GeoModelKernelUnits::deg; 
+      m_c->delta[idat] = (*barrelGeometry)[0]->getDouble("DELTA",idat)*GeoModelKernelUnits::deg; 
       m_c->xc[idat] = m_c->rc[idat]*cos(m_c->phic[idat]);
       m_c->yc[idat] = m_c->rc[idat]*sin(m_c->phic[idat]);
     }
   //
-  m_c->rMinAccordion  =   (*barrelGeometry)[0]->getDouble("RIN_AC")*CLHEP::cm;  
-  m_c->rMaxAccordion  =   (*barrelGeometry)[0]->getDouble("ROUT_AC")*CLHEP::cm;  
+  m_c->rMinAccordion  =   (*barrelGeometry)[0]->getDouble("RIN_AC")*GeoModelKernelUnits::cm;  
+  m_c->rMaxAccordion  =   (*barrelGeometry)[0]->getDouble("ROUT_AC")*GeoModelKernelUnits::cm;  
   m_c->etaMaxBarrel   =   (*barrelGeometry)[0]->getDouble("ETACUT");      
-  m_c->zMinBarrel     =   (*barrelLongDiv)[0]->getDouble("ZMAXACT")*CLHEP::cm;    
-  m_c->zMaxBarrel     =   (*barrelLongDiv)[0]->getDouble("ZMINACT")*CLHEP::cm;    
+  m_c->zMinBarrel     =   (*barrelLongDiv)[0]->getDouble("ZMAXACT")*GeoModelKernelUnits::cm;    
+  m_c->zMaxBarrel     =   (*barrelLongDiv)[0]->getDouble("ZMINACT")*GeoModelKernelUnits::cm;    
   // === GU 11/06/2003   total number of cells in phi
   // to distinguish 1 module (testbeam case) from full Atlas
   m_c->NCellTot =         (*barrelGeometry)[0]->getInt("NCELMX"); 

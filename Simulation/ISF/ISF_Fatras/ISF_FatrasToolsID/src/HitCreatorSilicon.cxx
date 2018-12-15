@@ -38,6 +38,7 @@
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "InDetSimEvent/SiHit.h"
 // CLHEP
+#include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
@@ -447,7 +448,7 @@ void iFatras::HitCreatorSilicon::createSimHit(const ISF::ISFParticle& isp, const
    double localExitY  = interY+0.5*distY;
    double   energyDeposit=0;   
    //!< @todo : fix edge effects 
-   const Amg::Transform3D &hitTransform = Amg::CLHEPTransformToEigen( hitSiDetElement->transformHit().inverse() );
+   const Amg::Transform3D &hitTransform = hitSiDetElement->transformHit().inverse();
    // transform into the hit frame
    Amg::Vector3D localEntry(hitTransform*(sTransform*Amg::Vector3D(localEntryX,localEntryY,-0.5*movingDirection*thickness)));
    Amg::Vector3D localExit(hitTransform*(sTransform*Amg::Vector3D(localExitX,localExitY,0.5*movingDirection*thickness))); 

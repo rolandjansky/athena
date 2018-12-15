@@ -13,7 +13,7 @@
 //****************************************************************************
 
 #include "LArReadoutGeometry/FCAL_ChannelMap.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 #include "boost/io/ios_state.hpp"
 #include <sstream>
 #include <iostream>
@@ -21,7 +21,7 @@
 #include <stdio.h>
 
 /* === Geometrical parameters === */
-const double FCAL_ChannelMap::m_tubeSpacing[] = {0.75*CLHEP::cm, 0.8179*CLHEP::cm, 0.90*CLHEP::cm};
+const double FCAL_ChannelMap::m_tubeSpacing[] = {0.75*GeoModelKernelUnits::cm, 0.8179*GeoModelKernelUnits::cm, 0.90*GeoModelKernelUnits::cm};
 
 FCAL_ChannelMap::FCAL_ChannelMap( int flag)          
 {
@@ -78,7 +78,7 @@ void FCAL_ChannelMap::add_tube(const std::string & tileName, int mod, int /*id*/
 
   tileName_t tilename = (a3 << 16) + a2;
 
-  TubePosition tb(tilename, x*CLHEP::cm, y*CLHEP::cm,"");
+  TubePosition tb(tilename, x*GeoModelKernelUnits::cm, y*GeoModelKernelUnits::cm,"");
   // Add offsets, becaues iy and ix can be negative HMA
   
   i = i+200;
@@ -104,7 +104,7 @@ void FCAL_ChannelMap::add_tube(const std::string & tileName, int mod, int /*id*/
 
   tileName_t tilename = (a3 << 16) + a2;
 
-  TubePosition tb(tilename, x*CLHEP::cm, y*CLHEP::cm, hvFT);
+  TubePosition tb(tilename, x*GeoModelKernelUnits::cm, y*GeoModelKernelUnits::cm, hvFT);
   // Add offsets, becaues iy and ix can be negative HMA
   
   i = i+200;

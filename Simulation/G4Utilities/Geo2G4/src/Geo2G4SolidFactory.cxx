@@ -54,6 +54,8 @@
 #include <map>
 #include <cmath>
 
+#include "GeoPrimitives/CLHEPtoEigenConverter.h"
+
 typedef std::map<const GeoShape*, G4VSolid*, std::less<const GeoShape*> > shapesMap;
 typedef std::map<std::string, G4VSolid*,std::less<std::string> > customSolidMap;
 
@@ -375,15 +377,15 @@ G4VSolid *Geo2G4SolidFactory::Build(const GeoShape* geoShape, std::string name) 
         G4FacetVertexType vertexType = (geoFacet->getVertexType()==GeoFacet::ABSOLUTE? ABSOLUTE : RELATIVE);
         G4VFacet* g4Facet(nullptr);
         if(geoFacet->getNumberOfVertices()==3)
-          g4Facet = new G4TriangularFacet(geoFacet->getVertex(0),
-                                          geoFacet->getVertex(1),
-                                          geoFacet->getVertex(2),
+          g4Facet = new G4TriangularFacet(Amg::EigenToHep3Vector(geoFacet->getVertex(0)),
+                                          Amg::EigenToHep3Vector(geoFacet->getVertex(1)),
+					  Amg::EigenToHep3Vector(geoFacet->getVertex(2)),
                                           vertexType);
         else
-          g4Facet = new G4QuadrangularFacet(geoFacet->getVertex(0),
-                                            geoFacet->getVertex(1),
-                                            geoFacet->getVertex(2),
-                                            geoFacet->getVertex(3),
+          g4Facet = new G4QuadrangularFacet(Amg::EigenToHep3Vector(geoFacet->getVertex(0)),
+					    Amg::EigenToHep3Vector(geoFacet->getVertex(1)),
+                                            Amg::EigenToHep3Vector(geoFacet->getVertex(2)),
+                                            Amg::EigenToHep3Vector(geoFacet->getVertex(3)),
                                             vertexType);
 
         g4Tessellated->AddFacet(g4Facet);
@@ -432,9 +434,17 @@ G4VSolid *Geo2G4SolidFactory::Build(const GeoShape* geoShape, std::string name) 
     if (nullptr==theGenTrap) throw std::runtime_error("TypeID did not match cast for generic trap");
     if (n.empty()) n="G4GenericTrap";
     if (theGenTrap->getZHalfLength()<=0.){ ATH_MSG_WARNING("GenTrap " << n << " has an z side of " << theGenTrap->getZHalfLength() <<" - using std::abs.");}
+
+    // Translate vector of vertices from Eigen to CLHEP
+    std::vector<CLHEP::Hep2Vector> clhepVertices;
+    clhepVertices.reserve(theGenTrap->getVertices().size());
+    for(const GeoTrf::Vector2D& geoVertex : theGenTrap->getVertices()) {
+      clhepVertices.push_back(CLHEP::Hep2Vector(geoVertex.x(),geoVertex.y()));
+    }
+
     G4GenericTrap* g4GenTrap = new G4GenericTrap(n
                                                  ,std::abs(theGenTrap->getZHalfLength())
-                                                 ,theGenTrap->getVertices());
+                                                 ,clhepVertices);
     theSolid = g4GenTrap;
   }
   //
@@ -450,7 +460,7 @@ G4VSolid *Geo2G4SolidFactory::Build(const GeoShape* geoShape, std::string name) 
       if (nullptr==theShapeShift) throw std::runtime_error("TypeID did not match cast for shape shift");
       if (n.empty()) n="DisplacedSolid";
       G4VSolid * undisplacedSolid = Build(theShapeShift->getOp());
-      theSolid = new G4DisplacedSolid(n, undisplacedSolid, theShapeShift->getX());
+      theSolid = new G4DisplacedSolid(n, undisplacedSolid, Amg::EigenTransformToCLHEP(theShapeShift->getX()));
     }
   //
   // GeoShapeUnion

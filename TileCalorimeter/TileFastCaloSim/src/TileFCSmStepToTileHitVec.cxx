@@ -42,6 +42,7 @@
 // ISF_FCS_Parametrization includes
 #include "ISF_FastCaloSimEvent/FCS_StepInfoCollection.h"
 
+#include "CLHEP/Units/PhysicalConstants.h"
 
 //****************************************************************************
 //* Constructor

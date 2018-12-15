@@ -601,7 +601,7 @@ StatusCode InDetAlignCog::getTRT_Elements(bool cog_already_calculated, InDetAlig
 
 
       // Get Default Transform (of module in barrel, layer in endcap)
-      const Amg::Transform3D defTransform = Amg::CLHEPTransformToEigen( element->defTransform() );
+      const Amg::Transform3D defTransform =  element->defTransform();
       ATH_MSG_VERBOSE("defTransform 2 3" << " " << bec << " " << phi_module << " " 
 		      << layer_wheel << " " << straw_layer << " " << printTransform(defTransform));    
            

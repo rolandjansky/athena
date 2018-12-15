@@ -27,6 +27,8 @@
 #include "GeoModelKernel/GeoSerialTransformer.h"
 #include "GeoModelKernel/GeoIdentifierTag.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "GeoModelInterfaces/StoredMaterialManager.h"
@@ -97,7 +99,7 @@ GeoVFullPhysVol*  LArGeo::ExcluderConstructionH62004::GetEnvelope() {
   const GeoElement*  H=materialManager->getElement("Hydrogen");
   const GeoElement*  O=materialManager->getElement("Oxygen");
   const GeoElement*  N=materialManager->getElement("Nitrogen");
-  GeoMaterial* Rohacell = new GeoMaterial(name="Rohacell", density=0.112*CLHEP::g/CLHEP::cm3);
+  GeoMaterial* Rohacell = new GeoMaterial(name="Rohacell", density=0.112*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
   Rohacell->add(C,0.6465);
   Rohacell->add(H,0.07836);
   Rohacell->add(O,0.19137);
@@ -105,7 +107,7 @@ GeoVFullPhysVol*  LArGeo::ExcluderConstructionH62004::GetEnvelope() {
   Rohacell->lock();
 
   /*
-  a = 12.957*CLHEP::g/CLHEP::mole;                                                       
+  a = 12.957*GeoModelKernelUnits::g/GeoModelKernelUnits::mole;                                                       
   density = 0.112*g/cm3;                                              
   z = 6.18;
   G4Material* Rohacell = new G4Material(name="Rohacell",z, a, density);
@@ -136,20 +138,20 @@ GeoVFullPhysVol*  LArGeo::ExcluderConstructionH62004::GetEnvelope() {
   switch(m_which) {
      case 0: { // EMEC excluder
      // DB values
-     double Rmin = 725.*CLHEP::mm;
-     double Rmin_2 = 780.*CLHEP::mm;
-     double Rmax = 980.*CLHEP::mm;
+     double Rmin = 725.*GeoModelKernelUnits::mm;
+     double Rmin_2 = 780.*GeoModelKernelUnits::mm;
+     double Rmax = 980.*GeoModelKernelUnits::mm;
 
-     double Zall = 626*CLHEP::mm;
-     double Zback = 91*CLHEP::mm;
-     double Zfront = 60*CLHEP::mm;
+     double Zall = 626*GeoModelKernelUnits::mm;
+     double Zback = 91*GeoModelKernelUnits::mm;
+     double Zfront = 60*GeoModelKernelUnits::mm;
 
-     double alpha = 22.5*CLHEP::degree;
-     double beta  = 6.375*CLHEP::degree; 
+     double alpha = 22.5*GeoModelKernelUnits::degree;
+     double beta  = 6.375*GeoModelKernelUnits::degree; 
 
 
 //     double gamma = 8.589*degree;
-     double delta = 2.720*CLHEP::degree;
+     double delta = 2.720*GeoModelKernelUnits::degree;
 
 //  solidEx = new GeoTubs("MotherEx",Rmin,Rmax,Zall/2.,-(alpha+gamma), 2*(alpha+gamma));
 //     GeoTubs* solidEx = new GeoTubs(Rmin,Rmax,Zall/2.,-(alpha+beta), 2*(alpha+beta));
@@ -163,7 +165,7 @@ GeoVFullPhysVol*  LArGeo::ExcluderConstructionH62004::GetEnvelope() {
      const double rmax[zplanes] = {Rmax,Rmax};
      const double zcoord[2*zplanes] = {-Zall/2., -Zall/2.+Zfront, Zall/2.-Zback, Zall/2.};
   
-     HepGeom::Transform3D rot;
+     GeoTrf::Transform3D rot(GeoTrf::Transform3D::Identity());
 
      fEx = new GeoPcon(-(alpha-delta),2*(alpha-delta));
      for(int i=0; i<zplanes; ++i) {
@@ -207,35 +209,31 @@ GeoVFullPhysVol*  LArGeo::ExcluderConstructionH62004::GetEnvelope() {
 	     }
      case 1 : { // FCAL excluder
 
-                double Rmax = 335.*CLHEP::mm;
-//                double Rmax_1 = 253.*CLHEP::mm;
-                double bepo_Beta = 4.668*CLHEP::degree; // DB !!!
-		double bepo_ty = 90.0*CLHEP::degree; // DB !!
+                double Rmax = 335.*GeoModelKernelUnits::mm;
+//                double Rmax_1 = 253.*GeoModelKernelUnits::mm;
+                double bepo_Beta = 4.668*GeoModelKernelUnits::degree; // DB !!!
+		double bepo_ty = 90.0*GeoModelKernelUnits::degree; // DB !!
 
-//                double Zall = (1021.4/2.)*CLHEP::mm;
-                double Zall = (912./2.)*CLHEP::mm;
-//		double Zpara = (168.47/2.)*CLHEP::mm;
-//		double Zpara = (247.87/2.)*CLHEP::mm;
-		double Xall = (171./2.)*CLHEP::mm;
-		double Yall = (300./2.)*CLHEP::mm;
+//                double Zall = (1021.4/2.)*GeoModelKernelUnits::mm;
+                double Zall = (912./2.)*GeoModelKernelUnits::mm;
+//		double Zpara = (168.47/2.)*GeoModelKernelUnits::mm;
+//		double Zpara = (247.87/2.)*GeoModelKernelUnits::mm;
+		double Xall = (171./2.)*GeoModelKernelUnits::mm;
+		double Yall = (300./2.)*GeoModelKernelUnits::mm;
 		double Rmax_1 = Rmax - 2.*Zall*tan(bepo_Beta);
 
-		GeoPara *pEx = new GeoPara(Zall,Yall,Xall,0*CLHEP::degree,bepo_Beta,0.*CLHEP::degree);
+		GeoPara *pEx = new GeoPara(Zall,Yall,Xall,0*GeoModelKernelUnits::degree,bepo_Beta,0.*GeoModelKernelUnits::degree);
 		GeoCons *tEx = new GeoCons(0.,0.,Rmax,Rmax_1,Zall,0.,M_PI);
 		GeoBox  *box = new GeoBox(Yall,Xall,Zall);
-                CLHEP::HepRotation Rot;
-		Rot.rotateX(bepo_Beta);
-		CLHEP::Hep3Vector  trans1(0., sqrt(Rmax_1*Rmax_1 - Yall*Yall) + Xall + Zall*tan(bepo_Beta),  0*CLHEP::mm);
-		HepGeom::Transform3D offset(Rot, trans1);
+                GeoTrf::RotateX3D Rot(bepo_Beta);
+		GeoTrf::Translation3D  trans1(0., sqrt(Rmax_1*Rmax_1 - Yall*Yall) + Xall + Zall*tan(bepo_Beta),  0*GeoModelKernelUnits::mm);
+		GeoTrf::Transform3D offset = trans1 * Rot;
 		const GeoShapeIntersection  &is = (*tEx).intersect(*box<<offset);
 
-		CLHEP::HepRotation Rot1;
-		Rot1.rotateY(bepo_ty);
-		Rot1.rotateZ(bepo_ty);
-		Rot1.rotateX(bepo_Beta);
-//		G4ThreeVector  translation(0., (203.74-168.47/2.)*CLHEP::mm, 0.*CLHEP::mm);
-		CLHEP::Hep3Vector  translation(0., sqrt(Rmax_1*Rmax_1 - Yall*Yall)-Xall+Zall*tan(bepo_Beta),0.*CLHEP::mm);
-		HepGeom::Transform3D offset1(Rot1, translation);
+		GeoTrf::Transform3D Rot1 = GeoTrf::RotateX3D(bepo_Beta) * GeoTrf::RotateZ3D(bepo_ty) * GeoTrf::RotateY3D(bepo_ty);
+//		G4ThreeVector  translation(0., (203.74-168.47/2.)*GeoModelKernelUnits::mm, 0.*GeoModelKernelUnits::mm);
+		GeoTrf::Translation3D  translation(0., sqrt(Rmax_1*Rmax_1 - Yall*Yall)-Xall+Zall*tan(bepo_Beta),0.*GeoModelKernelUnits::mm);
+		GeoTrf::Transform3D offset1 = translation * Rot1;
 		const GeoShapeUnion  &us = is.add(*pEx<<offset1);  
 		std::string bExName = "LArGeoTB::FCAL::Excluder";
 	        logicEx = new GeoLogVol(bExName, &us,Rohacell);
@@ -247,21 +245,19 @@ GeoVFullPhysVol*  LArGeo::ExcluderConstructionH62004::GetEnvelope() {
 
 
 //                double Rmax = bcry_rlar;
-                double Rmax =  125.5*CLHEP::cm; // DB !!!
-		double bepo_Beta = 4.668*CLHEP::degree; // DB !!!
+                double Rmax =  125.5*GeoModelKernelUnits::cm; // DB !!!
+		double bepo_Beta = 4.668*GeoModelKernelUnits::degree; // DB !!!
 
-                double Zall = (1200./2.)*CLHEP::mm;
-		double angle = 32.*CLHEP::degree;
-//		double Xall = 119.35*CLHEP::cm;
+                double Zall = (1200./2.)*GeoModelKernelUnits::mm;
+		double angle = 32.*GeoModelKernelUnits::degree;
+//		double Xall = 119.35*GeoModelKernelUnits::cm;
 		double Xall = Rmax*cos(angle/2);
 		double Yall = Rmax*sin(angle/2);
 
 		GeoTubs *tEx = new GeoTubs(0.,Rmax,Zall,-angle/2.,angle);
 		GeoPara  *box = new GeoPara(Xall,Yall,1.1*Zall,0.,-bepo_Beta,0.);
-		CLHEP::HepRotation Rot;
-//		Rot->rotateZ(-angle/2.);
-		CLHEP::Hep3Vector  trans1(0., 0.*CLHEP::mm, 0*CLHEP::mm);
-		HepGeom::Transform3D offset(Rot, trans1);
+
+		GeoTrf::Translate3D offset(0., 0.*GeoModelKernelUnits::mm, 0*GeoModelKernelUnits::mm);
 		const GeoShapeSubtraction &is = (*tEx).subtract((*box)<<(offset));
 //		G4UnionSolid *is = new G4UnionSolid("isEx",tEx,box,Rot,trans1);
 		std::string FrontExName = "LArGeoTB::Front::Excluder";
@@ -272,20 +268,19 @@ GeoVFullPhysVol*  LArGeo::ExcluderConstructionH62004::GetEnvelope() {
      case 3 : { // Back excluder
 
 //                double Rmax = bcry_rlar;
-		double Rmax =  125.5*CLHEP::cm; // DB !!!
+		double Rmax =  125.5*GeoModelKernelUnits::cm; // DB !!!
 
 
-                double Zall = (1600./2.)*CLHEP::mm;
-		double angle = 58.*CLHEP::degree;
+                double Zall = (1600./2.)*GeoModelKernelUnits::mm;
+		double angle = 58.*GeoModelKernelUnits::degree;
 		double Xall = Rmax*cos(angle/2.);
 		double Yall = Rmax*sin(angle/2.);
 
 		GeoTubs *tEx = new GeoTubs(0.,Rmax,Zall,0.,angle);
 		GeoBox  *box = new GeoBox(Xall,Yall,1.1*Zall);
-		CLHEP::HepRotation Rot;
-		Rot.rotateZ(angle/2.);
-		CLHEP::Hep3Vector  trans1(0., 0.*CLHEP::mm,  0*CLHEP::mm);
-		HepGeom::Transform3D offset(Rot, trans1);
+		GeoTrf::RotateZ3D Rot(angle/2.);
+		GeoTrf::Translation3D  trans1(0., 0.*GeoModelKernelUnits::mm,  0*GeoModelKernelUnits::mm);
+		GeoTrf::Transform3D offset = trans1 * Rot;
 		const GeoShapeSubtraction &is = (*tEx).subtract((*box)<<(offset));
 		std::string BackExName = "LArGeoTB::Back::Excluder";
 	        logicEx = new GeoLogVol(BackExName,&is,Rohacell);

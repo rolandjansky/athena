@@ -9,7 +9,7 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
 #include <cmath>
 
@@ -31,55 +31,55 @@ SCT_ForwardModuleParameters::fwdSensorNumWafers(int iModuleType) const
 double 
 SCT_ForwardModuleParameters::fwdSensorThickness(int iModuleType) const
 {
-  return  m_rdb->fwdSensor(iModuleType)->getDouble("THICKNESS") * CLHEP::mm;
+  return  m_rdb->fwdSensor(iModuleType)->getDouble("THICKNESS") * GeoModelKernelUnits::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdSensorInnerWidthNear(int iModuleType) const
 {
-  return  m_rdb->fwdSensor(iModuleType)->getDouble("INNERWIDTHNEAR") * CLHEP::mm;
+  return  m_rdb->fwdSensor(iModuleType)->getDouble("INNERWIDTHNEAR") * GeoModelKernelUnits::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdSensorInnerWidthFar(int iModuleType) const
 {
-  return  m_rdb->fwdSensor(iModuleType)->getDouble("INNERWIDTHFAR") * CLHEP::mm;
+  return  m_rdb->fwdSensor(iModuleType)->getDouble("INNERWIDTHFAR") * GeoModelKernelUnits::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdSensorOuterWidthNear(int iModuleType) const
 {
-  return  m_rdb->fwdSensor(iModuleType)->getDouble("OUTERWIDTHNEAR") * CLHEP::mm;
+  return  m_rdb->fwdSensor(iModuleType)->getDouble("OUTERWIDTHNEAR") * GeoModelKernelUnits::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdSensorOuterWidthFar(int iModuleType) const
 {
-  return  m_rdb->fwdSensor(iModuleType)->getDouble("OUTERWIDTHFAR") * CLHEP::mm;
+  return  m_rdb->fwdSensor(iModuleType)->getDouble("OUTERWIDTHFAR") * GeoModelKernelUnits::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdSensorLengthNear(int iModuleType) const
 {
-  return  m_rdb->fwdSensor(iModuleType)->getDouble("LENGTHNEAR") * CLHEP::mm;
+  return  m_rdb->fwdSensor(iModuleType)->getDouble("LENGTHNEAR") * GeoModelKernelUnits::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdSensorLengthFar(int iModuleType) const
 {
-  return  m_rdb->fwdSensor(iModuleType)->getDouble("LENGTHFAR") * CLHEP::mm;
+  return  m_rdb->fwdSensor(iModuleType)->getDouble("LENGTHFAR") * GeoModelKernelUnits::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdSensorRadiusNear(int iModuleType) const
 {
-  return  m_rdb->fwdSensor(iModuleType)->getDouble("RADIUSNEAR") * CLHEP::mm;
+  return  m_rdb->fwdSensor(iModuleType)->getDouble("RADIUSNEAR") * GeoModelKernelUnits::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdSensorRadiusFar(int iModuleType) const
 {
-  return  m_rdb->fwdSensor(iModuleType)->getDouble("RADIUSFAR") * CLHEP::mm;
+  return  m_rdb->fwdSensor(iModuleType)->getDouble("RADIUSFAR") * GeoModelKernelUnits::mm;
 }
 
 std::string 
@@ -109,19 +109,19 @@ SCT_ForwardModuleParameters::fwdSensorActiveFar(int iModuleType) const
 double 
 SCT_ForwardModuleParameters::fwdSensorActiveHalfLengthNear(int iModuleType) const
 {
-  return  m_rdb->fwdSensor(iModuleType)->getDouble("ACTIVEHALFLENGTHNEAR") * CLHEP::mm;
+  return  m_rdb->fwdSensor(iModuleType)->getDouble("ACTIVEHALFLENGTHNEAR") * GeoModelKernelUnits::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdSensorActiveHalfLengthFar(int iModuleType) const
 {
-  return  m_rdb->fwdSensor(iModuleType)->getDouble("ACTIVEHALFLENGTHFAR") * CLHEP::mm;
+  return  m_rdb->fwdSensor(iModuleType)->getDouble("ACTIVEHALFLENGTHFAR") * GeoModelKernelUnits::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdSensorAngularPitch(int iModuleType) const
 {
-  return  m_rdb->fwdSensor(iModuleType)->getDouble("ANGULARPITCH") * CLHEP::radian;
+  return  m_rdb->fwdSensor(iModuleType)->getDouble("ANGULARPITCH") * GeoModelKernelUnits::radian;
 }
 
 int
@@ -149,37 +149,37 @@ SCT_ForwardModuleParameters::fwdSensorStripShift(int iModuleType) const
 double 
 SCT_ForwardModuleParameters::fwdHybridThickness() const
 {
-  return  m_rdb->fwdHybrid()->getDouble("THICKNESS") * CLHEP::mm;
+  return  m_rdb->fwdHybrid()->getDouble("THICKNESS") * GeoModelKernelUnits::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdHybridInnerWidth() const
 {
-  return  m_rdb->fwdHybrid()->getDouble("INNERWIDTH") * CLHEP::mm;
+  return  m_rdb->fwdHybrid()->getDouble("INNERWIDTH") * GeoModelKernelUnits::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdHybridOuterWidth() const
 {
-  return  m_rdb->fwdHybrid()->getDouble("OUTERWIDTH") * CLHEP::mm;
+  return  m_rdb->fwdHybrid()->getDouble("OUTERWIDTH") * GeoModelKernelUnits::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdHybridLength() const
 {
-  return  m_rdb->fwdHybrid()->getDouble("LENGTH") * CLHEP::mm;
+  return  m_rdb->fwdHybrid()->getDouble("LENGTH") * GeoModelKernelUnits::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdHybridLengthToCorner() const
 {
-  return  m_rdb->fwdHybrid()->getDouble("LENGTHTOCORNER") * CLHEP::mm;
+  return  m_rdb->fwdHybrid()->getDouble("LENGTHTOCORNER") * GeoModelKernelUnits::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdHybridMountPointToInnerEdge() const
 {
-  return  m_rdb->fwdHybrid()->getDouble("MOUNTPOINTTOINEDGE") * CLHEP::mm;
+  return  m_rdb->fwdHybrid()->getDouble("MOUNTPOINTTOINEDGE") * GeoModelKernelUnits::mm;
 }
 
 std::string 
@@ -194,26 +194,26 @@ SCT_ForwardModuleParameters::fwdHybridMaterial() const
 double 
 SCT_ForwardModuleParameters::fwdSpineThickness(int iModuleType) const
 {
-  return  m_rdb->fwdSpine(iModuleType)->getDouble("THICKNESS") * CLHEP::mm;
+  return  m_rdb->fwdSpine(iModuleType)->getDouble("THICKNESS") * GeoModelKernelUnits::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdSpineWidth(int iModuleType) const
 {
-  return  m_rdb->fwdSpine(iModuleType)->getDouble("WIDTH") * CLHEP::mm;
+  return  m_rdb->fwdSpine(iModuleType)->getDouble("WIDTH") * GeoModelKernelUnits::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdSpineEndToModuleCenter(int iModuleType) const
 {
-  return  m_rdb->fwdSpine(iModuleType)->getDouble("ENDTOMODULECENTER") * CLHEP::mm;
+  return  m_rdb->fwdSpine(iModuleType)->getDouble("ENDTOMODULECENTER") * GeoModelKernelUnits::mm;
 }
 
 
 double 
 SCT_ForwardModuleParameters::fwdSpineEndLocatorToEndMount(int iModuleType) const
 {
-  return  m_rdb->fwdSpine(iModuleType)->getDouble("ENDLOCATORTOENDMOUNT") * CLHEP::mm;
+  return  m_rdb->fwdSpine(iModuleType)->getDouble("ENDLOCATORTOENDMOUNT") * GeoModelKernelUnits::mm;
 }
 
 
@@ -230,55 +230,55 @@ SCT_ForwardModuleParameters::fwdSpineMaterial(int iModuleType) const
 double 
 SCT_ForwardModuleParameters::fwdSubSpineInnerWidth(int iModuleType) const
 {
-  return  m_rdb->fwdSpine(iModuleType)->getDouble("SUBINNERWIDTH") * CLHEP::mm;
+  return  m_rdb->fwdSpine(iModuleType)->getDouble("SUBINNERWIDTH") * GeoModelKernelUnits::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdSubSpineInnerLength(int iModuleType) const
 {
-  return  m_rdb->fwdSpine(iModuleType)->getDouble("SUBINNERLENGTH") * CLHEP::mm;
+  return  m_rdb->fwdSpine(iModuleType)->getDouble("SUBINNERLENGTH") * GeoModelKernelUnits::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdSubSpineInnerRefDist(int iModuleType) const
 {
-  return  m_rdb->fwdSpine(iModuleType)->getDouble("SUBINNERREFDIST") * CLHEP::mm;
+  return  m_rdb->fwdSpine(iModuleType)->getDouble("SUBINNERREFDIST") * GeoModelKernelUnits::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdSubSpineMiddleWidth(int iModuleType) const
 {
-  return  m_rdb->fwdSpine(iModuleType)->getDouble("SUBMIDDLEWIDTH") * CLHEP::mm;
+  return  m_rdb->fwdSpine(iModuleType)->getDouble("SUBMIDDLEWIDTH") * GeoModelKernelUnits::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdSubSpineMiddleLength(int iModuleType) const
 {
-  return  m_rdb->fwdSpine(iModuleType)->getDouble("SUBMIDDLELENGTH") * CLHEP::mm;
+  return  m_rdb->fwdSpine(iModuleType)->getDouble("SUBMIDDLELENGTH") * GeoModelKernelUnits::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdSubSpineMiddleRefDist(int iModuleType) const
 {
-  return  m_rdb->fwdSpine(iModuleType)->getDouble("SUBMIDDLEREFDIST") * CLHEP::mm;
+  return  m_rdb->fwdSpine(iModuleType)->getDouble("SUBMIDDLEREFDIST") * GeoModelKernelUnits::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdSubSpineOuterWidth(int iModuleType) const
 {
-  return  m_rdb->fwdSpine(iModuleType)->getDouble("SUBOUTERWIDTH") * CLHEP::mm;
+  return  m_rdb->fwdSpine(iModuleType)->getDouble("SUBOUTERWIDTH") * GeoModelKernelUnits::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdSubSpineOuterLength(int iModuleType) const
 {
-  return  m_rdb->fwdSpine(iModuleType)->getDouble("SUBOUTERLENGTH") * CLHEP::mm;
+  return  m_rdb->fwdSpine(iModuleType)->getDouble("SUBOUTERLENGTH") * GeoModelKernelUnits::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdSubSpineOuterRefDist(int iModuleType) const
 {
-  return  m_rdb->fwdSpine(iModuleType)->getDouble("SUBOUTERREFDIST") * CLHEP::mm;
+  return  m_rdb->fwdSpine(iModuleType)->getDouble("SUBOUTERREFDIST") * GeoModelKernelUnits::mm;
 }
 
 std::string 
@@ -301,7 +301,7 @@ SCT_ForwardModuleParameters::fwdModuleNumTypes() const
 double 
 SCT_ForwardModuleParameters::fwdModuleStereoAngle(int iModuleType) const
 {
-  return m_rdb->fwdModule(iModuleType)->getDouble("STEREOANGLE") * CLHEP::milliradian;
+  return m_rdb->fwdModule(iModuleType)->getDouble("STEREOANGLE") * GeoModelKernelUnits::milliradian;
 }
 
 int
@@ -323,25 +323,25 @@ SCT_ForwardModuleParameters::fwdModuleUpperSideNumber(int iModuleType) const
 double
 SCT_ForwardModuleParameters::fwdModuleGlueThickness(int iModuleType) const
 {
-  return m_rdb->fwdModule(iModuleType)->getDouble("GLUETHICKNESS") * CLHEP::mm;
+  return m_rdb->fwdModule(iModuleType)->getDouble("GLUETHICKNESS") * GeoModelKernelUnits::mm;
 }
 
 double
 SCT_ForwardModuleParameters::fwdModuleMountPoint(int iModuleType) const
 {
-  return m_rdb->fwdModule(iModuleType)->getDouble("MOUNTPOINT") * CLHEP::mm;
+  return m_rdb->fwdModule(iModuleType)->getDouble("MOUNTPOINT") * GeoModelKernelUnits::mm;
 }
 
 double
 SCT_ForwardModuleParameters::fwdModuleDistBtwMountPoints(int iModuleType) const
 {
-  return m_rdb->fwdModule(iModuleType)->getDouble("DISTBTWMOUNTPOINTS") * CLHEP::mm;
+  return m_rdb->fwdModule(iModuleType)->getDouble("DISTBTWMOUNTPOINTS") * GeoModelKernelUnits::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdModuleHybridEdgeToSpine(int iModuleType) const
 {
-  return m_rdb->fwdModule(iModuleType)->getDouble("HYBRIDEDGETOSPINE")*CLHEP::mm;
+  return m_rdb->fwdModule(iModuleType)->getDouble("HYBRIDEDGETOSPINE")*GeoModelKernelUnits::mm;
 }  
 
 bool 
@@ -367,19 +367,19 @@ SCT_ForwardModuleParameters::fwdModuleConnectorPresent() const
 double 
 SCT_ForwardModuleParameters::fwdModuleConnectorDeltaR() const
 {
-  return m_rdb->fwdModuleConnector()->getDouble("DELTAR") * CLHEP::mm;
+  return m_rdb->fwdModuleConnector()->getDouble("DELTAR") * GeoModelKernelUnits::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdModuleConnectorRPhi() const
 {
-  return m_rdb->fwdModuleConnector()->getDouble("RPHI") * CLHEP::mm;
+  return m_rdb->fwdModuleConnector()->getDouble("RPHI") * GeoModelKernelUnits::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdModuleConnectorThickness() const
 {
-  return m_rdb->fwdModuleConnector()->getDouble("THICKNESS") * CLHEP::mm;
+  return m_rdb->fwdModuleConnector()->getDouble("THICKNESS") * GeoModelKernelUnits::mm;
 }
 
 std::string

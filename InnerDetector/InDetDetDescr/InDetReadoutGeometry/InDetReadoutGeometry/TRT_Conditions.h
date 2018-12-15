@@ -11,6 +11,7 @@
 #ifndef INDETREADOUTGEOMETRY_TRT_CONDITIONS_H
 #define INDETREADOUTGEOMETRY_TRT_CONDITIONS_H
 
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/RCBase.h"
 #include "CLHEP/Geometry/Transform3D.h"
 

@@ -26,6 +26,7 @@
 #include "CLHEP/GenericFunctions/Cos.hh"
 
 #include "GeoModelInterfaces/StoredMaterialManager.h"
+#include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
 #include <iostream>
 #include <fstream>
@@ -65,7 +66,6 @@ void AFP_GeoModelFactory::AddRomanPot(GeoPhysVol* pPhysMotherVol, const char* ps
 	char szLabel[32];
 	double fLength,fRMin,fRMax;
 	GeoShapeShift* pMoveCut;
-	HepGeom::Transform3D TransCut;
 	GeoShape* pSolCut;
 
 	//HepGeom::Transform3D TransRPot=TransInMotherVolume*HepGeom::TranslateX3D(-(0.5*RPOT_MAINTUBUS_LENGTH+RPOT_FLOOR_WNDTHICKNESS));
@@ -82,7 +82,7 @@ void AFP_GeoModelFactory::AddRomanPot(GeoPhysVol* pPhysMotherVol, const char* ps
 	sprintf(szLabel,"%s_RPMainTubus",pszStationName);
 	GeoFullPhysVol* pPhysTubus=new GeoFullPhysVol(pLogTubus);
 	pPhysMotherVol->add(new GeoNameTag(szLabel));
-	pPhysMotherVol->add(new GeoTransform(TransRPot*HepGeom::RotateY3D(90*CLHEP::deg)));
+	pPhysMotherVol->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransRPot*HepGeom::RotateY3D(90*CLHEP::deg))));
 	pPhysMotherVol->add(pPhysTubus);
 
 	//Main tubus - floor (bottom) part ---------------------------------------------------------------------------
@@ -97,7 +97,7 @@ void AFP_GeoModelFactory::AddRomanPot(GeoPhysVol* pPhysMotherVol, const char* ps
 	pPhysTubus=new GeoFullPhysVol(pLogTubus);
 	sprintf(szLabel,"%s_RPMainTubusFloorPart",pszStationName);
 	pPhysMotherVol->add(new GeoNameTag(szLabel));
-	pPhysMotherVol->add(new GeoTransform(TransRPot*HepGeom::TranslateX3D(0.5*fLength+0.5*fMainTubusSteelPartLength)*HepGeom::RotateY3D(90*CLHEP::deg)));
+	pPhysMotherVol->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransRPot*HepGeom::TranslateX3D(0.5*fLength+0.5*fMainTubusSteelPartLength)*HepGeom::RotateY3D(90*CLHEP::deg))));
 	pPhysMotherVol->add(pPhysTubus);
 
 	//--upper mass
@@ -113,7 +113,7 @@ void AFP_GeoModelFactory::AddRomanPot(GeoPhysVol* pPhysMotherVol, const char* ps
 	pPhysTubus=new GeoFullPhysVol(pLogTubus);
 	sprintf(szLabel,"%s_LogRPMainTubusUMass",pszStationName);
 	pPhysMotherVol->add(new GeoNameTag(szLabel));
-	pPhysMotherVol->add(new GeoTransform(TransRPot*HepGeom::TranslateX3D(0.5*fLength+0.5*fMainTubusSteelPartLength)*HepGeom::RotateY3D(90*CLHEP::deg)));
+	pPhysMotherVol->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransRPot*HepGeom::TranslateX3D(0.5*fLength+0.5*fMainTubusSteelPartLength)*HepGeom::RotateY3D(90*CLHEP::deg))));
 	pPhysMotherVol->add(pPhysTubus);
 
 	//-lower mass
@@ -128,7 +128,7 @@ void AFP_GeoModelFactory::AddRomanPot(GeoPhysVol* pPhysMotherVol, const char* ps
 	pPhysTubus=new GeoFullPhysVol(pLogTubus);
 	sprintf(szLabel,"%s_LogRPMainTubusLMass",pszStationName);
 	pPhysMotherVol->add(new GeoNameTag(szLabel));
-	pPhysMotherVol->add(new GeoTransform(TransRPot*HepGeom::TranslateX3D(0.5*fLength+0.5*fMainTubusSteelPartLength)*HepGeom::RotateY3D(90*CLHEP::deg)));
+	pPhysMotherVol->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransRPot*HepGeom::TranslateX3D(0.5*fLength+0.5*fMainTubusSteelPartLength)*HepGeom::RotateY3D(90*CLHEP::deg))));
 	pPhysMotherVol->add(pPhysTubus);
 
 //	//cut volume 1
@@ -200,7 +200,7 @@ void AFP_GeoModelFactory::AddRomanPot(GeoPhysVol* pPhysMotherVol, const char* ps
 	double fTrdHYLength1=0.5*RPOT_FLOOR_WNDWIDTH-RPOT_FLOOR_WNDTHICKNESS*tan(RPOT_FLOOR_WNDFACET);
 	double fTrdHZLength=0.5*(RPOT_FLOOR_THICKNESS-RPOT_FLOOR_WNDTHICKNESS);
 	pSolCut=new GeoTrd(fTrdHXLength1,fTrdHXLength2,fTrdHYLength1,fTrdHYLength2,fTrdHZLength);
-	TransCut=HepGeom::TranslateZ3D(0.5*fLength-fTrdHZLength);
+	GeoTrf::Transform3D TransCut=GeoTrf::TranslateZ3D(0.5*fLength-fTrdHZLength);
 	pMoveCut=new GeoShapeShift(pSolCut, TransCut);
 	GeoShapeSubtraction* pSolFloor=new GeoShapeSubtraction(pSolTubus, pMoveCut);
 
@@ -209,7 +209,7 @@ void AFP_GeoModelFactory::AddRomanPot(GeoPhysVol* pPhysMotherVol, const char* ps
 	pPhysTubus=new GeoFullPhysVol(pLogTubus);
 	sprintf(szLabel,"%s_RPFloorTubus",pszStationName);
 	pPhysMotherVol->add(new GeoNameTag(szLabel));
-	pPhysMotherVol->add(new GeoTransform(TransRPot*HepGeom::TranslateX3D(0.5*fMainTubusSteelPartLength+RPOT_MAINTUBUS_FLOORPARTLENGTH+0.5*RPOT_FLOOR_THICKNESS)*HepGeom::RotateY3D(90*CLHEP::deg)));
+	pPhysMotherVol->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransRPot*HepGeom::TranslateX3D(0.5*fMainTubusSteelPartLength+RPOT_MAINTUBUS_FLOORPARTLENGTH+0.5*RPOT_FLOOR_THICKNESS)*HepGeom::RotateY3D(90*CLHEP::deg))));
 	pPhysMotherVol->add(pPhysTubus);
 
 	//Flange tubus -------------------------------------------------------------------------------------------------
@@ -223,7 +223,7 @@ void AFP_GeoModelFactory::AddRomanPot(GeoPhysVol* pPhysMotherVol, const char* ps
 	pPhysTubus=new GeoFullPhysVol(pLogTubus);
 	sprintf(szLabel,"%s_RPFlangeTubus",pszStationName);
 	pPhysMotherVol->add(new GeoNameTag(szLabel));
-	pPhysMotherVol->add(new GeoTransform(TransRPot*HepGeom::TranslateX3D(-0.5*fMainTubusSteelPartLength-0.5*RPOT_FLANGE_THICKNESS)*HepGeom::RotateY3D(90*CLHEP::deg)));
+	pPhysMotherVol->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransRPot*HepGeom::TranslateX3D(-0.5*fMainTubusSteelPartLength-0.5*RPOT_FLANGE_THICKNESS)*HepGeom::RotateY3D(90*CLHEP::deg))));
 	pPhysMotherVol->add(pPhysTubus);
 
 

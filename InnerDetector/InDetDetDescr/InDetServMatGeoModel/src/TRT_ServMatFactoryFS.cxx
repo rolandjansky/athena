@@ -75,8 +75,8 @@ void TRT_ServMatFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
 
 
 //VK  10/09/2005 Construct a gap for rails
-  double outROfIDet =       (*atls)[0]->getDouble("IDETOR")*CLHEP::cm;
-  double endZOfIDet =       (*atls)[0]->getDouble("IDETZMX")*CLHEP::cm;
+  double outROfIDet =       (*atls)[0]->getDouble("IDETOR")*GeoModelKernelUnits::cm;
+  double endZOfIDet =       (*atls)[0]->getDouble("IDETZMX")*GeoModelKernelUnits::cm;
   double minRofGap  =       1050.0;
   double phiWid=70./outROfIDet;    double safetyGap=1.;
   const GeoShape* railGap1=new GeoTubs( minRofGap, outROfIDet+safetyGap ,endZOfIDet+safetyGap , 
@@ -89,10 +89,10 @@ void TRT_ServMatFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
 
 
 //VK 26.03.2007  Construct a gap for SquirrelCage ribbon
-  double  rminInt    = (*cage)[0]->getDouble("RINGRMIN")*CLHEP::mm;
-  double  ringThick  = (*cage)[0]->getDouble("RINGTHICK")*CLHEP::mm;
-  double  ringGap    = (*cage)[0]->getDouble("RINGGAP")*CLHEP::mm;
-  double  ribWid = (*cage)[0]->getDouble("RIBWIDTH")*CLHEP::mm;
+  double  rminInt    = (*cage)[0]->getDouble("RINGRMIN")*GeoModelKernelUnits::mm;
+  double  ringThick  = (*cage)[0]->getDouble("RINGTHICK")*GeoModelKernelUnits::mm;
+  double  ringGap    = (*cage)[0]->getDouble("RINGGAP")*GeoModelKernelUnits::mm;
+  double  ribWid = (*cage)[0]->getDouble("RIBWIDTH")*GeoModelKernelUnits::mm;
   double phiWidSQ=ribWid/(rminInt+ringThick+ringGap/2.);
 
 

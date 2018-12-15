@@ -4,7 +4,7 @@
 
 #include "InDetGeoModelUtils/TubeVolData.h"
 #include "RDBAccessSvc/IRDBRecord.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
 #include <cmath>
 #include <string>
@@ -36,7 +36,7 @@ namespace InDetDD {
     m_length(0.),
     m_zMid(0.) {
     // add an 2*epsilon gap between phi sectors.
-    const double phiepsilon = 0.001 * CLHEP::degree;
+    const double phiepsilon = 0.001 * GeoModelKernelUnits::degree;
 
     bool fullPhiSector = false;
 
@@ -45,14 +45,14 @@ namespace InDetDD {
     // The rest are obtained directly from RDB.
 
     if (m_record) {
-      m_phiStart = m_record->getDouble("PHISTART") * CLHEP::degree;
-      m_phiDelta = m_record->getDouble("PHIDELTA") * CLHEP::degree;
-      m_phiStep = m_record->getDouble("PHISTEP") * CLHEP::degree;
+      m_phiStart = m_record->getDouble("PHISTART") * GeoModelKernelUnits::degree;
+      m_phiDelta = m_record->getDouble("PHIDELTA") * GeoModelKernelUnits::degree;
+      m_phiStep = m_record->getDouble("PHISTEP") * GeoModelKernelUnits::degree;
       m_nRepeat = m_record->getInt("NREPEAT");
-      m_rmin1 = m_record->getDouble("RMIN") * CLHEP::mm;
-      m_rmax1 = m_record->getDouble("RMAX") * CLHEP::mm;
-      m_rmin2 = m_record->getDouble("RMIN2") * CLHEP::mm;
-      m_rmax2 = m_record->getDouble("RMAX2") * CLHEP::mm;
+      m_rmin1 = m_record->getDouble("RMIN") * GeoModelKernelUnits::mm;
+      m_rmax1 = m_record->getDouble("RMAX") * GeoModelKernelUnits::mm;
+      m_rmin2 = m_record->getDouble("RMIN2") * GeoModelKernelUnits::mm;
+      m_rmax2 = m_record->getDouble("RMAX2") * GeoModelKernelUnits::mm;
       m_radialDiv = 0;
       if (!m_record->isFieldNull("RADIAL")) {
         m_radialDiv = m_record->getInt("RADIAL");
@@ -62,13 +62,13 @@ namespace InDetDD {
         m_bothZ = m_record->getInt("ZSYMM");
       }
 
-      double zmin = m_record->getDouble("ZMIN") * CLHEP::mm;
-      double zmax = m_record->getDouble("ZMAX") * CLHEP::mm;
+      double zmin = m_record->getDouble("ZMIN") * GeoModelKernelUnits::mm;
+      double zmax = m_record->getDouble("ZMAX") * GeoModelKernelUnits::mm;
       m_length = std::abs(zmax - zmin);
       m_zMid = 0.5 * (zmin + zmax);
 
-      if (m_phiDelta == 0 || m_phiDelta >= 359.9 * CLHEP::degree) {
-        m_phiDelta = 360 * CLHEP::degree;
+      if (m_phiDelta == 0 || m_phiDelta >= 359.9 * GeoModelKernelUnits::degree) {
+        m_phiDelta = 360 * GeoModelKernelUnits::degree;
         fullPhiSector = true;
       } else {
         m_phiDelta -= 2 * phiepsilon;
@@ -79,7 +79,7 @@ namespace InDetDD {
       if (m_nRepeat <= 0) m_nRepeat = 1;
       // if PHISTEP==0 then set it to be equi-distant steps filling up phi.
       if (m_phiStep == 0) {
-        m_phiStep = 360 * CLHEP::degree / m_nRepeat;
+        m_phiStep = 360 * GeoModelKernelUnits::degree / m_nRepeat;
       }
 
       if (m_rmin2 <= 0) m_rmin2 = m_rmin1;

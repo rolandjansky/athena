@@ -21,6 +21,7 @@
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoSerialIdentifier.h"
 #include "GeoModelKernel/GeoIdentifierTag.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 // for cutouts:
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 #include "GeoModelKernel/GeoShapeIntersection.h"
@@ -78,9 +79,6 @@ Micromegas::build(int minimalgeo, int , std::vector<Cutout*> )
                                     longWidth/2, length/2);
 
  
-  HepGeom::Transform3D cut1,cut2,cut3,cut4;
-  									
-  
   logVolName=name;
   if (!(m_component->subType).empty()) logVolName+=("-"+m_component->subType);
   const GeoMaterial* mtrd = matManager->getMaterial("sct::PCB");
@@ -118,7 +116,7 @@ Micromegas::build(int minimalgeo, int , std::vector<Cutout*> )
     double newXPos=newpos;
  
     const GeoShape* sGasVolume = new GeoTrd(gasTck/2, gasTck/2, widthActive/2, 
-                                              longWidthActive/2, lengthActive/2);
+					    longWidthActive/2, lengthActive/2);
 	
 
 
@@ -126,36 +124,35 @@ Micromegas::build(int minimalgeo, int , std::vector<Cutout*> )
                                          matManager->getMaterial("muo::ArCO2"));
       GeoPhysVol* ptrdtmp = new GeoPhysVol(ltrdtmp);
       GeoNameTag* ntrdtmp = new GeoNameTag(name+"muo::ArCO2");
-      GeoTransform* ttrdtmp = new GeoTransform(HepGeom::TranslateX3D(newXPos));
+      GeoTransform* ttrdtmp = new GeoTransform(GeoTrf::TranslateX3D(newXPos));
 
       // Place gas volume inside G10 mother volume so that
       // subtractions from gas volume now become G10
-
+      
       ptrd->add(ntrdtmp);
       ptrd->add(ttrdtmp);
       ptrd->add(ptrdtmp);
-	  
       
-	  double lW=longWidth/2.-((longWidth-width)/2.)*f1/length;
-	  double W=width/2.+((longWidth-width)/2.)*f2/length;
-	  const GeoShape* trd1 = new GeoTrd(gasTck/2,gasTck/2, width/2, 
-                                    longWidth/2, length/2);
-	  const GeoShape* trd2 = new GeoTrd(gasTck,gasTck, W-f3, 
-                                    lW-f3, length/2-(f1+f2)/2.);
-	  HepGeom::Transform3D c;
-	  c=HepGeom::Translate3D(0,0,(f2-f1)/2.);
-          trd1= &(trd1->subtract( (*trd2) << c ));
-	  GeoLogVol* ltrdframe = new GeoLogVol("MM_Frame", trd1,
-                                         matManager->getMaterial("std::Aluminium"));
-          GeoPhysVol* ptrdframe = new GeoPhysVol(ltrdframe);
-	  
-	  ptrdtmp->add(ptrdframe);
-	  
-
+      
+      double lW=longWidth/2.-((longWidth-width)/2.)*f1/length;
+      double W=width/2.+((longWidth-width)/2.)*f2/length;
+      const GeoShape* trd1 = new GeoTrd(gasTck/2,gasTck/2, width/2, 
+					longWidth/2, length/2);
+      const GeoShape* trd2 = new GeoTrd(gasTck,gasTck, W-f3, 
+					lW-f3, length/2-(f1+f2)/2.);
+      GeoTrf::Translate3D c(0,0,(f2-f1)/2.);
+      trd1= &(trd1->subtract( (*trd2) << c ));
+      GeoLogVol* ltrdframe = new GeoLogVol("MM_Frame", trd1,
+					   matManager->getMaterial("std::Aluminium"));
+      GeoPhysVol* ptrdframe = new GeoPhysVol(ltrdframe);
+      
+      ptrdtmp->add(ptrdframe);
+      
+      
       iSenLyr++;
-
+      
   } // Loop over tgc layers
-        
+  
   return ptrd;	
 }
 

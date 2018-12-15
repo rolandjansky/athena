@@ -39,6 +39,8 @@
 #include "GeoModelKernel/GeoTransform.h"  
 #include "GeoModelKernel/GeoAlignableTransform.h"  
 #include "GeoModelKernel/GeoIdentifierTag.h"  
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 #include "GeoModelUtilities/StoredPhysVol.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
@@ -47,11 +49,6 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/ISvcLocator.h"
-
-// For transforms:
-#include "CLHEP/Geometry/Transform3D.h" 
-// For units:
-#include "CLHEP/Units/PhysicalConstants.h"
 
 #include <string>
 #include <cmath>
@@ -115,37 +112,37 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
 
   //LAr
 
-  GeoMaterial* LAr = new GeoMaterial(name="LiquidArgon", density=1.396*CLHEP::g/CLHEP::cm3);
+  GeoMaterial* LAr = new GeoMaterial(name="LiquidArgon", density=1.396*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
   LAr->add(Ar,1.);
   LAr->lock();
  
   //Alu
 
-  GeoMaterial* Alu = new GeoMaterial(name="Alu", density=2.7*CLHEP::g/CLHEP::cm3);
+  GeoMaterial* Alu = new GeoMaterial(name="Alu", density=2.7*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
   Alu->add(Al,1.);
   Alu->lock();
 
   //Iron
 
-  GeoMaterial* Iron = new GeoMaterial(name="Iron", density=7.87*CLHEP::g/CLHEP::cm3);
+  GeoMaterial* Iron = new GeoMaterial(name="Iron", density=7.87*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
   Iron->add(Fe,1.);
   Iron->lock();
 
   //Copper
 
-  GeoMaterial* Copper = new GeoMaterial(name="Copper", density=8.96*CLHEP::g/CLHEP::cm3);
+  GeoMaterial* Copper = new GeoMaterial(name="Copper", density=8.96*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
   Copper->add(Cu,1.);
   Copper->lock();
 
   //Lead
 
-  GeoMaterial* Lead = new GeoMaterial(name="Lead", density=11.35*CLHEP::g/CLHEP::cm3);
+  GeoMaterial* Lead = new GeoMaterial(name="Lead", density=11.35*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
   Lead->add(Pb,1.);
   Lead->lock();
 
   // Air	,  at 20 deg C, 1 atm density=1.2931*mg/cm3
 
-  GeoMaterial* Air=new GeoMaterial(name="Air", density=1.290*CLHEP::mg/CLHEP::cm3);
+  GeoMaterial* Air=new GeoMaterial(name="Air", density=1.290*GeoModelKernelUnits::mg/GeoModelKernelUnits::cm3);
   Air->add(N, .8);
   Air->add(O, .2);
   Air->lock();
@@ -153,7 +150,7 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   //Prepreg glue for absorbers, composition to be checked!
   //ref:STR.CAL.01.CRB.6,(23-Jan-2003,J.T.)
 
-  GeoMaterial* Glue=new GeoMaterial(name="Glue", density=1.8*CLHEP::g/CLHEP::cm3);
+  GeoMaterial* Glue=new GeoMaterial(name="Glue", density=1.8*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
   aH=8.*H->getA();
   aO=2.*O->getA();
   aC=5.*C->getA();
@@ -172,7 +169,7 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   //PermaliE730 for Front middle ring, composition to be checked!
   //                     ref.: STR.CAL.01.CRB.6,(23-Jan-2003,J.T.)
 
-  GeoMaterial* PermaliE730=new GeoMaterial(name="PermaliE730",density=1.83*CLHEP::g/CLHEP::cm3);
+  GeoMaterial* PermaliE730=new GeoMaterial(name="PermaliE730",density=1.83*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
   aH=8.*H->getA();
   aO=2.*O->getA();
   aC=5.*C->getA();
@@ -190,7 +187,7 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
 
   // Gten  ( C8 H14 O4 ), alias glass epoxy for long.&transv.bars
 
-  GeoMaterial* Gten = new GeoMaterial(name="Gten", density=1.8*CLHEP::g/CLHEP::cm3);
+  GeoMaterial* Gten = new GeoMaterial(name="Gten", density=1.8*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
   aH=14.*H->getA();
   aO= 4.*O->getA();
   aC= 8.*C->getA();
@@ -209,7 +206,7 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   // Kapton 11-Jan-2002 ML from accbgeo.age: the Kapton_E density is 1.46g/cm3
   //        one assumes it is the same as for the Kapton_H -> C22 H10 O5 N2
  
-  GeoMaterial* Kapton= new GeoMaterial(name="Kapton",density=1.46*CLHEP::g/CLHEP::cm3);
+  GeoMaterial* Kapton= new GeoMaterial(name="Kapton",density=1.46*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
   aH=10.*H->getA();
   aO= 5.*O->getA();
   aC=22.*C->getA();
@@ -230,9 +227,9 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
 
   // THIN absorber: outer wheel
   //               11-Jan-2002 ML source: endegeo.age and Fig.7-3 of TDR
-  Tggl = 0.3*CLHEP::mm;
-  Tgfe = 0.4*CLHEP::mm;
-  Tgpb = 1.7*CLHEP::mm;
+  Tggl = 0.3*GeoModelKernelUnits::mm;
+  Tgfe = 0.4*GeoModelKernelUnits::mm;
+  Tgpb = 1.7*GeoModelKernelUnits::mm;
   Totalthick=Tggl+Tgfe+Tgpb;
   m1=Tggl*Glue->getDensity();
   m2=Tgfe*Iron->getDensity();
@@ -253,9 +250,9 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
 
   // THICK absorber: inner wheel
   //                 11-Jan-2002 ML source: endegeo.age and Fig.7-3 of TDR
-  Thgl = 0.3*CLHEP::mm;
-  Thfe = 0.4*CLHEP::mm;
-  Thpb = 2.2*CLHEP::mm;
+  Thgl = 0.3*GeoModelKernelUnits::mm;
+  Thfe = 0.4*GeoModelKernelUnits::mm;
+  Thpb = 2.2*GeoModelKernelUnits::mm;
   Totalthick=Thgl+Thfe+Thpb;
   m1=Thgl*Glue->getDensity();
   m2=Thfe*Iron->getDensity();
@@ -276,8 +273,8 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
 
   // Electrode,   as a mixture Kapton+Cu, 11-Jan-2002 ML
 
-  Thcu = 0.105*CLHEP::mm;
-  Thka = 0.170*CLHEP::mm;  //together with glue J.T.
+  Thcu = 0.105*GeoModelKernelUnits::mm;
+  Thka = 0.170*GeoModelKernelUnits::mm;  //together with glue J.T.
   Totalthicke = Thcu+Thka;
   m1=Thcu*Copper->getDensity();
   m2=Thka*Kapton->getDensity();
@@ -306,7 +303,7 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
     FracC =aC*inv_Atot;
     FracAr=aAr*inv_Atot;
   }
-  GeoMaterial* Elect_LAr= new GeoMaterial(name="Elnics",density=1.28*CLHEP::g/CLHEP::cm3);
+  GeoMaterial* Elect_LAr= new GeoMaterial(name="Elnics",density=1.28*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
   Elect_LAr->add(H ,FracH);
   Elect_LAr->add(C ,FracC);
   Elect_LAr->add(Ar,FracAr);
@@ -319,9 +316,9 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
 
   // G10FeInner for barrette in the inner wheel(J.T.08.01.2003)
 
-  Thfe  =0.4*CLHEP::mm;
-  Thgl  =0.3*CLHEP::mm;
-  Thpb  =2.2*CLHEP::mm;
+  Thfe  =0.4*GeoModelKernelUnits::mm;
+  Thgl  =0.3*GeoModelKernelUnits::mm;
+  Thpb  =2.2*GeoModelKernelUnits::mm;
   ThGten=Thpb;
   Totalthick =Thfe+Thgl+ThGten;
   //Totalthicki=Totalthick;
@@ -346,9 +343,9 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
 
  // G10FeOuter for barrette in the outer wheel(J.T.08.01.2003)
 
-  Thfe  =0.4*CLHEP::mm;
-  Thgl  =0.3*CLHEP::mm;
-  Thpb  =1.7*CLHEP::mm;
+  Thfe  =0.4*GeoModelKernelUnits::mm;
+  Thgl  =0.3*GeoModelKernelUnits::mm;
+  Thpb  =1.7*GeoModelKernelUnits::mm;
   ThGten=Thpb;
   Totalthick =Thfe+Thgl+ThGten;
   //Totalthicko=Totalthick;
@@ -384,13 +381,13 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
 // V.N: From LarWheelSolid, to get bounding polycone. Previoulsy G4 routine. No GeoModel equivalent so far ...
 //
   
-  double zWheelFrontFace 		= 3689.5*CLHEP::mm;
+  double zWheelFrontFace 		= 3689.5*GeoModelKernelUnits::mm;
   
-  double dWRPtoFrontFace 		= 11.*CLHEP::mm;
+  double dWRPtoFrontFace 		= 11.*GeoModelKernelUnits::mm;
 
-  double dMechFocaltoWRP                 = 3691. *CLHEP::mm;  //=endg_z1*CLHEP::cm
+  double dMechFocaltoWRP                 = 3691. *GeoModelKernelUnits::mm;  //=endg_z1*GeoModelKernelUnits::cm
                                                          //"LArEMECNomLarOrig" 
-  double rOuterCutoff                    = 2034. *CLHEP::mm;  //=endg_rlimit*CLHEP::cm
+  double rOuterCutoff                    = 2034. *GeoModelKernelUnits::mm;  //=endg_rlimit*GeoModelKernelUnits::cm
                                               //"LArEMECMaxRadiusActivePart
 
 //*****************      
@@ -402,32 +399,32 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   double Rin1, Rin2, Rout1, Rout2;
 
   if ( m_isInnerWheel ) {
-    Rin1 = 279.*CLHEP::mm;
-    Rin2 = 324.*CLHEP::mm;
+    Rin1 = 279.*GeoModelKernelUnits::mm;
+    Rin2 = 324.*GeoModelKernelUnits::mm;
   }
   else {
-    Rin1 = 590.*CLHEP::mm;
-    Rin2 = 678.*CLHEP::mm; 
+    Rin1 = 590.*GeoModelKernelUnits::mm;
+    Rin2 = 678.*GeoModelKernelUnits::mm; 
   }
   if ( m_isOuterWheel ) {
-    Rout1 = 2070.*CLHEP::mm;
-    Rout2 = 2070.*CLHEP::mm;
+    Rout1 = 2070.*GeoModelKernelUnits::mm;
+    Rout2 = 2070.*GeoModelKernelUnits::mm;
   }
   else {
-    Rout1 = 647.*CLHEP::mm;
-    Rout2 = 732.*CLHEP::mm;
+    Rout1 = 647.*GeoModelKernelUnits::mm;
+    Rout2 = 732.*GeoModelKernelUnits::mm;
   }
 
   // --> EndOfRadiiSelection <--
    
-  double emecMotherZplan[] = { 3639.5*CLHEP::mm, 3639.5*CLHEP::mm + 630.*CLHEP::mm };    //cold (J.T)                               
+  double emecMotherZplan[] = { 3639.5*GeoModelKernelUnits::mm, 3639.5*GeoModelKernelUnits::mm + 630.*GeoModelKernelUnits::mm };    //cold (J.T)                               
   double emecMotherRin[]   = { Rin1, Rin2 };	
   double emecMotherRout[]  = { Rout1, Rout2 }; 
   int lastPlaneEmec = ( sizeof( emecMotherZplan )/sizeof( double ) );
 
   if ( m_isTB ) { 
      for ( int i = 0; i < lastPlaneEmec; i++ ) emecMotherZplan[ i ] -= zWheelFrontFace;
-     zWheelFrontFace = 0.*CLHEP::mm;
+     zWheelFrontFace = 0.*GeoModelKernelUnits::mm;
   }
 
   double phiPosition = M_PI/2;
@@ -452,8 +449,8 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   double tanThetaMid   = 2. * exp(-eta_mid) / (1. - exp(2.*-eta_mid));
   double tanThetaOuter = 2. * exp(-eta_low) / (1. - exp(2.*-eta_low));
 
-  double zWheelThickness = 514.*CLHEP::mm;     // endg_etot-2.*(endg_sabl*CLHEP::cm-2.*CLHEP::mm)
-  double gapBetweenWheels= 1.5*CLHEP::mm*2.;  // "LArEMECHalfCrack"*2.
+  double zWheelThickness = 514.*GeoModelKernelUnits::mm;     // endg_etot-2.*(endg_sabl*GeoModelKernelUnits::cm-2.*GeoModelKernelUnits::mm)
+  double gapBetweenWheels= 1.5*GeoModelKernelUnits::mm*2.;  // "LArEMECHalfCrack"*2.
 
 //J.T************
 // zWheelFrontFace for mechanical design
@@ -559,7 +556,7 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
     GeoLogVol*  innerLogical  = new GeoLogVol ( innerName, innerShape, LAr );
     GeoFullPhysVol* innerPhysical = new GeoFullPhysVol( innerLogical );
     emecMotherPhysical->add( new GeoIdentifierTag( 1 ) );
-    emecMotherPhysical->add( new GeoTransform( HepGeom::TranslateZ3D( zWheelFrontFace ) ) );
+    emecMotherPhysical->add( new GeoTransform( GeoTrf::TranslateZ3D( zWheelFrontFace ) ) );
     emecMotherPhysical->add( innerPhysical );
 
     // Place the custom accordion volumes in the liquid argon.
@@ -578,10 +575,8 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
     GeoFullPhysVol* innerAbsorberPhysical  = new GeoFullPhysVol( innerAbsorberLogical );
     GeoPhysVol* innerElectrodePhysical = new GeoPhysVol( innerElectrodeLogical );
     innerPhysical->add( new GeoIdentifierTag( 1 ) );
-    innerPhysical->add( new GeoTransform( HepGeom::Transform3D() ) );
     innerPhysical->add( innerAbsorberPhysical );
     innerPhysical->add( new GeoIdentifierTag( 1 ) );
-    innerPhysical->add( new GeoTransform( HepGeom::Transform3D() ) );
     innerPhysical->add( innerElectrodePhysical );
     {
       StoredPhysVol *sPhysVol = new StoredPhysVol(innerPhysical);
@@ -599,7 +594,7 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
     GeoLogVol*  outerLogical  = new GeoLogVol ( outerName, outerShape, LAr );
     GeoFullPhysVol* outerPhysical = new GeoFullPhysVol(outerLogical);
     emecMotherPhysical->add( new GeoIdentifierTag( 1 ) );
-    emecMotherPhysical->add( new GeoTransform( HepGeom::TranslateZ3D( zWheelFrontFace ) ) );
+    emecMotherPhysical->add( new GeoTransform( GeoTrf::TranslateZ3D( zWheelFrontFace ) ) );
     emecMotherPhysical->add( outerPhysical );
 
     // Place the custom accordion volumes in the liquid argon.
@@ -618,10 +613,8 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
     GeoPhysVol* outerAbsorberPhysical  = new GeoPhysVol( outerAbsorberLogical );
     GeoPhysVol* outerElectrodePhysical = new GeoPhysVol( outerElectrodeLogical );
     outerPhysical->add( new GeoIdentifierTag( 1 ) );
-    outerPhysical->add( new GeoTransform( HepGeom::Transform3D() ) );
     outerPhysical->add( outerAbsorberPhysical);
     outerPhysical->add( new GeoIdentifierTag( 1 ) );
-    outerPhysical->add( new GeoTransform( HepGeom::Transform3D() ) );
     outerPhysical->add( outerElectrodePhysical ); 
     {
       StoredPhysVol *sPhysVol = new StoredPhysVol(outerPhysical);
@@ -661,47 +654,44 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
 
   // V.N. --> Support selected
 
-  z0 = zWheelFrontFace - 61.*CLHEP::mm;
+  z0 = zWheelFrontFace - 61.*GeoModelKernelUnits::mm;
   EMECSupportConstruction *fsc = new EMECSupportConstruction( FrontIndx, true, "LAr::EMEC::", M_PI/2 );
   GeoPhysVol* physicalFSM = fsc->GetEnvelope();
   emecMotherPhysical->add( new GeoIdentifierTag( 1 ) );
-  emecMotherPhysical->add( new GeoTransform( HepGeom::TranslateZ3D( z0 ) ) );
+  emecMotherPhysical->add( new GeoTransform( GeoTrf::TranslateZ3D( z0 ) ) );
   emecMotherPhysical->add( physicalFSM );
 
-  z0 = zWheelFrontFace + 514.*CLHEP::mm + 55.*CLHEP::mm;
+  z0 = zWheelFrontFace + 514.*GeoModelKernelUnits::mm + 55.*GeoModelKernelUnits::mm;
   EMECSupportConstruction *bsc = new EMECSupportConstruction( BackIndx, true, "LAr::EMEC::", M_PI/2 );
   GeoPhysVol *physicalBSM = bsc->GetEnvelope();
   emecMotherPhysical->add( new GeoIdentifierTag( 1 ) );
-  CLHEP::HepRotation rotBSM;
-  rotBSM.rotateX( -M_PI );
-  rotBSM.rotateZ( 2*M_PI/2 ); // != EMECConstruction ???
-  emecMotherPhysical->add( new GeoTransform( HepGeom::Transform3D( rotBSM, 
-  	  						     CLHEP::Hep3Vector( 0., 0., z0 ) ) ) );
+  GeoTrf::Transform3D rotBSM(GeoTrf::RotateZ3D(2*M_PI/2)*GeoTrf::RotateX3D(-M_PI));
+  emecMotherPhysical->add( new GeoTransform( GeoTrf::Transform3D(GeoTrf::Translate3D( 0., 0., z0 )*rotBSM ) ) );
   emecMotherPhysical->add( physicalBSM );
 
   if ( m_isOuterWheel ) {
-    z0 = zWheelFrontFace + 514.*CLHEP::mm/2;
+    z0 = zWheelFrontFace + 514.*GeoModelKernelUnits::mm/2;
     EMECSupportConstruction *osc = new EMECSupportConstruction( 2, true, "LAr::EMEC::", M_PI/2 );
     GeoPhysVol *physicalOSM = osc->GetEnvelope();
     emecMotherPhysical->add( new GeoIdentifierTag( 1 ) );
-    emecMotherPhysical->add( new GeoTransform( HepGeom::TranslateZ3D( z0 ) ) );  
+    emecMotherPhysical->add( new GeoTransform( GeoTrf::TranslateZ3D( z0 ) ) );  
     emecMotherPhysical->add( physicalOSM );
   }
  
   if ( m_isInnerWheel ) {
-    z0 = zWheelFrontFace + 514.*CLHEP::mm/2;
+    z0 = zWheelFrontFace + 514.*GeoModelKernelUnits::mm/2;
     EMECSupportConstruction *isc = new EMECSupportConstruction( 3, true, "LAr::EMEC::", M_PI/2 );
     GeoPhysVol *physicalISM = isc->GetEnvelope();
     emecMotherPhysical->add( new GeoIdentifierTag( 1 ) );
-    emecMotherPhysical->add(new GeoTransform( HepGeom::TranslateZ3D( z0 ) ) )  ;  
+    emecMotherPhysical->add(new GeoTransform( GeoTrf::TranslateZ3D( z0 ) ) )  ;  
     emecMotherPhysical->add( physicalISM );
   }
  
-  z0 = zWheelFrontFace + 514.*CLHEP::mm/2;
+  z0 = zWheelFrontFace + 514.*GeoModelKernelUnits::mm/2;
   EMECSupportConstruction *msc = new EMECSupportConstruction( 4, true, "LAr::EMEC::", M_PI/2 );
   GeoPhysVol *physicalMSM = msc->GetEnvelope();
   emecMotherPhysical->add( new GeoIdentifierTag( 1 ) );
-  emecMotherPhysical->add(new GeoTransform( HepGeom::TranslateZ3D( z0 ) ) )  ;  
+  emecMotherPhysical->add(new GeoTransform( GeoTrf::TranslateZ3D( z0 ) ) )  ;  
   emecMotherPhysical->add( physicalMSM );  
 
   return emecMotherPhysical;

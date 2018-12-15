@@ -23,7 +23,7 @@
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoMaterial.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
 #include <sstream>
 #include <cmath>
@@ -74,8 +74,8 @@ const GeoLogVol* SCT_Forward::preBuild(){
     double len_2 = m_zMax-m_zIntermediate;
     const GeoTube* sct_fwd_2 = new GeoTube(m_innerRadius, m_outerRadius, 0.5*len_2);
     //make a single envelope for sct fwd: shift the two parts so that the midle stays at Z=0
-    const GeoShape & forwardEnvelopeShape = (*sct_fwd_1 << HepGeom::TranslateZ3D(-0.5*len_2)).
-      add(*sct_fwd_2 << HepGeom::TranslateZ3D(0.5*len_1));
+    const GeoShape & forwardEnvelopeShape = (*sct_fwd_1 << GeoTrf::TranslateZ3D(-0.5*len_2)).
+      add(*sct_fwd_2 << GeoTrf::TranslateZ3D(0.5*len_1));
     forwardLog =  new GeoLogVol(getName(), &forwardEnvelopeShape, materials->gasMaterial());
   }else if(layoutType == 2){//same length barrels
     const GeoTube* forwardEnvelopeShape = new GeoTube(m_innerRadius, m_outerRadius, 0.5*m_length);
@@ -97,7 +97,7 @@ GeoVPhysVol* SCT_Forward::build(SCT_Identifier id) const{
     //std::cerr<<"endcap "<<id.getBarrelEC()<<", wheel "<<iWheel;
     id.setLayerDisk(iWheel);
     double zpos = wheel.zPosition() - zCenter();
-    GeoAlignableTransform* transform = new GeoAlignableTransform(HepGeom::TranslateZ3D(zpos));
+    GeoAlignableTransform* transform = new GeoAlignableTransform(GeoTrf::TranslateZ3D(zpos));
     forward->add(transform);
     GeoVPhysVol* wheelPV = wheel.build(id);
     forward->add(wheelPV);

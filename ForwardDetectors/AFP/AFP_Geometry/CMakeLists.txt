@@ -8,7 +8,6 @@ atlas_subdir( AFP_Geometry )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
-                          DetectorDescription/GeoModel/GeoModelKernel
                           PRIVATE
                           Control/StoreGate
                           GaudiKernel
@@ -23,6 +22,6 @@ atlas_add_library( AFP_Geometry
                    PUBLIC_HEADERS AFP_Geometry
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} GeoModelKernel StoreGateLib SGtests
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES AthenaKernel GaudiKernel PathResolver )
 

@@ -12,7 +12,8 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
 
-
+#include "CLHEP/Vector/LorentzVector.h"
+#include "CLHEP/Vector/ThreeVector.h"
 using CLHEP::HepLorentzVector;
 using CLHEP::Hep3Vector;
 

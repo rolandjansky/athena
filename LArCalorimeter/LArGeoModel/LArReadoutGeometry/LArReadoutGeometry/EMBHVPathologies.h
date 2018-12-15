@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _EMBHVPathologies_h_
-#define _EMBHVPathologies_h_
+#ifndef LARREADOUTGEOMETRY_EMBHVPATHOLOGIES_H
+#define LARREADOUTGEOMETRY_EMBHVPATHOLOGIES_H
 #include "GeoModelKernel/RCBase.h"
 #include "GeoModelKernel/ConstLink.h"
 // --------------------------------------------------------

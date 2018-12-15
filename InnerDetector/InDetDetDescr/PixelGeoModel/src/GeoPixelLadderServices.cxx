@@ -6,9 +6,9 @@
 // This class builds the Ladder services (Omega + Al tube + glue + part of pigtail + connector)
 //
 //
-#include "PixelGeoModel/GeoPixelLadderServices.h"
-#include "PixelGeoModel/GeoPixelFluid.h"
-#include "PixelGeoModel/GeoPixelCable.h"
+#include "GeoPixelLadderServices.h"
+#include "GeoPixelFluid.h"
+#include "GeoPixelCable.h"
 #include "GeoModelKernel/GeoTubs.h"
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoPara.h"
@@ -37,7 +37,7 @@ GeoPixelLadderServices::GeoPixelLadderServices(int ladderType)
   //
   //const GeoBox* ladderSvcBox = new GeoBox(thickness/2.,width/2.,halflength);
   // Quick fix - we hardwire the numbers. Need to work out a way to extract this from the database numbers.
-  double safety = 0.01*CLHEP::mm;
+  double safety = 0.01*GeoModelKernelUnits::mm;
   double xBase = 0;
   
   // ConnA: Part to fit Connector
@@ -47,29 +47,29 @@ GeoPixelLadderServices::GeoPixelLadderServices(int ladderType)
   double xOffsetConnC = xOffsetConnA;
 
 
-  //double xMaxConnA = 1.250 * CLHEP::cm + xOffsetConnA + safety;
-  // double xMaxConnC = 1.6575 * CLHEP::cm + xOffsetConnC + safety;
+  //double xMaxConnA = 1.250 * GeoModelKernelUnits::cm + xOffsetConnA + safety;
+  // double xMaxConnC = 1.6575 * GeoModelKernelUnits::cm + xOffsetConnC + safety;
   // max offset is 12.5mm + 1/2 thickness of cables
-  //  double xMaxConnA = 1.5075 * CLHEP::cm + 0.5* 0.15*CLHEP::cm + xOffsetConnA + safety;
+  //  double xMaxConnA = 1.5075 * GeoModelKernelUnits::cm + 0.5* 0.15*GeoModelKernelUnits::cm + xOffsetConnA + safety;
   double xMaxConnA = m_gmt_mgr->PixelConnectorPosX(1) + 0.5*m_gmt_mgr->PixelConnectorWidthX(1)  + xOffsetConnA + safety;
-  double xMaxConnC = 1.25 * CLHEP::cm + 0.5* 0.0125*CLHEP::cm + xOffsetConnC + safety;
-  double xMaxOmegaBase = 0.055 * CLHEP::cm + xBase + 1*CLHEP::mm; // The 1 mm is just extra safety. 
-  double yWidthConnA = 1.0 * CLHEP::cm;
-  double yWidthConnC = 0.2 * CLHEP::cm;
+  double xMaxConnC = 1.25 * GeoModelKernelUnits::cm + 0.5* 0.0125*GeoModelKernelUnits::cm + xOffsetConnC + safety;
+  double xMaxOmegaBase = 0.055 * GeoModelKernelUnits::cm + xBase + 1*GeoModelKernelUnits::mm; // The 1 mm is just extra safety. 
+  double yWidthConnA = 1.0 * GeoModelKernelUnits::cm;
+  double yWidthConnC = 0.2 * GeoModelKernelUnits::cm;
   double yPosConnA =  m_gmt_mgr->PixelLadderCableOffsetY() - m_gmt_mgr->PixelLadderServicesY();
   double yPosConnC =  yPosConnA;
   double xCenter = 0;
   double xWidthOmegaBase = xMaxOmegaBase - xBase;
   double xWidthConnA = xMaxConnA - xBase;
   double xWidthConnC = xMaxConnC - xBase;
-  double yWidthOmega = 1.2*CLHEP::cm + m_epsilon;
+  double yWidthOmega = 1.2*GeoModelKernelUnits::cm + m_epsilon;
 
   const GeoBox* omegaBaseEnv = new GeoBox(0.5*xWidthOmegaBase, 0.5*yWidthOmega, halflength);
   const GeoBox* connAEnv     = new GeoBox(0.5*xWidthConnA, 0.5*yWidthConnA + safety, halflength);
   const GeoBox* connCEnv     = new GeoBox(0.5*xWidthConnC, 0.5*yWidthConnC + safety, halflength);
-  HepGeom::Transform3D omegaBaseShift = HepGeom::Translate3D(xBase + 0.5*xWidthOmegaBase - xCenter, 0., 0.);
-  HepGeom::Transform3D connAShift =     HepGeom::Translate3D(xBase + 0.5*xWidthConnA - xCenter, yPosConnA, 0.);
-  HepGeom::Transform3D connCShift =     HepGeom::Translate3D(xBase + 0.5*xWidthConnC - xCenter, yPosConnC, 0.);
+  GeoTrf::Transform3D omegaBaseShift = GeoTrf::Translate3D(xBase + 0.5*xWidthOmegaBase - xCenter, 0., 0.);
+  GeoTrf::Transform3D connAShift =     GeoTrf::Translate3D(xBase + 0.5*xWidthConnA - xCenter, yPosConnA, 0.);
+  GeoTrf::Transform3D connCShift =     GeoTrf::Translate3D(xBase + 0.5*xWidthConnC - xCenter, yPosConnC, 0.);
 
   const GeoShape & ladderSvcShape = ((*omegaBaseEnv) << omegaBaseShift)
     .add(*connAEnv << connAShift)
@@ -78,10 +78,10 @@ GeoPixelLadderServices::GeoPixelLadderServices(int ladderType)
   m_ladderServicesLV = new GeoLogVol("LadderSvc",&ladderSvcShape,air);
   m_ladderServicesLV->ref();
   // store coordinates of corners of envelope.
-  m_envelopeCornerA1 = HepGeom::Point3D<double>(xMaxConnA - xCenter, yPosConnA + 0.5* yWidthConnA + safety, 0.);
-  m_envelopeCornerA2 = HepGeom::Point3D<double>(xMaxConnA - xCenter, yPosConnA - 0.5* yWidthConnA + safety, 0.);
-  m_envelopeCornerC1 = HepGeom::Point3D<double>(xMaxConnC - xCenter, yPosConnC + 0.5* yWidthConnC + safety, 0.);
-  m_envelopeCornerC2 = HepGeom::Point3D<double>(xMaxConnC - xCenter, yPosConnC - 0.5* yWidthConnC + safety, 0.);
+  m_envelopeCornerA1 = GeoTrf::Vector3D(xMaxConnA - xCenter, yPosConnA + 0.5* yWidthConnA + safety, 0.);
+  m_envelopeCornerA2 = GeoTrf::Vector3D(xMaxConnA - xCenter, yPosConnA - 0.5* yWidthConnA + safety, 0.);
+  m_envelopeCornerC1 = GeoTrf::Vector3D(xMaxConnC - xCenter, yPosConnC + 0.5* yWidthConnC + safety, 0.);
+  m_envelopeCornerC2 = GeoTrf::Vector3D(xMaxConnC - xCenter, yPosConnC - 0.5* yWidthConnC + safety, 0.);
 
 
   m_xOffset = xBase;
@@ -98,7 +98,7 @@ GeoPixelLadderServices::~GeoPixelLadderServices(){
 GeoVPhysVol* GeoPixelLadderServices::Build() {
   GeoPhysVol* ladderSvcPhys = new GeoPhysVol(m_ladderServicesLV);
   //double thickness = m_gmt_mgr->PixelLadderThickness()+m_gmt_mgr->PixelCableThickness();
-  //double thickness = m_gmt_mgr->PixelLadderThickness() + m_gmt_mgr->PixelCableThickness() + 0.25*CLHEP::cm; // plus 0.25 cm New DC3 ???
+  //double thickness = m_gmt_mgr->PixelLadderThickness() + m_gmt_mgr->PixelCableThickness() + 0.25*GeoModelKernelUnits::cm; // plus 0.25 cm New DC3 ???
   //double thickness = m_gmt_mgr->PixelLadderThickness()+ 6.5;  // m_gmt_mgr->PixelCableThickness() was 0.4 cm, plus 0.25 cm New DC3
   //
   // The Glue
@@ -121,7 +121,7 @@ GeoVPhysVol* GeoPixelLadderServices::Build() {
   double zpos = fluid.posZ();
 
   GeoVPhysVol* fluidPhys = fluid.Build();
-  GeoTransform* xform   = new GeoTransform(HepGeom::Translate3D(xpos,ypos,zpos));
+  GeoTransform* xform   = new GeoTransform(GeoTrf::Translate3D(xpos,ypos,zpos));
   ladderSvcPhys->add(xform);
   ladderSvcPhys->add(fluidPhys);
 
@@ -141,7 +141,7 @@ GeoVPhysVol* GeoPixelLadderServices::Build() {
     double xpos = m_xOffset + cable.getStackOffset() + m_gmt_mgr->PixelLadderCableOffsetX() - m_gmt_mgr->PixelLadderServicesX();
     double ypos = m_yOffset + m_gmt_mgr->PixelLadderCableOffsetY() - m_gmt_mgr->PixelLadderServicesY();
     double zpos = cable.zpos();
-    GeoTransform* xform = new GeoTransform(HepGeom::Translate3D(xpos,ypos,zpos));
+    GeoTransform* xform = new GeoTransform(GeoTrf::Translate3D(xpos,ypos,zpos));
     ladderSvcPhys->add(xform);
     ladderSvcPhys->add(phys);
   }
@@ -154,16 +154,16 @@ GeoVPhysVol* GeoPixelLadderServices::BuildOmega() {
   double xOffset = m_xOffset;
   double yOffset = m_yOffset;
   /*
-  double xUpperBend = xOffset + 2.9*CLHEP::mm;
+  double xUpperBend = xOffset + 2.9*GeoModelKernelUnits::mm;
   double yUpperBend = yOffset + 0;
-  double radUpperBend = 2.3*CLHEP::mm; 
+  double radUpperBend = 2.3*GeoModelKernelUnits::mm; 
   double xLowerBend = xOffset + 0.9;
-  double yLowerBend = yOffset + 3.35*CLHEP::mm;
-  double radLowerBend = 0.8*CLHEP::mm; 
-  double yStart= yOffset + (4.675+0.5*2.65)*CLHEP::mm;
+  double yLowerBend = yOffset + 3.35*GeoModelKernelUnits::mm;
+  double radLowerBend = 0.8*GeoModelKernelUnits::mm; 
+  double yStart= yOffset + (4.675+0.5*2.65)*GeoModelKernelUnits::mm;
   double yEnd =  yOffset -yStart;
-  double thick = 0.3*CLHEP::mm;
-  double length = 816*CLHEP::mm;
+  double thick = 0.3*GeoModelKernelUnits::mm;
+  double length = 816*GeoModelKernelUnits::mm;
   double zOffset = 0;
   */
   double xUpperBend = xOffset + m_gmt_mgr->PixelOmegaUpperBendX();
@@ -192,13 +192,13 @@ GeoVPhysVol* GeoPixelLadderServices::BuildOmega() {
 
 
   // Tube sector for upper bend
-  GeoTubs * upperBendShape = new GeoTubs(radUpperBend - thick, radUpperBend, 0.5* length, alpha-0.5*CLHEP::pi, CLHEP::pi - 2*alpha);
+  GeoTubs * upperBendShape = new GeoTubs(radUpperBend - thick, radUpperBend, 0.5* length, alpha-0.5*GeoModelKernelUnits::pi, GeoModelKernelUnits::pi - 2*alpha);
 
   // Tube sector for lower bend (+y)
-  GeoTubs * lowerBendShapeP = new GeoTubs(radLowerBend - thick, radLowerBend, 0.5* length, CLHEP::pi, 0.5*CLHEP::pi-alpha);
+  GeoTubs * lowerBendShapeP = new GeoTubs(radLowerBend - thick, radLowerBend, 0.5* length, GeoModelKernelUnits::pi, 0.5*GeoModelKernelUnits::pi-alpha);
 
   // Tube sector for lower bend (-y)
-  GeoTubs * lowerBendShapeM = new GeoTubs(radLowerBend - thick, radLowerBend, 0.5* length, 0.5*CLHEP::pi + alpha, 0.5*CLHEP::pi-alpha);
+  GeoTubs * lowerBendShapeM = new GeoTubs(radLowerBend - thick, radLowerBend, 0.5* length, 0.5*GeoModelKernelUnits::pi + alpha, 0.5*GeoModelKernelUnits::pi-alpha);
  
   // Lower Straight section (+y)
   GeoBox * lowerStraightBoxP = new GeoBox(0.5*thick, 0.5*(yStart - yLowerBend), 0.5*length);
@@ -211,13 +211,13 @@ GeoVPhysVol* GeoPixelLadderServices::BuildOmega() {
 
   // Put it all together
   const GeoShape & omegaShape = 
-    (*lowerStraightBoxP     << HepGeom::Translate3D(xLowerBend-radLowerBend+0.5*thick,0.5*(yLowerBend+yStart),zOffset) )
-    .add(*lowerBendShapeP   << HepGeom::Translate3D(xLowerBend,yLowerBend,zOffset) )
-    .add(*upperStraightBox  << HepGeom::Translate3D(0.5*(xLowerStraight+xUpperStraight),0.5*(yLowerStraight+yUpperStraight),zOffset)*HepGeom::RotateZ3D(0.5*CLHEP::pi-alpha) )
-    .add(*upperBendShape    << HepGeom::Translate3D(xUpperBend,yUpperBend,zOffset) )
-    .add(*upperStraightBox  << HepGeom::Translate3D(0.5*(xLowerStraight+xUpperStraight),-0.5*(yLowerStraight+yUpperStraight),zOffset)*HepGeom::RotateZ3D(0.5*CLHEP::pi+alpha) )
-    .add(*lowerBendShapeM   << HepGeom::Translate3D(xLowerBend,-yLowerBend,zOffset) )
-    .add(*lowerStraightBoxM << HepGeom::Translate3D(xLowerBend-radLowerBend+0.5*thick,0.5*(-yLowerBend+yEnd),zOffset) );
+    (*lowerStraightBoxP     << GeoTrf::Translate3D(xLowerBend-radLowerBend+0.5*thick,0.5*(yLowerBend+yStart),zOffset) )
+    .add(*lowerBendShapeP   << GeoTrf::Translate3D(xLowerBend,yLowerBend,zOffset) )
+    .add(*upperStraightBox  << GeoTrf::Translate3D(0.5*(xLowerStraight+xUpperStraight),0.5*(yLowerStraight+yUpperStraight),zOffset)*GeoTrf::RotateZ3D(0.5*GeoModelKernelUnits::pi-alpha) )
+    .add(*upperBendShape    << GeoTrf::Translate3D(xUpperBend,yUpperBend,zOffset) )
+    .add(*upperStraightBox  << GeoTrf::Translate3D(0.5*(xLowerStraight+xUpperStraight),-0.5*(yLowerStraight+yUpperStraight),zOffset)*GeoTrf::RotateZ3D(0.5*GeoModelKernelUnits::pi+alpha) )
+    .add(*lowerBendShapeM   << GeoTrf::Translate3D(xLowerBend,-yLowerBend,zOffset) )
+    .add(*lowerStraightBoxM << GeoTrf::Translate3D(xLowerBend-radLowerBend+0.5*thick,0.5*(-yLowerBend+yEnd),zOffset) );
 
   double totVolume = 
     lowerStraightBoxP->volume() 
@@ -240,14 +240,14 @@ GeoVPhysVol* GeoPixelLadderServices::BuildAlTube() {
   double yOffset = m_yOffset;
 
   /*
-  double xUpperBend = xOffset + 2.7*CLHEP::mm;
+  double xUpperBend = xOffset + 2.7*GeoModelKernelUnits::mm;
   double yUpperBend = yOffset;
-  double radUpperBend = 2.0*CLHEP::mm; 
+  double radUpperBend = 2.0*GeoModelKernelUnits::mm; 
   double xLowerBend = xOffset + 0.55;
-  double yLowerBend = yOffset+1.925*CLHEP::mm;
-  double radLowerBend = 0.5*CLHEP::mm; 
-  double thick = 0.2*CLHEP::mm;
-  double length = 838*CLHEP::mm;
+  double yLowerBend = yOffset+1.925*GeoModelKernelUnits::mm;
+  double radLowerBend = 0.5*GeoModelKernelUnits::mm; 
+  double thick = 0.2*GeoModelKernelUnits::mm;
+  double length = 838*GeoModelKernelUnits::mm;
   double zOffset = 0;
   */
 
@@ -275,13 +275,13 @@ GeoVPhysVol* GeoPixelLadderServices::BuildAlTube() {
 
 
   // Tube sector for upper bend
-  GeoTubs * upperBendShape = new GeoTubs(radUpperBend - thick, radUpperBend, 0.5* length, alpha-0.5*CLHEP::pi, CLHEP::pi - 2*alpha);
+  GeoTubs * upperBendShape = new GeoTubs(radUpperBend - thick, radUpperBend, 0.5* length, alpha-0.5*GeoModelKernelUnits::pi, GeoModelKernelUnits::pi - 2*alpha);
 
   // Tube sector for lower bend (+y)
-  GeoTubs * lowerBendShapeP = new GeoTubs(radLowerBend - thick, radLowerBend, 0.5* length, 0.5*CLHEP::pi-alpha, 0.5*CLHEP::pi+alpha);
+  GeoTubs * lowerBendShapeP = new GeoTubs(radLowerBend - thick, radLowerBend, 0.5* length, 0.5*GeoModelKernelUnits::pi-alpha, 0.5*GeoModelKernelUnits::pi+alpha);
 
   // Tube sector for lower bend (-y)
-  GeoTubs * lowerBendShapeM = new GeoTubs(radLowerBend - thick, radLowerBend, 0.5* length, CLHEP::pi, 0.5*CLHEP::pi+alpha);
+  GeoTubs * lowerBendShapeM = new GeoTubs(radLowerBend - thick, radLowerBend, 0.5* length, GeoModelKernelUnits::pi, 0.5*GeoModelKernelUnits::pi+alpha);
  
   // Lower Straight section 
   GeoBox * lowerStraightBox = new GeoBox(0.5*thick, yLowerBend, 0.5*length);
@@ -291,12 +291,12 @@ GeoVPhysVol* GeoPixelLadderServices::BuildAlTube() {
 
   // Put it all together
   const GeoShape & alTubeShape = 
-    (*lowerStraightBox      << HepGeom::Translate3D(xLowerBend-radLowerBend+0.5*thick,0,zOffset) )
-    .add(*lowerBendShapeP   << HepGeom::Translate3D(xLowerBend,yLowerBend,zOffset) )
-    .add(*upperStraightBox  << HepGeom::Translate3D(0.5*(xLowerStraight+xUpperStraight),0.5*(yLowerStraight+yUpperStraight),zOffset)*HepGeom::RotateZ3D(0.5*CLHEP::pi-alpha) )
-    .add(*upperBendShape    << HepGeom::Translate3D(xUpperBend,yUpperBend,zOffset) )
-    .add(*upperStraightBox  << HepGeom::Translate3D(0.5*(xLowerStraight+xUpperStraight),-0.5*(yLowerStraight+yUpperStraight),zOffset)*HepGeom::RotateZ3D(0.5*CLHEP::pi+alpha) )
-    .add(*lowerBendShapeM   << HepGeom::Translate3D(xLowerBend,-yLowerBend,zOffset) );
+    (*lowerStraightBox      << GeoTrf::Translate3D(xLowerBend-radLowerBend+0.5*thick,0,zOffset) )
+    .add(*lowerBendShapeP   << GeoTrf::Translate3D(xLowerBend,yLowerBend,zOffset) )
+    .add(*upperStraightBox  << GeoTrf::Translate3D(0.5*(xLowerStraight+xUpperStraight),0.5*(yLowerStraight+yUpperStraight),zOffset)*GeoTrf::RotateZ3D(0.5*GeoModelKernelUnits::pi-alpha) )
+    .add(*upperBendShape    << GeoTrf::Translate3D(xUpperBend,yUpperBend,zOffset) )
+    .add(*upperStraightBox  << GeoTrf::Translate3D(0.5*(xLowerStraight+xUpperStraight),-0.5*(yLowerStraight+yUpperStraight),zOffset)*GeoTrf::RotateZ3D(0.5*GeoModelKernelUnits::pi+alpha) )
+    .add(*lowerBendShapeM   << GeoTrf::Translate3D(xLowerBend,-yLowerBend,zOffset) );
 
   double totVolume = 
     lowerStraightBox->volume() 
@@ -333,7 +333,7 @@ void GeoPixelLadderServices::BuildGlue(GeoPhysVol * parent) {
     GeoLogVol* glueLV   = new GeoLogVol("Glue",glueShape,glueMat);
     GeoPhysVol* gluePV = new GeoPhysVol(glueLV);
  
-    GeoTransform * xform = new GeoTransform(HepGeom::Translate3D(m_xOffset+x1+0.5*thickness, m_yOffset-0.5*(y1+y2), zOffset));
+    GeoTransform * xform = new GeoTransform(GeoTrf::Translate3D(m_xOffset+x1+0.5*thickness, m_yOffset-0.5*(y1+y2), zOffset));
 
     parent->add(xform);
     parent->add(gluePV);
@@ -362,7 +362,7 @@ void GeoPixelLadderServices::BuildPigtailAndConnector(GeoPhysVol * parent) {
   // Connector
   int numConn = m_gmt_mgr->PixelNumConnectorElements();
   std::vector<GeoPhysVol *> connectorPhysVols(numConn);
-  std::vector<HepGeom::Transform3D> connectorTransforms(numConn);
+  std::vector<GeoTrf::Transform3D> connectorTransforms(numConn);
   for (int iConn = 0; iConn < numConn; iConn++) {
     double xPosConnector = xOffset + m_gmt_mgr->PixelConnectorPosX(iConn); 
     double yPosConnector = yOffset + m_gmt_mgr->PixelConnectorPosY(iConn); 
@@ -375,7 +375,7 @@ void GeoPixelLadderServices::BuildPigtailAndConnector(GeoPhysVol * parent) {
     const GeoMaterial* connectorMat = m_mat_mgr->getMaterialForVolume(matNameConnector,connectorShape->volume());
     GeoLogVol  * connectorLV   = new GeoLogVol("Connector",connectorShape,connectorMat);
     connectorPhysVols[iConn] = new GeoPhysVol(connectorLV);
-    connectorTransforms[iConn] = HepGeom::Translate3D(xPosConnector, yPosConnector, zPosConnector);
+    connectorTransforms[iConn] = GeoTrf::Translate3D(xPosConnector, yPosConnector, zPosConnector);
   }
    
   for (int iModule = 0; iModule<m_gmt_mgr->PixelNModule(); iModule++) {
@@ -383,13 +383,13 @@ void GeoPixelLadderServices::BuildPigtailAndConnector(GeoPhysVol * parent) {
     double zShift = m_gmt_mgr->PixelModuleZPosition(moduleEta);
     
     // Place pigtail
-    GeoTransform * xformPigtail = new GeoTransform(HepGeom::Translate3D(xPosPigtail, yPosPigtail, zShift+zPosPigtail));
+    GeoTransform * xformPigtail = new GeoTransform(GeoTrf::Translate3D(xPosPigtail, yPosPigtail, zShift+zPosPigtail));
     parent->add(xformPigtail);
     parent->add(pigtailPhys);
 
     // Place connector
     for (int iConn = 0; iConn < numConn; iConn++) {
-      GeoTransform * xformConnector = new GeoTransform(HepGeom::TranslateZ3D(zShift)*connectorTransforms[iConn]);
+      GeoTransform * xformConnector = new GeoTransform(GeoTrf::TranslateZ3D(zShift)*connectorTransforms[iConn]);
       parent->add(xformConnector);
       parent->add(connectorPhysVols[iConn]);
     }

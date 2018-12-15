@@ -244,9 +244,9 @@ StatusCode ALFA_DetectorTool::align(IOVSVC_CALLBACK_ARGS)
 		sc=detStore()->retrieve(pStPhysRPBox,"StRPBox[03]");
 		if(sc.isSuccess()){
 			const GeoFullPhysVol* pPhysRPBox=pStPhysRPBox->getPhysVol();
-			const HepGeom::Transform3D& xf= pPhysRPBox->getAbsoluteTransform();
+			const GeoTrf::Transform3D& xf= pPhysRPBox->getAbsoluteTransform();
 
-			msg(MSG::INFO) << "Translation of RPBOX: "<< xf.getTranslation() << endmsg;
+			msg(MSG::INFO) << "Translation of RPBOX: "<< xf.translation() << endmsg;
 		}
 
 		if(detStore()->retrieve(listAttrColl,COOLFOLDER_DETSWCORR )==StatusCode::SUCCESS){
@@ -263,8 +263,8 @@ StatusCode ALFA_DetectorTool::align(IOVSVC_CALLBACK_ARGS)
 			sc=detStore()->retrieve(pStPhysRPBox,"StRPBox[03]");
 			if(sc.isSuccess()){
 				const GeoFullPhysVol* pPhysRPBox=pStPhysRPBox->getPhysVol();
-				const HepGeom::Transform3D& xf= pPhysRPBox->getAbsoluteTransform();
-				msg(MSG::INFO) << "Translation of RPBOX after update: "<< xf.getTranslation() << endmsg;
+				const GeoTrf::Transform3D& xf= pPhysRPBox->getAbsoluteTransform();
+				msg(MSG::INFO) << "Translation of RPBOX after update: "<< xf.translation() << endmsg;
 			}
 		}
 		else{

@@ -32,10 +32,9 @@
 #include "GeoModelKernel/GeoSerialTransformer.h"
 #include "GeoModelKernel/GeoSerialIdentifier.h"
 #include "GeoModelKernel/GeoXF.h"
-#include "CLHEP/Geometry/Transform3D.h" 
-#include "CLHEP/Vector/Rotation.h" 
-#include "CLHEP/Units/PhysicalConstants.h"
-#include "CLHEP/GenericFunctions/Variable.hh"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
+#include "GeoGenericFunctions/Variable.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
@@ -54,10 +53,10 @@
 #include <iostream>
 
 
-using CLHEP::cm;
-using CLHEP::mm;
-using CLHEP::deg;
-using HepGeom::RotateZ3D;
+using GeoModelKernelUnits::cm;
+using GeoModelKernelUnits::mm;
+using GeoModelKernelUnits::deg;
+using GeoTrf::RotateZ3D;
 
 
 //Constructor
@@ -251,17 +250,17 @@ GeoFullPhysVol* LArGeo::HECWheelConstruction::GetEnvelope()
     // Modules are numbered mirror-symmetric in pos/neg z-side!
     
     GeoSerialIdentifier  *sIF = new GeoSerialIdentifier(0);
-    Genfun::Variable    Index;
+    GeoGenfun::Variable    Index;
       
     if (m_posZSide) {
-      Genfun::GENFUNCTION ModuleRotationAngle = -modulePhistart + moduleDeltaPhi*Index;
+      GeoGenfun::GENFUNCTION ModuleRotationAngle = -modulePhistart + moduleDeltaPhi*Index;
       GeoXF::TRANSFUNCTION t    = GeoXF::Pow(RotateZ3D(1.0),ModuleRotationAngle);
       GeoSerialTransformer *sTF = new GeoSerialTransformer (moduleEnvelope,&t,moduleNumber);
       physiHECWheel->add(sIF);
       physiHECWheel->add(sTF);
     } else {
       //For the neg z-side have to build everything in the opposite sense from pos-z wheel.
-      Genfun::GENFUNCTION ModuleRotationAngle1 = -modulePhistart+180*deg-moduleDeltaPhi - moduleDeltaPhi*Index;
+      GeoGenfun::GENFUNCTION ModuleRotationAngle1 = -modulePhistart+180*deg-moduleDeltaPhi - moduleDeltaPhi*Index;
       GeoXF::TRANSFUNCTION t1    = GeoXF::Pow(RotateZ3D(1.0),ModuleRotationAngle1);
       GeoSerialTransformer *sTF1 = new GeoSerialTransformer (moduleEnvelope,&t1,moduleNumber);
       physiHECWheel->add(sIF);

@@ -8,7 +8,6 @@ atlas_subdir( BeamPipeGeoModel )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Database/RDBAccessSvc
-                          DetectorDescription/GeoModel/GeoModelKernel
                           DetectorDescription/GeoModel/GeoModelUtilities
                           PRIVATE
                           Control/SGTools
@@ -20,17 +19,18 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
+find_package( GeoModel )
 
 # Component(s) in the package:
 atlas_add_library( BeamPipeGeoModelLib
                    src/*.cxx
                    PUBLIC_HEADERS BeamPipeGeoModel
-                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} GeoModelKernel GeoModelUtilities StoreGateLib SGtests
+                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} 
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${GEOMODEL_LIBRARIES} GeoModelUtilities StoreGateLib 
                    PRIVATE_LINK_LIBRARIES SGTools AthenaKernel GaudiKernel )
 
 atlas_add_component( BeamPipeGeoModel
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} GeoModelKernel GeoModelUtilities SGTools StoreGateLib SGtests GaudiKernel BeamPipeGeoModelLib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${GEOMODEL_LIBRARIES} GeoModelUtilities SGTools StoreGateLib GaudiKernel BeamPipeGeoModelLib )
 

@@ -22,7 +22,8 @@
 
 #include "InDetRecToolInterfaces/ITRT_SegmentToTrackTool.h"
 #include "CxxUtils/make_unique.h"
-using CLHEP::GeV;
+#include "GaudiKernel/SystemOfUnits.h"
+using Gaudi::Units::GeV;
 
 ///////////////////////////////////////////////////////////////////
 // Constructor

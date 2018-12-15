@@ -11,8 +11,7 @@
 #include "Particle/TrackParticle.h"
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
 
-
-using HepGeom::Vector3D;
+#include "CLHEP/Vector/ThreeVector.h"
 using CLHEP::Hep3Vector;
 
 

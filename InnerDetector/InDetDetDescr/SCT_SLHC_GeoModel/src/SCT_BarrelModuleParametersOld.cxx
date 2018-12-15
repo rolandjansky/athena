@@ -9,7 +9,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
 #include <cmath>
 #include <cstring>
@@ -41,12 +41,12 @@ void barrelModSplitString(const std::string& str, std::vector<std::string>& str_
 //
 
 
-const double PITCH = 80*CLHEP::micrometer;
-const double HALF_ACTIVE_STRIP_LENGTH = 31*CLHEP::mm;
-const double NOMINAL_WAFER_LENGTH = 63.960*CLHEP::mm;
-const double REF_DISTANCE_BETWEEN_FIDUCIALS = 2.19*CLHEP::mm; 
-const double DISTANCE_CORNER_MARK_TO_CENTER = 31.750*CLHEP::mm; 
-const double DISTANCE_CORNER_MARK_TO_FIDUCIAL = 0.8*CLHEP::mm; 
+const double PITCH = 80*GeoModelKernelUnits::micrometer;
+const double HALF_ACTIVE_STRIP_LENGTH = 31*GeoModelKernelUnits::mm;
+const double NOMINAL_WAFER_LENGTH = 63.960*GeoModelKernelUnits::mm;
+const double REF_DISTANCE_BETWEEN_FIDUCIALS = 2.19*GeoModelKernelUnits::mm; 
+const double DISTANCE_CORNER_MARK_TO_CENTER = 31.750*GeoModelKernelUnits::mm; 
+const double DISTANCE_CORNER_MARK_TO_FIDUCIAL = 0.8*GeoModelKernelUnits::mm; 
 const double DISTANCE_CENTER_TO_CENTER = 2*(DISTANCE_CORNER_MARK_TO_CENTER - 
 					      DISTANCE_CORNER_MARK_TO_FIDUCIAL)
                                          + REF_DISTANCE_BETWEEN_FIDUCIALS;
@@ -131,7 +131,7 @@ SCT_BarrelModuleParametersOld::sensorThickness(int moduleType) const
   char paraName[50];
   sprintf(paraName, "BRL_M%d_DXYZ1", moduleType);
   std::cout<<"-----------2 sensorThickness DXYZ1 mod_typ("<<moduleType<<") = "<<(m_SCT_Modules->find(paraName))->second <<std::endl;
-  return (m_SCT_Modules->find(paraName))->second*CLHEP::cm;
+  return (m_SCT_Modules->find(paraName))->second*GeoModelKernelUnits::cm;
 }
 
 double 
@@ -139,8 +139,8 @@ SCT_BarrelModuleParametersOld::sensorWidth(int moduleType) const
 {
   char paraName[50];
   sprintf(paraName, "BRL_M%d_DXYZ2", moduleType);
-  std::cout<<"-----------2 DXYZ2 sensorWidth mod_typ("<<moduleType<<") = "<<(m_SCT_Modules->find(paraName))->second*CLHEP::cm <<std::endl;
-  return (m_SCT_Modules->find(paraName))->second*CLHEP::cm;
+  std::cout<<"-----------2 DXYZ2 sensorWidth mod_typ("<<moduleType<<") = "<<(m_SCT_Modules->find(paraName))->second*GeoModelKernelUnits::cm <<std::endl;
+  return (m_SCT_Modules->find(paraName))->second*GeoModelKernelUnits::cm;
 }
 
 double 
@@ -148,7 +148,7 @@ SCT_BarrelModuleParametersOld::sensorLength(int moduleType) const
 {
   char paraName[50];
   sprintf(paraName, "BRL_M%d_DXYZ3", moduleType);
-  float sensorLen = (m_SCT_Modules->find(paraName))->second*CLHEP::cm;
+  float sensorLen = (m_SCT_Modules->find(paraName))->second*GeoModelKernelUnits::cm;
   std::cout<<"-----------2 SensorLentgh DXYZ3 mod_typ("<<moduleType<<") = "<<sensorLen <<std::endl;
   return sensorLen;
 }
@@ -171,8 +171,8 @@ SCT_BarrelModuleParametersOld::baseBoardThickness(int moduleType) const
 {
   char paraName[50];
   sprintf(paraName, "BRL_M%d_BBTHICK", moduleType);
-  std::cout<<"-----------2 baseBoardThickness BBTHICK mod_typ("<<moduleType<<") = "<<(m_SCT_Modules->find(paraName))->second*CLHEP::cm <<std::endl;
-  return (m_SCT_Modules->find(paraName))->second*CLHEP::cm;
+  std::cout<<"-----------2 baseBoardThickness BBTHICK mod_typ("<<moduleType<<") = "<<(m_SCT_Modules->find(paraName))->second*GeoModelKernelUnits::cm <<std::endl;
+  return (m_SCT_Modules->find(paraName))->second*GeoModelKernelUnits::cm;
 }
 
 double 
@@ -180,15 +180,15 @@ SCT_BarrelModuleParametersOld::baseBoardWidth(int moduleType) const
 {
   char paraName[50];
   sprintf(paraName, "BRL_M%d_BBWID", moduleType);
-  std::cout<<"-----------2 baseBoardWidth BBWID mod_typ("<<moduleType<<") = "<<(m_SCT_Modules->find(paraName))->second*CLHEP::cm <<std::endl;
-  return (m_SCT_Modules->find(paraName))->second*CLHEP::cm;
+  std::cout<<"-----------2 baseBoardWidth BBWID mod_typ("<<moduleType<<") = "<<(m_SCT_Modules->find(paraName))->second*GeoModelKernelUnits::cm <<std::endl;
+  return (m_SCT_Modules->find(paraName))->second*GeoModelKernelUnits::cm;
 }
 
 double SCT_BarrelModuleParametersOld::baseBoardLength(int moduleType) const{
   char paraName[50];  
   sprintf(paraName, "BRL_M%d_BBLEN", moduleType);
   std::cout<<"-----------2 baseBoardLength BBLEN mod_typ("<<moduleType<<") = "<<(m_SCT_Modules->find(paraName))->second <<std::endl;
-  return (m_SCT_Modules->find(paraName))->second*CLHEP::cm;
+  return (m_SCT_Modules->find(paraName))->second*GeoModelKernelUnits::cm;
 }
 
 std::string 
@@ -202,16 +202,16 @@ SCT_BarrelModuleParametersOld::baseBoardMaterial(int moduleType) const
 }
 double SCT_BarrelModuleParametersOld::baseBoardOffsetY(int /*moduleType*/) const{
   //if(moduleType == 1)
-    return -5.7*CLHEP::mm;
+    return -5.7*GeoModelKernelUnits::mm;
   //else
-  //  return -5.7*CLHEP::mm;
+  //  return -5.7*GeoModelKernelUnits::mm;
 }
 
 double SCT_BarrelModuleParametersOld::baseBoardOffsetZ(int moduleType) const{
   if(moduleType == 1)
-    return -7.1*CLHEP::mm;
+    return -7.1*GeoModelKernelUnits::mm;
   else
-    return -1.9*CLHEP::mm;
+    return -1.9*GeoModelKernelUnits::mm;
 }
 
 //
@@ -222,7 +222,7 @@ SCT_BarrelModuleParametersOld::moduleStereoAngle(int moduleType) const
 {
   char paraName[50];
   sprintf(paraName, "BRL_M%d_STEREOANGLE", moduleType);
-  return (m_SCT_Modules->find(paraName))->second*CLHEP::milliradian;
+  return (m_SCT_Modules->find(paraName))->second*GeoModelKernelUnits::milliradian;
 }
 
 double 
@@ -230,7 +230,7 @@ SCT_BarrelModuleParametersOld::moduleInterSidesGap(int moduleType) const
 {
   char paraName[50];
   sprintf(paraName, "BRL_M%d_INTERSIDESGAP", moduleType);
-  return (double)(m_SCT_Modules->find(paraName))->second*CLHEP::mm;
+  return (double)(m_SCT_Modules->find(paraName))->second*GeoModelKernelUnits::mm;
 }
 
 // Barrel Module Side Design
@@ -240,8 +240,8 @@ SCT_BarrelModuleParametersOld::barrelModelSideStripPitch(int moduleType) const
 {
   char paraName[50];
   sprintf(paraName, "BRL_M%d_PITCH", moduleType);
-  std::cout<<"-----------2 barrelModelSideStripPitch PITCH mod_typ("<<moduleType<<") = "<<(m_SCT_Modules->find(paraName))->second*CLHEP::micrometer <<std::endl;
-  return (double)(m_SCT_Modules->find(paraName))->second*CLHEP::micrometer;
+  std::cout<<"-----------2 barrelModelSideStripPitch PITCH mod_typ("<<moduleType<<") = "<<(m_SCT_Modules->find(paraName))->second*GeoModelKernelUnits::micrometer <<std::endl;
+  return (double)(m_SCT_Modules->find(paraName))->second*GeoModelKernelUnits::micrometer;
 }
 
 double
@@ -249,7 +249,7 @@ SCT_BarrelModuleParametersOld::barrelModelSideStripLength(int moduleType) const
 {
   char paraName[50];
   sprintf(paraName, "BRL_M%d_STRIPLEN", moduleType);
-  double stripLen = (m_SCT_Modules->find(paraName))->second*CLHEP::cm;
+  double stripLen = (m_SCT_Modules->find(paraName))->second*GeoModelKernelUnits::cm;
   std::cout<<"-----------2 barrelModelSideStripLength STRIPLEN mod_typ("<<moduleType<<") = "<<stripLen <<std::endl;
   return stripLen;
 }
@@ -259,7 +259,7 @@ SCT_BarrelModuleParametersOld::barrelModelSideTotalDeadLength(int moduleType) co
 {
   char paraName[50];
   sprintf(paraName, "BRL_M%d_STRIPDEADLEN", moduleType);
-  double stripdeadLen = (m_SCT_Modules->find(paraName))->second*CLHEP::cm;
+  double stripdeadLen = (m_SCT_Modules->find(paraName))->second*GeoModelKernelUnits::cm;
   std::cout<<"-----------2 barrelModelSideTotalDeadLength STRIPDEADLEN mod_typ("<<moduleType<<") = "<<stripdeadLen<<std::endl;
   return stripdeadLen;
 }
@@ -300,7 +300,7 @@ SCT_BarrelModuleParametersOld::barrelDeadEdge(int moduleType) const
   char paraName2[50];
   sprintf(paraName1, "BRL_M%d_DXYZ3", moduleType);
   sprintf(paraName2, "BRL_M%d_STRIPLEN", moduleType);
-  float deadEdge = 0.5*((m_SCT_Modules->find(paraName1))->second-(m_SCT_Modules->find(paraName2))->second)*CLHEP::mm;
+  float deadEdge = 0.5*((m_SCT_Modules->find(paraName1))->second-(m_SCT_Modules->find(paraName2))->second)*GeoModelKernelUnits::mm;
   std::cout<<"-----------2 barrelDeadEdge DEADED mod_typ("<<moduleType<<") = "<<deadEdge<<std::endl;
  return deadEdge;
 }

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PixelGeoModel/GeoPixelEnvelope.h"
+#include "GeoPixelEnvelope.h"
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoPcon.h"
 #include "GeoModelKernel/GeoLogVol.h"
@@ -12,14 +12,14 @@
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoMaterial.h"
 
-#include "PixelGeoModel/GeoPixelBarrel.h"
-#include "PixelGeoModel/GeoPixelEndCap.h"
-#include "PixelGeoModel/GeoPixelServices.h"
-#include "PixelGeoModel/GeoPixelFrame.h"
-#include "PixelGeoModel/GeoPixelOldFrame.h"
-#include "PixelGeoModel/GeoPixelIFlexServices.h"
-#include "PixelGeoModel/GeoPixelIBLFwdServices.h"
-#include "PixelGeoModel/DBM_Det.h"
+#include "GeoPixelBarrel.h"
+#include "GeoPixelEndCap.h"
+#include "GeoPixelServices.h"
+#include "GeoPixelFrame.h"
+#include "GeoPixelOldFrame.h"
+#include "GeoPixelIFlexServices.h"
+#include "GeoPixelIBLFwdServices.h"
+#include "DBM_Det.h"
 
 #include "InDetGeoModelUtils/VolumeBuilder.h"
 #include "InDetGeoModelUtils/VolumeSplitterUtils.h"
@@ -59,7 +59,7 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
     envelopeShape = new GeoTube(rmin,rmax,halflength);
     pixZone = new InDetDD::TubeZone("Pixel",-halflength,halflength,rmin,rmax);
   } else {
-    GeoPcon* envelopeShapeTmp  = new GeoPcon(0.,2*CLHEP::pi);
+    GeoPcon* envelopeShapeTmp  = new GeoPcon(0.,2*GeoModelKernelUnits::pi);
     // table contains +ve z values only and envelope is assumed to be symmetric around z.
     int numPlanes = m_gmt_mgr->PixelEnvelopeNumPlanes();
     for (int i = 0; i < numPlanes * 2; i++) {
@@ -91,7 +91,7 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
     //
     // Add the Barrel:
     //
-    HepGeom::Transform3D barrelTransform = m_gmt_mgr->partTransform("Barrel");
+    GeoTrf::Transform3D barrelTransform = m_gmt_mgr->partTransform("Barrel");
     
     m_gmt_mgr->SetBarrel();
     GeoPixelBarrel brl(pixServices);
@@ -115,10 +115,10 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
 
       m_DDmgr->numerology().addEndcap(2);
     
-      HepGeom::Transform3D endcapATransform = m_gmt_mgr->partTransform("EndcapA");
+      GeoTrf::Transform3D endcapATransform = m_gmt_mgr->partTransform("EndcapA");
       
       m_gmt_mgr->SetPos();
-      GeoTransform* xform = new GeoTransform(endcapATransform * HepGeom::TranslateZ3D(zpos));
+      GeoTransform* xform = new GeoTransform(endcapATransform * GeoTrf::TranslateZ3D(zpos));
       GeoNameTag* tag  = new GeoNameTag("EndCapA");
       envelopePhys->add(tag);
       envelopePhys->add(new GeoIdentifierTag(2));
@@ -131,11 +131,11 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
 
       m_DDmgr->numerology().addEndcap(-2);
       
-      HepGeom::Transform3D endcapCTransform = m_gmt_mgr->partTransform("EndcapC");
+      GeoTrf::Transform3D endcapCTransform = m_gmt_mgr->partTransform("EndcapC");
       
       m_gmt_mgr->SetEndcap();
       m_gmt_mgr->SetNeg();
-      GeoTransform* xform = new GeoTransform(endcapCTransform * HepGeom::TranslateZ3D(-zpos) *  HepGeom::RotateY3D(180*CLHEP::deg));
+      GeoTransform* xform = new GeoTransform(endcapCTransform * GeoTrf::TranslateZ3D(-zpos) *  GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg));
       GeoNameTag* tag  = new GeoNameTag("EndCapC");
       envelopePhys->add(tag);
       envelopePhys->add(new GeoIdentifierTag(-2));
@@ -237,7 +237,7 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
   // so if change then change in DBM_module too
 
   if (m_gmt_mgr->dbm()) {
-    HepGeom::Translate3D dbmTransform1( 0, 0, 887.002*CLHEP::mm + ( m_gmt_mgr->DBMTelescopeZ() )/2.); //Add 0.002mm to 887mm for safety
+    GeoTrf::Translate3D dbmTransform1( 0, 0, 887.002*GeoModelKernelUnits::mm + ( m_gmt_mgr->DBMTelescopeZ() )/2.); //Add 0.002mm to 887mm for safety
 
     //m_DDmgr->numerology().addEndcap(4);
     m_gmt_mgr->SetPartsDBM();
@@ -253,7 +253,7 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
     //m_DDmgr->numerology().addEndcap(-4);
     m_gmt_mgr->SetNeg();
     GeoNameTag* tag2 = new GeoNameTag("DBMC");
-    GeoTransform* dbmTransform2 = new GeoTransform(HepGeom::TranslateZ3D(-887.002*CLHEP::mm - ( m_gmt_mgr->DBMTelescopeZ() )/2.) *  HepGeom::RotateY3D(180*CLHEP::deg));
+    GeoTransform* dbmTransform2 = new GeoTransform(GeoTrf::TranslateZ3D(-887.002*GeoModelKernelUnits::mm - ( m_gmt_mgr->DBMTelescopeZ() )/2.) *  GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg));
     envelopePhys->add(tag2);
     envelopePhys->add(new GeoIdentifierTag(-4));
     envelopePhys->add(dbmTransform2);

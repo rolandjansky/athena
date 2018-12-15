@@ -12,6 +12,7 @@
 #define INDETREADOUTGEOMETRY_PIXELDIODEMATRIX_H
 
 #include "InDetReadoutGeometry/SiCellId.h"
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/RCBase.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"
 

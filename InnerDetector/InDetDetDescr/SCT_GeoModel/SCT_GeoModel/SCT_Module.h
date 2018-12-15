@@ -5,10 +5,9 @@
 #ifndef SCT_GEOMODEL_SCT_MODULE_H
 #define SCT_GEOMODEL_SCT_MODULE_H
 
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "SCT_GeoModel/SCT_ComponentFactory.h"
-
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Vector/ThreeVector.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 
 #include <string>
 
@@ -46,8 +45,8 @@ public:
   double env2Width()     const {return m_env2Width;}
   double env2Length()    const {return m_env2Length;}
 
-  CLHEP::Hep3Vector * env1RefPointVector() const {return m_env1RefPointVector;}
-  CLHEP::Hep3Vector * env2RefPointVector() const {return m_env2RefPointVector;}
+  GeoTrf::Vector3D * env1RefPointVector() const {return m_env1RefPointVector;}
+  GeoTrf::Vector3D * env2RefPointVector() const {return m_env2RefPointVector;}
 
   double sensorGap()    const {return m_sensorGap;}
   double stereoInner()  const {return m_stereoInner;}
@@ -97,12 +96,12 @@ private:
   const SCT_BaseBoard * m_baseBoard;
   //const SCT_Sensor          * m_sensor; // 14:00 Thu 14th Jul 2005 D.Naito removed.
 
-  HepGeom::Transform3D * m_innerSidePos;
-  HepGeom::Transform3D * m_outerSidePos;
-  HepGeom::Translate3D * m_baseBoardPos; // 6th Apr 2005 S.Mima
+  GeoTrf::Transform3D * m_innerSidePos;
+  GeoTrf::Transform3D * m_outerSidePos;
+  GeoTrf::Translate3D * m_baseBoardPos; // 6th Apr 2005 S.Mima
 
-  CLHEP::Hep3Vector * m_env1RefPointVector;
-  CLHEP::Hep3Vector * m_env2RefPointVector;
+  GeoTrf::Vector3D * m_env1RefPointVector;
+  GeoTrf::Vector3D * m_env2RefPointVector;
 
 };
 

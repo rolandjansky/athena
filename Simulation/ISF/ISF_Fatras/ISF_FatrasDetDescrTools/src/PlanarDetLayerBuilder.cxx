@@ -910,7 +910,7 @@ const std::vector< const Trk::CylinderLayer* >* iFatras::PlanarDetLayerBuilder::
       
       if(m_pixelCase){
 	ATH_MSG_VERBOSE("Surface " << (*moduleSurface));
-	ATH_MSG_VERBOSE("TransformHit = " << Amg::toString(Amg::CLHEPTransformToEigen((*Elem_Iter)->transformHit())));
+	ATH_MSG_VERBOSE("TransformHit = " << Amg::toString((*Elem_Iter)->transformHit()));
 	if (m_checkGeo)
 	  {
 	    
@@ -933,7 +933,7 @@ const std::vector< const Trk::CylinderLayer* >* iFatras::PlanarDetLayerBuilder::
 	ATH_MSG_VERBOSE("Phi = " << moduleSurface->center().phi() << "  Eta = " << moduleSurface->center().eta());
       } else {
 	ATH_MSG_VERBOSE("Surface " << (*moduleSurface));
-	ATH_MSG_VERBOSE("TransformHit = " << Amg::toString(Amg::CLHEPTransformToEigen((*Elem_Iter)->transformHit())));
+	ATH_MSG_VERBOSE("TransformHit = " << Amg::toString((*Elem_Iter)->transformHit()));
 	if (m_checkGeo)
 	  {
 	    Amg::Vector3D glopos = (*moduleSurface).center();
@@ -1165,7 +1165,7 @@ const std::vector< const Trk::DiscLayer* >* iFatras::PlanarDetLayerBuilder::disc
   
       if(m_pixelCase){
 	ATH_MSG_VERBOSE("Surface " << (*moduleSurface));
-	ATH_MSG_VERBOSE("TransformHit = " << Amg::toString(Amg::CLHEPTransformToEigen((*Elem_Iter)->transformHit())));
+	ATH_MSG_VERBOSE("TransformHit = " << Amg::toString((*Elem_Iter)->transformHit()));
 	Identifier hitId         = moduleSurface->associatedDetectorElementIdentifier();   
 	IdentifierHash hitIdHash = m_pixIdHelper->wafer_hash(hitId);
 	ATH_MSG_VERBOSE("ID " << hitId << ", hash " << hitIdHash );
@@ -1174,7 +1174,7 @@ const std::vector< const Trk::DiscLayer* >* iFatras::PlanarDetLayerBuilder::disc
       }
       else {
 	ATH_MSG_VERBOSE("Surface " << (*moduleSurface));
-	ATH_MSG_VERBOSE("TransformHit = " << Amg::toString(Amg::CLHEPTransformToEigen((*Elem_Iter)->transformHit())));
+	ATH_MSG_VERBOSE("TransformHit = " << Amg::toString((*Elem_Iter)->transformHit()));
 	Identifier hitId         = moduleSurface->associatedDetectorElementIdentifier();   
 	IdentifierHash hitIdHash = m_sctIdHelper->wafer_hash(hitId);
 	ATH_MSG_VERBOSE("ID " << hitId << ", hash " << hitIdHash );

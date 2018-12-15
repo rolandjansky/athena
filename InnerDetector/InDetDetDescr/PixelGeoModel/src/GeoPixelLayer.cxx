@@ -2,17 +2,17 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-
-#include "PixelGeoModel/GeoPixelLayer.h"
-#include "PixelGeoModel/GeoPixelLadder.h"
-#include "PixelGeoModel/GeoPixelTMT.h"
-#include "PixelGeoModel/GeoPixelSimpleStaveSupport.h"
-#include "PixelGeoModel/GeoPixelDetailedStaveSupport.h"
-#include "PixelGeoModel/GeoPixelStaveRingServices.h"
-#include "PixelGeoModel/GeoPixelLadderServices.h"
-#include "PixelGeoModel/GeoPixelPigtail.h"
-#include "PixelGeoModel/GeoPixelSiCrystal.h"
-#include "PixelGeoModel/GeoPixelStaveRing.h"
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "GeoPixelLayer.h"
+#include "GeoPixelLadder.h"
+#include "GeoPixelTMT.h"
+#include "GeoPixelSimpleStaveSupport.h"
+#include "GeoPixelDetailedStaveSupport.h"
+#include "GeoPixelStaveRingServices.h"
+#include "GeoPixelLadderServices.h"
+#include "GeoPixelPigtail.h"
+#include "GeoPixelSiCrystal.h"
+#include "GeoPixelStaveRing.h"
 
 #include "InDetGeoModelUtils/ExtraMaterial.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
@@ -136,10 +136,10 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   //std::cout << "Distance along ladder surface from center to point of closest approach: " <<  distToClosestPoint << std::endl;
 
   // Calculate the radius of the corners of the ladder.
-  HepGeom::Point3D<double> ladderLowerCorner(-ladderHalfThickN, ladderHalfWidth, 0);
-  HepGeom::Point3D<double> ladderUpperCorner(ladderHalfThickP, -ladderHalfWidth, 0);
-  ladderLowerCorner = HepGeom::TranslateX3D(layerRadius) * HepGeom::RotateZ3D(std::abs(ladderTilt)) * ladderLowerCorner;
-  ladderUpperCorner = HepGeom::TranslateX3D(layerRadius) * HepGeom::RotateZ3D(std::abs(ladderTilt)) * ladderUpperCorner;
+  GeoTrf::Vector3D ladderLowerCorner(-ladderHalfThickN, ladderHalfWidth, 0);
+  GeoTrf::Vector3D ladderUpperCorner(ladderHalfThickP, -ladderHalfWidth, 0);
+  ladderLowerCorner = GeoTrf::TranslateX3D(layerRadius) * GeoTrf::RotateZ3D(std::abs(ladderTilt)) * ladderLowerCorner;
+  ladderUpperCorner = GeoTrf::TranslateX3D(layerRadius) * GeoTrf::RotateZ3D(std::abs(ladderTilt)) * ladderUpperCorner;
 
   double layerThicknessN = layerRadius - ladderLowerCorner.perp();
   double layerThicknessP = ladderUpperCorner.perp() - layerRadius; // Will be recalculated below in case of additional services
@@ -182,9 +182,9 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   // Variables that are used later
   int maxLadType = 0;
   std::vector<GeoVPhysVol *> ladderServicesArray;
-  HepGeom::Transform3D ladderServicesTransform;
+  GeoTrf::Transform3D ladderServicesTransform(GeoTrf::Transform3D::Identity());
   GeoVPhysVol* pigtailPhysVol = 0;
-  HepGeom::Transform3D transPigtail;
+  GeoTrf::Transform3D transPigtail(GeoTrf::Transform3D::Identity());
 				
   // Only make services in non SLHC geometries 
   if (staveLayout == 0) {
@@ -244,10 +244,10 @@ GeoVPhysVol* GeoPixelLayer::Build() {
       // We need the dimensions of the GeoPixelLadderServices. They are all the same in this regards
       // so any of them will do -  use the first one.
       
-      HepGeom::Point3D<double> corner1 = firstLadderServices->envelopeCornerC1();
-      HepGeom::Point3D<double> corner2 = firstLadderServices->envelopeCornerC2();
-      HepGeom::Point3D<double> corner3 = firstLadderServices->envelopeCornerA1();
-      HepGeom::Point3D<double> corner4 = firstLadderServices->envelopeCornerA2();
+      GeoTrf::Vector3D corner1 = firstLadderServices->envelopeCornerC1();
+      GeoTrf::Vector3D corner2 = firstLadderServices->envelopeCornerC2();
+      GeoTrf::Vector3D corner3 = firstLadderServices->envelopeCornerA1();
+      GeoTrf::Vector3D corner4 = firstLadderServices->envelopeCornerA2();
       
       // translate relative to sensor center (center of tilt rotation),
       // then tilt then translate by radius of layer, then calculate r.
@@ -256,13 +256,13 @@ GeoVPhysVol* GeoPixelLayer::Build() {
       // xCenter, yCenter or coordinates of ladder services relative to active layer center (center of tilt rotation)
       xCenter = (firstLadderServices->referenceX() + xLadderServicesOffset);
       yCenter = (firstLadderServices->referenceY() + yLadderServicesOffset);
-      HepGeom::Transform3D ladderSvcToglobal = HepGeom::TranslateX3D(layerRadius) 
-	* HepGeom::RotateZ3D(ladderTilt) 
-	* HepGeom::Translate3D(xCenter, yCenter, 0);
-      HepGeom::Point3D<double> corner1global = ladderSvcToglobal * corner1;
-      HepGeom::Point3D<double> corner2global = ladderSvcToglobal * corner2;
-      HepGeom::Point3D<double> corner3global = ladderSvcToglobal * corner3;
-      HepGeom::Point3D<double> corner4global = ladderSvcToglobal * corner4;
+      GeoTrf::Transform3D ladderSvcToglobal = GeoTrf::TranslateX3D(layerRadius) 
+	* GeoTrf::RotateZ3D(ladderTilt) 
+	* GeoTrf::Translate3D(xCenter, yCenter, 0);
+      GeoTrf::Vector3D corner1global = ladderSvcToglobal * corner1;
+      GeoTrf::Vector3D corner2global = ladderSvcToglobal * corner2;
+      GeoTrf::Vector3D corner3global = ladderSvcToglobal * corner3;
+      GeoTrf::Vector3D corner4global = ladderSvcToglobal * corner4;
       
       double rMaxTmp = std::max(corner1global.perp(), 
 				std::max(corner2global.perp(), 
@@ -287,14 +287,14 @@ GeoVPhysVol* GeoPixelLayer::Build() {
     // The tube and cooling have there reference point 
     // In y: center of cooling tube
     // In x: ~center of envelope (will change it to base of glue layer.)
-    ladderServicesTransform = HepGeom::Translate3D(xCenter, yCenter, 0);
+    ladderServicesTransform = GeoTrf::Translate3D(xCenter, yCenter, 0);
       
     //
     // The Pigtail
     //
     GeoPixelPigtail pigtail;
     pigtailPhysVol = pigtail.Build();
-    transPigtail = HepGeom::Translate3D(m_gmt_mgr->PixelPigtailBendX() + m_gmt_mgr->PixelLadderCableOffsetX(), 
+    transPigtail = GeoTrf::Translate3D(m_gmt_mgr->PixelPigtailBendX() + m_gmt_mgr->PixelLadderCableOffsetX(), 
 				  m_gmt_mgr->PixelPigtailBendY() + m_gmt_mgr->PixelLadderCableOffsetY(), 
 				  0.);
 
@@ -304,7 +304,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   //
   // Layer dimensions from above, etc
   //
-  double safety = 0.01 * CLHEP::mm;
+  double safety = 0.01 * GeoModelKernelUnits::mm;
   double rmin =  m_gmt_mgr->PixelLayerRadius()-layerThicknessN - safety;
   double rmax =  m_gmt_mgr->PixelLayerRadius()+layerThicknessP + safety;
   double length = m_gmt_mgr->PixelLadderLength() + 4*m_epsilon; // Ladder has length m_gmt_mgr->PixelLadderLength() +  2*m_epsilon
@@ -315,7 +315,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   if(m_gmt_mgr->GetLD()==0&&m_gmt_mgr->ibl()&&m_gmt_mgr->PixelStaveLayout()>3&&m_gmt_mgr->PixelStaveLayout()<8)
     {
       bAddIBLStaveRings=true;
-      double safety = 0.001 * CLHEP::mm;
+      double safety = 0.001 * GeoModelKernelUnits::mm;
       double outerRadius = m_gmt_mgr->IBLSupportMidRingInnerRadius();  
       rmax=outerRadius-safety;
 
@@ -346,8 +346,8 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   //
   // A few variables needed below
   //  
-  double angle=(nSectors>0)?(360./(double)nSectors)*CLHEP::deg:(360.*CLHEP::deg);
-  HepGeom::Transform3D transRadiusAndTilt = HepGeom::TranslateX3D(layerRadius)*HepGeom::RotateZ3D(ladderTilt);
+  double angle=(nSectors>0)?(360./(double)nSectors)*GeoModelKernelUnits::deg:(360.*GeoModelKernelUnits::deg);
+  GeoTrf::Transform3D transRadiusAndTilt = GeoTrf::TranslateX3D(layerRadius)*GeoTrf::RotateZ3D(ladderTilt);
   double phiOfModuleZero =  m_gmt_mgr->PhiOfModuleZero();
 
   // IBL rotations are defined vs the cooling pipe center...
@@ -355,14 +355,13 @@ GeoVPhysVol* GeoPixelLayer::Build() {
     {
 
       //  Point that defines the center of the cooling pipe
-      HepGeom::Point3D<double> centerCoolingPipe = m_gmt_mgr->IBLStaveRotationAxis() ;
-      HepGeom::Point3D<double> centerCoolingPipe_inv = -centerCoolingPipe;
+      GeoTrf::Vector3D centerCoolingPipe = m_gmt_mgr->IBLStaveRotationAxis() ;
 
       // Transforms
-      HepGeom::Transform3D staveTrf = HepGeom::RotateZ3D(ladderTilt)*HepGeom::Translate3D(centerCoolingPipe_inv);
+      GeoTrf::Transform3D staveTrf = GeoTrf::RotateZ3D(ladderTilt)*GeoTrf::Translate3D(-centerCoolingPipe.x(),-centerCoolingPipe.y(),-centerCoolingPipe.z());
       double staveRadius = m_gmt_mgr->IBLStaveRadius() ;
 
-      transRadiusAndTilt = HepGeom::TranslateX3D(staveRadius)*staveTrf;
+      transRadiusAndTilt = GeoTrf::TranslateX3D(staveRadius)*staveTrf;
     }
 
   //
@@ -396,7 +395,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
     double phiOfSector = phiOfModuleZero + ii*angle;
 
     // transform equiv  RotZ(phiOfSector)*TransZ(layerRadius)*RotZ(tilt)
-    HepGeom::Transform3D ladderTransform = HepGeom::RotateZ3D(phiOfSector) * transRadiusAndTilt;
+    GeoTrf::Transform3D ladderTransform = GeoTrf::RotateZ3D(phiOfSector) * transRadiusAndTilt;
 
     //
     // Place the active ladders
@@ -499,7 +498,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
       
       if(m_gmt_mgr->PixelStaveAxe()==1) {
 	GeoNameTag *tagM = new GeoNameTag("Brl0M_StaveRing");         
-	GeoTransform *xformSupportMidRing = new GeoTransform(HepGeom::Transform3D());
+	GeoTransform *xformSupportMidRing = new GeoTransform(GeoTrf::Transform3D::Identity());
 	GeoVPhysVol *supportPhysMidRing = getSupportMidRing();
 	layerPhys->add(tagM);
 	layerPhys->add(xformSupportMidRing);

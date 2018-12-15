@@ -57,6 +57,8 @@
 
 // ROOT includes
 #include "CLHEP/Vector/ThreeVector.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 
 #include <cmath>
 #ifndef __APPLE__

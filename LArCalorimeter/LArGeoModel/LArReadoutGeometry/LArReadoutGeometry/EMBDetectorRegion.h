@@ -2,20 +2,20 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EMBDetectorRegion_h
-#define EMBDetectorRegion_h 1
+#ifndef LARREADOUTGEOMETRY_EMBDETECTORREGION_H
+#define LARREADOUTGEOMETRY_EMBDETECTORREGION_H
 #include "LArReadoutGeometry/EMBCellConstLink.h"
 #include "LArReadoutGeometry/EMBDetDescr.h"
 #include "GeoModelKernel/GeoVDetectorElement.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "GeoPrimitives/CLHEPtoEigenConverter.h"
-
-/** 
- *      @brief Description of a region of homogenous granularity in the 
- *      electromagnetic barrel calorimeter
- */
 
 /**
+ * @class EMBDetectorRegion
+ *
+ *      @brief Description of a region of homogenous granularity in the 
+ *      electromagnetic barrel calorimeter
+ *
  *	This class combines a description of the cell
  *	granularity with a physical volume to create a
  *	description of an EMB region positioned within ATLAS.
@@ -92,12 +92,12 @@ class EMBDetectorRegion : public GeoVDetectorElement
   /**
    *    @brief Returns the absolute transform of this element.
    */
-  const HepGeom::Transform3D &  getAbsoluteTransform () const;
+  const GeoTrf::Transform3D &  getAbsoluteTransform () const;
    
   /**
    *    @brief Returns the absolute transform of this element.
    */
-  const HepGeom::Transform3D &  getDefAbsoluteTransform () const;
+  const GeoTrf::Transform3D &  getDefAbsoluteTransform () const;
    
   /**
    *	@brief The endcap index.  0=negative, 1=positive.

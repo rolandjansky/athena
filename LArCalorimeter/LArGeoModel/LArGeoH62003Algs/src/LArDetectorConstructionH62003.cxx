@@ -25,6 +25,8 @@
 #include "GeoModelKernel/GeoSerialDenominator.h"
 #include "GeoModelKernel/GeoSerialIdentifier.h"
 #include "GeoModelKernel/GeoSerialTransformer.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 #include "GeoModelKernel/GeoXF.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
@@ -35,13 +37,7 @@
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "LArG4RunControl/LArG4TBPosOptions.h"
-
-// For transforms:
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/GenericFunctions/Variable.hh"
-
-// For units:
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "GeoGenericFunctions/Variable.h"
 
 // For the database:
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -58,30 +54,32 @@
 #include <cmath>
 #include <iostream>
 
-using CLHEP::g;
-using CLHEP::cm3;
-using CLHEP::mm;
-using CLHEP::cm;
-using CLHEP::m;
-using CLHEP::deg;
-using CLHEP::Hep3Vector;
-using CLHEP::HepRotationX;
-using CLHEP::HepRotationY;
-using HepGeom::Transform3D;
-using HepGeom::Translate3D;
-using HepGeom::TranslateZ3D;
-using HepGeom::RotateX3D;
-using HepGeom::RotateY3D;
-using HepGeom::RotateZ3D;
+using GeoModelKernelUnits::g;
+using GeoModelKernelUnits::cm3;
+using GeoModelKernelUnits::mm;
+using GeoModelKernelUnits::cm;
+using GeoModelKernelUnits::m;
+using GeoModelKernelUnits::deg;
+using GeoTrf::Vector3D;
+using GeoTrf::Transform3D;
+using GeoTrf::Translate3D;
+using GeoTrf::TranslateZ3D;
+using GeoTrf::RotateX3D;
+using GeoTrf::RotateY3D;
+using GeoTrf::RotateZ3D;
 
 
-LArGeo::LArDetectorConstructionH62003::LArDetectorConstructionH62003():
-m_H62003EnvelopePhysical(NULL),
-m_fcalVisLimit(-1),
-m_axisVisState(false),
-m_pAccessSvc(NULL){}
+LArGeo::LArDetectorConstructionH62003::LArDetectorConstructionH62003()
+ : m_H62003EnvelopePhysical(NULL)
+ , m_fcalVisLimit(-1)
+ , m_axisVisState(false)
+ , m_pAccessSvc(nullptr)
+{
+}
 
-LArGeo::LArDetectorConstructionH62003::~LArDetectorConstructionH62003() {}
+LArGeo::LArDetectorConstructionH62003::~LArDetectorConstructionH62003() 
+{
+}
 
 GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
 {
@@ -862,13 +860,13 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
 		  << " is located at: "
 		  << "\n"
 		  << "x =  " 
-		  << m_H62003EnvelopePhysical->getXToChildVol(i).getTranslation().x()
+		  << m_H62003EnvelopePhysical->getXToChildVol(i).translation().x()
 		  << "\n"
 		  << "y =  " 
-		  << m_H62003EnvelopePhysical->getXToChildVol(i).getTranslation().y()
+		  << m_H62003EnvelopePhysical->getXToChildVol(i).translation().y()
 		  << "\n"
 		  << "z =  " 
-		  << m_H62003EnvelopePhysical->getXToChildVol(i).getTranslation().z()
+		  << m_H62003EnvelopePhysical->getXToChildVol(i).translation().z()
 		  << "\n"
 		  << endmsg;
       }
@@ -894,11 +892,7 @@ void LArGeo::LArDetectorConstructionH62003::createAxis(GeoFullPhysVol* H62003Env
 	const GeoLogVol* XAxisLogical = new GeoLogVol(XAxisName,XYaxisShape,mat);
 	GeoPhysVol* XAxisPhysVol = new GeoPhysVol(XAxisLogical);
 	
-	H62003EnvelopePhysical->
-		add(new GeoTransform(Transform3D(HepRotationY( 90.*deg ), 
-                                                 Hep3Vector(axisXYHalfLength, 
-                                                            0.*m, 
-                                                            0.*m))));
+	H62003EnvelopePhysical->add(new GeoTransform(Transform3D(GeoTrf::Translate3D(axisXYHalfLength,0.*m,0.*m)*GeoTrf::RotateY3D(90.*deg))));
 	H62003EnvelopePhysical->add(XAxisPhysVol);
 	
 	// y-axis
@@ -906,12 +900,7 @@ void LArGeo::LArDetectorConstructionH62003::createAxis(GeoFullPhysVol* H62003Env
 	const GeoLogVol* YAxisLogical = new GeoLogVol(YAxisName,XYaxisShape,mat);
 	GeoPhysVol* YAxisPhysVol = new GeoPhysVol( YAxisLogical );
 	
-	H62003EnvelopePhysical->
-		add(new GeoTransform(Transform3D(HepRotationX( -90.*deg ),
-                                                 Hep3Vector(
-                                                            0.*m,
-                                                            axisXYHalfLength, 
-                                                            0.*m))));
+	H62003EnvelopePhysical->add(new GeoTransform(Transform3D(GeoTrf::Translate3D(0.*m,axisXYHalfLength,0.*m)*GeoTrf::RotateX3D(-90.*deg))));
 	H62003EnvelopePhysical->add(YAxisPhysVol);
 	
 	//z-axis

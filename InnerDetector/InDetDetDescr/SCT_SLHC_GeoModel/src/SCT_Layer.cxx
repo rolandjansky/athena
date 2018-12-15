@@ -23,10 +23,10 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Vector/Rotation.h"
+#include "GeoModelKernel/Units.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+
+
 
 #include <sstream>
 #include <cmath>
@@ -72,7 +72,7 @@ void SCT_Layer::getParameters(){
   //---m_supportMaterial = materials->getMaterial(parameters->supportCylMaterial(m_iLayer));
   //0.189 is taken from oracle database (CFiberSupport)
   double materialIncreaseFactor = parameters->materialIncreaseFactor(m_iLayer);
-  //double cf_density = 0.189*materialIncreaseFactor*CLHEP::g/CLHEP::cm3;
+  //double cf_density = 0.189*materialIncreaseFactor*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3;
   //m_supportMaterial = materials->getMaterial(parameters->supportCylMaterial(m_iLayer), cf_density);
   m_supportMaterial = materials->getMaterialScaled(parameters->supportCylMaterial(m_iLayer), materialIncreaseFactor);
 
@@ -93,7 +93,7 @@ const GeoLogVol* SCT_Layer::preBuild(){
   //Create the logical volume: a sphape + material
   std::string layerNumStr = intToString(m_iLayer);
   //Calculations to make the ski(s)
-  double divisionAngle  = 360*CLHEP::degree/m_skisPerLayer;
+  double divisionAngle  = 360*GeoModelKernelUnits::degree/m_skisPerLayer;
   m_skiPhiStart = 0.5*divisionAngle;
   //Make the ski: this is made from modules 
   m_ski = new SCT_Ski("Ski"+layerNumStr, m_modulesPerSki, m_iLayer, 
@@ -134,7 +134,7 @@ GeoVPhysVol* SCT_Layer::build(SCT_Identifier id) const{
   SCT_MaterialManager * materials = geometryManager()->materialManager();
   //We make this a fullPhysVol for alignment code.
   GeoFullPhysVol* layer = new GeoFullPhysVol(m_logVolume);
-  double divisionAngle  = 360*CLHEP::degree/m_skisPerLayer;
+  double divisionAngle  = 360*GeoModelKernelUnits::degree/m_skisPerLayer;
   //Make envelope for active layer
   const GeoTube* activeLayerEnvelope = new GeoTube(m_activeInnerRadius, 
 							m_activeOuterRadius, 0.5*m_cylLength);
@@ -148,17 +148,15 @@ GeoVPhysVol* SCT_Layer::build(SCT_Identifier id) const{
     //first, rotate the ski to have the right orientation (by default the ski is put in 
     //the center of the layer cylinder with thickness along X, width along Y and length
     //along Z. the rotation is done along the cylinder Z axis.
-    CLHEP::HepRotation rot;
-    rot.rotateZ(phi);
-    rot.rotateZ(m_tilt);
+    GeoTrf::Transform3D rot = GeoTrf::RotateZ3D(m_tilt)*GeoTrf::RotateZ3D(phi);
     //then translate the ski to (R, Phi) position
-    CLHEP::Hep3Vector pos(m_radius, 0, 0);
-    pos.rotateZ(phi);
+    GeoTrf::Vector3D pos(m_radius, 0, 0);
+    pos = GeoTrf::RotateZ3D(phi)*pos;
     //Because the ski envelope center is not positioned at the rotation axis for the ski
     //we must first apply the inverse of refPointTransform() of the ski.
-    //---HepGeom::Transform3D trans(HepGeom::Transform3D(rot,pos)*m_ski->getRefPointTransform()
+    //---GeoTrf::Transform3D trans(GeoTrf::Transform3D(rot,pos)*m_ski->getRefPointTransform()
     //--- ->getTransform().inverse());
-    HepGeom::Transform3D trans(HepGeom::Transform3D(rot,pos));
+    GeoTrf::Transform3D trans = GeoTrf::Translate3D(pos.x(),pos.y(),pos.z())*rot;
     activeLayer->add(new GeoAlignableTransform(trans));
     activeLayer->add(new GeoNameTag(name.str()));
     activeLayer->add(new GeoIdentifierTag(iSki));
@@ -198,9 +196,9 @@ void SCT_Layer::activeEnvelopeExtent(double & rmin, double & rmax){
   double thickness = 0.5*m_ski->thickness();
   double width = 0.5*m_ski->width();
   double tilt = std::abs(m_tilt);
-  double width_rot = width * cos(tilt/CLHEP::radian) - thickness * sin(tilt/CLHEP::radian);
+  double width_rot = width * cos(tilt/GeoModelKernelUnits::radian) - thickness * sin(tilt/GeoModelKernelUnits::radian);
   
-  double thickness_rot = width * sin(tilt/CLHEP::radian) + thickness * cos(tilt/CLHEP::radian);
+  double thickness_rot = width * sin(tilt/GeoModelKernelUnits::radian) + thickness * cos(tilt/GeoModelKernelUnits::radian);
 
   rmax = sqrt(sqr(m_radius + thickness_rot) + sqr(width_rot)); 
   rmin = sqrt(sqr(m_radius - thickness_rot) + sqr(width_rot));

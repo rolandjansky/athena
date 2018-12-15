@@ -9,12 +9,13 @@
 #ifndef TRKDETELEMENTBASE_TRKDETELEMENTBASE_H
 #define TRKDETELEMENTBASE_TRKDETELEMENTBASE_H
 
-#include "GeoModelKernel/GeoVDetectorElement.h"
-#include "Identifier/Identifier.h"
-#include "Identifier/IdentifierHash.h"
 // Math & Geometry library
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
+
+#include "GeoModelKernel/GeoVDetectorElement.h"
+#include "Identifier/Identifier.h"
+#include "Identifier/IdentifierHash.h"
 
 namespace Trk 
 {

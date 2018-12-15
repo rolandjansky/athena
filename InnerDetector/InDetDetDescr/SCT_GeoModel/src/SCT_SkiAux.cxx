@@ -24,10 +24,8 @@
 #include "GeoModelKernel/GeoNameTag.h"
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoMaterial.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Vector/Rotation.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 
 #include <cmath>
 
@@ -198,30 +196,27 @@ SCT_SkiAux::build()
     // 15th Aug 2005 S.Mima modified.
     //    double baseBoardPosZ =  m_ski->zPos(iModule) + m_ski->module()->baseBoardCenter();
     double coolingCenterPosZ =  m_ski->zPos(iModule) + m_ski->coolingBlockOffsetZ();
-    CLHEP::Hep3Vector posBracket(xBracketPos, yBracketPos, coolingCenterPosZ);
-    CLHEP::HepRotation rotBracket;
-    rotBracket.rotateZ(m_bracketPhiOffset);
-    skiAux->add(new GeoTransform(HepGeom::Transform3D(rotBracket, posBracket)));
+    GeoTrf::Translation3D posBracket(xBracketPos, yBracketPos, coolingCenterPosZ);
+    GeoTrf::RotateZ3D rotBracket(m_bracketPhiOffset);
+    skiAux->add(new GeoTransform(GeoTrf::Transform3D(posBracket*rotBracket)));
     skiAux->add(m_bracket->getVolume());
   }
 
   // Position the harness
   if(m_harness != 0) {
-    CLHEP::Hep3Vector posHarness(xHarnessPos, yHarnessPos, 0);
-    CLHEP::HepRotation rotHarness;
-    rotHarness.rotateZ(m_powerTapePhiOffset);
-    skiAux->add(new GeoTransform(HepGeom::Transform3D(rotHarness,posHarness)));
+    GeoTrf::Translation3D posHarness(xHarnessPos, yHarnessPos, 0);
+    GeoTrf::RotateZ3D rotHarness(m_powerTapePhiOffset);
+    skiAux->add(new GeoTransform(GeoTrf::Transform3D(posHarness*rotHarness)));
     skiAux->add(m_harness->getVolume());
   }
 
   //
   // Position the power tapes
   //
-  CLHEP::Hep3Vector posTape(xTapePos, yTapePos, 0);
-  CLHEP::HepRotation rotTape;
-  rotTape.rotateZ(m_powerTapePhiOffset);
+  GeoTrf::Translation3D posTape(xTapePos, yTapePos, 0);
+  GeoTrf::RotateZ3D rotTape(m_powerTapePhiOffset);
   
-  skiAux->add(new GeoTransform(HepGeom::Transform3D(rotTape,posTape)));
+  skiAux->add(new GeoTransform(GeoTrf::Transform3D(posTape*rotTape)));
   skiAux->add(m_skiPowerTape->getVolume());
 
 

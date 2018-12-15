@@ -20,6 +20,8 @@
 #ifndef TILEMUONCALOD3PDMAKER_CELLFILLERTOOL_H
 #define TILEMUONCALOD3PDMAKER_CELLFILLERTOOL_H
 
+#include "GeoPrimitives/GeoPrimitives.h"
+
 /// D3PD INCLUDES
 #include "D3PDMakerUtils/BlockFillerTool.h"
 

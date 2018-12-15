@@ -11,6 +11,12 @@
 
 #include <cmath>
 
+#ifndef XAOD_ANALYSIS
+#include "GaudiKernel/SystemOfUnits.h"
+using Gaudi::Units::GeV;
+#else
+#define GeV 1000
+#endif
 
 egammaMVACalibTool::egammaMVACalibTool(const std::string& type, const std::string& name, const IInterface* parent) :
   base_class(type, name, parent)
@@ -209,7 +215,7 @@ float egammaMVACalibTool::getEnergy(const xAOD::CaloCluster& clus,
 			   egammaMVAFunctions::compute_correctedcl_Eacc(clus) :
                            egammaMVAFunctions::compute_rawcl_Eacc(clus));
   
-  const auto energyVarGeV = (initEnergy / std::cosh(clus.eta())) / CLHEP::GeV;
+  const auto energyVarGeV = (initEnergy / std::cosh(clus.eta())) / GeV; 
   const auto etaVar = std::abs(clus.eta());
 
   ATH_MSG_DEBUG("Looking at object with initEnergy = " << initEnergy 
@@ -268,7 +274,7 @@ float egammaMVACalibTool::getEnergy(const xAOD::CaloCluster& clus,
   }
 
   // have to do a shift if here. It's based on the corrected Et in GeV
-  const auto etGeV = (energy / std::cosh(clus.eta())) / CLHEP::GeV;
+  const auto etGeV = (energy / std::cosh(clus.eta())) / GeV; 
 
   // evaluate the TFormula associated with the bin
   const auto shift = m_shifts[bin].Eval(etGeV);

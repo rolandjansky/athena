@@ -1,4 +1,4 @@
-#include "PixelGeoModel/PixelDetectorTool.h"
+#include "../PixelDetectorTool.h"
 #include "PixelGeoModel/IBLParameterSvc.h"
 
 DECLARE_COMPONENT( PixelDetectorTool )

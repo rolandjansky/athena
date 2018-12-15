@@ -13,12 +13,16 @@
 #include "MuonReadoutGeometry/MuonReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MuonStation.h"
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoPhysVol.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 
 #include "AthenaKernel/getMessageSvc.h"
 #include "TrkSurfaces/CylinderBounds.h"
 #include "TrkSurfaces/StraightLineSurface.h"
+
+// Test
 
 namespace MuonGM {
 
@@ -28,7 +32,7 @@ namespace MuonGM {
     : TrkDetElementBase(pv),
       m_Ssize(-9999.), m_Rsize(-9999.), m_Zsize(-9999.), m_LongSsize(-9999.),
       m_LongRsize(-9999.), m_LongZsize(-9999.), m_caching(-1), m_MsgStream(NULL),
-      m_eta(-1), m_phi(-1), m_id_max_init_field(-1), m_absTransform(NULL),m_defTransform(NULL)
+      m_eta(-1), m_phi(-1), m_id_max_init_field(-1), m_absTransform(nullptr),m_defTransform(nullptr)
   {
     //m_msgSvc = Athena::getMessageSvc();
     m_stationS = 0.;
@@ -57,8 +61,8 @@ namespace MuonGM {
   }
 
   void MuonReadoutElement::clear() const {
-    delete m_absTransform; m_absTransform = 0;
-    delete m_defTransform; m_defTransform = 0;    
+    delete m_absTransform; m_absTransform = nullptr;
+    delete m_defTransform; m_defTransform = nullptr;    
   }
 
   const Amg::Vector3D MuonReadoutElement::globalPosition() const
@@ -189,15 +193,13 @@ namespace MuonGM {
 
   Amg::Transform3D MuonReadoutElement::toParentStation() const
   {
-    HepGeom::Transform3D xf = HepGeom::Transform3D::Identity;
-    
     PVConstLink par = parentStationPV();
     if (par == PVConstLink(0)) {
       std::cerr<<"MuonReadoutElement::parentStationPos() *** parent not found"<<std::endl;
       throw;
     }
     
-    HepGeom::Transform3D par_to_child = HepGeom::Transform3D::Identity;    
+    GeoTrf::Transform3D par_to_child = GeoTrf::Transform3D::Identity();
 
     if ( m_indexOfREinMuonStation >=0 ) par_to_child = par->getXToChildVol( (unsigned int)m_indexOfREinMuonStation );
 #ifndef NDEBUG
@@ -206,7 +208,7 @@ namespace MuonGM {
         reLog()<<MSG::ERROR<<"No index to REinMuonStation computed/found until now"<<endmsg;
       }
 #endif
-    return Amg::CLHEPTransformToEigen(par_to_child);
+    return par_to_child;
   }
 
   void

@@ -38,6 +38,7 @@
 #include "TrkSurfaces/TrapezoidBounds.h"
 #include "TrkSurfaces/DiscSurface.h"
 #include "TrkSurfaces/PlaneSurface.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include <memory>
 // CLHEP
 //#include "CLHEP/Geometry/Transform3D.h"
@@ -48,8 +49,8 @@
 //using HepGeom::Vector3D;
 //using CLHEP::Hep3Vector;
 //using CLHEP::HepRotation;
-using CLHEP::mm;
-using CLHEP::radian;
+//using CLHEP::mm;
+//using CLHEP::radian;
 
 // constructor
 Calo::CaloTrackingGeometryBuilder::CaloTrackingGeometryBuilder(const std::string& t, const std::string& n, const IInterface* p) :
@@ -60,7 +61,7 @@ Calo::CaloTrackingGeometryBuilder::CaloTrackingGeometryBuilder(const std::string
   m_lArVolumeBuilder("LAr::LArVolumeBuilder/LArVolumeBuilder"),
   m_tileVolumeBuilder("Tile::TileVolumeBuilder/TileVolumeBuilder"),
   m_caloMaterial(0),
-  m_caloEnvelope(25*mm),
+  m_caloEnvelope(25*Gaudi::Units::mm),
   m_enclosingEnvelopeSvc("AtlasGeometry_EnvelopeDefSvc", n),
   m_caloDefaultRadius(4250.),
   m_caloDefaultHalflengthZ(6500.),
@@ -529,7 +530,7 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
        Trk::DiscLayer* mbtsPosLayer = new Trk::DiscLayer(mbtsPosZpos,dibo->clone(),
                                                          //mbtsPosLayerSurfArray,
                                                          Trk::HomogeneousLayerMaterial(Trk::MaterialProperties(*m_caloMaterial,1.),1.),
-                                                         1.*mm);
+                                                         1.*Gaudi::Units::mm);
 
        m_mbtsNegLayers=new std::vector<const Trk::Layer*>;
        m_mbtsPosLayers=new std::vector<const Trk::Layer*>;

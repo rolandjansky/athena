@@ -525,7 +525,7 @@ MuidCaloEnergyTool::measurement(double		trackMomentum,
     const double EmIso	= caloMeas->LArEM_Isolation();
 
     const double Theta	= 2.*atan(exp(-eta));
-    const double pT	= trackMomentum*sin(Theta)*CLHEP::MeV;
+    const double pT	= trackMomentum*sin(Theta)*Units::MeV;
     const double EmCut	= m_emMinEnergy + (3.-2.)/(100.-15.)*(pT/Units::GeV-15.)*Units::GeV;
     const double HECCut	= m_hecMinEnergy;
     const double pTCut	= m_minMuonPt;

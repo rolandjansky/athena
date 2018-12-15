@@ -6,9 +6,7 @@
 atlas_subdir( LArGeoH6Cryostats )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          DetectorDescription/GeoModel/GeoModelKernel
-                          PRIVATE
+atlas_depends_on_subdirs( PRIVATE
                           Control/CxxUtils
                           Control/StoreGate
                           Database/RDBAccessSvc
@@ -17,15 +15,15 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
-find_package( CLHEP )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
+find_package( Eigen )
+find_package( GeoModel )
 
 # Component(s) in the package:
 atlas_add_library( LArGeoH6Cryostats
                    src/*.cxx
                    PUBLIC_HEADERS LArGeoH6Cryostats
-                   PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                   PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES GeoModelKernel StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} CxxUtils GaudiKernel )
+                   PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${GEOMODEL_LIBRARIES} StoreGateLib SGtests
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${EIGEN_LIBRARIES} CxxUtils GaudiKernel )
 

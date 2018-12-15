@@ -105,7 +105,7 @@ void PixelServMatFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
 				    servicePcon->getDPhi());
 
       GeoCons* cons = new GeoCons(servicePcon->getRMinPlane(2),servicePcon->getRMinPlane(3),
-				   servicePcon->getRMaxPlane(2),servicePcon->getRMaxPlane(3)+1E-9*CLHEP::mm,
+				   servicePcon->getRMaxPlane(2),servicePcon->getRMaxPlane(3)+1E-9*GeoModelKernelUnits::mm,
 				   (servicePcon->getZPlane(3)-servicePcon->getZPlane(2))*0.5,
 				   servicePcon->getSPhi(),
 				   servicePcon->getDPhi());

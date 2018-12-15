@@ -997,7 +997,7 @@ void Muon::MuonTGMeasAssocAlg::reAlignStations() const
 
   unsigned int moved = 0;
   for ( ;iter!=m_stationMap.end();iter++) {  
-    const Amg::Transform3D transfMS = Amg::CLHEPTransformToEigen(iter->second.first->getGeoTransform()->getTransform());
+    const Amg::Transform3D transfMS = iter->second.first->getGeoTransform()->getTransform();
     const Amg::Transform3D transfTV = iter->second.second->trackingVolume()->transform();
     if ( !transfMS.isApprox(transfTV, 1e-3) ) {
       Amg::Transform3D shift = transfMS*transfTV.inverse();

@@ -240,12 +240,11 @@ StatusCode InDetDD::BLM_Builder::build(GeoVPhysVol* pv)
       BLM_ModuleParameters* parameters = manager->Module(i);
 
       //setting transformation
-      CLHEP::Hep3Vector pos(parameters->R()*cos(parameters->Phi()*CLHEP::deg), parameters->R()*sin(parameters->Phi()*CLHEP::deg), parameters->Z());
-      CLHEP::HepRotation rm;
-      rm.rotateX(parameters->Rotation_X()*CLHEP::deg);
-      rm.rotateY(parameters->Rotation_Y()*CLHEP::deg);
-      rm.rotateZ(parameters->Rotation_Z()*CLHEP::deg);
-      GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(rm,pos));
+      GeoTrf::Translation3D pos(parameters->R()*cos(parameters->Phi()*GeoModelKernelUnits::deg), parameters->R()*sin(parameters->Phi()*GeoModelKernelUnits::deg), parameters->Z());
+      GeoTrf::Transform3D rm = GeoTrf::RotateZ3D(parameters->Rotation_Z()*GeoModelKernelUnits::deg)
+	* GeoTrf::RotateY3D(parameters->Rotation_Y()*GeoModelKernelUnits::deg)
+	* GeoTrf::RotateX3D(parameters->Rotation_X()*GeoModelKernelUnits::deg);
+      GeoTransform* xform = new GeoTransform(GeoTrf::Transform3D(pos*rm));
       xform->ref();
       //building module
       int k=i+222;

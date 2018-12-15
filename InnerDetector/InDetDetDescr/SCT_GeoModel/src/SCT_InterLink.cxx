@@ -14,7 +14,7 @@
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoTransform.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
 SCT_InterLink::SCT_InterLink(const std::string & name)
   : SCT_SharedComponentFactory(name),
@@ -109,28 +109,28 @@ SCT_InterLink::build()
     m_interLink->ref();
 
     // Interlink segments:
-    m_interLinkSegShape = new GeoTubs(m_innerRadius, m_outerRadius, 0.5*m_length, - 0.5*m_dPhi*CLHEP::radian, m_dPhi*CLHEP::radian);
+    m_interLinkSegShape = new GeoTubs(m_innerRadius, m_outerRadius, 0.5*m_length, - 0.5*m_dPhi*GeoModelKernelUnits::radian, m_dPhi*GeoModelKernelUnits::radian);
     m_interLinkSegLog = new GeoLogVol("InterlinkSegment", m_interLinkSegShape, materials.getMaterialForVolume(m_materialName, m_interLinkSegShape->volume()));
     m_interLinkSeg = new GeoPhysVol(m_interLinkSegLog);
     m_interLinkSeg->ref();
 
     for(int i=0; i<m_nRepeat; i++) {
-      double interlinkAngle = m_phiPos + (i * 360./m_nRepeat)*CLHEP::deg;
-      GeoTransform* geoTransform = new GeoTransform(HepGeom::RotateZ3D(interlinkAngle));
+      double interlinkAngle = m_phiPos + (i * 360./m_nRepeat)*GeoModelKernelUnits::deg;
+      GeoTransform* geoTransform = new GeoTransform(GeoTrf::RotateZ3D(interlinkAngle));
       m_geoTransforms.push_back(geoTransform);
       m_interLink->add(geoTransform);
       m_interLink->add(m_interLinkSeg);
     }
 
     // B6 bearings
-    m_bearingShape = new GeoTubs(m_innerRadiusBearing, m_outerRadiusBearing, 0.5*m_lengthBearing, - 0.5*m_dPhiBearing*CLHEP::radian, m_dPhiBearing*CLHEP::radian);
+    m_bearingShape = new GeoTubs(m_innerRadiusBearing, m_outerRadiusBearing, 0.5*m_lengthBearing, - 0.5*m_dPhiBearing*GeoModelKernelUnits::radian, m_dPhiBearing*GeoModelKernelUnits::radian);
     m_bearingLog = new GeoLogVol("Bearing", m_bearingShape, materials.getMaterialForVolume(m_materialNameBearing, m_bearingShape->volume()));
     m_bearing = new GeoPhysVol(m_bearingLog);
     m_bearing->ref();
 
     for(int i=0; i<m_nRepeatBearing; i++) {
-      double bearingAngle = m_phiPosBearing + (i * 360./m_nRepeatBearing)*CLHEP::deg;
-      GeoTransform* geoTransform = new GeoTransform(HepGeom::RotateZ3D(bearingAngle));
+      double bearingAngle = m_phiPosBearing + (i * 360./m_nRepeatBearing)*GeoModelKernelUnits::deg;
+      GeoTransform* geoTransform = new GeoTransform(GeoTrf::RotateZ3D(bearingAngle));
       m_geoTransforms.push_back(geoTransform);
       m_interLink->add(geoTransform);
       m_interLink->add(m_bearing);
@@ -139,16 +139,16 @@ SCT_InterLink::build()
     // FSI Flange segments:
     // These exactly fill gaps between interlink segments, with smaller radial extent
     if(m_includeFSIFlange) {
-      double dPhiFSI = (360./m_nRepeat)*CLHEP::deg - m_dPhi; 
-      m_FSIFlangeShape = new GeoTubs(m_innerRadiusFSIFlange, m_outerRadiusFSIFlange, 0.5*m_length, - 0.5*dPhiFSI*CLHEP::radian, dPhiFSI*CLHEP::radian);
+      double dPhiFSI = (360./m_nRepeat)*GeoModelKernelUnits::deg - m_dPhi; 
+      m_FSIFlangeShape = new GeoTubs(m_innerRadiusFSIFlange, m_outerRadiusFSIFlange, 0.5*m_length, - 0.5*dPhiFSI*GeoModelKernelUnits::radian, dPhiFSI*GeoModelKernelUnits::radian);
       m_FSIFlangeLog = new GeoLogVol("FSIFlangeSegment", m_FSIFlangeShape, materials.getMaterialForVolume(m_materialNameFSIFlange, m_FSIFlangeShape->volume()));
       m_FSIFlange = new GeoPhysVol(m_FSIFlangeLog);
       m_FSIFlange->ref();
 
       for(int i=0; i<m_nRepeat; i++) {
-        double phiPosFSI = m_phiPos + (180./m_nRepeat)*CLHEP::deg;
-        double FSIFlangeAngle = phiPosFSI + (i * 360./m_nRepeat)*CLHEP::deg;
-        GeoTransform* geoTransform = new GeoTransform(HepGeom::RotateZ3D(FSIFlangeAngle));
+        double phiPosFSI = m_phiPos + (180./m_nRepeat)*GeoModelKernelUnits::deg;
+        double FSIFlangeAngle = phiPosFSI + (i * 360./m_nRepeat)*GeoModelKernelUnits::deg;
+        GeoTransform* geoTransform = new GeoTransform(GeoTrf::RotateZ3D(FSIFlangeAngle));
         m_geoTransforms.push_back(geoTransform);
         m_interLink->add(geoTransform);
         m_interLink->add(m_FSIFlange);

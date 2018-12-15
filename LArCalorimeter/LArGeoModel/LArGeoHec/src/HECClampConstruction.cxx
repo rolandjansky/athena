@@ -31,10 +31,9 @@
 #include "GeoModelKernel/GeoSerialTransformer.h"
 #include "GeoModelKernel/GeoSerialIdentifier.h"
 #include "GeoModelKernel/GeoXF.h"
-#include "CLHEP/Geometry/Transform3D.h" 
-#include "CLHEP/Vector/Rotation.h" 
-#include "CLHEP/Units/PhysicalConstants.h"
-#include "CLHEP/GenericFunctions/Variable.hh"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
+#include "GeoGenericFunctions/Variable.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
@@ -52,12 +51,12 @@
 #include <cmath>
 #include <iostream>
 
-using CLHEP::cm;
-using CLHEP::mm;
-using CLHEP::deg;
-using HepGeom::RotateZ3D;
-using HepGeom::Translate3D;
-using HepGeom::TranslateZ3D;
+using GeoModelKernelUnits::cm;
+using GeoModelKernelUnits::mm;
+using GeoModelKernelUnits::deg;
+using GeoTrf::RotateZ3D;
+using GeoTrf::Translate3D;
+using GeoTrf::TranslateZ3D;
 
 
 //Constructor
@@ -383,11 +382,11 @@ void LArGeo::HECClampConstruction::AddClamps(GeoFullPhysVol* physiHECWheel)
   physiHECWheel->add(xt);
 
   GeoSerialIdentifier  *sIC = new GeoSerialIdentifier(0);
-  Genfun::Variable    IndexC;
+  GeoGenfun::Variable    IndexC;
 
   if (m_posZSide)
     {
-      Genfun::GENFUNCTION ModuleRotationAngleC = -m_modulePhistart+m_moduleDeltaPhi + m_moduleDeltaPhi*IndexC;
+      GeoGenfun::GENFUNCTION ModuleRotationAngleC = -m_modulePhistart+m_moduleDeltaPhi + m_moduleDeltaPhi*IndexC;
       GeoXF::TRANSFUNCTION tC   = GeoXF::Pow(RotateZ3D(1.0),ModuleRotationAngleC);
       GeoSerialTransformer *sTC = new GeoSerialTransformer (clampingBar,&tC,((m_moduleNumber/2)-1));
       physiHECWheel->add(sIC);
@@ -396,7 +395,7 @@ void LArGeo::HECClampConstruction::AddClamps(GeoFullPhysVol* physiHECWheel)
     }
   else
     {
-      Genfun::GENFUNCTION ModuleRotationAngleC = -m_modulePhistart-m_moduleDeltaPhi+180*deg -  m_moduleDeltaPhi*IndexC;
+      GeoGenfun::GENFUNCTION ModuleRotationAngleC = -m_modulePhistart-m_moduleDeltaPhi+180*deg -  m_moduleDeltaPhi*IndexC;
       GeoXF::TRANSFUNCTION tC   = GeoXF::Pow(RotateZ3D(1.0),ModuleRotationAngleC);
       GeoSerialTransformer *sTC = new GeoSerialTransformer (clampingBar,&tC,((m_moduleNumber/2)-1));
       physiHECWheel->add(sIC);
@@ -418,11 +417,11 @@ void LArGeo::HECClampConstruction::AddClamps(GeoFullPhysVol* physiHECWheel)
 
 
   physiHECWheel->add(xt);
-  Genfun::Variable    IndexC2;
+  GeoGenfun::Variable    IndexC2;
 
   if (m_posZSide)
     {
-      Genfun::GENFUNCTION ModuleRotationAngleC2 = -m_modulePhistart+m_moduleDeltaPhi-(180.*deg) + m_moduleDeltaPhi*IndexC2;
+      GeoGenfun::GENFUNCTION ModuleRotationAngleC2 = -m_modulePhistart+m_moduleDeltaPhi-(180.*deg) + m_moduleDeltaPhi*IndexC2;
       GeoXF::TRANSFUNCTION tC2   = GeoXF::Pow(RotateZ3D(1.0),ModuleRotationAngleC2);
       GeoSerialTransformer *sTC2 = new GeoSerialTransformer (clampingBar,&tC2,((m_moduleNumber/2)-1));
       physiHECWheel->add(sTC2);
@@ -430,7 +429,7 @@ void LArGeo::HECClampConstruction::AddClamps(GeoFullPhysVol* physiHECWheel)
     }
   else
     {
-      Genfun::GENFUNCTION ModuleRotationAngleC2 = -m_modulePhistart-m_moduleDeltaPhi -  m_moduleDeltaPhi*IndexC2;
+      GeoGenfun::GENFUNCTION ModuleRotationAngleC2 = -m_modulePhistart-m_moduleDeltaPhi -  m_moduleDeltaPhi*IndexC2;
       GeoXF::TRANSFUNCTION tC2   = GeoXF::Pow(RotateZ3D(1.0),ModuleRotationAngleC2);
       GeoSerialTransformer *sTC2 = new GeoSerialTransformer (clampingBar,&tC2,((m_moduleNumber/2)-1));
       physiHECWheel->add(sTC2);

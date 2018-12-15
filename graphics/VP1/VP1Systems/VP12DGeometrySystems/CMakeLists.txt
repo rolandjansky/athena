@@ -12,7 +12,6 @@ atlas_depends_on_subdirs( PUBLIC
                           graphics/VP1/VP1Base
                           PRIVATE
                           Calorimeter/CaloDetDescr
-                          DetectorDescription/GeoModel/GeoModelKernel
                           DetectorDescription/IdDictDetDescr
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
@@ -23,6 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( Eigen )
+find_package( GeoModel )
 
 # Component(s) in the package:
 atlas_add_library( VP12DGeometrySystems
@@ -30,5 +30,5 @@ atlas_add_library( VP12DGeometrySystems
                    PUBLIC_HEADERS VP12DGeometrySystems
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    LINK_LIBRARIES ${EIGEN_LIBRARIES} GeoPrimitives VP1Base StoreGateLib SGtests CaloDetDescrLib MuonIdHelpersLib
-                   PRIVATE_LINK_LIBRARIES GeoModelKernel IdDictDetDescr InDetIdentifier InDetReadoutGeometry LArReadoutGeometry MuonReadoutGeometry TileDetDescr )
+                   PRIVATE_LINK_LIBRARIES ${GEOMODEL_LIBRARIES} IdDictDetDescr InDetIdentifier InDetReadoutGeometry LArReadoutGeometry MuonReadoutGeometry TileDetDescr )
 

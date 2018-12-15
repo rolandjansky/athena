@@ -19,11 +19,11 @@
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoMaterial.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Vector/Rotation.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+
+
 
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SCT_ForwardModuleSideDesign.h"

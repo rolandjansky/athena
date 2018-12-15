@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EMBBasicReadoutNumbers_h
-#define EMBBasicReadoutNumbers_h 1
+#ifndef LARREADOUTGEOMETRY_EMBBASICREADOUTNUMBERS_H
+#define LARREADOUTGEOMETRY_EMBBASICREADOUTNUMBERS_H
 #include <vector>
 /**
  *	@brief This is a collection of numbers used to create the cell

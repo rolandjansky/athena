@@ -19,14 +19,13 @@
 
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h" //for Argon
 #include "GaudiKernel/ServiceHandle.h"
-
-#include "CLHEP/Vector/TwoVector.h"
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 
 #include <string>
 
 class GeoPhysVol;
 class GeoFullPhysVol;
-//class CLHEP::Hep2Vector;
 class TRTParameterInterface;
 class InDetMaterialManager;
 
@@ -84,8 +83,8 @@ class TRTDetectorFactory_Full : public InDetDD::DetectorFactoryBase  {
   ActiveGasMixture DecideGasMixture(int strawStatusHT);
 
   // private helper methods:
-  const GeoShape * makeModule ( double length, CLHEP::Hep2Vector corner1 ,  CLHEP::Hep2Vector corner2, CLHEP::Hep2Vector corner3,
-				CLHEP::Hep2Vector corner4, HepGeom::Transform3D & absolutePosition, double shrinkDist=0 ) const;
+  const GeoShape * makeModule ( double length, GeoTrf::Vector2D corner1 ,  GeoTrf::Vector2D corner2, GeoTrf::Vector2D corner3,
+				GeoTrf::Vector2D corner4, GeoTrf::Transform3D & absolutePosition, double shrinkDist=0 ) const;
   //GeoPhysVol * makeStraw( double& activeGasZPosition, bool hasLargeDeadRegion=false ) const;
   GeoPhysVol * makeStraw( double& activeGasZPosition, bool hasLargeDeadRegion=false, ActiveGasMixture gasMixture = GM_XENON) const;
   //GeoFullPhysVol  *makeStrawPlane( size_t w ) const;

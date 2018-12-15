@@ -8,6 +8,7 @@
 
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoElement.h"
+#include "GeoModelKernel/Units.h"
 
 #include "StoreGate/StoreGate.h"
 #include "StoreGate/DataHandle.h"
@@ -67,7 +68,7 @@ int printElement ( GeoElement* &p_element)
 	
   std::cout << " ***** CheckElement(): Print the Element:  " << name << std::endl; 
   std::cout << " ***** The Element: name,		symbol, 	A, 	Z " << std::endl; 
-  std::cout << " *****             "<<name <<"		"<<symbol <<"		"<< a * (CLHEP::mole / CLHEP::gram) <<"	"<< z <<"	"  << std::endl; 
+  std::cout << " *****             "<<name <<"		"<<symbol <<"		"<< a * (GeoModelKernelUnits::mole / GeoModelKernelUnits::gram) <<"	"<< z <<"	"  << std::endl; 
 	
   return 1;
 }
@@ -81,7 +82,7 @@ int printElement ( const GeoElement* &p_element)
 	
   std::cout << " ***** PrintElement(): Print the Element:  " << name << std::endl; 
   std::cout << " ***** The Element: name,		symbol, 	A, 	Z " << std::endl; 
-  std::cout << " *****             "<<name <<"		"<<symbol <<"		"<< a * (CLHEP::mole / CLHEP::gram) <<"	"<< z <<"	"  << std::endl; 
+  std::cout << " *****             "<<name <<"		"<<symbol <<"		"<< a * (GeoModelKernelUnits::mole / GeoModelKernelUnits::gram) <<"	"<< z <<"	"  << std::endl; 
 	
   return 1;
 }
@@ -89,7 +90,7 @@ int printElement ( const GeoElement* &p_element)
 int printMaterial ( GeoMaterial* &p_material)
 {
   std::string name = p_material->getName();
-  double density = p_material->getDensity() * (CLHEP::cm3 / CLHEP::gram);
+  double density = p_material->getDensity() * (GeoModelKernelUnits::cm3 / GeoModelKernelUnits::gram);
 
   std::cout << " ***** PrintMaterial(): Print the Material:  " << name << std::endl; 
   std::cout << " ***** The Material: name,	density	" << std::endl; 
@@ -101,7 +102,7 @@ int printMaterial ( GeoMaterial* &p_material)
 int printFullMaterial ( GeoMaterial* &p_material)
 {
   std::string name = p_material->getName();
-  double density = p_material->getDensity() * (CLHEP::cm3 / CLHEP::gram);
+  double density = p_material->getDensity() * (GeoModelKernelUnits::cm3 / GeoModelKernelUnits::gram);
 	
   std::cout << " ***** PrintFullMaterial(): Print the Material:  " << name << std::endl; 
   std::cout << " ***** The Material: name, 	density" << std::endl; 
@@ -588,7 +589,7 @@ GeoMaterial* RDBMaterialManager::getMaterial(const std::string & name) {
   if (ind == tmp_materials->size()) 
       return NULL;
 
-  pmaterial = new GeoMaterial( material_name,material_density * (CLHEP::gram / CLHEP::cm3));
+  pmaterial = new GeoMaterial( material_name,material_density * (GeoModelKernelUnits::gram / GeoModelKernelUnits::cm3));
 
 
   bool firstComponent = true;
@@ -802,7 +803,7 @@ const GeoMaterial*  RDBMaterialManager:: getMaterial(const std::string &name) co
   if (ind == tmp_materials->size()) 
       return NULL;
 
-  pmaterial = new GeoMaterial( material_name,material_density * (CLHEP::gram / CLHEP::cm3));
+  pmaterial = new GeoMaterial( material_name,material_density * (GeoModelKernelUnits::gram / GeoModelKernelUnits::cm3));
 
   bool firstComponent = true;
   bool hasSubMaterial = false;
@@ -903,7 +904,7 @@ const GeoElement *RDBMaterialManager::getElement(const std::string & name) const
 	  element_a = rec->getDouble("A");
 	  element_z = rec->getDouble("Z");
                 	
-	  pelement = new GeoElement( element_name , element_symbol  ,element_z , element_a *(CLHEP::gram/CLHEP::mole));
+	  pelement = new GeoElement( element_name , element_symbol  ,element_z , element_a *(GeoModelKernelUnits::gram/GeoModelKernelUnits::mole));
 
 	  // a table to keep the memory allocation, and easy for delete 
 	  pelement->ref();
@@ -946,7 +947,7 @@ const GeoElement *RDBMaterialManager::getElement(unsigned int atomicNumber) cons
 	  element_a = rec->getDouble("A");
 	  element_z = rec->getDouble("Z");
                 	
-	  pelement = new GeoElement( element_name , element_symbol  ,element_z , element_a *(CLHEP::gram/CLHEP::mole));
+	  pelement = new GeoElement( element_name , element_symbol  ,element_z , element_a *(GeoModelKernelUnits::gram/GeoModelKernelUnits::mole));
 
 	  // a table to keep the memory allocation, and easy for delete 
 	  pelement->ref();
@@ -996,7 +997,7 @@ GeoElement *RDBMaterialManager::getElement(const std::string & name)  {
 	  element_a = rec->getDouble("A");
 	  element_z = rec->getDouble("Z");
                 	
-	  pelement = new GeoElement( element_name , element_symbol  ,element_z , element_a *(CLHEP::gram/CLHEP::mole));
+	  pelement = new GeoElement( element_name , element_symbol  ,element_z , element_a *(GeoModelKernelUnits::gram/GeoModelKernelUnits::mole));
 
 	  // a table to keep the memory allocation, and easy for delete 
 	  pelement->ref();
@@ -1038,7 +1039,7 @@ GeoElement *RDBMaterialManager::getElement(unsigned int atomicNumber) {
 	  element_a = rec->getDouble("A");
 	  element_z = rec->getDouble("Z");
                 	
-	  pelement = new GeoElement( element_name , element_symbol  ,element_z , element_a *(CLHEP::gram/CLHEP::mole));
+	  pelement = new GeoElement( element_name , element_symbol  ,element_z , element_a *(GeoModelKernelUnits::gram/GeoModelKernelUnits::mole));
 
 	  // a table to keep the memory allocation, and easy for delete 
 	  pelement->ref();
@@ -1107,13 +1108,13 @@ std::ostream &  RDBMaterialManager::printAll(std::ostream & o) const
   std::vector<GeoElement *>::const_iterator e;
   for (e=m_elementVector.begin();e!= m_elementVector.end();e++) 
     {
-      o << (*e)->getSymbol() << '\t' << (*e)->getZ() <<  '\t' << (*e)->getA() * (CLHEP::mole / CLHEP::gram) << '\t' << (*e)->getName() << std::endl; 
+      o << (*e)->getSymbol() << '\t' << (*e)->getZ() <<  '\t' << (*e)->getA() * (GeoModelKernelUnits::mole / GeoModelKernelUnits::gram) << '\t' << (*e)->getName() << std::endl; 
     }
   std::map<std::string, GeoMaterial *>::const_iterator m;
   	
   for (m=m_materialMap.begin();m!=m_materialMap.end();m++) 
     {
-      o << "Material: " << (*m).first <<  " Density " << (*m).second->getDensity() * (CLHEP::cm3 / CLHEP::gram)  << std::endl;
+      o << "Material: " << (*m).first <<  " Density " << (*m).second->getDensity() * (GeoModelKernelUnits::cm3 / GeoModelKernelUnits::gram)  << std::endl;
       for (size_t i = 0; i< (*m).second->getNumElements();i++) 
 	{
 	  o <<" ***** ***** "<< int ((*m).second->getFraction(i)*100) << "% \t"  << (*m).second->getElement(i)->getName() << std::endl;

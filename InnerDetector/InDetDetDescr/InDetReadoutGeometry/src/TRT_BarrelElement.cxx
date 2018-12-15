@@ -15,6 +15,8 @@
 #include "TRT_ConditionsData/ExpandedIdentifier.h"
 #include "TRT_ConditionsData/StrawDxContainer.h"
 
+#include "GeoPrimitives/CLHEPtoEigenConverter.h"
+
 namespace InDetDD {
 
 TRT_BarrelElement::TRT_BarrelElement(const GeoVFullPhysVol *volume, 
@@ -95,7 +97,7 @@ HepGeom::Transform3D TRT_BarrelElement::calculateStrawTransform(int straw) const
     size_t offsetInto = m_descriptor->getStrawTransformOffset();
     double zPos = -m_descriptor->strawZPos();
     double zAng =  m_code.isPosZ() ? M_PI : 0;
-    return  getMaterialGeom()->getAbsoluteTransform()*((*f)(straw+offsetInto))
+    return  Amg::EigenTransformToCLHEP(getMaterialGeom()->getAbsoluteTransform()*((*f)(straw+offsetInto)))
       * HepGeom::RotateY3D(zAng)*HepGeom::TranslateZ3D(zPos)
       * calculateLocalStrawTransform(straw);
     ////return  conditions()->solenoidFrame() 
@@ -152,7 +154,8 @@ HepGeom::Transform3D TRT_BarrelElement::defStrawTransform(int straw) const
     size_t offsetInto = m_descriptor->getStrawTransformOffset();
     double zPos = -m_descriptor->strawZPos();
     double zAng =  m_code.isPosZ() ? M_PI : 0;
-    return getMaterialGeom()->getDefAbsoluteTransform()*((*f)(straw+offsetInto))* HepGeom::RotateY3D(zAng)*HepGeom::TranslateZ3D(zPos);
+    return Amg::EigenTransformToCLHEP(getMaterialGeom()->getDefAbsoluteTransform()*((*f)(straw+offsetInto))) 
+      * HepGeom::RotateY3D(zAng)*HepGeom::TranslateZ3D(zPos);
   } else {
     std::cout << "calculateStrawTransform:  f is 0 !!!!" << std::endl;
     return HepGeom::Transform3D();

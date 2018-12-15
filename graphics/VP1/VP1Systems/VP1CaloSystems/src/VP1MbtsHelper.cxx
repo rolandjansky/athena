@@ -92,11 +92,11 @@ void VP1MbtsHelper::systemcreate(StoreGateSvc* detstore)
   GeoFullPhysVol* pvLArECA = storedLArECA->getPhysVol();
   GeoFullPhysVol* pvLArECC = storedLArECC->getPhysVol();
 
-  HepGeom::Transform3D xfLArECA = pvLArECA->getAbsoluteTransform();
-  HepGeom::Transform3D xfLArECC = pvLArECC->getAbsoluteTransform();
+  GeoTrf::Transform3D xfLArECA = pvLArECA->getAbsoluteTransform();
+  GeoTrf::Transform3D xfLArECC = pvLArECC->getAbsoluteTransform();
 
   // Find a pointer to MBTS mother volume and its local transform
-  HepGeom::Transform3D xfMbtsMother;
+  GeoTrf::Transform3D xfMbtsMother;
   PVConstLink pvMbtsMother;
   bool mbtsExists = false;
 

@@ -24,6 +24,8 @@
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
 #include "CLHEP/Geometry/Point3D.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 
 class AtlasDetectorID;
 class GeoVFullPhysVol;
@@ -182,7 +184,7 @@ namespace InDetDD {
       //@{
       // Position 
       /// Local (simulation/hit frame) to global transform
-      virtual const HepGeom::Transform3D & transformHit() const; 
+      virtual const GeoTrf::Transform3D & transformHit() const; 
       /// Local (reconstruction frame) to global transform
       const Amg::Transform3D & transform() const; 
       /// Default Local (reconstruction frame) to global transform
@@ -662,7 +664,7 @@ namespace InDetDD {
     
     inline HepGeom::Point3D<double> SiDetectorElement::globalPositionHit(const HepGeom::Point3D<double> &localPos) const
     {
-      return transformHit()*localPos;
+      return Amg::EigenTransformToCLHEP(transformHit())*localPos;
     }
     
     inline Amg::Vector3D SiDetectorElement::globalPosition(const Amg::Vector2D &localPos) const
@@ -674,7 +676,7 @@ namespace InDetDD {
 
     inline Amg::Vector3D SiDetectorElement::globalPositionHit(const Amg::Vector3D &localPos) const
     {
-      return Amg::CLHEPTransformToEigen(transformHit()) * localPos;
+      return transformHit() * localPos;
     }
     
      inline HepGeom::Point3D<double> SiDetectorElement::globalPositionCLHEP(const Amg::Vector2D &localPos) const

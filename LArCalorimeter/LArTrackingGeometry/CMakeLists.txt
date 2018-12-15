@@ -14,9 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Calorimeter/CaloDetDescr
                           Control/StoreGate
-                          DetectorDescription/GeoModel/GeoModelKernel
                           DetectorDescription/GeoModel/GeoModelUtilities
-                          DetectorDescription/GeoPrimitives
                           LArCalorimeter/LArGeoModel/LArReadoutGeometry
                           Tracking/TrkDetDescr/TrkDetDescrGeoModelCnv
                           Tracking/TrkDetDescr/TrkDetDescrUtils
@@ -27,13 +25,14 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( Eigen )
+find_package( GeoModel )
 
 # Component(s) in the package:
 atlas_add_component( LArTrackingGeometry
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GaudiKernel TrkDetDescrInterfaces CaloDetDescrLib StoreGateLib SGtests GeoModelKernel GeoModelUtilities GeoPrimitives LArReadoutGeometry TrkDetDescrGeoModelCnv TrkDetDescrUtils TrkGeometry TrkGeometrySurfaces TrkSurfaces TrkVolumes )
+                     INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} ${GEOMODEL_LIBRARIES} AthenaBaseComps GaudiKernel TrkDetDescrInterfaces CaloDetDescrLib StoreGateLib SGtests GeoModelUtilities LArReadoutGeometry TrkDetDescrGeoModelCnv TrkDetDescrUtils TrkGeometry TrkGeometrySurfaces TrkSurfaces TrkVolumes )
 
 # Install files from the package:
 atlas_install_headers( LArTrackingGeometry )

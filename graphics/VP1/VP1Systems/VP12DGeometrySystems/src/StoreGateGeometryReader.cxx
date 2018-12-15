@@ -10,6 +10,7 @@
 #include "TileDetDescr/TileDetDescrManager.h"
 
 #include "LArReadoutGeometry/LArDetectorManager.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 #include "GeoModelKernel/GeoPVConstLink.h"
 #include "GeoModelKernel/GeoTrd.h"
 
@@ -32,8 +33,7 @@
 
 
 StoreGateGeometryReader::StoreGateGeometryReader()
-  : newDetector(nullptr),
-    m_pixel_manager(nullptr),
+  : m_pixel_manager(nullptr),
     m_silicon_manager(nullptr),
     m_trt_manager(nullptr),
     m_calo_manager(nullptr),
@@ -138,12 +138,11 @@ bool StoreGateGeometryReader::readGeometry()
 bool StoreGateGeometryReader::readPixelGeometry()
 {
   const PixelID* pixelIdHelper = 0;
-  if(m_detStore->retrieve(pixelIdHelper,"PixelID").isFailure() || !pixelIdHelper)
-    return false;
+  if(m_detStore->retrieve(pixelIdHelper,"PixelID").isFailure() || !pixelIdHelper) return false;
 
-    InDetDD::SiDetectorElementCollection::const_iterator it;
+  InDetDD::SiDetectorElementCollection::const_iterator it;
 
-    for (it=m_pixel_manager->getDetectorElementBegin(); it<m_pixel_manager->getDetectorElementEnd(); it++)
+  for (it=m_pixel_manager->getDetectorElementBegin(); it<m_pixel_manager->getDetectorElementEnd(); it++)
       {
 
 	const InDetDD::SiDetectorElement *element = *it;
@@ -168,7 +167,7 @@ bool StoreGateGeometryReader::readPixelGeometry()
 	      }
 	    zMax += 5;
 
-	    newDetector = new Detector;
+	    Detector* newDetector = new Detector;
 
 	    newDetector->type      = Detector::ABarrelSiliconDetector;
 	    newDetector->name      = "Pixel";
@@ -224,7 +223,7 @@ bool StoreGateGeometryReader::readPixelGeometry()
 	    zMin -= 5;
 	    zMax += 5;
 
-	    newDetector = new Detector;
+	    Detector* newDetector = new Detector;
 
 	    newDetector->type      = Detector::AEndcapSiliconDetector;
 	    newDetector->name      = "Pixel";
@@ -308,7 +307,7 @@ bool StoreGateGeometryReader::readSCTGeometry()
 	    }
 	  zMax += 5;
 
-	  newDetector = new Detector;
+	  Detector* newDetector = new Detector;
 
 	  newDetector->type      = Detector::ABarrelSiliconDetector;
 	  newDetector->name      = "Silicon";
@@ -375,7 +374,7 @@ bool StoreGateGeometryReader::readSCTGeometry()
 	  zMin -= 5;
 	  zMax += 5;
 
-	  newDetector = new Detector;
+	  Detector* newDetector = new Detector;
 
 	  newDetector->type      = Detector::AEndcapSiliconDetector;
 	  newDetector->name      = "Silicon";
@@ -459,7 +458,7 @@ bool StoreGateGeometryReader::readTRTGeometry()
 	  double dphiIn = 2.*M_PI / (nphi * trtIdHelper->straw_max(elementIn->identify()));
 	  double dphiOut = 2.*M_PI / (nphi * trtIdHelper->straw_max(elementOut->identify()));
 
-	  newDetector = new Detector;
+	  Detector* newDetector = new Detector;
 
 	  newDetector->type   = Detector::ABarrelTRTDetector;
 	  newDetector->name   = "TRT";
@@ -502,7 +501,7 @@ bool StoreGateGeometryReader::readTRTGeometry()
 	  // floor() instead of round() becuase we are neglecting the space between two modules
 	  int nphi = (int) floor(2.*M_PI / fabs(posOut.phi() - posIn.phi()));
 
-	  newDetector = new Detector;
+	  Detector* newDetector = new Detector;
 
 	  newDetector->type   = Detector::AEndcapTRTDetector;
 	  newDetector->name   = "TRT";
@@ -541,7 +540,7 @@ bool StoreGateGeometryReader::readSolenoidGeometry()
   double rIn = 122.9;
   double rOut = 127.4;
 
-  newDetector = new Detector;
+  Detector* newDetector = new Detector;
 
   newDetector->type       = Detector::ADisc;
   newDetector->name       = "Solenoid";
@@ -607,7 +606,7 @@ bool StoreGateGeometryReader::readTILEGeometry()
 
 	  if (!name.compare(0, 3, "ITC"))
 	    {
-	      newDetector = new Detector;
+	      Detector* newDetector = new Detector;
 
 	      newDetector->type     = Detector::AGapCalorimeter;
 	      newDetector->name     = name;
@@ -644,7 +643,7 @@ bool StoreGateGeometryReader::readTILEGeometry()
 	      int tower = tileIdHelper->tower(descriptor->identify());
 	      Identifier id = tileIdHelper->cell_id(section, side, module, tower, i);
 
-	      newDetector = new Detector;
+	      Detector* newDetector = new Detector;
 
 	      newDetector->type     = Detector::ABarrelCalorimeter;
 	      newDetector->name     = name;
@@ -694,11 +693,8 @@ bool StoreGateGeometryReader::readMBTSGeometry()
 	 {
 	   int sampling=0,numPhi=0;
 	   std::string stringOfNames="";
-	   HepGeom::Scale3D     scale;
-	   HepGeom::Rotate3D    rotate;
-	   HepGeom::Translate3D translate;
-	   (child->getX()).getDecomposition(scale, rotate, translate);
-	   double zlocation = translate.dz();
+	   GeoTrf::Vector3D translate = (child->getX()).translation();
+	   double zlocation = translate.z();
     	  if(zlocation<0)
 	    zlocation=-zlocation;
     	  for (unsigned int cc=0; cc< child->getNChildVols();cc++)
@@ -715,17 +711,16 @@ bool StoreGateGeometryReader::readMBTSGeometry()
 		  if(stringOfNames.find(currentName,0) == std::string::npos)
 		    {
 		      stringOfNames+=" " + currentName;
-		      HepGeom::Translate3D translateToChild;
-		      (child->getXToChildVol(cc)).getDecomposition(scale, rotate, translateToChild);
+		      GeoTrf::Vector3D translateToChild = (child->getXToChildVol(cc)).translation();
 		      const GeoTrd* theTrd = dynamic_cast<const GeoTrd*> ((childschild->getLogVol())->getShape());
-		      double rho=pow(translateToChild.dx(),2.0) + pow(translateToChild.dy(),2.0);
+		      double rho=pow(translateToChild.x(),2.0) + pow(translateToChild.y(),2.0);
 		      rho=pow(rho,0.5);
 		      double RMin=rho-theTrd->getZHalfLength();
 		      double RMax=rho+theTrd->getZHalfLength();
-		      double zmovement=translateToChild.dz();
+		      double zmovement=translateToChild.z();
 		      double zthickness=theTrd->getXHalfLength1();
 
-		      newDetector = new Detector;
+		      Detector* newDetector = new Detector;
 
 		      newDetector->type = Detector::AEndcapCryostat;
 		      newDetector->name = "Minimum Bias Trigger Scintillators";
@@ -764,6 +759,7 @@ bool StoreGateGeometryReader::readLArGeometry()
   QColor lArColor;
   const CaloCell_ID *idHelper = m_calo_manager->getCaloCell_ID();
   CaloDetDescrManager::calo_element_const_iterator it;
+  Detector* newDetector{nullptr};
 
   // This code is not very efficient in terms of speed. Since it will only be used
   // when the geometry has changed, the code is made to be easily readable instead.
@@ -1062,7 +1058,8 @@ bool StoreGateGeometryReader::readMuonGeometry()
   // this is not MDT specific and any of the other IdHelpers would have worked as well.
   const MdtIdHelper *mdtIdHelper = m_muon_manager->mdtIdHelper();
   int snMax = mdtIdHelper->nStationNames()-1;
-
+  Detector* newDetector{nullptr};
+  
   // Loop over all station types.
   for (int sn=0; sn<=snMax; sn++)
     {

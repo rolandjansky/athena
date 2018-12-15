@@ -10,6 +10,7 @@
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoSerialDenominator.h"
 #include "GeoModelKernel/GeoNameTag.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 #include "MuonGeoModel/MYSQL.h"
 #include "MuonGeoModel/MDT_Technology.h"
 #include <iostream>
@@ -32,9 +33,9 @@ DriftTube::DriftTube(std::string n): DetectorElement(n),
     plugLength  = md->tubeEndPlugLength;
     
 //    std::cout<<" drift tube gasR, outerR, plugL "<<gasRadius<<" "<<outerRadius<<" "<<plugLength<<std::endl;
-// 	outerRadius=1.5*CLHEP::cm;
-// 	gasRadius=1.46*CLHEP::cm;
-// 	plugLength=7*CLHEP::cm;
+// 	outerRadius=1.5*GeoModelKernelUnits::cm;
+// 	gasRadius=1.46*GeoModelKernelUnits::cm;
+// 	plugLength=7*GeoModelKernelUnits::cm;
 }
 
 GeoVPhysVol *DriftTube::build()
@@ -55,8 +56,8 @@ GeoVPhysVol *DriftTube::build()
 	      GeoPhysVol  *pgas    = new GeoPhysVol(lgas);
 
     GeoSerialDenominator *plugDenominator= new GeoSerialDenominator("Tube Endplug");
-	GeoTransform *ec0X = new GeoTransform(HepGeom::TranslateZ3D(+(length-plugLength)/2));
-	GeoTransform *ec1X = new GeoTransform(HepGeom::TranslateZ3D(-(length-plugLength)/2));
+	GeoTransform *ec0X = new GeoTransform(GeoTrf::TranslateZ3D(+(length-plugLength)/2));
+	GeoTransform *ec1X = new GeoTransform(GeoTrf::TranslateZ3D(-(length-plugLength)/2));
         std::string sGasName = "SensitiveGas";
 	GeoNameTag           *gasDenominator = new GeoNameTag(sGasName);
 
@@ -79,7 +80,7 @@ void DriftTube::print()
 	std::cout << "		Tube material 	: " << tubeMaterial.c_str() << std::endl;
 	std::cout << "		Radius		: " << outerRadius << std::endl;
 	std::cout << "		Length		: " << length;
-	std::cout << "		Thickness	: " << outerRadius-gasRadius << " CLHEP::mm" << std::endl;
+	std::cout << "		Thickness	: " << outerRadius-gasRadius << " mm" << std::endl;
 	std::cout << "		Gas material	: " << gasMaterial.c_str() << std::endl;
 	std::cout << "		EP length	: " << plugLength << std::endl;
 }

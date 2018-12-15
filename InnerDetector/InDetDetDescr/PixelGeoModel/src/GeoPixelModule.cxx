@@ -2,10 +2,10 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PixelGeoModel/GeoPixelModule.h"
-#include "PixelGeoModel/GeoPixelHybrid.h"
-#include "PixelGeoModel/GeoPixelChip.h"
-#include "PixelGeoModel/GeoPixelSiCrystal.h"
+#include "GeoPixelModule.h"
+#include "GeoPixelHybrid.h"
+#include "GeoPixelChip.h"
+#include "GeoPixelSiCrystal.h"
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoLogVol.h"
@@ -57,12 +57,12 @@ GeoPixelModule::GeoPixelModule(GeoPixelSiCrystal& theSensor) :
 
     // Shift so the center of the box is the center of the sensor.
     double shift = 0.5 * (ThicknessP() - ThicknessN_noSvc());
-    //    const GeoShape & shiftedBox = (*moduleBox) << HepGeom::TranslateX3D(shift);
+    //    const GeoShape & shiftedBox = (*moduleBox) << GeoTrf::TranslateX3D(shift);
     //    moduleShape = &shiftedBox;
     
     thickness = ThicknessP()+ThicknessN_noSvc();
     const GeoBox* moduleBox = new GeoBox(thickness/2.,width/2.,length/2.);
-    const GeoShape & shiftedBox = (*moduleBox) << HepGeom::TranslateX3D(shift);
+    const GeoShape & shiftedBox = (*moduleBox) << GeoTrf::TranslateX3D(shift);
     const GeoShape * moduleShape = &shiftedBox;
 
     if(m_moduleSvcThickness<0.001) {
@@ -71,19 +71,19 @@ GeoPixelModule::GeoPixelModule(GeoPixelSiCrystal& theSensor) :
     }
     else {
       const GeoShape * gblShape = 0;
-      gblShape = addShape(gblShape, moduleShape, HepGeom::Transform3D() );
+      gblShape = addShape(gblShape, moduleShape, GeoTrf::Transform3D::Identity() );
 
       double svcWidth = width*.6;
       m_moduleSvcWidth = svcWidth;
       const GeoBox* moduleSvcBox1 = new GeoBox(m_moduleSvcThickness*.5,svcWidth*.25,length*.5);
       double yShift = width*.5-svcWidth*.75;
       double xShift = thickness*.5+m_moduleSvcThickness*.5; 
-      gblShape = addShape(gblShape, moduleSvcBox1, (HepGeom::TranslateX3D(-xShift)*HepGeom::TranslateY3D(-yShift)) );
+      gblShape = addShape(gblShape, moduleSvcBox1, (GeoTrf::TranslateX3D(-xShift)*GeoTrf::TranslateY3D(-yShift)) );
 
       const GeoBox* moduleSvcBox2 = new GeoBox(m_moduleSvcThickness*.25,svcWidth*.25,length*.5);
       yShift = width*.5-svcWidth*.25;
       xShift = thickness*.5+m_moduleSvcThickness*.25; 
-      gblShape = addShape(gblShape, moduleSvcBox2, (HepGeom::TranslateX3D(-xShift)*HepGeom::TranslateY3D(-yShift)) );
+      gblShape = addShape(gblShape, moduleSvcBox2, (GeoTrf::TranslateX3D(-xShift)*GeoTrf::TranslateY3D(-yShift)) );
 
       for(int iSvc=0; iSvc<m_nbModuleSvc; iSvc++)
 	{
@@ -97,7 +97,7 @@ GeoPixelModule::GeoPixelModule(GeoPixelSiCrystal& theSensor) :
 	    double offsetY = m_gmt_mgr->PixelModuleServiceOffsetY(iSvc);
 	    double xPos = -0.5*(m_gmt_mgr->PixelBoardThickness(m_isModule3D)-m_gmt_mgr->PixelHybridThickness(m_isModule3D)) - offsetX - thick_svc*.5;
 	    const GeoBox* moduleSvcBox3 = new GeoBox(thick_svc*.5+.01,width_svc*.5+.01,length*.5+.01);
-	    gblShape = addShape(gblShape, moduleSvcBox3, (HepGeom::TranslateX3D(xPos)*HepGeom::TranslateY3D(offsetY)) );
+	    gblShape = addShape(gblShape, moduleSvcBox3, (GeoTrf::TranslateX3D(xPos)*GeoTrf::TranslateY3D(offsetY)) );
 	  }
 	}
 
@@ -131,16 +131,16 @@ GeoVPhysVol* GeoPixelModule::Build( ) {
   }
   modulePhys->add(new GeoIdentifierTag(idTag) );
   //Sensor is centered so we don't need the transform.
-  //GeoTransform *xformsi = new GeoTransform(HepGeom::Transform3D());
+  //GeoTransform *xformsi = new GeoTransform(GeoTrf::Transform3D());
   //modulePhys->add(xformsi);
   modulePhys->add(theSi );
   //
   // Place the Hybrid
   //
-  if (m_gmt_mgr->PixelHybridThickness(m_isModule3D)>0.00001*CLHEP::mm){
+  if (m_gmt_mgr->PixelHybridThickness(m_isModule3D)>0.00001*GeoModelKernelUnits::mm){
     GeoPixelHybrid ph(m_isModule3D);
     double hybxpos = -0.5*(m_gmt_mgr->PixelBoardThickness(m_isModule3D)+m_gmt_mgr->PixelHybridThickness(m_isModule3D));
-    GeoTransform* xform = new GeoTransform(HepGeom::TranslateX3D(hybxpos));
+    GeoTransform* xform = new GeoTransform(GeoTrf::TranslateX3D(hybxpos));
     modulePhys->add(xform);
     modulePhys->add(ph.Build() );
   }
@@ -151,7 +151,7 @@ GeoVPhysVol* GeoPixelModule::Build( ) {
   GeoPixelChip pc(m_isModule3D);
   double chipxpos = 0.5*(m_gmt_mgr->PixelBoardThickness(m_isModule3D)+m_gmt_mgr->PixelChipThickness(m_isModule3D))+m_gmt_mgr->PixelChipGap(m_isModule3D);
   double chipypos =m_gmt_mgr->PixelChipOffset(m_isModule3D);
-  GeoTransform* xform = new GeoTransform(HepGeom::TranslateX3D(chipxpos)*HepGeom::TranslateY3D(chipypos));
+  GeoTransform* xform = new GeoTransform(GeoTrf::TranslateX3D(chipxpos)*GeoTrf::TranslateY3D(chipypos));
   modulePhys->add(xform);
   modulePhys->add(pc.Build() );
 
@@ -183,7 +183,7 @@ GeoVPhysVol* GeoPixelModule::Build( ) {
 	double xPos = -0.5*(m_gmt_mgr->PixelBoardThickness(m_isModule3D)-m_gmt_mgr->PixelHybridThickness(m_isModule3D)) - offsetX - thick*.5;
 	double yPos = offsetY;
 	double zPos = offsetZ;
-	GeoTransform* xform = new GeoTransform(HepGeom::Translate3D(xPos,yPos,zPos));	
+	GeoTransform* xform = new GeoTransform(GeoTrf::Translate3D(xPos,yPos,zPos));	
 	modulePhys->add(xform);
 	modulePhys->add(svcPhys);
       }
@@ -200,7 +200,7 @@ double GeoPixelModule::ThicknessN_noSvc() {
   // is the max of ThicknessP and thickness from the module center to
   // the outer surface of the hybrid plus some safety.
   //
-  double safety = 0.01*CLHEP::mm; 
+  double safety = 0.01*GeoModelKernelUnits::mm; 
   double thickn = 0.5 * m_gmt_mgr->PixelBoardThickness(m_isModule3D)+ m_gmt_mgr->PixelHybridThickness(m_isModule3D) + safety;
   double thick = max(thickn, ThicknessP()); 
   
@@ -234,7 +234,7 @@ double GeoPixelModule::ThicknessN() {
   //
 
 
-  double safety = 0.01*CLHEP::mm; 
+  double safety = 0.01*GeoModelKernelUnits::mm; 
   double thickn = 0.5 * m_gmt_mgr->PixelBoardThickness(m_isModule3D)+ m_gmt_mgr->PixelHybridThickness(m_isModule3D) + safety;
   double thick = max(thickn, ThicknessP()); 
 
@@ -265,7 +265,7 @@ double GeoPixelModule::ThicknessP() {
   // is thickness from the module center to the outer surface of the
   // chips plus some safety.
 
-  double safety = 0.01*CLHEP::mm;
+  double safety = 0.01*GeoModelKernelUnits::mm;
   double thick = 0.5 * m_gmt_mgr->PixelBoardThickness(m_isModule3D) +
     m_gmt_mgr->PixelChipThickness(m_isModule3D)+m_gmt_mgr->PixelChipGap(m_isModule3D) + safety;
 
@@ -305,7 +305,7 @@ Identifier GeoPixelModule::getID() {
 }
 
 
-const GeoShape * GeoPixelModule::addShape(const GeoShape * lastShape, const GeoShape * nextShape, const HepGeom::Transform3D & trans)
+const GeoShape * GeoPixelModule::addShape(const GeoShape * lastShape, const GeoShape * nextShape, const GeoTrf::Transform3D & trans)
 {
   const GeoShape * shiftedShape = &(*nextShape << trans);
   if (lastShape) {

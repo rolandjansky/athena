@@ -9,7 +9,6 @@ atlas_subdir( LArGeoH62004Algs )
 atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           DetectorDescription/GeoModel/GeoModelInterfaces
-                          DetectorDescription/GeoModel/GeoModelKernel
                           DetectorDescription/GeoModel/GeoModelUtilities
                           LArCalorimeter/LArGeoModel/LArReadoutGeometry
                           PRIVATE
@@ -25,15 +24,16 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
-find_package( CLHEP )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
+find_package( Eigen )
+find_package( GeoModel )
 
 # Component(s) in the package:
 atlas_add_component( LArGeoH62004Algs
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} StoreGateLib SGtests GeoModelKernel GeoModelUtilities LArReadoutGeometry CaloDetDescrLib AthContainers GaudiKernel LArG4RunControl LArGeoCode LArGeoEndcap LArGeoH6Cryostats LArGeoTBECLib )
+                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${EIGEN_LIBRARIES} ${GEOMODEL_LIBRARIES} StoreGateLib SGtests GeoModelUtilities LArReadoutGeometry CaloDetDescrLib AthContainers GaudiKernel LArG4RunControl LArGeoCode LArGeoEndcap LArGeoH6Cryostats LArGeoTBECLib )
 
 # Install files from the package:
 atlas_install_headers( LArGeoH62004Algs )

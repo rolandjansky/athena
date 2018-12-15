@@ -23,6 +23,8 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"  
 #include "GeoModelKernel/GeoIdentifierTag.h"  
 #include "GeoModelKernel/GeoSerialDenominator.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
@@ -30,11 +32,7 @@
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 
-// For transforms:
-#include "CLHEP/Geometry/Transform3D.h" 
-#include "CLHEP/GenericFunctions/Variable.hh"
-// For units:
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "GeoGenericFunctions/Variable.h"
 
 // For the database:
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -116,13 +114,13 @@ GeoVPhysVol* LArGeo::MiddleBeamConstructionH62004::GetEnvelope()
   //
   // Define dimension of Middle part & position of Front part
   //
-  double bmtb_x = 12.0*CLHEP::cm;
-  double bmtb_y = 12.0*CLHEP::cm;
-  double bmtb_z = 25.0*CLHEP::cm;
-  //double bmtb_pos = 10.0*CLHEP::cm;
-  double bpco_pos[4] =  {1.*CLHEP::cm, 1.*CLHEP::cm, 15.3*CLHEP::cm, 15.3*CLHEP::cm};
-  double bpco_shift[4] =  {0.*CLHEP::cm, 7.8*CLHEP::cm, 0.*CLHEP::cm, 7.5*CLHEP::cm};
-  double bpc_old_z = (5.100/2)*CLHEP::cm;
+  double bmtb_x = 12.0*GeoModelKernelUnits::cm;
+  double bmtb_y = 12.0*GeoModelKernelUnits::cm;
+  double bmtb_z = 25.0*GeoModelKernelUnits::cm;
+  //double bmtb_pos = 10.0*GeoModelKernelUnits::cm;
+  double bpco_pos[4] =  {1.*GeoModelKernelUnits::cm, 1.*GeoModelKernelUnits::cm, 15.3*GeoModelKernelUnits::cm, 15.3*GeoModelKernelUnits::cm};
+  double bpco_shift[4] =  {0.*GeoModelKernelUnits::cm, 7.8*GeoModelKernelUnits::cm, 0.*GeoModelKernelUnits::cm, 7.5*GeoModelKernelUnits::cm};
+  double bpc_old_z = (5.100/2)*GeoModelKernelUnits::cm;
 
   GeoBox* H62004MiddleBeamShape = new GeoBox( bmtb_x, bmtb_y, bmtb_z );   
   const GeoLogVol* H62004MiddleBeamLogical = new GeoLogVol( H62004MiddleBeamName, H62004MiddleBeamShape, Air );
@@ -139,11 +137,11 @@ GeoVPhysVol* LArGeo::MiddleBeamConstructionH62004::GetEnvelope()
      m_H62004MiddleBeamPhysical->add( new GeoIdentifierTag((3+i/2)*10+i) );
      switch(i) {
 	  case 0: case 2: {
-			     m_H62004MiddleBeamPhysical->add( new GeoTransform(HepGeom::Translate3D( 0.*CLHEP::cm, 0.*CLHEP::cm, bpco_pos[i]+bpco_shift[i]+bpc_old_z-bmtb_z) ) );
+			     m_H62004MiddleBeamPhysical->add( new GeoTransform(GeoTrf::Translate3D( 0.*GeoModelKernelUnits::cm, 0.*GeoModelKernelUnits::cm, bpco_pos[i]+bpco_shift[i]+bpc_old_z-bmtb_z) ) );
                             m_H62004MiddleBeamPhysical->add(BPCPhysical);
 			    break;}
 	  case 1: case 3: { 
-                            m_H62004MiddleBeamPhysical->add( new GeoTransform(HepGeom::RotateZ3D(90.*CLHEP::deg) *  HepGeom::Translate3D( 0.*CLHEP::cm, 0.*CLHEP::cm, bpco_pos[i]+bpco_shift[i]+bpc_old_z-bmtb_z) ) );
+                            m_H62004MiddleBeamPhysical->add( new GeoTransform(GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg) *  GeoTrf::Translate3D( 0.*GeoModelKernelUnits::cm, 0.*GeoModelKernelUnits::cm, bpco_pos[i]+bpco_shift[i]+bpc_old_z-bmtb_z) ) );
                             m_H62004MiddleBeamPhysical->add(BPCPhysical);
 			    break;}
     }

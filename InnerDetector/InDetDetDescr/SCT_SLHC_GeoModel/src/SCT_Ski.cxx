@@ -24,10 +24,10 @@
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeShift.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Vector/Rotation.h"
+#include "GeoModelKernel/Units.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+
+
 
 #include <sstream>
 #include <cmath>
@@ -172,9 +172,7 @@ GeoVPhysVol* SCT_Ski::build(SCT_Identifier id) const{
 
    if ((m_staveLayout==2) && m_staveSupport_pos && m_staveSupport_pos->getVolume()) {
     // centered.
-    CLHEP::Hep3Vector pos_pos(0.0, 0.0, (m_length*0.5 - m_cylInnerZMin - m_safety)*0.5 + m_cylInnerZMin);
-    CLHEP::HepRotation pos_rot;
-    HepGeom::Transform3D modulePos_pos = HepGeom::Transform3D(pos_rot, pos_pos);
+    GeoTrf::Translate3D modulePos_pos(0.0, 0.0, (m_length*0.5 - m_cylInnerZMin - m_safety)*0.5 + m_cylInnerZMin);
     GeoTransform* supportTransform_pos = new GeoTransform(modulePos_pos);
     ski->add(supportTransform_pos);
     ski->add(m_staveSupport_pos->getVolume());
@@ -182,9 +180,7 @@ GeoVPhysVol* SCT_Ski::build(SCT_Identifier id) const{
   
   if ((m_staveLayout==2) && m_staveSupport_neg && m_staveSupport_neg->getVolume()) {
     // centered.
-     CLHEP::Hep3Vector neg_pos(0.0, 0.0,-(m_length*0.5 - m_cylInnerZMin - m_safety)*0.5 - m_cylInnerZMin);
-    CLHEP::HepRotation neg_rot;
-    HepGeom::Transform3D modulePos_neg = HepGeom::Transform3D(neg_rot, neg_pos);
+    GeoTrf::Translate3D modulePos_neg(0.0, 0.0,-(m_length*0.5 - m_cylInnerZMin - m_safety)*0.5 - m_cylInnerZMin);
     GeoTransform* supportTransform_neg = new GeoTransform(modulePos_neg);
     ski->add(supportTransform_neg);
     ski->add(m_staveSupport_neg->getVolume());
@@ -221,12 +217,11 @@ SCT_Ski::placeModule(GeoPhysVol * ski, SCT_Identifier id, int iModule, int side,
     //Don't exit as this breaks some existing geometries.
     //exit(1);
   }
-  CLHEP::HepRotation rot;
+  GeoTrf::Transform3D rot = GeoTrf::RotateX3D(stereoAngle);
   //the module is rotated, around X axis, one way or the other (u or v)
-  if (flip) rot.rotateZ(180*CLHEP::deg);
-  rot.rotateX(stereoAngle);
-  CLHEP::Hep3Vector pos(xModulePos, 0.0, zModulePos);
-  HepGeom::Transform3D modulePos = HepGeom::Transform3D(rot, pos);
+  if (flip) rot = rot * GeoTrf::RotateZ3D(180*GeoModelKernelUnits::deg);
+  GeoTrf::Translation3D pos(xModulePos, 0.0, zModulePos);
+  GeoTrf::Transform3D modulePos = GeoTrf::Transform3D(pos*rot);
 
   //Add modules. 
   GeoAlignableTransform* moduleTransform = new GeoAlignableTransform(modulePos);

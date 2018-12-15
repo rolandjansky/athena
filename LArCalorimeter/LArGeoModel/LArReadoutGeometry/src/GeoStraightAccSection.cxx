@@ -19,11 +19,11 @@ void GeoStraightAccSection::Clockwork::fillFastCache() {
   if (!r1) buildFastCache();
   for (int i=0;i<1024;i++) {
     for (int j=0;j<14; j++) {
-      HepGeom::Transform3D XF = (*r2->transfunction[j])(i);
-      r1->xcent[i][j] = XF.dx();
-      r1->ycent[i][j] = XF.dy();
-      r1->cosu [i][j] = -XF.xy();
-      r1->sinu [i][j] = XF.xz();
+      GeoTrf::Transform3D XF = (*r2->transfunction[j])(i);
+      r1->xcent[i][j] = XF(0,3); //dx
+      r1->ycent[i][j] = XF(1,3); //dy
+      r1->cosu [i][j] = -XF(0,1);//xy
+      r1->sinu [i][j] = XF(0,2);//xz
       r1->halfLength[i][j]= r2->halfLength[j];
     }
   }

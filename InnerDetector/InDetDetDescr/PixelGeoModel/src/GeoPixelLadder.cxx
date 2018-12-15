@@ -2,10 +2,10 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PixelGeoModel/GeoPixelLadder.h"
-#include "PixelGeoModel/GeoPixelStaveSupport.h"
-#include "PixelGeoModel/GeoPixelModule.h"
-#include "PixelGeoModel/GeoPixelSiCrystal.h"
+#include "GeoPixelLadder.h"
+#include "GeoPixelStaveSupport.h"
+#include "GeoPixelModule.h"
+#include "GeoPixelSiCrystal.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoTubs.h"
@@ -37,7 +37,7 @@ GeoPixelLadder::GeoPixelLadder(GeoPixelSiCrystal& theSensor,
   // Length of the ladder is in the db
   //
   double length = m_gmt_mgr->PixelLadderLength();
-  double safety = 0.01*CLHEP::mm; 
+  double safety = 0.01*GeoModelKernelUnits::mm; 
 
   m_width = calcWidth();
   m_thicknessP = 0.5 * m_gmt_mgr->PixelLadderThickness();
@@ -58,7 +58,7 @@ GeoPixelLadder::GeoPixelLadder(GeoPixelSiCrystal& theSensor,
   const GeoShape * ladderShape = 0;
 
   // If upper and lower thicknesses are within 100 um. Make them the same.
-  if (std::abs(m_thicknessP - m_thicknessN) < 0.1*CLHEP::mm) {
+  if (std::abs(m_thicknessP - m_thicknessN) < 0.1*GeoModelKernelUnits::mm) {
     m_thicknessP = std::max(m_thicknessP,m_thicknessN); 
     m_thicknessN = m_thicknessP;
     double halfThickness = m_thicknessP;
@@ -67,7 +67,7 @@ GeoPixelLadder::GeoPixelLadder(GeoPixelSiCrystal& theSensor,
   else if (m_gmt_mgr->PixelBentStaveNModule() != 0)
     {
       // Calculate thickness from bent stave part
-      double angle              = m_gmt_mgr->PixelLadderBentStaveAngle() * CLHEP::pi / 180.0;
+      double angle              = m_gmt_mgr->PixelLadderBentStaveAngle() * GeoModelKernelUnits::pi / 180.0;
       double BentStaveThickness = double(m_gmt_mgr->PixelBentStaveNModule()) * m_gmt_mgr->PixelLadderModuleDeltaZ() * sin(angle);
       
       // Extend +ve or -ve ladder thickness according to stave angle
@@ -85,14 +85,14 @@ GeoPixelLadder::GeoPixelLadder(GeoPixelSiCrystal& theSensor,
       // Shift ladder outwards if stave bends away from beam pipe
       double shift = 0.5*BentStaveThickness;
       if (angle > 0) shift *= -1.0;
-      const GeoShape & shiftedBox = (*box) << HepGeom::TranslateX3D(shift);
+      const GeoShape & shiftedBox = (*box) << GeoTrf::TranslateX3D(shift);
       ladderShape = &shiftedBox; 
     }
   else if (!(m_gmt_mgr->PixelStaveLayout()>3&& m_gmt_mgr->PixelStaveLayout()<7)){
     double halfThickness = 0.5*(m_thicknessP+m_thicknessN);
     double shift = 0.5*(m_thicknessP-m_thicknessN);
     GeoBox * box = new GeoBox(halfThickness, m_width/2., length/2.);
-    const GeoShape & shiftedBox = (*box) << HepGeom::TranslateX3D(shift);
+    const GeoShape & shiftedBox = (*box) << GeoTrf::TranslateX3D(shift);
     ladderShape = &shiftedBox;  
   }
   else if(m_staveSupport) 
@@ -321,12 +321,11 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
       }
 
     
-    CLHEP::Hep3Vector modulepos(xpos+xposShift,yposShift,zpos);
+    GeoTrf::Translation3D modulepos(xpos+xposShift,yposShift,zpos);
 //
 //  Rotate if module is inclined.
 //
-    CLHEP::HepRotation rm;
-    rm.rotateY(m_gmt_mgr->PixelModuleAngle()*m_gmt_mgr->PixelModuleAngleSign(etaModule) );
+    GeoTrf::RotateY3D rm(m_gmt_mgr->PixelModuleAngle()*m_gmt_mgr->PixelModuleAngleSign(etaModule) );
 //
 // Place the Module
 //
@@ -342,7 +341,7 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
     GeoNameTag * tag = new GeoNameTag(nameTag.str());
     GeoAlignableTransform* xform;
 
-    xform = new GeoAlignableTransform(HepGeom::Transform3D(rm,modulepos));
+    xform = new GeoAlignableTransform(GeoTrf::Transform3D(modulepos*rm));
     ladderPhys->add(tag);
     ladderPhys->add(new GeoIdentifierTag(m_gmt_mgr->Eta() ) );
     ladderPhys->add(xform);
@@ -383,27 +382,25 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
       //      const GeoMaterial* materialSup = m_mat_mgr->getMaterialForVolume(matName,shapeSupBent->volume());
       const GeoMaterial* materialSup = m_mat_mgr->getMaterial("pix::StaveSupportBase");
       
-      double ang = m_gmt_mgr->PixelLadderBentStaveAngle() * CLHEP::pi / 180.0;
+      double ang = m_gmt_mgr->PixelLadderBentStaveAngle() * GeoModelKernelUnits::pi / 180.0;
       double xst = xOffset - (bentStaveHalfLength * sin(ang)); 
       
       // Construct bent stave at negative z
       GeoLogVol* logVolBentNeg = new GeoLogVol("StaveSupportBentNeg2",shapeSupBent,materialSup);
       GeoPhysVol* physVolBentNeg = new GeoPhysVol(logVolBentNeg);
-      CLHEP::HepRotation rmNeg;
-      rmNeg.rotateY(ang);
+      GeoTrf::RotateY3D rmNeg(ang);
       double zstneg = -length/2.0 - (bentStaveHalfLength * cos(ang));
-      HepGeom::Point3D<double> stavePosNeg(xst,0.,zstneg);
-      ladderPhys->add(new GeoTransform(HepGeom::Transform3D(rmNeg,stavePosNeg)));
+      GeoTrf::Translation3D stavePosNeg(xst,0.,zstneg);
+      ladderPhys->add(new GeoTransform(GeoTrf::Transform3D(stavePosNeg*rmNeg)));
       ladderPhys->add(physVolBentNeg); 
       
       // COnstruct bent stave at positive z
       GeoLogVol* logVolBentPos = new GeoLogVol("StaveSupportBentPos2",shapeSupBent,materialSup);
       GeoPhysVol* physVolBentPos = new GeoPhysVol(logVolBentPos);
-      CLHEP::HepRotation rmPos;
-      rmPos.rotateY(-ang);
+      GeoTrf::RotateY3D rmPos(-ang);
       double zstpos = length/2.0 + (bentStaveHalfLength * cos(ang));
-      HepGeom::Point3D<double> stavePosPos(xst,0.,zstpos);
-      ladderPhys->add(new GeoTransform(HepGeom::Transform3D(rmPos,stavePosPos)));
+      GeoTrf::Translation3D stavePosPos(xst,0.,zstpos);
+      ladderPhys->add(new GeoTransform(GeoTrf::Transform3D(stavePosPos*rmPos)));
       ladderPhys->add(physVolBentPos);       
     }
 
@@ -418,7 +415,7 @@ double GeoPixelLadder::calcThickness() {
   // to avoid duplication of code
   //
 
-  const double safety = 0.01*CLHEP::mm; 
+  const double safety = 0.01*GeoModelKernelUnits::mm; 
   double clearance = m_gmt_mgr->PixelLadderThicknessClearance();
   clearance = std::max(clearance, safety);
 

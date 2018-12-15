@@ -5,6 +5,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/getMessageSvc.h"
 //
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "MuonGeoModel/MuonChamber.h"
 #include "MuonGeoModel/Position.h"
 #include "MuonReadoutGeometry/MuonStation.h"
@@ -62,7 +63,8 @@
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeIntersection.h"   
 #include "GeoModelKernel/GeoIdentifierTag.h"
-#include "CLHEP/Geometry/Transform3D.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 #include <vector>
 #include <fstream>
 #include <iomanip>
@@ -136,7 +138,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
     dx = extratop/2. - extrabottom/2.;
     if (verbose) log<<MSG::VERBOSE<<" m_station name "<<m_station->GetName()<<" extra top, bottom, dx = "
                       <<extratop<<" "<<extrabottom<<endmsg;
-    strd = & ( (*maintrd) << HepGeom::Translate3D(dx, 0., 0.) );
+    strd = & ( (*maintrd) << GeoTrf::Translate3D(dx, 0., 0.) );
   } else {
     strd =  maintrd;
   }
@@ -163,7 +165,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
     }
     GeoShape* box = new GeoBox(cthick/2., longWidth/2., (length-clen)/2.);
     box->ref();
-    strd = &(strd->subtract( (*box) << HepGeom::Translate3D(cxpos, 0., cypos) ) );
+    strd = &(strd->subtract( (*box) << GeoTrf::Translate3D(cxpos, 0., cypos) ) );
     box->unref();
   }
 
@@ -188,7 +190,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
       }
       GeoShape* box1 = new GeoBox(cutthick/2., (longWidth+2.)/2., cutlen);
       box1->ref();
-      strd = &(strd->subtract( (*box1) << HepGeom::Translate3D( (totthick-cutthick)/2., 0., length/2.) ) );
+      strd = &(strd->subtract( (*box1) << GeoTrf::Translate3D( (totthick-cutthick)/2., 0., length/2.) ) );
       box1->unref();
     }
   }
@@ -225,15 +227,15 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
       GeoShape* box = new GeoBox((totthick+2.)/2., (longWidth+2.)/2., halfpitch);
       box->ref();
       const GeoShape* frontcyl = new GeoTube(0.0, halfpitch+0.001, longWidth/2.);
-      frontcyl = &( (*frontcyl) << HepGeom::RotateX3D(90.*CLHEP::deg) );
+      frontcyl = &( (*frontcyl) << GeoTrf::RotateX3D(90.*GeoModelKernelUnits::deg) );
       frontcyl->ref();
       const GeoShape* backcyl = new GeoTube(0.0, halfpitch-0.001, (longWidth+2.)/2.);
-      backcyl = &( (*backcyl) << HepGeom::RotateX3D(90.*CLHEP::deg) );
+      backcyl = &( (*backcyl) << GeoTrf::RotateX3D(90.*GeoModelKernelUnits::deg) );
       backcyl->ref();
 
       if (index > 0) {
         // If chamber has MDTs, shorten length by halfpitch (remove what was added in DBReader.h)
-        strd = &(strd->subtract( (*box) << HepGeom::Translate3D(0., 0., length/2.) ) );
+        strd = &(strd->subtract( (*box) << GeoTrf::Translate3D(0., 0., length/2.) ) );
         double sign = 1.;
         for (int i = 0; i < index; i++) {
           comp = (StandardComponent*)m_station->GetComponent(mdt_index[i]);
@@ -242,19 +244,19 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
           mdt_pos += amdbOrigine_along_thickness;
           xtube1 = sign*(mdt_half_thick - (root3 + 1.)*halfpitch);
           xtube2 = sign*(mdt_half_thick - (3*root3 + 1.)*halfpitch);
-          strd = &(strd->add( (*frontcyl) << HepGeom::Translate3D(mdt_pos+xtube1, 0., length/2.-halfpitch) ) );
-          strd = &(strd->subtract( (*backcyl) << HepGeom::Translate3D(mdt_pos+xtube1, 0., -length/2.) ) );
+          strd = &(strd->add( (*frontcyl) << GeoTrf::Translate3D(mdt_pos+xtube1, 0., length/2.-halfpitch) ) );
+          strd = &(strd->subtract( (*backcyl) << GeoTrf::Translate3D(mdt_pos+xtube1, 0., -length/2.) ) );
 
           if (stname == "BIL" || (stname == "BIS" && std::abs(zi) != 8) || testEIL) {
-            strd = &(strd->add( (*frontcyl) << HepGeom::Translate3D(mdt_pos+xtube2, 0., length/2.-halfpitch) ) );
-            strd = &(strd->subtract( (*backcyl) << HepGeom::Translate3D(mdt_pos+xtube2, 0., -length/2.) ) );
+            strd = &(strd->add( (*frontcyl) << GeoTrf::Translate3D(mdt_pos+xtube2, 0., length/2.-halfpitch) ) );
+            strd = &(strd->subtract( (*backcyl) << GeoTrf::Translate3D(mdt_pos+xtube2, 0., -length/2.) ) );
           }
 
           sign *= -1.;
         }
       }
       if (stname != "EIL") {
-        if (zi < 0 && !is_mirrored) strd = &( (*strd) << HepGeom::RotateX3D(180.*CLHEP::deg) );
+        if (zi < 0 && !is_mirrored) strd = &( (*strd) << GeoTrf::RotateX3D(180.*GeoModelKernelUnits::deg) );
       }
 
       box->unref();
@@ -317,21 +319,21 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
             //  of the cutouts wrt mother volume:
             if ( fabs(cut->dx-600.7)<0.1 )
             {
-                cut->dx      = cut->dx + 10.*CLHEP::mm;
-                cut->widthXs = cut->widthXs + 20.*CLHEP::mm;
-                cut->widthXl = cut->widthXl + 20.*CLHEP::mm;
+                cut->dx      = cut->dx + 10.*GeoModelKernelUnits::mm;
+                cut->widthXs = cut->widthXs + 20.*GeoModelKernelUnits::mm;
+                cut->widthXl = cut->widthXl + 20.*GeoModelKernelUnits::mm;
                 //std::cout<<" redefining par.s for BOG1 cutouts "
                 //<<std::endl;
             }
             if ( fabs(cut->dx+600.7)<0.1 )
             {
-                cut->dx      = cut->dx - 10.*CLHEP::mm;
-                cut->widthXs = cut->widthXs + 20.*CLHEP::mm;
-                cut->widthXl = cut->widthXl + 20.*CLHEP::mm;
+                cut->dx      = cut->dx - 10.*GeoModelKernelUnits::mm;
+                cut->widthXs = cut->widthXs + 20.*GeoModelKernelUnits::mm;
+                cut->widthXl = cut->widthXl + 20.*GeoModelKernelUnits::mm;
             }
             if (fabs(cut->lengthY-180.2)<0.001)
             {
-                cut->lengthY = cut->lengthY+(0.010)*CLHEP::mm;
+                cut->lengthY = cut->lengthY+(0.010)*GeoModelKernelUnits::mm;
                 //imt	    std::cout<<"Redefining "<<stName<<" cut lengthY to "
                 //imt		     <<cut->lengthY
                 //imt		     <<std::endl;
@@ -362,7 +364,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
   if (stName.substr(0,1) == "T" && stName.substr(2,1) == "E" && stName.substr(1,1) != "4") {
     GeoTrd* strdoverlap = new GeoTrd(totthick/4, totthick/4, width/2, 
                                      longWidth/2, 400./2);
-    strd = &(strd->subtract((*strdoverlap) << HepGeom::Translate3D(-totthick/4., 0., -length/2+400./2.) ));
+    strd = &(strd->subtract((*strdoverlap) << GeoTrf::Translate3D(-totthick/4., 0., -length/2+400./2.) ));
   }
     
   const GeoMaterial* mtrd = 0;
@@ -557,7 +559,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         cut->dx = tempdx;
         cut->dy = tempdy;
 
-	if (fabs(cut->dead1) > 1. && techname=="MDT03") cut->dy = cut->dy+15.0*cos(cut->dead1*CLHEP::deg);
+	if (fabs(cut->dead1) > 1. && techname=="MDT03") cut->dy = cut->dy+15.0*cos(cut->dead1*GeoModelKernelUnits::deg);
 	// should compensate for the dy position defined in amdb at the bottom of the foam in ML 1 of EMS1,3 and BOS 6
 	// can be applied only for layout >=r.04.04 in rel 15.6.X.Y due to the frozen Tier0 policy
 
@@ -607,7 +609,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         if (stName.substr(0,3) == "BOS" && zi == -6 && type == "MDT") {
           cut->dy = c->dy - cut->dy - cut->lengthY - halfpitch;
 	  cut->dead1 = 30.; // why this is not 30. or -30. already ?????
-	  if (techname=="MDT03") cut->dy = cut->dy + 30.0; // *cos(cut->dead1*CLHEP::deg);
+	  if (techname=="MDT03") cut->dy = cut->dy + 30.0; // *cos(cut->dead1*GeoModelKernelUnits::deg);
 	  if (verbose) log <<MSG::VERBOSE <<"Cut dead1 for BOS 6 on C side is "<< cut->dead1<<endmsg;
         }
 
@@ -621,7 +623,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
           // reverse the position (x amdb) of the cutout if the m_station is mirrored
           Cutout* cutmirr = new Cutout(*cut);
           cutmirr->dx = - cutmirr->dx;
-          // this way, after the rotation by 180 CLHEP::deg, the cut will be at the same global phi
+          // this way, after the rotation by 180 GeoModelKernelUnits::deg, the cut will be at the same global phi
           // it has for the m_station at z>0
           vcutdef.push_back(cutmirr);
           vcutdef_todel.push_back(cutmirr);
@@ -672,9 +674,9 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
                           << endmsg;
 
     // define here the total transform that will be applied to component:
-    HepGeom::Transform3D htcomponent;
-    GeoTransform* xfcomponent = NULL;
-    GeoAlignableTransform * xfaligncomponent = NULL;
+    GeoTrf::Transform3D htcomponent(GeoTrf::Transform3D::Identity());
+    GeoTransform* xfcomponent{nullptr};
+    GeoAlignableTransform * xfaligncomponent{nullptr};
 //     // for RPCs we need a vector of transforms for M28 geometry...
 //     std::vector<GeoTransform*> xfrpccomponent;
 
@@ -684,22 +686,22 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
     }
         
     if (type == "MDT") {
-      htcomponent = HepGeom::TranslateX3D(ypos)*HepGeom::TranslateZ3D(zpos)*HepGeom::TranslateY3D(xpos);
+      htcomponent = GeoTrf::TranslateX3D(ypos)*GeoTrf::TranslateZ3D(zpos)*GeoTrf::TranslateY3D(xpos);
       if (zi < 0 && !is_mirrored && stName[0] == 'B') { 
         // this (rotation +  shift of halfpitch) will mirror the tube structure w.r.t. the chamber at z>0
-         htcomponent = htcomponent*HepGeom::RotateX3D(180.*CLHEP::deg);
-         htcomponent = htcomponent*HepGeom::TranslateZ3D(halfpitch);
+         htcomponent = htcomponent*GeoTrf::RotateX3D(180.*GeoModelKernelUnits::deg);
+         htcomponent = htcomponent*GeoTrf::TranslateZ3D(halfpitch);
       }
           
       // ss - 24-05-2006 I don't really understand if this is needed at all
       //      it was introduced by Isabel T.
       if (zi < 0 && stName.substr(0,3) == "BOG" && is_mirrored) {
-        //	      htcomponent = htcomponent*HepGeom::RotateX3D(180.*CLHEP::deg);
+        //	      htcomponent = htcomponent*GeoTrf::RotateX3D(180.*GeoModelKernelUnits::deg);
         //      tubes OK but chambers wrong
-        //	      htcomponent = HepGeom::RotateX3D(180.*CLHEP::deg)*htcomponent;
+        //	      htcomponent = GeoTrf::RotateX3D(180.*GeoModelKernelUnits::deg)*htcomponent;
         //      chambers OK but tubes wrong
-        htcomponent = HepGeom::RotateX3D(180.*CLHEP::deg)*htcomponent*
-                      HepGeom::RotateX3D(180.*CLHEP::deg);  // turn chambers but go back for tubes
+        htcomponent = GeoTrf::RotateX3D(180.*GeoModelKernelUnits::deg)*htcomponent*
+                      GeoTrf::RotateX3D(180.*GeoModelKernelUnits::deg);  // turn chambers but go back for tubes
       } // ss - 24-05-2006 I don't really understand if this is needed at all
           
       xfaligncomponent = new GeoAlignableTransform(htcomponent);
@@ -763,7 +765,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         continue;
       }
 
-      htcomponent = HepGeom::TranslateX3D(ypos)*HepGeom::TranslateZ3D(zpos);
+      htcomponent = GeoTrf::TranslateX3D(ypos)*GeoTrf::TranslateZ3D(zpos);
       xfcomponent = new GeoTransform(htcomponent);
       std::string key = stName+techname;
       if ((manager->IncludeCutoutsFlag()||
@@ -830,9 +832,9 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
       }
 //
       if (!is_mirrored) {
-        htcomponent = HepGeom::Translate3D(xpos,ypos,zpos)*HepGeom::RotateX3D(angle);
+        htcomponent = GeoTrf::Translate3D(xpos,ypos,zpos)*GeoTrf::RotateX3D(angle);
       } else {
-        htcomponent = HepGeom::Translate3D(xpos,-ypos,zpos)*HepGeom::RotateX3D(-angle);
+        htcomponent = GeoTrf::Translate3D(xpos,-ypos,zpos)*GeoTrf::RotateX3D(-angle);
       }
       xfcomponent = new GeoTransform(htcomponent);
       std::string key = stName+techname;
@@ -897,8 +899,8 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
 //         for (int j = 0; j < ndivz; j++) {
 //           double yposi = (ndivy-1)*rwidth/2.;
 //           for (int i = 0; i < ndivy; i++) {
-//             htcomponent = HepGeom::TranslateX3D(ypos )*HepGeom::TranslateY3D(yposi)*
-//                           HepGeom::TranslateZ3D(zposi);
+//             htcomponent = GeoTrf::TranslateX3D(ypos )*GeoTrf::TranslateY3D(yposi)*
+//                           GeoTrf::TranslateZ3D(zposi);
 //             xfcomponent = new GeoTransform(htcomponent);
 //             //xfrpccomponent.push_back(xfcomponent);
 //             yposi -= rwidth;
@@ -920,11 +922,11 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
                            << " ypos, zpos "
                            << ypos << " " << zpos << " " << endmsg;
 
-        htcomponent = HepGeom::TranslateX3D(ypos)*
-                      HepGeom::TranslateY3D(xpos)*HepGeom::TranslateZ3D(zpos);
+        htcomponent = GeoTrf::TranslateX3D(ypos)*
+                      GeoTrf::TranslateY3D(xpos)*GeoTrf::TranslateZ3D(zpos);
         if (rp->iswap == -1) // this is like amdb iswap 
         {
-          htcomponent = htcomponent*HepGeom::RotateY3D(180*CLHEP::deg);
+          htcomponent = htcomponent*GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg);
         }
         xfaligncomponent = new GeoAlignableTransform(htcomponent);
         //xfrpccomponent.push_back(xfcomponent);
@@ -982,9 +984,9 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
     } else if (type=="DED" && manager->MinimalGeoFlag() == 0) {
       double xpos = c->posx;
       if (is_mirrored) xpos = -xpos;
-      htcomponent = HepGeom::TranslateX3D(ypos)*HepGeom::TranslateY3D(xpos)*HepGeom::TranslateZ3D(zpos);
+      htcomponent = GeoTrf::TranslateX3D(ypos)*GeoTrf::TranslateY3D(xpos)*GeoTrf::TranslateZ3D(zpos);
       //if (stname == "BMS" && (zi == -2 || zi == -4) && c->name == "DED03") 
-      //   htcomponent = htcomponent*HepGeom::RotateY3D(180*CLHEP::deg);
+      //   htcomponent = htcomponent*GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg);
       xfcomponent = new GeoTransform(htcomponent);
 
       bool dedCutoutFlag = (stname == "BOS" && std::abs(zi) == 6) ||
@@ -1045,8 +1047,8 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         //            log<<MSG::DEBUG<<" its centre x-translated by "<<ypos;
         //            log<<" y-translated by "<<xpos;
         //            log<<" z-translated by "<<zpos<<endmsg;
-	htcomponent = HepGeom::TranslateX3D(ypos)*HepGeom::TranslateY3D(xpos)*
-                      HepGeom::TranslateZ3D(zpos);
+	htcomponent = GeoTrf::TranslateX3D(ypos)*GeoTrf::TranslateY3D(xpos)*
+                      GeoTrf::TranslateZ3D(zpos);
         std::string key = stName+techname;
 	if ((manager->IncludeCutoutsFlag() ||
             (manager->IncludeCutoutsBogFlag() && stName.substr(0,3)=="BOG")) 
@@ -1082,7 +1084,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
       double orad = tgOuter->posy + tgOuter->dy;
       double start = -(orad-irad)/2. + (tg->posy-irad) + tg->dy/2;
       double xstart = -thickness/2. + tg->GetThickness()/2.;
-      htcomponent = HepGeom::TranslateX3D(xstart + tg->posz)*HepGeom::TranslateZ3D(start);
+      htcomponent = GeoTrf::TranslateX3D(xstart + tg->posz)*GeoTrf::TranslateZ3D(start);
       xfaligncomponent = new GeoAlignableTransform(htcomponent);
 
       // Define key for this TGC component
@@ -1121,7 +1123,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
       }
 
     } else if (type=="CSC") {
-      htcomponent = HepGeom::TranslateX3D(ypos)*HepGeom::TranslateZ3D(zpos);
+      htcomponent = GeoTrf::TranslateX3D(ypos)*GeoTrf::TranslateZ3D(zpos);
       xfaligncomponent = new GeoAlignableTransform(htcomponent);
       // Here define the key for this CSC component
       std::string key = stName+techname;
@@ -1195,7 +1197,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
              (xfcomponent->getTransform())[2][2] << " " <<
              (xfcomponent->getTransform())[2][3] << " " << std::endl;
 */
-      xfaligncomponent->setDelta(HepGeom::Transform3D::Identity);
+      xfaligncomponent->setDelta(GeoTrf::Transform3D::Identity());
       //delete xfcomponent;
       ptrd->add(xfaligncomponent);
       ptrd->add(lvm);
@@ -1243,7 +1245,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         //    std::cout << "(" << dumv.x() << ", " << dumv.y() << ", " << dumv.z()
         //              << ")" << std::endl;
         //    std::cout << " Mdtreadoutelement transform = "  << std::endl;
-        //    HepGeom::Transform3D dummy=det->transform(id);
+        //    GeoTrf::Transform3D dummy=det->transform(id);
         //    std::cout << dummy[0][0] << " " << dummy[0][1] << " "
         //              << dummy[0][2] << " " << dummy[0][3] << std::endl
         //              << dummy[1][0] << " " << dummy[1][1] << " "
@@ -1287,7 +1289,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
                (xfcomponent->getTransform())[2][2] << " " <<
                (xfcomponent->getTransform())[2][3] << " " << std::endl;
 */
-	xfaligncomponent->setDelta(HepGeom::Transform3D::Identity);
+	xfaligncomponent->setDelta(GeoTrf::Transform3D::Identity());
 	//delete xfcomponent;
 	ptrd->add(xfaligncomponent);
         ptrd->add(lvc);
@@ -1357,7 +1359,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         }
         ptrd->add(new GeoIdentifierTag(geoid));
         ptrd->add(nm);
-	xfaligncomponent->setDelta(HepGeom::Transform3D::Identity);
+	xfaligncomponent->setDelta(GeoTrf::Transform3D::Identity());
 	//delete xfcomponent;
 	ptrd->add(xfaligncomponent);
         ptrd->add(lvt);
@@ -1427,8 +1429,8 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
            //  <<"ypos, zpos, ndivz, ndivy "
            //  <<ypos<<" "<<zpos<<" "
            //  <<ndivz << " " << ndivy <<endmsg;
-          //htcomponent = HepGeom::TranslateX3D(ypos)*HepGeom::TranslateY3D(xpos)
-          //		      *HepGeom::TranslateZ3D(zpos);
+          //htcomponent = GeoTrf::TranslateX3D(ypos)*GeoTrf::TranslateY3D(xpos)
+          //		      *GeoTrf::TranslateZ3D(zpos);
           //		    xfcomponent = new GeoTransform(htcomponent);
 
           const RpcIdHelper* rpc_id = manager->rpcIdHelper();
@@ -1448,25 +1450,25 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
           if    (zi <= 0 && !is_mirrored) {
             // the special cases 
             doubletZ = 1;
-            if (zpos<-zdivision*CLHEP::mm)    doubletZ=2;
-            if (fabs(xpos) > 100.*CLHEP::mm && ndbz[doubletR-1] > 2) {
+            if (zpos<-zdivision*GeoModelKernelUnits::mm)    doubletZ=2;
+            if (fabs(xpos) > 100.*GeoModelKernelUnits::mm && ndbz[doubletR-1] > 2) {
               doubletZ = 3;
               nfields++;
             }
-            if (fabs(xpos) > 100.*CLHEP::mm ) ndbz[doubletR-1]--;
+            if (fabs(xpos) > 100.*GeoModelKernelUnits::mm ) ndbz[doubletR-1]--;
           } else {
             doubletZ = 1;
-            if (zpos > zdivision*CLHEP::mm) doubletZ=2;
-            if (fabs(xpos) > 100.*CLHEP::mm && ndbz[doubletR-1] > 2) {
+            if (zpos > zdivision*GeoModelKernelUnits::mm) doubletZ=2;
+            if (fabs(xpos) > 100.*GeoModelKernelUnits::mm && ndbz[doubletR-1] > 2) {
               doubletZ = 3;
               nfields++;
             }
-            if (fabs(xpos) > 100.*CLHEP::mm ) ndbz[doubletR-1]--;
+            if (fabs(xpos) > 100.*GeoModelKernelUnits::mm ) ndbz[doubletR-1]--;
           }
 
           int dbphi = 1;
 	  //std::cout<<stName<<" ----------------------------------- dbphi = "<<dbphi<<std::endl;
-          if (xpos > 400.*CLHEP::mm) dbphi = 2; // this special patch is needed for BMS in the ribs where xpos is ~950mm; the theshold to 100mm (too low) caused a bug
+          if (xpos > 400.*GeoModelKernelUnits::mm) dbphi = 2; // this special patch is needed for BMS in the ribs where xpos is ~950mm; the theshold to 100mm (too low) caused a bug
 	  // in BOG at eta +/-4 and stationEta 7 (not 6) ==>> 28 Jan 2016 raising the threshold to 400.mm 
           // doublet phi not aware of pos. in space !!!
 	  //std::cout<<" dbphi reset to  "<<dbphi<<" due to xpos "<< xpos <<" >10cm "<<std::endl;
@@ -1521,7 +1523,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
                  (xfcomponent->getTransform())[2][2] << " " <<
                  (xfcomponent->getTransform())[2][3] << " " << std::endl;
 */
-	  xfaligncomponent->setDelta(HepGeom::Transform3D::Identity);
+	  xfaligncomponent->setDelta(GeoTrf::Transform3D::Identity());
 	  //delete xfcomponent;
 	  ptrd->add(xfaligncomponent);
           ptrd->add(lvr);

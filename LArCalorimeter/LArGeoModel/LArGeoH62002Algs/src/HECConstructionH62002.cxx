@@ -22,10 +22,12 @@
 #include "GeoModelKernel/GeoSerialTransformer.h"
 #include "GeoModelKernel/GeoIdentifierTag.h"  
 #include "GeoModelKernel/GeoShapeUnion.h"  
-#include "CLHEP/GenericFunctions/AbsFunction.hh"
-#include "CLHEP/GenericFunctions/Variable.hh"
-#include "CLHEP/GenericFunctions/Sin.hh"
-#include "CLHEP/GenericFunctions/Cos.hh"
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
+#include "GeoGenericFunctions/AbsFunction.h"
+#include "GeoGenericFunctions/Variable.h"
+#include "GeoGenericFunctions/Sin.h"
+#include "GeoGenericFunctions/Cos.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "GeoModelInterfaces/StoredMaterialManager.h"
@@ -44,7 +46,7 @@
 
 
 
-using namespace Genfun;
+using namespace GeoGenfun;
 using namespace GeoXF;
 
 
@@ -149,7 +151,7 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
   int lastPlaneHEC = ( sizeof(HECMotherZplan) / sizeof(double) );
 
 
-  double moduleDeltaPhi =  2.*M_PI/32. ;  //  = 11.25*CLHEP::deg; 
+  double moduleDeltaPhi =  2.*M_PI/32. ;  //  = 11.25*GeoModelKernelUnits::deg; 
   double phiStart []  = {-19. , -18. } ;
   double hecPhistart[]  = { phiStart[0]*M_PI/32  ,   phiStart[1]*M_PI/32 } ;
   double modulePhistart[]  = { (phiStart[0]+2.)*M_PI/32  ,   (phiStart[1]+2.)*M_PI/32 } ;
@@ -210,9 +212,9 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
   double             spacerDiameter[2];
 
   double ztie[2];   // This is the +/- z length of the tie rod in the LAr gap
-  ztie[0]=-0.227825*CLHEP::cm;
-  ztie[1]= 0.227825*CLHEP::cm;
-  double rodSize = 0.39435*CLHEP::cm;
+  ztie[0]=-0.227825*GeoModelKernelUnits::cm;
+  ztie[1]= 0.227825*GeoModelKernelUnits::cm;
+  double rodSize = 0.39435*GeoModelKernelUnits::cm;
 
 
 
@@ -223,7 +225,7 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
   const GeoLogVol*   logiSlice[3];
   GeoPhysVol*        physiSlice[3];
   // Absorber
-  double             radialShift = 1.02*CLHEP::cm;  // absorbers are adjusted by this amount          
+  double             radialShift = 1.02*GeoModelKernelUnits::cm;  // absorbers are adjusted by this amount          
   GeoTubs*           solidFrontAbsorber[2];
   const GeoLogVol*   logiFrontAbsorber[2];
   GeoPhysVol*        physiFrontAbsorber[2];
@@ -270,19 +272,19 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
   int    moduleNumberFront   = 3;             
   int    moduleNumberRear    = 2;              
   // radial dimensions of the modules:
-  double moduleRinner1  = (*hecLongitudinalBlock)[0]->getDouble("BLRMN")*CLHEP::cm;   
-  double moduleRinner2  = (*hecLongitudinalBlock)[1]->getDouble("BLRMN")*CLHEP::cm;   
-  double moduleRouter   = (*hecLongitudinalBlock)[0]->getDouble("BLRMX")*CLHEP::cm;   
+  double moduleRinner1  = (*hecLongitudinalBlock)[0]->getDouble("BLRMN")*GeoModelKernelUnits::cm;   
+  double moduleRinner2  = (*hecLongitudinalBlock)[1]->getDouble("BLRMN")*GeoModelKernelUnits::cm;   
+  double moduleRouter   = (*hecLongitudinalBlock)[0]->getDouble("BLRMX")*GeoModelKernelUnits::cm;   
   // thickness of Cu pads, LAr gaps and inter-wheel gap:
-  double copperPad      = (*hadronicEndcap)[0]->getDouble("COPPER")*CLHEP::cm;
-  double gapSize        = (*hadronicEndcap)[0]->getDouble("LARG")*CLHEP::cm;
-  double betweenWheel   = (*hadronicEndcap)[0]->getDouble("GAPWHL")*CLHEP::cm; 
+  double copperPad      = (*hadronicEndcap)[0]->getDouble("COPPER")*GeoModelKernelUnits::cm;
+  double gapSize        = (*hadronicEndcap)[0]->getDouble("LARG")*GeoModelKernelUnits::cm;
+  double betweenWheel   = (*hadronicEndcap)[0]->getDouble("GAPWHL")*GeoModelKernelUnits::cm; 
 
 
   for (int idepth=0; idepth < depthNumber; ++idepth)
     {
-      depthSize[idepth]    = (*hecLongitudinalBlock)[idepth]->getDouble("BLDPTH")*CLHEP::cm;
-      firstAbsorber[idepth]= (*hecLongitudinalBlock)[idepth]->getDouble("PLATE0")*CLHEP::cm;
+      depthSize[idepth]    = (*hecLongitudinalBlock)[idepth]->getDouble("BLDPTH")*GeoModelKernelUnits::cm;
+      firstAbsorber[idepth]= (*hecLongitudinalBlock)[idepth]->getDouble("PLATE0")*GeoModelKernelUnits::cm;
       gapNumber[idepth]    = (int) (*hecLongitudinalBlock)[idepth]->getDouble("BLMOD");
     }
 
@@ -291,8 +293,8 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
       std::ostringstream A0STR;
       A0STR << "_" << ikapton;
       const std::string A0 = A0STR.str();
-      kaptonPosition[ikapton] = (*hadronicEndcap)[0]->getDouble("KPTPOS"+A0)*CLHEP::cm;
-      kaptonWidth[ikapton]    = (*hadronicEndcap)[0]->getDouble("KPTWID"+A0)*CLHEP::cm;
+      kaptonPosition[ikapton] = (*hadronicEndcap)[0]->getDouble("KPTPOS"+A0)*GeoModelKernelUnits::cm;
+      kaptonWidth[ikapton]    = (*hadronicEndcap)[0]->getDouble("KPTWID"+A0)*GeoModelKernelUnits::cm;
     }
 
   for (int itie=0; itie < 4; ++itie)
@@ -300,8 +302,8 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
       std::ostringstream A0STR;
       A0STR << "_" << itie;
       const std::string A0 = A0STR.str(); 
-      tieRodPositionX[itie] = (*hadronicEndcap)[0]->getDouble("RODPOSX"+A0)*CLHEP::cm;
-      tieRodPositionY[itie] = (*hadronicEndcap)[0]->getDouble("RODPOSR"+A0)*CLHEP::cm;
+      tieRodPositionX[itie] = (*hadronicEndcap)[0]->getDouble("RODPOSX"+A0)*GeoModelKernelUnits::cm;
+      tieRodPositionY[itie] = (*hadronicEndcap)[0]->getDouble("RODPOSR"+A0)*GeoModelKernelUnits::cm;
     }
 
   for (int i=0; i < 2; ++i)
@@ -309,16 +311,16 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
       std::ostringstream A0STR;
       A0STR << "_" << i;
       const std::string A0 = A0STR.str();  
-      tieRodDiameter[i] = (*hadronicEndcap)[0]->getDouble("RODDIM"+A0)*CLHEP::cm;
-      spacerDiameter[i] = (*hadronicEndcap)[0]->getDouble("SPCDIM"+A0)*CLHEP::cm;
+      tieRodDiameter[i] = (*hadronicEndcap)[0]->getDouble("RODDIM"+A0)*GeoModelKernelUnits::cm;
+      spacerDiameter[i] = (*hadronicEndcap)[0]->getDouble("SPCDIM"+A0)*GeoModelKernelUnits::cm;
     }
 
 
-  double frontAbsThickness = (*hadronicEndcap)[0]->getDouble("PLATE_0")*CLHEP::cm;
-  double rearAbsThickness  = (*hadronicEndcap)[0]->getDouble("PLATE_1")*CLHEP::cm;
+  double frontAbsThickness = (*hadronicEndcap)[0]->getDouble("PLATE_0")*GeoModelKernelUnits::cm;
+  double rearAbsThickness  = (*hadronicEndcap)[0]->getDouble("PLATE_1")*GeoModelKernelUnits::cm;
   
   // Radial dimensions and z-plane locations
-  double zCoordinate[] = {0.0*CLHEP::cm, depthSize[0], depthSize[0], 816.51*CLHEP::mm, 816.51*CLHEP::mm, 1350.*CLHEP::mm };
+  double zCoordinate[] = {0.0*GeoModelKernelUnits::cm, depthSize[0], depthSize[0], 816.51*GeoModelKernelUnits::mm, 816.51*GeoModelKernelUnits::mm, 1350.*GeoModelKernelUnits::mm };
   double innerRadius[] = {moduleRinner1,moduleRinner1,
                          moduleRinner2,moduleRinner2,moduleRinner2,moduleRinner2,};   
 
@@ -439,9 +441,9 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
   //----------------------------------------------------------------
   //   Place FrontModules into FrontHEC wheel and RearModule into RearHEC wheel
   //----------------------------------------------------------------
-  Genfun::Variable    Index;
-  Genfun::GENFUNCTION ModuleRotationAngle = -moduleDeltaPhi + moduleDeltaPhi*Index; 
-  GeoXF::TRANSFUNCTION tf = GeoXF::Pow(HepGeom::RotateZ3D(1.0),ModuleRotationAngle);
+  GeoGenfun::Variable    Index;
+  GeoGenfun::GENFUNCTION ModuleRotationAngle = -moduleDeltaPhi + moduleDeltaPhi*Index; 
+  GeoXF::TRANSFUNCTION tf = GeoXF::Pow(GeoTrf::RotateZ3D(1.0),ModuleRotationAngle);
 
 
   GeoSerialIdentifier  *sIF = new GeoSerialIdentifier(1);
@@ -449,8 +451,8 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
   physiFrontHEC->add(sIF);
   physiFrontHEC->add(sTF);
     
-  Genfun::GENFUNCTION ModuleRotationAngleR = -moduleDeltaPhi/2. + moduleDeltaPhi*Index; 
-  GeoXF::TRANSFUNCTION tr = GeoXF::Pow(HepGeom::RotateZ3D(1.0),ModuleRotationAngleR);
+  GeoGenfun::GENFUNCTION ModuleRotationAngleR = -moduleDeltaPhi/2. + moduleDeltaPhi*Index; 
+  GeoXF::TRANSFUNCTION tr = GeoXF::Pow(GeoTrf::RotateZ3D(1.0),ModuleRotationAngleR);
 
   GeoSerialIdentifier  *sIR = new GeoSerialIdentifier(2);
   GeoSerialTransformer *sTR = new GeoSerialTransformer (physiRearModule,&tr, moduleNumberRear);
@@ -488,7 +490,7 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
   //----------------------------------------------------------------
   //    Absorbers , the inner and outer Radius are smaller by radialShift
   //                but positionned in the center of depth. this alows
-  //                to have 2 CLHEP::mm gap between the copper plates of neighbor FrontModules 
+  //                to have 2 GeoModelKernelUnits::mm gap between the copper plates of neighbor FrontModules 
   //----------------------------------------------------------------
 
   // Two different Absorbers for the front depths: 
@@ -553,7 +555,7 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
       // Placement of the actual depth:
       depthPositionZ +=depthSize[idepth]/2.;
       physiFrontModule->add(new GeoIdentifierTag(100+idepth));
-      physiFrontModule->add(new GeoTransform(HepGeom::Translate3D(0,0,depthPositionZ)));     
+      physiFrontModule->add(new GeoTransform(GeoTrf::Translate3D(0,0,depthPositionZ)));     
       physiFrontModule->add(physiDepth[idepth]);     
 
 
@@ -572,9 +574,9 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
       else          {  islice=2;  frontabsorberNo=1;  } 
       
       double slicePositionZ=firstAbsorber[idepth]+ gapSize/2.0 -depthSize[idepth]/2.0;
-      Genfun::Variable Index;
-      GeoXF::TRANSFUNCTION TS = GeoXF::Pow(HepGeom::TranslateZ3D(1.0),slicePositionZ + (frontAbsThickness+gapSize)*Index);
-      GeoXF::TRANSFUNCTION TA = HepGeom::TranslateY3D(-radialShift)*GeoXF::Pow(HepGeom::TranslateZ3D(1.0),
+      GeoGenfun::Variable Index;
+      GeoXF::TRANSFUNCTION TS = GeoXF::Pow(GeoTrf::TranslateZ3D(1.0),slicePositionZ + (frontAbsThickness+gapSize)*Index);
+      GeoXF::TRANSFUNCTION TA = GeoTrf::TranslateY3D(-radialShift)*GeoXF::Pow(GeoTrf::TranslateZ3D(1.0),
 						absorberPositionZ[idepth] + (frontAbsThickness+gapSize)*Index);
       GeoSerialIdentifier *sI = new GeoSerialIdentifier(sliceCopyNo[idepth]);
       GeoSerialTransformer *sTS = new GeoSerialTransformer(physiSlice[islice],   &TS, gapNumber[idepth]);
@@ -602,7 +604,7 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
       physiDepth[idepth] = new GeoPhysVol(logiDepth[idepth]);
 
       physiRearModule->add(new GeoIdentifierTag(100+idepth));
-      physiRearModule->add(new GeoTransform(HepGeom::Translate3D(0,0,depthPositionZ)));     
+      physiRearModule->add(new GeoTransform(GeoTrf::Translate3D(0,0,depthPositionZ)));     
       physiRearModule->add(physiDepth[idepth]);
 
      
@@ -612,9 +614,9 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
       // Position 4 sensitive gaps and rear absorbers in 2 depths of a Rear Module:
       int islice=2;
       double slicePositionZ=firstAbsorber[idepth]+ gapSize/2.0 -depthSize[idepth]/2.0;      
-      Genfun::Variable Index;
-      GeoXF::TRANSFUNCTION TS = GeoXF::Pow(HepGeom::TranslateZ3D(1.0),slicePositionZ + (rearAbsThickness+gapSize)*Index);
-      GeoXF::TRANSFUNCTION TA = HepGeom::TranslateY3D(-radialShift)*GeoXF::Pow(HepGeom::TranslateZ3D(1.0),
+      GeoGenfun::Variable Index;
+      GeoXF::TRANSFUNCTION TS = GeoXF::Pow(GeoTrf::TranslateZ3D(1.0),slicePositionZ + (rearAbsThickness+gapSize)*Index);
+      GeoXF::TRANSFUNCTION TA = GeoTrf::TranslateY3D(-radialShift)*GeoXF::Pow(GeoTrf::TranslateZ3D(1.0),
 					        absorberPositionZ[idepth] + (rearAbsThickness+gapSize)*Index);
       GeoSerialIdentifier *sI = new GeoSerialIdentifier(sliceCopyNo[idepth]);
       GeoSerialTransformer *sTS = new GeoSerialTransformer(physiSlice[islice],   &TS, gapNumber[idepth]);
@@ -632,13 +634,13 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
 
   double firstAbsorberPositionZ = firstAbsorber[0]/2.- depthSize[0]/2.0;
   physiDepth[0]->add(new GeoIdentifierTag(50));
-  physiDepth[0]->add(new GeoTransform(HepGeom::Translate3D(0,-radialShift,firstAbsorberPositionZ)));     
+  physiDepth[0]->add(new GeoTransform(GeoTrf::Translate3D(0,-radialShift,firstAbsorberPositionZ)));     
   physiDepth[0]->add(physiFirstAbsorber[0]);     
 
   
   firstAbsorberPositionZ = firstAbsorber[3]/2.- depthSize[3]/2.0;
   physiDepth[3]->add(new GeoIdentifierTag(51));
-  physiDepth[3]->add(new GeoTransform(HepGeom::Translate3D(0,-radialShift,firstAbsorberPositionZ)));     
+  physiDepth[3]->add(new GeoTransform(GeoTrf::Translate3D(0,-radialShift,firstAbsorberPositionZ)));     
   physiDepth[3]->add(physiFirstAbsorber[1]);     
   
 
@@ -685,13 +687,13 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
 
       physiEstBoard = new GeoPhysVol(logiEstBoard);
       physiSlice[islice]->add(new GeoIdentifierTag(indexKapton));
-      physiSlice[islice]->add(new GeoTransform(HepGeom::Translate3D(0,0,kaptonPositionZ)));     
+      physiSlice[islice]->add(new GeoTransform(GeoTrf::Translate3D(0,0,kaptonPositionZ)));     
       physiSlice[islice]->add(physiEstBoard);     
 
 
       physiPadBoard = new GeoPhysVol(logiPadBoard);
       physiEstBoard->add(new GeoIdentifierTag(indexKapton));
-      physiEstBoard->add(new GeoTransform(HepGeom::Translate3D(0,0,0)));     
+      physiEstBoard->add(new GeoTransform(GeoTrf::Translate3D(0,0,0)));     
       physiEstBoard->add(physiPadBoard);     
 
     }//for islice
@@ -701,10 +703,10 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
   //    Tie rods in Slice
   //----------------------------------------------------------------
 
-  //  double rodSize = 0.85*CLHEP::cm;
+  //  double rodSize = 0.85*GeoModelKernelUnits::cm;
   for (int iwheel=0; iwheel<2; iwheel++) 
     { 
-      solidTieRod[iwheel] = new GeoTubs(0.*CLHEP::cm,spacerDiameter[iwheel]/2.,rodSize/2., 0.*CLHEP::deg,360.*CLHEP::deg); 
+      solidTieRod[iwheel] = new GeoTubs(0.*GeoModelKernelUnits::cm,spacerDiameter[iwheel]/2.,rodSize/2., 0.*GeoModelKernelUnits::deg,360.*GeoModelKernelUnits::deg); 
       logiTieRod[iwheel] = new GeoLogVol(tieRodName, solidTieRod[iwheel], Iron);     
     }
 
@@ -718,14 +720,14 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
 
 	physiTieRod[numberTie] = new GeoPhysVol(logiTieRod[numberTie]);
         physiSlice[islice]->add(new GeoIdentifierTag(indexRod));
-        physiSlice[islice]->add(new GeoTransform(HepGeom::Translate3D(tieRodPositionX[indexRod],
+        physiSlice[islice]->add(new GeoTransform(GeoTrf::Translate3D(tieRodPositionX[indexRod],
                                                       -tieRodPositionY[indexRod],ztie[iz])));     
         physiSlice[islice]->add(physiTieRod[numberTie]);     
 
 
  	physiTieRod[numberTie] = new GeoPhysVol(logiTieRod[numberTie]);
         physiSlice[islice]->add(new GeoIdentifierTag(indexRod));
-        physiSlice[islice]->add(new GeoTransform(HepGeom::Translate3D(-tieRodPositionX[indexRod],
+        physiSlice[islice]->add(new GeoTransform(GeoTrf::Translate3D(-tieRodPositionX[indexRod],
                                                       -tieRodPositionY[indexRod],ztie[iz])));     
         physiSlice[islice]->add(physiTieRod[numberTie]);     
 
@@ -736,7 +738,7 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
 
 	physiTieRod[numberTie] = new GeoPhysVol(logiTieRod[numberTie]);
         physiSlice[islice]->add(new GeoIdentifierTag(indexRod));
-        physiSlice[islice]->add(new GeoTransform(HepGeom::Translate3D(tieRodPositionX[0],-tieRodPositionY[0],ztie[iz1]))); 
+        physiSlice[islice]->add(new GeoTransform(GeoTrf::Translate3D(tieRodPositionX[0],-tieRodPositionY[0],ztie[iz1]))); 
         physiSlice[islice]->add(physiTieRod[numberTie]);     
 
       }//for iz1  (this dealt with the one last un-paired rod at the module's narrow end)
@@ -745,12 +747,12 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
   //----------------------------------------------------------------
   //    Tie rods in Absorbers
   //----------------------------------------------------------------
-  solidAbsorberTieRod[0] = new GeoTubs(0.*CLHEP::cm,tieRodDiameter[0]/2.,frontAbsThickness/2.,0.*CLHEP::deg,360.*CLHEP::deg);
-  solidAbsorberTieRod[1] = new GeoTubs(0.*CLHEP::cm,tieRodDiameter[1]/2.,rearAbsThickness/2.,0.*CLHEP::deg,360.*CLHEP::deg); 
+  solidAbsorberTieRod[0] = new GeoTubs(0.*GeoModelKernelUnits::cm,tieRodDiameter[0]/2.,frontAbsThickness/2.,0.*GeoModelKernelUnits::deg,360.*GeoModelKernelUnits::deg);
+  solidAbsorberTieRod[1] = new GeoTubs(0.*GeoModelKernelUnits::cm,tieRodDiameter[1]/2.,rearAbsThickness/2.,0.*GeoModelKernelUnits::deg,360.*GeoModelKernelUnits::deg); 
   logiAbsorberTieRod[0]  = new GeoLogVol(tieRodName,solidAbsorberTieRod[0],Iron);  //,0,0,0);
   logiAbsorberTieRod[1]  = new GeoLogVol(tieRodName,solidAbsorberTieRod[1],Iron);  //,0,0,0);
-  solidAbsorberTieRodRear[0] = new GeoTubs(0.*CLHEP::cm,tieRodDiameter[0]/2.,frontAbsThickness/2.,0.*CLHEP::deg,360.*CLHEP::deg);
-  solidAbsorberTieRodRear[1] = new GeoTubs(0.*CLHEP::cm,tieRodDiameter[1]/2.,rearAbsThickness/2.,0.*CLHEP::deg,360.*CLHEP::deg); 
+  solidAbsorberTieRodRear[0] = new GeoTubs(0.*GeoModelKernelUnits::cm,tieRodDiameter[0]/2.,frontAbsThickness/2.,0.*GeoModelKernelUnits::deg,360.*GeoModelKernelUnits::deg);
+  solidAbsorberTieRodRear[1] = new GeoTubs(0.*GeoModelKernelUnits::cm,tieRodDiameter[1]/2.,rearAbsThickness/2.,0.*GeoModelKernelUnits::deg,360.*GeoModelKernelUnits::deg); 
   logiAbsorberTieRodRear[0]  = new GeoLogVol(tieRodRearName,solidAbsorberTieRodRear[0],Iron);  //,0,0,0);
   logiAbsorberTieRodRear[1]  = new GeoLogVol(tieRodRearName,solidAbsorberTieRodRear[1],Iron);  //,0,0,0);
 
@@ -764,18 +766,18 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
         {
           physiAbsorberTieRod[indexR] = new GeoPhysVol(logiAbsorberTieRod[indexR]);
           physiFrontAbsorber[islice]->add(new GeoIdentifierTag(indexRod));
-          physiFrontAbsorber[islice]->add(new GeoTransform(HepGeom::Translate3D(tieRodPositionX[indexRod],
+          physiFrontAbsorber[islice]->add(new GeoTransform(GeoTrf::Translate3D(tieRodPositionX[indexRod],
                                                       -(tieRodPositionY[indexRod]-radialShift), 0)));     
           physiFrontAbsorber[islice]->add(physiAbsorberTieRod[indexR]);     
           physiAbsorberTieRod[indexR] = new GeoPhysVol(logiAbsorberTieRod[indexR]);
           physiFrontAbsorber[islice]->add(new GeoIdentifierTag(indexRod));
-          physiFrontAbsorber[islice]->add(new GeoTransform(HepGeom::Translate3D(-tieRodPositionX[indexRod],
+          physiFrontAbsorber[islice]->add(new GeoTransform(GeoTrf::Translate3D(-tieRodPositionX[indexRod],
                                                       -(tieRodPositionY[indexRod]-radialShift), 0)));     
           physiFrontAbsorber[islice]->add(physiAbsorberTieRod[indexR]);     
 	}     
     physiAbsorberTieRod[indexR] = new GeoPhysVol(logiAbsorberTieRod[indexR]);
     physiFrontAbsorber[islice]->add(new GeoIdentifierTag(indexRod));
-    physiFrontAbsorber[islice]->add(new GeoTransform(HepGeom::Translate3D(tieRodPositionX[0],
+    physiFrontAbsorber[islice]->add(new GeoTransform(GeoTrf::Translate3D(tieRodPositionX[0],
                                                 -(tieRodPositionY[0]-radialShift),0)));     
 
 
@@ -789,13 +791,13 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
         {
           physiAbsorberTieRodRear[1] = new GeoPhysVol(logiAbsorberTieRodRear[1]);
           physiRearAbsorber->add(new GeoIdentifierTag(indexRod));
-          physiRearAbsorber->add(new GeoTransform(HepGeom::Translate3D(tieRodPositionX[indexRod],
+          physiRearAbsorber->add(new GeoTransform(GeoTrf::Translate3D(tieRodPositionX[indexRod],
                                                       -(tieRodPositionY[indexRod]-radialShift), 0)));     
           physiRearAbsorber->add(physiAbsorberTieRodRear[1]);     
 
           physiAbsorberTieRodRear[1] = new GeoPhysVol(logiAbsorberTieRodRear[1]);
           physiRearAbsorber->add(new GeoIdentifierTag(indexRod));
-          physiRearAbsorber->add(new GeoTransform(HepGeom::Translate3D(-tieRodPositionX[indexRod],
+          physiRearAbsorber->add(new GeoTransform(GeoTrf::Translate3D(-tieRodPositionX[indexRod],
                                                       -(tieRodPositionY[indexRod]-radialShift), 0)));     
 
 
@@ -806,7 +808,7 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
     //now the single tie rod at the narrow end:
     physiAbsorberTieRodRear[1] = new GeoPhysVol(logiAbsorberTieRodRear[1]);
     physiRearAbsorber->add(new GeoIdentifierTag(indexRod));
-    physiRearAbsorber->add(new GeoTransform(HepGeom::Translate3D(tieRodPositionX[0],
+    physiRearAbsorber->add(new GeoTransform(GeoTrf::Translate3D(tieRodPositionX[0],
                                                 -(tieRodPositionY[0]-radialShift),0)));     
 
 

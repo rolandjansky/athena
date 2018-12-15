@@ -6,7 +6,7 @@
 #include "SCT_SLHC_GeoModel/SCT_GeometryManager.h"
 #include "SCT_SLHC_GeoModel/SCT_DataBase.h"
 #include "GeometryDBSvc/IGeometryDBSvc.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 
 #include <cmath>
 
@@ -36,7 +36,7 @@ SCT_BarrelModuleParameters::SCT_BarrelModuleParameters(const SCT_DataBase * sctd
 double 
 SCT_BarrelModuleParameters::sensorThickness(int moduleType) const 
 {
-  double thickness = db()->getDouble(m_SctBrlSensor, "THICKNESS", moduleType) * CLHEP::mm;
+  double thickness = db()->getDouble(m_SctBrlSensor, "THICKNESS", moduleType) * GeoModelKernelUnits::mm;
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "-----------2 sensorThickness mod_typ("<<moduleType<<") = "<< thickness << endmsg;
   return thickness;
 }
@@ -44,7 +44,7 @@ SCT_BarrelModuleParameters::sensorThickness(int moduleType) const
 double 
 SCT_BarrelModuleParameters::sensorWidth(int moduleType) const 
 {
-  double width = db()->getDouble(m_SctBrlSensor, "WIDTH", moduleType) * CLHEP::mm;
+  double width = db()->getDouble(m_SctBrlSensor, "WIDTH", moduleType) * GeoModelKernelUnits::mm;
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 DXYZ2 sensorWidth mod_typ("<<moduleType<<") = "<< width <<endmsg;
   return width;
 }
@@ -52,7 +52,7 @@ SCT_BarrelModuleParameters::sensorWidth(int moduleType) const
 double 
 SCT_BarrelModuleParameters::sensorLength(int moduleType) const 
 {
-  double sensorLen = db()->getDouble(m_SctBrlSensor, "LENGTH", moduleType) * CLHEP::mm;
+  double sensorLen = db()->getDouble(m_SctBrlSensor, "LENGTH", moduleType) * GeoModelKernelUnits::mm;
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 SensorLength DXYZ3 mod_typ("<<moduleType<<") = "<<sensorLen <<endmsg;
   return sensorLen;
 }
@@ -81,7 +81,7 @@ double
 SCT_BarrelModuleParameters::baseBoardThickness(int moduleType) const 
 {
   //sprintf(paraName, "BRL_M%d_BBTHICK", moduleType);
-  double bbthick = db()->getDouble(m_SctBrlModule, "BASEBOARDTHICKNESS", moduleType) * CLHEP::mm;
+  double bbthick = db()->getDouble(m_SctBrlModule, "BASEBOARDTHICKNESS", moduleType) * GeoModelKernelUnits::mm;
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 baseBoardThickness BBTHICK mod_typ("<<moduleType<<") = "<< bbthick <<endmsg;
   return bbthick;
 }
@@ -89,13 +89,13 @@ SCT_BarrelModuleParameters::baseBoardThickness(int moduleType) const
 double 
 SCT_BarrelModuleParameters::baseBoardWidth(int moduleType) const 
 {
-  double bbwidth = db()->getDouble(m_SctBrlModule, "BASEBOARDWIDTH", moduleType) * CLHEP::mm;
+  double bbwidth = db()->getDouble(m_SctBrlModule, "BASEBOARDWIDTH", moduleType) * GeoModelKernelUnits::mm;
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 baseBoardWidth BBWID mod_typ("<<moduleType<<") = "<< bbwidth <<endmsg;
   return bbwidth;
 }
 
 double SCT_BarrelModuleParameters::baseBoardLength(int moduleType) const{
-  double bblength = db()->getDouble(m_SctBrlModule, "BASEBOARDLENGTH", moduleType) * CLHEP::mm;
+  double bblength = db()->getDouble(m_SctBrlModule, "BASEBOARDLENGTH", moduleType) * GeoModelKernelUnits::mm;
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 baseBoardLength BBLEN mod_typ("<<moduleType<<") = "<<bblength <<endmsg;
   return bblength;
 }
@@ -109,16 +109,16 @@ SCT_BarrelModuleParameters::baseBoardMaterial(int moduleType) const
 }
 double SCT_BarrelModuleParameters::baseBoardOffsetY(int /*moduleType*/) const{
   //if(moduleType == 1)
-    return -5.7*CLHEP::mm;
+    return -5.7*GeoModelKernelUnits::mm;
   //else
-  //  return -5.7*CLHEP::mm;
+  //  return -5.7*GeoModelKernelUnits::mm;
 }
 
 double SCT_BarrelModuleParameters::baseBoardOffsetZ(int moduleType) const{
   if(moduleType == 1)
-    return -7.1*CLHEP::mm;
+    return -7.1*GeoModelKernelUnits::mm;
   else
-    return -1.9*CLHEP::mm;
+    return -1.9*GeoModelKernelUnits::mm;
 }
 
 //
@@ -127,13 +127,13 @@ double SCT_BarrelModuleParameters::baseBoardOffsetZ(int moduleType) const{
 double 
 SCT_BarrelModuleParameters::moduleStereoAngle(int moduleType) const
 {
-  return db()->getDouble(m_SctBrlModule, "STEREOANGLE", moduleType) * CLHEP::mrad;
+  return db()->getDouble(m_SctBrlModule, "STEREOANGLE", moduleType) * GeoModelKernelUnits::mrad;
 }
 
 double 
 SCT_BarrelModuleParameters::moduleInterSidesGap(int moduleType) const
 {
-  return db()->getDouble(m_SctBrlModule, "INTERSIDESGAP", moduleType) * CLHEP::mm;
+  return db()->getDouble(m_SctBrlModule, "INTERSIDESGAP", moduleType) * GeoModelKernelUnits::mm;
 }
 
 // Barrel Module Side Design
@@ -141,7 +141,7 @@ SCT_BarrelModuleParameters::moduleInterSidesGap(int moduleType) const
 double 
 SCT_BarrelModuleParameters::barrelModelSideStripPitch(int moduleType) const
 {
-  double pitch = db()->getDouble(m_SctBrlSensor, "STRIPPITCH", moduleType) * CLHEP::mm;
+  double pitch = db()->getDouble(m_SctBrlSensor, "STRIPPITCH", moduleType) * GeoModelKernelUnits::mm;
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 barrelModelSideStripPitch PITCH mod_typ("<<moduleType<<") = "<<pitch <<endmsg;
   return pitch;
 }
@@ -149,7 +149,7 @@ SCT_BarrelModuleParameters::barrelModelSideStripPitch(int moduleType) const
 double
 SCT_BarrelModuleParameters::barrelModelSideStripLength(int moduleType) const
 {
-  double stripLen =  db()->getDouble(m_SctBrlSensor, "STRIPLENGTH", moduleType) * CLHEP::mm;
+  double stripLen =  db()->getDouble(m_SctBrlSensor, "STRIPLENGTH", moduleType) * GeoModelKernelUnits::mm;
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 barrelModelSideStripLength STRIPLEN mod_typ("<<moduleType<<") = "<<stripLen <<endmsg;
   return stripLen;
 }
@@ -157,7 +157,7 @@ SCT_BarrelModuleParameters::barrelModelSideStripLength(int moduleType) const
 double 
 SCT_BarrelModuleParameters::barrelModelSideTotalDeadLength(int moduleType) const
 {
-  double stripdeadLen = db()->getDouble(m_SctBrlSensor, "STRIPDEADLENGTH", moduleType) * CLHEP::mm;
+  double stripdeadLen = db()->getDouble(m_SctBrlSensor, "STRIPDEADLENGTH", moduleType) * GeoModelKernelUnits::mm;
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 barrelModelSideTotalDeadLength STRIPDEADLEN mod_typ("<<moduleType<<") = "<<stripdeadLen<<endmsg;
   return stripdeadLen;
 }
@@ -177,7 +177,7 @@ double
 SCT_BarrelModuleParameters::barrelModelSideSegmentGap(int moduleType) const
 {
   if (m_SctBrlSensor) {
-    return db()->getDouble(m_SctBrlSensor, "SEGMENTGAP", moduleType) * CLHEP::mm;
+    return db()->getDouble(m_SctBrlSensor, "SEGMENTGAP", moduleType) * GeoModelKernelUnits::mm;
   } else { 
     return 0;
   }

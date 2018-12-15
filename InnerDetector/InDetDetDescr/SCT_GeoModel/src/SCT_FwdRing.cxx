@@ -25,10 +25,10 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoShapeShift.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Vector/Rotation.h"
+#include "GeoModelKernel/Units.h"
+#include "GeoModelKernel/GeoDefinitions.h"
+
+
 
 #include <sstream>
 #include <cmath>
@@ -128,8 +128,8 @@ SCT_FwdRing::preBuild()
   // If disc is rotated then recalculate the angle.
   // It assumed the disc is rotated around the Y axis.  
   // TODO: Check this assumption. 
-  if (m_discRotated) angle = CLHEP::pi - angle;
-  double divisionAngle = 2*CLHEP::pi / m_numModules;
+  if (m_discRotated) angle = GeoModelKernelUnits::pi - angle;
+  double divisionAngle = 2*GeoModelKernelUnits::pi / m_numModules;
 
   // Now we choose module 0 as the first module with -0.5 * divAngle <  phi <=  0.5 * divAngle   
   double moduleCount = angle / divisionAngle;
@@ -140,7 +140,7 @@ SCT_FwdRing::preBuild()
   // Determine numbering for -ve endcap.
   // This is for a rotation around Y axis.
   // After rotation we want the first module closest to phi = 0.
-  double angleNegEC = CLHEP::pi - m_startAngle; 
+  double angleNegEC = GeoModelKernelUnits::pi - m_startAngle; 
   double moduleCountNegEC = angleNegEC / divisionAngle;
   m_moduleZero = static_cast<int>(floor(moduleCountNegEC + 0.5 - 0.0001));
   
@@ -151,16 +151,16 @@ SCT_FwdRing::preBuild()
 
   //   std::cout << "RingType, RingSide, Stereo, rotated = " << m_iRing << " " << m_ringSide << " "
   //          << m_stereoSign << " " << m_discRotated << std::endl;
-  //   std::cout << "Ref   Start angle and stagger " << m_refStartAngle/CLHEP::deg << " " << m_refFirstStagger << std::endl;
-  //   std::cout << "First Start angle and stagger " << m_startAngle/CLHEP::deg << " " << m_firstStagger << std::endl;
+  //   std::cout << "Ref   Start angle and stagger " << m_refStartAngle/GeoModelKernelUnits::deg << " " << m_refFirstStagger << std::endl;
+  //   std::cout << "First Start angle and stagger " << m_startAngle/GeoModelKernelUnits::deg << " " << m_firstStagger << std::endl;
   //   std::cout << "Module zero in -ve endcap " << m_moduleZero << std::endl;
 
 
   makeModuleServices();
 
   // Make envelope for ring
-  double moduleClearanceZ = 0.6 * CLHEP::mm; // Arbitrary choice
-  double moduleClearanceR = 0.5 * CLHEP::mm; 
+  double moduleClearanceZ = 0.6 * GeoModelKernelUnits::mm; // Arbitrary choice
+  double moduleClearanceR = 0.5 * GeoModelKernelUnits::mm; 
 
   m_innerRadius = m_module->innerRadius() - 0.5*m_module->stereoAngle()*(0.5*m_module->innerWidth()) - moduleClearanceR;
   m_outerRadius = sqrt(sqr(m_module->outerRadius()) + sqr(0.5*m_module->outerWidth())) 
@@ -168,15 +168,15 @@ SCT_FwdRing::preBuild()
 
   // Calculate clearance we have. NB. This is an approximate.
   //std::cout << "Module clearance (radial value does not take into account stereo rotation:" << std::endl;
-  //std::cout << " radial: " << moduleClearanceR/CLHEP::mm << " mm" << std::endl;
-  //std::cout << " away from disc in z " << moduleClearanceZ/CLHEP::mm << " mm" << std::endl;
+  //std::cout << " radial: " << moduleClearanceR/GeoModelKernelUnits::mm << " mm" << std::endl;
+  //std::cout << " away from disc in z " << moduleClearanceZ/GeoModelKernelUnits::mm << " mm" << std::endl;
   //std::cout << " Lo Module to cooling block: " << -m_moduleStagger-0.5*m_module->thickness() - m_moduleServicesLoOuterZPos << std::endl;
   //std::cout << " Hi Module to cooling block: " << +m_moduleStagger-0.5*m_module->thickness() - m_moduleServicesHiOuterZPos << std::endl;
   //std::cout << " Module to Module: " << m_moduleStagger-m_module->thickness() << std::endl;
   //std::cout << " towards disc in z "   
   //     << std::min(m_moduleStagger-m_module->thickness(), 
   //   std::min(-m_moduleStagger-0.5*m_module->thickness() - m_moduleServicesLoOuterZPos,
-  //     +m_moduleStagger-0.5*m_module->thickness() - m_moduleServicesHiOuterZPos)) / CLHEP::mm << " mm" << std::endl;
+  //     +m_moduleStagger-0.5*m_module->thickness() - m_moduleServicesHiOuterZPos)) / GeoModelKernelUnits::mm << " mm" << std::endl;
 
   m_thicknessOuter = 0.5 * m_module->thickness() + m_moduleStagger + moduleClearanceZ;
   m_thicknessInner = m_maxModuleServicesBaseToRingCenter + 2*m_safety;
@@ -190,7 +190,7 @@ SCT_FwdRing::preBuild()
 
   SCT_MaterialManager materials;
   const GeoTube * tmpShape = new GeoTube(m_innerRadius, m_outerRadius, 0.5 * m_thickness);
-  const GeoShape & ringEnvelopeShape = (*tmpShape <<  HepGeom::Translate3D(0, 0, envelopeShift));
+  const GeoShape & ringEnvelopeShape = (*tmpShape <<  GeoTrf::Translate3D(0, 0, envelopeShift));
   GeoLogVol * ringLog = new GeoLogVol(getName(), &ringEnvelopeShape, materials.gasMaterial());
 
   //std::cout << "m_innerRadius = " << m_innerRadius << std::endl;
@@ -209,7 +209,7 @@ SCT_FwdRing::build(SCT_Identifier id) const
   // Physical volume for the half ring
   GeoPhysVol * ring = new GeoPhysVol(m_logVolume);
   
-  double deltaPhi = 360*CLHEP::degree / m_numModules;
+  double deltaPhi = 360*GeoModelKernelUnits::degree / m_numModules;
   bool negativeEndCap = (id.getBarrelEC() < 0);
   
   for (int i = 0; i < m_numModules; i++){
@@ -264,19 +264,18 @@ SCT_FwdRing::build(SCT_Identifier id) const
     //std::cout << "Endcap# = " <<id.getBarrelEC() 
     //       << ", idModule = " << idModule 
     //       << ", i = " << i 
-    //       << ", phi = " << phi/CLHEP::degree << std::endl;
+    //       << ", phi = " << phi/GeoModelKernelUnits::degree << std::endl;
 
-    CLHEP::HepRotation rot;
-    rot.rotateY(90*CLHEP::degree);    
+    GeoTrf::Transform3D rot = GeoTrf::RotateZ3D(phi + 0.5 * m_module->stereoAngle() * m_stereoSign);
     if (m_ringSide > 0) {
-      rot.rotateX(180*CLHEP::degree);    
+      rot = rot*GeoTrf::RotateX3D(180*GeoModelKernelUnits::degree);
     }
-    rot.rotateZ(phi + 0.5 * m_module->stereoAngle() * m_stereoSign);
+    rot = rot*GeoTrf::RotateY3D(90*GeoModelKernelUnits::degree);
     
     double zPos =  staggerUpperLower * m_moduleStagger * m_ringSide;
-    CLHEP::Hep3Vector xyz(m_module->sensorCenterRadius(), 0, zPos);
-    xyz.rotateZ(phi);
-    HepGeom::Transform3D modulePos(rot,xyz);
+    GeoTrf::Vector3D xyz(m_module->sensorCenterRadius(), 0, zPos);
+    xyz = GeoTrf::RotateZ3D(phi)*xyz;
+    GeoTrf::Transform3D modulePos = GeoTrf::Translate3D(xyz.x(),xyz.y(),xyz.z())*rot;
 
     
     // Add the module
@@ -311,7 +310,7 @@ SCT_FwdRing::build(SCT_Identifier id) const
     }
       
     
-    ring->add(new GeoTransform(HepGeom::RotateZ3D(phi)*HepGeom::Translate3D(rModuleServices, 0, zModuleServices)));
+    ring->add(new GeoTransform(GeoTrf::RotateZ3D(phi)*GeoTrf::Translate3D(rModuleServices, 0, zModuleServices)));
     ring->add(moduleServices);
   
   }
@@ -390,15 +389,15 @@ SCT_FwdRing::makeModuleServices()
     
   // Add the cooling blocks
   // Main Upper
-  m_moduleServicesHi->add(new GeoTransform(HepGeom::Translate3D(coolingBlkMainR - m_moduleServicesHiRPos, 0, 0)));
+  m_moduleServicesHi->add(new GeoTransform(GeoTrf::Translate3D(coolingBlkMainR - m_moduleServicesHiRPos, 0, 0)));
   m_moduleServicesHi->add(m_coolingBlockHiMain->getVolume());
   // Secondary Upper
-  m_moduleServicesHi->add(new GeoTransform(HepGeom::Translate3D(coolingBlkHiSecRMid - m_moduleServicesHiRPos, 0, 0)));
+  m_moduleServicesHi->add(new GeoTransform(GeoTrf::Translate3D(coolingBlkHiSecRMid - m_moduleServicesHiRPos, 0, 0)));
   m_moduleServicesHi->add(m_coolingBlockHiSec->getVolume());
   // Main Lower
-  m_moduleServicesLo->add(new GeoTransform(HepGeom::Translate3D(coolingBlkMainR - m_moduleServicesLoRPos, 0, 0)));
+  m_moduleServicesLo->add(new GeoTransform(GeoTrf::Translate3D(coolingBlkMainR - m_moduleServicesLoRPos, 0, 0)));
   m_moduleServicesLo->add(m_coolingBlockLoMain->getVolume());
   // Secondary Lower
-  m_moduleServicesLo->add(new GeoTransform(HepGeom::Translate3D(coolingBlkLoSecRMid - m_moduleServicesLoRPos, 0, 0)));
+  m_moduleServicesLo->add(new GeoTransform(GeoTrf::Translate3D(coolingBlkLoSecRMid - m_moduleServicesLoRPos, 0, 0)));
   m_moduleServicesLo->add(m_coolingBlockLoSec->getVolume());
 }

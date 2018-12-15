@@ -138,7 +138,7 @@ void VP1RawDataHandle_LUCID::Imp::ensureInitTubeInfo()
 		    if (tubeID>=0) {
 		      const GeoTube * geotube = av4.getVolume()->getLogVol()->getShape()->typeID()==GeoTube::getClassTypeID() ?
 			static_cast<const GeoTube*>(av4.getVolume()->getLogVol()->getShape()) : 0;
-		      Amg::Transform3D tr( Amg::CLHEPTransformToEigen(av.getTransform()*av2.getTransform()*av3.getTransform()*av4.getTransform() ) );
+		      Amg::Transform3D tr( av.getTransform()*av2.getTransform()*av3.getTransform()*av4.getTransform() );
 		      (*tubeID2TubeInfo)[tubeID] = new TubeInfo(tubeID,tr,geotube);
 		      if (VP1Msg::verbose())
 			VP1Msg::messageVerbose("VP1RawDataHandle_LUCID Added TubeInfo for tubeID = "+QString::number(tubeID));

@@ -9,7 +9,7 @@ atlas_subdir( VP1GeometrySystems )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
-   DetectorDescription/GeoModel/GeoModelKernel
+   DetectorDescription/GeoPrimitives
    MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
    Generators/TruthUtils
    Event/xAOD/xAODTruth
@@ -23,6 +23,7 @@ atlas_depends_on_subdirs(
 find_package( CLHEP )
 find_package( Coin3D )
 find_package( Qt5 COMPONENTS Core Gui Widgets  )
+find_package( GeoModel )
 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -45,5 +46,5 @@ atlas_add_library( VP1GeometrySystems
    INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS} 
    PRIVATE_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR}  
    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-   LINK_LIBRARIES ${COIN3D_LIBRARIES} GeoModelKernel MuonReadoutGeometry TruthUtils xAODTruth VP1Base GL Qt5::Core Qt5::Widgets
+   LINK_LIBRARIES ${COIN3D_LIBRARIES} ${GEOMODEL_LIBRARIES} MuonReadoutGeometry TruthUtils xAODTruth VP1Base GL Qt5::Core Qt5::Widgets
    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} GeoModelUtilities VP1HEPVis VP1Utils Qt5::Gui )

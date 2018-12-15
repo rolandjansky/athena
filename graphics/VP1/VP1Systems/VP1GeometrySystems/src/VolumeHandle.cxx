@@ -141,7 +141,7 @@ void VolumeHandle::initialiseChildren()
   while (!av.atEnd()) {
     //Add transformation between parent and child to find the complete transformation of the child:
     SbMatrix matr;
-    VP1LinAlgUtils::transformToMatrix(av.getTransform(), matr);
+    VP1LinAlgUtils::transformToMatrix(Amg::EigenTransformToCLHEP(av.getTransform()), matr);
     matr.multRight(m_d->accumTrans);
     m_children.push_back(new VolumeHandle(m_d->commondata,this,av.getVolume(),ichild++,(isInMuonChamber()?MUONCHAMBERCHILD:NONMUONCHAMBER),matr));
     av.next();
@@ -271,7 +271,7 @@ void VolumeHandle::ensureBuildNodeSep()
   //In the case of a GeoShapeShift we add its contained transformation here:
   //Fixme: Remember to use this extra transformation for phisector cuts also!
   if (m_d->pV->getLogVol()->getShape()->typeID()==GeoShapeShift::getClassTypeID())
-    m_d->nodesep->addChild(VP1LinAlgUtils::toSoTransform(dynamic_cast<const GeoShapeShift*>(m_d->pV->getLogVol()->getShape())->getX()));
+    m_d->nodesep->addChild(VP1LinAlgUtils::toSoTransform(Amg::EigenTransformToCLHEP(dynamic_cast<const GeoShapeShift*>(m_d->pV->getLogVol()->getShape())->getX())));
 
   //Add shape child(ren) and get the separator (helper) where we attach the nodesep when volume is visible:
   if (iphi>=-1) {

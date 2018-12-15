@@ -14,7 +14,7 @@
 #define LARGEOENDCAP_ENDCAPPRESAMPLERCONSTRUCTION_H
 
 #include "GeoModelKernel/GeoFullPhysVol.h"
-#include "CLHEP/GenericFunctions/FunctionNoop.hh"
+#include "GeoGenericFunctions/FunctionNoop.h"
 
 // Forward declarations
 

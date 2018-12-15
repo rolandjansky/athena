@@ -8,8 +8,7 @@
 #include "MuonGeoModel/StandardComponent.h"
 #include "MuonGeoModel/SupComponent.h"
 #include "MuonGeoModel/TgcComponent.h"
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include <iostream>
@@ -669,7 +668,7 @@ double Station::mdtHalfPitch() const {
 
 
 //this is really needed 
-HepGeom::Transform3D Station::native_to_tsz_frame( const Position & p ) const {
+GeoTrf::Transform3D Station::native_to_tsz_frame( const Position & p ) const {
 
     MsgStream log(m_msgSvc, "MGM-native_to_tsz");
 	const bool dLvl = log.level()<=MSG::DEBUG;
@@ -682,20 +681,20 @@ HepGeom::Transform3D Station::native_to_tsz_frame( const Position & p ) const {
 		<< " for endcap side A so be very careful."
 		<< endmsg;
     
-    HepGeom::Transform3D nominalTransf;
+    GeoTrf::Transform3D nominalTransf{GeoTrf::Transform3D::Identity()};
     
     // first apply here the mirror symmetry: (we, in fact, apply a rotation)
-    HepGeom::Transform3D mirrsym=HepGeom::Transform3D::Identity;
+    GeoTrf::Transform3D mirrsym=GeoTrf::Transform3D::Identity();
     if (p.isMirrored) 
     {
         if (m_name[0]=='B' )
         {
-            mirrsym = HepGeom::RotateX3D(180.*CLHEP::deg);
+            mirrsym = GeoTrf::RotateX3D(180.*GeoModelKernelUnits::deg);
         }
     }
 
     // define the translation to position the chamber in the tzs frame
-    HepGeom::Translate3D AMDBorgTranslation;
+    GeoTrf::Translate3D AMDBorgTranslation(0,0,0);
     if ( (m_name[0]=='B' || p.isBarrelLike) && p.zindex<0 && (!p.isMirrored) && hasMdts())
     {
         //MYSQL* mysql=MYSQL::GetPointer();
@@ -703,7 +702,7 @@ HepGeom::Transform3D Station::native_to_tsz_frame( const Position & p ) const {
         //double halfpitch = (mdtobj->pitch)/2.;
 	double halfpitch = mdtHalfPitch();
         AMDBorgTranslation =
-            HepGeom::Translate3D(GetThickness()/2.-getAmdbOrigine_along_thickness(),
+            GeoTrf::Translate3D(GetThickness()/2.-getAmdbOrigine_along_thickness(),
                            0.,
 			   GetLength()/2.-(getAmdbOrigine_along_length()+halfpitch));
                            //GetLength()/2.-(halfpitch));
@@ -718,12 +717,12 @@ HepGeom::Transform3D Station::native_to_tsz_frame( const Position & p ) const {
     {
       if (m_name[0]=='T')
         AMDBorgTranslation =
-            HepGeom::Translate3D(GetThickness()/2.-getAmdbOrigine_along_thickness(),
+            GeoTrf::Translate3D(GetThickness()/2.-getAmdbOrigine_along_thickness(),
                            0.,
                            GetLength()/2.-getAmdbOrigine_along_length()+((TgcComponent *)GetComponent(0))->posy);
       else
         AMDBorgTranslation =
-            HepGeom::Translate3D(GetThickness()/2.-getAmdbOrigine_along_thickness(),
+            GeoTrf::Translate3D(GetThickness()/2.-getAmdbOrigine_along_thickness(),
                            0.,
                            GetLength()/2.-getAmdbOrigine_along_length());
       if (vLvl)
@@ -735,34 +734,34 @@ HepGeom::Transform3D Station::native_to_tsz_frame( const Position & p ) const {
     }
 
     // // define the rotations by alpha, beta, gamma
-    // HepGeom::Rotate3D ralpha = HepGeom::RotateX3D(p.alpha*CLHEP::deg);
-    // HepGeom::Rotate3D rbeta  = HepGeom::RotateZ3D(p.beta*CLHEP::deg);
-    // HepGeom::Rotate3D rgamma;
-    // rgamma = HepGeom::RotateY3D(p.gamma*CLHEP::deg);
+    // GeoTrf::Rotate3D ralpha = GeoTrf::RotateX3D(p.alpha*GeoModelKernelUnits::deg);
+    // GeoTrf::Rotate3D rbeta  = GeoTrf::RotateZ3D(p.beta*GeoModelKernelUnits::deg);
+    // GeoTrf::Rotate3D rgamma;
+    // rgamma = GeoTrf::RotateY3D(p.gamma*GeoModelKernelUnits::deg);
     // log<<MSG::VERBOSE<<" gamma is not changing sign - original "<<p.gamma<<" new one "<<p.gamma<<endmsg;
     // log<<MSG::VERBOSE<<" alpha / beta "<<p.alpha<<" "<<p.beta<<endmsg;
 
     // // apply all transform in sequence 
-    // //    HepGeom::Transform3D to_tsz = rgamma*rbeta*ralpha*AMDBorgTranslation*mirrsym;  // works for barrel and barrel-like
+    // //    GeoTrf::Transform3D to_tsz = rgamma*rbeta*ralpha*AMDBorgTranslation*mirrsym;  // works for barrel and barrel-like
     // // imt: tested for CTB2004, seems to work for all amdb versions...
-    // HepGeom::Transform3D to_tsz = rgamma*rbeta*ralpha*AMDBorgTranslation*mirrsym;
-    HepGeom::Transform3D to_tsz = AMDBorgTranslation*mirrsym;
+    // GeoTrf::Transform3D to_tsz = rgamma*rbeta*ralpha*AMDBorgTranslation*mirrsym;
+    GeoTrf::Transform3D to_tsz = AMDBorgTranslation*mirrsym;
 
     return to_tsz;
 }
-HepGeom::Transform3D Station::tsz_to_native_frame( const Position & p ) const {
+GeoTrf::Transform3D Station::tsz_to_native_frame( const Position & p ) const {
 
     return (native_to_tsz_frame( p )).inverse();
 }
 // this is really needed 
-HepGeom::Transform3D Station::tsz_to_global_frame( const Position & p ) const {
+GeoTrf::Transform3D Station::tsz_to_global_frame( const Position & p ) const {
 
-    MsgStream log(m_msgSvc, "MGM tsz_to_global_frame");
-	const bool pLvl=log.level()<=MSG::VERBOSE;
+  MsgStream log(m_msgSvc, "MGM tsz_to_global_frame");
+  const bool pLvl=log.level()<=MSG::VERBOSE;
+  
+  GeoTrf::Transform3D nominalTransf= GeoTrf::Transform3D::Identity();
     
-    HepGeom::Transform3D nominalTransf= HepGeom::Transform3D::Identity;
-    
-    CLHEP::Hep3Vector vec;
+    GeoTrf::Vector3D vec;
     double RAD;
     if (m_name[0]=='T')
       {
@@ -771,22 +770,22 @@ HepGeom::Transform3D Station::tsz_to_global_frame( const Position & p ) const {
       }
     else
         RAD=p.radius;
-    vec.setX(RAD*cos(p.phi*CLHEP::deg));
-    vec.setX(vec.x()-p.shift*sin((p.phi)*CLHEP::deg));
-    vec.setY(RAD*sin(p.phi*CLHEP::deg));
-    vec.setY(vec.y()+p.shift*cos((p.phi)*CLHEP::deg));
+    vec.x() = RAD*cos(p.phi*GeoModelKernelUnits::deg);
+    vec.x() = vec.x()-p.shift*sin((p.phi)*GeoModelKernelUnits::deg);
+    vec.y() = RAD*sin(p.phi*GeoModelKernelUnits::deg);
+    vec.y() = vec.y()+p.shift*cos((p.phi)*GeoModelKernelUnits::deg);
     // 
     if (p.isMirrored)
         if ( (p.isBarrelLike) || (m_name[0]=='B') )
         {
             // correct the z location (=-p.z-m_length) for possible m_amdbOrigine_along_length
-            vec.setZ(p.z + getAmdbOrigine_along_length());
+            vec.z() = p.z + getAmdbOrigine_along_length();
 //             std::cout<<" tsz_to_global for station "<<m_name<<" at fi/zi "<<p.phiindex+1<<"/"<<p.zindex<<" isMirr. "<<p.isMirrored
 //                      <<" transl. to "<<vec<<" p.z = "<<p.z<<" length "<<GetLength()<<" AmdbOrigine_along_length "<<getAmdbOrigine_along_length()<<std::endl;
         }
         else
         {
-            vec.setZ(p.z + GetThickness()); // re-establish the amdb z location (with a - sign)
+            vec.z() = p.z + GetThickness(); // re-establish the amdb z location (with a - sign)
         }
     else
     {
@@ -797,10 +796,10 @@ HepGeom::Transform3D Station::tsz_to_global_frame( const Position & p ) const {
             //double halfpitch = (mdtobj->pitch)/2.;
 	    double halfpitch = mdtHalfPitch();
             //vec.setZ(p.z + (-getAmdbOrigine_along_length()+halfpitch));
-            vec.setZ(p.z + halfpitch);
+            vec.z() = p.z + halfpitch;
         }
         else
-            vec.setZ(p.z);
+            vec.z() = p.z;
     }
     
 	if (pLvl)
@@ -808,19 +807,18 @@ HepGeom::Transform3D Station::tsz_to_global_frame( const Position & p ) const {
 
     /////// NEWEWEWWEWEWEWEWEWEWEWEWEW
     // // define the rotations by alpha, beta, gamma
-    HepGeom::Rotate3D ralpha = HepGeom::RotateX3D(p.alpha*CLHEP::deg);
-    HepGeom::Rotate3D rbeta  = HepGeom::RotateZ3D(p.beta*CLHEP::deg);
-    HepGeom::Rotate3D rgamma;
-    rgamma = HepGeom::RotateY3D(p.gamma*CLHEP::deg);
-    if (pLvl)
+    GeoTrf::RotateX3D ralpha(p.alpha*GeoModelKernelUnits::deg);
+    GeoTrf::RotateZ3D rbeta(p.beta*GeoModelKernelUnits::deg);
+    GeoTrf::RotateY3D rgamma(p.gamma*GeoModelKernelUnits::deg);
+    if (pLvl) {
       log<<MSG::VERBOSE<<" gamma is not changing sign - original "<<p.gamma<<" new one "<<p.gamma<<endmsg;
-    if (pLvl)
-    log<<MSG::VERBOSE<<" alpha / beta "<<p.alpha<<" "<<p.beta<<endmsg;
+      log<<MSG::VERBOSE<<" alpha / beta "<<p.alpha<<" "<<p.beta<<endmsg;
+    }
 
     // // apply all transform in sequence 
-    // //    HepGeom::Transform3D to_tsz = rgamma*rbeta*ralpha*AMDBorgTranslation*mirrsym;  // works for barrel and barrel-like
+    // //    GeoTrf::Transform3D to_tsz = rgamma*rbeta*ralpha*AMDBorgTranslation*mirrsym;  // works for barrel and barrel-like
     // // imt: tested for CTB2004, seems to work for all amdb versions...
-    HepGeom::Transform3D abgRot = rgamma*rbeta*ralpha;
+    GeoTrf::Transform3D abgRot = rgamma*rbeta*ralpha;
     /////// NEWEWEWWEWEWEWEWEWEWEWEWEW
 
 
@@ -828,51 +826,51 @@ HepGeom::Transform3D Station::tsz_to_global_frame( const Position & p ) const {
     if ( m_name[0]=='B' || p.isBarrelLike )
     {    
         // here all Barrel chambers 
-        nominalTransf =  HepGeom::RotateZ3D(p.phi*CLHEP::deg);
+        nominalTransf =  GeoTrf::RotateZ3D(p.phi*GeoModelKernelUnits::deg);
     }
     else
     {
 // replace this with the folowing lines 8/06/2006 SS because, EC not mirrored chambers have anyway to be rotated
 // by 180deg around z to mov ecoherently their local reference frame and the tube-layer numbering
 //         if ( p.z>=0 || ( p.z<0 && !(p.isMirrored) ) ){
-//             nominalTransf =  HepGeom::Transform3D(HepGeom::RotateY3D(-90*CLHEP::deg)*
-// 					    HepGeom::RotateX3D(p.phi*CLHEP::deg-180*CLHEP::deg));
+//             nominalTransf =  GeoTrf::Transform3D(GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg)*
+// 					    GeoTrf::RotateX3D(p.phi*GeoModelKernelUnits::deg-180*GeoModelKernelUnits::deg));
 //         }
 //         else if (p.z<0 && p.isMirrored){
-//             nominalTransf =  HepGeom::Transform3D(HepGeom::RotateY3D(-90*CLHEP::deg)*
-//                                             HepGeom::RotateX3D(p.phi*CLHEP::deg-180*CLHEP::deg)*
-//                                             HepGeom::RotateZ3D(180*CLHEP::deg));
+//             nominalTransf =  GeoTrf::Transform3D(GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg)*
+//                                             GeoTrf::RotateX3D(p.phi*GeoModelKernelUnits::deg-180*GeoModelKernelUnits::deg)*
+//                                             GeoTrf::RotateZ3D(180*GeoModelKernelUnits::deg));
 //         }
         if ( p.z>=0 ){
-            nominalTransf =  HepGeom::Transform3D(HepGeom::RotateY3D(-90*CLHEP::deg)*
-					    HepGeom::RotateX3D(p.phi*CLHEP::deg-180*CLHEP::deg));
+            nominalTransf =  GeoTrf::Transform3D(GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg)*
+					    GeoTrf::RotateX3D(p.phi*GeoModelKernelUnits::deg-180*GeoModelKernelUnits::deg));
         }
         else if ( p.z<0 ){
-            nominalTransf =  HepGeom::Transform3D(HepGeom::RotateY3D(-90*CLHEP::deg)*
-                                            HepGeom::RotateX3D(p.phi*CLHEP::deg-180*CLHEP::deg)*
-                                            HepGeom::RotateZ3D(180*CLHEP::deg));
+            nominalTransf =  GeoTrf::Transform3D(GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg)*
+                                            GeoTrf::RotateX3D(p.phi*GeoModelKernelUnits::deg-180*GeoModelKernelUnits::deg)*
+                                            GeoTrf::RotateZ3D(180*GeoModelKernelUnits::deg));
         }
 	else log << MSG::WARNING<<" AAAAAA problem here p.z, mirrored "
 		    <<p.z<<" "<<p.isMirrored<<endmsg;
     }
-    return HepGeom::Translate3D(vec)*nominalTransf*abgRot;
+    return GeoTrf::Translate3D(vec.x(),vec.y(),vec.z())*nominalTransf*abgRot;
 }
 
-HepGeom::Transform3D Station::global_to_tsz_frame( const Position & p ) const {
+GeoTrf::Transform3D Station::global_to_tsz_frame( const Position & p ) const {
     
     return (tsz_to_global_frame( p )).inverse();
 }
-HepGeom::Transform3D Station::getNominalTransform(const Position & p) const 
+GeoTrf::Transform3D Station::getNominalTransform(const Position & p) const 
 {
     //    std::cout<<"Station::getNominalTransform for Position P defined below *********"<<std::endl;
     //    std::cout<<p<<std::endl;
     return  tsz_to_global_frame( p ) * native_to_tsz_frame( p );
 }
-HepGeom::Transform3D Station::getAlignedTransform(const AlignPos & ap, const Position & p) const 
+GeoTrf::Transform3D Station::getAlignedTransform(const AlignPos & ap, const Position & p) const 
 {
     return  tsz_to_global_frame( p ) * getDeltaTransform_tszFrame( ap ) * native_to_tsz_frame( p );
 }
-HepGeom::Transform3D Station::getDeltaTransform_tszFrame(const AlignPos & ap) const
+GeoTrf::Transform3D Station::getDeltaTransform_tszFrame(const AlignPos & ap) const
 {
   MsgStream log(m_msgSvc, "MGM getDeltaTransform_tszFrame");
   if (ap.tras!=0 ||ap.trat!= 0 ||ap.traz!=0 ||
@@ -890,37 +888,37 @@ HepGeom::Transform3D Station::getDeltaTransform_tszFrame(const AlignPos & ap) co
 	}
     }
 
-  HepGeom::Rotate3D rott = HepGeom::RotateX3D(ap.rott);
-  HepGeom::Rotate3D rotz = HepGeom::RotateZ3D(ap.rotz);
-  HepGeom::Rotate3D rots = HepGeom::RotateY3D(ap.rots);
-  HepGeom::Transform3D trans = HepGeom::TranslateY3D(ap.tras)*
-                         HepGeom::TranslateZ3D(ap.traz)*HepGeom::TranslateX3D(ap.trat);
+  GeoTrf::RotateX3D rott(ap.rott);
+  GeoTrf::RotateZ3D rotz(ap.rotz);
+  GeoTrf::RotateY3D rots(ap.rots);
+  GeoTrf::Transform3D trans = GeoTrf::TranslateY3D(ap.tras)*
+                         GeoTrf::TranslateZ3D(ap.traz)*GeoTrf::TranslateX3D(ap.trat);
 
 
-  HepGeom::Transform3D delta = trans*rots*rotz*rott;
+  GeoTrf::Transform3D delta = trans*rots*rotz*rott;
   	
   if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE<<" delta transform in the tsz frame --------------"<<endmsg
-      <<
-      (delta)[0][0] << " " <<
-      (delta)[0][1] << " " <<
-      (delta)[0][2] << " " <<
-      (delta)[0][3] << " " << endmsg <<
-      (delta)[1][0] << " " <<
-      (delta)[1][1] << " " <<
-      (delta)[1][2] << " " <<
-      (delta)[1][3] << " " << endmsg <<
-      (delta)[2][0] << " " <<
-      (delta)[2][1] << " " <<
-      (delta)[2][2] << " " <<
-      (delta)[2][3] << " " << endmsg;  
+				     <<
+				   delta(0,0) << " " <<
+				   delta(0,1) << " " <<
+				   delta(0,2) << " " <<
+				   delta(0,3) << " " << endmsg <<
+				   delta(1,0) << " " <<
+				   delta(1,1) << " " <<
+				   delta(1,2) << " " <<
+				   delta(1,3) << " " << endmsg <<
+				   delta(2,0) << " " <<
+				   delta(2,1) << " " <<
+				   delta(2,2) << " " <<
+				   delta(2,3) << " " << endmsg;  
 
   // our delta transform must be applied in the tsz frame:
   return delta;
 }
-HepGeom::Transform3D Station::getDeltaTransform(const AlignPos & ap, const Position & p) const
+GeoTrf::Transform3D Station::getDeltaTransform(const AlignPos & ap, const Position & p) const
 {
     // GM applies Delta transform like transform*delta
-    HepGeom::Transform3D deltaGM = tsz_to_native_frame(p) *
+    GeoTrf::Transform3D deltaGM = tsz_to_native_frame(p) *
                              getDeltaTransform_tszFrame( ap ) * native_to_tsz_frame(p);
     return deltaGM;
 }
@@ -950,10 +948,10 @@ double Station::getAmdbOrigine_along_thickness() const
 
 
 // /* 17/06/2008 This is not needed anywhere 
-// HepGeom::Transform3D Station::getTransform( const AlignPos & ap) const {
+// GeoTrf::Transform3D Station::getTransform( const AlignPos & ap) const {
 //   MsgStream log(m_msgSvc, "MuonGeoModel");
-//   HepGeom::Translate3D theTranslation, AMDBorgTranslation;
-//   HepGeom::Transform3D theRotation;
+//   GeoTrf::Translate3D theTranslation, AMDBorgTranslation;
+//   GeoTrf::Transform3D theRotation;
 //   float tras=0, traz=0, trat=0, rots=0, rotz=0, rott=0;
 //   bool isBarrel = false;
 //   isBarrel = ap.isBarrel;
@@ -977,35 +975,35 @@ double Station::getAmdbOrigine_along_thickness() const
 //   if (ap.isBarrel && !(ap.isTrapezoid))
 //     {   // rectangular barrel chambers
 //       // AMDB org is at z=0, t=0 (not z=m_length/2, t=m_thickness/2)
-//       AMDBorgTranslation = HepGeom::Translate3D(GetThickness()/2.,0.,GetLength()/2.);
+//       AMDBorgTranslation = GeoTrf::Translate3D(GetThickness()/2.,0.,GetLength()/2.);
 //       // RSZ = tsz
-//       theTranslation = HepGeom::Translate3D(trat,tras,traz);
+//       theTranslation = GeoTrf::Translate3D(trat,tras,traz);
 //       // SZR = szt
-//       theRotation = HepGeom::RotateY3D(rots)*HepGeom::RotateZ3D(rotz)*
-// 	HepGeom::RotateX3D(rott);
+//       theRotation = GeoTrf::RotateY3D(rots)*GeoTrf::RotateZ3D(rotz)*
+// 	GeoTrf::RotateX3D(rott);
 //     }
 //   else if (ap.isBarrel && ap.isTrapezoid)
 //     {   // we can get rid of isTrapezoid after AMDB version 7.
-//       theTranslation = HepGeom::Translate3D(trat,-tras,traz);
-//       theRotation = HepGeom::RotateY3D(-rots)*HepGeom::RotateZ3D(rotz)*
-// 	HepGeom::RotateX3D(rott);      
-//       AMDBorgTranslation = HepGeom::Translate3D(GetThickness()/2.,0.,GetLength()/2.);
+//       theTranslation = GeoTrf::Translate3D(trat,-tras,traz);
+//       theRotation = GeoTrf::RotateY3D(-rots)*GeoTrf::RotateZ3D(rotz)*
+// 	GeoTrf::RotateX3D(rott);      
+//       AMDBorgTranslation = GeoTrf::Translate3D(GetThickness()/2.,0.,GetLength()/2.);
 //     }
 //   else
 //     { // assumed to be trapezoidal endcap chambers
 // //       
 // //       // RSZ = zst 
-// //       theTranslation = HepGeom::Translate3D(traz,tras,trat);
+// //       theTranslation = GeoTrf::Translate3D(traz,tras,trat);
 // //       // SZR = stz  so you would expect:
-// //       theRotation = HepGeom::RotateY3D(rots)*HepGeom::RotateZ3D(rott)*
-// //       HepGeom::RotateX3D(rotz);
+// //       theRotation = GeoTrf::RotateY3D(rots)*GeoTrf::RotateZ3D(rott)*
+// //       GeoTrf::RotateX3D(rotz);
 // //       
 //       // but in fact the s-axis is flipped in MuonGM wrt AMDB,
 //       // and the z and t axes are exchanged:
-//       theTranslation = HepGeom::Translate3D(trat,-tras,traz);
-//       theRotation = HepGeom::RotateY3D(-rots)*HepGeom::RotateZ3D(rotz)*
-// 	HepGeom::RotateX3D(rott);      
-//       AMDBorgTranslation = HepGeom::Translate3D(GetLength()/2.,0.,GetThickness()/2.);
+//       theTranslation = GeoTrf::Translate3D(trat,-tras,traz);
+//       theRotation = GeoTrf::RotateY3D(-rots)*GeoTrf::RotateZ3D(rotz)*
+// 	GeoTrf::RotateX3D(rott);      
+//       AMDBorgTranslation = GeoTrf::Translate3D(GetLength()/2.,0.,GetThickness()/2.);
 //     }
 //   //  return theTranslation*theRotation;
 //   // put it in AMDB coordinates for the transformation, then go back to MuonGM
@@ -1014,19 +1012,19 @@ double Station::getAmdbOrigine_along_thickness() const
 // }
 // */
 // not needed 17/06/2008 
-// HepGeom::Transform3D Station::getAmdbOrgTrans(const Position & p) const
+// GeoTrf::Transform3D Station::getAmdbOrgTrans(const Position & p) const
 // { // in tsz coordinates:
 //   //MsgStream log(m_msgSvc, "MGM getAmdbOrgTrans");
-//   HepGeom::Translate3D AMDBorgTranslation;
+//   GeoTrf::Translate3D AMDBorgTranslation;
 //   if (m_name[0]=='B' || p.isBarrelLike )
 //     {
 //         AMDBorgTranslation =
-//             HepGeom::Translate3D(GetThickness()/2.,0.,GetLength()/2.);
+//             GeoTrf::Translate3D(GetThickness()/2.,0.,GetLength()/2.);
 //     }
 //   else
 //     {
 //         AMDBorgTranslation =
-//             HepGeom::Translate3D(GetThickness()/2.,0.,GetLength()/2.);
+//             GeoTrf::Translate3D(GetThickness()/2.,0.,GetLength()/2.);
 //     }
 //   //log << MSG::VERBOSE<< "length = "<<GetLength()<<" m_thickness="<<GetThickness()
 //   //	    << endmsg;
@@ -1034,21 +1032,21 @@ double Station::getAmdbOrigine_along_thickness() const
 // }
 
 // 17/06/2008 not needed anywhere
-// HepGeom::Transform3D Station::getTransform( const Position & p) const {
+// GeoTrf::Transform3D Station::getTransform( const Position & p) const {
 //   MsgStream log(m_msgSvc, "MuonGeoModel");
-//     HepGeom::Transform3D nominalTransf;
-//     HepGeom::Transform3D AMDBorgTranslation = HepGeom::Transform3D::Identity;
-//     static CLHEP::Hep3Vector vec;
+//     GeoTrf::Transform3D nominalTransf;
+//     GeoTrf::Transform3D AMDBorgTranslation = GeoTrf::Transform3D::Identity;
+//     static GeoTrf::Vector3D vec;
 //     if (m_name[0]=='B') {
 //         // defining the position of the centre of any station
 //         // here using the stations in DBSC (described in amdb + the ones at z<0)
-//         vec.setX((p.radius+GetThickness()/2.)*cos(p.phi*CLHEP::deg));
-//         vec.setX(vec.x()-p.shift*sin((p.phi)*CLHEP::deg));
-//         vec.setY((p.radius+GetThickness()/2.)*sin(p.phi*CLHEP::deg));
-//         vec.setY(vec.y()+p.shift*cos((p.phi)*CLHEP::deg));
+//         vec.setX((p.radius+GetThickness()/2.)*cos(p.phi*GeoModelKernelUnits::deg));
+//         vec.setX(vec.x()-p.shift*sin((p.phi)*GeoModelKernelUnits::deg));
+//         vec.setY((p.radius+GetThickness()/2.)*sin(p.phi*GeoModelKernelUnits::deg));
+//         vec.setY(vec.y()+p.shift*cos((p.phi)*GeoModelKernelUnits::deg));
 //         vec.setZ(p.z+GetLength()/2.);
-//         AMDBorgTranslation = HepGeom::Translate3D(GetThickness()*cos(p.phi*CLHEP::deg)/2.,
-//                                             GetThickness()*sin(p.phi*CLHEP::deg)/2.,
+//         AMDBorgTranslation = GeoTrf::Translate3D(GetThickness()*cos(p.phi*GeoModelKernelUnits::deg)/2.,
+//                                             GetThickness()*sin(p.phi*GeoModelKernelUnits::deg)/2.,
 //                                             GetLength()/2.);
 //     }
 //     else {      // if (m_name[0]=='T')
@@ -1061,65 +1059,65 @@ double Station::getAmdbOrigine_along_thickness() const
 //             RAD=p.radius;
 //         if (m_name[0]!='C')
 //         {
-//             vec.setX((RAD+GetLength()/2.)*cos(p.phi*CLHEP::deg));
-//             vec.setX(vec.x()-p.shift*sin((p.phi)*CLHEP::deg));
-//             vec.setY((RAD+GetLength()/2.)*sin(p.phi*CLHEP::deg));
-//             vec.setY(vec.y()+p.shift*cos((p.phi)*CLHEP::deg));
+//             vec.setX((RAD+GetLength()/2.)*cos(p.phi*GeoModelKernelUnits::deg));
+//             vec.setX(vec.x()-p.shift*sin((p.phi)*GeoModelKernelUnits::deg));
+//             vec.setY((RAD+GetLength()/2.)*sin(p.phi*GeoModelKernelUnits::deg));
+//             vec.setY(vec.y()+p.shift*cos((p.phi)*GeoModelKernelUnits::deg));
 //             vec.setZ(p.z+GetThickness()/2.);
 //         }
 //         else
 //         {
-//             vec.setX(RAD*cos(p.phi*CLHEP::deg));
-//             vec.setX(vec.x()-p.shift*sin((p.phi)*CLHEP::deg));
-//             vec.setY(RAD*sin(p.phi*CLHEP::deg));
-//             vec.setY(vec.y()+p.shift*cos((p.phi)*CLHEP::deg));
+//             vec.setX(RAD*cos(p.phi*GeoModelKernelUnits::deg));
+//             vec.setX(vec.x()-p.shift*sin((p.phi)*GeoModelKernelUnits::deg));
+//             vec.setY(RAD*sin(p.phi*GeoModelKernelUnits::deg));
+//             vec.setY(vec.y()+p.shift*cos((p.phi)*GeoModelKernelUnits::deg));
 //             if (p.z>0) vec.setZ(p.z);
 //             else vec.setZ(p.z+GetThickness());
 //         }
 //     }
-// //     HepGeom::Transform3D AMDBorgTranslation = HepGeom::Transform3D::Identity;
-// //     AMDBorgTranslation = HepGeom::Translate3D(GetThickness()/2.,
+// //     GeoTrf::Transform3D AMDBorgTranslation = GeoTrf::Transform3D::Identity;
+// //     AMDBorgTranslation = GeoTrf::Translate3D(GetThickness()/2.,
 // //                                         0.,
 // //                                         GetLength()/2.);
 //     const HepVector3D zaxis   = HepVector3D(0.,0.,1.);
 //     const HepVector3D raxis   = HepVector3D(vec.x(), vec.y(), 0.);
 //     const HepVector3D phiaxis = HepVector3D(-raxis.y(), raxis.x(), 0.); // phi = z cross r
 //     // order of extra rotations is alpha(r), then beta(z), then gamma(phi)
-//     HepGeom::Rotate3D ralpha, rbeta, rgamma;
-//     ralpha = HepGeom::Rotate3D(p.alpha*CLHEP::deg, raxis);
-//     rbeta  = HepGeom::Rotate3D(p.beta*CLHEP::deg,  zaxis);
+//     GeoTrf::Rotate3D ralpha, rbeta, rgamma;
+//     ralpha = GeoTrf::Rotate3D(p.alpha*GeoModelKernelUnits::deg, raxis);
+//     rbeta  = GeoTrf::Rotate3D(p.beta*GeoModelKernelUnits::deg,  zaxis);
 //     if ( p.zindex<0 && !(m_name[0] == 'B') ) {
-//         rgamma = HepGeom::Rotate3D(p.gamma*CLHEP::deg, phiaxis);
+//         rgamma = GeoTrf::Rotate3D(p.gamma*GeoModelKernelUnits::deg, phiaxis);
 //         //            if (m_name[0]=='C') log << MSG::DEBUG <<"zi,fi  gamma applied "<<m_name<<" "<<p.zindex<<" "<<p.phiindex<<" "<<p.gamma<<endmsg;
 //     }
 //     else {
-//         rgamma = HepGeom::Rotate3D(-p.gamma*CLHEP::deg, phiaxis);
+//         rgamma = GeoTrf::Rotate3D(-p.gamma*GeoModelKernelUnits::deg, phiaxis);
 //         //            if (m_name[0]=='C') log << MSG::DEBUG<<"zi,fi  gamma applied "<<m_name<<" "<<p.zindex<<" "<<p.phiindex<<" "<<-p.gamma<<endmsg;
 //     }
 //     if (m_name[0]=='B' || p.isBarrelLike)
 //     {
 //         // here all Barrel chambers
-//         if (p.isMirrored) nominalTransf = HepGeom::RotateZ3D(p.phi*CLHEP::deg)*HepGeom::RotateX3D(180.*CLHEP::deg);
-//         else nominalTransf =  HepGeom::RotateZ3D(p.phi*CLHEP::deg);
+//         if (p.isMirrored) nominalTransf = GeoTrf::RotateZ3D(p.phi*GeoModelKernelUnits::deg)*GeoTrf::RotateX3D(180.*GeoModelKernelUnits::deg);
+//         else nominalTransf =  GeoTrf::RotateZ3D(p.phi*GeoModelKernelUnits::deg);
 //     }
 //     else
 //     {
 //         if ( p.z>=0 || ( p.z<0 && !(p.isMirrored) ) ){
-//             nominalTransf =  HepGeom::Transform3D(HepGeom::RotateY3D(-90*CLHEP::deg)*HepGeom::RotateX3D(p.phi*CLHEP::deg-180*CLHEP::deg));
+//             nominalTransf =  GeoTrf::Transform3D(GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg)*GeoTrf::RotateX3D(p.phi*GeoModelKernelUnits::deg-180*GeoModelKernelUnits::deg));
 //         }
 //         else if (p.z<0 && p.isMirrored){
-//             nominalTransf =  HepGeom::Transform3D(HepGeom::RotateY3D(-90*CLHEP::deg)*
-//                                             HepGeom::RotateX3D(p.phi*CLHEP::deg-180*CLHEP::deg)*
-//                                             HepGeom::RotateZ3D(180*CLHEP::deg));
+//             nominalTransf =  GeoTrf::Transform3D(GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg)*
+//                                             GeoTrf::RotateX3D(p.phi*GeoModelKernelUnits::deg-180*GeoModelKernelUnits::deg)*
+//                                             GeoTrf::RotateZ3D(180*GeoModelKernelUnits::deg));
 //         }
 //         else log << MSG::WARNING<<" AAAAAA problem here p.z, mirrored "
 // 	        <<p.z<<" "<<p.isMirrored<<endmsg;
 //     }
-//     HepGeom::Transform3D transf;
-//     if (m_name[0]!='C') transf = HepGeom::Translate3D(vec)*rgamma*rbeta*ralpha*nominalTransf;
-//     else transf = HepGeom::Translate3D(vec)*nominalTransf*
-//                   HepGeom::RotateY3D(p.gamma*CLHEP::deg)*
-//                   HepGeom::Translate3D(GetThickness()/2.,0.,GetLength()/2.);
+//     GeoTrf::Transform3D transf;
+//     if (m_name[0]!='C') transf = GeoTrf::Translate3D(vec)*rgamma*rbeta*ralpha*nominalTransf;
+//     else transf = GeoTrf::Translate3D(vec)*nominalTransf*
+//                   GeoTrf::RotateY3D(p.gamma*GeoModelKernelUnits::deg)*
+//                   GeoTrf::Translate3D(GetThickness()/2.,0.,GetLength()/2.);
 //     return transf;
 // }
 

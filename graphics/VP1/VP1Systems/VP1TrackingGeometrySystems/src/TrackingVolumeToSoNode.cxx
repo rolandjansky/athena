@@ -13,6 +13,7 @@
 //                                                                     //
 /////////////////////////////////////////////////////////////////////////
 
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "VP1TrackingGeometrySystems/TrackingVolumeToSoNode.h"
 #include "VP1HEPVis/nodes/SoGenericBox.h"
 #include "VP1HEPVis/nodes/SoTubs.h"
@@ -42,6 +43,7 @@
 #include "GeoModelKernel/GeoShapeIntersection.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoSimplePolygonBrep.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 
@@ -146,8 +148,8 @@ SoNode*  TrackingVolumeToSoNode::translateTrackingVolume(const Trk::TrackingVolu
     Trk::TrapezoidVolumeBounds* trBoundB = new Trk::TrapezoidVolumeBounds(medX,maxX,z,y2);
     const GeoShape* trdA = getShapeFromBounds( trBoundA );
     const GeoShape* trdB = getShapeFromBounds( trBoundB );
-    const GeoShapeShift* shiftA = new GeoShapeShift(trdA,HepGeom::TranslateY3D(-y1)*HepGeom::RotateX3D(-90*CLHEP::deg)*HepGeom::RotateZ3D(-90*CLHEP::deg));
-    const GeoShapeShift* shiftB = new GeoShapeShift(trdB,HepGeom::TranslateY3D(+y2)*HepGeom::RotateX3D(-90*CLHEP::deg)*HepGeom::RotateZ3D(-90*CLHEP::deg));
+    const GeoShapeShift* shiftA = new GeoShapeShift(trdA,GeoTrf::TranslateY3D(-y1)*GeoTrf::RotateX3D(-90*CLHEP::deg)*GeoTrf::RotateZ3D(-90*CLHEP::deg));
+    const GeoShapeShift* shiftB = new GeoShapeShift(trdB,GeoTrf::TranslateY3D(+y2)*GeoTrf::RotateX3D(-90*CLHEP::deg)*GeoTrf::RotateZ3D(-90*CLHEP::deg));
     const GeoShapeUnion* dtrd   = new GeoShapeUnion(shiftA,shiftB); 
 
     SoVisualizeAction* sa = new SoVisualizeAction();
@@ -175,14 +177,14 @@ SoNode*  TrackingVolumeToSoNode::translateTrackingVolume(const Trk::TrackingVolu
     } else if ( type==1 ) {
       const GeoTubs* tubs = new GeoTubs(innerR,outerR,hZ,-hPhi,2*hPhi);
       const GeoBox*  box = new GeoBox( innerR, tp*innerR, hZ);
-      const GeoShapeSubtraction* sub = new GeoShapeSubtraction(tubs,new GeoShapeShift(box,HepGeom::Transform3D()));
+      const GeoShapeSubtraction* sub = new GeoShapeSubtraction(tubs,new GeoShapeShift(box,GeoTrf::Transform3D::Identity()));
       SoVisualizeAction* sa = new SoVisualizeAction();
       sa->handleShape(sub);
       sovol = sa->getShape();
     } else if ( type==2 ) {
       const GeoTubs* tubs = new GeoTubs(innerR,outerR/cos(hPhi),hZ,-hPhi,2*hPhi);
       const GeoBox*  box = new GeoBox( outerR*(1./cos(hPhi)-1.),tp*outerR,hZ );
-      const GeoShapeSubtraction* sub = new GeoShapeSubtraction(tubs,new GeoShapeShift(box,HepGeom::TranslateX3D(outerR/cos(hPhi))));
+      const GeoShapeSubtraction* sub = new GeoShapeSubtraction(tubs,new GeoShapeShift(box,GeoTrf::TranslateX3D(outerR/cos(hPhi))));
       SoVisualizeAction* sa = new SoVisualizeAction();
       sa->handleShape(sub);
       sovol = sa->getShape();
@@ -190,7 +192,7 @@ SoNode*  TrackingVolumeToSoNode::translateTrackingVolume(const Trk::TrackingVolu
       const GeoTubs* tubs = new GeoTubs(innerR,outerR/cos(hPhi),hZ,-hPhi,2*hPhi);
       const GeoBox*  boxO = new GeoBox( outerR*(1./cos(hPhi)-1.),tp*outerR,hZ );
       const GeoBox*  boxI = new GeoBox( innerR, tp*innerR, hZ);
-      const GeoShapeUnion* uni = new GeoShapeUnion(boxI,new GeoShapeShift(boxO,HepGeom::TranslateX3D(outerR/cos(hPhi))));
+      const GeoShapeUnion* uni = new GeoShapeUnion(boxI,new GeoShapeShift(boxO,GeoTrf::TranslateX3D(outerR/cos(hPhi))));
       const GeoShapeSubtraction* sub = new GeoShapeSubtraction(tubs,uni);
       SoVisualizeAction* sa = new SoVisualizeAction();
       sa->handleShape(sub);
@@ -267,9 +269,9 @@ const GeoShape* TrackingVolumeToSoNode::getShapeFromBounds(const Trk::VolumeBoun
     double thPlus = tvolBevCylBounds->thetaPlus();
     double thMinus= tvolBevCylBounds->thetaMinus();
     const GeoTube* tub = new GeoTube(innerR, outerR, halfZ); 
-    HepGeom::Transform3D trBoxP = HepGeom::TranslateZ3D(+halfZ)*HepGeom::RotateY3D(thPlus);
+    GeoTrf::Transform3D trBoxP = GeoTrf::TranslateZ3D(+halfZ)*GeoTrf::RotateY3D(thPlus);
     const GeoShapeShift* boxP = new GeoShapeShift(new GeoBox(2*outerR/cos(thPlus),outerR ,outerR*sin(thPlus)),trBoxP); 
-    HepGeom::Transform3D trBoxM = HepGeom::TranslateZ3D(-halfZ)*HepGeom::RotateY3D(-thMinus);
+    GeoTrf::Transform3D trBoxM = GeoTrf::TranslateZ3D(-halfZ)*GeoTrf::RotateY3D(-thMinus);
     const GeoShapeShift* boxM = new GeoShapeShift(new GeoBox(2*outerR/cos(thPlus),outerR ,outerR*sin(thPlus)),trBoxM); 
     const GeoShapeSubtraction* shape= new GeoShapeSubtraction( new GeoShapeSubtraction(tub,boxM), boxP);
 
@@ -298,8 +300,8 @@ const GeoShape* TrackingVolumeToSoNode::getShapeFromBounds(const Trk::VolumeBoun
     }
     const GeoShape* shape1 = getShapeFromBounds(vb1);
     const GeoShape* shape2 = getShapeFromBounds(vb2);
-    const GeoShapeShift* shift1 = new GeoShapeShift(shape1, Amg::EigenTransformToCLHEP(transf1) );
-    const GeoShapeShift* shift2 = new GeoShapeShift(shape2, Amg::EigenTransformToCLHEP(transf2) );
+    const GeoShapeShift* shift1 = new GeoShapeShift(shape1, transf1);
+    const GeoShapeShift* shift2 = new GeoShapeShift(shape2, transf2);
     const GeoShapeSubtraction* subtr= new GeoShapeSubtraction(shift1, shift2);
     return subtr;
   }
@@ -325,8 +327,8 @@ const GeoShape* TrackingVolumeToSoNode::getShapeFromBounds(const Trk::VolumeBoun
     }
     const GeoShape* shape1 = getShapeFromBounds(vb1);
     const GeoShape* shape2 = getShapeFromBounds(vb2);
-    const GeoShapeShift* shift1 = new GeoShapeShift(shape1, Amg::EigenTransformToCLHEP(transf1) );
-    const GeoShapeShift* shift2 = new GeoShapeShift(shape2, Amg::EigenTransformToCLHEP(transf2) );
+    const GeoShapeShift* shift1 = new GeoShapeShift(shape1,transf1);
+    const GeoShapeShift* shift2 = new GeoShapeShift(shape2,transf2);
     if (tvolCombBounds->intersection()) {
       const GeoShapeIntersection* intersection= new GeoShapeIntersection( shift1, shift2);
       return intersection;

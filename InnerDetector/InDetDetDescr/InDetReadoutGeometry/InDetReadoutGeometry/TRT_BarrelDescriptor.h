@@ -10,6 +10,7 @@
 
 #ifndef TRT_BarrelDescriptor_h
 #define TRT_BarrelDescriptor_h 1
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/RCBase.h"
 #include "GeoModelKernel/GeoXF.h"
 #include <vector>

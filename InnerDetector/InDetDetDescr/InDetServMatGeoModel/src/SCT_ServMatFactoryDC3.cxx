@@ -5,6 +5,8 @@
 #include "InDetServMatGeoModel/SCT_ServMatFactoryDC3.h"
 
 // GeoModel includes
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 #include "GeoModelKernel/GeoPhysVol.h"  
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoTube.h"  
@@ -64,10 +66,10 @@ void SCT_ServMatFactoryDC3::create(GeoPhysVol *mother)
   //const IRDBRecordset* sctFwdServices = rdbAccessSvc()->getRecordset("SctFwdServices", sctVersionKey.tag(), sctVersionKey.node());
 
 //VVK  10/09/2005 Construct a gap for rails
-  double outROfIDet =       (*atls)[0]->getDouble("IDETOR")*CLHEP::cm;
-  double endZOfIDet =       (*atls)[0]->getDouble("IDETZMX")*CLHEP::cm;
-  double minRofGap  =       1050.0*CLHEP::mm;
-  double phiWid=(70.*CLHEP::mm)/outROfIDet;    double safetyGap=1.*CLHEP::mm;
+  double outROfIDet =       (*atls)[0]->getDouble("IDETOR")*GeoModelKernelUnits::cm;
+  double endZOfIDet =       (*atls)[0]->getDouble("IDETZMX")*GeoModelKernelUnits::cm;
+  double minRofGap  =       1050.0*GeoModelKernelUnits::mm;
+  double phiWid=(70.*GeoModelKernelUnits::mm)/outROfIDet;    double safetyGap=1.*GeoModelKernelUnits::mm;
   const GeoShape* railGap1=new GeoTubs( minRofGap, outROfIDet+safetyGap ,endZOfIDet+safetyGap , 
 					-phiWid/2.,phiWid);
   const GeoShape* railGap2=new GeoTubs( minRofGap, outROfIDet+safetyGap ,endZOfIDet+safetyGap ,
@@ -80,25 +82,25 @@ void SCT_ServMatFactoryDC3::create(GeoPhysVol *mother)
   // (Code taken from TRT_GeoModel)
   
   // Hardwire min sct services for now. The database structures should be moved out of TRT anyway.
-  double rminSCTServ = 620*CLHEP::mm;
+  double rminSCTServ = 620*GeoModelKernelUnits::mm;
 
-  //double innerRadiusOfSCTSupport = (*tsci)[0]->getDouble("RMIN")*CLHEP::cm + 2*epsilon;
+  //double innerRadiusOfSCTSupport = (*tsci)[0]->getDouble("RMIN")*GeoModelKernelUnits::cm + 2*epsilon;
   double innerRadiusOfSCTSupport =  rminSCTServ + 2*epsilon;
-  double outerRadiusOfSCTSupport = (*tsci)[0]->getDouble("RMAX")*CLHEP::cm;
-  double lengthOfSCTSupport = ((*tsci)[0]->getDouble("ZMAX")-(*tsci)[0]->getDouble("ZMIN"))*CLHEP::cm - epsilon;
-  double positionOfSCTSupport= 0.5 * ((*tsci)[0]->getDouble("ZMAX")+(*tsci)[0]->getDouble("ZMIN"))*CLHEP::cm;
+  double outerRadiusOfSCTSupport = (*tsci)[0]->getDouble("RMAX")*GeoModelKernelUnits::cm;
+  double lengthOfSCTSupport = ((*tsci)[0]->getDouble("ZMAX")-(*tsci)[0]->getDouble("ZMIN"))*GeoModelKernelUnits::cm - epsilon;
+  double positionOfSCTSupport= 0.5 * ((*tsci)[0]->getDouble("ZMAX")+(*tsci)[0]->getDouble("ZMIN"))*GeoModelKernelUnits::cm;
 
-  //double innerRadiusOfSCTCables = (*tsci)[1]->getDouble("RMIN")*CLHEP::cm + 2*epsilon;
+  //double innerRadiusOfSCTCables = (*tsci)[1]->getDouble("RMIN")*GeoModelKernelUnits::cm + 2*epsilon;
   double innerRadiusOfSCTCables = rminSCTServ + 2*epsilon;
-  double outerRadiusOfSCTCables = (*tsci)[1]->getDouble("RMAX")*CLHEP::cm;
-  double lengthOfSCTCables = ((*tsci)[1]->getDouble("ZMAX")-(*tsci)[1]->getDouble("ZMIN"))*CLHEP::cm - epsilon;
-  double positionOfSCTCables = 0.5 * ((*tsci)[1]->getDouble("ZMAX")+(*tsci)[1]->getDouble("ZMIN"))*CLHEP::cm;
+  double outerRadiusOfSCTCables = (*tsci)[1]->getDouble("RMAX")*GeoModelKernelUnits::cm;
+  double lengthOfSCTCables = ((*tsci)[1]->getDouble("ZMAX")-(*tsci)[1]->getDouble("ZMIN"))*GeoModelKernelUnits::cm - epsilon;
+  double positionOfSCTCables = 0.5 * ((*tsci)[1]->getDouble("ZMAX")+(*tsci)[1]->getDouble("ZMIN"))*GeoModelKernelUnits::cm;
  
-  //double innerRadiusOfSCTCooling = (*tsci)[2]->getDouble("RMIN")*CLHEP::cm + 2*epsilon;
+  //double innerRadiusOfSCTCooling = (*tsci)[2]->getDouble("RMIN")*GeoModelKernelUnits::cm + 2*epsilon;
   double innerRadiusOfSCTCooling = rminSCTServ + 2*epsilon;
-  double outerRadiusOfSCTCooling = (*tsci)[2]->getDouble("RMAX")*CLHEP::cm;
-  double lengthOfSCTCooling = ((*tsci)[2]->getDouble("ZMAX")-(*tsci)[2]->getDouble("ZMIN"))*CLHEP::cm - epsilon;
-  double positionOfSCTCooling = 0.5 * ((*tsci)[2]->getDouble("ZMAX")+(*tsci)[2]->getDouble("ZMIN"))*CLHEP::cm;
+  double outerRadiusOfSCTCooling = (*tsci)[2]->getDouble("RMAX")*GeoModelKernelUnits::cm;
+  double lengthOfSCTCooling = ((*tsci)[2]->getDouble("ZMAX")-(*tsci)[2]->getDouble("ZMIN"))*GeoModelKernelUnits::cm - epsilon;
+  double positionOfSCTCooling = 0.5 * ((*tsci)[2]->getDouble("ZMAX")+(*tsci)[2]->getDouble("ZMIN"))*GeoModelKernelUnits::cm;
 
 
   // For new LMT we get name from SCT table SctFwdServices.
@@ -113,15 +115,15 @@ void SCT_ServMatFactoryDC3::create(GeoPhysVol *mother)
     // We define it here for now as a quick fix.
     
     // Thickness of CuK 896 tapes smeared in phi = 0.08575cm
-    double tapeCrossSection = (*sctFwdServices)[0]->getDouble("POWERTAPECROSSSECT")*CLHEP::mm2;
+    double tapeCrossSection = (*sctFwdServices)[0]->getDouble("POWERTAPECROSSSECT")*GeoModelKernelUnits::mm2;
     double rave = 2*innerRadiusOfSCTCables*outerRadiusOfSCTCables/(innerRadiusOfSCTCables+outerRadiusOfSCTCables);
-    double thickness = 988*tapeCrossSection/(2*CLHEP::pi*rave);
+    double thickness = 988*tapeCrossSection/(2*GeoModelKernelUnits::pi*rave);
     // We need to scale the density to fit in with space given.
-    //std::cout << "LMT thickness (mm) = " << thickness/CLHEP::mm << std::endl;
+    //std::cout << "LMT thickness (mm) = " << thickness/GeoModelKernelUnits::mm << std::endl;
     double densityfactor = thickness/lengthOfSCTCables;
     const GeoElement  *copper  = m_materialManager->getElement("Copper");
     const GeoMaterial *kapton  = m_materialManager->getMaterial("std::Kapton");
-    GeoMaterial * matCuKapton   = new GeoMaterial("CuKaptoninTRT",densityfactor * 2.94*CLHEP::gram/CLHEP::cm3);
+    GeoMaterial * matCuKapton   = new GeoMaterial("CuKaptoninTRT",densityfactor * 2.94*GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3);
     matCuKapton->add(const_cast<GeoElement*>(copper),  0.6142);
     matCuKapton->add(const_cast<GeoMaterial*>(kapton), 0.3858);
     matCuKapton->lock();
@@ -138,8 +140,8 @@ void SCT_ServMatFactoryDC3::create(GeoPhysVol *mother)
   GeoTube    *sSCTSupport = new GeoTube( innerRadiusOfSCTSupport, outerRadiusOfSCTSupport, 0.5*lengthOfSCTSupport); 
   GeoLogVol  *lSCTSupport = new GeoLogVol("SCTSupport", sSCTSupport, sctCablesMaterial);
   GeoPhysVol *pSCTSupport = new GeoPhysVol(lSCTSupport);
-  GeoTransform *xSCTSupportPlus  = new GeoTransform(HepGeom::TranslateZ3D(+positionOfSCTSupport));
-  GeoTransform *xSCTSupportMinus = new GeoTransform(HepGeom::TranslateZ3D(-positionOfSCTSupport));
+  GeoTransform *xSCTSupportPlus  = new GeoTransform(GeoTrf::TranslateZ3D(+positionOfSCTSupport));
+  GeoTransform *xSCTSupportMinus = new GeoTransform(GeoTrf::TranslateZ3D(-positionOfSCTSupport));
   mother->add(xSCTSupportPlus);
   mother->add(pSCTSupport);
   mother->add(xSCTSupportMinus);
@@ -149,8 +151,8 @@ void SCT_ServMatFactoryDC3::create(GeoPhysVol *mother)
   GeoTube    *sSCTCables = new GeoTube(innerRadiusOfSCTCables, outerRadiusOfSCTCables, 0.5*lengthOfSCTCables); 
   GeoLogVol  *lSCTCables = new GeoLogVol("SCTCables", sSCTCables, materialManager()->getMaterial("trt::SCTCables"));
   GeoPhysVol *pSCTCables = new GeoPhysVol(lSCTCables);
-  GeoTransform *xSCTCablesPlus  = new GeoTransform(HepGeom::TranslateZ3D(+positionOfSCTCables ));
-  GeoTransform *xSCTCablesMinus = new GeoTransform(HepGeom::TranslateZ3D(-positionOfSCTCables ));
+  GeoTransform *xSCTCablesPlus  = new GeoTransform(GeoTrf::TranslateZ3D(+positionOfSCTCables ));
+  GeoTransform *xSCTCablesMinus = new GeoTransform(GeoTrf::TranslateZ3D(-positionOfSCTCables ));
 
   mother->add(xSCTCablesPlus);
   mother->add(pSCTCables);
@@ -162,8 +164,8 @@ void SCT_ServMatFactoryDC3::create(GeoPhysVol *mother)
   GeoTube    *sSCTCooling = new GeoTube( innerRadiusOfSCTCooling, outerRadiusOfSCTCooling, 0.5*lengthOfSCTCooling); 
   GeoLogVol  *lSCTCooling = new GeoLogVol("SCTCooling", sSCTCooling, materialManager()->getMaterial("trt::SCTCooling"));
   GeoPhysVol *pSCTCooling = new GeoPhysVol(lSCTCooling);
-  GeoTransform *xSCTCoolingPlus  = new GeoTransform(HepGeom::TranslateZ3D(+positionOfSCTCooling ));
-  GeoTransform *xSCTCoolingMinus = new GeoTransform(HepGeom::TranslateZ3D(-positionOfSCTCooling ));
+  GeoTransform *xSCTCoolingPlus  = new GeoTransform(GeoTrf::TranslateZ3D(+positionOfSCTCooling ));
+  GeoTransform *xSCTCoolingMinus = new GeoTransform(GeoTrf::TranslateZ3D(-positionOfSCTCooling ));
   mother->add(xSCTCoolingPlus);
   mother->add(pSCTCooling);
   mother->add(xSCTCoolingMinus);
@@ -183,19 +185,19 @@ void SCT_ServMatFactoryDC3::create(GeoPhysVol *mother)
     std::ostringstream o;
     o << irecold++;
     std::string logName = "SctInel"+o.str();  
-    double halflength = ((*inel)[ii]->getFloat("ZMAX")-(*inel)[ii]->getFloat("ZMIN"))/2.*CLHEP::cm;
+    double halflength = ((*inel)[ii]->getFloat("ZMAX")-(*inel)[ii]->getFloat("ZMIN"))/2.*GeoModelKernelUnits::cm;
     int volType = (int) (*inel)[ii]->getFloat("VOLTYP");
 
     const GeoShape* serviceTubeTmp1 = createShape(volType,
-					      (*inel)[ii]->getFloat("RMIN1")*CLHEP::cm,
-					      (*inel)[ii]->getFloat("RMAX1")*CLHEP::cm,
+					      (*inel)[ii]->getFloat("RMIN1")*GeoModelKernelUnits::cm,
+					      (*inel)[ii]->getFloat("RMAX1")*GeoModelKernelUnits::cm,
 					      halflength,
-					      (*inel)[ii]->getFloat("RMIN2")*CLHEP::cm,
-					      (*inel)[ii]->getFloat("RMAX2")*CLHEP::cm);
+					      (*inel)[ii]->getFloat("RMIN2")*GeoModelKernelUnits::cm,
+					      (*inel)[ii]->getFloat("RMAX2")*GeoModelKernelUnits::cm);
 
     const GeoShape* serviceTube = serviceTubeTmp1;
-    if( (*inel)[ii]->getFloat("RMAX1")*CLHEP::cm  > minRofGap   ||
-        (*inel)[ii]->getFloat("RMAX2")*CLHEP::cm  > minRofGap     )  {
+    if( (*inel)[ii]->getFloat("RMAX1")*GeoModelKernelUnits::cm  > minRofGap   ||
+        (*inel)[ii]->getFloat("RMAX2")*GeoModelKernelUnits::cm  > minRofGap     )  {
 //
 //VVK Subtract RailGap out of services
         const GeoShape* serviceTubeTmp2 = (GeoShape*) & (*serviceTubeTmp1).subtract(*railGap1);
@@ -221,21 +223,21 @@ void SCT_ServMatFactoryDC3::create(GeoPhysVol *mother)
       cylMat = createMaterial(nameStr.str(),
 			      volType,
 			      fractionRL,
-			      (*inel)[ii]->getFloat("RMIN1")*CLHEP::cm,
-			      (*inel)[ii]->getFloat("RMAX1")*CLHEP::cm,
+			      (*inel)[ii]->getFloat("RMIN1")*GeoModelKernelUnits::cm,
+			      (*inel)[ii]->getFloat("RMAX1")*GeoModelKernelUnits::cm,
 			      halflength,
-			      (*inel)[ii]->getFloat("RMIN2")*CLHEP::cm,
-			      (*inel)[ii]->getFloat("RMAX2")*CLHEP::cm); 
+			      (*inel)[ii]->getFloat("RMIN2")*GeoModelKernelUnits::cm,
+			      (*inel)[ii]->getFloat("RMAX2")*GeoModelKernelUnits::cm); 
     }
 
     const GeoLogVol* ServLog = new GeoLogVol(logName,serviceTube,cylMat);
     GeoVPhysVol* ServPhys = new GeoPhysVol(ServLog);
-    double zpos = ((*inel)[ii]->getFloat("ZMAX")+(*inel)[ii]->getFloat("ZMIN"))/2.*CLHEP::cm+epsilon;
+    double zpos = ((*inel)[ii]->getFloat("ZMAX")+(*inel)[ii]->getFloat("ZMIN"))/2.*GeoModelKernelUnits::cm+epsilon;
     // place two
-    CLHEP::Hep3Vector servpos1(0.,0.,zpos);
-    CLHEP::Hep3Vector servpos2(0.,0.,-zpos);
-    GeoTransform *xform1 = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),servpos1));
-    GeoTransform *xform2 = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),servpos2));
+    GeoTrf::Translate3D servpos1(0.,0.,zpos);
+    GeoTrf::Translate3D servpos2(0.,0.,-zpos);
+    GeoTransform *xform1 = new GeoTransform(servpos1);
+    GeoTransform *xform2 = new GeoTransform(servpos2);
     mother->add(xform1);
     mother->add(ServPhys);
     mother->add(xform2);
@@ -255,7 +257,7 @@ const GeoShape* SCT_ServMatFactoryDC3::createShape(int volType,
 						double rmax2=0.) 
   
 {
-  const double epsilon = 0.001*CLHEP::mm;
+  const double epsilon = 0.001*GeoModelKernelUnits::mm;
   enum VOLTYPE{Tube=1, Cone, ICone};
   const GeoShape* IDShape = 0;
   if(volType == Tube) {

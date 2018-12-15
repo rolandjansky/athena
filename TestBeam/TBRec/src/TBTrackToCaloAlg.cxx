@@ -38,9 +38,6 @@
 #include "ImpactInCaloCollection.h"
 #include "AthenaKernel/Units.h"
 
-
-using HepGeom::Point3D;
-using HepGeom::Vector3D;
 using Athena::Units::GeV;
 
 

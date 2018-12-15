@@ -5,13 +5,14 @@
 #include "InDetGeoModelUtils/VolumeBuilder.h"
 #include "InDetGeoModelUtils/ServiceVolume.h"
 #include "InDetGeoModelUtils/InDetMaterialManager.h"
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoTransform.h"
-#include "CLHEP/Geometry/Transform3D.h"
-
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 
 namespace InDetDD {
   VolumeBuilder::VolumeBuilder(const Zone& zone, const std::vector<const ServiceVolume* >& services)
@@ -225,7 +226,7 @@ namespace InDetDD {
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << "Volume/material: " << logName << "/" << materialName << endmsg;
       if (!param.shapeType().empty()) msg(MSG::DEBUG) << " shape: " << param.shapeType() << endmsg;
-      msg(MSG::DEBUG) << " volume (CLHEP::cm3): " << volume / CLHEP::cm3 << endmsg;
+      msg(MSG::DEBUG) << " volume (cm3): " << volume / GeoModelKernelUnits::cm3 << endmsg;
       msg(MSG::DEBUG) << " rmin,rmax,zmin,zmax: "
                       << param.rmin() << ", "
                       << param.rmax() << ", "
@@ -298,24 +299,24 @@ namespace InDetDD {
       rotateAroundY = true;
     }
     // Most are just translated in z
-    HepGeom::Transform3D xform = HepGeom::TranslateZ3D(zpos);
+    GeoTrf::Transform3D xform = GeoTrf::TranslateZ3D(zpos);
     double phiStart = 0;
     // BOX, ROD and TRAP need special treatment.
     const std::string& shapeType = param.shapeType();
     if (shapeType == "TRAP" || shapeType == "TRAP2") {
       // Need to rotate by -90 deg.
-      xform = HepGeom::RotateZ3D(-90. * CLHEP::deg) * xform;
+      xform = GeoTrf::RotateZ3D(-90. * GeoModelKernelUnits::deg) * xform;
     }
     if (shapeType == "TRAP2") {
-      xform = HepGeom::RotateZ3D(-90. * CLHEP::deg) * xform;  // * HepGeom::RotateX3D(-90.*CLHEP::deg);
+      xform = GeoTrf::RotateZ3D(-90. * GeoModelKernelUnits::deg) * xform;  // * GeoTrf::RotateX3D(-90.*GeoModelKernelUnits::deg);
     }
     if (shapeType == "BOX" || shapeType == "TRAP" || shapeType == "TRAP2") {
       double radius = 0.5 * (param.rmin() + param.rmax());
-      xform = HepGeom::TranslateX3D(radius) * xform;
+      xform = GeoTrf::TranslateX3D(radius) * xform;
       phiStart = param.phiLoc();
     } else if (shapeType == "ROD" || shapeType == "ROD2") {
       double radius = param.rmin();
-      xform = HepGeom::TranslateX3D(radius) * xform;
+      xform = GeoTrf::TranslateX3D(radius) * xform;
       phiStart = param.phiLoc();
     }
     // For volumes that are placed more than once.
@@ -325,11 +326,11 @@ namespace InDetDD {
     }
     double phi = phiStart + deltaPhi * iCopy;
     if (phi) {
-      xform = HepGeom::RotateZ3D(phi) * xform;
+      xform = GeoTrf::RotateZ3D(phi) * xform;
     }
     // For shapes that are not symmetric about a rotation around Y axis. We need to rotate.
     if (rotateAroundY) {
-      xform = HepGeom::RotateY3D(180. * CLHEP::degree) * xform;
+      xform = GeoTrf::RotateY3D(180. * GeoModelKernelUnits::degree) * xform;
     }
     return new GeoTransform(xform);
   }
@@ -353,25 +354,25 @@ namespace InDetDD {
       rotateAroundY = true;
     }
     // Most are just translated in z
-    HepGeom::Transform3D xform = HepGeom::TranslateZ3D(zpos);
+    GeoTrf::Transform3D xform = GeoTrf::TranslateZ3D(zpos);
     const std::string& shapeType = param.shapeType();
     double phiStart = 0;
     // BOX, ROD and TRAP need special treatment.
     if (shapeType == "TRAP") {
       // Need to rotate by -90 deg.
-      xform = HepGeom::RotateZ3D(-90. * CLHEP::deg) * xform;
+      xform = GeoTrf::RotateZ3D(-90. * GeoModelKernelUnits::deg) * xform;
     }
     if (shapeType == "TRAP2") {
       // Need to rotate by -90 deg.
-      xform = HepGeom::RotateX3D(-90. * CLHEP::deg) * xform;
+      xform = GeoTrf::RotateX3D(-90. * GeoModelKernelUnits::deg) * xform;
     }
     if (shapeType == "BOX" || shapeType == "TRAP" || shapeType == "TRAP2") {
       double radius = 0.5 * (param.rmin() + param.rmax()) - rCenter;
-      xform = HepGeom::TranslateX3D(radius) * xform;
+      xform = GeoTrf::TranslateX3D(radius) * xform;
       phiStart = param.phiLoc();
     } else if (shapeType == "ROD" || shapeType == "ROD2") {
       double radius = param.rmin();
-      xform = HepGeom::TranslateX3D(radius) * xform;
+      xform = GeoTrf::TranslateX3D(radius) * xform;
       phiStart = param.phiLoc();
     }
     // For volumes that are placed more than once.
@@ -381,11 +382,11 @@ namespace InDetDD {
     }
     double phi = phiStart + deltaPhi * iCopy;
     if (phi) {
-      xform = HepGeom::RotateZ3D(phi) * xform;
+      xform = GeoTrf::RotateZ3D(phi) * xform;
     }
     // For shapes that are not symmetric about a rotation around Y axis. We need to rotate.
     if (rotateAroundY) {
-      xform = HepGeom::RotateY3D(180. * CLHEP::degree) * xform;
+      xform = GeoTrf::RotateY3D(180. * GeoModelKernelUnits::degree) * xform;
     }
     return new GeoTransform(xform);
   }

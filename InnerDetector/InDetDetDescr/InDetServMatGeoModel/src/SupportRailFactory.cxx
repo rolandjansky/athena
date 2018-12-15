@@ -5,6 +5,8 @@
 #include "InDetServMatGeoModel/SupportRailFactory.h"
 
 // GeoModel includes
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 #include "GeoModelKernel/GeoPhysVol.h"  
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoTube.h"  
@@ -66,18 +68,18 @@ void SupportRailFactory::create(GeoPhysVol *mother)
 //
 // Default(initial) values
 //    
-    double RMAX_ID      = 1150.0*CLHEP::mm -1.0*CLHEP::mm;   //Some safety margin
-    double railLengthB  = 1600.0*CLHEP::mm;
-    double railWidthB   = 5.5*CLHEP::mm;
-    double railThickB   = 34.7*CLHEP::mm;
+    double RMAX_ID      = 1150.0*GeoModelKernelUnits::mm -1.0*GeoModelKernelUnits::mm;   //Some safety margin
+    double railLengthB  = 1600.0*GeoModelKernelUnits::mm;
+    double railWidthB   = 5.5*GeoModelKernelUnits::mm;
+    double railThickB   = 34.7*GeoModelKernelUnits::mm;
 //
-    double railLengthE  = 2600.0*CLHEP::mm;
-//    double railWidthE   = 14.*CLHEP::mm;
-//    double railThickE   = 14.7*CLHEP::mm;
+    double railLengthE  = 2600.0*GeoModelKernelUnits::mm;
+//    double railWidthE   = 14.*GeoModelKernelUnits::mm;
+//    double railThickE   = 14.7*GeoModelKernelUnits::mm;
 //
-    double suppLength   = 6800.0*CLHEP::mm;
-    double suppWidth    = 54.*CLHEP::mm;
-//    double suppThick    = 22.6*CLHEP::mm;
+    double suppLength   = 6800.0*GeoModelKernelUnits::mm;
+    double suppWidth    = 54.*GeoModelKernelUnits::mm;
+//    double suppThick    = 22.6*GeoModelKernelUnits::mm;
 //
 //   Database 
 //
@@ -93,7 +95,7 @@ void SupportRailFactory::create(GeoPhysVol *mother)
     const GeoMaterial*  alum  = materialManager()->getMaterial((*railrec)[0]->getString("MATSUP"));
     
 //Radius of Squirrel cage
-    double rminInt = (*cage)[0]->getDouble("RINGRMIN")*CLHEP::mm;
+    double rminInt = (*cage)[0]->getDouble("RINGRMIN")*GeoModelKernelUnits::mm;
 //Thick of U Shape Support
     std::unique_ptr<IRDBQuery> queryUSP = rdbAccessSvc()->getQuery("IDDetRailUSP",indetVersionKey.tag(), indetVersionKey.node());
     if(!queryUSP)
@@ -110,21 +112,21 @@ void SupportRailFactory::create(GeoPhysVol *mother)
 
     double epsilon = 0.01;  // +Some safety margin
  
-     RMAX_ID = (*atls)[0]->getDouble("IDETOR")*CLHEP::cm;  
-     //railLengthB = (*railrec)[0]->getDouble("LENGTHB")*CLHEP::mm; At database there is 34.7 but it could cause crash.
+     RMAX_ID = (*atls)[0]->getDouble("IDETOR")*GeoModelKernelUnits::cm;  
+     //railLengthB = (*railrec)[0]->getDouble("LENGTHB")*GeoModelKernelUnits::mm; At database there is 34.7 but it could cause crash.
 
-     railWidthB  = (*railrec)[0]->getDouble("WIDTHB")*CLHEP::mm;
-     railThickB  = (*railrec)[0]->getDouble("THICKB")*CLHEP::mm;
+     railWidthB  = (*railrec)[0]->getDouble("WIDTHB")*GeoModelKernelUnits::mm;
+     railThickB  = (*railrec)[0]->getDouble("THICKB")*GeoModelKernelUnits::mm;
   //------------ Limited by EP ExternalShell
-     railLengthE = (*endplate)[0]->getDouble("ZSTART")*CLHEP::mm  
-                  +(*endplate)[0]->getDouble("ZSHIFT")*CLHEP::mm
-                  +(*endplate)[0]->getDouble("ZGAP")*CLHEP::mm   - railLengthB/2.;
-//     railWidthE  = (*railrec)[0]->getDouble("WIDTHE")*CLHEP::mm;
-//     railThickE  = (*railrec)[0]->getDouble("THICKE")*CLHEP::mm;
+     railLengthE = (*endplate)[0]->getDouble("ZSTART")*GeoModelKernelUnits::mm  
+                  +(*endplate)[0]->getDouble("ZSHIFT")*GeoModelKernelUnits::mm
+                  +(*endplate)[0]->getDouble("ZGAP")*GeoModelKernelUnits::mm   - railLengthB/2.;
+//     railWidthE  = (*railrec)[0]->getDouble("WIDTHE")*GeoModelKernelUnits::mm;
+//     railThickE  = (*railrec)[0]->getDouble("THICKE")*GeoModelKernelUnits::mm;
  
      suppLength = railLengthB + 2.*railLengthE;
-     suppWidth  = (*railrec)[0]->getDouble("WIDTHSUP")*CLHEP::mm;
-//     suppThick  = (*railrec)[0]->getDouble("THICKSUP")*CLHEP::mm;
+     suppWidth  = (*railrec)[0]->getDouble("WIDTHSUP")*GeoModelKernelUnits::mm;
+//     suppThick  = (*railrec)[0]->getDouble("THICKSUP")*GeoModelKernelUnits::mm;
 
      double zLengthB   =  (*idSupportRails)[0]->getDouble("ZLENGTH");
      double yWidthB    =  (*idSupportRails)[0]->getDouble("YWIDTH");
@@ -217,12 +219,12 @@ void SupportRailFactory::create(GeoPhysVol *mother)
 
     //GeoBox** railEndcap = new GeoBox*[numberOfPieces];
     GeoBox* railEndcap[numberOfPieces];
-    //    CLHEP::Hep3Vector* vectorForTrans = new CLHEP::Hep3Vector[numberOfPieces];
-    //    //CLHEP::Hep3Vector vectorForTrans[numberOfPieces];
-    CLHEP::Hep3Vector vectorForTrans[numberOfPieces];
+    //    GeoTrf::Vector3D* vectorForTrans = new GeoTrf::Vector3D[numberOfPieces];
+    //    //GeoTrf::Vector3D vectorForTrans[numberOfPieces];
+    GeoTrf::Vector3D vectorForTrans[numberOfPieces];
 
     GeoBox* railEndcapFirst = new GeoBox(railEBx/2., railEBy/2., railLengthE/2);
-    CLHEP::Hep3Vector vectorForTransFirst (0., 0., 0.);
+    GeoTrf::Vector3D vectorForTransFirst (0., 0., 0.);
 
     double lastY = 0.;
     double startY = 0.;
@@ -238,12 +240,12 @@ void SupportRailFactory::create(GeoPhysVol *mother)
      railEndcap[i] = new GeoBox(railEBx/2. - xa, ya/2, railLengthE/2);
      if (i == 0)
      {
-       vectorForTrans[0] = CLHEP::Hep3Vector(0., railEBy/2. + ya/2, 0.) + vectorForTransFirst;
+       vectorForTrans[0] = GeoTrf::Vector3D(0., railEBy/2. + ya/2, 0.) + vectorForTransFirst;
        lastY = ya/2;
      }
      else
      {
-       vectorForTrans[i] = vectorForTrans[i-1] + CLHEP::Hep3Vector(0., lastY + ya/2, 0.);
+       vectorForTrans[i] = vectorForTrans[i-1] + GeoTrf::Vector3D(0., lastY + ya/2, 0.);
        lastY = ya/2;
      }
 
@@ -253,12 +255,12 @@ void SupportRailFactory::create(GeoPhysVol *mother)
     const GeoShape* elementOfRailSupport2 = new GeoBox(railSP2x/2., railSP2y/2., suppLength/2);
     const GeoShape* elementOfRailSupport3 = new GeoBox(railSP3x/2., railSP3y/2., suppLength/2);
 
-    CLHEP::Hep3Vector transRailSupport1(0., 0., 0.);
-    CLHEP::Hep3Vector transRailSupport2Part1(-railSP1x/2. + railSP2x/2., railSP1y/2. + railSP2y/2. ,0.);
-    CLHEP::Hep3Vector transRailSupport3Part1(-railSP1x/2. - railSP3x/2., railSP1y/2. + railSP2y - railSP3y/2. , 0.);
+    GeoTrf::Vector3D transRailSupport1(0., 0., 0.);
+    GeoTrf::Vector3D transRailSupport2Part1(-railSP1x/2. + railSP2x/2., railSP1y/2. + railSP2y/2. ,0.);
+    GeoTrf::Vector3D transRailSupport3Part1(-railSP1x/2. - railSP3x/2., railSP1y/2. + railSP2y - railSP3y/2. , 0.);
     
-    CLHEP::Hep3Vector transRailSupport2Part2(railSP1x/2. - railSP2x/2., railSP1y/2. + railSP2y/2. ,0.);
-    CLHEP::Hep3Vector transRailSupport3Part2(railSP1x/2. + railSP3x/2., railSP1y/2. + railSP2y - railSP3y/2. ,0.);
+    GeoTrf::Vector3D transRailSupport2Part2(railSP1x/2. - railSP2x/2., railSP1y/2. + railSP2y/2. ,0.);
+    GeoTrf::Vector3D transRailSupport3Part2(railSP1x/2. + railSP3x/2., railSP1y/2. + railSP2y - railSP3y/2. ,0.);
 
 
 //Definition of Barrel Tracker Support Rail
@@ -267,17 +269,17 @@ void SupportRailFactory::create(GeoPhysVol *mother)
     const GeoBox* trackerSRBP3 = new GeoBox(trackerSRBP3x/2., trackerSRBP3y/2., zLengthB/2);
     const GeoBox* trackerSRBP4 = new GeoBox(trackerSRBP4x/2., trackerSRBP4y/2., zLengthB/2);
 
-    CLHEP::Hep3Vector trans1TSRBP1(0., 0.,0.);
-    CLHEP::Hep3Vector trans2TSRBP1(0., 0.,0.);
+    GeoTrf::Vector3D trans1TSRBP1(0., 0.,0.);
+    GeoTrf::Vector3D trans2TSRBP1(0., 0.,0.);
 
-    CLHEP::Hep3Vector trans1TSRBP2(trackerSRBP1x/2. + trackerSRBP2x/2., - (trackerSRBP1y/2. - trackerSRBP2y/2. - distBottom), 0.);
-    CLHEP::Hep3Vector trans2TSRBP2(-trackerSRBP1x/2. - trackerSRBP2x/2., - (trackerSRBP1y/2. - trackerSRBP2y/2. - distBottom), 0.);
+    GeoTrf::Vector3D trans1TSRBP2(trackerSRBP1x/2. + trackerSRBP2x/2., - (trackerSRBP1y/2. - trackerSRBP2y/2. - distBottom), 0.);
+    GeoTrf::Vector3D trans2TSRBP2(-trackerSRBP1x/2. - trackerSRBP2x/2., - (trackerSRBP1y/2. - trackerSRBP2y/2. - distBottom), 0.);
     
-    CLHEP::Hep3Vector trans1TSRBP3(trackerSRBP1x/2. + trackerSRBP2x + trackerSRBP3x/2., - (trackerSRBP1y/2. - trackerSRBP3y/2. - distBottom), 0.);
-    CLHEP::Hep3Vector trans2TSRBP3(- trackerSRBP1x/2. - trackerSRBP2x - trackerSRBP3x/2., - (trackerSRBP1y/2. - trackerSRBP3y/2. - distBottom), 0.);
+    GeoTrf::Vector3D trans1TSRBP3(trackerSRBP1x/2. + trackerSRBP2x + trackerSRBP3x/2., - (trackerSRBP1y/2. - trackerSRBP3y/2. - distBottom), 0.);
+    GeoTrf::Vector3D trans2TSRBP3(- trackerSRBP1x/2. - trackerSRBP2x - trackerSRBP3x/2., - (trackerSRBP1y/2. - trackerSRBP3y/2. - distBottom), 0.);
 
-    CLHEP::Hep3Vector trans1TSRBP4(trackerSRBP1x/2. + trackerSRBP2x + trackerSRBP4x/2., trackerSRBP1y/2. - trackerSRBP4y/2. - distTop, 0.);
-    CLHEP::Hep3Vector trans2TSRBP4(- trackerSRBP1x/2. - trackerSRBP2x - trackerSRBP4x/2.,trackerSRBP1y/2. - trackerSRBP4y/2. - distTop, 0.);
+    GeoTrf::Vector3D trans1TSRBP4(trackerSRBP1x/2. + trackerSRBP2x + trackerSRBP4x/2., trackerSRBP1y/2. - trackerSRBP4y/2. - distTop, 0.);
+    GeoTrf::Vector3D trans2TSRBP4(- trackerSRBP1x/2. - trackerSRBP2x - trackerSRBP4x/2.,trackerSRBP1y/2. - trackerSRBP4y/2. - distTop, 0.);
 
 //Definition Of Endcap Tracker Support Rail
 
@@ -285,14 +287,14 @@ void SupportRailFactory::create(GeoPhysVol *mother)
     const GeoBox* trackerSREP2 = new GeoBox(trackerSREP2x/2., trackerSREP2y/2.,zLengthE/2.); 
     const GeoBox* trackerSREP3 = new GeoBox(trackerSREP3x/2., trackerSREP3y/2.,zLengthE/2.);
 
-    CLHEP::Hep3Vector trans1TSREP1(0. ,0.,0.);
-    CLHEP::Hep3Vector trans2TSREP1(0. ,0.,0.);
+    GeoTrf::Vector3D trans1TSREP1(0. ,0.,0.);
+    GeoTrf::Vector3D trans2TSREP1(0. ,0.,0.);
   
-    CLHEP::Hep3Vector trans1TSREP2(trackerSREP1x/2. + trackerSREP2x/2., -trackerSREP1y/2. + trackerSREP2y/2., 0.);
-    CLHEP::Hep3Vector trans2TSREP2(- trackerSREP1x/2. - trackerSREP2x/2., -trackerSREP1y/2. + trackerSREP2y/2., 0.);
+    GeoTrf::Vector3D trans1TSREP2(trackerSREP1x/2. + trackerSREP2x/2., -trackerSREP1y/2. + trackerSREP2y/2., 0.);
+    GeoTrf::Vector3D trans2TSREP2(- trackerSREP1x/2. - trackerSREP2x/2., -trackerSREP1y/2. + trackerSREP2y/2., 0.);
 
-    CLHEP::Hep3Vector trans1TSREP3(trackerSREP1x/2. + trackerSREP3x/2., trackerSREP1y/2. - trackerSREP3y/2., 0.);
-    CLHEP::Hep3Vector trans2TSREP3(- trackerSREP1x/2. - trackerSREP3x/2., trackerSREP1y/2. - trackerSREP3y/2., 0.);
+    GeoTrf::Vector3D trans1TSREP3(trackerSREP1x/2. + trackerSREP3x/2., trackerSREP1y/2. - trackerSREP3y/2., 0.);
+    GeoTrf::Vector3D trans2TSREP3(- trackerSREP1x/2. - trackerSREP3x/2., trackerSREP1y/2. - trackerSREP3y/2., 0.);
 
 
 
@@ -352,30 +354,34 @@ void SupportRailFactory::create(GeoPhysVol *mother)
 
 //Support rail - male part
 
-    CLHEP::Hep3Vector suppPos1Part1(rminInt + xDepthUSP2 + railSP2x - railSP1x/2., - yWidthUSP1/2. + railSP1y/2. + coordY, 0.);
-    CLHEP::Hep3Vector suppPos2Part1( - rminInt - xDepthUSP2 - railSP2x + railSP1x/2., - yWidthUSP1/2. + railSP1y/2. + coordY, 0.);
+    GeoTrf::Vector3D suppPos1Part1(rminInt + xDepthUSP2 + railSP2x - railSP1x/2., - yWidthUSP1/2. + railSP1y/2. + coordY, 0.);
+    GeoTrf::Vector3D suppPos2Part1( - rminInt - xDepthUSP2 - railSP2x + railSP1x/2., - yWidthUSP1/2. + railSP1y/2. + coordY, 0.);
 
-    pos = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),suppPos1Part1));
+    pos = new GeoTransform(GeoTrf::Translate3D(suppPos1Part1.x(),suppPos1Part1.y(),suppPos1Part1.z()));
     mother->add(pos);
     mother->add(railSupportPhysPart1);
 
-    pos = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),suppPos2Part1));
+    pos = new GeoTransform(GeoTrf::Translate3D(suppPos2Part1.x(),suppPos2Part1.y(),suppPos2Part1.z()));
     mother->add(pos);
     mother->add(railSupportPhysPart1);
    
-    pos = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),suppPos1Part1 + transRailSupport2Part2));
+    GeoTrf::Vector3D tmpVec = suppPos1Part1 + transRailSupport2Part2;
+    pos = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
     mother->add(pos);
     mother->add(railSupportPhysPart2);
 
-    pos = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),suppPos2Part1 + transRailSupport2Part1));
+    tmpVec = suppPos2Part1 + transRailSupport2Part1;
+    pos = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
     mother->add(pos);
     mother->add(railSupportPhysPart2);
 
-    pos = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),suppPos1Part1+ transRailSupport3Part2));
+    tmpVec = suppPos1Part1+ transRailSupport3Part2;
+    pos = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
     mother->add(pos);
     mother->add(railSupportPhysPart3);
 
-    pos = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),suppPos2Part1+ transRailSupport3Part1));
+    tmpVec = suppPos2Part1+ transRailSupport3Part1;
+    pos = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
     mother->add(pos);
     mother->add(railSupportPhysPart3);
 
@@ -387,140 +393,169 @@ void SupportRailFactory::create(GeoPhysVol *mother)
 //    double safety=0.01; // to provide safety gap for G4
 
 
-    CLHEP::Hep3Vector railBpos1(railSP1x/2. - railThickB/2. - railSP2x, railSP1y/2. + railWidthB/2., 0.);
-    CLHEP::Hep3Vector railBpos2(- railSP1x/2. + railThickB/2. + railSP2x, railSP1y/2. + railWidthB/2., 0.);
-    pos = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),railBpos1 + suppPos1Part1));
+    GeoTrf::Vector3D railBpos1(railSP1x/2. - railThickB/2. - railSP2x, railSP1y/2. + railWidthB/2., 0.);
+    GeoTrf::Vector3D railBpos2(- railSP1x/2. + railThickB/2. + railSP2x, railSP1y/2. + railWidthB/2., 0.);
+    tmpVec = railBpos1 + suppPos1Part1;
+    pos = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
     mother->add(pos);
     mother->add(railBarrelPhys);
-    pos = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),railBpos2 + suppPos2Part1));
+    tmpVec = railBpos2 + suppPos2Part1;
+    pos = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
     mother->add(pos);
     mother->add(railBarrelPhys);
 //
 //    Endcap steel rails
 //
 
-    CLHEP::Hep3Vector railEpos1( railSP1x/2 + railSP3x - exactPl, railSP1y/2. + railEBy/2., (railLengthB+railLengthE)/2.);
-    CLHEP::Hep3Vector railEpos2( -railSP1x/2 - railSP3x + exactPl, railSP1y/2. + railEBy/2., (railLengthB+railLengthE)/2.);
-    CLHEP::Hep3Vector railEpos3( railSP1x/2 + railSP3x - exactPl, railSP1y/2. + railEBy/2.,-(railLengthB+railLengthE)/2.);
-    CLHEP::Hep3Vector railEpos4( -railSP1x/2 - railSP3x + exactPl, railSP1y/2. + railEBy/2.,-(railLengthB+railLengthE)/2.);
-
-    pos = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),railEpos1 + vectorForTransFirst + suppPos1Part1));
+    GeoTrf::Vector3D railEpos1( railSP1x/2 + railSP3x - exactPl, railSP1y/2. + railEBy/2., (railLengthB+railLengthE)/2.);
+    GeoTrf::Vector3D railEpos2( -railSP1x/2 - railSP3x + exactPl, railSP1y/2. + railEBy/2., (railLengthB+railLengthE)/2.);
+    GeoTrf::Vector3D railEpos3( railSP1x/2 + railSP3x - exactPl, railSP1y/2. + railEBy/2.,-(railLengthB+railLengthE)/2.);
+    GeoTrf::Vector3D railEpos4( -railSP1x/2 - railSP3x + exactPl, railSP1y/2. + railEBy/2.,-(railLengthB+railLengthE)/2.);
+    tmpVec = railEpos1 + vectorForTransFirst + suppPos1Part1;
+    pos = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
     mother->add(pos);
     mother->add(railEndcapFirstPhys);
    
     for (int i = 0; i < numberOfPieces; i++)
     {
-     pos = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(), railEpos1 + vectorForTrans[i] + suppPos1Part1));
-     mother->add(pos);
-     mother->add(railEndcapPhys[i]);
+      tmpVec = railEpos1 + vectorForTrans[i] + suppPos1Part1;
+      pos = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
+      mother->add(pos);
+      mother->add(railEndcapPhys[i]);
     }
 
-    pos = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),railEpos2 + vectorForTransFirst + suppPos2Part1));
+    tmpVec = railEpos2 + vectorForTransFirst + suppPos2Part1;
+    pos = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
     mother->add(pos);
     mother->add(railEndcapFirstPhys);
 
     for (int i = 0; i < numberOfPieces; i++)
     {
-     pos = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(), railEpos2 + vectorForTrans[i] + suppPos2Part1));
-     mother->add(pos);
-     mother->add(railEndcapPhys[i]);
+      tmpVec = railEpos2 + vectorForTrans[i] + suppPos2Part1;
+      pos = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
+      mother->add(pos);
+      mother->add(railEndcapPhys[i]);
     }
 
-    pos = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),railEpos3 + vectorForTransFirst + suppPos1Part1));
+    tmpVec = railEpos3 + vectorForTransFirst + suppPos1Part1;
+    pos = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
     mother->add(pos);
     mother->add(railEndcapFirstPhys);
 
     for (int i = 0; i < numberOfPieces; i++)
     {
-     pos = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(), railEpos3 + vectorForTrans[i] + suppPos1Part1));
-     mother->add(pos);
-     mother->add(railEndcapPhys[i]);
+      tmpVec = railEpos3 + vectorForTrans[i] + suppPos1Part1;
+      pos = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
+      mother->add(pos);
+      mother->add(railEndcapPhys[i]);
     }
 
-    pos = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),railEpos4 + vectorForTransFirst + suppPos2Part1));
+    tmpVec = railEpos4 + vectorForTransFirst + suppPos2Part1;
+    pos = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
     mother->add(pos);
     mother->add(railEndcapFirstPhys);
 
     for (int i = 0; i < numberOfPieces; i++)
     {
-     pos = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(), railEpos4 + vectorForTrans[i] + suppPos2Part1));
-     mother->add(pos);
-     mother->add(railEndcapPhys[i]);
+      tmpVec = railEpos4 + vectorForTrans[i] + suppPos2Part1;
+      pos = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
+      mother->add(pos);
+      mother->add(railEndcapPhys[i]);
     }
 
-    CLHEP::Hep3Vector transToInnerWall(rminInt + xDepthUSP2 + railSP2x + railSP3x + trackerSRBP2x + trackerSRBP1x, 0, 0);
-    CLHEP::Hep3Vector transMalePart(0., 0., 0.);
+    GeoTrf::Vector3D transToInnerWall(rminInt + xDepthUSP2 + railSP2x + railSP3x + trackerSRBP2x + trackerSRBP1x, 0, 0);
+    GeoTrf::Vector3D transMalePart(0., 0., 0.);
     GeoTransform *xfPos;
     GeoTransform *xfNeg;
 
 //Barrel           
-    xfPos = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),transToInnerWall - CLHEP::Hep3Vector(trackerSRBP1x/2., 0, 0) + trans2TSRBP1 + transMalePart));
-    xfNeg = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),- transToInnerWall + CLHEP::Hep3Vector(trackerSRBP1x/2., 0, 0) + trans1TSRBP1 + transMalePart));
+    tmpVec = transToInnerWall - GeoTrf::Vector3D(trackerSRBP1x/2., 0, 0) + trans2TSRBP1 + transMalePart;
+    xfPos = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
+    tmpVec = - transToInnerWall + GeoTrf::Vector3D(trackerSRBP1x/2., 0,0) + trans1TSRBP1 + transMalePart;
+    xfNeg = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
      mother->add(xfPos);
      mother->add(trackerSRBPP1);
      mother->add(xfNeg);
      mother->add(trackerSRBPP1);
 
-     xfPos = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),transToInnerWall - CLHEP::Hep3Vector(trackerSRBP1x/2., 0, 0) + trans2TSRBP2 + transMalePart));
-     xfNeg = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), - transToInnerWall + CLHEP::Hep3Vector(trackerSRBP1x/2., 0, 0) + trans1TSRBP2 + transMalePart));
+     tmpVec = transToInnerWall - GeoTrf::Vector3D(trackerSRBP1x/2., 0, 0) + trans2TSRBP2 + transMalePart;
+     xfPos = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
+     tmpVec = - transToInnerWall + GeoTrf::Vector3D(trackerSRBP1x/2., 0, 0) + trans1TSRBP2 + transMalePart;
+     xfNeg = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
      mother->add(xfPos);
      mother->add(trackerSRBPP2);
      mother->add(xfNeg);
      mother->add(trackerSRBPP2);
   
-     xfPos = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), transToInnerWall - CLHEP::Hep3Vector(trackerSRBP1x/2., 0, 0) + trans2TSRBP3 + transMalePart));
-     xfNeg = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), - transToInnerWall + CLHEP::Hep3Vector(trackerSRBP1x/2., 0, 0) + trans1TSRBP3 + transMalePart));
+     tmpVec = transToInnerWall - GeoTrf::Vector3D(trackerSRBP1x/2., 0,0) + trans2TSRBP3 + transMalePart;
+     xfPos = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
+     tmpVec = - transToInnerWall + GeoTrf::Vector3D(trackerSRBP1x/2., 0, 0) + trans1TSRBP3 + transMalePart;
+     xfNeg = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
      mother->add(xfPos);
      mother->add(trackerSRBPP3);
      mother->add(xfNeg);
      mother->add(trackerSRBPP3);
 
-     xfPos = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), transToInnerWall - CLHEP::Hep3Vector(trackerSRBP1x/2., 0, 0) + trans2TSRBP4 + transMalePart));
-     xfNeg = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), -transToInnerWall + CLHEP::Hep3Vector(trackerSRBP1x/2., 0, 0) + trans1TSRBP4 + transMalePart));
+     tmpVec = transToInnerWall - GeoTrf::Vector3D(trackerSRBP1x/2., 0,0) + trans2TSRBP4 + transMalePart;
+     xfPos = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
+     tmpVec = -transToInnerWall + GeoTrf::Vector3D(trackerSRBP1x/2., 0, 0) + trans1TSRBP4 + transMalePart;
+     xfNeg = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
      mother->add(xfPos);
      mother->add(trackerSRBPP4);
      mother->add(xfNeg);
      mother->add(trackerSRBPP4);
 //Endcap positiv
 
-     xfPos = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), transToInnerWall - CLHEP::Hep3Vector(trackerSREP1x/2., 1.5, zLengthB/2 + zLengthE/2) + trans2TSREP1 + transMalePart));
-     xfNeg = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), - transToInnerWall + CLHEP::Hep3Vector(trackerSREP1x/2., -1.5, zLengthB/2 + zLengthE/2) + trans1TSREP1 + transMalePart));
+     tmpVec = transToInnerWall - GeoTrf::Vector3D(trackerSREP1x/2., 1.5, zLengthB/2 + zLengthE/2) + trans2TSREP1 + transMalePart;
+     xfPos = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
+     tmpVec = - transToInnerWall + GeoTrf::Vector3D(trackerSREP1x/2., -1.5, zLengthB/2 + zLengthE/2) + trans1TSREP1 + transMalePart;
+     xfNeg = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
      mother->add(xfPos);
      mother->add(trackerSREPP1);
      mother->add(xfNeg);
      mother->add(trackerSREPP1);
 
-     xfPos = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), transToInnerWall - CLHEP::Hep3Vector(trackerSREP1x/2., 1.5, zLengthB/2 + zLengthE/2) + trans2TSREP2 + transMalePart));
-     xfNeg = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), - transToInnerWall + CLHEP::Hep3Vector(trackerSREP1x/2., -1.5, zLengthB/2 + zLengthE/2) + trans1TSREP2 + transMalePart));
+     tmpVec = transToInnerWall - GeoTrf::Vector3D(trackerSREP1x/2., 1.5, zLengthB/2 + zLengthE/2) + trans2TSREP2 + transMalePart;
+     xfPos = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
+     tmpVec = - transToInnerWall + GeoTrf::Vector3D(trackerSREP1x/2., -1.5, zLengthB/2 + zLengthE/2) + trans1TSREP2 + transMalePart;
+     xfNeg = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
      mother->add(xfPos);
      mother->add(trackerSREPP2);
      mother->add(xfNeg);
      mother->add(trackerSREPP2);
   
-     xfPos = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), transToInnerWall - CLHEP::Hep3Vector(trackerSREP1x/2., 1.5, zLengthB/2 + zLengthE/2) + trans2TSREP3 + transMalePart));
-     xfNeg = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), - transToInnerWall + CLHEP::Hep3Vector(trackerSREP1x/2., -1.5, zLengthB/2 + zLengthE/2) + trans1TSREP3 + transMalePart));
+     tmpVec = transToInnerWall - GeoTrf::Vector3D(trackerSREP1x/2., 1.5, zLengthB/2 + zLengthE/2) + trans2TSREP3 + transMalePart;
+     xfPos = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
+     tmpVec = - transToInnerWall + GeoTrf::Vector3D(trackerSREP1x/2., -1.5, zLengthB/2 + zLengthE/2) + trans1TSREP3 + transMalePart;
+     xfNeg = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
      mother->add(xfPos);
      mother->add(trackerSREPP3);
      mother->add(xfNeg);
      mother->add(trackerSREPP3);       
 //Endcap negativ
-    
-     xfPos = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), transToInnerWall - CLHEP::Hep3Vector(trackerSREP1x/2., 1.5, - zLengthB/2 - zLengthE/2) + trans2TSREP1 + transMalePart));
-     xfNeg = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), - transToInnerWall + CLHEP::Hep3Vector(trackerSREP1x/2., -1.5, - zLengthB/2 - zLengthE/2) + trans1TSREP1 + transMalePart));
+  
+     tmpVec = transToInnerWall - GeoTrf::Vector3D(trackerSREP1x/2., 1.5, - zLengthB/2 - zLengthE/2) + trans2TSREP1 + transMalePart;
+     xfPos = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
+     tmpVec = - transToInnerWall + GeoTrf::Vector3D(trackerSREP1x/2., -1.5, - zLengthB/2 - zLengthE/2) + trans1TSREP1 + transMalePart;
+     xfNeg = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
      mother->add(xfPos);
      mother->add(trackerSREPP1);
      mother->add(xfNeg);
      mother->add(trackerSREPP1);
 
-     xfPos = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), transToInnerWall - CLHEP::Hep3Vector(trackerSREP1x/2., 1.5, - zLengthB/2 - zLengthE/2) + trans2TSREP2 + transMalePart));
-     xfNeg = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), - transToInnerWall + CLHEP::Hep3Vector(trackerSREP1x/2., -1.5, - zLengthB/2 - zLengthE/2) + trans1TSREP2 + transMalePart));
+     tmpVec = transToInnerWall - GeoTrf::Vector3D(trackerSREP1x/2., 1.5, - zLengthB/2 - zLengthE/2) + trans2TSREP2 + transMalePart;
+     xfPos = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
+     tmpVec = - transToInnerWall + GeoTrf::Vector3D(trackerSREP1x/2., -1.5, - zLengthB/2 - zLengthE/2) + trans1TSREP2 + transMalePart;
+     xfNeg = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
      mother->add(xfPos);
      mother->add(trackerSREPP2);
      mother->add(xfNeg);
      mother->add(trackerSREPP2);
   
-     xfPos = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), transToInnerWall - CLHEP::Hep3Vector(trackerSREP1x/2., 1.5, - zLengthB/2 - zLengthE/2) + trans2TSREP3 + transMalePart));
-     xfNeg = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), - transToInnerWall + CLHEP::Hep3Vector(trackerSREP1x/2., -1.5, - zLengthB/2 - zLengthE/2) + trans1TSREP3 + transMalePart));
+     tmpVec = transToInnerWall - GeoTrf::Vector3D(trackerSREP1x/2., 1.5, - zLengthB/2 - zLengthE/2) + trans2TSREP3 + transMalePart;
+     xfPos = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
+     tmpVec = - transToInnerWall + GeoTrf::Vector3D(trackerSREP1x/2., -1.5, - zLengthB/2 - zLengthE/2) + trans1TSREP3 + transMalePart;
+     xfNeg = new GeoTransform(GeoTrf::Translate3D(tmpVec.x(),tmpVec.y(),tmpVec.z()));
      mother->add(xfPos);
      mother->add(trackerSREPP3);
      mother->add(xfNeg);
@@ -544,18 +579,18 @@ void SupportRailFactory::create(GeoPhysVol *mother)
 //
 // Default(initial) values
 //    
-    double RMAX_ID      = 1150.0*CLHEP::mm -1.0*CLHEP::mm;   //Some safety margin
-    double railLengthB  = 1600.0*CLHEP::mm;
-    double railWidthB   = 5.5*CLHEP::mm;
-    double railThickB   = 34.7*CLHEP::mm;
+    double RMAX_ID      = 1150.0*GeoModelKernelUnits::mm -1.0*GeoModelKernelUnits::mm;   //Some safety margin
+    double railLengthB  = 1600.0*GeoModelKernelUnits::mm;
+    double railWidthB   = 5.5*GeoModelKernelUnits::mm;
+    double railThickB   = 34.7*GeoModelKernelUnits::mm;
 //
-    double railLengthE  = 2600.0*CLHEP::mm;
-    double railWidthE   = 14.*CLHEP::mm;
-    double railThickE   = 14.7*CLHEP::mm;
+    double railLengthE  = 2600.0*GeoModelKernelUnits::mm;
+    double railWidthE   = 14.*GeoModelKernelUnits::mm;
+    double railThickE   = 14.7*GeoModelKernelUnits::mm;
 //
-    double suppLength   = 6800.0*CLHEP::mm;
-    double suppWidth    = 54.*CLHEP::mm;
-    double suppThick    = 22.6*CLHEP::mm;
+    double suppLength   = 6800.0*GeoModelKernelUnits::mm;
+    double suppWidth    = 54.*GeoModelKernelUnits::mm;
+    double suppThick    = 22.6*GeoModelKernelUnits::mm;
 //
 //   Database 
 //
@@ -578,20 +613,20 @@ void SupportRailFactory::create(GeoPhysVol *mother)
     
     double epsilon = 0.01;  // +Some safety margin
  
-     RMAX_ID = (*atls)[0]->getDouble("IDETOR")*CLHEP::cm;  
-     railLengthB = (*railrec)[0]->getDouble("LENGTHB")*CLHEP::mm;
-     railWidthB  = (*railrec)[0]->getDouble("WIDTHB")*CLHEP::mm;
-     railThickB  = (*railrec)[0]->getDouble("THICKB")*CLHEP::mm;
+     RMAX_ID = (*atls)[0]->getDouble("IDETOR")*GeoModelKernelUnits::cm;  
+     railLengthB = (*railrec)[0]->getDouble("LENGTHB")*GeoModelKernelUnits::mm;
+     railWidthB  = (*railrec)[0]->getDouble("WIDTHB")*GeoModelKernelUnits::mm;
+     railThickB  = (*railrec)[0]->getDouble("THICKB")*GeoModelKernelUnits::mm;
   //------------ Limited by EP ExternalShell
-     railLengthE = (*endplate)[0]->getDouble("ZSTART")*CLHEP::mm  
-                  +(*endplate)[0]->getDouble("ZSHIFT")*CLHEP::mm
-                  +(*endplate)[0]->getDouble("ZGAP")*CLHEP::mm   - railLengthB/2.;
-     railWidthE  = (*railrec)[0]->getDouble("WIDTHE")*CLHEP::mm;
-     railThickE  = (*railrec)[0]->getDouble("THICKE")*CLHEP::mm;
+     railLengthE = (*endplate)[0]->getDouble("ZSTART")*GeoModelKernelUnits::mm  
+                  +(*endplate)[0]->getDouble("ZSHIFT")*GeoModelKernelUnits::mm
+                  +(*endplate)[0]->getDouble("ZGAP")*GeoModelKernelUnits::mm   - railLengthB/2.;
+     railWidthE  = (*railrec)[0]->getDouble("WIDTHE")*GeoModelKernelUnits::mm;
+     railThickE  = (*railrec)[0]->getDouble("THICKE")*GeoModelKernelUnits::mm;
  
      suppLength = railLengthB + 2.*railLengthE;
-     suppWidth  = (*railrec)[0]->getDouble("WIDTHSUP")*CLHEP::mm;
-     suppThick  = (*railrec)[0]->getDouble("THICKSUP")*CLHEP::mm;
+     suppWidth  = (*railrec)[0]->getDouble("WIDTHSUP")*GeoModelKernelUnits::mm;
+     suppThick  = (*railrec)[0]->getDouble("THICKSUP")*GeoModelKernelUnits::mm;
 //
 // To avoid rail corner outside ID envelope
      RMAX_ID = sqrt(RMAX_ID*RMAX_ID-suppWidth*suppWidth/4.)-epsilon;  
@@ -616,43 +651,43 @@ void SupportRailFactory::create(GeoPhysVol *mother)
 //
     double safety=0.01; // to provide safety gap for G4
 
-    CLHEP::Hep3Vector railBpos1( ( RMAX_ID-suppThick-railThickB/2.-safety), 0., 0.);
-    CLHEP::Hep3Vector railBpos2( (-RMAX_ID+suppThick+railThickB/2.+safety), 0., 0.);
-    pos = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),railBpos1));
+    GeoTrf::Translate3D railBpos1( ( RMAX_ID-suppThick-railThickB/2.-safety), 0., 0.);
+    GeoTrf::Translate3D railBpos2( (-RMAX_ID+suppThick+railThickB/2.+safety), 0., 0.);
+    pos = new GeoTransform(railBpos1);
     mother->add(pos);
     mother->add(railBarrelPhys);
-    pos = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),railBpos2));
+    pos = new GeoTransform(railBpos2);
     mother->add(pos);
     mother->add(railBarrelPhys);
 //
 //    Endcap steel rails
 //
-    CLHEP::Hep3Vector railEpos1( ( RMAX_ID-suppThick-railThickE/2.-safety), 0., (railLengthB+railLengthE)/2.);
-    CLHEP::Hep3Vector railEpos2( (-RMAX_ID+suppThick+railThickE/2.+safety), 0., (railLengthB+railLengthE)/2.);
-    CLHEP::Hep3Vector railEpos3( ( RMAX_ID-suppThick-railThickE/2.-safety), 0.,-(railLengthB+railLengthE)/2.);
-    CLHEP::Hep3Vector railEpos4( (-RMAX_ID+suppThick+railThickE/2.+safety), 0.,-(railLengthB+railLengthE)/2.);
-    pos = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),railEpos1));
+    GeoTrf::Translate3D railEpos1( ( RMAX_ID-suppThick-railThickE/2.-safety), 0., (railLengthB+railLengthE)/2.);
+    GeoTrf::Translate3D railEpos2( (-RMAX_ID+suppThick+railThickE/2.+safety), 0., (railLengthB+railLengthE)/2.);
+    GeoTrf::Translate3D railEpos3( ( RMAX_ID-suppThick-railThickE/2.-safety), 0.,-(railLengthB+railLengthE)/2.);
+    GeoTrf::Translate3D railEpos4( (-RMAX_ID+suppThick+railThickE/2.+safety), 0.,-(railLengthB+railLengthE)/2.);
+    pos = new GeoTransform(railEpos1);
     mother->add(pos);
     mother->add(railEndcapPhys);
-    pos = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),railEpos2));
+    pos = new GeoTransform(railEpos2);
     mother->add(pos);
     mother->add(railEndcapPhys);
-    pos = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),railEpos3));
+    pos = new GeoTransform(railEpos3);
     mother->add(pos);
     mother->add(railEndcapPhys);
-    pos = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),railEpos4));
+    pos = new GeoTransform(railEpos4);
     mother->add(pos);
     mother->add(railEndcapPhys);
 //
 //    Rail supports
 //
     
-    CLHEP::Hep3Vector suppPos1( ( RMAX_ID-suppThick/2.), 0., 0.);
-    CLHEP::Hep3Vector suppPos2( (-RMAX_ID+suppThick/2.), 0., 0.);
-    pos = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),suppPos1));
+    GeoTrf::Translate3D suppPos1( ( RMAX_ID-suppThick/2.), 0., 0.);
+    GeoTrf::Translate3D suppPos2( (-RMAX_ID+suppThick/2.), 0., 0.);
+    pos = new GeoTransform(suppPos1);
     mother->add(pos);
     mother->add(supportPhys);
-    pos = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),suppPos2));
+    pos = new GeoTransform(suppPos2);
     mother->add(pos);
     mother->add(supportPhys);
 

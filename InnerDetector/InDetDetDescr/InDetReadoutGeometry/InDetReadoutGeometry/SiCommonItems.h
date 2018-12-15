@@ -17,6 +17,7 @@ class AtlasDetectorID;
 #include "AthenaKernel/MsgStreamMember.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "CLHEP/Geometry/Transform3D.h"
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/RCBase.h"
 #include "InDetCondServices/ISiLorentzAngleTool.h"
 

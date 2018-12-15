@@ -7,15 +7,15 @@
 #include "SCT_SLHC_GeoModel/SCT_DataBase.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "GeometryDBSvc/IGeometryDBSvc.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Geometry/Transform3D.h"
+#include "GeoModelKernel/Units.h"
+#include "GeoModelKernel/GeoDefinitions.h"
 #include "InDetGeoModelUtils/TopLevelPlacements.h"
 
 #include <iostream>
 
 namespace InDetDDSLHC {
 
-const double SCT_SAFETY = 0.01 * CLHEP::mm; // Used in some places to make envelopes slightly larger to ensure
+const double SCT_SAFETY = 0.01 * GeoModelKernelUnits::mm; // Used in some places to make envelopes slightly larger to ensure
                                      // no overlaps due to rounding errors.
 
 SCT_GeneralParameters::SCT_GeneralParameters(const SCT_DataBase * sctdb, const SCT_GeoModelAthenaComps * athenaComps)
@@ -32,7 +32,7 @@ SCT_GeneralParameters::~SCT_GeneralParameters()
 }
 
 
-const HepGeom::Transform3D & 
+const GeoTrf::Transform3D & 
 SCT_GeneralParameters::partTransform(const std::string & partName) const 
 {
   return m_placements->transform(partName);
@@ -124,19 +124,19 @@ unsigned int SCT_GeneralParameters::envelopeNumPlanes() const
 
 double SCT_GeneralParameters::envelopeZ(int i) const 
 {
-  double zmin =  db()->getDouble(m_SctEnvelope,"Z",i) * CLHEP::mm;
+  double zmin =  db()->getDouble(m_SctEnvelope,"Z",i) * GeoModelKernelUnits::mm;
   if (zmin < 0) msg(MSG::ERROR) << "SctEnvelope table should only contain +ve z values" << endmsg;
   return std::abs(zmin);
 }
 
 double SCT_GeneralParameters::envelopeRMin(int i) const 
 {
-  return db()->getDouble(m_SctEnvelope,"RMIN",i) * CLHEP::mm;
+  return db()->getDouble(m_SctEnvelope,"RMIN",i) * GeoModelKernelUnits::mm;
 }
 
 double SCT_GeneralParameters::envelopeRMax(int i) const
 {
-  return db()->getDouble(m_SctEnvelope,"RMAX",i) * CLHEP::mm;
+  return db()->getDouble(m_SctEnvelope,"RMAX",i) * GeoModelKernelUnits::mm;
 }
 
 

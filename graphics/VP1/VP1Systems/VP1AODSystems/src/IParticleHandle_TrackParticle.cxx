@@ -32,6 +32,7 @@
 
 //Athena
 #include "TrkExInterfaces/IExtrapolationEngine.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 //____________________________________________________________________
 class IParticleHandle_TrackParticle::Imp {
@@ -419,7 +420,7 @@ unsigned IParticleHandle_TrackParticle::getNMuonPhiHoleLayers() const
 
 QString IParticleHandle_TrackParticle::shortInfo() const
 {
-  QString l("|P|="+VP1Msg::str(momentum().mag()/CLHEP::GeV)+" [GeV], ");
+  QString l("|P|="+VP1Msg::str(momentum().mag()/Gaudi::Units::GeV)+" [GeV], ");
   l+= "Pix["+QString::number(getNPixelHits())+"], SCT["+QString::number(getNSCTHits())+"], TRT["+QString::number(getNTRTHits())
    +"], Muon prec. layers/holes ["+QString::number(getNMuonPrecisionLayers())+"/"+QString::number(getNMuonPrecisionHoleLayers())+"]";
   return l;

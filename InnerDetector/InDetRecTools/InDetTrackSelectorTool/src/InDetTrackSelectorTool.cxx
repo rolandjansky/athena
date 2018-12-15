@@ -12,6 +12,7 @@
 // normal includes
 #include "TrkTrackSummary/TrackSummary.h"
 #include "CLHEP/Matrix/Vector.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 using CLHEP::mm;
 

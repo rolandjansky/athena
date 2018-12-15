@@ -6,7 +6,7 @@
 
 #include "InDetServMatGeoModel/ServicesLayer.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GeoModelKernel/Units.h"
 #include <iostream>
 
 void ServiceVolume::dump( bool dumpMaterial) const

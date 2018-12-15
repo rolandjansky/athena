@@ -32,6 +32,8 @@
 #include "hltinterface/IInfoRegister.h"
 #include "hltinterface/ContainerFactory.h"
 
+#include "CLHEP/Units/SystemOfUnits.h"
+
 class ISvcLocator;
 
 /////////////////////////////////////////////////////////////////////

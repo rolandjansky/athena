@@ -23,17 +23,13 @@
 #include "GeoModelKernel/GeoTransform.h"  
 #include "GeoModelKernel/GeoAlignableTransform.h"  
 #include "GeoModelKernel/GeoIdentifierTag.h"  
+#include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/Units.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeShift.h"
-
-// For transforms:
-
-#include "CLHEP/Geometry/Transform3D.h" 
-// For units:
-#include "CLHEP/Units/PhysicalConstants.h"
 
 // For the database:
 
@@ -92,7 +88,7 @@ GeoPhysVol* LArGeo::ExcluderConstruction::GetEnvelope()
   const GeoElement*  H=materialManager->getElement("Hydrogen");
   const GeoElement*  O=materialManager->getElement("Oxygen");
   const GeoElement*  N=materialManager->getElement("Nitrogen");
-  GeoMaterial* Rohacell = new GeoMaterial(name="Rohacell", density=0.11*CLHEP::g/CLHEP::cm3);
+  GeoMaterial* Rohacell = new GeoMaterial(name="Rohacell", density=0.11*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
   Rohacell->add(C,0.6465);
   Rohacell->add(H,0.07836);
   Rohacell->add(O,0.19137);
@@ -115,25 +111,25 @@ GeoPhysVol* LArGeo::ExcluderConstruction::GetEnvelope()
 
   // It is a Union out of a GeoBox and a GeoTubs.
   // Box Dimensions:
-  double   xbox  =  300.0 *CLHEP::mm;
-  double   ybox  =  160.0 *CLHEP::mm;
-  double   zbox  =  300.7 *CLHEP::mm;
+  double   xbox  =  300.0 *GeoModelKernelUnits::mm;
+  double   ybox  =  160.0 *GeoModelKernelUnits::mm;
+  double   zbox  =  300.7 *GeoModelKernelUnits::mm;
   //
   // Tubs Dimensions:
-  double   ztubs =  300.0 *CLHEP::mm;
-  double  phitubs=   76.2 *CLHEP::deg;
-  double  delphi =   27.6 *CLHEP::deg;
-  double   rcold = 1249.5 *CLHEP::mm;
-  double   rmin  = 1220.0 *CLHEP::mm;
+  double   ztubs =  300.0 *GeoModelKernelUnits::mm;
+  double  phitubs=   76.2 *GeoModelKernelUnits::deg;
+  double  delphi =   27.6 *GeoModelKernelUnits::deg;
+  double   rcold = 1249.5 *GeoModelKernelUnits::mm;
+  double   rmin  = 1220.0 *GeoModelKernelUnits::mm;
 
-  // The radius of the cryostat cold wall is: 1250 CLHEP::mm
+  // The radius of the cryostat cold wall is: 1250 GeoModelKernelUnits::mm
   // Before we make the union, we have to shift the box in y (that actually along the beam axis)
   //        and there, positive y goes from the cryostat centre towards the beam window.
 
   std::string ExcluderName = "LAr::H6::Cryostat::Excluder";
 
   GeoBox* rohaBox   = new GeoBox(xbox, ybox, zbox);                      //  The rectangular part of the excluder
-  const GeoShapeShift & rohaBoxShift = (*rohaBox << HepGeom::TranslateY3D(1062.85*CLHEP::mm) );
+  const GeoShapeShift & rohaBoxShift = (*rohaBox << GeoTrf::TranslateY3D(1062.85*GeoModelKernelUnits::mm) );
   GeoTubs* rohaTubs = new GeoTubs(rmin, rcold, ztubs, phitubs, delphi);  //  The round part of the excluder  
 
   // Combine the two parts to make one excluder of the correct shape:
