@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 ###########################################################################
 # SliceDef file for Muon chains
@@ -9,7 +9,7 @@ __doc__="Definition of muon chains for AthenaMT"
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuUtils import *
+from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import *
 
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestRecoAlg
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoAlg

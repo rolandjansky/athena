@@ -1,9 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from collections import Counter
 from copy import deepcopy
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenu.menu.MenuUtils' )
+log = logging.getLogger( 'TriggerMenu.menu.ChainDictTools' )
 
 
 def splitInterSignatureChainDict(chainDict):
