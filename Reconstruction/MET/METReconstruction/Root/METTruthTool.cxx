@@ -167,9 +167,13 @@ namespace met {
   bool METTruthTool::accept_intout(const xAOD::TruthParticle* truth) const
   {
     ATH_MSG_VERBOSE("Check intout");
-    // not in acceptance (calo or MS)
-    if( (truth->isMuon() && fabs(truth->eta())<m_truthmu_maxEta) ||
-	(fabs(truth->eta())<m_det_maxEta) ) return false;
+    // muon outside MS acceptance
+    if( truth->isMuon() ) {
+      if( fabs(truth->eta())<m_truthmu_maxEta) return false;
+    } else {
+      // other particle outside calo acceptance
+      if( (fabs(truth->eta())<m_det_maxEta) ) return false;
+    }
     // stable
     if(!MC::isGenStable(truth->status(),truth->barcode())) return false;
     // interacting
@@ -186,7 +190,7 @@ namespace met {
     // stable
     if(!MC::isGenStable(truth->status(),truth->barcode())) return false;
     // in acceptance
-    if(truth->pt()<m_truthmu_minPt && fabs(truth->eta())>m_truthmu_maxEta) return false;
+    if(truth->pt()<m_truthmu_minPt || fabs(truth->eta())>m_truthmu_maxEta) return false;
 
     return true;
   }
