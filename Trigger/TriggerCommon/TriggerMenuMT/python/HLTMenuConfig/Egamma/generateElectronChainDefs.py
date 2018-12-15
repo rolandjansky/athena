@@ -2,7 +2,7 @@
 
 from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import generateChain as generateElectronChain
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuUtils import splitChainDict
+from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
 #from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import Chain_electron as Chain_electron
 
 

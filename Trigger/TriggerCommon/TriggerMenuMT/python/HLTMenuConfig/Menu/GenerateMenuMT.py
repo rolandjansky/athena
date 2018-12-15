@@ -18,8 +18,8 @@ from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT  import TriggerConfigHLT
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import *
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import *
 from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuUtils import splitInterSignatureChainDict
-from TriggerMenuMT.HLTMenuConfig.Menu.Lumi import lumi
+from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitInterSignatureChainDict
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import MenuPrescaleConfig
 
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
 
@@ -189,9 +189,9 @@ class GenerateMenuMT:
 
     def setupMenu(self):
         # go over the slices and put together big list of signatures requested
-        #(L1Prescales, HLTPrescales, streamConfig) = lumi(self.triggerPythonConfig)
+        #(L1Prescales, HLTPrescales, streamConfig) = MenuPrescaleConfig(self.triggerPythonConfig)
         # that does not seem to work
-        #(self.L1Prescales, self.HLTPrescales) = lumi(self.triggerConfigHLT)
+        #(self.L1Prescales, self.HLTPrescales) = MenuPrescaleConfig(self.triggerConfigHLT)
         #return (self.HLTPrescales)
         pass
 
