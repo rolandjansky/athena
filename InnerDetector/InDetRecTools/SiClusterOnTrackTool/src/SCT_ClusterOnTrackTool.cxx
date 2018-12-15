@@ -17,8 +17,10 @@
 #include "TrkSurfaces/RectangleBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
 #include "TrkSurfaces/AnnulusBounds.h"
+#include "TrkSurfaces/AnnulusBoundsPC.h"
 #include "SCT_ReadoutGeometry/StripStereoAnnulusDesign.h"
 #include "InDetReadoutGeometry/SiCellId.h"
+#include <cmath>
 
 using CLHEP::micrometer;
 using CLHEP::deg;
@@ -161,10 +163,28 @@ const InDet::SCT_ClusterOnTrack* InDet::SCT_ClusterOnTrackTool::correct
   else if (boundsType == Trk::SurfaceBounds::Rectangle){ boundsy = (static_cast<const Trk::RectangleBounds *>(bounds))->halflengthY();}
 
   else if(boundsType == Trk::SurfaceBounds::Annulus){ //for annuli do something different, since we already have in-sensor stereo rotations which strip length accounts for
-    const InDetDD::SiCellId & lp = EL->cellIdOfPosition(SC->localPosition());
-    const InDetDD::StripStereoAnnulusDesign * design = static_cast<const InDetDD::StripStereoAnnulusDesign *> (&EL->design());
-    striphalflength = design->stripLength(lp) / 2.0;
-    if (distance > striphalflength) distance = striphalflength - 1; // subtract 1 to be consistent with below; no sure why this has to be so large...
+
+    // cartesian or polar coordinate annulus bounds?
+    const Trk::AnnulusBounds *abounds
+      = dynamic_cast<const Trk::AnnulusBounds *> (&trackPar.associatedSurface().bounds());
+    const Trk::AnnulusBoundsPC *aboundspc
+      = dynamic_cast<const Trk::AnnulusBoundsPC *> (&trackPar.associatedSurface().bounds());
+
+    if(aboundspc != nullptr) {
+      return correctAnnulusPC(SC, trackPar);
+    }
+    else if(abounds != nullptr) {
+      const InDetDD::SiCellId & lp = EL->cellIdOfPosition(SC->localPosition());
+      const InDetDD::StripStereoAnnulusDesign * design = static_cast<const InDetDD::StripStereoAnnulusDesign *> (&EL->design());
+      striphalflength = design->stripLength(lp) / 2.0;
+      if (distance > striphalflength) distance = striphalflength - 1; // subtract 1 to be consistent with below; no sure why this has to be so large...
+    }
+    else {
+      // this shouldn't really happen
+      ATH_MSG_ERROR("AnnulusBounds type is neither cartesian nor polar");
+      return 0;
+    }
+
   }
  else {
    ATH_MSG_ERROR("Undefined bounds! Strip position may be off-sensor!"); 
@@ -385,3 +405,91 @@ const InDet::SCT_ClusterOnTrack* InDet::SCT_ClusterOnTrackTool::correctAnnulus
 
   return new InDet::SCT_ClusterOnTrack (SC,locpar,cov,iH,glob,isbroad);
 } 
+
+const InDet::SCT_ClusterOnTrack* InDet::SCT_ClusterOnTrackTool::correctAnnulusPC
+    (const InDet::SCT_Cluster* SC, const Trk::TrackParameters& trackPar) const
+{
+  ATH_MSG_VERBOSE(name() << " " << __FUNCTION__);
+  if(!SC) return 0;
+  
+  const SCT_ID* sct_ID;
+  if (detStore()->retrieve(sct_ID, "SCT_ID").isFailure()) {
+    ATH_MSG_ERROR ( "Could not get SCT ID helper" );
+    throw std::runtime_error("Unable to get SCT_ID helper");
+  }
+
+  const InDetDD::SiDetectorElement* EL = SC->detectorElement(); if(!EL) return 0;
+
+  Trk::LocalParameters locpar(SC->localPosition()); // local parameters from cluster: CENTER
+  
+  const InDetDD::StripStereoAnnulusDesign *design 
+    = dynamic_cast<const InDetDD::StripStereoAnnulusDesign *> (&EL->design());
+  
+  if(design == nullptr) {
+    ATH_MSG_ERROR(__FUNCTION__ << " called with non AnnulusBounds");
+    return 0;
+  }
+
+  // get first and last strip and row from Cluster
+  const Identifier& firstStripId = SC->rdoList().front();
+  const Identifier& lastStripId = SC->rdoList().back();
+
+  int firstStrip = sct_ID->strip(firstStripId);
+  int firstStripRow = sct_ID->row(firstStripId);
+  int lastStrip = sct_ID->strip(lastStripId);
+  int lastStripRow = sct_ID->row(lastStripId);
+  
+  int clusterSizeFromId = lastStrip - firstStrip + 1;
+
+  // cell id from cluster
+  InDetDD::SiCellId lp = EL->cellIdOfPosition(SC->localPosition()); 
+  IdentifierHash iH = EL->identifyHash();
+
+  // use the original center lp to get pitch and length
+  double striplength = design->stripLength(lp); // in mm I assume
+  double pitch = design->phiPitchPhi(lp); // in units of phi
+
+  // build covariance
+  Amg::MatrixX cov(2,2);
+  cov.setZero();
+  cov(0, 0) = striplength*striplength / 12.;
+  cov(1, 1) = pitch*pitch / 12.;
+  
+  // ??
+  bool isbroad=(m_option_errorStrategy==0) ? true : false;
+
+  const InDet::SiWidth width = SC->width();
+  const Amg::Vector2D& colRow = width.colRow();
+
+  InDetDD::SiCellId clusterStartLp = design->strip1Dim(firstStrip, firstStripRow);
+
+  InDetDD::SiLocalPosition siLocPC = design->localPositionOfClusterPC(clusterStartLp, clusterSizeFromId);
+
+  // xPhi is phi, xEta is r
+  Amg::Vector2D locposPC(siLocPC.xEta(), siLocPC.xPhi());
+
+  // Apply Lorentz correction, it is given in Y direction of the design,
+  // which is xPhi, but straight line, and not curved. 
+  // Apply it as arc length now
+  // @TODO: This is not really correct
+  double shiftY = EL->getLorentzCorrection();
+  double shiftArc = shiftY / locposPC[0]; // phiLorentz = yLorentz / R
+  Amg::Vector2D lorentz(0, shiftArc);
+  locposPC += lorentz;
+
+  // build local parameters from measurement position
+  Trk::LocalParameters locparPC(locposPC);
+  
+  // use track parameters' surface for loc to glob
+  // that is the disc surface
+  const Trk::Surface* srf = &trackPar.associatedSurface();
+  const Amg::Vector3D* glob_ptr = trackPar.associatedSurface().localToGlobal(locposPC);
+
+  Amg::Vector3D glob = *glob_ptr;
+  delete glob_ptr;
+
+  InDet::SCT_ClusterOnTrack* cot = new InDet::SCT_ClusterOnTrack(SC, locparPC, cov, iH, glob, isbroad);
+  // note: cot has the original surface set. cot->associatedSurface() will return the XY plane surface,
+  // NOT the PC disc surface
+  return cot;
+}

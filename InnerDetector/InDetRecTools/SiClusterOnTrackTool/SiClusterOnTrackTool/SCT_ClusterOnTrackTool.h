@@ -103,6 +103,16 @@ public:
 
    // Correction for AnnulusBounds 
    const InDet::SCT_ClusterOnTrack* correctAnnulus(const InDet::SCT_Cluster*, const Trk::TrackParameters&) const; 
+
+   /// @brief Correction method for polar annulus bounds. 
+   /// Produces local polar coordinates from the cartesian measurement @c SC,
+   /// but links back to the original cluster. Expects that @c trackPar
+   /// links to a @c DiscSurface with @c AnnulusBoundsPC bounds on it.
+   /// Also assumes @c SC links to an instance @c StripStereoAnnulusBounds
+   /// @param SC The cartesian cluster to correct
+   /// @param trackPar Track parameters
+   const InDet::SCT_ClusterOnTrack* correctAnnulusPC
+    (const InDet::SCT_Cluster* SC, const Trk::TrackParameters& trackPar) const; 
 };
 
 } // end of namespace InDet

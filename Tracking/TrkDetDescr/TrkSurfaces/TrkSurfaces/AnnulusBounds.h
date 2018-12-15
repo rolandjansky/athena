@@ -27,6 +27,9 @@ typedef double TDD_real_t;
 
 namespace Trk {
 
+
+  class AnnulusBoundsPC;
+
   /** 
    @class AnnulusBounds
    Bounds for a annulus-like, planar Surface.
@@ -40,6 +43,8 @@ namespace Trk {
    */
 
   class AnnulusBounds : public SurfaceBounds {
+
+    friend AnnulusBoundsPC;
 
     public:
       /** @enum BoundValues - for readability */

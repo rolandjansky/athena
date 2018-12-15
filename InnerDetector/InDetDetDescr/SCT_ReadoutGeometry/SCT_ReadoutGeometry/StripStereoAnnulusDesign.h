@@ -95,6 +95,14 @@ public:
     double phiPitch(const SiCellId &cellId) const;
     double phiPitch() const;
 
+
+    // above methods return mm
+    // Use these methods if you're working with polar coordinates
+    // AnnulusBoundsPC, in all other cases use phiPitch() from above
+    double phiPitchPhi(const SiLocalPosition &localPosition) const;
+    double phiPitchPhi(const SiCellId &cellId) const;
+    double phiPitchPhi() const;
+
     // distance to the nearest diode in units of pitch, from 0.0 to 0.5,
     // this method should be fast as it is called for every surface charge
     // in the SCT_SurfaceChargesGenerator
@@ -105,6 +113,12 @@ public:
     SiDiodesParameters parameters(const SiCellId &cellId) const;
     SiLocalPosition localPositionOfCell(const SiCellId &cellId) const;
     SiLocalPosition localPositionOfCluster(const SiCellId &cellId, int clusterSize) const;
+    
+    // these return local position in STRIP PC
+    // Use only if you work with the polar coordinates, in all other
+    // cases, use the un-suffixes methods above
+    SiLocalPosition localPositionOfCellPC(const SiCellId &cellId) const;
+    SiLocalPosition localPositionOfClusterPC(const SiCellId &cellId, int clusterSize) const;
 
     // position -> id
     SiCellId cellIdOfPosition(const SiLocalPosition &localPos) const;
@@ -224,6 +238,24 @@ inline double StripStereoAnnulusDesign::phiPitch() const {
     const int middleRow = m_nRows / 2;
     const int middleStrip = m_nStrips[middleRow] / 2; 
     return phiPitch(SiCellId(middleStrip, middleRow));
+}
+
+inline double StripStereoAnnulusDesign::phiPitchPhi(const SiLocalPosition &pos) const {
+  // even though SiLocalPosition might not be in PC, the etaIndex should be correct
+  const SiCellId cellId = cellIdOfPosition(pos);
+  const int row = cellId.etaIndex();
+  return m_pitch[row];
+}
+
+inline double StripStereoAnnulusDesign::phiPitchPhi(const SiCellId &cellId) const {
+  const int row = cellId.etaIndex();
+  return m_pitch[row];
+}
+
+inline double StripStereoAnnulusDesign::phiPitchPhi() const {
+  const int middleRow = m_nRows / 2;
+  const int middleStrip = m_nStrips[middleRow] / 2; 
+  return phiPitchPhi(SiCellId(middleStrip, middleRow));
 }
 
 /*

@@ -217,6 +217,44 @@ SiLocalPosition StripStereoAnnulusDesign::localPositionOfCluster(SiCellId const 
     return (startPos + endPos) / 2.0;
 }
 
+SiLocalPosition StripStereoAnnulusDesign::localPositionOfCellPC(SiCellId const &cellId) const {
+  
+    int strip, row;
+    getStripRow(cellId, &strip, &row);
+    // this is the radius in the module / radial system
+    double r = (m_stripEndRadius[row] + m_stripStartRadius[row]) / 2.;
+
+    // get phi of strip in the strip system
+    double phiPrime = (strip - m_nStrips[row] / 2. + 0.5) * m_pitch[row];
+
+    double b = -2. * m_lengthBF * sin(m_stereo/2. + phiPrime);
+    double c = m_lengthBF * m_lengthBF - r * r;
+    // this is the radius in the strip system
+    double rPrime = (-b + sqrt(b * b - 4. * c))/2.;
+
+    // flip this, since coordinate system is defined the other way round
+    double phi = -1*phiPrime;
+
+    // xEta => r, xPhi = phi
+    return SiLocalPosition(rPrime, phi); 
+}
+
+SiLocalPosition StripStereoAnnulusDesign::localPositionOfClusterPC(SiCellId const &cellId, int clusterSize) const {
+    SiLocalPosition startPos = localPositionOfCellPC(cellId);
+
+    if (clusterSize <= 1) {
+        return startPos;
+    }
+
+    int strip, row;
+    getStripRow(cellId, &strip, &row);
+    int stripEnd = strip + clusterSize - 1;
+    SiCellId endId = strip1Dim(stripEnd, row);
+    SiLocalPosition endPos = localPositionOfCellPC(endId);
+
+    return (startPos + endPos) / 2.0;
+}
+
 /// Give end points of the strip that covers the given position
 std::pair<SiLocalPosition, SiLocalPosition> StripStereoAnnulusDesign::endsOfStrip(SiLocalPosition const &pos) const {
 
