@@ -207,17 +207,14 @@ def muEFCBStep():
     from TrigUpgradeTest.MuonSetup import muEFCBRecoSequence
     muEFCBRecoSequence, sequenceOut = muEFCBRecoSequence( efcbViewsMaker.InViewRoIs, OutputLevel=DEBUG )
  
-    efsaViewsMaker.ViewNodeName = muEFSARecoSequence.name()
+    efcbViewsMaker.ViewNodeName = muEFCBRecoSequence.name()
     
     
     # setup EFCB hypo
     from TrigMuonHypo.TrigMuonHypoConfigMT import TrigMuonEFCombinerHypoConfig
     trigMuonEFCBHypo = TrigMuonEFCombinerHypoConfig( "TrigMuonEFCombinerHypoAlg" )
     trigMuonEFCBHypo.OutputLevel = DEBUG
-    print "muEFCBInfo "
-    print muEFCBInfo
-    trigMuonEFCBHypo.MuonDecisions = muEFCBInfo
-    print 
+    trigMuonEFCBHypo.MuonDecisions = sequenceOut
     
     muonEFCBSequence = seqAND( "muonEFCBSequence", [efcbViewsMaker, efcbViewNode] )
     

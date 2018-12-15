@@ -580,14 +580,14 @@ def muEFCBRecoSequence( RoIs, OutputLevel=INFO ):
 
   from AthenaCommon.CfgGetter import getPublicTool, getPublicToolClone
   from AthenaCommon import CfgMgr
-  
-  efAlgs = [] 
+  from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
 
+  efAlgs = [] 
+  muEFCBRecoSequence = parOR("efcbViewNode")
   #Need ID tracking related objects and MS tracks from previous steps
   ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("muonCBViewDataVerifier")
   ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+xAODTracks' ),( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData' ), ( 'InDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ), ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),( 'xAOD::IParticleContainer' , 'StoreGateSvc+xAODTracks' ),( 'SCT_ByteStreamFractionContainer' , 'StoreGateSvc+SCT_ByteStreamFrac' ),( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),  ( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),  ( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+MuonSpectrometerTrackParticles' ) ]
-  efcbViewNode += ViewVerifyTrk
-  muEFCBRecoSequence += ViewVerify
+  muEFCBRecoSequence += ViewVerifyTrk
 
   #Make InDetCandidates
   theIndetCandidateAlg = CfgMgr.MuonCombinedInDetCandidateAlg("TrigMuonCombinedInDetCandidateAlg",TrackSelector=getPublicTool("MuonCombinedInDetDetailedTrackSelectorTool"),TrackParticleLocation = ["xAODTracks"],ForwardParticleLocation="xAODTracks",OutputLevel=DEBUG)
@@ -635,7 +635,6 @@ def muEFCBRecoSequence( RoIs, OutputLevel=INFO ):
   themuoncbcreatoralg.ClusterContainerName=""
   themuoncbcreatoralg.MuonContainerLocation = "CBMuons"
   themuoncbcreatoralg.SegmentContainerName = "CBSegments"
-  themuoncbcreatoralg.CombinedTrackLocation = "CBCombinedMuons"
   themuoncbcreatoralg.ExtrapolatedLocation = "CBExtrapolatedMuons"
   themuoncbcreatoralg.MSOnlyExtrapolatedLocation = "CBMSOnlyExtrapolatedMuons"
   themuoncbcreatoralg.CombinedLocation = "CBCombinedMuon"
