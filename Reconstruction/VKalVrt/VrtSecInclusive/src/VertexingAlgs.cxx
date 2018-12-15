@@ -1422,6 +1422,8 @@ namespace VKalVrtAthena {
     // Output SVs as xAOD::Vertex
     // Needs a conversion function from workVerticesContainer to xAOD::Vertex here.
     // The supposed form of the function will be as follows:
+    
+    try {
 
     xAOD::VertexContainer *secondaryVertexContainer( nullptr );
     ATH_CHECK( evtStore()->retrieve( secondaryVertexContainer, "VrtSecInclusive_" + m_jp.secondaryVerticesContainerName + m_jp.augVerString ) );
@@ -1480,22 +1482,28 @@ namespace VKalVrtAthena {
       
       // Remove track if the vertex is inner than IBL and the track does not have pixel hits!
       if( wrkvrt.vertex.perp() < 31.0 ) {
-        for( auto& index : wrkvrt.selectedTrackIndices ) {
-          auto *trk = m_selectedTracks->at( index );
-          uint8_t nPixelHits { 0 }; trk->summaryValue( nPixelHits,  xAOD::numberOfPixelHits );
-          if(  nPixelHits < 3 ) {
-            wrkvrt.selectedTrackIndices.erase( wrkvrt.selectedTrackIndices.begin() + index ); //remove track
-          }
-        }
-        for( auto& index : wrkvrt.associatedTrackIndices ) {
-          auto *trk = m_associatedTracks->at( index );
-          uint8_t nPixelHits { 0 }; trk->summaryValue( nPixelHits,  xAOD::numberOfPixelHits );
-          if(  nPixelHits < 3 ) {
-            wrkvrt.associatedTrackIndices.erase( wrkvrt.associatedTrackIndices.begin() + index ); //remove track
-          }
-        }
+        
+        // for selected tracks
+        wrkvrt.selectedTrackIndices.erase( std::remove_if( wrkvrt.selectedTrackIndices.begin(), wrkvrt.selectedTrackIndices.end(),
+                                                           [&]( auto& index ) {
+                                                             auto* trk = m_selectedTracks->at( index );
+                                                             uint8_t nPixelHits { 0 }; trk->summaryValue( nPixelHits,  xAOD::numberOfPixelHits );
+                                                             return ( nPixelHits < 3 );
+                                                           } ),
+                                           wrkvrt.selectedTrackIndices.end() );
+        
+        // for associated tracks
+        wrkvrt.associatedTrackIndices.erase( std::remove_if( wrkvrt.associatedTrackIndices.begin(), wrkvrt.associatedTrackIndices.end(),
+                                                             [&]( auto& index ) {
+                                                               auto* trk = m_associatedTracks->at( index );
+                                                               uint8_t nPixelHits { 0 }; trk->summaryValue( nPixelHits,  xAOD::numberOfPixelHits );
+                                                               return ( nPixelHits < 3 );
+                                                             } ),
+                                             wrkvrt.associatedTrackIndices.end() );
+
         auto statusCode = refitVertex( wrkvrt );
         if( statusCode.isFailure() ) {}
+        
       }
       
       
@@ -1853,7 +1861,21 @@ namespace VKalVrtAthena {
     // Post process -- Additional augmentations
     if( m_jp.doAugmentDVimpactParametersToMuons     ) { ATH_CHECK( augmentDVimpactParametersToLeptons<xAOD::Muon>    ( "Muons"     ) ); }
     if( m_jp.doAugmentDVimpactParametersToElectrons ) { ATH_CHECK( augmentDVimpactParametersToLeptons<xAOD::Electron>( "Electrons" ) ); }
+    
+    } catch (const std::out_of_range& e) {
+      
+      ATH_MSG_WARNING( " > " << __FUNCTION__ << ": out of range error is detected: " << e.what()  );
+      
+      return StatusCode::SUCCESS;
+      
+    } catch( ... ) {
 
+      ATH_MSG_WARNING( " > " << __FUNCTION__ << ": some other error is detected."  );
+      
+      return StatusCode::SUCCESS;
+      
+    }
+      
     return StatusCode::SUCCESS;
   }
   

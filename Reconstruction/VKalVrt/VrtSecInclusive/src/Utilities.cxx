@@ -9,6 +9,7 @@
 
 #include "TrkTrackSummary/TrackSummary.h"
 
+#include <xAODEventInfo/EventInfo.h>
 #include <xAODTruth/TruthParticleContainer.h>
 #include <xAODTruth/TruthVertexContainer.h>
 
@@ -2320,8 +2321,16 @@ namespace VKalVrtAthena {
   //____________________________________________________________________________________________________
   void VrtSecInclusive::dumpTruthInformation() {
     
+    const xAOD::EventInfo*              eventInfo      { nullptr };
     const xAOD::TruthParticleContainer* truthParticles { nullptr };
     const xAOD::TruthVertexContainer*   truthVertices  { nullptr };
+    
+    auto sc0 = evtStore()->retrieve( eventInfo, "EventInfo" );
+    if( sc0.isFailure() ) { return; }
+    
+    if( eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ) {
+      return;
+    }
     
     auto sc1 = evtStore()->retrieve( truthParticles, "TruthParticles" );
     if( sc1.isFailure() ) { return; }
