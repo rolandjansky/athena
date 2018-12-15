@@ -6,9 +6,12 @@
 #define MMTRIGGERTOOL_H
 
 //basic includes
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/IIncidentListener.h"
 
 //local includes
 #include "TrigT1NSWSimTools/IMMTriggerTool.h"
+
 
 
 //forward declarations
