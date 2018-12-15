@@ -2,6 +2,10 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
+// local includes
+#include "TrigT1NSWSimTools/MMTriggerTool.h"
+#include "TrigT1NSWSimTools/MMT_Finder.h"
+#include "TrigT1NSWSimTools/MMT_Fitter.h"
 // Athena/Gaudi includes
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
@@ -11,8 +15,7 @@
 //Muon software includes
 #include "MuonDigitContainer/MmDigit.h"
 
-// local includes
-#include "TrigT1NSWSimTools/MMTriggerTool.h"
+
 
 //Event info includes
 #include "EventInfo/EventInfo.h"
