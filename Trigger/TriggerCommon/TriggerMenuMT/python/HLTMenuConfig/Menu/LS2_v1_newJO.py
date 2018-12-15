@@ -25,10 +25,11 @@ def setupMenu(flags):
     #---------------------------------------------------------------------
 
 
-    # flags.Trigger.menu.muons = [
-    #     get_flag_item('mu20', 'L1_MU10', ['RATE:SingleMuon', 'BW:Muon']),
-    #     get_flag_item('mu8', 'L1_MU6', ['RATE:SingleMuon', 'BW:Muon'])
-    # ]
+    flags.Trigger.menu.muon = [
+        get_flag_item('HLT_mu20', 'L1_MU20', ['RATE:SingleMuon', 'BW:Muon']),
+        get_flag_item('HLT_mu10', 'L1_MU10', ['RATE:SingleMuon', 'BW:Muon']),
+        get_flag_item('HLT_mu8', 'L1_MU6', ['RATE:SingleMuon', 'BW:Muon'])
+    ]
 
     flags.Trigger.menu.electron = [
         get_flag_item('HLT_e3_etcut', 'L1_EM3', ['RATE:SingleElectron', 'BW:Electron']),

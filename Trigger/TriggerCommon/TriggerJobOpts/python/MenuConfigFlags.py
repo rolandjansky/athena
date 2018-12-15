@@ -11,7 +11,8 @@ def createMenuFlags():
     # each flag is translated to an independent reconstruction chain
     flags = AthConfigFlags()
 
-    flags.addFlag('Trigger.menu.muons', [])
+    #flags.addFlag('Trigger.menu.muons', [])
+    flags.addFlag('Trigger.menu.muon', [])
     flags.addFlag('Trigger.menu.electron', [])
     flags.addFlag('Trigger.menu.photon', [])
     flags.addFlag('Trigger.menu.combined', [])

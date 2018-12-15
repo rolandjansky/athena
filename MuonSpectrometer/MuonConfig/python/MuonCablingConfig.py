@@ -71,6 +71,63 @@ def TGCCablingConfigCfg(flags):
     acc.merge(addFolders(flags, ['/TGC/CABLING/MAP_SCHEMA','/TGC/CABLING/MAP_SCHEMA'], 'TGC'))
     return acc, TGCCablingSvc
 
+# This should be checked by experts since I just wrote it based on 
+# athena/MuonSpectrometer/MuonCnv/MuonCnvExample/python/MuonCablingConfig.py
+def MDTCablingConfigCfg(flags):
+    acc = ComponentAccumulator()
+    
+    acc.merge(MuonGeoModelCfg(flags)) 
+
+    from MuonMDT_Cabling.MuonMDT_CablingConf import MuonMDT_CablingAlg
+    MDTCablingAlg = MuonMDT_CablingAlg("MuonMDT_CablingAlg")
+
+    from MuonMDT_Cabling.MuonMDT_CablingConf import MuonMDT_CablingSvc
+    mdtCablingSvc = MuonMDT_CablingSvc()
+    mdtCablingSvc.UseOldCabling = False
+    mdtCablingSvc.ForcedUse = True
+
+    from MDT_CondCabling.MDT_CondCablingConf import MDTCablingDbTool
+    MDTCablingDbTool = MDTCablingDbTool()
+
+    from IOVDbSvc.IOVDbSvcConfig import addFolders
+    if flags.Input.isMC == True:
+        MDTCablingDbTool.MapFolders = "/MDT/Ofl/CABLING/MAP_SCHEMA"
+        MDTCablingDbTool.MezzanineFolders  = "/MDT/Ofl/CABLING/MEZZANINE_SCHEMA"
+        MDTCablingAlg.MapFolders = "/MDT/Ofl/CABLING/MAP_SCHEMA" 
+        MDTCablingAlg.MezzanineFolders    = "/MDT/Ofl/CABLING/MEZZANINE_SCHEMA" 
+        acc.merge( addFolders( flags, ["/MDT/Ofl/CABLING/MAP_SCHEMA",
+                                           "/MDT/Ofl/CABLING/MEZZANINE_SCHEMA"], 'MDT_OFL', className="CondAttrListCollection") )
+    else:
+        MDTCablingDbTool.MapFolders = "/MDT/CABLING/MAP_SCHEMA"
+        MDTCablingDbTool.MezzanineFolders  = "/MDT/CABLING/MEZZANINE_SCHEMA"
+        MDTCablingAlg.MapFolders = "/MDT/CABLING/MAP_SCHEMA" 
+        MDTCablingAlg.MezzanineFolders    = "/MDT/CABLING/MEZZANINE_SCHEMA" 
+        acc.merge( addFolders( flags, ["/MDT/CABLING/MAP_SCHEMA",
+                                           "/MDT/CABLING/MEZZANINE_SCHEMA"], 'MDT', className="CondAttrListCollection") )
+
+    acc.addCondAlgo( MDTCablingAlg )
+    acc.addPublicTool( MDTCablingDbTool )
+    mdtCablingSvc.DBTool = MDTCablingDbTool
+
+    acc.addService( mdtCablingSvc )
+
+    return acc, mdtCablingSvc
+
+
+# This should be checked by experts 
+def CSCCablingConfigCfg(flags):
+    acc = ComponentAccumulator()
+    
+    acc.merge(MuonGeoModelCfg(flags)) 
+
+    from CSCcabling.CSCcablingConf import CSCcablingSvc
+    cscCablingSvc = CSCcablingSvc()
+
+    acc.addService( cscCablingSvc )
+
+    return acc, cscCablingSvc
+
+  
 if __name__ == '__main__':
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
@@ -90,8 +147,14 @@ if __name__ == '__main__':
     result,svc = TGCCablingConfigCfg(ConfigFlags)
     acc.merge( result )
 
+    result,svc = MDTCablingConfigCfg(ConfigFlags)
+    acc.merge( result )
+
+    result,svc = CSCCablingConfigCfg(ConfigFlags)
+    acc.merge( result )
+
     f=open('MuonCabling.pkl','w')
     acc.store(f)
     f.close()
 
-    
+

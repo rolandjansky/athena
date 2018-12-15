@@ -26,5 +26,5 @@ else
     echo
     echo "JOs reading stage finished, launching Athena from pickle file"
     echo 
-    athena --evtMax=20 newJOtest.pkl
+    athena --skipEvents=30 --evtMax=20 newJOtest.pkl
 fi
