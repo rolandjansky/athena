@@ -2,6 +2,8 @@
 
 # Based on : https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonCnv/MuonCnvExample/python/MuonCalibConfig.py
 
+from MuonCondSvc.MuonCondSvcConf import MuonCalib__CscCoolStrSvc
+from CscCalibTools.CscCalibToolsConf import CscCalibTool
 from MdtCalibSvc.MdtCalibSvcConf import MdtCalibrationDbSvc, MdtCalibrationSvc
 from MdtCalibDbCoolStrTool.MdtCalibDbCoolStrToolConf import MuonCalib__MdtCalibDbCoolStrTool
 from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber, mdtCalibWindowName, specialAddFolderSplitOnline # TODO should maybe shift this elsewhere?
@@ -14,88 +16,7 @@ from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 # CSC calibration
 ################################################################################
 
-# def setupCscCondDB():
-#     # Access to the CSC calibration database
-#     # Copied and modified from:
-#     # include( "CscCalibTools/CscCalibTool_jobOptions.py" )
-#     from MuonCondSvc.CscCondDB import cscCondDB
 #
-#     ## Load Ped File
-#     if cscCalibFlags.CscPedFromLocalFile:
-#         cscCondDB.useLocalFile( True )     #All following "add" db folder commands are from local files
-#         cscCondDB.addPedFolder()    #<--- Adds pedestal and noise folders
-#         cscCondDB.useLocalFile( False )     #To make sure to stop refering to local sqlite DB file
-#     else:
-#         cscCondDB.addPedFolder()    #<--- Adds pedestal and noise folders
-#
-#     ## Load Noise File
-#     if cscCalibFlags.CscNoiseFromLocalFile:
-#         cscCondDB.useLocalFile( True )     #All following "add" db folder commands are from local files
-#         cscCondDB.addNoiseFolder()    #<--- Adds pedestal and noise folders
-#         cscCondDB.useLocalFile( False )     #To make sure to stop refering to local sqlite DB file
-#     else:
-#         cscCondDB.addNoiseFolder()    #<--- Adds pedestal and noise folders
-#
-#     ## Load PSlope File
-#     if cscCalibFlags.CscPSlopeFromLocalFile:
-#         cscCondDB.useLocalFile( True )     #All following "add" db folder commands are from local files
-#         cscCondDB.addPSlopeFolder()    #<--- Adds pedestal and noise folders
-#         cscCondDB.useLocalFile( False )     #To make sure to stop refering to local sqlite DB file
-#     else:
-#         cscCondDB.addPSlopeFolder()    #<--- Adds pedestal and noise folders
-#
-#     ## Load Status File
-#     if cscCalibFlags.CscStatusFromLocalFile:
-#         cscCondDB.useLocalFile( True )     #All following "add" db folder commands are from local files
-#         cscCondDB.addStatusFolder()    #<--- Adds pedestal and noise folders
-#         cscCondDB.useLocalFile( False )     #To make sure to stop refering to local sqlite DB file
-#     else:
-#         cscCondDB.addStatusFolder()    #<--- Adds pedestal and noise folders
-#
-#     ## Load Rms File
-#     if cscCalibFlags.CscRmsFromLocalFile:
-#         cscCondDB.useLocalFile( True )     #All following "add" db folder commands are from local files
-#         cscCondDB.addRmsFolder()    #<--- Adds pedestal and noise folders
-#         cscCondDB.useLocalFile( False )     #To make sure to stop refering to local sqlite DB file
-#     else:
-#         cscCondDB.addRmsFolder()    #<--- Adds pedestal and noise folders
-#
-#     ## Load F001 File
-#     if cscCalibFlags.CscF001FromLocalFile:
-#         cscCondDB.useLocalFile( True )     #All following "add" db folder commands are from local files
-#         cscCondDB.addF001Folder()
-#         cscCondDB.useLocalFile( False )     #To make sure to stop refering to local sqlite DB file
-#     else:
-#         cscCondDB.addF001Folder()
-#
-#
-#     if not athenaCommonFlags.isOnline():
-#         log = logging.getLogger(__name__+".setupCscCondDB()")
-#         log.info("This is for OffLine so T0Base and T0Phase folders are added!!")
-#
-#         ## Load T0Base File
-#         if cscCalibFlags.CscT0BaseFromLocalFile:
-#             cscCondDB.useLocalFile( True )     #All following "add" db folder commands are from local files
-#             cscCondDB.addT0BaseFolder()
-#             cscCondDB.useLocalFile( False )     #To make sure to stop refering to local sqlite DB file
-#         else:
-#             cscCondDB.addT0BaseFolder()
-#
-#
-#         ## Load T0Phase File
-#         if cscCalibFlags.CscT0PhaseFromLocalFile:
-#             cscCondDB.useLocalFile( True )     #All following "add" db folder commands are from local files
-#             cscCondDB.addT0PhaseFolder()
-#             cscCondDB.useLocalFile( False )     #To make sure to stop refering to local sqlite DB file
-#         else:
-#             cscCondDB.addT0PhaseFolder()
-#
-#     #cscCondDB.addPedFolders()    #<--- Adds pedestal and noise folders
-#     #cscCondDB.addAllFolders()
-#
-# # end of function setupCscCondDB()
-#
-# #
 # def CscCalibTool(name,**kwargs):
 #     # setup condDB folders
 #     setupCscCondDB()
@@ -116,6 +37,323 @@ from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 #         )
 #     #               timeOffset=46.825) + 25 SimHIT digit time
 
+def _setupCscCondDB( flags, name, key, dataType, cat, default, folder, database, useLocal, override="" ):
+
+    # The followng codes should be cleaned up by CSC experts, 
+    #   since they quate a few verses from the following two files
+    #   https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonCnv/MuonCnvExample/python/MuonCalibConfig.py
+    #   https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondSvc/python/CscCondDB.py
+
+    acc = ComponentAccumulator()
+
+    # This need to adapt FolderSuffix variable
+    #fullSuffix = " <key>" + key + "</key> " + self.FolderSuffix
+    fullSuffix = " <key>" + key + "</key> "
+
+    oflFolderString = '/CSC/' + folder + fullSuffix
+    onlFolderString = '/CSC/ONL/' + folder + fullSuffix
+
+    if useLocal:
+        #assume when local, the folder will be in offline location. 
+        #Maybe add more options in future
+        acc.merge( addFolders( flags, oflFolderString, "LOCAL" ) )
+    elif database=='CSC':
+        acc.merge( addFoldersSplitOnline( flags, database, onlFolderString, oflFolderString ) )
+    elif database=='CSC_OFL':
+        acc.merge( addFolders( flags, oflFolderString, database ) )
+    else:
+        print "Failed to recognize database: " + database + " for parameter " + name
+        return acc 
+
+    if override:
+        if useLocal:
+            #assume when local, the folder will be in offline location. 
+            #Maybe add more options in future
+            overfolder = oflFolderString.split()[0] #Get folder without suffix
+        elif datebase=='CSC':
+            if flags.Common.isOnline:
+                overfolder = onlFolderString.split()[0] #Get folder without suffix
+            else:
+                overfolder = oflFolderString.split()[0] #Get folder without suffix
+        elif database=='CSC_OFL':
+            overfolder = oflFolderString.split()[0] #Get folder without suffix
+        else:
+            print "Failed to recognize database: " + database + " for parameter " + name
+            return acc
+        print "Overriding folder for " + name + "(" + overfolder + ") to " + override 
+        #acc.merge( addOverride( flags, overfolder, override ) )
+
+    return acc
+
+def CscCoolStrSvcCfg( flags ):
+
+    acc = ComponentAccumulator()
+
+    # used folders
+    pslopeFolder    = "PSLOPE"   # Pulser run gain
+    pedFolder       = "PED"      # Pedestals
+    noiseFolder     = "NOISE"    # Noise (Sigma from pedestal gaussian fit)
+    rmsFolder       = "RMS"      # Rms of pedestal histograms (not from fit)
+    f001Folder      = "FTHOLD"   # F001 threshold values
+    statusFolder    = "STAT"     # Status Bits
+    t0baseFolder    = "T0BASE"
+    t0phaseFolder   = "T0PHASE"
+
+    # unused folders
+    gainFolder      = "GAIN"
+    runSlopeFolder  = "RSLOPE"
+    tholdFolder     = "THOLD"
+    peaktFolder     = "PEAKT"
+    widthFolder     = "WIDTH"
+    sat1Folder      = "SAT1"
+    sat2Folder      = "SAT2"
+
+    # Set CscCoolStr Svc to prepare condDB for pedestal, noise and so on
+    CscCoolStrSvc = MuonCalib__CscCoolStrSvc()
+    acc.addService( CscCoolStrSvc )
+ 
+    # The followng codes should be cleaned up by CSC experts, 
+    #   since they quate a few verses from the following two files
+    #   https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonCnv/MuonCnvExample/python/MuonCalibConfig.py
+    #   https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondSvc/python/CscCondDB.py
+
+    # Adds pedestal and noise folders
+    if flags.Muon.Calib.CscPedFromLocalFile:
+        acc.merge(  _setupCscCondDB( flags, name="ped", key="CSC_PED", dataType="float", cat="CHANNEL", 
+                                     default="2048", folder=pedFolder, database="CSC", useLocal=True, override="" ) )
+
+        CscCoolStrSvc.ParNames.append( "ped" )
+        CscCoolStrSvc.ParSGKeys.append( "CSC_PED" )
+        CscCoolStrSvc.ParDataTypes.append( "float" )
+        CscCoolStrSvc.ParCats.append( "CHANNEL" )
+        CscCoolStrSvc.ParDefaults.append( "2048" )
+
+        if flags.Common.isOnline:
+            CscCoolStrSvc.ParFolders.append('/CSC/ONL/' + pedFolder)
+        else:
+            CscCoolStrSvc.ParFolders.append('/CSC/' + pedFolder)
+
+    else:
+        acc.merge(  _setupCscCondDB( flags, name="ped", key="CSC_PED", dataType="float", cat="CHANNEL", 
+                                     default="2048", folder=pedFolder, database="CSC", useLocal=False, override="" ) )
+
+        CscCoolStrSvc.ParNames.append( "ped" )
+        CscCoolStrSvc.ParSGKeys.append( "CSC_PED" )
+        CscCoolStrSvc.ParDataTypes.append( "float" )
+        CscCoolStrSvc.ParCats.append( "CHANNEL" )
+        CscCoolStrSvc.ParDefaults.append( "2048" )
+
+        if flags.Common.isOnline:
+            CscCoolStrSvc.ParFolders.append('/CSC/ONL/' + pedFolder)
+        else:
+            CscCoolStrSvc.ParFolders.append('/CSC/' + pedFolder)
+
+    # Load Noise File
+    if flags.Muon.Calib.CscNoiseFromLocalFile:
+        acc.merge(  _setupCscCondDB( flags, name="noise", key="CSC_NOISE", dataType="float", cat="CHANNEL", 
+                                     default="3.5", folder=noiseFolder, database="CSC", useLocal=True, override="" ) )
+
+        CscCoolStrSvc.ParNames.append( "noise" )
+        CscCoolStrSvc.ParSGKeys.append( "CSC_NOISE" )
+        CscCoolStrSvc.ParDataTypes.append( "float" )
+        CscCoolStrSvc.ParCats.append( "CHANNEL" )
+        CscCoolStrSvc.ParDefaults.append( "3.5" )
+
+        if flags.Common.isOnline:
+            CscCoolStrSvc.ParFolders.append('/CSC/ONL/' + noiseFolder)
+        else:
+            CscCoolStrSvc.ParFolders.append('/CSC/' + noiseFolder)
+
+    else:
+        acc.merge(  _setupCscCondDB( flags, name="noise", key="CSC_NOISE", dataType="float", cat="CHANNEL", 
+                                     default="3.5", folder=noiseFolder, database="CSC", useLocal=False, override="" ) )
+
+        CscCoolStrSvc.ParNames.append( "noise" )
+        CscCoolStrSvc.ParSGKeys.append( "CSC_NOISE" )
+        CscCoolStrSvc.ParDataTypes.append( "float" )
+        CscCoolStrSvc.ParCats.append( "CHANNEL" )
+        CscCoolStrSvc.ParDefaults.append( "3.5" )
+
+        if flags.Common.isOnline:
+            CscCoolStrSvc.ParFolders.append('/CSC/ONL/' + noiseFolder)
+        else:
+            CscCoolStrSvc.ParFolders.append('/CSC/' + noiseFolder)
+
+    ### Load PSlope File
+    if flags.Muon.Calib.CscPSlopeFromLocalFile:
+        acc.merge(  _setupCscCondDB( flags, name="pslope", key="CSC_PSLOPE", dataType="float", cat="CHANNEL", 
+                                     default="0.189", folder=pslopeFolder, database="CSC", useLocal=True, override="" ) )
+
+        CscCoolStrSvc.ParNames.append( "pslope" )
+        CscCoolStrSvc.ParSGKeys.append( "CSC_PSLOPE" )
+        CscCoolStrSvc.ParDataTypes.append( "float" )
+        CscCoolStrSvc.ParCats.append( "CHANNEL" )
+        CscCoolStrSvc.ParDefaults.append( "0.189" )
+
+        if flags.Common.isOnline:
+            CscCoolStrSvc.ParFolders.append('/CSC/ONL/' + pslopeFolder)
+        else:
+            CscCoolStrSvc.ParFolders.append('/CSC/' + pslopeFolder)
+ 
+    else:
+        acc.merge(  _setupCscCondDB( flags, name="pslope", key="CSC_PSLOPE", dataType="float", cat="CHANNEL", 
+                                     default="0.189", folder=pslopeFolder, database="CSC", useLocal=False, override="" ) )
+
+        CscCoolStrSvc.ParNames.append( "pslope" )
+        CscCoolStrSvc.ParSGKeys.append( "CSC_PSLOPE" )
+        CscCoolStrSvc.ParDataTypes.append( "float" )
+        CscCoolStrSvc.ParCats.append( "CHANNEL" )
+        CscCoolStrSvc.ParDefaults.append( "0.189" )
+
+        if flags.Common.isOnline:
+            CscCoolStrSvc.ParFolders.append('/CSC/ONL/' + pslopeFolder)
+        else:
+            CscCoolStrSvc.ParFolders.append('/CSC/' + pslopeFolder)
+
+    ## Load Status File
+    if flags.Muon.Calib.CscStatusFromLocalFile:
+        acc.merge(  _setupCscCondDB( flags, name="status", key="CSC_STAT", dataType="uint32_t", cat="CHANNEL", 
+                                     default="0", folder=statusFolder, database="CSC", useLocal=True, override="" ) )
+
+        CscCoolStrSvc.ParNames.append( "status" )
+        CscCoolStrSvc.ParSGKeys.append( "CSC_STAT" )
+        CscCoolStrSvc.ParDataTypes.append( "uint32_t" )
+        CscCoolStrSvc.ParCats.append( "CHANNEL" )
+        CscCoolStrSvc.ParDefaults.append( "0" )
+
+        if flags.Common.isOnline:
+            CscCoolStrSvc.ParFolders.append('/CSC/ONL/' + statusFolder)
+        else:
+            CscCoolStrSvc.ParFolders.append('/CSC/' + statusFolder)
+
+    else:
+        acc.merge(  _setupCscCondDB( flags, name="status", key="CSC_STAT", dataType="uint32_t", cat="CHANNEL", 
+                                     default="0", folder=statusFolder, database="CSC", useLocal=False, override="" ) )
+
+        CscCoolStrSvc.ParNames.append( "status" )
+        CscCoolStrSvc.ParSGKeys.append( "CSC_STAT" )
+        CscCoolStrSvc.ParDataTypes.append( "uint32_t" )
+        CscCoolStrSvc.ParCats.append( "CHANNEL" )
+        CscCoolStrSvc.ParDefaults.append( "0" )
+
+        if flags.Common.isOnline:
+            CscCoolStrSvc.ParFolders.append('/CSC/ONL/' + statusFolder)
+        else:
+            CscCoolStrSvc.ParFolders.append('/CSC/' + statusFolder)
+
+    ## Load Rms File
+    if flags.Muon.Calib.CscRmsFromLocalFile:
+        acc.merge(  _setupCscCondDB( flags, name="rms", key="CSC_RMS", dataType="float", cat="CHANNEL", 
+                                     default="2.56", folder=rmsFolder, database="CSC", useLocal=True, override="" ) )
+
+        CscCoolStrSvc.ParNames.append( "rms" )
+        CscCoolStrSvc.ParSGKeys.append( "CSC_RMS" )
+        CscCoolStrSvc.ParDataTypes.append( "float" )
+        CscCoolStrSvc.ParCats.append( "CHANNEL" )
+        CscCoolStrSvc.ParDefaults.append( "2.56" )
+
+        if flags.Common.isOnline:
+            CscCoolStrSvc.ParFolders.append('/CSC/ONL/' + rmsFolder)
+        else:
+            CscCoolStrSvc.ParFolders.append('/CSC/' + rmsFolder)
+
+    else:
+        acc.merge(  _setupCscCondDB( flags, name="rms", key="CSC_RMS", dataType="float", cat="CHANNEL", 
+                                     default="2.56", folder=rmsFolder, database="CSC", useLocal=False, override="" ) )
+
+        CscCoolStrSvc.ParNames.append( "rms" )
+        CscCoolStrSvc.ParSGKeys.append( "CSC_RMS" )
+        CscCoolStrSvc.ParDataTypes.append( "float" )
+        CscCoolStrSvc.ParCats.append( "CHANNEL" )
+        CscCoolStrSvc.ParDefaults.append( "2.56" )
+
+        if flags.Common.isOnline:
+            CscCoolStrSvc.ParFolders.append('/CSC/ONL/' + rmsFolder)
+        else:
+            CscCoolStrSvc.ParFolders.append('/CSC/' + rmsFolder)
+
+    ## Load F001 File
+    if flags.Muon.Calib.CscF001FromLocalFile:
+        acc.merge(  _setupCscCondDB( flags, name="f001", key="CSC_FTHOLD", dataType="float", cat="CHANNEL", 
+                                     default="0", folder=f001Folder, database="CSC", useLocal=True, override="" ) )
+
+        CscCoolStrSvc.ParNames.append( "f001" )
+        CscCoolStrSvc.ParSGKeys.append( "CSC_FTHOLD" )
+        CscCoolStrSvc.ParDataTypes.append( "float" )
+        CscCoolStrSvc.ParCats.append( "CHANNEL" )
+        CscCoolStrSvc.ParDefaults.append( "0" )
+
+        if flags.Common.isOnline:
+            CscCoolStrSvc.ParFolders.append('/CSC/ONL/' + f001Folder)
+        else:
+            CscCoolStrSvc.ParFolders.append('/CSC/' + f001Folder)
+
+    else:
+        acc.merge(  _setupCscCondDB( flags, name="f001", key="CSC_FTHOLD", dataType="float", cat="CHANNEL", 
+                                     default="0", folder=f001Folder, database="CSC", useLocal=False, override="" ) )
+
+        CscCoolStrSvc.ParNames.append( "f001" )
+        CscCoolStrSvc.ParSGKeys.append( "CSC_FTHOLD" )
+        CscCoolStrSvc.ParDataTypes.append( "float" )
+        CscCoolStrSvc.ParCats.append( "CHANNEL" )
+        CscCoolStrSvc.ParDefaults.append( "0" )
+
+        if flags.Common.isOnline:
+            CscCoolStrSvc.ParFolders.append('/CSC/ONL/' + f001Folder)
+        else:
+            CscCoolStrSvc.ParFolders.append('/CSC/' + f001Folder)
+
+    # Offline only 
+    if not flags.Common.isOnline:
+
+        ## Load T0Base File
+        if flags.Muon.Calib.CscT0BaseFromLocalFile:
+            acc.merge(  _setupCscCondDB( flags, name="t0base", key="CSC_T0BASE", dataType="float", cat="CHANNEL", 
+                                         default="0", folder=t0baseFolder, database="CSC_OFL", useLocal=True, override="" ) )
+    
+            CscCoolStrSvc.ParNames.append( "t0base" )
+            CscCoolStrSvc.ParSGKeys.append( "CSC_T0BASE" )
+            CscCoolStrSvc.ParDataTypes.append( "float" )
+            CscCoolStrSvc.ParCats.append( "CHANNEL" )
+            CscCoolStrSvc.ParDefaults.append( "0" )
+            CscCoolStrSvc.ParFolders.append('/CSC/' + t0baseFolder)
+
+        else:
+            acc.merge(  _setupCscCondDB( flags, name="t0base", key="CSC_T0BASE", dataType="float", cat="CHANNEL", 
+                                         default="0", folder=t0baseFolder, database="CSC_OFL", useLocal=False, override="" ) )
+    
+            CscCoolStrSvc.ParNames.append( "t0base" )
+            CscCoolStrSvc.ParSGKeys.append( "CSC_T0BASE" )
+            CscCoolStrSvc.ParDataTypes.append( "float" )
+            CscCoolStrSvc.ParCats.append( "CHANNEL" )
+            CscCoolStrSvc.ParDefaults.append( "0" )
+            CscCoolStrSvc.ParFolders.append('/CSC/' + t0baseFolder)
+
+        ## Load T0Phase File
+        if flags.Muon.Calib.CscT0PhaseFromLocalFile:
+            acc.merge(  _setupCscCondDB( flags, name="t0phase", key="CSC_T0PHASE", dataType="float", cat="ASM", 
+                                         default="0", folder=t0phaseFolder, database="CSC_OFL", useLocal=True, override="" ) )
+    
+            CscCoolStrSvc.ParNames.append( "t0phase" )
+            CscCoolStrSvc.ParSGKeys.append( "CSC_T0PHASE" )
+            CscCoolStrSvc.ParDataTypes.append( "float" )
+            CscCoolStrSvc.ParCats.append( "ASM" )
+            CscCoolStrSvc.ParDefaults.append( "0" )
+            CscCoolStrSvc.ParFolders.append('/CSC/' + t0phaseFolder)
+
+        else:
+            acc.merge(  _setupCscCondDB( flags, name="t0phase", key="CSC_T0PHASE", dataType="float", cat="ASM", 
+                                         default="0", folder=t0phaseFolder, database="CSC_OFL", useLocal=False, override="" ) )
+    
+            CscCoolStrSvc.ParNames.append( "t0phase" )
+            CscCoolStrSvc.ParSGKeys.append( "CSC_T0PHASE" )
+            CscCoolStrSvc.ParDataTypes.append( "float" )
+            CscCoolStrSvc.ParCats.append( "ASM" )
+            CscCoolStrSvc.ParDefaults.append( "0" )
+            CscCoolStrSvc.ParFolders.append('/CSC/' + t0phaseFolder)
+
+
+    return acc, CscCoolStrSvc
 
 ################################################################################
 # MDT calibration

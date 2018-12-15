@@ -99,8 +99,6 @@ class RpcDataPreparator: public AthAlgTool
       // handles to the RoI driven data access
       ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataProviderTool;
       ToolHandle<Muon::IMuonRdoToPrepDataTool> m_rpcPrepDataProvider;
-      //ToolHandle<Muon::IMuonRdoToPrepDataTool> m_rpcPrepDataProvider {
-      // 	this, "RpcPrepDataProvider", "Muon::RpcRdoToPrepDataTool/RpcPrepDataProviderTool", ""};
       
       ToolHandle <Muon::MuonIdHelperTool>  m_idHelperTool;  //!< Pointer to concrete tool
 

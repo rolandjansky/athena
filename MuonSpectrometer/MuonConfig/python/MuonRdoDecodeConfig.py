@@ -21,7 +21,8 @@ def RpcRDODecodeCfg(flags, forTrigger=False):
 
     # Get the RDO -> PRD tool
     from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
-    RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool()
+    RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name = "RpcRdoToRpcPrepDataTool")
+    acc.addPublicTool( RpcRdoToRpcPrepDataTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
     # Get the RDO -> PRD alorithm
     from MuonRdoToPrepData.MuonRdoToPrepDataConf import RpcRdoToRpcPrepData
@@ -35,6 +36,117 @@ def RpcRDODecodeCfg(flags, forTrigger=False):
         RpcRdoToRpcPrepData.RoIs = "MURoIs"
 
     return acc, RpcRdoToRpcPrepData
+
+def TgcRDODecodeCfg(flags, forTrigger=False):
+    acc = ComponentAccumulator()
+
+    # We need the TGC cabling to be setup
+    from MuonConfig.MuonCablingConfig import TGCCablingConfigCfg
+    acc.merge( TGCCablingConfigCfg(flags)[0] )
+
+    # Make sure muon geometry is configured
+    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
+    acc.merge(MuonGeoModelCfg(flags))
+
+    # Get the RDO -> PRD tool
+    from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataTool
+    TgcRdoToTgcPrepDataTool = Muon__TgcRdoToPrepDataTool(name           = "TgcRdoToTgcPrepDataTool",
+                                                         useBStoRdoTool = True )
+    acc.addPublicTool( TgcRdoToTgcPrepDataTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
+    
+    # Get the RDO -> PRD alorithm
+    from MuonRdoToPrepData.MuonRdoToPrepDataConf import TgcRdoToTgcPrepData
+    TgcRdoToTgcPrepData = TgcRdoToTgcPrepData(name          = "TgcRdoToTgcPrepData",
+                                              DecodingTool  = TgcRdoToTgcPrepDataTool,
+                                              PrintPrepData = False )
+
+    if forTrigger:
+        # Set the algorithm to RoI mode
+        TgcRdoToTgcPrepData.DoSeededDecoding = True
+        TgcRdoToTgcPrepData.RoIs = "MURoIs"
+
+    return acc, TgcRdoToTgcPrepData
+
+def MdtRDODecodeCfg(flags, forTrigger=False):
+    acc = ComponentAccumulator()
+
+    # We need the MDT cabling to be setup
+    from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
+    acc.merge( MDTCablingConfigCfg(flags)[0] )
+
+    from MuonConfig.MuonCalibConfig import MdtCalibrationSvcCfg
+    acc.merge( MdtCalibrationSvcCfg(flags)[0]  )
+
+    # Make sure muon geometry is configured
+    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
+    acc.merge(MuonGeoModelCfg(flags))
+
+    # Get the RDO -> PRD tool
+    from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataTool
+    MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataTool(name = "MdtRdoToMdtPrepDataTool")
+    acc.addPublicTool( MdtRdoToMdtPrepDataTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
+    
+    # Get the RDO -> PRD alorithm
+    from MuonRdoToPrepData.MuonRdoToPrepDataConf import MdtRdoToMdtPrepData
+    MdtRdoToMdtPrepData = MdtRdoToMdtPrepData(name          = "MdtRdoToMdtPrepData",
+                                              DecodingTool  = MdtRdoToMdtPrepDataTool,
+                                              PrintPrepData = False )
+
+    if forTrigger:
+        # Set the algorithm to RoI mode
+        MdtRdoToMdtPrepData.DoSeededDecoding = True
+        MdtRdoToMdtPrepData.RoIs = "MURoIs"
+
+    return acc, MdtRdoToMdtPrepData
+
+def CscRDODecodeCfg(flags, forTrigger=False):
+    acc = ComponentAccumulator()
+
+    # We need the CSC cabling to be setup
+    from MuonConfig.MuonCablingConfig import CSCCablingConfigCfg # Not yet been prepared
+    acc.merge( CSCCablingConfigCfg(flags)[0] )
+
+    from MuonConfig.MuonCalibConfig import CscCoolStrSvcCfg
+    acc.merge( CscCoolStrSvcCfg(flags)[0]  )
+
+    # Make sure muon geometry is configured
+    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
+    acc.merge(MuonGeoModelCfg(flags))
+
+    # Get the RDO -> PRD tool
+    from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataTool
+    CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataTool(name           = "CscRdoToCscPrepDataTool",
+                                                            useBStoRdoTool = True )
+    acc.addPublicTool( CscRdoToCscPrepDataTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
+    
+    # Get the RDO -> PRD alorithm
+    from MuonRdoToPrepData.MuonRdoToPrepDataConf import CscRdoToCscPrepData
+    CscRdoToCscPrepData = CscRdoToCscPrepData(name                    = "CscRdoToCscPrepData",
+                                              CscRdoToCscPrepDataTool = CscRdoToCscPrepDataTool,
+                                              PrintPrepData           = False )
+
+    if forTrigger:
+        # Set the algorithm to RoI mode
+        CscRdoToCscPrepData.DoSeededDecoding = True
+        CscRdoToCscPrepData.RoIs = "MURoIs"
+
+    return acc, CscRdoToCscPrepData
+
+def CscClusterBuildCfg(flags, forTrigger=False):
+    acc = ComponentAccumulator()
+
+    # Get cluster creator tool
+    from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilderTool
+    CscClusterBuilderTool = CscThresholdClusterBuilderTool(name = "CscThesholdClusterBuilderTool" )
+    acc.addPublicTool( CscClusterBuilderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
+  
+    #CSC cluster building
+    from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilder
+    CscClusterBuilder = CscThresholdClusterBuilder(name            = "CscThesholdClusterBuilder",
+                                                   cluster_builder = CscClusterBuilderTool ) 
+    
+    return acc, CscClusterBuilder
+
 
 # This function runs the decoding on a data file
 def muonRdoDecodeTestData():
@@ -69,10 +181,42 @@ def muonRdoDecodeTestData():
     cfg.merge( rpcdecodingAcc )
     cfg.addEventAlgo( rpcdecodingAlg )
 
+    from MuonConfig.MuonBytestreamDecodeConfig import TgcBytestreamDecodeCfg
+    tgcdecodingAcc, tgcdecodingAlg = TgcBytestreamDecodeCfg( ConfigFlags ) 
+    cfg.merge( tgcdecodingAcc )
+    cfg.addEventAlgo( tgcdecodingAlg )
+
+    from MuonConfig.MuonBytestreamDecodeConfig import MdtBytestreamDecodeCfg
+    mdtdecodingAcc, mdtdecodingAlg = MdtBytestreamDecodeCfg( ConfigFlags ) 
+    cfg.merge( mdtdecodingAcc )
+    cfg.addEventAlgo( mdtdecodingAlg )
+
+    from MuonConfig.MuonBytestreamDecodeConfig import CscBytestreamDecodeCfg
+    cscdecodingAcc, cscdecodingAlg = CscBytestreamDecodeCfg( ConfigFlags ) 
+    cfg.merge( cscdecodingAcc )
+    cfg.addEventAlgo( cscdecodingAlg )
+
     # Schedule RDO conversion - can replace this with cfg.mergeAll once that is working
     rpcdecodingAcc, rpcdecodingAlg = RpcRDODecodeCfg( ConfigFlags )
     cfg.merge(rpcdecodingAcc)
     cfg.addEventAlgo(rpcdecodingAlg)
+
+    tgcdecodingAcc, tgcdecodingAlg = TgcRDODecodeCfg( ConfigFlags )
+    cfg.merge(tgcdecodingAcc)
+    cfg.addEventAlgo(tgcdecodingAlg)
+
+    mdtdecodingAcc, mdtdecodingAlg = MdtRDODecodeCfg( ConfigFlags )
+    cfg.merge(mdtdecodingAcc)
+    cfg.addEventAlgo(mdtdecodingAlg)
+
+    cscdecodingAcc, cscdecodingAlg = CscRDODecodeCfg( ConfigFlags )
+    cfg.merge(cscdecodingAcc)
+    cfg.addEventAlgo(cscdecodingAlg)
+
+    cscbuildingAcc, cscbuildingAlg = CscClusterBuildCfg( ConfigFlags )
+    cfg.merge(cscbuildingAcc)
+    cfg.addEventAlgo(cscbuildingAlg)
+
 
     # Need to add POOL converter  - may be a better way of doing this?
     from AthenaCommon import CfgMgr
@@ -111,9 +255,29 @@ def muonRdoDecodeTestMC():
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     # Schedule RDO conversion - can replace this with cfg.mergeAll once that is working
+    # RPC decoding
     rpcdecodingAcc, rpcdecodingAlg = RpcRDODecodeCfg( ConfigFlags )
     cfg.merge(rpcdecodingAcc)
     cfg.addEventAlgo(rpcdecodingAlg)
+
+    # TGC decoding
+    tgcdecodingAcc, tgcdecodingAlg = TgcRDODecodeCfg( ConfigFlags )
+    cfg.merge(tgcdecodingAcc)
+    cfg.addEventAlgo(tgcdecodingAlg)
+
+    # MDT decoding
+    mdtdecodingAcc, mdtdecodingAlg = MdtRDODecodeCfg( ConfigFlags )
+    cfg.merge(mdtdecodingAcc)
+    cfg.addEventAlgo(mdtdecodingAlg)
+
+    # CSC decoding
+    cscdecodingAcc, cscdecodingAlg = CscRDODecodeCfg( ConfigFlags )
+    cfg.merge(cscdecodingAcc)
+    cfg.addEventAlgo(cscdecodingAlg)
+
+    cscbuildingAcc, cscbuildingAlg = CscClusterBuildCfg( ConfigFlags )
+    cfg.merge(cscbuildingAcc)
+    cfg.addEventAlgo(cscbuildingAlg)
 
     log.info('Print Config')
     cfg.printConfig(withDetails=True)
@@ -129,3 +293,5 @@ if __name__=="__main__":
     # python ../athena/MuonSpectrometer/MuonConfig/python/MuonRdoDecodeConfig.py
     muonRdoDecodeTestData()
     #muonRdoDecodeTestMC()
+
+

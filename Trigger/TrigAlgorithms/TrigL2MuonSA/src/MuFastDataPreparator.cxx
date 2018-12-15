@@ -253,6 +253,8 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
   m_recRPCRoiSvc->etaDimLow(roiEtaMinLow, roiEtaMaxLow);
   m_recRPCRoiSvc->etaDimHigh(roiEtaMinHigh, roiEtaMaxHigh);
 
+  ATH_MSG_DEBUG("nr of RPC hits=" << rpcHits.size());
+
   sc = m_rpcRoadDefiner->defineRoad(p_roi,
                                     muonRoad,
                                     rpcHits,

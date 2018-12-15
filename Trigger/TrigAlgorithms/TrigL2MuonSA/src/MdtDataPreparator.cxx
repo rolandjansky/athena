@@ -62,7 +62,7 @@ TrigL2MuonSA::MdtDataPreparator::MdtDataPreparator(const std::string& type,
    m_robDataProvider("ROBDataProviderSvc", name), 
    m_recMuonRoIUtils(),
    m_mdtRegionDefiner("TrigL2MuonSA::MdtRegionDefiner"),
-   m_mdtPrepDataProvider("Muon::MdtRdoToPrepDataTool/MdtPrepDataProviderTool"),   
+   m_mdtPrepDataProvider("Muon::MdtRdoToPrepDataTool/MdtPrepDataProviderTool"), 
    m_use_mdtcsm(true),
    m_BMGpresent(false),
    m_BMGid(-1)
