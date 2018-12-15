@@ -69,6 +69,9 @@ namespace xAODMaker {
       /// Internal flag for the availability of the luminosity tool
       bool m_lumiToolAvailable;
 
+      /// Flag to disable beamspot service for AthenaMT migration purposes
+      bool m_disableBeamSpot;
+
    }; // class EventInfoCnvTool
 
 } // namespace xAODMaker

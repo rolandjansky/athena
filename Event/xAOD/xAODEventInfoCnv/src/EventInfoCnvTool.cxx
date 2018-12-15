@@ -62,7 +62,8 @@ namespace xAODMaker {
         m_lumiTool( "LuminosityTool" ),
 #endif
         m_beamCondSvcAvailable( false ),
-        m_lumiToolAvailable( false ) {
+        m_lumiToolAvailable( false ),
+        m_disableBeamSpot( false ) {
 
       // Declare the interface(s) provided by the tool:
       declareInterface< IEventInfoCnvTool >( this );
@@ -70,6 +71,7 @@ namespace xAODMaker {
       // Declare the tool's properties:
       declareProperty( "BeamCondSvc", m_beamCondSvc );
       declareProperty( "LuminosityTool", m_lumiTool );
+      declareProperty( "DisableBeamSpot", m_disableBeamSpot );
 #endif
    }
 
@@ -88,7 +90,10 @@ namespace xAODMaker {
                           "xAOD::EventInfo" );
          m_beamCondSvcAvailable = false;
       }
-
+      if(m_disableBeamSpot){
+         ATH_MSG_WARNING( "Beam conditions service manually disabled on EventInfo object" );
+         m_beamCondSvcAvailable = false;
+      }
       // Try to access the beam conditions service:
       if( m_beamCondSvcAvailable ) {
          CHECK( m_beamCondSvc.retrieve() );

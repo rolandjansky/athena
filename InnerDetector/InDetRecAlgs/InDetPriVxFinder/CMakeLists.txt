@@ -9,12 +9,12 @@ atlas_subdir( InDetPriVxFinder )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           GaudiKernel
+                          InnerDetector/InDetConditions/BeamSpotConditionsData
                           PRIVATE
                           Control/CxxUtils
                           Event/EventPrimitives
                           Event/xAOD/xAODCore
                           Event/xAOD/xAODTracking
-                          InnerDetector/InDetConditions/InDetBeamSpotService
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
                           Reconstruction/RecoTools/ITrackToVertex
                           Tracking/TrkDetDescr/TrkSurfaces

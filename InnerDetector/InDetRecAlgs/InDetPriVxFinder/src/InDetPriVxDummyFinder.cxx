@@ -7,7 +7,6 @@
                              -------------------
  ***************************************************************************/
 #include "InDetPriVxFinder/InDetPriVxDummyFinder.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "VxVertex/VxTrackAtVertex.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
@@ -22,10 +21,8 @@ namespace InDet
 
   InDetPriVxDummyFinder::InDetPriVxDummyFinder ( const std::string &n, ISvcLocator *pSvcLoc )
       : AthAlgorithm ( n, pSvcLoc ),
-      m_iBeamCondSvc("BeamCondSvc",n),
       m_vxCandidatesOutputName ( "VxPrimaryCandidate" )
   {
-    declareProperty ( "BeamPositionSvc", m_iBeamCondSvc);
     declareProperty ( "VxCandidatesOutputName",m_vxCandidatesOutputName );
   }
 
@@ -33,11 +30,7 @@ namespace InDet
 
   StatusCode InDetPriVxDummyFinder::initialize()
   {
-    if ( m_iBeamCondSvc.retrieve().isFailure() )
-    {
-      msg(MSG::ERROR) << "Could not find BeamCondSvc." << endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(m_beamSpotKey.initialize());
     return StatusCode::SUCCESS;
   }
 
@@ -46,11 +39,11 @@ namespace InDet
     xAOD::VertexContainer* theVxContainer = new xAOD::VertexContainer();
     xAOD::VertexAuxContainer* aux = new xAOD::VertexAuxContainer();
     theVxContainer->setStore( aux );
-
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
     xAOD::Vertex* dummyVertex = new xAOD::Vertex();
     theVxContainer->push_back ( dummyVertex ); // have to add vertex to container here first so it can use its aux store - David S.
-    dummyVertex->setPosition(m_iBeamCondSvc->beamVtx().position());
-    dummyVertex->setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+    dummyVertex->setPosition(beamSpotHandle->beamVtx().position());
+    dummyVertex->setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
     dummyVertex->setVertexType(xAOD::VxType::NoVtx);
 
     //---- Recording section: write the results to StoreGate ---//
