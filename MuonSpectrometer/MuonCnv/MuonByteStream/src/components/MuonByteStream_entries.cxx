@@ -6,6 +6,7 @@
 #include "MuonByteStream/CscRdoContByteStreamCnv.h"
 #include "MuonByteStream/RpcPadContByteStreamCnv.h"
 #include "MuonByteStream/TgcRdoContByteStreamCnv.h"
+#include "../MuonCacheCreator.h"
 
 DECLARE_COMPONENT( Muon::MdtRawDataProvider )
 DECLARE_COMPONENT( Muon::RpcRawDataProvider )
@@ -16,3 +17,4 @@ DECLARE_CONVERTER( CscRdoContByteStreamCnv )
 DECLARE_CONVERTER( RpcPadContByteStreamCnv )
 DECLARE_CONVERTER( TgcRdoContByteStreamCnv )
 
+DECLARE_COMPONENT( MuonCacheCreator )

@@ -23,4 +23,7 @@
 #include "MuonRDO/TgcRdo.h"
 #include "MuonRDO/CscRawDataCollection.h"
 
+// cache
+#include "MuonRDO/MdtCsm_Cache.h"
+
 #endif

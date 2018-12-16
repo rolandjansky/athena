@@ -26,6 +26,7 @@ Muon::MDT_RawDataProviderTool::MDT_RawDataProviderTool(const std::string& t,
   
   //  template for property declaration
   declareProperty ("Decoder", m_decoder);
+  declareProperty ("CsmContainerCacheKey", m_rdoContainerCacheKey, "Optional external cache for the CSM container");
 }
 
 
@@ -35,11 +36,6 @@ Muon::MDT_RawDataProviderTool::~MDT_RawDataProviderTool()
 StatusCode Muon::MDT_RawDataProviderTool::initialize()
 {    
     ATH_MSG_VERBOSE("Starting init");
-  StatusCode sc = service("ActiveStoreSvc", m_activeStore);
-  if ( !sc.isSuccess() ) {
-    ATH_MSG_FATAL("Could not get active store service");
-    return sc;
-  }
 
   ATH_MSG_VERBOSE("Getting m_robDataProvider");  
   
@@ -55,7 +51,7 @@ StatusCode Muon::MDT_RawDataProviderTool::initialize()
   if (detStore()->retrieve(m_muonMgr).isFailure())
     {
       ATH_MSG_ERROR("Cannot retrieve MuonDetectorManager");
-      return sc;
+      return StatusCode::FAILURE;
     }
   
     ATH_MSG_VERBOSE("Getting m_decoder");  
@@ -71,7 +67,7 @@ StatusCode Muon::MDT_RawDataProviderTool::initialize()
   // Check if EventSelector has the ByteStreamCnvSvc
   bool has_bytestream = false;
   IJobOptionsSvc* jobOptionsSvc;
-  sc = service("JobOptionsSvc", jobOptionsSvc, false);
+  StatusCode sc = service("JobOptionsSvc", jobOptionsSvc, false);
   if (sc.isFailure()) {
     ATH_MSG_DEBUG("Could not find JobOptionsSvc");
     jobOptionsSvc = 0;
@@ -131,10 +127,8 @@ StatusCode Muon::MDT_RawDataProviderTool::initialize()
   //    return StatusCode::FAILURE;
   //}
   
+  ATH_CHECK( m_rdoContainerCacheKey.initialize( !m_rdoContainerCacheKey.key().empty() ) );
   
-  // register the container only when the imput from ByteStream is set up     
-  m_activeStore->setStore( &*evtStore() ); 
-
   m_useContainer = (has_bytestream || m_rdoContainerKey.key() != "MDTCSM") && !m_rdoContainerKey.key().empty();
 
   if(!m_useContainer)
@@ -197,12 +191,7 @@ StatusCode Muon::MDT_RawDataProviderTool::convert( const std::vector<const OFFLI
 StatusCode Muon::MDT_RawDataProviderTool::convert( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs)
 {
   ATH_MSG_VERBOSE("convert(): " << vecRobs.size()<<" ROBFragments.");
-  
-  // retrieve the container through the MuonRdoContainerManager becasue
-  // if the MuonByteStream CNV has to be used, the container must have been
-  // registered there!
-  m_activeStore->setStore( &*evtStore() ); 
-  
+    
   if(m_useContainer==false)
     {
       ATH_MSG_DEBUG("Container " << m_rdoContainerKey.key() 
@@ -215,10 +204,26 @@ StatusCode Muon::MDT_RawDataProviderTool::convert( const std::vector<const OFFLI
       // on the user experience
     }
 
-  SG::WriteHandle<MdtCsmContainer> handle(m_rdoContainerKey);
-  if (handle.isPresent())
+  SG::WriteHandle<MdtCsmContainer> rdoContainerHandle(m_rdoContainerKey);
+  if (rdoContainerHandle.isPresent())
     return StatusCode::SUCCESS;
-  auto csm = std::make_unique<MdtCsmContainer>(m_maxhashtoUse);
+
+  // here we have two paths. The first one we do not use an external cache, so just create
+  // the MDT CSM container and record it. For the second path, we create the container
+  // by passing in the container cache key so that the container is linked with the event
+  // wide cache.
+  const bool externalCacheRDO = !m_rdoContainerCacheKey.key().empty();
+  if (!externalCacheRDO) {
+    ATH_CHECK(rdoContainerHandle.record (std::make_unique<MdtCsmContainer>(m_maxhashtoUse)) );
+    ATH_MSG_DEBUG("Created container");
+  } else {
+    SG::UpdateHandle<MdtCsm_Cache> update(m_rdoContainerCacheKey);
+    ATH_CHECK(update.isValid());
+    ATH_CHECK(rdoContainerHandle.record (std::make_unique<MdtCsmContainer>(update.ptr())));
+    ATH_MSG_DEBUG("Created container using cache for " << m_rdoContainerCacheKey.key());
+  }
+  
+  //auto csm = std::make_unique<MdtCsmContainer>(m_maxhashtoUse);
 
   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>::const_iterator itFrag;
   
@@ -230,7 +235,7 @@ StatusCode Muon::MDT_RawDataProviderTool::convert( const std::vector<const OFFLI
 	  //std::vector<IdentifierHash> coll =
 	  //                          to_be_converted(**itFrag,collections);
 	  
-	  if (m_decoder->fillCollections(**itFrag, *csm).isFailure())
+	  if (m_decoder->fillCollections(**itFrag, *(rdoContainerHandle.ptr())).isFailure())
             {
 	      // store the error conditions into the StatusCode and continue
             }
@@ -247,8 +252,8 @@ StatusCode Muon::MDT_RawDataProviderTool::convert( const std::vector<const OFFLI
 	}
     }
   //in presence of errors return FAILURE
-  ATH_MSG_DEBUG("After processing numColls="<<csm->numberOfCollections());
-  ATH_CHECK( handle.record (std::move (csm)) );
+  ATH_MSG_DEBUG("After processing numColls="<<rdoContainerHandle.ptr()->numberOfCollections());
+  //ATH_CHECK( handle.record (std::move (csm)) );
   return StatusCode::SUCCESS;
 }
 

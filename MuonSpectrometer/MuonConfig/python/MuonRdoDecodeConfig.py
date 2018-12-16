@@ -155,8 +155,8 @@ def muonRdoDecodeTestData():
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-
     ConfigFlags.Input.Files = defaultTestFiles.RAW
+    
     # Set global tag by hand for now
     ConfigFlags.IOVDb.GlobalTag = "CONDBR2-BLKPA-2018-13"#"CONDBR2-BLKPA-2015-17"
     ConfigFlags.GeoModel.AtlasVersion = "ATLAS-R2-2016-01-00-01"#"ATLAS-R2-2015-03-01-00"

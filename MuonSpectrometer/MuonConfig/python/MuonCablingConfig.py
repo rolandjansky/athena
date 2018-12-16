@@ -127,7 +127,6 @@ def CSCCablingConfigCfg(flags):
 
     return acc, cscCablingSvc
 
-  
 if __name__ == '__main__':
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
