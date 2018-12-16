@@ -1,11 +1,13 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    TrackFilter.h        
 //            base class for a single track selection filter 
 //            so you can set parameters for complex track 
 //            selection       
 // 
-//   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: TrackFilter.h, v0.0   Fri 16 Oct 2009 02:11:32 BST sutt $
 

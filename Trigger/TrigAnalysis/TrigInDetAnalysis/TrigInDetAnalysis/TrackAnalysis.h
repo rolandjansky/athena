@@ -1,10 +1,12 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    TrackAnalysis.h        
 //
 //                   
 // 
-//   Copyright (C) 2007 M.Sutton (sutt@hep.ucl.ac.uk)    
 //
 //   $Id: TrackAnalysis.h, v0.0   Sun 18 Jan 2009 19:53:18 GMT sutt $
 
@@ -112,6 +114,7 @@ public:
 public:
   /// FIXME: public for now, to avoid warnings about naming convention
   ///        violations.  Should be fixed properly after run2 finishes.
+
   /// identifier of the of the analysis - also used for the root
   ///  directory into which the histograms are put
   std::string   mname;

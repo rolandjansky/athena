@@ -1,10 +1,12 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    cpucost.cxx
 //
 //
 //   @author B.Sowden
 //
-//   Copyright (C) 2014 B.Sowden (benjamin.sowden@cern.ch)
 //
 //   $Id: cpucost.cxx, v0.0   Mon 04 Aug 2014 10:45:00 BST bsowden $
 

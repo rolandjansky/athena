@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -933,7 +933,7 @@ HLT::ErrorCode TrigIDTPMonitorElectron::hltExecute(const HLT::TriggerElement* in
     }
     y++;
   }
-  if(m_FTFfound){
+  if(m_FTFfound==0){
     ATH_MSG_DEBUG("FTF:::1)COMBINED CRITERIA: This candidate was found to be INEFFICIENT");
   }
   if(m_FTFfound==1){
@@ -946,7 +946,7 @@ HLT::ErrorCode TrigIDTPMonitorElectron::hltExecute(const HLT::TriggerElement* in
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
 
   //END OF ALGORITHM
-  ATH_MSG_INFO( "Finishing TrigIDTPMonitorElectron" );
+  ATH_MSG_DEBUG( "Finishing TrigIDTPMonitorElectron" );
 
   return HLT::OK;
 }

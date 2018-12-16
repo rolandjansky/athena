@@ -1,10 +1,6 @@
-//
-//   @file    selectblock.cxx         
-//   
-//
-//   @author M.Sutton
-// 
-//   Copyright (C) 2017 M.Sutton (sutt@cern.ch)    
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   $Id: selectblock.cxx, v0.0   Mon 23 Jan 2017 12:30:25 CET sutt $
 

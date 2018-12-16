@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   TFileString.cxx        
 //
@@ -5,7 +8,6 @@
 //    to root files               
 //                   
 // 
-//   Copyright (C) 2007 M.Sutton (sutt@hep.ucl.ac.uk)    
 //
 //   $Id: TFileString.cxx, v0.0   Sat Mar 15 19:50:15 GMT 2008 sutt
 

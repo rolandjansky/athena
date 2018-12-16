@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 // Author: J.Kirk (modified from copyFiles.C in ROOT tutuorial
 
 

@@ -1,10 +1,12 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    TIDARoiParameters.cxx         
 //   
 //
 //   @author M.Sutton
 // 
-//   Copyright (C) 2015 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: TIDARoiParameters.cxx, v0.0   Wed  4 Mar 2015 16:22:25 CET sutt $
 

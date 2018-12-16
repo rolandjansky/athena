@@ -1,10 +1,12 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    SigAnalysis.cxx         
 //   
 //
 //                   
 // 
-//   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: SigAnalysis.cxx, v0.0   Wed 28 Oct 2009 02:41:07 CET sutt $
 

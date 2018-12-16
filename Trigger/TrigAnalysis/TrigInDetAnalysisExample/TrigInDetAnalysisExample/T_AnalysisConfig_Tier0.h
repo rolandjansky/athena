@@ -12,11 +12,10 @@
 //                This would be a simple switch if the reference tracks
 //                were in the RoI, but they're not se we need to move the 
 //                RoI filtering to the test filter and *not* the reference 
-//                filter grrrrrr  
+//                filter 
 //
 // 
-//   Copyright (C) 2014 M.Sutton (sutt@cern.ch)    
-//   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+//   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 //
 //   $Id: T_AnalysisConfig_Tier0.h  Tue 16 May 2017 09:28:55 CEST sutt $
 
