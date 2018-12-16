@@ -10,8 +10,10 @@
 #include <string>
 #include "MuonRDO/MdtCsm.h"
 #include "MuonRDO/MdtCsmIdHash.h"
+#include "MuonRDO/MdtCsm_Cache.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include "EventContainers/IdentifiableContainer.h" 
+
 
 /** This container provides acces to the MDT RDOs
  @author Stefano Rosati, Mar 2003
@@ -20,7 +22,8 @@ class MdtCsmContainer
    :public IdentifiableContainer<MdtCsm> {
 public:  
    MdtCsmContainer() ; 
-   MdtCsmContainer( unsigned int hashmax) ; 
+   MdtCsmContainer( unsigned int hashmax) ;
+   MdtCsmContainer( MdtCsm_Cache* cache );
   ~MdtCsmContainer() ; 
 
   typedef MdtCsm::size_type size_type ; 

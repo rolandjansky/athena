@@ -74,9 +74,9 @@ public:
         StatusCode fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
 			    MdtCsmContainer& rdoIDC);
 
-        int specialROBNumber() {return m_specialROBNumber;}
+        int specialROBNumber() const {return m_specialROBNumber;}
         
-        MdtCsm* getCollection (MdtCsmContainer& rdoIdc, Identifier ident);
+        std::pair<IdentifierHash, Identifier> getHash (Identifier ident);
 
 private:
 

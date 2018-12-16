@@ -58,6 +58,7 @@
   <class name="MdtCsmContainer" />
   <class name="std::vector<MdtCsm * >" />
   <class name="DataVector<MdtCsm>" id="CFDA6FF6-557F-40CB-9C54-B5A7404A9175" />
+  <class name="MdtCsm_Cache" />
 
   <class name="RpcPadContainer" />
   <class name="std::vector<RpcPad * >" />

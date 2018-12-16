@@ -17,11 +17,11 @@
 
 #include "MuonCablingData/MuonMDT_CablingMap.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "MuonRDO/MdtCsm_Cache.h"
 
 
 class MdtCsmContainer;
 class StoreGateSvc;
-class ActiveStoreSvc;
 class IROBDataProviderSvc;
 
 namespace MuonGM {
@@ -66,13 +66,15 @@ class MDT_RawDataProviderTool : virtual public IMuonRawDataProviderTool, virtual
   SG::WriteHandleKey<MdtCsmContainer>   m_rdoContainerKey{
 	this, "RdoLocation", "MDTCSM", "Name of the MDTCSM produced by RawDataProvider"};
   const MuonGM::MuonDetectorManager* m_muonMgr;    
-  ActiveStoreSvc*                   m_activeStore;
   unsigned int m_maxhashtoUse;
   bool m_useContainer;
   // Rob Data Provider handle 
   ServiceHandle<IROBDataProviderSvc>          m_robDataProvider;
 
     SG::ReadCondHandleKey<MuonMDT_CablingMap> m_readKey{this, "ReadKey", "MuonMDT_CablingMap", "Key of MuonMDT_CablingMap"};
+
+  /// This is the key for the cache for the CSM containers, can be empty
+  SG::UpdateHandleKey<MdtCsm_Cache> m_rdoContainerCacheKey ;
 
 
 };

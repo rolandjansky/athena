@@ -40,6 +40,15 @@ MdtCsmContainer::MdtCsmContainer(unsigned int hashmax)
 
 //**********************************************************************
 
+//**********************************************************************
+
+MdtCsmContainer::MdtCsmContainer(MdtCsm_Cache* cache)
+: IdentifiableContainer<MdtCsm>(cache) 
+{
+}
+
+//**********************************************************************
+
 // Destructor.
 
 MdtCsmContainer::~MdtCsmContainer() {

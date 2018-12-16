@@ -239,8 +239,6 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
 //  }
 /////////////////////////
 
-  MdtCsm* collection;
-  
   while (!m_csmReadOut->is_EOB()) {
 
     while ((!m_csmReadOut->is_BOL()) && (!m_csmReadOut->is_EOB())) {
@@ -348,9 +346,22 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
     // EJWM Removed: if ( moduleId == csmOfflineId) 
     // Can't see how to keep that in here now, and also not really sure what the point of it is
     // Might be wrong though - job for experts to look into.
-    // FIXME 
+    // FIXME
 
-      collection = getCollection(rdoIDC, moduleId);
+      // get IdentifierHash for this module ID
+      auto idHash = getHash(moduleId);
+
+      // Create MdtCsm and try to get it from the cache via the IDC_WriteHandle
+      std::unique_ptr<MdtCsm> collection(nullptr);
+      MdtCsmContainer::IDC_WriteHandle lock = rdoIDC.getWriteHandle( idHash.first );
+      if( lock.alreadyPresent() ) {
+          ATH_MSG_DEBUG("collections already found, do not convert");
+      }else{
+	ATH_MSG_DEBUG(" Collection ID = " <<idHash.second.getString()
+		      << " does not exist, create it ");
+	collection = std::make_unique<MdtCsm>(idHash.second, idHash.first);
+      }
+
 
       // Set values (keep Identifier and IdentifierHash the same though)
       if(collection) collection->set_values(collection->identify(), collection->identifyHash(), subdetId, mrodId, csmId);
@@ -515,7 +526,7 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
         StationName == m_BMGid ? m_hptdcReadOut->decodeWord(vint[wordPos])
                                : m_amtReadOut->decodeWord(vint[wordPos]);
       }  // End of loop on TDCs
-
+      if(collection) ATH_CHECK(lock.addOrDelete(std::move(collection)));
       // Collection has been found, go out
       // return; 
     }  // Check for the chamber offline id = collection offline id
@@ -541,9 +552,7 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
   return StatusCode::SUCCESS; 
 }
 
-MdtCsm* MdtROD_Decoder::getCollection (MdtCsmContainer& rdoIdc, Identifier ident)  {    
-    MdtCsm* theColl;
-
+std::pair<IdentifierHash, Identifier>  MdtROD_Decoder::getHash ( Identifier ident)  {    
     //get hash from identifier.
     IdentifierHash idHash;
     Identifier regid;
@@ -557,31 +566,7 @@ MdtCsm* MdtROD_Decoder::getCollection (MdtCsmContainer& rdoIdc, Identifier ident
       regid = ident;
       m_mdtIdHelper->get_module_hash(regid, idHash);
     }
-
-    // Check if the Collection is already created.
-    MdtCsmContainer::const_iterator itColl = rdoIdc.indexFind( idHash );
-    if ( itColl != rdoIdc.end() ){
-      ATH_MSG_DEBUG("getCollection: collections already found, do not convert");
-      return 0;
-    
-    }else{
-      
-      ATH_MSG_DEBUG(" Collection ID = " <<regid.getString()
-		    << " does not exist, create it ");
-        
-        // create new collection          
-        theColl = new MdtCsm ( regid, idHash );
-        // add collection into IDC
-        StatusCode sc = rdoIdc.addCollection(theColl, idHash);
-        if ( sc.isFailure() )
-        {
-	  ATH_MSG_WARNING("getCollection: Failed to add RDO collection to container");
-          delete theColl;
-	  return 0;
-        }
-    
-    }
-    return theColl;
+    return std::make_pair(idHash, regid);
 }
 
 

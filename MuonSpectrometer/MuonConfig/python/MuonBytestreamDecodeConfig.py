@@ -2,7 +2,7 @@
 #  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaCommon.Constants import DEBUG, INFO
+from AthenaCommon.Constants import VERBOSE, DEBUG, INFO
 
 ## This configuration function sets up everything for decoding RPC bytestream data into RDOs
 #
@@ -10,7 +10,7 @@ from AthenaCommon.Constants import DEBUG, INFO
 # The function returns a ComponentAccumulator and the data-decoding algorithm, which should be added to the right sequence by the user
 def RpcBytestreamDecodeCfg(flags, forTrigger=False):
     acc = ComponentAccumulator()
-
+    
     # We need the RPC cabling to be setup
     from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg
     acc.merge( RPCCablingConfigCfg(flags)[0] )
@@ -82,6 +82,12 @@ def TgcBytestreamDecodeCfg(flags, forTrigger=False):
 def MdtBytestreamDecodeCfg(flags, forTrigger=False):
     acc = ComponentAccumulator()
 
+    # Configure the IdentifiableCaches when running for trigger
+    if forTrigger:
+        from MuonByteStream.MuonByteStreamConf import MuonCacheCreator
+        cacheCreator = MuonCacheCreator(MdtCsmCacheKey= "MdtCsmCache")
+        acc.addEventAlgo( cacheCreator )
+
     # We need the MDT cabling to be setup
     from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
     acc.merge( MDTCablingConfigCfg(flags)[0] )
@@ -105,7 +111,11 @@ def MdtBytestreamDecodeCfg(flags, forTrigger=False):
     # Setup the RAW data provider tool
     from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MDT_RawDataProviderTool
     MuonMdtRawDataProviderTool = Muon__MDT_RawDataProviderTool(name    = "MDT_RawDataProviderTool",
-                                                               Decoder = MDTRodDecoder )
+                                                               Decoder = MDTRodDecoder,
+                                                               OutputLevel = VERBOSE)
+    if forTrigger:
+        MuonMdtRawDataProviderTool.CsmContainerCacheKey = "MdtCsmCache"
+
     acc.addPublicTool( MuonMdtRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
     # Setup the RAW data provider algorithm
@@ -148,7 +158,6 @@ def CscBytestreamDecodeCfg(flags, forTrigger=False):
 
     return acc, CscRawDataProvider
 
-
 if __name__=="__main__":
     # To run this, do e.g. 
     # python ../athena/MuonSpectrometer/MuonConfig/python/MuonBytestreamDecodeCfg.py
@@ -158,7 +167,6 @@ if __name__=="__main__":
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     # Set global tag by hand for now
     ConfigFlags.IOVDb.GlobalTag = "CONDBR2-BLKPA-2018-13"#"CONDBR2-BLKPA-2015-17"
