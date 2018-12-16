@@ -24,6 +24,9 @@
 #include "TrigTauHypo/EFTauTopoHypo.h"
 #include "TrigTauHypo/EFPhotonTauFex.h"
 #include "TrigTauHypo/EFPhotonTauHypo.h"
+#include "../TrigTauCaloRoiUpdaterMT.h"
+#include "../TrigTauGenericHypoMT.h"
+#include "../TrigTauCaloHypoAlgMT.h"
 
 
 DECLARE_COMPONENT( T2CaloTauHypo )
@@ -52,4 +55,6 @@ DECLARE_COMPONENT( EFTauTopoFex )
 DECLARE_COMPONENT( EFTauTopoHypo )
 DECLARE_COMPONENT( EFPhotonTauFex )
 DECLARE_COMPONENT( EFPhotonTauHypo )
-
+DECLARE_COMPONENT( TrigTauCaloRoiUpdaterMT )
+DECLARE_COMPONENT( TrigTauGenericHypoMT )
+DECLARE_COMPONENT( TrigTauCaloHypoAlgMT )
