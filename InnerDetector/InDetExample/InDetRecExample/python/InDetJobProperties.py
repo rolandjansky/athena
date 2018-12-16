@@ -322,6 +322,18 @@ class doHadCaloSeededSSS(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
+class doCaloSeededAmbi(InDetFlagsJobProperty):
+    """Use Calo ROIs to seed specific cuts for the ambi"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+class doCaloSeededRefit(InDetFlagsJobProperty):
+    """Use Calo ROIs to seed refif for the ambi processor"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
 class doBeamGas(InDetFlagsJobProperty):
     """Turn running of BeamGas second pass on and off"""
     statusOn     = True
@@ -2646,6 +2658,8 @@ _list_InDetJobProperties = [Enabled,
                             doBremRecovery,
                             doCaloSeededBrem,
                             doHadCaloSeededSSS,
+                            doCaloSeededAmbi,
+                            doCaloSeededRefit,
                             doBeamGas,
                             doBeamHalo,
                             doVtxLumi,

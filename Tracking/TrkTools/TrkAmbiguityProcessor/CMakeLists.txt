@@ -20,6 +20,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/TrkTrackSummary
                           Tracking/TrkEvent/TrkTruthData
+                          Tracking/TrkEvent/TrkCaloClusterROI
                           Tracking/TrkFitter/TrkFitterInterfaces
                           Tracking/TrkTools/TrkToolInterfaces
                           Tracking/TrkValidation/TrkValInterfaces
@@ -35,7 +36,7 @@ atlas_add_library(   TrkAmbiguityProcessorLib
                      src/DenseEnvironmentsAmbiguityProcessorTool.cxx
                      PUBLIC_HEADERS TrkAmbiguityProcessor
                      PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AtlasDetDescr GaudiKernel InDetPrepRawData InDetRecToolInterfaces TrkDetElementBase TrkEventPrimitives TrkParameters TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkTruthData TrkFitterInterfaces TrkToolInterfaces TrkValInterfaces TrkExInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AtlasDetDescr GaudiKernel InDetPrepRawData InDetRecToolInterfaces TrkDetElementBase TrkEventPrimitives TrkParameters TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkTruthData TrkFitterInterfaces TrkToolInterfaces TrkValInterfaces TrkExInterfaces TrkCaloClusterROI)
 
 atlas_add_component( TrkAmbiguityProcessor
                      src/SimpleAmbiguityProcessorTool.cxx  src/TrackScoringTool.cxx  src/TrackSelectionProcessorTool.cxx
