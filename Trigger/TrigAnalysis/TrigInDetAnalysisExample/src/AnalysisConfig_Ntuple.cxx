@@ -667,7 +667,7 @@ void AnalysisConfig_Ntuple::loop() {
 		/// of "processes" with *no* particles in them for some 
 		/// reason, whoever programed this f**cked up structure 
 		/// that needs this sort of fannying around to navigate 
-		/// through ***REMOVED***
+		/// through is a complete arse
 
 		//      DataVector<HepMC::GenEvent>::iterator 
 		McEventCollection::const_iterator evitr(mcevent->begin());

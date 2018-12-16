@@ -968,7 +968,9 @@ class HadCaloClusterContainer(JobProperty):
     """Brem Reco: Container of EM clusters"""
     statusOn     = True
     allowedTypes = ['str']
-    StoredValue  = 'CaloCalTopoCluster'
+    StoredValue  = 'CaloCalTopoClusters'
+
+#here there was an error: CaloCalTopoCluster without s
 
 class HadCaloCellContainer(JobProperty):
     """Brem Reco: Container of calo cell"""
