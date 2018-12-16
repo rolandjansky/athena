@@ -106,7 +106,7 @@ StatusCode TrigMuonEFCombinerHypoTool::decide(std::vector<MuonEFInfo>& toolInput
     return inclusiveSelection(toolInput);
   }
   else{
-    if(numMuon ==1) ATH_MSG_DEBUG("Not applying selection "<<m_decisionId<< " because the number of muons is "<<numMuon);
+    if(numMuon <=1) ATH_MSG_DEBUG("Not applying selection "<<m_decisionId<< " because the number of muons is "<<numMuon);
     else{
       ATH_MSG_DEBUG("Applying selection of multiplicity "<< m_decisionId);
       return multiplicitySelection(toolInput);

@@ -166,7 +166,6 @@ def muEFSAStep():
 
     efsaViewsMaker = EventViewCreatorAlgorithm("efsaViewsMaker", OutputLevel=DEBUG)
     efsaViewsMaker.ViewFallThrough = True
-    #efsaViewsMaker.RoIsLink = "initialRoI" # -||-
     efsaViewsMaker.RoIsLink = "roi" # -||-
     efsaViewsMaker.InViewRoIs = "MUEFSARoIs" # contract with the consumer
     efsaViewsMaker.Views = "MUEFSAViewRoIs"
@@ -191,6 +190,39 @@ def muEFSAStep():
                          Maker       = efsaViewsMaker,
                          Hypo        = trigMuonEFSAHypo,
                          HypoToolGen = TrigMuonEFMSonlyHypoToolFromName )
+
+def muEFCBStep():
+
+    efcbViewNode = parOR("efcbViewNode")
+    
+    efcbViewsMaker = EventViewCreatorAlgorithm("efcbViewsMaker", OutputLevel=DEBUG)
+    efcbViewsMaker.ViewFallThrough = True
+    efcbViewsMaker.RoIsLink = "roi" # -||-
+    efcbViewsMaker.InViewRoIs = "MUEFCBRoIs" # contract with the consumer
+    efcbViewsMaker.Views = "MUEFCBViewRoIs"
+    efcbViewsMaker.ViewNodeName = efcbViewNode.name()
+   
+
+    ### get EF reco sequence ###    
+    from TrigUpgradeTest.MuonSetup import muEFCBRecoSequence
+    muEFCBRecoSequence, sequenceOut = muEFCBRecoSequence( efcbViewsMaker.InViewRoIs, OutputLevel=DEBUG )
+ 
+    efcbViewsMaker.ViewNodeName = muEFCBRecoSequence.name()
+    
+    
+    # setup EFCB hypo
+    from TrigMuonHypo.TrigMuonHypoConfigMT import TrigMuonEFCombinerHypoConfig
+    trigMuonEFCBHypo = TrigMuonEFCombinerHypoConfig( "TrigMuonEFCombinerHypoAlg" )
+    trigMuonEFCBHypo.OutputLevel = DEBUG
+    trigMuonEFCBHypo.MuonDecisions = sequenceOut
+    
+    muonEFCBSequence = seqAND( "muonEFCBSequence", [efcbViewsMaker, efcbViewNode] )
+    
+
+    return MenuSequence( Sequence    = muonEFCBSequence,
+                         Maker       = efcbViewsMaker,
+                         Hypo        = trigMuonEFCBHypo,
+                         HypoToolGen = trigMuonEFCBHypo.TrigMuonEFCombinerHypoToolFromName )
 
 ### l2Muiso step ###
 def muIsoStep():
