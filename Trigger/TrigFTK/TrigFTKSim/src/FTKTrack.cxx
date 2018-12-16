@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "TrigFTKSim/FTKSetup.h"
 #include "TrigFTKSim/FTKTrack.h"
 
 #include <iostream>
@@ -116,40 +117,44 @@ FTKTrack::~FTKTrack()
 
 // if ForceRange==true, then phi = [-pi..pi)
 void FTKTrack::setPhi(float phi, bool ForceRange) {
-  if (ForceRange) {
-    // when phi is ridiculously large, there is no point in adjusting it
-    if(fabs(phi)>100) {
-      if(m_chi2<100) { // this is a BAD track, so fail it if chi2 hasn't done so already
-	std::cout << "FTKTrack warning: fitted phi = " << phi << ", but chi2 = " << m_chi2 
-		  << ". Adjusting to chi2+=100!" << std::endl;
-	m_chi2+=100; // we want to fail this event anyway
-      }
-    }
-    else {
-      while (phi>= TMath::Pi()) phi -= TMath::TwoPi(); 
-      while (phi< -TMath::Pi()) phi += TMath::TwoPi();
-    }
+  if (ForceRange && fabs(phi)>100 && m_chi2<100) {
+    // when phi is ridiculously large, there is no point in adjusting it. Also, since this is a BAD track, fail it if chi2 hasn't done so already
+    FTKSetup::PrintMessageFmt(ftk::warn, "FTKTrack warning: fitted phi = %f, but chi2 = %f. Adjusting to chi2+=100!", phi, m_chi2);
+    m_chi2+=100; // we want to fail this event anyway
+  }
+  else if (ForceRange && fabs(phi)<100){
+    while (phi>= TMath::Pi()) phi -= TMath::TwoPi(); 
+    while (phi< -TMath::Pi()) phi += TMath::TwoPi();
   }
   m_phi = phi;
 }
 
 // if ForceRange==true, then phi = [-pi..pi)
 void FTKTrack::setPhiRaw(float phi, bool ForceRange) {
-  if (ForceRange) {
-    // when phi is ridiculously large, there is no point in adjusting it
-    if(fabs(phi)>100) {
-      if(m_chi2<100) { // this is a BAD track, so fail it if chi2 hasn't done so already
-	std::cout << "FTKTrack warning: fitted phi = " << phi << ", but chi2 = " << m_chi2 
-		  << ". Adjusting to chi2+=100!" << std::endl;
-	m_chi2+=100; // we want to fail this event anyway
-      }
-    }
-    else {
-      while (phi>= TMath::Pi()) phi -= TMath::TwoPi(); 
-      while (phi< -TMath::Pi()) phi += TMath::TwoPi();
-    }
+  if (ForceRange && fabs(phi)>100 && m_chi2<100) {
+    // when phi is ridiculously large, there is no point in adjusting it. Also, since this is a BAD track, fail it if chi2 hasn't done so already
+    FTKSetup::PrintMessageFmt(ftk::warn, "FTKTrack warning: fitted phi = %f, but chi2 = %f. Adjusting to chi2+=100!", phi, m_chi2);
+    m_chi2+=100; // we want to fail this event anyway
+  }
+  else if (ForceRange && fabs(phi)<100){
+    while (phi>= TMath::Pi()) phi -= TMath::TwoPi(); 
+    while (phi< -TMath::Pi()) phi += TMath::TwoPi();
   }
   m_rawphi = phi;
+}
+
+// if ForceRange==true, then phifw = [-3..3)
+void FTKTrack::setPhiFW(int phifw, bool ForceRange) {
+  // when phifw is ridiculously large, there is no point in adjusting it. Also, since this is a BAD track, fail it if chi2 hasn't done so already
+  if (ForceRange && abs(phifw)>100 && m_chi2fw<100) {
+    FTKSetup::PrintMessageFmt(ftk::warn, "FTKTrack warning: fitted phifw = %d, but chi2fw = %d. Adjusting to chi2fw+=100!", phifw, m_chi2fw);
+    m_chi2fw+=100; // we want to fail this event anyway
+  }
+  else if (ForceRange && abs(phifw)<100) {
+    while (phifw>= round(TMath::Pi())) phifw -= round(TMath::TwoPi()); 
+    while (phifw< -round(TMath::Pi())) phifw += round(TMath::TwoPi());
+  }
+  m_phifw = phifw;
 }
 
 /** set the number of coordinates connected with this track,
