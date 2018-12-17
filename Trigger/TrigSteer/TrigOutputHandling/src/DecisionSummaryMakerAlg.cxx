@@ -35,13 +35,15 @@ StatusCode DecisionSummaryMakerAlg::finalize() {
 }
 
 StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
-  SG::WriteHandle<TrigCompositeUtils::DecisionContainer> outputHandle = TrigCompositeUtils::createAndStore( m_summaryKey, context );
+
+  using namespace TrigCompositeUtils;
+
+  SG::WriteHandle<DecisionContainer> outputHandle = createAndStore( m_summaryKey, context );
   auto container = outputHandle.ptr();
 
-
-  TrigCompositeUtils::Decision* passRawOutput = TrigCompositeUtils::newDecisionIn( container, "HLTPassRaw" );
-  TrigCompositeUtils::Decision* prescaledOutput = TrigCompositeUtils::newDecisionIn( container, "HLTPrescaled" );
-  TrigCompositeUtils::Decision* rerunOutput = TrigCompositeUtils::newDecisionIn( container, "HLTRerun" );
+  Decision* passRawOutput = newDecisionIn( container, "HLTPassRaw" );
+  Decision* prescaledOutput = newDecisionIn( container, "HLTPrescaled" );
+  Decision* rerunOutput = newDecisionIn( container, "HLTRerun" );
 
   // Collate final decisions into the passRawOutput object
   for ( auto& key: m_finalDecisionKeys ) {
@@ -56,37 +58,42 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
       continue;
     }
 
-    TrigCompositeUtils::DecisionIDContainer sum;
-    for ( const TrigCompositeUtils::Decision* decisionObject: *handle ) {
-      sum.insert( TrigCompositeUtils::decisionIDs(decisionObject).begin(), TrigCompositeUtils::decisionIDs(decisionObject).end() );  // copy from vector
+    DecisionIDContainer sum;
+    for ( const Decision* decisionObject: *handle ) {
+      sum.insert( decisionIDs(decisionObject).begin(), decisionIDs(decisionObject).end() );  // copy from vector
     }
     
-    TrigCompositeUtils::DecisionIDContainer finalIDs;
-    std::set_intersection(  sum.begin(), sum.end(),
+    DecisionIDContainer finalIDs;
+    std::set_intersection( sum.begin(), sum.end(),
           thisCollFilter->second.begin(), thisCollFilter->second.end(), 
           std::inserter(finalIDs, finalIDs.begin() ) ); // should be faster than remove_if
     
-    TrigCompositeUtils::decisionIDs( passRawOutput ).insert( TrigCompositeUtils::decisionIDs( passRawOutput ).end(), 
-          finalIDs.begin(), finalIDs.end() );
+    decisionIDs( passRawOutput ).insert( decisionIDs( passRawOutput ).end(),
+          finalIDs.begin(), finalIDs.end() ); // Copy decisions set into passRawOutput's persistent vector
     
   }
   if ( msgLvl( MSG::DEBUG ) ) {
-    ATH_MSG_DEBUG( "Number of positive decisions " <<  TrigCompositeUtils::decisionIDs( passRawOutput ).size() << " passing chains");
-    for ( auto d: TrigCompositeUtils::decisionIDs( passRawOutput ) ) {
+    ATH_MSG_DEBUG( "Number of positive decisions " <<  decisionIDs( passRawOutput ).size() << " passing chains");
+    for ( auto d: decisionIDs( passRawOutput ) ) {
       ATH_MSG_DEBUG( HLT::Identifier( d ) );
     }
   }
 
+  // TODO collate final rerun decisions into the rerunOutput object
+
   // Get the data from the L1 decoder, this is where prescales were applied
-  SG::ReadHandle<TrigCompositeUtils::DecisionContainer> l1DecoderSummary( m_l1SummaryKey, context );
-  const TrigCompositeUtils::Decision* l1SeededChains = nullptr;
-  const TrigCompositeUtils::Decision* activeChains = nullptr;
-  const TrigCompositeUtils::Decision* rerunChains = nullptr;
-  for (const TrigCompositeUtils::Decision* d : *l1DecoderSummary) {
+  SG::ReadHandle<DecisionContainer> l1DecoderSummary( m_l1SummaryKey, context );
+  const Decision* l1SeededChains = nullptr; // Activated by L1
+  const Decision* activeChains = nullptr; // Activated and passed prescale check
+  const Decision* prescaledChains = nullptr; // Activated but failed prescale check
+  const Decision* rerunChains = nullptr; // Set to activate in the second pass
+  for (const Decision* d : *l1DecoderSummary) {
     if (d->name() == "l1seeded") {
       l1SeededChains = d;
     } else if (d->name() == "unprescaled") {
       activeChains = d;
+    } else if (d->name() == "prescaled") {
+      prescaledChains = d;
     } else if (d->name() == "rerun") {
       rerunChains = d;
     } else {
@@ -94,30 +101,30 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
     }
   }
 
-  if (l1SeededChains == nullptr || activeChains == nullptr || rerunChains == nullptr) {
+  if (l1SeededChains == nullptr || activeChains == nullptr || prescaledChains == nullptr || rerunChains == nullptr) {
     ATH_MSG_ERROR("Unable to read in the summary from the L1Decoder. Cannot write to the HLT output summary the prescale status of HLT chains.");
     return StatusCode::FAILURE;
   }
 
+  // l1SeededChains is not currently used here
+
+  // activeChains is not currently used here
+
   // Get chains which were prescaled out. This is the set of chains which were seeded but which were NOT active (in the first pass)
-  HLT::IDVec prescaledIDs;
-  std::set_difference( 
-        TrigCompositeUtils::decisionIDs(l1SeededChains).begin(), TrigCompositeUtils::decisionIDs(l1SeededChains).end(),
-        TrigCompositeUtils::decisionIDs(activeChains).begin(),   TrigCompositeUtils::decisionIDs(activeChains).end(),
-        std::back_inserter(prescaledIDs) );
-  // Save this to the output
-  TrigCompositeUtils::decisionIDs( prescaledOutput ).insert( TrigCompositeUtils::decisionIDs( prescaledOutput ).end(), 
-        prescaledIDs.begin(), prescaledIDs.end() );
+  DecisionIDContainer prescaledIDs;
+  decisionIDs( prescaledChains, prescaledIDs ); // Extract from prescaledChains (a Decision*) into prescaledIDs (a set<int>)
+  decisionIDs( prescaledOutput ).insert( decisionIDs( prescaledOutput ).end(),
+        prescaledIDs.begin(), prescaledIDs.end() ); // Save this to the output
 
   // Save the set of chains which were flagged as only executing in rerun. This is a direct copy
-  TrigCompositeUtils::DecisionIDContainer rerunIDs;
-  TrigCompositeUtils::decisionIDs( rerunChains, rerunIDs ); // Extract from rerunChains (a Decision*) into rerunIDs (a set<int>)
-  TrigCompositeUtils::decisionIDs( rerunOutput ).insert( TrigCompositeUtils::decisionIDs( rerunOutput ).end(), 
+  DecisionIDContainer rerunIDs;
+  decisionIDs( rerunChains, rerunIDs ); // Extract from rerunChains (a Decision*) into rerunIDs (a set<int>)
+  decisionIDs( rerunOutput ).insert( decisionIDs( rerunOutput ).end(),
         rerunIDs.begin(), rerunIDs.end() );
 
   // Do cost monitoring
   if (m_enableCostMonitoring) {
-    SG::WriteHandle<xAOD::TrigCompositeContainer> costMonOutput = TrigCompositeUtils::createAndStore(m_costWriteHandleKey, context);
+    SG::WriteHandle<xAOD::TrigCompositeContainer> costMonOutput = createAndStore(m_costWriteHandleKey, context);
     // Populate collection (assuming monitored event, otherwise collection will remain empty)
     ATH_CHECK(m_trigCostSvcHandle->endEvent(context, costMonOutput));
   }
