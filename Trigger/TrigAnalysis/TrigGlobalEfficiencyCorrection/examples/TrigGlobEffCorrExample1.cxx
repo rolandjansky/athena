@@ -111,7 +111,7 @@ int main(int argc, char* argv[])
      };
 
     const char* mapPath = "ElectronEfficiencyCorrection/2015_2017/"
-            "rel21.2/Consolidation_September2018_v1/map1.txt";
+            "rel21.2/Consolidation_September2018_v1/map2.txt";
     for(auto& cfg : toolConfigs) /// one instance per trigger leg x working point
     for(int j=0;j<2;++j) /// two instances: 0 -> MC efficiencies, 1 -> SFs
     {
