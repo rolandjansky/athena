@@ -64,7 +64,7 @@ m_athenaTool("IPythia8Custom")
   declareProperty("ShowerWeightNames",m_showerWeightNames);
   declareProperty("CustomInterface",m_athenaTool);
 
-  
+
   m_particleIDs["PROTON"]      = PROTON;
   m_particleIDs["ANTIPROTON"]  = ANTIPROTON;
   m_particleIDs["ELECTRON"]    = ELECTRON;
@@ -76,16 +76,16 @@ m_athenaTool("IPythia8Custom")
   m_particleIDs["LEAD"]        = LEAD;
 
   ATH_MSG_INFO("XML Path is " + xmlpath());
-  
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 Pythia8_i::~Pythia8_i() {
 
   delete m_atlasRndmEngine;
-  
+
   if(m_procPtr != 0)     delete m_procPtr;
-  
+
   for(Pythia8::UserHooks *ptr: m_userHooksPtrs){
     delete ptr;
   }
@@ -95,16 +95,16 @@ Pythia8_i::~Pythia8_i() {
 StatusCode Pythia8_i::genInitialize() {
 
   ATH_MSG_DEBUG("Pythia8_i from genInitialize()");
-  
+
   bool canInit = true;
-  
+
   m_version = m_pythia.settings.parm("Pythia:versionNumber");
-  
+
   Pythia8_i::pythia_stream =       "PYTHIA8_INIT";
-  
+
   // By default add "nominal" to the list of shower weight names
   m_showerWeightNames.insert(m_showerWeightNames.begin(), "nominal");
-  
+
   // We do explicitly set tune 4C, since it is the starting point for many other tunes
   // Tune 4C for pp collisions
   m_pythia.readString("Tune:pp = 5");
@@ -117,7 +117,7 @@ StatusCode Pythia8_i::genInitialize() {
   m_pythia.readString("Next:numberShowEvent = 0");
 
   // Add UserHooks first because these potentially add new settings that must exist prior to parsing commands
-  
+
   bool firstHook=true;
   for(const auto &hook: m_userHooks){
     m_userHooksPtrs.push_back(Pythia8_UserHooks::UserHooksFactory::create(hook));
@@ -128,7 +128,7 @@ StatusCode Pythia8_i::genInitialize() {
     }else{
       canSetHook = m_pythia.addUserHooksPtr(m_userHooksPtrs.back());
     }
-    
+
     if(!canSetHook){
       ATH_MSG_ERROR("Unable to set requested user hook.");
       ATH_MSG_ERROR("Pythia 8 initialisation will FAIL!");
@@ -143,11 +143,15 @@ StatusCode Pythia8_i::genInitialize() {
   for(const std::pair<std::string, int> &param : Pythia8_UserHooks::UserHooksFactory::userSettings<int>()){
     m_pythia.settings.addMode(param.first, param.second, false, false, 0., 0.);
   }
-  
+
+  for(const std::pair<std::string, int> &param : Pythia8_UserHooks::UserHooksFactory::userSettings<bool>()){
+    m_pythia.settings.addFlag(param.first, param.second);
+  }
+
   for(const std::pair<std::string, std::string> &param : Pythia8_UserHooks::UserHooksFactory::userSettings<std::string>()){
     m_pythia.settings.addWord(param.first, param.second);
   }
-  
+
   if(m_athenaTool.typeAndName() != "IPythia8Custom"){
     if(m_athenaTool.retrieve().isFailure()){
       ATH_MSG_ERROR("Unable to retrieve Athena Tool for custom Pythia processing");
@@ -158,15 +162,15 @@ StatusCode Pythia8_i::genInitialize() {
       if(status != StatusCode::SUCCESS) return status;
     }
   }
-  
-  
+
+
   // Now apply the settings from the JO
   foreach(const string &cmd, m_commands){
-    
+
     if(cmd.compare("")==0) continue;
-    
+
     bool read = m_pythia.readString(cmd);
-    
+
     if(!read){
       ATH_MSG_ERROR("Pythia could not understand the command '"<< cmd<<"'");
       return StatusCode::FAILURE;
@@ -219,13 +223,13 @@ StatusCode Pythia8_i::genInitialize() {
   if(m_userProcess != ""){
     m_procPtr = Pythia8_UserProcess::UserProcessFactory::create(m_userProcess);
   }
-  
+
 
 
   if(m_userResonances != ""){
-   
+
     std::vector<string> resonanceArgs;
-    
+
     boost::split(resonanceArgs, m_userResonances, boost::is_any_of(":"));
     if(resonanceArgs.size() != 2){
       ATH_MSG_ERROR("Cannot Understand UserResonance job option!");
@@ -241,20 +245,20 @@ StatusCode Pythia8_i::genInitialize() {
       ATH_MSG_ERROR("Where name is the name of your UserResonance, and id1,id2,id3 are a comma separated list of PDG IDs to which it is applied");
       canInit=false;
     }
-    
+
     for(std::vector<string>::const_iterator sId = resonanceIds.begin();
         sId != resonanceIds.end(); ++sId){
       int idResIn = boost::lexical_cast<int>(*sId);
       m_userResonancePtrs.push_back(Pythia8_UserResonance::UserResonanceFactory::create(resonanceArgs.front(), idResIn));
     }
-    
+
     for(std::vector<Pythia8::ResonanceWidths*>::const_iterator resonance = m_userResonancePtrs.begin();
         resonance != m_userResonancePtrs.end(); ++resonance){
       m_pythia.setResonancePtr(*resonance);
     }
-    
+
   }
-  
+
   if(m_particleDataFile != "") {
     if(!m_pythia.particleData.reInit(m_particleDataFile, true)){
       ATH_MSG_ERROR("Unable to read requested particle data table: " + m_particleDataFile + " !!");
@@ -269,7 +273,7 @@ StatusCode Pythia8_i::genInitialize() {
       ATH_MSG_ERROR("LHE input does not make sense with a user process!");
       canInit = false;
     }
-    
+
     canInit = canInit && m_pythia.readString("Beams:frameType = 4");
     canInit = canInit && m_pythia.readString("Beams:LHEF = " + m_lheFile);
     if(!canInit){
@@ -282,7 +286,7 @@ StatusCode Pythia8_i::genInitialize() {
     canInit = canInit && m_pythia.readString("Beams:idB = " + boost::lexical_cast<string>(beam2));
     canInit = canInit && m_pythia.readString("Beams:eCM = " + boost::lexical_cast<string>(m_collisionEnergy));
   }
-  
+
   if(m_procPtr != 0){
     if(!m_pythia.setSigmaPtr(m_procPtr)){
       ATH_MSG_ERROR("Unable to set requested user process: " + m_userProcess + " !!");
@@ -290,29 +294,29 @@ StatusCode Pythia8_i::genInitialize() {
       canInit = false;
     }
   }
-  
+
   StatusCode returnCode = SUCCESS;
   bool doGuess = m_pythia.settings.word("Merging:process") == "guess";
-  if (doGuess) m_pythia.settings.word("Merging:process","pp>e+e-"); 
+  if (doGuess) m_pythia.settings.word("Merging:process","pp>e+e-");
 
   if(canInit){
     canInit = m_pythia.init();
   }
-  
+
   if(!canInit){
     returnCode = StatusCode::FAILURE;
     ATH_MSG_ERROR(" *** Unable to initialise Pythia !! ***");
   }
 
-  if (doGuess) m_pythia.settings.word("Merging:process","guess"); 
-  
+  if (doGuess) m_pythia.settings.word("Merging:process","guess");
+
   m_pythia.particleData.listXML(m_outputParticleDataFile);
-  
+
   //counter for event failures;
   m_failureCount = 0;
 
   m_internal_event_number = 0;
-  
+
   m_pythiaToHepMC.set_store_pdf(true);
 
   return returnCode;
@@ -322,7 +326,7 @@ StatusCode Pythia8_i::genInitialize() {
 StatusCode Pythia8_i::callGenerator(){
 
   ATH_MSG_DEBUG(">>> Pythia8_i from callGenerator");
-  
+
   if(m_useRndmGenSvc){
     // Save the random number seeds in the event
     CLHEP::HepRandomEngine*  engine  = atRndmGenSvc().GetEngine(Pythia8_i::pythia_stream);
@@ -350,20 +354,20 @@ StatusCode Pythia8_i::callGenerator(){
   if(m_athenaTool.typeAndName() != "IPythia8Custom"){
     returnCode = returnCode && m_athenaTool->ModifyPythiaEvent(m_pythia);
   }
-  
+
   m_failureCount = 0;
-  
+
   m_nAccepted += 1.;
-  // some CKKWL merged events have zero weight (or unfilled event). 
+  // some CKKWL merged events have zero weight (or unfilled event).
   // start again with such events
-  
+
   double eventWeight = m_pythia.info.mergingWeight()*m_pythia.info.weight();
-  
+
 
   if(returnCode != StatusCode::FAILURE &&
      (fabs(eventWeight) < 1.e-18 ||
       m_pythia.event.size() < 2)){
-       
+
        returnCode = this->callGenerator();
      }else{
        m_nMerged += eventWeight;
@@ -372,7 +376,7 @@ StatusCode Pythia8_i::callGenerator(){
        // For FxFx cross section:
        m_sigmaTotal+=m_pythia.info.weight();
      }
-  
+
   return returnCode;
 }
 
@@ -388,11 +392,11 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
     ATH_MSG_ERROR("internal event number is "<<m_internal_event_number);
     return StatusCode::FAILURE;
   }
-  
+
   m_pythiaToHepMC.fill_next_event(m_pythia, evt, m_internal_event_number);
 
   if(m_lheFile != "" && m_storeLHE) addLHEToHepMC(evt);
-  
+
   // in debug mode you can check whether the pdf information is stored
   if(evt->pdf_info()){
     ATH_MSG_DEBUG("PDFinfo id1:" << evt->pdf_info()->id1());
@@ -408,20 +412,20 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
 
   // set the randomseeds
   if(m_useRndmGenSvc)evt->set_random_states(m_seeds);
-  
+
   double phaseSpaceWeight = m_pythia.info.weight();
   double mergingWeight    = m_pythia.info.mergingWeight();
   double eventWeight = phaseSpaceWeight*mergingWeight;
-  
+
   ATH_MSG_DEBUG("Event weights: phase space weight, merging weight, total weight = "<<phaseSpaceWeight<<", "<<mergingWeight<<", "<<eventWeight);
   evt->weights().clear();
-  
+
   std::vector<string>::const_iterator id = m_weightIDs.begin();
-  
+
   if(m_pythia.info.getWeightsDetailedSize() != 0){
     for(std::map<string, Pythia8::LHAwgt>::const_iterator wgt = m_pythia.info.rwgt->wgts.begin();
         wgt != m_pythia.info.rwgt->wgts.end(); ++wgt){
-      
+
       if(m_internal_event_number == 1){
         m_doLHE3Weights = true;
         m_weightIDs.push_back(wgt->first);
@@ -432,23 +436,23 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
         }
         ++id;
       }
-      
+
       std::map<string, Pythia8::LHAweight>::const_iterator weightName = m_pythia.info.init_weights->find(wgt->first);
       if(weightName != m_pythia.info.init_weights->end()){
         evt->weights()[weightName->second.contents] = mergingWeight * wgt->second.contents;
       }else{
         evt->weights()[wgt->first] = mergingWeight * wgt->second.contents;
       }
-      
+
     }
   }
 
   size_t firstWeight = (m_doLHE3Weights)? 1: 0;
-  
+
   for(int iw = firstWeight; iw != m_pythia.info.nWeights(); ++iw){
-    
+
     std::string wtName = ((int)m_showerWeightNames.size() == m_pythia.info.nWeights())? m_showerWeightNames[iw]: "ShowerWt_" + std::to_string(iw);
-    
+
     if(m_pythia.info.nWeights() != 1){
       if(m_internal_event_number == 1) m_weightIDs.push_back(wtName);
       evt->weights()[wtName] = mergingWeight*m_pythia.info.weight(iw);
@@ -456,7 +460,7 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
       evt->weights().push_back(eventWeight);
     }
   }
-  
+
   return SUCCESS;
 }
 
@@ -466,10 +470,10 @@ StatusCode Pythia8_i::genFinalize(){
   ATH_MSG_INFO(">>> Pythia8_i from genFinalize");
 
   m_pythia.stat();
-  
+
   Pythia8::Info info = m_pythia.info;
   double xs = info.sigmaGen(); // in mb
-  
+
   if(m_doCKKWLAcceptance){
     ATH_MSG_DEBUG("Multiplying cross-section by CKKWL merging acceptance of "<<m_nMerged <<"/" <<info.nAccepted());
     xs *= m_nMerged / info.nAccepted();
@@ -486,7 +490,7 @@ StatusCode Pythia8_i::genFinalize(){
     ATH_MSG_DEBUG("Multiplying cross-section by Pythia Modifier tool factor " << xsmod );
     xs *= xsmod;
   }
-  
+
   xs *= 1000. * 1000.;//convert to nb
 
   std::cout << "MetaData: cross-section (nb)= " << xs <<std::endl;
@@ -516,7 +520,7 @@ StatusCode Pythia8_i::genFinalize(){
 
 ////////////////////////////////////////////////////////////////////////////////
 void Pythia8_i::addLHEToHepMC(HepMC::GenEvent *evt){
-  
+
   HepMC::GenEvent *procEvent = new HepMC::GenEvent(evt->momentum_unit(), evt->length_unit());
 
   // Adding the LHE event to the HepMC results in undecayed partons in the event record.
@@ -525,17 +529,17 @@ void Pythia8_i::addLHEToHepMC(HepMC::GenEvent *evt){
   try{
     m_pythiaToHepMC.fill_next_event(m_pythia.process, procEvent, evt->event_number(), &m_pythia.info, &m_pythia.settings);
   }catch(HepMC::PartonEndVertexException &ignoreIt){}
-  
+
   for(HepMC::GenEvent::particle_iterator p = procEvent->particles_begin();
       p != procEvent->particles_end(); ++p){
     (*p)->set_status(1003);
   }
-  
+
   std::vector<HepMC::GenParticle*> beams;
   std::vector<HepMC::GenParticle*> procBeams;
   beams.push_back(evt->beam_particles().first);
   beams.push_back(evt->beam_particles().second);
-  
+
   if(beams[0]->momentum().pz() * procEvent->beam_particles().first->momentum().pz() > 0.){
     procBeams.push_back(procEvent->beam_particles().first);
     procBeams.push_back(procEvent->beam_particles().second);
@@ -543,9 +547,9 @@ void Pythia8_i::addLHEToHepMC(HepMC::GenEvent *evt){
     procBeams.push_back(procEvent->beam_particles().second);
     procBeams.push_back(procEvent->beam_particles().first);
   }
-  
+
   std::map<const HepMC::GenVertex*, HepMC::GenVertex*> vtxCopies;
-  
+
   for(HepMC::GenEvent::vertex_const_iterator v = procEvent->vertices_begin();
       v != procEvent->vertices_end(); ++v ) {
     if(*v == procBeams[0]->end_vertex() || *v == procBeams[1]->end_vertex()) continue;
@@ -555,31 +559,31 @@ void Pythia8_i::addLHEToHepMC(HepMC::GenEvent *evt){
     vtxCopies[*v] = vCopy;
     evt->add_vertex(vCopy);
   }
-  
+
   for(HepMC::GenEvent::particle_const_iterator p = procEvent->particles_begin();
       p != procEvent->particles_end(); ++p ){
     if((*p)->is_beam()) continue;
-    
+
     HepMC::GenParticle *pCopy = new HepMC::GenParticle(*(*p));
     pCopy->suggest_barcode(evt->particles_size());
-    
+
     std::map<const HepMC::GenVertex*, HepMC::GenVertex*>::iterator vit;
     for(size_t ii =0; ii != 2; ++ii){
       if((*p)->production_vertex() == procBeams[ii]->end_vertex()){
         beams[ii]->end_vertex()->add_particle_out(pCopy);
         break;
       }
-      
+
       if(ii == 1){
         vit = vtxCopies.find((*p)->production_vertex());
         if(vit != vtxCopies.end()) vit->second->add_particle_out(pCopy);
       }
     }
-    
+
     vit = vtxCopies.find((*p)->end_vertex());
     if(vit != vtxCopies.end()) vit->second->add_particle_in(pCopy);
   }
-  
+
   return;
 }
 
@@ -592,19 +596,19 @@ double Pythia8_i::pythiaVersion()const{
 
 ////////////////////////////////////////////////////////////////////////
 string Pythia8_i::xmlpath(){
-    
+
   char *cmtpath = getenv("CMTPATH");
   char *cmtconfig = getenv("CMTCONFIG");
-  
+
   string foundpath = "";
-  
+
   if(cmtpath != 0 && cmtconfig != 0){
-    
+
     std::vector<string> cmtpaths;
     boost::split(cmtpaths, cmtpath, boost::is_any_of(string(":")));
-    
+
     string installPath = "/InstallArea/" + string(cmtconfig) + "/share/Pythia8/xmldoc";
-    
+
     for(std::vector<string>::const_iterator path = cmtpaths.begin();
         path != cmtpaths.end() && foundpath == ""; ++path){
       string testPath = *path + installPath;
@@ -612,15 +616,15 @@ string Pythia8_i::xmlpath(){
       if(testFile.good()) foundpath = testPath;
       testFile.close();
     }
-    
+
   } else {
      // If the CMT environment is missing, try to find the xmldoc directory
      // using PathResolver:
      foundpath = PathResolverFindCalibDirectory( "Pythia8/xmldoc" );
   }
-  
+
   return foundpath;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-  
+
