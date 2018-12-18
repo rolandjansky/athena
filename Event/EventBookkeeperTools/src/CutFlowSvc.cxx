@@ -318,9 +318,10 @@ void
 CutFlowSvc::addEvent( CutIdentifier cutID )
 {
   ATH_MSG_INFO("calling addEvent(" << cutID << ")" );
+  ATH_MSG_WARNING("DEPRECATED method, please call addEvent(ID,weight)");
 
   double evtWeight=1.0;
-
+/*
   const xAOD::EventInfo* evtInfo = nullptr;
   StatusCode sc = m_eventStore->retrieve(evtInfo);
   if ( sc.isFailure() || nullptr == evtInfo ) {
@@ -332,6 +333,7 @@ CutFlowSvc::addEvent( CutIdentifier cutID )
       evtWeight = evtInfo->mcEventWeight();
     }
   }
+*/
 
   addEvent(cutID,evtWeight);
 
@@ -345,6 +347,7 @@ CutFlowSvc::addEvent( CutIdentifier cutID, double weight)
 {
   ATH_MSG_INFO("calling addEvent(" << cutID << ", " << weight << ")" );
 
+  std::lock_guard<std::recursive_mutex> lock(m_addeventMutex);
   // Create bookkeeper container for bookkeepers in _this_ processing
   xAOD::CutBookkeeperContainer* fileBook = nullptr;
   if (m_outMetaDataStore->retrieve(fileBook,m_fileCollName).isFailure()) {
@@ -545,7 +548,7 @@ CutFlowSvc::recordCollection( xAOD::CutBookkeeperContainer * coll,
 
 
 xAOD::CutBookkeeper*
-CutFlowSvc::getCutBookkeeper( const CutIdentifier cutID ) {
+CutFlowSvc::getCutBookkeeper( const CutIdentifier cutID ) const {
   xAOD::CutBookkeeperContainer* fileBook = nullptr;
   if (m_outMetaDataStore->retrieve(fileBook,m_fileCollName).isFailure()) {
     ATH_MSG_ERROR("Could not retrieve handle to cutflowsvc bookkeeper");
