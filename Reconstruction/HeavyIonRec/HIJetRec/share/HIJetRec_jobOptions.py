@@ -84,7 +84,8 @@ if not HIJetFlags.DoCellBasedSubtraction():
     #Add weight tool to filler tool
     from HIEventUtils.HIEventUtilsConf import HITowerWeightTool
     TWTool=HITowerWeightTool()
-    TWTool.ConfigDir='HIEventUtils/'
+    TWTool.ApplyCorrection=HIJetFlags.ApplyTowerEtaPhiCorrection()
+    TWTool.ConfigDir='HIJetCorrection/'
     TWTool.InputFile=HIJetFlags.TWConfigFile()
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += HITowerWeightTool()
