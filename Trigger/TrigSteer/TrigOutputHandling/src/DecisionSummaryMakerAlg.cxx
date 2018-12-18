@@ -54,7 +54,8 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
     }
     const auto thisCollFilter = m_collectionFilter.find( key.key() );
     if ( thisCollFilter == m_collectionFilter.end() ) {
-      ATH_MSG_WARNING( "The colleciton " << key.key() << " is not configured to contain any final decision, remove it from the configuration of " << name() << " to save time" );
+      ATH_MSG_WARNING( "The collection " << key.key() << " is not configured to contain any final decision," 
+                       << "remove it from the configuration of " << name() << " to save time" );
       continue;
     }
 
@@ -116,9 +117,9 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
   decisionIDs( prescaledOutput ).insert( decisionIDs( prescaledOutput ).end(),
         prescaledIDs.begin(), prescaledIDs.end() ); // Save this to the output
 
-  // Save the set of chains which were flagged as only executing in rerun. This is a direct copy
+  // Save the set of chains which were flagged as only executing in rerun.
   DecisionIDContainer rerunIDs;
-  decisionIDs( rerunChains, rerunIDs ); // Extract from rerunChains (a Decision*) into rerunIDs (a set<int>)
+  decisionIDs( rerunChains, rerunIDs ); 
   decisionIDs( rerunOutput ).insert( decisionIDs( rerunOutput ).end(),
         rerunIDs.begin(), rerunIDs.end() );
 
