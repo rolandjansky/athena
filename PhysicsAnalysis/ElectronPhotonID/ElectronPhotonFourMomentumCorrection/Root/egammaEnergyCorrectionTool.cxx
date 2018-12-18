@@ -72,7 +72,7 @@ namespace AtlasRoot {
 
     m_rootFile = nullptr;
 
-    m_rootFileName = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v19/egammaEnergyCorrectionData.root");
+    m_rootFileName = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v20/egammaEnergyCorrectionData.root");
     
     if (m_rootFileName.empty()) {
       ATH_MSG_FATAL("cannot find configuration file");
@@ -1871,8 +1871,9 @@ namespace AtlasRoot {
 
   // get fractional uncertainty on resolution
 
-  double egammaEnergyCorrectionTool::getResolutionError(double energy, double eta, double etaCalo, PATCore::ParticleType::Type ptype,egEnergyCorr::Resolution::Variation value,
-                                                        egEnergyCorr::Resolution::resolutionType resType ) const
+  double egammaEnergyCorrectionTool::getResolutionError(PATCore::ParticleDataType::DataType dataType,double energy, double eta, double etaCalo, 
+                                                        PATCore::ParticleType::Type ptype,egEnergyCorr::Resolution::Variation value,
+                                                       egEnergyCorr::Resolution::resolutionType resType) const
 
   {
 
@@ -1888,24 +1889,8 @@ namespace AtlasRoot {
 
     int isys=0;
     if (value==egEnergyCorr::Resolution::AllUp || value==egEnergyCorr::Resolution::AllDown) {
-      // old code, seems to do a linear sum, Guillaume email 1 Jul 2016
       isys=0xFFFF;
-      /*const std::vector<egEnergyCorr::Resolution::Variation> list_up = { egEnergyCorr::Resolution::ZSmearingUp, egEnergyCorr::Resolution::SamplingTermUp,
-                                                                    egEnergyCorr::Resolution::MaterialIDUp, egEnergyCorr::Resolution::MaterialCaloUp,
-                                                                    egEnergyCorr::Resolution::MaterialGapUp, egEnergyCorr::Resolution::MaterialCryoUp,
-                                                                    egEnergyCorr::Resolution::PileUpUp };
-      const std::vector<egEnergyCorr::Resolution::Variation> list_down = { egEnergyCorr::Resolution::ZSmearingDown, egEnergyCorr::Resolution::SamplingTermDown,
-                                                                    egEnergyCorr::Resolution::MaterialIDDown, egEnergyCorr::Resolution::MaterialCaloDown,
-                                                                    egEnergyCorr::Resolution::MaterialGapDown, egEnergyCorr::Resolution::MaterialCryoDown,
-                                                                    egEnergyCorr::Resolution::PileUpDown };
-      const std::vector<egEnergyCorr::Resolution::Variation> list_sys_loop = value == egEnergyCorr::Resolution::AllUp ? list_up : list_down;
-      double acc_sys = 0.;
-      for (const auto var : list_sys_loop) {
-        acc_sys += std::pow(getResolutionError(energy, eta, etaCalo, ptype, var, resType), 2);
-      }
-      acc_sys = std::sqrt(acc_sys);
-      if (value == egEnergyCorr::Resolution::AllDown) return -acc_sys;
-      else return acc_sys;*/
+
     }
     if (value==egEnergyCorr::Resolution::ZSmearingUp || value==egEnergyCorr::Resolution::ZSmearingDown) {
       isys=0x1;
@@ -1935,20 +1920,26 @@ namespace AtlasRoot {
     if (value==egEnergyCorr::Resolution::MaterialPP0Up || value==egEnergyCorr::Resolution::MaterialPP0Down) {
       isys=0x100;
     }
+    if (value==egEnergyCorr::Resolution::af2Up || value==egEnergyCorr::Resolution::af2Down) {
+      isys=0x200;
+    }
 
     double sign = 1.;
     if (value==egEnergyCorr::Resolution::AllDown ||  value==egEnergyCorr::Resolution::ZSmearingDown ||
         value==egEnergyCorr::Resolution::SamplingTermDown ||  value==egEnergyCorr::Resolution::MaterialIDDown ||
         value==egEnergyCorr::Resolution::MaterialGapDown || value==egEnergyCorr::Resolution::MaterialCaloDown ||
         value==egEnergyCorr::Resolution::MaterialCryoDown || value==egEnergyCorr::Resolution::PileUpDown ||
-	value==egEnergyCorr::Resolution::MaterialIBLDown || value==egEnergyCorr::Resolution::MaterialPP0Down) sign=-1.;
+	value==egEnergyCorr::Resolution::MaterialIBLDown || value==egEnergyCorr::Resolution::MaterialPP0Down ||
+        value==egEnergyCorr::Resolution::af2Down) sign=-1.;
 
     double resolution;
     double resolution_error;
     double resolution_error_up;
     double resolution_error_down;
 
-    getResolution_systematics(eg_resolution_ptype, energy,  eta, etaCalo, isys,  resolution, resolution_error, resolution_error_up, resolution_error_down, resType);
+
+    getResolution_systematics(eg_resolution_ptype, energy,  eta, etaCalo, isys,  resolution, resolution_error, resolution_error_up, resolution_error_down, resType, 
+          dataType == PATCore::ParticleDataType::Fast);
 
     // total resolution uncertainty
     if (value==egEnergyCorr::Resolution::AllUp || value==egEnergyCorr::Resolution::AllDown) {
@@ -2104,7 +2095,7 @@ namespace AtlasRoot {
     ATH_MSG_DEBUG("resolution in data: " << resData << " in MC: " << resMC);
 
     if (m_use_new_resolution_model) {
-      resData *= 1 + getResolutionError(energy, cl_eta, cl_etaCalo, ptype, value, resType);
+      resData *= 1 + getResolutionError(dataType,energy, cl_eta, cl_etaCalo, ptype, value, resType);
     } else { // OLD model
       double errUp, errDown;
       resolutionError( energyGeV, cl_eta, errUp, errDown );
@@ -2119,6 +2110,7 @@ namespace AtlasRoot {
     ATH_MSG_DEBUG("resolution in data after systematics: " << resData);
 
     const double sigma2 = std::pow(resData * energyGeV, 2 ) - std::pow(resMC * energyGeV, 2);
+
     // TODO: for nominal case it can be simplified to:
     // const double sigma = dataConstantTerm(m_use_etaCalo_scales ? cl_etaCalo : cl_eta) * energyGeV;
     // which is just the additional constant term
@@ -3252,7 +3244,8 @@ double egammaEnergyCorrectionTool::getMaterialEffect(egEnergyCorr::Geometry geo,
 							     double& resolution_error,
                                                              double& resolution_error_up,
                                                              double& resolution_error_down,
-							     int resol_type) const {
+							     int resol_type,
+                                                             bool fast) const {
 
     double pileupNoise =  pileUpTerm(energy,eta, particle_type);
     double et = energy/cosh(eta);
@@ -3269,8 +3262,7 @@ double egammaEnergyCorrectionTool::getMaterialEffect(egEnergyCorr::Geometry geo,
     double sum_deltaDown=0.;
     double sum_deltaUp=0.;
 
-
-    for (int isys=0;isys<9;isys++) {
+    for (int isys=0;isys<10;isys++) {
 
       if (syst_mask & (1<<isys) ) {
 
@@ -3387,6 +3379,17 @@ double egammaEnergyCorrectionTool::getMaterialEffect(egEnergyCorr::Geometry geo,
 	  ATH_MSG_DEBUG(boost::format("sys resolution pp0 material: %.7f %.7f %.7f") % sigma2 % sigma2up % sigma2down);
 
 	}
+
+        // AF2 resolution systematics for es2017_R21_v1 model (neglected before that...)
+
+        if (isys==9 && m_esmodel == egEnergyCorr::es2017_R21_v1 && fast) {
+           const double ptGeV = et/1e3;
+           if(particle_type == 0) sigma2 = getValueHistAt(*m_G4OverAFII_resolution_electron,eta,ptGeV,true,true,true,true);
+           if(particle_type == 1) sigma2 = getValueHistAt(*m_G4OverAFII_resolution_unconverted,eta,ptGeV,true,true,true,true);
+           if(particle_type == 2) sigma2 = getValueHistAt(*m_G4OverAFII_resolution_converted,eta,ptGeV,true,true,true,true);
+           sigma2up = -1.*sigma2;  // AF2 resolution worse than full Sim, sigma2up gives back AF2 resolution
+           sigma2down = sigma2;
+        }
 
 
 //  old method to use max of up and down for All
@@ -3540,6 +3543,8 @@ double egammaEnergyCorrectionTool::getMaterialEffect(egEnergyCorr::Geometry geo,
       case egEnergyCorr::Resolution::MaterialPP0Down: return "Resolution::MaterialPP0Down";
       case egEnergyCorr::Resolution::MaterialIBLUp: return "Resolution::MaterialIBLUp";
       case egEnergyCorr::Resolution::MaterialIBLDown: return "Resolution::MaterialIBLDown";
+      case egEnergyCorr::Resolution::af2Up: return "Resolution::af2Up";
+      case egEnergyCorr::Resolution::af2Down: return "Resolution::af2Down";
       case egEnergyCorr::Resolution::LastResolutionVariation: return "LastResolutionVariation";
       default: return "Resolution::Unknown";
     }
@@ -3639,6 +3644,8 @@ double egammaEnergyCorrectionTool::getMaterialEffect(egEnergyCorr::Geometry geo,
     else if ( var == "MaterialPP0Down")           TheVar = egEnergyCorr::Resolution::MaterialPP0Down;
     else if ( var == "PileUpUp")                  TheVar = egEnergyCorr::Resolution::PileUpUp;
     else if ( var == "PileUpDown")                TheVar = egEnergyCorr::Resolution::PileUpDown;
+    else if ( var == "af2Up")                     TheVar =  egEnergyCorr::Resolution::af2Up;
+    else if ( var == "af2Down")                   TheVar =  egEnergyCorr::Resolution::af2Down;
     else if ( var == "LastResolutionVariation")   TheVar = egEnergyCorr::Resolution::LastResolutionVariation;
 
     return TheVar;

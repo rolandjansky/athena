@@ -1223,6 +1223,10 @@ void EgammaCalibrationAndSmearingTool::setupSystematics() {
       m_syst_description_resolution[CP::SystematicVariation("EG_RESOLUTION_MATERIALIBL", -1)] = egEnergyCorr::Resolution::MaterialIBLDown;
       m_syst_description_resolution[CP::SystematicVariation("EG_RESOLUTION_MATERIALPP0", +1)] = egEnergyCorr::Resolution::MaterialPP0Up;
       m_syst_description_resolution[CP::SystematicVariation("EG_RESOLUTION_MATERIALPP0", -1)] = egEnergyCorr::Resolution::MaterialPP0Down;
+      if (m_TESModel == egEnergyCorr::es2017_R21_v1) {
+        m_syst_description_resolution[CP::SystematicVariation("EG_RESOLUTION_AF2", +1)] = egEnergyCorr::Resolution::af2Up;
+        m_syst_description_resolution[CP::SystematicVariation("EG_RESOLUTION_AF2", -1)] = egEnergyCorr::Resolution::af2Down;
+      }
     }
   }
   else {

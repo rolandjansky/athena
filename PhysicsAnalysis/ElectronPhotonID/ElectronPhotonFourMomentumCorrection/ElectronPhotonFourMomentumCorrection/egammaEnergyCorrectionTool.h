@@ -83,6 +83,8 @@ namespace egEnergyCorr {
       // IBL+PP0 for run 2
       MaterialIBLUp, MaterialIBLDown, MaterialPP0Up, MaterialPP0Down,
 
+      // Atlfast 2 resolution uncertainties
+      af2Up, af2Down,
 
       // to help with loops
       LastResolutionVariation
@@ -328,7 +330,7 @@ namespace AtlasRoot {
                       egEnergyCorr::Resolution::resolutionType resType = egEnergyCorr::Resolution::SigmaEff90 ) const;
 
     // new for mc12c model. Return relative uncertainty on the resolution
-    double getResolutionError(double energy, double eta, double etaCalo, PATCore::ParticleType::Type ptype, egEnergyCorr::Resolution::Variation value,
+    double getResolutionError(PATCore::ParticleDataType::DataType dataType,double energy, double eta, double etaCalo, PATCore::ParticleType::Type ptype, egEnergyCorr::Resolution::Variation value,
                               egEnergyCorr::Resolution::resolutionType resType = egEnergyCorr::Resolution::Gaussian) const;
 
 
@@ -449,7 +451,7 @@ namespace AtlasRoot {
      @brief  Output : resolution_error = uncertainty on energy resolution in MeV from the systematics included according to bit mask
      @brief resolution_type 0=gaussian core, 1= sigma eff 80%, 2 = sigma eff 90%
   */
-    void getResolution_systematics(int particle_type, double energy, double eta, double etaCalo, int syst_mask, double& resolution, double& resolution_error,double& resolution_error_up, double & resolution_error_down, int resol_type=0) const;
+    void getResolution_systematics(int particle_type, double energy, double eta, double etaCalo, int syst_mask, double& resolution, double& resolution_error,double& resolution_error_up, double & resolution_error_down, int resol_type=0, bool fast=false) const;
 
     // approximate pileup noise contribution to the resolution
     double pileUpTerm(double energy, double eta, int particle_type) const;
