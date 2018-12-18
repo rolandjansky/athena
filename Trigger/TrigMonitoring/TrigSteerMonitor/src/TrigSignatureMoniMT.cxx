@@ -123,8 +123,21 @@ StatusCode TrigSignatureMoniMT::fillCount(const std::vector<TrigCompositeUtils::
 StatusCode TrigSignatureMoniMT::execute()  {  
 
   auto l1Decisions = SG::makeHandle( m_l1DecisionsKey );
-  CHECK( l1Decisions->at( 0 )->name() == "l1seeded" ); 
-  CHECK( l1Decisions->at( 1 )->name() == "unprescaled" ); // see L1Decoder implementation
+
+  const TrigCompositeUtils::Decision* l1SeededChains = nullptr; // Activated by L1
+  const TrigCompositeUtils::Decision* unprescaledChains = nullptr; // Activated and passed prescale check
+  for (const TrigCompositeUtils::Decision* d : *l1Decisions) {
+    if (d->name() == "l1seeded") {
+      l1SeededChains = d;
+    } else if (d->name() == "unprescaled") {
+      unprescaledChains = d;
+    }
+  }
+
+  if (l1SeededChains == nullptr || unprescaledChains == nullptr) {
+    ATH_MSG_ERROR("Unable to read in the summary from the L1Decoder.");
+    return StatusCode::FAILURE;
+  }
 
   auto fillL1 = [&]( int index ) -> StatusCode {    
     TrigCompositeUtils::DecisionIDContainer ids;    
