@@ -156,8 +156,6 @@ def triggerOutputStreamCfg( flags, decObj, outputType ):
     [ itemsToRecord.extend( __TCKeys(d) ) for d in decObj ]
     # the rest of triger EDM
     itemsToRecord.extend( __TCKeys( "HLTSummary" ) )
-    itemsToRecord.append( "EventInfo#ByteStreamEventInfo" )
-    itemsToRecord.append( "ROIB::RoIBResult#*" )
 
     from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTList
     EDMCollectionsToRecord=filter( lambda x: outputType in x[1] and "TrigCompositeContainer" not in x[0],  TriggerHLTList )
