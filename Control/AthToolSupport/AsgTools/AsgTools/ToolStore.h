@@ -60,7 +60,7 @@ namespace asg {
       /// Remove a tool with a given name from the store
       static StatusCode remove( const std::string& name );
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
      /// dump the tool configuration for all tools to std::cout
      static void dumpToolConfig ();
 #endif

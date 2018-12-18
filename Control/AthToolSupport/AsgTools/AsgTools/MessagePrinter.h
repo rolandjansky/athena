@@ -11,7 +11,7 @@
 // reports, feature suggestions, praise and complaints.
 
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 
 #include <AsgTools/IMessagePrinter.h>
 

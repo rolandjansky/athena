@@ -1,10 +1,10 @@
-// $Id: SgTEventMeta.cxx 687011 2015-08-03 09:25:07Z krasznaa $
+
 
 // xAOD include(s):
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 #   include "xAODRootAccessInterfaces/TActiveEvent.h"
 #   include "xAODRootAccess/TEvent.h"
-#endif // ROOTCORE
+#endif // XAOD_STANDALONE
 
 // Local include(s):
 #include "AsgTools/SgTEventMeta.h"
