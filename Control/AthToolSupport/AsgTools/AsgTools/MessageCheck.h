@@ -79,7 +79,7 @@
 #include <type_traits>
 
 #include <xAODRootAccess/tools/TReturnCode.h>
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 #include <AsgTools/MsgStream.h>
 #else
 #include "AthenaBaseComps/AthMessaging.h"
@@ -118,7 +118,7 @@
   void setMsgLevel (MSG::Level level); }
 
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 #define ASG_TOOLS_MSG_STREAM(NAME,TITLE)	\
   static MsgStream NAME (TITLE);
 #else
@@ -254,7 +254,7 @@ namespace asg
 
   namespace detail
   {
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
     /// Get the Athena message service
     /// TODO: Look into using AthenaKernel/MsgStreamMember.h
     IMessageSvc* getMessageSvcAthena();

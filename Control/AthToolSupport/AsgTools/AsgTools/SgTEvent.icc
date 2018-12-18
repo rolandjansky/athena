@@ -7,10 +7,10 @@
 #include <iostream>
 
 // xAOD include(s):
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 #   include "xAODRootAccess/TEvent.h"
 #   include "xAODRootAccess/TStore.h"
-#endif // ROOTCORE
+#endif // XAOD_STANDALONE
 
 namespace asg {
 

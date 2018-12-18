@@ -116,7 +116,7 @@ namespace asg {
    }
 
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
   void ToolStore::dumpToolConfig () {
     using namespace asg::msgProperty;
 

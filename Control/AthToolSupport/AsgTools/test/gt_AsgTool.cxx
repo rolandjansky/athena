@@ -23,7 +23,7 @@
 #include <gtest/gtest-spi.h>
 #include <gmock/gmock.h>
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 #include <xAODRootAccess/Init.h>
 #endif
 
