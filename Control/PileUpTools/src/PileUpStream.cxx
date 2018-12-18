@@ -21,6 +21,15 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventType.h" 
+#include "EventInfo/PileUpEventInfo.h" 
+#include "EventInfo/PileUpTimeEventIndex.h" 
+
+#include "xAODEventInfo/EventInfo.h"             // NEW EDM
+#include "xAODEventInfo/EventAuxInfo.h"          // NEW EDM
+#include "xAODEventInfo/EventInfoContainer.h"    // NEW EDM
+#include "xAODEventInfo/EventInfoAuxContainer.h" // NEW EDM
+#include "xAODCnvInterfaces/IEventInfoCnvTool.h"
+#include "xAODCore/tools/PrintHelpers.h"
 
 #include "StoreGate/ActiveStoreSvc.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
@@ -28,7 +37,11 @@
 /* #include "GaudiKernel/IOpaqueAddress.h" */
 class IOpaqueAddress;
 
+#include <iostream>
 using namespace std;
+
+// EventInfo -> xAOD::EventInfo converter tool
+xAODMaker::IEventInfoCnvTool* PileUpStream::m_xAODCnvTool = nullptr;
 
 /// Structors
 PileUpStream::PileUpStream():
@@ -231,30 +244,150 @@ bool PileUpStream::loadStore()
 }
 
 //return next event, load store with next event
-const EventInfo* PileUpStream::nextEventPre(bool readRecord) {
-  if (m_neverLoaded) readRecord=true;
-  else if (readRecord) {
-    //do not reset these the first time we call nextEventPre
-    this->resetUsed();
-    m_hasRing=false;
-  }
-  const EventInfo* pEvent(0);
-  //  if (isNotEmpty()) {
-  if (readRecord && this->nextRecordPre().isFailure()) {
-    ATH_MSG_INFO ( "nextEventPre(): end of the loop. No more events in the selection" );
-    return (const EventInfo*)0;
-  } 
-  if( !(this->store().retrieve(pEvent)).isSuccess() ) {
-      ATH_MSG_DEBUG ( "nextEventPre():	Unable to retrieve Event root object" );
-  }
-  if (readRecord) {
+const xAOD::EventInfo* PileUpStream::nextEventPre(bool readRecord)
+{
+   if (m_neverLoaded) readRecord=true;
+   else if (readRecord) {
+      //do not reset these the first time we call nextEventPre
+      this->resetUsed();
+      m_hasRing=false;
+   }
+   //  if (isNotEmpty()) {
+   if (readRecord && this->nextRecordPre().isFailure()) {
+      ATH_MSG_INFO ( "nextEventPre(): end of the loop. No more events in the selection" );
+      return nullptr;
+   }
+
+   const xAOD::EventInfo* xAODEventInfo = store().tryConstRetrieve<xAOD::EventInfo>();
+
+   if( !xAODEventInfo ) {
+      // Try reading old EventInfo
+      const EventInfo* pEvent(0);
+      if( !(this->store().retrieve(pEvent)).isSuccess() ) {
+         ATH_MSG_DEBUG ( "nextEventPre():	Unable to retrieve Event root object" );
+         return nullptr;
+      }
+      ATH_MSG_DEBUG("Converting PileUpEventInfo to xAOD::EventInfo");
+      // Create the xAOD object(s):
+      std::unique_ptr< xAOD::EventInfo >  pxAODEventInfo( new xAOD::EventInfo() );
+      std::unique_ptr< xAOD::EventAuxInfo > pxAODEventAuxInfo(new xAOD::EventAuxInfo());
+      pxAODEventInfo->setStore( pxAODEventAuxInfo.get() );
+      if( !m_xAODCnvTool->convert( pEvent, pxAODEventInfo.get(), false, false ).isSuccess() ) {
+         ATH_MSG_ERROR("Failed to convert  xAOD::EventInfo in SG");
+         return nullptr;
+      }
+
+      //ATH_MSG_INFO ("Dumping xAOD::EventInfo prior to adding SubEvents");
+      //xAOD::dump( *xAODEventInfo );
+
+      const PileUpEventInfo* pileupEvent(dynamic_cast<const PileUpEventInfo*>(pEvent));
+      if( pileupEvent ) {
+         cout << "MN: PileUpStream: converting PileUpEventInfo" << endl;
+         // Create an EventInfoContainer for the pileup events:
+         std::unique_ptr< xAOD::EventInfoContainer > puei(new xAOD::EventInfoContainer());
+         std::unique_ptr< xAOD::EventInfoAuxContainer > puaux(new xAOD::EventInfoAuxContainer());
+         puei->setStore( puaux.get() );
+
+         // Sub-events for the main EventInfo object:
+         std::vector< xAOD::EventInfo::SubEvent > subEvents;
+
+         // A map translating between the AOD and xAOD pileup event types:
+         static std::map< PileUpEventInfo::SubEvent::pileup_type,
+            xAOD::EventInfo::PileUpType > pileupTypeMap;
+         if( ! pileupTypeMap.size() ) {
+#define DECLARE_SE_TYPE( TYPE )                                         \
+            pileupTypeMap[ PileUpTimeEventIndex::TYPE ] = xAOD::EventInfo::TYPE
+
+            DECLARE_SE_TYPE( Unknown );
+            DECLARE_SE_TYPE( Signal );
+            DECLARE_SE_TYPE( MinimumBias );
+            DECLARE_SE_TYPE( Cavern );
+            DECLARE_SE_TYPE( HaloGas );
+            DECLARE_SE_TYPE( ZeroBias );
+
+#undef DECLARE_SE_TYPE
+         }
+
+         // A convenience type declaration:
+         typedef ElementLink< xAOD::EventInfoContainer > EiLink;
+
+         // Create xAOD::EventInfo objects for each pileup EventInfo object:
+         auto pu_itr = pileupEvent->beginSubEvt();
+         auto pu_end = pileupEvent->endSubEvt();
+         const unsigned int countEvents = std::distance(pu_itr,pu_end);
+         ATH_MSG_VERBOSE( "CHECKING: There are " << countEvents << " subevents in this Event." );
+         cout << "MN: There are " << countEvents << " subevents in this Event." <<endl;
+
+         for( ; pu_itr != pu_end; ++pu_itr ) {
+            // Create a new xAOD::EventInfo object:
+            std::unique_ptr< xAOD::EventInfo > ei( new xAOD::EventInfo() );
+            // Fill it with information:
+            if( ! m_xAODCnvTool->convert( pu_itr->pSubEvt, ei.get(), true, false ).isSuccess() ) {
+               ATH_MSG_ERROR("Failed to convert EventInfo to xAOD::EventInfo");
+               continue;
+            }
+
+            StoreGateSvc* tmpSG = pu_itr->pSubEvtSG;
+            cout << "MN: PileUpStream: SG comparison:  p_SG=" << p_SG << "  tmpSG= " << tmpSG << endl;
+            if(tmpSG) {
+               ei->setEvtStore(tmpSG);
+               ATH_MSG_VERBOSE("FOUND A STOREGATE");
+            } else {
+               ATH_MSG_ERROR("FAILED TO FIND A STOREGATE");
+            }
+            // Store new EI into the container
+            puei->push_back( ei.release() );
+      
+            // And now add a sub-event to the temporary list:
+            auto typeItr = pileupTypeMap.find( pu_itr->type() );
+            xAOD::EventInfo::PileUpType type = xAOD::EventInfo::Unknown;
+            if( typeItr == pileupTypeMap.end() ) {
+               ATH_MSG_WARNING( "PileUpType not recognised: " << pu_itr->type() );
+            } else {
+               type = typeItr->second;
+            }
+            ATH_MSG_VERBOSE("PileUpEventInfo: time = " << pu_itr->time() << ", index = " << pu_itr->index());
+            subEvents.push_back( xAOD::EventInfo::SubEvent( pu_itr->time(),
+                                                            pu_itr->index(),
+                                                            type,
+                                                            EiLink( "PileUpEventInfo", puei->size()-1, p_SG )));  // p_SG?
+//                                                               m_evtStore.operator->() ) ) );
+            ATH_MSG_VERBOSE("PileUpEventInfo: time = " << subEvents.back().time() << ", index = " << subEvents.back().index());
+         }
+
+         if( subEvents.size() ) {
+            // And now update the main EventInfo object with the sub-events:
+            pxAODEventInfo->setSubEvents( subEvents );
+
+            // Record the xAOD object(s):
+            if( !store().record( std::move( puaux ), "PileUpEventInfoAux." ).isSuccess()
+                || !store().record( std::move( puei ), "PileUpEventInfo" ).isSuccess() ) {  //MN: FIX - make keys configurable
+               ATH_MSG_ERROR("Failed to record xAOD::EventInfoContainer in SG");
+            }
+         }
+      }
+      
+      pxAODEventInfo->setEvtStore( &store() );   // FIX: MN: do we need this?
+      xAODEventInfo = pxAODEventInfo.get();  // remember pointer to return the new EventInfo
+      // Record the xAOD object(s):
+      if( ! store().record( std::move( pxAODEventAuxInfo ), "EventInfoAux." ).isSuccess() //MN: FIX? key
+          || ! store().record( std::move( pxAODEventInfo ), "EventInfo" ).isSuccess() ) {
+         ATH_MSG_ERROR("Failed to record the new xAOD::EventInfo in SG");
+      }
+   }
+   
+   ATH_MSG_INFO("Dumping xAOD::EventInfo");
+   xAOD::dump( *xAODEventInfo );
+            
+   if (readRecord) {
       ATH_MSG_DEBUG ( "nextEventPre(): read new event " 
-		      <<  pEvent->event_ID()->event_number() 
-		      << " run " << pEvent->event_ID()->run_number()
+		      <<  xAODEventInfo->eventNumber() 
+		      << " run " << xAODEventInfo->runNumber()
 		      << " into store " << this->store().name() );
-  }
-  return pEvent;
-}    
+   }
+
+   return xAODEventInfo;
+}
 
 bool PileUpStream::nextEventPre_Passive(bool readRecord) {
   if (m_neverLoaded) readRecord=true;

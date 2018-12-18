@@ -14,8 +14,8 @@
 #define PILEUPTOOLS_PILEUPMERGESVC_H
 
 #include "EventInfo/PileUpTimeEventIndex.h"
-#include "EventInfo/PileUpEventInfo.h"  /*needed by the icc*/
-#include "PileUpTools/IPileUpTool.h"    /*needed by the icc*/
+#include "xAODEventInfo/EventInfo.h"
+#include "PileUpTools/IPileUpTool.h"    /* subEventIterator*/
 
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ClassID.h"
@@ -115,7 +115,7 @@ public:
 
 private:
   // hack to make gcc happy
-  const PileUpEventInfo* getPileUpEvent() const;
+  const xAOD::EventInfo* getPileUpEvent() const;
   ServiceHandle<StoreGateSvc> p_overStore;      ///< overlaid SG (default)
   ServiceHandle<ActiveStoreSvc> p_activeStore;  ///< current active store
   ToolHandleArray<IPileUpXingFolder> m_intervals; ///< Property: bunch xing intervals

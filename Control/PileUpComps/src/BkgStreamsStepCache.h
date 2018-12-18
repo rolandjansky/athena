@@ -26,11 +26,9 @@
 
 
 class ActiveStoreSvc;
-class EventInfo;
 class IEvtSelector;
 class IAtRndmGenSvc;
 class IBeamIntensity;
-class PileUpEventInfo;
 namespace CLHEP {
   class RandFlat;
   class RandPoisson;
@@ -68,7 +66,7 @@ public:
      @param t0BinCenter   time wrto t0 of current bin center in ns
   */
   virtual StatusCode addSubEvts(unsigned int iXing,
-                                PileUpEventInfo& overlaidEvent,
+                                xAOD::EventInfo* overlaidEvent,
                                 int t0BinCenter) override final;
   /**
      @brief Read input events in bkg stores and link them to overlay store
@@ -79,7 +77,7 @@ public:
      @param loadEventProxies should we load the event proxies or not.
   */
   virtual StatusCode addSubEvts(unsigned int iXing,
-                                PileUpEventInfo& overEvent,
+                                xAOD::EventInfo* overEvent,
                                 int t0BinCenter, bool loadEventProxies, unsigned int /*BCID*/) override final;
   /// how many stores in cache
   virtual unsigned int nStores() const override final { return m_nStores; }
@@ -93,7 +91,7 @@ public:
   unsigned int numberOfCavernBkgForBunchCrossing(unsigned int iXing) const;
 private:
   /// get next bkg event from cache
-  const EventInfo* nextEvent();
+  const xAOD::EventInfo* nextEvent();
   /// as nextEvent except don't actually load anything
   StatusCode nextEvent_passive();
   /// get current (last asked) stream
@@ -139,7 +137,7 @@ private:
   Gaudi::CheckedProperty<unsigned short> m_pileUpEventTypeProp;
   void PileUpEventTypeHandler(Property&);
   /// the type of events in this cache
-  PileUpTimeEventIndex::PileUpType m_pileUpEventType;
+  xAOD::EventInfo::PileUpType m_pileUpEventType;
   /// subtract from number of events at bunch xing = 0
   Gaudi::Property<unsigned short> m_subtractBC0;
   /// ignore the PileUpEventLoopMgr beam intensity tool

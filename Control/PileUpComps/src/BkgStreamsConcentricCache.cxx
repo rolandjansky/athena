@@ -23,9 +23,8 @@
 
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandPoisson.h"
-#include "EventInfo/PileUpEventInfo.h"
 #include "EventInfo/PileUpTimeEventIndex.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfoContainer.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 #include "BkgStreamsConcentricCache.h"
@@ -50,7 +49,7 @@ BkgStreamsConcentricCache::BkgStreamsConcentricCache( const std::string& type,
   m_atRndmSvc("AtRndmGenSvc", name),
   m_randomStreamName("PileUpCollXingStream"),
   m_pileUpEventTypeProp(0),
-  m_pileUpEventType(PileUpTimeEventIndex::Signal),
+  m_pileUpEventType(xAOD::EventInfo::PileUpType::Signal),
   m_ringsProp(),
   m_allowRingMigProp(false),
   m_readEventRand(0),
@@ -68,7 +67,7 @@ BkgStreamsConcentricCache::BkgStreamsConcentricCache( const std::string& type,
   declareProperty("RndmGenSvc", m_atRndmSvc, "IAtRndmGenSvc controlling the distribution of bkg events/xing");
   declareProperty("RndmStreamName", m_randomStreamName, "IAtRndmGenSvc stream used as engine for our various random distributions, including the CollPerXing one ");  
   declareProperty("PileUpEventType", m_pileUpEventTypeProp, "Type of the pileup events in this cache: 0:Signal, 1:MinimumBias, 2:Cavern, 3:HaloGas, 4:ZeroBias");
-  m_pileUpEventTypeProp.verifier().setUpper(PileUpTimeEventIndex::NTYPES-2);
+  m_pileUpEventTypeProp.verifier().setUpper((xAOD::EventInfo::PileUpType)PileUpTimeEventIndex::NTYPES-2);
   m_pileUpEventTypeProp.declareUpdateHandler(&BkgStreamsConcentricCache::PileUpEventTypeHandler, this);
   declareProperty("NonIntersectingRings", m_ringsProp,
 		  "Array of rings specified in the form lowXing:hiXing. Rings must not intersect (e.g. -7:7, -3:0, -1:0) or an exception will be thrown");
@@ -87,7 +86,7 @@ BkgStreamsConcentricCache::~BkgStreamsConcentricCache() {
 
 void
 BkgStreamsConcentricCache::PileUpEventTypeHandler(Property&) {
-  m_pileUpEventType=PileUpTimeEventIndex::ushortToType(m_pileUpEventTypeProp.value());
+  m_pileUpEventType=(xAOD::EventInfo::PileUpType)PileUpTimeEventIndex::ushortToType(m_pileUpEventTypeProp.value());
 }
 
 void
@@ -201,8 +200,8 @@ void BkgStreamsConcentricCache::newEvent() {
 	   mem_fun_ref(&PileUpStream::resetUsed));
 }
 
-const EventInfo* BkgStreamsConcentricCache::nextEvent(unsigned int iXing) { 
-  const EventInfo* pNextEvt(0);
+const xAOD::EventInfo* BkgStreamsConcentricCache::nextEvent(unsigned int iXing) { 
+   const xAOD::EventInfo* pNextEvt(0);
   //find the first ring containing iXing
   unsigned int iRing(0);
   while (iRing<m_rings.size() && (!m_rings[iRing++].contains(iXing))) { }
@@ -310,7 +309,7 @@ StatusCode BkgStreamsConcentricCache::initialize() {
   StatusCode sc(StatusCode::SUCCESS);
   ATH_MSG_INFO ( "Initializing " << name()
 		 << " - cache for events of type " 
-		 << PileUpTimeEventIndex::typeName(m_pileUpEventType)
+		 << PileUpTimeEventIndex::typeName((PileUpTimeEventIndex::PileUpType)m_pileUpEventType)
 		 << " - package version " << PACKAGE_VERSION ) ;
   PileUpEventTypeHandler(m_pileUpEventTypeProp);
   //locate the ActiveStoreSvc and initialize our local ptr
@@ -363,13 +362,13 @@ unsigned int BkgStreamsConcentricCache::setNEvtsXing(unsigned int iXing) {
 }
 
 StatusCode BkgStreamsConcentricCache::addSubEvts(unsigned int iXing,
-						 PileUpEventInfo& overEvent,
+						 xAOD::EventInfo* overEvent,
 						 int t0BinCenter) {
   return this->addSubEvts(iXing, overEvent, t0BinCenter, true, 0);
 }
 
 StatusCode BkgStreamsConcentricCache::addSubEvts(unsigned int iXing,
-						 PileUpEventInfo& overEvent,
+						 xAOD::EventInfo* overEvent,
 						 int t0BinCenter, bool loadEventProxies, unsigned int /*BCID*/) {
   for (unsigned int iEvt=0; iEvt<nEvtsXing(iXing); ++iEvt) {
     StoreGateSvc* pBkgStore(0);
@@ -379,7 +378,7 @@ StatusCode BkgStreamsConcentricCache::addSubEvts(unsigned int iXing,
       {
 	return this->nextEvent_passive(iXing);
       }
-    const EventInfo* pBkgEvent(nextEvent(iXing));
+    const xAOD::EventInfo* pBkgEvent(nextEvent(iXing));
 
     //check input selector is not empty
     PileUpStream* currStream(current());
@@ -389,8 +388,8 @@ StatusCode BkgStreamsConcentricCache::addSubEvts(unsigned int iXing,
       return StatusCode::FAILURE;
     } else {
       pBkgStore = &(currStream->store());
-      ATH_MSG_DEBUG ( "added event " <<  pBkgEvent->event_ID()->event_number() 
-		      << " run " << pBkgEvent->event_ID()->run_number()
+      ATH_MSG_DEBUG ( "added event " <<  pBkgEvent->eventNumber() 
+		      << " run " << pBkgEvent->runNumber()
 		      << " from store " 
 		      << pBkgStore->name()
 		      << " @ Xing " << iXing );
@@ -398,9 +397,11 @@ StatusCode BkgStreamsConcentricCache::addSubEvts(unsigned int iXing,
     
     //  register as sub event of the overlaid
     //    ask if sufficient/needed
-    overEvent.addSubEvt(t0BinCenter,
-			m_pileUpEventType,
-			pBkgEvent, pBkgStore);//,BCID); FIXME:Changes needed to PileUpEventInfo to do this.
+
+    ATH_MSG_ERROR("NOT IMPLEMENTED!");
+//    overEvent.addSubEvt(t0BinCenter, m_pileUpEventType, pBkgEvent, pBkgStore);//,BCID); FIXME:Changes needed to PileUpEventInfo to do this.
+
+    
 #ifdef DEBUG_PILEUP
     const EventInfo* pStoreInfo(0);
     if (pBkgStore->retrieve(pStoreInfo).isSuccess() && pStoreInfo && 
@@ -423,7 +424,7 @@ StatusCode BkgStreamsConcentricCache::finalize() {
   StatusCode sc(StatusCode::SUCCESS);
   ATH_MSG_INFO ( "Finalizing " << name()
 		 << " - cache for events of type " 
-		 << PileUpTimeEventIndex::typeName(m_pileUpEventType)
+		 << PileUpTimeEventIndex::typeName((PileUpTimeEventIndex::PileUpType)m_pileUpEventType)
 		 << " - package version " << PACKAGE_VERSION ) ;
   while (sc.isSuccess() && m_streams.size()>0) {
     sc=m_streams.back().finalize();

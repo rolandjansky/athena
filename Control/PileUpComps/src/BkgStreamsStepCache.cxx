@@ -17,9 +17,8 @@
 
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandPoisson.h"
-#include "EventInfo/PileUpEventInfo.h"
 #include "EventInfo/PileUpTimeEventIndex.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfoContainer.h"
 #include "PileUpTools/IBeamIntensity.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
@@ -47,7 +46,7 @@ BkgStreamsStepCache::BkgStreamsStepCache( const std::string& type,
   , m_atRndmSvc("AtRndmGenSvc", name)
   , m_randomStreamName("PileUpCollXingStream")
   , m_pileUpEventTypeProp(0)
-  , m_pileUpEventType(PileUpTimeEventIndex::Signal)
+  , m_pileUpEventType(xAOD::EventInfo::PileUpType::Signal)
   , m_subtractBC0(0)
   , m_ignoreBM(false)
   , m_readEventRand(nullptr)
@@ -70,7 +69,7 @@ BkgStreamsStepCache::BkgStreamsStepCache( const std::string& type,
   declareProperty("RndmGenSvc", m_atRndmSvc, "IAtRndmGenSvc controlling the distribution of bkg events/xing");
   declareProperty("RndmStreamName", m_randomStreamName, "IAtRndmGenSvc stream used as engine for our various random distributions, including the CollPerXing one ");
   declareProperty("SubtractBC0", m_subtractBC0, "reduce the number of events at bunch xing t=0 by m_subtractBC0. Default=0, set to 1 when using the same type of events (e.g. minbias) for original and background streams");
-  m_pileUpEventTypeProp.verifier().setUpper(PileUpTimeEventIndex::NTYPES-2);
+  m_pileUpEventTypeProp.verifier().setUpper((xAOD::EventInfo::PileUpType)PileUpTimeEventIndex::NTYPES-2);
   m_pileUpEventTypeProp.declareUpdateHandler(&BkgStreamsStepCache::PileUpEventTypeHandler, this);
   declareProperty("IgnoreBeamInt", m_ignoreBM, "Default=False, set to True to ignore the PileUpEventLoopMgr beam intensity tool in setting the number of events per xing.");
   declareProperty("IgnoreBeamLumi", m_ignoreSF, "Default=False, set to True to ignore the PileUpEventLoopMgr beam luminosity tool in setting the number of events per xing.");
@@ -87,7 +86,7 @@ BkgStreamsStepCache::~BkgStreamsStepCache()
 void
 BkgStreamsStepCache::PileUpEventTypeHandler(Property&)
 {
-  m_pileUpEventType=PileUpTimeEventIndex::ushortToType(m_pileUpEventTypeProp.value());
+  m_pileUpEventType=(xAOD::EventInfo::PileUpType)PileUpTimeEventIndex::ushortToType(m_pileUpEventTypeProp.value());
 }
 
 StatusCode
@@ -263,8 +262,10 @@ void BkgStreamsStepCache::newEvent() {
   ATH_MSG_DEBUG (  "Ready to simulate BCID=" << m_currentXing );
 }
 
-const EventInfo* BkgStreamsStepCache::nextEvent() {
-  const EventInfo* pNextEvt(0);
+
+const xAOD::EventInfo* BkgStreamsStepCache::nextEvent()
+{
+   const xAOD::EventInfo* pNextEvt(0);
   StreamVector::size_type iS = *m_useCursor++; //get the next stream from the UseOrder and increment the useCursor
 
 
@@ -323,7 +324,7 @@ StatusCode BkgStreamsStepCache::initialize() {
   StatusCode sc(StatusCode::SUCCESS);
   ATH_MSG_DEBUG (  "Initializing " << name()
                    << " - cache for events of type "
-                   << PileUpTimeEventIndex::typeName(m_pileUpEventType)
+                   << PileUpTimeEventIndex::typeName((PileUpTimeEventIndex::PileUpType)m_pileUpEventType)
                    << " - package version " << PACKAGE_VERSION ) ;
   PileUpEventTypeHandler(m_pileUpEventTypeProp);
   //locate the ActiveStoreSvc and initialize our local ptr
@@ -410,13 +411,13 @@ unsigned int BkgStreamsStepCache::setNEvtsXing(unsigned int iXing) {
 }
 
 StatusCode BkgStreamsStepCache::addSubEvts(unsigned int iXing,
-                                           PileUpEventInfo& overEvent,
+                                           xAOD::EventInfo* overEvent,
                                            int t0BinCenter) {
   return this->addSubEvts(iXing, overEvent, t0BinCenter, true, 0);
 }
 
 StatusCode BkgStreamsStepCache::addSubEvts(unsigned int iXing,
-                                           PileUpEventInfo& overEvent,
+                                           xAOD::EventInfo* overEvent,
                                            int t0BinCenter, bool loadEventProxies, unsigned int BCID) {
   for (unsigned int iEvt=0; iEvt<nEvtsXing(iXing); ++iEvt) {
     StoreGateSvc* pBkgStore(0);
@@ -426,7 +427,7 @@ StatusCode BkgStreamsStepCache::addSubEvts(unsigned int iXing,
       {
         return this->nextEvent_passive();
       }
-    const EventInfo* pBkgEvent(nextEvent());
+    const xAOD::EventInfo* pBkgEvent(nextEvent());
 
     //check input selector is not empty
     PileUpStream* currStream(current());
@@ -436,8 +437,8 @@ StatusCode BkgStreamsStepCache::addSubEvts(unsigned int iXing,
       return StatusCode::FAILURE;
     } else {
       pBkgStore = &(currStream->store());
-      ATH_MSG_DEBUG ( "added event " <<  pBkgEvent->event_ID()->event_number()
-                      << " run " << pBkgEvent->event_ID()->run_number()
+      ATH_MSG_DEBUG ( "added event " <<  pBkgEvent->eventNumber()
+                      << " run " << pBkgEvent->runNumber()
                       << " from store "
                       << pBkgStore->name()
                       << " @ Xing " << iXing );
@@ -445,9 +446,18 @@ StatusCode BkgStreamsStepCache::addSubEvts(unsigned int iXing,
 
     //  register as sub event of the overlaid
     //    ask if sufficient/needed
-    overEvent.addSubEvt(t0BinCenter, BCID,
-                        m_pileUpEventType,
-                        *pBkgEvent, pBkgStore);
+    // overEvent.addSubEvt(t0BinCenter, BCID,m_pileUpEventType, *pBkgEvent, pBkgStore);
+
+    // get the SG container for subevents infos
+      xAOD::EventInfoContainer  *subEvCnt (nullptr);
+      ATH_CHECK( overEvent->evtStore()->retrieve(subEvCnt) );
+      // add subevent to the container
+      subEvCnt->push_back( const_cast<xAOD::EventInfo*>(pBkgEvent) );
+
+      ElementLink< xAOD::EventInfoContainer > subEvtLink( "PileUpEventInfo", subEvCnt->size()-1, overEvent->evtStore() );
+      xAOD::EventInfo::SubEvent  subev( t0BinCenter, BCID, m_pileUpEventType, subEvtLink );
+  
+    
 #ifdef DEBUG_PILEUP
     const EventInfo* pStoreInfo(0);
     if (pBkgStore->retrieve(pStoreInfo).isSuccess() && pStoreInfo &&
@@ -470,7 +480,7 @@ StatusCode BkgStreamsStepCache::finalize() {
   StatusCode sc(StatusCode::SUCCESS);
   ATH_MSG_DEBUG (  "Finalizing " << name()
                    << " - cache for events of type "
-                   << PileUpTimeEventIndex::typeName(m_pileUpEventType)
+                   << PileUpTimeEventIndex::typeName((PileUpTimeEventIndex::PileUpType)m_pileUpEventType)
                    << " - package version " << PACKAGE_VERSION ) ;
   while (sc.isSuccess() && m_streams.size()>0) {
     sc=m_streams.back().finalize();

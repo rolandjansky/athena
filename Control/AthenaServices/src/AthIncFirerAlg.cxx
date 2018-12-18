@@ -24,12 +24,14 @@ StatusCode AthIncFirerAlg::execute(const EventContext& ctx)const {
   auto ctxcp=ctx;
   for(auto & i:m_incLists.value()){
     ATH_MSG_VERBOSE("Firing incident "<<i);
-
     if((i=="BeginEvent")||(i=="EndEvent")){
-      const EventInfo* event(0);
-      evtStore()->retrieve(event).ignore();
-      m_incSvc->fireIncident(std::make_unique<EventIncident>(*event, name(),i,ctxcp));
-      if(m_Serial.value())m_incSvc->fireIncident(EventIncident(*event, name(),i,ctxcp));
+       const EventInfo* event = evtStore()->tryConstRetrieve<EventInfo>();
+       if( event ) {
+          m_incSvc->fireIncident(std::make_unique<EventIncident>(*event, name(),i,ctxcp));
+          if(m_Serial.value())m_incSvc->fireIncident(EventIncident(*event, name(),i,ctxcp));
+       } else {
+          ATH_MSG_WARNING("EventInfo not found, not Firing incident "<<i);
+       }
     }else{
       m_incSvc->fireIncident(std::make_unique<Incident>(name(),i,ctxcp));
       if(m_Serial.value())m_incSvc->fireIncident(Incident( name(),i,ctxcp));
@@ -37,6 +39,7 @@ StatusCode AthIncFirerAlg::execute(const EventContext& ctx)const {
   }
   return StatusCode::SUCCESS;
 }
+
 
 StatusCode AthIncFirerAlg::finalize(){
   return StatusCode::SUCCESS;

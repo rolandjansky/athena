@@ -107,14 +107,14 @@ PileUpMergeSvc::initialize()    {
 
 }
 
-const PileUpEventInfo* PileUpMergeSvc::getPileUpEvent() const {
-  const PileUpEventInfo* p(0);
-  if (p_overStore->contains<PileUpEventInfo>("OverlayEvent")) {
-    if (p_overStore->retrieve(p).isFailure()) {
-      ATH_MSG_FATAL("Cannot retrieve OverlayEvent from " << p_overStore->name());
-    }
-  }
-  return p;
+const xAOD::EventInfo* PileUpMergeSvc::getPileUpEvent() const {
+   const xAOD::EventInfo* p = nullptr;
+   if( p_overStore->contains<xAOD::EventInfo>("OverlayEvent") ) {
+      if (p_overStore->retrieve(p).isFailure()) {
+         ATH_MSG_FATAL("Cannot retrieve OverlayEvent from " << p_overStore->name());
+      }
+   }
+   return p;
 }
 
 const InterfaceID& 
@@ -159,13 +159,11 @@ PileUpMergeSvc::doRefresh(const Range& r, int iXing) {
 StatusCode
 PileUpMergeSvc::clearDataCaches() {
   StatusCode sc(StatusCode::FAILURE);
-  const PileUpEventInfo* pEvent;
+  const xAOD::EventInfo* pEvent;
   if (0 != (pEvent=getPileUpEvent())) {
     // access the sub events DATA objects...
-    PileUpEventInfo::SubEvent::const_iterator iEvt = pEvent->beginSubEvt();
-    PileUpEventInfo::SubEvent::const_iterator endEvt = pEvent->endSubEvt();
-    while (iEvt != endEvt) {
-      StoreGateSvc* pSubEvtSG(iEvt->pSubEvtSG);
+    for( const xAOD::EventInfo::SubEvent& subEv : pEvent->subEvents() ) {
+      StoreGateSvc* pSubEvtSG( subEv.ptr()->evtStore() );
       assert(pSubEvtSG);
       //go object-by-object (driven by PileUpXingFolder settings)
       for (const auto& item : m_ranges) {
@@ -174,7 +172,7 @@ PileUpMergeSvc::clearDataCaches() {
         SG::DataProxy* proxy = pSubEvtSG->proxy_exact (sgkey);
         //FIXME turning the double iEvt->time is fraught with peril. Luckily 
         //FIXME it just works, but we should have the beam xing in iEvt
-        if (proxy && doRefresh (item.second, int(iEvt->time()))) {
+        if (proxy && doRefresh (item.second, int(subEv.time()))) {
           proxy->setObject ((DataObject*)0);
           if (msg().level() <= MSG::DEBUG) {
             msg() << MSG::DEBUG
@@ -186,15 +184,14 @@ PileUpMergeSvc::clearDataCaches() {
         }
       }
       //even if we don't clear the store we need to empty the trash...
-      iEvt->pSubEvtSG->emptyTrash();
+      pSubEvtSG->emptyTrash();
 #ifndef NDEBUG
       if (msg().level() <= MSG::VERBOSE) {
 	msg() << MSG::VERBOSE
-	      << "clearDataCachesByFolder: done with store " << iEvt->pSubEvtSG->name()
+	      << "clearDataCachesByFolder: done with store " << pSubEvtSG->name()
 	      << endmsg;
       }
 #endif
-      ++iEvt;	
     } //stores loop
     sc=StatusCode::SUCCESS;
   } //NO PILEUP EVENT?!?

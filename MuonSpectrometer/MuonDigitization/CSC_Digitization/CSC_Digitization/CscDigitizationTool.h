@@ -21,8 +21,6 @@
 #include "MuonSimEvent/CSCSimHitCollection.h"
 #include "MuonSimData/CscSimDataCollection.h"
 
-#include "EventInfo/PileUpEventInfo.h"  /*SubEvent*/
-
 #include "xAODEventInfo/EventInfo.h"             // NEW EDM
 #include "xAODEventInfo/EventAuxInfo.h"          // NEW EDM
 

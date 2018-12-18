@@ -16,7 +16,6 @@
 
 // Athena headers
 #include "AthenaKernel/MsgStreamMember.h"
-#include "EventInfo/EventID.h"  /* for EventID::number_type */
 #include "PileUpTools/PileUpStream.h"
 
 // Gaudi headers
@@ -162,7 +161,7 @@ private:
   //@}
 
   /// current run number
-  EventID::number_type m_currentRun;
+  uint32_t m_currentRun;
   bool m_firstRun;
 
   /// Private message stream member

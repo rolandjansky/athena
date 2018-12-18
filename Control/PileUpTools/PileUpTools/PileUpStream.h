@@ -16,13 +16,17 @@
 #include "GaudiKernel/IEvtSelector.h"
 #include "AthenaKernel/MsgStreamMember.h"
 
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 
 // Forward declarations
 class IMessageSvc;
 class ISvcLocator;
 class StoreGateSvc;
 class ActiveStoreSvc;
+namespace xAODMaker
+{
+  class IEventInfoCnvTool;
+}
 
 /** @class PileUpStream
  * @brief a triple selector/context/store defines a stream
@@ -60,7 +64,7 @@ public:
   //@}
 
   ///return next Event, load store with next Event
-  const EventInfo* nextEventPre(bool readRecord=true);
+  const xAOD::EventInfo* nextEventPre(bool readRecord=true);
 
   ///like nextEventPre, but doesn't actually load anything
   bool nextEventPre_Passive(bool readRecord);
@@ -69,6 +73,8 @@ public:
   bool setupStore();
   /// backward compatibility
   inline bool setupStore(bool ) { return setupStore();}
+
+  void setEICnvTool( xAODMaker::IEventInfoCnvTool *tool ) { m_xAODCnvTool = tool; }
 
   /// finalize and release store. To be called on ... finalize()
   StatusCode finalize();
@@ -91,6 +97,7 @@ public:
   MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
   /// Check whether the logging system is active at the provided verbosity level
   bool msgLvl( MSG::Level lvl ) { return m_msg.get().level() <= lvl; }
+  
 private:
   ISvcLocator* serviceLocator() { return p_svcLoc; }
 
@@ -132,10 +139,12 @@ private:
   bool m_used; ///has this stream already been used? (for the current event)
   bool m_hasRing;
   unsigned int m_iOriginalRing; ///> original ring in which event was used
+
+public:
+  /// EventInfo -> xAOD::EventInfo converter tool
+  static xAODMaker::IEventInfoCnvTool *m_xAODCnvTool;
 };
 #endif // PILEUPSTREAM_PILEUPSTREAM_H
-
-
 
 
 

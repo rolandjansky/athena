@@ -54,6 +54,12 @@ namespace xAODMaker {
                                   bool pileUpInfo = false,
                                   bool copyPileUpLinks = true ) const;
 
+      /// Create EventID object from xAOD::EventInfo
+      virtual EventID eventIDFromXAOD( const xAOD::EventInfo* xaod ) const override;
+
+      /// Create EventType object from xAOD::EventInfo
+      virtual EventType eventTypeFromXAOD( const xAOD::EventInfo* xaod ) const override;
+
    private:
 #ifndef XAOD_ANALYSIS
       /// Connection to the beam spot service

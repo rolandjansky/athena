@@ -18,6 +18,7 @@
 #include <string>
 
 class StoreGateSvc;
+namespace xAODMaker {  class IEventInfoCnvTool;  }
 
 /** @class MakeEventStreamInfo 
  *  @brief This class provides an algorithm to make the EventStreamInfo object and update it.
@@ -49,5 +50,9 @@ private:
    /// Pointer to the data stores
    ServiceHandle<StoreGateSvc> m_metaDataStore;
    ServiceHandle<StoreGateSvc> m_eventStore;
+
+   /// Handle to the xAOD::EventInfo converter tool
+   ToolHandle< xAODMaker::IEventInfoCnvTool > m_xAODCnvTool;
+
 };
 #endif

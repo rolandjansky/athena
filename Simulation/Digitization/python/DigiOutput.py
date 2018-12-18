@@ -65,7 +65,8 @@ def getStreamRDO_ItemList(log):
     if DetFlags.pileup.any_on() or digitizationFlags.doXingByXingPileUp():
         if DetFlags.writeRDOPool.any_on():
             #add to output stream
-            StreamRDO_ItemList+=["PileUpEventInfo#*"]
+#            StreamRDO_ItemList+=["PileUpEventInfo#*"]
+            StreamRDO_ItemList+=["xAOD::EventInfo#*"]
     # Set up for cosmics digitization
     from AthenaCommon.BeamFlags import jobproperties
     if jobproperties.Beam.beamType == "cosmics" :

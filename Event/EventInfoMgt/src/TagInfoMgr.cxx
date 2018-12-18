@@ -18,10 +18,11 @@
 
 // Event includes
 #include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "EventInfo/EventType.h"
 #include "EventInfo/EventIncident.h"
 #include "EventInfo/TriggerInfo.h"
+
+#include "SGTools/EventIDFromStore.h"
 
 // IOVDbSvc
 #include "AthenaKernel/IIOVDbSvc.h"
@@ -320,7 +321,9 @@ TagInfoMgr::fillTagInfo(const CondAttrListCollection* tagInfoCond, TagInfo* tagI
         // *****        READ WITH TAGS IN EVENT INFO            *****
         // *****        RDS 04/2009                             *****
         // **********************************************************
-            
+
+       //MN: FIX:  Is this case still in use? If not, remove it
+       
         if (m_log.level() <= MSG::DEBUG) m_log << MSG::DEBUG << "fillTagInfo: Add in tags from EventInfo" << endmsg;
         const DataHandle<EventInfo> evtH;
         const DataHandle<EventInfo> evtHEnd;
@@ -450,6 +453,9 @@ TagInfoMgr::fillTagInfo(const CondAttrListCollection* tagInfoCond, TagInfo* tagI
 
 }
 
+#include <iostream>
+using namespace std;
+
 StatusCode
 TagInfoMgr::fillMetaData   (const TagInfo* tagInfo, const CondAttrListCollection* tagInfoCond) 
 {
@@ -484,22 +490,21 @@ TagInfoMgr::fillMetaData   (const TagInfo* tagInfo, const CondAttrListCollection
     //
 
     if (m_log.level() <= MSG::DEBUG) m_log << MSG::DEBUG << "entering fillMetaData" << endmsg;
+    cout << "MN: TagInfoMgr:  start " << endl;
 
     // Get run number for IOV
-    const EventInfo* evt   = 0;
     unsigned int runNumber = 0;
-    if (StatusCode::SUCCESS != m_storeGate->retrieve(evt)) {
-        // For simulation, we may be in the initialization phase and
-        // must get the run number from the event selector
-        if (StatusCode::SUCCESS != getRunNumber (runNumber)) {
-            m_log << MSG::ERROR << "fillMetaData:  Could not get event info neither via retrieve nor from the EventSelectror" << endmsg;      
-            return (StatusCode::FAILURE);
-        }
+    const EventIDBase* evid = EventIDFromStore( m_storeGate );
+    if( evid ) {
+       runNumber = evid->run_number();
+    } else {
+       // For simulation, we may be in the initialization phase and
+       // must get the run number from the event selector
+       if (StatusCode::SUCCESS != getRunNumber (runNumber)) {
+             m_log << MSG::ERROR << "fillMetaData:  Could not get event info neither via retrieve nor from the EventSelectror" << endmsg;      
+             return (StatusCode::FAILURE);
+       }
     }
-    else {
-        runNumber = evt->event_ID()->run_number();
-    }
-
     // Copy tags to AttributeList
     coral::AttributeList attrList;
     EventType::NameTagPairVec pairs;
@@ -661,8 +666,10 @@ TagInfoMgr::handle(const Incident& inc) {
     }
 
     // Return quickly for BeginEvent if not needed
-    if (!m_newFileIncidentSeen && inc.type() == "BeginEvent") return;
-
+    if (!m_newFileIncidentSeen && inc.type() == "BeginEvent") {
+       m_log << MSG::DEBUG << "Nothing to do, return" << endmsg;
+       return;
+    }
     // At first BeginRun we retrieve TagInfo and trigger IOVDbSvc to
     // use it
     if (inc.type() == "BeginRun" && m_isFirstBeginRun) {
@@ -832,6 +839,7 @@ TagInfoMgr::handle(const Incident& inc) {
             if (m_log.level() <= MSG::DEBUG) m_log << MSG::DEBUG << "handle - BeginInputFile: Wrote TagInfo to MetaDataStore " << endmsg;
         }
     }
+    m_log << MSG::DEBUG << "Finished handling incident" << endmsg;
 }
 
 

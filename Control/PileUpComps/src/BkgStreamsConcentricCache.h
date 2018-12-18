@@ -31,11 +31,9 @@
 #include "AthenaKernel/MsgStreamMember.h"
 
 class ActiveStoreSvc;
-class EventInfo;
 class IEvtSelector;
 class IAtRndmGenSvc;
 class IBeamIntensity;
-class PileUpEventInfo;
 namespace CLHEP {
   class RandFlat;
   class RandPoisson;
@@ -73,7 +71,7 @@ public:
      @param t0BinCenter   time wrto t0 of current bin center in ns      
   */
   virtual StatusCode addSubEvts(unsigned int iXing, 
-				PileUpEventInfo& overlaidEvent,
+				xAOD::EventInfo* overlaidEvent,
 				int t0BinCenter);
 
   /**
@@ -85,7 +83,7 @@ public:
      @param loadEventProxies should we load the event proxies or not.   
   */
   virtual StatusCode addSubEvts(unsigned int iXing,
-				PileUpEventInfo& overEvent,
+				xAOD::EventInfo* overEvent,
 				int t0BinCenter, bool loadEventProxies, unsigned int /*BCID*/);
   /// how many stores in cache
   virtual unsigned int nStores() const { return m_nStores; }
@@ -137,7 +135,7 @@ public:
 private:
   
   /// get next bkg event for xing iXing from cache
-  const EventInfo* nextEvent(unsigned int iXing);
+  const xAOD::EventInfo* nextEvent(unsigned int iXing);
   /// as nextEvent except don't actually load anything
   StatusCode nextEvent_passive(unsigned int iXing);
   /// get current (last selected) stream
@@ -177,7 +175,7 @@ private:
   Gaudi::CheckedProperty<unsigned short> m_pileUpEventTypeProp;
   void PileUpEventTypeHandler(Property&);
   /// the type of events in this cache
-  PileUpTimeEventIndex::PileUpType m_pileUpEventType;
+  xAOD::EventInfo::PileUpType m_pileUpEventType;
   void RingsPropHandler(Property&);
   /// the list of rings to be used in the form "lowXing:hiXing"
   Gaudi::Property<std::vector<std::string>> m_ringsProp;

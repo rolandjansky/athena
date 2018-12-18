@@ -17,9 +17,7 @@
 
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandPoisson.h"
-#include "EventInfo/PileUpEventInfo.h"
 #include "EventInfo/PileUpTimeEventIndex.h"
-#include "EventInfo/EventID.h"
 #include "PileUpTools/IBeamIntensity.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
@@ -49,7 +47,7 @@ SplitBkgStreamsCache::SplitBkgStreamsCache( const std::string& type,
   m_atRndmSvc("AtRndmGenSvc", name),
   m_randomStreamName("PileUpCollXingStream"),
   m_pileUpEventTypeProp(0),
-  m_pileUpEventType(PileUpTimeEventIndex::Signal),
+  m_pileUpEventType(xAOD::EventInfo::PileUpType::Signal),
   m_subtractBC0(0),
   m_ignoreBM(false),
   m_ignoreSF(false),
@@ -64,7 +62,7 @@ SplitBkgStreamsCache::SplitBkgStreamsCache( const std::string& type,
   m_f_numberOfBackgroundForBunchCrossing(0),
   m_collXingSF(1.0),
   m_zeroXing(-1),
-  m_beamInt(0)
+  m_beamInt(nullptr)
 {   
   declareProperty("CollPerXing", m_meanCollisionsPerBunchCrossing, "(average) number of collisions per beam crossing");  
   declareProperty("OccupationFraction", m_occupationFraction, "The maximum fraction of bunch-crossings which will be occupied."); 
@@ -78,7 +76,7 @@ SplitBkgStreamsCache::SplitBkgStreamsCache( const std::string& type,
   declareProperty("RndmGenSvc", m_atRndmSvc, "IAtRndmGenSvc controlling the distribution of bkg events/xing");
   declareProperty("RndmStreamName", m_randomStreamName, "IAtRndmGenSvc stream used as engine for our various random distributions, including the CollPerXing one ");  
   declareProperty("SubtractBC0", m_subtractBC0, "reduce the number of events at bunch xing t=0 by m_subtractBC0. Default=0, set to 1 when using the same type of events (e.g. minbias) for original and background streams");
-  m_pileUpEventTypeProp.verifier().setUpper(PileUpTimeEventIndex::NTYPES-2);
+  m_pileUpEventTypeProp.verifier().setUpper((xAOD::EventInfo::PileUpType)PileUpTimeEventIndex::NTYPES-2);
   m_pileUpEventTypeProp.declareUpdateHandler(&SplitBkgStreamsCache::PileUpEventTypeHandler, this);
   declareProperty("IgnoreBeamInt", m_ignoreBM, "Default=False, set to True to ignore the PileUpEventLoopMgr beam intensity tool in setting the number of events per xing.");
   declareProperty("IgnoreBeamLumi", m_ignoreSF, "Default=False, set to True to ignore the PileUpEventLoopMgr beam luminosity tool in setting the number of events per xing.");
@@ -98,7 +96,7 @@ SplitBkgStreamsCache::~SplitBkgStreamsCache()
 void
 SplitBkgStreamsCache::PileUpEventTypeHandler(Property&) 
 {
-  m_pileUpEventType=PileUpTimeEventIndex::ushortToType(m_pileUpEventTypeProp.value());
+  m_pileUpEventType=(xAOD::EventInfo::PileUpType)PileUpTimeEventIndex::ushortToType(m_pileUpEventTypeProp.value());
 }
 
 void SplitBkgStreamsCache::calculateCacheSizes()
@@ -247,9 +245,10 @@ void SplitBkgStreamsCache::newEvent()
   m_usedStreams2.assign(m_streams2.size(), false); 
 }
 
-const EventInfo* SplitBkgStreamsCache::nextEvent(bool isCentralBunchCrossing) 
+
+const xAOD::EventInfo* SplitBkgStreamsCache::nextEvent(bool isCentralBunchCrossing) 
 { 
-  const EventInfo* pNextEvt(NULL);
+  const xAOD::EventInfo* pNextEvt(nullptr);
   StreamVector::size_type iS(0);
   CLHEP::RandFlat* pChooseEventRand(NULL);
   CLHEP::RandFlat* pReadEventRand(NULL);
@@ -417,7 +416,7 @@ StatusCode SplitBkgStreamsCache::initialize() {
   // configure our MsgStream
   ATH_MSG_DEBUG (  "Initializing " << name()
 		   << " - cache for events of type " 
-		   << PileUpTimeEventIndex::typeName(m_pileUpEventType)
+		   << PileUpTimeEventIndex::typeName((PileUpTimeEventIndex::PileUpType)m_pileUpEventType)
 		   << " - package version " << PACKAGE_VERSION ) ;
   PileUpEventTypeHandler(m_pileUpEventTypeProp);
   //locate the ActiveStoreSvc and initialize our local ptr
@@ -526,14 +525,14 @@ unsigned int SplitBkgStreamsCache::pickNumberOfBkgForBunchCrossing(unsigned int 
 }
 
 StatusCode SplitBkgStreamsCache::addSubEvts(unsigned int iXing,
-					    PileUpEventInfo& overEvent,
+					    xAOD::EventInfo* overEvent,
 					    int t0BinCenter) 
 {
   return this->addSubEvts(iXing, overEvent, t0BinCenter, true, 0);
 }
 
 StatusCode SplitBkgStreamsCache::addSubEvts(unsigned int iXing,
-					    PileUpEventInfo& overEvent,
+					    xAOD::EventInfo* overEvent,
 					    int t0BinCenter, bool loadEventProxies, unsigned int BCID) 
 {
   for (unsigned int iEvt=0; iEvt<getNumberOfBkgForBunchCrossing(iXing); ++iEvt) 
@@ -548,7 +547,7 @@ StatusCode SplitBkgStreamsCache::addSubEvts(unsigned int iXing,
 	{
 	  return this->nextEvent_passive(isCentralBunchCrossing);
 	}
-      const EventInfo* pBkgEvent(nextEvent(isCentralBunchCrossing));
+      const xAOD::EventInfo* pBkgEvent(nextEvent(isCentralBunchCrossing));
 
       //check input selector is not empty
       PileUpStream* currStream(current());
@@ -571,8 +570,8 @@ StatusCode SplitBkgStreamsCache::addSubEvts(unsigned int iXing,
 	} else 
 	{
 	  pBkgStore = &(currStream->store());
-	  ATH_MSG_VERBOSE ( "addSubEvts: added event " <<  pBkgEvent->event_ID()->event_number() 
-			    << " run " << pBkgEvent->event_ID()->run_number()
+	  ATH_MSG_VERBOSE ( "addSubEvts: added event " <<  pBkgEvent->eventNumber() 
+			    << " run " << pBkgEvent->runNumber()
 			    << " from store " 
 			    << pBkgStore->name()
 			    << " @ Xing " << iXing );
@@ -580,9 +579,11 @@ StatusCode SplitBkgStreamsCache::addSubEvts(unsigned int iXing,
     
       //  register as sub event of the overlaid
       //    ask if sufficient/needed
-      overEvent.addSubEvt(t0BinCenter, BCID,
-			  m_pileUpEventType,
-			  *pBkgEvent, pBkgStore);
+
+      // MN: FIX  - needs to be migrated  !!
+      // overEvent->addSubEvt(t0BinCenter, BCID, m_pileUpEventType, *pBkgEvent, pBkgStore);
+
+      
 #ifdef DEBUG_PILEUP
       const EventInfo* pStoreInfo(0);
       if (pBkgStore->retrieve(pStoreInfo).isSuccess() && pStoreInfo && 
@@ -607,7 +608,7 @@ StatusCode SplitBkgStreamsCache::finalize()
   StatusCode sc(StatusCode::SUCCESS);
   ATH_MSG_DEBUG (  "Finalizing " << name()
 		   << " - cache for events of type " 
-		   << PileUpTimeEventIndex::typeName(m_pileUpEventType)
+		   << PileUpTimeEventIndex::typeName((PileUpTimeEventIndex::PileUpType)m_pileUpEventType)
 		   << " - package version " << PACKAGE_VERSION ) ;
   while (sc.isSuccess() && m_streams1.size()>0) 
     {

@@ -375,7 +375,8 @@ IOVSvcTool::handle(const Incident &inc) {
       }
     } else {
 
-      if (StatusCode::SUCCESS != p_sgSvc->retrieve(evt)) {
+      evt = p_sgSvc->tryConstRetrieve<EventInfo>();
+      if( !evt ) {
         // If EventInfo is not in the event store, check whether it
         // has come via the BeginRun incident
         const EventIncident* eventInc  = dynamic_cast<const EventIncident*>(&inc);
