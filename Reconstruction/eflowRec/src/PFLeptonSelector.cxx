@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #include "eflowRec/PFLeptonSelector.h"
 
 PFLeptonSelector::PFLeptonSelector(const std::string& name, ISvcLocator* pSvcLocator):

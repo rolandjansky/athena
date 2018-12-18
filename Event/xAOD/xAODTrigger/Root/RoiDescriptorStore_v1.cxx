@@ -1,10 +1,12 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    RoiDescriptorStore_v1.cxx         
 //   
 //
 //   @author M.Sutton
 // 
-//   Copyright (C) 2015 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: RoiDescriptorStore_v1.cxx, v0.0   Wed 11 Nov 2015 14:51:11 CET sutt $
 

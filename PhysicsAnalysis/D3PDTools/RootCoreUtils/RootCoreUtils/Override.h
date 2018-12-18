@@ -1,7 +1,7 @@
 #ifndef ROOT_CORE_UTILS__OVERRIDE_H
 #define ROOT_CORE_UTILS__OVERRIDE_H
 
-//        Copyright Iowa State University 2015.
+//        
 //                  Author: Nils Krumnack
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at

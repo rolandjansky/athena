@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //Dear emacs, this is -*-c++-*-
 #ifndef CALOCLUSTERMOMENTSMAKER_DigiHSTruth_H
 #define CALOCLUSTERMOMENTSMAKER_DigiHSTruth_H

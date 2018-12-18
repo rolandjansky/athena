@@ -1,7 +1,7 @@
 #ifndef ROOT_CORE_UTILS__PRINT_MSG_H
 #define ROOT_CORE_UTILS__PRINT_MSG_H
 
-//          Copyright Nils Krumnack 2011 - 2012.
+//          - 2012.
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)

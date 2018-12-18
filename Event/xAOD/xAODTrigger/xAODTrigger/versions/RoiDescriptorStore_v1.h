@@ -1,4 +1,7 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    IRoiDecsriptorStorage_v1.h        
 //
@@ -9,7 +12,6 @@
 //            regular users should only ever access the IRoiDescriptors 
 //            through the TrigDecisionTool
 //
-//   Copyright (C) 2015 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: RoiDescriptorStore_v1.h v0.0  Wed 11 Nov 2015 14:36:15 CET sutt $ 
 

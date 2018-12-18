@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 
 /************************************************************
  *                                                          *
@@ -5,9 +8,7 @@
  *  institution   for  use,  copying, or redistribution of  *
  *  this code and associated documentation,  provided       *
  *  that   such  code  and documentation are not sold  for  *
- *  profit and the  following copyright notice is retained  *
  *  in the code and documentation:                          *
- *     Copyright (c) held by Dianne Cook                    *
  *  All Rights Reserved.                                    *
  *                                                          *
  *  Questions and comments are welcome, and I request       *
