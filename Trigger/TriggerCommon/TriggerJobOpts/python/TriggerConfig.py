@@ -106,7 +106,7 @@ def triggerSummaryCfg(flags, hypos):
         __log.info("Final decision of chain  " + c + " will be red from " + cont ) 
     decisionSummaryAlg.FinalDecisionKeys = list(set(allChains.values()))
     decisionSummaryAlg.FinalStepDecisions = allChains
-    decisionSummaryAlg.DecisionsSummaryKey = "HLTSummary"
+    decisionSummaryAlg.DecisionsSummaryKey = "HLTSummary" # Output
     return acc, decisionSummaryAlg
         
 
@@ -119,7 +119,7 @@ def triggerMonitoringCfg(flags, hypos, l1Decoder):
     from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
     mon = TrigSignatureMoniMT()
     mon.L1Decisions = "L1DecoderSummary"
-    mon.FinalDecisionKey = "HLTSummary"
+    mon.FinalDecisionKey = "HLTSummary" # Input
     if len(hypos) == 0:
         __log.warning("Menu is not configured")
         return acc, mon
@@ -176,7 +176,6 @@ def triggerAddMissingEDMCfg( flags, decObj ):
     from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg    
     EDMFillerAlg = TriggerSummaryAlg( "EDMFillerAlg" )
     EDMFillerAlg.InputDecision  = "L1DecoderSummary"
-    EDMFillerAlg.HLTSummary     = "HLTSummaryOutput" # we do not care about this o
 
     from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
     DecisionObjectsFiller = HLTEDMCreator("DecisionObjectsFiller")

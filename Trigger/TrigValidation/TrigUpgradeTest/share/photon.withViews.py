@@ -122,7 +122,6 @@ egammaIDStep = stepSeq("egammaIDStep", filterCaloRoIsAlg, [ photonSequence ] )
 from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
 summaryStep0 = TriggerSummaryAlg( "TriggerSummaryStep1" )
 summaryStep0.InputDecision = "L1DecoderSummary"
-summaryStep0.HLTSummary = "MonitoringSummaryStep1"
 summaryStep0.FinalDecisions = [ caloHypoDecisions ]
 summaryStep0.OutputLevel = DEBUG
 

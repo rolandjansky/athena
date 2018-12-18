@@ -24,7 +24,6 @@ def makeSummary(name, flatDecisions):
     summary.InputDecision = "L1DecoderSummary"
   
     summary.FinalDecisions = flatDecisions
-    summary.HLTSummary = "MonitoringSummary" + name
     return summary
 
 
