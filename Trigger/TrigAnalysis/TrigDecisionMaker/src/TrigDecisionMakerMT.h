@@ -105,6 +105,14 @@ namespace TrigDec {
      **/
     int32_t getChainCounter(const TrigCompositeUtils::DecisionID chainID) const;
 
+    /**
+     * @param passedIDs Set of IDs of passed chains.
+     * @param bitsVector Vector to set passed-bits in based off of passedIDs
+     * @param allOutputVectors Set of pointers to *all* output vectors, keeps them all the same size
+     * @return the number of positive bits set in the vector, should be the same as passedIDs.size()
+     **/
+    size_t makeBitMap(const TrigCompositeUtils::DecisionIDContainer& passedIDs,
+      std::vector<uint32_t>& bitsVector, std::set< std::vector<uint32_t>* >& allOutputVectors) const;
 
     Gaudi::Property<bool> m_doL1{this, "doL1",  true, "Read L1 trigger information"};
     Gaudi::Property<bool> m_doHLT{this, "doHLT", true, "Read HLT trigger information"};

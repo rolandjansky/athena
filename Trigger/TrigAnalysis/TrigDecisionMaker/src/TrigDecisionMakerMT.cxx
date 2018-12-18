@@ -135,38 +135,17 @@ StatusCode TrigDecisionMakerMT::execute(const EventContext& context) const
     }
   
     // Make bitmap for passed raw
-    size_t countHltPass = 0;
-    for (const TrigCompositeUtils::DecisionID id : passRawInput) {
-      const int32_t chainCounter = getChainCounter(id);
-      if (chainCounter == -1) continue; // Could not decode, prints error
-      resizeVectors(chainCounter, outputVectors); // Make sure we have enough room to be able to set the required bit
-      setBit(chainCounter, hltPassBits);
-      ++countHltPass;
-    }
+    size_t countHltPass = makeBitMap(passRawInput, hltPassBits, outputVectors);
     ATH_MSG_DEBUG ("Number of HLT chains passed raw: " << countHltPass);
     trigDec->setEFPassedRaw(hltPassBits);
 
     // Make bitmap for prescaled
-    size_t countHltPrescaled = 0;
-    for (const TrigCompositeUtils::DecisionID id : prescaledInput) {
-      const int32_t chainCounter = getChainCounter(id);
-      if (chainCounter == -1) continue; // Could not decode, prints error
-      resizeVectors(chainCounter, outputVectors); // Make sure we have enough room to be able to set the required bit
-      setBit(chainCounter, hltPrescaledBits);
-      ++countHltPrescaled;
-    }
+    size_t countHltPrescaled = makeBitMap(prescaledInput, hltPrescaledBits, outputVectors);
     ATH_MSG_DEBUG ("Number of HLT chains prescaled out: " << countHltPrescaled);
     trigDec->setEFPrescaled(hltPrescaledBits);
 
     // Make bitmap for rerun a.k.a. resurrection
-    size_t countHLTRerun = 0;
-    for (const TrigCompositeUtils::DecisionID id : rerunInput) {
-      const int32_t chainCounter = getChainCounter(id);
-      if (chainCounter == -1) continue; // Could not decode, prints error
-      resizeVectors(chainCounter, outputVectors); // Make sure we have enough room to be able to set the required bit
-      setBit(chainCounter, hltRerunBits);
-      ++countHLTRerun;
-    }
+    size_t countHLTRerun = makeBitMap(rerunInput, hltRerunBits, outputVectors);
     ATH_MSG_DEBUG ("Number of HLT chains in rerun / second pass / resurrection : " << countHLTRerun);
     trigDec->setEFResurrected(hltRerunBits);
   }
@@ -228,6 +207,23 @@ char TrigDecisionMakerMT::getBGByte(int BCId) const {
     return 0;
   }
   return bgs->bgPattern()[BCId];  
+}
+
+
+size_t TrigDecisionMakerMT::makeBitMap(
+  const TrigCompositeUtils::DecisionIDContainer& passedIDs,
+  std::vector<uint32_t>& bitsVector,
+  std::set< std::vector<uint32_t>* >& allOutputVectors) const
+{
+  size_t count = 0;
+  for (const TrigCompositeUtils::DecisionID id : passedIDs) {
+    const int32_t chainCounter = getChainCounter(id);
+    if (chainCounter == -1) continue; // Could not decode, prints error
+    resizeVectors(chainCounter, allOutputVectors); // Make sure we have enough room to be able to set the required bit
+    setBit(chainCounter, bitsVector);
+    ++count;
+  }
+  return count;
 }
 
 
