@@ -1,11 +1,13 @@
 ATLAS Offline software
 ========================
 
-Welcome to [ATLAS](https://atlas.ch) offline software.
+Welcome to [ATLAS](https://atlas.ch) offline software!
 
-If you fork this project, please do not forget to add the ATLAS Robot as a developer (assuming you might want to submit a merge request) as documented [here](https://atlassoftwaredocs.web.cern.ch/gittutorial/gitlab-fork/).
+To find out how to build Athena, make merge requests etc, please have a look at the [release building](https://atlassoftwaredocs.web.cern.ch/guides/build_release/) pages.
 
-Please see the [Twiki](https://twiki.cern.ch/twiki/bin/view/AtlasComputing/AtlasComputing) for more information, or look below for some other links.
+In particular, if you fork this project *please do not forget* to add the ATLAS Robot as a developer (assuming you might want to submit a merge request) as documented [here](https://atlassoftwaredocs.web.cern.ch/gittutorial/gitlab-fork/).
+
+For ATLAS members, please see the [Atlas Computing Twiki](https://twiki.cern.ch/twiki/bin/view/AtlasComputing/AtlasComputing) for even more information.
 
 Branches
 --------
