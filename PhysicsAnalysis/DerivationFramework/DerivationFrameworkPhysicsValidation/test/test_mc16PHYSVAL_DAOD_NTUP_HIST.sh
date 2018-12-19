@@ -42,7 +42,7 @@ case $ArtProcess in
 	#physval_make_web_display.py --ratio  --reffile Ref:PHYSVAL_all.root --title Test PHYSVAL_all.root --outdir PHYSVAL_WEB
         mkdir PHYSVAL_WEB
 	#domains="BTag Ele Gam IDTrk Jets Muons MET PFlow TopoClusters"
-	domains="BTag Electron Photon IDPerformanceMon Jets Muons MET PFlow TopoClusters"
+	domains="BTag Electron IDPerformanceMon Jets MET Muons PFlow Photon Summary Tau TopoClusters"
 	for slice in ${domains}
       	do 
 		physval_make_web_display.py --ratio --reffile Ref:PHYSVAL_all.root --title Test PHYSVAL_all.root --outdir PHYSVAL_WEB/${slice} --startpath ${slice}
