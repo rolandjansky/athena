@@ -32,6 +32,8 @@ class TruthParticleContainer;
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
 #include "StoreGate/ReadHandleKeyArray.h"
 
+#include "McParticleEvent/TruthParticleContainer.h"
+
 #include <string>
 #include <vector>
 #include <set>
@@ -195,6 +197,9 @@ class CaloCalibClusterMomentsMaker2: public AthAlgTool, virtual public CaloClust
    * hits outside the calorimeter systems - i.e. dead material hits ... */
   SG::ReadHandleKeyArray<CaloCalibrationHitContainer> m_DMCalibrationHitContainerNames;
 
+  /** ReadHandleKey for truth particle container */
+  SG::ReadHandleKey<TruthParticleContainer> m_truthParticleContainerKey{this,"TruthParticles","TruthParticleContainer","ReadHandleKey for truth particle container"};
+  
   /** 
    * @brief name of truth particle container
    */

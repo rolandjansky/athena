@@ -38,7 +38,6 @@
 #include "CaloIdentifier/CaloDM_ID.h"
 
 #include "McParticleEvent/TruthParticle.h"
-#include "McParticleEvent/TruthParticleContainer.h"
 
 #include "StoreGate/ReadHandle.h"
 
@@ -59,8 +58,7 @@ CaloCalibClusterMomentsMaker2::CaloCalibClusterMomentsMaker2(const std::string& 
 							   const std::string& name,
 							   const IInterface* parent)
   : AthAlgTool(type, name, parent), 
-    //m_truthParticleCollectionName("INav4MomTruthEvent"),
-    m_truthParticleCollectionName(""),
+    m_truthParticleCollectionName("TruthParticleContainer"),
     m_calo_dd_man(0),
     m_calo_id(0),
     m_caloDM_ID(0),
@@ -144,7 +142,6 @@ CaloCalibClusterMomentsMaker2::CaloCalibClusterMomentsMaker2(const std::string& 
 
   declareProperty("MatchDmType",m_MatchDmType);
 
-  declareProperty( "TruthParticles",m_truthParticleCollectionName);
   declareProperty( "UseParticleID",m_useParticleID);
 }
 
@@ -288,6 +285,8 @@ StatusCode CaloCalibClusterMomentsMaker2::initialize()
   ATH_CHECK( m_CalibrationHitContainerNames.initialize() );
   ATH_CHECK( m_DMCalibrationHitContainerNames.initialize() );
 
+  ATH_CHECK(m_truthParticleContainerKey.initialize());
+
   return StatusCode::SUCCESS;
 }
 
@@ -420,13 +419,11 @@ CaloCalibClusterMomentsMaker2::execute(const EventContext& ctx,
 
   // reading particle information for later calcution of calibration enegry fraction caused
   // by particles of different types
-  const TruthParticleContainer* truthParticles = nullptr;
-  if(doCalibFrac){
-    StatusCode sc = evtStore()->retrieve(truthParticles, m_truthParticleCollectionName);
-    if (sc.isFailure()||!truthParticles){
-      msg(MSG::WARNING) << "Truth particle collection '" << m_truthParticleCollectionName << "' not found, no cluster moments ENG_CALIB_FRAC_* will be available. "<< endmsg;
-      doCalibFrac = false;
-    }
+  SG::ReadHandle<TruthParticleContainer> truthParticleContainerReadHandle(m_truthParticleContainerKey);
+
+  if (doCalibFrac && !truthParticleContainerReadHandle.isValid()){
+    ATH_MSG_WARNING("Invalid read handle to TruthParticleContainer with key: " << m_truthParticleContainerKey.key());
+    doCalibFrac = false;
   }
 
   std::vector<double> engCalibOut[3];
@@ -706,7 +703,7 @@ CaloCalibClusterMomentsMaker2::execute(const EventContext& ctx,
           - eng_calib_dead_leakage;
 
     if(doCalibFrac){
-      get_calib_frac(*truthParticles, clusInfo, engCalibFrac);
+      get_calib_frac(*(truthParticleContainerReadHandle.get()), clusInfo, engCalibFrac);
     }
 
     if ( m_momentsNames.size() > 0 ) {
