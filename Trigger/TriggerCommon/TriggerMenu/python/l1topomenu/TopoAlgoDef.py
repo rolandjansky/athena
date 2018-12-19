@@ -21,12 +21,12 @@ class TopoAlgoDef:
 
         _etamax = 49
         _minet = 0
-        usev8 = False
+        usev7 = False
 
-        if '_v8' in TriggerFlags.triggerMenuSetup() or 'HI_v5' in TriggerFlags.triggerMenuSetup() :
-            usev8 = True
+        if '_v8' in TriggerFlags.triggerMenuSetup() or '_v7' in TriggerFlags.triggerMenuSetup() or 'HI_v5' in TriggerFlags.triggerMenuSetup() :
+            usev7 = True
         if '_PhaseII' in TriggerFlags.triggerMenuSetup():
-            usev8 = True
+            usev7 = True
         
         _emscale_for_decision = 2 # global scale for EM, TAU        
         if hasattr(TriggerFlags, 'useRun1CaloEnergyScale'):
@@ -671,7 +671,7 @@ class TopoAlgoDef:
             
         # VBF deta    
 
-        if usev8:
+        if usev7:
             algoList = [
            {"minDeta": 63,  "maxDeta": 127, "otype" : "FJ",  "ocut1" : 20,  "olist" : "s", "nleading1" : 1, "inputwidth1": HW.OutputWidthSortJET, "ocut2" : 20, "nleading2": 2},
            {"minDeta": 0,  "maxDeta": 20, "otype" : "J",  "ocut1" : 50,  "olist" : "s", "nleading1" : 1, "inputwidth1": HW.OutputWidthSortJET, "ocut2" : 0, "nleading2": 2},
@@ -863,7 +863,7 @@ class TopoAlgoDef:
 
 
         # deta-dphi with ab+ab
-        if usev8:
+        if usev7:
             algoList = [
                {"minDeta": 0, "maxDeta": 20, "minDphi": 0, "maxDphi": 20, "mult": 1, "otype1" : "TAU", "ocut1": 20, "olist1" : "abi", "nleading1": HW.OutputWidthSelectTAU, "otype2" : "TAU", "ocut2": 12, "olist2": "abi", "nleading2": HW.OutputWidthSelectTAU},
             ]
@@ -915,7 +915,7 @@ class TopoAlgoDef:
             tm.registerAlgo(alg)
 
         # LFV DETA ATR-14282
-        if usev8:
+        if usev7:
             algoList = [
                 {"minDeta": 0, "maxDeta": "04", "mult": 1, "otype1" : "EM", "ocut1": 8, "olist1" : "abi", "nleading1": HW.OutputWidthSelectEM, "otype2" : "MU", "ocut2": 10, "olist2": "ab", "nleading2": HW.OutputWidthSelectMU},
                 {"minDeta": 0, "maxDeta": "04", "mult": 1, "otype1" : "EM", "ocut1": 15, "olist1" : "abi", "nleading1": HW.OutputWidthSelectEM, "otype2" : "MU", "ocut2": 0, "olist2": "ab", "nleading2": HW.OutputWidthSelectMU},
@@ -947,7 +947,7 @@ class TopoAlgoDef:
 
             tm.registerAlgo(alg)
 
-        if usev8:
+        if usev7:
             algoList = [
                 {"minDphi": 0, "maxDphi": "03", "mult": 1, "otype1" : "EM", "ocut1": 8, "olist1" : "abi", "nleading1": HW.OutputWidthSelectEM, "otype2" : "MU", "ocut2": 10, "olist2": "ab", "nleading2": HW.OutputWidthSelectMU},
                 {"minDphi": 0, "maxDphi": "03", "mult": 1, "otype1" : "EM", "ocut1": 15, "olist1" : "abi", "nleading1": HW.OutputWidthSelectEM, "otype2" : "MU", "ocut2": 0, "olist2": "ab", "nleading2": HW.OutputWidthSelectMU},
@@ -1645,7 +1645,7 @@ class TopoAlgoDef:
 
         # Axion 2EM DPHI  
 
-        if usev8:
+        if usev7:
             algoList = [
                 {"minDphi": 27,  "maxDphi": 32, "otype" : "EM",  "ocut1" : 0,  "olist" : "s", "nleading1" : 1, "inputwidth1": HW.OutputWidthSortEM, "ocut2" : 0, "nleading2": 6},
             ]
