@@ -75,13 +75,8 @@ JGTowerReader::~JGTowerReader() {
   delete jSeeds;
   delete jJetSeeds;
   delete gSeeds;
-  delete jMET;
-  delete gMET;
-  delete gMET_rho;
-  delete gMET_sk;
-  delete gMET_jwoj;
-  delete gMET_pufit;
 
+  METAlg::m_METMap.clear();
   jL1Jets.clear();
   jJet_L1Jets.clear();
   gL1Jets.clear();
@@ -111,12 +106,6 @@ StatusCode JGTowerReader::initialize() {
      gT_noise.push_back(noise_base);
      gJet_thr.push_back(noise_base*m_gJet_thr);
   } 
-
-  met_algs["rho_sub"] = gMET_rho;  //pileup subtraction                                                                                                                                               
-  met_algs["SK"] = gMET_sk;      //softkiller                                                                                                                                                         
-  met_algs["JwoJ"] = gMET_jwoj;    //jets without jets                                                                                                                                                
-  met_algs["Noise"] = gMET;  //4 sigma noise cut                                                                                                                                                      
-  met_algs["PUfit"] = gMET_pufit;  //pufit  
 
   return StatusCode::SUCCESS;
 }
@@ -164,8 +153,11 @@ StatusCode JGTowerReader::execute() {
   CHECK(JFexAlg(jTowers)); // all the functions for JFex shall be executed here
   ATH_MSG_DEBUG ("About to call GFexAlg");
   CHECK(GFexAlg(gTowers)); // all the functions for GFex shall be executed here
+
   ATH_MSG_DEBUG ("About to call ProcessObject()");
   CHECK(ProcessObjects());  // this is the function to make output as well as memory cleaning
+
+ 
   ATH_MSG_DEBUG ("Algorithm passed");
 
   setFilterPassed(true); //if got here, assume that means algorithm passed
@@ -221,33 +213,27 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
     }
   }
 
-  // fill the seed vectors with all jtower positions
-  if(m_makeSquareJets) {
-    if(jSeeds->eta.empty()) CHECK(JetAlg::SeedGrid(jTs,jSeeds,m_dumpSeedsEtaPhi));
-  }
-  if(m_makeRoundJets) {
-    if(jJetSeeds->eta.empty()) CHECK(JetAlg::SeedGrid(jTs,jJetSeeds,m_dumpSeedsEtaPhi));
-  }
 
   if(m_makeSquareJets) {
     // find all seeds
     // the diameter of seed, and its range to be local maximum
     // Careful to ensure the range set to be no tower double counted
+    if(JetAlg::m_SeedMap.find("jSeeds")==JetAlg::m_SeedMap.end())CHECK(JetAlg::SeedGrid(jTs,"jSeeds",m_dumpSeedsEtaPhi));
     ATH_MSG_DEBUG("JFexAlg: SeedFinding with jSeeds; m_jSeed_size = " << m_jSeed_size << ", m_jMax_r = " << m_jMax_r);
-    CHECK(JetAlg::SeedFinding(jTs,jSeeds,m_jSeed_size,m_jMax_r,jJet_thr,m_debugJetAlg));
+    CHECK(JetAlg::SeedFinding(jTs,"jSeeds",m_jSeed_size,m_jMax_r,jJet_thr,m_debugJetAlg));
     ATH_MSG_DEBUG("JFexAlg: BuildJet");
-    CHECK(JetAlg::BuildJet(jTs, jSeeds, jL1Jets, m_jJet_r, jJet_thr, m_debugJetAlg));
+    CHECK(JetAlg::BuildJet(jTs, "jSeeds", "jL1Jet", m_jJet_r, jJet_thr, m_debugJetAlg));
   }
   if(m_makeRoundJets) {
+    if(JetAlg::m_SeedMap.find("jRoundSeeds")==JetAlg::m_SeedMap.end())CHECK(JetAlg::SeedGrid(jTs,"jRoundSeeds",m_dumpSeedsEtaPhi));
     ATH_MSG_DEBUG("JFexAlg: SeedFinding with jJetSeeds; m_jJetSeed_size = " << m_jJetSeed_size << ", m_jJet_max_r = " << m_jJet_max_r);
-    CHECK(JetAlg::SeedFinding(jTs,jJetSeeds,m_jJetSeed_size,m_jJet_max_r,jJet_jet_thr,m_debugJetAlg));
+    CHECK(JetAlg::SeedFinding(jTs,"jRoundSeeds",m_jJetSeed_size,m_jJet_max_r,jJet_jet_thr,m_debugJetAlg));
     ATH_MSG_DEBUG("JFexAlg: BuildRoundJet");
-    CHECK(JetAlg::BuildRoundJet(jTs, jJetSeeds, jJet_L1Jets, m_jJet_jet_r, jJet_jet_thr, m_debugJetAlg));
+    CHECK(JetAlg::BuildRoundJet(jTs, "jRoundSeeds", "jRoundJet", m_jJet_jet_r, jJet_jet_thr, m_debugJetAlg));
   }
   
   ATH_MSG_DEBUG("JFexAlg: BuildMET");
-  CHECK(METAlg::BuildMET(jTs, jMET, jT_noise, m_useNegTowers));
-
+  CHECK(METAlg::Baseline_MET(jTs, "jBaseline", jT_noise, m_useNegTowers));
   ATH_MSG_DEBUG("JFexAlg: Done");
 
   return StatusCode::SUCCESS;
@@ -256,7 +242,8 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
 StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
 
 // jet algorithms
-  if(gSeeds->eta.empty()) CHECK(JetAlg::SeedGrid(gTs,gSeeds,m_dumpSeedsEtaPhi));
+  if(JetAlg::m_SeedMap.find("gSeeds")==JetAlg::m_SeedMap.end()) CHECK(JetAlg::SeedGrid(gTs,"gSeeds",m_dumpSeedsEtaPhi));
+  CHECK(JetAlg::SeedFinding(gTs,"gSeeds",m_gSeed_size,m_gMax_r,gJet_thr,m_debugJetAlg));
 
   // sort out the wrong-size list of noise vector
   if(gTs->size() > gT_noise.size()) {
@@ -274,13 +261,13 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
                                                                          // Careful to ensure the range set to be no tower double counted
   //CHECK(JetAlg::BuildJet(gTs,gSeeds,gL1Jets,m_gJet_r,gJet_thr, m_debugJetAlg)); //default gFex jets are cone jets wih radius of 1.0
   
-  CHECK(JetAlg::BuildFatJet(*gTs, gL1Jets, m_gJet_r, gJet_thr));
+  CHECK(JetAlg::BuildFatJet(*gTs, "gL1Jets", m_gJet_r, gJet_thr));
   //gFEX MET algorithms
-  CHECK(METAlg::BuildMET(gTs,met_algs["Noise"],gT_noise, m_useNegTowers)); //basic MET reconstruction with a 4 sigma noise cut applied
-  CHECK(METAlg::SubtractRho_MET(gTs, met_algs["rho_sub"], m_useRMS, m_useMedian, m_useNegTowers) ); //pileup subtracted MET, can apply dynamic noise cut and use either median or avg rho
-  CHECK(METAlg::Softkiller_MET(gTs, met_algs["SK"], m_useNegTowers) ); //pileup subtracted SoftKiller (with avg rho)
-  CHECK(METAlg::JwoJ_MET(gTs,met_algs["JwoJ"],m_pTcone_cut, m_useNegTowers) ); //Jets without Jets
-  CHECK(METAlg::Pufit_MET(gTs,met_algs["PUfit"], m_useNegTowers) ); //L1 version of PUfit, using gTowers
+  CHECK(METAlg::Baseline_MET(gTs,"gBaseline",gT_noise, m_useNegTowers)); //basic MET reconstruction with a 4 sigma noise cut applied
+  CHECK(METAlg::SubtractRho_MET(gTs,"rho_sub",m_useRMS,m_useMedian,m_useNegTowers)); //pileup subtracted MET, can apply dynamic noise cut and use either median or avg rho
+  CHECK(METAlg::Softkiller_MET(gTs, "SK", m_useNegTowers) ); //pileup subtracted SoftKiller (with avg rho)
+  CHECK(METAlg::JwoJ_MET(gTs,"JwoJ",m_pTcone_cut, m_useNegTowers) ); //Jets without Jets
+  CHECK(METAlg::Pufit_MET(gTs,"PUfit", m_useNegTowers) ); //L1 version of PUfit, using gTowers
   
   return StatusCode::SUCCESS;
 }
@@ -289,177 +276,65 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
 StatusCode JGTowerReader::ProcessObjects(){
 
   // Ouptut Jets
-  if(m_makeSquareJets) {
-    xAOD::JetRoIAuxContainer* jFexJetContAux = new xAOD::JetRoIAuxContainer();
-    xAOD::JetRoIContainer* jFexJetCont = new xAOD::JetRoIContainer(); 
-    jFexJetCont->setStore(jFexJetContAux);
-    for(unsigned j=0;j<jL1Jets.size();j++  ){
-      JetAlg::L1Jet jet = jL1Jets.at(j);
-      CHECK(HistBookFill("jJet_et",50,0,500,jet.et/1000.,1.));
-      CHECK(HistBookFill("jJet_eta",49,-4.9,4.9,jet.eta,1.));
-      CHECK(HistBookFill("jJet_phi",31,-3.1416,3.1416,jet.phi,1.));
-      xAOD::JetRoI* jFexJet = new xAOD::JetRoI();     
-      jFexJetCont->push_back(jFexJet);
-      jFexJet->initialize(0x0,jet.eta,jet.phi);
-      jFexJet->setEt8x8(jet.et);
-    }
-    CHECK(evtStore()->record(jFexJetCont,"jFexJets"));
-    CHECK(evtStore()->record(jFexJetContAux,"jFexJetsAux."));
+  for ( auto it = JetAlg::m_JetMap.begin(); it != JetAlg::m_JetMap.end(); it++ ){
+      xAOD::JetRoIAuxContainer* JetContAux = new xAOD::JetRoIAuxContainer();
+      xAOD::JetRoIContainer* JetCont = new xAOD::JetRoIContainer();
+      JetCont->setStore(JetContAux);
+      for(unsigned j=0;j<it->second.size();j++){
+         std::shared_ptr<JetAlg::L1Jet> jet = it->second.at(j);
+         float et = jet.get()->et;
+         float eta = jet.get()->eta;
+         float phi = jet.get()->phi;
+         CHECK(HistBookFill(Form("%s_et",it->first.Data()),50,0,500,et/1000.,1.));
+         CHECK(HistBookFill(Form("%s_eta",it->first.Data()),49,-4.9,4.9,eta,1.));
+         CHECK(HistBookFill(Form("%s_phi",it->first.Data()),31,-3.1416,3.1416,phi,1.));
+         xAOD::JetRoI* Jet = new xAOD::JetRoI;
+         JetCont->push_back(Jet);
+         Jet->initialize(0x0,eta,phi);
+         Jet->setEt8x8(et);    
+      }
+      CHECK(evtStore()->record(JetCont,it->first.Data()));
+      CHECK(evtStore()->record(JetContAux,Form("%sAux.",it->first.Data())));
   }
 
-  if(m_makeRoundJets) {
-    xAOD::JetRoIAuxContainer* jFexRoundJetContAux = new xAOD::JetRoIAuxContainer();
-    xAOD::JetRoIContainer* jFexRoundJetCont = new xAOD::JetRoIContainer(); 
-    jFexRoundJetCont->setStore(jFexRoundJetContAux);
-    for(unsigned j=0;j<jJet_L1Jets.size();j++  ){
-      JetAlg::L1Jet jet = jJet_L1Jets.at(j);
-      CHECK(HistBookFill("jJet_round_et",50,0,500,jet.et/1000.,1.));
-      CHECK(HistBookFill("jJet_round_eta",49,-4.9,4.9,jet.eta,1.));
-      CHECK(HistBookFill("jJet_round_phi",31,-3.1416,3.1416,jet.phi,1.));
-      xAOD::JetRoI* jFexRoundJet = new xAOD::JetRoI();     
-      jFexRoundJetCont->push_back(jFexRoundJet);
-      jFexRoundJet->initialize(0x0,jet.eta,jet.phi);
-      jFexRoundJet->setEt8x8(jet.et);
-    }
-    CHECK(evtStore()->record(jFexRoundJetCont,"jFexRoundJets"));
-    CHECK(evtStore()->record(jFexRoundJetContAux,"jFexRoundJetsAux."));
-  }
-
-  for(unsigned j=0;j<gL1Jets.size();j++  ){
-     JetAlg::L1Jet jet = gL1Jets.at(j);
-     CHECK(HistBookFill("gJet_et",50,0,500,jet.et/1000.,1.));
-     CHECK(HistBookFill("gJet_eta",49,-4.9,4.9,jet.eta,1.));
-     CHECK(HistBookFill("gJet_phi",31,-3.1416,3.1416,jet.phi,1.));
-  }
-
-  //output MET
-  CHECK(HistBookFill("jMet_et",50,0,500,jMET->et/1000.,1.));
-  CHECK(HistBookFill("jMet_phi",31,-3.1416,-3.1416,jMET->phi,1.));
-
-  xAOD::EnergySumRoIAuxInfo* jFexMETContAux = new xAOD::EnergySumRoIAuxInfo();
-  xAOD::EnergySumRoI* jFexMETCont = new xAOD::EnergySumRoI();
-  jFexMETCont->setStore(jFexMETContAux);
-
-  CHECK(HistBookFill("jMet_et",50,0,500,jMET->et/1000.,1.));
-  CHECK(HistBookFill("jMet_phi",31,-3.1416, 3.1416,jMET->phi,1.));
-
-  jFexMETCont->setEnergyX(jMET->et*cos(jMET->phi));
-  jFexMETCont->setEnergyY(jMET->et*sin(jMET->phi));  
-  CHECK(evtStore()->record(jFexMETCont,"jFexMET"));
-  CHECK(evtStore()->record(jFexMETContAux,"jFexMETAux."));
-
+  // Output Seeds
   if(m_plotSeeds) {
-    for(unsigned iseed_eta=0; iseed_eta<jSeeds->eta.size(); iseed_eta++){
-      for(unsigned iseed_phi=0; iseed_phi<jSeeds->phi.at(iseed_eta).size(); iseed_phi++){
-        if(jSeeds->local_max.at(iseed_eta).at(iseed_phi)) {
-          CHECK(HistBookFill("jSeed_et",50,0,500,jSeeds->et.at(iseed_eta).at(iseed_phi)/1000.,1.));
-          CHECK(HistBookFill("jSeed_eta",49,-4.9,4.9,jSeeds->eta.at(iseed_eta),1.));
-          CHECK(HistBookFill("jSeed_phi",31,-3.1416,3.1416,jSeeds->phi.at(iseed_eta).at(iseed_phi),1.));
+    for ( auto it = JetAlg::m_SeedMap.begin(); it != JetAlg::m_SeedMap.end(); it++ ){     
+        for(unsigned iseed_eta=0; iseed_eta<it->second->eta.size(); iseed_eta++){
+           for(unsigned iseed_phi=0; iseed_phi<it->second->phi.at(iseed_eta).size(); iseed_phi++){
+              if(it->second->local_max.at(iseed_eta).at(iseed_phi)) {
+                CHECK(HistBookFill(Form("%s_et",it->first.Data()),50,0,500,it->second->et.at(iseed_eta).at(iseed_phi)/1000.,1.));
+                CHECK(HistBookFill(Form("%s_eta",it->first.Data()),49,-4.9,4.9,it->second->eta.at(iseed_eta),1.));
+                CHECK(HistBookFill(Form("%s_phi",it->first.Data()),31,-3.1416,3.1416,it->second->phi.at(iseed_eta).at(iseed_phi),1.));
+              }
+           }
         }
-      }
-    }
-    for(unsigned iseed_eta=0; iseed_eta<jJetSeeds->eta.size(); iseed_eta++){
-      for(unsigned iseed_phi=0; iseed_phi<jJetSeeds->phi.at(iseed_eta).size(); iseed_phi++){
-        if(jJetSeeds->local_max.at(iseed_eta).at(iseed_phi)) {
-          CHECK(HistBookFill("jJetSeed_et",50,0,500,jJetSeeds->et.at(iseed_eta).at(iseed_phi)/1000.,1.));
-          CHECK(HistBookFill("jJetSeed_eta",49,-4.9,4.9,jJetSeeds->eta.at(iseed_eta),1.));
-          CHECK(HistBookFill("jJetSeed_phi",31,-3.1416,3.1416,jJetSeeds->phi.at(iseed_eta).at(iseed_phi),1.));
-        }
-      }
     }
   }
-  
-  //output gFEX large R jet algorithm
-  xAOD::JetRoIAuxContainer* gFexFatJetContAux = new xAOD::JetRoIAuxContainer();
-  xAOD::JetRoIContainer* gFexFatJetCont = new xAOD::JetRoIContainer();
-  gFexFatJetCont->setStore(gFexFatJetContAux);
-  for(unsigned g=0; g<gL1Jets.size(); g++  ){
-    JetAlg::L1Jet jet = gL1Jets.at(g);
-    CHECK(HistBookFill("gJet_fat_et",50,0,500,jet.et/1000.,1.));
-    CHECK(HistBookFill("gJet_fat_eta",49,-4.9,4.9,jet.eta,1.));
-    CHECK(HistBookFill("gJet_fat_phi",31,-M_PI,M_PI,jet.phi,1.));
-    xAOD::JetRoI* gFexFatJet = new xAOD::JetRoI();
-    gFexFatJetCont->push_back(gFexFatJet);
-    gFexFatJet->initialize(0x0,jet.eta,jet.phi);
-    gFexFatJet->setEt8x8(jet.et);
+
+  // Output Jets
+  for ( auto it = METAlg::m_METMap.begin(); it != METAlg::m_METMap.end(); it++ ){
+      xAOD::EnergySumRoIAuxInfo* METContAux = new xAOD::EnergySumRoIAuxInfo();
+      xAOD::EnergySumRoI* METCont = new xAOD::EnergySumRoI();
+      METCont->setStore(METContAux);
+      
+      std::shared_ptr<METAlg::MET> met = it->second;
+      CHECK(HistBookFill(Form("MET_%s_et",it->first.Data()), 50, 0, 500, met->et*1e-3, 1.));
+      CHECK(HistBookFill(Form("MET_%s_phi",it->first.Data()), 31, -3.1416, 3.1416, met->phi, 1.));
+      METCont->setEnergyX(met->et*cos(met->phi));
+      METCont->setEnergyY(met->et*sin(met->phi));
+      METCont->setEnergyT(met->et);
+      CHECK(evtStore()->record(METCont,Form("%s_MET",it->first.Data())));
+      CHECK(evtStore()->record(METContAux,Form("%s_METAux",it->first.Data())));
   }
-  CHECK(evtStore()->record(gFexFatJetCont,"gFexFatJets"));
-  CHECK(evtStore()->record(gFexFatJetContAux,"gFexFatJetsAux."));
 
-  //output gFEX MET algorithms
-  //4sigma noise cut
-  xAOD::EnergySumRoIAuxInfo* gFexMETContAux = new xAOD::EnergySumRoIAuxInfo();
-  xAOD::EnergySumRoI* gFexMETCont = new xAOD::EnergySumRoI();
-  gFexMETCont->setStore(gFexMETContAux);
 
-  CHECK(HistBookFill("gMET_et", 50, 0, 500, met_algs["Noise"]->et, 1.));
-  CHECK(HistBookFill("gMET_phi", 31, -3.1416, 3.1416, met_algs["Noise"]->phi, 1.));
-  gFexMETCont->setEnergyX(met_algs["Noise"]->et*cos(met_algs["Noise"]->phi));
-  gFexMETCont->setEnergyY(met_algs["Noise"]->et*sin(met_algs["Noise"]->phi));
-  gFexMETCont->setEnergyT(met_algs["Noise"]->et);
-  CHECK(evtStore()->record(gFexMETCont,"gFexMET"));  
-  CHECK(evtStore()->record(gFexMETContAux,"gFexMETAux."));
-
-  //Rho subtraction
-  xAOD::EnergySumRoIAuxInfo* gFexMET_rhoContAux = new xAOD::EnergySumRoIAuxInfo();
-  xAOD::EnergySumRoI* gFexMET_rhoCont = new xAOD::EnergySumRoI();
-  gFexMET_rhoCont->setStore(gFexMET_rhoContAux);
-
-  CHECK(HistBookFill("gMET_rho_et", 50, 0, 500, met_algs["rho_sub"]->et, 1.));
-  CHECK(HistBookFill("gMET_rho_phi", 31, -3.1416, 3.1416, met_algs["rho_sub"]->phi, 1.));
-  gFexMET_rhoCont->setEnergyX(met_algs["rho_sub"]->et*cos(met_algs["rho_sub"]->phi));
-  gFexMET_rhoCont->setEnergyY(met_algs["rho_sub"]->et*sin(met_algs["rho_sub"]->phi));
-  gFexMET_rhoCont->setEnergyT(met_algs["rho_sub"]->et);
-  CHECK(evtStore()->record(gFexMET_rhoCont,"gFexMET_rho"));
-  CHECK(evtStore()->record(gFexMET_rhoContAux,"gFexMET_rhoAux."));
-
-  //SoftKiller
-  xAOD::EnergySumRoIAuxInfo* gFexMET_skContAux = new xAOD::EnergySumRoIAuxInfo();
-  xAOD::EnergySumRoI* gFexMET_skCont = new xAOD::EnergySumRoI();
-  gFexMET_skCont->setStore(gFexMET_skContAux);
-
-  CHECK(HistBookFill("gMET_sk_et", 50, 0, 500, met_algs["SK"]->et, 1.));
-  CHECK(HistBookFill("gMET_sk_phi", 31, -3.1416, 3.1416, met_algs["SK"]->phi, 1.));
-  gFexMET_skCont->setEnergyX(met_algs["SK"]->et*cos(met_algs["SK"]->phi));
-  gFexMET_skCont->setEnergyY(met_algs["SK"]->et*sin(met_algs["SK"]->phi));
-  CHECK(evtStore()->record(gFexMET_skCont,"gFexMET_sk"));
-  CHECK(evtStore()->record(gFexMET_skContAux,"gFexMET_skAux."));
-
-  //Jets without Jets
-  xAOD::EnergySumRoIAuxInfo* gFexMET_jwojContAux = new xAOD::EnergySumRoIAuxInfo();
-  xAOD::EnergySumRoI* gFexMET_jwojCont = new xAOD::EnergySumRoI();
-  gFexMET_jwojCont->setStore(gFexMET_jwojContAux);
-
-  CHECK(HistBookFill("gMET_jwoj_et", 50, 0, 500, met_algs["JwoJ"]->et, 1.));
-  CHECK(HistBookFill("gMET_jwoj_phi", 31, -3.1416, 3.1416, met_algs["JwoJ"]->phi, 1.));
-  gFexMET_jwojCont->setEnergyX(met_algs["JwoJ"]->et);
-  gFexMET_jwojCont->setEnergyY(0.0);
-  gFexMET_jwojCont->setEnergyT(met_algs["JwoJ"]->et);
-  CHECK(evtStore()->record(gFexMET_jwojCont,"gFexMET_jwoj"));
-  CHECK(evtStore()->record(gFexMET_jwojContAux,"gFexMET_jwojAux."));
-
-  //Pufit
-  xAOD::EnergySumRoIAuxInfo* gFexMET_pufitContAux = new xAOD::EnergySumRoIAuxInfo();
-  xAOD::EnergySumRoI* gFexMET_pufitCont = new xAOD::EnergySumRoI();
-  gFexMET_pufitCont->setStore(gFexMET_pufitContAux);
-
-  CHECK(HistBookFill("gMET_pufit_et", 50, 0, 500, met_algs["PUfit"]->et/1000., 1.));
-  CHECK(HistBookFill("gMET_pufit_phi", 31, -3.1416, 3.1416, met_algs["PUfit"]->phi, 1.));
-  gFexMET_pufitCont->setEnergyX(met_algs["PUfit"]->et);
-  gFexMET_pufitCont->setEnergyY(0.0);
-  gFexMET_pufitCont->setEnergyT(met_algs["PUfit"]->et);
-  CHECK(evtStore()->record(gFexMET_pufitCont,"gFexMET_pufit"));
-  CHECK(evtStore()->record(gFexMET_pufitContAux,"gFexMET_pufitAux."));
-
-  jL1Jets.clear();
-  jJet_L1Jets.clear();
-  gL1Jets.clear();
-  jSeeds->et.clear();
-  jSeeds->local_max.clear();
-  jJetSeeds->et.clear();
-  jJetSeeds->local_max.clear();
-  gSeeds->et.clear();
-  gSeeds->local_max.clear();
+  METAlg::m_METMap.clear();
+  JetAlg::m_JetMap.clear();
+  for ( auto it = JetAlg::m_SeedMap.begin(); it != JetAlg::m_SeedMap.end(); it++ ){
+      it->second->local_max.clear();
+      it->second->et.clear();
+  }
 
   return StatusCode::SUCCESS;
 }
