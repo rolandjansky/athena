@@ -7,7 +7,7 @@
 #include <stdexcept>
 
 namespace Pythia8_UserHooks{
- 
+
   UserHooks *UserHooksFactory::create(const string &name){
     std::map<string, const ICreator*>::const_iterator it = s_creators().find(name);
     if(it == s_creators().end()){
@@ -16,13 +16,13 @@ namespace Pythia8_UserHooks{
     }
     return it->second->create();
   }
- 
+
   ///static function to instantiate map of string name Vs. creator object on first use
   std::map<string, const UserHooksFactory::ICreator*> &UserHooksFactory::s_creators(){
     static std::map<string, const UserHooksFactory::ICreator*> creators;
     return creators;
   }
-  
+
   template<>
   std::map<std::string, double> &UserHooksFactory::userSettings(){
     static std::map<std::string, double> settings;
@@ -34,14 +34,20 @@ namespace Pythia8_UserHooks{
     static std::map<std::string, int> settings;
     return settings;
   }
-  
+
+  template<>
+  std::map<std::string, bool> &UserHooksFactory::userSettings(){
+    static std::map<std::string, bool> settings;
+    return settings;
+  }
+
   template<>
   std::map<std::string, std::string> &UserHooksFactory::userSettings(){
     static std::map<std::string, std::string> settings;
     return settings;
   }
-  
-  
+
+
   std::map<std::string, double> &userParams(){
     static std::map<std::string, double> params;
     return params;
@@ -51,11 +57,16 @@ namespace Pythia8_UserHooks{
     static std::map<std::string, int> modes;
     return modes;
   }
-  
+
+  std::map<std::string, bool> &userFlags(){
+    static std::map<std::string, bool> flags;
+    return flags;
+  }
+
   std::map<std::string, std::string> &userWords(){
     static std::map<std::string, std::string> words;
     return words;
   }
-  
+
 }
 
