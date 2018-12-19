@@ -21,7 +21,7 @@
 
 #include "EventInfoMgt/ITagInfoMgr.h"
 #include "EventInfo/TagInfo.h"
-#include "SGTools/EventIDFromStore.h"
+#include "EventInfoUtils/EventIDFromStore.h"
 
 
 #include "IOVDbParser.h"

@@ -17,8 +17,6 @@ namespace xAOD {
     typedef EventInfo_v1 EventInfo;
 }
 class EventInfo;
-class EventID;
-class EventType;
 
 namespace xAODMaker {
 
@@ -46,12 +44,6 @@ namespace xAODMaker {
                                   xAOD::EventInfo* xaod,
                                   bool pileUpInfo = false,
                                   bool copyPileUpLinks = true ) const = 0;
-
-      /// Create EventID object from xAOD::EventInfo
-      virtual EventID eventIDFromXAOD( const xAOD::EventInfo* xaod ) const = 0;
-
-      /// Create EventType object from xAOD::EventInfo
-      virtual EventType eventTypeFromXAOD( const xAOD::EventInfo* xaod ) const = 0;
 
       /// Gaudi interface definition
       static const InterfaceID& interfaceID() {

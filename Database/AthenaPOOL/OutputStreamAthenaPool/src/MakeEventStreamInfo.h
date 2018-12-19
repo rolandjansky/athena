@@ -50,9 +50,5 @@ private:
    /// Pointer to the data stores
    ServiceHandle<StoreGateSvc> m_metaDataStore;
    ServiceHandle<StoreGateSvc> m_eventStore;
-
-   /// Handle to the xAOD::EventInfo converter tool
-   ToolHandle< xAODMaker::IEventInfoCnvTool > m_xAODCnvTool;
-
 };
 #endif

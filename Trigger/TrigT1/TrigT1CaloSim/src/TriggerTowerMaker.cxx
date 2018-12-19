@@ -32,7 +32,7 @@
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 
 // Utilities
-#include "SGTools/EventIDFromStore.h"
+#include "EventInfoUtils/EventIDFromStore.h"
 #include "PathResolver/PathResolver.h"
 #include <sys/types.h>
 

@@ -27,7 +27,7 @@
 #include "LArSimEvent/LArHit.h"
 #include "LArSimEvent/LArHitContainer.h"
 #include "PileUpTools/PileUpMergeSvc.h"
-#include "SGTools/EventIDFromStore.h"
+#include "EventInfoUtils/EventIDFromStore.h"
 
 #include <CLHEP/Random/Randomize.h>
 

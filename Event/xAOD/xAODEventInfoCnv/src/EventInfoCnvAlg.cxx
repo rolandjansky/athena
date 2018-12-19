@@ -61,8 +61,6 @@ namespace xAODMaker {
 
    StatusCode EventInfoCnvAlg::execute (const EventContext& ctx) const {
 
-      ATH_MSG_WARNING( "MN:  EventInfoCnvAlg::execute_r" );
-
       // Check if anything needs to be done:
       // FIXME: Job configuration should be fixed so we don't need this test.
       if( evtStore()->contains< xAOD::EventInfo >( m_xaodKey.key() ) ) {

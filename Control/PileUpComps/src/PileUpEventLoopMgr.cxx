@@ -13,9 +13,9 @@
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "AthenaKernel/EventContextClid.h"
 
-#include "EventInfo/PileUpEventInfo.h" // OLD EDM
 #include "EventInfo/EventID.h"         // OLD EDM
 #include "EventInfo/EventType.h"       // OLD EDM
+#include "EventInfo/EventInfo.h"       // OLD EDM
 #include "EventInfo/EventIncident.h"   // OLD EDM
 
 #include "PileUpTools/IBeamIntensity.h"
@@ -34,6 +34,7 @@
 // xAOD include(s):
 #include "xAODCore/tools/PrintHelpers.h"
 #include "xAODCnvInterfaces/IEventInfoCnvTool.h"
+#include "EventInfoUtils/EventInfoFromxAOD.h"
 
 // Gaudi headers
 #include "GaudiKernel/IAlgorithm.h"
@@ -739,7 +740,7 @@ StatusCode PileUpEventLoopMgr::executeEvent(void* par)
   assert(pEvent);
 
   // Make EventID for the Event Context
-  EventID   ev_id = m_xAODCnvTool->eventIDFromXAOD( pEvent );
+  EventID   ev_id = eventIDFromxAOD( pEvent );
   m_eventContext->setEventID( ev_id );
   m_eventContext->set(m_nevt,0);
 
@@ -757,7 +758,7 @@ StatusCode PileUpEventLoopMgr::executeEvent(void* par)
   }
 
   // Make EventInfo for incidents
-  EventInfo ei( new EventID(ev_id), new EventType( m_xAODCnvTool->eventTypeFromXAOD(pEvent) ) );
+  EventInfo ei( new EventID(ev_id), new EventType( eventTypeFromxAOD(pEvent) ) );
 
   /// Fire begin-Run incident if new run:
   if (m_firstRun || (m_currentRun != pEvent->runNumber()) )

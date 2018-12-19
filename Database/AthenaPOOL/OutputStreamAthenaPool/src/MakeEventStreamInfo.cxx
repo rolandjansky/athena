@@ -18,15 +18,14 @@
 #include "EventInfo/EventID.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "xAODEventInfo/EventInfo.h"
-#include "xAODCnvInterfaces/IEventInfoCnvTool.h"
+#include "EventInfoUtils/EventInfoFromxAOD.h"
 
 //___________________________________________________________________________
 MakeEventStreamInfo::MakeEventStreamInfo(const std::string& type,
 	const std::string& name,
 	const IInterface* parent) : ::AthAlgTool(type, name, parent),
 		m_metaDataStore("StoreGateSvc/MetaDataStore", name),
-                m_eventStore("StoreGateSvc", name),
-                m_xAODCnvTool("xAODMaker::EventInfoCnvTool/EventInfoCnvTool", this)
+                m_eventStore("StoreGateSvc", name)
 {
    // Declare IAthenaOutputStreamTool interface
    declareInterface<IAthenaOutputTool>(this);
@@ -49,8 +48,6 @@ StatusCode MakeEventStreamInfo::initialize() {
       ATH_MSG_FATAL("Could not find EventStore");
       return(StatusCode::FAILURE);
    }
-   // Retrieve the converter tool:
-   CHECK(m_xAODCnvTool.retrieve());
 
    return(StatusCode::SUCCESS);
 }
@@ -106,7 +103,7 @@ StatusCode MakeEventStreamInfo::postExecute() {
       if( xEvent ) {
          runN = xEvent->runNumber();
          lumiN = xEvent->lumiBlock();
-         evtype = m_xAODCnvTool->eventTypeFromXAOD(xEvent);
+         evtype = eventTypeFromxAOD(xEvent);
       } else {
          ATH_MSG_ERROR("Unable to retrieve EventInfo object");
          return(StatusCode::FAILURE);

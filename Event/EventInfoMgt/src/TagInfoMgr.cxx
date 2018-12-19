@@ -17,12 +17,13 @@
 #include "TagInfoMgr.h"
 
 // Event includes
+#include "EventInfo/EventID.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventType.h"
 #include "EventInfo/EventIncident.h"
 #include "EventInfo/TriggerInfo.h"
 
-#include "SGTools/EventIDFromStore.h"
+#include "EventInfoUtils/EventIDFromStore.h"
 
 // IOVDbSvc
 #include "AthenaKernel/IIOVDbSvc.h"
@@ -495,6 +496,13 @@ TagInfoMgr::fillMetaData   (const TagInfo* tagInfo, const CondAttrListCollection
     // Get run number for IOV
     unsigned int runNumber = 0;
     const EventIDBase* evid = EventIDFromStore( m_storeGate );
+
+    auto proxies = m_storeGate->proxies();
+    cout << "MN:  Store: " << m_storeGate->name() << endl;
+    for(auto prox : proxies) {
+        cout << "MN:  CLID=" << prox->clID() << "  key=" << prox->name() << endl;
+    }
+       
     if( evid ) {
        runNumber = evid->run_number();
     } else {
