@@ -28,7 +28,7 @@ def collectHypos( steps ):
             
             for alg in algs:
                 # will replace by function once dependencies are sorted
-                if 'HypoInputDecisions'  in alg.__class__.__dict__:
+                if 'HypoInputDecisions'  in alg.getProperties():
                     __log.info( "found hypo " + alg.name() + " in " +stepSeq.name() )
                     hypos[stepSeq.name()].append( alg )
     return hypos
