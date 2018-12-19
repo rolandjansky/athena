@@ -64,10 +64,10 @@ class L2EFChain_g(L2EFChainDef):
         self.L2InputTE = self.L2InputTE.split("_")[0]
         self.L2InputTE = self.L2InputTE[1:] if self.L2InputTE[0].isdigit() else self.L2InputTE
 
-        self.use_v7=False
+        self.use_v8=False
         #if TriggerFlags.run2Config()=='2017':
-        if '_v7' in TriggerFlags.triggerMenuSetup():
-            self.use_v7=True
+        if '_v8' in TriggerFlags.triggerMenuSetup():
+            self.use_v8=True
         
         self.doIsolation=False
         caloiso = [x for x in self.chainPart['isoInfo'] if 'icalo' in x]
@@ -79,7 +79,7 @@ class L2EFChain_g(L2EFChainDef):
         # gXX_ID type chains:
         if "hiptrt" in self.chainPart['addInfo']:
             self.setup_gnocut_hiptrt()
-        elif self.use_v7:
+        elif self.use_v8:
             self.setup_photon()
         else:
             if 'ringer' in self.chainPart['addInfo']:
@@ -155,7 +155,7 @@ class L2EFChain_g(L2EFChainDef):
     
 ############################### DEFINE GROUPS OF CHAINS HERE ##############################
     def setup_photon(self):
-        #log.info('Setup Photon for v7 %s'%self.chainName)
+        #log.info('Setup Photon for v8 %s'%self.chainName)
         seq_te_dict = collections.OrderedDict()
         
         # required to preserve some backward compatibility

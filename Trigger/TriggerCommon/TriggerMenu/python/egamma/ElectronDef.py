@@ -65,20 +65,20 @@ class L2EFChain_e(L2EFChainDef):
         self.L2InputTE = self.L2InputTE.split("_")[0]
         self.L2InputTE = self.L2InputTE[1:] if self.L2InputTE[0].isdigit() else self.L2InputTE
 
-        self.use_v7=False
+        self.use_v8=False
         self._ringer_selection=False
         self.setRingerSelection()
 
         #if TriggerFlags.run2Config() == '2017':
-        if '_v7' in TriggerFlags.triggerMenuSetup():
-            self.use_v7=True
+        if '_v8' in TriggerFlags.triggerMenuSetup():
+            self.use_v8=True
         
         self.doCaloIsolation=False
         for item in self.chainPart['isoInfo']:
             if 'icalo' in item:
                 self.doCaloIsolation=True
         # eXXvh_ID type chains:
-        if self.use_v7:
+        if self.use_v8:
             self.setup_electron()
         elif self.chainPart['trkInfo']=='idperf': #True:# self.chainPart['IDinfo'] \
             if 'ion' in self.chainPart['extra']:
@@ -195,7 +195,7 @@ class L2EFChain_e(L2EFChainDef):
 
     def setup_electron(self):
         ''' 
-        MC_pp_v7 onwards configuration method for electron chains 
+        MC_pp_v8 onwards configuration method for electron chains 
         TrigEMCluster and Ringer reconstruction (same as photons)
         Fast Calo-only rejection (w/ ringer or cut-based)
         Full track reconstruction
