@@ -1,5 +1,8 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 ///////////////////////////////////////////////////////////////////
-// L1JetEtTools.cxx, (c) Alan Watson (see header file for license)
+// L1JetEtTools.cxx,  
 ///////////////////////////////////////////////////////////////////
 
 #include "TrigT1CaloTools/L1JetEtTools.h"

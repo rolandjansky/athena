@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #include "RIO_OnTrackErrorScalingKit.h"
 
 size_t RIO_OnTrackErrorScalingKit::getParamIndex(const std::string &name) const {

@@ -1,7 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /*********************************
  * DisambiguationDetaDPhiIncl3.cpp
  * Created by Joerg Stelzer / V Sorin on 9/16/14.
- * Copyright (c) 2012 Joerg Stelzer. All rights reserved.
  * 
  * @brief algorithm calculates the dR distance between objects in three lists, check first two with eta/phi differences, if pass
  * check dR agains 3rd object, passed if no match with 3rd

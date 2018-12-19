@@ -1,8 +1,10 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /*********************************
  * MultiplicityCustom.cpp
  * Created by Joerg Stelzer on 11/16/12.
  * Modified by V SOrin 2014
- * Copyright (c) 2012 Joerg Stelzer. All rights reserved.
  *
  * algo that just apply et cut and then multiplicity of remaining TOBs
  * @param NumberLeading

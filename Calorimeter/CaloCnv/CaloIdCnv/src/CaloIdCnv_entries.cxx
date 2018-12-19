@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #include "CaloIdCnv/CaloIdMgrDetDescrCnv.h"
 #include "CaloIdCnv/CaloCell_IDDetDescrCnv.h"
 #include "CaloIdCnv/CaloCell_SuperCell_IDDetDescrCnv.h"

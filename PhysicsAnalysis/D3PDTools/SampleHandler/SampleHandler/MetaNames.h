@@ -5,7 +5,7 @@
 #ifndef SAMPLE_HANDLER__META_NAMES_H
 #define SAMPLE_HANDLER__META_NAMES_H
 
-//        Copyright Iowa State University 2015.
+//        
 //                  Author: Nils Krumnack
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at

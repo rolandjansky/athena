@@ -1,9 +1,11 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //  ErrorHandler.h
 //  HDef
 //
 //  Created by sroe on 18/03/2016.
-//  Copyright © 2016 sroe. All rights reserved.
 //
 
 #ifndef ErrorHandler_h

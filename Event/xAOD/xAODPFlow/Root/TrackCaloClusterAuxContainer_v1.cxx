@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 // $Id: TrackCaloClusterAuxContainer_v1.cxx $
 
 // Local include(s):

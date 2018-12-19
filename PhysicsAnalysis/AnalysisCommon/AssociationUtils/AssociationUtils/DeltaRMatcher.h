@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef ASSOCIATIONUTILS_DELTARMATCHER_H
 #define ASSOCIATIONUTILS_DELTARMATCHER_H
 

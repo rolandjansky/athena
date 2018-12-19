@@ -1,4 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 // METSignificance.cxx
 // Implementation file for class METSignificance
 // Author: P.Francavilla<francav@cern.ch>

@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #include "MDT_IDDetDescrCnv.h"
 #include "CSC_IDDetDescrCnv.h"
 #include "RPC_IDDetDescrCnv.h"

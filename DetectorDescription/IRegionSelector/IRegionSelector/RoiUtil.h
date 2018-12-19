@@ -1,4 +1,7 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    RoiUtil.h        
 //
@@ -6,7 +9,6 @@
 //            to improve encapsulation
 //                   
 //  
-//   Copyright (C) 2015 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: RoiUtil.h, v0.0   Sat 31 Oct 2015 09:55:29 CET sutt $
 

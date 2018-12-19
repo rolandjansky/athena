@@ -1,7 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /*********************************
  * TransverseMassInclusive1.cpp
  * Created by V Sorin 2014.
- * Copyright (c) 2012 Joerg Stelzer. All rights reserved.
  * 
  * @brief algorithm calculates the sqr of the transverse MASS between one  list and XE and applies mass criteria
  *

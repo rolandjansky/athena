@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //-----------------------------------------------------------------------
 // File and Version Information:
 // $Id: CaloClusterMomentsMaker.cxx,v 1.23 2009-04-22 19:50:46 ssnyder Exp $
