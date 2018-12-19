@@ -362,7 +362,7 @@ uint32_t SCT_RodEncoder::onlineID(const SCT_RDORawData* rdo) const
 {
   const Identifier waferID{offlineID(rdo)};
   const IdentifierHash offlineIDHash{m_sctID->wafer_hash(waferID)};
-  return static_cast<const uint32_t>(m_cabling->getOnlineIdFromHash(offlineIDHash));
+  return static_cast<uint32_t>(m_cabling->getOnlineIdFromHash(offlineIDHash));
 }
 
 int SCT_RodEncoder::getRODLink(const SCT_RDORawData* rdo) const 
