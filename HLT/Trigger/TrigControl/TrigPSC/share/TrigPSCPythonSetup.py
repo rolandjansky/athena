@@ -15,11 +15,6 @@ if joPath[-4:] == '.pkl':
 
 else:
 
-   ### basic setup files and definitions ----------------------------------------
-   pscBootstrapFile     = "TrigServices/TrigServicesBootstrap.py"   # PSC bootstrap
-   pscServiceSetupBegin = "TrigServices/TrigServicesCommonBegin.py" # Service definitions
-   pscServiceSetupEnd   = "TrigServices/TrigServicesCommonEnd.py"   # Service definitions
-
    import sys
    import os
    import string
@@ -56,9 +51,10 @@ else:
 
    ## These properties have alread been set on the C++ ApplicationMgr in the Psc
    ## but the configurable needs to have them set as well
+   theApp.EventLoop         = "HltEventLoopMgr"
    theApp.MessageSvcType    = PscConfig.optmap["MESSAGESVCTYPE"]
    theApp.JobOptionsSvcType = PscConfig.optmap["JOBOPTIONSSVCTYPE"]
-            
+
    ## add the MessageSvc and the JobOptionsSvc to the ServiceMgr
    from AthenaCommon.ConfigurableDb import getConfigurable
    ServiceMgr += getConfigurable(theApp.JobOptionsSvcType)("JobOptionsSvc")
@@ -78,16 +74,6 @@ else:
 
    ## file inclusion and tracing
    from AthenaCommon.Include import Include, IncludeError, include
-
-   ## set the default values
-   try:
-      include( pscBootstrapFile )
-   except Exception, e:
-      if isinstance( e, IncludeError ):
-         print sys.exc_type, e
-         theApp._exitstate = ExitCodes.INCLUDE_ERROR
-         sys.exit( ExitCodes.INCLUDE_ERROR )
-      raise
 
    ## properties of the application manager
    theApp.StatusCodeCheck = False     # enabled via TriggerFlags.Online.doValidation (see below)
@@ -134,15 +120,8 @@ else:
       print "\n"
 
    ### basic job configuration before user configuration ------------------------
-   try:
-      include( pscServiceSetupBegin )
-      include.block( pscServiceSetupBegin )
-   except Exception, e:
-      print sys.exc_type, e
-      if isinstance( e, IncludeError ):
-         theApp._exitstate = ExitCodes.INCLUDE_ERROR
-         sys.exit( theApp._exitstate )      
-      raise
+   from TrigServices.TriggerUnixStandardSetup import setupCommonServices
+   setupCommonServices()
 
    ### run user jobOptions file -------------------------------------------------
    try:
@@ -179,17 +158,10 @@ else:
       raise
 
    ### basic job configuration after user configuration -------------------------
-   try:
-      include( pscServiceSetupEnd )
-      include.block( pscServiceSetupEnd )
-   except Exception, e:
-      if isinstance( e, IncludeError ):
-         print sys.exc_type, e
-         theApp._exitstate = ExitCodes.INCLUDE_ERROR
-         sys.exit( ExitCodes.INCLUDE_ERROR )
-      raise
+   from TrigServices.TriggerUnixStandardSetup import setupCommonServicesEnd
+   setupCommonServicesEnd()
 
-   ### run optional command after user job options script -----------------------   
+   ### run optional command after user job options script -----------------------
    if PscConfig.optmap['POSTCOMMAND']:
       print "\n"
       print " +------------------------------------------------+ "
