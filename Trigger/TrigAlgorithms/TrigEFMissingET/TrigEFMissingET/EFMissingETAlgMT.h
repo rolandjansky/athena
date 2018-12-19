@@ -37,7 +37,7 @@ class EFMissingETAlgMT : public ::AthReentrantAlgorithm
  private: 
   
   SG::WriteHandleKey<xAOD::TrigMissingETContainer> m_metContainerKey { this, "METContainerKey", "HLT_MET", "Name of the output collection" };
-  ToolHandleArray<IMissingETTool> m_metTools { this, "METTools", {}, "Tools to fille MET object" };
+  ToolHandleArray<IMissingETTool> m_metTools { this, "METTools", {}, "Tools to fill MET object" };
   ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Monitoring tool" };
   ToolHandle<EFMissingETFromHelper> m_helperTool{ this, "HelperTool", "EFMissingETFromHelper/HelperTool", "Helper tool" };
 }; 

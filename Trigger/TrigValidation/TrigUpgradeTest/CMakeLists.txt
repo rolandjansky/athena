@@ -185,11 +185,12 @@ atlas_add_test( bJetMenuALLTE
    )
 
 
-file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met )
-atlas_add_test( met
-                SCRIPT test/test_met.sh
-                PROPERTIES TIMEOUT 500
-                PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met)
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met_standalone )
+atlas_add_test( met_standalone
+                SCRIPT test/test_met_standalone.sh
+                PROPERTIES TIMEOUT 1000
+   		EXTRA_PATTERNS "-s METHypoAlg.*MET.*value" 	   
+                PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met_standalone)
 
 atlas_install_joboptions( share/*.py )
 atlas_install_data( share/*.ref )

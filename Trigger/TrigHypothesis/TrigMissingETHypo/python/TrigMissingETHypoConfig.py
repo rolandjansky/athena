@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from TrigMissingETHypo.TrigMissingETHypoConf import TrigEFMissingETHypo
 
@@ -29,6 +29,7 @@ class EFMissingETHypoBase (TrigEFMissingETHypo):
             from TrigMissingETHypo.TrigMissingETHypoMonitoring import TrigEFMissingETHypoFullOnlineMonitoring
             onlineFull = TrigEFMissingETHypoFullOnlineMonitoring()
             self.AthenaMonTools += [ onlineFull ]
+
 
 class EFJetEtSumHypo (EFMissingETHypoBase):
     __slots__ = []
