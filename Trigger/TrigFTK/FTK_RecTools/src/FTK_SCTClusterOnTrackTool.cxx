@@ -16,7 +16,6 @@
 
 #include "TrkSurfaces/RectangleBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
-
 #include "TrkRIO_OnTrack/check_cast.h"
 
 using CLHEP::micrometer;
@@ -26,17 +25,15 @@ using CLHEP::deg;
 // Constructor
 ///////////////////////////////////////////////////////////////////
 
-FTK_SCTClusterOnTrackTool::FTK_SCTClusterOnTrackTool
-  (const std::string &t, const std::string &n, const IInterface *p) :
+FTK_SCTClusterOnTrackTool::FTK_SCTClusterOnTrackTool (const std::string &t, const std::string &n, const IInterface *p) :
   AthAlgTool(t, n, p),
   m_distortionsTool("SCT_DistortionsTool", this),
   m_option_make2dimBarrelClusters(false),
   m_doDistortions(false),
   m_option_errorStrategy(-1),
   m_option_correctionStrategy(-1) {
-  // declareInterface<FTK_SCTClusterOnTrackTool>(this);
   declareInterface<IRIO_OnTrackCreator>(this);
-
+  
   declareProperty("MakeTwoDimBarrelClusters", m_option_make2dimBarrelClusters,
                   "flag if strip length should be part of the measurement");
   declareProperty("ErrorStrategy", m_option_errorStrategy,
@@ -98,7 +95,6 @@ FTK_SCTClusterOnTrackTool::initialize() {
   }
 
   ATH_CHECK(m_lorentzAngleTool.retrieve());
-
   return sc;
 }
 

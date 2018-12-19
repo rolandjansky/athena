@@ -14,17 +14,11 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/IIncidentListener.h"
-//#include "IRegionSelector/IRoiDescriptor.h"
-//#include "TrkTrack/TrackCollection.h"
 #include "TrigFTK_RawData/FTK_RawTrack.h"
 #include "TrigFTK_RawData/FTK_RawTrackContainer.h"
 #include "TrkTrack/TrackCollection.h"
 #include "FTK_DataProviderInterfaces/IFTK_DataProviderSvc.h"
 
-//#include "TrkFitterInterfaces/ITrackFitter.h"
-//#include "TrkFitterUtils/FitterTypes.h"
-//#include "InDetRIO_OnTrack/SiClusterOnTrack.h"
-//#include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
@@ -37,11 +31,12 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "FTK_DataProviderInterfaces/IFTK_UncertaintyTool.h"
 #include "FTK_RecToolInterfaces/IFTK_DuplicateTrackRemovalTool.h"
-#include "PixelConditionsData/PixelOfflineCalibData.h"
 #include "InDetCondServices/ISiLorentzAngleTool.h"
+#include "PixelConditionsData/PixelOfflineCalibData.h"
 
 #include <mutex>
 #include <vector>
+#include "FTK_RecToolInterfaces/IFTK_HashIDTool.h"
 
 /// Forward Declarations ///
 class AtlasDetectorID;
@@ -91,6 +86,9 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
  virtual StatusCode initialize();
  virtual StatusCode finalize();
+
+ virtual const FTK_RawTrackContainer* getRawTracks();
+
  virtual TrackCollection* getTracksInRoi(const IRoiDescriptor&, const bool withRefit);
  virtual TrackCollection* getTracksInRoi(const IRoiDescriptor&, const bool withRefit, unsigned int& nErrors);
 
@@ -145,8 +143,8 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
  bool fillVertexContainerCache(bool withRefit, xAOD::TrackParticleContainer*);
 
  
- const Trk::RIO_OnTrack* createPixelCluster(const FTK_RawPixelCluster& raw_pixel_cluster,  const Trk::TrackParameters& trkPerigee);
- const Trk::RIO_OnTrack* createSCT_Cluster( const FTK_RawSCT_Cluster& raw_sct_cluster, const Trk::TrackParameters& trkPerigee);
+ const Trk::RIO_OnTrack* createPixelCluster(const IdentifierHash hash, const FTK_RawPixelCluster& raw_pixel_cluster,  const Trk::TrackParameters& trkPerigee);
+ const Trk::RIO_OnTrack* createSCT_Cluster(const IdentifierHash hash, const FTK_RawSCT_Cluster& raw_sct_cluster, const Trk::TrackParameters& trkPerigee);
  
  StatusCode getTruthCollections();
  void createSCT_Truth(Identifier id, int barCode);
@@ -155,6 +153,9 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
  InDet::SCT_ClusterCollection*  getSCT_ClusterCollection(IdentifierHash hashId);
  InDet::PixelClusterCollection* getPixelClusterCollection(IdentifierHash hashId);
 
+ unsigned int getPixelHashID(const FTK_RawTrack& track, unsigned int iclus);
+ unsigned int getSCTHashID(const FTK_RawTrack& track, unsigned int iclus);
+   
 
 
  private:
@@ -171,8 +172,8 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
 
   const AtlasDetectorID* m_id_helper;
 
-  SG::ReadCondHandleKey<PixelCalib::PixelOfflineCalibData> m_clusterErrorKey{this, "PixelOfflineCalibData", "PixelOfflineCalibData", "Output key of pixel cluster"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+  SG::ReadCondHandleKey<PixelCalib::PixelOfflineCalibData> m_clusterErrorKey{this, "PixelOfflineCalibData", "PixelOfflineCalibData", "Output key of pixel cluster"};
 
   ToolHandle<IFTK_UncertaintyTool> m_uncertaintyTool;
   ToolHandle<Trk::ITrackFitter> m_trackFitter;
@@ -185,6 +186,7 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   ToolHandle< IFTK_DuplicateTrackRemovalTool > m_DuplicateTrackRemovalTool;
   ToolHandle<ISiLorentzAngleTool> m_pixelLorentzAngleTool{this, "PixelLorentzAngleTool", "SiLorentzAngleTool/PixelLorentzAngleTool", "Tool to retrieve Lorentz angle of Pixel"};
   ToolHandle<ISiLorentzAngleTool> m_sctLorentzAngleTool{this, "SCTLorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retrieve Lorentz angle of SCT"};
+  ToolHandle<IFTK_HashIDTool> m_hashIDTool;
 
   double m_trainingBeamspotX;
   double m_trainingBeamspotY;
@@ -271,7 +273,10 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   std::vector<unsigned int> m_nMissingPixelClusters;
 
   bool m_reverseIBLlocx;
+  bool m_doVertexing;
   bool m_doVertexSorting;
+  bool m_processAuxTracks;
+  bool m_getHashIDfromConstants;
 
   // Mutex to protect the contents.
   mutable std::mutex m_mutex;
@@ -279,15 +284,12 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   mutable std::vector<EventContext::ContextEvt_t> m_cacheSCTElements;
   // Pointer of InDetDD::SiDetectorElementCollection
   mutable Gaudi::Hive::ContextSpecificPtr<const InDetDD::SiDetectorElementCollection> m_SCTDetectorElements;  
+
+
 };
 
 inline bool compareFTK_Clusters (const Trk::RIO_OnTrack* cl1, const Trk::RIO_OnTrack* cl2) {
    
-  //  double r1 = cl1->globalPosition().x()*cl1->globalPosition().x() + cl1->globalPosition().y()*cl1->globalPosition().y();
-  //double r2 = cl2->globalPosition().x()*cl2->globalPosition().x() + cl2->globalPosition().y()*cl2->globalPosition().y();
-  //r1+=cl1->globalPosition().z()*cl1->globalPosition().z();
-  //r2+=cl2->globalPosition().z()*cl2->globalPosition().z();
-
   return (cl1->globalPosition().mag()<cl2->globalPosition().mag());
   
 }
