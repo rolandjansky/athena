@@ -20,8 +20,14 @@ if globalflags.InputFormat.is_bytestream():
 # Setup Views
 # ----------------------------------------------------------------
 from AthenaCommon.AlgSequence import AthSequencer
-from AthenaCommon.CFElements import stepSeq
+from AthenaCommon.CFElements import stepSeq,seqOR
 from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
+
+
+steps = seqOR("HLTTop")
+topSequence += steps
+steps += topSequence.L1DecoderTest
+
 
 from TrigT2CaloCommon.CaloDef import createFastCaloSequence
 
@@ -30,8 +36,8 @@ if TriggerFlags.doCalo:
   if ( doHLTCaloTopo ) :
 
      from TrigT2CaloCommon.CaloDef import algoHLTCaloCell, algoHLTTopoCluster
-     topSequence+=algoHLTCaloCell(OutputLevel=DEBUG)    
-     topSequence+=algoHLTTopoCluster(OutputLevel=DEBUG)    
+     steps+=algoHLTCaloCell(OutputLevel=DEBUG)    
+     steps+=algoHLTTopoCluster(OutputLevel=DEBUG)    
 
   if ( doL2Egamma ) :
 
@@ -47,7 +53,8 @@ if TriggerFlags.doCalo:
      filterL1RoIsAlg.Chains = [ "HLT_e3_etcut", "HLT_e5_etcut", "HLT_e7_etcut" ]
      filterL1RoIsAlg.OutputLevel = DEBUG
      print filterL1RoIsAlg
-     topSequence+=stepSeq("finalCaloSequence", filterL1RoIsAlg, [ createFastCaloSequence() ])
+     steps+=stepSeq("finalCaloSequence", filterL1RoIsAlg, [ createFastCaloSequence() ])
 
   from AthenaCommon.AlgSequence import dumpMasterSequence
   dumpMasterSequence()
+
