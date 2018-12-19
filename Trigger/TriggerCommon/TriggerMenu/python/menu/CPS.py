@@ -304,7 +304,7 @@ def defineCPSGroups():
                                              'e140_lhvloose_nod0'],
 
         })
-    if "v7" in TriggerFlags.triggerMenuSetup():
+    if "v7" in TriggerFlags.triggerMenuSetup() or "v8" in TriggerFlags.triggerMenuSetup():
         HLT_CPS_Groups.update({
 
 
@@ -318,7 +318,7 @@ def defineCPSGroups():
 #                                      'xe110_mht_xe80_L1XE50', 
 #                                      ],
                 })
-    if "v7" in TriggerFlags.triggerMenuSetup() and not "primaries" in TriggerFlags.triggerMenuSetup():
+    if ( "v7" in TriggerFlags.triggerMenuSetup()  or "v8" in TriggerFlags.triggerMenuSetup() ) and not "primaries" in TriggerFlags.triggerMenuSetup():
         HLT_CPS_Groups.update({
                 'RATE:CPS:HLT_e24_medium_L1EM18VHI' : ['e24_lhmedium_L1EM18VHI',
                                                        'e24_lhmedium_nod0_L1EM18VHI',
@@ -637,7 +637,7 @@ def defineCPSGroups():
                                        'xe100_wEFMu_L1XE35',   
                                        ],   
         })
-    if "v6" in TriggerFlags.triggerMenuSetup() or "v7" in TriggerFlags.triggerMenuSetup():
+    if "v6" in TriggerFlags.triggerMenuSetup() or "v7" in TriggerFlags.triggerMenuSetup() or "v8" in TriggerFlags.triggerMenuSetup():
         HLT_CPS_Groups.update({
 
           #Moved from physics to MC menu: ATR-17795
@@ -658,7 +658,7 @@ def defineCPSGroups():
 
 
         })
-    if "v6" in TriggerFlags.triggerMenuSetup() or "v7" in TriggerFlags.triggerMenuSetup() and not "primaries" in TriggerFlags.triggerMenuSetup():
+    if ( "v6" in TriggerFlags.triggerMenuSetup() or "v7" in TriggerFlags.triggerMenuSetup() or "v8" in TriggerFlags.triggerMenuSetup() ) and not "primaries" in TriggerFlags.triggerMenuSetup():
         HLT_CPS_Groups.update({
 
 
@@ -705,7 +705,7 @@ def defineCPSGroups():
 
           })
 
-    if "v7" in TriggerFlags.triggerMenuSetup():
+    if "v7" in TriggerFlags.triggerMenuSetup() or "v8" in TriggerFlags.triggerMenuSetup():
         HLT_CPS_Groups.update({
 
         # Single-jet chains
@@ -734,7 +734,7 @@ def defineCPSGroups():
                                             
         })
 
-    if "v7" in TriggerFlags.triggerMenuSetup() and not "primaries" in TriggerFlags.triggerMenuSetup():
+    if ( "v7" in TriggerFlags.triggerMenuSetup()  or "v8" in TriggerFlags.triggerMenuSetup() ) and not "primaries" in TriggerFlags.triggerMenuSetup():
         HLT_CPS_Groups.update({
          'RATE:CPS:HLT_j35' :    [   'j35',
                                      'j35_subjes',
