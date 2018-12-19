@@ -1,3 +1,4 @@
+
 # $Id: CMakeLists.txt 796274 2017-02-08 17:13:03Z griffith $
 ################################################################################
 # Package: tauRecTools
@@ -89,6 +90,7 @@ atlas_add_root_dictionary( tauRecToolsLib tauRecToolsLibCintDict
   tauRecTools/TauGenericPi0Cone.h
   tauRecTools/TauIDPileupCorrection.h
   tauRecTools/TauTrackFilter.h
+  tauRecTools/FTauDecorator.h
   tauRecTools/MvaTESVariableDecorator.h
   tauRecTools/MvaTESEvaluator.h
   tauRecTools/CombinedP4FromRecoTaus.h

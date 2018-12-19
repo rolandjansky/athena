@@ -953,6 +953,15 @@ def getTauEleOLRDecorator():
     cached_instances[_name] = myTauEleOLRDecorator
     return myTauEleOLRDecorator
 
+########################################################################
+# FTauDecorator
+def getFTauDecorator():
+    _name = sPrefix + 'FTauDecorator'
+    from tauRecTools.tauRecToolsConf import FTauDecorator
+    FTauDecorator = FTauDecorator(name = _name)
+    cached_instances[_name] = FTauDecorator
+    return FTauDecorator
+########################################################################
 
 
 

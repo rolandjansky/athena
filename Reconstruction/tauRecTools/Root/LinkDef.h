@@ -11,6 +11,7 @@
 #include "tauRecTools/TauRecToolBase.h"
 #include "tauRecTools/ITauToolBase.h"
 #include "tauRecTools/MvaTESVariableDecorator.h"
+#include "tauRecTools/FTauDecorator.h"
 #include "tauRecTools/MvaTESEvaluator.h"
 #include "tauRecTools/TauTrackClassifier.h"
 #include "tauRecTools/CombinedP4FromRecoTaus.h"
@@ -47,6 +48,7 @@
 #pragma link C++ class TauSubstructureVariables+;
 #pragma link C++ class TauRecToolBase+;
 #pragma link C++ class ITauToolBase+;
+#pragma link C++ class FTauDecorator+;
 #pragma link C++ class MvaTESVariableDecorator+;
 #pragma link C++ class MvaTESEvaluator+;
 #pragma link C++ class tauRecTools::TauTrackClassifier+;
