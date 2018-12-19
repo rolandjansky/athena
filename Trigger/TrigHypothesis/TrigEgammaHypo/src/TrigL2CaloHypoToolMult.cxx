@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #include "DecisionHandling/Combinators.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "TrigL2CaloHypoToolMult.h"

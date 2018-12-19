@@ -4,7 +4,7 @@
 //
 //                   
 //  
-//   Copyright (C) 2016 M.Sutton (sutt@cern.ch)    
+//      
 //
 //   $Id: addnode.h, v0.0   Thu 21 Apr 2016 20:31:49 CEST sutt $
 

@@ -1,4 +1,7 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    T_AnalysisConfig_Tier0.h
 //
@@ -15,7 +18,6 @@
 //                filter 
 //
 // 
-//   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 //
 //   $Id: T_AnalysisConfig_Tier0.h  Tue 16 May 2017 09:28:55 CEST sutt $
 

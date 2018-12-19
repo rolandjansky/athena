@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #include "TrigHLTJetRec/PseudoJetCreatorFunctions.h"
 #include "TrigHLTJetRec/IIParticleRejectionTool.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"

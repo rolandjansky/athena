@@ -1,9 +1,11 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    Analysis_Tier0.cxx        
 //                    
 //   $Id: Analysis_Tier0.cxx   Thu 18 May 2017 15:35:34 CEST sutt $
 //
-//   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 #include <cmath>
 

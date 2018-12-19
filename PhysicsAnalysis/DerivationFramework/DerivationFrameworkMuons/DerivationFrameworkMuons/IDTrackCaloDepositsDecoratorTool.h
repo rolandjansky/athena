@@ -1,4 +1,7 @@
 /*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+/*
  * IDTrackCaloDepositsDecoratorTool.h
  *
  *  Created on: Oct 29, 2015

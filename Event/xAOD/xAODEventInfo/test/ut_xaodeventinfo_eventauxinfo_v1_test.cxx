@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+/*
  */
 /**
  * @file xAODEventInfo/test/ut_xoadeventinfo_eventauxinfo_v1_test.cxx

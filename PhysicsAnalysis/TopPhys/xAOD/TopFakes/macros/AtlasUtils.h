@@ -8,7 +8,6 @@
 //
 //   @author M.Sutton
 // 
-//   Copyright (C) 2010 Atlas Collaboration
 //
 //   $Id: AtlasUtils.h 726730 2016-02-29 08:41:06Z derue $
 

@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 // MuonTPExtrapolationTool.cxx
 #include "DerivationFrameworkMuons/MuonTPExtrapolationTool.h"
 #include "xAODTruth/TruthParticleContainer.h"

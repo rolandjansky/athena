@@ -4,7 +4,7 @@
 //
 //   @author M.Sutton
 // 
-//   Copyright (C) 2016 M.Sutton (sutt@cern.ch)    
+//      
 //
 //   $Id: addnode.cxx, v0.0   Thu 21 Apr 2016 20:31:53 CEST sutt $
 
