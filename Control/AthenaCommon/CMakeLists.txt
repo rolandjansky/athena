@@ -13,10 +13,9 @@ atlas_depends_on_subdirs( PRIVATE
 atlas_install_headers( AthenaCommon )
 atlas_install_python_modules( python/*.py python/Utils )
 atlas_install_joboptions( share/Preparation.py share/Execution.py share/Atlas.UnixStandardJob.py test/*.py share/Atlas_Gen.UnixStandardJob.py share/MemTraceInclude.py share/runbatch.py )
-atlas_install_scripts( share/athena.py share/athena_preload.sh share/athena-app.py share/chappy.py share/find_cfg_dups.py share/test_cfg_pickling.py )
+atlas_install_scripts( share/athena.py share/athena_preload.sh share/chappy.py share/find_cfg_dups.py share/test_cfg_pickling.py )
 
 # Aliases:
-atlas_add_alias( athena-app "athena-app.py" )
 atlas_add_alias( athena "athena.py" )
 
 atlas_add_test( AthAppMgrUnitTests SCRIPT test/test_AthAppMgrUnitTests.sh

@@ -48,7 +48,7 @@ class JobTransform(TransformLogger):
     _runArgsName = 'runArgs'
 
     ## Command line options shared between composite transforms
-    _sharedRunOpts = [ 'athenaopts', 'ignoreunknown', 'ignoreall', 'ignoreerrors', 'tcmalloc', 'leakcheckexecute', 'rss', 'vmem', 'extrametadatadict', 'extraignorefilters', 'usenewmeta', 'omitvalidation', 'command', 'mcinput', 'usesqlite', 'useathenaapp', 'uploadtoami' ]
+    _sharedRunOpts = [ 'athenaopts', 'ignoreunknown', 'ignoreall', 'ignoreerrors', 'tcmalloc', 'leakcheckexecute', 'rss', 'vmem', 'extrametadatadict', 'extraignorefilters', 'usenewmeta', 'omitvalidation', 'command', 'mcinput', 'usesqlite', 'uploadtoami' ]
 
     ## Options that are also accepted as arguments (via full_trfarg.OptionArg)
     _optionArgNames = [ 'athenaopts', 'ignoreunknown', 'ignoreall', 'ignoreerrors', 'tcmalloc', 'leakcheckexecute', 'rss', 'vmem', 'extrametadatadict', 'extraignorefilters', 'usenewmeta', 'omitvalidation', 'command', 'mcinput', 'usesqlite', 'uploadtoami' ]
@@ -209,9 +209,6 @@ class JobTransform(TransformLogger):
         self._useSQLite = None
         ## Set to true if random throw gives a number smaller than the value of input argument --uploadtoami
         self._exportToAmi = False
-        ## True when athena-app.py is to be used instead of athena.py
-        #  @see Set using enableAthenaApp().
-        self._useAthenaApp = False
         ## Dictionary of key/values of arguments.  
         self._namedArgs = {}
         ## List of arguments in strict order.
@@ -267,7 +264,6 @@ class JobTransform(TransformLogger):
         runOpts.getProperty('command').setActionFunction( self.setPECommand )
         runOpts.getProperty('mcinput').setActionFunction( self.enableMCInput )
         runOpts.getProperty('usesqlite').setActionFunction( self.enableSQLite )
-        runOpts.getProperty('useathenaapp').setActionFunction( self.enableAthenaApp )
         runOpts.getProperty('ignoreerrors').setActionFunction( self.enableMaskAllErrors )
         runOpts.getProperty('ignoreunknown').setActionFunction( self.enableIgnoreUnknownErrors )
         runOpts.getProperty('ignoreall').setActionFunction( self.enableIgnoreAllErrors )
@@ -674,17 +670,6 @@ class JobTransform(TransformLogger):
     def enableSQLite( self, val ):
         self._useSQLite = val
 
-    ## Setter function to force the transform to use athena-app.py instead of athena.py
-    #  @param val A boolean value is expected.
-    #  @see _useAthenaApp attribute.
-    #  @return None
-    def enableAthenaApp( self, val ):
-        self._useAthenaApp = val
-        if val:
-            trfconsts.athena_py = 'athena-app.py'
-        else:
-            trfconsts.athena_py = 'athena.py'
-        
     ## @brief Allow various validation routines to be omitted.
     #  @param omitStr Valid strings are based on the keys of the trfutil.VALIDATION_DICT dictionary. Multiple values can be comma-delimited (without spaces). Use 'ALL' to omit all validation routines, use 'NONE' to remove all validation ommissions.
     #  @see trfutil.VALIDATION_DICT dictionary.
