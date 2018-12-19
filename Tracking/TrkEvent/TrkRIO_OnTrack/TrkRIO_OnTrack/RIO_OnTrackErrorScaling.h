@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /* Dear emacs, this is -*-c++-*- */
 #ifndef _RIO_OnTrackErrorScaling_H_
 #define _RIO_OnTrackErrorScaling_H_

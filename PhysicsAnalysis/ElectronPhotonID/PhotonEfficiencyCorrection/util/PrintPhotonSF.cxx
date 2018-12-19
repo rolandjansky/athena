@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //PrintPhotonSF.cxx  - print SF for a given input
 //michael.pitt@cern.ch
 

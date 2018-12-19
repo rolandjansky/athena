@@ -1,5 +1,8 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //////////////////////////////////////////////////////////////////////
-//  L1TriggerTowerTool.cxx (c) Alan Watson
+//  L1TriggerTowerTool.cxx 
 ///////////////////////////////////////////////////////////////////////
 #include "TrigT1CaloTools/L1TriggerTowerTool.h"
 

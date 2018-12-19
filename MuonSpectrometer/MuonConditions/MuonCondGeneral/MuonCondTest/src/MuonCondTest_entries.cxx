@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #include "MuonCondTest/AlignCondAthTest.h"
 #include "MuonCondTest/MuonDetectorStatusTest.h"
 //#include "MuonCondTest/RpcStatusTest.h"

@@ -211,7 +211,6 @@ class RunOptions(JobConfig):
     command    = CommandLineOption('c', 'command', 'Python code to be pre-executed before any scripts', True )
     mcinput    = CommandLineOption('', 'mcinput', 'Monte Carlo input file used. Omit if real data is used. Enabling this option also implies setting --usesqlite=True', True, False, choices = [ True, False ] )
     usesqlite  = CommandLineOption('', 'usesqlite', 'Force the use of local/symlinked sqlite files rather than ORACLE.', True, False, choices = [ True, False ]  )
-    useathenaapp  = CommandLineOption('', 'useathenaapp', 'Force the use of athena-app.py instead of athena.py', True, False, choices = [ True, False ]  )
     omitvalidation = CommandLineOption('', 'omitvalidation', 'Omit certain validation routines. Use "ALL" to omit all validation routines, use "NONE" to remove all validation ommissions.', True, choices = VALIDATION_DICT.keys() + ['NONE'] )
     athenaopts = CommandLineOption('a', 'athenaopts', 'Options to be passed on to athena', True)
     argdict    = CommandLineOption('',  'argdict', 'Run arguments given in a python dictionary in a pickle file', True)

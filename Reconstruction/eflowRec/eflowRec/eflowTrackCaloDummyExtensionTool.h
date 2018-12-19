@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef EFLOWTRACKCALODUMMYEXTENSIONTOOL_H_
 #define EFLOWTRACKCALODUMMYEXTENSIONTOOL_H_
 

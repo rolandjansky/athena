@@ -1,4 +1,7 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    RegSelEtaPhiLUT.h        
 //
@@ -23,7 +26,6 @@
 //            to completely contain the outer radius of the SCT       
 //  
 //                
-//   Copyright (C) 2011 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: RegSelEtaPhiLUT.h, v0.0   Sat 25 Jun 2011 18:47:25 BST sutt $
 
