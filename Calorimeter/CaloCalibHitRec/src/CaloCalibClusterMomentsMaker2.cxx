@@ -38,6 +38,7 @@
 #include "CaloIdentifier/CaloDM_ID.h"
 
 #include "McParticleEvent/TruthParticle.h"
+#include "McParticleEvent/TruthParticleContainer.h"
 
 #include "StoreGate/ReadHandle.h"
 
@@ -419,7 +420,7 @@ CaloCalibClusterMomentsMaker2::execute(const EventContext& ctx,
 
   // reading particle information for later calcution of calibration enegry fraction caused
   // by particles of different types
-  SG::ReadHandle<TruthParticleContainer> truthParticleContainerReadHandle(m_truthParticleContainerKey);
+  SG::ReadHandle<xAOD::TruthParticleContainer> truthParticleContainerReadHandle(m_truthParticleContainerKey);
 
   if (doCalibFrac && !truthParticleContainerReadHandle.isValid()){
     ATH_MSG_WARNING("Invalid read handle to TruthParticleContainer with key: " << m_truthParticleContainerKey.key());
@@ -703,7 +704,7 @@ CaloCalibClusterMomentsMaker2::execute(const EventContext& ctx,
           - eng_calib_dead_leakage;
 
     if(doCalibFrac){
-      get_calib_frac(*(truthParticleContainerReadHandle.get()), clusInfo, engCalibFrac);
+      //get_calib_frac(*(truthParticleContainerReadHandle.get()), clusInfo, engCalibFrac);
     }
 
     if ( m_momentsNames.size() > 0 ) {

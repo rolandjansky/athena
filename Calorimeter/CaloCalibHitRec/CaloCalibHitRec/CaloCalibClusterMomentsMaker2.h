@@ -32,7 +32,7 @@ class TruthParticleContainer;
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
 #include "StoreGate/ReadHandleKeyArray.h"
 
-#include "McParticleEvent/TruthParticleContainer.h"
+#include "xAODTruth/TruthParticleContainer.h"
 
 #include <string>
 #include <vector>
@@ -198,7 +198,7 @@ class CaloCalibClusterMomentsMaker2: public AthAlgTool, virtual public CaloClust
   SG::ReadHandleKeyArray<CaloCalibrationHitContainer> m_DMCalibrationHitContainerNames;
 
   /** ReadHandleKey for truth particle container */
-  SG::ReadHandleKey<TruthParticleContainer> m_truthParticleContainerKey{this,"TruthParticles","TruthParticleContainer","ReadHandleKey for truth particle container"};
+  SG::ReadHandleKey<xAOD::TruthParticleContainer> m_truthParticleContainerKey{this,"TruthParticles","TruthParticles","ReadHandleKey for truth particle container"};
   
   /** 
    * @brief name of truth particle container
