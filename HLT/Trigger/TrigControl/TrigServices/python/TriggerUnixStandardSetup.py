@@ -7,42 +7,60 @@
 
 class _Conf:
     """Some configuration flags for this module with defaults"""
-    useOnlineTHistSvc = True    # set via TrigServices/OfflineTHistSvc.py
-    athenaXT = False            # set below in _setupCommonServices
+    useOnlineTHistSvc = True    # set in athenaHLT.py
 
-def _eventLoopMgr(svcMgr):
-    if hasattr(svcMgr, 'HltEventLoopMgr'): return svcMgr.HltEventLoopMgr
-    return None
-    
-def _setupCommonServices():
-    from AthenaCommon.Constants import VERBOSE, DEBUG, INFO, ERROR
-    
-    # Add timestamp to python logger
+def setupCommonServices():
+    from AthenaCommon import CfgMgr
+    from AthenaCommon.Logging import logging
+    from AthenaCommon.Constants import INFO
+    from AthenaCommon.AppMgr import ServiceMgr as svcMgr, theApp
+    from AthenaCommon.ConcurrencyFlags import jobproperties as jps
+
+    # Setup messaging for Python and C++
     from AthenaCommon.Logging import log
     log.setFormat("%(asctime)s  Py:%(name)-31s %(levelname)7s %(message)s")
 
-    from AthenaCommon.Logging import logging
+    # Create our own logger
     log = logging.getLogger( 'TriggerUnixStandardSetup::setupCommonServices:' )
+
+    from TrigServices.TrigServicesConfig import setupMessageSvc
+    setupMessageSvc()
      
     # Do the default Atlas job configuration first
-    import AthenaCommon.AtlasUnixStandardJob
+    import AthenaCommon.AtlasUnixStandardJob   # noqa: F401
 
-    # Now do HLT specific configuration
-    from AthenaCommon import CfgMgr
-    from AthenaCommon.AppMgr import theApp
-    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    from AthenaCommon.AppMgr import ToolSvc
+    # Now do HLT/thread specific configuration (see e.g. AtlasThreadedJob.py)
+    from StoreGate.StoreGateConf import SG__HiveMgrSvc
+    svcMgr += SG__HiveMgrSvc("EventDataSvc",
+                             NSlots = jps.ConcurrencyFlags.NumConcurrentEvents())
 
-    # Check whether we are running in athenaXT
-    # Only a minimal set of properties should depend on this
-    import sys
-    if sys.modules.has_key('HLTTestApps'):
-        _Conf.athenaXT = True
-        log.debug("Configuration for athenaXT running")
-    else:
-        _Conf.athenaXT = False
-        log.debug("Configuration for online running")
-        
+    import StoreGate.StoreGateConf as StoreGateConf
+    svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
+
+    # ThreadPoolService thread local initialization
+    from GaudiHive.GaudiHiveConf import ThreadPoolSvc
+    svcMgr += ThreadPoolSvc("ThreadPoolSvc")
+    svcMgr.ThreadPoolSvc.ThreadInitTools = ["ThreadInitTool"]
+
+    from GaudiHive.GaudiHiveConf import AlgResourcePool
+    svcMgr += AlgResourcePool( OutputLevel = INFO,
+                               TopAlg=["AthMasterSeq"])       # this should enable control flow
+
+    from AthenaCommon.AlgSequence import AlgSequence
+    from SGComps.SGCompsConf import SGInputLoader
+    topSequence = AlgSequence()
+    topSequence += SGInputLoader(FailIfNoProxy = False)  # change to True eventually
+
+    from AthenaCommon.AlgScheduler import AlgScheduler
+    AlgScheduler.ShowDataDependencies(False)
+    AlgScheduler.ShowControlFlow(False)
+    AlgScheduler.setDataLoaderAlg ('SGInputLoader' )
+
+    # Setup SGCommitAuditor to sweep new DataObjects at end of Alg execute
+    theApp.AuditAlgorithms = True
+    from SGComps.SGCompsConf import SGCommitAuditor
+    svcMgr.AuditorSvc += SGCommitAuditor()
+
     # setup ROOT6
     from PyUtils.Helpers import ROOT6Setup
     ROOT6Setup()
@@ -61,27 +79,40 @@ def _setupCommonServices():
     # Initialization of DetDescrCnvSvc
     svcMgr += CfgMgr.DetDescrCnvSvc(
         # specify primary Identifier dictionary to be used
-        IdDictName = "IdDictParser/ATLAS_IDS.xml"
-        )
+        IdDictName = "IdDictParser/ATLAS_IDS.xml")
+
     theApp.CreateSvc += [ svcMgr.DetDescrCnvSvc.getFullName() ]
     svcMgr.EventPersistencySvc.CnvServices += [ "DetDescrCnvSvc" ]
 
-    # --- ByteStreamCnvSvc configuration
-    svcMgr += CfgMgr.ByteStreamCnvSvc("ByteStreamCnvSvc")
+    # ByteStreamCnvSvc configuration
+    from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamCnvSvc
+    svcMgr += ByteStreamCnvSvc("ByteStreamCnvSvc")
     svcMgr.EventPersistencySvc.CnvServices += [ "ByteStreamCnvSvc" ]
-    
-    # Disable history
-    svcMgr += CfgMgr.HistorySvc()
-    svcMgr.HistorySvc.Activate = False
+
+    from TrigByteStreamCnvSvc.TrigByteStreamCnvSvcConf import TrigByteStreamInputSvc
+    svcMgr += TrigByteStreamInputSvc("ByteStreamInputSvc")
+
+    from TrigByteStreamCnvSvc.TrigByteStreamCnvSvcConf import TrigEventSelectorByteStream
+    svcMgr += TrigEventSelectorByteStream("EventSelector",
+                                          ByteStreamInputSvc = svcMgr.ByteStreamInputSvc)
+    theApp.EvtSel = "EventSelector"
+
+    from TrigByteStreamCnvSvc.TrigByteStreamCnvSvcConf import TrigByteStreamCnvSvc
+    svcMgr += TrigByteStreamCnvSvc("TrigByteStreamCnvSvc")
+
+    # make the HltEventLoopMgr service available
+    svcMgr.HltEventLoopMgr = theApp.service( "HltEventLoopMgr" )     # already instantiated
+    svcMgr.HltEventLoopMgr.WhiteboardSvc = "EventDataSvc"
+    svcMgr.HltEventLoopMgr.SchedulerSvc = AlgScheduler.getScheduler().getName()
+    svcMgr.HltEventLoopMgr.EvtSel = svcMgr.EventSelector
+    svcMgr.HltEventLoopMgr.OutputCnvSvc = svcMgr.TrigByteStreamCnvSvc
+
+    from TrigOutputHandling.TrigOutputHandlingConfig import HLTResultMTMakerCfg
+    svcMgr.HltEventLoopMgr.ResultMaker = HLTResultMTMakerCfg()
 
     # Configuration of Interval of Validity Service
     svcMgr += CfgMgr.IOVSvc()
     
-    # Configure CoreDumpSvc
-    if not hasattr(svcMgr,"CoreDumpSvc"):
-        from AthenaServices.Configurables import CoreDumpSvc
-        svcMgr += CoreDumpSvc()
-        
     # Configure COOL update helper tool
     # from TrigServices.TrigServicesConfig import TrigCOOLUpdateHelper
     # _eventLoopMgr(svcMgr).CoolUpdateTool = TrigCOOLUpdateHelper()
@@ -109,17 +140,16 @@ def _setupCommonServices():
     return
 
 
-def _setupCommonServicesEnd():
-    from AthenaCommon.AppMgr import theApp
+def setupCommonServicesEnd():
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr    
     from AthenaCommon.Logging import logging
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    
+
     log = logging.getLogger( 'TriggerUnixStandardSetup::setupCommonServicesEnd:' )
     
     # --- create the ByteStreamCnvSvc after the Detector Description otherwise
     # --- the initialization of converters fails
-    theApp.CreateSvc += [ svcMgr.ByteStreamCnvSvc.getFullName() ]    
+    #from AthenaCommon.AppMgr import theApp
+    #theApp.CreateSvc += [ svcMgr.ByteStreamCnvSvc.getFullName() ]
 
     # Make sure no THistSvc output/input stream is defined for online running
     if _Conf.useOnlineTHistSvc:
@@ -154,70 +184,5 @@ def _setupCommonServicesEnd():
         svcMgr.IOVDbSvc.CacheAlign = 0  # VERY IMPORTANT to get unique queries for folder udpates (see Savannah #81092)
         svcMgr.IOVDbSvc.CacheRun = 0
         svcMgr.IOVDbSvc.CacheTime = 0
-        
-    # Flag to extract trigger configuration
-    if TriggerFlags.Online.doDBConfig():
-        from TrigConfigSvc import DoDBConfig
-        
-    # --- print out configuration details
-    _printConfiguration(log.name)
-    
-    return 
-    
-def _printConfiguration(loggerName):
-    from AthenaCommon.Constants import VERBOSE, DEBUG, INFO, ERROR
 
-    from AthenaCommon.Logging import logging
-    if loggerName == '':
-        loggerName = 'TriggerUnixStandardSetup::_printConfiguration'
-        
-    log = logging.getLogger( loggerName )
-    
-    # --- print out configuration details
-    # ---
-    from AthenaCommon.AppMgr import theApp
-    log.debug("---> Application Manager")
-    log.debug(theApp)
-    
-    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    log.debug("---> Service Manager")
-    log.debug(svcMgr)
-
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
-    log.debug("---> Algorithm Sequence")
-    log.debug(topSequence)
-    
-    return
-
-def setupHLTServicesBegin():
-    from AthenaCommon import CfgMgr
-    from AthenaCommon.Constants import VERBOSE, DEBUG, INFO, ERROR
-    from AthenaCommon.AppMgr import theApp
-    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    from AthenaCommon.Logging import logging
-    log = logging.getLogger( 'TriggerUnixStandardSetup::setupHLTServicesBegin:' )
-    log.debug( "---> Start" )
-
-    # --- setup the standard services
-    _setupCommonServices()   
-
-    # --- Hlt ROBDataProvider configuration
-    svcMgr += CfgMgr.HltROBDataProviderSvc("ROBDataProviderSvc")
-    theApp.CreateSvc += [ svcMgr.ROBDataProviderSvc.getFullName() ]
-
-    log.debug( "---> End" )
-    return
-
-def setupHLTServicesEnd():
-    from AthenaCommon.Constants import VERBOSE, DEBUG, INFO, ERROR
-
-    from AthenaCommon.Logging import logging
-    log = logging.getLogger( 'TriggerUnixStandardSetup::setupHLTServicesEnd:' )
-    log.debug( "---> Start" )
-
-    # --- final modifications to standard services
-    _setupCommonServicesEnd()      
-
-    log.debug( "---> End" )
     return
