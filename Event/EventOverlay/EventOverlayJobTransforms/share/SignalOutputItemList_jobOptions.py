@@ -35,7 +35,9 @@ signalStream = AthenaPoolOutputStream( "StreamRDO_MC" )
 signalStream.OutputFile  = SignalCollection
 signalStream.Store = "TemporaryStore"
 
-signalStream.ItemList += [ "xAOD::EventInfo#*", "EventStreamInfo#*" ]
+signalStream.ItemList += [ "xAOD::EventInfo#*", "xAOD::EventAuxInfo#*" ]
+signalStream.ItemList += [ "xAOD::EventInfoContainer#*", "xAOD::EventInfoAuxContainer#*"]
+signalStream.ItemList += [ "EventStreamInfo#*" ]
 
 if DetFlags.overlay.Truth_on():
    signalStream.ItemList += [

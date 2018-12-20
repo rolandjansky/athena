@@ -12,7 +12,8 @@ outStream.Store = ServiceMgr.StoreGateSvc
 print "ACH123 new OverlayOutputItemList_jobOptions.py"
 
 # overlay output stream
-outStream.ItemList += [ "xAOD::EventInfo#*" ]
+outStream.ItemList += [ "xAOD::EventInfo#*", "xAOD::EventAuxInfo#*" ]
+outStream.ItemList += [ "xAOD::EventInfoContainer#*", "xAOD::EventInfoAuxContainer#*" ]
 outStream.ItemList += [ "LumiBlockCollection#*" ]
 
 # timings

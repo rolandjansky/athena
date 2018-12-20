@@ -54,6 +54,7 @@
   <class name="std::vector<std::vector<std::pair<std::string,std::string> > >" />
   <class name="std::set<uint32_t>" />
   <class name="std::vector<std::set<uint32_t> >" />
+  <class name="std::vector<std::vector<std::set<unsigned> > >" />
 
   <!-- Suppress the unwanted classes found by ROOT 6. -->
   <!-- Hopefully we can remove these extra lines at one point... -->

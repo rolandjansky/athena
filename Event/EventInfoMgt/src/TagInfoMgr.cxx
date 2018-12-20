@@ -8,8 +8,6 @@
  * @brief implementation
  *
  * @author RD Schaffer <R.D.Schaffer@cern.ch>
- *
- * $Id: TagInfoMgr.cxx,v 1.29 2009-04-29 07:47:40 schaffer Exp $
  */
 
 //<<<<<< INCLUDES                                                       >>>>>>
@@ -454,9 +452,6 @@ TagInfoMgr::fillTagInfo(const CondAttrListCollection* tagInfoCond, TagInfo* tagI
 
 }
 
-#include <iostream>
-using namespace std;
-
 StatusCode
 TagInfoMgr::fillMetaData   (const TagInfo* tagInfo, const CondAttrListCollection* tagInfoCond) 
 {
@@ -491,18 +486,10 @@ TagInfoMgr::fillMetaData   (const TagInfo* tagInfo, const CondAttrListCollection
     //
 
     if (m_log.level() <= MSG::DEBUG) m_log << MSG::DEBUG << "entering fillMetaData" << endmsg;
-    cout << "MN: TagInfoMgr:  start " << endl;
 
     // Get run number for IOV
     unsigned int runNumber = 0;
     const EventIDBase* evid = EventIDFromStore( m_storeGate );
-
-    auto proxies = m_storeGate->proxies();
-    cout << "MN:  Store: " << m_storeGate->name() << endl;
-    for(auto prox : proxies) {
-        cout << "MN:  CLID=" << prox->clID() << "  key=" << prox->name() << endl;
-    }
-       
     if( evid ) {
        runNumber = evid->run_number();
     } else {
