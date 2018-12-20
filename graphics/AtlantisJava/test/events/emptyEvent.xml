@@ -1,6 +1,0 @@
-<?xml version="1.0"?>
-<?xml-stylesheet type="text/xsl" href="JiveXML_event.xsl"?>
-<?ATLAS Release: "dummy"?>
-<!DOCTYPE Event SYSTEM "event.dtd">
-<Event version="dummy" runNumber="1" eventNumber="1" lumiBlock="1" dateTime="" eventProperty="">
-</Event>
