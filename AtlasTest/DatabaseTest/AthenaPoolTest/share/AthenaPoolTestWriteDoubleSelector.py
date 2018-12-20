@@ -13,10 +13,6 @@
 ## basic job configuration (for generator)
 import AthenaCommon.AtlasUnixGeneratorJob
 
-# Set handler for traceback
-gbl.AthenaServices.SetFatalHandler(438)
-
-
 ## get a handle to the default top-level algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
