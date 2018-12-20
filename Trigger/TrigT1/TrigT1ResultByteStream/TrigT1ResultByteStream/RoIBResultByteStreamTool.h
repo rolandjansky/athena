@@ -65,39 +65,12 @@ public:
   /// Convert RoIBResult to ByteStream
   StatusCode convert( ROIB::RoIBResult* cont, RawEventWrite* re );
 
+  /// Vector of ROB IDs corresponding to the modules configured for decoding
+  const std::vector<uint32_t>& configuredROBIds() const {return m_configuredROBIds;}
+
 private:
-  /// Object used in creating the RoI Builder ROB fragments
-  FullEventAssembler<L1SrcIdMap> m_fea;
 
-  /// @name Properties holding module IDs for L1 RoI ROBs
-  /// @{
-  /// CTP Module ID to decode
-  Gaudi::Property<uint32_t> m_ctpModuleID {
-    this, "CTPModuleId", 1,
-    "Module ID of CTP ROB with RoI information"
-  };
-  /// MUCTPI Module ID to decode
-  Gaudi::Property<uint32_t> m_muCTPIModuleID {
-    this, "MUCTPIModuleId", 1,
-    "Module ID of MUCTPI ROB with RoI information"
-  };
-  /// Jet Module IDs to decode
-  Gaudi::Property<std::vector<uint32_t>> m_jetModuleID {
-    this, "JetModuleIds", {0xac, 0xad},
-    "Vector of module IDs of Jet RoI ROBs"
-  };
-  /// EM Module IDs to decode
-  Gaudi::Property<std::vector<uint32_t>> m_emModuleID {
-    this, "EMModuleIds", {0xa8, 0xa9, 0xaa, 0xab},
-    "Vector of module IDs of EM RoI ROBs"
-  };
-  /// L1Topo Module IDs to decode
-  Gaudi::Property<std::vector<uint32_t>> m_l1TopoModuleID {
-    this, "L1TopoModuleIds", {0x81,0x91},
-    "Vector of module IDs of L1Topo RoI ROBs"
-  };
-  /// @}
-
+  // ------------------------- Private types -----------------------------------
   /// Structure holding the status words and rob/rod error flags
   struct DataStatus {
     bool rob_error {false};
@@ -106,6 +79,7 @@ private:
     uint32_t status_info {0};
   };
 
+  // ------------------------- Private methods ---------------------------------
   /**
    * @brief Helper method to extract ROD header information
    * @in rob ROBFragment from which data are extracted
@@ -133,6 +107,42 @@ private:
    * @in dataSize Number of ROD data words
    **/
   ROIB::Trailer roibTrailer(const DataStatus& dataStatus, const uint32_t dataSize) const;
+
+  // ------------------------- Properties --------------------------------------
+  /// @name Properties holding module IDs for L1 RoI ROBs
+  /// @{
+  /// CTP Module ID to decode
+  Gaudi::Property<uint16_t> m_ctpModuleID {
+    this, "CTPModuleId", 1,
+    "Module ID of CTP ROB with RoI information"
+  };
+  /// MUCTPI Module ID to decode
+  Gaudi::Property<uint16_t> m_muCTPIModuleID {
+    this, "MUCTPIModuleId", 1,
+    "Module ID of MUCTPI ROB with RoI information"
+  };
+  /// Jet Module IDs to decode
+  Gaudi::Property<std::vector<uint16_t>> m_jetModuleID {
+    this, "JetModuleIds", {0xac, 0xad},
+    "Vector of module IDs of Jet RoI ROBs"
+  };
+  /// EM Module IDs to decode
+  Gaudi::Property<std::vector<uint16_t>> m_emModuleID {
+    this, "EMModuleIds", {0xa8, 0xa9, 0xaa, 0xab},
+    "Vector of module IDs of EM RoI ROBs"
+  };
+  /// L1Topo Module IDs to decode
+  Gaudi::Property<std::vector<uint16_t>> m_l1TopoModuleID {
+    this, "L1TopoModuleIds", {0x81,0x91},
+    "Vector of module IDs of L1Topo RoI ROBs"
+  };
+  /// @}
+
+  // ------------------------- Other private members ---------------------------
+  /// Vector of ROB IDs corresponding to the modules configured for decoding
+  std::vector<uint32_t> m_configuredROBIds;
+  /// Object used in creating the RoI Builder ROB fragments
+  FullEventAssembler<L1SrcIdMap> m_fea;
 
 }; // class RoIBResultByteStreamTool
 

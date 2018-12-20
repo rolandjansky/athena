@@ -19,6 +19,13 @@ StatusCode RoIBResultByteStreamDecoderAlg::initialize() {
   ATH_CHECK(m_roibResultWHKey.initialize());
   ATH_CHECK(m_robDataProviderSvc.retrieve());
 
+  // Retrieve the list of ROB IDs to decode
+  m_robIdsToDecode = m_decoderTool->configuredROBIds();
+  ATH_MSG_DEBUG("List of ROB IDs to decode:");
+  for (const uint32_t robid : m_robIdsToDecode) {
+    ATH_MSG_DEBUG("   0x" << MSG::hex << robid << MSG::dec);
+  }
+
   return StatusCode::SUCCESS;
 }
 

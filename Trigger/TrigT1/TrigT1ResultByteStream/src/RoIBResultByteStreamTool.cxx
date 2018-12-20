@@ -58,89 +58,51 @@ RoIBResultByteStreamTool::~RoIBResultByteStreamTool() {
 }
 
 /**
- * The function initialises the base class.
+ * @brief Initialise the tool
+ *
+ * Fill the vector of configured ROB IDs and print the module IDs to debug message stream
  */
 StatusCode RoIBResultByteStreamTool::initialize() {
+  std::vector<eformat::helper::SourceIdentifier> configuredROBSIDs;
+  std::ostringstream str;
+  ATH_MSG_DEBUG("Configured module IDs for:");
 
-  //
-  // Initialise the base class:
-  //
-  StatusCode sc = AlgTool::initialize();
-  if( sc.isFailure() ) {
-    return sc;
+  // CTP
+  configuredROBSIDs.emplace_back(eformat::TDAQ_CTP, m_ctpModuleID);
+  ATH_MSG_DEBUG("   CTP                                  = 0x" << MSG::hex << m_ctpModuleID.value() << MSG::dec);
+
+  // MUCTPI
+  configuredROBSIDs.emplace_back(eformat::TDAQ_MUON_CTP_INTERFACE, m_muCTPIModuleID);
+  ATH_MSG_DEBUG("   muCTPi                               = 0x" << MSG::hex << m_muCTPIModuleID.value() << MSG::dec);
+
+  // Jet/Energy
+  str.str("");
+  for (const uint16_t module_id : m_jetModuleID) {
+    configuredROBSIDs.emplace_back(eformat::TDAQ_CALO_JET_PROC_ROI, module_id);
+    str << "0x" << std::hex << module_id << std::dec << " ";
   }
+  ATH_MSG_DEBUG("   Calorimeter Jet/Energy Processor RoI = " << str.str());
 
-  //
-  // Get ByteStreamAddressProviderSvc:
-  //
-  ServiceHandle< IProperty > p_ByteStreamAddressProviderSvc( "ByteStreamAddressProviderSvc", name() );
-  sc = p_ByteStreamAddressProviderSvc.retrieve();
-  if( sc.isFailure() ) {
-    ATH_MSG_ERROR("Can't get ByteStreamAddressProviderSvc");
-    return sc;
-  } else {
-    ATH_MSG_DEBUG("Connected to " << p_ByteStreamAddressProviderSvc.name());
-
-    UnsignedIntegerProperty ctpModuleID;
-    ctpModuleID.setName("CTPModuleID");
-    if (ctpModuleID.assign(p_ByteStreamAddressProviderSvc->getProperty("CTPModuleID"))) {
-      m_ctpModuleID = ctpModuleID.value() ;
-      ATH_MSG_DEBUG(" ---> getProperty('CTPModuleID')             = " << ctpModuleID);
-    } else {
-      ATH_MSG_WARNING(p_ByteStreamAddressProviderSvc.name() << "::getProperty('CTPModuleID') failed.");
-    }
-
-    UnsignedIntegerProperty muCTPIModuleID;
-    muCTPIModuleID.setName("MuCTPIModuleID");
-    if (muCTPIModuleID.assign(p_ByteStreamAddressProviderSvc->getProperty("MuCTPIModuleID"))) {
-      m_muCTPIModuleID = muCTPIModuleID.value() ;
-      ATH_MSG_DEBUG(" ---> getProperty('MuCTPIModuleID')          = " << muCTPIModuleID);
-    } else {
-      ATH_MSG_WARNING(p_ByteStreamAddressProviderSvc.name() << "::getProperty('MuCTPIModuleID') failed.");
-    }
-
-    UnsignedIntegerArrayProperty jetProcModuleID;
-    jetProcModuleID.setName("JetProcModuleID");
-    if (jetProcModuleID.assign(p_ByteStreamAddressProviderSvc->getProperty("JetProcModuleID"))) {
-      m_jetModuleID = jetProcModuleID.value() ;
-      ATH_MSG_DEBUG(" ---> getProperty('JetProcModuleID')         = " << jetProcModuleID);
-    } else {
-      ATH_MSG_WARNING(p_ByteStreamAddressProviderSvc.name() << "::getProperty('JetProcModuleID') failed.");
-    }
-
-    UnsignedIntegerArrayProperty caloClusterProcModuleID;
-    caloClusterProcModuleID.setName("CaloClusterProcModuleID");
-    if (caloClusterProcModuleID.assign(p_ByteStreamAddressProviderSvc->getProperty("CaloClusterProcModuleID"))) {
-      m_emModuleID = caloClusterProcModuleID.value() ;
-      ATH_MSG_DEBUG(" ---> getProperty('CaloClusterProcModuleID') = " << caloClusterProcModuleID);
-    } else {
-      ATH_MSG_WARNING(p_ByteStreamAddressProviderSvc.name() << "::getProperty('CaloClusterProcModuleID') failed.");
-    }
-
-    UnsignedIntegerArrayProperty l1TopoModuleID;
-    l1TopoModuleID.setName("TopoProcModuleID");
-    if (l1TopoModuleID.assign(p_ByteStreamAddressProviderSvc->getProperty("TopoProcModuleID"))) {
-      m_l1TopoModuleID = l1TopoModuleID.value();
-      ATH_MSG_DEBUG(" ---> getProperty('TopoProcModuleID') = " << l1TopoModuleID);
-    } else {
-      ATH_MSG_WARNING(p_ByteStreamAddressProviderSvc.name() << "::getProperty('TopoProcModuleID') failed.");
-    }
+  // EM/Tau
+  str.str("");
+  for (const uint16_t module_id : m_emModuleID) {
+    configuredROBSIDs.emplace_back(eformat::TDAQ_CALO_CLUSTER_PROC_ROI, module_id);
+    str << "0x" << std::hex << module_id << std::dec << " ";
   }
+  ATH_MSG_DEBUG("   Calorimeter Cluster Processor RoI    = " << str.str());
 
-  ATH_MSG_DEBUG(" -- Module IDs for: ");
-  ATH_MSG_DEBUG("    CTP                                  = 0x" <<MSG::hex<< m_ctpModuleID <<MSG::dec);
-  ATH_MSG_DEBUG("    muCTPi                               = 0x" <<MSG::hex<< m_muCTPIModuleID <<MSG::dec);
-  ATH_MSG_DEBUG("    Calorimeter Cluster Processor RoI    = 0x" <<MSG::hex<< m_emModuleID[0]
-     << ", 0x" << m_emModuleID[1] << ", 0x" << m_emModuleID[2] << ", 0x" << m_emModuleID[3] <<MSG::dec);
-  ATH_MSG_DEBUG("    Calorimeter Jet/Energy Processor RoI = 0x" <<MSG::hex<< m_jetModuleID[0]
-     << ", 0x" << m_jetModuleID[1] <<MSG::dec);
-
-  //  ATH_MSG_DEBUG("    L1Topo                               = 0x" <<MSG::hex<< m_l1TopoModuleID[0]     << ", 0x" <<  m_l1TopoModuleID[1] <<MSG::dec);
-  std::ostringstream topoModulesString;
-  for (unsigned int mid: m_l1TopoModuleID){
-    topoModulesString << L1Topo::formatHex4(mid) << " ";
+  // L1Topo
+  str.str("");
+  for (const uint16_t module_id : m_l1TopoModuleID) {
+    configuredROBSIDs.emplace_back(eformat::TDAQ_CALO_TOPO_PROC, module_id);
+    str << "0x" << std::hex << module_id << std::dec << " ";
   }
-  ATH_MSG_DEBUG( "    L1Topo                               = " << topoModulesString.str());
+  ATH_MSG_DEBUG("   L1Topo                               = " << str.str());
+
+  // Fill the ROB ID vector
+  for (const auto& sid : configuredROBSIDs) {
+    m_configuredROBIds.push_back( sid.code() );
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -303,9 +265,9 @@ StatusCode RoIBResultByteStreamTool::convert(const std::vector<const OFFLINE_FRA
       ROIB::Trailer trailer = roibTrailer(status, content.size());
 
       // Extract the CTP version number
-			const uint32_t* rod;
-			robf.rod_start(rod);
-			unsigned int ctpVersionNumber = ((rod[CTPdataformat::Helper::FormatVersionPos] >> CTPdataformat::CTPFormatVersionShift) & CTPdataformat::CTPFormatVersionMask);
+      const uint32_t* rod;
+      robf.rod_start(rod);
+      unsigned int ctpVersionNumber = ((rod[CTPdataformat::Helper::FormatVersionPos] >> CTPdataformat::CTPFormatVersionShift) & CTPdataformat::CTPFormatVersionMask);
 
       // Create CTPResult object
       cTPResult = ROIB::CTPResult(ctpVersionNumber, header, trailer, content);
@@ -410,7 +372,7 @@ StatusCode RoIBResultByteStreamTool::convert(const std::vector<const OFFLINE_FRA
 
   } // End of loop over all ROB fragments
 
-  ATH_MSG_DEBUG("Building RoIBResult wit the following inputs:");
+  ATH_MSG_DEBUG("Building RoIBResult with the following inputs:");
   ATH_MSG_DEBUG("  CTP             - " << (cTPFound ? "found" : "not found"));
   ATH_MSG_DEBUG("  MUCTPI          - " << (muCTPIFound ? "found" : "not found"));
   ATH_MSG_DEBUG("  Jet/Energy[0/1] - " << (jetEnergyFound[0] ? "found" : "not found") << "/"
