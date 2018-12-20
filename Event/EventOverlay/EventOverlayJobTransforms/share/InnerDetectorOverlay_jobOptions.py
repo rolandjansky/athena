@@ -16,6 +16,8 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
     if DetFlags.overlay.pixel_on():
         job += CfgGetter.getAlgorithm("PixelOverlayDigitization")
         job += CfgGetter.getAlgorithm("PixelOverlay")
+        if DetFlags.overlay.Truth_on():
+            job += CfgGetter.getAlgorithm("PixelSDOOverlay")
 
         if overlayFlags.isDataOverlay():
             job.InDetPixelRawDataProvider.RDOKey = overlayFlags.dataStore()+"+PixelRDOs"
@@ -43,6 +45,8 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
 
         job += CfgGetter.getAlgorithm("SCT_OverlayDigitization")
         job += CfgGetter.getAlgorithm("SCTOverlay")
+        if DetFlags.overlay.Truth_on():
+            job += CfgGetter.getAlgorithm("SCTSDOOverlay")
 
         if overlayFlags.isDataOverlay():
             job.InDetSCTRawDataProvider.RDOKey = overlayFlags.dataStore()+"+SCT_RDOs"
@@ -62,8 +66,11 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
 
         job += CfgGetter.getAlgorithm("TRT_OverlayDigitization")
         job += CfgGetter.getAlgorithm("TRTOverlay")
+        if DetFlags.overlay.Truth_on():
+            job += CfgGetter.getAlgorithm("TRTSDOOverlay")
+
         job.TRTOverlay.TRT_LocalOccupancyTool  = TRT_LocalOccupancy
-        
+
         from InDetRecExample.InDetJobProperties import InDetFlags
         include("InDetRecExample/InDetRecConditionsAccess.py")
         job.InDetTRTStrawStatusSummarySvc  = InDetTRTStrawStatusSummarySvc 
@@ -81,5 +88,3 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
 
     if overlayFlags.doSignal==True:
         include ("EventOverlayJobTransforms/InDetMcSignal_jobOptions.py")
-
-    job += CfgGetter.getAlgorithm("InDetSDOOverlay")
