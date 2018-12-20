@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 // $Id: xAODTrackCaloClusterAuxContainerCnv.cxx 791368 2017-01-05 08:55:07Z hrivnac $
 
 // System include(s):

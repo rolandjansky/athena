@@ -347,7 +347,7 @@ bool IHolder::serializeDynVars (const SG::IAuxStoreIO& iio,
 {
   // Loop over all selected variables.
   const SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
-  const SG::auxid_set_t& auxids = sel.getSelectedAuxIDs (iio.getDynamicAuxIDs());
+  SG::auxid_set_t auxids = sel.getSelectedAuxIDs (iio.getDynamicAuxIDs());
   for (SG::auxid_t id : auxids) {
     // Get the TClass of the object being saved.
     const std::type_info* tinfo = iio.getIOType (id);

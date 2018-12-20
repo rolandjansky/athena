@@ -2,7 +2,7 @@
 TreePlotter.py
 
 Created by Andreas Salzburger on 2009-04-16.
-Copyright (c) 2009 __MyCompanyName__. All rights reserved.
+
 """
 
 import sys

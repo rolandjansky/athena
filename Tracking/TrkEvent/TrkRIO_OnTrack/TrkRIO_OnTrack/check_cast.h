@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef _CHECK_CAST_H_
 #define _CHECK_CAST_H_
 

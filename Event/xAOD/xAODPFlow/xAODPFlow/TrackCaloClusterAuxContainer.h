@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef XAODPFLOW_TRACKCALOCLUSTERAUXCONTAINER_H
 #define XAODPFLOW_TRACKCALOCLUSTERAUXCONTAINER_H
  

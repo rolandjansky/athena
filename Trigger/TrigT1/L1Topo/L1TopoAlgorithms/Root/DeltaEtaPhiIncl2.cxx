@@ -1,7 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /*********************************
  * DeltaEtaPhiIncl2.cpp
  * Created by Joerg Stelzer on 11/16/12.
- * Copyright (c) 2012 Joerg Stelzer. All rights reserved.
  * Modified by V SOrin 2014
  * @brief algorithm calculates the eta and  phi-distance between  two lists and applies box cut  criteria
  *

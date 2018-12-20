@@ -1,7 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //  DeltaRSqrIncl2.h
 //  TopoCore
 //  Created by Joerg Stelzer/V Sorin on 9/16/14.
-//  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
 
 #ifndef __TopoCore__DeltaRSqrIncl2__
 #define __TopoCore__DeltaRSqrIncl2__

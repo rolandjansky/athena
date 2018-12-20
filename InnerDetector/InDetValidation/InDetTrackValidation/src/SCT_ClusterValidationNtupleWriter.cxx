@@ -3,7 +3,7 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// SCT_ClusterValidationNtupleWriter.cxx, (c) ATLAS Detector Software
+// SCT_ClusterValidationNtupleWriter.cxx
 ///////////////////////////////////////////////////////////////////
 
 #include "InDetTrackValidation/SCT_ClusterValidationNtupleWriter.h"
@@ -84,21 +84,13 @@ InDet::SCT_ClusterValidationNtupleWriter::SCT_ClusterValidationNtupleWriter(cons
   m_scterr_type{nullptr}
 
   {
-    declareProperty("NtupleFileName", m_ntupleFileName="/NTUPLES/FILE1");
-    declareProperty("NtupleDirectoryName", m_ntupleDirName="FitterValidation");
-    declareProperty("NtupleTreeName", m_ntupleTreeName="RIOs");
-    declareProperty("FillCluster", m_fillCluster=false);
-    declareProperty("FillSpacePoint", m_fillSpacePoint=false);
-    declareProperty("FillRDO", m_fillRDO=true);
-    declareProperty("FillBSErrs", m_fillBSErrs=true);
-    declareProperty("DoHitsOnTracks", m_doHitsOnTracks=false);
   }
 
 StatusCode InDet::SCT_ClusterValidationNtupleWriter::initialize() {
   
   ATH_CHECK(detStore()->retrieve(m_sctid, "SCT_ID"));
 
-  if (m_fillBSErrs) {
+  if (m_fillBSErrs.value()) {
     ATH_CHECK(m_byteStreamErrTool.retrieve());
     ATH_MSG_INFO("Retrieved tool " << m_byteStreamErrTool);
 
@@ -117,9 +109,9 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::initialize() {
 
   // ---------------------------
   // create tree and register it to THistSvc
-  m_nt = new TTree(TString(m_ntupleTreeName), "SCT_Clusters");
+  m_nt = new TTree(TString(m_ntupleTreeName.value()), "SCT_Clusters");
   // NB: we must not delete the tree, this is done by THistSvc
-  std::string fullNtupleName =  "/"+m_ntupleFileName+"/"+m_ntupleDirName+"/"+m_ntupleTreeName;
+  std::string fullNtupleName =  "/"+m_ntupleFileName.value()+"/"+m_ntupleDirName.value()+"/"+m_ntupleTreeName.value();
   StatusCode sc = tHistSvc->regTree(fullNtupleName, m_nt);
   if (sc.isFailure()) {
     ATH_MSG_ERROR( "Unable to register TTree : " << fullNtupleName );
@@ -181,7 +173,7 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::initialize() {
   m_scterr_channel              = new  std::vector<int>();
   m_scterr_type                 = new  std::vector<int>();
 
-  if (m_fillCluster) {
+  if (m_fillCluster.value()) {
     m_nt->Branch("SCT_DriftRadius", &m_rioLoc1); 
     m_nt->Branch("SCT_SurfaceX",    &m_rioSurfaceX); 
     m_nt->Branch("SCT_SurfaceY",    &m_rioSurfaceY); 
@@ -195,7 +187,7 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::initialize() {
     m_nt->Branch("SCT_DeltaPhi",     &m_SctDeltaPhi);
     m_nt->Branch("SCT_HitErr",       &m_SctHitErr);
   }
-  if (m_fillSpacePoint) {
+  if (m_fillSpacePoint.value()) {
     m_nt->Branch("SP_SCT_nSpacePoints", &m_nSP);
     m_nt->Branch("SP_SCT_BarrelEndcap", &m_sp_bec);
     m_nt->Branch("SP_SCT_EtaModule",    &m_sp_eta);
@@ -205,7 +197,7 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::initialize() {
     m_nt->Branch("SP_SCT_Y",            &m_sp_y);
     m_nt->Branch("SP_SCT_Z",            &m_sp_z);
   }
-  if (m_fillRDO) {
+  if (m_fillRDO.value()) {
     m_nt->Branch("RDO_SCT_nRDOs",                  &m_nRDOs);
     m_nt->Branch("RDO_SCT_RDO_Group_Size",         &m_sct_rdoGroupSize);
     m_nt->Branch("RDO_SCT_Layer",                  &m_sct_layer);
@@ -219,11 +211,11 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::initialize() {
     m_nt->Branch("RDO_SCT_TimeBin",                &m_sct_tbin);
     m_nt->Branch("RDO_SCT_RODId",                  &m_sct_rodid);
     m_nt->Branch("RDO_SCT_Channel",                &m_sct_channel);
-    if (m_doHitsOnTracks) {
+    if (m_doHitsOnTracks.value()) {
       m_nt->Branch("RDO_SCT_isOnTrack",              &m_sct_rdoIsOnTrack);
     }
   }
-  if (m_fillBSErrs) {
+  if (m_fillBSErrs.value()) {
     m_nt->Branch("SCTErr_TotalNumBSErrs",         &m_totalNumErrors,"numBSerrs/I");
     m_nt->Branch("SCTErr_BEC",                    &m_scterr_bec);
     m_nt->Branch("SCTErr_Layer",                  &m_scterr_layer);
@@ -237,13 +229,13 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::initialize() {
 
   // Read Handle Key
   ATH_CHECK( m_eventInfoKey.initialize() );
-  ATH_CHECK( m_jo_riocontainername.initialize(m_fillCluster) );
-  ATH_CHECK( m_dataObjectName.initialize(m_fillRDO) );
-  ATH_CHECK( m_spacePointContainerName.initialize(m_fillSpacePoint) );
-  ATH_CHECK( m_inputTrackCollection.initialize(m_fillRDO and m_doHitsOnTracks) );
+  ATH_CHECK( m_jo_riocontainername.initialize(m_fillCluster.value()) );
+  ATH_CHECK( m_dataObjectName.initialize(m_fillRDO.value()) );
+  ATH_CHECK( m_spacePointContainerName.initialize(m_fillSpacePoint.value()) );
+  ATH_CHECK( m_inputTrackCollection.initialize(m_fillRDO.value() and m_doHitsOnTracks.value()) );
 
   // Read Cond Handle Key
-  if (m_fillCluster) {
+  if (m_fillCluster.value()) {
     ATH_CHECK( m_SCTDetEleCollKey.initialize() );
   }
 
@@ -318,7 +310,7 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
 
   // Container with SCT RIOs
   m_riocontainer = 0;
-  if ( m_fillCluster) {
+  if ( m_fillCluster.value()) {
     SG::ReadHandle<SCT_ClusterContainer> h_riocontainer(m_jo_riocontainername);
     if (not h_riocontainer.isValid()) {
       ATH_MSG_DEBUG("Could not get PrepRawDataContainer");
@@ -329,7 +321,7 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
 
   // SpacePoint container
   const SpacePointContainer* p_spContainer = 0;
-  if (m_fillSpacePoint) {
+  if (m_fillSpacePoint.value()) {
     SG::ReadHandle<SpacePointContainer> h_spContainer(m_spacePointContainerName);
     if (not h_spContainer.isValid()) {
       ATH_MSG_DEBUG("Could not get SpacePointContainer");
@@ -342,14 +334,14 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
   typedef SCT_RDORawData SCTRawDataType;
   const SCT_RDO_Container* p_rdocontainer = 0;
   std::vector<Identifier> RDOsOnTracks;
-  if (m_fillRDO) {
+  if (m_fillRDO.value()) {
     SG::ReadHandle<SCT_RDO_Container> h_rdocontainer(m_dataObjectName);
     if (not h_rdocontainer.isValid()) {
       ATH_MSG_DEBUG( "Failed to retrieve SCT RDO container" );
     } else {
       p_rdocontainer = &*h_rdocontainer;
     }
-    if (m_doHitsOnTracks) {
+    if (m_doHitsOnTracks.value()) {
       //Track container
       SG::ReadHandle<TrackCollection> tracks(m_inputTrackCollection);
       if (not tracks.isValid()) {
@@ -396,7 +388,7 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
 
     
     // Fill clusters
-  if (m_fillCluster && m_riocontainer !=0) {
+  if (m_fillCluster.value() && m_riocontainer !=0) {
 
     int RIOindex = 0;
 
@@ -471,7 +463,7 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
 
   //////// fill SpacePoint stuff if required////////////////////////////////////////////////////////////////
 
-  if (m_fillSpacePoint && p_spContainer != 0) {
+  if (m_fillSpacePoint.value() && p_spContainer != 0) {
     DataVector<Trk::SpacePoint>::const_iterator p_sp;
     std::pair<IdentifierHash, IdentifierHash> sp_clusInfo;
     //loop over SCT space points collections
@@ -501,7 +493,7 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
     }
   }
   //// Get the RDO information /////////////////////////////////////////////////////////////////////
-  if (m_fillRDO && p_rdocontainer !=0) {
+  if (m_fillRDO.value() && p_rdocontainer !=0) {
 
     SCT_RDO_Container::const_iterator col_it  = p_rdocontainer->begin();
     SCT_RDO_Container::const_iterator lastCol = p_rdocontainer->end();
@@ -556,7 +548,7 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
         m_sct_rodid->push_back(rod);
         m_sct_channel->push_back(fibre);
 
-        if (m_doHitsOnTracks) {
+        if (m_doHitsOnTracks.value()) {
           int isOnTrack = 0;
           if (find(RDOsOnTracks.begin(),RDOsOnTracks.end(),SCT_Identifier) != RDOsOnTracks.end())
             isOnTrack = 1;
@@ -567,7 +559,7 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
   }
 
   /// Fill ByteStream errors block if requested.
-  if (m_fillBSErrs) {
+  if (m_fillBSErrs.value()) {
     m_totalNumErrors = 0;
     /** types of errors are defined in the enum in ISCT_ByteStreamErrorsSvc.
      * At the moment there are 15 different types of BS error.

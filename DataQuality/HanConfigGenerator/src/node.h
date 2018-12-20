@@ -4,7 +4,7 @@
 //
 //                   
 //  
-//   Copyright (C) 2016 M.Sutton (sutt@cern.ch)    
+//      
 //
 //   $Id: node.h, v0.0   Fri  8 Apr 2016 00:57:16 CEST sutt $
 

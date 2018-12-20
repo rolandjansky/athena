@@ -210,12 +210,13 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
 	cscHit.StripId = (cscHit.StationName << 18)
 	  | ((cscHit.StationEta + 2) << 16) | (cscHit.StationPhi << 12)
 	  | (cscHit.WireLayer << 9) | (cscHit.MeasuresPhi << 8) | (cscHit.Strip);
-	cscHit.eta = sqrt( prepData.localCovariance()(0,0) );
+	cscHit.eta = prepData.globalPosition().eta();
 	cscHit.phi = prepData.globalPosition().phi();
 	cscHit.r   = prepData.globalPosition().perp();
 	cscHit.z   = prepData.globalPosition().z();
 	cscHit.charge = prepData.charge();
 	cscHit.time   = prepData.time();
+	cscHit.resolution = sqrt( prepData.localCovariance()(0,0) );
 	cscHit.Residual =  ( cscHit.MeasuresPhi==0 ) ? calc_residual( aw, bw, cscHit.z, cscHit.r ) : calc_residual_phi( aw,bw,phiw, cscHit.phi, cscHit.z);
 	cscHit.isOutlier = 0;
 	/*if( fabs(cscHit.Residual) > rWidth ) {

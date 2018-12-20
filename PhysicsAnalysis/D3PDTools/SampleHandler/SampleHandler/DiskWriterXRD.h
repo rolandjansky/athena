@@ -5,7 +5,7 @@
 #ifndef SAMPLE_HANDLER__DISK_WRITER_XRD_H
 #define SAMPLE_HANDLER__DISK_WRITER_XRD_H
 
-//        Copyright Iowa State University 2013.
+//        
 //                  Author: Nils Krumnack
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at

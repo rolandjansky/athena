@@ -1,11 +1,13 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    IRoiDescriptor.h        
 //
 //             RoiDescriptor interface - only basic accessors                   
 //  
 //   @author sutt@cern.ch
-//   Copyright (C) 2013 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: IRoiDescriptor.h, v0.0   Fri 14 Jun 2013 00:52:09 CEST sutt $
 

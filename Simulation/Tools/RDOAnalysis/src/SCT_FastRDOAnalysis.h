@@ -24,7 +24,7 @@ class TH1;
 
 class SCT_FastRDOAnalysis : public AthAlgorithm {
 
-public:
+ public:
   SCT_FastRDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator);
   ~SCT_FastRDOAnalysis() = default;
 
@@ -32,7 +32,7 @@ public:
   virtual StatusCode execute() override final;
   virtual StatusCode finalize() override final;
 
-private:
+ private:
   SG::ReadHandleKey<InDet::SCT_ClusterContainer> m_inputKey{this, "InputKey", "SCT_Clusters"};
   // SCT_Cluster
   std::vector<uint16_t>* m_hitsTimeBin3;
@@ -122,10 +122,10 @@ private:
   TH1* m_h_rdoID_prd;
 
   TTree* m_tree;
-  std::string m_ntupleFileName;
-  std::string m_ntupleDirName;
-  std::string m_ntupleTreeName;
-  std::string m_path;
+  StringProperty m_ntupleFileName{this, "NtupleFileName", "/ntuples/file1"};
+  StringProperty m_ntupleDirName{this, "NtupleDirectoryName", "/SCT_FastRDOAnalysis/"};
+  StringProperty m_ntupleTreeName{this, "NtupleTreeName", "/SCT_FastRDOAna"};
+  StringProperty m_path{this, "HistPath", "/SCT_FastRDOAnalysis/"};
 
   ServiceHandle<ITHistSvc> m_thistSvc;
 };

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TEvent.cxx 796983 2017-02-14 05:09:12Z ssnyder $
@@ -3095,7 +3095,7 @@ namespace xAOD {
 
       // Get the dynamic auxiliary variables held by this object, which
       // were selected to be written:
-      const SG::auxid_set_t& auxids = aux->getSelectedAuxIDs();
+      const SG::auxid_set_t auxids = aux->getSelectedAuxIDs();
 
       // If there are no dynamic auxiliary variables in the object, return
       // right away:

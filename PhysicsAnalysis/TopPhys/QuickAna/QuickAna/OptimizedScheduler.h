@@ -5,7 +5,7 @@
 #ifndef QUICK_ANA__OPTIMIZER_SCHEDULER_H
 #define QUICK_ANA__OPTIMIZER_SCHEDULER_H
 
-//        Copyright Iowa State University 2014.
+//        
 //                  Author: Nils Krumnack
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at

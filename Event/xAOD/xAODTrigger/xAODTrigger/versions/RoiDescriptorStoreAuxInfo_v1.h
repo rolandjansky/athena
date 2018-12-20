@@ -1,11 +1,13 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    IRoiDecsriptorStorageAuxInfo_v1.h        
 //
 //            Class holding the data handled by RoiDescriptorStore_v1
 //            This is the auxiliary class holding the serialised RoiDescriptor 
 //            information in xAOD files.
-//   Copyright (C) 2015 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: RoiDescriptorStoreAuxInfo_v1.h v0.0  Wed 11 Nov 2015 14:36:15 CET sutt $ 
 

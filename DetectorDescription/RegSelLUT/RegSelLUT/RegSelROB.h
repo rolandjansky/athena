@@ -1,10 +1,12 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    RegSelROB.h        
 //
 //                   
 //  
-//   Copyright (C) 2010 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: RegSelROB.h, v0.0   Thu 14 Oct 2010 18:06:34 BST sutt $
 

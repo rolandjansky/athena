@@ -1,4 +1,7 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    RegSelEtaPhiModule.h        
 //
@@ -7,7 +10,6 @@
 //            designed so can easily test whether two "modules"
 //            overlap, and objects can be sorted by payload.
 //  
-//   Copyright (C) 2011 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: RegSelEtaPhiModule.h, v0.0   Sat 25 Jun 2011 10:30:34 BST sutt $
 
