@@ -35,7 +35,6 @@ if globalflags.InputFormat.is_bytestream():
 
 # Hacking the chains name. Otherwise doesn't work. 
 topSequence.L1DecoderTest.Chains="HLTChains"
-topSequence.L1DecoderTest.roiUnpackers["METRoIsUnpackingTool"].Decisions="L1XE"
 
 
         
