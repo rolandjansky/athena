@@ -337,9 +337,6 @@ def main():
    if not args.concurrent_events:
       args.concurrent_events = args.threads
 
-   if args.nprocs > 1 and not args.oh_monitoring:
-      parser.error('You have to run with -M/--oh-monitoring in case of multiple child processes')
-
    # Update args and set athena flags
    update_run_params(args)
    set_athena_flags(args)
