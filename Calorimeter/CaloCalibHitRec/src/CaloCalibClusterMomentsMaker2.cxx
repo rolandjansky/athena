@@ -823,10 +823,6 @@ Calculation of energy fraction caused by particles of different types
 void CaloCalibClusterMomentsMaker2::get_calib_frac(const std::map<unsigned int,int>& truthBarcodeToPdgCodeMap,
                                                    const MyClusInfo& clusInfo, std::vector<double> &engFrac) const
 {
-
-
-  
-  
   static unsigned int nWarnings = 0;
   engFrac.resize(kCalibFracMax, 0.0);
   if(clusInfo.engCalibIn.engTot <= 0.0) return;
@@ -842,7 +838,7 @@ void CaloCalibClusterMomentsMaker2::get_calib_frac(const std::map<unsigned int,i
       }
       continue;
     }
-      
+
     if( abs(pdg_id) == 211) {
       engFrac[kCalibFracHAD] += it->second.engTot;
     }else if( pdg_id == 111 || pdg_id == 22 || abs(pdg_id)==11) {
