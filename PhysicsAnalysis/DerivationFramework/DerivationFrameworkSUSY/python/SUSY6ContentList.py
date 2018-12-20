@@ -14,7 +14,7 @@ SUSY6ExtraVariables = [
   "Muons.CaloLRLikelihood.CaloMuonIDTag.charge.InnerDetectorPt.MuonSpectrometerPt.ptcone20.ptcone30.quality",
   "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType",
   "Photons.author.Loose.Tight",
-  "TauJets.IsTruthMatched.truthParticleLink.truthOrigin.truthType.truthJetLink.DFCommonTausLoose.seedJetWidth",
+  "TauJets.IsTruthMatched.truthParticleLink.truthOrigin.truthType.truthJetLink.DFCommonTausLoose",
   #"TauJets.pt.eta.phi.m.IsTruthMatched.pt_vis.truthParticleLink.truthOrigin.truthType.truthJetLink.DFCommonTausLoose",
   # QUESTION SUSY8 had TauJet extra variables, not sure they were necessary
 ]

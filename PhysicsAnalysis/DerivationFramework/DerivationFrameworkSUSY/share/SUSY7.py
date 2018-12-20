@@ -225,10 +225,6 @@ if DerivationFrameworkIsMonteCarlo:
   thinningTools.append(SUSY7TruthThinningTool)
 
 
-# now done in ExtendedJetCommon
-#applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY7)
-#updateJVT_xAODColl("AntiKt4EMTopo", SeqSUSY7)
-#applyBTagging_xAODColl('AntiKt4EMTopo', SeqSUSY7)
 
 #====================================================================
 # SKIMMING
@@ -374,13 +370,6 @@ softTagAlg.TrackSelectionTool.CutLevel = "LoosePrimary"
 
 SeqSUSY7 += softTagAlg
 
-#==============================================================================
-# Tau truth building/matching
-#==============================================================================
-# now part of MCTruthCommon
-#if DerivationFrameworkIsMonteCarlo:
-#  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
-#  addTruthTaus(AugmentationTools)
 
 #==============================================================================
 # SUSY skimming selection

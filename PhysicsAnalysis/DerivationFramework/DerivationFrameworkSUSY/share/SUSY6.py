@@ -19,7 +19,6 @@ from DerivationFrameworkTau.TauCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
-from DerivationFrameworkSUSY.SUSYCommon import *
 
 ### Set up stream
 streamName  = derivationFlags.WriteDAOD_SUSY6Stream.StreamName
@@ -507,8 +506,6 @@ SUSY6SlimmingHelper.IncludeBJetTriggerContent = False
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
 if DerivationFrameworkIsMonteCarlo:
   SUSY6SlimmingHelper.AppendToDictionary = {
-    'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer',
-    'BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer',
     'TruthTop':'xAOD::TruthParticleContainer',
     'TruthTopAux':'xAOD::TruthParticleAuxContainer',
     'TruthBSM':'xAOD::TruthParticleContainer',

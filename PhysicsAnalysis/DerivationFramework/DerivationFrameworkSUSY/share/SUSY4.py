@@ -273,15 +273,6 @@ FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY4)
 
 
 #==============================================================================
-# Tau truth building/matching
-#==============================================================================
-# now part of MCTruthCommon
-#if DerivationFrameworkIsMonteCarlo:
-#  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
-#  addTruthTaus(AugmentationTools)
-
-
-#==============================================================================
 # Augment after skim
 #==============================================================================
 SeqSUSY4 += CfgMgr.DerivationFramework__DerivationKernel(
@@ -327,7 +318,6 @@ SUSY4SlimmingHelper.IncludeBJetTriggerContent   = False
 
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
 SUSY4SlimmingHelper.AppendToDictionary = {'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets':'xAOD::JetContainer','AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux':'xAOD::JetAuxContainer',
-                                          'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer','BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer',
                                           'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                           'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                           'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer',

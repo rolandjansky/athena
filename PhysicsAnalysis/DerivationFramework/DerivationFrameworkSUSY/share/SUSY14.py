@@ -45,15 +45,6 @@ SUSY14ThinningHelper.AppendToStream( SUSY14Stream )
 # THINNING TOOLS
 #====================================================================
 
-# B.M.: likely not used
-# TrackParticles directly
-#SUSY14TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY14TPThinningTool",
-#                                                                 ThinningService         = SUSY14ThinningHelper.ThinningSvc(),
-#                                                                 SelectionString         = "InDetTrackParticles.pt > 10*GeV",
-#                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
-#ToolSvc += SUSY14TPThinningTool
-#thinningTools.append(SUSY14TPThinningTool)
-
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 SUSY14MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "SUSY14MuonTPThinningTool",
@@ -138,8 +129,6 @@ muonsRequirements = '(Muons.pt >= 25.*GeV) && (abs(Muons.eta) < 2.7) && (Muons.D
 electronsRequirements = '(Electrons.pt > 25.*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHVeryLoose))'
 objectSelection = '(count('+electronsRequirements+') + count('+muonsRequirements+') >= 1)'
 
-# now done in ExtendedJetCommon
-#applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY14)
 
 #from DerivationFrameworkSUSY.SUSY14TriggerList import triggersNavThin
 from DerivationFrameworkSUSY.SUSY14TriggerList import MetTriggers
@@ -216,15 +205,6 @@ addDefaultTrimmedJets(SeqSUSY14, "SUSY14")
 
 
 #==============================================================================
-# Tau truth building/matching
-#==============================================================================
-# now part of MCTruthCommon
-#if DerivationFrameworkIsMonteCarlo:
-#  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
-#  addTruthTaus(AugmentationTools)
-
-
-#==============================================================================
 # Augment after skim
 #==============================================================================
 SeqSUSY14 += CfgMgr.DerivationFramework__DerivationKernel(
@@ -274,12 +254,8 @@ SUSY14SlimmingHelper.IncludeTauTriggerContent    = False
 SUSY14SlimmingHelper.IncludeEtMissTriggerContent = True
 SUSY14SlimmingHelper.IncludeBJetTriggerContent   = False
 
-# PP removed 22/04/2016
-#addJetOutputs(SUSY14SlimmingHelper,["LargeR", "SUSY14"], [], ["CamKt12LCTopoJets","AntiKt10LCTopoJets","AntiKt10TruthJets","CamKt12TruthWZJets","CamKt12TruthJets","AntiKt10TruthWZJets"])
-
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
-SUSY14SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer','BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer',
-'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets':'xAOD::JetContainer','AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux':'xAOD::JetAuxContainer',
+SUSY14SlimmingHelper.AppendToDictionary = {'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets':'xAOD::JetContainer','AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux':'xAOD::JetAuxContainer',
                                            'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                            'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                            'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}

@@ -15,7 +15,6 @@ if DerivationFrameworkIsMonteCarlo:
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
-from DerivationFrameworkSUSY.SUSYCommon import *
 
 
 ### Set up stream
@@ -48,17 +47,6 @@ SUSY18ThinningHelper.AppendToStream( SUSY18Stream )
 #====================================================================
 # THINNING TOOLS
 #====================================================================
-
-# B.M.: likely not used
-#from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-
-# TrackParticles directly
-#SUSY18TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY18TPThinningTool",
-#                                                                  ThinningService         = SUSY18ThinningHelper.ThinningSvc(),
-#                                                                  SelectionString         = "InDetTrackParticles.pt > 10*GeV",
-#                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
-#ToolSvc += SUSY18TPThinningTool
-#thinningTools.append(SUSY18TPThinningTool)
 
 # TrackParticles associated with Jets
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
@@ -297,8 +285,6 @@ SeqSUSY18 += CfgMgr.DerivationFramework__DerivationKernel(
 #==============================================================================
 # now part of MCTruthCommon
 if DerivationFrameworkIsMonteCarlo:
-#  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
-#  addTruthTaus(AugmentationTools)
   ToolSvc.DFCommonTauTruthMatchingTool.WriteInvisibleFourMomentum = True
 
 #==============================================================================
@@ -395,8 +381,6 @@ ExtraVtx = ["PrimaryVertices."
             "vertexType"
             ]
 
-ExtraTaus = [ "TauJets.seedJetWidth" ]
-
 ExtraElectrons = ["Electrons.author.charge.ptcone20"]
 
 ExtraMuons = ["Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag"]
@@ -414,7 +398,7 @@ ExtraHLT = [ "HLT_xAOD__JetContainer_SplitJet.pt.eta.phi.m",
 
 ExtraTracks= ["InDetTrackParticles.truthOrigin.truthType"]
 
-SUSY18SlimmingHelper.ExtraVariables = ExtraTaus + ExtraElectrons + ExtraMuons + ExtraPhotons + ExtraJets + ExtraMuonTrks + ExtraHLT + ExtraTracks
+SUSY18SlimmingHelper.ExtraVariables = ExtraElectrons + ExtraMuons + ExtraPhotons + ExtraJets + ExtraMuonTrks + ExtraHLT + ExtraTracks
 
 if DerivationFrameworkIsMonteCarlo:
     SUSY18SlimmingHelper.ExtraVariables += ExtraElectronsTruth + ExtraMuonsTruth + ExtraTausTruth
