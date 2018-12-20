@@ -609,7 +609,7 @@ namespace xAOD {
       return;
    }
 
-   const AuxContainerBase::auxid_set_t&
+   AuxContainerBase::auxid_set_t
    AuxContainerBase::getSelectedAuxIDs() const {
 
       // Guard against multi-threaded execution:
@@ -626,8 +626,7 @@ namespace xAOD {
 
       // In case we don't use an internal store, there are no dynamic
       // variables:
-      static const auxid_set_t dummy (0);
-      return dummy;
+      return auxid_set_t();
    }
 
    //

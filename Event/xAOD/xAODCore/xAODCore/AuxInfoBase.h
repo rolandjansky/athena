@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: AuxInfoBase.h 793737 2017-01-24 20:11:10Z ssnyder $
@@ -151,7 +151,7 @@ namespace xAOD {
       virtual void selectAux( const std::set< std::string >& attributes ) override;
 
       /// Get the IDs of the selected dynamic Aux variables (for writing)
-      virtual const SG::auxid_set_t& getSelectedAuxIDs() const override;
+      virtual SG::auxid_set_t getSelectedAuxIDs() const override;
 
       /// @}
 
