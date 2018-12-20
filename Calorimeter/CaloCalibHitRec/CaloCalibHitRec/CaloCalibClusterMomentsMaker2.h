@@ -200,11 +200,6 @@ class CaloCalibClusterMomentsMaker2: public AthAlgTool, virtual public CaloClust
   /** ReadHandleKey for truth particle container */
   SG::ReadHandleKey<xAOD::TruthParticleContainer> m_truthParticleContainerKey{this,"TruthParticles","TruthParticles","ReadHandleKey for truth particle container"};
   
-  /** 
-   * @brief name of truth particle container
-   */
-  std::string m_truthParticleCollectionName;
-
   const CaloDetDescrManager* m_calo_dd_man; 
 
   const CaloCell_ID* m_calo_id;
@@ -240,7 +235,6 @@ class CaloCalibClusterMomentsMaker2: public AthAlgTool, virtual public CaloClust
   float m_energyMinCalib;
   float m_apars_alpha;
   float m_apars_r0;
-  //double m_showerScale;
   int m_MatchDmType;
 
   double angle_mollier_factor(double x) const;

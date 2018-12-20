@@ -29,8 +29,6 @@
 #include <set>
 
 #include "CaloEvent/CaloCell.h"
-//#include "CaloEvent/CaloClusterContainer.h"
-//#include "CaloEvent/CaloCluster.h"
 #include "CaloSimEvent/CaloCalibrationHit.h"
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
@@ -59,7 +57,6 @@ CaloCalibClusterMomentsMaker2::CaloCalibClusterMomentsMaker2(const std::string& 
 							   const std::string& name,
 							   const IInterface* parent)
   : AthAlgTool(type, name, parent), 
-    m_truthParticleCollectionName("TruthParticleContainer"),
     m_calo_dd_man(0),
     m_calo_id(0),
     m_caloDM_ID(0),
@@ -69,7 +66,6 @@ CaloCalibClusterMomentsMaker2::CaloCalibClusterMomentsMaker2(const std::string& 
     m_energyMinCalib(20*MeV),
     m_apars_alpha(0.5),
     m_apars_r0(0.2),
-    //m_showerScale(25*cm),
     m_MatchDmType(kMatchDmLoose)
 {
   declareInterface<CaloClusterCollectionProcessor> (this);
