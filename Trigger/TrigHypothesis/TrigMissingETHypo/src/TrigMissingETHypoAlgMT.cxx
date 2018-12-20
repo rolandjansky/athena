@@ -66,6 +66,7 @@ StatusCode TrigMissingETHypoAlgMT::execute( const EventContext& context ) const 
     ATH_MSG_DEBUG( "No implicit RH for previous decisions "<<  decisionInput().key()<<": is this expected?" );
     return StatusCode::SUCCESS;      
   }
+  ATH_MSG_DEBUG( "Decisions being read from " << decisionInput().key() );
   ATH_MSG_DEBUG( "Running with "<< h_prevDecisions->size() <<" implicit ReadHandles for previous decisions");
   ATH_CHECK(h_prevDecisions.isValid());
   auto prevDecisions = h_prevDecisions.get();
