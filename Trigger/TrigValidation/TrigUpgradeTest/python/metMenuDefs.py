@@ -15,7 +15,7 @@ def metCellSequence():
 
     #input maker
     from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-    InputMakerAlg = InputMakerForRoI("MetCellInputMaker", OutputLevel = DEBUG, LinkName="initialRoI")
+    InputMakerAlg = InputMakerForRoI("MetCellInputMaker", OutputLevel = DEBUG, RoIsLink="initialRoI")
     InputMakerAlg.RoIs='METCellRoI'
     
     #reco sequence
