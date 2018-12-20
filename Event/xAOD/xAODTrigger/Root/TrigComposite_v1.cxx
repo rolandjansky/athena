@@ -477,17 +477,40 @@ namespace xAOD {
      // Loop over collections
      if ( endIndex - beginIndex > 1 ) {
 
+       // Check uniqueness
        const std::string mangledName = name + s_collectionSuffix;
+       const std::vector< std::string >& names = linkColNames();
+       int oldStart = -1;
+       int oldEnd = -1;
+       for( size_t nameIndex = 0; nameIndex < names.size(); ++nameIndex ) {
+
+         // Look for an existing collection with the same name
+         if( names[ nameIndex ] == mangledName ) {
+           oldEnd = nameIndex + 1;
+           if ( oldStart == -1 ) oldStart = nameIndex;
+         }
+         else if ( oldStart != -1 ) {
+           // If the start has been found, we must now be past the ned
+           break;
+         }
+       }
+
+       // Erase the old collection, if there was one
+       if ( oldStart != -1 ) {
+
+         this->linkColNamesNC().erase( this->linkColNamesNC().begin() + oldStart, this->linkColNamesNC().begin() + oldEnd );
+         this->linkColKeysNC().erase( this->linkColKeysNC().begin() + oldStart, this->linkColKeysNC().begin() + oldEnd );
+         this->linkColIndicesNC().erase( this->linkColIndicesNC().begin() + oldStart, this->linkColIndicesNC().begin() + oldEnd );
+         this->linkColClidsNC().erase( this->linkColClidsNC().begin() + oldStart, this->linkColClidsNC().begin() + oldEnd );
+       }
+
+       // Append the new collection
        for ( unsigned int index = beginIndex; index < endIndex; ++index ) {
 
-         // Check uniqueness
-         if ( std::find( linkColNamesNC().begin(), linkColNamesNC().end(), mangledName ) == linkColNamesNC().end() ) {
-
-           this->linkColNamesNC().push_back( mangledName );
-           this->linkColKeysNC().push_back( key );
-           this->linkColIndicesNC().push_back( index );
-           this->linkColClidsNC().push_back( clid );
-         }
+         this->linkColNamesNC().push_back( mangledName );
+         this->linkColKeysNC().push_back( key );
+         this->linkColIndicesNC().push_back( index );
+         this->linkColClidsNC().push_back( clid );
        }
      }
      else {
@@ -499,6 +522,21 @@ namespace xAOD {
          this->linkColKeysNC().push_back( key );
          this->linkColIndicesNC().push_back( beginIndex );
          this->linkColClidsNC().push_back( clid );
+       }
+       else {
+
+         // Over-write an existing object
+         const std::vector< std::string >& names = linkColNames();
+         for( size_t nameIndex = 0; nameIndex < names.size(); ++nameIndex ) {
+
+           if( names[ nameIndex ] == name ) {
+
+             this->linkColKeysNC()[ nameIndex ] = key;
+             this->linkColIndicesNC()[ nameIndex ] = beginIndex;
+             this->linkColClidsNC()[ nameIndex ] = clid;
+             break; // Names are unique, so stop once found
+           }
+         }
        }
      }
    }
