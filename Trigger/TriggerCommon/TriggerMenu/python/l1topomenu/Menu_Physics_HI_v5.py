@@ -10,8 +10,8 @@ def defineMenu():
 
     """
 
-    import Menu_MC_pp_v8
-    Menu_MC_pp_v8.defineMenu()
+    import Menu_MC_pp_v7
+    Menu_MC_pp_v7.defineMenu()
     
 
     

@@ -7,14 +7,14 @@ log = logging.getLogger( 'TriggerMenu.l1menu.Menu_MC_PhaseII' )
 
 def defineMenu():
     """
-    Use MC_pp_v8 L1 menu for this
+    Use MC_pp_v7 L1 menu for this
     """
     
-    import Menu_MC_pp_v8
+    import Menu_MC_pp_v7
     from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
 
 
-    Menu_MC_pp_v8.defineMenu()
+    Menu_MC_pp_v7.defineMenu()
 
     Lvl1Flags.thresholds += [
         ]
