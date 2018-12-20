@@ -3,7 +3,7 @@
 */
 
 //////////////////////////////////////////////////////////////////
-// SCT_ClusterValidationNtupleWriter.h, (c) ATLAS Detector software
+// SCT_ClusterValidationNtupleWriter.h
 ///////////////////////////////////////////////////////////////////
 
 #ifndef INDET_SCT_CLUSTERVALIDATIONNTUPLEWRITER_H
@@ -32,30 +32,30 @@ class TTree;
 
 namespace InDet {
 
-/** @class SCT_ClusterValidationNtupleWriter
+  /** @class SCT_ClusterValidationNtupleWriter
  
-   Validation Algorithm to retrieve a SCT_ClusterContainer, loop over the entries and fill
-   the validation ntuple with RIO specific entries.
+      Validation Algorithm to retrieve a SCT_ClusterContainer, loop over the entries and fill
+      the validation ntuple with RIO specific entries.
    
-   @author Sebastian.Fleischmann@cern.ch 
-   @author Peter.Vankov@cern.ch
-*/
+      @author Sebastian.Fleischmann@cern.ch 
+      @author Peter.Vankov@cern.ch
+  */
 
-class SCT_ClusterValidationNtupleWriter : public AthAlgorithm {
-public:
+  class SCT_ClusterValidationNtupleWriter : public AthAlgorithm {
+  public:
     /** Standard Athena-Algorithm Constructor */
     SCT_ClusterValidationNtupleWriter(const std::string& name, ISvcLocator* pSvcLocator);
     /** Default Destructor */
     ~SCT_ClusterValidationNtupleWriter() = default;
 
     /** standard Athena-Algorithm method */
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
     /** standard Athena-Algorithm method */
-    StatusCode execute();
+    virtual StatusCode execute() override;
     /** standard Athena-Algorithm method */
-    StatusCode finalize();
+    virtual StatusCode finalize() override;
 
-private:
+  private:
 
     const SCT_ID* m_sctid; //!< SCT ID helper
     const InDet::SCT_ClusterContainer* m_riocontainer; //!< container of RIOs
@@ -70,14 +70,14 @@ private:
 
     ToolHandle<ISCT_ByteStreamErrorsTool> m_byteStreamErrTool{this, "ByteStreamErrTool", "SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};
     ToolHandle<ISCT_CablingTool> m_cabling{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
-    std::string m_ntupleFileName;     //!< jobOption: Ntuple file name
-    std::string m_ntupleDirName;      //!< jobOption: Ntuple directory name
-    std::string m_ntupleTreeName;     //!< jobOption: Ntuple tree name
-    bool        m_fillCluster;        //!< flag to book, access and fill Cluster or not
-    bool        m_fillRDO;            //!< flag to book, access and fill RDO or not
-    bool        m_fillSpacePoint;     //!< flag to book, access and fill SpacePoints or not
-    bool        m_fillBSErrs;         //!< flag to book, access and fill ByteStream errors or not
-    bool        m_doHitsOnTracks;     //!< flag to book, access and fill RDO isOnTrack or not
+    StringProperty m_ntupleFileName{this, "NtupleFileName", "/NTUPLES/FILE1"};     //!< jobOption: Ntuple file name
+    StringProperty m_ntupleDirName{this, "NtupleDirectoryName", "FitterValidation"};      //!< jobOption: Ntuple directory name
+    StringProperty m_ntupleTreeName{this, "NtupleTreeName", "RIOs"};     //!< jobOption: Ntuple tree name
+    BooleanProperty m_fillCluster{this, "FillCluster", false};        //!< flag to book, access and fill Cluster or not
+    BooleanProperty m_fillRDO{this, "FillRDO", true};            //!< flag to book, access and fill RDO or not
+    BooleanProperty m_fillSpacePoint{this, "FillSpacePoint", false};     //!< flag to book, access and fill SpacePoints or not
+    BooleanProperty m_fillBSErrs{this, "FillBSErrs", true};         //!< flag to book, access and fill ByteStream errors or not
+    BooleanProperty m_doHitsOnTracks{this, "DoHitsOnTracks", false};     //!< flag to book, access and fill RDO isOnTrack or not
 
     //! pointer to the ntuple tree.
     TTree* m_nt;
@@ -145,9 +145,8 @@ private:
     std::vector<int>* m_scterr_channel;   //!< online channel no. of link.
     std::vector<int>* m_scterr_type;      //!< type of BS error (as defined in SCT_ByteStreamErrs enum in ISCT_ByteStreamErrorsSvc.h)
 
-};
+  };
 
 } // close of namespace
 
 #endif // INDET_SCT_CLUSTERVALIDATIONNTUPLEWRITER_H
-

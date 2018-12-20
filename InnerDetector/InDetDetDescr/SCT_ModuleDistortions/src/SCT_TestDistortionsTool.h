@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_TestDistortionsTool_h
@@ -15,32 +15,31 @@
 
 //STL
 #include <string>
-#include <memory>
 
 //ROOT
 #include "TH2F.h"
 #include "TH3F.h"
 
 class SCT_TestDistortionsTool:public AthAlgorithm {
-  public:
-    SCT_TestDistortionsTool(const std::string& name, ISvcLocator* pSvcLocator);
-    ~SCT_TestDistortionsTool() = default;
-    // Standard Gaudi functions
-    StatusCode initialize(); //!< Gaudi initialiser
-    StatusCode execute();    //!< Gaudi executer
-    StatusCode finalize();   //!< Gaudi finaliser
+ public:
+  SCT_TestDistortionsTool(const std::string& name, ISvcLocator* pSvcLocator);
+  ~SCT_TestDistortionsTool() = default;
+  // Standard Gaudi functions
+  virtual StatusCode initialize() override; //!< Gaudi initialiser
+  virtual StatusCode execute() override;    //!< Gaudi executer
+  virtual StatusCode finalize() override;   //!< Gaudi finaliser
     
-  private:
-    ToolHandle<ISCT_ModuleDistortionsTool> m_SCTDistoTool
-       {this,"SCT_DistortionsTool","SCT_DistortionsTool",""};
+ private:
+  ToolHandle<ISCT_ModuleDistortionsTool> m_SCTDistoTool
+    {this,"SCT_DistortionsTool","SCT_DistortionsTool",""};
 
-    std::unique_ptr<TH2F> m_ZvsX;
-    std::unique_ptr<TH2F> m_ZvsY;
-    std::unique_ptr<TH3F> m_XYZ;
-    std::unique_ptr<TH2F> m_outerXedge;
-    std::unique_ptr<TH2F> m_outerYedge;
-    std::unique_ptr<TH2F> m_outerX;
-    std::unique_ptr<TH2F> m_outerY;
+  TH2F* m_ZvsX;
+  TH2F* m_ZvsY;
+  TH3F* m_XYZ;
+  TH2F* m_outerXedge;
+  TH2F* m_outerYedge;
+  TH2F* m_outerX;
+  TH2F* m_outerY;
 
 };
-#endif
+#endif // SCT_TestDistortionsTool_h
