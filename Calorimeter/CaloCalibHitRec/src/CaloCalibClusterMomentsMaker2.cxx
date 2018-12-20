@@ -664,6 +664,19 @@ CaloCalibClusterMomentsMaker2::execute(const EventContext& ctx,
   std::vector<double> engCalibFrac;
   engCalibFrac.resize(kCalibFracMax, 0.0);
 
+  std::map<unsigned int,int> truthBarcodeToPdgCodeMap;
+  
+  //loop on truth particle container is slow, so put needed information in a map for faster key lookup in the CaloCluster loop
+  for ( auto thisTruthParticle : *truthParticleContainerReadHandle){	  
+
+    if (!thisTruthParticle){
+      ATH_MSG_WARNING("Got invalid pointer to TruthParticle");
+      continue;
+    }
+    
+    truthBarcodeToPdgCodeMap[thisTruthParticle->barcode()] = thisTruthParticle->pdgId();    
+  }//truth particle loop
+  
   // assign moments
   for( clusIter = theClusColl->begin(),iClus=0;  clusIter!=clusIterEnd;clusIter++,iClus++) {
     xAOD::CaloCluster * theCluster = *clusIter;
@@ -700,7 +713,7 @@ CaloCalibClusterMomentsMaker2::execute(const EventContext& ctx,
           - eng_calib_dead_leakage;
 
     if(doCalibFrac){
-      //get_calib_frac(*(truthParticleContainerReadHandle.get()), clusInfo, engCalibFrac);
+      get_calib_frac(truthBarcodeToPdgCodeMap, clusInfo, engCalibFrac);
     }
 
     if ( m_momentsNames.size() > 0 ) {
@@ -807,25 +820,29 @@ double CaloCalibClusterMomentsMaker2::angle_mollier_factor(double x) const
 /* ****************************************************************************
 Calculation of energy fraction caused by particles of different types
 **************************************************************************** */
-void CaloCalibClusterMomentsMaker2::get_calib_frac(const TruthParticleContainer& truthParticles,
+void CaloCalibClusterMomentsMaker2::get_calib_frac(const std::map<unsigned int,int>& truthBarcodeToPdgCodeMap,
                                                    const MyClusInfo& clusInfo, std::vector<double> &engFrac) const
 {
+
+
+  
+  
   static unsigned int nWarnings = 0;
   engFrac.resize(kCalibFracMax, 0.0);
   if(clusInfo.engCalibIn.engTot <= 0.0) return;
   // each MyClusInfo has a map of particle's barcode and particle calibration deposits in given cluster
   for(std::map<int, MyClusInfo::ClusCalibEnergy >::const_iterator it = clusInfo.engCalibParticle.begin(); it != clusInfo.engCalibParticle.end(); it++){
-    int barcode = it->first;
-    const TruthParticle* p( 0 );
-    p = truthParticles.truthParticle( barcode );
-    if( 0 == p ) {
-      if(nWarnings <10 ) {
-        std::cout << "CaloCalibClusterMomentsMaker2::get_calib_frac -> Error! No particle with barcode " << barcode << " found in TruthParticleContainer" << std::endl;
-        nWarnings++;
+    unsigned int barcode = it->first;
+    int pdg_id = 0;
+    try { pdg_id = truthBarcodeToPdgCodeMap.at(barcode); }
+    catch (const std::out_of_range& e){
+      if (nWarnings < 10 ){
+	ATH_MSG_WARNING("truthBarcodeToPdgCodeMap cannot find an entry with barcode " << barcode);
+	nWarnings++;
       }
       continue;
     }
-    int pdg_id = p->genParticle()->pdg_id();
+      
     if( abs(pdg_id) == 211) {
       engFrac[kCalibFracHAD] += it->second.engTot;
     }else if( pdg_id == 111 || pdg_id == 22 || abs(pdg_id)==11) {

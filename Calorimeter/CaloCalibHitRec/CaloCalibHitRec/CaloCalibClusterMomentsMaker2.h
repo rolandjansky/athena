@@ -238,7 +238,7 @@ class CaloCalibClusterMomentsMaker2: public AthAlgTool, virtual public CaloClust
   int m_MatchDmType;
 
   double angle_mollier_factor(double x) const;
-  void get_calib_frac(const TruthParticleContainer& truthParticles,
+  void get_calib_frac(const std::map<unsigned int,int>& truthBarcodeToPdgCodeMap,
                       const MyClusInfo& clusInfo, std::vector<double> &engFrac) const;
 };
 
