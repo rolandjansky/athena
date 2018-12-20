@@ -22,6 +22,7 @@
 // STL includes
 #include <string>
 #include <vector>
+#include <mutex>
 
 // FrameWork includes
 #include "GaudiKernel/ISvcLocator.h"
@@ -127,7 +128,7 @@ public:
   void addEvent( CutIdentifier cutID, double weight ) override final;
 
   /// Get a CutBookkeeper given a CutID
-  xAOD::CutBookkeeper* getCutBookkeeper( const CutIdentifier cutID );
+  xAOD::CutBookkeeper* getCutBookkeeper( const CutIdentifier cutID ) const;
 
   void print();
 
@@ -174,6 +175,8 @@ private:
   /// This internal map keeps the association between the instance identifier of each algorithm
   /// to the pointer of associated CutBookkeeper
   CutIDMap_t m_ebkMap;
+
+  mutable std::recursive_mutex m_addeventMutex;
 
 public:
 

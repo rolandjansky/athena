@@ -20,8 +20,6 @@ FullColl            DEBUG In initialize
 FullColl            DEBUG Found  'StoreName':StoreGateSvc store.
 FullColl.Regist...  DEBUG Property update for OutputLevel : new value = 2
 FullColl            DEBUG  Tool initialized
-FullColl            DEBUG Retrieved IncidentSvc
-FullColl            DEBUG Added MetaDataStop listener
 FullColl            DEBUG  Not class requested by Tool, skipping (40774348,"RunEventTag") 
 FullColl            DEBUG  Not class requested by Tool, skipping (222376821,"*") 
 FullColl            DEBUG End initialize 
@@ -31,8 +29,8 @@ FullColl            DEBUG Adding private ToolHandle tool FullColl.RegistrationSt
 FullColl            DEBUG Data Deps for FullColl
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 EventSelector       DEBUG Try item: "PFN:NullableCollection.root" from the collection list.
-FullColl            DEBUG handle() incident type: MetaDataStop
 FullColl.Regist...   INFO Collection Events output: 0
+FullColl.Regist...   INFO Unable to register collection: PFN 'RootCollection||PFN:CheckNull.root' already registered ( POOL : "registerPFN" from "FileCatalog" )
 ReadData             INFO in finalize()
 ReadData            DEBUG Calling destructor
 FullColl            DEBUG In finalize
