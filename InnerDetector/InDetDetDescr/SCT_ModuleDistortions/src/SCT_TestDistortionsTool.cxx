@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Test SCT_DistortionsTool.cxx
@@ -7,25 +7,8 @@
 //Package
 #include "SCT_TestDistortionsTool.h"
 
-//Athena
-#include "InDetIdentifier/SCT_ID.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
-#include "PathResolver/PathResolver.h"
-
 //Gaudi
 #include "GaudiKernel/ITHistSvc.h"
-
-//CLHEP
-#include "CLHEP/Geometry/Vector3D.h"
-#include "CLHEP/Geometry/Point3D.h"
-#include "CLHEP/Random/RandGauss.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-
-//STL
-#include <cmath>
-#include <fstream>
-#include <sstream>
-#include <string>
 
 SCT_TestDistortionsTool::SCT_TestDistortionsTool(const std::string& name, ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator)
@@ -38,20 +21,27 @@ SCT_TestDistortionsTool::initialize() {
   ITHistSvc* tHistSvc;
   StatusCode sc = Gaudi::svcLocator()->service("THistSvc", tHistSvc);
   if (sc.isFailure()) {
-      ATH_MSG_FATAL ("THistSvc not found!");
-      return StatusCode::FAILURE;
-    }
+    ATH_MSG_FATAL ("THistSvc not found!");
+    return StatusCode::FAILURE;
+  }
 
   ATH_CHECK(m_SCTDistoTool.retrieve());
   ATH_MSG_INFO("Test algorithm for SCT_DistortionsTool");
 
-  m_ZvsX = std::make_unique<TH2F>("delZvsX", "delZvsX", 128, -64, 64, 100, -0.05, 0.15);
-  m_ZvsY = std::make_unique<TH2F>("delZvsY", "delZvsY", 66, -33, 33, 100, -0.05, 0.15);
-  m_XYZ = std::make_unique<TH3F>("3Dplot", "3Dplot", 128, -64, 64, 66, -33, 33, 100, -0.05, 0.15);
-  m_outerXedge = std::make_unique<TH2F>("outerXedge", "outerXedge", 128, -64, 64, 100, -0.05, 0.15);
-  m_outerYedge = std::make_unique<TH2F>("outerYedge", "outerYedge", 66, -33, 33, 100, -0.05, 0.15);
-  m_outerX = std::make_unique<TH2F>("outerXedge2D", "outerXedge2D", 128, -64, 64, 100, -0.05, 0.15);
-  m_outerY = std::make_unique<TH2F>("outerYedge2D", "outerYedge2D", 66, -33, 33, 100, -0.05, 0.15);
+  m_ZvsX = new TH2F("delZvsX", "delZvsX", 128, -64, 64, 100, -0.05, 0.15);
+  ATH_CHECK(tHistSvc->regHist("/SCT_TestDistortionsTool/delZvsX", m_ZvsX));
+  m_ZvsY = new TH2F("delZvsY", "delZvsY", 66, -33, 33, 100, -0.05, 0.15);
+  ATH_CHECK(tHistSvc->regHist("/SCT_TestDistortionsTool/delZvsY", m_ZvsY));
+  m_XYZ = new TH3F("3Dplot", "3Dplot", 128, -64, 64, 66, -33, 33, 100, -0.05, 0.15);
+  ATH_CHECK(tHistSvc->regHist("/SCT_TestDistortionsTool/3Dplot", m_XYZ));
+  m_outerXedge = new TH2F("outerXedge", "outerXedge", 128, -64, 64, 100, -0.05, 0.15);
+  ATH_CHECK(tHistSvc->regHist("/SCT_TestDistortionsTool/outerXedge", m_outerXedge));
+  m_outerYedge = new TH2F("outerYedge", "outerYedge", 66, -33, 33, 100, -0.05, 0.15);
+  ATH_CHECK(tHistSvc->regHist("/SCT_TestDistortionsTool/outerYedge", m_outerYedge));
+  m_outerX = new TH2F("outerXedge2D", "outerXedge2D", 128, -64, 64, 100, -0.05, 0.15);
+  ATH_CHECK(tHistSvc->regHist("/SCT_TestDistortionsTool/outerXedge2D", m_outerX));
+  m_outerY = new TH2F("outerYedge2D", "outerYedge2D", 66, -33, 33, 100, -0.05, 0.15);
+  ATH_CHECK(tHistSvc->regHist("/SCT_TestDistortionsTool/outerYedge2D", m_outerY));
 
   return StatusCode::SUCCESS;
 }
