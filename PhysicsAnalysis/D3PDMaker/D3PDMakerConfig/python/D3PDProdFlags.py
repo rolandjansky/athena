@@ -201,7 +201,7 @@ listAllKnownD3PD.append (prodFlags.WriteTrigMuonD3PD)
 
 # Higgs D3PDs
 _importFlagsFromModule ('HSG2DPDUtils.HSG2D3PDProdFlags')
-_importFlagsFromModule ('HSG5DPDUtils.HSG5D3PDProdFlags')
+#_importFlagsFromModule ('HSG5DPDUtils.HSG5D3PDProdFlags')
 
 # L1Calo D3PDs
 #_importFlagsFromModule ('L1CaloD3PDMaker.L1CaloD3PDProdFlags')
