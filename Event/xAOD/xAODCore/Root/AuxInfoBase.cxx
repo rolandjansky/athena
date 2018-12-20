@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: AuxInfoBase.cxx 793737 2017-01-24 20:11:10Z ssnyder $
@@ -576,7 +576,7 @@ namespace xAOD {
       return;
    }
 
-   const AuxInfoBase::auxid_set_t&
+   AuxInfoBase::auxid_set_t
    AuxInfoBase::getSelectedAuxIDs() const {
 
       // Guard against multi-threaded execution:
@@ -593,8 +593,7 @@ namespace xAOD {
 
       // In case we don't use an internal store, there are no dynamic
       // variables:
-      static auxid_set_t dummy (0);
-      return dummy;
+      return auxid_set_t();
    }
 
    //

@@ -153,7 +153,7 @@ namespace xAOD {
       virtual void selectAux( const std::set< std::string >& attributes ) override;
 
       /// Get the IDs of the selected dynamic Aux variables (for writing)
-      virtual const SG::auxid_set_t& getSelectedAuxIDs() const override;
+      virtual SG::auxid_set_t getSelectedAuxIDs() const override;
 
       /// @}
 

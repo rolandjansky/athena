@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: AuxSelection.h 583607 2014-02-17 11:02:08Z krasznaa $
@@ -37,14 +37,12 @@ namespace xAOD {
       /// Select which variables should be written out
       virtual void selectAux( const std::set< std::string >& attributes );
       /// Return which variables were selected to be written out
-      virtual const SG::auxid_set_t&
+      virtual SG::auxid_set_t
       getSelectedAuxIDs( const SG::auxid_set_t& fullset ) const;
 
    protected:
       /// Properties following the variable selection convention
       std::set< std::string > m_names;
-      /// Auxiliary IDs of the variables that were selected from the last list
-      mutable SG::auxid_set_t m_auxids;
 
    }; // class AuxSelection
 

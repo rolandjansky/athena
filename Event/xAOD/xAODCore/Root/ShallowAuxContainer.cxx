@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ShallowAuxContainer.cxx 793737 2017-01-24 20:11:10Z ssnyder $
@@ -484,15 +484,14 @@ namespace xAOD {
       return;
    }
 
-   const ShallowAuxContainer::auxid_set_t&
+   ShallowAuxContainer::auxid_set_t
    ShallowAuxContainer::getSelectedAuxIDs() const {
 
       if( m_shallowIO ) {
          if( m_storeIO ) {
             return m_selection.getSelectedAuxIDs( m_store->getAuxIDs() );
          } else {
-            static const auxid_set_t dummy (0);
-            return dummy;
+            return auxid_set_t();
          }
       } else {
          return m_selection.getSelectedAuxIDs( getAuxIDs() );

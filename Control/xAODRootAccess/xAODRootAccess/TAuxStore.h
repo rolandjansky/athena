@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TAuxStore.h 793778 2017-01-25 04:06:29Z ssnyder $
@@ -175,7 +175,7 @@ namespace xAOD {
       virtual void selectAux( const std::set< std::string >& attributes );
 
       /// Get the IDs of the selected aux variables
-      virtual const auxid_set_t& getSelectedAuxIDs() const;
+      virtual auxid_set_t getSelectedAuxIDs() const;
 
       /// @}
 
