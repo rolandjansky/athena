@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
@@ -7,11 +7,10 @@
 #include <vector>
 
 #include "SGTools/DataProxy.h"
-#include "SGTools/BaseInfo.h"
-
 #include "AthenaKernel/IAddressProvider.h"
 #include "AthenaKernel/IProxyRegistry.h"
 #include "AthenaKernel/EventContextClid.h"
+#include "AthenaKernel/BaseInfo.h"
 
 #include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/IConversionSvc.h"
