@@ -32,8 +32,6 @@ else
    echo "INFO: setting up for ${BRANCH}"
 fi
 asetup "${ART_PROJECT}" --platform "${ART_PLATFORM}" --releasebase "${RELEASE_BASE}"/build/install --noLcgReleaseBase
-lsetup art
-
 
 # setup AtlasBuildBranch since that is not set bu the above asetup for the local build setup
 export AtlasBuildBranch=${BRANCH}
@@ -64,18 +62,21 @@ fi
 # run build tests
 SUBDIR=${AtlasBuildBranch}/${AtlasProject}/${ART_PLATFORM}
 OUTDIR="${RELEASE_BASE}/art-build/${SUBDIR}/${AtlasBuildStamp}"
+echo "INFO: Source directory ${OUTDIR}"
 CMD="art.py run ${RUN_ALL_TESTS} ${RELEASE_BASE}/build/install/${AtlasProject}/*/InstallArea/${ART_PLATFORM}/src ${OUTDIR}"
 echo "${CMD}"
 RESULT=$(eval "${CMD}")
 echo "${RESULT}"
 
 # resetting the LD_LIBRARY_PATH, to be able to use xrdcp from /usr/bin/xrdcp
+echo "INFO: Resetting LD_LIBRARY_PATH"
 export LD_LIBRARY_PATH=""
 
 # copy the test results to EOS area
 TARGETDIR=/eos/atlas/atlascerngroupdisk/data-art/build-output/${SUBDIR}
+echo "INFO: Target directory ${TARGETDIR}"
 if [[ ! -e ${TARGETDIR} ]]; then
-  echo Target directory "${TARGETDIR}"
+  echo "INFO: Target directory does not exist, creating ${TARGETDIR}"
   mkdir -p "${TARGETDIR}"
   /usr/bin/xrdcp -vr "${OUTDIR}" "${TARGETDIR}"
 fi
