@@ -205,7 +205,11 @@ Run2MCTriggers=["L1_3J20_4J20.0ETA49_MJJ-400",
                 "L1_EM13VH", # based on TriggerMenu-00-09-41-12 for MC15 production
                 "L1_2EM15VH",
                 "L1_J100",
-                "L1_J75_3J20"] # added on May 2016
+                "L1_J75_3J20",
+                "L1_4J15.0ETA25",
+                "L1_J40.0ETA25_2J25_J20.31ETA49",
+                "L1_J25.0ETA23_2J15.31ETA49",
+] # added on May 2016
 
 
 from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__SkimmingToolHIGG5VBF
