@@ -35,7 +35,7 @@ class TrigMissingETHypoAlgMT : public ::HypoBase {
 
   // TODO: Consider taking muonContainer etc in case they are needed in future.
   StatusCode decide(const xAOD::TrigMissingETContainer*,
-                    std::unique_ptr<DecisionContainer>& newDecisions,
+                    TrigCompositeUtils::DecisionContainer* newDecisions,
                     const DecisionContainer* previousDecisions
         ) const;
   StatusCode fillMonitoringHistograms(const xAOD::TrigMissingETContainer*) const;

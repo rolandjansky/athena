@@ -73,18 +73,14 @@ StatusCode TrigMissingETHypoAlgMT::execute( const EventContext& context ) const 
 
   // Make a new Decisions container which will contain the previous
   // decisions, and the one for this hypo.
-  auto newDecisions = std::make_unique<DecisionContainer>();
-  auto aux = std::make_unique<DecisionAuxContainer>();
-  newDecisions->setStore(aux.get());
+  SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 
+  auto newDecisions = outputHandle.ptr();
 
 
   // Make trigger decisions and save to "newDecisions"
   CHECK(decide(metContainer, newDecisions, prevDecisions));
   fillMonitoringHistograms(metContainer);
 
-  // Write out decisions
-  auto outputHandle = SG::makeHandle(decisionOutput(), context);
-  CHECK( outputHandle.record( std::move( newDecisions ), std::move( aux ) ) );
   ATH_MSG_DEBUG ( "Exit with "<<outputHandle->size() <<" decisions");
 
 
@@ -106,12 +102,12 @@ StatusCode TrigMissingETHypoAlgMT::execute( const EventContext& context ) const 
 
 
 StatusCode TrigMissingETHypoAlgMT::decide(const xAOD::TrigMissingETContainer* metContainer,
-                         std::unique_ptr<DecisionContainer>& nDecisions,
+                         TrigCompositeUtils::DecisionContainer*  nDecisions,
                          const DecisionContainer* oDecisions) const{
 
   ATH_MSG_DEBUG("Deciding" << name() );
   auto previousDecision = (*oDecisions)[0];
-  auto newdecision = TrigCompositeUtils::newDecisionIn(nDecisions.get());
+  auto newdecision = TrigCompositeUtils::newDecisionIn(nDecisions);
 
   
   const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs{
