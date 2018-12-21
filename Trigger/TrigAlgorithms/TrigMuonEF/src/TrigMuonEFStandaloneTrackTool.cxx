@@ -145,7 +145,8 @@ TrigMuonEFStandaloneTrackTool::TrigMuonEFStandaloneTrackTool(const std::string& 
     m_tgcKey("TGC_Measurements"),
     m_tgcKeyNextBC("TGC_MeasurementsNextBC"),
     m_cscKey("CSC_Clusters"),
-    m_mdtKey("MDT_DriftCircles")
+    m_mdtKey("MDT_DriftCircles"),
+    m_ignoreCSC(true)
 {
   m_hashlist.reserve(4);
 
@@ -196,6 +197,7 @@ TrigMuonEFStandaloneTrackTool::TrigMuonEFStandaloneTrackTool(const std::string& 
   declareProperty("TgcPrepDataContainerNextBC", m_tgcKeyNextBC);
   declareProperty("MdtPrepDataContainer", m_mdtKey);
   declareProperty("CscPrepDataContainer", m_cscKey);
+  declareProperty("IgnoreMisalginedCSCs", m_ignoreCSC);
 
   clearRoiCache();
  
@@ -275,6 +277,7 @@ StatusCode TrigMuonEFStandaloneTrackTool::initialize()
           << m_decodeMdtBS.name() << "       " << m_decodeMdtBS << endmsg;
     msg() << MSG::DEBUG
           << m_decodeRpcBS.name() << "       " << m_decodeRpcBS << endmsg;
+
     msg() << MSG::DEBUG
 	  << "doTimeOutChecks                " << m_doTimeOutChecks << endmsg;
     msg() << MSG::DEBUG
@@ -1137,7 +1140,6 @@ if (m_useMdtData>0) {
       mdtPrds=MdtCont.cptr();
       msg()<< MSG::DEBUG << " MDT PRD Container retrieved" << endmsg;
     }
-
     
     // Get MDT collections
     MdtPrepDataContainer::const_iterator MDTcoll;
@@ -1381,6 +1383,10 @@ if (m_useMdtData>0) {
     CscPrepDataContainer::const_iterator CSCcoll;
     for(std::vector<IdentifierHash>::const_iterator idit = csc_hash_ids.begin();
 	idit != csc_hash_ids.end(); ++idit) {
+      if(m_ignoreCSC && (*idit==16 || *idit==17)){
+	ATH_MSG_DEBUG("Skipping misaligned chamber with hashid "<<*idit);
+	continue;
+      }
       CSCcoll = cscPrds->indexFind(*idit);
       if( CSCcoll == cscPrds->end() ) continue;
       if( (*CSCcoll)->size() == 0)    continue;
@@ -1808,7 +1814,7 @@ TrigMuonEFStandaloneTrackTool::buildTracks(const MuonSegmentCombinationCollectio
 	else
 	  chi2prob = 0.;
       }
-      double eta =  -log(fabs(tan(theta*0.5)));
+      double eta =  -log(tan(theta*0.5));
       
       unsigned short int nRpcEtaHits = 0;
       unsigned short int nRpcPhiHits = 0;
@@ -1973,7 +1979,7 @@ TrigMuonEFStandaloneTrackTool::extrapolate(const xAOD::TrackParticleContainer* s
       else
 	chi2prob = 0.;
     }
-    double eta =  -log(fabs(tan(theta*0.5)));
+    double eta =  -log(tan(theta*0.5));
     
     unsigned short int nRpcEtaHits = 0;
     unsigned short int nRpcPhiHits = 0;
