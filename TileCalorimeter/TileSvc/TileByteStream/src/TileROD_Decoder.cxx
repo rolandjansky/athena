@@ -77,7 +77,9 @@ TileROD_Decoder::TileROD_Decoder(const std::string& type, const std::string& nam
   m_WarningCounter = 0;
   m_ErrorCounter = 0;
   
-  m_OFWeights.resize(4 * TileCalibUtils::MAX_DRAWERIDX, NULL);
+  for (std::atomic<const uint32_t*>& p : m_OFPtrs) {
+    p = nullptr;
+  }
 }
 
 void TileROD_Decoder::updateAmpThreshold(float ampMinThresh) {
@@ -91,9 +93,6 @@ void TileROD_Decoder::updateAmpThreshold(float ampMinThresh) {
 TileROD_Decoder::~TileROD_Decoder() {
   if (m_hid2re) delete m_hid2re;
   if (m_hid2reHLT) delete m_hid2reHLT;
-  
-  for (unsigned int id = 0; id < 4 * TileCalibUtils::MAX_DRAWERIDX; ++id)
-    if (m_OFWeights[id]) delete m_OFWeights[id];
 }
 
 const InterfaceID& TileROD_Decoder::interfaceID() {
@@ -4085,7 +4084,9 @@ void TileROD_Decoder::initTileMuRcvHid2re() {
   initHid2re();
 }
 
-uint32_t* TileROD_Decoder::getOFW(int fragId, int unit) {
+const uint32_t*
+TileROD_Decoder::getOFW(int fragId, int unit)
+{
   if (unit >> 2) {
     ATH_MSG_WARNING( "Wrong online reconstruction units for getOFW: unit=" << unit
                     << " => assume unit=" << (unit & 3) );
@@ -4094,47 +4095,56 @@ uint32_t* TileROD_Decoder::getOFW(int fragId, int unit) {
   
   uint32_t drawerIdx = TileCalibUtils::getDrawerIdxFromFragId(fragId);
   size_t id = (drawerIdx << 2 | unit);
-  std::vector<uint32_t>* ofw = m_OFWeights[id];
+  const uint32_t* ofptr = m_OFPtrs[id];
+  if (ofptr) {
+    return ofptr;
+  }
+
+  std::lock_guard<std::mutex> lock (m_OFWeightMutex);
+  ofptr = m_OFPtrs[id];
+  if (ofptr) {
+    return ofptr;
+  }
+
+  std::vector<uint32_t>& ofw = m_OFWeights[id];
   
-  if (ofw == NULL) {
-    ATH_MSG_DEBUG("getOFC fragId: 0x" << MSG::hex << fragId << MSG::dec << " Unit: " << unit);
-    TileRawChannelUnit::UNIT chan_unit = (TileRawChannelUnit::UNIT) (unit
-                                                                     + TileRawChannelUnit::OnlineOffset);
+  ATH_MSG_DEBUG("getOFC fragId: 0x" << MSG::hex << fragId << MSG::dec << " Unit: " << unit);
+  TileRawChannelUnit::UNIT chan_unit = (TileRawChannelUnit::UNIT) (unit
+                                                                   + TileRawChannelUnit::OnlineOffset);
     
-    ofw = m_OFWeights[id] = new std::vector<uint32_t>;
+  bool of2 = true;
+  const TileOfcWeightsStruct* weights;
+  std::vector<double> a(7), b(7), c(7), g(7), dg(7);
     
-    bool of2 = true;
-    const TileOfcWeightsStruct* weights;
-    std::vector<double> a(7), b(7), c(7), g(7), dg(7);
-    
-    for (int ch = 0; ch < 48; ++ch) {
-      for (int gain = 0; gain < 2; ++gain) {
-        float phase = -m_tileToolTiming->getSignalPhase(drawerIdx, ch, gain);
-        weights = m_tileCondToolOfcCool->getOfcWeights(drawerIdx, ch, gain, phase, of2);
+  for (int ch = 0; ch < 48; ++ch) {
+    for (int gain = 0; gain < 2; ++gain) {
+      float phase = -m_tileToolTiming->getSignalPhase(drawerIdx, ch, gain);
+      weights = m_tileCondToolOfcCool->getOfcWeights(drawerIdx, ch, gain, phase, of2);
         
-        double calib = m_tileToolEmscale->channelCalibOnl(drawerIdx, ch, gain, 1.0, chan_unit);
+      double calib = m_tileToolEmscale->channelCalibOnl(drawerIdx, ch, gain, 1.0, chan_unit);
         
-        if (unit != 0 && gain) calib *= 64.0;
+      if (unit != 0 && gain) calib *= 64.0;
         
-        for (int i = 0; i < 7; ++i) {
-          a[i] = weights->w_a[i];
-          b[i] = weights->w_b[i];
-          c[i] = weights->w_c[i];
-          g[i] = weights->g[i];
-          dg[i] = weights->dg[i];
-        }
-        Format6(a, b, c, g, dg
-                , ch // channel
-                , 0 // phase = 0 poskol'ku ne ponyal kak okruglyat'
-                , calib // calibration
-                , *ofw
-                , false // verbose
-                );
-      } // gain
-    } // ch
-  } // if ofw == NULL
+      for (int i = 0; i < 7; ++i) {
+        a[i] = weights->w_a[i];
+        b[i] = weights->w_b[i];
+        c[i] = weights->w_c[i];
+        g[i] = weights->g[i];
+        dg[i] = weights->dg[i];
+      }
+      Format6(a, b, c, g, dg
+              , ch // channel
+              , 0 // phase = 0 poskol'ku ne ponyal kak okruglyat'
+              , calib // calibration
+              , ofw
+              , false // verbose
+              );
+    } // gain
+  } // ch
   
-  return &((*ofw)[0]);
+  ofptr = m_OFPtrs[id] = ofw.data();
+  
+  return ofptr;
 }
 
 /* TMDB dedicated functions will have a group of functions for each dedicated container 
