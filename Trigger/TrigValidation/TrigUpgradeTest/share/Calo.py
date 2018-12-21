@@ -44,15 +44,11 @@ if TriggerFlags.doCalo:
      from TrigT2CaloCommon.CaloDef import createFastCaloSequence
      from AthenaCommon.Constants import DEBUG
 
-     print "CHECK"
-     print topSequence.L1DecoderTest
-
      filterL1RoIsAlg = RoRSeqFilter( "filterL1RoIsAlg")
      filterL1RoIsAlg.Input = ["L1EM"]
      filterL1RoIsAlg.Output = ["FilteredEMRoIDecisions"]
      filterL1RoIsAlg.Chains = [ "HLT_e3_etcut", "HLT_e5_etcut", "HLT_e7_etcut" ]
      filterL1RoIsAlg.OutputLevel = DEBUG
-     print filterL1RoIsAlg
      steps+=stepSeq("finalCaloSequence", filterL1RoIsAlg, [ createFastCaloSequence() ])
 
   from AthenaCommon.AlgSequence import dumpMasterSequence
