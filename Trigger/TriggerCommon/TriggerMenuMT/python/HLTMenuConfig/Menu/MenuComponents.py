@@ -309,8 +309,8 @@ class MenuSequence():
         log.debug("set new Hypo %s for combo sequence %s "%(HypoAlg.name(), self.name))
         self.hypo= HypoAlgNode( Alg=HypoAlg)
     
-    def connectToFilter(self,sfilter, line):
-        new_output = "%s_from_%s"%(self.hypo.Alg.name(), line)
+    def connectToFilter(self, sfilter, line):
+        new_output = self.hypo.Alg.name()+"_decisions"
         self.hypo.addOutput(new_output)
 #        print self.hypo.readOutputList()
 #        print self.hypo.outputs
