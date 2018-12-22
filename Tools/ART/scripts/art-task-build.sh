@@ -75,8 +75,8 @@ export LD_LIBRARY_PATH=""
 # copy the test results to EOS area
 TARGETDIR=/eos/atlas/atlascerngroupdisk/data-art/build-output/${SUBDIR}
 echo "INFO: Target directory ${TARGETDIR}"
-if [[ ! -e ${TARGETDIR} ]]; then
-  echo "INFO: Target directory does not exist, creating ${TARGETDIR}"
-  mkdir -p "${TARGETDIR}"
+if [[ ! -e ${TARGETDIR}/${AtlasBuildStamp} ]]; then
+  echo "INFO: Target directory does not exist, creating ${TARGETDIR}/${AtlasBuildStamp}"
+  mkdir -p "${TARGETDIR}/${AtlasBuildStamp}"
   /usr/bin/xrdcp -vr "${OUTDIR}" "${TARGETDIR}"
 fi
