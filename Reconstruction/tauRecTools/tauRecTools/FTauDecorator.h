@@ -8,9 +8,6 @@
 // tauRecTools include(s)
 #include "tauRecTools/TauRecToolBase.h"
 
-// xAOD include(s)
-#include "xAODEventInfo/EventInfo.h"
-
 class FTauDecorator
 : public TauRecToolBase
 {
@@ -21,17 +18,9 @@ class FTauDecorator
   FTauDecorator(const std::string& name="FTauDecorator");
   virtual ~FTauDecorator();
     
-  StatusCode eventInitialize();
-  StatusCode execute(xAOD::TauJet& xTau);
-  StatusCode eventFinalize();
+  virtual StatusCode execute(xAOD::TauJet& xTau) override;
   
  private:
-  //LFstd::string m_tauContainerName;
-  //LFconst xAOD::EventInfo* m_xEventInfo;  //!
-  //LFconst xAOD::VertexContainer* m_xVertexContainer; //!
-  //LFint m_mu; //!
-  //LFint m_nVtxPU; //!
-  //LFbool m_emitVertexWarning=true; //!
   
 };
 

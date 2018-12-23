@@ -6,15 +6,10 @@
 #include "tauRecTools/FTauDecorator.h"
 
 // tools include(s) 
-//#include "TauAnalysisTools/HelperFunctions.h"
 
 //_____________________________________________________________________________
 FTauDecorator::FTauDecorator(const std::string& name) 
   : TauRecToolBase(name)
-  //, m_xEventInfo(0)
-  //, m_xVertexContainer(0) 
-  //, m_mu(0)
-  //, m_nVtxPU(0)
 {
 }
 
@@ -24,36 +19,24 @@ FTauDecorator::~FTauDecorator()
 }
 
 //_____________________________________________________________________________
-StatusCode FTauDecorator::eventInitialize()
-{
-
-  return StatusCode::SUCCESS;
-}
-
-//_____________________________________________________________________________
 StatusCode FTauDecorator::execute(xAOD::TauJet& xTau) {
   
 
-  // Decorate Tau width
-  //LF Decoration in 3 different ways for development purpose only
+  // Alternative Decorate Tau width
   
-  static SG::AuxElement::Accessor<float> acc_jetwidth("seedJetWidth");
-  acc_jetwidth(xTau) =  xTau.jetLink().isValid() ? xTau.jet()->auxdataConst<float>( "Width" ) : -1;
+  //static SG::AuxElement::Accessor<float> acc_jetwidth("seedJetWidth");
+  //acc_jetwidth(xTau) =  xTau.jetLink().isValid() ? xTau.jet()->auxdataConst<float>( "Width" ) : -1;
   
-  // Alternativ Decoration of jet seed variables
-  /*float width = -1.;
+  //Decoration of jet seed variables
+  float width = -1.;
+  float jvt = -1.;
   if (xTau.jetLink().isValid()) {
     width =  xTau.jet()->auxdataConst<float>( "Width" );
+    jvt   =  xTau.jet()->auxdataConst<float>( "Jvt" );
   }  
-  xTau.auxdata< float >( "seedJetWidth2" ) = width;
-  */
+  xTau.auxdata< float >( "seedJetWidth" ) = width;
+  xTau.auxdata< float >( "seedJetJvt" )   = jvt;  
   
   return StatusCode::SUCCESS;
 
-}
-
-//_____________________________________________________________________________
-StatusCode FTauDecorator::eventFinalize()
-{
-  return StatusCode::SUCCESS;
 }
