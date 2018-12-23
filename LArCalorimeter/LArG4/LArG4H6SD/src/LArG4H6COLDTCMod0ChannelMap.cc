@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArG4H6COLDTCMod0ChannelMap.h"
@@ -47,8 +47,6 @@ LArG4H6COLDTCMod0ChannelMap::LArG4H6COLDTCMod0ChannelMap(G4double rMin,
   //       std::cout<<rMax<<std::endl;
   m_rBins.push_back(rMax);
 }
-
-LArG4H6COLDTCMod0ChannelMap::~LArG4H6COLDTCMod0ChannelMap() { }
 
 G4int LArG4H6COLDTCMod0ChannelMap::getRBin(const G4ThreeVector& aPoint) const
 {
