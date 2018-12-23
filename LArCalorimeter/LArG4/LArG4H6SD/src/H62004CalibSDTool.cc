@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "H62004CalibSDTool.h"
@@ -46,7 +46,7 @@ namespace LArG4
       throw GaudiException("Failed to assign sd: " + sdName,
                            name(), StatusCode::FAILURE);
     }
-    return std::move(sd);
+    return sd;
   }
 
 } // namespace LArG4
