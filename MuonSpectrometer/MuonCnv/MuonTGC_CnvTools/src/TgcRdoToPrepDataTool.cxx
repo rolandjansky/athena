@@ -27,8 +27,7 @@
 #include "MuonCnvToolInterfaces/IDC_Helper.h"
 
 #include "EventPrimitives/EventPrimitives.h"
-// BS access
-#include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
+
 #include "GaudiKernel/ThreadLocalContext.h"
 
 #include <cfloat>
@@ -41,8 +40,6 @@ Muon::TgcRdoToPrepDataTool::TgcRdoToPrepDataTool(const std::string& t, const std
     m_muonMgr(0),
     m_tgcHelper(0),
     m_tgcCabling(0),
-    m_useBStoRdoTool(false), // true if running trigger (EF) on BS input
-    m_rawDataProviderTool("Muon::TGC_RawDataProviderTool/TGC_RawDataProviderTool", this),
     m_nHitRDOs(0), 
     m_nHitPRDs(0), 
     m_nTrackletRDOs(0), 
@@ -58,14 +55,11 @@ Muon::TgcRdoToPrepDataTool::TgcRdoToPrepDataTool(const std::string& t, const std
     m_outputprepdataKeys{"dummy", "dummy", "dummy", "dummy"}
 {
   // tools
-  declareProperty("RawDataProviderTool", m_rawDataProviderTool);
-  
   declareProperty("TGCHashIdOffset", m_tgcOffset = 26000);  
   declareProperty("FillCoinData", m_fillCoinData = true);
   declareProperty("OutputCollection", m_outputCollectionLocation="TGC_Measurements");
   declareProperty("OutputCoinCollection", m_outputCoinCollectionLocation="TrigT1CoinDataCollection");
   declareProperty("DecodeData", m_decodeData = true);  // !< toggle on/off the decoding of TGC RDO into TgcPrepData 
-  declareProperty("useBStoRdoTool", m_useBStoRdoTool = false);
   declareProperty("show_warning_level_invalid_A09_SSW6_hit", m_show_warning_level_invalid_A09_SSW6_hit = false); 
   declareProperty("dropPrdsWithZeroWidth", m_dropPrdsWithZeroWidth = true);
   declareProperty("outputCoinKey", m_outputCoinKeys);
@@ -132,9 +126,6 @@ StatusCode Muon::TgcRdoToPrepDataTool::initialize()
   ATH_CHECK(m_outputCoinKeys.initialize());
   ATH_CHECK(m_outputprepdataKeys.initialize());
  
-  // Get TgcRawDataProviderTool
-  ATH_CHECK( m_rawDataProviderTool.retrieve( DisableTool{ !m_useBStoRdoTool } ));
-  
   // check if initializing of DataHandle objects success
   ATH_CHECK( m_rdoContainerKey.initialize() );
   
@@ -299,33 +290,7 @@ StatusCode Muon::TgcRdoToPrepDataTool::decode(std::vector<IdentifierHash>& reque
 
     ATH_MSG_DEBUG("Decoding TGC RDO into TGC PrepRawData");
 
-    // If at least one BC has not yet been fully processed, fullEventDoneForAllBC should be false.  
-    bool fullEventDoneForAllBC = true;
-    for(int ibc=0; ibc<NBC; ibc++) {
-      if(!m_fullEventDone[ibc]) fullEventDoneForAllBC = false;
-    } 
-
     // retrieve the collection of RDO
-    if(m_useBStoRdoTool) {
-      // we come here if the entire rdo container is not yet in SG (i.e. in EF with BS input) 
-      // ask TgcRawDataProviderTool to decode the list of robs and to fill the rdo IDC
-      if(fullEventDoneForAllBC) {
-        StatusCode status = m_rawDataProviderTool->convert();
-        if(status.isFailure()) {
-	  ATH_MSG_FATAL("BS conversion into RDOs for the entire event failed");
-	  return StatusCode::FAILURE;
-        }
-        ATH_MSG_DEBUG("BS conversion into RDOs for the entire event done");
-      } else {
-        StatusCode status = m_rawDataProviderTool->convert(requestedIdHashVect);
-        if(status.isFailure()) {
-	  ATH_MSG_FATAL("BS conversion into RDOs for the selected collections failed");
-	  return StatusCode::FAILURE;
-        }
-        ATH_MSG_DEBUG("BS conversion into RDOs for the selected collections done !");
-      }
-    }
-
     ATH_MSG_DEBUG("Retriving TGC RDO container from the store");
     auto rdoContainer = SG::makeHandle(m_rdoContainerKey);
     if(!rdoContainer.isValid()) {
