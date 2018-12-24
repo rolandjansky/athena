@@ -40,10 +40,10 @@ eg_resolution::eg_resolution(const std::string& configuration)
     m_file3 = CxxUtils::make_unique<TFile> (PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_trueUnconv_run2_pre.root").c_str());
   }
   else if (configuration == "run2_R21_v1") {
-    m_file0 = CxxUtils::make_unique<TFile> (PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v19/resolutionFit_electron_run2_release21.root").c_str());
-    m_file1 = CxxUtils::make_unique<TFile> (PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v19/resolutionFit_recoUnconv_run2_release21.root").c_str());
-    m_file2 = CxxUtils::make_unique<TFile> (PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v19/resolutionFit_recoConv_run2_release21.root").c_str());
-    m_file3 = CxxUtils::make_unique<TFile> (PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v19/resolutionFit_recoUnconv_run2_release21.root").c_str()); // assume reco and true unconv having similar resolutions
+    m_file0 = CxxUtils::make_unique<TFile> (PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v20/resolutionFit_electron_run2_release21_es2017_R21_v1.root").c_str());
+    m_file1 = CxxUtils::make_unique<TFile> (PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v20/resolutionFit_recoUnconv_run2_release21_es2017_R21_v1.root").c_str());
+    m_file2 = CxxUtils::make_unique<TFile> (PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v20/resolutionFit_recoConv_run2_release21_es2017_R21_v1.root").c_str());
+    m_file3 = CxxUtils::make_unique<TFile> (PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v20/resolutionFit_trueUnconvertedPhoton_run2_release21_es2017_R21_v1.root").c_str()); // assume reco and true unconv having similar resolutions
   }
   if (!m_file0 or !m_file1 or !m_file2 or !m_file3) {
     ATH_MSG_ERROR("cannot find input file for resolutions");
