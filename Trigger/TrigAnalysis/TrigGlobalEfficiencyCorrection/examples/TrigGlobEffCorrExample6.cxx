@@ -123,7 +123,6 @@ int main(int argc, char* argv[])
         "|| e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0"
         "|| 2e17_lhvloose_nod0";
     myTool.setProperty("TriggerCombination2016", triggers2016).ignore();
-    myTool.setProperty("TriggerCombination2016", triggers2016).ignore();
     myTool.setProperty("TriggerMatchingTool", trigMatchTool.getHandle()).ignore();
     if(debug) myTool.setProperty("OutputLevel", MSG::DEBUG).ignore();
     if(myTool.initialize() != StatusCode::SUCCESS)

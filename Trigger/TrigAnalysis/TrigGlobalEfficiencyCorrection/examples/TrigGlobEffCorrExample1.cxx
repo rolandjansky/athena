@@ -106,12 +106,11 @@ int main(int argc, char* argv[])
             "DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0_2017_2018_e24_lhvloose_nod0_L1EM20VH"},
         /// Complementary 2e17_lhvloose_nod0_L12EM15VHI trigger
         {"e17_lhvloose_nod0_L1EM15VHI", 
-            //"DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0_2017_2018_e17_lhvloose_nod0_L1EM15VHI"}
-            "DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0_2017_2018_e24_lhvloose_nod0_L1EM20VH"} // temporary: using the wrong key until the right one is available (also update pT threshold in selection, then)
+            "DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0_2017_2018_e17_lhvloose_nod0_L1EM15VHI"}
      };
 
     const char* mapPath = "ElectronEfficiencyCorrection/2015_2017/"
-            "rel21.2/Consolidation_September2018_v1/map1.txt";
+            "rel21.2/Consolidation_September2018_v1/map2.txt";
     for(auto& cfg : toolConfigs) /// one instance per trigger leg x working point
     for(int j=0;j<2;++j) /// two instances: 0 -> MC efficiencies, 1 -> SFs
     {
@@ -146,7 +145,6 @@ int main(int argc, char* argv[])
     /// For property 'MuonTools':
     ToolHandleArray<CP::IMuonTriggerScaleFactors> muonTools;
     asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> muonTool("CP::MuonTriggerScaleFactors/MuonTrigEff");
-    muonTool.setProperty("CalibrationRelease", "180905_TriggerUpdate").ignore();
     muonTool.setProperty("MuonQuality", "Tight").ignore();
     muonTool.setProperty("useRel207", false).ignore();
     if(muonTool.initialize() != StatusCode::SUCCESS)
@@ -247,8 +245,7 @@ int main(int argc, char* argv[])
             if(t!=2 || !(o==10 || (o>=12 && o<=22) || o==43)) continue;
             /// lepton must be above softest trigger threshold:
             if((runNumber>=326834 && runNumber<=328393 && pt<25e3f) /// 2017 during accidental prescale: 2e24
-                // temporary: raised to 25GeV until proper key is used for e17:
-                || (runNumber>290000 && /*pt<18e3f*/ pt<25e3f) /// 2016-2018: 2e17
+                || (runNumber>290000 && pt<18e3f) /// 2016-2018: 2e17
                 || (pt<13e3f)) continue; /// 2015: 2e12
             /// also count leptons above single-lepton trigger threshold
             if(pt >= (runNumber>290000? 27e3f : 25e3f)) ++nTrig1L;
