@@ -41,7 +41,6 @@ else:
 
 if hasattr(runArgs,"outputRDOFile"):
     athenaCommonFlags.PoolRDOOutput.set_Value_and_Lock( runArgs.outputRDOFile )
-    OverlayCollection = runArgs.outputRDOFile
 
 if not hasattr(runArgs, 'outputRDO_SGNLFile') or runArgs.outputRDO_SGNLFile=="NONE":
     overlayFlags.doSignal=False
@@ -59,9 +58,6 @@ if hasattr(runArgs,"digiSeedOffset2"): digitizationFlags.rndmSeedOffset2=int(run
 if hasattr(runArgs,"samplingFractionDbTag"): digitizationFlags.physicsList=runArgs.samplingFractionDbTag
 if hasattr(runArgs,"digiRndmSvc"): digitizationFlags.rndmSvc=runArgs.digiRndmSvc
 if hasattr(runArgs, "AddCaloDigi"): digitizationFlags.experimentalDigi+=["AddCaloDigi"]
-
-readBS = overlayFlags.isDataOverlay()
-isRealData = overlayFlags.isDataOverlay()
 
 from RecExConfig.RecFlags import rec
 rec.projectName = 'IS_SIMULATION'
