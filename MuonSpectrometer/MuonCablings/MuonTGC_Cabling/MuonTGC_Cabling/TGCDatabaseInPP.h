@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CABLING_TGCDATABASEINPP_HH
@@ -63,10 +63,10 @@ private:
   /** Get the internal number, which is between 0 and NIndexDBIn-1 */ 
   virtual int convertIndexDBIn(int* indexIn) const;
 
-  std::vector<int> indexDBIn;
-  int NIndexDBIn;
-  int maxIndexIn[NIndexIn];
-  int minIndexIn[NIndexIn];
+  std::vector<int> m_indexDBIn;
+  int m_NIndexDBIn;
+  int m_maxIndexIn[NIndexIn];
+  int m_minIndexIn[NIndexIn];
 
   /** hidden assignment operator */
   TGCDatabaseInPP & operator=(const TGCDatabaseInPP &right);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCCABLESLBTOSSW_HH
@@ -29,7 +29,7 @@ private:
   TGCCableSLBToSSW (void) {}
   virtual TGCModuleMap* getModuleIn (const TGCModuleId* ssw) const;
   virtual TGCModuleMap* getModuleOut (const TGCModuleId* slb) const;
-  TGCDatabase* database[TGCIdBase::MaxRegionType][TGCIdBase::MaxModuleType];
+  TGCDatabase* m_database[TGCIdBase::MaxRegionType][TGCIdBase::MaxModuleType];
 };
   
 } // end of namespace
