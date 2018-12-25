@@ -296,6 +296,13 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
     m_TrackFitterTimer          = addTimer("TrackFitter","TrackFitter_nTracks");
   }
   
+    
+  auto scbs = m_beamSpotKey.initialize();
+  if(scbs.isFailure()) {
+    ATH_MSG_ERROR("Error initializing beamspot info");
+    return HLT::BAD_JOB_SETUP;
+  }
+
   if(m_ftkMode) {
     StatusCode sc= m_ftkDataProviderSvc.retrieve();
     if(sc.isFailure()) {
@@ -315,14 +322,6 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
 
     
     ATH_MSG_DEBUG(" TrigFastTrackFinder : MinHits set to " << m_minHits);
-    
-    if (m_useBeamSpot) {
-      auto sc = m_beamSpotKey.initialize();
-      if(sc.isFailure()) {
-         ATH_MSG_ERROR("Error initializing beamspot info");
-         return HLT::BAD_JOB_SETUP;
-      }
-    }
     
     StatusCode sc=m_numberingTool.retrieve(); 
     if(sc.isFailure()) { 
