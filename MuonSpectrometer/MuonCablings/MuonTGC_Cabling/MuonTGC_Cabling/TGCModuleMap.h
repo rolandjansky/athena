@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CABLING_TGCMODULEMAP_HH
@@ -36,7 +36,7 @@ public:
   void clear(void);
 
 private:
-  std::map<int,TGCModuleId*> moduleMap;
+  std::map<int,TGCModuleId*> m_moduleMap;
 };
   
 } // end of namespace

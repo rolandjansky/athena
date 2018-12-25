@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CABLING_TGCID_HH
@@ -17,7 +17,7 @@ public:
   // Constructor & Destructor
   TGCId(TGCIdBase::IdType vtype=NoIdType) 
     : TGCIdBase(vtype) ,
-    sectorRO(-1)
+    m_sectorRO(-1)
     {}
 
   virtual ~TGCId(void) {}
@@ -51,7 +51,7 @@ public:
     NumberOfEndcapSector  = 48
   };
 
-  int getReadoutSector(void) const { return sectorRO; }
+  int getReadoutSector(void) const { return m_sectorRO; }
   int getSectorInReadout(void) const;
   
   virtual int getGasGap(void) const;
@@ -81,7 +81,7 @@ protected:
   void setBunch(int bunch);
 
 protected:
-  int sectorRO;
+  int m_sectorRO;
 };
   
 } // end of namespace

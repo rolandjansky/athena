@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CABLING_TGCDATABASEASDTOPP_HH
@@ -83,20 +83,20 @@ private:
   /** Get the interal number, which is between 0 and NIndexDBIn-1 */ 
   virtual int convertIndexDBIn(int* indexIn) const;
 
-  std::vector<int> indexDBIn;
-  int NIndexDBIn;
-  int maxIndexIn[NIndexIn];
-  int minIndexIn[NIndexIn];
+  std::vector<int> m_indexDBIn;
+  int m_NIndexDBIn;
+  int m_maxIndexIn[NIndexIn];
+  int m_minIndexIn[NIndexIn];
 
   /** Make the IndexDBOut table */
   virtual void makeIndexDBOut(void);
   /** Get the interal number, which is between 0 and NIndexDBOut-1 */ 
   virtual int convertIndexDBOut(int* indexOut) const;
 
-  std::vector<int> indexDBOut;
-  int NIndexDBOut;
-  int maxIndexOut[NIndexOut];
-  int minIndexOut[NIndexOut];
+  std::vector<int> m_indexDBOut;
+  int m_NIndexDBOut;
+  int m_maxIndexOut[NIndexOut];
+  int m_minIndexOut[NIndexOut];
 
   /** This bool variable is used to know the database is common or sector specific */
   bool m_isCommon; 
