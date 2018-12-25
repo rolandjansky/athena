@@ -141,6 +141,7 @@ private:
 
   std::vector<SiHitCollection*> m_hitCollPtrs;
 
+  SG::ReadHandleKey<SiHitCollection> m_hitsContainerKey{this, "InputSingleHitsName", "", "Input Single HITS name"};
   SG::WriteHandleKey<SCT_RDO_Container> m_rdoContainerKey{this, "OutputObjectName", "SCT_RDOs", "Output Object name"};
   SG::WriteHandle<SCT_RDO_Container> m_rdoContainer; //!< RDO container handle
   SG::WriteHandleKey<InDetSimDataCollection> m_simDataCollMapKey{this, "OutputSDOName", "SCT_SDO_Map", "Output SDO container name"};
