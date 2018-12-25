@@ -88,7 +88,6 @@ MdtOverlay::MdtOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   declareProperty("IntegrationWindow", m_adcIntegrationWindow); // in ns
   declareProperty("CopySDO", m_copySDO);
   declareProperty("MDTSDO", m_sdo);
-  declareProperty("CopyObject", m_copyObjects=false);
   declareProperty("CleanOverlayData", m_clean_overlay_data);//clean out the overlay data before doing overlay, so you only get MC hits in the output overlay
   declareProperty("CleanOverlaySignal", m_clean_overlay_signal);//clean out the signal MC before doing overlay
 }

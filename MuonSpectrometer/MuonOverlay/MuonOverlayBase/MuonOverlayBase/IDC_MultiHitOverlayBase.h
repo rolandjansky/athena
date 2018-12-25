@@ -49,7 +49,7 @@ class IDC_MultiHitOverlayBase : public OverlayAlgBase  {
 public:
   
   IDC_MultiHitOverlayBase(const std::string &name, ISvcLocator *pSvcLocator)
-    : OverlayAlgBase(name, pSvcLocator), m_copyObjects(0)
+    : OverlayAlgBase(name, pSvcLocator)
   {}
 
   /**
@@ -87,14 +87,9 @@ public:
 
   template<class TypeToBeCopied, class Datum> 
   TypeToBeCopied* copyMuonDigitContainer(const TypeToBeCopied* oldObject);
-
-protected:
-
- bool m_copyObjects;
  
 };
 
 #include "MuonOverlayBase/IDC_MultiHitOverlayBase.icc"
 
 #endif/*IDC_MULTIHITOVERLAYBASE_H*/
-
