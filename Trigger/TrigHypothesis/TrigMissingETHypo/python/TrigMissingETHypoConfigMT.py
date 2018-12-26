@@ -1,4 +1,4 @@
-# Copyright (C) 2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from TrigMissingETHypo.TrigMissingETHypoConf import TrigMissingETHypoAlgMT, TrigMissingETHypoToolMT
 
