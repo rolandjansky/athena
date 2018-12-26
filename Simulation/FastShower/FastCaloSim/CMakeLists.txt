@@ -1,3 +1,4 @@
+
 ################################################################################
 # Package: FastCaloSim
 ################################################################################
@@ -91,3 +92,8 @@ atlas_add_component( FastCaloSim
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 
+
+atlas_add_test( FastShowerCellBuilderTool_test
+  SCRIPT test/FastShowerCellBuilderTool_test.sh
+  PROPERTIES TIMEOUT 600
+  EXTRA_PATTERNS "Reading file|FastCaloSimFactory|FileName|default:|DATAPATH|Cache alignment|map from|Database being retired|Resolved path|^Domain|HepPDT Version|from file" )
