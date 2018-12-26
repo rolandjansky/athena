@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -50,7 +50,7 @@ AuxStoreInternal::~AuxStoreInternal()
  */
 AuxStoreInternal::AuxStoreInternal (const AuxStoreInternal& other)
   : m_standalone (other.m_standalone),
-    m_isDecoration (other.m_isDecoration),
+    m_decorations (other.m_decorations),
     m_auxids (other.m_auxids),
     m_locked (other.m_locked)
 {
@@ -136,10 +136,9 @@ AuxStoreInternal::addVector (auxid_t auxid,
   if (m_locked)
     throw ExcStoreLocked (auxid);
 
-  // Resize the vectors if needed.
+  // Resize the vector if needed.
   if (m_vecs.size() <= auxid) {
     m_vecs.resize (auxid+1);
-    m_isDecoration.resize (auxid+1);
   }
 
   // Give up if the variable is already present in the store.
@@ -152,8 +151,10 @@ AuxStoreInternal::addVector (auxid_t auxid,
 
   // Add it to the store.
   m_vecs[auxid] = std::move (vec);
-  m_isDecoration[auxid] = isDecoration;
   addAuxID (auxid);
+  if (isDecoration) {
+    m_decorations.insert (auxid);
+  }
 }
 
 
@@ -184,16 +185,17 @@ AuxStoreInternal::getDecoration (auxid_t auxid, size_t size, size_t capacity)
   guard_t guard (m_mutex);
   if (m_vecs.size() <= auxid) {
     m_vecs.resize (auxid+1);
-    m_isDecoration.resize (auxid+1);
   }
   if (m_vecs[auxid] == 0) {
     m_vecs[auxid] = AuxTypeRegistry::instance().makeVector (auxid, size, capacity);
     addAuxID (auxid);
-    if (m_locked)
-      m_isDecoration[auxid] = true;
+    if (m_locked) {
+      m_decorations.insert (auxid);
+    }
   }
-  if (m_locked && !m_isDecoration[auxid])
+  if (m_locked && !m_decorations.test (auxid)) {
     throw ExcStoreLocked (auxid);
+  }
   return m_vecs[auxid]->toPtr();
 }
 
@@ -373,6 +375,16 @@ AuxStoreInternal::getAuxIDs() const
 
 
 /**
+ * @brief Test if a particular variable is tagged as a decoration.
+ * @param auxid The identifier of the desired aux data item.
+ */
+bool AuxStoreInternal::isDecoration (auxid_t auxid) const
+{
+  return m_decorations.test (auxid);
+}
+
+
+/**
  * @brief Return a set of identifiers for writable data items
  *        in this store.
  *
@@ -524,13 +536,13 @@ bool AuxStoreInternal::clearDecorations()
 {
   guard_t guard (m_mutex);
   bool anycleared = false;
-  for (auxid_t id = 0; id < m_vecs.size(); id++) {
-    if (m_isDecoration[id]) {
-      m_isDecoration[id] = false;
-      m_vecs[id].reset();
-      m_auxids.erase (id);
-      anycleared = true;
-    }
+  for (auxid_t id : m_decorations) {
+    m_vecs[id].reset();
+    m_auxids.erase (id);
+    anycleared = true;
+  }
+  if (anycleared) {
+    m_decorations.clear();
   }
   return anycleared;
 }
@@ -626,7 +638,6 @@ void* AuxStoreInternal::getDataInternal_noLock (auxid_t auxid,
 {
   if (m_vecs.size() <= auxid) {
     m_vecs.resize (auxid+1);
-    m_isDecoration.resize (auxid+1);
   }
   if (m_vecs[auxid] == 0) {
     if (m_locked && !no_lock_check)
@@ -685,9 +696,7 @@ void* AuxStoreInternal::getDataInternal (auxid_t auxid,
 void AuxStoreInternal::lockDecoration (SG::auxid_t auxid)
 {
   guard_t guard (m_mutex);
-  if (auxid < m_isDecoration.size()) {
-    m_isDecoration[auxid] = false;
-  }
+  m_decorations.reset (auxid);
 }
 
 
