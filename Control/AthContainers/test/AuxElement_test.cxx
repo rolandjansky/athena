@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -74,6 +74,7 @@ class ConstAuxStoreTest
 public:
   virtual const void* getData (SG::auxid_t auxid) const;
   virtual const SG::auxid_set_t& getAuxIDs() const { return m_set; }
+  virtual bool isDecoration(SG::auxid_t /*auxid*/) const { std::abort(); }
   virtual void* getDecoration (SG::auxid_t /*auxid*/, size_t /*size*/, size_t /*capacity*/) { std::abort(); }
   virtual void lock() { std::abort(); }
   virtual bool clearDecorations() { std::abort(); }

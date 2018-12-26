@@ -103,6 +103,9 @@ namespace xAOD {
       /// Get the types(names) of variables handled by this container
       virtual const auxid_set_t& getAuxIDs() const override;
 
+      /// Test if a variable is a decoration.
+      virtual bool isDecoration (auxid_t auxid) const override;
+
       /// Return the data vector for one aux data decoration item.
       virtual void* getDecoration (auxid_t auxid, size_t size, size_t capacity) override;
       /// Lock the container.
