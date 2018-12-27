@@ -33,6 +33,24 @@ TFileLooper::TFileLooper() :
 {
 }
 
+TFileLooper::TFileLooper (const TFileLooper& other)
+  : m_file (other.m_file),
+    m_rootDir (other.m_rootDir),
+    m_skipDirs (other.m_skipDirs),
+    m_verbose (other.m_verbose),
+    m_passBeforeFail (other.m_passBeforeFail),
+    m_errorCode (other.m_errorCode),
+    m_skippedObjects (other.m_skippedObjects)
+{
+  for (TPRegexp* r : m_failRE) {
+    m_failRE.push_back (new TPRegexp (*r));
+  }
+  for (TPRegexp* r : m_passRE) {
+    m_passRE.push_back (new TPRegexp (*r));
+  }
+}
+
+
 TFileLooper::~TFileLooper()
 {
   vector<TPRegexp*>::iterator iter;

@@ -38,6 +38,9 @@ class TFileLooper {
   TFileLooper();
   virtual ~TFileLooper();
 
+  TFileLooper (const TFileLooper& other);
+  TFileLooper& operator= (const TFileLooper& other) = delete;
+
   /// Start processing
   virtual Int_t run(const char* filename, const char* rootDir = 0);
 
