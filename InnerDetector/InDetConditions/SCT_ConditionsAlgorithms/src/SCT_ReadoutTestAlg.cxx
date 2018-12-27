@@ -17,9 +17,6 @@
 #include "Identifier/Identifier.h"
 #include "SCT_ConditionsData/SCT_Chip.h"
 
-// C++
-#include <vector>
-
 // Constructor
 SCT_ReadoutTestAlg::SCT_ReadoutTestAlg(const std::string& name, ISvcLocator* pSvcLocator) : 
   AthAlgorithm(name, pSvcLocator)
@@ -47,38 +44,29 @@ StatusCode SCT_ReadoutTestAlg::initialize() {
 
 // Execute
 StatusCode SCT_ReadoutTestAlg::execute() {
-  //This method is only used to test the summary service, and only used within this package,
-  // so the INFO level messages have no impact on performance of these services when used by clients
+  //This method is only used to test the readout tool, and only used within this package,
+  // so the INFO level messages have no impact on performance of the tool when used by clients
 
   ATH_MSG_INFO("Calling execute");
 
-  std::vector<SCT_Chip*>::const_iterator itr{m_chips.begin()};
-  std::vector<SCT_Chip*>::const_iterator end{m_chips.end()};
-
   ATH_MSG_INFO( "Chips before readout ..." );
-  for (; itr != end; ++itr) ATH_MSG_INFO(*(*itr));
+  for (const SCT_Chip* chip: m_chips) ATH_MSG_INFO(*chip);
 
   // Determin readout for this module
-  ATH_CHECK(m_readout->determineReadout(Identifier(m_moduleId.value()), m_chips, m_link0ok.value(), m_link1ok.value()));
+  ATH_CHECK(m_readout->determineReadout(Identifier{m_moduleId.value()}, m_chips, m_link0ok.value(), m_link1ok.value()));
   
   ATH_MSG_INFO("Chips after readout ...");
-  for (itr = m_chips.begin(); itr != end; ++itr) ATH_MSG_INFO(*(*itr));
+  for (const SCT_Chip* chip: m_chips) ATH_MSG_INFO(*chip);
 
   return StatusCode::SUCCESS;
 }
 
-
 // Finalize
 StatusCode SCT_ReadoutTestAlg::finalize() {
-  msg(MSG::INFO) << "Calling finalize" << endmsg;
+  ATH_MSG_INFO("Calling finalize");
 
   // Free up the memory associated to the chips
-  std::vector<SCT_Chip*>::const_iterator itr{m_chips.begin()};
-  std::vector<SCT_Chip*>::const_iterator end{m_chips.end()};
-  while (itr != end) {
-    delete *itr;
-    ++itr;
-  }
+  for (const SCT_Chip* chip: m_chips) delete chip;
 
   return StatusCode::SUCCESS;
 }
@@ -111,10 +99,9 @@ short SCT_ReadoutTestAlg::bin2dec(const char *bin)
 
 // Initalise chip from id and config string (all channels are initially good)
 SCT_Chip* SCT_ReadoutTestAlg::initialiseChip(short id, std::string configString) {
-
   // Opposite convention for LSB
-  std::reverse(configString.begin(), configString.end()); 
+  std::reverse(configString.begin(), configString.end());
   short config{bin2dec(configString.c_str())};
-  int minus1{-1};
+  const int minus1{-1};
   return new SCT_Chip(id, config, minus1, minus1, minus1, minus1);
 }
