@@ -37,4 +37,11 @@ atlas_add_component( SCT_ConditionsAlgorithms
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                      LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests Identifier DetDescrConditions GeoModelUtilities GaudiKernel SCT_ConditionsData SCT_CablingLib EventInfo xAODEventInfo AthenaPoolUtilities InDetIdentifier InDetReadoutGeometry TrkGeometry SCT_ConditionsToolsLib )
 
+atlas_add_test( TestReadout
+                SCRIPT athena.py --threads=1 SCT_ConditionsAlgorithms/testReadout.py
+                PROPERTIES TIMEOUT 300
+                ENVIRONMENT THREADS=1 )
+
 # Install files from the package:
+atlas_install_joboptions( share/*.py )
+
