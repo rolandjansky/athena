@@ -56,6 +56,8 @@
 #include "TrigConfHLTData/HLTTriggerElement.h"
 #include "FourMomUtils/xAODP4Helpers.h"
 
+#include "GaudiKernel/SystemOfUnits.h"
+
 //Monitoring object constructor
 MonitoringObject::MonitoringObject() {
   
@@ -395,16 +397,16 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(const HLT::TriggerElement* inpu
 
 	//------------------------10 GeV minimum pT cut applied--------------------------------------------
 
-        if (!tr || tr->pt()/1000. < 10.0) { // if this muon has NOT been formed from a combined track > 10GeV
+        if (!tr || tr->pt()/Gaudi::Units::GeV < 10.0) { // if this muon has NOT been formed from a combined track > 10GeV
 
-          ATH_MSG_DEBUG("Bad muon is of type: " << muon->muonType() << " With 0=combined, 1=MuonSA, 2=SegmentTagged, 3=CaloTagged, 4=SiliconAssociatedForwardMuon, Abs pt = " << muon->pt()/1000. << " GeV. Charge=" << muon->charge() << " Psuedorapidity = " << muon->eta() << " Phi = " << muon->phi());
+          ATH_MSG_DEBUG("Bad muon is of type: " << muon->muonType() << " With 0=combined, 1=MuonSA, 2=SegmentTagged, 3=CaloTagged, 4=SiliconAssociatedForwardMuon, Abs pt = " << muon->pt()/Gaudi::Units::GeV << " GeV. Charge=" << muon->charge() << " Psuedorapidity = " << muon->eta() << " Phi = " << muon->phi());
           continue;
         } 
 
 	//---------------------------Collect good muons--------------------------------------------------
 
 	else { //Current muon is formed from combined track
-	  ATH_MSG_DEBUG("Retrieved muon of type " << muon->muonType() << ": Combined track with abs pt " << tr->pt()/1000. << " GeV. Charge=" << tr->charge() << " match chi2 = " << tr->chiSquared() << " Psuedorapidity = " << tr->eta() << " Phi = " << tr->phi());
+	  ATH_MSG_DEBUG("Retrieved muon of type " << muon->muonType() << ": Combined track with abs pt " << tr->pt()/Gaudi::Units::GeV << " GeV. Charge=" << tr->charge() << " match chi2 = " << tr->chiSquared() << " Psuedorapidity = " << tr->eta() << " Phi = " << tr->phi());
 	  
 	  m_good_muons.push_back(muon);
 	}
@@ -448,7 +450,7 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(const HLT::TriggerElement* inpu
 
   //-------------------Calculate dimuon invariant mass from 4 momenta for probe selection----------------
     
-  float invMass_dimuon = (((m_good_muons)[0]->p4() + (m_good_muons)[1]->p4()).M())/1000.;
+  float invMass_dimuon = (((m_good_muons)[0]->p4() + (m_good_muons)[1]->p4()).M())/Gaudi::Units::GeV;
   
   ATH_MSG_DEBUG("final size of good muon container = " << m_good_muons.size());
   ATH_MSG_DEBUG("Dimuon Invariant Mass from 4mom  = " << invMass_dimuon);
@@ -554,7 +556,7 @@ void TrigMuonEFTagandProbe::match_thresh (TaPMuon tap ,MonitoringObject Thresh_M
   //Barrel
   if (abs(tap.Mu->eta())<1.05){
     for (unsigned int i=0;i<tap.Thresh;i++){ //Loop over all thresholds <= current probe threshold value
-      if ((tap.Mu->pt()/1000.) > 25.0){ //Apply extra 25GeV pT cut to eta and phi variables
+      if ((tap.Mu->pt()/Gaudi::Units::GeV) > 25.0){ //Apply extra 25GeV pT cut to eta and phi variables
 
 	//Fills eta values within barrel for all probe candidates matching threshold i+1 
 	//i must be unsigned int between 0 and 5 inclusive
@@ -565,7 +567,7 @@ void TrigMuonEFTagandProbe::match_thresh (TaPMuon tap ,MonitoringObject Thresh_M
 	Thresh_Mon.fill_eta_matchfail_merged(i,1.0);
       }
 
-      Thresh_Mon.fill_pt_total_barrel(i,tap.Mu->pt()/1000.);
+      Thresh_Mon.fill_pt_total_barrel(i,tap.Mu->pt()/Gaudi::Units::GeV);
       Thresh_Mon.fill_pt_matchfail_barrel(i,1.0);
 
     }
@@ -574,7 +576,7 @@ void TrigMuonEFTagandProbe::match_thresh (TaPMuon tap ,MonitoringObject Thresh_M
   //Endcap
   else {
     for (unsigned int i=0;i<tap.Thresh;i++){
-      if ((tap.Mu->pt()/1000.) > 25.0){
+      if ((tap.Mu->pt()/Gaudi::Units::GeV) > 25.0){
 
 	Thresh_Mon.fill_eta_total_endcap(i,tap.Mu->eta());
 	Thresh_Mon.fill_phi_total_endcap(i,tap.Mu->phi());
@@ -583,7 +585,7 @@ void TrigMuonEFTagandProbe::match_thresh (TaPMuon tap ,MonitoringObject Thresh_M
 	Thresh_Mon.fill_eta_matchfail_merged(i,1.0);
       }
 
-      Thresh_Mon.fill_pt_total_endcap(i,tap.Mu->pt()/1000.);
+      Thresh_Mon.fill_pt_total_endcap(i,tap.Mu->pt()/Gaudi::Units::GeV);
       Thresh_Mon.fill_pt_matchfail_endcap(i,1.0);
 
     }
@@ -599,7 +601,7 @@ void TrigMuonEFTagandProbe::match_thresh (const xAOD::Muon* muon , MonitoringObj
   //Barrel
   if (abs(muon->eta())<1.05){
     for (unsigned int i=0;i<6;i++){
-      if ((muon->pt()/1000.) > 25.0){
+      if ((muon->pt()/Gaudi::Units::GeV) > 25.0){
 
 	Thresh_Mon.fill_eta_total_barrel(i,muon->eta());
 	Thresh_Mon.fill_phi_total_barrel(i,muon->phi());
@@ -608,7 +610,7 @@ void TrigMuonEFTagandProbe::match_thresh (const xAOD::Muon* muon , MonitoringObj
 	Thresh_Mon.fill_eta_matchfail_merged(i,0.0);
       }
 
-      Thresh_Mon.fill_pt_total_barrel(i,muon->pt()/1000.);
+      Thresh_Mon.fill_pt_total_barrel(i,muon->pt()/Gaudi::Units::GeV);
       Thresh_Mon.fill_pt_matchfail_barrel(i,0.0);
 
     }
@@ -617,7 +619,7 @@ void TrigMuonEFTagandProbe::match_thresh (const xAOD::Muon* muon , MonitoringObj
   //Endcap
   else {
     for (unsigned int i=0;i<6;i++){
-      if ((muon->pt()/1000.) > 25.0){
+      if ((muon->pt()/Gaudi::Units::GeV) > 25.0){
 
 
 	Thresh_Mon.fill_eta_total_endcap(i,muon->eta());
@@ -627,7 +629,7 @@ void TrigMuonEFTagandProbe::match_thresh (const xAOD::Muon* muon , MonitoringObj
 	Thresh_Mon.fill_eta_matchfail_merged(i,0.0);
       }
 
-      Thresh_Mon.fill_pt_total_endcap(i,muon->pt()/1000.);
+      Thresh_Mon.fill_pt_total_endcap(i,muon->pt()/Gaudi::Units::GeV);
       Thresh_Mon.fill_pt_matchfail_endcap(i,0.0);
     }
   }
@@ -655,7 +657,7 @@ void TrigMuonEFTagandProbe::trim_container (std::vector<const xAOD::Muon*>& good
 	continue;
       }
 
-      double tempinvmass = abs(91.1876-((mu1->p4() + mu2->p4()).M())/1000.);
+      double tempinvmass = abs(91.1876-((mu1->p4() + mu2->p4()).M())/Gaudi::Units::GeV);
       if (tempinvmass < mZdiff){ //Found a new best pair
 	best_muon_pair.resize(2, nullptr);
 	best_muon_pair[0] = mu1;
