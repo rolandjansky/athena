@@ -159,8 +159,6 @@ private:
     TH1F* m_histTopoHdwNotSimOverflow;
     TH1F* m_histTopoProblems;
     TH1F* m_histInputLinkCRCfromROIConv;
-    TH1F* m_histTopoSimOverfl;
-    TH1F* m_histTopoHdwOverfl;
     TH1F* m_histTopoDaqRobSimResult;
     TH1F* m_histTopoDaqRobHdwResult;
     TH1F* m_histTopoDaqRobSimNotHdwResult;
