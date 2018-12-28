@@ -29,6 +29,9 @@
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileDigitsCollection.h"
 #include "TileRecUtils/ITileRawChannelTool.h"
+#include "TileConditions/TileCondToolEmscale.h"
+#include "TileConditions/TileCondToolTiming.h"
+#include "TileConditions/TileCondIdTransforms.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -174,6 +177,17 @@ class TileRawChannelBuilder: public AthAlgTool {
     ToolHandle<TileBeamInfoProvider> m_beamInfo;
     ToolHandleArray<ITileRawChannelTool> m_noiseFilterTools{this,
         "NoiseFilterTools", {}, "Tile nose filter tools"};
+
+    ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
+        "TileCondToolEmscale", "TileCondToolEmscale", "Tile EM scale calibration tool"};
+
+    ToolHandle<TileCondToolTiming> m_tileToolTiming{this,
+        "TileCondToolTiming", "TileCondToolTiming", "Tile timing tool"};
+
+    ToolHandle<TileCondIdTransforms> m_tileIdTransforms{this,
+        "TileCondIdTransforms", "TileCondIdTransforms",
+        "Tile tool to tranlate hardware identifier to the drawerIdx, channel, and adc"};
+
 
     int m_trigType;
     bool m_idophys;   // Phys fitting

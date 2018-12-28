@@ -99,9 +99,11 @@ StatusCode TileRawChannelBuilderMF::initialize() {
 
   if (m_bestPhase) {
     //=== get TileToolTiming
+    // TileToolTiming can be disabled in the TileRawChannelBuilder
+    if (!m_tileToolTiming.isEnabled()) {
+      m_tileToolTiming.enable();
+    }
     ATH_CHECK(m_tileToolTiming.retrieve());
-  } else {
-    m_tileToolTiming.disable();
   }
 
   //=== get TileCondToolNoiseSample
@@ -134,6 +136,7 @@ TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits
   int ros = m_tileHWID->ros(adcId);
   int drawer = m_tileHWID->drawer(adcId);
   int channel = m_tileHWID->channel(adcId);
+  unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
 
   ATH_MSG_VERBOSE("Running Matched Filter for TileRawChannel with HWID " << m_tileHWID->to_string(adcId));
 
@@ -170,7 +173,6 @@ TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits
 
   } else {
 
-    unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
     if (m_bestPhase) phase = (float) -m_tileToolTiming->getSignalPhase(drawerIdx, channel, gain);
     rms_aux = m_tileToolNoiseSample->getHfn(drawerIdx, channel, gain);
 
@@ -422,9 +424,9 @@ TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits
     if (t_ch > m_maxTime) t_ch = m_maxTime;
 
     if (m_calibrateEnergy) {
-      amp_ch = m_tileInfo->CisCalib(adcId, amp_ch);
+      amp_ch = m_tileToolEmscale->doCalibCis(drawerIdx, channel, gain, amp_ch);
       for (i = 0; i < n; ++i) {
-        cof[i] = m_tileInfo->CisCalib(adcId, cof[i]);
+        cof[i] = m_tileToolEmscale->doCalibCis(drawerIdx, channel, gain, cof[i]);
       }
     }
 
@@ -471,7 +473,8 @@ TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits
   ATH_MSG_VERBOSE("Creating RawChannel" << " a=" << amp_ch << " t=" << t_ch << " q=" << chisq_ch);
 
   if (m_correctTime && (t_ch != 0 && t_ch < m_maxTime && t_ch > m_minTime)) {
-    rawCh->insertTime(m_tileInfo->TimeCalib(adcId, t_ch));
+    t_ch -= m_tileToolTiming->getSignalPhase(drawerIdx, channel, t_ch);
+    rawCh->insertTime(t_ch);
     ATH_MSG_VERBOSE("Correcting time, new time=" << rawCh->time());
 
   }

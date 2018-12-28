@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERECUTILS_TILERAWCHANNELBUILDERMF_H
@@ -47,9 +47,6 @@ class TileRawChannelBuilderMF: public TileRawChannelBuilder {
     virtual TileRawChannel * rawChannel(const TileDigits* digits);
 
   private:
-
-    ToolHandle<TileCondToolTiming> m_tileToolTiming{this,
-        "TileCondToolTiming", "TileCondToolTiming", "Tile timing tool"};
 
     ToolHandle<ITileCondToolOfc> m_tileCondToolOfc{this,
         "TileCondToolOfc", "TileCondToolOfc", "Tile OFC tool"};

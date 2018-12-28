@@ -1,8 +1,6 @@
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
 
 // Tile includes
 #include "TileRecUtils/TileRawChannelBuilder.h"
@@ -59,9 +57,9 @@ TileRawChannelBuilder::TileRawChannelBuilder(const std::string& type
   , m_rChType(TileFragHash::Default)
   , m_rChUnit(TileRawChannelUnit::ADCcounts)
   , m_bsflags(0)
-  , m_tileID(0)
-  , m_tileHWID(0) 
-  , m_tileInfo(0)
+  , m_tileID(nullptr)
+  , m_tileHWID(nullptr)
+  , m_tileInfo(nullptr)
   , m_beamInfo("TileBeamInfoProvider/TileBeamInfoProvider")
   , m_trigType(0)
   , m_idophys(false)
@@ -176,6 +174,24 @@ StatusCode TileRawChannelBuilder::initialize() {
   }
   
   m_notUpgradeCabling = (cabling->getCablingType() != TileCablingService::UpgradeABC);
+
+  if (m_calibrateEnergy) {
+    ATH_CHECK( m_tileToolEmscale.retrieve() );
+  } else {
+    m_tileToolEmscale.disable();
+  }
+
+  if (m_correctTime) {
+    ATH_CHECK( m_tileToolTiming.retrieve() );
+  } else {
+    m_tileToolTiming.disable();
+  }
+
+  if (m_calibrateEnergy || m_correctTime) {
+    ATH_CHECK( m_tileIdTransforms.retrieve() );
+  } else {
+    m_tileIdTransforms.disable();
+  }
 
   ATH_CHECK( m_rawChannelContainerKey.initialize() );
 
