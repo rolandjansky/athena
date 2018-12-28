@@ -1,7 +1,7 @@
 // emacs: this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -22,8 +22,8 @@
  **************************************************************************/ 
 
 
-#ifndef __ZROBJECT_H
-#define __ZROBJECT_H
+#ifndef REGSELLUT_ZROBJECT_H
+#define REGSELLUT_ZROBJECT_H
 
 #include "RegSelLUT/RegSelRoI.h"
 
@@ -63,8 +63,7 @@ public:
     m_enabled(true)
   {  } 
 
-    
-  virtual ~ZRObject() { } 
+  virtual ~ZRObject() = default;
 
   // check to see if the RoI and the object overlap    
   // ok really check if the object is completely outside,
@@ -135,14 +134,4 @@ inline std::ostream& operator<<(std::ostream& s, const ZRObject& zr) {
 
 
 
-#endif  /* __ZROBJECT_H */
-
-
-
-
-
-
-
-
-
-
+#endif  /* REGSELLUT_ZROBJECT_H */
