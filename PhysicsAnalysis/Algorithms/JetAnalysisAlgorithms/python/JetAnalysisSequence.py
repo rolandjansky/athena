@@ -5,13 +5,15 @@ from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool, \
                                        createPublicTool
 
-def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
+def makeJetAnalysisSequence( dataType, jetCollection,
+                             runGhostMuonAssociation = True, runJvtUpdate = True,
                              runJvtEfficiency = True, runJvtSelection = False ):
     """Create a jet analysis algorithm sequence
 
     Keyword arguments:
       dataType -- The data type to run on ("data", "mc" or "afii")
       jetCollection -- The jet container to run on
+      runGhostMuonAssociation -- Determines wheter or not to run the ghost muon association needed for MET
       runJvtUpdate -- Determines whether or not to update JVT on the jets
       runJvtEfficiency -- Determines whether or not to recalculate the JVT
                           efficiency
@@ -36,6 +38,12 @@ def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
         calibSeq = 'JetArea_Residual_EtaJES_GSC_Smear'
         pass
 
+    # Set up the jet ghost muon association algorithm:
+    if runGhostMuonAssociation:
+        alg = createAlgorithm( 'CP::JetGhostMuonAssociationAlg', 'JetGhostMuonAssociationAlg' )
+        seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut' )
+
+    # Set up the jet calibration algorithm:
     alg = createAlgorithm( 'CP::JetCalibrationAlg', 'JetCalibrationAlg' )
     addPrivateTool( alg, 'calibrationTool', 'JetCalibrationTool' )
     alg.calibrationTool.JetCollection = jetCollection[ 0 : -4 ]
