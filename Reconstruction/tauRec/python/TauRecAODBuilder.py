@@ -258,3 +258,67 @@ class TauRecAODProcessor_RNN_ID ( TauRecConfigured ) :
     def TauProcessorHandle(self):
         return self._TauProcessorHandle
 
+class TauRecAODProcessor_FTau ( TauRecConfigured ) :
+    """Add variables to the AODs based on Fake Tau Task Force needs.
+    It means to run in Derivation Framework and THOR."""
+    _outputType = "xAOD::TauJetContainer"
+    _outputKey = "TauJets"
+    _outputDetailsType = "xAOD::TauJetAuxContainer"
+    _outputDetailsKey = "TauJetsAux."
+
+    def __init__(self, name = "TauProcessorAODTools_FTau"):
+        TauRecConfigured.__init__(self, name)
+
+    def configure(self):
+        mlog = logging.getLogger ('TauRecAODProcessor_FTau::configure:')
+        mlog.info('entering')
+
+        import tauRec.TauAlgorithmsHolder as taualgs
+        ########################################################################
+        # Tau Modifier Algos
+        ########################################################################
+        try:
+            from tauRecTools.tauRecToolsConf import TauProcessorTool
+            self._TauProcessorHandle = TauProcessorTool(
+                name = self.name,
+                TauContainer                 = self._outputKey,
+                TauAuxContainer              = self._outputDetailsKey,
+                deepCopyTauJetContainer      = True,
+                deepCopyChargedPFOContainer  = False,
+                deepCopyTauShotPFOContainer  = False,
+                deepCopyHadronicPFOContainer = False,
+                deepCopyNeutralPFOContainer  = False,
+                deepCopyTauTrackContainer    = False,
+                runOnAOD                     = True,
+                )
+            print self._TauProcessorHandle
+
+        except Exception:
+            mlog.error("could not get handle to TauProcessor")
+            print traceback.format_exc()
+            return False
+
+        tools = []
+        try:
+            taualgs.setAODmode(True)
+
+            # Calculate the RNN scores
+            tools.append(taualgs.getFTauDecorator())
+
+            TauRecConfigured.AddToolsToToolSvc(self, tools)
+            self.TauProcessorHandle().Tools = tools
+
+        except Exception:
+            mlog.error("could not append tools to TauProcessor")
+            print traceback.format_exc()
+            return False
+
+        TauRecConfigured.WrapTauRecToolExecHandle(self, tool=self.TauProcessorHandle())
+        return True
+
+    #############################################################################################
+    # Helpers
+    #############################################################################################
+
+    def TauProcessorHandle(self):
+        return self._TauProcessorHandle

@@ -17,6 +17,10 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 #====================================================================
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__AsgSelectionToolWrapper
 from TauAnalysisTools.TauAnalysisToolsConf import TauAnalysisTools__TauSelectionTool
+
+from tauRec.TauRecAODBuilder import TauRecAODProcessor_FTau
+TauRecAODProcessor_FTau()
+
 DFCommonTauWrapperTools = []
 
 # Loose
@@ -66,3 +70,5 @@ DFCommonTauWrapperTools.append(DFCommonTausTightWrapper)
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
 DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("TauCommonKernel",
                                                                          AugmentationTools = DFCommonTauWrapperTools)
+
+
