@@ -8,6 +8,7 @@
 #include "TrigEgammaEmulationTool/TrigEgammaEFCaloSelectorTool.h"
 #include "TrigEgammaEmulationTool/TrigEgammaEFElectronSelectorTool.h"
 #include "TrigEgammaEmulationTool/TrigEgammaEFPhotonSelectorTool.h"
+#include "TrigEgammaEmulationTool/TrigEgammaIsolationSelectorTool.h"
 #include "../TrigEgammaEmulationToolTest.h"
 #include "../TrigEgammaEmulationToolAlg.h"
 

@@ -2,13 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGRINGERPREPROC_H
-#define TRIGRINGERPREPROC_H
+
+#ifndef PREPROC_TRIGRINGERPREPROC_H
+#define PREPROC_TRIGRINGERPREPROC_H
 
 ///std librarys
 #include <vector>
 ///Local includes
-#include "TrigMultiVarHypo/preprocessor/TrigRingerHelper.h"
+#include "TrigMultiVarHypo/tools/TrigRingerHelper.h"
+
 
 
 class TrigRingerPreprocessor{
@@ -23,8 +25,8 @@ class TrigRingerPreprocessor{
     /// RingSet object
     std::vector<TrigCaloRingsHelper::RingSet*>     m_ringsSet;
     unsigned int              m_maxRingsAccumulated;
+  
   public:
-
 
     TrigRingerPreprocessor(std::vector<unsigned int> &nRings, 
                            std::vector<unsigned int> &normRings,
@@ -37,6 +39,10 @@ class TrigRingerPreprocessor{
     void setEnergyThreshold( double e ){ m_energyThreshold = e;};
     
     double getEnergyThreshold(){ return m_energyThreshold;};
+
+    float normalize_eta( float, float etamin, float etamax );
+
+    float normalize_mu( float, float mumax );
 
     /*
      * Calculates and applies the sequential normalisation vector that results
@@ -69,3 +75,4 @@ class TrigRingerPreprocessor{
 
 };
 #endif /* TrigRingerPreproc */
+
