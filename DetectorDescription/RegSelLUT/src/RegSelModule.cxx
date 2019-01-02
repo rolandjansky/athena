@@ -31,7 +31,6 @@
 RegSelModule::RegSelModule() :
   ZRObject( 0, 0, 0, 0 ),
   m_phiMin(0), m_phiMax(0),
-  m_id(0), 
   m_layer(0), m_detector(0),
   m_robID(0), m_hashID(0) { }
 
@@ -52,7 +51,6 @@ RegSelModule::RegSelModule(double zmin,   double zmax,
   //	    ( zmax<0 ? -1 : 1 )*std::log10(std::fabs(zmax)) ),
   ZRObject( rmin, rmax, zmin, zmax ),
   m_phiMin(phimin), m_phiMax(phimax),
-  m_id(0), 
   m_layer(layer), m_detector(detector),
   m_robID(robid), m_hashID(hashid)
 {
@@ -82,7 +80,6 @@ RegSelModule::RegSelModule(double zmin,   double zmax,
   //	    ( zmax<0 ? -1 : 1 )*std::log10(std::fabs(zmax)) ),
   ZRObject( rmin, rmax, zmin, zmax, z2min, z2max ),
   m_phiMin(phimin), m_phiMax(phimax),
-  m_id(0), 
   m_layer(layer), m_detector(detector),
   m_robID(robid), m_hashID(hashid)
 {
