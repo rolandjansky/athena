@@ -307,10 +307,19 @@ class MenuSequence():
 
     def replaceHypoForCombo(self, HypoAlg):
         log.debug("set new Hypo %s for combo sequence %s "%(HypoAlg.name(), self.name))
-        self.hypo= HypoAlgNode( Alg=HypoAlg)
+        self.hypo= HypoAlgNode( Alg=HypoAlg )
     
     def connectToFilter(self, sfilter, line):
-        new_output = self.hypo.Alg.name()+"_decisions"
+        """ Sets the input and output of the hypo, and links to the input maker """
+        splitLine = filter( lambda x: not ( x == "from" or x == "Filter"), line.split("_") ) # eliminate common words
+        splitLine =[ k[0] for k in filter( lambda x: not ( "Step" in x[0] or "Step" in x[1]), zip(splitLine, [""]+splitLine) )] # eliminate the word contaning Step and the one after
+
+        
+        #new_output = "%s_from_%s"%(self.hypo.Alg.name(), line)
+        #new_output = self.hypo.Alg.name()+"_decisions"
+        new_output = self.hypo.Alg.name() + "_" +"_".join(splitLine)
+        
+        print "Hypo ", self.hypo.Alg.name(), "output", new_output
         self.hypo.addOutput(new_output)
 #        print self.hypo.readOutputList()
 #        print self.hypo.outputs
@@ -321,6 +330,7 @@ class MenuSequence():
         self.inputs.append(line)
         
         input_maker_output="%s_from_%s"%(self.maker.Alg.name(),line)
+        #input_maker_output=self.maker.Alg.name()+"_output"
         self.maker.addOutput(input_maker_output) 
         self.hypo.setPreviousDecision(input_maker_output)
         log.debug("MenuSequence.connectToFilter: connecting InputMaker and HypoAlg, adding: \
