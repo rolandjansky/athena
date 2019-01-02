@@ -1,42 +1,26 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef INDETSDOOVERLAY_H
-#define INDETSDOOVERLAY_H
+#ifndef INDETOVERLAY_INDETSDOOVERLAY_H
+#define INDETOVERLAY_INDETSDOOVERLAY_H
 
-#include <string>
-
-#include "GaudiKernel/ServiceHandle.h"
-
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 
-#include "OverlayAlgBase/OverlayAlgBase.h"
-
-class InDetSDOOverlay : public OverlayAlgBase
+class InDetSDOOverlay : public AthAlgorithm
 {
 public:
   InDetSDOOverlay(const std::string &name, ISvcLocator *pSvcLocator);
-  
-  virtual StatusCode overlayInitialize() override;
-  virtual StatusCode overlayExecute() override;
-  virtual StatusCode overlayFinalize() override;
+
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
 
 private:
-  bool m_do_TRT, m_do_TRT_background;
-  SG::ReadHandleKey<InDetSimDataCollection> m_mainInputTRTKey;
-  SG::ReadHandleKey<InDetSimDataCollection> m_overlayInputTRTKey;
-  SG::WriteHandleKey<InDetSimDataCollection> m_outputTRTKey;
+  SG::ReadHandleKey<InDetSimDataCollection> m_bkgInputKey{ this, "BkgInputKey", "", "ReadHandleKey for Background Input InDetSimDataCollection" };
+  SG::ReadHandleKey<InDetSimDataCollection> m_signalInputKey{ this, "SignalInputKey", "", "ReadHandleKey for Signal Input InDetSimDataCollection" };
+  SG::WriteHandleKey<InDetSimDataCollection> m_outputKey{ this, "OutputKey", "", "WriteHandleKey for Output InDetSimDataCollection" };
 
-  bool m_do_SCT, m_do_SCT_background;
-  SG::ReadHandleKey<InDetSimDataCollection> m_mainInputSCTKey;
-  SG::ReadHandleKey<InDetSimDataCollection> m_overlayInputSCTKey;
-  SG::WriteHandleKey<InDetSimDataCollection> m_outputSCTKey;
-
-  bool m_do_Pixel, m_do_Pixel_background;
-  SG::ReadHandleKey<InDetSimDataCollection> m_mainInputPixelKey;
-  SG::ReadHandleKey<InDetSimDataCollection> m_overlayInputPixelKey;
-  SG::WriteHandleKey<InDetSimDataCollection> m_outputPixelKey;
 };
 
-#endif // INDETSDOOVERLAY_H
+#endif // INDETOVERLAY_INDETSDOOVERLAY_H

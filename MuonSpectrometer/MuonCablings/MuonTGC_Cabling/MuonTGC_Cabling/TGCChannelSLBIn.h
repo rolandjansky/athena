@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CABLING_TGCCHANNELSLBIN_HH
@@ -48,7 +48,7 @@ public:
 			      CellType cellType);
   
   virtual CellType getCellType(void) const {
-    return cellType;
+    return m_cellType;
   }
   
   virtual int getChannelInCell(void) const;
@@ -58,21 +58,21 @@ public:
   virtual void setChannel(int channel);
 
 private:
-  CellType cellType;
-  int channelInCell;
-  int channelInSLB;
+  CellType m_cellType;
+  int m_channelInCell;
+  int m_channelInSLB;
 
-  static const int lengthCell[];
-  static const int offsetCell[];
-  static const int lengthWD[];
-  static const int lengthSD[];
-  static const int lengthWT[];
-  static const int lengthST[];
-  static const int adjacentCell[];
-  static const int adjacentWD[];
-  static const int adjacentSD[];
-  static const int adjacentWT[];
-  static const int adjacentST[];
+  static const int s_lengthCell[];
+  static const int s_offsetCell[];
+  static const int s_lengthWD[];
+  static const int s_lengthSD[];
+  static const int s_lengthWT[];
+  static const int s_lengthST[];
+  static const int s_adjacentCell[];
+  static const int s_adjacentWD[];
+  static const int s_adjacentSD[];
+  static const int s_adjacentWT[];
+  static const int s_adjacentST[];
 
   TGCChannelSLBIn(void) {}
   

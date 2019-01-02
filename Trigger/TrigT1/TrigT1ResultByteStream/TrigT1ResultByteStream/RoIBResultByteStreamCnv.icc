@@ -92,7 +92,7 @@ StatusCode RoIBResultByteStreamCnv< ROBF >::createObj( IOpaqueAddress* pAddr, Da
     return StatusCode::FAILURE;
   }
 
-  ROIB::RoIBResult* result;
+  ROIB::RoIBResult* result = new ROIB::RoIBResult;
 
   const std::vector< ROBF >& robs = pAddrL1->getPointers();
 

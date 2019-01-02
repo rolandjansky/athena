@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTGC_Cabling/TGCChannelSLBIn.h"
@@ -47,50 +47,50 @@ bool TGCChannelSLBIn::isValid(void) const
      (getOctant()    <8)                       &&
      (getId()        >=0)                      &&
      (getChannel()   >=0)                      &&
-     (channelInSLB   <getLengthOfSLB(getModuleType(), getCellType())) &&
-     (channelInSLB   >=0)                           )
+     (m_channelInSLB   <getLengthOfSLB(getModuleType(), getCellType())) &&
+     (m_channelInSLB   >=0)                           )
     return true;
   return false;
 }
 
 
-//                                         Trig  A   B   C   D
-const int TGCChannelSLBIn::lengthCell[]  = {40, 36, 36, 44, 44};
-const int TGCChannelSLBIn::offsetCell[]  = { 0, 40, 76,112,156};
-const int TGCChannelSLBIn::lengthWD[]    = {40, 36, 36, 44, 44};
-const int TGCChannelSLBIn::lengthSD[]    = {40, 32, 32, 32, 32};
-const int TGCChannelSLBIn::lengthWT[]    = {40, 36, 36, 36, 36};
-const int TGCChannelSLBIn::lengthST[]    = {40, 32, 32, 32, 32};
-const int TGCChannelSLBIn::adjacentCell[]= { 0,  2,  2,  6,  6};
-const int TGCChannelSLBIn::adjacentWD[]  = { 0,  2,  2,  6,  6};
-const int TGCChannelSLBIn::adjacentSD[]  = { 0,  0,  0,  0,  0};
-const int TGCChannelSLBIn::adjacentWT[]  = { 0,  2,  2,  2,  2};
-const int TGCChannelSLBIn::adjacentST[]  = { 0,  0,  0,  0,  0};
+//                                           Trig  A   B   C   D
+const int TGCChannelSLBIn::s_lengthCell[]  = {40, 36, 36, 44, 44};
+const int TGCChannelSLBIn::s_offsetCell[]  = { 0, 40, 76,112,156};
+const int TGCChannelSLBIn::s_lengthWD[]    = {40, 36, 36, 44, 44};
+const int TGCChannelSLBIn::s_lengthSD[]    = {40, 32, 32, 32, 32};
+const int TGCChannelSLBIn::s_lengthWT[]    = {40, 36, 36, 36, 36};
+const int TGCChannelSLBIn::s_lengthST[]    = {40, 32, 32, 32, 32};
+const int TGCChannelSLBIn::s_adjacentCell[]= { 0,  2,  2,  6,  6};
+const int TGCChannelSLBIn::s_adjacentWD[]  = { 0,  2,  2,  6,  6};
+const int TGCChannelSLBIn::s_adjacentSD[]  = { 0,  0,  0,  0,  0};
+const int TGCChannelSLBIn::s_adjacentWT[]  = { 0,  2,  2,  2,  2};
+const int TGCChannelSLBIn::s_adjacentST[]  = { 0,  0,  0,  0,  0};
 
 
 int TGCChannelSLBIn::getLengthOfCell(CellType cellType) {
-  return lengthCell[cellType];
+  return s_lengthCell[cellType];
 }
   
 int TGCChannelSLBIn::getOffsetOfCell(CellType cellType) {
-  return offsetCell[cellType];
+  return s_offsetCell[cellType];
 }
 
 int TGCChannelSLBIn::getLengthOfSLB(TGCIdBase::ModuleType moduleType, 
 				    CellType cellType) {
   switch(moduleType){
   case TGCIdBase::WD:
-    return lengthWD[cellType];
+    return s_lengthWD[cellType];
   case TGCIdBase::SD:
-    return lengthSD[cellType];
+    return s_lengthSD[cellType];
   case TGCIdBase::WT:
-    return lengthWT[cellType];
+    return s_lengthWT[cellType];
   case TGCIdBase::ST:
-    return lengthST[cellType];
+    return s_lengthST[cellType];
   case TGCIdBase::WI:
-    return lengthST[cellType];
+    return s_lengthST[cellType];
   case TGCIdBase::SI:
-    return lengthST[cellType];
+    return s_lengthST[cellType];
   default:
     break;
   }
@@ -98,24 +98,24 @@ int TGCChannelSLBIn::getLengthOfSLB(TGCIdBase::ModuleType moduleType,
 }
 
 int TGCChannelSLBIn::getAdjacentOfCell(CellType cellType) {
-  return adjacentCell[cellType];
+  return s_adjacentCell[cellType];
 }
 
 int TGCChannelSLBIn::getAdjacentOfSLB(TGCIdBase::ModuleType moduleType,
 				      CellType cellType) {
   switch(moduleType){
   case TGCIdBase::WD:
-    return adjacentWD[cellType];
+    return s_adjacentWD[cellType];
   case TGCIdBase::SD:
-    return adjacentSD[cellType];
+    return s_adjacentSD[cellType];
   case TGCIdBase::WT:
-    return adjacentWT[cellType];
+    return s_adjacentWT[cellType];
   case TGCIdBase::ST:
-    return adjacentST[cellType];
+    return s_adjacentST[cellType];
   case TGCIdBase::WI:
-    return adjacentST[cellType];
+    return s_adjacentST[cellType];
   case TGCIdBase::SI:
-    return adjacentST[cellType];
+    return s_adjacentST[cellType];
   default:
     break;
   }
@@ -186,19 +186,19 @@ int TGCChannelSLBIn::convertChannel(TGCIdBase::ModuleType moduleType,
 }
 
 int TGCChannelSLBIn::getChannelInCell(void) const {
-  return channelInCell;
+  return m_channelInCell;
 }
 
 int TGCChannelSLBIn::getChannelInSLB(void) const {
-  return channelInSLB;
+  return m_channelInSLB;
 }
 
 void TGCChannelSLBIn::setChannel(int vchannel) {
   TGCId::setChannel(vchannel);
-  cellType = convertCellType(vchannel);
-  channelInCell = convertChannelInCell(vchannel);
-  channelInSLB = convertChannelInSLB(getModuleType(), getCellType(),
-				     getChannelInCell());
+  m_cellType = convertCellType(vchannel);
+  m_channelInCell = convertChannelInCell(vchannel);
+  m_channelInSLB = convertChannelInSLB(getModuleType(), getCellType(),
+                                       getChannelInCell());
 }  
 
 

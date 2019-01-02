@@ -24,8 +24,6 @@
 #include "TrkAmbiguityProcessor/dRMap.h"
 #include "SiClusterizationTool/NnClusterizationFactory.h"
 
-//#include "PixelConditionsTools/IModuleDistortionsTool.h"
-
 #include "PixelConditionsData/PixelOfflineCalibData.h"
 #include "InDetCondServices/ISiLorentzAngleTool.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -35,7 +33,6 @@ class IModuleDistortionsTool;
 class StoreGateSvc;
 class IIBLParameterSvc;
 
-//namespace InDet {
 
   /** @brief creates FTK_PixelClusterOnTrack objects allowing to
       calibrate cluster position and error using a given track hypothesis. 
@@ -148,7 +145,6 @@ public:
   SG::ReadCondHandleKey<PixelCalib::PixelOfflineCalibData> m_clusterErrorKey{this, "PixelOfflineCalibData", "PixelOfflineCalibData", "Output key of pixel cluster"};
   SG::ReadCondHandleKey<RIO_OnTrackErrorScaling> m_pixelErrorScalingKey
     {this,"PixelErrorScalingKey", "" /* "/Indet/TrkErrorScalingPixel" */, "Key for pixel error scaling conditions data. No error scaling if empty"};
-
   bool                               m_disableDistortions;
   bool                               m_rel13like         ;
   int                                m_positionStrategy  ;
@@ -181,7 +177,6 @@ public:
   ServiceHandle<StoreGateSvc>                           m_storeGate;            //!< Event store
   ServiceHandle<IIBLParameterSvc>                       m_IBLParameterSvc;
 
-
   SG::ReadHandleKey<InDet::DRMap>                      m_dRMap;      //!< the actual dR map         
   std::string                                          m_dRMapName;
   
@@ -203,7 +198,5 @@ public:
   double m_phix[NBINPHI+1];
   double m_etax[NBINETA+1];
 };
-
-//} // end of namespace FTK
 
 #endif // FTK_PixelClusterOnTrackTool_H

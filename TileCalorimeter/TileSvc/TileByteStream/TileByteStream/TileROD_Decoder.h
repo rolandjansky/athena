@@ -11,6 +11,7 @@
 #include <iostream>
 #include <cassert>
 #include <atomic>
+#include <mutex>
 #include <stdint.h>
 
 // Gaudi includes
@@ -27,6 +28,7 @@
 #include "TileByteStream/TileRawChannel2Bytes4.h"
 #include "TileByteStream/TileRawChannel2Bytes5.h"
 #include "TileByteStream/TileDigits2Bytes.h"
+#include "TileCalibBlobObjs/TileCalibUtils.h"
 
 #include "TileEvent/TileBeamElem.h"
 #include "TileEvent/TileBeamElemContainer.h"
@@ -243,7 +245,7 @@ class TileROD_Decoder: public AthAlgTool {
      for correspondent units. Coefficients automatically stored in memory,
      thus for next calls nothing loaded again. Once loaded in memory
      coefficients will be kept there and freed only by destructor method. */
-    uint32_t* getOFW(int fragId, int unit);
+    const uint32_t* getOFW(int fragId, int unit);
 
     /** unpack_frag0 decodes tile subfragment type 0x0. This subfragment contains the
      tile raw digits from the 48 read-out channels of a tilecal module. */
@@ -529,8 +531,14 @@ class TileROD_Decoder: public AthAlgTool {
 	        "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
 
     // OFWeights for different units and different drawers:
-    // every element contains pointers to OFC for single drawer and one of 4 different units
-    std::vector<std::vector<uint32_t>*> m_OFWeights;
+    // every element contains OFC for single drawer and one of 4 different units
+    mutable std::vector<uint32_t> m_OFWeights[4 * TileCalibUtils::MAX_DRAWERIDX];
+
+    // Pointers to the start of the data for each vector.
+    mutable std::atomic<const uint32_t*> m_OFPtrs[4 * TileCalibUtils::MAX_DRAWERIDX];
+
+    // Mutex protecting access to weight vectors.
+    mutable std::mutex m_OFWeightMutex;
 
     float m_TileCellEthreshold;
     bool m_verbose;

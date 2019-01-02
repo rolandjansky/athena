@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LArG4H6COLDTCMod0ChannelMap_H
@@ -16,7 +16,7 @@ class LArG4H6COLDTCMod0ChannelMap
   LArG4H6COLDTCMod0ChannelMap();
   LArG4H6COLDTCMod0ChannelMap(G4double rMin, G4double rMax, G4double m_area,
                           G4double phiMin, G4double phiMax, G4int nPhis);
-  ~LArG4H6COLDTCMod0ChannelMap();
+  ~LArG4H6COLDTCMod0ChannelMap() = default;
 
   G4int getRBin(const G4ThreeVector& aPoint) const;
   G4int getNoRBins() const { return m_rBins.size(); }

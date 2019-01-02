@@ -10,9 +10,7 @@ logging.getLogger().info("Importing %s",__name__)
 
 logMuonDef = logging.getLogger("TriggerMenu.muon.MuonDef")
 
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-import re
-from TriggerMenu.menu.HltConfig import *
+from TriggerMenu.menu.HltConfig import mergeRemovingOverlap,L2EFChainDef
 
 # Conditions sequence for Athena MT
 from AthenaCommon.AlgSequence import AthSequencer
@@ -394,7 +392,7 @@ class L2EFChain_mu(L2EFChainDef):
     theTrigEFIDInsideOutMerged_Muon     = TrigEFIDSequence("Muon","muon","InsideOutMerged")
     theTrigEFIDInsideOut_Muon = TrigEFIDSequence("Muon","muon")          # ---> this is Run1 tracking - keep it here
     #theTrigEFIDInsideOut_Muon_MergedDP = TrigEFIDSequence("Muon","muon","DataPrep")
-    theTrigEFIDOutsideInTRTOnly_Muon = TrigEFIDSequence("Muon","muon","TRTOnly")
+    #theTrigEFIDOutsideInTRTOnly_Muon = TrigEFIDSequence("Muon","muon","TRTOnly")
 
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFExtrapolatorHypoConfig
     theTrigMuonEFExtrapolatorHypoConfig = TrigMuonEFExtrapolatorHypoConfig(EFRecoAlgName, EFExtrapolatorThresh)
@@ -572,7 +570,7 @@ class L2EFChain_mu(L2EFChainDef):
     from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Muon
     theTrigFastTrackFinder_Muon = TrigFastTrackFinder_Muon()
     theTrigEFIDInsideOutMerged_Muon = TrigEFIDSequence("Muon","muon","InsideOutMerged").getSequence()
-    theTrigEFIDInsideOut_Muon = TrigEFIDSequence("Muon","muon","InsideOut").getSequence()
+    #theTrigEFIDInsideOut_Muon = TrigEFIDSequence("Muon","muon","InsideOut").getSequence() for the fallback on line 605
 
     from TrigMuonEF.TrigMuonEFConfig import TrigMuonEFRoiAggregatorConfig
 

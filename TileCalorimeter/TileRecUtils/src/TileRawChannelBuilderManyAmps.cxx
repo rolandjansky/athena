@@ -4,14 +4,6 @@
 
 // small hack to enable datapool usage
 #include "TileEvent/TileRawChannel.h"
-
-// Gaudi includes
-#include "GaudiKernel/Property.h"
-
-//Atlas includes
-#include "AthAllocators/DataPool.h"
-#include "AthenaKernel/errorcheck.h"
-
 // Tile includes
 #include "TileRecUtils/TileRawChannelBuilderManyAmps.h"
 #include "TileEvent/TileRawChannelContainer.h"
@@ -21,6 +13,14 @@
 #include "TileConditions/TileInfo.h"
 #include "TileRecUtils/TileFilterManager.h"
 #include "TileRecUtils/TileFilterTester.h"
+
+// Gaudi includes
+#include "GaudiKernel/Property.h"
+
+//Atlas includes
+#include "AthAllocators/DataPool.h"
+#include "AthenaKernel/errorcheck.h"
+
 
 // lang include
 #include <algorithm>
@@ -146,7 +146,9 @@ TileRawChannel* TileRawChannelBuilderManyAmps::rawChannel(const TileDigits* tile
   ++m_chCounter;
 
   const HWIdentifier adcId = tiledigits->adc_HWID();
-  int gain = m_tileHWID->adc(adcId);
+  unsigned int drawerIdx(0), channel(0), gain(0);
+  m_tileIdTransforms->getIndices(adcId, drawerIdx, channel, gain);
+
   bool lVerbose(false);
   if (msgLvl(MSG::VERBOSE)) {
     msg(MSG::VERBOSE) << "Running ManyAmps Fit for TileRawChannel with HWID "
@@ -160,7 +162,7 @@ TileRawChannel* TileRawChannelBuilderManyAmps::rawChannel(const TileDigits* tile
   // new way to get channel-dependent sigma:
   // but we lost difference between sigma used in digitization and 
   // sigma assumed in reconstruction - it's the same sigma now
-  double digSigma = m_tileInfo->DigitsPedSigma(adcId);
+  double digSigma = m_tileToolNoiseSample->getHfn(drawerIdx, channel, gain);
 
   /* Get vector of time-slice amplitudes. */
   std::vector<float> digits = tiledigits->samples();
@@ -189,7 +191,7 @@ TileRawChannel* TileRawChannelBuilderManyAmps::rawChannel(const TileDigits* tile
 
   // convert to pCb (if needed)
   if (m_calibrateEnergy) {
-    amp_ch = m_tileInfo->CisCalib(adcId, amp_ch);
+    amp_ch = m_tileToolEmscale->doCalibCis(drawerIdx, channel, gain, amp_ch);
   }
   // we know that time is zero here, put negative chi^2 to indicate that
   chisq_ch = -fabs(chisq_ch);

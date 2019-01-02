@@ -27,7 +27,7 @@ find_package( GeoModel )
 atlas_add_library( LArGeoFcal
                    src/*.cxx
                    PUBLIC_HEADERS LArGeoFcal
-                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${GEOMODEL_NCLUDE_DIR}
+                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${GEOMODEL_LIBRARIES} StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES ${EIGEN_LIBRARIES} GeoModelUtilities GaudiKernel LArReadoutGeometry )

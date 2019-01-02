@@ -57,7 +57,7 @@ theApp.EvtMax = 1
 
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
-ServiceMgr.THistSvc.Output =["disto DATAFILE='test.root' opt='RECREATE'"];
+ServiceMgr.THistSvc.Output =["SCT_TestDistortionsTool DATAFILE='test.root' opt='RECREATE'"];
 
 ##--------------------------------------------------------------
 ## Load IOVDbSvc

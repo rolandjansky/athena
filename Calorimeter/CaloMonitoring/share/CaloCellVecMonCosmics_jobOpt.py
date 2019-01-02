@@ -154,14 +154,14 @@ LArCellMon = LArCellMonTool(
     FCAL3_Thresh          = [ 6000. , 6000.         ],
 )
 
-
 #Tile monitoring:
 from CaloMonitoring.CaloMonitoringConf import TileCalCellMonTool
 TileCalCellMon=TileCalCellMonTool("TileCalCellMonCosmics",
-                            CaloNoiseTool=theCaloNoiseTool,
-                            useReadyFilterTool = False,
-                            useBeamBackgroundRemoval = False
-                            )
+                                  CaloNoiseTool=theCaloNoiseTool,
+                                  BadLBTool = GetLArBadLBFilterTool(),
+                                  useReadyFilterTool = False,
+                                  useBeamBackgroundRemoval = False
+                                  )
 
 
 if DQMonFlags.monManEnvironment == 'online':

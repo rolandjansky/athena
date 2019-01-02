@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCCABLESSWTOROD_HH
@@ -29,7 +29,7 @@ private:
   TGCCableSSWToROD (void) {}
   virtual TGCModuleMap* getModuleIn (const TGCModuleId* rod) const;
   virtual TGCModuleMap* getModuleOut (const TGCModuleId* ssw) const;
-  TGCDatabase* database;
+  TGCDatabase* m_database;
 
   // hidden assignment operator and copy constructor
   TGCCableSSWToROD & operator=(const TGCCableSSWToROD &right);

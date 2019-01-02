@@ -46,9 +46,6 @@ svcMgr += THistSvc(Output = ["TRACKS DATAFILE='ftk.root', OPT='RECREATE'"])
 #ServiceMgr.ConfiguredFTK_DataProviderSvc.OutputLevel=VERBOSE
 #topSequence.FTK_RDO_MonitorAlgo.reverseIBLlocx=True
 #topSequence.FTK_RDO_MonitorAlgo.OutputLevel=DEBUG
-topSequence.FTK_RDO_MonitorAlgo.GetHashFromTrack=True        # if both set to true, will compare and report errors
-topSequence.FTK_RDO_MonitorAlgo.GetHashFromConstants=False   # if both set to true, will compare and report errors
-
 #topSequence.FTK_Tracks_DetailedTruthCollectionMaker.OutputLevel=VERBOSE
 #topSequence.FTK_RefitTracks_DetailedTruthCollectionMaker.OutputLevel=VERBOSE
 #ToolSvc.FTK_TrackFitter.OutputLevel=VERBOSE

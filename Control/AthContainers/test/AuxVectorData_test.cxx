@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -369,6 +369,7 @@ public:
   virtual const void* getData (SG::auxid_t) const { std::abort(); }
   virtual void* getDecoration (SG::auxid_t, size_t, size_t) { std::abort(); }
   virtual const SG::auxid_set_t& getAuxIDs() const { std::abort(); }
+  virtual bool isDecoration(SG::auxid_t /*auxid*/) const { std::abort(); }
   virtual void lock() { std::abort(); }
   virtual void lockDecoration (SG::auxid_t) { std::abort(); }
   virtual bool clearDecorations() { std::abort(); }

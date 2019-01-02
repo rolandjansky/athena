@@ -761,6 +761,7 @@ public:
   virtual const void* getData (SG::auxid_t) const { return 0;}
   virtual void* getDecoration (SG::auxid_t, size_t, size_t) { return 0; }
   virtual const SG::auxid_set_t& getAuxIDs() const { return m_auxids; }
+  virtual bool isDecoration(SG::auxid_t /*auxid*/) const { std::abort(); }
   virtual void lock() { }
   virtual void lockDecoration (SG::auxid_t) { }
   virtual bool clearDecorations() { return false; }

@@ -29,8 +29,12 @@ class TileRawChannelGetter ( Configured)  :
     def configure(self):
 
         mlog = logging.getLogger( 'TileRawChannelGetter::configure:' )
-        mlog.info ("entering")        
-        
+        mlog.info ("entering")
+
+        self._TileRawChannelBuilderFitFilter = None
+        self._TileRawChannelBuilderOpt2Filter = None
+        self._TileRawChannelBuilderOptATLAS = None
+
         # Instantiation of the C++ algorithm
         try:        
             from TileRecUtils.TileRecUtilsConf import TileRawChannelMaker               
@@ -195,7 +199,7 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderQIEFilter.NoiseFilterTools= NoiseFilterTools
                 theTileRawChannelBuilderQIEFilter.PedestalMode = 1
       
-                mlog.info(" adding now TileRawChannelBuilderQIEFilter to the aglorithm: %s" % theTileRawChannelMaker.name())
+                mlog.info(" adding now TileRawChannelBuilderQIEFilter to the algorithm: %s" % theTileRawChannelMaker.name())
       
                 theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderQIEFilter]
             
@@ -218,7 +222,7 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderManyAmps.correctTime     = jobproperties.TileRecFlags.correctTime()    
                 theTileRawChannelBuilderManyAmps.NoiseFilterTools= NoiseFilterTools
                  
-                mlog.info(" adding now TileRawChannelBuilderManyAmps to the aglorithm: %s" % theTileRawChannelMaker.name())
+                mlog.info(" adding now TileRawChannelBuilderManyAmps to the algorithm: %s" % theTileRawChannelMaker.name())
       
                 theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderManyAmps]
       
@@ -243,7 +247,7 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderFlatFilter.FrameLength = TileFrameLength
                 theTileRawChannelBuilderFlatFilter.SignalLength = TileFrameLength - 1
       
-                mlog.info(" adding now TileRawChannelBuilderFlatFilter to the aglorithm: %s" % theTileRawChannelMaker.name())
+                mlog.info(" adding now TileRawChannelBuilderFlatFilter to the algorithm: %s" % theTileRawChannelMaker.name())
       
                 theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderFlatFilter]
       
@@ -267,12 +271,13 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderFitFilter.FrameLength = TileFrameLength
                 
                 # add the tool to list of tool ( should use ToolHandle eventually)
-                mlog.info(" adding now TileRawChannelBuilderFitFilter to the aglorithm: %s" % theTileRawChannelMaker.name())
+                mlog.info(" adding now TileRawChannelBuilderFitFilter to the algorithm: %s" % theTileRawChannelMaker.name())
 
                 if jobproperties.TileRecFlags.doTileFit():
                     jobproperties.TileRecFlags.TileRawChannelContainer = "TileRawChannelFit"
                     theTileRawChannelBuilderFitFilter.TileRawChannelContainer = "TileRawChannelFit"
                     theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderFitFilter]
+                    self._TileRawChannelBuilderFitFilter = theTileRawChannelBuilderFitFilter
                     
                 if jobproperties.TileRecFlags.doTileOverflowFit(): 
                     theTileRawChannelMaker.FitOverflow = True
@@ -301,7 +306,7 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderFitFilterCool.FrameLength = TileFrameLength
                 
                 # add the tool to list of tool ( should use ToolHandle eventually)
-                mlog.info(" adding now TileRawChannelBuilderFitFilterCool to the aglorithm: %s" % theTileRawChannelMaker.name())
+                mlog.info(" adding now TileRawChannelBuilderFitFilterCool to the algorithm: %s" % theTileRawChannelMaker.name())
       
                 theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderFitFilterCool]
                 
@@ -339,7 +344,7 @@ class TileRawChannelGetter ( Configured)  :
                     theTileRawChannelBuilderMF.TimeMinForAmpCorrection = jobproperties.TileRecFlags.TimeMinForAmpCorrection()
                     theTileRawChannelBuilderMF.TimeMaxForAmpCorrection = jobproperties.TileRecFlags.TimeMaxForAmpCorrection()
 
-                mlog.info(" adding now TileRawChannelBuilderMF to the aglorithm: %s" % theTileRawChannelMaker.name())
+                mlog.info(" adding now TileRawChannelBuilderMF to the algorithm: %s" % theTileRawChannelMaker.name())
       
                 theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderMF]
 
@@ -367,7 +372,7 @@ class TileRawChannelGetter ( Configured)  :
                 
                 ServiceMgr.TileInfoLoader.LoadOptFilterWeights=True
                 
-                mlog.info(" adding now TileRawChannelBuilderOptFilter to the aglorithm: %s" % theTileRawChannelMaker.name())
+                mlog.info(" adding now TileRawChannelBuilderOptFilter to the algorithm: %s" % theTileRawChannelMaker.name())
       
                 theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderOptFilter]
       
@@ -412,7 +417,7 @@ class TileRawChannelGetter ( Configured)  :
                     theTileRawChannelBuilderOF1.TimeMinForAmpCorrection = jobproperties.TileRecFlags.TimeMinForAmpCorrection()
                     theTileRawChannelBuilderOF1.TimeMaxForAmpCorrection = jobproperties.TileRecFlags.TimeMaxForAmpCorrection()
       
-                mlog.info(" adding now TileRawChannelBuilderOF1 to the aglorithm: %s" % theTileRawChannelMaker.name())
+                mlog.info(" adding now TileRawChannelBuilderOF1 to the algorithm: %s" % theTileRawChannelMaker.name())
       
                 theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderOF1]
 
@@ -444,9 +449,10 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderOpt2Filter.AmplitudeCorrection = False; # don't need correction after iterations
                 theTileRawChannelBuilderOpt2Filter.TimeCorrection    = False; # don't need correction after iterations
       
-                mlog.info(" adding now TileRawChannelBuilderOpt2Filter to the aglorithm: %s" % theTileRawChannelMaker.name())
+                mlog.info(" adding now TileRawChannelBuilderOpt2Filter to the algorithm: %s" % theTileRawChannelMaker.name())
       
                 theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderOpt2Filter]
+                self._TileRawChannelBuilderOpt2Filter = theTileRawChannelBuilderOpt2Filter
       
       
             if jobproperties.TileRecFlags.doTileOptATLAS():
@@ -489,10 +495,11 @@ class TileRawChannelGetter ( Configured)  :
                     theTileRawChannelBuilderOptATLAS.TimeMinForAmpCorrection = jobproperties.TileRecFlags.TimeMinForAmpCorrection()
                     theTileRawChannelBuilderOptATLAS.TimeMaxForAmpCorrection = jobproperties.TileRecFlags.TimeMaxForAmpCorrection()
                 
-                mlog.info(" adding now TileRawChannelBuilderOpt2Filter with name TileRawChannelBuilderOptATLAS to the aglorithm: %s"
+                mlog.info(" adding now TileRawChannelBuilderOpt2Filter with name TileRawChannelBuilderOptATLAS to the algorithm: %s"
                           % theTileRawChannelMaker.name())
                 
                 theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderOptATLAS]
+                self._TileRawChannelBuilderOptATLAS = theTileRawChannelBuilderOptATLAS
             
 
             # now add algorithm to topSequence
@@ -539,6 +546,15 @@ class TileRawChannelGetter ( Configured)  :
 
     def TileRChMaker(self):
         return self._TileRChMaker
+
+    def TileRawChannelBuilderFitFilter(self):
+        return self._TileRawChannelBuilderFitFilter
+   
+    def TileRawChannelBuilderOpt2Filter(self):
+        return self._TileRawChannelBuilderOpt2Filter
+
+    def TileRawChannelBuilderOptATLAS(self):
+        return self._TileRawChannelBuilderOptATLAS
    
 ##    # would work only if one output object type
 ##    def outputKey(self):
