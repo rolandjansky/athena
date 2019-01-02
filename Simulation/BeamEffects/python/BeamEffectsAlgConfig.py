@@ -102,10 +102,13 @@ if __name__ == "__main__":
     log.setLevel(DEBUG)
     Configurable.configurableRun3Behavior = 1
 
+    import os
+    inputDir = os.environ.get ('ATLAS_REFERENCE_DATA',
+                               '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art')
     # Provide input
     ConfigFlags.Input.Files = [
-        "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/"
-        "SimCoreTests/e_E50_eta34_49.EVNT.pool.root"
+        inputDir + 
+        "/SimCoreTests/e_E50_eta34_49.EVNT.pool.root"
         ]
 
     # Specify output
@@ -127,6 +130,7 @@ if __name__ == "__main__":
 
     # Add configuration to write HITS pool file
     outConfig = OutputStreamCfg(ConfigFlags, "HITS", ItemList=["McEventCollection#" + alg.OutputMcEventCollection])
+    cfg.merge (outConfig)
 
     cfg.getService("StoreGateSvc").Dump=True
     cfg.printConfig(withDetails=True)
