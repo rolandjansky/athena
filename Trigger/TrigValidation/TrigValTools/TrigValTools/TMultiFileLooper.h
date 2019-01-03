@@ -28,7 +28,7 @@
 class TMultiFileLooper : public TFileLooper {
  public:
   TMultiFileLooper() {}
-  virtual ~TMultiFileLooper() {}
+  virtual ~TMultiFileLooper() = default;
   
   virtual Int_t run(const char* fileListName, const char* rootDir = 0);
   Int_t run();
