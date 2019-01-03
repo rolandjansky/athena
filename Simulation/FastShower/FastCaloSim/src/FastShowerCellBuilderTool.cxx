@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FastCaloSim/FastShowerCellBuilderTool.h"
@@ -680,19 +680,19 @@ StatusCode FastShowerCellBuilderTool::callBack( IOVSVC_CALLBACK_ARGS_P( I, keys)
   return StatusCode::SUCCESS;
 }
 
-ParticleEnergyParametrization* FastShowerCellBuilderTool::findElower(int id,double E,double eta)
+ParticleEnergyParametrization* FastShowerCellBuilderTool::findElower(int id,double E,double eta) const
 {
-  t_map_PEP_ID::iterator iter_id=m_map_ParticleEnergyParametrizationMap.find(id);
+  t_map_PEP_ID::const_iterator iter_id=m_map_ParticleEnergyParametrizationMap.find(id);
   if(iter_id!=m_map_ParticleEnergyParametrizationMap.end()) {
     ATH_MSG_DEBUG("ID found="<<iter_id->first);
-    t_map_PEP_Energy::iterator iter_E=iter_id->second.lower_bound(E);
+    t_map_PEP_Energy::const_iterator iter_E=iter_id->second.lower_bound(E);
     if(iter_E==iter_id->second.end()) iter_E--;
     if(iter_E!=iter_id->second.end()) {
       if(iter_E->first>=E && iter_E!=iter_id->second.begin()) iter_E--;
       ATH_MSG_DEBUG("E found="<<iter_E->first);
       // first para_eta > fabs_eta  !! might be wrong !!
       double aeta=fabs(eta);
-      t_map_PEP_Eta::iterator iter_eta=iter_E->second.lower_bound(aeta);
+      t_map_PEP_Eta::const_iterator iter_eta=iter_E->second.lower_bound(aeta);
 
       if(iter_eta!=iter_E->second.begin())  iter_eta--;
       if(m_energy_eta_selection){
@@ -700,7 +700,7 @@ ParticleEnergyParametrization* FastShowerCellBuilderTool::findElower(int id,doub
         if(iter_eta==iter_E->second.end()) iter_eta--;
         if(iter_eta!=iter_E->second.end()) {
 
-          t_map_PEP_Eta::iterator best(iter_eta);
+          t_map_PEP_Eta::const_iterator best(iter_eta);
           double deta_best=fabs(best->first - aeta);
           while(iter_eta->first < aeta ) {
             iter_eta++;
@@ -755,23 +755,23 @@ ParticleEnergyParametrization* FastShowerCellBuilderTool::findElower(int id,doub
   }
 }
 
-ParticleEnergyParametrization* FastShowerCellBuilderTool::findEupper(int id,double E,double eta)
+ParticleEnergyParametrization* FastShowerCellBuilderTool::findEupper(int id,double E,double eta) const
 {
-  t_map_PEP_ID::iterator iter_id=m_map_ParticleEnergyParametrizationMap.find(id);
+  t_map_PEP_ID::const_iterator iter_id=m_map_ParticleEnergyParametrizationMap.find(id);
   if(iter_id!=m_map_ParticleEnergyParametrizationMap.end()) {
     ATH_MSG_DEBUG("ID found="<<iter_id->first);
-    t_map_PEP_Energy::iterator iter_E=iter_id->second.lower_bound(E);
+    t_map_PEP_Energy::const_iterator iter_E=iter_id->second.lower_bound(E);
     if(iter_E==iter_id->second.end()) iter_E--;
     if(iter_E!=iter_id->second.end()) {
       ATH_MSG_DEBUG("E found="<<iter_E->first);
       double aeta=fabs(eta);
-      t_map_PEP_Eta::iterator iter_eta=iter_E->second.lower_bound(aeta);
+      t_map_PEP_Eta::const_iterator iter_eta=iter_E->second.lower_bound(aeta);
       if(iter_eta!=iter_E->second.begin())  iter_eta--;
       if(m_energy_eta_selection){
         if(iter_eta==iter_E->second.end()) iter_eta--;
         if(iter_eta!=iter_E->second.end()) {
 
-          t_map_PEP_Eta::iterator best(iter_eta);
+          t_map_PEP_Eta::const_iterator best(iter_eta);
           double deta_best=fabs(best->first - aeta);
           while(iter_eta->first < aeta ) {
             iter_eta++;
@@ -827,21 +827,21 @@ ParticleEnergyParametrization* FastShowerCellBuilderTool::findEupper(int id,doub
 }
 
 
-TShape_Result* FastShowerCellBuilderTool::findShape (int id,int calosample,double E,double eta,double dist,double distrange)
+const TShape_Result* FastShowerCellBuilderTool::findShape (int id,int calosample,double E,double eta,double dist,double distrange) const
 {
-  t_map_PSP_ID::iterator iter_id=m_map_ParticleShapeParametrizationMap.find(id);
+  t_map_PSP_ID::const_iterator iter_id=m_map_ParticleShapeParametrizationMap.find(id);
   if(iter_id!=m_map_ParticleShapeParametrizationMap.end()) {
     ATH_MSG_DEBUG("ID found="<<iter_id->first);
 
-    t_map_PSP_calosample::iterator iter_cs=iter_id->second.find(calosample);
+    t_map_PSP_calosample::const_iterator iter_cs=iter_id->second.find(calosample);
     if(iter_cs!=iter_id->second.end()) {
       ATH_MSG_DEBUG("calosample found="<<iter_cs->first);
 
-      t_map_PSP_Energy::iterator iter_E=iter_cs->second.lower_bound(E);
+      t_map_PSP_Energy::const_iterator iter_E=iter_cs->second.lower_bound(E);
       if(iter_E==iter_cs->second.end()) iter_E--;
       double edist=fabs(iter_E->first - E);
       if(iter_E!=iter_cs->second.begin()) {
-        t_map_PSP_Energy::iterator iter_Etest=iter_E;
+        t_map_PSP_Energy::const_iterator iter_Etest=iter_E;
         iter_Etest--;
         double edisttest=fabs(iter_Etest->first - E);
         if(edisttest<edist) iter_E=iter_Etest;
@@ -855,7 +855,7 @@ TShape_Result* FastShowerCellBuilderTool::findShape (int id,int calosample,doubl
         double bestscore=10000000;
         TShape_Result* best_shape=0;
 
-        for(t_map_PSP_DistEta::iterator iter_disteta=iter_E->second.begin();iter_disteta<iter_E->second.end();++iter_disteta) {
+        for(t_map_PSP_DistEta::const_iterator iter_disteta=iter_E->second.begin();iter_disteta<iter_E->second.end();++iter_disteta) {
           double scoreeta=fabs(((*iter_disteta)->eta()-fabs(eta))/0.2);
           double scoredist=fabs(((*iter_disteta)->meandist()-dist)/distrange);
           double score=scoreeta+scoredist;
@@ -1190,7 +1190,7 @@ StatusCode FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCel
   m_refid=211;
   double refmass=139.57018; //PDG charged pion mass
   double partmass=mass;
-  t_map_PEP_ID::iterator iter_id=m_map_ParticleEnergyParametrizationMap.find(11); // Test if a dedicated electron parametrization exists
+  t_map_PEP_ID::const_iterator iter_id=m_map_ParticleEnergyParametrizationMap.find(11); // Test if a dedicated electron parametrization exists
   if(iter_id!=m_map_ParticleEnergyParametrizationMap.end()) {                     // electron parametrization exists
     if(pdgid==22 || pdgid==111) {
       m_refid=22;
@@ -1348,9 +1348,9 @@ StatusCode FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCel
     //////////////////////////////
     // Process all non muon particles
     //////////////////////////////
-    ParticleEnergyParametrization* Elower=findElower(m_refid , Ein , m_eta_calo_surf);
-    ParticleEnergyParametrization* Eupper=findEupper(m_refid , Ein , m_eta_calo_surf);
-    ParticleEnergyParametrization* Epara=0;
+    const ParticleEnergyParametrization* Elower=findElower(m_refid , Ein , m_eta_calo_surf);
+    const ParticleEnergyParametrization* Eupper=findEupper(m_refid , Ein , m_eta_calo_surf);
+    const ParticleEnergyParametrization* Epara=0;
     if(Elower) {
       ATH_MSG_DEBUG("lower : "<< Elower->GetTitle()<< " lower E: " << Elower->E());
       Epara=Elower;
@@ -1499,7 +1499,7 @@ StatusCode FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCel
         if(sample>=CaloCell_ID_FCS::FCAL0       && sample<=CaloCell_ID_FCS::FCAL2   ) smaple_err=1.0; //FCAL    100%/sqrt(E) ???
 
         // Find parametrization for the lateral shape distribution in the sample
-        TShape_Result* shape;
+        const TShape_Result* shape;
         if(m_jo_interpolate) {
           shape=findShape( m_refid , sample , Epara_E , m_letaCalo[sample] , p.dist_in , distrange);
         } else {
@@ -1959,7 +1959,7 @@ StatusCode FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCel
   }
 */
 
-bool FastShowerCellBuilderTool::Is_ID_Vertex(HepMC::GenVertex* ver)
+bool FastShowerCellBuilderTool::Is_ID_Vertex(HepMC::GenVertex* ver) const
 {
   if(ver) {
     double inr=ver->position().perp();
@@ -1974,7 +1974,7 @@ bool FastShowerCellBuilderTool::Is_ID_Vertex(HepMC::GenVertex* ver)
   }
 }
 
-bool FastShowerCellBuilderTool::Is_EM_Vertex(HepMC::GenVertex* ver)
+bool FastShowerCellBuilderTool::Is_EM_Vertex(HepMC::GenVertex* ver) const
 {
   if(ver) {
     for(HepMC::GenVertex::particles_in_const_iterator pin=ver->particles_in_const_begin();pin!=ver->particles_in_const_end();++pin) {
@@ -1993,7 +1993,7 @@ bool FastShowerCellBuilderTool::Is_EM_Vertex(HepMC::GenVertex* ver)
   return true;
 }
 
-FastShowerCellBuilderTool::flag_simul_sate FastShowerCellBuilderTool::Is_below_v14_truth_cuts_Vertex(HepMC::GenVertex* ver)
+FastShowerCellBuilderTool::flag_simul_sate FastShowerCellBuilderTool::Is_below_v14_truth_cuts_Vertex(HepMC::GenVertex* ver) const
 {
   if(ver) {
     int nin=0;
@@ -2155,7 +2155,7 @@ void MC_recursive_remove_in_particles(MCdo_simul_state& do_simul_state,HepMC::Ge
   }
 */
 
-void FastShowerCellBuilderTool::MC_remove_out_of_ID(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles)
+void FastShowerCellBuilderTool::MC_remove_out_of_ID(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles) const
 {
   MCparticleCollectionCIter ip;
   for(ip=particles.begin();ip<particles.end();++ip){
@@ -2186,7 +2186,7 @@ void FastShowerCellBuilderTool::MC_remove_out_of_ID(MCdo_simul_state& do_simul_s
   }
 }
 
-void FastShowerCellBuilderTool::MC_remove_out_of_EM(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles)
+void FastShowerCellBuilderTool::MC_remove_out_of_EM(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles) const
 {
   MCparticleCollectionCIter ip;
   for(ip=particles.begin();ip<particles.end();++ip){
@@ -2206,7 +2206,7 @@ void FastShowerCellBuilderTool::MC_remove_out_of_EM(MCdo_simul_state& do_simul_s
   }
 }
 
-void FastShowerCellBuilderTool::MC_remove_below_v14_truth_cuts(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles)
+void FastShowerCellBuilderTool::MC_remove_below_v14_truth_cuts(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles) const
 {
   MCparticleCollectionCIter ip;
   for(ip=particles.begin();ip<particles.end();++ip){

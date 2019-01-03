@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FASTSHOWER_CELLBUILDERTOOL_H
@@ -156,9 +156,9 @@ private:
 
   //  TGraphErrors*                  geometry[CaloCell_ID_FCS::MaxSample][3];
 
-  ParticleEnergyParametrization* findElower(int id,double E,double eta);
-  ParticleEnergyParametrization* findEupper(int id,double E,double eta);
-  TShape_Result* findShape (int id,int calosample,double E,double eta,double dist,double distrange);
+  ParticleEnergyParametrization* findElower(int id,double E,double eta) const;
+  ParticleEnergyParametrization* findEupper(int id,double E,double eta) const;
+  const TShape_Result* findShape (int id,int calosample,double E,double eta,double dist,double distrange) const;
 
   //void sum_par(const HepMC::GenParticle* par,MsgStream& log,std::vector<double>& sums,int level=0);
   //void print_par(const HepMC::GenParticle* par,MsgStream& log,int level=0);
@@ -190,14 +190,14 @@ private:
   // extrapolation through Calo
   std::vector<Trk::HitInfo>* caloHits(const HepMC::GenParticle& part ) const;
 
-  bool Is_ID_Vertex(HepMC::GenVertex* ver);
+  bool Is_ID_Vertex(HepMC::GenVertex* ver) const;
   std::vector< double >          m_ID_cylinder_r;
   std::vector< double >          m_ID_cylinder_z;
-  bool Is_EM_Vertex(HepMC::GenVertex* ver);
-  flag_simul_sate Is_below_v14_truth_cuts_Vertex(HepMC::GenVertex* ver);
-  void MC_remove_out_of_ID(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles);
-  void MC_remove_out_of_EM(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles);
-  void MC_remove_below_v14_truth_cuts(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles);
+  bool Is_EM_Vertex(HepMC::GenVertex* ver) const;
+  flag_simul_sate Is_below_v14_truth_cuts_Vertex(HepMC::GenVertex* ver) const;
+  void MC_remove_out_of_ID(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles) const;
+  void MC_remove_out_of_EM(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles) const;
+  void MC_remove_below_v14_truth_cuts(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles) const;
 
   //ID              Energy             Eta
   typedef std::map< double , ParticleEnergyParametrization* > t_map_PEP_Eta;
