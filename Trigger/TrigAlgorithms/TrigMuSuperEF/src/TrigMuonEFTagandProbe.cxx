@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration 
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration 
 */
 
 /*--------------------------------------------------------------------------------------
@@ -62,12 +62,12 @@
 MonitoringObject::MonitoringObject() {
   
   //Sets up vector of containers for each threshold so filling functions can pick correct threshold by element index
-  ThreshMon.push_back(Threshold1);
-  ThreshMon.push_back(Threshold2);
-  ThreshMon.push_back(Threshold3);
-  ThreshMon.push_back(Threshold4);
-  ThreshMon.push_back(Threshold5);
-  ThreshMon.push_back(Threshold6);
+  m_ThreshMon.push_back(m_Threshold1);
+  m_ThreshMon.push_back(m_Threshold2);
+  m_ThreshMon.push_back(m_Threshold3);
+  m_ThreshMon.push_back(m_Threshold4);
+  m_ThreshMon.push_back(m_Threshold5);
+  m_ThreshMon.push_back(m_Threshold6);
 
 }
 
@@ -193,7 +193,7 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltInitialize()
   //Order for filling is Barrel/Endcap/merged THEN eta/phi/etaphi/pt THEN total/efficiency
   //Threshold number must be unsigned int between 1 and 6 inclusive
 
-  Thresh_Mon.build_threshold(1, //Threshold Number 
+  m_Thresh_Mon.build_threshold(1, //Threshold Number 
 			     m_eta_total_thr1_b, //Eta values for all probe candidates passing threshold 1 within the barrel with extra 25GeV pT cut applied
 			     m_phi_total_thr1_b, //Phi values """ with extra 25GeV pT cut applied
 			     m_etaphi_eff_thr1_b, // 1.0 for all matched probes passing threshold 1 in barrel with extra 25GeV pT cut, 0.0 otherwise
@@ -207,7 +207,7 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltInitialize()
 			     m_eta_total_thr1, //Eta values for all probe candidates passing thresh 1 in full detector volume, including 25GeV pT cut
 			     m_eta_eff_thr1); //1.0 """ full detector volume, including pT cut
   
-  Thresh_Mon.build_threshold(2,
+  m_Thresh_Mon.build_threshold(2,
 			     m_eta_total_thr2_b, 
 			     m_phi_total_thr2_b, 
 			     m_etaphi_eff_thr2_b, 
@@ -221,7 +221,7 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltInitialize()
 			     m_eta_total_thr2,
 			     m_eta_eff_thr2);
 
-  Thresh_Mon.build_threshold(3,
+  m_Thresh_Mon.build_threshold(3,
 			     m_eta_total_thr3_b, 
 			     m_phi_total_thr3_b, 
 			     m_etaphi_eff_thr3_b, 
@@ -235,7 +235,7 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltInitialize()
 			     m_eta_total_thr3,
 			     m_eta_eff_thr3);
 
-  Thresh_Mon.build_threshold(4,
+  m_Thresh_Mon.build_threshold(4,
 			     m_eta_total_thr4_b, 
 			     m_phi_total_thr4_b, 
 			     m_etaphi_eff_thr4_b, 
@@ -249,7 +249,7 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltInitialize()
 			     m_eta_total_thr4,
 			     m_eta_eff_thr4);
 
-  Thresh_Mon.build_threshold(5,
+  m_Thresh_Mon.build_threshold(5,
 			     m_eta_total_thr5_b, 
 			     m_phi_total_thr5_b, 
 			     m_etaphi_eff_thr5_b, 
@@ -263,7 +263,7 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltInitialize()
 			     m_eta_total_thr5,
 			     m_eta_eff_thr5);
   
-  Thresh_Mon.build_threshold(6,
+  m_Thresh_Mon.build_threshold(6,
 			     m_eta_total_thr6_b, 
 			     m_phi_total_thr6_b, 
 			     m_etaphi_eff_thr6_b, 
@@ -509,7 +509,7 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(const HLT::TriggerElement* inpu
     if (TaP[i].second==(TaP[1-i].first).Mu){ 
       
       //Fill monitoring variables for different probe thresholds inclusively (probe muon info,Threshold MonitoringObject)
-      match_thresh(TaP[1-i].first,Thresh_Mon);
+      match_thresh(TaP[1-i].first,m_Thresh_Mon);
       continue;
     }
 
@@ -529,14 +529,14 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(const HLT::TriggerElement* inpu
         probemuon.DR = deltaR; //Probe muon DeltaR
         probemuon.Thresh = probe_thresh; //Probe muon matched L1 threshold number
 
-	match_thresh(probemuon,Thresh_Mon); //Fill monitoring variables (probe muon info, Threshold MonitoringObject)
+	match_thresh(probemuon,m_Thresh_Mon); //Fill monitoring variables (probe muon info, Threshold MonitoringObject)
 	break;
       } 
 
       //If Probe muon cannot be L1 matched
       if (j==(l1_muon_RoIs.size()-1)){
 
-	match_thresh(TaP[i].second,Thresh_Mon); //Fill monitoring variables for unmatched probe (probe muon, MonitoringObject)
+	match_thresh(TaP[i].second,m_Thresh_Mon); //Fill monitoring variables for unmatched probe (probe muon, MonitoringObject)
 	
       }
     }
@@ -700,21 +700,21 @@ void MonitoringObject::build_threshold (unsigned int thresh,
 		      std::vector<float> &pt_eff_e,
 		      std::vector<float> &eta_total_merge,
 		      std::vector<float> &eta_eff_merge){
-  if (thresh > ThreshMon.size()) return; //Safeguard against invalid threshold number, Valid thresholds are 1-->6 inclusive
+  if (thresh > m_ThreshMon.size()) return; //Safeguard against invalid threshold number, Valid thresholds are 1-->6 inclusive
 
   else {
-    ThreshMon[thresh-1].push_back(&eta_total_b);
-    ThreshMon[thresh-1].push_back(&phi_total_b);
-    ThreshMon[thresh-1].push_back(&etaphi_eff_b);
-    ThreshMon[thresh-1].push_back(&pt_total_b);
-    ThreshMon[thresh-1].push_back(&pt_eff_b);
-    ThreshMon[thresh-1].push_back(&eta_total_e);
-    ThreshMon[thresh-1].push_back(&phi_total_e);
-    ThreshMon[thresh-1].push_back(&etaphi_eff_e);
-    ThreshMon[thresh-1].push_back(&pt_total_e);
-    ThreshMon[thresh-1].push_back(&pt_eff_e);
-    ThreshMon[thresh-1].push_back(&eta_total_merge);
-    ThreshMon[thresh-1].push_back(&eta_eff_merge);
+    m_ThreshMon[thresh-1].push_back(&eta_total_b);
+    m_ThreshMon[thresh-1].push_back(&phi_total_b);
+    m_ThreshMon[thresh-1].push_back(&etaphi_eff_b);
+    m_ThreshMon[thresh-1].push_back(&pt_total_b);
+    m_ThreshMon[thresh-1].push_back(&pt_eff_b);
+    m_ThreshMon[thresh-1].push_back(&eta_total_e);
+    m_ThreshMon[thresh-1].push_back(&phi_total_e);
+    m_ThreshMon[thresh-1].push_back(&etaphi_eff_e);
+    m_ThreshMon[thresh-1].push_back(&pt_total_e);
+    m_ThreshMon[thresh-1].push_back(&pt_eff_e);
+    m_ThreshMon[thresh-1].push_back(&eta_total_merge);
+    m_ThreshMon[thresh-1].push_back(&eta_eff_merge);
   }
 }
 
@@ -723,72 +723,72 @@ void MonitoringObject::build_threshold (unsigned int thresh,
 //--------------------ORDER OF VARIABLES IN THRESHOLD CONTAINERS IS IMPORTANT------------------------
 
 void MonitoringObject::fill_eta_total_barrel (unsigned int thresh, float value){
-  if (thresh > ThreshMon.size()) return; //Safeguard against invalid threshold number, Valid thresholds are 1-->6 inclusive
-  else ThreshMon[thresh][0]->push_back(value);
+  if (thresh > m_ThreshMon.size()) return; //Safeguard against invalid threshold number, Valid thresholds are 1-->6 inclusive
+  else m_ThreshMon[thresh][0]->push_back(value);
 } 
 
 
 void MonitoringObject::fill_phi_total_barrel (unsigned int thresh, float value){
-  if (thresh > ThreshMon.size()) return; //Safeguard against invalid threshold number, Valid thresholds are 1-->6 inclusive
-  else ThreshMon[thresh][1]->push_back(value);
+  if (thresh > m_ThreshMon.size()) return; //Safeguard against invalid threshold number, Valid thresholds are 1-->6 inclusive
+  else m_ThreshMon[thresh][1]->push_back(value);
 } 
 
 
 void MonitoringObject::fill_etaphi_matchfail_barrel (unsigned int thresh, float value){
-  if (thresh > ThreshMon.size()) return; //Safeguard against invalid threshold number, Valid thresholds are 1-->6 inclusive
-  else ThreshMon[thresh][2]->push_back(value);
+  if (thresh > m_ThreshMon.size()) return; //Safeguard against invalid threshold number, Valid thresholds are 1-->6 inclusive
+  else m_ThreshMon[thresh][2]->push_back(value);
 }
 
 
 void MonitoringObject::fill_pt_total_barrel (unsigned int thresh, float value){
-  if (thresh > ThreshMon.size()) return; //Safeguard against invalid threshold number, Valid thresholds are 1-->6 inclusive
-  else ThreshMon[thresh][3]->push_back(value);
+  if (thresh > m_ThreshMon.size()) return; //Safeguard against invalid threshold number, Valid thresholds are 1-->6 inclusive
+  else m_ThreshMon[thresh][3]->push_back(value);
 }
 
 
 void MonitoringObject::fill_pt_matchfail_barrel (unsigned int thresh, float value){
-  if (thresh > ThreshMon.size()) return; //Safeguard against invalid threshold number, Valid thresholds are 1-->6 inclusive
-  else ThreshMon[thresh][4]->push_back(value);
+  if (thresh > m_ThreshMon.size()) return; //Safeguard against invalid threshold number, Valid thresholds are 1-->6 inclusive
+  else m_ThreshMon[thresh][4]->push_back(value);
 }
 
 
 void MonitoringObject::fill_eta_total_endcap (unsigned int thresh, float value){
-  if (thresh > ThreshMon.size()) return; //Safeguard against invalid threshold number, Valid thresholds are 1-->6 inclusive
-  else ThreshMon[thresh][5]->push_back(value);
+  if (thresh > m_ThreshMon.size()) return; //Safeguard against invalid threshold number, Valid thresholds are 1-->6 inclusive
+  else m_ThreshMon[thresh][5]->push_back(value);
 } 
 
 
 void MonitoringObject::fill_phi_total_endcap (unsigned int thresh, float value){
-  if (thresh > ThreshMon.size()) return; //Safeguard against invalid threshold number, Valid thresholds are 1-->6 inclusive
-  else ThreshMon[thresh][6]->push_back(value);
+  if (thresh > m_ThreshMon.size()) return; //Safeguard against invalid threshold number, Valid thresholds are 1-->6 inclusive
+  else m_ThreshMon[thresh][6]->push_back(value);
 } 
 
 
 void MonitoringObject::fill_etaphi_matchfail_endcap (unsigned int thresh, float value){
-  if (thresh > ThreshMon.size()) return; //Safeguard against invalid threshold number, Valid thresholds are 1-->6 inclusive
-  else ThreshMon[thresh][7]->push_back(value);
+  if (thresh > m_ThreshMon.size()) return; //Safeguard against invalid threshold number, Valid thresholds are 1-->6 inclusive
+  else m_ThreshMon[thresh][7]->push_back(value);
 }
 
 
 void MonitoringObject::fill_pt_total_endcap (unsigned int thresh, float value){
-  if (thresh > ThreshMon.size()) return; //Safeguard against invalid threshold number, Valid thresholds are 1-->6 inclusive
-  else ThreshMon[thresh][8]->push_back(value);
+  if (thresh > m_ThreshMon.size()) return; //Safeguard against invalid threshold number, Valid thresholds are 1-->6 inclusive
+  else m_ThreshMon[thresh][8]->push_back(value);
 }
 
 
 void MonitoringObject::fill_pt_matchfail_endcap (unsigned int thresh, float value){
-  if (thresh > ThreshMon.size()) return; //Safeguard against invalid threshold number, Valid thresholds are 1-->6 inclusive
-  else ThreshMon[thresh][9]->push_back(value);
+  if (thresh > m_ThreshMon.size()) return; //Safeguard against invalid threshold number, Valid thresholds are 1-->6 inclusive
+  else m_ThreshMon[thresh][9]->push_back(value);
 }
 
 
 void MonitoringObject::fill_eta_total_merged (unsigned int thresh, float value){
-  if (thresh > ThreshMon.size()) return; //Safeguard against invalid threshold number, Valid thresholds are 1-->6 inclusive
-  else ThreshMon[thresh][10]->push_back(value);
+  if (thresh > m_ThreshMon.size()) return; //Safeguard against invalid threshold number, Valid thresholds are 1-->6 inclusive
+  else m_ThreshMon[thresh][10]->push_back(value);
 }
 
 
 void MonitoringObject::fill_eta_matchfail_merged (unsigned int thresh, float value){
-  if (thresh > ThreshMon.size()) return; //Safeguard against invalid threshold number, Valid thresholds are 1-->6 inclusive
-  else ThreshMon[thresh][11]->push_back(value);
+  if (thresh > m_ThreshMon.size()) return; //Safeguard against invalid threshold number, Valid thresholds are 1-->6 inclusive
+  else m_ThreshMon[thresh][11]->push_back(value);
 }

@@ -1,5 +1,5 @@
 /*                 
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -30,8 +30,8 @@ struct TaPMuon {
 //Class to handle structuring and filling various monitoring variables by L1 trigger threshold
 class MonitoringObject {
 
-  std::vector<std::vector <float>* > Threshold1, Threshold2, Threshold3, Threshold4, Threshold5, Threshold6;
-  std::vector<std::vector<std::vector <float>* > > ThreshMon;
+  std::vector<std::vector <float>* > m_Threshold1, m_Threshold2, m_Threshold3, m_Threshold4, m_Threshold5, m_Threshold6;
+  std::vector<std::vector<std::vector <float>* > > m_ThreshMon;
 
  public:
 
@@ -169,7 +169,7 @@ class TrigMuonEFTagandProbe: public virtual HLT::FexAlgo { //TaP algorithm will 
 
 
   //Sets up instance of MonitoringObject public to TrigMuonEFTagandProbe
-  MonitoringObject Thresh_Mon;                                                              
+  MonitoringObject m_Thresh_Mon;                                                              
                                 
   bool m_debug; //Flag for conditional DEBUG output
   bool m_verbose; //Flag for conditional VEROSE output
