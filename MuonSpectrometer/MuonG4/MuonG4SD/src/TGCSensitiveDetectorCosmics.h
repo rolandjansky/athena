@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @class TGCSensitiveDetectorCosmics
@@ -83,16 +83,16 @@ class TGCSensitiveDetectorCosmics: public G4VSensitiveDetector {
   G4bool ProcessHits(G4Step* aStep, G4TouchableHistory* ROHist) override final;
     
  private:
-  Amg::Vector3D mom;           
-  double momMag;           
-  Amg::Vector3D vertex; 
-  Amg::Vector3D currVertex;          
-  Amg::Vector3D globH;
+  Amg::Vector3D m_mom;           
+  double m_momMag;           
+  Amg::Vector3D m_vertex; 
+  Amg::Vector3D m_currVertex;          
+  Amg::Vector3D m_globH;
   double m_globalTime;
 
   /** member data */
-  SG::WriteHandle<TGCSimHitCollection>  myTGCHitColl;
-  TgcHitIdHelper* muonHelper;
+  SG::WriteHandle<TGCSimHitCollection>  m_myTGCHitColl;
+  TgcHitIdHelper* m_muonHelper;
 };
 
 #endif

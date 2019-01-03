@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @class TGCSensitiveDetector
@@ -80,8 +80,8 @@ class TGCSensitiveDetector : public G4VSensitiveDetector {
     
  private:
   /** member data */
-  SG::WriteHandle<TGCSimHitCollection>  myTGCHitColl;
-  TgcHitIdHelper* muonHelper;
+  SG::WriteHandle<TGCSimHitCollection>  m_myTGCHitColl;
+  TgcHitIdHelper* m_muonHelper;
 };
 
 #endif
