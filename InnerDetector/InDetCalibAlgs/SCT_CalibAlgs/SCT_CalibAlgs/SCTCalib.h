@@ -27,7 +27,6 @@
 //Athena
 #include "AthenaBaseComps/AthAlgorithm.h"  //baseclass
 #include "AthenaKernel/IOVTime.h" //member
-#include "EventInfo/EventInfo.h"
 #include "Identifier/Identifier.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
@@ -241,22 +240,13 @@ class SCTCalib : public AthAlgorithm {
       StringProperty m_LorentzAngleFile{this, "LorentzAngleFile", "LorentzAngleFile.xml", "Output XML for noise occupancy"};
       StringProperty m_LorentzAngleSummaryFile{this, "LorentzAngleSummaryFile", "LorentzAngleSummaryFile.xml", "Output XML for summary of lorentz angle"};
 
-      // Event info
-      const EventInfo* m_evt;
-
       // Event related
-      double          m_numOfEventsProcessed;
       int             m_numOfLBsProcessed;
       unsigned long long m_numberOfEvents;
       unsigned long long m_numberOfEventsHist; // For number of events from HIST
       unsigned long long m_eventCounter;
-      unsigned long long m_maxentry;
-      int                m_timeStampBegin;
-      int                m_timeStampEnd;
       std::string        m_utcBegin;
       std::string        m_utcEnd;
-      int                m_LBBegin;
-      int                m_LBEnd;
       int                m_LBRange;
       IOVTime            m_iovStart;
       IOVTime            m_iovStop;
