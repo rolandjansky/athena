@@ -127,7 +127,6 @@ bool TrigEgammaL2SelectorTool::emulation(const xAOD::TrigEMCluster *emCluster,  
 bool TrigEgammaL2SelectorTool::emulation( const xAOD::IParticleContainer *container, bool &pass, const Trig::Info &info)
 {
   pass=false;
-  //if(info.idperf || info.etcut || info.hltcalo || info.perf || info.ringer){
   if(info.idperf || info.etcut || info.hltcalo || info.perf){
     pass=true;
     return true;
