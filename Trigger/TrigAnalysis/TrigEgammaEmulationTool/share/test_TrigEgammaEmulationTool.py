@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
 from InDetRecExample.InDetJobProperties import InDetFlags

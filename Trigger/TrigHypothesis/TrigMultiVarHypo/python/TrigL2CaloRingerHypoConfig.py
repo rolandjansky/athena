@@ -1,5 +1,5 @@
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 # Authors: joao victor pinto <jodafons@cern.ch>
 
 from TrigMultiVarHypo.TrigMultiVarHypoConf        import TrigL2CaloRingerFex, TrigL2CaloRingerHypo
