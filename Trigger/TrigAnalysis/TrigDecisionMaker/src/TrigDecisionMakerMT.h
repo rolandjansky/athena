@@ -86,12 +86,43 @@ namespace TrigDec {
 
   private:
 
+    /**
+     * @brief Ensures that the supplied vectors have sufficient capacity to store the given bit, where bits are packed into uint32_t.
+     * @param bit The bit we wish the vectors to be large enough to store
+     * @param vectors Set of pointers to all vectors which need resizing. Note, while the set of pointers is const, the vectors are not const.
+     **/  
+    void resizeVectors(const size_t bit, const std::set< std::vector<uint32_t>* >& vectors) const;
+
+    /**
+     * @param bit The bit to set to 1 (bit 0 equates to the first bit). Requires the vector to have already been resized to be large enough.
+     * @param bits The vector to set the bit in.
+     **/
+    void setBit(const size_t bit, std::vector<uint32_t>& bits) const;
+
+    /**
+     * @param chainID The identifier (name hash) of the chain to fetch the ChainCounter for.
+     * @return the Chain Counter or -1 if error.
+     **/
+    int32_t getChainCounter(const TrigCompositeUtils::DecisionID chainID) const;
+
+    /**
+     * @param passedIDs Set of IDs of passed chains.
+     * @param bitsVector Vector to set passed-bits in based off of passedIDs
+     * @param allOutputVectors Set of pointers to *all* output vectors, keeps them all the same size
+     * @return the number of positive bits set in the vector, should be the same as passedIDs.size()
+     **/
+    size_t makeBitMap(const TrigCompositeUtils::DecisionIDContainer& passedIDs,
+      std::vector<uint32_t>& bitsVector, std::set< std::vector<uint32_t>* >& allOutputVectors) const;
+
     Gaudi::Property<bool> m_doL1{this, "doL1",  true, "Read L1 trigger information"};
     Gaudi::Property<bool> m_doHLT{this, "doHLT", true, "Read HLT trigger information"};
 
     // Tools & services
     ServiceHandle<TrigConf::ITrigConfigSvc> m_trigConfigSvc; //!< handle to the full (L1 & HLT) trigger config service
+    Gaudi::Property<std::string> m_trigConfigLocation{this, "TrigConfigLocation", "TrigConf::TrigConfigSvc/TrigConfigSvc", "Trigger configuration service to fetch"};
+
     ToolHandle<HLT::ILvl1ResultAccessTool> m_lvl1Tool;  //!< tool to ease the access to the L1 results (RoIs, items, etc)
+    Gaudi::Property<std::string> m_lvl1ToolLocation{this, "Lvl1ToolLocation", "HLT::Lvl1ResultAccessTool/Lvl1ResultAccessTool", "L1 tool to fetch"};
 
     // Input keys configuration
     SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_HLTSummaryKeyIn {this, "HLTSummary", "HLTSummary", "HLT summary container Key"};
