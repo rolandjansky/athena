@@ -34,6 +34,7 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
 //infrastructure
+#include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
 //Gaudi
@@ -50,7 +51,6 @@
 #include "Math/ProbFuncMathCore.h"
 
 //STL, boost
-#include <limits>
 #include <boost/lexical_cast.hpp>
 
 using namespace SCT_CalibAlgs;
@@ -148,17 +148,10 @@ normalizeList( const std::string& strList ) {
 SCTCalib::SCTCalib( const std::string& name, ISvcLocator* pSvcLocator ) :
    AthAlgorithm( name, pSvcLocator ),
    m_pSCTHelper(nullptr),
-   m_evt(nullptr),
-   m_numOfEventsProcessed(0),
    m_numOfLBsProcessed(0),
    m_numberOfEvents(0),
    m_numberOfEventsHist(0),
    m_eventCounter(0),
-   m_maxentry(0),
-   m_timeStampBegin(std::numeric_limits<int>::max()),
-   m_timeStampEnd(-999),
-   m_LBBegin(std::numeric_limits<int>::max()),
-   m_LBEnd(-999),
    m_LBRange(-999),
    m_inputHist(nullptr)
 {
@@ -547,17 +540,10 @@ StatusCode SCTCalib::getNoisyStrip() {
    //--- Check statistics
    //ATH_MSG_INFO(m_calibEvtInfoTool->counter() << "   " <<m_calibHitmapTool->size());
    //int numOfEventsProcessed=m_calibEvtInfoTool->counter();
-   m_numOfEventsProcessed=m_calibHitmapTool->size();
    //sroe: This looks like a bug, so I change the code here
 
    // if ( noisyStripsToSummaryXmlFake( m_badStripsSummaryFile ).isFailure() ) {
    //   ATH_MSG_ERROR("Could not write XML file");
-   //   return StatusCode::FAILURE;
-   // }
-
-   // if (m_numOfEventsProcessed < static_cast<int>(m_noisyMinStat) ) {
-   //   ATH_MSG_ERROR("in getNoisyStrip() : Number of events processed "    << m_numOfEventsProcessed //original was just m_numberOfEvents
-   //                 << " is less than the required minimum number of events " << static_cast<int>(m_noisyMinStat));
    //   return StatusCode::FAILURE;
    // }
 

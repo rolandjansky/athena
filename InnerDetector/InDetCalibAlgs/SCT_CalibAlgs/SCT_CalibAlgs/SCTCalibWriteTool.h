@@ -15,38 +15,33 @@
 #ifndef SCTCalibWriteTool_H
 #define SCTCalibWriteTool_H
 
+// Athena includes
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "AthenaPoolUtilities/AthenaAttributeList.h"
+#include "EventInfo/EventInfo.h"
+#include "Identifier/Identifier.h"
+#include "InDetConditionsSummaryService/InDetHierarchy.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/StoreGate.h"
+
+#include "CoralBase/AttributeListSpecification.h"
+
+// Gaudi includes
+#include "GaudiKernel/IInterface.h"
+#include "GaudiKernel/IAlgTool.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/ClassID.h"
+
 //STL
 #include <string>
 #include <map>
 #include <set>
 #include <list>
 
-// Gaudi includes
-#include "GaudiKernel/IInterface.h"
-#include "GaudiKernel/IAlgTool.h"
-//#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/ClassID.h"
-
-#include "StoreGate/StoreGate.h"
-#include "StoreGate/ReadHandleKey.h"
-
-#include "CoralBase/AttributeListSpecification.h"
-
-#include "AthenaPoolUtilities/AthenaAttributeList.h"
-#include "AthenaBaseComps/AthAlgTool.h"
-
-// Athena includes
-#include "Identifier/Identifier.h"
-
-// local includes
-#include "InDetConditionsSummaryService/InDetHierarchy.h"
-
 //forward declarations
 class IdentifierHash;
 class SCT_ID;
-class EventInfo;
 class IIOVRegistrationSvc;
 class IAthenaOutputStreamTool;
 class CondAttrListCollection;
