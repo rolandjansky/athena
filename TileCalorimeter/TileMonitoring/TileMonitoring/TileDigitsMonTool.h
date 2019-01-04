@@ -46,8 +46,8 @@ class TileDigitsMonTool: public TilePaterMonTool
     void bookHists(int ros, int drawer);
     void drawHists(int ros, int drawer, std::string moduleName);
 
-    const uint8_t* stuckBitProb (int ros, int module, int channel, int gain) const;
-    void saveStuckBitsProbabilities(TTree* tree);
+    virtual const uint8_t* stuckBitProb (int ros, int module, int channel, int gain) const override;
+    virtual void saveStuckBitsProbabilities(TTree* tree) override;
 
   private:
 
