@@ -16,9 +16,11 @@
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/ITileBadChanTool.h"
 #include "TileConditions/TileCondToolNoiseSample.h"
+#include "TileEvent/TileDQstatus.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -27,7 +29,6 @@ class TileHWID;
 class TileRawChannel;
 class TileRawChannelContainer;
 class TileRawChannelCollection;
-class TileBeamInfoProvider;
 
 /**
  @class TileRawChannelNoiseFilter
@@ -66,9 +67,11 @@ class TileRawChannelNoiseFilter: public extends<AthAlgTool, ITileRawChannelTool>
     ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
         "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
 
-    ToolHandle<TileBeamInfoProvider> m_beamInfo; //!< Beam Info tool to get the DQ Status object
-
     // properties
+    SG::ReadHandleKey<TileDQstatus> m_DQstatusKey{this, "TileDQstatus", 
+                                                  "TileDQstatus", 
+                                                  "TileDQstatus key"};
+
     float m_truncationThresholdOnAbsEinSigma;
     float m_minimumNumberOfTruncatedChannels;
     bool m_useTwoGaussNoise;

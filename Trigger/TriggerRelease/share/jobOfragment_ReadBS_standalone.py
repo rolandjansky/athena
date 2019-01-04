@@ -1,6 +1,9 @@
 from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.GlobalFlags import globalflags
 if TriggerFlags.doCalo():
+    from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
+    dqstatus = TileDQstatusAlgDefault()
+
     from TileRecUtils.TileRecUtilsConf import TileBeamInfoProvider
     theTileBeamInfoProvider = TileBeamInfoProvider()
     ToolSvc += theTileBeamInfoProvider    
