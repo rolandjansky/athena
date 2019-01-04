@@ -47,7 +47,8 @@ class Pad(object):
     def reload_data(self, data_structure):
         self.structure = data_structure
         self.structure_list = self.structure.get_list()
-        self.load_root_items_set()
+        self.root_items_names = {element.name for element in
+                                 self.structure_list}
         self.filter(self.search_text)  # Filter also draws structures
 
     def initialize_cursor(self):
