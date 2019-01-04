@@ -15,10 +15,10 @@ def generateChains( flags,  chainDict ):
 
     acc = ComponentAccumulator()
 
-    l2CaloHypo = RecoFragmentsPool.retrieve(l2CaloHypoCfg,
-                                            flags,
-                                            name = 'L2ElectronCaloHypo',
-                                            CaloClusters = 'L2CaloEMClusters' )
+    l2CaloHypo = RecoFragmentsPool.retrieve( l2CaloHypoCfg,
+                                             flags,
+                                             name = 'L2ElectronCaloHypo',
+                                             CaloClusters = 'L2CaloEMClusters' )
 
     l2CaloReco = RecoFragmentsPool.retrieve(l2CaloRecoCfg, flags)
     acc.merge(l2CaloReco)
@@ -31,7 +31,26 @@ def generateChains( flags,  chainDict ):
     fastCaloStep = ChainStep(getChainStepName('Electron', 1), [fastCaloSequence])
 
            
-    # # # fast ID 
+    # # # fast ID
+    from TrigUpgradeTest.InDetConfig import indetInViewRecoCfg
+    fastInDetReco = RecoFragmentsPool.retrieve( indetInViewRecoCfg,
+                                                flags,
+                                                viewMakerName="ElectronInDet" )
+    acc.merge( fastInDetReco )
+    # TODO once tracking fully works, 
+    from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoAlg
+    from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
+
+    def makeFakeHypo(name, cfg):
+        return HLTTest__TestHypoTool(name)
+    
+    fastInDetSequence = MenuSequence( Sequence    = fastInDetReco.sequence(),
+                                      Maker       = fastInDetReco.inputMaker(),
+                                      Hypo        = HLTTest__TestHypoAlg("FakeHypoForElectron", Input=""),
+                                      HypoToolGen = makeFakeHypo )
+    
+    fastInDetStep = ChainStep(getChainStepName("Electron", 2), [fastInDetSequence])
+
     
     # # # EF calo
 
@@ -39,5 +58,5 @@ def generateChains( flags,  chainDict ):
     
     # # # offline egamma
 
-    chain = Chain(chainDict['chainName'], chainDict['L1item'], [fastCaloStep] )
+    chain = Chain(chainDict['chainName'], chainDict['L1item'], [fastCaloStep, fastInDetStep] )
     return acc, chain

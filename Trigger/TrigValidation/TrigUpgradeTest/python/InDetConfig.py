@@ -434,6 +434,21 @@ def TrigInDetConfig( flags ):
 
   return acc
 
+def indetInViewRecoCfg( flags, viewMakerName ):
+  """ TBD if this function should be defined here or moved to the menu are, for sake of symmetry it is kept here now 
+  There would certainly be additional algorithms
+  """  
+  from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
+  reco = InViewReco( viewMakerName )
+  algAcc = TrigInDetConfig( flags )
+  # TODO fixeme using getEventAlgs CA method
+  # this awkward line will be removed one CA gets appopriate method to get all algorithms  
+  reco.addRecoAlg( algAcc._sequence.getChildren() )
+  reco.merge( algAcc )
+  
+  return reco
+
+  
 if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
     from AthenaCommon.CFElements import parOR, seqOR, seqAND
@@ -477,3 +492,4 @@ if __name__ == "__main__":
     acc.printConfig()
     acc.store( open("test.pkl", "w") )
     print 'All ok'
+    
