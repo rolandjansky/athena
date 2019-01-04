@@ -17,6 +17,9 @@
 #include "../ThinCaloClustersTool.h"
 #include "../ThinTrackParticlesAlg.h"
 #include "../ThinTrackParticlesTool.h"
+#include "../ThinAssociatedObjectsTool.h"
+#include "../EleLinkThinningTool.h"
+#include "../DeltaRThinningTool.h"
 
 DECLARE_ALGORITHM_FACTORY( ThinInDetForwardTrackParticlesAlg )
 DECLARE_ALGORITHM_FACTORY( ThinGeantTruthAlg )
@@ -35,6 +38,9 @@ DECLARE_ALGORITHM_FACTORY( ThinCaloClustersAlg )
 DECLARE_TOOL_FACTORY( ThinCaloClustersTool )
 DECLARE_ALGORITHM_FACTORY( ThinTrackParticlesAlg )
 DECLARE_TOOL_FACTORY( ThinTrackParticlesTool )
+DECLARE_TOOL_FACTORY( ThinAssociatedObjectsTool )
+DECLARE_TOOL_FACTORY( EleLinkThinningTool )
+DECLARE_TOOL_FACTORY( DeltaRThinningTool )
 
 DECLARE_FACTORY_ENTRIES( ThinningUtils )
 {
@@ -55,4 +61,7 @@ DECLARE_FACTORY_ENTRIES( ThinningUtils )
   DECLARE_TOOL( ThinCaloClustersTool );
   DECLARE_ALGORITHM( ThinTrackParticlesAlg );
   DECLARE_TOOL( ThinTrackParticlesTool );
+  DECLARE_TOOL( ThinAssociatedObjectsTool );
+  DECLARE_TOOL( EleLinkThinningTool );
+  DECLARE_TOOL( DeltaRThinningTool );
 }

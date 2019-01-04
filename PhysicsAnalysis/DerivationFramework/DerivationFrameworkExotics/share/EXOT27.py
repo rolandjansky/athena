@@ -23,6 +23,10 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import (
     DerivationFramework__TauTrackParticleThinning,
     DerivationFramework__JetTrackParticleThinning)
 
+from ThinningUtils.ThinningUtilsConf import (
+    ThinAssociatedObjectsTool,
+    EleLinkThinningTool)
+
 # CP group common variables
 import DerivationFrameworkJetEtMiss.JetCommon as JetCommon
 import DerivationFrameworkJetEtMiss.ExtendedJetCommon as ExtendedJetCommon
@@ -75,7 +79,6 @@ EXOT27AllVariables = [
 if DerivationFrameworkIsMonteCarlo:
   EXOT27AllVariables += [
     "TruthParticles",
-    "TruthVertices",
     "MET_Truth",
     ]
 EXOT27ExtraVariables["TauJets"].update(["truthJetLink", "truthParticleLink",
@@ -252,12 +255,12 @@ EXOT27SignalPhoton     = EXOT27BaselinePhoton + " && Photons.pt > 100.*GeV"
 
 # Set up the standard set of track thinning tools
 EXOT27ThinningTools += [
-  DerivationFramework__EgammaTrackParticleThinning(
-      "EXOT27ElectronTrackParticleThinningTool",
-      ThinningService = EXOT27ThinningHelper.ThinningSvc(),
-      SGKey           = "Electrons",
-      SelectionString = EXOT27BaselineElectron
-      ),
+  # DerivationFramework__EgammaTrackParticleThinning(
+  #     "EXOT27ElectronTrackParticleThinningTool",
+  #     ThinningService = EXOT27ThinningHelper.ThinningSvc(),
+  #     SGKey           = "Electrons",
+  #     SelectionString = EXOT27BaselineElectron
+  #     ),
   DerivationFramework__EgammaTrackParticleThinning(
       "EXOT27PhotonTrackParticleThinningTool",
       ThinningService = EXOT27ThinningHelper.ThinningSvc(),
@@ -277,6 +280,16 @@ EXOT27ThinningTools += [
       ),
   ]
 
+ToolSvc += EleLinkThinningTool(
+    "EXOT27tauTrackLinksThinningTool",
+    ThinningService = EXOT27ThinningHelper.ThinningSvc(),
+    LinkName = "tauTrackLinks(TauTracks)")
+ToolSvc += EleLinkThinningTool(
+    "EXOT27trackParticleLinksThinningTool",
+    ThinningService = EXOT27ThinningHelper.ThinningSvc(),
+    LinkName = "trackParticleLinks(GSFTrackParticles).originalTrackParticle(InDetTrackParticles)"
+    )
+
 # Also thin the output objects by the same rules
 EXOT27ThinningTools += [
   DerivationFramework__GenericObjectThinning(
@@ -289,11 +302,23 @@ EXOT27ThinningTools += [
       ThinningService = EXOT27ThinningHelper.ThinningSvc(),
       SelectionString = EXOT27BaselinePhoton,
       ContainerName   = "Photons"),
-  DerivationFramework__GenericObjectThinning(
-      "EXOT27TauJetsThinningTool",
+  # DerivationFramework__GenericObjectThinning(
+  #     "EXOT27TauJetsThinningTool",
+  #     ThinningService = EXOT27ThinningHelper.ThinningSvc(),
+  #     SelectionString = EXOT27BaselineTauJet,
+  #     ContainerName   = "TauJets"),
+  ThinAssociatedObjectsTool(
+      "ThinAssociatedTauJetsObjectsTool",
       ThinningService = EXOT27ThinningHelper.ThinningSvc(),
       SelectionString = EXOT27BaselineTauJet,
-      ContainerName   = "TauJets"),
+      SGKey = "TauJets",
+      ChildThinningTools = [ToolSvc.EXOT27tauTrackLinksThinningTool]),
+  ThinAssociatedObjectsTool(
+      "ThinAssociatedElectronsObjectsTool",
+      ThinningService = EXOT27ThinningHelper.ThinningSvc(),
+      SelectionString = EXOT27BaselineElectron,
+      SGKey = "Electrons",
+      ChildThinningTools = [ToolSvc.EXOT27trackParticleLinksThinningTool]),
   ]
 
 
