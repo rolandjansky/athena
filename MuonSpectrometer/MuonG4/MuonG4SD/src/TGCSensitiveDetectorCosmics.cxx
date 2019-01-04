@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGCSensitiveDetectorCosmics.h"
@@ -15,20 +15,20 @@
 // construction/destruction
 TGCSensitiveDetectorCosmics::TGCSensitiveDetectorCosmics(const std::string& name, const std::string& hitCollectionName)
   : G4VSensitiveDetector( name )
-  , momMag(0)
+  , m_momMag(0)
   , m_globalTime(0)
-  , myTGCHitColl( hitCollectionName )
+  , m_myTGCHitColl( hitCollectionName )
 {
-  muonHelper = TgcHitIdHelper::GetHelper();
+  m_muonHelper = TgcHitIdHelper::GetHelper();
 }
 
 // Implemenation of member functions
 void TGCSensitiveDetectorCosmics::Initialize(G4HCofThisEvent*)
 {
-  if (!myTGCHitColl.isValid()) myTGCHitColl = CxxUtils::make_unique<TGCSimHitCollection>();
+  if (!m_myTGCHitColl.isValid()) m_myTGCHitColl = CxxUtils::make_unique<TGCSimHitCollection>();
   // START OF COSMICS-SPECIFIC CODE
-  mom = Amg::Vector3D(0.,0.,0.);
-  globH = Amg::Vector3D(0.,0.,0.);
+  m_mom = Amg::Vector3D(0.,0.,0.);
+  m_globH = Amg::Vector3D(0.,0.,0.);
   // END OF COSMICS-SPECIFIC CODE
 }
 
@@ -66,23 +66,23 @@ G4bool TGCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
   double tOrigin = dist * inv_lightspeed;
 
   G4int trackid = aStep->GetTrack()->GetTrackID();
-  currVertex = Amg::Hep3VectorToEigen(aStep->GetTrack()->GetVertexPosition());
+  m_currVertex = Amg::Hep3VectorToEigen(aStep->GetTrack()->GetVertexPosition());
 
   // for cosmics: only primary muon tracks - track momentum when first entering the spectrometer (one muon per event)
-  if ((currVertex != vertex) && (trackid == 1)) {
+  if ((m_currVertex != m_vertex) && (trackid == 1)) {
     // after calculationg the momentum magnidude, normalize it
-    mom = Amg::Hep3VectorToEigen(track->GetMomentum());
-    momMag = mom.mag();
-    mom.normalize();
-    // the direction of the primary mu is used to calculate the t0, the position ot the t0, globH, is ONE for a track
+    m_mom = Amg::Hep3VectorToEigen(track->GetMomentum());
+    m_momMag = m_mom.mag();
+    m_mom.normalize();
+    // the direction of the primary mu is used to calculate the t0, the position ot the t0, m_globH, is ONE for a track
     Amg::Vector3D globVrtxFix = Amg::Hep3VectorToEigen( globVrtx );
-    double AlphaGlobal = -1*(globVrtxFix[0]*mom[0] + globVrtxFix[1]*mom[1] + globVrtxFix[2]*mom[2])/(mom[0]*mom[0] + mom[1]*mom[1] + mom[2]*mom[2]);
-    globH = globVrtxFix + AlphaGlobal*mom;
+    double AlphaGlobal = -1*(globVrtxFix[0]*m_mom[0] + globVrtxFix[1]*m_mom[1] + globVrtxFix[2]*m_mom[2])/(m_mom[0]*m_mom[0] + m_mom[1]*m_mom[1] + m_mom[2]*m_mom[2]);
+    m_globH = globVrtxFix + AlphaGlobal*m_mom;
     G4cout << "COSMICS MAIN TRACK IN THE MDT!" << G4endl;
   }
-  double globalDist = sqrt((globH[0] - globVrtx[0])*(globH[0] - globVrtx[0]) +
-                           (globH[1] - globVrtx[1])*(globH[1] - globVrtx[1]) +
-                           (globH[2] - globVrtx[2])*(globH[2] - globVrtx[2]));
+  double globalDist = sqrt((m_globH[0] - globVrtx[0])*(m_globH[0] - globVrtx[0]) +
+                           (m_globH[1] - globVrtx[1])*(m_globH[1] - globVrtx[1]) +
+                           (m_globH[2] - globVrtx[2])*(m_globH[2] - globVrtx[2]));
   double tof = globalDist * inv_lightspeed;
   // END OF COSMICS-SPECIFIC CODE
 
@@ -178,22 +178,22 @@ G4bool TGCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
   }
 
   //construct the hit identifier
-  HitID TGCid = muonHelper->BuildTgcHitId(stationName,
+  HitID TGCid = m_muonHelper->BuildTgcHitId(stationName,
                                           stationPhi,
                                           stationEta,
                                           gasGap);
-  //muonHelper->Print(TGCid);
+  //m_muonHelper->Print(TGCid);
   // START OF COSMICS-SPECIFIC CODE
-  vertex = Amg::Hep3VectorToEigen(aStep->GetTrack()->GetVertexPosition());
-  // if the track vertex is far from (0,0,0), takes the tof, otherwise take the "usual" g4 globalTime
-  ((((vertex.mag()) < 100) || ((fabs(globalTime - tOrigin)) < 0.1) ) ? (m_globalTime  = globalTime) : (m_globalTime = tof));
+  m_vertex = Amg::Hep3VectorToEigen(aStep->GetTrack()->GetVertexPosition());
+  // if the track m_vertex is far from (0,0,0), takes the tof, otherwise take the "usual" g4 globalTime
+  ((((m_vertex.mag()) < 100) || ((fabs(globalTime - tOrigin)) < 0.1) ) ? (m_globalTime  = globalTime) : (m_globalTime = tof));
   // if m_globalTime  != globalTime and m_globalTime != tof in the output, this is due to multiple hits
   // before founding the good one (small approximation)
   // END OF COSMICS-SPECIFIC CODE
 
   // construct new mdt hit
   TrackHelper trHelp(aStep->GetTrack());
-  myTGCHitColl->Emplace(TGCid,
+  m_myTGCHitColl->Emplace(TGCid,
                         m_globalTime,
                         localPosition,
                         localDireCos,
