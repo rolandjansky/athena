@@ -22,6 +22,11 @@ TgcRdoContainer::TgcRdoContainer(unsigned int hashmax)
 {
 }
 
+TgcRdoContainer::TgcRdoContainer(TgcRdo_Cache* cache)
+  : IdentifiableContainer<TgcRdo>(cache) 
+{
+}
+
 
 // Destructor.
 TgcRdoContainer::~TgcRdoContainer() 

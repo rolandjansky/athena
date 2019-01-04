@@ -15,6 +15,12 @@ Muon::STGC_RawDataContainer::STGC_RawDataContainer(unsigned int hashmax)
 {
 }
 
+Muon::STGC_RawDataContainer::STGC_RawDataContainer(STGC_RawDataCollection_Cache* cache)
+: IdentifiableContainer<STGC_RawDataCollection>(cache) 
+{
+}
+
+
 // Destructor.
 Muon::STGC_RawDataContainer::~STGC_RawDataContainer() {
 

@@ -181,13 +181,14 @@ def muonRdoDecodeTestData():
     cfg.merge( rpcdecodingAcc )
     cfg.addEventAlgo( rpcdecodingAlg )
 
+    # Schedule Mdt data decoding - once mergeAll is working can simplify these lines
     from MuonConfig.MuonBytestreamDecodeConfig import TgcBytestreamDecodeCfg
     tgcdecodingAcc, tgcdecodingAlg = TgcBytestreamDecodeCfg( ConfigFlags ) 
     cfg.merge( tgcdecodingAcc )
     cfg.addEventAlgo( tgcdecodingAlg )
 
     from MuonConfig.MuonBytestreamDecodeConfig import MdtBytestreamDecodeCfg
-    mdtdecodingAcc, mdtdecodingAlg = MdtBytestreamDecodeCfg( ConfigFlags ) 
+    mdtdecodingAcc, mdtdecodingAlg = MdtBytestreamDecodeCfg( ConfigFlags )
     cfg.merge( mdtdecodingAcc )
     cfg.addEventAlgo( mdtdecodingAlg )
 

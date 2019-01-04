@@ -9,6 +9,7 @@
 
 #include "MuonRDO/CscRawDataCollection.h"
 #include "MuonRDO/CscRawDataCollectionIdHash.h"
+#include "MuonRDO/CscRawDataCollection_Cache.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include "EventContainers/IdentifiableContainer.h" 
 
@@ -23,6 +24,8 @@ class CscRawDataContainer
 public:  
   CscRawDataContainer();
   CscRawDataContainer(unsigned int hashmax);
+  CscRawDataContainer(CscRawDataCollection_Cache* cache);
+  
   virtual ~CscRawDataContainer(); 
   
   typedef IdentifiableContainer<CscRawDataCollection> MyBase; 

@@ -6,6 +6,7 @@
 #define MUONRDO_MM_RAWDATACONAINTER_H
 
 #include "MuonRDO/MM_RawDataCollection.h"
+#include "MuonRDO/MM_RawDataCollection_Cache.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include "EventContainers/IdentifiableContainer.h" 
 
@@ -18,6 +19,7 @@ class MM_RawDataContainer
 public:  
   MM_RawDataContainer(unsigned int hashmax);
   MM_RawDataContainer(); 
+  MM_RawDataContainer(MM_RawDataCollection_Cache* cache); 
   virtual ~MM_RawDataContainer(); 
 
   /// class ID
