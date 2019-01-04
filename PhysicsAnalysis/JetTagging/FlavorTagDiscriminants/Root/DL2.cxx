@@ -50,7 +50,7 @@ namespace FlavorTagDiscriminants {
 
     // set up sequence inputs
     for (const DL2TrackSequenceConfig& track_cfg: track_sequences) {
-      TrackSequenceGetter track_getter(track_cfg.order);
+      TrackSequenceGetter track_getter(track_cfg.order, track_cfg.selection);
       track_getter.name = track_cfg.name;
       for (const DL2TrackInputConfig& input_cfg: track_cfg.inputs) {
         track_getter.sequence_getters.push_back(get_seq_getter(input_cfg));
@@ -106,8 +106,9 @@ namespace FlavorTagDiscriminants {
     }
   }
 
-  DL2::TrackSequenceGetter::TrackSequenceGetter(SortOrder order):
-    getter(order)
+  DL2::TrackSequenceGetter::TrackSequenceGetter(SortOrder order,
+                                                TrackSelection selection):
+    getter(order, selection)
   {
   }
 
@@ -133,12 +134,14 @@ namespace FlavorTagDiscriminants {
   std::vector<DL2TrackSequenceConfig> get_track_input_config(
     const std::vector<std::pair<std::string, std::vector<std::string>>>& names,
     const TypeRegexes& type_regexes,
-    const SortRegexes& sort_regexes) {
+    const SortRegexes& sort_regexes,
+    const TrkSelRegexes& select_regexes) {
     std::vector<DL2TrackSequenceConfig> nodes;
     for (const auto& name_node: names) {
       DL2TrackSequenceConfig node;
       node.name = name_node.first;
       node.order = match_first(sort_regexes, name_node.first);
+      node.selection = match_first(select_regexes, name_node.first);
       for (const auto& varname: name_node.second) {
         DL2TrackInputConfig input;
         input.name = varname;
@@ -156,9 +159,10 @@ namespace FlavorTagDiscriminants {
   namespace internal {
 
     // Track Getter Class
-    TrackGetter::TrackGetter(SortOrder order):
+    TrackGetter::TrackGetter(SortOrder order, TrackSelection selection):
       m_track_associator("BTagTrackToJetAssociator"),
-      m_sort_function(get_track_sort(order))
+      m_sort_function(get_track_sort(order)),
+      m_select_function(get_track_select(selection))
     {
     }
     Tracks TrackGetter::operator()(const xAOD::Jet& jet) const {
@@ -170,7 +174,7 @@ namespace FlavorTagDiscriminants {
           throw std::logic_error("invalid track link");
         }
         const xAOD::TrackParticle *tp = *link;
-        tracks.push_back(tp);
+        if (m_select_function(tp)) tracks.push_back(tp);
       }
       std::sort(tracks.begin(), tracks.end(), m_sort_function);
       return tracks;
@@ -213,6 +217,38 @@ namespace FlavorTagDiscriminants {
         }
       }
     } // end of track sort getter
+    TrackSelect get_track_select(TrackSelection selection) {
+      typedef xAOD::TrackParticle Tp;
+      typedef SG::AuxElement AE;
+      AE::ConstAccessor<float> d0("btag_ip_d0");
+      AE::ConstAccessor<float> z0("btag_ip_z0");
+      AE::ConstAccessor<unsigned char> pix_hits("numberOfPixelHits");
+      AE::ConstAccessor<unsigned char> pix_holes("numberOfPixelHoles");
+      AE::ConstAccessor<unsigned char> sct_hits("numberOfSCTHits");
+      AE::ConstAccessor<unsigned char> sct_holes("numberOfSCTHoles");
+      switch (selection) {
+      case TrackSelection::ALL: return [](const Tp*) {return true;};
+        // the following numbers come from Nikol, Dec 2018:
+        // pt > 1 GeV
+        // d0 < 1 mm
+        // z0 sin(theta) < 1.5 mm
+        // >= 7 si hits
+        // <= 2 si holes
+        // <= 1 pix holes
+      case TrackSelection::IP3D_2018:
+        return [=](const Tp* tp) {
+                 if (tp->pt() <= 1e3) return false;
+                 if (d0(*tp) >= 0.1) return false;
+                 if (z0(*tp) * std::sin(tp->theta()) >= 0.15) return false;
+                 if (pix_hits(*tp) + sct_hits(*tp) < 7) return false;
+                 if (pix_holes(*tp) + sct_holes(*tp) > 2) return false;
+                 if (pix_holes(*tp) > 1) return false;
+                 return true;
+               };
+      default:
+        throw std::logic_error("unknown track selection function");
+      }
+    }
 
     SeqGetter get_seq_getter(const DL2TrackInputConfig& cfg) {
       switch (cfg.type) {
