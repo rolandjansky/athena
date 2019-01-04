@@ -61,15 +61,27 @@ namespace CP
 
     /// \brief the decoration for the muon efficiency
   private:
-    std::string m_efficiencyDecoration;
+    std::string m_scaleFactorDecoration;
 
-    /// \brief the accessor for \ref m_efficiencyDecoration
+    /// \brief the decoration for the muon mc efficiency
   private:
-    std::unique_ptr<const SG::AuxElement::Accessor<float> > m_efficiencyAccessor;
+    std::string m_mcEfficiencyDecoration;
 
-    /// \brief whether we run on data
+    /// \brief the decoration for the muon data efficiency
   private:
-    bool m_isData = false;
+    std::string m_dataEfficiencyDecoration;
+
+    /// \brief the accessor for \ref m_scaleFactorDecoration
+  private:
+    std::unique_ptr<const SG::AuxElement::Accessor<float> > m_scaleFactorAccessor;
+
+    /// \brief the accessor for \ref m_mcEfficiencyDecoration
+  private:
+    std::unique_ptr<const SG::AuxElement::Accessor<float> > m_mcEfficiencyAccessor;
+
+    /// \brief the accessor for \ref m_dataEfficiencyDecoration
+  private:
+    std::unique_ptr<const SG::AuxElement::Accessor<float> > m_dataEfficiencyAccessor;
   };
 }
 
