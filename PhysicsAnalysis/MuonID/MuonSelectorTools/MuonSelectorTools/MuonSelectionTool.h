@@ -136,6 +136,9 @@ namespace CP {
      bool m_SiHolesCutOff;
      bool m_TurnOffMomCorr;
      bool m_useAllAuthors;
+     bool m_use2stationMuonsHighPt;
+     
+     std::string m_eventInfoContName;
 
      /// Checks for each histogram  
      StatusCode getHist( TFile* file, const char* histName, TH2D*& hist );
@@ -150,6 +153,12 @@ namespace CP {
      std::string m_calibration_version;
      // possible override for the calibration version
      std::string m_custom_dir;
+
+     //Need run number (or random run number) to apply period-dependent selections.
+     //If selection depends only on data taking year, this can be specified by passing
+     //argument needOnlyCorrectYear=true, in which case the random run number decoration
+     //from the pile-up reweighting tool is not needed.
+     unsigned int getRunNumber(bool needOnlyCorrectYear = false) const;
 
    }; // class MuonSelectionTool
 

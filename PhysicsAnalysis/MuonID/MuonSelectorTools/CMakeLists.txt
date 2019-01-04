@@ -36,13 +36,13 @@ atlas_add_library( MuonSelectorToolsLib
    MuonSelectorTools/*.h Root/*.cxx
    PUBLIC_HEADERS MuonSelectorTools
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODMuon PATCoreLib MuonAnalysisInterfacesLib
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODMuon PATCoreLib MuonAnalysisInterfacesLib
    PRIVATE_LINK_LIBRARIES xAODTracking PathResolver )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( MuonSelectorTools
       src/*.h src/*.cxx src/components/*.cxx
-      LINK_LIBRARIES AthenaBaseComps GaudiKernel xAODCore xAODMuon MuonAnalysisInterfacesLib
+      LINK_LIBRARIES AthenaBaseComps GaudiKernel xAODCore xAODEventInfo xAODMuon MuonAnalysisInterfacesLib
       MuonSelectorToolsLib )
 endif()
 

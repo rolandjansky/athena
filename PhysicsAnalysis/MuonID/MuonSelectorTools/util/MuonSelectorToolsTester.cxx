@@ -77,6 +77,8 @@ int main( int argc, char* argv[] ) {
       }
    }
 
+   // Create a TStore object
+   xAOD::TStore store;
    
    // Create a set of selector tools configured for each of the available working points
 
