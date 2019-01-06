@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_IATHENABARCODE_H
@@ -59,7 +59,7 @@ public:
   //Constructors
 
   IAthenaBarCode() {  }
-  virtual ~IAthenaBarCode();
+  virtual ~IAthenaBarCode() = default;
 
   //All the default implementations are for the classes that derives from
   //INav4M but not ParticleImpl
