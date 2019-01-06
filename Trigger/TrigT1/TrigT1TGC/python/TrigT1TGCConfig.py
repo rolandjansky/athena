@@ -4,6 +4,8 @@ from TrigT1TGC.TrigT1TGCConf import *
 from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.GlobalFlags import globalflags
 from IOVDbSvc.CondDB import conddb
+from AthenaCommon.AlgSequence import AthSequencer
+from MuonCondSvc.MuonCondSvcConf import TGCTriggerDbAlg
 
 class TrigT1TGCConfig (LVL1TGCTrigger__LVL1TGCTrigger):
     
@@ -43,6 +45,10 @@ elif triggerMenuSetup.startswith('Physics_lumi1E34'): # setE (PT=0,6,10,15,20,40
     print 'TrigT1TGCConfig.py: TGC Coincidence Window setE will be used for %s menu.' % triggerMenuSetup
 
 if globalflags.DataSource() == 'geant4':
-    conddb.addFolder("TGC_OFL","/TGC/TRIGGER/CW_EIFI")
-    conddb.addFolder("TGC_OFL","/TGC/TRIGGER/CW_BW")
-    conddb.addFolder("TGC_OFL","/TGC/TRIGGER/CW_TILE")
+
+    conddb.addFolder("TGC_OFL","/TGC/TRIGGER/CW_EIFI",className='CondAttrListCollection')
+    conddb.addFolder("TGC_OFL","/TGC/TRIGGER/CW_BW",className='CondAttrListCollection')
+    conddb.addFolder("TGC_OFL","/TGC/TRIGGER/CW_TILE",className='CondAttrListCollection')
+
+    condSequence = AthSequencer("AthCondSeq")
+    condSequence += TGCTriggerDbAlg("TGCTriggerDbAlg")

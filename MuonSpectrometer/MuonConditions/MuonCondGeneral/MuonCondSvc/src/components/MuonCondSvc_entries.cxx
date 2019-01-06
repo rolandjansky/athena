@@ -7,6 +7,7 @@
 #include "MuonCondSvc/RpcStatusDbSvc.h"
 
 #include "MuonCondSvc/MuonAlignmentErrorDbAlg.h"
+#include "MuonCondSvc/TGCTriggerDbAlg.h"
 #include "MuonCondSvc/MDTCondSummarySvc.h"
 #include "MuonCondSvc/RPCCondSummarySvc.h"
 #include "MuonCondSvc/TGCCondSummarySvc.h"
@@ -25,6 +26,7 @@ using namespace MuonCalib;
 
 DECLARE_COMPONENT( MuonAlignmentDbSvc )
 DECLARE_COMPONENT( MuonAlignmentErrorDbAlg )
+DECLARE_COMPONENT( TGCTriggerDbAlg )
 DECLARE_COMPONENT( RpcStatusDbSvc )
 DECLARE_COMPONENT( CscCoolStrSvc )
 DECLARE_COMPONENT( MdtCoolStrSvc )

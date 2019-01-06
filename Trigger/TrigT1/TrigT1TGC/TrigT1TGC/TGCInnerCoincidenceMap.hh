@@ -11,7 +11,8 @@
 
 #include "GaudiKernel/ToolHandle.h"
 
-class ITGCTriggerDbTool;
+#include "StoreGate/ReadCondHandle.h"
+#include "MuonCondSvc/TGCTriggerData.h"
 
 namespace LVL1TGCTrigger {
  
@@ -35,6 +36,14 @@ public:
   int                         getFlagROI(const int roi,
 					const int ssc,
 					const int sec)  const;
+
+  int                         getTriggerBit(const int slot,
+                                            const int ssc,
+                                            const int sec,
+                                            const int reg,
+                                            const int read,
+                                            const int bit) const;
+  
 
   const std::string&          getVersion() const;
   int                         getSideId() const;
@@ -65,7 +74,7 @@ private:
   int m_side; 
   bool m_fullCW;
 
-   ToolHandle<ITGCTriggerDbTool> m_condDbTool;
+  SG::ReadCondHandleKey<TGCTriggerData> m_readCondKey;
 };
 
 
@@ -103,30 +112,6 @@ inline
   if ((sec<0)||(sec>=N_EndcapSector)) return 0;
 
   return  &(map[input][ssc][sec]);    
-}
-
-inline
- int  TGCInnerCoincidenceMap::getFlagPT(const int pt, 
-					const int ssc, 
-					const int sec)  const
-{
-  if ((pt<=0)||(pt>N_PT_THRESH)) return -1;
-  if ((ssc<0)||(ssc>=N_Endcap_SSC)) return 0;
-  if ((sec<0)||(sec>=N_EndcapSector)) return -1;
-  
-  return  flagPT[pt-1][ssc][sec]; 
-}
-
-inline
- int  TGCInnerCoincidenceMap::getFlagROI(const int roi, 
-					const int ssc, 
-					const int sec)  const
-{
-  if ((roi<0)||(roi>=N_ROI_IN_SSC)) return -1;
-  if ((ssc<0)||(ssc>=N_Endcap_SSC)) return 0;
-  if ((sec<0)||(sec>=N_EndcapSector)) return -1;
-  
-  return  flagROI[roi][ssc][sec]; 
 }
 
 

@@ -9,7 +9,8 @@
 
 #include "GaudiKernel/ToolHandle.h"
 
-class ITGCTriggerDbTool;
+#include "StoreGate/ReadCondHandle.h"
+#include "MuonCondSvc/TGCTriggerData.h"
 
 namespace LVL1TGCTrigger {
  
@@ -70,7 +71,7 @@ private:
   int map[N_Input_TileMuModule][N_Endcap_SSC][N_EndcapSector][N_Side];    
 
   std::string m_verName;
-  ToolHandle<ITGCTriggerDbTool> m_condDbTool;
+  SG::ReadCondHandleKey<TGCTriggerData> m_readCondKey;
 };
 
 
@@ -79,48 +80,6 @@ inline
 {
   return m_verName;
 }
-
-inline
- int  TGCTileMuCoincidenceMap::getMask(const int module, 
-				       const int ssc, 
-				       const int sec,
-				       const int side ) const
-{
-  if ((module<0)||(module>=N_Input_TileMuModule)) return TM_NA;
-  if ((ssc<0)||(ssc>=N_Endcap_SSC)) return TM_NA;
-  if ((sec<0)||(sec>=N_EndcapSector)) return TM_NA;
-  if ((side<0)||(side>=N_Side)) return TM_NA;
-  return  map[module][ssc][sec][side];
-}
-
-inline
- int  TGCTileMuCoincidenceMap::getFlagPT(const int pt, 
-					 const int ssc, 
-					 const int sec,
-					 const int side)  const
-{
-  if ((pt<=0)||(pt>N_PT_THRESH)) return -1;
-  if ((ssc<0)||(ssc>=N_Endcap_SSC)) return -1;
-  if ((sec<0)||(sec>=N_EndcapSector)) return -1;
-  if ((side<0)||(side>=N_Side)) return -1;
-  
-  return  flagPT[pt-1][ssc][sec][side]; 
-}
-
-inline
- int  TGCTileMuCoincidenceMap::getFlagROI(const int roi, 
-					  const int ssc, 
-					  const int sec,
-					  const int side)  const
-{
-  if ((roi<0)||(roi>=N_ROI_IN_SSC)) return -1;
-  if ((ssc<0)||(ssc>=N_Endcap_SSC)) return 0;
-  if ((sec<0)||(sec>=N_EndcapSector)) return -1;
-  if ((side<0)||(side>=N_Side)) return -1;
-  
-  return  flagROI[roi][ssc][sec][side]; 
-}
-
 
 } //end of namespace bracket
 

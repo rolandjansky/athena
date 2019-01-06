@@ -49,7 +49,6 @@
 
 #include "TGCcablingInterface/ITGCcablingSvc.h"
 #include "TGCcablingInterface/ITGCcablingServerSvc.h"
-#include "MuonCondInterface/ITGCTriggerDbTool.h"
 #include "PathResolver/PathResolver.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
@@ -78,7 +77,6 @@ namespace LVL1TGCTrigger {
     m_sgSvc("StoreGateSvc", name),
     m_detectorStore(0), 
     m_cabling(0),
-    m_condDbTool("TGCTriggerDbTool"),
     m_bctagInProcess(0),
     m_db(0),
     m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc",name),
@@ -86,7 +84,8 @@ namespace LVL1TGCTrigger {
     m_system(0),
     m_nEventInSector(0),
     m_log( msgSvc(), name ),
-    m_debuglevel(false)
+    m_debuglevel(false),
+    m_readCondKey("TGCTriggerData")
 {
     declareProperty("EventStore", m_sgSvc, "Event Store"); 
     declareProperty("MuCTPIInput_TGC",     m_keyMuCTPIInput_TGC="L1MuctpiStoreTGC");
@@ -109,7 +108,13 @@ namespace LVL1TGCTrigger {
     declareProperty("INNERVETO",           m_INNERVETO           =true);  // Obsolete
     declareProperty("FULLCW",              m_FULLCW              =true);  // Obsolete
     declareProperty("TILEMU",              m_TILEMU              =false); // Obsolete
-  }
+    declareProperty("ReadCondKey",         m_readCondKey); 
+
+    StatusCode sc = m_readCondKey.initialize();
+    if (sc.isFailure()) {
+      return;
+    }  
+}
 
 
 ////////////////////////////////////////////////////////////
@@ -214,31 +219,6 @@ namespace LVL1TGCTrigger {
 	  << endmsg;
     }
 
-    if (g_USE_CONDDB) { // for codition database
-    if(m_condDbTool.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Could not retrieve TGCTriggerDbTool");
-      return StatusCode::FAILURE;
-    }
- 
-    std::vector<std::string> folders;
-    folders.push_back(m_condDbTool->getFolderName(ITGCTriggerDbTool::CW_BW));
-    folders.push_back(m_condDbTool->getFolderName(ITGCTriggerDbTool::CW_EIFI));
-    folders.push_back(m_condDbTool->getFolderName(ITGCTriggerDbTool::CW_TILE));
-
-    for (int ii = 0; ii < (int)folders.size(); ++ii ) {
-    
-      const DataHandle<CondAttrListCollection> dh_aal;
-      if (!detStore()->regFcn(&LVL1TGCTrigger::updateDatabase,
-                         this,
-                         dh_aal,
-                         folders.at(ii),
-                         true).isSuccess()) {
-        ATH_MSG_FATAL("Could not register &updateDatabase against folder " << folders.at(ii));
-        return StatusCode::FAILURE;
-      }
-    } 
-    }  
-
     return StatusCode::SUCCESS;
   }
 
@@ -299,7 +279,9 @@ namespace LVL1TGCTrigger {
     bool doTileMu = g_TILE_MU;
 
     if (g_USE_CONDDB) {
-      doTileMu = m_condDbTool->isActive(ITGCTriggerDbTool::CW_TILE);
+      SG::ReadCondHandle<TGCTriggerData> readHandle{m_readCondKey};
+      const TGCTriggerData* readCdo{*readHandle};
+      doTileMu = readCdo->isActive(TGCTriggerData::CW_TILE);
     }
 
     // TgcRdo
@@ -1567,24 +1549,6 @@ StatusCode LVL1TGCTrigger::fillTMDB()
 }
 
   
-StatusCode LVL1TGCTrigger::updateDatabase(IOVSVC_CALLBACK_ARGS_P(I, keys))
-{
-  ATH_MSG_INFO("updateDatabase called");
- 
-  if (!m_condDbTool->loadParameters(I, keys).isSuccess()) {
-    ATH_MSG_WARNING("loadParameters failed");
-    return StatusCode::SUCCESS;
-  }
-
-  if (!m_db->updateMap().isSuccess()) {
-    ATH_MSG_WARNING("updateMap failed");
-    return StatusCode::SUCCESS;
-  }
- 
-  ATH_MSG_INFO("loadPayload succeeded");
-  return StatusCode::SUCCESS;
-}
-
 
 } //end of namespace bracket
 
