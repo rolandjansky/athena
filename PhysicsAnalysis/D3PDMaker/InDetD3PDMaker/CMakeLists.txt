@@ -60,7 +60,7 @@ atlas_add_component( InDetD3PDMaker
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPMC_LIBRARIES} ${HEPPDT_LIBRARIES}  GaudiKernel CommissionEvent AthContainers AthenaKernel StoreGate AtlasDetDescr GeoAdaptors Identifier EventPrimitives xAODEventInfo xAODTracking InDetBeamSpotService SCT_ConditionsTools TRT_ConditionsServices InDetIdentifier InDetReadoutGeometry SCT_CablingLib InDetRawData InDetPrepRawData InDetRIO_OnTrack InDetSimEvent D3PDMakerUtils MCTruthClassifier ParticleTruth ITrackToVertex muonEvent Particle TrkCompetingRIOsOnTrack TrkEventPrimitives TrkParameters TrkParticleBase TrkPrepRawData TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkTruthData TrkV0Vertex VxVertex TrkToolInterfaces TrkVertexFitterValidationUtils )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPMC_LIBRARIES} ${HEPPDT_LIBRARIES}  GaudiKernel CommissionEvent AthContainers AthenaKernel StoreGateLib AtlasDetDescr GeoAdaptors Identifier EventPrimitives xAODEventInfo xAODTracking InDetBeamSpotService SCT_ConditionsTools TRT_ConditionsServices InDetIdentifier InDetReadoutGeometry SCT_CablingLib InDetRawData InDetPrepRawData InDetRIO_OnTrack InDetSimEvent D3PDMakerUtils MCTruthClassifier ParticleTruth ITrackToVertex muonEvent Particle TrkCompetingRIOsOnTrack TrkEventPrimitives TrkParameters TrkParticleBase TrkPrepRawData TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkTruthData TrkV0Vertex VxVertex TrkToolInterfaces TrkVertexFitterValidationUtils )
 
 # Install files from the package:
 atlas_install_headers( InDetD3PDMaker )
