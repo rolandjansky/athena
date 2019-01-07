@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1NSWSimTools/L1TdrStgcTriggerLogic.h"
@@ -10,15 +10,8 @@
 #include "TrigT1NSWSimTools/vector_utils.h"
 #include "TrigT1NSWSimTools/GeoUtils.h"
 
-#include <algorithm>
-#include <cassert>
-#include <cstdio>
 #include <fstream>
 #include <functional>
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <vector>
 #include <numeric>//iota
 
 using std::distance;
@@ -26,14 +19,13 @@ using std::set_intersection;
 
 namespace {
     const double padTimingEfficiency = 0.95; // set to -1 to disable
-    MsgStream& operator>>(MsgStream& m, const MSG::Color&c) {m.setColor(c, MSG::BLACK);return m;}
 }
 
 namespace NSWL1{
     
     
-    L1TdrStgcTriggerLogic::L1TdrStgcTriggerLogic(IMessageSvc*  M,  std::string source):
-         m_writePickle(false), m_picklePrefix("./"),m_msglvl(-1), m_msg(M, source){
+    L1TdrStgcTriggerLogic::L1TdrStgcTriggerLogic():
+      m_msg("L1TdrStgcTriggerLogic"), m_writePickle(false), m_picklePrefix("./"){
     }
     //-------------------------------------
     L1TdrStgcTriggerLogic::~L1TdrStgcTriggerLogic() {}
@@ -388,11 +380,11 @@ namespace NSWL1{
         remove3of4Redundant4of4(i4of4trig, i3of4trig);
         remove3of4Redundant4of4(o4of4trig, o3of4trig);
         
-        m_msg>>MSG::CYAN<<MSG::DEBUG <<  "SingleWedge triggers :"
-                << " inner : " << i3of4trig.size() << "(3/4) " << i4of4trig.size()
-                << "(4/4)"
-                << " outer : " << o3of4trig.size() << "(3/4) " << o4of4trig.size()
-                << "(4/4)" << endmsg;
+        ATH_MSG_DEBUG("SingleWedge triggers :"
+		      << " inner : " << i3of4trig.size() << "(3/4) " << i4of4trig.size()
+		      << "(4/4)"
+		      << " outer : " << o3of4trig.size() << "(3/4) " << o4of4trig.size()
+		      << "(4/4)");
         
         std::vector< SingleWedgePadTrigger > innerTrigs, outerTrigs; // merge 4/4 and 3/4
         innerTrigs.insert(innerTrigs.end(), i3of4trig.begin(), i3of4trig.end());
@@ -423,7 +415,7 @@ namespace NSWL1{
                     
                     Polygon inoutovl=largestIntersection(innerArea,Project(outerArea,Z1,Z0));
                     float overlap=area(inoutovl);
-                     m_msg>>MSG::CYAN <<"OVERLAP  "<<overlap<<" Inner "<<area(innerArea)<<" Outer "<<area(outerArea)<<endmsg;
+                    ATH_MSG_DEBUG("OVERLAP  "<<overlap<<" Inner "<<area(innerArea)<<" Outer "<<area(outerArea));
                     if (overlap >0) {
                         m_secTrigCand.emplace_back(it.setCombined(), ot.setCombined());
                     }
@@ -435,7 +427,7 @@ namespace NSWL1{
             if (acceptSingleWedgeInTransition) {
                 for ( auto& it : innerTrigs){
                     if (it.alreadyCombined()){
-                         m_msg>>MSG::CYAN<<MSG::DEBUG<<"Inner SingleWedge trigger already combined, skipping"<<endmsg;
+                         ATH_MSG_DEBUG("Inner SingleWedge trigger already combined, skipping");
                         continue;
                     }
                     else if (it.is4outOf4Layers() && it.isInTransitionRegion()){
@@ -444,7 +436,7 @@ namespace NSWL1{
                 }
                 for ( auto& ot : outerTrigs) {
                     if (ot.alreadyCombined()){
-                         m_msg>>MSG::CYAN<<MSG::DEBUG<<"Outer SingleWedge trigger already combined, skipping"<<endmsg;                        
+                         ATH_MSG_DEBUG("Outer SingleWedge trigger already combined, skipping");                        
                         continue;
                     }
                     else if (ot.is4outOf4Layers() && ot.isInTransitionRegion()){
@@ -455,9 +447,9 @@ namespace NSWL1{
         }   // if(not skipInnerOuterMatchHack)
         //m_secTrigCand = trigCandidates;
         
-         m_msg>>MSG::CYAN<<MSG::DEBUG <<  "found " << m_secTrigCand.size() << " triggerCandidates from "<< pads.size() << " pads" << endmsg;
+	ATH_MSG_DEBUG("found " << m_secTrigCand.size() << " triggerCandidates from "<< pads.size() << " pads");
         for (const auto& tc : m_secTrigCand) {
-                 m_msg>>MSG::CYAN<<MSG::DEBUG<<"trigger region area : " << area(tc.triggerRegion3())<<endmsg;
+	  ATH_MSG_DEBUG("trigger region area : " << area(tc.triggerRegion3()));
         }
 
         if (m_writePickle) {
@@ -486,22 +478,6 @@ namespace NSWL1{
     */
 
     std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsEtaUp() {
-        /*
-        std::vector<std::string> patterns;
-        patterns.push_back("1111");
-        patterns.push_back("1122");
-        patterns.push_back("3111");
-        patterns.push_back("3122");
-        patterns.push_back("1311");
-        patterns.push_back("1322");
-        patterns.push_back("1131");
-        patterns.push_back("1132");
-        patterns.push_back("1113");
-        patterns.push_back("1123");
-
-        return patterns;
-        */
-        //at least write it like this... all the below
         //why dont we make these members ? 
         return std::vector<std::string>{"1111","1122","3111","3122","1311","1322","1131","1132","1113","1123"};
     }

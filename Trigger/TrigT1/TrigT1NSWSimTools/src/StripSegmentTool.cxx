@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Athena/Gaudi includes
@@ -11,58 +11,24 @@
 #include "TrigT1NSWSimTools/StripOfflineData.h"
 #include "TrigT1NSWSimTools/tdr_compat_enum.h"
 
-//Event info includes
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
-// Muon software includes
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonReadoutGeometry/sTgcReadoutElement.h"
-#include "MuonIdHelpers/sTgcIdHelper.h"
-#include "MuonDigitContainer/sTgcDigitContainer.h"
-#include "MuonDigitContainer/sTgcDigit.h"
-#include "MuonSimData/MuonSimDataCollection.h"
-#include "MuonSimData/MuonSimData.h"
-// random numbers
-#include "AthenaKernel/IAtRndmGenSvc.h"
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGauss.h"
-
-// local includes
 #include "TTree.h"
-#include "TVector3.h"
 
-#include <functional>
-#include <algorithm>
 #include <map>
-#include <utility>
-#include <math.h>      
 
 namespace NSWL1 {
 
     StripSegmentTool::StripSegmentTool( const std::string& type, const std::string& name, const IInterface* parent) :
       AthAlgTool(type,name,parent),
       m_incidentSvc("IncidentSvc",name),
-      m_rndmSvc("AtRndmGenSvc",name),
-      m_rndmEngine(0),
-      m_detManager(0),
-      m_sTgcIdHelper(0),
       m_tree(0)
 
     {
       declareInterface<NSWL1::IStripSegmentTool>(this);
 
       declareProperty("DoNtuple", m_doNtuple = true, "input the StripTds branches into the analysis ntuple"); 
-      declareProperty("sTGC_SdoContainerName", m_sTgcSdoContainer = "sTGC_SDO", "the name of the sTGC SDO container");
     }
 
     StripSegmentTool::~StripSegmentTool() {
-
-      // Clear Ntuple variables
-      //      if(m_cl_charge) delete m_cl_charge;
-      //if(m_cl_eta) delete m_cl_eta;
-      //if(m_cl_phi) delete m_cl_phi;
-
 
     }
 
@@ -86,7 +52,6 @@ namespace NSWL1 {
         }
 
         char ntuple_name[40]={'\0'};
-        //memset(ntuple_name,'\0',40*sizeof(char));
         sprintf(ntuple_name,"%sTree",algo_name.c_str());
 
         m_tree = 0;
@@ -115,30 +80,6 @@ namespace NSWL1 {
       }
       m_incidentSvc->addListener(this,IncidentType::BeginEvent);
 
-      // retrieve the Random Service
-      if( m_rndmSvc.retrieve().isFailure() ) {
-        ATH_MSG_FATAL("Failed to retrieve the Random Number Service");
-        return StatusCode::FAILURE;
-      } else {
-        ATH_MSG_INFO("Random Number Service successfully retrieved");
-      }
-
-      //  retrieve the MuonDetectormanager
-      if( detStore()->retrieve( m_detManager ).isFailure() ) {
-        ATH_MSG_FATAL("Failed to retrieve the MuonDetectorManager");
-        return StatusCode::FAILURE;
-      } else {
-        ATH_MSG_INFO("MuonDetectorManager successfully retrieved");
-      }
-
-      //  retrieve the sTGC offline Id helper
-      if( detStore()->retrieve( m_sTgcIdHelper ).isFailure() ){
-        ATH_MSG_FATAL("Failed to retrieve sTgcIdHelper");
-        return StatusCode::FAILURE;
-      } else {
-        ATH_MSG_INFO("sTgcIdHelper successfully retrieved");
-      }
- 
       return StatusCode::SUCCESS;
     }
 
@@ -221,7 +162,6 @@ namespace NSWL1 {
 	    float avg_r=(r1+r2)/2.;
 	    float avg_z=(z1+z2)/2.;
 	    float inf_slope=(avg_r/avg_z);
-	    //float dR=slope-inf_slope;
 	    float theta_inf=atan(inf_slope);
 	    float theta=atan(slope);
 	    float dtheta=(theta_inf-theta)*1000;//In Milliradian
@@ -273,8 +213,6 @@ namespace NSWL1 {
     }
 
     StatusCode StripSegmentTool::book_branches() {
-      // m_cl_n= 0;
-      // m_cl_charge = new std::vector< int >();
 
       m_seg_theta = new std::vector< float >();    
       m_seg_dtheta = new std::vector< float >();
@@ -315,9 +253,6 @@ namespace NSWL1 {
 
 
        }
-      // else { 
-      //    return StatusCode::FAILURE;
-      // }
       return StatusCode::SUCCESS;
     }
 
@@ -354,5 +289,3 @@ namespace NSWL1 {
 
 
 }
-
-//  LocalWords:  pos lpos
