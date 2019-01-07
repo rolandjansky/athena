@@ -1,4 +1,5 @@
-#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#
 """Functionality core of the Generate_tf transform"""
 
 ##==============================================================
@@ -7,6 +8,7 @@
 
 ## Create sequences for generators, clean-up algs, filters and analyses
 ## and import standard framework objects with standard local scope names
+import ast
 import os, re, string, subprocess
 import AthenaCommon.AlgSequence as acas
 import AthenaCommon.AppMgr as acam
@@ -51,6 +53,10 @@ svcMgr += AtRanluxGenSvc()
 
 ## Jobs should stop if an include fails.
 jobproperties.AthenaCommonFlags.AllowIgnoreConfigError = False
+
+## Compatibility with jets
+from RecExConfig.RecConfFlags import jobproperties
+jobproperties.RecConfFlags.AllowBackNavigation = True
 
 ## Set up a standard logger
 from AthenaCommon.Logging import logging
@@ -259,10 +265,10 @@ if joparts[0].startswith("MC"): #< if this is an "official" JO
         # TODO: add EvtGen to this normalization for MC14?
         return s.replace("Photospp", "").replace("Photos", "").replace("TauolaPP", "").replace("Tauolapp", "").replace("Tauola", "")
     def _norm2(s):
-        return s.replace("Py", "Pythia").replace("MG","MadGraph").replace("Ph","Powheg").replace("Hpp","Herwigpp").replace("H7","Herwig7").replace("Sh","Sherpa").replace("Ag","Alpgen").replace("EG","EvtGen").replace("PG","ParticleGun")
+        return s.replace("Py", "Pythia").replace("MG","MadGraph").replace("Ph","Powheg").replace("Hpp","Herwigpp").replace("H7","Herwig7").replace("Sh","Sherpa").replace("Ag","Alpgen").replace("EG","EvtGen").replace("PG","ParticleGun").replace("Gva","Geneva")
         
     def _short2(s):
-         return s.replace("Pythia","Py").replace("MadGraph","MG").replace("Powheg","Ph").replace("Herwigpp","Hpp").replace("Herwig7","H7").replace("Sherpa","Sh").replace("Alpgen","Ag").replace("EvtGen","EG").replace("PG","ParticleGun")
+         return s.replace("Pythia","Py").replace("MadGraph","MG").replace("Powheg","Ph").replace("Herwigpp","Hpp").replace("Herwig7","H7").replace("Sherpa","Sh").replace("Alpgen","Ag").replace("EvtGen","EG").replace("PG","ParticleGun").replace("Geneva","Gva")
      
 #    if genpart != expectedgenpart and _norm(genpart) != _norm(expectedgenpart) and _norm2(genpart) != expectedgenpart and _norm2(genpart) != _norm(expectedgenpart):
 #        evgenLog.error("Expected first part of JO name to be '%s' or '%s' or '%s', but found '%s'" % (_norm(expectedgenpart), expectedgenpart, _short2(expectedgenpart), genpart))
@@ -290,7 +296,7 @@ if gen_require_steering(gennames):
 
 
 ## Check that the evgenConfig.minevents setting is acceptable
-## minevents defines the production event sizes and must be sufficiently "round"
+## minevents defines the production event sizes and must be sufficiently "round"    
 rounding = 0
 if hasattr(runArgs,'inputGeneratorFile') and ',' in runArgs.inputGeneratorFile:   multiInput = runArgs.inputGeneratorFile.count(',')+1
 else:
@@ -301,39 +307,39 @@ if evgenConfig.minevents < 1:
 else:
     allowed_minevents_lt1000 = [1, 2, 5, 10, 20, 25, 50, 100, 200, 500, 1000]
     msg = "evgenConfig.minevents = %d: " % evgenConfig.minevents
-    if multiInput !=0 :
-        dummy_minevents = evgenConfig.minevents*(multiInput)
-        evgenLog.info('Replacing input minevents '+str(evgenConfig.minevents)+' with calculated '+str(dummy_minevents))
-        evgenConfig.minevents = dummy_minevents
+# introduced due to PRODSYS-788, commented out on 06.07.18 obo Dominic
+#    if multiInput !=0 :
+#        dummy_minevents = evgenConfig.minevents*(multiInput)
+#        evgenLog.info('Replacing input minevents '+str(evgenConfig.minevents)+' with calculated '+str(dummy_minevents))
+#        evgenConfig.minevents = dummy_minevents
 
     if evgenConfig.minevents >= 1000 and evgenConfig.minevents % 1000 != 0:
-        rest1000 = evgenConfig.minevents % 1000
-        if multiInput !=0 :
-            rounding=1
-            if rest1000 < 1000-rest1000:
-                evgenLog.info('Replacing minevents '+str(evgenConfig.minevents)+' with roundeded '+str(evgenConfig.minevents-rest1000))
-                evgenConfig.minevents = evgenConfig.minevents-rest1000
-            else:
-                evgenLog.info('Replacing input minevents '+str(evgenConfig.minevents)+' with calculated '+str(evgenConfig.minevents-rest1000+1000))
-                evgenConfig.minevents = evgenConfig.minevents-rest1000+1000
-        else:    
+# introduced due to PRODSYS-788, commented out on 06.07.18 obo Dominic
+#        rest1000 = evgenConfig.minevents % 1000
+#        if multiInput !=0 :
+#            rounding=1
+#            if rest1000 < 1000-rest1000:
+#                evgenLog.info('Replacing minevents '+str(evgenConfig.minevents)+' with roundeded '+str(evgenConfig.minevents-rest1000))
+#                evgenConfig.minevents = evgenConfig.minevents-rest1000
+#            else:
+#                evgenLog.info('Replacing input minevents '+str(evgenConfig.minevents)+' with calculated '+str(evgenConfig.minevents-rest1000+1000))
+#                evgenConfig.minevents = evgenConfig.minevents-rest1000+1000
+#        else:    
            msg += "minevents in range >= 1000 must be a multiple of 1000"
            raise RuntimeError(msg)
     elif evgenConfig.minevents < 1000 and evgenConfig.minevents not in allowed_minevents_lt1000:
-        if multiInput !=0:
-           rounding=1
-#           minimum_list = [abs(variable - evgenConfig.minevents) for variable in allowed_minevents_lt1000]
-#           from operator import itemgetter
-#           evgenLog.info("Minimum list: %s" % minimum_list)
-#           evgenLog.info("index of the min. value: " + str(min(enumerate(minimum_list), key=itemgetter(1))[0]) + " and the value is: " + str(allowed_minevents_lt1000[min(enumerate(minimum_list), key=itemgetter(1))[0]]))
-           round_minevents=min(allowed_minevents_lt1000,key=lambda x:abs(x-evgenConfig.minevents))
-           evgenLog.info('Replacing minevents lt 1000 '+str(evgenConfig.minevents)+' with rounded '+str(round_minevents))
-           evgenConfig.minevents=round_minevents
-        else:
+# introduced due to PRODSYS-788, commented out on 06.07.18 obo Dominic
+#        if multiInput !=0:
+#           rounding=1
+#           round_minevents=min(allowed_minevents_lt1000,key=lambda x:abs(x-evgenConfig.minevents))
+#           evgenLog.info('Replacing minevents lt 1000 '+str(evgenConfig.minevents)+' with rounded '+str(round_minevents))
+#           evgenConfig.minevents=round_minevents
+#        else:
            msg += "minevents in range <= 1000 must be one of %s" % allowed_minevents_lt1000
            raise RuntimeError(msg)
 #    else:
-    postSeq.CountHepMC.RequestedOutput = evgenConfig.minevents if runArgs.maxEvents == -1 or rounding==1 else runArgs.maxEvents
+#    postSeq.CountHepMC.RequestedOutput = evgenConfig.minevents if runArgs.maxEvents == -1 or rounding==1 else runArgs.maxEvents
+    postSeq.CountHepMC.RequestedOutput = evgenConfig.minevents if runArgs.maxEvents == -1  else runArgs.maxEvents
     evgenLog.info('Requested output events '+str(postSeq.CountHepMC.RequestedOutput))
 
 ## Check that the keywords are in the list of allowed words (and exit if processing an official JO)
@@ -367,6 +373,51 @@ if evgenConfig.keywords:
                 sys.exit(1)
     else:
         evgenLog.warning("Could not find evgenkeywords.txt file %s in $JOBOPTSEARCHPATH" % kwfile)
+
+## Check that the L1 and L2 keywords pairs are in the list of allowed words pairs (and exit if processing an official JO)
+if evgenConfig.categories:
+    ## Get the allowed categories file from the JO package if possibe
+    # TODO: Make the package name configurable
+    lkwfile = "MC15JobOptions/CategoryList.txt"
+    lkwpath = None
+    for p in os.environ["JOBOPTSEARCHPATH"].split(":"):
+        lkwpath = os.path.join(p, lkwfile)
+        if os.path.exists(lkwpath):
+            break
+        lkwpath = None
+## Load the allowed categories names from the file
+    allowed_cat = []
+    if lkwpath:
+        with open(lkwpath, 'r') as catlist:
+            for line in catlist:
+               allowed_list = ast.literal_eval(line)
+               allowed_cat.append(allowed_list)
+# Print allowed categories and categories read from the JOs
+#            print "allowed categories", allowed_list
+#            print "evgenConfig.categories", evgenConfig.categories
+
+        ## Check the JO categories against the allowed ones
+        bad_cat =[]
+        it = iter(evgenConfig.categories)
+        for x in it:
+           l1 = x
+           l2 = next(it)
+           if "L1:" in l2 and "L2:" in l1:
+               l1, l2 = l2, l1
+           print "first",l1,"second",l2
+           bad_cat.extend([l1, l2])
+           for a1,a2 in allowed_cat:
+#               print "a1 ",a1,"l1 ",l1, "a2 ",a2,"l2 ",l2
+               if l1.strip().lower()==a1.strip().lower() and l2.strip().lower()==a2.strip().lower():
+                 bad_cat=[]
+           if bad_cat:
+               msg = "evgenConfig.categories contains non-standard category: %s. " % ", ".join(bad_cat)
+               msg += "Please check the allowed categories list and fix."
+               evgenLog.error(msg)
+               if officialJO:
+                   sys.exit(1)
+    else:
+        evgenLog.warning("Could not find CategoryList.txt file %s in $JOBOPTSEARCHPATH" % lkwfile)
 
 ## Configure and schedule jet finding algorithms
 ## NOTE: This generates algorithms for jet containers defined in the user's JO fragment
@@ -662,12 +713,14 @@ if _checkattr("description", required=True):
         msg += " " + evgenConfig.notes
     print "MetaData: %s = %s" % ("physicsComment", msg)
 if _checkattr("generators", required=True):
+#    print "MetaData: %s = %s" % ("generatorName", "+".join(gennames))
     gennamesvers=[]
     for item in gennames:
        genera = item.upper()
        generat = genera+"VER"
        if (generat in os.environ):
            gennamesvers.append(item+"(v."+os.environ[generat]+")")
+#           gennamesvers.append(item+"."+os.environ[generat])
        else:
            gennamesvers.append(item)
     print "MetaData: %s = %s" % ("generatorName", "+".join(gennamesvers))    
@@ -681,6 +734,8 @@ if _checkattr("softPDF"):
     print "MetaData: %s = %s" % ("softPDF", evgenConfig.softPDF)
 if _checkattr("keywords"):
     print "MetaData: %s = %s" % ("keywords", ", ".join(evgenConfig.keywords).lower())      
+if _checkattr("categories"):
+    print "MetaData: %s = %s" % ("categories", ", ".join(evgenConfig.categories))
 if _checkattr("specialConfig"):
    print "MetaData: %s = %s" % ("specialConfig", evgenConfig.specialConfig)
 # TODO: Require that a contact / JO author is always set

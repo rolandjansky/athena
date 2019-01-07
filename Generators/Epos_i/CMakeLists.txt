@@ -43,3 +43,6 @@ atlas_add_component( Epos_i
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( share/epos_crmc.param )
 
+set( EposEnvironment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+   CACHE PATH "Location of EposEnvironment.cmake" )
+find_package( EposEnvironment )

@@ -42,3 +42,6 @@ atlas_add_component( QGSJet_i
 # Install files from the package:
 atlas_install_runtime( share/qgsjet_crmc.param )
 
+set( QGSJetEnvironment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+   CACHE PATH "Location of QGSJetEnvironment.cmake" )
+find_package( QGSJetEnvironment )

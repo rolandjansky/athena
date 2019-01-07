@@ -44,3 +44,7 @@ atlas_add_component( Photospp_i
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
 
+set( PhotosppEnvironment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+   CACHE PATH "Location of PhotosppEnvironment.cmake" )
+find_package( PhotosppEnvironment )
+
