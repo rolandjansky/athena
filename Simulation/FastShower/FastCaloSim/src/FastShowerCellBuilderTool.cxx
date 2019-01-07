@@ -13,6 +13,8 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ListItem.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 #if FastCaloSim_project_release_v1 == 12
 #include "PartPropSvc/PartPropSvc.h"
 #include "CLHEP/HepPDT/ParticleData.hh"
@@ -131,8 +133,6 @@ FastShowerCellBuilderTool::FastShowerCellBuilderTool(const std::string& type, co
   for(int i=0;i<n_surfacelist;++i) m_surfacelist[i]=surfacelist[i];
   m_rndm=new TRandom3();
 
-  declareProperty("McLocation",m_mcLocation);
-
   declareProperty("ParticleParametrizationFileName",m_ParticleParametrizationFileName);
   declareProperty("AdditionalParticleParametrizationFileNames",m_AdditionalParticleParametrizationFileNames);
 
@@ -140,8 +140,6 @@ FastShowerCellBuilderTool::FastShowerCellBuilderTool(const std::string& type, co
   declareProperty("PartPropSvc",                    m_partPropSvc,          "");
   declareProperty("RandomService",                  m_rndmSvc,              "Name of the random number service");
   declareProperty("RandomStreamName",               m_randomEngineName,     "Name of the random number stream");
-
-  declareProperty("MuonEnergyInCaloContainerName",  m_MuonEnergyInCaloContainer);
 
   declareProperty("DoSimulWithInnerDetectorTruthOnly",m_simul_ID_only);
   declareProperty("DoSimulWithInnerDetectorV14TruthCuts",m_simul_ID_v14_truth_cuts);
@@ -153,7 +151,6 @@ FastShowerCellBuilderTool::FastShowerCellBuilderTool(const std::string& type, co
   declareProperty("CaloSurfaceHelper",              m_caloSurfaceHelper );
   declareProperty("CaloCoordinateTool",             m_calo_tb_coord);
 
-  declareProperty("FastShowerInfoContainerKey",     m_FastShowerInfoContainerKey);
   declareProperty("StoreFastShowerInfo",            m_storeFastShowerInfo);
 
   declareProperty("DoEnergyInterpolation",          m_jo_interpolate); //ATA: make interpolation optional
@@ -454,7 +451,7 @@ StatusCode FastShowerCellBuilderTool::initialize()
     m_mcLocation       = ged -> mcLocation();
     }
   */
-  ATH_MSG_INFO("McCollection="<< m_mcLocation);
+  ATH_MSG_INFO("McCollection="<< m_mcCollectionKey.key());
 
   //m_gentesIO = new GenAccessIO();
 
@@ -513,6 +510,19 @@ StatusCode FastShowerCellBuilderTool::initialize()
       msg(MSG::INFO)<<"[r="<<m_ID_cylinder_r[ic]<<",z="<<m_ID_cylinder_z[ic]<<"] ";
     }
     msg(MSG::INFO)<<endmsg;
+  }
+
+  ATH_CHECK( m_mcCollectionKey.initialize() );
+
+  if (m_storeFastShowerInfo) {
+    ATH_CHECK( m_FastShowerInfoContainerKey.initialize() );
+  }
+  else {
+    m_FastShowerInfoContainerKey = "";
+  }
+
+  if (!m_MuonEnergyInCaloContainerKey.key().empty()) {
+    ATH_CHECK( m_MuonEnergyInCaloContainerKey.initialize() );
   }
 
   ATH_MSG_INFO("Initialisating finished");
@@ -1592,7 +1602,7 @@ StatusCode FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCel
               }
               m_letaCalo[sample]=fcx;
 
-              /* Causing to big steps!!!
+              /* Causing too big steps!!!
                  if(fcx<mineta) {
                  while(fcx<mineta){
                  m_letaCalo[sample]+=delta;
@@ -2285,6 +2295,8 @@ void FastShowerCellBuilderTool::init_shape_correction()
 
 StatusCode FastShowerCellBuilderTool::process(CaloCellContainer* theCellContainer)
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
   if(!m_is_init_shape_correction) {
     init_shape_correction();
     m_is_init_shape_correction=true;
@@ -2304,11 +2316,7 @@ StatusCode FastShowerCellBuilderTool::process(CaloCellContainer* theCellContaine
   MCparticleCollection Simulparticles;
   MCdo_simul_state     do_simul_state;
 
-  const McEventCollection* mcCollptr;
-  if ( evtStore()->retrieve(mcCollptr, m_mcLocation).isFailure() ) {
-    ATH_MSG_ERROR("Could not retrieve McEventCollection");
-    return StatusCode::FAILURE;
-  }
+  SG::ReadHandle<McEventCollection> mcCollptr (m_mcCollectionKey, ctx);
 
   // initialize a pileup type helper object
   //PileUpType pileupType( mcCollptr );
@@ -2339,15 +2347,16 @@ StatusCode FastShowerCellBuilderTool::process(CaloCellContainer* theCellContaine
   //  return StatusCode::FAILURE;
   //}
 
-  BarcodeEnergyDepositMap* MuonEnergyMap=0;
-  if(evtStore()->contains<BarcodeEnergyDepositMap>(m_MuonEnergyInCaloContainer)) {
-    if ( evtStore()->retrieve(MuonEnergyMap,m_MuonEnergyInCaloContainer).isFailure() ) {
-      ATH_MSG_WARNING("Could not get "<<m_MuonEnergyInCaloContainer<<" from SG ");
-    } else {
-      ATH_MSG_DEBUG("Got "<<m_MuonEnergyInCaloContainer<<" from SG : size="<<MuonEnergyMap->size());
+  const BarcodeEnergyDepositMap* MuonEnergyMap=0;
+  if (!m_MuonEnergyInCaloContainerKey.key().empty()) {
+    SG::ReadHandle<BarcodeEnergyDepositMap> h (m_MuonEnergyInCaloContainerKey, ctx);
+    // FIXME: Fix configuration so as not to request this object if it does not exist.
+    if (h.isValid()) {
+      MuonEnergyMap = h.cptr();
     }
-  } else {
-    ATH_MSG_DEBUG("Could not find "<<m_MuonEnergyInCaloContainer<<" in SG ");
+    else {
+      ATH_MSG_DEBUG("Could not find "<<m_MuonEnergyInCaloContainerKey.key()<<" in SG ");
+    }
   }
 
   MC_init_particle_simul_state(do_simul_state,particles);
@@ -2382,7 +2391,7 @@ StatusCode FastShowerCellBuilderTool::process(CaloCellContainer* theCellContaine
     }
 
     if(abs(par->pdg_id())==13 && MuonEnergyMap) {
-      std::pair<BarcodeEnergyDepositMap::iterator,BarcodeEnergyDepositMap::iterator> range=MuonEnergyMap->equal_range(par->barcode());
+      std::pair<BarcodeEnergyDepositMap::const_iterator,BarcodeEnergyDepositMap::const_iterator> range=MuonEnergyMap->equal_range(par->barcode());
       if(range.first==range.second) {
         do_simul_state[par->barcode()]=0;
         ATH_MSG_DEBUG("#="<<indpar<<": id="<<par->pdg_id()<<" stat="<<par->status()<<" bc="<<par->barcode()
@@ -2390,7 +2399,7 @@ StatusCode FastShowerCellBuilderTool::process(CaloCellContainer* theCellContaine
                       << " : no calo energy deposit");
       } else {
         if(msgLvl(MSG::DEBUG)) {
-          for(BarcodeEnergyDepositMap::iterator i=range.first;i!=range.second;++i) {
+          for(BarcodeEnergyDepositMap::const_iterator i=range.first;i!=range.second;++i) {
             msg(MSG::DEBUG)<<"#="<<indpar<<": id="<<par->pdg_id()<<" stat="<<par->status()<<" bc="<<par->barcode()
                            <<" pt="<<par->momentum().perp()<<" eta="<<par->momentum().eta()<<" phi="<<par->momentum().phi()
                            <<" : layer="<<i->second.sample<<" eta="<<i->second.position.eta()<<" phi="<<i->second.position.phi()
@@ -2469,12 +2478,11 @@ StatusCode FastShowerCellBuilderTool::process(CaloCellContainer* theCellContaine
   }
   ATH_MSG_DEBUG("finished finding particles");
 
+  std::unique_ptr<FastShowerInfoContainer> fastShowerInfoContainer;
   if(m_storeFastShowerInfo)
     {
-      ATH_MSG_DEBUG("Creating and registering the FastShowerInfoContainer with key " << m_FastShowerInfoContainerKey);
-      m_FastShowerInfoContainer = new FastShowerInfoContainer();
-      evtStore()->record( m_FastShowerInfoContainer, m_FastShowerInfoContainerKey);
-      //     log << MSG::DEBUG << m_storeGate->dump() << endmsg;
+      fastShowerInfoContainer = std::make_unique<FastShowerInfoContainer>();
+      m_FastShowerInfoContainer = fastShowerInfoContainer.get();
     }
 
   MCparticleCollectionCIter fpart = Simulparticles.begin();
@@ -2529,6 +2537,13 @@ StatusCode FastShowerCellBuilderTool::process(CaloCellContainer* theCellContaine
   */
 
   ATH_MSG_DEBUG("Executing finished calo size=" <<theCellContainer->size()<<"; "<<stat_npar<<" particle(s), "<<stat_npar_OK<<" with sc=SUCCESS");
+
+  if(m_storeFastShowerInfo)
+  {
+    ATH_MSG_DEBUG("Registering the FastShowerInfoContainer with key " << m_FastShowerInfoContainerKey);
+    SG::WriteHandle<FastShowerInfoContainer> showerHandle (m_FastShowerInfoContainerKey, ctx);
+    ATH_CHECK( showerHandle.record (std::move (fastShowerInfoContainer)) );
+  }
 
   if(releaseEvent().isFailure() ) {
     ATH_MSG_ERROR("releaseEvent() failed");
