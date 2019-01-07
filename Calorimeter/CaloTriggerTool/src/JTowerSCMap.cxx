@@ -70,6 +70,10 @@ void JTowerSCMap::set( const LArTTCell& m )
 	LArTTCell::const_iterator it  = m.begin();
 	LArTTCell::const_iterator it_e  = m.end();
 
+        unsigned int jT_max = jTower_id->tower_hash_max();
+        m_tt2cellIdVec.resize(jT_max);
+        unsigned int sc_max = cell_id->calo_cell_hash_max();
+        m_cell2ttIdVec.resize(sc_max);
 	// useful in debug phase; can be removed afterwards
 	std::set<Identifier> cellIdSet;
 
@@ -84,7 +88,7 @@ void JTowerSCMap::set( const LArTTCell& m )
 			Identifier sid = jTower_id->tower_id(t.tpn,t.tsample,t.tregion,t.teta,t.tphi);
 
 			if (m_msg->level() <= MSG::VERBOSE) {
-				(*m_msg) <<MSG::VERBOSE
+				(*m_msg) <<MSG::VERBOSE 
 				         << " db struct= "
 				         <<" det="<<t.det
 				         <<" pn="<<t.pn
@@ -112,45 +116,10 @@ void JTowerSCMap::set( const LArTTCell& m )
 				         << sid.get_identifier32().get_compact()
 				         << endmsg;
 			}
-			m_cell2ttIdMap[id] = sid;
-
-			std::map<Identifier,std::vector<Identifier> >::const_iterator it_find = m_tt2cellIdMap.find(sid);
-			if(it_find==m_tt2cellIdMap.end()) {
-				// a vector of Ids does not already exist for this sid, we reserve the number of elements
-				int nElements = 1;
-
-				if(t.tsample==0) {
-					if(t.tregion==0) {
-						if(t.layer==0) {
-							nElements = 4;
-						} else if(t.layer==1) {
-							nElements = 32;
-						}  else if(t.layer==2) {
-							nElements = 16;
-						}  else if(t.layer==3) {
-							nElements = 8;
-						}
-
-					} else if(t.tregion==1) {
-						nElements = 4;
-					} else if(t.tregion==2) {
-						nElements = 2;
-					} else if(t.tregion==3) {
-						nElements = 16;
-					}
-
-				} else if(t.tsample==1) {
-					if(t.tregion==3) {
-						if(t.layer==0) {
-							nElements = 8;
-						} else if(t.layer==1) {
-							nElements = 4;
-						}
-					}
-				}
-				m_tt2cellIdMap[sid].reserve(nElements);
-			}
-			m_tt2cellIdMap[sid].push_back(id);
+                        IdentifierHash jHash=jTower_id->tower_hash(sid);
+                        IdentifierHash sHash = cell_id->calo_cell_hash(id);
+                        m_cell2ttIdVec[sHash]=sid; //sHash is SC hash, and sid is jTower id
+                        m_tt2cellIdVec[jHash].push_back(id);
 		}
 	}
 
@@ -161,7 +130,7 @@ void JTowerSCMap::set( const LArTTCell& m )
 	}
 
 	if (m_msg->level() <= MSG::DEBUG) {
-		(*m_msg) <<MSG::DEBUG<<" JTowerSCMap::set : number of cell Ids="<<m_cell2ttIdMap.size()<<std::endl;
+		(*m_msg) <<MSG::DEBUG<<" JTowerSCMap::set : number of cell Ids="<<m_cell2ttIdVec.size()<<std::endl;
 	}
 
 	detStore->release() ;
@@ -170,16 +139,15 @@ void JTowerSCMap::set( const LArTTCell& m )
 
 }
 
-Identifier JTowerSCMap::whichTTID(const Identifier& id) const
+Identifier JTowerSCMap::whichTTID(const int& sHash) const
 {
 
-	std::map<Identifier,Identifier>::const_iterator it =m_cell2ttIdMap.find(id);
 
-	if(it!=m_cell2ttIdMap.end()){
-		return (*it).second;
+	if(sHash<m_cell2ttIdVec.size()){
+		return m_cell2ttIdVec.at(sHash);
 	}
 
-	(*m_msg) <<MSG::ERROR<<" Offline TT ID not found for cell "<< id <<endmsg;
+	(*m_msg) <<MSG::ERROR<<" Offline TT ID not found for cell "<< sHash <<endmsg;
 
 	return  Identifier();
 
@@ -190,18 +158,16 @@ Identifier JTowerSCMap::whichTTID(const Identifier& id) const
 
 
 const std::vector<Identifier>&
-JTowerSCMap::createCellIDvec(const Identifier & sid) const
+JTowerSCMap::createCellIDvec(const int & jHash) const
 {
 
-	std::map<Identifier,std::vector<Identifier> >::const_iterator
-		it=m_tt2cellIdMap.find(sid);
 
-	if(it!=m_tt2cellIdMap.end()){
-		return (*it).second;
+	if(jHash<m_tt2cellIdVec.size()){
+		return m_tt2cellIdVec.at(jHash);
 	}
 
 	if (m_msg->level() <= MSG::VERBOSE) {
-		(*m_msg) <<MSG::VERBOSE<<" vector of offline cell ID not found, TT id = " <<sid.get_compact()<< endmsg;
+		(*m_msg) <<MSG::VERBOSE<<" vector of offline cell ID not found, TT id = " <<jHash<< endmsg;
 	}
 
 	static std::vector<Identifier> v;

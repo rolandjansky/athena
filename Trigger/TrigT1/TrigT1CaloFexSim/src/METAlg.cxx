@@ -15,15 +15,23 @@
 #include "TrigT1CaloFexSim/Softkiller.h"
 #include "TrigT1CaloFexSim/JwoJ.h"
 #include "TrigT1CaloFexSim/Pufit.h"
+ std::map<TString, std::shared_ptr<METAlg::MET>> METAlg::m_METMap;
 
 //------------------------------------------------------------------------------------------------
-StatusCode METAlg::BuildMET(const xAOD::JGTowerContainer*towers, METAlg::MET* met, std::vector<float> noise, bool useNegTowers){
+StatusCode METAlg::Baseline_MET(const xAOD::JGTowerContainer*towers, TString metName, std::vector<float> noise, bool useNegTowers){
+
+  
   float met_x=0;
   float met_y=0;
   
   for(unsigned t=0; t<towers->size(); t++){
     const xAOD::JGTower* tower = towers->at(t);
-    if(tower->et()<noise.at(t)) continue;
+    if(tower->LAr_et()>0       && tower->eta()<3.2 && tower->et()<4.5*noise.at(t)) continue;
+    else if(tower->Tile_et()>0 && tower->eta()<3.2  && tower->et()<5.*noise.at(t)) continue;
+    else if(tower->LAr_et()>0  && tower->eta()>=3.2 && tower->et()<5.*noise.at(t)) continue;
+    else if(tower->Tile_et()>0 && tower->eta()>=3.2 && tower->et()<5.5*noise.at(t)) continue;
+
+
     float phi=tower->phi();
     float et =tower->et();
     if(!useNegTowers) et = TMath::Abs(et);
@@ -34,14 +42,17 @@ StatusCode METAlg::BuildMET(const xAOD::JGTowerContainer*towers, METAlg::MET* me
   float et_met = sqrt(met_x*met_x+met_y*met_y);
   float phi_met=TMath::ACos(met_x/et_met);
   if (met_y<0) phi_met = -phi_met;
+
+  std::shared_ptr<MET> met  = std::make_shared<MET>();
   met->phi=phi_met;
   met->et = et_met;
-  
+
+  if(m_METMap.find(metName)==m_METMap.end()) m_METMap[metName] = met;
   return StatusCode::SUCCESS;
 }
 //------------------------------------------------------------------------------------------------
-StatusCode METAlg::SubtractRho_MET(const xAOD::JGTowerContainer* towers, METAlg::MET* met, bool useRMS, bool useMedian, bool useNegTowers){
-  
+StatusCode METAlg::SubtractRho_MET(const xAOD::JGTowerContainer* towers, TString metName, bool useRMS, bool useMedian, bool useNegTowers){
+
   float EtMiss = 0;
   float Ex = 0, Ey = 0, Ex_ = 0, Ey_ = 0;
   float threshold  = 0;
@@ -86,16 +97,20 @@ StatusCode METAlg::SubtractRho_MET(const xAOD::JGTowerContainer* towers, METAlg:
   
   EtMiss = TMath::Sqrt(Ex*Ex + Ey*Ey);
   float phi_met=TMath::ACos(Ex/EtMiss);
-  met->et = EtMiss;
-  met->phi = phi_met;
+  if (Ey<0) phi_met = -phi_met;
   //ATH_MSG_INFO("Dumping event rho: " << rho ); 
-
+  std::shared_ptr<MET> met  = std::make_shared<MET>();
+  met->phi=phi_met;
+  met->et = EtMiss;
+  if(m_METMap.find(metName)==m_METMap.end()) m_METMap[metName] = met;
   delete h_Et;  
   return StatusCode::SUCCESS;
 }
 
 //------------------------------------------------------------------------------------------------
-StatusCode METAlg::Softkiller_MET(const xAOD::JGTowerContainer* towers, METAlg::MET* met, bool useNegTowers){
+StatusCode METAlg::Softkiller_MET(const xAOD::JGTowerContainer* towers, TString metName, bool useNegTowers){
+
+
   float median = 0;
   unsigned int size = towers->size();
   
@@ -137,16 +152,20 @@ StatusCode METAlg::Softkiller_MET(const xAOD::JGTowerContainer* towers, METAlg::
   
   float EtMiss = TMath::Sqrt(Ex*Ex + Ey*Ey);
   float phi_met = TMath::ACos(Ex/EtMiss);
-  
-  met->et = EtMiss;
-  met->phi = phi_met;
+  if (Ey<0) phi_met = -phi_met;
+
+  std::shared_ptr<MET> met  = std::make_shared<MET>();
+  met->phi=phi_met;
+  met->et =EtMiss;
+  if(m_METMap.find(metName)==m_METMap.end()) m_METMap[metName] = met;
 
   delete grid;
   return StatusCode::SUCCESS;
 }
 
-StatusCode METAlg::JwoJ_MET(const xAOD::JGTowerContainer* towers, METAlg::MET* met, float pTcone_cut, bool useNegTowers){
+StatusCode METAlg::JwoJ_MET(const xAOD::JGTowerContainer* towers, TString metName, float pTcone_cut, bool useNegTowers){
   
+
   //unsigned int size = towers->size();
   
   std::vector<float> Et_values = Run_JwoJ(towers, pTcone_cut,  useNegTowers);
@@ -200,14 +219,24 @@ StatusCode METAlg::JwoJ_MET(const xAOD::JGTowerContainer* towers, METAlg::MET* m
   }
   
   float EtMiss = a*Et_values[1] + b*Et_values[2] + c;
-  met->et = EtMiss;
-  
+
+  std::shared_ptr<MET> met  = std::make_shared<MET>();
+  met->phi=0;
+  met->et =EtMiss;
+  if(m_METMap.find(metName)==m_METMap.end()) m_METMap[metName] = met;
+
   return StatusCode::SUCCESS;
 }
 
-StatusCode METAlg::Pufit_MET(const xAOD::JGTowerContainer*towers, METAlg::MET* met, bool useNegTowers){
+StatusCode METAlg::Pufit_MET(const xAOD::JGTowerContainer*towers, TString metName, bool useNegTowers){
+
+
   float EtMiss = Run_PUfit(towers, 3, useNegTowers);
-  met->et = EtMiss;
+
+  std::shared_ptr<MET> met  = std::make_shared<MET>();
+  met->phi=0;
+  met->et=EtMiss;
+  if(m_METMap.find(metName)==m_METMap.end()) m_METMap[metName] = met;
 
   return StatusCode::SUCCESS;
 }

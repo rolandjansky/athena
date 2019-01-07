@@ -94,22 +94,6 @@ class JGTowerReader: public ::AthAlgorithm {
   JetAlg::Seed*   jSeeds=new JetAlg::Seed;
   JetAlg::Seed*   jJetSeeds = new JetAlg::Seed;
   JetAlg::Seed*   gSeeds=new JetAlg::Seed;
-  METAlg::MET*    jMET=new  METAlg::MET;
-
-  std::map<TString, METAlg::MET*> met_algs;
-
-  METAlg::MET*    gMET = new  METAlg::MET;
-  METAlg::MET*    gMET_rho = new  METAlg::MET;
-  METAlg::MET*    gMET_sk = new  METAlg::MET;
-  METAlg::MET*    gMET_jwoj = new  METAlg::MET;
-  METAlg::MET*    gMET_pufit = new  METAlg::MET;
-
-  /* met_algs["rho_sub"] = gMET_rho;  //pileup subtraction
-  met_algs["SK"] = gMET_sk;      //softkiller
-  met_algs["JwoJ"] = gMET_jwoj;    //jets without jets
-  met_algs["Noise"] = gMET;  //4 sigma noise cut
-  met_algs["PUfit"] = gMET_pufit;  //pufit
-*/  
 
   std::vector<JetAlg::L1Jet>  jL1Jets;
   std::vector<JetAlg::L1Jet>  jJet_L1Jets;
