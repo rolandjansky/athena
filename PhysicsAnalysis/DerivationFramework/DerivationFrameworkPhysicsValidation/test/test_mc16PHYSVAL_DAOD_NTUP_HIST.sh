@@ -45,7 +45,7 @@ case $ArtProcess in
 	domains="BTag Electron IDPerformanceMon Jets MET Muons PFlow Photon Summary Tau TopoClusters"
 	for slice in ${domains}
       	do 
-		physval_make_web_display.py --ratio --reffile Ref:PHYSVAL_all.root --title Test PHYSVAL_all.root --outdir PHYSVAL_WEB/${slice} --startpath ${slice}
+		physval_make_web_display.py --ratio --reffile Ref:/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkPhysicsValidation/PHYSVAL_all_reference.root --title Test PHYSVAL_all.root --outdir PHYSVAL_WEB/${slice} --startpath ${slice}
 	done
 	echo  "art-result: $? web"
 	;;
