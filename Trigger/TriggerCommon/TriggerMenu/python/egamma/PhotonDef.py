@@ -66,7 +66,7 @@ class L2EFChain_g(L2EFChainDef):
 
         self.use_v7=False
         #if TriggerFlags.run2Config()=='2017':
-        if '_v7' in TriggerFlags.triggerMenuSetup():
+        if '_v7' in TriggerFlags.triggerMenuSetup() or '_v8' in TriggerFlags.triggerMenuSetup():
             self.use_v7=True
         
         self.doIsolation=False
