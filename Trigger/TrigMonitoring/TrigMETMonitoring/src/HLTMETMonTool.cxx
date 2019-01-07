@@ -620,7 +620,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
     electronContEmpty = false;
     for (auto eg : *v_hlt_electronEFcontainer) {
       
-      electronEtaReq = ( fabsf(eg->eta()) < 1.37 || fabsf(eg->eta()) > 1.52 ) && fabsf(eg->eta()) < 2.47; 
+      electronEtaReq = ( std::abs(eg->eta()) < 1.37 || std::abs(eg->eta()) > 1.52 ) && std::abs(eg->eta()) < 2.47; 
 
       if (eg->pt()/CLHEP::GeV > m_electron_pt_thresh && electronEtaReq) {
         METElectronFilled = true;
@@ -1185,7 +1185,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
 	  }
 	}
         
-	float nchan_used = fabsf(missETEF->usedChannelsComponent(i));
+	float nchan_used = missETEF->usedChannelsComponent(i);
 	if(nchan_used > epsilon) nchan_used = log10f(nchan_used);
 	else nchan_used = -1.;
 	if((h2 = hist2("compN_HLT_usedChannels"))) h2->Fill(i,nchan_used);
@@ -1912,8 +1912,8 @@ double HLTMETMonTool::signed_delta_phi(double phi1, double phi2) {
 
 
   double e_log = -9e9;
-  if (fabsf(e) > epsilon)
-    e_log = copysign(log10(fabsf(e)), e);
+  if (std::abs(e) > epsilon)
+    e_log = copysign(log10(std::abs(e)), e);
   else
     e_log = 0.01;
 
