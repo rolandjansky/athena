@@ -201,15 +201,6 @@ FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY13)
 
 
 #==============================================================================
-# Tau truth building/matching
-#==============================================================================
-# now part of MCTruthCommon
-#if DerivationFrameworkIsMonteCarlo:
-#  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
-#  addTruthTaus(AugmentationTools)
-
-
-#==============================================================================
 # Augment after skim
 #==============================================================================
 SeqSUSY13 += CfgMgr.DerivationFramework__DerivationKernel(
@@ -243,8 +234,6 @@ SUSY13SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.
                 "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType",
                 "AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID",
                 "Electrons.bkgTruthType.bkgTruthOrigin",
-#P. Pani removed 20/06/16                "AntiKt3PV0TrackJets.eta.m.phi.pt.btagging.btaggingLink",
-#P. Pani removed 20/06/16                "BTagging_AntiKt3Track.MV2c20_discriminant"
                                        ]
 
 SUSY13SlimmingHelper.IncludeMuonTriggerContent   = False
@@ -255,18 +244,12 @@ SUSY13SlimmingHelper.IncludeTauTriggerContent    = False
 SUSY13SlimmingHelper.IncludeEtMissTriggerContent = False
 SUSY13SlimmingHelper.IncludeBJetTriggerContent   = False
 
-#addJetOutputs(SUSY13SlimmingHelper,["LargeR", "SUSY13"], [], ["CamKt12LCTopoJets","AntiKt10LCTopoJets","AntiKt10TruthJets","CamKt12TruthWZJets","CamKt12TruthJets","AntiKt10TruthWZJets"])
-#addJetOutputs(slimhelper,contentlist,t0list_smart=[],vetolist=[]):
-# Add the MET containers to the stream
-# JRC: TEMPORARILY COMMENTED
-#addMETOutputs(SUSY13Stream,["SUSY"])
 
 # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
 if DerivationFrameworkIsMonteCarlo:
 
-  SUSY13SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer','BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer',
-'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
+  SUSY13SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
 

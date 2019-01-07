@@ -15,7 +15,6 @@ from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.HbbCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
-from DerivationFrameworkSUSY.SUSYCommon import *
 
 ### Set up stream
 streamName = derivationFlags.WriteDAOD_SUSY11Stream.StreamName
@@ -186,7 +185,6 @@ SUSY11SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.
                                        "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m",
                                        "TauJets.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink"
                                        # Run2 tau reco - updated for R21 EDM
-                                       + ".seedJetWidth"
                                        + ".PanTau_isPanTauCandidate.ptPanTauCellBased.etaPanTauCellBased.phiPanTauCellBased.mPanTauCellBased"
                                        + ".PanTau_BDTValue_1p0n_vs_1p1n.PanTau_BDTValue_1p1n_vs_1pXn.PanTau_BDTValue_3p0n_vs_3pXn"
                                        # TauID variables - check R21 EDM
@@ -203,20 +201,13 @@ SUSY11SlimmingHelper.IncludeBJetTriggerContent = False
 # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
 
-SUSY11Dict = { "AntiKtVR30Rmax4Rmin02TrackJets" : "xAOD::JetContainer" ,
-               "AntiKtVR30Rmax4Rmin02TrackJetsAux" : "xAOD::JetAuxContainer" ,
-               "BTagging_AntiKtVR30Rmax4Rmin02Track" : "xAOD::BTaggingContainer" ,
-               "BTagging_AntiKtVR30Rmax4Rmin02TrackAux" : "xAOD::BTaggingAuxContainer" }
-
 if DerivationFrameworkIsMonteCarlo:
 
-  SUSY11Dict.update( { 'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
-                       'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
-                       'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'} )
+  SUSY11SlimmingHelper.AppendToDictionary = { 'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
+                                              'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
+                                              'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
 
   SUSY11SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]
-
-SUSY11SlimmingHelper.AppendToDictionary = SUSY11Dict
 
 #SUSY11Stream.RemoveItem("xAOD::TrigNavigation#*")
 #SUSY11Stream.RemoveItem("xAOD::TrigNavigationAuxInfo#*")

@@ -45,15 +45,6 @@ SUSY17ThinningHelper.AppendToStream( SUSY17Stream )
 # THINNING TOOLS
 #====================================================================
 
-# B.M.: likely not used
-# TrackParticles directly
-#SUSY17TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY17TPThinningTool",
-#                                                                 ThinningService         = SUSY17ThinningHelper.ThinningSvc(),
-#                                                                 SelectionString         = "InDetTrackParticles.pt > 10*GeV",
-#                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
-#ToolSvc += SUSY17TPThinningTool
-#thinningTools.append(SUSY17TPThinningTool)
-
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 SUSY17MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "SUSY17MuonTPThinningTool",
@@ -158,8 +149,6 @@ objectSelection = '(count('+electronsRequirements+') + count('+muonsRequirements
 
 expression = objectSelection
 
-# now done in ExtendedJetCommon
-#applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY17)
 
 from DerivationFrameworkSUSY.SUSY5TriggerList import triggersNavThin
 from DerivationFrameworkSUSY.SUSY5TriggerList import METorPhoton_triggers
@@ -243,9 +232,6 @@ replaceAODReducedJets(reducedJetList, SeqSUSY17, "SUSY17")
 #==============================================================================
 # now part of MCTruthCommon
 if DerivationFrameworkIsMonteCarlo:
-#  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
-#  addTruthTaus(AugmentationTools)
-  # modify tool from MCTruthCommon, following SUSY5
   ToolSvc.DFCommonTauTruthMatchingTool.WriteInvisibleFourMomentum = True
 
 #==============================================================================
@@ -330,8 +316,7 @@ SUSY17SlimmingHelper.IncludeBJetTriggerContent   = False
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
 if DerivationFrameworkIsMonteCarlo:
 
-  SUSY17SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer','BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer',
-'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
+  SUSY17SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
 

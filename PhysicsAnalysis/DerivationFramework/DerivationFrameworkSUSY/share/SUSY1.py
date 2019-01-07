@@ -47,16 +47,6 @@ SUSY1ThinningHelper.AppendToStream( SUSY1Stream )
 # THINNING TOOL
 #====================================================================\
 
-#from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-
-# B.M.: likely not used
-#SUSY1TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY1TPThinningTool",
-#								 ThinningService	 = SUSY1ThinningHelper.ThinningSvc(),
-#								 SelectionString	 = "InDetTrackParticles.pt > 5*GeV",
-#								 InDetTrackParticlesKey  = "InDetTrackParticles")
-#ToolSvc += SUSY1TPThinningTool
-#thinningTools.append(SUSY1TPThinningTool)
-
 # TrackParticles associated with Vertices from soft tagging
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__VertexParticleThinning
 
@@ -261,9 +251,6 @@ AugmentationTools.append(Pt500IsoTrackDecorator)
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
-# now done in ExtendedJetCommon
-#applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY1) # default: sequence=DerivationFrameworkJob
-# updateJVT_xAODColl("AntiKt4EMTopo") # TODO: for next cache?
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 
@@ -334,14 +321,6 @@ softTagAlg.TrackJetCollectionName = 'AntiKt4PV0TrackJets'
 softTagAlg.TrackSelectionTool.CutLevel = "LoosePrimary"
 
 SeqSUSY1 += softTagAlg
-
-#==============================================================================
-# Tau truth building/matching
-#==============================================================================
-# now part of MCTruthCommon
-#if DerivationFrameworkIsMonteCarlo:
-#  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
-#  addTruthTaus(AugmentationTools)
 
 
 #==============================================================================
@@ -423,12 +402,6 @@ StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_VerticesAux." + 
 SUSY1SlimmingHelper.StaticContent = StaticContent
 
 appendToDictDict = {
-  "BTagging_AntiKt4EMPFlow":"xAOD::BTaggingContainer",
-  "BTagging_AntiKt4EMPFlowAux":"xAOD::BTaggingAuxContainer",
-  "AntiKtVR30Rmax4Rmin02TrackJets" : "xAOD::JetContainer" ,
-  "AntiKtVR30Rmax4Rmin02TrackJetsAux" : "xAOD::JetAuxContainer" ,
-  "BTagging_AntiKtVR30Rmax4Rmin02Track" : "xAOD::BTaggingContainer" ,
-  "BTagging_AntiKtVR30Rmax4Rmin02TrackAux" : "xAOD::BTaggingAuxContainer",
   }
 
 if DerivationFrameworkIsMonteCarlo:

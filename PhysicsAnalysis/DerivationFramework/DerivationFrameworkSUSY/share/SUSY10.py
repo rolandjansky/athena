@@ -50,16 +50,6 @@ SUSY10ThinningHelper.AppendToStream( SUSY10Stream )
 # THINNING TOOL
 #====================================================================
 
-# B.M.: likely not used
-#from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-
-#SUSY10TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY10TPThinningTool",
-#								 ThinningService	 = SUSY10ThinningHelper.ThinningSvc(),
-#								 SelectionString	 = "InDetTrackParticles.pt > 10*GeV",
-#								 InDetTrackParticlesKey  = "InDetTrackParticles")
-#ToolSvc += SUSY10TPThinningTool
-#thinningTools.append(SUSY10TPThinningTool)
-
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 SUSY10MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name			 = "SUSY10MuonTPThinningTool",
@@ -228,15 +218,6 @@ addDefaultTrimmedJets(SeqSUSY10, "SUSY10")
 
 
 #==============================================================================
-# Tau truth building/matching
-#==============================================================================
-# now part of MCTruthCommon
-#if DerivationFrameworkIsMonteCarlo:
-#  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
-#  addTruthTaus(AugmentationTools)
-
-
-#==============================================================================
 # Augment after skim
 #==============================================================================
 SeqSUSY10 += CfgMgr.DerivationFramework__DerivationKernel(
@@ -290,8 +271,7 @@ SUSY10SlimmingHelper.IncludeBJetTriggerContent  = False
 if DerivationFrameworkIsMonteCarlo:
 
   # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
-  SUSY10SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer','BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer',
-'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
+  SUSY10SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
 

@@ -182,10 +182,6 @@ if DerivationFrameworkIsMonteCarlo:
 #====================================================================
 # SKIMMING
 #====================================================================
-# now done in ExtendedJetCommon
-#applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY12) # default: sequence=DerivationFrameworkJob
-#updateJVT_xAODColl("AntiKt4EMTopo") # TODO: for next cache?
-
 
 jet_prefab = 'count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt > XPT*GeV && (abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta) < XETA))'
 ele_prefab = 'count(Electrons.pt > XPT*GeV && abs(Electrons.eta) < XETA && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHLoose)))'
@@ -261,15 +257,6 @@ reducedJetList = [ "AntiKt4PV0TrackJets" ]
 
 # AntiKt2PV0TrackJets is flavour-tagged automatically
 replaceAODReducedJets(reducedJetList, SeqSUSY12, "SUSY12")
-
-
-#==============================================================================
-# Tau truth building/matching
-#==============================================================================
-# now part of MCTruthCommon
-#if DerivationFrameworkIsMonteCarlo:
-#  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
-#  addTruthTaus(AugmentationTools)
 
 
 #==============================================================================
