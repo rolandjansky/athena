@@ -82,11 +82,15 @@ namespace FlavorTagDiscriminants {
       {"(log_)?(ptfrac|dr)"_r, EDMType::CUSTOM_GETTER}
     };
     SortRegexes trk_sort_regexes {
-      {".*d0sort"_r, SortOrder::ABS_D0_SIGNIFICANCE_DESCENDING},
+      {".*sd0sort"_r, SortOrder::ABS_D0_SIGNIFICANCE_DESCENDING},
       {".*ptsort"_r, SortOrder::PT_DESCENDING},
     };
+    TrkSelRegexes trk_select_regexes {
+      {".*_ip3d_.*"_r, TrackSelection::IP3D_2018},
+      {".*_all_.*"_r, TrackSelection::ALL},
+    };
     std::vector<DL2TrackSequenceConfig> trk_config = get_track_input_config(
-      trk_names, trk_type_regexes, trk_sort_regexes);
+      trk_names, trk_type_regexes, trk_sort_regexes, trk_select_regexes);
 
     m_dl2.reset(new DL2(config, input_config, trk_config));
   }

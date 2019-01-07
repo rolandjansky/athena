@@ -31,6 +31,7 @@ namespace FlavorTagDiscriminants {
 
   enum class EDMType {UCHAR, INT, FLOAT, DOUBLE, CUSTOM_GETTER};
   enum class SortOrder {ABS_D0_SIGNIFICANCE_DESCENDING, PT_DESCENDING};
+  enum class TrackSelection {ALL, IP3D_2018};
 
   // Structures to define DL2 input.
   //
@@ -49,6 +50,7 @@ namespace FlavorTagDiscriminants {
   {
     std::string name;
     SortOrder order;
+    TrackSelection selection;
     std::vector<DL2TrackInputConfig> inputs;
   };
 
@@ -57,9 +59,13 @@ namespace FlavorTagDiscriminants {
   //
   // We define a few structures to map variable names to type, default
   // value, etc. These are only used by the high level interface.
+  //
+  // TODO: move this stuff into another file, i.e. either DL2HighLevel
+  // or some utility file that is also included in DL2HighLevel.cxx
   typedef std::vector<std::pair<std::regex, EDMType> > TypeRegexes;
   typedef std::vector<std::pair<std::regex, std::string> > StringRegexes;
   typedef std::vector<std::pair<std::regex, SortOrder> > SortRegexes;
+  typedef std::vector<std::pair<std::regex, TrackSelection> > TrkSelRegexes;
 
   // Function to map the regular expressions + the list of inputs to a
   // list of variable configurations.
@@ -70,7 +76,8 @@ namespace FlavorTagDiscriminants {
   std::vector<DL2TrackSequenceConfig> get_track_input_config(
     const std::vector<std::pair<std::string, std::vector<std::string>>>& names,
     const TypeRegexes& type_regexes,
-    const SortRegexes& sort_regexes);
+    const SortRegexes& sort_regexes,
+    const TrkSelRegexes& select_regexes);
 
 
   // _____________________________________________________________________
@@ -84,6 +91,7 @@ namespace FlavorTagDiscriminants {
     typedef std::vector<const xAOD::TrackParticle*> Tracks;
     typedef std::function<bool(const xAOD::TrackParticle*,
                                const xAOD::TrackParticle*)> TrackSort;
+    typedef std::function<bool(const xAOD::TrackParticle*)> TrackSelect;
 
     // getter functions
     typedef std::function<NamedVar(const Jet&)> Getter;
@@ -118,18 +126,23 @@ namespace FlavorTagDiscriminants {
       }
     };
 
+    // The track getter is responsible for getting the tracks from the
+    // jet applying a selection, and then sorting the tracks.
     class TrackGetter
     {
     public:
-      TrackGetter(SortOrder);
+      TrackGetter(SortOrder, TrackSelection);
       Tracks operator()(const xAOD::Jet& jet) const;
     private:
       typedef SG::AuxElement AE;
       typedef std::vector<ElementLink<xAOD::TrackParticleContainer>> TrackLinks;
       AE::ConstAccessor<TrackLinks> m_track_associator;
       TrackSort m_sort_function;
+      TrackSelect m_select_function;
     };
 
+    // The sequence getter takes in tracks and calculates arrays of
+    // values which are better suited for inputs to the NNs
     template <typename T>
     class SequenceGetter
     {
@@ -160,7 +173,7 @@ namespace FlavorTagDiscriminants {
     void decorate(const xAOD::Jet& jet) const;
   private:
     struct TrackSequenceGetter {
-      TrackSequenceGetter(SortOrder);
+      TrackSequenceGetter(SortOrder, TrackSelection);
       std::string name;
       internal::TrackGetter getter;
       std::vector<internal::SeqGetter> sequence_getters;
@@ -180,6 +193,7 @@ namespace FlavorTagDiscriminants {
   namespace internal {
     Getter get_filler(std::string name, EDMType, std::string default_flag);
     TrackSort get_track_sort(SortOrder);
+    TrackSelect get_track_select(TrackSelection);
     SeqGetter get_seq_getter(const DL2TrackInputConfig&);
   }
 }

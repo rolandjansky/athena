@@ -23,8 +23,10 @@ There are several user-level tools here:
      lower-level manipulation, for example reading in the
      configuration from a stream rather than a file.
 
-   - `DL2HighLevel`: higher-level implementation of the DL2 tagger. Takes
-     only one argument to construct: the path to the saved NN file.
+   - `DL2HighLevel`: higher-level implementation of the DL2
+     tagger. Takes only one argument to construct: the path to the
+     saved NN file. This code uses a fair number of hardcoded regular
+     expressions to determine properties of the inputs.
 
 ### Other Files ###
 
