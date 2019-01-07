@@ -23,6 +23,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkExtrapolation/TrkExInterfaces
+                          Generators/GeneratorObjects
+                          Simulation/FastShower/FastCaloSimAthenaPool
                           PRIVATE
                           Calorimeter/CaloTrackingGeometry
                           Control/AthAllocators
@@ -32,9 +34,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoPrimitives
                           Event/EventKernel
                           Event/NavFourMom
-                          Generators/GeneratorObjects
                           Generators/TruthUtils
-                          Simulation/FastShower/FastCaloSimAthenaPool
                           Tools/PathResolver
                           Tracking/TrkDetDescr/TrkGeometry
                           Tracking/TrkDetDescr/TrkSurfaces

@@ -20,6 +20,10 @@
 #include "TrkExInterfaces/ITimedExtrapolator.h"
 #include "TrkEventPrimitives/PdgToParticleHypothesis.h"
 #include "GaudiKernel/IPartPropSvc.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "GeneratorObjects/McEventCollection.h"
+#include "FastCaloSimAthenaPool/FastShowerInfoContainer.h"
 
 /*
   #if FastCaloSim_project_release_v1 == 12
@@ -100,7 +104,8 @@ private:
   void LoadParametrizationsFromFile(TDirectory& infile,MSG::Level level=MSG::INFO);
   StatusCode OpenParamSource(std::string insource);
 
-  std::string                    m_mcLocation{"TruthEvent"};
+  SG::ReadHandleKey<McEventCollection> m_mcCollectionKey
+    {this, "McLocation", "TruthEvent"};
   std::string                    m_ParticleParametrizationFileName{""};
   std::vector< std::string >     m_AdditionalParticleParametrizationFileNames;
 
@@ -108,7 +113,8 @@ private:
   std::vector< int >             m_DB_channel;
   std::vector< std::string >     m_DB_dirname;
 
-  std::string                    m_MuonEnergyInCaloContainer{"FatrasDepositedMuonEnergyInCalo"};
+  SG::ReadHandleKey<BarcodeEnergyDepositMap> m_MuonEnergyInCaloContainerKey
+  { this, "MuonEnergyInCaloContainerName", "FatrasDepositedMuonEnergyInCalo"};
   bool                           m_simul_ID_only{true};
   bool                           m_simul_ID_v14_truth_cuts{false};
   bool                           m_simul_EM_geant_only{false};
@@ -268,7 +274,8 @@ public:
   double get_d_calo_surf(int layer) const {return m_dCalo[layer];};
 
 private:
-  std::string              m_FastShowerInfoContainerKey{"FastShowerInfoContainer"};
+  SG::WriteHandleKey<FastShowerInfoContainer>  m_FastShowerInfoContainerKey
+  { this, "FastShowerInfoContainerKey", "FastShowerInfoContainer" };
   bool                     m_storeFastShowerInfo{false};
   FastShowerInfoContainer* m_FastShowerInfoContainer{};
   Trk::PdgToParticleHypothesis        m_pdgToParticleHypothesis;
