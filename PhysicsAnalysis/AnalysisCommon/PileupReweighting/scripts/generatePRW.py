@@ -148,9 +148,13 @@ def main():
       print "... finished. Please monitor your job on the grid, and when it is finished, download the files!"
     
     if len(ntupDatasets):
-      print "Please download existing config files from these datasets:"
-      for ds in ntupDatasets:
-        print "rucio download %s" % ds
+      frucio_fn = 'rucio_downloads_%s.sh' % args.inDsTxt
+      print "Please download existing config files from these datasets (see also output file %s):" % frucio_fn
+      with open(frucio_fn, 'w') as frucio:
+        for ds in ntupDatasets:
+          command = "rucio download %s" % ds
+          print command
+          frucio.write(command + '\n')
       print ""
     
     if len(ntupDatasets) or len(aodDatasets):
