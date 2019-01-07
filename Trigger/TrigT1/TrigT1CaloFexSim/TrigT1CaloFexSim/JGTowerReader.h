@@ -30,6 +30,8 @@
 #include "TH2.h"
 #include "TrigT1CaloFexSim/JetAlg.h"
 #include "TrigT1CaloFexSim/METAlg.h"
+#include "string.h"
+std::vector<std::string> splitString(std::string parentString, std::string sep, bool stripEmpty=false);
 class JGTowerReader: public ::AthAlgorithm { 
  public: 
   JGTowerReader( const std::string& name, ISvcLocator* pSvcLocator );
@@ -58,6 +60,9 @@ class JGTowerReader: public ::AthAlgorithm {
   float m_jJetSeed_size;
   float m_jJet_max_r;
   float m_jJet_jet_r;
+
+  bool m_makeJetsFromMap;
+  std::string m_towerMap;
 
   bool m_plotSeeds;
 
@@ -90,6 +95,12 @@ class JGTowerReader: public ::AthAlgorithm {
   std::vector<float> gJet_thr;
   ServiceHandle<ITHistSvc> histSvc;
   std::vector<TString> hists;
+
+  std::vector<float> towerMap_eta;
+  std::vector<float> towerMap_phi;
+  std::vector< std::vector<int> > towerMap_seedTowers;
+  std::vector< std::vector<int> > towerMap_localMaxSeedIndices;
+  std::vector< std::vector<int> > towerMap_jetTowers;
 
   JetAlg::Seed*   jSeeds=new JetAlg::Seed;
   JetAlg::Seed*   jJetSeeds = new JetAlg::Seed;

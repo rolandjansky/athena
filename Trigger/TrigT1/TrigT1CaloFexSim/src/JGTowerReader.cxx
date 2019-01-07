@@ -57,6 +57,9 @@ histSvc("THistSvc",name){
   declareProperty("jJet_max_r",m_jJet_max_r=0.4);
   declareProperty("jJet_jet_r",m_jJet_jet_r=0.4);
 
+  declareProperty("makeJetsFromMap", m_makeJetsFromMap = false);
+  declareProperty("towerMap", m_towerMap = "");
+
   declareProperty("plotSeeds", m_plotSeeds = false);
 
   declareProperty("gJet_threshold",m_gJet_thr=2.0);
@@ -106,6 +109,63 @@ StatusCode JGTowerReader::initialize() {
      gT_noise.push_back(noise_base);
      gJet_thr.push_back(noise_base*m_gJet_thr);
   } 
+
+  // read in the tower map
+  if(m_makeJetsFromMap) {
+    std::ifstream infileStream(m_towerMap);
+    std::string line;
+
+    int sublinecount = -1;
+    while(getline(infileStream, line)) {
+      // skip commented and empty lines
+      if(line.substr(0, 1) == "#")
+        continue;
+      if(line=="")
+        continue;
+
+      std::vector<std::string> splitLine = splitString(line, " ", true);
+
+      if(line.substr(0, 1) != " ") {
+        sublinecount = 0;
+
+        // check size of vector vs this entry
+        int jetNum = std::stoi(splitLine[0]);
+        if(towerMap_eta.size() != jetNum) {
+          ATH_MSG_ERROR("tower map being parsed incorrectly: have " << towerMap_eta.size() << " and expect " << jetNum);
+          return StatusCode::FAILURE;
+        }
+
+        // fill eta and phi
+        towerMap_eta.push_back(std::stof(splitLine[1]));
+        towerMap_phi.push_back(std::stof(splitLine[2]));
+      }
+      else {
+        if(sublinecount <= 0) {
+          ATH_MSG_ERROR("sublinecount value is " << sublinecount << " but it should be <= 0");
+          return StatusCode::FAILURE;
+        }
+        
+        std::vector<int> tempVector;
+        tempVector.clear();
+        for(int i = 0; i<int(splitLine.size()); i++) {
+          tempVector.push_back(std::stoi(splitLine.at(i)));
+        }
+
+        if(sublinecount == 1)
+          towerMap_seedTowers.push_back(tempVector);
+        else if(sublinecount == 2)
+          towerMap_localMaxSeedIndices.push_back(tempVector);
+        else if(sublinecount == 3)
+          towerMap_jetTowers.push_back(tempVector);
+        else {
+          ATH_MSG_ERROR("sublinecount value is " << sublinecount << " but should be in [1,2,3]");
+          return StatusCode::FAILURE;
+        }
+      }
+      sublinecount += 1;
+    }
+    ATH_MSG_INFO("successfully read in tower map from " << m_towerMap);
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -370,3 +430,20 @@ StatusCode JGTowerReader::HistBookFill(const TString name, Int_t nbinsx, Double_
   return StatusCode::SUCCESS;
 }
 
+
+std::vector<std::string> splitString(std::string parentString, std::string sep, bool stripEmpty) {
+  std::size_t start = 0, end = 0;
+  std::vector<std::string> splitVec;
+  while ((end = parentString.find(sep, start)) != std::string::npos) {
+    if( end-start == 0 && stripEmpty ) {;}
+    else {
+      splitVec.push_back(parentString.substr(start, end - start));
+    }
+    start = end + sep.size();
+  }
+  std::string part = parentString.substr(start);
+  if(!(stripEmpty && part == "")) 
+    splitVec.push_back(part);
+
+  return splitVec;
+}
