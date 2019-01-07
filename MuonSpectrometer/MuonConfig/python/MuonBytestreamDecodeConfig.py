@@ -4,6 +4,22 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.Constants import VERBOSE, DEBUG, INFO
 
+## This configuration function creates the IdentifiableCaches for RDO
+#
+# The function returns a ComponentAccumulator which should be loaded first
+# If a configuration wants to use the cache, they need to use the same names as defined here
+def MuonCacheCfg():
+    acc = ComponentAccumulator()
+
+    from MuonByteStream.MuonByteStreamConf import MuonCacheCreator
+    cacheCreator = MuonCacheCreator(MdtCsmCacheKey = "MdtCsmCache",
+                                    CscCacheKey    = "CscCache",
+                                    RpcCacheKey    = "RpcCache",
+                                    TgcCacheKey    = "TgcCache")
+    acc.addEventAlgo( cacheCreator )
+    return acc, cacheCreator
+
+
 ## This configuration function sets up everything for decoding RPC bytestream data into RDOs
 #
 # The forTrigger paramater is used to put the algorithm in RoI mode
@@ -82,12 +98,6 @@ def TgcBytestreamDecodeCfg(flags, forTrigger=False):
 def MdtBytestreamDecodeCfg(flags, forTrigger=False):
     acc = ComponentAccumulator()
 
-    # Configure the IdentifiableCaches when running for trigger
-    if forTrigger:
-        from MuonByteStream.MuonByteStreamConf import MuonCacheCreator
-        cacheCreator = MuonCacheCreator(MdtCsmCacheKey= "MdtCsmCache")
-        acc.addEventAlgo( cacheCreator )
-
     # We need the MDT cabling to be setup
     from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
     acc.merge( MDTCablingConfigCfg(flags)[0] )
@@ -149,6 +159,9 @@ def CscBytestreamDecodeCfg(flags, forTrigger=False):
     from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CSC_RawDataProviderTool
     MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderTool(name    = "CSC_RawDataProviderTool",
                                                                Decoder = CSCRodDecoder )
+    if forTrigger:
+        MuonCscRawDataProviderTool.CscContainerCacheKey = "CscCache"
+
     acc.addPublicTool( MuonCscRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
     # Setup the RAW data provider algorithm
@@ -160,7 +173,7 @@ def CscBytestreamDecodeCfg(flags, forTrigger=False):
 
 if __name__=="__main__":
     # To run this, do e.g. 
-    # python ../athena/MuonSpectrometer/MuonConfig/python/MuonBytestreamDecodeCfg.py
+    # python ../athena/MuonSpectrometer/MuonConfig/python/MuonBytestreamDecode.py
 
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
@@ -187,6 +200,11 @@ if __name__=="__main__":
     from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
     cfg.merge(TrigBSReadCfg(ConfigFlags ))
 
+    # Setup IdentifiableCaches before anything else
+    muoncacheacc, muoncachealg = MuonCacheCfg()
+    cfg.merge( muoncacheacc )
+    cfg.addEventAlgo( muoncachealg )
+
     # Schedule Rpc data decoding - once mergeAll is working can simplify these lines
     rpcdecodingAcc, rpcdecodingAlg = RpcBytestreamDecodeCfg( ConfigFlags ) 
     cfg.merge( rpcdecodingAcc )
@@ -198,12 +216,12 @@ if __name__=="__main__":
     cfg.addEventAlgo( tgcdecodingAlg )
 
     # Schedule Mdt data decoding - once mergeAll is working can simplify these lines
-    mdtdecodingAcc, mdtdecodingAlg = MdtBytestreamDecodeCfg( ConfigFlags )
+    mdtdecodingAcc, mdtdecodingAlg = MdtBytestreamDecodeCfg( ConfigFlags , True)
     cfg.merge( mdtdecodingAcc )
     cfg.addEventAlgo( mdtdecodingAlg )
 
     # Schedule Csc data decoding - once mergeAll is working can simplify these lines
-    cscdecodingAcc, cscdecodingAlg = CscBytestreamDecodeCfg( ConfigFlags ) 
+    cscdecodingAcc, cscdecodingAlg = CscBytestreamDecodeCfg( ConfigFlags , True) 
     cfg.merge( cscdecodingAcc )
     cfg.addEventAlgo( cscdecodingAlg )
 

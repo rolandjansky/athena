@@ -218,7 +218,7 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
   }
   else{
     ATH_MSG_DEBUG ( "CSC RDO collection does not exist - creating a new one with hash = " << idColl );
-    rawCollection = std::make_unique<CscRawDataContainer>(idColl);
+    rawCollection = std::make_unique<CscRawDataCollection>(idColl);
   }
 
   /** set the ROD id and the subDector id */
@@ -514,7 +514,9 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
     //    return;
   }
 
-  if(rawCollection) ATH_CHECK(lock.addOrDelete(std::move( rawCollection ) ));
+  if(rawCollection) {
+    lock.addOrDelete(std::move( rawCollection ) );
+  }
 
   ATH_MSG_DEBUG ( "end of CscROD_Decode::fillCollection()" );
   return;
@@ -547,7 +549,7 @@ void Muon::CscROD_Decoder::rodVersion1(const ROBFragment& robFrag,  CscRawDataCo
   }
   else{
     ATH_MSG_DEBUG ( "CSC RDO collection does not exist - creating a new one with hash = " << idColl );
-    rawCollection = std::make_unique<CscRawDataContainer>(idColl);
+    rawCollection = std::make_unique<CscRawDataCollection>(idColl);
   }
 
   // set the ROD id and the subDector id
@@ -589,7 +591,6 @@ void Muon::CscROD_Decoder::rodVersion1(const ROBFragment& robFrag,  CscRawDataCo
   bool dpuFragment = rodReadOut.isDPU(p[rodHeader]);
   if (!dpuFragment) {
     ATH_MSG_ERROR ( "expecting a DPU fragment, Aborting..." );
-    delete rawCollection;
     return;
   }
 
@@ -648,7 +649,11 @@ void Muon::CscROD_Decoder::rodVersion1(const ROBFragment& robFrag,  CscRawDataCo
     if (i < (size-rodFooter)) dpuFragment = rodReadOut.isDPU(p[i]);
     numberOfDPU++;
   }
-  if(rawCollection) ATH_CHECK(lock.addOrDelete(std::move( rawCollection ) ));
+  if(rawCollection) {
+    lock.addOrDelete(std::move( rawCollection ) );
+  }
+
+  return;
 
 }
 
@@ -686,7 +691,7 @@ void Muon::CscROD_Decoder::rodVersion0(const ROBFragment& robFrag,  CscRawDataCo
   }
   else{
     ATH_MSG_DEBUG ( "CSC RDO collection does not exist - creating a new one with hash = " << idColl );
-    rawCollection = std::make_unique<CscRawDataContainer>(idColl);
+    rawCollection = std::make_unique<CscRawDataCollection>(idColl);
   }
 
   // set the ROD id and the subDector id
@@ -701,7 +706,6 @@ void Muon::CscROD_Decoder::rodVersion0(const ROBFragment& robFrag,  CscRawDataCo
   bool bodyFragment = rodReadOut.isBody(p[rodHeader]);
   if (!bodyFragment) {
     ATH_MSG_ERROR ( "expecting a body fragment, Aborting..." );
-    delete rawCollection;
     return;
   }
   uint32_t i = rodHeader; 
@@ -747,8 +751,10 @@ void Muon::CscROD_Decoder::rodVersion0(const ROBFragment& robFrag,  CscRawDataCo
     // check that the new fragment is body
     bodyFragment = rodReadOut.isBody(p[i]);
   }
-  if(rawCollection) ATH_CHECK(lock.addOrDelete(std::move( rawCollection ) ));
-
+  if(rawCollection) {
+    lock.addOrDelete(std::move( rawCollection ) );
+  }
+  return;
 
 }
 

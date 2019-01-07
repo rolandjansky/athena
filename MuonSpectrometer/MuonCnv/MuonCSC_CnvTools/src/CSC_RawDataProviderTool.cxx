@@ -39,7 +39,7 @@ Muon::CSC_RawDataProviderTool::CSC_RawDataProviderTool(const std::string& t,
 {
   declareInterface<IMuonRawDataProviderTool>(this);
   declareProperty("Decoder",     m_decoder);
-  declareProperty ("CSCContainerCacheKey", m_rdoContainerCacheKey, "Optional external cache for the CSC container");
+  declareProperty ("CscContainerCacheKey", m_rdoContainerCacheKey, "Optional external cache for the CSC container");
 
 }
 
