@@ -473,8 +473,10 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
 
         self.MdtRawDataProvider = "MdtRawDataProviderTool"
         self.RpcRawDataProvider = "RpcRawDataProviderTool"
+        self.TgcRawDataProvider = "TgcRawDataProviderTool"
         self.DecodeMdtBS = DetFlags.readRDOBS.MDT_on()
         self.DecodeRpcBS = DetFlags.readRDOBS.RPC_on()
+        self.DecodeTgcBS = DetFlags.readRDOBS.TGC_on()
 
         # use seeded decoding
         if (TriggerFlags.MuonSlice.doEFRoIDrivenAccess()):
