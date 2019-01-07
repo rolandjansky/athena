@@ -114,6 +114,11 @@ if __name__ == "__main__":
          default = "any",
          help = "(optional) input file type (RDO,BS,ESD,AOD,DPD, or ANY)")
          
+    _add("--exclude",
+         dest = "exclude",
+         default = "",
+         help = "comma-separated list of glob patterns of keys/types to ignore")
+         
     (options, args) = parser.parse_args()
 
     input_files = []
@@ -143,6 +148,7 @@ if __name__ == "__main__":
             dump_jobo=options.dump_jobo,
             use_recex_links=options.use_recex_links,
             pyalg_cls=options.pyalg_cls,
+            exclude=options.exclude,
             file_type=options.file_type,
             do_clean_up=options.do_clean_up,
             athena_opts=options.athena_opts,

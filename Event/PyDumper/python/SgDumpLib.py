@@ -114,6 +114,7 @@ def _gen_jobo(dct):
         from %(pyalg_pkg)s import %(pyalg_cls)s as pyalg
         job += pyalg('pyalg',
                      ofile='%(ofile-name)s',
+                     exclude='%(exclude)s',
                      OutputLevel=Lvl.INFO)
         """) % dct
     else:
@@ -211,6 +212,7 @@ def _gen_jobo(dct):
         from %(pyalg_pkg)s import %(pyalg_cls)s as pyalg
         job += pyalg('pyalg',
                      ofile='%(ofile-name)s',
+                     exclude='%(exclude)s',
                      OutputLevel=Lvl.INFO)
         """) % dct
         
@@ -359,6 +361,7 @@ def run_sg_dump(files, output,
                 dump_jobo=False,
                 use_recex_links=True,
                 pyalg_cls='PyDumper.PyComps:PySgDumper',
+                exclude='',
                 file_type=None,
                 do_clean_up=False,
                 athena_opts=None,
@@ -373,6 +376,7 @@ def run_sg_dump(files, output,
                  it)
      `use_recex_links` switch to run RecExCommon_links and thus a local db replica
      `pyalg_cls` the fully qualified name of the PyAthena.Alg class to process the file(s) content (PySgDumper or DataProxyLoader)
+     `exclude`: comma-separated list of glob patterns for keys/types to ignore.
      `file_type` the input file's type (RDO,BS,ESD,AOD,DPD or ANY)
      `do_clean_up` flag to enable the attempt at removing all the files sg-dump
                    produces during the course of its execution
@@ -426,6 +430,7 @@ def run_sg_dump(files, output,
         'input-files': files,
         'evts' :       nevts,
         'skip' :       skip,
+        'exclude' :    exclude,
         'pyalg_pkg':   pyalg_pkg,
         'pyalg_cls':   pyalg_cls,
         'input-type':  file_type.upper(),
@@ -439,6 +444,7 @@ def run_sg_dump(files, output,
     msg.info('use recex links: %s', use_recex_links)
     msg.info('pyalg-class:     %s:%s', pyalg_pkg, pyalg_cls)
     msg.info('file_type:       %s', file_type)
+    msg.info('exclude:         %s', exclude)
     
     if dump_jobo and isinstance(dump_jobo, basestring):
         try:
