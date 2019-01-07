@@ -39,3 +39,7 @@ atlas_add_component( Sherpa_i
 add_definitions(-DSHERPA_ROOT="${SHERPA_ROOT}")
 
 atlas_install_joboptions( share/common/*.py )
+
+set( SherpaEnvironment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+   CACHE PATH "Location of SherpaEnvironment.cmake" )
+find_package( SherpaEnvironment )

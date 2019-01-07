@@ -11,8 +11,8 @@ Generate_tf.py --ecmEnergy=13000 --runNumber=361035 --maxEvents=10 \
     --jobConfig=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest/share/DSID361xxx/MC15.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.py \
     --outputEVNTFile=test_minbias_high.EVNT.pool.root \
 
+echo "art-result: $? generate"
 rm -fr _joproxy15
 
-echo "art-result: $? generate"
 
 

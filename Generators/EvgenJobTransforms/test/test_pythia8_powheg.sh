@@ -12,6 +12,7 @@ Generate_tf.py --ecmEnergy=8000 --runNumber=429695 --maxEvents=10 \
     --inputGeneratorFile=/afs/cern.ch/atlas/offline/ProdData/17.2.X/group.phys-gener.Powheg_CT10.147800.Wplusenu_8TeV.TXT.mc12_v2._00001.tar.gz \
     --outputEVNTFile=test_powhegpythia8_Wpluswnu.EVNT.pool.root \
 
+echo "art-result: $? generate"
 rm -fr _joproxy15
 
-echo "art-result: $? generate"    
+    
