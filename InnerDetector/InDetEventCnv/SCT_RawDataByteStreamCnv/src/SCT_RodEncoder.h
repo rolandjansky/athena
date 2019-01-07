@@ -160,7 +160,7 @@ class SCT_RodEncoder : public extends<AthAlgTool, ISCT_RodEncoder>
 
   /** Add trailers with errors for ROB to the vector of 16 bit words. */
   void addTrailersWithErrors(const uint32_t& robID, const std::set<IdentifierHash>* errors, 
-                             const ErrorWords& errType, std::vector<uint16_t>& vec16dDta) const;
+                             const ErrorWords& errType, std::vector<uint16_t>& vec16Data) const;
 
   /** Add specific errors for ROB to the vector of 16 bit words. */
   void addSpecificErrors(const uint32_t& robID, const std::set<IdentifierHash>* errors, 
