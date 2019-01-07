@@ -54,9 +54,14 @@ atlas_add_library( TrigEgammaEmulationToolLib
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} )
 
 atlas_add_component( TrigEgammaEmulationTool
-    src/*.cxx Root/*.cxx src/components/*.cxx
-    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-    LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers AsgTools xAODBase xAODCaloEvent xAODEgamma  xAODTracking xAODTrigCalo xAODTrigEgamma xAODTrigRinger xAODTrigger PATCoreLib ElectronPhotonSelectorToolsLib TrigDecisionToolLib TrigConfHLTData TrigSteeringEvent TrigMultiVarHypoLib AthenaBaseComps StoreGateLib SGtests GaudiKernel TrigEgammaMatchingToolLib LumiBlockCompsLib IsolationToolLib) 
+    src/*.h src/*.cxx src/components/*.cxx
+    LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES}
+    AthContainers AsgTools xAODBase xAODCaloEvent xAODEgamma  xAODTracking
+    xAODTrigCalo xAODTrigEgamma xAODTrigRinger xAODTrigger PATCoreLib
+    ElectronPhotonSelectorToolsLib TrigDecisionToolLib TrigConfHLTData
+    TrigSteeringEvent TrigMultiVarHypoLib AthenaBaseComps StoreGateLib SGtests
+    GaudiKernel TrigEgammaMatchingToolLib LumiBlockCompsLib IsolationToolLib
+    TrigEgammaEmulationToolLib) 
 
 
 # Install files from the package:
