@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -791,13 +791,14 @@ public:
   struct const_iterator
     : public ck_hs_iterator_t
   {
-    const_iterator(const ck_hs_t* hs) : m_hs (const_cast<ck_hs_t*>(hs))
+    const_iterator(const ck_hs_t* hs) : m_hs (hs)
     { cursor = nullptr; offset = 0; }
     const_iterator() : const_iterator(nullptr) {}
     size_t operator* () const { return reinterpret_cast<size_t> (m_elt); }
     const_iterator& operator++()
     {
-      if (!ck_hs_next (m_hs, this, &m_elt)) {
+      ck_hs_t* hs_nc ATLAS_THREAD_SAFE = const_cast<ck_hs_t*> (m_hs);
+      if (!ck_hs_next (hs_nc, this, &m_elt)) {
         cursor = nullptr;
         offset = 0;
       }
@@ -813,7 +814,7 @@ public:
       return !(*this == other);
     }
 
-    ck_hs_t* m_hs;
+    const ck_hs_t* m_hs;
     void* m_elt = nullptr;
   };
 
@@ -863,7 +864,8 @@ CKHSAdapter::CKHSAdapter (const CKHSAdapter& other)
 {
   ck_hs_iterator it { nullptr, 0};
   void* obj;
-  while (ck_hs_next (const_cast<ck_hs_t*>(&other.m_hs), &it, &obj)) {
+  ck_hs_t* hs_nc ATLAS_THREAD_SAFE = const_cast<ck_hs_t*>(&other.m_hs);
+  while (ck_hs_next (hs_nc, &it, &obj)) {
     insert (reinterpret_cast<size_t> (obj));
   }
 }
