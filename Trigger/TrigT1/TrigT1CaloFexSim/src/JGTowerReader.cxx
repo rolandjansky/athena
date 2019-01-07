@@ -301,10 +301,6 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
 
 StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
 
-// jet algorithms
-  if(JetAlg::m_SeedMap.find("gSeeds")==JetAlg::m_SeedMap.end()) CHECK(JetAlg::SeedGrid(gTs,"gSeeds",m_dumpSeedsEtaPhi));
-  CHECK(JetAlg::SeedFinding(gTs,"gSeeds",m_gSeed_size,m_gMax_r,gJet_thr,m_debugJetAlg));
-
   // sort out the wrong-size list of noise vector
   if(gTs->size() > gT_noise.size()) {
     ATH_MSG_ERROR("Found " << gTs->size() << " gTowers, but the noise vector only has " << gT_noise.size() << " entries");
@@ -317,6 +313,10 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
     }
   }
   
+  // jet algorithms
+  if(JetAlg::m_SeedMap.find("gSeeds")==JetAlg::m_SeedMap.end()) CHECK(JetAlg::SeedGrid(gTs,"gSeeds",m_dumpSeedsEtaPhi));
+  CHECK(JetAlg::SeedFinding(gTs,"gSeeds",m_gSeed_size,m_gMax_r,gJet_thr,m_debugJetAlg));
+
   // CHECK(JetAlg::SeedFinding(gTs,gSeeds,m_gSeed_size,m_gMax_r,gJet_thr)); // the diameter of seed, and its range to be local maximum
                                                                          // Careful to ensure the range set to be no tower double counted
   //CHECK(JetAlg::BuildJet(gTs,gSeeds,gL1Jets,m_gJet_r,gJet_thr, m_debugJetAlg)); //default gFex jets are cone jets wih radius of 1.0
