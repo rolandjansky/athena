@@ -12,28 +12,6 @@
 using namespace TrigCompositeUtils;
 using xAOD::TrigMissingETContainer;
 
-<<<<<<< Updated upstream
-||||||| merged common ancestors
-//!< Converts from MeV to GeV and them log10, preserving the sign, the minimum dictated by monitoring histograms
-float TrigMissingETHypoAlgMT::toLogGeV( const float& x, const float& fallback = 0, const float& epsilon = 1.189 ) {
-  const float absXGeV =  std::fabs( x * 1.e-3 );
-  if ( absXGeV < epsilon ) 
-    return fallback;
-  return std::copysign( std::log10( absXGeV ), x );
-}
-
-//!< converts to from MeV to GeV if above threshold, else falback value
-float TrigMissingETHypoAlgMT::toLinGeV( const float& x, const float& fallback = 0, const float& epsilon = 1e-6 ) {
-    const float xGeV = x * 1.e-3;
-  if ( xGeV < epsilon ) 
-    return fallback;
-  return xGeV;
-}
-
-
-=======
-
->>>>>>> Stashed changes
 TrigMissingETHypoAlgMT::TrigMissingETHypoAlgMT( const std::string& name, 
 				      ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator ) {}

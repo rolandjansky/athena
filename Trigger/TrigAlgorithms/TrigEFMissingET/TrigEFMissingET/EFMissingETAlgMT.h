@@ -38,7 +38,7 @@ class EFMissingETAlgMT : public ::AthReentrantAlgorithm
   static double toLogGeV(double x, double fallback=0, double epsilon=1e-6);
   
   //!< converts to from MeV to GeV if above threshold, else falback value
-  static double toLinGev(double x, double fallback=0, double epsolion=1e-6); 
+  static double toLinGeV(double x, double fallback=0, double epsilon=1e-6); 
  private: 
   
   SG::WriteHandleKey<xAOD::TrigMissingETContainer> m_metContainerKey { this, "METContainerKey", "HLT_MET", "Name of the output collection" };
