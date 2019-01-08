@@ -53,7 +53,6 @@ public:
       m_hasCombinedMuon(0),
       m_hasInDetTrackParticle(0),
       m_hasMuonExtrapolatedTrackParticle(0),
-      m_hasInnerExtrapolatedTrackParticle(0),
       m_hasCombinedMuonTrackParticle(0),
       m_hasCluster(0),
       m_matchChi2(0),
@@ -96,7 +95,6 @@ private:
   bool m_hasCombinedMuon;                   // needed ?
   bool m_hasInDetTrackParticle;             // needed ?
   bool m_hasMuonExtrapolatedTrackParticle;  // needed ?
-  bool m_hasInnerExtrapolatedTrackParticle; // needed ?
   bool m_hasCombinedMuonTrackParticle;      // needed ?
 
   // not used ?
