@@ -134,7 +134,7 @@ StatusCode JetAlg::SeedFinding(const xAOD::JGTowerContainer*towers, TString seed
         thr += noise.at(t);
       }
       //if(et<thr*6) et = 0;
-if(et<thr*4) et = 0;
+      if(et<thr*4) et = 0;
       tmp_et.push_back(et);
       if (et > 0 && m_debug)
         std::cout << eta << ", " << phi << " - pushed back tmp_et " << i << " with et = " << et << " after thr = " << thr << std::endl;
