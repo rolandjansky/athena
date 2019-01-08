@@ -1,7 +1,7 @@
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r3)
-                                          running on pc-tbed-pub-23.cern.ch on Thu Oct  4 17:39:52 2018
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
+                                          running on karma on Thu Dec 27 22:27:34 2018
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
@@ -9,18 +9,18 @@ EventLoopMgr      WARNING No events will be processed from external input.
 HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
-ClassIDSvc           INFO  getRegistryEntries: read 7465 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 10811 CLIDRegistry entries for module ALL
 Context: s: 0  e: 0
 Current context: s: 0  e: 0
 ClassIDSvc           INFO  getRegistryEntries: read 372 CLIDRegistry entries for module ALL
 initialize SG::WriteHandleKey<DecisionContainer> whkT
 call createAndStore( whkT ) with default context, twice
 StoreGateSvc_Impl WARNING  setupProxy:: error setting up proxy for key arbitrary and clid 1333228823
- Pre-existing valid DataProxy @0x29a4bd0 found in Store for key arbitrary with clid 1333228823
-StoreGateSvc_Impl WARNING record_impl: Problem setting up the proxy for object @0x29a50b0
- recorded with key arbitrary of type xAOD::TrigCompositeContainer (CLID 1333228823) in DataObject @0x29a5400
-VarHandle(Store...  ERROR /build3/atnight/localbuilds/nightlies/master/athena/Control/StoreGate/src/VarHandleBase.cxx:734 (StatusCode SG::VarHandleBase::record_impl(std::unique_ptr<DataObject>, void*, bool, bool)): code 0: recordObject failed
-                    FATAL /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-09-25T2105/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-dbg/src/Control/StoreGate/StoreGate/WriteHandle.icc:887 (StatusCode SG::WriteHandle<T>::record(std::unique_ptr<_Tp>, std::unique_ptr<U>, bool) [with AUXSTORE = xAOD::TrigCompositeAuxContainer_v1; T = DataVector<xAOD::TrigComposite_v1>]): code 0: this->record(std::move(data))
+ Pre-existing valid DataProxy @0x1a48360 found in Store for key arbitrary with clid 1333228823
+StoreGateSvc_Impl WARNING record_impl: Problem setting up the proxy for object @0x1a458a0
+ recorded with key arbitrary of type xAOD::TrigCompositeContainer (CLID 1333228823) in DataObject @0x1a42ea0
+VarHandle(Store...  ERROR Control/StoreGate/src/VarHandleBase.cxx:733 (FUNC): code 0: recordObject failed
+                    FATAL Control/StoreGate/StoreGate/WriteHandle.icc:887 (FUNC): code 0: this->record(std::move(data))
 handle name "arbitrary" isPresent 1 isValid 1
 handle name "arbitrary" isPresent 1 isValid 0
 
