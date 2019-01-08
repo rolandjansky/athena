@@ -59,6 +59,9 @@ histSvc("THistSvc",name){
 
   declareProperty("makeJetsFromMap", m_makeJetsFromMap = false);
   declareProperty("towerMap", m_towerMap = "");
+  declareProperty("map_seed_tower_noise_multiplier", m_map_seed_tower_noise_multiplier = 2.0);
+  declareProperty("map_seed_total_noise_multiplier", m_map_seed_total_noise_multiplier = 4.0);
+  declareProperty("map_seed_min_ET_MeV", m_map_seed_min_ET_MeV = 2000.0);
 
   declareProperty("plotSeeds", m_plotSeeds = false);
 
@@ -231,18 +234,24 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
     // find all seeds
     // the diameter of seed, and its range to be local maximum
     // Careful to ensure the range set to be no tower double counted
-    if(JetAlg::m_SeedMap.find("jSeeds")==JetAlg::m_SeedMap.end())CHECK(JetAlg::SeedGrid(jTs,"jSeeds",m_dumpSeedsEtaPhi));
+    if( JetAlg::m_SeedMap.find("jSeeds") == JetAlg::m_SeedMap.end() )
+      CHECK( JetAlg::SeedGrid(jTs,"jSeeds",m_dumpSeedsEtaPhi) );
     ATH_MSG_DEBUG("JFexAlg: SeedFinding with jSeeds; m_jSeed_size = " << m_jSeed_size << ", m_jMax_r = " << m_jMax_r);
-    CHECK(JetAlg::SeedFinding(jTs,"jSeeds",m_jSeed_size,m_jMax_r,jJet_thr,m_debugJetAlg));
+    CHECK( JetAlg::SeedFinding(jTs,"jSeeds",m_jSeed_size,m_jMax_r,jJet_thr,m_debugJetAlg) );
     ATH_MSG_DEBUG("JFexAlg: BuildJet");
-    CHECK(JetAlg::BuildJet(jTs, "jSeeds", "jL1Jet", m_jJet_r, jJet_thr, m_debugJetAlg));
+    CHECK( JetAlg::BuildJet(jTs, "jSeeds", "jL1Jet", m_jJet_r, jJet_thr, m_debugJetAlg) );
   }
   if(m_makeRoundJets) {
-    if(JetAlg::m_SeedMap.find("jRoundSeeds")==JetAlg::m_SeedMap.end())CHECK(JetAlg::SeedGrid(jTs,"jRoundSeeds",m_dumpSeedsEtaPhi));
+    if( JetAlg::m_SeedMap.find("jRoundSeeds") == JetAlg::m_SeedMap.end() )
+      CHECK( JetAlg::SeedGrid(jTs,"jRoundSeeds",m_dumpSeedsEtaPhi) );
     ATH_MSG_DEBUG("JFexAlg: SeedFinding with jJetSeeds; m_jJetSeed_size = " << m_jJetSeed_size << ", m_jJet_max_r = " << m_jJet_max_r);
-    CHECK(JetAlg::SeedFinding(jTs,"jRoundSeeds",m_jJetSeed_size,m_jJet_max_r,jJet_jet_thr,m_debugJetAlg));
+    CHECK( JetAlg::SeedFinding(jTs,"jRoundSeeds",m_jJetSeed_size,m_jJet_max_r,jJet_jet_thr,m_debugJetAlg) );
     ATH_MSG_DEBUG("JFexAlg: BuildRoundJet");
-    CHECK(JetAlg::BuildRoundJet(jTs, "jRoundSeeds", "jRoundJet", m_jJet_jet_r, jJet_jet_thr, m_debugJetAlg));
+    CHECK( JetAlg::BuildRoundJet(jTs, "jRoundSeeds", "jRoundJet", m_jJet_jet_r, jJet_jet_thr, m_debugJetAlg) );
+  }
+  if(m_makeJetsFromMap) {
+    ATH_MSG_DEBUG("JFexAlg: Build jets from map");
+    CHECK( BuildJetsFromMap(jTs) );
   }
   
   ATH_MSG_DEBUG("JFexAlg: BuildMET");
@@ -600,6 +609,83 @@ StatusCode JGTowerReader::CheckTowerMap(const xAOD::JGTowerContainer*jTs) {
       return StatusCode::FAILURE;
     }
     towerMap_AODtowersIndices.push_back(tower_index);
+    // the ith entry of this vector has the jTower index corresponding to the ith tower in the map
   }
   return StatusCode::SUCCESS;
+}
+
+
+StatusCode JGTowerReader::BuildJetsFromMap(const xAOD::JGTowerContainer*jTs) {
+
+  // step 1, make all the seeds
+  for(int i_seed = 0; i_seed < int(towerMap_seedEta.size()); i_seed++) {
+    float seed_ET = 0;
+    float seed_totalNoise = 0;
+    for(auto tower_index : towerMap_seedTowers.at(i_seed)) {
+      // jT_index is the jTower index corresponding to the tower_index tower in the map
+      int jT_index = towerMap_AODtowersIndices.at(tower_index);
+      const xAOD::JGTower*tower = jTs->at(jT_index);
+      // only add a tower if its et is N times bigger than the noise in that tower
+      // in the other algs, this is 5 * jJet_jet_thr, which is jT_noise multiplied by m_jJet_jet_thr
+      if ( tower->et() > m_map_seed_tower_noise_multiplier * jT_noise.at(jT_index) ) {
+        seed_ET += tower->et();
+      }
+      seed_totalNoise += tower->et();
+    }
+    // set seed ET to 0 if it has less ET than N times the total noise over the seed towers
+    if(seed_ET < seed_totalNoise * m_map_seed_total_noise_multiplier)
+      seed_ET = 0;
+
+    towerMapSeed_ET.push_back(seed_ET);
+  }
+
+
+  // Step 2, check local max of seeds
+  for(int i_seed = 0; i_seed < int(towerMap_seedEta.size()); i_seed++) {
+    bool isLocalMax = true;
+    for(auto seed_index : towerMap_seedLocalMaxSeeds.at(i_seed)) {
+      if(towerMapSeed_ET.at(i_seed) <= towerMapSeed_ET.at(seed_index)) {
+        isLocalMax = false;
+        break;
+      }
+    }
+    // don't count seed if below minimum ET threshold
+    if (towerMapSeed_ET.at(i_seed) < m_map_seed_min_ET_MeV)
+      isLocalMax = false;
+    towerMapSeed_isLocalMax.push_back(isLocalMax);
+
+    if(isLocalMax) {
+      ATH_MSG_DEBUG( "I have a local max! Seed " << i_seed << ", eta = " << towerMap_seedEta.at(i_seed) << ", phi = " << towerMap_seedPhi.at(i_seed) << ", ET = " << towerMapSeed_ET.at(i_seed) );
+    }
+  }
+  
+
+  // Step 3, if seed is local max then make jet
+  std::vector<std::shared_ptr<JetAlg::L1Jet>> js;
+  TString jetname = "jJetFromMap";
+  if(JetAlg::m_JetMap.find(jetname) == JetAlg::m_JetMap.end() )
+    JetAlg::m_JetMap[jetname] = js;
+
+  for(int i_jet = 0; i_jet < int(towerMap_jetEta.size()); i_jet++) {
+    if( ! towerMapSeed_isLocalMax.at( towerMap_jetSeed.at(i_jet) ) )
+      continue;
+    
+    float j_et = 0;
+
+    for(auto tower_index : towerMap_jetTowers.at(i_jet)) {
+      int jT_index = towerMap_AODtowersIndices.at(tower_index);
+      j_et += jTs->at(jT_index)->et();
+    }
+
+    ATH_MSG_DEBUG( "I have a jet! Jet " << i_jet << ", eta = " << towerMap_jetEta.at(i_jet) << ", phi = " << towerMap_jetPhi.at(i_jet) << ", ET = " << j_et );
+    
+    std::shared_ptr<JetAlg::L1Jet> j = std::make_shared<JetAlg::L1Jet>(towerMap_jetEta.at(i_jet), towerMap_jetPhi.at(i_jet), j_et);
+    JetAlg::m_JetMap[jetname].push_back(j);
+    
+  }
+  
+  
+
+  return StatusCode::SUCCESS;
+
 }

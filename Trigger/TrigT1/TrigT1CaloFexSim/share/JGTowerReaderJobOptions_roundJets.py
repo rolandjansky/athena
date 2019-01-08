@@ -1,6 +1,6 @@
 #Skeleton joboption for a simple analysis job
 
-theApp.EvtMax=10                                      #says how many events to run over. Set to -1 for all events
+theApp.EvtMax=1                                      #says how many events to run over. Set to -1 for all events
 
 debug = False
 # debug = True
@@ -93,6 +93,9 @@ algseq += CfgMgr.JGTowerReader(                  # adds an instance of your alg 
     jJet_jet_threshold = 3,
     makeJetsFromMap = True,
     towerMap = '/afs/cern.ch/user/c/ckaldero/trigger/L1Calo/L1CaloSim/source/athena/Trigger/TrigT1/TrigT1CaloFexSim/JetTowerLists/jFexJet_towerMap_2019-01-08.txt',
+    map_seed_tower_noise_multiplier = 1.0,
+    map_seed_total_noise_multiplier = 1.0,
+    map_seed_min_ET_MeV = 500,
     plotSeeds = True,
     gJet_threshold = 3,
     gSeed_size=0.4,

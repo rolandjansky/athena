@@ -63,6 +63,9 @@ class JGTowerReader: public ::AthAlgorithm {
 
   bool m_makeJetsFromMap;
   std::string m_towerMap;
+  float m_map_seed_tower_noise_multiplier;
+  float m_map_seed_total_noise_multiplier;
+  float m_map_seed_min_ET_MeV;
 
   bool m_plotSeeds;
 
@@ -89,6 +92,7 @@ class JGTowerReader: public ::AthAlgorithm {
   virtual StatusCode CheckTowerMap(const xAOD::JGTowerContainer*jTs);
   virtual StatusCode JFexAlg(const xAOD::JGTowerContainer*jTs);
   virtual StatusCode GFexAlg(const xAOD::JGTowerContainer*gTs); 
+  virtual StatusCode BuildJetsFromMap(const xAOD::JGTowerContainer*jTs);
 
   std::vector<float> jT_noise;
   std::vector<float> jJet_thr;
@@ -115,6 +119,9 @@ class JGTowerReader: public ::AthAlgorithm {
   std::vector< std::vector<int> > towerMap_jetTowers;
 
   std::vector<int> towerMap_AODtowersIndices;
+
+  std::vector<float> towerMapSeed_ET;
+  std::vector<bool> towerMapSeed_isLocalMax;
 
   JetAlg::Seed*   jSeeds=new JetAlg::Seed;
   JetAlg::Seed*   jJetSeeds = new JetAlg::Seed;
