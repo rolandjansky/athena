@@ -55,7 +55,6 @@ atlas_add_component(ThinningUtils
   src/ThinTrackParticlesTool.cxx           src/ThinTrackParticlesTool.h
   src/ThinAssociatedObjectsTool.cxx        src/ThinAssociatedObjectsTool.h
   src/EleLinkThinningTool.cxx              src/EleLinkThinningTool.h
-  src/EleLinkThinningHelpers.cxx           src/EleLinkThinningHelpers.h
   src/DeltaRThinningTool.cxx               src/DeltaRThinningTool.h
   src/components/*.cxx ${extra_src}
   LINK_LIBRARIES AthLinks AthenaBaseComps AthenaKernel EventInfo xAODBase
