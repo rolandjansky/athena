@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 // Class to create a string of elements, n perline
 // where n is settable.
 

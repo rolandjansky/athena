@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+/*
  */
 /**
  * @file xAODEventInfo/test/ut_xoadeventinfo_eventinfoauxcontainer_v1_test.cxx
@@ -44,6 +46,10 @@ void test1()
   assert (run == eiac.getDecoration(runid, 5, 5));
   assert (pix == eiac.getDecoration(pixid, 5, 5));
   assert (sct == eiac.getDecoration(sctid, 5, 5));
+
+  assert (!eiac.isDecoration (runid));
+  assert ( eiac.isDecoration (pixid));
+  assert ( eiac.isDecoration (larid));
 
   eiac.lock();
   EXPECT_EXCEPTION (SG::ExcStoreLocked, eiac.getDecoration(runid, 5, 5));

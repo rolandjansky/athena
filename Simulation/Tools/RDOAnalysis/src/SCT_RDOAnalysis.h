@@ -27,7 +27,7 @@ class SCT_ID;
 
 class SCT_RDOAnalysis : public AthAlgorithm {
 
-public:
+ public:
   SCT_RDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator);
   ~SCT_RDOAnalysis() = default;
 
@@ -35,7 +35,7 @@ public:
   virtual StatusCode execute() override final;
   virtual StatusCode finalize() override final;
 
-private:
+ private:
   SG::ReadHandleKey<SCT_RDO_Container> m_inputKey{this, "InputKey", "SCT_RDOs"};
   SG::ReadHandleKey<InDetSimDataCollection> m_inputTruthKey{this, "InputTruthKey", "SCT_SDO_Map"};
   const SCT_ID* m_sctID;
@@ -115,10 +115,10 @@ private:
   TH2* m_h_phi_v_eta_sdo;
 
   TTree* m_tree;
-  std::string m_ntupleFileName;
-  std::string m_ntupleDirName;
-  std::string m_ntupleTreeName;
-  std::string m_path;
+  StringProperty m_ntupleFileName{this, "NtupleFileName", "/ntuples/file1"};
+  StringProperty m_ntupleDirName{this, "NtupleDirectoryName", "/SCT_RDOAnalysis/"};
+  StringProperty m_ntupleTreeName{this, "NtupleTreeName", "SCT_RDOAna"};
+  StringProperty m_path{this, "HistPath", "/SCT_RDOAnalysis/"};
   ServiceHandle<ITHistSvc> m_thistSvc;
 
 };

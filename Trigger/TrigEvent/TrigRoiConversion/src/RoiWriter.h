@@ -9,7 +9,6 @@
 //
 //                   
 //  
-//   Copyright (C) 2015 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: RoiWriter.h 781778 2016-11-01 23:42:26Z sutt $
 //

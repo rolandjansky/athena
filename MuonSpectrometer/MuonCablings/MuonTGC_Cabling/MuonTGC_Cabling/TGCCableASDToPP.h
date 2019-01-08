@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CABLING_TGCCABLEASDTOPP_HH
@@ -57,21 +57,21 @@ private:
 				      const std::string blockname,  
 				      TGCDatabase*& database);
 
-  TGCDatabase* FWDdb[TGCIdBase::MaxSideType][TGCId::NumberOfForwardSector];
-  TGCDatabase* FSDdb[TGCIdBase::MaxSideType][TGCId::NumberOfForwardSector];
-  TGCDatabase* FWTdb[TGCIdBase::MaxSideType][TGCId::NumberOfForwardSector];
-  TGCDatabase* FSTdb[TGCIdBase::MaxSideType][TGCId::NumberOfForwardSector];
-  TGCDatabase* FWIdb[TGCIdBase::MaxSideType][TGCId::NumberOfInnerSector];
-  TGCDatabase* FSIdb[TGCIdBase::MaxSideType][TGCId::NumberOfInnerSector];
+  TGCDatabase* m_FWDdb[TGCIdBase::MaxSideType][TGCId::NumberOfForwardSector];
+  TGCDatabase* m_FSDdb[TGCIdBase::MaxSideType][TGCId::NumberOfForwardSector];
+  TGCDatabase* m_FWTdb[TGCIdBase::MaxSideType][TGCId::NumberOfForwardSector];
+  TGCDatabase* m_FSTdb[TGCIdBase::MaxSideType][TGCId::NumberOfForwardSector];
+  TGCDatabase* m_FWIdb[TGCIdBase::MaxSideType][TGCId::NumberOfInnerSector];
+  TGCDatabase* m_FSIdb[TGCIdBase::MaxSideType][TGCId::NumberOfInnerSector];
 
-  TGCDatabase* EWDdb[TGCIdBase::MaxSideType][TGCId::NumberOfEndcapSector];
-  TGCDatabase* ESDdb[TGCIdBase::MaxSideType][TGCId::NumberOfEndcapSector];
-  TGCDatabase* EWTdb[TGCIdBase::MaxSideType][TGCId::NumberOfEndcapSector];
-  TGCDatabase* ESTdb[TGCIdBase::MaxSideType][TGCId::NumberOfEndcapSector];
-  TGCDatabase* EWIdb[TGCIdBase::MaxSideType][TGCId::NumberOfInnerSector];
-  TGCDatabase* ESIdb[TGCIdBase::MaxSideType][TGCId::NumberOfInnerSector];
+  TGCDatabase* m_EWDdb[TGCIdBase::MaxSideType][TGCId::NumberOfEndcapSector];
+  TGCDatabase* m_ESDdb[TGCIdBase::MaxSideType][TGCId::NumberOfEndcapSector];
+  TGCDatabase* m_EWTdb[TGCIdBase::MaxSideType][TGCId::NumberOfEndcapSector];
+  TGCDatabase* m_ESTdb[TGCIdBase::MaxSideType][TGCId::NumberOfEndcapSector];
+  TGCDatabase* m_EWIdb[TGCIdBase::MaxSideType][TGCId::NumberOfInnerSector];
+  TGCDatabase* m_ESIdb[TGCIdBase::MaxSideType][TGCId::NumberOfInnerSector];
 
-  static const int stripForward[];
+  static const int s_stripForward[];
 
   ToolHandle<ITGCCablingDbTool> m_tgcCablingDbTool;
   std::vector<std::string> *m_ASD2PP_DIFF_12;

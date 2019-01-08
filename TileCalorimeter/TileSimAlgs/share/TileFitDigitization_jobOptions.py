@@ -122,5 +122,8 @@ ToolSvc.TileBeamInfoProvider.TileBeamElemContainer=""; # disable reading of trig
 ToolSvc.TileBeamInfoProvider.TileDigitsContainer="";   # disable checking of Digits container size for bi-gain mode
 ToolSvc.TileBeamInfoProvider.TileRawChannelContainer=""; # disable checking of DQstatus for simulated data
 
+from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
+dqstatus = TileDQstatusAlgDefault()
+
 #
 include( "TileSimAlgs/TileSamplingFraction_jobOptions.py" )

@@ -1146,15 +1146,20 @@ bool MuFastSteering::storeMuonSA(const LVL1::RecMuonRoI*             roi,
   muonSA->setCscHitsCapacity( m_esd_csc_size );
 
   // MDT hits
+  std::vector<std::string> mdtId;
   for (unsigned int i_hit=0; i_hit<mdtHits.size(); i_hit++) {
     if ( mdtHits[i_hit].isOutlier==0 || mdtHits[i_hit].isOutlier==1 ) {
       muonSA->setMdtHit(mdtHits[i_hit].OnlineId, mdtHits[i_hit].isOutlier, mdtHits[i_hit].Chamber,
                         mdtHits[i_hit].R, mdtHits[i_hit].Z, mdtHits[i_hit].cPhi0, mdtHits[i_hit].Residual, 
                         mdtHits[i_hit].DriftTime, mdtHits[i_hit].DriftSpace, mdtHits[i_hit].DriftSigma);  
+      mdtId.push_back(mdtHits[i_hit].Id.getString());
     }
   }
+  SG::AuxElement::Accessor< std::vector<std::string> > accessor_mdthitid( "mdtHitId" );
+  accessor_mdthitid( *muonSA ) = mdtId;
   
   //CSC hits
+  std::vector<float> cscResol;
   for(unsigned int i_hit=0; i_hit<cscHits.size(); i_hit++) {
     if ( 1/*cscHits[i_hit].MeasuresPhi==0*/ ){
       if ( cscHits[i_hit].isOutlier==0 || cscHits[i_hit].isOutlier==1 ) {
@@ -1163,6 +1168,7 @@ bool MuFastSteering::storeMuonSA(const LVL1::RecMuonRoI*             roi,
                           cscHits[i_hit].ChamberLayer, cscHits[i_hit].WireLayer, cscHits[i_hit].MeasuresPhi, cscHits[i_hit].Strip,
                           cscHits[i_hit].eta, cscHits[i_hit].phi, cscHits[i_hit].r, cscHits[i_hit].z,
                           cscHits[i_hit].charge, cscHits[i_hit].time, cscHits[i_hit].Residual);
+	cscResol.push_back(cscHits[i_hit].resolution);
         ATH_MSG_DEBUG("CSC Hits stored in xAOD: "
       		<< "OL=" << cscHits[i_hit].isOutlier << ","
       		<< "Ch=" << cscHits[i_hit].Chamber << ","
@@ -1183,6 +1189,8 @@ bool MuFastSteering::storeMuonSA(const LVL1::RecMuonRoI*             roi,
       }
     }
   }
+  SG::AuxElement::Accessor< std::vector<float> > accessor_cschitresol( "cscHitResolution" );
+  accessor_cschitresol( *muonSA ) = cscResol;
 
   // RPC hits
   float sumbeta[8]={0};

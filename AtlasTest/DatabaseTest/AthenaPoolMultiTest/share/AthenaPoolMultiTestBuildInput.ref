@@ -11,105 +11,162 @@ AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 0  run: 0
 WriteData            INFO registered all data
-FullColl.Regist...   INFO No Primary Key defined
+FullColl          WARNING No refs found: RegStream selected to write out ref to event 
+FullColl          WARNING    but DataHeader can NOT be found in StoreGate. 
+FullColl          WARNING    Most likely the event was NOT selected to be written by an output stream 
 AddTrigMap           INFO EventInfo event: 1 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 1  run: 0
 WriteData            INFO registered all data
+FullColl          WARNING No refs found: RegStream selected to write out ref to event 
+FullColl          WARNING    but DataHeader can NOT be found in StoreGate. 
+FullColl          WARNING    Most likely the event was NOT selected to be written by an output stream 
 AddTrigMap           INFO EventInfo event: 2 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 2  run: 0
 WriteData            INFO registered all data
+FullColl          WARNING No refs found: RegStream selected to write out ref to event 
+FullColl          WARNING    but DataHeader can NOT be found in StoreGate. 
+FullColl          WARNING    Most likely the event was NOT selected to be written by an output stream 
 AddTrigMap           INFO EventInfo event: 3 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 3  run: 0
 WriteData            INFO registered all data
+FullColl          WARNING No refs found: RegStream selected to write out ref to event 
+FullColl          WARNING    but DataHeader can NOT be found in StoreGate. 
+FullColl          WARNING    Most likely the event was NOT selected to be written by an output stream 
 AddTrigMap           INFO EventInfo event: 4 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 4  run: 0
 WriteData            INFO registered all data
+FullColl          WARNING No refs found: RegStream selected to write out ref to event 
+FullColl          WARNING    but DataHeader can NOT be found in StoreGate. 
+FullColl          WARNING    Most likely the event was NOT selected to be written by an output stream 
 AddTrigMap           INFO EventInfo event: 5 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 5  run: 0
 WriteData            INFO registered all data
+FullColl          WARNING No refs found: RegStream selected to write out ref to event 
+FullColl          WARNING    but DataHeader can NOT be found in StoreGate. 
+FullColl          WARNING    Most likely the event was NOT selected to be written by an output stream 
 AddTrigMap           INFO EventInfo event: 6 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 6  run: 0
 WriteData            INFO registered all data
+FullColl          WARNING No refs found: RegStream selected to write out ref to event 
+FullColl          WARNING    but DataHeader can NOT be found in StoreGate. 
+FullColl          WARNING    Most likely the event was NOT selected to be written by an output stream 
 AddTrigMap           INFO EventInfo event: 7 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 7  run: 0
 WriteData            INFO registered all data
+FullColl          WARNING No refs found: RegStream selected to write out ref to event 
+FullColl          WARNING    but DataHeader can NOT be found in StoreGate. 
+FullColl          WARNING    Most likely the event was NOT selected to be written by an output stream 
 AddTrigMap           INFO EventInfo event: 8 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 8  run: 0
 WriteData            INFO registered all data
+FullColl          WARNING No refs found: RegStream selected to write out ref to event 
+FullColl          WARNING    but DataHeader can NOT be found in StoreGate. 
+FullColl          WARNING    Most likely the event was NOT selected to be written by an output stream 
 AddTrigMap           INFO EventInfo event: 9 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 9  run: 0
 WriteData            INFO registered all data
+FullColl          WARNING No refs found: RegStream selected to write out ref to event 
+FullColl          WARNING    but DataHeader can NOT be found in StoreGate. 
+FullColl          WARNING    Most likely the event was NOT selected to be written by an output stream 
 AddTrigMap           INFO EventInfo event: 10 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 10  run: 0
 WriteData            INFO registered all data
+FullColl          WARNING No refs found: RegStream selected to write out ref to event 
+FullColl          WARNING    but DataHeader can NOT be found in StoreGate. 
+FullColl          WARNING    Most likely the event was NOT selected to be written by an output stream 
 AddTrigMap           INFO EventInfo event: 11 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 11  run: 0
 WriteData            INFO registered all data
+FullColl          WARNING No refs found: RegStream selected to write out ref to event 
+FullColl          WARNING    but DataHeader can NOT be found in StoreGate. 
+FullColl          WARNING    Most likely the event was NOT selected to be written by an output stream 
 AddTrigMap           INFO EventInfo event: 12 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 12  run: 0
 WriteData            INFO registered all data
+FullColl          WARNING No refs found: RegStream selected to write out ref to event 
+FullColl          WARNING    but DataHeader can NOT be found in StoreGate. 
+FullColl          WARNING    Most likely the event was NOT selected to be written by an output stream 
 AddTrigMap           INFO EventInfo event: 13 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 13  run: 0
 WriteData            INFO registered all data
+FullColl          WARNING No refs found: RegStream selected to write out ref to event 
+FullColl          WARNING    but DataHeader can NOT be found in StoreGate. 
+FullColl          WARNING    Most likely the event was NOT selected to be written by an output stream 
 AddTrigMap           INFO EventInfo event: 14 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 14  run: 0
 WriteData            INFO registered all data
+FullColl          WARNING No refs found: RegStream selected to write out ref to event 
+FullColl          WARNING    but DataHeader can NOT be found in StoreGate. 
+FullColl          WARNING    Most likely the event was NOT selected to be written by an output stream 
 AddTrigMap           INFO EventInfo event: 15 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 15  run: 0
 WriteData            INFO registered all data
+FullColl          WARNING No refs found: RegStream selected to write out ref to event 
+FullColl          WARNING    but DataHeader can NOT be found in StoreGate. 
+FullColl          WARNING    Most likely the event was NOT selected to be written by an output stream 
 AddTrigMap           INFO EventInfo event: 16 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 16  run: 0
 WriteData            INFO registered all data
+FullColl          WARNING No refs found: RegStream selected to write out ref to event 
+FullColl          WARNING    but DataHeader can NOT be found in StoreGate. 
+FullColl          WARNING    Most likely the event was NOT selected to be written by an output stream 
 AddTrigMap           INFO EventInfo event: 17 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 17  run: 0
 WriteData            INFO registered all data
+FullColl          WARNING No refs found: RegStream selected to write out ref to event 
+FullColl          WARNING    but DataHeader can NOT be found in StoreGate. 
+FullColl          WARNING    Most likely the event was NOT selected to be written by an output stream 
 AddTrigMap           INFO EventInfo event: 18 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 18  run: 0
 WriteData            INFO registered all data
+FullColl          WARNING No refs found: RegStream selected to write out ref to event 
+FullColl          WARNING    but DataHeader can NOT be found in StoreGate. 
+FullColl          WARNING    Most likely the event was NOT selected to be written by an output stream 
 AddTrigMap           INFO EventInfo event: 19 run: 0
 AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 19  run: 0
 WriteData            INFO registered all data
-FullColl.Regist...   INFO Collection Events output: 20
-FullColl.Regist...   INFO Unable to register collection: PFN 'RootCollection||PFN:SplittableCollection.root' already registered ( POOL : "registerPFN" from "FileCatalog" )
+FullColl          WARNING No refs found: RegStream selected to write out ref to event 
+FullColl          WARNING    but DataHeader can NOT be found in StoreGate. 
+FullColl          WARNING    Most likely the event was NOT selected to be written by an output stream 
+FullColl.Regist...   INFO Collection Events output: 0
 NullColl.Regist...   INFO Collection Events output: 0
-NullColl.Regist...   INFO Unable to register collection: PFN 'RootCollection||PFN:NullableCollection.root' already registered ( POOL : "registerPFN" from "FileCatalog" )
 WriteData            INFO in finalize()
 WriteData           DEBUG Calling destructor

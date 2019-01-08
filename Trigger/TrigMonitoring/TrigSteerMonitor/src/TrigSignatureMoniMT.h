@@ -33,10 +33,10 @@ class TrigSignatureMoniMT : public ::AthAlgorithm
  
  private: 
   TrigSignatureMoniMT();
-  SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_l1DecisionsKey{ this, "L1Decisions", "HLTChainsResult", "Chains activated after the L1" };
+  SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_l1DecisionsKey{ this, "L1Decisions", "L1DecoderSummary", "Chains activated after the L1" };
 
     
-  SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_finalDecisionKey{ this, "FinalDecisionKey", "HLTFinalDecisions", "Final stage of all decisions" };
+  SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_finalDecisionKey{ this, "FinalDecisionKey", "HLTSummary", "Final stage of all decisions" };
 
 
   Gaudi::Property<std::vector<std::string> > m_allChains{ this, "ChainsList", {}, "List of all configured chains" };
@@ -51,12 +51,15 @@ class TrigSignatureMoniMT : public ::AthAlgorithm
 
   ToolHandleArray<DecisionCollectorTool> m_collectorTools{ this, "CollectorTools", {}, "Tools that collect decisions for steps" };
   
-  int nBinsX() const { return m_allChains.size() +1; }
+  int nBinsX() const;
   int nBinsY() const;
   StatusCode initHist(TH2*);
   StatusCode fillCount(const std::vector<TrigCompositeUtils::DecisionID>& dc, int row);
   StatusCode fillPass(const TrigCompositeUtils::DecisionIDContainer& dc, int row);
 }; 
 
+inline int TrigSignatureMoniMT::nBinsX() const { 
+  return m_allChains.size() +1;
+}
 
 #endif //> !TRIGSTEERMONITOR_TRIGSIGNATUREMONIMT_H

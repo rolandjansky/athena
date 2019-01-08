@@ -77,9 +77,6 @@ def update_pcommands(args, cdict):
 
    cdict['trigger']['precommand'].append('_run_number=%d' % args.run_number)
 
-   if not args.oh_monitoring:
-       cdict['trigger']['precommand'].append("include('TrigServices/OfflineTHistSvc.py')")
-
    if args.perfmon:
       cdict['trigger']['precommand'].insert(0, "include('TrigCommon/PerfMon.py')")
 
@@ -356,6 +353,10 @@ def main():
    # Tell the PSC if we are in interactive mode (relevant for state machine)
    import TrigPSC.PscConfig
    TrigPSC.PscConfig.interactive = args.interactive
+
+   # Select the correct THistSvc
+   from TrigServices.TriggerUnixStandardSetup import _Conf
+   _Conf.useOnlineTHistSvc = args.oh_monitoring
 
    # Run HLTMPPU
    from HLTMPPy.runner import runHLTMPPy

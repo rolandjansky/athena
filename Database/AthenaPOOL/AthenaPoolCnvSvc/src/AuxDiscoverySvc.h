@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AUXDISCOVERYSVC_H
@@ -42,7 +42,7 @@ public:
 
    SG::auxid_t getAuxID(const std::string& attrName, const std::string& elemName, const std::string& typeName);
 
-   const SG::auxid_set_t& getAuxIDs(const void* obj, const Guid& classId, const std::string& contId);
+   SG::auxid_set_t getAuxIDs(const void* obj, const Guid& classId, const std::string& contId);
 
    const void* getData(SG::auxid_t auxid);
 

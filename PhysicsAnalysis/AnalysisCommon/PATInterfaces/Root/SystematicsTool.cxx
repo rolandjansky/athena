@@ -1,5 +1,5 @@
 // $Id: SystematicsTool.cxx 768505 2016-08-17 18:13:04Z ssnyder $
-//        Copyright Iowa State University 2014.
+//        
 //                  Author: Nils Krumnack
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at

@@ -60,3 +60,16 @@ def getGeant4SetupCheckerTool(name="G4UA::Geant4SetupCheckerTool", **kwargs):
             kwargs.setdefault(prop,value)
     # Set up the user action
     return CfgMgr.G4UA__Geant4SetupCheckerTool(name, **kwargs)
+
+def getStepHistogramTool(name="G4UA::StepHistogramTool", **kwargs):
+    from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+    if concurrencyProps.ConcurrencyFlags.NumThreads() >1:
+        log=Logging.logging.getLogger(name)
+        log.fatal('Attempt to run '+name+' with more than one thread, which is not supported')
+        return False
+    from G4AtlasApps.SimFlags import simFlags
+    if name in simFlags.UserActionConfig.get_Value().keys():
+        for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
+            kwargs.setdefault(prop,value)
+    return CfgMgr.G4UA__StepHistogramTool(name, **kwargs)
+

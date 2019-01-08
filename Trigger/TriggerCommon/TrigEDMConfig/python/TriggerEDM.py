@@ -133,6 +133,11 @@ RemoveEgammaIsoVariables = ".-"+identifier.join(UnusedEgammaIsoVariables)
 #####################
 #####################
 
+# Add Dynamic Var
+identifierAdd = "."
+l2saVariableToAdd = ['mdtHitId','cscHitResolution']
+addL2saVars = "." + identifierAdd.join(l2saVariableToAdd)
+
 # temporary functionality to discover version of EDM
 ####################
     
@@ -286,7 +291,7 @@ TriggerHLTList = [
     #muons
     #L2 Muons
     ('xAOD::L2StandAloneMuonContainer#HLT_MuonL2SAInfo',                        'BS ESD AODFULL AODSLIM',                'Muon'),
-    ('xAOD::L2StandAloneMuonAuxContainer#HLT_MuonL2SAInfoAux.',                 'BS ESD AODFULL AODSLIM',                'Muon'),
+    ('xAOD::L2StandAloneMuonAuxContainer#HLT_MuonL2SAInfoAux' + addL2saVars,    'BS ESD AODFULL AODSLIM',                'Muon'),
     ('xAOD::L2CombinedMuonContainer#HLT_MuonL2CBInfo',                          'BS ESD AODFULL AODSLIM',                'Muon'), #fp
     ('xAOD::L2CombinedMuonAuxContainer#HLT_MuonL2CBInfoAux.',                   'BS ESD AODFULL AODSLIM',                'Muon'), #fp
     ('xAOD::L2IsoMuonContainer#HLT_MuonL2ISInfo',                               'BS ESD AODFULL',                'Muon'), #fp
@@ -294,7 +299,7 @@ TriggerHLTList = [
 
     #MuonEFInfo
     ('xAOD::MuonContainer#HLT_MuonEFInfo',                                         'BS ESD AODFULL AODSLIM AODVERYSLIM',                'Muon'),
-    ('xAOD::MuonAuxContainer#HLT_MuonEFInfoAux.',                                  'BS ESD AODFULL AODSLIM AODVERYSLIM',                'Muon'),
+    ('xAOD::MuonAuxContainer#HLT_MuonEFInfoAux'+RemoveMuonVariables,               'BS ESD AODFULL AODSLIM AODVERYSLIM',                'Muon'),
     ('xAOD::TrackParticleContainer#HLT_MuonEFInfo_CombTrackParticles',             'BS ESD AODFULL AODSLIM',                'Muon'),#fp
     ('xAOD::TrackParticleAuxContainer#HLT_MuonEFInfo_CombTrackParticlesAux'+RemoveIDVariables,   'BS ESD AODFULL AODSLIM','Muon'),#fp
     ('xAOD::TrackParticleContainer#HLT_MuonEFInfo_ExtrapTrackParticles',           'BS ESD AODFULL AODSLIM',                'Muon'),#fp
@@ -1674,7 +1679,7 @@ def getTriggerEDMSlimList(key):
     for k,v in _edmList.items():
         newnames = []
         for el in v:
-            if 'Aux' in el:
+            if 'Aux' in el and '.-' in el:
                 newnames+=[el.split('.')[0]+'.-']
             else:
                 newnames+=[el]

@@ -96,7 +96,7 @@ public:
     * The return value of this function depends on the parameters passed to
     * selectAux previously.
     */
-  virtual const SG::auxid_set_t& getSelectedAuxIDs() const {
+  virtual SG::auxid_set_t getSelectedAuxIDs() const {
      // default all are selected
      return getDynamicAuxIDs();
   }

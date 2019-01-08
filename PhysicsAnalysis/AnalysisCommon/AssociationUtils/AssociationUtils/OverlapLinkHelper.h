@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef ASSOCIATIONUTILS_OVERLAPLINKHELPER_H
 #define ASSOCIATIONUTILS_OVERLAPLINKHELPER_H
 

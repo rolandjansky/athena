@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -1694,7 +1694,7 @@ bool HLTJetMonTool::evtSelTriggersPassed() {
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double thrHLT, const std::string& theContainer ) {
+void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double thrHLT, const std::string& /*theContainer*/ ) {
   
 
   TH1 *h(0); 
@@ -2762,7 +2762,7 @@ bool HLTJetMonTool::isLeadingJet(const xAOD::Jet *jet, const xAOD::JetContainer 
   } 
 }
 
-TLorentzVector HLTJetMonTool::DeltaRMatching(const xAOD::Jet *jet, const std::string &ChainName, const std::string &ContainerName, const std::string& level, double thrHLT, float DRCut,bool& Pass){
+TLorentzVector HLTJetMonTool::DeltaRMatching(const xAOD::Jet *jet, const std::string &ChainName, const std::string &/*ContainerName*/, const std::string& level, double thrHLT, float DRCut,bool& Pass){
 
   double DRmin=99;
   double Ptmin=-99;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGVALTOOLS_TROOTCOMPARE_H
@@ -42,14 +42,14 @@ class TRootCompare : public TFileLooper {
   Bool_t setOutputFile(const char* filename);
   Bool_t setPsFile(const char* filename);
   void setAlg(TRootCompare::ALG alg, Double_t threshold) {
-    _alg = alg; _threshold = threshold;
+    m_alg = alg; m_threshold = threshold;
   }
-  void drawNormalized(Bool_t norm = kTRUE) { _drawNormalized = norm; }
-  void drawDiff(Bool_t diff = kTRUE) { _drawDiff = diff; }
+  void drawNormalized(Bool_t norm = kTRUE) { m_drawNormalized = norm; }
+  void drawDiff(Bool_t diff = kTRUE) { m_drawDiff = diff; }
   
-  Int_t matchingHist() const { return _histMatch; }
-  Int_t totalHist() const { return _histTotal; }
-  Int_t missingHist() const { return _histMissing; }
+  Int_t matchingHist() const { return m_histMatch; }
+  Int_t totalHist() const { return m_histTotal; }
+  Int_t missingHist() const { return m_histMissing; }
   
  private:
   Bool_t compareHist(TH1& h, TH1& href);
@@ -57,21 +57,21 @@ class TRootCompare : public TFileLooper {
   void printCanvas(const char* filename);
   
  private:
-  TFile* _refFile;
-  TFile* _outFile;
-  TString _refRootDir;
-  TString _psFile;
-  TCanvas* _can;
+  TFile* m_refFile;
+  TFile* m_outFile;
+  TString m_refRootDir;
+  TString m_psFile;
+  TCanvas* m_can;
   
-  ALG _alg;
-  Double_t _threshold;
-  Int_t _histMatch;
-  Int_t _histTotal;
-  Int_t _histMissing;
-  Bool_t _drawNormalized;
-  Bool_t _drawDiff;
+  ALG m_alg;
+  Double_t m_threshold;
+  Int_t m_histMatch;
+  Int_t m_histTotal;
+  Int_t m_histMissing;
+  Bool_t m_drawNormalized;
+  Bool_t m_drawDiff;
   
-  std::vector<std::string> _noMatch;
+  std::vector<std::string> m_noMatch;
  
 };
 

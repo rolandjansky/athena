@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -40,7 +40,7 @@ public:
       m_selected.erase (supid);
   }
 
-  virtual const SG::auxid_set_t& getSelectedAuxIDs() const
+  virtual SG::auxid_set_t getSelectedAuxIDs() const
   {
     if (m_suppressed.empty()) return getAuxIDs();
     return m_selected;

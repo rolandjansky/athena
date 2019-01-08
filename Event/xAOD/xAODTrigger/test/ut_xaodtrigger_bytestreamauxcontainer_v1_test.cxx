@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -124,6 +124,18 @@ void test1()
     assert (i2[10+i] == 0);
     assert (i3[10+i] == i+120);
   }
+
+  s1.lock();
+  
+  SG::auxid_t ityp5 = SG::AuxTypeRegistry::instance().getAuxID<int> ("anInt5");
+  int* i5 = reinterpret_cast<int*> (s1.getDecoration(ityp5, 15, 20));
+  assert (i5 != nullptr);
+  assert (!s1.isDecoration (ityp1));
+  assert ( s1.isDecoration (ityp5));
+
+  assert (s1.clearDecorations());
+  assert (!s1.isDecoration (ityp1));
+  assert (!s1.isDecoration (ityp5));
 }
 
 

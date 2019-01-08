@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ROOTAUXDYNSTORE_H
@@ -21,11 +21,11 @@ public:
   virtual ~RootAuxDynStore() {}
 
   /// implementation of the IAuxStore interface
-  virtual const void*                getData(SG::auxid_t auxid) const;
-  virtual void*                      getData(SG::auxid_t auxid, size_t size, size_t capacity);
+  virtual const void*                getData(SG::auxid_t auxid) const override;
+  virtual void*                      getData(SG::auxid_t auxid, size_t size, size_t capacity) override;
 
   ///  implementation of the IAuxStoreIO interface
-  virtual const void*                getIOData(SG::auxid_t auxid) const;
+  virtual const void*                getIOData(SG::auxid_t auxid) const override;
 
 
   /**
@@ -36,7 +36,14 @@ public:
    * @param capacity The current capacity of the container (in case
    *                 the data item does not already exist).
    */
-  void* getDecoration (SG::auxid_t auxid, size_t size, size_t capacity);
+  virtual void* getDecoration (SG::auxid_t auxid, size_t size, size_t capacity) override;
+
+
+  /**
+   * @brief Test if a particular variable is tagged as a decoration.
+   * @param auxid The identifier of the desired aux data item.
+   */
+  virtual bool isDecoration (SG::auxid_t auxid) const override;
 
      
 protected:

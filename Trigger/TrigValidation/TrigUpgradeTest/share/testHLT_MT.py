@@ -442,9 +442,13 @@ if opt.doL1Sim:
     topSequence += l1Sim
 
 if opt.doL1Unpacking:
-    if globalflags.InputFormat.is_bytestream() or opt.doL1Sim:
+    if globalflags.InputFormat.is_bytestream():
+        from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import RoIBResultByteStreamDecoderAlg
         from TrigUpgradeTest.TestUtils import L1DecoderTest
-    #topSequence += L1DecoderTest(OutputLevel = opt.HLTOutputLevel)
+        topSequence += RoIBResultByteStreamDecoderAlg() # creates RoIBResult (input for L1Decoder) from ByteStream
+        topSequence += L1DecoderTest(OutputLevel = DEBUG)
+    elif opt.doL1Sim:
+        from TrigUpgradeTest.TestUtils import L1DecoderTest
         topSequence += L1DecoderTest(OutputLevel = DEBUG)
     else:
         from TrigUpgradeTest.TestUtils import L1EmulationTest

@@ -314,6 +314,35 @@ int main() {
 
    std::cout << "Copy link-by-link OK" << std::endl;
 
+   // Test single typeless add
+   obj->typelessSetObjectLink( "typeless1", 123, ClassID_traits< xAOD::MuonRoIContainer >::ID(), 11, 12 );
+   ElementLink< xAOD::MuonRoIContainer > getMuonRoILink = obj->objectLink<xAOD::MuonRoIContainer>("typeless1");
+   SIMPLE_ASSERT(getMuonRoILink == ElementLink<xAOD::MuonRoIContainer>( 123, 11 ));
+
+   // Test single typeless overwrite
+   obj->typelessSetObjectLink( "typeless1", 123, ClassID_traits< xAOD::MuonRoIContainer >::ID(), 12, 13 );
+   getMuonRoILink = obj->objectLink<xAOD::MuonRoIContainer>("typeless1");
+   SIMPLE_ASSERT(getMuonRoILink != ElementLink<xAOD::MuonRoIContainer>( 123, 11 ));
+   SIMPLE_ASSERT(getMuonRoILink == ElementLink<xAOD::MuonRoIContainer>( 123, 12 ));
+
+   // Test typeless collection add
+   obj->typelessSetObjectLink( "typeless2", 123, ClassID_traits< xAOD::MuonRoIContainer >::ID(), 12, 15 );
+   ElementLinkVector<xAOD::MuonRoIContainer> getMuonRoILinks = obj->objectCollectionLinks<xAOD::MuonRoIContainer>("typeless2");
+   ElementLinkVector<xAOD::MuonRoIContainer> elementLinks;
+   elementLinks.push_back( ElementLink<xAOD::MuonRoIContainer>( 123, 12 ) );
+   elementLinks.push_back( ElementLink<xAOD::MuonRoIContainer>( 123, 13 ) );
+   elementLinks.push_back( ElementLink<xAOD::MuonRoIContainer>( 123, 14 ) );
+   SIMPLE_ASSERT(getMuonRoILinks == elementLinks);
+
+   // Test typeless collection overwrite
+   obj->typelessSetObjectLink( "typeless2", 123, ClassID_traits< xAOD::MuonRoIContainer >::ID(), 5, 7 );
+   getMuonRoILinks = obj->objectCollectionLinks<xAOD::MuonRoIContainer>("typeless2");
+   SIMPLE_ASSERT(getMuonRoILinks != elementLinks);
+   elementLinks.clear();
+   elementLinks.push_back( ElementLink<xAOD::MuonRoIContainer>( 123, 5 ) );
+   elementLinks.push_back( ElementLink<xAOD::MuonRoIContainer>( 123, 6 ) );
+   SIMPLE_ASSERT(getMuonRoILinks == elementLinks);
+
    // Apparently everything went well:
    std::cout << "All tests successful." << std::endl;
 

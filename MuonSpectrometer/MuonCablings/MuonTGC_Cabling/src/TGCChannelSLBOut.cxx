@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTGC_Cabling/TGCChannelSLBOut.h"
@@ -56,29 +56,29 @@ bool TGCChannelSLBOut::isValid(void) const
 }
 
 
-const int TGCChannelSLBOut::numberOfBlockInWD   = 2;
-const int TGCChannelSLBOut::numberOfBlockInSD   = 2;
-const int TGCChannelSLBOut::numberOfBlockInWT   = 3;
-const int TGCChannelSLBOut::numberOfBlockInST   = 8;
-const int TGCChannelSLBOut::numberOfLayerInWD   = 2;
-const int TGCChannelSLBOut::numberOfLayerInSD   = 2;
-const int TGCChannelSLBOut::numberOfLayerInWT   = 3;
-const int TGCChannelSLBOut::numberOfLayerInST   = 2;
-const int TGCChannelSLBOut::channelInBlockForWD = 32;
-const int TGCChannelSLBOut::channelInBlockForSD = 32;
-const int TGCChannelSLBOut::channelInBlockForWT = 32;
-const int TGCChannelSLBOut::channelInBlockForST = 16;
+const int TGCChannelSLBOut::s_numberOfBlockInWD   = 2;
+const int TGCChannelSLBOut::s_numberOfBlockInSD   = 2;
+const int TGCChannelSLBOut::s_numberOfBlockInWT   = 3;
+const int TGCChannelSLBOut::s_numberOfBlockInST   = 8;
+const int TGCChannelSLBOut::s_numberOfLayerInWD   = 2;
+const int TGCChannelSLBOut::s_numberOfLayerInSD   = 2;
+const int TGCChannelSLBOut::s_numberOfLayerInWT   = 3;
+const int TGCChannelSLBOut::s_numberOfLayerInST   = 2;
+const int TGCChannelSLBOut::s_channelInBlockForWD = 32;
+const int TGCChannelSLBOut::s_channelInBlockForSD = 32;
+const int TGCChannelSLBOut::s_channelInBlockForWT = 32;
+const int TGCChannelSLBOut::s_channelInBlockForST = 16;
 
 int TGCChannelSLBOut::getNumberOfBlock(TGCIdBase::ModuleType moduleType) {
   switch(moduleType){
   case TGCIdBase::WD:
-    return numberOfBlockInWD;
+    return s_numberOfBlockInWD;
   case TGCIdBase::SD:
-    return numberOfBlockInSD;
+    return s_numberOfBlockInSD;
   case TGCIdBase::WT:
-    return numberOfBlockInWT;
+    return s_numberOfBlockInWT;
   case TGCIdBase::ST:
-    return numberOfBlockInST;
+    return s_numberOfBlockInST;
   default:
     break;
   }
@@ -88,13 +88,13 @@ int TGCChannelSLBOut::getNumberOfBlock(TGCIdBase::ModuleType moduleType) {
 int TGCChannelSLBOut::getNumberOfLayer(TGCIdBase::ModuleType moduleType) {
   switch(moduleType){
   case TGCIdBase::WD:
-    return numberOfLayerInWD;
+    return s_numberOfLayerInWD;
   case TGCIdBase::SD:
-    return numberOfLayerInSD;
+    return s_numberOfLayerInSD;
   case TGCIdBase::WT:
-    return numberOfLayerInWT;
+    return s_numberOfLayerInWT;
   case TGCIdBase::ST:
-    return numberOfLayerInST;
+    return s_numberOfLayerInST;
   default:
     break;
   }
@@ -104,13 +104,13 @@ int TGCChannelSLBOut::getNumberOfLayer(TGCIdBase::ModuleType moduleType) {
 int TGCChannelSLBOut::getChannelInBlock(TGCIdBase::ModuleType moduleType) {
   switch(moduleType){
   case TGCIdBase::WD:
-    return channelInBlockForWD;
+    return s_channelInBlockForWD;
   case TGCIdBase::SD:
-    return channelInBlockForSD;
+    return s_channelInBlockForSD;
   case TGCIdBase::WT:
-    return channelInBlockForWT;
+    return s_channelInBlockForWT;
   case TGCIdBase::ST:
-    return channelInBlockForST;
+    return s_channelInBlockForST;
   default:
     break;
   }

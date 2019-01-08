@@ -3,7 +3,7 @@
 #  
 #
 #  Created by Alvin on 01/09/2009.
-#  Copyright (c) 2009 University of Birmingham. All rights reserved.
+#  
 #
 import re
 

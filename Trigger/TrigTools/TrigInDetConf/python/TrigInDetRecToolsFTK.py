@@ -180,3 +180,8 @@ TrigFTK_VertexCollectionSortingTool = Trk__VertexCollectionSortingTool(name     
 ToolSvc += TrigFTK_VertexCollectionSortingTool
 if (InDetTrigFlags.doPrintConfigurables()):
   print TrigFTK_VertexCollectionSortingTool
+
+from FTK_RecTools.FTK_RecToolsConf import FTK_HashIDTool
+TrigFTK_HashIDTool = FTK_HashIDTool("TrigFTK_HashIDTool")
+ToolSvc+=TrigFTK_HashIDTool
+

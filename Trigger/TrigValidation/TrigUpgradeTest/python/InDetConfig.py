@@ -4,8 +4,205 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
+#Set up ID GeoModel
+def InDetGMConfig( flags ):
+  acc = ComponentAccumulator()
+  from AtlasGeoModel.GeoModelConfig import GeoModelCfg
+  gmc,geoModelSvc = GeoModelCfg( flags )
+  acc.merge( gmc )
+
+  from GeometryDBSvc.GeometryDBSvcConf import GeometryDBSvc
+  acc.addService(GeometryDBSvc("InDetGeometryDBSvc"))
+
+  from AthenaCommon import CfgGetter
+  geoModelSvc.DetectorTools += [ CfgGetter.getPrivateTool("PixelDetectorTool", checkType=True) ]
+
+#  if (DetFlags.detdescr.BCM_on() ) :
+  from AthenaCommon.AppMgr import ToolSvc
+  from BCM_GeoModel.BCM_GeoModelConf import InDetDD__BCM_Builder
+  bcmTool = InDetDD__BCM_Builder()
+  ToolSvc += bcmTool
+  geoModelSvc.DetectorTools['PixelDetectorTool'].BCM_Tool = bcmTool
+
+  from BLM_GeoModel.BLM_GeoModelConf import InDetDD__BLM_Builder
+  blmTool = InDetDD__BLM_Builder()
+  ToolSvc += blmTool
+  geoModelSvc.DetectorTools['PixelDetectorTool'].BLM_Tool = blmTool
+
+  geoModelSvc.DetectorTools['PixelDetectorTool'].useDynamicAlignFolders = True #InDetGeometryFlags.useDynamicAlignFolders()
+
+#if ( DetFlags.detdescr.SCT_on() ):
+  # Current atlas specific code
+  from AthenaCommon import CfgGetter
+  geoModelSvc.DetectorTools += [ CfgGetter.getPrivateTool("SCT_DetectorTool", checkType=True) ]
+
+  geoModelSvc.DetectorTools['SCT_DetectorTool'].useDynamicAlignFolders = True #InDetGeometryFlags.useDynamicAlignFolders()
+
+#    if ( DetFlags.detdescr.TRT_on() ):
+  from TRT_GeoModel.TRT_GeoModelConf import TRT_DetectorTool
+  trtDetectorTool = TRT_DetectorTool()
+#  if ( DetFlags.simulate.TRT_on() ):
+#      trtDetectorTool.DoXenonArgonMixture = True
+#      trtDetectorTool.DoKryptonMixture = True
+  trtDetectorTool.useDynamicAlignFolders = True #InDetGeometryFlags.useDynamicAlignFolders()
+  geoModelSvc.DetectorTools += [ trtDetectorTool ]
+  acc.addService(geoModelSvc)
+  return acc
+
+#Set up conditions algorithms
+def TrigInDetCondConfig( flags ):
+
+  acc = ComponentAccumulator()
+  acc.merge(InDetGMConfig(flags))
+  from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
+  acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/AlignL1/ID","/Indet/AlignL1/ID",className="CondAttrListCollection"))
+  acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/AlignL2/PIX","/Indet/AlignL2/PIX",className="CondAttrListCollection"))
+  acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/AlignL2/SCT","/Indet/AlignL2/SCT",className="CondAttrListCollection"))
+  acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/AlignL3","/Indet/AlignL3",className="AlignableTransformContainer"))
+
+  from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
+  from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_DCSConditionsTool
+  dcsTool = SCT_DCSConditionsTool(ReadAllDBFolders = True, ReturnHVTemp = True)
+
+  from SCT_ConditionsTools.SCT_SiliconConditionsToolSetup import SCT_SiliconConditionsToolSetup
+  sct_SiliconConditionsToolSetup = SCT_SiliconConditionsToolSetup()
+  sct_SiliconConditionsToolSetup.setDcsTool(dcsTool)
+  sct_SiliconConditionsToolSetup.setToolName("InDetSCT_SiliconConditionsTool")
+  sct_SiliconConditionsToolSetup.setup()
+
+  sctSiliconConditionsTool = sct_SiliconConditionsToolSetup.getTool()
+  sctSiliconConditionsTool.CheckGeoModel = False
+  sctSiliconConditionsTool.ForceUseGeoModel = False
+
+
+  from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_AlignCondAlg
+  acc.addCondAlgo(SCT_AlignCondAlg(UseDynamicAlignFolders =  True))
+
+  from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DetectorElementCondAlg
+  acc.addCondAlgo(SCT_DetectorElementCondAlg(name = "SCT_DetectorElementCondAlg"))
+  from SCT_Cabling.SCT_CablingConfig import SCT_CablingCondAlgCfg
+  acc.merge(SCT_CablingCondAlgCfg(flags))
+  from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConfigurationConditionsTool
+  acc.addPublicTool(SCT_ConfigurationConditionsTool())
+  channelFolder = "/SCT/DAQ/Config/Chip"
+  moduleFolder = "/SCT/DAQ/Config/Module"
+  murFolder = "/SCT/DAQ/Config/MUR"
+  from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ConfigurationCondAlg
+  acc.addCondAlgo(SCT_ConfigurationCondAlg(ReadKeyChannel = channelFolder,
+                                           ReadKeyModule = moduleFolder,
+                                           ReadKeyMur = murFolder))
+  acc.merge(addFolders(flags, [channelFolder, moduleFolder, murFolder], "SCT", className="CondAttrListVec"))
+  # Set up SCTSiLorentzAngleCondAlg
+  from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConfigurationConditionsTool
+  stateFolder = "/SCT/DCS/CHANSTAT"
+  hvFolder = "/SCT/DCS/HV"
+  tempFolder = "/SCT/DCS/MODTEMP"
+  dbInstance = "DCS_OFL"
+  acc.merge(addFolders(flags, [stateFolder, hvFolder, tempFolder], dbInstance, className="CondAttrListCollection"))
+
+  from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DCSConditionsTempCondAlg
+  acc.addCondAlgo(SCT_DCSConditionsTempCondAlg( ReadKey = tempFolder ))
+  from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DCSConditionsStatCondAlg
+  acc.addCondAlgo(SCT_DCSConditionsStatCondAlg(ReturnHVTemp = True,
+                                               ReadKeyHV = hvFolder,
+                                               ReadKeyState = stateFolder))
+  from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DCSConditionsHVCondAlg
+  acc.addCondAlgo(SCT_DCSConditionsHVCondAlg(ReadKey = hvFolder))
+
+  from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_SiliconHVCondAlg
+  acc.addCondAlgo(SCT_SiliconHVCondAlg(UseState = dcsTool.ReadAllDBFolders,
+                       DCSConditionsTool = dcsTool))
+  from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_SiliconTempCondAlg
+  acc.addCondAlgo(SCT_SiliconTempCondAlg(UseState = dcsTool.ReadAllDBFolders, DCSConditionsTool = dcsTool))
+
+
+  from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SCTSiLorentzAngleCondAlg
+  acc.addCondAlgo(SCTSiLorentzAngleCondAlg(name = "SCTSiLorentzAngleCondAlg",
+                                      SiConditionsTool = sctSiliconConditionsTool,
+                                      UseMagFieldSvc = True,
+                                      UseMagFieldDcs = False))
+  from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleTool
+  SCTLorentzAngleTool = SiLorentzAngleTool(name = "SCTLorentzAngleTool", DetectorName="SCT", SiLorentzAngleCondData="SCTSiLorentzAngleCondData")
+  SCTLorentzAngleTool.UseMagFieldSvc = True #may need also MagFieldSvc instance
+  acc.addPublicTool(SCTLorentzAngleTool)
+
+
+  acc.merge(addFoldersSplitOnline(flags, "INDET", "/Indet/Onl/Beampos", "/Indet/Beampos", className="AthenaAttributeList"))
+  acc.merge(addFolders(flags, "/TRT/Onl/ROD/Compress","TRT_ONL", className='CondAttrListCollection'))
+  acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Calib/RT","/TRT/Calib/RT",className="TRTCond::RtRelationMultChanContainer"))
+  acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Calib/T0","/TRT/Calib/T0",className="TRTCond::StrawT0MultChanContainer"))
+  acc.merge(addFoldersSplitOnline (flags, "TRT","/TRT/Onl/Calib/errors","/TRT/Calib/errors",className="TRTCond::RtRelationMultChanContainer"))
+  acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Calib/ToTCalib","/TRT/Calib/ToTCalib",className="CondAttrListCollection"))
+  acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Calib/HTCalib","/TRT/Calib/HTCalib",className="CondAttrListCollection"))
+
+
+  from AthenaCommon.CfgGetter import getService
+  PixelCablingSvc = getService("PixelCablingSvc")
+  acc.addService(PixelCablingSvc)
+
+  PixelTDAQFolder   = "/TDAQ/Resources/ATLAS/PIXEL/Modules"
+  PixelTDAQInstance = "TDAQ_ONL"
+  acc.merge(addFolders(flags, PixelTDAQFolder, PixelTDAQInstance, className="CondAttrListCollection"))
+
+  from PixelConditionsTools.PixelConditionsToolsConf import PixelDCSConditionsTool
+  TrigPixelDCSConditionsTool = PixelDCSConditionsTool(name="PixelDCSConditionsTool", UseConditions=True, IsDATA=True)
+  acc.addPublicTool(TrigPixelDCSConditionsTool)
+
+  PixelHVFolder = "/PIXEL/DCS/HV"
+  PixelTempFolder = "/PIXEL/DCS/TEMPERATURE"
+  PixelDBInstance = "DCS_OFL"
+
+  acc.merge(addFolders(flags, PixelHVFolder, PixelDBInstance, className="CondAttrListCollection"))
+  acc.merge(addFolders(flags, PixelTempFolder, PixelDBInstance, className="CondAttrListCollection"))
+
+  from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondHVAlg
+  acc.addCondAlgo(PixelDCSCondHVAlg(name="PixelDCSCondHVAlg", ReadKey=PixelHVFolder))
+
+  from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondTempAlg
+  acc.addCondAlgo(PixelDCSCondTempAlg(name="PixelDCSCondTempAlg", ReadKey=PixelTempFolder))
+
+
+  from PixelConditionsTools.PixelConditionsToolsConf import PixelDCSConditionsTool
+  TrigPixelDCSConditionsTool = PixelDCSConditionsTool(name="PixelDCSConditionsTool", UseConditions=True, IsDATA=True)
+
+  acc.addPublicTool(TrigPixelDCSConditionsTool)
+
+  from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelTDAQCondAlg
+  acc.addCondAlgo(PixelTDAQCondAlg(name="PixelTDAQCondAlg", ReadKey=PixelTDAQFolder))
+
+  from SiPropertiesSvc.SiPropertiesSvcConf import PixelSiPropertiesCondAlg
+  acc.addCondAlgo(PixelSiPropertiesCondAlg(name="PixelSiPropertiesCondAlg", PixelDCSConditionsTool=TrigPixelDCSConditionsTool))
+
+  from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesTool
+  TrigSiPropertiesTool = SiPropertiesTool(name="PixelSiPropertiesTool", DetectorName="Pixel", ReadKey="PixelSiliconPropertiesVector")
+
+  acc.addPublicTool(TrigSiPropertiesTool)
+
+  from SiLorentzAngleSvc.SiLorentzAngleSvcConf import PixelSiLorentzAngleCondAlg
+  acc.addCondAlgo(PixelSiLorentzAngleCondAlg(name="PixelSiLorentzAngleCondAlg",
+                                          PixelDCSConditionsTool=TrigPixelDCSConditionsTool,
+                                          SiPropertiesTool=TrigSiPropertiesTool,
+                                          UseMagFieldSvc = True,
+                                          UseMagFieldDcs = False))
+
+  from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleTool
+  TrigPixelLorentzAngleTool = SiLorentzAngleTool(name = "PixelLorentzAngleTool", DetectorName="Pixel", SiLorentzAngleCondData="PixelSiLorentzAngleCondData")
+
+  acc.addPublicTool(TrigPixelLorentzAngleTool)
+
+  from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
+  acc.addCondAlgo(BeamSpotCondAlg( "BeamSpotCondAlg" ))
+
+
+  from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+  mfsc, mag_field_svc = MagneticFieldSvcCfg(flags)
+  acc.merge( mfsc )
+  acc.addService(mag_field_svc)
+  return acc
+
 def TrigInDetConfig( flags ):
   acc = ComponentAccumulator()
+  acc.merge(TrigInDetCondConfig(flags))
 
   from InDetRecExample.InDetKeys import InDetKeys
   #Create IdentifiableCaches
@@ -19,10 +216,6 @@ def TrigInDetConfig( flags ):
                                        PixRDOCacheKey = "PixRDOCache",)
 
   acc.addEventAlgo(InDetCacheCreatorTrigViews)
-
-  from AthenaCommon.CfgGetter import getService
-  PixelCablingSvc = getService("PixelCablingSvc")
-  acc.addService(PixelCablingSvc)
 
   #Only add raw data decoders if we're running over raw data
   isMC = flags.Input.isMC
@@ -50,139 +243,6 @@ def TrigInDetConfig( flags ):
     InDetPixelRawDataProvider.RDOCacheKey = InDetCacheCreatorTrigViews.PixRDOCacheKey
     acc.addEventAlgo(InDetPixelRawDataProvider)
 
-    from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
-    acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/AlignL1/ID","/Indet/AlignL1/ID",className="CondAttrListCollection"))
-    acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/AlignL2/PIX","/Indet/AlignL2/PIX",className="CondAttrListCollection"))
-    acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/AlignL2/SCT","/Indet/AlignL2/SCT",className="CondAttrListCollection"))
-    acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/AlignL3","/Indet/AlignL3",className="AlignableTransformContainer"))
-
-    from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
-    from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_DCSConditionsTool
-    dcsTool = SCT_DCSConditionsTool(ReadAllDBFolders = True, ReturnHVTemp = True)
-
-    from SCT_ConditionsTools.SCT_SiliconConditionsToolSetup import SCT_SiliconConditionsToolSetup
-    sct_SiliconConditionsToolSetup = SCT_SiliconConditionsToolSetup()
-    sct_SiliconConditionsToolSetup.setDcsTool(dcsTool)
-    sct_SiliconConditionsToolSetup.setToolName("InDetSCT_SiliconConditionsTool")
-    sct_SiliconConditionsToolSetup.setup()
-
-    sctSiliconConditionsTool = sct_SiliconConditionsToolSetup.getTool()
-    sctSiliconConditionsTool.CheckGeoModel = False
-    sctSiliconConditionsTool.ForceUseGeoModel = False
-
-
-    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_AlignCondAlg
-    acc.addCondAlgo(SCT_AlignCondAlg(UseDynamicAlignFolders =  True))
-
-    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DetectorElementCondAlg
-    acc.addCondAlgo(SCT_DetectorElementCondAlg(name = "SCT_DetectorElementCondAlg"))
-    from SCT_Cabling.SCT_CablingConfig import SCT_CablingCondAlgCfg
-    acc.merge(SCT_CablingCondAlgCfg(flags))
-    from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConfigurationConditionsTool
-    acc.addPublicTool(SCT_ConfigurationConditionsTool())
-    channelFolder = "/SCT/DAQ/Config/Chip"
-    moduleFolder = "/SCT/DAQ/Config/Module"
-    murFolder = "/SCT/DAQ/Config/MUR"
-    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ConfigurationCondAlg
-    acc.addCondAlgo(SCT_ConfigurationCondAlg(ReadKeyChannel = channelFolder,
-                                             ReadKeyModule = moduleFolder,
-                                             ReadKeyMur = murFolder))
-    acc.merge(addFolders(flags, [channelFolder, moduleFolder, murFolder], "SCT", className="CondAttrListVec"))
-    # Set up SCTSiLorentzAngleCondAlg
-    from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConfigurationConditionsTool
-    stateFolder = "/SCT/DCS/CHANSTAT"
-    hvFolder = "/SCT/DCS/HV"
-    tempFolder = "/SCT/DCS/MODTEMP"
-    dbInstance = "DCS_OFL"
-    acc.merge(addFolders(flags, [stateFolder, hvFolder, tempFolder], dbInstance, className="CondAttrListCollection"))
-
-    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DCSConditionsTempCondAlg
-    acc.addCondAlgo(SCT_DCSConditionsTempCondAlg( ReadKey = tempFolder ))
-    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DCSConditionsStatCondAlg
-    acc.addCondAlgo(SCT_DCSConditionsStatCondAlg(ReturnHVTemp = True,
-                                                 ReadKeyHV = hvFolder,
-                                                 ReadKeyState = stateFolder))
-    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DCSConditionsHVCondAlg
-    acc.addCondAlgo(SCT_DCSConditionsHVCondAlg(ReadKey = hvFolder))
-
-    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_SiliconHVCondAlg
-    acc.addCondAlgo(SCT_SiliconHVCondAlg(UseState = dcsTool.ReadAllDBFolders,
-                         DCSConditionsTool = dcsTool))
-    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_SiliconTempCondAlg
-    acc.addCondAlgo(SCT_SiliconTempCondAlg(UseState = dcsTool.ReadAllDBFolders, DCSConditionsTool = dcsTool))
-
-
-    from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SCTSiLorentzAngleCondAlg
-    acc.addCondAlgo(SCTSiLorentzAngleCondAlg(name = "SCTSiLorentzAngleCondAlg",
-                                        SiConditionsTool = sctSiliconConditionsTool,
-                                        UseMagFieldSvc = True,
-                                        UseMagFieldDcs = False))
-    from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleTool
-    SCTLorentzAngleTool = SiLorentzAngleTool(name = "SCTLorentzAngleTool", DetectorName="SCT", SiLorentzAngleCondData="SCTSiLorentzAngleCondData")
-    SCTLorentzAngleTool.UseMagFieldSvc = True #may need also MagFieldSvc instance
-    acc.addPublicTool(SCTLorentzAngleTool)
-
-
-    acc.merge(addFoldersSplitOnline(flags, "INDET", "/Indet/Onl/Beampos", "/Indet/Beampos", className="AthenaAttributeList"))
-    acc.merge(addFolders(flags, "/TRT/Onl/ROD/Compress","TRT_ONL", className='CondAttrListCollection'))
-    acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Calib/RT","/TRT/Calib/RT",className="TRTCond::RtRelationMultChanContainer"))
-    acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Calib/T0","/TRT/Calib/T0",className="TRTCond::StrawT0MultChanContainer"))
-    acc.merge(addFoldersSplitOnline (flags, "TRT","/TRT/Onl/Calib/errors","/TRT/Calib/errors",className="TRTCond::RtRelationMultChanContainer"))
-    acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Calib/ToTCalib","/TRT/Calib/ToTCalib",className="CondAttrListCollection"))
-    acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Calib/HTCalib","/TRT/Calib/HTCalib",className="CondAttrListCollection"))
-
-    PixelTDAQFolder   = "/TDAQ/Resources/ATLAS/PIXEL/Modules"
-    PixelTDAQInstance = "TDAQ_ONL"
-    acc.merge(addFolders(flags, PixelTDAQFolder, PixelTDAQInstance, className="CondAttrListCollection"))
-
-    from PixelConditionsTools.PixelConditionsToolsConf import PixelDCSConditionsTool
-    TrigPixelDCSConditionsTool = PixelDCSConditionsTool(name="PixelDCSConditionsTool", UseConditions=True, IsDATA=True)
-    acc.addPublicTool(TrigPixelDCSConditionsTool)
-
-    PixelHVFolder = "/PIXEL/DCS/HV"
-    PixelTempFolder = "/PIXEL/DCS/TEMPERATURE"
-    PixelDBInstance = "DCS_OFL"
-
-    acc.merge(addFolders(flags, PixelHVFolder, PixelDBInstance, className="CondAttrListCollection"))
-    acc.merge(addFolders(flags, PixelTempFolder, PixelDBInstance, className="CondAttrListCollection"))
-
-    from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondHVAlg
-    acc.addCondAlgo(PixelDCSCondHVAlg(name="PixelDCSCondHVAlg", ReadKey=PixelHVFolder))
-
-    from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondTempAlg
-    acc.addCondAlgo(PixelDCSCondTempAlg(name="PixelDCSCondTempAlg", ReadKey=PixelTempFolder))
-
-
-    from PixelConditionsTools.PixelConditionsToolsConf import PixelDCSConditionsTool
-    TrigPixelDCSConditionsTool = PixelDCSConditionsTool(name="PixelDCSConditionsTool", UseConditions=True, IsDATA=True)
-
-    acc.addPublicTool(TrigPixelDCSConditionsTool)
-
-    from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelTDAQCondAlg
-    acc.addCondAlgo(PixelTDAQCondAlg(name="PixelTDAQCondAlg", ReadKey=PixelTDAQFolder))
-
-    from SiPropertiesSvc.SiPropertiesSvcConf import PixelSiPropertiesCondAlg
-    acc.addCondAlgo(PixelSiPropertiesCondAlg(name="PixelSiPropertiesCondAlg", PixelDCSConditionsTool=TrigPixelDCSConditionsTool))
-
-    from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesTool
-    TrigSiPropertiesTool = SiPropertiesTool(name="PixelSiPropertiesTool", DetectorName="Pixel", ReadKey="PixelSiliconPropertiesVector")
-
-    acc.addPublicTool(TrigSiPropertiesTool)
-
-    from SiLorentzAngleSvc.SiLorentzAngleSvcConf import PixelSiLorentzAngleCondAlg
-    acc.addCondAlgo(PixelSiLorentzAngleCondAlg(name="PixelSiLorentzAngleCondAlg",
-                                            PixelDCSConditionsTool=TrigPixelDCSConditionsTool,
-                                            SiPropertiesTool=TrigSiPropertiesTool,
-                                            UseMagFieldSvc = True,
-                                            UseMagFieldDcs = False))
-
-    from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleTool
-    TrigPixelLorentzAngleTool = SiLorentzAngleTool(name = "PixelLorentzAngleTool", DetectorName="Pixel", SiLorentzAngleCondData="PixelSiLorentzAngleCondData")
-
-    acc.addPublicTool(TrigPixelLorentzAngleTool)
-
-    from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
-    acc.addCondAlgo(BeamSpotCondAlg( "BeamSpotCondAlg" ))
 
 
 
@@ -250,8 +310,6 @@ def TrigInDetConfig( flags ):
 
   from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
   InDetClusterMakerTool = InDet__ClusterMakerTool(name                 = "InDetClusterMakerTool",
-      PixelCalibSvc        = None,
-      PixelOfflineCalibSvc = None,
       UsePixelCalibCondDB  = False)
 
   acc.addPublicTool(InDetClusterMakerTool)
@@ -372,51 +430,6 @@ def TrigInDetConfig( flags ):
   #theTrackParticleCreatorAlg.roiCollectionName = "EMRoIs"
   #acc.addEventAlgo(theTrackParticleCreatorAlg)
 
-  from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-  gmc,geoModelSvc = GeoModelCfg( ConfigFlags )
-  acc.merge( gmc )
-
-  from GeometryDBSvc.GeometryDBSvcConf import GeometryDBSvc
-  acc.addService(GeometryDBSvc("InDetGeometryDBSvc"))
-
-  from AthenaCommon import CfgGetter
-  geoModelSvc.DetectorTools += [ CfgGetter.getPrivateTool("PixelDetectorTool", checkType=True) ]
-
-#  if (DetFlags.detdescr.BCM_on() ) :
-  from AthenaCommon.AppMgr import ToolSvc
-  from BCM_GeoModel.BCM_GeoModelConf import InDetDD__BCM_Builder
-  bcmTool = InDetDD__BCM_Builder()
-  ToolSvc += bcmTool
-  geoModelSvc.DetectorTools['PixelDetectorTool'].BCM_Tool = bcmTool
-
-  from BLM_GeoModel.BLM_GeoModelConf import InDetDD__BLM_Builder
-  blmTool = InDetDD__BLM_Builder()
-  ToolSvc += blmTool
-  geoModelSvc.DetectorTools['PixelDetectorTool'].BLM_Tool = blmTool
-
-  geoModelSvc.DetectorTools['PixelDetectorTool'].useDynamicAlignFolders = True #InDetGeometryFlags.useDynamicAlignFolders()
-
-#if ( DetFlags.detdescr.SCT_on() ):
-  # Current atlas specific code
-  from AthenaCommon import CfgGetter
-  geoModelSvc.DetectorTools += [ CfgGetter.getPrivateTool("SCT_DetectorTool", checkType=True) ]
-
-  geoModelSvc.DetectorTools['SCT_DetectorTool'].useDynamicAlignFolders = True #InDetGeometryFlags.useDynamicAlignFolders()
-
-#    if ( DetFlags.detdescr.TRT_on() ):
-  from TRT_GeoModel.TRT_GeoModelConf import TRT_DetectorTool
-  trtDetectorTool = TRT_DetectorTool()
-  if ( DetFlags.simulate.TRT_on() ):
-      trtDetectorTool.DoXenonArgonMixture = True
-      trtDetectorTool.DoKryptonMixture = True
-  trtDetectorTool.useDynamicAlignFolders = True #InDetGeometryFlags.useDynamicAlignFolders()
-  geoModelSvc.DetectorTools += [ trtDetectorTool ]
-  acc.addService(geoModelSvc)
-
-  from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-  mfsc, mag_field_svc = MagneticFieldSvcCfg(flags)
-  acc.merge( mfsc )
-  acc.addService(mag_field_svc)
 
 
   return acc

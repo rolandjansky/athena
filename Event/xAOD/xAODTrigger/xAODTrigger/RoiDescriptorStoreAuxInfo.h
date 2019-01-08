@@ -1,8 +1,10 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    IRoiDecsriptorStorageAuxInfo.h        
 //
-//   Copyright (C) 2015 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: RoiDescriptorStoreAuxInfo.h v0.0  Wed 11 Nov 2015 14:36:15 CET sutt $ 
 

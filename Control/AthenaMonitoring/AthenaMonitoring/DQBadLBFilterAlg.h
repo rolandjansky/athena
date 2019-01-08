@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DQBadLBFILTERALG_H
@@ -30,9 +30,7 @@ class DQBadLBFilterAlg :  public AthAlgorithm  {
   virtual StatusCode execute() override;
 
  private:
-  bool m_fallbackValue;
   bool m_ignoreRecoverable;
-  bool m_alwaysReturnTrue;
   std::vector<int> m_listofdefects;
   std::vector<std::string> m_listofdefects_str;
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKey;

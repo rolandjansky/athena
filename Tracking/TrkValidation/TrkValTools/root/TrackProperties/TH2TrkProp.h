@@ -1,9 +1,11 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 // $:$Id: TH2TrkProp.h, v 1.0  04/17/2006 17:07:07 
 // Author: Miguel Angel Olivo Gomez   04/17/06
 
 /*************************************************************************
  *                                                                       *
- * Copyright (C) 2006                                    .               *
  * All rights reserved.                                                  *
  *                                                                       *
  *************************************************************************/

@@ -42,16 +42,18 @@ from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT_newJO import generateMenu
 from TriggerJobOpts.TriggerConfig import triggerRunCfg
 acc.merge( triggerRunCfg( flags, generateMenu ) )
 
-# TODO take care of merging RegSel, and remove it from here
 from RegionSelector.RegSelConfig import RegSelConfig
 rsc, regSel = RegSelConfig( flags )
 regSel.enableCalo=True
-regSel.enableID=False
-regSel.enablePixel = False
-regSel.enableSCT = False
-regSel.enableTRT = False
+regSel.enableID=True
+regSel.enablePixel = True
+regSel.enableSCT = True
+regSel.enableTRT = True
 acc.merge( rsc )
 acc.addService(regSel)
+
+from TrigUpgradeTest.InDetConfig import TrigInDetCondConfig
+acc.merge( TrigInDetCondConfig( flags ) )
 
 acc.getEventAlgo( "TrigSignatureMoniMT" ).OutputLevel=DEBUG
 print acc.getEventAlgo( "TrigSignatureMoniMT" )

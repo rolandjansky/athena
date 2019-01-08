@@ -138,6 +138,7 @@ public:
   virtual void shift (size_t /*pos*/, ptrdiff_t /*offs*/) {}
   virtual bool insertMove (size_t, IAuxStore&, const SG::auxid_set_t&) { std::abort(); }
   virtual void* getDecoration (auxid_t /*auxid*/, size_t /*size*/, size_t /*capacity*/) { std::abort(); }
+  virtual bool isDecoration(SG::auxid_t /*auxid*/) const { std::abort(); }
   virtual void lock() { m_locked = true; }
   virtual bool clearDecorations() { std::abort(); }
   virtual size_t size() const { std::abort(); }

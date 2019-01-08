@@ -1,8 +1,10 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /***************************************************************************
             TrackStateOnSurface.h  -  description
             -------------------
 begin                : Wed Jan 21 2004
-copyright            : (C) 2004 by emoyse
 email                : edward.moyse@cern.ch
 ***************************************************************************/
 

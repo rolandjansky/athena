@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file SGFolder_test.cxx
@@ -17,7 +17,7 @@
 
 // TEST_FOOBAR_H
 
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 struct Foo{
   void doNothing() const {};
 };

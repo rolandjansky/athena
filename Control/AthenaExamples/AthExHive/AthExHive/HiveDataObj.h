@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHEXHIVE_HIVEDATAOBJ_H
@@ -17,7 +17,7 @@ public:
  
   HiveDataObj():m_val(0) {};
   HiveDataObj(int i): m_val(i) {};
-  virtual ~HiveDataObj(){};
+  virtual ~HiveDataObj() = default;
 
   void val(int i) { m_val = i; }
   int val() const { return m_val; }

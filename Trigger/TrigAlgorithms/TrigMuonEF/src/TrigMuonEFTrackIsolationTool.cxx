@@ -27,7 +27,8 @@ TrigMuonEFTrackIsolationTool::TrigMuonEFTrackIsolationTool(const std::string& ty
   m_useAnnulus(false),
   m_annulusSize(-1.0),
   m_useVarIso(false),
-  m_removeSelfType(0) // 0 = Standard self removal, 1 = LeadTrack removal, 2 = dR Matching (1&2 for FTK isolation only)
+  m_removeSelfType(0), // 0 = Standard self removal, 1 = LeadTrack removal, 2 = dR Matching (1&2 for FTK isolation only)
+  m_trkSelTool( "InDet::InDetTrackSelectionTool/TrackSelectionTool", this )
 {  
   
   declareInterface<IMuonEFTrackIsolationTool>(this);
@@ -38,7 +39,7 @@ TrigMuonEFTrackIsolationTool::TrigMuonEFTrackIsolationTool(const std::string& ty
   declareProperty("annulusSize", m_annulusSize);
   declareProperty("useVarIso", m_useVarIso);
   declareProperty("removeSelfType", m_removeSelfType);
-
+  declareProperty("TrackSelectionTool",m_trkSelTool);
 }
 
 /**
@@ -191,27 +192,42 @@ StatusCode TrigMuonEFTrackIsolationTool::checkIsolation(const xAOD::IParticle* m
       trkit!=trks->end(); ++trkit) {
 
     if (m_debug)
-      msg() << MSG::DEBUG << "INFO: Track pT = " << (*trkit)->pt() << endmsg;
+
+      msg() << MSG::DEBUG << "INFO: Track pT = " << (*trkit)->pt() << " eta = " << (*trkit)->eta() << endmsg;
+
+    // check track passes the selection tool
+    const auto& trkSelResult = m_trkSelTool->accept(*trkit);
+    if(trkSelResult) {
+      ATH_MSG_DEBUG("Track passes selection tool");
+    } else {
+      if(m_debug) {
+	ATH_MSG_DEBUG("Track failed selection tool");
+	for(unsigned int i=0; i<trkSelResult.getNCuts (); ++i) {
+	  ATH_MSG_DEBUG("   Cut " << i << trkSelResult.getCutName(i).data() << " pass = " << trkSelResult.getCutResult(i));
+	}
+      }
+      continue; // skip this track
+    }
     
     // check dZ if necessary   
-   double dz=0;
-   if(m_deltaz_cut > 0.0 && muidtrk_perigee) {
-     const Trk::Perigee& idtrk_perigee = (*trkit)->perigeeParameters();
-     dz = idtrk_perigee.parameters()[Trk::z0] - muidtrk_perigee->parameters()[Trk::z0];
-     if( fabs(dz) > m_deltaz_cut ) {
-       if(m_debug) {
-	 msg() << MSG::DEBUG << "Track failed dz cut, ignoring it. dz = " << dz << endmsg;
-       }
-       continue;
-     }//failed delta(z)
+    double dz=0;
+    if(m_deltaz_cut > 0.0 && muidtrk_perigee) {
+      const Trk::Perigee& idtrk_perigee = (*trkit)->perigeeParameters();
+      dz = idtrk_perigee.parameters()[Trk::z0] - muidtrk_perigee->parameters()[Trk::z0];
+      if( fabs(dz) > m_deltaz_cut ) {
+	if(m_debug) {
+	  msg() << MSG::DEBUG << "Track failed dz cut, ignoring it. dz = " << dz << endmsg;
+	}
+	continue;
+      }//failed delta(z)
       // store dz (after cut)
-     // if(dzvals) dzvals->push_back(dz); // moved to after the pT cut for plotting purposes
-     if(m_debug) {
-       msg() << MSG::DEBUG << "ID track passes dz cut. dz = " << dz << endmsg;
-     }
+      // if(dzvals) dzvals->push_back(dz); // moved to after the pT cut for plotting purposes
+      if(m_debug) {
+	msg() << MSG::DEBUG << "ID track passes dz cut. dz = " << dz << endmsg;
+      }
       
-   }//deltaz_cut
-   if(dzvals) dzvals->push_back(dz);
+    }//deltaz_cut
+    if(dzvals) dzvals->push_back(dz);
   
     // check if trk within cone
     double dr = 0;
@@ -511,6 +527,11 @@ StatusCode TrigMuonEFTrackIsolationTool::initialize() {
 
   m_debug = msgLvl(MSG::DEBUG);
 
+  if(m_trkSelTool.retrieve().isFailure()){
+    ATH_MSG_FATAL("Could not retrieve InDetTrackSelectionTool");    
+    return StatusCode::FAILURE;
+  }
+
   if(m_debug) {
     msg() << MSG::DEBUG << "Initializing TrigMuonEFTrackIsolationTool[" << name() << "]" << endmsg;
     msg() << MSG::DEBUG
@@ -526,7 +547,11 @@ StatusCode TrigMuonEFTrackIsolationTool::initialize() {
     msg() << MSG::DEBUG
 	  << "annulusSize                    " << m_annulusSize << endmsg;
     msg() << MSG::DEBUG
-	  << "useVarIso                    " << m_useVarIso << endmsg;
+	  << "useVarIso                      " << m_useVarIso << endmsg;
+    msg() << MSG::DEBUG
+	  << "removeSelfType                 " << m_removeSelfType << endmsg;
+    msg() << MSG::DEBUG
+          << "TrackSelectionTool             " << m_trkSelTool << endmsg;
 
   }//debug
 

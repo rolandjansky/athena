@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TAuxStore.cxx 796624 2017-02-10 17:17:23Z ssnyder $
@@ -396,6 +396,21 @@ namespace xAOD {
       return result;
    }
 
+
+   bool TAuxStore::isDecoration (SG::auxid_t auxid) const
+   {
+     if (m_locked) {
+       if (auxid < m_isDecoration.size() && m_isDecoration[auxid]) {
+         return true;
+       }
+       if (m_transientStore) {
+         return m_transientStore->isDecoration (auxid);
+       }
+     }
+     return false;
+   }
+
+
    void TAuxStore::lock() {
 
       // Guard against multi-threaded execution:
@@ -785,7 +800,7 @@ namespace xAOD {
       return;
    }
 
-   const TAuxStore::auxid_set_t& TAuxStore::getSelectedAuxIDs() const {
+   TAuxStore::auxid_set_t TAuxStore::getSelectedAuxIDs() const {
 
       // Guard against multi-threaded execution:
       guard_t guard( m_mutex1 );
