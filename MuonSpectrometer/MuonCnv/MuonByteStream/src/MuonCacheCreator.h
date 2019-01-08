@@ -34,7 +34,8 @@ protected:
 
   /// ID helpers
   const MdtIdHelper* m_mdtIdHelper = 0;
-  
+  bool m_disableWarning = false;
+  bool IsInsideView(const EventContext&) const;
 };//class MuonCacheCreator
 
 // copied from http://acode-browser1.usatlas.bnl.gov/lxr/source/athena/InnerDetector/InDetRecAlgs/InDetPrepRawDataFormation/src/CacheCreator.h#0062
