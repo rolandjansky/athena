@@ -85,6 +85,8 @@ class JGTowerReader: public ::AthAlgorithm {
   const JTower_ID* m_jTowerId;
   const GTower_ID* m_gTowerId;
  
+  virtual StatusCode ReadTowerMap();
+  virtual StatusCode CheckTowerMap(const xAOD::JGTowerContainer*jTs);
   virtual StatusCode JFexAlg(const xAOD::JGTowerContainer*jTs);
   virtual StatusCode GFexAlg(const xAOD::JGTowerContainer*gTs); 
 
@@ -112,6 +114,7 @@ class JGTowerReader: public ::AthAlgorithm {
   std::vector<int> towerMap_jetSeed;
   std::vector< std::vector<int> > towerMap_jetTowers;
 
+  std::vector<int> towerMap_AODtowersIndices;
 
   JetAlg::Seed*   jSeeds=new JetAlg::Seed;
   JetAlg::Seed*   jJetSeeds = new JetAlg::Seed;

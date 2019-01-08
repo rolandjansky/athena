@@ -112,172 +112,7 @@ StatusCode JGTowerReader::initialize() {
 
   // read in the tower map
   if(m_makeJetsFromMap) {
-    std::ifstream infileStream(m_towerMap);
-    std::string line;
-
-    bool inTowerBlock = false;
-    bool inSeedBlock = false;
-    bool inJetBlock = false;
-
-    int sublinecount = -1;
-    while(getline(infileStream, line)) {
-      // skip commented and empty lines
-      if(line.substr(0, 1) == "#") {        
-        if(line == "# === start towers ===")
-          inTowerBlock = true;
-        if(line == "# === end towers ===")
-          inTowerBlock = false;
-        if(line == "# === start seeds ===")
-          inSeedBlock = true;
-        if(line == "# === end seeds ===")
-          inSeedBlock = false;
-        if(line == "# === start jets ===")
-          inJetBlock = true;
-        if(line == "# === end jets ===")
-          inJetBlock = false;
-        continue;
-      }
-
-      if(line == "")
-        continue;
-
-      std::vector<std::string> splitLine = splitString(line, " ", true);
-
-      if(inTowerBlock) {
-        if(line.substr(0, 1) != " ") {
-          sublinecount = 0;
-          
-          // check size of vector vs this entry
-          int towerNum = std::stoi(splitLine[0]);
-          if(towerMap_towerEta.size() != towerNum) {
-            ATH_MSG_ERROR("tower map being parsed incorrectly: have " << towerMap_towerEta.size() << " and expect " << towerNum);
-            return StatusCode::FAILURE;
-          }
-          
-          // fill eta and phi
-          towerMap_towerEta.push_back(std::stof(splitLine[1]));
-          towerMap_towerPhi.push_back(std::stof(splitLine[2]));
-        }
-        else {
-          if(sublinecount <= 0) {
-            ATH_MSG_ERROR("sublinecount value is " << sublinecount << " but it should be <= 0");
-            return StatusCode::FAILURE;
-          }
-
-          // tower sampling
-          if(sublinecount == 1) {
-            if(splitLine.size() != 1) {
-              ATH_MSG_ERROR("Tower has a number of samplings that is not 1: " << splitLine.size());
-              return StatusCode::FAILURE;
-            }
-            towerMap_towerSampling.push_back(std::stoi(splitLine[0]));
-          }
-          // tower layers
-          else if(sublinecount == 2) {          
-            std::vector<int> tempVector;
-            tempVector.clear();
-            for(int i = 0; i<int(splitLine.size()); i++) {
-              tempVector.push_back(std::stoi(splitLine.at(i)));
-            }
-            towerMap_towerLayers.push_back(tempVector);
-          }
-          else {
-            ATH_MSG_ERROR("tower sublinecount value is " << sublinecount << " but should be in [1,2]");
-            return StatusCode::FAILURE;
-          }
-        }
-      }
-
-      if(inSeedBlock) {
-        if(line.substr(0, 1) != " ") {
-          sublinecount = 0;
-          
-          // check size of vector vs this entry
-          int seedNum = std::stoi(splitLine[0]);
-          if(towerMap_seedEta.size() != seedNum) {
-            ATH_MSG_ERROR("tower map being parsed incorrectly: have " << towerMap_seedEta.size() << " and expect " << seedNum);
-            return StatusCode::FAILURE;
-          }
-          
-          // fill eta and phi
-          towerMap_seedEta.push_back(std::stof(splitLine[1]));
-          towerMap_seedPhi.push_back(std::stof(splitLine[2]));
-        }
-        else {
-          if(sublinecount <= 0) {
-            ATH_MSG_ERROR("sublinecount value is " << sublinecount << " but it should be <= 0");
-            return StatusCode::FAILURE;
-          }
-
-          std::vector<int> tempVector;
-          tempVector.clear();
-          for(int i = 0; i<int(splitLine.size()); i++) {
-            tempVector.push_back(std::stoi(splitLine.at(i)));
-          }
-
-          // seed towers
-          if(sublinecount == 1) {
-            towerMap_seedTowers.push_back(tempVector);
-          }
-          // seed local maxima
-          else if(sublinecount == 2) {          
-            towerMap_seedLocalMaxSeeds.push_back(tempVector);
-          }
-          else {
-            ATH_MSG_ERROR("seed sublinecount value is " << sublinecount << " but should be in [1,2]");
-            return StatusCode::FAILURE;
-          }
-        }
-      }
-
-      if(inJetBlock) {
-        if(line.substr(0, 1) != " ") {
-          sublinecount = 0;
-          
-          // check size of vector vs this entry
-          int jetNum = std::stoi(splitLine[0]);
-          if(towerMap_jetEta.size() != jetNum) {
-            ATH_MSG_ERROR("tower map being parsed incorrectly: have " << towerMap_jetEta.size() << " and expect " << jetNum);
-            return StatusCode::FAILURE;
-          }
-          
-          // fill eta and phi
-          towerMap_jetEta.push_back(std::stof(splitLine[1]));
-          towerMap_jetPhi.push_back(std::stof(splitLine[2]));
-        }
-        else {
-          if(sublinecount <= 0) {
-            ATH_MSG_ERROR("sublinecount value is " << sublinecount << " but it should be <= 0");
-            return StatusCode::FAILURE;
-          }
-
-          // jet seed
-          if(sublinecount == 1) {
-            if(splitLine.size() != 1) {
-              ATH_MSG_ERROR("Jet has a number of seeds that is not 1: " << splitLine.size());
-              return StatusCode::FAILURE;
-            }
-            towerMap_jetSeed.push_back(std::stoi(splitLine[0]));
-          }
-          // jet towers
-          else if(sublinecount == 2) {          
-            std::vector<int> tempVector;
-            tempVector.clear();
-            for(int i = 0; i<int(splitLine.size()); i++) {
-              tempVector.push_back(std::stoi(splitLine.at(i)));
-            }
-            towerMap_jetTowers.push_back(tempVector);
-          }
-          else {
-            ATH_MSG_ERROR("jet sublinecount value is " << sublinecount << " but should be in [1,2]");
-            return StatusCode::FAILURE;
-          }
-        }
-      }
-      
-      sublinecount += 1;
-    }
-    ATH_MSG_INFO("successfully read in tower map from " << m_towerMap);
+    CHECK( ReadTowerMap() );
   }
 
   return StatusCode::SUCCESS;
@@ -321,6 +156,11 @@ StatusCode JGTowerReader::execute() {
   CHECK( evtStore()->retrieve( gTowers,"GTower"));
 
   ATH_MSG_DEBUG ("Successfully retrieved cells, jTowers and gTowers");
+
+  // make and check tower mapping
+  if(m_eventCount==1 && m_makeJetsFromMap) {
+    CHECK( CheckTowerMap(jTowers) );
+  }
 
   ATH_MSG_DEBUG ("About to call JFexAlg");
   CHECK(JFexAlg(jTowers)); // all the functions for JFex shall be executed here
@@ -559,4 +399,207 @@ std::vector<std::string> splitString(std::string parentString, std::string sep, 
     splitVec.push_back(part);
 
   return splitVec;
+}
+
+
+
+StatusCode JGTowerReader::ReadTowerMap() {
+  ATH_MSG_INFO("Reading tower map from " << m_towerMap);
+  std::ifstream infileStream(m_towerMap);
+  std::string line;
+
+  bool inTowerBlock = false;
+  bool inSeedBlock = false;
+  bool inJetBlock = false;
+
+  int sublinecount = -1;
+  while(getline(infileStream, line)) {
+    // skip commented and empty lines
+    if(line.substr(0, 1) == "#") {        
+      if(line == "# === start towers ===")
+        inTowerBlock = true;
+      if(line == "# === end towers ===")
+        inTowerBlock = false;
+      if(line == "# === start seeds ===")
+        inSeedBlock = true;
+      if(line == "# === end seeds ===")
+        inSeedBlock = false;
+      if(line == "# === start jets ===")
+        inJetBlock = true;
+      if(line == "# === end jets ===")
+        inJetBlock = false;
+      continue;
+    }
+
+    if(line == "")
+      continue;
+
+    std::vector<std::string> splitLine = splitString(line, " ", true);
+
+    if(inTowerBlock) {
+      if(line.substr(0, 1) != " ") {
+        sublinecount = 0;
+          
+        // check size of vector vs this entry
+        int towerNum = std::stoi(splitLine[0]);
+        if(towerMap_towerEta.size() != towerNum) {
+          ATH_MSG_ERROR("tower map being parsed incorrectly: have " << towerMap_towerEta.size() << " and expect " << towerNum);
+          return StatusCode::FAILURE;
+        }
+          
+        // fill eta and phi
+        towerMap_towerEta.push_back(std::stof(splitLine[1]));
+        towerMap_towerPhi.push_back(std::stof(splitLine[2]));
+      }
+      else {
+        if(sublinecount <= 0) {
+          ATH_MSG_ERROR("sublinecount value is " << sublinecount << " but it should be <= 0");
+          return StatusCode::FAILURE;
+        }
+
+        // tower sampling
+        if(sublinecount == 1) {
+          if(splitLine.size() != 1) {
+            ATH_MSG_ERROR("Tower has a number of samplings that is not 1: " << splitLine.size());
+            return StatusCode::FAILURE;
+          }
+          towerMap_towerSampling.push_back(std::stoi(splitLine[0]));
+        }
+        // tower layers
+        else if(sublinecount == 2) {          
+          std::vector<int> tempVector;
+          tempVector.clear();
+          for(int i = 0; i<int(splitLine.size()); i++) {
+            tempVector.push_back(std::stoi(splitLine.at(i)));
+          }
+          towerMap_towerLayers.push_back(tempVector);
+        }
+        else {
+          ATH_MSG_ERROR("tower sublinecount value is " << sublinecount << " but should be in [1,2]");
+          return StatusCode::FAILURE;
+        }
+      }
+    }
+
+    if(inSeedBlock) {
+      if(line.substr(0, 1) != " ") {
+        sublinecount = 0;
+          
+        // check size of vector vs this entry
+        int seedNum = std::stoi(splitLine[0]);
+        if(towerMap_seedEta.size() != seedNum) {
+          ATH_MSG_ERROR("tower map being parsed incorrectly: have " << towerMap_seedEta.size() << " and expect " << seedNum);
+          return StatusCode::FAILURE;
+        }
+          
+        // fill eta and phi
+        towerMap_seedEta.push_back(std::stof(splitLine[1]));
+        towerMap_seedPhi.push_back(std::stof(splitLine[2]));
+      }
+      else {
+        if(sublinecount <= 0) {
+          ATH_MSG_ERROR("sublinecount value is " << sublinecount << " but it should be <= 0");
+          return StatusCode::FAILURE;
+        }
+
+        std::vector<int> tempVector;
+        tempVector.clear();
+        for(int i = 0; i<int(splitLine.size()); i++) {
+          tempVector.push_back(std::stoi(splitLine.at(i)));
+        }
+
+        // seed towers
+        if(sublinecount == 1) {
+          towerMap_seedTowers.push_back(tempVector);
+        }
+        // seed local maxima
+        else if(sublinecount == 2) {          
+          towerMap_seedLocalMaxSeeds.push_back(tempVector);
+        }
+        else {
+          ATH_MSG_ERROR("seed sublinecount value is " << sublinecount << " but should be in [1,2]");
+          return StatusCode::FAILURE;
+        }
+      }
+    }
+
+    if(inJetBlock) {
+      if(line.substr(0, 1) != " ") {
+        sublinecount = 0;
+          
+        // check size of vector vs this entry
+        int jetNum = std::stoi(splitLine[0]);
+        if(towerMap_jetEta.size() != jetNum) {
+          ATH_MSG_ERROR("tower map being parsed incorrectly: have " << towerMap_jetEta.size() << " and expect " << jetNum);
+          return StatusCode::FAILURE;
+        }
+          
+        // fill eta and phi
+        towerMap_jetEta.push_back(std::stof(splitLine[1]));
+        towerMap_jetPhi.push_back(std::stof(splitLine[2]));
+      }
+      else {
+        if(sublinecount <= 0) {
+          ATH_MSG_ERROR("sublinecount value is " << sublinecount << " but it should be <= 0");
+          return StatusCode::FAILURE;
+        }
+
+        // jet seed
+        if(sublinecount == 1) {
+          if(splitLine.size() != 1) {
+            ATH_MSG_ERROR("Jet has a number of seeds that is not 1: " << splitLine.size());
+            return StatusCode::FAILURE;
+          }
+          towerMap_jetSeed.push_back(std::stoi(splitLine[0]));
+        }
+        // jet towers
+        else if(sublinecount == 2) {          
+          std::vector<int> tempVector;
+          tempVector.clear();
+          for(int i = 0; i<int(splitLine.size()); i++) {
+            tempVector.push_back(std::stoi(splitLine.at(i)));
+          }
+          towerMap_jetTowers.push_back(tempVector);
+        }
+        else {
+          ATH_MSG_ERROR("jet sublinecount value is " << sublinecount << " but should be in [1,2]");
+          return StatusCode::FAILURE;
+        }
+      }
+    }
+      
+    sublinecount += 1;
+  }
+  ATH_MSG_INFO("successfully read in tower map from " << m_towerMap);
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode JGTowerReader::CheckTowerMap(const xAOD::JGTowerContainer*jTs) {
+  ATH_MSG_INFO("Checking tower map");
+
+  // fill std::vector<int> towerMap_AODtowersIndices
+
+  for(int i_towerMap = 0; i_towerMap < int(towerMap_towerEta.size()); i_towerMap++) {
+    int tower_index = -1;
+    for(int i_jTower = 0; i_jTower < int(jTs->size()); i_jTower++){
+      const xAOD::JGTower *tower = jTs->at(i_jTower);
+
+      // exactly equal fails for phi (agrees to 5dp printed)
+      if( fabs( 1 - (towerMap_towerEta.at(i_towerMap) / tower->eta() ) ) > 0.0001) 
+        continue;
+      if( fabs( 1 - (towerMap_towerPhi.at(i_towerMap) / tower->phi() ) ) > 0.0001) 
+        continue;
+      if(towerMap_towerSampling.at(i_towerMap) != tower->sampling())
+        continue;
+      tower_index = i_jTower;
+      break;
+    }
+    if(tower_index == -1) {
+      ATH_MSG_ERROR("Did not find matching tower in AOD for this one in the map: tower " << i_towerMap << ", eta = " << towerMap_towerEta.at(i_towerMap) << ", phi = " << towerMap_towerPhi.at(i_towerMap) << ", sampling = " << towerMap_towerSampling.at(i_towerMap));
+      return StatusCode::FAILURE;
+    }
+    towerMap_AODtowersIndices.push_back(tower_index);
+  }
+  return StatusCode::SUCCESS;
 }
