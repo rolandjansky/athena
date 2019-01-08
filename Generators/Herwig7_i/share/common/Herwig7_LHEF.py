@@ -1,5 +1,5 @@
 # initialize Herwig7 generator configuration object for showering of LHE files
-include("Herwig7_i/merge_lhe_files.py")
+include("EvgenProdTools/merge_lhe_files.py")
 
 from Herwig7_i.Herwig7_iConf import Herwig7 
 from Herwig7_i.Herwig7ConfigLHEF import Hw7ConfigLHEF
