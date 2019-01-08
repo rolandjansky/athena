@@ -5,7 +5,7 @@
 #
 
 # Set the environment variable(s):
-find_package( CRMC )
+find_package( Crmc )
 
 if( CRMC_FOUND  )
   set( QGSJETENVIRONMENT_ENVIRONMENT 

@@ -34,5 +34,5 @@ atlas_add_component( BeamHaloGenerator
                      LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} GaudiKernel GeneratorModulesLib AthenaKernel BeamHaloGeneratorLib )
 
 # Install files from the package:
-atlas_install_joboptions( share/*.py )
+atlas_install_joboptions( share/common/*.py )
 
