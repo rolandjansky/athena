@@ -60,7 +60,7 @@ import MagFieldServices.SetupField
 # set up geometry
 #
 
-#include('TrkDetDescrSvc/AtlasTrackingGeometrySvc.py')
+
 #include('/afs/cern.ch/user/s/sthenkel/work/ProjectArea/Tracking/TrkDetDescr/TrkDetDescrSvc/python/AtlasTrackingGeometrySvc.py')
 #from __main__ import AtlasTrackingGeometrySvc
 #
@@ -80,7 +80,7 @@ ToolSvc += ElectronTrkStepPropagator
 #
 from TrkExTools.TrkExToolsConf import Trk__Navigator
 ElectronTrkNavigator = Trk__Navigator(name = 'ElectronTrkNavigator',
-                                #TrackingGeometrySvc = AtlasTrackingGeometrySvc
+                                      #TrackingGeometrySvc = AtlasTrackingGeometrySvc
                                 )
 ToolSvc += ElectronTrkNavigator
 #
@@ -280,6 +280,7 @@ ToolSvc += DNATrackFitter
 from TrkGlobalChi2Fitter.TrkGlobalChi2FitterConf import Trk__GlobalChi2Fitter
 GX2TrackFitter = Trk__GlobalChi2Fitter(name                  = 'GX2TrackFitter',
                                          OutputLevel = 4,
+                                       #TrackingGeometrySvc     = AtlasTrackingGeometrySvc,
 					 ExtrapolationTool     = ElectronTrkExtrapolator,
                                          NavigatorTool         = ElectronTrkNavigator,
                                          PropagatorTool        = ElectronTrkPropagator,
@@ -351,6 +352,17 @@ MuonRefitterTool2 = egammaTrkRefitterTool(name = 'MuonRefitterTool2',
 					    useBeamSpot = False,
                                             OutputLevel =4)
 ToolSvc += MuonRefitterTool2
+
+### (SH) Commented out for now since not offically supported in
+#MuonRefitterTool3 = egammaTrkRefitterTool(name = 'MuonRefitterTool3',
+#                                          FitterTool = GX2TrackFitter,
+#                                          matEffects = 2,
+#                                          minNoSiHits = -1,
+#                                          RemoveTRTHits = True,
+#                                          RemoveIBLHits = True,
+#                                          useBeamSpot = False,
+#                                          OutputLevel =4)
+#ToolSvc += MuonRefitterTool3
 
 
 GSFTrackCollection = "RefittedElectronTracks"

@@ -32,13 +32,14 @@ namespace Trk {
     , m_etaphiMap_d0(0)
     , m_constraintInputFile_z0(0)
     , m_etaphiMap_z0(0)
+    , m_scalepmaptogev(false)
    {
     declareInterface<ITrackCollectionProvider>(this);
     declareProperty("TrackFitter",              m_trackFitter                      );
     declareProperty("InputTracksCollection",    m_inputTrackCollection             );
     declareProperty("RunOutlierRemoval",        m_runOutlierRemoval      = true    ); 
     declareProperty("MaxRetrievalErrors",       m_maxRetrievalErrors     = 10      );
-    declareProperty("UseConstrainedTrkOnly",    m_useConstrainedTrkOnly  = false   );
+    declareProperty("UseConstrainedTrkOnly",    m_useConstrainedTrkOnly  = true    );
     declareProperty("MinPt",                    m_minPt         = 15.0             );        
     declareProperty("MaxPt",                    m_maxPt         = 100.0            );        
     declareProperty("MinPIXHits",               m_minPIXHits    = 0                ); //1
@@ -58,7 +59,7 @@ namespace Trk {
     declareProperty("UseConstraintError",         m_useConstraintError = true   ,"Bla bla "   ); 
     declareProperty("ReduceConstraintUncertainty",m_reduceConstraintUncertainty = 1., "Reduce the uncertainty on teh track parmater constraint by this amount"  ); 
     declareProperty("DeltaScaling",               m_deltaScaling = 1.);
-   
+    declareProperty("ScalePMapToGeV",             m_scalepmaptogev);
   }
 
   //________________________________________________________________________
@@ -182,14 +183,15 @@ namespace Trk {
     const TrackCollection* originalTracks = 0;
     
     if ( StatusCode::SUCCESS != evtStore()->retrieve(originalTracks, m_inputTrackCollection) ){
-      ATH_MSG_WARNING(" Can't retrieve " << m_inputTrackCollection << " from the StoreGate ");
+      ATH_MSG_WARNING(" Can't retrieve " << m_inputTrackCollection << " from the evtStore()->retrieve ");
       return StatusCode::FAILURE;
     } 
+    ATH_MSG_DEBUG("#Available tracks in this event: " << originalTracks->size());
     
+    // define the track collection of the selected tracks (check: m_useConstrainedTrkOnly)
     TrackCollection* trackCollection = new TrackCollection;
     
-    ATH_MSG_DEBUG("Have tracks in the event:  " << originalTracks->size());
-
+    // going to loop on the input collection of tracks
     TrackCollection::const_iterator trackIt   = originalTracks->begin();
     TrackCollection::const_iterator trackItE  = originalTracks->end();
     
@@ -288,9 +290,34 @@ namespace Trk {
           if(!constrainedPerigee){
             ATH_MSG_DEBUG(" no constrainedmeasuredPerigee");          
           } else {
-            ATH_MSG_DEBUG("Constrained fit was momentum : " << 1/constrainedPerigee->parameters()[Trk::qOverP] * 1e-3 );          
-            ATH_MSG_DEBUG("Initial fit was momentum     : " << 1/measuredPerigee->parameters()[Trk::qOverP] * 1e-3 );          
-            ATH_MSG_DEBUG("corrected  was momentum      : " << 1/correctedQoverP * 1e-3 );          
+            ATH_MSG_DEBUG("Initial track had momentum     : " << 1/measuredPerigee->parameters()[Trk::qOverP] * 1e-3 );          
+            if (m_CorrectMomentum) {
+	      ATH_MSG_DEBUG("corrected momentum with map is : " << 1/correctedQoverP * 1e-3 );          
+	    }
+	    else {
+	      ATH_MSG_DEBUG("momentum not constrained       : ");          
+	    }
+            ATH_MSG_DEBUG("Constrained momentum fit result: " << 1/constrainedPerigee->parameters()[Trk::qOverP] * 1e-3 );          
+
+	    // d0
+            ATH_MSG_DEBUG("Initial track had d0           : " << measuredPerigee->parameters()[Trk::d0]);          
+	    if(m_CorrectD0){
+	      ATH_MSG_DEBUG("corrected d0 is                : " << correctedD0);          
+	    }
+	    else {
+	      ATH_MSG_DEBUG("d0 is not corrected            : ");          
+	    }
+            ATH_MSG_DEBUG("Constrained d0 fit result      : " << constrainedPerigee->parameters()[Trk::d0]);          
+
+	    // z0
+            ATH_MSG_DEBUG("Initial track had z0           : " << measuredPerigee->parameters()[Trk::z0]);          
+	    if(m_CorrectD0){
+	      ATH_MSG_DEBUG("corrected z0 is                : " << correctedZ0);          
+	    }
+	    else {
+	      ATH_MSG_DEBUG("z0 is not corrected            : ");          
+	    }
+            ATH_MSG_DEBUG("Constrained z0 fit result      : " << constrainedPerigee->parameters()[Trk::z0]);          
           }
   
           trackCollection->push_back(constrainedFittedTrack);
@@ -318,12 +345,12 @@ namespace Trk {
 
 
     if (StatusCode::SUCCESS != evtStore()->record(trackCollection, "AlignmentConstrainedTracks")){
-      ATH_MSG_WARNING("Problem with recording AlignmentConstrainedTracks to StoreGate!");
+      ATH_MSG_WARNING("Problem with recording AlignmentConstrainedTracks to evtStore()->record() :( !");
       delete trackCollection;
       return StatusCode::SUCCESS;
     }    
 
-    ATH_MSG_DEBUG(" The final trackCollection size : " << trackCollection->size() );
+    ATH_MSG_DEBUG(" The final trackCollection size: " << trackCollection->size() << " name of track collection: ..." );
     //track Collection cannot be null here; it has already been dereferenced
     finalTracks = trackCollection;
 
@@ -402,6 +429,11 @@ namespace Trk {
 
     double delta = m_etaphiMap_P->GetBinContent(binNumber) * m_deltaScaling;
        
+    if (m_scalepmaptogev) {
+      ATH_MSG_DEBUG("Scale sagita bias map to GeV. deltaSagitta raw value " << delta << " ==> used value: " << delta * 0.001 << " GeV-1");
+      delta = delta * 0.001;
+    }
+
     correctedQoverP = measuredPerigee->parameters()[Trk::qOverP] * (1.+ charge *pt *delta );
     correctedQoverPError = perr;
    
@@ -410,18 +442,16 @@ namespace Trk {
       qoverpFracError += pow(constraintErr,2);    
       correctedQoverPError = qoverpFracError*correctedQoverP*correctedQoverP;
     }
-    ATH_MSG_DEBUG("Scaling by 1/m_reduceConstraintUncertainty  " << m_reduceConstraintUncertainty << '\t'<< pow( m_reduceConstraintUncertainty,-2)) ;    
+    
     correctedQoverPError = correctedQoverPError * pow( m_reduceConstraintUncertainty,-2); 
     return;
   }
 
-
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   void  ConstrainedTrackProvider::getCorrectedValues_d0(const Trk::Perigee* measuredPerigee, double& correctedD0,double& correctedD0Error)
   {
   
-    // scale d0
-  
-    
+    // correcting d0
     double d0  = measuredPerigee->parameters()[Trk::d0];
     double eta = -log(tan(measuredPerigee->parameters()[Trk::theta]/2.));
     double phi = measuredPerigee->parameters()[Trk::phi]; 
@@ -431,6 +461,7 @@ namespace Trk {
     int binNumber = m_etaphiMap_d0->FindBin(eta, phi);
     double constraintErr = m_etaphiMap_d0->GetBinError(binNumber);
     double delta = m_etaphiMap_d0->GetBinContent(binNumber) * m_deltaScaling;
+    ATH_MSG_DEBUG("d0 correction for (eta,phi) cell: ("<<eta <<", " <<phi <<") delta_d0 =  " << delta << " mm ");
        
     correctedD0 = d0 + delta;
     correctedD0Error = d0err;
@@ -438,16 +469,16 @@ namespace Trk {
     if(m_useConstraintError){
       correctedD0Error = d0err + pow( constraintErr, 2 );
     }
-    ATH_MSG_DEBUG("Scaling by 1/m_reduceConstraintUncertainty  " << m_reduceConstraintUncertainty << '\t'<< pow( m_reduceConstraintUncertainty,-2)) ;    
+   
     correctedD0Error = correctedD0Error * pow( m_reduceConstraintUncertainty,-2); 
     return;
   }
 
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   void  ConstrainedTrackProvider::getCorrectedValues_z0(const Trk::Perigee* measuredPerigee, double& correctedZ0,double& correctedZ0Error)
   {
   
-    // scale z0
-    
+    // correcting z0
     double z0  = measuredPerigee->parameters()[Trk::z0];
     double eta = -log(tan(measuredPerigee->parameters()[Trk::theta]/2.));
     double phi = measuredPerigee->parameters()[Trk::phi];
@@ -456,14 +487,15 @@ namespace Trk {
     int binNumber = m_etaphiMap_z0->FindBin(eta, phi);
     double constraintErr = m_etaphiMap_z0->GetBinError(binNumber);
     double delta = m_etaphiMap_z0->GetBinContent(binNumber) * m_deltaScaling;
-       
+
     correctedZ0 = z0 + delta;
     correctedZ0Error = z0err;
+    ATH_MSG_DEBUG("z0 correction for (eta,phi) cell: ("<<eta <<", " <<phi <<") delta_z0 =  " << delta << " mm.  New z0: " << correctedZ0);
 
     if(m_useConstraintError){
       correctedZ0Error = z0err + pow( constraintErr, 2 );
     }
-    ATH_MSG_DEBUG("Scaling by 1/m_reduceConstraintUncertainty  " << m_reduceConstraintUncertainty << '\t'<< pow( m_reduceConstraintUncertainty,-2)) ;    
+   
     correctedZ0Error = correctedZ0Error * pow( m_reduceConstraintUncertainty,-2); 
     return;
   }
@@ -471,7 +503,7 @@ namespace Trk {
 
 
 
- 
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
   void ConstrainedTrackProvider::printSummary(){
 
     if(m_logStream) {

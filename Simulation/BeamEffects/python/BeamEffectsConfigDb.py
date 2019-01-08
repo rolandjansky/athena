@@ -8,6 +8,7 @@ addTool("BeamEffects.BeamEffectsConfig.getLongBeamspotVertexPositioner",      "L
 addTool("BeamEffects.BeamEffectsConfig.getCrabKissingVertexPositioner",       "CrabKissingVertexPositioner")
 ## GenEvent Manipulators
 addTool("BeamEffects.BeamEffectsConfig.getGenEventValidityChecker",           "GenEventValidityChecker")
+addTool("BeamEffects.BeamEffectsConfig.getZeroLifetimePositioner",            "ZeroLifetimePositioner")
 addTool("BeamEffects.BeamEffectsConfig.getGenEventVertexPositioner",          "GenEventVertexPositioner")
 addTool("BeamEffects.BeamEffectsConfig.getGenEventBeamEffectBooster",         "GenEventBeamEffectBooster")
 addTool("BeamEffects.BeamEffectsConfig.getGenEventRotator",                   "GenEventRotator")

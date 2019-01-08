@@ -90,7 +90,7 @@ G4bool MuonWallSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /* ROhist */) 
   const G4String nameLogiVol = logiVol->GetName();
   const G4int nScinti = physVol->GetCopyNo();
 
-  const G4double edep = aStep->GetTotalEnergyDeposit();
+  const G4double edep = aStep->GetTotalEnergyDeposit() * aStep->GetTrack()->GetWeight();
   G4double stepl = 0.;
 
   if (aStep->GetTrack()->GetDefinition()->GetPDGCharge() != 0.){ // FIXME not-equal check on double

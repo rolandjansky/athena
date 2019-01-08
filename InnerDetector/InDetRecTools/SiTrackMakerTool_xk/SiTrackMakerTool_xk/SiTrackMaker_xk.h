@@ -133,6 +133,7 @@ namespace InDet{
       bool                           m_ITKGeomtry    ; // ITK geometry
       bool                        m_seedsegmentsWrite; // Call seed to track conversion
       bool                           m_heavyion      ; // Is it heavy ion events
+      bool                           m_cleanSCTClus  ; // Clean up spurious SCT clusters
       Trk::MagneticFieldProperties   m_fieldprop     ; // Magnetic field properties
       double                         m_xi2max        ; // max Xi2 for updators
       double                         m_xi2maxNoAdd   ; // max Xi2 for clusters

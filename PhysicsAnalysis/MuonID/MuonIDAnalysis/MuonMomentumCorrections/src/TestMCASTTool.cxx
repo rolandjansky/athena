@@ -8,6 +8,7 @@
 
 // Local include(s):
 #include "TestMCASTTool.h"
+#include <cmath>
 
 namespace CP {
 
@@ -89,7 +90,7 @@ StatusCode TestMCASTTool::execute() {
     //---\\---// Remove calibrated muon
     m_ptcorr = mu->pt();
     m_ptdiff = m_pt - m_ptcorr;
-    m_ptdiffabs = abs( m_pt - m_ptcorr );
+    m_ptdiffabs = std::abs( m_pt - m_ptcorr );
     m_smeartree->Fill();
     delete mu;
   }

@@ -217,6 +217,15 @@ class L2EFChain_met(L2EFChainDef):
                 #theEFMETHypo = EFMetHypoTCTrkPUCXE('EFMetHypo_TCTrkPUC_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)
                 theEFMETHypo = EFMetHypoTCTrkPUCXE('EFMetHypo_TCTrkPUC_xe%s_tc%s%s%s'%(threshold,jetCalib,calibration,mucorr),ef_thr=float(threshold)*GeV, extraCalib=calibCorr)
 
+            if EFrecoAlg=='pufittrack':
+                calibCorr = ('_{0}'.format(calibration) if calibration != METChainParts_Default['calib'] else '') + ('_{0}'.format(jetCalib) if jetCalib != METChainParts_Default['jetCalib'] else '')
+                #MET fex
+                theEFMETFex = EFMissingET_Fex_topoClustersTracksPUC("EFMissingET_Fex_topoClustersTracksPUC{0}".format(calibCorr), extraCalib=calibCorr)
+                #Muon correction fex
+                theEFMETMuonFex = EFTrigMissingETMuon_Fex_topoclPUC()
+                mucorr= '_wMu' if EFmuon else ''
+                theEFMETHypo = EFMetHypoTCTrkPUCXE('EFMetHypo_TCTrkPUC_xe%s_tc%s%s%s'%(threshold,jetCalib,calibration,mucorr),ef_thr=float(threshold)*GeV, extraCalib=calibCorr)
+
             ##MET based on trigger jets
             if EFrecoAlg=='mht':
                 calibCorr = ('_{0}'.format(calibration) if calibration != METChainParts_Default['calib'] else '') + ('_{0}'.format(jetCalib) if jetCalib != METChainParts_Default['jetCalib'] else '')
@@ -305,6 +314,9 @@ class L2EFChain_met(L2EFChainDef):
         #This is a dummy b-jet chain, with a threshold at 20 GeV at the uncalibrated scale. It computes the tracks within each jet RoI. 
         #Change the calibration by changing 'nojcalib' to the desired calibration scale. 
         #For pufittrack, we found that the performance was superior using uncalibrated jets. 
+        #This is a dummy b-jet chain, with a threshold at 20 GeV at the uncalibrated scale. It computes the tracks within each jet RoI.
+        #Change the calibration by changing 'nojcalib' to the desired calibration scale.
+        #For pufittrack, we found that the performance was superior using uncalibrated jets.
         dummy_bjet_chain = ['j20_{0}_{1}_boffperf_split'.format(calibration, jetCalib),  '', [], ["Main"], ['RATE:SingleBJet', 'BW:BJet'], -1]
         bjet_chain_dict = theDictFromChainName.getChainDict(dummy_bjet_chain)
         bjet_chain_dict["chainCounter"] = 9152

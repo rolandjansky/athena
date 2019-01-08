@@ -31,6 +31,10 @@ namespace G4UA
         bool killAllNeutrinos;
         /// Photon energy cut
         double photonEnergyCut;
+        /// Energy threshold for the Neutron Russian Roulette
+        double russianRouletteThreshold;
+        /// Weight for the Neutron Russian Roulette
+        double russianRouletteWeight;
         /// Is this an ISF job
         bool isISFJob;
       };
@@ -52,11 +56,19 @@ namespace G4UA
 
       /// @brief Identify track as a photon.
       bool isGamma(const G4Track*) const;
+      /// @brief Identify track as a neutron.
+      bool isNeutron(const G4Track*) const;
       /// @brief obtain the PrimaryParticleInformation from the current G4Track
       PrimaryParticleInformation* getPrimaryParticleInformation(const G4Track *track) const;
 
       /// My configuration options
       Config m_config;
+
+      // bool that checks if the Russian Roulette is active for neutrons
+      bool m_russianRouletteForNeutrons;
+
+      // one over m_config.russianRouletteWeight
+      double m_oneOverWeight;
 
   }; // class AthenaStackingAction
 

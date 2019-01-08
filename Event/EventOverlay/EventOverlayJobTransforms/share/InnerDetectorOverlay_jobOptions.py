@@ -95,9 +95,15 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
         ToolSvc += TRT_LocalOccupancy
         indetovl.TRT_LocalOccupancyTool = TRT_LocalOccupancy  
         
+        from InDetTrigRecExample.InDetTrigConditionsAccess import TRT_ConditionsSetup
+        indetovl.TRTStrawSummarySvc=TRT_ConditionsSetup.instanceName('InDetTRTStrawStatusSummarySvc')
+
+
         #HT hit correction fraction 
-        indetovl.TRT_HT_OccupancyCorrectionBarrel = 0.160
-        indetovl.TRT_HT_OccupancyCorrectionEndcap = 0.130
+        indetovl.TRT_HT_OccupancyCorrectionBarrel = 0.110
+        indetovl.TRT_HT_OccupancyCorrectionEndcap = 0.090
+        indetovl.TRT_HT_OccupancyCorrectionBarrelNoE = 0.060
+        indetovl.TRT_HT_OccupancyCorrectionEndcapNoE = 0.050
 
 
         from InDetRecExample.InDetJobProperties import InDetFlags
