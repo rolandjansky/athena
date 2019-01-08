@@ -30,6 +30,8 @@ if muonRecFlags.doRPCs() and DetFlags.makeRIO.RPC_on() and (DetFlags.haveRDO.RPC
 if muonRecFlags.doTGCs() and DetFlags.makeRIO.TGC_on() and (DetFlags.haveRDO.TGC_on() or DetFlags.digitize.TGC_on()):
     topSequence += getAlgorithm("TgcRdoToTgcPrepData", tryDefaultConfigurable=True)
 
+from MuonRecExample.MMTools import SimpleMMClusterBuilderTool
+
 if not muonRecFlags.doFastDigitization():
   if muonRecFlags.dosTGCs() and DetFlags.makeRIO.sTGC_on() and (DetFlags.haveRDO.sTGC_on() or DetFlags.digitize.sTGC_on()):
     topSequence += getAlgorithm("StgcRdoToStgcPrepData", tryDefaultConfigurable=True)
