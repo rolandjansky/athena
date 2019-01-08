@@ -13,18 +13,10 @@
 # define ATHENAKERNEL_IPROXYREGISTRY_H
 
 //<<<<<< INCLUDES                                                       >>>>>>
-#ifndef KERNEL_STATUSCODES_H
- #include "GaudiKernel/StatusCode.h"
-#endif
-#ifndef GAUDIKERNEL_CLASSID_H
- #include "GaudiKernel/ClassID.h"
-#endif
-#ifndef ATHENAKERNEL_STOREID_H
-# include "AthenaKernel/StoreID.h"
-#endif
-#ifndef _CPP_STRING
- #include <string>
-#endif
+#include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/ClassID.h"
+#include "AthenaKernel/StoreID.h"
+#include <string>
 
 //<<<<<< CLASS FORWARD DECLARATIONS                                      >>>>>>
 namespace SG {

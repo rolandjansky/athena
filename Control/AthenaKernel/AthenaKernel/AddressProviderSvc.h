@@ -13,19 +13,10 @@
 #define ATHENAKERNEL_ADDRESSPROVIDERSVC_H
 
 //<<<<<< INCLUDES                                                       >>>>>>
-#ifndef _CPP_STRING
- #include <string>
-#endif
-#ifndef ATHENAKERNEL_IADDRESSPROVIDER_H
- #include "AthenaKernel/IAddressProvider.h"
-#endif
-#ifndef GAUDIKERNEL_SERVICE_H
- #include "GaudiKernel/Service.h"
-#endif
-#ifndef GAUDIKERNEL_ISVCLOCATOR_H
- #include "GaudiKernel/ISvcLocator.h"
-#endif
-
+#include <string>
+#include "AthenaKernel/IAddressProvider.h"
+#include "GaudiKernel/Service.h"
+#include "GaudiKernel/ISvcLocator.h"
 
 class AddressProviderSvc : public Service, virtual public IAddressProvider {
   /// Standard Constructor                       
