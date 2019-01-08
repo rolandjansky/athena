@@ -22,6 +22,7 @@ class L1CaloPprConditionsRun2
 public:
 
   L1CaloPprConditionsRun2() = default;
+
   L1CaloPprConditionsRun2(unsigned short extBcidThreshold,
                           unsigned short satBcidThreshLow,
                           unsigned short satBcidThreshHigh,
@@ -55,6 +56,12 @@ public:
                           unsigned int pedValue,
                           float pedMean,
                           unsigned int pedFirSum);
+
+  void initializeByStrategy(unsigned short firStartBit, short int firCoeff1,
+    short int firCoeff2, short int firCoeff3, short int firCoeff4,
+    short int firCoeff5, unsigned short lutCpSlope, unsigned short lutCpNoiseCut,
+    unsigned short lutJepSlope, unsigned short lutJepNoiseCut);
+
   virtual ~L1CaloPprConditionsRun2() {};
 
   // getters
@@ -87,6 +94,8 @@ public:
   unsigned int   pedValue()            const { return m_pedValue; }
   float          pedMean()             const { return m_pedMean; }
   unsigned int   pedFirSum()           const { return m_pedFirSum; }
+
+
 
 private:
   friend std::ostream& operator<<(std::ostream& output, const L1CaloPprConditionsRun2& r);

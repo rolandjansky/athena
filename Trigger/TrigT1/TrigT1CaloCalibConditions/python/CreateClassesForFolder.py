@@ -225,7 +225,9 @@ def _mapToCpp(t):
         'Int16' : 'short',
         'Int32' : 'int',
         'Double': 'double',
-        'Blob64k': 'char*'}
+        'Blob64k': 'char*',
+        'String255': 'char*'
+        }
     return _m[t]
 
 def _toCamelCase(identifier):
