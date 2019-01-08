@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -151,7 +151,6 @@ SCTCalib::SCTCalib( const std::string& name, ISvcLocator* pSvcLocator ) :
    m_numOfLBsProcessed(0),
    m_numberOfEvents(0),
    m_numberOfEventsHist(0),
-   m_eventCounter(0),
    m_LBRange(-999),
    m_inputHist(nullptr)
 {
@@ -167,10 +166,6 @@ StatusCode SCTCalib::initialize() {
       return StatusCode::FAILURE;
    }
 
-   //
-   m_waferItrBegin  = m_pSCTHelper->wafer_begin();
-   m_waferItrEnd  = m_pSCTHelper->wafer_end();
-   //
    if ( not retrievedService(m_pCalibWriteTool)) return StatusCode::FAILURE;
    if ( m_doHV) ATH_MSG_FATAL("Not yet properly implemented and tested!");
 
@@ -311,7 +306,7 @@ StatusCode SCTCalib::initialize() {
 }
 
 bool
-SCTCalib::notEnoughStatistics(const int required, const int obtained, const std::string & histogramName) {
+SCTCalib::notEnoughStatistics(const int required, const int obtained, const std::string & histogramName) const {
    if (obtained<required) {
       ATH_MSG_ERROR("Number of events in "<<histogramName<<": "<<obtained<<" is less than the required minimum number of events " <<required);
       return true;
@@ -408,13 +403,14 @@ StatusCode SCTCalib::endRun() {
       //
       XmlHeader myXml(m_gofile);
       XmlStreamer root("modules", m_gofile);
-      SCT_ID::const_id_iterator waferItr  = m_waferItrBegin;
+      SCT_ID::const_id_iterator waferItr  = m_pSCTHelper->wafer_begin();
+      SCT_ID::const_id_iterator waferItrE = m_pSCTHelper->wafer_end();
       const unsigned int onlyDummy(1);
       pair<int, int> timeInterval(0,0);
       pair<int, int> lbRange(0,0);
       const int withinLimits(m_maxtbins);
       //
-      for ( ; waferItr not_eq m_waferItrEnd; ++waferItr ) {
+      for ( ; waferItr not_eq waferItrE; ++waferItr ) {
          const Identifier waferId=*waferItr ;
          IdentifierHash   waferHash = m_pSCTHelper->wafer_hash( waferId );
          const vector< pair<int,int> > & tvec= m_summarytrips.at(waferHash.value());
@@ -571,8 +567,8 @@ StatusCode SCTCalib::getNoisyStrip() {
    StripList_t stripIdLists[2];
 
    //--- Loop over wafers
-   SCT_ID::const_id_iterator waferItr  = m_waferItrBegin;
-   SCT_ID::const_id_iterator waferItrE = m_waferItrEnd;
+   SCT_ID::const_id_iterator waferItr  = m_pSCTHelper->wafer_begin();
+   SCT_ID::const_id_iterator waferItrE = m_pSCTHelper->wafer_end();
    int numNoisyWafers(0);
    for ( ; waferItr not_eq waferItrE; ++waferItr ) {
       //--- Identifier/SN
@@ -686,8 +682,8 @@ StatusCode SCTCalib::getDeadStrip() {
    //calculate meanOccupancy of layer etc...
    double meanOccupancy_Barrel[n_barrels]= {0};
    double meanOccupancy_EC[n_disks][n_etaBinsEC]= { {0}, {0} };
-   SCT_ID::const_id_iterator waferItr  = m_waferItrBegin;
-   SCT_ID::const_id_iterator waferItrE = m_waferItrEnd;
+   SCT_ID::const_id_iterator waferItr  = m_pSCTHelper->wafer_begin();
+   SCT_ID::const_id_iterator waferItrE = m_pSCTHelper->wafer_end();
    for ( ; waferItr != waferItrE; ++waferItr ) {
       Identifier     waferId   = *waferItr;
       //    Identifier     moduleId  = m_pSCTHelper->module_id(waferId);
@@ -776,8 +772,8 @@ StatusCode SCTCalib::getDeadStrip() {
 
 
    //--- Loop over wafers
-   waferItr = m_waferItrBegin;
-   for ( ; waferItr != m_waferItrEnd; ++waferItr ) {
+   waferItr = m_pSCTHelper->wafer_begin();
+   for ( ; waferItr != waferItrE; ++waferItr ) {
       Identifier     waferId   = *waferItr;
       Identifier     moduleId  = m_pSCTHelper->module_id(waferId);
       IdentifierHash waferHash = m_pSCTHelper->wafer_hash(waferId);
@@ -1129,7 +1125,7 @@ StatusCode SCTCalib::getDeadStrip() {
          return StatusCode::FAILURE;
       }
    }
-if (m_doDeadChip) {
+   if (m_doDeadChip) {
       ATH_MSG_INFO("total #DeadChip : "<<n_deadChip<<", #noHitChip : "<<n_checkedChip);
       if (closeXML4DB(m_outDeadChips).isFailure()) {
          ATH_MSG_ERROR("Problem closing "<<m_deadChipsFile);
@@ -1598,15 +1594,6 @@ StatusCode SCTCalib::getEfficiency() {
            << xmlValue("Events",  m_numberOfEvents                     ) << linefeed
            << "  <modules>"<< endl;
 
-
-   // //--- Header for XML outputs
-   // ostringstream osHeader;
-   // osHeader << "<channels server=\"ATLAS_COOLPROD\" schema=\"ATLAS_COOLOFL_SCT\" dbname=\"CONDBR2\" folder=\"SCT/Derived/Efficiency\" "
-   //          << "since=\""   << m_iovStart.re_time()   << "\" "
-   //          << "until=\""   << m_iovStop.re_time()    << "\" "
-   //          << "tag=\""     << m_tagID4Efficiency << "\" "
-   //          << "version=\"" << "multi\">"<< endl;
-   // outFile << osHeader.str();
 
    //--- Endcaps
    for (stemItr=EC_stems.begin(); stemItr!=EC_stems.end(); stemItr++) {
@@ -2631,7 +2618,7 @@ StatusCode SCTCalib::addToSummaryStr( std::ostringstream& list, const Identifier
 }
 
 std::string
-SCTCalib::xmlChannelNoiseOccDataString(const Identifier & waferId,  const float occupancy, const SCT_SerialNumber & serial) {
+SCTCalib::xmlChannelNoiseOccDataString(const Identifier & waferId,  const float occupancy, const SCT_SerialNumber & serial) const {
    //agrohsje added space and ostringstream for proper xml output
    ostringstream os;
    os<<xmlOpenChannel(waferId.get_identifier32().get_compact(), m_iovStart.re_time(), m_iovStop.re_time())<<endl
@@ -2649,7 +2636,7 @@ SCTCalib::xmlChannelNoiseOccDataString(const Identifier & waferId,  const float 
 //agasconb 02.02.2015: block for Efficiency output
 //requested by Naoki Ishijima
 std::string
-SCTCalib::xmlChannelEfficiencyDataString(const Identifier & waferId,  const float efficiency, const SCT_SerialNumber & serial) {
+SCTCalib::xmlChannelEfficiencyDataString(const Identifier & waferId,  const float efficiency, const SCT_SerialNumber & serial) const {
    ostringstream os;
    os<<"   <module>"<<endl
      //    os<<xmlOpenChannel(waferId.get_identifier32().get_compact(), m_iovStart.re_time(), m_iovStop.re_time())<<endl
