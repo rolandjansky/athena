@@ -96,11 +96,22 @@ class JGTowerReader: public ::AthAlgorithm {
   ServiceHandle<ITHistSvc> histSvc;
   std::vector<TString> hists;
 
-  std::vector<float> towerMap_eta;
-  std::vector<float> towerMap_phi;
+  // tower map entries
+  std::vector<float> towerMap_towerEta;
+  std::vector<float> towerMap_towerPhi;
+  std::vector<int> towerMap_towerSampling;
+  std::vector< std::vector<int> > towerMap_towerLayers;
+
+  std::vector<float> towerMap_seedEta;
+  std::vector<float> towerMap_seedPhi;
   std::vector< std::vector<int> > towerMap_seedTowers;
-  std::vector< std::vector<int> > towerMap_localMaxSeedIndices;
+  std::vector< std::vector<int> > towerMap_seedLocalMaxSeeds;
+
+  std::vector<float> towerMap_jetEta;
+  std::vector<float> towerMap_jetPhi;
+  std::vector<int> towerMap_jetSeed;
   std::vector< std::vector<int> > towerMap_jetTowers;
+
 
   JetAlg::Seed*   jSeeds=new JetAlg::Seed;
   JetAlg::Seed*   jJetSeeds = new JetAlg::Seed;
