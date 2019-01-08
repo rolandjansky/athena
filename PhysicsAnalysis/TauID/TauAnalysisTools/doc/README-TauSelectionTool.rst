@@ -144,6 +144,24 @@ setup:
      - accepting taus with a jet BDT score below an upper bound
      - if ``JetBDTMax`` is configured, ``JetBDTRegion`` configuration wont be considered. ``JetBDTSigTrans`` is a transformed BDT score and provides flat ID efficiencies with respect to pT and pile-up. 
 
+   * - ``CutJetRNNScoreSigTrans``
+     - ``JetRNNSigTransRegion``
+     - ``std::vector<double>``
+     - accepting taus within jet RNN score regions, each `odd` in the vector is a lower bound, each `even` is an upper bound
+     - ``JetRNNSigTrans`` is a transformed RNN score and provides flat ID efficiencies with respect to pT and pile-up. 
+
+   * -
+     - ``JetRNNSigTransMin``
+     - ``double``
+     - accepting taus with a jet RNN score above a lower bound
+     - if ``JetRNNMin`` is configured, ``JetRNNRegion`` configuration wont be considered. ``JetRNNSigTrans`` is a transformed RNN score and provides flat ID efficiencies with respect to pT and pile-up. 
+
+   * - 
+     - ``JetRNNSigTransMax``
+     - ``double``
+     - accepting taus with a jet RNN score below an upper bound
+     - if ``JetRNNMax`` is configured, ``JetRNNRegion`` configuration wont be considered. ``JetRNNSigTrans`` is a transformed RNN score and provides flat ID efficiencies with respect to pT and pile-up. 
+
    * - ``CutJetIDWP``
      - ``JetIDWP``
      - ``int``
@@ -235,6 +253,19 @@ Currently implemented working points for ``CutJetIDWP`` are:
 
    * - JETBDTBKGTIGHT
      - tight background working point
+
+   * - JETIDRNNVERYLOOSE
+     - passing RNN very loose working point, ID efficiency 95%
+
+   * - JETIDRNNLOOSE
+     - passing RNN loose working point, ID efficiency 85% (75%) for 1-prong (3-prong)
+     
+   * - JETIDRNNMEDIUM
+     - passing RNN medium working point, ID efficiency 75% (60%) for 1-prong (3-prong)
+     
+   * - JETIDRNNTIGHT
+     - passing RNN tight working point, ID efficiency 60% (45%) for 1-prong (3-prong)
+     
 
 and for ``CutEleBDTWP``:
 
