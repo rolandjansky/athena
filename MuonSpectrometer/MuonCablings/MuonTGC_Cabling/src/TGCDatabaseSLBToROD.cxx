@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTGC_Cabling/TGCDatabaseSLBToROD.h"
@@ -14,7 +14,7 @@ TGCDatabaseSLBToROD::TGCDatabaseSLBToROD(std::string filename, std::string block
    : TGCDatabase(TGCDatabase::SLBToROD, filename, blockname)
 {
   // read out ascii file and fill database
-  if(database.size()==0) readDB();
+  if(m_database.size()==0) readDB();
 }
 
 TGCDatabaseSLBToROD::TGCDatabaseSLBToROD(const TGCDatabaseSLBToROD& right)
@@ -23,12 +23,12 @@ TGCDatabaseSLBToROD::TGCDatabaseSLBToROD(const TGCDatabaseSLBToROD& right)
 }
 
 void TGCDatabaseSLBToROD::readDB(void) {
-  std::ifstream file(filename.c_str());
+  std::ifstream file(m_filename.c_str());
   std::string buf;
 
-  unsigned int space = blockname.find(" ");
-  std::string module = blockname.substr(0,space);
-  std::string type = blockname.substr(space+1);
+  unsigned int space = m_blockname.find(" ");
+  std::string module = m_blockname.substr(0,space);
+  std::string type = m_blockname.substr(space+1);
 
   while(getline(file,buf)){
     if(buf.substr(0,module.size())==module) break;
@@ -47,7 +47,7 @@ void TGCDatabaseSLBToROD::readDB(void) {
       line >> temp; 
       entry.push_back(temp);
     }
-    database.push_back(entry);
+    m_database.push_back(entry);
   }
   
   file.close();
@@ -64,11 +64,11 @@ bool TGCDatabaseSLBToROD::update(const std::vector<int>& input)
 
   if(input.size()<6) { 
     // SSW block
-    database[ip].at(1) = input.at(1);
+    m_database[ip].at(1) = input.at(1);
   } else {
     // SLB block
-    database[ip].at(4) = input.at(4);
-    database[ip].at(5) = input.at(5);
+    m_database[ip].at(4) = input.at(4);
+    m_database[ip].at(5) = input.at(5);
   }
 
   return true;
@@ -78,12 +78,12 @@ int  TGCDatabaseSLBToROD::find(const std::vector<int>& channel) const
 {
   int index=-1;
 
-  const unsigned int size = database.size();
+  const unsigned int size = m_database.size();
 
   if(channel.size()<4) { 
     // SSW block
     for(unsigned int i=0; i<size; i++){
-      if(database[i].at(0) == channel.at(0)){
+      if(m_database[i].at(0) == channel.at(0)){
 	index = i;
 	break;
       }
@@ -91,10 +91,10 @@ int  TGCDatabaseSLBToROD::find(const std::vector<int>& channel) const
   } else {
     // SLB block
     for(unsigned int i=0; i<size; i++){
-      if(database[i].at(3) == channel.at(3) && 
-	 database[i].at(2) == channel.at(2) &&
-	 database[i].at(1) == channel.at(1) &&
-	 database[i].at(0) == channel.at(0)){
+      if(m_database[i].at(3) == channel.at(3) && 
+	 m_database[i].at(2) == channel.at(2) &&
+	 m_database[i].at(1) == channel.at(1) &&
+	 m_database[i].at(0) == channel.at(0)){
 	index = i;
 	break;
       }

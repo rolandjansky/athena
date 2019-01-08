@@ -41,12 +41,22 @@ _propsToUnify={"GeoModelSvc.DetectorTools":unifySet,
                "ProxyProviderSvc.ProviderNames":unifySet,
                "TagInfoMgr.ExtraTagValuePairs":unifySetOfPairs,
                "AthenaOutputStream.ItemList":unifySet,
-               "AthenaPoolCnvSvc.PoolAttributes":unifySet
+               "AthenaPoolCnvSvc.PoolAttributes":unifySet,
+               "*.HypoTools": unifySet
                }
+
+def matchPropName(propname):
+    if propname in _propsToUnify:
+        return True
+    try:
+        objectName, variableName = propname.split('.')[-2:]
+        return '*.{}'.format(variableName) in _propsToUnify or '{}.*'.format(objectName) in _propsToUnify
+    except:
+        return False
 
 
 def unifyProperty(propname,prop1,prop2):
-    if propname not in _propsToUnify:
+    if not matchPropName(propname):
         from AthenaConfiguration.ComponentAccumulator import DeduplicationFailed
         raise DeduplicationFailed("List property %s defined multiple times with conflicting values.\n " % propname \
                                       + str(prop1) +"\n and \n" +str(prop2) \

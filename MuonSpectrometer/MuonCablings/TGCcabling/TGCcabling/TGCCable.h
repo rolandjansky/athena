@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCCABLE_HH
@@ -27,11 +27,11 @@ public:
   // Constructor & Destructor
   TGCCable (CableType type=NoCableType)
   {
-    this->type = type;
+    this->m_type = type;
   }
   virtual ~TGCCable (void) {}
   
-  CableType getCableType (void) const { return type; }
+  CableType getCableType (void) const { return m_type; }
 
 protected:
   // channel connection
@@ -46,7 +46,7 @@ protected:
   { return 0; }
   
 private:
-  CableType type;
+  CableType m_type;
   
 };
   

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -30,14 +30,12 @@ SCT_CalibEventInfo::SCT_CalibEventInfo(const std::string& type, const std::strin
    m_tsBeginString(""),
    m_tsEndString(""),
    m_timeStampEnd(INTMIN),
-   m_timeStampMax(INTMIN),
    m_duration(0),
    m_LBBegin(INTMAX),
    m_LBEnd(INTMIN),
    m_numLB(0),
    m_source("UNKNOWN"),
    m_runNumber(0),
-   m_eventNumber(0),
    m_lumiBlock(0),
    m_timeStamp(0),
    m_bunchCrossing(0),

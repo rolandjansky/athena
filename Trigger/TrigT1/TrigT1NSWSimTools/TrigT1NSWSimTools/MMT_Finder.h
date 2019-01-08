@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MMT_FINDER_H
@@ -7,13 +7,14 @@
 
 
 #include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 #include "MMT_struct.h"
 
 
 class MMT_Finder{
  public:
-  MMT_Finder(MMT_Parameters *par, int nUVRoads = 1, int outputLevel = MSG::WARNING);
+  MMT_Finder(MMT_Parameters *par, int nUVRoads = 1);
   ~MMT_Finder(){}
   int Coincidence_Gate(const std::vector<bool>& plane_hits) const;
   void set_roads(int roads) { m_nRoads=roads; }

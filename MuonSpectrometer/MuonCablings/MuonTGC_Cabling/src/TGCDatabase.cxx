@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTGC_Cabling/TGCDatabase.h"
@@ -8,35 +8,35 @@ namespace MuonTGC_Cabling
 {
 
 TGCDatabase::TGCDatabase(DatabaseType vtype)
-  : type(vtype)
+  : m_type(vtype)
 {
 }
  
 TGCDatabase::TGCDatabase(DatabaseType vtype,
 			 std::string vfilename, 
 			 std::string vblockname)
-  : filename(vfilename),
-    blockname(vblockname),
-    type(vtype)
+  : m_filename(vfilename),
+    m_blockname(vblockname),
+    m_type(vtype)
 {
 }
 
 TGCDatabase::TGCDatabase(const TGCDatabase& right)
 {
   // copy member
-  type      = right.type;
-  filename  = right.filename;
-  blockname = right.blockname;
+  m_type      = right.m_type;
+  m_filename  = right.m_filename;
+  m_blockname = right.m_blockname;
   
   // copy database
-  const size_t database_size = right.database.size();
+  const size_t database_size = right.m_database.size();
   for(size_t ip=0; ip < database_size; ip+=1){
     std::vector<int> entry;
-    const size_t database_ip_size = right.database[ip].size();
+    const size_t database_ip_size = right.m_database[ip].size();
     for(size_t ic=0; ic < database_ip_size; ic+=1) {
-      entry.push_back(right.database[ip].at(ic));
+      entry.push_back(right.m_database[ip].at(ic));
     } 
-    database.push_back(entry);    
+    m_database.push_back(entry);    
   }
 }
 
@@ -47,21 +47,21 @@ TGCDatabase& TGCDatabase::operator=(const TGCDatabase& right)
     clear();
 
     // copy member
-    type      = right.type;
-    filename  = right.filename;
-    blockname = right.blockname;
+    m_type      = right.m_type;
+    m_filename  = right.m_filename;
+    m_blockname = right.m_blockname;
 
     // copy database
-    database = right.database;
+    m_database = right.m_database;
     /*
-    const size_t database_size = right.database.size();
+    const size_t database_size = right.m_database.size();
     for(size_t ip=0; ip < database_size; ip+=1){
       std::vector<int> entry;
-      const size_t database_ip_size = right.database[ip].size();
+      const size_t database_ip_size = right.m_database[ip].size();
       for(size_t ic=0; ic < database_ip_size; ic+=1) {
-	entry.push_back(right.database[ip].at(ic));
+	entry.push_back(right.m_database[ip].at(ic));
       } 
-      database.push_back(entry);    
+      m_database.push_back(entry);    
     } 
     */    
   }
@@ -75,26 +75,26 @@ TGCDatabase::~TGCDatabase(void)
 
 void TGCDatabase::clear()
 {
-  const unsigned int size = database.size();
+  const unsigned int size = m_database.size();
   for(unsigned int i=0; i<size; i++){
-    database[i].clear();
+    m_database[i].clear();
   }
-  database.clear();
+  m_database.clear();
 }
  
 int TGCDatabase::getEntry(int entry, int column) {
-  if(database.size()==0) readDB();
-  return database[entry].at(column);
+  if(m_database.size()==0) readDB();
+  return m_database[entry].at(column);
 }
  
 int TGCDatabase::getEntrySize(int entry) {
-  if(database.size()==0) readDB();
-  return database[entry].size();
+  if(m_database.size()==0) readDB();
+  return m_database[entry].size();
 }
  
 int TGCDatabase::getMaxEntry(void) {
-  if(database.size()==0) readDB();
-  return database.size();
+  if(m_database.size()==0) readDB();
+  return m_database.size();
 }
 
 bool TGCDatabase::update(const std::vector<int>&)

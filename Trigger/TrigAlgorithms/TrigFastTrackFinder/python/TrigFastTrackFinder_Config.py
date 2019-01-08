@@ -473,8 +473,8 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
           from TrigFTK_RecExample.TrigFTKLoadTools import theFTK_DataProviderSvc
           self.FTK_DataProviderSvc = theFTK_DataProviderSvc
           self.FTK_Mode=True
-        if type=="FTKRefit":    
-          self.FTK_Refit=True
+          if type=="FTKRefit":    
+              self.FTK_Refit=True
         else:
           #Spacepoint conversion
           from TrigOnlineSpacePointTool.TrigOnlineSpacePointToolConf import TrigSpacePointConversionTool

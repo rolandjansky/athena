@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTGC_Cabling/TGCDatabasePPToSL.h"
@@ -14,7 +14,7 @@ TGCDatabasePPToSL::TGCDatabasePPToSL(std::string filename, std::string blockname
     : TGCDatabase(TGCDatabase::PPToSL, filename, blockname)
 {
   // read out ascii file and fill database
-  if(database.size()==0) readDB();
+  if(m_database.size()==0) readDB();
 }
 
 TGCDatabasePPToSL::TGCDatabasePPToSL(const TGCDatabasePPToSL& right)
@@ -24,13 +24,13 @@ TGCDatabasePPToSL::TGCDatabasePPToSL(const TGCDatabasePPToSL& right)
  
 
 void TGCDatabasePPToSL::readDB(void) {
-  std::ifstream file(filename.c_str());
+  std::ifstream file(m_filename.c_str());
   std::string buf;
 
-  unsigned int space = blockname.find(" ");
-  std::string module = blockname.substr(0,space);
-  std::string region = blockname.substr(space+1,1);
-  std::string type = blockname.substr(space+2);
+  unsigned int space = m_blockname.find(" ");
+  std::string module = m_blockname.substr(0,space);
+  std::string region = m_blockname.substr(space+1,1);
+  std::string type = m_blockname.substr(space+2);
 
   int offset=-1;
   if(type == "WT") offset = 1;
@@ -61,7 +61,7 @@ void TGCDatabasePPToSL::readDB(void) {
         line >> temp; 
         entry.push_back(temp);
       }
-      database.push_back(entry);
+      m_database.push_back(entry);
     }
   }
   
@@ -79,12 +79,12 @@ bool TGCDatabasePPToSL::update(const std::vector<int>& input)
   
   const unsigned int input_size = input.size();
 
-  const unsigned int database_size = database[ip].size();
+  const unsigned int database_size = m_database[ip].size();
   for(unsigned int i=1; i<database_size; i++){
     if(i<input_size){
-      database[ip].at(i) = input.at(i);
+      m_database[ip].at(i) = input.at(i);
     } else {
-      database[ip].at(i) = -1;
+      m_database[ip].at(i) = -1;
     }
   }
    
@@ -94,9 +94,9 @@ bool TGCDatabasePPToSL::update(const std::vector<int>& input)
 int  TGCDatabasePPToSL::find(const std::vector<int>& channel) const
 {
   int index=-1;
-  const unsigned int size = database.size();
+  const unsigned int size = m_database.size();
   for(unsigned int i=0; i<size; i++){
-    if(database[i].at(0) == channel.at(0)){
+    if(m_database[i].at(0) == channel.at(0)){
       index = i;
       break;
     }

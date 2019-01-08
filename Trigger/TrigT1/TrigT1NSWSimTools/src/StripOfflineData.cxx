@@ -6,9 +6,6 @@
 //Local includes
 #include "TrigT1NSWSimTools/StripOfflineData.h"
 
-#include <string>
-
-
 namespace NSWL1 {
 
   StripOfflineData::StripOfflineData(Identifier id, const sTgcIdHelper* helper, const sTgcDigit* digit) : 
@@ -77,10 +74,7 @@ namespace NSWL1 {
 
     int StripOfflineData::sectorId()    const {
       if (m_helper) {
-	//      std::string stName = m_helper->stationNameString(m_helper->stationName(m_id));
-        //    bool isSmall = stName[2]=='S';
 	return  m_helper->stationPhi(m_id);
-	    //    return (isSmall)? m_helper->stationPhi(m_id)*2 - 1 : m_helper->stationPhi(m_id)*2 - 2;
       }
       return -1;
     }

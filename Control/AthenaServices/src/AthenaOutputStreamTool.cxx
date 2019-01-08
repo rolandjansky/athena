@@ -64,16 +64,7 @@ AthenaOutputStreamTool::AthenaOutputStreamTool(const std::string& type,
          m_dataHeaderKey = parentAlg->name();
       }
    }
-   // Properties
-   declareProperty("OutputFile",            m_outputName = std::string());
-   declareProperty("Store",                 m_store = ServiceHandle<StoreGateSvc>("DetectorStore", name),
-	   "Handle to the StoreGateSvc instance from which to read data (to be written out)");
-   declareProperty("ProcessingTag",         m_processTag = m_dataHeaderKey);
-   declareProperty("OutputCollection",      m_outputCollection = std::string());
-   declareProperty("PoolContainerPrefix",   m_containerPrefix = std::string());
-   declareProperty("TopLevelContainerName", m_containerNameHint = "0");
-   declareProperty("SubLevelBranchName",    m_branchNameHint = "0");
-   declareProperty("AttributeListKey",      m_attrListKey = std::string());
+   m_processTag = m_dataHeaderKey;
 }
 //__________________________________________________________________________
 AthenaOutputStreamTool::~AthenaOutputStreamTool() {
@@ -89,6 +80,20 @@ StatusCode AthenaOutputStreamTool::initialize() {
    if (m_conversionSvc.retrieve().isFailure()) {
       ATH_MSG_FATAL("Cannot get IConversionSvc interface of the ConversionSvc");
       return(StatusCode::FAILURE);
+   }
+
+   { // handle the AttrKey overwite
+     const std::string keyword = "[AttributeListKey=";
+     std::string::size_type pos = m_outputName.value().find(keyword);
+     if( (pos != std::string::npos) ) {
+       ATH_MSG_INFO("The AttrListKey will be overwritten/set by the value from the OutputName: " << m_outputName);
+       const std::string attrListKey = m_outputName.value().substr(pos + keyword.size(),
+								   m_outputName.value().find("]", pos + keyword.size()) - pos - keyword.size());
+       m_attrListKey = attrListKey;
+     }
+   }
+   if ( ! m_attrListKey.key().empty() ) {
+     ATH_CHECK(m_attrListKey.initialize());
    }
    return(StatusCode::SUCCESS);
 }
@@ -238,19 +243,17 @@ StatusCode AthenaOutputStreamTool::connectOutput(const std::string& outputName) 
          }
       }
    }
-   std::string attrListKey = m_attrListKey.value();
-   std::string::size_type pos = outputConnectionString.find("[AttributeListKey=");
-   if (pos != std::string::npos) {
-      attrListKey = outputConnectionString.substr(pos + 18, outputConnectionString.find("]", pos + 18) - pos - 18);
-   }
-   if (!attrListKey.empty()) {
-      const AthenaAttributeList* attrList = nullptr;
-      if (m_store->retrieve(attrList, attrListKey).isFailure()) {
-         ATH_MSG_WARNING("Unable to retrieve AttributeList with key " << attrListKey);
+
+   if (!m_attrListKey.key().empty()) {
+     auto attrListHandle = SG::makeHandle(m_attrListKey);
+
+     if (!attrListHandle.isValid()) {
+       ATH_MSG_WARNING("Unable to retrieve AttributeList with key " << m_attrListKey.key());
       } else {
-         m_dataHeader->setAttributeList(attrList);
+       m_dataHeader->setAttributeList(attrListHandle.cptr());
       }
    }
+
    // Record DataHeader in StoreGate
    if (m_store->record(m_dataHeader, m_dataHeaderKey).isFailure()) {
       ATH_MSG_ERROR("Unable to record DataHeader with key " << m_dataHeaderKey);

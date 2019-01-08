@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileEvent/TileCell.h"
@@ -73,11 +73,12 @@ TileROD_Decoder::TileROD_Decoder(const std::string& type, const std::string& nam
 
   m_of2Default = true;
   m_MBTS = NULL;
-  m_cell2Double.reserve(23); // Maximum number of cells in a drawer
   m_WarningCounter = 0;
   m_ErrorCounter = 0;
   
-  m_OFWeights.resize(4 * TileCalibUtils::MAX_DRAWERIDX, NULL);
+  for (std::atomic<const uint32_t*>& p : m_OFPtrs) {
+    p = nullptr;
+  }
 }
 
 void TileROD_Decoder::updateAmpThreshold(float ampMinThresh) {
@@ -91,9 +92,6 @@ void TileROD_Decoder::updateAmpThreshold(float ampMinThresh) {
 TileROD_Decoder::~TileROD_Decoder() {
   if (m_hid2re) delete m_hid2re;
   if (m_hid2reHLT) delete m_hid2reHLT;
-  
-  for (unsigned int id = 0; id < 4 * TileCalibUtils::MAX_DRAWERIDX; ++id)
-    if (m_OFWeights[id]) delete m_OFWeights[id];
 }
 
 const InterfaceID& TileROD_Decoder::interfaceID() {
@@ -165,11 +163,6 @@ StatusCode TileROD_Decoder::initialize() {
   
   m_maxChannels = TileCablingService::getInstance()->getMaxChannels();
 
-  m_pRwChVec.reserve(m_maxChannels);
-  // Accumulate TileRawChannels for storing temp data
-  for (unsigned int i = 0; i < m_maxChannels; ++i) {
-    m_pRwChVec.push_back(new TileFastRawChannel());
-  }
   m_Rw2Cell[0].reserve(m_maxChannels);
   m_Rw2Cell[1].reserve(m_maxChannels);
   m_Rw2Cell[2].reserve(m_maxChannels * TileCalibUtils::MAX_DRAWER);
@@ -237,11 +230,6 @@ bool TileROD_Decoder::is_drawer_masked(int frag_id, int run) {
 }
 
 StatusCode TileROD_Decoder::finalize() {
-  // Delete reserved TileFastRawChannels
-  for (unsigned int i = 0; i < m_pRwChVec.size(); ++i) {
-    delete m_pRwChVec[i];
-  }
-  m_pRwChVec.clear();
   for (unsigned int i = 0; i < 4; ++i) {
     m_Rw2Cell[i].clear();
     m_Rw2Pmt[i].clear();
@@ -3292,6 +3280,9 @@ uint32_t TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollect
   bool fragFound = false;
   bool DQfragMissing = true;
   
+  FRwChVec pChannel;
+  pChannel.reserve (m_maxChannels);
+
   while (wc < size) { // iterator over all words in a ROD
     
     // first word is frag size
@@ -3332,13 +3323,13 @@ uint32_t TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollect
           fragFound = true;
           DQfragMissing = false;
           correctAmplitude = false;
-          unpack_frag2HLT(version, sizeOverhead, p, m_pRwChVec);
+          unpack_frag2HLT(version, sizeOverhead, p, pChannel);
           break;
         case 3:
           fragFound = true;
           DQfragMissing = false;
           correctAmplitude = false;
-          unpack_frag3HLT(version, sizeOverhead, p, m_pRwChVec);
+          unpack_frag3HLT(version, sizeOverhead, p, pChannel);
           break;
         case 4:
           if (!m_ignoreFrag4HLT && !fragFound) {
@@ -3361,7 +3352,7 @@ uint32_t TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollect
               rChUnit = (TileRawChannelUnit::UNIT) (unit); // Offline units in simulated data
             }
             
-            unpack_frag4HLT(version, sizeOverhead, unit, p, m_pRwChVec);
+            unpack_frag4HLT(version, sizeOverhead, unit, p, pChannel);
           }
           break;
           
@@ -3374,7 +3365,7 @@ uint32_t TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollect
             correctAmplitude = true; // fragment 5 will appear only if there is no iterations, so correction required
             rChUnit = (TileRawChannelUnit::UNIT) (unit + TileRawChannelUnit::OnlineOffset);
             
-            unpack_frag5HLT(version, sizeOverhead, unit, p, m_pRwChVec);
+            unpack_frag5HLT(version, sizeOverhead, unit, p, pChannel);
           }
           break;
           
@@ -3399,7 +3390,7 @@ uint32_t TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollect
   if (fragFound) {
     if (masked_drawer) DQuality = 0x0;
     error |= make_copyHLT(of2, rChUnit, correctAmplitude,
-                          m_pRwChVec, v, DQuality, d0cells);
+                          pChannel, v, DQuality, d0cells);
   } else if (!masked_drawer) error |= 0x20000;
   
   return error;
@@ -3408,17 +3399,20 @@ uint32_t TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollect
 uint32_t TileROD_Decoder::make_copyHLT(bool of2,
                                        TileRawChannelUnit::UNIT rChUnit,
                                        bool correctAmplitude,
-                                       pFRwChVec & pChannel, TileCellCollection & v,
+                                       const FRwChVec & pChannel,
+                                       TileCellCollection & v,
                                        const uint16_t DQuality,
-                                       D0CellsHLT& d0cells) {
-  typedef pFRwChVec::iterator ITERATOR;
+                                       D0CellsHLT& d0cells)
+{
+  typedef FRwChVec::const_iterator ITERATOR;
   // int gain = 0;
   float ener, time, qual = 0;
   TileCell* pCell;
+  std::vector<TileCell*> cell2Double;
+  cell2Double.reserve(23);
+
   uint32_t error = 0;
 
-  m_cell2Double.clear();
-  
   if (DQuality == 0xffff) error |= 0x80000;
   
   TileRawChannelCollection::ID frag_id = (v.identify() & 0x0FFF);
@@ -3458,18 +3452,18 @@ uint32_t TileROD_Decoder::make_copyHLT(bool of2,
     
     if (sec < 2) { // special treatment of first PMT in pos/neg barrel which belongs to D0 cell
       idxraw = 0;
-      channelIdx = (*rawItr)->channel();
+      channelIdx = rawItr->channel();
       bool no_dmu_mask = true;
       if (DQuality) {
         if (DQuality >> (channelIdx / 3) & 0x1) no_dmu_mask = false;
       }
       
-      adcIdx = (*rawItr)->adc();
-      qual = (*rawItr)->quality();
+      adcIdx = rawItr->adc();
+      qual = rawItr->quality();
       bool do_mask = false;
       if ((qual < QUALITY_THRESHOLD) && no_dmu_mask) {
-        ener = (*rawItr)->amplitude();
-        time = (*rawItr)->time();
+        ener = rawItr->amplitude();
+        time = rawItr->time();
         // FIXME:: To speed up HLT processing we keep OnlineMegaElectronVolts
         // but this means that we can end up with different units (online or offline)
         if (recalibrate && ener!=0.0F) {
@@ -3510,7 +3504,7 @@ uint32_t TileROD_Decoder::make_copyHLT(bool of2,
     int MBTS_chan=((ros>2)?-1:43);
     
     for (; rawItr != end; ++rawItr) {
-      TileFastRawChannel* rawPtr = *rawItr;
+      const TileFastRawChannel* rawPtr = &*rawItr;
       const int rw2cell = m_Rw2Cell[sec][idxraw];
       if (rw2cell != -1) {
         // Get Variables
@@ -3556,7 +3550,7 @@ uint32_t TileROD_Decoder::make_copyHLT(bool of2,
         } else if (pCell->caloDDE()->onl2() != TileHWID::NOT_VALID_HASH) {
           pCell->addEnergy(0.0F, m_Rw2Pmt[sec][idxraw], 0U);
           pCell->setQuality_nonvirt((unsigned char) 255, 0, m_Rw2Pmt[sec][idxraw]);
-          m_cell2Double.push_back(pCell); // have to double later
+          cell2Double.push_back(pCell); // have to double later
         } else { // Mask it here for Gap
           // (pCell)->setEnergy_nonvirt(0.0F, 0.0F, 0, CaloGain::INVALIDGAIN);
           pCell->setTime_nonvirt(0.0F);
@@ -3576,12 +3570,12 @@ uint32_t TileROD_Decoder::make_copyHLT(bool of2,
       unsigned int idx = m_mapMBTS[frag_id];
       if (idx < (*m_MBTS).size()) { // MBTS present (always last channel)
         TileCell* pCell = (*m_MBTS)[idx];
-        TileFastRawChannel* rawPtr = pChannel[MBTS_chan];
-        channelIdx = rawPtr->channel();
-        adcIdx = rawPtr->adc();
-        float ener = rawPtr->amplitude();
-        float time = rawPtr->time();
-        float qual = rawPtr->quality();
+        const TileFastRawChannel& rawCh = pChannel[MBTS_chan];
+        channelIdx = rawCh.channel();
+        adcIdx = rawCh.adc();
+        float ener = rawCh.amplitude();
+        float time = rawCh.time();
+        float qual = rawCh.quality();
         if (qual < QUALITY_THRESHOLD) {
           if (rChUnit==TileRawChannelUnit::MegaElectronVolts) { // go back to pC - not standard configuration
             ener /= m_tileToolEmscale->channelCalib(drawerIdx, channelIdx, adcIdx, 1.0, // calibrate to PicoCoulombs
@@ -3615,8 +3609,8 @@ uint32_t TileROD_Decoder::make_copyHLT(bool of2,
     
   } // end of if vec<TileRawChannel>::size > 0)
   
-  for (std::vector<TileCell*>::const_iterator d_it = m_cell2Double.begin();
-       d_it != m_cell2Double.end(); ++d_it) {
+  for (std::vector<TileCell*>::const_iterator d_it = cell2Double.begin();
+       d_it != cell2Double.end(); ++d_it) {
     
     //    int gain = 0;
     //    if ((*d_it)->gain1() == 1 || (*d_it)->gain2() == 1) gain = 1;
@@ -3635,7 +3629,7 @@ uint32_t TileROD_Decoder::make_copyHLT(bool of2,
 void TileROD_Decoder::unpack_frag2HLT(uint32_t /* version */,
                                       unsigned sizeOverhead,
                                       const uint32_t* p,
-                                      pFRwChVec & pChannel) {
+                                      FRwChVec & pChannel) {
   // first word is frag size
   int count = *(p);
   
@@ -3647,14 +3641,14 @@ void TileROD_Decoder::unpack_frag2HLT(uint32_t /* version */,
     
     if (w != 0) { // skip invalid channels
       
-      pChannel[ch]->set(ch
-                        , m_rc2bytes2.gain(w)
-                        , m_rc2bytes2.amplitude(w)
-                        , m_rc2bytes2.time(w)
-                        , m_rc2bytes2.quality(w));
+      pChannel.emplace_back(ch
+                            , m_rc2bytes2.gain(w)
+                            , m_rc2bytes2.amplitude(w)
+                            , m_rc2bytes2.time(w)
+                            , m_rc2bytes2.quality(w));
       
     } else {
-      pChannel[ch]->set(ch, 1U, 0.0F, 0.0F, 0.0F);
+      pChannel.emplace_back(ch, 1U, 0.0F, 0.0F, 0.0F);
     }
     ++wc;
     ++p;
@@ -3675,7 +3669,7 @@ void TileROD_Decoder::unpack_frag2HLT(uint32_t /* version */,
 void TileROD_Decoder::unpack_frag3HLT(uint32_t /* version */,
                                       uint32_t sizeOverhead,
                                       const uint32_t* p,
-                                      pFRwChVec & pChannel) {
+                                      FRwChVec & pChannel) {
   // first word is frag size
   int count = *(p);
   // second word is frag ID and frag type
@@ -3697,11 +3691,11 @@ void TileROD_Decoder::unpack_frag3HLT(uint32_t /* version */,
   for (unsigned int ch = 0U; ch < 48U; ++ch) {
     if (checkBit(pMap, ch)) {
       
-      pChannel[ch]->set(ch
-                        , m_rc2bytes.gain(*p16)
-                        , m_rc2bytes.amplitude(*p16)
-                        , m_rc2bytes.time(*(p16 + 1))
-                        , m_rc2bytes.quality(*(p16 + 2)));
+      pChannel.emplace_back(ch
+                            , m_rc2bytes.gain(*p16)
+                            , m_rc2bytes.amplitude(*p16)
+                            , m_rc2bytes.time(*(p16 + 1))
+                            , m_rc2bytes.quality(*(p16 + 2)));
       
       //      ATH_MSG_VERBOSE(" frag 0x" << MSG::hex  << frag << MSG::dec
       //                      << " ch " << ch
@@ -3715,7 +3709,7 @@ void TileROD_Decoder::unpack_frag3HLT(uint32_t /* version */,
       p16 = p16 + 3;
     } // channel present
     else {
-      pChannel[ch]->set(ch, 1U, 0.0F, 0.0F, 0.0F);
+      pChannel.emplace_back(ch, 1U, 0.0F, 0.0F, 0.0F);
     }
   } // all bits, done with this frag
   
@@ -3740,7 +3734,7 @@ void TileROD_Decoder::unpack_frag4HLT(uint32_t /* version */,
                                       uint32_t sizeOverhead,
                                       unsigned int unit,
                                       const uint32_t* p,
-                                      pFRwChVec & pChannel) {
+                                      FRwChVec & pChannel) {
   // first word is frag size
   int count = *(p);
   // second word is frag ID and frag type
@@ -3750,14 +3744,14 @@ void TileROD_Decoder::unpack_frag4HLT(uint32_t /* version */,
   for (unsigned int ch = 0U; ch < m_maxChannels; ++ch) {
     unsigned int w = (*p);
     if (w != 0) { // skip invalid channels
-      pChannel[ch]->set(ch
-                        , m_rc2bytes4.gain(w)
-                        , m_rc2bytes4.amplitude(w, unit)
-                        , m_rc2bytes4.time(w)
-                        , m_rc2bytes4.quality(w));
+      pChannel.emplace_back(ch
+                            , m_rc2bytes4.gain(w)
+                            , m_rc2bytes4.amplitude(w, unit)
+                            , m_rc2bytes4.time(w)
+                            , m_rc2bytes4.quality(w));
       
     } else {
-      pChannel[ch]->set(ch, 1U, 0.0F, 0.0F, 0.0F);
+      pChannel.emplace_back(ch, 1U, 0.0F, 0.0F, 0.0F);
     }
     ++wc;
     ++p;
@@ -3780,7 +3774,7 @@ void TileROD_Decoder::unpack_frag5HLT(uint32_t /* version */,
                                       uint32_t sizeOverhead,
                                       unsigned int unit,
                                       const uint32_t* p,
-                                      pFRwChVec & pChannel) {
+                                      FRwChVec & pChannel) {
   // first word is frag size
   int count = *(p);
   // second word is frag ID and frag type
@@ -3812,7 +3806,7 @@ void TileROD_Decoder::unpack_frag5HLT(uint32_t /* version */,
       bad = (bad16 & 0x1);
       bad16 >>= 1;
       quality = m_rc2bytes5.get_quality(bad, fmt);
-      pChannel[ch]->set(ch, gain, ene, time, quality);
+      pChannel.emplace_back(ch, gain, ene, time, quality);
       
       ++ch;
       ++wc;
@@ -4085,7 +4079,9 @@ void TileROD_Decoder::initTileMuRcvHid2re() {
   initHid2re();
 }
 
-uint32_t* TileROD_Decoder::getOFW(int fragId, int unit) {
+const uint32_t*
+TileROD_Decoder::getOFW(int fragId, int unit)
+{
   if (unit >> 2) {
     ATH_MSG_WARNING( "Wrong online reconstruction units for getOFW: unit=" << unit
                     << " => assume unit=" << (unit & 3) );
@@ -4094,47 +4090,60 @@ uint32_t* TileROD_Decoder::getOFW(int fragId, int unit) {
   
   uint32_t drawerIdx = TileCalibUtils::getDrawerIdxFromFragId(fragId);
   size_t id = (drawerIdx << 2 | unit);
-  std::vector<uint32_t>* ofw = m_OFWeights[id];
+  const uint32_t* ofptr = m_OFPtrs[id];
+  if (ofptr) {
+    return ofptr;
+  }
+
+  std::lock_guard<std::mutex> lock (m_OFWeightMutex);
+  ofptr = m_OFPtrs[id];
+  if (ofptr) {
+    return ofptr;
+  }
+
+  std::vector<uint32_t>& ofw = m_OFWeights[id];
   
-  if (ofw == NULL) {
-    ATH_MSG_DEBUG("getOFC fragId: 0x" << MSG::hex << fragId << MSG::dec << " Unit: " << unit);
-    TileRawChannelUnit::UNIT chan_unit = (TileRawChannelUnit::UNIT) (unit
-                                                                     + TileRawChannelUnit::OnlineOffset);
+  ATH_MSG_DEBUG("getOFC fragId: 0x" << MSG::hex << fragId << MSG::dec << " Unit: " << unit);
+  TileRawChannelUnit::UNIT chan_unit = (TileRawChannelUnit::UNIT) (unit
+                                                                   + TileRawChannelUnit::OnlineOffset);
     
-    ofw = m_OFWeights[id] = new std::vector<uint32_t>;
+  bool of2 = true;
+  std::vector<double> a(7), b(7), c(7), g(7), dg(7);
     
-    bool of2 = true;
-    const TileOfcWeightsStruct* weights;
-    std::vector<double> a(7), b(7), c(7), g(7), dg(7);
-    
-    for (int ch = 0; ch < 48; ++ch) {
-      for (int gain = 0; gain < 2; ++gain) {
-        float phase = -m_tileToolTiming->getSignalPhase(drawerIdx, ch, gain);
-        weights = m_tileCondToolOfcCool->getOfcWeights(drawerIdx, ch, gain, phase, of2);
+  for (int ch = 0; ch < 48; ++ch) {
+    for (int gain = 0; gain < 2; ++gain) {
+      float phase = -m_tileToolTiming->getSignalPhase(drawerIdx, ch, gain);
+      TileOfcWeightsStruct weights;
+      if (m_tileCondToolOfcCool->getOfcWeights(drawerIdx, ch, gain, phase, of2, weights).isFailure())
+      {
+        ATH_MSG_ERROR( "getOfcWeights fails" );
+        return nullptr;
+      }
         
-        double calib = m_tileToolEmscale->channelCalibOnl(drawerIdx, ch, gain, 1.0, chan_unit);
+      double calib = m_tileToolEmscale->channelCalibOnl(drawerIdx, ch, gain, 1.0, chan_unit);
         
-        if (unit != 0 && gain) calib *= 64.0;
+      if (unit != 0 && gain) calib *= 64.0;
         
-        for (int i = 0; i < 7; ++i) {
-          a[i] = weights->w_a[i];
-          b[i] = weights->w_b[i];
-          c[i] = weights->w_c[i];
-          g[i] = weights->g[i];
-          dg[i] = weights->dg[i];
-        }
-        Format6(a, b, c, g, dg
-                , ch // channel
-                , 0 // phase = 0 poskol'ku ne ponyal kak okruglyat'
-                , calib // calibration
-                , *ofw
-                , false // verbose
-                );
-      } // gain
-    } // ch
-  } // if ofw == NULL
+      for (int i = 0; i < 7; ++i) {
+        a[i] = weights.w_a[i];
+        b[i] = weights.w_b[i];
+        c[i] = weights.w_c[i];
+        g[i] = weights.g[i];
+        dg[i] = weights.dg[i];
+      }
+      Format6(a, b, c, g, dg
+              , ch // channel
+              , 0 // phase = 0 poskol'ku ne ponyal kak okruglyat'
+              , calib // calibration
+              , ofw
+              , false // verbose
+              );
+    } // gain
+  } // ch
   
-  return &((*ofw)[0]);
+  ofptr = m_OFPtrs[id] = ofw.data();
+  
+  return ofptr;
 }
 
 /* TMDB dedicated functions will have a group of functions for each dedicated container 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaMonitoring/DQAtlasReadyFilterTool.h"
@@ -8,7 +8,6 @@ DQAtlasReadyFilterTool::DQAtlasReadyFilterTool(const std::string& type,const std
 : AthAlgTool( type, name, parent )
 , m_fallbackValue(true)
 , m_alwaysReturnTrue(false)
-, m_valueCache(true)
 , m_key("/TDAQ/RunCtrl/DataTakingMode")
 {
   declareInterface<IDQFilterTool>(this);

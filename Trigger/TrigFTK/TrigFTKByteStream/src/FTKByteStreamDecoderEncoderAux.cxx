@@ -35,7 +35,7 @@ namespace FTK {
 								   const std::string& type, 
 								   const IInterface* parent) 
     : AthAlgTool(toolname, type, parent),
-      m_doHeader(false),
+      m_doHeader(true),
       m_doTrailer(false)
   {
     declareInterface< IFTKByteStreamDecoderEncoderTool  >( this );
@@ -85,7 +85,7 @@ namespace FTK {
   void FTKByteStreamDecoderEncoderAuxTool::unpackPixCluster(OFFLINE_FRAGMENTS_NAMESPACE::PointerType data, 
 							 FTK_RawPixelCluster& cluster){
     cluster.setWordA(0); // no moduleID
-    cluster.setWordB(*(data+1));
+    cluster.setWordB(*data);
   }
 
   void FTKByteStreamDecoderEncoderAuxTool::packSCTCluster(const FTK_RawSCT_Cluster& cluster, 
@@ -104,8 +104,8 @@ namespace FTK {
   void FTKByteStreamDecoderEncoderAuxTool::unpackSCTCluster(OFFLINE_FRAGMENTS_NAMESPACE::PointerType data, 
 							 FTK_RawSCT_Cluster& cluster){
 
-    uint32_t coord = (*(data+1) & 0x7ff);
-    uint32_t width = (((*(data+1)>>12) & 0x7));
+    uint32_t coord = (*data & 0x7ff);
+    uint32_t width = ( ((*data)>>12) & 0x7);
     uint32_t word = (width<<28) + (coord<<16); 
     cluster.setWord(word);
   }
@@ -131,10 +131,21 @@ namespace FTK {
 
     FTK_RawTrack* track = new FTK_RawTrack();
     track->setSectorID(data[0] & 0xffff);
-    track->setTower(m_towerID);  // Bugfix for towerID set to 0 in data
+    //    track->setTower(m_towerID);  // Bugfix for towerID set to 0 in data
+    track->setTower((data[0]>>24) & 0x3f);  // Bugfix for towerID set to 0 in data
     track->setRoadID(data[1] & 0xffffff);
-    track->setLayerMap(0x75e);
-    
+    uint32_t lay1 = (data[0]>>16)&0x1;
+    uint32_t lay2 = (data[0]>>17)&0x1;
+    uint32_t lay3 = (data[0]>>18)&0x1;
+    uint32_t lay4 = (data[0]>>19)&0x1;
+    uint32_t lay6 = (data[0]>>20)&0x1;
+    uint32_t lay8 = (data[0]>>21)&0x1;
+    uint32_t lay9 = (data[0]>>22)&0x1;
+    uint32_t lay10 = (data[0]>>23)&0x1;
+    uint32_t layermap = (lay1<<1 | lay2<<2 | lay3<<3 | lay4<<4 | lay6<<6 | lay8 <<8 | lay9 << 9 | lay10 << 10);
+    track->setLayerMap(layermap); 
+    track->setIsAuxFormat(true);
+
     data += TrackParamsBlobSize;
     
 
@@ -142,7 +153,6 @@ namespace FTK {
     // get pixel hits  
     track->getPixelClusters().resize(NPixLayers);
     for ( size_t i = 1; i < NPixLayers; ++i) {
-
       unpackPixCluster(data, track->getPixelCluster(i) );    
       data += PixHitParamsBlobSize;
 
@@ -181,15 +191,9 @@ namespace FTK {
   }
 
   void FTKByteStreamDecoderEncoderAuxTool::unpackHeader(OFFLINE_FRAGMENTS_NAMESPACE::PointerType &rodData){
-    //marker
-    uint32_t marker = rodData[0];
-    if (marker!=FTKByteStreamDecoderEncoderAux::headerMarker){
-      ATH_MSG_DEBUG("Not dealing with an FTK fragment " << std::hex << marker << " vs the marker " << FTKByteStreamDecoderEncoderAux::headerMarker << std::dec );
-      //rodData += FTKByteStreamDecoderEncoderAux::headerSize -1;
-      return;
-    }
+
     //skip to the end
-    rodData += 7;
+    rodData += headerSize;
   }
 
   void FTKByteStreamDecoderEncoderAuxTool::packTrailer(std::vector<uint32_t> &payload){
@@ -206,8 +210,7 @@ namespace FTK {
 
   void FTKByteStreamDecoderEncoderAuxTool::unpackMonitoring(OFFLINE_FRAGMENTS_NAMESPACE::PointerType &rodData){
     if ( (rodData[0] & 0xFFFF0000) == 0xE0DA0000) {
-      ATH_MSG_DEBUG("marker 0xE0DA0000 found");
-      //while (
+      ATH_MSG_VERBOSE("marker 0xE0DA0000 found");
     }
     return;
   }
@@ -217,9 +220,9 @@ namespace FTK {
     auto beforeMonitoring = rodData;
     unpackMonitoring(rodData);
     if (rodData == beforeMonitoring){
-      ATH_MSG_DEBUG("Extra monitoring records not found");
+      ATH_MSG_VERBOSE("Extra monitoring records not found");
     } else {
-      ATH_MSG_DEBUG("Monitoring records of size " << (rodData-beforeMonitoring)/sizeof(OFFLINE_FRAGMENTS_NAMESPACE::PointerType));
+      ATH_MSG_VERBOSE("Monitoring records of size " << (rodData-beforeMonitoring)/sizeof(OFFLINE_FRAGMENTS_NAMESPACE::PointerType));
     }
 
     //first word
@@ -228,15 +231,15 @@ namespace FTK {
       ATH_MSG_ERROR("Trailer first word should read 0xe0da0000 but got 0x"<<std::hex<<firstword<<std::dec);
     }
     uint32_t extL1id = rodData[1];     
-    ATH_MSG_DEBUG("extL1id " << extL1id);
+    ATH_MSG_VERBOSE("extL1id " << extL1id);
 
     uint32_t error_flag = rodData[2];  
-    ATH_MSG_DEBUG("error_flag " << error_flag);
+    ATH_MSG_VERBOSE("error_flag " << error_flag);
     //reserved word
-    ATH_MSG_DEBUG("reserved " << rodData[3]);   rodData++;
+    ATH_MSG_VERBOSE("reserved " << rodData[3]);   rodData++;
 
     uint32_t  numDataElems  = rodData[4]; 
-    ATH_MSG_DEBUG("Number of Data Elements " << numDataElems);
+    ATH_MSG_VERBOSE("Number of Data Elements " << numDataElems);
     
     //last word
     uint32_t  lastword = rodData[5]; 
@@ -274,18 +277,23 @@ namespace FTK {
 
   StatusCode FTKByteStreamDecoderEncoderAuxTool::decode(uint32_t nDataWords, OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData, FTK_RawTrackContainer* result) {
 
-    ATH_MSG_DEBUG("FTKByteStreamDecoderEncoderAuxTool::decode for nDataWords=" << nDataWords);
 
-    uint32_t nTracks = nDataWords / TrackBlobSize;
+    if (nDataWords <= (headerSize + trailerSize)) {
+      ATH_MSG_VERBOSE("FTKByteStreamDecoderEncoderAuxTool::decode for nDataWords= "  << nDataWords << " Ntracks= 0");
+      return StatusCode::SUCCESS;
+    }
     
-    ATH_MSG_DEBUG("rodData: " << rodData);
+    uint32_t nTracks = (nDataWords - headerSize - trailerSize) / TrackBlobSize;
+    uint32_t nOver = nDataWords - nTracks*TrackBlobSize - headerSize - trailerSize;
+    
+    ATH_MSG_VERBOSE("FTKByteStreamDecoderEncoderAuxTool::decode for nDataWords= " << nDataWords<< " Ntracks= " << nTracks << " remainder (should be zero) " << nOver);
 
     if (m_doHeader){
       unpackHeader(rodData);
     }
-    ATH_MSG_DEBUG("rodData: " << rodData);
+
     result->reserve(result->size() + nTracks);
-    for ( size_t i = 0; i < nTracks; ++i ) {
+    for ( size_t i = 0; i < nTracks; ++i ) { 
       FTK_RawTrack* track = unpackFTTrack( rodData );
       rodData += TrackBlobSize;
       result->push_back(track);

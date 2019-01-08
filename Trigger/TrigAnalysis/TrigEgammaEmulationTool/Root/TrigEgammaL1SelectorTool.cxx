@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************
@@ -25,6 +25,16 @@ TrigEgammaL1SelectorTool::
 TrigEgammaL1SelectorTool( const std::string& myname )
     : TrigEgammaSelectorBaseTool(myname)
 {
+  // L1 configuration parameters
+  declareProperty( "WPNames"      ,  m_wpNames         ); // must be: ["T","M","L"] (Tight,Medium and Loose)
+  declareProperty( "HadCoreCutMin",  m_hadCoreCutMin   ); // must be a list with for values: (default,tight,medium and loose)
+  declareProperty( "HadCoreCutOff",  m_hadCoreCutOff   );
+  declareProperty( "HadCoreSlope" ,  m_hadCoreSlope    );
+  declareProperty( "EmIsolCutMin" ,  m_emIsolCutMin    );
+  declareProperty( "EmIsolCutOff" ,  m_emIsolCutOff    );
+  declareProperty( "EmIsolSlope"  ,  m_emIsolCutSlope  );
+  declareProperty( "IsolCutMax"   ,  m_isolMaxCut = 50 );
+
 }
 //**********************************************************************
 StatusCode TrigEgammaL1SelectorTool::initialize() {
@@ -58,7 +68,21 @@ bool TrigEgammaL1SelectorTool::emulation( const xAOD::EmTauRoI* l1, bool &pass, 
   ATH_MSG_DEBUG("L1 Emulation for " << info.trigName);
   ATH_MSG_DEBUG("L1 threshold   = " << l1threshold);
   ATH_MSG_DEBUG("L1 type        = " << l1type);
-
+  ATH_MSG_DEBUG("L1 Item        = " << L1Item);
+  
+  unsigned c=0;
+  if(boost::contains(l1type,m_wpNames[0]))  c=1; // Tight
+  if(boost::contains(l1type,m_wpNames[1]))  c=2; // Medium
+  if(boost::contains(l1type,m_wpNames[2]))  c=3; // Loose
+  ATH_MSG_DEBUG("Using position "<< c << " to apply the cuts.");
+  float hadCoreCutMin  = m_hadCoreCutMin[c];
+  float hadCoreCutOff  = m_hadCoreCutOff[c];
+  float hadCoreSlope   = m_hadCoreSlope[c];
+  float emIsolCutMin   = m_emIsolCutMin[c]; 
+  float emIsolCutOff   = m_emIsolCutOff[c];
+  float emIsolCutSlope = m_emIsolCutSlope[c];
+  
+  /*
   // float hadCoreCut = 0.0;
   float hadCoreCutMin = 1.0; // This could be defined somewhere else
   float hadCoreCutOff = -0.2;
@@ -68,6 +92,8 @@ bool TrigEgammaL1SelectorTool::emulation( const xAOD::EmTauRoI* l1, bool &pass, 
   float emIsolCutOff = -1.8;
   float emIsolCutSlope = 1/8.0;
   // float emEClusVCut = 0.0;
+  */
+
   float emE = 0.0;
   float emIsol = 0.0;
   float hadCore = 0.0;
@@ -123,8 +149,7 @@ bool TrigEgammaL1SelectorTool::emulation( const xAOD::EmTauRoI* l1, bool &pass, 
 //!==========================================================================
 // (H) and (I) Hadronic core and electromagnetic isolation
 bool TrigEgammaL1SelectorTool::isolationL1(const float min, const float offset, const float slope, const float energy, const float emE) {
-  float isol_max_cut = 50.0; // This could be defined somewhere else
-  if (emE > isol_max_cut) {
+  if (emE > m_isolMaxCut) {
     ATH_MSG_DEBUG("L1 Isolation skipped, ET > Maximum isolation");
     return true;
   }

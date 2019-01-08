@@ -34,6 +34,8 @@
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/TileCondToolNoiseSample.h"
 #include "TileConditions/ITileBadChanTool.h"
+#include "TileEvent/TileDQstatus.h"
+#include "TileRecUtils/ITileDQstatusTool.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -56,7 +58,6 @@ class TileHWID;
 class TileInfo;
 class HWIdentifier;
 class TileCablingService;
-class TileBeamInfoProvider;
 class TileDQstatus;
 
 #include <string>
@@ -168,8 +169,11 @@ class TileDigitsMaker: public AthAlgorithm {
     ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
         "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
 
-    ToolHandle<TileBeamInfoProvider> m_beamInfo;     //!< tool which provides DQstatus (for overlay)
+    ToolHandle<ITileDQstatusTool> m_DQstatusTool { this,
+        "TileDQstatusTool", "TileDQstatusTool", "Tool to create TileDQstatus" };
 
+    SG::WriteHandleKey<TileDQstatus> m_DQstatusKey {this,
+        "TileDQstatus", "TileDQstatus", "Output TileDQstatus key" };
 };
 
 #endif // TILESIMALGS_TILEDIGITSMAKER_H

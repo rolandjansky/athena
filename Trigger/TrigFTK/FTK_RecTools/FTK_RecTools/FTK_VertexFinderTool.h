@@ -99,23 +99,22 @@ class FTK_VertexFinderTool : public AthAlgTool, virtual public IFTK_VertexFinder
   //
   //  Get the element of the covariance matrix for id0th and id1th track parameter
   //
-//   VxContainer* findVertex(const FTK_RawTrackContainer* trks);
-//   VxContainer* findVertex(const TrackCollection* trks);
- 	 std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const FTK_RawTrackContainer* trks);
-   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const TrackCollection* trks);
- private:
 
-    bool m_barrelOnly;
-    bool m_hasIBL;
-    double  m_cluster_size;
-    double m_chi2cut;
-    double m_constTrkPt;
-    double m_constTrkEta;
-    double m_z0errfactor;
+  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const FTK_RawTrackContainer* trks);
+  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const TrackCollection* trks);
+ private:
+  
+  bool m_barrelOnly;
+  bool m_hasIBL;
+  double  m_cluster_size;
+  double m_chi2cut;
+  double m_constTrkPt;
+  double m_constTrkEta;
+  double m_z0errfactor;
   //
   //  Helper functions with the uncerianties
   //
-    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(std::vector<MyTrack>& trks);
+  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(std::vector<MyTrack>& trks);
   double ctheta2eta(double cot);
   std::vector<MyTrack> getTracks(const FTK_RawTrackContainer* trks);
   std::vector<MyTrack> getTracks(const TrackCollection* trks);

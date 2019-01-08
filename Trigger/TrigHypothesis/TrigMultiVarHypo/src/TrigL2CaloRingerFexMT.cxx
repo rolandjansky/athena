@@ -10,8 +10,8 @@
 #include "AthenaMonitoring/MonitoredScope.h"
 
 #include "TrigL2CaloRingerFexMT.h"
-#include "TrigMultiVarHypo/preprocessor/TrigRingerPreprocessor.h"
-#include "TrigMultiVarHypo/discriminator/MultiLayerPerceptron.h"
+#include "TrigMultiVarHypo/preproc/TrigRingerPreprocessor.h"
+#include "TrigMultiVarHypo/tools/MultiLayerPerceptron.h"
 
 ///xAOD include(s)
 #include "xAODTrigCalo/TrigEMCluster.h"
@@ -67,9 +67,9 @@ StatusCode TrigL2CaloRingerFexMT::initialize(){
       std::vector<unsigned int> nodes(SIZEOF_NODES);
       for(unsigned k=0; k<SIZEOF_NODES;++k) nodes[k]= m_nodes[i*SIZEOF_NODES+k]; ///Parser
 
-      discr = new MultiLayerPerceptron(nodes, m_weights[i], m_bias[i], 0,
+      discr = new MultiLayerPerceptron(nodes, m_weights[i], m_bias[i], 
                                        m_etBins[i][0], m_etBins[i][1], m_etaBins[i][0],
-                                       m_etaBins[i][1]);
+                                       m_etaBins[i][1], -999, 999);
     } catch(const std::bad_alloc& ) {
       ATH_MSG_ERROR( "Weight vector size is not compatible with nodes vector." );
       return StatusCode::FAILURE;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGCcabling/TGCCableSSWToROD.h"
@@ -10,12 +10,12 @@ namespace LVL1TGCCabling8 {
 TGCCableSSWToROD::TGCCableSSWToROD (std::string filename)
   : TGCCable(TGCCable::SSWToROD)
 {
-  database = new TGCDatabaseSLBToROD(filename,"SSW ALL");
+  m_database = new TGCDatabaseSLBToROD(filename,"SSW ALL");
 }
   
 TGCCableSSWToROD::~TGCCableSSWToROD (void)
 {
-  delete database;
+  delete m_database;
 }
   
 
@@ -36,10 +36,10 @@ TGCModuleMap* TGCCableSSWToROD::getModuleIn (const TGCModuleId* rod) const {
   int rodOctant = rod->getOctant();
 
   TGCModuleMap* mapId = 0;
-  int MaxEntry = database->getMaxEntry();
+  int MaxEntry = m_database->getMaxEntry();
   for(int i=0; i<MaxEntry; i++){
-    int id = database->getEntry(i,0);
-    int block = database->getEntry(i,1);
+    int id = m_database->getEntry(i,0);
+    int block = m_database->getEntry(i,1);
     TGCModuleSSW* ssw = new TGCModuleSSW(rodSideType,
 					 rodOctant,
 					 id);
@@ -54,10 +54,10 @@ TGCModuleMap* TGCCableSSWToROD::getModuleOut (const TGCModuleId* ssw) const {
   if(ssw->isValid()==false) return 0;
 
   TGCModuleMap* mapId = 0;
-  int MaxEntry = database->getMaxEntry();
+  int MaxEntry = m_database->getMaxEntry();
   for(int i=0; i<MaxEntry; i++){
-    if(database->getEntry(i,0)==ssw->getId()){
-      int block = database->getEntry(i,1);
+    if(m_database->getEntry(i,0)==ssw->getId()){
+      int block = m_database->getEntry(i,1);
       TGCModuleROD* rod = new TGCModuleROD(ssw->getSideType(),
 					   ssw->getOctant());
       

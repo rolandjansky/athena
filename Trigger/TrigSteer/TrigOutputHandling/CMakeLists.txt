@@ -23,8 +23,10 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODMuon
                           Trigger/TrigSteer/DecisionHandling
                           Control/AthenaMonitoring
+                          Trigger/TrigMonitoring/TrigCostMonitorMT
                           )
 find_package( tdaq-common )
+find_package( Boost )
 
 # Component(s) in the package:
 atlas_add_library( TrigOutputHandlingLib

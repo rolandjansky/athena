@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -25,68 +25,86 @@
 using namespace std;
 
 TFileLooper::TFileLooper() :
-  _file(0),
-  _rootDir(""),
-  _verbose(kFALSE),
-  _passBeforeFail(kFALSE),
-  _errorCode(0)
+  m_file(0),
+  m_rootDir(""),
+  m_verbose(kFALSE),
+  m_passBeforeFail(kFALSE),
+  m_errorCode(0)
 {
 }
+
+TFileLooper::TFileLooper (const TFileLooper& other)
+  : m_file (other.m_file),
+    m_rootDir (other.m_rootDir),
+    m_skipDirs (other.m_skipDirs),
+    m_verbose (other.m_verbose),
+    m_passBeforeFail (other.m_passBeforeFail),
+    m_errorCode (other.m_errorCode),
+    m_skippedObjects (other.m_skippedObjects)
+{
+  for (TPRegexp* r : m_failRE) {
+    m_failRE.push_back (new TPRegexp (*r));
+  }
+  for (TPRegexp* r : m_passRE) {
+    m_passRE.push_back (new TPRegexp (*r));
+  }
+}
+
 
 TFileLooper::~TFileLooper()
 {
   vector<TPRegexp*>::iterator iter;
-  for (iter=_failRE.begin(); iter!=_failRE.end(); iter++) {
+  for (iter=m_failRE.begin(); iter!=m_failRE.end(); iter++) {
     delete (*iter);
   }
-  for (iter=_passRE.begin(); iter!=_passRE.end(); iter++) {
+  for (iter=m_passRE.begin(); iter!=m_passRE.end(); iter++) {
     delete (*iter);
   }
 }
 
 Int_t TFileLooper::run(const char* filename, const char* rootDir)
 {
-  _errorCode = 0;
+  m_errorCode = 0;
 
   if (filename==0) {
     cout << "Invalid file name (0)" << endl;
-    _errorCode = 1;
-    return _errorCode;
+    m_errorCode = 1;
+    return m_errorCode;
   }
     
   beginJob();  
   processFile(filename,rootDir);
   endJob();
-  return _errorCode;
+  return m_errorCode;
 }
 
 
 // Convert one file into html
 void TFileLooper::processFile(const char* filename, const char* rootDir)
 {    
-  _file = new TFile(filename);
-  if (_file->IsZombie()) {
+  m_file = new TFile(filename);
+  if (m_file->IsZombie()) {
     cout << "Cannot open "<<filename << endl;
-    _errorCode = 1;
-    delete _file;    
+    m_errorCode = 1;
+    delete m_file;    
     return;
   }
 
   if (rootDir) {
-    if (!_file->cd(rootDir)) {
+    if (!m_file->cd(rootDir)) {
       cout << "Cannot change to directory " << rootDir << endl;
-      _errorCode = 1;
+      m_errorCode = 1;
       return;
     }
-    _rootDir = rootDir;
+    m_rootDir = rootDir;
   }
-  else _file->cd();
+  else m_file->cd();
   
   beforeFile();
   processDir(*gDirectory);
   afterFile();
   
-  delete _file;   // calls Close()
+  delete m_file;   // calls Close()
 }
 
 
@@ -100,7 +118,7 @@ void TFileLooper::processDir(TDirectory& dir)
     return;
   }
 
-  if (_verbose) cout << "Reading directory "<< dir.GetPath() << endl;
+  if (m_verbose) cout << "Reading directory "<< dir.GetPath() << endl;
         
   // Sort directory content
   TList* dirList = dir.GetListOfKeys();
@@ -120,7 +138,7 @@ void TFileLooper::processDir(TDirectory& dir)
     }
     else {
       if (skipObject(getKeyPath(dir,*key))) {
-        _skippedObjects.push_back(getKeyPath(dir,*key).Data());
+        m_skippedObjects.push_back(getKeyPath(dir,*key).Data());
         continue;
       }
       processKey(dir, *key);
@@ -138,14 +156,14 @@ void TFileLooper::processKey(TDirectory& dir, TKey& key)
 // Check if we have to skip this directory
 Bool_t TFileLooper::skipDir(const TDirectory& dir)
 {
-  if (_skipDirs.Contains(dir.GetName())) return kTRUE;
+  if (m_skipDirs.Contains(dir.GetName())) return kTRUE;
   else return kFALSE;
 }
 
 
 // Check if we have to skip this object
-// Logic: 1) check if name matches any of the _failRE
-//        2) check if name matches any of the _passRE
+// Logic: 1) check if name matches any of the m_failRE
+//        2) check if name matches any of the m_passRE
 //        3) Return true if 1)=true and 2)=false
 Bool_t TFileLooper::skipObject(const char* name)
 {
@@ -153,15 +171,15 @@ Bool_t TFileLooper::skipObject(const char* name)
   Bool_t passMatch(kFALSE);
   
   vector<TPRegexp*>::iterator iter;
-  for (iter=_failRE.begin(); iter!=_failRE.end(); iter++) {
+  for (iter=m_failRE.begin(); iter!=m_failRE.end(); iter++) {
     if ((*iter)->Match(name)>0) {
       failMatch = kTRUE;
       break;
     }
   }
 
-  // give object another chance to match any of the _passRE
-  for (iter=_passRE.begin(); iter!=_passRE.end(); iter++) {
+  // give object another chance to match any of the m_passRE
+  for (iter=m_passRE.begin(); iter!=m_passRE.end(); iter++) {
     if ((*iter)->Match(name)>0) {
       passMatch = kTRUE;
       break;
@@ -169,10 +187,10 @@ Bool_t TFileLooper::skipObject(const char* name)
   }
 
   bool result;
-  if (_passBeforeFail) result = (!passMatch || failMatch);
+  if (m_passBeforeFail) result = (!passMatch || failMatch);
   else result = (failMatch && !passMatch);
 
-  if (_verbose && result) cout << "Skipping " << name << endl;
+  if (m_verbose && result) cout << "Skipping " << name << endl;
   return result;
     
 }
@@ -183,7 +201,7 @@ void TFileLooper::addFailRegexp(const char* regexp)
 {
   if (regexp) {
     TPRegexp* re = new TPRegexp(regexp);    
-    if (re) _failRE.push_back(re);
+    if (re) m_failRE.push_back(re);
   }
 }
 
@@ -193,7 +211,7 @@ void TFileLooper::addPassRegexp(const char* regexp)
 {
   if (regexp) {
     TPRegexp* re = new TPRegexp(regexp);    
-    if (re) _passRE.push_back(re);
+    if (re) m_passRE.push_back(re);
   }
 }
 

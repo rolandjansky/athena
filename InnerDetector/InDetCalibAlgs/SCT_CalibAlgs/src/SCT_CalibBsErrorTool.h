@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -67,8 +67,6 @@ class SCT_CalibBsErrorTool : public extends<AthAlgTool, ISCT_CalibHistoTool>
       VecInt *m_scterr_eta;
       VecInt *m_scterr_phi;
       VecInt *m_scterr_side;
-      VecInt *m_scterr_rodid;
-      VecInt *m_scterr_channel;
       VecInt *m_scterr_type;
 
       void

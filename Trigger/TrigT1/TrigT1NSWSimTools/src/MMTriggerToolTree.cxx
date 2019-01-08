@@ -14,14 +14,6 @@
 
 // local includes
 #include "TTree.h"
-#include "TVector3.h"
-
-#include <functional>
-#include <algorithm>
-#include <map>
-#include <utility>
-
-using namespace std;
 
 namespace NSWL1 {
 
@@ -306,10 +298,6 @@ namespace NSWL1 {
         m_tree->Branch("Hits_MM_off_channel", &m_NSWMM_off_channel);
 
 
-        //m_tree->Branch("Digits_MM_stripForTrigger",     &m_NSWMM_dig_stripForTrigger);
-       // m_tree->Branch("Digits_MM_stripTimeForTrigger", &m_NSWMM_dig_stripTimeForTrigger);
-
-
 
       } else {
         return StatusCode::FAILURE;
@@ -443,9 +431,6 @@ namespace NSWL1 {
       m_NSWMM_hitToRsurfacePositionY->clear();
       m_NSWMM_hitToRsurfacePositionZ->clear();
 
-      //m_NSWMM_FastDigitRsurfacePositionX->clear();
-      //m_NSWMM_FastDigitRsurfacePositionY->clear();
-
 
       m_NSWMM_particleEncoding->clear();
       m_NSWMM_kineticEnergy->clear();
@@ -498,10 +483,6 @@ namespace NSWL1 {
       *m_NSWMM_dig_truth_globalPosX = loadedVariables.histVars.NSWMM_dig_truth_globalPosX;
       *m_NSWMM_dig_truth_globalPosY = loadedVariables.histVars.NSWMM_dig_truth_globalPosY;
       *m_NSWMM_dig_truth_globalPosZ = loadedVariables.histVars.NSWMM_dig_truth_globalPosZ;
-
-      //m_NSWMM_dig_stripForTrigger     = new std::vector<int>;
-      //m_NSWMM_dig_stripTimeForTrigger = new std::vector<float>;
-
 
 
       *m_NSWMM_trackId  = loadedVariables.histVars.NSWMM_trackId;

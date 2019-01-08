@@ -146,7 +146,7 @@ def exp_merge (base, d):
     return new
 
 
-# TileBeamInfoProvider errors
+# TileDQstatus errors
 exp_chans_1 = exp_merge (exp_chans_0, {
     (3, 1, 18, 13, 3, 0) : [  4.4, -26.5, 23.9,  70051.2],
     (3, 1, 18, 15, 3, 0) : [ -0.1, -75.0,  3.7,  70051.0],
@@ -193,6 +193,88 @@ class TileFragHash:
 
 
 from AthenaPython.PyAthenaComps import Alg, StatusCode
+#########################################################################
+
+
+class PrepareDataAlg (Alg):
+    def __init__ (self, name):
+        Alg.__init__ (self, name)
+        return
+
+
+    def initialize (self):
+        return StatusCode.Success
+
+
+    def execute (self):
+        iev = self.getContext().evt()
+
+        if iev == 1:
+            baddq = {146: (2, 10)}
+            rc = self.make_bad_rc (baddq)
+        elif iev == 3:
+            rc = self.make_rc (digits_0)
+        else:
+            rc = self.make_rc ({})
+
+        self.evtStore.record (rc, 'TRCDQ', False)
+
+        return StatusCode.Success
+
+            
+    def make_rc (self, digits):
+        idHelper  = self.detStore['CaloCell_ID'].tile_idHelper()
+
+        unit = 0 # TileRawChannelUnit::ADCcounts
+        typ = TileFragHash.Default
+        cont = ROOT.TileRawChannelContainer (False, typ, unit)
+        hashFunc = cont.hashFunc()
+
+        digits = dict (digits)
+        for icoll in range(256):
+            colldata = digits.get (icoll, [])
+
+            coll = self.make_rc_coll (idHelper, hashFunc, icoll, colldata)
+            cont.addCollection (coll, ROOT.IdentifierHash(icoll))
+            ROOT.SetOwnership (coll, False)
+
+        return cont
+
+
+    def make_rc_coll (self, idHelper, hashFunc, icoll, colldata):
+        coll = ROOT.TileRawChannelCollection (hashFunc.identifier(icoll))
+
+        for addr, data in colldata:
+            if type(addr) == type(()):
+                adc_id = idHelper.adc_id (*addr)
+                chan = ROOT.TileRawChannel (adc_id, *data)
+            else:
+                hwid = ROOT.HWIdentifier (addr)
+                chan = ROOT.TileRawChannel (hwid, *data)
+            chan.setPedestal (0)
+            coll.push_back (chan)
+
+        return coll
+
+
+    def make_bad_rc (self, baddq):
+        cont = ROOT.TileRawChannelContainer (False, TileFragHash.OptFilterDsp, 0)
+        hashFunc = cont.hashFunc()
+        for icoll, chans in baddq.items():
+            coll = ROOT.TileRawChannelCollection (hashFunc.identifier (icoll))
+            mask = 0
+            for chan in chans:
+                mask |= (1<<(chan/3))
+            coll.setFragMemoryPar(mask)
+            cont.addCollection (coll, ROOT.IdentifierHash(icoll))
+            ROOT.SetOwnership (coll, False)
+        return cont
+
+
+
+#########################################################################
+
+
 class TestAlg (Alg):
     def __init__ (self, name):
         Alg.__init__ (self, name)
@@ -209,15 +291,6 @@ class TestAlg (Alg):
 
         self.tool1 = gettool ('tool1')
         self.tool2 = gettool ('tool2')
-        self.tool3 = gettool ('tool3')
-        self.tool4 = gettool ('tool4')
-
-        self.beaminfo2 = ROOT.ToolHandle(ROOT.TileBeamInfoProvider)('TileBeamInfoProvider/beaminfo2')
-        if not self.beaminfo2.retrieve():
-            return StatusCode.Failure
-        self.beaminfo4 = ROOT.ToolHandle(ROOT.TileBeamInfoProvider)('TileBeamInfoProvider/beaminfo4')
-        if not self.beaminfo4.retrieve():
-            return StatusCode.Failure
 
         return StatusCode.Success
 
@@ -230,6 +303,9 @@ class TestAlg (Alg):
     def execute (self):
         iev = self.getContext().evt()
 
+        if iev == 3:
+            return StatusCode.Success
+
         dspcolls = set()
 
         tool = self.tool1
@@ -240,29 +316,17 @@ class TestAlg (Alg):
             pass
 
         elif iev == 1:
-            # Event 1: BeamInfoProvider bad channels
-            tool = self.tool2
+            # Event 1: DQstatus bad channels
             exp_chans = exp_chans_1
-
-            baddq = {146: (2, 10)}
-            rc = self.make_bad_rc (baddq)
-            self.beaminfo2.setContainers (None,
-                                          rc,
-                                          None)
 
         elif iev == 2:
             # Event 2: noise filter
-            tool = self.tool3
+            tool = self.tool2
             exp_chans = exp_chans_2
 
         else:
             # Event 3: noise filter + dsp
-            tool = self.tool4
             exp_chans = exp_chans_3
-            rc = self.make_rc (digits_0)
-            self.beaminfo4.setContainers (None,
-                                          rc,
-                                          None)
 
         digits = self.make_digits (digits_0)
 
@@ -322,56 +386,6 @@ class TestAlg (Alg):
         return coll
 
 
-    def make_rc (self, digits):
-        idHelper  = self.detStore['CaloCell_ID'].tile_idHelper()
-
-        unit = 0 # TileRawChannelUnit::ADCcounts
-        typ = TileFragHash.Default
-        cont = ROOT.TileRawChannelContainer (False, typ, unit)
-        hashFunc = cont.hashFunc()
-
-        digits = dict (digits)
-        for icoll in range(256):
-            colldata = digits.get (icoll, [])
-
-            coll = self.make_rc_coll (idHelper, hashFunc, icoll, colldata)
-            cont.addCollection (coll, ROOT.IdentifierHash(icoll))
-            ROOT.SetOwnership (coll, False)
-
-        return cont
-
-
-    def make_rc_coll (self, idHelper, hashFunc, icoll, colldata):
-        coll = ROOT.TileRawChannelCollection (hashFunc.identifier(icoll))
-
-        for addr, data in colldata:
-            if type(addr) == type(()):
-                adc_id = idHelper.adc_id (*addr)
-                chan = ROOT.TileRawChannel (adc_id, *data)
-            else:
-                hwid = ROOT.HWIdentifier (addr)
-                chan = ROOT.TileRawChannel (hwid, *data)
-            chan.setPedestal (0)
-            coll.push_back (chan)
-
-        return coll
-
-
-    def make_bad_rc (self, baddq):
-        cont = ROOT.TileRawChannelContainer (False, TileFragHash.OptFilterDsp, 0)
-        hashFunc = cont.hashFunc()
-        for icoll, chans in baddq.items():
-            coll = ROOT.TileRawChannelCollection (hashFunc.identifier (icoll))
-            mask = 0
-            for chan in chans:
-                mask |= (1<<(chan/3))
-            coll.setFragMemoryPar(mask)
-            cont.addCollection (coll, ROOT.IdentifierHash(icoll))
-            ROOT.SetOwnership (coll, False)
-        return cont
-
-
-
     def compare_chans (self, chans, exp_chans):
         assert chans.get_type() == 0
         assert chans.get_unit() == 0
@@ -422,21 +436,21 @@ class TestAlg (Alg):
 
 
 from TileRecUtils.TileRecUtilsConf import \
-    TileRawChannelBuilderTest, TileBeamInfoProvider, TileRawChannelNoiseFilter
-beaminfo2 = TileBeamInfoProvider ('beaminfo2')
-ToolSvc += beaminfo2
-beaminfo4 = TileBeamInfoProvider ('beaminfo4')
-ToolSvc += beaminfo4
+    TileRawChannelBuilderTest, TileRawChannelNoiseFilter, \
+    TileDQstatusAlg
 noisefilter = TileRawChannelNoiseFilter ('noisefilter')
 
 ToolSvc += TileRawChannelBuilderTest ('tool1')
-ToolSvc += TileRawChannelBuilderTest ('tool2', BeamInfo = beaminfo2)
-ToolSvc += TileRawChannelBuilderTest ('tool3', NoiseFilterTools = [noisefilter])
-ToolSvc += TileRawChannelBuilderTest ('tool4', NoiseFilterTools = [noisefilter],
-                                      BeamInfo = beaminfo4)
+ToolSvc += TileRawChannelBuilderTest ('tool2', NoiseFilterTools = [noisefilter])
 
 from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
 topSequence += xAODMaker__EventInfoCnvAlg (DoBeginRun = False)
+
+prepalg1 = PrepareDataAlg ('prepalg1')
+topSequence += prepalg1
+
+dqstat1 = TileDQstatusAlg ('dqstat1', TileRawChannelContainer = 'TRCDQ')
+topSequence += dqstat1
 
 testalg1 = TestAlg ('testalg1')
 topSequence += testalg1

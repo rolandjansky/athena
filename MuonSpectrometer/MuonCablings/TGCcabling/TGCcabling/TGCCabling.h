@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCCABLING_HH
@@ -144,15 +144,15 @@ public:
 			   TGCModuleId::ModuleIdType type) const;
 
 private:
-  TGCCableInASD*    cableInASD;
-  TGCCableASDToPP*  cableASDToPP;
-  TGCCableInPP*     cableInPP;
-  TGCCablePPToSLB*  cablePPToSLB;
-  TGCCableInSLB*    cableInSLB;
-  TGCCableSLBToHPB* cableSLBToHPB;
-  TGCCableHPBToSL*  cableHPBToSL;
-  TGCCableSLBToSSW* cableSLBToSSW;
-  TGCCableSSWToROD* cableSSWToROD;
+  TGCCableInASD*    m_cableInASD;
+  TGCCableASDToPP*  m_cableASDToPP;
+  TGCCableInPP*     m_cableInPP;
+  TGCCablePPToSLB*  m_cablePPToSLB;
+  TGCCableInSLB*    m_cableInSLB;
+  TGCCableSLBToHPB* m_cableSLBToHPB;
+  TGCCableHPBToSL*  m_cableHPBToSL;
+  TGCCableSLBToSSW* m_cableSLBToSSW;
+  TGCCableSSWToROD* m_cableSSWToROD;
   TGCCabling (void) {}
 
   mutable std::map<int, TGCModuleId*> m_slbModuleIdMap; 

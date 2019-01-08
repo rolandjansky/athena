@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ParticleEnergyParametrization_h
@@ -32,7 +32,9 @@ public:
   ~ParticleEnergyParametrization();
   
   double& weight(int calosample)                             {return m_weights[calosample];};
+  double  weight(int calosample) const                       {return m_weights[calosample];};
   double& weight_err(int calosample)                         {return m_weights_err[calosample];};
+  double  weight_err(int calosample) const                   {return m_weights_err[calosample];};
   void    set_Ecal_vs_dist(TH2* h);
   void    set_dist_fine(TH1* h)                               {m_h_layer_d_fine=h;};
   void    set_Elayer_vs_dist(int calosample,TH2* h)         {MakeCumulativeX(calosample,h);};
@@ -40,9 +42,9 @@ public:
   void    set_RMS_vs_dist (int distbin,const TVectorD& RMS)  {SetTVectorD(DistPara(distbin)->m_RMS ,RMS );};
   void    set_corr_vs_dist(int distbin,const TMatrixD& cova) {CorelatedGausRandom_corset(cova,DistPara(distbin)->m_corr);};
   
-  void    DiceParticle(ParticleEnergyShape& p,TRandom& rand);
+  void    DiceParticle(ParticleEnergyShape& p,TRandom& rand) const;
   void    RepeatDiceParticles(ParticleEnergyShape* p,int n);
-  double  GetRandomInBinRange(double xmin_in1,double xmax_in2,TH1* in2);
+  double  GetRandomInBinRange(double xmin_in1,double xmax_in2,TH1* in2) const;
 
   void MakeCumulativeX(int calosample,TH2* h);
   static void CorelatedGausRandom_corset(const TMatrixD& v,TMatrixD& c);
@@ -60,10 +62,11 @@ public:
   int     GetNDistBins() const {return Ecal_vs_dist()->GetNbinsX();};
   
   ParticleEnergyParametrizationInDistbin* DistPara(int distbin) {return (ParticleEnergyParametrizationInDistbin*)m_DistPara.At(distbin);};
+  const ParticleEnergyParametrizationInDistbin* DistPara(int distbin) const {return (ParticleEnergyParametrizationInDistbin*)m_DistPara.At(distbin);};
   
   void SetNoDirectoryHisto();
   
-  void CopyDebugInfo( FastShowerInfo* fsi );
+  void CopyDebugInfo( FastShowerInfo* fsi ) const;
   
 protected:
   static void SetTVectorD(TVectorD& tgt,const TVectorD& src) {tgt.ResizeTo(src.GetLwb(),src.GetUpb());tgt=src;}; 

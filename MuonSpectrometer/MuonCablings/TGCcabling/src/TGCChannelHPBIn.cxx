@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGCcabling/TGCChannelHPBIn.h"
@@ -53,20 +53,20 @@ bool TGCChannelHPBIn::isValid (void) const
   return false;
 }
 
-const int TGCChannelHPBIn::numberOfBlock  = 2;
-const int TGCChannelHPBIn::channelInBlock = 12;
-const int TGCChannelHPBIn::slbInBlock     = 3;
+const int TGCChannelHPBIn::s_numberOfBlock  = 2;
+const int TGCChannelHPBIn::s_channelInBlock = 12;
+const int TGCChannelHPBIn::s_slbInBlock     = 3;
 
 int TGCChannelHPBIn::getNumberOfBlock (void) {
-  return numberOfBlock;
+  return s_numberOfBlock;
 }
 
 int TGCChannelHPBIn::getChannelInBlock (void) {
-  return channelInBlock;
+  return s_channelInBlock;
 }
 
 int TGCChannelHPBIn::getSlbInBlock (void) {
-  return slbInBlock;
+  return s_slbInBlock;
 }
 
 
