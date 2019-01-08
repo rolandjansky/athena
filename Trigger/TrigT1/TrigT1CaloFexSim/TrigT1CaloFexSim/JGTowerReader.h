@@ -49,30 +49,51 @@ class JGTowerReader: public ::AthAlgorithm {
   bool m_debugJetAlg;
   bool m_dumpTowersEtaPhi;
   bool m_dumpSeedsEtaPhi;
+
   bool  m_makeSquareJets;
   float m_jJet_thr;
-  float m_jSeed_size;
-  float m_jMax_r;
+  float m_jJet_seed_size;
+  float m_jJet_max_r;
   float m_jJet_r;
+  float m_jJet_seed_tower_noise_multiplier;
+  float m_jJet_seed_total_noise_multiplier;
+  float m_jJet_seed_min_ET_MeV;
+  float m_jJet_jet_tower_noise_multiplier;
+  float m_jJet_jet_total_noise_multiplier;
+  float m_jJet_jet_min_ET_MeV;
 
   bool  m_makeRoundJets;
-  float m_jJet_jet_thr;
-  float m_jJetSeed_size;
-  float m_jJet_max_r;
-  float m_jJet_jet_r;
+  float m_jJetRound_seed_size;
+  float m_jJetRound_max_r;
+  float m_jJetRound_r;
+  float m_jJetRound_seed_tower_noise_multiplier;
+  float m_jJetRound_seed_total_noise_multiplier;
+  float m_jJetRound_seed_min_ET_MeV;
+  float m_jJetRound_jet_tower_noise_multiplier;
+  float m_jJetRound_jet_total_noise_multiplier;
+  float m_jJetRound_jet_min_ET_MeV;
 
   bool m_makeJetsFromMap;
   std::string m_towerMap;
   float m_map_seed_tower_noise_multiplier;
   float m_map_seed_total_noise_multiplier;
   float m_map_seed_min_ET_MeV;
+  float m_map_jet_tower_noise_multiplier;
+  float m_map_jet_total_noise_multiplier;
+  float m_map_jet_min_ET_MeV;
 
   bool m_plotSeeds;
 
-  float m_gJet_thr;
-  float m_gSeed_size;
-  float m_gMax_r;
+  float m_gJet_seed_size;
+  float m_gJet_max_r;
   float m_gJet_r;
+  float m_gJet_seed_tower_noise_multiplier;
+  float m_gJet_seed_total_noise_multiplier;
+  float m_gJet_seed_min_ET_MeV;
+  float m_gJet_jet_tower_noise_multiplier;
+  float m_gJet_jet_total_noise_multiplier;
+  float m_gJet_jet_min_ET_MeV;
+
   std::string m_noise_file;
  
   //job options for gFEX MET algorithms

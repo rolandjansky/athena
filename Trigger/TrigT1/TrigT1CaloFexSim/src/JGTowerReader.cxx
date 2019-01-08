@@ -46,29 +46,47 @@ histSvc("THistSvc",name){
   declareProperty("noise_file",m_noise_file="");
 
   declareProperty("makeSquareJets", m_makeSquareJets = true);
-  declareProperty("jJet_threshold",m_jJet_thr=2.0);
-  declareProperty("jSeed_size",m_jSeed_size=0.2);
-  declareProperty("jMax_r",m_jMax_r=0.4);
-  declareProperty("jJet_r",m_jJet_r=0.4);
+  declareProperty("jJet_seed_size", m_jJet_seed_size=0.3);
+  declareProperty("jJet_max_r", m_jJet_max_r=0.4);
+  declareProperty("jJet_r", m_jJet_r=0.4);
+  declareProperty("jJet_seed_tower_noise_multiplier", m_jJet_seed_tower_noise_multiplier = 1.0);
+  declareProperty("jJet_seed_total_noise_multiplier", m_jJet_seed_total_noise_multiplier = 1.0);
+  declareProperty("jJet_seed_min_ET_MeV", m_jJet_seed_min_ET_MeV = 2000.0);
+  declareProperty("jJet_jet_tower_noise_multiplier", m_jJet_jet_tower_noise_multiplier = 1.0);
+  declareProperty("jJet_jet_total_noise_multiplier", m_jJet_jet_total_noise_multiplier = 0.0);
+  declareProperty("jJet_jet_min_ET_MeV", m_jJet_jet_min_ET_MeV = 2000.0);
 
   declareProperty("makeRoundJets", m_makeRoundJets = false); 
-  declareProperty("jJet_jet_threshold",m_jJet_jet_thr=2.0);
-  declareProperty("jJetSeed_size",m_jJetSeed_size=0.3);
-  declareProperty("jJet_max_r",m_jJet_max_r=0.4);
-  declareProperty("jJet_jet_r",m_jJet_jet_r=0.4);
+  declareProperty("jJetRound_seed_size", m_jJetRound_seed_size=0.3);
+  declareProperty("jJetRound_max_r", m_jJetRound_max_r=0.4);
+  declareProperty("jJetRound_r", m_jJetRound_r=0.4);
+  declareProperty("jJetRound_seed_tower_noise_multiplier", m_jJetRound_seed_tower_noise_multiplier = 1.0);
+  declareProperty("jJetRound_seed_total_noise_multiplier", m_jJetRound_seed_total_noise_multiplier = 1.0);
+  declareProperty("jJetRound_seed_min_ET_MeV", m_jJetRound_seed_min_ET_MeV = 2000.0);
+  declareProperty("jJetRound_jet_tower_noise_multiplier", m_jJetRound_jet_tower_noise_multiplier = 1.0);
+  declareProperty("jJetRound_jet_total_noise_multiplier", m_jJetRound_jet_total_noise_multiplier = 0.0);
+  declareProperty("jJetRound_jet_min_ET_MeV", m_jJetRound_jet_min_ET_MeV = 2000.0);
 
   declareProperty("makeJetsFromMap", m_makeJetsFromMap = false);
   declareProperty("towerMap", m_towerMap = "");
-  declareProperty("map_seed_tower_noise_multiplier", m_map_seed_tower_noise_multiplier = 2.0);
-  declareProperty("map_seed_total_noise_multiplier", m_map_seed_total_noise_multiplier = 4.0);
+  declareProperty("map_seed_tower_noise_multiplier", m_map_seed_tower_noise_multiplier = 1.0);
+  declareProperty("map_seed_total_noise_multiplier", m_map_seed_total_noise_multiplier = 1.0);
   declareProperty("map_seed_min_ET_MeV", m_map_seed_min_ET_MeV = 2000.0);
+  declareProperty("map_jet_tower_noise_multiplier", m_map_jet_tower_noise_multiplier = 1.0);
+  declareProperty("map_jet_total_noise_multiplier", m_map_jet_total_noise_multiplier = 0.0);
+  declareProperty("map_jet_min_ET_MeV", m_map_jet_min_ET_MeV = 2000.0);
 
   declareProperty("plotSeeds", m_plotSeeds = false);
 
-  declareProperty("gJet_threshold",m_gJet_thr=2.0);
-  declareProperty("gSeed_size",m_gSeed_size=0.2);
-  declareProperty("gMax_r",m_gMax_r=1.0);  //gFEX constructs large radius jets
-  declareProperty("gJet_r",m_gJet_r=1.0);
+  declareProperty("gJet_seed_size", m_gJet_seed_size=0.2);
+  declareProperty("gJet_max_r", m_gJet_max_r=1.0);  //gFEX constructs large radius jets
+  declareProperty("gJet_r", m_gJet_r=1.0);
+  declareProperty("gJet_seed_tower_noise_multiplier", m_gJet_seed_tower_noise_multiplier = 1.0);
+  declareProperty("gJet_seed_total_noise_multiplier", m_gJet_seed_total_noise_multiplier = 1.0);
+  declareProperty("gJet_seed_min_ET_MeV", m_gJet_seed_min_ET_MeV = 2000.0);
+  declareProperty("gJet_jet_tower_noise_multiplier", m_gJet_jet_tower_noise_multiplier = 1.0);
+  declareProperty("gJet_jet_total_noise_multiplier", m_gJet_jet_total_noise_multiplier = 0.0);
+  declareProperty("gJet_jet_min_ET_MeV", m_gJet_jet_min_ET_MeV = 2000.0);
 
   declareProperty("useRMS", m_useRMS=false);
   declareProperty("useMedian", m_useMedian=false);
@@ -100,17 +118,12 @@ StatusCode JGTowerReader::initialize() {
   TH1F*jh_noise = (TH1F*)noise->Get("jT_noise");
   TH1F*gh_noise = (TH1F*)noise->Get("gT_noise");
 
-  for(int i=0;i<jh_noise->GetSize();i++){ // nbins + 2
-    float noise_base = jh_noise->GetBinContent(i+1);
-    jT_noise.push_back(noise_base);
-    jJet_thr.push_back(noise_base*m_jJet_thr);
-    jJet_jet_thr.push_back(noise_base*m_jJet_jet_thr);
+  for(int i=0;i<jh_noise->GetSize();i++){
+    jT_noise.push_back( jh_noise->GetBinContent(i+1) );
   }
   
   for(int i=0;i<gh_noise->GetSize();i++){
-     float noise_base = gh_noise->GetBinContent(i+1);
-     gT_noise.push_back(noise_base);
-     gJet_thr.push_back(noise_base*m_gJet_thr);
+    gT_noise.push_back( gh_noise->GetBinContent(i+1) );
   } 
 
   // read in the tower map
@@ -220,12 +233,8 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
     ATH_MSG_ERROR("Found " << jTs->size() << " jTowers, but the noise vector only has " << jT_noise.size() << " entries");
     ATH_MSG_WARNING("Setting the jTower noise vector to have the right number of entries, all 500");
     jT_noise.clear();
-    jJet_thr.clear();
-    jJet_jet_thr.clear();
     for(int i=0; i<int(jTs->size()); i++){
       jT_noise.push_back(500);
-      jJet_thr.push_back(500 * m_jJet_thr);
-      jJet_jet_thr.push_back(500 * m_jJet_jet_thr);
     }
   }
 
@@ -235,19 +244,19 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
     // the diameter of seed, and its range to be local maximum
     // Careful to ensure the range set to be no tower double counted
     if( JetAlg::m_SeedMap.find("jSeeds") == JetAlg::m_SeedMap.end() )
-      CHECK( JetAlg::SeedGrid(jTs,"jSeeds",m_dumpSeedsEtaPhi) );
-    ATH_MSG_DEBUG("JFexAlg: SeedFinding with jSeeds; m_jSeed_size = " << m_jSeed_size << ", m_jMax_r = " << m_jMax_r);
-    CHECK( JetAlg::SeedFinding(jTs,"jSeeds",m_jSeed_size,m_jMax_r,jJet_thr,m_debugJetAlg) );
+      CHECK( JetAlg::SeedGrid(jTs, "jSeeds", m_dumpSeedsEtaPhi) );
+    ATH_MSG_DEBUG("JFexAlg: SeedFinding with jSeeds; m_jJet_seed_size = " << m_jJet_seed_size << ", m_jJet_max_r = " << m_jJet_max_r);
+    CHECK( JetAlg::SeedFinding(jTs, "jSeeds", m_jJet_seed_size, m_jJet_max_r, jT_noise, m_jJet_seed_tower_noise_multiplier, m_jJet_seed_total_noise_multiplier, m_jJet_seed_min_ET_MeV, m_debugJetAlg) );
     ATH_MSG_DEBUG("JFexAlg: BuildJet");
-    CHECK( JetAlg::BuildJet(jTs, "jSeeds", "jL1Jet", m_jJet_r, jJet_thr, m_debugJetAlg) );
+    CHECK( JetAlg::BuildJet(jTs, "jSeeds", "jL1Jet", m_jJet_r, jT_noise, m_jJet_jet_tower_noise_multiplier, m_jJet_jet_total_noise_multiplier, m_jJet_jet_min_ET_MeV, m_debugJetAlg) );
   }
   if(m_makeRoundJets) {
     if( JetAlg::m_SeedMap.find("jRoundSeeds") == JetAlg::m_SeedMap.end() )
-      CHECK( JetAlg::SeedGrid(jTs,"jRoundSeeds",m_dumpSeedsEtaPhi) );
-    ATH_MSG_DEBUG("JFexAlg: SeedFinding with jJetSeeds; m_jJetSeed_size = " << m_jJetSeed_size << ", m_jJet_max_r = " << m_jJet_max_r);
-    CHECK( JetAlg::SeedFinding(jTs,"jRoundSeeds",m_jJetSeed_size,m_jJet_max_r,jJet_jet_thr,m_debugJetAlg) );
+      CHECK( JetAlg::SeedGrid(jTs, "jRoundSeeds", m_dumpSeedsEtaPhi) );
+    ATH_MSG_DEBUG("JFexAlg: SeedFinding with jJetSeeds; m_jJet_seed_size = " << m_jJet_seed_size << ", m_jJet_max_r = " << m_jJet_max_r);
+    CHECK( JetAlg::SeedFinding(jTs, "jRoundSeeds", m_jJetRound_seed_size, m_jJetRound_max_r, jT_noise, m_jJetRound_seed_tower_noise_multiplier, m_jJetRound_seed_total_noise_multiplier, m_jJetRound_seed_min_ET_MeV, m_debugJetAlg) );
     ATH_MSG_DEBUG("JFexAlg: BuildRoundJet");
-    CHECK( JetAlg::BuildRoundJet(jTs, "jRoundSeeds", "jRoundJet", m_jJet_jet_r, jJet_jet_thr, m_debugJetAlg) );
+    CHECK( JetAlg::BuildRoundJet(jTs, "jRoundSeeds", "jRoundJet", m_jJetRound_r, jT_noise, m_jJetRound_jet_tower_noise_multiplier, m_jJetRound_jet_total_noise_multiplier, m_jJetRound_jet_min_ET_MeV, m_debugJetAlg) );
   }
   if(m_makeJetsFromMap) {
     ATH_MSG_DEBUG("JFexAlg: Build jets from map");
@@ -268,22 +277,21 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
     ATH_MSG_ERROR("Found " << gTs->size() << " gTowers, but the noise vector only has " << gT_noise.size() << " entries");
     ATH_MSG_WARNING("Setting the gTower noise vector to have the right number of entries, all 1000");
     gT_noise.clear();
-    gJet_thr.clear();
     for(int i=0; i<int(gTs->size()); i++){
       gT_noise.push_back(1000);
-      gJet_thr.push_back(1000 * m_gJet_thr);
     }
   }
   
   // jet algorithms
-  if(JetAlg::m_SeedMap.find("gSeeds")==JetAlg::m_SeedMap.end()) CHECK(JetAlg::SeedGrid(gTs,"gSeeds",m_dumpSeedsEtaPhi));
-  CHECK(JetAlg::SeedFinding(gTs,"gSeeds",m_gSeed_size,m_gMax_r,gJet_thr,m_debugJetAlg));
+  if(JetAlg::m_SeedMap.find("gSeeds") == JetAlg::m_SeedMap.end())
+    CHECK(JetAlg::SeedGrid(gTs,"gSeeds",m_dumpSeedsEtaPhi));
+  CHECK(JetAlg::SeedFinding(gTs, "gSeeds", m_gJet_seed_size, m_gJet_max_r, gT_noise, m_gJet_seed_tower_noise_multiplier, m_gJet_seed_total_noise_multiplier, m_gJet_seed_min_ET_MeV, m_debugJetAlg));
 
-  // CHECK(JetAlg::SeedFinding(gTs,gSeeds,m_gSeed_size,m_gMax_r,gJet_thr)); // the diameter of seed, and its range to be local maximum
+  // CHECK(JetAlg::SeedFinding(gTs,gSeeds,m_gJet_seed_size,m_gJet_max_r,gJet_thr)); // the diameter of seed, and its range to be local maximum
                                                                          // Careful to ensure the range set to be no tower double counted
   //CHECK(JetAlg::BuildJet(gTs,gSeeds,gL1Jets,m_gJet_r,gJet_thr, m_debugJetAlg)); //default gFex jets are cone jets wih radius of 1.0
   
-  CHECK(JetAlg::BuildFatJet(*gTs, "gL1Jets", m_gJet_r, gJet_thr));
+  CHECK(JetAlg::BuildFatJet(*gTs, "gL1Jets", m_gJet_r, gT_noise, m_gJet_jet_tower_noise_multiplier, m_gJet_jet_total_noise_multiplier, m_gJet_jet_min_ET_MeV));
   //gFEX MET algorithms
   CHECK(METAlg::Baseline_MET(gTs,"gBaseline",gT_noise, m_useNegTowers)); //basic MET reconstruction with a 4 sigma noise cut applied
   CHECK(METAlg::SubtractRho_MET(gTs,"rho_sub",m_useRMS,m_useMedian,m_useNegTowers)); //pileup subtracted MET, can apply dynamic noise cut and use either median or avg rho
@@ -669,17 +677,25 @@ StatusCode JGTowerReader::BuildJetsFromMap(const xAOD::JGTowerContainer*jTs) {
   for(int i_jet = 0; i_jet < int(towerMap_jetEta.size()); i_jet++) {
     if( ! towerMapSeed_isLocalMax.at( towerMap_jetSeed.at(i_jet) ) )
       continue;
-    
-    float j_et = 0;
 
+    float jet_ET = 0;
+    float jet_totalNoise = 0;
     for(auto tower_index : towerMap_jetTowers.at(i_jet)) {
       int jT_index = towerMap_AODtowersIndices.at(tower_index);
-      j_et += jTs->at(jT_index)->et();
+      const xAOD::JGTower *tower = jTs->at(jT_index);
+      jet_totalNoise += jT_noise.at(jT_index);
+      // add tower only if above N * tower noise
+      if(tower->et() > jT_noise.at(jT_index) * m_map_jet_tower_noise_multiplier)
+        jet_ET += jTs->at(jT_index)->et();
     }
+    if(jet_ET <= jet_totalNoise * m_map_jet_total_noise_multiplier)
+      continue;
+    if(jet_ET < m_map_jet_min_ET_MeV)
+      continue;
 
-    ATH_MSG_DEBUG( "I have a jet! Jet " << i_jet << ", eta = " << towerMap_jetEta.at(i_jet) << ", phi = " << towerMap_jetPhi.at(i_jet) << ", ET = " << j_et );
+    ATH_MSG_DEBUG( "I have a jet! Jet " << i_jet << ", eta = " << towerMap_jetEta.at(i_jet) << ", phi = " << towerMap_jetPhi.at(i_jet) << ", ET = " << jet_ET );
     
-    std::shared_ptr<JetAlg::L1Jet> j = std::make_shared<JetAlg::L1Jet>(towerMap_jetEta.at(i_jet), towerMap_jetPhi.at(i_jet), j_et);
+    std::shared_ptr<JetAlg::L1Jet> j = std::make_shared<JetAlg::L1Jet>(towerMap_jetEta.at(i_jet), towerMap_jetPhi.at(i_jet), jet_ET);
     JetAlg::m_JetMap[jetname].push_back(j);
     
   }

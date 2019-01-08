@@ -81,25 +81,49 @@ algseq += CfgMgr.JGTowerReader(                  # adds an instance of your alg 
     outputNoise = False,
     debugJetAlg = debug,
     noise_file = "noise_r9813.root", # "/eos/user/c/cylin/public/L1Calo/noise_r10684.root", - this is not generally accessible (I can see it but not open it)
+    plotSeeds = True,
+
     makeSquareJets = True,
-    jSeed_size = 0.2,
+    jJet_seed_size = 0.2,
     jJet_r = 0.4,
-    jMax_r = 0.4,
-    jJet_threshold = 3, 
+    jJet_max_r = 0.4,
+    jJet_seed_tower_noise_multiplier = 1.0,
+    jJet_seed_total_noise_multiplier = 1.0,
+    jJet_seed_min_ET_MeV = 500,
+    jJet_jet_tower_noise_multiplier = 1.0,
+    jJet_jet_total_noise_multiplier = 0.0,
+    jJet_jet_min_ET_MeV = 500,
+
     makeRoundJets = True,
-    jJetSeed_size=0.2, # wants to be 0.3 I think
-    jJet_max_r=0.4,     # not really sure, maybe 0.6
-    jJet_jet_r=0.4,
-    jJet_jet_threshold = 3,
+    jJetRound_seed_size=0.2,  # wants to be 0.3 I think
+    jJetRound_max_r=0.4,     # not really sure, maybe 0.6
+    jJetRound_r=0.4,
+    jJetRound_seed_tower_noise_multiplier = 1.0,
+    jJetRound_seed_total_noise_multiplier = 1.0,
+    jJetRound_seed_min_ET_MeV = 500,
+    jJetRound_jet_tower_noise_multiplier = 1.0,
+    jJetRound_jet_total_noise_multiplier = 0.0,
+    jJetRound_jet_min_ET_MeV = 5000,
+
     makeJetsFromMap = True,
     towerMap = '/afs/cern.ch/user/c/ckaldero/trigger/L1Calo/L1CaloSim/source/athena/Trigger/TrigT1/TrigT1CaloFexSim/JetTowerLists/jFexJet_towerMap_2019-01-08.txt',
     map_seed_tower_noise_multiplier = 1.0,
     map_seed_total_noise_multiplier = 1.0,
     map_seed_min_ET_MeV = 500,
-    plotSeeds = True,
-    gJet_threshold = 3,
-    gSeed_size=0.4,
-    gJet_r=1.0
+    map_jet_tower_noise_multiplier = 1.0,
+    map_jet_total_noise_multiplier = 0.0,
+    map_jet_min_ET_MeV = 500,
+
+    gJet_seed_size=0.4,
+    gJet_max_r=1.0,
+    gJet_r=1.0,
+    gJet_seed_tower_noise_multiplier = 1.0,
+    gJet_seed_total_noise_multiplier = 1.0,
+    gJet_seed_min_ET_MeV = 500,
+    gJet_jet_tower_noise_multiplier = 3.0,
+    gJet_jet_total_noise_multiplier = 0.0,
+    gJet_jet_min_ET_MeV = 10000.0,
+
     )
 
 if debug:
