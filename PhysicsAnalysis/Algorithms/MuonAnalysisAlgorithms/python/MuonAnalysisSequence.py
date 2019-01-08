@@ -80,8 +80,7 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     alg = createAlgorithm( 'CP::AsgSelectionAlg',
                            'MuonKinSelectionAlg' + postfix )
     addPrivateTool( alg, 'selectionTool', 'CP::AsgPtEtaSelectionTool' )
-    alg.selectionTool.minPt = 20e3
-    alg.selectionTool.maxEta = 2.4
+    alg.selectionTool.maxEta = 2.5
     selectList.append ('kin_select' + postfix + ',as_bits')
     nCutsList.append (2)
     alg.selectionDecoration = selectList[-1]
