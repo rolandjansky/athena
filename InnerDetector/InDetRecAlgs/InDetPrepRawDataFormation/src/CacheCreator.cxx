@@ -56,7 +56,7 @@ namespace InDet{
 
     CacheCreator::~CacheCreator() {}
 
-    bool CacheCreator::IsInsideView(const EventContext& context) const
+    bool CacheCreator::isInsideView(const EventContext& context) const
     {
         const IProxyDict* proxy = context.getExtension<Atlas::ExtendedEventContext>().proxy();
         const SG::View* view = dynamic_cast<const SG::View*>(proxy);
@@ -66,23 +66,23 @@ namespace InDet{
     StatusCode CacheCreator::execute (const EventContext& ctx) const
     {
 
-        if(!m_disableWarning && IsInsideView(ctx)){
+        if(!m_disableWarning && isInsideView(ctx)){
            ATH_MSG_WARNING("CacheCreator is running inside a view, this is probably a misconfiguration");
         }
 
-        if(!m_disableTRT) ATH_CHECK(CreateContainer(m_rioContainerCacheKey, m_pTRTHelper->straw_layer_hash_max(), ctx));
+        if(!m_disableTRT) ATH_CHECK(createContainer(m_rioContainerCacheKey, m_pTRTHelper->straw_layer_hash_max(), ctx));
         
-        ATH_CHECK(CreateContainer(m_SCTclusterContainerCacheKey, m_sct_idHelper->wafer_hash_max(), ctx));
+        ATH_CHECK(createContainer(m_SCTclusterContainerCacheKey, m_sct_idHelper->wafer_hash_max(), ctx));
         
-        ATH_CHECK(CreateContainer(m_PIXclusterContainerCacheKey, m_pix_idHelper->wafer_hash_max(), ctx));
+        ATH_CHECK(createContainer(m_PIXclusterContainerCacheKey, m_pix_idHelper->wafer_hash_max(), ctx));
 
-        ATH_CHECK(CreateContainer(m_PIXSpacePointCacheKey, m_pix_idHelper->wafer_hash_max(), ctx));
+        ATH_CHECK(createContainer(m_PIXSpacePointCacheKey, m_pix_idHelper->wafer_hash_max(), ctx));
 
-        ATH_CHECK(CreateContainer(m_SCTSpacePointCacheKey, m_sct_idHelper->wafer_hash_max(), ctx));
+        ATH_CHECK(createContainer(m_SCTSpacePointCacheKey, m_sct_idHelper->wafer_hash_max(), ctx));
 
-        ATH_CHECK(CreateContainer(m_SCTRDOCacheKey, m_sct_idHelper->wafer_hash_max(), ctx));
+        ATH_CHECK(createContainer(m_SCTRDOCacheKey, m_sct_idHelper->wafer_hash_max(), ctx));
 
-        ATH_CHECK(CreateContainer(m_PixRDOCacheKey, m_pix_idHelper->wafer_hash_max(), ctx));
+        ATH_CHECK(createContainer(m_PixRDOCacheKey, m_pix_idHelper->wafer_hash_max(), ctx));
 
         return StatusCode::SUCCESS;
     }
