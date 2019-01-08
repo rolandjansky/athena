@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #include "JetRecTools/PuppiWeightTool.h"
 
 #include "fastjet/PseudoJet.hh"

@@ -28,6 +28,7 @@ namespace TrigL2MuonSA {
     double z;
     int    charge;
     double time;
+    float resolution;
     //
     double Residual;
     int    isOutlier;

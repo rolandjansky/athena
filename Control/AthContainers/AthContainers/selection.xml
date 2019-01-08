@@ -26,7 +26,7 @@
   <class name="SG::IAuxTypeVectorFactory"/>
   <class name="SG::AuxStoreInternal" id="77039D3D-4E24-46C1-B5D1-9AD5F17D3B09">
     <field name="m_vecs" transient="true"/>
-    <field name="m_isDecoration" transient="true"/>
+    <field name="m_decorations" transient="true"/>
     <field name="m_auxids" transient="true"/> 
     <field name="m_tick" transient="true"/>
     <field name="m_locked" transient="true"/>

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: AuxContainerBase.cxx 793746 2017-01-24 21:23:52Z ssnyder $
@@ -222,6 +222,15 @@ namespace xAOD {
 
       // Return the full list of IDs:
       return getWritableAuxIDs();
+   }
+
+   bool AuxContainerBase::isDecoration (auxid_t auxid) const
+   {
+     guard_t guard( m_mutex );
+     if (m_store) {
+       return m_store->isDecoration (auxid);
+     }
+     return false;
    }
 
    void* AuxContainerBase::getDecoration( auxid_t auxid, size_t size,
@@ -609,7 +618,7 @@ namespace xAOD {
       return;
    }
 
-   const AuxContainerBase::auxid_set_t&
+   AuxContainerBase::auxid_set_t
    AuxContainerBase::getSelectedAuxIDs() const {
 
       // Guard against multi-threaded execution:
@@ -626,8 +635,7 @@ namespace xAOD {
 
       // In case we don't use an internal store, there are no dynamic
       // variables:
-      static const auxid_set_t dummy (0);
-      return dummy;
+      return auxid_set_t();
    }
 
    //

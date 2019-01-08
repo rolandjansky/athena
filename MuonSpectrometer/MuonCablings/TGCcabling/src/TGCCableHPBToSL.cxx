@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGCcabling/TGCCableHPBToSL.h"
@@ -10,22 +10,22 @@ namespace LVL1TGCCabling8 {
 TGCCableHPBToSL::TGCCableHPBToSL (std::string filename)
   : TGCCable(TGCCable::HPBToSL)
 {
-  database[TGCIdBase::Endcap][TGCIdBase::Wire] =
+  m_database[TGCIdBase::Endcap][TGCIdBase::Wire] =
     new TGCDatabasePPToSL(filename,"HPB EW");
-  database[TGCIdBase::Endcap][TGCIdBase::Strip] =
+  m_database[TGCIdBase::Endcap][TGCIdBase::Strip] =
     new TGCDatabasePPToSL(filename,"HPB ES");
-  database[TGCIdBase::Forward][TGCIdBase::Wire] =
+  m_database[TGCIdBase::Forward][TGCIdBase::Wire] =
     new TGCDatabasePPToSL(filename,"HPB FW");
-  database[TGCIdBase::Forward][TGCIdBase::Strip] = 
+  m_database[TGCIdBase::Forward][TGCIdBase::Strip] = 
     new TGCDatabasePPToSL(filename,"HPB FS");
   }
   
 TGCCableHPBToSL::~TGCCableHPBToSL (void)
 {
-  delete database[TGCIdBase::Endcap][TGCIdBase::Wire];
-  delete database[TGCIdBase::Endcap][TGCIdBase::Strip];
-  delete database[TGCIdBase::Forward][TGCIdBase::Wire];
-  delete database[TGCIdBase::Forward][TGCIdBase::Strip];
+  delete m_database[TGCIdBase::Endcap][TGCIdBase::Wire];
+  delete m_database[TGCIdBase::Endcap][TGCIdBase::Strip];
+  delete m_database[TGCIdBase::Forward][TGCIdBase::Wire];
+  delete m_database[TGCIdBase::Forward][TGCIdBase::Strip];
 }
   
 
@@ -42,8 +42,8 @@ TGCModuleMap* TGCCableHPBToSL::getModule (const TGCModuleId* moduleId) const {
 TGCModuleMap* TGCCableHPBToSL::getModuleIn (const TGCModuleId* sl) const {
   if(sl->isValid()==false) return 0;  
 
-  TGCDatabase* wireP = database[sl->getRegionType()][TGCIdBase::Wire];
-  TGCDatabase* stripP = database[sl->getRegionType()][TGCIdBase::Strip];
+  TGCDatabase* wireP = m_database[sl->getRegionType()][TGCIdBase::Wire];
+  TGCDatabase* stripP = m_database[sl->getRegionType()][TGCIdBase::Strip];
 
   TGCModuleMap* mapId = 0;
   int MaxEntry = wireP->getMaxEntry();
@@ -79,7 +79,7 @@ TGCModuleMap* TGCCableHPBToSL::getModuleIn (const TGCModuleId* sl) const {
 TGCModuleMap* TGCCableHPBToSL::getModuleOut (const TGCModuleId* hpb) const {
   if(hpb->isValid()==false) return 0;  
 
-  TGCDatabase* databaseP =database[hpb->getRegionType()][hpb->getSignalType()];
+  TGCDatabase* databaseP =m_database[hpb->getRegionType()][hpb->getSignalType()];
 
   TGCModuleMap* mapId = 0;
   int MaxEntry = databaseP->getMaxEntry();

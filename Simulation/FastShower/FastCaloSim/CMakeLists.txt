@@ -1,3 +1,4 @@
+
 ################################################################################
 # Package: FastCaloSim
 ################################################################################
@@ -22,6 +23,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkExtrapolation/TrkExInterfaces
+                          Generators/GeneratorObjects
+                          Simulation/FastShower/FastCaloSimAthenaPool
                           PRIVATE
                           Calorimeter/CaloTrackingGeometry
                           Control/AthAllocators
@@ -31,9 +34,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoPrimitives
                           Event/EventKernel
                           Event/NavFourMom
-                          Generators/GeneratorObjects
                           Generators/TruthUtils
-                          Simulation/FastShower/FastCaloSimAthenaPool
                           Tools/PathResolver
                           Tracking/TrkDetDescr/TrkGeometry
                           Tracking/TrkDetDescr/TrkSurfaces
@@ -91,3 +92,8 @@ atlas_add_component( FastCaloSim
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 
+
+atlas_add_test( FastShowerCellBuilderTool_test
+  SCRIPT test/FastShowerCellBuilderTool_test.sh
+  PROPERTIES TIMEOUT 600
+  EXTRA_PATTERNS "Reading file|FastCaloSimFactory|FileName|default:|DATAPATH|Cache alignment|map from|Database being retired|Resolved path|^Domain|HepPDT Version|from file" )

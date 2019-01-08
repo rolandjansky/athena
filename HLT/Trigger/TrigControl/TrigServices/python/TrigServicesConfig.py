@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # @file: TrigServicesConfig.py
 # @purpose: customized configurables
@@ -25,3 +25,47 @@ class TrigCOOLUpdateHelper(_TrigCOOLUpdateHelper):
       else:
          conddb.addFolderWithTag('TRIGGER',self.coolFolder,tag)
       
+
+def setupMessageSvc():
+   from AthenaCommon.AppMgr import theApp
+   from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+   from AthenaCommon.Constants import VERBOSE, DEBUG, INFO, WARNING
+
+   svcMgr.MessageSvc = theApp.service( "MessageSvc" )     # already instantiated
+   MessageSvc = svcMgr.MessageSvc
+   MessageSvc.OutputLevel = theApp.OutputLevel
+
+   MessageSvc.Format       = "%t  % F%35W%S%7W%R%T %0W%M"
+
+   # Message suppression
+   MessageSvc.enableSuppression    = False
+   MessageSvc.suppressRunningOnly  = True
+   MessageSvc.resetStatsAtBeginRun = True
+
+   # 0 = no suppression, negative = log-suppression, positive = normal suppression
+   # Do not rely on the defaultLimit property, always set each limit separately
+   MessageSvc.defaultLimit = -100
+   MessageSvc.verboseLimit = MessageSvc.defaultLimit
+   MessageSvc.debugLimit   = MessageSvc.defaultLimit
+   MessageSvc.infoLimit    = MessageSvc.defaultLimit
+   MessageSvc.warningLimit = MessageSvc.defaultLimit
+   MessageSvc.errorLimit   = 0
+   MessageSvc.fatalLimit   = 0
+
+   # set message limit to unlimited when general DEBUG is requested
+   if MessageSvc.OutputLevel<=DEBUG :
+      MessageSvc.defaultLimit = 0
+      MessageSvc.enableSuppression = False
+
+   # publish message counts during RUNNING in histogram
+   MessageSvc.publishStats = True
+   MessageSvc.publishLevel = INFO
+
+   # show summary statistics of messages in finalize
+   MessageSvc.showStats = True
+   MessageSvc.statLevel = WARNING
+   MessageSvc.statLevelRun = VERBOSE
+
+   # publish message counts during RUNNING in histogram
+   MessageSvc.publishStats = True
+   MessageSvc.publishLevel = INFO

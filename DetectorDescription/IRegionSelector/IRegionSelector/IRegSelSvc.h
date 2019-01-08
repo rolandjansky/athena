@@ -1,10 +1,12 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   IRegSelSvc.h        
 // 
 //    Interface for the RegionSelector (RegSelSvc) service                  
 // 
-//   Copyright (C) 2007 M.Sutton (sutt@hep.ucl.ac.uk)    
 //
 //   $Id: IRegSelSvc.h,v 1.1.1.1 2008-11-19 15:33:35 sutt Exp $
 

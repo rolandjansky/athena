@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _ArrayFunction_h_
-#define _ArrayFunction_h_
+#ifndef TRT_GEOMODEL_ARRAYFUNCTION_H
+#define TRT_GEOMODEL_ARRAYFUNCTION_H
 //-------------------------------------------------------//
 // This one dimensional function takes its values from   //
 // an array..which it copies in.                         //
@@ -29,8 +29,8 @@ class ArrayFunction : public AbsFunction  {
   ArrayFunction(const ArrayFunction &right);
   
   // Retreive function value
-  virtual double operator ()(double argument) const;
-  virtual double operator ()(const Argument & a) const {return operator() (a[0]);}
+  virtual double operator ()(double argument) const override;
+  virtual double operator ()(const Argument & a) const override {return operator() (a[0]);}
   
  private:
   

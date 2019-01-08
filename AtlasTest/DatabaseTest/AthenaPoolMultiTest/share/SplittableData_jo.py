@@ -20,8 +20,10 @@
 ## basic job configuration (for generator)
 import AthenaCommon.AtlasUnixGeneratorJob
 
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
+from AthenaCommon.AlgSequence import AthSequencer
+topSequence = AthSequencer("AthAlgSeq")
+athOutSeq = AthSequencer("AthOutSeq")
+athRegSeq = AthSequencer("AthRegSeq")
 
 #--------------------------------------------------------------
 # Event related parameters
@@ -42,13 +44,11 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 #--------------------------------------------------------------
 # Load "user algorithm" top algorithms to be run, and the libraries that house them
 
-#from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODReader__EventInfoReaderAlg
-#alg = xAODReader__EventInfoReaderAlg()
-#alg.OutputLevel = DEBUG
-#topSequence += alg
+from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+alg = xAODMaker__EventInfoCnvAlg()
+topSequence += alg
 
 from AthenaPoolMultiTest.AthenaPoolMultiTestConf import *
-#from TagCollectionTest.TagCollectionTestConf import EventTagWriter
 
 PassAllFilter       = PassAllFilter("PassAllFilter")
 PassNoneFilter      = PassNoneFilter("PassNoneFilter")
@@ -109,18 +109,16 @@ from RegistrationServices.RegistrationServicesConf import RegistrationStreamTagT
 TagTool = RegistrationStreamTagTool("TagTool")
 #TagTool.FragmentByGroup = True
 
-#topSequence    += ["RegistrationStream/FullColl" ]
 FullColl = RegistrationStream("FullColl")
 FullColl.OutputCollection = "SplittableCollection.root"
-#FullColl.ItemList        += [ "DataHeader#*" ]
 FullColl.ItemList        += [ "DataHeader#DataStream" ]
 FullColl.ItemList        += [ "AthenaAttributeList#SimpleTag" ]
 FullColl.ItemList        += [ "CollectionMetadataContainer#*" ]
 FullColl.AcceptAlgs       = [ "PassAllFilter"]
+
 #FullColl.Tool = TagTool
 
 # Now put full veto to make sure vetos work on collections
-#topSequence    += ["RegistrationStream/NullColl" ]
 NullColl = RegistrationStream("NullColl")
 NullColl.OutputCollection = "NullableCollection.root"
 NullColl.ItemList        += [ "DataHeader#DataStream" ]

@@ -94,74 +94,6 @@ namespace xAOD {
    //
    /////////////////////////////////////////////////////////////////////////////
 
-   /////////////////////////////////////////////////////////////////////////////
-   //
-   //               Additions for AthenaMT Trigger / Run 3
-
-
-   const std::vector< ::TrigCompositeUtils::DecisionID >& TrigDecision_v1::chainMTPassedRaw() const {
-      static Accessor< std::vector< ::TrigCompositeUtils::DecisionID > > acc( "chainMTPassedRaw" );
-      return acc( *this );
-   }
-
-   void TrigDecision_v1::setChainMTPassedRaw( std::vector< ::TrigCompositeUtils::DecisionID > value ) {
-      std::sort(value.begin(), value.end()); // Clone vector and enforce weak ordering to be able to binary_search
-      static Accessor< std::vector< ::TrigCompositeUtils::DecisionID > > acc( "chainMTPassedRaw" );
-      acc( *this ) = value;
-      return;
-   }
-
-   const std::vector< ::TrigCompositeUtils::DecisionID >& TrigDecision_v1::chainMTPrescaled() const {
-      static Accessor< std::vector< ::TrigCompositeUtils::DecisionID > > acc( "chainMTPrescaled" );
-      return acc( *this );
-   }
-
-   void TrigDecision_v1::setChainMTPrescaled( std::vector< ::TrigCompositeUtils::DecisionID > value ) {
-      std::sort(value.begin(), value.end()); // Clone vector and enforce weak ordering to be able to binary_search
-      static Accessor< std::vector< ::TrigCompositeUtils::DecisionID > > acc( "chainMTPrescaled" );
-      acc( *this ) = value;
-      return;
-   }
-
-   const std::vector< ::TrigCompositeUtils::DecisionID >& TrigDecision_v1::chainMTRerun() const {
-      static Accessor< std::vector< ::TrigCompositeUtils::DecisionID > > acc( "chainMTRerun" );
-      return acc( *this );
-   }
-
-   void TrigDecision_v1::setChainMTRerun( std::vector< ::TrigCompositeUtils::DecisionID > value ) {
-      std::sort(value.begin(), value.end()); // Clone vector and enforce weak ordering to be able to binary_search
-      static Accessor< std::vector< ::TrigCompositeUtils::DecisionID > > acc( "chainMTRerun" );
-      acc( *this ) = value;
-      return;
-   }
-
-   bool TrigDecision_v1::isPassed( ::TrigCompositeUtils::DecisionID id ) const {
-      return std::binary_search(chainMTPassedRaw().begin(), chainMTPassedRaw().end(), id);
-   }
-
-   bool TrigDecision_v1::isPassed( const std::string& hltChainName ) const {
-      return isPassed(::TrigConf::HLTUtils::string2hash( hltChainName, "Identifier" ));
-   }
-
-   bool TrigDecision_v1::isPrescaled( ::TrigCompositeUtils::DecisionID id ) const {
-      return std::binary_search(chainMTPrescaled().begin(), chainMTPrescaled().end(), id);
-   }
-
-   bool TrigDecision_v1::isPrescaled( const std::string& hltChainName ) const {
-      return isPrescaled(::TrigConf::HLTUtils::string2hash( hltChainName, "Identifier" ));
-   }
-
-   bool TrigDecision_v1::isRerun( ::TrigCompositeUtils::DecisionID id ) const {
-      return std::binary_search(chainMTRerun().begin(), chainMTRerun().end(), id);
-   }
-
-   bool TrigDecision_v1::isRerun( const std::string& hltChainName ) const {
-      return isRerun(::TrigConf::HLTUtils::string2hash( hltChainName, "Identifier" ));
-   }
-
-   //
-   /////////////////////////////////////////////////////////////////////////////
-
 } // namespace xAOD
 
 /// Prints space separated positions of set bits from input bitset stored in vector
@@ -190,8 +122,11 @@ std::ostream& operator<<(std::ostream& s, const xAOD::TrigDecision_v1& td) {
    writeBits(s, td.tav());
    s << " Error Bits: L2Err=" << td.lvl2ErrorBits() << " L2Truncated=" << td.lvl2Truncated();
    s << " EF/HLTErr=" << td.efErrorBits() << " EF/HLTTrucated=" << td.efTruncated() << std::endl;
-   // Run 1 & 2 support
-   if (td.lvl2PassedPhysics().size()) {
+   // Run 1 
+   bool r1 = false;
+   if (td.lvl2Prescaled().size() || td.lvl2PassedPhysics().size() || td.lvl2PassedRaw().size() 
+    || td.lvl2Resurrected().size() || td.lvl2PassedThrough().size() ) {
+      r1 = true;
       s << " L2 Prescaled: ";
       writeBits(s, td.lvl2Prescaled());
       s << " L2 Passed Physics: ";
@@ -202,27 +137,24 @@ std::ostream& operator<<(std::ostream& s, const xAOD::TrigDecision_v1& td) {
       writeBits(s, td.lvl2Resurrected());
       s << " L2 Passedthrough: ";
       writeBits(s, td.lvl2PassedThrough());
+   } else {
+      s << " No L2 Bits" << std::endl;
    }
-   const std::string level = (td.lvl2PassedPhysics().size() ? "EF" : "HLT");
-   if (td.efPassedPhysics().size()) { // Run 1: EF, Run 2: HLT
-      s << " " << level << " Prescaled: ";
+   const std::string level = (r1 ? " EF" : " HLT");
+   if (td.efPrescaled().size() || td.efPassedPhysics().size() || td.efPassedRaw().size() 
+    || td.efResurrected().size() || td.efPassedThrough().size() ) { // Run 1: EF, Runs 2, 3: HLT
+      s << level << " Prescaled: ";
       writeBits(s, td.efPrescaled());
-      s << " " << level << " Passed Physics: ";
+      s << level << " Passed Physics: ";
       writeBits(s, td.efPassedPhysics());
-      s << " " << level << " Passed Raw: ";
+      s << level << " Passed Raw: ";
       writeBits(s, td.efPassedRaw());
-      s << " " << level << " Resurrected/Rerun: ";
+      s << level << " Resurrected/Rerun: ";
       writeBits(s, td.efResurrected());
-      s << " " << level << " Passedthrough: ";
+      s << level << " Passedthrough: ";
       writeBits(s, td.efPassedThrough());
-   } else { // Run 3
-      s << " HLT Prescaled: ";
-      for (::TrigCompositeUtils::DecisionID ID : td.chainMTPrescaled()) s << ID << " ";
-      s << std::endl << " HLT Passed Raw: ";
-      for (::TrigCompositeUtils::DecisionID ID : td.chainMTPassedRaw()) s << ID << " ";
-      s << std::endl << " HLT Resurrected/Rerun: ";
-      for (::TrigCompositeUtils::DecisionID ID : td.chainMTRerun()) s << ID << " ";
-      s << std::endl;
+   } else {
+      s << " No EF/HLT Bits" << std::endl;
    }
    return s;
 }

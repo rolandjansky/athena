@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: PFO_v1.h 783497 2016-11-10 15:00:53Z mhodgkin $
@@ -40,6 +40,8 @@ namespace xAOD {
     PFO_v1();
     /** Copy Constructor */
     PFO_v1(const PFO_v1& other);
+
+    PFO_v1& operator=(const PFO_v1& other) = default;
 
     
     /// @name xAOD::IParticle functions

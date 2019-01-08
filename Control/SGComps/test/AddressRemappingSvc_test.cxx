@@ -13,8 +13,6 @@
 // FIXME: only renaming is tested.
 
 #undef NDEBUG
-#include "SGTools/CLASS_DEF.h"
-#include "SGTools/ClassID_traits.h"
 #include "SGTools/TransientAddress.h"
 #include "SGTools/StringPool.h"
 #include "AthenaBaseComps/AthService.h"
@@ -23,6 +21,8 @@
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/IInputRename.h"
 #include "AthenaKernel/IAddressProvider.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthenaKernel/ClassID_traits.h"
 #include "TestTools/initGaudi.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IOpaqueAddress.h"

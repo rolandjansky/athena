@@ -1,6 +1,8 @@
 // Dear emacs, this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
-// Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 //
 #ifndef ANALYSISTRIGGERALGS_ROIBRESULTTOXAOD_H
 #define ANALYSISTRIGGERALGS_ROIBRESULTTOXAOD_H

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -35,7 +35,7 @@ TGC_STATUSConditionsTool::TGC_STATUSConditionsTool (const std::string& type,
   : AthAlgTool(type, name, parent), 
     m_IOVSvc(0),
     m_chronoSvc(0),
-    log( msgSvc(), name ),
+    m_log( msgSvc(), name ),
     m_debug(false),
     m_verbose(false)  
 {
@@ -56,9 +56,9 @@ StatusCode TGC_STATUSConditionsTool::updateAddress(StoreID::type /*storeID*/,
                                                    const EventContext& /*ctx*/)
 {
   
-  log.setLevel(msgLevel());
-  m_debug = log.level() <= MSG::DEBUG;
-  m_verbose = log.level() <= MSG::VERBOSE;
+  m_log.setLevel(msgLevel());
+  m_debug = m_log.level() <= MSG::DEBUG;
+  m_verbose = m_log.level() <= MSG::VERBOSE;
   // CLID clid        = tad->clID();
   std::string key  = tad->name();
  
@@ -69,11 +69,11 @@ StatusCode TGC_STATUSConditionsTool::updateAddress(StoreID::type /*storeID*/,
 
 StatusCode TGC_STATUSConditionsTool::initialize()
 {
-  log.setLevel(msgLevel());
-  m_debug = log.level() <= MSG::DEBUG;
-  m_verbose = log.level() <= MSG::VERBOSE;
+  m_log.setLevel(msgLevel());
+  m_debug = m_log.level() <= MSG::DEBUG;
+  m_verbose = m_log.level() <= MSG::VERBOSE;
 
-  log << MSG::INFO << "Initializing - folders names are: Chamber Status "<<m_FolderName << endmsg;
+  m_log << MSG::INFO << "Initializing - folders names are: Chamber Status "<<m_FolderName << endmsg;
    
   // Get interface to IOVSvc
   m_IOVSvc = 0;
@@ -81,7 +81,7 @@ StatusCode TGC_STATUSConditionsTool::initialize()
   StatusCode sc = service( "IOVSvc", m_IOVSvc, CREATEIF );
   if ( sc.isFailure() )
     {
-      log << MSG::ERROR << "Unable to get the IOVSvc" << endmsg;
+      m_log << MSG::ERROR << "Unable to get the IOVSvc" << endmsg;
       return StatusCode::FAILURE;
     }
   
@@ -92,7 +92,7 @@ StatusCode TGC_STATUSConditionsTool::initialize()
   // initialize the chrono service
   sc = service("ChronoStatSvc",m_chronoSvc);
   if (sc != StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Could not find the ChronoSvc" << endmsg;
+    m_log << MSG::ERROR << "Could not find the ChronoSvc" << endmsg;
     return sc;
   }
   if(sc.isFailure()) return StatusCode::FAILURE;
@@ -100,7 +100,7 @@ StatusCode TGC_STATUSConditionsTool::initialize()
   sc = detStore()->retrieve(m_tgcIdHelper, "TGCIDHELPER" );
   if (sc.isFailure())
     {
-      log<< MSG::FATAL << " Cannot retrieve TgcIdHelper " << endmsg;
+      m_log<< MSG::FATAL << " Cannot retrieve TgcIdHelper " << endmsg;
       return sc;
     }
   
@@ -113,12 +113,12 @@ StatusCode TGC_STATUSConditionsTool::initialize()
 StatusCode TGC_STATUSConditionsTool::loadParameterStatus(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
  
-  log.setLevel(msgLevel());
-  m_debug = log.level() <= MSG::DEBUG;
-  m_verbose = log.level() <= MSG::VERBOSE;	 
+  m_log.setLevel(msgLevel());
+  m_debug = m_log.level() <= MSG::DEBUG;
+  m_verbose = m_log.level() <= MSG::VERBOSE;	 
   std::list<std::string>::const_iterator itr;
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
-    log << MSG::INFO <<"LoadParameters "<< *itr << " I="<<I<<" "<<endmsg;
+    m_log << MSG::INFO <<"LoadParameters "<< *itr << " I="<<I<<" "<<endmsg;
     if(*itr==m_FolderName) {
         StatusCode sc =loadTgcDqStatus(I,keys);
       if (sc.isFailure())
@@ -139,32 +139,32 @@ StatusCode TGC_STATUSConditionsTool::loadParameterStatus(IOVSVC_CALLBACK_ARGS_P(
 
 StatusCode TGC_STATUSConditionsTool::loadTgcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,keys)) 
 {
-  log.setLevel(msgLevel());
-  m_debug = log.level() <= MSG::DEBUG;
-  m_verbose = log.level() <= MSG::VERBOSE;
+  m_log.setLevel(msgLevel());
+  m_debug = m_log.level() <= MSG::DEBUG;
+  m_verbose = m_log.level() <= MSG::VERBOSE;
  
   StatusCode sc=StatusCode::SUCCESS;
-  log << MSG::INFO << "Load Tgc Status flags  from DB" << endmsg;
+  m_log << MSG::INFO << "Load Tgc Status flags  from DB" << endmsg;
 
   // Print out callback information
-   if( m_debug )  log << MSG::DEBUG << "Level " << I << " Keys: ";
+   if( m_debug )  m_log << MSG::DEBUG << "Level " << I << " Keys: ";
   std::list<std::string>::const_iterator keyIt = keys.begin();
-  for (; keyIt != keys.end(); ++ keyIt)  if( m_debug ) log << MSG::DEBUG << *keyIt << " ";
-   if( m_debug )  log << MSG::DEBUG << endmsg;
+  for (; keyIt != keys.end(); ++ keyIt)  if( m_debug ) m_log << MSG::DEBUG << *keyIt << " ";
+   if( m_debug )  m_log << MSG::DEBUG << endmsg;
   
   const CondAttrListCollection * atrc = nullptr;
-  log << MSG::INFO << "Try to read from folder <"<< m_FolderName <<">"<<endmsg;
+  m_log << MSG::INFO << "Try to read from folder <"<< m_FolderName <<">"<<endmsg;
 
   sc=detStore()->retrieve(atrc,m_FolderName);
   if(sc.isFailure())  {
-    log << MSG::ERROR
+    m_log << MSG::ERROR
 	<< "could not retreive the CondAttrListCollection from DB folder " 
 	<< m_FolderName << endmsg;
     return sc;
 	  }
   
   else
-    log<<MSG::INFO<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endmsg;
+    m_log<<MSG::INFO<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endmsg;
   
  
   CondAttrListCollection::const_iterator itr;
@@ -173,7 +173,7 @@ StatusCode TGC_STATUSConditionsTool::loadTgcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,ke
      int detector_status;
  
      detector_status=*(static_cast<const int*>((atr["detector_status"]).addressOfData()));
-      if( m_debug ) log << MSG::DEBUG << "TGC detector status is " << detector_status << endmsg;
+      if( m_debug ) m_log << MSG::DEBUG << "TGC detector status is " << detector_status << endmsg;
 
      if (detector_status!=0){
        int channum=itr->first;
@@ -184,7 +184,7 @@ StatusCode TGC_STATUSConditionsTool::loadTgcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,ke
   } 
   
     
-   if( m_debug ) log << MSG::VERBOSE << "Collection CondAttrListCollection CLID "
+   if( m_debug ) m_log << MSG::VERBOSE << "Collection CondAttrListCollection CLID "
        << atrc->clID() << endmsg;
 
 

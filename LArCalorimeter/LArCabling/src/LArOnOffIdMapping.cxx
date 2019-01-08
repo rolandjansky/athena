@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #include "LArCabling/LArOnOffIdMapping.h"
 
 LArOnOffIdMapping::LArOnOffIdMapping(const LArOnlineID_Base* onlineId, const CaloCell_Base_ID * caloId) :

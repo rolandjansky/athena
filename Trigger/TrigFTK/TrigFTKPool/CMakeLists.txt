@@ -9,6 +9,7 @@ atlas_subdir( TrigFTKPool )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Control/AthContainers
+                          Control/DataModelAthenaPool
                           PRIVATE
                           Database/AthenaPOOL/AthenaPoolCnvSvc
                           Database/AthenaPOOL/AthenaPoolUtilities )
@@ -28,11 +29,11 @@ atlas_add_poolcnv_library( TrigFTKPoolPoolCnv
                            src/*.cxx
                            FILES TrigFTKPool/FTKTestData.h TrigFTKPool/FTKAthTrackContainer.h TrigFTKPool/FTKTrackFitterStats.h
                            INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                           LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthenaPoolCnvSvcLib AthenaPoolUtilities TrigFTKPool )
+                           LINK_LIBRARIES ${ROOT_LIBRARIES} DataModelAthenaPoolLib AthContainers AthenaPoolCnvSvcLib AthenaPoolUtilities TrigFTKPool )
 
 atlas_add_dictionary( TrigFTKPoolDict
                       TrigFTKPool/TrigFTKPoolDict.h
                       TrigFTKPool/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthenaPoolCnvSvcLib AthenaPoolUtilities TrigFTKPool )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} DataModelAthenaPoolLib AthContainers AthenaPoolCnvSvcLib AthenaPoolUtilities TrigFTKPool )
 

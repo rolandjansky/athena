@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -11,27 +11,11 @@
 #include "AthenaKernel/errorcheck.h"
 #include "StoreGate/ReadCondHandle.h"
 
-//
-//____________________________________________________________________
-static const InterfaceID IID_TileCondToolOfcCool("TileCondToolOfcCool", 1, 0);
-
-const InterfaceID& TileCondToolOfcCool::interfaceID() {
-  return IID_TileCondToolOfcCool;
-}
-
-//
 //____________________________________________________________________
 TileCondToolOfcCool::TileCondToolOfcCool(const std::string& type, const std::string& name,
     const IInterface* parent)
-    : AthAlgTool(type, name, parent)
-    , m_weights(0)
-    , m_NPhases(0)
-    , m_NFields(0)
-    , m_NSamples(0)
-    , m_first(true)
+    : base_class(type, name, parent)
 {
-  declareInterface<TileCondToolOfcCool>(this);
-  declareInterface<ITileCondToolOfc>(this);
 }
 
 //
@@ -47,17 +31,12 @@ StatusCode TileCondToolOfcCool::initialize() {
 
   ATH_CHECK( m_calibOfcKey.initialize() );
 
-  //=== prepare structure for OFCs
-  m_weights = new TileOfcWeightsStruct;
-  memset(m_weights, 0, sizeof(TileOfcWeightsStruct));
-
   return StatusCode::SUCCESS;
 }
 
 //
 //____________________________________________________________________
 StatusCode TileCondToolOfcCool::finalize() {
-  if (m_weights) delete m_weights;
   ATH_MSG_DEBUG( "finalize called" );
 
   return StatusCode::SUCCESS;
@@ -65,33 +44,28 @@ StatusCode TileCondToolOfcCool::finalize() {
 
 //
 //____________________________________________________________________
-const TileOfcWeightsStruct* TileCondToolOfcCool::getOfcWeights(unsigned int drawerIdx, 
-                                                               unsigned int channel, 
-                                                               unsigned int adc,
-                                                               float& phase, 
-                                                               bool /* of2 */) {
-
+StatusCode
+TileCondToolOfcCool::getOfcWeights(unsigned int drawerIdx,
+                                   unsigned int channel,
+                                   unsigned int adc,
+                                   float& phase,
+                                   bool /*of2*/,
+                                   TileOfcWeightsStruct& weights) const
+{
+  std::fill (std::begin(weights.g), std::end(weights.g), 0);
+  std::fill (std::begin(weights.dg), std::end(weights.dg), 0);
+  std::fill (std::begin(weights.w_a), std::end(weights.w_a), 0);
+  std::fill (std::begin(weights.w_b), std::end(weights.w_b), 0);
+  std::fill (std::begin(weights.w_c), std::end(weights.w_c), 0);
 
   SG::ReadCondHandle<TileCalibData<TileCalibDrawerOfc>> calibOFC(m_calibOfcKey);
 
-  if (m_first) {
-    m_first = false;
-    m_NPhases = calibOFC->getCalibDrawer(drawerIdx)->getNPhases();
-    m_NFields = calibOFC->getCalibDrawer(drawerIdx)->getNFields();
-    m_NSamples = calibOFC->getCalibDrawer(drawerIdx)->getNSamples();
+  calibOFC->getCalibDrawer(drawerIdx)->fillOfc(channel, adc, phase, weights.w_a, weights.w_b,
+                                               weights.w_c, weights.g, weights.dg);
 
-    ATH_MSG_DEBUG( "OFC Blob Type " << calibOFC->getCalibDrawer(drawerIdx)->getType()
-                   << " NPhases " << m_NPhases
-                   << " NFields " << m_NFields );
+  weights.n_samples = calibOFC->getCalibDrawer(drawerIdx)->getNSamples();
 
-  }
-
-  calibOFC->getCalibDrawer(drawerIdx)->fillOfc(channel, adc, phase, m_weights->w_a, m_weights->w_b,
-                                                   m_weights->w_c, m_weights->g, m_weights->dg);
-
-  m_weights->n_samples = m_NSamples;
-
-  return m_weights;
+  return StatusCode::SUCCESS;
 }
 
 //
@@ -104,21 +78,9 @@ int TileCondToolOfcCool::getOfcWeights(unsigned int drawerIdx,
 
   SG::ReadCondHandle<TileCalibData<TileCalibDrawerOfc>> calibOFC(m_calibOfcKey);
 
-  if (m_first) {
-    m_first = false;
-    m_NPhases = calibOFC->getCalibDrawer(drawerIdx)->getNPhases();
-    m_NFields = calibOFC->getCalibDrawer(drawerIdx)->getNFields();
-    m_NSamples = calibOFC->getCalibDrawer(drawerIdx)->getNSamples();
-
-    ATH_MSG_DEBUG( "OFC Blob Type " << calibOFC->getCalibDrawer(drawerIdx)->getType()
-                  << " NPhases " << m_NPhases
-                  << " NFields " << m_NFields );
-
-  }
-
   calibOFC->getCalibDrawer(drawerIdx)->fillOfc(channel, adc, phase, a, b, c, g, dg);
 
-  return m_NSamples;
+  return calibOFC->getCalibDrawer(drawerIdx)->getNSamples();
 }
 
 //

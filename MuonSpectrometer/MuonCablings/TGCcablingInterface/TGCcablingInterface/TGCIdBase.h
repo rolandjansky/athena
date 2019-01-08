@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -102,25 +102,25 @@ public:
   virtual int getSectorModule (void) const;
 
 protected:
-  IdType idType;
-  ChannelIdType channelType;
+  IdType m_idType;
+  ChannelIdType m_channelType;
 
 protected:
-  SideType      side;
-  ModuleType    module;
-  SignalType    signal;
-  MultipletType multiplet;
-  RegionType    region;
-  int station;
-  int octant;
-  int sector;
-  int layer;
-  int chamber;
-  int id;
-  int block;
-  int channel;
-  int event;
-  int bunch;
+  SideType      m_side;
+  ModuleType    m_module;
+  SignalType    m_signal;
+  MultipletType m_multiplet;
+  RegionType    m_region;
+  int m_station;
+  int m_octant;
+  int m_sector;
+  int m_layer;
+  int m_chamber;
+  int m_id;
+  int m_block;
+  int m_channel;
+  int m_event;
+  int m_bunch;
 };
   
  

@@ -5,6 +5,7 @@
 # Declare the package name:
 atlas_subdir( TrigEgammaEmulationTool )
 
+
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
@@ -41,7 +42,7 @@ find_package( CLHEP )
 # Component(s) in the package:
 atlas_add_library( TrigEgammaEmulationToolLib
    TrigEgammaEmulationTool/*.h Root/*.cxx
-   PUBLIC_HEADERS TrigEgammaEmulationTool
+   PUBLIC_HEADERS TrigEgammaEmulationTool 
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${CLHEP_LIBRARIES} AthContainers AsgTools xAODBase
@@ -53,10 +54,15 @@ atlas_add_library( TrigEgammaEmulationToolLib
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} )
 
 atlas_add_component( TrigEgammaEmulationTool
-   src/*.h src/*.cxx src/components/*.cxx
-   LINK_LIBRARIES AthenaBaseComps GaudiKernel TrigDecisionToolLib
-   TrigEgammaMatchingToolLib xAODTrigger xAODTrigCalo xAODTrigRinger
-   xAODTracking xAODCaloEvent xAODEgamma PATCoreLib TrigEgammaEmulationToolLib )
+    src/*.h src/*.cxx src/components/*.cxx
+    LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES}
+    AthContainers AsgTools xAODBase xAODCaloEvent xAODEgamma  xAODTracking
+    xAODTrigCalo xAODTrigEgamma xAODTrigRinger xAODTrigger PATCoreLib
+    ElectronPhotonSelectorToolsLib TrigDecisionToolLib TrigConfHLTData
+    TrigSteeringEvent TrigMultiVarHypoLib AthenaBaseComps StoreGateLib SGtests
+    GaudiKernel TrigEgammaMatchingToolLib LumiBlockCompsLib IsolationToolLib
+    TrigEgammaEmulationToolLib) 
+
 
 # Install files from the package:
 atlas_install_python_modules( python/TrigEgamma*.py )

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // PyComponentMgr.cxx 
@@ -13,9 +13,9 @@
 // Python includes
 #include "Python.h"
 
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF (PyObject, 72785480, 1)
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 SG_BASES1(PyObject, SG::NoBase);
 
 // AthenaPython includes

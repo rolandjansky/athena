@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -11,12 +11,16 @@
 #include "TrigT1NSWSimTools/PadWithHits.h"
 #include "TrigT1NSWSimTools/GeoUtils.h"
 #include "TrigT1NSWSimTools/TriggerTypes.h"
-
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaKernel/MsgStreamMember.h"
 
 #include "TVector3.h"
 
 #include <string>
 #include <vector>
+
+//forward declarations
+class MsgStream;
 
 /*!
 
@@ -75,6 +79,17 @@ namespace NSWL1 {
     std::string pickle() const; //!< simple dict-like representation
     const std::vector<PadWithHits>& pads() const {return m_pads;}
     TVector3 direction() const;
+
+  protected:
+    /// Log a message using the Athena controlled logging system
+    MsgStream& msg(MSG::Level lvl) const { return m_msg.get() << lvl; }
+
+    /// Check whether the logging system is active at the provided verbosity level
+    bool msgLvl(MSG::Level lvl) { return m_msg.get().level() <= lvl; }
+
+    /// Private message stream member
+    mutable Athena::MsgStreamMember m_msg;
+
   private:
     std::string m_pattern;
     EtaPhiHalf m_halfPadIndices;

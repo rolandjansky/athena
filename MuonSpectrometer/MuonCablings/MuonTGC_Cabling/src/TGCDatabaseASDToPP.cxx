@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTGC_Cabling/TGCDatabaseASDToPP.h"
@@ -19,33 +19,33 @@ TGCDatabaseASDToPP::TGCDatabaseASDToPP(std::string filename,
 				       std::string blockname,
 				       bool v_isCommon)
   : TGCDatabase(TGCDatabase::ASDToPP, filename, blockname), 
-    NIndexDBIn(0), NIndexDBOut(0), m_isCommon(v_isCommon) 
+    m_NIndexDBIn(0), m_NIndexDBOut(0), m_isCommon(v_isCommon) 
 {
   for(int iIndexIn=0; iIndexIn<NIndexIn; iIndexIn++) {
-    maxIndexIn[iIndexIn] = 0;
-    minIndexIn[iIndexIn] = 9999;
+    m_maxIndexIn[iIndexIn] = 0;
+    m_minIndexIn[iIndexIn] = 9999;
   }
   for(int iIndexOut=0; iIndexOut<NIndexOut; iIndexOut++) {
-    maxIndexOut[iIndexOut] = 0;
-    minIndexOut[iIndexOut] = 9999;
+    m_maxIndexOut[iIndexOut] = 0;
+    m_minIndexOut[iIndexOut] = 9999;
   }
 
   // read out ascii file and fill database
-  if(database.size()==0) readDB();
+  if(m_database.size()==0) readDB();
 }
   
 TGCDatabaseASDToPP::TGCDatabaseASDToPP(const TGCDatabaseASDToPP& right, bool v_isCommon)
   : TGCDatabase(right), m_isCommon(v_isCommon)
 {
-  right.getindexDBVectorIn(indexDBIn);
-  right.getNIndexDBIn(NIndexDBIn);
-  right.getmaxIndexIn(maxIndexIn);
-  right.getminIndexIn(minIndexIn);
+  right.getindexDBVectorIn(m_indexDBIn);
+  right.getNIndexDBIn(m_NIndexDBIn);
+  right.getmaxIndexIn(m_maxIndexIn);
+  right.getminIndexIn(m_minIndexIn);
 
-  right.getindexDBVectorOut(indexDBOut);
-  right.getNIndexDBOut(NIndexDBOut);
-  right.getmaxIndexOut(maxIndexOut);
-  right.getminIndexOut(minIndexOut);
+  right.getindexDBVectorOut(m_indexDBOut);
+  right.getNIndexDBOut(m_NIndexDBOut);
+  right.getmaxIndexOut(m_maxIndexOut);
+  right.getminIndexOut(m_minIndexOut);
 }
 
 TGCDatabaseASDToPP::~TGCDatabaseASDToPP(void)
@@ -64,28 +64,28 @@ bool TGCDatabaseASDToPP::update(const std::vector<int>& input)
 
   bool over_range = false;
   for(int iIndexOut=0; iIndexOut<NIndexOut; iIndexOut++) {
-    if(maxIndexOut[iIndexOut]<tmpValIndexOut[iIndexOut]) {
-      maxIndexOut[iIndexOut] = tmpValIndexOut[iIndexOut];
+    if(m_maxIndexOut[iIndexOut]<tmpValIndexOut[iIndexOut]) {
+      m_maxIndexOut[iIndexOut] = tmpValIndexOut[iIndexOut];
       over_range = true;
     }
-    if(minIndexOut[iIndexOut]>tmpValIndexOut[iIndexOut]) {
-      minIndexOut[iIndexOut] = tmpValIndexOut[iIndexOut];
+    if(m_minIndexOut[iIndexOut]>tmpValIndexOut[iIndexOut]) {
+      m_minIndexOut[iIndexOut] = tmpValIndexOut[iIndexOut];
       over_range = true;
     }
   }
   if(over_range) {
-    indexDBOut.clear();
+    m_indexDBOut.clear();
     makeIndexDBOut();
   }
 
   int converted = convertIndexDBOut(tmpValIndexOut);
-  if(converted<0 || converted>=NIndexDBOut) return false;
+  if(converted<0 || converted>=m_NIndexDBOut) return false;
 
-  indexDBOut.at(converted) = ip;
+  m_indexDBOut.at(converted) = ip;
 
-  database[ip].at(3) = input.at(3);
-  database[ip].at(4) = input.at(4);
-  database[ip].at(5) = input.at(5);
+  m_database[ip].at(3) = input.at(3);
+  m_database[ip].at(4) = input.at(4);
+  m_database[ip].at(5) = input.at(5);
 
   return true;
 }
@@ -93,11 +93,11 @@ bool TGCDatabaseASDToPP::update(const std::vector<int>& input)
 int  TGCDatabaseASDToPP::find(const std::vector<int>& channel) const
 {
   int index=-1;
-  const size_t size = database.size();
+  const size_t size = m_database.size();
   for(size_t i=0; i<size; i++){
-    if(database[i].at(2) == channel.at(2) &&
-       database[i].at(1) == channel.at(1) &&
-       database[i].at(0) == channel.at(0)) {
+    if(m_database[i].at(2) == channel.at(2) &&
+       m_database[i].at(1) == channel.at(1) &&
+       m_database[i].at(0) == channel.at(0)) {
       index = i;
       break;
     }
@@ -109,35 +109,35 @@ int TGCDatabaseASDToPP::getIndexDBIn(int* indexIn)
 {
   if(!indexIn) return -1;
 
-  if(database.size()==0) readDB();
+  if(m_database.size()==0) readDB();
 
   int converted = convertIndexDBIn(indexIn);
-  if(converted<0 || converted>=NIndexDBIn) return -1;
+  if(converted<0 || converted>=m_NIndexDBIn) return -1;
 
-  return indexDBIn.at(converted);
+  return m_indexDBIn.at(converted);
 }
 
 void TGCDatabaseASDToPP::getindexDBVectorIn(std::vector<int>& tmpindexDBIn) const
 {
-  tmpindexDBIn = indexDBIn;
+  tmpindexDBIn = m_indexDBIn;
 }
 
 void TGCDatabaseASDToPP::getNIndexDBIn(int& tmpNIndexDBIn) const
 {
-  tmpNIndexDBIn = NIndexDBIn;
+  tmpNIndexDBIn = m_NIndexDBIn;
 }
 
 void TGCDatabaseASDToPP::getmaxIndexIn(int* tmpmaxIndexIn) const
 {
   for(int iIndexIn=0; iIndexIn<NIndexIn; iIndexIn++) {
-    tmpmaxIndexIn[iIndexIn] = maxIndexIn[iIndexIn];
+    tmpmaxIndexIn[iIndexIn] = m_maxIndexIn[iIndexIn];
   }
 }
 
 void TGCDatabaseASDToPP::getminIndexIn(int* tmpminIndexIn) const
 {
   for(int iIndexIn=0; iIndexIn<NIndexIn; iIndexIn++) {
-    tmpminIndexIn[iIndexIn] = minIndexIn[iIndexIn];
+    tmpminIndexIn[iIndexIn] = m_minIndexIn[iIndexIn];
   }
 }
 
@@ -145,35 +145,35 @@ int TGCDatabaseASDToPP::getIndexDBOut(int* indexOut)
 {
   if(!indexOut) return -1;
 
-  if(database.size()==0) readDB();
+  if(m_database.size()==0) readDB();
 
   int converted = convertIndexDBOut(indexOut);
-  if(converted<0 || converted>=NIndexDBOut) return -1;
+  if(converted<0 || converted>=m_NIndexDBOut) return -1;
 
-  return indexDBOut.at(converted);
+  return m_indexDBOut.at(converted);
 }
 
 void TGCDatabaseASDToPP::getindexDBVectorOut(std::vector<int>& tmpindexDBOut) const
 {
-  tmpindexDBOut = indexDBOut;
+  tmpindexDBOut = m_indexDBOut;
 }
 
 void TGCDatabaseASDToPP::getNIndexDBOut(int& tmpNIndexDBOut) const
 {
-  tmpNIndexDBOut = NIndexDBOut;
+  tmpNIndexDBOut = m_NIndexDBOut;
 }
 
 void TGCDatabaseASDToPP::getmaxIndexOut(int* tmpmaxIndexOut) const
 {
   for(int iIndexOut=0; iIndexOut<NIndexOut; iIndexOut++) {
-    tmpmaxIndexOut[iIndexOut] = maxIndexOut[iIndexOut];
+    tmpmaxIndexOut[iIndexOut] = m_maxIndexOut[iIndexOut];
   }
 }
 
 void TGCDatabaseASDToPP::getminIndexOut(int* tmpminIndexOut) const
 {
   for(int iIndexOut=0; iIndexOut<NIndexOut; iIndexOut++) {
-    tmpminIndexOut[iIndexOut] = minIndexOut[iIndexOut];
+    tmpminIndexOut[iIndexOut] = m_minIndexOut[iIndexOut];
   }
 }
 
@@ -184,20 +184,20 @@ bool TGCDatabaseASDToPP::isCommon() const
 
 void TGCDatabaseASDToPP::readDB(void) 
 {
-  std::ifstream file(filename.c_str());
+  std::ifstream file(m_filename.c_str());
   std::string buf;
 
   for(int iIndexIn=0; iIndexIn<NIndexIn; iIndexIn++) {
-    maxIndexIn[iIndexIn] = 0;
-    minIndexIn[iIndexIn] = 9999;
+    m_maxIndexIn[iIndexIn] = 0;
+    m_minIndexIn[iIndexIn] = 9999;
   }
   for(int iIndexOut=0; iIndexOut<NIndexOut; iIndexOut++) {
-    maxIndexOut[iIndexOut] = 0;
-    minIndexOut[iIndexOut] = 9999;
+    m_maxIndexOut[iIndexOut] = 0;
+    m_minIndexOut[iIndexOut] = 9999;
   }
 
   while(getline(file,buf)){
-    if(buf.substr(0,blockname.size())==blockname) break;
+    if(buf.substr(0,m_blockname.size())==m_blockname) break;
   }
 
   while(getline(file,buf)){
@@ -209,25 +209,25 @@ void TGCDatabaseASDToPP::readDB(void)
       line >> temp; 
       entry.push_back(temp);
     }
-    database.push_back(entry);
+    m_database.push_back(entry);
   }
 
   file.close();
 
   int nline = 0;
-  const unsigned int database_size = database.size();
+  const unsigned int database_size = m_database.size();
   for(unsigned int i=0; i<database_size; i++){
     // line is defined in whole sector. [0..n]
-    if(i>0&&database[i].at(0)!=database[i-1].at(0)) nline=0;
-    database[i].push_back(nline++);
+    if(i>0&&m_database[i].at(0)!=m_database[i-1].at(0)) nline=0;
+    m_database[i].push_back(nline++);
 
     if(i==database_size-1||
-       database[i].at(0)!=database[i+1].at(0)||
-       database[i].at(1)!=database[i+1].at(1)){
+       m_database[i].at(0)!=m_database[i+1].at(0)||
+       m_database[i].at(1)!=m_database[i+1].at(1)){
       // increase with R in chamber    [0..n]
-      int totline = database[i].at(2)+1;
+      int totline = m_database[i].at(2)+1;
       for(int j=0; j<totline; j++){
-	database[i-j].push_back(j);
+	m_database[i-j].push_back(j);
       }
     }
   }
@@ -235,24 +235,24 @@ void TGCDatabaseASDToPP::readDB(void)
   
   for(unsigned int i=0; i<database_size; i++){ 
     for(int j=0; j<DATABASESIZE; j++){ 
-      int temp = database[i].at(j);  
+      int temp = m_database[i].at(j);  
       int k = ReverseIndexOut[j]; 
       if(k>=0) { 
-	if(maxIndexOut[k]<temp) { 
-	  maxIndexOut[k] = temp; 
+	if(m_maxIndexOut[k]<temp) { 
+	  m_maxIndexOut[k] = temp; 
 	}  
-	if(minIndexOut[k]>temp) { 
-	  minIndexOut[k] = temp; 
+	if(m_minIndexOut[k]>temp) { 
+	  m_minIndexOut[k] = temp; 
 	} 
       }  
       
       k = ReverseIndexIn[j]; 
       if(k>=0) { 
-	if(maxIndexIn[k]<temp) { 
-	  maxIndexIn[k] = temp; 
+	if(m_maxIndexIn[k]<temp) { 
+	  m_maxIndexIn[k] = temp; 
 	} 
-	if(minIndexIn[k]>temp) { 
-	  minIndexIn[k] = temp; 
+	if(m_minIndexIn[k]>temp) { 
+	  m_minIndexIn[k] = temp; 
 	} 
       } 
     } 
@@ -264,60 +264,60 @@ void TGCDatabaseASDToPP::readDB(void)
 
 void TGCDatabaseASDToPP::makeIndexDBIn(void) 
 {
-  NIndexDBIn = 1;
+  m_NIndexDBIn = 1;
   for(int iIndexIn=0; iIndexIn<NIndexIn; iIndexIn++) {
-    NIndexDBIn *= (maxIndexIn[iIndexIn]-minIndexIn[iIndexIn]+1);
+    m_NIndexDBIn *= (m_maxIndexIn[iIndexIn]-m_minIndexIn[iIndexIn]+1);
   }
-  for(int iIndexDBIn=0; iIndexDBIn<NIndexDBIn; iIndexDBIn++) {
-    indexDBIn.push_back(-1);
+  for(int iIndexDBIn=0; iIndexDBIn<m_NIndexDBIn; iIndexDBIn++) {
+    m_indexDBIn.push_back(-1);
   }
 
-  const int size = database.size();
+  const int size = m_database.size();
   for(int i=0; i<size; i++) {
     int tmpValIndexIn[NIndexIn];
     for(int iIndexIn=0; iIndexIn<NIndexIn; iIndexIn++) {
-      tmpValIndexIn[iIndexIn] = database.at(i).at(IndexIn[iIndexIn]);
+      tmpValIndexIn[iIndexIn] = m_database.at(i).at(IndexIn[iIndexIn]);
     }
-    indexDBIn.at(convertIndexDBIn(tmpValIndexIn)) = i;
+    m_indexDBIn.at(convertIndexDBIn(tmpValIndexIn)) = i;
   }
 }
 
 int TGCDatabaseASDToPP::convertIndexDBIn(int* indexIn) const
 {
-  int converted = indexIn[0]-minIndexIn[0];
+  int converted = indexIn[0]-m_minIndexIn[0];
   for(int iIndexIn=1; iIndexIn<NIndexIn; iIndexIn++) {
-    converted *= (maxIndexIn[iIndexIn]-minIndexIn[iIndexIn]+1);
-    converted += indexIn[iIndexIn]-minIndexIn[iIndexIn];
+    converted *= (m_maxIndexIn[iIndexIn]-m_minIndexIn[iIndexIn]+1);
+    converted += indexIn[iIndexIn]-m_minIndexIn[iIndexIn];
   }
   return converted;
 }
 
 void TGCDatabaseASDToPP::makeIndexDBOut(void) 
 {
-  NIndexDBOut = 1;
+  m_NIndexDBOut = 1;
   for(int iIndexOut=0; iIndexOut<NIndexOut; iIndexOut++) {
-    NIndexDBOut *= (maxIndexOut[iIndexOut]-minIndexOut[iIndexOut]+1);
+    m_NIndexDBOut *= (m_maxIndexOut[iIndexOut]-m_minIndexOut[iIndexOut]+1);
   }
-  for(int iIndexDBOut=0; iIndexDBOut<NIndexDBOut; iIndexDBOut++) {
-    indexDBOut.push_back(-1);
+  for(int iIndexDBOut=0; iIndexDBOut<m_NIndexDBOut; iIndexDBOut++) {
+    m_indexDBOut.push_back(-1);
   }
 
-  const int size = database.size();
+  const int size = m_database.size();
   for(int i=0; i<size; i++) {
     int tmpValIndexOut[NIndexOut];
     for(int iIndexOut=0; iIndexOut<NIndexOut; iIndexOut++) {
-      tmpValIndexOut[iIndexOut] = database.at(i).at(IndexOut[iIndexOut]);
+      tmpValIndexOut[iIndexOut] = m_database.at(i).at(IndexOut[iIndexOut]);
     }
-    indexDBOut.at(convertIndexDBOut(tmpValIndexOut)) = i;
+    m_indexDBOut.at(convertIndexDBOut(tmpValIndexOut)) = i;
   }
 }
 
 int TGCDatabaseASDToPP::convertIndexDBOut(int* indexOut) const
 {
-  int converted = indexOut[0]-minIndexOut[0];
+  int converted = indexOut[0]-m_minIndexOut[0];
   for(int iIndexOut=1; iIndexOut<NIndexOut; iIndexOut++) {
-    converted *= (maxIndexOut[iIndexOut]-minIndexOut[iIndexOut]+1);
-    converted += indexOut[iIndexOut]-minIndexOut[iIndexOut];
+    converted *= (m_maxIndexOut[iIndexOut]-m_minIndexOut[iIndexOut]+1);
+    converted += indexOut[iIndexOut]-m_minIndexOut[iIndexOut];
   }
   return converted;
 }

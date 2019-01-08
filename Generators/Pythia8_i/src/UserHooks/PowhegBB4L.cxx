@@ -1,5 +1,7 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 // PowhegHooksBB4L.h 
-// Copyright (C) 2017 Tomas Jezo, Markus Seidel, Ben Nachman 
 
 // Author: Tomas Jezo, Markus Seidel and Ben Nachman based on 
 // PowhegHooks.h by Richard Corke

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TrigEgammaMatchingToolTest.h 
@@ -43,15 +43,30 @@ namespace Trig{
             StatusCode Method1();
             StatusCode Method2();
             void writeEmulationSummary();
+            bool setAccept(const HLT::TriggerElement*);
             float ratio(float,float);
+
+
+            void count( std::string key ){
+              if(m_countMap.find(key) == m_countMap.end()){
+                m_countMap[key]= 1;
+              }else{
+                m_countMap[key]++;
+              }
+            }
+
+
+
 
         private:
             ToolHandle<Trig::TrigDecisionTool> m_trigdec;
             ToolHandle<ITrigEgammaMatchingTool> m_matchTool;
             ToolHandle<ITrigEgammaEmulationTool> m_emulationTool;
 
+            std::map<std::string, unsigned >m_countMap;
             std::vector<std::string>   m_triggerList;
             StoreGateSvc              *m_storeGate;
+            Root::TAccept              m_accept;
 
             const xAOD::ElectronContainer   *m_offElectrons;
 

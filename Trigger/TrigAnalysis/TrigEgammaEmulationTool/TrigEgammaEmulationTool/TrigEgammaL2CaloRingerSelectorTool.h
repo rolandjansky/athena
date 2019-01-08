@@ -1,14 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
 
 #ifndef TrigEgammaL2CaloRingerSelectorTool_H
 #define TrigEgammaL2CaloRingerSelectorTool_H
 
 #include "TrigEgammaEmulationTool/ITrigEgammaSelectorBaseTool.h"
 #include "TrigEgammaEmulationTool/TrigEgammaSelectorBaseTool.h"
-#include "TrigMultiVarHypo/preprocessor/TrigRingerPreprocessor.h"
-#include "TrigMultiVarHypo/discriminator/MultiLayerPerceptron.h"
+#include "TrigMultiVarHypo/preproc/TrigRingerPreprocessor.h"
+#include "TrigMultiVarHypo/tools/TrigRingerHelper.h"
+#include "TrigMultiVarHypo/tools/TrigL2CaloRingerReader.h"
+#include "TrigMultiVarHypo/tools/MultiLayerPerceptron.h"
 #include "AsgTools/AsgTool.h"
 #include <vector>
 
@@ -30,32 +33,36 @@ class TrigEgammaL2CaloRingerSelectorTool:
     bool emulation( const xAOD::TrigEMCluster*, bool &, const Trig::Info &);
 
   private:
+    ///Thresholds Holder
+    std::vector<TrigCaloRingsHelper::CutDefsHelper*>  m_cutDefs; 
+    ///Discriminator holder
+    std::vector<MultiLayerPerceptron*>   m_discriminators;
+    ///Pre-processing holder
+    std::vector<TrigRingerPreprocessor*> m_preproc; 
 
+    TrigL2CaloRingerReader m_reader;
+    
+    /* Helper method to retrieve the bins from an index */
+    //void index_to_et_eta_bins(unsigned, unsigned &, unsigned &);
     void setEtThr( float et ){m_etCut=et;};
     
-    std::string m_pidname;
-    std::string m_signature;
-    std::string m_str_etthr;
     float       m_etCut;
-    unsigned    m_nDiscr;
-    unsigned    m_nPreproc;
     float       m_output;
+    float       m_lumiCut;
+    bool        m_useEtaVar;
+    bool        m_useLumiVar;
+    bool        m_doPileupCorrection;
+    bool        m_useNoActivationFunctionInTheLastLayer;
+    bool        m_useLumiTool;
 
     //Prepoc configuration
     std::vector<unsigned int>            m_nRings;
     std::vector<unsigned int>            m_normRings;
     std::vector<unsigned int>            m_sectionRings;
+
     //Discriminator configuration
-    std::vector<unsigned int>            m_nodes;
-    std::vector<std::vector<double>>     m_weights;
-    std::vector<std::vector<double>>     m_bias;
-    std::vector<double>                  m_threshold;
-    std::vector<std::vector<double>>     m_etaBins;
-    std::vector<std::vector<double>>     m_etBins;
-    ///Discriminator holder
-    std::vector<MultiLayerPerceptron*>   m_discriminators;
-    ///Pre-processing holder
-    std::vector<TrigRingerPreprocessor*> m_preproc; 
+    std::string m_calibPath_constants, m_calibPath_thresholds;
+
   };
 
 }//namespace

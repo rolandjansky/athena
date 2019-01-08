@@ -1,11 +1,13 @@
 ATLAS Offline software
 ========================
 
-Welcome to [ATLAS](https://atlas.ch) offline software.
+Welcome to [ATLAS](https://atlas.ch) offline software!
 
-If you fork this project, please do not forget to add the ATLAS Robot as a developer (assuming you might want to submit a merge request) as documented [here](https://atlassoftwaredocs.web.cern.ch/gittutorial/gitlab-fork/).
+To find out how to build Athena, make merge requests etc, please have a look at the [release building](https://atlassoftwaredocs.web.cern.ch/guides/build_release/) pages.
 
-Please see the [Twiki](https://twiki.cern.ch/twiki/bin/view/AtlasComputing/AtlasComputing) for more information, or look below for some other links.
+In particular, if you fork this project *please do not forget* to add the ATLAS Robot as a developer (assuming you might want to submit a merge request) as documented [here](https://atlassoftwaredocs.web.cern.ch/gittutorial/gitlab-fork/).
+
+For ATLAS members, please see the [Atlas Computing Twiki](https://twiki.cern.ch/twiki/bin/view/AtlasComputing/AtlasComputing) for even more information.
 
 Branches
 --------
@@ -15,8 +17,9 @@ Branch                                                            | Purpose     
 ------------------------------------------------------------------| ---------------------------- | ---------------------------------------
 [21.0](https://gitlab.cern.ch/atlas/athena/tree/21.0)             | Tier0 and MC16c              | Athena, 21.0.X
 [21.0-mc16a](https://gitlab.cern.ch/atlas/athena/tree/21.0-mc16a) | MC16a bugfixes               | Athena, 21.0.20.Y
+[21.0-mc16d](https://gitlab.cern.ch/atlas/athena/tree/21.0-mc16d) | MC16d bugfixes               | Athena, 21.0.20.Y
+[21.0-TrigMC](https://gitlab.cern.ch/atlas/athena/tree/21.0-TrigMC)  | MC production with new trigger developments | Athena, 21.5.X
 [21.1](https://gitlab.cern.ch/atlas/athena/tree/21.1)             | HLT and P1 monitoring        | AthenaP1, 21.1.X
-[21.1-dev](https://gitlab.cern.ch/atlas/athena/tree/21.1-dev)     | HLT and P1 Run 2 Developments | AthenaP1, No production releases
 [21.2](https://gitlab.cern.ch/atlas/athena/tree/21.2)             | Derivations and Analysis     | AthDerivations + (Ath)AnalysisBase, 21.2.X
 [21.3](https://gitlab.cern.ch/atlas/athena/tree/21.3)             | MC18 Simulation              | Athena + AthSimulation, 21.3.X
 [21.6](https://gitlab.cern.ch/atlas/athena/tree/21.6)             | Event Generation             | AthGenerators, 21.6.X

@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #include "TrackCaloClusterRecTools/TrackCaloClusterCreatorTool.h"
 #include "TrackCaloClusterRecTools/IParticleToCaloExtensionMap.h"
 #include "TrkCaloExtension/CaloExtension.h"

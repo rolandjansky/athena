@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FASTSHOWER_CELLBUILDERTOOL_H
@@ -20,6 +20,10 @@
 #include "TrkExInterfaces/ITimedExtrapolator.h"
 #include "TrkEventPrimitives/PdgToParticleHypothesis.h"
 #include "GaudiKernel/IPartPropSvc.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "GeneratorObjects/McEventCollection.h"
+#include "FastCaloSimAthenaPool/FastShowerInfoContainer.h"
 
 /*
   #if FastCaloSim_project_release_v1 == 12
@@ -100,7 +104,8 @@ private:
   void LoadParametrizationsFromFile(TDirectory& infile,MSG::Level level=MSG::INFO);
   StatusCode OpenParamSource(std::string insource);
 
-  std::string                    m_mcLocation{"TruthEvent"};
+  SG::ReadHandleKey<McEventCollection> m_mcCollectionKey
+    {this, "McLocation", "TruthEvent"};
   std::string                    m_ParticleParametrizationFileName{""};
   std::vector< std::string >     m_AdditionalParticleParametrizationFileNames;
 
@@ -108,7 +113,8 @@ private:
   std::vector< int >             m_DB_channel;
   std::vector< std::string >     m_DB_dirname;
 
-  std::string                    m_MuonEnergyInCaloContainer{"FatrasDepositedMuonEnergyInCalo"};
+  SG::ReadHandleKey<BarcodeEnergyDepositMap> m_MuonEnergyInCaloContainerKey
+  { this, "MuonEnergyInCaloContainerName", "FatrasDepositedMuonEnergyInCalo"};
   bool                           m_simul_ID_only{true};
   bool                           m_simul_ID_v14_truth_cuts{false};
   bool                           m_simul_EM_geant_only{false};
@@ -156,9 +162,9 @@ private:
 
   //  TGraphErrors*                  geometry[CaloCell_ID_FCS::MaxSample][3];
 
-  ParticleEnergyParametrization* findElower(int id,double E,double eta);
-  ParticleEnergyParametrization* findEupper(int id,double E,double eta);
-  TShape_Result* findShape (int id,int calosample,double E,double eta,double dist,double distrange);
+  ParticleEnergyParametrization* findElower(int id,double E,double eta) const;
+  ParticleEnergyParametrization* findEupper(int id,double E,double eta) const;
+  const TShape_Result* findShape (int id,int calosample,double E,double eta,double dist,double distrange) const;
 
   //void sum_par(const HepMC::GenParticle* par,MsgStream& log,std::vector<double>& sums,int level=0);
   //void print_par(const HepMC::GenParticle* par,MsgStream& log,int level=0);
@@ -190,14 +196,14 @@ private:
   // extrapolation through Calo
   std::vector<Trk::HitInfo>* caloHits(const HepMC::GenParticle& part ) const;
 
-  bool Is_ID_Vertex(HepMC::GenVertex* ver);
+  bool Is_ID_Vertex(HepMC::GenVertex* ver) const;
   std::vector< double >          m_ID_cylinder_r;
   std::vector< double >          m_ID_cylinder_z;
-  bool Is_EM_Vertex(HepMC::GenVertex* ver);
-  flag_simul_sate Is_below_v14_truth_cuts_Vertex(HepMC::GenVertex* ver);
-  void MC_remove_out_of_ID(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles);
-  void MC_remove_out_of_EM(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles);
-  void MC_remove_below_v14_truth_cuts(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles);
+  bool Is_EM_Vertex(HepMC::GenVertex* ver) const;
+  flag_simul_sate Is_below_v14_truth_cuts_Vertex(HepMC::GenVertex* ver) const;
+  void MC_remove_out_of_ID(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles) const;
+  void MC_remove_out_of_EM(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles) const;
+  void MC_remove_below_v14_truth_cuts(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles) const;
 
   //ID              Energy             Eta
   typedef std::map< double , ParticleEnergyParametrization* > t_map_PEP_Eta;
@@ -268,7 +274,8 @@ public:
   double get_d_calo_surf(int layer) const {return m_dCalo[layer];};
 
 private:
-  std::string              m_FastShowerInfoContainerKey{"FastShowerInfoContainer"};
+  SG::WriteHandleKey<FastShowerInfoContainer>  m_FastShowerInfoContainerKey
+  { this, "FastShowerInfoContainerKey", "FastShowerInfoContainer" };
   bool                     m_storeFastShowerInfo{false};
   FastShowerInfoContainer* m_FastShowerInfoContainer{};
   Trk::PdgToParticleHypothesis        m_pdgToParticleHypothesis;

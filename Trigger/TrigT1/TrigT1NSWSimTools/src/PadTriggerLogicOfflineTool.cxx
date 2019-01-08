@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <boost/geometry.hpp>
@@ -26,21 +26,12 @@
 // Muon software includes
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
-#include "MuonIdHelpers/sTgcIdHelper.h"
-#include "MuonDigitContainer/sTgcDigitContainer.h"
-#include "MuonDigitContainer/sTgcDigit.h"
-#include "MuonSimData/MuonSimDataCollection.h"
-#include "MuonSimData/MuonSimData.h"
 #include "MuonAGDDDescription/sTGCDetectorDescription.h"
 #include "MuonAGDDDescription/sTGCDetectorHelper.h"
 // trk
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
 
-// random numbers
-#include "AthenaKernel/IAtRndmGenSvc.h"
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGauss.h"
 // local includes
 #include "TrigT1NSWSimTools/PadUtil.h"
 #include "TrigT1NSWSimTools/vector_utils.h"
@@ -49,9 +40,6 @@
 #include "TTree.h"
 #include "TVector3.h"
 // std
-#include <functional>
-#include <algorithm>
-#include <map>
 #include <utility> // make_pair
 
 
@@ -62,27 +50,17 @@ PadTriggerLogicOfflineTool::PadTriggerLogicOfflineTool( const std::string& type,
                                                         const IInterface* parent) :
     AthAlgTool(type,name,parent),
     m_incidentSvc("IncidentSvc",name),
-    m_rndmSvc("AtRndmGenSvc",name),
-    m_rndmEngine(0),
     m_detManager(0),
-    // m_sTgcIdHelper(0),
     m_pad_cache_runNumber(-1),
     m_pad_cache_eventNumber(-1),
-    // m_pad_cache_status(CLEARED),
-    m_rndmEngineName(""),
-    m_sTgcDigitContainer(""),
-    m_sTgcSdoContainer(""),
     m_PadEfficiency(0.0),
     m_useSimple4of4(false),
     m_doNtuple(false),
     m_missingDetectorManagerErrorCounter(0),
     m_missingReadoutElementErrorCounter(0),
-    m_tdrLogic(msgSvc(),"L1StgcTdrLogic")
+    m_tdrLogic()
 {
     declareInterface<NSWL1::IPadTriggerLogicTool>(this);
-    declareProperty("RndmEngineName", m_rndmEngineName = "PadTriggerLogicOfflineTool", "the name of the random engine");
-    declareProperty("sTGC_DigitContainerName", m_sTgcDigitContainer = "sTGC_DIGITS", "the name of the sTGC digit container");
-    declareProperty("sTGC_SdoContainerName", m_sTgcSdoContainer = "sTGC_SDO", "the name of the sTGC SDO container");
     declareProperty("TimeJitter", m_PadEfficiency = 1.0, "pad trigger efficiency (tmp placeholder)");
     declareProperty("UseSimple4of4", m_useSimple4of4 = false, "use simplified logic requiring 4 hits on 4 gas gaps");
     declareProperty("DoNtuple", m_doNtuple = false, "save the trigger outputs in an analysis ntuple");
@@ -94,25 +72,11 @@ PadTriggerLogicOfflineTool::PadTriggerLogicOfflineTool( const std::string& type,
 }
 //------------------------------------------------------------------------------
 PadTriggerLogicOfflineTool::~PadTriggerLogicOfflineTool() {
-    // clear the internal cache
-    // this->clear_cache();
 }
-//------------------------------------------------------------------------------
-// void PadTriggerLogicOfflineTool::clear_cache() {
-//     for (std::vector<PadData*> &sector_pads : m_pad_cache) {
-//         for (unsigned int p=0; p< sector_pads.size(); p++) {
-//             delete sector_pads.at(p);
-//         }
-//         sector_pads.clear();
-//     }
-// }
-//------------------------------------------------------------------------------
+
 StatusCode PadTriggerLogicOfflineTool::initialize() {
     ATH_MSG_INFO( "initializing " << name() );
     ATH_MSG_INFO( name() << " configuration:");
-    ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left)<< m_rndmEngineName.name() << m_rndmEngineName.value());
-    ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left)<< m_sTgcDigitContainer.name() << m_sTgcDigitContainer.value());
-    ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left)<< m_sTgcSdoContainer.name() << m_sTgcSdoContainer.value());
     // DG-todo print out other parameters
 
     const IInterface* parent = this->parent();
@@ -136,21 +100,6 @@ StatusCode PadTriggerLogicOfflineTool::initialize() {
     }
     m_incidentSvc->addListener(this,IncidentType::BeginEvent);
 
-    // retrieve the Random Service
-    if( m_rndmSvc.retrieve().isFailure() ) {
-        ATH_MSG_FATAL("Failed to retrieve the Random Number Service");
-        return StatusCode::FAILURE;
-    } else {
-        ATH_MSG_INFO("Random Number Service successfully retrieved");
-    }
-
-    // retrieve the random engine
-    m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-    if (m_rndmEngine==0) {
-        ATH_MSG_FATAL("Could not retrieve the random engine " << m_rndmEngineName);
-        return StatusCode::FAILURE;
-    }
-
     //  retrieve the MuonDetectormanager
     if( detStore()->retrieve( m_detManager ).isFailure() ) {
         ATH_MSG_FATAL("Failed to retrieve the MuonDetectorManager");
@@ -159,31 +108,15 @@ StatusCode PadTriggerLogicOfflineTool::initialize() {
     else {
         ATH_MSG_INFO("MuonDetectorManager successfully retrieved");
     }
-    m_tdrLogic.msgStream().setLevel(this->msg().level());
     
     return StatusCode::SUCCESS;
 }
 //------------------------------------------------------------------------------
 void PadTriggerLogicOfflineTool::handle(const Incident& inc) {
     if( inc.type()==IncidentType::BeginEvent ) {
-        // this->clear_cache();
         m_validation_tree.reset_ntuple_variables();
-        // m_pad_cache_status = CLEARED;
     }
 }
-//------------------------------------------------------------------------------
-
-// //! filter a vector (remove elements for which Predicate is true)
-// template < template <typename, typename> class Container,
-//            typename Predicate,
-//            typename Allocator,
-//            typename A
-//            >
-// Container<A, Allocator> filter(Container<A, Allocator> const & container, Predicate const & pred) {
-//     Container<A, Allocator> filtered(container);
-//     filtered.erase(remove_if(filtered.begin(), filtered.end(), pred), filtered.end());
-//     return filtered;
-// }
 
 ///! helper function: copy pads with a given multiplet
 std::vector<std::shared_ptr<PadData>> filterByMultiplet(const std::vector<std::shared_ptr<PadData>> &pads_in, const int &multiplet) {
@@ -245,16 +178,7 @@ std::vector<std::unique_ptr<PadTrigger>> PadTriggerLogicOfflineTool::build4of4Si
     } // for(p0)
     return triggers;
 }
-////------------------------------------------------------------------------------
-//PadWithHits PadTriggerLogicOfflineTool::convert(const PadData &pd)
-//{
-//    PadWithHits pwh(pd);
-//    //PadWithHits pwh(pd.padEtaId(), pd.padPhiId(),
-//    //                pd.multipletId(),
-//    //                pd.gasGapId(), pd.sectorId(), pd.sideId());
-//    return pwh;
-//}
-//------------------------------------------------------------------------------
+
 StatusCode PadTriggerLogicOfflineTool::compute_pad_triggers(const std::vector<std::shared_ptr<PadData>>& pads,
                                                             std::vector<std::unique_ptr<PadTrigger>> &triggers)
 {

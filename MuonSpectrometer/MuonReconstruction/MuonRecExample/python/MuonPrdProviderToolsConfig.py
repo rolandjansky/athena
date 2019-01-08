@@ -54,13 +54,6 @@ def TgcPrepDataProviderTool(name="TgcPrepDataProviderTool", **kwargs):
   # setup dependencies which are not yet in C++  
   import MuonCnvExample.MuonCablingConfig
 
-  # If we run trigger from BS, then the RDO to PRD tools need to automatically run BS to RDO tools
-  kwargs.setdefault("useBStoRdoTool", DetFlags.readRDOBS.TGC_on() and recAlgs.doTrigger())
-  #kwargs.setdefault("RawDataProviderTool", "TgcRawDataProviderTool")
-### TODO: in C++ do not retrieve tool if useBStoRdoTool==False
-##  if not kwargs["useBStoRdoTool"]:
-##    kwargs["RawDataProviderTool"] = None # empty tool
-
   from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataTool
   return Muon__TgcRdoToPrepDataTool(name, **kwargs)
   
