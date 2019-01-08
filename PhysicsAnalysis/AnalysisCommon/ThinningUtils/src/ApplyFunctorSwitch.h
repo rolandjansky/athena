@@ -13,9 +13,9 @@
  * @brief Helper variadic functions for performing a template switch to pick an
  *        appropriate function to call.
  *
- * **PIECES**:
+ * **COMPONENTS**:
  *
- * There are several pieces involved in these functions. 
+ * There are several components involved in these functions. 
  *
  * The most important one is a functor-like object (F) which holds the candidate
  * functions. The candidate functions should all be called apply and
@@ -30,21 +30,21 @@
  *
  * See the ConstructorHelper struct for an example.
  *
- * Another piece is the first template parameter 'Return'. This is the common
- * return value of all the functors (or the value to which they are all
+ * Another component is the first template parameter 'Return'. This is the
+ * common return type of all the functors (or a type to which they are all
  * convertible). In the case of the ConstructorHelper this is a std::unique_ptr
  * to the 'Base' class.
  *
- * The third piece is the template list. This is a list of candidate template
- * types to be checked against the type_info object. The one that matches will
- * be used to template the functor which gets called.
+ * The third component is the template list. This is a list of candidate
+ * template types to be checked against the type_info object. The one that
+ * matches will be used to template the functor which gets called.
  *
- * The fourth piece is the type_info object which is passed as the first
+ * The fourth component is the type_info object which is passed as the first
  * argument.
  *
- * The final piece is the arguments for the functor. These are passed as all the
- * remaining arguments to the applySwitch function and are forwarded through to
- * the functor.
+ * The final component is the arguments for the functor. These are passed as all
+ * the remaining arguments to the applySwitch function and are forwarded through
+ * to the functor.
  */
 namespace FunctorHelpers {
 
@@ -133,8 +133,8 @@ namespace FunctorHelpers {
         const ArgTuple& args,
         const T*)
     {
-      // Rearrange the call from the other version so we don't run afoul of gcc
-      // not liking program branches without return types.
+      // Rearrange for the base case so we don't run afoul of gcc not liking
+      // program branches without return types.
       if (ti != typeid(T) )
         throw UnknownTypeException(ti);
       return applyCall<Return, T>(std::forward<F>(f), args);
