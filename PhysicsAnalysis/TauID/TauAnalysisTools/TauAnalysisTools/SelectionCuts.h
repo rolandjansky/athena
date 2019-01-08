@@ -128,6 +128,16 @@ private:
   void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
 };
 
+class SelectionCutRNNJetScoreSigTrans
+  : public SelectionCut
+{
+public:
+  SelectionCutRNNJetScoreSigTrans(TauSelectionTool* tTST);
+  bool accept(const xAOD::TauJet& xTau);
+private:
+  void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
+};
+
 class SelectionCutJetIDWP
   : public SelectionCut
 {

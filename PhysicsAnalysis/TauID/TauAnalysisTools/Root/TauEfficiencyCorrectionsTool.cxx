@@ -491,12 +491,19 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2018_summer()
       if (m_sInputFilePathJetIDHadTau.empty()) m_sInputFilePathJetIDHadTau = sDirectory+"JetID_TrueHadTau_2018-summer.root";
       if (m_sVarNameJetIDHadTau.length() == 0) m_sVarNameJetIDHadTau = "TauScaleFactorJetIDHadTau";
 
+      std::string sJetIDWP = ConvertJetIDToString(m_iIDLevel);
+      if (sJetIDWP.empty()) 
+      {
+        ATH_MSG_WARNING("Could not find valid ID working point. Skip ID efficiency corrections.");
+        continue;
+      }
+
       asg::AnaToolHandle<ITauEfficiencyCorrectionsTool>* tTool = new asg::AnaToolHandle<ITauEfficiencyCorrectionsTool>("TauAnalysisTools::CommonEfficiencyTool/JetIDHadTauTool", this);
       m_vCommonEfficiencyTools.push_back(tTool);
       ATH_CHECK(tTool->setProperty("InputFilePath", m_sInputFilePathJetIDHadTau));
       ATH_CHECK(tTool->setProperty("VarName", m_sVarNameJetIDHadTau));
       ATH_CHECK(tTool->setProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck));
-      ATH_CHECK(tTool->setProperty("WP", ConvertJetIDToString(m_iIDLevel)));
+      ATH_CHECK(tTool->setProperty("WP", sJetIDWP));
     }
     else if (iEfficiencyCorrectionType == SFEleOLRHadTau)
     {
@@ -1606,6 +1613,18 @@ std::string TauEfficiencyCorrectionsTool::ConvertJetIDToString(const int& iLevel
   case JETIDBDTFAIL:
     return "jetbdtsig";
     break;
+  case JETIDRNNVERYLOOSE: 
+    ATH_MSG_WARNING("Very loose RNN working point passed. Efficiency corrections for RNN ID are not available yet.");
+    return "";
+  case JETIDRNNLOOSE: 
+    ATH_MSG_WARNING("Loose RNN working point passed. Efficiency corrections for RNN ID are not available yet.");
+    return "";
+  case JETIDRNNMEDIUM: 
+    ATH_MSG_WARNING("Medium RNN working point passed. Efficiency corrections for RNN ID are not available yet.");
+    return "";
+  case JETIDRNNTIGHT: 
+    ATH_MSG_WARNING("Tight RNN working point passed. Efficiency corrections for RNN ID are not available yet.");
+    return "";
   default:
     assert(false && "No valid ID level passed. Breaking up ...");
     break;
