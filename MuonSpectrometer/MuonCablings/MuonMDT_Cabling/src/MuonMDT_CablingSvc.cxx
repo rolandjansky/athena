@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonMDT_Cabling/MuonMDT_CablingSvc.h"
@@ -24,7 +24,7 @@
 
 MuonMDT_CablingSvc::MuonMDT_CablingSvc(const std::string& svcName,ISvcLocator* sl) :
 AthService(svcName,sl),
-    m_cablingMap(0),
+    m_cablingMap(nullptr),
     m_useOldCabling(false),
     m_dbTool("MDTCablingDbTool/MDTCablingDbTool"),
     m_firstAccess(true),
@@ -250,7 +250,7 @@ StatusCode
 
 
 //// to be fixed: get the cabling map directly from the tool
-DataHandle<MuonMDT_CablingMap> MuonMDT_CablingSvc::getCablingMap() 
+const MuonMDT_CablingMap* MuonMDT_CablingSvc::getCablingMap() 
 {
   
   return m_cablingMap;
