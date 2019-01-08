@@ -18,18 +18,10 @@
  *****************************************************************************/
 
 #include "GaudiKernel/IInterface.h"
-#ifndef _CPP_STRING
 #include <string>
-#endif
-#ifndef _CPP_VECTOR
 #include <vector>
-#endif
-#ifndef KERNEL_STATUSCODES_H
 #include "GaudiKernel/StatusCode.h"
-#endif
-#ifndef GAUDIKERNEL_CLASSID_H
 #include "GaudiKernel/ClassID.h"
-#endif
 
 #include "CoolKernel/types.h"
 #include "CoolKernel/IDatabase.h"
