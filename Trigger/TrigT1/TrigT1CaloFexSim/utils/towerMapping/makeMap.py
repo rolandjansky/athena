@@ -88,7 +88,7 @@ def main():
         outfile.write('#\n')
                 
     # read in all the towers from a run on an example file
-    towerInfo = readTowerInfo('out.txt')
+    towerInfo = readTowerInfo('towerDump.txt')
     allTowers = shuffleTowerInfo(towerInfo)
 
 
@@ -156,7 +156,7 @@ def main():
                 if len(jetList) > nJets:
                     break
 
-        if len(jetList) % 10 == 0:
+        if len(jetList) % 100 == 0:
             print 'done', len(jetList), 'of', len(towers), 'jets'
     print 'done', len(jetList), 'of', len(towers), 'jets'
 
