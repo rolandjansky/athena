@@ -2,7 +2,6 @@
 #
 
 from AthenaCommon.Constants import VERBOSE,DEBUG,INFO,WARNING
-from TrigEFMissingET.TrigEFMissingETMonitoring import *
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep 
 

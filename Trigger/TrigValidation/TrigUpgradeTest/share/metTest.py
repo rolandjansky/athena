@@ -54,7 +54,12 @@ metAlg.OutputLevel=WARNING
 metMon = GenericMonitoringTool("METMonTool")
 metMon.Histograms = [ defineHistogram( "TIME_Total", title="Time spent Alg", xbins=100, xmin=0, xmax=100 ),
                       defineHistogram( "TIME_Loop", title="Time spent in Tools loop", xbins=100, xmin=0, xmax=100 )]
-from TrigEFMissingET.TrigEFMissingETMonitoring import *
+from TrigEFMissingET.TrigEFMissingETMonitoring import ( hEx_log, hEy_log, hEz_log, hMET_log, hSumEt_log, 
+                                                 hMET_lin, hSumEt_lin, 
+                                                 hXS, hMETPhi, hMETStatus,
+                                                 hCompEx, hCompEy, hCompEz, hCompEt, hCompSumEt, hCompSumE,
+                                                 hCompEt_lin, hCompSumEt_lin )
+
 metMon.Histograms  = [ hEx_log, hEy_log, hEz_log, hMET_log, hSumEt_log ]
 metMon.Histograms += [ hMET_lin, hSumEt_lin ]
 metMon.Histograms += [ hXS, hMETPhi, hMETStatus]
