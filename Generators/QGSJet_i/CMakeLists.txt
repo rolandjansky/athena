@@ -40,7 +40,10 @@ atlas_add_component( QGSJet_i
                      LINK_LIBRARIES ${CRMC_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} GeneratorModulesLib AthenaKernel GaudiKernel TruthUtils QGSJet_iLib )
 
 # Install files from the package:
-atlas_install_runtime( share/qgsjet_crmc.param )
+atlas_install_runtime( share/qgsjet_crmc.param 
+                       ${CRMC_ROOT}/tabs/dpmjet.dat
+                       ${CRMC_ROOT}/tabs/sectnu-II-04
+                       ${CRMC_ROOT}/tabs/qgsdat-II-04.lzma )
 
 set( QGSJetEnvironment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
    CACHE PATH "Location of QGSJetEnvironment.cmake" )

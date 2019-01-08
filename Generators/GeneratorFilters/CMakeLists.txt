@@ -43,5 +43,5 @@ atlas_add_component( GeneratorFilters
                      LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} StoreGateLib SGtests GaudiKernel GeneratorModulesLib AthenaKernel CxxUtils EventInfo xAODJet xAODTruth TruthUtils ParticleEvent McParticleEvent MissingETEvent GeneratorFiltersLib )
 
 # Install files from the package:
-atlas_install_joboptions( share/*.py )
+atlas_install_joboptions( share/common/*.py )
 

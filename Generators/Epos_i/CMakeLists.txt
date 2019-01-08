@@ -40,8 +40,16 @@ atlas_add_component( Epos_i
                      LINK_LIBRARIES ${CRMC_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} GeneratorModulesLib AthenaKernel GaudiKernel TruthUtils Epos_iLib )
 
 # Install files from the package:
-atlas_install_joboptions( share/*.py )
-atlas_install_runtime( share/epos_crmc.param )
+atlas_install_joboptions( share/common/*.py )
+atlas_install_runtime( share/file/epos_crmc.param
+                       ${CRMC_ROOT}/tabs/dpmjet.dat
+                       ${CRMC_ROOT}/tabs/epos.initl
+                       ${CRMC_ROOT}/tabs/epos.iniev
+                       ${CRMC_ROOT}/tabs/epos.inirj
+                       ${CRMC_ROOT}/tabs/epos.inirj.lhc
+                       ${CRMC_ROOT}/tabs/epos.inics
+                       ${CRMC_ROOT}/tabs/epos.inics.lhc
+                       ${CRMC_ROOT}/tabs/epos.inidi )
 
 set( EposEnvironment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
    CACHE PATH "Location of EposEnvironment.cmake" )

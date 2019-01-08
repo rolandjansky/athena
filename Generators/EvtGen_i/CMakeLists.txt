@@ -64,8 +64,8 @@ atlas_add_component( EvtGen_i
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${PYTHIA8_LIBRARIES} ${PHOTOSPP_LIBRARIES} ${TAUOLAPP_LIBRARIES} ${HEPMC_LIBRARIES} ${EVTGEN_LIBRARIES} StoreGateLib SGtests GaudiKernel GeneratorModulesLib GeneratorObjects AthenaKernel PathResolver EvtGen_iLib )
 
 # Install files from the package:
-atlas_install_joboptions( share/*.py )
-atlas_install_runtime( share/*.DEC share/*.table share/*.dec share/*.pdt share/*.dat )
+atlas_install_joboptions( share/common/*.py )
+atlas_install_runtime( share/file/*.DEC share/file/*.table share/file/*.dec share/file/*.pdt share/file/*.dat )
 
 set( EvtGenEnvironment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
    CACHE PATH "Location of EvtGenEnvironment.cmake" )
