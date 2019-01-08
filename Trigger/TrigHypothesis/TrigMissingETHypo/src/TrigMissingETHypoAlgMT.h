@@ -38,7 +38,6 @@ class TrigMissingETHypoAlgMT : public ::HypoBase {
                     TrigCompositeUtils::DecisionContainer* newDecisions,
                     const DecisionContainer* previousDecisions
         ) const;
-  StatusCode fillMonitoringHistograms(const xAOD::TrigMissingETContainer*) const;
 
   ToolHandleArray<ITrigMissingETHypoToolMT> m_hypoTools {
     this, "HypoTools", {}, "Hypo tools"};
@@ -46,11 +45,7 @@ class TrigMissingETHypoAlgMT : public ::HypoBase {
   SG::ReadHandleKey< xAOD::TrigMissingETContainer > m_metKey {
     this, "METContainerKey", "HLT_MET", "MET Container name"};
 
-  ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Monitoring tool" };  
-
-  static float toLogGeV(const float& x, const float& fallback, const float& epsilon );
-  static float toLinGeV(const float& x, const float& fallback, const float& epsilon );
-  
+  ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Monitoring tool" };    
   
 }; 
 
