@@ -910,7 +910,7 @@ StatusCode JEPSimMon::fillHistograms()
     compare(cmxTobSimMap, ctMap, errorsJEM, errorsCMX);
     cmxTobSimMap.clear();
     
-    // Sasha: Delate later, will use simulated tobs later since data tobs does not
+    // Sasha: Delete later, will use simulated tobs later since data tobs does not
     // contains overflow bits
     // delete cmxTobSIM;
     // delete cmxTobSIMAux;
@@ -930,17 +930,12 @@ StatusCode JEPSimMon::fillHistograms()
     }
     CmxJetHitsMap cmxLocalSimMap;
     setupMap(cmxLocalSIM, cmxLocalSimMap);
-    //SASHA
     compare(cmxLocalSimMap, chMap, errorsCMX,
             xAOD::CMXJetHits::Sources::LOCAL_MAIN);
-    // for(auto p: chMap){
-    //     auto key = p.first;
-    //     auto v = p.second;
-    //     ATH_MSG_INFO("SASHA0 DAT " << *v);
-    //     if (cmxLocalSimMap.find(key) != cmxLocalSimMap.end()){
-    //         ATH_MSG_INFO("SASHA0 SIM " << *cmxLocalSimMap[key] << std::endl);
-    //     }
-    // }
+    
+    dumpDataAndSim("Compare Local sums simulated from CMX TOBs with Local sums from data",
+        chMap, cmxLocalSimMap);
+
     cmxLocalSimMap.clear();
     delete cmxLocalSIM;
     delete cmxLocalSIMAux;
@@ -1029,6 +1024,10 @@ StatusCode JEPSimMon::fillHistograms()
     compare(cmxEtLocalSimMap, csMap, errorsCMX,
             xAOD::CMXEtSums::Sources::LOCAL_STANDARD);
 
+    dumpDataAndSim(
+        "Compare Local sums simulated from CMXEtSums with Local sums from data",
+        csMap, cmxEtLocalSimMap);
+
     cmxEtLocalSimMap.clear();
     delete cmxEtLocalSIM;
     delete cmxEtLocalSIMAux;
@@ -1054,6 +1053,11 @@ StatusCode JEPSimMon::fillHistograms()
     setupMap(cmxEtTotalSIM, cmxEtTotalSimMap);
     compare(cmxEtTotalSimMap, csMap, errorsCMX,
             xAOD::CMXEtSums::Sources::TOTAL_STANDARD);
+    
+    dumpDataAndSim(
+      "Compare Total sums simulated from Remote sums with Total sums from data",
+       csMap, cmxEtTotalSimMap
+    );
 
     cmxEtTotalSimMap.clear();
     delete cmxEtTotalSIM;
@@ -1077,6 +1081,12 @@ StatusCode JEPSimMon::fillHistograms()
     setupMap(cmxSumEtSIM, cmxSumEtSimMap);
     compare(cmxSumEtSimMap, csMap, errorsCMX,
               xAOD::CMXEtSums::Sources::SUM_ET_STANDARD);
+    
+    dumpDataAndSim(
+      "Compare Et Maps (sumEt/missingEt/missingEtSig) simulated from Total sums",
+      csMap, cmxSumEtSimMap
+    );
+    
 
     cmxSumEtSimMap.clear();
     delete cmxSumEtSIM;
@@ -2538,9 +2548,18 @@ void JEPSimMon::compare(const CmxEtSumsMap &cmxSimMap,
             cmxEy = cmxD->ey();
             if (!etmaps)
             {
-                cmxSimEt |= ((cmxS->etError() & 0x1) << 15);
-                cmxSimEx |= ((cmxS->exError() & 0x1) << 15);
-                cmxSimEy |= ((cmxS->eyError() & 0x1) << 15);
+                if (source == xAOD::CMXEtSums::Sources::LOCAL_RESTRICTED || source == xAOD::CMXEtSums::Sources::TOTAL_RESTRICTED)
+                {
+                  // Take error bits from data!
+                  cmxSimEt |= ((cmxD->etError() & 0x1) << 15);
+                  cmxSimEx |= ((cmxD->exError() & 0x1) << 15);
+                  cmxSimEy |= ((cmxD->eyError() & 0x1) << 15);
+                } else {
+                  cmxSimEt |= ((cmxS->etError() & 0x1) << 15);
+                  cmxSimEx |= ((cmxS->exError() & 0x1) << 15);
+                  cmxSimEy |= ((cmxS->eyError() & 0x1) << 15);
+                }
+
                 cmxEt |= ((cmxD->etError() & 0x1) << 15);
                 cmxEx |= ((cmxD->exError() & 0x1) << 15);
                 cmxEy |= ((cmxD->eyError() & 0x1) << 15);
