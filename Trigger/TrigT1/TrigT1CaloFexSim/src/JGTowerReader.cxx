@@ -41,9 +41,9 @@ histSvc("THistSvc",name){
 
   declareProperty("outputNoise",m_outputNoise=false);
   declareProperty("debugJetAlg", m_debugJetAlg=false);
-  declareProperty("dumpTowersEtaPhi",m_dumpTowersEtaPhi=false);
-  declareProperty("dumpSeedsEtaPhi",m_dumpSeedsEtaPhi=false);
-  declareProperty("noise_file",m_noise_file="");
+  declareProperty("dumpTowerInfo", m_dumpTowerInfo=false);
+  declareProperty("dumpSeedsEtaPhi", m_dumpSeedsEtaPhi=false);
+  declareProperty("noise_file", m_noise_file="");
 
   declareProperty("makeSquareJets", m_makeSquareJets = true);
   declareProperty("jJet_seed_size", m_jJet_seed_size=0.3);
@@ -174,6 +174,9 @@ StatusCode JGTowerReader::execute() {
   ATH_MSG_DEBUG ("Successfully retrieved cells, jTowers and gTowers");
 
   // make and check tower mapping
+  if(m_eventCount==1 && m_dumpTowerInfo) {
+    CHECK( DumpTowerInfo(jTowers, scells) );
+  }
   if(m_eventCount==1 && m_makeJetsFromMap) {
     CHECK( CheckTowerMap(jTowers) );
   }
@@ -217,17 +220,6 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
 
   ATH_MSG_DEBUG("Found " << jTs->size() << " jTowers");
   
-  // dump tower eta and phi
-  if(m_dumpTowersEtaPhi) {
-    std::cout << "tower eta phi" << std::endl;
-    std::cout << "i_tower" << "\t" << "eta" << "\t" << "phi" << std::endl;
-    for(unsigned t=0; t<jTs->size(); t++){
-      const xAOD::JGTower *tower = jTs->at(t);
-      std::cout << t << "\t" << tower->eta() << "\t" << tower->phi() << std::endl;
-    }
-    m_dumpTowersEtaPhi = false; // only do this once per run
-  }
-
   // sort out the wrong-size list of noise vector
   if(jTs->size() > jT_noise.size()) {
     ATH_MSG_ERROR("Found " << jTs->size() << " jTowers, but the noise vector only has " << jT_noise.size() << " entries");
@@ -704,4 +696,34 @@ StatusCode JGTowerReader::BuildJetsFromMap(const xAOD::JGTowerContainer*jTs) {
 
   return StatusCode::SUCCESS;
 
+}
+
+
+StatusCode JGTowerReader::DumpTowerInfo(const xAOD::JGTowerContainer* jTs, const CaloCellContainer* scells){
+
+  // this function dumps tower information to a text file, which should be copied to TrigT1CaloFexSim/utils/towerMapping/
+
+  std::ofstream outfile;
+  outfile.open("towerDump.txt");
+  for(unsigned t=0; t < jTs->size(); t++){
+    const xAOD::JGTower*tower = jTs->at(t);
+    int sampling = -1;
+    outfile << "tower " << t << ": eta = " << tower->eta() << ", phi = " << tower->phi() << ", deta = " << tower->deta() << ", dphi = " << tower->dphi() << ", et = " << tower->et() << std::endl;
+    outfile << "  sampling = " << tower->sampling();
+
+    // The aim here is to get supercell layers, especially in order to identify FCAL0 in the forward region
+    // this method gives something else, any merge requests to make it actually output the layer would be much appreciated
+    // https://gitlab.cern.ch/will/L1CaloUpgrade/blob/master/L1CaloPhase1/src/AnalysisTOBMaker.cxx maybe has some ways but it seems fairly complicated and not very easily transferrable at all
+    std::vector<int> SCIndices = tower->SCIndex();
+    outfile << ", " << SCIndices.size() << " SCIndices: ";
+    for(int iii = 0; iii < int(SCIndices.size()); iii++) {
+      sampling = scells->at(SCIndices.at(iii))->caloDDE()->getSampling();
+      outfile << SCIndices.at(iii) << " (" << sampling << "), ";
+    }
+    outfile << std::endl;
+  }
+  outfile.close();
+
+  return StatusCode::SUCCESS;
+  
 }

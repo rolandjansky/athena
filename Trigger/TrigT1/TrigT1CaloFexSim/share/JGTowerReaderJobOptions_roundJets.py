@@ -82,6 +82,7 @@ algseq += CfgMgr.JGTowerReader(                  # adds an instance of your alg 
     debugJetAlg = debug,
     noise_file = "noise_r9813.root", # "/eos/user/c/cylin/public/L1Calo/noise_r10684.root", - this is not generally accessible (I can see it but not open it)
     plotSeeds = True,
+    dumpTowerInfo = True,
 
     makeSquareJets = True,
     jJet_seed_size = 0.2,

@@ -47,7 +47,7 @@ class JGTowerReader: public ::AthAlgorithm {
   bool m_vetoBCID;
   bool m_outputNoise;
   bool m_debugJetAlg;
-  bool m_dumpTowersEtaPhi;
+  bool m_dumpTowerInfo;
   bool m_dumpSeedsEtaPhi;
 
   bool  m_makeSquareJets;
@@ -111,6 +111,7 @@ class JGTowerReader: public ::AthAlgorithm {
  
   virtual StatusCode ReadTowerMap();
   virtual StatusCode CheckTowerMap(const xAOD::JGTowerContainer*jTs);
+  virtual StatusCode DumpTowerInfo(const xAOD::JGTowerContainer*jTs, const CaloCellContainer* scells);
   virtual StatusCode JFexAlg(const xAOD::JGTowerContainer*jTs);
   virtual StatusCode GFexAlg(const xAOD::JGTowerContainer*gTs); 
   virtual StatusCode BuildJetsFromMap(const xAOD::JGTowerContainer*jTs);
