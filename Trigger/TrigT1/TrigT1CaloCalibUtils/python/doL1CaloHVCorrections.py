@@ -11,7 +11,7 @@ import time
 import os
 #from ctypes import *
 import struct 
-from array import *
+import array
 
 from PyCool import cool
 from optparse import OptionParser
@@ -20,6 +20,53 @@ import PlotCalibrationGains
 import PlotCalibrationHV
 
 import mergeEnergyRamps
+
+class HVCorrectionCOOLReader:
+
+  def __init__(self):
+
+    self.correctionsFromCOOL = {}
+    self.UNIX2COOL = 1000000000
+
+    # get database service and open database
+    dbSvc = cool.DatabaseSvcFactory.databaseService()
+
+    dbString = 'oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=CONDBR2'
+    try:
+      db = dbSvc.openDatabase(dbString, False)        
+    except Exception, e:
+      print 'Error: Problem opening database', e
+      sys.exit(1)
+
+    folder_name = "/TRIGGER/Receivers/Factors/HVCorrections"
+    folder=db.getFolder(folder_name)
+    ch = folder.listChannels()
+       
+    startUtime = int(time.time())
+    endUtime = int(time.time())
+    startValKey = startUtime * self.UNIX2COOL
+    endValKey = endUtime * self.UNIX2COOL
+    chsel = cool.ChannelSelection(0,sys.maxint)
+
+    try:
+      itr=folder.browseObjects(startValKey, endValKey, chsel)
+    except Exception, e:
+      print e
+      sys.exit(1)
+
+    for row in itr:
+      ReceiverId = hex(int(row.channelId()))
+      payload = row.payload()
+      HVCorrection = payload['factor']
+
+      self.correctionsFromCOOL[ReceiverId] = HVCorrection
+     
+  # close database
+    db.closeDatabase()
+
+  def getCorrection(self, receiver):
+
+    return self.correctionsFromCOOL[receiver]
 
 class HVCorrectionCalculator:
 
@@ -237,9 +284,23 @@ if __name__ == "__main__":
 
   h_corrEmec_em  = PlotCalibrationGains.L1CaloMap("Calculated HV corrections for EM overlap (EMEC)","#eta bin","#phi bin")
   h_corrFcalHighEta_had = PlotCalibrationGains.L1CaloMap("Calculated HV corrections for HAD FCAL (high #eta)","#eta bin","#phi bin")
+#
+  h_RefcorrEmb_em  = PlotCalibrationGains.L1CaloMap("Reference HV corrections for EM  (EMB in overlap) ","#eta bin","#phi bin")
+  h_RefcorrFcalLowEta_had = PlotCalibrationGains.L1CaloMap("Reference HV corrections for HAD (FCAL low #eta)","#eta bin","#phi bin")
 
+  h_RefcorrEmec_em  = PlotCalibrationGains.L1CaloMap("Reference HV corrections for EM overlap (EMEC)","#eta bin","#phi bin")
+  h_RefcorrFcalHighEta_had = PlotCalibrationGains.L1CaloMap("Reference HV corrections for HAD FCAL (high #eta)","#eta bin","#phi bin")
+#
+  h_DiffcorrEmb_em  = PlotCalibrationGains.L1CaloMap("(calculated-reference) HV corrections for EM  (EMB in overlap) ","#eta bin","#phi bin")
+  h_DiffcorrFcalLowEta_had = PlotCalibrationGains.L1CaloMap("(calculated-reference) HV corrections for HAD (FCAL low #eta)","#eta bin","#phi bin")
+
+  h_DiffcorrEmec_em  = PlotCalibrationGains.L1CaloMap("(calculated-reference) HV corrections for EM overlap (EMEC)","#eta bin","#phi bin")
+  h_DiffcorrFcalHighEta_had = PlotCalibrationGains.L1CaloMap("(calculated-reference) HV corrections for HAD FCAL (high #eta)","#eta bin","#phi bin")
+#
     
   hv_input = PlotCalibrationHV.L1CaloHVReader(options.hv_input) 
+
+  referenceCorrectionReader = HVCorrectionCOOLReader()
 
   geometry_convertor = PlotCalibrationGains.L1CaloGeometryConvertor()
   geometry_convertor.LoadReceiverPPMMap()
@@ -348,33 +409,49 @@ if __name__ == "__main__":
     ### check if the channel has overall HV correction larger than the threshold
     
     predictedCorrection = correctionCalculator.GetCorrection(receiver, layer_corr, layer_names)
+    referenceCorrection = referenceCorrectionReader.getCorrection(receiver)
 
-    if abs(predictedCorrection - 1) <= options.hv_corr_diff:
+    correctionDifference = (predictedCorrection-referenceCorrection)
+
+#    print "predictedCorrection=", predictedCorrection, "  referenceCorrection=", referenceCorrection
+
+    if abs(correctionDifference) <= options.hv_corr_diff:                # we update only towers that changed
       continue # skip this receiver, the correction is not high enough
 
     calculatedCorrections[receiver] = [predictedCorrection,0]
-    print >> output_text, ("%5s %9s  %3i %2i  %.3f") % (receiver, coolid, eta_bin, phi_bin, predictedCorrection)
+    print >> output_text, ("%5s %9s  %3i %2i  %.3f (%.3f)") % (receiver, coolid, eta_bin, phi_bin, predictedCorrection,referenceCorrection)
 
 
     if geometry_convertor.isCoolEm(coolid):
       if not geometry_convertor.isPPMOverlap(coolid):
         h_corrEmb_em.Fill(eta_bin,phi_bin,predictedCorrection)
+        h_RefcorrEmb_em.Fill(eta_bin,phi_bin,referenceCorrection)
+        h_DiffcorrEmb_em.Fill(eta_bin,phi_bin,correctionDifference)
       else:
         if geometry_convertor.getOverlapLayer(receiver)=='EMB':
           h_corrEmb_em.Fill(eta_bin,phi_bin,predictedCorrection)
+          h_RefcorrEmb_em.Fill(eta_bin,phi_bin,referenceCorrection)
+          h_DiffcorrEmb_em.Fill(eta_bin,phi_bin,correctionDifference)
         else:
           h_corrEmec_em.Fill(eta_bin,phi_bin,predictedCorrection)
+          h_RefcorrEmec_em.Fill(eta_bin,phi_bin,referenceCorrection)
+          h_DiffcorrEmec_em.Fill(eta_bin,phi_bin,correctionDifference)
 
 
     if geometry_convertor.isCoolHad(coolid):
       if not geometry_convertor.isPPMFCAL(coolid):
         h_corrFcalLowEta_had.Fill(eta_bin,phi_bin,predictedCorrection)
+        h_RefcorrFcalLowEta_had.Fill(eta_bin,phi_bin,referenceCorrection)
+        h_DiffcorrFcalLowEta_had.Fill(eta_bin,phi_bin,correctionDifference)
       else:
         if geometry_convertor.getFCAL23RecEta(receiver)=='HighEta':
           h_corrFcalHighEta_had.Fill(eta_bin,phi_bin,predictedCorrection)
+          h_RefcorrFcalHighEta_had.Fill(eta_bin,phi_bin,referenceCorrection)
+          h_DiffcorrFcalHighEta_had.Fill(eta_bin,phi_bin,correctionDifference)
         else: 
           h_corrFcalLowEta_had.Fill(eta_bin,phi_bin,predictedCorrection)
-
+          h_RefcorrFcalLowEta_had.Fill(eta_bin,phi_bin,referenceCorrection)
+          h_DiffcorrFcalLowEta_had.Fill(eta_bin,phi_bin,correctionDifference)
 
   writeHVToSqlite(options.output_files+".sqlite",calculatedCorrections)
   output_text.close()
@@ -400,8 +477,53 @@ if __name__ == "__main__":
   h_corrFcalHighEta_had.SetMinimum(1.)
   h_corrFcalHighEta_had.SetMaximum(2.1)
   h_corrFcalHighEta_had.Draw()
-  c1.Print(options.output_files+".ps)")
+  c1.Print(options.output_files+".ps")
 
+  # Now corrections from COOL
+
+  h_RefcorrEmb_em.SetMinimum(1.)
+  h_RefcorrEmb_em.SetMaximum(2.1)
+  h_RefcorrEmb_em.Draw()
+  c1.Print(options.output_files+".ps")
+
+  h_RefcorrFcalLowEta_had.SetMinimum(1.)
+  h_RefcorrFcalLowEta_had.SetMaximum(2.1)
+  h_RefcorrFcalLowEta_had.Draw()
+  c1.Print(options.output_files+".ps")
+
+
+  h_RefcorrEmec_em.SetMinimum(1.)
+  h_RefcorrEmec_em.SetMaximum(2.1)
+  h_RefcorrEmec_em.Draw()
+  c1.Print(options.output_files+".ps")
+
+  h_RefcorrFcalHighEta_had.SetMinimum(1.)
+  h_RefcorrFcalHighEta_had.SetMaximum(2.1)
+  h_RefcorrFcalHighEta_had.Draw()
+  c1.Print(options.output_files+".ps")
+
+  # Now difference
+  h_DiffcorrEmb_em.SetMinimum(-0.1)
+  h_DiffcorrEmb_em.SetMaximum(0.1)
+  h_DiffcorrEmb_em.Draw()
+  c1.Print(options.output_files+".ps")
+
+  h_DiffcorrFcalLowEta_had.SetMinimum(-0.1)
+  h_DiffcorrFcalLowEta_had.SetMaximum(0.1)
+  h_DiffcorrFcalLowEta_had.Draw()
+  c1.Print(options.output_files+".ps")
+
+
+  h_DiffcorrEmec_em.SetMinimum(-0.1)
+  h_DiffcorrEmec_em.SetMaximum(0.1)
+  h_DiffcorrEmec_em.Draw()
+  c1.Print(options.output_files+".ps")
+
+  h_DiffcorrFcalHighEta_had.SetMinimum(-0.1)
+  h_DiffcorrFcalHighEta_had.SetMaximum(0.1)
+  h_DiffcorrFcalHighEta_had.Draw()
+  c1.Print(options.output_files+".ps)")
+#
   os.system("ps2pdf " + options.output_files+".ps")
  # os.system("cp HVStatus.pdf /home/jb/public_web/tmp ")
 
