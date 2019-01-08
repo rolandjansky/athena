@@ -1,15 +1,10 @@
 // -*- C++ -*-
+///////////////////////////////////////////////////////////////////
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
+// IL1DynamicPedestalProvider.h,
 ///////////////////////////////////////////////////////////////////
-// IL1DynamicPedestalProvider.h, (c) Veit Scharf
-///////////////////////////////////////////////////////////////////
-
- /***************************************************************************
-  *                                                                         *
-  *                                                                         *
-  ***************************************************************************/
 
 #ifndef TRIGT1CALOTOOLINTERFACES_IL1DYNAMICPEDESTALPROVIDER_H
 #define TRIGT1CALOTOOLINTERFACES_IL1DYNAMICPEDESTALPROVIDER_H
