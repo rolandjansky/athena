@@ -33,33 +33,38 @@
 
 
 class METAlg{
-  
+
+
  public:
   struct MET{
     float phi;
     float et;
     
   };
+
+ static std::map<TString, std::shared_ptr<MET>> m_METMap;
   /**
    *@brief Calculate MET using a fixed 4 sigma noise cut
    */
-  static StatusCode BuildMET(const xAOD::JGTowerContainer*towers,METAlg::MET* met,std::vector<float> noise, bool useNegTowers);
+  static StatusCode Baseline_MET(const xAOD::JGTowerContainer*towers, TString metname, std::vector<float> noise, bool useNegTowers);
   /**
    *@brief Calculates MET with pileup subtraction
    */
-  static StatusCode SubtractRho_MET(const xAOD::JGTowerContainer* towers, METAlg::MET* met, bool useRMS, bool useMedian, bool useNegTowers);
+  static StatusCode SubtractRho_MET(const xAOD::JGTowerContainer* towers, TString metname, bool useRMS, bool useMedian, bool useNegTowers);
   /**
    *@brief Calculates MET with Softkiller
    */
-  static StatusCode Softkiller_MET(const xAOD::JGTowerContainer* towers, METAlg::MET* met, bool useNegTowers);
+  static StatusCode Softkiller_MET(const xAOD::JGTowerContainer* towers, TString metname, bool useNegTowers);
   /**
    *@brief Calculates MET with Jets without Jets
    */
-  static StatusCode JwoJ_MET(const xAOD::JGTowerContainer* towers, METAlg::MET* met, float pTcone_cut, bool useNegTowers);
+  static StatusCode JwoJ_MET(const xAOD::JGTowerContainer* towers, TString metname, float pTcone_cut, bool useNegTowers);
   /**
    *@brief Calculates MET using PUfit
    */
-  static StatusCode Pufit_MET(const xAOD::JGTowerContainer* towers, METAlg::MET* met, bool useNegTowers);
+  static StatusCode Pufit_MET(const xAOD::JGTowerContainer* towers, TString metname, bool useNegTowers);
+ 
+
 };
 
 #endif
