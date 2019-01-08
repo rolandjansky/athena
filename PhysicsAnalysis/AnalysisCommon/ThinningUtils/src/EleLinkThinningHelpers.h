@@ -60,7 +60,6 @@ namespace EleLinkThinningHelpers {
    * particular container the whole container will be marked for removal.
    */
   class ThinningHelperBase {
-    friend class ThinningHelperVec;
     public:
       /**
        * @brief Constructor
@@ -70,16 +69,23 @@ namespace EleLinkThinningHelpers {
        * @param op The IThinningSvc operator.
        * @param doThin Whether to apply thinning to elements processed by this
        * helper.
+       * @param maxToPass The maximum number of elements that this helper is
+       * allowed to pass per event.
+       * @param prev The previous helper in the chain (if any).
        */
       ThinningHelperBase(
           const std::string& auxName,
           const std::vector<std::string>& containerList,
           IThinningSvc::Operator::Type op,
-          bool doThin)
+          bool doThin,
+          std::size_t maxToPass,
+          std::unique_ptr<ThinningHelperBase> prev)
         : auxName(auxName), 
           containerList(containerList), 
           op(op), 
-          doThin(doThin) {}
+          doThin(doThin),
+          maxToPass(maxToPass),
+          previous(std::move(prev) ) {}
 
       /// The name of the link being accessed by this helper.
       const std::string auxName;
@@ -90,11 +96,14 @@ namespace EleLinkThinningHelpers {
       const IThinningSvc::Operator::Type op;
       /// Whether to apply thinning to elements processed by this helper.
       const bool doThin;
-    protected:
+      /// The maximum number of elements that this helper is allowed to pass per
+      /// event.
+      const std::size_t maxToPass;
+      /// The previous helper in the chain (if any)
+      const std::unique_ptr<ThinningHelperBase> previous;
       /**
        * @brief Initialise the mask, populating it with the candidate containers
-       * and masks with all elements set to false. This will then clear the
-       * mask.
+       * and masks with all elements set to false.
        * @param sgSvc The StoreGateSvc used to retrieve the candidate
        * containers.
        */
@@ -103,27 +112,97 @@ namespace EleLinkThinningHelpers {
        * @brief Prime this helper with an element from the parent container.
        * @param container The container to take the element from.
        * @param index The index at which the element is stored.
+       *
+       * This recurses up the chain, passing container and index to the top,
+       * then that top helper is loaded, peeks its first element which is passed
+       * back down to the following and so-on back to the bottom.
        */
       virtual void loadElement(
-          const SG::AuxVectorData* container, std::size_t index) = 0;
+          const SG::AuxVectorData* container, std::size_t index)
+      {
+        reset();
+        // MaxToPass applies once per parent object
+        m_nPassed = 0;
+        if (previous) {
+          // pass this container and index up
+          previous->loadElement(container, index);
+          // and get the one that we need here. This changes the values of
+          // container and index to the ones that we need.
+          if (!previous->peek(container, index) )
+            // If peek was false then there was no element in one of the
+            // upstream helpers so we must remain exhausted!
+            return;
+        }
+        loadElementImpl(container, index);
+        if (!peek(container, index) )
+          // This triggers if we start pointing at an invalid element
+          advance();
+      }
+
+      /**
+       * @brief Peek at the current element we are pointing to. If there is an
+       * element availabled then the provided parameters will be filled with its
+       * information and true will be returned. If there is no such element then
+       * false will be returned. In this case the arguments will not be changed.
+       * @param[out] container Container of the current element.
+       * @param[out] index Index of the current element.
+       * @return Whether or not a new element was returned.
+       */
+      virtual bool peek(
+          const SG::AuxVectorData*& container, std::size_t& index) const = 0;
+
       /**
        * @brief Step through one element. If there is an element available then
        * the provided parameters will be filled with its information and true
-       * will be returned. If there is no such element then reset will be called
-       * and false will be returned. In this case the arguments will not be
-       * changed.
-       * @param[out] container Container of the next element.
-       * @param[out] index Index of the next element.
+       * will be returned. If there is no such element false will be returned.
+       * In this case the arguments will not be changed.
+       * @param[out] container Container of the current element.
+       * @param[out] index Index of the current element.
        * @return Whether or not a new element was returned.
        */
       virtual bool next(
-          const SG::AuxVectorData*& container, std::size_t& index) = 0;
+          const SG::AuxVectorData*& container, std::size_t& index)
+      {
+        if (peek(container, index) ) {
+          process();
+          if (m_nPassed == maxToPass)
+            reset();
+          else
+            advance();
+          return true;
+        }
+        else
+          return false;
+      }
+
       /**
        * @brief Apply thinning to the candidate containers according to the
        * mask.
        * @param thinSvc The IThinningSvc to use.
        */
       virtual StatusCode thin(IThinningSvc& thinSvc) = 0;
+
+      /**
+       * @brief Have any of the helpers hit the maximum number of elements to
+       * thin?
+       */
+    protected:
+      /**
+       * @brief Prime this helper with an element from the parent container.
+       * @param container The container to take the element from.
+       * @param index The index at which the element is stored.
+       */
+      virtual void loadElementImpl(
+          const SG::AuxVectorData* container, std::size_t index) = 0;
+
+      /**
+       * @brief Advance to the next valid element or 'end'.
+       * @return Whether there was a next valid element.
+       *
+       * After this call this and all upstream helpers will either point to the
+       * next valid element or end.
+       */
+      virtual bool advance() = 0;
       /**
        * @brief Reset the position of the helper. This is usually necessary in
        * advance of a 'loadElement' call to ensure that the helper isn't
@@ -131,6 +210,15 @@ namespace EleLinkThinningHelpers {
        * by this function.
        */
       virtual void reset() = 0;
+      /**
+       * @brief Process the element that we're pointing at (by loading it into
+       * the map). Called by \ref next so it can rely on the element being
+       * pointed to being valid.
+       */
+      virtual void process() = 0;
+
+      /// The number of elements this helper has passed.
+      std::size_t m_nPassed{0};
   };
 
   /**
@@ -155,25 +243,31 @@ namespace EleLinkThinningHelpers {
        * @param op The IThinningSvc operator.
        * @param doThin Whether to apply thinning to elements processed by this
        * helper.
+       * @param maxToPass The maximum number of elements that this helper is
+       * allowed to pass per event.
+       * @param prev The previous helper in the chain (if any).
        */
       ThinningHelperTemplateBase(
           const std::string& auxName,
           const std::vector<std::string>& containerList,
           IThinningSvc::Operator::Type op,
-          bool doThin)
-        : ThinningHelperBase(auxName, containerList, op, doThin),
+          bool doThin,
+          std::size_t maxToPass,
+          std::unique_ptr<ThinningHelperBase> prev)
+        : ThinningHelperBase(
+            auxName, containerList, op, doThin, maxToPass, std::move(prev) ),
           m_acc(auxName) {}
 
-    protected:
       /**
        * @brief Initialise the mask, populating it with the candidate containers
-       * and masks with all elements set to false. This will also clear the
-       * mask.
+       * and masks with all elements set to false.
        * @param sgSvc The StoreGateSvc used to retrieve the candidate
        * containers.
        */
-      StatusCode initMask(StoreGateSvc& sgSvc) override
+      StatusCode initMask(StoreGateSvc& sgSvc) final
       {
+        if (previous)
+          ATH_CHECK(previous->initMask(sgSvc) );
         m_thinInstr.clear();
         if (!doThin)
           return StatusCode::SUCCESS;
@@ -190,14 +284,19 @@ namespace EleLinkThinningHelpers {
        * mask.
        * @param thinSvc The IThinningSvc to use.
        */
-      StatusCode thin(IThinningSvc& thinSvc) override
+      StatusCode thin(IThinningSvc& thinSvc) final
       {
+        if (previous)
+          ATH_CHECK(previous->thin(thinSvc) );
+        if (!doThin)
+          return StatusCode::SUCCESS;
         for (const auto& instruction : m_thinInstr)
           ATH_CHECK( 
               thinSvc.filter(*instruction.first, instruction.second, op) );
         m_thinInstr.clear();
         return StatusCode::SUCCESS;
       }
+    protected:
 
       /**
        * @brief Insert a link into the mask. If thinning isn't requested on this
@@ -205,12 +304,17 @@ namespace EleLinkThinningHelpers {
        * an exception will be raised.
        */
       void insert(const link_t<T>& link) {
-        if (!doThin)
+        if (!doThin) {
+          ++m_nPassed;
           return;
+        }
         auto itr = m_thinInstr.find(link.getDataPtr() );
         if (itr == m_thinInstr.end() )
           throw UnknownContainerInLink(link.key(), containerList);
-        itr->second.at(link.index() ) = true;
+        if (!itr->second.at(link.index() ) ) {
+          ++m_nPassed;
+          itr->second.at(link.index() ) = true;
+        }
       }
 
       /// The accessor.
@@ -235,7 +339,7 @@ namespace EleLinkThinningHelpers {
    * @tparam The type of the link decoration: i.e. ElementLink<X>.
    */
   template <typename T>
-    class ThinningHelper<T, false> : public ThinningHelperTemplateBase<T>
+    class ThinningHelper<T, false> final : public ThinningHelperTemplateBase<T>
   {
     public:
       /**
@@ -246,49 +350,51 @@ namespace EleLinkThinningHelpers {
        * @param op The IThinningSvc operator.
        * @param doThin Whether to apply thinning to elements processed by this
        * helper.
+       * @param maxToPass The maximum number of elements that this helper is
+       * allowed to pass per event.
+       * @param prev The previous helper in the chain (if any).
        */
       ThinningHelper(
-        const std::string& auxName,
-        const std::vector<std::string>& containerList,
-        IThinningSvc::Operator::Type op,
-        bool doThin)
-      : ThinningHelperTemplateBase<T>(auxName, containerList, op, doThin) {}
+          const std::string& auxName,
+          const std::vector<std::string>& containerList,
+          IThinningSvc::Operator::Type op,
+          bool doThin,
+          std::size_t maxToPass,
+          std::unique_ptr<ThinningHelperBase> prev)
+        : ThinningHelperTemplateBase<T>(
+            auxName, containerList, op, doThin, maxToPass, std::move(prev) ) {}
 
+      /**
+       * @brief Peek at the current element we are pointing to. If there is an
+       * element availabled then the provided parameters will be filled with its
+       * information and true will be returned. If there is no such element then
+       * false will be returned. In this case the arguments will not be changed.
+       * @param[out] container Container of the current element.
+       * @param[out] index Index of the current element.
+       * @return Whether or not a new element was returned.
+       */
+      bool peek(
+          const SG::AuxVectorData*& container, std::size_t& index) const final
+      {
+        if (!m_element || !m_element->isValid() )
+          return false;
+        container = m_element->getDataPtr();
+        index = m_element->index();
+        return true;
+      }
     protected:
       /**
        * @brief Prime this helper with an element from the parent container.
        * @param container The container to take the element from.
        * @param index The index at which the element is stored.
        */
-      void loadElement(
-          const SG::AuxVectorData* container, std::size_t index) override
+      void loadElementImpl(
+          const SG::AuxVectorData* container, std::size_t index) final
       {
         if (!container) 
           throw std::invalid_argument("Nullptr recieved!?");
+        // Actually load the element now.
         m_element = &this->m_acc(*container, index);
-      }
-
-      /**
-       * @brief Step through one element. If there is an element available then
-       * the provided parameters will be filled with its information and true
-       * will be returned. If there is no such element then reset will be called
-       * and false will be returned. In this case the arguments will not be
-       * changed.
-       * @param[out] container Container of the next element.
-       * @param[out] index Index of the next element.
-       * @return Whether or not a new element was returned.
-       */
-      bool next(
-          const SG::AuxVectorData*& container, std::size_t& index) override
-      {
-        if (!m_element || !m_element->isValid() ) {
-          return false;
-        }
-        this->insert(*m_element);
-        container = m_element->getDataPtr();
-        index = m_element->index();
-        m_element = nullptr;
-        return true;
       }
 
       /**
@@ -297,8 +403,52 @@ namespace EleLinkThinningHelpers {
        * accidentally left pointing at an old element. The mask is not changed
        * by this function.
        */
-      void reset() override {
+      void reset() final {
         m_element = nullptr;
+      }
+
+      /**
+       * @brief Process the element that we're pointing at (by loading it into
+       * the map). Called by \ref next so it can rely on the element being
+       * pointed to being valid.
+       */
+     void process() final {
+       this->insert(*m_element);
+     }
+
+      /**
+       * @brief Advance to the next valid element or 'end'.
+       * @return Whether there was a next valid element.
+       *
+       * After this call this and all upstream helpers will either point to a
+       * valid element or end.
+       */
+      bool advance() final {
+        // To advance a non-vector type we have to get the next element from the
+        // previous helper. If that doesn't exist then we must have exhausted
+        // everything.
+        if (!this->previous) {
+          reset();
+          return false;
+        }
+        else {
+          const SG::AuxVectorData* container;
+          std::size_t index;
+          // This enforces that we keep going until we either hit a valid
+          // element (peek evaluates to true) or we exhaust the previous helper
+          // (previous->next evaluates to false). Use a do...while to ensure
+          // that we make at least one step.
+          do {
+            if (this->previous->next(container, index) )
+              loadElementImpl(container, index);
+            else {
+              reset();
+              return false;
+            }
+          } while (!peek(container, index) );
+          // If we got here then we hit a valid state (peek evaluated to true).
+          return true;
+        }
       }
     private:
        /// The ElementLink pointed to by the decorator.
@@ -306,11 +456,11 @@ namespace EleLinkThinningHelpers {
   };
   
   /**
-   * @brief Implementation of ThinningHelper for non-vector classes.
+   * @brief Implementation of ThinningHelper for vector classes.
    * @tparam The type of the link decoration: i.e. ElementLink<X>.
    */
   template <typename T>
-    class ThinningHelper<T, true> : public ThinningHelperTemplateBase<T>
+    class ThinningHelper<T, true> final : public ThinningHelperTemplateBase<T>
   {
     public:
       /**
@@ -320,14 +470,39 @@ namespace EleLinkThinningHelpers {
        * links are required to belong.
        * @param op The IThinningSvc operator.
        * @param doThin Whether to apply thinning to elements processed by this
+       * @param maxToPass The maximum number of elements that this helper is
+       * allowed to pass per event.
+       * @param prev The previous helper in the chain (if any).
        * helper.
        */
       ThinningHelper(
-        const std::string& auxName,
-        const std::vector<std::string>& containerList,
-        IThinningSvc::Operator::Type op,
-        bool doThin)
-      : ThinningHelperTemplateBase<T>(auxName, containerList, op, doThin) {}
+          const std::string& auxName,
+          const std::vector<std::string>& containerList,
+          IThinningSvc::Operator::Type op,
+          bool doThin,
+          std::size_t maxToPass,
+          std::unique_ptr<ThinningHelperBase> prev)
+        : ThinningHelperTemplateBase<T>(
+            auxName, containerList, op, doThin, maxToPass, std::move(prev) ) {}
+
+      /**
+       * @brief Peek at the current element we are pointing to. If there is an
+       * element availabled then the provided parameters will be filled with its
+       * information and true will be returned. If there is no such element then
+       * false will be returned. In this case the arguments will not be changed.
+       * @param[out] container Container of the current element.
+       * @param[out] index Index of the current element.
+       * @return Whether or not a new element was returned.
+       */
+      virtual bool peek(
+          const SG::AuxVectorData*& container, std::size_t& index) const
+      {
+        if (!m_element || m_itr == m_end || !m_itr->isValid() )
+          return false;
+        container = m_itr->getDataPtr();
+        index = m_itr->index();
+        return true;
+      }
 
     protected:
       /**
@@ -335,46 +510,14 @@ namespace EleLinkThinningHelpers {
        * @param container The container to take the element from.
        * @param index The index at which the element is stored.
        */
-      void loadElement(
-          const SG::AuxVectorData* container, std::size_t index) override
+      void loadElementImpl(
+          const SG::AuxVectorData* container, std::size_t index) final
       {
         if (!container) 
           throw std::invalid_argument("Nullptr recieved!?");
         m_element = &this->m_acc(*container, index);
         m_itr = m_element->begin();
-      }
-
-      /**
-       * @brief Step through one element. If there is an element available then
-       * the provided parameters will be filled with its information and true
-       * will be returned. If there is no such element then reset will be called
-       * and false will be returned. In this case the arguments will not be
-       * changed.
-       * @param[out] container Container of the next element.
-       * @param[out] index Index of the next element.
-       * @return Whether or not a new element was returned.
-       */
-      bool next(
-          const SG::AuxVectorData*& container, std::size_t& index) override
-      {
-        if (!m_element || m_itr == m_element->end() ) {
-          // This means that the current input element has been exhausted.
-          reset();
-          return false;
-        }
-        // We need to step past any invalid elements.
-        while (!m_itr->isValid() ) {
-          if (++m_itr == m_element->end() ) {
-            // The current input element has been exhausted.
-            reset();
-            return false;
-          }
-        }
-        this->insert(*m_itr);
-        container = m_itr->getDataPtr();
-        index = m_itr->index();
-        ++m_itr;
-        return true;
+        m_end = m_element->end();
       }
 
       /**
@@ -383,79 +526,70 @@ namespace EleLinkThinningHelpers {
        * accidentally left pointing at an old element. The mask is not changed
        * by this function.
        */
-      void reset() override {
+      void reset() final {
         m_element = nullptr;
         m_itr = typename T::const_iterator();
+        m_end = typename T::const_iterator();
       }
+
+      /**
+       * @brief Advance to the next valid element or 'end'.
+       * @return Whether there was a next valid element.
+       *
+       * After this call this and all upstream helpers will either point to a
+       * valid element or end.
+       */
+      bool advance() final {
+        // To advance a vector type first we have to try advancing the iterator
+        if (m_element && m_itr != m_end) {
+          while (true) {
+            if (++m_itr == m_end)
+              break;
+            if (m_itr->isValid() )
+              // We found a valid element!
+              return true;
+          }
+        }
+        // if we're here then we've exhausted our current element :(
+        if (!this->previous) {
+          reset();
+          return false;
+        }
+        else {
+          // Try and get a new one 
+          const SG::AuxVectorData* container;
+          std::size_t index;
+          if (this->previous->next(container, index) ) {
+            loadElementImpl(container, index);
+            // Check that this one worked
+            if (peek(container, index) )
+              return true;
+            else
+              // We need to try advancing again
+              return advance();
+          }
+          else {
+            // There are no more elements to process
+            reset();
+            return false;
+          }
+        }
+      }
+      /**
+       * @brief Process the element that we're pointing at (by loading it into
+       * the map). Called by \ref next so it can rely on the element being
+       * pointed to being valid.
+       */
+     void process() final {
+       this->insert(*m_itr);
+     }
     private:
       /// The element link vector pointed to by the decorator.
       const T* m_element{nullptr};
       /// The iterator within that vector.
       typename T::const_iterator m_itr;
-  };
-
-  /**
-   * @brief Vector of ThinningHelpers. This represents an ordered  way of
-   * iterating through all elements referenced by a chain of element links.
-   */
-  class ThinningHelperVec {
-    using vec_t = std::vector<std::unique_ptr<ThinningHelperBase>>;
-    public:
-      /**
-       * @brief Call the initMask methods of all the helpers.
-       * @param sgSvc The StoreGateSvc to use to init the masks.
-       */
-      StatusCode initMask(StoreGateSvc& sgSvc);
-      /**
-       * @brief Call the thin methods of all the helpers.
-       * @param thinSvc The IThinningSvc to use.
-       */
-      StatusCode thin(IThinningSvc& thinSvc);
-      /**
-       * @brief Queue up an element to load into the helpers. The element is not
-       * actually loaded in here. This is because this involves calling 'next'
-       * on some of the helpers so they do not point to the start of their held
-       * containers which is counter-intuitive.
-       * @param parent The container to take the element from.
-       * @param index The index at which the element is stored.
-       */
-      void loadElement(const SG::AuxVectorData* parent, std::size_t index);
-      /**
-       * @brief Get the next element from the final container in the step. If
-       * the current input element (from loadElement) is exhausted then false is
-       * returned and the output parameters are not altered.
-       * @param[out] container Container of the next element.
-       * @param[out] index Index of the next element.
-       * @return Whether or not a new element was returned.
-       */
-      bool next(const SG::AuxVectorData*& container, std::size_t& index);
-      /**
-       * @brief Reset all helpers and remove any queued elements. Will not
-       * changed the masks of the helpers.
-       */
-      void reset();
-      /// The helpers.
-      vec_t helpers;
-    private:
-      /// If an element is queued this is its parent.
-      const SG::AuxVectorData* m_parent{nullptr};
-      /// If an element is queued this is its index.
-      std::size_t m_index = -1;
-      /**
-       * @brief Recurse down the chain of links. Starting with the helper
-       * pointed to by itr, the element pointed to by (container, index) is
-       * loaded into this helper, then the first element is retrieved from
-       * *that* helper and loaded into the next, continuing until either all
-       * helpers have an element loaded into them or a helper has not contained
-       * any element. In this case all remaining helpers are reset.
-       * @param itr The iterator to the helper to start with.
-       * @param container The container of the starting element.
-       * @param index The index of the starting element.
-       */
-      void loadElementInternal(
-          vec_t::iterator itr, 
-          const SG::AuxVectorData* container, 
-          std::size_t index);
+      /// The end of that vector
+      typename T::const_iterator m_end;
   };
   
   /**
@@ -472,13 +606,16 @@ namespace EleLinkThinningHelpers {
    * parameter.
    * @tparam Ts The candidate template types that can be used.
    * @param ti The type info to perform the type-switch on.
-    * @param auxName The name of the link being accessed by this helper.
-    * @param containerList The list of candidate containers to which these links
-    * are required to belong.
-    * @param op The IThinningSvc operator.
-    * @param doThin Whether to apply thinning to elements processed by this
-    * helper.
-    */
+   * @param auxName The name of the link being accessed by this helper.
+   * @param containerList The list of candidate containers to which these links
+   * are required to belong.
+   * @param op The IThinningSvc operator.
+   * @param doThin Whether to apply thinning to elements processed by this
+   * helper.
+   * @param maxToPass The maximum number of elements that this helper is
+   * allowed to pass per event.
+   * @param prev The previous helper in the chain (if any).
+   */
   template <typename... Ts>
     std::unique_ptr<ThinningHelperBase> createHelper(
         const std::tuple<Ts...>*,
@@ -486,13 +623,15 @@ namespace EleLinkThinningHelpers {
         const std::string& auxName,
         const std::vector<std::string>& containerList,
         IThinningSvc::Operator::Type op,
-        bool doThin)
+        bool doThin,
+        std::size_t maxToPass,
+        std::unique_ptr<ThinningHelperBase> prev)
     {
       return FunctorHelpers::constructSwitch<
         ThinningHelperBase, ThinningHelper_t,
         ElementLink<Ts>..., std::vector<ElementLink<Ts>>...>(ti,
-            auxName, containerList, op, doThin);
+            auxName, containerList, op, doThin, maxToPass, std::move(prev) );
     }
-}
+} //> end namespace EleLinkThinningHelpers
 
 #endif //> !ThinningUtils_EleLinkThinningHelpers_H

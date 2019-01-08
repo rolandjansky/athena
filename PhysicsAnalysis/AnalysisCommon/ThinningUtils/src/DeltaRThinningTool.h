@@ -29,6 +29,8 @@ class DeltaRThinningTool
     
     StatusCode initialize() override;
 
+    /// For each parent particle that passes the thinning keep child particles
+    /// within DR of it.
     StatusCode forwardParentThinning(
         const xAOD::IParticleContainer* parent,
         const std::vector<bool>& mask) const override;

@@ -2,7 +2,6 @@
 #include "EleLinkThinningTool.h"
 #include "EleLinkThinningHelpers.h"
 #include "EleLinkThinningTypeList.h"
-#include "ApplyFunctorSwitch.h"
 
 // athena includes
 #include "AthContainers/AuxVectorData.h"
@@ -22,19 +21,19 @@ EleLinkThinningTool::EleLinkThinningTool(
 {
   declareInterface<IForwardParentThinningTool>(this);
   declareProperty("ThinningService", m_thinningSvc, "The thinning service.");
-  // TODO update LinkName description.
   declareProperty("LinkName", m_linkName, "The name of the link to use. "
-      "This can be several links separated by '.' characters. In this case "
-      "each link will be followed in turn, retrieving each subsequent "
-      "from the current linked container. A '+' character can be prepended "
-      "to force an interim container to be thinned, a '-' character forces "
-      "the container *not* to be thinned. The default is set by the "
-      "ThinInterim property. The final container is *always* thinned.");
+      "The format should be <linkName>(list,of,containers)[maxToProcess]. "
+      "The list of containers and maxToProcess are optional; if the list of "
+      "containers is not set then no thinning will be applied to elements "
+      "pointed to by that link, if maxToProcess is not set then all elements "
+      "from that link will be processed. Thinning is allowed to recurse down "
+      "chains of element links, in this case multiple copies of this pattern "
+      "should be provided, separated by '.' characters. Each link will be read "
+      "from the elements provided by the previous link in the chain. The whole "
+      "chain will be exhausted when one of its constituent links hits its "
+      "maxToProcess.");
   declareProperty("ApplyAnd", m_and = false,
       "Whether or not to use the AND operator when thinning");
-  declareProperty("MaxThin", m_maxThin = -1,
-      "The maximum number of particles to thin from the final step. If "
-      "negative then all final step particles will be thinned.");
 }
 
 StatusCode EleLinkThinningTool::initialize()
@@ -58,27 +57,21 @@ StatusCode EleLinkThinningTool::forwardParentThinning(
 {
   // We create the helper here as the aux name may only have been registered
   // during the first execute function
-  if (m_helperVec.helpers.size() == 0) {
-    ATH_CHECK( makeHelpers() );
+  if (!m_helper) {
+    ATH_CHECK( makeHelper() );
   }
   // Initialise the masks for each step.
-  ATH_CHECK( m_helperVec.initMask(*evtStore() ) );
+  ATH_CHECK( m_helper->initMask(*evtStore() ) );
 
   for (std::size_t idx = 0; idx < mask.size(); ++idx) {
     if (!mask.at(idx) )
       continue;
-    // Set the helper vec to the start of this element
-    m_helperVec.loadElement(parent, idx);
-    std::size_t nThinned = 0;
-    std::map<const SG::AuxVectorData*, std::set<std::size_t>> thinnedIndices;
-    const SG::AuxVectorData* thinnedContainer = nullptr;
-    std::size_t thinnedIdx = -1;
+    // Set the helper to the start of this element
+    m_helper->loadElement(parent, idx);
+    const SG::AuxVectorData* container;
+    std::size_t index;
     try {
-      while (nThinned < m_maxThin && 
-            m_helperVec.next(thinnedContainer, thinnedIdx) ) {
-        if (thinnedIndices[thinnedContainer].insert(thinnedIdx).second)
-          ++nThinned;
-      }
+      while (m_helper->next(container, index) ) {}
     }
     catch (const EleLinkThinningHelpers::UnknownContainerInLink& e) {
       const std::string* namePtr = evtStore()->keyToString(e.key);
@@ -90,10 +83,10 @@ StatusCode EleLinkThinningTool::forwardParentThinning(
       return StatusCode::FAILURE;
     }
   }
-  return m_helperVec.thin(*m_thinningSvc);
+  return m_helper->thin(*m_thinningSvc);
 }
 
-StatusCode EleLinkThinningTool::makeHelpers() const
+StatusCode EleLinkThinningTool::makeHelper() const
 {
   // The tool allows you to recurse through several levels of element links. If
   // this feature is being used then the links will be separated by a '.'
@@ -103,7 +96,8 @@ StatusCode EleLinkThinningTool::makeHelpers() const
     std::size_t nextPos = m_linkName.find('.', pos);
     std::string auxName = m_linkName.substr(pos, nextPos-pos);
     pos = (nextPos == std::string::npos ? std::string::npos : nextPos + 1);
-    static std::regex auxNameRegex(R"((\w+)(?:\((\w+(?:,\s*\w+)*)\))?)");
+    static std::regex auxNameRegex(
+        R"((\w+)(?:\((\w+(?:,\s*\w+)*)\))?(?:\[(\d*)\])?)");
     std::smatch m;
     if (!std::regex_match(auxName, m, auxNameRegex) ) {
       ATH_MSG_ERROR("Link name '" << auxName << "' failed to match regex!");
@@ -111,6 +105,7 @@ StatusCode EleLinkThinningTool::makeHelpers() const
     }
     auxName = m[1];
     std::string containerListStr = m[2];
+    std::size_t maxToSee = m[3].str().empty() ? -1 : std::stoi(m[3]);
     static std::regex sepRegex(R"(,\s*)");
     std::vector<std::string> containerList;
     if (!containerListStr.empty() )
@@ -119,6 +114,7 @@ StatusCode EleLinkThinningTool::makeHelpers() const
             containerListStr.begin(), containerListStr.end(), sepRegex, -1),
           std::sregex_token_iterator(),
           std::back_inserter(containerList) );
+    bool doThin = !containerList.empty();
 
     // Now retrieve the aux ID and type info
     SG::auxid_t auxid = SG::AuxTypeRegistry::instance().findAuxID(auxName);
@@ -135,20 +131,16 @@ StatusCode EleLinkThinningTool::makeHelpers() const
       IThinningSvc::Operator::And : IThinningSvc::Operator::Or;
     // Create the tool
     try {
-      m_helperVec.helpers.push_back(EleLinkThinningHelpers::createHelper(
-            EleLinkThinningHelpers::TypeList::types, *ti,
-            auxName, containerList, op, !containerList.empty() ) );
+      std::unique_ptr<EleLinkThinningHelpers::ThinningHelperBase> tmp;
+      tmp.reset(m_helper.release() );
+      m_helper = EleLinkThinningHelpers::createHelper(
+          EleLinkThinningHelpers::TypeList::types, *ti,
+          auxName, containerList, op, doThin, maxToSee, std::move(tmp) );
     }
     catch (const FunctorHelpers::UnknownTypeException& e) {
       ATH_MSG_ERROR("Caught UnknownTypeException: " << e.what() );
       return StatusCode::FAILURE;
     }
-  }
-  // Make sure that the last tool has thinning enabled.
-  if (!m_helperVec.helpers.back()->doThin) {
-    ATH_MSG_ERROR("Final step has doThin = false. This probably means that "
-        "no containers were specified!");
-    return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
 }
