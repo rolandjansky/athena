@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -22,6 +22,7 @@
 #include "CxxUtils/SealDebug.h"                // wlav
 #include "CxxUtils/SealSignal.h"               // wlav
 #include "CxxUtils/SealSharedLib.h"            // wlav
+#include "CxxUtils/checker_macros.h"
 
 // wlav copied from SealBase/sysapi/DebugAids.h
 #include <cstring>
@@ -116,7 +117,7 @@ namespace {
 std::string addr2LinePath = "/usr/bin/addr2line";
 
 
-struct BacktraceInit
+struct ATLAS_NOT_THREAD_SAFE BacktraceInit
 {
   BacktraceInit()
   {
