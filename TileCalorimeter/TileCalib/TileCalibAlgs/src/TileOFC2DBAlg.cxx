@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //=== IOVDbTest includes
@@ -89,9 +89,9 @@ StatusCode TileOFC2DBAlg::execute() {
   const xAOD::EventInfo* eventInfo(0);
   CHECK( evtStore()->retrieve(eventInfo) );
   ATH_MSG_DEBUG( "Event: ["
-                << eventInfo->runNumber() << ","
-                << eventInfo->eventNumber() << ":"
-                << eventInfo->timeStamp() << "]" );
+                 << eventInfo->runNumber() << ","
+                 << eventInfo->eventNumber() << ":"
+                 << eventInfo->timeStamp() << "]" );
 
 
   //=== Create conditions objects only at run == ?, event == ?
@@ -122,8 +122,9 @@ StatusCode TileOFC2DBAlg::execute() {
   CondAttrListCollection* attrListColl = new CondAttrListCollection(true);
 
   float zeroPhase(0.0);
-  const TileOfcWeightsStruct* weights = m_tileCondToolOfc->getOfcWeights(0, 0, 0, zeroPhase, true);
-  int ndig = weights->n_samples;
+  TileOfcWeightsStruct weights;
+  ATH_CHECK( m_tileCondToolOfc->getOfcWeights(0, 0, 0, zeroPhase, true, weights) );
+  int ndig = weights.n_samples;
 
   // ---------- create fixed phases
   if (m_fixedPhases) {
@@ -167,14 +168,14 @@ StatusCode TileOFC2DBAlg::execute() {
         for (unsigned int gain = 0; gain < TileCalibUtils::MAX_GAIN; ++gain) {
 
           for (float phase : phases) {
-            weights = m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, phase, m_of2);
+            ATH_CHECK( m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, phase, m_of2, weights) );
             for (int isam = 0; isam < ndig; isam++) {
-              drawerOfc->setOfc(TileCalibDrawerOfc::FieldA, channel, gain, phase, isam, weights->w_a[isam]);
-              drawerOfc->setOfc(TileCalibDrawerOfc::FieldB, channel, gain, phase, isam, weights->w_b[isam]);
-              drawerOfc->setOfc(TileCalibDrawerOfc::FieldG, channel, gain, phase, isam, weights->g[isam]);
+              drawerOfc->setOfc(TileCalibDrawerOfc::FieldA, channel, gain, phase, isam, weights.w_a[isam]);
+              drawerOfc->setOfc(TileCalibDrawerOfc::FieldB, channel, gain, phase, isam, weights.w_b[isam]);
+              drawerOfc->setOfc(TileCalibDrawerOfc::FieldG, channel, gain, phase, isam, weights.g[isam]);
               if (objVersion == 3) {
-                drawerOfc->setOfc(TileCalibDrawerOfc::FieldC, channel, gain, phase, isam, weights->w_c[isam]);
-                drawerOfc->setOfc(TileCalibDrawerOfc::FieldDG, channel, gain, phase, isam, weights->dg[isam]);
+                drawerOfc->setOfc(TileCalibDrawerOfc::FieldC, channel, gain, phase, isam, weights.w_c[isam]);
+                drawerOfc->setOfc(TileCalibDrawerOfc::FieldDG, channel, gain, phase, isam, weights.dg[isam]);
               }
             }
             
@@ -189,24 +190,24 @@ StatusCode TileOFC2DBAlg::execute() {
               
               msg(MSG::DEBUG) << "gain " << gain << " w_a, phase " << phase << " ";
               for (int isam = 0; isam < ndig; ++isam)
-                msg(MSG::DEBUG) << " " << weights->w_a[isam];
+                msg(MSG::DEBUG) << " " << weights.w_a[isam];
               msg(MSG::DEBUG) << endmsg;
               
               msg(MSG::DEBUG) << "gain " << gain << " w_b, phase " << phase << " ";
               for (int isam = 0; isam < ndig; isam++)
-                msg(MSG::DEBUG) << " " << weights->w_b[isam];
+                msg(MSG::DEBUG) << " " << weights.w_b[isam];
               msg(MSG::DEBUG) << endmsg;
               
               if (m_of2) {
                 msg(MSG::DEBUG) << "gain " << gain << " w_c, phase " << phase << " ";
                 for (int isam = 0; isam < ndig; isam++)
-                  msg(MSG::DEBUG) << " " << weights->w_c[isam];
+                  msg(MSG::DEBUG) << " " << weights.w_c[isam];
                 msg(MSG::DEBUG) << endmsg;
               }
               
               msg(MSG::DEBUG) << "gain " << gain << " g, phase " << phase << " ";
               for (int isam = 0; isam < ndig; isam++)
-                msg(MSG::DEBUG) << " " << weights->g[isam];
+                msg(MSG::DEBUG) << " " << weights.g[isam];
               msg(MSG::DEBUG) << endmsg;
               
             }
@@ -269,7 +270,7 @@ StatusCode TileOFC2DBAlg::execute() {
                            << " gain " << gain
                            << " phase " << phase );
 
-            weights = m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, phase, m_of2);
+            ATH_CHECK( m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, phase, m_of2, weights) );
             ATH_MSG_DEBUG( " N Samples " << ndig
                            << " ros " << ros
                            << " drawer " << drawer
@@ -283,32 +284,32 @@ StatusCode TileOFC2DBAlg::execute() {
             for (int isam = 0; isam < ndig; isam++) {
               if (m_of2) {
                 ATH_MSG_DEBUG( " sampling " << isam
-                               << " w_a " << weights->w_a[isam]
-                               << " w_b " << weights->w_b[isam]
-                               << " w_c " << weights->w_c[isam]
-                               << "   g " << weights->g[isam] );
+                               << " w_a " << weights.w_a[isam]
+                               << " w_b " << weights.w_b[isam]
+                               << " w_c " << weights.w_c[isam]
+                               << "   g " << weights.g[isam] );
 
               } else {
                 ATH_MSG_DEBUG( " sampling " << isam
-                              << " w_a " << weights->w_a[isam]
-                              << " w_b " << weights->w_b[isam]
-                              << "   g " << weights->g[isam] );
+                              << " w_a " << weights.w_a[isam]
+                              << " w_b " << weights.w_b[isam]
+                              << "   g " << weights.g[isam] );
 
               }
 
-              w_a_sum += weights->w_a[isam];
-              w_b_sum += weights->w_b[isam];
-              w_c_sum += weights->w_c[isam];
-              w_ag_sum += weights->w_a[isam] * weights->g[isam];
-              w_bg_sum += weights->w_b[isam] * weights->g[isam];
+              w_a_sum += weights.w_a[isam];
+              w_b_sum += weights.w_b[isam];
+              w_c_sum += weights.w_c[isam];
+              w_ag_sum += weights.w_a[isam] * weights.g[isam];
+              w_bg_sum += weights.w_b[isam] * weights.g[isam];
 
-              drawerOfc->setOfc(0, drawerIdx, gain, channel, isam, weights->w_a[isam]);
-              drawerOfc->setOfc(1, drawerIdx, gain, channel, isam, weights->w_b[isam]);
+              drawerOfc->setOfc(0, drawerIdx, gain, channel, isam, weights.w_a[isam]);
+              drawerOfc->setOfc(1, drawerIdx, gain, channel, isam, weights.w_b[isam]);
               if (m_of2) {
-                drawerOfc->setOfc(2, drawerIdx, gain, channel, isam, weights->w_c[isam]);
-                drawerOfc->setOfc(3, drawerIdx, gain, channel, isam, weights->g[isam]);
+                drawerOfc->setOfc(2, drawerIdx, gain, channel, isam, weights.w_c[isam]);
+                drawerOfc->setOfc(3, drawerIdx, gain, channel, isam, weights.g[isam]);
               } else {
-                drawerOfc->setOfc(2, drawerIdx, gain, channel, isam, weights->g[isam]);
+                drawerOfc->setOfc(2, drawerIdx, gain, channel, isam, weights.g[isam]);
               }
             }
 
