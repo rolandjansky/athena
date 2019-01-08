@@ -1,12 +1,12 @@
-TrigSignatureMoniMT                                INFO HLT_e20                       2         2         2         2         2         
+TrigSignatureMoniMT                                INFO HLT_e20                       3         3         2         2         2         
 TrigSignatureMoniMT                                INFO HLT_e20 decisions                                 4         4         
-TrigSignatureMoniMT                                INFO HLT_e5                        1         1         1         1         1         
+TrigSignatureMoniMT                                INFO HLT_e5                        2         2         1         1         1         
 TrigSignatureMoniMT                                INFO HLT_e5 decisions                                  2         2         
-TrigSignatureMoniMT                                INFO HLT_e5_e8                     1         1         1         0         1         
+TrigSignatureMoniMT                                INFO HLT_e5_e8                     2         2         1         0         1         
 TrigSignatureMoniMT                                INFO HLT_e5_e8 decisions                               6         0         
-TrigSignatureMoniMT                                INFO HLT_e8                        3         3         3         3         3         
+TrigSignatureMoniMT                                INFO HLT_e8                        4         4         3         3         3         
 TrigSignatureMoniMT                                INFO HLT_e8 decisions                                  5         5         
-TrigSignatureMoniMT                                INFO HLT_g5                        1         1         1         0         1         
+TrigSignatureMoniMT                                INFO HLT_g5                        2         2         1         0         1         
 TrigSignatureMoniMT                                INFO HLT_g5 decisions                                  2         0         
 TrigSignatureMoniMT                                INFO HLT_mu20                      1         1         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_mu20 decisions                                0         0         
