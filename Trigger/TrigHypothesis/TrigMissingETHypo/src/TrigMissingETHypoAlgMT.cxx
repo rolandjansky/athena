@@ -7,12 +7,33 @@
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "AthenaMonitoring/MonitoredScope.h"
-
+#include "TrigEFMissingET/EFMissingETAlgMT.h"
 
 using namespace TrigCompositeUtils;
-
 using xAOD::TrigMissingETContainer;
 
+<<<<<<< Updated upstream
+||||||| merged common ancestors
+//!< Converts from MeV to GeV and them log10, preserving the sign, the minimum dictated by monitoring histograms
+float TrigMissingETHypoAlgMT::toLogGeV( const float& x, const float& fallback = 0, const float& epsilon = 1.189 ) {
+  const float absXGeV =  std::fabs( x * 1.e-3 );
+  if ( absXGeV < epsilon ) 
+    return fallback;
+  return std::copysign( std::log10( absXGeV ), x );
+}
+
+//!< converts to from MeV to GeV if above threshold, else falback value
+float TrigMissingETHypoAlgMT::toLinGeV( const float& x, const float& fallback = 0, const float& epsilon = 1e-6 ) {
+    const float xGeV = x * 1.e-3;
+  if ( xGeV < epsilon ) 
+    return fallback;
+  return xGeV;
+}
+
+
+=======
+
+>>>>>>> Stashed changes
 TrigMissingETHypoAlgMT::TrigMissingETHypoAlgMT( const std::string& name, 
 				      ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator ) {}
@@ -46,12 +67,11 @@ StatusCode TrigMissingETHypoAlgMT::execute( const EventContext& context ) const 
   // read in the previous Decisions made before running this hypo Alg.
   auto h_prevDecisions = SG::makeHandle(decisionInput(), context );
   if( not h_prevDecisions.isValid() ) {//implicit
-    ATH_MSG_DEBUG( "No implicit RH for previous decisions "<<  decisionInput().key()<<": is this expected?" );
-    return StatusCode::SUCCESS;      
+    ATH_MSG_ERROR( "No implicit RH for previous decisions "<<  decisionInput().key()<<". Check the input decisions key?" );
+    return StatusCode::FAILURE;      
   }
   ATH_MSG_DEBUG( "Decisions being read from " << decisionInput().key() );
   ATH_MSG_DEBUG( "Running with "<< h_prevDecisions->size() <<" implicit ReadHandles for previous decisions");
-  ATH_CHECK(h_prevDecisions.isValid());
   auto prevDecisions = h_prevDecisions.get();
 
   // Make a new Decisions container which will contain the previous
@@ -61,7 +81,7 @@ StatusCode TrigMissingETHypoAlgMT::execute( const EventContext& context ) const 
 
 
   // Make trigger decisions and save to "newDecisions"
-  CHECK(decide(metContainer, newDecisions, prevDecisions));
+  ATH_CHECK(decide(metContainer, newDecisions, prevDecisions));
 
   ATH_MSG_DEBUG ( "Exit with "<<outputHandle->size() <<" decisions");
 
@@ -87,27 +107,37 @@ StatusCode TrigMissingETHypoAlgMT::decide(const xAOD::TrigMissingETContainer* me
                          TrigCompositeUtils::DecisionContainer*  nDecisions,
                          const DecisionContainer* oDecisions) const{
 
-  ATH_MSG_DEBUG("Deciding" << name() );
+  ATH_MSG_DEBUG("Executing decide() of " << name() );
   auto previousDecision = (*oDecisions)[0];
   auto newdecision = TrigCompositeUtils::newDecisionIn(nDecisions);
 
   
   const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs{
     TrigCompositeUtils::decisionIDs(previousDecision).begin(), 
-      TrigCompositeUtils::decisionIDs( previousDecision ).end()
-      };
+    TrigCompositeUtils::decisionIDs(previousDecision).end()
+  };
+
+
+  if (metContainer->size()==0){
+    ATH_MSG_ERROR("There are no TrigEFMissingET objects in the MET container" );
+    return StatusCode::FAILURE;
+  } else if (metContainer->size()>1) {
+    ATH_MSG_ERROR("There is more than one TrigEFMissingET object in the MET container");
+    return StatusCode::FAILURE;
+  }
 
   //bool allPassed = true;
   for (const auto& tool: m_hypoTools) {
     auto decisionId = tool->getId();
+    ATH_MSG_DEBUG( "About to decide for " << tool->name() );
     if (TrigCompositeUtils::passed(decisionId.numeric(), previousDecisionIDs)){
       ATH_MSG_DEBUG("Passed previous trigger");
       bool pass;
-      CHECK(tool->decide(metContainer, pass));
+      ATH_CHECK(tool->decide(metContainer, pass));
       if (pass) {
-        ATH_MSG_DEBUG("Passed HypoTools");
+        ATH_MSG_DEBUG("Passed " << tool->name() );
     		TrigCompositeUtils::addDecisionID(decisionId, newdecision);
-      } else ATH_MSG_DEBUG("Didn't pass HypoTools");
+      } else ATH_MSG_DEBUG("Didn't pass " << tool->name() );
     } ATH_MSG_DEBUG("Didn't pass previous trigger");
   }
   

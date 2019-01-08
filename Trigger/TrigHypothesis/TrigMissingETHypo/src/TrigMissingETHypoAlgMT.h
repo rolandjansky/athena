@@ -45,8 +45,8 @@ class TrigMissingETHypoAlgMT : public ::HypoBase {
   SG::ReadHandleKey< xAOD::TrigMissingETContainer > m_metKey {
     this, "METContainerKey", "HLT_MET", "MET Container name"};
 
-  ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Monitoring tool" };    
-  
+  ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Monitoring tool" };  
+
 }; 
 
 #endif
