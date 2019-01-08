@@ -12,7 +12,8 @@
 // ===========================================================================
 #include "eformat/SourceIdentifier.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
-#include "xAODTrigL1Calo/TriggerTowerAuxContainer.h" 
+#include "TrigT1CaloUtils/DataError.h"
+#include "xAODTrigL1Calo/TriggerTowerAuxContainer.h"
 
 #include "CaloUserHeader.h"
 #include "SubBlockHeader.h"
@@ -30,11 +31,15 @@ uint32_t bitFieldSize(uint32_t word, uint8_t offset, uint8_t size) {
   return (word >> offset) & ((1U << size) - 1);
 }
 
+uint32_t crateModuleMask(uint8_t crate, uint8_t module) {
+  return (crate << 8) | (1 << 4) | module;
+}
+
 uint32_t coolId(uint8_t crate, uint8_t module, uint8_t channel) {
   const uint8_t pin = channel % 16;
   const uint8_t asic = channel / 16;
-  return (crate << 24) | (1 << 20) | (module << 16) | (pin << 8) | asic;
-} 
+  return (crateModuleMask(crate, module) << 16) | (pin << 8) | asic;
+}
 
 int16_t pedCorrection(uint16_t twoBytePedCor) {
   return twoBytePedCor > 511? (twoBytePedCor - 1024): twoBytePedCor;
@@ -71,8 +76,8 @@ PpmByteStreamReadV1V2Tool::PpmByteStreamReadV1V2Tool(const std::string& name /*=
     m_verCode(0),
     m_ppPointer(0),
     m_ppMaxBit(0),
-    m_triggerTowers(nullptr),
-    m_maxSizeSeen(0)
+    m_maxSizeSeen(0),
+    m_triggerTowers(nullptr)
 {
   declareInterface<PpmByteStreamReadV1V2Tool>(this);
   declareProperty("PpmMappingTool", m_ppmMaps,
@@ -100,7 +105,7 @@ StatusCode PpmByteStreamReadV1V2Tool::initialize() {
   ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", name());
   CHECK(incidentSvc.retrieve());
   incidentSvc->addListener(this, IncidentType::EndEvent);
-  
+
   return StatusCode::SUCCESS;
 }
 // ===========================================================================
@@ -115,8 +120,8 @@ StatusCode PpmByteStreamReadV1V2Tool::finalize() {
 void PpmByteStreamReadV1V2Tool::handle( const Incident& inc )
 {
   if ( inc.type() == IncidentType::EndEvent) {
-   
-  } 
+
+  }
 }
 // Conversion bytestream to trigger towers
 StatusCode PpmByteStreamReadV1V2Tool::convert(
@@ -124,9 +129,11 @@ StatusCode PpmByteStreamReadV1V2Tool::convert(
     xAOD::TriggerTowerContainer* const ttCollection) {
 
   m_triggerTowers = ttCollection;
-  if (m_maxSizeSeen > m_triggerTowers->capacity())
+
+  if (m_maxSizeSeen > m_triggerTowers->capacity()){
     m_triggerTowers->reserve (m_maxSizeSeen);
-  m_coolIds.clear();
+  }
+
   m_subDetectorID = eformat::TDAQ_CALO_PREPROC;
   m_requestedType = RequestType::PPM;
 
@@ -135,11 +142,13 @@ StatusCode PpmByteStreamReadV1V2Tool::convert(
 
   int robCounter = 1;
   for (; rob != robEnd; ++rob, ++robCounter) {
+
     StatusCode sc = processRobFragment_(rob, RequestType::PPM);
     if (!sc.isSuccess()) {
 
     }
   }
+
   m_maxSizeSeen = std::max (m_maxSizeSeen, m_triggerTowers->size());
   m_triggerTowers = nullptr;
   return StatusCode::SUCCESS;
@@ -219,7 +228,6 @@ StatusCode PpmByteStreamReadV1V2Tool::processRobFragment_(
   }
 
   ATH_MSG_DEBUG("Treating crate " << rodCrate << " slink " << rodSlink);
-
   m_caloUserHeader = CaloUserHeader(*payload);
   if (!m_caloUserHeader.isValid()) {
     ATH_MSG_ERROR("Invalid or missing user header");
@@ -245,7 +253,7 @@ StatusCode PpmByteStreamReadV1V2Tool::processRobFragment_(
     } else if (SubBlockHeader::isSubBlockHeader(*payload)) {
       indata = 0;
       CHECK(processPpmBlock_());
-      
+
       m_ppLuts.clear();
       m_ppFadcs.clear();
       m_ppBlock.clear();
@@ -263,7 +271,7 @@ StatusCode PpmByteStreamReadV1V2Tool::processRobFragment_(
         );
         subBlock = blockType & 0xe;
       } else if (blockType == (subBlock | 1)) {
-        m_subBlockStatus = SubBlockStatus(*payload);
+        processSubBlockStatus_(m_subBlockHeader.crate(), m_subBlockHeader.module(), *payload);
         subBlock = 0;
       }
     } else {
@@ -283,14 +291,14 @@ StatusCode PpmByteStreamReadV1V2Tool::processRobFragment_(
 
 StatusCode PpmByteStreamReadV1V2Tool::processPpmWord_(uint32_t word,
     int indata) {
-  if ( (m_subBlockHeader.format() == 0) 
-      || (m_subBlockHeader.format() >= 2) 
+  if ( (m_subBlockHeader.format() == 0)
+      || (m_subBlockHeader.format() >= 2)
       || (m_verCode >= 0x41)) {
     m_ppBlock.push_back(word);
   } else if ((m_verCode == 0x21) || (m_verCode == 0x31)) {
     return processPpmStandardR3V1_(word, indata);
   } else {
-    ATH_MSG_ERROR("Unsupported PPM version:format (" 
+    ATH_MSG_ERROR("Unsupported PPM version:format ("
       << m_verCode << ":" << m_subBlockHeader.format()
       <<") combination");
     return StatusCode::FAILURE;
@@ -332,10 +340,10 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmBlock_() {
       CHECK(sc);
       return sc;
     }
-    ATH_MSG_ERROR("Unknown PPM subheader format '" 
-      << int(m_subBlockHeader.format()) 
+    ATH_MSG_ERROR("Unknown PPM subheader format '"
+      << int(m_subBlockHeader.format())
       << "' for rob version '"
-      << MSG::hex << int(m_verCode) 
+      << MSG::hex << int(m_verCode)
       << MSG::dec << "'" );
     return StatusCode::FAILURE;
   }
@@ -362,8 +370,8 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmNeutral_() {
 
       bool nonZeroData = false;
       for (uint8_t slice = 0; slice < numLut; ++slice) {
-        if (rotated[slice] 
-            || rotated[slice + numLut] 
+        if (rotated[slice]
+            || rotated[slice + numLut]
             || rotated[slice + 2 * numLut + numFadc]) { // CP, JET
           nonZeroData = true;
           break;
@@ -385,7 +393,7 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmNeutral_() {
           lcpVal.push_back(rotated[slice] & 0xff);
           ljeVal.push_back(rotated[slice + numLut] & 0xff);
           pedCor.push_back(::pedCorrection(rotated[slice + 2 * numLut + numFadc] & 0x3ff));
-          
+
           lcpBcidVec.push_back((rotated[slice] >> 8) & 0x7);
           ljeSat80Vec.push_back((rotated[slice + numLut] >> 8) & 0x7);
           pedEn.push_back((rotated[slice + 2 * numLut + numFadc] >> 10) & 0x1);
@@ -433,8 +441,8 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmCompressedR3V1_() {
     while (chan < 64) {
       uint8_t present = 1;
       if (m_subBlockHeader.format() == 3) {
-        present = getPpmBytestreamField_(1); 
-      } 
+        present = getPpmBytestreamField_(1);
+      }
 
       if (present == 1) {
         uint8_t lutVal = 0;
@@ -504,7 +512,7 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmCompressedR3V1_() {
   }catch (const std::out_of_range& ex) {
       ATH_MSG_WARNING("Excess Data in Sub-block");
       m_errorTool->rodError(m_rodSourceId, L1CaloSubBlock::UNPACK_EXCESS_DATA);
-  } 
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -548,7 +556,7 @@ std::vector<uint16_t> PpmByteStreamReadV1V2Tool::getPpmAdcSamplesR3_(
 StatusCode PpmByteStreamReadV1V2Tool::processPpmStandardR3V1_(uint32_t word,
     int inData){
 
-  StatusCode sc;
+  StatusCode sc = StatusCode::SUCCESS;
   if (m_subBlockHeader.seqNum() == 63) { // Error block
     ATH_MSG_DEBUG("Error PPM subblock");
     //TODO: errorTool
@@ -559,7 +567,7 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmStandardR3V1_(uint32_t word,
     const uint8_t wordsPerBlock = 8; // 16 towers (4 MCMs) / 2 per word
     const uint8_t iBlk =  inData / wordsPerBlock;
     uint8_t iChan =  m_subBlockHeader.seqNum() + 2 * (inData % wordsPerBlock);
-    
+
     if (iBlk < numLut) { // First all LUT values
       for(uint8_t i = 0; i < 2; ++i) {
         uint16_t subword = (word >> 16 * i) & 0x7ff;
@@ -572,12 +580,12 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmStandardR3V1_(uint32_t word,
         m_ppFadcs[iChan].push_back(subword);
         iChan++;
       }
-    
+
     } else{
       ATH_MSG_WARNING("Error decoding Ppm word (run1)");
       sc = StatusCode::FAILURE;
     }
- 
+
   }
   return sc;
 }
@@ -587,7 +595,6 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmBlockR4V1_() {
     CHECK(processPpmStandardR4V1_());
     return StatusCode::SUCCESS;
   } else if (m_subBlockHeader.format() >= 2) {
-    // TODO: convert compressed
     CHECK(processPpmCompressedR4V1_());
     return StatusCode::SUCCESS;
   }
@@ -609,19 +616,19 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmCompressedR4V1_() {
   // }
 
   try{
-    for(uint8_t chan = 0; chan < 64; ++chan) {
+    for(uint8_t chan = 0; chan < s_channels; ++chan) {
       uint8_t present = 1;
 
       std::vector<uint8_t> haveLut(numLut, 0);
       std::vector<uint8_t> lcpVal(numLut, 0);
-      
+
       std::vector<uint8_t> lcpExt(numLut, 0);
       std::vector<uint8_t> lcpSat(numLut, 0);
       std::vector<uint8_t> lcpPeak(numLut, 0);
       std::vector<uint8_t> lcpBcidVec(numLut, 0);
-      
+
       std::vector<uint8_t> ljeVal(numLut, 0);
-      
+
       std::vector<uint8_t> ljeLow(numLut, 0);
       std::vector<uint8_t> ljeHigh(numLut, 0);
       std::vector<uint8_t> ljeRes(numLut, 0);
@@ -631,7 +638,7 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmCompressedR4V1_() {
       std::vector<uint8_t> adcExt(numAdc, 0);
       std::vector<int16_t> pedCor(numLut, 0);
       std::vector<uint8_t> pedEn(numLut, 0);
-  
+
       int8_t encoding = -1;
       int8_t minIndex = -1;
 
@@ -666,9 +673,9 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmCompressedR4V1_() {
                 ljeVal[i] = getPpmBytestreamField_(3);
               }
             }
-          }            
+          }
         } else if (encoding < 6) {
-          // Get LUT presence flag for each LUT slice. 
+          // Get LUT presence flag for each LUT slice.
           for(uint8_t i = 0; i < numLut; ++i){
             haveLut[i] = getPpmBytestreamField_(1);
           }
@@ -681,7 +688,7 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmCompressedR4V1_() {
               adcExt[i] = getPpmBytestreamField_(1);
             }
           }
-          
+
           for(uint8_t i = 0; i < numLut; ++i){
             if (haveLut[i] == 1) {
               lcpVal[i] = getPpmBytestreamField_(8);
@@ -690,7 +697,7 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmCompressedR4V1_() {
               lcpPeak[i] = getPpmBytestreamField_(1);
             }
           }
-          // Get JEP LUT values and corresponding bits.         
+          // Get JEP LUT values and corresponding bits.
           for(uint8_t i = 0; i < numLut; ++i){
             if (haveLut[i] == 1) {
               ljeVal[i] = getPpmBytestreamField_(8);
@@ -699,7 +706,7 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmCompressedR4V1_() {
               ljeRes[i] = getPpmBytestreamField_(1);
             }
           }
-  
+
         }
 
       }
@@ -728,7 +735,7 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmCompressedR4V1_() {
 
     for(uint8_t i=0; i < numLut; ++i){
       lcpBcidVec[i] = uint8_t((lcpPeak[i] << 2) | (lcpSat[i] << 1) | lcpExt[i]);
-      ljeSat80Vec[i] = uint8_t((ljeRes[i] << 2) | (ljeHigh[i] << 1) | ljeLow[i]); 
+      ljeSat80Vec[i] = uint8_t((ljeRes[i] << 2) | (ljeHigh[i] << 1) | ljeLow[i]);
     }
     CHECK(addTriggerTowerV2_(m_subBlockHeader.crate(), m_subBlockHeader.module(),
                              chan,
@@ -736,11 +743,12 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmCompressedR4V1_() {
                              std::move(ljeVal), std::move(ljeSat80Vec),
                              std::move(adcVal), std::move(adcExt),
                              std::move(pedCor), std::move(pedEn)));
-    }
+    } // for
   } catch (const std::out_of_range& ex) {
       ATH_MSG_WARNING("Excess Data in Sub-block");
       m_errorTool->rodError(m_rodSourceId, L1CaloSubBlock::UNPACK_EXCESS_DATA);
   }
+  //Check status workd
   return StatusCode::SUCCESS;
 
 }
@@ -751,7 +759,7 @@ void PpmByteStreamReadV1V2Tool::interpretPpmHeaderR4V1_(uint8_t numAdc,
 
   if (numAdc == 5) {
     minHeader = getPpmBytestreamField_(4);
-    //ATH_MSG_DEBUG("SASHA: minHeader=" << int(minHeader));
+
     minIndex = minHeader % 5;
     if (minHeader < 15){ // Encodings 0-5
       if (minHeader < 10) {
@@ -778,7 +786,7 @@ void PpmByteStreamReadV1V2Tool::interpretPpmHeaderR4V1_(uint8_t numAdc,
         uint8_t encValue = fieldSize - 1;
         if (minHeader == encValue) { // Encoding 6
           encoding = 6;
-          minIndex = 0; 
+          minIndex = 0;
         } else {
           minHeader += getPpmBytestreamField_(2) << numBits;
           minIndex = minHeader % fieldSize;
@@ -807,15 +815,15 @@ std::vector<uint16_t> PpmByteStreamReadV1V2Tool::getPpmAdcSamplesR4_(
     adc[minIndex] = minAdc;
     for(uint8_t i = 1; i < numAdc; ++i) {
       adc[i == minIndex? 0: i] = getPpmBytestreamField_(encoding + 2) + minAdc;
-    } 
-    return adc;   
+    }
+    return adc;
   } else {
     std::vector<uint16_t> adc(numAdc, 0);
     uint16_t minAdc = getPpmBytestreamField_(1)
                       ? getPpmBytestreamField_(encoding * 2)
-                      : (getPpmBytestreamField_(5) + 
+                      : (getPpmBytestreamField_(5) +
                           m_caloUserHeader.ppLowerBound());
- 
+
     adc[minIndex] = minAdc;
     for (uint8_t i = 1; i < numAdc; ++i) {
       adc[minIndex == i? 0: i] = getPpmBytestreamField_(
@@ -848,6 +856,7 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmStandardR4V1_() {
   m_ppMaxBit = 31 * m_ppBlock.size();
 
   for (uint8_t chan = 0; chan < 64; ++chan) {
+
     //for (uint8_t k = 0; k < 4; ++k) {
     std::vector<uint8_t> lcpVal;
     std::vector<uint8_t> lcpBcidVec;
@@ -900,7 +909,7 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmStandardR4V1_() {
 StatusCode PpmByteStreamReadV1V2Tool::processPpmStandardR3V1_() {
     for(auto lut : m_ppLuts) {
       CHECK(addTriggerTowerV1_(
-        m_subBlockHeader.crate(), 
+        m_subBlockHeader.crate(),
         m_subBlockHeader.module(),
         lut.first,
         lut.second,
@@ -908,6 +917,26 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmStandardR3V1_() {
     }
     return StatusCode::SUCCESS;
 }
+
+void PpmByteStreamReadV1V2Tool::processSubBlockStatus_(uint8_t crate, uint8_t module, uint32_t payload){
+  LVL1::DataError errorBits(0);
+  errorBits.set(LVL1::DataError::SubStatusWord, payload);
+
+  const uint32_t error = errorBits.error();
+  int curr = m_triggerTowers->size() - 1;
+  for(int i=0; i < s_channels; ++i){
+    if (curr < 0){
+      break;
+    }
+    auto tt = (*m_triggerTowers)[curr--];
+    if (tt->coolId() >> 16 & crateModuleMask(crate, module)){
+      tt->setErrorWord(error);
+    }else{
+      break;
+    }
+  }
+}
+
 
 StatusCode PpmByteStreamReadV1V2Tool::addTriggerTowerV2_(
     uint8_t crate,
@@ -922,52 +951,34 @@ StatusCode PpmByteStreamReadV1V2Tool::addTriggerTowerV2_(
     std::vector<int16_t>&& pedCor,
     std::vector<uint8_t>&& pedEn) {
 
+  uint32_t coolId = ::coolId(crate, module, channel);
+
   int layer = 0;
-  int error = 0;
   double eta = 0.;
   double phi = 0.;
-  
-  bool isNotSpare = m_ppmMaps->mapping(crate, module, channel, eta, phi, layer);
-  if (!isNotSpare && !m_ppmIsRetSpare && !m_ppmIsRetMuon){
+
+  bool isData = m_ppmMaps->mapping(crate, module, channel, eta, phi, layer);
+
+  if (!isData && !m_ppmIsRetSpare && !m_ppmIsRetMuon){
     return StatusCode::SUCCESS;
   }
 
-  if (!isNotSpare) {
+  if (!isData) {
     const int pin  = channel % 16;
     const int asic = channel / 16;
     eta = 16 * crate + module;
     phi = 4 * pin + asic;
   }
 
-  uint32_t coolId = ::coolId(crate, module, channel);
-  CHECK(m_coolIds.count(coolId) == 0);
-  m_coolIds.insert(coolId);
-
   xAOD::TriggerTower* tt = new xAOD::TriggerTower();
   m_triggerTowers->push_back(tt);
-  // tt->initialize(
-  //         const uint_least32_t& coolId,
-  //         const uint_least8_t& layer,
-  //         const float& eta,
-  //         const float& phi,
-  //         const std::vector<uint_least8_t>& lut_cp,
-  //         const std::vector<uint_least8_t>& lut_jep,
-  //         const std::vector<int_least16_t>& correction,
-  //         const std::vector<uint_least8_t>& correctionEnabled,
-  //         const std::vector<uint_least8_t>& bcidVec,
-  //         const std::vector<uint_least16_t>& adc,
-  //         const std::vector<uint_least8_t>& bcidExt,
-  //         const std::vector<uint_least8_t>& sat80, 
-  //         const uint_least16_t& error,
-  //         const uint_least8_t& peak,
-  //         const uint_least8_t& adcPeak
-  // );
+
   tt->initialize(coolId, eta, phi,
                  std::move(lcpVal), std::move(ljeVal),
                  std::move(pedCor), std::move(pedEn),
                  std::move(lcpBcidVec), std::move(adcVal),
                  std::move(adcExt), std::move(ljeSat80Vec),
-                 error, m_caloUserHeader.lut(),
+                 0, m_caloUserHeader.lut(),
       m_caloUserHeader.ppFadc());
   return StatusCode::SUCCESS;
 }
@@ -1033,7 +1044,7 @@ StatusCode PpmByteStreamReadV1V2Tool::addTriggerTowerV1_(
 
 const std::vector<uint32_t>& PpmByteStreamReadV1V2Tool::ppmSourceIDs(
   const std::string& sgKey) {
-  
+
   const int crates = 8;
   m_ppmIsRetMuon = false;
   m_ppmIsRetSpare =  false;
@@ -1043,7 +1054,7 @@ const std::vector<uint32_t>& PpmByteStreamReadV1V2Tool::ppmSourceIDs(
   } else if (sgKey.find("Spare") != std::string::npos) {
     m_ppmIsRetSpare = true;
   }
-  
+
   if (m_ppmSourceIDs.empty()) {
     for (int crate = 0; crate < crates; ++crate) {
       for (int slink = 0; slink < m_srcIdMap->maxSlinks(); ++slink) {
@@ -1091,12 +1102,6 @@ uint32_t PpmByteStreamReadV1V2Tool::getPpmBytestreamField_(const uint8_t numBits
       uint32_t field2 = ::bitFieldSize(m_ppBlock[iWord + 1], 0, nb2);
       result = field1 | (field2 << nb1);
     }
-
-    // std::bitset<32> r(result);
-    // for(size_t i = 0; i < numBits; ++i) {
-    //   std::cout << int(r[i]);
-    // }
-    // std::cout << " " << result << std::endl;
 
     return result;
   }
