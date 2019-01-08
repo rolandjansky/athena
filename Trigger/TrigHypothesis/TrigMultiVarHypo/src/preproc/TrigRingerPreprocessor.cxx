@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-
-
 ///Local include(s)
-#include "TrigMultiVarHypo/preprocessor/TrigRingerPreprocessor.h"
-#include "TrigMultiVarHypo/preprocessor/TrigRingerHelper.h"
+#include "TrigMultiVarHypo/preproc/TrigRingerPreprocessor.h"
+#include "TrigMultiVarHypo/tools/TrigRingerHelper.h"
 ///std library(s)
 #include <numeric>
 #include <cmath>
@@ -172,7 +170,6 @@ void TrigRingerPreprocessor::normalize_rings(std::vector<RingSet*> &rset) {
 }
 //!======================================================================================
 bool TrigRingerPreprocessor::ppExecute( Pattern& rings) {
-
   // vector rings 2 RingSets
   unsigned ridx = 0;
   for (auto& jt : m_ringsSet){
@@ -192,6 +189,25 @@ bool TrigRingerPreprocessor::ppExecute( Pattern& rings) {
   for (auto& jt : m_ringsSet) rings.insert(rings.end(), jt->pattern().begin(), jt->pattern().end());
   return true;
 }
+//!======================================================================================
+float TrigRingerPreprocessor::normalize_eta( float eta, float etamin, float etamax ){
+  int s = eta >= 0 ? 1 : -1;
+  return ((std::abs(eta)-etamin) * s)/(etamax-etamin);
+}
+//!======================================================================================
+float TrigRingerPreprocessor::normalize_mu(float mu, float mumax ){
+  if(mu>mumax)
+    mu=mumax;
+  return (mu/mumax);
+}
+
+
+
+
+
+
+
+
 
 
 

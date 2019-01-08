@@ -1,5 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon                                                 import CfgMgr
 from AthenaCommon.AppMgr                                          import ToolSvc
@@ -18,9 +17,7 @@ ElectronPidTools()
 PhotonPidTools()
 #***********************************************************************
 
-# Track isolation -- remember to add TrackIsolation as a property of the class
-#from IsolationTool.IsolationToolConf import xAOD__CaloIsolationTool,xAOD__TrackIsolationTool
-#TrackIsolationTool = ToolFactory(xAOD__TrackIsolationTool, name = 'TrigEgammaTrackIsolationTool')
+
 #TrkIsoCfg = CfgMgr.xAOD__TrackIsolationTool('TrigEgammaTrackIsolationTool')
 #TrkIsoCfg.TrackSelectionTool.maxZ0SinTheta = 3.
 #TrkIsoCfg.TrackSelectionTool.minPt = 1000.
@@ -30,8 +27,8 @@ PhotonPidTools()
 # EFCalo
 from TrigEgammaEmulationTool.TrigEgammaEmulationToolConf import Trig__TrigEgammaEFCaloSelectorTool
 EgammaEFCaloDefaultEmulator = ToolFactory( Trig__TrigEgammaEFCaloSelectorTool,
-                                           name="TrigEgammaEFCaloEmulator",
-                                           OutputLevel=OutputLevel,
+                                           name                   = "TrigEgammaEFCaloEmulator",
+                                           OutputLevel            = OutputLevel,
                                            ElectronCaloPPSelector = [ ToolSvc.AsgElectronIsEMTightCaloSelector,
                                                                       ToolSvc.AsgElectronIsEMMediumCaloSelector,
                                                                       ToolSvc.AsgElectronIsEMLooseCaloSelector,
@@ -42,10 +39,13 @@ EgammaEFCaloDefaultEmulator = ToolFactory( Trig__TrigEgammaEFCaloSelectorTool,
                                                                       ToolSvc.AsgElectronLHVLooseCaloSelector])
 
 # EF Electron
+from TrigEgammaEmulationTool.TrigEgammaEmulationIsolationConfig import createIsoToolElectronSelector
+IsolationSelectors =  createIsoToolElectronSelector()
+
 from TrigEgammaEmulationTool.TrigEgammaEmulationToolConf import Trig__TrigEgammaEFElectronSelectorTool
 EgammaEFElectronDefaultEmulator = ToolFactory( Trig__TrigEgammaEFElectronSelectorTool,
-                                               name                   ="TrigEgammaEFElectronDefaultEmulator",
-                                               OutputLevel            =OutputLevel,
+                                               name                   = "TrigEgammaEFElectronDefaultEmulator",
+                                               OutputLevel            = OutputLevel,
                                                ElectronOnlPPSelector  = [ ToolSvc.AsgElectronIsEMTightSelector,
                                                                           ToolSvc.AsgElectronIsEMMediumSelector,
                                                                           ToolSvc.AsgElectronIsEMLooseSelector,
@@ -55,13 +55,7 @@ EgammaEFElectronDefaultEmulator = ToolFactory( Trig__TrigEgammaEFElectronSelecto
                                                                           ToolSvc.AsgElectronLHLooseSelector,
                                                                           ToolSvc.AsgElectronLHVLooseSelector,
                                                                           ],
-                                               EtConeSizes            = 3,
-                                               RelEtConeCut           = [-1, -1, -1],
-                                               EtConeCut              = [-1, -1, -1],
-                                               PtConeSizes            = 6,
-                                               RelPtConeCut_var       = [-1, -1, -1,0.100,-1,-1], #ivarloose
-                                               RelPtConeCut           = [0.100, -1, -1,-1,-1,-1], #iloose
-                                               PtConeCut              = [-1, -1, -1,-1,-1,-1],
+                                               IsolationSelector          = IsolationSelectors,
                                                )
 
 # The following can be left as an example, please remove the remaining ones.
@@ -69,8 +63,9 @@ EgammaEFElectronDefaultEmulator = ToolFactory( Trig__TrigEgammaEFElectronSelecto
 # i.e. the seletion for EF electrons. In this case, change the tools which are used
 # Do not extend the emulator to do "everything"
 EgammaEFElectronCutD0DphiDetaEmulator = EgammaEFElectronDefaultEmulator.copy(
-                                        name="TrigEgammaEFElectronCutD0DphiDetaEmulator",
-                                        LikelihoodInfo = "cutd0dphideta",
+                                        name                   = "TrigEgammaEFElectronCutD0DphiDetaEmulator",
+                                        LikelihoodInfo         = "cutd0dphideta",
+                                        OutputLevel            = OutputLevel,
                                         ElectronOnlLHSelector  = [ ToolSvc.AsgElectronLHTightCutD0DphiDetaSelector,
                                                                    ToolSvc.AsgElectronLHMediumCutD0DphiDetaSelector,
                                                                    ToolSvc.AsgElectronLHLooseCutD0DphiDetaSelector,
@@ -79,6 +74,7 @@ EgammaEFElectronCutD0DphiDetaEmulator = EgammaEFElectronDefaultEmulator.copy(
 EgammaEFElectronNoD0Emulator = EgammaEFElectronDefaultEmulator.copy(
                                name="TrigEgammaEFElectronNoD0Emulator",
                                LikelihoodInfo = "nod0",
+                               OutputLevel            = OutputLevel,
                                ElectronOnlLHSelector  = [ ToolSvc.AsgElectronLHTightNoD0Selector,
                                                           ToolSvc.AsgElectronLHMediumNoD0Selector,
                                                           ToolSvc.AsgElectronLHLooseNoD0Selector,
@@ -87,6 +83,7 @@ EgammaEFElectronNoD0Emulator = EgammaEFElectronDefaultEmulator.copy(
 EgammaEFElectronNoDetaEmulator = EgammaEFElectronDefaultEmulator.copy(
                                  name="TrigEgammaEFElectronNoDetaEmulator",
                                  LikelihoodInfo = "deta",
+                                 OutputLevel            = OutputLevel,
                                  ElectronOnlLHSelector  = [ ToolSvc.AsgElectronLHTightNoDetaSelector,
                                                             ToolSvc.AsgElectronLHMediumNoDetaSelector,
                                                             ToolSvc.AsgElectronLHLooseNoDetaSelector,
@@ -95,6 +92,7 @@ EgammaEFElectronNoDetaEmulator = EgammaEFElectronDefaultEmulator.copy(
 EgammaEFElectronNoDphiResEmulator = EgammaEFElectronDefaultEmulator.copy(
                                     name="TrigEgammaEFElectronNoDphiResEmulator",
                                     LikelihoodInfo = "nodphires",
+                                    OutputLevel            = OutputLevel,
                                     ElectronOnlLHSelector  = [ ToolSvc.AsgElectronLHTightNoDphiResSelector,
                                                                ToolSvc.AsgElectronLHMediumNoDphiResSelector,
                                                                ToolSvc.AsgElectronLHLooseNoDphiResSelector,
@@ -103,12 +101,12 @@ EgammaEFElectronNoDphiResEmulator = EgammaEFElectronDefaultEmulator.copy(
 EgammaEFElectronSmoothEmulator = EgammaEFElectronDefaultEmulator.copy(
                                  name="TrigEgammaEFElectronSmoothEmulator",
                                  LikelihoodInfo = "smooth",
+                                 OutputLevel            = OutputLevel,
                                  ElectronOnlLHSelector  = [ ToolSvc.AsgElectronLHTightSmoothSelector,
                                                             ToolSvc.AsgElectronLHMediumSelector,
                                                             ToolSvc.AsgElectronLHLooseSelector,
                                                             #ToolSvc.AsgElectronLHVeryLooseSelector,
                                                            ])
-
 
 #*****************************************************************************
 # EF Photon

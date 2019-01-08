@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -12,30 +12,33 @@
 
 
 ///Local include(s)
-#include "TrigMultiVarHypo/discriminator/MultiLayerPerceptron.h"
+#include "TrigMultiVarHypo/tools/MultiLayerPerceptron.h"
 
 ///std library(s)
 #include <cstddef>
 #include <vector>
 #include <cmath>
 
-MultiLayerPerceptron::MultiLayerPerceptron(const std::vector<unsigned int> &n, 
-                                           const std::vector<REAL> &w, 
-                                           const std::vector<REAL> &b,
-                                           REAL th, 
+MultiLayerPerceptron::MultiLayerPerceptron(std::vector<unsigned int> &n, 
+                                           std::vector<REAL> &w, 
+                                           std::vector<REAL> &b,
                                            REAL etmin, 
                                            REAL etmax, 
                                            REAL etamin, 
-                                           REAL etamax)
+                                           REAL etamax,
+                                           REAL mumin,
+                                           REAL mumax)
   : m_nodes(n),
     m_weights(0),
     m_bias(0),
     m_layerOutputs(0),
-    m_threshold(th),
+    m_neuronOutputs(0),
     m_etmin(etmin),
     m_etmax(etmax),
     m_etamin(etamin),
-    m_etamax(etamax)
+    m_etamax(etamax),
+    m_mumin(mumin),
+    m_mumax(mumax)
 {
   if ( !n.size() )  throw BAD_BIAS_SIZE; //Nothing to do
   
@@ -54,22 +57,25 @@ MultiLayerPerceptron::MultiLayerPerceptron(const std::vector<unsigned int> &n,
   //First weight dimension
   try{
     m_weights = new REAL **[n.size()-1]; //number of layers excluding input
-  }catch (const std::bad_alloc& xa){
+  }catch (std::bad_alloc xa){
     m_weights = nullptr;
     throw;
   }
   //First bias dimension
   try{    
     m_bias = new REAL *[n.size()-1]; //number of layers excluding input
-  }catch (const std::bad_alloc& xa){
+  }catch (std::bad_alloc xa){
     m_bias = nullptr;
     throw;    
   }
+
   //First multiplication dimension
   try{
+    m_neuronOutputs   = new REAL *[n.size()];
     m_layerOutputs = new REAL *[n.size()]; //number of layers including input
-  } catch (const std::bad_alloc& xa){
-    m_layerOutputs = nullptr;    
+  } catch (std::bad_alloc xa){
+    m_layerOutputs = nullptr; 
+    m_neuronOutputs   = nullptr;
     throw;
   }
 
@@ -79,12 +85,24 @@ MultiLayerPerceptron::MultiLayerPerceptron(const std::vector<unsigned int> &n,
       try{
         //Second and last dimension of layerOutputs
         m_layerOutputs[l] = new REAL[n[l]]; //number of nodes in current layer
-      } catch (const std::bad_alloc& xa){
+      } catch (std::bad_alloc xa){
         m_layerOutputs[l] = nullptr;
         throw;
       }
     }
+
+    //Checks if no bad_alloc happened to layerOutputs
+    if(m_neuronOutputs){
+      try{
+        //Second and last dimension of layerOutputs
+        m_neuronOutputs[l] = new REAL[n[l]]; //number of nodes in current layer
+      } catch (std::bad_alloc xa){
+        m_neuronOutputs[l] = nullptr;
+        throw;
+      }
+    }
   }
+
   std::vector<REAL>::const_iterator itrB = b.begin();
   std::vector<REAL>::const_iterator itrW = w.begin();
   for (unsigned l = 0; l < n.size()-1; ++l){  
@@ -93,7 +111,7 @@ MultiLayerPerceptron::MultiLayerPerceptron(const std::vector<unsigned int> &n,
       try{
         //Second and last dimension of bias
         m_bias[l] = new REAL[n[l+1]]; //number of nodes in next layer
-      } catch (const std::bad_alloc& xa){
+      } catch (std::bad_alloc xa){
         m_bias[l] = nullptr;
         throw;
       }
@@ -103,7 +121,7 @@ MultiLayerPerceptron::MultiLayerPerceptron(const std::vector<unsigned int> &n,
       try{
         //Second dimension of weights
         m_weights[l] = new REAL*[n[l+1]]; //number of nodes in next layer
-      } catch (const std::bad_alloc& xa){
+      } catch (std::bad_alloc xa){
         m_weights[l] = nullptr;
         throw;
       }
@@ -115,7 +133,7 @@ MultiLayerPerceptron::MultiLayerPerceptron(const std::vector<unsigned int> &n,
           try{
             //Third and last dimension of weights
             m_weights[l][i]=new REAL [n[l]]; //number of nodes in current layer
-          } catch (const std::bad_alloc& xa){
+          } catch (std::bad_alloc xa){
             m_weights[l][i] = nullptr;
             throw;
           }
@@ -146,6 +164,11 @@ MultiLayerPerceptron::MultiLayerPerceptron(const std::vector<unsigned int> &n,
       if (m_layerOutputs){
         if (m_layerOutputs[l]){
           m_layerOutputs[l][i]=0;
+        }
+      }
+      if (m_neuronOutputs){
+        if (m_neuronOutputs[l]){
+          m_neuronOutputs[l][i]=0;
         }
       }
     }   
@@ -222,9 +245,23 @@ float MultiLayerPerceptron::propagate(std::vector<float> &input){
     for(unsigned i=0; i<m_nodes[l+1]; i++){
       m_layerOutputs[l+1][i]=m_bias[l][i];
       for (unsigned j=0;j<m_nodes[l]; j++)  m_layerOutputs[l+1][i]+=m_layerOutputs[l][j]*m_weights[l][i][j];
-      m_layerOutputs[l+1][i]=tanh(m_layerOutputs[l+1][i]);
+      m_neuronOutputs[l+1][i] = m_layerOutputs[l+1][i]; // Hold the sum neuron output before apply the activation function
+      m_layerOutputs[l+1][i]  = tanh(m_layerOutputs[l+1][i]);
     }
   }
   return (float)(m_layerOutputs[m_nodes.size()-1][0]);
 }
+
+float MultiLayerPerceptron::getOutput(){
+  return (float)(m_layerOutputs[m_nodes.size()-1][0]);
+}
+
+float MultiLayerPerceptron::getOutputBeforeTheActivationFunction(){
+  return (float)(m_neuronOutputs[m_nodes.size()-1][0]);
+}
+
+
+
+
+
 
