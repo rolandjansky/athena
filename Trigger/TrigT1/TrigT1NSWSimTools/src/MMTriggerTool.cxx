@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // local includes
@@ -12,23 +12,15 @@
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
-
-
-
 //Event info includes
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
 // Muon software includes
+#include "MuonDigitContainer/MmDigit.h"
 
-// random numbers
-#include "AthenaKernel/IAtRndmGenSvc.h"
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGauss.h"
-
-// local includes
+// ROOT includes
 #include "TTree.h"
-#include "TVector3.h"
 
 
 namespace NSWL1 {
@@ -39,18 +31,12 @@ namespace NSWL1 {
     m_detManager(0),
     m_MmIdHelper(0),
     m_MmDigitContainer(""),
-    m_MmSdoContainer(""),
     m_doNtuple(false),
     m_tree(0)
   {
     declareInterface<NSWL1::IMMTriggerTool>(this);
     declareProperty("MM_DigitContainerName", m_MmDigitContainer = "MM_DIGITS", "the name of the MM digit container");
-    declareProperty("MM_SdoContainerName"  , m_MmSdoContainer = "MM_SDO", "the name of the MM SDO container");
-    declareProperty("MM_HitContainerName"  , m_MmHitContainer = "MicromegasSensitiveDetector", "the name of the MM hits container");
     declareProperty("DoNtuple", m_doNtuple = true, "input the MMStripTds branches into the analysis ntuple");
-    declareProperty("Truth_ContainerName", m_Truth_ContainerName="TruthEvent","name of truth container");
-    declareProperty("MuonEntryLayer_ContainerName", m_MuEntry_ContainerName="MuonEntryLayer", "name of muon entry container");
-
   }
 
   MMTriggerTool::~MMTriggerTool() {
@@ -62,9 +48,7 @@ namespace NSWL1 {
     ATH_MSG_INFO( "initializing -- " << name() );
 
     ATH_MSG_INFO( name() << " configuration:");
-    //ATH_MSG_INFO(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_rndmEngineName.name() << m_rndmEngineName.value());
     ATH_MSG_INFO(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_MmDigitContainer.name() << m_MmDigitContainer.value());
-    ATH_MSG_INFO(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_MmSdoContainer.name() << m_MmSdoContainer.value());
     ATH_MSG_INFO(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_doNtuple.name() << ((m_doNtuple)? "[True]":"[False]")
                      << setfill(' ') << setiosflags(ios::right) );
 
@@ -118,7 +102,6 @@ namespace NSWL1 {
     const par_par xxuvuvxx=par_par(0.0009,4,4,0.007,"xxuvuvxx",true,true); //.0035 for uv_tol before...
     const par_par xxuvuvxx_uvroads=par_par(0.0009,4,4,0.0035,"xxuvuvxx",true,true); //.0035 for uv_tol before...
 
-    // par_par pars=dlm;
     m_par_large = new MMT_Parameters(xxuvuvxx,'L', m_detManager); // Need to figure out where to delete this!! It's needed once per run
     m_par_small = new MMT_Parameters(xxuvuvxx,'S', m_detManager); // Need to figure out where to delete this!! It's needed once per run
 
@@ -167,12 +150,9 @@ namespace NSWL1 {
       double trueta = truth_info.eta_ip;
       double trupt = truth_info.pt;
 
-      // evInf_entry truth_info(Event_Info.find(pevt->event_ID()->event_number())->second);
-
       double tent=truth_info.theta_ent;
       double tpos=truth_info.theta_pos;
       double ppos=truth_info.phi_pos;
-      // double pent=truth_info.phi_ent;
       double dt=truth_info.dtheta;
       m_trigger_trueThe->push_back(tent);
       m_trigger_truePhi->push_back(ppos);
@@ -236,7 +216,6 @@ namespace NSWL1 {
         //First loop over the roads and planes and apply the fitter
         int fits_occupied=0;
         const int nfit_max=1;  //MOVE THIS EVENTUALLY
-        // int correct_bcid=2;    //THIS TOO
         int nRoads = m_find.get_roads();
 
         vector<evFit_entry> road_fits = vector<evFit_entry>(nRoads,evFit_entry());
@@ -288,7 +267,6 @@ namespace NSWL1 {
         //////////////////////////////////////////////////////////////
 
 
-        // bool did_clean_fit=false,did_bg_fit=false,has_6hits=false;
         if(road_fits.size()==0 and hitDatas.size()==8 ) {
           ATH_MSG_DEBUG( "TruthRF0 " << tpos     << " " << ppos   << " " << dt << " " << trueta );
         }

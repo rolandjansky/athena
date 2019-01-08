@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MMFPGAOFFLINETOOL_H
@@ -18,12 +18,7 @@
 
 //forward declarations
 class IIncidentSvc;
-class IAtRndmGenSvc;
 class TTree;
-
-namespace CLHEP {
-  class HepRandomEngine;
-}
 
 // namespace for the NSW LVL1 related classes
 namespace NSWL1 {
@@ -82,8 +77,6 @@ namespace NSWL1 {
 
     // needed Servives, Tools and Helpers
     ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
-    ServiceHandle< IAtRndmGenSvc >     m_rndmSvc;           //!< Athena random number service
-    CLHEP::HepRandomEngine*            m_rndmEngine;        //!< Random number engine
 
     // hidden variables
     std::vector< std::vector<MMCandidateData*> > 
@@ -92,18 +85,15 @@ namespace NSWL1 {
     int     m_mmcandidate_cache_eventNumber;                //!< event number associated to the current MM Strip cache
     cStatus m_mmcandidate_cache_status[32];                 //!< status of the current cache
 
-    
-
-    // properties: container and service names
-    StringProperty   m_rndmEngineName;                      //!< property, see @link MMStripTdsOfflineTool::MMStripTdsOfflineTool @endlink
-    BooleanProperty  m_doNtuple;                            //!< property, see @link MMStripTdsOfflineTool::MMStripTdsOfflineTool @endlink
-
+    //properties
+    BooleanProperty  m_doNtuple;
 
     // analysis ntuple
     TTree* m_tree;                                          //!< ntuple for analysis
 
     // analysis variable to be put into the ntuple
     int  m_nMMCandidates;                                   //!< number of Candidates delivered
+
 
   };  // end of MMFPGAOfflineTool class
 
