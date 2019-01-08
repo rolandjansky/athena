@@ -8,7 +8,8 @@
 #include "TrigSerializeResult/StringSerializer.h"
 #include "TriggerEDMDeserialiserAlg.h"
 #include "BareDataBucket.h"
-
+#include "TBufferFile.h"
+#include "TClass.h"
 
 
 
@@ -26,6 +27,7 @@ StatusCode TriggerEDMDeserialiserAlg::initialize()
   ATH_CHECK( m_resultKey.initialize() );
   ATH_CHECK( m_clidSvc.retrieve() );
   ATH_CHECK( m_serializerSvc.retrieve() );
+  
   return StatusCode::SUCCESS;
 }
 
@@ -63,13 +65,14 @@ StatusCode TriggerEDMDeserialiserAlg::execute(const EventContext& context) const
     const size_t bsize{ dataSize( start ) };
     std::string transientType;
     ATH_CHECK( m_clidSvc->getTypeNameOfID( clid, transientType ) );
-    ATH_MSG_DEBUG( "fragment: clid, name, size " << clid << " " << transientType<< "#" << name << " " << bsize );
+    const std::string actualTypeName{ name.substr(0, name.find('#')) };
+    const std::string key{ name.substr( name.find('#') ) };
+        
+    ATH_MSG_DEBUG( "fragment: clid, type, key, size " << clid << " " << transientType<< " " << actualTypeName << " " << key << " " << bsize );
     resize( bsize );
     toBuffer( start, buff.get() );
-
-    /* TODO find out how to read the type informatin that is encoded in the payload, we will need to have less configuration, and thus more robust decoding
-       // this code is commented but will be used once this one bit is understood
-    RootType classDesc = RootType::ByName( transientType+"_v1" );
+        
+    RootType classDesc = RootType::ByName( actualTypeName );
     size_t usedBytes{ bsize };
     void* obj = m_serializerSvc->deserialize( buff.get(), usedBytes, classDesc );
     ATH_MSG_DEBUG( "Obtained object " << obj << " which used " << usedBytes << " bytes from available " << bsize  );
@@ -77,15 +80,15 @@ StatusCode TriggerEDMDeserialiserAlg::execute(const EventContext& context) const
 
     if ( obj ) {
       BareDataBucket* dataBucket = new BareDataBucket( obj, clid, classDesc);
-      const std::string outputName = m_prefix + name;
+      const std::string outputName = m_prefix + key;
       auto proxyPtr = evtStore()->recordObject( SG::DataObjectSharedPtr<BareDataBucket>( dataBucket ), outputName, false, false );
       if ( proxyPtr == nullptr )  {
-	ATH_MSG_WARNING( "Recording of object of CLID " << clid << " and name " << name << " failed" );
+	ATH_MSG_WARNING( "Recording of object of CLID " << clid << " and name " << outputName << " failed" );
       }
     } else {
-      ATH_MSG_WARNING( "Deserialisation of object of CLID " << clid << " and name " << name << " failed" );
+      ATH_MSG_WARNING( "Deserialisation of object of CLID " << clid << " and type#name " << name << " failed" );
     }
-    */
+
     start = toNextFragment( start );
   }
   
