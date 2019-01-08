@@ -33,8 +33,7 @@ if globalflags.InputFormat.is_bytestream():
    topSequence.L1DecoderTest.ctpUnpacker.OutputLevel=DEBUG
    topSequence.L1DecoderTest.roiUnpackers[0].OutputLevel=DEBUG
 
-# Hacking the chains name. Otherwise doesn't work. 
-topSequence.L1DecoderTest.Chains="HLTChains"
+# Hacking the decisions name. Otherwise doesn't work. 
 topSequence.L1DecoderTest.roiUnpackers["METRoIsUnpackingTool"].Decisions="L1XE"
 
         
