@@ -478,8 +478,8 @@ StatusCode AlVec::InitializeOutputVector(const std::string& filename, bool binar
 StatusCode AlVec::ReadPartial(const std::string &filename, double &scale, 
 			      std::map<int,unsigned long long> &modmap, float &version)
 {
-  bool m_StdUnits = true;
-  if (StatusCode::SUCCESS != CheckVecVersion(m_pathbin+filename, m_StdUnits)) {
+  bool StdUnits = true;
+  if (StatusCode::SUCCESS != CheckVecVersion(m_pathbin+filename, StdUnits)) {
     //std::cout<<"CheckVecVersion failed"<<std::endl;
     return StatusCode::FAILURE;
   }
@@ -498,10 +498,10 @@ StatusCode AlVec::ReadPartial(const std::string &filename, double &scale,
   invec.read((char*)&scale, sizeof(scale));
 //  scale=io_scale;
 
-  if (stdUnits)
+  if (StdUnits)
     invec.read((char*)&version, sizeof (version));
 
-//  std::cout << "AlVec::StdUnits: " << stdUnits << std::endl;
+//  std::cout << "AlVec::StdUnits: " << StdUnits << std::endl;
 //  std::cout << "AlVec::scale: " << scale << std::endl;
 //  std::cout << "AlVec::version: " << version << std::endl;
 
@@ -556,8 +556,8 @@ StatusCode AlVec::Read(const std::string &filename, double &scale,
                        std::map<int,unsigned long long> &modmap, float &version)
 {
 
-  bool m_StdUnits = true;
-  if (StatusCode::SUCCESS != CheckVecVersion(m_pathbin+filename, m_StdUnits)) {
+  bool StdUnits = true;
+  if (StatusCode::SUCCESS != CheckVecVersion(m_pathbin+filename, StdUnits)) {
     //std::cout<<"CheckVecVersion failed"<<std::endl;
     return StatusCode::FAILURE;
   }
@@ -576,10 +576,10 @@ StatusCode AlVec::Read(const std::string &filename, double &scale,
 //  scale=io_scale;
 //  std::cout<<"scale="<<scale<<std::endl;
 
-  if (stdUnits)
+  if (StdUnits)
     invec.read((char*)&version, sizeof (version));
 
-//  std::cout << "AlVec::StdUnits: " << stdUnits << std::endl;
+//  std::cout << "AlVec::StdUnits: " << StdUnits << std::endl;
 //  std::cout << "AlVec::scale: " << scale << std::endl;
 //  std::cout << "AlVec::version: " << version << std::endl;
 

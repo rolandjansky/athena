@@ -701,10 +701,6 @@ PixelCluster* MergedPixelsTool::makeCluster
 
         // check overflow for IBL
         int realtot = *tot;
-        if( m_IBLParameterSvc->containsIBL() && pixelID.barrel_ec(rId) == 0 && pixelID.layer_disk(rId) == 0 ) {
-          if (*tot >= m_overflowIBLToT ) realtot = m_overflowIBLToT;
-          ATH_MSG_DEBUG("barrel_ec = " << pixelID.barrel_ec(rId) << " layer_disque = " <<  pixelID.layer_disk(rId) << " ToT = " << *tot << " Real ToT = " << realtot);
-        }
 	   
         if (row == rowMin) qRowMin += realtot;
         if (row < rowMin){ 

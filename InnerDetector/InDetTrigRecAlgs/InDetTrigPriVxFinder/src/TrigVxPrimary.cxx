@@ -22,6 +22,10 @@
 #include "TrkParameters/TrackParameters.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
+#include "VxVertex/VxTrackAtVertex.h"
+#include "TrkTrackLink/ITrackLink.h"
+#include "TrkTrack/LinkToTrack.h"
+
 
 #include "TrkEventPrimitives/ParamDefs.h"
 

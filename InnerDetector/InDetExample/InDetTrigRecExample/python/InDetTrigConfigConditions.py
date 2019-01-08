@@ -193,7 +193,6 @@ class PixelConditionsServicesSetup:
 
     from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesTool
     TrigSiPropertiesTool = SiPropertiesTool(name="PixelSiPropertiesTool", DetectorName="Pixel", ReadKey="PixelSiliconPropertiesVector")
-of FTK tools. Fix for pixel cluster width
 
     ToolSvc += TrigSiPropertiesTool
 
