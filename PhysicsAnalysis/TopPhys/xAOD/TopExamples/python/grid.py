@@ -580,20 +580,19 @@ def checkPRWFile(Samples, cutfile):
     PRWConfig_FS = None
     PRWConfig_AF = None
     for line in tmp.readlines():
-        if "PRWConfigFiles_AF" in line:
-            PRWConfig_AF = [ ROOT.PathResolver.find_file( x, "CALIBPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]
-            PRWConfig_AF.extend( [ ROOT.PathResolver.find_file( x, "DATAPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]  )
-            PRWConfig_AF.extend( [ ROOT.PathResolver.find_file( x, "PATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]  )
-        elif "PRWConfigFiles_FS" in line:
-            PRWConfig_FS = [ ROOT.PathResolver.find_file( x, "CALIBPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]
-            PRWConfig_FS.extend( [ ROOT.PathResolver.find_file( x, "DATAPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]  )
-            PRWConfig_FS.extend( [ ROOT.PathResolver.find_file( x, "PATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]  )
-        elif "PRWConfigFiles" in line:
-            PRWConfig = [ ROOT.PathResolver.find_file( x, "CALIBPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]
-            PRWConfig.extend( [ ROOT.PathResolver.find_file( x, "DATAPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]  )
-            PRWConfig.extend( [ ROOT.PathResolver.find_file( x, "PATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]  )
-        else:
-            continue
+        line = line.split('#', 1)[0].strip()
+        if line.startswith("PRWConfigFiles_AF"):
+            PRWConfig_AF = [ ROOT.PathResolver.find_file( x, "CALIBPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.split()[1:] ]
+            PRWConfig_AF.extend( [ ROOT.PathResolver.find_file( x, "DATAPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.split()[1:] ]  )
+            PRWConfig_AF.extend( [ ROOT.PathResolver.find_file( x, "PATH", ROOT.PathResolver.RecursiveSearch ) for x in line.split()[1:] ]  )
+        elif line.startswith("PRWConfigFiles_FS"):
+            PRWConfig_FS = [ ROOT.PathResolver.find_file( x, "CALIBPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.split()[1:] ]
+            PRWConfig_FS.extend( [ ROOT.PathResolver.find_file( x, "DATAPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.split()[1:] ]  )
+            PRWConfig_FS.extend( [ ROOT.PathResolver.find_file( x, "PATH", ROOT.PathResolver.RecursiveSearch ) for x in line.split()[1:] ]  )
+        elif line.startswith("PRWConfigFiles"):
+            PRWConfig = [ ROOT.PathResolver.find_file( x, "CALIBPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.split()[1:] ]
+            PRWConfig.extend( [ ROOT.PathResolver.find_file( x, "DATAPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.split()[1:] ]  )
+            PRWConfig.extend( [ ROOT.PathResolver.find_file( x, "PATH", ROOT.PathResolver.RecursiveSearch ) for x in line.split()[1:] ]  )
 
     if PRWConfig and PRWConfig_AF:
         print logger.FAIL + " - Problem in cutfile " + cutfile + ": PRWConfigFiles is inconsistent with usage of PRWConfigFiles_AF" + logger.ENDC
