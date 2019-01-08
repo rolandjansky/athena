@@ -44,7 +44,7 @@ class TrigMissingETHypoToolMT: public extends<AthAlgTool, ITrigMissingETHypoTool
  private:
 
  Gaudi::Property<float>
-   m_metThreshold{this, "metThreshold", 50, "MET threshold" };
+   m_metThreshold{this, "metThreshold", 50, "MET threshold [GeV]" };
  
  // Monitored variables...
  /*
