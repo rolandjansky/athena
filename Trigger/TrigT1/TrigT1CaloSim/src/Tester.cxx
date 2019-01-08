@@ -11,10 +11,6 @@
 //    updated: June 20, M. Wielers
 //             move to Storegate
 // 
-/***************************************************************************
- *                                                                         *
- *                                                                         *
- ***************************************************************************/
 // ================================================
 // Tester class Implementation
 // ================================================
@@ -270,25 +266,30 @@ void LVL1::Tester::loadEmTauROIs(){
 
   // Now test new EM/Tau implementation
   
-  const DataVector<LVL1::TriggerTower>* TTVector;
-  if( evtStore()->retrieve(TTVector, m_TriggerTowerLocation).isSuccess() ) {  
-    DataVector<CPAlgorithm>* rois = new DataVector<CPAlgorithm>;
-    m_EmTauTool->findRoIs(TTVector,rois);
-    DataVector<CPAlgorithm>::iterator cpw = rois->begin();
-    for ( ; cpw != rois->end(); cpw++) {
-      ATH_MSG_DEBUG("CPAlgorithm has properties : " << std::hex
-                    << "RoIWord     : " << std::hex << (*cpw)->RoIWord() 
-                    << std::dec << endmsg
-                    << "eta         : " << (*cpw)->eta() << endmsg
-                    << "phi         : " << (*cpw)->phi() << endmsg
-                    << "Core ET     : " << (*cpw)->Core() << endmsg
-                    << "EM cluster  : " << (*cpw)->EMClus() << endmsg
-                    << "Tau cluster : " << (*cpw)->TauClus() << endmsg
-                    << "EM isol     : " << (*cpw)->EMIsol() << endmsg
-                    << "Had isol    : " << (*cpw)->HadIsol() << endmsg
-                    << "Had veto    : " << (*cpw)->HadVeto() );
+  StatusCode sc = m_EmTauTool.retrieve();
+  if (sc.isFailure()) {
+    ATH_MSG_ERROR( "Problem retrieving EmTauTool" );
+  }
+  else {
+    const DataVector<LVL1::TriggerTower>* TTVector;
+    if( evtStore()->retrieve(TTVector, m_TriggerTowerLocation).isSuccess() ) {  
+      DataVector<CPAlgorithm>* rois = new DataVector<CPAlgorithm>;
+      m_EmTauTool->findRoIs(TTVector,rois);
+      DataVector<CPAlgorithm>::iterator cpw = rois->begin();
+      for ( ; cpw != rois->end(); cpw++) {
+        ATH_MSG_DEBUG("CPAlgorithm has properties : " << std::hex
+           << "RoIWord     : " << std::hex << (*cpw)->RoIWord() << std::dec << endmsg
+           << "eta         : " << (*cpw)->eta() << endmsg
+           << "phi         : " << (*cpw)->phi() << endmsg
+           << "Core ET     : " << (*cpw)->Core() << endmsg
+           << "EM cluster  : " << (*cpw)->EMClus() << endmsg
+           << "Tau cluster : " << (*cpw)->TauClus() << endmsg
+           << "EM isol     : " << (*cpw)->EMIsol() << endmsg
+           << "Had isol    : " << (*cpw)->HadIsol() << endmsg
+           << "Had veto    : " << (*cpw)->HadVeto() );
+      }
+      delete rois;
     }
-    delete rois;
   }
     
   return;
