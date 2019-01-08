@@ -8,10 +8,6 @@
     email                : Alan.Watson@cern.ch
  ***************************************************************************/
 
-/***************************************************************************
- *                                                                         *
- *                                                                         *
- ***************************************************************************/
 #include "TrigT1CaloUtils/JEMJetAlgorithm.h"
 #include "TrigConfL1Data/L1DataDef.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"

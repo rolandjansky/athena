@@ -8,10 +8,6 @@
     email                : Alan.Watson@cern.ch
  ***************************************************************************/
 
-/***************************************************************************
- *                                                                         *
- *                                                                         *
- ***************************************************************************/
 
 #include "TrigT1CaloUtils/CrateEnergy.h"
 
@@ -63,27 +59,28 @@ CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<ModuleEnergy>* JEM
   }   // Loop over JEMs
   
   /** Check for overflows then truncate quadrant sums*/
-  unsigned int mask = (1<<m_sumBits) - 1;
-  for (int quad = 0; quad < 2; quad++) {
-    if (eT[quad] > mask) m_overflowT = 1;
-    eT[quad] = eT[quad]&mask ;
-    
-    if (eX[quad] > mask) m_overflowX = 1;
-    eX[quad] = eX[quad]&mask ;
-    
-    if (eY[quad] > mask) m_overflowY = 1;
-    eY[quad] = eY[quad]&mask ;
-  }
+  unsigned int mask = (1 << m_sumBits) - 1;
 
   /** Form crate sums */
   /** For total ET we must check for further overflows */
   m_crateEt = eT[0] + eT[1];
-  if (m_crateEt > mask) m_overflowT = 1;
-  m_crateEt = m_crateEt&mask ;
+  if (m_crateEt >= mask){
+    m_overflowT = 1;
+    m_crateEt = mask;
+  }
 
-  /** No further overflow can occur during Ex, Ey summing (subtraction) */
-  m_crateEx = eX[0] - eX[1];
-  m_crateEy = eY[0] - eY[1];
+ 
+  if (!m_overflowX){
+    m_crateEx = eX[0] - eX[1];
+  } else{
+    m_crateEx = -(mask + 1);
+  }
+  if (!m_overflowY){
+    m_crateEy = eY[0] - eY[1];
+  }else{
+    m_crateEy = -(mask + 1);
+  }
+  
 
   if (m_debug) {
     std::cout << "CrateEnergy: crate " << m_crate << " results " << std::endl
@@ -143,26 +140,26 @@ CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<EnergyCMXData>* JE
   
   /** Check for overflows then truncate quadrant sums*/
   unsigned int mask = (1<<m_sumBits) - 1;
-  for (int quad = 0; quad < 2; quad++) {
-    if (eT[quad] > mask) m_overflowT = 1;
-    eT[quad] = eT[quad]&mask ;
-    
-    if (eX[quad] > mask) m_overflowX = 1;
-    eX[quad] = eX[quad]&mask ;
-    
-    if (eY[quad] > mask) m_overflowY = 1;
-    eY[quad] = eY[quad]&mask ;
-  }
+
 
   /** Form crate sums */
   /** For total ET we must check for further overflows */
   m_crateEt = eT[0] + eT[1];
-  if (m_crateEt > mask) m_overflowT = 1;
-  m_crateEt = m_crateEt&mask ;
+  if (m_crateEt >= mask){
+    m_overflowT = 1;
+    m_crateEt = mask;
+  }
 
-  /** No further overflow can occur during Ex, Ey summing (subtraction) */
-  m_crateEx = eX[0] - eX[1];
-  m_crateEy = eY[0] - eY[1];
+  if (!m_overflowX){
+    m_crateEx = eX[0] - eX[1];
+  } else{
+    m_crateEx = -(mask + 1);
+  }
+  if (!m_overflowY){
+    m_crateEy = eY[0] - eY[1];
+  }else{
+    m_crateEy = -(mask + 1);
+  }
 
   if (m_debug) {
     std::cout << "CrateEnergy: crate " << m_crate << " results " << std::endl
