@@ -42,7 +42,8 @@ namespace InDet {
     TRK_EFF_LOOSE_TIDE,
     // uncertainties for tracking fake rates in jets
     TRK_FAKE_RATE_TIGHT_TIDE,
-    TRK_FAKE_RATE_LOOSE_TIDE
+    TRK_FAKE_RATE_LOOSE_TIDE,
+    TRK_FAKE_RATE_LOOSE_ROBUST
   };
 
   // without getting too crafty with macros, this map needs to be maintained with the enum above
@@ -73,7 +74,8 @@ namespace InDet {
     DEF_SYST( EFF_TIGHT_PHYSMODEL ),
     DEF_SYST( EFF_LOOSE_TIDE ),
     DEF_SYST( FAKE_RATE_TIGHT_TIDE ),
-    DEF_SYST( FAKE_RATE_LOOSE_TIDE )
+    DEF_SYST( FAKE_RATE_LOOSE_TIDE ),
+    DEF_SYST( FAKE_RATE_LOOSE_ROBUST )
 #undef DEF_SYST
   };
 

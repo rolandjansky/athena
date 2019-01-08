@@ -52,6 +52,8 @@ namespace InDet {
 
     // right now this returns a bool; if we want to implement the ASG selection tool interface then this will need to change to a TAccept
     virtual bool accept(const xAOD::TrackParticle* track) const override;
+    bool accept(const xAOD::TrackParticle* track, float mu) const;
+    
 
     /// returns: whether the tool is affected by the systematic
     virtual bool isAffectedBySystematic( const CP::SystematicVariation& ) const override;

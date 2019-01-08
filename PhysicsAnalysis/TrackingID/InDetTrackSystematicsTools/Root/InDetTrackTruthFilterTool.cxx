@@ -28,7 +28,8 @@ namespace InDet {
       InDet::TrackSystematicMap[TRK_EFF_TIGHT_GLOBAL],
       InDet::TrackSystematicMap[TRK_EFF_TIGHT_IBL],
       InDet::TrackSystematicMap[TRK_EFF_TIGHT_PP0],
-      InDet::TrackSystematicMap[TRK_EFF_TIGHT_PHYSMODEL]
+      InDet::TrackSystematicMap[TRK_EFF_TIGHT_PHYSMODEL],
+      InDet::TrackSystematicMap[TRK_FAKE_RATE_LOOSE_ROBUST]
     };
 
   InDetTrackTruthFilterTool::InDetTrackTruthFilterTool(const string& name) :
@@ -141,8 +142,65 @@ namespace InDet {
     return StatusCode::SUCCESS;
   }
 
-  bool InDetTrackTruthFilterTool::accept(const xAOD::TrackParticle* track) const {
+  bool InDetTrackTruthFilterTool::accept(const xAOD::TrackParticle* track, float mu) const {
 
+    int origin = m_trackOriginTool->getTrackOrigin(track);
+
+    float pt = track->pt();
+    float eta = track->eta();
+    float d0 = track->d0();
+    
+    if(isActive( TRK_FAKE_RATE_LOOSE_ROBUST )){
+      
+
+      //first, make a function to determine which tracks we will classify as fake, parameters determined from fit to full-truth MC16e ttbar
+      bool isFake = false;
+   
+      float fakeProb = 0.01;
+      //this is the mu dependence part
+      if(mu>20){
+	float p0 = 0.008645;
+	float p1 = 0.0001114;
+	float p2 = 9.299e-6;
+	fakeProb = p0 + (p1*mu) + (p2*mu*mu);
+      }
+      
+      //now we add the pT term
+      float pTcorr = 0.02;
+      if(pt<50000){
+	float p0 = 0.02;
+	float p1 = -3.564;
+	float p2 = -0.0005982;
+	float param = p1 + (p2 * pt);
+	pTcorr = p0 + exp(param); 
+      }
+      
+      fakeProb*=pTcorr;
+      
+      float d0corr = 1;
+      d0corr = tanh(abs(d0));
+      
+      fakeProb*=d0corr;
+      
+      fakeProb*=309.602;//empirical ad hoc rescaling factor
+      
+      if(m_rnd->Uniform(0, 1) < fakeProb) isFake=true;
+      
+
+      //Now, if we've decided this is a fake, we apply the uncertainty
+      if(isFake){
+	if(m_rnd->Uniform(0, 1) < m_fFakeLoose) return false;
+      }
+
+      return true;
+
+    }
+
+    else return accept(track); //if you're not using the robust version, fall back to the standard implementation
+
+ }
+
+  bool InDetTrackTruthFilterTool::accept(const xAOD::TrackParticle* track) const {
     int origin = m_trackOriginTool->getTrackOrigin(track);
 
     float pt = track->pt();
@@ -161,7 +219,7 @@ namespace InDet {
     if(InDet::TrkOrigin::isFromD(origin) && m_rnd->Uniform(0, 1) > fFromC) return false;
     float fFromB = getFractionDropped(m_fFromB, m_fFromBHistogram, pt, eta);
     if(InDet::TrkOrigin::isFromB(origin) && m_rnd->Uniform(0, 1) > fFromB) return false;
-  
+
     if ( InDet::TrkOrigin::isFake(origin) ) {
       bool isActiveLoose = isActive( TRK_FAKE_RATE_LOOSE );
       bool isActiveTight = isActive( TRK_FAKE_RATE_TIGHT );
