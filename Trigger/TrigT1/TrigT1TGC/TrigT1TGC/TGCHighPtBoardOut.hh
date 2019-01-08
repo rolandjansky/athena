@@ -28,22 +28,19 @@ class TGCHighPtBoardOut {
 public:
   TGCHighPtBoardOut(TGCHighPtBoard* hpt, int bidIn);
   TGCHighPtBoardOut();
-  virtual ~TGCHighPtBoardOut();
+  virtual ~TGCHighPtBoardOut() = default;
 
   int getPt(int chip, int iData) const;
   int getPos(int chip, int iData) const;
   int getDev(int chip, int iData) const;
   bool getHit(int chip, int iData) const;
   int getSel(int chip, int iData) const;
-  TGCHitPattern* getbPos(TGCHBChip chip, TGCHPBBlock block);
 
   void setPt(int chip, int iData, int ptIn);
   void setPos(int chip, int iData, int posIn);
   void setDev(int chip, int iData, int devIn);
   void setHit(int chip, int iData, bool hitIn);
   void setSel(int chip, int iData, int selIn);
-  void setbDev(TGCHBChip chip, TGCHPBBlock block, int sign, int dr);
-  void setbPos(TGCHBChip chip, TGCHPBBlock block, int pos);
 
   int getBid() const;
   void setBid(int bidIn){ bid=bidIn;};
@@ -60,24 +57,10 @@ private:
   int pt[NumberOfChip][MaxNumberOfHPBData]; //[chip][block]
   int pos[NumberOfChip][MaxNumberOfHPBData];
   int dev[NumberOfChip][MaxNumberOfHPBData];
-  TGCHitPattern* bpos[NumberOfChip][MaxNumberOfHPBData];
-  TGCHitPattern* bdev[NumberOfChip][MaxNumberOfHPBData];
   bool hit[NumberOfChip][MaxNumberOfHPBData];
   // enable when the track is selected in trackselector. 
   int select[NumberOfChip][MaxNumberOfHPBData];
 };
-
-inline 
-TGCHitPattern* TGCHighPtBoardOut::getbPos(TGCHBChip chip, TGCHPBBlock block)
-{
-    return bpos[chip][block];
-}
-
-inline
-void TGCHighPtBoardOut::setbPos(TGCHBChip chip, TGCHPBBlock block, int pos)
-{    
-    bpos[chip][block]->dec2bin(pos);
-}
 
 inline
 void TGCHighPtBoardOut::setDev(int chip, int iData, int devIn)

@@ -12,7 +12,7 @@ class TGCRPhiCoincidenceOut {
 
 public:
   TGCRPhiCoincidenceOut();
-  ~TGCRPhiCoincidenceOut(){};
+  ~TGCRPhiCoincidenceOut() = default;
 
   int  getPhi() const { return phi;};
   int  getR() const { return r;};
