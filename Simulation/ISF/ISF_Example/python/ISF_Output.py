@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 ## Get the logger
@@ -46,8 +46,9 @@ def getHITSStreamItemList():
                          "TrackRecordCollection#MuonExitLayer"]
         from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
         if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
-            hitsItemList += ["GenericMuonSimHitCollection#*"] #MicroMegas only
             hitsItemList += ["sTGCSimHitCollection#*"]
+            hitsItemList += ["MMSimHitCollection#*"]
+            hitsItemList += ["GenericMuonSimHitCollection#*"]
 
     ## FwdRegion
     if DetFlags.FwdRegion_on():
