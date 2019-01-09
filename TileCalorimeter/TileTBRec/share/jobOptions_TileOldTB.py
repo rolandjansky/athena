@@ -167,7 +167,6 @@ doTileFit = True
 include( "TileTBRec/TileTBDefaults_jobOptions.py" )
 include( "TileSimAlgs/TileTBDigitization_jobOptions.py" )
 include( "TileTBRec/TileTBRec_jobOptions.py" )
-ToolSvc.TileBeamInfoProvider.OutputLevel = OutputLevel
 
 
 theTileTBOldNtupleWrite=TileTBOldNtupleWrite()
