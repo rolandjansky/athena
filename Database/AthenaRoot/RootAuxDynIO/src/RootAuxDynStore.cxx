@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -136,4 +136,19 @@ RootAuxDynStore::getDecoration (SG::auxid_t auxid, size_t size, size_t capacity)
 }
 
 
-
+/**
+ * @brief Test if a particular variable is tagged as a decoration.
+ * @param auxid The identifier of the desired aux data item.
+ *
+ * See @c getDecoration() above.
+ */
+bool RootAuxDynStore::isDecoration (SG::auxid_t auxid) const
+{
+  guard_t guard( m_mutex );
+  if (SG::AuxStoreInternal::getIODataInternal (auxid, true) == 0 &&
+      SG::AuxStoreInternal::getAuxIDs().count (auxid) > 0)
+  {
+    return false;
+  }
+  return SG::AuxStoreInternal::isDecoration (auxid);
+}

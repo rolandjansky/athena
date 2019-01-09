@@ -17,7 +17,7 @@
 #define DATAMODELTESTDATACOMMON_S3_H
 
 
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 
 namespace DMTest {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -46,8 +46,6 @@ SCT_CalibBsErrorTool::SCT_CalibBsErrorTool(const std::string& type, const std::s
    m_scterr_eta(0),
    m_scterr_phi(0),
    m_scterr_side(0),
-   m_scterr_rodid(0),
-   m_scterr_channel(0),
    m_scterr_type(0)
 {
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGCcabling/TGCCableASDToPP.h"
@@ -10,50 +10,50 @@ namespace LVL1TGCCabling8 {
 TGCCableASDToPP::TGCCableASDToPP (std::string filename)
   : TGCCable(TGCCable::ASDToPP)
 {
-  database[TGCIdBase::Endcap][TGCIdBase::WD] = 
+  m_database[TGCIdBase::Endcap][TGCIdBase::WD] = 
     new TGCDatabaseASDToPP(filename,"EWD");
-  database[TGCIdBase::Endcap][TGCIdBase::WT] = 
+  m_database[TGCIdBase::Endcap][TGCIdBase::WT] = 
     new TGCDatabaseASDToPP(filename,"EWT");
-  database[TGCIdBase::Endcap][TGCIdBase::SD] =
+  m_database[TGCIdBase::Endcap][TGCIdBase::SD] =
     new TGCDatabaseASDToPP(filename,"ESD");
-  database[TGCIdBase::Endcap][TGCIdBase::ST] =
+  m_database[TGCIdBase::Endcap][TGCIdBase::ST] =
     new TGCDatabaseASDToPP(filename,"EST");
-  database[TGCIdBase::Endcap][TGCIdBase::WI] =
+  m_database[TGCIdBase::Endcap][TGCIdBase::WI] =
     new TGCDatabaseASDToPP(filename,"EWI");
-  database[TGCIdBase::Endcap][TGCIdBase::SI] =
+  m_database[TGCIdBase::Endcap][TGCIdBase::SI] =
     new TGCDatabaseASDToPP(filename,"ESI");
-  database[TGCIdBase::Forward][TGCIdBase::WD] = 
+  m_database[TGCIdBase::Forward][TGCIdBase::WD] = 
     new TGCDatabaseASDToPP(filename,"FWD");
-  database[TGCIdBase::Forward][TGCIdBase::WT] =
+  m_database[TGCIdBase::Forward][TGCIdBase::WT] =
     new TGCDatabaseASDToPP(filename,"FWT");
-  database[TGCIdBase::Forward][TGCIdBase::SD] =
+  m_database[TGCIdBase::Forward][TGCIdBase::SD] =
     new TGCDatabaseASDToPP(filename,"FSD");
-  database[TGCIdBase::Forward][TGCIdBase::ST] = 
+  m_database[TGCIdBase::Forward][TGCIdBase::ST] = 
     new TGCDatabaseASDToPP(filename,"FST");
-  database[TGCIdBase::Forward][TGCIdBase::WI] =
+  m_database[TGCIdBase::Forward][TGCIdBase::WI] =
     new TGCDatabaseASDToPP(filename,"FWI");
-  database[TGCIdBase::Forward][TGCIdBase::SI] = 
+  m_database[TGCIdBase::Forward][TGCIdBase::SI] = 
     new TGCDatabaseASDToPP(filename,"FSI");
 }
   
 TGCCableASDToPP::~TGCCableASDToPP (void)
 {
-  delete database[TGCIdBase::Endcap][TGCIdBase::WD];
-  delete database[TGCIdBase::Endcap][TGCIdBase::WT];
-  delete database[TGCIdBase::Endcap][TGCIdBase::SD];
-  delete database[TGCIdBase::Endcap][TGCIdBase::ST];
-  delete database[TGCIdBase::Endcap][TGCIdBase::WI];
-  delete database[TGCIdBase::Endcap][TGCIdBase::SI];
-  delete database[TGCIdBase::Forward][TGCIdBase::WD];
-  delete database[TGCIdBase::Forward][TGCIdBase::WT];
-  delete database[TGCIdBase::Forward][TGCIdBase::SD];
-  delete database[TGCIdBase::Forward][TGCIdBase::ST];
-  delete database[TGCIdBase::Forward][TGCIdBase::WI];
-  delete database[TGCIdBase::Forward][TGCIdBase::SI];
+  delete m_database[TGCIdBase::Endcap][TGCIdBase::WD];
+  delete m_database[TGCIdBase::Endcap][TGCIdBase::WT];
+  delete m_database[TGCIdBase::Endcap][TGCIdBase::SD];
+  delete m_database[TGCIdBase::Endcap][TGCIdBase::ST];
+  delete m_database[TGCIdBase::Endcap][TGCIdBase::WI];
+  delete m_database[TGCIdBase::Endcap][TGCIdBase::SI];
+  delete m_database[TGCIdBase::Forward][TGCIdBase::WD];
+  delete m_database[TGCIdBase::Forward][TGCIdBase::WT];
+  delete m_database[TGCIdBase::Forward][TGCIdBase::SD];
+  delete m_database[TGCIdBase::Forward][TGCIdBase::ST];
+  delete m_database[TGCIdBase::Forward][TGCIdBase::WI];
+  delete m_database[TGCIdBase::Forward][TGCIdBase::SI];
 }
 
 // reverse layers in Forward sector
-const int TGCCableASDToPP::stripForward[] = {2,1,0,4,3,6,5,8,7};
+const int TGCCableASDToPP::s_stripForward[] = {2,1,0,4,3,6,5,8,7};
   
 TGCChannelId* TGCCableASDToPP::getChannel (const TGCChannelId* channelId,
 					   bool orChannel) const {
@@ -78,7 +78,7 @@ TGCChannelId* TGCCableASDToPP::getChannelIn (const TGCChannelId* ppin,
     (!ppinisAside && (ppinSector%2==1) );
 
   TGCDatabase* databaseP = 
-    database[ppin->getRegionType()][ppin->getModuleType()];
+    m_database[ppin->getRegionType()][ppin->getModuleType()];
 
   int indexOut[TGCDatabaseASDToPP::NIndexOut] = 
     {ppin->getId(), ppin->getBlock(), ppin->getChannel()};
@@ -88,7 +88,7 @@ TGCChannelId* TGCCableASDToPP::getChannelIn (const TGCChannelId* ppin,
   // ASD2PP.db is backward connection
   int layer = databaseP->getEntry(i,0);
   if(ppin->isStrip() && !isBackwardChamber){
-    layer = stripForward[layer];
+    layer = s_stripForward[layer];
   } 
 
   int offset = (ppin->isWire()) ? 4 : 0;
@@ -117,7 +117,7 @@ TGCChannelId* TGCCableASDToPP::getChannelOut (const TGCChannelId* asdout,
   if(asdout->isValid()==false) return 0;
 
   TGCDatabase* databaseP =
-    database[asdout->getRegionType()][asdout->getModuleType()];
+    m_database[asdout->getRegionType()][asdout->getModuleType()];
   
   TGCChannelPPIn* ppin = 0;
   int MaxEntry = databaseP->getMaxEntry();
@@ -127,7 +127,7 @@ TGCChannelId* TGCCableASDToPP::getChannelOut (const TGCChannelId* asdout,
       (!asdout->isAside() && (asdout->getSector()%2 == 1) );
     int layer = asdout->getLayer();
     if(asdout->isStrip()&&!isBackwardChamber){
-      layer = stripForward[layer];
+      layer = s_stripForward[layer];
     }
 
     int elecChannel = asdout->getChannel();

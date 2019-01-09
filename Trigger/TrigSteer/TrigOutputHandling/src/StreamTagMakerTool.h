@@ -28,11 +28,20 @@ public:
   virtual StatusCode finalize() override;
 
 private:
-  SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_finalChainDecisions { this, "ChainDecisions", "UNDEFINED", "Container with final chain decisions"  }; 
+  SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_finalChainDecisions { this, "ChainDecisions", "HLTSummary", 
+    "Container with final chain decisions"  }; 
 
-  Gaudi::Property<std::map<std::string, std::string>> m_chainToStreamProperty { this, "ChainToStream", {}, "Mapping from the chain name to string name (temporary solution, will be replaced)"};
-  Gaudi::Property<std::map<std::string, std::vector<uint32_t>>> m_streamSubDets { this, "StreamSubDets", {}, "Mapping from the stream name to subdetector IDs (temporary solution, will be replaced)"};
-  Gaudi::Property<std::map<std::string, std::vector<uint32_t>>> m_streamRobs { this, "StreamRobs", {}, "Mapping from the stream name to ROB IDs (temporary solution, will be replaced)"};
+  Gaudi::Property<bool> m_allowRerunChains { this, "AllowRerunChains", false, 
+    "Normally false, but if set to true this will allow resurrected chains which ran in the second pass to also add stream tags"};
+
+  Gaudi::Property<std::map<std::string, std::string>> m_chainToStreamProperty { this, "ChainToStream", {}, 
+    "Mapping from the chain name to string name (temporary solution, will be replaced)"};
+
+  Gaudi::Property<std::map<std::string, std::vector<uint32_t>>> m_streamSubDets { this, "StreamSubDets", {}, 
+    "Mapping from the stream name to subdetector IDs (temporary solution, will be replaced)"};
+
+  Gaudi::Property<std::map<std::string, std::vector<uint32_t>>> m_streamRobs { this, "StreamRobs", {}, 
+    "Mapping from the stream name to ROB IDs (temporary solution, will be replaced)"};
 
   typedef std::map< TrigCompositeUtils::DecisionID, eformat::helper::StreamTag> ChainToStreamMap;
   ChainToStreamMap m_mapping;

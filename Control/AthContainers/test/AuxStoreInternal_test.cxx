@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -211,6 +211,10 @@ void test2()
   assert (i2 != 0);
   assert (i1 != i2);
 
+  assert (!s.isDecoration (ityp1));
+  assert (!s.isDecoration (ityp2));
+  assert (!s.isDecoration (ityp9));
+
   s.lock();
 
   SG::auxid_set_t idset {ityp1, ityp2};
@@ -221,6 +225,10 @@ void test2()
   assert (i1 == reinterpret_cast<int*> (s.getData(ityp1, 10, 20)));
   EXPECT_EXCEPTION (SG::ExcStoreLocked, s.getData(ityp9, 10, 20));
   EXPECT_EXCEPTION (SG::ExcStoreLocked, s.getDecoration(ityp1, 10, 20));
+
+  assert (!s.isDecoration (ityp1));
+  assert (!s.isDecoration (ityp2));
+  assert (!s.isDecoration (ityp9));
 
   SG::auxid_t ityp3 = SG::AuxTypeRegistry::instance().getAuxID<int> ("anInt3");
   int* i3 = reinterpret_cast<int*> (s.getDecoration(ityp3, 10, 20));
@@ -234,6 +242,11 @@ void test2()
   assert (idset.size() == 3);
   assert (s.getAuxIDs() == idset);
 
+  assert (!s.isDecoration (ityp1));
+  assert (!s.isDecoration (ityp2));
+  assert (!s.isDecoration (ityp9));
+  assert ( s.isDecoration (ityp3));
+
   assert (s.clearDecorations() == true);
   idset.erase (ityp3);
   assert (idset.size() == 2);
@@ -242,15 +255,30 @@ void test2()
   assert (s.getData(ityp1) == i1);
   assert (s.getData(ityp2) == i2);
 
+  assert (!s.isDecoration (ityp1));
+  assert (!s.isDecoration (ityp2));
+  assert (!s.isDecoration (ityp9));
+  assert (!s.isDecoration (ityp3));
+
   assert (s.clearDecorations() == false);
   assert (s.getAuxIDs() == idset);
 
   i3 = reinterpret_cast<int*> (s.getDecoration(ityp3, 10, 20));
   assert (i3 != 0);
   assert (i3 == s.getDecoration (ityp3, 10, 20));
+  assert (!s.isDecoration (ityp1));
+  assert (!s.isDecoration (ityp2));
+  assert (!s.isDecoration (ityp9));
+  assert ( s.isDecoration (ityp3));
+
   s.lockDecoration (ityp3);
   EXPECT_EXCEPTION (SG::ExcStoreLocked, s.getDecoration (ityp3, 10, 20));
   assert (i3 == s.getData (ityp3));
+
+  assert (!s.isDecoration (ityp1));
+  assert (!s.isDecoration (ityp2));
+  assert (!s.isDecoration (ityp9));
+  assert (!s.isDecoration (ityp3));
 
   EXPECT_EXCEPTION (SG::ExcStoreLocked, s.resize(100));
   EXPECT_EXCEPTION (SG::ExcStoreLocked, s.reserve(100));

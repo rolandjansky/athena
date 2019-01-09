@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGVALTOOLS_TFILELOOPER_H
@@ -38,6 +38,9 @@ class TFileLooper {
   TFileLooper();
   virtual ~TFileLooper();
 
+  TFileLooper (const TFileLooper& other);
+  TFileLooper& operator= (const TFileLooper& other) = delete;
+
   /// Start processing
   virtual Int_t run(const char* filename, const char* rootDir = 0);
 
@@ -60,7 +63,7 @@ class TFileLooper {
   //@}
 
   /// Skip this comma separated list of directories
-  void setDirsToSkip(const char* skipDirs) {if (skipDirs) _skipDirs = skipDirs;}
+  void setDirsToSkip(const char* skipDirs) {if (skipDirs) m_skipDirs = skipDirs;}
 
   /// Skip keys that match this regexp
   void addFailRegexp(const char* regexp);
@@ -69,32 +72,32 @@ class TFileLooper {
   void addPassRegexp(const char* regexp);
 
   /// Reverse pass/fail logic. First check on pass then on fail
-  void passBeforeFailRegexp(Bool_t passBeforeFail = kTRUE) { _passBeforeFail = passBeforeFail; }
+  void passBeforeFailRegexp(Bool_t passBeforeFail = kTRUE) { m_passBeforeFail = passBeforeFail; }
 
   /// Set verbose mode
-  void setVerbose(Bool_t verbose = kTRUE) {_verbose = verbose;}
+  void setVerbose(Bool_t verbose = kTRUE) {m_verbose = verbose;}
   
   /// Query verbose mode
-  Bool_t verbose() const {return _verbose;}
+  Bool_t verbose() const {return m_verbose;}
 
   /// Current ROOT file
-  const TFile* file() const { return _file; }
+  const TFile* file() const { return m_file; }
 
   /// Current directory
-  TString rootDir() const { return _rootDir; }
+  TString rootDir() const { return m_rootDir; }
 
 protected:
-  TFile* _file;
-  TString _rootDir;
-  TString _skipDirs;
-  Bool_t _verbose;
-  Bool_t _passBeforeFail;
-  Int_t _errorCode;
+  TFile* m_file;
+  TString m_rootDir;
+  TString m_skipDirs;
+  Bool_t m_verbose;
+  Bool_t m_passBeforeFail;
+  Int_t m_errorCode;
 
-  std::vector<TPRegexp*> _failRE;
-  std::vector<TPRegexp*> _passRE;
+  std::vector<TPRegexp*> m_failRE;
+  std::vector<TPRegexp*> m_passRE;
 
-  std::vector<std::string> _skippedObjects;
+  std::vector<std::string> m_skippedObjects;
   
   TString getPathFromDir(const TDirectory& dir);
   TString getKeyPath(const TDirectory& dir, const TKey& key);

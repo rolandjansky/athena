@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERECUTILS_TILECELLBUILDER_H
@@ -25,13 +25,14 @@
 // Tile includes
 #include "TileEvent/TileCellContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"
+#include "TileEvent/TileDQstatus.h"
 #include "TileIdentifier/TileFragHash.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
 #include "TileConditions/ITileBadChanTool.h"
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/TileCondToolTiming.h"
 #include "TileRecUtils/ITileRawChannelTool.h"
-//#include "TileRecUtils/TileBeamInfoProvider.h"
+#include "TileConditions/ITileDCSTool.h"
 
 // Calo includes
 #include "CaloInterface/ICaloCellMakerTool.h"
@@ -65,7 +66,6 @@ class MbtsDetDescrManager;
 class TileDetDescrManager;
 class TileCellCollection;
 class CaloCellContainer;
-class TileBeamInfoProvider;
 class TileDQstatus;
 
 
@@ -127,7 +127,8 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
     virtual StatusCode process(CaloCellContainer* theCellContainer); // method to process all raw channels and store them in container
 
     template<class ITERATOR, class COLLECTION>
-    void build(const ITERATOR & begin, const ITERATOR & end, COLLECTION * coll); //!< method to process raw channels from a given vector and store them in collection
+    void build(const EventContext& ctx,
+               const ITERATOR & begin, const ITERATOR & end, COLLECTION * coll); //!< method to process raw channels from a given vector and store them in collection
 
     /** method to check if channels are good or bad. Puts zero if both channels are bad
      or recovers from single-channel failure. It returns true if cell was changed, false otherwise
@@ -154,6 +155,10 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
 
     SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfo",
                                                       "EventInfo", "Input Event info key"};
+
+    SG::ReadHandleKey<TileDQstatus> m_DQstatusKey{this, "TileDQstatus", 
+                                                  "TileDQstatus", 
+                                                  "TileDQstatus key"};
 
     SG::WriteHandleKey<TileCellContainer> m_MBTSContainerKey{this, "MBTSContainer", 
                                                              "MBTSContainer", 
@@ -193,6 +198,8 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
     bool m_maskBadChannels;      //!< if true=> bad channels are masked
     bool m_fakeCrackCells;       //!< if true=> fake E3/E4 cells added
     int  m_skipGain;             //!< for two-gain calib runs skip one of two gains
+    int m_useDemoCabling;
+    bool m_checkDCS;
 
     const TileID* m_tileID;   //!< Pointer to TileID
     const TileTBID* m_tileTBID; //!< Pointer to TileTBID
@@ -209,10 +216,10 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
     ToolHandle<TileCondToolTiming> m_tileToolTiming{this,
         "TileCondToolTiming", "TileCondToolTiming", "Tile timing tool"};
 
-    ToolHandle<TileBeamInfoProvider> m_beamInfo; //!< Beam Info tool to get the DQ Status object
-
     ToolHandleArray<ITileRawChannelTool> m_noiseFilterTools{this,
         "NoiseFilterTools", {}, "Tile noise filter tools"};
+
+    ToolHandle<ITileDCSTool> m_tileDCS;
 
     const TileDetDescrManager* m_tileMgr; //!< Pointer to TileDetDescrManager
     const MbtsDetDescrManager* m_mbtsMgr; //!< Pointer to MbtsDetDescrManager
@@ -233,8 +240,6 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
     std::vector<CaloAffectedRegionInfo> m_affectedRegionInfo_global;
     std::vector<CaloAffectedRegionInfo> m_affectedRegionInfo_current_run;
 
-    int m_useDemoCabling;
-    
     void correctCell(TileCell* pCell, int correction, int pmt, int gain, float ener, float time,
         unsigned char iqual, unsigned char qbit, int ch_type); //!< Compute calibrated energy, time, etc. for TileCell and adjust it.
 
@@ -244,6 +249,8 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
 
     unsigned char qbits(int ros, int drawer, bool count_over, bool good_time, bool good_ener,
         bool overflow, bool underflow, bool good_overflowfit); //!< method to compute the cell quality bits
+
+    bool isChanDCSgood (int ros, int drawer, int channel) const;
 
     template<typename T, typename V>
     class DoubleVectorIterator {

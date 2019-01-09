@@ -117,6 +117,7 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
   HLT::ErrorCode getIDTrackParticleLinksL2(const HLT::TriggerElement* te, ElementLinkVector<xAOD::TrackParticleContainer>& elv_xaodidtrks) ;
 
   /// Function to build combined tracks
+
   HLT::ErrorCode buildCombinedTracks(const MuonCandidateCollection* muonCandidates,
 				     InDetCandidateCollection& inDetCandidates,
 				     TrigMuonEFCBMonVars& monVars,
@@ -273,6 +274,7 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
 
   //Timers
   std::vector<TrigTimer*> m_TMEF_SATimers;
+  std::vector<TrigTimer*> m_TMEF_STTimers;
   std::vector<TrigTimer*> m_TMEF_CBTimers;
   std::vector<TrigTimer*> m_TrigMuGirl_Timers;
 

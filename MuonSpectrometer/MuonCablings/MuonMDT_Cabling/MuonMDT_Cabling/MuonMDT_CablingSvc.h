@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -12,7 +12,6 @@
 //#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "StoreGate/DataHandle.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 
 class MuonMDT_CablingMap;
@@ -63,7 +62,7 @@ class MuonMDT_CablingSvc : public AthService
   StatusCode initMappingModelNoCallback();
 
   //  MuonMDT_CablingMap* getCablingMap() {return m_cablingMap;}
-  DataHandle<MuonMDT_CablingMap> getCablingMap();
+  const MuonMDT_CablingMap* getCablingMap();
 
   /*
    *  get the id of the ROD to which a chamber is connected;
@@ -120,7 +119,7 @@ class MuonMDT_CablingSvc : public AthService
 
   /** pointer to the class holding the cabling map */
   //  MuonMDT_CablingMap* m_cablingMap;
-  DataHandle<MuonMDT_CablingMap> m_cablingMap;
+  const MuonMDT_CablingMap* m_cablingMap;
 
   /** flag to use the old cabling service.
       To be activated only when reading old simulated data */

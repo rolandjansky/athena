@@ -1406,31 +1406,6 @@ Py:Athena            INFO Print Config
 | | |                                                         (default: ['StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy'])
 | | |                                                         (default: ['StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy'])
 | | |-show_warning_level_invalid_A09_SSW6_hit              = False
-| | |=/***** Private AlgTool Muon::TGC_RawDataProviderTool/TgcRdoToTgcPrepData.TgcRdoToTgcPrepDataTool.TGC_RawDataProviderTool *****
-| | | |-AuditFinalize                  = False
-| | | |-AuditInitialize                = False
-| | | |-AuditReinitialize              = False
-| | | |-AuditRestart                   = False
-| | | |-AuditStart                     = False
-| | | |-AuditStop                      = False
-| | | |-AuditTools                     = False
-| | | |-MonitorService                 = 'MonitorSvc'
-| | | |-OutputLevel                    = 0
-| | | |-RdoLocation                    = 'StoreGateSvc+TGCRDO'
-| | | |=/***** Private AlgTool Muon::TGC_RodDecoderReadout/TgcRdoToTgcPrepData.TgcRdoToTgcPrepDataTool.TGC_RawDataProviderTool.TGC_RodDecoderReadout *****
-| | | | |-AuditFinalize                  = False
-| | | | |-AuditInitialize                = False
-| | | | |-AuditReinitialize              = False
-| | | | |-AuditRestart                   = False
-| | | | |-AuditStart                     = False
-| | | | |-AuditStop                      = False
-| | | | |-AuditTools                     = False
-| | | | |-MonitorService                 = 'MonitorSvc'
-| | | | |-OutputLevel                    = 0
-| | | | |-ShowStatusWords                = False
-| | | | |-SkipCoincidence                = False
-| | | | \----- (End of Private AlgTool Muon::TGC_RodDecoderReadout/TgcRdoToTgcPrepData.TgcRdoToTgcPrepDataTool.TGC_RawDataProviderTool.TGC_RodDecoderReadout) -----
-| | | \----- (End of Private AlgTool Muon::TGC_RawDataProviderTool/TgcRdoToTgcPrepData.TgcRdoToTgcPrepDataTool.TGC_RawDataProviderTool) -----
 | | \----- (End of Private AlgTool Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepData.TgcRdoToTgcPrepDataTool) -----
 | \----- (End of Algorithm TgcRdoToTgcPrepData/TgcRdoToTgcPrepData) ----------------------------------
 |=/***** Algorithm MdtRdoToMdtPrepData/MdtRdoToMdtPrepData *******************************************
@@ -1966,14 +1941,8 @@ RpcRdoToRpcPrep...   INFO overlap_timeTolerance              10
 RpcRdoToRpcPrep...   INFO Correct prd time from cool db      0
 RpcRdoToRpcPrep...   INFO Rpc Cabling Svc name is dataLike
 RpcRdoToRpcPrep...   INFO Retrieved DecodingTool = PrivateToolHandle('Muon::RpcRdoToPrepDataTool/RpcRdoToRpcPrepDataTool')
-TgcRdoToTgcPrep...   INFO initialize() successful in TgcRdoToTgcPrepData.TgcRdoToTgcPrepDataTool.TGC_RawDataProviderTool.TGC_RodDecoderReadout
-TgcRdoToTgcPrep...   INFO Retrieved tool Decoder = PrivateToolHandle('Muon::TGC_RodDecoderReadout/TGC_RodDecoderReadout')
-TgcRdoToTgcPrep...   INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
-TgcRdoToTgcPrep...   INFO  Tool = TgcRdoToTgcPrepData.TgcRdoToTgcPrepDataTool.TGC_RawDataProviderTool is connected to JobOptionsSvc Service = JobOptionsSvc
-TgcRdoToTgcPrep...   INFO initialize() successful in TgcRdoToTgcPrepData.TgcRdoToTgcPrepDataTool.TGC_RawDataProviderTool
 TgcRdoToTgcPrep...   INFO initialize() successful in TgcRdoToTgcPrepData.TgcRdoToTgcPrepDataTool
 TgcRdoToTgcPrep...   INFO Retrieved DecodingTool = PrivateToolHandle('Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepDataTool')
-TgcRdoToTgcPrep...WARNING Implicit circular data dependency detected for id  ( 'TgcRdoContainer' , 'StoreGateSvc+TGCRDO' ) 
 MdtCalibrationSvc    INFO Processing configuration for layouts with BMG chambers.
 AtlasFieldSvc        INFO initialize() ...
 AtlasFieldSvc        INFO maps will be chosen reading COOL folder /GLOBAL/BField/Maps

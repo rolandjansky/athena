@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCDATABASEINPP_HH
@@ -16,11 +16,11 @@ public:
   // Constructor & Destructor
   TGCDatabaseInPP (std::string filename, std::string blockname)
     : TGCDatabase(TGCDatabase::InPP, filename, blockname), 
-    NIndexDBIn(0) 
+    m_NIndexDBIn(0) 
   {
     for(int iIndexIn=0; iIndexIn<NIndexIn; iIndexIn++) { 
-      maxIndexIn[iIndexIn] = 0; 
-      minIndexIn[iIndexIn] = 9999; 
+      m_maxIndexIn[iIndexIn] = 0; 
+      m_minIndexIn[iIndexIn] = 9999; 
     } 
   }
 
@@ -35,10 +35,10 @@ private:
   virtual int convertIndexDBIn(int* indexIn) const;
   TGCDatabaseInPP (void) {}
 
-  std::vector<int> indexDBIn;
-  int NIndexDBIn;
-  int maxIndexIn[NIndexIn];
-  int minIndexIn[NIndexIn];
+  std::vector<int> m_indexDBIn;
+  int m_NIndexDBIn;
+  int m_maxIndexIn[NIndexIn];
+  int m_minIndexIn[NIndexIn];
 };
   
 } // end of namespace

@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
 #include "TileRecUtils/TileRawCorrelatedNoise.h"
 #include "TileEvent/TileDigits.h"
 #include "TileIdentifier/TileHWID.h"
-#include "TileConditions/TileInfo.h"
 
 // Atlas includes
 // access all RawChannels inside container
@@ -291,6 +290,10 @@ StatusCode TileRawCorrelatedNoise::initialize() {
   ATH_CHECK( m_inputDigitsContainerKey.initialize() );
   ATH_CHECK( m_outputDigitsContainerKey.initialize() );
 
+  if (!m_useMeanFiles) {
+    ATH_CHECK( m_tileToolNoiseSample.retrieve() );
+  }
+
   ATH_MSG_INFO( "Initialization completed successfully" );
 
   return StatusCode::SUCCESS;
@@ -307,11 +310,6 @@ StatusCode TileRawCorrelatedNoise::execute() {
 
   const TileHWID* tileHWID;
   CHECK( detStore()->retrieve(tileHWID, "TileHWID") );
-
-  const TileInfo* tileInfo = 0;
-  if (!m_useMeanFiles) {
-    CHECK( detStore()->retrieve(tileInfo, "TileInfo") );
-  }
 
   const TileDigits* OriginalDigits[4][64][48];
 
@@ -330,7 +328,9 @@ StatusCode TileRawCorrelatedNoise::execute() {
 
     if (!m_useMeanFiles) {
       // read pedestal value and use it as mean
-      double ped = tileInfo->DigitsPedLevel(adc_HWID);
+      unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(Ros, Drawer);
+      int adc = tileHWID->adc(adc_HWID);
+      double ped = m_tileToolNoiseSample->getPed(drawerIdx, Channel, adc);
       int nSamples = 7;
       for (int Sample = 0; Sample < nSamples; ++Sample) {
         m_meanSamples[Ros - 1][Drawer][Channel][Sample] = ped;

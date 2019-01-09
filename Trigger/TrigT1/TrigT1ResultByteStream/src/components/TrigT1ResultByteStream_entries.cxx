@@ -14,6 +14,8 @@
 #include "TrigT1ResultByteStream/RecRoIBResultByteStreamTool.h"
 #include "TrigT1ResultByteStream/RoIBResultByteStreamTool.h"
 
+#include "../RoIBResultByteStreamDecoderAlg.h"
+
 // ROBF for offline
 typedef OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment ROBF; 
 
@@ -39,3 +41,4 @@ DECLARE_COMPONENT( RecMuCTPIByteStreamTool )
 DECLARE_COMPONENT( RecRoIBResultByteStreamTool )
 DECLARE_COMPONENT( RoIBResultByteStreamTool )
 
+DECLARE_COMPONENT( RoIBResultByteStreamDecoderAlg )

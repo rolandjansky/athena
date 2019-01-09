@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CABLING_TGCCABLESLBTOHPB_HH
@@ -42,7 +42,7 @@ private:
   virtual TGCModuleMap* getModuleIn(const TGCModuleId* hpb) const;
   virtual TGCModuleMap* getModuleInforHPB(const TGCModuleId* hpb, TGCIdBase::ModuleType moduleType) const;
   virtual TGCModuleMap* getModuleOut(const TGCModuleId* slb) const;
-  TGCDatabase* database[TGCIdBase::MaxRegionType][TGCIdBase::MaxModuleType];
+  TGCDatabase* m_database[TGCIdBase::MaxRegionType][TGCIdBase::MaxModuleType];
 };
   
 } // end of namespace

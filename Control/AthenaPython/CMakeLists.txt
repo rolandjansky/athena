@@ -12,8 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           GaudiKernel
                           PRIVATE
-                          Control/DataModelRoot
-                          Control/SGTools )
+                          Control/DataModelRoot )
 
 # External dependencies:
 find_package( PythonLibs )
@@ -25,7 +24,7 @@ atlas_add_library( AthenaPython
                    PUBLIC_HEADERS AthenaPython
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS}
                    LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${PYTHON_LIBRARIES} CxxUtils DataModelRoot SGTools )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${PYTHON_LIBRARIES} CxxUtils DataModelRoot )
 
 atlas_add_component( AthenaPythonComps
                      src/components/*.cxx
@@ -36,7 +35,7 @@ atlas_add_dictionary( AthenaPythonDict
                       AthenaPython/AthenaPythonDict.h
                       AthenaPython/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${PYTHON_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel CxxUtils DataModelRoot SGTools AthenaPython )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${PYTHON_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel CxxUtils DataModelRoot AthenaPython )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py python/tests )

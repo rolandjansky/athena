@@ -1,17 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TileEvent/TileRawChannel.h"
-
-// Gaudi includes
-#include "GaudiKernel/Property.h"
-#include "AthenaKernel/errorcheck.h"
-
-// Atlas includes
-#include "AthAllocators/DataPool.h"
-
 // Tile includes
+#include "TileEvent/TileRawChannel.h"
 #include "TileRecUtils/TileRawChannelBuilderFitFilter.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileDigitsContainer.h"
@@ -21,6 +13,14 @@
 #include "TileIdentifier/TileTrigType.h"
 #include "TileConditions/TileInfo.h"
 #include "TileConditions/TileCablingService.h"
+
+// Atlas includes
+#include "AthAllocators/DataPool.h"
+#include "AthenaKernel/errorcheck.h"
+
+// Gaudi includes
+#include "GaudiKernel/Property.h"
+
 
 // lang include
 #include <algorithm>
@@ -88,7 +88,8 @@ StatusCode TileRawChannelBuilderFitFilter::initialize() {
   m_rChType = TileFragHash::FitFilter;
 
   // init in superclass
-  CHECK( TileRawChannelBuilder::initialize() );
+  ATH_CHECK( TileRawChannelBuilder::initialize() );
+  ATH_CHECK( m_tileToolNoiseSample.retrieve() );
 
   // Get number of samples from TileInfo - ignore jobOptions settings
   m_frameLength = m_tileInfo->NdigitSamples();
@@ -153,8 +154,8 @@ StatusCode TileRawChannelBuilderFitFilter::initialize() {
       case 3:
         msg(MSG::DEBUG) << " noise for all channels from Conditions DB ";
         if (TileCablingService::getInstance()->getTestBeam()) {
-          msg(MSG::DEBUG) << " rmsLow(LBA01/0) = " << m_tileInfo->DigitsPedSigma(TileID::LOWGAIN, 0, 20)
-                          << " rmsHi(LBA01/0) = " << m_tileInfo->DigitsPedSigma(TileID::HIGHGAIN, 0, 20)
+          msg(MSG::DEBUG) << " rmsLow(LBA01/0) = " << m_tileToolNoiseSample->getHfn(20, 0, TileID::LOWGAIN)
+                          << " rmsHi(LBA01/0) = " << m_tileToolNoiseSample->getHfn(20, 0, TileID::HIGHGAIN)
                           << endmsg;
         } else {
           msg(MSG::DEBUG) << endmsg;
@@ -197,11 +198,14 @@ TileRawChannel* TileRawChannelBuilderFitFilter::rawChannel(const TileDigits* dig
   // use fit filter
   pulseFit(digits, amplitude, time, pedestal, chi2);
   
+  unsigned int drawerIdx(0), channel(0), adc(0);
+  m_tileIdTransforms->getIndices(adcId, drawerIdx, channel, adc);
+
   // fit filter calib
   // note that when called from TileROD_Decoder, m_calibrateEnergy is set
   // from TileROD_Decoder...
   if (m_calibrateEnergy) {
-    amplitude = m_tileInfo->CisCalib(adcId, amplitude);
+    amplitude = m_tileToolEmscale->doCalibCis(drawerIdx, channel, adc, amplitude);
   }
 
   ATH_MSG_VERBOSE( "Creating RawChannel"
@@ -223,7 +227,8 @@ TileRawChannel* TileRawChannelBuilderFitFilter::rawChannel(const TileDigits* dig
                  pedestal);
 
   if (m_correctTime && chi2 > 0) {
-    rawCh->insertTime(m_tileInfo->TimeCalib(adcId, time));
+    time -= m_tileToolTiming->getSignalPhase(drawerIdx, channel, adc);
+    rawCh->insertTime(time);
     ATH_MSG_VERBOSE( "Correcting time, new time=" << rawCh->time() );
   }
   
@@ -261,6 +266,9 @@ void TileRawChannelBuilderFitFilter::pulseFit(const TileDigits *digit
   int channel = m_tileHWID->channel(adcId);
   int igain = m_tileHWID->adc(adcId);
 
+  int drawer = m_tileHWID->drawer(adcId);
+  unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
+
   // Estimate channel noise
   double rms = 0.0;
   int noise_channel = (ros < 3) ? channel : channel + 48;
@@ -268,7 +276,7 @@ void TileRawChannelBuilderFitFilter::pulseFit(const TileDigits *digit
   if (igain == 0) {
     switch (m_channelNoiseRMS) {
       case 3:
-        rms = m_tileInfo->DigitsPedSigma(adcId);
+        rms = m_tileToolNoiseSample->getHfn(drawerIdx, channel, igain);
         if (rms > 0.0) break;
         /* FALLTHROUGH */
       case 2:
@@ -285,7 +293,7 @@ void TileRawChannelBuilderFitFilter::pulseFit(const TileDigits *digit
   } else if (igain == 1) {
     switch (m_channelNoiseRMS) {
       case 3:
-        rms = m_tileInfo->DigitsPedSigma(adcId);
+        rms = m_tileToolNoiseSample->getHfn(drawerIdx, channel, igain);
         if (rms > 0.0) break;
         /* FALLTHROUGH */
       case 2:

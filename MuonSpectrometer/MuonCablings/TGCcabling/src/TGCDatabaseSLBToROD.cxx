@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <fstream>
@@ -12,12 +12,12 @@ namespace LVL1TGCCabling8
 {
 
 void TGCDatabaseSLBToROD::readDB (void) {
-  std::ifstream file(filename.c_str());
+  std::ifstream file(m_filename.c_str());
   std::string buf;
 
-  unsigned int space = blockname.find(" ");
-  std::string module = blockname.substr(0,space);
-  std::string type = blockname.substr(space+1);
+  unsigned int space = m_blockname.find(" ");
+  std::string module = m_blockname.substr(0,space);
+  std::string type = m_blockname.substr(space+1);
 
   while(getline(file,buf)){
     if(buf.substr(0,module.size())==module) break;
@@ -36,7 +36,7 @@ void TGCDatabaseSLBToROD::readDB (void) {
       line >> temp; 
       entry.push_back(temp);
     }
-    database.push_back(entry);
+    m_database.push_back(entry);
   }
   
   file.close();

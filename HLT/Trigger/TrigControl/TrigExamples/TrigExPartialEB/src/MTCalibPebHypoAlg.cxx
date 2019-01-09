@@ -5,10 +5,14 @@
 #include "MTCalibPebHypoAlg.h"
 #include "DecisionHandling/HLTIdentifier.h"
 
+// TrigCompositeUtils types used here
 using TrigCompositeUtils::Decision;
 using TrigCompositeUtils::DecisionContainer;
-using TrigCompositeUtils::DecisionAuxContainer;
+using TrigCompositeUtils::DecisionID;
 using TrigCompositeUtils::DecisionIDContainer;
+
+// TrigCompositeUtils methods used here
+using TrigCompositeUtils::createAndStore;
 using TrigCompositeUtils::decisionIDs;
 using TrigCompositeUtils::newDecisionIn;
 
@@ -47,13 +51,12 @@ StatusCode MTCalibPebHypoAlg::finalize() {
 StatusCode MTCalibPebHypoAlg::execute(const EventContext& eventContext) const {
   ATH_MSG_DEBUG("Executing " << name());
 
-  // New output
-  auto decisions = std::make_unique<DecisionContainer>();
-  auto aux = std::make_unique<DecisionAuxContainer>();
-  decisions->setStore(aux.get());
+  // New output decision container
+  SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), eventContext);
+  DecisionContainer* decisions = outputHandle.ptr();
 
-  // Create new decision
-  Decision* newd = newDecisionIn(decisions.get()); // DecisionContainer decisions owns the pointer
+  // Create new decision (DecisionContainer* decisions owns the new object)
+  Decision* newd = newDecisionIn(decisions, "", eventContext);
 
   // Prepare input for hypo tools
   MTCalibPebHypoTool::Input toolInput(newd, eventContext);
@@ -64,16 +67,13 @@ StatusCode MTCalibPebHypoAlg::execute(const EventContext& eventContext) const {
     ATH_CHECK(tool->decide(toolInput));
   }
 
-  auto outputHandle = SG::makeHandle(decisionOutput(), eventContext);
-  CHECK( outputHandle.record(std::move(decisions), std::move(aux) ) );
-
   ATH_MSG_DEBUG( "Exiting with "<< outputHandle->size() <<" decisions");
 
   for (auto outh: *outputHandle) {
-    TrigCompositeUtils::DecisionIDContainer objDecisions;
-    TrigCompositeUtils::decisionIDs(outh, objDecisions);
+    DecisionIDContainer objDecisions;
+    decisionIDs(outh, objDecisions);
     ATH_MSG_DEBUG("Number of positive decisions for this input: " << objDecisions.size());
-    for ( TrigCompositeUtils::DecisionID id : objDecisions ) {
+    for ( DecisionID id : objDecisions ) {
       ATH_MSG_DEBUG(" --- found new decision " << HLT::Identifier(id));
     }
   }

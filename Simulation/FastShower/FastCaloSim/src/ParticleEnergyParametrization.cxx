@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FastCaloSim/ParticleEnergyParametrization.h"
@@ -174,7 +174,7 @@ C                Error return
   }
 }
 
-void ParticleEnergyParametrization::DiceParticle(ParticleEnergyShape& p,TRandom& rand) {
+void ParticleEnergyParametrization::DiceParticle(ParticleEnergyShape& p,TRandom& rand) const {
   if(!m_Ecal_vs_dist) {
     p.E=0;
     p.Ecal=0;
@@ -197,7 +197,7 @@ void ParticleEnergyParametrization::DiceParticle(ParticleEnergyShape& p,TRandom&
     p.dist_in = GetRandomInBinRange( xmin,xmax ,(TH1*) m_h_layer_d_fine);
   }
 
-  ParticleEnergyParametrizationInDistbin* shapeindist=DistPara(distbin);
+  const ParticleEnergyParametrizationInDistbin* shapeindist=DistPara(distbin);
   if(!shapeindist) {
     cout<<"shapeindist not found : dist_in="<<p.dist_in<<" ECal="<<p.Ecal<<" distbin="<<distbin<<endl;
     return;
@@ -297,7 +297,7 @@ void ParticleEnergyParametrization::RepeatDiceParticles(ParticleEnergyShape* p,i
   }
 }
 
-double ParticleEnergyParametrization::GetRandomInBinRange(double xmin_in1, double xmax_in1 , TH1* in2){
+double ParticleEnergyParametrization::GetRandomInBinRange(double xmin_in1, double xmax_in1 , TH1* in2) const {
 
  // cout << " enter GetRandomInBinRange " << endl;
   int NumOfBin_in2 = in2->GetNbinsX();
@@ -393,7 +393,7 @@ void ParticleEnergyParametrization::Streamer(TBuffer &R__b)
    }
 }
 
-void ParticleEnergyParametrization::CopyDebugInfo(FastShowerInfo* fsi)
+void ParticleEnergyParametrization::CopyDebugInfo(FastShowerInfo* fsi) const
 {
 	if(!fsi)
 	{

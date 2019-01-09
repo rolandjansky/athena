@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ForwardRegionGeoModelFactory.h"
@@ -24,7 +24,6 @@
 #include "GeoGenericFunctions/Cos.h"
 #include "CLHEP/Geometry/Point3D.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "GeoModelInterfaces/StoredMaterialManager.h"
@@ -100,7 +99,7 @@ void ForwardRegionGeoModelFactory::DefineMaterials()
 {
     std::string matName;
 
-    DataHandle<StoredMaterialManager> materialManager;
+    const StoredMaterialManager* materialManager = nullptr;
     if (StatusCode::SUCCESS != m_detectorStore->retrieve(materialManager, std::string("MATERIALS"))) {
       return;
     }
@@ -112,8 +111,8 @@ void ForwardRegionGeoModelFactory::DefineMaterials()
 
     // vacuum
     matName = "std::Vacuum";
-    GeoMaterial *vacuum = materialManager->getMaterial(matName);
-    m_MapMaterials.insert(std::pair<std::string,GeoMaterial*>(matName,vacuum));
+    const GeoMaterial *vacuum = materialManager->getMaterial(matName);
+    m_MapMaterials.emplace(matName,vacuum);
 
     // water
     matName = "water";
@@ -123,7 +122,7 @@ void ForwardRegionGeoModelFactory::DefineMaterials()
     water->add(hydrogen,0.11);
     water->add(oxygen,0.89);
     water->lock();
-    m_MapMaterials.insert(std::pair<std::string,GeoMaterial*>(matName,water));
+    m_MapMaterials.emplace(matName,water);
 
     // elements
     const GeoElement* C  = materialManager->getElement("Carbon");

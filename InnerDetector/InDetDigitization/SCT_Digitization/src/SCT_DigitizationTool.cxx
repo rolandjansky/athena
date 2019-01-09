@@ -107,6 +107,12 @@ StatusCode SCT_DigitizationTool::initialize() {
   } else {
     m_sct_RandomDisabledCellGenerator.disable();
   }
+  
+  // Initialize ReadHandleKey
+  if (!m_hitsContainerKey.key().empty()) {
+    ATH_MSG_INFO("Loading single input HITS");
+  }
+  ATH_CHECK(m_hitsContainerKey.initialize(!m_hitsContainerKey.key().empty()));
 
   // +++ Initialize WriteHandleKey
   ATH_CHECK(m_rdoContainerKey.initialize());
@@ -748,6 +754,23 @@ StatusCode SCT_DigitizationTool::getNextEvent() {
   //  get the container(s)
   typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitCollList;
   // this is a list<pair<time_t, DataLink<SiHitCollection> >
+
+  // In case of single hits container just load the collection using read handles
+  if (!m_hitsContainerKey.key().empty()) {
+    SG::ReadHandle<SiHitCollection> hitCollection(m_hitsContainerKey);
+    if (!hitCollection.isValid()) {
+      ATH_MSG_ERROR("Could not get SCT SiHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());
+      return StatusCode::FAILURE;
+    }
+
+    // create a new hits collection
+    m_thpcsi = new TimedHitCollection<SiHit>{1};
+    m_thpcsi->insert(0, hitCollection.cptr());
+    ATH_MSG_DEBUG("SiHitCollection found with " << hitCollection->size() << " hits");
+
+    return StatusCode::SUCCESS;
+  }
+
   TimedHitCollList hitCollList;
   unsigned int numberOfSiHits{0};
   if (not (m_mergeSvc->retrieveSubEvtsData(m_inputObjectName, hitCollList, numberOfSiHits).isSuccess()) and hitCollList.size() == 0) {
@@ -775,7 +798,7 @@ StatusCode SCT_DigitizationTool::getNextEvent() {
     }
     const SiHitCollection* p_collection{iColl->second};
     m_thpcsi->insert(iColl->first, p_collection);
-    ATH_MSG_DEBUG("SiTrackerHitCollection found with" << p_collection->size() << " hits"); // loop on the hit collections
+    ATH_MSG_DEBUG("SiTrackerHitCollection found with " << p_collection->size() << " hits"); // loop on the hit collections
   }
   return StatusCode::SUCCESS;
 }

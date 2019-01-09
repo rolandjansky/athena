@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDSVC_TGCCONDSUMMARYSVC_H
@@ -65,8 +65,7 @@ private:
  ServiceHandleArray<ITGCConditionsSvc> m_reportingServices; //!< list of services to be used
  
   
- std::vector<Identifier> emptyId;
- std::vector<std::string> empty;
+ std::vector<Identifier> m_emptyId;
  const TgcIdHelper * m_pHelper;
  
  ServiceHandle<StoreGateSvc> m_detStore;

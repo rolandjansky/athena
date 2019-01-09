@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # @file:    PyDumper/python/PyComps.py
 # @purpose: A set of PyAthena components to test reading/writing EDM classes
@@ -10,6 +10,7 @@ __version__ = '$Revision: 1.11 $'
 __author__  = 'Sebastien Binet <binet@cern.ch>'
 
 import os
+from fnmatch import fnmatch
 import AthenaCommon.SystemOfUnits as Units
 import AthenaPython.PyAthena as PyAthena
 from AthenaPython.PyAthena import StatusCode
@@ -225,6 +226,7 @@ class PySgDumper (PyAthena.Alg):
 
         ## properties and data members
         self.items = kw.get('items', '*')
+        self.exclude = kw.get('exclude', '')
         self.ofile = kw.get('ofile', '')
 
         ## handle to event store
@@ -290,8 +292,9 @@ class PySgDumper (PyAthena.Alg):
         self.ofile.writelines (['%s\n'%('='*40),
                                 '==> evt nbr [%s]\n' % self._evt_nbr])
         self._evt_nbr += 1
-        
+
         if self.items is None:
+            elist = self.exclude.split(',')
             proxies = self.sg.proxies()
             sg = dict()
             _typename = self.clidsvc.typename
@@ -302,6 +305,13 @@ class PySgDumper (PyAthena.Alg):
                 n  = str(p.name())
                 tp = _typename(clid)
                 if n.endswith('Aux.'): continue
+                excluded = False
+                for exc in elist:
+                    if fnmatch (n, exc) or (tp and fnmatch(tp, exc)):
+                        excluded = True
+                        break
+                if excluded:
+                    continue
                 if tp:
                     sg[n] = tp
                 else:

@@ -22,7 +22,6 @@ namespace NSWL1 {
    * This class implements the public interface of the Strip Segmentfinding tool Tools.
    * It Current unclear what it will output to input the StripTrigger simulation.
    *
-   *  @author Jacob Searcy <jsearcy@umich.edu>
    *
    *
    */

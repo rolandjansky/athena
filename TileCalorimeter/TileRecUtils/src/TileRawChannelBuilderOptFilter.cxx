@@ -286,15 +286,16 @@ TileRawChannel * TileRawChannelBuilderOptFilter::rawChannel(const TileDigits* di
   double chi2 = 0.;
   m_digits = digits->samples();
   const HWIdentifier adcId = digits->adc_HWID();
+  int ros = m_tileHWID->ros(adcId);
+  int drawer = m_tileHWID->drawer(adcId);
+  int channel = m_tileHWID->channel(adcId);
   int gain = m_tileHWID->adc(adcId);
+  unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
 
   ATH_MSG_VERBOSE( "Building Raw Channel, with OptFilter, HWID:" << m_tileHWID->to_string(adcId)
                   << " gain=" << gain );
 
   if (m_confTB) {  // Using old weights for CTB
-    int ros = m_tileHWID->ros(adcId);
-    int drawer = m_tileHWID->drawer(adcId);
-    int channel = m_tileHWID->channel(adcId);
     chi2 = filter(ros, drawer, channel, gain, pedestal, amplitude, time);
 
   } else {  // Using weights obtained with delta correlation
@@ -302,7 +303,7 @@ TileRawChannel * TileRawChannelBuilderOptFilter::rawChannel(const TileDigits* di
   }
 
   if (m_calibrateEnergy) {
-    amplitude = m_tileInfo->CisCalib(adcId, amplitude);
+    amplitude = m_tileToolEmscale->doCalibCis(drawerIdx, channel, gain, amplitude);
   }
 
   if (msgLvl(MSG::VERBOSE)) {
@@ -332,7 +333,9 @@ TileRawChannel * TileRawChannelBuilderOptFilter::rawChannel(const TileDigits* di
   if (m_correctTime
       && (time != 0 && time < m_maxTime && time > m_minTime)) {
 
-    rawCh->insertTime(m_tileInfo->TimeCalib(adcId, time));
+    time -= m_tileToolTiming->getSignalPhase(drawerIdx, channel, gain);
+    rawCh->insertTime(time);
+
     ATH_MSG_VERBOSE( "Correcting time, new time=" << rawCh->time() );
 
   }

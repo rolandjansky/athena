@@ -19,11 +19,7 @@ SCT_TestDistortionsTool::SCT_TestDistortionsTool(const std::string& name, ISvcLo
 StatusCode
 SCT_TestDistortionsTool::initialize() {
   ITHistSvc* tHistSvc;
-  StatusCode sc = Gaudi::svcLocator()->service("THistSvc", tHistSvc);
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL ("THistSvc not found!");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(Gaudi::svcLocator()->service("THistSvc", tHistSvc));
 
   ATH_CHECK(m_SCTDistoTool.retrieve());
   ATH_MSG_INFO("Test algorithm for SCT_DistortionsTool");
@@ -48,31 +44,29 @@ SCT_TestDistortionsTool::initialize() {
 
 StatusCode
 SCT_TestDistortionsTool::execute() {
-  IdentifierHash HASH{4744};
-  ATH_MSG_INFO(" Hash 4744 from region: " << m_SCTDistoTool->identifyRegion(HASH));
+  IdentifierHash hash{4744};
+  ATH_MSG_INFO(" Hash " << hash << " from region: " << m_SCTDistoTool->identifyRegion(hash));
   ATH_MSG_INFO(" ******************************************* ");
   ATH_MSG_INFO(" **           Working so far              ** ");
   ATH_MSG_INFO(" ******************************************* ");
-  int Side{0};
-  int REGION{m_SCTDistoTool->identifyRegion(HASH)};
-  float ZData[50];
-  const std::vector<float>* ZVec{m_SCTDistoTool->readDistortions(REGION, Side)};
-  ATH_MSG_INFO(" ZVec.size() = " << ZVec->size());
+  int side{0};
+  int region{m_SCTDistoTool->identifyRegion(hash)};
+  const std::vector<float>* zVec{m_SCTDistoTool->readDistortions(region, side)};
+  ATH_MSG_INFO(" zVec.size() = " << zVec->size());
   ATH_MSG_INFO(" **           Working so far              ** ");
 
-  std::vector<float>::const_iterator ZVecFirst{ZVec->begin()};
-  std::vector<float>::const_iterator ZVecLast{ZVec->end()};
   int k{0};
-  for(; ZVecFirst != ZVecLast; ZVecFirst++) {
-    ZData[k] = *ZVecFirst;
+  float zData[50];
+  for (const float z: *zVec) {
+    zData[k] = z;
     k++;
   }
 
   ATH_MSG_INFO(" **           Working so far              ** ");
-  ATH_MSG_INFO(" ZData[0] = " << ZData[0]);
-  ATH_MSG_INFO(" ZData[24] = " << ZData[24]);
-  ATH_MSG_INFO(" ZData[25] = " << ZData[25]);
-  ATH_MSG_INFO(" ZData[49] = " << ZData[49]);
+  ATH_MSG_INFO(" zData[0] = " << zData[0]);
+  ATH_MSG_INFO(" zData[24] = " << zData[24]);
+  ATH_MSG_INFO(" zData[25] = " << zData[25]);
+  ATH_MSG_INFO(" zData[49] = " << zData[49]);
   ATH_MSG_INFO(" **           Working so far              ** ");
 
   float xGrid[10];
@@ -84,30 +78,28 @@ SCT_TestDistortionsTool::execute() {
   for (int i{0}; i<10; i++) {
     double y1{-30.4};
     double x1{xGrid[i]};
-    double z1{m_SCTDistoTool->zShift(x1, y1, ZVec)};
+    double z1{m_SCTDistoTool->zShift(x1, y1, zVec)};
     ATH_MSG_INFO(" x = " << x1 << " y = " << y1 << " z = "<< z1);
     m_outerXedge->Fill(x1, z1);
   }
   for (int i{0}; i<5; i++) {
     double y1{yGrid[i]};
     double x1{-61.9};
-    double z1{m_SCTDistoTool->zShift(x1, y1, ZVec)};
+    double z1{m_SCTDistoTool->zShift(x1, y1, zVec)};
     ATH_MSG_INFO(" x = " << x1 << " y = " << y1 << " z = " << z1);
     m_outerYedge->Fill(y1, z1);
   }
 
   for (double x{-630.}; x<630; x++) {
     for (double y{-320.}; y<320; y++) {
-      double z{m_SCTDistoTool->zShift(x/10., y/10., ZVec)};
+      double z{m_SCTDistoTool->zShift(x/10., y/10., zVec)};
       m_ZvsX->Fill(x/10., z);
       m_ZvsY->Fill(y/10., z);
       m_XYZ->Fill(x/10., y/10., z);
 
       if (x/10. < -62.8 or x/10. > 62.6) m_outerY->Fill(y/10., z);
       if (y/10. < -31.4 or y/10. > 31.4) m_outerX->Fill(x/10., z);
-    
     }
-
   }
 
   return StatusCode::SUCCESS;
