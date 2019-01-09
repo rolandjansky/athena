@@ -22,6 +22,8 @@ apply_pattern poolcnv files="-s=${MuonSimEvent_root}/MuonSimEvent \
                     MDTSimHitCollection.h \
                     RPCSimHitCollection.h \
                     TGCSimHitCollection.h \
+                    sTGCSimHitCollection.h \
+                    MMSimHitCollection.h \
                     GenericMuonSimHitCollection.h"
 
 apply_pattern declare_joboptions files="*.py"

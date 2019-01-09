@@ -49,4 +49,6 @@ apply_pattern UnitTest_run unit_test=RPCSimHitCollectionCnv_p2
 apply_pattern UnitTest_run unit_test=TGCSimHitCollectionCnv_p1
 apply_pattern UnitTest_run unit_test=TGCSimHitCollectionCnv_p2
 apply_pattern UnitTest_run unit_test=TGCSimHitCollectionCnv_p3
+apply_pattern UnitTest_run unit_test=sTGCSimHitCollectionCnv_p1
+apply_pattern UnitTest_run unit_test=MMSimHitCollectionCnv_p1
 

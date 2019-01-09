@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MicromegasSensitiveDetector.h"
@@ -18,7 +18,7 @@
 // construction/destruction
 MicromegasSensitiveDetector::MicromegasSensitiveDetector(const std::string& name, const std::string& hitCollectionName)
   : G4VSensitiveDetector( name )
-  , m_GenericMuonHitCollection( hitCollectionName )
+  , m_MMSimHitCollection( hitCollectionName )
 {
   m_muonHelper = MicromegasHitIdHelper::GetHelper();
   //m_muonHelper->PrintFields();
@@ -27,7 +27,7 @@ MicromegasSensitiveDetector::MicromegasSensitiveDetector(const std::string& name
 // Implemenation of memebr functions
 void MicromegasSensitiveDetector::Initialize(G4HCofThisEvent*) 
 {
-  if (!m_GenericMuonHitCollection.isValid()) m_GenericMuonHitCollection = CxxUtils::make_unique<GenericMuonSimHitCollection>();
+  if (!m_MMSimHitCollection.isValid()) m_MMSimHitCollection = CxxUtils::make_unique<MMSimHitCollection>();
 }
 
 G4bool MicromegasSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROHist*/) 
@@ -97,7 +97,7 @@ G4bool MicromegasSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory
  
   TrackHelper trHelp(aStep->GetTrack());
 
-  m_GenericMuonHitCollection->Emplace(MmId, globalTime,globalpreTime,position,local_position,preposition,local_preposition,pdgCode,eKin,direction,depositEnergy,StepLength,trHelp.GetParticleLink());
+  m_MMSimHitCollection->Emplace(MmId, globalTime,position,pdgCode,eKin,direction,depositEnergy,trHelp.GetParticleLink());
 
   //    G4cout << "MMs "<<m_muonHelper->GetStationName(MmId)
   // 	            << " "<<m_muonHelper->GetFieldValue("PhiSector")

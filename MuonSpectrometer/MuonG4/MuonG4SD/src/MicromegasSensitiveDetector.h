@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MicromegasSensitiveDetector_H
@@ -7,7 +7,7 @@
 
 #include "G4VSensitiveDetector.hh"
 #include "StoreGate/WriteHandle.h"
-#include "MuonSimEvent/GenericMuonSimHitCollection.h"
+#include "MuonSimEvent/MMSimHitCollection.h"
 
 class MicromegasHitIdHelper;
 
@@ -24,7 +24,7 @@ public:
     
 private:
 
-    SG::WriteHandle<GenericMuonSimHitCollection> m_GenericMuonHitCollection;
+    SG::WriteHandle<MMSimHitCollection> m_MMSimHitCollection;
     MicromegasHitIdHelper* m_muonHelper;
 
 };
