@@ -41,12 +41,8 @@ def metCellRecoSequence(RoIs):
     # Get cells
     #################################################
 
-    from TrigCaloRec.TrigCaloRecConfig import HLTCaloCellMaker
-    cellMakerAlgo =  HLTCaloCellMaker("CellMakerMT")
-    cellMakerAlgo.roiMode=True
-    cellMakerAlgo.RoIs=RoIs 
-    cellMakerAlgo.OutputLevel=WARNING
-    cellMakerAlgo.CellsName="CaloCells"
+    from TrigT2CaloCommon.CaloDef import algoHLTCaloCell
+    cellMakerAlgo = algoHLTCaloCell(inputEDM=RoIs, outputEDM='CaloCells')
     metCellRecoSequence += cellMakerAlgo
 
 
