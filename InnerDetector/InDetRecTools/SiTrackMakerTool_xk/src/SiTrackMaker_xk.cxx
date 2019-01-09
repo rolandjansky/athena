@@ -53,6 +53,7 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   m_useSSSfilter = true               ;
   m_ITKGeomtry   = false              ;
   m_heavyion     = false              ;
+  m_cleanSCTClus = false              ; 
   m_xi2max       = 15.                ;
   m_xi2maxNoAdd  = 35.                ;
   m_xi2maxlink   = 200.               ;
@@ -92,6 +93,7 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   declareProperty("nHolesMax"               ,m_nholesmax   );
   declareProperty("nHolesGapMax"            ,m_dholesmax   );
   declareProperty("nClustersMin"            ,m_nclusmin    );
+  declareProperty("CleanSpuriousSCTClus"    ,m_cleanSCTClus);
   declareProperty("nWeightedClustersMin"    ,m_nwclusmin   );
   declareProperty("MagneticFieldMode"       ,m_fieldmode   );
   declareProperty("SeedsFilterLevel"        ,m_seedsfilter );
@@ -253,7 +255,8 @@ StatusCode InDet::SiTrackMaker_xk::finalize()
 MsgStream&  InDet::SiTrackMaker_xk::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpevent(out); return dumpconditions(out);
+  if(m_nprint) return dumpevent(out);
+  return dumpconditions(out);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -484,7 +487,7 @@ void InDet::SiTrackMaker_xk::endEvent()
  
   // Print event information 
   //
-  if (outputLevel()<=0) {
+  if( msgLevel()<=0 ){
     m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
   }
 }
@@ -797,14 +800,16 @@ void  InDet::SiTrackMaker_xk::setTrackQualityCuts()
   m_trackquality.setIntCut   ("MaxNumberOfHoles"    ,m_nholesmax  ); 
   m_trackquality.setIntCut   ("MaxHolesGae"         ,m_dholesmax  ); 
 
-  if( m_useassoTool ) m_trackquality.setIntCut   ("UseAssociationTool",1);
-  else                m_trackquality.setIntCut   ("UseAssociationTool",0);
-  if( m_cosmicTrack ) m_trackquality.setIntCut   ("CosmicTrack"       ,1); 
-  else                m_trackquality.setIntCut   ("CosmicTrack"       ,0);
-  if(m_simpleTrack  ) m_trackquality.setIntCut   ("SimpleTrack"       ,1);
-  else                m_trackquality.setIntCut   ("SimpleTrack"       ,0);
-  if(m_multitracks  ) m_trackquality.setIntCut   ("doMultiTracksProd" ,1);
-  else                m_trackquality.setIntCut   ("doMultiTracksProd" ,0);
+  if( m_useassoTool ) m_trackquality.setIntCut   ("UseAssociationTool"  ,1);
+  else                m_trackquality.setIntCut   ("UseAssociationTool"  ,0);
+  if( m_cosmicTrack ) m_trackquality.setIntCut   ("CosmicTrack"         ,1);
+  else                m_trackquality.setIntCut   ("CosmicTrack"         ,0);
+  if(m_simpleTrack  ) m_trackquality.setIntCut   ("SimpleTrack"         ,1);
+  else                m_trackquality.setIntCut   ("SimpleTrack"         ,0);
+  if(m_multitracks  ) m_trackquality.setIntCut   ("doMultiTracksProd"   ,1);
+  else                m_trackquality.setIntCut   ("doMultiTracksProd"   ,0);
+  if(m_cleanSCTClus ) m_trackquality.setIntCut   ("CleanSpuriousSCTClus",1);
+  else                m_trackquality.setIntCut   ("CleanSpuriousSCTClus",0);
 
   // Double cuts
   //
@@ -855,7 +860,8 @@ StatusCode InDet::SiTrackMaker_xk::magneticFieldInit(IOVSVC_CALLBACK_ARGS)
 {
   // Build MagneticFieldProperties 
   //
-  if(!m_fieldService->solenoidOn()) m_fieldmode ="NoField"; magneticFieldInit();
+  if(!m_fieldService->solenoidOn()) m_fieldmode ="NoField"; 
+  magneticFieldInit();
   return StatusCode::SUCCESS;
 }
 

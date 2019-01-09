@@ -22,6 +22,8 @@ def addExpressStream(triggerPythonConfig):
         Names = ExpressNamesPPV6
     elif menu_name.startswith('L1_pp_v7') or menu_name.startswith('Physics_pp_v7') or menu_name.startswith('MC_pp_v7'):
         Names = ExpressNamesPPV7
+    elif menu_name.startswith('L1_pp_v8') or menu_name.startswith('Physics_pp_v8') or menu_name.startswith('MC_pp_v8'):
+        Names = ExpressNamesPPV8
 
 
     for chainName, chainPrescale in Names.iteritems():
@@ -50,5 +52,7 @@ ExpressNamesPPV5 = {
 ExpressNamesPPV6 = {
 }
 ExpressNamesPPV7 = {
+}
+ExpressNamesPPV8 = {
 }
 

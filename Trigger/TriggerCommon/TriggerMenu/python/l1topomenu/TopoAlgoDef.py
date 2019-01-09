@@ -23,7 +23,7 @@ class TopoAlgoDef:
         _minet = 0
         usev7 = False
 
-        if '_v7' in TriggerFlags.triggerMenuSetup() or 'HI_v5' in TriggerFlags.triggerMenuSetup() :
+        if '_v8' in TriggerFlags.triggerMenuSetup() or '_v7' in TriggerFlags.triggerMenuSetup() or 'HI_v5' in TriggerFlags.triggerMenuSetup() :
             usev7 = True
         if '_PhaseII' in TriggerFlags.triggerMenuSetup():
             usev7 = True

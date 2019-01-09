@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDAlignMonResiduals_H
@@ -55,10 +55,10 @@ namespace Trk {
   class RIO_OnTrack;
   class Track;
   class TrackStateOnSurface;
-  class IResidualPullCalculator; 
+  class IResidualPullCalculator;
 }
 
-class IInDetAlignHitQualSelTool; 
+class IInDetAlignHitQualSelTool;
 //namespace InDet {
 //  class IInDetTrackSelectionTool;
 //}
@@ -66,10 +66,10 @@ class IInDetAlignHitQualSelTool;
 
 class IDAlignMonResiduals : public ManagedMonitorToolBase
 {
-  
+
  public:
-  
-  IDAlignMonResiduals( const std::string & type, const std::string & name, const IInterface* parent ); 
+
+  IDAlignMonResiduals( const std::string & type, const std::string & name, const IInterface* parent );
 
   virtual ~IDAlignMonResiduals();
 
@@ -83,8 +83,8 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   void MakeSCTEndcapsHistograms (MonGroup& al_mon);
   void MakeSCTBarrelHistograms (MonGroup& al_mon);
 
-  void MakeStaveShapeFit(float& mag, float& mag_er,float& base,float& base_er,TH1D* projection);
-  TGraphErrors* ConvertHistoInGraph(TH1D*);
+  void MakeStaveShapeFit(float& mag, float& mag_er,float& base,float& base_er,TH1F* projection);
+  TGraphErrors* ConvertHistoInGraph(TH1F*);
 
   void MakeTRTHistograms(MonGroup& al_mon);
   void MakeTRTBarrelHistograms(MonGroup& al_mon);
@@ -101,18 +101,18 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   /** Make Histograms */
   TH1F_LW* MakeHist(const std::string& name, const std::string& title, int nBins, float xLow, float xUp, const std::string& xAxisTitle, const std::string& yAxisTitle);
   TH2F* MakeHist( const std::string& name, const std::string& title, int nXBins, float xLow, float xUp, int nYBins, float yLow, float yUp, const std::string& xAxisTitle, const std::string& yAxisTitle);
-  
- 
+
+
   /** Make Profiles */
   TProfile* MakeProfile(const std::string& name, const std::string& title, int nBins, float xLow, float xUp, float yLow, float yUp, const std::string& xAxisTitle, const std::string& yAxisTitle, bool setMinZero=true);
-	
+
   void RegisterHisto(MonGroup& mon, TH1* histo);
   void RegisterHisto(MonGroup& mon, TH1F_LW* histo);
   void RegisterHisto(MonGroup& mon, TH2* histo);
   void RegisterHisto(MonGroup& mon, TProfile* histo);
   void RegisterHisto(MonGroup& mon, TProfile2D* histo);
   void RegisterHisto(MonGroup& mon, TH3* histo);
-  
+
   void InitializeHistograms();
 
 
@@ -122,9 +122,11 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   ServiceHandle<ITRT_CalDbSvc> m_trtcaldbSvc ;
  private:
 
-	
+
   StatusCode setupTools();
-	
+
+  bool isEdge(const Trk::RIO_OnTrack*);
+
   std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> findOverlapHit(const Trk::Track*, const Trk::RIO_OnTrack*);
   StatusCode getSiResiduals(const Trk::Track*, const Trk::TrackStateOnSurface*, bool, double*);
   const Trk::TrackParameters* getUnbiasedTrackParameters(const Trk::Track*, const Trk::TrackStateOnSurface*);
@@ -135,7 +137,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   bool trackRequiresRefit(const Trk::Track*);
 
   //================================================================
-  // Establishes a minimim window for the histograms 
+  // Establishes a minimim window for the histograms
   //================================================================
   void SetMinWindow(TProfile* hProf, float min, float max);
   void SetMinWindow(TH1* h1, float min, float max);
@@ -146,11 +148,13 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   std::string m_Pixel_Manager;
   std::string m_SCT_Manager;
   std::string m_TRT_Manager;
-  
+
   //Layer/Disk/Ring Gap for modified module histograms
   int m_gap_pix;
   int m_gap_sct;
   int m_NLumiBlocksMon;
+  int m_maxModulesInASCTEndCapRing;
+  int m_maxRingsInASCTEndCapDisk;
 
   float m_minTRTResWindow;
   float m_maxTRTResWindow;
@@ -165,9 +169,9 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   float m_maxSCTResFillRange;
   float m_minSCTResFillRange;
   float m_maxPIXResXFillRange;
-  float m_minPIXResXFillRange;  
+  float m_minPIXResXFillRange;
   float m_maxPIXResYFillRange;
-  float m_minPIXResYFillRange;  
+  float m_minPIXResYFillRange;
   float m_RangeOfPullHistos;
   float m_PtRange;
   float m_ClusterSizeRange;
@@ -192,18 +196,18 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   int  m_oldlumiblock;
   int m_FinerBinningFactor;
   float m_LBGranularity;
-  std::vector<TString> m_siliconBarrelLayersLabels; 
+  std::vector<TString> m_siliconBarrelLayersLabels;
   std::vector<TString> m_siliconEndcapLayersLabels;
   bool m_useGausFit;
   float m_maxPtEC; // threshold for low-pt EC distributions
-  
+
   //tools
   const AtlasDetectorID*                m_idHelper;
-  const InDetDD::PixelDetectorManager*  m_PIX_Mgr; 
+  const InDetDD::PixelDetectorManager*  m_PIX_Mgr;
   const InDetDD::SCT_DetectorManager*   m_SCT_Mgr;
   const PixelID*                        m_pixelID;
-  const SCT_ID*                         m_sctID; 
-  const TRT_ID*                         m_trtID; 
+  const SCT_ID*                         m_sctID;
+  const TRT_ID*                         m_trtID;
   ToolHandle<Trk::IUpdator>             m_iUpdator;
   ToolHandle<Trk::IPropagator>          m_propagator;
 
@@ -213,7 +217,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   //ToolHandle<InDet::IInDetTrackSelectionTool>   m_idtrackSelection;
 
   //histograms
-  
+
   TH1F* m_totalEvents;
   TH1F* m_sirescalcfailure;
   std::vector<TH3F*> m_sct_b_Oxresxvsmodetaphi_3ds;
@@ -232,24 +236,24 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   std::vector<TH1F*> m_sct_b_yoverlapresidualsx;
   std::vector<TProfile*> m_sct_eca_xresvsmodphi_disks;
   std::vector<TProfile*> m_sct_ecc_xresvsmodphi_disks;
-  
+
   std::vector<TProfile*> m_sct_eca_biased_xresvsmodphi_disks;
   std::vector<TProfile*> m_sct_ecc_biased_xresvsmodphi_disks;
   std::vector<TH3F*> m_sct_b_s0_biased_xresvsmodetaphi_3ds;
   std::vector<TH3F*> m_sct_b_s1_biased_xresvsmodetaphi_3ds;
-  
+
   std::vector<TH3F*> m_sct_eca_s0_biased_xresvsmodetaphi_3ds;
   std::vector<TH3F*> m_sct_ecc_s0_biased_xresvsmodetaphi_3ds;
   std::vector<TH3F*> m_sct_eca_s1_biased_xresvsmodetaphi_3ds;
   std::vector<TH3F*> m_sct_ecc_s1_biased_xresvsmodetaphi_3ds;
-  
+
   std::vector<TH3F*> m_sct_b_clustersizePhivsmodetaphi_3ds_s0;
   std::vector<TH3F*> m_sct_b_clustersizePhivsmodetaphi_3ds_s1;
 
   std::vector<TH3F*> m_sct_eca_xresvsmodetaphi_3ds;
   std::vector<TH3F*> m_sct_ecc_xresvsmodetaphi_3ds;
-  
-  std::vector<TH1F*> m_sct_b_biased_residualsx; 	
+
+  std::vector<TH1F*> m_sct_b_biased_residualsx;
   std::vector<TH2F*> m_sct_b_biased_residualsx_pt;
   std::vector<TH2F*> m_sct_b_residualsx_pt;
   std::vector<TH2F*> m_sct_b_biased_residualsx_qoverp2;
@@ -265,7 +269,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   std::vector<TH2F*> m_pix_b_residualsx_inciphi;
   std::vector<TH2F*> m_pix_b_residualsy_incitheta;
   std::vector<TH2F*> m_pix_b_residualsy_inciphi;
-  
+
   //Pix Eca unbiased residuals maps
 
   TH3F* m_pix_eca_xresvsmodphidisk_3d;
@@ -278,7 +282,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   std::vector<TH1F*> m_pix_b_clustersize;
   std::vector<TH1F*> m_pix_eca_clustersize;
   std::vector<TH1F*> m_pix_ecc_clustersize;
-  
+
   std::vector<TH1F*> m_pix_b_clustersizePhi;
   std::vector<TH1F*> m_pix_b_clustersizeZ;
   std::vector<TH1F*> m_pix_eca_clustersizePhi;
@@ -299,7 +303,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   std::vector<TProfile*> m_pix_b_residualsy_clustersizePhiP;
   std::vector<TProfile*> m_pix_b_residualsx_clustersizeZP;
   std::vector<TProfile*> m_pix_b_residualsy_clustersizeZP;
- 
+
   std::vector<TH2F*> m_pix_eca_residualsx_clustersize;
   std::vector<TH2F*> m_pix_eca_residualsy_clustersize;
   std::vector<TH2F*> m_pix_eca_residualsx_clustersizePhi;
@@ -313,7 +317,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   std::vector<TH2F*> m_pix_ecc_residualsy_clustersizePhi;
   std::vector<TH2F*> m_pix_ecc_residualsx_clustersizeZ;
   std::vector<TH2F*> m_pix_ecc_residualsy_clustersizeZ;
-  
+
   std::vector<TProfile*> m_pix_eca_residualsx_clustersizeP;
   std::vector<TProfile*> m_pix_eca_residualsy_clustersizeP;
   std::vector<TProfile*> m_pix_eca_residualsx_clustersizePhiP;
@@ -342,10 +346,10 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   std::vector<TH2F*> m_dbm_biased_residualsx_qoverp2;
   std::vector<TH2F*> m_dbm_pullsx_pt;
   std::vector<TH1F*> m_dbm_xoverlapresidualsx;
-  
+
   TH2F* m_dbm_xresvsmodphi_2d;
-  
-  //SctCluster Size 
+
+  //SctCluster Size
 
   std::vector<TH1F*> m_sct_b_clustersizePhi;
   std::vector<TH1F*> m_sct_eca_clustersizePhi;
@@ -354,9 +358,9 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   std::vector<TH2F*> m_sct_b_residualsx_clustersizePhi;
   std::vector<TH2F*> m_sct_eca_residualsx_clustersizePhi;
   std::vector<TH2F*> m_sct_ecc_residualsx_clustersizePhi;
-  
-  
- 
+
+
+
   std::vector<TProfile*> m_sct_b_residualsx_clustersizePhiP;
   std::vector<TProfile*> m_sct_eca_residualsx_clustersizePhiP;
   std::vector<TProfile*> m_sct_ecc_residualsx_clustersizePhiP;
@@ -367,7 +371,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
 
 
   //Cluster Size vs Incident Angle
-  
+
   std::vector<TProfile*> m_pix_b_clustersizePhi_incidentAngle;
   std::vector<TProfile*> m_pix_b_clustersizeZ_incidentAngle;
   std::vector<TProfile*> m_pix_b_clustersize_incidentAngle;
@@ -383,7 +387,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   std::vector<TProfile*> m_sct_b_clustersizePhi_incidentAngle;
   std::vector<TProfile*> m_sct_eca_clustersizePhi_incidentAngle;
   std::vector<TProfile*> m_sct_ecc_clustersizePhi_incidentAngle;
-  
+
   std::vector<TH2F*> m_sct_b_residualsx_incidentAnglePhi_s0;
   std::vector<TH2F*> m_sct_eca_residualsx_incidentAnglePhi_s0;
   std::vector<TH2F*> m_sct_ecc_residualsx_incidentAnglePhi_s0;
@@ -399,7 +403,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   std::vector<TH2F*> m_sct_b_residualsx_incidentAngle_s1;
   std::vector<TH2F*> m_sct_eca_residualsx_incidentAngle_s1;
   std::vector<TH2F*> m_sct_ecc_residualsx_incidentAngle_s1;
-  
+
   std::vector<TProfile*> m_pix_b_clustersizePhi_incidentAnglePhi;
   std::vector<TProfile*> m_pix_b_clustersizeZ_incidentAnglePhi;
   std::vector<TProfile*> m_pix_b_clustersize_incidentAnglePhi;
@@ -429,8 +433,8 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   float m_LBRangeMin;
   float m_LBRangeMax;
   int nIBLHitsPerLB;
-  
-  
+
+
   int lumiblock;
 
   TProfile2D*   m_pix_b0_resXvsetaLumiBlock;
@@ -454,37 +458,37 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   TH3F*   m_pix_b0_resXvsetaLumiBlock_stave13;
 
   //IBL fit magnitude and baseline as a function of LumiBlock
-  
-  TH1D* m_mag_vs_LB;
-  TH1D* m_base_vs_LB;
 
-  TH1D* m_mag_vs_LB_planars;
-  TH1D* m_base_vs_LB_planars;
+  TH1F* m_mag_vs_LB;
+  TH1F* m_base_vs_LB;
+
+  TH1F* m_mag_vs_LB_planars;
+  TH1F* m_base_vs_LB_planars;
 
 
-  
+
 
   // SCT
   TH2F* m_sct_b_pullx_pt;
   std::vector<TH2F*> m_sct_b_pullsx_pt;
-  
-  TH2F* m_sct_eca_pullx_pt;	
+
+  TH2F* m_sct_eca_pullx_pt;
   TH2F* m_sct_ecc_pullx_pt;
-  
-  
+
+
   std::vector<TH2F*> m_sct_eca_pullsx_pt;
   std::vector<TH2F*> m_sct_ecc_pullsx_pt;
-  
-  
+
+
   std::vector<TH2F*> m_sct_eca_residualsx_pt;
   std::vector<TH2F*> m_sct_ecc_residualsx_pt;
-    
+
   std::vector<TH2F*> m_sct_eca_biased_residualsx_qoverp2;
   std::vector<TH2F*> m_sct_ecc_biased_residualsx_qoverp2;
-  
+
   std::vector<TH2F*> m_sct_eca_residualsx_qoverp2;
   std::vector<TH2F*> m_sct_ecc_residualsx_qoverp2;
-  
+
   TH3F* m_sct_b0_xresvsmodetaphi_3d;
   TH3F* m_sct_b1_xresvsmodetaphi_3d;
   TH3F* m_sct_b2_xresvsmodetaphi_3d;
@@ -539,7 +543,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   TH1F* m_si_eca_pullY_mean;
   TH1F* m_si_ecc_pullY_mean;
 
-  
+
   //Pixel Histograms
   std::vector<TH1F*> m_pix_b_residualsx;
   std::vector<TH1F*> m_pix_b_residualsy;
@@ -555,12 +559,12 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   std::vector<TH1F*> m_pix_b_top_residualsy;
   std::vector<TH1F*> m_pix_b_btm_residualsx;
   std::vector<TH1F*> m_pix_b_btm_residualsy;
-  
+
   std::vector<TH3F*> m_pix_b_Oxresxvsmodetaphi_3ds;
   std::vector<TH3F*> m_pix_b_Oxresyvsmodetaphi_3ds;
   std::vector<TH3F*> m_pix_b_Oyresxvsmodetaphi_3ds;
   std::vector<TH3F*> m_pix_b_Oyresyvsmodetaphi_3ds;
-  
+
   std::vector<TH1F*> m_pix_b_xoverlapresidualsx;
   std::vector<TH1F*> m_pix_b_xoverlapresidualsy;
   std::vector<TH1F*> m_pix_b_yoverlapresidualsx;
@@ -581,7 +585,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   std::vector<TH1F*> m_pix_b_top_biased_residualsy;
   std::vector<TH1F*> m_pix_b_btm_biased_residualsx;
   std::vector<TH1F*> m_pix_b_btm_biased_residualsy;
-  
+
 
 
 
@@ -600,16 +604,16 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   TH1F* m_pix_eca_residualy_fine;
   TH1F* m_pix_ecc_residualx_fine;
   TH1F* m_pix_ecc_residualy_fine;
- 
+
   TH1F* m_pix_eca_pullx;
   TH1F* m_pix_eca_pully;
   TH1F* m_pix_ecc_pullx;
   TH1F* m_pix_ecc_pully;
 
-  
 
-  
- 
+
+
+
 
   TProfile* m_pix_bec_Oxresx_mean;
   TProfile* m_pix_bec_Oyresx_mean;
@@ -644,7 +648,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   TH2F* m_pix_ecc_biased_residualx_pt;
   TH2F* m_pix_ecc_biased_residualy_pt;
 
- 
+
 
 
 
@@ -680,15 +684,15 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   TProfile* m_pix_eca_unbiased_yresvsmodphi;
   TProfile* m_pix_ecc_unbiased_xresvsmodphi;
   TProfile* m_pix_ecc_unbiased_yresvsmodphi;
-  
+
   std::vector<TH1F*> m_pix_b_biasedresidualsx;
   std::vector<TH1F*> m_pix_b_biasedresidualsy;
   std::vector<TH1F*> m_pix_eca_biased_residualsx;
   std::vector<TH1F*> m_pix_eca_biased_residualsy;
   std::vector<TH1F*> m_pix_ecc_biased_residualsx;
   std::vector<TH1F*> m_pix_ecc_biased_residualsy;
- 
- 
+
+
 
   std::vector<TH2F*> m_pix_eca_residualsx_pt;
   std::vector<TH2F*> m_pix_eca_residualsy_pt;
@@ -710,7 +714,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   std::vector<TH2F*> m_pix_ecc_residualsx_qoverp2;
   std::vector<TH2F*> m_pix_ecc_residualsy_qoverp2;
   std::vector<TH2F*> m_pix_ecc_biased_residualsx_qoverp2;
-  std::vector<TH2F*> m_pix_ecc_biased_residualsy_qoverp2;  
+  std::vector<TH2F*> m_pix_ecc_biased_residualsy_qoverp2;
   std::vector<TH2F*> m_pix_eca_biased_xresvsmodphi_2ds;
   std::vector<TH2F*> m_pix_eca_biased_yresvsmodphi_2ds;
   std::vector<TH2F*> m_pix_ecc_biased_xresvsmodphi_2ds;
@@ -724,13 +728,13 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   TH1F* m_sct_ecc_residualx;
   TH1F* m_sct_eca_residualx_fine;
   TH1F* m_sct_ecc_residualx_fine;
-  
- 
- 
+
+
+
   TH1F* m_sct_eca_pullx;
   TH1F* m_sct_ecc_pullx;
 
-	
+
   TProfile* m_sct_bec_Oxresx_mean;
   TProfile* m_sct_bec_Oyresx_mean;
   TProfile* m_sct_bec_Oxresx_rms;
@@ -754,7 +758,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
 
 
   // Extended histograms
- 
+
 
 
   // Pixel unbiased residuals vs pt
@@ -764,65 +768,65 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   TH2F* m_pix_eca_residualy_pt;
   TH2F* m_pix_ecc_residualx_pt;
   TH2F* m_pix_ecc_residualy_pt;
-  
-  
-  
-  
+
+
+
+
   TH1F* m_sct_b_biased_residualx;
- 
+
   TH2F* m_sct_b_biased_residualx_pt;
-  
+
 
   TH2F* m_sct_b_residualx_pt;
- 
- 
+
+
   TH2F* m_sct_b_biased_residualx_qoverp2;
- 
+
 
   TH2F* m_sct_b_unbiased_residualx_qoverp2;
- 
-    
-  
-  TH1F* m_sct_eca_biased_residualx;	
-  TH1F* m_sct_eca_biased_residualy;	
-  TH1F* m_sct_ecc_biased_residualx;	
-  TH1F* m_sct_ecc_biased_residualy;	
-  
-  TH2F* m_sct_eca_biased_residualx_pt;	
-  TH2F* m_sct_ecc_biased_residualx_pt;	
 
-  TH2F* m_sct_eca_residualx_pt;	
-  TH2F* m_sct_ecc_residualx_pt;	
-  
-  TH2F* m_sct_eca_biased_residualx_qoverp2;	
-  TH2F* m_sct_ecc_biased_residualx_qoverp2;	
 
-  TH2F* m_sct_eca_unbiased_residualx_qoverp2;	
-  TH2F* m_sct_ecc_unbiased_residualx_qoverp2;	
-   
-  
 
-    
-    
+  TH1F* m_sct_eca_biased_residualx;
+  TH1F* m_sct_eca_biased_residualy;
+  TH1F* m_sct_ecc_biased_residualx;
+  TH1F* m_sct_ecc_biased_residualy;
+
+  TH2F* m_sct_eca_biased_residualx_pt;
+  TH2F* m_sct_ecc_biased_residualx_pt;
+
+  TH2F* m_sct_eca_residualx_pt;
+  TH2F* m_sct_ecc_residualx_pt;
+
+  TH2F* m_sct_eca_biased_residualx_qoverp2;
+  TH2F* m_sct_ecc_biased_residualx_qoverp2;
+
+  TH2F* m_sct_eca_unbiased_residualx_qoverp2;
+  TH2F* m_sct_ecc_unbiased_residualx_qoverp2;
+
+
+
+
+
   // Local positions (extrapolated)
   TH1F* m_pix_b_extrapolated_localx;
   TH1F* m_pix_b_extrapolated_localy;
   TH1F* m_sct_b_extrapolated_st_localx;
   TH1F* m_sct_b_extrapolated_st_localy;
   TH1F* m_sct_b_extrapolated_nst_localx;
-  TH1F* m_sct_b_extrapolated_nst_localy; 
-  
+  TH1F* m_sct_b_extrapolated_nst_localy;
+
   // Local positions (mesasured)
   TH1F* m_pix_b_measured_localx;
   TH1F* m_pix_b_measured_localy;
   TH1F* m_sct_b_measured_st_localx;
-  TH1F* m_sct_b_measured_st_localy;  
+  TH1F* m_sct_b_measured_st_localy;
   TH1F* m_sct_b_measured_nst_localx;
-  TH1F* m_sct_b_measured_nst_localy;  
-  
-  
+  TH1F* m_sct_b_measured_nst_localy;
+
+
   // Hit errors
-  
+
   TH1F* m_hiterror_sct_b;
   TH1F* m_hiterror_sct_ec;
   TH1F* m_hiterror_sct_b_WideRange;
@@ -850,7 +854,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
 
   // Pulls vs pt
   // Pixel
-  
+
   TH2F* m_pix_b_pullx_pt;
   TH2F* m_pix_b_pully_pt;
   TH2F* m_pix_eca_pullx_pt;
@@ -858,18 +862,18 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   TH2F* m_pix_ecc_pullx_pt;
   TH2F* m_pix_ecc_pully_pt;
 
- 
+
 
   /**====================================
    //TRT histograms
    //====================================*/
-  
+
   /* Barrel
   //======================= */
   struct TRTBarrelHistograms;
   TRTBarrelHistograms* m_trt_b_hist;
 
-  /** TRT EndCap 
+  /** TRT EndCap
    //======================= */
   struct TRTEndcapHistograms;
   TRTEndcapHistograms* m_trt_ec_hist;
@@ -879,8 +883,13 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   bool m_applyHistWeight;
   std::string m_hWeightInFileName;
   TFile* m_hWeightInFile;
-  TH2F*  m_etapTWeight;
+  TH2F*  m_hInputTrackWeight;
   std::string m_hWeightHistName;
+  int    m_userInputWeigthMethod;
+
+  // enumerate for trk weight methods
+  enum {TRKETA_TRKPT, EVENTMU_TRKPT, EVENTMU_TRKETA};
+
 
   //I don't like an itialisation here.
   float z_axis[20] = {-322.8975, -301.7925, -280.6875,-259.5825,-228.2775,-186.7725,-145.2675,-103.7625,-62.2575,-20.7525,20.7525,62.2575,103.7625,145.2675,186.7725,228.2775,259.5825,280.6875,301.7925,322.8975};

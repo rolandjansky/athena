@@ -1232,7 +1232,7 @@ namespace LArG4 {
             ATH_MSG_ERROR("r,z,eta,phi " << radiusZpos << " " << zZpos << " " << etaZpos << " " << phiZpos);
             ATH_MSG_ERROR("x,y,z (Atlas) " << p.x() << " " << p.y() << " " << p.z());
             ATH_MSG_ERROR(" inSTAC " << inSTAC);
-            const G4double thisStepEnergyDeposit = a_step->GetTotalEnergyDeposit();
+            const G4double thisStepEnergyDeposit = a_step->GetTotalEnergyDeposit() * a_step->GetTrack()->GetWeight();
             ATH_MSG_ERROR(" eDeposited " << thisStepEnergyDeposit);
             const G4VPhysicalVolume* vol = thisStepPoint->GetPhysicalVolume();
             const G4String volName = vol->GetName();

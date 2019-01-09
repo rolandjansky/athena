@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef IDPerfMonKshort_H
 #define IDPerfMonKshort_H
@@ -13,9 +13,10 @@
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/PhysicalConstants.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-//#include "InDetPerformanceMonitoring/IDPerfMonNtupleMaker.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
+
+#include "ITrackToVertex/ITrackToVertex.h"
 
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
@@ -23,6 +24,7 @@
 class TH1;
 class TProfile;
 class TGraph;
+
 
 class IDPerfMonKshort : public ManagedMonitorToolBase
 {
@@ -36,19 +38,17 @@ public:
 	virtual StatusCode initialize();
 	virtual StatusCode bookHistograms();
 	virtual StatusCode fillHistograms();
-	virtual StatusCode procHistograms();
 
 	void RegisterHisto(MonGroup& mon, TH1* histo);
 	void RegisterHisto(MonGroup& mon, TProfile* histo);
 	void RegisterHisto(MonGroup& mon, TGraph* graph);
+	void RegisterTree(MonGroup& mon, TTree* tree);
 
 protected:
 
 	int m_histosBooked;
 
 	TH1F* m_mass;
-	TH1F* m_mass_scaled;
-	TH2F* m_massVsPhi;
 	TH1F* m_radius;
 	TH1F* m_radius_secVertices;
 	TH1F* m_radius_secVertices_sel;
@@ -79,30 +79,8 @@ protected:
 	TH1F* m_massVersusCurvatureDiff;
 	TH1F* m_widthVersusCurvatureDiff;
 
-	TH1F* m_massVersusPt_merged;
-	TH1F* m_widthVersusPt_merged;
-	TH1F* m_massVersusRadius_merged;
-	TH1F* m_widthVersusRadius_merged;
-	TH1F* m_massVersusEta_merged;
-	TH1F* m_widthVersusEta_merged;
-	TH1F* m_massVersusPhi_merged;
-	TH1F* m_widthVersusPhi_merged;
-	TH1F* m_massVersusCurvatureDiff_merged;
-	TH1F* m_widthVersusCurvatureDiff_merged;
-
-	const static Int_t m_nFittedBinsPt = 5 ;
-	const static Int_t m_nBinsPt = 46 ;
-	const static Int_t m_nFittedBinsRadius = 7 ;
-	const static Int_t m_nBinsRadius = 70 ;
-	TH1F* m_massVPtBinHistos[m_nBinsPt];
-	TH1F* m_massVEtaBinHistos[10];
-	TH1F* m_massVPhiBinHistos[10];
-	TH1F* m_massVCurvatureDiffBinHistos[6];
-	TH1F* m_massVRadiusBinHistos[m_nBinsRadius];
-	TH1F* m_massVPtBinFittedHistos[m_nFittedBinsPt];
-	TH1F* m_massVRadiusBinFittedHistos[m_nFittedBinsRadius];
-
 	TH1F* m_Nevents;
+	TH1F* m_Nevents_sel;
 
  private:
 
@@ -114,8 +92,41 @@ protected:
 	std::string m_VxContainerName;
 	std::string m_VxPrimContainerName;
 
-	//IDPerfMonNtupleMaker NtupleMaker;
-	//bool m_Ntuple;
+  	std::string m_defaultTreeName;       //Default ID Tracks
+	std::string m_ValidationTreeDescription;
+  
+  	TTree* m_defaultTree;
+
+  	ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool;
+
+  	mutable unsigned int m_runNumber;
+  	mutable unsigned int m_evtNumber;
+  	mutable unsigned int m_lumi_block;
+
+  	double m_Ks_x;
+  	double m_Ks_y;
+  	double m_Ks_z;
+
+  	double m_pv_x;
+  	double m_pv_y;
+  	double m_pv_z;
+
+  	double m_positive_px;
+  	double m_positive_py;
+  	double m_positive_pz;
+  	double m_positive_z0;
+  	double m_positive_d0;
+  	double m_positive_z0_err;
+  	double m_positive_d0_err;
+
+
+  	double m_negative_px;
+  	double m_negative_py;
+  	double m_negative_pz;
+  	double m_negative_z0;
+  	double m_negative_d0;
+  	double m_negative_z0_err;
+  	double m_negative_d0_err;
 
 };
 

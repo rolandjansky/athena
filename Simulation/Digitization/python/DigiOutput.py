@@ -133,8 +133,10 @@ def getStreamRDO_ItemList(log):
         if DetFlags.writeRDOPool.LAr_on():
             if not digitizationFlags.PileUpPremixing:
                 StreamRDO_ItemList+=["LArRawChannelContainer#*"]
-            if 'AddCaloDigi' in digitizationFlags.experimentalDigi() or digitizationFlags.PileUpPremixing:
+            if 'AddCaloDigi' in digitizationFlags.experimentalDigi():
                 StreamRDO_ItemList+=["LArDigitContainer#*"]
+            elif digitizationFlags.PileUpPremixing:
+                StreamRDO_ItemList+=["LArDigitContainer#LArDigitContainer_MC"]
             else:
                 StreamRDO_ItemList+=["LArDigitContainer#LArDigitContainer_MC_Thinned"]
     if hasattr(DetFlags.digitize, 'HGTD_on') and DetFlags.digitize.HGTD_on():
@@ -144,8 +146,10 @@ def getStreamRDO_ItemList(log):
         if DetFlags.writeRDOPool.Tile_on():
             if not digitizationFlags.PileUpPremixing:
                 StreamRDO_ItemList+=["TileRawChannelContainer#*"]
-            if 'AddCaloDigi' in digitizationFlags.experimentalDigi() or digitizationFlags.PileUpPremixing:
+            if 'AddCaloDigi' in digitizationFlags.experimentalDigi():
                 StreamRDO_ItemList+=["TileDigitsContainer#*"]
+            elif digitizationFlags.PileUpPremixing:
+                StreamRDO_ItemList+=["TileDigitsContainer#TileDigitsCnt"]
             else:
                 StreamRDO_ItemList+=["TileDigitsContainer#TileDigitsFlt"]
             StreamRDO_ItemList+=["TileL2Container#TileL2Cnt"]

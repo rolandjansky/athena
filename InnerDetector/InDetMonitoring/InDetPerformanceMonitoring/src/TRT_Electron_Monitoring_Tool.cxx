@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 // **********************************************************************
 // Class to monitoring TRT HL threshold monitoring by looking at electrons
 // Created by Benjamin Kaplan (kaplan) 2009-10-14
@@ -169,11 +165,11 @@ bookHistograms()
     return StatusCode::FAILURE;
   }
 
-  if( newLumiBlock ) { }
+  if( newLumiBlockFlag() ) { }
 
-  if( newLowStat ) { }
+  if( newLowStatFlag() ) { }
 
-  if( newRun ) { }
+  if( newRunFlag() ) { }
 
   return StatusCode::SUCCESS;
 }
@@ -201,11 +197,11 @@ bookGeoHistograms( lw_geo_hists_t &hists, const std::string& name)
   MonGroup hl_monGroup_shift	( this, "TRT//HTMonitoring/"+name,  run,ATTRIB_MANAGED,"", "");
   //MonGroup hl_monGroup_expert	( this, "TRT//HTMonitoring/"+name, expert, run, "",""); //not yet used but will be
 
-  if( newLumiBlock ) { }
+  if( newLumiBlockFlag() ) { }
 
-  if( newLowStat ) { }
+  if( newLowStatFlag() ) { }
 
-  if( newRun )
+  if( newRunFlag() )
   {
 
     hists.hNTracks		= trtBookHistoLW(hl_monGroup_shift, "hNTracks"		,"Number of Tracks per Event in "+name	, 150 , 0, 150 , profile_x_label_size, profile_y_label_size, "Number of Tracks", "Frequency");
@@ -253,11 +249,11 @@ TRT_Electron_Monitoring_Tool::
 bookPCandHistograms( MonGroup& monGroup, lw_partcand_hists_t &hists, const std::string& name )
 {
 
-  if( newLumiBlock ) { }
+  if( newLumiBlockFlag() ) { }
 
-  if( newLowStat ) { }
+  if( newLowStatFlag() ) { }
 
-  if( newRun )
+  if( newRunFlag() )
   {
     hists.hNCand		= trtBookHistoLW(monGroup, "hNCand"+name	,"Number of "+name+" Candidates per Event"		, 150 , 0, 150 , profile_x_label_size, profile_y_label_size, "Number of "+name+" Candidates", "Frequency");
     hists.hPIDProb		= trtBookHistoLW(monGroup, "hPIDProb"+name	,"PID Likelihood per "+name+" Candidate"		, 50 , 0, 1 , profile_x_label_size, profile_y_label_size, "PID Likelihood", "Frequency");
@@ -841,9 +837,9 @@ StatusCode
 TRT_Electron_Monitoring_Tool::
 procHistograms()
 {
-  if( endOfRun ) { }
-  if( endOfLowStat ) { }
-  if( endOfLumiBlock ) { }
+  if( endOfRunFlag() ) { }
+  if( endOfLowStatFlag() ) { }
+  if( endOfLumiBlockFlag() ) { }
   return StatusCode::SUCCESS;
 }//procHistograms
 

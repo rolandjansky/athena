@@ -29,7 +29,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
-
+#include <fstream>
 
 std::unique_ptr<Pythia8ForDecays> Pythia8ForDecays::s_instance(nullptr);
 std::once_flag Pythia8ForDecays::m_onceFlag;
@@ -54,6 +54,17 @@ Pythia8ForDecays::Pythia8ForDecays()
   m_pythia->readString("RHadrons:allowDecay = on");
   m_pythia->readString("RHadrons:probGluinoball = 0.1");
   m_pythia->readString("PartonLevel:FSR = off");
+  m_pythia->readString("Init:showAllParticleData = on");
+
+  // Process the file of commands left for us by the python layer
+  std::string line;
+  std::ifstream command_stream ("PYTHIA8_COMMANDS.TXT");
+  while(getline(command_stream,line)){
+    // Leaving it to the top-level to get this file right
+    m_pythia->readString(line);
+  }
+  command_stream.close();
+
   m_pythia->init();
 
 }
@@ -168,10 +179,13 @@ bool Pythia8ForDecays::isGluinoRHadron(int pdgId) const{
   const unsigned short digitValue_l = MCUtils::PID::_digit(MCUtils::PID::Location::nl,pdgId);
 
   // Gluino R-Hadrons have the form 109xxxx or 1009xxx
-  if ((digitValue_q1 == 0 && digitValue_l == 9) || digitValue_q1 == 9 ){
+  if (digitValue_l == 9 || (digitValue_l==0 && digitValue_q1 == 9) ){
     // This is a gluino R-Hadron
     return true;
   }
+
+  // Special case : R-gluinoball
+  if (pdgId==1000993) return true;
 
   // This is not a gluino R-Hadron (probably a squark R-Hadron)
   return false;
@@ -221,10 +235,17 @@ void Pythia8ForDecays::Py1ent(const G4Track& aTrack, std::vector<G4DynamicPartic
 
   // Fraction of the RHadron mass given by the sparticle
   double fracR = mRBef / mRHad;
-
-  if (fracR >= 1.){
-    G4cout << "R-Hadron mass is smaller than (or the same as) the constituent sparticle! Something must be wrong!" << G4endl;
-    return;
+  int counter=0;
+  while (fracR>=1.){
+    if (counter==10){
+      G4cout << "Needed more than 10 attempts with constituent " << idRBef << " mass (" << mRBef << " above R-Hadron " << idRHad << " mass " << mRHad << G4endl;
+    } else if (counter>100){
+      G4cout << "Pythia8ForDecays::Py1ent ERROR   Failed >100 times. Constituent " << idRBef << " mass (" << mRBef << " above R-Hadron " << idRHad << " mass " << mRHad << G4endl;
+      return;
+    }
+    mRBef = pdt.mSel(idRBef);
+    fracR = mRBef / mRHad;
+    counter++;
   }
 
   // Squark case

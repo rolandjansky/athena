@@ -47,22 +47,21 @@ class JetAlg{
     };
   };
 
-
-
   struct Seed{
-
     std::vector<float> eta;
     std::vector<std::vector<float>> phi;
     std::vector<std::vector<float>> et;
     std::vector<std::vector<bool>> local_max;
   };
+  static std::map<TString, std::vector<std::shared_ptr<L1Jet>>> m_JetMap;
+  static std::map<TString, std::shared_ptr<Seed>> m_SeedMap;
 
-  static StatusCode SeedGrid(const xAOD::JGTowerContainer*towers, JetAlg::Seed*seeds, bool &m_dumpSeedsEtaPhi);
-  static StatusCode SeedFinding(const xAOD::JGTowerContainer*towers, JetAlg::Seed*seeds, float seed_size,float range, std::vector<float> noise, bool m_debug = false);
+  static StatusCode SeedGrid(const xAOD::JGTowerContainer*towers, TString seedname, bool &m_dumpSeedsEtaPhi);
+  static StatusCode SeedFinding(const xAOD::JGTowerContainer*towers, TString seedname, float seed_size, float range, std::vector<float> noise, float seed_tower_noise_multiplier, float seed_total_noise_multiplier, float seed_min_ET_MeV, bool m_debug = false);
 
-  static StatusCode BuildFatJet(const xAOD::JGTowerContainer towers, std::vector<JetAlg::L1Jet>& js, float jet_r, std::vector<float> noise); 
-  static StatusCode BuildJet(const xAOD::JGTowerContainer*towers, JetAlg::Seed*seeds, std::vector<JetAlg::L1Jet> &js, float jet_size, std::vector<float> noise, bool m_debug);
-  static StatusCode BuildRoundJet(const xAOD::JGTowerContainer*towers, JetAlg::Seed*seeds, std::vector<JetAlg::L1Jet> &js, float jet_size, std::vector<float> noise, bool m_debug = false);
+  static StatusCode BuildFatJet(const xAOD::JGTowerContainer towers, TString jetname, float jet_r, std::vector<float> noise, float jet_tower_noise_multiplier, float jet_total_noise_multiplier, float jet_min_ET_MeV); 
+  static StatusCode BuildJet(const xAOD::JGTowerContainer*towers, TString seedname, TString jetname, float jet_size, std::vector<float> noise, float jet_tower_noise_multiplier, float jet_total_noise_multiplier, float jet_min_ET_MeV, bool m_debug = false);
+  static StatusCode BuildRoundJet(const xAOD::JGTowerContainer*towers, TString seedname, TString jetname, float jet_size, std::vector<float> noise, float jet_tower_noise_multiplier, float jet_total_noise_multiplier, float jet_min_ET_MeV, bool m_debug = false);
 
 };
 #endif

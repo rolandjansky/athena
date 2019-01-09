@@ -70,7 +70,7 @@ class L2EFChain_e(L2EFChainDef):
         self.setRingerSelection()
 
         #if TriggerFlags.run2Config() == '2017':
-        if '_v7' in TriggerFlags.triggerMenuSetup():
+        if '_v7' in TriggerFlags.triggerMenuSetup() or '_v8' in TriggerFlags.triggerMenuSetup():
             self.use_v7=True
         
         self.doCaloIsolation=False

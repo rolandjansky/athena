@@ -47,12 +47,12 @@ public:
      Return a vector of offline Identifiers (corresponding helpers =
      LArEM_ID, LArHEC_ID, LArFCAL_ID) for a TT-layer offline id (helper=CaloLVL1_ID)
   */
-  const std::vector<Identifier>& createCellIDvec(const Identifier& id) const ; 
+  const std::vector<Identifier>& createCellIDvec(const int& id) const ; 
 
   /**
      return the offline id (CaloLVL1_ID) of the TT to which a cell (CaloCell_ID) belongs
   */
-  Identifier whichTTID(const Identifier & id) const; 
+  Identifier whichTTID(const int & id) const; 
 
   /** return the persistified map */
   LArTTCell_P* getP() ; 
@@ -60,14 +60,17 @@ public:
   /**  initialize from POOL */
   void set(  const LArTTCell_P& t ) ; 
 
-//private: 
+  /* Offline TT Identifier to Offline cell Identifier vector*/
+  /*public, or another vector shall be contructed when buidling information into database*/
+  std::vector<Identifier> m_cell2ttIdVec;
+  std::vector<std::vector<Identifier>> m_tt2cellIdVec;
+
+
+private: 
 
   void convert_to_P(const LArTTCell &t) ; // from NOVA to POOL
   void convert_to_D(const LArTTCell_P &t, LArTTCell& d) ; // POOL to NOVA
 
-  /* Offline TT Identifier to Offline cell Identifier mapping */ 
-  std::map<Identifier,Identifier>  m_cell2ttIdMap;
-  std::map<Identifier,std::vector<Identifier> >  m_tt2cellIdMap ;
 
   //  std::map<HWIdentifier,Identifier>  m_on2offIdMap;
 
@@ -75,7 +78,6 @@ public:
 
   MsgStream* m_msg ; 
 
-private:
 
 };
 

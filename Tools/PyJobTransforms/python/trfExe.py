@@ -1885,7 +1885,9 @@ class archiveExecutor(scriptExecutor):
                         #creating new archive
                         print >> zip_wrapper, "zf = zipfile.ZipFile('{}', mode='w', allowZip64=True)".format(self.conf.argdict['outputArchFile'].value[0])
                     print >> zip_wrapper, "for f in {}:".format(self.conf.argdict['inputDataFile'].value)
-                    print >> zip_wrapper, "    if zipfile.is_zipfile(f):"
+                    #This module gives false positives (as of python 3.7.0). Will also check the name for ".zip"
+                    #print >> zip_wrapper, "    if zipfile.is_zipfile(f):"
+                    print >> zip_wrapper, "    if zipfile.is_zipfile(f) and '.zip' in f:"
                     print >> zip_wrapper, "        archive = zipfile.ZipFile(f, mode='r')"
                     print >> zip_wrapper, "        print 'Extracting input zip file {0} to temporary directory {1}'.format(f,'tmp')"
                     print >> zip_wrapper, "        archive.extractall('tmp')"
