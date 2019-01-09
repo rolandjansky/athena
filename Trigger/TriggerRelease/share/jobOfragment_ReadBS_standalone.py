@@ -4,13 +4,6 @@ if TriggerFlags.doCalo():
     from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
     dqstatus = TileDQstatusAlgDefault()
 
-    from TileRecUtils.TileRecUtilsConf import TileBeamInfoProvider
-    theTileBeamInfoProvider = TileBeamInfoProvider()
-    ToolSvc += theTileBeamInfoProvider    
-    if not globalflags.DataSource=='data':
-        theTileBeamInfoProvider.TileBeamElemContainer=""; # disable reading of trigger type from BeamElem container
-        theTileBeamInfoProvider.TileDigitsContainer="";   # disable checking of Digits container size for bi-gain mode
-
 
 # This is only needed in case we do the (obsolete) per-event muon data preparation (bug #84525)
 if TriggerFlags.doMuon() and TriggerFlags.doEF() and 'forceMuonDataPrep' in dir():
