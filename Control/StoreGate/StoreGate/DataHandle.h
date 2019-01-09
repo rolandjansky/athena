@@ -87,7 +87,6 @@ public:
   /// \name validity checks
   //@{
   bool isValid() const; ///<RETRIEVES the DO to check it is valid and unlocked
-  bool isValid();       ///<RETRIEVES the DO to check it is valid
 
   // FIXME op! is to keep backward compatibility with Gaudi
   // FIXME similar to checking the SmartDataPtr
@@ -106,19 +105,15 @@ public:
   DataHandle operator++ (int) const;           ///<postfix
     
   const_pointer_type operator->() const   { return cptr(); }
-  pointer_type operator->()               { return ptr();  }
 
   const_reference_type operator*() const    { return *cptr(); }   
-  reference_type operator*()                { return *ptr();  }
   //@}
 
   /// \name access to the underlying ptr
   //@{
-  operator pointer_type()             { return ptr(); }  ///< often ambiguous
   operator const_pointer_type() const { return cptr(); } ///< often ambiguous
 
   const_pointer_type cptr() const;   ///< safer explicit ptr accessor 
-  pointer_type ptr();                ///< safer explicit ptr accessor 
 
   virtual void reset (bool /*hard*/) override { m_ptr = 0; }        ///< reset pointer
   //@}
@@ -142,8 +137,8 @@ public:
                     const DataHandle<DATA>& h2); 
 private:
 
-  mutable pointer_type m_ptr;
-  pointer_type dataPointer() const;
+  mutable const_pointer_type m_ptr;
+  const_pointer_type dataPointer() const;
 
 
 };
