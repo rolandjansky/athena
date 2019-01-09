@@ -10,7 +10,7 @@ find_package( FastJet )
 if( FASTJET_FOUND AND MADGRAPH_FOUND )
   get_filename_component( _fastjetPath "${FASTJET_INCLUDE_DIR}" DIRECTORY )
   set( MADGRAPHCONTROLENVIRONMENT_ENVIRONMENT 
-     FORCESET FASTJETPATH ${_fastjetPath} 
+     FORCESET FASTJETPATH ${_fastjetPath}
      FORCESET MADGRAPHVER ${MADGRAPH5AMC_VERSION})
   unset( _fastjetPath )
 endif()
