@@ -301,15 +301,7 @@ def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1):
     #
     if doGSC:
         gsc_jetTrackTEPreCut  = "HLT_precut_gsc"+str(minBTagThreshold)+"_eta"+"_jsplit"+"_"+tracking
-
-        if 'FTKRefit' in bjetdict[0]['chainParts']['bTracking']: 
-            theGSCFex = getGSCFexFTKRefitInstance(algoInstance)
-        elif 'FTKVtx' in bjetdict[0]['chainParts']['bTracking']:
-            theGSCFex = getGSCFexFTKVtxInstance(algoInstance)
-        elif 'FTK' in bjetdict[0]['chainParts']['bTracking']:
-            theGSCFex = getGSCFexFTKInstance(algoInstance)
-        else:
-            theGSCFex = getGSCFexSplitInstance(algoInstance)
+        theGSCFex = getGSCFexSplitInstance(algoInstance)
         theChainDef.addSequence(theGSCFex,      secVtxTE                ,       gsc_jetTrackTEPreCut )
 
         algoInstance = "GSC"   
