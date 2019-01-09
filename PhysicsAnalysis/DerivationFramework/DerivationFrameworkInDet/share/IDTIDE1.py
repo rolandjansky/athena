@@ -198,6 +198,12 @@ if idDxAOD_doSct:
   IDTIDESequence += xAOD_SCT_PrepDataToxAOD
 
 if idDxAOD_doPix:
+  from PixelCalibAlgs.PixelCalibAlgsConf import PixelChargeToTConversion 
+  PixelChargeToTConversionSetter = PixelChargeToTConversion(name = "PixelChargeToTConversionSetter") 
+  IDTIDESequence += PixelChargeToTConversionSetter 
+  print "Add Pixel xAOD ToTConversionSetter:"
+  print PixelChargeToTConversionSetter
+  print PixelChargeToTConversionSetter.properties()
   from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import PixelPrepDataToxAOD
   xAOD_PixelPrepDataToxAOD = PixelPrepDataToxAOD( name = "xAOD_PixelPrepDataToxAOD")
   xAOD_PixelPrepDataToxAOD.OutputLevel=INFO
