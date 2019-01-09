@@ -1233,9 +1233,6 @@ if doTileMon:
     else:
         runType = TileRunType
 
-    from TileRecUtils.TileBeamInfoProviderDefault import TileBeamInfoProviderDefault
-    TileBeamInfoProviderDefault()
-
     from AthenaMonitoring.AthenaMonitoringConf import *
     TileMon = AthenaMonManager( "TileMon" )
 

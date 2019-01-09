@@ -350,14 +350,6 @@ topSequence += theTileTBStat
 theTileTBStat.TileDigitsContainer = "TileDigitsCnt"
 theTileTBStat.TileBeamElemContainer = "TileBeamElemCnt"
 
-from TileRecUtils.TileRecUtilsConf import TileBeamInfoProvider
-theTileBeamInfoProvider = TileBeamInfoProvider()
-theTileBeamInfoProvider.TileBeamElemContainer="TileBeamElemCnt";
-theTileBeamInfoProvider.TileDigitsContainer="TileDigitsCnt";
-theTileBeamInfoProvider.TileRawChannelContainer="TileRawChannelCnt";
-from AthenaCommon.AppMgr import ToolSvc
-ToolSvc += theTileBeamInfoProvider
-
 if OutputLevel < 2:
     from TileByteStream.TileByteStreamConf import TileROD_Decoder
     ToolSvc += TileROD_Decoder()
