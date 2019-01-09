@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -45,7 +45,7 @@ class Identifiable
 {
 public:
     
-    virtual ~Identifiable(void);
+    virtual ~Identifiable(void) = default;
     
     virtual Identifier		identify() const = 0;
 
