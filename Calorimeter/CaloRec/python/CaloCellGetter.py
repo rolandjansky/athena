@@ -194,10 +194,6 @@ class CaloCellGetter (Configured)  :
                     from TileRecUtils.TileRecFlags import jobproperties
                     theTileCellBuilder.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
 
-                    if not hasattr( ToolSvc, "TileBeamInfoProvider" ):
-                        from TileRecUtils.TileRecUtilsConf import TileBeamInfoProvider
-                        ToolSvc += TileBeamInfoProvider()
-
                     rawChannelContainer = ''
                     if globalflags.DataSource() == 'data' and globalflags.InputFormat() == 'bytestream':
                         if jobproperties.TileRecFlags.readDigits():
@@ -205,7 +201,6 @@ class CaloCellGetter (Configured)  :
                             theTileCellBuilder.correctTime = False;
                             theTileCellBuilder.correctAmplitude = False;
                         else:
-                            ToolSvc.TileBeamInfoProvider.TileRawChannelContainer = "TileRawChannelCnt"
                             rawChannelContainer = 'TileRawChannelCnt'
                             # by default parameters are tuned for opt.filter without iterations
                             theTileCellBuilder.correctTime = jobproperties.TileRecFlags.correctTime()

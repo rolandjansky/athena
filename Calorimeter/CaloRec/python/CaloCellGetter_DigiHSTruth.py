@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # specifies Calo cell making
 # so far only handle the RawChannel->CaloCell step
@@ -84,10 +84,6 @@ class CaloCellGetter_DigiHSTruth (Configured)  :
                     theTileCellBuilder.E4prContainer = "E4prContainer2_DigiHSTruth"
                     theTileCellBuilder.MBTSContainer = "MBTSContainer2_DigiHSTruth"
                     theTileCellBuilder.TileDSPRawChannelContainer = "TileRawChannelCnt_DigiHSTruth"
-
-                    if not hasattr( ToolSvc, "TileBeamInfoProvider" ):
-                        from TileRecUtils.TileRecUtilsConf import TileBeamInfoProvider
-                        ToolSvc += TileBeamInfoProvider()
 
                     theCaloCellMaker += theTileCellBuilder
                     theCaloCellMaker.CaloCellMakerToolNames += [theTileCellBuilder]
@@ -426,6 +422,9 @@ class CaloCellGetter_DigiHSTruth (Configured)  :
         objKeyStore.addTransient (self.outputType(),self.outputKey())
 
 
+        
+        from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
+        TileDQstatusAlgDefault()
         
         # now add algorithm to topSequence
         # this should always come at the end
