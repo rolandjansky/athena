@@ -29,9 +29,6 @@ Muon::SimpleMMClusterBuilderTool::~SimpleMMClusterBuilderTool()
 StatusCode Muon::SimpleMMClusterBuilderTool::initialize()
 {
 
-  ATH_MSG_INFO("AAAAAAAAAAAAAAAAAAAAAAAA in the simplemmclusterbuildertool");
-
-
   /// get the detector descriptor manager
   StoreGateSvc* detStore=0;
   StatusCode sc = serviceLocator()->service("DetectorStore", detStore);
@@ -62,9 +59,6 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
 							 std::vector<Muon::MMPrepData*>& clustersVect)
 
 {
-
-  ATH_MSG_INFO("BBBBBBBBBBBBBBBBB getCLusters in the simplemmclusterbuildertool");
-
 
   ATH_MSG_DEBUG("Size of the input vector: " << MMprds.size()); 
   ATH_MSG_DEBUG("Size of the output vector: " << clustersVect.size()); 

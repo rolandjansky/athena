@@ -31,7 +31,7 @@ namespace Muon
     virtual StatusCode finalize();
 
     StatusCode getClusters(std::vector<Muon::sTgcPrepData>& stripsVect, 
-			   std::vector<Muon::sTgcPrepData>& clustersVect);
+			   std::vector<Muon::sTgcPrepData*>& clustersVect);
 
   private: 
   
