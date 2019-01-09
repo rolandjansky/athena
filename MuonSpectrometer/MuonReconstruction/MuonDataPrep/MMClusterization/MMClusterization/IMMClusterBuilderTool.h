@@ -27,7 +27,7 @@ namespace Muon {
   public:    // interface methods
     
     virtual StatusCode getClusters(std::vector<Muon::MMPrepData>& stripsVect, 
-				   std::vector<Muon::MMPrepData>& clustersVect)=0;
+				   std::vector<Muon::MMPrepData*>& clustersVect)=0;
     
   };
 }

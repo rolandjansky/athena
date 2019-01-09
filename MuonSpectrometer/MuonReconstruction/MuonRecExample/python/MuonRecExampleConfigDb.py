@@ -225,7 +225,8 @@ addAlgorithm("MuonRecExample.CscTools.CscThresholdClusterBuilder","CscThresholdC
 ################################################################################
 # Tools from MuonRecExample.MMTools  (MicroMegas reconstruction tools )
 ################################################################################
-addTool("MuonRecExample.MMTools.Muon::SimpleMMClusterBuilderTool","SimpleMMClusterBuilderTool")
+addTool("MuonRecExample.MMTools.SimpleMMClusterBuilderTool","SimpleMMClusterBuilderTool")
+##addTool("Muon::SimpleMMClusterBuilderTool","SimpleMMClusterBuilderTool")
 
 
 ################################################################################

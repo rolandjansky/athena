@@ -59,7 +59,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::finalize()
 }
 
 StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepData>& MMprds, 
-							 std::vector<Muon::MMPrepData>& clustersVect)
+							 std::vector<Muon::MMPrepData*>& clustersVect)
 
 {
 
@@ -165,7 +165,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     ATH_MSG_VERBOSE(" make merged prepData at strip " << m_mmIdHelper->channel(MMprds[j].identify()) << " nmerge " << nmerge << " sqrt covX " << sqrt((*covN)(0,0)));
     
     MMPrepData* prdN = new MMPrepData(MMprds[j].identify(), hash, MMprds[j].localPosition(), rdoList, covN, MMprds[j].detectorElement());
-    clustersVect.push_back(*prdN);
+    clustersVect.push_back(prdN);
   } // end loop MMprds[i]
   //clear vector and delete elements
   MMflag.clear();

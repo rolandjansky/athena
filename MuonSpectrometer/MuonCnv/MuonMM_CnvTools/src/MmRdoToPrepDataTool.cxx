@@ -43,7 +43,7 @@ Muon::MmRdoToPrepDataTool::MmRdoToPrepDataTool(const std::string& t,
   m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
   m_fullEventDone(false),
   m_mmPrepDataContainer(0),
-  m_clusterBuilderTool("SimpleMMClusterBuilderTool/SimpleMMClusterBuilderTool",this)
+  m_clusterBuilderTool("Muon::SimpleMMClusterBuilderTool/SimpleMMClusterBuilderTool",this)
 {
   declareInterface<Muon::IMuonRdoToPrepDataTool>(this);
 
@@ -225,11 +225,13 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
   }
 
   if(merge) {
-    std::vector<MMPrepData> clusters;
+    std::vector<MMPrepData*> clusters;
 
-    m_clusterBuilderTool->getClusters(MMprds,clusters);
+    /// reconstruct the clusters
+    ATH_CHECK(m_clusterBuilderTool->getClusters(MMprds,clusters));
+
     for (unsigned int i = 0 ; i<clusters.size() ; ++i ) {
-      MMPrepData* prdN = &(clusters.at(i));
+      MMPrepData* prdN = clusters.at(i);
       prdN->setHashAndIndex(prdColl->identifyHash(), prdColl->size());
       prdColl->push_back(prdN);
     } 
