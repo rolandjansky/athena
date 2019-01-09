@@ -1091,11 +1091,11 @@ fitMergedFile_IDAlignMonResiduals( TFile* f, std::string run_dir, std::string tr
   m_pix_ecc_yresvsmodphi->GetYaxis()->SetTitle("Mean Residual Y [mm]");
   m_pix_ecc_yresvsmodphi->GetXaxis()->SetTitle("(Modified) Module Phi-ID");
   meanRMSProjections2D(m_pix_ecc_yresvsmodphi_2d,m_pix_ecc_yresvsmodphi,2);
-  TH1F* m_sct_eca_xresvsmodphi = new TH1F("sct_eca_xresvsmodphi","X Residual Mean vs (Modified) Module Phi SCT Endcap A",495,0,495);
+  TH1F* m_sct_eca_xresvsmodphi = new TH1F("sct_eca_xresvsmodphi","X Residual Mean vs (Modified) Module Phi SCT Endcap A",558,0,558);
   m_sct_eca_xresvsmodphi->GetYaxis()->SetTitle("Mean Residual X [mm]");
   m_sct_eca_xresvsmodphi->GetXaxis()->SetTitle("(Modified) Module Phi-ID");
   meanRMSProjections2D(m_sct_eca_xresvsmodphi_2d,m_sct_eca_xresvsmodphi,2);
-  TH1F* m_sct_ecc_xresvsmodphi = new TH1F("sct_ecc_xresvsmodphi","X Residual Mean vs (Modified) Module Phi SCT Endcap C",495,0,495);
+  TH1F* m_sct_ecc_xresvsmodphi = new TH1F("sct_ecc_xresvsmodphi","X Residual Mean vs (Modified) Module Phi SCT Endcap C",558,0,558);
   m_sct_ecc_xresvsmodphi->GetYaxis()->SetTitle("Mean Residual X [mm]");
   m_sct_ecc_xresvsmodphi->GetXaxis()->SetTitle("(Modified) Module Phi-ID");
   meanRMSProjections2D(m_sct_ecc_xresvsmodphi_2d,m_sct_ecc_xresvsmodphi,2);

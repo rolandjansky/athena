@@ -18,6 +18,7 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( CLHEP )
+find_package( HepPDT )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO Matrix Physics )
 
 # Remove the --as-needed linker flags:
@@ -61,6 +62,7 @@ atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitChain.h
                            ISF_FastCaloSimEvent/TFCSCenterPositionCalculation.h
                            ISF_FastCaloSimEvent/TFCSHistoLateralShapeParametrization.h
+                           ISF_FastCaloSimEvent/TFCSHistoLateralShapeParametrizationFCal.h
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitNumberFromE.h
                            ISF_FastCaloSimEvent/TFCSHitCellMapping.h
                            ISF_FastCaloSimEvent/TFCSHitCellMappingFCal.h
@@ -69,14 +71,15 @@ atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
                            ISF_FastCaloSimEvent/TFCSExtrapolationState.h 
                            ISF_FastCaloSimEvent/TFCSSimulationState.h 
                            ISF_FastCaloSimEvent/TFCSTruthState.h 
-                           ISF_FastCaloSimEvent/LinkDef.h )
+                           ISF_FastCaloSimEvent/LinkDef.h 
+			   EXTERNAL_PACKAGES HepPDT)
 
 atlas_add_library( ISF_FastCaloSimEvent
    ISF_FastCaloSimEvent/*.h ${_dictSource} src/*.cxx
    PUBLIC_HEADERS ISF_FastCaloSimEvent
-   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    DEFINITIONS ${CLHEP_DEFINITIONS}
-   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AthContainers SGTools
+   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} AthContainers SGTools
    CaloGeoHelpers TileSimEvent
    PRIVATE_LINK_LIBRARIES GaudiKernel )
 

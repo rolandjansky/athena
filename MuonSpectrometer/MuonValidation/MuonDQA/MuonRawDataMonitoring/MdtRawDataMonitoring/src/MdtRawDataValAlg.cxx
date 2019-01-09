@@ -1962,7 +1962,7 @@ StatusCode MdtRawDataValAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* 
     if(ilayer != 3) mdtoccvslb[iregion][ilayer]->Fill(m_lumiblock,get_bin_for_LB_hist(iregion,ilayer,stationPhi,stationEta,isBIM));
     else mdtoccvslb[iregion][2]->Fill(m_lumiblock,get_bin_for_LB_hist(iregion,ilayer,stationPhi,stationEta,isBIM)); // Put extras in with outer
 
-    mdtoccvslb_summaryPerSector->Fill(m_lumiblock,  stationPhi+iregion*16+1  );
+    mdtoccvslb_summaryPerSector->Fill(m_lumiblock,  stationPhi+iregion*16 );
     
     //correct readout crate info for BEE,BIS7/8
     int crate_region = iregion;

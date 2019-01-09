@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONMOMENTUMCORRECTIONS_MUONMOMENTUMCORRECTIONSDICT_H
@@ -9,6 +9,8 @@
 #define EIGEN_DONT_VECTORIZE
 #endif // __GCCXML__
 
+#include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
 #include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
+#include "MuonMomentumCorrections/MuonCalibrationPeriodTool.h"
 
 #endif // not MUONMOMENTUMCORRECTIONS_MUONMOMENTUMCORRECTIONSDICT_H
