@@ -34,6 +34,8 @@ def makeJetAnalysisSequence( dataType, jetCollection,
         pass
     if dataType == 'data':
         calibSeq = 'JetArea_Residual_EtaJES_GSC_Insitu'
+    elif dataType == 'afii':
+        calibSeq = 'JetArea_Residual_EtaJES_GSC'
     else:
         calibSeq = 'JetArea_Residual_EtaJES_GSC_Smear'
         pass
