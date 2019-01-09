@@ -51,7 +51,7 @@ public:
               const TileRawChannelContainer* rawChannelContainer,
               const TileDigitsContainer* tileDigitsContainer,
               const TileBeamElemContainer* tileBeamElemContainer,
-              TileDQstatus& dqstatus) = 0;
+              TileDQstatus& dqstatus) const = 0;
 };
 
 

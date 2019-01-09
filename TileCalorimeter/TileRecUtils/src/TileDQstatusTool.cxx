@@ -74,7 +74,7 @@ TileDQstatusTool::makeStatus (const EventContext& ctx,
                               const TileRawChannelContainer* rawChannelContainer,
                               const TileDigitsContainer* tileDigitsContainer,
                               const TileBeamElemContainer* tileBeamElemContainer,
-                              TileDQstatus& dqstatus)
+                              TileDQstatus& dqstatus) const
 {
   dqstatus.setAllGood();
   dqstatus.setRODBCID (ctx.eventID().bunch_crossing_id());

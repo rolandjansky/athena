@@ -59,7 +59,7 @@ public:
               const TileRawChannelContainer* rawChannelContainer,
               const TileDigitsContainer* tileDigitsContainer,
               const TileBeamElemContainer* tileBeamElemContainer,
-              TileDQstatus& dqstatus) override;
+              TileDQstatus& dqstatus) const override;
 
 private:
   /**
