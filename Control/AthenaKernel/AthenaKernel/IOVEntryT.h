@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_IOVENTRYT_H
@@ -52,7 +52,7 @@ public:
   IOVEntryT( T *obj, const EventIDRange& range):
     m_objPtr(obj), m_range(range){}
 
-  ~IOVEntryT() {}
+  ~IOVEntryT() = default;
 
   const EventIDRange& range() const { return m_range; }
   void setRange( const EventIDRange& range) { m_range=range; }
