@@ -23,10 +23,40 @@ class WriteDAOD_PHYSVALStream(JobProperty):
     StreamName   = "StreamDAOD_PHYSVAL"
     FileName     = ""
     isVirtual      = False
-    DPDMakerScript = "DerivationFrameworkExamples/PHYSVAL.py"
+    DPDMakerScript = "DerivationFrameworkPhysicsValidation/PHYSVAL.py"
     pass
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_PHYSVALStream)
 listAODtoDPD.append(WriteDAOD_PHYSVALStream.StreamName)
+
+####################################
+# Run-3 prototypes
+####################################
+
+class WriteDAOD_MINIStream(JobProperty):
+    """ DAOD_MINI - prototype format for Run 3 """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+    StreamName   = "StreamDAOD_MINI"
+    FileName     = ""
+    isVirtual      = False
+    DPDMakerScript = "DerivationFrameworkExamples/MINI.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_MINIStream)
+listAODtoDPD.append(WriteDAOD_MINIStream.StreamName)
+
+class WriteDAOD_NANOStream(JobProperty):
+    """ DAOD_NANO - prototype format for Run 3 """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+    StreamName   = "StreamDAOD_NANO"
+    FileName     = ""
+    isVirtual      = False
+    DPDMakerScript = "DerivationFrameworkExamples/NANO.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_NANOStream)
+listAODtoDPD.append(WriteDAOD_NANOStream.StreamName)
 
 ####################################
 # Defined by ASG for tests/examples
@@ -442,6 +472,19 @@ class WriteDAOD_HIGG3D3Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG3D3Stream)
 listAODtoDPD.append(WriteDAOD_HIGG3D3Stream.StreamName)
 
+class WriteDAOD_HIGG3D4Stream(JobProperty):
+    """HIGG3D4: WW to lvlv"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_HIGG3D4'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkHiggs/HIGG3D4.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG3D4Stream)
+listAODtoDPD.append(WriteDAOD_HIGG3D4Stream.StreamName)
+
 
 ##################################
 # Defined by Higgs subgroup 4
@@ -614,7 +657,6 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HDBS1Stream
 listAODtoDPD.append(WriteDAOD_HDBS1Stream.StreamName)
 
 
-
 ##################################
 # Defined by Higgs subgroup 8
 ##################################
@@ -779,7 +821,18 @@ class WriteDAOD_STDM10Stream (JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_STDM10Stream)
 listAODtoDPD.append(WriteDAOD_STDM10Stream.StreamName)
 
-
+class WriteDAOD_STDM11Stream (JobProperty):
+    """Derivation for inclusive jets and leading jet measurements"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_STDM11'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkSM/STDM11.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_STDM11Stream)
+listAODtoDPD.append(WriteDAOD_STDM11Stream.StreamName)
 
 #################################
 # Defined by the Tau group
@@ -1444,6 +1497,19 @@ class WriteDAOD_EXOT26Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT26Stream)
 listAODtoDPD.append(WriteDAOD_EXOT26Stream.StreamName)
 
+class WriteDAOD_EXOT27Stream(JobProperty):
+    """EXOT27: Derivation for Mono-Hbb and Mono-sWW analyses"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_EXOT27'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkExotics/EXOT27.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT27Stream)
+listAODtoDPD.append(WriteDAOD_EXOT27Stream.StreamName)
+
 #################################
 # Defined by the Jet/MET group
 #################################
@@ -1629,6 +1695,20 @@ class WriteDAOD_JETM14Stream(JobProperty):
     pass
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_JETM14Stream)
 listAODtoDPD.append(WriteDAOD_JETM14Stream.StreamName)
+
+class WriteDAOD_JETM15Stream(JobProperty):
+    """JETM16: Grooming scan data derivation"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_JETM15'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkJetEtMiss/JETM15.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_JETM15Stream)
+listAODtoDPD.append(WriteDAOD_JETM15Stream.StreamName)
+
 
 #####################################
 # Defined by the inner tracking group
@@ -2515,5 +2595,19 @@ class WriteDAOD_TRIG5Stream (JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TRIG5Stream)
 listAODtoDPD.append(WriteDAOD_TRIG5Stream.StreamName)
 
+class WriteDAOD_TRIG6Stream (JobProperty):
+     """TRIG6 derivation"""
+     statusOn = True
+     allowedTypes = ['bool']
+     StoredValue = False
+     StreamName = 'StreamDAOD_TRIG6'
+     FileName = ''
+     isVirtual = False
+     DPDMakerScript = "DerivationFrameworkTrigger/TRIG6.py"
+     pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TRIG6Stream)
+listAODtoDPD.append(WriteDAOD_TRIG6Stream.StreamName)
+
 from RecExConfig.RecoFunctions import AddValidItemToList
 AddValidItemToList(listAODtoDPD,listAllKnownDPD)
+

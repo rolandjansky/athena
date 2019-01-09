@@ -17,7 +17,7 @@ def setup(HIGG4DxName, HIGG4DxSequence, HIGG4DxSlimmingHelper):
         reducedJetList = ["AntiKt4TruthJets",
                           "AntiKt4TruthWZJets",
                           ]
-        
+      
         if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D6', 'HDBS1']:
             
             reducedJetList += ["AntiKt4PV0TrackJets", 
