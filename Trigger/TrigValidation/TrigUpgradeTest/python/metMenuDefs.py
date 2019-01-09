@@ -34,28 +34,3 @@ def metCellSequence():
                           Hypo        = metHypoAlg,
                           HypoToolGen = TrigMETCellHypoToolFromName )
 
-
-def TrigMissingETChainFromName(name):
-    parts = name.split('_')
-    # L1Seed = "L1_XE"+parts[-1][4:]
-    L1Seed = "L1_XE50"
-    parts=parts[1:-1]
-
-    chainSteps = []
-
-    # Implement this function
-    def parseStepNames(name):
-        return ["cell"]
-
-    stepNames = parseStepNames(name)
-
-    for n_metStep, s in enumerate(stepNames, start=1):
-        stepName = "Step%d_%s" % (n_metStep, s)
-        seq = []
-        if s == "cell":
-            seq.append(metCellSequence())
-
-        chainSteps.append(ChainStep(stepName, seq))
-
-    return Chain(name=name, Seed=L1Seed, ChainSteps=chainSteps)
-

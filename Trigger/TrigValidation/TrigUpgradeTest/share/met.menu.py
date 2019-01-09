@@ -20,10 +20,6 @@ testChains = [
 	Chain(name="HLT_xe30_L1XE10", Seed="L1_XE10", ChainSteps=[metCellStep])
 ]
 
-''' ## Will eventually automate the creation of MET trigger chains
-from TrigUpgradeTest.metMenuDefs import TrigMissingETChainFromName
-testChains = [ TrigMissingETChainFromName(chain) for chain in ["HLT_xe65_L1XE50"] ]
-'''
 #################################
 # Configure L1Decoder
 #################################
