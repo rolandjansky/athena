@@ -198,17 +198,6 @@ if doTileDigitToRawChannel:
     from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
     dqstatus = TileDQstatusAlgDefault()
 
-if not hasattr( ToolSvc, "TileBeamInfoProvider" ):
-    from TileRecUtils.TileRecUtilsConf import TileBeamInfoProvider
-    theTileBeamInfoProvider = TileBeamInfoProvider()
-    ToolSvc += theTileBeamInfoProvider
-
-# change default parameters for TileBeamInfo
-ToolSvc.TileBeamInfoProvider.TileBeamElemContainer=""; # disable reading of trigger type from BeamElem container
-ToolSvc.TileBeamInfoProvider.TileDigitsContainer="";   # disable checking of Digits container size for bi-gain mode
-ToolSvc.TileBeamInfoProvider.TileRawChannelContainer=""; # disable checking of DQstatus for simulated data
-
-
 #
 include( "TileSimAlgs/TileSamplingFraction_jobOptions.py" )
 
