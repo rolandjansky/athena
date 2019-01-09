@@ -230,6 +230,17 @@ const Trk::TrackSummary* Trk::TrackSummaryTool::createSummary( const Track& trac
       information [numberOfBLayerSplitHits]      = 0;
       information [numberOfInnermostLayerSplitHits] = 0;
       information [numberOfNextToInnermostLayerSplitHits] = 0;
+      
+      information [numberOfContribPixelBarrelFlatLayers]     = 0;
+      information [numberOfContribPixelBarrelInclinedLayers] = 0;
+      information [numberOfContribPixelBarrelRings]          = 0;
+      information [numberOfContribPixelEndcap]               = 0;
+      
+      information [numberOfPixelBarrelFlatHits]     = 0;   
+      information [numberOfPixelBarrelInclinedHits] = 0;   
+      information [numberOfPixelBarrelRingHits]     = 0;   
+      information [numberOfPixelEndcapHits]         = 0;   
+      
       if (track.info().trackFitter() != TrackInfo::Unknown && !m_dedxtool.empty()) {
         dedx = m_dedxtool->dEdx(track);
         nhitsuseddedx=m_dedxtool->numberOfUsedHitsdEdx();
@@ -290,13 +301,15 @@ const Trk::TrackSummary* Trk::TrackSummaryTool::createSummary( const Track& trac
   }
 
   std::bitset<numberOfDetectorTypes> hitPattern;
+  
+  Trk::DetailedHitInfo detailedInfo;
 
   ATH_MSG_DEBUG ("Produce summary for: "<<track.info().dumpInfo());
 
   if (track.trackStateOnSurfaces()!=0)
   {
     information[Trk::numberOfOutliersOnTrack] = 0;
-    processTrackStates(track,track.trackStateOnSurfaces(), information, hitPattern);
+    processTrackStates(track,track.trackStateOnSurfaces(), information, hitPattern, detailedInfo);
   }else{
     ATH_MSG_WARNING ("Null pointer to TSoS found on Track (author = "
       <<track.info().dumpInfo()<<"). This should never happen! ");
@@ -307,6 +320,10 @@ const Trk::TrackSummary* Trk::TrackSummaryTool::createSummary( const Track& trac
     if (m_pixelExists) 
     {
       information [numberOfPixelHoles] = 0; 
+      information [numberOfPixelBarrelFlatHoles]     = 0;  
+      information [numberOfPixelBarrelInclinedHoles] = 0;  
+      information [numberOfPixelBarrelRingHoles]     = 0;  
+      information [numberOfPixelEndcapHoles]         = 0;
     }
     information [numberOfSCTHoles]       = 0; 
     information [numberOfSCTDoubleHoles] = 0;
@@ -441,7 +458,8 @@ void Trk::TrackSummaryTool::updateAdditionalInfo(Track& track) const
 void Trk::TrackSummaryTool::processTrackStates(const Track& track,
 					       const DataVector<const TrackStateOnSurface>* tsos,
 					       std::vector<int>& information,
-					       std::bitset<numberOfDetectorTypes>& hitPattern) const
+					       std::bitset<numberOfDetectorTypes>& hitPattern,
+                 Trk::DetailedHitInfo& detailedInfo) const
 {
   ATH_MSG_DEBUG ("Starting to process " << tsos->size() << " track states");
 
@@ -458,7 +476,7 @@ void Trk::TrackSummaryTool::processTrackStates(const Track& track,
       } else {
         if ((*it)->type(Trk::TrackStateOnSurface::Outlier)) ++information[Trk::numberOfOutliersOnTrack]; // increment outlier counter
         ATH_MSG_VERBOSE ("analysing TSoS " << measCounter << " of type " << (*it)->dumpType() );
-        processMeasurement(track, measurement, *it, information, hitPattern);
+        processMeasurement(track, measurement, *it, information, hitPattern, detailedInfo);
       } // if have measurement pointer
     } // if type measurement, scatterer or outlier
 
@@ -502,7 +520,8 @@ void Trk::TrackSummaryTool::processMeasurement(const Track& track,
 					       const Trk::MeasurementBase* meas,
 					       const Trk::TrackStateOnSurface* tsos,
 					       std::vector<int>& information,
-					       std::bitset<numberOfDetectorTypes>& hitPattern) const
+					       std::bitset<numberOfDetectorTypes>& hitPattern,
+                 Trk::DetailedHitInfo& detailedInfo) const
 {
   const RIO_OnTrack* rot = dynamic_cast<const RIO_OnTrack*> (meas);
   
@@ -513,7 +532,7 @@ void Trk::TrackSummaryTool::processMeasurement(const Track& track,
       msg(MSG::WARNING)<<"Cannot find tool to match ROT. Skipping."<<endreq;
     } else {
 
-      tool->analyse(track,rot,tsos,information, hitPattern);
+      tool->analyse(track,rot,tsos,information,hitPattern,detailedInfo);
     }
   } else {
     // Something other than a ROT.
@@ -526,7 +545,7 @@ void Trk::TrackSummaryTool::processMeasurement(const Track& track,
       if (tool==0){
         msg(MSG::WARNING)<<"Cannot find tool to match cROT. Skipping."<<endreq;
       } else {
-        tool->analyse(track,compROT,tsos,information, hitPattern);
+        tool->analyse(track,compROT,tsos,information,hitPattern,detailedInfo);
       }
     }
   }

@@ -11,6 +11,7 @@
 #include <bitset>
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkTrackSummary/TrackSummary.h" // defines Trk::numberOfDetectorTypes used below
+#include "TrkTrackSummary/DetailedHitInfo.h"
 
 class Identifier;
 
@@ -39,35 +40,35 @@ namespace Trk {
     static const InterfaceID& interfaceID();
 
   /** fill 'information' and 'hitpattern' using information from 'rot'. Should be overloaded by concrete
-    TrackSummaryHelperTools. It is mandatory that the RIO_OnTrack* points to exactly the object contained
+      TrackSummaryHelperTools. It is mandatory that the RIO_OnTrack* points to exactly the object contained
       inside the TrackStateOnSurface. This is to avoid that the RTTI from the TrackSummaryTool is done twice.
         */
-      virtual void analyse(const Trk::Track& track, 
-			   const RIO_OnTrack* rot,
-			   const TrackStateOnSurface* tsos,
-			   std::vector<int>& information, 
-			   std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const = 0;
+  
+    virtual void analyse(const Trk::Track& track, 
+                         const RIO_OnTrack* rot,
+                         const TrackStateOnSurface* tsos,
+                         std::vector<int>& information, 
+                         std::bitset<Trk::numberOfDetectorTypes>& hitPattern,
+                         Trk::DetailedHitInfo& detailedInfo) const = 0;
 
-      virtual void analyse(const Trk::Track& track, 
-			   const CompetingRIOsOnTrack* crot,
-			   const TrackStateOnSurface* tsos,
-			   std::vector<int>& information, 
-			   std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const = 0;
-      
-      virtual void searchForHoles(const Trk::Track& track, 
-				  std::vector<int>& information ,
-				  const Trk::ParticleHypothesis partHyp = Trk::pion) const =0;
-                  
-      virtual void updateSharedHitCount(const Trk::Track&, TrackSummary&) const {};
-
-       virtual void  updateExpectedHitInfo(const Trk::Track&, TrackSummary&) const {};
-
-       virtual void updateAdditionalInfo(TrackSummary&, std::vector<float>&, float&,int&, int&) const {};
-                  
-
-    virtual void addDetailedTrackSummary(const Track& track, TrackSummary& summary ) const = 0;
-
+    virtual void analyse(const Trk::Track& track, 
+                         const CompetingRIOsOnTrack* crot,
+                         const TrackStateOnSurface* tsos,
+                         std::vector<int>& information, 
+                         std::bitset<Trk::numberOfDetectorTypes>& hitPattern,
+                         Trk::DetailedHitInfo& detailedInfo) const = 0;
     
+    virtual void searchForHoles(const Trk::Track& track, 
+                                std::vector<int>& information ,
+                                const Trk::ParticleHypothesis partHyp = Trk::pion) const =0;
+                
+    virtual void updateSharedHitCount(const Trk::Track&, TrackSummary&) const {};
+    
+    virtual void  updateExpectedHitInfo(const Trk::Track&, TrackSummary&) const {};
+    
+    virtual void updateAdditionalInfo(TrackSummary&, std::vector<float>&, float&,int&, int&) const {};
+    
+    virtual void addDetailedTrackSummary(const Track& track, TrackSummary& summary ) const = 0;
 
   };
 

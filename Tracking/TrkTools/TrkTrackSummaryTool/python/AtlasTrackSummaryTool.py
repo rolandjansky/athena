@@ -52,8 +52,11 @@ class AtlasTrackSummaryTool( Trk__TrackSummaryTool ):
                                                               Extrapolator = AtlasExtrapolator,
                                                               usePixel      = DetFlags.haveRIO.pixel_on(),
                                                               useSCT        = DetFlags.haveRIO.SCT_on(),
-                                                              checkBadSCTChip=InDetFlags.checkDeadElementsOnTrack()
-                                                              )
+                                                              checkBadSCTChip=InDetFlags.checkDeadElementsOnTrack())
+        
+        if InDetFlags.doSLHC():
+          AtlasHoleSearchTool.ITkGeometry = True
+        
         ToolSvc += AtlasHoleSearchTool
         #print      AtlasHoleSearchTool
         
@@ -66,16 +69,17 @@ class AtlasTrackSummaryTool( Trk__TrackSummaryTool ):
                 name         = "AtlasTrackSummaryHelperTool",
                 HoleSearch   = AtlasHoleSearchTool,
                 AssoTool     = AtlasPrdAssociationTool,
-                DoSharedHits = False
-                )
+                DoSharedHits = False)
         else:
             AtlasTrackSummaryHelperTool = InDet__InDetTrackSummaryHelperTool(
                 name         = "AtlasTrackSummaryHelperTool",
                 HoleSearch   = AtlasHoleSearchTool,
                 AssoTool     = AtlasPrdAssociationTool,
                 DoSharedHits = False,
-                TRTStrawSummarySvc = ""
-                )     
+                TRTStrawSummarySvc = "")
+            
+        if InDetFlags.doSLHC():
+          AtlasTrackSummaryHelperTool.ITkGeometry = True
             
         ToolSvc += AtlasTrackSummaryHelperTool
         #print      AtlasTrackSummaryHelperTool                                                                   

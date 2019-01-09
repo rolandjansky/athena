@@ -11,6 +11,7 @@
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "DataModel/DataVector.h"
 #include "TrkTrackSummary/TrackSummary.h"
+#include "TrkTrackSummary/DetailedHitInfo.h"
 #include "TrkParameters/TrackParameters.h" 
 
 class AtlasDetectorID;
@@ -132,15 +133,17 @@ namespace Trk {
   /**loops over TrackStatesOnSurface and uses this to produce the summary information
       Fills 'information', 'eProbability', and 'hitPattern'*/
       void processTrackStates(const Track& track,
-			      const DataVector<const TrackStateOnSurface>* tsos,
-			      std::vector<int>& information,
-			      std::bitset<numberOfDetectorTypes>& hitPattern) const;
+                              const DataVector<const TrackStateOnSurface>* tsos,
+                              std::vector<int>& information,
+                              std::bitset<numberOfDetectorTypes>& hitPattern,
+                              Trk::DetailedHitInfo& detailedInfo) const;
         
       void processMeasurement(const Track& track,
-			      const Trk::MeasurementBase* meas,
-			      const Trk::TrackStateOnSurface* tsos,
-			      std::vector<int>& information,
-			      std::bitset<numberOfDetectorTypes>& hitPattern) const;
+                              const Trk::MeasurementBase* meas,
+                              const Trk::TrackStateOnSurface* tsos,
+                              std::vector<int>& information,
+                              std::bitset<numberOfDetectorTypes>& hitPattern,
+                              Trk::DetailedHitInfo& detailedInfo) const;
 
   /** Extrapolation is performed from one hit to the next, it is checked if surfaces in between
       the extrapolation are left out. The trackParameters of the destination hit (instead of the

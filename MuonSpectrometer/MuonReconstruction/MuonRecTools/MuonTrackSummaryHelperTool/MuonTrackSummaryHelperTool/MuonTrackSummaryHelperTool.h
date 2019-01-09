@@ -13,6 +13,7 @@
 
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
+#include "TrkTrackSummary/DetailedHitInfo.h"
 
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -59,7 +60,8 @@ namespace Muon {
                             const Trk::RIO_OnTrack* rot, 
                             const Trk::TrackStateOnSurface* tsos,
                             std::vector<int>& information, 
-                            std::bitset<Trk::numberOfDetectorTypes>& hitPattern  ) const ;
+                            std::bitset<Trk::numberOfDetectorTypes>& hitPattern,
+                            Trk::DetailedHitInfo& detailedInfo  ) const ;
                             
         
         virtual void analyse( 
@@ -67,7 +69,8 @@ namespace Muon {
                             const Trk::CompetingRIOsOnTrack* crot,
                             const Trk::TrackStateOnSurface* tsos,
                             std::vector<int>& information, 
-                            std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const;
+                            std::bitset<Trk::numberOfDetectorTypes>& hitPattern,
+                            Trk::DetailedHitInfo& detailedInfo ) const;
 
             
         /** */

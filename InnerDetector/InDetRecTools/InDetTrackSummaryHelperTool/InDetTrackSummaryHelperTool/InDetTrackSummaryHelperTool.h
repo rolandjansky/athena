@@ -8,6 +8,7 @@
 #include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkTrackSummary/TrackSummary.h" // defines the Trk::numberOfDetectorTypes enum
+#include "TrkTrackSummary/DetailedHitInfo.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "GaudiKernel/ToolHandle.h"
 #include <vector>
@@ -57,13 +58,15 @@ namespace InDet {
 			 const Trk::RIO_OnTrack* rot,
 			 const Trk::TrackStateOnSurface* tsos,
 			 std::vector<int>& information, 
-			 std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const ;
+			 std::bitset<Trk::numberOfDetectorTypes>& hitPattern,
+       Trk::DetailedHitInfo& detailedInfo ) const ;
 
     virtual void analyse(const Trk::Track& track,
 			 const Trk::CompetingRIOsOnTrack* crot,
 			 const Trk::TrackStateOnSurface* tsos,
 			 std::vector<int>& information, 
-			 std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const;
+			 std::bitset<Trk::numberOfDetectorTypes>& hitPattern,
+       Trk::DetailedHitInfo& detailedInfo ) const;
 
     /** Input : track, partHyp
 	Output: Changes in information
@@ -115,6 +118,8 @@ namespace InDet {
     bool m_doSplitPixelHits;
     bool m_overwriteidsummary;
     bool m_runningTIDE_Ambi;
+    bool m_ITkGeometry;
+    
 };
 
 }

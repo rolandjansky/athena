@@ -105,7 +105,7 @@ namespace InDet
 			  std::vector<const Trk::TrackStateOnSurface*>* listOfHoles,
 			  const Trk::ParticleHypothesis partHyp = Trk::pion) const;
       
-      /**ID pixel helper*/
+      /**ID helper*/
       const AtlasDetectorID* m_atlasId;
       
       /** Pointer to Extrapolator AlgTool*/
@@ -138,6 +138,8 @@ namespace InDet
 
       /** number of warnings printed when no track parameters available **/
       mutable int m_warning;
+      
+      bool m_ITkGeometry;
 
       /** Input: track
 	  Output: changes in mapOfHits (filling it) and hasTRT
