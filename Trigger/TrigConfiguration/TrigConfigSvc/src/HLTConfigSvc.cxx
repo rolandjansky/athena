@@ -126,6 +126,7 @@ HLTConfigSvc::initialize() {
       std::map<std::string, std::string> dummyChains;
       dummyChains["HLT_e3_etcut1step"] = "L1_EM3";
       dummyChains["HLT_e3_etcut"] = "L1_EM3";
+      dummyChains["HLT_e3_etcut_mu6"] = "L1_EM8I_MU10";
       dummyChains["HLT_e5_etcut"] = "L1_EM3";
       dummyChains["HLT_e7_etcut"] = "L1_EM3";
       dummyChains["HLT_g5_etcut"] = "L1_EM3";
@@ -135,9 +136,11 @@ HLTConfigSvc::initialize() {
       dummyChains["HLT_2mu6"] = "L1_MU6";
       dummyChains["HLT_mu6Comb"] = "L1_MU6";
       dummyChains["HLT_2mu6Comb"] = "L1_MU6";
+      dummyChains["HLT_mu8"] = "L1_MU8";
+      dummyChains["HLT_mu10"] = "L1_MU10";
+      dummyChains["HLT_mu20"] = "L1_MU20";
       dummyChains["HLT_j85"] = "L1_J20";
       dummyChains["HLT_j100"] = "L1_J20";
-      dummyChains["HLT_e3_etcut_mu6"] = "L1_EM8I_MU10";
       m_HLTFrame.setMergedHLT( m_setMergedHLT );
       for (const auto& mapPair : dummyChains) {
          const std::string& chainName = mapPair.first;
