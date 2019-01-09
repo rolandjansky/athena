@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1NSWSimTools/PadTriggerValidationTree.h"
@@ -33,21 +33,6 @@ namespace NSWL1{
         m_padTriggerPhimax(nullptr),
         m_padTriggerlocalminY(nullptr),
         m_padTriggerlocalmaxY(nullptr)
-        // m_nPadHits(0),
-        // m_padGlobalX(nullptr),
-        // m_padGlobalY(nullptr),
-        // m_padGlobalZ(nullptr),
-        // m_padTruthHitGlobalX(nullptr),
-        // m_padTruthHitGlobalY(nullptr),
-        // m_padTruthHitGlobalZ(nullptr),
-        // m_padEtaIdFromOfflineId(nullptr),
-        // m_padPhiIdFromOfflineId(nullptr),
-        // m_padSectorFromOfflineId(nullptr),
-        // m_padLayerFromOfflineId(nullptr),
-        // m_offlineIdPadEtaConverted(nullptr),
-        // m_offlineIdPadPhiConverted(nullptr),
-        // m_padEtaIdFromOldSimu(nullptr),
-        // m_padPhiIdFromOldSimu(nullptr)
     {
     }
     //------------------------------------------------------------------------------
@@ -80,21 +65,6 @@ namespace NSWL1{
             m_padTriggerPhimax      =new std::vector<float>();
             m_padTriggerlocalminY   =new std::vector<std::vector<float>>();
             m_padTriggerlocalmaxY   =new std::vector<std::vector<float>>();
-            // m_nPadHits = 0;
-            // m_padGlobalX = new std::vector<float>();
-            // m_padGlobalY = new std::vector<float>();
-            // m_padGlobalZ = new std::vector<float>();
-            // m_padTruthHitGlobalX = new std::vector<float>();
-            // m_padTruthHitGlobalY = new std::vector<float>();
-            // m_padTruthHitGlobalZ = new std::vector<float>();
-            // m_padEtaIdFromOfflineId = new std::vector<int>();
-            // m_padPhiIdFromOfflineId = new std::vector<int>();
-            // m_padSectorFromOfflineId = new std::vector<int>();
-            // m_padLayerFromOfflineId = new std::vector<int>();
-            // m_offlineIdPadEtaConverted = new std::vector<int>();
-            // m_offlineIdPadPhiConverted = new std::vector<int>();
-            // m_padEtaIdFromOldSimu   = new std::vector<int>();
-            // m_padPhiIdFromOldSimu   = new std::vector<int>();
 
             m_tree->Branch("nPadTriggers",                 &m_nPadTriggers,"nPadTriggers/i");
             m_tree->Branch("padTriggerBCID",               &m_padTriggerBCID);
@@ -116,21 +86,6 @@ namespace NSWL1{
             
             m_tree->Branch("padTriggerlocalminY",           &m_padTriggerlocalminY);
             m_tree->Branch("padTriggerlocalmaxY",           &m_padTriggerlocalmaxY);
-            // m_tree->Branch("nPadHits",                  &m_nPadHits,"nPadHits/i");
-            // m_tree->Branch("padGlobalX",                &m_padGlobalX);
-            // m_tree->Branch("padGlobalY",                &m_padGlobalY);
-            // m_tree->Branch("padGlobalZ",                &m_padGlobalZ);
-            // m_tree->Branch("padTruthHitGlobalX",        &m_padTruthHitGlobalX);
-            // m_tree->Branch("padTruthHitGlobalY",        &m_padTruthHitGlobalY);
-            // m_tree->Branch("padTruthHitGlobalZ",        &m_padTruthHitGlobalZ);
-            // m_tree->Branch("padEtaIdFromOfflineId",     &m_padEtaIdFromOfflineId);
-            // m_tree->Branch("padPhiIdFromOfflineId",     &m_padPhiIdFromOfflineId);
-            // m_tree->Branch("padSectorIdFromOfflineId",  &m_padSectorFromOfflineId);
-            // m_tree->Branch("padLayerFromOfflineId",     &m_padLayerFromOfflineId);
-            // m_tree->Branch("offlineIdPadEtaIdConverted",&m_offlineIdPadEtaConverted);
-            // m_tree->Branch("offlineIdPadPhiIdConverted",&m_offlineIdPadPhiConverted);
-            // m_tree->Branch("padEtaIdFromOldSimu",       &m_padEtaIdFromOldSimu);
-            // m_tree->Branch("padPhiIdFromOldSimu",       &m_padPhiIdFromOldSimu);
             success = true;
         }
         return success;
@@ -157,21 +112,6 @@ namespace NSWL1{
             m_padTriggerPhimax->clear();
             m_padTriggerlocalminY->clear();
             m_padTriggerlocalmaxY->clear();
-            // m_nPadHits = 0;
-            // m_padGlobalX->clear();
-            // m_padGlobalY->clear();
-            // m_padGlobalZ->clear();
-            // m_padTruthHitGlobalX->clear();
-            // m_padTruthHitGlobalY->clear();
-            // m_padTruthHitGlobalZ->clear();
-            // m_padEtaIdFromOfflineId->clear();
-            // m_padPhiIdFromOfflineId->clear();
-            // m_padSectorFromOfflineId->clear();
-            // m_padLayerFromOfflineId->clear();
-            // m_offlineIdPadEtaConverted->clear();
-            // m_offlineIdPadPhiConverted->clear();
-            // m_padEtaIdFromOldSimu->clear();
-            // m_padPhiIdFromOldSimu->clear();
         }
     }
     //------------------------------------------------------------------------------
@@ -195,21 +135,6 @@ namespace NSWL1{
         m_padTriggerPhimax=nullptr;
         m_padTriggerlocalminY=nullptr;
         m_padTriggerlocalmaxY=nullptr;
-        // m_nPadHits = 0;
-        // m_padGlobalX = nullptr;
-        // m_padGlobalY = nullptr;
-        // m_padGlobalZ = nullptr;
-        // m_padTruthHitGlobalX = nullptr;
-        // m_padTruthHitGlobalY = nullptr;
-        // m_padTruthHitGlobalZ = nullptr;
-        // m_padEtaIdFromOfflineId    = nullptr;
-        // m_padPhiIdFromOfflineId    = nullptr;
-        // m_padSectorFromOfflineId   = nullptr;
-        // m_padLayerFromOfflineId    = nullptr;
-        // m_offlineIdPadEtaConverted = nullptr;
-        // m_offlineIdPadPhiConverted = nullptr;
-        // m_padEtaIdFromOldSimu      = nullptr;
-        // m_padPhiIdFromOldSimu      = nullptr;
     }
     //------------------------------------------------------------------------------
     void PadTriggerValidationTree::fill_num_pad_triggers(size_t num)
@@ -240,24 +165,4 @@ namespace NSWL1{
     }
     }
 
-    // //------------------------------------------------------------------------------
-    // void PadTriggerValidationTree::fill_num_pad_hits(size_t num)
-    // {
-    //     m_nPadHits = num;
-    // }
-    // //------------------------------------------------------------------------------
-    // void PadTriggerValidationTree::fill_hit_global_pos(const Amg::Vector3D &pos)
-    // {
-    //     m_padGlobalX->push_back(pos.x());
-    //     m_padGlobalY->push_back(pos.y());
-    //     m_padGlobalZ->push_back(pos.z());
-    // }
-    // //------------------------------------------------------------------------------
-    // void PadTriggerValidationTree::fill_truth_hit_global_pos(const Amg::Vector3D &pos)
-    // {
-    //     m_padTruthHitGlobalX->push_back(pos.x());
-    //     m_padTruthHitGlobalY->push_back(pos.y());
-    //     m_padTruthHitGlobalZ->push_back(pos.z());
-    // }
-    // //------------------------------------------------------------------------------
 }
