@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // class header include
@@ -431,7 +431,8 @@ StatusCode ISF::FastCaloSimSvcPU::releaseEvent()
    FastShowerCellBuilderTool* fcs=dynamic_cast< FastShowerCellBuilderTool* >(&(*(*itrTool)));
    if(fcs)
    {
-    if(fcs->releaseEvent().isFailure())
+    FastShowerCellBuilderTool::Stats stats;
+    if(fcs->releaseEvent(stats).isFailure())
     {
      ATH_MSG_ERROR( m_screenOutputPrefix << "Error executing tool " << itrTool->name() << " in releaseEvent");
      return StatusCode::FAILURE;
@@ -564,6 +565,8 @@ StatusCode ISF::FastCaloSimSvcPU::processOneParticle( const ISF::ISFParticle& is
   }
   
   // loop on tools
+  FastShowerCellBuilderTool::Stats stats;
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   for(;itrTool!=endTool;++itrTool)
   {
     FastShowerCellBuilderTool* fcs=dynamic_cast< FastShowerCellBuilderTool* >(&(*(*itrTool)));
@@ -580,7 +583,7 @@ StatusCode ISF::FastCaloSimSvcPU::processOneParticle( const ISF::ISFParticle& is
     
     //->PU Development:
     ATH_MSG_INFO(m_screenOutputPrefix<<" now call fcs->process_particle with [bcid-1]="<<bcid-1<<" for pdgid "<<isfp.pdgCode());
-    if(fcs->process_particle(m_puCellContainer[bcid-1],hitVector,isfp.momentum(),isfp.mass(),isfp.pdgCode(),isfp.barcode()).isFailure())
+    if(fcs->process_particle(m_puCellContainer[bcid-1],hitVector,isfp.momentum(),isfp.mass(),isfp.pdgCode(),isfp.barcode(), nullptr, stats, ctx).isFailure())
     {
      ATH_MSG_WARNING( m_screenOutputPrefix << "simulation of particle pdgid=" << isfp.pdgCode()<< " in bcid "<<bcid<<" failed" );   
      return StatusCode::FAILURE;
