@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaMonitoring.AthenaMonitoringConf import GenericMonitoringTool as _GenericMonitoringTool
@@ -16,7 +16,7 @@ class GenericMonitoringTool(_GenericMonitoringTool):
 #  For full details see the GenericMonitoringTool documentation.
 #  @param varname  one (1D) or two (2D) variable names separated by comma
 #  @param type     histogram type
-#  @param path     top-level histrogram directory
+#  @param path     top-level histogram directory (e.g. EXPERT, SHIFT, etc.)
 #  @param title    Histogram title and optional axis title (same syntax as in TH constructor)
 #  @param opt      Histrogram options (see GenericMonitoringTool)
 #  @param labels   List of bin labels (for a 2D histogram, sequential list of x- and y-axis labels)
