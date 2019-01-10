@@ -1,26 +1,11 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
-
-/*
- * EfficiencyScaleFactor.h
- *
- *  Created on: Apr 10, 2014
- *      Author: goblirsc
- */
-
 #ifndef EFFICIENCYSCALEFACTOR_H_
 #define EFFICIENCYSCALEFACTOR_H_
 
 // EDM include(s):
 #include "xAODMuon/Muon.h"
-// Infrastructure include(s):
-#ifdef ROOTCORE
-#   include "xAODRootAccess/Init.h"
-#   include "xAODRootAccess/TEvent.h"
-#endif // ROOTCORE
-
-// EDM include(s):
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODMuon/MuonContainer.h"
 
@@ -43,11 +28,7 @@
 #include <memory>
 
 namespace CP {
-
     typedef std::shared_ptr<IKinematicSystHandler> IKinematicSystHandler_Ptr;
-
-
-
     class SystematicSet;
     class EfficiencyScaleFactor {
 
@@ -63,8 +44,14 @@ namespace CP {
             /// default constructor - will create the histos as NULL pointers
             EfficiencyScaleFactor();
             /// constructor to use in real life - will read in the histos from the given file
-            EfficiencyScaleFactor(const  std::string& toolname, const std::string &file, const std::string &time_unit, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, bool is_lowpt = false, bool hasPtDepSys = false);
-            //Constructor to connect the EfficiencyScaleFactor with the Nominal Version
+            EfficiencyScaleFactor(const  std::string& toolname, 
+                                 const std::string &file, 
+                                 const std::string &time_unit, 
+                                 MuonEfficiencySystType sysType, 
+                                 CP::MuonEfficiencyType effType, 
+                                 bool is_lowpt = false, 
+                                 bool hasPtDepSys = false);
+            ///Constructor to connect the EfficiencyScaleFactor with the Nominal Version
             EfficiencyScaleFactor(EfficiencyScaleFactor* Nominal, const std::string& toolname, const std::string &file, const std::string &time_unit, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, bool is_lowpt = false, bool hasPtDepSys = false);
 
             EfficiencyScaleFactor(const EfficiencyScaleFactor & other);

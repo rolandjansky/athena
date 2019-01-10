@@ -1,14 +1,6 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
-
-/*
- * EffiCollection.h
- *
- *  Created on: Jun 21, 2014
- *      Author: goblirsc
- */
-
 #ifndef EFFICOLLECTION_H_
 #define EFFICOLLECTION_H_
 
@@ -54,12 +46,26 @@ namespace CP {
             bool CheckConsistency() const;
 
             virtual ~EffiCollection();
+            // Get the number of all bins in the scale-factor maps including
+            // the overflow & underflow bins
             unsigned int nBins() const;
+            
+            // If systematic decorrelation is activated then the user needs to loop
+            // manually over the syst bins. This method activates the i-th bin to 
+            // be active. For the remaining bins the nominal scale-factor is returned
+            // instead.
             bool SetSystematicBin(unsigned int Bin);
+            
+            // Checks whether the i-th bin belongs to the low-pt map...
             bool IsLowPtBin(unsigned int Bin) const;
+            // Checks whether the i-th bin belongs to the forward map
             bool IsForwardBin(unsigned int Bin) const;
 
+            
             std::string GetBinName(unsigned int bin) const;
+            
+            // Returns the bin number from which the scale-factor of the muon
+            // is going to be retrieved...
             int getUnCorrelatedSystBin(const xAOD::Muon& mu) const;
 
         protected:

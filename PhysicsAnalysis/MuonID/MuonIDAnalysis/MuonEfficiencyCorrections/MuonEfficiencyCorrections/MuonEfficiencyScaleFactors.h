@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 /*
@@ -94,16 +94,17 @@ namespace CP {
             /// load the SF histos
             bool LoadEffiSet(MuonEfficiencySystType sysType);
             bool LoadInputs();
-
+        public:
+        
             /// construct the name of the input files from the configuration
-            std::string filename_Central();
-            std::string filename_Calo();
-            std::string filename_HighEta();
-            std::string filename_LowPt();
-            std::string filename_LowPtCalo();
-
+            std::string filename_Central()const;
+            std::string filename_Calo()const;
+            std::string filename_HighEta()const;
+            std::string filename_LowPt()const;
+            std::string filename_LowPtCalo()const;
+        private:
             // utility method to 'dress' a filename using the path resolver
-            std::string resolve_file_location(const std::string &filename);
+            std::string resolve_file_location(const std::string &filename)const;
 
             //Some util functions
             void CopyInformation(const MuonEfficiencyScaleFactors & tocopy);
@@ -111,7 +112,7 @@ namespace CP {
             StatusCode CreateDecorator(std::unique_ptr<FloatDecorator> &Dec,  std::string& DecName, const std::string& defaultName);
             StatusCode CreateVecDecorator(std::unique_ptr<FloatVectorDecorator> &Dec, std::string& DecName, const std::string& defaultName);
            
-            StatusCode IsDecoratorNameUnique(std::string &name);
+            StatusCode IsDecoratorNameUnique(std::string &name)const;
             SystematicSet SetupSystematics(bool doUnfolded = false) const;
             void SetupCheckSystematicSets();
             /// the working point to operate on
@@ -167,6 +168,7 @@ namespace CP {
 
             bool m_init;
             bool m_seperateSystBins;
+            bool m_breakDownSyst;
             CP::MuonEfficiencyType m_Type;
     };
 

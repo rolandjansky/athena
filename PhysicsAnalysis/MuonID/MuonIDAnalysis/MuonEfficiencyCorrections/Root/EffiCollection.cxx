@@ -235,7 +235,7 @@ namespace CP {
         m_lowpt_central_eff.reset();
         m_lowpt_calo_eff.reset();
     }
-    std::string EffiCollection::FileTypeName(EffiCollection::CollectionType T) {
+    std::string EffiCollection::FileTypeName(EffiCollection::CollectionType T) const {
         if (T == CollectionType::Central) return "Central ";
         if (T == CollectionType::Calo) return "Calo ";
         if (T == CollectionType::Forward) return "Forward ";
@@ -277,17 +277,6 @@ namespace CP {
         else Bin += sfBin;
         return true;
     }
-
-    std::string EffiCollection::ReplaceExpInString(std::string str, const std::string &exp, const std::string &rep) const {
-        size_t ExpPos = str.find(exp);
-        if (ExpPos == std::string::npos) return str;
-        size_t ExpLen = exp.size();
-
-        str = str.substr(0, ExpPos) + rep + str.substr(ExpPos + ExpLen, std::string::npos);
-        if (str.find(exp) != std::string::npos) return ReplaceExpInString(str, exp, rep);
-        return str;
-    }
-
     //################################################################################
     //                               EffiCollection::CollectionContainer
     //################################################################################
