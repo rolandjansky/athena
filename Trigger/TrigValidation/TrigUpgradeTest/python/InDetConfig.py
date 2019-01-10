@@ -200,7 +200,7 @@ def TrigInDetCondConfig( flags ):
   acc.addService(mag_field_svc)
   return acc
 
-def TrigInDetConfig( flags ):
+def TrigInDetConfig( flags, roisKey="EMRoIs" ):
   acc = ComponentAccumulator()
   acc.merge(TrigInDetCondConfig(flags))
 
@@ -215,7 +215,7 @@ def TrigInDetConfig( flags ):
                                        SCTRDOCacheKey       = "SctRDOCache",
                                        PixRDOCacheKey = "PixRDOCache",)
 
-  acc.addEventAlgo(InDetCacheCreatorTrigViews)
+  acc.addCondAlgo( InDetCacheCreatorTrigViews )
 
   #Only add raw data decoders if we're running over raw data
   isMC = flags.Input.isMC
@@ -239,7 +239,7 @@ def TrigInDetConfig( flags ):
                                                      ProviderTool = InDetPixelRawDataProviderTool,)
                                                      #OutputLevel = INFO)
     InDetPixelRawDataProvider.isRoI_Seeded = True
-    InDetPixelRawDataProvider.RoIs = "EMRoIs"
+    InDetPixelRawDataProvider.RoIs = roisKey
     InDetPixelRawDataProvider.RDOCacheKey = InDetCacheCreatorTrigViews.PixRDOCacheKey
     acc.addEventAlgo(InDetPixelRawDataProvider)
 
@@ -263,7 +263,7 @@ def TrigInDetConfig( flags ):
                                                 ProviderTool = InDetSCTRawDataProviderTool, )
                                                 #OutputLevel = INFO)
     InDetSCTRawDataProvider.isRoI_Seeded = True
-    InDetSCTRawDataProvider.RoIs = "EMRoIs"
+    InDetSCTRawDataProvider.RoIs = roisKey
     InDetSCTRawDataProvider.RDOCacheKey = InDetCacheCreatorTrigViews.SCTRDOCacheKey
 
     acc.addEventAlgo(InDetSCTRawDataProvider)
@@ -301,7 +301,7 @@ def TrigInDetConfig( flags ):
                                                  RDOKey       = "TRT_RDOs",
                                                   ProviderTool = InDetTRTRawDataProviderTool)
     InDetTRTRawDataProvider.isRoI_Seeded = True
-    InDetTRTRawDataProvider.RoIs = "EMRoIs"
+    InDetTRTRawDataProvider.RoIs = roisKey
 
     acc.addEventAlgo(InDetTRTRawDataProvider)
 
@@ -338,7 +338,7 @@ def TrigInDetConfig( flags ):
                                                         AmbiguitiesMap          = 'TrigPixelClusterAmbiguitiesMap',
                                                         ClustersName            = "PixelTrigClusters",)# OutputLevel = INFO)
   InDetPixelClusterization.isRoI_Seeded = True
-  InDetPixelClusterization.RoIs = "EMRoIs"
+  InDetPixelClusterization.RoIs = roisKey
   InDetPixelClusterization.ClusterContainerCacheKey = InDetCacheCreatorTrigViews.Pixel_ClusterKey
 
   acc.addEventAlgo(InDetPixelClusterization)
@@ -383,7 +383,7 @@ def TrigInDetConfig( flags ):
                                                       ClustersName            = "SCT_TrigClusters",
                                                       conditionsTool          = InDetSCT_ConditionsSummaryToolWithoutFlagged)
   InDetSCT_Clusterization.isRoI_Seeded = True
-  InDetSCT_Clusterization.RoIs = "EMRoIs"
+  InDetSCT_Clusterization.RoIs = roisKey
   InDetSCT_Clusterization.ClusterContainerCacheKey = InDetCacheCreatorTrigViews.SCT_ClusterKey
 
   acc.addEventAlgo(InDetSCT_Clusterization)
@@ -427,7 +427,7 @@ def TrigInDetConfig( flags ):
   #                                                         TrackName = "TrigFastTrackFinder_Tracks",
   #                                                         TrackParticlesName = "xAODTracks",
   #                                                         ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
-  #theTrackParticleCreatorAlg.roiCollectionName = "EMRoIs"
+  #theTrackParticleCreatorAlg.roiCollectionName = roisKey
   #acc.addEventAlgo(theTrackParticleCreatorAlg)
 
 
@@ -440,10 +440,16 @@ def indetInViewRecoCfg( flags, viewMakerName ):
   """  
   from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
   reco = InViewReco( viewMakerName )
-  algAcc = TrigInDetConfig( flags )
+  algAcc = TrigInDetConfig( flags, roisKey=reco.inputMaker().InViewRoIs )
   # TODO fixeme using getEventAlgs CA method
   # this awkward line will be removed one CA gets appopriate method to get all algorithms  
   reco.addRecoAlg( algAcc._sequence.getChildren() )
+  from AthenaCommon.Constants import DEBUG
+  for a in algAcc._sequence.getChildren():
+    a.OutputLevel=DEBUG
+    
+  from AthenaCommon.AlgSequence import AthSequencer
+  algAcc._sequence = AthSequencer('AthAlgSeq') # empty the sequence, we need a better API for that
   reco.merge( algAcc )
   
   return reco
