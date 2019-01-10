@@ -41,8 +41,9 @@ if nThreads >=1 :
    ## force loading of data. make sure this alg is at the front of the
    ## AlgSequence
    #
-   from SGComps.SGCompsConf import SGInputLoader
-   topSequence+=SGInputLoader(OutputLevel=DEBUG, ShowEventDump=False)
+   if not hasattr(topSequence, "SGInputLoader"):
+      from SGComps.SGCompsConf import SGInputLoader
+      topSequence+=SGInputLoader(OutputLevel=DEBUG, ShowEventDump=False)
 
 # MT-specific code
 #---------------------------------------------------------------------------------#
@@ -97,7 +98,7 @@ DetFlags.detdescr.all_setOff()
 DetFlags.detdescr.Muon_setOn()
 DetFlags.detdescr.ID_setOn()
 DetFlags.detdescr.Calo_setOn()
-if hasattr(DetFlags,'BField_on'): DetFlags.BField_setOn()
+if hasattr(DetFlags,'BField_on'): DetFlags.detdescr.BField_setOn()
 from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 AtlasTrackingGeometrySvc  = svcMgr.AtlasTrackingGeometrySvc
 
@@ -123,6 +124,9 @@ include( "LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py" )
 include( "LArConditionsCommon/LArIdMap_MC_jobOptions.py" )
 from LArConditionsCommon import LArAlignable
 ServiceMgr.DetDescrCnvSvc.DecodeIdDict = True
+
+include ("LArRecUtils/LArAffectedRegion.py")
+include("InDetBeamSpotService/BeamCondSvc.py")
 # Detector Description
 #---------------------------------------------------------------------------------#
 

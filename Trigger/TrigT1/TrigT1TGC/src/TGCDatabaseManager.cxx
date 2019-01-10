@@ -285,27 +285,4 @@ const std::vector<std::string> TGCDatabaseManager::splitCW(const std::string& in
   return result;
 }
 
-StatusCode TGCDatabaseManager::updateMap()
-{
-  // BW 
-  for (int side = 0; side < NumberOfSide; side +=1) {
-    for (int oct=0; oct<NumberOfOctant; oct++) {
-
-      if (!mapRphi[side][oct]->readMap()) {
-        return StatusCode::SUCCESS;
-      }
-    }
-  }
-
-  // EIFI
-  for (int side=0; side<NumberOfSide; side +=1) {
-    mapInner[side]->readMap();
-  }
-  
-  // TILE
-  mapTileMu->readMap(); 
-
-  return StatusCode::SUCCESS;
-}
-
 } //end of namespace bracket

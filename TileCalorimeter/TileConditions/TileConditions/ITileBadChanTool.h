@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_ITILEBADCHANTOOL_H
@@ -62,6 +62,13 @@ class ITileBadChanTool: virtual public IAlgTool {
     * @return Trip probabilites for all Tile drawers
     */
     virtual const std::vector<float>& getTripsProbabilities(unsigned int ros) const = 0;
+
+   /**
+    * @brief Check if Tile drawer is masked completely
+    * @param frag_id Tile frag identifier
+    * @return True if Tile drawer is masked comletely
+    */
+    virtual bool isDrawerMasked(unsigned int frag_id) const = 0;
 
     DeclareInterfaceID(ITileBadChanTool, 1, 0);
 };

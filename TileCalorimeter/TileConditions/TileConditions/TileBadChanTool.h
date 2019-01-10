@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILEBADCHANTOOL_H
@@ -90,6 +90,10 @@ class TileBadChanTool: public extends<AthAlgTool, ITileBadChanTool, ICaloBadChan
      */
     virtual const std::vector<float>& getTripsProbabilities(unsigned int ros) const override;
 
+    /**
+     * @copydoc ITileBadChanTool::isDrawerMasked(unsigned int frag_id) const
+     */
+    virtual bool isDrawerMasked(unsigned int frag_id) const override;
 
   private:
 

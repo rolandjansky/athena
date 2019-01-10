@@ -49,7 +49,6 @@ public:
   static const std::string& getFilename(int type); 
   static const std::vector<std::string > splitCW(const std::string& input, char delimiter); 
 
-  StatusCode updateMap();
 
 private:
   TGCRPhiCoincidenceMap* mapRphi[NumberOfSide][NumberOfOctant];

@@ -10,7 +10,6 @@ import unittest, sys
 import AthenaCommon.Configurable as Configurable
 import AthenaCommon.ConfigurableDb as ConfigurableDb
 
-
 ### data ---------------------------------------------------------------------
 __version__ = '1.0.0'
 __author__  = 'Wim Lavrijsen (WLavrijsen@lbl.gov)'
@@ -370,6 +369,108 @@ class ConfigurablePersistencyTestCase( unittest.TestCase ):
       del jobO
 
       return
+
+### Equality comparisons of Configurable & friends =================================
+from GaudiKernel.GaudiHandles import PrivateToolHandle, PrivateToolHandleArray
+
+class DummyAlg( Configurable.ConfigurableAlgorithm ):
+   __slots__ = { 
+      'DummyIntProp' : 0, # int
+      'DummyBoolProp' : True, # bool
+      'DummyFloatProp' : 3.141, # float
+      'DummyStringProp' : 'Mellon', # string
+      'DummyToolHProp' : PrivateToolHandle('DummyToolA/DummyTool1'), # GaudiHandle
+      'DummyToolHArrayProp' : PrivateToolHandleArray([]), # GaudiHandleArray
+      }
+   def __init__(self, name = Configurable.Configurable.DefaultName, **kwargs):
+      super(DummyAlg, self).__init__(name)
+      for n,v in kwargs.items():
+         setattr(self, n, v)
+   def getDlls( self ):
+      return 'AthenaCommon'
+   def getType( self ):
+      return 'DummyAlg'
+   pass # class DummyAlg
+
+class DummyToolA( Configurable.ConfigurableAlgTool ):
+   __slots__ = { 
+      'DummyIntProp' : 1, # int
+      'DummyBoolProp' : False, # bool
+      'DummyFloatProp' : 1.414, # float
+      'DummyStringProp' : 'Kawan', # string
+      'DummyToolHProp' : PrivateToolHandle('DummyToolB/DummyTool1'), # GaudiHandle
+      }
+   def __init__(self, name = Configurable.Configurable.DefaultName, **kwargs):
+      super(DummyToolA, self).__init__(name)
+      for n,v in kwargs.items():
+         setattr(self, n, v)
+   def getDlls( self ):
+      return 'AthenaCommon'
+   def getType( self ):
+      return 'DummyToolA'
+   pass # class DummyToolA
+
+class DummyToolB( Configurable.ConfigurableAlgTool ):
+   __slots__ = { 
+      'DummyIntProp' : 2, # int
+      'DummyBoolProp' : True, # bool
+      'DummyFloatProp' : 2.681, # float
+      'DummyStringProp' : 'Rakan', # string
+      }
+   def __init__(self, name = Configurable.Configurable.DefaultName, **kwargs):
+      super(DummyToolB, self).__init__(name)
+      for n,v in kwargs.items():
+         setattr(self, n, v)
+   def getDlls( self ):
+      return 'AthenaCommon'
+   def getType( self ):
+      return 'DummyToolB'
+   pass # class DummyToolB
+
+class ConfigurableEqualityTestCase( unittest.TestCase ):
+   """Verify behavior of Configurable equality comparisons"""
+
+   # In the pre-Run3 behaviour, the same instance was always returned.
+   def setUp(self):
+      Configurable.Configurable.configurableRun3Behavior = True
+      pass
+
+   def tearDown(self):
+      Configurable.Configurable.configurableRun3Behavior = False
+      pass
+
+   def test1EqualityIsReflexive( self ):
+      """Test that x == x"""
+      myDummyAlg = DummyAlg("MyDummyAlg")
+      self.assertEqual( myDummyAlg, myDummyAlg )
+
+   def test2EqualityIsSymmetric( self ):
+      """Test that x == y and y == x"""
+      myDummyAlg1 = DummyAlg("MyDummyAlg")
+      myDummyAlg2 = DummyAlg("MyDummyAlg")
+
+      # First and second instances should not be identical
+      self.assertFalse( myDummyAlg1 is myDummyAlg2 )
+      # However, they should be equal
+      self.assertEqual( myDummyAlg1, myDummyAlg2 )
+      self.assertEqual( myDummyAlg2, myDummyAlg1 )
+
+   def test3InequalityWithoutChildren( self ):
+      """Test that configurables with different properties
+         compare non-equal without recursion into children"""
+      myDummyTool1 = DummyToolB("MyDummyToolB")
+      myDummyTool2 = DummyToolB("MyDummyToolB",DummyIntProp=-1)
+      self.assertTrue( myDummyTool1 != myDummyTool2 )
+      self.assertTrue( myDummyTool2 != myDummyTool1 )
+
+   def test4InequalityWithChildren( self ):
+      """Test that configurables with different properties
+         compare non-equal with recursion into children"""
+      myDummyAlg1 = DummyAlg("MyDummyAlg")
+      myDummyAlg2 = DummyAlg("MyDummyAlg")
+      myDummyAlg2.DummyToolHProp = DummyToolB("MyDummyToolB")
+      self.assertTrue( myDummyAlg1 != myDummyAlg2 )
+      self.assertTrue( myDummyAlg2 != myDummyAlg1 )
 
 ## actual test run
 if __name__ == '__main__':
