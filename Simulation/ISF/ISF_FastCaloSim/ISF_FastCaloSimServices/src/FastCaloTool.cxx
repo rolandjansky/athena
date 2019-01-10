@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/IChronoStatSvc.h"
@@ -250,6 +250,9 @@ StatusCode ISF::FastCaloTool::processOneParticle( const ISF::ISFParticle& isfp) 
     return StatusCode::FAILURE;
   }
 
+  FastShowerCellBuilderTool::Stats stats;
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
   // loop on tools
   for ( auto tool : m_caloCellMakerTools_simulate) {
     FastShowerCellBuilderTool* fcs=dynamic_cast< FastShowerCellBuilderTool* >(&(*tool));
@@ -265,7 +268,8 @@ StatusCode ISF::FastCaloTool::processOneParticle( const ISF::ISFParticle& isfp) 
 
     //sc = tool->process(m_theContainer);
     if(fcs->process_particle(m_theContainer,hitVector,
-                             isfp.momentum(),isfp.mass(),isfp.pdgCode(),isfp.barcode()).isFailure()) {
+                             isfp.momentum(),isfp.mass(),isfp.pdgCode(),isfp.barcode(),
+                             nullptr, stats, ctx).isFailure()) {
       ATH_MSG_WARNING( "simulation of particle pdgid=" << isfp.pdgCode()<< " failed" );
       return StatusCode::FAILURE;
     }
@@ -424,7 +428,8 @@ StatusCode ISF::FastCaloTool::releaseEventST()
   for ( auto tool : m_caloCellMakerTools_simulate) {
     FastShowerCellBuilderTool* fcs=dynamic_cast< FastShowerCellBuilderTool* >(&(*tool));
     if(fcs) {
-      if(fcs->releaseEvent().isFailure()) {
+      FastShowerCellBuilderTool::Stats stats;
+      if(fcs->releaseEvent(stats).isFailure()) {
         ATH_MSG_ERROR( "Error executing tool " << tool->name() << " in releaseEvent");
         return StatusCode::FAILURE;
       }
