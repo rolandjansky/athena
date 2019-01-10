@@ -754,6 +754,58 @@ class Configurable( object ):
       self._flags &= ~self._fIsPrinting
       return rep
 
+    # hash method for set/dict operations
+    # first attempt, assuming need to recurse into child properties
+    # if too much overhead, could attempt to cache with python
+    # properties, but hard to propagate changes upwards to parents
+
+   def getFlattenedProperties(self):
+      self._flags |= self._fIsPrinting
+      properties = self.getValuedProperties()
+      propstr = ""
+      for key,val in sorted(properties.iteritems()):
+         if isinstance(val,GaudiHandles.PublicToolHandle) or isinstance(val,GaudiHandles.PrivateToolHandle):
+            propstr += val.getFullName()
+         elif isinstance(val,Configurable):
+            propstr += "({0}:{1})".format(key,val.getFlattenedProperties())
+         elif isinstance(val,GaudiHandles.PublicToolHandleArray) or isinstance(val,GaudiHandles.PrivateToolHandleArray):
+            for th in val:
+               # Handle ToolHandles that have just been set as strings(?)
+               if isinstance(th,Configurable):
+                  propstr += "({0}:{1}".format(th.getFullName(), th.getFlattenedProperties())
+               else:
+                  propstr += th.getFullName()
+         else:
+            propstr += "({0}:{1})".format(key,str(val))
+      self._flags &= ~self._fIsPrinting
+      return propstr
+
+   def getStrDescriptor(self):
+
+      descr = ""
+      if hasattr( self,"_name" ):
+         propstr = self.getFlattenedProperties()
+         descr = (self.getFullName(), propstr)
+      else: # Not yet initialised?
+         descr = self.getType()
+      
+      return descr
+
+   #  # (in)equality operators, based on hash
+   def __eq__(self,rhs):
+      # Check identity first
+      if self is rhs: return True
+      # Avoid comparing against None...
+      if not rhs: return False
+      # Class check
+      if not isinstance(rhs,Configurable): return False
+      # Type/Name check
+      if self.getFullName() != rhs.getFullName(): return False
+      # If identical types and names, then go the whole hog and test children
+      # Could be sped up by testing property by property...
+      return self.getStrDescriptor() == rhs.getStrDescriptor()
+   def __ne__(self,rhs):
+      return (not self.__eq__(rhs))
 
 ### base classes for individual Gaudi algorithms/services/algtools ===========
 

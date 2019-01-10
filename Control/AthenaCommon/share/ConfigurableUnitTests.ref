@@ -1,19 +1,27 @@
-Mon Mar  5 17:12:34 EST 2018
-WARNING: TCMALLOCDIR not defined, will use libc malloc
+Wed Jan  9 15:46:08 CET 2019
+Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
+Py:Athena            INFO using release [WorkDir-22.0.1] [x86_64-slc6-gcc62-opt] [master-Configurable-equality/85b8ca0400] -- built on [2018-12-14T2051]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "AthenaCommon/ConfigurableUnitTests.py"
 test1LoadAutoConfigurable (__main__.BasicConfigurableDbTestCase)
-Test autoloading of a configurable (w/ getConfigurable) ... Py:ConfigurableDb    INFO Read module info for 470 configurables from 2 genConfDb files
+Test autoloading of a configurable (w/ getConfigurable) ... Py:ConfigurableDb    INFO Read module info for 5461 configurables from 6 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 ok
 test2LoadAutoConfigurable (__main__.BasicConfigurableDbTestCase)
 Test autoloading of a configurable (w/ CfgMgr) ... ok
 test1MethodChecking (__main__.BasicConfigurableTestCase)
 Test that needed methods are properly checked ... ok
+test1EqualityIsReflexive (__main__.ConfigurableEqualityTestCase)
+Test that x == x ... ok
+test2EqualityIsSymmetric (__main__.ConfigurableEqualityTestCase)
+Test that x == y and y == x ... ok
+test3InequalityWithoutChildren (__main__.ConfigurableEqualityTestCase)
+Test that configurables with different properties ... ok
+test4InequalityWithChildren (__main__.ConfigurableEqualityTestCase)
+Test that configurables with different properties ... ok
 test1PicklePersistency (__main__.ConfigurablePersistencyTestCase)
 Test r/w a job from/to a pickle file ... ok
 test2ConfigurableShelveConfigs (__main__.ConfigurablePersistencyTestCase)
@@ -22,6 +30,6 @@ test1ConstructorKeywords (__main__.KeywordHandlingTestCase)
 Test proper handling of constructor keywords ... ok
 
 ----------------------------------------------------------------------
-Ran 6 tests in 0.774s
+Ran 10 tests in 2.720s
 
 OK

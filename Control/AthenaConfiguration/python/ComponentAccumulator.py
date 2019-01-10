@@ -61,10 +61,9 @@ class ComponentAccumulator(object):
         self._msg.info( "Event Algorithm Sequences" )
 
         def printProperties(c, nestLevel = 0):
-            from AthenaCommon.Configurable import ConfigurableAlgTool
-            for propname, propval in c.getProperties().iteritems():
-                # Ignore unset or empty lists
-                if propval=='<no value>' or propval==[]:
+            for propname, propval in c.getValuedProperties().iteritems():
+                # Ignore empty lists
+                if propval==[]:
                     continue
                 # Printing EvtStore could be relevant for Views?
                 if propname in ["DetStore","EvtStore"]:
