@@ -5,9 +5,9 @@ from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool, \
                                        createPublicTool
 
-def makeJetAnalysisSequence( dataType, jetCollection,
-                             runGhostMuonAssociation = True, runJvtUpdate = True,
-                             runJvtEfficiency = True, runJvtSelection = False ):
+def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
+                             runJvtEfficiency = True, runJvtSelection = False,
+                             runGhostMuonAssociation = True ):
     """Create a jet analysis algorithm sequence
 
     Keyword arguments:
