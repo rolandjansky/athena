@@ -1,13 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
 #ifndef TRIGL2CALORINGERHYPO_H
 #define TRIGL2CALORINGERHYPO_H
 
 ///std include(s)
 #include <string>
 #include <vector>
+
+#include "TrigMultiVarHypo/tools/TrigRingerHelper.h"
+#include "TrigMultiVarHypo/tools/TrigL2CaloRingerReader.h"
 
 ///Base from trigger
 #include "TrigInterfaces/HypoAlgo.h"
@@ -17,7 +19,6 @@
 #include "xAODTrigRinger/TrigRingerRings.h"
 #include "xAODTrigRinger/TrigRNNOutput.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
-
 
 class TrigL2CaloRingerHypo: public HLT::HypoAlgo {
  
@@ -32,59 +33,33 @@ class TrigL2CaloRingerHypo: public HLT::HypoAlgo {
     HLT::ErrorCode hltFinalize();
 
   private:
-
-    //Interface:
     bool      m_acceptAll;
+    bool      m_useNoActivationFunctionInTheLastLayer;
+    bool      m_doPileupCorrection; 
     double    m_emEtCut;
-    unsigned  m_nThresholds;
+    int       m_lumiCut;
 
+    std::string m_calibPath;
+    
     ///feature keys
     std::string m_hlt_feature;
     std::string m_feature;
     std::string m_key;
 
-    std::vector<double>                                m_thresholds;
-    std::vector<std::vector<double>>                   m_etaBins;
-    std::vector<std::vector<double>>                   m_etBins;
 
+    TrigL2CaloRingerReader m_reader;
  
     /* Helper functions for feature extraction */
     const xAOD::TrigRNNOutput* get_rnnOutput(const HLT::TriggerElement* te);
 
-    ///Helper class
-    class CutDefsHelper{
-      private:
-        double m_etamin;
-        double m_etamax;
-        double m_etmin;
-        double m_etmax;
-        double m_threshold;
-
-      public:
-        CutDefsHelper(double th, double etamin, double etamax,
-                      double etmin, double etmax):m_etamin(etamin),
-                      m_etamax(etamax),m_etmin(etmin),m_etmax(etmax),
-                      m_threshold(th)
-        {;}
-
-        ~CutDefsHelper()
-        {;}
-        double threshold(){return m_threshold;};
-        double etamin(){return m_etamin;};
-        double etamax(){return m_etamax;};
-        double etmin(){return m_etmin;};
-        double etmax(){return m_etmax;};
-
-    };///end of configuration
-
-    std::vector<TrigL2CaloRingerHypo::CutDefsHelper*>  m_cutDefs; 
+    std::vector<TrigCaloRingsHelper::CutDefsHelper*>  m_cutDefs; 
 };
 //!===============================================================================================
 /// get the cluster inside of container
 const xAOD::TrigRNNOutput* TrigL2CaloRingerHypo::get_rnnOutput(const HLT::TriggerElement* te) {
-    const xAOD::TrigRNNOutput *pattern = 0;
+    const xAOD::TrigRNNOutput *pattern = nullptr;
     HLT::ErrorCode status = getFeature(te, pattern, m_hlt_feature);
-    return (status == HLT::OK) ? pattern : 0;
+    return (status == HLT::OK) ? pattern : nullptr;
 }
 //!===============================================================================================
 #endif /* TRIGL2CALORINGERHYPO_H */

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Trigger includes
@@ -32,11 +32,15 @@
 #include "GaudiKernel/IProperty.h"
 #include "GaudiKernel/IScheduler.h"
 #include "GaudiKernel/ITHistSvc.h"
+#include "GaudiKernel/IIoComponentMgr.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 
 // TDAQ includes
 #include "eformat/StreamTag.h"
 #include "owl/time.h"
+
+// Boost includes
+#include <boost/filesystem.hpp>
 
 // System includes
 #include <sstream>
@@ -79,6 +83,7 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
   m_THistSvc("THistSvc", name),
   m_evtSelector("EvtSel", name),
   m_outputCnvSvc("OutputCnvSvc", name),
+  m_ioCompMgr("IoComponentMgr", name),
   m_coolHelper("TrigCOOLUpdateHelper", this),
   m_hltResultMaker("HLTResultMTMaker", this),
   m_detector_mask(0xffffffff, 0xffffffff, 0, 0),
@@ -256,23 +261,16 @@ StatusCode HltEventLoopMgr::initialize()
   //----------------------------------------------------------------------------
   // Initialise services
   //----------------------------------------------------------------------------
-  //IncidentSvc
   ATH_CHECK(m_incidentSvc.retrieve());
-  //StoreGateSvc
   ATH_CHECK(m_evtStore.retrieve());
-  // DetectorStore
   ATH_CHECK(m_detectorStore.retrieve());
-  // InputMetaDataStore
   ATH_CHECK(m_inputMetaDataStore.retrieve());
-  // ROBDataProviderSvc
   ATH_CHECK(m_robDataProviderSvc.retrieve());
-  // Histogram Service
   ATH_CHECK(m_THistSvc.retrieve());
-  // Event Selector (also create an EvtSelectorContext)
   ATH_CHECK(m_evtSelector.retrieve());
-  ATH_CHECK(m_evtSelector->createContext(m_evtSelContext));
-  // Output Conversion Service
+  ATH_CHECK(m_evtSelector->createContext(m_evtSelContext)); // create an EvtSelectorContext
   ATH_CHECK(m_outputCnvSvc.retrieve());
+  ATH_CHECK(m_ioCompMgr.retrieve());
 
   //----------------------------------------------------------------------------
   // Initialise tools
@@ -504,6 +502,8 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree& pt)
       return StatusCode::SUCCESS;
     */
 
+    ATH_CHECK(m_ioCompMgr->io_finalize());  // close any open files (e.g. THistSvc)
+
     ATH_MSG_VERBOSE("end of " << __FUNCTION__);
     return StatusCode::SUCCESS;
   }
@@ -531,6 +531,9 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree& /*pt*/)
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
 
+  updateDFProps();
+  ATH_MSG_INFO("Post-fork initialization for " << m_applicationName.value());
+
   ATH_MSG_DEBUG("Initialising the scheduler after forking");
   m_schedulerSvc = serviceLocator()->service(m_schedulerName, /*createIf=*/ true);
   if ( !m_schedulerSvc.isValid()){
@@ -549,6 +552,24 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree& /*pt*/)
   else {
     ATH_REPORT_MESSAGE(MSG::WARNING) << "Could not retrieve CoreDumpSvc";
   }
+
+  // Make sure output files, i.e. histograms are written to their own directory.
+  // Nothing happens if the online TrigMonTHistSvc is used as there are no output files.
+  boost::filesystem::path worker_dir = boost::filesystem::absolute("athenaHLT_workers");
+  worker_dir /= m_applicationName.value();
+  // Delete worker directory if it exists already
+  if ( boost::filesystem::exists(worker_dir) ) {
+    if ( !boost::filesystem::remove_all(worker_dir) ) {
+      ATH_MSG_FATAL("Cannot delete previous worker directory " << worker_dir);
+      return StatusCode::FAILURE;
+    }
+  }
+  if ( !boost::filesystem::create_directories(worker_dir) ) {
+    ATH_MSG_FATAL("Cannot create worker directory " << worker_dir);
+    return StatusCode::FAILURE;
+  }
+  ATH_CHECK(m_ioCompMgr->io_update_all(worker_dir.string()));
+  ATH_CHECK(m_ioCompMgr->io_reinitialize());
 
   // Start the timeout thread
   ATH_MSG_DEBUG("Starting the timeout thread");

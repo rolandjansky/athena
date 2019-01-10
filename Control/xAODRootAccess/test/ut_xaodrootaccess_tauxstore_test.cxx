@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ut_xaodrootaccess_tauxstore_test.cxx 697574 2015-09-30 11:58:22Z krasznaa $
@@ -94,16 +94,26 @@ int main() {
    // Make sure that the store now knows about this variable:
    SIMPLE_ASSERT( store.getAuxIDs().size() == 3 );
 
+   const SG::auxid_t var1Id = reg.findAuxID( "var1" );
+   SIMPLE_ASSERT( var1Id != SG::null_auxid );
+   const SG::auxid_t var2Id = reg.findAuxID( "var2" );
+   SIMPLE_ASSERT( var2Id != SG::null_auxid );
+   assert (!store.isDecoration (var1Id));
+   assert (!store.isDecoration (var2Id));
+   assert ( store.isDecoration (decId));
+
    // Check that it can be cleared out:
    SIMPLE_ASSERT (store.clearDecorations() == true);
    SIMPLE_ASSERT( store.getAuxIDs().size() == 2 );
    SIMPLE_ASSERT (store.clearDecorations() == false);
    SIMPLE_ASSERT( store.getAuxIDs().size() == 2 );
 
+   assert (!store.isDecoration (var1Id));
+   assert (!store.isDecoration (var2Id));
+   assert (!store.isDecoration (decId));
+
    // Try to overwrite an existing variable with a decoration, to check that
    // it can't be done:
-   const SG::auxid_t var1Id = reg.findAuxID( "var1" );
-   SIMPLE_ASSERT( var1Id != SG::null_auxid );
    bool exceptionThrown = false;
    try {
       store.getDecoration( var1Id, 2, 2 );
@@ -127,10 +137,12 @@ int main() {
    SIMPLE_ASSERT( store.getDecoration( decId, 5, 5 ) != 0 );
    SIMPLE_ASSERT( store.getAuxIDs().size() == 3 );
 
+   assert (!store.isDecoration (var1Id));
+   assert (!store.isDecoration (var2Id));
+   assert ( store.isDecoration (decId));
+
    // Try to overwrite an existing variable with a decoration, to check that
    // it can't be done:
-   const SG::auxid_t var2Id = reg.findAuxID( "var2" );
-   SIMPLE_ASSERT( var2Id != SG::null_auxid );
    exceptionThrown = false;
    try {
       store.getDecoration( var1Id, 2, 2 );
@@ -159,6 +171,10 @@ int main() {
    // removed. Since this is a "persistent decoration" now:
    SIMPLE_ASSERT (store.clearDecorations() == false);
    SIMPLE_ASSERT( store.getAuxIDs().size() == 3 );
+
+   assert (!store.isDecoration (var1Id));
+   assert (!store.isDecoration (var2Id));
+   assert ( store.isDecoration (decId));
 
    return 0;
 }

@@ -1,4 +1,7 @@
 /*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+/*
  * This is a copy of GaudiSvc/src/THistSvc with THistSvc renamed to THistSvcHLT
  * to allow inheritance of this class by TrigMonTHistSvc.
  */

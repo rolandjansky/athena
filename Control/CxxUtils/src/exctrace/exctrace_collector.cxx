@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -21,6 +21,7 @@
 #include <execinfo.h>
 #include <cstdio>
 #include <typeinfo>
+#include "CxxUtils/checker_macros.h"
 
 // Maximum stack depth.
 static
@@ -50,7 +51,7 @@ extern "C" void __cxa_throw (void* thrown_exception,
 namespace CxxUtils {
 
 
-struct extrace_init
+struct ATLAS_NOT_THREAD_SAFE extrace_init
 {
   extrace_init();
 };

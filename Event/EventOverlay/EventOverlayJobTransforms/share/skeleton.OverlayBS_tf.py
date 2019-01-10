@@ -30,7 +30,6 @@ larCondFlags.OFCShapeFolder.set_Value_and_Lock("")
 
 globalflags.isOverlay.set_Value_and_Lock(True)
 overlayFlags.isDataOverlay.set_Value_and_Lock(True)
-isRealData = overlayFlags.isDataOverlay()
 
 from AthenaCommon.BeamFlags import jobproperties
 jobproperties.Beam.beamType.set_Value_and_Lock("collisions")
@@ -62,14 +61,9 @@ else:
 
 if hasattr(runArgs,"outputRDOFile"):
     athenaCommonFlags.PoolRDOOutput.set_Value_and_Lock( runArgs.outputRDOFile )
-    OverlayCollection = runArgs.outputRDOFile #remove this line
 
-if not hasattr(runArgs, 'outputRDO_SGNLFile') or runArgs.outputRDO_SGNLFile=="NONE":
-    overlayFlags.doSignal=False
-    SignalCollection = "NONE"
-else:
-    overlayFlags.doSignal=True
-    SignalCollection = runArgs.outputRDO_SGNLFile
+if hasattr(runArgs, 'outputRDO_SGNLFile'):
+    raise RuntimeError ("Not supported in master")
 
 if hasattr(runArgs,"geometryVersion"): globalflags.DetDescrVersion.set_Value_and_Lock( runArgs.geometryVersion )
 if hasattr(runArgs,"conditionsTag"): globalflags.ConditionsTag.set_Value_and_Lock( runArgs.conditionsTag )
@@ -80,8 +74,6 @@ if hasattr(runArgs,"digiSeedOffset2"): digitizationFlags.rndmSeedOffset2=int(run
 if hasattr(runArgs,"samplingFractionDbTag"): digitizationFlags.physicsList=runArgs.samplingFractionDbTag
 if hasattr(runArgs,"digiRndmSvc"): digitizationFlags.rndmSvc=runArgs.digiRndmSvc
 #if hasattr(runArgs, "AddCaloDigi"): digitizationFlags.experimentalDigi+=["AddCaloDigi"]
-
-readBS = overlayFlags.isDataOverlay()
 
 #GlobalFlags.InputFormat.set_bytestream()
 globalflags.InputFormat.set_Value_and_Lock('bytestream')
@@ -199,10 +191,6 @@ if DetFlags.overlay.LVL1_on():
 
 # save the overlay output first
 include ( "EventOverlayJobTransforms/OverlayOutputItemList_jobOptions.py" )
-
-# now save the signal information in the same job
-if overlayFlags.doSignal==True:
-   include ( "EventOverlayJobTransforms/SignalOutputItemList_jobOptions.py" )
 
 # For random number initialization
 from AthenaCommon.ConfigurableDb import getConfigurable

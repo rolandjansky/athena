@@ -41,6 +41,7 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
   
   // internal structure to keep configuration organised conveniently
   struct Address {
+    std::string typeKey;
     std::string type;
     CLID clid;
     std::string key;

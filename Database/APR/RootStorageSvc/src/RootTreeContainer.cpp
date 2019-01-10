@@ -224,7 +224,7 @@ DbStatus RootTreeContainer::writeObject(TransactionStack::value_type& ent) {
                             newBrDsc.object = nullptr;
                             newBrDsc.branch->SetAddress( nullptr );
                             for( size_t r=0; r<dsc.rows_written; ++r ) {
-                               num_bytes += newBrDsc.branch->Fill();
+                               num_bytes += newBrDsc.branch->BackFill();
                             }
                          }
                       }

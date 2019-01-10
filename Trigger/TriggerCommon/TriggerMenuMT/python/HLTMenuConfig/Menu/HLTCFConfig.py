@@ -21,10 +21,9 @@ def makeSummary(name, flatDecisions):
     """ Returns a TriggerSummaryAlg connected to given decisions"""
     from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
     summary = TriggerSummaryAlg( name, OutputLevel = 2 )
-    summary.InputDecision = "HLTChains"
+    summary.InputDecision = "L1DecoderSummary"
   
     summary.FinalDecisions = flatDecisions
-    summary.HLTSummary = "MonitoringSummary" + name
     return summary
 
 
@@ -341,6 +340,79 @@ def decisionTree_From_Chains(HLTNode, chains):
 
     return finalDecisions
 
+
+def generateDecisionTree(HLTNode, chains):
+    log.debug("Run decisionTree_From_Chains on %s", HLTNode.name())
+
+    from collections import defaultdict
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CFSequence
+
+    chainStepsMatrix = defaultdict(lambda: defaultdict(lambda: list()))
+
+    ## Fill chain steps matrix
+    for chain in chains:
+        chain.decodeHypoToolConfs()
+        for stepNumber, chainStep in enumerate(chain.steps):
+            chainName = chainStep.name.split('_')[0]
+            chainStepsMatrix[stepNumber][chainName].append(chain)
+
+    allSequences = []
+
+    ## Matrix with steps lists generated. Creating filters for each cell
+    for nstep in chainStepsMatrix:
+        CFsequences = []
+        stepDecisions = []
+
+        for chainName in chainStepsMatrix[nstep]:
+            chainsInCell = chainStepsMatrix[nstep][chainName]
+
+            if not chainsInCell:
+                continue
+
+            firstChain = chainsInCell[0]
+
+            if nstep == 0:
+                filter_input = firstChain.group_seed
+                previous_seeds = firstChain.group_seed
+
+            else:
+                filter_input = []
+                previous_seeds = []
+                for sequence in firstChain.steps[nstep - 1].sequences:
+                    filter_input += sequence.outputs
+                    previous_seeds.append(sequence.seed)
+
+            # One aggregated filter per chain (one per column in matrix)
+            filterName = 'Filter_{}'.format( firstChain.steps[nstep].name )
+            sfilter = buildFilter(filterName, None, filter_input, previous_seeds)
+
+            chainStep = firstChain.steps[nstep]
+            CFseq = CFSequence( ChainStep=chainStep, FilterAlg=sfilter )
+            CFsequences.append( CFseq )
+
+            for sequence in chainStep.sequences:
+                stepDecisions += sequence.outputs
+
+            for chain in chainsInCell:
+                sfilter.setChains(chain.name)
+
+        allSequences.append(CFsequences)
+
+        stepName = 'Step{}'.format(nstep)
+        stepFilter = createStepFilterNode(stepName, CFsequences, dump=False)
+        stepCF = createStepRecoNode('{}_{}'.format(HLTNode.name(), stepName), CFsequences, dump=False)
+        summary = makeSummary('TriggerSummary{}'.format(stepName), stepDecisions)
+
+        HLTNode += stepFilter
+        HLTNode += stepCF
+        HLTNode += summary
+
+        stepCF_DataFlow_to_dot('{}_{}'.format(HLTNode.name(), stepName), CFsequences)
+        stepCF_ControlFlow_to_dot(stepCF)
+
+    all_DataFlow_to_dot(HLTNode.name(), allSequences)
+
+    matrixDisplay( allSequences )
 
 
 def findFilter(filter_name, cfseqList):

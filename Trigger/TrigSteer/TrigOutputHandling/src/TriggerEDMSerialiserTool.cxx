@@ -67,8 +67,7 @@ StatusCode TriggerEDMSerialiserTool::initialize() {
 
     const bool isAux = key.find("Aux") != std::string::npos;
 
-
-    m_toSerialize.push_back( Address{ type, clid, key, isAux, sel } );      
+    m_toSerialize.push_back( Address{ type+"#"+key, type, clid, key, isAux, sel } );      
   }
   return StatusCode::SUCCESS;
 }
@@ -80,7 +79,7 @@ StatusCode TriggerEDMSerialiserTool::makeHeader(const Address& address, std::vec
   
   std::vector<uint32_t> serializedLabel;
   StringSerializer ss;
-  ss.serialize( address.key, serializedLabel );
+  ss.serialize( address.typeKey, serializedLabel );
   buffer.push_back( serializedLabel.size() );
   buffer.insert( buffer.end(), serializedLabel.begin(), serializedLabel.end() ); // plain SG key
   return StatusCode::SUCCESS;
@@ -152,7 +151,7 @@ StatusCode TriggerEDMSerialiserTool::fillDynAux( const Address& address, DataObj
     }
 
     std::vector<uint32_t> fragment;
-    Address auxAddress = { typeName, clid, address.key+"."+name, false };
+    Address auxAddress = { "", typeName, clid, address.key+"."+name, false };
     ATH_CHECK( makeHeader( auxAddress, fragment ) );
     ATH_CHECK( fillPayload( mem, sz, fragment ) );
     fragment[0] = fragment.size();
@@ -174,11 +173,11 @@ StatusCode TriggerEDMSerialiserTool::fill( HLT::HLTResultMT& resultToFill ) cons
   
   std::vector<uint32_t> payload;    
   for ( const Address& address: m_toSerialize ) {
-    ATH_MSG_DEBUG( "Streaming " << address.type << "#" << address.key  );
+    ATH_MSG_DEBUG( "Streaming " << address.typeKey  );
     // obtain object
     DataObject* dObj = evtStore()->accessData( address.clid, address.key );
     if ( dObj == nullptr ) {
-      ATH_MSG_DEBUG("Data Object with key " << address.key << " is missing");
+      ATH_MSG_DEBUG("Data Object with the CLID " << address.clid <<" and the key " << address.key << " is missing");
       continue;
     }
 
@@ -199,7 +198,7 @@ StatusCode TriggerEDMSerialiserTool::fill( HLT::HLTResultMT& resultToFill ) cons
     ATH_MSG_DEBUG( "Streamed to buffer at address " << mem << " of " << sz << " bytes" );
     
     if ( mem == nullptr or sz == 0 ) {
-      ATH_MSG_ERROR( "Serialisation of " << address.type <<"#" << address.key << " unsuccessful" );
+      ATH_MSG_ERROR( "Serialisation of " << address.typeKey << " unsuccessful" );
       return StatusCode::FAILURE;
     }
         
@@ -220,7 +219,7 @@ StatusCode TriggerEDMSerialiserTool::fill( HLT::HLTResultMT& resultToFill ) cons
     fragment[0] = fragment.size();
     
     payload.insert( payload.end(), fragment.begin(), fragment.end() );
-    ATH_MSG_DEBUG( "Payload size after inserting " << address.type << "#" << address.key << " " << payload.size()*sizeof(uint32_t) << " bytes" );
+    ATH_MSG_DEBUG( "Payload size after inserting " << address.typeKey << " " << payload.size()*sizeof(uint32_t) << " bytes" );
     
   }
   

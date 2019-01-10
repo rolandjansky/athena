@@ -16,15 +16,17 @@
 
 namespace FTKByteStreamDecoderEncoderAux {
 
-  const size_t TrackBlobSize = 18; // magic number from BS specification
+  const size_t TrackBlobSize = 10; // magic number from BS specification
   const size_t TrackParamsBlobSize = 2; // --||--
-  const size_t PixHitParamsBlobSize = 2; // --||--
-  const size_t SCTHitParamsBlobSize = 2; // --||--
+  const size_t PixHitParamsBlobSize = 1; // --||--
+  const size_t SCTHitParamsBlobSize = 1; // --||--
   const size_t NPixLayers=4; // number of layers in FTK_RawTrack (not the no. layers in BS)
   const size_t NSCTLayers=8; // number of layers in FTK_RawTrack (not the no. layers in BS)
 
   const uint32_t headerMarker = 0xb0f00000; 
-  const uint32_t headerSize   = 0x7;
+  const uint32_t trailerMarker = 0xe0da0000;
+  const uint32_t headerSize   = 8;
+  const uint32_t trailerSize   = 3;
 
 }
 

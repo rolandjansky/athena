@@ -4,7 +4,7 @@
 #  
 #
 #  Created by Alvin on 16/04/2009.
-#  Copyright (c) 2009 University of Birmingham. All rights reserved.
+#  
 #
 import sys, os
 from PyJobTransformsCore.trferr import AthenaLogChecker

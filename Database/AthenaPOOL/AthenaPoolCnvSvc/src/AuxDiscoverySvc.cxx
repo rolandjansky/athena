@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file AuxDiscoverySvc.cxx
@@ -27,8 +27,6 @@
 #include "TClass.h"
 
 #include <stdexcept>
-
-static SG::auxid_set_t s_emptySet;
 
 class AthenaPoolAuxStore : public SG::AuxStoreInternal {
 public:
@@ -106,27 +104,28 @@ SG::auxid_t AuxDiscoverySvc::getAuxID(const std::string& attrName, const std::st
    return auxid;
 }
 
-const SG::auxid_set_t& AuxDiscoverySvc::getAuxIDs(const void* obj, const Guid& classId, const std::string& contId) {
+SG::auxid_set_t
+AuxDiscoverySvc::getAuxIDs(const void* obj, const Guid& classId, const std::string& contId) {
    pool::DbTypeInfo* info = pool::DbTypeInfo::create(classId); // Needed for Properties and TClass
    if (info == nullptr) {
-      return s_emptySet;
+      return SG::auxid_set_t();
    }
    if ((contId.size() < 5 || contId.substr(contId.size() - 5, 4) != "Aux.")
 	   && !info->clazz().Properties().HasProperty("IAuxStore")) {
-      return s_emptySet;
+      return SG::auxid_set_t();
    }
    // Detected auxStore
    TClass* cl = info->clazz().Class();
    if (cl == nullptr) {
-      return s_emptySet;
+      return SG::auxid_set_t();
    }
    TClass* storeTC = cl->GetBaseClass("SG::IAuxStoreIO");
    if (storeTC == nullptr) {
-      return s_emptySet;
+      return SG::auxid_set_t();
    }
    m_store = reinterpret_cast<const SG::IAuxStoreIO*>((const char*)obj + cl->GetBaseClassOffset(storeTC));
    if (m_store == nullptr) {
-      return s_emptySet;
+      return SG::auxid_set_t();
    }
    return m_store->getSelectedAuxIDs();
 }

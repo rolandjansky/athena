@@ -31,7 +31,7 @@ theApp.OutStream    = [];
 #   - easy to expand list
 exampleItemList = []
 exampleItemList += [ "EventInfo#*" ]
-exampleItemList += [ "xAOD::EventInfo_v1#*", "xAOD::EventAuxInfo_v1#*" ]
+exampleItemList += [ "xAOD::EventInfo#*", "xAOD::EventAuxInfo#*" ]
 exampleItemList += [ "EventStreamInfo#*" ]
 exampleItemList += [ "ExampleClass#*" ]
 exampleItemList += [ "ExampleHitContainer#*" ]

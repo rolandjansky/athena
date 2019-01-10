@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FastCaloSim/TShape_Result.h"
@@ -269,7 +269,7 @@ Double_t TShape_Result::SplineEval(TSpline3* sp,Double_t x,Double_t xmin,Double_
   return res;
 }
 
-Double_t TShape_Result::f_2DSpline(double dxfcx_mm,double dyfcy_mm)
+Double_t TShape_Result::f_2DSpline(double dxfcx_mm,double dyfcy_mm) const
 {
   double dxfcx_mm2=dxfcx_mm*dxfcx_mm;
   if(m_fitsplines_EtaPhiAspectRatio) {
@@ -304,7 +304,7 @@ void TShape_Result::AddShapeCorrection(TLateralShapeCorrectionBase* shape)
   if(shape->HasCellFactor())  SetBit(kHasCellFactor);
 }
 
-Double_t TShape_Result::CellIntegralEtaPhi(const CaloDetDescrElement& cell,const double eta, const double phi,double& ein_wide,double fcx, double fcy,double direction_factor)
+Double_t TShape_Result::CellIntegralEtaPhi(const CaloDetDescrElement& cell,const double eta, const double phi,double& ein_wide,double fcx, double fcy,double direction_factor) const
 {
   double cx=cell.eta();
   double cy=cell.phi();
@@ -467,7 +467,7 @@ Double_t TShape_Result::CellIntegralEtaPhi(const CaloDetDescrElement& cell,const
 }
 
    
-void TShape_Result::SetDebugInfo( const int& sample, FastShowerInfo* fsi )
+void TShape_Result::SetDebugInfo( const int& sample, FastShowerInfo* fsi ) const
 {
 	if(!fsi)
 	{

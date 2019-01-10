@@ -67,15 +67,15 @@ endfunction (athenapoolmultitest_run_test)
 
 athenapoolmultitest_run_test( AthenaPoolMultiTestBuildInput SplittableData_jo
                               post_check_bi )
-athenapoolmultitest_run_test( AthenaPoolMultiTestCollectInput TestSimpleCollection
-                              post_check_ci
-                              DEPENDS AthenaPoolMultiTestBuildInput )
+#athenapoolmultitest_run_test( AthenaPoolMultiTestCollectInput TestSimpleCollection
+#                              post_check_ci
+#                              DEPENDS AthenaPoolMultiTestBuildInput )
 athenapoolmultitest_run_test( AthenaPoolMultiTestEventSplit EventSplit_jo
                               post_check_es
                               DEPENDS AthenaPoolMultiTestBuildInput )
-athenapoolmultitest_run_test( AthenaPoolMultiTestCheckCollections CheckExplicit_jo
-                              post_check_co
-                              DEPENDS AthenaPoolMultiTestEventSplit )
+#athenapoolmultitest_run_test( AthenaPoolMultiTestCheckCollections CheckExplicit_jo
+#                              post_check_co
+#                              DEPENDS AthenaPoolMultiTestEventSplit )
 athenapoolmultitest_run_test( AthenaPoolMultiTestCheckNull CheckNull_jo
                               post_check_cn
                               DEPENDS AthenaPoolMultiTestEventSplit )

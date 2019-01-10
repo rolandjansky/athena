@@ -39,8 +39,8 @@ public:
 
 private:
   SG::ReadHandleKey<HLT::HLTResultMT> m_resultKey { this, "ResultKey", "HLTResultMT", "Key of object that is read"  };
-  Gaudi::Property<std::string > m_prefix{ this, "Prefix", "", "Set for testing to avoid clash with the input collections" };
-  Gaudi::Property<int > m_moduleID{ this, "ModuleID", 0, "Module ID of HLT result ROB, default 0 is the main HLT result, others are for TLA, calibration etc." };
+  Gaudi::Property<std::string> m_prefix{ this, "Prefix", "", "Set for testing to avoid clash with the input collections" };
+  Gaudi::Property<int> m_moduleID{ this, "ModuleID", 0, "Module ID of HLT result ROB, default 0 is the main HLT result, others are for TLA, calibration etc." };
   Gaudi::Property<int> m_initialSerialisationBufferSize{ this, "InitialSerialisationBufferSize", 1024*1024, "Initial serialisation buffer size in bytes, can be set large to avoid reallocations in every event" };
   
   ServiceHandle<IClassIDSvc> m_clidSvc{ this, "ClassIDSvc", "ClassIDSvc", "Service to translate CLID to class namex" };

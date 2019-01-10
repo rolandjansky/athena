@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #include "RIO_OnTrackErrorScalingKit.h"
 #include "InDetRIO_OnTrack/PixelRIO_OnTrackErrorScaling.h"
 #include "InDetRIO_OnTrack/SCTRIO_OnTrackErrorScaling.h"

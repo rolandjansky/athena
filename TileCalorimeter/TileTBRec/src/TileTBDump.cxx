@@ -1601,24 +1601,28 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
               unsigned int drawerIdx = TileCalibUtils::getDrawerIdxFromFragId(id);
 
               bool of2 = true;
-              const TileOfcWeightsStruct* weights;
               std::vector<double> a(7), b(7), c(7), g(7), dg(7);
 
               for (ch = 0; ch < nchan; ++ch) {
                 for (int gain = 0; gain < 2; ++gain) {
                   float phase = -m_tileToolTiming->getSignalPhase(drawerIdx, ch, gain);
-                  weights = m_tileCondToolOfcCool->getOfcWeights(drawerIdx, ch, gain, phase, of2);
+                  TileOfcWeightsStruct weights;
+                  if (m_tileCondToolOfcCool->getOfcWeights(drawerIdx, ch, gain, phase, of2, weights).isFailure())
+                  {
+                    ATH_MSG_ERROR( "getOfcWeights failed.");
+                    continue;
+                  }
 
                   double calib = m_tileToolEmscale->channelCalibOnl(drawerIdx, ch, gain, 1.0, chan_unit);
 
                   if (unit != 0 && gain) calib = calib * 64.0;
 
                   for (int i = 0; i < 7; ++i) {
-                    a[i] = weights->w_a[i];
-                    b[i] = weights->w_b[i];
-                    c[i] = weights->w_c[i];
-                    g[i] = weights->g[i];
-                    dg[i] = weights->dg[i];
+                    a[i] = weights.w_a[i];
+                    b[i] = weights.w_b[i];
+                    c[i] = weights.w_c[i];
+                    g[i] = weights.g[i];
+                    dg[i] = weights.dg[i];
                   }
 
                   Format6(a, b, c, g, dg, ch // channel

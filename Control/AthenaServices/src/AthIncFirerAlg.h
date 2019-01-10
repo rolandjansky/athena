@@ -1,4 +1,7 @@
 // -- -*- C++ -*- 
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef __ATH_INCIDENT_FIRER_ALG_H
 #define __ATH_INCIDENT_FIRER_ALG_H
 

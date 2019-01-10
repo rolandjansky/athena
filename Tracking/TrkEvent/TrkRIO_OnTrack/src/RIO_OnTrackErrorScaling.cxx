@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #include "TrkRIO_OnTrack/RIO_OnTrackErrorScaling.h"
 
 RIO_OnTrackErrorScaling::RIO_OnTrackErrorScaling() {}

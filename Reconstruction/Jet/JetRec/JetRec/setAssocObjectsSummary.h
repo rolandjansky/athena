@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef JetRecTool_setAssocObjectsSummary_H
 #define JetRecTool_setAssocObjectsSummary_H
 #include "xAODBase/IParticle.h"

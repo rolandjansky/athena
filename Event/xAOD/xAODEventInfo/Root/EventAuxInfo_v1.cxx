@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: EventAuxInfo_v1.cxx 657675 2015-03-30 01:36:11Z ssnyder $
@@ -129,6 +129,20 @@ namespace xAOD {
 
 
    /**
+    * @brief Test if a particular variable is tagged as a decoration.
+    * @param auxid The identifier of the desired aux data item.
+    */
+   bool EventAuxInfo_v1::isDecoration (SG::auxid_t auxid) const
+   {
+     if (m_decorFlags.test (auxid)) {
+       return true;
+     }
+
+     return AuxInfoBase::isDecoration (auxid);
+   }
+
+
+  /**
     * @brief Lock a decoration.
     * @param auxid Identifier of the decoration to lock.
     */

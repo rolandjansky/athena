@@ -1,10 +1,84 @@
+Tue Dec 18 13:27:32 CST 2018
+Preloading tcmalloc_minimal.so
+Py:Athena            INFO including file "AthenaCommon/Preparation.py"
+Py:Athena            INFO using release [WorkDir-22.0.1] [x86_64-centos7-gcc8-opt] [athfilter/6af7bfb] -- built on [2018-12-18T1157]
+Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
+Py:Athena            INFO executing ROOT6Setup
+Py:Athena            INFO including file "AthenaCommon/Execution.py"
+Py:Athena            INFO including file "AthenaPoolMultiTest/TestSimpleCollection.py"
+Py:ConfigurableDb    INFO Read module info for 5430 configurables from 5 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
+Py:Athena            INFO including file "EventAthenaPool/EventAthenaPool_joboptions.py"
+Py:Athena            INFO including file "AthenaPoolTools/EventCount_jobOptions.py"
+Py:Athena            INFO including file "AthenaCommon/runbatch.py"
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r5)
+                                          running on atlaslogin02.hep.anl.gov on Tue Dec 18 13:27:42 2018
+====================================================================================================================================
+ApplicationMgr       INFO Successfully loaded modules : AthenaServices
+ApplicationMgr       INFO Application Manager Configured successfully
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+StatusCodeSvc        INFO initialize
+AthDictLoaderSvc     INFO in initialize...
+AthDictLoaderSvc     INFO acquired Dso-registry
+ClassIDSvc           INFO  getRegistryEntries: read 2994 CLIDRegistry entries for module ALL
+CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
+CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
+ClassIDSvc           INFO  getRegistryEntries: read 1205 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 504 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 310 CLIDRegistry entries for module ALL
+MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
+AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
+PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
+PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
+PoolSvc              INFO Frontier compression level set to 5
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://frontier-atlas.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-12-17T2149/Athena/22.0.1/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 1 servers found for host atlaslogin02.hep.anl.gov [ATLF ]
+PoolSvc              INFO Successfully setup replica sorting algorithm
+PoolSvc              INFO Setting up APR FileCatalog and Streams
+PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
+DbSession            INFO     Open     DbSession    
+Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
+MetaDataSvc          INFO Found MetaDataTools = PublicToolHandleArray(['IOVDbMetaDataTool'])
+EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-00-00
 EventSelector        INFO reinitialization...
 EventSelector        INFO EventSelection with query RunNumber != 1000000 && EventNumber > 0
 EventSelector        INFO Using standard collection ref 
-Domain[ROOT_All]     INFO                           AthenaPoolMultiTest_Splittable0.root
-RootDatabase.open    INFO AthenaPoolMultiTest_Splittable0.root File version:60806
+xAODMaker::Even...   INFO Initializing - Package version: xAODEventInfoCnv-00-00-00
+xAODMaker::Even...   INFO Initializing - Package version: xAODEventInfoCnv-00-00-00
+xAODMaker::Even...WARNING Beam conditions service not available
+xAODMaker::Even...WARNING Will not fill beam spot information into xAOD::EventInfo
+xAODMaker::Even...   INFO Luminosity information not available
+xAODMaker::Even...   INFO Will take information from the EventInfo object
+ClassIDSvc           INFO  getRegistryEntries: read 2071 CLIDRegistry entries for module ALL
+EventCount           INFO in initialize()
 DecisionSvc          INFO Inserting stream: RegStream1 with no Algs
+HistogramPersis...WARNING Histograms saving not required.
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
-AthenaPoolConve...   INFO massageEventInfo: unable to get OverrideRunNumberFromInput property from EventSelector 
-RegStream1.Regi...   INFO No Primary Key defined
-RegStream1.Regi...   INFO Collection Events output: 19
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr       INFO Application Manager Started successfully
+AthenaEventLoopMgr   INFO No more events in event selection 
+RegStream1.Regi...   INFO Collection Events output: 0
+PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
+Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
+ApplicationMgr       INFO Application Manager Stopped successfully
+IncidentProcAlg1     INFO Finalize
+EventCount           INFO -- OUTPUT FILE EVENT OVERLAP SUMMARY --
+EventCount           INFO ---------- INPUT FILE SUMMARY ----------
+EventCount           INFO Input contained: 0 events
+EventCount           INFO  -- Event Range ( -1 .. -1 )
+EventCount           INFO  -- Lumiblock Range ( -1 .. -1 )
+EventCount           INFO Input contained: 0 runs
+EventCount           INFO  --
+EventCount           INFO Input contained the following Event Types
+EventCount           INFO Input contained the following Streams
+EventCount           INFO Input contained references to the following File GUID's
+EventCount           INFO Input contained the following CLIDs and Keys
+EventCount           INFO ----------------------------------------
+StatusCodeSvc       FATAL Unchecked StatusCode in EventCount::finalize() from lib /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-12-17T2149/Athena/22.0.1/InstallArea/x86_64-centos7-gcc8-opt/lib/libAthenaPoolTools.so
+/users/cranshaw/athfilter_new/build/AtlasTest/DatabaseTest/AthenaPoolMultiTest/athenapoolmultitest_AthenaPoolMultiTestCollectInput.sh: line 8: 27312 Aborted                 (core dumped) athena.py AthenaPoolMultiTest/TestSimpleCollection.py

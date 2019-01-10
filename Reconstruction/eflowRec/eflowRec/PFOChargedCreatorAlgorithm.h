@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef PFOCHARGEDCREATORALGORITHM_H
 #define PFOCHARGEDCREATORALGORITHM_H
 

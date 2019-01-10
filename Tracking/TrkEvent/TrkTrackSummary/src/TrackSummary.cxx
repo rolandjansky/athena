@@ -1,8 +1,10 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /***************************************************************************
                           Summary.cxx  -  description
                              -------------------
     begin                : Tue Feb 17 2004
-    copyright            : (C) 2004 by emoyse
     email                : edward.moyse@cern.ch
  ***************************************************************************/
 

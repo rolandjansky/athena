@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MMSTRIPTDSOFFLINETOOL_H
@@ -18,57 +18,19 @@
 
 //forward declarations
 class IIncidentSvc;
-class IAtRndmGenSvc;
-class MmIdHelper;
-class MmDigit;
-class TTree;
-
-//MMT_Loader includes
 
 //C++ language libararies
-#include <dirent.h>
 #include <map>
 #include <vector>
 #include <string>
-#include <fstream>
-#include <cmath>
-#include <cstdlib>
-#include <cstdio>
-#include <iostream>
 
 //ROOT libraries
-#include "TMultiGraph.h"
-#include "TCanvas.h"
-#include "TColor.h"
-#include "TGraphErrors.h"
-#include "TLatex.h"
-#include "TStyle.h"
-#include "TH2D.h"
-#include "Rtypes.h"
 #include "TTree.h"
-#include "TFile.h"
-#include "TObject.h"
-#include "TROOT.h"
-#include "TH1F.h"
-#include "TRandom3.h"
-#include "TF1.h"
-#include "TLorentzVector.h"
-#include "MMT_struct.h" 
-#include "MMT_Finder.h" 
-#include "MMT_Fitter.h" 
-//#include "/afs/cern.ch/user/m/mkhader/mm_trig/MM_Trigger/plots/mmt_plot/atlasstyle-00-03-05/AtlasStyle.h"
 
-
-
-
-namespace CLHEP {
-  class HepRandomEngine;
-}
-
-namespace MuonGM {
-  class MuonDetectorManager;
-}
-
+//local includes
+#include "MMT_struct.h"
+#include "MMT_Finder.h"
+#include "MMT_Fitter.h"
 
 // namespace for the NSW LVL1 related classes
 namespace NSWL1 {
@@ -106,37 +68,24 @@ namespace NSWL1 {
     //MMTrigger stuff
     int eta_bin(double theta) const;
     std::string eta_str(int eta) const;
-    int n_etabins;
-    int correct_bcid;
+    int m_n_etabins;
     std::vector<double> m_etabins;
-    double etalo,etahi;
     
-    std::string nom;
-
     //MMT_Loader stuff
     //debug stuff
-    std::vector<std::vector<std::vector<double> > >strip_poss,yvals;
-    std::map<int,double> strip500;
-    std::map<int,int> zplanes;
-    std::vector<TH1D*> m_diff_xuv;
     MMT_Parameters *m_par;
-    //MMT_Finder m_find;
 
     //load event stuff
     std::vector<hitData_entry> event_hitDatas(int find_event) const;
     std::vector<hitData_key> event_hitData_keys(int find_event) const;
 
-    std::map<int,evFit_entry> Event_Fit;//key is event no.
-    std::map<int,evInf_entry> Event_Info;//key is event no.
-    std::map<int,evAna_entry> Event_Analysis;//key is event no.
-    std::map<hitData_key,hitData_entry> Hits_Data_Set_Time;//key is hit_index? <BC_time,time>?
+    std::map<hitData_key,hitData_entry> m_Hits_Data_Set_Time;//key is hit_index? <BC_time,time>?
 
     //VMM info
-    std::vector<std::vector<bool> > VMM_chip_status;
-    std::vector<std::vector<int> > VMM__chip_last_hit_time;
+    std::vector<std::vector<bool> > m_VMM_chip_status;
+    std::vector<std::vector<int> > m_VMM__chip_last_hit_time;
     bool Mimic_VMM_Chip_Deadtime(hitData_entry& candy);
-    double VMM_deadtime;
-    int num_VMM_per_plane;
+    double m_VMM_deadtime;
 
     //Import_Athena..._.m stuff
     double phi_shift(double athena_phi) const;
@@ -145,19 +94,9 @@ namespace NSWL1 {
     int Get_Strip_ID(double X,double Y,int plane) const;
 
     //x <---> u/v switches
-    bool uvxxmod;
     void xxuv_to_uvxx(TVector3& hit,int plane)const;
     void hit_rot_stereo_fwd(TVector3& hit)const;//x to v, u to x
     void hit_rot_stereo_bck(TVector3& hit)const;//x to u, v to x
-
-    //Hist stuff
-    //TH1::SetDefaultSumw2();
-    //TH1D *m_fit_the;
-    //event counter should be fixed when code is better understood
-    int evtcount = 0;
-
-    
-
 
     //MMT_Loader stuff end
 
@@ -191,10 +130,6 @@ namespace NSWL1 {
 
     // needed Servives, Tools and Helpers
     ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
-    ServiceHandle< IAtRndmGenSvc >     m_rndmSvc;           //!< Athena random number service
-    CLHEP::HepRandomEngine*            m_rndmEngine;        //!< Random number engine
-    const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
-    const MmIdHelper*                  m_MmIdHelper;        //!< MM offline Id helper
 
     // hidden variables
     std::vector< std::vector<MMStripData*> > m_mmstrip_cache; //!< cache for the MM Strip hit data in the event
@@ -202,15 +137,6 @@ namespace NSWL1 {
     int     m_mmstrip_cache_eventNumber;                          //!< event number associated to the current MM Strip cache
     cStatus m_mmstrip_cache_status;                               //!< status of the current cache
     
-
-    // properties: container and service names
-    StringProperty   m_rndmEngineName;                      //!< property, see @link MMStripTdsOfflineTool::MMStripTdsOfflineTool @endlink
-    StringProperty   m_MmDigitContainer;                    //!< property, see @link MMStripTdsOfflineTool::MMStripTdsOfflineTool @endlink
-    StringProperty   m_MmSdoContainer;                      //!< property, see @link MMStripTdsOfflineTool::MMStripTdsOfflineTool @endlink
-    StringProperty   m_MmHitContainer;
-    StringProperty   m_Truth_ContainerName;
-    StringProperty   m_MuEntry_ContainerName;
-
     BooleanProperty  m_doNtuple;                            //!< property, see @link MMStripTdsOfflineTool::MMStripTdsOfflineTool @endlink
 
 
@@ -231,28 +157,8 @@ namespace NSWL1 {
     std::vector<double>* m_res_dth;
 
 
-    /*
-    int m_nMMStripHits;                                         //!< number of Strip hit delivered
-    std::vector<int>* m_MMhitPDGId;                             //!< PDG id of particles creating the hits
-    std::vector<float>* m_MMhitDepositEnergy;                   //!< energy deposited by particles
-    std::vector<float>* m_MMhitKineticEnergy;                   //!< kinetic energy of particles
-    std::vector<float>* m_mmstripGlobalX;                       //!< global position X of the Strip hit
-    std::vector<float>* m_mmstripGlobalY;                       //!< global position Y of the Strip hit
-    std::vector<float>* m_mmstripGlobalZ;                       //!< global position Z of the Strip hit
-    std::vector<float>* m_mmstripTruthHitGlobalX;               //!< global position X of the truth hit associated to the Strip hit
-    std::vector<float>* m_mmstripTruthHitGlobalY;               //!< global position Y of the truth hit associated to the Strip hit
-    std::vector<float>* m_mmstripTruthHitGlobalZ;               //!< global position Z of the truth hit associated to the Strip hit
-    */
-
-    //std::vector<float>* m_mmstripGlobalX;                       //!< global position X of the Strip hit
-    //std::vector<float>* m_mmstripGlobalY;                       //!< global position Y of the Strip hit
-    //std::vector<float>* m_mmstripGlobalZ;
-    //These are not in MMDigitvariables, need to find what they correspond to in previous ntuple
-
     // Variables from MMDigitVariables for ntuple (maybe keep)
 
-
-    //int m_NSWMM_nDigits;
     std::vector<std::string> *m_NSWMM_dig_stationName;
     std::vector<int> *m_NSWMM_dig_stationEta;
     std::vector<int> *m_NSWMM_dig_stationPhi;

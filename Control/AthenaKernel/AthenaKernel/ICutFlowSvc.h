@@ -93,18 +93,6 @@ public:
   /// using CutIdentifier returned by selfRegisterFilter or registerCut
   virtual void addEvent( CutIdentifier cutID, double weight) = 0;
 
-  /// Get a CutBookkeeper given a CutID
-  // virtual xAOD::CutBookkeeper* getCutBookkeeper( const CutIdentifier cutID ) = 0;
-
-  /// Helper function for D3PDs, dumps the CutFlowSvc content into a flat TTree.
-  /// The returned TTree is owned by the caller and can be eventually written by the caller in its favorite output TFile.
-  //virtual TTree* dumpCutFlowToTTree( const char* treeName="CutFlowTree" ) = 0;
-
-  /// Inverse of above DumpCutFlowToTTree: when reading a D3PD, re-interpret the flat TTree to a usual transient EventBookkeeperCollection.
-  /// This should be the only method able to read flat TTrees, the other CutFlowSvc functionalities always work with EventBookkeepers.
-  /// The produced EventBookkeeperCollection remains internal to the CutFlowSvc, users can manipulate it using the usual ICutFlowSvc interface.
-  //virtual void loadCutFlowFromTTree( TTree* t ) = 0;
-
   /// Gaudi boilerplate
   static const InterfaceID& interfaceID();
 

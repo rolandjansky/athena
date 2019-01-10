@@ -79,7 +79,6 @@ from TileConditions.TileConditionsConf import TileCondToolOfc
 tileCondToolOfc = TileCondToolOfc()
 tileCondToolOfc.nSamples = 7 # default = 7
 tileCondToolOfc.OptFilterDeltaCorrelation = False # False - use matrix from DB
-tileCondToolOfc.CacheSize = 0 # (max phases per channel) 0 - no cache (default)
 #tileCondToolOfc.OutputLevel = INFO
 tileCondToolOfc.OutputLevel = DEBUG
 

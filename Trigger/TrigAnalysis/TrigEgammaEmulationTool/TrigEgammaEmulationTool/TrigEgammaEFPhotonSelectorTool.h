@@ -1,6 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
 
 #ifndef TrigEgammaEFPhotonSelectorTool_H
 #define TrigEgammaEFPhotonSelectorTool_H
@@ -34,6 +35,7 @@ class TrigEgammaEFPhotonSelectorTool:
   private:
 
     bool ApplyPhotonPid(const xAOD::Photon *eg, const std::string pidname);
+    bool ApplyIsolation(const xAOD::Photon *, const Trig::Info &);
 
     // ToolHandles
     /* In python order will matter. Should always be tight, medium, loose
@@ -42,6 +44,7 @@ class TrigEgammaEFPhotonSelectorTool:
     /* Photon selectors */
     ToolHandleArray<IAsgPhotonIsEMSelector>   m_photonOnlIsEMTool;
   
+    ToolHandleArray<Trig::ITrigEgammaSelectorBaseTool> m_isolationTool;
 
 
 };

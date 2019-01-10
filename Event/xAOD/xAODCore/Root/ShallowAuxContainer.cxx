@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ShallowAuxContainer.cxx 793737 2017-01-24 20:11:10Z ssnyder $
@@ -217,6 +217,17 @@ namespace xAOD {
       return m_auxids;
    }
 
+   bool ShallowAuxContainer::isDecoration (auxid_t auxid) const
+   {
+     guard_t guard( m_mutex );
+     if (m_parentLink.isValid()) {
+       if (m_parentLink->isDecoration (auxid)) {
+         return true;
+       }
+     }
+     return m_store->isDecoration (auxid);
+   }
+
    /// Return the data vector for one aux data decoration item.
    void* ShallowAuxContainer::getDecoration( auxid_t auxid,
                                              size_t size,
@@ -227,21 +238,13 @@ namespace xAOD {
       // If the parent has such a variable, then we need to check one more
       // thing. If it's a decoration on the parent, then we should be allowed
       // to override it in this (possibly locked) shallow copy. But let's leave
-      // the logic of this up to the parent. We ask the parent to return this
-      // variable as a decoration. If this is not possible (because it's not a
-      // decoration, but a regular variable), then let the parent throw the
-      // exception. Otherwise we continue, and let the internal store return
-      // a pointer to this derivation. (Which may still throw an exception.)
-      //
-      // It's quite ugly, as we have to do a const_cast to do this. But the
-      // SG::IConstAuxStore interface doesn't provide any other way of figuring
-      // out whether a given variable is a regular variable or a decoration.
-      //
+      // the logic of this up to the parent. 
       if( m_locked && m_parentLink.isValid() &&
-          ( m_parentLink->getAuxIDs().count( auxid ) > 0 ) ) {
-         SG::IConstAuxStore* parent =
-            const_cast< SG::IConstAuxStore* >( m_parentLink.cptr() );
-         parent->getDecoration( auxid, size, capacity );
+          ( m_parentLink->getAuxIDs().count( auxid ) > 0 ) )
+      {
+        if (!m_parentLink->isDecoration (auxid)) {
+          throw SG::ExcStoreLocked (auxid);
+        }
       }
 
       // If we got this far without any exception, then let the internal store
@@ -484,15 +487,14 @@ namespace xAOD {
       return;
    }
 
-   const ShallowAuxContainer::auxid_set_t&
+   ShallowAuxContainer::auxid_set_t
    ShallowAuxContainer::getSelectedAuxIDs() const {
 
       if( m_shallowIO ) {
          if( m_storeIO ) {
             return m_selection.getSelectedAuxIDs( m_store->getAuxIDs() );
          } else {
-            static const auxid_set_t dummy (0);
-            return dummy;
+            return auxid_set_t();
          }
       } else {
          return m_selection.getSelectedAuxIDs( getAuxIDs() );

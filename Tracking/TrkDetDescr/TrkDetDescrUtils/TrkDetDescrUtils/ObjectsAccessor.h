@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /* Dear emacs, this is -*-c++-*- */
 #ifndef _ObjectsAccessor_H_
 #define _ObjectsAccessor_H_

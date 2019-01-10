@@ -10,3 +10,4 @@ addTool("G4DebuggingTools.G4DebuggingToolsConfig.getEnergyConservationTestTool",
 addTool("G4DebuggingTools.G4DebuggingToolsConfig.getHyperspaceCatcherTool", "G4UA::HyperspaceCatcherTool")
 addTool("G4DebuggingTools.G4DebuggingToolsConf.G4UA__CheckActivationTool", "G4UA::CheckActivationTool")
 addTool("G4DebuggingTools.G4DebuggingToolsConfig.getGeant4SetupCheckerTool","G4UA::Geant4SetupCheckerTool")
+addTool("G4DebuggingTools.G4DebuggingToolsConfig.getStepHistogramTool", "G4UA::StepHistogramTool")

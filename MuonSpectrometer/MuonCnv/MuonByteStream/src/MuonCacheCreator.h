@@ -35,7 +35,7 @@ class MuonCacheCreator : public AthReentrantAlgorithm {
 protected:
 
   template<typename T>
-  StatusCode CreateContainer(const SG::WriteHandleKey<T>& , long unsigned int , const EventContext& ) const;
+  StatusCode createContainer(const SG::WriteHandleKey<T>& , long unsigned int , const EventContext& ) const;
   
   /// Write handle key for the MDT CSM cache container
   SG::WriteHandleKey<MdtCsm_Cache> m_MdtCsmCacheKey;
@@ -46,14 +46,16 @@ protected:
   const MdtIdHelper* m_mdtIdHelper = 0;
   const CscIdHelper* m_cscIdHelper = 0;
   const RpcIdHelper* m_rpcIdHelper = 0;
-  const TgcIdHelper* m_tgcIdHelper = 0;
-  
+  const TgcIdHelper* m_tgcIdHelper = 0;  
+  bool m_disableWarning = false;
+  bool isInsideView(const EventContext&) const;
+
 };//class MuonCacheCreator
 
 // copied from http://acode-browser1.usatlas.bnl.gov/lxr/source/athena/InnerDetector/InDetRecAlgs/InDetPrepRawDataFormation/src/CacheCreator.h#0062
 // maybe should figure out if this code can be shared
 template<typename T>
-StatusCode MuonCacheCreator::CreateContainer(const SG::WriteHandleKey<T>& containerKey, long unsigned int size, const EventContext& ctx) const{
+StatusCode MuonCacheCreator::createContainer(const SG::WriteHandleKey<T>& containerKey, long unsigned int size, const EventContext& ctx) const{
   if(containerKey.key().empty()){
     ATH_MSG_DEBUG( "Creation of container "<< containerKey.key() << " is disabled (no name specified)");
     return StatusCode::SUCCESS;

@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //  JetNoSort.h
 //  TopoCore
 //  Created by Veronica Sorin  14/8/14

@@ -157,7 +157,7 @@ from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmul
 l1Decoder = L1Decoder( OutputLevel=DEBUG, RoIBResult="" )
 l1Decoder.prescaler.EventInfo=""
 l1Decoder.ChainToCTPMapping = EnabledChainNamesToCTP
-l1Decoder.Chains="HLTChainsResult"
+l1Decoder.L1DecoderSummaryKey = "L1DecoderSummary"
 
 ctpUnpacker = CTPUnpackingEmulationTool( OutputLevel =  DEBUG, ForceEnableAllChains=False , InputFilename="ctp.dat" )
 l1Decoder.ctpUnpacker = ctpUnpacker

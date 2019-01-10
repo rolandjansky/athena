@@ -15,7 +15,7 @@ public:
   TGCBIDOut();
   TGCBIDOut(const TGCASDOut* ASDOut);
 
-  virtual ~TGCBIDOut(){};
+  virtual ~TGCBIDOut() = default;
 
   void setBid(int bidIn){ bid=bidIn;};
   int getBid() const { return bid;};

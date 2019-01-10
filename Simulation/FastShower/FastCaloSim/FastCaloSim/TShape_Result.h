@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CaloAna_tools_h
@@ -29,7 +29,7 @@ public:
   };
   virtual ~TShape_Result();
 protected:
-  inline double Sqr(double a) {return a*a;};
+  inline double Sqr(double a) const {return a*a;};
   double   m_fitsplines_EnergyDistribution_maxx;//!
   double   m_fitsplines_EtaPhiAspectRatio_minx;//!
   double   m_fitsplines_EtaPhiAspectRatio_maxx;//!
@@ -113,8 +113,8 @@ public:
 
   Double_t f_2DSpline_getd(double dxfcx_mm,double dyfcy_mm,int maxiter,double max_aspect);
   static Double_t SplineEval(TSpline3* sp,Double_t x,Double_t xmin,Double_t xmax);
-  Double_t f_2DSpline(double dxfcx_mm,double dyfcy_mm);
-  Double_t CellIntegralEtaPhi(const CaloDetDescrElement& cell,const double eta, const double phi,double& ein_wide,double fcx, double fcy,double direction_factor);
+  Double_t f_2DSpline(double dxfcx_mm,double dyfcy_mm) const;
+  Double_t CellIntegralEtaPhi(const CaloDetDescrElement& cell,const double eta, const double phi,double& ein_wide,double fcx, double fcy,double direction_factor) const;
   inline double eta_center(double eta,double direction_factor) const {if(eta>0) return eta+m_deta+direction_factor*m_reldeta;else return eta-m_deta+direction_factor*m_reldeta;};
   inline double phi_center(double phi) const {return phi+m_dphi;};
   static inline double eta_jakobi_factor(double fcx) {return TMath::Abs( 2.0*TMath::Exp(-fcx)/(1.0+TMath::Exp(-2*fcx)) );};
@@ -123,7 +123,7 @@ public:
   Bool_t HasShapeFactor() const { return TestBit(kHasShapeFactor); };
   Bool_t HasCellFactor()  const { return TestBit(kHasCellFactor); };
 
-  void SetDebugInfo( const int& sample, FastShowerInfo* fsi );
+  void SetDebugInfo( const int& sample, FastShowerInfo* fsi ) const;
 
   ClassDef(TShape_Result,10)  //TShape_Result
 };

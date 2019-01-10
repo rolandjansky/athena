@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -32,39 +32,39 @@
 using namespace std;
 
 TRootCompare::TRootCompare() :
-  _refFile(0),
-  _outFile(0),
-  _refRootDir(""),
-  _psFile(""),
-  _can(0),
-  _alg(BIN),
-  _threshold(1e-6),
-  _histMatch(0),
-  _histTotal(0),
-  _histMissing(0),
-  _drawNormalized(kFALSE),
-  _drawDiff(kTRUE)
+  m_refFile(0),
+  m_outFile(0),
+  m_refRootDir(""),
+  m_psFile(""),
+  m_can(0),
+  m_alg(BIN),
+  m_threshold(1e-6),
+  m_histMatch(0),
+  m_histTotal(0),
+  m_histMissing(0),
+  m_drawNormalized(kFALSE),
+  m_drawDiff(kTRUE)
 {
 }
 
 TRootCompare::~TRootCompare()
 {
-  delete _refFile;
+  delete m_refFile;
 }
 
 void TRootCompare::beginJob()
 {
-  _histMatch = 0;
-  _histTotal = 0;
-  _histMissing = 0;
+  m_histMatch = 0;
+  m_histTotal = 0;
+  m_histMissing = 0;
   
   Int_t canvasWidth = 1000;
   Int_t canvasHeight = 580;
 
-  if (!_drawDiff) canvasWidth = canvasHeight;
+  if (!m_drawDiff) canvasWidth = canvasHeight;
   
-  _can = new TCanvas("can","can",canvasWidth,canvasHeight);
-  if (_psFile!="") printCanvas(_psFile+"[");  
+  m_can = new TCanvas("can","can",canvasWidth,canvasHeight);
+  if (m_psFile!="") printCanvas(m_psFile+"[");  
 }
 
 void TRootCompare::endJob()
@@ -72,51 +72,51 @@ void TRootCompare::endJob()
   cout << endl;
   cout << "Summary:" << endl;
   cout << "========" << endl;
-  cout << "Total histograms compared: " << _histTotal << endl;
-  cout << "Missing references: " << _histMissing << endl;
-  cout << "Matching histograms: " << _histMatch << endl;
-  cout << "Different histograms: " << _histTotal-_histMatch << endl;
-  cout << "Ignored histograms: " << _skippedObjects.size() << endl;
+  cout << "Total histograms compared: " << m_histTotal << endl;
+  cout << "Missing references: " << m_histMissing << endl;
+  cout << "Matching histograms: " << m_histMatch << endl;
+  cout << "Different histograms: " << m_histTotal-m_histMatch << endl;
+  cout << "Ignored histograms: " << m_skippedObjects.size() << endl;
   
-  if (_histMatch!=_histTotal) {
+  if (m_histMatch!=m_histTotal) {
     cout << "List of different histograms:" << endl;
     vector<string>::iterator iter;
     int i = 0;
-    for (iter=_noMatch.begin(); iter!=_noMatch.end(); iter++) {
+    for (iter=m_noMatch.begin(); iter!=m_noMatch.end(); iter++) {
       i++;
       cout << setw(2) << i << ") " << *iter << endl;
     }
   }
 
-  if (verbose() && !_skippedObjects.empty()) {
+  if (verbose() && !m_skippedObjects.empty()) {
     cout << endl << "List of ignored histograms:" << endl;
     vector<string>::iterator iter;
     int i = 0;
-    for (iter=_skippedObjects.begin(); iter!=_skippedObjects.end(); iter++) {
+    for (iter=m_skippedObjects.begin(); iter!=m_skippedObjects.end(); iter++) {
       i++;
       cout << setw(2) << i << ") " << *iter << endl;
     }
   }
   cout << endl;
 
-   if (_outFile) {
-    cout << "Comparison results written to " << _outFile->GetName() << endl;
-    delete _outFile;
+   if (m_outFile) {
+    cout << "Comparison results written to " << m_outFile->GetName() << endl;
+    delete m_outFile;
   }  
 
-  if (_psFile!="") {
-    printCanvas(_psFile+"]");
-    cout << "Comparison results written to " << _psFile << endl;
+  if (m_psFile!="") {
+    printCanvas(m_psFile+"]");
+    cout << "Comparison results written to " << m_psFile << endl;
   }
 
-  delete _can;
+  delete m_can;
 }
 
 void TRootCompare::processKey(TDirectory& dir, TKey& key)
 {
   dir.cd();
     
-  if (_refFile==0) return;
+  if (m_refFile==0) return;
 
   if (TString(key.GetName()).Contains("/")) {
     cout << "IGNORE: " << key.GetName() << " contains '/'" << endl;
@@ -129,13 +129,13 @@ void TRootCompare::processKey(TDirectory& dir, TKey& key)
     // Extract directory name
     TString dirName(dir.GetPath());
     dirName.Replace(0,dirName.First(":")+2,0);
-    if (rootDir()!="") dirName.ReplaceAll(rootDir(),_refRootDir);
-    else dirName = _refRootDir+"/"+dirName;
+    if (rootDir()!="") dirName.ReplaceAll(rootDir(),m_refRootDir);
+    else dirName = m_refRootDir+"/"+dirName;
     TString keyPath(dirName+"/"+key.GetName());
 
-    if (_refFile->cd(dirName)) {
+    if (m_refFile->cd(dirName)) {
 
-      if (TObject* refObj = _refFile->Get(keyPath)) {
+      if (TObject* refObj = m_refFile->Get(keyPath)) {
         //  Check if class types agree
         if (obj->Class()!=refObj->Class()) {
           cout << key.GetName()
@@ -146,25 +146,25 @@ void TRootCompare::processKey(TDirectory& dir, TKey& key)
         TH1& h = *((TH1*)obj);
         TH1& href = *((TH1*)refObj);
         Bool_t match = compareHist(h,href);
-        _histTotal++;
+        m_histTotal++;
         if (match) {
-          _histMatch++;
+          m_histMatch++;
         }
         else { // histograms do not match
-          _noMatch.push_back(keyPath.Data());
+          m_noMatch.push_back(keyPath.Data());
 
-          _can->Clear();
-          _can->Divide(2,1);
-          _can->cd(1)->SetPad(0,1,1,0.90);
-          _can->cd(2)->SetPad(0,0.90,1,0);
-          TVirtualPad* pad = _can->cd(2);
+          m_can->Clear();
+          m_can->Divide(2,1);
+          m_can->cd(1)->SetPad(0,1,1,0.90);
+          m_can->cd(2)->SetPad(0,0.90,1,0);
+          TVirtualPad* pad = m_can->cd(2);
           
-          if (_drawDiff) pad->Divide(2,1);
-          _can->SetName(h.GetName());
-          _can->SetTitle(h.GetTitle());
+          if (m_drawDiff) pad->Divide(2,1);
+          m_can->SetName(h.GetName());
+          m_can->SetTitle(h.GetTitle());
           // Overlayed
           pad->cd(1);
-          if (_drawNormalized) {
+          if (m_drawNormalized) {
             if (href.Integral()) href.Scale(1/href.Integral());
             if (h.Integral()) h.Scale(1/h.Integral());
           }
@@ -173,7 +173,7 @@ void TRootCompare::processKey(TDirectory& dir, TKey& key)
           h.SetMaximum(ymax);
           h.SetLineColor(kBlue);
           h.Draw();
-          _can->Update();
+          m_can->Update();
           TPaveStats* st1 = (TPaveStats*)gPad->GetPrimitive("stats");
           if (st1) {
             st1->SetName("stats1");
@@ -182,7 +182,7 @@ void TRootCompare::processKey(TDirectory& dir, TKey& key)
 
           href.SetLineColor(kRed);
           href.Draw("sames");
-          _can->Update();
+          m_can->Update();
           TPaveStats* st2 = (TPaveStats*)gPad->GetPrimitive("stats");
           if (st1 && st2) {
             // Move stat box
@@ -192,11 +192,11 @@ void TRootCompare::processKey(TDirectory& dir, TKey& key)
             st2->SetX1NDC(x1-w);
             st2->SetX2NDC(x1);
             st2->SetLineColor(kRed);
-            _can->Modified();
+            m_can->Modified();
           }
 
           TH1* hdiff = 0;
-          if (_drawDiff) {
+          if (m_drawDiff) {
             hdiff = (TH1*)h.Clone();
             // Too many problems with difference of 2D histograms
             if (hdiff->GetDimension()==1 &&
@@ -251,12 +251,12 @@ void TRootCompare::processKey(TDirectory& dir, TKey& key)
           }
           
           // Some more cosmetics before saving to ps file
-          _can->cd(0);
+          m_can->cd(0);
           TText text;
           text.SetTextSize(0.03);
           text.SetTextAlign(22);
           TString page("page ");
-          page += _noMatch.size();          
+          page += m_noMatch.size();          
           text.DrawTextNDC(0.5,0.03,page);
 
           TString title(dir.GetName());
@@ -265,23 +265,23 @@ void TRootCompare::processKey(TDirectory& dir, TKey& key)
           text.DrawTextNDC(0.5,0.99,title);
 
           const int maxchars = 120; // max #chars for title
-          if (_file) {
+          if (m_file) {
             text.SetTextColor(kBlue);
-            string s(_file->GetName());
+            string s(m_file->GetName());
             text.DrawTextNDC(0.5,0.93,s.substr(max(0,int(s.size()-maxchars))).c_str());
           }
-          if (_refFile) {
+          if (m_refFile) {
             text.SetTextColor(kRed);
-            string s(_refFile->GetName());
+            string s(m_refFile->GetName());
             text.DrawTextNDC(0.5,0.96,s.substr(max(0,int(s.size()-maxchars))).c_str());
           }
                                  
-          if (_psFile!="") printCanvas(_psFile);
+          if (m_psFile!="") printCanvas(m_psFile);
 
           // Save canvas to root file
-          if (_outFile) {
-            createDirectory(_outFile,dirName);  // now we are in dirName
-            _can->Write();
+          if (m_outFile) {
+            createDirectory(m_outFile,dirName);  // now we are in dirName
+            m_can->Write();
           }          
           
           if (hdiff) delete hdiff;
@@ -289,11 +289,11 @@ void TRootCompare::processKey(TDirectory& dir, TKey& key)
       }
       else {  // histogram not found
         cout << "Cannot find " << keyPath << " in reference file" << endl;
-        _histMissing++;
+        m_histMissing++;
       }
     }    
     else { // could not cd() into directory of histogram
-      _histMissing++;
+      m_histMissing++;
       // TFile::cd() is already printing a similar message
       //cout << "Cannot find directory " << dirName << " in reference file" << endl;
     }
@@ -310,15 +310,15 @@ Bool_t TRootCompare::setReferenceFile(const char* filename,
     return kFALSE;
   }
   
-  _refFile = new TFile(filename);
-  if (_refFile->IsZombie()) {
+  m_refFile = new TFile(filename);
+  if (m_refFile->IsZombie()) {
     cout << "Cannot open reference file " << filename << endl;
-    delete _refFile;
-    _refFile = 0;
+    delete m_refFile;
+    m_refFile = 0;
     return kFALSE;
   }
 
-  _refRootDir = baseDir;
+  m_refRootDir = baseDir;
   return kTRUE;
 }
 
@@ -330,11 +330,11 @@ Bool_t TRootCompare::setOutputFile(const char* filename)
     return kFALSE;
   }
 
-  _outFile = new TFile(filename,"recreate");
-  if (_outFile->IsZombie()) {
+  m_outFile = new TFile(filename,"recreate");
+  if (m_outFile->IsZombie()) {
     cout << "Cannot open file " << filename << endl;
-    delete _outFile;
-    _outFile = 0;
+    delete m_outFile;
+    m_outFile = 0;
     return kFALSE;
   }
   return kTRUE;
@@ -346,22 +346,22 @@ Bool_t TRootCompare::setPsFile(const char* filename)
     cout << "Invalid file name" << endl;
     return kFALSE;
   }
-  _psFile = filename;
+  m_psFile = filename;
   return kTRUE;
 }
 
 void TRootCompare::printCanvas(const char* filename)
 {
-  if (_can==0) return;
+  if (m_can==0) return;
   if (filename==0) return;
 
   // Suppress the info message when saving file
   Int_t oldIgnoreLevel = gErrorIgnoreLevel;
   gErrorIgnoreLevel = kWarning;
   if (TString(filename).EndsWith(".ps"))  
-    _can->Print(filename,"Landscape");
+    m_can->Print(filename,"Landscape");
   else
-    _can->Print(filename);
+    m_can->Print(filename);
   gErrorIgnoreLevel = oldIgnoreLevel;  
 }
 
@@ -374,7 +374,7 @@ Bool_t TRootCompare::compareHist(TH1& h, TH1& href)
     cout << "Comparing " << h.GetName() << " using ";
   }
   
-  if (_alg==TRootCompare::BIN) {
+  if (m_alg==TRootCompare::BIN) {
     if (verbose()) cout << "BIN: ";
 
     if (h.GetNbinsX()!=href.GetNbinsX() || 
@@ -390,14 +390,14 @@ Bool_t TRootCompare::compareHist(TH1& h, TH1& href)
       for (Int_t y=1; y<=h.GetNbinsY() && result; y++) {
         for (Int_t x=1; x<=h.GetNbinsX() && result; x++) {
           Double_t binDiff = fabs(h.GetBinContent(x,y,z)-href.GetBinContent(x,y,z));
-          if (binDiff>_threshold) {
+          if (binDiff>m_threshold) {
             result = kFALSE;
           }
         }
       }
     }
   }
-  else if (_alg==TRootCompare::AXIS) {
+  else if (m_alg==TRootCompare::AXIS) {
     if (verbose()) cout << "AXIS: ";
     TAxis *xa(h.GetXaxis()), *xaref(href.GetXaxis());
     TAxis *ya(h.GetXaxis()), *yaref(href.GetXaxis());
@@ -405,17 +405,17 @@ Bool_t TRootCompare::compareHist(TH1& h, TH1& href)
     if( xa->GetNbins() != xaref->GetNbins() ) result = kFALSE;
     if( result && (ya->GetNbins() != yaref->GetNbins()) ) result = kFALSE;
     if( result && (za->GetNbins() != zaref->GetNbins()) ) result = kFALSE;
-    if( result && (fabs( xa->GetBinLowEdge(0) - xaref->GetBinLowEdge(0) ) > _threshold ) ) result = kFALSE;
-    if( result && (fabs( ya->GetBinLowEdge(0) - yaref->GetBinLowEdge(0) ) > _threshold ) ) result = kFALSE;
-    if( result && (fabs( za->GetBinLowEdge(0) - zaref->GetBinLowEdge(0) ) > _threshold ) ) result = kFALSE;
+    if( result && (fabs( xa->GetBinLowEdge(0) - xaref->GetBinLowEdge(0) ) > m_threshold ) ) result = kFALSE;
+    if( result && (fabs( ya->GetBinLowEdge(0) - yaref->GetBinLowEdge(0) ) > m_threshold ) ) result = kFALSE;
+    if( result && (fabs( za->GetBinLowEdge(0) - zaref->GetBinLowEdge(0) ) > m_threshold ) ) result = kFALSE;
     if( result ) for (Int_t i=0; i<=xa->GetNbins() && result; i++)
-       if( fabs (xa->GetBinUpEdge(i) - xaref->GetBinUpEdge(i)) > _threshold ) result = kFALSE;
+       if( fabs (xa->GetBinUpEdge(i) - xaref->GetBinUpEdge(i)) > m_threshold ) result = kFALSE;
     if( result ) for (Int_t i=0; i<=ya->GetNbins() && result; i++)
-       if( fabs (ya->GetBinUpEdge(i) - yaref->GetBinUpEdge(i)) > _threshold ) result = kFALSE;
+       if( fabs (ya->GetBinUpEdge(i) - yaref->GetBinUpEdge(i)) > m_threshold ) result = kFALSE;
     if( result ) for (Int_t i=0; i<=za->GetNbins() && result; i++)
-       if( fabs (za->GetBinUpEdge(i) - zaref->GetBinUpEdge(i)) > _threshold ) result = kFALSE;
+       if( fabs (za->GetBinUpEdge(i) - zaref->GetBinUpEdge(i)) > m_threshold ) result = kFALSE;
   }
-  else if (_alg==TRootCompare::CHI2) {
+  else if (m_alg==TRootCompare::CHI2) {
     if (verbose()) cout << "CHI2: ";
     
     // Don't compare empty histograms
@@ -429,7 +429,7 @@ Bool_t TRootCompare::compareHist(TH1& h, TH1& href)
       Double_t p = h.Chi2TestX(&href,chi2,ndf,igood);
       // this is because of a bug in root
       if (ndf==0) result = kTRUE;
-      else if (p>_threshold) result = kTRUE;
+      else if (p>m_threshold) result = kTRUE;
       else result = kFALSE;
     }
   }  

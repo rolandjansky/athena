@@ -12,6 +12,7 @@
 
 #include "TrkTrack/TrackCollection.h" //
 #include "InDetPrepRawData/SiClusterContainer.h"
+
 #include "InDetCondServices/ISiLorentzAngleTool.h"
 
 #include "FTK_DataProviderInterfaces/IFTK_DataProviderSvc.h"
@@ -21,6 +22,8 @@
 #include "TrkEventPrimitives/VertexType.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"
+
+#include "FTK_RecToolInterfaces/IFTK_HashIDTool.h"
 
 #include <vector>
 #include <string>
@@ -75,15 +78,6 @@ public:
 		     std::map<unsigned int,std::pair<double,double>>& offlinetrackPixLocxLocy,
 		     std::map<unsigned int,double>& offlinetrackSctLocx, bool refitTrack);
   
-  typedef std::vector<std::vector<int>> sectormap;
-
-  int readModuleIds(unsigned int itower, sectormap& hashID);
-    
-  unsigned int getHash(unsigned int tower, unsigned int sector,  unsigned int plane);
-
-  
-  bool findHash(unsigned int hash, bool isSCT, unsigned int& tower, unsigned int& sector, unsigned int& plane);
-
   /// Tools and services ///
   ITHistSvc*    m_rootHistSvc;
 
@@ -93,7 +87,6 @@ public:
 
   std::string m_ftk_raw_trackcollection_Name;
   std::string m_offlineTracksName;
-
 
   ServiceHandle<IFTK_DataProviderSvc> m_DataProviderSvc;
 
@@ -174,19 +167,14 @@ public:
   unsigned int m_minMatches;
   bool m_reverseIBLlocx;
 
-  size_t m_max_tower;
-
-  std::vector<sectormap*> m_moduleFromSector;
-
-  std::string m_ConstantsDir;
-  std::string m_PatternsVersion;
   unsigned int m_Nlayers;
   bool m_getHashFromTrack;
   bool m_getHashFromConstants;
-  uint32_t m_towerID;
   bool m_getRawTracks;
   bool m_getTracks;
   bool m_getRefitTracks;
+
+  ToolHandle<IFTK_HashIDTool> m_HashIDTool;
 
 };
 

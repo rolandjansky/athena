@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: AuxSelection.cxx 653257 2015-03-11 11:26:15Z krasznaa $
@@ -24,9 +24,8 @@ namespace {
 namespace xAOD {
 
    AuxSelection::AuxSelection()
-      : m_names(),
-        m_auxids() {
-
+      : m_names()
+   {
    }
 
    /// Sets which variables should be selected from a store object.
@@ -55,7 +54,7 @@ namespace xAOD {
    /// @param fullset The variables to be filtered based on the rules received
    /// @returns The list of variables to be written out
    ///
-   const SG::auxid_set_t&
+   SG::auxid_set_t
    AuxSelection::getSelectedAuxIDs( const SG::auxid_set_t& fullset ) const {
 
       // Check for the simplest case... all variables selected:
@@ -64,11 +63,11 @@ namespace xAOD {
       }
 
       // Start from an empty list:
-      m_auxids.clear();
+      SG::auxid_set_t auxids;
 
       // Check if everything should be disregarded:
       if( m_names.find( "-" ) != m_names.end() ) {
-         return m_auxids;
+         return auxids;
       }
 
       // Check that the user only put positive or negative selections on the
@@ -100,7 +99,7 @@ namespace xAOD {
             if( auxid != SG::null_auxid ) {
                // Add this variable if it exists:
                if( fullset.test( auxid ) ) {
-                  m_auxids.insert( auxid );
+                  auxids.insert( auxid );
                }
             } else {
                // Check if a warning should be printed at this time or not:
@@ -114,7 +113,7 @@ namespace xAOD {
          }
       } else {
          // Start from the full list:
-         m_auxids = fullset;
+         auxids = fullset;
          // ...and check which variables should be removed:
          for (SG::auxid_t id : fullset) {
             // Construct the name that we need to look for:
@@ -122,13 +121,13 @@ namespace xAOD {
                "-" + SG::AuxTypeRegistry::instance().getName( id );
             // Check if it is in the list to be removed:
             if( m_names.find( attrname ) != m_names.end() ) {
-               m_auxids.erase( id );
+               auxids.erase( id );
             }
          }
       }
 
       // Return the list of variables to be written out:
-      return m_auxids;
+      return auxids;
    }
 
 } // namespace xAOD

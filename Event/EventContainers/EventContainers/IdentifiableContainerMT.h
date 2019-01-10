@@ -106,6 +106,17 @@ public:
         /// iterator constructor
         const_iterator() : m_sptr(), m_current(nullptr), m_idContainer(nullptr), m_end(false) { }
 
+        /// assignment operator
+        const_iterator& operator = ( const const_iterator & it ) {
+            if(this == &it) return *this;//Safeguard against self assignment
+            m_hashItr     = it.m_hashItr;
+            m_sptr        = it.m_sptr;
+            m_current     = it.m_current;
+            m_idContainer = it.m_idContainer;
+            m_end         = it.m_end;
+            return *this;
+        }
+
         /// increment operator
         const_iterator& operator ++ () {
             if(m_end) return *this;

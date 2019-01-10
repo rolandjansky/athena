@@ -89,11 +89,6 @@ NoisyModuleList        = 200
 NoisyModuleDiff        = 0.200
 NoisyStripDiff         = 128
 
-#--- HV check
-HVQlength     = 100
-OutputLowHits = False
-LowHitsCut    = 100
-
 #--- Dead strips/chips
 DeadStripMinStat      = 1600000
 DeadStripMinStatBusy  = 200000

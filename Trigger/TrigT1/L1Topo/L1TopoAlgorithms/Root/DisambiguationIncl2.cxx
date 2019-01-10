@@ -1,7 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /*********************************
  * DisambiguationIncl2.cpp
  * Created by Joerg Stelzer / V Sorin on 2014.
- * Copyright (c) 2012 Joerg Stelzer. All rights reserved.
  *
  * @brief algorithm calculates the dR distance between objects in two lists, accept if at least a pair does not match in dR 
  *

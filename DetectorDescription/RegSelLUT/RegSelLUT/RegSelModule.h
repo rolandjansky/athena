@@ -119,7 +119,6 @@ private:
   double m_phiMin, m_phiMax;
   //  double m_etaMin, m_etaMax;  // eta is never used and so not needed
     
-  int    m_id;
   int    m_layer;
   int    m_detector;
 
