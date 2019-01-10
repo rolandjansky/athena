@@ -107,7 +107,7 @@ print BPHY19_Select_Upsi2mumu
 #--------------------------------------------------------------------
 
 from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
-CascadeVertexFitter = Trk__TrkVKalVrtFitter(
+BPHY19_CascadeVertexFitter = Trk__TrkVKalVrtFitter(
     name                 = "BPHY19_CascadeVertexFit",
     Extrapolator         = BPHY19_VertexTools.InDetExtrapolator,
    #FirstMeasuredPoint   = True,
@@ -115,8 +115,8 @@ CascadeVertexFitter = Trk__TrkVKalVrtFitter(
     CascadeCnstPrecision = 1e-6,
     MakeExtendedVertex   = True)
 
-ToolSvc += CascadeVertexFitter
-print      CascadeVertexFitter
+ToolSvc += BPHY19_CascadeVertexFitter
+print      BPHY19_CascadeVertexFitter
 
 include("DerivationFrameworkBPhys/configureConversionFinder.py")
 BPHY19_ConvTools = BPHYConversionFinderTools("BPHY19")
@@ -128,7 +128,7 @@ BPHY19_ConversionFinder   = DerivationFramework__BPhysConversionFinder(
     VertexEstimator = BPHY19_ConvTools.InDetSecVtxPointEstimator,
     DistanceTool = BPHY19_ConvTools.InDetSecVxTrkDistanceFinder,
     ConversionPostSelector = BPHY19_ConvTools.InDetSecVtxPostSelector,
-    CascadeFitter = CascadeVertexFitter,
+    CascadeFitter = BPHY19_CascadeVertexFitter,
     InputTrackParticleContainerName = "InDetTrackParticles",
     ConversionContainerName = "BPhysConversionCandidates",
     DiMuonVertexContainer  = "BPHY19OniaCandidates",
@@ -144,11 +144,11 @@ print BPHY19_ConversionFinder
 #--------------------------------------------------------------------
 
 # Require at least one conversion AND one di-muon
-expression = "count(BPhysConversionCandidates.passed) > 0 && (count(BPHY19OniaCandidates.passed_Psi) > 0 || count(BPHY19OniaCandidates.passed_Upsi) > 0)"
+BPHY19_expression = "count(BPhysConversionCandidates.passed) > 0 && (count(BPHY19OniaCandidates.passed_Psi) > 0 || count(BPHY19OniaCandidates.passed_Upsi) > 0)"
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 BPHY19_SelectEvent = DerivationFramework__xAODStringSkimmingTool(name = "BPHY19_SelectEvent",
-                                                                expression = expression)
+                                                                expression = BPHY19_expression)
 ToolSvc += BPHY19_SelectEvent
 print BPHY19_SelectEvent
 
@@ -191,49 +191,49 @@ ToolSvc += BPHY19MuonTPThinningTool
 # Truth Particle Thinning
 #--------------------------------------------------------------------
 
-TruthIDString = ""
-TruthIDString += "TruthParticles.pdgId == 443" #J/psi
-TruthIDString += " || "
-TruthIDString += "TruthParticles.pdgId == 100443" #psi(2S)
-TruthIDString += " || "
-TruthIDString += "TruthParticles.pdgId == 10441" #chi_c0(1P)
-TruthIDString += " || "
-TruthIDString += "TruthParticles.pdgId == 20443" #chi_c1(1P)
-TruthIDString += " || "
-TruthIDString += "TruthParticles.pdgId == 445" #chi_c2(1P)
-TruthIDString += " || "
-TruthIDString += "TruthParticles.pdgId == 553" #Y(1S)
-TruthIDString += " || "
-TruthIDString += "TruthParticles.pdgId == 100553" #Y(2S)
-TruthIDString += " || "
-TruthIDString += "TruthParticles.pdgId == 200553" #Y(3S)
-TruthIDString += " || "
-TruthIDString += "TruthParticles.pdgId == 10551" #chi_b0(1P)
-TruthIDString += " || "
-TruthIDString += "TruthParticles.pdgId == 110551" #chi_b0(2P)
-TruthIDString += " || "
-TruthIDString += "TruthParticles.pdgId == 210551" #chi_b0(3P)
-TruthIDString += " || "
-TruthIDString += "TruthParticles.pdgId == 20553" #chi_b1(1P)
-TruthIDString += " || "
-TruthIDString += "TruthParticles.pdgId == 120553" #chi_b1(2P)
-TruthIDString += " || "
-TruthIDString += "TruthParticles.pdgId == 220553" #chi_b1(3P)
-TruthIDString += " || "
-TruthIDString += "TruthParticles.pdgId == 555" #chi_b2(1P)
-TruthIDString += " || "
-TruthIDString += "TruthParticles.pdgId == 100555" #chi_b2(2P)
-TruthIDString += " || "
-TruthIDString += "TruthParticles.pdgId == 200555" #chi_b2(3P)
+BPHY19_TruthIDString = ""
+BPHY19_TruthIDString += "TruthParticles.pdgId == 443" #J/psi
+BPHY19_TruthIDString += " || "
+BPHY19_TruthIDString += "TruthParticles.pdgId == 100443" #psi(2S)
+BPHY19_TruthIDString += " || "
+BPHY19_TruthIDString += "TruthParticles.pdgId == 10441" #chi_c0(1P)
+BPHY19_TruthIDString += " || "
+BPHY19_TruthIDString += "TruthParticles.pdgId == 20443" #chi_c1(1P)
+BPHY19_TruthIDString += " || "
+BPHY19_TruthIDString += "TruthParticles.pdgId == 445" #chi_c2(1P)
+BPHY19_TruthIDString += " || "
+BPHY19_TruthIDString += "TruthParticles.pdgId == 553" #Y(1S)
+BPHY19_TruthIDString += " || "
+BPHY19_TruthIDString += "TruthParticles.pdgId == 100553" #Y(2S)
+BPHY19_TruthIDString += " || "
+BPHY19_TruthIDString += "TruthParticles.pdgId == 200553" #Y(3S)
+BPHY19_TruthIDString += " || "
+BPHY19_TruthIDString += "TruthParticles.pdgId == 10551" #chi_b0(1P)
+BPHY19_TruthIDString += " || "
+BPHY19_TruthIDString += "TruthParticles.pdgId == 110551" #chi_b0(2P)
+BPHY19_TruthIDString += " || "
+BPHY19_TruthIDString += "TruthParticles.pdgId == 210551" #chi_b0(3P)
+BPHY19_TruthIDString += " || "
+BPHY19_TruthIDString += "TruthParticles.pdgId == 20553" #chi_b1(1P)
+BPHY19_TruthIDString += " || "
+BPHY19_TruthIDString += "TruthParticles.pdgId == 120553" #chi_b1(2P)
+BPHY19_TruthIDString += " || "
+BPHY19_TruthIDString += "TruthParticles.pdgId == 220553" #chi_b1(3P)
+BPHY19_TruthIDString += " || "
+BPHY19_TruthIDString += "TruthParticles.pdgId == 555" #chi_b2(1P)
+BPHY19_TruthIDString += " || "
+BPHY19_TruthIDString += "TruthParticles.pdgId == 100555" #chi_b2(2P)
+BPHY19_TruthIDString += " || "
+BPHY19_TruthIDString += "TruthParticles.pdgId == 200555" #chi_b2(3P)
 
 print "PDG IDs to save:"
-print TruthIDString
+print BPHY19_TruthIDString
 
 # Only save truth informtion directly associated with Onia
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 BPHY19TruthThinTool = DerivationFramework__GenericTruthThinning(name                    = "BPHY19TruthThinTool",
                                                         ThinningService         = "BPHY19ThinningSvc",
-                                                        ParticleSelectionString = TruthIDString,
+                                                        ParticleSelectionString = BPHY19_TruthIDString,
                                                         PreserveDescendants     = True,
                                                         PreserveAncestors      = True)
 ToolSvc += BPHY19TruthThinTool
