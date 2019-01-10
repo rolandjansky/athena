@@ -6,16 +6,18 @@ from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool, \
                                        createPublicTool
 
 def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
-                             runJvtEfficiency = True, runJetSmearing = True ):
+                             runJvtEfficiency = True, runJvtSelection = False,
+                             runGhostMuonAssociation = True ):
     """Create a jet analysis algorithm sequence
 
     Keyword arguments:
       dataType -- The data type to run on ("data", "mc" or "afii")
       jetCollection -- The jet container to run on
+      runGhostMuonAssociation -- Determines wheter or not to run the ghost muon association needed for MET
       runJvtUpdate -- Determines whether or not to update JVT on the jets
       runJvtEfficiency -- Determines whether or not to recalculate the JVT
                           efficiency
-      runJetSmearing -- Determines whether to smear the jets
+      runJvtSelection -- Determines whether or not to run the JVT selection
     """
 
     if not dataType in ["data", "mc", "afii"] :
@@ -28,17 +30,24 @@ def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
     if dataType == 'afii':
         configFile = 'JES_MC16Recommendation_AFII_EMTopo_April2018_rel21.config'
     else:
-        configFile = 'JES_data2017_2016_2015_Recommendation_Feb2018_rel21.config'
+        configFile = 'JES_data2017_2016_2015_Consolidated_EMTopo_2018_Rel21.config'
         pass
     if dataType == 'data':
         calibSeq = 'JetArea_Residual_EtaJES_GSC_Insitu'
-    else:
+    elif dataType == 'afii':
         calibSeq = 'JetArea_Residual_EtaJES_GSC'
+    else:
+        calibSeq = 'JetArea_Residual_EtaJES_GSC_Smear'
         pass
 
+    # Set up the jet ghost muon association algorithm:
+    if runGhostMuonAssociation:
+        alg = createAlgorithm( 'CP::JetGhostMuonAssociationAlg', 'JetGhostMuonAssociationAlg' )
+        seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut' )
+
+    # Set up the jet calibration algorithm:
     alg = createAlgorithm( 'CP::JetCalibrationAlg', 'JetCalibrationAlg' )
     addPrivateTool( alg, 'calibrationTool', 'JetCalibrationTool' )
-    alg.calibrationTool.CalibArea = '00-04-81'
     alg.calibrationTool.JetCollection = jetCollection[ 0 : -4 ]
     alg.calibrationTool.ConfigFile = configFile
     alg.calibrationTool.CalibSequence = calibSeq
@@ -54,65 +63,32 @@ def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
     addPrivateTool( alg, 'uncertaintiesTool', 'JetUncertaintiesTool' )
     alg.uncertaintiesTool.JetDefinition = jetCollection[ 0 : -4 ]
     alg.uncertaintiesTool.ConfigFile = \
-        'rel21/Moriond2018/R4_StrongReduction_Scenario1.config'
-    alg.uncertaintiesTool.CalibArea = "CalibArea-04"
+        'rel21/Fall2018/R4_GlobalReduction_SimpleJER.config'
     if dataType == 'afii':
         alg.uncertaintiesTool.MCType = "AFII"
     else:
         alg.uncertaintiesTool.MCType = "MC16"
         pass
     seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut',
-                affectingSystematics = '(^JET_RelativeNonClosure.*)|(^JET_GroupedNP.*)|(^JET_EtaIntercalibration.*)' )
-
-    # Set up the jet smearing algorithm:
-    if runJetSmearing:
-        alg = createAlgorithm( 'CP::JetSmearingAlg', 'JetSmearingAlg' )
-        addPrivateTool( alg, 'smearingTool', 'JERSmearingTool' )
-        JERTool = createPublicTool( 'JERTool', 'MyJERTool' )
-        JERTool.PlotFileName = \
-            'JetResolution/Prerec2015_xCalib_2012JER_ReducedTo9NP_Plots_v2.root'
-        JERTool.CollectionName = jetCollection
-        alg.smearingTool.JERTool = '%s/%s' % ( JERTool.getType(),
-                                                   JERTool.getName() )
-        seq.addPublicTool( JERTool )
-        if dataType == 'data':
-            alg.smearingTool.isMC = 0
-        else :
-            alg.smearingTool.isMC = 1
-            pass
-        alg.smearingTool.ApplyNominalSmearing = 0
-        alg.smearingTool.SystematicMode = 'Simple'
-        seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut',
-                    affectingSystematics = '(^JET_JER_.*)' )
-        pass
+                affectingSystematics = '(^JET_RelativeNonClosure.*)|(^JET_EffectiveNP.*)|(^JET_EtaIntercalibration.*)|(^JET_BJES.*)|(^JET_Pileup.*)|(^JET_Flavor.*)|(^JET_PunchThrough.*)|(^JET_SingleParticle.*)|(^JET_JER.*)' )
 
     # Define a list of cuts to apply later on and the
     # number of bits in the corresponding TAccept
     cutlist = []
     cutlength = []
 
-    # Set up the jet selection algorithm:
-    alg = createAlgorithm( 'CP::JetSelectionAlg', 'JetCleaningAlg' )
-    addPrivateTool( alg, 'selectionTool', 'JetCleaningTool' )
-    alg.selectionTool.CutLevel = "LooseBad"
-    alg.selectionTool.DoUgly = 0
-    seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut' )
-    cutlist.append('clean_jet')
-    cutlength.append(1)
-
     # Set up the JVT update algorithm:
     if runJvtUpdate :
         alg = createAlgorithm( 'CP::JvtUpdateAlg', 'JvtUpdateAlg' )
         addPrivateTool( alg, 'jvtTool', 'JetVertexTaggerTool' )
-        alg.jvtTool.JVTFileName = 'JetMomentTools/JVTlikelihood_20140805.root'
         seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut' )
 
         alg = createAlgorithm( 'CP::JetModifierAlg', 'JetModifierAlg' )
         addPrivateTool( alg, 'modifierTool', 'JetForwardJvtTool')
-        alg.modifierTool.OutputDec = "passFJvt" #Output decoration
+        alg.modifierTool.OutputDec = "passFJVT" #Output decoration
         # fJVT WPs depend on the MET WP
         # see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EtmissRecommendationsRel21p2#fJVT_and_MET
-        alg.modifierTool.UseTightOP = 0 # 1 = Tight, 0 = Loose
+        alg.modifierTool.UseTightOP = 1 # 1 = Tight, 0 = Loose
         alg.modifierTool.EtaThresh = 2.5 # Eta dividing central from forward jets
         alg.modifierTool.ForwardMaxPt = 120.0e3 #Max Pt to define fwdJets for JVT
         seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut' )
@@ -123,7 +99,7 @@ def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
     if runJvtEfficiency:
         alg = createAlgorithm( 'CP::JvtEfficiencyAlg', 'JvtEfficiencyAlg' )
         addPrivateTool( alg, 'efficiencyTool', 'CP::JetJvtEfficiency' )
-        alg.selection = 'jvt_selection'
+        alg.selection = 'jvt_selection' if runJvtSelection else 'jvt_selection,as_char'
         alg.efficiency = 'jvt_efficiency'
         # Disable efficiency decorations if running on data
         # We still want to run the JVT selection
@@ -135,8 +111,9 @@ def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
         alg.skipBadEfficiency = 0
         seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut',
                     affectingSystematics = '(^JET_JvtEfficiency$)|(^JET_fJvtEfficiency$)' )
-        cutlist.append('jvt_selection')
-        cutlength.append(1)
+        if runJvtSelection:
+            cutlist.append('jvt_selection')
+            cutlength.append(1)
         pass
 
     # Set up an algorithm used for debugging the jet selection:
