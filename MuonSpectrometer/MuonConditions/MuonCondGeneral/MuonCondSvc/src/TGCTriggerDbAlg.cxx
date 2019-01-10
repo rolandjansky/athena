@@ -52,7 +52,8 @@ StatusCode TGCTriggerDbAlg::execute(){
     return StatusCode::SUCCESS; 
   }
 
-  TGCTriggerData* writeCdo = new TGCTriggerData();
+  auto writeCdo = std::make_unique<TGCTriggerData>();
+
 
   // Big wheel
   SG::ReadCondHandle<CondAttrListCollection> readHandle_bw(m_readKey_bw);
@@ -72,7 +73,7 @@ StatusCode TGCTriggerDbAlg::execute(){
   } 
   ATH_MSG_INFO("Range of input is " << rangeW_bw);
 
-  loadParameters(writeCdo, readCdo_bw, TGCTriggerData::CW_BW);
+  loadParameters(writeCdo.get(), readCdo_bw, TGCTriggerData::CW_BW);
 
   // EIFI
   SG::ReadCondHandle<CondAttrListCollection> readHandle_eifi(m_readKey_eifi);
@@ -92,7 +93,7 @@ StatusCode TGCTriggerDbAlg::execute(){
   } 
   ATH_MSG_INFO("Range of input is " << rangeW_eifi);
 
-  loadParameters(writeCdo, readCdo_eifi, TGCTriggerData::CW_EIFI);
+  loadParameters(writeCdo.get(), readCdo_eifi, TGCTriggerData::CW_EIFI);
  
   // Tile
   SG::ReadCondHandle<CondAttrListCollection> readHandle_tile(m_readKey_tile);
@@ -112,12 +113,12 @@ StatusCode TGCTriggerDbAlg::execute(){
   } 
   ATH_MSG_INFO("Range of input is " << rangeW_tile);
 
-  loadParameters(writeCdo, readCdo_tile, TGCTriggerData::CW_TILE);
+  loadParameters(writeCdo.get(), readCdo_tile, TGCTriggerData::CW_TILE);
 
   // fill maps 
-  fillReadMapBw(writeCdo);
-  fillTrigBitEifi(writeCdo);
-  fillTrigBitTile(writeCdo);
+  fillReadMapBw(writeCdo.get());
+  fillTrigBitEifi(writeCdo.get());
+  fillTrigBitTile(writeCdo.get());
 
 
   // write condition object
