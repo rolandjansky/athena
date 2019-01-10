@@ -8,39 +8,18 @@
 #define ATHENABASECOMPS_FILTEREDALGORTITHM_H 1
 
 // STL include files
-#ifndef _CPP_MEMORY
- #include <memory>
-#endif
-#ifndef _CPP_MAP
- #include <map>
-#endif
-#ifndef _CPP_SET
- #include <set>
-#endif
-#ifndef _CPP_VECTOR
- #include <vector>
-#endif
-#ifndef _CPP_STRING
- #include <string>
-#endif
+#include <memory>
+#include <map>
+#include <set>
+#include <vector>
+#include <string>
 
 // Required for inheritance
-#ifndef GAUDIKERNEL_IDATASELECTOR_H
- #include "GaudiKernel/IDataSelector.h"
-#endif
-#ifndef ATHENABASECOMPS_ATHALGORITHM_H
- #include "AthenaBaseComps/AthAlgorithm.h"
-#endif
-//get the CLID typedef
-#ifndef GAUDIKERNEL_CLASSID_H
- #include "GaudiKernel/ClassID.h"
-#endif
-#ifndef GAUDIKERNEL_PROPERTY_H
- #include "GaudiKernel/Property.h"
-#endif
-#ifndef GAUDIKERNEL_SERVICEHANDLE_H
- #include "GaudiKernel/ServiceHandle.h"
-#endif
+#include "GaudiKernel/IDataSelector.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ClassID.h"
+#include "GaudiKernel/Property.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "AthenaKernel/IDecisionSvc.h"
 

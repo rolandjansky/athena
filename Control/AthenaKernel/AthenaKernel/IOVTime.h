@@ -17,15 +17,8 @@
  *
  *****************************************************************************/
 
-#ifndef _CPP_IOSTREAM
- #include <iostream>
-#endif
-#ifndef _CPP_SSTREAM
- #include <sstream>
-#endif
-#ifndef _CPP_STRING
- #include <string>
-#endif
+#include <iosfwd>
+#include <string>
 #include <stdint.h>
 
 class MsgStream;

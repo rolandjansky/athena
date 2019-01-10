@@ -11,12 +11,8 @@
  * @brief defines and typedefs for IOVSvc 
  */
 
-#ifndef _CPP_LIST
- #include <list>
-#endif
-#ifndef _CPP_STRING
- #include <string>
-#endif
+#include <list>
+#include <string>
 
 /**
  * @brief short hand for IOVSvc call back argument list, to be used

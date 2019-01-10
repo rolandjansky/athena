@@ -13,12 +13,8 @@
 #ifndef SGTOOLS_PROXYMAP_H
 #define SGTOOLS_PROXYMAP_H
 
-#ifndef _CPP_MAP
- #include <map>
-#endif
-#ifndef _CPP_STRING
- #include <string>
-#endif
+#include <map>
+#include <string>
 
 namespace SG {
   class DataProxy;
