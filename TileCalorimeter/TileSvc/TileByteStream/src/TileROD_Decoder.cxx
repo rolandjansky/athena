@@ -2,31 +2,31 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TileEvent/TileCell.h"
-
-#include <algorithm>
-#include <iomanip>
-#include <sstream>
-
 // Implementation of TileROD_Decoder class
 
-// Gaudi includes
-#include "GaudiKernel/ListItem.h"
-#include "GaudiKernel/ServiceHandle.h"
+// Tile includes
+#include "TileByteStream/TileROD_Decoder.h"
+#include "TileByteStream/TileHid2RESrcID.h"
+#include "TileCalibBlobObjs/TileCalibUtils.h"
+#include "TileEvent/TileCell.h"
+#include "TileIdentifier/TileHWID.h"
+#include "TileIdentifier/TileTBFrag.h"
+#include "TileConditions/TileCablingService.h"
+#include "TileRecUtils/TileRawChannelBuilder.h"
+#include "TileL2Algs/TileL2Builder.h"
 
 // Atlas includes
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 #include "AthenaKernel/errorcheck.h"
 
-#include "TileRecUtils/TileRawChannelBuilder.h"
-#include "TileL2Algs/TileL2Builder.h"
-#include "TileByteStream/TileHid2RESrcID.h"
-#include "TileIdentifier/TileHWID.h"
-#include "TileIdentifier/TileTBFrag.h"
-#include "TileCalibBlobObjs/TileCalibUtils.h"
-#include "TileConditions/TileCablingService.h"
-#include "TileRecUtils/TileRawChannelBuilder.h"
-#include "TileByteStream/TileROD_Decoder.h"
+// Gaudi includes
+#include "GaudiKernel/ListItem.h"
+#include "GaudiKernel/ServiceHandle.h"
+
+
+#include <algorithm>
+#include <iomanip>
+#include <sstream>
 
 
 #define DO_NOT_USE_MUON_TAG true
@@ -43,6 +43,7 @@ TileROD_Decoder::TileROD_Decoder(const std::string& type, const std::string& nam
   , m_hid2reHLT(0)
   , m_maxChannels(TileCalibUtils::MAX_CHAN)
   , m_fullTileRODs(320000) // default 2017 full mode
+  , m_checkMaskedDrawers(false)
 {
   declareInterface<TileROD_Decoder>(this);
   
@@ -187,47 +188,6 @@ StatusCode TileROD_Decoder::initialize() {
   return StatusCode::SUCCESS;
 }
 
-bool TileROD_Decoder::is_drawer_masked(int frag_id, int run) {
-
-  if (m_list_of_masked_drawers.size()==0 || m_list_of_masked_drawers[0]!=run) {
-
-    m_list_of_masked_drawers.clear();
-    m_list_of_masked_drawers.push_back(run);
-
-    if ( !m_tileBadChanTool.empty() ) {
-      TileCablingService* cabling = TileCablingService::getInstance();
-
-      for (unsigned int ros = 1; ros < TileCalibUtils::MAX_ROS; ++ros) {
-        for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
-          unsigned int channel = 0;
-          for ( ; channel < m_maxChannels; ++channel) {
-            int index=-1, pmt=-1;
-            HWIdentifier channelID = m_tileHWID->channel_id(ros, drawer, channel);
-            cabling->h2s_cell_id_index(channelID, index, pmt);
-            if (index >= 0 && !m_tileBadChanTool->getChannelStatus(channelID).isBad()) { // good normal cell
-              break;
-            }
-          }
-          if (channel == m_maxChannels) m_list_of_masked_drawers.push_back(m_tileHWID->frag(ros, drawer));
-        }
-      }
-    }
-
-    if (msgLvl(MSG::DEBUG)) {
-      if (m_list_of_masked_drawers.size()>1) {
-        msg(MSG::DEBUG) << "List of fully masked drawers in run " << run << " : " << MSG::hex;
-        for(size_t i=1; i<m_list_of_masked_drawers.size(); ++i)
-          msg(MSG::DEBUG) << " 0x" << m_list_of_masked_drawers[i];
-        msg(MSG::DEBUG) << MSG::dec << endmsg;
-      } else {
-        msg(MSG::DEBUG) << "No bad drawers in run " << run << endmsg;
-      }
-    }
-  }
-
-  return (std::find(++m_list_of_masked_drawers.begin(),
-                    m_list_of_masked_drawers.end(), frag_id) != m_list_of_masked_drawers.end());
-}
 
 StatusCode TileROD_Decoder::finalize() {
   for (unsigned int i = 0; i < 4; ++i) {
@@ -3383,7 +3343,7 @@ uint32_t TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollect
     wc += count;
   }
 
-  bool masked_drawer = is_drawer_masked(frag_id,rob->rod_run_no());
+  bool masked_drawer = m_checkMaskedDrawers ? m_tileBadChanTool->isDrawerMasked(frag_id) : false;
 
   if (DQfragMissing && !masked_drawer) error |= 0x40000;
   
