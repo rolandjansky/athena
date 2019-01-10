@@ -41,9 +41,9 @@ namespace jet
 int main (int argc, char* argv[])
 {
     // Check argument usage
-    if (argc < 4 || argc > 7)
+    if (argc < 4 || argc > 6)
     {
-        std::cout << "USAGE: " << argv[0] << " <JetCollection> <ConfigFile> <OutputFile> (dev mode switch) (JES_vs_E switch) (pT above 20GeV switch)" << std::endl;
+        std::cout << "USAGE: " << argv[0] << " <JetCollection> <ConfigFile> <OutputFile> (dev mode switch) (JES_vs_E switch)" << std::endl;
         return 1;
     }
 
@@ -53,9 +53,8 @@ int main (int argc, char* argv[])
     const TString outFile = argv[3];
     const bool isDevMode  = ( argc > 4 && (TString(argv[4]) == "true" || TString(argv[4]) == "dev") ) ? true : false;
     const bool vsE        = ( argc > 5 && (TString(argv[5]) == "true") ) ? true : false;
-    const bool pTabove20  = ( argc > 6 && (TString(argv[6]) == "true") ) ? true : false;
 
-    // Minimum pT if vsE and pTabove20
+    // Minimum pT if vsE
     double minpT = 20000.; // MeV
 
     // Derived information
@@ -64,8 +63,7 @@ int main (int argc, char* argv[])
     // Assumed constants
     const TString calibSeq = "EtaJES"; // only want to apply the JES here
     const bool isData = false; // doesn't actually matter for JES, which is always active
-    float massForScan = 80.385e3; // W-boson
-    if ( !jetAlgo.Contains("AntiKt10") ) massForScan = 0;
+    float massForScan = 0;
 
     // Accessor strings
     TString startingScaleString = "JetConstitScaleMomentum";
@@ -78,7 +76,6 @@ int main (int argc, char* argv[])
     jet::JetFourMomAccessor endingScale(endingScaleString.Data());
     SG::AuxElement::Accessor<float> detectorEta(detectorEtaString.Data());
     
-
     // Create the calib tool
     asg::AnaToolHandle<IJetCalibrationTool> calibTool;
     calibTool.setTypeAndName("JetCalibrationTool/MyJetCalibTool");
@@ -121,7 +118,6 @@ int main (int argc, char* argv[])
         }
     }
 
-
     // Build a jet container and a jet for us to manipulate later
     xAOD::TEvent event;
     xAOD::TStore store;
@@ -129,12 +125,11 @@ int main (int argc, char* argv[])
     jets->setStore(new xAOD::JetAuxContainer());
     jets->push_back(new xAOD::Jet());
     xAOD::Jet* jet = jets->at(0);
-    
-    
+   
     // Make the histogram to fill
     TH2D* hist_pt_eta;
-    if ( jetAlgo.Contains("AntiKt10") ) hist_pt_eta = new TH2D("JES_pt_eta",Form("JES for jets with mass=%.1f GeV",massForScan/1.e3),1200,100,2500,60,-3,3);
-    else { hist_pt_eta = new TH2D("JES_pt_eta",Form("JES for jets with mass=%.1f GeV",massForScan/1.e3),2500,20,5000,90,-4.5,4.5); }
+    if ( jetAlgo.Contains("AntiKt10") ) hist_pt_eta = new TH2D("JES_pt_eta",Form("JES for jets with mass=%.1f GeV",massForScan/1.e3),1200,100,2500,30,0,3);
+    else { hist_pt_eta = new TH2D("JES_pt_eta",Form("JES for jets with mass=%.1f GeV",massForScan/1.e3),2500,20,5000,45,0,4.5); }
     
     // Fill the histogram
     for (int xBin = 1; xBin <= hist_pt_eta->GetNbinsX(); ++xBin)
@@ -142,9 +137,12 @@ int main (int argc, char* argv[])
         const double pt = hist_pt_eta->GetXaxis()->GetBinCenter(xBin)*1.e3; // E if vsE
         for (int yBin = 1; yBin <= hist_pt_eta->GetNbinsY(); ++yBin)
         {
-            const double eta = hist_pt_eta->GetYaxis()->GetBinCenter(yBin);
 
+	    // Positive eta case
+            double eta = hist_pt_eta->GetYaxis()->GetBinCenter(yBin);
 	    bool fill = false; // only used if vsE
+	    bool fillpos = false; // only used if vsE
+	    bool fillneg = false; // only used if vsE
 
             // Set the main 4-vector and scale 4-vector
 	    if ( !vsE ){
@@ -154,11 +152,7 @@ int main (int argc, char* argv[])
 	    } else {
               const double E = pt; // pt is actually E if vsE
 	      const double pT = sqrt((E*E)-(massForScan*massForScan))/cosh(eta);
-              if ( pTabove20 ){
-	        if ( pT >= minpT ) fill = true;
-	      } else {
-	        fill = true;
-	      }
+	      if ( pT >= minpT ) fillpos = true;
               jet->setJetP4(xAOD::JetFourMom_t(pT,eta,0,massForScan));
               detectorEta(*jet) = eta;
               startingScale.setAttribute(*jet,xAOD::JetFourMom_t(pT,eta,0,massForScan));
@@ -168,20 +162,54 @@ int main (int argc, char* argv[])
             xAOD::Jet* calibJet = nullptr;
             calibTool->calibratedCopy(*jet,calibJet);
 
-            // Calculate the scale factors
-            const double JES     = calibJet->e()/startingScale(*jet).e();
+            // Calculate etaReco - etaTruth
+            const double PosEtaJES = startingScale(*jet).eta()-calibJet->eta();
 
-            // JMS retrieved, fill the plot(s)
-	    if ( !vsE ) hist_pt_eta->SetBinContent(xBin,yBin,JES);
+            // Clean up
+            delete calibJet;
+
+	    // Negative eta case
+            eta *= -1.;
+
+            // Set the main 4-vector and scale 4-vector
+	    if ( !vsE ){
+              jet->setJetP4(xAOD::JetFourMom_t(pt,eta,0,massForScan));
+              detectorEta(*jet) = eta;
+              startingScale.setAttribute(*jet,xAOD::JetFourMom_t(pt,eta,0,massForScan));
+	    } else {
+              const double E = pt; // pt is actually E if vsE
+	      const double pT = sqrt((E*E)-(massForScan*massForScan))/cosh(eta);
+	      if ( pT >= minpT ) fillneg = true;
+              jet->setJetP4(xAOD::JetFourMom_t(pT,eta,0,massForScan));
+              detectorEta(*jet) = eta;
+              startingScale.setAttribute(*jet,xAOD::JetFourMom_t(pT,eta,0,massForScan));
+	    }
+
+	    if (fillneg && fillpos) fill = true;
+
+            // Jet kinematics set, now apply calibration
+            calibJet = nullptr;
+            calibTool->calibratedCopy(*jet,calibJet);
+
+            // Calculate sgn(eta) * (etaReco - etaTruth)
+            double NegEtaJES = calibJet->eta()-startingScale(*jet).eta();
+
+	    // Average results
+	    const double EtaJES = 0.5*(PosEtaJES + NegEtaJES);
+
+            // Fill the plot
+	    if ( !vsE ) hist_pt_eta->SetBinContent(xBin,yBin,EtaJES);
 	    else { // JES_vs_E
-	      if ( fill ) hist_pt_eta->SetBinContent(xBin,yBin,JES);
+	      if ( fill ){ 
+		hist_pt_eta->SetBinContent(xBin,yBin,EtaJES);
+	        hist_pt_eta->SetBinError(xBin,yBin,0.00005); // Set the errors to some randomly small value!
+	      }
 	    }
             
             // Clean up
             delete calibJet;
         }
     }
-
 
     
     // Make the plots
@@ -203,7 +231,7 @@ int main (int argc, char* argv[])
     hist_pt_eta->GetXaxis()->SetMoreLogLabels();
     hist_pt_eta->GetYaxis()->SetTitle("#eta");
     hist_pt_eta->GetYaxis()->SetTitleOffset(0.9);
-    hist_pt_eta->GetZaxis()->SetTitle("JES_{Factor}");
+    hist_pt_eta->GetZaxis()->SetTitle("Eta_{Factor}");
 
     // Now write them out
     if (outFileIsExtensible)
