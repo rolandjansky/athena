@@ -1,15 +1,15 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-/// @author Nils Krumnack
+/// @author Tadej Novak
 
 
-#ifndef MUON_ANALYSIS_ALGORITHMS__MUON_EFFICIENCY_SCALE_FACTOR_ALG_H
-#define MUON_ANALYSIS_ALGORITHMS__MUON_EFFICIENCY_SCALE_FACTOR_ALG_H
+#ifndef MUON_ANALYSIS_ALGORITHMS__MUON_TRIGGER_EFFICIENCY_SCALE_FACTOR_ALG_H
+#define MUON_ANALYSIS_ALGORITHMS__MUON_TRIGGER_EFFICIENCY_SCALE_FACTOR_ALG_H
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
-#include <MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h>
+#include <MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
@@ -19,14 +19,14 @@
 
 namespace CP
 {
-  /// \brief an algorithm for calling \ref IMuonEfficiencyScaleFactorTool
+  /// \brief an algorithm for calling \ref IMuonTriggerScaleFactors
 
-  class MuonEfficiencyScaleFactorAlg final : public EL::AnaAlgorithm
+  class MuonTriggerEfficiencyScaleFactorAlg final : public EL::AnaAlgorithm
   {
     /// \brief the standard constructor
   public:
-    MuonEfficiencyScaleFactorAlg (const std::string& name, 
-                                   ISvcLocator* pSvcLocator);
+    MuonTriggerEfficiencyScaleFactorAlg (const std::string& name, 
+                                         ISvcLocator* pSvcLocator);
 
 
   public:
@@ -39,7 +39,7 @@ namespace CP
 
     /// \brief the smearing tool
   private:
-    ToolHandle<IMuonEfficiencyScaleFactors> m_efficiencyScaleFactorTool;
+    ToolHandle<IMuonTriggerScaleFactors> m_efficiencyScaleFactorTool;
 
     /// \brief the systematics list we run
   private:
@@ -58,6 +58,18 @@ namespace CP
     /// \brief the helper for OutOfValidity results
   private:
     OutOfValidityHelper m_outOfValidity {this};
+
+    /// \brief trigger to run efficiency for
+  private:
+    std::string m_trigger;
+    
+    /// \brief minimum run number this trigger is valid for
+  private:
+    uint32_t m_minRunNumber;
+
+    /// \brief maximum run number this trigger is valid for
+  private:
+    uint32_t m_maxRunNumber;
 
     /// \brief the decoration for the muon efficiency
   private:
