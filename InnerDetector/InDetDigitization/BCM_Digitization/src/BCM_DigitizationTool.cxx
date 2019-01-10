@@ -5,8 +5,12 @@
 #include "BCM_DigitizationTool.h"
 
 #include "AthenaKernel/errorcheck.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/RNGWrapper.h"
+
+// CLHEP includes
+#include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
+
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "InDetBCM_RawData/BCM_RawData.h"
 #include "InDetBCM_RawData/BCM_RDO_Collection.h"
@@ -23,19 +27,15 @@
 //----------------------------------------------------------------------
 BCM_DigitizationTool::BCM_DigitizationTool(const std::string &type, const std::string &name, const IInterface *parent) :
   PileUpToolBase(type,name,parent),
-  m_rndmEngine(NULL),
   m_mipDeposit(0.0f),
   m_effPrmDistance(0.0f),
   m_effPrmSharpness(0.0f),
   m_timeDelay(0.0f),
   m_rdoContainer(NULL),
   m_simDataCollMap(NULL),
-  m_rndmEngineName("BCM_Digitization"),
-  m_mergeSvc(NULL), //("PileUpMergeSvc",name),
-  m_atRndmGenSvc("AtRndmGenSvc",name)
+  m_mergeSvc(NULL) //("PileUpMergeSvc",name)
 {
   //declareProperty("PileupMergeSvc", m_mergeSvc, "Pileup merging service");
-  declareProperty("RndmSvc", m_atRndmGenSvc, "Random number service used in BCM digitization");
   declareProperty("HitCollName", m_hitCollName="BCMHits", "Input simulation hits collection name");
   declareProperty("ModNoise", m_modNoise, "RMS noise averaged over modules");
   declareProperty("ModSignal", m_modSignal, "Average MIP signal in modules");
@@ -54,12 +54,7 @@ StatusCode BCM_DigitizationTool::initialize()
   ATH_MSG_VERBOSE ( "initialize()");
 
   // get random service
-  CHECK(m_atRndmGenSvc.retrieve());
-  m_rndmEngine = m_atRndmGenSvc->GetEngine(m_rndmEngineName) ;
-  if (m_rndmEngine==0) {
-    ATH_MSG_ERROR ( "Could not find RndmEngine : " << m_rndmEngineName );
-    return StatusCode::FAILURE ;
-  }
+  ATH_CHECK(m_rndmGenSvc.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -122,11 +117,15 @@ void BCM_DigitizationTool::processSiHit(const SiHit &currentHit, double eventTim
 //----------------------------------------------------------------------
 void BCM_DigitizationTool::createRDOsAndSDOs()
 {
+  // Set the RNG to use for this event.
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this);
+  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
+
   // Digitize hit info and create RDO for each module
   for (int iMod=0; iMod<8; ++iMod) {
     if (m_depositVect[iMod].size()) m_simDataCollMap->insert(std::make_pair(Identifier(iMod), InDetSimData(m_depositVect[iMod])));
     std::vector<float> analog = createAnalog(iMod,m_enerVect[iMod],m_timeVect[iMod]);
-    addNoise(iMod,analog);
+    addNoise(iMod,analog, *rngWrapper);
     for (int iGain=0; iGain<2; ++iGain) {
       std::bitset<64> digital = applyThreshold(iGain*8+iMod,analog);
       int p1x,p1w,p2x,p2w;
@@ -300,9 +299,9 @@ std::vector<float> BCM_DigitizationTool::createAnalog(int iMod, std::vector<floa
 //----------------------------------------------------------------------
 // AddNoise method:
 //----------------------------------------------------------------------
-void BCM_DigitizationTool::addNoise(int iMod, std::vector<float> &analog)
+void BCM_DigitizationTool::addNoise(int iMod, std::vector<float> &analog, CLHEP::HepRandomEngine* randomEngine)
 {
-  for (unsigned int iBin=0; iBin<analog.size(); ++iBin) analog[iBin]+=CLHEP::RandGaussZiggurat::shoot(m_rndmEngine,0.,m_modNoise[iMod]);
+  for (unsigned int iBin=0; iBin<analog.size(); ++iBin) analog[iBin]+=CLHEP::RandGaussZiggurat::shoot(randomEngine,0.,m_modNoise[iMod]);
 }
 
 //----------------------------------------------------------------------
