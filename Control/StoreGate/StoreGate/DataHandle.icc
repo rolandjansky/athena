@@ -139,16 +139,6 @@ DataHandle<DATA>::cptr() const
 
 ///////////////////////////////////////////////////////////////////////////////
 
-template <class DATA> 
-typename DataHandle<DATA>::pointer_type 
-DataHandle<DATA>::ptr()
-{
-  typename DataHandle<DATA>::pointer p = dataPointer();
-  return 0 != p && !isConst() ? p : 0;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 // The const version checks if the pointer is a valid pointer. 
 // Retrieves the GaudiObject to check validity if not already done
 
@@ -162,22 +152,8 @@ DataHandle<DATA>::isValid() const
 }
 
 //////////////////////////////////////////////////////////////////////////////
-
-// The non-const version checks if the pointer is a valid pointer and
-// if the DataObject is not const.
-// Retrieves the GaudiObject to check validity if not already done
-
 template <class DATA>
-bool
-DataHandle<DATA>::isValid()
-{
-  // ptr() prints a warning if the proxy is null, so also test isInitialized().
-  return (isInitialized() && 0 != ptr());
-}
-
-//////////////////////////////////////////////////////////////////////////////
-template <class DATA>
-typename DataHandle<DATA>::pointer_type
+typename DataHandle<DATA>::const_pointer_type
 DataHandle<DATA>::dataPointer() const {
   if (0 == m_ptr) {
     m_ptr = SG::DataProxy_cast<DATA>(m_proxy);
