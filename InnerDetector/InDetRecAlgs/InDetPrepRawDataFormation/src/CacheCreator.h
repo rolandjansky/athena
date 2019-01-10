@@ -51,15 +51,17 @@ namespace InDet{
         SG::WriteHandleKey<SCT_RDO_Cache>      m_SCTRDOCacheKey;
         SG::WriteHandleKey<PixelRDO_Cache>     m_PixRDOCacheKey;
         bool m_disableTRT;
+        bool m_disableWarning;
 	//Temporary workarounds for problem in scheduler - remove later
         SG::ReadCondHandleKey<PixelCalib::PixelOfflineCalibData> m_condKey5{ this, "PixelOfflineCalibData", "PixelOfflineCalibData", "" };
         SG::ReadCondHandleKey<DetectorSpecialPixelMap> m_condKey12{ this, "SpecialPixelMap", "SpecialPixelMap", "" };
+        bool isInsideView(const EventContext&) const;
         template<typename T>
-        StatusCode CreateContainer(const SG::WriteHandleKey<T>& , long unsigned int , const EventContext& ) const;
+        StatusCode createContainer(const SG::WriteHandleKey<T>& , long unsigned int , const EventContext& ) const;
     };
 
     template<typename T>
-    StatusCode CacheCreator::CreateContainer(const SG::WriteHandleKey<T>& containerKey, long unsigned int size, const EventContext& ctx) const{
+    StatusCode CacheCreator::createContainer(const SG::WriteHandleKey<T>& containerKey, long unsigned int size, const EventContext& ctx) const{
         if(containerKey.key().empty()){
             ATH_MSG_DEBUG( "Creation of container "<< containerKey.key() << " is disabled (no name specified)");
             return StatusCode::SUCCESS;

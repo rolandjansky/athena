@@ -5,6 +5,7 @@
 #include "MuonCacheCreator.h"
 
 #include "MuonIdHelpers/MdtIdHelper.h"
+#include "AthViews/View.h"
 
 /// Constructor
 MuonCacheCreator::MuonCacheCreator(const std::string &name,ISvcLocator *pSvcLocator):
@@ -12,6 +13,7 @@ MuonCacheCreator::MuonCacheCreator(const std::string &name,ISvcLocator *pSvcLoca
   m_MdtCsmCacheKey("")
 {
   declareProperty("MdtCsmCacheKey", m_MdtCsmCacheKey);
+  declareProperty("DisableViewWarning", m_disableWarning);
 }
 
 MuonCacheCreator::~MuonCacheCreator() {
@@ -26,12 +28,22 @@ StatusCode MuonCacheCreator::initialize() {
   return StatusCode::SUCCESS;
 }
 
+bool MuonCacheCreator::isInsideView(const EventContext& context) const
+{
+   const IProxyDict* proxy = context.getExtension<Atlas::ExtendedEventContext>().proxy();
+   const SG::View* view = dynamic_cast<const SG::View*>(proxy);
+   return view != nullptr;
+}
+
 StatusCode MuonCacheCreator::execute (const EventContext& ctx) const {
 
+  if(!m_disableWarning && isInsideView(ctx)){
+     ATH_MSG_WARNING("CacheCreator is running inside a view, this is probably a misconfiguration");
+  }
   // Create the MDT cache container
   auto maxHashMDTs = m_mdtIdHelper->stationNameIndex("BME") != -1 ?
              m_mdtIdHelper->detectorElement_hash_max() : m_mdtIdHelper->module_hash_max();
-  ATH_CHECK(CreateContainer(m_MdtCsmCacheKey, maxHashMDTs, ctx));
+  ATH_CHECK(createContainer(m_MdtCsmCacheKey, maxHashMDTs, ctx));
 
   ATH_MSG_INFO("Created cache container " << m_MdtCsmCacheKey);
 
