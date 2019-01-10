@@ -32,12 +32,12 @@ private:
   float m_origchi2; // In the case of majority recovery, this is the chi2 of 
                     // the full fit. In all other cases m_chi2 == m_origchi2
 
-  int m_invptfw; // curvature value in the output format of the FW
+  float m_invptfw; // curvature value in the output format of the FW
   int m_d0fw; // impact parameter as calculated by the FW
   int m_phifw; // phi value as caculated by the FW
   int m_z0fw; // z0 from the FW
-  int m_cthetafw; //
-  double m_chi2fw; // chisq calculation using the AUX card or SS board firmware-like code
+  int m_cthetafw; // cot(theta) using the AUX card or SS board firmware-like code
+  int m_chi2fw; // chisq calculation using the AUX card or SS board firmware-like code
 
   int m_nmissing; // number of missing coordinates
   unsigned int m_typemask; // set on in bits related to the step recovery were used, ex.: 0 no recovery, 01, rec 1st step, 11, recovery in the 1st and the 2nd stage
@@ -97,12 +97,12 @@ public:
   float getChi2ndof() const { return m_chi2/(m_ncoords-m_nmissing-5); }
   const float& getOrigChi2() const { return m_origchi2; }
   float getOrigChi2ndof() const { return m_origchi2/(m_ncoords-m_nmissing-5); }
-  int getInvPtFW() const { return m_invptfw; }
+  float getInvPtFW() const { return m_invptfw; }
   int getIPFW() const { return m_d0fw; }
   int getPhiFW() const { return m_phifw; }
   int getZ0FW() const { return m_z0fw; }
   int getCTheta() const { return m_cthetafw; }
-  double getChi2FW() const { return m_chi2fw; }
+  int getChi2FW() const { return m_chi2fw; }
   const int&   getNMissing() const { return m_nmissing; }
   const unsigned int& getTypeMask() const { return m_typemask; }
   const unsigned int& getBitmask() const { return m_bitmask; }
@@ -145,11 +145,12 @@ public:
   void setCotTheta(float v) { m_ctheta = v; }
   void setChi2(float v) { m_chi2 = v; }
   void setOrigChi2(float v) { m_origchi2 = v; }
-  void getInvPtFW(int v) {  m_invptfw = v; }
-  void getIPFW(int v) {  m_d0fw = v; }
-  void getPhiFW(int v) {  m_phifw = v; }
-  void getZ0FW(int v) {  m_z0fw = v; }
-  void getCTheta(int v) {  m_cthetafw = v; }
+  void setInvPtFW(float v) {  m_invptfw = v; }
+  void setIPFW(int v) {  m_d0fw = v; }
+  void setPhiFW(int v,bool ForceRange=true);
+  void setZ0FW(int v) {  m_z0fw = v; }
+  void setCTheta(int v) {  m_cthetafw = v; }
+  void setChi2FW(int v) { m_chi2fw = v; }
   void setChi2FW(double v) { m_chi2fw = v; }
   void setNMissing(int v) { m_nmissing = v; }
   void setTypeMask(unsigned int v) { m_typemask = v; }
