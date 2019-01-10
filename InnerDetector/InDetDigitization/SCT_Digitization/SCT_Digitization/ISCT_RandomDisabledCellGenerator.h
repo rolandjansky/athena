@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -35,13 +35,6 @@ class ISCT_RandomDisabledCellGenerator : virtual public ISiChargedDiodesProcesso
   // Destructor:
   virtual ~ISCT_RandomDisabledCellGenerator() {}
 
-  ///////////////////////////////////////////////////////////////////
-  // Pure virtual methods:
-  ///////////////////////////////////////////////////////////////////
-
-  // process the collection of charged diodes
-  virtual void process(SiChargedDiodeCollection& collection) const =0;
-  virtual void setRandomEngine(CLHEP::HepRandomEngine* rndmEngine) =0;
 };
 
 #endif // SCT_DIGITIZATION_ISCT_RANDOMDISABLEDCELLGENERATOR_H
