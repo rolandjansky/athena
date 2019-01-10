@@ -566,17 +566,17 @@ class RecoFragmentsPool:
 
         Reco fragment is uniquelly identified by the function and set og **kwargs. 
         The flags are not part of unique identifier as creation of new reco fragments should not be caused by difference in the unrelated flags.
+        TODO, if that code survives migration to New JO we need to handle the case when the creator is an inner function
         """
-        
         from AthenaCommon.Logging import logging
-        requestHash = hash( ( creator, tuple(kwargs.keys()), tuple(kwargs.values()) ) ) 
+        requestHash = hash( ( creator, tuple(kwargs.keys()), tuple(kwargs.values()) ) )
         if requestHash not in cls.fragments:
             recoFragment = creator( flags, **kwargs )
             cls.fragments[requestHash] = recoFragment
-            log.debug( "created reconstruction fragment" )
+            log.debug( "created reconstruction fragment using function: %s" % creator.func_name )
             return recoFragment
         else:
-            log.debug( "reconstruction fragment from the cache" )
+            log.debug( "reconstruction fragment that would be created from %s is taken from the cache" % creator.func_name )
             return cls.fragments[requestHash]
 
            
