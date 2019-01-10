@@ -28,11 +28,11 @@ LArHVCorrTool::LArHVCorrTool(const std::string& type,
 			     const IInterface* parent) 
   : 
     AthAlgTool(type, name, parent),
-    m_lar_on_id(nullptr), 	    
-    m_calocell_id(nullptr),	
+    m_lar_on_id(nullptr),
+    m_calocell_id(nullptr),
     m_larem_id(nullptr),
     m_larhec_id(nullptr),
-    m_larfcal_id(nullptr),	
+    m_larfcal_id(nullptr),
     m_electrodeID(nullptr),
     m_cablingService("LArCablingLegacyService"),
     m_hvtool("LArHVToolMC",this)

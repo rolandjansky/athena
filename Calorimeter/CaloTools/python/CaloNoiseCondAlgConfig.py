@@ -22,7 +22,7 @@ def CaloNoiseCondAlgCfg(configFlags,noisetype="totalNoise"):
     #CaloNoiseCondAlg needs Identifiers ... 
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
     gms=GeoModelCfg(configFlags)
-    result.merge(gms[0])
+    result.merge(gms)
 
     #... and cabling:
     from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg
@@ -43,7 +43,7 @@ def CaloNoiseCondAlgCfg(configFlags,noisetype="totalNoise"):
         else:
             if useCaloLumi:
                 lumiFolder='/CALO/Noise/PileUpNoiseLumi'
-                result.merge(addFolders(configFlags,lumiFolder,'CALO'))
+                result.merge(addFolders(configFlags,lumiFolder,'CALO',className="CondAttrListCollection"))
                 theCaloNoiseAlg.LumiFolder = lumiFolder
                 theCaloNoiseAlg.Luminosity = -1.
                 log.info("online mode: use luminosity from /CALO/Noise/PileUpNoiseLumi to scale pileup noise")
@@ -63,7 +63,7 @@ def CaloNoiseCondAlgCfg(configFlags,noisetype="totalNoise"):
         else:
             if useCaloLumi:
                 lumiFolder='/CALO/Ofl/Noise/PileUpNoiseLumi'
-                result.merge(addFolders(configFlags,lumiFolder,'CALO_OFL'))
+                result.merge(addFolders(configFlags,lumiFolder,'CALO_OFL',className="CondAttrListCollection"))
                 log.info("offline mode: use luminosity from /CALO/Ofl/Noise/PileuUpNoiseLumi to scale pileup noise")
                 theCaloNoiseAlg.LumiFolder = lumiFolder
                 theCaloNoiseAlg.Luminosity=-1.
@@ -89,11 +89,11 @@ def CaloNoiseCondAlgCfg(configFlags,noisetype="totalNoise"):
             theCaloNoiseAlg.Luminosity = -1
             if useCaloLumi:
                 lumiFolder='/CALO/Ofl/Noise/PileUpNoiseLumi'
-                result.merge(addFolders(configFlags,lumiFolder,'CALO_OFL'))
+                result.merge(addFolders(configFlags,lumiFolder,'CALO_OFL',className="CondAttrListCollection"))
                 log.info("offline mode: use luminosity from /CALO/Ofl/Noise/PileUpNoiseLumi to scale pileup noise")
             else:
                 lumiFolder = '/TRIGGER/LUMI/LBLESTONL'
-                result.merge(addFolders(configFlags,lumiFolder,'TRIGGER_ONL'))
+                result.merge(addFolders(configFlags,lumiFolder,'TRIGGER_ONL',className="CondAttrListCollection"))
                 log.info("offline mode: use luminosity = f(Lumiblock) to scale pileup noise")
             theCaloNoiseAlg.LumiFolder = lumiFolder
 
@@ -138,12 +138,16 @@ if __name__ == "__main__":
     ConfigFlags.Input.Files = defaultTestFiles.ESD
     ConfigFlags.lock()
 
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg 
+    acc=MainServicesThreadedCfg(ConfigFlags)
+#    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    acc=PoolReadCfg(ConfigFlags)
+    acc.merge(PoolReadCfg(ConfigFlags))
 
     acc.merge(CaloNoiseCondAlgCfg(ConfigFlags))
 
-    f=open('test.pkl','w')
-    acc.store(f)
-    f.close()
+    acc.run(10)
+
+    #f=open('test.pkl','w')
+    #acc.store(f)
+    #f.close()
