@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- mode: python -*-
 #
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 # This is a script that is born as shell to setup the preloading and then
 # resurrected as python script for the actual athenaHLT.py application.
@@ -152,6 +152,7 @@ def HLTMPPy_cfgdict(args):
       'extra_params' : None,
       'interactive' : args.interactive,
       'log_root' : os.getcwd(),
+      'log_name' : ('' if args.unique_log_files else 'worker'),
       'module' : 'HLTMPPU',
       'num_forks' : args.nprocs,
       'num_threads' : args.threads,
@@ -329,10 +330,6 @@ def main():
                   '3) human-readable "20/11/18 17:40:42.3043". If not specified the sor-time is read from COOL')
    g.add_argument('--detector-mask', metavar='MASK', type=arg_detector_mask,
                   help='detector mask (if None, read from COOL)')
-   g.add_argument('--ros2rob', metavar='DICT', type=arg_ros2rob, default={},
-                  help='Either a string in the form of python dictionary that contains ros-rob mappings '
-		             'or a file path that contains such string. For example, /path/to/rosmap.txt or '
-		             '{"ROS0":[0x11205,0x11206],"ROS1":[2120005,2120006]}')
 
    ## Expert options
    g = parser.add_argument_group('Expert')
@@ -343,8 +340,13 @@ def main():
    g.add_argument('--partition', '-p', metavar='NAME', default='athenaHLT', help='partition name')
    g.add_argument('--no-ers-signal-handlers', action='store_true', help='disable ERS signal handlers')
    g.add_argument('--preloadlib', metavar='LIB', help='preload an arbitrary library')
+   g.add_argument('--unique-log-files', '-ul', action='store_true', help='add pid/timestamp to worker log files')
    g.add_argument('--extra-l1r-robs', metavar='ROBS', type=arg_eval, default=[],
                   help='List of additional ROB IDs that are considered part of the L1 result and passed to the HLT')
+   g.add_argument('--ros2rob', metavar='DICT', type=arg_ros2rob, default={},
+                  help='Either a string in the form of python dictionary that contains ros-rob mappings '
+                  'or a file path that contains such string. For example, /path/to/rosmap.txt or '
+                  '{"ROS0":[0x11205,0x11206],"ROS1":[2120005,2120006]}')
    g.add_argument('--cfgdict', metavar='DICT', type=arg_eval, default={},
                   help='HLTMPPy config dictionary with additional options, e.g.: '
                   '--cfgdict \'{"global": {"log_root" : "/tmp"}}\'')
