@@ -35,6 +35,7 @@
 #include "DerivationFrameworkBPhys/JpsiPlusDpstCascade.h"
 #include "DerivationFrameworkBPhys/JpsiPlusDs1Cascade.h"
 #include "DerivationFrameworkBPhys/ReVertex.h"
+#include "DerivationFrameworkBPhys/BPhysConversionFinder.h"
 
 using namespace DerivationFramework;
 
@@ -74,6 +75,7 @@ DECLARE_TOOL_FACTORY( JpsiPlusDsCascade )
 DECLARE_TOOL_FACTORY( JpsiPlusDpstCascade )
 DECLARE_TOOL_FACTORY( JpsiPlusDs1Cascade )
 DECLARE_TOOL_FACTORY( ReVertex )
+DECLARE_TOOL_FACTORY( BPhysConversionFinder )
 
 DECLARE_FACTORY_ENTRIES( DerivationFrameworkBPhys ) {
    DECLARE_TOOL( Reco_mumu )
@@ -93,12 +95,12 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkBPhys ) {
    DECLARE_TOOL( CfAthAlgTool )
    DECLARE_TOOL( Bmumu_reco_mumu )
    DECLARE_TOOL( FourMuonTool )
-   DECLARE_TOOL( BPhysAddMuonBasedInvMass )  
-   DECLARE_TOOL( BPhysVertexTrackBase )  
-   DECLARE_TOOL( BVertexTrackIsoTool )  
-   DECLARE_TOOL( BMuonTrackIsoTool )  
-   DECLARE_TOOL( BVertexClosestTrackTool )  
-   DECLARE_TOOL( BTrackVertexMapLogger )  
+   DECLARE_TOOL( BPhysAddMuonBasedInvMass )
+   DECLARE_TOOL( BPhysVertexTrackBase )
+   DECLARE_TOOL( BVertexTrackIsoTool )
+   DECLARE_TOOL( BMuonTrackIsoTool )
+   DECLARE_TOOL( BVertexClosestTrackTool )
+   DECLARE_TOOL( BTrackVertexMapLogger )
    DECLARE_TOOL( Select_Bmumu )
    DECLARE_TOOL( BPhysVarBlinder )
    DECLARE_TOOL( BmumuThinningTool )
@@ -112,5 +114,5 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkBPhys ) {
    DECLARE_TOOL( JpsiPlusDpstCascade )
    DECLARE_TOOL( JpsiPlusDs1Cascade )
    DECLARE_TOOL( ReVertex )
+   DECLARE_TOOL( BPhysConversionFinder )
 }
-

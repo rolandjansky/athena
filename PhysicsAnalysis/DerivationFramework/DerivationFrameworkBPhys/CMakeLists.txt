@@ -8,7 +8,7 @@ atlas_subdir( DerivationFrameworkBPhys )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
-   Event/xAOD/xAODMuon			
+   Event/xAOD/xAODMuon
    Control/DataModel
    Control/AthenaBaseComps
    PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
@@ -34,7 +34,9 @@ atlas_depends_on_subdirs(
    InnerDetector/InDetConditions/InDetBeamSpotService
    InnerDetector/InDetRecTools/InDetTrackSelectionTool
    Trigger/TrigAnalysis/TrigDecisionTool
-   InnerDetector/InDetRecAlgs/InDetV0Finder)
+   InnerDetector/InDetRecAlgs/InDetV0Finder
+   Tracking/TrkVertexFitter/TrkVertexSeedFinderUtils
+   Event/xAOD/xAODParticleEvent)
 
 # Component(s) in the package:
 atlas_add_library( DerivationFrameworkBPhysLib
