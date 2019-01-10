@@ -35,7 +35,7 @@ def setupMessageSvc():
    MessageSvc = svcMgr.MessageSvc
    MessageSvc.OutputLevel = theApp.OutputLevel
 
-   MessageSvc.Format       = "%t  % F%35W%S%7W%R%T %0W%M"
+   MessageSvc.Format       = "%t  % F%35W%S%4W%e%s%7W%R%T %0W%M"
 
    # Message suppression
    MessageSvc.enableSuppression    = False
