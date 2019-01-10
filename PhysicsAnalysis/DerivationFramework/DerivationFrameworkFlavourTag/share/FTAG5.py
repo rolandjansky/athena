@@ -97,8 +97,6 @@ ToolSvc += FTAG5HbbThinningTool
 thinningTools.append(FTAG5HbbThinningTool)
 log_setup(FTAG5HbbThinningTool)
 
-############################################################## ADDED PART 1 - START
-############################################################## ADDED PART 1 - START
 
 # Tracks and CaloClusters associated with TCCs
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TCCTrackParticleThinning
@@ -115,8 +113,6 @@ ToolSvc += FTAG5TCCTPThinningTool
 thinningTools.append(FTAG5TCCTPThinningTool)
 log_setup(FTAG5TCCTPThinningTool)
 
-############################################################## ADDED PART 1 - END
-############################################################## ADDED PART 1 - END
 
 #====================================================================
 # TRUTH SETUP
@@ -144,8 +140,6 @@ FTAG5Seq = CfgMgr.AthSequencer("FTAG5Sequence");
 DerivationFrameworkJob += FTAG5Seq
 
 
-############################################################## ADDED PART 2 - START
-############################################################## ADDED PART 2 - START
 
 #=======================================
 # JETS
@@ -158,8 +152,6 @@ include("RecExCond/AllDet_detDescr.py")
 runTCCReconstruction(FTAG5Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
 
 
-############################################################## ADDED PART 2 - END
-############################################################## ADDED PART 2 - END
 
 
 #====================================================================
@@ -186,16 +178,11 @@ reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4TruthJets"]
 
 
-############################################################## ADDED PART 3 - START
-############################################################## ADDED PART 3 - START
-
 #AntiKt10*PtFrac5SmallR20Jets must be scheduled *AFTER* the other collections are replaced
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets, addTCCTrimmedJets
 addDefaultTrimmedJets(FTAG5Seq,"FTAG5")
 addTCCTrimmedJets(FTAG5Seq,"FTAG5")
 
-############################################################## ADDED PART 3 - END
-############################################################## ADDED PART 3 - END
 
 
 extendedFlag = 0 # --- = 0 for Standard Taggers & =1 for ExpertTaggers
