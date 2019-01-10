@@ -40,7 +40,9 @@ class SelectionCutAbsEta;
 class SelectionCutAbsCharge;
 class SelectionCutNTracks;
 class SelectionCutBDTJetScore;
+class SelectionCutBDTJetScoreSigTrans;
 class SelectionCutJetIDWP;
+class SelectionCutRNNJetScoreSigTrans;
 class SelectionCutBDTEleScore;
 class SelectionCutEleBDTWP;
 class SelectionCutEleOLR;
@@ -62,7 +64,8 @@ enum SelectionCuts
   CutMuonVeto     = 1<<9,	// 001000000000
   CutEleOLR       = 1<<10,    // 010000000000
   CutMuonOLR      = 1<<11,    // 100000000000
-  CutJetBDTScoreSigTrans = 1<<12  // 1000000000000
+  CutJetBDTScoreSigTrans = 1<<12, // 1000000000000
+  CutJetRNNScoreSigTrans = 1<<13  // 10000000000000
 };
   
 class TauSelectionTool : public virtual IAsgSelectionTool,
@@ -78,7 +81,9 @@ class TauSelectionTool : public virtual IAsgSelectionTool,
   friend class SelectionCutNTracks;
   friend class SelectionCutBDTJetScore;
   friend class SelectionCutBDTJetScoreSigTrans;
+  friend class SelectionCutRNNJetScoreSigTrans;
   friend class SelectionCutJetIDWP;
+  friend class SelectionCutRNNJetScoreSigTrans;
   friend class SelectionCutBDTEleScore;
   friend class SelectionCutEleBDTWP;
   friend class SelectionCutEleOLR;
@@ -150,6 +155,8 @@ private:
   std::vector<float> m_vJetBDTRegion;
   // vector of JetBDTSigTrans cut regions
   std::vector<float> m_vJetBDTSigTransRegion;
+  // vector of JetRNNSigTrans cut regions
+  std::vector<float> m_vJetRNNSigTransRegion;
   // JetID working point
   std::string m_sJetIDWP;
   int m_iJetIDWP;
@@ -178,6 +185,8 @@ private:
   float m_dJetBDTMax;
   float m_dJetBDTSigTransMin;
   float m_dJetBDTSigTransMax;
+  float m_dJetRNNSigTransMin;
+  float m_dJetRNNSigTransMax;
   float m_dEleBDTMin;
   float m_dEleBDTMax;
 

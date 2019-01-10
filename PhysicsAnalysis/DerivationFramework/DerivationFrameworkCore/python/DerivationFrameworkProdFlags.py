@@ -643,6 +643,19 @@ class WriteDAOD_HIGG6D2Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG6D2Stream)
 listAODtoDPD.append(WriteDAOD_HIGG6D2Stream.StreamName)
 
+class WriteDAOD_HDBS1Stream(JobProperty):
+    """HDBS1: ttX X to tautau"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_HDBS1'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkHiggs/HDBS1.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HDBS1Stream)
+listAODtoDPD.append(WriteDAOD_HDBS1Stream.StreamName)
+
 
 ##################################
 # Defined by Higgs subgroup 8
@@ -2147,6 +2160,19 @@ class WriteDAOD_BPHY18Stream (JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_BPHY18Stream)
 listAODtoDPD.append(WriteDAOD_BPHY18Stream.StreamName)
 
+class WriteDAOD_BPHY19Stream (JobProperty):
+     """BPHY19: di-muon with photon conversions"""
+     statusOn = True
+     allowedTypes = ['bool']
+     StoredValue = False
+     StreamName = 'StreamDAOD_BPHY19'
+     FileName = ''
+     isVirtual = False
+     DPDMakerScript = "DerivationFrameworkBPhys/BPHY19.py"
+     pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_BPHY19Stream)
+listAODtoDPD.append(WriteDAOD_BPHY19Stream.StreamName)
+
 ######################################
 # Defined by the MCP group
 ######################################
@@ -2597,3 +2623,4 @@ listAODtoDPD.append(WriteDAOD_TRIG6Stream.StreamName)
 
 from RecExConfig.RecoFunctions import AddValidItemToList
 AddValidItemToList(listAODtoDPD,listAllKnownDPD)
+
