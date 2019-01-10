@@ -2160,6 +2160,19 @@ class WriteDAOD_BPHY18Stream (JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_BPHY18Stream)
 listAODtoDPD.append(WriteDAOD_BPHY18Stream.StreamName)
 
+class WriteDAOD_BPHY19Stream (JobProperty):
+     """BPHY19: di-muon with photon conversions"""
+     statusOn = True
+     allowedTypes = ['bool']
+     StoredValue = False
+     StreamName = 'StreamDAOD_BPHY19'
+     FileName = ''
+     isVirtual = False
+     DPDMakerScript = "DerivationFrameworkBPhys/BPHY19.py"
+     pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_BPHY19Stream)
+listAODtoDPD.append(WriteDAOD_BPHY19Stream.StreamName)
+
 ######################################
 # Defined by the MCP group
 ######################################
