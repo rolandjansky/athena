@@ -46,5 +46,5 @@ atlas_add_component( Hijing_i
                      LINK_LIBRARIES ${HIJING_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} GeneratorFortranCommonLib GeneratorModulesLib AthenaKernel StoreGateLib SGtests GaudiKernel GeneratorObjects TruthUtils Hijing_iLib )
 
 # Install files from the package:
-atlas_install_joboptions( share/*.py )
+atlas_install_joboptions( share/common/*.py )
 

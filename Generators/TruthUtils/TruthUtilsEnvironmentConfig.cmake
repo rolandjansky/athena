@@ -1,0 +1,20 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#
+# This module is used to set up the environment for TruthUtils
+# 
+#
+
+# Set the environment variable(s):
+find_package( HepUtils )
+find_package( MCUtils )
+
+if( HEPUTILS_FOUND AND MCUTILS_FOUND )
+  set( TRUTHUTILSENVIRONMENT_ENVIRONMENT 
+        FORCESET MCUTILSVER ${MCUTILS_VERSION} 
+        FORCESET HEPUTILSVER ${HEPUTILS_VERSION} )
+endif()
+
+# Silently declare the module found:
+set( TRUTHUTILSENVIRONMENT_FOUND TRUE )
+
+

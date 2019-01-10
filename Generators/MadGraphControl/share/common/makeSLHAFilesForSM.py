@@ -22,10 +22,11 @@ evgenLog = Logging.logging.getLogger('SLHAGetter')
 # only really need this once
 from AthenaCommon.Include import IncludeError, include
 include.setShowIncludes(False)
-include('/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest/susycontrol/MadGraphControl_SimplifiedModelPreInclude.py')
-include.block('MC15JobOptions/MadGraphControl_SimplifiedModelPreInclude.py')
-include.block('MC15JobOptions/MadGraphControl_SimplifiedModelPostInclude.py')
+include('MadGraphControl/MadGraphControl_SimplifiedModelPreInclude.py')
+include.block('MadGraphControl/MadGraphControl_SimplifiedModelPreInclude.py')
+include.block('MadGraphControl/MadGraphControl_SimplifiedModelPostInclude.py')
 
+# needs modifications for rel. 21.6 !!
 for run in listOfRuns:
     loc_l = glob.glob('/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest/share/DSID'+run[0:3]+'xxx/MC15.'+run+'.*')
     if 0==len(loc_l):
