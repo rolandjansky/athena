@@ -120,6 +120,7 @@ def generateChainDefs(chainDict):
     # 
     # Basic properties of the chain, these are used to decide if we use the new AllTE configuration
     #
+    isFTKChain   = (not chainDict['chainName'].find("FTK") == -1)
     isSplitChain = (not chainDict['chainName'].find("split") == -1)
     isRunITagger = (not chainDict['chainName'].find("btight") == -1 or not chainDict['chainName'].find("bmedium") == -1 or not chainDict['chainName'].find("bloose") == -1)
     is2015Tagger = (not chainDict['chainName'].find("bmv2c20") == -1 or not chainDict['chainName'].find("bperf") == -1)
@@ -137,6 +138,11 @@ def generateChainDefs(chainDict):
     # Do not need to run AllTE on single jet chains
     #
     if isSingleJet: doAllTEConfig = False
+
+    #
+    # Do not need to run ALLTE on FTK chains
+    #
+    if isFTKChain: doAllTEConfig = False
 
     #
     #  New AllTE config currently supported on new mv2c10 taggers
@@ -183,6 +189,7 @@ def generateChainDefs(chainDict):
 #  New AllTE Building (Only do it for split chains and non FTK)
 #
 def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1):
+ 
     log.debug("In buildBjetChainsAllTE")
     inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements'][0]
 
@@ -370,11 +377,11 @@ def buildBjetChains(jchaindef,bjetdict,numberOfSubChainDicts=1):
 
     bjetparts = bjetdict['chainParts']
 
-    if ('split' in bjetparts['bConfig']):
-        theBjetChainDef = myBjetConfig_split(jchaindef, bjetdict, inputTEsEF,numberOfSubChainDicts) 
+    if ( 'split' not in bjetparts['bConfig'] ):
+        theBjetChainDef = myBjetConfig1(jchaindef, bjetdict, inputTEsEF,numberOfSubChainDicts)
         theBjetChainDef.chain_name = 'HLT_'+bjetdict['chainName']
     else:
-        theBjetChainDef = myBjetConfig1(jchaindef, bjetdict, inputTEsEF,numberOfSubChainDicts) 
+        theBjetChainDef = myBjetConfig_split(jchaindef, bjetdict, inputTEsEF,numberOfSubChainDicts) 
         theBjetChainDef.chain_name = 'HLT_'+bjetdict['chainName']
 
     log.debug("Left buildBjetChains")
