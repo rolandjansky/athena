@@ -21,22 +21,27 @@ Trk::TrackSummary::TrackSummary()
     m_dedx(-1),
     m_nhitsdedx(-1),
     m_nhitsoverflowdedx(-1),
-    m_idHitPattern(0),m_indetTrackSummary(0),m_muonTrackSummary(0)
+    m_idHitPattern(0),
+    m_indetTrackSummary(0),
+    m_muonTrackSummary(0)
 {
 #ifndef NDEBUG
   s_numberOfInstantiations++; // new TrackSummary, so increment total count
 #endif        
 }
 
-Trk::TrackSummary::TrackSummary( const std::vector<int>& information, const std::vector<float>& eProbability, std::bitset<numberOfDetectorTypes>& hitPattern, float dedx, int nhitsdedx, int noverflowdedx)
+Trk::TrackSummary::TrackSummary( const std::vector<int>& information, const std::vector<float>& eProbability, std::bitset<numberOfDetectorTypes>& hitPattern,
+                                 float dedx, int nhitsdedx, int noverflowdedx)
     :
     m_information( information ),
     m_eProbability( eProbability ),
     m_dedx(dedx),
     m_nhitsdedx(nhitsdedx),
     m_nhitsoverflowdedx(noverflowdedx),
-    m_idHitPattern( hitPattern.to_ulong() ),m_indetTrackSummary(0),m_muonTrackSummary(0)
-{
+    m_idHitPattern( hitPattern.to_ulong() ),
+    m_indetTrackSummary(0),
+    m_muonTrackSummary(0)
+{    
 #ifndef NDEBUG
   s_numberOfInstantiations++; // new TrackSummary, so increment total count
 #endif        
@@ -122,6 +127,14 @@ T_out& dumpTrackSummary( T_out& out, const TrackSummary& trackSum )
 {
   out << "Persistant track summary information:"<<"\n";
   out << " * Number of contrib. Pixel Layer: "<<trackSum.get(numberOfContribPixelLayers)<<"\n";
+  if (trackSum.get(numberOfContribPixelBarrelFlatLayers    )>0)
+    out << " * Number of contrib. Pixel Barrel Flat Layer: "<<trackSum.get(numberOfContribPixelBarrelFlatLayers    )<<"\n";
+  if (trackSum.get(numberOfContribPixelBarrelInclinedLayers    )>0)
+    out << " * Number of contrib. Pixel Barrel Inclined  : "<<trackSum.get(numberOfContribPixelBarrelInclinedLayers)<<"\n";
+  if (trackSum.get(numberOfContribPixelBarrelRings    )>0)
+    out << " * Number of contrib. Pixel Barrel Rings     : "<<trackSum.get(numberOfContribPixelBarrelRings         )<<"\n";
+  if (trackSum.get(numberOfContribPixelEndcap    )>0)
+    out << " * Number of contrib. Pixel Endcap Rings     : "<<trackSum.get(numberOfContribPixelEndcap              )<<"\n";  
   out << " * Number of Innermost Pixel layer hits        : "<<trackSum.get(numberOfInnermostPixelLayerHits)<<"\n";
   out << " * Number of Innermost Pixel layer shared hits : "<<trackSum.get(numberOfInnermostPixelLayerSharedHits)<<"\n";
   out << " * Number of Innermost Pixel layer outliers    : "<<trackSum.get(numberOfInnermostPixelLayerOutliers)<<"\n";
@@ -131,9 +144,25 @@ T_out& dumpTrackSummary( T_out& out, const TrackSummary& trackSum )
   out << " * Number of Next-To-Innermost Pixel layer outliers    : "<<trackSum.get(numberOfNextToInnermostPixelLayerOutliers)<<"\n";
   out << " * Expect Next-To-Innermost Pixel layer hits (0/1)     : "<<trackSum.get(expectNextToInnermostPixelLayerHit)<<"\n";
   out << " * Number of pixel hits          : "<<trackSum.get(numberOfPixelHits)<<"\n";
+  if (trackSum.get(numberOfPixelBarrelFlatHits    )>0)
+    out << " * Number of pixel barrel flat hits     : "<<trackSum.get(numberOfPixelBarrelFlatHits    )<<"\n";
+  if (trackSum.get(numberOfPixelBarrelInclinedHits    )>0)
+    out << " * Number of pixel barrel inclined hits : "<<trackSum.get(numberOfPixelBarrelInclinedHits)<<"\n";
+  if (trackSum.get(numberOfPixelBarrelRingHits    )>0)
+    out << " * Number of pixel barrel ring hits     : "<<trackSum.get(numberOfPixelBarrelRingHits    )<<"\n";
+  if (trackSum.get(numberOfPixelEndcapHits    )>0)
+    out << " * Number of pixel endcap ring hits     : "<<trackSum.get(numberOfPixelEndcapHits        )<<"\n";
   out << " * Number of pixel outliers      : "<<trackSum.get(numberOfPixelOutliers)<<"\n";
   out << " * Number of spoilt pixel hits   : "<<trackSum.get(numberOfPixelSpoiltHits)<<"\n";
   out << " * Number of pixel holes         : "<<trackSum.get(numberOfPixelHoles)<<"\n";
+  if (trackSum.get(numberOfPixelBarrelFlatHoles    )>0)
+    out << " * Number of pixel barrel flat holes     : "<<trackSum.get(numberOfPixelBarrelFlatHoles    )<<"\n";
+  if (trackSum.get(numberOfPixelBarrelInclinedHoles    )>0)
+    out << " * Number of pixel barrel inclined holes : "<<trackSum.get(numberOfPixelBarrelInclinedHoles)<<"\n";
+  if (trackSum.get(numberOfPixelBarrelRingHoles    )>0)
+    out << " * Number of pixel barrel ring holes     : "<<trackSum.get(numberOfPixelBarrelRingHoles    )<<"\n";
+  if (trackSum.get(numberOfPixelEndcapHoles    )>0)
+    out << " * Number of pixel endcap ring holes     : "<<trackSum.get(numberOfPixelEndcapHoles        )<<"\n";
   out << " * Number of pixel shared hits   : "<<trackSum.get(numberOfPixelSharedHits)<<"\n";
   out << " * Number of GangedPixels        : "<<trackSum.get(numberOfGangedPixels)<<"\n";
   out << " * Number of GangedFlaggedFakes  : "<<trackSum.get(numberOfGangedFlaggedFakes)<<"\n";
@@ -230,4 +259,3 @@ unsigned int Trk::TrackSummary::numberOfInstantiations()
 {
   return s_numberOfInstantiations;
 }
-

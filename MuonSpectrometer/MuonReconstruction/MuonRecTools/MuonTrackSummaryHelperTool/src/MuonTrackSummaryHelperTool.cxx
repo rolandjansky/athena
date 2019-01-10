@@ -197,7 +197,8 @@ void Muon::MuonTrackSummaryHelperTool::analyse(
 					       const Trk::RIO_OnTrack* rot, 
 					       const Trk::TrackStateOnSurface* tsos,
 					       std::vector<int>& information, 
-					       std::bitset<Trk::numberOfDetectorTypes>& /**hitPattern*/ ) const
+					       std::bitset<Trk::numberOfDetectorTypes>& /**hitPattern*/,
+                 Trk::DetailedHitInfo& /*detailedInfo*/) const
 {
   using namespace Trk;
   if (tsos->type(Trk::TrackStateOnSurface::Outlier)) return; //ignore outliers
@@ -239,7 +240,8 @@ void Muon::MuonTrackSummaryHelperTool::analyse(
 					       const Trk::CompetingRIOsOnTrack* crot,
 					       const Trk::TrackStateOnSurface* tsos,
 					       std::vector<int>& information, 
-					       std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const 
+					       std::bitset<Trk::numberOfDetectorTypes>& hitPattern,
+                 Trk::DetailedHitInfo& detailedInfo) const 
 {
   // For competing ROTs we *only* count hits that are on different layers.
   std::set<Identifier> layIds;
@@ -251,7 +253,7 @@ void Muon::MuonTrackSummaryHelperTool::analyse(
     if(pr.second == true) {
       // layer not seen before
       ATH_MSG_DEBUG("Have found hit on new layer. # of layers for this cROT currently="<<layIds.size());
-      analyse(trk,rot, tsos, information, hitPattern);
+      analyse(trk,rot, tsos, information, hitPattern, detailedInfo);
     }
   }
 }

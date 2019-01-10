@@ -638,14 +638,29 @@ int SiDetectorElement::getPixelLayer() const {
 bool SiDetectorElement::isInclined() const {
   if (isPixel() && isBarrel()) {
     double myNormalZ = this->normal()[Amg::z];
-    // inclined barrel modules (in the ITk Step 2.2 Inclined Duals layout)
+    // Inclined barrel modules (in the ITk Step 2.2 Inclined Duals layout)
     // have myNormalZ values of -0.965926 or -0.829044.
     // Flat barrel modules have myNormalZ = 0
     // in a perfectly-aligned detector
     // but once misalignment is added, perhaps the value of 0 below should be changed
     // to 0.1 or whatever is a reasonable value.
     double epsilon = 0.1;
+   
     return(fabs(myNormalZ) > epsilon);
+  }
+  else {
+    return false;
+  }
+}
+
+bool SiDetectorElement::isBarrelRing() const {
+  if (isPixel() && isBarrel()) {
+    double myNormalZ = this->normal()[Amg::z];
+    // Step 3 layouts contains also barrel rings. To identify we check if they are 
+    // close to the perpendicular position
+    double epsilon = 0.01;
+   
+    return((1.-fabs(myNormalZ)) < epsilon);
   }
   else {
     return false;

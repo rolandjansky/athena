@@ -8,6 +8,7 @@
 #include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkTrackSummary/TrackSummary.h"
+#include "TrkTrackSummary/DetailedHitInfo.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "GaudiKernel/ToolHandle.h"
 #include <vector>
@@ -45,7 +46,8 @@ namespace iFatras {
 			 const Trk::RIO_OnTrack* rot,
 			 const Trk::TrackStateOnSurface* tsos,
 			 std::vector<int>& information, 
-			 std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const ;
+			 std::bitset<Trk::numberOfDetectorTypes>& hitPattern,
+       Trk::DetailedHitInfo& detailedInfo ) const ;
     
     /** Not used --> running with RIO_OnTrack only
     */
@@ -53,7 +55,8 @@ namespace iFatras {
 			 const Trk::CompetingRIOsOnTrack* crot,
 			 const Trk::TrackStateOnSurface* tsos,
 			 std::vector<int>& information, 
-			 std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const;
+			 std::bitset<Trk::numberOfDetectorTypes>& hitPattern,
+       Trk::DetailedHitInfo& detailedInfo ) const;
   
     /** Not used --> HoleSearchTool not used
     */

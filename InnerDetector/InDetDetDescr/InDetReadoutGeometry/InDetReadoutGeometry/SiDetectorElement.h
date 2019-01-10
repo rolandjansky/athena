@@ -144,6 +144,7 @@ namespace InDetDD {
       bool isNextToInnermostPixelLayer() const;
       int  getPixelLayer() const;
       bool isInclined() const;
+      bool isBarrelRing() const;
       bool isDBM() const;
 
       // Identifier <-> SiCellId (ie strip number or pixel eta_index,phi_index)

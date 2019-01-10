@@ -134,7 +134,7 @@ if InDetFlags.loadRotCreator():
                                                                         )
             ToolSvc += PixelClusterOnTrackToolDBM
         PixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("InDetPixelClusterOnTrackTool",
-                                                                 DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone()),
+                                                                 DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone() or InDetFlags.doSLHC()),
                                                                  applyNNcorrection = ( InDetFlags.doPixelClusterSplitting() and
                                                                                        InDetFlags.pixelClusterSplittingType() == 'NeuralNet' and not InDetFlags.doSLHC()),
                                                                  NNIBLcorrection = ( InDetFlags.doPixelClusterSplitting() and
@@ -159,7 +159,7 @@ if InDetFlags.loadRotCreator():
 
   
         PixelClusterOnTrackToolDigital = InDet__PixelClusterOnTrackTool("InDetPixelClusterOnTrackToolDigital",
-                                                                 DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone()),
+                                                                 DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone() or InDetFlags.doSLHC()),
                                                                  applyNNcorrection = False,
                                                                  NNIBLcorrection = False,
                                                                  SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap(),
@@ -245,7 +245,7 @@ if InDetFlags.loadRotCreator():
             from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__PixelClusterOnTrackTool
             BroadPixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("InDetBroadPixelClusterOnTrackTool",
                                                                           ErrorStrategy      = 0,
-                                                                          DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone()),
+                                                                          DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone() or InDetFlags.doSLHC()),
                                                                           applyNNcorrection = ( InDetFlags.doPixelClusterSplitting() and
                                                                                        InDetFlags.pixelClusterSplittingType() == 'NeuralNet' and not InDetFlags.doSLHC()),
                                                                           NNIBLcorrection = ( InDetFlags.doPixelClusterSplitting() and
@@ -884,6 +884,9 @@ if InDetFlags.loadSummaryTool():
 
     if InDetFlags.doCosmics:
         InDetHoleSearchTool.Cosmics = True
+        
+    if InDetFlags.doSLHC():
+      InDetHoleSearchTool.ITkGeometry = True  
 
     ToolSvc += InDetHoleSearchTool
     if (InDetFlags.doPrintConfigurables()):
@@ -996,6 +999,9 @@ if InDetFlags.loadSummaryTool():
                                                                          useTRT          = DetFlags.haveRIO.TRT_on(),
                                                                          TRTStrawSummarySvc = ""
                                                                          )
+        
+    if InDetFlags.doSLHC():
+      InDetTrackSummaryHelperTool.ITkGeometry = True
 
     ToolSvc += InDetTrackSummaryHelperTool
     if (InDetFlags.doPrintConfigurables()):
@@ -1048,7 +1054,9 @@ if InDetFlags.loadSummaryTool():
                                                                                    useTRT          = DetFlags.haveRIO.TRT_on(),
                                                                                    TRTStrawSummarySvc = ""
                                                                                    )
-
+    if InDetFlags.doSLHC():
+      InDetTrackSummaryHelperToolSharedHits.ITkGeometry = True
+      
     #InDetTrackSummaryHelperToolSharedHits.OutputLevel = VERBOSE
     ToolSvc += InDetTrackSummaryHelperToolSharedHits
     if (InDetFlags.doPrintConfigurables()):

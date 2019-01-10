@@ -44,7 +44,8 @@ InDet::InDetTrackSummaryHelperTool::InDetTrackSummaryHelperTool(
    m_doSharedHits(false),
    m_doSharedHitsTRT(false), 
    m_doSplitPixelHits(true),
-   m_runningTIDE_Ambi(false)
+   m_runningTIDE_Ambi(false),
+   m_ITkGeometry(false)
 {
    declareInterface<ITrackSummaryHelperTool>(this);
    declareProperty("AssoTool",            m_assoTool);
@@ -60,6 +61,7 @@ InDet::InDetTrackSummaryHelperTool::InDetTrackSummaryHelperTool(
    declareProperty("useSCT",              m_useSCT   = true);
    declareProperty("useTRT",              m_useTRT   = true);
    declareProperty("OverwriteIDSummary",  m_overwriteidsummary = false);
+   declareProperty("ITkGeometry",         m_ITkGeometry);
 }
 
 //==========================================================================
@@ -146,7 +148,8 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
                                                  const Trk::RIO_OnTrack* rot, 
                                                  const Trk::TrackStateOnSurface* tsos,
                                                  std::vector<int>& information, 
-                                                 std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const
+                                                 std::bitset<Trk::numberOfDetectorTypes>& hitPattern,
+                                                 Trk::DetailedHitInfo& detailedInfo ) const
 {
    const Identifier& id = rot->identify();
    bool  isOutlier      = (tsos->type(Trk::TrackStateOnSurface::Outlier));
@@ -216,6 +219,33 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
 	     hitPattern.set(offset); // assumes numbered consecutively 
 	   }
 	 } 
+	 
+	 // re-updating counters for ITk geometry
+	 if (m_ITkGeometry) {
+     Trk::DetectorRegion region;
+     
+     if (m_pixelId->is_barrel(id)) {
+       const InDetDD::SiDetectorElement* detEl = dynamic_cast<const InDetDD::SiDetectorElement*>(rot->detectorElement()); 
+       if (detEl->isBarrelRing()) region = Trk::pixelBarrelRing;
+       else if (detEl->isInclined())  region = Trk::pixelBarrelInclined;
+       else region = Trk::pixelBarrelFlat;
+     } else region = Trk::pixelEndcap;
+
+     detailedInfo.addHit(region, m_pixelId->layer_disk(id), m_pixelId->eta_module(id));
+     
+     information[Trk::numberOfContribPixelLayers] = detailedInfo.getPixelContributions();
+     
+     information[Trk::numberOfContribPixelBarrelFlatLayers]     = detailedInfo.getContributionFromRegion(Trk::pixelBarrelFlat    );
+     information[Trk::numberOfContribPixelBarrelInclinedLayers] = detailedInfo.getContributionFromRegion(Trk::pixelBarrelInclined);
+     information[Trk::numberOfContribPixelBarrelRings]          = detailedInfo.getContributionFromRegion(Trk::pixelBarrelRing    );    
+     information[Trk::numberOfContribPixelEndcap]               = detailedInfo.getContributionFromRegion(Trk::pixelEndcap        );    
+     
+     information[Trk::numberOfPixelBarrelFlatHits]     = detailedInfo.getHitsFromRegion(Trk::pixelBarrelFlat    );        
+     information[Trk::numberOfPixelBarrelInclinedHits] = detailedInfo.getHitsFromRegion(Trk::pixelBarrelInclined);       
+     information[Trk::numberOfPixelBarrelRingHits]     = detailedInfo.getHitsFromRegion(Trk::pixelBarrelRing    );           
+     information[Trk::numberOfPixelEndcapHits]         = detailedInfo.getHitsFromRegion(Trk::pixelEndcap        );             
+   }   
+   
 
          if (m_doSharedHits) {
            // If we are running the TIDE ambi don't count split hits as shared 
@@ -342,10 +372,11 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
                                                  const Trk::CompetingRIOsOnTrack* crot, 
                                                  const Trk::TrackStateOnSurface* tsos,
                                                  std::vector<int>& information, 
-                                                 std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const
+                                                 std::bitset<Trk::numberOfDetectorTypes>& hitPattern,                                                 
+                                                 Trk::DetailedHitInfo& detailedInfo ) const
 {
    // re-produce prior behaviour (i.e. just take most probable ROT)
-   analyse(track, &crot->rioOnTrack(crot->indexOfMaxAssignProb() ), tsos, information, hitPattern);
+   analyse(track, &crot->rioOnTrack(crot->indexOfMaxAssignProb() ), tsos, information, hitPattern, detailedInfo);
 }
 
 void InDet::InDetTrackSummaryHelperTool::searchForHoles(const Trk::Track& track, 

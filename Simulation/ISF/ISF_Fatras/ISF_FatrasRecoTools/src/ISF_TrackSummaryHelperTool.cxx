@@ -76,7 +76,8 @@ void iFatras::ISF_TrackSummaryHelperTool::analyse(const Trk::Track& track,
 						  const Trk::RIO_OnTrack* rot, 
 						  const Trk::TrackStateOnSurface* tsos,
 						  std::vector<int>& information, 
-						  std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const
+						  std::bitset<Trk::numberOfDetectorTypes>& hitPattern,
+              Trk::DetailedHitInfo& /*detailedInfo*/ ) const
 {
   const Identifier& id = rot->identify();
   bool  isOutlier      = (tsos->type(Trk::TrackStateOnSurface::Outlier));
@@ -187,7 +188,8 @@ void iFatras::ISF_TrackSummaryHelperTool::analyse(const Trk::Track&,
 						  const Trk::CompetingRIOsOnTrack*, 
 						  const Trk::TrackStateOnSurface*,
 						  std::vector<int>&, 
-						  std::bitset<Trk::numberOfDetectorTypes>&) const
+						  std::bitset<Trk::numberOfDetectorTypes>&, 
+              Trk::DetailedHitInfo& ) const
 {
   ATH_MSG_DEBUG("analyse not implemented for Trk::CompetingRIOsOnTrack !!");
   return;
