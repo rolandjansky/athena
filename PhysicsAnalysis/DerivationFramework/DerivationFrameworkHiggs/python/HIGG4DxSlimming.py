@@ -28,7 +28,7 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
                                               ]
     
     # extra containers for some formats                                                  
-    if HIGG4DxName in ['HIGG4D1', 'HIGG4D2', 'HIGG4D3', 'HIGG4D5', 'HIGG4D6']:
+    if HIGG4DxName in ['HIGG4D1', 'HIGG4D2', 'HIGG4D3', 'HIGG4D5', 'HIGG4D6', 'HDBS1']:
         HIGG4DxSlimmingHelper.SmartCollections += ["Photons"]
 
     if HIGG4DxName in ['HIGG4D2', 'HIGG4D3']:
@@ -121,6 +121,11 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
             "CaloCalTopoClusters."
             ]
 
+    if HIGG4DxName == 'HDBS1':
+        ExtraContentElectrons[0] += ".asy1.barys1.f1core.pos.pos7.poscs1.poscs2.r33over37allcalo"
+        ExtraContentMuons[0] += ".MeasEnergyLoss.ParamEnergyLoss.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus"
+        ExtraContentTaus[0] += ".etaIntermediateAxis.etEMAtEMScale.etHadAtEMScale.centFrac.ptDetectorAxis.trFlightPathSig.absipSigLeadTrk"
+
 
     HIGG4DxSlimmingHelper.ExtraVariables = ExtraContentElectrons + ExtraContentMuons + ExtraContentTaus + ExtraContentVtx
 
@@ -142,10 +147,17 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
 
     from DerivationFrameworkJetEtMiss.JetCommon import *
     if HIGG4DxName in OutputJets:
-        addJetOutputs(HIGG4DxSlimmingHelper, [HIGG4DxName], ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets','AntiKt4TruthJets', 'AntiKt4TruthWZJets']) # last argument: smart slimming applied for these collections
+        if HIGG4DxName == 'HDBS1':
+            addJetOutputs(HIGG4DxSlimmingHelper, [HIGG4DxName], ['AntiKt4TruthJets', 'AntiKt4TruthWZJets'], ['AntiKt4PV0TrackJets','AntiKt2PV0TrackJets','AntiKt10LCTopoJets']) # last two arguments: smart slimming collection list, veto collection list 
+        else:
+            addJetOutputs(HIGG4DxSlimmingHelper, [HIGG4DxName], ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets','AntiKt4TruthJets', 'AntiKt4TruthWZJets']) # last argument: smart slimming applied for these collections 
         
     if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D6']:
        HIGG4DxSlimmingHelper.AllVariables += ["DiTauJets"]
+    if HIGG4DxName in ['HDBS1']:
+       HIGG4DxSlimmingHelper.AppendToDictionary["DiTauJetsLowPt"] = 'xAOD::DiTauJetContainer' #Added
+       HIGG4DxSlimmingHelper.AppendToDictionary["DiTauJetsLowPtAux"] = 'xAOD::DiTauJetAuxContainer' #Added
+       HIGG4DxSlimmingHelper.AllVariables += ["DiTauJetsLowPt"] #Added
 
     if HIGG4DxName in ['HIGG4D3', 'HIGG4D6']:
         HIGG4DxSlimmingHelper.AppendToDictionary.update( {
@@ -199,6 +211,8 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
         HIGG4DxSlimmingHelper.IncludeEtMissTriggerContent = True
     elif HIGG4DxName == "HIGG4D6":
         pass
+    elif HIGG4DxName == "HDBS1":
+        pass
     else:
         assert False, "HIGG4DxSlimming: Unknown derivation stream '{}'".format(HIGG4DxName)
 
@@ -212,4 +226,4 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
 
 
 
-    
+

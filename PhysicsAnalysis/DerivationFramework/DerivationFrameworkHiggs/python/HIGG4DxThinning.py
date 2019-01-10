@@ -27,6 +27,8 @@ def TriggerChains(HIGG4DxName):
         return 'HLT_tau.*'
     elif HIGG4DxName in ['HIGG4D6']:
         return ''
+    elif HIGG4DxName in ['HDBS1']:
+        return ''
     else :
         assert False, "HIGG4DxThinning: Unknown derivation stream '{}'".format(HIGG4DxName)
 
@@ -58,7 +60,7 @@ def setup(HIGG4DxName, HIGG4DxThinningSvc, ToolSvc):
 
     # Tracks associated with Muons
     HIGG4DxMuonSelectionString = ""
-    if HIGG4DxName in ['HIGG4D3', 'HIGG4D4', 'HIGG4D5', 'HIGG4D6']:
+    if HIGG4DxName in ['HIGG4D3', 'HIGG4D4', 'HIGG4D5', 'HIGG4D6', 'HDBS1']:
         HIGG4DxMuonSelectionString = "Muons.pt > 1*GeV"
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
     HIGG4DxMuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = HIGG4DxName+"MuonTPThinningTool",
@@ -71,7 +73,7 @@ def setup(HIGG4DxName, HIGG4DxThinningSvc, ToolSvc):
 
     # Tracks associated with Electrons
     HIGG4DxElectronSelectionString = ""
-    if HIGG4DxName in ['HIGG4D3', 'HIGG4D4', 'HIGG4D5', 'HIGG4D6']:
+    if HIGG4DxName in ['HIGG4D3', 'HIGG4D4', 'HIGG4D5', 'HIGG4D6', 'HDBS1']:
         HIGG4DxElectronSelectionString = "Electrons.pt > 5*GeV"
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
     HIGG4DxElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = HIGG4DxName+"ElectronTPThinningTool",
@@ -106,7 +108,16 @@ def setup(HIGG4DxName, HIGG4DxThinningSvc, ToolSvc):
                                                                                      InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += HIGG4DxDiTauTPThinningTool
         thinningTools.append(HIGG4DxDiTauTPThinningTool)
-    
+
+    if HIGG4DxName in ['HDBS1']:
+        from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__DiTauTrackParticleThinning
+        HIGG4DxDiTauTPThinningToolLowPt = DerivationFramework__DiTauTrackParticleThinning(name               = HIGG4DxName+"DiTauLowPtTPThinningTool",
+                                                                                     ThinningService         = HIGG4DxThinningSvc,
+                                                                                     DiTauKey                = "DiTauJetsLowPt",
+                                                                                     SelectionString         = "",
+                                                                                     InDetTrackParticlesKey  = "InDetTrackParticles")
+        ToolSvc += HIGG4DxDiTauTPThinningToolLowPt
+        thinningTools.append(HIGG4DxDiTauTPThinningToolLowPt)
 
 
     #Truth tau/nutau and their ancestors and descendants
@@ -158,7 +169,7 @@ def setup(HIGG4DxName, HIGG4DxThinningSvc, ToolSvc):
         WriteBHadrons = False
         PreserveAncestors = True
         #relevant for D3,D4,D5,D6 only
-        if HIGG4DxName in ['HIGG4D3', 'HIGG4D4', 'HIGG4D5', 'HIGG4D6']:
+        if HIGG4DxName in ['HIGG4D3', 'HIGG4D4', 'HIGG4D5', 'HIGG4D6', 'HDBS1']:
             WriteBHadrons = True
 
             # adding more samples
@@ -218,4 +229,5 @@ def setup(HIGG4DxName, HIGG4DxThinningSvc, ToolSvc):
 
     # return thinning tools
     return thinningTools
+
 
