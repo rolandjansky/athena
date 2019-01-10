@@ -1,27 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEBYTESTREAM_TILEROD_DECODER_H
 #define TILEBYTESTREAM_TILEROD_DECODER_H
 
-#include <map>
-#include <vector>
-#include <string>
-#include <iostream>
-#include <cassert>
-#include <atomic>
-#include <mutex>
-#include <stdint.h>
 
-// Gaudi includes
-#include "GaudiKernel/ToolHandle.h"
-
-// Atlas includes
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "ByteStreamData/RawEvent.h"
-#include "eformat/ROBFragment.h"
-
+// Tile includes
 #include "TileByteStream/TileOFC.h"
 #include "TileByteStream/TileRawChannel2Bytes.h" 
 #include "TileByteStream/TileRawChannel2Bytes2.h"
@@ -50,6 +35,25 @@
 #include "TileConditions/TileCondToolTiming.h"
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/ITileBadChanTool.h"
+
+// Atlas includes
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "ByteStreamData/RawEvent.h"
+#include "eformat/ROBFragment.h"
+
+// Gaudi includes
+#include "GaudiKernel/ToolHandle.h"
+
+
+#include <map>
+#include <vector>
+#include <string>
+#include <iostream>
+#include <cassert>
+#include <atomic>
+#include <mutex>
+#include <stdint.h>
+
 
 class TileRawChannelBuilder;
 class TileCellBuilder;
@@ -211,9 +215,6 @@ class TileROD_Decoder: public AthAlgTool {
       }
       return m_hid2re;
     }
-
-    /** Check the list of masked drawers */
-    bool is_drawer_masked(int frag_id, int run);
 
     void setUseFrag0 (bool f) { m_useFrag0 = f; }
     void setUseFrag1 (bool f) { m_useFrag1 = f; }
@@ -590,6 +591,8 @@ class TileROD_Decoder: public AthAlgTool {
 
     unsigned int m_maxChannels;
     unsigned int m_fullTileRODs;
+
+    bool m_checkMaskedDrawers;
 
     const uint32_t * get_data(const ROBData * rob) {
       const uint32_t * p;
