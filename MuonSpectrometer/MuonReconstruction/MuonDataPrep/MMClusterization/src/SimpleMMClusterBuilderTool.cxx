@@ -13,8 +13,8 @@ Muon::SimpleMMClusterBuilderTool::SimpleMMClusterBuilderTool(const std::string& 
 							     const IInterface*  p )
   :  
   AthAlgTool(t,n,p),
-  m_muonMgr(NULL),
-  m_mmIdHelper(NULL)
+  m_muonMgr(nullptr),
+  m_mmIdHelper(nullptr)
 {
   declareInterface<IMMClusterBuilderTool>(this);
 
