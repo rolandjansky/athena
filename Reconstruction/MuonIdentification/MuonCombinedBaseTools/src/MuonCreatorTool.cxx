@@ -969,7 +969,10 @@ namespace MuonCombined {
     //   muon.auxdata< ElementLink<xAOD::TrackParticleContainer> >("msTrackLink") = candidate.muonSpectrometerTrackLink();
     //   ATH_MSG_DEBUG("Added aux data element link, status = " << muon.auxdata< ElementLink<xAOD::TrackParticleContainer> >("msTrackLink").isValid());
     // }
-    muon.setTrackParticleLink(xAOD::Muon::MuonSpectrometerTrackParticle, candidate.muonSpectrometerTrackLink() );
+
+    //case where we have a MuGirl muon that is also reconstructed by STACO: don't want to add this track as it is misleading
+    //however, we will still keep the MS-only extrapolated track (see below) for debugging purposes
+    if(muon.author()!=xAOD::Muon::MuGirl) muon.setTrackParticleLink(xAOD::Muon::MuonSpectrometerTrackParticle, candidate.muonSpectrometerTrackLink() );
     
     // we need both the container and the extrapolated muon track to add the link
     if( !outputData.extrapolatedTrackParticleContainer || (!candidate.extrapolatedTrack() && !meLink.isValid()) ) {
