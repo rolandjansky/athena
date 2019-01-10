@@ -21,7 +21,8 @@
 #include "TrigT1TGC/TGCSLSelectorOut.hh"
 #include "TrigT1TGC/TGCInnerTrackletSlotHolder.hh"
 
-class ITGCTriggerDbTool;
+#include "StoreGate/ReadCondHandle.h"
+#include "MuonCondSvc/TGCTriggerData.h"
 
 namespace LVL1TGCTrigger {
 
@@ -114,7 +115,7 @@ private:
   bool useInner;
   bool useTileMu;
 
-  ToolHandle<ITGCTriggerDbTool> m_condDbTool; 
+  SG::ReadCondHandleKey<TGCTriggerData> m_readCondKey;
 };
 
 inline
