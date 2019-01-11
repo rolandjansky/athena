@@ -5,7 +5,7 @@ from AthenaCommon.CFElements import parOR, seqAND, seqOR
 from AthenaCommon.Logging import logging
 from AthenaCommon.AlgSequence import dumpSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import  stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import *
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
 
 import sys
 import copy
@@ -49,7 +49,7 @@ def createStepRecoNode(name, seq_list, dump=False):
     """ elementary HLT reco step, contianing all sequences of the step """
 
     log.debug("Create reco step %s with %d sequences", name, len(seq_list))
-    stepCF = parOR(name + RECO_POSTFIX)
+    stepCF = parOR(name + CFNaming.RECO_POSTFIX)
     for seq in seq_list:        
         stepCF += createCFTree(seq)
     
@@ -61,7 +61,7 @@ def createStepFilterNode(name, seq_list, dump=False):
     """ elementary HLT filter step: OR node containing all Filters of the sequences. The node gates execution of next reco step """
 
     log.debug("Create filter step %s with %d filters", name, len(seq_list))
-    stepCF = parOR(name + FILTER_POSTFIX)
+    stepCF = parOR(name + CFNaming.FILTER_POSTFIX)
     for seq in seq_list:
         filterAlg = seq.filter.Alg
         log.info("Add  %s to filter node %s", filterAlg.name(), name)
@@ -77,8 +77,8 @@ def createCFTree(CFseq):
     log.debug(" *** Create CF Tree for CFSequence %s", CFseq.step.name)
 
     filterAlg = CFseq.filter.Alg
-    stepReco = parOR(CFseq.step.name + RECO_POSTFIX)  # all reco algoritms from al lthe sequences in a parallel sequence
-    seqAndView = seqAND(CFseq.step.name + VIEW_POSTFIX, [stepReco])  # include in seq:And to run in views: add here the Hypo
+    stepReco = parOR(CFseq.step.name + CFNaming.RECO_POSTFIX)  # all reco algoritms from al lthe sequences in a parallel sequence
+    seqAndView = seqAND(CFseq.step.name + CFNaming.VIEW_POSTFIX, [stepReco])  # include in seq:And to run in views: add here the Hypo
     seqAndWithFilter = seqAND(CFseq.step.name, [filterAlg, seqAndView])  # add to the main step+filter
 
     already_connected = []
@@ -218,7 +218,7 @@ def decisionTree_From_Chains(HLTNode, chains):
 
     for nstep in range(0, NSTEPS):
         finalDecisions.append([]) # list of final deciisons per step
-        stepCF_name =  StepName(nstep)
+        stepCF_name =  CFNaming.stepName(nstep)
         CFseq_list = []
         step_decisions = []
 
@@ -246,7 +246,7 @@ def decisionTree_From_Chains(HLTNode, chains):
                 log.debug("Connect to previous sequence through these filter inputs: %s" %str( filter_input) )
 
             # get the filter:
-            filter_name = FilterName(chain_step.name)
+            filter_name = CFNaming.filterName(chain_step.name)
             (foundFilter, sfilter) = findFilter(filter_name, CFseq_list)
             if not foundFilter:           
                 sfilter = buildFilter(filter_name, filter_input)
@@ -280,13 +280,13 @@ def decisionTree_From_Chains(HLTNode, chains):
         allSeq_list.append(CFseq_list)
 
         # then the reco step
-        recoNodeName = StepRecoNodeName(HLTNodeName, stepCF_name)
+        recoNodeName = CFNaming.stepRecoNodeName(HLTNodeName, stepCF_name)
         stepCF = createStepRecoNode(recoNodeName, CFseq_list, dump=False)
         HLTNode += stepCF
 
 
         # then the monitor summary
-        summary=makeSummary(StepSummaryName(stepCF_name), step_decisions)
+        summary=makeSummary(CFNaming.stepSummaryName(stepCF_name), step_decisions)
         HLTNode += summary
 
 
@@ -409,7 +409,7 @@ def buildFilter(filter_name,  filter_input):
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import  RoRSequenceFilterNode       
     sfilter = RoRSequenceFilterNode(name=filter_name)
     for i in filter_input: sfilter.addInput(i)
-    for i in filter_input: sfilter.addOutput(FilterOutName(filter_name, i))
+    for i in filter_input: sfilter.addOutput(CFNaming.filterOutName(filter_name, i))
         
     log.debug("Added inputs to filter: %s", sfilter.getInputList())
     log.debug("Added outputs to filter: %s", sfilter.getOutputList())

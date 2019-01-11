@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 import sys, re, copy
 from AthenaCommon.Logging import logging
 from AthenaCommon.Constants import VERBOSE,INFO,DEBUG
@@ -6,7 +8,7 @@ log.setLevel( VERBOSE )
 logLevel=DEBUG
 
 from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import *
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
 
 class Node():
     """ base class representing one Alg + inputs + outputs, to be used to Draw dot diagrams and connect objects"""
@@ -287,7 +289,7 @@ class MenuSequence():
     """ Class to group reco sequences with the Hypo"""
     def __init__(self, Sequence, Maker,  Hypo, HypoToolGen ):
         from AthenaCommon.AlgSequence import AthSequencer
-        self.name = MenuSequenceName(Hypo.name())
+        self.name = CFNaming.menuSequenceName(Hypo.name())
         self.sequence     = Node( Alg=Sequence)
         self.maker        = InputMakerNode( Alg = Maker )
         self.hypoToolConf = HypoToolConf( HypoToolGen )
@@ -306,12 +308,12 @@ class MenuSequence():
 
         #### Connect filter to the InputMaker
         self.maker.addInput(outfilter)       
-        input_maker_output = InputMakerOutName(self.maker.Alg.name(),outfilter)
+        input_maker_output = CFNaming.inputMakerOutName(self.maker.Alg.name(),outfilter)
         self.maker.addOutput(input_maker_output)       
 
         #### Add input/output Decision to Hypo
         self.hypo.setPreviousDecision( input_maker_output)
-        hypo_output = HypoAlgOutName(self.hypo.Alg.name(), input_maker_output)
+        hypo_output = CFNaming.hypoAlgOutName(self.hypo.Alg.name(), input_maker_output)
         self.hypo.addOutput(hypo_output)
 
         # needed for drawing
@@ -462,7 +464,7 @@ class ChainStep:
 
     def makeCombo(self, Sequences):        
         # For combo sequences, duplicate the sequence, the Hypo with differnt names and create the ComboHypoAlg
-        self.combo = ComboMaker(ComboHypoName(self.name))
+        self.combo = ComboMaker(CFNaming.comboHypoName(self.name))
         duplicatedHypos = []
         for sequence in Sequences:         
             oldhypo=sequence.hypo.Alg
@@ -470,9 +472,9 @@ class ChainStep:
             ncopy=duplicatedHypos.count(oldhypo.name())
                
             new_sequence=copy.deepcopy(sequence)
-            new_sequence.name = ComboSequenceCopyName(sequence.name,ncopy, self.name)
+            new_sequence.name = CFNaming.comboSequenceCopyName(sequence.name,ncopy, self.name)
             
-            newHypoAlgName = ComboHypoCopyName(oldhypo.name(),ncopy, self.name)
+            newHypoAlgName = CFNaming.comboHypoCopyName(oldhypo.name(),ncopy, self.name)
             new_hypoAlg=oldhypo.clone(newHypoAlgName)
             new_sequence.replaceHypoForCombo(new_hypoAlg)
             self.sequences.append(new_sequence)            

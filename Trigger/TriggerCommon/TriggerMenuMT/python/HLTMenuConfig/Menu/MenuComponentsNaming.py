@@ -1,44 +1,62 @@
-RECO_POSTFIX = "_reco"
-VIEW_POSTFIX = "_view"
-FILTER_POSTFIX = "_filter"
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
-def ReduceName(line):
-    splitLine = filter( lambda x: not ( x == "from" or x == "Filter"), line.split("_") ) # eliminate common words
-    splitLine =[ k[0] for k in filter( lambda x: not ( "Step" in x[0] or "Step" in x[1]), zip(splitLine, [""]+splitLine) )] # eliminate the word contaning Step and the one after 
-    return "_".join(splitLine)
 
+class CFNaming ():
+    """Class to collect all string manipulations on CF object names """
+    
+    RECO_POSTFIX = "_reco"
+    VIEW_POSTFIX = "_view"
+    FILTER_POSTFIX = "_filter"
 
-def StepName(nstep):
-    return "Step%i"%(nstep+1)
+    
+    @staticmethod
+    def reduceName(line):
+        splitLine = filter( lambda x: not ( x == "from" or x == "Filter"), line.split("_") ) # eliminate common words
+        splitLine =[ k[0] for k in filter( lambda x: not ( "Step" in x[0] or "Step" in x[1]), zip(splitLine, [""]+splitLine) )] # eliminate the word contaning Step and the one after 
+        return "_".join(splitLine)
 
-def MenuSequenceName(Hypo):
-    return ("S_" + Hypo)
+    @staticmethod
+    def stepName(nstep):
+        return "Step%i"%(nstep+1)
 
-def FilterName(ChainStepName):
-    return ("Filter_" + ChainStepName)
+    @staticmethod
+    def menuSequenceName(Hypo):
+        return ("S_" + Hypo)
 
-def FilterOutName(filter_name, filterIn):
-    return (filter_name + "_from_" + filterIn)
+    @staticmethod
+    def filterName(ChainStepName):
+        return ("Filter_" + ChainStepName)
 
-def InputMakerOutName(IMname, filterOut):
-    return "%s_from_%s"%(IMname, filterOut)
-#    return  (IMname + "_" + ReduceName(filterOut))
+    @staticmethod
+    def filterOutName(filter_name, filterIn):
+        return (filter_name + "_from_" + filterIn)
 
-def HypoAlgOutName(HypoName, HypoInput):
-    return  (HypoName + "_" + ReduceName(HypoInput))
+    @staticmethod
+    def inputMakerOutName(IMname, filterOut):
+        return "%s_from_%s"%(IMname, filterOut)
+    #    return  (IMname + "_" + reduceName(filterOut))
 
-def ComboHypoName(HypoName):
-    return ("ComboHypo_" + HypoName)
+    @staticmethod
+    def hypoAlgOutName(HypoName, HypoInput):
+        return  (HypoName + "_" + CFNaming.reduceName(HypoInput))
 
-def ComboSequenceCopyName(SequenceName, ncopy, StepName):    
-    return "%s%d_for_%s"%(SequenceName, ncopy, StepName)
+    @staticmethod
+    def comboHypoName(HypoName):
+        return ("ComboHypo_" + HypoName)
 
-def ComboHypoCopyName(HypoName,ncopy,StepName):
-    return "%s%d_for_%s"%(HypoName,ncopy,StepName)
+    @staticmethod
+    def comboSequenceCopyName(SequenceName, ncopy, StepName):    
+        return "%s%d_for_%s"%(SequenceName, ncopy, StepName)
 
-def StepRecoNodeName(HLTNodeName, stepCF_name):
-    return  (HLTNodeName + "_" + stepCF_name)
+    @staticmethod
+    def comboHypoCopyName(HypoName,ncopy,StepName):
+        return "%s%d_for_%s"%(HypoName,ncopy,StepName)
 
-def StepSummaryName(stepCF_name):
-    return ("TriggerSummary"+ stepCF_name)
+    @staticmethod
+    def stepRecoNodeName(HLTNodeName, stepCFname):
+        return  (HLTNodeName + "_" + stepCFname)
+
+    @staticmethod
+    def stepSummaryName(stepCFname):
+        return ("TriggerSummary"+ stepCFname)
