@@ -147,7 +147,10 @@ def ApplySubtractionToClusters(**kwargs) :
 
     if 'modulator' in kwargs.keys() : mod_tool=kwargs['modulator']
     else : mod_tool=GetNullModulator()
-
+    
+    if 'update_only' in kwargs.keys() : update_only = kwargs['update_only']
+    else : update_only = False
+    
     from HIJetRec.HIJetRecConf import HIClusterSubtraction
     toolName='HIClusterSubtraction'
     if 'name' in kwargs.keys() : toolName = kwargs['name']
@@ -156,7 +159,8 @@ def ApplySubtractionToClusters(**kwargs) :
     theAlg.EventShapeKey=event_shape_key
     theAlg.Subtractor=GetSubtractorTool(**kwargs)
     theAlg.Modulator=mod_tool
-
+    theAlg.UpdateOnly=update_only
+    
     do_cluster_moments=False
     if 'CalculateMoments' in kwargs.keys() : do_cluster_moments=kwargs['CalculateMoments']
     if do_cluster_moments :
@@ -331,7 +335,7 @@ def GetFlowMomentTools(key,mod_key) :
 
 
 def GetSubtractorTool(**kwargs) :
-    useClusters=False
+    useClusters=False 
     if 'useClusters' in kwargs.keys() : useClusters=kwargs['useClusters'] 
     elif HIJetFlags.DoCellBasedSubtraction() : useClusters=False
     else : useClusters=True
@@ -357,3 +361,11 @@ def GetHIModifierList(coll_name='AntiKt4HIJets',prepend_tools=[],append_tools=[]
     mod_list+=jtm.modifiersMap['HI']
     mod_list+=append_tools
     return mod_list
+def HasTruthCollection(collection='') :
+	from PyUtils import AthFile
+	from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+	af = AthFile.fopen(svcMgr.EventSelector.InputCollections[0])
+	containers=af.fileinfos['eventdata_items']
+	for c in containers:
+		if c[1] is not None and collection in c[1] : return True
+	return False    

@@ -106,14 +106,17 @@ StatusCode HIEventShapeFillerTool::FillCollectionFromClusterContainer(const xAOD
   std::unique_ptr<std::vector<float> > weight_vector(new std::vector<float>());
   weight_vector->reserve(theClusters->size());
   SG::AuxElement::Decorator< float > decorator("HIEtaPhiWeight");
-
+  
+  
   std::unique_ptr<std::vector<float> > cm_vector(new std::vector<float>());
   cm_vector->reserve(theClusters->size());
   SG::AuxElement::Decorator< float > cm_decorator("HIMag");
+  
   constexpr float area_cluster=HI::TowerBins::getBinArea();
-
+  
+  
   if(m_towerWeightTool) CHECK(m_towerWeightTool->configureEvent());
-
+  
   for(auto cl : *theClusters)
   {
     double ET=cl->e()/std::cosh(cl->eta0());
@@ -129,7 +132,8 @@ StatusCode HIEventShapeFillerTool::FillCollectionFromClusterContainer(const xAOD
     }
     weight_vector->push_back(weight);
     decorator(*cl)=weight;
-
+    
+    
     float etot2=0;
     float er2=0;
 
@@ -147,8 +151,8 @@ StatusCode HIEventShapeFillerTool::FillCollectionFromClusterContainer(const xAOD
     float cm=er2/etot2;
     cm_vector->push_back(cm);
     cm_decorator(*cl)=cm;
+    
     //update members
-
     slice->setEt(slice->et()+weight*ET);
     slice->setRho(slice->rho() + weight*ET/area_cluster);
 
