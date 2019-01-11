@@ -22,8 +22,12 @@ atlas_depends_on_subdirs( PRIVATE
                           Event/xAOD/xAODTrigMuon
                           Event/xAOD/xAODTrigger
                           GaudiKernel
+                          LumiBlock/LumiBlockComps
+                          PhysicsAnalysis/AnalysisCommon/PATCore
                           Generators/GeneratorObjects
                           InnerDetector/InDetConditions/BeamSpotConditionsData
+                          InnerDetector/InDetConditions/InDetBeamSpotService
+                          PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
                           Reconstruction/Particle
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkTrack
@@ -51,7 +55,7 @@ atlas_add_component( TrigBphysHypo
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel AthLinks StoreGateLib SGtests GeoPrimitives EventInfo xAODEventInfo xAODMuon xAODTracking xAODTrigBphys xAODTrigMuon GaudiKernel GeneratorObjects Particle TrkParameters TrkTrack VxVertex TrkVKalVrtFitterLib TrigBphysicsEvent TrigCaloEvent TrigInDetEvent TrigMuonEvent TrigNavigationLib TrigParticle TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigTimeAlgsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel AthLinks StoreGateLib SGtests GeoPrimitives EventInfo xAODEventInfo xAODMuon xAODTracking xAODTrigBphys xAODTrigMuon GaudiKernel GeneratorObjects Particle ElectronPhotonSelectorToolsLib TrkParameters TrkTrack VxVertex TrkVKalVrtFitterLib TrigBphysicsEvent TrigCaloEvent TrigInDetEvent TrigMuonEvent TrigNavigationLib TrigParticle TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigTimeAlgsLib )
 
 # Install files from the package:
 atlas_install_headers( TrigBphysHypo )

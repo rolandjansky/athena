@@ -4,18 +4,19 @@
 
 /**************************************************************************
  **
- **   File: Trigger/TrigHypothesis/TrigBphysHypo/TrigMultiTrkFex.h
+ **   File: Trigger/TrigHypothesis/TrigBphysHypo/TrigBphysMuonCounter.h
  **
+ **   this algo just counts number of (EF) muons in the whole event and rejects if insufficient
  **
  **   Author:Olya Igonkina (Nikhef)
  **
- **   Created:   15/07/2016
+ **   Created:   28/03/2017
  **   Modified:     
  **
  **************************************************************************/ 
 
-#ifndef TRIG_TrigMultiTrk_H
-#define TRIG_TrigMultiTrk_H
+#ifndef TRIG_TrigBphysMuonCounter_H
+#define TRIG_TrigBphysMuonCounter_H
 
 // standard stuff
 #include <string>
@@ -24,16 +25,14 @@
 #include <algorithm>
 
 #include "TrigInterfaces/AllTEAlgo.h"
-#include "xAODTrigBphys/TrigBphysContainer.h"
 
-class TrigBphysHelperUtilsTool;
 class TrigTimer;
 
-class TrigMultiTrkFex: public HLT::AllTEAlgo  {
+class TrigBphysMuonCounter: public HLT::AllTEAlgo  {
   
   public:
-    TrigMultiTrkFex(const std::string & name, ISvcLocator* pSvcLocator);
-    ~TrigMultiTrkFex();
+    TrigBphysMuonCounter(const std::string & name, ISvcLocator* pSvcLocator);
+    ~TrigBphysMuonCounter();
     HLT::ErrorCode hltInitialize();
     HLT::ErrorCode hltFinalize();     
 
@@ -41,15 +40,7 @@ class TrigMultiTrkFex: public HLT::AllTEAlgo  {
     
   private:
 
-  // OI I would have loved to make it template, but templates outsmarted me..
-  static bool sortTracks(const ElementLink<xAOD::TrackParticleContainer> &l1, const ElementLink<xAOD::TrackParticleContainer> &l2)
-  {
-    const xAOD::TrackParticle* xTrack1 = *l1;
-    const xAOD::TrackParticle* xTrack2 = *l2;
-	
-    return xTrack1->pt()>xTrack2->pt();
-  }
-
+ 
 
   template<class Tin, class Tout> bool passNObjects(int nObjMin,
 						    const std::vector<float>& ptObjMin,
@@ -59,72 +50,27 @@ class TrigMultiTrkFex: public HLT::AllTEAlgo  {
 						    const std::string&  collectionKey,
 						    float mindR) ;
 
-  bool passNTracks(int nObjMin,
-		   const std::vector<float>& ptObjMin,
-		   std::vector<std::vector<HLT::TriggerElement*> >& inputTE ,
-		   std::vector<ElementLink<xAOD::TrackParticleContainer> > & outVec,
-		   const std::string&  collectionKey,
-		   float mindR) ;
-
-
-  //void processTriMuon(HLT::TEConstVec& inputTE, xAOD::TrigBphysContainer & outputContainer);
-  // void buildDiMu (const std::vector<const xAOD::Muon*> &muons, xAOD::TrigBphysContainer & outputContainer);
-  //void buildTriMu(const std::vector<const xAOD::Muon*> &muons, xAOD::TrigBphysContainer & outputContainer);
     
-    ToolHandle <TrigBphysHelperUtilsTool> m_bphysHelperTool;
-    
-    
-    TrigTimer* m_BmmHypTot;
+  TrigTimer* m_BmmHypTot;
 
-  int m_maxNOutputObject;
-  std::string m_trackCollectionKey;
-  std::string m_outputTrackCollectionKey;
-  std::string m_bphysCollectionKey;
-  int m_nTrk ;
-  int m_nTrkQ; // if negative - no cut
-  int m_nTrkVertexChi2; // if negative - no cut
-  float              m_trkMass; // track mass hypothesis for all tracks selected
-  std::vector<float> m_ptTrkMin;
-  std::vector<float> m_nTrkMassMin; // this has to be in pair
-  std::vector<float> m_nTrkMassMax;
-  std::vector<float> m_diTrkMassMin; // this has to be in pair
-  std::vector<float> m_diTrkMassMax;
-  int m_diTrkQ; // if negative - no cut
   int m_nEfMuon ; // muons have to be present in TE, but are not required to match to tracks
-  int m_nL2CombMuon ;
-  int m_nL2SAMuon ;
   std::vector<float> m_ptMuonMin;
   float m_mindR;
-
-  // to set Accept-All mode: should be done with force-accept when possible
-  bool m_acceptAll;
-
-    
+  // OI: should we check for CB flag?
+  std::string m_muonCollectionKey;
+  
   //Counters
   uint32_t m_countTotalEvents;
   uint32_t m_countPassedEvents;
-  uint32_t m_countPassedCombination;
 
     
   //Monitored variables 
-  std::vector<int>   m_mon_Errors;
   std::vector<int>   m_mon_Acceptance;
-  int m_mon_NTrk;
-  int m_mon_highptNTrk;
-  int m_mon_accepted_highptNTrk;
-  std::vector<float> m_mon_NTrkMass;
-  std::vector<float> m_mon_NTrkFitMass;
-  std::vector<float> m_mon_NTrkChi2;
-  int m_mon_NPair;
-  int m_mon_acceptedNPair;
-  std::vector<float> m_mon_pairMass;
-  float m_mon_NComb;
-  float m_mon_acceptedNComb;
-
+  float              m_mon_nEFMuons;
 };
 
 
-template<class Tin, class Tout> bool TrigMultiTrkFex::passNObjects(int nObjMin,
+template<class Tin, class Tout> bool TrigBphysMuonCounter::passNObjects(int nObjMin,
 					      const std::vector<float>& ptObjMin,
 					      std::vector<std::vector<HLT::TriggerElement*> >& inputTE ,
 					      Tout & outVec,
@@ -159,7 +105,7 @@ template<class Tin, class Tout> bool TrigMultiTrkFex::passNObjects(int nObjMin,
 	    if( pt < 350. && pt>0.01 ) pt *= 1000.;
 	    pts.push_back(pt);	    
 	    outVec.push_back(efmu); 
-	    ATH_MSG_DEBUG( "Found muon, pt= " << pt);
+	    if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Found muon, pt= " << pt << endmsg;
 	  }
       }//}// end loop over muons in one TE
     } // end getFeaturesLinks
@@ -167,9 +113,9 @@ template<class Tin, class Tout> bool TrigMultiTrkFex::passNObjects(int nObjMin,
 
     //=== check if it is enough muons
   if( (int)outVec.size() < nObjMin ) {
-    ATH_MSG_DEBUG( "Rejecting: "
-		   <<" #muons= " <<  outVec.size() 
-		   << " while need "<< nObjMin );
+    if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Rejecting: "
+    					 <<" #muons= " <<  outVec.size() 
+    					 << " while need "<< nObjMin << endmsg;
     return false;
   }
   //== check that muons have correct pts
@@ -182,7 +128,7 @@ template<class Tin, class Tout> bool TrigMultiTrkFex::passNObjects(int nObjMin,
       failMuonPt = true;	  
   }
   if( failMuonPt ){
-    ATH_MSG_DEBUG( "Fail muon pt cut" );
+    if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Fail muon pt cut" << endmsg;
     return false;
   }
   // here would be good to limit number of objects to the minimum
