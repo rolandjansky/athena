@@ -1,12 +1,5 @@
-/*
+m/*
  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
- */
-
-/*
- * EfficiencyScaleFactor.cxx
- *
- *  Created on: Apr 10, 2014
- *      Author: goblirsc
  */
 
 #include "MuonEfficiencyCorrections/EfficiencyScaleFactor.h"
@@ -89,7 +82,6 @@ namespace CP {
     }
     void EfficiencyScaleFactor::CopyContent(const EfficiencyScaleFactor &other) {
         Clear();
-        m_toolname = std::string("CopyOf") + other.toolname();
         m_sysType = other.m_sysType;
         m_is_lowpt = other.m_is_lowpt;
         m_respond_to_kineDepSyst = other.m_respond_to_kineDepSyst;
@@ -118,17 +110,17 @@ namespace CP {
         m_NominalFallBack = other.m_NominalFallBack;
         m_SystematicBin = other.m_SystematicBin;
     }
-    void EfficiencyScaleFactor::CopyHistHandler(HistHandler_Ptr &own, const HistHandler_Ptr other) {
+    void EfficiencyScaleFactor::CopyHistHandler(std::unique_ptr<HistHandler> &own, const std::unique_ptr<HistHandler>& other) {
         if (!other) {
-            own = 0;
+            own.reset();
             return;
         }
-        own = package_histo(dynamic_cast<TH1*>(other->GetHist()->Clone((std::string("EffSFCloneOf") + other->GetHist()->GetName()).c_str())));
+        own = package_histo(other->GetHist());
 
     }
     void EfficiencyScaleFactor::CopyReplicaVec(EfficiencyScaleFactor::SFvec &own, const EfficiencyScaleFactor::SFvec &other) {
         for (ciSFvec h = other.begin(); h != other.end(); ++h) {
-            HistHandler_Ptr copy = 0;
+            std::unique_ptr<HistHandler> copy;
             CopyHistHandler(copy, *h);
             if (copy) own.push_back(copy);
         }
@@ -179,8 +171,10 @@ namespace CP {
         }
         return m_sf_sys != nullptr && m_sf != nullptr;
     }
-    HistHandler_Ptr EfficiencyScaleFactor::ReadHistFromFile(const std::string& name, TFile* f, const std::string& time_unit) {
-        TH1* histHolder = 0;
+    std::unique_ptr<HistHandler> EfficiencyScaleFactor::ReadHistFromFile(const std::string& name, TFile* f, const std::string& time_unit) {
+        
+        TH1* hist_from_file =  nullptr;
+        
         f->GetObject((name + std::string("_") + time_unit).c_str(), histHolder);
          // if no period weighting, the histo may also not have a time period in the name at all
            
@@ -188,41 +182,29 @@ namespace CP {
             f->GetObject(name.c_str(), histHolder);
         }
         if (!histHolder) {
-            return HistHandler_Ptr();
+            return std::unique_ptr<HistHandler>();
         }
-        // replace the histos by clones so that we can close the files again
-        std::string CloneName = Form("%s_%s_%s_%s%s", name.c_str(), toolname().c_str(), EfficiencyTypeName(m_Type).c_str(), time_unit.c_str(), sysname().c_str());
-        HistHandler_Ptr out = package_histo(dynamic_cast<TH1*>(histHolder->Clone(CloneName.c_str())));
-        if (histHolder) delete histHolder;
-        return out;
+        return package_histo(hist_from_file);
     }
-    HistHandler_Ptr EfficiencyScaleFactor::package_histo(TH1* h) {
+    std::unique_ptr<HistHandler> EfficiencyScaleFactor::package_histo(TH1* h) {
         // make sure that the correct type of histo is used
+        // Dynamic cast for TH2 Poly otherwise we can rely on the GetDimension() ,ethod
         if (dynamic_cast<TH2Poly*>(h)) {
-            return HistHandler_Ptr(new HistHandler_TH2Poly(dynamic_cast<TH2Poly*>(h)));
-        } else if (dynamic_cast<TH2*>(h)) {
-            return HistHandler_Ptr(new HistHandler_TH2(dynamic_cast<TH2*>(h)));
-        } else if (dynamic_cast<TH3*>(h)) {
-            return HistHandler_Ptr(new HistHandler_TH3(dynamic_cast<TH3*>(h)));
-        } else if (dynamic_cast<TH1*>(h)) {
-            return HistHandler_Ptr(new HistHandler_TH1(dynamic_cast<TH1*>(h)));
+            return std::make_unique<HistHandler_TH2Poly>(dynamic_cast<TH2Poly*>(h));
+        }else if (h->GetDimension() == 3) {
+            return std::make_unique<HistHandler_TH3>(h);
+        }else if (h->GetDimension() == 2) {
+            return std::make_unique<HistHandler_TH2>(h);
+        } else if (h->GetDimension() == 1)) {
+            return std::make_unique<HistHandler_TH1>(h);
         } else {
             Error("EfficiencyScaleFactor", "Unable to package histo %s (%s) in a known HistHandler", h->GetName(), h->IsA()->GetName());
-            return HistHandler_Ptr();
+            return std::unique_ptr<HistHandler>();
         }
     }
     int EfficiencyScaleFactor::nBinsSF() const {
         if (m_sf) {
             return m_sf->NBins();
-        }
-        return -1;
-    }
-    int EfficiencyScaleFactor::nBinsEfficiency() const {
-        if (m_eff) {
-            return m_eff->NBins();
-        }
-        if (m_mc_eff) {
-            return m_mc_eff->NBins();
         }
         return -1;
     }
@@ -276,7 +258,7 @@ namespace CP {
         return cc;
     }
 
-    CorrectionCode EfficiencyScaleFactor::GetContentFromHist(HistHandler_Ptr Hist, IKinematicSystHandler_Ptr PtDepHist, const xAOD::Muon& mu, float & Eff, bool PtDepHistNeeded) const {
+    CorrectionCode EfficiencyScaleFactor::GetContentFromHist(std::unique_ptr<HistHandler> Hist, IKinematicSystHandler_Ptr PtDepHist, const xAOD::Muon& mu, float & Eff, bool PtDepHistNeeded) const {
         Eff = m_default_eff;
         if (!Hist) {
             if (m_warnsPrinted < m_warningLimit){
@@ -365,14 +347,14 @@ namespace CP {
         GenerateReplicasFromHist(m_sf, nrep, seed, m_sf_replicas);
         GenerateReplicasFromHist(m_mc_eff, nrep, seed, m_mc_eff_replicas);
     }
-    void EfficiencyScaleFactor::GenerateReplicasFromHist(HistHandler_Ptr h, int nrep, int seed, EfficiencyScaleFactor::SFvec &replicas) {
+    void EfficiencyScaleFactor::GenerateReplicasFromHist(std::unique_ptr<HistHandler> h, int nrep, int seed, EfficiencyScaleFactor::SFvec &replicas) {
         if (!h) return;
         DeleteOldReplicas(replicas);
         TRandom3 Rndm(seed);
         replicas.resize(nrep);
         int nbins = h->NBins();
         for (int t = 0; t < nrep; t++) {
-            HistHandler_Ptr replica = package_histo((TH1*) h->GetHist()->Clone(Form("rep%d_%s", t, h->GetHist()->GetName())));
+            std::unique_ptr<HistHandler> replica = package_histo((TH1*) h->GetHist()->Clone(Form("rep%d_%s", t, h->GetHist()->GetName())));
             for (int bin = 0; bin < nbins; bin++) {
                 replica->SetBinContent(bin, Rndm.Gaus(h->GetBinContent(bin), h->GetBinError(bin)));
             }
@@ -414,13 +396,13 @@ namespace CP {
         AddSysErrors_vector(m_mc_eff_replicas, m_sf_sys, weight);
 
     }
-    void EfficiencyScaleFactor::AddSysErrors_vector(EfficiencyScaleFactor::SFvec &Vec, HistHandler_Ptr hsys, float weight) {
+    void EfficiencyScaleFactor::AddSysErrors_vector(EfficiencyScaleFactor::SFvec &Vec, std::unique_ptr<HistHandler> hsys, float weight) {
         for (auto Histo : Vec) {
             AddSysErrors_histo(Histo, hsys, weight);
         }
     }
 
-    void EfficiencyScaleFactor::AddSysErrors_histo(HistHandler_Ptr h, HistHandler_Ptr hsys, float weight) {
+    void EfficiencyScaleFactor::AddSysErrors_histo(std::unique_ptr<HistHandler> h, std::unique_ptr<HistHandler> hsys, float weight) {
         if (!h || !hsys) return;
         for (int t = 0; h && t < h->NBins(); ++t) {
             double binc = h->GetBinContent(t);
@@ -428,7 +410,7 @@ namespace CP {
             h->SetBinContent(t, binc);
         }
     }
-    void EfficiencyScaleFactor::AddStatErrors_histo(HistHandler_Ptr h, float weight) {
+    void EfficiencyScaleFactor::AddStatErrors_histo(std::unique_ptr<HistHandler> h, float weight) {
         if (!h) return;
         for (int t = 0; t < h->NBins(); t++) {
             double binc = h->GetBinContent(t);

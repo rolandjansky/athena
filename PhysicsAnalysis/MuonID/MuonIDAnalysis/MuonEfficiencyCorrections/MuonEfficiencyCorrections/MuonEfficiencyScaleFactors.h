@@ -78,8 +78,6 @@ namespace CP {
         private:
             typedef SG::AuxElement::Decorator<float> FloatDecorator;
             typedef SG::AuxElement::Decorator<std::vector<float> > FloatVectorDecorator;
-            typedef std::shared_ptr<EffiCollection> EffiCollection_Ptr;
-           
             
             unsigned int getRandomRunNumber(const xAOD::EventInfo* info) const;
             
@@ -89,22 +87,41 @@ namespace CP {
             bool LoadInputs();
         public:
         
-            /// construct the name of the input files from the configuration
+            /// Construct the name of the input files from the configuration
+            /// Make these methods public such that they can be used by the
+            //  scale-factor managing EffiCollection class without piping
+            //  All arguments to the constructor again
             std::string filename_Central()const;
+            /// Reconstruction scale-factors have a dedicated map
+            /// for calo-tag muons around |\eta|<0.1. If the scale-factor
+            /// is isolation/TTVA then the central file name is returned
             std::string filename_Calo()const;
+            /// High-eta reconstruction scale-factors are not obtained by the means of 
+            /// are not obtained by the means of tag & probe, but rather by building
+            /// the double ratio. The map is delivered in a dedicated file whose path
+            /// is returned here
             std::string filename_HighEta()const;
+ 
+            /// Returns the scale-factor maps from a complementary scale-factor
+            /// measurement using the J/Psi or Upsilon resonance
             std::string filename_LowPt()const;
             std::string filename_LowPtCalo()const;
             
-            float LowPtTransition() const;
+            //// If the pt of the muon is below that threshold the J/Psi or Upsilon
+            //// map is used given that it's available.
+            float lowPtTransition() const;
+            
+            //// Returns the type of the measurement to be carried out... E.g. Reco/TTVA/Iso
+            CP::MuonEfficiencyType measurement() const; 
             
         private:
-            // utility method to 'dress' a filename using the path resolver
+            /// utility method to 'dress' a filename using the path resolver
             std::string resolve_file_location(const std::string &filename)const;
 
             //Some util functions
             void CopyInformation(const MuonEfficiencyScaleFactors & tocopy);
             //These are functions needed during initialization
+           
             StatusCode CreateDecorator(std::unique_ptr<FloatDecorator> &Dec,  std::string& DecName, const std::string& defaultName);
             StatusCode CreateVecDecorator(std::unique_ptr<FloatVectorDecorator> &Dec, std::string& DecName, const std::string& defaultName);
            
@@ -113,9 +130,9 @@ namespace CP {
             void SetupCheckSystematicSets();
             /// the working point to operate on
             std::string m_wp;
-            std::unordered_map<MuonEfficiencySystType, EffiCollection_Ptr> m_sf_sets;
+            std::unordered_map<MuonEfficiencySystType, std::unique_ptr<EffiCollection> > m_sf_sets;
 
-            EffiCollection_Ptr m_current_sf;
+            EffiCollection* m_current_sf;
 
             std::string m_custom_dir;
             std::string m_custom_file_Combined;
@@ -126,9 +143,12 @@ namespace CP {
 
             std::map<CP::SystematicSet, CP::SystematicSet> m_filtered_sys_sets;
 
+            // Decorate the data-monteCarlo & scale-factors
+            // to the muon. Decoration names can be set flexile
             std::string m_efficiency_decoration_name_data;
             std::string m_efficiency_decoration_name_mc;
             std::string m_sf_decoration_name;
+            
             std::string m_sf_replica_decoration_name;
             std::string m_eff_replica_decoration_name;
             std::string m_mc_eff_replica_decoration_name;

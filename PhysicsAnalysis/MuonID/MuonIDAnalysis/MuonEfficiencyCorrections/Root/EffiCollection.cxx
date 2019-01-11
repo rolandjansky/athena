@@ -9,31 +9,24 @@
 #include <TTree.h>
 namespace CP {
     const std::vector<std::string> ToRemove { "GeV", "MeV", "[", "]", "{", "}", "(", ")", "#", " " };
+  EffiCollection::EffiCollection(const MuonEfficiencyScaleFactors& ref_tool) :
+            m_ref_tool(ref_tool),
+            m_central_eff(),
+            m_calo_eff(),
+            m_forward_eff(),
+            m_lowpt_central_eff(),
+            m_lowpt_calo_eff() {
 
-    EffiCollection::EffiCollection() :
-                m_central_eff(),
-                m_calo_eff(),
-                m_forward_eff(),
-                m_lowpt_central_eff(),
-                m_lowpt_calo_eff(),
-                m_lowpt_transition(-1),
-                m_sfType(CP::MuonEfficiencyType::Undefined) {
-    }
-
-    EffiCollection::EffiCollection(const asg::MuonEfficiencyScaleFactors* ref_asg_tool, CP::MuonEfficiencyType effType, double lowPtTransition) :
-                EffiCollection() {
-        m_lowpt_transition = lowPtTransition;
-        m_sfType = effType;
         bool KineSyst = effType == CP::MuonEfficiencyType::Reco || effType == CP::MuonEfficiencyType::BadMuonVeto;
-        m_central_eff = CollectionContainer_Ptr(new CollectionContainer(ref_asg_tool, file_central, sysType, m_sfType, CollectionType::Central, false, KineSyst));
-        m_calo_eff = CollectionContainer_Ptr(new CollectionContainer(ref_asg_tool, file_calo, sysType, m_sfType, CollectionType::Calo, false, KineSyst));
-        m_forward_eff = CollectionContainer_Ptr(new CollectionContainer(ref_asg_tool, file_forward, sysType, m_sfType, CollectionType::Forward));
+        //m_central_eff = CollectionContainer_Ptr(new CollectionContainer(ref_asg_tool, file_central, sysType, m_sfType, CollectionType::Central, false, KineSyst));
+        //m_calo_eff = CollectionContainer_Ptr(new CollectionContainer(ref_asg_tool, file_calo, sysType, m_sfType, CollectionType::Calo, false, KineSyst));
+       // m_forward_eff = CollectionContainer_Ptr(new CollectionContainer(ref_asg_tool, file_forward, sysType, m_sfType, CollectionType::Forward));
 
         // last argument tells this to respond to dedicated low pt systematic variations
-        if (m_lowpt_transition > 0) {
-            m_lowpt_central_eff = CollectionContainer_Ptr(new CollectionContainer(ref_asg_tool, file_lowpt_central, sysType, m_sfType, CollectionType::CentralLowPt, true));
-            m_lowpt_calo_eff = CollectionContainer_Ptr(new CollectionContainer(ref_asg_tool,file_lowpt_calo, sysType, m_sfType, CollectionType::CaloLowPt, true));
-        }
+      //  if (m_lowpt_transition > 0) {
+      //      m_lowpt_central_eff = CollectionContainer_Ptr(new CollectionContainer(ref_asg_tool, file_lowpt_central, sysType, m_sfType, CollectionType::CentralLowPt, true));
+     //       m_lowpt_calo_eff = CollectionContainer_Ptr(new CollectionContainer(ref_asg_tool,file_lowpt_calo, sysType, m_sfType, CollectionType::CaloLowPt, true));
+     //   }
     }
 
     EffiCollection::EffiCollection(const EffiCollection* Nominal, const asg::AsgTool* ref_asg_tool, const std::string &file_central, const std::string &file_calo, const std::string &file_forward, const std::string &file_lowpt_central, const std::string &file_lowpt_calo, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, double lowPtTransition) :

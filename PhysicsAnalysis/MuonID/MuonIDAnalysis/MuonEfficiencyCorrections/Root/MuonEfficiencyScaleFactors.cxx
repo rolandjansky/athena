@@ -71,8 +71,11 @@ namespace CP {
 
     MuonEfficiencyScaleFactors::~MuonEfficiencyScaleFactors() {
     }
-    float MuonEfficiencyScaleFactors::LowPtTransition() const{
+    float MuonEfficiencyScaleFactors::lowPtTransition() const{
         return m_lowpt_threshold;
+    }
+    CP::MuonEfficiencyType MuonEfficiencyScaleFactors::measurement() const{
+        return m_Type;
     }
     StatusCode MuonEfficiencyScaleFactors::initialize() {
         if (m_init) {
@@ -144,18 +147,37 @@ namespace CP {
         return StatusCode::SUCCESS;
     }
     void MuonEfficiencyScaleFactors::SetupCheckSystematicSets() {
-        /*if (!m_Sys1Down) {
-            m_Sys1Down = std::make_unique < CP::SystematicSet > (std::vector<SystematicVariation> { SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_SYS", -1) });
-            m_Sys1Up = std::make_unique < CP::SystematicSet > (std::vector<SystematicVariation> { SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_SYS", 1) });
-            m_Stat1Down = std::make_unique < CP::SystematicSet > (std::vector<SystematicVariation> { SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_STAT", -1) });
-            m_Stat1Up = std::make_unique < CP::SystematicSet > (std::vector<SystematicVariation> { SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_STAT", 1) });
+        // Push all possible files into a set since all methods
+        // besides from filename_Central() itself refer back to
+        // filename_Central() given the case there should be
+        // no file of that kind
+        std::set<std::string> files_to_open {
+            filename_Central(),
+            filename_LowPt(),
+            filename_Calo(),
+            filename_LowPtCalo(),            
+            filename_HighEta(),
+            
+            
+        };
+        std::unique_ptr<EffiCollection> nominal_collection = std::make_unique<EffiCollection>(this, m_Type);
+        
+        // Loop over each tree to check which systematic
+        // Components have been defined... The files
+        // themselves must ensure that 
+        for (const auto& file : files_to_open){
+            std::unique_ptr<TFile> root_file( TFile::Open(file.c_str(), "READ"));
+            TTree* syst_tree = nullptr;
+            root_file->GetObject(syst_tree, "Systematics");
+            if (syst_tree == nullptr){
+                ATH_MSG_DEBUG("The file "<<file<<" does not contain any systematic tree. No break down for that one will be considered");
+                continue;
+            }
+            std::string* syst_name = nullptr;
+            unsigned int is_symmetric (0);
         }
-        if (!m_LowPtSys1Down && (m_Type == MuonEfficiencyType::Reco && m_lowpt_threshold > 0)) {
-            m_LowPtSys1Down = std::make_unique < CP::SystematicSet > (std::vector<SystematicVariation> { SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_SYS_LOWPT", -1) });
-            m_LowPtSys1Up = std::make_unique < CP::SystematicSet > (std::vector<SystematicVariation> { SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_SYS_LOWPT", 1) });
-            m_LowPtStat1Down = std::make_unique < CP::SystematicSet > (std::vector<SystematicVariation> { SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_STAT_LOWPT", -1) });
-            m_LowPtStat1Up = std::make_unique < CP::SystematicSet > (std::vector<SystematicVariation> { SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_STAT_LOWPT", 1) });
-        }*/
+        
+        
     }
     StatusCode MuonEfficiencyScaleFactors::CreateDecorator(std::unique_ptr<MuonEfficiencyScaleFactors::FloatDecorator> &Dec, std::string &DecName, const std::string& defaultName) {
         if (DecName.empty()) DecName = (m_Type == CP::MuonEfficiencyType::Reco) ? defaultName : EfficiencyTypeName(m_Type) + defaultName;
@@ -340,7 +362,7 @@ namespace CP {
     std::string MuonEfficiencyScaleFactors::filename_LowPt()const {
 
         if (!m_custom_file_LowPt.empty()) return resolve_file_location(m_custom_file_LowPt);
-// for the no reco WPs, we currently use the existing Z SF also for the low pt regime
+        // for the no reco WPs, we currently use the existing Z SF also for the low pt regime
         else if (m_Type != CP::MuonEfficiencyType::Reco || m_lowpt_threshold < 0) {
             return filename_Central();
         } else return resolve_file_location(Form("Reco_%s_JPsi.root", m_wp.c_str()));
@@ -349,7 +371,7 @@ namespace CP {
     std::string MuonEfficiencyScaleFactors::filename_LowPtCalo() const{
 
         if (!m_custom_file_LowPtCalo.empty()) return resolve_file_location(m_custom_file_LowPtCalo);
-// for the no reco WPs, we currently use the existing Z SF also for the low pt regime
+        // for the no reco WPs, we currently use the existing Z SF also for the low pt regime
         else if (m_Type != CP::MuonEfficiencyType::Reco || m_lowpt_threshold < 0) {
             return filename_Central();
         } else return resolve_file_location("Reco_CaloTag_JPsi.root");

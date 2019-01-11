@@ -23,8 +23,9 @@ namespace CP {
 
     class EffiCollection {
         public:
-            EffiCollection();
-            EffiCollection(const MuonEfficiencyScaleFactors* ref_asg_tool, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType);
+            
+            EffiCollection(const MuonEfficiencyScaleFactors& ref_tool);
+            
             //Constructor with nominal as fallback..
             EffiCollection(const EffiCollection* Nominal, const MuonEfficiencyScaleFactors* ref_asg_tool , MuonEfficiencySystType sysType);
             EffiCollection(const EffiCollection& other);
@@ -98,8 +99,6 @@ namespace CP {
             };
 
         private:
-
-
             bool DoesBinFitInRange(CollectionContainer_Ptr Container, unsigned int & Bin) const;
             bool DoesMuonEnterBin(CollectionType Type, const xAOD::Muon mu, int &Bin) const;
 
@@ -107,14 +106,13 @@ namespace CP {
             CollectionContainer* FindContainerFromBin(unsigned int &bin) const;
             CollectionContainer* FindContainer(const xAOD::Muon& mu) const;
 
+            const CP::MuonEfficiencyScaleFactors& m_ref_tool;
             std::unique_ptr<CollectionContainer> m_central_eff;
             std::unique_ptr<CollectionContainer> m_calo_eff;
             std::unique_ptr<CollectionContainer> m_forward_eff;
             std::unique_ptr<CollectionContainer> m_lowpt_central_eff;
             std::unique_ptr<CollectionContainer> m_lowpt_calo_eff;
 
-            double m_lowpt_transition;
-            CP::MuonEfficiencyType m_sfType;
     };
 }
 #endif /* EFFICOLLECTION_H_ */

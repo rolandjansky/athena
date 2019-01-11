@@ -9,17 +9,7 @@
 #include <cstring>
 
 #include <TH1.h>
-#include <TH2.h>
-#include <TH3.h>
-
-#include <TH1F.h>
-#include <TH2F.h>
-#include <TH3F.h>
-
-#include <TH1D.h>
-#include <TH2D.h>
-#include <TH3D.h>
-
+#include <TH2Poly.h>
 namespace CP {
 
     //###########################################################################################################

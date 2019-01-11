@@ -31,10 +31,8 @@
 namespace CP {
     
     ///Forward declarations
-    class HistHandler;
     class AxisHandler;
-    typedef std::shared_ptr<HistHandler> HistHandler_Ptr;
-    
+   
     
     class HistHandler {
             /// @class HistHandler
@@ -102,7 +100,7 @@ namespace CP {
 
         public:
 
-            HistHandler_TH2(TH2* hist);
+            HistHandler_TH2(TH1* hist);
             HistHandler_TH2(const HistHandler_TH2 & other);
             virtual HistHandler_TH2 & operator =(const HistHandler_TH2 & other);
             virtual ~HistHandler_TH2();
@@ -120,7 +118,7 @@ namespace CP {
 
         public:
 
-            HistHandler_TH3(TH3* hist);
+            HistHandler_TH3(TH1* hist);
             HistHandler_TH3(const HistHandler_TH3 & other);
             virtual HistHandler_TH3 & operator =(const HistHandler_TH3 & other);
             virtual ~HistHandler_TH3();
