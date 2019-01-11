@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATE_SGTESTS_H
@@ -11,6 +11,8 @@
    @author ATLAS Collaboration
    $Id: SGtests.h,v 1.7 2008-07-10 00:33:50 calaf Exp $
  ***************************************************************************/
+
+#include "CxxUtils/checker_macros.h"
 class StoreGateSvc;
 
 namespace Athena_test 
@@ -39,7 +41,7 @@ namespace Athena_test
 
   void testRemove(StoreGateSvc& rSG);
 
-  void testBind(StoreGateSvc& rSG);
+  void testBind ATLAS_NOT_THREAD_SAFE (StoreGateSvc& rSG);
 
   void testClear(StoreGateSvc& rSG);
 

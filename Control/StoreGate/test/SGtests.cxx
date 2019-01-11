@@ -726,7 +726,7 @@ namespace Athena_test {
   }
 
 
-  void testBind(::StoreGateSvc& rSG) {
+  void testBind ATLAS_NOT_THREAD_SAFE (::StoreGateSvc& rSG) {
 
     cout << "*** StoreGateSvcClient_test bind BEGINS ***" <<endl;
     const DataHandle<Foo> chFoo;
