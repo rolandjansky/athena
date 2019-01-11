@@ -1,14 +1,11 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    comparitor.cxx         
-//   
-//
-//   @author M.Sutton
-// 
-//
-//   $Id: comparitor.cxx, v0.0   Fri 12 Oct 2012 13:39:05 BST sutt $
+/**
+ **     @file    comparitor.cxx
+ **
+ **     @author  mark sutton
+ **     @date    Fri 12 Oct 2012 13:39:05 BST 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #include <cstdio>

@@ -1,14 +1,11 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    PurityAnalysis.cxx         
-//   
-//
-//                   
-// 
-//
-//   $Id: PurityAnalysis.cxx 688225 2015-08-07 20:12:06Z sutt $
+/**
+ **     @file    PurityAnalysis.cxx
+ **
+ **     @author  mark sutton
+ **     @date    $Id: PurityAnalysis.cxx 688225 2015-08-07 20:12:06Z 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 // #include "TrigInDetAnalysisExample/PurityAnalysis.h"
@@ -284,7 +281,7 @@ void duff(const std::string& label="") {
 
 void PurityAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 			     const std::vector<TIDA::Track*>& testtracks,
-			     TrackAssociator* matcher ) 
+			     TrackAssociator*   matcher )
 {
   if ( m_print ) std::cout << "PurityAnalysis::execute() \t " << name() 
 			   << "\tref "  <<  reftracks.size() 

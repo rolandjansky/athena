@@ -1,7 +1,13 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-// Author: J.Kirk (modified from copyFiles.C in ROOT tutuorial
+/**
+ **     @file    makeSmallRefFile.cxx
+ **
+ **     @brief   modified from copyFiles.C in ROOT tutuorial
+ **
+ **     @author J.Kirk 
+ **     @date    Fri 11 Jan 2019 07:41:26 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #include <string>

@@ -1,14 +1,13 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    TrigTestBase.cxx
-//   @author  Benjamin Sowden (benjamin.sowden@cern.ch)
-//   @date    Oct 2014
-//
-//            implementation of a IHLTMonTool monitoring base class
-//
-
+/**
+ **     @file    TrigTestBase.cxx
+ **
+ **     @brief   implementation of a IHLTMonTool monitoring base class
+ **
+ **     @author  Benjamin Sowden (benjamin.sowden@cern.ch)
+ **     @date    Oct 2014
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 #include "TrigInDetAnalysis/Filter_AcceptAll.h"
 

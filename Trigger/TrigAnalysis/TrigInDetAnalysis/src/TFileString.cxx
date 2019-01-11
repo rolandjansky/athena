@@ -1,15 +1,14 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   TFileString.cxx        
-//
-//    root TObject std::string std::vector class for writing std::string std::vectors
-//    to root files               
-//                   
-// 
-//
-//   $Id: TFileString.cxx, v0.0   Sat Mar 15 19:50:15 GMT 2008 sutt
+/**
+ **     @file    TFileString.cxx
+ **
+ **     @brief   root TObject std::string std::vector class for 
+ **              writing std::string std::vectors to root files               
+ **
+ **     @author  mark sutton
+ **     @date    Sat Mar 15 19:50:15 GMT 2008 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 

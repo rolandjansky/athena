@@ -1,18 +1,18 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    particleType.h        
-//            a class of my own because ttying to access the  
-//            ParticleDataTable in athena is frankly more 
-//            trouble than it is worth        
-//        
-//            As it happens, this class has no data memebrs,
-//            but derives from an std::map
-//  
-//
-//   $Id: particleType.h, v0.0   Thu 14 Jul 2011 09:50:36 BST sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    particleType.h
+ **
+ **       a class of my own because ttying to access the  
+ **       ParticleDataTable in athena is frankly more 
+ **       trouble than it is worth        
+ **       As it happens, this class has no data memebrs,
+ **       but derives from an std::map
+ **
+ **     @author  mark sutton
+ **     @date    Thu 14 Jul 2011 09:50:36 BST 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #ifndef PARTICLETYPE_H
@@ -142,7 +142,7 @@ inline std::ostream& operator<<( std::ostream& s, const particleType& p ) {
 }
 
 
-#endif  // __PARTICLETYPE_H 
+#endif  // TIDAUTILS_PARTICLETYPE_H 
 
 
 

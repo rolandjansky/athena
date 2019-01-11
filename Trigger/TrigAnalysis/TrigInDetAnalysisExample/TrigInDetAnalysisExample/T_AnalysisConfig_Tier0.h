@@ -1,23 +1,24 @@
-// emacs: this is -*- c++ -*-
-//
-//   @file    T_AnalysisConfig_Tier0.h
-//
-//            baseclass template so that we can use in different contexts 
-//            in different ways in the monitoring 
-//
-//            NB: this will be configured to run *either* a standard 
-//                analysis, or a "purity" analysis. If a purity analysis, 
-//                the trigger tracks become the reference (with all the 
-//                selection) and the offline or truth the "test" tracks
-//                This would be a simple switch if the reference tracks
-//                were in the RoI, but they're not se we need to move the 
-//                RoI filtering to the test filter and *not* the reference 
-//                filter grrrrrr  
-//
-// 
-//   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-//
-//   $Id: T_AnalysisConfig_Tier0.h  Tue 16 May 2017 09:28:55 CEST sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    T_AnalysisConfig_Tier0.h
+ **
+ **     @brief   baseclass template so that we can use in different contexts 
+ **              in different ways in the monitoring
+ ** 
+ **       NB: this will be configured to run *either* a standard 
+ **       analysis, or a "purity" analysis. If a purity analysis, 
+ **       the trigger tracks become the reference (with all the 
+ **       selection) and the offline or truth the "test" tracks
+ **       This would be a simple switch if the reference tracks
+ **       were in the RoI, but as they are not we need to move the 
+ **       RoI filtering to the test filter and *not* the reference 
+ **       filter grrrrrr  
+ **
+ **     @author  mark sutton
+ **     @date    Tue 16 May 2017 09:28:55 CEST 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 #ifndef TrigInDetAnalysisExample_T_AnalysisConfig_Tier0_H
 #define TrigInDetAnalysisExample_T_AnalysisConfig_Tier0_H

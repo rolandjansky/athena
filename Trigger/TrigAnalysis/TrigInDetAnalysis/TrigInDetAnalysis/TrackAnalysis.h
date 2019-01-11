@@ -1,18 +1,16 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    TrackAnalysis.h        
-//
-//                   
-// 
-//
-//   $Id: TrackAnalysis.h, v0.0   Sun 18 Jan 2009 19:53:18 GMT sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    TrackAnalysis.h
+ **
+ **     @author  mark sutton
+ **     @date    Sun 18 Jan 2009 19:53:18 GMT 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
-#ifndef __TRACKANALYSIS_H
-#define __TRACKANALYSIS_H
+#ifndef TIDA_TRACKANALYSIS_H
+#define TIDA_TRACKANALYSIS_H
 
 #include <iostream>
 #include <vector>
@@ -25,6 +23,7 @@
 #include "TrigInDetAnalysis/TIDAEvent.h"
 #include "TrigInDetAnalysis/TIDAVertex.h"
 #include "TrigInDetAnalysis/TIDARoiDescriptor.h"
+#include "TrigInDetAnalysis/TrigObjectMatcher.h"
 #include "TrigInDetAnalysis/TIDAFeatureStore.h"
 
 #include "TH1.h"
@@ -48,10 +47,19 @@ public:
     
   /// standard operation interface 
   virtual void initialise() = 0;
- 
+
   virtual void execute( const std::vector<TIDA::Track*>& tracks1,
 			const std::vector<TIDA::Track*>& tracks2,
-			TrackAssociator* matcher ) = 0;
+			TrackAssociator*   matcher ) = 0;
+  
+  virtual void execute( const std::vector<TIDA::Track*>& tracks1,
+			const std::vector<TIDA::Track*>& tracks2,
+			TrackAssociator*   matcher, 
+			TrigObjectMatcher* /* objects */ ) {
+    execute( tracks1, tracks2, matcher );
+  };
+  
+
 
   //  virtual void execute( const std::vector<TIDA::Track*>& ,
   //			const std::vector<TIDA::Track*>& ,
@@ -144,7 +152,7 @@ inline std::ostream& operator<<(std::ostream& s, const TrackAnalysis& ta) {
 }
 
 
-#endif  // __TRACKANALYSIS_H 
+#endif  // TIDA_TRACKANALYSIS_H 
 
 
 

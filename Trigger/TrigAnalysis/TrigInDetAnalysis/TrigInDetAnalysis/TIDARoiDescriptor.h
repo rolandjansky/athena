@@ -1,14 +1,12 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    TIDARoiDescriptor.h        
-//
-//                   
-// 
-//
-//   $Id: TIDARoiDescriptor.h, v0.0   Tue 10 Nov 2009 10:05:35 GMT sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    TIDARoiDescriptor.h
+ **
+ **     @author  mark sutton
+ **     @date    Tue 10 Nov 2009 10:05:35 GMT 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 /**
  * @brief Describes the Region of Ineterest geometry
@@ -27,8 +25,8 @@
  */
 
 
-#ifndef __TIDAROIDESCRIPTOR_H
-#define __TIDAROIDESCRIPTOR_H
+#ifndef TIDA_ROIDESCRIPTOR_H
+#define TIDA_ROIDESCRIPTOR_H
 
 #include <iostream>
 #include <sstream>
@@ -298,4 +296,4 @@ inline std::ostream& operator<<( std::ostream& s, const TIDARoiDescriptor& d ) {
   return s << (std::string)d; 
 }
 
-#endif // __ROIDESCRIPTOR_H
+#endif // TIDA_ROIDESCRIPTOR_H

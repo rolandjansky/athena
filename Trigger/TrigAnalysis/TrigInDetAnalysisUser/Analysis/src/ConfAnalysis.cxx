@@ -1,14 +1,11 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    ConfAnalysis.cxx         
-//   
-//
-//                   
-// 
-//
-//   $Id: ConfAnalysis.cxx 800361 2017-03-12 14:33:19Z sutt $
+/**
+ **     @file    ConfAnalysis.cxx
+ **
+ **     @author  mark sutton
+ **     @date    $Id: ConfAnalysis.cxx 800361 2017-03-12 14:33:19Z 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #include "ConfAnalysis.h"
@@ -758,6 +755,25 @@ void ConfAnalysis::initialiseInternal() {
   eff_vs_mu   = new Efficiency( mu, "eff_vs_mu");
 
 
+  /// electron specific histograms
+
+  double etovpt_bins[39] = {
+    0,        0.1,      0.2,     0.3,     0.4,      0.5,       0.6,      0.7,      0.8,      0.9, 
+    1,        1.08571,  1.17877, 1.2798,  1.3895,   1.50859,   1.63789,  1.77828,  1.9307,   2.09618, 
+    2.27585,  2.47091,  2.6827,  2.91263, 3.16228,  3.43332,  3.72759,  4.04709,  4.39397,  4.77058,  
+    5.17947,  5.62341,  6.1054,  6.6287,  7.19686,  7.81371,  8.48343,  9.21055,  10
+  }; 
+
+  m_etovpt_raw    = new TH1F("etovpt_raw", "ET / pT", 100, 0, 10 );
+
+  m_etovpt        = new TH1F("etovpt", "ET / pT", 38, etovpt_bins );
+  m_eff_vs_etovpt = new Efficiency( m_etovpt, "eff_vs_etovpt");
+
+
+  m_et          = new TH1F("ET", "ET; E_{T} [GeV]", ptnbins, ptbinlims );
+  m_eff_vs_et   = new Efficiency( m_et, "eff_vs_ET" );
+
+
   //  std::cout << "initialize() Directory " << gDirectory->GetName() << " on leaving" << std::endl;
 
   ConfVtxAnalysis* vtxanal = 0;
@@ -850,14 +866,13 @@ void fitSin( TH1D* h, const std::string& parent="" ) {
 
 void ConfAnalysis::finalise() {
 
-  //  std::cout << "\n\nConfAnalysis::finalise() " << name() << std::endl;
-
   //  gDirectory->pwd();
 
   if ( !m_initialised ) return;
 
 
   std::cout << "ConfAnalysis::finalise() " << name();
+
   if ( name().size()<19 ) std::cout << "\t";
   if ( name().size()<30 ) std::cout << "\t";
   if ( name().size()<41 ) std::cout << "\t";
@@ -918,6 +933,10 @@ void ConfAnalysis::finalise() {
   eff_vs_nvtx->finalise();
   eff_vs_mu->finalise();
 
+  m_eff_vs_etovpt->finalise();
+
+  m_eff_vs_et->finalise();
+
   const unsigned Npurity = 6;
   Efficiency* hpurity[Npurity] = {
     purity_pt, 
@@ -937,8 +956,6 @@ void ConfAnalysis::finalise() {
   fitSin( rd0_vs_phi_rec->Mean(), name()+"/rd0_vs_phi_rec" );
   rd0_vs_phi_rec->Write();
   
-
-  std::cout << "ConfAnalysis::finalise() " << name() << std::endl;
 
   std::string spstr[5] = { "npix", "nsct", "nsi", "ntrt", "nbl" };
   for ( int i=mres.size() ; i-- ; ) { 
@@ -1107,7 +1124,6 @@ void ConfAnalysis::finalise() {
   store().find( vtxanal, "rvtx" );
   if ( vtxanal ) vtxanal->finalise();
 
-
   mdir->pop();
 
 }
@@ -1128,7 +1144,11 @@ double wrapphi( double phi ) {
 
 void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 			   const std::vector<TIDA::Track*>& testtracks,
-			   TrackAssociator* matcher ) { 
+			   TrackAssociator* matcher, 
+			   TrigObjectMatcher* objects ) { 
+
+  //  leave this commented code in for debug purposes ...
+  //  if ( objects ) std::cout << "TrigObjectMatcher: " << objects << std::endl; 
 
   if ( !m_initialised ) initialiseInternal();
     
@@ -1296,6 +1316,11 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 
     rd0_vs_phi->Fill( phit, a0t );
 
+    double mu_val = gevent->mu();
+
+    mu->Fill( mu_val );
+
+
     const TIDA::Track* matchedreco = matcher->matched(reftracks[i]); 
 
     //    std::cout << "\t\tConfAnalysis " << name() << "\t" << i << " " << *reftracks[i] << " -> ";        
@@ -1353,7 +1378,23 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
     rnscth_pt->Fill( std::fabs(pTt), nsctht );
 
     rnpix_lb->Fill( gevent->lumi_block(), npixt*0.5 );
+
+    double                 etovpt_val = 0;
+    const TrackTrigObject* tobj       = 0;
     
+    if ( objects ) { 
+      tobj = objects->object( reftracks[i]->id() );
+      if ( tobj ) { 
+	/// track pt is signed - whereas the cal based 
+	/// object ET (massless pt really) is not 
+	etovpt_val = std::fabs( tobj->pt()/reftracks[i]->pT() );
+	m_etovpt->Fill( etovpt_val );
+	m_etovpt_raw->Fill( etovpt_val );
+	m_et->Fill( tobj->pt()*0.001 );
+      }
+    }
+
+
     if ( matchedreco )  {
 
       // efficiency histos
@@ -1378,6 +1419,11 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
       //   eff_vs_lb->Fill( ts );
 
       eff_vs_lb->Fill( gevent->lumi_block() );
+
+      if ( tobj ) { 
+	m_eff_vs_etovpt->Fill(etovpt_val);    
+	m_eff_vs_et->Fill( std::fabs(tobj->pt()*0.001) );    
+      }
 
       Nmatched++;
 
@@ -1590,10 +1636,9 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 
       eff_vs_nvtx->Fill( NvtxCount );
       n_vtx->Fill( NvtxCount );
-      double mu_val = gevent->mu();
+
       //std::cout << "<mu>\t" <<  mu_val << std::endl;
       eff_vs_mu->Fill( mu_val );
-      mu->Fill( mu_val );
 
       //    hnpix_v_sct->Fill( nsctt*0.5, npixt*0.5 );
 
@@ -1790,9 +1835,10 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 
       eff_vs_mu->FillDenom(mu_val);
 
-      mu->Fill( mu_val );
-
-
+      if ( tobj ) { 
+	m_eff_vs_etovpt->FillDenom(etovpt_val);    
+	m_eff_vs_et->FillDenom( std::fabs(tobj->pt()*0.001) );    
+      }
 
       if ( dumpflag ) {
 	std::ostream& dumpstream = dumpfile; 
