@@ -52,6 +52,9 @@ LArSuperCellBuilderDriver::LArSuperCellBuilderDriver (const std::string& name,
   declareProperty("BuildDiscChannel",             m_buildDiscChannel=false);
   declareProperty("DefaultShiftTimeSample",       m_defaultShiftTimeSamples=0);
   declareProperty("BCID_Iter",                    m_bcs=2);
+  declareProperty("bCIDLowLim",                   m_bcidLowLim={8,-2,-8});
+  declareProperty("bCIDUpLim",                    m_bcidUpLim={-8,2,8});
+  declareProperty("bCIDbands",                    m_bcidBands={-1e4,0,10,1e4});
 }
 
 LArSuperCellBuilderDriver::~LArSuperCellBuilderDriver()
@@ -190,6 +193,21 @@ StatusCode LArSuperCellBuilderDriver::execute() {
 	   Identifier id = cabling->cnvToIdentifier((*cont_it)->channelID());
 	   IdentifierHash idhash = sem_mgr->getCaloCell_ID()->calo_cell_hash(id);
 	   const CaloDetDescrElement* dde = sem_mgr->get_element (idhash);
+           float et_calc = energy*dde->sinTh()*1e-3; // in GeV
+           float et_calc_t = et_calc * time;
+           bool passBCID=false;
+           for(unsigned int i=0;i<m_bcidBands.size()-1;i++){
+                if ( (et_calc > m_bcidBands[i]) && (et_calc< m_bcidBands[i+1]) ){
+                if ( (et_calc_t > m_bcidLowLim[i]*et_calc) && (et_calc_t < m_bcidUpLim[i]*et_calc) ) passBCID=true;
+                  std::cout << "check : " << et_calc << " " << energy << " " << time << " " << i << " " << m_bcidBands[i] << " " << m_bcidBands[i+1] << " " << et_calc_t << " " << m_bcidLowLim[i] << " " << m_bcidUpLim[i] << " " << m_bcidLowLim[i]*et_calc << " " << m_bcidUpLim[i]*et_calc << std::endl;
+           	  std::cout << prov << " " << (!0x200) << " " << (prov & (!0x200)) << std::endl;
+                  std::cout << "final result : " << passBCID << std::endl;
+		  break;
+                }
+           }
+
+           prov = prov & (!0x200);
+           if ( passBCID ) prov |= 0x200;
            CaloCell* cell = new CaloCell( dde, (float)energy, (float)time, (uint16_t)0, (uint16_t)prov, gain );
 	   caloCell->push_back( cell );
        }
