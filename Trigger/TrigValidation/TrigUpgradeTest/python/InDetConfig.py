@@ -18,15 +18,15 @@ def InDetGMConfig( flags ):
   geoModelSvc.DetectorTools += [ CfgGetter.getPrivateTool("PixelDetectorTool", checkType=True) ]
 
 #  if (DetFlags.detdescr.BCM_on() ) :
-  from AthenaCommon.AppMgr import ToolSvc
+
   from BCM_GeoModel.BCM_GeoModelConf import InDetDD__BCM_Builder
   bcmTool = InDetDD__BCM_Builder()
-  ToolSvc += bcmTool
+  acc.addPublicTool( bcmTool )
   geoModelSvc.DetectorTools['PixelDetectorTool'].BCM_Tool = bcmTool
 
   from BLM_GeoModel.BLM_GeoModelConf import InDetDD__BLM_Builder
   blmTool = InDetDD__BLM_Builder()
-  ToolSvc += blmTool
+  acc.addPublicTool( blmTool )
   geoModelSvc.DetectorTools['PixelDetectorTool'].BLM_Tool = blmTool
 
   geoModelSvc.DetectorTools['PixelDetectorTool'].useDynamicAlignFolders = True #InDetGeometryFlags.useDynamicAlignFolders()
