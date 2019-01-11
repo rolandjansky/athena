@@ -166,14 +166,14 @@ if HIJetFlags.DoHIBTagging():
 
     assocalg = \
         JetAssocConstAlg(
-            "BTaggingParticleAssocAlg",
+            "HIBTaggingParticleAssocAlg",
             JetCollections=JetCollectionList,
             Associators=[defaultTrackAssoc, defaultMuonAssoc]
         )
 
     topSequence += assocalg
 
-    SA = 'AODFix_'
+    SA = 'HIAODFix_'
     from BTagging.BTaggingConfiguration import getConfiguration
     BTagConf = getConfiguration("AODFix")
     BTagConf.PrefixxAODBaseName(False)
