@@ -367,18 +367,26 @@ const xAOD::EventInfo* PileUpStream::nextEventPre(bool readRecord)
          }
       }
       
-      pxAODEventInfo->setEvtStore( &store() );   // FIX: MN: do we need this?
       xAODEventInfo = pxAODEventInfo.get();  // remember pointer to return the new EventInfo
       // Record the xAOD object(s):
       if( ! store().record( std::move( pxAODEventAuxInfo ), "EventInfoAux." ).isSuccess() //MN: FIX? key
           || ! store().record( std::move( pxAODEventInfo ), "EventInfo" ).isSuccess() ) {
          ATH_MSG_ERROR("Failed to record the new xAOD::EventInfo in SG");
       }
+   } else {
+      ATH_MSG_INFO("Found xAOD::EventInfo");
+      ATH_MSG_INFO(" EventInfo has" <<   xAODEventInfo->subEvents().size() << " subevents" );
+      // the loop below serves 2 purposes: to recreate subevent links cache
+      // and set SG pointer in subevents
+      for( auto& subev : xAODEventInfo->subEvents() ) {
+         const_cast<xAOD::EventInfo*>(subev.ptr())->setEvtStore( &store() );
+      }
    }
-   
+
+   const_cast<xAOD::EventInfo*>(xAODEventInfo)->setEvtStore( &store() );
    ATH_MSG_INFO("Dumping xAOD::EventInfo");
    xAOD::dump( *xAODEventInfo );
-            
+
    if (readRecord) {
       ATH_MSG_DEBUG ( "nextEventPre(): read new event " 
 		      <<  xAODEventInfo->eventNumber() 

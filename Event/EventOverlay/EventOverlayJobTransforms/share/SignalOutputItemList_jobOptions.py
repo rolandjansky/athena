@@ -16,6 +16,11 @@ from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 signalStream = AthenaPoolOutputStream("StreamRDO_SGNL", overlayFlags.PoolSignalRDOOutput(), asAlg=True)
 signalStream.ForceRead = True
 
+
+from AthenaCommon.Logging import logging
+logg = logging.getLogger('SignalOutputItemList')
+logg.info( '****************** MN:  Creating SignalOutputItemList *****************' )
+
 list = []
 
 list += [ "xAOD::EventInfo#*", "xAOD::EventAuxInfo#*" ]
