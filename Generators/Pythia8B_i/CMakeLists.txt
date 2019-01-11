@@ -42,5 +42,6 @@ atlas_add_component( Pythia8B_i
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${PYTHIA8_LIBRARIES} ${LHAPDF_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps GaudiKernel Pythia8_iLib GeneratorObjects Pythia8B_iLib )
 
 # Install files from the package:
-atlas_install_joboptions( share/*.py )
+atlas_install_joboptions( share/common/*.py
+                          share/common_old/*.py )
 

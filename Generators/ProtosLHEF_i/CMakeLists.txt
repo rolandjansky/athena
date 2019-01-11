@@ -21,6 +21,6 @@ atlas_add_component( ProtosLHEF_i
 
 # Install files from the package:
 atlas_install_headers( ProtosLHEF_i )
-atlas_install_joboptions( share/*.py )
-atlas_install_runtime( share/*.events share/*.dat )
+atlas_install_joboptions( share/common/*.py )
+atlas_install_runtime( share/file/*.events share/file/*.dat )
 
