@@ -24,7 +24,7 @@
 #include "METUtilities/METHelpers.h"
 
 #include "AthContainers/ConstDataVector.h"
-
+#include "FourMomUtils/xAODP4Helpers.h"
 #ifndef XAOD_STANDALONE // For now metadata is Athena-only
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 #endif
@@ -158,19 +158,22 @@ namespace ST {
       ATH_CHECK( this->FillTrackJet(*jet) );
     }
 
-    if (m_defaultTrackJets == "AntiKtVR30Rmax4Rmin02TrackJets") {
-      for (const auto& jet1 : *copy) {
-        if (!acc_signal(*jet1)) continue;
-        for (const auto& jet2 : *copy) {
-          if (!acc_baseline(*jet2)) continue;
-          if (jet1 == jet2) continue;
-          float dr_jets = sqrt( ((*jet1).eta()-(*jet2).eta())*((*jet1).eta()-(*jet2).eta()) + ((*jet1).phi()-(*jet2).phi())*((*jet1).phi()-(*jet2).phi()) );
-          float smaller_radius = std::min(acc_VRradius(*jet1),acc_VRradius(*jet2));
-          if ( dr_jets < smaller_radius) dec_passDRcut(*jet1) = false;
+    if (copy->size() > 1 && m_defaultTrackJets == "AntiKtVR30Rmax4Rmin02TrackJets") {
+        // Use iterators to avoid pairing the jets twice
+        for (xAOD::JetContainer::const_iterator j1 = copy->begin()+1; j1!= copy->end();++j1) {
+          const xAOD::Jet* jet1 = (*j1);
+          if (!acc_signal(*jet1)) continue;
+          for (xAOD::JetContainer::const_iterator j2 = copy->begin(); j2 != j1; ++j1) {
+            const xAOD::Jet* jet2 = (*j2);
+            if (!acc_baseline(*jet2)) continue;
+            //Reference to the use method in P4Helper: deltaR2( const xAOD::IParticle& p4, const xAOD::IParticle& , bool useRapidity=true )
+            float dr_jets =  xAOD::P4Helpers::deltaR(jet1,jet2, false);
+            const xAOD::Jet* to_check = acc_VRradius(*jet1) < acc_VRradius(*jet2) ? jet1 : jet2;
+            if( dr_jets < acc_VRradius(*to_check)) dec_passDRcut(*to_check) = false;
+            //break the loop at this point???
+          }
         }
-      }
     }
-
     if (recordSG) {
       ATH_CHECK( evtStore()->record(copy, "STCalib" + jetkey_tmp + m_currentSyst.name()) );
       ATH_CHECK( evtStore()->record(copyaux, "STCalib" + jetkey_tmp + m_currentSyst.name() + "Aux.") );
