@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENT_LOOP_WORKER_HH
@@ -360,6 +360,34 @@ namespace EL
     Long64_t inputFileNumEntries () const;
 
 
+    /// \brief Resident memory leak/increase during the job
+    ///
+    /// The idea here is that the worker captures the amount of memory used by
+    /// the job during initialisation and finalisation, so that a rough estimate
+    /// could be made about the memory leak behaviour of the user's code.
+    ///
+    /// This function returns the number of kilobytes by which the used resident
+    /// memory changed between initialisation and finalisation. If the function
+    /// is called at an incorrect point in time, it throws an exception.
+    ///
+  protected:
+    Long_t memIncreaseResident () const;
+
+
+    /// \brief Virtual memory leak/increase during the job
+    ///
+    /// The idea here is that the worker captures the amount of memory used by
+    /// the job during initialisation and finalisation, so that a rough estimate
+    /// could be made about the memory leak behaviour of the user's code.
+    ///
+    /// This function returns the number of kilobytes by which the used virtual
+    /// memory changed between initialisation and finalisation. If the function
+    /// is called at an incorrect point in time, it throws an exception.
+    ///
+  protected:
+    Long_t memIncreaseVirtual () const;
+
+
 
     //
     // virtual interface
@@ -426,6 +454,11 @@ namespace EL
     TH1 *m_runTime = nullptr;
 
 
+    /// \brief Tree saving per-job statistics information
+  private:
+    TTree *m_jobStats = nullptr;
+
+
     /// \brief the tree containing the list of files for which
     /// fileExecute has been called
   private:
@@ -445,6 +478,23 @@ namespace EL
     /// \brief the stop watch we use for measuring total time spend
   private:
     std::unique_ptr<TStopwatch> m_stopwatch;
+
+
+    /// \brief Amount of resident memory used after initialisation in kB
+  private:
+    Long_t m_initMemResident = -1;
+
+    /// \brief Amount of virtual memory used after initialisation in kB
+  private:
+    Long_t m_initMemVirtual = -1;
+
+    /// \brief Amount of resident memory used after finalisation in kB
+  private:
+    Long_t m_finMemResident = -1;
+
+    /// \brief Amount of virtual memory used after finalisation in kB
+  private:
+    Long_t m_finMemVirtual = -1;
 
 
     /// \brief the initialization state of the algorithms
