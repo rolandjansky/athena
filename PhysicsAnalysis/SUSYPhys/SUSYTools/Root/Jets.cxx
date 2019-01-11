@@ -163,7 +163,7 @@ namespace ST {
         for (xAOD::JetContainer::const_iterator j1 = copy->begin()+1; j1!= copy->end();++j1) {
           const xAOD::Jet* jet1 = (*j1);
           if (!acc_signal(*jet1)) continue;
-          for (xAOD::JetContainer::const_iterator j2 = copy->begin(); j2 != j1; ++j1) {
+          for (xAOD::JetContainer::const_iterator j2 = copy->begin(); j2 != j1; ++j2) {
             const xAOD::Jet* jet2 = (*j2);
             if (!acc_baseline(*jet2)) continue;
             //Reference to the use method in P4Helper: deltaR2( const xAOD::IParticle& p4, const xAOD::IParticle& , bool useRapidity=true )
