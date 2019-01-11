@@ -298,7 +298,7 @@ def main():
    g.add_argument('--tcmalloc', action='store_true', default=True, help='use tcmalloc')
    g.add_argument('--stdcmalloc', action='store_true', help='use stdcmalloc')
    g.add_argument('--stdcmath', action='store_true', help='use stdcmath library')
-   g.add_argument('--imf', action='store_true', help='use Intel math library')
+   g.add_argument('--imf', action='store_true', default=True, help='use Intel math library')
    g.add_argument('--show-includes', '-s', action='store_true', help='show printout of included files')
    g.add_argument('--timeout', metavar='SEC', default=3600*10, help='timeout in seconds')
 
