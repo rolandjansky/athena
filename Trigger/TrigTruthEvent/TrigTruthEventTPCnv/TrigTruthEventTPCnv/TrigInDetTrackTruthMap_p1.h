@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -29,7 +29,7 @@ class TrigInDetTrackTruthMap_p1 {
   TrigInDetTrackTruthMap_p1() { }
   
   // default destructor
-  virtual ~TrigInDetTrackTruthMap_p1() { }
+  virtual ~TrigInDetTrackTruthMap_p1() = default;
 
   //data members
   ElementLinkIntVector_p1  m_elink_vec;  //actual type ElementLinkVector< TrigInDetTrackCollection >
