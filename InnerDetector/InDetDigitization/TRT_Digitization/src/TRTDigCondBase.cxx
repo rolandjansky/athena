@@ -61,7 +61,7 @@ float TRTDigCondBase::strawAverageNoiseLevel() const {
 }
 
 //________________________________________________________________________________
-void TRTDigCondBase::initialize() {
+void TRTDigCondBase::initialize(CLHEP::HepRandomEngine* rndmEngine) {
 
   ATH_MSG_INFO ( "TRTDigCondBase::initialize()" );
 
@@ -109,7 +109,7 @@ void TRTDigCondBase::initialize() {
 
       //Get info about the straw conditions, then create and fill the strawstate
       double noiselevel, relative_noiseamplitude;
-      setStrawStateInfo( strawId, strawLength, noiselevel, relative_noiseamplitude );
+      setStrawStateInfo( strawId, strawLength, noiselevel, relative_noiseamplitude, rndmEngine );
       StrawState strawstate;
       strawstate.noiselevel = noiselevel; // same for all gas types
       strawstate.lowthreshold = ( !(hitid & 0x00200000) ) ? m_settings->lowThresholdBar(strawGasType) : m_settings->lowThresholdEC(strawGasType);
