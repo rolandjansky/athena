@@ -2,13 +2,6 @@
  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
-/*
- * MuonEfficiencyScaleFactors.cxx
- *
- *  Created on: Apr 9, 2014
- *      Author: goblirsc
- */
-
 #include "MuonEfficiencyCorrections/MuonEfficiencyScaleFactors.h"
 #include "MuonEfficiencyCorrections/MuonEfficiencyType.h"
 #include "MuonEfficiencyCorrections/EffiCollection.h"
@@ -48,14 +41,6 @@ namespace CP {
                 m_effrDec(),
                 m_MCeffrDec(),
                 m_affectingSys(),
-                m_Sys1Down(),
-                m_Sys1Up(),
-                m_Stat1Down(),
-                m_Stat1Up(),
-                m_LowPtSys1Down(),
-                m_LowPtSys1Up(),
-                m_LowPtStat1Down(),
-                m_LowPtStat1Up(),
                 m_init(false),
                 m_seperateSystBins(false),
                 m_breakDownSyst(false),
@@ -86,7 +71,9 @@ namespace CP {
 
     MuonEfficiencyScaleFactors::~MuonEfficiencyScaleFactors() {
     }
-
+    float MuonEfficiencyScaleFactors::LowPtTransition() const{
+        return m_lowpt_threshold;
+    }
     StatusCode MuonEfficiencyScaleFactors::initialize() {
         if (m_init) {
             ATH_MSG_INFO("The tool using working point" << m_wp << " is already initialized.");
@@ -157,7 +144,7 @@ namespace CP {
         return StatusCode::SUCCESS;
     }
     void MuonEfficiencyScaleFactors::SetupCheckSystematicSets() {
-        if (!m_Sys1Down) {
+        /*if (!m_Sys1Down) {
             m_Sys1Down = std::make_unique < CP::SystematicSet > (std::vector<SystematicVariation> { SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_SYS", -1) });
             m_Sys1Up = std::make_unique < CP::SystematicSet > (std::vector<SystematicVariation> { SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_SYS", 1) });
             m_Stat1Down = std::make_unique < CP::SystematicSet > (std::vector<SystematicVariation> { SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_STAT", -1) });
@@ -168,7 +155,7 @@ namespace CP {
             m_LowPtSys1Up = std::make_unique < CP::SystematicSet > (std::vector<SystematicVariation> { SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_SYS_LOWPT", 1) });
             m_LowPtStat1Down = std::make_unique < CP::SystematicSet > (std::vector<SystematicVariation> { SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_STAT_LOWPT", -1) });
             m_LowPtStat1Up = std::make_unique < CP::SystematicSet > (std::vector<SystematicVariation> { SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_STAT_LOWPT", 1) });
-        }
+        }*/
     }
     StatusCode MuonEfficiencyScaleFactors::CreateDecorator(std::unique_ptr<MuonEfficiencyScaleFactors::FloatDecorator> &Dec, std::string &DecName, const std::string& defaultName) {
         if (DecName.empty()) DecName = (m_Type == CP::MuonEfficiencyType::Reco) ? defaultName : EfficiencyTypeName(m_Type) + defaultName;
@@ -241,7 +228,7 @@ namespace CP {
     CorrectionCode MuonEfficiencyScaleFactors::applyEfficiencyScaleFactorReplicas(const xAOD::Muon& mu, int nreplicas, const xAOD::EventInfo* info) const {
         std::vector<float> replicas(nreplicas);
         CorrectionCode result = getEfficiencyScaleFactorReplicas(mu, replicas, info);
-// Decorate the muon
+        // Decorate the muon
         if (m_sfrDec) (*m_sfrDec)(mu) = replicas;
         return result;
     }
@@ -256,7 +243,7 @@ namespace CP {
     CorrectionCode MuonEfficiencyScaleFactors::applyDataEfficiency(const xAOD::Muon& mu, const xAOD::EventInfo* info) const {
         float eff = 0;
         CorrectionCode result = getDataEfficiency(mu, eff, info);
-// Decorate the muon
+        // Decorate the muon
         if (m_effDec) (*m_effDec)(mu) = eff;
         return result;
     }
@@ -271,7 +258,7 @@ namespace CP {
     CorrectionCode MuonEfficiencyScaleFactors::applyDataEfficiencyReplicas(const xAOD::Muon& mu, int nreplicas, const xAOD::EventInfo* info) const {
         std::vector<float> replicas(nreplicas);
         CorrectionCode result = getDataEfficiencyReplicas(mu, replicas, info);
-// Decorate the muon
+        // Decorate the muon
         if (m_effrDec) (*m_effrDec)(mu) = replicas;
         return result;
     }
@@ -286,7 +273,7 @@ namespace CP {
     CorrectionCode MuonEfficiencyScaleFactors::applyMCEfficiency(const xAOD::Muon& mu, const xAOD::EventInfo* info) const {
         float eff = 0;
         CorrectionCode result = getMCEfficiency(mu, eff, info);
-// Decorate the muon
+        // Decorate the muon
         if (m_MCeffDec) (*m_MCeffDec)(mu) = eff;
         return result;
     }

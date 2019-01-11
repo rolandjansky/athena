@@ -51,5 +51,17 @@ namespace CP{
         ptr->SetDirectory(0);
         return ptr;
     }
+    bool isOverflowBin(const TH1 *Histo, int bin) {
+        int x(-1), y(-1), z(-1);
+        if (Histo == nullptr){
+            Warning("isOverflowBin()", "Where is my histogram?");
+            return true;
+        }
+        Histo->GetBinXYZ(bin, x, y, z);
+        if (x == 0 || x == Histo->GetXaxis()->GetNbins() + 1) return true;
+        if (Histo->GetDimension() >= 2 && (y == 0 || y == Histo->GetYaxis()->GetNbins() + 1)) return true;
+        if (Histo->GetDimension() == 3 && (z == 0 || z == Histo->GetZaxis()->GetNbins() + 1)) return true;
+        return false;
+    }
 
 }

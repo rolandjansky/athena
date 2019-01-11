@@ -10,25 +10,23 @@
 
 
 #include <MuonEfficiencyCorrections/MuonEfficiencyType.h>
-#include <AsgTools/AsgTool.h>
-
 #include "xAODMuon/Muon.h"
-
 #include <map>
 #include <string>
 #include <iostream>
 
 namespace CP {
     class EfficiencyScaleFactor;
+    class MuonEfficiencyScaleFactors;
 
     typedef std::shared_ptr<EfficiencyScaleFactor> EfficiencyScaleFactor_Ptr;
 
     class EffiCollection {
         public:
             EffiCollection();
-            EffiCollection(const asg::AsgTool* ref_asg_tool, const std::string &file_central, const std::string &file_calo, const std::string &file_forward, const std::string &file_lowpt_central, const std::string &file_lowpt_calo, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, double lowPtTransition = 20000.);
+            EffiCollection(const MuonEfficiencyScaleFactors* ref_asg_tool, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType);
             //Constructor with nominal as fallback..
-            EffiCollection(const EffiCollection* Nominal, const asg::AsgTool* ref_asg_tool, const std::string &file_central, const std::string &file_calo, const std::string &file_forward, const std::string &file_lowpt_central, const std::string &file_lowpt_calo, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, double lowPtTransition = 20000.);
+            EffiCollection(const EffiCollection* Nominal, const MuonEfficiencyScaleFactors* ref_asg_tool , MuonEfficiencySystType sysType);
             EffiCollection(const EffiCollection& other);
             EffiCollection & operator =(const EffiCollection & other);
 
@@ -69,11 +67,6 @@ namespace CP {
             int getUnCorrelatedSystBin(const xAOD::Muon& mu) const;
 
         protected:
-            //Forward declaration for the shared_ptr
-            class CollectionContainer;
-            typedef std::shared_ptr<CollectionContainer> CollectionContainer_Ptr;
-            //Create a subclass to handle the periods
-
             class CollectionContainer {
                 public:
 
@@ -109,17 +102,16 @@ namespace CP {
 
             bool DoesBinFitInRange(CollectionContainer_Ptr Container, unsigned int & Bin) const;
             bool DoesMuonEnterBin(CollectionType Type, const xAOD::Muon mu, int &Bin) const;
-            std::string ReplaceExpInString(std::string str, const std::string &exp, const std::string &rep) const;
 
-            CollectionContainer_Ptr retrieveContainer(CollectionType Type) const;
-            CollectionContainer_Ptr FindContainerFromBin(unsigned int &bin) const;
-            CollectionContainer_Ptr FindContainer(const xAOD::Muon& mu) const;
+            CollectionContainer* retrieveContainer(CollectionType Type) const;
+            CollectionContainer* FindContainerFromBin(unsigned int &bin) const;
+            CollectionContainer* FindContainer(const xAOD::Muon& mu) const;
 
-            CollectionContainer_Ptr m_central_eff;
-            CollectionContainer_Ptr m_calo_eff;
-            CollectionContainer_Ptr m_forward_eff;
-            CollectionContainer_Ptr m_lowpt_central_eff;
-            CollectionContainer_Ptr m_lowpt_calo_eff;
+            std::unique_ptr<CollectionContainer> m_central_eff;
+            std::unique_ptr<CollectionContainer> m_calo_eff;
+            std::unique_ptr<CollectionContainer> m_forward_eff;
+            std::unique_ptr<CollectionContainer> m_lowpt_central_eff;
+            std::unique_ptr<CollectionContainer> m_lowpt_calo_eff;
 
             double m_lowpt_transition;
             CP::MuonEfficiencyType m_sfType;

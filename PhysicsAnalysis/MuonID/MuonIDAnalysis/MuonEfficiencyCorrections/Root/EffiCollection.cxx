@@ -2,18 +2,13 @@
  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
  */
 
-/*
- * EffiCollection.cxx
- *
- *  Created on: Jun 21, 2014
- *      Author: goblirsc
- */
-
 #include <MuonEfficiencyCorrections/EffiCollection.h>
 #include <MuonEfficiencyCorrections/EfficiencyScaleFactor.h>
+#include <MuonEfficiencyCorrections/MuonEfficiencyScaleFactors.h>
+
 #include <TTree.h>
 namespace CP {
-    std::vector<std::string> ToRemove { "GeV", "MeV", "[", "]", "{", "}", "(", ")", "#", " " };
+    const std::vector<std::string> ToRemove { "GeV", "MeV", "[", "]", "{", "}", "(", ")", "#", " " };
 
     EffiCollection::EffiCollection() :
                 m_central_eff(),
@@ -21,11 +16,11 @@ namespace CP {
                 m_forward_eff(),
                 m_lowpt_central_eff(),
                 m_lowpt_calo_eff(),
-                m_lowpt_transition(20000.),
+                m_lowpt_transition(-1),
                 m_sfType(CP::MuonEfficiencyType::Undefined) {
     }
 
-    EffiCollection::EffiCollection(const asg::AsgTool* ref_asg_tool, const std::string &file_central, const std::string &file_calo, const std::string &file_forward, const std::string &file_lowpt_central, const std::string &file_lowpt_calo, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, double lowPtTransition) :
+    EffiCollection::EffiCollection(const asg::MuonEfficiencyScaleFactors* ref_asg_tool, CP::MuonEfficiencyType effType, double lowPtTransition) :
                 EffiCollection() {
         m_lowpt_transition = lowPtTransition;
         m_sfType = effType;
@@ -56,12 +51,12 @@ namespace CP {
             m_lowpt_calo_eff = CollectionContainer_Ptr(new CollectionContainer(Nominal->retrieveContainer(CollectionType::CaloLowPt), ref_asg_tool, file_lowpt_calo, sysType, m_sfType, CollectionType::CaloLowPt, true));
         }
     }
-    EffiCollection::CollectionContainer_Ptr EffiCollection::retrieveContainer(CollectionType Type) const {
-        if (Type == CollectionType::Central) return m_central_eff;
-        if (Type == CollectionType::Forward) return m_forward_eff;
-        if (Type == CollectionType::Calo) return m_calo_eff;
-        if (Type == CollectionType::CentralLowPt) return m_lowpt_central_eff;
-        if (Type == CollectionType::CaloLowPt) return m_lowpt_calo_eff;
+    EffiCollection::CollectionContainer* EffiCollection::retrieveContainer(CollectionType Type) const {
+        if (Type == CollectionType::Central) return m_central_eff.get();
+        if (Type == CollectionType::Forward) return m_forward_eff.get();
+        if (Type == CollectionType::Calo) return m_calo_eff.get();
+        if (Type == CollectionType::CentralLowPt) return m_lowpt_central_eff.get();
+        if (Type == CollectionType::CaloLowPt) return m_lowpt_calo_eff.get();
         return nullptr;
     }
     bool EffiCollection::CheckConsistency() const {
@@ -229,13 +224,13 @@ namespace CP {
     EffiCollection::~EffiCollection() {
 
         m_central_eff.reset();
-        m_calo_eff.reset();
+        //~ m_calo_eff.reset();
         m_forward_eff.reset();
 
         m_lowpt_central_eff.reset();
         m_lowpt_calo_eff.reset();
     }
-    std::string EffiCollection::FileTypeName(EffiCollection::CollectionType T) const {
+    std::string EffiCollection::FileTypeName(EffiCollection::CollectionType T) {
         if (T == CollectionType::Central) return "Central ";
         if (T == CollectionType::Calo) return "Calo ";
         if (T == CollectionType::Forward) return "Forward ";

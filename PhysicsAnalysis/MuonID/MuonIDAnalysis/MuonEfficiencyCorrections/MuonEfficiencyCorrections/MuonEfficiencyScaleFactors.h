@@ -2,13 +2,6 @@
  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
-/*
- * MuonEfficiencyScaleFactors.h
- *
- *  Created on: Apr 9, 2014
- *      Author: goblirsc
- */
-
 #ifndef MUONEFFICIENCYSCALEFACTORS_H_
 #define MUONEFFICIENCYSCALEFACTORS_H_
 
@@ -102,6 +95,9 @@ namespace CP {
             std::string filename_HighEta()const;
             std::string filename_LowPt()const;
             std::string filename_LowPtCalo()const;
+            
+            float LowPtTransition() const;
+            
         private:
             // utility method to 'dress' a filename using the path resolver
             std::string resolve_file_location(const std::string &filename)const;
@@ -141,11 +137,9 @@ namespace CP {
             std::string m_calibration_version;
 
             // threshold below which low-pt SF (i.e. from JPsi) should be used
-            double m_lowpt_threshold;
+            float m_lowpt_threshold;
+            
             // decorators to quickly apply the eff and SF
-            
-            
-            
             std::unique_ptr<FloatDecorator> m_effDec;
             std::unique_ptr<FloatDecorator> m_MCeffDec;
             std::unique_ptr<FloatDecorator> m_sfDec;
@@ -155,17 +149,7 @@ namespace CP {
             std::unique_ptr<FloatVectorDecorator> m_MCeffrDec;
 
             CP::SystematicSet m_affectingSys;
-
-            // need CP::SystematicSets as members to retrieve MuonEfficiencySystType each event
-            std::unique_ptr<CP::SystematicSet> m_Sys1Down;
-            std::unique_ptr<CP::SystematicSet> m_Sys1Up;
-            std::unique_ptr<CP::SystematicSet> m_Stat1Down;
-            std::unique_ptr<CP::SystematicSet> m_Stat1Up;
-            std::unique_ptr<CP::SystematicSet> m_LowPtSys1Down;
-            std::unique_ptr<CP::SystematicSet> m_LowPtSys1Up;
-            std::unique_ptr<CP::SystematicSet> m_LowPtStat1Down;
-            std::unique_ptr<CP::SystematicSet> m_LowPtStat1Up;
-
+            
             bool m_init;
             bool m_seperateSystBins;
             bool m_breakDownSyst;
