@@ -62,11 +62,21 @@ def addTrackThinningToolTight(deriv="HION7", track_pt_threshold=4) :
     ToolSvc += TPThinningTool
     return TPThinningTool
 
+pp_trigger_collections=["HLT_xAOD__JetContainer_a4tcemsubjesISFS","HLT_xAOD__JetContainer_a4tcemsubjesFS"]
+HI_trigger_collections=["HLT_xAOD__JetContainer_a4ionemsubjesISFS","HLT_xAOD__JetContainer_a4ionemsubjesFS"]
+largeR_pp_trigger_collections=pp_trigger_collections+["HLT_xAOD__JetContainer_a10tclcwsubjesFS"]
 
-HIJetTriggerVars=["HLT_xAOD__JetContainer_a4ionemsubjesISFS.pt"
-                  "HLT_xAOD__JetContainer_a4ionemsubjesISFS.eta",
-                  "HLT_xAOD__JetContainer_a4ionemsubjesISFS.phi",
-                  "HLT_xAOD__JetContainer_a4ionemsubjesISFS.m"]
+
+def makeHITriggerJetBasicBranchList(isPP, deriv) :
+    HITriggerBranches=["pt","eta","phi","m"]
+    if isPP and deriv=="HION9": trigger_collections = largeR_pp_trigger_collections
+    elif isPP: trigger_collections = pp_trigger_collections
+    else: trigger_collections = HI_trigger_collections 
+    TriggerVars = []
+    for collection in trigger_collections :  
+        for j in HITriggerBranches: 
+            TriggerVars.append(collection+'.'+j)
+    return TriggerVars    
 
 HIClusterVars=["HIClusters.eta0",
                "HIClusters.phi0",
@@ -276,27 +286,27 @@ pp17TriggerDict_MB = {'HLT_mb_sptrk': 20}
 def GetTriggers(project_tag, isMB, deriv):    
     switcher_HP_HION7 = {
         'data15_hi': HI15TriggerDict_HP_HION7,
-        'data15': pp15TriggerDict_HP_HION7,
+        'data15_5TeV': pp15TriggerDict_HP_HION7,
         'data18_hi': HI18TriggerDict_HP_HION7,
-        'data17': pp17TriggerDict_HP_HION7,
+        'data17_5TeV': pp17TriggerDict_HP_HION7,
     }
     switcher_HP_HION8 = {
         'data15_hi': HI15TriggerDict_HP_HION8,
-        'data15': pp15TriggerDict_HP_HION8,
+        'data15_5TeV': pp15TriggerDict_HP_HION8,
         'data18_hi': HI18TriggerDict_HP_HION8,
-        'data17': pp17TriggerDict_HP_HION8,
+        'data17_5TeV': pp17TriggerDict_HP_HION8,
     }
     switcher_HP_HION9 = {
         'data15_hi': HI15TriggerDict_HP_HION9,
-        'data15': pp15TriggerDict_HP_HION9,
+        'data15_5TeV': pp15TriggerDict_HP_HION9,
         'data18_hi': HI18TriggerDict_HP_HION9,
-        'data17': pp17TriggerDict_HP_HION9,
+        'data17_5TeV': pp17TriggerDict_HP_HION9,
     }
     switcher_MB = {
         'data15_hi': HI15TriggerDict_MB,
-        'data15': pp15TriggerDict_MB,
+        'data15_5TeV': pp15TriggerDict_MB,
         'data18_hi': HI18TriggerDict_MB,
-        'data17': pp17TriggerDict_MB,
+        'data17_5TeV': pp17TriggerDict_MB,
     }
     
     if isMB: return switcher_MB.get(project_tag, "Invalid project tag")

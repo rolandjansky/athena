@@ -143,7 +143,7 @@ if HIDerivationFlags.isSimulation() :
 SlimmingHelper.AllVariables=AllVarContent
 
 ExtraVars=[]
-ExtraVars+=HIJetTriggerVars
+if not HIDerivationFlags.isSimulation(): ExtraVars+=makeHITriggerJetBasicBranchList(HIDerivationFlags.isPP,DerivationName)
 
 for collection in CollectionList :  
     if "Seed" not in collection:    
@@ -153,7 +153,6 @@ for collection in CollectionList :
         for j in HISeedBranches: 
             ExtraVars.append(collection+'.'+j)
                 
-ExtraVars+=HIJetTriggerVars
 ExtraVars.append("InDetTrackParticles.truthMatchProbability")
 SlimmingHelper.ExtraVariables=ExtraVars
 for v in HIClusterVars : SlimmingHelper.ExtraVariables.append(v)

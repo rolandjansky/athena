@@ -136,7 +136,7 @@ SlimmingHelper.SmartCollections = [ "InDetTrackParticles",
                                     "Photons",
                                     "PrimaryVertices"]
 ##AllVariables
-AllVarContent=["AntiKt4HITrackJets","BTagging_AntiKt4HI","BTagging_DFAntiKt4HI"]
+AllVarContent=["AntiKt4HITrackJets","BTagging_DFAntiKt4HI"]
 AllVarContent+=HIGlobalVars
 if HIDerivationFlags.isSimulation() : 
     AllVarContent+=["AntiKt2TruthJets","AntiKt4TruthJets","TruthEvents","TruthParticles"]
@@ -144,6 +144,9 @@ if HIDerivationFlags.isSimulation() :
 SlimmingHelper.AllVariables=AllVarContent
 
 ExtraVars=[]
+#if not HIDerivationFlags.isPP: ExtraVars+=HIJetTriggerVars
+#else ExtraVars+=ppJetTriggerVars
+
 for collection in CollectionList :  
     for j in HIJetBranches: 
         ExtraVars.append(collection+'.'+j)

@@ -3,6 +3,7 @@ print 'In HIJetRec_AODFix_r207.py'
 ##
 #check if is MC or overlay and configure calibration tool properly
 from JetRec.JetRecFlags import jetFlags
+from HIJetRec.HIJetRecFlags import HIJetFlags
 is_mc_or_overlay=False
 is_pp_mc=False
 if not jetFlags.useTruth():

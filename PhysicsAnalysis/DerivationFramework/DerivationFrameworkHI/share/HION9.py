@@ -139,7 +139,8 @@ SlimmingHelper.AllVariables=AllVarContent
 
 
 ExtraVars=[]
-ExtraVars+=HIJetTriggerVars
+if not HIDerivationFlags.isSimulation(): ExtraVars+=makeHITriggerJetBasicBranchList(HIDerivationFlags.isPP,DerivationName)
+
 #Only basic kinematics for small jets
 for collection in ["DFAntiKt2HIJets","DFAntiKt4HIJets"] :  
     for j in HIJetBasicBranches: 
