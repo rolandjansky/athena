@@ -42,7 +42,8 @@ atlas_add_component( Photospp_i
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} ${PHOTOSPP_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel GeneratorObjects Photospp_iLib )
 
 # Install files from the package:
-atlas_install_joboptions( share/*.py )
+atlas_install_joboptions( share/common/*.py
+                          share/example/*.py )
 
 set( PhotosppEnvironment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
    CACHE PATH "Location of PhotosppEnvironment.cmake" )

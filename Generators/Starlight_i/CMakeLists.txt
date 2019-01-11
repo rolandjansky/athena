@@ -41,7 +41,8 @@ atlas_add_component( Starlight_i
    LINK_LIBRARIES Starlight_iLib )
 
 # Install files from the package:
-atlas_install_joboptions( share/*.py )
+atlas_install_joboptions( share/common/*.py
+                          share/example/*.py )
 
 set( StarlightEnvironment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
    CACHE PATH "Location of StarlightEnvironment.cmake" )
