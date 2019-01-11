@@ -5,14 +5,10 @@
 #include "MuonCacheCreator.h"
 
 #include "MuonIdHelpers/MdtIdHelper.h"
-<<<<<<< HEAD
 #include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonIdHelpers/RpcIdHelper.h"
 #include "MuonIdHelpers/TgcIdHelper.h"
-
-=======
 #include "AthViews/View.h"
->>>>>>> ddcbbf851a894a70178cd50d03463be0dbb1f5d8
 
 /// Constructor
 MuonCacheCreator::MuonCacheCreator(const std::string &name,ISvcLocator *pSvcLocator):
