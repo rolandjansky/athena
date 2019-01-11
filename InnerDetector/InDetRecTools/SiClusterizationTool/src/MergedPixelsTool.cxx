@@ -653,8 +653,7 @@ PixelCluster* MergedPixelsTool::makeCluster
     double splitProb1,
     double splitProb2) const
 {
-    if ( msgLevel() < MSG::INFO ) 
-        ATH_MSG_VERBOSE("makeCluster called, number " << clusterNumber);
+    ATH_MSG_VERBOSE("makeCluster called, number " << clusterNumber);
 
     Identifier gangedID;
     Identifier elementID = element->identify();
@@ -815,16 +814,14 @@ PixelCluster* MergedPixelsTool::makeCluster
 
     Amg::Vector2D position(centroid.xPhi(),centroid.xEta());
 
-    if (msgLvl(MSG::VERBOSE)){
-        msg() << "Cluster ID =" << id << endmsg; 
-        msg() << "Cluster width (eta x phi) = " << colWidth 
-            << " x " << rowWidth << endmsg;
-        msg() << "Cluster width (eta x phi) = " << etaWidth 
-            << " x " << phiWidth << endmsg;
-        msg() << "Cluster local position (eta,phi) = " 
-            << (position)[0] << " " 
-            << (position)[1] << endmsg;
-    }
+    ATH_MSG_VERBOSE("Cluster ID =" << id); 
+    ATH_MSG_VERBOSE("Cluster width (eta x phi) = " << colWidth 
+        << " x " << rowWidth);
+    ATH_MSG_VERBOSE("Cluster width (eta x phi) = " << etaWidth 
+        << " x " << phiWidth);
+    ATH_MSG_VERBOSE("Cluster local position (eta,phi) = " 
+        << (position)[0] << " " 
+        << (position)[1]);
 
     if(!m_clusterMaker){
       PixelCluster* cluster = new PixelCluster(id,position,DVid,lvl1min,totgroup,siWidth,element,0);
