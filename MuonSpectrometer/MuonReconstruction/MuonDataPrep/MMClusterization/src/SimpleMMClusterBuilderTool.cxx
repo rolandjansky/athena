@@ -152,12 +152,19 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     ATH_MSG_VERBOSE(" Look for strip nr " << stripSum << " found at index " << j);
     
     double covX = MMprds[j].localCovariance()(Trk::locX, Trk::locX);
+
+    ///
+    /// memory allocated dynamically for the PrepRawData is managed by Event Store
+    ///
     Amg::MatrixX* covN = new Amg::MatrixX(1,1);
     covN->setIdentity();
     (*covN)(0,0) = 6.*(nmerge + 1.)*covX;
     if(nmerge<=1) (*covN)(0,0) = covX;
     ATH_MSG_VERBOSE(" make merged prepData at strip " << m_mmIdHelper->channel(MMprds[j].identify()) << " nmerge " << nmerge << " sqrt covX " << sqrt((*covN)(0,0)));
     
+    ///
+    /// memory allocated dynamically for the PrepRawData is managed by Event Store
+    ///
     MMPrepData* prdN = new MMPrepData(MMprds[j].identify(), hash, MMprds[j].localPosition(), rdoList, covN, MMprds[j].detectorElement());
     clustersVect.push_back(prdN);
   } // end loop MMprds[i]
