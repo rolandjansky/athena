@@ -116,7 +116,7 @@ StatusCode TrigMissingETHypoAlgMT::decide(const xAOD::TrigMissingETContainer* me
         ATH_MSG_DEBUG("Passed " << tool->name() );
     		TrigCompositeUtils::addDecisionID(decisionId, newdecision);
       } else ATH_MSG_DEBUG("Didn't pass " << tool->name() );
-    } ATH_MSG_DEBUG("Didn't pass previous trigger");
+    } else ATH_MSG_DEBUG("Didn't pass previous trigger");
   }
   
   return StatusCode::SUCCESS;
