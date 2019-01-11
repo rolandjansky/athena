@@ -3,7 +3,7 @@
 
 
 class CFNaming ():
-    """Class to collect all string manipulations on CF object names """
+    """Static Class to collect all string manipulations on CF object names """
     
     RECO_POSTFIX = "_reco"
     VIEW_POSTFIX = "_view"
@@ -54,9 +54,9 @@ class CFNaming ():
         return "%s%d_for_%s"%(HypoName,ncopy,StepName)
 
     @staticmethod
-    def stepRecoNodeName(HLTNodeName, stepCFname):
-        return  (HLTNodeName + "_" + stepCFname)
+    def stepRecoNodeName(HLTNodeName, StepCFName):
+        return  (HLTNodeName + "_" + StepCFName)
 
     @staticmethod
-    def stepSummaryName(stepCFname):
-        return ("TriggerSummary"+ stepCFname)
+    def stepSummaryName(StepCFName):
+        return ("TriggerSummary"+ StepCFName)
