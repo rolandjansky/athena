@@ -200,13 +200,13 @@ StatusCode LArSuperCellBuilderDriver::execute() {
                 if ( (et_calc > m_bcidBands[i]) && (et_calc< m_bcidBands[i+1]) ){
                 if ( (et_calc_t > m_bcidLowLim[i]*et_calc) && (et_calc_t < m_bcidUpLim[i]*et_calc) ) passBCID=true;
                   std::cout << "check : " << et_calc << " " << energy << " " << time << " " << i << " " << m_bcidBands[i] << " " << m_bcidBands[i+1] << " " << et_calc_t << " " << m_bcidLowLim[i] << " " << m_bcidUpLim[i] << " " << m_bcidLowLim[i]*et_calc << " " << m_bcidUpLim[i]*et_calc << std::endl;
-           	  std::cout << prov << " " << (!0x200) << " " << (prov & (!0x200)) << std::endl;
+           	  std::cout << prov << " " << (~0x200) << " " << (prov & (~0x200)) << std::endl;
                   std::cout << "final result : " << passBCID << std::endl;
 		  break;
                 }
            }
 
-           prov = prov & (!0x200);
+           prov = prov & (~0x200);
            if ( passBCID ) prov |= 0x200;
            CaloCell* cell = new CaloCell( dde, (float)energy, (float)time, (uint16_t)0, (uint16_t)prov, gain );
 	   caloCell->push_back( cell );
