@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENT_LOOP_JOB_HH
@@ -418,6 +418,62 @@ namespace EL
     static const std::string optBatchSlurmWrapperExec;
     /// This overrides the asetup command if you need to use a custom one
     static const std::string optBatchSetupCommand;
+
+
+  public:
+    /// @name Options controlling the memory monitoring behaviour of the job
+    /// @{
+
+    /// The minimal per-event resident memory increase for triggering an error
+    ///
+    /// This is the main setting for triggering a failure in memory-leaking
+    /// analysis jobs. It sets the limit on the per-event resident memory
+    /// increase of the job for it to be still successful. It is an integer
+    /// property, setting the limit in kilobytes.
+    ///
+    static const std::string optMemResidentPerEventIncreaseLimit;
+
+    /// The minimal per-event virtual memory increase for triggering an error
+    ///
+    /// Implemented very similarly to @c optMemResidentPerEventIncreaseLimit.
+    /// But since normally we don't care about the virtual memory usage of the
+    /// jobs that much, it is set to zero by default. Making
+    /// @c optMemResidentPerEventIncreaseLimit control the behaviour of the
+    /// job.
+    ///
+    static const std::string optMemVirtualPerEventIncreaseLimit;
+
+    /// The minimal resident memory increase necessary to trigger an error
+    ///
+    /// It is an integer property, setting the limit in kilobytes. Jobs have
+    /// to increase their resident memory usage by this amount to trigger a
+    /// failure.
+    ///
+    static const std::string optMemResidentIncreaseLimit;
+
+    /// The minimal virtual memory increase necessary to trigger an error
+    ///
+    /// Implemented very similarly to @c optMemResidentIncreaseLimit. Since
+    /// normally the virtual memory usage is not considered in producing a
+    /// failure, it is set to zero by default.
+    ///
+    static const std::string optMemVirtualIncreaseLimit;
+
+    /// Failure behaviour of the code when a "significant memory leak" is found
+    ///
+    /// This flag allows the user to select what should happen when the code
+    /// finds a memory leak in the job that is larger than the values set by
+    /// @c optMemResidentPerEventIncreaseLimit,
+    /// @c optMemVirtualPerEventIncreaseLimit, @c optMemResidentIncreaseLimit
+    /// and @c optMemVirtualIncreaseLimit.
+    ///
+    /// It's a boolean property. When set to @c true, the job fails if a
+    /// significant memory leak is detected. If set to @c false, only a warning
+    /// is printed.
+    ///
+    static const std::string optMemFailOnLeak;
+
+    /// @}
 
 
     //
