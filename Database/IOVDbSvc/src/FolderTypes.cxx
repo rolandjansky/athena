@@ -13,12 +13,9 @@ namespace IOVDbNamespace{
   FolderType
   determineFolderType(const cool::IFolderPtr & pFolder, IClassIDSvc* /*clidsvc*/){
     const auto & folderDescription = pFolder->description();
-    //int clid = parseClid(folderDescription);
     //If you find a coracool tag, it is unambiguously a coracool folder
-    std::cout<<folderDescription<<std::endl;
     if (folderDescription.find("<coracool>") != std::string::npos) return CoraCool;
     const std::string typeName = parseTypename(folderDescription);
-    std::cout<<typeName<<std::endl;
     //if the type is CondAttrListVec, and yet it is not a CoraCool, it must be a CoolVector
     if (typeName=="CondAttrListVec") return CoolVector;
     //check if the payload spec is compatible with a pool ref/pool ref collection
@@ -44,7 +41,24 @@ namespace IOVDbNamespace{
      } else {
        ftype=AttrListColl;
        if ( pAttrListColl->size()>0) {
-         if (poolCompatible (pAttrListColl)) return PoolRefColl;
+         if (poolCompatible(pAttrListColl)) return PoolRefColl;
+       }
+     }
+     return ftype;
+   }
+   
+   //determine folder type from CondAttrListCollection
+   FolderType
+   determineFolderType(const CondAttrListCollection & attrListColl){
+     FolderType ftype(AttrList);
+     //has a single magic channel?
+     if (attrListColl.size()==1 && attrListColl.begin()->first==0xFFFF) {
+       if (poolCompatible (attrListColl)) return PoolRef;
+       return AttrList;
+     } else {
+       ftype=AttrListColl;
+       if ( attrListColl.size()>0) {
+         if (poolCompatible(attrListColl)) return PoolRefColl;
        }
      }
      return ftype;
@@ -66,6 +80,13 @@ namespace IOVDbNamespace{
    bool
    poolCompatible(const CondAttrListCollection * pAttrListColl){
      const coral::AttributeList& payload1=pAttrListColl->begin()->second;
+     const coral::AttributeSpecification& spec=payload1[0].specification();
+     return (spec.name()=="PoolRef" && spec.typeName()=="string");
+   }
+   
+   bool
+   poolCompatible(const CondAttrListCollection & attrListColl){
+     const coral::AttributeList& payload1=attrListColl.begin()->second;
      const coral::AttributeSpecification& spec=payload1[0].specification();
      return (spec.name()=="PoolRef" && spec.typeName()=="string");
    }
