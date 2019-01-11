@@ -1,14 +1,12 @@
 /* emacs: this is -*- c++ -*- */
-//
-//   @file    chains.cxx         
-//   
-//
-//   @author sutt
-//   @date   Fri 11 Jan 2019 07:41:26 CET
-//
-//   $Id: chains.cxx, v0.0   Fri 11 Jan 2019 07:41:26 CET sutt $
-//
-//   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+/**
+ **     @file    chains.cxx
+ **
+ **     @author  mark sutton
+ **     @date    Fri 11 Jan 2019 07:41:26 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #include <iostream>
