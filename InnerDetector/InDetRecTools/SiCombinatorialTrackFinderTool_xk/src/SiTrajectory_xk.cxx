@@ -537,11 +537,11 @@ bool InDet::SiTrajectory_xk::initialize
 	      ++m_nclusters; m_ndfcut+=2; sic=(*c); lSiCluster.erase(c); break;
 	    }
 	  }
-	  if(!m_elements[m_nElements].set(1,(*r),sib,sie,sic)) return false; 
+	  m_elements[m_nElements].set(1,(*r),sib,sie,sic);
 	  ++m_naElements;
 	}
 	else if(m_naElements) {
-	  if(!m_elements[m_nElements].set(0,(*r),sib,sie,sic)) return false;
+	  m_elements[m_nElements].set(0,(*r),sib,sie,sic);
 	}
 	else continue;
 
@@ -563,11 +563,11 @@ bool InDet::SiTrajectory_xk::initialize
 	    ++m_nclusters; m_ndfcut+=1; sic=(*c); lSiCluster.erase(c); break;
 	  }
 	}
-	if(!m_elements[m_nElements].set(1,(*r),sib,sie,sic)) return false; 
+	m_elements[m_nElements].set(1,(*r),sib,sie,sic);
 	++m_naElements;
       }
       else if(m_naElements) {
-	if(!m_elements[m_nElements].set(0,(*r),sib,sie,sic)) return false;
+        m_elements[m_nElements].set(0,(*r),sib,sie,sic);
       }
       else continue;
 
