@@ -26,7 +26,7 @@ def _IncTool(name, threshold, sel):
 
     if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in  TriggerFlags.enableMonitoring():
         from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
-        monTool = GenericMonitoringTool("MonTool"+name)
+        monTool = GenericMonitoringTool("MonTool_"+name)
         monTool.Histograms = [ defineHistogram('dEta', type='TH1F', title="L2Calo Hypo #Delta#eta_{L2 L1}; #Delta#eta_{L2 L1}", xbins=80, xmin=-0.01, xmax=0.01),
                                defineHistogram('dPhi', type='TH1F', title="L2Calo Hypo #Delta#phi_{L2 L1}; #Delta#phi_{L2 L1}", xbins=80, xmin=-0.01, xmax=0.01),
                                defineHistogram('Et_em', type='TH1F', title="L2Calo Hypo cluster E_{T}^{EM};E_{T}^{EM} [MeV]", xbins=50, xmin=-2000, xmax=100000),
@@ -133,62 +133,83 @@ def decodeThreshold( threshold ):
     return [ threshold[1:] ] 
 
 
+def TrigL2CaloHypoToolFromDict( d ):
+    """ Use menu decoded chain dictionary to configure the tool """
+    cparts = d['chainParts'][0]
+    
+    def __mult(cpart):
+        return int( cpart['multiplicity'] )
+
+    def __th(cpart):
+        return cpart['threshold']
+    
+    def __sel(cpart):
+        return cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
+    
+    name = d['chainName']
+
+    
+    # do we need to configure high multiplicity selection, either NeX or ex_ey_ez etc...?
+    if len(d['chainParts']) > 1 or __mult(d['chainParts'][0]) > 1:
+        tool = _MultTool(name)
+        for cpart in d['chainParts']:
+            for cutNumber in range( __mult( cpart ) ):
+                tool.SubTools += [ _IncTool( cpart['chainPartName']+"_"+str(cutNumber), __th( cpart ), __sel( cpart) ) ]
+
+        return tool
+    else:        
+        return _IncTool( name, __th( d['chainParts'][0]),  __sel( d['chainParts'][0] ) )
+                    
+
 def TrigL2CaloHypoToolFromName( name, conf ):
+    """ To be phased out """
     from AthenaCommon.Constants import DEBUG
     """ set the name of the HypoTool (name=chain) and figure out the threshold and selection from conf """
     #print "Configuring ", name
-    bname = conf.split('_')
-    threshold = bname[1]
-    sel = bname[2]
-
-    print "TrigL2CaloHypoToolFromName: name = %s, threshold = %s, sel =%s"%(name,threshold,sel)
+    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName
+    decoder = DictFromChainName()
+    decodedDict = decoder.analyseShortName(conf, [], "") # no L1 info
+    decodedDict['chainName'] = name # override
+        
+    return TrigL2CaloHypoToolFromDict( decodedDict )
     
-    dt = decodeThreshold( threshold )
-    assert len(dt) >= 1, "Threshold "+ threshold +" not decoded properly"
-
-    if len( dt ) > 1:
-        tool = _MultTool(name) 
-        for cutNumber, th in enumerate( dt ):
-            print "TrigL2CaloHypoToolFromName: cut and threshold ", cutNumber, th
-            tool.SubTools += [ _IncTool( name+"_"+str(cutNumber), th, sel ) ]
-        for t in tool.SubTools:
-            t.OutputLevel=DEBUG
-    else:
-        tool = _IncTool( name, dt[0], sel )
-    return tool
 
 if __name__ == "__main__":    
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     TriggerFlags.enableMonitoring=['Validation']
-    t = TrigL2CaloHypoToolFromName( "HLT_e10_nocut_mu6", "HLT_e10_nocut" )
+    t = TrigL2CaloHypoToolFromName( "HLT_e10_nocut", "HLT_e10_nocut" )
     assert t, "cant configure NoCut"    
     #print t
 
-    t = TrigL2CaloHypoToolFromName( "HLT_e10_etcut_mu6","HLT_e10_etcut" )
+    t = TrigL2CaloHypoToolFromName( "HLT_e10_etcut","HLT_e10_etcut" )
     assert t, "cant configure EtCut"
-    #print t
+    print t
 
-    t  = TrigL2CaloHypoToolFromName( "HLT_e10_tight_mu6", "HLT_e10_tight" )
+    t  = TrigL2CaloHypoToolFromName( "HLT_e10_tight", "HLT_e10_tight" )
     assert t, "cant configure rel selection - tight"
     #print t    
 
-    t  = TrigL2CaloHypoToolFromName( "HLT_e10_perf_mu6", "HLT_e10_perf" )
+    t  = TrigL2CaloHypoToolFromName( "HLT_e10_perf", "HLT_e10_perf" )
     assert t, "cant configure rel selection - perf"
     #print t    
 
-    t = TrigL2CaloHypoToolFromName( "HLT_2e5_etcut_mu6", "HLT_2e5_etcut" )
+    t = TrigL2CaloHypoToolFromName( "HLT_2e5_etcut", "HLT_2e5_etcut" )
     assert t, "cant configure symmetric selection"
     assert len(t.SubTools) == 2, "Sub-tools not configured"
     #print t    
 
-    t = TrigL2CaloHypoToolFromName( "HLT_3e5_etcut_mu6", "HLT_3e5_etcut" )
+    t = TrigL2CaloHypoToolFromName( "HLT_3e5_etcut", "HLT_3e5_etcut" )
     assert t, "cant configure symmetric selection"
     assert len(t.SubTools) == 3, "Sub-tools not configured"
 
-
-    t = TrigL2CaloHypoToolFromName( "HLT_e5e3_etcut_mu6",  "HLT_e5e3_etcut" )
+    t = TrigL2CaloHypoToolFromName( "HLT_e3_etcut_e5_etcut",  "HLT_e3_etcut_e5_etcut" )
     assert t, "cant configure asymmetric selection"
     assert len(t.SubTools) == 2, "Sub-tools not configured"
+
+    t = TrigL2CaloHypoToolFromName( "HLT_e3_etcut_e5_etcut_mu6",  "HLT_e3_etcut_e5_etcut" )
+    assert t, "cant configure asymmetric selection for combined chains"
+    assert len(t.SubTools) == 2, "Sub-tools not configured"
+
     #print t    
 
     print ( "\n\n TrigL2CaloHypoToolFromName ALL OK\n\n" )
