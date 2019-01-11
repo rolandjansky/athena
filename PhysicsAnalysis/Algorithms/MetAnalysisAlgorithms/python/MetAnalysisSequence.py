@@ -4,7 +4,7 @@
 from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 
-def makeMetAnalysisSequence( dataType, metSuffix ):
+def makeMetAnalysisSequence( dataType, metSuffix, useFJVT = True ):
     """Create a met analysis algorithm sequence
 
     After creating the sequence object, it needs to be configured with a call
@@ -33,6 +33,7 @@ def makeMetAnalysisSequence( dataType, metSuffix ):
       dataType -- The data type to run on ("data", "mc" or "afii")
       metSuffix -- Suffix for the (core) MET objects to use from the input
                    (file)
+      useFJVT -- Use FJVT decision for the calculation
     """
 
     if not dataType in ["data", "mc", "afii"] :
@@ -45,6 +46,8 @@ def makeMetAnalysisSequence( dataType, metSuffix ):
     alg = createAlgorithm( 'CP::MetMakerAlg', 'MetMakerAlg' )
     addPrivateTool( alg, 'makerTool', 'met::METMaker' )
     alg.makerTool.DoPFlow = 'PFlow' in metSuffix
+    if useFJVT:
+        alg.makerTool.JetRejectionDec = 'passFJVT'
     alg.metCore = 'MET_Core_' + metSuffix
     alg.metAssociation = 'METAssoc_' + metSuffix
     seq.append( alg,

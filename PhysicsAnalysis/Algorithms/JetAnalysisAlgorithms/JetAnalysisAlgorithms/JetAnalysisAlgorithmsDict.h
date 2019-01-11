@@ -9,6 +9,7 @@
 #define JET_ANALYSIS_ALGORITHMS__JET_ANALYSIS_ALGORITHMS_DICT_H
 
 #include <JetAnalysisAlgorithms/JetCalibrationAlg.h>
+#include <JetAnalysisAlgorithms/JetGhostMuonAssociationAlg.h>
 #include <JetAnalysisAlgorithms/JetModifierAlg.h>
 #include <JetAnalysisAlgorithms/JetSelectionAlg.h>
 #include <JetAnalysisAlgorithms/JetSmearingAlg.h>
