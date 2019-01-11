@@ -199,9 +199,6 @@ StatusCode LArSuperCellBuilderDriver::execute() {
            for(unsigned int i=0;i<m_bcidBands.size()-1;i++){
                 if ( (et_calc > m_bcidBands[i]) && (et_calc< m_bcidBands[i+1]) ){
                 if ( (et_calc_t > m_bcidLowLim[i]*et_calc) && (et_calc_t < m_bcidUpLim[i]*et_calc) ) passBCID=true;
-                  std::cout << "check : " << et_calc << " " << energy << " " << time << " " << i << " " << m_bcidBands[i] << " " << m_bcidBands[i+1] << " " << et_calc_t << " " << m_bcidLowLim[i] << " " << m_bcidUpLim[i] << " " << m_bcidLowLim[i]*et_calc << " " << m_bcidUpLim[i]*et_calc << std::endl;
-           	  std::cout << prov << " " << (~0x200) << " " << (prov & (~0x200)) << std::endl;
-                  std::cout << "final result : " << passBCID << std::endl;
 		  break;
                 }
            }
