@@ -115,6 +115,7 @@ namespace Trk
     m_copyExtraSummaryName {"eProbabilityComb","eProbabilityHT","TRTTrackOccupancy","TRTdEdx","TRTdEdxUsedHits"},
     m_useTrackSummaryTool (true),
     m_useMuonSummaryTool  (false),
+    m_doITk               (false),
     m_forceTrackSummaryUpdate (false),
     m_keepParameters      (false),
     m_keepFirstParameters(false),
@@ -131,6 +132,7 @@ namespace Trk
     declareProperty("MagFieldSvc",              m_magFieldSvc);
     declareProperty("UseTrackSummaryTool" , m_useTrackSummaryTool);
     declareProperty("UseMuonSummaryTool" , m_useMuonSummaryTool);
+    declareProperty("DoITk" , m_doITk);
     declareProperty("KeepParameters",   m_keepParameters);
     declareProperty("KeepFirstParameters",   m_keepFirstParameters);
     declareProperty("KeepAllPerigee",   m_keepAllPerigee);
@@ -1006,6 +1008,7 @@ void TrackParticleCreatorTool::setTrackSummary( xAOD::TrackParticle& tp, const T
       continue;
     }
     if( i >= Trk::numberOfStgcEtaHits && i <= Trk::numberOfMmHoles) continue;
+    if( !m_doITk && i >= Trk::numberOfContribPixelBarrelFlatLayers && i <= Trk::numberOfPixelEndcapHoles) continue;
     // coverity[mixed_enums]
     if (i == Trk::numberOfTRTHitsUsedFordEdx ) continue;
 
