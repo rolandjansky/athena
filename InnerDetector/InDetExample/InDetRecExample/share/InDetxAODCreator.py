@@ -45,6 +45,8 @@ InDetxAODParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetxAODPa
                                                              KeepFirstParameters     = InDetFlags.KeepFirstParameters(),
                                                              PerigeeExpression       = _perigee_expression)
 
+if InDetFlags.doSLHC():
+    InDetxAODParticleCreatorTool.DoITk=True
 
 ToolSvc += InDetxAODParticleCreatorTool 
 if InDetFlags.doPrintConfigurables(): 

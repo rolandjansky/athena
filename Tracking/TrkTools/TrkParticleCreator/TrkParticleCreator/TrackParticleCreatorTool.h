@@ -192,6 +192,7 @@ private:
   bool m_doIBL;
   bool m_useTrackSummaryTool;
   bool m_useMuonSummaryTool;
+  bool m_doITk;
   bool m_forceTrackSummaryUpdate; /** use to force an update of the track summary
   rather than using the cached summary */
     /** the following keep options are mutually exclusive **/
