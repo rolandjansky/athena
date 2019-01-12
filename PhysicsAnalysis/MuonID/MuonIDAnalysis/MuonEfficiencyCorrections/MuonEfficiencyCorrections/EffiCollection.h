@@ -15,9 +15,6 @@
 #include <map>
 #include <string>
 #include <iostream>
-namespace asg{
-    class AsgTool;
-}
 
 namespace CP {
     class MuonEfficiencyScaleFactors;
@@ -51,22 +48,23 @@ namespace CP {
             /// and there must no overlapping periods to pass this test.
             bool CheckConsistency();
 
-            // Get the number of all bins in the scale-factor maps including
-            // the overflow & underflow bins
+            /// Get the number of all bins in the scale-factor maps including
+            /// the overflow & underflow bins
             unsigned int nBins() const;
             
-            // If systematic decorrelation is activated then the user needs to loop
-            // manually over the syst bins. This method activates the i-th bin to 
-            // be active. For the remaining bins the nominal scale-factor is returned
-            // instead.
+            /// If systematic decorrelation is activated then the user needs to loop
+            /// manually over the syst bins. This method activates the i-th bin to 
+            /// be active. For the remaining bins the nominal scale-factor is returned
+            /// instead.
             bool SetSystematicBin(unsigned int Bin);
             
-            // Checks whether the i-th bin belongs to the low-pt map...
+            /// Checks whether the i-th bin belongs to the low-pt map...
             bool IsLowPtBin(unsigned int Bin) const;
-            // Checks whether the i-th bin belongs to the forward map
+            /// Checks whether the i-th bin belongs to the forward map
             bool IsForwardBin(unsigned int Bin) const;
 
-            
+            /// Returns the global bin name conststucted from the axis
+            /// titles and the bin borders
             std::string GetBinName(unsigned int bin) const;
             
             // Returns the bin number from which the scale-factor of the muon
@@ -91,14 +89,32 @@ namespace CP {
                     /// Returns  MUON_EFF_<sysname()>
                     std::string sysname() const;
                     
-                    ///
+                    /// Activate this bin to run in the uncorrelated systematic mode
                     bool SetSystematicBin(unsigned int Bin);
+                    
+                    /// Sets the global offset to align the order in the map into a
+                    /// global numbering scheme
                     void SetGlobalOffSet(unsigned int OffSet);
+                    
+                    /// Number of bins of the map itself
                     unsigned int nBins() const;
+                    
+                    /// Global offset of the bin numbers
+                    unsigned int globalOffSet() const;
+                   
+                    /// Name of the i-th bin 
                     std::string GetBinName(unsigned int Bin) const;                    
+                    
+                    /// Returns the global bin number corresponding to the
+                    /// muon kinematics. In case of failures -1 is returned
                     int FindBinSF(const xAOD::Muon &mu) const;
+                    
+                    /// File type of the map
                     EffiCollection::CollectionType type() const;
                     
+                    bool isNominal() const;
+                    bool isUpVariation() const;
+                    bool seperateBinSyst() const;
                     
                 private:
                     std::map<std::string, std::pair<unsigned int, unsigned int>> findPeriods(const MuonEfficiencyScaleFactors& ref_tool) const;

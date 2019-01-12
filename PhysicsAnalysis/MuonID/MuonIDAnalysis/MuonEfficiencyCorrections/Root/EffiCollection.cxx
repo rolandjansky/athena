@@ -103,14 +103,23 @@ namespace CP {
         /// the systematic variations
         if (!m_syst_set){
             m_syst_set = std::make_unique<CP::SystematicSet>();
-            
-            
             for (const auto& file_type: {EffiCollection::Central, EffiCollection::Calo, EffiCollection::Forward,  
                                          EffiCollection::CentralLowPt, EffiCollection::CaloLowPt}){
-                
-            }
+                    
+                std::shared_ptr<EffiCollection::CollectionContainer> container = retrieveContainer(file_type);
+                if (container->isNominal()) continue;
+                if (container->seperateBinSyst()){
+                    // Let the world implode... Yeaha register foreach bin
+                    // a systematic variation
+                    for (unsigned int b = nBins() - 1; b > 0  ; --b){
+                        unsigned int bin = b + container->globalOffSet();
+                        m_syst_set->insert(CP::SystematicVariation::makeToyVariation("MUON_EFF_" + container->sysname()  + GetBinName(bin) , bin, container->isUpVariation() ? 1  : -1 ));
+                    }
+                } else {
+                    m_syst_set->insert( SystematicVariation("MUON_EFF_" + container->sysname(), container->isUpVariation() ? 1  : -1));
+                }
+             }
         }
-        
         return true;
     }
 
@@ -342,6 +351,23 @@ namespace CP {
     void EffiCollection::CollectionContainer::SetGlobalOffSet(unsigned int OffSet){
         m_binOffSet = OffSet;
     }
-   
-
+    unsigned int EffiCollection::CollectionContainer::globalOffSet() const{
+        return m_binOffSet;
+    }
+    bool EffiCollection::CollectionContainer::isNominal() const {
+        if (m_SF.empty()) return false;
+        return (*m_SF.begin())->sysname(false).empty();
+    }
+    bool EffiCollection::CollectionContainer::isUpVariation() const {
+        if (m_SF.empty()) return false;
+        return (*m_SF.begin())->IsUpVariation();        
+    }
+    bool EffiCollection::CollectionContainer::seperateBinSyst() const {
+        if (m_SF.empty()) return false;
+        return (*m_SF.begin())->SeperateSystBins();
+    }
+    std::string EffiCollection::CollectionContainer::sysname() const{
+        if (m_SF.empty()) return "UNKNOWN SYST";
+        return (*m_SF.begin())->sysname(false);
+    }
 }
