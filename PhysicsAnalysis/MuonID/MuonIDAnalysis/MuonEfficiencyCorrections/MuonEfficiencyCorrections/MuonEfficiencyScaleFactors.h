@@ -69,24 +69,18 @@ namespace CP {
             virtual std::string getUncorrelatedSysBinName(unsigned int Bin) const;
             virtual std::string getUncorrelatedSysBinName(const SystematicSet& systConfig) const;
 
-            // copy constructor, to make reflex happy...
-            MuonEfficiencyScaleFactors(const MuonEfficiencyScaleFactors& tocopy);
-
-            // to make coverity happy
-            MuonEfficiencyScaleFactors & operator =(const MuonEfficiencyScaleFactors & tocopy);
 
         private:
-            typedef SG::AuxElement::Decorator<float> FloatDecorator;
-            typedef SG::AuxElement::Decorator<std::vector<float> > FloatVectorDecorator;
-            
             unsigned int getRandomRunNumber(const xAOD::EventInfo* info) const;
-            
-            
             /// load the SF histos
             bool LoadEffiSet(MuonEfficiencySystType sysType);
             bool LoadInputs();
         public:
-        
+            /// The following methods are meant to propagate information from the central
+            /// tool to the subtool managing the individual scale-factor maps to keep their
+            /// constructors small in number of arguments. The users do not have to call them.
+            
+            
             /// Construct the name of the input files from the configuration
             /// Make these methods public such that they can be used by the
             //  scale-factor managing EffiCollection class without piping
@@ -114,18 +108,27 @@ namespace CP {
             //// Returns the type of the measurement to be carried out... E.g. Reco/TTVA/Iso
             CP::MuonEfficiencyType measurement() const; 
             
+            /// The apply<Blah> methods decorate their result directly to the muon. The name of the decorators
+            /// can be set by the users themselves using several properties. To avoid that systmatics overwrite
+            /// each other and the nominal the final maps are decorating the muon following the logic
+            ///     <decoration>__<syst_name>
+            
+            /// The following methods propagate the basic decoration names to the maps            
+            std::string sf_decoration() const;
+            std::string data_effi_decoration() const;
+            std::string mc_effi_decoration() const;
+            
+            std::string sf_replica_decoration() const;
+            std::string data_effi_replica_decoration() const;
+            std::string mc_effi_replica_deocration() const;
+            
+            
         private:
             /// utility method to 'dress' a filename using the path resolver
             std::string resolve_file_location(const std::string &filename)const;
 
-            //Some util functions
-            void CopyInformation(const MuonEfficiencyScaleFactors & tocopy);
+         
             //These are functions needed during initialization
-           
-            StatusCode CreateDecorator(std::unique_ptr<FloatDecorator> &Dec,  std::string& DecName, const std::string& defaultName);
-            StatusCode CreateVecDecorator(std::unique_ptr<FloatVectorDecorator> &Dec, std::string& DecName, const std::string& defaultName);
-           
-            StatusCode IsDecoratorNameUnique(std::string &name)const;
             SystematicSet SetupSystematics(bool doUnfolded = false) const;
             void SetupCheckSystematicSets();
             /// the working point to operate on
@@ -148,26 +151,13 @@ namespace CP {
             std::string m_efficiency_decoration_name_data;
             std::string m_efficiency_decoration_name_mc;
             std::string m_sf_decoration_name;
-            
-            std::string m_sf_replica_decoration_name;
-            std::string m_eff_replica_decoration_name;
-            std::string m_mc_eff_replica_decoration_name;
-
+      
             // subfolder to load from the calibration db
             std::string m_calibration_version;
 
             // threshold below which low-pt SF (i.e. from JPsi) should be used
             float m_lowpt_threshold;
-            
-            // decorators to quickly apply the eff and SF
-            std::unique_ptr<FloatDecorator> m_effDec;
-            std::unique_ptr<FloatDecorator> m_MCeffDec;
-            std::unique_ptr<FloatDecorator> m_sfDec;
-
-            std::unique_ptr<FloatVectorDecorator> m_sfrDec;
-            std::unique_ptr<FloatVectorDecorator> m_effrDec;
-            std::unique_ptr<FloatVectorDecorator> m_MCeffrDec;
-
+         
             CP::SystematicSet m_affectingSys;
             
             bool m_init;

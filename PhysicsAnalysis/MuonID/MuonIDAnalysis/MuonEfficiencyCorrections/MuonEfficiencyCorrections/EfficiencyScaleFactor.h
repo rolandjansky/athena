@@ -1,8 +1,8 @@
 /*
  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
-#ifndef EFFICIENCYSCALEFACTOR_H_
-#define EFFICIENCYSCALEFACTOR_H_
+#ifdef  MUONEFFICIENCYCORRECITONS_EFFICIENCYSCALEFACTOR_H_
+#define MUONEFFICIENCYCORRECITONS_EFFICIENCYSCALEFACTOR_H_
 
 // EDM include(s):
 #include "xAODMuon/Muon.h"
@@ -27,8 +27,10 @@
 #include <cmath>
 #include <memory>
 
+
 namespace CP {
-    typedef std::shared_ptr<IKinematicSystHandler> IKinematicSystHandler_Ptr;
+    //typedef std::shared_ptr<IKinematicSystHandler> IKinematicSystHandler_Ptr;
+    
     class SystematicSet;
     class EfficiencyScaleFactor {
 
@@ -44,19 +46,14 @@ namespace CP {
             /// default constructor - will create the histos as NULL pointers
             EfficiencyScaleFactor();
             /// constructor to use in real life - will read in the histos from the given file
-            EfficiencyScaleFactor(const  std::string& toolname, 
-                                 const std::string &file, 
-                                 const std::string &time_unit, 
-                                 MuonEfficiencySystType sysType, 
-                                 CP::MuonEfficiencyType effType, 
-                                 bool is_lowpt = false, 
-                                 bool hasPtDepSys = false);
+            EfficiencyScaleFactor(const std::string &file, 
+                                  const std::string &time_unit, 
+                                  bool is_lowpt = false, 
+                                  bool hasPtDepSys = false);
             ///Constructor to connect the EfficiencyScaleFactor with the Nominal Version
             EfficiencyScaleFactor(EfficiencyScaleFactor* Nominal, const std::string& toolname, const std::string &file, const std::string &time_unit, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, bool is_lowpt = false, bool hasPtDepSys = false);
 
-            EfficiencyScaleFactor(const EfficiencyScaleFactor & other);
-            EfficiencyScaleFactor & operator =(const EfficiencyScaleFactor & other);
-
+        
             /// Read SF histrograms from a given input file.
             bool ReadFromFile(const std::string &file, const std::string& time_unit);
             std::unique_ptr<HistHandler> ReadHistFromFile(const std::string& name, TFile* f, const std::string& time_unit);
@@ -98,8 +95,7 @@ namespace CP {
 
             // a string name assigned to each sys variation
             std::string sysname() const;
-            std::string toolname() const;
-            
+           
             unsigned int firstRun() const;
             unsigned int lastRun() const;
             bool coversRunNumber(unsigned int run) const;
@@ -134,12 +130,8 @@ namespace CP {
 
             // replica generation
             void GenerateReplicas(int nrep, int seed);
-            void GenerateReplicasFromHist(std::unique_ptr<HistHandler> h, int nrep, int seed, EfficiencyScaleFactor::SFvec &repVector);
+            void GenerateReplicasFromHist(HistHandler* h, int nrep, int seed, EfficiencyScaleFactor::SFvec &repVector);
 
-            //Some functions to clean up and copy the data
-            void Clear();
-            void DeleteOldReplicas(EfficiencyScaleFactor::SFvec &Vec, bool ClearVec = false);
-            void CopyContent(const EfficiencyScaleFactor &other);
             void CopyHistHandler(std::unique_ptr<HistHandler> &own, const std::unique_ptr<HistHandler> other);
             void CopyReplicaVec(EfficiencyScaleFactor::SFvec &own, const EfficiencyScaleFactor::SFvec &other);
 

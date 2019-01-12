@@ -10,31 +10,38 @@
 
 
 #include <MuonEfficiencyCorrections/MuonEfficiencyType.h>
-#include "xAODMuon/Muon.h"
+#include <MuonEfficiencyCorrections/EfficiencyScaleFactor.h>
+#include <xAODMuon/Muon.h>
 #include <map>
 #include <string>
 #include <iostream>
+namespace asg{
+    class AsgTool;
+}
 
 namespace CP {
-    class EfficiencyScaleFactor;
     class MuonEfficiencyScaleFactors;
-
-    typedef std::shared_ptr<EfficiencyScaleFactor> EfficiencyScaleFactor_Ptr;
 
     class EffiCollection {
         public:
-            
             EffiCollection(const MuonEfficiencyScaleFactors& ref_tool);
-            
             //Constructor with nominal as fallback..
-            EffiCollection(const EffiCollection* Nominal, const MuonEfficiencyScaleFactors* ref_asg_tool , MuonEfficiencySystType sysType);
-            EffiCollection(const EffiCollection& other);
-            EffiCollection & operator =(const EffiCollection & other);
-
+            EffiCollection(const EffiCollection* Nominal, const MuonEfficiencyScaleFactors& ref_tool, const std::string& syst, int syst_bit_map, bool is_up);
+          
             /// return the correct SF type to provide, depending on eta and the author
             EfficiencyScaleFactor_Ptr retrieveSF(const xAOD::Muon & mu, unsigned int RunNumber) const;
             enum CollectionType {
-                Central, Calo, Forward, CentralLowPt, CaloLowPt
+                Central = 1, 
+                Calo   = 1<<1, 
+                Forward = 1<<2, 
+                CentralLowPt = 1<<3, 
+                CaloLowPt = 1<<4
+            };
+            enum Systematic{
+                Symmetric = 1<<5,
+                PtDependent = 1<<6,
+                UnCorrelated = 1<<7,
+                
             };
             static std::string FileTypeName(EffiCollection::CollectionType T);
 
@@ -70,32 +77,38 @@ namespace CP {
         protected:
             class CollectionContainer {
                 public:
+                    // Nominal constructor... Only needs to know about it's type and the file to load
+                    CollectionContainer(EffiCollection::CollectionType FileType, const std::string &file_name);
+                   //CollectionContainer(EffiCollection::CollectionType FileType, const std::string &file_name);
+                  
 
-                    CollectionContainer(const asg::AsgTool* ref_asg_tool, const std::string &FileName, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, EffiCollection::CollectionType FileType, bool isLowPt = false, bool hasPtDepSys = false);
-                    CollectionContainer(CollectionContainer_Ptr Nominal, const asg::AsgTool* ref_asg_tool, const std::string &FileName, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, EffiCollection::CollectionType FileType, bool isLowPt = false, bool hasPtDepSys = false);
-
-
-                    CollectionContainer & operator =(const CollectionContainer & other);
-                    CollectionContainer(const CollectionContainer & other);
-                    virtual ~CollectionContainer();
-
-                    EfficiencyScaleFactor_Ptr retrieve(unsigned int RunNumer) const;
+                   
+                    EfficiencyScaleFactor* retrieve(unsigned int RunNumer) const;
                     bool CheckConsistency() const;
                     std::string sysname() const;
+                    
                     bool SetSystematicBin(unsigned int Bin);
+                    void SetGlobalOffSet(unsigned int OffSet);
+                    
                     unsigned int nBins() const;
+                    
                     std::string GetBinName(unsigned int Bin) const;
+                    
                     int FindBinSF(const xAOD::Muon &mu) const;
 
                     EffiCollection::CollectionType type() const;
                     
                 private:
                     bool LoadPeriod(unsigned int RunNumber) const;
-                    typedef std::pair<unsigned int, unsigned int> RunRanges;
-
-                    std::vector<EfficiencyScaleFactor_Ptr> m_SF;
-                    mutable EfficiencyScaleFactor_Ptr m_currentSF;
+                   
+                    std::vector<std::unique_ptr<EfficiencyScaleFactor>> m_SF;
+                    mutable EfficiencyScaleFactor* m_currentSF;
+                    
                     EffiCollection::CollectionType m_FileType;
+                    /// Offset to translate between the bin-numbers in the bin numbers
+                    /// of each file against the global bin-number
+                    unsigned int m_binOffSet;
+                
             };
 
         private:
@@ -105,14 +118,20 @@ namespace CP {
             CollectionContainer* retrieveContainer(CollectionType Type) const;
             CollectionContainer* FindContainerFromBin(unsigned int &bin) const;
             CollectionContainer* FindContainer(const xAOD::Muon& mu) const;
+            
+            const MuonEfficiencyScaleFactors& m_ref_tool;
+            
+            /// Make the collection container shared ptr to allow that a systematic EffiCollection
+            /// can use the same container as the nominal one if the current systematic has no
+            /// effect on that particular container....
+            std::shared_ptr<CollectionContainer> m_central_eff;
+            std::shared_ptr<CollectionContainer> m_calo_eff;
+            std::shared_ptr<CollectionContainer> m_forward_eff;
+            std::shared_ptr<CollectionContainer> m_lowpt_central_eff;
+            std::shared_ptr<CollectionContainer> m_lowpt_calo_eff;
 
-            const CP::MuonEfficiencyScaleFactors& m_ref_tool;
-            std::unique_ptr<CollectionContainer> m_central_eff;
-            std::unique_ptr<CollectionContainer> m_calo_eff;
-            std::unique_ptr<CollectionContainer> m_forward_eff;
-            std::unique_ptr<CollectionContainer> m_lowpt_central_eff;
-            std::unique_ptr<CollectionContainer> m_lowpt_calo_eff;
-
+            
+        
     };
 }
 #endif /* EFFICOLLECTION_H_ */
