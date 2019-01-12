@@ -666,7 +666,7 @@ CaloCalibClusterMomentsMaker2::execute(const EventContext& ctx,
 
   std::map<unsigned int,int> truthBarcodeToPdgCodeMap;
   
-  //loop on truth particle container is slow, so put needed information in a map for faster key lookup in the CaloCluster loop
+  //loop on truth particle container is slow, so put needed information in a map for faster key lookup in later loops
   for ( auto thisTruthParticle : *truthParticleContainerReadHandle){	  
 
     if (!thisTruthParticle){
