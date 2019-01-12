@@ -187,11 +187,12 @@ namespace CP {
         return m_current_sf->retrieveSF(mu, RunNumber)->ScaleFactor(mu, sf);
     }
     CorrectionCode MuonEfficiencyScaleFactors::applyEfficiencyScaleFactor(const xAOD::Muon& mu, const xAOD::EventInfo* info) const {
-        float sf = 0;
-        CorrectionCode result = getEfficiencyScaleFactor(mu, sf, info);
-        // Decorate the muon
-        //if (m_sfDec) (*m_sfDec)(mu) = sf;
-        return result;
+        if (!m_init) {
+            ATH_MSG_ERROR("The tool has not been initialized yet");
+            return CorrectionCode::Error;
+        }
+        unsigned int RunNumber = getRandomRunNumber(info);
+        return m_current_sf->retrieveSF(mu, RunNumber)->ApplyScaleFactor(mu);
     }
 
     CorrectionCode MuonEfficiencyScaleFactors::getEfficiencyScaleFactorReplicas(const xAOD::Muon& mu, std::vector<float> & sfs, const xAOD::EventInfo* info) const {
@@ -205,6 +206,8 @@ namespace CP {
     CorrectionCode MuonEfficiencyScaleFactors::applyEfficiencyScaleFactorReplicas(const xAOD::Muon& mu, int nreplicas, const xAOD::EventInfo* info) const {
         std::vector<float> replicas(nreplicas);
         CorrectionCode result = getEfficiencyScaleFactorReplicas(mu, replicas, info);
+       
+        
         // Decorate the muon
        // if (m_sfrDec) (*m_sfrDec)(mu) = replicas;
         return result;

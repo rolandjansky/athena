@@ -5,7 +5,6 @@
 #include <MuonEfficiencyCorrections/EffiCollection.h>
 #include <MuonEfficiencyCorrections/EfficiencyScaleFactor.h>
 #include <MuonEfficiencyCorrections/MuonEfficiencyScaleFactors.h>
-
 #include <TTree.h>
 namespace CP {
     const std::vector<std::string> ToRemove { "GeV", "MeV", "[", "]", "{", "}", "(", ")", "#", " " };
@@ -15,7 +14,8 @@ namespace CP {
             m_calo_eff(),
             m_forward_eff(),
             m_lowpt_central_eff(),
-            m_lowpt_calo_eff() {
+            m_lowpt_calo_eff(),
+            m_syst_set(std::make_unique<SystematicSet>()){
 
         m_central_eff = std::make_shared<CollectionContainer>(m_ref_tool, CollectionType::Central);
         if (m_ref_tool.filename_Calo() != m_ref_tool.filename_Central()){
@@ -41,7 +41,8 @@ namespace CP {
             m_calo_eff(),
             m_forward_eff(),
             m_lowpt_central_eff(),
-            m_lowpt_calo_eff(){
+            m_lowpt_calo_eff(),
+            m_syst_set() {
     
         if (is_up) syst_bit_map |= EffiCollection::UpVariation;
         /// Use a lambda function to assign the maps easily
@@ -97,6 +98,19 @@ namespace CP {
         assign_mapping(m_forward_eff.get());
         assign_mapping(m_lowpt_central_eff.get());
         assign_mapping(m_lowpt_calo_eff.get());
+       
+        /// Systematic constructor has been called. We can now assemble
+        /// the systematic variations
+        if (!m_syst_set){
+            m_syst_set = std::make_unique<CP::SystematicSet>();
+            
+            
+            for (const auto& file_type: {EffiCollection::Central, EffiCollection::Calo, EffiCollection::Forward,  
+                                         EffiCollection::CentralLowPt, EffiCollection::CaloLowPt}){
+                
+            }
+        }
+        
         return true;
     }
 
@@ -132,10 +146,6 @@ namespace CP {
         if (Cont != nullptr) return Cont->retrieve(RunNumber);
         Warning("EffiCollection::retrieveSF()", "Invalid muon");
         return nullptr;
-    }
-    std::string EffiCollection::sysname(void) const {
-        if (m_central_eff) return m_central_eff->sysname();
-        else return "";
     }
     unsigned int EffiCollection::nBins() const {
         unsigned int Nbins = 0;

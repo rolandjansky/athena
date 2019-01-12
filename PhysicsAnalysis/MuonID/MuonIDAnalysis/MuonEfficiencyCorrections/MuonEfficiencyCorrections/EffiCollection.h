@@ -22,7 +22,7 @@ namespace asg{
 namespace CP {
     class MuonEfficiencyScaleFactors;
     class EfficiencyScaleFactor;
-
+    class SystematicSet;
     class EffiCollection {
         public:
             EffiCollection(const MuonEfficiencyScaleFactors& ref_tool);
@@ -79,25 +79,24 @@ namespace CP {
                     // Nominal constructor... Only needs to know about it's type and the file to load
                     CollectionContainer(const MuonEfficiencyScaleFactors& ref_tool, EffiCollection::CollectionType FileType);
                     CollectionContainer(const MuonEfficiencyScaleFactors& ref_tool, CollectionContainer* Nominal, const std::string& syst_name, unsigned int syst_bit_map);
-                    
                   
-
-                   
+                    /// Retrieve the scale-factor map belonging to that particular run of data-taking
                     EfficiencyScaleFactor* retrieve(unsigned int RunNumer) const;
-                    bool isBinInMap (unsigned int bin) const;
                     
+                    /// Checks if the global bin number belongs to this map
+                    bool isBinInMap (unsigned int bin) const;
+                    /// Consistency check of all scale-factor maps managed by the container instance
                     bool CheckConsistency();
+                    
+                    /// Returns  MUON_EFF_<sysname()>
                     std::string sysname() const;
                     
+                    ///
                     bool SetSystematicBin(unsigned int Bin);
                     void SetGlobalOffSet(unsigned int OffSet);
-                    
                     unsigned int nBins() const;
-                    
-                    std::string GetBinName(unsigned int Bin) const;
-                    
+                    std::string GetBinName(unsigned int Bin) const;                    
                     int FindBinSF(const xAOD::Muon &mu) const;
-
                     EffiCollection::CollectionType type() const;
                     
                     
@@ -137,7 +136,9 @@ namespace CP {
             std::shared_ptr<CollectionContainer> m_lowpt_central_eff;
             std::shared_ptr<CollectionContainer> m_lowpt_calo_eff;
 
-            
+            /// The systematic set is returned back to the MuonEfficiencyScaleFactors instance to register
+            /// The known systematics to the global service
+            std::unique_ptr<SystematicSet> m_syst_set;
         
     };
 }

@@ -81,6 +81,10 @@ namespace CP {
             /// This function will let the world implode since it allows to decorrelate the sysstematics
             /// bin by bin
             bool SetSystematicBin(int bin);
+            
+            bool SeperateSystBins() const;
+            bool IsUpVariation() const;
+            
 
             /// the important bits - extract SF info
 
@@ -90,21 +94,21 @@ namespace CP {
             
             /// or you can just decorate the scale-factor to the muon
             CorrectionCode ApplyScaleFactor(const xAOD::Muon& mu) const;
-            CorrectionCode ApplyScaleFactorReplicas(const xAOD::Muon& mu) const;
+            CorrectionCode ApplyScaleFactorReplicas(const xAOD::Muon& mu, int n_replicas);
             
             /// ... and absolute efficiencies
             CorrectionCode DataEfficiency(const xAOD::Muon& mu, float & Eff) const;
             CorrectionCode DataEfficiencyReplicas(const xAOD::Muon& mu, std::vector<float> & eff);
-
+            /// You can decorate the data efficiecny as well
             CorrectionCode ApplyDataEfficiency(const xAOD::Muon& mu) const;
-            CorrectionCode ApplyDataEfficiencyReplicas(const xAOD::Muon& mu);
+            CorrectionCode ApplyDataEfficiencyReplicas(const xAOD::Muon& mu, int n_replicas);
             
-            
+            /// ... mc efficiency 
             CorrectionCode MCEfficiency(const xAOD::Muon& mu, float & Eff) const;
             CorrectionCode MCEfficiencyReplicas(const xAOD::Muon& mu, std::vector<float> & eff);
-
+            /// ... or decorate them directly
             CorrectionCode ApplyMCEfficiency(const xAOD::Muon& mu) const;
-            CorrectionCode ApplyMCEfficiencyReplicas(const xAOD::Muon& mu);
+            CorrectionCode ApplyMCEfficiencyReplicas(const xAOD::Muon& mu, int n_replicas);
             
             /// debug method
             void DebugPrint() const;
@@ -165,9 +169,10 @@ namespace CP {
             bool m_is_up;
             /// states that this SF should respond to low pt systematics rather than high pt ones
             bool m_is_lowpt;
-            // steers the pt dependent systematics
+            /// steers the pt dependent systematics
             bool m_respond_to_kineDepSyst;
-           
+            /// Can the systematic be decorrelated
+            bool m_seperateBinSyst;
             /// the histograms needed to run
             std::unique_ptr<HistHandler> m_sf;
             std::unique_ptr<HistHandler> m_eff;
