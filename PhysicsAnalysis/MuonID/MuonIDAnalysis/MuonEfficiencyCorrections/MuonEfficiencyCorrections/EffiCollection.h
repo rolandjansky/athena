@@ -45,11 +45,10 @@ namespace CP {
                 UpVariation = 1<<8,
             };
             static std::string FileTypeName(EffiCollection::CollectionType T);
-
-            // return the name of the systematic variation being run
-            std::string sysname() const;
-
-            // a consistency check
+            
+            
+            /// a consistency check of the scale-factor maps. All scale-factor maps must be present
+            /// and there must no overlapping periods to pass this test.
             bool CheckConsistency();
 
             // Get the number of all bins in the scale-factor maps including
@@ -78,8 +77,9 @@ namespace CP {
             class CollectionContainer {
                 public:
                     // Nominal constructor... Only needs to know about it's type and the file to load
-                    CollectionContainer(EffiCollection::CollectionType FileType, const std::string &file_name);
-                   //CollectionContainer(EffiCollection::CollectionType FileType, const std::string &file_name);
+                    CollectionContainer(const MuonEfficiencyScaleFactors& ref_tool, EffiCollection::CollectionType FileType);
+                    CollectionContainer(const MuonEfficiencyScaleFactors& ref_tool, CollectionContainer* Nominal, const std::string& syst_name, unsigned int syst_bit_map);
+                    
                   
 
                    
@@ -102,6 +102,9 @@ namespace CP {
                     
                     
                 private:
+                    std::map<std::string, std::pair<unsigned int, unsigned int>> findPeriods(const MuonEfficiencyScaleFactors& ref_tool) const;
+                    std::string fileName(const MuonEfficiencyScaleFactors& ref_tool) const;
+                  
                     bool LoadPeriod(unsigned int RunNumber) const;
                    
                     std::vector<std::shared_ptr<EfficiencyScaleFactor>> m_SF;
@@ -117,7 +120,7 @@ namespace CP {
             /// Method to retrieve a container from the class ordered by a collection type
             /// This method is mainly used to propagate the nominal maps to the variations
             /// as fallback maps if no variation has been defined in this situation
-            CollectionContainer* retrieveContainer(CollectionType Type) const;
+            std::shared_ptr<CollectionContainer> retrieveContainer(CollectionType Type) const;
 
         private:
             CollectionContainer* FindContainer(unsigned int bin) const;

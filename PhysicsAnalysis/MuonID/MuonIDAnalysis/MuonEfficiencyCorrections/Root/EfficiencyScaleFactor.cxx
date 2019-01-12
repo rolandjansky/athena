@@ -234,12 +234,12 @@ namespace CP {
                 return m_NominalFallBack->MCEfficiency(mu, Eff);
             }
         }
-        CorrectionCode cc = GetContentFromHist(m_mc_eff, nullptr, mu, Eff);
+        CorrectionCode cc = GetContentFromHist(m_mc_eff.get(), nullptr, mu, Eff);
         if (cc == CorrectionCode::Error) Error("EfficiencyScaleFactor", "Could not apply the Monte Carlo efficiency");
         return cc;
     }
 
-    CorrectionCode EfficiencyScaleFactor::GetContentFromHist(std::unique_ptr<HistHandler> Hist, IKinematicSystHandler* PtDepHist, const xAOD::Muon& mu, float & Eff) const {
+    CorrectionCode EfficiencyScaleFactor::GetContentFromHist(HistHandler* Hist, IKinematicSystHandler* PtDepHist, const xAOD::Muon& mu, float & Eff) const {
         Eff = m_default_eff;
         if (!Hist) {
             if (m_warnsPrinted < m_warningLimit){
@@ -312,7 +312,7 @@ namespace CP {
             for (int bin = 0; bin < nbins; bin++) {
                 replica->SetBinContent(bin, Rndm.Gaus(h->GetBinContent(bin), h->GetBinError(bin)));
             }
-            replicas.push_back(replica);
+            //replicas.push_back(replica);
         }
     }
     
