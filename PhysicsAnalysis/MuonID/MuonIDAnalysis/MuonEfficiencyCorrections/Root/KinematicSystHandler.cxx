@@ -25,9 +25,10 @@ namespace CP {
         return nullptr;
     }
 
-    PtDependentSystHandler::PtDependentSystHandler(HistHandler_Ptr HistHandler) :
-                    m_Handler(HistHandler),
+    PtDependentSystHandler::PtDependentSystHandler(std::unique_ptr<HistHandler> Handler) :
+                    m_Handler(),
                     m_SystWeight(0) {
+        m_Handler.swap(Handler);
 
     }
     CorrectionCode PtDependentSystHandler::GetKineDependent(const xAOD::Muon &mu, float& Eff) const {

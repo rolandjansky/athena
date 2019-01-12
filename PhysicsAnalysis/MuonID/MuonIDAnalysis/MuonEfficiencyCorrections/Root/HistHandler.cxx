@@ -124,7 +124,7 @@ namespace CP {
     //###########################################################################################################
     //                                                   HistHandler_TH2
     //###########################################################################################################
-    HistHandler_TH2::HistHandler_TH2(TH2 * h) :
+    HistHandler_TH2::HistHandler_TH2(TH1*  h) :
                 HistHandler(h),
                 m_x_handler(h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetXaxis())),
                 m_y_handler(h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetYaxis())) {
@@ -185,7 +185,7 @@ namespace CP {
     //                                                   HistHandler_TH3
     //###########################################################################################################
 
-    HistHandler_TH3::HistHandler_TH3(TH3 * h) :
+    HistHandler_TH3::HistHandler_TH3(TH1* h) :
                 HistHandler(h),
                 m_x_handler(GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetXaxis())),
                 m_y_handler(GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetYaxis())),

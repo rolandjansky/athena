@@ -21,6 +21,7 @@ namespace asg{
 
 namespace CP {
     class MuonEfficiencyScaleFactors;
+    class EfficiencyScaleFactor;
 
     class EffiCollection {
         public:
@@ -29,7 +30,7 @@ namespace CP {
             EffiCollection(const EffiCollection* Nominal, const MuonEfficiencyScaleFactors& ref_tool, const std::string& syst, int syst_bit_map, bool is_up);
           
             /// return the correct SF type to provide, depending on eta and the author
-            EfficiencyScaleFactor_Ptr retrieveSF(const xAOD::Muon & mu, unsigned int RunNumber) const;
+            EfficiencyScaleFactor* retrieveSF(const xAOD::Muon & mu, unsigned int RunNumber) const;
             enum CollectionType {
                 Central = 1, 
                 Calo   = 1<<1, 
@@ -41,7 +42,7 @@ namespace CP {
                 Symmetric = 1<<5,
                 PtDependent = 1<<6,
                 UnCorrelated = 1<<7,
-                
+                UpVariation = 1<<8,
             };
             static std::string FileTypeName(EffiCollection::CollectionType T);
 
@@ -49,9 +50,8 @@ namespace CP {
             std::string sysname() const;
 
             // a consistency check
-            bool CheckConsistency() const;
+            bool CheckConsistency();
 
-            virtual ~EffiCollection();
             // Get the number of all bins in the scale-factor maps including
             // the overflow & underflow bins
             unsigned int nBins() const;
@@ -84,7 +84,9 @@ namespace CP {
 
                    
                     EfficiencyScaleFactor* retrieve(unsigned int RunNumer) const;
-                    bool CheckConsistency() const;
+                    bool isBinInMap (unsigned int bin) const;
+                    
+                    bool CheckConsistency();
                     std::string sysname() const;
                     
                     bool SetSystematicBin(unsigned int Bin);
@@ -98,10 +100,11 @@ namespace CP {
 
                     EffiCollection::CollectionType type() const;
                     
+                    
                 private:
                     bool LoadPeriod(unsigned int RunNumber) const;
                    
-                    std::vector<std::unique_ptr<EfficiencyScaleFactor>> m_SF;
+                    std::vector<std::shared_ptr<EfficiencyScaleFactor>> m_SF;
                     mutable EfficiencyScaleFactor* m_currentSF;
                     
                     EffiCollection::CollectionType m_FileType;
@@ -111,12 +114,13 @@ namespace CP {
                 
             };
 
-        private:
-            bool DoesBinFitInRange(CollectionContainer_Ptr Container, unsigned int & Bin) const;
-            bool DoesMuonEnterBin(CollectionType Type, const xAOD::Muon mu, int &Bin) const;
-
+            /// Method to retrieve a container from the class ordered by a collection type
+            /// This method is mainly used to propagate the nominal maps to the variations
+            /// as fallback maps if no variation has been defined in this situation
             CollectionContainer* retrieveContainer(CollectionType Type) const;
-            CollectionContainer* FindContainerFromBin(unsigned int &bin) const;
+
+        private:
+            CollectionContainer* FindContainer(unsigned int bin) const;
             CollectionContainer* FindContainer(const xAOD::Muon& mu) const;
             
             const MuonEfficiencyScaleFactors& m_ref_tool;

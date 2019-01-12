@@ -126,15 +126,19 @@ namespace CP {
         private:
             /// utility method to 'dress' a filename using the path resolver
             std::string resolve_file_location(const std::string &filename)const;
-
-         
+            
+            
             //These are functions needed during initialization
             SystematicSet SetupSystematics(bool doUnfolded = false) const;
-            void SetupCheckSystematicSets();
             /// the working point to operate on
             std::string m_wp;
-            std::unordered_map<MuonEfficiencySystType, std::unique_ptr<EffiCollection> > m_sf_sets;
-
+            
+            
+            
+            //std::unordered_map<int, std::unique_ptr<EffiCollection> > m_sf_sets;
+            // At the moment keep only a set of pointers
+            std::set< std::unique_ptr<EffiCollection>> m_sf_sets;
+            
             EffiCollection* m_current_sf;
 
             std::string m_custom_dir;

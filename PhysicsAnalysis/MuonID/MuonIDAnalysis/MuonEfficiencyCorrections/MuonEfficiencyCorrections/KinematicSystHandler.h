@@ -61,10 +61,10 @@ namespace CP {
             virtual void SetSystematicWeight(float SystWeight);
 
             virtual bool initialize();
-            PtDependentSystHandler(HistHandler_Ptr HistHandler);
+            PtDependentSystHandler(std::unique_ptr<HistHandler> HistHandler);
             virtual ~PtDependentSystHandler();
         protected:
-            HistHandler_Ptr m_Handler;
+            std::unique_ptr<HistHandler> m_Handler;
             float m_SystWeight;
     };
     class BadMuonVetoSystHandler: public IKinematicSystHandler {
