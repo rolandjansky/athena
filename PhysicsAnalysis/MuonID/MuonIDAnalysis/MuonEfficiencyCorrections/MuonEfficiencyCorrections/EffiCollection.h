@@ -20,6 +20,8 @@ namespace CP {
     class MuonEfficiencyScaleFactors;
     class EfficiencyScaleFactor;
     class SystematicSet;
+    class SystematicVariation;
+    
     class EffiCollection {
         public:
             EffiCollection(const MuonEfficiencyScaleFactors& ref_tool);
@@ -74,6 +76,10 @@ namespace CP {
             
             ///    Returns the systematic set affecting this collection.
             SystematicSet* getSystSet() const;
+            ///    Returns whether the given set has variations affecting this Collection
+            bool  isAffectedBySystematic(const SystematicVariation& variation) const;
+            bool  isAffectedBySystematic(const SystematicSet& set) const;
+            
         protected:
             class CollectionContainer {
                 public:

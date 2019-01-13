@@ -138,7 +138,7 @@ namespace CP {
             return false;
         }
         if (m_NominalFallBack) {
-            if (!m_NominalFallBack->sysname().empty() || !sysname().empty()){
+            if (!m_NominalFallBack->sysname().empty() || sysname().empty()){
                 Error("EfficiencyScaleFactor()", "Either nominal is assigned with a fall back or the nominal fall back is invald");
                 return false;
             }

@@ -349,13 +349,13 @@ namespace CP {
         if (systematics.empty()){
             return StatusCode::FAILURE;
         }
-         m_sf_sets.push_back( std::make_unique<EffiCollection>(*this));
+        m_sf_sets.push_back( std::make_unique<EffiCollection>(*this));
         
-         EffiCollection* nominal = m_sf_sets.back().get();
+        EffiCollection* nominal = m_sf_sets.back().get();
         /// Now we can fill the map with the individual sets
-         for (const auto& syst: systematics){
-             m_sf_sets.push_back( std::make_unique<EffiCollection>(nominal,*this, syst.first, syst.second, false));
-             m_sf_sets.push_back( std::make_unique<EffiCollection>(nominal,*this, syst.first, syst.second, true));
+        for (const auto& syst: systematics){
+             m_sf_sets.push_back(std::make_unique<EffiCollection>(nominal,*this, syst.first, syst.second, false));
+             m_sf_sets.push_back(std::make_unique<EffiCollection>(nominal,*this, syst.first, syst.second, true));
         }
         for(auto& sf: m_sf_sets){
             if (!sf->CheckConsistency()) return StatusCode::FAILURE;
@@ -496,7 +496,7 @@ namespace CP {
         }*/ 
         
         std::vector<std::unique_ptr<EffiCollection>>::const_iterator SFiter= std::find_if(m_sf_sets.begin(), m_sf_sets.end(), [&mySysConf](const std::unique_ptr<EffiCollection>& a){
-                    return false;
+                    return a->isAffectedBySystematic(mySysConf);
         });
         if (SFiter != m_sf_sets.end()) {
             m_current_sf = SFiter->get();
@@ -509,7 +509,7 @@ namespace CP {
             return SystematicCode::Ok;
         } else {
             ATH_MSG_ERROR("Illegal combination of systematics passed to the tool! Did you maybe request multiple variations at the same time? You passed " << mySysConf.name());
-            ATH_MSG_DEBUG(" List of relevant systematics included in your combination:");
+            ATH_MSG_DEBUG("List of relevant systematics included in your combination:");
             for (SystematicSet::const_iterator t = mySysConf.begin(); t != mySysConf.end(); ++t) {
                 ATH_MSG_DEBUG("\t" << (*t).name());
             }

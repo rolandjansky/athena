@@ -1,7 +1,5 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
- Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef MUONEFFICIENCYCORRECTIONS_MUONEFFICIENCYTYPE_H
@@ -18,18 +16,6 @@ namespace CP {
         Iso = 3,
         BadMuonVeto = 4
     };
-    enum MuonEfficiencySystType {
-        Nominal = 0,
-        Sys1Down = 1,
-        Sys1Up = 2,
-        Stat1Down = 3,
-        Stat1Up = 4,
-        LowPtSys1Down = 5,
-        LowPtSys1Up = 6,
-        LowPtStat1Down = 7,
-        LowPtStat1Up = 8
-    };
-
     inline static std::string EfficiencyTypeName(CP::MuonEfficiencyType M) {
         if (M == CP::MuonEfficiencyType::Reco) return "RECO";
         if (M == CP::MuonEfficiencyType::TTVA) return "TTVA";
@@ -44,65 +30,6 @@ namespace CP {
         if (S == "BADMUON") return CP::MuonEfficiencyType::BadMuonVeto;
         return CP::MuonEfficiencyType::Undefined;
     }
-    inline static std::string EfficiencySystName(MuonEfficiencySystType S) {
-        if (S == MuonEfficiencySystType::Nominal) return "Nominal";
-        if (S == MuonEfficiencySystType::Sys1Down) return "Sys1Down";
-        if (S == MuonEfficiencySystType::Sys1Up) return "Sys1Up";
-        if (S == MuonEfficiencySystType::Stat1Down) return "Stat1Down";
-        if (S == MuonEfficiencySystType::Stat1Up) return "Stat1Up";
-        if (S == MuonEfficiencySystType::LowPtSys1Down) return "LowPtSys1Down";
-        if (S == MuonEfficiencySystType::LowPtSys1Up) return "LowPtSys1Up";
-        if (S == MuonEfficiencySystType::LowPtStat1Down) return "LowPtStat1Down";
-        if (S == MuonEfficiencySystType::LowPtStat1Up) return "LowPtStat1Up";
-        return "Unknown";
-    }
-    inline static bool IsSystVariation(MuonEfficiencySystType S) {
-        if (S == MuonEfficiencySystType::Sys1Down) return true;
-        if (S == MuonEfficiencySystType::Sys1Up) return true;
-        if (S == MuonEfficiencySystType::LowPtSys1Down) return true;
-        if (S == MuonEfficiencySystType::LowPtSys1Up) return true;
-
-        return false;
-    }
-
 }
-
-namespace std {
-
-   /// Specialisation of @c std::hash for @c CP::MuonEfficiencyType
-   ///
-   /// This is necessary to be able to use @c CP::MuonEfficiencyType as the
-   /// key in an @c std::unordered_map. Note that this is only needed with
-   /// GCC <6.1 (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=60970). But it
-   /// didn't seem smart to introduce compiler checks into this code, since
-   /// all our compilers accept the hash specialisation.
-   ///
-   template<>
-   struct hash< CP::MuonEfficiencyType > {
-   public:
-      size_t operator()( CP::MuonEfficiencyType value ) const {
-         static const hash< unsigned int > hasher;
-         return hasher( static_cast< unsigned int >( value ) );
-      }
-   };
-
-   /// Specialisation of @c std::hash for @c CP::MuonEfficiencySystType
-   ///
-   /// This is necessary to be able to use @c CP::MuonEfficiencySystType as the
-   /// key in an @c std::unordered_map. Note that this is only needed with
-   /// GCC <6.1 (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=60970). But it
-   /// didn't seem smart to introduce compiler checks into this code, since
-   /// all our compilers accept the hash specialisation.
-   ///
-   template<>
-   struct hash< CP::MuonEfficiencySystType > {
-   public:
-      size_t operator()( CP::MuonEfficiencySystType value ) const {
-         static const hash< unsigned int > hasher;
-         return hasher( static_cast< unsigned int >( value ) );
-      }
-   };
-
-} // namespace std
 
 #endif // MUONEFFICIENCYCORRECTIONS_MUONEFFICIENCYTYPE_H

@@ -31,7 +31,7 @@ namespace CP {
         } else m_lowpt_central_eff = m_central_eff;
        
          if (m_ref_tool.lowPtTransition() > 0  && m_ref_tool.filename_LowPtCalo() != m_ref_tool.filename_Central()){
-            m_lowpt_central_eff = std::make_shared<CollectionContainer>(m_ref_tool, CollectionType::CentralLowPt);
+            m_lowpt_calo_eff = std::make_shared<CollectionContainer>(m_ref_tool, CollectionType::CaloLowPt);
         } else m_lowpt_calo_eff = m_central_eff;
     }
     
@@ -46,7 +46,7 @@ namespace CP {
     
         if (is_up) syst_bit_map |= EffiCollection::UpVariation;
         /// Use a lambda function to assign the maps easily
-        std::function< std::shared_ptr<EffiCollection::CollectionContainer>(CollectionType)>  make_variation= [&ref_tool, Nominal, syst_bit_map, syst](CollectionType type){
+        std::function< std::shared_ptr<EffiCollection::CollectionContainer>(CollectionType)>  make_variation = [&ref_tool, Nominal, syst_bit_map, syst](CollectionType type){
                 if (syst_bit_map & type) return std::make_shared<CollectionContainer>(ref_tool,
                                                                                  Nominal->retrieveContainer(type).get(),
                                                                                  syst,
@@ -222,6 +222,16 @@ namespace CP {
     SystematicSet* EffiCollection::getSystSet() const{
         return m_syst_set.get();
     }
+    bool  EffiCollection::isAffectedBySystematic(const SystematicVariation& variation) const {
+        return m_syst_set->find(variation) != m_syst_set->end();
+    }
+    bool  EffiCollection::isAffectedBySystematic(const SystematicSet& set) const{
+        if (set.empty()) return m_syst_set->empty();
+        for (const auto& variation: set){
+            if (isAffectedBySystematic(variation)) return true;
+        }
+        return false;
+    }            
     //################################################################################
     //                               EffiCollection::CollectionContainer
     //################################################################################
@@ -299,7 +309,7 @@ namespace CP {
         for (std::vector< std::shared_ptr<EfficiencyScaleFactor>>::const_iterator first_sf = m_SF.begin() ; first_sf != m_SF.end(); ++first_sf)  {
             if (!(*first_sf)->CheckConsistency()) return false;
             for (std::vector< std::shared_ptr<EfficiencyScaleFactor>>::const_iterator second_sf = m_SF.begin(); second_sf != first_sf; ++second_sf) {
-                if ( (*first_sf)->coversRunNumber( (*second_sf)->firstRun()) || (*second_sf)->coversRunNumber((*second_sf)->lastRun()) || 
+                if ( (*first_sf)->coversRunNumber( (*second_sf)->firstRun()) || (*first_sf)->coversRunNumber((*second_sf)->lastRun()) || 
                      (*second_sf)->coversRunNumber( (*first_sf)->firstRun()) || (*second_sf)->coversRunNumber((*first_sf)->lastRun())){
                     Error("CollectionContainer", "Overlapping periods observed in file type %s. As run %i is in period %i - %i. Please check your SF file!",  
                            FileTypeName(m_FileType).c_str(), (*first_sf)->firstRun(), (*second_sf)->firstRun(), (*second_sf)->lastRun());

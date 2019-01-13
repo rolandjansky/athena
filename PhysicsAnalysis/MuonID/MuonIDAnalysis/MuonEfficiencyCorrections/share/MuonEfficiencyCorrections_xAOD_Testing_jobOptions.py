@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #!/usr/bin/env python
 import sys
@@ -8,7 +8,7 @@ from MuonEfficiencyCorrections.CommonToolSetup import *
 # a simple testing macro for the MuonEfficiencyCorrections_xAOD package in athena
 #
 # Usage: athena --filesInput <InputFile> MuonEfficiencyCorrections/MuonEfficiencyCorrections_xAOD_Testing_jobOptions.py
-
+#  E.g.:  athena --filesInput /ptmp/mpp/junggjo9/ClusterTP/Datasets/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.deriv.DAOD_MUON1.e3601_s3126_r9364_r9315_p3374/DAOD_MUON1.13055759._000989.pool.root.1 MuonEfficiencyCorrections/MuonEfficiencyCorrections_xAOD_Testing_jobOptions.py
 # Access the algorithm sequence:
 AssembleIO("MUONEFFTESTER")
 from AthenaCommon.AlgSequence import AlgSequence
@@ -23,13 +23,13 @@ alg.ValidationRelease="cSummer2018"
 
 WPs = [
          # reconstruction WPs
-         "LowPt",
-         "Loose", 
+       #  "LowPt",
+      #   "Loose", 
          "Medium", 
-         "Tight", 
-         "HighPt",
+       #  "Tight", 
+       #  "HighPt",
          # track-to-vertex-association WPs
-         "TTVA",
+        # "TTVA",
          # BadMuon veto SFs
         # "BadMuonVeto_HighPt",
          # isolation WPs
