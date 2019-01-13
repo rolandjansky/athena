@@ -52,11 +52,18 @@ namespace CP {
             Error("EfficiencyScaleFactor", "Unable to open file %s", file.c_str());
             return;
         }
-        // now we can read our six Histos
+        // now we can read our three mean histograms Histos
         m_eff = ReadHistFromFile("Eff", f.get(), time_unit);
         m_mc_eff = ReadHistFromFile("MC_Eff", f.get(), time_unit);
         m_sf = ReadHistFromFile("SF", f.get() ,time_unit);
+        /// Nominal set loaded nothing needs to be done further
+        if (syst_name.empty()) return;
         
+        std::function<void(std::unique_ptr<HistHandler>&, const std::string& )> syst_loader = [this, &f, &time_unit] (std::unique_ptr<HistHandler>& nominal, const std::string& hist_type) {
+            if(!nominal) return;
+            
+            
+        }
         //m_sf_sys = ReadHistFromFile("SF_sys", f.get(), time_unit);
         //m_mc_eff_sys = ReadHistFromFile("MC_Eff_sys", f.get(), time_unit);
         //m_eff_sys = ReadHistFromFile("Eff_sys", f.get(), time_unit);
@@ -89,39 +96,6 @@ namespace CP {
         m_firstRun = first;
         m_lastRun = last;
     }
-
-//     bool EfficiencyScaleFactor::ReadFromFile(const std::string& file, const std::string& time_unit) {
-//         // open the file
-//         std::unique_ptr<TFile> f (TFile::Open(file.c_str(), "READ"));
-//         if (!f || !f->IsOpen()) {
-//             Error("EfficiencyScaleFactor", "Unable to open file %s", file.c_str());
-//             return false;
-//         }
-        // now we can read our six Histos
-//         m_eff = ReadHistFromFile("Eff", f.get(), time_unit);
-//         m_eff_sys = ReadHistFromFile("Eff_sys", f.get(), time_unit);
-// 
-//         m_mc_eff = ReadHistFromFile("MC_Eff", f.get(), time_unit);
-//         m_mc_eff_sys = ReadHistFromFile("MC_Eff_sys", f.get(), time_unit);
-// 
-//         m_sf = ReadHistFromFile("SF", f.get() ,time_unit);
-//         m_sf_sys = ReadHistFromFile("SF_sys", f.get(), time_unit);
-
-        // for high pt eff, we also load the pt dependent part
-//         if (m_respond_to_kineDepSyst) {
-//             if (m_measurement != CP::MuonEfficiencyType::BadMuonVeto) {
-//                 m_sf_KineDepsys = IKinematicSystHandler_Ptr(new PtDependentSystHandler(ReadHistFromFile("SF_PtDep_sys", f.get(), time_unit)));
-//                 m_eff_KineDepsys = IKinematicSystHandler_Ptr(new PtDependentSystHandler(ReadHistFromFile("Eff_PtDep_sys", f.get(), time_unit)));
-//             } else {
-//                 TDirectory* SystDir = nullptr;
-//                 f->GetObject(("KinematicSystHandler_" + time_unit).c_str(), SystDir);
-//                 m_sf_KineDepsys = IKinematicSystHandler_Ptr(new BadMuonVetoSystHandler(SystDir));
-//                 m_eff_KineDepsys = IKinematicSystHandler_Ptr(new BadMuonVetoSystHandler(SystDir));
-//             }
-// 
-//         }
-//         return true;
-//     }
     bool EfficiencyScaleFactor::CheckConsistency()  {
         //Check whether  the SFs could be successfully loaded
         if (!m_sf) {
