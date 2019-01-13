@@ -67,10 +67,13 @@ namespace CP {
             /// titles and the bin borders
             std::string GetBinName(unsigned int bin) const;
             
-            // Returns the bin number from which the scale-factor of the muon
-            // is going to be retrieved...
+            /// Returns the bin number from which the scale-factor of the muon
+            /// is going to be retrieved...
             int getUnCorrelatedSystBin(const xAOD::Muon& mu) const;
-
+            
+            
+            ///    Returns the systematic set affecting this collection.
+            SystematicSet* getSystSet() const;
         protected:
             class CollectionContainer {
                 public:

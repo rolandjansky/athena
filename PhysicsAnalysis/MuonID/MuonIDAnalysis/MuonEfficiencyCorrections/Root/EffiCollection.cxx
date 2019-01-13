@@ -103,6 +103,11 @@ namespace CP {
         /// the systematic variations
         if (!m_syst_set){
             m_syst_set = std::make_unique<CP::SystematicSet>();
+            size_t glob_sys = m_ref_tool.getPosition(this);
+            if (glob_sys > m_ref_tool.getNCollections()){
+                Error("EffiCollection()", "Whaat?! How could it be that I'm not part of this game?");
+                return false;
+            }
             for (const auto& file_type: {EffiCollection::Central, EffiCollection::Calo, EffiCollection::Forward,  
                                          EffiCollection::CentralLowPt, EffiCollection::CaloLowPt}){
                     
@@ -113,7 +118,7 @@ namespace CP {
                     // a systematic variation
                     for (unsigned int b = nBins() - 1; b > 0  ; --b){
                         unsigned int bin = b + container->globalOffSet();
-                        m_syst_set->insert(CP::SystematicVariation::makeToyVariation("MUON_EFF_" + container->sysname()  + GetBinName(bin) , bin, container->isUpVariation() ? 1  : -1 ));
+                        m_syst_set->insert(CP::SystematicVariation::makeToyVariation("MUON_EFF_" + container->sysname()  + GetBinName(bin) , bin, glob_sys));
                     }
                 } else {
                     m_syst_set->insert( SystematicVariation("MUON_EFF_" + container->sysname(), container->isUpVariation() ? 1  : -1));
@@ -214,7 +219,9 @@ namespace CP {
         if (container) return container->FindBinSF(mu); 
         return -1;
     }
-   
+    SystematicSet* EffiCollection::getSystSet() const{
+        return m_syst_set.get();
+    }
     //################################################################################
     //                               EffiCollection::CollectionContainer
     //################################################################################
@@ -370,4 +377,5 @@ namespace CP {
         if (m_SF.empty()) return "UNKNOWN SYST";
         return (*m_SF.begin())->sysname(false);
     }
+    
 }

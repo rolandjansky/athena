@@ -86,7 +86,15 @@ namespace CP {
     std::string MuonEfficiencyScaleFactors::mc_effi_replica_deocration() const{
         return std::string("Replica") + mc_effi_decoration();
     }
-  
+    size_t MuonEfficiencyScaleFactors::getPosition(const EffiCollection* coll) const {
+        std::vector< std::unique_ptr<EffiCollection>>::const_iterator itr = std::find_if(m_sf_sets.begin(), m_sf_sets.end(), [coll] (const std::unique_ptr<EffiCollection>& a){
+                                                                                                                                        return a.get() == coll;});
+        if (itr == m_sf_sets.end()) return -1;
+        return (itr- m_sf_sets.begin());
+    }               
+    size_t MuonEfficiencyScaleFactors::getNCollections() const{
+        return m_sf_sets.size();
+    }
     StatusCode MuonEfficiencyScaleFactors::initialize() {
         if (m_init) {
             ATH_MSG_INFO("The tool using working point" << m_wp << " is already initialized.");
@@ -332,7 +340,10 @@ namespace CP {
     // load the SF histos
     
     StatusCode MuonEfficiencyScaleFactors::LoadInputs() {
-        
+        if (!m_sf_sets.empty()){
+            ATH_MSG_DEBUG("Input already loaded will not do it again");
+            return StatusCode::SUCCESS;
+        }
         std::map<std::string, unsigned int> systematics = lookUpSystematics();
         /// We've at least the stat and sys errors
         if (systematics.empty()){
@@ -397,9 +408,7 @@ namespace CP {
                 insert_bit("SYS",get_bit(look_up));
                 continue;
             }
-            ///
-            ///
-            ///
+            ///  Read out the systematic tree from the scale-factor files
             std::string* syst_name = nullptr;
             unsigned int is_symmetric(0), has_pt_sys(0), uncorrelated(0);
             if (syst_tree->SetBranchAddress("Systematic", &syst_name) != 0 || 
@@ -425,62 +434,20 @@ namespace CP {
         SystematicSet sys = affectingSystematics();
         return sys.find(systematic) != sys.end();
     }
-    SystematicSet MuonEfficiencyScaleFactors::SetupSystematics(bool doUnfolded) const {
+    /// returns: the list of all systematics this tool can be affected by
+    SystematicSet MuonEfficiencyScaleFactors::affectingSystematics() const {
         SystematicSet result;
-        /*if (!m_init) {
-            ATH_MSG_ERROR("The tool is not initialized yet");
-        } else if (!doUnfolded) {
-            result.insert(SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_STAT", 1));
-            result.insert(SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_STAT", -1));
-            result.insert(SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_SYS", 1));
-            result.insert(SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_SYS", -1));
-            if (m_Type == MuonEfficiencyType::Reco && m_lowpt_threshold > 0) {
-                result.insert(SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_STAT_LOWPT", 1));
-                result.insert(SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_STAT_LOWPT", -1));
-                result.insert(SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_SYS_LOWPT", 1));
-                result.insert(SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_SYS_LOWPT", -1));
+        for (auto& collection : m_sf_sets){
+            if (!collection->getSystSet()){
+                ATH_MSG_FATAL("No systematic defined for scale-factor map. ");
+                return SystematicSet();
             }
-        }
-        //Let the world implode... Yeaaha
-        else {
-            //From technical point of view we could in principle  decorrelate the Systematics too, however
-            //SYS variations are correlated. So skip those for the starting. If we come up with a better model
-            //then be happy about twice times more variations
-            result.insert(SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_SYS", 1));
-            result.insert(SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_SYS", -1));
-            if (m_Type == MuonEfficiencyType::Reco && m_lowpt_threshold > 0) {
-                result.insert(SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_SYS_LOWPT", 1));
-                result.insert(SystematicVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_SYS_LOWPT", -1));
-            }
-            int nBins = m_sf_sets.at(MuonEfficiencySystType::Nominal)->nBins();
-            ATH_MSG_INFO("Going to setup for each bin of the SF map a separate statistical variation. This will make the world to implode.... Yeeaha. ");
-            for (int bin = 1; bin < nBins; ++bin) {
-                // toyScale has to be toyScale > 0
-                if (!m_sf_sets.at(MuonEfficiencySystType::Nominal)->IsLowPtBin(bin)) {
-                    CP::SystematicVariation StatUpBin = CP::SystematicVariation::makeToyVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + getUncorrelatedSysBinName(bin) + "_STAT", bin, MuonEfficiencySystType::Stat1Up);
-                    result.insert(StatUpBin);
-                    CP::SystematicVariation StatUpDown = CP::SystematicVariation::makeToyVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + getUncorrelatedSysBinName(bin) + "_STAT", bin, MuonEfficiencySystType::Stat1Down);
-                    result.insert(StatUpDown);
-                }
-                if ((m_sf_sets.at(MuonEfficiencySystType::Nominal)->IsLowPtBin(bin) || m_sf_sets.at(MuonEfficiencySystType::Nominal)->IsForwardBin(bin)) && (m_Type == MuonEfficiencyType::Reco && m_lowpt_threshold > 0)) {
-                    CP::SystematicVariation StatUpBinLowPt = CP::SystematicVariation::makeToyVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + getUncorrelatedSysBinName(bin) + "_STAT_LOWPT", bin, MuonEfficiencySystType::LowPtStat1Up);
-                    result.insert(StatUpBinLowPt);
-                    CP::SystematicVariation StatUpDownLowPt = CP::SystematicVariation::makeToyVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + getUncorrelatedSysBinName(bin) + "_STAT_LOWPT", bin, MuonEfficiencySystType::LowPtStat1Down);
-                    result.insert(StatUpDownLowPt);
-                }
-            }
-            ATH_MSG_INFO("The world has been imploded with " << result.size() << " systematic variations...");
-
-        }*/
+            result.insert(*collection->getSystSet());
+        }        
         return result;
     }
-
-/// returns: the list of all systematics this tool can be affected by
-    SystematicSet MuonEfficiencyScaleFactors::affectingSystematics() const {
-        return SetupSystematics(m_seperateSystBins);
-    }
-
-/// returns: the list of all systematics this tool recommends to use
+    
+    /// returns: the list of all systematics this tool recommends to use
     SystematicSet MuonEfficiencyScaleFactors::recommendedSystematics() const {
         if (!m_init) {
             ATH_MSG_ERROR("The tool has not been initialized yet");
@@ -489,7 +456,11 @@ namespace CP {
         return affectingSystematics();
     }
     SystematicCode MuonEfficiencyScaleFactors::applySystematicVariation(const SystematicSet& systConfig) {
-       /* SystematicSet mySysConf;
+        if (!m_init) {
+            ATH_MSG_ERROR("Initialize first the tool!");
+            return SystematicCode::Unsupported;
+        }
+        SystematicSet mySysConf;
         if (m_filtered_sys_sets.find(systConfig) == m_filtered_sys_sets.end()) {
             if (!SystematicSet::filterForAffectingSystematics(systConfig, m_affectingSys, mySysConf)) {
                 ATH_MSG_ERROR("Unsupported combination of systematics passed to the tool! ");
@@ -501,11 +472,7 @@ namespace CP {
         ATH_MSG_DEBUG(mySysConf.name() << " made it into applySystematicVariation()");
 
         unsigned int currentBinNumber = 0;
-        MuonEfficiencySystType currentEfficiencySystType = MuonEfficiencySystType::Nominal;
-        if (!m_init) {
-            ATH_MSG_ERROR("Initialize first the tool!");
-            return SystematicCode::Unsupported;
-        }
+        /*MuonEfficiencySystType currentEfficiencySystType = MuonEfficiencySystType::Nominal;
         if ((*m_Sys1Down) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::Sys1Down;
         else if ((*m_Sys1Up) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::Sys1Up;
         else if (m_LowPtSys1Up && (*m_LowPtSys1Up) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::LowPtSys1Up;
@@ -515,7 +482,9 @@ namespace CP {
             else if ((*m_Stat1Up) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::Stat1Up;
             else if (m_LowPtStat1Up && (*m_LowPtStat1Up) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::LowPtStat1Up;
             else if (m_LowPtStat1Down && (*m_LowPtStat1Down) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::LowPtStat1Down;
-        } else if (!mySysConf.name().empty()) {
+        } 
+        
+        else if (!mySysConf.name().empty()) {
             for (std::set<SystematicVariation>::iterator t = mySysConf.begin(); t != mySysConf.end(); ++t) {
                 if ((*t).isToyVariation()) {
                     std::pair<unsigned, float> pair = (*t).getToyVariation();
@@ -524,14 +493,16 @@ namespace CP {
                 }
             }
             ATH_MSG_DEBUG("need to access currentBinNumber=" << currentBinNumber);
+        }*/ 
         
-        } 
-        std::unordered_map<MuonEfficiencySystType, EffiCollection_Ptr>::iterator SFiter = m_sf_sets.find(currentEfficiencySystType);
+        std::vector<std::unique_ptr<EffiCollection>>::const_iterator SFiter= std::find_if(m_sf_sets.begin(), m_sf_sets.end(), [&mySysConf](const std::unique_ptr<EffiCollection>& a){
+                    return false;
+        });
         if (SFiter != m_sf_sets.end()) {
-            m_current_sf = SFiter->second;
+            m_current_sf = SFiter->get();
             if (m_seperateSystBins && currentBinNumber != 0) {
                 if (!m_current_sf->SetSystematicBin(currentBinNumber)) {
-                    ATH_MSG_WARNING("Could not apply systematic " << EfficiencySystName(currentEfficiencySystType) << " for bin " << currentBinNumber);
+                    ATH_MSG_WARNING("Could not apply systematic " << mySysConf.name() << " for bin " << currentBinNumber);
                     return SystematicCode::Unsupported;
                 }
             }
@@ -539,15 +510,18 @@ namespace CP {
         } else {
             ATH_MSG_ERROR("Illegal combination of systematics passed to the tool! Did you maybe request multiple variations at the same time? You passed " << mySysConf.name());
             ATH_MSG_DEBUG(" List of relevant systematics included in your combination:");
-            for (std::set<SystematicVariation>::iterator t = mySysConf.begin(); t != mySysConf.end(); ++t) {
+            for (SystematicSet::const_iterator t = mySysConf.begin(); t != mySysConf.end(); ++t) {
                 ATH_MSG_DEBUG("\t" << (*t).name());
             }
-        } */
+        } 
         return SystematicCode::Unsupported;
     }
     
     std::string MuonEfficiencyScaleFactors::getUncorrelatedSysBinName(unsigned int Bin) const {
         return "";
+    }
+    int MuonEfficiencyScaleFactors::getUnCorrelatedSystBin(const xAOD::Muon& mu) const {
+        return -1;
     }
     std::string MuonEfficiencyScaleFactors::getUncorrelatedSysBinName(const SystematicSet& systConfig) const {
                 return "";

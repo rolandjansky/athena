@@ -127,8 +127,15 @@ namespace CP {
             std::string data_effi_replica_decoration() const;
             std::string mc_effi_replica_deocration() const;
             
+            /// Returns the position of the collection in the 
+            /// syst set vector. If the collection is not part
+            /// of this class -1 is returned
+            size_t getPosition(const EffiCollection* coll) const;
             
-        private:
+            /// Returns the number of EffiCollections stored in this class
+            size_t getNCollections() const;
+       
+    private:
             /// utility method to 'dress' a filename using the path resolver
             std::string resolve_file_location(const std::string &filename)const;
             
