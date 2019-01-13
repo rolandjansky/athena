@@ -11,6 +11,8 @@
 #include "PATInterfaces/SystematicVariation.h"
 #include "PathResolver/PathResolver.h"
 
+#include <TTree.h>
+#include <TFile.h>
 namespace CP {
     static SG::AuxElement::ConstAccessor<unsigned int> acc_rnd("RandomRunNumber");
 
@@ -134,11 +136,8 @@ namespace CP {
         if (!m_custom_file_LowPtCalo.empty()) ATH_MSG_WARNING("Note: setting up with user specified Low Pt CaloTag input file " << m_custom_file_LowPtCalo << " - this is not encouraged! ");
         if (m_custom_dir.empty()) ATH_MSG_INFO("Trying to initialize, with working point " << m_wp << ", using calibration release " << m_calibration_version);
 
-        if (!LoadInputs()) {
-            return StatusCode::FAILURE;
-        }
-        SetupCheckSystematicSets();
-
+        ATH_CHECK(LoadInputs());
+        
         // m_init has to be true for affectingSystematics()
         m_init = true;
         m_affectingSys = affectingSystematics();
@@ -159,7 +158,6 @@ namespace CP {
 
         return StatusCode::SUCCESS;
     }
-    
     unsigned int MuonEfficiencyScaleFactors::getRandomRunNumber(const xAOD::EventInfo* info) const {
         if (!info && !evtStore()->retrieve(info, "EventInfo")) {
             ATH_MSG_ERROR("Could not retrieve the xAOD::EventInfo. Return 999999");
@@ -204,13 +202,12 @@ namespace CP {
         return m_current_sf->retrieveSF(mu, RunNumber)->ScaleFactorReplicas(mu, sfs);
     }
     CorrectionCode MuonEfficiencyScaleFactors::applyEfficiencyScaleFactorReplicas(const xAOD::Muon& mu, int nreplicas, const xAOD::EventInfo* info) const {
-        std::vector<float> replicas(nreplicas);
-        CorrectionCode result = getEfficiencyScaleFactorReplicas(mu, replicas, info);
-       
-        
-        // Decorate the muon
-       // if (m_sfrDec) (*m_sfrDec)(mu) = replicas;
-        return result;
+        if (!m_init) {
+            ATH_MSG_ERROR("The tool has not been initialized yet");
+            return CorrectionCode::Error;
+        }
+        unsigned int RunNumber = getRandomRunNumber(info);
+        return m_current_sf->retrieveSF(mu, RunNumber)->ApplyScaleFactorReplicas(mu, nreplicas);
     }
     CorrectionCode MuonEfficiencyScaleFactors::getDataEfficiency(const xAOD::Muon& mu, float& eff, const xAOD::EventInfo* info) const {
         if (!m_init) {
@@ -221,11 +218,12 @@ namespace CP {
         return m_current_sf->retrieveSF(mu, RunNumber)->DataEfficiency(mu, eff);
     }
     CorrectionCode MuonEfficiencyScaleFactors::applyDataEfficiency(const xAOD::Muon& mu, const xAOD::EventInfo* info) const {
-        float eff = 0;
-        CorrectionCode result = getDataEfficiency(mu, eff, info);
-        // Decorate the muon
-        //if (m_effDec) (*m_effDec)(mu) = eff;
-        return result;
+        if (!m_init) {
+            ATH_MSG_ERROR("The tool has not been initialized yet");
+            return CorrectionCode::Error;
+        }
+        unsigned int RunNumber = getRandomRunNumber(info);
+        return m_current_sf->retrieveSF(mu, RunNumber)->ApplyDataEfficiency(mu);
     }
     CorrectionCode MuonEfficiencyScaleFactors::getDataEfficiencyReplicas(const xAOD::Muon& mu, std::vector<float> & sf_err, const xAOD::EventInfo* info) const {
         if (!m_init) {
@@ -236,11 +234,12 @@ namespace CP {
         return m_current_sf->retrieveSF(mu, RunNumber)->DataEfficiencyReplicas(mu, sf_err);
     }
     CorrectionCode MuonEfficiencyScaleFactors::applyDataEfficiencyReplicas(const xAOD::Muon& mu, int nreplicas, const xAOD::EventInfo* info) const {
-        std::vector<float> replicas(nreplicas);
-        CorrectionCode result = getDataEfficiencyReplicas(mu, replicas, info);
-        // Decorate the muon
-        //if (m_effrDec) (*m_effrDec)(mu) = replicas;
-        return result;
+        if (!m_init) {
+            ATH_MSG_ERROR("The tool has not been initialized yet");
+            return CorrectionCode::Error;
+        }
+        unsigned int RunNumber = getRandomRunNumber(info);
+        return m_current_sf->retrieveSF(mu, RunNumber)->ApplyDataEfficiencyReplicas(mu, nreplicas);
     }
     CorrectionCode MuonEfficiencyScaleFactors::getMCEfficiency(const xAOD::Muon& mu, float& eff, const xAOD::EventInfo* info) const {
         if (!m_init) {
@@ -251,11 +250,12 @@ namespace CP {
         return m_current_sf->retrieveSF(mu, RunNumber)->MCEfficiency(mu, eff);
     }
     CorrectionCode MuonEfficiencyScaleFactors::applyMCEfficiency(const xAOD::Muon& mu, const xAOD::EventInfo* info) const {
-        float eff = 0;
-        CorrectionCode result = getMCEfficiency(mu, eff, info);
-        // Decorate the muon
-        //if (m_MCeffDec) (*m_MCeffDec)(mu) = eff;
-        return result;
+        if (!m_init) {
+            ATH_MSG_ERROR("The tool has not been initialized yet");
+            return CorrectionCode::Error;
+        }
+        unsigned int RunNumber = getRandomRunNumber(info);
+        return m_current_sf->retrieveSF(mu, RunNumber)->ApplyMCEfficiency(mu);
     }
     CorrectionCode MuonEfficiencyScaleFactors::getMCEfficiencyReplicas(const xAOD::Muon& mu, std::vector<float> & sf_err, const xAOD::EventInfo* info) const {
         if (!m_init) {
@@ -266,12 +266,13 @@ namespace CP {
         return m_current_sf->retrieveSF(mu, RunNumber)->MCEfficiencyReplicas(mu, sf_err);
     }
     CorrectionCode MuonEfficiencyScaleFactors::applyMCEfficiencyReplicas(const xAOD::Muon& mu, int nreplicas, const xAOD::EventInfo* info) const {
-        std::vector<float> replicas(nreplicas);
-        CorrectionCode result = getMCEfficiencyReplicas(mu, replicas, info);
-// Decorate the muon
-       // if (m_MCeffrDec) (*m_MCeffrDec)(mu) = replicas;
-        return result;
-    }
+        if (!m_init) {
+            ATH_MSG_ERROR("The tool has not been initialized yet");
+            return CorrectionCode::Error;
+        }
+        unsigned int RunNumber = getRandomRunNumber(info);
+        return m_current_sf->retrieveSF(mu, RunNumber)->ApplyMCEfficiencyReplicas(mu, nreplicas);
+       }
 
     std::string MuonEfficiencyScaleFactors::resolve_file_location(const std::string &filename) const{
         if (!m_custom_dir.empty()) {
@@ -329,26 +330,101 @@ namespace CP {
         } else return resolve_file_location("Reco_CaloTag_JPsi.root");
     }
     // load the SF histos
+    
     StatusCode MuonEfficiencyScaleFactors::LoadInputs() {
-        // load all MuonEfficiencySystTypes
-        for (int i = MuonEfficiencySystType::Nominal; i <= MuonEfficiencySystType::LowPtStat1Up; ++i) {
-            // skip the low-pt systematics when they are not activated
-            if (m_Type != MuonEfficiencyType::Reco || m_lowpt_threshold <= 0) {
-                if (i >= MuonEfficiencySystType::LowPtSys1Down) {
-                    break;
-                }
+        
+        std::map<std::string, unsigned int> systematics = lookUpSystematics();
+        /// We've at least the stat and sys errors
+        if (systematics.empty()){
+            return StatusCode::FAILURE;
+        }
+         m_sf_sets.push_back( std::make_unique<EffiCollection>(*this));
+        
+         EffiCollection* nominal = m_sf_sets.back().get();
+        /// Now we can fill the map with the individual sets
+         for (const auto& syst: systematics){
+             m_sf_sets.push_back( std::make_unique<EffiCollection>(nominal,*this, syst.first, syst.second, false));
+             m_sf_sets.push_back( std::make_unique<EffiCollection>(nominal,*this, syst.first, syst.second, true));
+        }
+        for(auto& sf: m_sf_sets){
+            if (!sf->CheckConsistency()) return StatusCode::FAILURE;
+        }
+        return StatusCode::SUCCESS;
+    }
+    std::map<std::string, unsigned int> MuonEfficiencyScaleFactors::lookUpSystematics(){
+        std::map<std::string, unsigned int> syst_map;
+        /// All file_name methods return the central filename if there is no proper map for that component
+        /// use a set to sort out all non-defined maps
+        std::set<std::string>  files_to_look_up{
+            filename_Central(),
+            filename_Calo(),
+            filename_HighEta(),
+            filename_LowPt(),
+            filename_LowPtCalo()
+        };
+        std::function<int(const std::string&)> get_bit = [this](const std::string& file_name){
+                if (file_name == filename_Central()) return EffiCollection::Central;
+                if (file_name == filename_LowPt()) return EffiCollection::CentralLowPt;
+                if (file_name == filename_Calo()) return EffiCollection::Calo;
+                if (file_name == filename_LowPtCalo()) return EffiCollection::CaloLowPt;
+                // last file which remains is forward
+                return EffiCollection::Forward;
+        };
+        
+        std::function<void(const std::string&,int)> insert_bit =[&syst_map](const std::string& key, unsigned int bit){
+            if (syst_map.find(key) == syst_map.end()) syst_map.insert(std::pair<std::string, unsigned int>(key,bit));
+            else syst_map[key] = syst_map[key] | bit;
+        }; 
+        for (const auto& look_up : files_to_look_up){
+            std::unique_ptr<TFile> root_file(TFile::Open(look_up.c_str(), "READ"));
+            if (!root_file || !root_file->IsOpen()){
+                ATH_MSG_FATAL("Could not open file "<<look_up);
+                syst_map.clear();
+                break;
             }
-            if (!LoadEffiSet((MuonEfficiencySystType) i)) {
-                return false;
+            insert_bit("STAT", get_bit(look_up));
+          
+            /// If the systematics shall be split into bins
+            if (m_seperateSystBins) insert_bit("STAT", EffiCollection::UnCorrelated);
+                          
+            TTree* syst_tree = nullptr;
+            root_file->GetObject("Systematics", syst_tree);
+             
+            /// At the moment the systematic break down is not part of all files
+            /// ignore if there is no break down 
+            if (!m_breakDownSyst || syst_tree == nullptr){
+                ATH_MSG_DEBUG("The file "<<look_up<<" does not contain any systematic tree. No break down for that one will be considered");
+                insert_bit("SYS",get_bit(look_up));
+                continue;
+            }
+            ///
+            ///
+            ///
+            std::string* syst_name = nullptr;
+            unsigned int is_symmetric(0), has_pt_sys(0), uncorrelated(0);
+            if (syst_tree->SetBranchAddress("Systematic", &syst_name) != 0 || 
+                syst_tree->SetBranchAddress("IsSymmetric", &is_symmetric) != 0 || 
+                syst_tree->SetBranchAddress("HasPtDependentSys", &has_pt_sys) !=0 ||
+                syst_tree->SetBranchAddress("CanBeUncorrelated", &uncorrelated) !=0){
+                
+            
+                ATH_MSG_FATAL("Although "<<look_up<<" has a systematic tree. There is no proper connection to the branches");
+                syst_map.clear();
+                break;
+            }
+            for (int i =0; syst_tree->GetEntry(i); ++i){
+                insert_bit( *syst_name, get_bit(look_up));
+                if (is_symmetric) insert_bit(*syst_name, EffiCollection::Symmetric);
+                if (has_pt_sys)   insert_bit(*syst_name, EffiCollection::PtDependent);
+                if (m_seperateSystBins && uncorrelated) insert_bit(*syst_name, EffiCollection::UnCorrelated);
             }
         }
-        return true;
+        return syst_map;
     }
     bool MuonEfficiencyScaleFactors::isAffectedBySystematic(const SystematicVariation& systematic) const {
         SystematicSet sys = affectingSystematics();
         return sys.find(systematic) != sys.end();
     }
-
     SystematicSet MuonEfficiencyScaleFactors::SetupSystematics(bool doUnfolded) const {
         SystematicSet result;
         /*if (!m_init) {

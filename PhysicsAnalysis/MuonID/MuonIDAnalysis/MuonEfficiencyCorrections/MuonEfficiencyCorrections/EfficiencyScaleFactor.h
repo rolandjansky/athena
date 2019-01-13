@@ -47,6 +47,7 @@ namespace CP {
             EfficiencyScaleFactor(const MuonEfficiencyScaleFactors& ref_tool,
                                   const std::string &file, 
                                   const std::string &time_unit);
+           
             /// Constructor to use for systematic evaluations the nominal scale-factor
             /// is given as a fallback map in case the user want to activate uncorrelated
             /// systematic -- a shared ptr is used to ensure that the map is always defined
@@ -153,13 +154,9 @@ namespace CP {
             // replica generation
             void GenerateReplicas(int nrep, int seed);
             void GenerateReplicasFromHist(HistHandler* h, int nrep, int seed, EfficiencyScaleFactor::SFReplicaVec &repVector);
-
-            //void CopyHistHandler(std::unique_ptr<HistHandler> &own, const std::unique_ptr<HistHandler> other);
-            //void CopyReplicaVec(EfficiencyScaleFactor::SFvec &own, const EfficiencyScaleFactor::SFvec &other);
-
-            
-            ///   Section of variables of the tool
+  
             ///
+            ///   Section of variables of the tool
             ///
             CP::MuonEfficiencyType m_measurement;
             std::string m_syst_name;
@@ -182,7 +179,6 @@ namespace CP {
             typedef SG::AuxElement::Decorator<float> FloatDecorator;
             typedef SG::AuxElement::Decorator<std::vector<float>> FloatVectorDecorator;
             
-            
             std::unique_ptr<FloatDecorator> m_sf_decor;
             std::unique_ptr<FloatDecorator> m_eff_decor;           
             std::unique_ptr<FloatDecorator> m_mc_eff_decor;
@@ -198,12 +194,12 @@ namespace CP {
 
             
             
-            // replicas, in case we use them
+            /// replicas, in case we use them
             SFReplicaVec m_sf_replicas;
             SFReplicaVec m_eff_replicas;
             SFReplicaVec m_mc_eff_replicas;
 
-
+            /// Nominal fall-back scale-factor
             std::shared_ptr<EfficiencyScaleFactor> m_NominalFallBack;
             int m_SystematicBin;
             

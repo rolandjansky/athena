@@ -73,8 +73,13 @@ namespace CP {
         private:
             unsigned int getRandomRunNumber(const xAOD::EventInfo* info) const;
             /// load the SF histos
-            bool LoadEffiSet(MuonEfficiencySystType sysType);
-            bool LoadInputs();
+            StatusCode LoadInputs();
+           
+            /// Scale-factor files since  Moriond2019 contain the breakdown of systematics into
+            /// their individual components. This method loads all systematics and looks their
+            /// systematics up and returns them in a map together with a bitmask which files are
+            /// affected by the systematic
+            std::map<std::string, unsigned int> lookUpSystematics();
         public:
             /// The following methods are meant to propagate information from the central
             /// tool to the subtool managing the individual scale-factor maps to keep their
@@ -132,12 +137,9 @@ namespace CP {
             SystematicSet SetupSystematics(bool doUnfolded = false) const;
             /// the working point to operate on
             std::string m_wp;
+           
             
-            
-            
-            //std::unordered_map<int, std::unique_ptr<EffiCollection> > m_sf_sets;
-            // At the moment keep only a set of pointers
-            std::set< std::unique_ptr<EffiCollection>> m_sf_sets;
+            std::vector<std::unique_ptr<EffiCollection>> m_sf_sets;
             
             EffiCollection* m_current_sf;
 
