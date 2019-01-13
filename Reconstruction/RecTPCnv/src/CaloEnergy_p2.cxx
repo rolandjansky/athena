@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // CaloEnergy_p1.cxx 
@@ -13,9 +13,3 @@
 // RecTPCnv includes
 #include "RecTPCnv/CaloEnergy_p2.h"
 
-/////////////////////////////////////////////////////////////////// 
-/// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-CaloEnergy_p2::~CaloEnergy_p2()
-{}
