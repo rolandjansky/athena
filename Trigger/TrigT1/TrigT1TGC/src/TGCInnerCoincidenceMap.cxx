@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -23,17 +23,12 @@ namespace LVL1TGCTrigger {
  extern bool        g_USE_INNER;
  extern bool        g_USE_CONDDB;
 
-TGCInnerCoincidenceMap::TGCInnerCoincidenceMap()
+TGCInnerCoincidenceMap::TGCInnerCoincidenceMap(const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey)
   :m_verName("NA"),
    m_side(0),
    m_fullCW(false),
-   m_readCondKey("TGCTriggerData")
+   m_readCondKey(readCondKey)
 {
-   StatusCode sc = m_readCondKey.initialize();
-   if (sc.isFailure()) {
-     return;
-   }
-
   // intialize map
   for (size_t sec=0; sec< N_EndcapSector; sec++){
     for (size_t ssc=0; ssc< N_Endcap_SSC; ssc++){
@@ -54,18 +49,14 @@ TGCInnerCoincidenceMap::TGCInnerCoincidenceMap()
   return;
 }
    
-  TGCInnerCoincidenceMap::TGCInnerCoincidenceMap(const std::string& version,
+  TGCInnerCoincidenceMap::TGCInnerCoincidenceMap(const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
+                                                 const std::string& version,
 						 int   sideID)
   :m_verName(version),
    m_side(sideID),
    m_fullCW(false),
-   m_readCondKey("TGCTriggerData")
+   m_readCondKey(readCondKey)
 {
-   StatusCode sc = m_readCondKey.initialize();
-   if (sc.isFailure()) {
-     return;
-   }
-
   // intialize map
   for (size_t sec=0; sec< N_EndcapSector; sec++){
     for (size_t ssc=0; ssc< N_Endcap_SSC; ssc++){
@@ -128,7 +119,7 @@ TGCInnerCoincidenceMap::~TGCInnerCoincidenceMap()
 }
 
 TGCInnerCoincidenceMap::TGCInnerCoincidenceMap(const TGCInnerCoincidenceMap& right)
-  : m_readCondKey("TGCTriggerData")
+  : m_readCondKey(right.m_readCondKey)
 {
   for (size_t sec=0; sec< N_EndcapSector; sec++){
     for (size_t ssc=0; ssc< N_Endcap_SSC; ssc++){

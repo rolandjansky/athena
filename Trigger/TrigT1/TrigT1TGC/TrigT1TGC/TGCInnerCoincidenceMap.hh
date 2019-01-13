@@ -19,8 +19,9 @@ namespace LVL1TGCTrigger {
 class TGCInnerCoincidenceMap {
 public:
 
-  TGCInnerCoincidenceMap();
-  TGCInnerCoincidenceMap(const std::string& version,int   sideId=0);
+  TGCInnerCoincidenceMap(const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey);
+  TGCInnerCoincidenceMap(const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
+                         const std::string& version,int   sideId=0);
   virtual ~TGCInnerCoincidenceMap();
 
   TGCInnerCoincidenceMap(const TGCInnerCoincidenceMap& right);
@@ -74,7 +75,7 @@ private:
   int m_side; 
   bool m_fullCW;
 
-  SG::ReadCondHandleKey<TGCTriggerData> m_readCondKey;
+  const SG::ReadCondHandleKey<TGCTriggerData>& m_readCondKey;
 };
 
 

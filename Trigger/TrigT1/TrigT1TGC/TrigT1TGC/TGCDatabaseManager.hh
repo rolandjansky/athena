@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCDatabaseManager_hh
@@ -12,6 +12,8 @@
 #include "TrigT1TGC/TGCNumbering.hh"
 #include "TrigT1TGC/TGCElectronicsSystem.hh"
 #include "TrigT1TGC/TGCConnectionPPToSB.hh"
+#include "MuonCondSvc/TGCTriggerData.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "GaudiKernel/MsgStream.h"
 
 namespace LVL1TGCTrigger {
@@ -39,7 +41,8 @@ public:
   void addConnectionInPP(const TGCPatchPanel* patchPanel, const TGCConnectionInPP* connectionInPP);
 
   TGCDatabaseManager();
-  TGCDatabaseManager(const std::string& version, bool flag=false);
+  TGCDatabaseManager(const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
+                     const std::string& version, bool flag=false);
   ~TGCDatabaseManager();
   TGCDatabaseManager(const TGCDatabaseManager& right);
   TGCDatabaseManager& operator=(const TGCDatabaseManager& right);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCRPhiCoincidenceMap_hh
@@ -27,8 +27,9 @@ public:
   int   getOctantId() const;
   bool  isFullCW() const;
   void  setFullCW( bool val);
- 
-  TGCRPhiCoincidenceMap(const std::string& version,
+
+  TGCRPhiCoincidenceMap(const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
+                        const std::string& version,
 			int   sideId=0, int octantId=0);
 
   virtual ~TGCRPhiCoincidenceMap();
@@ -40,7 +41,7 @@ public:
   bool readMap();  
 
 private: // hide default constructor
-  TGCRPhiCoincidenceMap();
+  TGCRPhiCoincidenceMap() = delete;
 
 protected:
   bool checkVersion();
@@ -64,7 +65,7 @@ private:
   int m_octant;
   bool m_fullCW;
 
-  SG::ReadCondHandleKey<TGCTriggerData> m_readCondKey;
+  const SG::ReadCondHandleKey<TGCTriggerData>& m_readCondKey;
 };
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TGCSectorLogic.cxx,v 1.14 2009-03-15 18:07:55 isaya Exp $
@@ -43,14 +43,8 @@ TGCSectorLogic::TGCSectorLogic(TGCRegionType regionIn, int idIn):
     stripHighPtBoard(0),
     stripHighPtChipOut(0),
     useInner(false),
-    useTileMu(false),
-    m_readCondKey("TGCTriggerData")
+    useTileMu(false)
 {
-   StatusCode sc = m_readCondKey.initialize();
-   if (sc.isFailure()) {
-     return;
-   }
-
   sideId = (idIn/NumberOfModule)/NumberOfOctant;
   octantId = (idIn/NumberOfModule)%NumberOfOctant;
   moduleId = idIn%NumberOfModule;
@@ -125,7 +119,8 @@ void TGCSectorLogic::eraseSelectorOut()
   selectorOut=0;
 }
 
-void TGCSectorLogic::clockIn(int bidIn)
+void TGCSectorLogic::clockIn(const SG::ReadCondHandleKey<TGCTriggerData> readCondKey,
+                             int bidIn)
 {
   int SSCid, phiposInSSC;
   bid=bidIn;
@@ -185,7 +180,7 @@ void TGCSectorLogic::clockIn(int bidIn)
     }
     ////////////////////////////////////////////
     // do coincidence with Inner Tracklet and/or TileMu
-    if (useInner) doInnerCoincidence(SSCid, coincidenceOut);
+    if (useInner) doInnerCoincidence(readCondKey, SSCid, coincidenceOut);
 
     if(coincidenceOut) preSelector.input(coincidenceOut);
       // coincidenceOut will be deleted 
@@ -305,8 +300,7 @@ TGCSectorLogic::TGCSectorLogic(const TGCSectorLogic& right):
      wordTileMuon(0), wordInnerStation(0),
      stripHighPtBoard(right.stripHighPtBoard), 
      stripHighPtChipOut(0),
-     useInner(right.useInner), useTileMu(right.useTileMu),
-     m_readCondKey("TGCTriggerData")
+     useInner(right.useInner), useTileMu(right.useTileMu)
 {
   for(int i=0; i<MaxNumberOfWireHighPtBoard; i++){
       wireHighPtBoard[i] = 0;
@@ -377,7 +371,8 @@ void TGCSectorLogic::setInnerTrackletSlots(const TGCInnerTrackletSlot* innerTrac
 }
 
  
-void TGCSectorLogic::doInnerCoincidence(int ssc,  
+void TGCSectorLogic::doInnerCoincidence(const SG::ReadCondHandleKey<TGCTriggerData> readCondKey,
+                                        int ssc,
 					TGCRPhiCoincidenceOut* coincidenceOut)
 {
   if (coincidenceOut ==0) return;
@@ -385,7 +380,7 @@ void TGCSectorLogic::doInnerCoincidence(int ssc,
   int pt = coincidenceOut->getPtLevel();
   if (pt==0) return;
 
-  SG::ReadCondHandle<TGCTriggerData> readHandle{m_readCondKey};
+  SG::ReadCondHandle<TGCTriggerData> readHandle{readCondKey};
   const TGCTriggerData* readCdo{*readHandle};
 
   if (g_USE_CONDDB) {
