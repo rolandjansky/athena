@@ -25,15 +25,14 @@ namespace CP {
             m_eff(),
             m_mc_eff(),
             
-            m_sf_decor(std::make_unique<FloatDecorator>(ref_tool.sf_decoration()+ (m_syst_name.empty()? "" :"_") + sysname(true))),
-            m_eff_decor(std::make_unique<FloatDecorator>(ref_tool.data_effi_decoration()+ (m_syst_name.empty()? "" :"_") + sysname(true))),          
-            m_mc_eff_decor(std::make_unique<FloatDecorator>(ref_tool.mc_effi_decoration()+ (m_syst_name.empty()? "" :"_") + sysname(true))),
-            m_sf_rep_decor(std::make_unique<FloatVectorDecorator>(ref_tool.sf_replica_decoration()+ (m_syst_name.empty()? "" :"_") + sysname(true))),
-            m_eff_rep_decor(std::make_unique<FloatVectorDecorator>(ref_tool.data_effi_replica_decoration()+ (m_syst_name.empty()? "" :"_") + sysname(true))),
-            m_mc_eff_rep_decor(std::make_unique<FloatVectorDecorator>(ref_tool.mc_effi_replica_deocration()+ (m_syst_name.empty()? "" :"_") + sysname(true))),
+            m_sf_decor(std::make_unique<FloatDecorator>(ref_tool.sf_decoration()+ (m_syst_name.empty()? "" :"_"+ m_syst_name + (m_is_up? "_1UP": "_1DN")))),
+            m_eff_decor(std::make_unique<FloatDecorator>(ref_tool.data_effi_decoration()+ (m_syst_name.empty()? "" :"_"+ m_syst_name + (m_is_up? "_1UP": "_1DN")))),          
+            m_mc_eff_decor(std::make_unique<FloatDecorator>(ref_tool.mc_effi_decoration()+ (m_syst_name.empty()? "" :"_"+ m_syst_name + (m_is_up? "_1UP": "_1DN")))),
+            m_sf_rep_decor(std::make_unique<FloatVectorDecorator>(ref_tool.sf_replica_decoration()+ (m_syst_name.empty()? "" :"_"+ m_syst_name + (m_is_up? "_1UP": "_1DN")))),
+            m_eff_rep_decor(std::make_unique<FloatVectorDecorator>(ref_tool.data_effi_replica_decoration()+ (m_syst_name.empty()? "" :"_"+ m_syst_name + (m_is_up? "_1UP": "_1DN")))),
+            m_mc_eff_rep_decor(std::make_unique<FloatVectorDecorator>(ref_tool.mc_effi_replica_deocration()+ (m_syst_name.empty()? "" :"_"+ m_syst_name + (m_is_up? "_1UP": "_1DN")))),
           
             m_sf_KineDepsys(),
-            m_eff_KineDepsys(),
             m_sf_replicas(),
             m_eff_replicas(),
             m_mc_eff_replicas(),
@@ -59,14 +58,78 @@ namespace CP {
         /// Nominal set loaded nothing needs to be done further
         if (syst_name.empty()) return;
         
-        std::function<void(std::unique_ptr<HistHandler>&, const std::string& )> syst_loader = [this, &f, &time_unit] (std::unique_ptr<HistHandler>& nominal, const std::string& hist_type) {
-            if(!nominal) return;
-            
-            
+        
+        if (IsUpVariation()){
+            m_default_eff = 2.;
+            m_default_eff_ttva = 1. + 1.e-9;
+        } else {
+            m_default_eff = 0.;
+            m_default_eff_ttva = 1. - 1.e-9;            
         }
-        //m_sf_sys = ReadHistFromFile("SF_sys", f.get(), time_unit);
-        //m_mc_eff_sys = ReadHistFromFile("MC_Eff_sys", f.get(), time_unit);
-        //m_eff_sys = ReadHistFromFile("Eff_sys", f.get(), time_unit);
+        std::function<void(std::unique_ptr<HistHandler>&, const std::string& )> syst_loader = [this, &f, &time_unit, &syst_type_bitmap] (std::unique_ptr<HistHandler>& nominal, const std::string& hist_type) {
+            if(!nominal) return;
+            std::unique_ptr<HistHandler> sys = ReadHistFromFile(Form("%s_%s_%s", hist_type.c_str() ,
+                                                                                m_syst_name.c_str(), 
+                                                                                (syst_type_bitmap & EffiCollection::Symmetric ? "SYS" : (m_is_up ? "1UP" : "1DN")) ), 
+                                                                f.get(), time_unit);
+            if (sys) {
+                for (int i = 1; i <= nominal->NBins(); ++i) {
+                    nominal->SetBinContent(i, nominal->GetBinContent(i) + (IsUpVariation() ? 1. : -1.)*sys->GetBinContent(i));
+                }
+                return;
+            }
+            /// Asking for the total systematic... May be the current file
+            /// does not support the asymmetric break-down yet. Let's try the good old approach
+            /// and load the total sys histogram
+            if (m_syst_name == "SYS"){
+                std::unique_ptr<HistHandler> old_sys = ReadHistFromFile(hist_type +"_sys", f.get(), time_unit);
+                /// Not even the old approach lead to something fruitful... Lets forget it and reset everything
+                if (!old_sys){
+                    nominal.reset();
+                    return;
+                }
+                for (int i = 1; i<= nominal->NBins(); ++i) {
+                     nominal->SetBinContent(i, nominal->GetBinContent(i) + (IsUpVariation() ? 1. : -1.)*old_sys->GetBinContent(i));
+                }
+            } 
+            /// Stat error can be retrieved from the nominal histogram
+            else if (m_syst_name == "STAT") {
+                for (int i = 1; i<= nominal->NBins(); ++i) {
+                     nominal->SetBinContent(i, nominal->GetBinContent(i) + (IsUpVariation() ? 1. : -1.)*nominal->GetBinError(i));
+                }
+            } 
+            /// Some other systematic is asked for... Failure
+            else{
+                Error("EfficiencyScaleFactor()", "Failed to load sytstematic variation  %s for measurement %s and histo-type %s", sysname(true).c_str(), 
+                                                                                                               EfficiencyTypeName(m_measurement).c_str(),
+                                                                                                               hist_type.c_str());
+                nominal.reset();
+            }
+        };
+        /// Apply the systematic variations
+        syst_loader(m_sf,"SF");
+        syst_loader(m_eff,"Eff");
+        syst_loader(m_mc_eff,"MC_Eff");
+        
+        /// Thus far there're no kinematic dependent systematics for low-pt
+        if (m_is_lowpt) m_respond_to_kineDepSyst =false;
+       
+        /// Load the pt_dependent systematics if needed
+        if (!m_respond_to_kineDepSyst) return;
+        
+        // Load the systematic of the bad veto
+        if (m_measurement == CP::MuonEfficiencyType::BadMuonVeto) {
+            TDirectory* SystDir = nullptr;
+            f->GetObject(("KinematicSystHandler_" + time_unit).c_str(), SystDir);
+            m_sf_KineDepsys = std::make_unique<BadMuonVetoSystHandler>(SystDir);
+            return;
+        }
+        
+        m_sf_KineDepsys = std::make_unique<PtKinematicSystHandler>(ReadHistFromFile("SF_PtDep_sys", f.get(), time_unit), ReadHistFromFile("SF_PtDep_sys", f.get(), time_unit));
+        /// Use the approach from the old sacle-factor file
+        if(!m_sf_KineDepsys->initialize()){    
+            m_sf_KineDepsys = std::make_unique<PrimodialPtSystematic>(ReadHistFromFile("SF_PtDep_sys", f.get(), time_unit));
+        }        
     }
     EfficiencyScaleFactor::EfficiencyScaleFactor(const MuonEfficiencyScaleFactors& ref_tool,
                                   const std::string &file, 
@@ -75,7 +138,7 @@ namespace CP {
                                                         ref_tool,file, time_unit, "",0){}
            
     std::string EfficiencyScaleFactor::sysname(bool with_direction) const {
-        return m_syst_name.empty() ? "" : EfficiencyTypeName(m_measurement) +  "_" + m_syst_name + (with_direction ? (m_is_up ?"__1UP" : "__1DN") :"");  
+        return m_syst_name.empty() ? "" : EfficiencyTypeName(m_measurement) +  "_" + m_syst_name +(m_is_lowpt ? "_LOWPT" : "") + (with_direction ? (m_is_up ?"__1UP" : "__1DN") :"");  
     }
     bool EfficiencyScaleFactor::SeperateSystBins() const {
         return m_seperateBinSyst;
@@ -168,7 +231,7 @@ namespace CP {
                 return m_NominalFallBack->ScaleFactor(mu, SF);
             }
         }
-        CorrectionCode cc = GetContentFromHist(m_sf.get(), m_sf_KineDepsys.get(), mu, SF);
+        CorrectionCode cc = GetContentFromHist(m_sf.get(), mu, SF, true);
         if (cc == CorrectionCode::Error) Error("EfficiencyScaleFactor", "Could not apply the scale factor");
         return cc;
     }   
@@ -184,7 +247,7 @@ namespace CP {
                 return m_NominalFallBack->DataEfficiency(mu, Eff);
             }
         }
-        CorrectionCode cc = GetContentFromHist(m_eff.get(), m_eff_KineDepsys.get(), mu, Eff);
+        CorrectionCode cc = GetContentFromHist(m_eff.get(), mu, Eff, true);
         if (cc == CorrectionCode::Error) Error("EfficiencyScaleFactor", "Could not apply the data efficiency");
         return cc;
     }
@@ -199,12 +262,12 @@ namespace CP {
                 return m_NominalFallBack->MCEfficiency(mu, Eff);
             }
         }
-        CorrectionCode cc = GetContentFromHist(m_mc_eff.get(), nullptr, mu, Eff);
+        CorrectionCode cc = GetContentFromHist(m_mc_eff.get(), mu, Eff, false);
         if (cc == CorrectionCode::Error) Error("EfficiencyScaleFactor", "Could not apply the Monte Carlo efficiency");
         return cc;
     }
 
-    CorrectionCode EfficiencyScaleFactor::GetContentFromHist(HistHandler* Hist, IKinematicSystHandler* PtDepHist, const xAOD::Muon& mu, float & Eff) const {
+    CorrectionCode EfficiencyScaleFactor::GetContentFromHist(HistHandler* Hist, const xAOD::Muon& mu, float & Eff, bool add_kine_syst) const {
         Eff = m_default_eff;
         if (!Hist) {
             if (m_warnsPrinted < m_warningLimit){
@@ -225,8 +288,8 @@ namespace CP {
         CorrectionCode cc = Hist->FindBin(mu, bin);
         if (cc != CorrectionCode::Ok) return cc;
         else Eff = Hist->GetBinContent(bin);
-        if (PtDepHist) {
-            return PtDepHist->GetKineDependent(mu, Eff);
+        if (add_kine_syst && m_respond_to_kineDepSyst) {
+            return m_sf_KineDepsys->GetKineDependent(mu, Eff);
         }
         return CorrectionCode::Ok;
     }
@@ -268,15 +331,15 @@ namespace CP {
         return result;
     } 
     CorrectionCode EfficiencyScaleFactor::ScaleFactorReplicas(const xAOD::Muon& mu, std::vector<float> & SF) {
-        return GetContentReplicasFromHist(m_sf_replicas, mu, SF);
+        return GetContentReplicasFromHist(m_sf_replicas, mu, SF, true);
     }
     CorrectionCode EfficiencyScaleFactor::DataEfficiencyReplicas(const xAOD::Muon& mu, std::vector<float> & eff) {
-        return GetContentReplicasFromHist(m_eff_replicas, mu, eff);
+        return GetContentReplicasFromHist(m_eff_replicas, mu, eff, true);
     }
     CorrectionCode EfficiencyScaleFactor::MCEfficiencyReplicas(const xAOD::Muon& mu, std::vector<float> & eff) {
-        return GetContentReplicasFromHist(m_mc_eff_replicas, mu, eff);
+        return GetContentReplicasFromHist(m_mc_eff_replicas, mu, eff, false);
     }
-    CorrectionCode EfficiencyScaleFactor::GetContentReplicasFromHist(EfficiencyScaleFactor::SFReplicaVec &replicas, const xAOD::Muon& mu, std::vector<float> & SF) {
+    CorrectionCode EfficiencyScaleFactor::GetContentReplicasFromHist(EfficiencyScaleFactor::SFReplicaVec &replicas, const xAOD::Muon& mu, std::vector<float> & SF, bool add_kine_syst) {
         if (replicas.size() != SF.size()) GenerateReplicas(SF.size(), 1000. * mu.phi() + mu.eta());
         if (replicas.empty()) return CorrectionCode::OutOfValidityRange;
         if (m_measurement == CP::MuonEfficiencyType::TTVA && fabs(mu.eta()) > 2.5 && fabs(mu.eta()) <= 2.7 && mu.muonType() == xAOD::Muon::MuonType::MuonStandAlone) {
@@ -289,11 +352,17 @@ namespace CP {
             return CorrectionCode::Ok;
         }
         int bin = -1;
+        float extra_sys = 1;
+        if (add_kine_syst && m_respond_to_kineDepSyst) {
+           CorrectionCode cc = m_sf_KineDepsys->GetKineDependent(mu, extra_sys);
+            if (cc != CorrectionCode::Ok) {}
+        }
+        
         CorrectionCode res = (*replicas.begin())->FindBin(mu, bin);
         if (res != CorrectionCode::Ok) return res;
         else {
             for (size_t k = 0; k < SF.size(); k++) {
-                SF[k] = replicas.at(k)->GetBinContent(bin);
+                SF[k] = replicas.at(k)->GetBinContent(bin) * extra_sys;
             }
         }
         return res;

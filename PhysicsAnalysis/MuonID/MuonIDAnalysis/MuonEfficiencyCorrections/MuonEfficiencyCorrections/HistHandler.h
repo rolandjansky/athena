@@ -44,19 +44,17 @@ namespace CP {
         public:
 
             inline  double GetBinContent(int bin) const{
-            if (!m_H) {
-            return DBL_MAX;
-        }
-        return m_H->GetBinContent(bin);
+                if (!m_H) return DBL_MAX;
+                return m_H->GetBinContent(bin);
             }
-             void SetBinContent(int bin, float val) const;
+            
+            void SetBinContent(int bin, float val) const;
             
             inline  double GetBinError(int bin) const{
-                if (!m_H) {
-            return DBL_MAX;
-        }
-        return m_H->GetBinError(bin);
+                if (!m_H) return DBL_MAX;
+                return m_H->GetBinError(bin);
             }
+            
             inline TH1* GetHist() const{
                 return m_H.get();
             }
