@@ -42,7 +42,7 @@ class ISCT_RodDecoder : virtual public IAlgTool {
                                     ISCT_RDO_Container&,
                                     InDetBSErrContainer* errs,
                                     SCT_ByteStreamFractionContainer* bsFracCont,
-                                    const std::vector<IdentifierHash>* vec=nullptr) const = 0;
+                                    const std::vector<IdentifierHash>* vecHash = nullptr) const = 0;
 };
 
 #endif //SCT_RAWDATABYTESTREAM_ISCT_RODDECODER_H
