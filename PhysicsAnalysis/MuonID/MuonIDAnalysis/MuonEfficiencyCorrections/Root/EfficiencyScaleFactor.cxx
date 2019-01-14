@@ -124,8 +124,8 @@ namespace CP {
             m_sf_KineDepsys = std::make_unique<BadMuonVetoSystHandler>(SystDir);
             return;
         }
-        
-        m_sf_KineDepsys = std::make_unique<PtKinematicSystHandler>(ReadHistFromFile("SF_PtDep_sys", f.get(), time_unit), ReadHistFromFile("SF_PtDep_sys", f.get(), time_unit));
+        /// That one needs to be named properly in the future
+        m_sf_KineDepsys = std::make_unique<PtKinematicSystHandler>(ReadHistFromFile("Kuuuchen", f.get(), time_unit), ReadHistFromFile("SF_PtDep_sys", f.get(), time_unit));
         /// Use the approach from the old sacle-factor file
         if(!m_sf_KineDepsys->initialize()){    
             m_sf_KineDepsys = std::make_unique<PrimodialPtSystematic>(ReadHistFromFile("SF_PtDep_sys", f.get(), time_unit));

@@ -31,11 +31,19 @@ namespace CP {
             /// return the correct SF type to provide, depending on eta and the author
             EfficiencyScaleFactor* retrieveSF(const xAOD::Muon & mu, unsigned int RunNumber) const;
             enum CollectionType {
+                /// The five different scale-factor maps
                 Central = 1, 
                 Calo   = 1<<1, 
                 Forward = 1<<2, 
                 CentralLowPt = 1<<3, 
                 CaloLowPt = 1<<4
+                
+                ZAnalysis = Central | Calo | Forward
+                /// Distinguish these two because the systematics
+                /// are named with an extra LOWPT
+                JPsiAnalysis = CentralLowPt | CaloLowPt
+                
+                TPAnalysis = ZAnalysis | JPsiAnalysis
             };
             enum Systematic{
                 Symmetric = 1<<5,

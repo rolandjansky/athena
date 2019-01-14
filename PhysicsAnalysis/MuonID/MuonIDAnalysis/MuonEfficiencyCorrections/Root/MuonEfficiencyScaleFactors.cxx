@@ -345,17 +345,30 @@ namespace CP {
             return StatusCode::SUCCESS;
         }
         std::map<std::string, unsigned int> systematics = lookUpSystematics();
-        /// We've at least the stat and sys errors
+        /// We've at least the stat and sys errors and nothing went wrong
+        /// during loading the files
         if (systematics.empty()){
             return StatusCode::FAILURE;
         }
+        
+        /// Push back the nominal options
         m_sf_sets.push_back( std::make_unique<EffiCollection>(*this));
         
         EffiCollection* nominal = m_sf_sets.back().get();
         /// Now we can fill the map with the individual sets
         for (const auto& syst: systematics){
-             m_sf_sets.push_back(std::make_unique<EffiCollection>(nominal,*this, syst.first, syst.second, false));
-             m_sf_sets.push_back(std::make_unique<EffiCollection>(nominal,*this, syst.first, syst.second, true));
+            /// Filter the bits which are not assigning the files
+            if ( (syst.second & EffiCollection::ZAnalysis) &&  (syst.second & EffiCollection::JPsiAnalysis)){
+                /// Z-stream
+                m_sf_sets.push_back(std::make_unique<EffiCollection>(nominal,*this, syst.first, syst.second ~EffiCollection::ZAnalysis, false));
+                m_sf_sets.push_back(std::make_unique<EffiCollection>(nominal,*this, syst.first, syst.second ~EffiCollection::ZAnalysis, true));
+                /// J-psi stream
+                m_sf_sets.push_back(std::make_unique<EffiCollection>(nominal,*this, syst.first, syst.second ~EffiCollection::JPsiAnalysis, true));
+                m_sf_sets.push_back(std::make_unique<EffiCollection>(nominal,*this, syst.first, syst.second ~EffiCollection::JPsiAnalysis, false));
+            } else {
+                m_sf_sets.push_back(std::make_unique<EffiCollection>(nominal,*this, syst.first, syst.second, false));
+                m_sf_sets.push_back(std::make_unique<EffiCollection>(nominal,*this, syst.first, syst.second, true));
+            }
         }
         for(auto& sf: m_sf_sets){
             if (!sf->CheckConsistency()) return StatusCode::FAILURE;
@@ -406,6 +419,10 @@ namespace CP {
             if (!m_breakDownSyst || syst_tree == nullptr){
                 ATH_MSG_DEBUG("The file "<<look_up<<" does not contain any systematic tree. No break down for that one will be considered");
                 insert_bit("SYS",get_bit(look_up));
+                /// Activate the pt-dependent systematic for the old calibration files by hand
+                if (measurement() == ){
+                
+                }
                 continue;
             }
             ///  Read out the systematic tree from the scale-factor files
