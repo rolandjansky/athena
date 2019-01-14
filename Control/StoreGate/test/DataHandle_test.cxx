@@ -2,6 +2,10 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
+// DataHandle<> is not thread-safe.
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 #include "TestTools/initGaudi.h"
 #include "TestTools/SGassert.h"
 #include "StoreGate/DataHandle.h"

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
  */
 // $Id$
 /**
@@ -8,6 +8,9 @@
  * @date Apr, 2017
  * @brief Handle class for adding a decoration to an object.
  */
+
+
+#include "CxxUtils/checker_macros.h"
 
 
 namespace SG {
@@ -84,7 +87,8 @@ WriteDecorHandle<T, D>::~WriteDecorHandle()
   if (this->cachedPtr()) {
     const IConstAuxStore* store = this->vectorData()->getConstStore();
     if (store) {
-      const_cast<IConstAuxStore*>(store)->lockDecoration (auxid());
+      IConstAuxStore* store_nc ATLAS_THREAD_SAFE = const_cast<IConstAuxStore*> (store);
+      store_nc->lockDecoration (auxid());
     }
   }
 }
