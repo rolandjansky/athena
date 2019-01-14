@@ -23,7 +23,28 @@ def lumi(triggerPythonConfig):
     log.info( 'Menu name: '+ menu_name)
 
 
-    if menu_name.startswith('Physics_pp_v7_primaries') :
+    if menu_name.startswith('Physics_pp_v8') :
+        log.info('In physics pp v8 menu setup')
+        from TriggerMenu.menu.Physics_pp_v8 import setupMenu, Prescales
+        setupMenu()
+        L1Prescales = Prescales.L1Prescales
+        HLTPrescales = Prescales.HLTPrescales
+
+    elif menu_name.startswith('Physics_pp_v8_lowmu') :
+        log.info('In physics pp v8 lowmu menu setup')
+        from TriggerMenu.menu.Physics_pp_v8_lowmu import setupMenu, Prescales
+        setupMenu()
+        L1Prescales = Prescales.L1Prescales
+        HLTPrescales = Prescales.HLTPrescales
+
+
+    elif  menu_name.startswith('MC_pp_v8'):
+        from TriggerMenu.menu.MC_pp_v8 import setupMenu, Prescales
+        setupMenu()
+        L1Prescales = Prescales.L1Prescales
+        HLTPrescales = Prescales.HLTPrescales
+
+    elif menu_name.startswith('Physics_pp_v7_primaries') :
         log.info('In physics pp v7 primaries menu setup')
         from TriggerMenu.menu.Physics_pp_v7_primaries import setupMenu, Prescales
         setupMenu()
