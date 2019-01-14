@@ -12,5 +12,4 @@ namespace jet {
   VertexIndexedConstituentUserInfo::VertexIndexedConstituentUserInfo(const xAOD::IParticle& par, Index idx, const LabelIndex* pli, const xAOD::Vertex* vtx) : IndexedConstituentUserInfo(par, idx, pli) , m_vertex(vtx) {}
 
 
-
 }

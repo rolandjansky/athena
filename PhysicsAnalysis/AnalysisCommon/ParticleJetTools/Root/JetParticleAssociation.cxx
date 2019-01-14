@@ -36,7 +36,7 @@ StatusCode JetParticleAssociation::execute() {
 
     const vector<vector<ElementLink<IParticleContainer> > >* matches = match(*jets);
 
-
+#ifndef GENERATIONBASE
     SG::AuxElement::ConstAccessor<vector<ElementLink<TrackParticleContainer> > >
         trkacc("BTagTrackToJetAssociator");
 
@@ -44,6 +44,7 @@ StatusCode JetParticleAssociation::execute() {
         (*dec)(*jets->at(iJet)) = (*matches)[iJet];
 
     delete matches;
+#endif //if not GENERATIONBASE
 
     return StatusCode::SUCCESS;
 }
@@ -53,3 +54,5 @@ StatusCode JetParticleAssociation::finalize() {
     delete dec;
     return StatusCode::SUCCESS;
 }
+
+

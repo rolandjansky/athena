@@ -21,7 +21,9 @@
 #include "MuonTrackSummaryAccessors_v1.h"
 // Athena-only includes
 #ifndef XAOD_ANALYSIS
+#ifndef GENERATIONBASE
 // #include "TrkParameters/MeasuredPerigee.h"
+#endif //GENERATIONBASE
 #endif
 
 namespace xAOD {

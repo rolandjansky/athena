@@ -16,7 +16,9 @@
 
 // Athena include(s):
 #ifndef XAOD_ANALYSIS
+#ifndef GENERATIONBASE
 #include "TrkSegment/SegmentCollection.h"
+#endif
 #endif
 
 // Local include(s):
@@ -113,9 +115,11 @@ namespace xAOD {
     void setNHits(int nPrecisionHits, int nPhiLayers, int nTrigEtaLayers);
     /// @}
 
-#ifndef XAOD_ANALYSIS        
+#ifndef XAOD_ANALYSIS
+#ifndef GENERATIONBASE        
     const ElementLink< ::Trk::SegmentCollection >& muonSegment() const;
     void setMuonSegment(const ElementLink< ::Trk::SegmentCollection >& segment);
+#endif
 #endif
 
   }; // end of the MuonSegment_v1 class definitions

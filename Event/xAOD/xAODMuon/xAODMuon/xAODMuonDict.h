@@ -34,7 +34,9 @@
 #include "AthLinks/ElementLink.h"
 
 #ifndef XAOD_ANALYSIS
+#ifndef GENERATIONBASE
 #include "TrkSegment/SegmentCollection.h"
+#endif //GENERATIONBASE
 #endif // not XAOD_ANALYSIS
 
 namespace {
@@ -65,11 +67,13 @@ namespace {
       ElementLink< xAOD::CaloClusterContainer >                                   i1;
       ElementLink< xAOD::TrackParticleContainer >                                 i2;
 #ifndef XAOD_ANALYSIS
+#ifndef GENERATIONBASE
       // These lines are still needed in order for Reflex to see the
       // member variable of xAOD::MuonSegmentAuxContainer_v1 correctly.
       Trk::SegmentCollection                                                      c3;
       ElementLink< Trk::SegmentCollection >                                       i3;
       std::vector<ElementLink< Trk::SegmentCollection > >                         i4;
+#endif // not GENERATIONBASE
 #endif // not XAOD_ANALYSIS
    };
 }

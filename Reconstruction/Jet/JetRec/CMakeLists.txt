@@ -12,6 +12,12 @@ if( NOT XAOD_STANDALONE )
    set( extra_deps Control/AthenaBaseComps GaudiKernel )
 endif()
 
+#set(extra_depsp )
+#if( NOT GENERATIONBASE )
+#  set( extra_deps Event/xAOD/xAODMuon )
+#  set( extra_libs xAODMuon )
+#endif()
+
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
   PUBLIC
@@ -23,11 +29,12 @@ atlas_depends_on_subdirs(
   Reconstruction/EventShapes/EventShapeInterface
   Reconstruction/Jet/JetEDM
   Reconstruction/Jet/JetInterface
+#  ${extra_depsp}
   PRIVATE
   Event/xAOD/xAODBase
   Event/xAOD/xAODCore
   Event/xAOD/xAODEventInfo
-  Event/xAOD/xAODTracking
+  Event/xAOD/xAODTracking 
   ${extra_deps} )
 
 # External dependencies:
@@ -60,5 +67,16 @@ atlas_add_dictionary( JetRecDict
    LINK_LIBRARIES JetRecLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+#if ( GENERATIONBASE )
+#   atlas_install_python_modules( python/DefaultTools.py python/FastJetInterfaceConfig.py 
+#python/JetAlgorithm.py 
+#   python/JetFlavorAlgs.py python/JetRecCalibrationFinder.py python/JetRecFlags.py 
+#python/JetRecStandard.py 
+#   python/JetRecStandardToolManager.py python/JetRecStandardTools.py python/JetRecUtils.py 
+#python/JetToolSupport.py 
+#   python/BasicTruthJetsFinding.py  )
+#else() 
+   atlas_install_python_modules( python/*.py )
+#endif() 
 atlas_install_joboptions( share/JetRec_jobOptions.py share/myjets.py )
+

@@ -23,10 +23,13 @@ typedef std::vector<ParticleVector> ParticleMap;
 typedef std::vector<double> PtMap;
 using jet::JetConstituentFiller;
 using xAOD::MuonSegment;
+
 using jet::IndexedTConstituentUserInfo;
+
 typedef std::vector<const MuonSegment*> MuonSegmentVector;
 typedef IndexedTConstituentUserInfo<MuonSegment> MuonSegmentCUI;
 typedef std::vector<MuonSegmentVector> MuonSegmentMap;
+
 
 //**********************************************************************
 
@@ -49,6 +52,7 @@ extractConstituents(xAOD::Jet& jet, const NameList* pghostlabs,
   const PseudoJetVector& cons = ppseudojet->constituents();
   ParticleMap out;
   MuonSegmentMap outms;
+
   PtMap ptout;
   ParTypeVector partypes;
   const LabelIndex* pli = nullptr;
@@ -80,7 +84,9 @@ extractConstituents(xAOD::Jet& jet, const NameList* pghostlabs,
       }
       if ( pli != cui.labelMap() ) return -4;
       const IParticle* ppar = cui.particle();
+
       const MuonSegment* pms = nullptr;
+
       // If this is not an IParticle, find the full type.
       unsigned int icui = cui.index();
       ParType partype = partypes[icui];

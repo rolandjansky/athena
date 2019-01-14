@@ -10,7 +10,9 @@
 #include <boost/foreach.hpp>
 #endif
 #include "xAODJet/JetAuxContainer.h"
+#ifndef GENERATIONBASE
 #include "xAODJet/JetTrigAuxContainer.h"
+#endif //GENERATIONBASE
 #include <fstream>
 //#include "AthenaKernel/errorcheck.h"
 
@@ -466,6 +468,7 @@ const JetContainer* JetRecTool::build() const {
       ++naction;
     } else {
       pjets = new JetContainer;
+#ifndef GENERATIONBASE
       if ( m_trigger ) {
         ATH_MSG_DEBUG("Attaching online Aux container.");
         pjets->setStore(new xAOD::JetTrigAuxContainer);
@@ -473,6 +476,7 @@ const JetContainer* JetRecTool::build() const {
         ATH_MSG_DEBUG("Attaching offline Aux container.");
         pjets->setStore(new xAOD::JetAuxContainer);
       }
+#endif //GENERATIONBASE
     }
     
     // Find jets.
@@ -566,9 +570,13 @@ int JetRecTool::execute() const {
     ATH_MSG_ERROR("Unable to retrieve container");
     return 1;
   }
+
+#ifndef GENERATIONBASE
   if ( m_trigger ) {
     return record<xAOD::JetTrigAuxContainer>(pjets);
   } 
+#endif //GENRATIONBASE
+
   if (m_shallowCopy) {
     return record<xAOD::ShallowAuxContainer>(pjets);
   }

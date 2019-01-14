@@ -13,7 +13,9 @@
  
 // xAOD include(s):
 #ifndef XAOD_ANALYSIS
+#ifndef GENERATIONBASE
 #include "TrkSegment/SegmentCollection.h"
+#endif
 #endif
 
 namespace xAOD {

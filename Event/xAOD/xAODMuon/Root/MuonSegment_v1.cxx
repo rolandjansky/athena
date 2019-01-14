@@ -91,8 +91,10 @@ namespace xAOD {
     acc3( *this ) = nTrigEtaLayers;
   }
 
-  #ifndef XAOD_ANALYSIS    
+  #ifndef XAOD_ANALYSIS
+  #ifndef GENERATIONBASE    
     AUXSTORE_OBJECT_SETTER_AND_GETTER( MuonSegment_v1, ElementLink< ::Trk::SegmentCollection > , muonSegment, setMuonSegment )
+  #endif // not GENERATIONBASE
   #endif // not XAOD_ANALYSIS
 
 } // namespace xAOD
