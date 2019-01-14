@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RECTPCNV_MISSINGETREGIONS_P3_H
@@ -27,7 +27,7 @@ class MissingEtRegions_p3
   MissingEtRegions_p3() {};
 
   /** destructor */
-  ~MissingEtRegions_p3(){};
+  ~MissingEtRegions_p3() = default;
 
 
  protected:

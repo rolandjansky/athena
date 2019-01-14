@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RECTPCNV_MISSINGETCALO_P1_H
@@ -32,7 +32,7 @@ class MissingEtCalo_p1
   MissingEtCalo_p1() {};
 
   /** destructor */
-  ~MissingEtCalo_p1();
+  ~MissingEtCalo_p1() = default;
 
 
  protected:

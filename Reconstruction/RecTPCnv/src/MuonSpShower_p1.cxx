@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // MuonSpShower_p1.cxx 
@@ -29,5 +29,3 @@ MuonSpShower_p1::MuonSpShower_p1()
   , m_numberOfOuterSegments(0) 
 {}
 
-MuonSpShower_p1::~MuonSpShower_p1()
-{}
