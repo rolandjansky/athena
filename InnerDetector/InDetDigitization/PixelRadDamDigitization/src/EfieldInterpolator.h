@@ -23,7 +23,6 @@
 #include <TMath.h>
 #include <TGraph.h>
 
-using namespace std;
 // Different options to retrieve E field
 // default: interspline
 enum interpolationMethod{
@@ -65,8 +64,8 @@ class EfieldInterpolator: public AthAlgTool {
   bool initializeFromFile(TString fpath);
   bool initializeFromDirectory(TString fpath);
   void InitInterpolationTree(TString interpolationTreesFile = "");	
-  Double_t estimateEfield(vector<Double_t> vvol, vector<Double_t> vflu, vector<vector<Double_t>> vfluvvol, Double_t aimFlu, Double_t aimVol, TString prepend="", bool debug =false);
-  Double_t estimateEfieldInvDistance(vector<Double_t> vvol, vector<Double_t> vflu, vector<vector<Double_t>> vfluvvol, Double_t aimFlu, Double_t aimVol, Double_t measure = 1.);
+  Double_t estimateEfield(std::vector<Double_t> vvol, std::vector<Double_t> vflu, std::vector<std::vector<Double_t>> vfluvvol, Double_t aimFlu, Double_t aimVol, TString prepend="", bool debug =false);
+  Double_t estimateEfieldInvDistance(std::vector<Double_t> vvol, std::vector<Double_t> vflu, std::vector<std::vector<Double_t>> vfluvvol, Double_t aimFlu, Double_t aimVol, Double_t measure = 1.);
   
   TH1D* createEfieldProfile(Double_t aimFluence, Double_t aimVoltage);
   TH1D* getEfield(Double_t aimFluence, Double_t aimVoltage);
@@ -74,22 +73,22 @@ class EfieldInterpolator: public AthAlgTool {
   void scaleIntegralTo(TH1* hin, Double_t aimInt, int first = 1, int last = -1);
   //TFile* debugFile = new TFile("/afs/cern.ch/user/l/ladam/Allpix/allpix/share/debug_interpolation.root", "RECREATE");
   //TString deIbugPrefix = "/afs/cern.ch/user/l/ladam/NegativeEfieldInterpolated/";
-  void ReliabilityCheck(Double_t aimFluence, vector<Double_t> fluences, Double_t aimVoltage, vector<Double_t> voltages);
+  void ReliabilityCheck(Double_t aimFluence, std::vector<Double_t> fluences, Double_t aimVoltage, std::vector<Double_t> voltages);
 
 private:  
 	//TFile* defFile; 	//File containing ttrees TCAD and Interpolation
-  vector<vector<TString>> list_files(TString fileList_TCADsamples);
+  std::vector<std::vector<TString>> list_files(TString fileList_TCADsamples);
   Double_t extrapolateLinear(Double_t x1, Double_t y1, Double_t x2, Double_t y2, Double_t xaim );
-  int fillXYvectors(vector<Double_t> vLoop,int ifix, vector<vector<Double_t>> v2vsv1, vector<Double_t>* &xx, vector<Double_t>* &yy, bool regularOrder = true);
+  int fillXYvectors(std::vector<Double_t> vLoop,int ifix, std::vector<std::vector<Double_t>> v2vsv1, std::vector<Double_t>* &xx, std::vector<Double_t>* &yy, bool regularOrder = true);
   void FillEdgeValues(TH1D* hin);
-  bool isInterpolation(vector<Double_t> vval, Double_t aimval) 
+  bool isInterpolation(std::vector<Double_t> vval, Double_t aimval) 
       { return ( vval.front() <= aimval && aimval <= vval.back() ); };
-  bool isInterpolation(vector<Double_t>* vval, Double_t aimval)
+  bool isInterpolation(std::vector<Double_t>* vval, Double_t aimval)
       {return ( vval->front() <= aimval && aimval <= vval->back()   );};
   Double_t relativeDistance(Double_t x1, Double_t x2);                            //difference between x1 x2 scaled to x1
   Double_t relativeDistance(Double_t x1, Double_t y1, Double_t x2, Double_t y2);
   Double_t estimateEfieldLinear(Double_t aimVoltage);
-  void saveTGraph(vector<Double_t> vvol, vector<Double_t> vflu, vector<vector<Double_t>> vfluvvol, Double_t aimFlu, Double_t aimVol, TString prepend, bool skipNegative = true);
+  void saveTGraph(std::vector<Double_t> vvol, std::vector<Double_t> vflu, std::vector<std::vector<Double_t>> vfluvvol, Double_t aimFlu, Double_t aimVol, TString prepend, bool skipNegative = true);
 }; 
 
 }
