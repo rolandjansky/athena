@@ -420,8 +420,8 @@ namespace CP {
                 ATH_MSG_DEBUG("The file "<<look_up<<" does not contain any systematic tree. No break down for that one will be considered");
                 insert_bit("SYS",get_bit(look_up));
                 /// Activate the pt-dependent systematic for the old calibration files by hand
-                if (measurement() == ){
-                
+                if (measurement() == MuonEfficiencyType::Reco || measurement() == MuonEfficiencyType::BadMuonVeto){
+                    insert_bit("SYS",  EffiCollection::PtDependent);
                 }
                 continue;
             }
