@@ -3,11 +3,9 @@
 # art-description: Tau slice TriggerTest on MC
 # art-type: build
 # art-include: 21.1/AthenaP1
-# art-include: 21.1-dev/AthenaP1
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
 # art-include: 21.0-TrigMC/Athena
-# art-include: master/Athena
 # art-include: master/Athena
 # art-output: HLTChain.txt
 # art-output: HLTTE.txt
