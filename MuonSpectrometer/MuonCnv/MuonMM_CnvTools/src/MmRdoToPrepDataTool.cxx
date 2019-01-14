@@ -27,6 +27,8 @@
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 
+#include "MMClusterization/IMMClusterBuilderTool.h"
+
 using namespace MuonGM;
 using namespace Trk;
 using namespace Muon;
@@ -40,7 +42,8 @@ Muon::MmRdoToPrepDataTool::MmRdoToPrepDataTool(const std::string& t,
   m_mmIdHelper(0),
   m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
   m_fullEventDone(false),
-  m_mmPrepDataContainer(0) 
+  m_mmPrepDataContainer(0),
+  m_clusterBuilderTool("Muon::SimpleMMClusterBuilderTool/SimpleMMClusterBuilderTool",this)
 {
   declareInterface<Muon::IMuonRdoToPrepDataTool>(this);
 
@@ -51,6 +54,7 @@ Muon::MmRdoToPrepDataTool::MmRdoToPrepDataTool(const std::string& t,
 		  "Muon::MMPrepDataContainer to record");
   
   declareProperty("MergePrds", m_merge = true);
+  declareProperty("ClusterBuilderTool",m_clusterBuilderTool);
 }
 
 
@@ -141,7 +145,6 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
   }
 
   std::vector<MMPrepData> MMprds;
-  std::vector<int> MMflag;
   // convert the RDO collection to a PRD collection
   MM_RawDataCollection::const_iterator it = rdoColl->begin();
   for ( ; it != rdoColl->end() ; ++it ) {
@@ -218,114 +221,21 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
       prdColl->push_back(new MMPrepData(prdId,hash,localPos,rdoList,cov,detEl,time,charge));
     } else {
        MMprds.push_back(MMPrepData(prdId,hash,localPos,rdoList,cov,detEl,time,charge));
-       MMflag.push_back(0);
     } 
   }
 
   if(merge) {
-     for (unsigned int i=0; i<MMprds.size(); ++i){
-         // skip the merged prds
-         if(MMflag[i]==1) continue;
- 
-         bool merge = false;
-         unsigned int jmerge = -1;
-         Identifier id_prd = MMprds[i].identify();
-         int strip = m_mmIdHelper->channel(id_prd);
-         int gasGap  = m_mmIdHelper->gasGap(id_prd);
-         int layer   = m_mmIdHelper->multilayer(id_prd);
-         ATH_MSG_VERBOSE("  MMprds " <<  MMprds.size() <<" index "<< i << " strip " << strip << " gasGap " << gasGap << " layer " << layer << " z " << MMprds[i].globalPosition().z() );
-         for (unsigned int j=i+1; j<MMprds.size(); ++j){
-           Identifier id_prdN = MMprds[j].identify();
-           int stripN = m_mmIdHelper->channel(id_prdN);
-           int gasGapN  = m_mmIdHelper->gasGap(id_prdN);
-           int layerN   = m_mmIdHelper->multilayer(id_prdN);
-           if( gasGapN==gasGap && layerN==layer ) {
-             ATH_MSG_VERBOSE(" next MMprds strip same gasGap and layer index " << j << " strip " << stripN << " gasGap " << gasGapN << " layer " << layerN );
-             if(abs(strip-stripN)<2) {
-               merge = true;
-               jmerge = j;
-               break;
-             }
-           }
-         }
- 
-         if(!merge) {
-           ATH_MSG_VERBOSE(" add isolated MMprds strip " << strip << " gasGap " << gasGap << " layer " << layer );
-           std::vector<Identifier> rdoList;
-           rdoList.push_back(id_prd);
-           double covX = MMprds[i].localCovariance()(Trk::locX,Trk::locX);
-           Amg::MatrixX* covN = new Amg::MatrixX(1,1);
-           covN->setIdentity();
-           (*covN)(0,0) = covX;
-           MMPrepData* prdN = new MMPrepData(id_prd, hash, MMprds[i].localPosition(), rdoList, covN, MMprds[i].detectorElement());
-           prdN->setHashAndIndex(prdColl->identifyHash(), prdColl->size());
-           prdColl->push_back(prdN);
-         } else {
-           unsigned int nmerge = 0;
-           std::vector<Identifier> rdoList;
-           std::vector<unsigned int> mergeIndices;
-           std::vector<int> mergeStrips;
-           rdoList.push_back(id_prd);
-           MMflag[i] = 1;
-           mergeIndices.push_back(i);
-           mergeStrips.push_back(strip);
-           unsigned int nmergeStrips = 1;
-           unsigned int nmergeStripsMax = 25;
-           for (unsigned int k=0; k < nmergeStripsMax; ++k) {
-             for (unsigned int j=jmerge; j<MMprds.size(); ++j){
-               if(MMflag[j] == 1) continue;
-               Identifier id_prdN = MMprds[j].identify();
-               int stripN = m_mmIdHelper->channel(id_prdN);
-               if( abs(mergeStrips[k]-stripN) <= 1 ) {
-                 int gasGapN  = m_mmIdHelper->gasGap(id_prdN);
-                 int layerN   = m_mmIdHelper->multilayer(id_prdN);
-                 if( gasGapN==gasGap && layerN==layer ) {
-                   if(mergeStrips[k]==stripN) {
-                     MMflag[j] = 1;
-                     continue;
-                   }
-                   nmerge++;
-                   rdoList.push_back(id_prdN);
-                   MMflag[j] = 1;
-                   mergeIndices.push_back(j);
-                   mergeStrips.push_back(stripN);
-                   nmergeStrips++;
-                 }
-               }
-             }
-             if(k>=nmergeStrips) break;
-           }
-           ATH_MSG_VERBOSE(" add merged MMprds nmerge " << nmerge << " strip " << strip << " gasGap " << gasGap << " layer " << layer );
- 
-           // start off from strip in the middle
-           int stripSum = 0;
-           for (unsigned int k =0; k<mergeStrips.size(); ++k) {
-             stripSum += mergeStrips[k];
-           }
-           stripSum = stripSum/mergeStrips.size();
- 
-           unsigned int j = jmerge;
-           for (unsigned int k =0; k<mergeStrips.size(); ++k) {
-             if(mergeStrips[k]==stripSum) j = mergeIndices[k];
-             ATH_MSG_VERBOSE(" merged strip nr " << k <<  " strip " << mergeStrips[k] << " index " << mergeIndices[k]);
-           }
-           ATH_MSG_VERBOSE(" Look for strip nr " << stripSum << " found at index " << j);
- 
-           double covX = MMprds[j].localCovariance()(Trk::locX, Trk::locX);
-           Amg::MatrixX* covN = new Amg::MatrixX(1,1);
-           covN->setIdentity();
-           (*covN)(0,0) = 6.*(nmerge + 1.)*covX;
-           if(nmerge<=1) (*covN)(0,0) = covX;
-           ATH_MSG_VERBOSE(" make merged prepData at strip " << m_mmIdHelper->channel(MMprds[j].identify()) << " nmerge " << nmerge << " sqrt covX " << sqrt((*covN)(0,0)));
+    std::vector<MMPrepData*> clusters;
 
-           MMPrepData* prdN = new MMPrepData(MMprds[j].identify(), hash, MMprds[j].localPosition(), rdoList, covN, MMprds[j].detectorElement());
-           prdN->setHashAndIndex(prdColl->identifyHash(), prdColl->size());
-           prdColl->push_back(prdN);
-         }
-       } // end loop MMprds[i]
-     // clear vector and delete elements
-     MMflag.clear();
-     MMprds.clear();
+    /// reconstruct the clusters
+    ATH_CHECK(m_clusterBuilderTool->getClusters(MMprds,clusters));
+
+    for (unsigned int i = 0 ; i<clusters.size() ; ++i ) {
+      MMPrepData* prdN = clusters.at(i);
+      prdN->setHashAndIndex(prdColl->identifyHash(), prdColl->size());
+      prdColl->push_back(prdN);
+    } 
+
   }
 
 
