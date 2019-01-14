@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2018, 2019 CERN for the benefit of the ATLAS collaboration
 */
 #include <vector>
 #include <string>
@@ -30,9 +30,6 @@ using namespace std;
 using Amg::Vector3D;
 
 namespace {
-  inline double square(const double x){
-    return x*x;
-  }
   const double ONE_TWELFTH = 1./12.;
 }
 
