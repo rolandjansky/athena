@@ -39,6 +39,7 @@ namespace Muon
 
   class IMuonRawDataProviderTool;
   class MuonIdHelperTool;
+  class IMMClusterBuilderTool;
 
   class MmRdoToPrepDataTool : virtual public IMuonRdoToPrepDataTool, virtual public AthAlgTool
   {
@@ -94,6 +95,9 @@ namespace Muon
 
     std::string m_outputCollectionLocation;            
     bool m_merge; 
+
+    ToolHandle<IMMClusterBuilderTool> m_clusterBuilderTool;
+
   }; 
 } // end of namespace
 

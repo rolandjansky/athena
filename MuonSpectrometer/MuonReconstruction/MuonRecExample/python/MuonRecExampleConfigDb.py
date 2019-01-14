@@ -222,6 +222,10 @@ addTool("MuonRecExample.CscTools.CscSegmentUtilTool","CscSegmentUtilTool")
 
 addAlgorithm("MuonRecExample.CscTools.CscThresholdClusterBuilder","CscThresholdClusterBuilder")
 
+################################################################################
+# Tools from MuonRecExample.MMTools  (MicroMegas reconstruction tools )
+################################################################################
+addTool("MuonRecExample.MMTools.SimpleMMClusterBuilderTool","SimpleMMClusterBuilderTool")
 
 
 ################################################################################
