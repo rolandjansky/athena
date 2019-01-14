@@ -13,6 +13,8 @@
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/ITileBadChanTool.h"
 #include "TileConditions/ITileDCSTool.h"
+#include "TileEvent/TileRawChannelContainer.h"
+#include "TileEvent/TileLaserObject.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -75,6 +77,11 @@ class TileLaserDefaultCalibTool : public AthAlgTool, virtual public ITileCalibTo
   ToolHandle<ITileBadChanTool>     m_tileBadChanTool;
   ToolHandle<ITileStuckBitsProbsTool> m_stuckBitsProbs;
   SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
+
+  SG::ReadHandleKey<TileRawChannelContainer> m_RawChannelContainerKey{this,
+      "TileRawChannelContainer", "TileRawChannelContainer", "Input Tile raw channel container"};
+  SG::ReadHandleKey<TileLaserObject> m_LaserContainerKey{this,
+      "TileLaserObject", "TileLaserObject", "Input Tile laser object"};
 
   ToolHandle<ITileDCSTool> m_tileDCS{this, "TileDCSTool", "TileDCSTool", "Tile DCS tool"};
 

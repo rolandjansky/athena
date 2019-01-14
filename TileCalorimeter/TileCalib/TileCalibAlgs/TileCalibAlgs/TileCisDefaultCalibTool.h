@@ -18,6 +18,8 @@
 #include "TileConditions/TileCablingService.h"
 #include "TileEvent/TileDQstatus.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "TileEvent/TileRawChannelContainer.h"
+#include "TileEvent/TileDigitsContainer.h"
 
 
 #include "TString.h"
@@ -89,6 +91,10 @@ class TileCisDefaultCalibTool: public AthAlgTool
     ToolHandle<ITileStuckBitsProbsTool> m_stuckBitsProbs;
     SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
 
+    SG::ReadHandleKey<TileDigitsContainer> m_DigitsContainerKey{this,
+      "TileDigitsContainer", "TileDigitsContainer", "Input Tile digits container"};
+    SG::ReadHandleKey<TileRawChannelContainer> m_RawChannelContainerKey{this,
+      "TileRawChannelContainer", "TileRawChannelContainer", "Input Tile raw channel container"};
     // jobOptions
     std::string m_rawChannelContainerName;
     std::string m_ntupleID;

@@ -66,7 +66,6 @@ TileDigiNoiseCalibAlg::TileDigiNoiseCalibAlg(const std::string& name, ISvcLocato
   , m_trigType(0)
 {
   declareProperty("TileAdderFlatFilter", m_adderFilterAlgTool);
-  declareProperty("TileDigitsContainer", m_digitsContainer = "TileDigitsCnt");
   declareProperty("TileBeamElemContainer", m_beamElemContainer = "TileBeamElemCnt");
   /*  declareProperty("TileRawChannelContainerFlat", m_flatRawChannelContainer = "TileRawChannelFlat");
    declareProperty("TileRawChannelContainerFit", m_fitRawChannelContainer = ""); // don't create
@@ -120,6 +119,9 @@ StatusCode TileDigiNoiseCalibAlg::FirstEvt_initialize() {
 
   // find TileCablingService
   m_cabling = TileCablingService::getInstance();
+
+  // TileDigitsContainer initialization
+  ATH_CHECK( m_DigitsContainerKey.initialize() );
 
   // retrieve TileID helper from det store
   CHECK( detStore()->retrieve(m_tileID) );
@@ -347,8 +349,8 @@ void TileDigiNoiseCalibAlg::StoreRunInfo (const TileDQstatus* dqStatus) {
 StatusCode TileDigiNoiseCalibAlg::fillDigits (const TileDQstatus* theDQstatus) {
 /*---------------------------------------------------------*/
 
-  const TileDigitsContainer* DigitsCnt;
-  CHECK( evtStore()->retrieve(DigitsCnt, "TileDigitsCnt") );
+  SG::ReadHandle<TileDigitsContainer> DigitsCnt(m_DigitsContainerKey);
+  ATH_CHECK( DigitsCnt.isValid() );
 
   TileDigitsContainer::const_iterator collItr = DigitsCnt->begin();
   TileDigitsContainer::const_iterator lastColl = DigitsCnt->end();

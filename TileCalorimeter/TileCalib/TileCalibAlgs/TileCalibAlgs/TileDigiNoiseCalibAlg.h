@@ -25,6 +25,7 @@
 #include "TileConditions/TileCablingService.h"
 #include "TileEvent/TileDQstatus.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "TileEvent/TileDigitsContainer.h"
 
 #include <cmath>
 #include <vector>
@@ -83,6 +84,8 @@ class TileDigiNoiseCalibAlg: public AthAlgorithm {
     bool m_doRobustCov;
 
     SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
+    SG::ReadHandleKey<TileDigitsContainer> m_DigitsContainerKey{this,
+      "TileDigitsContainer", "TileDigitsContainer", "Input Tile digits container"};
 
   // Tools / storegate info
     ToolHandle<TileRawChannelBuilderFlatFilter> m_adderFilterAlgTool;

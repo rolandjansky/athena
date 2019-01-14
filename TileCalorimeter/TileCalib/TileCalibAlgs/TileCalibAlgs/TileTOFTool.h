@@ -10,8 +10,11 @@
 #include "GaudiKernel/ObjectVector.h"
 #include "GaudiKernel/IHistogramSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
+#include "CaloEvent/CaloCellContainer.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include "TileCalibAlgs/ITileCalibTool.h"
+
 
 class StoreGateSvc;
 class TileID;
@@ -34,6 +37,10 @@ class TileTOFTool : public AthAlgTool, virtual public ITileCalibTool
   const TileID* m_tileID;
 
  private:
+
+  SG::ReadHandleKey<CaloCellContainer> m_CaloCellContainerKey{this,
+      "CaloCellContainer", "CaloCellContainer", "Calo cell container"};
+
   float timeCor(int mod_ref1, int mod_ref2, int part_ref1, int part_ref2);
 
   float m_TimeCor[4][64];

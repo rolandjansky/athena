@@ -88,9 +88,7 @@ TileTriggerDefaultCalibTool::TileTriggerDefaultCalibTool(const std::string& type
   , m_beamElemCnt(nullptr)
 {
   declareInterface<ITileCalibTool>( this );
-  declareProperty("TriggerTowerLocation", m_triggerTowerLocation="xAODTriggerTowers");
   declareProperty("MaxNTriggerTowers", m_maxNTT=7200);
-  declareProperty("rawChannelContainer", m_rawChannelContainerName="TileRawChannelFit");
   declareProperty("NtupleID", m_ntupleID="h3000");
   declareProperty("NumEventPerPMT", m_nevpmt=195); // changed from 200 to 195
   declareProperty("TileBeamElemContainer",m_TileBeamContainerID);
@@ -111,6 +109,9 @@ StatusCode TileTriggerDefaultCalibTool::initialize()
   m_ipmt = 0;
   m_ipmtOld = 0;
   m_ipmtCount = 0;
+
+  ATH_CHECK( m_RawChannelContainerKey.initialize() );
+  ATH_CHECK( m_TriggerTowerContainerKey.initialize() );
 
   ATH_CHECK( m_l1CaloTTIdTools.retrieve() );
   ATH_MSG_DEBUG("L1CaloTTIdTools retrieved");
@@ -143,8 +144,8 @@ StatusCode TileTriggerDefaultCalibTool::execute()
   const TileDQstatus* dqStatus = SG::makeHandle (m_dqStatusKey, ctx).get();
 
   // Get TileRawChannelContainer
-  const TileRawChannelContainer *container;
-  ATH_CHECK( evtStore()->retrieve(container, m_rawChannelContainerName) );
+  SG::ReadHandle<TileRawChannelContainer> container(m_RawChannelContainerKey);
+         ATH_CHECK( container.isValid() );
 
   ATH_MSG_DEBUG ( "second executeTrigger()" );
   // declare an array of pmt id for the trigger tower loop
@@ -278,8 +279,8 @@ StatusCode TileTriggerDefaultCalibTool::execute()
   } // end of loop over raw channels for Tile
   
   // loop over all L1Calo trigger channels, calculate the average and RMS
-  const xAOD::TriggerTowerContainer* triggerTowers = 0;
-  CHECK(evtStore()->retrieve(triggerTowers, m_triggerTowerLocation));
+  SG::ReadHandle<xAOD::TriggerTowerContainer> triggerTowers(m_TriggerTowerContainerKey);
+  ATH_CHECK( triggerTowers.isValid() );
 
   int ntt = 0;
  

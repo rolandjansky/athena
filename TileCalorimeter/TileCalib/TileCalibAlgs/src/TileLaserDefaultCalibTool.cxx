@@ -119,8 +119,6 @@ TileLaserDefaultCalibTool::TileLaserDefaultCalibTool(const std::string& type, co
 {
   declareInterface<ITileCalibTool>( this );
   declareProperty("toolNtuple", m_toolNtuple="h3000");
-  declareProperty("rawChannelContainer", m_rawChannelContainerName="");
-  declareProperty("laserObjContainer", m_laserContainerName="");
   declareProperty("pisaMethod2", m_pisaMethod2=true);
   declareProperty("StuckBitsProbsTool", m_stuckBitsProbs);
   declareProperty("TileDQstatus", m_dqStatusKey = "TileDQstatus");
@@ -270,6 +268,8 @@ StatusCode TileLaserDefaultCalibTool::initialize(){
   ATH_CHECK( m_tileToolEmscale.retrieve() );
   ATH_CHECK( m_tileBadChanTool.retrieve() );
   
+  ATH_CHECK( m_RawChannelContainerKey.initialize() );
+  ATH_CHECK( m_LaserContainerKey.initialize() );
 
   ATH_CHECK( m_tileDCS.retrieve() );
 
@@ -296,11 +296,12 @@ StatusCode TileLaserDefaultCalibTool::execute(){
   // Store laser object and rawchannel information into maps
   ATH_MSG_DEBUG ( "execute() TileLaserDefaultCalibTool" );
   
-  const TileRawChannelContainer * rawCnt = 0;
-  const TileLaserObject* laserObj;
+  SG::ReadHandle<TileRawChannelContainer> rawCnt(m_RawChannelContainerKey);
+  SG::ReadHandle<TileLaserObject> laserObj(m_LaserContainerKey);
   
-  ATH_CHECK( evtStore()->retrieve(rawCnt,   m_rawChannelContainerName) );
-  ATH_CHECK( evtStore()->retrieve(laserObj, m_laserContainerName) );
+  ATH_CHECK( rawCnt.isValid() );
+  ATH_CHECK( laserObj.isValid() );
+  
   
   m_LASERII = laserObj->isLASERII();
 

@@ -49,7 +49,7 @@ TileCisDefaultCalibTool::TileCisDefaultCalibTool(const std::string& type, const 
 {
   declareInterface<ITileCalibTool>(this);
 
-  declareProperty("rawChannelContainer", m_rawChannelContainerName = "TileRawChannelFit");
+  //declareProperty("rawChannelContainer", m_rawChannelContainerName = "TileRawChannelFit");
   declareProperty("NtupleID", m_ntupleID = "h3000");
 
   declareProperty("removePed", m_removePed = false);
@@ -65,7 +65,7 @@ TileCisDefaultCalibTool::TileCisDefaultCalibTool(const std::string& type, const 
   declareProperty("linfitMinLo", m_linfitMinLo = 300.0);
 
   declareProperty("doSampleChecking", m_doSampleChecking = true); // do sample checking by default
-  declareProperty("DigitsContainer", m_DigitsContainerName = "TileDigitsCnt");
+  //declareProperty("DigitsContainer", m_DigitsContainerName = "TileDigitsCnt");
   declareProperty("StuckBitsProbsTool", m_stuckBitsProbs);
   declareProperty("TileDQstatus", m_dqStatusKey = "TileDQstatus");
 }
@@ -99,6 +99,9 @@ StatusCode TileCisDefaultCalibTool::initialize() {
   m_cabling = m_cablingSvc->cablingService();
 
   CHECK( m_dqStatusKey.initialize() );
+
+  ATH_CHECK( m_RawChannelContainerKey.initialize() );
+  ATH_CHECK( m_DigitsContainerKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -139,8 +142,8 @@ StatusCode TileCisDefaultCalibTool::execute() {
                                    : (double) dac * c_dac2ChargeSmall;
 
   // Get TileRawChannelContainer
-  const TileRawChannelContainer *container;
-  CHECK( evtStore()->retrieve(container, m_rawChannelContainerName) );
+  SG::ReadHandle<TileRawChannelContainer> container(m_RawChannelContainerKey);
+  ATH_CHECK( container.isValid() );
 
   // Create iterator over RawChannelContainer
   TileRawChannelContainer::const_iterator itColl = (*container).begin();
@@ -227,8 +230,8 @@ StatusCode TileCisDefaultCalibTool::execute() {
 
   if (m_doSampleChecking) {
     // Get TileDigitsContainer
-    const TileDigitsContainer *digContainer;
-    CHECK( evtStore()->retrieve(digContainer, m_DigitsContainerName) );
+    SG::ReadHandle<TileDigitsContainer> digContainer(m_DigitsContainerKey);
+    ATH_CHECK( digContainer.isValid() );
 
     // Create iterator over RawDigitsContainer
     TileDigitsContainer::const_iterator digItColl = digContainer->begin();

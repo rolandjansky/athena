@@ -5,6 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "StoreGate/StoreGate.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "TileCalibAlgs/TileTOFTool.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -44,6 +45,9 @@ TileTOFTool::~TileTOFTool() {}
 StatusCode TileTOFTool::initialize()
 {
   ATH_MSG_INFO ( "initialize()" );
+
+  ATH_CHECK( m_CaloCellContainerKey.initialize() );
+
   return StatusCode::SUCCESS;  
 } 
 
@@ -57,8 +61,8 @@ StatusCode TileTOFTool::execute()
 {
   ATH_MSG_INFO ( "execute()" );
 
-  const CaloCellContainer* cellCONT = nullptr;
-  ATH_CHECK( evtStore()->retrieve( cellCONT, "AllCalo") );
+  SG::ReadHandle<CaloCellContainer> cellCONT(m_CaloCellContainerKey);
+  ATH_CHECK( cellCONT.isValid() );
   ATH_MSG_DEBUG ( "Cell container found" );
 
   CaloCellContainer::const_iterator iCell  = cellCONT->begin();

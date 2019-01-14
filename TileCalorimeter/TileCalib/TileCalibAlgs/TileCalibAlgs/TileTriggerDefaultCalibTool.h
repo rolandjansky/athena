@@ -8,10 +8,12 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "TileCalibAlgs/ITileCalibTool.h"
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloTTIdTools.h" 
 //#include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
 #include "TileEvent/TileDQstatus.h"
+#include "TileEvent/TileRawChannelContainer.h"
 #include "StoreGate/ReadHandleKey.h"
 
 #include <string> 
@@ -58,6 +60,10 @@ class TileTriggerDefaultCalibTool : public AthAlgTool, virtual public ITileCalib
   const TileCablingService* m_tileCablingService;
   ToolHandle<TileCondToolEmscale> m_tileToolEmscale; //!< main Tile Calibration tool
   SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
+  SG::ReadHandleKey<TileRawChannelContainer> m_RawChannelContainerKey{this,
+      "TileRawChannelContainer", "TileRawChannelContainer", "Input Tile raw channel container"};
+  SG::ReadHandleKey<xAOD::TriggerTowerContainer> m_TriggerTowerContainerKey{this,
+      "TriggerTowerContainer", "TriggerTowerContainer", "Trigger Tower container"};
  
   // Results Tile
   float m_meanTile[5][64][48];

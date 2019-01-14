@@ -36,12 +36,15 @@
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "Identifier/HWIdentifier.h"
+#include "StoreGate/ReadHandleKey.h"
 
 // Tile includes
 #include "TileCalibAlgs/ITileCalibTool.h"
 #include "TileCalibAlgs/TileSimpleStat.h"
 #include "TileConditions/TileCondToolTiming.h"
 #include "TileConditions/TileCablingService.h"
+#include "TileEvent/TileRawChannelContainer.h"
+#include "TileEvent/TileDigitsContainer.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -229,6 +232,12 @@ class TileLaserTimingTool: public AthAlgTool, virtual public ITileCalibTool {
       }
       return m_drawerData[ros - 1][drawer];
     }
+
+    //StoreGate
+    SG::ReadHandleKey<TileRawChannelContainer> m_RawChannelContainerKey{this,
+      "TileRawChannelContainer", "TileRawChannelContainer", "Input Tile raw channel container"};
+    SG::ReadHandleKey<TileDigitsContainer> m_DigitsContainerKey{this,
+      "TileDigitsContainer", "TileDigitsContainer", "Input Tile digits container"};
 
     // Tools info
     const TileHWID* m_tileHWID;

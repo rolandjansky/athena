@@ -81,8 +81,6 @@ TileLaserLinearityCalibTool::TileLaserLinearityCalibTool(const std::string& type
 {
   declareInterface<ITileCalibTool>( this );
   declareProperty("toolNtuple", m_toolNtuple="h3000");
-  declareProperty("rawChannelContainer", m_rawChannelContainerName="");
-  declareProperty("laserObjContainer", m_laserContainerName="");
   declareProperty("TileDQstatus", m_dqStatusKey = "TileDQstatus");
 }
 
@@ -191,6 +189,9 @@ StatusCode TileLaserLinearityCalibTool::initialize()
   ATH_CHECK( detStore()->retrieve(m_tileHWID) );
   ATH_CHECK( m_tileToolEmscale.retrieve() );
 
+  ATH_CHECK( m_RawChannelContainerKey.initialize() );
+  ATH_CHECK( m_LaserContainerKey.initialize() );
+
   m_cabling = TileCablingService::getInstance();
 
   CHECK( m_dqStatusKey.initialize() );
@@ -236,11 +237,11 @@ StatusCode TileLaserLinearityCalibTool::execute()
 
   ATH_MSG_DEBUG ( "Retrieving the LASER object and RawChannel" );
 
-  const TileRawChannelContainer * rawCnt = 0;
-  const TileLaserObject* laserObj;
-
-  ATH_CHECK( evtStore()->retrieve(rawCnt, m_rawChannelContainerName) );
-  ATH_CHECK( evtStore()->retrieve(laserObj, m_laserContainerName) );
+  SG::ReadHandle<TileRawChannelContainer> rawCnt(m_RawChannelContainerKey);
+  SG::ReadHandle<TileLaserObject> laserObj(m_LaserContainerKey);
+  
+  ATH_CHECK( rawCnt.isValid() );
+  ATH_CHECK( laserObj.isValid() );
 
   // First we got event time (From 1/1/70)
 

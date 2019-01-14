@@ -15,6 +15,8 @@
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileCalibAlgs/TileLaserDefaultCalibTool.h"
 #include "TileEvent/TileDQstatus.h"
+#include "TileEvent/TileRawChannelContainer.h"
+#include "TileEvent/TileLaserObject.h"
 #include "StoreGate/ReadHandleKey.h"
 
 class TileRawChannelContainer;
@@ -44,6 +46,11 @@ class TileLaserLinearityCalibTool : public AthAlgTool, virtual public ITileCalib
   std::string m_rawChannelContainerName;
   std::string m_laserContainerName;
   SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
+
+  SG::ReadHandleKey<TileRawChannelContainer> m_RawChannelContainerKey{this,
+      "TileRawChannelContainer", "TileRawChannelContainer", "Input Tile raw channel container"};
+  SG::ReadHandleKey<TileLaserObject> m_LaserContainerKey{this,
+      "TileLaserObject", "TileLaserObject", "Input Tile laser object"};
 
   const TileHWID* m_tileHWID;    
   const TileCablingService* m_cabling;

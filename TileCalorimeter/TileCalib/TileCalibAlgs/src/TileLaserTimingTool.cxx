@@ -8,6 +8,7 @@
 #include "CoralBase/AttributeListSpecification.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaKernel/errorcheck.h"
+#include "StoreGate/ReadHandle.h"
 
 // Tile includes
 #include "TileCalibAlgs/TileLaserTimingTool.h"
@@ -130,8 +131,8 @@ TileLaserTimingTool::TileLaserTimingTool(const std::string& type, const std::str
   declareInterface<ITileCalibTool>( this );
 
   declareProperty("TileCondToolTiming", m_tileToolTiming);
-  declareProperty("RawChannelContainer", m_rawChannelContainerName = "TileRawChannelFit");
-  declareProperty("DigitsContainer", m_digitsContainerName = "TileDigitsCnt");
+  //declareProperty("RawChannelContainer", m_rawChannelContainerName = "TileRawChannelFit");
+  //declareProperty("DigitsContainer", m_digitsContainerName = "TileDigitsCnt");
   declareProperty("NtupleID", m_ntupleID = "h3000");
   declareProperty("FiberLightSpeed", m_fiberLightSpeed);
   declareProperty("NSamples", m_nSamples = 9);
@@ -237,6 +238,9 @@ StatusCode TileLaserTimingTool::initialize() {
     }
   }
 
+  ATH_CHECK( m_RawChannelContainerKey.initialize() );
+  ATH_CHECK( m_DigitsContainerKey.initialize() );
+
   // gauss fit function
   m_gaussf = new TF1("GainGauss", "[0]*exp(- (x-[1])*(x-[1])/(2*[2]*[2]))", -60, 60);
 
@@ -293,12 +297,12 @@ StatusCode TileLaserTimingTool::execute() {
   bool pass = true;
 
   // Get TileRawChannelContainer
-  const TileRawChannelContainer *container = 0;
-  CHECK( evtStore()->retrieve(container, m_rawChannelContainerName) );
+  SG::ReadHandle<TileRawChannelContainer> container(m_RawChannelContainerKey);
+  ATH_CHECK( container.isValid() );
 
   // Get TileDigitsContainer
-  const TileDigitsContainer* digitsCnt = 0;
-  CHECK( evtStore()->retrieve(digitsCnt, m_digitsContainerName) );
+  SG::ReadHandle<TileDigitsContainer> digitsCnt(m_DigitsContainerKey);
+  ATH_CHECK( digitsCnt.isValid() );
 
   // Create iterator over RawChannelContainer
   TileRawChannelContainer::const_iterator itColl = (*container).begin();
