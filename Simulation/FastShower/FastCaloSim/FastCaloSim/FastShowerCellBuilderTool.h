@@ -204,7 +204,6 @@ private:
   //std::vector< double > m_spline_reweight_x;
   //std::vector< double > m_spline_reweight_y;
 
-  bool m_is_init_shape_correction{false};
   void init_shape_correction();
   typedef std::vector< TLateralShapeCorrectionBase* > t_shape_correction;
   t_shape_correction m_shape_correction;
