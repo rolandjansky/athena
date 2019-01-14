@@ -97,6 +97,8 @@ namespace CP {
                 for (int i = 1; i<= nominal->NBins(); ++i) {
                      nominal->SetBinContent(i, nominal->GetBinContent(i) + (IsUpVariation() ? 1. : -1.)*nominal->GetBinError(i));
                 }
+            } else if (m_syst_name == "PTDEPENDENCY"){
+                return;
             } 
             /// Some other systematic is asked for... Failure
             else{
@@ -125,7 +127,7 @@ namespace CP {
             return;
         }
         /// That one needs to be named properly in the future
-        m_sf_KineDepsys = std::make_unique<PtKinematicSystHandler>(ReadHistFromFile("Kuuuchen", f.get(), time_unit), ReadHistFromFile("SF_PtDep_sys", f.get(), time_unit));
+        m_sf_KineDepsys = std::make_unique<PtKinematicSystHandler>(ReadHistFromFile(Form("SF_PtFlatness_1%s", m_is_up?"UP" :"DN"), f.get(), time_unit), ReadHistFromFile("SF_PtDep_sys", f.get(), time_unit));
         /// Use the approach from the old sacle-factor file
         if(!m_sf_KineDepsys->initialize()){    
             m_sf_KineDepsys = std::make_unique<PrimodialPtSystematic>(ReadHistFromFile("SF_PtDep_sys", f.get(), time_unit));

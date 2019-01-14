@@ -36,14 +36,14 @@ namespace CP {
                 Calo   = 1<<1, 
                 Forward = 1<<2, 
                 CentralLowPt = 1<<3, 
-                CaloLowPt = 1<<4
+                CaloLowPt = 1<<4, 
                 
-                ZAnalysis = Central | Calo | Forward
+                ZAnalysis = Central | Calo | Forward,
                 /// Distinguish these two because the systematics
                 /// are named with an extra LOWPT
-                JPsiAnalysis = CentralLowPt | CaloLowPt
+                JPsiAnalysis = CentralLowPt | CaloLowPt,
                 
-                TPAnalysis = ZAnalysis | JPsiAnalysis
+               
             };
             enum Systematic{
                 Symmetric = 1<<5,
@@ -91,7 +91,7 @@ namespace CP {
         protected:
             class CollectionContainer {
                 public:
-                    // Nominal constructor... Only needs to know about it's type and the file to load
+                    /// Nominal constructor... Only needs to know about it's type and the file to load
                     CollectionContainer(const MuonEfficiencyScaleFactors& ref_tool, EffiCollection::CollectionType FileType);
                     CollectionContainer(const MuonEfficiencyScaleFactors& ref_tool, CollectionContainer* Nominal, const std::string& syst_name, unsigned int syst_bit_map);
                   

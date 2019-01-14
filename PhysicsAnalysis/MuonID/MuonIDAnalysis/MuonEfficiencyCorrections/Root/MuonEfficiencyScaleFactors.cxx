@@ -353,18 +353,23 @@ namespace CP {
         
         /// Push back the nominal options
         m_sf_sets.push_back( std::make_unique<EffiCollection>(*this));
-        
         EffiCollection* nominal = m_sf_sets.back().get();
+        
+        std::function<unsigned int(unsigned int, unsigned int)> not_inB = [](unsigned int a , unsigned int b){
+                unsigned int b_flipped = ~b;
+                return a & b;
+        };
+        
         /// Now we can fill the map with the individual sets
         for (const auto& syst: systematics){
             /// Filter the bits which are not assigning the files
             if ( (syst.second & EffiCollection::ZAnalysis) &&  (syst.second & EffiCollection::JPsiAnalysis)){
-                /// Z-stream
-                m_sf_sets.push_back(std::make_unique<EffiCollection>(nominal,*this, syst.first, syst.second ~EffiCollection::ZAnalysis, false));
-                m_sf_sets.push_back(std::make_unique<EffiCollection>(nominal,*this, syst.first, syst.second ~EffiCollection::ZAnalysis, true));
-                /// J-psi stream
-                m_sf_sets.push_back(std::make_unique<EffiCollection>(nominal,*this, syst.first, syst.second ~EffiCollection::JPsiAnalysis, true));
-                m_sf_sets.push_back(std::make_unique<EffiCollection>(nominal,*this, syst.first, syst.second ~EffiCollection::JPsiAnalysis, false));
+                ///J-psi stream... Kick all bits from the Z
+                m_sf_sets.push_back(std::make_unique<EffiCollection>(nominal,*this, syst.first, not_inB(syst.second, EffiCollection::ZAnalysis), false));
+                m_sf_sets.push_back(std::make_unique<EffiCollection>(nominal,*this, syst.first, not_inB(syst.second, EffiCollection::ZAnalysis), true));
+                ///...and the Z stream. Kick all bits from the JPsi
+                m_sf_sets.push_back(std::make_unique<EffiCollection>(nominal,*this, syst.first, not_inB(syst.second, EffiCollection::JPsiAnalysis), true));
+                m_sf_sets.push_back(std::make_unique<EffiCollection>(nominal,*this, syst.first, not_inB(syst.second, EffiCollection::JPsiAnalysis), false));
             } else {
                 m_sf_sets.push_back(std::make_unique<EffiCollection>(nominal,*this, syst.first, syst.second, false));
                 m_sf_sets.push_back(std::make_unique<EffiCollection>(nominal,*this, syst.first, syst.second, true));

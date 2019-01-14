@@ -88,8 +88,8 @@ namespace CP {
             
             /// Construct the name of the input files from the configuration
             /// Make these methods public such that they can be used by the
-            //  scale-factor managing EffiCollection class without piping
-            //  All arguments to the constructor again
+            ///  scale-factor managing EffiCollection class without piping
+            ///  All arguments to the constructor again
             std::string filename_Central()const;
             /// Reconstruction scale-factors have a dedicated map
             /// for calo-tag muons around |\eta|<0.1. If the scale-factor
@@ -106,11 +106,11 @@ namespace CP {
             std::string filename_LowPt()const;
             std::string filename_LowPtCalo()const;
             
-            //// If the pt of the muon is below that threshold the J/Psi or Upsilon
-            //// map is used given that it's available.
+            /// If the pt of the muon is below that threshold the J/Psi or Upsilon
+            /// map is used given that it's available.
             float lowPtTransition() const;
             
-            //// Returns the type of the measurement to be carried out... E.g. Reco/TTVA/Iso
+            /// Returns the type of the measurement to be carried out... E.g. Reco/TTVA/Iso
             CP::MuonEfficiencyType measurement() const; 
             
             /// The apply<Blah> methods decorate their result directly to the muon. The name of the decorators
@@ -138,16 +138,15 @@ namespace CP {
     private:
             /// utility method to 'dress' a filename using the path resolver
             std::string resolve_file_location(const std::string &filename)const;
-            
-            
-            //These are functions needed during initialization
-            SystematicSet SetupSystematics(bool doUnfolded = false) const;
+           
+           
             /// the working point to operate on
             std::string m_wp;
            
-            
+            /// This vector stores all scale-factor maps
             std::vector<std::unique_ptr<EffiCollection>> m_sf_sets;
             
+            /// Pointer to the current active map in terms of systematics
             EffiCollection* m_current_sf;
 
             std::string m_custom_dir;
@@ -165,10 +164,10 @@ namespace CP {
             std::string m_efficiency_decoration_name_mc;
             std::string m_sf_decoration_name;
       
-            // subfolder to load from the calibration db
+            /// subfolder to load from the calibration db
             std::string m_calibration_version;
 
-            // threshold below which low-pt SF (i.e. from JPsi) should be used
+            /// threshold below which low-pt SF (i.e. from JPsi) should be used
             float m_lowpt_threshold;
          
             CP::SystematicSet m_affectingSys;
