@@ -91,7 +91,7 @@ HBASE* HistogramFillerFactory::create(const HistogramDef& def, Types&&... hargs)
   // if def path contains any of: EXPERT, SHIFT, DEBUG, RUNSTAT, EXPRES this is online convention
   // this becomes the first element of the path followed by the group name
   // else if the def.path is DEFAULT then only the group name is used
-  // if the path jet different is is concatenated with the group name
+  // if the path yet different is concatenated with the group name
   //
   const static std::set<std::string> online( { "EXPERT", "SHIFT", "DEBUG", "RUNSTAT", "EXPRES" } );
   std::string path;
@@ -149,7 +149,7 @@ TH1* HistogramFillerFactory::create2DProfile(const HistogramDef& def) {
                             def.ybins, def.ymin, def.ymax, def.zmin, def.zmax);
 }
 
-void HistogramFillerFactory::setOpts(TH1* hist, const string& opt) {
+void HistogramFillerFactory::setOpts(TH1* hist, const std::string& opt) {
   // try to apply an option
   if ( opt.find("kCanRebin") != std::string::npos ) {
      hist->SetCanExtend(TH1::kAllAxes);
@@ -162,7 +162,7 @@ void HistogramFillerFactory::setOpts(TH1* hist, const string& opt) {
   }
 }
 
-void HistogramFillerFactory::setLabels(TH1* hist, const std::vector<stdstring>& labels) {
+void HistogramFillerFactory::setLabels(TH1* hist, const std::vector<std::string>& labels) {
   if (labels.empty()){
     return;
   }
@@ -278,7 +278,7 @@ unsigned HistogramFillerProfile::fill() {
         ++i;
       }
     } else if (valuesVector2.size() == 1)  {
-      // second varaible is scalar -- loop over first
+      // second variable is scalar -- loop over first
       for (auto value1 : valuesVector1) {
         hist->Fill(value1, valuesVector2[0]); 
         ++i;
