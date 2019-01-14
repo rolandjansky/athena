@@ -44,6 +44,7 @@
 #include "xAODEventInfo/EventInfo.h"
 
 #include "JetMomentTools/JetVertexTaggerTool.h"
+
 //#include "CaloIdentifier/Tile_Base_ID.h"
 //#include "TH2F.h"
 //#include "TH1F.h"
@@ -55,18 +56,12 @@
 using xAOD::EventInfo;
 
 /*---------------------------------------------------------*/
-#ifdef JVT
 TileJetMonTool::TileJetMonTool(const std::string & type, const std::string & name, const IInterface* parent)
   : TileFatherMonTool(type, name, parent)
   , m_tileBadChanTool("TileBadChanTool")
   , m_jvt("JVT")
   , m_cleaningTool("MyCleaningTool")
-#else
-TileJetMonTool::TileJetMonTool(const std::string & type, const std::string & name, const IInterface* parent)
-  : TileFatherMonTool(type, name, parent)
-  , m_tileBadChanTool("TileBadChanTool")
-#endif
-/*---------------------------------------------------------*/
+  , m_ECTool("ECTool")
 {
   declareInterface<IMonitorToolBase>(this);
 
@@ -83,12 +78,14 @@ TileJetMonTool::TileJetMonTool(const std::string & type, const std::string & nam
   declareProperty("do_energy_profiles", m_do_energy_profiles = true);
   declareProperty("do_event_cleaning",m_do_event_cleaning = true);
   declareProperty("do_jet_cleaning",m_do_jet_cleaning = true);
-#ifdef JVT
   declareProperty("useJVTTool",m_jvt);
   declareProperty("useJetCleaning",m_cleaningTool);
-#endif
+  declareProperty("useEventCleaning",m_ECTool);
+  declareProperty("JvtDecorator",m_JvtDecorator = "passJvt");
+  declareProperty("OrDecorator",m_OrDecorator = "passOR");
   declareProperty("jet_tracking_eta_limit",m_jet_tracking_eta_limit = 2.4);
-  declareProperty("jet_JVT_threshold",m_jet_jvt_threshold = 0.64);
+  declareProperty("jet_JVT_threshold",m_jet_jvt_threshold = 0.59);
+  declareProperty("jet_JVT_pTmax",m_jet_jvt_ptmax = 120000);
   m_path = "/Tile/Jet";
 
   m_partname[0] = "LBA";
@@ -97,8 +94,9 @@ TileJetMonTool::TileJetMonTool(const std::string & type, const std::string & nam
   m_partname[3] = "EBC";
 
   m_first_event = true;
-
 }
+/*---------------------------------------------------------*/
+
 
 /*---------------------------------------------------------*/
 TileJetMonTool::~TileJetMonTool() {
@@ -112,32 +110,22 @@ StatusCode TileJetMonTool::initialize() {
 /*---------------------------------------------------------*/
 
   ATH_MSG_INFO("in initialize()");
+  ATH_MSG_INFO("value of m_do_jet_cleaning: " << m_do_jet_cleaning);
 
 //=== get TileBadChanTool
   ATH_MSG_DEBUG("TileJetMonTool: Retrieving tile bad channel tool");
   CHECK(m_tileBadChanTool.retrieve());
   ATH_MSG_DEBUG("TileJetMonTool: Retrieved tile bad channel tool");
 
-
   if (m_do_jet_cleaning) {
     ATH_MSG_DEBUG("TileJetMonTool: initializing JVT updater");
-
-#ifdef JVT
     CHECK(m_jvt.retrieve());
-
     ATH_MSG_DEBUG("TileJetMonTool: initialized JVT updater");
     
     ATH_MSG_DEBUG("TileJetMonTool: initializing JetCleaningTool");
-    /* This is RootCore approach
-       m_cleaningTool = new JetCleaningTool("MyCleaningTool");
-       CHECK(m_cleaningTool->setProperty("CutLevel", "LooseBad")); // also "TightBad"
-       CHECK(m_cleaningTool->setProperty("DoUgly", false));
-       CHECK(m_cleaningTool->initialize());
-    */
     CHECK(m_cleaningTool.retrieve());
-
+    CHECK(m_ECTool.retrieve());
     ATH_MSG_DEBUG("TileJetMonTool: initialized JetCleaningTool");
-#endif
   }
   return TileFatherMonTool::initialize();
 }
@@ -730,124 +718,51 @@ bool TileJetMonTool::isGoodEvent() {
   if (! m_do_event_cleaning) return true;
 
   ATH_MSG_DEBUG("TileJetMonTool::isGoodEvent()....");
-  const EventInfo* eventInfo(NULL);
-  CHECK(evtStore()->retrieve(eventInfo));
+  const EventInfo* eventInfo = nullptr;
+  if (! evtStore()->retrieve(eventInfo, "EventInfo").isSuccess()){
+    ATH_MSG_ERROR("Cannot retrieve EventInfo object!");
+    return false;
+  }
   if (eventInfo->errorState(EventInfo::LAr) == EventInfo::Error) return(false);
   if (eventInfo->errorState(EventInfo::Tile) == EventInfo::Error) return(false);
 
-  /* see https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/HowToCleanJets2015#Event_Cleaning and 
-     https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetVertexTaggerTool
+  /* see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/HowToCleanJets2017
   */
-
-#ifdef JVT
   if (! m_do_jet_cleaning) return true;
-#endif
 
-  const xAOD::JetContainer* jetContainer = evtStore()->tryConstRetrieve<xAOD::JetContainer>("AntiKt4EMTopoJets");
-  if (!jetContainer) return true;
+  const xAOD::JetContainer* jetContainer = nullptr;
+  if (! evtStore()->retrieve(jetContainer, "AntiKt4EMTopoJets").isSuccess()){
+    ATH_MSG_INFO("Cannot retrieve AntiKt4EMTopoJets. However, returning true.");
+    return true;
+  }
 
   int ijet=0;
   for (const xAOD::Jet* jet : *jetContainer) {
     ATH_MSG_DEBUG("Jet " << ijet << ", pT " << jet->pt()/1000.0 << " GeV, eta " 
 		  << jet->eta());
-#ifdef JVT
-    if (jet->pt() > 50000) {
-      if (m_cleaningTool->keep(*jet) == 0) return false;
-    } else if ((jet->pt() > 20000) && (fabs(jet->eta()) < m_jet_tracking_eta_limit)) {
-      float jvt = m_jvt->updateJvt(*jet);
-      ATH_MSG_DEBUG("... jvt = " << jvt);
-      if ((jvt > m_jet_jvt_threshold) && (m_cleaningTool->keep(*jet) == 0)) return false;
-    }
-#endif
+    jet->auxdecor<char>(m_JvtDecorator) = passesJvt(*jet);
+    jet->auxdecor<char>(m_OrDecorator) = true;
     ATH_MSG_DEBUG("... done with jet " << ijet);
     ijet++;
   }
+  return m_ECTool->acceptEvent(jetContainer);
+}
+
+bool TileJetMonTool::passesJvt(const xAOD::Jet& jet) {
+  if (jet.pt() > 20000 
+      && jet.pt() < m_jet_jvt_ptmax
+      && fabs(jet.getAttribute<float>("DetectorEta")) < m_jet_tracking_eta_limit
+      && m_jvt->updateJvt(jet) < m_jet_jvt_threshold)
+    return false;
   return true;
 }
 
 bool TileJetMonTool::isGoodJet(const xAOD::Jet& jet) {
-  /* Run-1 stuff
-  double hecf = jet.getAttribute<float>(xAOD::JetAttribute::HECFrac);
-
-  //double tileGap3f = tileGap3F(&jet);
-
-  double quality = jet.getAttribute<float>(xAOD::JetAttribute::LArQuality);
-  double HecQ = jet.getAttribute<float>(xAOD::JetAttribute::HECQuality);
-  double NegE = jet.getAttribute<float>(xAOD::JetAttribute::NegativeE);
-  double emf = jet.getAttribute<float>(xAOD::JetAttribute::EMFrac);
-  double time = jet.getAttribute<float>(xAOD::JetAttribute::Timing);
-  double pt = jet.pt();
-  const std::vector<float>& sumPtTrk = jet.getAttribute<std::vector<float> >(xAOD::JetAttribute::SumPtTrkPt1000);
-  double chf = (pt != 0 && !sumPtTrk.empty()) ? sumPtTrk[0] / pt : 0;
-
-  double em_eta = jet.jetP4(xAOD::JetEMScaleMomentum).eta();
-
-  double fmax = jet.getAttribute<float>(xAOD::JetAttribute::FracSamplingMax);
-
-  bool isBadJet = isBad(MediumBad, quality, NegE, emf, hecf, time, fmax, em_eta, chf, HecQ);
-  return (!isBadJet);
-  */
-#ifdef JVT
   if (! m_do_jet_cleaning) return true;
-  double pt = jet.pt();
-  if (pt > 50000) {
-    return(m_cleaningTool->keep(jet));
-  } else if (pt > 20000) {
-    if (fabs(jet.eta()) < m_jet_tracking_eta_limit) {
-      float jvt = m_jvt->updateJvt(jet);
-      return(m_cleaningTool->keep(jet) && (jvt > m_jet_jvt_threshold));
-    } else {
-      return(true);
-    }
-  } else {
-    return(true);
-  }
-#else
-  return(true);
-#endif
-}
-
-/*
-  This is copy & paste from JetCaloUtilsFillerTool.cxx. The function is private,
-  so it cannot be just included
-*/
-bool TileJetMonTool::isBad(BadJetCategory criteria, double quality, double NegE, double emf,
-    double hecf, double time, double fmax, double eta, double chf, double HecQ) {
-  if (criteria == LooseBad || criteria == MediumBad || criteria == TightBad) {
-    // HEC spike
-    if (hecf > 0.5 && fabs(HecQ) > 0.5) return true;
-    if (fabs(NegE) > 60000./*MeV*/) return true;
-    // EM coherent noise
-    if (emf > 0.95 && fabs(quality) > 0.8 && fabs(eta) < 2.8) return true;
-    // Cosmics and Beam background
-    if (fabs(time) > 25.) return true;
-    if (emf < 0.05 && chf < 0.05 && fabs(eta) < 2.) return true;
-    if (emf < 0.05 && fabs(eta) > 2.) return true;
-    if (fmax > 0.99 && fabs(eta) < 2) return true;
-  }
-
-  if (criteria == MediumBad || criteria == TightBad) {
-    // HEC spike
-    if (hecf > 1 - fabs(HecQ)) return true;
-    // EM coherent noise
-    if (emf > 0.9 && fabs(quality) > 0.8 && fabs(eta) < 2.8) return true;
-    // Cosmics and Beam background
-    if (fabs(time) > 10.) return true;
-    if (emf < 0.05 && chf < 0.1 && fabs(eta) < 2.) return true;
-    if (emf > 0.95 && chf < 0.05 && fabs(eta) < 2.) return true;
-  }
-
-  if (criteria == TightBad) {
-    // EM coherent noise
-    if (fabs(quality) > 0.95) return true;
-    if (emf > 0.98 && fabs(quality) > 0.05) return true;
-    // Cosmics and Beam background
-    if (emf < 0.1 && chf < 0.2 && fabs(eta) < 2.) return true;
-    if (emf < 0.1 && fabs(eta) > 2.) return true;
-    if (emf > 0.9 && chf < 0.02 && fabs(eta) < 2.) return true;
-
-  }
-  return false;
+  if (jet.pt() < 20000) return false;
+  if (! passesJvt(jet)) return false;
+  if (! m_cleaningTool->keep(jet)) return false;
+  return true;
 }
 
 unsigned int TileJetMonTool::find_index(const int gain, const float energy) {
