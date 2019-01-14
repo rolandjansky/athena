@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 //        Copyright Iowa State University 2017.
 //                  Author: Nils Krumnack
 // Distributed under the Boost Software License, Version 1.0.
@@ -18,5 +22,6 @@
 #pragma link C++ class EL::UnitTestAlg+;
 #pragma link C++ class EL::UnitTestAlg1+;
 #pragma link C++ class EL::UnitTestAlg2+;
+#pragma link C++ class EL::UnitTestAlg3+;
 
 #endif

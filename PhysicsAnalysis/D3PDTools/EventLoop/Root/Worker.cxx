@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //          Copyright Nils Krumnack 2011.
@@ -32,6 +32,7 @@
 #include <TStopwatch.h>
 #include <TTree.h>
 #include <TDirectory.h>
+#include <TSystem.h>
 #include <iostream>
 #include <memory>
 
@@ -110,6 +111,7 @@ namespace EL
     RCU_INVARIANT (m_output != nullptr);
     RCU_INVARIANT (m_eventCount != nullptr || m_initState == AIS_NONE || m_initState == AIS_NEW);
     RCU_INVARIANT (m_runTime != nullptr || m_initState == AIS_NONE || m_initState == AIS_NEW);
+    RCU_INVARIANT (m_jobStats != nullptr || m_initState == AIS_NONE || m_initState == AIS_NEW);
     RCU_INVARIANT (m_fileExecutedTree != nullptr || m_initState == AIS_NONE);
     RCU_INVARIANT (m_fileExecutedName != nullptr || m_initState == AIS_NONE);
     RCU_INVARIANT (m_initState <= AIS_NONE);
@@ -598,6 +600,32 @@ namespace EL
 
 
 
+  Long_t Worker ::
+  memIncreaseResident () const
+  {
+     // Check that the user called the function at the correct time.
+     if ((m_initMemResident == -1) || (m_finMemResident == -1)) {
+        RCU_THROW_MSG ("Function called at incorrect time");
+     }
+     // Return the resident memory increase.
+     return (m_finMemResident - m_initMemResident);
+  }
+
+
+
+  Long_t Worker ::
+  memIncreaseVirtual () const
+  {
+     // Check that the user called the function at the correct time.
+     if ((m_initMemVirtual == -1) || (m_finMemVirtual == -1)) {
+        RCU_THROW_MSG ("Function called at incorrect time");
+     }
+     // Return the resident memory increase.
+     return (m_finMemVirtual - m_initMemVirtual);
+  }
+
+
+
   void Worker ::
   changeAlgState (const AlgInitState targetInit,
 		  const AlgExecState targetExec,
@@ -627,9 +655,21 @@ namespace EL
 	m_runTime->GetXaxis()->SetBinLabel (3, "events");
 	m_runTime->GetXaxis()->SetBinLabel (4, "cpu time");
 	m_runTime->GetXaxis()->SetBinLabel (5, "real time");
+	addOutput (m_jobStats = new TTree ("EventLoop_JobStats",
+	                                   "EventLoop job statistics"));
+	m_jobStats->SetDirectory (nullptr);
 	for (std::size_t iter = 0, end = m_algs.size(); iter != end; ++ iter)
 	  checkStatus (m_algs[iter]->histInitialize (), "Algorithm::histInitialize");
 	m_initState = AIS_HIST_INITIALIZED;
+	{
+	   // Get the memory usage of the process after initialisation.
+	   ::ProcInfo_t pinfo;
+	   if (gSystem->GetProcInfo (&pinfo) != 0) {
+	      RCU_THROW_MSG ("Could not get memory usage information");
+	   }
+	   m_initMemResident = pinfo.fMemResident;
+	   m_initMemVirtual = pinfo.fMemVirtual;
+	}
 	changeAlgState (targetInit, targetExec, inputState);
 	break;
       case AIS_INITIALIZED:
@@ -707,6 +747,29 @@ namespace EL
       m_stopwatch->Stop ();
       m_runTime->Fill (3, m_stopwatch->CpuTime());
       m_runTime->Fill (4, m_stopwatch->RealTime());
+      {
+         // Get the memory usage of the process after finalisation.
+         ::ProcInfo_t pinfo;
+         if (gSystem->GetProcInfo (&pinfo) != 0) {
+            RCU_THROW_MSG ("Could not get memory usage information");
+         }
+         m_finMemResident = pinfo.fMemResident;
+         m_finMemVirtual = pinfo.fMemVirtual;
+
+         // Save the memory increase values into the job statistics tree.
+         RCU_ASSERT (m_jobStats != nullptr);
+         Float_t incRes = memIncreaseResident();
+         if (! m_jobStats->Branch ("memIncreaseResident", &incRes)) {
+            RCU_THROW_MSG ("Failed to create branch memIncreaseResident");
+         }
+         Float_t incVirt = memIncreaseVirtual();
+         if (! m_jobStats->Branch ("memIncreaseVirtual", &incVirt)) {
+            RCU_THROW_MSG ("Failed to create branch memIncreaseVirtual");
+         }
+         if (m_jobStats->Fill() <= 0) {
+            RCU_THROW_MSG ("Failed to fill the job statistics tree");
+         }
+      }
       m_stopwatch->Continue ();
       m_initState = AIS_HIST_FINALIZED;
       break;
