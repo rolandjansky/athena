@@ -8,7 +8,10 @@
 #include <DecisionHandling/TrigCompositeUtils.h>
 #include <vector>
 
-
+using TrigCompositeUtils::DecisionContainer;
+using TrigCompositeUtils::Decision;
+using TrigCompositeUtils::linkToPrevious;
+using TrigCompositeUtils::getLinkToPrevious;
 
 InputMakerForRoI:: InputMakerForRoI( const std::string& name, 
 				     ISvcLocator* pSvcLocator )    
@@ -57,7 +60,7 @@ StatusCode  InputMakerForRoI::execute( const EventContext& context ) const {
     ATH_MSG_DEBUG( "Got output "<< outputHandle.key()<<" with " << outputHandle->size() << " elements" );
     // loop over output decisions in container of outputHandle, follow link to inputDecision
     for ( auto outputDecision : *outputHandle){ 
-      ElementLinkVector<DecisionContainer> inputLinks = getLinkToPrevious(outputDecision);
+      ElementLinkVector<DecisionContainer> inputLinks = TrigCompositeUtils::getLinkToPrevious(outputDecision);
       for (auto input: inputLinks){
 	const Decision* inputDecision = *input;
 	auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( inputDecision, m_roisLink.value() );

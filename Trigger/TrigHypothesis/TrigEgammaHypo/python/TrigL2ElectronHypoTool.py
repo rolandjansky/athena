@@ -59,10 +59,10 @@ def TrigL2ElectronHypoToolFromName( name, conf ):
 
 
 if __name__ == "__main__":
-    tool = TrigL2ElectronHypoToolFromName("HLT_e3_etcut")    
+    tool = TrigL2ElectronHypoToolFromName("HLT_e3_etcut", "HLT_e3_etcut")
     assert tool, "Not configured simple tool"
 
-    tool = TrigL2ElectronHypoToolFromName("HLT_2e3_etcut")    
+    tool = TrigL2ElectronHypoToolFromName("HLT_2e3_etcut", "HLT_2e3_etcut")    
     assert tool, "Not configured simple tool"
     assert len(tool.TrackPt) == 2, "Multiplicity missonfigured, set "+ str( len( tool.TrackPt ) )
 

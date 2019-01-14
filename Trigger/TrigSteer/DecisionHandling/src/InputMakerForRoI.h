@@ -17,7 +17,6 @@
    * @brief Used at the start of a sequence: retrieves filtered collection via menu decision from previous step and writes the RoI collection out directly so it can be used as input by the reco alg that follows in sequence.
    **/
 
-  using namespace TrigCompositeUtils;
   
   class  InputMakerForRoI    : public ::InputMakerBase  { 
   public: 

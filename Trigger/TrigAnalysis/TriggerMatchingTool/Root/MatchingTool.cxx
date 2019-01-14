@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODBase/IParticle.h"
@@ -218,7 +218,7 @@ namespace Trig {
     ATH_MSG_DEBUG("overall matching result: " << result);
     
     match_result->m_matched = result;
-    return std::move(match_result);
+    return match_result;
   }
 
   void MatchingTool::setCondition(unsigned int condition) {

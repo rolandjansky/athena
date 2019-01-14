@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AthenaMonitoring_GenericMonitoringTool_h
@@ -66,27 +66,28 @@
 
 class GenericMonitoringTool : public AthAlgTool {
 public:
-  static const InterfaceID& interfaceID();
 
   GenericMonitoringTool(const std::string & type, const std::string & name, const IInterface* parent);
-  virtual ~GenericMonitoringTool();
-  
-  virtual StatusCode initialize();  
-  virtual std::vector<Monitored::HistogramFiller*> getHistogramsFillers(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables);
+  virtual StatusCode initialize() override;
+
+  /// Retrieve the histogram fillers
+  std::vector<Monitored::HistogramFiller*> getHistogramsFillers(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables);
+  /// Book histograms
   StatusCode book();
-  /**
-   * Overrride configured booking path
-   **/
-  void setPath( const std::string&  newPath );
+  /// Overrride configured booking path
+  void setPath( const std::string& newPath );
+
 private:   
   ServiceHandle<ITHistSvc> m_histSvc       { this, "THistSvc", "THistSvc/THistSvc", "Histogramming svc" };  
-  Gaudi::Property<std::string> m_histoPath { this, "HistPath", "/EXPERT/", "Histogram base path" };      
+  Gaudi::Property<std::string> m_histoPath { this, "HistPath", {}, "Directory for histograms [name of parent if not set]" };
   Gaudi::Property<std::vector<std::string> > m_histograms    { this, "Histograms", {},  "Definitions of histograms"};
   Gaudi::Property<bool> m_explicitBooking  { this, "ExplicitBooking", false, "Do not create histograms automatically in initialize but wait until the method book is called." };
-  std::vector<Monitored::HistogramFiller*> m_fillers;              //!< list of fillers
+
+  std::vector<Monitored::HistogramFiller*> m_fillers;      //!< list of fillers
 };
 
-/*
+
+/**
  * Helper class to declare an empty monitoring ToolHandle
  *
  * This can be used in case an empty monitoring tool needs to be declared in the constructor:

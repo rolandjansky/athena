@@ -124,6 +124,7 @@ def TrigMuSuperEF_MGonly(name="TrigMuSuperEF_MGonly",**kwargs):
     kwargs.setdefault("doOutsideIn", False)
     kwargs.setdefault("UseL2Info",False)
     kwargs.setdefault("DoCache", False)
+    kwargs.setdefault("MuGirlTool", getPublicTool("TMEF_MuonStauRecoTool"))
     return TrigMuSuperEFConfig(name,**kwargs)
 
 
@@ -145,6 +146,12 @@ def TrigMuSuperEF_SAonly(name="TrigMuSuperEF_SAonly",**kwargs):
     kwargs.setdefault("doInsideOut", False)
     kwargs.setdefault("doOutsideIn", True)
     kwargs.setdefault("StandaloneOnly", True)
+    return TrigMuSuperEFConfig(name,**kwargs)
+
+def TrigMuSuperEF_STonly(name="TrigMuSuperEF_STonly",**kwargs):
+    kwargs.setdefault("doInsideOut", False)
+    kwargs.setdefault("doOutsideIn", True)
+    kwargs.setdefault("SegmentTagOnly", True)
     return TrigMuSuperEFConfig(name,**kwargs)
 
 def TrigMuSuperEF_TMEFCombinerOnly(name="TrigMuSuperEF_TMEFCombinerOnly",**kwargs):
@@ -271,9 +278,6 @@ def TrigMuSuperEF_MuonCaloTagTool( name='OnlineMuonCaloTagTool', **kwargs ):
     kwargs.setdefault("ShowTruth",              False)
     kwargs.setdefault("CaloCells",              "TrigCaloCellMaker")
     return CfgMgr.MuonCombined__MuonCaloTagTool(name,**kwargs )
-
-def TrigMuSuperEF_TrackIsolationTool( name = "TrigMuSuperEF_TrackIsolationTool", **kwargs):
-    return TrigMuonEFTrackIsolationTool(name, deltaZCut = 6.0*mm, removeSelf=True, useAnnulus=False)
 
 def TrigMuSuperEF_TrackDepositInCaloTool(name = "TrigMuSuperEF_TrackDepositInCaloTool", **kwargs):
     return CfgMgr.TrackDepositInCaloTool(name, **kwargs)

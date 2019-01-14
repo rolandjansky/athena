@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CABLING_TGCCABLEINPP_HH
@@ -33,7 +33,7 @@ private:
 				     bool orChannel=false) const;
   virtual TGCChannelId* getChannelOut(const TGCChannelId* ppin,
 				      bool orChannel=false) const;
-  TGCDatabase* database[TGCIdBase::MaxRegionType][TGCIdBase::MaxModuleType];
+  TGCDatabase* m_database[TGCIdBase::MaxRegionType][TGCIdBase::MaxModuleType];
 };
   
 } // end of namespace

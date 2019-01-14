@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // -*-c++-*-
@@ -21,13 +21,7 @@
 
 //forward declarations
 class IIncidentSvc;
-class IAtRndmGenSvc;
 class TTree;
-class sTgcDigitContainer;
-
-namespace CLHEP {
-class HepRandomEngine;
-}
 
 namespace MuonGM {
 class MuonDetectorManager;
@@ -52,7 +46,6 @@ namespace NSWL1 {
     // DG--todo
     // DG--todo It returns a vector of PadData to input the PadTrigger simulation.
 
-    davide.gerbaudo@gmail.com
     Oct 2015
 
     */
@@ -78,8 +71,6 @@ namespace NSWL1 {
         See test/test_4on4padTrigger.cxx
         */
         static std::vector<std::unique_ptr<PadTrigger>> build4of4SingleWedgeTriggers(const std::vector<std::shared_ptr<PadData>> &pads);
-        ///// from PadData to the TDR-style PadWithHits
-        //static PadWithHits convert(const PadData &pd);
         /**
         @brief transfer the geometric info from PadData to PadWithHits
         Note: it needs to access the MuonDetectorManager
@@ -93,32 +84,16 @@ namespace NSWL1 {
     private:
         /// get the output tree from the athena histogram service
         TTree* get_tree_from_histsvc();
-        // // methods implementing the internal data processing
-        // CacheStatus fill_pad_cache();                           //!< loop over the digit container, apply the additional processing then fill the cache
-        // void clear_cache();                                     //!< clear the pad hit cache deleting the PadData pointers
 
         // needed Servives, Tools and Helpers
         ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
-        ServiceHandle< IAtRndmGenSvc >     m_rndmSvc;           //!< Athena random number service
-        CLHEP::HepRandomEngine*            m_rndmEngine;        //!< Random number engine
         const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
-        // DG-2015-10-02 probably not needed
-        // const sTgcIdHelper*                m_sTgcIdHelper;      //!< sTgc offline Id helper
-
-        // \todo
-        // DG-2015-10-02 : can probably get rid of all this caching below
 
         // hidden variables
-        // std::vector< std::vector<PadData*> > m_pad_cache;       //!< cache for the PAD hit data in the event (one per sector)
         int     m_pad_cache_runNumber;                          //!< run number associated to the current PAD cache
         int     m_pad_cache_eventNumber;                        //!< event number associated to the current PAD cache
-        // CacheStatus m_pad_cache_status;                         //!< status of the current cache
 
 
-        // properties: container and service names
-        StringProperty   m_rndmEngineName;                      //!< property, todo
-        StringProperty   m_sTgcDigitContainer;                  //!< property, todo
-        StringProperty   m_sTgcSdoContainer;                    //!< property, todo
         // properties: configuration
         FloatProperty    m_PadEfficiency;                       //!< property, todo
 

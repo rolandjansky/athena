@@ -1,15 +1,15 @@
 include.block ( "EventOverlayJobTransforms/OverlayOutputItemList_jobOptions.py" )
 
 from AthenaCommon.AppMgr import ServiceMgr
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.DetFlags import DetFlags
 from Digitization.DigitizationFlags import digitizationFlags
 from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
 # The output - overlay
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-outStream = AthenaPoolOutputStream( "StreamRDO",OverlayCollection )
+outStream = AthenaPoolOutputStream( "StreamRDO", athenaCommonFlags.PoolRDOOutput(), asAlg=True )
 outStream.Store = ServiceMgr.StoreGateSvc
-print "ACH123 new OverlayOutputItemList_jobOptions.py"
 
 # overlay output stream
 outStream.ItemList += [ "EventInfo#*", "PileUpEventInfo#*" ]

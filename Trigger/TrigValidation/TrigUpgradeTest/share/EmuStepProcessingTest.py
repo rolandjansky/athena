@@ -17,42 +17,52 @@ AlgScheduler.ShowDataFlow( True )
 
 
 
+# 4 events
 
-data = {'noreco': [';', ';', ';']}  # in the lists there are the events
+data = {'noreco': [';', ';', ';',';']}  # in the lists there are the events
 
-data['emclusters'] = ['eta:1,phi:1,et:180000; eta:1,phi:-1.2,et:35000;',
-                      'eta:0.5,phi:0,et:120000; eta:1,phi:-1.2,et:65000;',
-                      'eta:-0.6,phi:1.7,et:9000;']
+data['emclusters'] = [ ';',
+                    'eta:1,phi:1,et:180000; eta:1,phi:-1.2,et:35000;',
+                    'eta:0.5,phi:0,et:120000; eta:1,phi:-1.2,et:65000;',
+                    'eta:-0.6,phi:1.7,et:9000;']
 
 data['msmu']  = [';',
+                 ';',
                  'eta:-1.2,phi:0.7,pt:6500,pt2:8500; eta:-1.1,phi:0.6,pt:8500,pt2:8500;',
                  'eta:-1.7,phi:-0.2,pt:9500,pt2:8500;']
 
 data['ctp'] = [ 'HLT_e20 HLT_e5_e8 HLT_e5 HLT_e8 HLT_g5',
+                'HLT_e20 HLT_e5_e8 HLT_e5 HLT_e8 HLT_g5',
                 'HLT_mu8 HLT_mu81step HLT_e20 HLT_e8 HLT_mu8_e8 HLT_e3_e5',
                 'HLT_mu20 HLT_mu8 HLT_mu81step HLT_2mu8 HLT_e8' ]
 
 
-data['l1emroi'] = ['1,1,0,EM3,EM7,EM15,EM20,EM50,EM100,2EM3; 1,-1.2,0,EM3,EM7,2EM3',
-                   '-0.6,0.2,0,EM3,EM7,EM15,EM20,EM50,EM100; 1,-1.1,0,EM3,EM7,EM15,EM20,EM50',
-                   '-0.6,1.5,0,EM3,EM7,EM7']
+data['l1emroi'] = [ ';',
+                    '1,1,0,EM3,EM7,EM15,EM20,EM50,EM100,2EM3; 1,-1.2,0,EM3,EM7,2EM3',
+                    '-0.6,0.2,0,EM3,EM7,EM15,EM20,EM50,EM100; 1,-1.1,0,EM3,EM7,EM15,EM20,EM50',
+                    '-0.6,1.5,0,EM3,EM7,EM7']
 
-data['l1muroi'] = ['0,0,0,MU0;',
+data['l1muroi'] = [';',
+                   '0,0,0,MU0;',
                    '-1,0.5,0,MU6,MU8; -1,0.5,0,MU6,MU8,MU10',
                    '-1.5,-0.1,0,MU6,MU8']
 
 data['tracks'] = ['eta:1,phi:1,pt:120000; eta:1,phi:-1.2,et:32000;',
+                  'eta:1,phi:1,pt:120000; eta:1,phi:-1.2,et:32000;',
                   'eta:0.5,phi:0,pt:130000; eta:1,phi:-1.2,pt:60000;eta:-1.2,phi:0.7,pt:6700; eta:-1.1,phi:0.6,pt:8600;',
                   'eta:-0.6,phi:1.7,et:9000;'] # no MU track for MS candidate 'eta:-1.7,phi:-0.2,pt:9500;'
 
 data['mucomb'] = [';',
+                  ';',
                   'eta:-1.2,phi:0.7,pt:6600; eta:-1.1,phi:0.6,pt:8600;',
                   ';']
 
-data['electrons'] = ['eta:1,phi:1,pt:120000; eta:1,phi:-1.2,et:32000;',
+data['electrons'] = [';',
+                     'eta:1,phi:1,pt:120000; eta:1,phi:-1.2,et:32000;',
                      ';',
                      ';']
-data['photons'] = ['eta:1,phi:1,pt:130000;',
+data['photons'] = [';',
+                   'eta:1,phi:1,pt:130000;',
                    ';',
                    ';']
 
@@ -157,7 +167,7 @@ from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmul
 l1Decoder = L1Decoder( OutputLevel=DEBUG, RoIBResult="" )
 l1Decoder.prescaler.EventInfo=""
 l1Decoder.ChainToCTPMapping = EnabledChainNamesToCTP
-l1Decoder.Chains="HLTChainsResult"
+l1Decoder.L1DecoderSummaryKey = "L1DecoderSummary"
 
 ctpUnpacker = CTPUnpackingEmulationTool( OutputLevel =  DEBUG, ForceEnableAllChains=False , InputFilename="ctp.dat" )
 l1Decoder.ctpUnpacker = ctpUnpacker
@@ -200,5 +210,5 @@ makeHLTTree(HLTChains)
 from AthenaCommon.AlgSequence import dumpMasterSequence
 dumpMasterSequence()
 
-theApp.EvtMax = 3
+theApp.EvtMax = 4
 

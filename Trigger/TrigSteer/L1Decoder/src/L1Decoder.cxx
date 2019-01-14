@@ -14,6 +14,7 @@ L1Decoder::L1Decoder(const std::string& name, ISvcLocator* pSvcLocator)
 {
 }
 
+
 StatusCode L1Decoder::initialize() {
   ATH_MSG_INFO( "Reading RoIB infromation from: "<< m_RoIBResultKey.objKey() << " : " << m_RoIBResultKey.fullKey() << " : " << m_RoIBResultKey.key() );
 
@@ -22,7 +23,7 @@ StatusCode L1Decoder::initialize() {
   else
     ATH_CHECK( m_RoIBResultKey.initialize( ) );
   
-  ATH_CHECK( m_chainsKey.initialize() );
+  ATH_CHECK( m_summaryKey.initialize() );
   ATH_CHECK( m_startStampKey.initialize() );
 
   ATH_CHECK( m_ctpUnpacker.retrieve() );
@@ -63,6 +64,7 @@ StatusCode L1Decoder::readConfiguration() {
   return StatusCode::SUCCESS;
 }
 
+
 StatusCode L1Decoder::execute (const EventContext& ctx) const {
   {
     auto timeStampHandle = SG::makeHandle( m_startStampKey, ctx );
@@ -88,7 +90,7 @@ StatusCode L1Decoder::execute (const EventContext& ctx) const {
   }
 
 
-  SG::WriteHandle<DecisionContainer> handle = TrigCompositeUtils::createAndStore( m_chainsKey, ctx );
+  SG::WriteHandle<DecisionContainer> handle = TrigCompositeUtils::createAndStore( m_summaryKey, ctx );
   auto chainsInfo = handle.ptr();
 
   /*
@@ -104,18 +106,21 @@ StatusCode L1Decoder::execute (const EventContext& ctx) const {
   ATH_CHECK( m_ctpUnpacker->decode( *roib, l1SeededChains ) );
   sort( l1SeededChains.begin(), l1SeededChains.end() ); // do so that following scaling is reproducible
 
-  HLT::IDVec activeChains;  
+  HLT::IDVec activeChains; // Chains which are activated to run in the first pass (seeded and pass prescale)
+  HLT::IDVec prescaledChains; // Chains which are activated but do not run in the first pass (seeded but prescaled out)
+
+  std::set_difference( activeChains.begin(), activeChains.end(),
+           l1SeededChains.begin(), l1SeededChains.end(),
+           std::back_inserter(prescaledChains) );
 
   ATH_CHECK( m_prescaler->prescaleChains( ctx, l1SeededChains, activeChains ) );    
   ATH_CHECK( saveChainsInfo( l1SeededChains, chainsInfo, "l1seeded", ctx ) );
   ATH_CHECK( saveChainsInfo( activeChains, chainsInfo, "unprescaled", ctx ) );
+  ATH_CHECK( saveChainsInfo( prescaledChains, chainsInfo, "prescaled", ctx ) );
+  //Note: 'prescaled' can be deduced from 'l1seeded' and 'unprescaled'. This non-persistent collection is provided for convenience.
 
-  // for now all the chains that were pre-scaled are st to re-run
-  HLT::IDVec rerunChains;  
-  std::set_difference( l1SeededChains.begin(), l1SeededChains.end(),
-		       activeChains.begin(), activeChains.end(),
-		       std::back_inserter(rerunChains) );
-
+  // for now all the chains that were pre-scaled out are set to re-run in the second pass
+  HLT::IDVec rerunChains = prescaledChains; // Perform copy of vector<uint32_t>
   ATH_CHECK( saveChainsInfo( rerunChains, chainsInfo, "rerun", ctx ) );
 
   // Do cost monitoring, this utilises the HLT_costmonitor chain
@@ -131,14 +136,12 @@ StatusCode L1Decoder::execute (const EventContext& ctx) const {
   for ( auto unpacker: m_roiUnpackers ) {
     ATH_CHECK( unpacker->unpack( ctx, *roib, activeChainSet ) );
   }
-  
 
   ATH_MSG_DEBUG( "Unpacking RoIs for re-running" );      
   HLT::IDSet rerunChainSet( rerunChains.begin(), rerunChains.end() );
   for ( auto unpacker: m_rerunRoiUnpackers ) {
     ATH_CHECK( unpacker->unpack( ctx, *roib, rerunChainSet ) );
   }
-
 
   return StatusCode::SUCCESS;  
 }

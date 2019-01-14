@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CABLING_TGCDATABASE_HH
@@ -32,7 +32,7 @@ public:
   // assignment operator 
   TGCDatabase& operator=(const TGCDatabase&);
 
-  DatabaseType getDatabaseType(void) const { return type; }
+  DatabaseType getDatabaseType(void) const { return m_type; }
   
   void clear();
 
@@ -51,12 +51,12 @@ public:
  
 protected:
   virtual void readDB(void) {}
-  std::string filename;
-  std::string blockname;
-  std::vector< std::vector<int> > database;
+  std::string m_filename;
+  std::string m_blockname;
+  std::vector< std::vector<int> > m_database;
 
 private:
-  DatabaseType type;
+  DatabaseType m_type;
   
 };
   

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERECUTILS_TILERAWCHANNELBUILDERFITFILTER_H
@@ -26,6 +26,7 @@
 // Tile includes
 #include "TileRecUtils/TileRawChannelBuilder.h"
 #include "TileConditions/TilePulseShapes.h"
+#include "TileConditions/TileCondToolNoiseSample.h"
 
 class TileBeamInfoProvider;
 
@@ -105,6 +106,10 @@ class TileRawChannelBuilderFitFilter: public TileRawChannelBuilder {
     TilePulseShapesStruct* m_pulseShapes;
 
     bool m_disableNegativeAmp;
+
+    ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample{this,
+        "TileCondToolNoiseSample", "TileCondToolNoiseSample", "Tile sample noise tool"};
+
 };
 
 #define DTIME 25.0  // 25 ns distance between subsequent samples

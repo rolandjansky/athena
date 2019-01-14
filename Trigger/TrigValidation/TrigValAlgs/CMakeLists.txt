@@ -46,8 +46,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/Particle
                           Reconstruction/tauEvent
                           Tracking/TrkEvent/VxSecVertex
-                          Trigger/TrigNavigation
-                          Trigger/TrigNavStructure
+                          Trigger/TrigEvent/TrigNavStructure
                           Trigger/TrigConfiguration/TrigConfHLTData
                           Trigger/TrigConfiguration/TrigConfigSvc
                           Trigger/TrigEvent/TrigDecisionEvent

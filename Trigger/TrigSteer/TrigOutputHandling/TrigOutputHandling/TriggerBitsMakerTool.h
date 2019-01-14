@@ -26,7 +26,7 @@ public:
   virtual StatusCode finalize() override;
 
 private:
-  SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_finalChainDecisions { this, "ChainDecisions", "UNDEFINED", "Container with final chain decisions"  }; 
+  SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_finalChainDecisions { this, "ChainDecisions", "HLTSummary", "Container with final chain decisions"  }; 
 
   Gaudi::Property<std::map<std::string, int>> m_chainToStreamProperty { this, "ChainToBit", {}, "Mapping from the chain name to bit position in trigger bits array"};
 

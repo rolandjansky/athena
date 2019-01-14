@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef POOL_DATACALLBACK_H
@@ -31,6 +31,10 @@ namespace pool {
     enum DataType  {  PRIMITIVE = 0, OBJECT = 1, REFERENCE = 2, TOKEN = 3 };
     enum CallType  {  GET = 1, PUT = 2  };
     enum           {  SKIP = 3          };       // Flag to indicate skipping a column.
+
+    DataCallBack() = default;
+    DataCallBack(const DataCallBack&) = default;
+    DataCallBack& operator=(const DataCallBack&) = default;
 
     /// Standard destructor
     virtual ~DataCallBack()             {                                    }

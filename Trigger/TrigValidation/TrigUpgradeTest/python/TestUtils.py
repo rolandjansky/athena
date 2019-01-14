@@ -106,7 +106,7 @@ class L1DecoderTest(L1Decoder) :
                                                                 SourceDecisions="L1MU", 
                                                                 Decisions="RerunL1MU"
                                                                 ) ]
-        self.Chains = "HLTChainsResult"
+        self.L1DecoderSummaryKey = "L1DecoderSummary"
 
 
 # L1 emulation for RDO
@@ -168,7 +168,7 @@ class L1EmulationTest(L1Decoder) :
                                                    'MU6 : HLT_mu8_e8']
             self.roiUnpackers += [muUnpacker]
 
-        self.Chains="HLTChainsResult"
+        self.L1DecoderSummaryKey = "L1DecoderSummary"
 
 if __name__ == "__main__":
     from AthenaCommon.Constants import DEBUG

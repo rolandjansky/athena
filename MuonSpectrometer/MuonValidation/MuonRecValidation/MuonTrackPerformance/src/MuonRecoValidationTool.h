@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MuonRecoValidationTool_H
@@ -52,10 +52,10 @@ namespace Muon {
     ~MuonRecoValidationTool();
     
     /** @brief initialize method, method taken from bass-class AlgTool */
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     /** @brief finialize method, method taken from bass-class AlgTool */
-    StatusCode finalize();
+    virtual StatusCode finalize() override;
     
     /** add a new TrackParticle with it's muon system extension */
     bool addTrackParticle(  const xAOD::TrackParticle& indetTrackParticle, const MuonSystemExtension& muonSystemExtention ) override;
@@ -84,7 +84,7 @@ namespace Muon {
                            Trk::Track* combinedTrack, int ntimes, float beta, float chi2ndof, int stage ) override;
 
     /**  incident service handle for EndEvent */
-    void handle(const Incident& inc);
+    virtual void handle(const Incident& inc) override;
 
   private:
     /** clear ntuples */

@@ -271,6 +271,7 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   // handles to the RoI driven data access
   ToolHandle<Muon::IMuonRawDataProviderTool> m_mdtRawDataProvider;
   ToolHandle<Muon::IMuonRawDataProviderTool> m_rpcRawDataProvider;
+  ToolHandle<Muon::IMuonRawDataProviderTool> m_tgcRawDataProvider;
   ToolHandle<Muon::IMuonRdoToPrepDataTool> m_cscPrepDataProvider;
   ToolHandle<Muon::IMuonRdoToPrepDataTool> m_mdtPrepDataProvider;
   ToolHandle<Muon::IMuonRdoToPrepDataTool> m_rpcPrepDataProvider;
@@ -308,6 +309,7 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   // Flag to decide whether or not to run BS decoding
   Gaudi::Property< bool > m_decodeMdtBS { this, "DecodeMdtBS", true, "Flag to decide whether or not to run BS->RDO decoding for MTDs" };
   Gaudi::Property< bool > m_decodeRpcBS { this, "DecodeRpcBS", true, "Flag to decide whether or not to run BS->RDO decoding for RPCs" };
+  Gaudi::Property< bool > m_decodeTgcBS { this, "DecodeTgcBS", true, "Flag to decide whether or not to run BS->RDO decoding for TGCs" };
 
   bool m_useCscData;
   bool m_useRpcData;
@@ -338,6 +340,7 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   int m_maxMdtHits;
   int m_maxRpcHits;
   int m_maxTgcHits;
+
 
   //Map to cache
   std::map<std::vector<std::vector<IdentifierHash> >, SegmentCache*> m_SFCacheSCMap;
@@ -396,6 +399,8 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   SG::ReadHandleKey <Muon::TgcPrepDataContainer> m_tgcKeyNextBC;
   SG::ReadHandleKey <Muon::CscPrepDataContainer> m_cscKey;
   SG::ReadHandleKey <Muon::MdtPrepDataContainer> m_mdtKey;
+
+  bool m_ignoreCSC;
 
 
 };

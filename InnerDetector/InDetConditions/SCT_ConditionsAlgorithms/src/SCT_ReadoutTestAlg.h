@@ -40,12 +40,12 @@ class SCT_ReadoutTestAlg : public AthAlgorithm {
   virtual ~SCT_ReadoutTestAlg() = default;
 
   /** Usual framework methods for an Algorithm*/
-  StatusCode                          initialize() override;
-  StatusCode                          execute() override;
-  StatusCode                          finalize() override;
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
    
  private:
-  ToolHandle<ISCT_ReadoutTool>        m_readout{this, "SCT_ReadoutTool", "SCT_ReadoutTool", "Handle to the SCT_ReadoutTool"};
+  ToolHandle<ISCT_ReadoutTool> m_readout{this, "SCT_ReadoutTool", "SCT_ReadoutTool", "Handle to the SCT_ReadoutTool"};
 
   //!< List of chips for that module. *Modified in execute* This should be OK because this is a test alg.
   std::vector<SCT_Chip*> m_chips;
@@ -56,9 +56,9 @@ class SCT_ReadoutTestAlg : public AthAlgorithm {
   BooleanProperty m_link1ok{this, "Link1Status", true, "Status of link 1 (from job options)"};
 
   /** Function to convert the configuration string into an int*/
-  short                               bin2dec(const char *bin);
+  short bin2dec(const char *bin);
   /** Initialise a chip given its id and configuration string*/
-  SCT_Chip*                           initialiseChip(short id, std::string configString);
+  SCT_Chip* initialiseChip(short id, std::string configString);
 
 }; //end of class
 

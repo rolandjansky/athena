@@ -90,6 +90,7 @@ TrigMuonEFStandaloneTrackTool::TrigMuonEFStandaloneTrackTool(const std::string& 
     m_trackSummaryTool("Trk::TrackSummaryTool/MuidTrackSummaryTool"),
     m_mdtRawDataProvider("Muon::MDT_RawDataProviderTool/MDT_RawDataProviderTool"),
     m_rpcRawDataProvider("Muon::RPC_RawDataProviderTool/RPC_RawDataProviderTool"),
+    m_tgcRawDataProvider("Muon::TGC_RawDataProviderTool/TGC_RawDataProviderTool"),
     m_cscPrepDataProvider("Muon::CscRdoToCscPrepDataTool/CscPrepDataProviderTool"),
     m_mdtPrepDataProvider("Muon::MdtRdoToPrepDataTool/MdtPrepDataProviderTool"),
     m_rpcPrepDataProvider("Muon::RpcRdoToPrepDataTool/RpcPrepDataProviderTool"),
@@ -145,7 +146,8 @@ TrigMuonEFStandaloneTrackTool::TrigMuonEFStandaloneTrackTool(const std::string& 
     m_tgcKey("TGC_Measurements"),
     m_tgcKeyNextBC("TGC_MeasurementsNextBC"),
     m_cscKey("CSC_Clusters"),
-    m_mdtKey("MDT_DriftCircles")
+    m_mdtKey("MDT_DriftCircles"),
+    m_ignoreCSC(true)
 {
   m_hashlist.reserve(4);
 
@@ -161,6 +163,7 @@ TrigMuonEFStandaloneTrackTool::TrigMuonEFStandaloneTrackTool(const std::string& 
 
   declareProperty ("MdtRawDataProvider",m_mdtRawDataProvider);
   declareProperty ("RpcRawDataProvider",m_rpcRawDataProvider);
+  declareProperty ("TgcRawDataProvider",m_tgcRawDataProvider);
 
   declareProperty("CscPrepDataProvider", m_cscPrepDataProvider);
   declareProperty("MdtPrepDataProvider", m_mdtPrepDataProvider);
@@ -196,6 +199,7 @@ TrigMuonEFStandaloneTrackTool::TrigMuonEFStandaloneTrackTool(const std::string& 
   declareProperty("TgcPrepDataContainerNextBC", m_tgcKeyNextBC);
   declareProperty("MdtPrepDataContainer", m_mdtKey);
   declareProperty("CscPrepDataContainer", m_cscKey);
+  declareProperty("IgnoreMisalginedCSCs", m_ignoreCSC);
 
   clearRoiCache();
  
@@ -237,6 +241,8 @@ StatusCode TrigMuonEFStandaloneTrackTool::initialize()
     msg() << MSG::DEBUG
 	  << "RpcRawDataProvider             " << m_rpcRawDataProvider << endmsg;
     msg() << MSG::DEBUG
+	  << "TgcRawDataProvider             " << m_tgcRawDataProvider << endmsg;
+    msg() << MSG::DEBUG
 	  << "CscPrepDataProvider            " << m_cscPrepDataProvider << endmsg;
     msg() << MSG::DEBUG
 	  << "MdtPrepDataProvider            " << m_mdtPrepDataProvider << endmsg;
@@ -275,6 +281,9 @@ StatusCode TrigMuonEFStandaloneTrackTool::initialize()
           << m_decodeMdtBS.name() << "       " << m_decodeMdtBS << endmsg;
     msg() << MSG::DEBUG
           << m_decodeRpcBS.name() << "       " << m_decodeRpcBS << endmsg;
+
+    msg() << MSG::DEBUG
+          << m_decodeTgcBS.name() << "       " << m_decodeTgcBS << endmsg;
     msg() << MSG::DEBUG
 	  << "doTimeOutChecks                " << m_doTimeOutChecks << endmsg;
     msg() << MSG::DEBUG
@@ -325,6 +334,14 @@ StatusCode TrigMuonEFStandaloneTrackTool::initialize()
     return StatusCode::FAILURE;
   }
 
+  // Retrieve TGC raw data provider tool if needed
+  if (m_tgcRawDataProvider.retrieve(DisableTool{ !m_decodeTgcBS }).isSuccess()) {
+    msg (MSG::INFO) << "Retrieved " << m_tgcRawDataProvider << endmsg;
+  }
+  else {
+    msg (MSG::FATAL) << "Could not get " << m_tgcRawDataProvider << endmsg;
+    return StatusCode::FAILURE;
+  }
 
   // Retrieve segment maker tool
   status = m_segmentsFinderTool.retrieve();
@@ -970,6 +987,13 @@ if (m_useMdtData>0) {
       if (m_useTgcRobDecoding) {// ROB-based seeded decoding of TGC is neither available nor needed
         ATH_MSG_DEBUG("ROB-based seeded decoding of TGC requested, which is neither available nor needed. Calling the PRD-based seeded decoding.");
       }
+      if (m_decodeTgcBS) {// bytesream conversion
+	if (m_tgcRawDataProvider->convert( getTgcRobList(muonRoI) ).isSuccess()) {
+	  ATH_MSG_DEBUG("TGC BS conversion for ROB-based seeded PRD decoding done successfully");
+	} else {
+	  ATH_MSG_WARNING("TGC BS conversion for ROB-based seeded PRD decoding failed");
+	}
+      }
       
       if (m_tgcPrepDataProvider->decode(tgc_hash_ids, hash_ids_withData).isSuccess()) {
         ATH_MSG_DEBUG("PRD-based seeded decoding of TGC done successfully");
@@ -986,6 +1010,11 @@ if (m_useMdtData>0) {
       
     }
     else {// full decoding of TGC
+      if (m_tgcRawDataProvider->convert().isSuccess()) {
+	ATH_MSG_DEBUG("TGC BS conversion for full decoding done successfully");
+      } else {
+	ATH_MSG_WARNING("TGC BS conversion for full decoding failed");
+      }
       
       std::vector<IdentifierHash> input_hash_ids;
       input_hash_ids.reserve(0);
@@ -1137,7 +1166,6 @@ if (m_useMdtData>0) {
       mdtPrds=MdtCont.cptr();
       msg()<< MSG::DEBUG << " MDT PRD Container retrieved" << endmsg;
     }
-
     
     // Get MDT collections
     MdtPrepDataContainer::const_iterator MDTcoll;
@@ -1381,6 +1409,10 @@ if (m_useMdtData>0) {
     CscPrepDataContainer::const_iterator CSCcoll;
     for(std::vector<IdentifierHash>::const_iterator idit = csc_hash_ids.begin();
 	idit != csc_hash_ids.end(); ++idit) {
+      if(m_ignoreCSC && (*idit==16 || *idit==17)){
+	ATH_MSG_DEBUG("Skipping misaligned chamber with hashid "<<*idit);
+	continue;
+      }
       CSCcoll = cscPrds->indexFind(*idit);
       if( CSCcoll == cscPrds->end() ) continue;
       if( (*CSCcoll)->size() == 0)    continue;
@@ -1808,7 +1840,7 @@ TrigMuonEFStandaloneTrackTool::buildTracks(const MuonSegmentCombinationCollectio
 	else
 	  chi2prob = 0.;
       }
-      double eta =  -log(fabs(tan(theta*0.5)));
+      double eta =  -log(tan(theta*0.5));
       
       unsigned short int nRpcEtaHits = 0;
       unsigned short int nRpcPhiHits = 0;
@@ -1973,7 +2005,7 @@ TrigMuonEFStandaloneTrackTool::extrapolate(const xAOD::TrackParticleContainer* s
       else
 	chi2prob = 0.;
     }
-    double eta =  -log(fabs(tan(theta*0.5)));
+    double eta =  -log(tan(theta*0.5));
     
     unsigned short int nRpcEtaHits = 0;
     unsigned short int nRpcPhiHits = 0;

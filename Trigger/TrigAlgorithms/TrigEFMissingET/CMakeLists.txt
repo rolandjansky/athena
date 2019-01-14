@@ -30,8 +30,8 @@ atlas_depends_on_subdirs(
    Trigger/TrigTools/TrigTimeAlgs
    PRIVATE
    PhysicsAnalysis/AnalysisCommon/PATCore
-   PathResolver
-   InDetTrackSelectionTool
+   Tools/PathResolver
+   InnerDetector/InDetRecTools/InDetTrackSelectionTool
    Control/CxxUtils
    DetectorDescription/Identifier
    Event/EventKernel

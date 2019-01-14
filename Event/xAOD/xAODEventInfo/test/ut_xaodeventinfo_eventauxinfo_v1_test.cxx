@@ -47,6 +47,10 @@ void test1()
   assert (pix == eai.getDecoration(pixid, 1, 1));
   assert (sct == eai.getDecoration(sctid, 1, 1));
 
+  assert (!eai.isDecoration (runid));
+  assert ( eai.isDecoration (pixid));
+  assert ( eai.isDecoration (larid));
+
   eai.lock();
   EXPECT_EXCEPTION (SG::ExcStoreLocked, eai.getDecoration(runid, 1, 1));
   assert (pix == eai.getDecoration(pixid, 1, 1));

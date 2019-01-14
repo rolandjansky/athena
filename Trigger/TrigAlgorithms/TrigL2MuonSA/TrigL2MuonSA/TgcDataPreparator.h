@@ -98,6 +98,9 @@ class TgcDataPreparator: public AthAlgTool
       // Cabling (new)
       MuonTGC_CablingSvc* m_tgcCabling;	
 
+      // Tool handles for BS conversion and Rdo to Prep Data conversion
+      ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataProviderTool;
+
       // Tool for Rdo to Prep Data conversion
       ToolHandle<Muon::IMuonRdoToPrepDataTool> m_tgcPrepDataProvider;
       //ToolHandle<Muon::IMuonRdoToPrepDataTool> m_tgcPrepDataProvider {
@@ -120,6 +123,9 @@ class TgcDataPreparator: public AthAlgTool
 	this, "TGCPrepDataContainer", "TGC_Measurements", "Name of the TGCContainer to read in"};
 
       bool m_use_RoIBasedDataAccess;
+
+      // Flag to decide whether or not to run BS decoding
+      Gaudi::Property< bool > m_decodeBS { this, "DecodeBS", true, "Flag to decide whether or not to run BS->RDO decoding" };
 
       // vector of the TGC hash ID list
       std::vector<IdentifierHash> m_tgcHashList;         

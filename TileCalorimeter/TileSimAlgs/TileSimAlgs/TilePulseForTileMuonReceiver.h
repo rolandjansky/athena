@@ -65,7 +65,6 @@ class TileInfo;
 class TileCablingService;
 class TileEvent;
 class TileDQstatus;
-class TileBeamInfoProvider;
 class TileRawChannelBuilderMF;
 
 #include <string>
@@ -142,8 +141,6 @@ class TilePulseForTileMuonReceiver: public AthAlgorithm {
 
     ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
         "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
-
-    ToolHandle<TileBeamInfoProvider> m_beamInfo;               //!< tool which provides DQstatus (for overlay)
     ToolHandle<TileRawChannelBuilderMF> m_MuRcvBuildTool;      //!< tool to set up the reconstruction algorithm
     
     bool m_run2;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISTRIPTDSTOOL_H
@@ -22,7 +22,6 @@ class StripOfflineData;
    * This class implements the public interface of the TDS Tools.
    * It returns a vector of StripData to input the StripTrigger simulation.
    *
-   *  @author Jacob Searcy <jsearcy@umich.edu>
    *
    *
    */

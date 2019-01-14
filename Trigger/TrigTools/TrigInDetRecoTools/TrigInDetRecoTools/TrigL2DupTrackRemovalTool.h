@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __TRIG_L2_DUP_TRACK_REMOVAL_TOOL_H__
-#define __TRIG_L2_DUP_TRACK_REMOVAL_TOOL_H__
+#ifndef TRIGINDETRECOTOOLS_TRIGL2DUPTRACKREMOVALTOOL_H
+#define TRIGINDETRECOTOOLS_TRIGL2DUPTRACKREMOVALTOOL_H
 
 #include<vector>
 
@@ -25,7 +25,7 @@ class TrigL2DupTrackRemovalTool: public AthAlgTool, virtual public ITrigL2DupTra
   virtual ~TrigL2DupTrackRemovalTool(); 
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
-  void removeDupTracks(TrigInDetTrackCollection* trackColl, std::vector<unsigned int> placeHolder);
+  virtual void removeDupTracks(TrigInDetTrackCollection* trackColl, std::vector<unsigned int> placeHolder) override;
 
   private:
   int m_mode; // mode 1: use all tracks & DR criterion

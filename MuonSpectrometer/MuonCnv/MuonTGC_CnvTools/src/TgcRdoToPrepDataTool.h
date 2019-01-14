@@ -14,7 +14,6 @@
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 
 #include "GaudiKernel/ToolHandle.h"
-
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonRDO/TgcRdo.h"
 #include "MuonTrigCoinData/TgcCoinDataContainer.h"
@@ -35,7 +34,6 @@ namespace MuonGM
 
 namespace Muon 
 {
-  class IMuonRawDataProviderTool;
   class TgcCoinData;
 
   /** @class TgcRdoToPrepDataTool 
@@ -334,16 +332,11 @@ namespace Muon
       /** Identifier hash offset */
       int m_tgcOffset;
 
-      /** Switch for the decoding of TGC BS into RDO for EF */
-      bool m_useBStoRdoTool;                
       /** Switch for the decoding of TGC RDO into TgcPrepData */
       bool m_decodeData; 
       /** Switch for the coincince decoding */
       bool m_fillCoinData; 
       
-      /** ToolHandle of the TGC_RawDataProviderTool */
-      ToolHandle<IMuonRawDataProviderTool> m_rawDataProviderTool;
-
       /** Switch for keeping Track of FullEvent Decoding */
       bool m_fullEventDone[NBC+1];
 

@@ -219,6 +219,15 @@ namespace xAOD {
       return m_vecs[ auxid ]->toPtr();
    }
 
+   bool AuxInfoBase::isDecoration (auxid_t auxid) const
+   {
+     guard_t guard( m_mutex );
+     if (m_store) {
+       return m_store->isDecoration (auxid);
+     }
+     return false;
+   }
+
    const AuxInfoBase::auxid_set_t&
    AuxInfoBase::getAuxIDs() const {
 

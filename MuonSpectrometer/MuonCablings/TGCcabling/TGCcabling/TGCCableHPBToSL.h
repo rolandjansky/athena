@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCCABLEHPBTOSL_HH
@@ -29,7 +29,7 @@ private:
   TGCCableHPBToSL (void) {}
   virtual TGCModuleMap* getModuleIn (const TGCModuleId* sl) const;
   virtual TGCModuleMap* getModuleOut (const TGCModuleId* hpt) const;
-  TGCDatabase* database[TGCIdBase::MaxRegionType][TGCIdBase::MaxSignalType];
+  TGCDatabase* m_database[TGCIdBase::MaxRegionType][TGCIdBase::MaxSignalType];
 };
   
 } // end of namespace

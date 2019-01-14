@@ -3,12 +3,15 @@
 */
 
 #include "TrigFTK_RawData/FTK_RawTrack.h"
-
+#include "Eigen/Core"
+#define EIGEN_DEVICE_FUNC 
+#include "EigenHalf.h"
+#undef EIGEN_DEVICE_FUNC 
 #include <iostream>
 #include <TMath.h>
 #include <cmath>
 
-using namespace std;
+using Eigen::half_impl::__half_raw;
 
 const float FTK_RawTrack::s_d0_multiplier     = 1000.; // reciprocal of precision
 const float FTK_RawTrack::s_z0_multiplier     = 100.; 
@@ -19,10 +22,13 @@ const float FTK_RawTrack::s_chi2_multiplier   = 1000.;
 //const float FTK_RawTrack::s_quality_multiplier = 1000.;
 
 
+// The Default constructor sets the version to the current version. 
+// The constructors with datawords tak ethe version set in the dataword.
+
 FTK_RawTrack::FTK_RawTrack() :
   m_word_th1((0xbda)<<16), // sector (16 bit), 0xa (4 bit), 0d (4 bit), 0xb (4 bit), reserved (3 bit), is fSSB (1 bit)
   m_word_th2(0), // layermap (12 bit), reserved (4 bit), tower (7 bit), reserved (1bit), TF num (3 bit), reserved (5 bit)
-  m_word_th3(0), // road (24 bit), reserved (8 bit)
+  m_word_th3((FTK_RAWTRACK_VERSION)<<24), // road (24 bit), reserved (8 bit)
   m_word_th4(0), // TRACK_D0, TRACK_CHISQ   16-bit, 16-bit
   m_word_th5(0), // TRACK_COTTH, TRACK_Z0   16-bit, 16-bit
   m_word_th6(0),  // TRACK_CURV, TRACK_PHI0  16-bit, 16-bit
@@ -42,9 +48,30 @@ FTK_RawTrack::FTK_RawTrack() :
   }
 }
 
+FTK_RawTrack::FTK_RawTrack(const FTK_RawTrack& track) {
+
+  m_pix_clusters.reserve(track.getPixelClusters().size());
+  m_sct_clusters.reserve(track.getSCTClusters().size());
+
+  unsigned int layer=0;
+  for (unsigned int ipix=0; ipix < track.getPixelClusters().size();  ++ipix,++layer){
+    m_pix_clusters.push_back(track.getPixelCluster(layer));
+  }
+  for (unsigned int isct=0; isct < track.getSCTClusters().size();  ++isct,++layer){
+    m_sct_clusters.push_back(track.getSCTCluster(layer));
+  }
+  m_word_th1 = track.getTH1();
+  m_word_th2 = track.getTH2();
+  m_word_th3 = track.getTH3();
+  m_word_th4 = track.getTH4();
+  m_word_th5 = track.getTH5();
+  m_word_th6 = track.getTH6();
+
+  m_barcode=track.getBarcode();
+}
+
 FTK_RawTrack::FTK_RawTrack(uint32_t word_th1, uint32_t word_th2, uint32_t word_th3, uint32_t word_th4, uint32_t word_th5, uint32_t word_th6)
 {
-  
   m_barcode = 0;
   m_word_th1 = word_th1;
   m_word_th2 = word_th2;
@@ -68,6 +95,7 @@ FTK_RawTrack::FTK_RawTrack(uint32_t word_th1, uint32_t word_th2, uint32_t word_t
 } 
 
 FTK_RawTrack::FTK_RawTrack(uint32_t word_th1, uint32_t word_th2, uint32_t word_th3, uint32_t word_th4, uint32_t word_th5, uint32_t word_th6, const std::vector<FTK_RawPixelCluster>& pixel_clusters, const std::vector<FTK_RawSCT_Cluster>& SCT_clusters){
+
 
   m_barcode = 0;
   m_word_th1 = word_th1;
@@ -225,11 +253,8 @@ void FTK_RawTrack::setTower(unsigned int tower) {
 
 void FTK_RawTrack::setD0(float track_d0){
 
-  float d0_f =  track_d0 * s_d0_multiplier + (float) s_sixteen_bit_offset;
-  if (d0_f>65535.) d0_f = 65535.;
-  else if (d0_f < 0.) d0_f = 0;
+  uint16_t d0 = Eigen::half(track_d0).x;
 
-  uint32_t d0 = round(d0_f);
   m_word_th4 = (d0 | m_word_th4);
 
   return; 
@@ -237,36 +262,32 @@ void FTK_RawTrack::setD0(float track_d0){
 
 void FTK_RawTrack::setZ0(float track_z0){
 
-  float z0_f =  track_z0 *  s_z0_multiplier + (float)s_sixteen_bit_offset;
-  if (z0_f>65535.) z0_f = 65535.;
-  else if (z0_f < 0.) z0_f = 0;
-  
-  uint32_t z0 = round(z0_f);
+  uint16_t z0 = Eigen::half(track_z0).x;
 
-  z0 = z0 << 16;
-
-  m_word_th5 = z0 | m_word_th5;
+  m_word_th5 = (z0 << 16) | m_word_th5;
 
   return;
 }
 
 void FTK_RawTrack::setCotTh(float track_cot){
-  float cot_f = track_cot * s_cot_multiplier + (float)s_sixteen_bit_offset;
 
-  if (cot_f>65535.) cot_f = 65535.;
-  if (cot_f < 0.) cot_f = 0.;
-  uint32_t cot = round(cot_f);
+  uint16_t cot = Eigen::half(track_cot).x;
+
   m_word_th5 = cot | m_word_th5;
 
   return;
 }
 
 double FTK_RawTrack::getCotTh() const{
+  double cot_f=0.;
   uint16_t cot = m_word_th5 & 0xffff;
-  double cot_f = (double) cot;
-  cot_f = cot_f-s_sixteen_bit_offset;
-  cot_f = cot_f/s_cot_multiplier;
-
+  if ((this->trackVersion())==0) {
+    cot_f = (double) cot;
+    cot_f = cot_f-s_sixteen_bit_offset;
+    cot_f = cot_f/s_cot_multiplier;
+  } else {
+    cot_f = float(Eigen::half(__half_raw(cot)));
+  }
   return cot_f;
 }
 
@@ -274,26 +295,17 @@ double FTK_RawTrack::getCotTh() const{
 
 void FTK_RawTrack::setPhi(float track_phi){
 
-  uint32_t phi = 0;
+  uint16_t phi = Eigen::half(track_phi).x;
 
-  // input phi must be in range -pi to pi 
+  m_word_th6 = (phi<<16) | m_word_th6;
 
-  float phi_value  = s_phi_multiplier*track_phi + s_sixteen_bit_offset;
-  if (phi_value<0) phi_value=0;
-  else if (phi_value>65535.)phi_value=65535.;
-  phi=round(phi_value);
-  phi = phi << 16;
-  m_word_th6 = phi | m_word_th6;
   return;
 }
 
 void FTK_RawTrack::setInvPt(float track_invpt){
 
+  uint16_t invpt = Eigen::half(track_invpt).x;
 
-  float ptinv = track_invpt * s_invpt_multiplier + (float) s_sixteen_bit_offset;
-  if (ptinv<0.) ptinv=0.;
-  else if (ptinv>65535.) ptinv=65535.;
-  uint16_t invpt = round(ptinv); 
   m_word_th6 = invpt | m_word_th6;
   return;
 }
@@ -301,11 +313,17 @@ void FTK_RawTrack::setInvPt(float track_invpt){
 
 double FTK_RawTrack::getInvPt() const{
 
-  uint32_t invpt = (m_word_th6 & 0xffff);
   
-  double invpt_f = (double) invpt;
-  invpt_f = (invpt_f-s_sixteen_bit_offset);
-  invpt_f =  invpt_f /s_invpt_multiplier;
+  double invpt_f = 0.;
+
+  if (this->trackVersion()==0) {
+    uint32_t invpt = (m_word_th6 & 0xffff);
+    invpt_f = (invpt-s_sixteen_bit_offset);
+    invpt_f =  invpt_f /s_invpt_multiplier;
+  } else {
+    uint16_t invpt = (m_word_th6 & 0xffff);
+    invpt_f = float(Eigen::half(__half_raw(invpt)));
+  }
   return invpt_f;
 }
 
@@ -313,58 +331,76 @@ double FTK_RawTrack::getInvPt() const{
 
 void FTK_RawTrack::setChi2(float track_chi2){
 
-  float ch2_f = track_chi2* s_chi2_multiplier;
-  if (ch2_f > 65535.)ch2_f = 65535.; 
-  uint32_t chi2 = round(ch2_f);
-  chi2 = chi2 << 16;
-  m_word_th4 = chi2 | m_word_th4;
+  uint16_t chi2 = Eigen::half(track_chi2).x;
+  m_word_th4 = (chi2<< 16) | m_word_th4;
 
   return;
 }
 
-// ununsed now
-// void FTK_RawTrack::setQuality(float track_qual){
-  
-//   float q_f = track_qual * s_quality_multiplier;
-//   if (q_f > 65535.) q_f = 65535.;
-//   else if (q_f < 0) q_f = 0.;
-//   uint32_t qual = round (q_f);
-//   qual = qual << 16;
-//   m_word_th5 = qual | m_word_th5;
-
-//   return;
-// }
-
 float FTK_RawTrack::getD0() const{
-  uint32_t d0=m_word_th4 & 0xffff;
-  double d0_f = ((double)d0 - (double)s_sixteen_bit_offset)/s_d0_multiplier;
+  double d0_f = 0.;
+  if (this->trackVersion()==0) {
+    uint32_t d0=m_word_th4 & 0xffff;
+    d0_f = ((double)d0 - (double)s_sixteen_bit_offset)/s_d0_multiplier;
+  } else {
+    uint16_t d0=m_word_th4 & 0xffff;
+     d0_f = float(Eigen::half(__half_raw(d0)));
+  }
   return d0_f;
+    
 }
 
 float FTK_RawTrack::getZ0() const{
-  uint32_t z0 = (m_word_th5 & 0xffff0000) >> 16;
-  double z0_f = ((double)z0 - (double) s_sixteen_bit_offset)/s_z0_multiplier;
+  double z0_f=0.;
+  if (this->trackVersion()==0) {
+    uint32_t z0 = (m_word_th5 & 0xffff0000) >> 16;
+    z0_f = ((double)z0 - (double) s_sixteen_bit_offset)/s_z0_multiplier;
+  } else {
+    uint16_t z0 = (m_word_th5 & 0xffff0000) >> 16;
+    z0_f = float(Eigen::half(__half_raw(z0)));
+  }
   return z0_f;
 }
 
 float FTK_RawTrack::getPhi() const{
-  uint32_t phi = (m_word_th6 & 0xffff0000) >> 16;
-  double d0_f = ((double)phi - (double) s_sixteen_bit_offset)/s_phi_multiplier;
-  return d0_f;
+  double phi_f=0.;
+  if (this->trackVersion()==0) {
+    uint32_t  phi = (m_word_th6 & 0xffff0000) >> 16;
+    phi_f = ((double)phi - (double) s_sixteen_bit_offset)/s_phi_multiplier;
+  } else {
+    uint16_t  phi = (m_word_th6 & 0xffff0000) >> 16;
+    phi_f = float(Eigen::half(__half_raw(phi)));
+  }
+  return phi_f;
 }
 
 
 double FTK_RawTrack::getChi2() const{
-  uint32_t chi2 = (m_word_th4 & 0xffff0000) >> 16;
-  double chi2_f = (double)chi2/s_chi2_multiplier;
+  double chi2_f = 0.;
+  if (this->trackVersion()==0) {
+    uint32_t chi2 = (m_word_th4 & 0xffff0000) >> 16;
+    chi2_f = (double)chi2/s_chi2_multiplier;
+  } else {
+    uint16_t chi2 = (m_word_th4 & 0xffff0000) >> 16;
+    chi2_f = float(Eigen::half(__half_raw(chi2)));
+  }
   return chi2_f;
+
 }
 
-// double FTK_RawTrack::getQuality() const{
-//   uint32_t qual = m_word_th5 >> 16;
-//   double qual_f = (double) qual /s_quality_multiplier;
-//   return qual_f;
-// }
+
+void FTK_RawTrack::setIsAuxFormat(bool isAux) {
+  if (isAux) {
+    m_word_th2 =   m_word_th2 | 0x1000;
+  } else {
+    m_word_th2 =   m_word_th2 & 0xFFFFEFFF;
+  }
+}
+
+bool FTK_RawTrack::getIsAuxFormat() const {
+  return ((m_word_th2 & 0x1000) !=0);
+}
+
 
 #if defined(__MAKECINT__)
 #pragma link C++ class FTK_RawTrack;

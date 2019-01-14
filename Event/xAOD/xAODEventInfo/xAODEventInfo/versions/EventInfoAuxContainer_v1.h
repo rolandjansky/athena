@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: EventInfoAuxContainer_v1.h 636390 2014-12-16 21:52:18Z cranshaw $
@@ -48,6 +48,13 @@ namespace xAOD {
       virtual void* getDecoration (SG::auxid_t auxid,
                                    size_t size,
                                    size_t capacity) override;
+
+
+     /**
+      * @brief Test if a particular variable is tagged as a decoration.
+      * @param auxid The identifier of the desired aux data item.
+      */
+     virtual bool isDecoration (auxid_t auxid) const override;
 
 
      /**

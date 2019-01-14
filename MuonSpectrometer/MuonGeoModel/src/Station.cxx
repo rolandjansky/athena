@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/Station.h"
@@ -680,8 +680,6 @@ GeoTrf::Transform3D Station::native_to_tsz_frame( const Position & p ) const {
 		<< " a left-handed chamber coordinate system was used "
 		<< " for endcap side A so be very careful."
 		<< endmsg;
-    
-    GeoTrf::Transform3D nominalTransf{GeoTrf::Transform3D::Identity()};
     
     // first apply here the mirror symmetry: (we, in fact, apply a rotation)
     GeoTrf::Transform3D mirrsym=GeoTrf::Transform3D::Identity();

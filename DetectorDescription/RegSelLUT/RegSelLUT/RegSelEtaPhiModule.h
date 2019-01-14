@@ -14,8 +14,8 @@
 //   $Id: RegSelEtaPhiModule.h, v0.0   Sat 25 Jun 2011 10:30:34 BST sutt $
 
 
-#ifndef __REGSELETAPHIMODULE_H
-#define __REGSELETAPHIMODULE_H
+#ifndef REGSELLUT_REGSELETAPHIMODULE_H
+#define REGSELLUT_REGSELETAPHIMODULE_H
 
 #include <iostream>
 #include <cmath>
@@ -49,7 +49,7 @@ public:
   } 
 
   /// destructor
-  virtual ~EtaPhiBase() { } 
+  virtual ~EtaPhiBase() = default;
 
   /// accessors 
   double etamin() const { return m_eta[0]; }
@@ -162,14 +162,4 @@ inline std::ostream& operator<<( std::ostream& s, const TRegSelEtaPhiModule<T>& 
 
 
 
-#endif  // __REGSELETAPHIMODULE_H 
-
-
-
-
-
-
-
-
-
-
+#endif  // REGSELLUT_REGSELETAPHIMODULE_H

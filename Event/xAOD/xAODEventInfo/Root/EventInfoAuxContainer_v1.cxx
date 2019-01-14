@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: EventInfoAuxContainer_v1.cxx 636390 2014-12-16 21:52:18Z cranshaw $
@@ -68,6 +68,20 @@ namespace xAOD {
      }
 
      return AuxContainerBase::getDecoration (auxid, size, capacity);
+   }
+
+
+   /**
+    * @brief Test if a particular variable is tagged as a decoration.
+    * @param auxid The identifier of the desired aux data item.
+    */
+   bool EventInfoAuxContainer_v1::isDecoration (SG::auxid_t auxid) const
+   {
+     if (m_decorFlags.test (auxid)) {
+       return true;
+     }
+
+     return AuxContainerBase::isDecoration (auxid);
    }
 
 

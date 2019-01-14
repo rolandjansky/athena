@@ -24,6 +24,6 @@ atlas_add_library( LArGeoMiniFcal
                    PUBLIC_HEADERS LArGeoMiniFcal
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} StoreGateLib SGtests
+                   LINK_LIBRARIES StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${GEOMODEL_LIBRARIES} GaudiKernel )
 

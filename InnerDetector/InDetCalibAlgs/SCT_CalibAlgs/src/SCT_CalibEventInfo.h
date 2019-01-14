@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -67,7 +67,6 @@ class SCT_CalibEventInfo: public extends<AthAlgTool, ISCT_CalibEvtInfo>
       std::string m_tsBeginString;
       std::string m_tsEndString;
       int  m_timeStampEnd;
-      int  m_timeStampMax;
       int  m_duration;
       int  m_LBBegin;
       int  m_LBEnd;
@@ -76,7 +75,6 @@ class SCT_CalibEventInfo: public extends<AthAlgTool, ISCT_CalibEvtInfo>
 
       //
       mutable int m_runNumber;
-      mutable int m_eventNumber;
       mutable int m_lumiBlock;
       mutable int m_timeStamp;
       mutable int m_bunchCrossing;

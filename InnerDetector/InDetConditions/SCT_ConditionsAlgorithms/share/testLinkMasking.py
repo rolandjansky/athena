@@ -82,7 +82,7 @@ conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/MUR", "/SCT/DAQ/Config/MUR")
 from SCT_ConditionsTools.SCT_LinkMaskingToolSetup import SCT_LinkMaskingToolSetup
 sct_LinkMaskingToolSetup = SCT_LinkMaskingToolSetup()
 sct_LinkMaskingToolSetup.setFolderDb("<dbConnection>sqlite://;schema=LinkMasking.db;dbname=CONDBR2</dbConnection>/purple/pants")
-# This folder can be created by SCT_ConditionsTools/python/createLinkMaskingSQLiteFile.py
+# This folder can be created by SCT_ConditionsTools/share/createLinkMaskingSQLiteFile.py
 sct_LinkMaskingToolSetup.setup()
 
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_LinkMaskingTestAlg

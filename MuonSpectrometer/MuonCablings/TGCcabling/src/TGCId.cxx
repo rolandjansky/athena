@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGCcabling/TGCId.h"
@@ -31,7 +31,7 @@ int TGCId::getSectorInOctant (void) const {
 }
   
 int TGCId::getSectorModule (void) const {
-  if(sector==-1) return -1;
+  if(m_sector==-1) return -1;
   
   if(isEndcap()){
     if(isInner()) return getSectorInOctant()+9;
@@ -45,11 +45,11 @@ int TGCId::getSectorModule (void) const {
 }
 
 void TGCId::setSideType (SideType side) {
-  this->side=side; 
+  this->m_side=side; 
 }
   
 void TGCId::setModuleType (ModuleType module)  {
-  this->module=module;
+  this->m_module=module;
   if(module==WI){
     setSignalType(Wire);
     setMultipletType(Inner);
@@ -77,31 +77,31 @@ void TGCId::setModuleType (ModuleType module)  {
 }
    
 void TGCId::setSignalType (SignalType signal)  { 
-  this->signal=signal; 
-  if(multiplet==Inner&&signal==Wire)  module=WI;
-  if(multiplet==Inner&&signal==Strip)  module=SI;
-  if(multiplet==Doublet&&signal==Wire)  module=WD;
-  if(multiplet==Doublet&&signal==Strip) module=SD;
-  if(multiplet==Triplet&&signal==Wire)  module=WT;
-  if(multiplet==Triplet&&signal==Strip) module=ST;
+  this->m_signal=signal; 
+  if(m_multiplet==Inner&&signal==Wire)  m_module=WI;
+  if(m_multiplet==Inner&&signal==Strip)  m_module=SI;
+  if(m_multiplet==Doublet&&signal==Wire)  m_module=WD;
+  if(m_multiplet==Doublet&&signal==Strip) m_module=SD;
+  if(m_multiplet==Triplet&&signal==Wire)  m_module=WT;
+  if(m_multiplet==Triplet&&signal==Strip) m_module=ST;
 }
 
 void TGCId::setMultipletType (MultipletType multiplet)  {
-  this->multiplet=multiplet;
-  if(multiplet==Inner&&signal==Wire)  module=WI;
-  if(multiplet==Inner&&signal==Strip)  module=SI;
-  if(multiplet==Doublet&&signal==Wire)  module=WD;
-  if(multiplet==Doublet&&signal==Strip) module=SD;
-  if(multiplet==Triplet&&signal==Wire)  module=WT;
-  if(multiplet==Triplet&&signal==Strip) module=ST;
+  this->m_multiplet=multiplet;
+  if(multiplet==Inner&&m_signal==Wire)  m_module=WI;
+  if(multiplet==Inner&&m_signal==Strip)  m_module=SI;
+  if(multiplet==Doublet&&m_signal==Wire)  m_module=WD;
+  if(multiplet==Doublet&&m_signal==Strip) m_module=SD;
+  if(multiplet==Triplet&&m_signal==Wire)  m_module=WT;
+  if(multiplet==Triplet&&m_signal==Strip) m_module=ST;
 }
    
 void TGCId::setRegionType (RegionType region)  { 
-  this->region=region; 
+  this->m_region=region; 
 }
    
 void TGCId::setStation (int station)  { 
-  this->station=station;
+  this->m_station=station;
   if(station==0) setMultipletType(Triplet);	  
   if(station==1) setMultipletType(Doublet);
   if(station==2) setMultipletType(Doublet);
@@ -109,16 +109,16 @@ void TGCId::setStation (int station)  {
 }
    
 void TGCId::setSector (int sector)  { 
-  this->sector=sector;
-  if(region==Endcap) {
-    if(multiplet==Inner) octant=sector/3;
-    else octant=sector/6;
+  this->m_sector=sector;
+  if(m_region==Endcap) {
+    if(m_multiplet==Inner) m_octant=sector/3;
+    else m_octant=sector/6;
   }
-  if(region==Forward) octant=sector/3;
+  if(m_region==Forward) m_octant=sector/3;
 }
    
 void TGCId::setOctant (int octant)  { 
-  this->octant=octant;
+  this->m_octant=octant;
 }
 
 // before this method, set octant.
@@ -145,7 +145,7 @@ void TGCId::setSectorModule (int sectorModule) {
 }
    
 void TGCId::setLayer (int layer)  { 
-  this->layer=layer;
+  this->m_layer=layer;
   if(layer>=0&&layer<=2){
     setMultipletType(Triplet);
     setStation(0);
@@ -161,33 +161,33 @@ void TGCId::setLayer (int layer)  {
   if(layer>=7&&layer<=8){
     setMultipletType(Inner);
     setStation(3);
-    if(sector!=-1)
-      octant=sector/3;
+    if(m_sector!=-1)
+      m_octant=m_sector/3;
   }
 }
 
 void TGCId::setChamber (int chamber)  { 
-  this->chamber=chamber;
+  this->m_chamber=chamber;
 }
    
 void TGCId::setId (int id)  { 
-  this->id=id;
+  this->m_id=id;
 }
    
 void TGCId::setBlock (int block)  { 
-  this->block=block;
+  this->m_block=block;
 }
    
 void TGCId::setChannel (int channel)  {
-  this->channel=channel; 
+  this->m_channel=channel; 
 }  
    
 void TGCId::setEvent (int event) {
-  this->event=event;
+  this->m_event=event;
 }
    
 void TGCId::setBunch (int bunch) {
-  this->bunch=bunch;
+  this->m_bunch=bunch;
 }
 
 } // end of namespace

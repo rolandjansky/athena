@@ -229,8 +229,7 @@ egammaEFCaloStep = stepSeq("egammaEFCalotep", filterL2ElectronRoIsAlg, [ efClust
 
 from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
 summaryStep0 = TriggerSummaryAlg( "TriggerSummaryStep1" )
-summaryStep0.InputDecision = "HLTChains"
-summaryStep0.HLTSummary = "MonitoringSummaryStep1"
+summaryStep0.InputDecision = "L1DecoderSummary"
 summaryStep0.FinalDecisions = [ caloHypoDecisions ]
 summaryStep0.OutputLevel = DEBUG
 
@@ -245,12 +244,12 @@ egammaCaloStepRR = createFastCaloSequence( rerun=True )
 step0r = parOR("step0r", [ egammaCaloStepRR ])
 
 summary = TriggerSummaryAlg( "TriggerSummaryAlg" )
-summary.InputDecision = "HLTChains"
+summary.InputDecision = "L1DecoderSummary"
 summary.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions" ]
 
 from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
 egammaViewsMerger = HLTEDMCreator("egammaViewsMerger")
-egammaViewsMerger.TrigCompositeContainer = [ "filterCaloRoIsAlg", "EgammaCaloDecisions","ElectronL2Decisions", "MuonL2Decisions", "EMRoIDecisions", "METRoIDecisions", "MURoIDecisions", "HLTChainsResult", "JRoIDecisions", "MonitoringSummaryStep1", "RerunEMRoIDecisions", "RerunMURoIDecisions", "TAURoIDecisions", "L2CaloLinks", "FilteredEMRoIDecisions", "FilteredEgammaCaloDecisions" ]
+egammaViewsMerger.TrigCompositeContainer = [ "filterCaloRoIsAlg", "EgammaCaloDecisions","ElectronL2Decisions", "MuonL2Decisions", "EMRoIDecisions", "METRoIDecisions", "MURoIDecisions", "L1DecoderSummary", "JRoIDecisions", "MonitoringSummaryStep1", "RerunEMRoIDecisions", "RerunMURoIDecisions", "TAURoIDecisions", "L2CaloLinks", "FilteredEMRoIDecisions", "FilteredEgammaCaloDecisions" ]
 
 egammaViewsMerger.TrackParticleContainerViews = [ l2ElectronViewsMaker.Views ]
 egammaViewsMerger.TrackParticleContainerInViews = [ TrackParticlesName ]
@@ -359,11 +358,11 @@ serialiser.CollectionsToSerialize = [ "xAOD::TrigCompositeContainer_v1#remap_Ega
 
 stmaker = StreamTagMakerTool()
 stmaker.OutputLevel = DEBUG
-stmaker.ChainDecisions = "HLTFinalDecisions"
+stmaker.ChainDecisions = "HLTSummary"
 stmaker.ChainToStream = dict( [(c, "Main") for c in testChains ] )
 stmaker.ChainToStream["HLT_e5_etcut"] = "PhotonPerf"  # just made up the name
 bitsmaker = TriggerBitsMakerTool()
-bitsmaker.ChainDecisions = "HLTFinalDecisions"
+bitsmaker.ChainDecisions = "HLTSummary"
 bitsmaker.ChainToBit = dict( [ (chain, 10*num) for num,chain in enumerate(testChains) ] ) 
 bitsmaker.OutputLevel = DEBUG
 
@@ -433,7 +432,7 @@ ServiceMgr += AuditorSvc()
 # This triggers the L1 decoder to signal the start of processing, 
 # and the HLT summary alg to signal end of processing and handle the writing of data.
 topSequence.L1DecoderTest.EnableCostMonitoring = True
-summary.EnableCostMonitoring = True
+summMaker.EnableCostMonitoring = True
 
 # Write out the data at the end
 addTC("TrigCostContainer")

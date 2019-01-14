@@ -17,8 +17,8 @@
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 ///Local include(s)
-#include "TrigMultiVarHypo/preprocessor/TrigRingerPreprocessor.h"
-#include "TrigMultiVarHypo/discriminator/MultiLayerPerceptron.h"
+#include "TrigMultiVarHypo/preproc/TrigRingerPreprocessor.h"
+#include "TrigMultiVarHypo/tools/MultiLayerPerceptron.h"
 
 ///xAOD include(s)
 #include "xAODTrigCalo/TrigEMClusterContainer.h"

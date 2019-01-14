@@ -11,7 +11,7 @@ namespace LVL1TGCTrigger {
     /** Constructor */
     TGCInnerTrackletSlot();
     /** Destructor */
-    ~TGCInnerTrackletSlot() {};
+    ~TGCInnerTrackletSlot() = default;
     
     void setSideId(const int sideId);
     int getSideId() const;

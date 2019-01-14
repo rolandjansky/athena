@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # specifies Calo cell making
 # so far only handle the RawChannel->CaloCell step
@@ -7,6 +7,7 @@ from AthenaCommon.Constants import *
 from RecExConfig.Configured import Configured
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from RecExConfig.RecFlags import rec
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 import traceback
 
 class CaloCellGetter (Configured)  :
@@ -47,7 +48,6 @@ class CaloCellGetter (Configured)  :
             from LArROD.LArRODFlags import larRODFlags
             from AthenaCommon.GlobalFlags import globalflags
             if larRODFlags.readDigits() and globalflags.DataSource() == 'data':
-                from AthenaCommon.AppMgr import ServiceMgr as svcMgr
                 if not "LArRawChannelContainer/LArRawChannels" in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
                     svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArRawChannelContainer/LArRawChannels"]
                 from LArROD.LArRawChannelBuilderDefault import LArRawChannelBuilderDefault
@@ -111,7 +111,6 @@ class CaloCellGetter (Configured)  :
 
                 from AthenaCommon.GlobalFlags import globalflags
                 if globalflags.DataSource() == 'data' and globalflags.InputFormat() == 'bytestream':
-                    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
                     try:
                         svcMgr.ByteStreamCnvSvc.ROD2ROBmap = [ "-1" ]
                         if not "TileDigitsContainer/TileDigitsCnt" in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
@@ -185,24 +184,24 @@ class CaloCellGetter (Configured)  :
                         topSequence += TileDigitsFilter()
                     except:
                         mlog.error("Could not configure TileDigitsFilter")
-      
+
+                from AthenaCommon.AlgSequence import AthSequencer
+                condSequence = AthSequencer("AthCondSeq")
+                checkDCS = hasattr(condSequence, 'TileDCSCondAlg')
                 try:
                     from TileRecUtils.TileRecUtilsConf import TileCellBuilder
-                    theTileCellBuilder = TileCellBuilder()
+                    theTileCellBuilder = TileCellBuilder(CheckDCS = checkDCS)
                     from TileRecUtils.TileRecFlags import jobproperties
                     theTileCellBuilder.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
 
-                    if not hasattr( ToolSvc, "TileBeamInfoProvider" ):
-                        from TileRecUtils.TileRecUtilsConf import TileBeamInfoProvider
-                        ToolSvc += TileBeamInfoProvider()
-
+                    rawChannelContainer = ''
                     if globalflags.DataSource() == 'data' and globalflags.InputFormat() == 'bytestream':
                         if jobproperties.TileRecFlags.readDigits():
                             # everything is already corrected at RawChannel level
                             theTileCellBuilder.correctTime = False;
                             theTileCellBuilder.correctAmplitude = False;
                         else:
-                            ToolSvc.TileBeamInfoProvider.TileRawChannelContainer = "TileRawChannelCnt"
+                            rawChannelContainer = 'TileRawChannelCnt'
                             # by default parameters are tuned for opt.filter without iterations
                             theTileCellBuilder.correctTime = jobproperties.TileRecFlags.correctTime()
                             theTileCellBuilder.correctAmplitude = jobproperties.TileRecFlags.correctAmplitude()
@@ -733,7 +732,8 @@ class CaloCellGetter (Configured)  :
         # Also note that we produce it as a transient output.
         objKeyStore.addTransient (self.outputType(),self.outputKey())
 
-
+        from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
+        TileDQstatusAlgDefault (TileRawChannelContainer = rawChannelContainer)
         
         # now add algorithm to topSequence
         # this should always come at the end

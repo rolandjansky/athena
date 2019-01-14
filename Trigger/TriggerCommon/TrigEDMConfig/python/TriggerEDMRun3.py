@@ -39,11 +39,11 @@ TriggerHLTList = [
     
 
     
-    ('xAOD::TrigCompositeContainer#L1Seeds',     'BS ESD AODFULL AODSLIM', 'Steer'),
-    ('xAOD::TrigCompositeContainer#L1EM',        'BS ESD AODFULL AODSLIM', 'Steer'),
-    ('xAOD::TrigCompositeContainer#L1MU',        'BS ESD AODFULL AODSLIM', 'Steer'),
-    ('xAOD::TrigCompositeContainer#L1MET',       'BS ESD AODFULL AODSLIM', 'Steer'),
-    ('xAOD::TrigCompositeContainer#L1J',         'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeContainer#L1DecoderSummary',     'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeContainer#L1EM',                 'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeContainer#L1MU',                 'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeContainer#L1MET',                'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeContainer#L1J',                  'BS ESD AODFULL AODSLIM', 'Steer'),
 
 
     

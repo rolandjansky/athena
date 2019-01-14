@@ -22,6 +22,7 @@
 
 // Tile includes
 #include "TileRecUtils/TileRawChannelBuilder.h"
+#include "TileConditions/TileCondToolNoiseSample.h"
 
 class TileHWID;
 class TileInfo;
@@ -53,6 +54,9 @@ class TileRawChannelBuilderManyAmps: public TileRawChannelBuilder {
 
     TileFilterManager* m_tileFilterManagerHi; //<! TileFilterManager for high gain
     TileFilterManager* m_tileFilterManagerLo; //<! TileFilterManager for low gain
+
+    ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample{this,
+        "TileCondToolNoiseSample", "TileCondToolNoiseSample", "Tile sample noise tool"};
 
 };
 

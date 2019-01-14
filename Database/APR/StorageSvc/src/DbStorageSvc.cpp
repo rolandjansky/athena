@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Header: /cvs/PF/pool/StorageSvc/src/DbStorageSvc.cpp,v 1.81 2010/05/05 11:43:26 frankb Exp $
@@ -285,7 +285,6 @@ DbStatus DbStorageSvc::update( const FileDescriptor& fDesc,
 DbStatus 
 DbStorageSvc::destroy( const FileDescriptor& refDB, const Token& refToken )
 {
-   DbStatus sc = Error;
    void* handle = refDB.dbc()->handle();
    DbDatabase dbH((DbDatabaseH)handle);
    if ( dbH.isValid() )  {

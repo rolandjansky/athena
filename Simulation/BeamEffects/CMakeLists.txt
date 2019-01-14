@@ -39,8 +39,9 @@ atlas_add_test( BeamEffectsAlg_test
 
 #Added test of new component accumulator syntax
 atlas_add_test( BeamEffectsAlgConfig_test
-                SCRIPT python/BeamEffectsAlgConfig.py)
-
+                SCRIPT python/BeamEffectsAlgConfig.py
+                EXTRA_PATTERNS "^Domain"
+                PROPERTIES TIMEOUT 300 )
 
 
 atlas_add_component( BeamEffects

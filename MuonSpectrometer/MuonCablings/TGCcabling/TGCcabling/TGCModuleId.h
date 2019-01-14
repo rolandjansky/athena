@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCMODULEID_HH
@@ -22,18 +22,18 @@ public:
   TGCModuleId (ModuleIdType type=NoModuleIdType)
     : TGCId(TGCIdBase::Module)
   {
-    this->type = type;
+    this->m_type = type;
   }
   virtual ~TGCModuleId (void) {}
 
-  ModuleIdType getModuleIdType (void) const { return type; }
+  ModuleIdType getModuleIdType (void) const { return m_type; }
 
   virtual bool operator ==(const TGCModuleId& moduleId) const;
 
   virtual bool isValid (void) const { return true; }
 
 private:
-  ModuleIdType type;
+  ModuleIdType m_type;
   
 };
 

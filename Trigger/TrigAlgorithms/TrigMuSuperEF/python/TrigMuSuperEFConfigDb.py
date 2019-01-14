@@ -10,6 +10,7 @@ addAlgorithm("TrigMuSuperEF.TrigMuSuperEFConfig.TrigMuSuperEF_MGonly","TrigMuSup
 addAlgorithm("TrigMuSuperEF.TrigMuSuperEFConfig.TrigMuSuperEF_TMEFonly","TrigMuSuperEF_TMEFonly")
 #addAlgorithm("TrigMuSuperEF.TrigMuSuperEFConfig.TrigMuSuperEF_both","TrigMuSuperEF_both")
 addAlgorithm("TrigMuSuperEF.TrigMuSuperEFConfig.TrigMuSuperEF_SAonly","TrigMuSuperEF_SAonly")
+addAlgorithm("TrigMuSuperEF.TrigMuSuperEFConfig.TrigMuSuperEF_STonly","TrigMuSuperEF_STonly")
 #calotag
 addAlgorithm("TrigMuSuperEF.TrigMuSuperEFConfig.TrigMuSuperEF_CTonly","TrigMuSuperEF_CTonly")
 # combiner only

@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -20,15 +20,7 @@ class LArFCAL_ID;
 class TileID; 
 class LArOnlineID;
 
-// Scott:  
-//There needs to be a declaration that that's possible, using
-//SG_BASE or DATAVECTOR_BASE.  It looks like that's not the case
-//for CaloCell.
-//That can be added.  In the meantime, try putting this in your package:
-
 #include "LArSimEvent/LArHit.h"
-// # #include "SGTools/BaseInfo.h"
-// #SG_ADD_BASE (CaloCell, INavigable4Momentum);
 
 
 namespace D3PD {

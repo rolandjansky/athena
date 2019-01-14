@@ -7,7 +7,7 @@
      <field name="m_staticVecs" transient="true" />
      <field name="m_dynamicVecs" transient="true" />
      <field name="m_locked" transient="true" />
-     <field name="m_isDecoration" transient="true" />
+     <field name="m_decorations" transient="true" />
      <field name="m_mutex" transient="true" />
      <field name="m_tsAuxids" transient="true" />
      <field name="m_name" transient="true" />

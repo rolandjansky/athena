@@ -25,10 +25,13 @@ PURPOSE:  A base class for RAW FTK tracks.
 //#define NPIXLAYERS 4
 //#define NSCTLAYERS 8 //0,2,4,6 = Axial, 1,3,5,7 = Stero
 
+#define FTK_RAWTRACK_VERSION 0x1
+
 class FTK_RawTrack {
 
  public:
   FTK_RawTrack(); 
+  FTK_RawTrack(const FTK_RawTrack&); 
   FTK_RawTrack(uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
   FTK_RawTrack(uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, const std::vector<FTK_RawPixelCluster>&, const std::vector<FTK_RawSCT_Cluster>&);
   ~FTK_RawTrack();
@@ -60,6 +63,7 @@ class FTK_RawTrack {
   uint32_t getPixelBarcode( int ) const;
   uint32_t getSCTWord( int )      const;
   uint32_t getSCTBarcode( int )   const;
+  bool getIsAuxFormat() const;
 
   signed long getBarcode() const {return m_barcode; }
   FTK_RawPixelCluster& getPixelCluster( int );
@@ -90,6 +94,8 @@ class FTK_RawTrack {
   void setCotTh(float);
   void setInvPt(float);
   void setChi2(float);
+  void setIsAuxFormat(bool);
+
   //  void setQuality(float);
   void setPixelCluster(unsigned int layer,  const FTK_RawPixelCluster& );
   void setSCTCluster( unsigned int layer,    const FTK_RawSCT_Cluster&  );
@@ -97,8 +103,14 @@ class FTK_RawTrack {
   void setSCTClusters(   std::vector<FTK_RawSCT_Cluster>&  );
   void setBarcode(signed long barcode) { m_barcode = barcode; }
 
-  
  private:
+
+  inline unsigned int trackVersion() const  
+  {
+    return (m_word_th3>>24);
+  }
+
+
   uint32_t m_word_th1;
   uint32_t m_word_th2;
   uint32_t m_word_th3;
@@ -122,7 +134,6 @@ class FTK_RawTrack {
   static const float s_chi2_multiplier;
   //  static const float s_quality_multiplier;
   static const float s_invpt_multiplier;
-
 
 };
 

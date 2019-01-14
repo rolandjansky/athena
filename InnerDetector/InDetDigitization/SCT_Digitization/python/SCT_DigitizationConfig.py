@@ -258,9 +258,13 @@ def SCT_DigitizationToolSplitNoMergePU(name="SCT_DigitizationToolSplitNoMergePU"
 
 def SCT_OverlayDigitizationTool(name="SCT_OverlayDigitizationTool",**kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    kwargs.setdefault("EvtStore", overlayFlags.evtStore())
-    kwargs.setdefault("OutputObjectName", overlayFlags.evtStore() + "+SCT_RDOs")
-    kwargs.setdefault("OutputSDOName", overlayFlags.evtStore() + "+SCT_SDO_Map")
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("InputSingleHitsName", "SCT_Hits")
+        kwargs.setdefault("OutputObjectName", "StoreGateSvc+" + overlayFlags.sigPrefix() + "SCT_RDOs")
+        kwargs.setdefault("OutputSDOName", "StoreGateSvc+" + overlayFlags.sigPrefix() + "SCT_SDO_Map")
+    else:
+        kwargs.setdefault("OutputObjectName", overlayFlags.evtStore() + "+SCT_RDOs")
+        kwargs.setdefault("OutputSDOName", overlayFlags.evtStore() + "+SCT_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 0)
     return commonSCT_DigitizationConfig(name,**kwargs)
 

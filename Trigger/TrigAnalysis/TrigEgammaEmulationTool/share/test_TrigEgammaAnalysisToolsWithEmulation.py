@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ####################################################################################################
 # Job options for standalone and Tier0 running of AnalysisTools 

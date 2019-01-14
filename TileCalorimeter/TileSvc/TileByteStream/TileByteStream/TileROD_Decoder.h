@@ -1,32 +1,19 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEBYTESTREAM_TILEROD_DECODER_H
 #define TILEBYTESTREAM_TILEROD_DECODER_H
 
-#include <map>
-#include <vector>
-#include <string>
-#include <iostream>
-#include <cassert>
-#include <atomic>
-#include <stdint.h>
 
-// Gaudi includes
-#include "GaudiKernel/ToolHandle.h"
-
-// Atlas includes
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "ByteStreamData/RawEvent.h"
-#include "eformat/ROBFragment.h"
-
+// Tile includes
 #include "TileByteStream/TileOFC.h"
 #include "TileByteStream/TileRawChannel2Bytes.h" 
 #include "TileByteStream/TileRawChannel2Bytes2.h"
 #include "TileByteStream/TileRawChannel2Bytes4.h"
 #include "TileByteStream/TileRawChannel2Bytes5.h"
 #include "TileByteStream/TileDigits2Bytes.h"
+#include "TileCalibBlobObjs/TileCalibUtils.h"
 
 #include "TileEvent/TileBeamElem.h"
 #include "TileEvent/TileBeamElemContainer.h"
@@ -48,6 +35,25 @@
 #include "TileConditions/TileCondToolTiming.h"
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/ITileBadChanTool.h"
+
+// Atlas includes
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "ByteStreamData/RawEvent.h"
+#include "eformat/ROBFragment.h"
+
+// Gaudi includes
+#include "GaudiKernel/ToolHandle.h"
+
+
+#include <map>
+#include <vector>
+#include <string>
+#include <iostream>
+#include <cassert>
+#include <atomic>
+#include <mutex>
+#include <stdint.h>
+
 
 class TileRawChannelBuilder;
 class TileCellBuilder;
@@ -210,9 +216,6 @@ class TileROD_Decoder: public AthAlgTool {
       return m_hid2re;
     }
 
-    /** Check the list of masked drawers */
-    bool is_drawer_masked(int frag_id, int run);
-
     void setUseFrag0 (bool f) { m_useFrag0 = f; }
     void setUseFrag1 (bool f) { m_useFrag1 = f; }
     void setUseFrag4 (bool f) { m_useFrag4 = f; }
@@ -228,7 +231,7 @@ class TileROD_Decoder: public AthAlgTool {
     typedef std::vector<TileDigits *> pDigiVec;
     typedef std::vector<TileBeamElem *> pBeamVec;
     typedef std::vector<TileRawChannel *> pRwChVec;
-    typedef std::vector<TileFastRawChannel *> pFRwChVec;
+    typedef std::vector<TileFastRawChannel> FRwChVec;
 
     // Save ROD metadata (size frag id,Chip CRC+Headers, Trailer DMUMask+CRC)
     // First element is vector with size,frag,BCID for whole fragment,
@@ -243,7 +246,7 @@ class TileROD_Decoder: public AthAlgTool {
      for correspondent units. Coefficients automatically stored in memory,
      thus for next calls nothing loaded again. Once loaded in memory
      coefficients will be kept there and freed only by destructor method. */
-    uint32_t* getOFW(int fragId, int unit);
+    const uint32_t* getOFW(int fragId, int unit);
 
     /** unpack_frag0 decodes tile subfragment type 0x0. This subfragment contains the
      tile raw digits from the 48 read-out channels of a tilecal module. */
@@ -323,7 +326,7 @@ class TileROD_Decoder: public AthAlgTool {
      The subfragment type 0x3 contains the reconstructed parameters ONLY
      from the existing channels of a tilecal module. */
     void unpack_frag3HLT(uint32_t version, uint32_t sizeOverhead,
-                         const uint32_t* p, pFRwChVec & pChannel);
+                         const uint32_t* p, FRwChVec & pChannel);
 
     /** unpack_frag2HLT decodes tile subfragment type 0x2 for the high level trigger (HLT).
      This subfragment contains the
@@ -334,7 +337,7 @@ class TileROD_Decoder: public AthAlgTool {
      The subfragment type 0x2 contains the reconstructed parameters from the
      48 read-out channels of a tilecal module. */
     void unpack_frag2HLT(uint32_t version, uint32_t sizeOverhead,
-                         const uint32_t* p, pFRwChVec & pChannel);
+                         const uint32_t* p, FRwChVec & pChannel);
 
     /** unpack_frag4HLT decodes tile subfragment type 0x4 for the high level trigger (HLT).
      This subfragment contains the
@@ -348,7 +351,7 @@ class TileROD_Decoder: public AthAlgTool {
      The phase is encoded in ns. <p>
      The subfragment type 0x4 contains the reconstructed parameters from the
      48 read-out channels of a tilecal module. */
-    void unpack_frag4HLT(uint32_t version, uint32_t sizeOverhead, unsigned int unit, const uint32_t* p, pFRwChVec & pChannel);
+    void unpack_frag4HLT(uint32_t version, uint32_t sizeOverhead, unsigned int unit, const uint32_t* p, FRwChVec & pChannel);
 
     /** unpack_frag5HLT decodes tile subfragment type 0x5 for the high level trigger (HLT).
      This subfragment contains the
@@ -361,7 +364,7 @@ class TileROD_Decoder: public AthAlgTool {
      The phase is encoded in ns. <p>
      The subfragment type 0x5 contains the reconstructed parameters and residuals from the
      48 read-out channels of a tilecal module. */
-    void unpack_frag5HLT(uint32_t version, uint32_t sizeOverhead, unsigned int unit, const uint32_t* p, pFRwChVec & pChannel);
+    void unpack_frag5HLT(uint32_t version, uint32_t sizeOverhead, unsigned int unit, const uint32_t* p, FRwChVec & pChannel);
 
     /** unpack_fragA decodes tile subfragment type 0XA. This subfragment contains
      data quality checks. */
@@ -470,7 +473,8 @@ class TileROD_Decoder: public AthAlgTool {
     uint32_t make_copyHLT(bool of2,
                           TileRawChannelUnit::UNIT rChUnit,
                           bool correctAmplitude,
-                          pFRwChVec & pChannel, TileCellCollection& v, const uint16_t DQuality,
+                          const FRwChVec & pChannel,
+                          TileCellCollection& v, const uint16_t DQuality,
                           D0CellsHLT& d0cells);
 
     inline void make_copy(const ROBData * rob, pBeamVec & pBeam, TileBeamElemCollection& v) const;
@@ -529,8 +533,14 @@ class TileROD_Decoder: public AthAlgTool {
 	        "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
 
     // OFWeights for different units and different drawers:
-    // every element contains pointers to OFC for single drawer and one of 4 different units
-    std::vector<std::vector<uint32_t>*> m_OFWeights;
+    // every element contains OFC for single drawer and one of 4 different units
+    mutable std::vector<uint32_t> m_OFWeights[4 * TileCalibUtils::MAX_DRAWERIDX];
+
+    // Pointers to the start of the data for each vector.
+    mutable std::atomic<const uint32_t*> m_OFPtrs[4 * TileCalibUtils::MAX_DRAWERIDX];
+
+    // Mutex protecting access to weight vectors.
+    mutable std::mutex m_OFWeightMutex;
 
     float m_TileCellEthreshold;
     bool m_verbose;
@@ -546,10 +556,8 @@ class TileROD_Decoder: public AthAlgTool {
     std::string m_TileDefaultCellBuilder;
 
     // fast decoding
-    pFRwChVec m_pRwChVec;
     std::vector<int> m_Rw2Cell[4];
     std::vector<int> m_Rw2Pmt[4];
-    std::vector<TileCell*> m_cell2Double;
 
     TileFragHash m_hashFunc;
 
@@ -583,6 +591,8 @@ class TileROD_Decoder: public AthAlgTool {
 
     unsigned int m_maxChannels;
     unsigned int m_fullTileRODs;
+
+    bool m_checkMaskedDrawers;
 
     const uint32_t * get_data(const ROBData * rob) {
       const uint32_t * p;

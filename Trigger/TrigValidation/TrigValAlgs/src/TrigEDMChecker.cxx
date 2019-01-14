@@ -161,6 +161,7 @@ TrigEDMChecker::TrigEDMChecker(const std::string& name, ISvcLocator* pSvcLocator
   declareProperty("dumpTrigCompositeContainers", m_dumpTrigCompositeContainers, "List of TC to dump" );
   declareProperty("doDumpTrigCompsiteNavigation", m_doDumpTrigCompsiteNavigation = false );
   declareProperty("doDumpNavigation", m_doDumpNavigation = false );
+  declareProperty("doTDTCheck", m_doTDTCheck = false );
   declareProperty( "ClassIDSvc", m_clidSvc, "Service providing CLID info" );
 }
 
@@ -217,6 +218,8 @@ StatusCode TrigEDMChecker::initialize() {
   ATH_MSG_INFO("REGTEST m_doDumpAllTrigComposite         = " << m_doDumpAllTrigComposite );
   ATH_MSG_INFO("REGTEST m_dumpTrigCompositeContainers    = " << m_dumpTrigCompositeContainers );
   ATH_MSG_INFO("REGTEST m_doDumpTrigCompsiteNavigation   = " << m_doDumpTrigCompsiteNavigation );
+  ATH_MSG_INFO("REGTEST m_doTDTCheck                     = " << m_doTDTCheck );
+
 	
 //      puts this here for the moment
     maxRepWarnings = 5;
@@ -237,11 +240,18 @@ StatusCode TrigEDMChecker::initialize() {
     ATH_CHECK( m_clidSvc.retrieve() );
   }
 
+  if (m_doTDTCheck) {
+    ATH_CHECK( m_trigDec.retrieve() );
+    m_trigDec->ExperimentalAndExpertMethods()->enable();
+  }
+
 	return StatusCode::SUCCESS;
 }
 
 
 StatusCode TrigEDMChecker::execute() {
+
+  ATH_MSG_INFO( " ==========START of event===========" );
 
 	if(m_doDumpTrackParticleContainer){
 		StatusCode sc = dumpTrackParticleContainer();
@@ -535,12 +545,17 @@ StatusCode TrigEDMChecker::execute() {
     }
   }
 
-	ATH_CHECK( dumpTrigComposite() );
+  if (m_doDumpAll || m_doTDTCheck) {
+    ATH_CHECK(dumpTDT());
+  }
+
+  if (m_doDumpAll || m_doDumpAllTrigComposite || m_dumpTrigCompositeContainers.size() > 0) {
+  	ATH_CHECK( dumpTrigComposite() );
+  }
 
   if (m_doDumpAll || m_doDumpTrigCompsiteNavigation) {
     std::string trigCompositeSteering;
     ATH_CHECK(TrigCompositeNavigationToDot(trigCompositeSteering));
-    ATH_MSG_DEBUG(trigCompositeSteering);
     const xAOD::EventInfo* evtInfo = nullptr;
     if (evtStore()->contains<xAOD::EventInfo>("EventInfo")) {
       ATH_CHECK( evtStore()->retrieve(evtInfo) );
@@ -553,7 +568,7 @@ StatusCode TrigEDMChecker::execute() {
 
 
 
-
+  ATH_MSG_INFO( " ==========END of event===========" );
 	return StatusCode::SUCCESS;
 
 }
@@ -3994,6 +4009,18 @@ StatusCode TrigEDMChecker::dumpxAODVertex() {
 	ATH_MSG_DEBUG("dumpxAODVertex() succeeded");
 
 	return StatusCode::SUCCESS;
+}
+
+StatusCode TrigEDMChecker::dumpTDT() {
+  ATH_MSG_INFO( "REGTEST ==========START of TDT DUMP===========" );
+  // Note: This minimal TDT dumper is for use during run-3 dev
+  std::vector<std::string> confChains = m_trigDec->getListOfTriggers("HLT_.*");
+  for (const auto& item : confChains) {
+    bool passed = m_trigDec->isPassed(item, TrigDefs::requireDecision);
+    ATH_MSG_INFO("  HLT Item " << item << " passed raw? " << passed);
+  }
+  ATH_MSG_INFO( "REGTEST ==========END of TDT DUMP===========" );
+  return StatusCode::SUCCESS;
 }
 
 StatusCode TrigEDMChecker::dumpTrigComposite() {

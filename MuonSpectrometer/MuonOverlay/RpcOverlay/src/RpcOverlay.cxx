@@ -32,7 +32,6 @@ RpcOverlay::RpcOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   /** modifiable properties in job options */
   declareProperty("CopySDO", m_copySDO);
   declareProperty("RPC_SDO", m_sdo);
-  declareProperty("CopyObject", m_copyObjects=false);
 }
 
 //================================================================

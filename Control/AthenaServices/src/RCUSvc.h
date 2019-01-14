@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -13,8 +13,8 @@
  */
 
 
-#ifndef ATHENASERIVCES_RCUSVC_H
-#define ATHENASERIVCES_RCUSVC_H
+#ifndef ATHENASERVICES_RCUSVC_H
+#define ATHENASERVICES_RCUSVC_H
 
 
 #include "AthenaKernel/IRCUSvc.h"
@@ -105,4 +105,4 @@ private:
 } // namespace Athena
 
 
-#endif // not ATHENASERIVCES_RCUSVC_H
+#endif // not ATHENASERVICES_RCUSVC_H

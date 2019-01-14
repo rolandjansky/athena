@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -24,20 +24,20 @@ ISCT_CalibHistoTool::ISCT_CalibHistoTool():m_numberOfEventsHisto(0),m_thistSvc(0
 }
 
 int
-ISCT_CalibHistoTool::getNumberOfEventsInBin(const int nbin) {
+ISCT_CalibHistoTool::getNumberOfEventsInBin(const int nbin) const {
    if (m_numberOfEventsHisto) return m_numberOfEventsHisto->GetBinContent(nbin);
    std::cout << "ERROR: a histogram pointer, m_numberOfEventsHisto, is zero" << std::endl;
    return 0;
 }
 
 int
-ISCT_CalibHistoTool::size() {
+ISCT_CalibHistoTool::size() const {
    return m_numberOfEventsHisto->GetEntries();
 }
 
 
 int
-ISCT_CalibHistoTool::size(const int histogramIndex) {
+ISCT_CalibHistoTool::size(const int histogramIndex) const {
    TH1F* pHisto=0;
    int result=0;
    try {
@@ -50,7 +50,7 @@ ISCT_CalibHistoTool::size(const int histogramIndex) {
 }
 
 double
-ISCT_CalibHistoTool::getBinForHistogramIndex(const int bin, const int histogramIndex) {
+ISCT_CalibHistoTool::getBinForHistogramIndex(const int bin, const int histogramIndex) const {
    TH1F* pHisto=0;
    double result=0.0;
    try {

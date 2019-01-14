@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTGC_Cabling/TGCCableSSWToROD.h"
@@ -15,38 +15,38 @@ namespace MuonTGC_Cabling {
 TGCCableSSWToROD::TGCCableSSWToROD(std::string filename)
   : TGCCable(TGCCable::SSWToROD)
 {
-  database = new TGCDatabaseSLBToROD(filename,"SSW ALL");
+  m_database = new TGCDatabaseSLBToROD(filename,"SSW ALL");
 }
 
 TGCCableSSWToROD::TGCCableSSWToROD (void)
   : TGCCable(TGCCable::SSWToROD),
-    database(0)
+    m_database(0)
 {
 }
 
 TGCCableSSWToROD::TGCCableSSWToROD (const TGCCableSSWToROD& right)
   : TGCCable(TGCCable::SSWToROD),
-    database(0)
+    m_database(0)
 {
-  TGCDatabaseSLBToROD* mypointer = dynamic_cast<TGCDatabaseSLBToROD*>(right.database);
-  if(mypointer) database = new TGCDatabaseSLBToROD(*mypointer);
-  else database = 0;
+  TGCDatabaseSLBToROD* mypointer = dynamic_cast<TGCDatabaseSLBToROD*>(right.m_database);
+  if(mypointer) m_database = new TGCDatabaseSLBToROD(*mypointer);
+  else m_database = 0;
 }
 
 TGCCableSSWToROD& TGCCableSSWToROD::operator=(const TGCCableSSWToROD& right)
 {
   if (this != &right) {
-    delete database;
-    TGCDatabaseSLBToROD* mypointer = dynamic_cast<TGCDatabaseSLBToROD*>(right.database);
-    if(mypointer) database = new TGCDatabaseSLBToROD(*mypointer);
-    else database = 0;
+    delete m_database;
+    TGCDatabaseSLBToROD* mypointer = dynamic_cast<TGCDatabaseSLBToROD*>(right.m_database);
+    if(mypointer) m_database = new TGCDatabaseSLBToROD(*mypointer);
+    else m_database = 0;
   }
   return *this;
 }
   
 TGCCableSSWToROD::~TGCCableSSWToROD(void)
 {
-  delete database;
+  delete m_database;
 }
  
 
@@ -67,10 +67,10 @@ TGCModuleMap* TGCCableSSWToROD::getModuleIn(const TGCModuleId* rod) const {
   const int rodReadoutSector = rod->getReadoutSector();
 
   TGCModuleMap* mapId = 0;
-  const int MaxEntry = database->getMaxEntry();
+  const int MaxEntry = m_database->getMaxEntry();
   for(int i=0; i<MaxEntry; i++){
-    int id = database->getEntry(i,0);
-    int block = database->getEntry(i,1);
+    int id = m_database->getEntry(i,0);
+    int block = m_database->getEntry(i,1);
     TGCModuleSSW* ssw = new TGCModuleSSW(rodSideType,
 					 rodReadoutSector,
 					 id);
@@ -86,10 +86,10 @@ TGCModuleMap* TGCCableSSWToROD::getModuleOut(const TGCModuleId* ssw) const {
   const int sswId = ssw->getId();
 
   TGCModuleMap* mapId = 0;
-  const int MaxEntry = database->getMaxEntry();
+  const int MaxEntry = m_database->getMaxEntry();
   for(int i=0; i<MaxEntry; i++){
-    if(database->getEntry(i,0)==sswId){
-      int block = database->getEntry(i,1);
+    if(m_database->getEntry(i,0)==sswId){
+      int block = m_database->getEntry(i,1);
       TGCModuleROD* rod = new TGCModuleROD(ssw->getSideType(),
 					   ssw->getReadoutSector());      
       mapId = new TGCModuleMap();

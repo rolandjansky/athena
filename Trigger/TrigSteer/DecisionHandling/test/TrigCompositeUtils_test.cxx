@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/EventContext.h"
 #include "SGTools/TestStore.h"
 #include "TestTools/initGaudi.h"
@@ -17,6 +18,8 @@ int main() {
 
   using namespace TrigCompositeUtils;
   xAOD::TrigComposite::s_throwOnCopyError = true;
+
+  errorcheck::ReportMessage::hideFunctionNames (true);
 
   // initialize Gaudi, SG
   ISvcLocator* pSvcLoc;

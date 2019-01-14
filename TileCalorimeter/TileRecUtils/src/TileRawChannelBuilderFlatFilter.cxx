@@ -106,9 +106,12 @@ TileRawChannel* TileRawChannelBuilderFlatFilter::rawChannel(const TileDigits* di
   // use flat filter
   flatFilter(digits->samples(), gain, amplitude, time);
 
+  unsigned int drawerIdx(0), channel(0), adc(0);
+  m_tileIdTransforms->getIndices(adcId, drawerIdx, channel, adc);
+
   // flat filter calib
   if (m_calibrateEnergy) {
-    amplitude = m_tileInfo->CisCalib(adcId, amplitude);
+    amplitude = m_tileToolEmscale->doCalibCis(drawerIdx, channel, adc, amplitude);
   }
 
   ATH_MSG_VERBOSE( "Creating RawChannel a=" << amplitude << " t=" << time );
@@ -121,7 +124,8 @@ TileRawChannel* TileRawChannelBuilderFlatFilter::rawChannel(const TileDigits* di
   rawCh->assign (adcId, amplitude, time, 0, 0);
 
   if (m_correctTime) {
-    rawCh->insertTime(m_tileInfo->TimeCalib(adcId, time));
+    time -= m_tileToolTiming->getSignalPhase(drawerIdx, channel, adc);
+    rawCh->insertTime(time);
     ATH_MSG_VERBOSE( "Correcting time, new time=" << rawCh->time() );
   }
 

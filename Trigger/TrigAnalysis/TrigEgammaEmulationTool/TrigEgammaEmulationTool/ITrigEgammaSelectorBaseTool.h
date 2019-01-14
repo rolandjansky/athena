@@ -1,11 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
 
 #ifndef ITrigEgammaSelectorBaseTool_H_
 #define ITrigEgammaSelectorBaseTool_H_
 
 #include "AsgTools/IAsgTool.h"
+#include "PATCore/TAccept.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
 //xAOD include(s)
@@ -30,6 +32,9 @@
 
 #include "TrigEgammaEmulationTool/TrigEgammaInfo.h"
 #include <string>
+#include <map>
+#include "boost/any.hpp"
+
 
 
 namespace Trig{
@@ -42,6 +47,7 @@ namespace Trig{
 
             virtual bool emulation(const xAOD::EmTauRoI               * , bool&, const Trig::Info &)=0;
             virtual bool emulation(const xAOD::TrigEMCluster          * , bool&, const Trig::Info &)=0;
+            virtual bool emulation(const xAOD::IParticle              * , bool&, const Trig::Info &)=0;
             virtual bool emulation(const xAOD::IParticleContainer     * , bool&, const Trig::Info &)=0;
            
             virtual void setTe(const HLT::TriggerElement *)=0; 

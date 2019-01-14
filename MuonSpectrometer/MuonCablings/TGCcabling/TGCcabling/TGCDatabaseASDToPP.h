@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCDATABASEASDTOPP_HH
@@ -16,15 +16,15 @@ public:
   // Constructor & Destructor
   TGCDatabaseASDToPP (std::string filename, std::string blockname)
     : TGCDatabase(TGCDatabase::ASDToPP, filename, blockname), 
-    NIndexDBIn(0), NIndexDBOut(0) 
+    m_NIndexDBIn(0), m_NIndexDBOut(0) 
     {
       for(int iIndexIn=0; iIndexIn<NIndexIn; iIndexIn++) { 
-	maxIndexIn[iIndexIn] = 0; 
-	minIndexIn[iIndexIn] = 9999; 
+	m_maxIndexIn[iIndexIn] = 0; 
+	m_minIndexIn[iIndexIn] = 9999; 
       } 
       for(int iIndexOut=0; iIndexOut<NIndexOut; iIndexOut++) { 
-	maxIndexOut[iIndexOut] = 0; 
-	minIndexOut[iIndexOut] = 9999; 
+	m_maxIndexOut[iIndexOut] = 0; 
+	m_minIndexOut[iIndexOut] = 9999; 
       } 
     }
 
@@ -34,13 +34,13 @@ public:
 
   virtual int getIndexDBIn(int* indexIn);
   enum INDEXIN {NIndexIn=3}; 
-  static const int IndexIn[NIndexIn];
-  static const int ReverseIndexIn[DATABASESIZE];
+  static const int s_IndexIn[NIndexIn];
+  static const int s_ReverseIndexIn[DATABASESIZE];
 
   virtual int getIndexDBOut(int* indexOut);
   enum INDEXOUT {NIndexOut=3};
-  static const int IndexOut[NIndexOut];
-  static const int ReverseIndexOut[DATABASESIZE];
+  static const int s_IndexOut[NIndexOut];
+  static const int s_ReverseIndexOut[DATABASESIZE];
   
 private:
   virtual void readDB (void);
@@ -50,14 +50,14 @@ private:
   virtual int convertIndexDBOut(int* indexOut) const;
   TGCDatabaseASDToPP (void) {}
 
-  std::vector<int> indexDBIn;
-  int NIndexDBIn;
-  int maxIndexIn[NIndexIn];
-  int minIndexIn[NIndexIn];
-  std::vector<int> indexDBOut;
-  int NIndexDBOut;
-  int maxIndexOut[NIndexOut];
-  int minIndexOut[NIndexOut];
+  std::vector<int> m_indexDBIn;
+  int m_NIndexDBIn;
+  int m_maxIndexIn[NIndexIn];
+  int m_minIndexIn[NIndexIn];
+  std::vector<int> m_indexDBOut;
+  int m_NIndexDBOut;
+  int m_maxIndexOut[NIndexOut];
+  int m_minIndexOut[NIndexOut];
 };
   
 } // end of namespace

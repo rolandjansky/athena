@@ -279,6 +279,7 @@
     <class pattern="*_Niter_base*"/>
     <class pattern="*_Iter_base*"/>
     <class pattern="std::allocator*"/>
+    <class pattern="*initializer_list*"/>
 
   </exclusion>
 

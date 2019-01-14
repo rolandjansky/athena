@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -469,11 +469,12 @@ CONCURRENTRANGEMAP::trim (const std::vector<key_query_type>& keys)
     ++pos;
   }
 
-  // If we've deleted any object, then queue the dummy impl object
-  // for destruction, and update the begin pointer.
+  // If we've deleted any object, then update the begin pointer and
+  // queue the dummy impl object for destruction.
   if (ndel > 0) {
-    m_updater.discard (std::move (garbage));
+    // Important: m_begin must be updated _before_ the discard() call.
     m_begin = pos;
+    m_updater.discard (std::move (garbage));
   }
 
   return ndel;

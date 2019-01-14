@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -46,8 +46,8 @@ namespace Barcode {
     virtual ~LegacyBarcodeSvc();
 
     /** Athena algorithm's interface methods */
-    StatusCode  initialize();
-    StatusCode  finalize();
+    virtual StatusCode  initialize() override;
+    virtual StatusCode  finalize() override;
 
     /** Construct and insert a new set of barcode members. To be called for every new thread. */
     virtual StatusCode initializeBarcodes() override;
@@ -58,39 +58,39 @@ namespace Barcode {
     /** Generate a new unique vertex barcode, based on the parent particle barcode and
         the physics process code causing the truth vertex*/
     virtual VertexBarcode newVertex( ParticleBarcode parentBC=Barcode::fUndefinedBarcode,
-                                     PhysicsProcessCode process=Barcode::fUndefinedProcessCode );
+                                     PhysicsProcessCode process=Barcode::fUndefinedProcessCode ) override;
 
     /** Generate a new unique barcode for a secondary particle, based on the parent
         particle barcode and the process code of the physics process that created
         the secondary  */
     virtual ParticleBarcode newSecondary( ParticleBarcode parentBC=Barcode::fUndefinedBarcode,
-                                          PhysicsProcessCode process=Barcode::fUndefinedProcessCode );
+                                          PhysicsProcessCode process=Barcode::fUndefinedProcessCode ) override;
 
     /** Generate a common barcode which will be shared by all children
         of the given parent barcode (used for child particles which are
         not stored in the mc truth event) */
     virtual ParticleBarcode sharedChildBarcode( ParticleBarcode parentBC,
-                                                PhysicsProcessCode process=Barcode::fUndefinedProcessCode );
+                                                PhysicsProcessCode process=Barcode::fUndefinedProcessCode ) override;
 
     /** Update the given barcode (e.g. after an interaction) */
     virtual ParticleBarcode incrementBarcode( ParticleBarcode oldBC,
-                                              PhysicsProcessCode process=Barcode::fUndefinedProcessCode );
+                                              PhysicsProcessCode process=Barcode::fUndefinedProcessCode ) override;
 
     /** Inform the BarcodeSvc about the largest particle and vertex Barcodes
         in the event input */
-    virtual void registerLargestGenEvtParticleBC( ParticleBarcode bc);
-    virtual void registerLargestGenEvtVtxBC( VertexBarcode bc);
+    virtual void registerLargestGenEvtParticleBC( ParticleBarcode bc) override;
+    virtual void registerLargestGenEvtVtxBC( VertexBarcode bc) override;
 
     /** Return the secondary particle and vertex offsets */
-    virtual Barcode::ParticleBarcode secondaryParticleBcOffset() const;
-    virtual Barcode::VertexBarcode   secondaryVertexBcOffset()  const;
+    virtual Barcode::ParticleBarcode secondaryParticleBcOffset() const override;
+    virtual Barcode::VertexBarcode   secondaryVertexBcOffset()  const override;
 
     /** Return the barcode increment for each generation of updated particles */
-    virtual Barcode::ParticleBarcode particleGenerationIncrement() const;
+    virtual Barcode::ParticleBarcode particleGenerationIncrement() const override;
 
     /** handles to get barcode bitcalculator */
-    virtual inline Barcode::BitCalculator* getBitCalculator() const { return m_bitcalculator; }
-    virtual inline bool hasBitCalculator() const { return (m_bitcalculator!=0); }
+    virtual inline Barcode::BitCalculator* getBitCalculator() const override { return m_bitcalculator; }
+    virtual inline bool hasBitCalculator() const override { return (m_bitcalculator!=0); }
 
   private:
 

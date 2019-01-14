@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Athena/Gaudi includes
@@ -34,12 +34,8 @@
 
 
 #include "TTree.h"
-#include "TVector3.h"
-#include <functional>
-#include <algorithm>
 #include <map>
 #include <utility>
-
 
 
 namespace NSWL1 {
@@ -79,11 +75,6 @@ namespace NSWL1 {
         m_VMMDeadTime(0.),
         m_triggerCaptureWindow(0.),
         m_timeJitter(0.),
-        //m_applyTDS_TofSubtraction(false),
-        //m_applyTDS_TimeJitterSubtraction(false),
-        //m_applyVMM_ToT(false),
-        //m_applyVMM_ShapingTime(false),
-        //m_applyVMM_DeadTime(false),
         m_doNtuple(false)
     {
         declareInterface<NSWL1::IPadTdsTool>(this);
@@ -95,16 +86,10 @@ namespace NSWL1 {
         declareProperty("VMM_DeadTime", m_VMMDeadTime = 50., "the dead time of the VMM chip to produce another signal on the same channel");
         declareProperty("TriggerCaptureWindow", m_triggerCaptureWindow = 30., "time window for valid hit coincidences");
         declareProperty("TimeJitter", m_timeJitter = 2., "the time jitter");
-        //declareProperty("ApplyTDS_TofSubtraction", m_applyTDS_TofSubtraction = true, "if true remove the time of flight from the PAD digit time before the BC tag");
-        //declareProperty("ApplyTDS_TimeJitterSubtraction", m_applyTDS_TimeJitterSubtraction = true, "if true remove random jitter from the PAD digit time before the BC tag");
-        //declareProperty("ApplyVMM_ToT", m_applyVMM_ToT = false, "if true apply special processing for the Time Over Threshold in the TDS");
-        //declareProperty("ApplyVMM_ShapingTime", m_applyVMM_ShapingTime = false, "if true apply special processing for the shaping time in the TDS");
-        //declareProperty("ApplyVMM_DeatTime", m_applyVMM_DeadTime = true, "if true apply the VMM Dead Time simulation in the TDS");
         declareProperty("DoNtuple", m_doNtuple = false, "input the PadTds branches into the analysis ntuple");
 
         // reserve enough slots for the trigger sectors and fills empty vectors
         m_pad_cache.reserve(PadTdsOfflineTool::numberOfSectors());
-        //std::vector< std::vector<std::shared_ptr<PadData>> >::iterator it = m_pad_cache.begin();
         auto it = m_pad_cache.begin();
         m_pad_cache.insert(it, PadTdsOfflineTool::numberOfSectors(), std::vector<std::shared_ptr<PadData>>());
     }
@@ -345,7 +330,6 @@ namespace NSWL1 {
         sTgcDigitContainer::const_iterator it_e = digit_container->end();
         ATH_MSG_DEBUG("retrieved sTGC Digit Container with size "<<digit_container->digit_size());
 
-        //int pad_hit_number = 0;
         std::vector<PadHits> pad_hits;
         for(; it!=it_e; ++it) {
             const sTgcDigitCollection* coll = *it;
@@ -370,20 +354,14 @@ namespace NSWL1 {
                         uint16_t BCP1 = 1, BC0 = 0, BCM1 = ~BCP1;
                         if(digit->bcTag()==BCM1 || digit->bcTag()==BC0 || digit->bcTag()==BCP1) { 
                             print_digit(digit);
-                            //PadOfflineData* pad = new PadOfflineData(Id, digit->time(), digit->bcTag(), m_sTgcIdHelper);
-                            //S.I
-                            //std::shared_ptr<PadOfflineData> pad(new PadOfflineData(Id, digit->time(), digit->bcTag(), m_sTgcIdHelper));
                             auto pad=std::make_shared<PadOfflineData>(Id, digit->time(), digit->bcTag(), m_sTgcIdHelper);
-                            //pad_hits.push_back(PadHits(Id, pad, cache_index(digit)));
                             pad_hits.emplace_back(Id, pad, cache_index(digit));//avoids extra copy
-                            //S.I
                         }
                     }
                 } 
                 //////////////////////////////////////////////////////////////////////////////////////////
             } //for(item)
         } // for(it)
-        //std::sort(pad_hits.begin(),pad_hits.end(),order_padHits_with_increasing_time);
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         //// ASM - 01/3/2017 - testing timing 
@@ -438,19 +416,6 @@ namespace NSWL1 {
         PAD_MAP_IT it = channel_map.begin();
         while ( it!=channel_map.end() ) {
             
-            /*
-            std::vector<PadHits>& hits = (*it).second;
-            std::vector<PadHits>::iterator p = hits.begin();
-            while ( p!=hits.end() ) {
-                std::vector<PadHits>::iterator p_next = p+1;
-                if ( p_next!=hits.end() &&
-                    std::fabs((*p_next).t_pad->time()-(*p).t_pad->time())<=m_VMMDeadTime) {
-                    p = hits.erase(p_next);
-                    p = hits.begin();  // restart from the beginning
-                } else ++p;
-            }
-            ++it;
-            */
             std::vector<PadHits>& hits = (*it).second;
             std::vector<PadHits>::iterator p_next = hits.begin();
             std::vector<PadHits>::iterator p = p_next++;
@@ -601,7 +566,6 @@ namespace NSWL1 {
     void PadTdsOfflineTool::store_pads(const std::vector<PadHits> &pad_hits)
     {
         for (unsigned int i=0; i<pad_hits.size(); i++) {
-            //m_pad_cache.at(pad_hits[i].t_cache_index).push_back(pad_hits[i].t_pad);
             ////////////////////
             // ASM-2017-06-21
             const std::vector<std::shared_ptr<PadData>>& pads = m_pad_cache.at(pad_hits[i].t_cache_index);

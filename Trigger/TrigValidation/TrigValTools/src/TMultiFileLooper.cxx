@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -19,20 +19,20 @@ using namespace std;
 
 Int_t TMultiFileLooper::run(const char* fileListName, const char* /*rootDir*/)
 {
-  _errorCode = 0;
+  m_errorCode = 0;
 
   if (fileListName==0) {
     cout << "Invalid file list (0)" << endl;
-    _errorCode = 1;
-    return _errorCode;
+    m_errorCode = 1;
+    return m_errorCode;
   }
   
   ifstream ifs;
   ifs.open(fileListName);
   if (!ifs) {
     cout << "Cannot open file " << fileListName << endl;
-    _errorCode = 1;
-    return _errorCode;
+    m_errorCode = 1;
+    return m_errorCode;
   }
   
   while (!ifs.eof()) {
@@ -47,19 +47,19 @@ Int_t TMultiFileLooper::run(const char* fileListName, const char* /*rootDir*/)
 
 Int_t TMultiFileLooper::run()
 {
-  _errorCode = 0;
+  m_errorCode = 0;
   beginJob();
   
   vector<TString>::iterator iter;
-  for (iter=_fileList.begin(); iter!=_fileList.end(); iter++) {
+  for (iter=m_fileList.begin(); iter!=m_fileList.end(); iter++) {
     processFile(*iter);
   }
 
   endJob();
-  return _errorCode;
+  return m_errorCode;
 }
 
 void TMultiFileLooper::addFile(const char*filename)
 {
-  if (filename) _fileList.push_back(TString(filename));
+  if (filename) m_fileList.push_back(TString(filename));
 }

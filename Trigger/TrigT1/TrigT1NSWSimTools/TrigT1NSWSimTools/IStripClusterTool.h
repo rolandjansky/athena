@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISTRIPCLUSTERTOOL_H
@@ -8,7 +8,7 @@
 //basic includes
 #include "GaudiKernel/IAlgTool.h"
 //local includes
-#include "TriggerTypes.h"
+#include "TrigT1NSWSimTools/TriggerTypes.h"
 #include "TrigT1NSWSimTools/StripData.h"
 #include "TrigT1NSWSimTools/StripClusterData.h"
 #include <vector>
@@ -26,7 +26,6 @@ namespace NSWL1 {
    * This class implements the public interface of the Strip clustering Tools.
    * It Current unclear what it will output to input the StripTrigger simulation.
    *
-   *  @author Jacob Searcy <jsearcy@umich.edu>
    *
    *
    */

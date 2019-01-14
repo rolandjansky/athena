@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -35,7 +35,6 @@ SCT_CalibHvTool::SCT_CalibHvTool(const std::string& type, const std::string& nam
    m_pSCTHelper(0),
    m_sct_waferHash(0),
    m_sct_numHitsInWafer(0),
-   m_lumiBlock(0),
    m_maxq(100),
    m_phvtripPrevTime(0),
    m_phvtripFirstTime(0),

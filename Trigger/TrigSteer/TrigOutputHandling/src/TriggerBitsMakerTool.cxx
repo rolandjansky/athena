@@ -25,7 +25,21 @@ StatusCode TriggerBitsMakerTool::initialize() {
 
 StatusCode TriggerBitsMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
   auto chainsHandle = SG::makeHandle( m_finalChainDecisions );
-  for ( TrigCompositeUtils::DecisionID chain: TrigCompositeUtils::decisionIDs( chainsHandle->at( 0 )) ) {
+
+  const TrigCompositeUtils::Decision* passRawChains = nullptr;
+  for (const TrigCompositeUtils::Decision* d : *chainsHandle) {
+    if (d->name() == "HLTPassRaw") {
+      passRawChains = d;
+      break;
+    }
+  }
+
+  if (passRawChains == nullptr) {
+    ATH_MSG_ERROR("Unable to read in the HLTSummary from the DecisionSummaryMakerAlg");
+    return StatusCode::FAILURE;
+  }
+
+  for ( TrigCompositeUtils::DecisionID chain: TrigCompositeUtils::decisionIDs( passRawChains ) ) {
     auto mappingIter = m_mapping.find( chain );
     // each chain has to have stream
     if( mappingIter == m_mapping.end() ) { 

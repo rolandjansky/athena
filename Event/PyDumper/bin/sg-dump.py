@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 # @file: PyDumper/bin/sg-dump.py
 # @purpose: a simple python script to run pyathena and use PySgDumper to dump
 #           a (set of) event(s) from a POOL (esd/aod) file into an ASCII file
@@ -62,6 +62,12 @@ if __name__ == "__main__":
          help    = "list of events or event-max or (python) slice of events."\
                    " (dummy for now: only understand event-max syntax)")
 
+    _add('--skip',
+         dest    = 'skip',
+         type    = int,
+         default = 0,
+         help    = "number of events to skip.")
+
     _add("--dump-jobo",
          dest    = "dump_jobo",
          default = None,
@@ -108,6 +114,11 @@ if __name__ == "__main__":
          default = "any",
          help = "(optional) input file type (RDO,BS,ESD,AOD,DPD, or ANY)")
          
+    _add("--exclude",
+         dest = "exclude",
+         default = "",
+         help = "comma-separated list of glob patterns of keys/types to ignore")
+         
     (options, args) = parser.parse_args()
 
     input_files = []
@@ -133,9 +144,11 @@ if __name__ == "__main__":
             files=input_files,
             output=options.oname,
             nevts=int(options.evts),
+            skip=int(options.skip),
             dump_jobo=options.dump_jobo,
             use_recex_links=options.use_recex_links,
             pyalg_cls=options.pyalg_cls,
+            exclude=options.exclude,
             file_type=options.file_type,
             do_clean_up=options.do_clean_up,
             athena_opts=options.athena_opts,

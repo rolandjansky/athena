@@ -8,7 +8,7 @@
 
 // local includes
 #include <stdint.h>
-#include <ostream>
+#include <iostream>
 
 // namespace for the NSW LVL1 related classes
 namespace NSWL1 {

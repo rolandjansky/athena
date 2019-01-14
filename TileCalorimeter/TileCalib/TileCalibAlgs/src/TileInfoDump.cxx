@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi includes
@@ -894,40 +894,40 @@ void TileInfoDump::printOfcs() {
 
 
 
-  const TileOfcWeightsStruct* weights;
   for (gain = 0; gain < 2; gain++) {
     ATH_MSG_INFO(  "----------------- Gain " << gain << "-----------------" );
 
     for (int phase = Phamin; phase <= Phamax; phase += phase_step ) {
       float real_phase = float(phase) * PHASE_PRECISION;
-      weights = m_tileToolOfcCool->getOfcWeights(drawerIdx, m_printOfcChannel, gain, real_phase, true);
+      TileOfcWeightsStruct weights;
+      m_tileToolOfcCool->getOfcWeights(drawerIdx, m_printOfcChannel, gain, real_phase, true, weights).ignore();
 
       ATH_MSG_INFO( "OFC phase " << real_phase << " ns");
 
       msg(MSG::INFO) << "OFC A";
-      for (int i = 0; i < weights->n_samples; i++)
-        msg(MSG::INFO) << " " << weights->w_a[i];
+      for (int i = 0; i < weights.n_samples; i++)
+        msg(MSG::INFO) << " " << weights.w_a[i];
       msg(MSG::INFO) << endmsg;
 
       msg(MSG::INFO) << "OFC B";
-      for (int i = 0; i < weights->n_samples; i++)
-        msg(MSG::INFO) << " " << weights->w_b[i];
+      for (int i = 0; i < weights.n_samples; i++)
+        msg(MSG::INFO) << " " << weights.w_b[i];
       msg(MSG::INFO) << endmsg;
 
       msg(MSG::INFO) << "OFC C";
-      for (int i = 0; i < weights->n_samples; i++)
-        msg(MSG::INFO) << " " << weights->w_c[i];
+      for (int i = 0; i < weights.n_samples; i++)
+        msg(MSG::INFO) << " " << weights.w_c[i];
       msg(MSG::INFO) << endmsg;
 
       msg(MSG::INFO) << "OFC G";
-      for (int i = 0; i < weights->n_samples; i++)
-        msg(MSG::INFO) << " " << weights->g[i];
+      for (int i = 0; i < weights.n_samples; i++)
+        msg(MSG::INFO) << " " << weights.g[i];
       msg(MSG::INFO) << endmsg;
 
       if (NFields >= 5) {
         msg(MSG::INFO) << "OFC DG";
-        for (int i = 0; i < weights->n_samples; i++)
-          msg(MSG::INFO) << " " << weights->dg[i];
+        for (int i = 0; i < weights.n_samples; i++)
+          msg(MSG::INFO) << " " << weights.dg[i];
         msg(MSG::INFO) << endmsg;
       }
 

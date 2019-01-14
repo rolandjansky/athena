@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ITPCnvBase.h 
@@ -32,8 +32,9 @@ class ITPCnvBase
 #else  
   typedef Gaudi::PluginService::Factory0<ITPCnvBase*> Factory;
 #endif
+
   /// Destructor: 
-  virtual ~ITPCnvBase(); 
+  virtual ~ITPCnvBase() = default;
 
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DQATLASREADYFILTERTOOL_H
@@ -27,7 +27,6 @@ class DQAtlasReadyFilterTool :  public AthAlgTool, virtual public IDQFilterTool 
  private:
   bool m_fallbackValue;
   bool m_alwaysReturnTrue;
-  bool m_valueCache;
   SG::ReadCondHandleKey<AthenaAttributeList> m_key;
 };
 

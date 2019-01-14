@@ -17,15 +17,8 @@
  *
  *****************************************************************************/
 
-#ifndef _CPP_SSTREAM
- #include <sstream>
-#endif
-#ifndef _STDIO_H
- #include "stdio.h"
-#endif
-#ifndef GAUDIKERNEL_SYSTEM_H
- #include "GaudiKernel/System.h"
-#endif
+#include <sstream>
+#include "GaudiKernel/System.h"
 
 template<typename T>
 void CallBackID::set( StatusCode (T::*updF)(IOVSVC_CALLBACK_ARGS), 
@@ -40,11 +33,6 @@ void CallBackID::set( StatusCode (T::*updF)(IOVSVC_CALLBACK_ARGS),
   p_obj = (void*) obj;
   m_offset = u.i;
   
-  // make allowances for various versions of gcc
-  #if (__GNUC__ < 3)
-     m_offset /= 0x10000;
-  #endif
-
   std::ostringstream ost;
   ost << std::hex << "[0x" << (long)p_obj << "]+" << m_offset;
   

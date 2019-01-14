@@ -1,6 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 from egammaRec.Factories  import ToolFactory,FcnWrapper,AlgFactory, getPropertyValue
@@ -59,94 +57,62 @@ EgammaL2CaloTightEmulator = EgammaL2CaloLooseEmulator.copy(
 # L2 Electron configurations
 EgammaL2ElectronEmulator  = ToolFactory(Trig__TrigEgammaL2ElectronSelectorTool,
                                         name                     = "TrigEgammaL2ElectronEmulator",
-                                        EtaBins                  = EtaBins,
-                                        EtaBinsTRT               = EtaBins,
                                         OutputLevel              = OutputLevel,
-                                        CaloTrackdEoverPLow      = 9*[0.0],
-                                        CaloTrackdEoverPHigh     = 9*[999.0],
-                                        TRTRatio                 = 9*[-999.],
-                                        CaloTrackdEoverPLowTRT   = 9*[0.0],
-                                        CaloTrackdEoverPHighTRT  = 9*[999.0],
-                                        TRTRatioTRT              = 9*[-999.],
-                                        CaloTrackdETATRT         = 9*[999.],
-                                        CaloTrackdETA            = 9*[0.2],
-                                        CaloTrackdPHI            = 9*[999.])
+                                        CaloTrackdEoverPLow      = 0.0,
+                                        CaloTrackdEoverPHigh     = 999.,
+                                        TRTRatio                 = -999.,
+                                        CaloTrackdETA            = 0.2,
+                                        CaloTrackdPHI            = 0.3,)
+
 #********************************************************************************
 # L2 Calo Ringer configurations: high energy, up to 20GeV
 
-from TrigMultiVarHypo.TrigL2CaloRingerConstants import SignaturesMap
-from TrigMultiVarHypo.TrigL2CaloRingerCutDefs            import TrigL2CaloRingerCutDefs
 from TrigEgammaEmulationTool.TrigEgammaEmulationToolConf import Trig__TrigEgammaL2CaloRingerSelectorTool
+from TrigMultiVarHypo.TrigL2CaloRingerHypoConfig         import TrigL2CaloRingerPidConfs
+from TrigMultiVarHypo.TrigRingerPreprocessorDefs         import Norm1
 
-# Medium
-theCutDefs  = TrigL2CaloRingerCutDefs( 20, 'lhmedium' ,'e')
-EgammaL2RingerMediumEmulator = ToolFactory(Trig__TrigEgammaL2CaloRingerSelectorTool,
-                                           name              = "TrigEgammaL2CaloRingerMediumEmulator",
-                                           Nodes             = theCutDefs.Nodes,
-                                           Weights           = theCutDefs.Weights,
-                                           Bias              = theCutDefs.Bias,
-                                           Thresholds        = theCutDefs.Thresholds,
-                                           EtBins            = theCutDefs.EtBins,
-                                           EtaBins           = theCutDefs.EtaBins,
-                                           OutputLevel       = OutputLevel,
-                                           NormalisationRings= theCutDefs.NormalisationRings,
-                                           SectionRings      = theCutDefs.SectionRings,
-                                           NRings            = theCutDefs.NRings) 
- 
-#********************************************************************************
-# Tight
-theCutDefs  = TrigL2CaloRingerCutDefs( 20, 'lhtight' ,'e')
-EgammaL2RingerTightEmulator = EgammaL2RingerMediumEmulator.copy(
-                              name              = "TrigEgammaL2CaloRingerTightEmulator",
-                              Nodes             = theCutDefs.Nodes,
-                              Weights           = theCutDefs.Weights,
-                              Bias              = theCutDefs.Bias,
-                              Thresholds        = theCutDefs.Thresholds,
-                              EtBins            = theCutDefs.EtBins,
-                              EtaBins           = theCutDefs.EtaBins,
-                              OutputLevel       = OutputLevel,
-                              NormalisationRings= theCutDefs.NormalisationRings,
-                              SectionRings      = theCutDefs.SectionRings,
-                              NRings            = theCutDefs.NRings) 
- 
-#********************************************************************************
-# Loose
-theCutDefs  = TrigL2CaloRingerCutDefs( 20, 'lhloose' ,'e')
-EgammaL2RingerLooseEmulator = EgammaL2RingerMediumEmulator.copy(
-                              name              = "TrigEgammaL2CaloRingerLooseEmulator",
-                              Nodes             = theCutDefs.Nodes,
-                              Weights           = theCutDefs.Weights,
-                              Bias              = theCutDefs.Bias,
-                              Thresholds        = theCutDefs.Thresholds,
-                              EtBins            = theCutDefs.EtBins,
-                              EtaBins           = theCutDefs.EtaBins,
-                              OutputLevel       = OutputLevel,
-                              NormalisationRings= theCutDefs.NormalisationRings,
-                              SectionRings      = theCutDefs.SectionRings,
-                              NRings            = theCutDefs.NRings)
- 
-#********************************************************************************
-# VeryLoose
-theCutDefs  = TrigL2CaloRingerCutDefs( 20, 'lhvloose' ,'e')
-EgammaL2RingerVeryLooseEmulator = EgammaL2RingerMediumEmulator.copy(
-                                  name              = "TrigEgammaL2CaloRingerVeryLooseEmulator",
-                                  Nodes             = theCutDefs.Nodes,
-                                  Weights           = theCutDefs.Weights,
-                                  Bias              = theCutDefs.Bias,
-                                  Thresholds        = theCutDefs.Thresholds,
-                                  EtBins            = theCutDefs.EtBins,
-                                  EtaBins           = theCutDefs.EtaBins,
-                                  OutputLevel       = OutputLevel,
-                                  NormalisationRings= theCutDefs.NormalisationRings,
-                                  SectionRings      = theCutDefs.SectionRings,
-                                  NRings            = theCutDefs.NRings)
- 
-#********************************************************************************
+theRingerConfig = TrigL2CaloRingerPidConfs()
+preproc = Norm1()
 
+EgammaL2RingerVeryLooseEmulator = ToolFactory(Trig__TrigEgammaL2CaloRingerSelectorTool,
+                                           name                = "TrigEgammaL2CaloRingerVeryLooseEmulator",
+                                           NormalisationRings  = preproc.NormalisationRings,
+                                           SectionRings        = preproc.SectionRings,
+                                           NRings              = preproc.NRings,
+                                           OutputLevel         = OutputLevel,
+                                           CalibPathConstants  = theRingerConfig.get_constants_path('e', 'lhvloose'), 
+                                           CalibPathThresholds = theRingerConfig.get_cutDefs_path('e', 'lhvloose'), 
+                                           ) 
 
+EgammaL2RingerTightEmulator = EgammaL2RingerVeryLooseEmulator.copy(
+                                           name                = "TrigEgammaL2CaloRingerTightEmulator",
+                                           NormalisationRings  = preproc.NormalisationRings,
+                                           SectionRings        = preproc.SectionRings,
+                                           NRings              = preproc.NRings,
+                                           OutputLevel         = OutputLevel,
+                                           CalibPathConstants  = theRingerConfig.get_constants_path('e', 'lhtight') ,
+                                           CalibPathThresholds = theRingerConfig.get_cutDefs_path('e', 'lhtight') ,
+                                           ) 
 
+EgammaL2RingerMediumEmulator = EgammaL2RingerVeryLooseEmulator.copy(
+                                           name                = "TrigEgammaL2CaloRingerMediumEmulator",
+                                           NormalisationRings  = preproc.NormalisationRings,
+                                           SectionRings        = preproc.SectionRings,
+                                           NRings              = preproc.NRings,
+                                           OutputLevel         = OutputLevel,
+                                           CalibPathConstants  = theRingerConfig.get_constants_path('e', 'lhmedium') ,
+                                           CalibPathThresholds = theRingerConfig.get_cutDefs_path('e', 'lhmedium') ,
+                                           ) 
 
-
+EgammaL2RingerLooseEmulator = EgammaL2RingerVeryLooseEmulator.copy(
+                                           name                = "TrigEgammaL2CaloRingerLooseEmulator",
+                                           NormalisationRings  = preproc.NormalisationRings,
+                                           SectionRings        = preproc.SectionRings,
+                                           NRings              = preproc.NRings,
+                                           OutputLevel         = OutputLevel,
+                                           CalibPathConstants  = theRingerConfig.get_constants_path('e', 'lhloose') ,
+                                           CalibPathThresholds = theRingerConfig.get_cutDefs_path('e', 'lhloose') ,
+                                           ) 
 
 
 

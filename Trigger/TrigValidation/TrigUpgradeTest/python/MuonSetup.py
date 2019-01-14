@@ -142,9 +142,7 @@ def makeMuonPrepDataAlgs():
   ToolSvc += MuonTgcRawDataProviderTool
     
   from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataTool
-  TgcRdoToTgcPrepDataTool = Muon__TgcRdoToPrepDataTool(name                = "TgcRdoToPrepDataTool",
-                                                       RawDataProviderTool = MuonTgcRawDataProviderTool,
-                                                       useBStoRdoTool      = True)
+  TgcRdoToTgcPrepDataTool = Muon__TgcRdoToPrepDataTool(name                = "TgcRdoToPrepDataTool")
   ToolSvc += TgcRdoToTgcPrepDataTool
 
   from MuonRdoToPrepData.MuonRdoToPrepDataConf import TgcRdoToTgcPrepData
@@ -158,9 +156,10 @@ def makeMuonPrepDataAlgs():
   TgcRawDataProvider = Muon__TgcRawDataProvider(name         = "TgcRawDataProvider",
                                                 ProviderTool = MuonTgcRawDataProviderTool )
 
+  eventAlgs_MuonPRD.append( TgcRawDataProvider )
   eventAlgs_MuonPRD.append( TgcRdoToTgcPrepData )
+  viewAlgs_MuonPRD.append( TgcRawDataProvider )
   viewAlgs_MuonPRD.append( TgcRdoToTgcPrepData )
-
 
   if muonRecFlags.doCreateClusters():  
     #Run clustering
@@ -316,11 +315,8 @@ def muFastRecoSequence( RoIs, OutputLevel=INFO ):
     
   from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataTool
   TgcRdoToTgcPrepDataTool = Muon__TgcRdoToPrepDataTool(name                 = "TgcRdoToPrepDataTool_L2SA",
-                                                       RawDataProviderTool  = MuonTgcRawDataProviderTool,
-                                                       RDOContainer         = MuonTgcRawDataProviderTool.RdoLocation,
                                                        OutputCollection     = "TGC_Measurements_L2SA",
                                                        OutputCoinCollection = "TrigT1CoinDataCollection_L2SA",
-                                                       useBStoRdoTool       = True,
                                                        OutputLevel = OutputLevel )
 
   ToolSvc += TgcRdoToTgcPrepDataTool

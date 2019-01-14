@@ -790,14 +790,15 @@ tileInfoConfigurator.OutputLevel = OutputLevel
 # use correct timing constants for different run types
 from TileConditions.TileCondToolConf import *
 if TilePhysTiming:
-    if RUN2 and TileLasPulse: tileInfoConfigurator.TileCondToolTiming = getTileCondToolTiming( 'COOL','GAPLAS')
-    else:                     tileInfoConfigurator.TileCondToolTiming = getTileCondToolTiming( 'COOL','PHY')
+    if RUN2 and TileLasPulse: tileCondToolTiming = getTileCondToolTiming( 'COOL','GAPLAS')
+    else:                     tileCondToolTiming = getTileCondToolTiming( 'COOL','PHY')
 elif TileLasPulse:
-    tileInfoConfigurator.TileCondToolTiming = getTileCondToolTiming( 'COOL','LAS')
+    tileCondToolTiming = getTileCondToolTiming( 'COOL','LAS')
 elif TileCisPulse:
-    tileInfoConfigurator.TileCondToolTiming = getTileCondToolTiming( 'COOL','CIS')
+    tileCondToolTiming = getTileCondToolTiming( 'COOL','CIS')
 else:
-    tileInfoConfigurator.TileCondToolTiming = getTileCondToolTiming( 'COOL','PHY')
+    tileCondToolTiming = getTileCondToolTiming( 'COOL','PHY')
+tileInfoConfigurator.TileCondToolTiming = tileCondToolTiming
 print tileInfoConfigurator
 
 #============================================================
@@ -813,7 +814,6 @@ if not OfcFromCOOL and (doTileOpt2 or doTileOptATLAS or doTileOF1):
     tileCondToolOfc = TileCondToolOfc()
     tileCondToolOfc.nSamples = TileFrameLength # default = 7
     tileCondToolOfc.OptFilterDeltaCorrelation = False # False - use matrix from DB
-    tileCondToolOfc.CacheSize = 0 # (max phases per channel) 0-no cache (default)
     tileCondToolOfc.OutputLevel = OutputLevel
 
     ToolSvc += tileCondToolOfc
@@ -846,6 +846,9 @@ else:
 #=============================================================
 #=== read ByteStream and reconstruct data
 #=============================================================
+tileRawChannelBuilderFitFilter = None
+tileRawChannelBuilderOpt2Filter = None
+tileRawChannelBuilderOptATLAS = None
 tileDigitsContainer = ''
 if not ReadPool:
     include( "ByteStreamCnvSvcBase/BSAddProvSvc_RDO_jobOptions.py" )
@@ -853,7 +856,7 @@ if not ReadPool:
 
     from TileByteStream.TileByteStreamConf import TileROD_Decoder
     ToolSvc += TileROD_Decoder()
-    ToolSvc.TileROD_Decoder.TileCondToolTiming = tileInfoConfigurator.TileCondToolTiming
+    ToolSvc.TileROD_Decoder.TileCondToolTiming = tileCondToolTiming
     if TileCompareMode:
         ToolSvc.TileROD_Decoder.useFrag5Raw  = True
         ToolSvc.TileROD_Decoder.useFrag5Reco = True
@@ -867,6 +870,9 @@ else:
     if ReadDigits:
         from TileRecUtils.TileRawChannelGetter import *
         theTileRawChannelGetter=TileRawChannelGetter()
+        tileRawChannelBuilderFitFilter = theTileRawChannelGetter.TileRawChannelBuilderFitFilter()
+        tileRawChannelBuilderOpt2Filter = theTileRawChannelGetter.TileRawChannelBuilderOpt2Filter()
+        tileRawChannelBuilderOptATLAS = theTileRawChannelGetter.TileRawChannelBuilderOptATLAS()
         if doRecoESD:
             topSequence.TileRChMaker.TileDigitsContainer="TileDigitsFlt"
             tileDigitsContainer = 'TileDigitsFlt'
@@ -875,12 +881,12 @@ from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
 dqStatus = TileDQstatusAlgDefault (TileDigitsContainer = tileDigitsContainer,
                                    TileRawChannelContainer = '')
 
-if doTileFit:
-    ToolSvc.TileRawChannelBuilderFitFilter.MaxTimeFromPeak = 250.0; # recover behaviour of rel 13.0.30  
-    ToolSvc.TileRawChannelBuilderFitFilter.RMSChannelNoise = 3; 
-    ToolSvc.TileRawChannelBuilderFitFilter.UseDSPCorrection = not TileBiGainRun
+if doTileFit and tileRawChannelBuilderFitFilter:
+    tileRawChannelBuilderFitFilter.MaxTimeFromPeak = 250.0; # recover behaviour of rel 13.0.30  
+    tileRawChannelBuilderFitFilter.RMSChannelNoise = 3; 
+    tileRawChannelBuilderFitFilter.UseDSPCorrection = not TileBiGainRun
 
-    print ToolSvc.TileRawChannelBuilderFitFilter
+    print tileRawChannelBuilderFitFilter
 
 if doTileFitCool:
     ToolSvc.TileRawChannelBuilderFitFilterCool.MaxTimeFromPeak = 250.0; # recover behaviour of rel 13.0.30  
@@ -890,33 +896,34 @@ if doTileFitCool:
 
 if doTileOpt2:
 
-    if TileMonoRun or TileRampRun:
-        ToolSvc.TileRawChannelBuilderOpt2Filter.MaxIterations = 3 # 3 iterations to match DSP reco
-        if TileCompareMode or TileEmulateDSP:
-            ToolSvc.TileRawChannelBuilderOpt2Filter.EmulateDSP = True # use dsp emulation
-    ToolSvc.TileRawChannelBuilderOpt2Filter.UseDSPCorrection = not TileBiGainRun
-    
-    print ToolSvc.TileRawChannelBuilderOpt2Filter
+    if tileRawChannelBuilderOpt2Filter:
+        if TileMonoRun or TileRampRun:
+            tileRawChannelBuilderOpt2Filter.MaxIterations = 3 # 3 iterations to match DSP reco
+            if TileCompareMode or TileEmulateDSP:
+                tileRawChannelBuilderOpt2Filter.EmulateDSP = True # use dsp emulation
+        tileRawChannelBuilderOpt2Filter.UseDSPCorrection = not TileBiGainRun
 
-if doTileOptATLAS:
+        print tileRawChannelBuilderOpt2Filter
+
+if doTileOptATLAS and tileRawChannelBuilderOptATLAS:
     if ReadPool:
-        ToolSvc.TileRawChannelBuilderOptATLAS.TileRawChannelContainer = "TileRawChannelFixed"
+        tileRawChannelBuilderOptATLAS.TileRawChannelContainer = "TileRawChannelFixed"
 
     if PhaseFromCOOL:
-        ToolSvc.TileRawChannelBuilderOptATLAS.TileCondToolTiming = tileInfoConfigurator.TileCondToolTiming
-        ToolSvc.TileRawChannelBuilderOptATLAS.correctTime = False; # do not need to correct time with best phase
+        tileRawChannelBuilderOptATLAS.TileCondToolTiming = tileCondToolTiming
+        tileRawChannelBuilderOptATLAS.correctTime = False; # do not need to correct time with best phase
 
-    ToolSvc.TileRawChannelBuilderOptATLAS.BestPhase   = PhaseFromCOOL; # Phase from COOL or assume phase=0
+    tileRawChannelBuilderOptATLAS.BestPhase   = PhaseFromCOOL; # Phase from COOL or assume phase=0
     if TileCompareMode or TileEmulateDSP:
-        ToolSvc.TileRawChannelBuilderOptATLAS.EmulateDSP = True # use dsp emulation
-    ToolSvc.TileRawChannelBuilderOptATLAS.UseDSPCorrection = not TileBiGainRun
+        tileRawChannelBuilderOptATLAS.EmulateDSP = True # use dsp emulation
+    tileRawChannelBuilderOptATLAS.UseDSPCorrection = not TileBiGainRun
 
-    print ToolSvc.TileRawChannelBuilderOptATLAS
+    print tileRawChannelBuilderOptATLAS
     
 if doTileMF:
 
     if PhaseFromCOOL:
-        ToolSvc.TileRawChannelBuilderMF.TileCondToolTiming = tileInfoConfigurator.TileCondToolTiming
+        ToolSvc.TileRawChannelBuilderMF.TileCondToolTiming = tileCondToolTiming
         ToolSvc.TileRawChannelBuilderMF.correctTime = False; # do not need to correct time with best phase
 
     ToolSvc.TileRawChannelBuilderMF.BestPhase   = PhaseFromCOOL; # Phase from COOL or assume phase=0
@@ -935,7 +942,7 @@ if doTileOF1:
     ToolSvc.TileRawChannelBuilderOF1.PedestalMode = TileOF1Ped  
 
     if PhaseFromCOOL:
-        ToolSvc.TileRawChannelBuilderOF1.TileCondToolTiming = tileInfoConfigurator.TileCondToolTiming
+        ToolSvc.TileRawChannelBuilderOF1.TileCondToolTiming = tileCondToolTiming
         ToolSvc.TileRawChannelBuilderOF1.correctTime = False # do not need to correct time with best phase
 
     ToolSvc.TileRawChannelBuilderOF1.BestPhase   = PhaseFromCOOL # Phase from COOL or assume phase=0
@@ -1048,6 +1055,13 @@ if (doTileNtuple or doD3PD):
 
 
 if doD3PD:
+    try:
+        import CaloSysD3PDMaker
+    except ImportError:
+        doD3PD = False
+        log.warning ('CaloSysD3PDMaker not available; not making D3PD.')
+
+if doD3PD:
 
     def _args (level, name, kwin, **kw):
         kw = kw.copy()
@@ -1070,8 +1084,8 @@ if doD3PD:
         alg = MakerAlg(tuplename, seq, file = file ,D3PDSvc =D3PDSvc,streamNameRoot =streamNameRoot)
 
         if doCaloNtuple:
-            from CaloD3PDMaker.TileDetailsD3PDObject import TileDetailsD3PDObject
-            from CaloD3PDMaker.CaloInfoD3PDObject import CaloInfoD3PDObject
+            from CaloSysD3PDMaker.TileDetailsD3PDObject import TileDetailsD3PDObject
+            from CaloSysD3PDMaker.CaloInfoD3PDObject import CaloInfoD3PDObject
             from CaloD3PDMaker.MBTSD3PDObject import MBTSD3PDObject
 
             if doRecoESD and doCaloCell:
@@ -1118,15 +1132,15 @@ if doD3PD:
             alg+= xAODClusterD3PDObject(**_args(3, 'topo_cl',kw, sgkey='TileTopoCluster', prefix='topo_'))
 
         if doTileMuId:
-            from CaloD3PDMaker.TileMuD3PDObject import TileMuD3PDObject
+            from CaloSysD3PDMaker.TileMuD3PDObject import TileMuD3PDObject
             alg += TileMuD3PDObject(**_args(0,'TileMus',kw,sgkey='TileMuObj',prefix='tilemuid_'))
 
         if doTileRODMuId:
-            from CaloD3PDMaker.TileL2D3PDObject import TileL2D3PDObject
+            from CaloSysD3PDMaker.TileL2D3PDObject import TileL2D3PDObject
             alg += TileL2D3PDObject(**_args(2,'TileL2s',kw,exclude=['TileL2'],sgkey='TileL2Cnt',prefix='tilemurod_'))
 
         if doTileMuonFitter:
-            from CaloD3PDMaker.TileCosmicMuonD3PDObject import TileCosmicMuonD3PDObject
+            from CaloSysD3PDMaker.TileCosmicMuonD3PDObject import TileCosmicMuonD3PDObject
             if not 'doTMFMethod' in dir():
                 doTMFMethod = 'Hough'
 
@@ -1218,9 +1232,6 @@ if doTileMon:
         runType = 10
     else:
         runType = TileRunType
-
-    from TileRecUtils.TileBeamInfoProviderDefault import TileBeamInfoProviderDefault
-    TileBeamInfoProviderDefault()
 
     from AthenaMonitoring.AthenaMonitoringConf import *
     TileMon = AthenaMonManager( "TileMon" )

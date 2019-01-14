@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <fstream>
@@ -12,16 +12,16 @@ namespace LVL1TGCCabling8
 {
 
 void TGCDatabaseInPP::readDB (void) {
-  std::ifstream file(filename.c_str());
+  std::ifstream file(m_filename.c_str());
   std::string buf;
 
   for(int iIndexIn=0; iIndexIn<NIndexIn; iIndexIn++) {
-    maxIndexIn[iIndexIn] = 0; 
-    minIndexIn[iIndexIn] = 9999; 
+    m_maxIndexIn[iIndexIn] = 0; 
+    m_minIndexIn[iIndexIn] = 9999; 
   }
 
   while(getline(file,buf)){
-    if(buf.substr(0,blockname.size())==blockname) break;
+    if(buf.substr(0,m_blockname.size())==m_blockname) break;
   }
 
   while(getline(file,buf)){
@@ -35,11 +35,11 @@ void TGCDatabaseInPP::readDB (void) {
 
       if(IndexInMin<=i && i<=IndexInMax) {
 	int j = i-IndexInMin;
-	if(maxIndexIn[j]<temp) {
-	  maxIndexIn[j] = temp;
+	if(m_maxIndexIn[j]<temp) {
+	  m_maxIndexIn[j] = temp;
 	} 
-	if(minIndexIn[j]>temp) {
-	  minIndexIn[j] = temp;
+	if(m_minIndexIn[j]>temp) {
+	  m_minIndexIn[j] = temp;
 	}
       }
     }
@@ -49,7 +49,7 @@ void TGCDatabaseInPP::readDB (void) {
       if(temp<0) break;
       entry.push_back(temp);
     }
-    database.push_back(entry);
+    m_database.push_back(entry);
   }
 
   file.close();
@@ -59,30 +59,30 @@ void TGCDatabaseInPP::readDB (void) {
 
 void TGCDatabaseInPP::makeIndexDBIn (void) 
 {
-  NIndexDBIn = 1;
+  m_NIndexDBIn = 1;
   for(int iIndexIn=0; iIndexIn<NIndexIn; iIndexIn++) {
-    NIndexDBIn *= (maxIndexIn[iIndexIn]-minIndexIn[iIndexIn]+1);
+    m_NIndexDBIn *= (m_maxIndexIn[iIndexIn]-m_minIndexIn[iIndexIn]+1);
   }
-  for(int iIndexDBIn=0; iIndexDBIn<NIndexDBIn; iIndexDBIn++) {
-    indexDBIn.push_back(-1); 
+  for(int iIndexDBIn=0; iIndexDBIn<m_NIndexDBIn; iIndexDBIn++) {
+    m_indexDBIn.push_back(-1); 
   }
 
-  const int size = database.size();
+  const int size = m_database.size();
   for(int i=0; i<size; i++) {
     int tmpValIndexIn[NIndexIn];
     for(int iIndexIn=0; iIndexIn<NIndexIn; iIndexIn++) {
-      tmpValIndexIn[iIndexIn] = database.at(i).at(iIndexIn+IndexInMin);
+      tmpValIndexIn[iIndexIn] = m_database.at(i).at(iIndexIn+IndexInMin);
     }
-    indexDBIn.at(convertIndexDBIn(tmpValIndexIn)) = i;
+    m_indexDBIn.at(convertIndexDBIn(tmpValIndexIn)) = i;
   }
 }
 
 int TGCDatabaseInPP::convertIndexDBIn(int* indexIn) const 
 {
-  int converted = indexIn[0]-minIndexIn[0];  
+  int converted = indexIn[0]-m_minIndexIn[0];  
   for(int iIndexIn=1; iIndexIn<NIndexIn; iIndexIn++) {
-    converted *= (maxIndexIn[iIndexIn]-minIndexIn[iIndexIn]+1); 
-    converted += indexIn[iIndexIn]-minIndexIn[iIndexIn];
+    converted *= (m_maxIndexIn[iIndexIn]-m_minIndexIn[iIndexIn]+1); 
+    converted += indexIn[iIndexIn]-m_minIndexIn[iIndexIn];
   }
   return converted;
 }
@@ -91,12 +91,12 @@ int TGCDatabaseInPP::getIndexDBIn(int* indexIn)
 {
   if(!indexIn) return -1;
 
-  if(database.size()==0) readDB();
+  if(m_database.size()==0) readDB();
   
   int converted = convertIndexDBIn(indexIn);
-  if(converted<0 || converted>=NIndexDBIn) return -1;
+  if(converted<0 || converted>=m_NIndexDBIn) return -1;
 
-  return indexDBIn.at(converted);
+  return m_indexDBIn.at(converted);
 }
 
 } // end of namespace

@@ -29,10 +29,6 @@ void FTK_RawTrackCnv_p1::persToTrans(const FTK_RawTrack_p1* persObj,
   }
   transObj->setPixelClusters(pix_clusters);
 
-
-  // SCT Clusters //
-  //FTK_RawSCT_Cluster sct_1(), sct_2(), sct_3(), sct_4(), sct_5(), sct_6(), sct_7(), sct_8;
- 
   std::vector<FTK_RawSCT_Cluster> sct_clusters;
 
   for (unsigned int isct=0; isct<8; isct++) {

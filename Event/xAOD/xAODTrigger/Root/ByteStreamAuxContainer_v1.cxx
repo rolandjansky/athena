@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ByteStreamAuxContainer_v1.cxx 793760 2017-01-25 02:02:33Z ssnyder $
@@ -137,8 +137,9 @@ namespace xAOD {
       if (ret) {
         // Raise exception if locked and not a decoration.
         if (m_locked) {
-          if ( ! (auxid < m_isDecoration.size() && m_isDecoration[auxid]) )
+          if ( ! m_decorations.test (auxid) ) {
             throw SG::ExcStoreLocked (auxid);
+          }
         }
         return ret;
       }
@@ -148,12 +149,18 @@ namespace xAOD {
 
       // If locked, mark as a decoration.
       if (m_locked) {
-        if (m_isDecoration.size() <= auxid)
-          m_isDecoration.resize (auxid+1);
-        m_isDecoration[auxid] = true;
+        m_decorations.insert (auxid);
       }
 
       return ret;
+   }
+
+
+   /// Test if a variable is a decoration.
+   bool ByteStreamAuxContainer_v1::isDecoration (auxid_t auxid) const
+   {
+      guard_t guard (m_mutex);
+      return m_locked && m_decorations.test (auxid);
    }
 
 
@@ -170,29 +177,26 @@ namespace xAOD {
      const SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
 
      bool anycleared = false;
-     size_t sz = m_isDecoration.size();
-     for (auxid_t auxid = 0; auxid < sz; auxid++) {
-       if (m_isDecoration[auxid]) {
-         if (m_dynamicVecs[auxid]) {
-           delete m_dynamicVecs[auxid];
-           m_dynamicVecs[auxid] = 0;
-           m_auxids.erase( auxid );
-           anycleared = true;
+     for (auxid_t auxid : m_decorations) {
+       if (m_dynamicVecs[auxid]) {
+         delete m_dynamicVecs[auxid];
+         m_dynamicVecs[auxid] = 0;
+         m_auxids.erase( auxid );
+         anycleared = true;
 
-           const std::string name = r.getName( auxid );
-           const std::type_info* ti = r.getType( auxid );
-           if (ti == &typeid(int))
-             m_int.erase (name);
-           else if (ti == &typeid(float))
-             m_float.erase (name);
-           else if (ti == &typeid(std::vector<int>))
-             m_vecInt.erase (name);
-           else if (ti == &typeid(std::vector<float>))
-             m_vecFloat.erase (name);
-         }
+         const std::string name = r.getName( auxid );
+         const std::type_info* ti = r.getType( auxid );
+         if (ti == &typeid(int))
+           m_int.erase (name);
+         else if (ti == &typeid(float))
+           m_float.erase (name);
+         else if (ti == &typeid(std::vector<int>))
+           m_vecInt.erase (name);
+         else if (ti == &typeid(std::vector<float>))
+           m_vecFloat.erase (name);
        }
      }
-     m_isDecoration.clear();
+     m_decorations.clear();
 
      return anycleared;
    }
@@ -202,9 +206,7 @@ namespace xAOD {
    void ByteStreamAuxContainer_v1::lockDecoration (SG::auxid_t auxid)
    { 
      guard_t guard (m_mutex);
-     if (auxid < m_isDecoration.size()) {
-       m_isDecoration[auxid] = false;
-     }
+     m_decorations.reset (auxid);
    }
 
 

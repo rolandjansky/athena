@@ -62,6 +62,25 @@ def arg_detector_mask(s):
    dmask = dmask.lower().replace('0x', '').replace('l', '')  # remove markers
    return '0' * (32 - len(dmask)) + dmask                    # (pad with 0s)
 
+def arg_ros2rob(s):
+   """Handle an explicit dictionary or read it from a file"""
+   try:
+      with open(s) as f:
+         s = f.read()  # If file exists, replace ros2rob with content of the file
+         print("Reading ros2rob from a file")
+   except IOError:
+      pass
+
+   try:
+      ros2robdict = arg_eval(s)
+      if type(ros2robdict) is not dict:
+         raise(ValueError)
+      return ros2robdict
+   except:
+      sys.stderr.write("ERROR! ros2rob cannot be evaluated as it is not a proper python dictionary: {}\n".format(s))
+      sys.stderr.write("Using empty ros2rob dictionary instead\n")
+      return {}
+
 def arg_log_level(s):
    """Argument handler for log levels"""
    lvls = s.split(',')
@@ -69,7 +88,7 @@ def arg_log_level(s):
    return lvls
 
 def arg_eval(s):
-   """Argument handler for pyton types (list, dict, ...)"""
+   """Argument handler for python types (list, dict, ...)"""
    return ast.literal_eval(s)
 
 def update_pcommands(args, cdict):
@@ -162,6 +181,7 @@ def HLTMPPy_cfgdict(args):
       'log_root': cdict['HLTMPPU']['log_root'],
       'options_file': None,
       'partition_name': args.partition,
+      'ros2robs': args.ros2rob,
       'run_number': args.run_number,
       'save_options': None,
       'solenoid_current': 7730,
@@ -309,6 +329,10 @@ def main():
                   '3) human-readable "20/11/18 17:40:42.3043". If not specified the sor-time is read from COOL')
    g.add_argument('--detector-mask', metavar='MASK', type=arg_detector_mask,
                   help='detector mask (if None, read from COOL)')
+   g.add_argument('--ros2rob', metavar='DICT', type=arg_ros2rob, default={},
+                  help='Either a string in the form of python dictionary that contains ros-rob mappings '
+		             'or a file path that contains such string. For example, /path/to/rosmap.txt or '
+		             '{"ROS0":[0x11205,0x11206],"ROS1":[2120005,2120006]}')
 
    ## Expert options
    g = parser.add_argument_group('Expert')
@@ -336,9 +360,6 @@ def main():
    # consistency checks for arguments
    if not args.concurrent_events:
       args.concurrent_events = args.threads
-
-   if args.nprocs > 1 and not args.oh_monitoring:
-      parser.error('You have to run with -M/--oh-monitoring in case of multiple child processes')
 
    # Update args and set athena flags
    update_run_params(args)

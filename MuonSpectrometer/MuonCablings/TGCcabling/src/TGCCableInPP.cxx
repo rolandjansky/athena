@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGCcabling/TGCCableInPP.h"
@@ -11,35 +11,35 @@ namespace LVL1TGCCabling8 {
 TGCCableInPP::TGCCableInPP (std::string filename)
   : TGCCable(TGCCable::InPP)
 {
-  database[TGCIdBase::Endcap][TGCIdBase::WD] = new TGCDatabaseInPP(filename,"EWD");
-  database[TGCIdBase::Endcap][TGCIdBase::WT] = new TGCDatabaseInPP(filename,"EWT");
-  database[TGCIdBase::Endcap][TGCIdBase::SD] = new TGCDatabaseInPP(filename,"ESD");
-  database[TGCIdBase::Endcap][TGCIdBase::ST] = new TGCDatabaseInPP(filename,"EST");
-  database[TGCIdBase::Endcap][TGCIdBase::WI] = new TGCDatabaseInPP(filename,"EWI");
-  database[TGCIdBase::Endcap][TGCIdBase::SI] = new TGCDatabaseInPP(filename,"ESI");
-  database[TGCIdBase::Forward][TGCIdBase::WD] = new TGCDatabaseInPP(filename,"FWD");
-  database[TGCIdBase::Forward][TGCIdBase::WT] = new TGCDatabaseInPP(filename,"FWT");
-  database[TGCIdBase::Forward][TGCIdBase::SD] = new TGCDatabaseInPP(filename,"FSD");
-  database[TGCIdBase::Forward][TGCIdBase::ST] = new TGCDatabaseInPP(filename,"FST");
-  database[TGCIdBase::Forward][TGCIdBase::WI] = new TGCDatabaseInPP(filename,"FWI");
-  database[TGCIdBase::Forward][TGCIdBase::SI] = new TGCDatabaseInPP(filename,"FSI");
+  m_database[TGCIdBase::Endcap][TGCIdBase::WD] = new TGCDatabaseInPP(filename,"EWD");
+  m_database[TGCIdBase::Endcap][TGCIdBase::WT] = new TGCDatabaseInPP(filename,"EWT");
+  m_database[TGCIdBase::Endcap][TGCIdBase::SD] = new TGCDatabaseInPP(filename,"ESD");
+  m_database[TGCIdBase::Endcap][TGCIdBase::ST] = new TGCDatabaseInPP(filename,"EST");
+  m_database[TGCIdBase::Endcap][TGCIdBase::WI] = new TGCDatabaseInPP(filename,"EWI");
+  m_database[TGCIdBase::Endcap][TGCIdBase::SI] = new TGCDatabaseInPP(filename,"ESI");
+  m_database[TGCIdBase::Forward][TGCIdBase::WD] = new TGCDatabaseInPP(filename,"FWD");
+  m_database[TGCIdBase::Forward][TGCIdBase::WT] = new TGCDatabaseInPP(filename,"FWT");
+  m_database[TGCIdBase::Forward][TGCIdBase::SD] = new TGCDatabaseInPP(filename,"FSD");
+  m_database[TGCIdBase::Forward][TGCIdBase::ST] = new TGCDatabaseInPP(filename,"FST");
+  m_database[TGCIdBase::Forward][TGCIdBase::WI] = new TGCDatabaseInPP(filename,"FWI");
+  m_database[TGCIdBase::Forward][TGCIdBase::SI] = new TGCDatabaseInPP(filename,"FSI");
 }
   
 TGCCableInPP::~TGCCableInPP (void)
 {
-  delete database[TGCIdBase::Endcap][TGCIdBase::WD];
-  delete database[TGCIdBase::Endcap][TGCIdBase::WT];
-  delete database[TGCIdBase::Endcap][TGCIdBase::SD];
-  delete database[TGCIdBase::Endcap][TGCIdBase::ST];
-  delete database[TGCIdBase::Endcap][TGCIdBase::WI];
-  delete database[TGCIdBase::Endcap][TGCIdBase::SI];
-  delete database[TGCIdBase::Forward][TGCIdBase::WD];
-  delete database[TGCIdBase::Forward][TGCIdBase::WT];
+  delete m_database[TGCIdBase::Endcap][TGCIdBase::WD];
+  delete m_database[TGCIdBase::Endcap][TGCIdBase::WT];
+  delete m_database[TGCIdBase::Endcap][TGCIdBase::SD];
+  delete m_database[TGCIdBase::Endcap][TGCIdBase::ST];
+  delete m_database[TGCIdBase::Endcap][TGCIdBase::WI];
+  delete m_database[TGCIdBase::Endcap][TGCIdBase::SI];
+  delete m_database[TGCIdBase::Forward][TGCIdBase::WD];
+  delete m_database[TGCIdBase::Forward][TGCIdBase::WT];
 
-  delete database[TGCIdBase::Forward][TGCIdBase::SD];
-  delete database[TGCIdBase::Forward][TGCIdBase::ST];
-  delete database[TGCIdBase::Forward][TGCIdBase::WI];
-  delete database[TGCIdBase::Forward][TGCIdBase::SI];
+  delete m_database[TGCIdBase::Forward][TGCIdBase::SD];
+  delete m_database[TGCIdBase::Forward][TGCIdBase::ST];
+  delete m_database[TGCIdBase::Forward][TGCIdBase::WI];
+  delete m_database[TGCIdBase::Forward][TGCIdBase::SI];
 }
 
 
@@ -59,7 +59,7 @@ TGCChannelId* TGCCableInPP::getChannelIn (const TGCChannelId* ppout,
   if(ppout->isValid()==false) return 0;
 
   TGCDatabase* databaseP = 
-    database[ppout->getRegionType()][ppout->getModuleType()];
+    m_database[ppout->getRegionType()][ppout->getModuleType()];
   
   int indexIn[TGCDatabaseInPP::NIndexIn] = 
     {ppout->getId(), ppout->getBlock(), ppout->getChannel()};
@@ -107,7 +107,7 @@ TGCChannelId* TGCCableInPP::getChannelOut (const TGCChannelId* ppin,
   if(ppin->isValid()==false) return 0;
 
   TGCDatabase* databaseP =
-    database[ppin->getRegionType()][ppin->getModuleType()];
+    m_database[ppin->getRegionType()][ppin->getModuleType()];
 
   TGCChannelPPOut* ppout = 0;
   int MaxEntry = databaseP->getMaxEntry();

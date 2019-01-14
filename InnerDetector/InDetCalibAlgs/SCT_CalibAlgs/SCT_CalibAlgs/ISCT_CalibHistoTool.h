@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -41,13 +41,13 @@ class ISCT_CalibHistoTool: virtual public IAlgTool {
       /// fill histograms from data
       virtual bool fillFromData()=0;
       /// get number of events in a specific bin
-      virtual int getNumberOfEventsInBin(const int nbin);
+      virtual int getNumberOfEventsInBin(const int nbin) const;
       /// get total number of entries in the number of events histo
-      int size();
+      int size() const;
       /// get bin content for bin in specific histogram
-      double getBinForHistogramIndex(const int bin, const int histogramIndex);
+      double getBinForHistogramIndex(const int bin, const int histogramIndex) const;
       /// get the number of entries in a given histogram
-      int size(const int histogramIndex);
+      int size(const int histogramIndex) const;
       void binHistograms(const int nLbMerged);
       /// set number of lumiblocks
       static void setNumberOfLb(const int nLb);

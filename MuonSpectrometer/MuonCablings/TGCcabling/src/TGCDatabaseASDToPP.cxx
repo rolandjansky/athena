@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <fstream>
@@ -11,26 +11,26 @@
 namespace LVL1TGCCabling8 
 {
 
-const int TGCDatabaseASDToPP::IndexIn[NIndexIn] = {0, 1, 6};
-const int TGCDatabaseASDToPP::ReverseIndexIn[DATABASESIZE] = {0, 1, -1, -1, -1, -1, 2, -1}; 
-const int TGCDatabaseASDToPP::IndexOut[NIndexOut] = {3, 4, 5};
-const int TGCDatabaseASDToPP::ReverseIndexOut[DATABASESIZE] = {-1, -1, -1, 0, 1, 2, -1, -1}; 
+const int TGCDatabaseASDToPP::s_IndexIn[NIndexIn] = {0, 1, 6};
+const int TGCDatabaseASDToPP::s_ReverseIndexIn[DATABASESIZE] = {0, 1, -1, -1, -1, -1, 2, -1}; 
+const int TGCDatabaseASDToPP::s_IndexOut[NIndexOut] = {3, 4, 5};
+const int TGCDatabaseASDToPP::s_ReverseIndexOut[DATABASESIZE] = {-1, -1, -1, 0, 1, 2, -1, -1}; 
 
 void TGCDatabaseASDToPP::readDB (void) {
-  std::ifstream file(filename.c_str());
+  std::ifstream file(m_filename.c_str());
   std::string buf;
 
   for(int iIndexIn=0; iIndexIn<NIndexIn; iIndexIn++) {
-    maxIndexIn[iIndexIn] = 0;
-    minIndexIn[iIndexIn] = 9999;
+    m_maxIndexIn[iIndexIn] = 0;
+    m_minIndexIn[iIndexIn] = 9999;
   }
   for(int iIndexOut=0; iIndexOut<NIndexOut; iIndexOut++) {
-    maxIndexOut[iIndexOut] = 0;
-    minIndexOut[iIndexOut] = 9999;
+    m_maxIndexOut[iIndexOut] = 0;
+    m_minIndexOut[iIndexOut] = 9999;
   }
 
   while(getline(file,buf)){
-    if(buf.substr(0,blockname.size())==blockname) break;
+    if(buf.substr(0,m_blockname.size())==m_blockname) break;
   }
 
   while(getline(file,buf)){
@@ -42,48 +42,48 @@ void TGCDatabaseASDToPP::readDB (void) {
       line >> temp; 
       entry.push_back(temp);
     }
-    database.push_back(entry);
+    m_database.push_back(entry);
   }
   file.close();
 
   int nline = 0;
-  unsigned int size = database.size();
+  unsigned int size = m_database.size();
   for(unsigned int i=0; i<size; i++){
     // line is defined in whole sector. [0..n]
-    if(i>0&&database[i].at(0)!=database[i-1].at(0)) nline=0;
-    database[i].push_back(nline++);
+    if(i>0&&m_database[i].at(0)!=m_database[i-1].at(0)) nline=0;
+    m_database[i].push_back(nline++);
 
-    if(i==database.size()-1||
-       database[i].at(0)!=database[i+1].at(0)||
-       database[i].at(1)!=database[i+1].at(1)){
+    if(i==m_database.size()-1||
+       m_database[i].at(0)!=m_database[i+1].at(0)||
+       m_database[i].at(1)!=m_database[i+1].at(1)){
       // increase with R in chamber    [0..n]
-      int totline = database[i].at(2)+1;
+      int totline = m_database[i].at(2)+1;
       for(int j=0; j<totline; j++){
-	database[i-j].push_back(j);
+	m_database[i-j].push_back(j);
       }
     }
   }
 
   for(unsigned int i=0; i<size; i++){
     for(int j=0; j<DATABASESIZE; j++){
-      int temp = database[i].at(j); 
-      int k = ReverseIndexOut[j];
+      int temp = m_database[i].at(j); 
+      int k = s_ReverseIndexOut[j];
       if(k>=0) {
-        if(maxIndexOut[k]<temp) {
-          maxIndexOut[k] = temp;
+        if(m_maxIndexOut[k]<temp) {
+          m_maxIndexOut[k] = temp;
         } 
-	if(minIndexOut[k]>temp) {
-          minIndexOut[k] = temp;
+	if(m_minIndexOut[k]>temp) {
+          m_minIndexOut[k] = temp;
         }
       } 
 
-      k = ReverseIndexIn[j];
+      k = s_ReverseIndexIn[j];
       if(k>=0) {
-	if(maxIndexIn[k]<temp) {
-          maxIndexIn[k] = temp;
+	if(m_maxIndexIn[k]<temp) {
+          m_maxIndexIn[k] = temp;
         }
-        if(minIndexIn[k]>temp) {
-          minIndexIn[k] = temp;
+        if(m_minIndexIn[k]>temp) {
+          m_minIndexIn[k] = temp;
         }
       }
     }
@@ -95,30 +95,30 @@ void TGCDatabaseASDToPP::readDB (void) {
 
 void TGCDatabaseASDToPP::makeIndexDBIn (void) 
 {
-  NIndexDBIn = 1;
+  m_NIndexDBIn = 1;
   for(int iIndexIn=0; iIndexIn<NIndexIn; iIndexIn++) {
-    NIndexDBIn *= (maxIndexIn[iIndexIn]-minIndexIn[iIndexIn]+1);
+    m_NIndexDBIn *= (m_maxIndexIn[iIndexIn]-m_minIndexIn[iIndexIn]+1);
   }
-  for(int iIndexDBIn=0; iIndexDBIn<NIndexDBIn; iIndexDBIn++) {
-    indexDBIn.push_back(-1); 
+  for(int iIndexDBIn=0; iIndexDBIn<m_NIndexDBIn; iIndexDBIn++) {
+    m_indexDBIn.push_back(-1); 
   }
 
-  const int size = database.size();
+  const int size = m_database.size();
   for(int i=0; i<size; i++) {
     int tmpValIndexIn[NIndexIn];
     for(int iIndexIn=0; iIndexIn<NIndexIn; iIndexIn++) {
-      tmpValIndexIn[iIndexIn] = database.at(i).at(IndexIn[iIndexIn]);
+      tmpValIndexIn[iIndexIn] = m_database.at(i).at(s_IndexIn[iIndexIn]);
     }
-    indexDBIn.at(convertIndexDBIn(tmpValIndexIn)) = i;
+    m_indexDBIn.at(convertIndexDBIn(tmpValIndexIn)) = i;
   }
 }
 
 int TGCDatabaseASDToPP::convertIndexDBIn(int* indexIn) const
 {
-  int converted = indexIn[0]-minIndexIn[0];  
+  int converted = indexIn[0]-m_minIndexIn[0];  
   for(int iIndexIn=1; iIndexIn<NIndexIn; iIndexIn++) {
-    converted *= (maxIndexIn[iIndexIn]-minIndexIn[iIndexIn]+1); 
-    converted += indexIn[iIndexIn]-minIndexIn[iIndexIn];
+    converted *= (m_maxIndexIn[iIndexIn]-m_minIndexIn[iIndexIn]+1); 
+    converted += indexIn[iIndexIn]-m_minIndexIn[iIndexIn];
   }
   return converted;
 }
@@ -126,40 +126,40 @@ int TGCDatabaseASDToPP::convertIndexDBIn(int* indexIn) const
 int TGCDatabaseASDToPP::getIndexDBIn(int* indexIn) {
   if(!indexIn) return -1;
 
-  if(database.size()==0) readDB();
+  if(m_database.size()==0) readDB();
   
   int converted = convertIndexDBIn(indexIn);
-  if(converted<0 || converted>=NIndexDBIn) return -1;
+  if(converted<0 || converted>=m_NIndexDBIn) return -1;
 
-  return indexDBIn.at(converted);
+  return m_indexDBIn.at(converted);
 }
 
 void TGCDatabaseASDToPP::makeIndexDBOut (void) 
 {
-  NIndexDBOut = 1;
+  m_NIndexDBOut = 1;
   for(int iIndexOut=0; iIndexOut<NIndexOut; iIndexOut++) {
-    NIndexDBOut *= (maxIndexOut[iIndexOut]-minIndexOut[iIndexOut]+1);
+    m_NIndexDBOut *= (m_maxIndexOut[iIndexOut]-m_minIndexOut[iIndexOut]+1);
   }
-  for(int iIndexDBOut=0; iIndexDBOut<NIndexDBOut; iIndexDBOut++) {
-    indexDBOut.push_back(-1); 
+  for(int iIndexDBOut=0; iIndexDBOut<m_NIndexDBOut; iIndexDBOut++) {
+    m_indexDBOut.push_back(-1); 
   }
 
-  const int size = database.size();
+  const int size = m_database.size();
   for(int i=0; i<size; i++) {
     int tmpValIndexOut[NIndexOut];
     for(int iIndexOut=0; iIndexOut<NIndexOut; iIndexOut++) {
-      tmpValIndexOut[iIndexOut] = database.at(i).at(IndexOut[iIndexOut]);
+      tmpValIndexOut[iIndexOut] = m_database.at(i).at(s_IndexOut[iIndexOut]);
     }
-    indexDBOut.at(convertIndexDBOut(tmpValIndexOut)) = i;
+    m_indexDBOut.at(convertIndexDBOut(tmpValIndexOut)) = i;
   }
 }
 
 int TGCDatabaseASDToPP::convertIndexDBOut(int* indexOut) const
 {
-  int converted = indexOut[0]-minIndexOut[0];  
+  int converted = indexOut[0]-m_minIndexOut[0];  
   for(int iIndexOut=1; iIndexOut<NIndexOut; iIndexOut++) {
-    converted *= (maxIndexOut[iIndexOut]-minIndexOut[iIndexOut]+1); 
-    converted += indexOut[iIndexOut]-minIndexOut[iIndexOut];
+    converted *= (m_maxIndexOut[iIndexOut]-m_minIndexOut[iIndexOut]+1); 
+    converted += indexOut[iIndexOut]-m_minIndexOut[iIndexOut];
   }
   return converted;
 }
@@ -167,12 +167,12 @@ int TGCDatabaseASDToPP::convertIndexDBOut(int* indexOut) const
 int TGCDatabaseASDToPP::getIndexDBOut(int* indexOut) {
   if(!indexOut) return -1;
 
-  if(database.size()==0) readDB();
+  if(m_database.size()==0) readDB();
   
   int converted = convertIndexDBOut(indexOut);
-  if(converted<0 || converted>=NIndexDBOut) return -1;
+  if(converted<0 || converted>=m_NIndexDBOut) return -1;
 
-  return indexDBOut.at(converted);
+  return m_indexDBOut.at(converted);
 }
 
 } // end of namespace

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_COREDUMPSVC_H
@@ -50,7 +50,6 @@ class CoreDumpSvc : public extends<AthService,
                                    IIncidentListener> {
 
 protected:
-  friend class SvcFactory<CoreDumpSvc>;
   friend void CoreDumpSvcHandler::action( int sig, siginfo_t *info, void* extra );
   
   /// Default constructor (do not use)

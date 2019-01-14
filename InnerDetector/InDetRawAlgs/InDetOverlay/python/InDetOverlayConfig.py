@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 
@@ -15,6 +15,22 @@ def getPixelOverlay(name="PixelOverlay", **kwargs):
     return CfgMgr.PixelOverlay(name, **kwargs)
 
 
+def getPixelSDOOverlay(name="PixelSDOOverlay", **kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+
+    # We do not need background pixel SDOs
+    kwargs.setdefault("BkgInputKey", "");
+
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("SignalInputKey", overlayFlags.sigPrefix() + "PixelSDO_Map");
+        kwargs.setdefault("OutputKey", "PixelSDO_Map");
+    else:
+        kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+PixelSDO_Map");
+        kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+PixelSDO_Map");
+
+    return CfgMgr.InDetSDOOverlay(name, **kwargs)
+
+
 def getSCTOverlay(name="SCTOverlay", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
@@ -25,6 +41,22 @@ def getSCTOverlay(name="SCTOverlay", **kwargs):
     kwargs.setdefault("includeBkg", True);
 
     return CfgMgr.SCTOverlay(name, **kwargs)
+
+
+def getSCTSDOOverlay(name="SCTSDOOverlay", **kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+
+    # We do not need background SCT SDOs
+    kwargs.setdefault("BkgInputKey", "");
+
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("SignalInputKey", overlayFlags.sigPrefix() + "SCT_SDO_Map");
+        kwargs.setdefault("OutputKey", "SCT_SDO_Map");
+    else:
+        kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+SCT_SDO_Map");
+        kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+SCT_SDO_Map");
+
+    return CfgMgr.InDetSDOOverlay(name, **kwargs)
 
 
 def getTRTOverlay(name="TRTOverlay", **kwargs):
@@ -52,25 +84,22 @@ def getTRTOverlay(name="TRTOverlay", **kwargs):
     return CfgMgr.TRTOverlay(name, **kwargs)
 
 
-def getInDetSDOOverlay(name="InDetSDOOverlay", **kwargs):
-    from AthenaCommon.GlobalFlags import globalflags
-    from AthenaCommon.DetFlags import DetFlags
+def getTRTSDOOverlay(name="TRTSDOOverlay", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
-    kwargs.setdefault("do_TRT", DetFlags.overlay.TRT_on());
-    kwargs.setdefault("do_TRT_background", globalflags.DataSource != "data");
-    kwargs.setdefault("mainInputTRTKey", overlayFlags.dataStore() + "+TRT_SDO_Map");
-    kwargs.setdefault("overlayInputTRTKey", overlayFlags.evtStore() + "+TRT_SDO_Map");
-    kwargs.setdefault("mainOutputTRTKey", overlayFlags.outputStore() + "+TRT_SDO_Map");
-    kwargs.setdefault("do_SCT", DetFlags.overlay.SCT_on());
-    kwargs.setdefault("do_SCT_background", globalflags.DataSource != "data");
-    kwargs.setdefault("mainInputSCTKey", overlayFlags.dataStore() + "+SCT_SDO_Map");
-    kwargs.setdefault("overlayInputSCTKey", overlayFlags.evtStore() + "+SCT_SDO_Map");
-    kwargs.setdefault("mainOutputSCTKey", overlayFlags.outputStore() + "+SCT_SDO_Map");
-    kwargs.setdefault("do_Pixel", DetFlags.overlay.pixel_on());
-    kwargs.setdefault("do_Pixel_background", globalflags.DataSource != "data");
-    kwargs.setdefault("mainInputPixelKey", overlayFlags.dataStore() + "+PixelSDO_Map");
-    kwargs.setdefault("overlayInputPixelKey", overlayFlags.evtStore() + "+PixelSDO_Map");
-    kwargs.setdefault("mainOutputPixelKey", overlayFlags.outputStore() + "+PixelSDO_Map");
+    if overlayFlags.isOverlayMT():
+        if overlayFlags.isDataOverlay():
+            kwargs.setdefault("BkgInputKey", "")
+        else:
+            kwargs.setdefault("BkgInputKey", overlayFlags.bkgPrefix() + "TRT_SDO_Map");
+        kwargs.setdefault("SignalInputKey", overlayFlags.sigPrefix() + "TRT_SDO_Map");
+        kwargs.setdefault("OutputKey", "TRT_SDO_Map");
+    else:
+        if overlayFlags.isDataOverlay():
+            kwargs.setdefault("BkgInputKey", "")
+        else:
+            kwargs.setdefault("BkgInputKey", overlayFlags.dataStore() + "+TRT_SDO_Map");
+        kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+TRT_SDO_Map");
+        kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+TRT_SDO_Map");
 
     return CfgMgr.InDetSDOOverlay(name, **kwargs)

@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef NSW_L1TDRSTGCTRIGGERLOGIC_H
@@ -10,11 +10,14 @@
 #include "TrigT1NSWSimTools/TriggerTypes.h"
 #include "TrigT1NSWSimTools/SectorTriggerCandidate.h"
 #include "TrigT1NSWSimTools/SingleWedgePadTrigger.h"
-#include "GaudiKernel/MsgStream.h"
-#include "TRandom.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaKernel/MsgStreamMember.h"
 #include <string>
 #include <vector>
+#include "TRandom.h"
 
+//forward declarations
+class MsgStream;
 
 namespace NSWL1 {
     
@@ -46,7 +49,7 @@ class L1TdrStgcTriggerLogic {
 
     public:
         
-        L1TdrStgcTriggerLogic(IMessageSvc* svc , std::string);//get svc from parent class / messaging level is set automatically/ via setMsgLvl
+        L1TdrStgcTriggerLogic();//get svc from parent class
         virtual ~L1TdrStgcTriggerLogic();
         /**
         @brief main function to compute trigger candidates
@@ -101,15 +104,21 @@ class L1TdrStgcTriggerLogic {
                                                             const std::vector< size_t > &padIndicesLayer1,
                                                             const std::vector< size_t > &padIndicesLayer2,
                                                             const std::vector< size_t > &padIndicesLayer3);
-        MsgStream& msgStream(){return m_msg;}
+    protected:                                                                                                                                                                                        
+        /// Log a message using the Athena controlled logging system
+        MsgStream& msg(MSG::Level lvl) const { return m_msg.get() << lvl; }
+
+        /// Check whether the logging system is active at the provided verbosity level
+        bool msgLvl(MSG::Level lvl) { return m_msg.get().level() <= lvl; }
+
+        /// Private message stream member
+        mutable Athena::MsgStreamMember m_msg;
         
     private:
         TRandom m_rand;
         std::vector< SectorTriggerCandidate > m_secTrigCand;        
         bool m_writePickle; /// after computing the triggers, write the canditates to 'pickle' files (for event display)
         std::string m_picklePrefix; /// path where the pickle files will be written
-        int m_msglvl;        
-        mutable MsgStream m_msg;
         
     };
 

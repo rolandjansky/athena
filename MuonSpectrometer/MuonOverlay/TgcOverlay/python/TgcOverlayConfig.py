@@ -10,7 +10,4 @@ def getTgcOverlay(name="TgcOverlay", **kwargs):
     kwargs.setdefault("MCStore",overlayFlags.evtStore())
     kwargs.setdefault("DataStore", overlayFlags.dataStore())
     kwargs.setdefault("CopySDO",not overlayFlags.isDataOverlay())
-    if overlayFlags.doSignal():
-        kwargs.setdefault("CopyObject", True)
     return CfgMgr.TgcOverlay(name, **kwargs)
-

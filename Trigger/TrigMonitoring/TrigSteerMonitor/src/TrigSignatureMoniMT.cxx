@@ -18,7 +18,7 @@ StatusCode TrigSignatureMoniMT::initialize() {
   ATH_CHECK( m_l1DecisionsKey.initialize() );
   ATH_CHECK( m_finalDecisionKey.initialize() );
   ATH_CHECK( m_collectorTools.retrieve() );
-  CHECK( m_histSvc.retrieve() );
+  ATH_CHECK( m_histSvc.retrieve() );
       
   
   {
@@ -46,15 +46,15 @@ StatusCode TrigSignatureMoniMT::initialize() {
     m_countHistogram->SetTitle("Positive decisions count per step;chain;step");
     
 
-    m_histSvc->regHist( m_bookingPath + "/"+m_passHistogram->GetName(), m_passHistogram );
-    m_histSvc->regHist( m_bookingPath + "/"+m_countHistogram->GetName(), m_countHistogram );
+    ATH_CHECK( m_histSvc->regHist( m_bookingPath + "/"+m_passHistogram->GetName(), m_passHistogram ) );
+    ATH_CHECK( m_histSvc->regHist( m_bookingPath + "/"+m_countHistogram->GetName(), m_countHistogram ) );
 
 
     
 
   }
-  CHECK( initHist( m_passHistogram ) );
-  CHECK( initHist( m_countHistogram ) );
+  ATH_CHECK( initHist( m_passHistogram ) );
+  ATH_CHECK( initHist( m_countHistogram ) );
   
 
   return StatusCode::SUCCESS;
@@ -123,21 +123,34 @@ StatusCode TrigSignatureMoniMT::fillCount(const std::vector<TrigCompositeUtils::
 StatusCode TrigSignatureMoniMT::execute()  {  
 
   auto l1Decisions = SG::makeHandle( m_l1DecisionsKey );
-  CHECK( l1Decisions->at( 0 )->name() == "l1seeded" ); 
-  CHECK( l1Decisions->at( 1 )->name() == "unprescaled" ); // see L1Decoder implementation
+
+  const TrigCompositeUtils::Decision* l1SeededChains = nullptr; // Activated by L1
+  const TrigCompositeUtils::Decision* unprescaledChains = nullptr; // Activated and passed prescale check
+  for (const TrigCompositeUtils::Decision* d : *l1Decisions) {
+    if (d->name() == "l1seeded") {
+      l1SeededChains = d;
+    } else if (d->name() == "unprescaled") {
+      unprescaledChains = d;
+    }
+  }
+
+  if (l1SeededChains == nullptr || unprescaledChains == nullptr) {
+    ATH_MSG_ERROR("Unable to read in the summary from the L1Decoder.");
+    return StatusCode::FAILURE;
+  }
 
   auto fillL1 = [&]( int index ) -> StatusCode {    
     TrigCompositeUtils::DecisionIDContainer ids;    
     TrigCompositeUtils::decisionIDs( l1Decisions->at( index ), ids );
     ATH_MSG_DEBUG( "L1 " << index << " N positive decisions " << ids.size()  );
-    CHECK( fillPass( ids, index + 1 ) );
+    ATH_CHECK( fillPass( ids, index + 1 ) );
     if ( not ids.empty() )
       m_passHistogram->Fill( 1, double(index + 1) );
     return StatusCode::SUCCESS;
   };
 
-  CHECK( fillL1(0) );
-  CHECK( fillL1(1) );
+  ATH_CHECK( fillL1(0) );
+  ATH_CHECK( fillL1(1) );
   int step = 0;
   for ( auto& ctool: m_collectorTools ) {
     std::vector<TrigCompositeUtils::DecisionID> stepSum;
@@ -153,9 +166,12 @@ StatusCode TrigSignatureMoniMT::execute()  {
   const int row = m_passHistogram->GetYaxis()->GetNbins();
   auto finalDecisionsHandle = SG::makeHandle( m_finalDecisionKey );
   ATH_CHECK( finalDecisionsHandle.isValid() );
-  ATH_CHECK( finalDecisionsHandle->size() == 1 );
   TrigCompositeUtils::DecisionIDContainer finalIDs;
-  TrigCompositeUtils::decisionIDs( finalDecisionsHandle->at(0), finalIDs );
+  for (const TrigCompositeUtils::Decision* decisionObject : *finalDecisionsHandle) {
+    if (decisionObject->name() == "HLTPassRaw") {
+      TrigCompositeUtils::decisionIDs(decisionObject, finalIDs);
+    }
+  }
   ATH_CHECK( fillPass( finalIDs, row ) );
   
   if ( not finalIDs.empty() ) {

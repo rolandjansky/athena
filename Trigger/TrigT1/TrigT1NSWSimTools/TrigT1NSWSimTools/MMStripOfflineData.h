@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MMSTRIPOFFLINEDATA_H
@@ -11,10 +11,6 @@
 
 // local includes
 #include "TrigT1NSWSimTools/MMStripData.h" 
-
-// forward declarations
-class TVector3;
-
 
 // namespace for the NSW LVL1 related classes
 namespace NSWL1 {
@@ -45,7 +41,6 @@ namespace NSWL1 {
     MMStripOfflineData(Identifier id, const MmIdHelper* helper);
     ~MMStripOfflineData();
 
-    //void setStripCharge(float charge);   //!< set the strip charge
     void setTrigBCID(int bcid);          //!< set the trig BCID        
 
     //! methods for retrieving the bare data

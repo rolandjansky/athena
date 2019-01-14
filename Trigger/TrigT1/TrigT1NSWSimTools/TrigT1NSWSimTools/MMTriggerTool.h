@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MMTRIGGERTOOL_H
@@ -16,14 +16,12 @@
 
 //forward declarations
 class IIncidentSvc;
-class IAtRndmGenSvc;
 class MmIdHelper;
 class MmDigit;
 class TTree;
 
 #include "MMLoadVariables.h"
 #include "MuonDigitContainer/MmDigitContainer.h"
-#include "MuonDigitContainer/MmDigit.h"
 
 
 namespace MuonGM {
@@ -76,12 +74,7 @@ namespace NSWL1 {
 
 
     // properties: container and service names
-    StringProperty   m_rndmEngineName;                      //!< property, see @link MMStripTdsOfflineTool::MMStripTdsOfflineTool @endlink
     StringProperty   m_MmDigitContainer;                    //!< property, see @link MMStripTdsOfflineTool::MMStripTdsOfflineTool @endlink
-    StringProperty   m_MmSdoContainer;                      //!< property, see @link MMStripTdsOfflineTool::MMStripTdsOfflineTool @endlink
-    StringProperty   m_MmHitContainer;
-    StringProperty   m_Truth_ContainerName;
-    StringProperty   m_MuEntry_ContainerName;
 
     BooleanProperty  m_doNtuple;                            //!< property, see @link MMStripTdsOfflineTool::MMStripTdsOfflineTool @endlink
 

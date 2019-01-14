@@ -48,6 +48,8 @@ class IScheduler;
 class ITHistSvc;
 class StoreGateSvc;
 class TrigCOOLUpdateHelper;
+class IIoComponentMgr;
+
 namespace coral {
   class AttributeList;
 }
@@ -174,6 +176,7 @@ private:
   ServiceHandle<ITHistSvc>           m_THistSvc;
   ServiceHandle<IEvtSelector>        m_evtSelector;
   ServiceHandle<IConversionSvc>      m_outputCnvSvc;
+  ServiceHandle<IIoComponentMgr>     m_ioCompMgr;
 
   /// Reference to the Whiteboard interface
   SmartIF<IHiveWhiteBoard> m_whiteboard;

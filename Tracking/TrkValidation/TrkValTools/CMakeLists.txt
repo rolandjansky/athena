@@ -28,7 +28,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODPFlow
                           Event/xAOD/xAODCaloEvent
                           InnerDetector/InDetRecTools/TrackVertexAssociationTool
-                          Tracking/TrkValidation/TrkValTools/TrkValTools/HighPtBTrackingAnalysis                         PRIVATE
                           Commission/CommissionEvent
                           PRIVATE
                           Commission/CommissionEvent

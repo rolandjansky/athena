@@ -228,7 +228,7 @@ for mod in modifierList:
 from IOVDbSvc.CondDB import conddb #This import will also set up CondInputLoader
 conddb.setGlobalTag(globalflags.ConditionsTag())
 
-from AthenaCommon.AlgSequence import AlgSequence
+from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
 topSequence = AlgSequence()
 
 #--------------------------------------------------------------
@@ -408,7 +408,7 @@ if opt.doL1Sim:
                   RPCbytestream     = False,
                   RPCbytestreamFile = "", OutputLevel=logLevel),
         
-        # base on Trigger/TrigT1/TrigT1TGC/python/TrigT1TGCConfig.py
+        # based on Trigger/TrigT1/TrigT1TGC/python/TrigT1TGCConfig.py
         # interesting is that this JO sets inexisting properties, commented out below
         LVL1TGCTrigger__LVL1TGCTrigger("LVL1TGCTrigger",
                                        InputData_perEvent  = "TGC_DIGITS", 
@@ -419,15 +419,17 @@ if opt.doL1Sim:
                                        MaskFileName12      = "TrigT1TGCMaskedChannel._12.db",
                                        OutputLevel         = logLevel),
         muctpi
-        
     ])
     # only needed for MC
-    conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_EIFI")
-    conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_BW")
-    conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_TILE")
+    conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_EIFI", className="CondAttrListCollection")
+    conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_BW", className="CondAttrListCollection")
+    conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_TILE", className="CondAttrListCollection")
     from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
     from TrigT1CTP.TrigT1CTPConfig import CTPSimulationInReco
     from TrigT1RoIB.TrigT1RoIBConfig import RoIBuilder
+    condSeq = AthSequencer("AthCondSeq")
+    from MuonCondSvc.MuonCondSvcConf import TGCTriggerDbAlg
+    condSeq += TGCTriggerDbAlg()
 
     ctp             = CTPSimulationInReco("CTPSimulation")
     ctp.DoLUCID     = False
@@ -442,9 +444,13 @@ if opt.doL1Sim:
     topSequence += l1Sim
 
 if opt.doL1Unpacking:
-    if globalflags.InputFormat.is_bytestream() or opt.doL1Sim:
+    if globalflags.InputFormat.is_bytestream():
+        from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import RoIBResultByteStreamDecoderAlg
         from TrigUpgradeTest.TestUtils import L1DecoderTest
-    #topSequence += L1DecoderTest(OutputLevel = opt.HLTOutputLevel)
+        topSequence += RoIBResultByteStreamDecoderAlg() # creates RoIBResult (input for L1Decoder) from ByteStream
+        topSequence += L1DecoderTest(OutputLevel = DEBUG)
+    elif opt.doL1Sim:
+        from TrigUpgradeTest.TestUtils import L1DecoderTest
         topSequence += L1DecoderTest(OutputLevel = DEBUG)
     else:
         from TrigUpgradeTest.TestUtils import L1EmulationTest

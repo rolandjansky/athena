@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: DbType.h 726071 2016-02-25 09:23:05Z krasznaa $
@@ -47,8 +47,9 @@ namespace pool    {
     /// Constructor with initializer from 
     DbType(int value) : m_type(value)   {                         }
     /// Default copy constructor
+    DbType(const DbType&) = default;
     /// Standard destructor
-    ~DbType()                           {                         }
+    ~DbType() = default;
     /// Assignment operator
     DbType& operator=(const DbType& typ) {
       if ( this != &typ ) {

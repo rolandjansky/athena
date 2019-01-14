@@ -9,11 +9,11 @@
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileMutableRawChannelContainer.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
 
 // Atlas includes
 #include "AthenaKernel/errorcheck.h"
 #include "Identifier/Identifier.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 
 //========================================================
@@ -22,13 +22,11 @@ TileRawChannelNoiseFilter::TileRawChannelNoiseFilter(const std::string& type,
     const std::string& name, const IInterface* parent)
     : base_class(type, name, parent)
     , m_tileHWID(0)
-    , m_beamInfo( "TileBeamInfoProvider/TileBeamInfoProvider")
     , m_truncationThresholdOnAbsEinSigma(3.0) // 3 sigma of ADC HF noise by default
     , m_minimumNumberOfTruncatedChannels(0.6) // at least 60% of channels should be below threshold
     , m_useTwoGaussNoise(false) // do not use 2G - has no sense for ADC HF noise for the moment
     , m_useGapCells(false) // use gap cells for noise filter as all normal cells
 {
-  declareProperty("BeamInfo", m_beamInfo);
 
   declareProperty("TruncationThresholdOnAbsEinSigma", m_truncationThresholdOnAbsEinSigma);
   declareProperty("MinimumNumberOfTruncatedChannels", m_minimumNumberOfTruncatedChannels);
@@ -64,8 +62,7 @@ StatusCode TileRawChannelNoiseFilter::initialize() {
   //=== get TileBadChanTool
   ATH_CHECK( m_tileBadChanTool.retrieve() );
 
-  //=== get TileBeamInfo
-  ATH_CHECK( m_beamInfo.retrieve() );
+  ATH_CHECK( m_DQstatusKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -75,6 +72,7 @@ StatusCode TileRawChannelNoiseFilter::initialize() {
 StatusCode
 TileRawChannelNoiseFilter::process (TileMutableRawChannelContainer& rchCont) const
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   ATH_MSG_DEBUG("in process()");
 
   TileRawChannelUnit::UNIT rChUnit = rchCont.get_unit();
@@ -95,8 +93,7 @@ TileRawChannelNoiseFilter::process (TileMutableRawChannelContainer& rchCont) con
   ATH_MSG_VERBOSE( "Units in container is " << units[rChUnit] );
 
   // Now retrieve the TileDQStatus
-  // FIXME: const violation
-  const TileDQstatus* DQstatus = m_beamInfo->getDQstatus();
+  const TileDQstatus* DQstatus = SG::makeHandle (m_DQstatusKey, ctx).get();
 
   for (IdentifierHash hash : rchCont.GetAllCurrentHashes()) {
     TileRawChannelCollection* coll = rchCont.indexFindPtr (hash);

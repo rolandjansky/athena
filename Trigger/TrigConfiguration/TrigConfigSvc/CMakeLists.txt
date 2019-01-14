@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigSteeringEvent
                           PRIVATE
                           Control/AthenaKernel
+                          Control/AthAnalysisBaseComps
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Database/IOVDbDataModel
                           Event/EventInfo

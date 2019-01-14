@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: AuxStoreInternal.h 793732 2017-01-24 19:42:30Z ssnyder $
@@ -224,6 +224,13 @@ public:
 
 
   /**
+   * @brief Test if a particular variable is tagged as a decoration.
+   * @param auxid The identifier of the desired aux data item.
+   */
+  virtual bool isDecoration (auxid_t auxid) const override;
+
+
+  /**
    * @brief Return a set of identifiers for writable data items
    *        in this store.
    *
@@ -408,7 +415,7 @@ private:
   std::vector<std::unique_ptr<IAuxTypeVector> > m_vecs;
 
   /// Record which variables are decorations.
-  std::vector<bool> m_isDecoration;
+  SG::auxid_set_t m_decorations;
 
   /// Set of @c auxid's for which we've created a vector.
   SG::auxid_set_t m_auxids;

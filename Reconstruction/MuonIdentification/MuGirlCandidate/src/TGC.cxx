@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkExUtils/TrackSurfaceIntersection.h"
@@ -70,41 +70,41 @@ StatusCode TGC::retrievePrepData()
             m_pMuGirl->msg(MSG::DEBUG) << "EventStore does not contain TGC PrepData Container " << m_sPrepDataCollection << endmsg;
     }
 
-    std::string m_sPrepDataPrior = m_sPrepDataCollection+"PriorBC";
-    std::string m_sPrepDataNext = m_sPrepDataCollection+"NextBC";
+    std::string sPrepDataPrior = m_sPrepDataCollection+"PriorBC";
+    std::string sPrepDataNext = m_sPrepDataCollection+"NextBC";
 
-    if (m_pMuGirl->evtStore()->contains<Muon::TgcPrepDataContainer>(m_sPrepDataPrior))
+    if (m_pMuGirl->evtStore()->contains<Muon::TgcPrepDataContainer>(sPrepDataPrior))
     {
-        StatusCode sc = m_pMuGirl->evtStore()->retrieve(m_pPrepDataContainerP, m_sPrepDataPrior);
+        StatusCode sc = m_pMuGirl->evtStore()->retrieve(m_pPrepDataContainerP, sPrepDataPrior);
         if (sc.isFailure() || m_pPrepDataContainerP == NULL)
         {
         m_pPrepDataContainerP=NULL;
         if (m_pMuGirl->msgLvl(MSG::DEBUG))
-            m_pMuGirl->msg(MSG::DEBUG) << "Cannot retrieve TGC PrepData Container " << m_sPrepDataPrior << endmsg;
+            m_pMuGirl->msg(MSG::DEBUG) << "Cannot retrieve TGC PrepData Container " << sPrepDataPrior << endmsg;
         }
      }
     else
     {
         m_pPrepDataContainerP=NULL;
         if (m_pMuGirl->msgLvl(MSG::DEBUG))
-            m_pMuGirl->msg(MSG::DEBUG) << "EventStore does not contain TGC PrepData Container " << m_sPrepDataPrior << endmsg;
+            m_pMuGirl->msg(MSG::DEBUG) << "EventStore does not contain TGC PrepData Container " << sPrepDataPrior << endmsg;
     }
 
-     if (m_pMuGirl->evtStore()->contains<Muon::TgcPrepDataContainer>(m_sPrepDataNext))
+     if (m_pMuGirl->evtStore()->contains<Muon::TgcPrepDataContainer>(sPrepDataNext))
      {
-        StatusCode sc = m_pMuGirl->evtStore()->retrieve(m_pPrepDataContainerN, m_sPrepDataNext);
+        StatusCode sc = m_pMuGirl->evtStore()->retrieve(m_pPrepDataContainerN, sPrepDataNext);
         if (sc.isFailure() || m_pPrepDataContainerN == NULL)
         {
         m_pPrepDataContainerN=NULL;
         if (m_pMuGirl->msgLvl(MSG::DEBUG))
-            m_pMuGirl->msg(MSG::DEBUG) << "Cannot retrieve TGC PrepData Container " << m_sPrepDataNext << endmsg;
+            m_pMuGirl->msg(MSG::DEBUG) << "Cannot retrieve TGC PrepData Container " << sPrepDataNext << endmsg;
         }
      }
     else
     {
         m_pPrepDataContainerN=NULL;
         if (m_pMuGirl->msgLvl(MSG::DEBUG))
-            m_pMuGirl->msg(MSG::DEBUG) << "EventStore does not contain TGC PrepData Container " << m_sPrepDataNext << endmsg;
+            m_pMuGirl->msg(MSG::DEBUG) << "EventStore does not contain TGC PrepData Container " << sPrepDataNext << endmsg;
     }
      return StatusCode::SUCCESS;
 
@@ -174,7 +174,7 @@ unsigned TGC::prepData(Chamber* pChamber, PrepDataList& array)
 
         }
     }
-    std::string m_sPrepDataPrior = m_sPrepDataCollection+"PriorBC";
+    std::string sPrepDataPrior = m_sPrepDataCollection+"PriorBC";
     if (m_pPrepDataContainerP == NULL && m_pMuGirl->doDecoding())
     {
         std::vector<IdentifierHash> inhash, outhash;
@@ -182,11 +182,11 @@ unsigned TGC::prepData(Chamber* pChamber, PrepDataList& array)
         // If conversion failed, then there are clearly no hits, so return 0.
         if (!m_pMuGirl->tgcRdoToPrepDataTool().empty())
             if (m_pMuGirl->tgcRdoToPrepDataTool()->decode(inhash, outhash).isFailure())
-                m_pMuGirl->msg(MSG::WARNING) << "Cannot retrieve TGC PrepData Container " << m_sPrepDataPrior << endmsg;
+                m_pMuGirl->msg(MSG::WARNING) << "Cannot retrieve TGC PrepData Container " << sPrepDataPrior << endmsg;
         // If conversion succeeds, then we must be able to get the container, so try it now.
-        if (m_pMuGirl->evtStore()->retrieve(m_pPrepDataContainerP, m_sPrepDataPrior).isFailure() ||
+        if (m_pMuGirl->evtStore()->retrieve(m_pPrepDataContainerP, sPrepDataPrior).isFailure() ||
             m_pPrepDataContainerP == NULL)
-            m_pMuGirl->msg(MSG::WARNING) << "Cannot retrieve TGC PrepData Container " << m_sPrepDataPrior << endmsg;
+            m_pMuGirl->msg(MSG::WARNING) << "Cannot retrieve TGC PrepData Container " << sPrepDataPrior << endmsg;
     }
     if (m_pPrepDataContainerP != NULL)
     {
@@ -213,7 +213,7 @@ unsigned TGC::prepData(Chamber* pChamber, PrepDataList& array)
                 m_pMuGirl->msg() << "size of TGC PrepData collection from BC-1 =" << nHits << " out of " << pColl->size() << endmsg;
         }
     }
-    std::string m_sPrepDataNext = m_sPrepDataCollection+"NextBC";
+    std::string sPrepDataNext = m_sPrepDataCollection+"NextBC";
     if (m_pPrepDataContainerN == NULL && m_pMuGirl->doDecoding())
     {
         std::vector<IdentifierHash> inhash, outhash;
@@ -221,11 +221,11 @@ unsigned TGC::prepData(Chamber* pChamber, PrepDataList& array)
         // If conversion failed, then there are clearly no hits, so return 0.
         if (!m_pMuGirl->tgcRdoToPrepDataTool().empty())
             if (m_pMuGirl->tgcRdoToPrepDataTool()->decode(inhash, outhash).isFailure())
-                m_pMuGirl->msg(MSG::WARNING) << "Cannot retrieve TGC PrepData Container " << m_sPrepDataNext << endmsg;
+                m_pMuGirl->msg(MSG::WARNING) << "Cannot retrieve TGC PrepData Container " << sPrepDataNext << endmsg;
         // If conversion succeeds, then we must be able to get the container, so try it now.
-        if (m_pMuGirl->evtStore()->retrieve(m_pPrepDataContainerN, m_sPrepDataNext).isFailure() ||
+        if (m_pMuGirl->evtStore()->retrieve(m_pPrepDataContainerN, sPrepDataNext).isFailure() ||
             m_pPrepDataContainerN == NULL)
-            m_pMuGirl->msg(MSG::WARNING) << "Cannot retrieve TGC PrepData Container " << m_sPrepDataNext << endmsg;
+            m_pMuGirl->msg(MSG::WARNING) << "Cannot retrieve TGC PrepData Container " << sPrepDataNext << endmsg;
     }
     if (m_pPrepDataContainerN != NULL)
     {

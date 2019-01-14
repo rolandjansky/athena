@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -157,11 +157,13 @@ StatusCode TileRawChannelBuilderOpt2Filter::initialize() {
 
   if (m_bestPhase) {
     //=== get TileToolTiming
+    // TileToolTiming can be disabled in the TileRawChannelBuilder
+    if (!m_tileToolTiming.isEnabled()) {
+      m_tileToolTiming.enable();
+    }
     ATH_CHECK( m_tileToolTiming.retrieve() );
-  } else {
-    m_tileToolTiming.disable();
   }
-  
+
   ATH_MSG_INFO( "initialization completed" );
 
   return StatusCode::SUCCESS;
@@ -208,10 +210,13 @@ TileRawChannel * TileRawChannelBuilderOpt2Filter::rawChannel(const TileDigits* d
   int ros = m_tileHWID->ros(adcId);
   int drawer = m_tileHWID->drawer(adcId);
   int channel = m_tileHWID->channel(adcId);
+
   chi2 = filter(ros, drawer, channel, gain, pedestal, energy, time);
+
+  unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
   
   if (m_calibrateEnergy) {
-    energy = m_tileInfo->CisCalib(adcId, energy);
+    energy = m_tileToolEmscale->doCalibCis(drawerIdx, channel, gain, energy);
   }
   
   if (msgLvl(MSG::VERBOSE)) {
@@ -244,7 +249,9 @@ TileRawChannel * TileRawChannelBuilderOpt2Filter::rawChannel(const TileDigits* d
           && time < m_maxTime
           && time > m_minTime)) {
 
-    rawCh->insertTime(m_tileInfo->TimeCalib(adcId, time));
+    time -= m_tileToolTiming->getSignalPhase(drawerIdx, channel, gain);
+    rawCh->insertTime(time);
+
     ATH_MSG_VERBOSE( "Correcting time, new time=" << rawCh->time() );
 
   }
@@ -570,17 +577,21 @@ double TileRawChannelBuilderOpt2Filter::compute(int ros, int drawer, int channel
   float ofcPhase = (float) phase;
 
   unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
-  const TileOfcWeightsStruct* weights;
-  weights = m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, ofcPhase, m_of2);
+  TileOfcWeightsStruct weights;
+  if (m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, ofcPhase, m_of2, weights).isFailure())
+  {
+    ATH_MSG_ERROR( "getOfcWeights fails" );
+    return 0;
+  }
 
   phase = ofcPhase;
 
   for (i = 0; i < digits_size; ++i) {
-    a[i] = weights->w_a[i];
-    b[i] = weights->w_b[i];
-    g[i] = weights->g[i];
-    dg[i] = weights->dg[i];
-    if (m_of2) c[i] = weights->w_c[i]; // [OptFilterPha+100];
+    a[i] = weights.w_a[i];
+    b[i] = weights.w_b[i];
+    g[i] = weights.g[i];
+    dg[i] = weights.dg[i];
+    if (m_of2) c[i] = weights.w_c[i]; // [OptFilterPha+100];
   }
 
   // for DSP emulation

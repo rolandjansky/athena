@@ -157,35 +157,6 @@ namespace xAOD {
 
       /// @}
 
-      /// @name AthenaMT accessors
-      /// @{
-
-      /// Get the passed-raw chains
-      const std::vector< ::TrigCompositeUtils::DecisionID >& chainMTPassedRaw() const;
-      /// Set the EF passed-raw items
-      void setChainMTPassedRaw( std::vector< ::TrigCompositeUtils::DecisionID > value );
-      /// Basic access modes. Performs binary search for id on ordered vector of DecisionIDs
-      bool isPassed( ::TrigCompositeUtils::DecisionID id ) const;
-      bool isPassed( const std::string& hltChainName ) const;
-
-      /// Get the EF prescaled items
-      const std::vector< ::TrigCompositeUtils::DecisionID >& chainMTPrescaled() const;
-      /// Set the EF prescaled items
-      void setChainMTPrescaled( std::vector< ::TrigCompositeUtils::DecisionID > value );
-      /// Basic access modes. Performs binary search for id on ordered vector of DecisionIDs
-      bool isPrescaled( ::TrigCompositeUtils::DecisionID id ) const;
-      bool isPrescaled( const std::string& hltChainName ) const;
-
-      /// Get the EF resurrected items
-      const std::vector< ::TrigCompositeUtils::DecisionID >& chainMTRerun() const;
-      /// Set the EF resurrected items
-      void setChainMTRerun( std::vector< ::TrigCompositeUtils::DecisionID > value );
-      /// Basic access modes. Performs binary search for id on ordered vector of DecisionIDs
-      bool isRerun( ::TrigCompositeUtils::DecisionID id ) const;
-      bool isRerun( const std::string& hltChainName ) const;
-
-      /// @}
-
    }; // class TrigDecision_v1
 
    std::ostream& operator<<(std::ostream& s, const xAOD::TrigDecision_v1& td);

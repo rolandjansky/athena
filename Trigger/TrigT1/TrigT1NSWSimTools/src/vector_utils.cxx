@@ -20,12 +20,5 @@ std::string vec2str(const std::vector< size_t > &vec){
     oss<<"]";
     return oss.str();
 }
-/*
-std::string vec2str(const std::vector<PadWithHits> &vec){
-    std::ostringstream oss;
-    for(std::vector<PadWithHits>::const_iterator it=vec.begin(); it!=vec.end(); ++it)
-        oss<<(*it)<<", ";
-    return oss.str();
-}
-*/
+
 } // nsw

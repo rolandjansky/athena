@@ -1,7 +1,7 @@
 //  -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef NSWL1_IPADTDSTOOL_H
@@ -29,9 +29,6 @@ namespace NSWL1 {
     Note to self: Sandro's original design was to have an interface and
     then an "Offline" and an "Online" tool. I don't know whether this
     is still what we want...to be discussed.
-
-    davide.gerbaudo@gmail.com
-    Oct 2015
     */
 
     class IPadTriggerLogicTool: public virtual IAlgTool {

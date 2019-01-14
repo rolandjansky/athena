@@ -396,6 +396,21 @@ namespace xAOD {
       return result;
    }
 
+
+   bool TAuxStore::isDecoration (SG::auxid_t auxid) const
+   {
+     if (m_locked) {
+       if (auxid < m_isDecoration.size() && m_isDecoration[auxid]) {
+         return true;
+       }
+       if (m_transientStore) {
+         return m_transientStore->isDecoration (auxid);
+       }
+     }
+     return false;
+   }
+
+
    void TAuxStore::lock() {
 
       // Guard against multi-threaded execution:

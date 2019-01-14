@@ -27,7 +27,7 @@ atlas_add_library( TrigSerializeCnvSvcLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigSerializeCnvSvc
                    LINK_LIBRARIES AthContainers AthenaBaseComps SGTools GaudiKernel StoreGateLib SGtests TrigSerializeResultLib TrigSerializeTPLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel DataModelRoot StorageSvc PersistentDataModel )
+                   PRIVATE_LINK_LIBRARIES AthenaKernel DataModelRoot StorageSvc PersistentDataModel )
 
 atlas_add_component( TrigSerializeCnvSvc
                      src/components/*.cxx

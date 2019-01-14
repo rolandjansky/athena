@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: DbStatus.h 726071 2016-02-25 09:23:05Z krasznaa $
@@ -78,12 +78,14 @@ namespace pool {
     /// Standard Constructor. Defaults to Error
     DbStatus() : m_code(Error)                          {                     }
     /// Default copy constructor
+    DbStatus(const DbStatus&) = default;
+    DbStatus& operator=(const DbStatus&) = default;
     /// Standard constructor with initialization from long  value.
     DbStatus(unsigned int code) : m_code(code)  {                        }
     /// Constructor with initialization from Error level, facility and code.
     DbStatus(ErrorLevel lvl, unsigned int fac, unsigned int code);
-    /// Empty destructor. Non virtual for performance reasons. Do NOT inherit.
-    ~DbStatus()                                {                              }
+    /// Default destructor. Non virtual for performance reasons. Do NOT inherit.
+    ~DbStatus() = default;
     /// Cast operator.
     operator unsigned int() const              {  return m_code;              }
     /// Assignment operator.

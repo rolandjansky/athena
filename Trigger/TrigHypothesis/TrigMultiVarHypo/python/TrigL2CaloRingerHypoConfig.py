@@ -1,9 +1,115 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Authors: joao victor pinto <jodafons@cern.ch>
 
 from TrigMultiVarHypo.TrigMultiVarHypoConf        import TrigL2CaloRingerFex, TrigL2CaloRingerHypo
 from AthenaCommon.SystemOfUnits                   import GeV
 
 
+
+class TrigL2CaloRingerPidConfs:
+
+  """
+    This class will be responsible to build all calib
+    paths and point the hypo to the ATLAS calib area files.
+    This will be implemented here for now. To switch between
+    tuning, you just need add this in your job option
+    e.g:
+    from TriggerMenu.egamma.EgammaSliceFlags import EgammaSliceFlags
+    EgammaSliceFlags.ringerVersion = 'RingerSelectorTools/file_of_your_ringer_confs'
+  """
+
+  _signatureDict = {
+      'signature' : ['e','g'],
+  }
+
+  _pidMap = {
+      'tight'   : 'tight' , 
+      'medium'  :'medium' , 
+      'loose'   :'loose'  , 
+      'vloose'  :'vloose' ,
+      'lhtight' : 'tight' , 
+      'lhmedium': 'medium', 
+      'lhloose' :'loose'  , 
+      'lhvloose': 'vloose'
+      }
+
+  # The default path for ringer selectors. The standard cuts will be the ringer v6 tuning for now.
+  # Last modification in: 2017/02/21
+  # MC15c tuning if pileup corrention using data 2016 (periods A to K) to fix all thresholds values
+  _default_basepath = 'RingerSelectorTools/TrigL2_20170221_v6'
+
+  def __init__(self):
+    
+    from AthenaCommon.Logging import logging
+    self._logger = logging.getLogger("TrigMultiVarHypo.TrigL2CaloRingerPidConfs")
+
+    #TODO: Use this to configurate the calib path from triggerMenu flags
+    from TriggerMenu.egamma.EgammaSliceFlags import EgammaSliceFlags
+    if EgammaSliceFlags.ringerVersion():
+      self._basePath = EgammaSliceFlags.ringerVersion()
+      self._logger.info('TrigMultiVarHypo version: %s',self._basePath)
+    else:
+      self._basePath = self._default_basepath
+      self._logger.info('TrigMultiVarHypo version: %s (default)',self._basePath)
+
+    # Electron files
+    self._electronConstants = {
+        'vloose' : 'TrigL2CaloRingerElectronVeryLooseConstants.root',
+        'loose'  : 'TrigL2CaloRingerElectronLooseConstants.root',
+        'medium' : 'TrigL2CaloRingerElectronMediumConstants.root',
+        'tight'  : 'TrigL2CaloRingerElectronTightConstants.root',
+        }
+    self._electronCutDefs = {
+        'vloose' : 'TrigL2CaloRingerElectronVeryLooseThresholds.root',
+        'loose'  : 'TrigL2CaloRingerElectronLooseThresholds.root',
+        'medium' : 'TrigL2CaloRingerElectronMediumThresholds.root',
+        'tight'  : 'TrigL2CaloRingerElectronTightThresholds.root',
+        }
+
+    #TODO: photon paths for future
+    self._photonConstants = {
+        'vloose' : 'TrigL2CaloRingerPhotonVeryLooseConstants.root',
+        'loose'  : 'TrigL2CaloRingerPhotonLooseConstants.root',
+        'medium' : 'TrigL2CaloRingerPhotonMediumConstants.root',
+        'tight'  : 'TrigL2CaloRingerPhotonTightConstants.root',
+        }
+    self._photonCutDefs = {
+        'vloose' : 'TrigL2CaloRingerPhotonVeryLooseThresholds.root',
+        'loose'  : 'TrigL2CaloRingerPhotonLooseThresholds.root',
+        'medium' : 'TrigL2CaloRingerPhotonMediumThresholds.root',
+        'tight'  : 'TrigL2CaloRingerPhotonTightThresholds.root',
+        }
+
+    
+  def get_constants_path(self, trigType, IDinfo):
+    if not (trigType[0] in self._signatureDict['signature']):
+      raise RuntimeError('Bad signature')
+    # is Electron
+    if self._signatureDict['signature'][0] in trigType:
+      return self._basePath + '/' +self._electronConstants[self._pidMap[IDinfo]]
+    else: #is Photon
+      #TODO: this will be uncoment when we have photon tuning 
+      #return self._basePath + '/' +self._photonConstants[self._pidMap[IDinfo]]
+      return str()
+
+  def get_cutDefs_path(self, trigType, IDinfo):
+    if not (trigType[0] in self._signatureDict['signature']):
+      raise RuntimeError('Bad signature')
+    # is Electron
+    if self._signatureDict['signature'][0] in trigType:
+      return self._basePath + '/' +self._electronCutDefs[self._pidMap[IDinfo]]
+    else: #is Photon
+      #TODO: this will be uncoment when we have photon tuning 
+      #return self._basePath + '/' +self._photonCutDefs[self._pidMap[IDinfo]]
+      return str() 
+
+# Instance object here!
+# For future use this object to call all paths
+theRingerConfig = TrigL2CaloRingerPidConfs()
+
+
+# Call all Trigger Ringer Fast configurations here!
 class TrigL2CaloRingerFexBase( TrigL2CaloRingerFex ):
   __slots__ = []
   def __init__(self, name):
@@ -31,22 +137,21 @@ class TrigL2CaloRingerFex( TrigL2CaloRingerFexBase ):
   def __init__(self, name, threshold, IDinfo, trigType):
     super( TrigL2CaloRingerFex, self ).__init__( name ) 
 
-    from TrigMultiVarHypo.TrigL2CaloRingerCutDefs import TrigL2CaloRingerCutDefs
+    from AthenaCommon.AppMgr import ToolSvc
+    from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
+    ToolSvc += LuminosityToolOnline()
     #if this is empty, the fex will work like EtCut
-    theRingerConfig = TrigL2CaloRingerCutDefs(threshold,IDinfo,trigType)
+    self.CalibPath = theRingerConfig.get_constants_path(trigType, IDinfo) 
    
-    #Prepoc configuration
-    self.NRings             = theRingerConfig.NRings
-    self.SectionRings       = theRingerConfig.SectionRings
-    self.NormalisationRings = theRingerConfig.NormalisationRings
+    # The standard preproc to normalize the rings
+    from TrigMultiVarHypo.TrigRingerPreprocessorDefs import Norm1
+    preproc = Norm1()
 
-    #MultiLayerPerceptron configuration
-    self.Nodes       = theRingerConfig.Nodes
-    self.Thresholds  = theRingerConfig.Thresholds
-    self.Bias        = theRingerConfig.Bias
-    self.Weights     = theRingerConfig.Weights
-    self.EtaBins     = theRingerConfig.EtaBins
-    self.EtBins      = theRingerConfig.EtBins
+    self.SectionRings = preproc.SectionRings
+    self.NormalisationRings =  preproc.NormalisationRings
+    self.NRings = preproc.NRings
+
+
 
 class TrigL2CaloRingerFex_Empty( TrigL2CaloRingerFexBase ):
   __slots__ = []
@@ -66,7 +171,6 @@ class TrigL2CaloRingerFex_Empty( TrigL2CaloRingerFexBase ):
   the same configuration must be passed to fex and hypo when
   you create the objects.
 '''
-
 class TrigL2CaloRingerHypo_e_ID(TrigL2CaloRingerHypo):
   __slots__ = []
 
@@ -76,14 +180,9 @@ class TrigL2CaloRingerHypo_e_ID(TrigL2CaloRingerHypo):
     self.HltFeature = 'TrigRingerNeuralFex'
     self.AcceptAll  = False
     self.EmEtCut    = (float(threshold) - 3)*GeV
+    self.CalibPath = theRingerConfig.get_cutDefs_path(trigType, IDinfo) 
 
-    from TrigMultiVarHypo.TrigL2CaloRingerCutDefs import TrigL2CaloRingerCutDefs
-    theRingerConfig = TrigL2CaloRingerCutDefs(threshold,IDinfo,trigType)
 
-    #If this is empty, the hypothesis will work like EtCut
-    self.Thresholds = theRingerConfig.Thresholds
-    self.EtaBins    = theRingerConfig.EtaBins
-    self.EtBins     = theRingerConfig.EtBins
 
 class TrigL2CaloRingerHypo_g_ID(TrigL2CaloRingerHypo):
   __slots__ = []
@@ -94,14 +193,7 @@ class TrigL2CaloRingerHypo_g_ID(TrigL2CaloRingerHypo):
     self.HltFeature = 'TrigRingerNeuralFex'
     self.AcceptAll  = False
     self.EmEtCut    = (float(threshold) - 3)*GeV
-
-    from TrigMultiVarHypo.TrigL2CaloRingerCutDefs import TrigL2CaloRingerCutDefs
-    theRingerConfig = TrigL2CaloRingerCutDefs(threshold,IDinfo,trigType)
-
-    #If this is empty, the hypothesis will work like EtCut
-    self.Thresholds = theRingerConfig.Thresholds
-    self.EtaBins    = theRingerConfig.EtaBins
-    self.EtBins     = theRingerConfig.EtBins
+    self.CalibPath = theRingerConfig.get_cutDefs_path(trigType, IDinfo) 
 
 
 class TrigL2CaloRingerHypo_NoCut(TrigL2CaloRingerHypo):

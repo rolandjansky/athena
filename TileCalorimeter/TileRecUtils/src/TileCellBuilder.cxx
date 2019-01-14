@@ -7,11 +7,11 @@
 // Tile includes
 #include "TileRecUtils/TileCellBuilder.h"
 #include "TileRecUtils/TileRawChannelBuilder.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileEvent/TileMutableRawChannelContainer.h"
 #include "TileEvent/TileCell.h"
 #include "TileEvent/TileCellCollection.h"
 #include "TileEvent/TileRawChannel.h"
+#include "TileEvent/TileDQstatus.h"
 #include "CaloIdentifier/TileID.h"
 #include "CaloIdentifier/TileTBID.h"
 #include "TileIdentifier/TileHWID.h"
@@ -67,7 +67,7 @@ TileCellBuilder::TileCellBuilder(const std::string& type, const std::string& nam
   , m_tileHWID(0)
   , m_cabling(0)
   , m_DQstatus(0)
-  , m_beamInfo("TileBeamInfoProvider/TileBeamInfoProvider")
+  , m_tileDCS("TileDCSTool")
   , m_tileMgr(0)
   , m_mbtsMgr(0)
   , m_RChType(TileFragHash::Default)
@@ -93,8 +93,6 @@ TileCellBuilder::TileCellBuilder(const std::string& type, const std::string& nam
   m_minEneChan[1] = -10000. * MeV;
   //!< MBTS channel energy threshold for masking (not used currently(
   m_minEneChan[2] = -999999. * MeV;
-
-  declareProperty("BeamInfo", m_beamInfo);
 
   declareProperty( "MinEnergyChan", m_minEneChan[0]);
   declareProperty( "MinEnergyGap",  m_minEneChan[1]);
@@ -150,6 +148,9 @@ TileCellBuilder::TileCellBuilder(const std::string& type, const std::string& nam
   declareProperty("SkipGain", m_skipGain = -1); // never skip any gain by default
 
   declareProperty("UseDemoCabling", m_useDemoCabling = 0); // if set to 2015 - assume TB 2015 cabling
+
+  declareProperty("TileDCSTool", m_tileDCS); // FIXME
+  declareProperty("CheckDCS", m_checkDCS = false);
 }
 
 /**
@@ -178,6 +179,7 @@ StatusCode TileCellBuilder::initialize() {
   }
 
   ATH_CHECK( m_eventInfoKey.initialize() );
+  ATH_CHECK( m_DQstatusKey.initialize() );
 
   ATH_CHECK( detStore()->retrieve(m_tileMgr) );
   ATH_CHECK( detStore()->retrieve(m_tileID) );
@@ -187,9 +189,6 @@ StatusCode TileCellBuilder::initialize() {
   //=== get TileBadChanTool
   ATH_CHECK( m_tileBadChanTool.retrieve() );
 
-  //=== get TileBeamInfo
-  ATH_CHECK( m_beamInfo.retrieve() );
-
   // access tools and store them
   ATH_CHECK( m_noiseFilterTools.retrieve() );
 
@@ -198,6 +197,13 @@ StatusCode TileCellBuilder::initialize() {
 
   //=== get TileCondToolTiming
   ATH_CHECK( m_tileToolTiming.retrieve() );
+
+  if (m_checkDCS) {
+    CHECK( m_tileDCS.retrieve() );
+  }
+  else {
+    m_tileDCS.disable();
+  }
 
   m_cabling = TileCablingService::getInstance();
 
@@ -287,6 +293,7 @@ StatusCode TileCellBuilder::finalize() {
 }
 
 StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
 
   //**
   //* Get TileRawChannels
@@ -468,7 +475,7 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
                       << " offline vector size = " << oflVec.size()
                       << ", dsp vector size = " << dspVec.size() );
 
-        build(vecBeg, vecEnd, theCellContainer);
+        build(ctx, vecBeg, vecEnd, theCellContainer);
         begin = end;
       }
 
@@ -496,7 +503,7 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
       }
       
       ATH_MSG_DEBUG( " Calling build() method for rawChannels from " << m_rawChannelContainerKey.key() );
-      build(begin, end, theCellContainer);
+      build(ctx, begin, end, theCellContainer);
     }
     
     if (!m_MBTSContainerKey.key().empty()) {
@@ -740,7 +747,7 @@ bool TileCellBuilder::maskBadChannel(TileCell* pCell, HWIdentifier hwid) {
     // Now checking the DQ status
     if (!bad && m_notUpgradeCabling) {
       bad = !(m_DQstatus->isAdcDQgood(ros, drawer, chan, gain)
-            && m_beamInfo->isChanDCSgood(ros, drawer, chan));
+            && isChanDCSgood(ros, drawer, chan));
     }
   }
 
@@ -804,7 +811,7 @@ bool TileCellBuilder::maskBadChannels(TileCell* pCell) {
     // Now checking the DQ status
     if (!bad1 && m_notUpgradeCabling) {
       bad1 = !(m_DQstatus->isAdcDQgood(ros1, drawer1, chan1, gain1)
-              && m_beamInfo->isChanDCSgood(ros1, drawer1, chan1));
+              && isChanDCSgood(ros1, drawer1, chan1));
     }
   }
 
@@ -856,7 +863,7 @@ bool TileCellBuilder::maskBadChannels(TileCell* pCell) {
       // Now checking the DQ status
       if (!bad2 && m_notUpgradeCabling) {
         bad2 = !(m_DQstatus->isAdcDQgood(ros2, drawer2, chan2, gain2)
-                && m_beamInfo->isChanDCSgood(ros2, drawer2, chan2));
+                && isChanDCSgood(ros2, drawer2, chan2));
       }
     }
 
@@ -1001,10 +1008,12 @@ bool TileCellBuilder::maskBadChannels(TileCell* pCell) {
 
 
 template<class ITERATOR, class COLLECTION>
-void TileCellBuilder::build(const ITERATOR & begin, const ITERATOR & end, COLLECTION * coll) {
+void TileCellBuilder::build(const EventContext& ctx,
+                            const ITERATOR & begin, const ITERATOR & end, COLLECTION * coll) {
 
-  // Now retrieve the TileDQStatus
-  if(m_notUpgradeCabling) m_DQstatus = m_beamInfo->getDQstatus();
+  if(m_notUpgradeCabling) {
+    m_DQstatus = SG::makeHandle (m_DQstatusKey, ctx).get();
+  }
 
   /* zero all counters and sums */
   int nTwo = 0;
@@ -1416,4 +1425,20 @@ void TileCellBuilder::build(const ITERATOR & begin, const ITERATOR & end, COLLEC
 
     msg(MSG::DEBUG) << endmsg;
   }
+}
+
+
+bool TileCellBuilder::isChanDCSgood (int ros, int drawer, int channel) const
+{
+  if (!m_checkDCS) return true;
+  TileDCSState::TileDCSStatus status = m_tileDCS->getDCSStatus(ros, drawer, channel);
+
+  if (status > TileDCSState::WARNING) {
+    ATH_MSG_DEBUG("Module=" << TileCalibUtils::getDrawerString(ros, drawer)
+                  << " channel=" << channel
+                  << " masking becasue of bad DCS status=" << status);
+    return false;
+  }
+
+  return true;
 }

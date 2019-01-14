@@ -113,26 +113,29 @@ namespace xAOD {
       /// @{
 
       /// Get a pointer to a given array
-      virtual const void* getData( auxid_t auxid ) const;
+      virtual const void* getData( auxid_t auxid ) const override;
 
       /// Get the types(names) of variables handled by this container
-      virtual const auxid_set_t& getAuxIDs() const;
+      virtual const auxid_set_t& getAuxIDs() const override;
 
       /// Get a pointer to a given array, creating the array if necessary
       virtual void* getDecoration( auxid_t auxid, size_t size,
-                                   size_t capacity );
+                                   size_t capacity ) override;
+
+      /// Test if a variable is a decoration.
+      virtual bool isDecoration (auxid_t auxid) const override;
 
       /// Lock the object, and don't let decorations be added
-      virtual void lock(); 
+      virtual void lock() override;
       /// Remove the decorations added so far. Only works for transient
       /// decorations.
-      virtual bool clearDecorations(); 
+      virtual bool clearDecorations() override;
 
       /// Lock a decoration.
-      virtual void lockDecoration (SG::auxid_t auxid);
+      virtual void lockDecoration (SG::auxid_t auxid) override;
 
-     /// Return the number of elements in the store
-      virtual size_t size() const;
+      /// Return the number of elements in the store
+      virtual size_t size() const override;
 
       /// @}
 
@@ -141,21 +144,21 @@ namespace xAOD {
 
       /// Get a pointer to a given array, creating the array if necessary
       virtual void* getData( auxid_t auxid, size_t size,
-                             size_t capacity );
+                             size_t capacity ) override;
 
       /// Return a set of writable data identifiers
-      virtual const auxid_set_t& getWritableAuxIDs() const;
+      virtual const auxid_set_t& getWritableAuxIDs() const override;
 
       /// Resize the arrays to a given size
-      virtual bool resize( size_t size );
+      virtual bool resize( size_t size ) override;
       /// Reserve a given size for the arrays
-      virtual void reserve( size_t size );
+      virtual void reserve( size_t size ) override;
       /// Shift the contents of the stored arrays
-      virtual void shift( size_t pos, ptrdiff_t offs );
+      virtual void shift( size_t pos, ptrdiff_t offs ) override;
       /// Insert contents of another store via move.
       virtual bool insertMove (size_t pos,
                                IAuxStore& other,
-                               const SG::auxid_set_t& ignore);
+                               const SG::auxid_set_t& ignore) override;
 
       /// @}
 
@@ -163,19 +166,19 @@ namespace xAOD {
       /// @{
 
       /// Get a pointer to the data being stored for one aux data item
-      virtual const void* getIOData( auxid_t auxid ) const;
+      virtual const void* getIOData( auxid_t auxid ) const override;
 
       /// Return the type of the data to be stored for one aux data item
-      virtual const std::type_info* getIOType( auxid_t auxid ) const;
+      virtual const std::type_info* getIOType( auxid_t auxid ) const override;
 
       /// Get the types(names) of variables created dynamically
-      virtual const auxid_set_t& getDynamicAuxIDs() const;
+      virtual const auxid_set_t& getDynamicAuxIDs() const override;
 
       /// Select dynamic auxiliary attributes for writing
-      virtual void selectAux( const std::set< std::string >& attributes );
+      virtual void selectAux( const std::set< std::string >& attributes ) override;
 
       /// Get the IDs of the selected aux variables
-      virtual auxid_set_t getSelectedAuxIDs() const;
+      virtual auxid_set_t getSelectedAuxIDs() const override;
 
       /// @}
 

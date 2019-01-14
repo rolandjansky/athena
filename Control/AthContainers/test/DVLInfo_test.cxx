@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: DVLInfo_test.cxx 508150 2012-06-29 10:25:42Z ssnyder $
@@ -15,8 +15,8 @@
 
 #undef NDEBUG
 #include "AthContainers/tools/DVLInfo.h"
-#include "SGTools/BaseInfo.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/BaseInfo.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include <type_traits>
 #include <vector>
 #include <list>

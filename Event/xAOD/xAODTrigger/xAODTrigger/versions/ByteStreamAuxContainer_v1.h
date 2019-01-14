@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ByteStreamAuxContainer_v1.h 793760 2017-01-25 02:02:33Z ssnyder $
@@ -59,7 +59,7 @@ namespace xAOD {
       /// Copy constructor
       ByteStreamAuxContainer_v1( const ByteStreamAuxContainer_v1& parent );
       /// Destructor
-      ~ByteStreamAuxContainer_v1();
+      virtual ~ByteStreamAuxContainer_v1();
 
       /// Assignment operator
       ByteStreamAuxContainer_v1&
@@ -69,25 +69,28 @@ namespace xAOD {
       /// @{
 
       /// Get a pointer to a given array
-      virtual const void* getData( auxid_t auxid ) const;
+      virtual const void* getData( auxid_t auxid ) const override;
 
       /// Get the types(names) of variables handled by this container
-      virtual const auxid_set_t& getAuxIDs() const;
+      virtual const auxid_set_t& getAuxIDs() const override;
 
       /// Get a pointer to a given array, as a decoration.
-      virtual void* getDecoration (auxid_t auxid, size_t size, size_t capacity);
+      virtual void* getDecoration (auxid_t auxid, size_t size, size_t capacity) override;
+
+      /// Test if a variable is a decoration.
+      virtual bool isDecoration (auxid_t auxid) const override;
 
       /// Lock the container.
-      virtual void lock();
+      virtual void lock() override;
 
       /// Clear all decorations.
-      virtual bool clearDecorations();
+      virtual bool clearDecorations() override;
 
       /// Lock a decoration.
-      virtual void lockDecoration (SG::auxid_t auxid);
+      virtual void lockDecoration (SG::auxid_t auxid) override;
 
       /// Get the size of the container.
-      virtual size_t size() const;
+      virtual size_t size() const override;
 
       /// @}
 
@@ -96,21 +99,21 @@ namespace xAOD {
 
       /// Get a pointer to a given array, creating the array if necessary
       virtual void* getData( auxid_t auxid, size_t size,
-                             size_t capacity );
+                             size_t capacity ) override;
 
       /// Return a set of writable data identifiers
-      virtual const auxid_set_t& getWritableAuxIDs() const;
+      virtual const auxid_set_t& getWritableAuxIDs() const override;
 
       /// Resize the arrays to a given size
-      virtual bool resize( size_t size );
+      virtual bool resize( size_t size ) override;
       /// Reserve a given size for the arrays
-      virtual void reserve( size_t size );
+      virtual void reserve( size_t size ) override;
       /// Shift the contents of the stored arrays
-      virtual void shift( size_t pos, ptrdiff_t offs );
+      virtual void shift( size_t pos, ptrdiff_t offs ) override;
       /// Insert contents of another store via move.
       virtual bool insertMove (size_t pos,
                                IAuxStore& other,
-                               const SG::auxid_set_t& ignore);
+                               const SG::auxid_set_t& ignore) override;
  
       /// @}
 
@@ -174,8 +177,8 @@ namespace xAOD {
       mutable std::vector< SG::IAuxTypeVector* > m_dynamicVecs;
       /// Has the container been locked?
       bool m_locked;
-      /// Mark variables as decorations.
-      std::vector<bool> m_isDecoration;
+      /// Record which variables are decorations.
+      SG::auxid_set_t m_decorations;
 
       /// Mutex for multithread synchronization.
       typedef AthContainers_detail::mutex mutex_t;

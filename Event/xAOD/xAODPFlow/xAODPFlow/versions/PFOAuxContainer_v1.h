@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: PFOAuxContainer_v1.h 744541 2016-05-03 15:55:30Z krasznaa $
@@ -38,7 +38,7 @@ namespace xAOD {
   public:
     /// Default constructor
     PFOAuxContainer_v1();
-    ~PFOAuxContainer_v1() {};
+    ~PFOAuxContainer_v1() = default;
 
   private:
     /** BDT Score used to classify clusters as Pi0 like or not */

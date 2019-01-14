@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGCcabling/TGCCableSLBToHPB.h"
@@ -12,34 +12,34 @@ namespace LVL1TGCCabling8 {
 TGCCableSLBToHPB::TGCCableSLBToHPB (std::string filename)
   : TGCCable(TGCCable::SLBToHPB)
 {
-  database[TGCIdBase::Endcap][TGCIdBase::WT] = 
+  m_database[TGCIdBase::Endcap][TGCIdBase::WT] = 
     new TGCDatabasePPToSL(filename,"SB EWT");
-  database[TGCIdBase::Endcap][TGCIdBase::WD] = 
+  m_database[TGCIdBase::Endcap][TGCIdBase::WD] = 
     new TGCDatabasePPToSL(filename,"SB EWD");
-  database[TGCIdBase::Endcap][TGCIdBase::ST] =
+  m_database[TGCIdBase::Endcap][TGCIdBase::ST] =
     new TGCDatabasePPToSL(filename,"SB EST");
-  database[TGCIdBase::Endcap][TGCIdBase::SD] = 
+  m_database[TGCIdBase::Endcap][TGCIdBase::SD] = 
     new TGCDatabasePPToSL(filename,"SB ESD");
-  database[TGCIdBase::Forward][TGCIdBase::WT] = 
+  m_database[TGCIdBase::Forward][TGCIdBase::WT] = 
     new TGCDatabasePPToSL(filename,"SB FWT");
-  database[TGCIdBase::Forward][TGCIdBase::WD] =
+  m_database[TGCIdBase::Forward][TGCIdBase::WD] =
     new TGCDatabasePPToSL(filename,"SB FWD");
-  database[TGCIdBase::Forward][TGCIdBase::ST] = 
+  m_database[TGCIdBase::Forward][TGCIdBase::ST] = 
     new TGCDatabasePPToSL(filename,"SB FST");
-  database[TGCIdBase::Forward][TGCIdBase::SD] = 
+  m_database[TGCIdBase::Forward][TGCIdBase::SD] = 
     new TGCDatabasePPToSL(filename,"SB FSD");
 }
 
 TGCCableSLBToHPB::~TGCCableSLBToHPB (void)
 {
-  delete database[TGCIdBase::Endcap][TGCIdBase::WT];
-  delete database[TGCIdBase::Endcap][TGCIdBase::WD];
-  delete database[TGCIdBase::Endcap][TGCIdBase::ST];
-  delete database[TGCIdBase::Endcap][TGCIdBase::SD];
-  delete database[TGCIdBase::Forward][TGCIdBase::WT];
-  delete database[TGCIdBase::Forward][TGCIdBase::WD];
-  delete database[TGCIdBase::Forward][TGCIdBase::ST];
-  delete database[TGCIdBase::Forward][TGCIdBase::SD];
+  delete m_database[TGCIdBase::Endcap][TGCIdBase::WT];
+  delete m_database[TGCIdBase::Endcap][TGCIdBase::WD];
+  delete m_database[TGCIdBase::Endcap][TGCIdBase::ST];
+  delete m_database[TGCIdBase::Endcap][TGCIdBase::SD];
+  delete m_database[TGCIdBase::Forward][TGCIdBase::WT];
+  delete m_database[TGCIdBase::Forward][TGCIdBase::WD];
+  delete m_database[TGCIdBase::Forward][TGCIdBase::ST];
+  delete m_database[TGCIdBase::Forward][TGCIdBase::SD];
 }
 
 TGCChannelId* TGCCableSLBToHPB::getChannel (const TGCChannelId* channelId,
@@ -298,8 +298,8 @@ TGCModuleMap* TGCCableSLBToHPB::getModuleIn (const TGCModuleId* hpb) const {
     return 0; 
   } 
   
-  TGCDatabase* doubletP = database[hpb->getRegionType()][doublet];
-  TGCDatabase* tripletP = database[hpb->getRegionType()][triplet];
+  TGCDatabase* doubletP = m_database[hpb->getRegionType()][doublet];
+  TGCDatabase* tripletP = m_database[hpb->getRegionType()][triplet];
   
   TGCModuleMap* mapId = 0;
   int MaxEntry = doubletP->getMaxEntry();
@@ -340,7 +340,7 @@ TGCModuleMap* TGCCableSLBToHPB::getModuleInforHPB (const TGCModuleId* hpb,
 						   TGCIdBase::ModuleType moduleType) const {
   if(hpb->isValid()==false) return 0;
 
-  TGCDatabase* databaseP = database[hpb->getRegionType()][moduleType];
+  TGCDatabase* databaseP = m_database[hpb->getRegionType()][moduleType];
 
   TGCModuleMap* mapId = 0;
   int MaxEntry = databaseP->getMaxEntry();
@@ -379,7 +379,7 @@ TGCModuleMap* TGCCableSLBToHPB::getModuleInforHPB (const TGCModuleId* hpb,
 TGCModuleMap* TGCCableSLBToHPB::getModuleOut (const TGCModuleId* slb) const {
   if(slb->isValid()==false) return 0;
 
-  TGCDatabase* databaseP =database[slb->getRegionType()][slb->getModuleType()];
+  TGCDatabase* databaseP =m_database[slb->getRegionType()][slb->getModuleType()];
   
   TGCModuleMap* mapId = 0;
   int MaxEntry = databaseP->getMaxEntry();

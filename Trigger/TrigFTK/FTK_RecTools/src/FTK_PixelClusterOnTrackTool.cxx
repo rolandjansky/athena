@@ -174,18 +174,6 @@ FTK_PixelClusterOnTrackTool::initialize() {
     ATH_MSG_WARNING("Can not retrieve " << m_storeGate << ". Exiting.");
     return StatusCode::FAILURE;
   }
-
-  /* ME : booking of test histos is something to be hidden from production code !
-     sc = service("HistogramDataSvc", m_HistSvc, true);
-     // Define here the histograms;
-     m_h_Resx = m_HistSvc->book(m_foldername,"Resx","X shift (um)",400,-400.,400.);
-     m_h_Resy = m_HistSvc->book(m_foldername,"Resy","Y shift (um)",400,-400.,400.);
-     m_h_Locx = m_HistSvc->book(m_foldername,"Locx","X position (mm)",400,-20.,20.);
-     m_h_Locy = m_HistSvc->book(m_foldername,"Locy","Y position (mm)",800,-40.,40.);
-     m_h_ThetaTrack = m_HistSvc->book(m_foldername,"ThetaTrack","Theta Track (rad)",140,-7.,7);
-     m_h_PhiTrack = m_HistSvc->book(m_foldername,"PhiTrack","Phi Track (rad)",140,-7.,7);
-   */
-   
    
   m_dRMap = SG::ReadHandleKey<InDet::DRMap>(m_dRMapName);
   ATH_CHECK( m_dRMap.initialize() );
@@ -198,9 +186,9 @@ FTK_PixelClusterOnTrackTool::initialize() {
   m_etax[0]=0.; m_etax[NBINETA]=2.7;
   for (int i=0; i<NBINETA-1; i++) m_etax[i+1]=(etacen[i]+etacen[i+1])/2.;
 
-  ///UGLY!
+  //UGLY!
 #include "IBL_calibration.h"
-  ///  
+  //  
 
   ATH_CHECK(m_lorentzAngleTool.retrieve());
    

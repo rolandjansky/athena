@@ -24,6 +24,7 @@ atlas_depends_on_subdirs(
    InnerDetector/InDetRecEvent/InDetPrepRawData
    InnerDetector/InDetRecTools/InDetRecToolInterfaces
    Tracking/TrkEvent/TrkParameters
+   Tracking/TrkUtilityPackages/TrkNeuralNetworkUtils
    PRIVATE
    Database/AthenaPOOL/AthenaPoolUtilities
    Database/AthenaPOOL/PoolSvc
@@ -34,8 +35,7 @@ atlas_depends_on_subdirs(
    InnerDetector/InDetDetDescr/PixelGeoModel
    Tracking/TrkDetDescr/TrkSurfaces
    Tracking/TrkEvent/TrkEventPrimitives
-   Tracking/TrkEvent/VxVertex
-   Tracking/TrkUtilityPackages/TrkNeuralNetworkUtils )
+   Tracking/TrkEvent/VxVertex )
 
 # External dependencies:
 find_package( CLHEP )

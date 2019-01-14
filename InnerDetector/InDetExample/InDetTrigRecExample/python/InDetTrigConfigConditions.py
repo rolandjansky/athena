@@ -125,10 +125,11 @@ class PixelConditionsServicesSetup:
     # Conditions Summary Setup #
     ############################
     # This is future replacement of the PixelConditionsSummaryTool...
-    from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
-    condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
-                                  UseDeadMap=self.usePixMap,
-                                  ReadDeadMapKey=PixelDeadMapFolder)
+    if not hasattr(condSeq, 'PixelConfigCondAlg'):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
+      condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
+                                    UseDeadMap=self.usePixMap,
+                                    ReadDeadMapKey=PixelDeadMapFolder)
 
     from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
     TrigPixelConditionsSummaryTool = PixelConditionsSummaryTool(name=self.instanceName('PixelConditionsSummaryTool'), 

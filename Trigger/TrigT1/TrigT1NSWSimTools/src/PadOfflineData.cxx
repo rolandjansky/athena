@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
 //Local includes
 #include "TrigT1NSWSimTools/PadOfflineData.h"
 #include "TrigT1NSWSimTools/sTGCenumeration.h"
-
-#include "TVector3.h"
 
 #include <string>
 

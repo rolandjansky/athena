@@ -43,12 +43,14 @@ TrigL2MuonSA::TgcDataPreparator::TgcDataPreparator(const std::string& type,
   AthAlgTool(type,name,parent),
    m_storeGateSvc( "StoreGateSvc", name ),
    m_activeStore( "ActiveStoreSvc", name ), 
+   m_rawDataProviderTool("Muon::TGC_RawDataProviderTool/TGC_RawDataProviderTool"),
    m_tgcPrepDataProvider("Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool"),
    m_regionSelector( "RegSelSvc", name ), 
    m_robDataProvider( "ROBDataProviderSvc", name ),
    m_options(), m_recMuonRoIUtils()
 {
    declareInterface<TrigL2MuonSA::TgcDataPreparator>(this);
+   declareProperty("TgcRawDataProvider", m_rawDataProviderTool);
    declareProperty("TgcPrepDataProvider", m_tgcPrepDataProvider);
 }
 
@@ -90,6 +92,14 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::initialize()
 
    ATH_CHECK( m_activeStore.retrieve() ); 
    ATH_MSG_DEBUG("Retrieved ActiveStoreSvc." );
+
+   // Retreive TGC raw data provider tool
+   ATH_MSG_DEBUG("Decode BS set to " << m_decodeBS);
+   if (m_rawDataProviderTool.retrieve(DisableTool{ !m_decodeBS }).isFailure()) {
+     msg (MSG::FATAL) << "Failed to retrieve " << m_rawDataProviderTool << endmsg;
+     return StatusCode::FAILURE;
+   } else
+     msg (MSG::INFO) << "Retrieved Tool " << m_rawDataProviderTool << endmsg;
 
    ATH_CHECK( m_tgcPrepDataProvider.retrieve() );
    ATH_MSG_DEBUG("Retrieved tool " << m_tgcPrepDataProvider );
@@ -156,7 +166,14 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
    if (iroi) m_regionSelector->DetHashIDList(TGC, *iroi, m_tgcHashList);
    else m_regionSelector->DetHashIDList(TGC, m_tgcHashList);
    if(roi) delete roi;
-   
+
+   // Decode BS
+   if (m_decodeBS){
+     if ( m_rawDataProviderTool->convert(m_tgcHashList).isFailure()) {
+       ATH_MSG_WARNING("Conversion of BS for decoding of TGCs failed");
+     }
+   }
+
    // now convert from RDO to PRD
    std::vector<IdentifierHash> inhash, outhash;
    inhash = m_tgcHashList; 

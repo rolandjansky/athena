@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # @file    PyDumper.SgDumpLib
 # @purpose API for the sg-dump script
@@ -76,7 +76,7 @@ def _gen_jobo(dct):
                      ):
             getattr (rec, item).set_Value_and_Lock(False)
 
-        # disable the time consuming stuff we don't give a damn about
+        # disable the time consuming stuff we don't care about
         for item in ('doDumpTDS', 'doDumpTES',
                      'doMonitoring',
                      'doHist',
@@ -88,6 +88,7 @@ def _gen_jobo(dct):
 
         # events to process
         acf.EvtMax = %(evts)s
+        acf.SkipEvents = %(skip)s
 
         # prevent AthFile from using the cache
         import PyUtils.AthFile as af
@@ -113,6 +114,7 @@ def _gen_jobo(dct):
         from %(pyalg_pkg)s import %(pyalg_cls)s as pyalg
         job += pyalg('pyalg',
                      ofile='%(ofile-name)s',
+                     exclude='%(exclude)s',
                      OutputLevel=Lvl.INFO)
         """) % dct
     else:
@@ -188,6 +190,7 @@ def _gen_jobo(dct):
 
         # events to process
         acf.EvtMax = %(evts)s
+        acf.SkipEvents = %(skip)s
     
         # prevent AthFile from using the cache
         import PyUtils.AthFile as af
@@ -209,6 +212,7 @@ def _gen_jobo(dct):
         from %(pyalg_pkg)s import %(pyalg_cls)s as pyalg
         job += pyalg('pyalg',
                      ofile='%(ofile-name)s',
+                     exclude='%(exclude)s',
                      OutputLevel=Lvl.INFO)
         """) % dct
         
@@ -353,9 +357,11 @@ def _run_jobo(job, msg, options):
 
 def run_sg_dump(files, output,
                 nevts=-1,
+                skip=0,
                 dump_jobo=False,
                 use_recex_links=True,
                 pyalg_cls='PyDumper.PyComps:PySgDumper',
+                exclude='',
                 file_type=None,
                 do_clean_up=False,
                 athena_opts=None,
@@ -364,11 +370,13 @@ def run_sg_dump(files, output,
      `files` a list of input filenames to be dumped by SgDump
      `output` the name of the output (ASCII) file
      `nevts`  the number of events to dump (default: -1 ie all)
+     `skip`   the number of events to skip at the start (default: 0)
      `dump_jobo` switch to store or not the automatically generated jobo (put
                  the name of the jobo output name in there if you want to keep
                  it)
      `use_recex_links` switch to run RecExCommon_links and thus a local db replica
      `pyalg_cls` the fully qualified name of the PyAthena.Alg class to process the file(s) content (PySgDumper or DataProxyLoader)
+     `exclude`: comma-separated list of glob patterns for keys/types to ignore.
      `file_type` the input file's type (RDO,BS,ESD,AOD,DPD or ANY)
      `do_clean_up` flag to enable the attempt at removing all the files sg-dump
                    produces during the course of its execution
@@ -421,6 +429,8 @@ def run_sg_dump(files, output,
         'ofile-name' : output,
         'input-files': files,
         'evts' :       nevts,
+        'skip' :       skip,
+        'exclude' :    exclude,
         'pyalg_pkg':   pyalg_pkg,
         'pyalg_cls':   pyalg_cls,
         'input-type':  file_type.upper(),
@@ -429,10 +439,12 @@ def run_sg_dump(files, output,
     msg.info(':'*40)
     msg.info('input files:     %s', files)
     msg.info('events:          %s', nevts)
+    msg.info('skip:            %s', skip)
     msg.info('out (ascii):     %s', output)
     msg.info('use recex links: %s', use_recex_links)
     msg.info('pyalg-class:     %s:%s', pyalg_pkg, pyalg_cls)
     msg.info('file_type:       %s', file_type)
+    msg.info('exclude:         %s', exclude)
     
     if dump_jobo and isinstance(dump_jobo, basestring):
         try:

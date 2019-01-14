@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -15,7 +15,7 @@
 
 /*!
 
-A trigger trigger candidate for a stgc sector
+A trigger candidate for a stgc sector
 
 davide.gerbaudo@gmail.com, April 2013
 */

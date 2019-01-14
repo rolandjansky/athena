@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,7 +15,7 @@
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkFitterUtils/DNA_MaterialEffects.h"
-#include "GaudiKernel/SystemOfUnits.h""
+#include "GaudiKernel/SystemOfUnits.h"
 //#include "TrkParameters/MeasuredTrackParameters.h"
 // #include "TrkFitterUtils/ProtoTrajectoryUtility.h"
 

@@ -1,6 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
 
 /**********************************************************************
  * AsgTool: TrigEgammaL2CaloSelectorTool
@@ -32,8 +33,8 @@ TrigEgammaL2CaloSelectorTool( const std::string& myname )
   declareProperty("EtaBins",        m_etabin          );
   declareProperty("dETACLUSTERthr", m_detacluster=0.1 );
   declareProperty("dPHICLUSTERthr", m_dphicluster=0.1 );
-  declareProperty("ETthr",          m_eTthr           );
-  declareProperty("ET2thr",         m_eT2thr          );
+  declareProperty("ETthr",          m_eTthr=999.0     );
+  declareProperty("ET2thr",         m_eT2thr=999.0    );
   declareProperty("HADET2thr",      m_hadeT2thr=999.0 );
   declareProperty("F1thr",          m_F1thr=0.005     ); 
   declareProperty("WETA2thr",       m_WETA2thr=99999. );

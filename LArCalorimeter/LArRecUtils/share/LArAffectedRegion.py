@@ -10,4 +10,4 @@ if not hasattr (condSeq,"LArHVCondAlg"):
       hvcond = LArHVCondAlg(doHV=False,doAffectedHV=False)
       condSeq+=hvcond
    else:
-      include("LArConditionsCommon/LArHVDB.py")
+      from LArConditionsCommon import LArHVDB

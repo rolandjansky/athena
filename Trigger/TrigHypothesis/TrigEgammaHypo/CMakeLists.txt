@@ -64,3 +64,11 @@ atlas_add_component( TrigEgammaHypo
 atlas_install_headers( TrigEgammaHypo )
 atlas_install_python_modules( python/*.py )
 
+atlas_add_test( TrigL2CaloHypoToolConfig SCRIPT python -m TrigEgammaHypo.TrigL2CaloHypoTool
+		POST_EXEC_SCRIPT nopost.sh )
+
+atlas_add_test( TrigL2ElectronHypoToolConfig SCRIPT python -m TrigEgammaHypo.TrigL2ElectronHypoTool
+		POST_EXEC_SCRIPT nopost.sh )
+
+atlas_add_test( TrigL2PhotonHypoToolConfig SCRIPT python -m TrigEgammaHypo.TrigL2PhotonHypoTool
+		POST_EXEC_SCRIPT nopost.sh )

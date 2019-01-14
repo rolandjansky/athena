@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -123,6 +123,8 @@
  *
  * Add to a function to suppress warnings about uses of static variables,
  * mutable variables, or discarding const.
+ *
+ * Add to a class to so mark all functions in the class.
  *
  * A function calling an ATLAS_NOT_THREAD_SAFE function must also be marked
  * ATLAS_NOT_THREAD_SAFE.

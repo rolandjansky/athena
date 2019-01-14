@@ -33,11 +33,17 @@ class EventIDTextFile(JobProperty):
     allowedTypes=['str']
     StoredValue = 'events.txt'
 
-class doSignal(JobProperty):
-    """Signal"""
+class signalOnlyOutput(JobProperty):
+    """Output signal-only RDOs"""
     statusOn=True
     allowedTypes=['bool']
     StoredValue = False
+
+class PoolSignalRDOOutput(JobProperty):
+    """The name of the output signal POOL RDO file"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = "RDO_SGNL.pool.root"     
 
 class evtStore(JobProperty):
     """MC EvtStore name for overlay"""

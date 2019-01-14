@@ -115,6 +115,13 @@ public:
 
 
   /**
+   * @brief Test if a particular variable is tagged as a decoration.
+   * @param auxid The identifier of the desired aux data item.
+   */
+  virtual bool isDecoration (auxid_t auxid) const = 0;
+
+
+  /**
    * @brief Lock the container.
    *
    * After this, only decorations can be changed/modified.

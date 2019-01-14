@@ -26,7 +26,8 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           Tracking/TrkEvent/TrkTrack
-                          Tracking/TrkEvent/TrkTrackSummary )
+                          Tracking/TrkEvent/TrkTrackSummary 
+                          Trigger/TrigFTK/FTK_RecToolInterfaces)
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -42,7 +43,7 @@ atlas_add_library( TrigFTK_RawDataAlgsLib
 atlas_add_component( TrigFTK_RawDataAlgs
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps PileUpToolsLib GaudiKernel TrkEventPrimitives FTK_DataProviderInterfaces TrigFTKPool TrigFTKSimLib TrigFTK_RawData AtlasDetDescr EventInfo xAODTracking  xAODTruth InDetIdentifier InDetReadoutGeometry TrkTrack TrkTrackSummary VxVertex TrigFTK_RawDataAlgsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps PileUpToolsLib GaudiKernel TrkEventPrimitives  FTK_DataProviderInterfaces TrigFTKPool TrigFTKSimLib TrigFTK_RawData AtlasDetDescr EventInfo xAODTracking  xAODTruth InDetIdentifier InDetReadoutGeometry TrkTrack TrkTrackSummary VxVertex TrigFTK_RawDataAlgsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

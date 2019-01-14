@@ -70,8 +70,6 @@ from IOVDbSvc.CondDB import conddb
 IOVDbSvc.GlobalTag="OFLCOND-MC16-SDR-18"
 IOVDbSvc.OutputLevel = 3
 
-#ToolSvc = ServiceMgr.ToolSvc
-
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Chip", "/SCT/DAQ/Config/Chip")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Module", "/SCT/DAQ/Config/Module")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/ROD", "/SCT/DAQ/Config/ROD")

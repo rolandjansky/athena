@@ -112,7 +112,7 @@ public:
   ServiceHandle<ISF::ISimulationSvc>* simulator() { return nullptr; };
   bool isDynamic() { return false; };
   ISF::SimSvcID simSvcID() { return 0; };
-  virtual ISF::SimulationFlavor simFlavor() override { return ISF::Fatras; }
+  virtual ISF::SimulationFlavor simFlavor() { return ISF::Fatras; }
   void initializeSelector() { };
   void beginEvent() { };
   void endEvent() { };

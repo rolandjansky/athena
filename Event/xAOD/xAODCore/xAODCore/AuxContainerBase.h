@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: AuxContainerBase.h 793737 2017-01-24 20:11:10Z ssnyder $
@@ -93,6 +93,9 @@ namespace xAOD {
 
       /// Get the types(names) of variables handled by this container
       virtual const auxid_set_t& getAuxIDs() const override;
+
+      /// Test if a variable is a decoration.
+      virtual bool isDecoration (auxid_t auxid) const override;
 
       /// Get a pointer to a given array, as a decoration.
       virtual void* getDecoration( auxid_t auxid, size_t size,

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGVALTOOLS_TMULTIFILELOOPER_H
@@ -28,7 +28,7 @@
 class TMultiFileLooper : public TFileLooper {
  public:
   TMultiFileLooper() {}
-  virtual ~TMultiFileLooper() {}
+  virtual ~TMultiFileLooper() = default;
   
   virtual Int_t run(const char* fileListName, const char* rootDir = 0);
   Int_t run();
@@ -36,7 +36,7 @@ class TMultiFileLooper : public TFileLooper {
   void addFile(const char* filename);
 
  private:
-  std::vector<TString> _fileList;
+  std::vector<TString> m_fileList;
 };
 
 #endif

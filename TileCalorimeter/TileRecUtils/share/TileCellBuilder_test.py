@@ -185,7 +185,7 @@ exp_mbts_3 = exp_merge (exp_mbts_0, {
     (4, 1,  6,  1, 0) : [  0.6891,  0.0,      0.0,   0.0, 2, 0,  34,   0, 1,-1],
 })
 
-# TileBeamInfoProvider errors
+# TileDQstatus errors
 exp_cells_4 = exp_merge (exp_cells_0, {
     (2, 1, 18, 10, 1):[620.2579,620.2579,  1.3,  1.3,   3,   3, 161, 169, 1, 1],
     (2, 1, 18, 12, 0):[  0.5,     0.5,     0.0,  0.0, 255, 255,   9,   9, 1, 1],
@@ -264,55 +264,33 @@ class TileFragHash:
 
 
 from AthenaPython.PyAthenaComps import Alg, StatusCode
-class TestAlg (Alg):
+
+
+###########################################################
+
+class PrepareDataAlg (Alg):
     def __init__ (self, name):
         Alg.__init__ (self, name)
         return
-
+    
     def initialize (self):
-        ROOT.ICaloCellMakerTool
-
-        def gettool (name):
-            tool = ROOT.ToolHandle(ROOT.ICaloCellMakerTool)('TileCellBuilder/' + name)
-            if not tool.retrieve():
-                assert 0
-            return tool
-
-        self.tool1 = gettool ('tool1')
-        self.tool2 = gettool ('tool2')
-        self.tool4 = gettool ('tool4')
-        self.tool5 = gettool ('tool5')
-        self.tool6 = gettool ('tool6')
-        self.tool7 = gettool ('tool7')
-        self.tool8 = gettool ('tool8')
-        self.tool9 = gettool ('tool9')
-        self.tool10 = gettool ('tool10')
-        self.tool11 = gettool ('tool11')
-
-        self.beaminfo4 = ROOT.ToolHandle(ROOT.TileBeamInfoProvider)('TileBeamInfoProvider/beaminfo4')
-        if not self.beaminfo4.retrieve():
-            return StatusCode.Failure
         return StatusCode.Success
-
-
-    def finalize (self):
-        self.check_bad_chan_lines()
-        return StatusCode.Success
-
 
     def execute (self):
         iev = self.getContext().evt()
 
         hits = hits_0
-        exp_cells = exp_cells_0
-        exp_mbts = exp_mbts_0
-        extra_ei_flags = 0
-        tool = self.tool1
+        self.exp_cells = exp_cells_0
+        self.exp_mbts = exp_mbts_0
+        self.extra_ei_flags = 0
+        self.tool = 'tool1'
         baddq = {}
         bsflags = 0x32002000
         dspbsflags = 0x32002000
-        rctype = TileFragHash.OptFilterOffline
+        self.rctype = TileFragHash.OptFilterOffline
         dspcolls = set()
+        dqhits = {}
+
         if iev == 0:
             # Event 0: nominal
             pass
@@ -320,96 +298,82 @@ class TestAlg (Alg):
         elif iev == 1:
             # Event 1: Add an underflow.
             hits = hits_1
-            extra_ei_flags = 0x40
-            exp_cells = exp_cells_1
+            self.extra_ei_flags = 0x40
+            self.exp_cells = exp_cells_1
 
         elif iev == 2:
             # Event 2: Add an overflow.
             hits = hits_2
-            extra_ei_flags = 0x400
-            exp_cells = exp_cells_2
+            self.extra_ei_flags = 0x400
+            self.exp_cells = exp_cells_2
 
         elif iev == 3:
             # Event 3: Bad channels
-            tool = self.tool2
-            exp_cells = exp_cells_3
-            exp_mbts = exp_mbts_3
+            self.tool = 'tool2'
+            self.exp_cells = exp_cells_3
+            self.exp_mbts = exp_mbts_3
 
         elif iev == 4:
-            # Event 4: Bad channels from BeamInfoProvider.
-            tool = self.tool4
-            rctype = TileFragHash.OptFilterDsp
+            # Event 4: Bad channels from TileDQstatus
+            self.rctype = TileFragHash.OptFilterDsp
             baddq = {146 : [2, 10]}
-            exp_cells = exp_cells_4
+            self.exp_cells = exp_cells_4
+            dqhits = hits
 
         elif iev == 5:
             # Event 5: fakeCrackCells
-            tool = self.tool5
-            exp_cells = exp_cells_5
+            self.tool = 'tool5'
+            self.exp_cells = exp_cells_5
 
         elif iev == 6:
             # Event 6: Threshold.
-            tool = self.tool6
-            exp_cells = exp_cells_6
+            self.tool = 'tool6'
+            self.exp_cells = exp_cells_6
 
         elif iev == 7:
             # Event 7: Corrections
-            tool = self.tool7
+            self.tool = 'tool7'
             bsflags = 0x32000000
-            exp_cells = exp_cells_7
-            exp_mbts = exp_mbts_7
+            self.exp_cells = exp_cells_7
+            self.exp_mbts = exp_mbts_7
 
         elif iev == 8:
             # Event 8: noise filter
-            tool = self.tool8
-            exp_cells = exp_cells_8
+            self.tool = 'tool8'
+            self.exp_cells = exp_cells_8
 
         elif iev == 9:
             # Event 9: dsp container
-            tool = self.tool9
+            self.tool = 'tool9'
             dspcolls.add (0)
 
         elif iev == 10:
             # Event 10: dsp container + corrections
-            tool = self.tool10
+            self.tool = 'tool10'
             dspcolls.add (0)
             bsflags = 0x32000000
             dspbsflags = 0x20000000
-            exp_cells = exp_cells_10
-            exp_mbts = exp_mbts_7
+            self.exp_cells = exp_cells_10
+            self.exp_mbts = exp_mbts_7
 
         else:
             # Event 11: dsp container + noise filter
-            tool = self.tool11
+            self.tool = 'tool11'
             dspcolls.add (0)
-            exp_cells = exp_cells_8
+            self.exp_cells = exp_cells_8
 
 
-        self.record_raw_data (hits, rctype, baddq, bsflags, dspbsflags, dspcolls)
-        if iev == 4:
-            self.beaminfo4.setContainers (None,
-                                          self.evtStore['TileRawChannelCnt'],
-                                          None)
+        self.record_raw_data (hits, self.rctype, baddq, bsflags, dspbsflags, dspcolls)
 
-        ccc = ROOT.CaloCellContainer()
-        if not tool.process (ccc):
-            return StatusCode.Failure
+        self.record_raw_data (dqhits, self.rctype, baddq, bsflags,
+                              rawname = 'TRCDQ')
 
-        self.compare_cells (ccc, exp_cells, rctype)
-        self.compare_cells (self.evtStore['MBTSContainer'], exp_mbts, rctype)
-        self.compare_cells (self.evtStore['E4prContainer'], exp_e4_0, rctype)
-
-        self.check_ei (extra_ei_flags)
         return StatusCode.Success
 
 
-    @staticmethod
-    def update_qbit (qb, rctype):
-        if qb == 0: return 0
-        return qb&(~7) | rctype
-
-
-    def record_raw_data (self, hits, typ, baddq, bsflags, dspbsflags, dspcolls):
+    def record_raw_data (self, hits, typ, baddq, bsflags,
+                         dspbsflags=0, dspcolls=set(),
+                         rawname = 'TileRawChannelCnt'):
         idHelper  = self.detStore['CaloCell_ID'].tile_idHelper()
 
         unit = 0 # TileRawChannelUnit::ADCcounts
@@ -446,10 +410,68 @@ class TestAlg (Alg):
             thiscont.addCollection (coll, ROOT.IdentifierHash(icoll))
             ROOT.SetOwnership (coll, False)
 
-        self.evtStore.record (cont, 'TileRawChannelCnt', False)
+        self.evtStore.record (cont, rawname, False)
         if dspcont:
             self.evtStore.record (dspcont, 'TileRawChannelCntDsp', False)
         return
+
+
+###########################################################
+
+
+class TestAlg (Alg):
+    def __init__ (self, name, prepAlg):
+        Alg.__init__ (self, name)
+        self.prepAlg = prepAlg
+        return
+
+    def initialize (self):
+        ROOT.ICaloCellMakerTool
+
+        def gettool (name):
+            tool = ROOT.ToolHandle(ROOT.ICaloCellMakerTool)('TileCellBuilder/' + name)
+            if not tool.retrieve():
+                assert 0
+            return tool
+
+        self.tool1 = gettool ('tool1')
+        self.tool2 = gettool ('tool2')
+        self.tool5 = gettool ('tool5')
+        self.tool6 = gettool ('tool6')
+        self.tool7 = gettool ('tool7')
+        self.tool8 = gettool ('tool8')
+        self.tool9 = gettool ('tool9')
+        self.tool10 = gettool ('tool10')
+        self.tool11 = gettool ('tool11')
+
+        return StatusCode.Success
+
+
+    def finalize (self):
+        self.check_bad_chan_lines()
+        return StatusCode.Success
+
+
+    def execute (self):
+        tool = getattr (self, self.prepAlg.tool)
+
+        ccc = ROOT.CaloCellContainer()
+        if not tool.process (ccc):
+            return StatusCode.Failure
+
+        rctype = self.prepAlg.rctype
+        self.compare_cells (ccc, self.prepAlg.exp_cells, rctype)
+        self.compare_cells (self.evtStore['MBTSContainer'], self.prepAlg.exp_mbts, rctype)
+        self.compare_cells (self.evtStore['E4prContainer'], exp_e4_0, rctype)
+
+        self.check_ei (self.prepAlg.extra_ei_flags)
+        return StatusCode.Success
+
+
+    @staticmethod
+    def update_qbit (qb, rctype):
+        if qb == 0: return 0
+        return qb&(~7) | rctype
 
 
     def compare_cells (self, ccc, exp_cells, rctype):
@@ -502,7 +524,6 @@ class TestAlg (Alg):
 
     def check_ei (self, extra_flags):
         ei = self.evtStore['EventInfo']
-        print ('zzz', hex(ei.eventFlags (ROOT.xAOD.EventInfo.Tile)), ei.errorState (ROOT.xAOD.EventInfo.Tile), hex(0xf0f0005 | extra_flags))
         assert ei.eventFlags (ROOT.xAOD.EventInfo.Tile) == (0xf0f0005 | extra_flags)
         assert ei.errorState (ROOT.xAOD.EventInfo.Tile) == ROOT.xAOD.EventInfo.Error
         return
@@ -640,16 +661,14 @@ bct2 = make_tileBadChanTool ('tilecellbuilder_bct2',
 
 
 
-from TileRecUtils.TileRecUtilsConf import TileCellBuilder, TileBeamInfoProvider, TileRawChannelNoiseFilter
-beaminfo4 = TileBeamInfoProvider ('beaminfo4')
-ToolSvc += beaminfo4
+from TileRecUtils.TileRecUtilsConf import TileCellBuilder, \
+    TileRawChannelNoiseFilter, TileDQstatusAlg
 noisefilter = TileRawChannelNoiseFilter ('noisefilter')
 
 def maketool (name, bct, **kw):
     return TileCellBuilder (name, TileBadChanTool = bct, **kw)
 ToolSvc += maketool ('tool1', bct1)
 ToolSvc += maketool ('tool2', bct2)
-ToolSvc += maketool ('tool4', bct1, BeamInfo = beaminfo4)
 ToolSvc += maketool ('tool5', bct1, fakeCrackCells = True)
 ToolSvc += maketool ('tool6', bct1, EThreshold = 300)
 ToolSvc += maketool ('tool7', bct1, correctAmplitude = True, correctTime = True)
@@ -663,7 +682,13 @@ ToolSvc += maketool ('tool11', bct1, TileDSPRawChannelContainer = 'TileRawChanne
 from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
 topSequence += xAODMaker__EventInfoCnvAlg (DoBeginRun = False)
 
-testalg1 = TestAlg ('testalg1')
+prepalg1 = PrepareDataAlg ('prepalg1')
+topSequence += prepalg1
+
+dqstat1 = TileDQstatusAlg ('dqstat1', TileRawChannelContainer = 'TRCDQ')
+topSequence += dqstat1
+
+testalg1 = TestAlg ('testalg1', prepalg1)
 topSequence += testalg1
 
 

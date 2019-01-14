@@ -1,12 +1,8 @@
 from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.GlobalFlags import globalflags
 if TriggerFlags.doCalo():
-    from TileRecUtils.TileRecUtilsConf import TileBeamInfoProvider
-    theTileBeamInfoProvider = TileBeamInfoProvider()
-    ToolSvc += theTileBeamInfoProvider    
-    if not globalflags.DataSource=='data':
-        theTileBeamInfoProvider.TileBeamElemContainer=""; # disable reading of trigger type from BeamElem container
-        theTileBeamInfoProvider.TileDigitsContainer="";   # disable checking of Digits container size for bi-gain mode
+    from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
+    dqstatus = TileDQstatusAlgDefault()
 
 
 # This is only needed in case we do the (obsolete) per-event muon data preparation (bug #84525)

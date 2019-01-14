@@ -31,7 +31,6 @@ TgcOverlay::TgcOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   /** Modifiable properties in job options */
   declareProperty("CopySDO", m_copySDO);
   declareProperty("TGCSDO", m_sdo);
-  declareProperty("CopyObject", m_copyObjects=false);
 }
 
 //================================================================

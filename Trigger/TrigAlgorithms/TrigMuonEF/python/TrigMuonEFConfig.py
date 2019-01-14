@@ -5,7 +5,7 @@
 from TrigMuonEF.TrigMuonEFConf import *
 from TriggerJobOpts.TriggerFlags  import TriggerFlags
 from TrigMuonEF.TrigMuonEFMonitoring import *
-
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon import CfgMgr
@@ -15,6 +15,8 @@ from AthenaCommon.SystemOfUnits import GeV,mm
 
 from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
 
+from RecExConfig.RecFlags import rec
+from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 
 from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 
@@ -140,6 +142,8 @@ def TMEF_MaterialAllocator(name='TMEF_MaterialAllocator',**kwargs):
 def TMEF_iPatFitter(name='TMEF_iPatFitter',**kwargs):
     kwargs.setdefault("AggregateMaterial", True)
     kwargs.setdefault("FullCombinedFit", True)
+    if not TriggerFlags.run2Config == '2016':
+        kwargs.setdefault("MaxIterations", 15)
     kwargs.setdefault("MaterialAllocator", "TMEF_MaterialAllocator")
     return CfgMgr.Trk__iPatFitter(name,**kwargs)
 
@@ -161,6 +165,9 @@ def TMEF_TrackCleaner(name = 'TMEF_TrackCleaner',**kwargs):
         kwargs.setdefault('PullCutPhi', 4.0)
     kwargs.setdefault("Fitter", "TMEF_iPatFitter")
     kwargs.setdefault("SLFitter", "TMEF_iPatSLFitter")
+    if not TriggerFlags.run2Config == '2016':
+        kwargs.setdefault("Iterate", False)
+        kwargs.setdefault("RecoverOutliers", False)
     from MuonRecExample.MuonRecFlags import muonRecFlags
     if muonRecFlags.doSegmentT0Fit():
         kwargs.setdefault("RecoverOutliers", False)
@@ -197,6 +204,8 @@ def TMEF_CombinedMuonTrackBuilder(name='TMEF_CombinedMuonTrackBuilder',**kwargs)
     kwargs.setdefault("Vertex2DSigmaRPhi", 100.*mm)
     kwargs.setdefault("Vertex3DSigmaRPhi", 6.*mm)
     kwargs.setdefault("Vertex3DSigmaZ", 60.*mm)
+    if not TriggerFlags.run2Config == '2016':
+        kwargs.setdefault("MuonErrorOptimizer", '')
 
     # note - the TrackSummaryTool is done as follows offline:
     # import MuonCombinedRecExample.CombinedMuonTrackSummary
@@ -349,9 +358,13 @@ def TMEF_OutwardsCombinedMuonTrackBuilder(name='TMEF_OutwardsCombinedMuonTrackBu
 
 def TMEF_MuonCombinedFitTagTool(name="TMEF_MuonCombinedFitTagTool",**kwargs):
     kwargs.setdefault("TrackBuilder",         'TMEF_CombinedMuonTrackBuilder' )
-    kwargs.setdefault("OutwardsTrackBuilder", 'TMEF_OutwardsCombinedMuonTrackBuilder')
+    if not TriggerFlags.run2Config == '2016':
+        kwargs.setdefault("OutwardsTrackBuilder", '')
+        kwargs.setdefault("MuonRecovery",         '' )
+    else:
+        kwargs.setdefault("OutwardsTrackBuilder", 'TMEF_OutwardsCombinedMuonTrackBuilder')
+        kwargs.setdefault("MuonRecovery",         'TMEF_MuidMuonRecovery' )
     kwargs.setdefault("TrackQuery",           'TMEF_MuonTrackQuery' )
-    kwargs.setdefault("MuonRecovery",         'TMEF_MuidMuonRecovery' )
     kwargs.setdefault("MatchQuality",         'TMEF_MatchQuality' )
     return CfgMgr.MuonCombined__MuonCombinedFitTagTool(name,**kwargs)
 
@@ -392,6 +405,41 @@ def TMEF_MuonInsideOutRecoTool(name="TMEF_MuonInsideOutRecoTool",**kwargs):
     kwargs.setdefault('MuonLayerSegmentFinderTool', 'TMEF_MuonLayerSegmentFinderTool')
     return CfgMgr.MuonCombined__MuonInsideOutRecoTool(name,**kwargs )
 
+### Stau late trigger configs
+
+def TMEF_MuonStauRecoTool( name='TMEF_MuonStauRecoTool', **kwargs ):
+   # kwargs.setdefault('DoSummary', True)
+   kwargs.setdefault('DoSummary', muonCombinedRecFlags.printSummary() )
+   kwargs.setdefault('ConsideredPDGs', [13,-13,1000015,-1000015])
+   kwargs.setdefault('DoTruth', rec.doTruth() )
+   kwargs.setdefault('MuonSegmentMaker', CfgGetter.getPublicTool('DCMathStauSegmentMaker') )
+   kwargs.setdefault('MuonInsideOutRecoTool', CfgGetter.getPublicTool('TMEF_MuonStauInsideOutRecoTool') )
+   return CfgMgr.MuonCombined__MuonStauRecoTool(name,**kwargs )
+
+def TMEF_MuonStauInsideOutRecoTool( name='TMEF_MuonStauInsideOutRecoTool', **kwargs ):
+   kwargs.setdefault('MuonTrackBuilder','TMEF_CombinedMuonTrackBuilder')
+   kwargs.setdefault('MuonCandidateTrackBuilderTool', CfgGetter.getPublicTool('TMEF_MuonStauCandidateTrackBuilderTool') )
+   return CfgMgr.MuonCombined__MuonInsideOutRecoTool(name,**kwargs )
+
+def TMEF_MuonStauCandidateTrackBuilderTool( name='TMEF_MuonStauCandidateTrackBuilderTool',**kwargs):
+   kwargs.setdefault('MuonTrackBuilder',  CfgGetter.getPublicTool('TMEF_CombinedStauTrackBuilder') )
+   return CfgMgr.Muon__MuonCandidateTrackBuilderTool(name,**kwargs)
+
+def TMEF_CombinedStauTrackBuilder( name='TMEF_CombinedStauTrackBuilder', **kwargs ):
+   kwargs.setdefault('MdtRotCreator'                 , CfgGetter.getPublicTool('MdtDriftCircleOnTrackCreatorStau') )
+   kwargs.setdefault('MuonHoleRecovery'              , CfgGetter.getPublicTool('TMEF_MuonStauSegmentRegionRecoveryTool') )
+   return TMEF_CombinedMuonTrackBuilder(name,**kwargs )
+
+def TMEF_MuonStauSegmentRegionRecoveryTool(name='TMEF_MuonStauSegmentRegionRecoveryTool',**kwargs ):
+   kwargs.setdefault('SeededSegmentFinder', CfgGetter.getPublicTool('MuonStauSeededSegmentFinder') )
+   kwargs.setdefault('ChamberHoleRecoveryTool', CfgGetter.getPublicTool('MuonStauChamberHoleRecoveryTool') )
+   kwargs.setdefault('Fitter',  CfgGetter.getPublicTool('TMEF_CombinedStauTrackBuilderFit') )
+   return CfgMgr.Muon__MuonSegmentRegionRecoveryTool(name,**kwargs)
+
+def TMEF_CombinedStauTrackBuilderFit( name='TMEF_CombinedStauTrackBuilderFit', **kwargs ):
+   kwargs.setdefault('MdtRotCreator'                 , CfgGetter.getPublicTool('MdtDriftCircleOnTrackCreatorStau') )
+   return TMEF_CombinedMuonTrackBuilder(name,**kwargs )
+
 # TrigMuonEF classes
 class TrigMuonEFTrackBuilderConfig ():
     __slots__ = ()
@@ -425,8 +473,10 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
 
         self.MdtRawDataProvider = "MdtRawDataProviderTool"
         self.RpcRawDataProvider = "RpcRawDataProviderTool"
+        self.TgcRawDataProvider = "TgcRawDataProviderTool"
         self.DecodeMdtBS = DetFlags.readRDOBS.MDT_on()
         self.DecodeRpcBS = DetFlags.readRDOBS.RPC_on()
+        self.DecodeTgcBS = DetFlags.readRDOBS.TGC_on()
 
         # use seeded decoding
         if (TriggerFlags.MuonSlice.doEFRoIDrivenAccess()):
@@ -460,6 +510,7 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
         self.maxRpcHits      = 0
         self.maxMdtHits      = 0
         self.doCache = True
+        self.IgnoreMisalginedCSCs = True
 
         self.TrackBuilderTool  = "TMEF_TrackBuilderTool"
         self.TrkSummaryTool = "TMEF_TrackSummaryTool"
@@ -507,6 +558,24 @@ class TrigMuonEFCaloIsolationConfig (TrigMuonEFCaloIsolation):
 
         self.AthenaMonTools = [validation_caloiso]
 
+def TMEF_TrackIsolationTool(name='TMEF_isolationTool',**kwargs):
+    kwargs.setdefault('deltaZCut', 2.0*mm)
+    kwargs.setdefault('removeSelf',True)
+    kwargs.setdefault('useAnnulus',False)
+    kwargs.setdefault('useVarIso',True)
+    kwargs.setdefault('removeSelfType',0)
+    # Get the track selection tool
+    from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
+    trkseltool = InDet__InDetTrackSelectionTool()
+    if 'LooseTSel' in name:
+        trkseltool.CutLevel='Loose'
+    elif 'TightTSel' in name:
+        trkseltool.CutLevel='TightPrimary'
+    print 'TMEF_TrackIsolationTool added trackselection tool:'
+    print trkseltool
+    kwargs.setdefault('TrackSelectionTool',trkseltool)
+    return TrigMuonEFTrackIsolationTool(name, **kwargs)
+
 
 class TrigMuonEFTrackIsolationConfig (TrigMuonEFTrackIsolation):
     __slots__ = ()
@@ -515,11 +584,7 @@ class TrigMuonEFTrackIsolationConfig (TrigMuonEFTrackIsolation):
         super( TrigMuonEFTrackIsolationConfig, self ).__init__( name )
 
         # configure the isolation tool
-        TMEF_IsolationTool = TrigMuonEFTrackIsolationTool(name = 'TMEF_IsolationTool',
-                                                 deltaZCut = 3.0*mm,
-                                                 removeSelf=True,
-                                                 useAnnulus=False,
-						 useVarIso=False)
+        TMEF_IsolationTool = TMEF_TrackIsolationTool('TMEF_IsolationTool',useVarIso=False)
 
         # Isolation tool
         self.IsolationTool = TMEF_IsolationTool
@@ -550,11 +615,7 @@ class TrigMuonEFMSTrackIsolationConfig (TrigMuonEFTrackIsolation):
         super( TrigMuonEFMSTrackIsolationConfig, self ).__init__( name )
 
         # configure the isolation tool
-        TMEF_IsolationTool = TrigMuonEFTrackIsolationTool(name = 'TMEF_IsolationTool',
-                                                 deltaZCut = 3.0*mm,
-                                                 removeSelf=True,
-                                                 useAnnulus=False,
-						 useVarIso=False)
+        TMEF_IsolationTool = TMEF_TrackIsolationTool('TMEF_IsolationTool',useVarIso=False)
 
         # Isolation tool
         self.IsolationTool = TMEF_IsolationTool
@@ -585,13 +646,13 @@ class TrigMuonEFTrackIsolationVarConfig (TrigMuonEFTrackIsolation):
         super( TrigMuonEFTrackIsolationVarConfig, self ).__init__( name )
 
         # configure the isolation tool
-        TMEF_VarIsolationTool = TrigMuonEFTrackIsolationTool(name = 'TMEF_VarIsolationTool',
-                                                 deltaZCut = 3.0*mm,
-                                                 removeSelf=True,
-                                                 useAnnulus=False,
-						 useVarIso=True,
-                                                 removeSelfType=0 # 0=Standard,1=LeadTrk, 2=dRMatched
-        )
+        trkseltoolname = 'TMEF_VarIsolationTool'
+        if 'LooseTSel' in name:
+            trkseltoolname = trkseltoolname + 'LooseTSel'
+        elif 'TightTSel' in name:
+            trkseltoolname = trkseltoolname + 'TightTSel'
+
+        TMEF_VarIsolationTool = TMEF_TrackIsolationTool(trkseltoolname,useVarIso=True)
 
         # Isolation tool
         self.IsolationTool = TMEF_VarIsolationTool
@@ -640,12 +701,10 @@ class TrigMuonEFTrackIsolationAnnulusConfig (TrigMuonEFTrackIsolation):
         super( TrigMuonEFTrackIsolationAnnulusConfig, self ).__init__( name )
 
         # configure the isolation tool
-        TMEF_AnnulusIsolationTool = TrigMuonEFTrackIsolationTool(name = 'TMEF_AnnulusIsolationTool',
-                                                 deltaZCut = 3.0*mm,
-                                                 removeSelf=True,
-                                                 useAnnulus=True,
-                                                 annulusSize=0.1,
-						 useVarIso=False)
+        TMEF_AnnulusIsolationTool = TMEF_TrackIsolationTool('TMEF_AnnulusIsolationTool',
+                                                            useVarIso=False,
+                                                            useAnnlus=True,
+                                                            annulusSize=0.1)
 
         # Isolation tool
         self.IsolationTool = TMEF_AnnulusIsolationTool

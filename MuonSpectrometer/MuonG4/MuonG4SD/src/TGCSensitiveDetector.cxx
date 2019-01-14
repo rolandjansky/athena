@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGCSensitiveDetector.h"
@@ -16,15 +16,15 @@
 // construction/destruction
 TGCSensitiveDetector::TGCSensitiveDetector(const std::string& name, const std::string& hitCollectionName)
   : G4VSensitiveDetector( name )
-  , myTGCHitColl( hitCollectionName )
+  , m_myTGCHitColl( hitCollectionName )
 {
-  muonHelper = TgcHitIdHelper::GetHelper();
+  m_muonHelper = TgcHitIdHelper::GetHelper();
 }
 
 // Implemenation of member functions
 void TGCSensitiveDetector::Initialize(G4HCofThisEvent*)
 {
-  if (!myTGCHitColl.isValid()) myTGCHitColl = CxxUtils::make_unique<TGCSimHitCollection>();
+  if (!m_myTGCHitColl.isValid()) m_myTGCHitColl = CxxUtils::make_unique<TGCSimHitCollection>();
 }
 
 G4bool TGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
@@ -234,15 +234,15 @@ G4bool TGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
   }
 
   //construct the hit identifier
-  HitID TGCid = muonHelper->BuildTgcHitId(stationName,
+  HitID TGCid = m_muonHelper->BuildTgcHitId(stationName,
                                           stationPhi,
                                           stationEta,
                                           gasGap);
-  //muonHelper->Print(TGCid);
+  //m_muonHelper->Print(TGCid);
 
   // construct new tgc hit
   TrackHelper trHelp(aStep->GetTrack());
-  myTGCHitColl->Emplace(TGCid,
+  m_myTGCHitColl->Emplace(TGCid,
                         globalTime,
                         localPosition,
                         localDireCos,

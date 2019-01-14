@@ -86,23 +86,15 @@ private:
    virtual StatusCode connectServices();
 
 private:
-   /// OutputFile, name of the output db name
-   StringProperty  m_outputName;
-   /// ProcessTag, tag of processing stage: default to SG key of DataHeader (Stream name)
-   StringProperty  m_processTag;
-   /// OutputCollection, custom container name prefix for DataHeader: default = "" (will result in "POOLContainer_")
-   StringProperty  m_outputCollection;
-   /// PoolContainerPrefix, prefix for top level POOL container: default = "CollectionTree"
-   StringProperty  m_containerPrefix;
-   /// TopLevelContainerName, naming hint policy for top level POOL container: default = ""
-   StringProperty  m_containerNameHint;
-   /// SubLevelBranchName, naming hint policy for POOL branching: default = "<type>/<key>"
-   StringProperty  m_branchNameHint;
-   /// AttributeListKey, optional key for AttributeList to be written as part of the DataHeader: default = ""
-   StringProperty  m_attrListKey;
+   StringProperty  m_outputName{ this, "OutputFile", "", "name of the output db name"};
+   StringProperty  m_processTag{ this, "ProcessingTag", "", "tag of processing stage: default to SG key of DataHeader (Stream name)"};
+   StringProperty  m_outputCollection{ this, "OutputCollection", "", "custom container name prefix for DataHeader: default = "" (will result in \"POOLContainer_\")"};
+   StringProperty  m_containerPrefix{ this, "PoolContainerPrefix", "", "prefix for top level POOL container: default = \"CollectionTree\""};
+   StringProperty  m_containerNameHint{ this, "TopLevelContainerName", "0", "naming hint policy for top level POOL container: default = \"0\""};
+   StringProperty  m_branchNameHint{ this, "SubLevelBranchName", "0", "naming hint policy for POOL branching: default = \"0\"" };
+   SG::WriteHandleKey<AthenaAttributeList>  m_attrListKey{this, "AttributeListKey", "", "optional key for AttributeList to be written as part of the DataHeader: default = \"\""};
 
-   /// Pointer to the data store
-   ServiceHandle<StoreGateSvc>   m_store;
+   ServiceHandle<StoreGateSvc>   m_store{ this, "Store", "StoreGateSvc/DetectorStore", "Pointer to the data store"};
    /// Keep reference to the data conversion service
    ServiceHandle<IConversionSvc> m_conversionSvc;
    /// Ref to ClassIDSvc to convert type name to clid

@@ -2,6 +2,11 @@
 #  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
 
+if not 'doHLTCaloTopo' in dir() :
+  doHLTCaloTopo=True
+if not 'doL2Egamma' in dir():
+  doL2Egamma=True
+
 include("TrigUpgradeTest/testHLT_MT.py")
 
 from AthenaCommon.AlgSequence import AlgSequence
@@ -15,51 +20,37 @@ if globalflags.InputFormat.is_bytestream():
 # Setup Views
 # ----------------------------------------------------------------
 from AthenaCommon.AlgSequence import AthSequencer
+from AthenaCommon.CFElements import stepSeq,seqOR
+from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
+
+
+steps = seqOR("HLTTop")
+topSequence += steps
+steps += topSequence.L1DecoderTest
+
+
+from TrigT2CaloCommon.CaloDef import createFastCaloSequence
 
 if TriggerFlags.doCalo:
 
-  if ( True ) :
-     from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
-    
-     from TrigT2CaloCommon.TrigT2CaloCommonConf import TrigCaloDataAccessSvc#, TestCaloDataAccess
-     import math
-     mon = GenericMonitoringTool("CaloDataAccessSvcMon")
-     mon.Histograms += [defineHistogram( "TIME_locking_LAr_RoI", title="Time spent in unlocking the LAr collection", xbins=100, xmin=0, xmax=100 ),
-                      defineHistogram( "roiROBs_LAr", title="Number of ROBs unpacked in RoI requests", xbins=20, xmin=0, xmax=20 ),
-                      defineHistogram( "TIME_locking_LAr_FullDet", title="Time spent in unlocking the LAr collection", xbins=100, xmin=0, xmax=100 ),
-                      defineHistogram( "roiEta_LAr,roiPhi_LAr", type="TH2F", title="Geometric usage", xbins=50, xmin=-5, xmax=5, ybins=64, ymin=-math.pi, ymax=math.pi )]
-    
-     svcMgr += TrigCaloDataAccessSvc()
-     svcMgr.TrigCaloDataAccessSvc.OutputLevel=ERROR
-     svcMgr.TrigCaloDataAccessSvc.MonTool = mon           
-    
-     from TrigCaloRec.TrigCaloRecConfig import HLTCaloCellMaker
-     from TrigCaloRec.TrigCaloRecConf import HLTCaloCellSumMaker
+  if ( doHLTCaloTopo ) :
 
-     RoIMode=True
+     from TrigT2CaloCommon.CaloDef import algoHLTCaloCell, algoHLTTopoCluster
+     steps+=algoHLTCaloCell(OutputLevel=DEBUG)    
+     steps+=algoHLTTopoCluster(OutputLevel=DEBUG)    
 
-     algo1=HLTCaloCellMaker("testFastAlgo1")
-     algo1.RoIs="StoreGateSvc+EMRoIs"
-     algo1.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
-     algo1.OutputLevel=VERBOSE
-     algo1.roiMode = RoIMode
-     topSequence += algo1
-     algo2=HLTCaloCellSumMaker("testSumFastAlgo")
-     algo2.OutputLevel=VERBOSE
-     topSequence += algo2
+  if ( doL2Egamma ) :
 
+     from TrigT2CaloCommon.CaloDef import createFastCaloSequence
+     from AthenaCommon.Constants import DEBUG
 
-
-  svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
-  
-  from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
-  algo=T2CaloEgamma_ReFastAlgo("testReFastAlgo")
-  # temporary fix for Tile
-  algo.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
-  algo.OutputLevel=VERBOSE
-
-  algo.RoIs="StoreGateSvc+EMRoIs"
-  topSequence += algo
+     filterL1RoIsAlg = RoRSeqFilter( "filterL1RoIsAlg")
+     filterL1RoIsAlg.Input = ["L1EM"]
+     filterL1RoIsAlg.Output = ["FilteredEMRoIDecisions"]
+     filterL1RoIsAlg.Chains = [ "HLT_e3_etcut", "HLT_e5_etcut", "HLT_e7_etcut" ]
+     filterL1RoIsAlg.OutputLevel = DEBUG
+     steps+=stepSeq("finalCaloSequence", filterL1RoIsAlg, [ createFastCaloSequence() ])
 
   from AthenaCommon.AlgSequence import dumpMasterSequence
   dumpMasterSequence()
+

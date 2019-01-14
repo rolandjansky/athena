@@ -10,7 +10,9 @@
 #include "TrigT1TGC/TGCHighPtChipOut.hh"
 #include "TrigT1TGC/TGCTMDB.h"
 #include "TrigT1TGC/TGCTMDBOut.h"
-#include "MuonCondInterface/ITGCTriggerDbTool.h"
+
+#include "StoreGate/ReadCondHandle.h"
+#include "MuonCondSvc/TGCTriggerData.h"
 
 #include <iostream>
 
@@ -42,8 +44,13 @@ TGCSectorLogic::TGCSectorLogic(TGCRegionType regionIn, int idIn):
     stripHighPtChipOut(0),
     useInner(false),
     useTileMu(false),
-    m_condDbTool("TGCTriggerDbTool")
+    m_readCondKey("TGCTriggerData")
 {
+   StatusCode sc = m_readCondKey.initialize();
+   if (sc.isFailure()) {
+     return;
+   }
+
   sideId = (idIn/NumberOfModule)/NumberOfOctant;
   octantId = (idIn/NumberOfModule)%NumberOfOctant;
   moduleId = idIn%NumberOfModule;
@@ -298,7 +305,8 @@ TGCSectorLogic::TGCSectorLogic(const TGCSectorLogic& right):
      wordTileMuon(0), wordInnerStation(0),
      stripHighPtBoard(right.stripHighPtBoard), 
      stripHighPtChipOut(0),
-     useInner(right.useInner), useTileMu(right.useTileMu) 
+     useInner(right.useInner), useTileMu(right.useTileMu),
+     m_readCondKey("TGCTriggerData")
 {
   for(int i=0; i<MaxNumberOfWireHighPtBoard; i++){
       wireHighPtBoard[i] = 0;
@@ -377,14 +385,18 @@ void TGCSectorLogic::doInnerCoincidence(int ssc,
   int pt = coincidenceOut->getPtLevel();
   if (pt==0) return;
 
+  SG::ReadCondHandle<TGCTriggerData> readHandle{m_readCondKey};
+  const TGCTriggerData* readCdo{*readHandle};
+
   if (g_USE_CONDDB) {
-    bool isActiveTile = m_condDbTool->isActive(ITGCTriggerDbTool::CW_TILE);
+    bool isActiveTile = readCdo->isActive(TGCTriggerData::CW_TILE);
     useTileMu = isActiveTile && (region==ENDCAP);
   }
 
   // check if inner is used for the ptLevel
   bool validInner = (mapInner->getFlagPT(pt, ssc, sectorId) == 1);
-   // check if TileMu is used for the ptLevel
+
+  // check if TileMu is used for the ptLevel
   bool validTileMu = false;
   if (useTileMu)  validTileMu = (mapTileMu->getFlagPT(pt, ssc, sectorId, sideId) == 1) ;
   
@@ -401,21 +413,20 @@ void TGCSectorLogic::doInnerCoincidence(int ssc,
   bool isHitInner = false;
   if (validInner) {
     for(unsigned int iSlot=0; (!isHitInner) && (iSlot<TGCInnerTrackletSlotHolder::NUMBER_OF_SLOTS_PER_TRIGGER_SECTOR); iSlot++) {
-      const TGCInnerTrackletSlot* mask 
-	= mapInner->getInnerTrackletMask(iSlot, ssc, sectorId); 
       const TGCInnerTrackletSlot* hit = m_innerTrackletSlots[iSlot];
       
       for (size_t reg=0; (!isHitInner) && (reg< TGCInnerTrackletSlot::NUMBER_OF_REGIONS); reg++){
 	// Wire    
 	bool isHitWire = false;
+        
 	for (size_t bit=0; (!isHitWire) && (bit< TGCInnerTrackletSlot::NUMBER_OF_TRIGGER_BITS); bit++){
-	  isHitWire =   mask->getTriggerBit(reg,TGCInnerTrackletSlot::WIRE,bit) 
+	  isHitWire =   mapInner->getTriggerBit(iSlot, ssc, sectorId, reg, TGCInnerTrackletSlot::WIRE, bit)
 	    &&   hit->getTriggerBit(reg,TGCInnerTrackletSlot::WIRE,bit) ;
 	}
 	// Strip
 	bool isHitStrip = false;
 	for (size_t bit=0; (!isHitStrip) && (bit< TGCInnerTrackletSlot::NUMBER_OF_TRIGGER_BITS); bit++){
-	  isHitStrip =  mask->getTriggerBit(reg,TGCInnerTrackletSlot::STRIP,bit) 
+	  isHitStrip =  mapInner->getTriggerBit(iSlot, ssc, sectorId, reg, TGCInnerTrackletSlot::STRIP, bit)
 	    && hit->getTriggerBit(reg,TGCInnerTrackletSlot::STRIP,bit);
 	}
 	isHitInner = isHitWire && isHitStrip;
@@ -477,7 +488,7 @@ void TGCSectorLogic::doInnerCoincidence(int ssc,
       if (tm->GetHit56()>0) wordTileMuon |= 0x01 << mod*2;
     }
   } 
-  
+ 
   if ( !validInner && !validTileMu ) return;  //OK
  
   if ( validInner   &&  isHitInner)  return; //OK
@@ -491,7 +502,7 @@ void TGCSectorLogic::doInnerCoincidence(int ssc,
   
   bool innerVeto = g_INNER_VETO;
   if (g_USE_CONDDB) {
-    bool isActiveEifi = m_condDbTool->isActive(ITGCTriggerDbTool::CW_EIFI);  
+    bool isActiveEifi = readCdo->isActive(TGCTriggerData::CW_EIFI);  
     innerVeto  = isActiveEifi && (region==ENDCAP);
   }
 

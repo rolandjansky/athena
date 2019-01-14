@@ -10,8 +10,8 @@
 #include <string>
 
 #include "GaudiKernel/ToolHandle.h"
-
-class ITGCTriggerDbTool;
+#include "StoreGate/ReadCondHandleKey.h"
+#include "MuonCondSvc/TGCTriggerData.h"
 
 namespace LVL1TGCTrigger {
 
@@ -64,7 +64,7 @@ private:
   int m_octant;
   bool m_fullCW;
 
-  ToolHandle<ITGCTriggerDbTool> m_condDbTool;
+  SG::ReadCondHandleKey<TGCTriggerData> m_readCondKey;
 };
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDTOOL_TGC_STATUSCONDITIONSTOOL_H
@@ -61,7 +61,7 @@ public:
   std::string m_chrono2;
   std::string m_chrono3;
   std::string m_chrono4;
-  MsgStream log;
+  MsgStream m_log;
   bool      m_debug;
   bool      m_verbose;
 };

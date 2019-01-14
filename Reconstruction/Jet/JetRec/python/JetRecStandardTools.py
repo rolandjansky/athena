@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # JetRecStandardTools.py
 #
@@ -358,17 +358,17 @@ ctm.add( CorrectPFOTool("CorrectPFOTool",
 ctm.add( ChargedHadronSubtractionTool("CHSTool", InputType = xAOD.Type.ParticleFlow),
          alias = 'chsPFO' )
 
-# Run the above tools to modify PFO
-jtm += ctm.buildConstitModifSequence( "JetConstitSeq_PFlowCHS",
-                                      InputContainer = "JetETMiss",
-                                      OutputContainer = "CHS",  #"ParticleFlowObjects" will be appended later
-                                      modList = ['correctPFO', 'chsPFO'] )
-
 # Options to disable dependence on primary vertex container
 # for PFO corrections (e.g. when running cosmics)
 if not jetFlags.useTracks:
   ctm.modifiersMap['correctPFO'].CorrectNeutral=False
   ctm.modifiersMap['chsPFO'].IgnoreVertex=True
+
+# Run the above tools to modify PFO
+jtm += ctm.buildConstitModifSequence( "JetConstitSeq_PFlowCHS",
+                                      InputContainer = "JetETMiss",
+                                      OutputContainer = "CHS",  #"ParticleFlowObjects" will be appended later
+                                      modList = ['correctPFO', 'chsPFO'] )
 
 # EM-scale pflow.
 jtm += PseudoJetGetter(

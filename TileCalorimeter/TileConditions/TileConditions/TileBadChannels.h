@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILEBADCHANNELS_H
@@ -62,6 +62,20 @@ class TileBadChannels {
     */
     const std::vector<std::vector<float>>& getTripsProbabilities(void) const {return m_tripsProbs;};
 
+
+   /**
+    * @brief Store Tile drawers masked completely
+    * @param maskedDrawers Array of Tile drawers (frag identifiers) masked comletely
+    */
+    void setMaskedDrawers(std::vector<int>& maskedDrawers);
+
+   /**
+    * @brief Return Tile drawers masked completely
+    * @return Array of Tile drawers (frag identifiers) masked comletely
+    */
+    const std::vector<int>& getMaskedDrawers(void) const {return m_maskedDrawers;};
+
+
   private:
 
     TileBchStatus m_defaultStatus;
@@ -70,6 +84,7 @@ class TileBadChannels {
     std::map<const HWIdentifier, TileBchStatus> m_channelStatus;
 
     std::vector<std::vector<float>> m_tripsProbs;
+    std::vector<int> m_maskedDrawers;
 };
 
 
@@ -83,6 +98,11 @@ CONDCONT_DEF ( TileBadChannels, 136686108);
 inline
 void TileBadChannels::setTripsProbabilities(std::vector<std::vector<float>>& tripsProbs) {
   m_tripsProbs = std::move(tripsProbs);
+}
+
+inline
+void TileBadChannels::setMaskedDrawers(std::vector<int>& maskedDrawers) {
+  m_maskedDrawers = std::move(maskedDrawers);
 }
 
 #endif // TILECONDITIONS_TILEBADCHANNELS_H

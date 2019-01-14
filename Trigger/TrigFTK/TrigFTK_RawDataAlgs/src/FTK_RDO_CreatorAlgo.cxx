@@ -63,11 +63,11 @@ FTK_RDO_CreatorAlgo::FTK_RDO_CreatorAlgo(const std::string& name, ISvcLocator* p
   declareProperty("ReverseIBLlocX",m_reverseIBLlocx, "reverse the direction of IBL locX from FTK");
 
   m_FTK_RawTrack_checkFails.reserve(9);
-  m_FTK_RawSCT_Cluster_checkFails.reserve(5);
-  m_FTK_RawPixelCluster_checkFails.reserve(3);
+  m_FTK_RawSCT_Cluster_checkFails.reserve(3);
+  m_FTK_RawPixelCluster_checkFails.reserve(5);
   for (unsigned int i=0; i < 9; i++)   m_FTK_RawTrack_checkFails[i]=0;
-  for (unsigned int i=0; i < 5; i++)   m_FTK_RawSCT_Cluster_checkFails[i]=0;
-  for (unsigned int i=0; i < 3; i++)   m_FTK_RawPixelCluster_checkFails[i]=0;
+  for (unsigned int i=0; i < 3; i++)   m_FTK_RawSCT_Cluster_checkFails[i]=0;
+  for (unsigned int i=0; i < 5; i++)   m_FTK_RawPixelCluster_checkFails[i]=0;
 }
 
 FTK_RDO_CreatorAlgo::~FTK_RDO_CreatorAlgo()
@@ -552,11 +552,11 @@ void FTK_RDO_CreatorAlgo::printTrack(const FTKTrack& track, const FTK_RawTrack *
 }
 
 #define d0Res 0.001
-#define z0Res 0.01
-#define phiRes 0.0001
+#define z0Res 0.001
+#define phiRes 0.001
 #define chi2Res 0.001
-#define cotThetaRes 0.00025
-#define invPtRes 5e-8 // MeV^-1
+#define cotThetaRes 0.001
+#define invPtRes 0.0015 
 #define sctStripRes 0.5
 #define pixColRes 0.1
 #define pixRowRes 0.1
@@ -696,9 +696,11 @@ bool FTK_RDO_CreatorAlgo::check_track(const FTKTrack &track, FTK_RawTrack &rdo) 
 
 bool FTK_RDO_CreatorAlgo::checkValue(const float &v1, const float &v2, const float &res, const std::string &what) {
   bool check_ok = true;
-  if (fabs(v1-v2) > res) {
-    ATH_MSG_INFO( "FTK_RDO_CreatorAlgo::checkValue check failed for "<< what << " difference FTKTrack-RDO= " <<  v1-v2 << " values:  FTKTrack " << v1 << " RDO " << v2 << " resolution "  << res);
-    check_ok=false;
+  if (fabs(v1+v2)>1e-10) {
+    if (fabs(2*(v1-v2)/(v1+v2)) > res) {
+      ATH_MSG_INFO( "FTK_RDO_CreatorAlgo::checkValue check failed for "<< what << " difference 2*(FTKTrack-RDO)/(FTKTrack+RDO) = " <<  2*(v1-v2)/(v1+v2) << " values:  FTKTrack " << v1 << " RDO " << v2 << " resolution "  << res);
+      check_ok=false;
+    }
   }
   return check_ok;
 }

@@ -33,10 +33,10 @@ using namespace TrigFTK;
   declareProperty("FTK_DataProvider", m_FTKDataProviderSvc);
   declareProperty("DeltaRMax", m_deltaR_max = 0.05);
 
-  declareProperty("MinPt",           m_minPt          = 0);
+  declareProperty("MinPt",           m_minPt          = 2);
   declareProperty("MaxEta",          m_maxEta         = 10);
   declareProperty("MaxZ0",           m_maxZ0          = 100);
-  declareProperty("MaxD0",           m_maxD0          = 2);
+  declareProperty("MaxD0",           m_maxD0          = 1);
 
   declareProperty("MaxHLTZ0Err",        m_maxHLTZ0err       = 100);
   declareProperty("MaxHLTD0Err",        m_maxHLTD0err       = 100);
@@ -72,6 +72,26 @@ using namespace TrigFTK;
   declareMonitoredStdContainer("FTKHLT_eff_weight",         m_efficiencyAnalysis->m_eff_weight_vec,  reset );
   declareMonitoredVariable("numb_HLT_trks",                 m_efficiencyAnalysis->m_numb_ref_trks );
   declareMonitoredVariable("numb_FTK_trks",                 m_efficiencyAnalysis->m_numb_test_trks );
+
+  declareMonitoredVariable("nFTKRawTrk",m_nFTKRawTracks);
+  declareMonitoredVariable("nFTKTrackParticles", m_nFTKTrackParticles);
+  declareMonitoredVariable("nTrackErrors", m_nTrackErrors);
+  declareMonitoredVariable("nTPErrors", m_nTrackParticleErrors);
+  
+  declareMonitoredVariable("nTrkFailedPix", m_nFailPix);
+  declareMonitoredVariable("nTrkFailedSCT", m_nFailSCT);
+  declareMonitoredVariable("fTrkMissingPix0", m_fMissPix0);
+  declareMonitoredVariable("fTrkMissingPix1", m_fMissPix1);
+  declareMonitoredVariable("fTrkMissingPix2", m_fMissPix2);
+  declareMonitoredVariable("fTrkMissingPix3", m_fMissPix3);
+  declareMonitoredVariable("fTrkMissingSCT0",m_fMissSCT0);
+  declareMonitoredVariable("fTrkMissingSCT1",m_fMissSCT1);
+  declareMonitoredVariable("fTrkMissingSCT2",m_fMissSCT2);
+  declareMonitoredVariable("fTrkMissingSCT3",m_fMissSCT3);
+  declareMonitoredVariable("fTrkMissingSCT4",m_fMissSCT4);
+  declareMonitoredVariable("fTrkMissingSCT5",m_fMissSCT5);
+  declareMonitoredVariable("fTrkMissingSCT6",m_fMissSCT6);
+  declareMonitoredVariable("fTrkMissingSCT7",m_fMissSCT7);
 
   // purity variables from m_purityAnalysis
   m_purityAnalysis->monitored_ref_track.declareForMonitoring( this, "FTK_trk_");
@@ -172,6 +192,9 @@ HLT::ErrorCode FtkHltEfficiencyFex::hltExecute(const HLT::TriggerElement* input,
   m_efficiencyAnalysis->Clear();
   m_purityAnalysis->Clear();
 
+
+ 
+
   // Get the ROI descriptor
   const TrigRoiDescriptor* roiDescriptor = 0;
   HLT::ErrorCode status = getFeature( input, roiDescriptor );
@@ -211,6 +234,62 @@ HLT::ErrorCode FtkHltEfficiencyFex::hltExecute(const HLT::TriggerElement* input,
       ATH_MSG_DEBUG("Failed to get FTK TrackParticleContainer ");
     if(m_timer[GetFtkTracksTime]) m_timer[GetFtkTracksTime]->stop();    
     ATH_MSG_DEBUG("FTK retrieval time " << m_timer[GetFtkTracksTime]->elapsed());
+
+    m_nFTKRawTracks = m_FTKDataProviderSvc->nRawTracks();
+    m_nFTKTracks = m_FTKDataProviderSvc->nTracks(false);
+    m_nFTKTrackParticles = m_FTKDataProviderSvc->nTrackParticles(false);
+    m_nTrackErrors = m_FTKDataProviderSvc->nTrackErrors(false);
+    m_nTrackParticleErrors = m_FTKDataProviderSvc->nTrackParticleErrors(false);
+    ATH_MSG_DEBUG(" No. RAW tracks= " << m_nFTKRawTracks);
+    ATH_MSG_DEBUG(" No. Converted tracks = " << m_nFTKTracks << " with " <<  m_nTrackErrors << " Errors");
+    ATH_MSG_DEBUG(" No. Converted tracks = " << m_nFTKTracks << " with " <<  m_nTrackErrors << " Errors");
+    ATH_MSG_DEBUG(" TrackParticles = " << m_nTrackParticleErrors << " with " << m_nTrackParticleErrors << " Errors");
+
+    m_fMissPix0=m_fMissPix1=m_fMissPix2=m_fMissPix3=m_nFailPix=-1;
+    m_fMissSCT0=m_fMissSCT1=m_fMissSCT2=m_fMissSCT3=m_fMissSCT4=m_fMissSCT5=m_fMissSCT6=m_fMissSCT7=m_nFailSCT=-1;
+
+
+    if (m_nFTKRawTracks>0){
+      std::vector<unsigned int> nMissingPixelClusters = m_FTKDataProviderSvc->nMissingPixelClusters();
+      std::vector<unsigned int> nFailedPixelClusters = m_FTKDataProviderSvc->nFailedPixelClusters();
+      unsigned nFailPix=0; 
+      for (unsigned int lay=0; lay<4; lay++) nFailPix+=nFailedPixelClusters[lay];
+      m_nFailPix=nFailPix;
+
+      ATH_MSG_DEBUG(" Missing Pixel Hits in IBL: " <<  nMissingPixelClusters[0] << ", Lay1: "<<  nMissingPixelClusters[1] << ", Lay2: "<<  nMissingPixelClusters[2] << ", Lay3: "<<  nMissingPixelClusters[3]);
+      ATH_MSG_DEBUG(" Failed  Pixel Hits in IBL: " <<  nFailedPixelClusters[0] << ", Lay1: "<<  nFailedPixelClusters[1] << ", Lay2: "<<  nFailedPixelClusters[2]<< ", Lay3: "<<  nFailedPixelClusters[3]);
+      m_fMissPix0=static_cast<double>(nMissingPixelClusters[0])/static_cast<double>(m_nFTKRawTracks);
+      m_fMissPix1=static_cast<double>(nMissingPixelClusters[1])/static_cast<double>(m_nFTKRawTracks);
+      m_fMissPix2=static_cast<double>(nMissingPixelClusters[2])/static_cast<double>(m_nFTKRawTracks);
+      m_fMissPix3=static_cast<double>(nMissingPixelClusters[3])/static_cast<double>(m_nFTKRawTracks);
+      ATH_MSG_DEBUG(" Fraction of Tracks missing Pixel Hits in IBL: " <<  m_fMissPix0 << ", Lay1: "<<  m_fMissPix1 << ", Lay2: "<<  m_fMissPix2 << ", Lay3: "<<  m_fMissPix3);
+
+      std::vector<unsigned int> nMissingSCTClusters = m_FTKDataProviderSvc->nMissingSCTClusters();
+      std::vector<unsigned int> nFailedSCTClusters = m_FTKDataProviderSvc->nFailedSCTClusters();
+
+      unsigned nFailSCT=0; 
+      for (unsigned int lay=0; lay<8; lay++) nFailSCT+=nFailedSCTClusters[lay];
+      m_nFailSCT=nFailSCT;
+      
+      ATH_MSG_DEBUG(" Missing SCT Hits in Lay0: " <<  nMissingSCTClusters[0] << ", Lay1: "<<  nMissingSCTClusters[1] << ", Lay2: "<<  nMissingSCTClusters[2] << 
+		    ", Lay3: " <<  nMissingSCTClusters[3] << ", Lay4: " <<  nMissingSCTClusters[4] << ", Lay5: "<<  nMissingSCTClusters[5]<< 
+		    ", Lay6: "<<  nMissingSCTClusters[6] << ", Lay7: "<<  nMissingSCTClusters[7]);
+      ATH_MSG_DEBUG(" Failed SCT Hits in Lay0: " <<  nFailedSCTClusters[0] << ", Lay1: "<<  nFailedSCTClusters[1] << ", Lay2: "<<  nFailedSCTClusters[2] << 
+		    ", Lay3: " <<  nFailedSCTClusters[3] << ", Lay4: " <<  nFailedSCTClusters[4] << ", Lay5: "<<  nFailedSCTClusters[5]<< 
+		    ", Lay6: "<<  nFailedSCTClusters[6] << ", Lay7: "<<  nFailedSCTClusters[7]);
+
+      m_fMissSCT0=static_cast<double>(nMissingSCTClusters[0])/static_cast<double>(m_nFTKRawTracks);
+      m_fMissSCT1=static_cast<double>(nMissingSCTClusters[1])/static_cast<double>(m_nFTKRawTracks);
+      m_fMissSCT2=static_cast<double>(nMissingSCTClusters[2])/static_cast<double>(m_nFTKRawTracks);
+      m_fMissSCT3=static_cast<double>(nMissingSCTClusters[3])/static_cast<double>(m_nFTKRawTracks);
+      m_fMissSCT4=static_cast<double>(nMissingSCTClusters[4])/static_cast<double>(m_nFTKRawTracks);
+      m_fMissSCT5=static_cast<double>(nMissingSCTClusters[5])/static_cast<double>(m_nFTKRawTracks);
+      m_fMissSCT6=static_cast<double>(nMissingSCTClusters[6])/static_cast<double>(m_nFTKRawTracks);
+      m_fMissSCT7=static_cast<double>(nMissingSCTClusters[7])/static_cast<double>(m_nFTKRawTracks);
+      ATH_MSG_DEBUG(" Fraction Tracks Missing SCT Hits in Lay0: " <<  m_fMissSCT0 << ", Lay1: "<<  m_fMissSCT1 << ", Lay2: "<<  m_fMissSCT2 << ", Lay3: "<<  m_fMissSCT3<< 
+		    ", Lay4: " <<  m_fMissSCT4 << ", Lay5: "<<  m_fMissSCT5 << ", Lay6: "<<  m_fMissSCT6 << ", Lay7: "<<  m_fMissSCT7);
+    }
+
   }
   
   // run efficiency analysis

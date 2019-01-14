@@ -25,7 +25,6 @@
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/TilePulseShapes.h"
 #include "TileEvent/TileRawChannelContainer.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
 
 // Calo includes
 #include "CaloIdentifier/TileID.h"
@@ -38,6 +37,7 @@
 #include "AthenaKernel/Units.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 // Pile up
 #include "PileUpTools/PileUpMergeSvc.h"
 
@@ -88,8 +88,7 @@ TileDigitsMaker::TileDigitsMaker(std::string name, ISvcLocator* pSvcLocator)
     m_binTime0Lo(0),
     m_timeStepLo(0.0),
     m_pHRengine(0),
-    m_rndmSvc ("AtRndmGenSvc", name),
-    m_beamInfo("TileBeamInfoProvider/TileBeamInfoProvider")
+    m_rndmSvc ("AtRndmGenSvc", name)
 {
   declareProperty("FilterThreshold",       m_filterThreshold = 100.0 * MeV, "Threshold on filtered digits (default - 100 MeV)");
   declareProperty("FilterThresholdMBTS",   m_filterThresholdMBTS = 0.0 * MeV, "Threshold on filtered digits of MBTS (default - 0 MeV)");
@@ -223,11 +222,13 @@ StatusCode TileDigitsMaker::initialize() {
 
     ATH_MSG_INFO( "PileUpMergeSvc successfully initialized");
 
-    ATH_MSG_DEBUG( "Retrieving TileBeamInfoProvider in TileDigitsMaker");
-    ATH_CHECK( m_beamInfo.retrieve() );
+    ATH_CHECK( m_DQstatusTool.retrieve() );
+    ATH_CHECK( m_DQstatusKey.initialize() );
 
   } else {
-    m_beamInfo.disable();
+    m_DQstatusTool.disable();
+    m_DQstatusKey = "";
+
     if (m_allChannels<0) m_allChannels = 0;                 // do not create all channels by default
     if (m_tileNoise || m_tileCoherNoise) m_allChannels = 2; // unless noise is set to True
     if (msgLvl(MSG::INFO)) {
@@ -356,6 +357,8 @@ StatusCode TileDigitsMaker::initialize() {
 
 StatusCode TileDigitsMaker::execute() {
   ATH_MSG_DEBUG( "Executing TileDigitsMaker");
+
+  const EventContext& ctx = Gaudi::Hive::currentContext();
 
   static bool first = (msgLvl(MSG::VERBOSE) && !m_rndmEvtOverlay );
   if (first) {
@@ -518,10 +521,16 @@ StatusCode TileDigitsMaker::execute() {
       rndm_rawchan_container = iTzeroRawChanCont->second;
     }
 
-    ATH_MSG_DEBUG( "setContainer method being called in TileDigitsMaker");
-    m_beamInfo->setContainers(rndm_digit_container, rndm_rawchan_container);
-    ATH_MSG_DEBUG( "Containers successfully set in TileBeamInfoProvider");
-    m_DQstatus = m_beamInfo->getDQstatus();
+    auto dqStatus = std::make_unique<TileDQstatus>();
+    ATH_CHECK( m_DQstatusTool->makeStatus (ctx,
+                                           rndm_rawchan_container,
+                                           rndm_digit_container,
+                                           nullptr, // TileBeamElemContainer
+                                           *dqStatus) );
+
+    m_DQstatus = dqStatus.get();
+
+    ATH_CHECK( SG::makeHandle (m_DQstatusKey, ctx).record (std::move (dqStatus)) );
   }
 
   // iterate over all collections in a container

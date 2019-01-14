@@ -44,10 +44,36 @@ StatusCode StreamTagMakerTool::finalize() {
 
 StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
   // obtain chain decisions,
+  using namespace TrigCompositeUtils;
   auto chainsHandle = SG::makeHandle( m_finalChainDecisions );
 
+  const Decision* passRawChains = nullptr;
+  const Decision* rerunChains = nullptr;
+  for (const Decision* d : *chainsHandle) {
+    if (d->name() == "HLTPassRaw") {
+      passRawChains = d;
+    } else if (d->name() == "HLTRerun") {
+      rerunChains = d;
+    }
+  }
+
+  if (passRawChains == nullptr || rerunChains == nullptr) {
+    ATH_MSG_ERROR("Unable to read in the HLTSummary from the DecisionSummaryMakerAlg");
+    return StatusCode::FAILURE;
+  }
+
   // for each accepted chain lookup the map of chainID -> ST
-  for ( TrigCompositeUtils::DecisionID chain: TrigCompositeUtils::decisionIDs( chainsHandle->at( 0 )) ) {
+  for ( DecisionID chain: decisionIDs( passRawChains ) ) {
+
+    // Note: The default is to NOT allow rerun chains to add a stream tag
+    if (!m_allowRerunChains) {
+      const auto iterator = std::find(decisionIDs(rerunChains).begin(), decisionIDs(rerunChains).end(), chain); 
+      if ( iterator != decisionIDs(rerunChains).end() ) {
+        // This chain has entries in both the passedRaw and rerun sets. As we are not allowing rerun chains, we skip this one.
+        continue;
+      }
+    }
+
     auto mappingIter = m_mapping.find( chain );
     // each chain has to have stream
     if( mappingIter == m_mapping.end() ) {

@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Control/AthenaKernel
                           Event/xAOD/xAODMuon
                           Event/xAOD/xAODTracking
+			  Event/FourMomUtils
                           GaudiKernel
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPattern
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment
@@ -27,6 +28,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Trigger/TrigEvent/TrigNavigation
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigSteer/TrigInterfaces
+			  Trigger/TrigT1/TrigT1Interfaces
                           Trigger/TrigTools/TrigMuonToolInterfaces
                           Trigger/TrigTools/TrigTimeAlgs )
 
@@ -36,7 +38,7 @@ include_directories(src)
 atlas_add_component( TrigMuSuperEF
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES CaloEvent CxxUtils xAODMuon xAODTracking GaudiKernel MuonPattern MuonSegment MuonRecToolInterfaces MuidEvent MuonCombinedEvent MuonCombinedToolInterfaces Particle TrkSegment TrkToolInterfaces TrigConfHLTData TrigMuonEvent TrigNavigationLib TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib )
+                     LINK_LIBRARIES CaloEvent CxxUtils xAODMuon xAODTracking FourMomUtils GaudiKernel MuonPattern MuonSegment MuonRecToolInterfaces MuidEvent MuonCombinedEvent MuonCombinedToolInterfaces Particle TrkSegment TrkToolInterfaces TrigConfHLTData TrigMuonEvent TrigNavigationLib TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigTimeAlgsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

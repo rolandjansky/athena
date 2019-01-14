@@ -11,21 +11,11 @@
 */
 
 // Include files
-#ifndef _CPP_VECTOR
- #include <vector>
-#endif
-#ifndef _CPP_ALGORITHM
- #include <algorithm>
-#endif
-#ifndef _CPP_FUNCTIONAL
- #include <functional>
-#endif
-#ifndef GAUDIKERNEL_KERNEL_H
- #include "GaudiKernel/Kernel.h"
-#endif
-#ifndef GAUDIKERNEL_CONVERSIONSVC_H
- #include "GaudiKernel/ConversionSvc.h"
-#endif
+#include <vector>
+#include <algorithm>
+#include <functional>
+#include "GaudiKernel/Kernel.h"
+#include "GaudiKernel/ConversionSvc.h"
 
 template <class TYPE,class ARG> class SvcFactory2;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Athena/Gaudi includes
@@ -10,32 +10,14 @@
 #include "TrigT1NSWSimTools/StripClusterTool.h"
 #include "TrigT1NSWSimTools/StripOfflineData.h"
 
-//Event info includes
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
 // Muon software includes
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
 #include "MuonIdHelpers/sTgcIdHelper.h"
-#include "MuonDigitContainer/sTgcDigitContainer.h"
-#include "MuonDigitContainer/sTgcDigit.h"
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/MuonSimData.h"
-// random numbers
-#include "AthenaKernel/IAtRndmGenSvc.h"
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGauss.h"
 
-// local includes
 #include "TTree.h"
-#include "TVector3.h"
-
-#include <functional>
-#include <algorithm>
-#include <map>
-#include <utility>
-
 
 
 namespace NSWL1 {
@@ -43,8 +25,6 @@ namespace NSWL1 {
     StripClusterTool::StripClusterTool( const std::string& type, const std::string& name, const IInterface* parent) :
       AthAlgTool(type,name,parent),
       m_incidentSvc("IncidentSvc",name),
-      m_rndmSvc("AtRndmGenSvc",name),
-      m_rndmEngine(0),
       m_detManager(0),
       m_sTgcIdHelper(0),
       m_tree(0),
@@ -113,14 +93,6 @@ namespace NSWL1 {
         ATH_MSG_INFO("Incident Service successfully rertieved");
       }
       m_incidentSvc->addListener(this,IncidentType::BeginEvent);
-
-      // retrieve the Random Service
-      if( m_rndmSvc.retrieve().isFailure() ) {
-        ATH_MSG_FATAL("Failed to retrieve the Random Number Service");
-        return StatusCode::FAILURE;
-      } else {
-        ATH_MSG_INFO("Random Number Service successfully retrieved");
-      }
 
       //  retrieve the MuonDetectormanager
       if( detStore()->retrieve( m_detManager ).isFailure() ) {
@@ -269,11 +241,6 @@ namespace NSWL1 {
       m_cl_module->clear();
       m_cl_layer->clear();
       m_cl_bandId->clear();
-      /*
-      for( auto cl: m_clusters){
-	    delete (cl);
-      }
-      */
       m_clusters.clear();
     }
 void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<StripClusterData>>& clusters) {
@@ -306,7 +273,6 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
       int n_strip=0;
       ATH_MSG_DEBUG(" Start cl " << cl_i  << " OF " << m_clusters.size());
 
-      //std::vector< std::unique_ptr<StripData> >* this_cl=m_clusters.at(cl_i);
       auto this_cl=m_clusters.at(cl_i);
       ATH_MSG_DEBUG(" Start cl " << cl_i  << " OF " << m_clusters.size());
 
@@ -360,10 +326,10 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
       	    ATH_MSG_DEBUG("Cluster hit, truth globalPosX="   << truth_globalPosX
       			  << ", truth globalPosY="   << truth_globalPosY
       			  << ", truth globalPosZ="   << truth_globalPosZ
-      			  << ", truth enegy deposit ="   << truth_energy << std::endl);
+      			  << ", truth enegy deposit ="   << truth_energy);
       	    ATH_MSG_DEBUG("Cluster hit, truth localPosX="   << lpos.x()
       			  << ", truth localPosY="   <<  lpos.y()
-      			  << ", truth enegy deposit ="   << truth_energy << std::endl);
+      			  << ", truth enegy deposit ="   << truth_energy);
 
 	        m_cl_truth_x->push_back( hit_gpos.x() );
       	    m_cl_truth_y->push_back( hit_gpos.y() );

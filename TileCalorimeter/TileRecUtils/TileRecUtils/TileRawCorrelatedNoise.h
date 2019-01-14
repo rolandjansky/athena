@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERECUTILS_TILERAWCORRELATEDNOISE_H
@@ -16,6 +16,7 @@
  ********************************************************************/
 
 #include "TileEvent/TileDigitsContainer.h"
+#include "TileConditions/TileCondToolNoiseSample.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -66,5 +67,9 @@ class TileRawCorrelatedNoise: public AthAlgorithm {
 
     bool m_useMeanFiles;
     bool m_pmtOrder;
+
+    ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample{this,
+        "TileCondToolNoiseSample", "TileCondToolNoiseSample", "Tile sample noise tool"};
+
 };
 #endif

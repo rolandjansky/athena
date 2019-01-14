@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cassert>
@@ -16,7 +16,7 @@
 #include "AthenaKernel/IClassIDSvc.h"
 
 #include "AthenaKernel/IClassIDSvc.h"
-#include "SGTools/ClassID_traits.h"
+#include "AthenaKernel/ClassID_traits.h"
 
 #include "SGFolder.h"
 

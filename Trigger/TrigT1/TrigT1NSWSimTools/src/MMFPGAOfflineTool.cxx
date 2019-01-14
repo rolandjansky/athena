@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Athena/Gaudi includes
@@ -15,33 +15,23 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
-// random numbers
-#include "AthenaKernel/IAtRndmGenSvc.h"
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGauss.h"
-
 // local includes
 #include "TTree.h"
 #include "TVector3.h"
 
-#include <functional>
-#include <algorithm>
-#include <map>
-#include <utility>
+//#include <functional>
+//#include <algorithm>
 
 using namespace std;
 
 
 namespace NSWL1 {
 
-    MMFPGAOfflineTool::MMFPGAOfflineTool( const std::string& type, const std::string& name, const IInterface* parent) :
+    MMFPGAOfflineTool::MMFPGAOfflineTool( const string& type, const string& name, const IInterface* parent) :
       AthAlgTool(type,name,parent),
       m_incidentSvc("IncidentSvc",name),
-      m_rndmSvc("AtRndmGenSvc",name),
-      m_rndmEngine(0),
       m_mmcandidate_cache_runNumber(-1),
       m_mmcandidate_cache_eventNumber(-1),
-      m_rndmEngineName(""),
       m_doNtuple(false),
       m_tree(0)
 
@@ -50,13 +40,12 @@ namespace NSWL1 {
 
       declareInterface<NSWL1::IMMFPGATool>(this);
 
-      declareProperty("RndmEngineName", m_rndmEngineName = "MMStripTdsOfflineTool", "the name of the random engine");
       declareProperty("DoNtuple", m_doNtuple = false, "input the MMStripTds branches into the analysis ntuple"); 
 
       // reserve enough slots for the trigger sectors and fills empty vectors
       m_trigger_candidates.reserve(32);
-      std::vector< std::vector<MMCandidateData*> >::iterator it = m_trigger_candidates.begin();
-      m_trigger_candidates.insert(it,32,std::vector<MMCandidateData*>());
+      vector< vector<MMCandidateData*> >::iterator it = m_trigger_candidates.begin();
+      m_trigger_candidates.insert(it,32,vector<MMCandidateData*>());
     }
 
     MMFPGAOfflineTool::~MMFPGAOfflineTool() {
@@ -67,7 +56,6 @@ namespace NSWL1 {
       ATH_MSG_INFO( "initializing " << name() ); 
 
       ATH_MSG_INFO( name() << " configuration:");
-      ATH_MSG_INFO(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_rndmEngineName.name() << m_rndmEngineName.value());
       ATH_MSG_INFO(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_doNtuple.name() << ((m_doNtuple)? "[True]":"[False]")
                        << setfill(' ') << setiosflags(ios::right) );
 
@@ -75,7 +63,7 @@ namespace NSWL1 {
 
       const IInterface* parent = this->parent();
       const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);
-      std::string algo_name = pnamed->name();
+      string algo_name = pnamed->name();
 
       if ( m_doNtuple && algo_name=="NSWL1Simulation" ) {
         ITHistSvc* tHistSvc;
@@ -114,21 +102,6 @@ namespace NSWL1 {
       }
       m_incidentSvc->addListener(this,IncidentType::BeginEvent);
 
-      // retrieve the Random Service
-      if( m_rndmSvc.retrieve().isFailure() ) {
-        ATH_MSG_FATAL("Failed to retrieve the Random Number Service");
-        return StatusCode::FAILURE;
-      } else {
-        ATH_MSG_INFO("Random Number Service successfully retrieved");
-      }
-
-      // retrieve the random engine
-      m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-      if (m_rndmEngine==0) {
-        ATH_MSG_FATAL("Could not retrieve the random engine " << m_rndmEngineName);
-        return StatusCode::FAILURE;
-      }
-
       return StatusCode::SUCCESS;
     }
 
@@ -142,7 +115,7 @@ namespace NSWL1 {
 
     void MMFPGAOfflineTool::clear_cache() {
       for (unsigned int i=0; i<m_trigger_candidates.size(); i++) {
-        std::vector<MMCandidateData*>& sector_candidates = m_trigger_candidates.at(i);
+        vector<MMCandidateData*>& sector_candidates = m_trigger_candidates.at(i);
         for (unsigned int c=0; c< sector_candidates.size(); c++) {
           delete sector_candidates.at(c);
         }
@@ -155,7 +128,7 @@ namespace NSWL1 {
       m_nMMCandidates = 0;
 
       if (m_tree) {
-        std::string ToolName = name().substr(  name().find("::")+2,std::string::npos );
+        string ToolName = name().substr(  name().find("::")+2,string::npos );
         const char* n = ToolName.c_str();
         m_tree->Branch(TString::Format("%s_nMMCandidates",n).Data(),&m_nMMCandidates,TString::Format("%s_nMMCandidates/i",n).Data());
       } else { 
@@ -180,8 +153,8 @@ namespace NSWL1 {
     }
 
   
-    StatusCode MMFPGAOfflineTool::gather_mmcandidate_data(std::vector<MMStripData*>& mmstrips,
-                                                          std::vector<MMCandidateData*>& mmcandidates,
+    StatusCode MMFPGAOfflineTool::gather_mmcandidate_data(vector<MMStripData*>& mmstrips,
+                                                          vector<MMCandidateData*>& mmcandidates,
                                                           int side, int sector) {
       ATH_MSG_DEBUG( "gather_mmcandidate_data: start gathering the String hits for side " << side << ", sector " << sector );
 
@@ -246,7 +219,7 @@ namespace NSWL1 {
       return StatusCode::SUCCESS;
     }
 
-    MMFPGAOfflineTool::cStatus MMFPGAOfflineTool::apply_trigger_logic(std::vector<MMStripData*>& mmstrips) {
+    MMFPGAOfflineTool::cStatus MMFPGAOfflineTool::apply_trigger_logic(vector<MMStripData*>& mmstrips) {
 
       for (int side=0; side<2; side++) {
         for (int sector=0; sector<16; sector++) {
@@ -255,13 +228,12 @@ namespace NSWL1 {
           int tsector = side*16 + sector;
 
           /** Filter the data that belong to this trigger sector */
-          std::vector<MMStripData*> strips_in_tsector;
+          vector<MMStripData*> strips_in_tsector;
           for (unsigned int i=0;i<mmstrips.size();i++) {
             if ( (mmstrips[i]->sideId()==side)&&(mmstrips[i]->sectorId()==sector) ) {
               strips_in_tsector.push_back(mmstrips[i]);
             }
           }
-          //std::copy_if(mmstrips.begin(),mmstrips.end(),strips_in_tsector.begin(),[](MMStripData* strip){ return (strip->sideId()==side)&&(strip->sectorId()==sector);} );
 
           if (strips_in_tsector.size()!=0) {
 
@@ -272,10 +244,6 @@ namespace NSWL1 {
             }
 
             /** process the trigger logic and fille the relative candidate cache */
-
-            // this->perform_pattern_recognition(pass_the_data)
-            // this->perform_track_fit()
-            // this->build_canddiate()
 
           }
         }  

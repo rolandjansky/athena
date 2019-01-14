@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CABLING_TGCCHANNELSLBOUT_HH
@@ -29,18 +29,18 @@ public:
   virtual bool isValid(void) const;
 
 private:
-  static const int numberOfBlockInWD;
-  static const int numberOfBlockInSD;
-  static const int numberOfBlockInWT;
-  static const int numberOfBlockInST;
-  static const int numberOfLayerInWD;
-  static const int numberOfLayerInSD;
-  static const int numberOfLayerInWT;
-  static const int numberOfLayerInST;
-  static const int channelInBlockForWD;
-  static const int channelInBlockForSD;
-  static const int channelInBlockForWT;
-  static const int channelInBlockForST;
+  static const int s_numberOfBlockInWD;
+  static const int s_numberOfBlockInSD;
+  static const int s_numberOfBlockInWT;
+  static const int s_numberOfBlockInST;
+  static const int s_numberOfLayerInWD;
+  static const int s_numberOfLayerInSD;
+  static const int s_numberOfLayerInWT;
+  static const int s_numberOfLayerInST;
+  static const int s_channelInBlockForWD;
+  static const int s_channelInBlockForSD;
+  static const int s_channelInBlockForWT;
+  static const int s_channelInBlockForST;
 
 public:
   static int getNumberOfBlock(TGCIdBase::ModuleType moduleType);

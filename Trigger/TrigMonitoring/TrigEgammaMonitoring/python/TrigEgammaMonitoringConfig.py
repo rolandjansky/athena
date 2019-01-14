@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 # -*- coding: utf-8 -*-
 # vim:fenc=utf-8
 #
@@ -158,8 +158,6 @@ class TrigEgammaMonToolBuilder:
                 DefaultProbePid="LHMedium",
                 File="",
                 OutputLevel=self.debugLevel,DetailedHistograms=self.detailLevel)
-        from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc += ElectronAnalysis
 
     def configurePhotonMonTool(self,plotTool,toolList):
         PhotonAnalysis = TrigEgammaNavAnalysisTool(name='HLTEgammaPhotonAnalysis',
@@ -169,8 +167,6 @@ class TrigEgammaMonToolBuilder:
             TriggerList=self.photonList,
             File="",
             OutputLevel=self.debugLevel,DetailedHistograms=self.detailLevel)
-        from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc += PhotonAnalysis
 
     def configureTPMonTool(self,plotTool,toolList):    
         if self.emulation == True:
@@ -195,12 +191,12 @@ class TrigEgammaMonToolBuilder:
                 Tools=toolList,
                 TriggerList=self.tpList,
                 DefaultProbePid="LHMedium",
+                OfflineTagSelector='LHTight',
+                #OfflineProbeSelector='LHMedium',
                 File="",
                 TagTriggerList=self.tagItems,
                 RemoveCrack=False,
                 OutputLevel=self.debugLevel,DetailedHistograms=self.detailLevel)
-        from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc += TPAnalysis
   
     def configureJpsiMonTool(self,plotTool,toolList):        
         JpsiTPAnalysis = TrigEgammaNavTPJpsieeAnalysisTool(name='HLTEgammaTPJpsieeAnalysis',
@@ -209,9 +205,9 @@ class TrigEgammaMonToolBuilder:
                                                             Tools=toolList,
                                                             TriggerList=self.jpsiList,
                                                             File="",
+                                                            OfflineTagSelector='LHTight',
+                                                            #OfflineProbeSelector='LHMedium',
                                                             TagTriggerList= self.JpsitagItems)
-        from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc += JpsiTPAnalysis
     def configureAllMonTools(self,plotTool,toolList):        
         self.configureElectronMonTool(plotTool,toolList)
         self.configurePhotonMonTool(plotTool,toolList)
@@ -219,7 +215,6 @@ class TrigEgammaMonToolBuilder:
         self.configureJpsiMonTool(plotTool,toolList)
     
     def configureTools(self):
-        from AthenaCommon.AppMgr import ToolSvc
         HLTEgammaPlotTool = TrigEgammaPlotTool.copy(name="HLTEgammaPlotTool",
                 DirectoryPath=self.basePath,
                 MaM=self.mam,
@@ -227,14 +222,10 @@ class TrigEgammaMonToolBuilder:
                 Distribution=plots_distribution,
                 Resolution=plots_resolution,
                 OutputLevel=self.debugLevel)
-        ToolSvc += HLTEgammaPlotTool()
 
         HLTEgammaEffTool = EfficiencyTool.copy(name="HLTEgammaEffTool",PlotTool=HLTEgammaPlotTool,OutputLevel=self.debugLevel)
-        ToolSvc += HLTEgammaEffTool()
         HLTEgammaResTool = ResolutionTool.copy(name="HLTEgammaResTool",PlotTool=HLTEgammaPlotTool,OutputLevel=self.debugLevel)
-        ToolSvc += HLTEgammaResTool()
         HLTEgammaDistTool = DistTool.copy(name="HLTEgammaDistTool",PlotTool=HLTEgammaPlotTool,OutputLevel=self.debugLevel)
-        ToolSvc += HLTEgammaDistTool()
         
         toolList = [HLTEgammaEffTool,HLTEgammaResTool,HLTEgammaDistTool]
         # For MaM, most important is the list of triggers to monitor
@@ -244,7 +235,7 @@ class TrigEgammaMonToolBuilder:
         # Need to ensure the correct tools are configured 
         # for each monitoring mode
         if self.mc_mode == True or self.pp_mode == True:
-            if(self.derivation == True):
+            if(self.derivation == True or self.emulation == True):
                 self.configureTPMonTool(HLTEgammaPlotTool,toolList)
             else:
                 self.configureAllMonTools(HLTEgammaPlotTool,toolList)
@@ -266,33 +257,31 @@ class TrigEgammaMonToolBuilder:
         return tool 
         
     def configureMonTool(self):
-        #from AthenaCommon.AppMgr import ToolSvc
-        #toolList=['TrigEgammaMonTool/HLTEgammaMon'];
+        from AthenaCommon.AppMgr import ToolSvc
+        toolList=['TrigEgammaMonTool/HLTEgammaMon'];
         if self.mc_mode == True or self.pp_mode == True:
-            if(self.derivation == True):
+            if(self.derivation == True or self.emulation==True):
                 tool = TrigEgammaMonTool( name = "HLTEgammaMon", 
                         histoPathBase=self.basePath,
                         IgnoreTruncationCheck=True,
                         Tools=["TrigEgammaNavTPAnalysisTool/HLTEgammaTPAnalysis"])
-                #ToolSvc += tool        
+                ToolSvc += tool        
             else:
-                tool = self.configureDefaultMonTool()
-                #ToolSvc += self.configureDefaultMonTool()
+                ToolSvc += self.configureDefaultMonTool()
         elif self.HI_mode == True or self.pPb_mode == True:
             tool = TrigEgammaMonTool( name = "HLTEgammaMon", 
                     histoPathBase=self.basePath,
                     IgnoreTruncationCheck=True,
                     Tools=["TrigEgammaNavAnalysisTool/HLTEgammaPhotonAnalysis",
                             "TrigEgammaNavAnalysisTool/HLTEgammaElectronAnalysis"])
-            #ToolSvc += tool        
+            ToolSvc += tool        
         elif self.cosmic_mode == True:
             tool = TrigEgammaMonTool( name = "HLTEgammaMon", 
                     histoPathBase=self.basePath,
                     IgnoreTruncationCheck=True,
                     Tools=["TrigEgammaNavAnalysisTool/HLTEgammaPhotonAnalysis",
                             "TrigEgammaNavAnalysisTool/HLTEgammaElectronAnalysis"])
-            #ToolSvc += tool
+            ToolSvc += tool
         else:
-            tool = self.configureDefaultMonTool()
-            #ToolSvc += self.configureDefaultMonTool()
-        return [ tool ]
+            ToolSvc += self.configureDefaultMonTool()
+        return toolList    

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CABLING_TGCCHANNELHPBIN_HH
@@ -29,9 +29,9 @@ public:
   virtual bool isValid(void) const;
 
 private:
-  static const int numberOfBlock;
-  static const int channelInBlock;
-  static const int slbInBlock;
+  static const int s_numberOfBlock;
+  static const int s_channelInBlock;
+  static const int s_slbInBlock;
   
 public:
   static int getNumberOfBlock(void);

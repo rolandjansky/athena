@@ -134,7 +134,7 @@ StatusCode LArDetectorToolNV::create()
   ATH_MSG_INFO("  Endcap            = "  << (m_buildEndcap ? "ON" : "OFF"));
 
   // Locate the top level experiment node 
-  DataHandle<GeoModelExperiment> theExpt; 
+  GeoModelExperiment* theExpt = nullptr;
   ATH_CHECK(detStore()->retrieve(theExpt,"ATLAS"));
 
   // determine the geometry layout - Atlas/Testbeam

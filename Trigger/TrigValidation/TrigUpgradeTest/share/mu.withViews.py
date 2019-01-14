@@ -324,8 +324,7 @@ if TriggerFlags.doMuon:
 def summarySteps ( name, decisions ):
   from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
   summarySteps = TriggerSummaryAlg( "TriggerSummary"+name )
-  summarySteps.InputDecision = "HLTChains"
-  summarySteps.HLTSummary = "MonitoringSummary"+name
+  summarySteps.InputDecision = "L1DecoderSummary"
   summarySteps.OutputLevel = DEBUG
   summarySteps.FinalDecisions = decisions
   return summarySteps
@@ -334,7 +333,7 @@ def summarySteps ( name, decisions ):
 def muonViewsMergers( name ):
   from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
   muonViewsMerger = HLTEDMCreator("muonViewsMerger_" + name )
-  muonViewsMerger.TrigCompositeContainer = [ "MURoIDecisions", "HLTChainsResult", "MonitoringSummaryStep1", "MonitoringSummaryStep2", "MonitoringSummaryStep3"]
+  muonViewsMerger.TrigCompositeContainer = [ "MURoIDecisions", "L1DecoderSummary", "MonitoringSummaryStep1", "MonitoringSummaryStep2", "MonitoringSummaryStep3"]
   muonViewsMerger.OutputLevel = VERBOSE
 
   if doL2SA==True:

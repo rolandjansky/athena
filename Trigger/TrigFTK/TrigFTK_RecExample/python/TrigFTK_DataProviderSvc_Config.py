@@ -9,9 +9,8 @@ class TrigFTK_DataProviderSvc(FTK_DataProviderSvc) :
         print "In FTK_DataProviderSvc_Config.py"  
         FTK_DataProviderSvc.__init__(self, name) 
 
-        from TrigInDetConf.TrigInDetRecToolsFTK import InDetTrigTrackFitterFTK, InDetTrigRotCreatorFTK, TrigFTK_VertexCollectionSortingTool, \
-        TrigFTK_UncertaintyTool,TrigFTK_RawVertexFinderTool,InDetTrigTrackParticleCreatorToolFTK,InDetTrigTrackSummaryToolFTK
-        from InDetTrigRecExample.InDetTrigConfigRecLoadToolsPost import InDetTrigPriVxFinderTool
+        from TrigInDetConf.TrigInDetRecToolsFTK import InDetTrigTrackFitterFTK, InDetTrigRotCreatorFTK,  \
+        TrigFTK_UncertaintyTool,TrigFTK_RawVertexFinderTool,InDetTrigTrackParticleCreatorToolFTK,InDetTrigTrackSummaryToolFTK,TrigFTK_HashIDTool
         
         self.TrackCollectionName= "FTK_TrackCollection"
         self.TrackParticleContainerName= "FTK_TrackParticleContainer"
@@ -24,16 +23,24 @@ class TrigFTK_DataProviderSvc(FTK_DataProviderSvc) :
         self.CorrectPixelClusters=True
         self.CorrectSCTClusters=True
         
-        
         self.TrackFitter = InDetTrigTrackFitterFTK
         self.UncertaintyTool=TrigFTK_UncertaintyTool
         self.TrackSummaryTool=InDetTrigTrackSummaryToolFTK
         self.TrackParticleCreatorTool=InDetTrigTrackParticleCreatorToolFTK
         self.RawVertexFinderTool=TrigFTK_RawVertexFinderTool
-        self.VertexFinderTool=InDetTrigPriVxFinderTool
-        self.VertexCollectionSortingTool=TrigFTK_VertexCollectionSortingTool
-        self.ROTcreatorTool= InDetTrigRotCreatorFTK 
+        self.ROTcreatorTool= InDetTrigRotCreatorFTK
+        self.HashIDTool=TrigFTK_HashIDTool
 
+        from AthenaCommon.BeamFlags import jobproperties
+
+        if (jobproperties.Beam.beamType() != 'cosmics'):
+            from InDetTrigRecExample.InDetTrigConfigRecLoadToolsPost import InDetTrigPriVxFinderTool
+            from TrigInDetConf.TrigInDetRecToolsFTK import TrigFTK_VertexCollectionSortingTool
+            self.DoVertexing=True
+            self.VertexFinderTool=InDetTrigPriVxFinderTool
+            self.VertexCollectionSortingTool=TrigFTK_VertexCollectionSortingTool
+        else:
+            self.DoVertexing=False
         from RecExConfig.RecFlags import rec
         self.doTruth= rec.doTruth()
 

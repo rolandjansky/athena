@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BASIC_CELLBUILDERTOOL_H
@@ -38,11 +38,12 @@ public:
     cellinfo_vec():m_vol(0) {m_subvol[0]=m_subvol[1]=m_subvol[2]=m_subvol[3]=0;};
 
     cellinfo& operator[](unsigned int i) {return m_cellinfo_vec[i];};
+    const cellinfo& operator[](unsigned int i) const {return m_cellinfo_vec[i];};
     void resize(unsigned int n) {m_cellinfo_vec.resize(n);};
-    unsigned int size() {return m_cellinfo_vec.size();};
+    unsigned int size() const {return m_cellinfo_vec.size();};
     void push_back(const cellinfo & ele,int layernr) {m_cellinfo_vec.push_back(ele);m_vol+=ele.second;m_subvol[layernr]+=ele.second;};
-    double vol() {return m_vol;};
-    double vol(int i) {return m_subvol[i];};
+    double vol() const {return m_vol;};
+    double vol(int i) const {return m_subvol[i];};
 
     vec m_cellinfo_vec;
     double m_vol;
@@ -119,6 +120,7 @@ public:
   void phi_range(const int iphi,double& phi1,double& phi2) { phi1=m_phi_start+iphi*m_dphi; phi2=phi1+m_lphi*m_dphi; };
 
   cellinfo_vec& vec(int ieta,int iphi) {return m_map[ieta][iphi];};
+  const cellinfo_vec& vec(int ieta,int iphi) const {return m_map[ieta][iphi];};
 
   const std::string& name() const {return m_name;};
   void setname(const std::string& name) {m_name=name;};

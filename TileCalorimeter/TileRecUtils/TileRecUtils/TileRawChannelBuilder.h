@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERECUTILS_ITILERAWCHANNELBUILDER_H
@@ -29,6 +29,10 @@
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileDigitsCollection.h"
 #include "TileRecUtils/ITileRawChannelTool.h"
+#include "TileConditions/TileCondToolEmscale.h"
+#include "TileConditions/TileCondToolTiming.h"
+#include "TileConditions/TileCondIdTransforms.h"
+#include "TileEvent/TileDQstatus.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -90,9 +94,6 @@ class TileRawChannelBuilder: public AthAlgTool {
       m_rawChannelCnt->push_back(std::unique_ptr<TileRawChannel>(rawChannel(digits)));
     }
 
-    // find all bad patterns in a drawer and fill internal static arrays
-    void fill_drawer_errors(const TileDigitsCollection* collection);
-
     // process all digits from one collection and store results in internal container
     void build(const TileDigitsCollection* collection);
 
@@ -136,7 +137,16 @@ class TileRawChannelBuilder: public AthAlgTool {
     friend class TileHid2RESrcID;
 
     // properties
-    // name of TDS container with output TileRawChannels
+    // DQ status.
+    SG::ReadHandleKey<TileDQstatus> m_DQstatusKey{this, "TileDQstatus", 
+                                                  "TileDQstatus", 
+                                                  "TileDQstatus key"};
+
+    // DSP container.  Only used of m_useDSP is set.
+    SG::ReadHandleKey<TileRawChannelContainer> m_DSPContainerKey
+      {this, "DSPContainer", "",  "DSP Container key"};
+
+  // name of TDS container with output TileRawChannels
     SG::WriteHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this,"TileRawChannelContainer","TileRawChannelFiltered",
                                                                          "Output Tile raw channels container key"};
 
@@ -171,9 +181,19 @@ class TileRawChannelBuilder: public AthAlgTool {
     const TileHWID* m_tileHWID;
     const TileInfo* m_tileInfo;
 
-    ToolHandle<TileBeamInfoProvider> m_beamInfo;
     ToolHandleArray<ITileRawChannelTool> m_noiseFilterTools{this,
         "NoiseFilterTools", {}, "Tile nose filter tools"};
+
+    ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
+        "TileCondToolEmscale", "TileCondToolEmscale", "Tile EM scale calibration tool"};
+
+    ToolHandle<TileCondToolTiming> m_tileToolTiming{this,
+        "TileCondToolTiming", "TileCondToolTiming", "Tile timing tool"};
+
+    ToolHandle<TileCondIdTransforms> m_tileIdTransforms{this,
+        "TileCondIdTransforms", "TileCondIdTransforms",
+        "Tile tool to tranlate hardware identifier to the drawerIdx, channel, and adc"};
+
 
     int m_trigType;
     bool m_idophys;   // Phys fitting
@@ -202,6 +222,12 @@ class TileRawChannelBuilder: public AthAlgTool {
     static bool s_badDrawer;
     
     bool m_notUpgradeCabling;
+
+private:
+    // find all bad patterns in a drawer and fill internal static arrays
+    void fill_drawer_errors(const EventContext& ctx,
+                            const TileDigitsCollection* collection);
+
 };
 
 #endif

@@ -90,7 +90,7 @@ serialiser.CollectionsToSerialize = ["xAOD::TrigCompositeContainer_v1#MTCalibPeb
 
 # Tool adding stream tags to HLT result
 stmaker = StreamTagMakerTool()
-stmaker.ChainDecisions = "HLTFinalDecisions"
+stmaker.ChainDecisions = "HLTSummary"
 stmaker.ChainToStream = {}
 stmaker.ChainToStream["HLT_MTCalibPeb1"] = "DataScouting_05_Jets"
 stmaker.ChainToStream["HLT_MTCalibPeb2"] = "Main"
@@ -101,7 +101,7 @@ stmaker.StreamRobs["Main"] = [0x42002e, 0x420060, 0x420064]
 
 # Tool adding HLT bits to HLT result
 bitsmaker = TriggerBitsMakerTool()
-bitsmaker.ChainDecisions = "HLTFinalDecisions"
+bitsmaker.ChainDecisions = "HLTSummary"
 bitsmaker.ChainToBit = {}
 bitsmaker.ChainToBit["HLT_MTCalibPeb1"] = 3
 bitsmaker.ChainToBit["HLT_MTCalibPeb2"] = 50

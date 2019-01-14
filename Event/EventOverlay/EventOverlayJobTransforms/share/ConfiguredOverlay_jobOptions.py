@@ -28,15 +28,10 @@ from OverlayCommonAlgs.OverlayFlags import overlayFlags
 pileUpEventLoopMgr = PileUpEventLoopMgr()
 pileUpEventLoopMgr.OutStreamType = "AthenaOutputStream"
 
-#include ("EventOverlayJobTransforms/synchFlags_jobOptions.py")
 print "================  DetFlags  ================ "
 DetFlags.Print()
 
-#if globalflags.InputFormat()=='bytestream':
 if overlayFlags.isDataOverlay():
-    #if isRealData:
-    #   include ("RecExCommission/RecExCommission_BSRead_config_hack.py")
-    #else:
     from InDetRecExample.InDetJobProperties import InDetFlags
     include ("InDetRecExample/InDetRecConditionsAccess.py")
     from ByteStreamCnvSvc import ReadByteStream

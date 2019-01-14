@@ -38,7 +38,6 @@
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileRecUtils/TileRawChannelBuilder.h"
 #include "TileRecUtils/TileRawChannelBuilderMF.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
 
 // Calo includes
 #include "CaloIdentifier/TileID.h"
@@ -77,7 +76,6 @@ TilePulseForTileMuonReceiver::TilePulseForTileMuonReceiver(std::string name, ISv
   , m_timeStep(0.0)
   , m_pHRengine(0)
   , m_rndmSvc("AtRndmGenSvc", name)
-  , m_beamInfo("TileBeamInfoProvider/TileBeamInfoProvider")
   , m_MuRcvBuildTool("TileRawChannelBuilderMF")
   , m_run2(true)
 {

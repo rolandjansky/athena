@@ -395,6 +395,9 @@ if doRawChannelNtuple:
     theTileRawChannelToNtuple.NTupleLoc = '/NTUP'
 
 
+from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
+dqStatus = TileDQstatusAlgDefault()
+
 if doTileNtuple:
     doSim = True
     if TileTB:
@@ -407,6 +410,8 @@ if doTileNtuple:
                                               TileBeamElemContainer = "",
                                               TileLaserObject = "",
                                               beamFragList = [ ]  )
+        dqStatus.TileBeamElemContainer = ''
+        dqStatus.TileDigitsContainer = 'TileDigitsCnt'
     else:
         #--- Create TileCal h2000 ntuple with RawChannels ---------
         include( 'TileRec/TileDefaults_jobOptions.py' )

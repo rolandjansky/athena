@@ -28,6 +28,12 @@ ToolSvc += mdtDataPreparator
 
 theDataPreparator.MDTDataPreparator = mdtDataPreparator
 
+tgcDataPreparator = TrigL2MuonSA__TgcDataPreparator()
+tgcDataPreparator.DecodeBS = DetFlags.readRDOBS.TGC_on()
+ToolSvc += tgcDataPreparator
+
+theDataPreparator.TGCDataPreparator = tgcDataPreparator
+
 ToolSvc += theDataPreparator
 ToolSvc += thePatternFinder
 ToolSvc += theStationFitter

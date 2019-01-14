@@ -52,8 +52,11 @@ StatusCode SCT_ReadoutTool::determineReadout(const int truncatedSerialNumber, st
 StatusCode SCT_ReadoutTool::determineReadout(const Identifier& moduleId, std::vector<SCT_Chip*>& chips, bool link0ok, bool link1ok) const {
   // This determineReadout(const Identifier is the main method of this class.
   // Methods of SCT_ReadoutData are called in the following order in this method:
+  // setChips
+  // setLinkStatus
   // setModuleType
   // setChipMap
+  // clearChipReadout
   // checkLink
   // \_ followReadoutUpstream
   //    \_ setChipIn

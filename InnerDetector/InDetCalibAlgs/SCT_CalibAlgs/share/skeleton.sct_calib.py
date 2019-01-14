@@ -499,7 +499,6 @@ SCTCalib.RunStartTime = SORTime
 SCTCalib.RunEndTime   = EORTime
 SCTCalib.LBMax        = nLB
 #--- Flag for ConditionsSvc, sorting, hitmaps, BSErros
-SCTCalib.UseDCS           = UseDCS           # False in default
 SCTCalib.UseConfiguration = UseConfiguration # True  in default
 SCTCalib.UseCalibration   = UseCalibration   # True  in default
 SCTCalib.UseMajority      = UseMajority      # True  in default
@@ -567,10 +566,6 @@ SCTCalib.NoisyStripDiff         = NoisyStripDiff
 #SCTCalib.NoisyModuleList        = NoisyModuleList
 #SCTCalib.NoisyModuleDiff        = NoisyModuleDiff
 #SCTCalib.NoisyStripDiff         = NoisyStripDiff
-#--- Properties for HV check
-SCTCalib.HVQlength     = HVQlength
-SCTCalib.OutputLowHits = OutputLowHits
-SCTCalib.LowHitsCut    = LowHitsCut
 #--- Properties for dead strips/chips
 SCTCalib.DeadStripMinStat      = DeadStripMinStat
 SCTCalib.DeadStripMinStatBusy  = DeadStripMinStatBusy
@@ -595,10 +590,6 @@ SCTCalib.TagID4NoisyStrips    = TagID4NoisyStrips
 SCTCalib.TagID4DeadStrips     = TagID4DeadStrips
 SCTCalib.TagID4DeadChips      = TagID4DeadChips
 SCTCalib.TagID4NoiseOccupancy = TagID4NoiseOccupancy
-SCTCalib.TagID4RawOccupancy   = TagID4RawOccupancy
-SCTCalib.TagID4Efficiency     = TagID4Efficiency
-SCTCalib.TagID4BSErrors       = TagID4BSErrors
-SCTCalib.TagID4LorentzAngle   = TagID4LorentzAngle
 #--- Output XMLs
 SCTCalib.BadStripsAllFile          = prefix + 'BadStripsAllFile.xml'          # All NoisyStrips
 SCTCalib.BadStripsNewFile          = prefix + 'BadStripsNewFile.xml'          # Newly found NoisyStrips

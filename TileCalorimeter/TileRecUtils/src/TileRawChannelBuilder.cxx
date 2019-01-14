@@ -1,12 +1,9 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
 
 // Tile includes
 #include "TileRecUtils/TileRawChannelBuilder.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileEvent/TileDigits.h"
 #include "TileEvent/TileRawChannel.h"
 #include "TileIdentifier/TileHWID.h"
@@ -19,6 +16,7 @@
 #include "AthAllocators/DataPool.h"
 
 // Gaudi includes
+#include "GaudiKernel/ThreadLocalContext.h"
 
 
 static const InterfaceID IID_ITileRawChannelBuilder("TileRawChannelBuilder", 1, 0);
@@ -59,10 +57,9 @@ TileRawChannelBuilder::TileRawChannelBuilder(const std::string& type
   , m_rChType(TileFragHash::Default)
   , m_rChUnit(TileRawChannelUnit::ADCcounts)
   , m_bsflags(0)
-  , m_tileID(0)
-  , m_tileHWID(0) 
-  , m_tileInfo(0)
-  , m_beamInfo("TileBeamInfoProvider/TileBeamInfoProvider")
+  , m_tileID(nullptr)
+  , m_tileHWID(nullptr)
+  , m_tileInfo(nullptr)
   , m_trigType(0)
   , m_idophys(false)
   , m_idolas(false)
@@ -88,7 +85,6 @@ TileRawChannelBuilder::TileRawChannelBuilder(const std::string& type
   declareProperty("TimeMinForAmpCorrection", m_timeMinThresh = -25.0);
   declareProperty("TimeMaxForAmpCorrection", m_timeMaxThresh =  25.0);
   declareProperty("RunType", m_runType = 0);
-  declareProperty("BeamInfo", m_beamInfo);
   declareProperty("DataPoolSize", m_dataPoollSize = -1);
   declareProperty("UseDSPCorrection", m_useDSP = true);
 
@@ -125,8 +121,6 @@ StatusCode TileRawChannelBuilder::initialize() {
   ATH_CHECK( detStore()->retrieve(m_tileHWID, "TileHWID") );
 
   ATH_CHECK( detStore()->retrieve(m_tileInfo, "TileInfo") );
-
-  ATH_CHECK( m_beamInfo.retrieve() );
 
   // access tools and store them
   ATH_CHECK( m_noiseFilterTools.retrieve() );
@@ -177,7 +171,33 @@ StatusCode TileRawChannelBuilder::initialize() {
   
   m_notUpgradeCabling = (cabling->getCablingType() != TileCablingService::UpgradeABC);
 
+  if (m_calibrateEnergy) {
+    ATH_CHECK( m_tileToolEmscale.retrieve() );
+  } else {
+    m_tileToolEmscale.disable();
+  }
+
+  if (m_correctTime) {
+    ATH_CHECK( m_tileToolTiming.retrieve() );
+  } else {
+    m_tileToolTiming.disable();
+  }
+
+  if (m_calibrateEnergy || m_correctTime) {
+    ATH_CHECK( m_tileIdTransforms.retrieve() );
+  } else {
+    m_tileIdTransforms.disable();
+  }
+
   ATH_CHECK( m_rawChannelContainerKey.initialize() );
+  ATH_CHECK( m_DQstatusKey.initialize() );
+
+  if (m_useDSP && !m_DSPContainerKey.key().empty()) {
+    ATH_CHECK( m_DSPContainerKey.initialize() );
+  }
+  else {
+    m_DSPContainerKey = "";
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -202,18 +222,21 @@ StatusCode TileRawChannelBuilder::createContainer() {
 
 void TileRawChannelBuilder::initLog() {
 
-  // update only if there is new event
-  if (m_evtCounter != m_beamInfo->eventCounter()) {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  const TileDQstatus* DQstatus = SG::makeHandle (m_DQstatusKey, ctx).get();
 
-    m_evtCounter = m_beamInfo->eventCounter();
+  // update only if there is new event
+  if (m_evtCounter != ctx.evt()) {
+
+    m_evtCounter = ctx.evt();
     if (m_runType != 0) m_trigType = m_runType;
-    else m_trigType = m_beamInfo->trigType();
+    else m_trigType = DQstatus->trigType();
 
     if (0 == m_trigType) {
-      m_idophys = (m_beamInfo->calibMode() == 0);
+      m_idophys = (DQstatus->calibMode() == 0);
       m_idolas = false;
       m_idoped = false;
-      m_idocis = (m_beamInfo->calibMode() == 1);
+      m_idocis = (DQstatus->calibMode() == 1);
     } else {
       m_idophys = (m_trigType <= 1);
       m_idolas = ((m_trigType == 2) || (m_trigType == 3));
@@ -221,7 +244,7 @@ void TileRawChannelBuilder::initLog() {
       m_idocis = ((m_trigType == 8) || (m_trigType == 9));
     }
 
-    const unsigned int *cispar = m_beamInfo->cispar();
+    const unsigned int *cispar = DQstatus->cispar();
     if (0 == cispar[7]) { // if capdaq not set, it can't be CIS event
       if (m_idocis) { // cis flag was set incorrectly, change to ped
         m_idoped = true;
@@ -252,8 +275,10 @@ TileRawChannel* TileRawChannelBuilder::rawChannel(const TileDigits* digits) {
   return rawCh;
 }
 
-void TileRawChannelBuilder::fill_drawer_errors(const TileDigitsCollection* coll) {
-  const TileDQstatus* DQstatus = m_beamInfo->getDQstatus();
+void TileRawChannelBuilder::fill_drawer_errors(const EventContext& ctx,
+                                               const TileDigitsCollection* coll)
+{
+  const TileDQstatus* DQstatus = SG::makeHandle (m_DQstatusKey, ctx).get();
 
   int frag = coll->identify();
   int ros = (frag >> 8);
@@ -443,12 +468,14 @@ const char * TileRawChannelBuilder::BadPatternName(float ped) {
 }
 
     
-void TileRawChannelBuilder::build(const TileDigitsCollection* coll) {
+void TileRawChannelBuilder::build(const TileDigitsCollection* coll)
+{
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   int frag = coll->identify();
 
   // make sure that error array is up-to-date
   if (frag != s_lastDrawer && m_notUpgradeCabling) {
-    fill_drawer_errors(coll);
+    fill_drawer_errors(ctx, coll);
   }
 
   // Iterate over all digits in this collection
@@ -487,17 +514,21 @@ void TileRawChannelBuilder::build(const TileDigitsCollection* coll) {
   }
 }
 
-StatusCode TileRawChannelBuilder::commitContainer() {
+StatusCode TileRawChannelBuilder::commitContainer()
+{
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  const TileDQstatus* DQstatus = SG::makeHandle (m_DQstatusKey, ctx).get();
 
   ToolHandleArray<ITileRawChannelTool>::iterator itrTool = m_noiseFilterTools.begin();
   ToolHandleArray<ITileRawChannelTool>::iterator endTool = m_noiseFilterTools.end();
 
-  const TileRawChannelContainer * dspCnt = m_beamInfo->dspContainer();
-  std::unique_ptr<TileMutableRawChannelContainer> copiedDspCnt;
-
-  if ( m_useDSP && (m_beamInfo->incompleteDigits() || m_chCounter<12288) && dspCnt && itrTool!=endTool) {
+  if ( m_useDSP && !m_DSPContainerKey.key().empty() &&
+       (DQstatus->incompleteDigits() || m_chCounter<12288) && itrTool!=endTool )
+  {
+    const TileRawChannelContainer * dspCnt =
+      SG::makeHandle (m_DSPContainerKey, ctx).get();
     ATH_MSG_DEBUG( "Incomplete container - use noise filter corrections from DSP container" );
-    copiedDspCnt = std::make_unique<TileMutableRawChannelContainer> (*dspCnt);
+    auto copiedDspCnt = std::make_unique<TileMutableRawChannelContainer> (*dspCnt);
     ATH_CHECK( copiedDspCnt->status() );
     dspCnt = copiedDspCnt.get();
     for (;itrTool!=endTool;++itrTool){

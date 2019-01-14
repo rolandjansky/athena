@@ -27,7 +27,7 @@ ConfigSvcBase::~ConfigSvcBase()
 void
 ConfigSvcBase::declareCommonProperties() {
    declareProperty( "ConfigSource",     m_configSourceString,
-                    "Source of trigger configuration; can be \"XML\", \"MySQL\", \"Oracle\", or \"DBLookup\" ");
+                    "Source of trigger configuration; can be \"XML\", \"MySQL\", \"Oracle\", \"DBLookup\" or \"RUN3_DUMMY\" ");
    declareProperty( "XMLMenuFile",      m_xmlFile,
                     "XML file containing the trigger configuration.");
    declareProperty( "DBServer",         m_dbServer,
@@ -59,7 +59,10 @@ ConfigSvcBase::initialize() {
    ATH_MSG_INFO("=================================");
 
    string s(boost::to_lower_copy(m_configSourceString)); // lower case
-   if(s != "xml") {
+
+  if (s == "run3_dummy") {
+      ATH_MSG_WARNING("Configured to use Run-3 Dummy menu. This should never be seen in production");
+   } else if(s != "xml") {
       TrigDBConnectionConfig::DBType dbtype(TrigDBConnectionConfig::DBLookup);
       if (s == "oracle") { dbtype = TrigDBConnectionConfig::Oracle; }
       else if (s == "mysql")  { dbtype = TrigDBConnectionConfig::MySQL; }

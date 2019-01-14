@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGCcabling/TGCDatabase.h"
@@ -8,36 +8,36 @@ namespace LVL1TGCCabling8
 {
 
 TGCDatabase::TGCDatabase (DatabaseType vtype)
-  : type(vtype)
+  : m_type(vtype)
 {
 }
 
 TGCDatabase::TGCDatabase (DatabaseType vtype,
 			  std::string  vfilename, 
 			  std::string  vblockname)
-  : filename(vfilename),
-    blockname(vblockname),
-    type(vtype)
+  : m_filename(vfilename),
+    m_blockname(vblockname),
+    m_type(vtype)
 {
-  if(database.size()==0) readDB();  
+  if(m_database.size()==0) readDB();  
 }
 
 TGCDatabase::~TGCDatabase (void)
 {}
 
 int TGCDatabase::getEntry (int entry, int column) {
-  if(database.size()==0) readDB();
-  return database[entry].at(column);
+  if(m_database.size()==0) readDB();
+  return m_database[entry].at(column);
 }
  
 int TGCDatabase::getEntrySize (int entry) {
-  if(database.size()==0) readDB();
-  return database[entry].size();
+  if(m_database.size()==0) readDB();
+  return m_database[entry].size();
 }
  
 int TGCDatabase::getMaxEntry (void) {
-  if(database.size()==0) readDB();
-  return database.size();
+  if(m_database.size()==0) readDB();
+  return m_database.size();
 }
 
 int TGCDatabase::getIndexDBIn (int* indexIn) {

@@ -11,9 +11,10 @@ atlas_install_joboptions( share/*.py )
 atlas_install_data( share/*.ref )
 
 # Configure unit tests
+# Cache alignment will change depending on whether FRONTIER_SERVER is defined.
 atlas_add_test( MuonDataDecodeTest
-                PROPERTIES TIMEOUT 500
-                EXTRA_PATTERNS "GeoModelSvc.MuonDetectorTool.*SZ="
+                PROPERTIES TIMEOUT 1000
+                EXTRA_PATTERNS "GeoModelSvc.MuonDetectorTool.*SZ=|Cache alignment|Range of input|recorded new|map from"
                 SCRIPT test/testMuonDataDecode.sh )
 
 atlas_add_test( MuonCablingConfigTest

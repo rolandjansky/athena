@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: AuxContainerBase.cxx 793746 2017-01-24 21:23:52Z ssnyder $
@@ -222,6 +222,15 @@ namespace xAOD {
 
       // Return the full list of IDs:
       return getWritableAuxIDs();
+   }
+
+   bool AuxContainerBase::isDecoration (auxid_t auxid) const
+   {
+     guard_t guard( m_mutex );
+     if (m_store) {
+       return m_store->isDecoration (auxid);
+     }
+     return false;
    }
 
    void* AuxContainerBase::getDecoration( auxid_t auxid, size_t size,
