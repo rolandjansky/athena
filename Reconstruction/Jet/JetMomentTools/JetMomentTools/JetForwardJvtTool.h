@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetForwardJvtTool.h
@@ -83,8 +83,8 @@
     bool m_tightOP;
     mutable std::vector<TVector2> m_pileupMomenta;
     mutable size_t m_pvind;
-    SG::AuxElement::Decorator<char>* Dec_OR = NULL;
-    SG::AuxElement::Decorator<char>* Dec_out = NULL;
+    SG::AuxElement::Decorator<char>* m_Dec_OR = NULL;
+    SG::AuxElement::Decorator<char>* m_Dec_out = NULL;
     void getPV() const;
 
     /// Default constructor:

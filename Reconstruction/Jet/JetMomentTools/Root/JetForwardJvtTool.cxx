@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetForwardJvtTool.cxx
@@ -64,8 +64,8 @@
     ATH_MSG_INFO ("Initializing " << name() << "...");
     if (m_tightOP) m_fjvtThresh = 0.4;
     else m_fjvtThresh = 0.5;
-    if (m_orLabel!="")  Dec_OR = new SG::AuxElement::Decorator<char>(m_orLabel);
-    Dec_out = new SG::AuxElement::Decorator<char>(m_outLabel);
+    if (m_orLabel!="")  m_Dec_OR = new SG::AuxElement::Decorator<char>(m_orLabel);
+    m_Dec_out = new SG::AuxElement::Decorator<char>(m_outLabel);
 
     ATH_CHECK(m_vertexContainer_key.initialize());
     ATH_CHECK(m_trkMET_key.initialize());
@@ -83,11 +83,11 @@
     getPV();
     m_pileupMomenta.clear();
     for(const auto& jetF : jetCont) {
-      (*Dec_out)(*jetF) = 1;
+      (*m_Dec_out)(*jetF) = 1;
       if (!forwardJet(jetF)) continue;
       if (m_pileupMomenta.size()==0) calculateVertexMomenta(&jetCont);
       double fjvt = getFJVT(jetF)/jetF->pt();
-      if (fjvt>m_fjvtThresh) (*Dec_out)(*jetF) = 0;
+      if (fjvt>m_fjvtThresh) (*m_Dec_out)(*jetF) = 0;
     }
     return 0;
   }
@@ -164,7 +164,7 @@
   bool JetForwardJvtTool::centralJet(const xAOD::Jet *jet) const {
     if (fabs(jet->eta())>m_etaThresh) return false;
     if (jet->pt()<m_centerMinPt || (m_centerMaxPt>0 && jet->pt()>m_centerMaxPt)) return false;
-    if (Dec_OR && !(*Dec_OR)(*jet)) return false;
+    if (m_Dec_OR && !(*m_Dec_OR)(*jet)) return false;
     float jvt = 0;
     jet->getAttribute<float>(m_jvtMomentName,jvt);
     if (jvt>m_centerJvtThresh) return false;
