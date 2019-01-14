@@ -12,6 +12,7 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 
 from DerivationFrameworkInDet.InDetCommon import *
+from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags
 
 #Steering options
 idDxAOD_doPix=True
@@ -224,7 +225,7 @@ IDTIDE1ThinningTool = DerivationFramework__TrackParticleThinning(name = "IDTIDE1
                                                                  ThinningService         = "IDTIDE1ThinningSvc",
                                                                  SelectionString         = "abs(DFCommonInDetTrackZ0AtPV) < 5.0",
                                                                  InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                 ThinHitsOnTrack = True)
+                                                                 ThinHitsOnTrack =  InDetDxAODFlags.ThinHitsOnTrack())
 ToolSvc += IDTIDE1ThinningTool
 thinningTools.append(IDTIDE1ThinningTool)
 
