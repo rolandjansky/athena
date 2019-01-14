@@ -5,6 +5,24 @@
 # Declare the package name:
 atlas_subdir( JetEDM )
 
+# Extra dependencies, based on the environment:
+set( extra_deps )
+if( NOT XAOD_STANDALONE )
+   set( extra_deps Control/AthenaBaseComps GaudiKernel )
+endif()
+
+## Extra dependencies, based on the build environment:
+#set( extra_dep )
+#set( extra_lib )
+#set( extra_priv_dep )
+#set( extra_priv_lib )
+#if( NOT GENERATIONBASE )
+#  set( extra_dep Event/xAOD/xAODTracking )
+#  set( extra_lib xAODTracking )
+#  set( extra_dep Event/xAOD/xAODMuon )
+#  set( extra_lib xAODMuon )
+#endif()
+
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthToolSupport/AsgTools

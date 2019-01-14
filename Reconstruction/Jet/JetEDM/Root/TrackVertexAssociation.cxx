@@ -5,7 +5,6 @@
 #include "JetEDM/TrackVertexAssociation.h"
 namespace jet {
 
-
   TrackVertexAssociation::TrackVertexAssociation(const xAOD::TrackParticleContainer* trkCont)  : 
     m_trackContainer(trkCont) {
     // Check if this is a view container, in which case we need to use the size of the owning container.
@@ -33,6 +32,5 @@ namespace jet {
 
     return tracks;
   }
-
 
 }

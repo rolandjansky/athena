@@ -4,6 +4,7 @@
 
 
 //simple includes to force the CLASS_DEF etc to be encountered during compile
-
+#ifndef GENERATIONBASE
 #include "xAODEventShape/EventShape.h"
 #include "xAODEventShape/EventShapeAuxInfo.h"
+#endif // GENERATIONBASE
