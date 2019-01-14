@@ -11,16 +11,15 @@
 
 #ifndef INDETRAWDATABYTESTREAM_ISCT_RODDECODER_H 
 #define INDETRAWDATABYTESTREAM_ISCT_RODDECODER_H
-//STL
-#include <vector>
 
 #include "GaudiKernel/IAlgTool.h"
-//Cannot fwd declare SCT_RDO_Container due to typedef in that file 
+
 #include "InDetRawData/SCT_RDO_Container.h"
-//Cannot fwd declare RawEvent, due to typedef in the .h. Needed for OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment
 #include "ByteStreamData/RawEvent.h"
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
 #include "InDetByteStreamErrors/SCT_ByteStreamFractionContainer.h"
+
+#include <vector>
 
 class StatusCode;
 class IdentifierHash;

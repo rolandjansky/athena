@@ -15,22 +15,21 @@
 #include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "Identifier/IdContext.h"
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
-#include "SCT_Cabling/ISCT_CablingTool.h"
 #include "SCT_ConditionsData/SCT_ByteStreamErrors.h"
+#include "SCT_Cabling/ISCT_CablingTool.h"
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
+#include "Identifier/IdContext.h"
 
 #include "GaudiKernel/ToolHandle.h"
 
-//STL
 #include <atomic>
 #include <cstdint>
 #include <string>
 #include <vector>
 
-class SCT_ID;
 class IdentifierHash;
+class SCT_ID;
 
 //using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 /** @class SCT_RodDecoder
