@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -63,20 +63,16 @@ bool TGCRPhiCoincidenceMap::test(int octantId, int moduleId, int subsector,
   else return false;
 }
 
-TGCRPhiCoincidenceMap::TGCRPhiCoincidenceMap(const std::string& version,
+TGCRPhiCoincidenceMap::TGCRPhiCoincidenceMap(const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
+                                             const std::string& version,
 					     int   sideId, int octantId)
   :numberOfDR(0), numberOfDPhi(0),
    m_verName(version),
    m_side(sideId),
    m_octant(octantId),
    m_fullCW(false),
-   m_readCondKey("TGCTriggerData")
+   m_readCondKey(readCondKey)
 {
-   StatusCode sc = m_readCondKey.initialize();
-   if (sc.isFailure()) {
-     return;
-   }
-
   if (!g_USE_CONDDB) {
     if (!checkVersion()){
       m_verName = "NA";
@@ -159,14 +155,8 @@ TGCRPhiCoincidenceMap::~TGCRPhiCoincidenceMap()
 {
 }
 
-TGCRPhiCoincidenceMap::TGCRPhiCoincidenceMap()
-  :numberOfDR(0), numberOfDPhi(0), m_verName("NA"),
-   m_side(0), m_octant(0), m_fullCW(false),m_readCondKey("TGCTriggerData")
-{
-}
-
 TGCRPhiCoincidenceMap::TGCRPhiCoincidenceMap(const TGCRPhiCoincidenceMap& right)
-   : m_readCondKey("TGCTriggerData")
+  : m_readCondKey(right.m_readCondKey)
 {
   numberOfDR=right.numberOfDR;
   numberOfDPhi=right.numberOfDPhi;

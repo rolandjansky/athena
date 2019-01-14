@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -23,15 +23,11 @@ namespace LVL1TGCTrigger {
  extern bool        g_TILE_MU;
  extern bool        g_USE_CONDDB;
 
-TGCTileMuCoincidenceMap::TGCTileMuCoincidenceMap(const std::string& version)
+TGCTileMuCoincidenceMap::TGCTileMuCoincidenceMap(const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
+                                                 const std::string& version)
   :m_verName(version),
-   m_readCondKey("TGCTriggerData")
+   m_readCondKey(readCondKey)
 {
-  StatusCode sc = m_readCondKey.initialize();
-   if (sc.isFailure()) {
-     return;
-  }
-
   // intialize map
   for (size_t side=0; side< N_Side; side++){
     for (size_t sec=0; sec< N_EndcapSector; sec++){
@@ -96,7 +92,7 @@ TGCTileMuCoincidenceMap::~TGCTileMuCoincidenceMap()
 
 TGCTileMuCoincidenceMap::TGCTileMuCoincidenceMap(const TGCTileMuCoincidenceMap& right)
   :m_verName(right.m_verName),
-   m_readCondKey("TGCTriggerData")
+   m_readCondKey(right.m_readCondKey)
 {
   for (size_t side=0; side< N_Side; side++){
     for (size_t sec=0; sec< N_EndcapSector; sec++){
