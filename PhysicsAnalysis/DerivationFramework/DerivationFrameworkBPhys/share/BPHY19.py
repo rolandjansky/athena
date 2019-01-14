@@ -1,3 +1,6 @@
+#
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#
 #====================================================================
 # BPHY19.py
 # Derivation for dimuon + photon conversion (chi_c/b)

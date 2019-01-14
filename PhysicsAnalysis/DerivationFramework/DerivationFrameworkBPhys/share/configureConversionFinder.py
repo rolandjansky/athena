@@ -1,3 +1,6 @@
+#
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#
 #====================================================================
 # Collection of tools to run the conversion finder
 #====================================================================
@@ -26,7 +29,7 @@ class BPHYConversionFinderTools:
         self.InDetSecVxFitterTool = Trk__TrkVKalVrtFitter(name                = prefix+"_Fitter",
                                                  Extrapolator        = self.Extrapolator,
                                                  MakeExtendedVertex  = True,
-                                                 FirstMeasuredPoint  = True,
+                                                 FirstMeasuredPoint  = False,
                                                  Robustness          = 6,
                                                  InputParticleMasses = [0.511,0.511],
                                                  VertexForConstraint = [0.,0.,0.],
@@ -42,24 +45,6 @@ class BPHYConversionFinderTools:
         self.InDetSecVxTrkDistanceFinder = Trk__SeedNewtonTrkDistanceFinder(name = prefix+"_TrkDistanceFinder")
         ToolSvc += self.InDetSecVxTrkDistanceFinder
         print self.InDetSecVxTrkDistanceFinder
-
-# The selection peformed here is now done in BPhysConversionFinder
-#        from InDetConversionFinderTools.InDetConversionFinderToolsConf import InDet__ConversionFinderUtils
-#        self.InDetSecVxHelper = InDet__ConversionFinderUtils(name = prefix+"_FinderUtils")
-#        ToolSvc += self.InDetSecVxHelper
-#        print self.InDetSecVxHelper
-#
-#        from InDetConversionFinderTools.InDetConversionFinderToolsConf import InDet__TrackPairsSelector
-#        self.InDetSecVxTrackPairsSelector = InDet__TrackPairsSelector(name                       = prefix+"_TrackPairsSelector",
-#                                                                 ConversionFinderHelperTool = self.InDetSecVxHelper,
-#                                                                 DistanceTool               = self.InDetSecVxTrkDistanceFinder,
-#                                                                 MaxFirstHitRadius          = 500.0,
-#                                                                 MaxDistBetweenTracks       = [10.,50.,50.],
-#                                                                 MaxEta                     = [0.3,0.5,0.5],
-#                                                                 MaxInitDistance            = [10000.0, 10000.0, 10000.0],
-#                                                                 MinTrackAngle              = 0.0)
-#        ToolSvc += self.InDetSecVxTrackPairsSelector
-#        print self.InDetSecVxTrackPairsSelector
 
 
         from InDetConversionFinderTools.InDetConversionFinderToolsConf import InDet__VertexPointEstimator

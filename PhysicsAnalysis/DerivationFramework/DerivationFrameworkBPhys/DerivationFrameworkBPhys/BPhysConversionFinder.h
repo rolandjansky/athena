@@ -49,27 +49,26 @@ class BPhysConversionFinder : public AthAlgTool, public IAugmentationTool {
 
     private:
 
-        StatusCode DoCascadeFit(const xAOD::Vertex * DiMuonVertex, const xAOD::Vertex * ConvVertex, const double DiMuonMassConstraint, TLorentzVector & FitMom, float & ChiSq) const;
+        StatusCode doCascadeFit(const xAOD::Vertex * diMuonVertex, const xAOD::Vertex * convVertex, const double diMuonMassConstraint, TLorentzVector & fitMom, float & chiSq) const;
 
-        std::string m_DiMuonCollectionToCheck;
-        std::vector<std::string> m_PassFlagsToCheck;
+        std::string m_diMuonCollectionToCheck;
+        std::vector<std::string> m_passFlagsToCheck;
 
-        ToolHandle <Trk::V0Tools> m_V0Tools;
-        ToolHandle <Trk::IVertexFitter> m_VertexFitter;
-        ToolHandle <InDet::VertexPointEstimator> m_VertexEstimator;
-        ToolHandle <Trk::ITrkDistanceFinder> m_DistanceTool;
-        ToolHandle <InDet::ConversionPostSelector> m_PostSelector;
-        ToolHandle <Trk::TrkVKalVrtFitter > m_CascadeFitter;
+        ToolHandle <Trk::V0Tools> m_v0Tools;
+        ToolHandle <Trk::IVertexFitter> m_vertexFitter;
+        ToolHandle <InDet::VertexPointEstimator> m_vertexEstimator;
+        ToolHandle <Trk::ITrkDistanceFinder> m_distanceTool;
+        ToolHandle <InDet::ConversionPostSelector> m_postSelector;
+        ToolHandle <Trk::TrkVKalVrtFitter > m_cascadeFitter;
 
-        std::string m_InputTrackParticleContainerName;
-        std::string m_ConversionContainerName;
-        std::string m_CascadeParticleContainerName;
+        std::string m_inputTrackParticleContainerName;
+        std::string m_conversionContainerName;
 
-        float m_MaxDistBetweenTracks;
-        float m_MaxDeltaCotTheta;
+        float m_maxDistBetweenTracks;
+        float m_maxDeltaCotTheta;
 
-        bool m_RequireDeltaM;
-        float m_MaxDeltaM;
+        bool m_requireDeltaM;
+        float m_maxDeltaM;
 
   };
 }
