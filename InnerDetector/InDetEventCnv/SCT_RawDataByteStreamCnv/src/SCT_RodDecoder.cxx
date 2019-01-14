@@ -11,6 +11,8 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
+#include "Identifier/IdentifierHash.h"
+
 //STL
 #include <algorithm>
 #include <deque>

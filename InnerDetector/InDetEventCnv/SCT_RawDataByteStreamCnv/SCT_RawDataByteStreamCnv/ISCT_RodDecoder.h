@@ -23,7 +23,6 @@
 #include "InDetByteStreamErrors/SCT_ByteStreamFractionContainer.h"
 
 class StatusCode;
-
 class IdentifierHash;
 
 class ISCT_RodDecoder : virtual public IAlgTool {

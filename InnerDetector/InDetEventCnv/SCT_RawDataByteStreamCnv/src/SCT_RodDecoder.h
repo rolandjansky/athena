@@ -16,7 +16,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "Identifier/IdContext.h"
-#include "Identifier/IdentifierHash.h"
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
 #include "SCT_Cabling/ISCT_CablingTool.h"
 #include "SCT_ConditionsData/SCT_ByteStreamErrors.h"
@@ -31,6 +30,7 @@
 #include <vector>
 
 class SCT_ID;
+class IdentifierHash;
 
 //using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 /** @class SCT_RodDecoder
