@@ -105,6 +105,9 @@ class LArSuperCellBuilderDriver : public AthAlgorithm
   int			      m_defaultShiftTimeSamples;
   int			      m_bcs;
   int			      m_counter;
+  std::vector<float>	      m_bcidLowLim;
+  std::vector<float>	      m_bcidUpLim;
+  std::vector<float>	      m_bcidBands;
 };
 
 #include "LArROD/LArSuperCellBuilderDriver.icc"
