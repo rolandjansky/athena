@@ -1,5 +1,5 @@
 ################################################################################
-# EXOT27 - MonoHbb tests - candidate for official monoHbb+monoScalar derviation
+# EXOT27 - Official monoHbb+monoScalar derivation
 ################################################################################
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import (
@@ -302,7 +302,7 @@ EXOT27ThinningTools += [
 # need for my immediate studies and (by inspection) what is used by XAMPP truth
 # code
 if DerivationFrameworkIsMonteCarlo:
-  truth_with_descendants = [6, 23, 24, 25]
+  truth_with_descendants = [6, 23, 24, 25, 54]  # pdg id 54: scalar particle in mono-scalar signal model
   truth_sel_with_descendants = "||".join(map("(abs(TruthParticles.pdgId) == {0})".format, truth_with_descendants) )
   EXOT27ThinningTools += [
     DerivationFramework__GenericTruthThinning(
@@ -311,7 +311,7 @@ if DerivationFrameworkIsMonteCarlo:
         ParticleSelectionString = truth_sel_with_descendants,
         PreserveDescendants     = True),
     ]
-  truth_no_descendants = [5, 11, 12, 13, 14, 15, 16, 17, 18]
+  truth_no_descendants = [5, 11, 12, 13, 14, 15, 16, 17, 18, 55]  # pdg id 55: Z' boson in mono-scalar signal model
   truth_sel_no_descendants = "||".join(map("(abs(TruthParticles.pdgId) == {0})".format, truth_no_descendants) )
   EXOT27ThinningTools += [
     DerivationFramework__GenericTruthThinning(
