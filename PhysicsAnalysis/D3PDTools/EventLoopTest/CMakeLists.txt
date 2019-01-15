@@ -1,8 +1,8 @@
-# $Id: CMakeLists.txt 804732 2017-05-11 22:02:44Z krumnack $
 
 # The name of the package:
 atlas_subdir( EventLoopTest )
 
+# External(s) needed for the build:
 find_package( GTest )
 find_package( GMock )
 
@@ -23,8 +23,9 @@ find_package( GTest )
 # Component(s) in the package:
 atlas_add_root_dictionary( EventLoopTestLib
    EventLoopTestDictSource
-   ROOT_HEADERS EventLoopTest/UnitTestAlg.h EventLoopTest/UnitTestAlg1.h EventLoopTest/UnitTestAlg2.h EventLoopTest/UnitTestTool.h
-   Root/LinkDef.h
+   ROOT_HEADERS EventLoopTest/UnitTestAlg.h EventLoopTest/UnitTestAlg1.h
+   EventLoopTest/UnitTestAlg2.h EventLoopTest/UnitTestAlg3.h
+   EventLoopTest/UnitTestTool.h Root/LinkDef.h
    EXTERNAL_PACKAGES ROOT )
 
 atlas_add_library( EventLoopTestLib
@@ -52,17 +53,10 @@ function( _add_gtest cxx_name )
       SampleHandler EventLoopTestLib ${EXTRA_ARGS})
 endfunction( _add_gtest )
 
-function( _add_test cxx_name )
-   get_filename_component( test_name ${cxx_name} NAME_WE )
-   atlas_add_test( ${test_name}
-      SOURCES test/${test_name}.cxx
-      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} RootCoreUtils SampleHandler EventLoopTestLib )
-endfunction( _add_test )
-
 set (MANUAL_TESTS test/gt_LSFDriver_EOS.cxx test/make_test_file.cxx test/ut_driver_condor.cxx test/ut_driver_ll.cxx test/ut_driver_lsf.cxx test/ut_driver_torque.cxx test/ut_xrootd_output.cxx test/ut_xrootd_input.cxx)
 
-set (SLOW_TESTS test/gt_DirectDriver.cxx test/gt_LocalDriver.cxx)
+set (SLOW_TESTS test/gt_DirectDriver.cxx test/gt_LocalDriver.cxx
+   test/gt_LeakChecks.cxx)
 
 
 file( GLOB _tests RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/test/[a-z]*.cxx" )

@@ -317,6 +317,7 @@ namespace H5Utils {
            const std::array<hsize_t, N>& extent = internal::uniform<N>(5),
            hsize_t batch_size = 2048);
     Writer(const Writer&) = delete;
+    Writer(Writer&&) = default;
     Writer& operator=(Writer&) = delete;
     ~Writer();
     template <typename T>
