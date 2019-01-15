@@ -78,9 +78,9 @@ class TileLaserDefaultCalibTool : public AthAlgTool, virtual public ITileCalibTo
   ToolHandle<ITileStuckBitsProbsTool> m_stuckBitsProbs;
   SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
 
-  SG::ReadHandleKey<TileRawChannelContainer> m_RawChannelContainerKey{this,
+  SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this,
       "TileRawChannelContainer", "TileRawChannelContainer", "Input Tile raw channel container"};
-  SG::ReadHandleKey<TileLaserObject> m_LaserContainerKey{this,
+  SG::ReadHandleKey<TileLaserObject> m_laserContainerKey{this,
       "TileLaserObject", "TileLaserObject", "Input Tile laser object"};
 
   ToolHandle<ITileDCSTool> m_tileDCS{this, "TileDCSTool", "TileDCSTool", "Tile DCS tool"};

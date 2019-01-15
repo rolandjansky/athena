@@ -46,7 +46,7 @@ StatusCode TileTOFTool::initialize()
 {
   ATH_MSG_INFO ( "initialize()" );
 
-  ATH_CHECK( m_CaloCellContainerKey.initialize() );
+  ATH_CHECK( m_caloCellContainerKey.initialize() );
 
   return StatusCode::SUCCESS;  
 } 
@@ -61,7 +61,7 @@ StatusCode TileTOFTool::execute()
 {
   ATH_MSG_INFO ( "execute()" );
 
-  SG::ReadHandle<CaloCellContainer> cellCONT(m_CaloCellContainerKey);
+  SG::ReadHandle<CaloCellContainer> cellCONT(m_caloCellContainerKey);
   ATH_CHECK( cellCONT.isValid() );
   ATH_MSG_DEBUG ( "Cell container found" );
 

@@ -49,7 +49,6 @@ TileCisDefaultCalibTool::TileCisDefaultCalibTool(const std::string& type, const 
 {
   declareInterface<ITileCalibTool>(this);
 
-  //declareProperty("rawChannelContainer", m_rawChannelContainerName = "TileRawChannelFit");
   declareProperty("NtupleID", m_ntupleID = "h3000");
 
   declareProperty("removePed", m_removePed = false);
@@ -65,7 +64,6 @@ TileCisDefaultCalibTool::TileCisDefaultCalibTool(const std::string& type, const 
   declareProperty("linfitMinLo", m_linfitMinLo = 300.0);
 
   declareProperty("doSampleChecking", m_doSampleChecking = true); // do sample checking by default
-  //declareProperty("DigitsContainer", m_DigitsContainerName = "TileDigitsCnt");
   declareProperty("StuckBitsProbsTool", m_stuckBitsProbs);
   declareProperty("TileDQstatus", m_dqStatusKey = "TileDQstatus");
 }
@@ -100,8 +98,8 @@ StatusCode TileCisDefaultCalibTool::initialize() {
 
   CHECK( m_dqStatusKey.initialize() );
 
-  ATH_CHECK( m_RawChannelContainerKey.initialize() );
-  ATH_CHECK( m_DigitsContainerKey.initialize() );
+  ATH_CHECK( m_rawChannelContainerKey.initialize() );
+  ATH_CHECK( m_digitsContainerKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -142,7 +140,7 @@ StatusCode TileCisDefaultCalibTool::execute() {
                                    : (double) dac * c_dac2ChargeSmall;
 
   // Get TileRawChannelContainer
-  SG::ReadHandle<TileRawChannelContainer> container(m_RawChannelContainerKey);
+  SG::ReadHandle<TileRawChannelContainer> container(m_rawChannelContainerKey);
   ATH_CHECK( container.isValid() );
 
   // Create iterator over RawChannelContainer
@@ -230,7 +228,7 @@ StatusCode TileCisDefaultCalibTool::execute() {
 
   if (m_doSampleChecking) {
     // Get TileDigitsContainer
-    SG::ReadHandle<TileDigitsContainer> digContainer(m_DigitsContainerKey);
+    SG::ReadHandle<TileDigitsContainer> digContainer(m_digitsContainerKey);
     ATH_CHECK( digContainer.isValid() );
 
     // Create iterator over RawDigitsContainer

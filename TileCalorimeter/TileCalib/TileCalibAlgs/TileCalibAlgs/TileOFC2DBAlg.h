@@ -21,6 +21,8 @@
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadHandleKey.h"
 
 // Tile includes
 #include "TileConditions/ITileCondToolOfc.h"
@@ -45,6 +47,10 @@ class TileOFC2DBAlg: public AthAlgorithm {
   private:
     StatusCode registerCondObjects();
     StatusCode printCondObjects();
+
+    //===  storegate
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,
+      "EventInfo", "EventInfo", "EventInfo key"};
 
     //===  properties
     UnsignedIntegerProperty m_runIOVSince;

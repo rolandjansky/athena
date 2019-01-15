@@ -38,7 +38,7 @@ class TileTOFTool : public AthAlgTool, virtual public ITileCalibTool
 
  private:
 
-  SG::ReadHandleKey<CaloCellContainer> m_CaloCellContainerKey{this,
+  SG::ReadHandleKey<CaloCellContainer> m_caloCellContainerKey{this,
       "CaloCellContainer", "CaloCellContainer", "Calo cell container"};
 
   float timeCor(int mod_ref1, int mod_ref2, int part_ref1, int part_ref2);

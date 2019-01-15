@@ -121,7 +121,7 @@ StatusCode TileDigiNoiseCalibAlg::FirstEvt_initialize() {
   m_cabling = TileCablingService::getInstance();
 
   // TileDigitsContainer initialization
-  ATH_CHECK( m_DigitsContainerKey.initialize() );
+  ATH_CHECK( m_digitsContainerKey.initialize() );
 
   // retrieve TileID helper from det store
   CHECK( detStore()->retrieve(m_tileID) );
@@ -349,11 +349,11 @@ void TileDigiNoiseCalibAlg::StoreRunInfo (const TileDQstatus* dqStatus) {
 StatusCode TileDigiNoiseCalibAlg::fillDigits (const TileDQstatus* theDQstatus) {
 /*---------------------------------------------------------*/
 
-  SG::ReadHandle<TileDigitsContainer> DigitsCnt(m_DigitsContainerKey);
-  ATH_CHECK( DigitsCnt.isValid() );
+  SG::ReadHandle<TileDigitsContainer> digitsCnt(m_digitsContainerKey);
+  ATH_CHECK( digitsCnt.isValid() );
 
-  TileDigitsContainer::const_iterator collItr = DigitsCnt->begin();
-  TileDigitsContainer::const_iterator lastColl = DigitsCnt->end();
+  TileDigitsContainer::const_iterator collItr = digitsCnt->begin();
+  TileDigitsContainer::const_iterator lastColl = digitsCnt->end();
 
   for (; collItr != lastColl; ++collItr) {
 

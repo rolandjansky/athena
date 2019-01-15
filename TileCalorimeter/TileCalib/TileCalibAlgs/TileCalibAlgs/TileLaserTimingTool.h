@@ -36,6 +36,7 @@
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "Identifier/HWIdentifier.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandleKey.h"
 
 // Tile includes
@@ -234,9 +235,11 @@ class TileLaserTimingTool: public AthAlgTool, virtual public ITileCalibTool {
     }
 
     //StoreGate
-    SG::ReadHandleKey<TileRawChannelContainer> m_RawChannelContainerKey{this,
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,
+      "EventInfo", "EventInfo", "EventInfo key"};
+    SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this,
       "TileRawChannelContainer", "TileRawChannelContainer", "Input Tile raw channel container"};
-    SG::ReadHandleKey<TileDigitsContainer> m_DigitsContainerKey{this,
+    SG::ReadHandleKey<TileDigitsContainer> m_digitsContainerKey{this,
       "TileDigitsContainer", "TileDigitsContainer", "Input Tile digits container"};
 
     // Tools info

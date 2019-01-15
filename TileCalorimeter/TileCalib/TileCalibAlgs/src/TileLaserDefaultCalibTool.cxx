@@ -268,8 +268,8 @@ StatusCode TileLaserDefaultCalibTool::initialize(){
   ATH_CHECK( m_tileToolEmscale.retrieve() );
   ATH_CHECK( m_tileBadChanTool.retrieve() );
   
-  ATH_CHECK( m_RawChannelContainerKey.initialize() );
-  ATH_CHECK( m_LaserContainerKey.initialize() );
+  ATH_CHECK( m_rawChannelContainerKey.initialize() );
+  ATH_CHECK( m_laserContainerKey.initialize() );
 
   ATH_CHECK( m_tileDCS.retrieve() );
 
@@ -296,8 +296,8 @@ StatusCode TileLaserDefaultCalibTool::execute(){
   // Store laser object and rawchannel information into maps
   ATH_MSG_DEBUG ( "execute() TileLaserDefaultCalibTool" );
   
-  SG::ReadHandle<TileRawChannelContainer> rawCnt(m_RawChannelContainerKey);
-  SG::ReadHandle<TileLaserObject> laserObj(m_LaserContainerKey);
+  SG::ReadHandle<TileRawChannelContainer> rawCnt(m_rawChannelContainerKey);
+  SG::ReadHandle<TileLaserObject> laserObj(m_laserContainerKey);
   
   ATH_CHECK( rawCnt.isValid() );
   ATH_CHECK( laserObj.isValid() );

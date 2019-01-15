@@ -238,8 +238,9 @@ StatusCode TileLaserTimingTool::initialize() {
     }
   }
 
-  ATH_CHECK( m_RawChannelContainerKey.initialize() );
-  ATH_CHECK( m_DigitsContainerKey.initialize() );
+  ATH_CHECK( m_eventInfoKey.initialize() );
+  ATH_CHECK( m_rawChannelContainerKey.initialize() );
+  ATH_CHECK( m_digitsContainerKey.initialize() );
 
   // gauss fit function
   m_gaussf = new TF1("GainGauss", "[0]*exp(- (x-[1])*(x-[1])/(2*[2]*[2]))", -60, 60);
@@ -286,9 +287,9 @@ StatusCode TileLaserTimingTool::execute() {
   // QQQ: const uint32_t cap = cispar[7];
 
   // Get EventInfo
-  const xAOD::EventInfo* eventInfo(0);
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
+  ATH_CHECK( eventInfo.isValid() );
 
-  CHECK(evtStore()->retrieve(eventInfo) );
 
   // QQQ: const unsigned runNumber = eventInfo->runNumber();
   // QQQ: const unsigned eventNumber = eventInfo->eventNumber();
@@ -297,11 +298,11 @@ StatusCode TileLaserTimingTool::execute() {
   bool pass = true;
 
   // Get TileRawChannelContainer
-  SG::ReadHandle<TileRawChannelContainer> container(m_RawChannelContainerKey);
+  SG::ReadHandle<TileRawChannelContainer> container(m_rawChannelContainerKey);
   ATH_CHECK( container.isValid() );
 
   // Get TileDigitsContainer
-  SG::ReadHandle<TileDigitsContainer> digitsCnt(m_DigitsContainerKey);
+  SG::ReadHandle<TileDigitsContainer> digitsCnt(m_digitsContainerKey);
   ATH_CHECK( digitsCnt.isValid() );
 
   // Create iterator over RawChannelContainer

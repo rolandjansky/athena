@@ -60,9 +60,9 @@ class TileTriggerDefaultCalibTool : public AthAlgTool, virtual public ITileCalib
   const TileCablingService* m_tileCablingService;
   ToolHandle<TileCondToolEmscale> m_tileToolEmscale; //!< main Tile Calibration tool
   SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
-  SG::ReadHandleKey<TileRawChannelContainer> m_RawChannelContainerKey{this,
+  SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this,
       "TileRawChannelContainer", "TileRawChannelContainer", "Input Tile raw channel container"};
-  SG::ReadHandleKey<xAOD::TriggerTowerContainer> m_TriggerTowerContainerKey{this,
+  SG::ReadHandleKey<xAOD::TriggerTowerContainer> m_triggerTowerContainerKey{this,
       "TriggerTowerContainer", "TriggerTowerContainer", "Trigger Tower container"};
  
   // Results Tile

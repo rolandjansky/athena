@@ -110,8 +110,8 @@ StatusCode TileTriggerDefaultCalibTool::initialize()
   m_ipmtOld = 0;
   m_ipmtCount = 0;
 
-  ATH_CHECK( m_RawChannelContainerKey.initialize() );
-  ATH_CHECK( m_TriggerTowerContainerKey.initialize() );
+  ATH_CHECK( m_rawChannelContainerKey.initialize() );
+  ATH_CHECK( m_triggerTowerContainerKey.initialize() );
 
   ATH_CHECK( m_l1CaloTTIdTools.retrieve() );
   ATH_MSG_DEBUG("L1CaloTTIdTools retrieved");
@@ -144,7 +144,7 @@ StatusCode TileTriggerDefaultCalibTool::execute()
   const TileDQstatus* dqStatus = SG::makeHandle (m_dqStatusKey, ctx).get();
 
   // Get TileRawChannelContainer
-  SG::ReadHandle<TileRawChannelContainer> container(m_RawChannelContainerKey);
+  SG::ReadHandle<TileRawChannelContainer> container(m_rawChannelContainerKey);
          ATH_CHECK( container.isValid() );
 
   ATH_MSG_DEBUG ( "second executeTrigger()" );
@@ -279,7 +279,7 @@ StatusCode TileTriggerDefaultCalibTool::execute()
   } // end of loop over raw channels for Tile
   
   // loop over all L1Calo trigger channels, calculate the average and RMS
-  SG::ReadHandle<xAOD::TriggerTowerContainer> triggerTowers(m_TriggerTowerContainerKey);
+  SG::ReadHandle<xAOD::TriggerTowerContainer> triggerTowers(m_triggerTowerContainerKey);
   ATH_CHECK( triggerTowers.isValid() );
 
   int ntt = 0;

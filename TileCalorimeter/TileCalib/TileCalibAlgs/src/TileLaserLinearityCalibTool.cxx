@@ -189,8 +189,8 @@ StatusCode TileLaserLinearityCalibTool::initialize()
   ATH_CHECK( detStore()->retrieve(m_tileHWID) );
   ATH_CHECK( m_tileToolEmscale.retrieve() );
 
-  ATH_CHECK( m_RawChannelContainerKey.initialize() );
-  ATH_CHECK( m_LaserContainerKey.initialize() );
+  ATH_CHECK( m_rawChannelContainerKey.initialize() );
+  ATH_CHECK( m_laserContainerKey.initialize() );
 
   m_cabling = TileCablingService::getInstance();
 
@@ -237,8 +237,8 @@ StatusCode TileLaserLinearityCalibTool::execute()
 
   ATH_MSG_DEBUG ( "Retrieving the LASER object and RawChannel" );
 
-  SG::ReadHandle<TileRawChannelContainer> rawCnt(m_RawChannelContainerKey);
-  SG::ReadHandle<TileLaserObject> laserObj(m_LaserContainerKey);
+  SG::ReadHandle<TileRawChannelContainer> rawCnt(m_rawChannelContainerKey);
+  SG::ReadHandle<TileLaserObject> laserObj(m_laserContainerKey);
   
   ATH_CHECK( rawCnt.isValid() );
   ATH_CHECK( laserObj.isValid() );

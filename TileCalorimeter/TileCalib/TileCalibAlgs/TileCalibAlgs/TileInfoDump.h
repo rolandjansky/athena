@@ -20,6 +20,8 @@
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadHandleKey.h"
 
 class ITileBadChanTool;
 class TileCondToolEmscale;
@@ -90,6 +92,9 @@ class TileInfoDump: public AthAlgorithm {
 
     void print1gNoise();
     bool m_print1gNoise;
+
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,
+      "EventInfo", "EventInfo", "EventInfo key"};
 
     //=== Non-property members
     ToolHandle<ITileBadChanTool> m_tileBadChanTool;

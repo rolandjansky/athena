@@ -5,6 +5,7 @@
 // Athena includes
 #include "AthenaKernel/errorcheck.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadHandle.h"
 
 // Tile includes
 #include "TileCalibAlgs/TileExpertDump.h"
@@ -59,6 +60,9 @@ StatusCode TileExpertDump::initialize() {
 
   ATH_MSG_DEBUG( "in initialize()" );
 
+  //=== EventInfo key
+  ATH_CHECK( m_eventInfoKey.initialize() );
+  
   //=== Get TileHWID
   CHECK( detStore()->retrieve(m_tileHWID, "TileHWID") );
 
@@ -102,8 +106,8 @@ StatusCode TileExpertDump::execute() {
 
   ATH_MSG_DEBUG( " in execute()" );
 
-  const xAOD::EventInfo* eventInfo(0);
-  CHECK( evtStore()->retrieve(eventInfo) );
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
+  ATH_CHECK( eventInfo.isValid() );
 
   ATH_MSG_DEBUG( "Event: ["
                 << eventInfo->runNumber() << ", "

@@ -9,6 +9,7 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "Identifier/IdentifierHash.h"
 #include "AthenaKernel/errorcheck.h"
+#include "StoreGate/ReadHandle.h"
 
 // Calo includes
 #include "CaloIdentifier/TileID.h"
@@ -102,6 +103,9 @@ StatusCode TileInfoDump::initialize() {
 
   ATH_MSG_DEBUG( "in initialize()" );
 
+  //=== EventInfo key
+  ATH_CHECK( m_eventInfoKey.initialize() );
+
   //=== Get TileHWID
   CHECK( detStore()->retrieve(m_tileHWID, "TileHWID") );
 
@@ -168,8 +172,8 @@ StatusCode TileInfoDump::execute() {
 
   ATH_MSG_DEBUG( " in execute()" );
 
-  const xAOD::EventInfo* eventInfo(0);
-  CHECK( evtStore()->retrieve(eventInfo) );
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
+  ATH_CHECK( eventInfo.isValid() );
 
   ATH_MSG_DEBUG( "Event: ["
                 << eventInfo->runNumber() << ", "
