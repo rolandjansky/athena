@@ -368,7 +368,7 @@ class ComponentAccumulator(object):
         pass
 
 
-    def mergeAll(self,others):
+    def mergeAll(self,others, sequenceName=None):
         if isinstance(others,ComponentAccumulator):
             return self.merge(others)
         
@@ -379,7 +379,7 @@ class ComponentAccumulator(object):
                 elif isinstance (other,ConfigurableService):
                     self.addService(other)
                 elif isinstance(other,ConfigurableAlgorithm):
-                    self.addEventAlgorithm(other)
+                    self.addEventAlgorithm(other, sequenceName=sequenceName)
                     #FIXME: At this point we can't distingush event algos from conditions algos.
                     #Might become possible with new Gaudi configurables
                 elif isinstance(other,ConfigurableAlgTool):
@@ -390,7 +390,7 @@ class ComponentAccumulator(object):
         else:
             raise RuntimeError("mergeAll called with unexpected parameter")
 
-    def merge(self,other):
+    def merge(self,other, sequenceName=None):
         """ Merging in the other accumulator """
         if other is None: 
             raise RuntimeError("merge called on object of type None: did you forget to return a CA from a config function?")
@@ -435,8 +435,11 @@ class ComponentAccumulator(object):
 
         #Merge sequences:
         #if (self._sequence.getName()==other._sequence.getName()):
-        destTopSeq=findSubSequence(self._sequence,other._sequence.name()) or self._sequence
-        mergeSequences(destTopSeq,other._sequence)
+        if sequenceName:
+            destSeq = self.getSequence( sequenceName )
+        else:
+            destSeq=findSubSequence(self._sequence,other._sequence.name()) or self._sequence
+        mergeSequences(destSeq,other._sequence)
             
 
 
@@ -908,3 +911,24 @@ class FailedMerging( unittest.TestCase ):
         self.assertRaises(RuntimeError, badMerge )
     
     
+class MergeMovingAlgorithms( unittest.TestCase ):
+    def runTest( self ):
+        Configurable.configurableRun3Behavior=1
+        from AthenaCommon.CFElements import seqAND
+        from AthenaCommon.Configurable import ConfigurablePyAlgorithm # guinea pig algorithms
+        destinationCA = ComponentAccumulator()
+        destinationCA.addSequence( seqAND("dest") )
+
+        sourceCA = ComponentAccumulator()
+        sourceCA.addEventAlgo(ConfigurablePyAlgorithm("alg1"))
+        sourceCA.addEventAlgo(ConfigurablePyAlgorithm("alg2"))
+        sourceCA.addSequence( seqAND("innerSeq") )
+        sourceCA.addEventAlgo(ConfigurablePyAlgorithm("alg3"), sequenceName="innerSeq" )
+
+        destinationCA.merge( sourceCA, sequenceName="dest"  )
+        #destinationCA.merge( sourceCA ) 
+        self.assertIsNotNone( findAlgorithm( destinationCA.getSequence("dest"), "alg1" ), "Algorithm not placed in sub-sequence" )
+        self.assertIsNotNone( findSubSequence( destinationCA.getSequence(), "innerSeq" ), "The sequence is not added" )
+        self.assertIsNotNone( findAlgorithm( destinationCA.getSequence("dest"), "alg3" ), "Algorithm deep in thesource CA not placed in sub-sequence of destiantion CA" )
+
+        
