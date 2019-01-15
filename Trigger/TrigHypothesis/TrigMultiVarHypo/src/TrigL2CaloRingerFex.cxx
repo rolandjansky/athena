@@ -74,7 +74,7 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltInitialize()
     TrigRingerPreprocessor *preproc;
     try{
       preproc = new TrigRingerPreprocessor(m_nRings,m_normRings,m_sectionRings);
-    }catch(std::bad_alloc xa){
+    }catch(const std::bad_alloc& xa){
       msg() << MSG::ERROR << "Bad alloc for TrigRingerPrepoc." << endmsg;
       return HLT::BAD_JOB_SETUP;
     }
