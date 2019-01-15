@@ -87,11 +87,23 @@ namespace Monitored {
   };
 
   template <typename... T>  
+  void save( GenericMonitoringTool& tool, T&&... variables ) {
+    for( auto filler: tool.getHistogramsFillers( {std::forward<T>(variables)...} ) ) {
+      filler->fill();  
+    }
+  }
+
+  template <typename... T>  
+  void save( GenericMonitoringTool* tool, T&&... variables ) {
+    if ( tool ) {
+      save( *tool, std::forward<T>(variables)...);
+    }
+  }
+
+  template <typename... T>  
   void save( const ToolHandle<GenericMonitoringTool>& tool, T&&... variables ) {
     if ( ! tool.empty() ) {
-      for( auto filler: tool->getHistogramsFillers( {std::forward<T>(variables)...} ) ) {
-        filler->fill();
-      }
+      save( *tool, std::forward<T>(variables)...);
     }
   }
 }

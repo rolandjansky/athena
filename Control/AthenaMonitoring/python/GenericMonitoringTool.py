@@ -13,6 +13,8 @@ class GenericMonitoringTool(_GenericMonitoringTool):
     def __init__(self, name, **kwargs):
         super(GenericMonitoringTool, self).__init__(name, **kwargs)
 
+    def defineHistogram(self, *args, **kwargs):
+        self.Histograms.append(defineHistogram(*args, **kwargs))
 
 ## Generate histogram definition string for the `GenericMonitoringTool.Histograms` property
 #
@@ -23,7 +25,7 @@ class GenericMonitoringTool(_GenericMonitoringTool):
 #  @param title    Histogram title and optional axis title (same syntax as in TH constructor)
 #  @param opt      Histrogram options (see GenericMonitoringTool)
 #  @param labels   List of bin labels (for a 2D histogram, sequential list of x- and y-axis labels)
-def defineHistogram(varname, type='TH1F', path='EXPERT',
+def defineHistogram(varname, type='TH1F', path='DEFAULT',
                     title=None,
                     xbins=100, xmin=0, xmax=1,
                     ybins=None, ymin=None, ymax=None, zmin=None, zmax=None, opt='', labels=None):
