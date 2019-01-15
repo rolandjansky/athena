@@ -543,7 +543,14 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     #--------------------
     # GSC
     if ('gscThreshold' in chainParts) and chainParts['gscThreshold']:
-        theGSCFex      = getGSCFexSplitInstance(algoInstance)
+        if 'FTKRefit' in chainParts['bTracking']:
+            theGSCFex = getGSCFexFTKRefitInstance(algoInstance)
+        elif 'FTKVtx' in chainParts['bTracking']:
+            theGSCFex = getGSCFexFTKVtxInstance(algoInstance)
+        elif 'FTK' in chainParts['bTracking']:
+            theGSCFex = getGSCFexFTKInstance(algoInstance)
+        else:
+            theGSCFex = getGSCFexSplitInstance(algoInstance)
         #from TrigBjetHypo.TrigBjetEtHypoConfig import getBjetEtHypoInstance
         theGSCEtHypo   = getBjetEtHypoInstance("GSC", "Btagging", gscthresh.replace("gsc","")+"GeV" )
     #--------------------

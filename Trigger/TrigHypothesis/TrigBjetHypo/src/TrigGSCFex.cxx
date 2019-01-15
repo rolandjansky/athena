@@ -128,7 +128,7 @@ HLT::ErrorCode TrigGSCFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::T
   if(getFeature(outputTE, tracks, m_trackKey) == HLT::OK && tracks != nullptr) {
     ATH_MSG_DEBUG( "INPUT - xAOD::TrackParticleContainer: " << "nTracks = " << tracks->size() );
   } else {
-    if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "INPUT - No xAOD::TrackParticleContainer" << endmsg;
+    if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "INPUT - No xAOD::TrackParticleContainer : " << m_trackKey << endmsg;
     return HLT::MISSING_FEATURE;
   }
 
