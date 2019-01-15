@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // CompositeParticle.h 
@@ -82,7 +82,7 @@ class CompositeParticle : public ParticleImpl<
   /// Constructor with parameters: 
 
   /// Destructor: 
-  virtual ~CompositeParticle(); 
+  virtual ~CompositeParticle() = default;
 
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 
