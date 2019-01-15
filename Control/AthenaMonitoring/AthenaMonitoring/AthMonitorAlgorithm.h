@@ -201,37 +201,37 @@ public:
     /**
      * Calculate instantaneous number of interactions, i.e. mu.
      */
-    virtual float lbInteractionsPerCrossing();
+    virtual float lbInteractionsPerCrossing() const;
 
     /**
      * Calculate average luminosity (in ub-1 s-1 => 10^30 cm-2 s-1).
      */
-    virtual float lbAverageLuminosity();
+    virtual float lbAverageLuminosity() const;
 
     /**
      * Calculate the instantaneous luminosity per bunch crossing.
      */
-    virtual float lbLuminosityPerBCID();
+    virtual float lbLuminosityPerBCID() const;
 
     /**
      *  Calculate the duration of the luminosity block (in seconds)
      */
-    virtual double lbDuration();
+    virtual double lbDuration() const;
 
     /**
      * Calculate the average luminosity livefraction
      */
-    virtual float lbAverageLivefraction();
+    virtual float lbAverageLivefraction() const;
 
     /**
      * Calculate the live fraction per bunch crossing ID.
      */
-    virtual float livefractionPerBCID();
+    virtual float livefractionPerBCID() const;
 
     /**
      * Calculate the average integrated luminosity multiplied by the live fraction.
      */
-    virtual double lbLumiWeight();
+    virtual double lbLumiWeight() const;
 
     /** @} */ // end of lumi group
 

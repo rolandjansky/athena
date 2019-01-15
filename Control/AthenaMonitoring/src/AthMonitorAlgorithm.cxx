@@ -238,7 +238,7 @@ float AthMonitorAlgorithm::lbAverageInteractionsPerCrossing() const {
 }
 
 
-float AthMonitorAlgorithm::lbInteractionsPerCrossing() {
+float AthMonitorAlgorithm::lbInteractionsPerCrossing() const {
     if ( m_hasRetrievedLumiTool ) {
         float instmu = 0.;
         if (m_lumiTool->muToLumi() > 0.) {
@@ -252,7 +252,7 @@ float AthMonitorAlgorithm::lbInteractionsPerCrossing() {
 }
 
 
-float AthMonitorAlgorithm::lbAverageLuminosity() {
+float AthMonitorAlgorithm::lbAverageLuminosity() const {
     if ( m_hasRetrievedLumiTool ) {
         return m_lumiTool->lbAverageLuminosity();
     } else {
@@ -262,7 +262,7 @@ float AthMonitorAlgorithm::lbAverageLuminosity() {
 }
 
 
-float AthMonitorAlgorithm::lbLuminosityPerBCID() {
+float AthMonitorAlgorithm::lbLuminosityPerBCID() const {
     if ( m_hasRetrievedLumiTool ) {
         return m_lumiTool->lbLuminosityPerBCID();
     } else {
@@ -272,7 +272,7 @@ float AthMonitorAlgorithm::lbLuminosityPerBCID() {
 }
 
 
-float AthMonitorAlgorithm::lbAverageLivefraction() {
+float AthMonitorAlgorithm::lbAverageLivefraction() const {
     if (m_environment == Environment_t::online) {
         return 1.0;
     }
@@ -286,7 +286,7 @@ float AthMonitorAlgorithm::lbAverageLivefraction() {
 }
 
 
-float AthMonitorAlgorithm::livefractionPerBCID() {
+float AthMonitorAlgorithm::livefractionPerBCID() const {
     if (m_environment == Environment_t::online) {
         return 1.0;
     }
@@ -300,7 +300,7 @@ float AthMonitorAlgorithm::livefractionPerBCID() {
 }
 
 
-double AthMonitorAlgorithm::lbLumiWeight() {
+double AthMonitorAlgorithm::lbLumiWeight() const {
     if ( m_hasRetrievedLumiTool ) {
         return (lbAverageLuminosity()*lbDuration())*lbAverageLivefraction();
     } else {
@@ -310,7 +310,7 @@ double AthMonitorAlgorithm::lbLumiWeight() {
 }
 
 
-double AthMonitorAlgorithm::lbDuration() {
+double AthMonitorAlgorithm::lbDuration() const {
     if ( m_environment == Environment_t::online ) {
         return m_defaultLBDuration;
     }
