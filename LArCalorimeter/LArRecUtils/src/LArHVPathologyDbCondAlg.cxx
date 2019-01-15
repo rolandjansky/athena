@@ -145,10 +145,10 @@ StatusCode LArHVPathologyDbCondAlg::execute(const EventContext& ctx) const {
     
        TBufferFile buf(TBuffer::kRead, blob.size(), (void*)blob.startingAddress(), false);
        LArHVPathologiesDb* hvpathdb = (LArHVPathologiesDb*)buf.ReadObjectAny(klass);
-       LArHVPathology* hvpath = new LArHVPathology(hvpathdb);
-       fillElectMap(hvpath);
 
-       std::unique_ptr<LArHVPathology> container(new  LArHVPathology(hvpath));
+       std::unique_ptr<LArHVPathology> hvpath=std::make_unique<LArHVPathology>(hvpathdb);
+       fillElectMap(hvpath.get());
+
        // Define validity of the output cond object and record it
        EventIDRange rangeW;
        if(!fldrHdl.range(rangeW)) {
@@ -156,7 +156,7 @@ StatusCode LArHVPathologyDbCondAlg::execute(const EventContext& ctx) const {
           return StatusCode::FAILURE;
        }
 
-       if(writeHandle.record(rangeW,container.release()).isFailure()) {
+       if(writeHandle.record(rangeW,hvpath.release()).isFailure()) {
           ATH_MSG_ERROR("Could not record LArHVPathology  object with "
                   << writeHandle.key()
                   << " with EventRange " << rangeW
