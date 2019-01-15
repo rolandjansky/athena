@@ -26,7 +26,7 @@ EXTPROJECT=""
 PLATFORM=""
 RPMDIR=""
 BUILDTYPE="Release"
-EXTRACMAKE=""
+EXTRACMAKE=()
 while getopts ":s:b:i:e:p:f:r:t:x:h" opt; do
     case $opt in
         s)
@@ -54,7 +54,7 @@ while getopts ":s:b:i:e:p:f:r:t:x:h" opt; do
             BUILDTYPE=$OPTARG
             ;;
         x)
-            EXTRACMAKE=$OPTARG
+            EXTRACMAKE+=($OPTARG)
             ;;
         h)
             usage
@@ -98,7 +98,7 @@ rm -f CMakeCache.txt
 rm -rf * # Remove the full build temporarily, to fix GAUDI-1315
 cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
     -DGAUDI_ATLAS:BOOL=TRUE -DGAUDI_ATLAS_BASE_PROJECT:STRING=${EXTPROJECT} \
-    -DCMAKE_INSTALL_PREFIX:PATH=/InstallArea/${PLATFORM} ${EXTRACMAKE} \
+    -DCMAKE_INSTALL_PREFIX:PATH=/InstallArea/${PLATFORM} ${EXTRACMAKE[@]} \
     ${SOURCEDIR} || touch $error_stamp
 } 2>&1 | tee cmake_config.log 
 test -f $error_stamp && ((ERROR_COUNT++))
