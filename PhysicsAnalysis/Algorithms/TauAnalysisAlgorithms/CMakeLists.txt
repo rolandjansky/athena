@@ -36,6 +36,7 @@ endif()
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*_jobOptions.py )
 atlas_install_scripts( share/*_eljob.py )
+atlas_install_data( data/*.conf )
 
 if( XAOD_STANDALONE )
    atlas_add_test( testJobData

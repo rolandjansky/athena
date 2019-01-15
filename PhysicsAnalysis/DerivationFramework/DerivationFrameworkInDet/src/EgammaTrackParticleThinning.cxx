@@ -134,10 +134,7 @@ namespace DerivationFramework {
       const xAOD::EgammaContainer* importedEgamma = nullptr;
       ATH_CHECK( evtStore()->retrieve( importedEgamma, m_sgKey ) );
       const size_t nEgammas = importedEgamma->size();
-      if( nEgammas == 0 ) {
-         return StatusCode::SUCCESS;
-      }
-
+      
       // Select which e/gamma objects to use:
       std::vector< const xAOD::Egamma* > egToCheck;
       if( m_parser ) {
@@ -164,20 +161,23 @@ namespace DerivationFramework {
       }
 
       // Are we dealing with electrons or photons?
-      const xAOD::Type::ObjectType egType = importedEgamma->at( 0 )->type();
 
-      if( egType == xAOD::Type::Electron ) {
-         ATH_CHECK( setElectronMasks( mask, gsfMask, egToCheck,
-                                      importedTrackParticles,
-                                      importedGSFTrackParticles ) );
-      } else if( egType == xAOD::Type::Photon ) {
-         ATH_CHECK( setPhotonMasks( mask, gsfMask, egToCheck,
-                                    importedTrackParticles,
-                                    importedGSFTrackParticles ) );
-      } else {
-         ATH_MSG_FATAL( "The received objects are neither electrons or "
+      if (nEgammas > 0) {
+	const xAOD::Type::ObjectType egType = importedEgamma->at( 0 )->type();
+
+	if( egType == xAOD::Type::Electron ) {
+	  ATH_CHECK( setElectronMasks( mask, gsfMask, egToCheck,
+				       importedTrackParticles,
+				       importedGSFTrackParticles ) );
+	} else if( egType == xAOD::Type::Photon ) {
+	  ATH_CHECK( setPhotonMasks( mask, gsfMask, egToCheck,
+				     importedTrackParticles,
+				     importedGSFTrackParticles ) );
+	} else {
+	  ATH_MSG_FATAL( "The received objects are neither electrons or "
                         "photons?!?" );
-         return StatusCode::FAILURE;
+	  return StatusCode::FAILURE;
+	}
       }
 
       // Count up the mask contents
