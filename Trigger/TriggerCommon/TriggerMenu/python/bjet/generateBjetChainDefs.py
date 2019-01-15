@@ -123,7 +123,6 @@ def generateChainDefs(chainDict):
     # 
     # Basic properties of the chain, these are used to decide if we use the new AllTE configuration
     #
-    isFTKChain   = (not chainDict['chainName'].find("FTK") == -1)
     isSplitChain = (not chainDict['chainName'].find("split") == -1)
     isRunITagger = (not chainDict['chainName'].find("btight") == -1 or not chainDict['chainName'].find("bmedium") == -1 or not chainDict['chainName'].find("bloose") == -1)
     is2015Tagger = (not chainDict['chainName'].find("bmv2c20") == -1 or not chainDict['chainName'].find("bperf") == -1)
@@ -442,11 +441,11 @@ def buildBjetChains(jchaindef,bjetdict,numberOfSubChainDicts=1):
 
     bjetparts = bjetdict['chainParts']
 
-    if ( 'split' not in bjetparts['bConfig'] ):
-        theBjetChainDef = myBjetConfig1(jchaindef, bjetdict, inputTEsEF,numberOfSubChainDicts)
+    if ( 'split' in bjetparts['bConfig'] ):
+        theBjetChainDef = myBjetConfig_split(jchaindef, bjetdict, inputTEsEF,numberOfSubChainDicts) 
         theBjetChainDef.chain_name = 'HLT_'+bjetdict['chainName']
     else:
-        theBjetChainDef = myBjetConfig_split(jchaindef, bjetdict, inputTEsEF,numberOfSubChainDicts) 
+        theBjetChainDef = myBjetConfig1(jchaindef, bjetdict, inputTEsEF,numberOfSubChainDicts)
         theBjetChainDef.chain_name = 'HLT_'+bjetdict['chainName']
 
     log.debug("Left buildBjetChains")
