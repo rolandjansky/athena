@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 #include "TrigConfL1Data/ThresholdConfig.h"
 #include "TrigT1Result/JetEnergyResult.h"
@@ -33,7 +33,9 @@ StatusCode METRoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::
 			    m_configSvc->ctpConfig()->menu().itemVector(),
 			    seeding ) );
 
-
+  for ( auto thresholdToChain: m_thresholdToChainMapping ) {
+    m_allMETChains.insert( thresholdToChain.second.begin(), thresholdToChain.second.end() );
+  }
 
   const ThresholdConfig* thresholdConfig = m_configSvc->thresholdConfig();
   std::vector<const TriggerThreshold*> filtered;
@@ -71,17 +73,18 @@ StatusCode METRoIsUnpackingTool::unpack( const EventContext& ctx,
   HLT::IDSet activeMETchains;
   // see if any chain we care of is active
   std::set_intersection(activeChains.begin(), activeChains.end(), 
-			m_allMETChains.begin(), m_allMETChains.end(), 
+  			m_allMETChains.begin(), m_allMETChains.end(),
 			std::inserter(activeMETchains, activeMETchains.end() ) );
 			
   auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput );
   for ( auto c: activeMETchains ) addDecisionID( c, decision );
+
   ATH_MSG_DEBUG("Unpacking MET RoI for " << activeMETchains.size() << " chains");
 
   ATH_MSG_DEBUG("Linking to FS RoI descriptor");  
   decision->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_fsRoIKey, 0 ) );
   
-  // check the MET RoI, TODO unpack anc create L1 MET object (only if turns out to be needed)
+  // check the MET RoI, TODO unpack and create L1 MET object (only if turns out to be needed)
   bool foundMETRoI = false;
   const std::vector<ROIB::JetEnergyResult>& jetEnergyResult = roib.jetEnergyResult();
   for ( const ROIB::JetEnergyResult& jeResult: jetEnergyResult ) {
