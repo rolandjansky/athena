@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -33,24 +33,20 @@
 
    3) Declare the monitored quantities to the monitoring framework.
    Several classes are available to export different types to the monitoring framwork: 
-     - Monitored::MonitoredScalar
-     - Monitored::MonitoredCollection
-     - Monitored::MonitoredTimer
+     - Monitored::Scalar
+     - Monitored::Collection
+     - Monitored::Timer
 
   The declaration in all cases is done via the `declare` method in the relevant namespace.
   For example to declare a simple scalar, use:
    \code
-   Monitored::MonitoredScalar::declare(std::string name, const T& defaultVaule):
+   Monitored::Scalar(std::string name, const T& defaultVaule):
    \endcode
 
-   @copydetails Monitored::MonitoredScalar::declare(std::string name, const T& defaultVaule)
+   @copydetails Monitored::Scalar(std::string name, const T& defaultVaule)
    
-   All above functions are within the Monitored namespace. Consider adding
-   \code using namespace Monitored;\endcode
-   to your function (but avoid doing this at global scope).
-
    4)
-   @copydoc Monitored::MonitoredScope
+   @copydoc Monitored::Group
 
    5) Configure the list of histograms in python
    \code

@@ -102,7 +102,7 @@ public:
     ToolHandle<GenericMonitoringTool>("", parent) {}
 };
 
-//#include "AthenaMonitoring/MonitoredScope.h"
+//#include "AthenaMonitoring/MonitoredGroup.h"
 #include "AthenaMonitoring/MonitoredScalar.h"
 #include "AthenaMonitoring/MonitoredCollection.h"
 #include "AthenaMonitoring/MonitoredTimer.h"

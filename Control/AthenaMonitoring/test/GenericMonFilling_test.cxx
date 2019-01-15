@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include <iostream>
 
@@ -16,12 +16,10 @@
 
 
 #include "AthenaMonitoring/GenericMonitoringTool.h"
-#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/MonitoredGroup.h"
 #include "AthenaMonitoring/MonitoredScalar.h"
 #include "AthenaMonitoring/MonitoredTimer.h"
 
-
-using namespace Monitored;
 
 TH1* getHist( ITHistSvc* histSvc, const std::string& histName ) {
   TH1* h( nullptr );
@@ -67,8 +65,8 @@ double contentInBin2DHist( ITHistSvc* histSvc, const std::string& histName, int 
 
 
 bool noToolBehaviourCorrect( ToolHandle<GenericMonitoringTool>& monTool ) {
-  auto x = MonitoredScalar::declare( "x", -99.0 );
-  auto monitorIt = MonitoredScope::declare( monTool, x );
+  auto x = Monitored::Scalar( "x", -99.0 );
+  auto monitorIt = Monitored::Group( monTool, x );
   return true;
 }
 
@@ -76,9 +74,9 @@ bool noToolBehaviourCorrect( ToolHandle<GenericMonitoringTool>& monTool ) {
 bool fillFromScalarWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc ) {
   resetHists( histSvc );
   {
-    auto roiPhi = MonitoredScalar::declare( "Phi", -99.0 ); //deduced double      
-    auto roiEta = MonitoredScalar::declare<double>( "Eta", -99 ); //explicit double
-    auto monitorIt = MonitoredScope::declare( monTool, roiPhi, roiEta );
+    auto roiPhi = Monitored::Scalar( "Phi", -99.0 ); //deduced double
+    auto roiEta = Monitored::Scalar<double>( "Eta", -99 ); //explicit double
+    auto monitorIt = Monitored::Group( monTool, roiPhi, roiEta );
     roiPhi = 0.1;
     roiEta = -0.2;    
   }
@@ -94,11 +92,11 @@ bool fillFromScalarWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc
 bool fillFromScalarIndependentScopesWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc ) {
   resetHists( histSvc ); 
   
-  auto roiPhi = MonitoredScalar::declare( "Phi", -99.0 ); 
-  auto roiEta = MonitoredScalar::declare<double>( "Eta", -99 );
+  auto roiPhi = Monitored::Scalar( "Phi", -99.0 );
+  auto roiEta = Monitored::Scalar<double>( "Eta", -99 );
   
   for ( size_t i =0; i < 3; ++i ) { 
-    auto monitorIt = MonitoredScope::declare( monTool, roiPhi );   
+    auto monitorIt = Monitored::Group( monTool, roiPhi );
     roiPhi = 0.1;
     roiEta = -0.2;    
   }
@@ -110,7 +108,7 @@ bool fillFromScalarIndependentScopesWorked( ToolHandle<GenericMonitoringTool>& m
   VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Eta", 2 ) ) EXPECTED( 0 );
 
   for ( size_t i =0; i < 10; ++i ) { 
-    auto monitorIt = MonitoredScope::declare( monTool, roiEta );   
+    auto monitorIt = Monitored::Group( monTool, roiEta );
     roiPhi = 0.1;
     roiEta = -0.2;    
   }
@@ -128,10 +126,10 @@ bool fill2DWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSv
   resetHists( histSvc );
 
   
-  auto roiPhi = MonitoredScalar::declare( "Phi", -99.0 ); 
-  auto roiEta = MonitoredScalar::declare( "Eta", -99.0 );
+  auto roiPhi = Monitored::Scalar( "Phi", -99.0 );
+  auto roiEta = Monitored::Scalar( "Eta", -99.0 );
   {
-    auto monitorIt = MonitoredScope::declare( monTool, roiEta, roiPhi );
+    auto monitorIt = Monitored::Group( monTool, roiEta, roiPhi );
     roiEta = 0.2;
     roiPhi = -0.1;
   }
@@ -148,7 +146,7 @@ bool fill2DWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSv
   resetHists( histSvc );
   VALUE( getHist( histSvc, "/EXPERT/TestGroup/Eta_vs_Phi" )->GetEntries() ) EXPECTED( 0 );
   {
-    auto monitorIt = MonitoredScope::declare( monTool, roiEta );
+    auto monitorIt = Monitored::Group( monTool, roiEta );
     roiEta = 0.2;
     roiPhi = -0.1;
   }
@@ -156,7 +154,7 @@ bool fill2DWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSv
   VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Eta", 2 ) ) EXPECTED( 1 );
   
   {
-    auto monitorIt = MonitoredScope::declare( monTool, roiPhi );
+    auto monitorIt = Monitored::Group( monTool, roiPhi );
     roiEta = 0.2;
     roiPhi = -0.1;
   }
@@ -171,11 +169,11 @@ bool fill2DWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSv
 
 bool fillExplcitelyWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc ) {
   resetHists( histSvc );
-  auto roiPhi = MonitoredScalar::declare( "Phi", -99.0 ); 
-  auto roiEta = MonitoredScalar::declare( "Eta", -99.0 );
+  auto roiPhi = Monitored::Scalar( "Phi", -99.0 );
+  auto roiEta = Monitored::Scalar( "Eta", -99.0 );
   {
-    auto monitorIt = MonitoredScope::declare( monTool, roiEta, roiPhi );
-    monitorIt.setAutoSave( false );
+    auto monitorIt = Monitored::Group( monTool, roiEta, roiPhi );
+    monitorIt.setAutoFill( false );
     roiEta = 0.2;
     roiPhi = -0.1;
   }
@@ -183,10 +181,10 @@ bool fillExplcitelyWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc
   VALUE( getHist( histSvc, "/EXPERT/TestGroup/Eta" )->GetEntries() ) EXPECTED( 0 ); //  auto filling was disabled so no entries
   VALUE( getHist( histSvc, "/EXPERT/TestGroup/Phi" )->GetEntries() ) EXPECTED( 0 ); //  auto filling was disabled so no entries  
 
-  auto monitorIt = MonitoredScope::declare( monTool, roiEta, roiPhi );
-  monitorIt.setAutoSave( false );
+  auto monitorIt = Monitored::Group( monTool, roiEta, roiPhi );
+  monitorIt.setAutoFill( false );
   for ( size_t i = 0; i < 3; ++i ) {
-    monitorIt.save();
+    monitorIt.fill();
   }
   VALUE( getHist( histSvc, "/EXPERT/TestGroup/Eta_vs_Phi" )->GetEntries() ) EXPECTED( 3 ); 
   VALUE( getHist( histSvc, "/EXPERT/TestGroup/Eta" )->GetEntries() ) EXPECTED( 3 ); 
@@ -220,8 +218,8 @@ private:
 bool fillFromNonTrivialSourcesWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc ) {
   resetHists( histSvc );
   {
-    auto eta = MonitoredScalar::declare( "Eta", Scalar( 0.2 ) ); //class object convertable to number
-    auto monitorIt = MonitoredScope::declare( monTool, eta );
+    auto eta = Monitored::Scalar( "Eta", Scalar( 0.2 ) ); //class object convertable to number
+    auto monitorIt = Monitored::Group( monTool, eta );
   }
   VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Eta", 2 ) ) EXPECTED( 1 ); 
 
@@ -229,9 +227,9 @@ bool fillFromNonTrivialSourcesWorked( ToolHandle<GenericMonitoringTool>& monTool
   {
     std::vector<float> eta( {0.2, 0.1} );
     std::set<double> phi( {-1, 1} ) ;
-    auto vectorT   = MonitoredCollection::declare( "Eta", eta );
-    auto setT      = MonitoredCollection::declare( "Phi", phi );
-    auto monitorIt = MonitoredScope::declare( monTool, vectorT, setT );
+    auto vectorT   = Monitored::Collection( "Eta", eta );
+    auto setT      = Monitored::Collection( "Phi", phi );
+    auto monitorIt = Monitored::Group( monTool, vectorT, setT );
   }
   VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Eta", 2 ) ) EXPECTED( 2 ); 
 
@@ -240,9 +238,9 @@ bool fillFromNonTrivialSourcesWorked( ToolHandle<GenericMonitoringTool>& monTool
     
     std::array<double, 2> eta( {{0.1, 0.7}} );
     double phi[2]={-2., -1.};
-    auto arrayT = MonitoredCollection::declare( "Eta", eta );
-    auto rawArrayT   = MonitoredCollection::declare( "Phi", phi );
-    auto monitorIt = MonitoredScope::declare( monTool, arrayT, rawArrayT );    
+    auto arrayT = Monitored::Collection( "Eta", eta );
+    auto rawArrayT   = Monitored::Collection( "Phi", phi );
+    auto monitorIt = Monitored::Group( monTool, arrayT, rawArrayT );
   }
   VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Eta", 2 ) ) EXPECTED( 2 );
 
@@ -250,10 +248,10 @@ bool fillFromNonTrivialSourcesWorked( ToolHandle<GenericMonitoringTool>& monTool
   {
     Track tracks[2];
     
-    auto eta = MonitoredCollection::declare( "Eta", tracks, &Track::eta );
-    auto phi = MonitoredCollection::declare( "Phi", tracks, []( const Track& t ) { return t.phi(); } );
+    auto eta = Monitored::Collection( "Eta", tracks, &Track::eta );
+    auto phi = Monitored::Collection( "Phi", tracks, []( const Track& t ) { return t.phi(); } );
     
-    auto monitorIt = MonitoredScope::declare( monTool, eta, phi ); // this is binding to histograms
+    auto monitorIt = Monitored::Group( monTool, eta, phi ); // this is binding to histograms
     
     tracks[0] = Track( 0.1, 0.9 );
     tracks[1] = Track( 1.3, 1. );
@@ -267,10 +265,10 @@ bool fillFromNonTrivialSourcesWorked( ToolHandle<GenericMonitoringTool>& monTool
 
 
 bool assignWorked() {
-    auto eta = MonitoredScalar::declare( "Eta", -3. );
+    auto eta = Monitored::Scalar( "Eta", -3. );
     eta = 0.6;
     VALUE ( double( eta ) ) EXPECTED ( 0.6 );
-    auto etaBis = MonitoredScalar::declare( "EtaBis", 0. );
+    auto etaBis = Monitored::Scalar( "EtaBis", 0. );
     etaBis = 0.4;
     VALUE( double( etaBis ) ) EXPECTED( 0.4 );
     etaBis = double( eta );    
@@ -279,7 +277,7 @@ bool assignWorked() {
 }
 
 bool operatorsWorked() {
-  auto count = MonitoredScalar::declare<float>( "Count", 0 );
+  auto count = Monitored::Scalar<float>( "Count", 0 );
 
   VALUE( count==count ) EXPECTED (true);
 
@@ -297,10 +295,10 @@ bool operatorsWorked() {
 
 bool timerFillingWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc ) {
 
-  auto t1 = MonitoredTimer::declare( "TIME_t1" );
-  auto t2 = MonitoredTimer::declare( "TIME_t2" );
+  auto t1 = Monitored::Timer( "TIME_t1" );
+  auto t2 = Monitored::Timer( "TIME_t2" );
   {
-    auto monitorIt = MonitoredScope::declare( monTool, t1, t2 ); // this is binding to histograms
+    auto monitorIt = Monitored::Group( monTool, t1, t2 ); // this is binding to histograms
   
     t1.start();
     t1.stop();
