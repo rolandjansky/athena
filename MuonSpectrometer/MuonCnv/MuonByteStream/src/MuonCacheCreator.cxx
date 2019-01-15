@@ -55,13 +55,13 @@ StatusCode MuonCacheCreator::execute (const EventContext& ctx) const {
   }
   // Create the MDT cache container
   auto maxHashMDTs = m_mdtIdHelper->stationNameIndex("BME") != -1 ? m_mdtIdHelper->detectorElement_hash_max() : m_mdtIdHelper->module_hash_max();
-  ATH_CHECK(CreateContainer(m_MdtCsmCacheKey, maxHashMDTs, ctx));
+  ATH_CHECK(createContainer(m_MdtCsmCacheKey, maxHashMDTs, ctx));
   // Create the CSC cache container
-  ATH_CHECK(CreateContainer(m_CscCacheKey,    m_cscIdHelper->module_hash_max(), ctx));
+  ATH_CHECK(createContainer(m_CscCacheKey,    m_cscIdHelper->module_hash_max(), ctx));
   // Create the RPC cache container
-  ATH_CHECK(CreateContainer(m_RpcCacheKey,    m_rpcIdHelper->module_hash_max(), ctx));
+  ATH_CHECK(createContainer(m_RpcCacheKey,    m_rpcIdHelper->module_hash_max(), ctx));
   // Create the TGC cache container
-  ATH_CHECK(CreateContainer(m_TgcCacheKey,    m_tgcIdHelper->module_hash_max(), ctx));
+  ATH_CHECK(createContainer(m_TgcCacheKey,    m_tgcIdHelper->module_hash_max(), ctx));
 
   ATH_MSG_INFO("Created cache container " << m_MdtCsmCacheKey);
   ATH_MSG_INFO("Created cache container " << m_CscCacheKey);
