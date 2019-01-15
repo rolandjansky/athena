@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //          Copyright Nils Krumnack 2011.
@@ -90,6 +90,7 @@ namespace EL
     Long64_t beginEvent = m_segment->begin_event;
     Long64_t endEvent   = m_segment->end_event;
     if (endEvent > 0) endFile += 1;
+    Long64_t count = 0;
 
     for (Long64_t file = beginFile; file != endFile; ++ file)
     {
@@ -110,10 +111,61 @@ namespace EL
       {
 	treeEntry (entry);
 	algsExecute ();
+	++count;
       }
       algsEndOfFile ();
     }
     algsFinalize ();
+
+    // Perform a memory leak check in case at least one event was processed.
+    if (count > 0) {
+
+       // Extract the limits for producing an error.
+       const int absResidentLimit =
+          metaData()->castInteger (Job::optMemResidentIncreaseLimit,
+                                   1000);
+       const int absVirtualLimit =
+          metaData()->castInteger (Job::optMemVirtualIncreaseLimit,
+                                   0);
+       const int perEvResidentLimit =
+          metaData()->castInteger (Job::optMemResidentPerEventIncreaseLimit,
+                                   10);
+       const int perEvVirtualLimit =
+          metaData()->castInteger (Job::optMemVirtualPerEventIncreaseLimit,
+                                   0);
+
+       // Calculate and print the memory increase of the job.
+       const Long_t resLeak = memIncreaseResident();
+       const Double_t resLeakPerEv =
+          (static_cast< Double_t > (resLeak) /
+           static_cast< Double_t > (count));
+       const Long_t virtLeak = memIncreaseVirtual();
+       const Double_t virtLeakPerEv =
+          (static_cast< Double_t > (virtLeak) /
+           static_cast< Double_t > (count) );
+       std::cout << "Memory increase/change during the job:" << std::endl;
+       std::cout << "  - resident: " << resLeakPerEv << " kB/event ("
+                 << resLeak << " kB total)" << std::endl;
+       std::cout << "  - virtual : " << virtLeakPerEv << " kB/event ("
+                 << virtLeak << " kB total)" << std::endl;
+
+       // Decide if this acceptable or not.
+       if ((resLeak > absResidentLimit) &&
+           (resLeakPerEv > perEvResidentLimit) &&
+           (virtLeak > absVirtualLimit) &&
+           (virtLeakPerEv > perEvVirtualLimit)) {
+
+          // If not, decide what to do about it.
+          if (metaData()->castBool (Job::optMemFailOnLeak, false)) {
+             RCU_THROW_MSG ("A significant memory leak was detected");
+          } else {
+             std::cerr << "WARNING *" << std::endl
+                       << "WARNING * A significant memory leak was detected"
+                       << std::endl
+                       << "WARNING *" << std::endl;
+          }
+       }
+    }
   }
 
 

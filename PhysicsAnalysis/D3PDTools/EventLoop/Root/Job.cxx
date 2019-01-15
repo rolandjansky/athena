@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //          Copyright Nils Krumnack 2011.
@@ -98,6 +98,13 @@ namespace EL
   const std::string Job::optRetries = SH::MetaNames::openRetries();
   const std::string Job::optRetriesWait = SH::MetaNames::openRetriesWait();
 
+  const std::string Job::optMemResidentPerEventIncreaseLimit =
+     "nc_resMemPerEventIncrease";
+  const std::string Job::optMemVirtualPerEventIncreaseLimit =
+     "nc_virtMemPerEventIncrease";
+  const std::string Job::optMemResidentIncreaseLimit = "nc_resMemAbsIncrease";
+  const std::string Job::optMemVirtualIncreaseLimit = "nc_virtMemAbsIncrease";
+  const std::string Job::optMemFailOnLeak = "nc_failOnMemLeak";
 
 
   void swap (Job& a, Job& b)

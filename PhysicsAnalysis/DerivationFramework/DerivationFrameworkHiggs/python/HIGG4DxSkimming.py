@@ -87,7 +87,7 @@ def setup(HIGG4DxName, ToolSvc):
         else:
             monotau = '('+tau+' && '+trigger_main+')'
         skim_expression = monotau + "&&" + lepVeto
-
+    
     elif HIGG4DxName == 'HIGG4D6':
         # here we only apply selection based on trigger and DiTau. After this skim, fat jet building is called. Second DerivationKernel will then apply selection based on jat jets (see below the skimming tool setup)
         ditaujet = '(count((DiTauJets.pt > 300.0*GeV)) >= 1)'
@@ -96,6 +96,23 @@ def setup(HIGG4DxName, ToolSvc):
         trigger_muon     = '(HLT_mu26_ivarmedium || HLT_mu50 || HLT_mu60_0eta105_msonly)'  # for HH->WWtautau analysis
         trigger_all      = '({} || {} || {})'.format(trigger_main, trigger_electron, trigger_muon)
         skim_expression = ditaujet + "&&" + trigger_all
+
+    elif HIGG4DxName == 'HDBS1':
+	#NADAV- Removed ditau cut, removed jet triggers 
+	#NADAV- Added lepton selection (Quality, pt, eta)
+        #NADAV- Added jet requirement. The final selection here (exactly on at least two leptons +  at least 2 jets ; this covers all WW decay channels )
+        eReq = '( Electrons.pt > 28.0*GeV && abs(Electrons.eta) < 2.5 && '+eleTight+' )'
+        muReq = '( Muons.pt > 28.0*GeV && abs(Muons.eta) < 2.5 && '+muonQual+' )'
+        jetReq = '( AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 30.0*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta) < 2.5 )' 
+        trigger_electron = '(HLT_e26_lhtight_nod0_ivarloose || HLT_e60_lhmedium_nod0 || HLT_e140_lhloose_nod0 || HLT_e300_etcut)' 
+        trigger_muon     = '(HLT_mu26_ivarmedium || HLT_mu50 || HLT_mu60_0eta105_msonly)' 
+        onelep = '( ((count('+eReq+') == 1) && ('+trigger_electron+') && (count('+muReq+') == 0)) || ((count('+muReq+') == 1) && ('+trigger_muon+') && (count('+eReq+') == 0)) )' #Single Lepton (with matching trigger, changed now to include no overlap (exactly 1 electron and trigger or 1 muon and trigger)
+        dilep = '( (count('+eReq+') == 1) && ('+trigger_electron+') && (count('+muReq+') == 1) && ('+trigger_muon+') )' #Exactly two leptons with matching triggers
+        multilep = '( ((count('+eReq+') >= 2) && ('+trigger_electron+')) || ((count('+muReq+') >= 2) && ('+trigger_muon+')) || ('+dilep+') )' #Multilepton events with matching trigger
+        fullLep = '( '+multilep+' && (count('+jetReq+') >= 2) )' #At least 2 jets (from t->bW and fully leptonic Ws)
+        semiLep = '( '+onelep+' && (count('+jetReq+') >= 3) )' #At least 3 jets (from t->bW and semileptonic Ws) 
+        #trigger_all      = '({} || {})'.format(trigger_electron, trigger_muon)
+        skim_expression = semiLep  + "||" + fullLep 
     
     else:
         assert False, "HIGG4DxSkimming: Unknown derivation stream '{}'".format(HIGG4DxName)
@@ -114,11 +131,16 @@ def setup(HIGG4DxName, ToolSvc):
 def setupFatJetSkim(HIGG4DxName, ToolSvc):
     
     skimmingTools = []
-
-    if HIGG4DxName == 'HIGG4D6':
+    tauProngs13 = "( abs(TauJets.charge)==1.0 && (TauJets.nTracks == 1 || TauJets.nTracks == 3) )"
+    if HIGG4DxName == 'HDBS1':
+        ditau = '(count( (DiTauJetsLowPt.pt > 50.0*GeV) && (DiTauJetsLowPt.nSubjets >=2 ) ) >= 1)'
+        twotau = '(count( TauJets.pt > 20.0*GeV && '+tauProngs13+' ) >= 2)'
+        tauReq = '( '+ditau+' || '+twotau+' )'
+        Bjet = '(count((AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 30.0*GeV) && AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_77_MV2c10) >= 1)'
+        skim_expression = tauReq + "&&" + Bjet 
+    elif HIGG4DxName == 'HIGG4D6':
         fatjet   = '(count((AntiKt10LCTopoJets.pt > 300.0*GeV)) >= 2)'
         skim_expression = fatjet
-    
     else:
         assert False, "HIGG4DxSkimming.setupFatJetSkim: FatJet skimming is not expected to be used with format '{}'".format(HIGG4DxName)
     
@@ -129,3 +151,4 @@ def setupFatJetSkim(HIGG4DxName, ToolSvc):
     skimmingTools.append(HIGG4DxFatJetSkimmingTool)
     
     return skimmingTools
+

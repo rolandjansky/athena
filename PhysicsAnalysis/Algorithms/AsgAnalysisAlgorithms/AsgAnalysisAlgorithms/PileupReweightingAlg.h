@@ -48,6 +48,30 @@ namespace CP
     SysCopyHandle<xAOD::EventInfo> m_eventInfoHandle {
       this, "eventInfo", "EventInfo", "the event info object to run on"};
 
+    /// \brief the decoration for the corrected and scaled average interactions per crossing
+  private:
+    std::string m_correctedScaledAverageMuDecoration;
+
+    /// \brief the decoration for the corrected actual interactions per crossing
+  private:
+    std::string m_correctedActualMuDecoration;
+
+    /// \brief the decoration for the corrected and scaled actual interactions per crossing
+  private:
+    std::string m_correctedScaledActualMuDecoration;
+
+    /// \brief the accessor for \ref m_correctedScaledAverageMuDecoration
+  private:
+    std::unique_ptr<const SG::AuxElement::Accessor<float> > m_correctedScaledAverageMuAccessor;
+
+    /// \brief the accessor for \ref m_correctedActualMuDecoration
+  private:
+    std::unique_ptr<const SG::AuxElement::Accessor<float> > m_correctedActualMuAccessor;
+
+    /// \brief the accessor for \ref m_correctedScaledAverageMuDecoration
+  private:
+    std::unique_ptr<const SG::AuxElement::Accessor<float> > m_correctedScaledActualMuAccessor;
+
     /// \brief the helper for OutOfValidity results
   private:
     OutOfValidityHelper m_outOfValidity {this};

@@ -11,7 +11,8 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
                                   deepCopyOutput = False,
                                   postfix = '',
                                   recomputeLikelihood = False,
-                                  chargeIDSelection = False ):
+                                  chargeIDSelection = False,
+                                  isolationCorrection = False ):
     """Create an electron analysis algorithm sequence
 
     Keyword arguments:
@@ -26,6 +27,7 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
                  names are unique.
       recomputeLikelihood -- Whether to rerun the LH. If not, use derivation flags
       chargeIDSelection -- Whether or not to perform charge ID/flip selection
+      isolationCorrection -- Whether or not to perform isolation correction
     """
 
     # Make sure we received a valid data type.
@@ -108,7 +110,7 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
                            'ElectronCalibrationAndSmearingAlg' + postfix )
     addPrivateTool( alg, 'calibrationAndSmearingTool',
                     'CP::EgammaCalibrationAndSmearingTool' )
-    alg.calibrationAndSmearingTool.ESModel = 'es2017_R21_PRE'
+    alg.calibrationAndSmearingTool.ESModel = 'es2017_R21_v1'
     alg.calibrationAndSmearingTool.decorrelationModel = '1NP_v1'
     if dataType == 'afii':
         alg.calibrationAndSmearingTool.useAFII = 1
@@ -120,28 +122,30 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
                 stageName = 'calibration' )
 
     # Set up the isolation correction algorithm:
-    alg = createAlgorithm( 'CP::EgammaIsolationCorrectionAlg',
-                           'ElectronIsolationCorrectionAlg' + postfix )
-    addPrivateTool( alg, 'isolationCorrectionTool',
-                    'CP::IsolationCorrectionTool' )
-    if dataType == 'data':
-        alg.isolationCorrectionTool.IsMC = 0
-    else:
-        alg.isolationCorrectionTool.IsMC = 1
-        pass
-    seq.append( alg, inputPropName = 'egammas', outputPropName = 'egammasOut',
-                stageName = 'calibration' )
+    if isolationCorrection:
+        alg = createAlgorithm( 'CP::EgammaIsolationCorrectionAlg',
+                               'ElectronIsolationCorrectionAlg' + postfix )
+        addPrivateTool( alg, 'isolationCorrectionTool',
+                        'CP::IsolationCorrectionTool' )
+        if dataType == 'data':
+            alg.isolationCorrectionTool.IsMC = 0
+        else:
+            alg.isolationCorrectionTool.IsMC = 1
+            pass
+        seq.append( alg, inputPropName = 'egammas', outputPropName = 'egammasOut',
+                    stageName = 'calibration' )
 
     # Set up the isolation selection algorithm:
-    alg = createAlgorithm( 'CP::EgammaIsolationSelectionAlg',
-                           'ElectronIsolationSelectionAlg' + postfix )
-    alg.selectionDecoration = 'isolated' + postfix
-    addPrivateTool( alg, 'selectionTool', 'CP::IsolationSelectionTool' )
-    alg.selectionTool.ElectronWP = isolationWP
-    seq.append( alg, inputPropName = 'egammas', outputPropName = 'egammasOut',
-                stageName = 'selection' )
-    selectionDecorNames.append( alg.selectionDecoration )
-    selectionDecorCount.append( 1 )
+    if isolationWP != 'NonIso' :
+        alg = createAlgorithm( 'CP::EgammaIsolationSelectionAlg',
+                               'ElectronIsolationSelectionAlg' + postfix )
+        alg.selectionDecoration = 'isolated' + postfix
+        addPrivateTool( alg, 'selectionTool', 'CP::IsolationSelectionTool' )
+        alg.selectionTool.ElectronWP = isolationWP
+        seq.append( alg, inputPropName = 'egammas', outputPropName = 'egammasOut',
+                    stageName = 'selection' )
+        selectionDecorNames.append( alg.selectionDecoration )
+        selectionDecorCount.append( 1 )
 
     # Set up the track selection algorithm:
     alg = createAlgorithm( 'CP::AsgLeptonTrackSelectionAlg',
@@ -178,10 +182,7 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
                            'ElectronEfficiencyCorrectionAlg' + postfix )
     addPrivateTool( alg, 'efficiencyCorrectionTool',
                     'AsgElectronEfficiencyCorrectionTool' )
-    alg.efficiencyCorrectionTool.MapFilePath = \
-        'ElectronEfficiencyCorrection/2015_2017/rel21.2/Summer2017_Prerec_v1/map0.txt'
     alg.efficiencyCorrectionTool.RecoKey = "Reconstruction"
-    alg.efficiencyCorrectionTool.CorrelationModel = "TOTAL"
     alg.efficiencyCorrectionTool.CorrelationModel = "TOTAL"
     alg.efficiencyDecoration = 'effCor' + postfix
     if dataType == 'afii':

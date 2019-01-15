@@ -200,9 +200,11 @@ StatusCode EgammaCPTools::setupScaleFactors() {
   std::string electron_data_dir = "ElectronEfficiencyCorrection/";
   ///-- Reco SFs doesn't depend on WP --///
   std::string electronID = m_config->electronID();
-  electronID.replace(electronID.find("LH"), 2, "LLH");  // that way people do not have to change their cuts file
+  if (electronID.find("LH") != std::string::npos)
+    electronID.replace(electronID.find("LH"), 2, "LLH");  // that way people do not have to change their cuts file
   std::string electronIDLoose = m_config->electronIDLoose();
-  electronIDLoose.replace(electronIDLoose.find("LH"), 2, "LLH"); // that way people do not have to change their cuts file
+  if (electronIDLoose.find("LH") != std::string::npos)
+    electronIDLoose.replace(electronIDLoose.find("LH"), 2, "LLH"); // that way people do not have to change their cuts file
   std::string electronIsolation = m_config->electronIsolationSF();
   std::string electronIsolationLoose = m_config->electronIsolationSFLoose();
 

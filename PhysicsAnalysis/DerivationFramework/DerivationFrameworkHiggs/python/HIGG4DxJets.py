@@ -18,7 +18,7 @@ def setup(HIGG4DxName, HIGG4DxSequence, HIGG4DxSlimmingHelper):
                           "AntiKt4TruthWZJets",
                           ]
       
-        if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D6']:
+        if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D6', 'HDBS1']:
             
             reducedJetList += ["AntiKt4PV0TrackJets", 
                                "AntiKt2PV0TrackJets",
@@ -33,4 +33,30 @@ def setup(HIGG4DxName, HIGG4DxSequence, HIGG4DxSlimmingHelper):
         if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D6']:
             # default trimmed jets.
             addDefaultTrimmedJets(HIGG4DxSequence, HIGG4DxName, True)
+    if HIGG4DxName in ['HDBS1']:
+        import DiTauRec.DiTauAlgorithmsHolder as DiTauAlgs
+        ditauTools = []
+        ditauTools.append(DiTauAlgs.getSeedJetBuilder("AntiKt10LCTopoJets"))
+        ditauTools.append(DiTauAlgs.getElMuFinder())
+        ditauTools.append(DiTauAlgs.getSubjetBuilder())
+        ditauTools.append(DiTauAlgs.getVertexFinder())
+        ditauTools.append(DiTauAlgs.getDiTauTrackFinder())
+        ditauTools.append(DiTauAlgs.getIDVarCalculator(False))
+
+        from DiTauRec.DiTauRecConf import DiTauBuilder
+        DiTauBuilder = DiTauBuilder(
+            name="DiTauBuilderLowPt",
+            DiTauContainer="DiTauJetsLowPt",
+            DiTauAuxContainer="DiTauJetsLowPtAux.",
+            Tools=ditauTools,
+            SeedJetName="AntiKt10LCTopoJets",
+            minPt=50000,
+            maxEta=2.5,
+            OutputLevel=2,
+            Rjet=1.0,
+            Rsubjet=0.2,
+            Rcore=0.1)
+
+        HIGG4DxSequence += DiTauBuilder
+
 

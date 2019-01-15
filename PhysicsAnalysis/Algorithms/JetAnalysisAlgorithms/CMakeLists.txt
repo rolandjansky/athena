@@ -16,14 +16,15 @@ atlas_depends_on_subdirs(
     Reconstruction/Jet/JetCPInterfaces
     Reconstruction/Jet/JetInterface
     Reconstruction/Jet/JetJvtEfficiency
-    Reconstruction/Jet/JetResolution )
+    Reconstruction/Jet/JetResolution
+    Reconstruction/MET/METUtilities )
 
 atlas_add_library( JetAnalysisAlgorithmsLib
    JetAnalysisAlgorithms/*.h JetAnalysisAlgorithms/*.icc Root/*.cxx
    PUBLIC_HEADERS JetAnalysisAlgorithms
    LINK_LIBRARIES xAODJet SelectionHelpersLib SystematicsHandlesLib
    AnaAlgorithmLib JetCalibToolsLib JetInterface JetResolutionLib
-   JetCPInterfaces JetJvtEfficiencyLib JetAnalysisInterfacesLib )
+   JetCPInterfaces JetJvtEfficiencyLib JetAnalysisInterfacesLib METUtilitiesLib )
 
 atlas_add_dictionary( JetAnalysisAlgorithmsDict
    JetAnalysisAlgorithms/JetAnalysisAlgorithmsDict.h

@@ -27,8 +27,9 @@ namespace CP
     , m_efficiencyScaleFactorTool ("CP::MuonEfficiencyScaleFactors", this)
   {
     declareProperty ("efficiencyScaleFactorTool", m_efficiencyScaleFactorTool, "the calibration and smearing tool we apply");
-    declareProperty ("efficiencyDecoration", m_efficiencyDecoration, "the decoration for the muon efficiency");
-    declareProperty ("isData", m_isData, "whether we run on data");
+    declareProperty ("scaleFactorDecoration", m_scaleFactorDecoration, "the decoration for the muon efficiency scale factor");
+    declareProperty ("mcEfficiencyDecoration", m_mcEfficiencyDecoration, "the decoration for the muon MC efficiency");
+    declareProperty ("dataEfficiencyDecoration", m_dataEfficiencyDecoration, "the decoration for the muon data efficiency");
   }
 
 
@@ -36,12 +37,25 @@ namespace CP
   StatusCode MuonEfficiencyScaleFactorAlg ::
   initialize ()
   {
-    if (m_efficiencyDecoration.empty())
+    if (m_scaleFactorDecoration.empty() && m_mcEfficiencyDecoration.empty() && m_dataEfficiencyDecoration.empty())
     {
-      ANA_MSG_ERROR ("no efficiency decoration name set");
+      ANA_MSG_ERROR ("no scale factor or efficiency decoration name set");
       return StatusCode::FAILURE;
     }
-    m_efficiencyAccessor = std::make_unique<SG::AuxElement::Accessor<float> > (m_efficiencyDecoration);
+
+    if (!m_scaleFactorDecoration.empty())
+    {
+      m_scaleFactorAccessor = std::make_unique<SG::AuxElement::Accessor<float> > (m_scaleFactorDecoration);
+    }
+
+    if (!m_mcEfficiencyDecoration.empty())
+    {
+      m_mcEfficiencyAccessor = std::make_unique<SG::AuxElement::Accessor<float> > (m_mcEfficiencyDecoration);
+    }
+    if (!m_dataEfficiencyDecoration.empty())
+    {
+      m_dataEfficiencyAccessor = std::make_unique<SG::AuxElement::Accessor<float> > (m_dataEfficiencyDecoration);
+    }
 
     ANA_CHECK (m_efficiencyScaleFactorTool.retrieve());
     m_systematicsList.addHandle (m_muonHandle);
@@ -64,15 +78,23 @@ namespace CP
         ANA_CHECK (m_eventInfoHandle.retrieve (eventInfo, sys));
         for (xAOD::Muon *muon : *muons)
         {
-          float eff = 0;
-          if (m_isData)
-          {
-            ANA_CHECK_CORRECTION (m_outOfValidity, *muon, m_efficiencyScaleFactorTool->getDataEfficiency (*muon, eff, eventInfo));
-          } else
-          {
-            ANA_CHECK_CORRECTION (m_outOfValidity, *muon, m_efficiencyScaleFactorTool->getMCEfficiency (*muon, eff, eventInfo));
+          if (m_scaleFactorAccessor) {
+            float sf = 0;
+            ANA_CHECK_CORRECTION (m_outOfValidity, *muon, m_efficiencyScaleFactorTool->getEfficiencyScaleFactor (*muon, sf, eventInfo));
+            (*m_scaleFactorAccessor) (*muon) = sf;
           }
-          (*m_efficiencyAccessor) (*muon) = eff;
+
+          if (m_mcEfficiencyAccessor) {
+            float eff = 0;
+            ANA_CHECK_CORRECTION (m_outOfValidity, *muon, m_efficiencyScaleFactorTool->getMCEfficiency (*muon, eff, eventInfo));
+            (*m_mcEfficiencyAccessor) (*muon) = eff;
+          }
+
+          if (m_dataEfficiencyAccessor) {
+            float eff = 0;
+            ANA_CHECK_CORRECTION (m_outOfValidity, *muon, m_efficiencyScaleFactorTool->getDataEfficiency (*muon, eff, eventInfo));
+            (*m_dataEfficiencyAccessor) (*muon) = eff;
+          }
         }
         return StatusCode::SUCCESS;
       });

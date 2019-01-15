@@ -31,9 +31,6 @@ def makePileupAnalysisSequence( dataType, userPileupConfigs=[], userLumicalcFile
     addPrivateTool( alg, 'pileupReweightingTool', 'CP::PileupReweightingTool' )
     alg.pileupReweightingTool.ConfigFiles = muMcFiles
     alg.pileupReweightingTool.LumiCalcFiles = muDataFiles
-    alg.pileupReweightingTool.DataScaleFactor = 1./1.09
-    alg.pileupReweightingTool.DataScaleFactorUP = 1.
-    alg.pileupReweightingTool.DataScaleFactorDOWN = 1./1.18
 
     seq.append( alg, inputPropName = 'eventInfo',
                 outputPropName = 'eventInfoOut',

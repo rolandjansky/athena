@@ -127,7 +127,7 @@ StatusCode DerivationFramework::PixeldEdxTrackParticleThinning::doThinning() con
         return ip;
       }
     }
-    return 9999;
+    return 0;
   };
   
   static std::vector<double> preScales {
@@ -183,12 +183,6 @@ StatusCode DerivationFramework::PixeldEdxTrackParticleThinning::doThinning() con
     // Prescaled track keeping
     auto bin = getBin( std::abs( trk->pt() ) );
     
-    // If failing in finding bin, discard (this should not happen)
-    if( 9999 == bin ) {
-      ATH_MSG_FATAL("No corresponding bin was found in the pTbins!!: pT = " << trk->pt() );
-    }
-    
-    // Get the prescale factor
     const auto preScale   = static_cast<unsigned long long>( std::floor( preScales.at( bin ) * m_globalScale ) );
     const auto preScale10 = std::max( static_cast<unsigned long long>( std::floor( preScales.at( bin ) * m_globalScale / 10. ) ), 1ull );
     

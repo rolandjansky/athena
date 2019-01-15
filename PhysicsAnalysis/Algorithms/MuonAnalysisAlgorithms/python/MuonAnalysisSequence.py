@@ -80,8 +80,7 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     alg = createAlgorithm( 'CP::AsgSelectionAlg',
                            'MuonKinSelectionAlg' + postfix )
     addPrivateTool( alg, 'selectionTool', 'CP::AsgPtEtaSelectionTool' )
-    alg.selectionTool.minPt = 20e3
-    alg.selectionTool.maxEta = 2.4
+    alg.selectionTool.maxEta = 2.5
     selectList.append ('kin_select' + postfix + ',as_bits')
     nCutsList.append (2)
     alg.selectionDecoration = selectList[-1]
@@ -155,19 +154,14 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
                            'MuonEfficiencyScaleFactorAlg' + postfix )
     addPrivateTool( alg, 'efficiencyScaleFactorTool',
                     'CP::MuonEfficiencyScaleFactors' )
-    if dataType == "data":
-        alg.isData = 1
-        pass
-    else :
-        alg.isData = 0
-        pass
-    alg.efficiencyDecoration = 'muon_eff' + postfix
+    alg.scaleFactorDecoration = 'muon_eff' + postfix
     alg.outOfValidity = 2 #silent
     alg.outOfValidityDeco = 'bad_eff' + postfix
     alg.efficiencyScaleFactorTool.WorkingPoint = sfWorkingPoint
-    seq.append( alg, inputPropName = 'muons', outputPropName = 'muonsOut',
-                affectingSystematics = '(^MUON_EFF_.*)',
-                stageName = 'efficiency' )
+    if dataType != 'data':
+        seq.append( alg, inputPropName = 'muons', outputPropName = 'muonsOut',
+                    affectingSystematics = '(^MUON_EFF_.*)',
+                    stageName = 'efficiency' )
 
     # Set up an algorithm dumping the properties of the muons, for debugging:
     alg = createAlgorithm( 'CP::KinematicHistAlg',

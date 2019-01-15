@@ -84,7 +84,7 @@ print MUON1AugmentTool1a
 
 ### Jpsi for tag-probe
 andTriggers1b = ['HLT_mu20_iloose_L1MU15', 'HLT_mu24', 'HLT_mu26', 'HLT_mu24_imedium', 'HLT_mu26_imedium']
-orTriggers1b = ['HLT_mu4','HLT_mu6','HLT_mu14','HLT_mu6_idperf','HLT_mu4_bJpsi_Trkloose','HLT_mu6_bJpsi_Trkloose ','HLT_mu10_bJpsi_Trkloose','HLT_mu18_bJpsi_Trkloose','HLT_mu20_2mu0noL1_JpsimumuFS','HLT_mu18_2mu0noL1_JpsimumuFS','HLT_mu20_2mu4_JpsimumuL2','HLT_mu18_2mu4_JpsimumuL2','HLT_mu4_mu4_idperf_bJpsimumu_noid','HLT_mu4_bJpsi_TrkPEB','HLT_mu6_bJpsi_TrkPEB','HLT_mu10_bJpsi_TrkPEB','HLT_mu14_bJpsi_TrkPEB','HLT_mu20_bJpsi_TrkPEB','HLT_mu6_mu2noL1_msonly_bJpsimumu_noid','HLT_mu6_mu2noL1_msonly_bJpsimumu_noid_PEB']
+orTriggers1b = ['HLT_mu4','HLT_mu6','HLT_mu14','HLT_mu6_idperf',"HLT_mu6_bJpsi_lowpt_TrkPEB", 'HLT_mu4_bJpsi_Trkloose','HLT_mu6_bJpsi_Trkloose ','HLT_mu10_bJpsi_Trkloose','HLT_mu18_bJpsi_Trkloose','HLT_mu20_2mu0noL1_JpsimumuFS','HLT_mu18_2mu0noL1_JpsimumuFS','HLT_mu20_2mu4_JpsimumuL2','HLT_mu18_2mu4_JpsimumuL2','HLT_mu4_mu4_idperf_bJpsimumu_noid','HLT_mu4_bJpsi_TrkPEB','HLT_mu6_bJpsi_TrkPEB','HLT_mu10_bJpsi_TrkPEB','HLT_mu14_bJpsi_TrkPEB','HLT_mu20_bJpsi_TrkPEB','HLT_mu6_mu2noL1_msonly_bJpsimumu_noid','HLT_mu6_mu2noL1_msonly_bJpsimumu_noid_PEB']
 
 brPrefix1b = 'MUON1b'
 MUON1AugmentTool1b = DerivationFramework__dimuonTaggingTool(name = "MUON1AugmentTool1b",
