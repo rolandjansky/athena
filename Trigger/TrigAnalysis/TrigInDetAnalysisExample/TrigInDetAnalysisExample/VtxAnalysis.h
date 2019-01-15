@@ -1,14 +1,12 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    VtxAnalysis.h        
-//
-//                   
-//  
-//
-//   $Id: VtxAnalysis.h, v0.0   Sun  9 Aug 2015 00:02:23 CEST sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    VtxAnalysis.h
+ **
+ **     @author  mark sutton
+ **     @date    Sun  9 Aug 2015 00:02:23 CEST 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #ifndef  VTXANALYSIS_H

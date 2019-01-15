@@ -1,14 +1,12 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    selectblock.cxx         
-//   
-//
-//   @author M.Sutton
-// 
-//
-//   $Id: selectblock.cxx, v0.0   Mon 23 Jan 2017 12:30:25 CET sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    chainparser.cxx
+ **
+ **     @author  mark sutton
+ **     @date    Mon 23 Jan 2017 12:30:25 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 #include <iostream> 
 #include <fstream> 

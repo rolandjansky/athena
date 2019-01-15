@@ -1,23 +1,21 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
 
-/**************************************************************************
+/**
  **
- **   File:         IReadCards.cxx        
+ **   @file         IReadCards.cxx        
  **
- **   Description:  fortran callable interface routines to the  
+ **                 fortran callable interface routines to the  
  **                 ReadCards parameter file  
  **                   
  ** 
- **   Author:       M.Sutton    
+ **   @author       M.Sutton    
  **
- **   Created:      Fri Aug 12 17:40:22 CEST 2005
- **   Modified:     
+ **   @date         Fri Aug 12 17:40:22 CEST 2005
+ **
+ **   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  **                   
  **                   
  **
- **************************************************************************/ 
+ **/
 
 
 

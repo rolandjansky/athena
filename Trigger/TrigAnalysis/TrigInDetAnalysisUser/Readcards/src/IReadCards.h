@@ -1,27 +1,25 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-/**************************************************************************
+/* emacs: this is -*- c++ -*- */
+/**
  **
- **   File:         IReadCards.h  
+ **   @file         IReadCards.h  
  **
- **   Description:  fortran callable interface routines to the 
+ **                 fortran callable interface routines to the 
  **                 ReadCards parameter file   
  **                   
  ** 
- **   Author:       M.Sutton  
+ **   @author       M.Sutton  
  **
- **   Created:      Fri Aug 12 17:40:56 CEST 2005
- **   Modified:     
+ **   @date         Fri Aug 12 17:40:56 CEST 2005
+ **
+ **   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  **                   
  **                   
  **
- **************************************************************************/ 
+ **/
 
 
-#ifndef __IREADCARDS_H
-#define __IREADCARDS_H
+#ifndef READCARDS_IREADCARDS_H
+#define READCARDS_IREADCARDS_H
 
 
 #ifdef __cplusplus
@@ -44,7 +42,7 @@ extern "C" {
 
 
 
-#endif  /* __IREADCARDS_H */
+#endif  /* READCARDS_IREADCARDS_H */
 
 
 

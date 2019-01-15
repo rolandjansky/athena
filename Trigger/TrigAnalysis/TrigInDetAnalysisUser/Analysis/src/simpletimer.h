@@ -1,18 +1,18 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    simpletimer.h        
-//            these functions have a precision of about 0.001 ms
-//
-//
-//
-//   $Id: simpletimer.h, v0.0   Thu 22 Jan 2009 15:51:52 GMT sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    simpletimer.h
+ **
+ **       these functions have a precision of about 0.001 ms
+ **
+ **     @author  mark sutton
+ **     @date    Thu 22 Jan 2009 15:51:52 GMT 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
-#ifndef __SIMPLETIMER_H
-#define __SIMPLETIMER_H
+#ifndef ANALYSIS_SIMPLETIMER_H
+#define ANALYSIS_SIMPLETIMER_H
 
 #include <time.h>
 #include <sys/time.h>
@@ -43,7 +43,7 @@ inline double simpletimer_stop(const struct timeval& start_time)
 //}
 //#endif
 
-#endif /* __SIMPLETIMER_H */
+#endif /* ANALYSIS_SIMPLETIMER_H */
 
 
 

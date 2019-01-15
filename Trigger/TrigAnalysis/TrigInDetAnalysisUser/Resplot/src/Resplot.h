@@ -1,29 +1,27 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-/**************************************************************************
+/* emacs: this is -*- c++ -*- */
+/**
  **
- **   File:         Resplot.h  
+ **   @file         Resplot.h  
  **
- **   Description:  A class to do useful book keeping and efficiency 
+ **                 A class to do useful book keeping and efficiency 
  **                 stuff. Like a TH1D in root, only it keeps a series 
  **                 of histograms with a value, very useful for making 
  **                 resolutions and so on.
  **
  ** 
- **   Author:       M.Sutton  
+ **   @author       M.Sutton  
  **
- **   Created:      Mon Jun 21 18:35:22 BST 2004
- **   Modified:     
+ **   @date         Mon Jun 21 18:35:22 BST 2004
+ **
+ **   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  **                   
  **                   
  **
- **************************************************************************/ 
+ **/
 
 
-#ifndef __RESPLOT_H
-#define __RESPLOT_H
+#ifndef RESPLOT_RESPLOT_H
+#define RESPLOT_RESPLOT_H
 
 #include <stdlib.h>
 
@@ -690,5 +688,5 @@ private:
 inline Resplot operator*(double d, Resplot r) { return (r*=d); }
 
 
-#endif  /* __RESPLOT_H */
+#endif  /* RESPLOT_RESPLOT_H */
 

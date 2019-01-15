@@ -1,6 +1,12 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
+/**
+ **     @file    listroot.cxx
+ **
+ **     @author  mark sutton
+ **     @date    Fri 11 Jan 2019 07:41:26 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
+
 
 #include "simpletimer.h"
 
@@ -137,12 +143,12 @@ double hmax( TH1*& h ) {
 
     
 
-    double _hmax = h->GetBinContent(1);
+    double vhmax = h->GetBinContent(1);
     for ( int i=2 ; i<h->GetNbinsX() ; i++ ) {
-      double _m = h->GetBinContent(i);
-      if ( _m>_hmax ) _hmax = _m;
+      double vm = h->GetBinContent(i);
+      if ( vm>vhmax ) vhmax = vm;
     }
-    return _hmax;
+    return vhmax;
   }
   return 0;
 } 
@@ -154,25 +160,25 @@ public:
 	 const std::string& t, 
 	 TKey* k, TDirectory* d=0, 
 	 const std::vector<inode>& in=std::vector<inode>() ) 
-    : _name(n), _type(t), _key(k), _dir(d), _nodes(in) { }  
+    : m_name(n), m_type(t), m_key(k), m_dir(d), m_nodes(in) { }  
 
-  //  ~inode() { std::cout << "delete " << _name << std::endl; } 
+  //  ~inode() { std::cout << "delete " << m_name << std::endl; } 
   ~inode() { }
 
-  std::string _name;
-  std::string _type;
-  TKey*       _key;
+  std::string m_name;
+  std::string m_type;
+  TKey*       m_key;
 
   /// if this node is, itself a directory
-  TDirectory* _dir;
-  std::vector<inode> _nodes;
+  TDirectory* m_dir;
+  std::vector<inode> m_nodes;
 }; 
 
 
 
-std::ostream& operator<<( std::ostream& s, const inode& _t ) { 
-  s << _t._name << " " << _t._type;
-  //  if ( _t._dir ) s << "\n" << _t._nodes;
+std::ostream& operator<<( std::ostream& s, const inode& t ) { 
+  s << t.m_name << " " << t.m_type;
+  //  if ( t.m_dir ) s << "\n" << t.m_nodes;
   return s;
 }  
 
@@ -201,20 +207,20 @@ class TCck {
   
 public:
 
-  TCck( TDirectory* d, int depth=0 ) : _dir(d), _depth(depth) { } 
+  TCck( TDirectory* d, int depth=0 ) : m_dir(d), m_depth(depth) { } 
 
-  //  ~TCck() { if ( _dir ) std::cout << "delete dir " << _dir->GetName() << std::endl; } 
+  //  ~TCck() { if ( m_dir ) std::cout << "delete dir " << m_dir->GetName() << std::endl; } 
 
   ~TCck() { } 
   
   std::vector<inode> scan( int depth=0 ) { 
-    if ( _nodes.size()==0 ) _scan(depth);
-    return _nodes;
+    if ( m_nodes.size()==0 ) pscan(depth);
+    return m_nodes;
   }
 
 protected:
   
-  void _scan( int depth=0 ) {
+  void pscan( int depth=0 ) {
 
     if ( depth>maxdepth ) return;
 
@@ -222,20 +228,20 @@ protected:
     
     TDirectory* cck = gDirectory;
 
-    int __depth = depth-1;
+    int deptht = depth-1;
 
     bool accept = true;
 
 
-    //    std::cout << "GOLLY! " << _dir->GetName() << "\tdepth " << depth << " " <<  __depth << "\tsize " << directories.size() << " " << directories << std::endl;
+    //    std::cout << "GOLLY! " << m_dir->GetName() << "\tdepth " << depth << " " <<  deptht << "\tsize " << directories.size() << " " << directories << std::endl;
 
 
     if ( directories.size()>size_t(0) ) {
-      if ( __depth>=0 && size_t(__depth)<directories.size() ) {
-	//	std::cout << "directory[" << __depth << "] = " << directories[__depth] << " " << std::string(_dir->GetName()) << std::endl;
-	if ( directories[__depth]!=std::string(_dir->GetName() ) &&
-	     !( // contains( _dir->GetName(), "SMK_" ) &&
-		contains( _dir->GetName(), directories[__depth] ) ) )  accept = false;
+      if ( deptht>=0 && size_t(deptht)<directories.size() ) {
+	//	std::cout << "directory[" << deptht << "] = " << directories[deptht] << " " << std::string(_dir->GetName()) << std::endl;
+	if ( directories[deptht]!=std::string(m_dir->GetName() ) &&
+	     !( // contains( m_dir->GetName(), "SMK_" ) &&
+		contains( m_dir->GetName(), directories[deptht] ) ) )  accept = false;
       }
     }
 
@@ -244,15 +250,15 @@ protected:
 
     if ( !accept ) return;
 
-    //    std::cout << spacer << _dir->GetName() << "\tdepth " << _depth << std::endl; 
+    //    std::cout << spacer << m_dir->GetName() << "\tdepth " << _depth << std::endl; 
   
     spacer += "\t";
 
 
-    _dir->cd();
+    m_dir->cd();
 
 
-    TList* tl  = _dir->GetListOfKeys();
+    TList* tl  = m_dir->GetListOfKeys();
 
 
     for ( int i=tl->GetSize() ; i-- ; ) { 
@@ -269,7 +275,7 @@ protected:
 	if ( std::string(tobj->GetClassName()).find("TDirectory")!=std::string::npos ) { 
 	  tnd = (TDirectory*)tobj->ReadObj();
 	  nodes = TCck( tnd, depth+1 ).scan( depth+1 );
-	  _nodes.push_back( inode( tobj->GetName(), tobj->GetClassName(), tobj, tnd, nodes ) );
+	  m_nodes.push_back( inode( tobj->GetName(), tobj->GetClassName(), tobj, tnd, nodes ) );
 	}
 	else { 
 	  
@@ -291,24 +297,19 @@ protected:
 	  if ( accept && isvetoed(tobj->GetName()) ) accept = false;
 
 	  if ( accept ) { 
-	    _nodes.push_back( inode( tobj->GetName(), tobj->GetClassName(), tobj ) );
+	    m_nodes.push_back( inode( tobj->GetName(), tobj->GetClassName(), tobj ) );
 
 
 	    //	    bool display = true;
 	  
-	    std::cout << "(" << depth << ")\t" << spacer << _nodes.back(); // << " " << tobj->GetName();
+	    std::cout << "(" << depth << ")\t" << spacer << m_nodes.back(); // << " " << tobj->GetName();
 	    
 	    if ( std::string( tobj->GetClassName()).find("TH1")!=std::string::npos ) {
 	      TH1* h = (TH1*)tobj->ReadObj();
 	      h->SetDirectory(0);
-	      //  bool _cck = false;
-
-
-	      //	      if ( isvetoed(tobj->GetName()) ) plot = false;
 
 	      if ( entries!=0 && h->GetEntries()>entries ) { 
 		std::cout << "\tentries " << h->GetEntries() << " \tmean " << h->GetMean() << "\tplot " << plot << "\t"; // << std::endl;
-		//	_cck = true;
 	      }
 
 
@@ -398,10 +399,10 @@ protected:
 
 protected:
   
-  TDirectory*        _dir;
-  std::vector<inode> _nodes;
+  TDirectory*        m_dir;
+  std::vector<inode> m_nodes;
 
-  int                _depth;
+  int                m_depth;
 
   static std::string spacer;
   

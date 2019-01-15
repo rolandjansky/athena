@@ -1,10 +1,15 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    TrigTrackSelector_old.h
+ **
+ **     @author  mark sutton
+ **     @date    Thu 10 Jan 2019 20:41:57 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
-#ifndef __TRIGTRACKSELECTOR_H
-#define __TRIGTRACKSELECTOR_H
+#ifndef TRIGTRACKSELECTOR_H
+#define TRIGTRACKSELECTOR_H
 
 /// L2 tracks
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
@@ -64,7 +69,7 @@ public:
   //  TrigTrackSelector( bool (*selector)(const TIDA::Track*)=NULL ) : TrackSelector(selector) {  } 
   TrigTrackSelector( TrackFilter* selector ) : TrackSelector(selector), m_id(0) {  } 
 
-  virtual void clear() { for ( unsigned i=mtracks.size() ; i-- ; ) delete mtracks[i]; mtracks.clear(); }   
+  virtual void clear() { for ( unsigned i=m_tracks.size() ; i-- ; ) delete m_tracks[i]; m_tracks.clear(); }   
 
 
   void selectTrack( const TrigInDetTrack* track, const TrigInDetTrackTruthMap* truthMap=0 ) {     
@@ -711,7 +716,5 @@ private:
 };
 
 
-// }
 
-
-#endif // __TRIGTRACKSELECTOR_H
+#endif // TRIGTRACKSELECTOR_H

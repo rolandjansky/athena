@@ -1,7 +1,13 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-/** @file Converter.h */
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    Converter.h
+ **
+ **     @author  mark sutton
+ **     @date    Fri 11 Jan 2019 07:06:39 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
+
 
 #ifndef TrigInDetAnalysis_Converter_H
 #define TrigInDetAnalysis_Converter_H

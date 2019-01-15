@@ -1,8 +1,13 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-/** @file AnalysisConfig.h */
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    T_AnalysisConfig.h
+ **
+ **     @author  mark sutton
+ **     @date    Fri 11 Jan 2019 07:06:39 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
+
 
 #ifndef TrigInDetAnalysisUtils_T_AnalysisConfig_H
 #define TrigInDetAnalysisUtils_T_AnalysisConfig_H

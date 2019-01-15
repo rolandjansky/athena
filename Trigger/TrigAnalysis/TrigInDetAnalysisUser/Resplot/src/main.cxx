@@ -1,6 +1,12 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
+/**
+ **     @file    main.cxx
+ **
+ **     @author  mark sutton
+ **     @date    Fri 11 Jan 2019 07:41:27 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
+
 
 #include <cmath>
 #include <vector>

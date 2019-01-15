@@ -1,18 +1,16 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    TIDAVertex.h        
-//
-//                   
-//  
-//
-//   $Id: TIDAVertex.h, v0.0   Thu 22 Apr 2010 15:32:23 BST sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    TIDAVertex.h
+ **
+ **     @author  mark sutton
+ **     @date    Thu 22 Apr 2010 15:32:23 BST 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
-#ifndef __TRACKVERTEX_H
-#define __TRACKVERTEX_H
+#ifndef TIDA_VERTEX_H
+#define TIDA_VERTEX_H
 
 #include <iostream>
 
@@ -97,7 +95,7 @@ inline std::ostream& operator<<( std::ostream& s, const TIDA::Vertex& _t ) {
 }
 
 
-#endif  // __TRACKVERTEX_H 
+#endif  // TIDA_VERTEX_H 
 
 
 
