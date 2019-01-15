@@ -357,7 +357,7 @@ namespace CP {
         
         std::function<unsigned int(unsigned int, unsigned int)> not_inB = [](unsigned int a , unsigned int b){
                 unsigned int b_flipped = ~b;
-                return a & b;
+                return a & b_flipped;
         };
         
         /// Now we can fill the map with the individual sets
@@ -432,8 +432,8 @@ namespace CP {
             }
             ///  Read out the systematic tree from the scale-factor files
             std::string* syst_name = nullptr;
-            unsigned int is_symmetric(0), has_pt_sys(0), uncorrelated(0);
-            if (syst_tree->SetBranchAddress("Systematic", &syst_name) != 0 || 
+            bool is_symmetric(0), has_pt_sys(0), uncorrelated(0);
+            if (syst_tree->SetBranchAddress("Name", &syst_name) != 0 || 
                 syst_tree->SetBranchAddress("IsSymmetric", &is_symmetric) != 0 || 
                 syst_tree->SetBranchAddress("HasPtDependentSys", &has_pt_sys) !=0 ||
                 syst_tree->SetBranchAddress("CanBeUncorrelated", &uncorrelated) !=0){

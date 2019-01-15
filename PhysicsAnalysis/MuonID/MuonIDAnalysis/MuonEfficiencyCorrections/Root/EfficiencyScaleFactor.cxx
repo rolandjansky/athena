@@ -9,7 +9,7 @@
 #include <TClass.h>
 namespace CP {
     unsigned int EfficiencyScaleFactor::m_warningLimit = 10;
-    EfficiencyScaleFactor:: EfficiencyScaleFactor(std::shared_ptr<EfficiencyScaleFactor> nominal,
+    EfficiencyScaleFactor::EfficiencyScaleFactor(std::shared_ptr<EfficiencyScaleFactor> nominal,
                                   const MuonEfficiencyScaleFactors& ref_tool,
                                   const std::string& file,
                                   const std::string& time_unit,
@@ -72,7 +72,7 @@ namespace CP {
                                                                                 m_syst_name.c_str(), 
                                                                                 (syst_type_bitmap & EffiCollection::Symmetric ? "SYS" : (m_is_up ? "1UP" : "1DN")) ), 
                                                                 f.get(), time_unit);
-            if (sys) {
+            if (sys) {               
                 for (int i = 1; i <= nominal->NBins(); ++i) {
                     nominal->SetBinContent(i, nominal->GetBinContent(i) + (IsUpVariation() ? 1. : -1.)*sys->GetBinContent(i));
                 }
@@ -114,7 +114,8 @@ namespace CP {
         syst_loader(m_mc_eff,"MC_Eff");
         
         /// Thus far there're no kinematic dependent systematics for low-pt
-        if (m_is_lowpt) m_respond_to_kineDepSyst =false;
+        if (m_is_lowpt || (file == ref_tool.filename_HighEta() && ref_tool.filename_HighEta() != ref_tool.filename_Central())) m_respond_to_kineDepSyst =false;
+        /// As well  as for the high-eta  range.
        
         /// Load the pt_dependent systematics if needed
         if (!m_respond_to_kineDepSyst) return;
@@ -129,7 +130,7 @@ namespace CP {
         /// That one needs to be named properly in the future
         m_sf_KineDepsys = std::make_unique<PtKinematicSystHandler>(ReadHistFromFile(Form("SF_PtFlatness_1%s", m_is_up?"UP" :"DN"), f.get(), time_unit), ReadHistFromFile("SF_PtDep_sys", f.get(), time_unit));
         /// Use the approach from the old sacle-factor file
-        if(!m_sf_KineDepsys->initialize()){    
+        if(!m_sf_KineDepsys->initialize()){           
             m_sf_KineDepsys = std::make_unique<PrimodialPtSystematic>(ReadHistFromFile("SF_PtDep_sys", f.get(), time_unit));
         }        
     }
@@ -171,6 +172,7 @@ namespace CP {
             Error("EfficiencyScaleFactor()", "Could not load the SF pt-dependent systematic for %s and systematic %s", EfficiencyTypeName(m_measurement).c_str(), sysname().c_str() );
             return false;
         }
+        
         if (m_NominalFallBack.get() == this) {
             Error("EfficiencyScaleFactor()", "The EfficiencyScaleFactor %s has itself as Nominal Fall back.", EfficiencyTypeName(m_measurement).c_str());
             m_NominalFallBack.reset();
@@ -178,7 +180,7 @@ namespace CP {
         }
         if (m_NominalFallBack) {
             if (!m_NominalFallBack->sysname().empty() || sysname().empty()){
-                Error("EfficiencyScaleFactor()", "Either nominal is assigned with a fall back or the nominal fall back is invald");
+                Error("EfficiencyScaleFactor()", "Either nominal is assigned with a fall back (%s) or the nominal fall back is invald(%s).", sysname().c_str(), m_NominalFallBack->sysname().c_str() );
                 return false;
             }
         }

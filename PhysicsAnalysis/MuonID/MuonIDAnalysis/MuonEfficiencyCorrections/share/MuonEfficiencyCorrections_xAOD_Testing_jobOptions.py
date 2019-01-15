@@ -39,7 +39,8 @@ WPs = [
 
 for WP in WPs: 
     alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, Release = "180516_HighEtaUpdate")]
-    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, Release="Summer_2018", CustomInput = "/ptmp/mpp/junggjo9/ClusterTP/SFFiles/Summer_2018/")]
+    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, Release="Summer_2018", CustomInput = "/afs/ipp-garching.mpg.de/home/j/junggjo9/Athena/Rel21/MCP/source/MuonTPPostProcessing/python/SFFileCreation/SFFiles/")]
+
 theJob += alg
 
 # Do some additional tweaking:

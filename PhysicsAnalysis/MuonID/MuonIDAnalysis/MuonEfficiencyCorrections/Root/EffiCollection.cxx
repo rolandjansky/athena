@@ -70,18 +70,23 @@ namespace CP {
     }
     bool EffiCollection::CheckConsistency()  {
         if (!m_central_eff || !m_central_eff->CheckConsistency()) {
+            Error("EffiCollection()", "Consistency check for central file failed");
             return false;
         }
         if (!m_calo_eff || !m_calo_eff->CheckConsistency()) {
+            Error("EffiCollection()", "Consistency check for calo file failed");            
             return false;
         }
         if (!m_forward_eff || !m_forward_eff->CheckConsistency()) {
+             Error("EffiCollection()", "Consistency check for forward file failed");            
             return false;
         }
         if (!m_lowpt_central_eff || !m_lowpt_central_eff->CheckConsistency()) {
+            Error("EffiCollection()", "Consistency check for low-pt file failed");    
             return false;
         }
         if (!m_lowpt_calo_eff || !m_lowpt_calo_eff->CheckConsistency()) {
+            Error("EffiCollection()", "Consistency check for low-pt calo file failed"); 
             return false;
         }
         /// At this stage we know that all efficiencies have been loaded 

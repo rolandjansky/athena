@@ -74,6 +74,7 @@ def GetMuonEfficiencyTool(MuonWP="Medium", Release="", CustomInput = ""):
         EffiTool = CfgMgr.CP__MuonEfficiencyScaleFactors(ToolName)
         EffiTool.WorkingPoint = MuonWP
         EffiTool.LowPtThreshold = 15.e3
+        EffiTool.BreakDownSystematics = True
         if len(CustomInput) > 0 : EffiTool.CustomInputFolder = CustomInput
         elif len(Release) > 0: EffiTool.CalibrationRelease = Release
         ToolSvc += EffiTool
