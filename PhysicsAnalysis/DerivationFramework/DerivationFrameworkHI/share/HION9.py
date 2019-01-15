@@ -37,21 +37,21 @@ TrackThinningThreshold=4000 #in MeV
 #Thinning threshods for jets is applied only in data
 largeRThreshold=150
 
-#Trigger selection
-TriggerDict = GetTriggers(project_tag, HIDerivationFlags.doMinBiasSelection(), DerivationName)
-
 expression=''
-for i, key in enumerate(TriggerDict):
-	#Event selection based on DF jets for HI
-	expression = expression + '(' + key + ' && count(DFAntiKt10HIJets.pt >' + str(largeRThreshold) + '*GeV) >=1 ) '
-	expression = expression + '|| (' + key + ' && count(DFAntiKt8HIJets.pt >' + str(largeRThreshold) + '*GeV) >=1 ) '
-	#Event selection based also on non-DF jets for pp
-	if not i == len(TriggerDict) - 1:
-		expression = expression + ' || ' 
-	
-print "==========Event filtering expression=========="
-print expression
-print "=============================================="
+if not HIDerivationFlags.isSimulation():
+    #Trigger selection
+    TriggerDict = GetTriggers(project_tag, HIDerivationFlags.doMinBiasSelection(), DerivationName)
+    for i, key in enumerate(TriggerDict):
+	    #Event selection based on DF jets for HI
+	    expression = expression + '(' + key + ' && count(DFAntiKt10HIJets.pt >' + str(largeRThreshold) + '*GeV) >=1 ) '
+	    expression = expression + '|| (' + key + ' && count(DFAntiKt8HIJets.pt >' + str(largeRThreshold) + '*GeV) >=1 ) '
+	    #Event selection based also on non-DF jets for pp
+	    if not i == len(TriggerDict) - 1:
+		    expression = expression + ' || ' 
+	    
+    print "==========Event filtering expression=========="
+    print expression
+    print "=============================================="
 
 #########Skimming#########
 skimmingTools=[]

@@ -37,20 +37,20 @@ DerivationName=streamName.split('_')[-1]
 TrackThinningThreshold=900 #in MeV
 
 #Trigger selection
-TriggerDict = GetTriggers(project_tag, HIDerivationFlags.doMinBiasSelection(),DerivationName)
-
 expression=''
-for i, key in enumerate(TriggerDict):
-	#Event selection based on DF jets for HI
-	expression = expression + '(' + key + ' && count(DFAntiKt4HIJets.pt >' + str(TriggerDict[key]) + '*GeV) >=1 ) '
-	#Event selection based also on non-DF jets for pp
-	if HIDerivationFlags.isPP: expression = expression + '|| (' + key + ' && count(AntiKt4HIJets.pt >' + str(TriggerDict[key]) + '*GeV) >=1 ) '
-	if not i == len(TriggerDict) - 1:
-		expression = expression + ' || ' 
-	
-print "==========Event filtering expression=========="
-print expression
-print "=============================================="
+if not HIDerivationFlags.isSimulation():    
+    TriggerDict = GetTriggers(project_tag, HIDerivationFlags.doMinBiasSelection(), DerivationName)
+    for i, key in enumerate(TriggerDict):
+	    #Event selection based on DF jets for HI
+	    expression = expression + '(' + key + ' && count(DFAntiKt4HIJets.pt >' + str(TriggerDict[key]) + '*GeV) >=1 ) '
+	    #Event selection based also on non-DF jets for pp
+	    if HIDerivationFlags.isPP: expression = expression + '|| (' + key + ' && count(AntiKt4HIJets.pt >' + str(TriggerDict[key]) + '*GeV) >=1 ) '
+	    if not i == len(TriggerDict) - 1:
+		    expression = expression + ' || ' 
+	    
+    print "==========Event filtering expression=========="
+    print expression
+    print "=============================================="
 
 #Thinning threshods for jets is applied only in data
 JetThinningThreshold = {'AntiKt2HIJets': 35, 'AntiKt4HIJets': 35,'DFAntiKt2HIJets': 35, 'DFAntiKt4HIJets': 35} #in GeV

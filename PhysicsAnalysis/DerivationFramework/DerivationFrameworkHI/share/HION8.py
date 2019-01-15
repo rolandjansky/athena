@@ -35,25 +35,25 @@ streamName = derivationFlags.WriteDAOD_HION8Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_HION8Stream )
 DerivationName=streamName.split('_')[-1]
 TrackThinningThreshold=4000 #in MeV
-
+JetThinningThreshold={}
 #Trigger selection
-TriggerDict = GetTriggers(project_tag, HIDerivationFlags.doMinBiasSelection(), DerivationName)
-
 expression=''
-for i, key in enumerate(TriggerDict):
-	#Event selection based on DF jets for HI
-	expression = expression + '(' + key + ' && count(DFAntiKt4HIJets.pt >' + str(TriggerDict[key]) + '*GeV) >=1 ) '
-	#Event selection based also on non-DF jets for pp
-	if HIDerivationFlags.isPP: expression = expression + '|| (' + key + ' && count(AntiKt4HIJets.pt >' + str(TriggerDict[key]) + '*GeV) >=1 ) '
-	if not i == len(TriggerDict) - 1:
-		expression = expression + ' || ' 
-	
-print "==========Event filtering expression=========="
-print expression
-print "=============================================="
+if not HIDerivationFlags.isSimulation():    
+    TriggerDict = GetTriggers(project_tag, HIDerivationFlags.doMinBiasSelection(), DerivationName)
+    for i, key in enumerate(TriggerDict):
+	    #Event selection based on DF jets for HI
+	    expression = expression + '(' + key + ' && count(DFAntiKt4HIJets.pt >' + str(TriggerDict[key]) + '*GeV) >=1 ) '
+	    #Event selection based also on non-DF jets for pp
+	    if HIDerivationFlags.isPP: expression = expression + '|| (' + key + ' && count(AntiKt4HIJets.pt >' + str(TriggerDict[key]) + '*GeV) >=1 ) '
+	    if not i == len(TriggerDict) - 1:
+		    expression = expression + ' || ' 
+	    
+    print "==========Event filtering expression=========="
+    print expression
+    print "=============================================="
 
-#Thinning threshods for jets is applied only in data and the cut is set to be the 99% point of the lowest trigger threshold
-JetThinningThreshold = {'AntiKt4HIJets': TriggerDict.values()[0], 'AntiKt2HIJets': TriggerDict.values()[0], 'DFAntiKt4HIJets': TriggerDict.values()[0], 'DFAntiKt2HIJets': TriggerDict.values()[0]}
+    #Thinning threshods for jets is applied only in data and the cut is set to be the 99% point of the lowest trigger threshold
+    JetThinningThreshold = {'AntiKt4HIJets': TriggerDict.values()[0], 'AntiKt2HIJets': TriggerDict.values()[0], 'DFAntiKt4HIJets': TriggerDict.values()[0], 'DFAntiKt2HIJets': TriggerDict.values()[0]}
 
 
 #########Skimming#########
