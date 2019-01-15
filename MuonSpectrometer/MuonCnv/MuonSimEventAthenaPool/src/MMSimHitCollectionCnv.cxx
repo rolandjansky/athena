@@ -40,11 +40,11 @@ MMSimHitCollection* MMSimHitCollectionCnv::createTransient() {
     MMSimHitCollection* p_collection(0);
     if( compareClassGuid(p2_guid) ) {
       ATH_MSG_DEBUG("createTransient(): T/P version 2 detected");
-      std::auto_ptr< Muon::MMSimHitCollection_p2 >   col_vect( this->poolReadObject< Muon::MMSimHitCollection_p2 >() );
+      std::unique_ptr< Muon::MMSimHitCollection_p2 >   col_vect( this->poolReadObject< Muon::MMSimHitCollection_p2 >() );
       p_collection = m_TPConverter_p2.createTransient( col_vect.get(), log );
     } else if( compareClassGuid(p1_guid) ) {
       ATH_MSG_DEBUG("createTransient(): T/P version 1 detected");
-      std::auto_ptr< Muon::MMSimHitCollection_p1 >   col_vect( this->poolReadObject< Muon::MMSimHitCollection_p1 >() );
+      std::unique_ptr< Muon::MMSimHitCollection_p1 >   col_vect( this->poolReadObject< Muon::MMSimHitCollection_p1 >() );
       p_collection = m_TPConverter_p1.createTransient( col_vect.get(), log );
     }
   //----------------------------------------------------------------

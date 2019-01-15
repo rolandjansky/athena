@@ -64,15 +64,15 @@ class MMSimHit {
   // member data
   //
   HitID m_MMId;
-  float m_globalTime;
+  double m_globalTime;
   // postStep  
   Amg::Vector3D m_globalPosition;
 
   int m_particleEncoding; // PDG id 
-  float m_kineticEnergy;  // kinetic energy of the particle
+  double m_kineticEnergy;  // kinetic energy of the particle
 
   Amg::Vector3D m_globalDirection;
-  float m_depositEnergy;
+  double m_depositEnergy;
 	
   HepMcParticleLink m_partLink;
 };
