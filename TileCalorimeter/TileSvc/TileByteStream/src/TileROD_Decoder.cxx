@@ -218,7 +218,7 @@ bool TileROD_Decoder::checkBit(const uint32_t* p, int chan) const {
 void TileROD_Decoder::unpack_frag0(uint32_t version,
                                    uint32_t sizeOverhead,
                                    DigitsMetaData_t& digitsMetaData,
-                                   const uint32_t* p, pDigiVec & pDigits) {
+                                   const uint32_t* p, pDigiVec & pDigits) const {
   int gain = 0;
   int n;
   
@@ -518,7 +518,7 @@ void TileROD_Decoder::unpack_frag1(uint32_t /* version */,
                                    uint32_t sizeOverhead,
                                    DigitsMetaData_t& digitsMetaData,
                                    const uint32_t* p,
-                                   pDigiVec & pDigits) {
+                                   pDigiVec & pDigits) const {
   // first word is full frag size, first two words are not data
   int size = *(p) - sizeOverhead;
   // second word is frag ID (0x100-0x4ff) and frag1 type (old and new version).
@@ -747,7 +747,7 @@ void TileROD_Decoder::unpack_frag1(uint32_t /* version */,
 void TileROD_Decoder::unpack_frag2(uint32_t /* version */,
                                    uint32_t sizeOverhead,
                                    const uint32_t* p,
-                                   pRwChVec & pChannel) {
+                                   pRwChVec & pChannel) const {
   // first word is frag size
   int count = *(p);
   // second word is frag ID and frag type
@@ -809,7 +809,7 @@ void TileROD_Decoder::unpack_frag2(uint32_t /* version */,
 void TileROD_Decoder::unpack_frag3(uint32_t /* version */,
                                    uint32_t sizeOverhead,
                                    const uint32_t* p,
-                                   pRwChVec & pChannel) {
+                                   pRwChVec & pChannel) const {
   // first word is frag size
   int count = *(p);
   // second word is frag ID and frag type
@@ -878,7 +878,8 @@ void TileROD_Decoder::unpack_frag4(uint32_t /* version */,
                                    unsigned int unit,
                                    RawChannelMetaData_t& rawchannelMetaData,
                                    const uint32_t* p,
-                                   pRwChVec & pChannel) {
+                                   pRwChVec & pChannel) const
+{
   // first word is frag size
   int count = *(p);
   // second word is frag ID and frag type
@@ -951,7 +952,8 @@ void TileROD_Decoder::unpack_frag5(uint32_t /* version */,
                                    unsigned int unit,
                                    DigitsMetaData_t& digitsMetaData,
                                    const uint32_t* p, pDigiVec & pDigits,
-                                   pRwChVec & pChannel) {
+                                   pRwChVec & pChannel) const
+{
   // first word is frag size
   int count = *(p);
   // second word is frag ID and frag type
@@ -1026,9 +1028,8 @@ void TileROD_Decoder::unpack_frag5(uint32_t /* version */,
 void TileROD_Decoder::unpack_frag6(uint32_t /*version*/,
                                    uint32_t sizeOverhead,
                                    DigitsMetaData_t& digitsMetaData,
-                                   const uint32_t* p, pDigiVec & pDigits) {
-
-
+                                   const uint32_t* p, pDigiVec & pDigits) const
+{
   int size = *(p) - sizeOverhead;
 
   // second word is frag ID (0x100-0x4ff) and frag type
@@ -1888,7 +1889,7 @@ void TileROD_Decoder::unpack_frag15(uint32_t /* version */, const uint32_t* p,
 }
 
 void TileROD_Decoder::unpack_frag16(uint32_t version, const uint32_t* p,
-                                    TileLaserObject & laserObject) {
+                                    TileLaserObject & laserObject) const {
   
   //frag ID
   
@@ -2393,8 +2394,8 @@ void TileROD_Decoder::unpack_frag16(uint32_t version, const uint32_t* p,
 void TileROD_Decoder::unpack_frag17(uint32_t /* version */,
                                     uint32_t sizeOverhead,
                                     const uint32_t* p,
-                                    TileLaserObject & laserObject) {
-  
+                                    TileLaserObject & laserObject) const
+{
   // first word is full frag size, first two words are not data
   int size = *(p);
   // second word is frag ID and frag type
@@ -2641,7 +2642,8 @@ void TileROD_Decoder::unpack_frag17(uint32_t /* version */,
 void TileROD_Decoder::unpack_brod(uint32_t /* version */,
                                   uint32_t sizeOverhead,
                                   const uint32_t* p,
-                                  pBeamVec & pBeam) const {
+                                  pBeamVec & pBeam) const
+{
   // first word is frag size
   int count = *(p);
   // second word is frag ID and frag type
@@ -2826,7 +2828,7 @@ void TileROD_Decoder::unpack_brod(uint32_t /* version */,
   return;
 }
 
-StatusCode TileROD_Decoder::convert(const RawEvent* re, TileL2Container* L2Cnt) {
+StatusCode TileROD_Decoder::convert(const RawEvent* re, TileL2Container* L2Cnt) const {
   
   ATH_MSG_DEBUG( "Reading L2 data from ByteStream" );
   
@@ -2879,7 +2881,7 @@ StatusCode TileROD_Decoder::convert(const RawEvent* re, TileL2Container* L2Cnt) 
   return StatusCode::SUCCESS;
 }
 
-void TileROD_Decoder::fillCollectionL2(const ROBData * rob, TileL2Container & v) {
+void TileROD_Decoder::fillCollectionL2(const ROBData * rob, TileL2Container & v) const {
   uint32_t version = rob->rod_version() & 0xFFFF;
 
   uint32_t error = 0;
@@ -3010,7 +3012,7 @@ void TileROD_Decoder::fillCollectionL2(const ROBData * rob, TileL2Container & v)
   return;
 }
 
-void TileROD_Decoder::fillCollectionL2ROS(const ROBData * rob, TileL2Container & v) {
+void TileROD_Decoder::fillCollectionL2ROS(const ROBData * rob, TileL2Container & v) const {
   uint32_t error = 0;
   uint32_t size = data_size(rob, error);
   const uint32_t * p = get_data(rob);
@@ -3049,7 +3051,7 @@ void TileROD_Decoder::fillCollectionL2ROS(const ROBData * rob, TileL2Container &
   
 }
 
-StatusCode TileROD_Decoder::convertLaser(const RawEvent* re, TileLaserObject* laserObject) {
+StatusCode TileROD_Decoder::convertLaser(const RawEvent* re, TileLaserObject* laserObject) const {
   
   ATH_MSG_DEBUG( "Reading TileLaser data from ByteStream" );
   
@@ -3088,11 +3090,11 @@ StatusCode TileROD_Decoder::convertLaser(const RawEvent* re, TileLaserObject* la
   return StatusCode::SUCCESS;
 } // end of convertLaser()
 
-void TileROD_Decoder::fillTileLaserObj(const ROBData * rob, TileLaserObject & v) {
+void TileROD_Decoder::fillTileLaserObj(const ROBData * rob, TileLaserObject & v) const {
   // v.setBCID(-999);  // TileLaserObject default tag -> Laser only if BCID != -999
   
   uint32_t version = rob->rod_version() & 0xFFFF;
-  
+
   uint32_t error = 0;
   uint32_t wc = 0;
   uint32_t size = data_size(rob, error);
@@ -3196,8 +3198,10 @@ void TileROD_Decoder::fillTileLaserObj(const ROBData * rob, TileLaserObject & v)
   }
 } //end of FillLaserObj
 
-uint32_t TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollection & v,
-                                            D0CellsHLT& d0cells) {
+uint32_t TileROD_Decoder::fillCollectionHLT(const ROBData * rob,
+                                            TileCellCollection & v,
+                                            D0CellsHLT& d0cells) const
+{
   uint32_t version = rob->rod_version() & 0xFFFF;
   // Resets error flag
   uint32_t error = 0x0;
@@ -3362,7 +3366,7 @@ uint32_t TileROD_Decoder::make_copyHLT(bool of2,
                                        const FRwChVec & pChannel,
                                        TileCellCollection & v,
                                        const uint16_t DQuality,
-                                       D0CellsHLT& d0cells)
+                                       D0CellsHLT& d0cells) const
 {
   typedef FRwChVec::const_iterator ITERATOR;
   // int gain = 0;
@@ -3525,9 +3529,15 @@ uint32_t TileROD_Decoder::make_copyHLT(bool of2,
       pCell = v[m_Rw2Cell[sec][5]]; // find cell with channel 5 connected
       pCell->addEnergy(0., 1-m_Rw2Pmt[sec][5], 1);
     }
-    
+
+    // This is looking at event data via member variables.  Won't work with MT.
+    if (Gaudi::Hive::currentContext().slot() > 1) {
+      ATH_MSG_ERROR("TileROD_Decderr::make_copyHLT is not MT-safe but used in "
+                    "a MT job.  Results will likely be wrong.");
+    }
     if (m_MBTS != NULL && MBTS_chan >= 0) {
-      unsigned int idx = m_mapMBTS[frag_id];
+      auto it = m_mapMBTS.find (frag_id);
+      unsigned int idx = it != m_mapMBTS.end() ? it->second : 0u;
       if (idx < (*m_MBTS).size()) { // MBTS present (always last channel)
         TileCell* pCell = (*m_MBTS)[idx];
         const TileFastRawChannel& rawCh = pChannel[MBTS_chan];
@@ -3589,7 +3599,8 @@ uint32_t TileROD_Decoder::make_copyHLT(bool of2,
 void TileROD_Decoder::unpack_frag2HLT(uint32_t /* version */,
                                       unsigned sizeOverhead,
                                       const uint32_t* p,
-                                      FRwChVec & pChannel) {
+                                      FRwChVec & pChannel) const
+{
   // first word is frag size
   int count = *(p);
   
@@ -3629,7 +3640,8 @@ void TileROD_Decoder::unpack_frag2HLT(uint32_t /* version */,
 void TileROD_Decoder::unpack_frag3HLT(uint32_t /* version */,
                                       uint32_t sizeOverhead,
                                       const uint32_t* p,
-                                      FRwChVec & pChannel) {
+                                      FRwChVec & pChannel) const
+{
   // first word is frag size
   int count = *(p);
   // second word is frag ID and frag type
@@ -3694,7 +3706,8 @@ void TileROD_Decoder::unpack_frag4HLT(uint32_t /* version */,
                                       uint32_t sizeOverhead,
                                       unsigned int unit,
                                       const uint32_t* p,
-                                      FRwChVec & pChannel) {
+                                      FRwChVec & pChannel) const
+{
   // first word is frag size
   int count = *(p);
   // second word is frag ID and frag type
@@ -3734,7 +3747,8 @@ void TileROD_Decoder::unpack_frag5HLT(uint32_t /* version */,
                                       uint32_t sizeOverhead,
                                       unsigned int unit,
                                       const uint32_t* p,
-                                      FRwChVec & pChannel) {
+                                      FRwChVec & pChannel) const
+{
   // first word is frag size
   int count = *(p);
   // second word is frag ID and frag type
@@ -3937,8 +3951,8 @@ void TileROD_Decoder::D0CellsHLT::clear() {
 }
 
 void TileROD_Decoder::mergeD0cellsHLT(const D0CellsHLT& d0cells,
-                                      TileCellCollection & v) {
-  
+                                      TileCellCollection & v) const
+{
   TileRawChannelCollection::ID frag_id = (v.identify() & 0x0FFF);
   int ros = (frag_id >> 8);
   if (ros == 1) {
@@ -4040,7 +4054,7 @@ void TileROD_Decoder::initTileMuRcvHid2re() {
 }
 
 const uint32_t*
-TileROD_Decoder::getOFW(int fragId, int unit)
+TileROD_Decoder::getOFW(int fragId, int unit) const
 {
   if (unit >> 2) {
     ATH_MSG_WARNING( "Wrong online reconstruction units for getOFW: unit=" << unit
@@ -4100,7 +4114,7 @@ TileROD_Decoder::getOFW(int fragId, int unit)
               );
     } // gain
   } // ch
-  
+
   ofptr = m_OFPtrs[id] = ofw.data();
   
   return ofptr;
@@ -4114,7 +4128,7 @@ Each container has 2/3 methods associated
      - unpacking : decode words
 */
 
-void TileROD_Decoder::fillCollection_TileMuRcv_Digi(const ROBData* rob , TileDigitsCollection &coll) {
+void TileROD_Decoder::fillCollection_TileMuRcv_Digi(const ROBData* rob , TileDigitsCollection &coll) const {
 
   ATH_MSG_DEBUG( " TileROD_Decoder::fillCollection_TileMuRcv_Digi " );
 
@@ -4174,7 +4188,7 @@ void TileROD_Decoder::fillCollection_TileMuRcv_Digi(const ROBData* rob , TileDig
 
 }
 
-void TileROD_Decoder::fillCollection_TileMuRcv_RawChannel(const ROBData* rob , TileRawChannelCollection &coll) {
+void TileROD_Decoder::fillCollection_TileMuRcv_RawChannel(const ROBData* rob , TileRawChannelCollection &coll) const {
 
   ATH_MSG_DEBUG( " TileROD_Decoder::fillCollection_TileMuRcv_RawChannel " );
 
@@ -4243,7 +4257,7 @@ void TileROD_Decoder::fillCollection_TileMuRcv_RawChannel(const ROBData* rob , T
 return;
 }
 
-StatusCode TileROD_Decoder::convertTMDBDecision(const RawEvent* re, TileMuonReceiverContainer* tileMuRcv)
+StatusCode TileROD_Decoder::convertTMDBDecision(const RawEvent* re, TileMuonReceiverContainer* tileMuRcv) const
 {
 
   ATH_MSG_DEBUG( " TileROD_Decoder::convertTMDBDecision " );
@@ -4273,7 +4287,7 @@ StatusCode TileROD_Decoder::convertTMDBDecision(const RawEvent* re, TileMuonRece
   return StatusCode::SUCCESS;
 }
 
-void TileROD_Decoder::fillContainer_TileMuRcv_Decision(const ROBData* rob ,TileMuonReceiverContainer &cont) {
+void TileROD_Decoder::fillContainer_TileMuRcv_Decision(const ROBData* rob ,TileMuonReceiverContainer &cont) const {
 
   ATH_MSG_DEBUG( "TileROD_Decoder::fillContainer_TileMuRcv_Decision" );
 
@@ -4350,7 +4364,7 @@ return;
 }
 
 void TileROD_Decoder::unpack_frag40(uint32_t collid, uint32_t version, const uint32_t* p, int datasize,
-    TileDigitsCollection &coll) {
+    TileDigitsCollection &coll) const {
 
   int ros = (collid >> 8);
   int drawer = collid & 0xff;
@@ -4408,7 +4422,7 @@ void TileROD_Decoder::unpack_frag40(uint32_t collid, uint32_t version, const uin
   return;
 }
 
-void TileROD_Decoder::unpack_frag41( uint32_t collid, uint32_t version, const uint32_t* p, int datasize, TileRawChannelCollection &coll ){
+void TileROD_Decoder::unpack_frag41( uint32_t collid, uint32_t version, const uint32_t* p, int datasize, TileRawChannelCollection &coll ) const {
 
   int ros=(collid>>8);
   int drawer=collid&0xff;
@@ -4480,7 +4494,7 @@ void TileROD_Decoder::unpack_frag41( uint32_t collid, uint32_t version, const ui
   return;
 }
 
-void TileROD_Decoder::unpack_frag42( uint32_t sourceid, uint32_t version, const uint32_t* p, int datasize, TileMuonReceiverContainer &v ){
+void TileROD_Decoder::unpack_frag42( uint32_t sourceid, uint32_t version, const uint32_t* p, int datasize, TileMuonReceiverContainer &v ) const {
 
   // results are hold in 3 16-bit words.
   //
