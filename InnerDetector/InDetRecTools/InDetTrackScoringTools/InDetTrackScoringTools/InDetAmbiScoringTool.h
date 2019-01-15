@@ -138,6 +138,9 @@ class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool,
 
   bool                  m_mapFilled;
   
+  /** use the ITk scoring tuned to Ambiguity processing or not */
+  bool m_useITkAmbigFcn;
+  
   /** service to get cut values depending on different variable */
   ServiceHandle<IInDetEtaDependentCutsSvc>     m_etaDependentCutsSvc; 
   

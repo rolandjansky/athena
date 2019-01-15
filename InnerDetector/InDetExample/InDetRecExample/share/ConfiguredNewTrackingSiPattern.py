@@ -477,6 +477,7 @@ class  ConfiguredNewTrackingSiPattern:
            InDetAmbiScoringTool.maxZImp                 = NewTrackingCuts.maxZImpact()
          else:
            InDetAmbiScoringTool.InDetEtaDependentCutsSvc = InDetEtaDependentCutsSvc
+           InDetAmbiScoringTool.useITkAmbigFcn           = True
 
          ToolSvc += InDetAmbiScoringTool
          if (InDetFlags.doPrintConfigurables()):

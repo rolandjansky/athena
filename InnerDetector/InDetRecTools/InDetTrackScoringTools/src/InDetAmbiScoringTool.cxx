@@ -37,6 +37,7 @@ InDet::InDetAmbiScoringTool::InDetAmbiScoringTool(const std::string& t,
   m_incidentSvc("IncidentSvc", n),
   m_fieldOn(true),
   m_holesearch(false),
+  m_useITkAmbigFcn(false),
   m_etaDependentCutsSvc("",n)
 {
   declareInterface<Trk::ITrackScoringTool>(this);
@@ -82,6 +83,7 @@ InDet::InDetAmbiScoringTool::InDetAmbiScoringTool(const std::string& t,
   declareProperty("etaWidthEM",        m_etaWidthEm   = 0.05  );
   declareProperty("InputEmClusterContainerName",m_inputEmClusterContainerName); 
   
+  declareProperty("useITkAmbigFcn"             , m_useITkAmbigFcn);
   declareProperty("InDetEtaDependentCutsSvc"   , m_etaDependentCutsSvc);
   
   //set values for scores
@@ -298,12 +300,12 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
       }
     }
     // TRT cut
-    if (numTRT > 0 && numTRT < m_minTRTonTrk) {
+    if (!m_useITkAmbigFcn && numTRT > 0 && numTRT < m_minTRTonTrk) {
       ATH_MSG_DEBUG ("Track has " << numTRT << " TRT hits,  reject it");
       return Trk::TrackScore(0);
     }
     // TRT precision hits cut  
-    if (numTRT >= 15 && ((double)(numTRT-numTRTTube))/numTRT < m_minTRTprecision) {  
+    if (!m_useITkAmbigFcn && numTRT >= 15 && ((double)(numTRT-numTRTTube))/numTRT < m_minTRTprecision) {  
       ATH_MSG_DEBUG ("Track has " << ((double)numTRTTube)/numTRT << " TRT tube hit fraction,  reject it");
       return Trk::TrackScore(0);  
     }  
@@ -552,38 +554,40 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::ambigScore( const Trk::Track& track
   //
   // --- special treatment for TRT hits
   //
-  int iTRT_Hits     = trackSummary.get(Trk::numberOfTRTHits);
-  int iTRT_Outliers = trackSummary.get(Trk::numberOfTRTOutliers);
-  //
-  if ( iTRT_Hits > 0 && m_maxTrtRatio > 0) {
-    // get expected number of TRT hits
-    double nTrtExpected = 30.;
-    nTrtExpected = m_selectortool->minNumberDCs(const_cast<const Trk::TrackParameters*>(track.trackParameters()->front()));
-    ATH_MSG_DEBUG ("Expected number of TRT hits: " << nTrtExpected << " for eta: "
-       << fabs(track.trackParameters()->front()->eta()));
-    double ratio = (nTrtExpected != 0) ? iTRT_Hits / nTrtExpected : 0;
-    if (ratio > m_boundsTrtRatio[m_maxTrtRatio]) ratio = m_boundsTrtRatio[m_maxTrtRatio];
-    for (int i=0; i<m_maxTrtRatio; ++i) {
-      if ( m_boundsTrtRatio[i] < ratio && ratio <= m_boundsTrtRatio[i+1]) {
-        prob*= m_factorTrtRatio[i];
-        ATH_MSG_DEBUG ("Modifier for " << iTRT_Hits << " TRT hits (ratio " << ratio
-                 << ") is : "<< m_factorTrtRatio[i] << "  New score now: " << prob);
-        break;
-      }
-    } 
-  }
-  //
-  if ( iTRT_Hits > 0 && iTRT_Outliers >= 0 && m_maxTrtFittedRatio > 0) {
-    double fitted = double(iTRT_Hits) / double(iTRT_Hits + iTRT_Outliers);
-    if (fitted > m_boundsTrtFittedRatio[m_maxTrtFittedRatio]) fitted = m_boundsTrtFittedRatio[m_maxTrtFittedRatio];
-    for (int i=0; i<m_maxTrtFittedRatio; ++i) {
-      if (fitted <= m_boundsTrtFittedRatio[i+1]) {
-        prob*= m_factorTrtFittedRatio[i];
-        ATH_MSG_DEBUG ("Modifier for TRT fitted ratio of " << fitted
-                 << " is : "<< m_factorTrtFittedRatio[i] << "  New score now: " << prob);
-        break;
-      }
-    } 
+  if (!m_useITkAmbigFcn) {
+    int iTRT_Hits     = trackSummary.get(Trk::numberOfTRTHits);
+    int iTRT_Outliers = trackSummary.get(Trk::numberOfTRTOutliers);
+    //
+    if ( iTRT_Hits > 0 && m_maxTrtRatio > 0) {
+      // get expected number of TRT hits
+      double nTrtExpected = 30.;
+      nTrtExpected = m_selectortool->minNumberDCs(const_cast<const Trk::TrackParameters*>(track.trackParameters()->front()));
+      ATH_MSG_DEBUG ("Expected number of TRT hits: " << nTrtExpected << " for eta: "
+         << fabs(track.trackParameters()->front()->eta()));
+      double ratio = (nTrtExpected != 0) ? iTRT_Hits / nTrtExpected : 0;
+      if (ratio > m_boundsTrtRatio[m_maxTrtRatio]) ratio = m_boundsTrtRatio[m_maxTrtRatio];
+      for (int i=0; i<m_maxTrtRatio; ++i) {
+        if ( m_boundsTrtRatio[i] < ratio && ratio <= m_boundsTrtRatio[i+1]) {
+          prob*= m_factorTrtRatio[i];
+          ATH_MSG_DEBUG ("Modifier for " << iTRT_Hits << " TRT hits (ratio " << ratio
+                   << ") is : "<< m_factorTrtRatio[i] << "  New score now: " << prob);
+          break;
+        }
+      } 
+    }
+    //
+    if ( iTRT_Hits > 0 && iTRT_Outliers >= 0 && m_maxTrtFittedRatio > 0) {
+      double fitted = double(iTRT_Hits) / double(iTRT_Hits + iTRT_Outliers);
+      if (fitted > m_boundsTrtFittedRatio[m_maxTrtFittedRatio]) fitted = m_boundsTrtFittedRatio[m_maxTrtFittedRatio];
+      for (int i=0; i<m_maxTrtFittedRatio; ++i) {
+        if (fitted <= m_boundsTrtFittedRatio[i+1]) {
+          prob*= m_factorTrtFittedRatio[i];
+          ATH_MSG_DEBUG ("Modifier for TRT fitted ratio of " << fitted
+                   << " is : "<< m_factorTrtFittedRatio[i] << "  New score now: " << prob);
+          break;
+        }
+      } 
+    }
   }
 
   // is this a track from the pattern or a fitted track ?
@@ -726,12 +730,21 @@ void InDet::InDetAmbiScoringTool::setupScoreModifiers()
   //
   if (!m_useTRT_AmbigFcn) {
     // --- NewTracking
-    const int maxB_LayerHits = 3;
-    const double goodB_LayerHits[maxB_LayerHits+1] = {0.203, 0.732, 0.081, 0.010};
-    const double fakeB_LayerHits[maxB_LayerHits+1] = {0.808, 0.174, 0.018, 0.002};
-    // put it into the private members
-    m_maxB_LayerHits = maxB_LayerHits;
-    for (int i=0; i<=m_maxB_LayerHits; ++i) m_factorB_LayerHits.push_back(goodB_LayerHits[i]/fakeB_LayerHits[i]);
+    if (m_useITkAmbigFcn) {
+      const int maxB_LayerHitsITk = 8;
+      m_maxB_LayerHits = maxB_LayerHitsITk;
+      const double blayModi[maxB_LayerHitsITk + 1] = {0.25, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5};
+      for (int i = 0; i <= m_maxB_LayerHits; ++i) 
+        m_factorB_LayerHits.push_back(blayModi[i]);
+    } else {
+      const int maxB_LayerHits = 3;
+      const double goodB_LayerHits[maxB_LayerHits+1] = {0.203, 0.732, 0.081, 0.010};
+      const double fakeB_LayerHits[maxB_LayerHits+1] = {0.808, 0.174, 0.018, 0.002};
+      // put it into the private members
+      m_maxB_LayerHits = maxB_LayerHits;
+      for (int i=0; i<=m_maxB_LayerHits; ++i) 
+        m_factorB_LayerHits.push_back(goodB_LayerHits[i]/fakeB_LayerHits[i]);
+    }
   } else {
     // --- BackTracking
     const int maxB_LayerHits = 3;
@@ -747,11 +760,31 @@ void InDet::InDetAmbiScoringTool::setupScoreModifiers()
   //
   if (!m_useTRT_AmbigFcn) {
     // --- NewTracking
-    const int maxPixelHits = 8; // we see up to 8 with IBL (was 6)
-    const double goodPixelHits[maxPixelHits+1] = {0.095, 0.031, 0.118, 0.615, 0.137, 0.011, 0.01   , 0.011, 0.012};
-    const double fakePixelHits[maxPixelHits+1] = {0.658, 0.100, 0.091, 0.124, 0.026, 0.002, 0.001  , 0.001, 0.001};
-    m_maxPixelHits = maxPixelHits;
-    for (int i=0; i<=m_maxPixelHits; ++i) m_factorPixelHits.push_back(goodPixelHits[i]/fakePixelHits[i]);
+    if (m_useITkAmbigFcn) {
+      const int maxPixelHitsITk = 26;
+      m_maxPixelHits = maxPixelHitsITk;
+      double maxScore = 30.0;
+      double minScore = 5.00;
+      int maxBarrel = 10;
+      int minBarrel = 3;
+      int minEnd = 5;
+      
+      double step[2] = {
+        (maxScore - minScore) / (maxBarrel - minBarrel), (maxScore - minScore) / (maxPixelHitsITk - minEnd)
+      };
+      
+      for (int i = 0; i <= maxPixelHitsITk; i++) {
+        if (i < minEnd) m_factorPixelHits.push_back(0.01 + (i * 0.33));
+        else m_factorPixelHits.push_back(minScore + ((i - minEnd) * step[1]));
+      }    
+    } else {
+      const int maxPixelHits = 8; // we see up to 8 with IBL (was 6)
+      const double goodPixelHits[maxPixelHits+1] = {0.095, 0.031, 0.118, 0.615, 0.137, 0.011, 0.01   , 0.011, 0.012};
+      const double fakePixelHits[maxPixelHits+1] = {0.658, 0.100, 0.091, 0.124, 0.026, 0.002, 0.001  , 0.001, 0.001};
+      m_maxPixelHits = maxPixelHits;
+      for (int i=0; i<=m_maxPixelHits; ++i) 
+        m_factorPixelHits.push_back(goodPixelHits[i]/fakePixelHits[i]);
+    }
   } else {
     // --- BackTracking
     const int maxPixelHits = 8; // we see up to 8 with IBL (was 6)
@@ -766,12 +799,31 @@ void InDet::InDetAmbiScoringTool::setupScoreModifiers()
   //
   if (!m_useTRT_AmbigFcn) {
     // --- NewTracking
-    const int maxPixLay = 7; // 3 barrel, 3 endcap, IBL, in practice one should see maybe 5 (was 3)
-    const double goodPixLay[maxPixLay+1] = {0.095, 0.033, 0.131, 0.740,   0.840, 0.940, 1.040,1.140};
-    const double fakePixLay[maxPixLay+1] = {0.658, 0.106, 0.092, 0.144,   0.144, 0.144, 0.144,0.144};
-    // put it into the private members
-    m_maxPixLay = maxPixLay;
-    for (int i=0; i<=m_maxPixLay; ++i) m_factorPixLay.push_back(goodPixLay[i]/fakePixLay[i]);
+    if (m_useITkAmbigFcn) {
+      const int maxPixelLayITk = 16;
+      m_maxPixLay = maxPixelLayITk;
+      double maxScore = 30.0;
+      double minScore = 5.00;
+      int maxBarrel = 10;
+      int minBarrel = 3;
+      int minEnd = 5;
+      
+      double step[2] = {
+        (maxScore - minScore) / (maxBarrel - minBarrel), (maxScore - minScore) / (maxPixelLayITk - minEnd)
+      };
+      
+      for (int i = 0; i <= maxPixelLayITk; i++) {
+        if (i < minEnd) m_factorPixLay.push_back(0.01 + (i * 0.33));
+        else m_factorPixLay.push_back(minScore + ((i - minEnd) * step[1]));
+      }
+    } else {
+      const int maxPixLay = 7; // 3 barrel, 3 endcap, IBL, in practice one should see maybe 5 (was 3)
+      const double goodPixLay[maxPixLay+1] = {0.095, 0.033, 0.131, 0.740,   0.840, 0.940, 1.040,1.140};
+      const double fakePixLay[maxPixLay+1] = {0.658, 0.106, 0.092, 0.144,   0.144, 0.144, 0.144,0.144};
+      // put it into the private members
+      m_maxPixLay = maxPixLay;
+      for (int i=0; i<=m_maxPixLay; ++i) m_factorPixLay.push_back(goodPixLay[i]/fakePixLay[i]);
+    }
   } else {
     // --- BackTracking
     const int maxPixLay = 7; // 3 barrel, 3 endcap, IBL, in practice one should see maybe 5 (was 5)
@@ -797,17 +849,36 @@ void InDet::InDetAmbiScoringTool::setupScoreModifiers()
   // --- total number of SCT+Pixel hits
   //
   // --- NewTracking and BackTracking
-  const int maxHits = 19; // there is a min cut on this anyway !
-  const double goodSiHits[maxHits+1] = { 0.001 , 0.002 , 0.003 , 0.004 , 0.01 , 0.01 , 0.01 ,
-           0.015 , 0.02 , 0.06 , 0.1  , 0.3  , 0.2   , 0.50 , 0.055,
-           0.03  , 0.015  , 0.010  , 0.002  , 0.0005 };
-  const double fakeSiHits[maxHits+1] = { 1.0   , 1.0   , 1.0   , 1.0   , 0.5 , 0.25  , 0.15 ,
-           0.20  , 0.1  , 0.2  , 0.08 , 0.07 , 0.035 , 0.08 , 0.008,
-           0.004 , 0.0015 , 0.0008 , 0.0001 , 0.00001 };
-  // put it into the private members
-  m_maxHits = maxHits;
-  for (int i=0; i<=m_maxHits; ++i) m_factorHits.push_back(goodSiHits[i]/fakeSiHits[i]);
-
+  if (m_useITkAmbigFcn) {
+    const int maxHitsITk = 26;
+    m_maxHits = maxHitsITk;    
+    double maxScore = 40.0;
+    double minScore = 5.00;
+    int maxBarrel = 25;
+    int minBarrel = 9;
+    int minEnd = 12;
+    
+    double step[2] = {
+      (maxScore - minScore) / (maxBarrel - minBarrel), (maxScore - minScore) / (maxHitsITk - minEnd)
+    };
+    
+    for (int i = 0; i <= maxHitsITk; i++) {
+      if (i < minEnd) m_factorHits.push_back(0.01 + (i * 1.0 / minEnd));
+      else m_factorHits.push_back(minScore + ((i - minEnd) * step[1]));
+    }
+  } else {
+    const int maxHits = 19; // there is a min cut on this anyway !
+    const double goodSiHits[maxHits+1] = { 0.001 , 0.002 , 0.003 , 0.004 , 0.01 , 0.01 , 0.01 ,
+             0.015 , 0.02 , 0.06 , 0.1  , 0.3  , 0.2   , 0.50 , 0.055,
+             0.03  , 0.015  , 0.010  , 0.002  , 0.0005 };
+    const double fakeSiHits[maxHits+1] = { 1.0   , 1.0   , 1.0   , 1.0   , 0.5 , 0.25  , 0.15 ,
+             0.20  , 0.1  , 0.2  , 0.08 , 0.07 , 0.035 , 0.08 , 0.008,
+             0.004 , 0.0015 , 0.0008 , 0.0001 , 0.00001 };
+    // put it into the private members
+    m_maxHits = maxHits;
+    for (int i=0; i<=m_maxHits; ++i) m_factorHits.push_back(goodSiHits[i]/fakeSiHits[i]);
+  }
+  
   //
   // --- ratio of TRT hits over expected
   //
