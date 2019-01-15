@@ -949,7 +949,7 @@ class GenerateMenu:
 
         #cpsMenus = ['Physics_pp_v5','Physics_pp_v6','Physics_pp_v7']
         ##if TriggerFlags.triggerMenuSetup() in cpsMenus:
-        if TriggerFlags.triggerMenuSetup().find("pp_v")>=0 and 'pp_v8' not in TriggerFlags.triggerMenuSetup():            
+        if TriggerFlags.triggerMenuSetup().find("pp_v")>=0:            
             log.info('Assigning CPS groups now')
             addCPS(self.triggerPythonConfig,self.signaturesOverwritten)
 
