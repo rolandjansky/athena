@@ -106,6 +106,12 @@ def CscRdoToCscPrepData(name="CscRdoToCscPrepData", **kwargs):
   from MuonRdoToPrepData.MuonRdoToPrepDataConf import CscRdoToCscPrepData as Muon__CscRdoToCscPrepData
   return Muon__CscRdoToCscPrepData(name, **kwargs)
 
+#############################################################################
+
+def MM_PrepDataProviderTool(name="MM_PrepDataProviderTool", **kwargs): 
+  kwargs.setdefault("ClusterBuilderTool","SimpleMMClusterBuilderTool")
+  return Muon__MmRdoToPrepDataTool(name,**kwargs)
+
 ### algorithms for other technologies can use C++ defaults
 
 
