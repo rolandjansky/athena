@@ -7,7 +7,7 @@
  **   File: Trigger/TrigHypothesis/TrigBphysHypo/TrigMultiTrkFex.h
  **
  **
- **   Author:Olya Igonkina
+ **   Author:Olya Igonkina (Nikhef)
  **
  **   Created:   15/07/2016
  **   Modified:     
@@ -76,11 +76,14 @@ class TrigMultiTrkFex: public HLT::AllTEAlgo  {
     
     TrigTimer* m_BmmHypTot;
 
-
+  int m_maxNOutputObject;
   std::string m_trackCollectionKey;
+  std::string m_outputTrackCollectionKey;
   std::string m_bphysCollectionKey;
   int m_nTrk ;
   int m_nTrkQ; // if negative - no cut
+  int m_nTrkVertexChi2; // if negative - no cut
+  float              m_trkMass; // track mass hypothesis for all tracks selected
   std::vector<float> m_ptTrkMin;
   std::vector<float> m_nTrkMassMin; // this has to be in pair
   std::vector<float> m_nTrkMassMax;
@@ -106,16 +109,17 @@ class TrigMultiTrkFex: public HLT::AllTEAlgo  {
   //Monitored variables 
   std::vector<int>   m_mon_Errors;
   std::vector<int>   m_mon_Acceptance;
-  float m_mon_NTrk;
-  float m_mon_highptNTrk;
-  float m_mon_accepted_highptNTrk;
+  int m_mon_NTrk;
+  int m_mon_highptNTrk;
+  int m_mon_accepted_highptNTrk;
   std::vector<float> m_mon_NTrkMass;
   std::vector<float> m_mon_NTrkFitMass;
   std::vector<float> m_mon_NTrkChi2;
-  float m_mon_NPair;
-  float m_mon_acceptedNPair;
+  int m_mon_NPair;
+  int m_mon_acceptedNPair;
   std::vector<float> m_mon_pairMass;
-    
+  float m_mon_NComb;
+  float m_mon_acceptedNComb;
 
 };
 
@@ -155,7 +159,7 @@ template<class Tin, class Tout> bool TrigMultiTrkFex::passNObjects(int nObjMin,
 	    if( pt < 350. && pt>0.01 ) pt *= 1000.;
 	    pts.push_back(pt);	    
 	    outVec.push_back(efmu); 
-	    if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Found muon, pt= " << pt << endmsg;
+	    ATH_MSG_DEBUG( "Found muon, pt= " << pt);
 	  }
       }//}// end loop over muons in one TE
     } // end getFeaturesLinks
@@ -163,17 +167,13 @@ template<class Tin, class Tout> bool TrigMultiTrkFex::passNObjects(int nObjMin,
 
     //=== check if it is enough muons
   if( (int)outVec.size() < nObjMin ) {
-    if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Rejecting: "
-    					 <<" #muons= " <<  outVec.size() 
-    					 << " while need "<< nObjMin << endmsg;
+    ATH_MSG_DEBUG( "Rejecting: "
+		   <<" #muons= " <<  outVec.size() 
+		   << " while need "<< nObjMin );
     return false;
   }
   //== check that muons have correct pts
   std::sort(pts.begin(), pts.end(), std::greater<float>());
-
-  std::cout << " OI check pt \n";
-  for( float pt: pts ) std::cout << pt << " " ;
-  std::cout<< std::endl;
 
   unsigned int Ncheck = std::min( nObjMin, int(ptObjMin.size()) );
   bool failMuonPt = false;
@@ -182,7 +182,7 @@ template<class Tin, class Tout> bool TrigMultiTrkFex::passNObjects(int nObjMin,
       failMuonPt = true;	  
   }
   if( failMuonPt ){
-    if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Fail muon pt cut" << endmsg;
+    ATH_MSG_DEBUG( "Fail muon pt cut" );
     return false;
   }
   // here would be good to limit number of objects to the minimum

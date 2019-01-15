@@ -76,34 +76,29 @@ TrigEFMultiMuFex::~TrigEFMultiMuFex()
 
 HLT::ErrorCode TrigEFMultiMuFex::hltInitialize()
 {
-    if (msgLvl() <= MSG::DEBUG) {
-        msg() << MSG::DEBUG << "Initialization ..." << endmsg;
-        msg() << MSG::DEBUG << "AcceptAll            = "
-        << (m_acceptAll==true ? "True" : "False") << endmsg;
-        msg() << MSG::DEBUG << "Number of input muons expected   = " << m_expectNumberOfInputTE << endmsg;
-        msg() << MSG::DEBUG << "Number of muons used for mass   = " << m_NMassMuon << endmsg;
-        msg() << MSG::DEBUG << "OppositeCharge       = "
-        << (m_oppositeCharge==true ? "True" : "False") << endmsg;
-        msg() << MSG::DEBUG << "LowerMassCut         = " << m_lowerMassCut << endmsg;
-        msg() << MSG::DEBUG << "UpperMassCut         = " << m_upperMassCut << endmsg;
-	msg() << MSG::DEBUG << "check for number of input TEs is " 
-	      << (m_checkNinputTE!=0 ? "ENABLED" : "DISABLED") << endmsg;
+    ATH_MSG_DEBUG("Initialization ..." );
+    ATH_MSG_DEBUG("AcceptAll            = "  << (m_acceptAll==true ? "True" : "False") );
+    ATH_MSG_DEBUG("Number of input muons expected   = " << m_expectNumberOfInputTE );
+    ATH_MSG_DEBUG("Number of muons used for mass   = " << m_NMassMuon );
+    ATH_MSG_DEBUG("OppositeCharge       = "  << (m_oppositeCharge==true ? "True" : "False") );
+    ATH_MSG_DEBUG("LowerMassCut         = " << m_lowerMassCut );
+    ATH_MSG_DEBUG("UpperMassCut         = " << m_upperMassCut );
+    ATH_MSG_DEBUG("check for number of input TEs is " << (m_checkNinputTE!=0 ? "ENABLED" : "DISABLED") );
 
-    }
     if ( timerSvc() ) {
         m_BmmHypTot = addTimer("EFBmmHypTot");
         m_BmmHypVtx = addTimer("EFBmmHypVtxFit");
     }
     if (m_muonAlgo != "TrigMuSuperEF" ) {
-        if ( msgLvl() <= MSG::INFO ) msg() << MSG::INFO <<" Expected algorithm name:  TrigMuSuperEF, but got: " << m_muonAlgo <<endmsg;
+        ATH_MSG_INFO(" Expected algorithm name:  TrigMuSuperEF, but got: " << m_muonAlgo );
         return HLT::BAD_JOB_SETUP;
     }
     
     if (m_bphysHelperTool.retrieve().isFailure()) {
-        msg() << MSG::ERROR << "Can't find TrigBphysHelperUtilsTool" << endmsg;
+        ATH_MSG_ERROR("Can't find TrigBphysHelperUtilsTool" );
         return HLT::BAD_JOB_SETUP;
     } else {
-        if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "TrigBphysHelperUtilsTool found" << endmsg;
+        ATH_MSG_DEBUG("TrigBphysHelperUtilsTool found" );
     }
 
     
@@ -125,15 +120,15 @@ HLT::ErrorCode TrigEFMultiMuFex::hltInitialize()
 
 HLT::ErrorCode TrigEFMultiMuFex::hltFinalize()
 {
-  msg() << MSG::INFO << "in finalize()" << endmsg;
+  ATH_MSG_INFO("in finalize()" );
   MsgStream log(msgSvc(), name());
   
-  msg() << MSG::INFO << "|----------------------- SUMMARY FROM TrigEFMultiMuFex -------------|" << endmsg;
-  msg() << MSG::INFO << "Run on events/2xRoIs " << m_countTotalEvents << "/" << m_countTotalRoI <<  endmsg;
-  msg() << MSG::INFO << "Passed events/2xRoIs " << m_countPassedEvents << "/" << m_countPassedRoIs <<  endmsg;
-  msg() << MSG::INFO << "Passed MuMu pairs:events/2xRoIs "  << m_countPassedmumuPairsEv<<"/"<<m_countPassedmumuPairs2R << endmsg;
-  msg() << MSG::INFO << "Passed BsMass: events/2xRoIs "<< m_countPassedBsMassEv<<"/"<<m_countPassedBsMass2R<<endmsg;
-  msg() << MSG::INFO << "Passed Vtx Fit: events/2xRoIs "<<m_countPassedVtxFitEv<< "/"<<m_countPassedVtxFit2R<< endmsg;
+  ATH_MSG_INFO("|----------------------- SUMMARY FROM TrigEFMultiMuFex -------------|" );
+  ATH_MSG_INFO("Run on events/2xRoIs " << m_countTotalEvents << "/" << m_countTotalRoI );
+  ATH_MSG_INFO("Passed events/2xRoIs " << m_countPassedEvents << "/" << m_countPassedRoIs );
+  ATH_MSG_INFO("Passed MuMu pairs:events/2xRoIs "  << m_countPassedmumuPairsEv<<"/"<<m_countPassedmumuPairs2R );
+  ATH_MSG_INFO("Passed BsMass: events/2xRoIs "<< m_countPassedBsMassEv<<"/"<<m_countPassedBsMass2R);
+  ATH_MSG_INFO("Passed Vtx Fit: events/2xRoIs "<<m_countPassedVtxFitEv<< "/"<<m_countPassedVtxFit2R);
 
   return HLT::OK;
 }
@@ -154,25 +149,24 @@ HLT::ErrorCode TrigEFMultiMuFex::hltFinalize()
 //-------------------------------------------------------------------------------------
 HLT::ErrorCode TrigEFMultiMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass) {
   
-  if ( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << "Running TrigEFMultiMuFex::acceptInputs" << endmsg;
+  ATH_MSG_DEBUG("Running TrigEFMultiMuFex::acceptInputs");
   m_mon_Acceptance.push_back( ACCEPT_Input );
 
   if ( timerSvc() )    m_BmmHypTot->start();
     
     // check the right number of inputTEs
     if ( m_checkNinputTE != 0 && m_expectNumberOfInputTE != inputTE.size()) {
-        msg() << MSG::ERROR << "Got different than " << m_expectNumberOfInputTE << " number of input TEs, found " << inputTE.size() << endmsg;
+        ATH_MSG_ERROR("Got different than " << m_expectNumberOfInputTE << " number of input TEs, found " << inputTE.size() );
         if ( timerSvc() )    m_BmmHypTot->stop();
         m_mon_Errors.push_back( ERROR_WrongNum_Input_TE );
         return HLT::BAD_JOB_SETUP;
     } else {
-        if ( msgLvl() <= MSG::DEBUG )  msg() << MSG::DEBUG << "Found Expected " << m_expectNumberOfInputTE << " inputTEs" << endmsg;
+        ATH_MSG_DEBUG("Found Expected " << m_expectNumberOfInputTE << " inputTEs" );
     }
     // event info
     uint32_t runNumber(0), evtNumber(0), lbBlock(0);
     if (m_bphysHelperTool->getRunEvtLb( runNumber, evtNumber, lbBlock).isFailure()) {
-        msg() << MSG::ERROR << "Error retriving EventInfo" << endmsg;
+        ATH_MSG_ERROR("Error retriving EventInfo" );
         m_mon_Errors.push_back( ERROR_No_EventInfo );
     }
   
@@ -182,7 +176,7 @@ HLT::ErrorCode TrigEFMultiMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pa
     }
     m_countTotalRoI++;
 
-  if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Number of input TEs " << inputTE.size() << endmsg;
+  ATH_MSG_DEBUG(" Number of input TEs " << inputTE.size() );
   pass=true;
   return HLT::OK;
 
@@ -191,14 +185,14 @@ HLT::ErrorCode TrigEFMultiMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pa
 
 HLT::ErrorCode TrigEFMultiMuFex::hltExecute(HLT::TEConstVec& inputTE , HLT::TriggerElement* outputTE)
 {
-    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " In TrigEFMultiMu hltExecute" << endmsg;
+    ATH_MSG_DEBUG(" In TrigEFMultiMu hltExecute" );
     
     xAOD::TrigBphysContainer * xAODTrigBphysColl = new xAOD::TrigBphysContainer;
     xAOD::TrigBphysAuxContainer xAODTrigBphysAuxColl;
     xAODTrigBphysColl->setStore(&xAODTrigBphysAuxColl);
     
     if (m_expectNumberOfInputTE==3) { // call the main processing algorithm
-        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Call processTriMuon " << endmsg;
+        ATH_MSG_DEBUG(" Call processTriMuon " );
         processTriMuon(inputTE, *xAODTrigBphysColl);
     }
     
@@ -219,17 +213,17 @@ HLT::ErrorCode TrigEFMultiMuFex::hltExecute(HLT::TEConstVec& inputTE , HLT::Trig
 
     
     if (xAODTrigBphysColl && xAODTrigBphysColl->size()) {
-        if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "REGTEST: Store Bphys Collection size: " << xAODTrigBphysColl->size() << endmsg;
+        ATH_MSG_DEBUG("REGTEST: Store Bphys Collection size: " << xAODTrigBphysColl->size() );
         
         HLT::ErrorCode sc = attachFeature(outputTE, xAODTrigBphysColl, "EFMultiMuFex" );
         if(sc != HLT::OK) {
-            msg()  << MSG::WARNING << "Failed to store trigBphys Collection" << endmsg;
+            ATH_MSG_WARNING("Failed to store trigBphys Collection" );
             m_mon_Errors.push_back( ERROR_BphysColl_Fails );
             delete xAODTrigBphysColl; xAODTrigBphysColl = nullptr; // assume deletion responsibility
             return HLT::ERROR;
         }
     } else {
-        if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "REGTEST: no bphys collection to store "  << endmsg;
+        ATH_MSG_DEBUG("REGTEST: no bphys collection to store "  );
         delete xAODTrigBphysColl; xAODTrigBphysColl = nullptr;
     }
 
@@ -238,7 +232,7 @@ HLT::ErrorCode TrigEFMultiMuFex::hltExecute(HLT::TEConstVec& inputTE , HLT::Trig
 }
 
 void TrigEFMultiMuFex::processTriMuon(HLT::TEConstVec& inputTE, xAOD::TrigBphysContainer & outputContainer) {
-    if ( msgLvl() <= MSG::VERBOSE ) msg() << MSG::VERBOSE << " In processTriMuon " << endmsg;
+    ATH_MSG_VERBOSE(" In processTriMuon " );
     typedef  ElementLinkVector<xAOD::MuonContainer>  ELVMuons;
     std::vector<ELVMuons>          vec_elv_muons; // for muons, size 3
 
@@ -248,13 +242,13 @@ void TrigEFMultiMuFex::processTriMuon(HLT::TEConstVec& inputTE, xAOD::TrigBphysC
 
     for ( unsigned int i=0; i < nTEs; ++i) {
         ELVMuons elvmuon;
-        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Try to retrieve EFInfo container of muon " << i << endmsg;
+        ATH_MSG_DEBUG("Try to retrieve EFInfo container of muon " << i );
         if(getFeaturesLinks<xAOD::MuonContainer,xAOD::MuonContainer>(inputTE[i], elvmuon)!=HLT::OK ) {
-            if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to get EFInfo feature of muon " << i << ", exiting" << endmsg;
+            ATH_MSG_DEBUG("Failed to get EFInfo feature of muon " << i << ", exiting" );
             m_mon_Errors.push_back( ERROR_GetMuonFailed );
             return;
         }
-        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Found MuonContainer, Got MuonEF " << i << " Feature, size = " << elvmuon.size() << endmsg;
+        ATH_MSG_DEBUG("Found MuonContainer, Got MuonEF " << i << " Feature, size = " << elvmuon.size() );
         vec_elv_muons.push_back(elvmuon);
     } // loop over each roi
     
@@ -264,21 +258,18 @@ void TrigEFMultiMuFex::processTriMuon(HLT::TEConstVec& inputTE, xAOD::TrigBphysC
         int ic(0);
         for ( const auto muelv : vec_elv_muons) {
             // loop over the vector of muon containers
-            msg() << MSG::DEBUG <<  "MuonContainer, Got MuonEF " << ic << " Feature, size = " << muelv.size() << endmsg;
+            msg() << MSG::DEBUG << "MuonContainer, Got MuonEF " << ic << " Feature, size = " << muelv.size() << endmsg;
             int i(0);
             for ( const auto muel: muelv) {
-                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "ELLink: " << i++
+                msg() << MSG::DEBUG << "ELLink: " << i++
                     << " index: "  << muel.index()
                     << " sgkey: "  << muel.dataID()
                     << " hashkey: "<< muel.key()
                     << " valid: "  << muel.isValid()
                     << " ptr: "    << (muel.isValid() ? *muel : nullptr)
                     << endmsg;
-            }
-            i=0;
-            for ( const auto muel: muelv) {
-                if (!muel.isValid()) {++i; continue;}
-                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Muon:   " << i++
+                if (!muel.isValid()) { continue;}
+                msg() << MSG::DEBUG << "Muon:   " << i
                     << " pt: " <<  (*muel)->pt()
                     << " eta: " << (*muel)->eta()
                     << " phi: " << (*muel)->phi()
@@ -289,7 +280,6 @@ void TrigEFMultiMuFex::processTriMuon(HLT::TEConstVec& inputTE, xAOD::TrigBphysC
                     << " "           << (*muel)->trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle)
                     << " "           << (*muel)->trackParticle(xAOD::Muon::CombinedTrackParticle)
                     << endmsg;
-                
             } // for
             // http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Event/xAOD/xAODMuon/xAODMuon/versions/Muon_v1.h
             
@@ -304,7 +294,7 @@ void TrigEFMultiMuFex::processTriMuon(HLT::TEConstVec& inputTE, xAOD::TrigBphysC
             m_bphysHelperTool->addUnique( *muel, uniqueMuons, 0.005,0.005,10,xAOD::Muon::InnerDetectorTrackParticle);
         } // loop over muonEL in each roi
     } // loop over rois
-    if ( msgLvl() <= MSG::DEBUG )msg() << MSG::DEBUG << "Number of unique muons : " << uniqueMuons.size() << endmsg;
+    if ( msgLvl() <= MSG::DEBUG )ATH_MSG_DEBUG("Number of unique muons : " << uniqueMuons.size() );
 
     if (m_NMassMuon == 2 && uniqueMuons.size() > 1) {
         buildDiMu(uniqueMuons,outputContainer);
@@ -319,7 +309,7 @@ void TrigEFMultiMuFex::processTriMuon(HLT::TEConstVec& inputTE, xAOD::TrigBphysC
 
 
 void TrigEFMultiMuFex::buildDiMu (const std::vector<const xAOD::Muon*> &muons, xAOD::TrigBphysContainer & outputContainer) {
-    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " In TrigEFBMuMu buildDiMu" << endmsg;
+    ATH_MSG_DEBUG(" In TrigEFBMuMu buildDiMu" );
     if (muons.size() < 2) return;
     
     std::vector<const xAOD::Muon*>::const_iterator muit_end = muons.end();
@@ -336,15 +326,15 @@ void TrigEFMultiMuFex::buildDiMu (const std::vector<const xAOD::Muon*> &muons, x
             if (!tp2) continue;
             
             if ( (charge1*charge2 > 0) ) {
-                if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Reject All same charges: " << charge1 << " " << charge2 << endmsg;
+                ATH_MSG_DEBUG("Reject All same charges: " << charge1 << " " << charge2 );
                 continue;
             } // same sign
             double mass = m_bphysHelperTool->invariantMass( {tp1,tp2}, {m_massMuon,m_massMuon} );
             if ( mass < m_lowerMassCut || (m_ApplyupperMassCut && mass > m_upperMassCut)  ) {
-                if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Mass buildDiMu: " << mass << " cut failed  "  << endmsg;
+                ATH_MSG_DEBUG("Mass buildDiMu: " << mass << " cut failed  "  );
                 continue;
             } else {
-                if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Mass buildDiMu: " << mass << " cut passed  "  << endmsg;
+                ATH_MSG_DEBUG("Mass buildDiMu: " << mass << " cut passed  "  );
                 m_mon_Acceptance.push_back( ACCEPT_InvMass_Cut );
             }
 
@@ -360,7 +350,7 @@ void TrigEFMultiMuFex::buildDiMu (const std::vector<const xAOD::Muon*> &muons, x
             xaodobj->initialise(0, 0., 0., xAOD::TrigBphys::MULTIMU, mass,xAOD::TrigBphys::EF);
             std::vector<double> masses(trksEL.size(),m_massMuon);
             if (m_bphysHelperTool->vertexFit(xaodobj,trksEL,masses).isFailure()) {
-                if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Problems with vertex fit in buildTriMu"  << endmsg;
+                ATH_MSG_DEBUG("Problems with vertex fit in buildTriMu"  );
             }
             m_mon_mu1pT.push_back(tp1->p4().Pt()*0.001);
             m_mon_mu2pT.push_back(tp2->p4().Pt()*0.001);
@@ -380,7 +370,7 @@ void TrigEFMultiMuFex::buildDiMu (const std::vector<const xAOD::Muon*> &muons, x
 } // buildDiMu
 
 void TrigEFMultiMuFex::buildTriMu(const std::vector<const xAOD::Muon*> &muons, xAOD::TrigBphysContainer & outputContainer) {
-    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " In TrigEFBMuMu buildTriMu" << endmsg;
+    ATH_MSG_DEBUG(" In TrigEFBMuMu buildTriMu" );
     if (muons.size() < 3) return;
 
     std::vector<const xAOD::Muon*>::const_iterator muit_end = muons.end();
@@ -403,16 +393,16 @@ void TrigEFMultiMuFex::buildTriMu(const std::vector<const xAOD::Muon*> &muons, x
                 if (!tp3) continue;
 
                 if ( (charge1*charge2 > 0) && (charge1*charge3 > 0) && (charge2*charge3 > 0) ) {
-                    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Reject All same charges: " << charge1 << " " << charge2 << " " << charge3 << endmsg;
+                    ATH_MSG_DEBUG("Reject All same charges: " << charge1 << " " << charge2 << " " << charge3 );
                     continue;
                 } // same sign
                 
                 double mass = m_bphysHelperTool->invariantMass( {tp1,tp2,tp3}, {m_massMuon,m_massMuon,m_massMuon} );
                 if ( mass < m_lowerMassCut || (m_ApplyupperMassCut && mass > m_upperMassCut)  ) {
-                    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Mass buildTriMu: " << mass << " cut failed  "  << endmsg;
+                    ATH_MSG_DEBUG("Mass buildTriMu: " << mass << " cut failed  "  );
                     continue;
                 } else {
-                    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Mass buildTriMu: " << mass << " cut passed  "  << endmsg;
+                    ATH_MSG_DEBUG("Mass buildTriMu: " << mass << " cut passed  "  );
                     m_mon_Acceptance.push_back( ACCEPT_InvMass_Cut );
                 }
                 
@@ -429,7 +419,7 @@ void TrigEFMultiMuFex::buildTriMu(const std::vector<const xAOD::Muon*> &muons, x
                 xaodobj->initialise(0, 0., 0., xAOD::TrigBphys::MULTIMU, mass,xAOD::TrigBphys::EF);
                 std::vector<double> masses(trksEL.size(),m_massMuon);
                 if (m_bphysHelperTool->vertexFit(xaodobj,trksEL,masses).isFailure()) {
-                    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Problems with vertex fit in buildTriMu"  << endmsg;
+                    ATH_MSG_DEBUG("Problems with vertex fit in buildTriMu"  );
                 }
                 m_bphysHelperTool->fillTrigObjectKinematics(xaodobj,{tp1,tp2,tp3});
                 
@@ -439,7 +429,3 @@ void TrigEFMultiMuFex::buildTriMu(const std::vector<const xAOD::Muon*> &muons, x
     
     
 } // buildTriMu
-
-
-
-

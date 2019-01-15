@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AthenaMonitoring_HistogramFiller_h
@@ -9,7 +9,6 @@
 #include <mutex>
 #include <memory>
 #include <vector>
-
 
 #include "TH1.h"
 #include "TH2.h"
@@ -69,7 +68,7 @@ namespace Monitored {
   public:
     HistogramFillerFactory(const ServiceHandle<ITHistSvc>& histSvc, std::string groupName);
     virtual ~HistogramFillerFactory();
-    HistogramFiller* create(const HistogramDef& def); //!< creates filler*/
+    HistogramFiller* create(const HistogramDef& def); //!< creates filler
     
   private:
     template<class H, class HBASE, typename... Types> 
@@ -91,7 +90,7 @@ namespace Monitored {
   };
   
   /**
-   * @brief filler for plain 1D hisograms 
+   * @brief filler for plain 1D histograms
    */
   class HistogramFiller1D : public HistogramFiller {
   public: 
@@ -104,7 +103,7 @@ namespace Monitored {
   };
   
   /**
-   * @brief filler for 1D hisograms filled in cummulative mode
+   * @brief filler for 1D histograms filled in cummulative mode
    */
   class CumulativeHistogramFiller1D : public HistogramFiller1D {
   public:
@@ -144,7 +143,7 @@ namespace Monitored {
   };
   
   /**
-   * @brief filler for plain 2D hisograms 
+   * @brief filler for plain 2D histogram
    */
   class HistogramFiller2D : public HistogramFiller {
   public:

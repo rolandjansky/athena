@@ -360,8 +360,6 @@ StatusCode HLTXAODBphysMonTool::proc() {
         return StatusCode::SUCCESS;
     }
     
-    if (divideEfficiencyGroups().isFailure()){ATH_MSG_WARNING("Problems in divideEfficiencyGroups");}
-    
     return StatusCode::SUCCESS;
 } // proc
 
@@ -496,45 +494,44 @@ StatusCode HLTXAODBphysMonTool::bookEfficiencyGroups(){
     // L1 & L2 efficieny
     // EF efficieny
     // noVtx_noOs efficiency
-    if (bookEfficiencyGroup("noVtx_noOS").isFailure()) {ATH_MSG_ERROR("Problems in Eff. booking"); return StatusCode::FAILURE;}
     for (const auto& effpair: m_efficiency_chains) {
-        if (bookEfficiencyGroup(Form("noVtx_noOS_%s",effpair.first.c_str())).isFailure()) {
-            ATH_MSG_ERROR("Problems in Eff. booking " << effpair.first << " " << effpair.second);
-            return StatusCode::FAILURE;
-        }
         if (bookEfficiencyGroup(Form("noVtx_noOS_%s_eff",effpair.first.c_str())).isFailure()) {
             ATH_MSG_ERROR("Problems in Eff. booking Eff " << effpair.first << " " << effpair.second);
             return StatusCode::FAILURE;
         }
-
     } // for
     
     // L1Topo efficiencies
     
     return StatusCode::SUCCESS;
 }
-StatusCode HLTXAODBphysMonTool::bookEfficiencyGroup(const std::string & groupName) {
-    //book the hists for the efficiency groups
+
+StatusCode HLTXAODBphysMonTool::bookEfficiencyGroup(const std::string & groupName){  
+    //book profile for the efficiency groups
     ATH_MSG_DEBUG("bookEfficiencyGroup: " << groupName);
     
+    int nBins(40);
+    
     TString prefix = m_prefix + "_" + groupName; // convert from std::string to TString
-
+    
+    if (groupName.find("BMuMuX")!=std::string::npos) nBins=20;     
     
     // *************** SHIFTER ****************** //
     addMonGroup(new MonGroup(this,m_base_path_shifter+"/Efficiency/"+groupName,run));
     ATH_MSG_DEBUG("bookEfficiencyGroup: Example hist name: " << prefix+"_eta");
-
-    addHistogram( new TH1F(prefix+"_eta", prefix+"_eta", 60, -3.,3.) );
-    addHistogram( new TH1F(prefix+"_phi", prefix+"_phi", 60, -TMath::Pi(), TMath::Pi()) );
-    addHistogram( new TH1F(prefix+"_pt",  prefix+"_pt", 60, 0,50) );
     
-    addHistogram( new TH1F(prefix+"_eta1", prefix+"_eta1", 60, -3.,3.) );
-    addHistogram( new TH1F(prefix+"_phi1", prefix+"_phi1", 60, -TMath::Pi(), TMath::Pi()) );
-    addHistogram( new TH1F(prefix+"_pt1",  prefix+"_pt1", 60, 0,50) );
-    addHistogram( new TH1F(prefix+"_eta2", prefix+"_eta2", 60, -3.,3.) );
-    addHistogram( new TH1F(prefix+"_phi2", prefix+"_phi2", 60, -TMath::Pi(), TMath::Pi()) );
-    addHistogram( new TH1F(prefix+"_pt2",  prefix+"_pt2", 60, 0,50) );
-
+    addProfile  ( new TProfile(prefix+"_eta", prefix+"_eta"   ,nBins,-3.,3.) );
+    addProfile  ( new TProfile(prefix+"_phi", prefix+"_phi"   ,nBins, -TMath::Pi(), TMath::Pi()) );
+    addProfile  ( new TProfile(prefix+"_pt",  prefix+"_pt"    ,nBins, 0,50) );
+    
+    addProfile  ( new TProfile(prefix+"_eta1", prefix+"_eta1", nBins, -3.,3.) );
+    addProfile  ( new TProfile(prefix+"_phi1", prefix+"_phi1", nBins, -TMath::Pi(), TMath::Pi()) );
+    addProfile  ( new TProfile(prefix+"_pt1",  prefix+"_pt1" , nBins, 0,50) );
+    
+    addProfile  ( new TProfile(prefix+"_eta2", prefix+"_eta2", nBins, -3.,3.) );
+    addProfile  ( new TProfile(prefix+"_phi2", prefix+"_phi2", nBins, -TMath::Pi(), TMath::Pi()) );
+    addProfile  ( new TProfile(prefix+"_pt2",  prefix+"_pt2" , nBins, 0,50) );
+    
     
     // *************** EXPERT ****************** //
     addMonGroup(new MonGroup(this,m_base_path_expert+"/Efficiency/"+groupName,run));
@@ -551,41 +548,85 @@ StatusCode HLTXAODBphysMonTool::fillEfficiencyGroups() {
     // L1 & L2 efficieny
     // EF efficieny
     // noVtx_noOs efficiency
-    if (fillEfficiencyGroup("noVtx_noOS",m_trigchain_denomnoVtxOS).isFailure()) {ATH_MSG_ERROR("Problems in Eff. filling");}
-    for (const auto& effpair: m_efficiency_chains) {
-        if (fillEfficiencyGroup(Form("noVtx_noOS_%s",effpair.first.c_str()),effpair.second).isFailure()) {
-            ATH_MSG_ERROR("Problems in Eff. booking noVtx_noOS " << effpair.first << " " << effpair.second); continue;
-        } // if
-    } // for
-
-    // L1Topo efficiencies
-
-    return StatusCode::SUCCESS;
-}
-StatusCode HLTXAODBphysMonTool::fillEfficiencyGroup(const std::string & groupName, const std::string & chainName){
-    // helper method for dedicated Efficiency chains
-    ATH_MSG_DEBUG("fillEfficiencyGroup: " << groupName << " " << chainName);
-    TString prefix = m_prefix + "_" + groupName; // convert from std::string to TString
+    m_efficiency_denomnoVtxOS_pairs.clear();
     
-
-    const auto cg   = getTDT()->getChainGroup(chainName);
-    bool isPassed   (cg-> isPassed(TrigDefs::Physics));
-
-    if (!isPassed) return StatusCode::SUCCESS;
+    const auto cg   = getTDT()->getChainGroup(m_trigchain_denomnoVtxOS);
+    bool isPassed   (cg-> isPassed(TrigDefs::Physics)); 
     
-
+    if (isPassed){
     
-    const auto& fc       = getTDT()->features(chainName);
-    const auto& fc_bphys   = fc.get<xAOD::TrigBphysContainer>();
+      const auto& fc       = getTDT()->features(m_trigchain_denomnoVtxOS);
+      const auto& fc_bphys = fc.get<xAOD::TrigBphysContainer>();
+      
+      ATH_MSG_DEBUG("Size of vector: m_trigchain_denomnoVtxOS " << fc_bphys.size());
     
-
-    ATH_MSG_DEBUG("Size of vector< Trig::Feature<xAOD::TrigBphysContainer> > = " << fc_bphys.size());
-    
-    for( auto cont_bphys : fc_bphys ) {
+      for( auto cont_bphys : fc_bphys ) {
         ATH_MSG_DEBUG("REGTEST Got Bphysics container, size = " << cont_bphys.cptr()->size());
         for ( auto bphys:  *(cont_bphys.cptr()) )  {
+             ATH_MSG_DEBUG("REGTEST Level = " << bphys->level());
+             // ignore l2 objects
+             if ((bphys->level() != xAOD::TrigBphys::EF) &&  (bphys->level() != xAOD::TrigBphys::HLT)) continue;
+             
+             const std::vector<ElementLink<xAOD::TrackParticleContainer> > trackVector = bphys->trackParticleLinks();
+             if (trackVector.size() <2) {
+                 ATH_MSG_DEBUG("REGTEST Unexpected number of tracks " << trackVector.size());
+                 continue;
+             }
+           
+             const xAOD::TrackParticle *trk1(nullptr),*trk2(nullptr);
+             if (!trackVector.at(0).isValid() || (*trackVector.at(0) == nullptr)) {
+                 ATH_MSG_DEBUG("REGTEST Track 1 is invalid");
+                 continue;
+             }
+             if (!trackVector.at(1).isValid() || (*trackVector.at(1) == nullptr)) {
+                 ATH_MSG_DEBUG("REGTEST Track 2 is invalid");
+                 continue;
+             }
+             trk1 = *trackVector.at(0);
+             trk2 = *trackVector.at(1);
+
+             auto cur_pair_efficiency     = std::make_pair (trk1, trk2);
+             auto cur_pair_efficiency_rev = std::make_pair (trk2, trk1);
+             bool sawThisPair_rev=std::find(m_efficiency_denomnoVtxOS_pairs.begin(),m_efficiency_denomnoVtxOS_pairs.end(),cur_pair_efficiency_rev)!=m_efficiency_denomnoVtxOS_pairs.end();
+             
+             if(!sawThisPair_rev){
+             m_efficiency_denomnoVtxOS_pairs.push_back(cur_pair_efficiency);
+             }
+        }
+      }
+
+   
+        
+      for (const auto& effpair: m_efficiency_chains) {
+        if (fillEfficiencyGroup(Form("noVtx_noOS_%s_eff",effpair.first.c_str()),effpair.second).isFailure()) {
+            ATH_MSG_ERROR("Problems in Eff. booking noVtx_noOS " << effpair.first << " " << effpair.second); 
+            continue;
+        }
+      }
+    } 
+   
+    
+    // L1Topo efficiencies
+    return StatusCode::SUCCESS;
+}
+
+StatusCode HLTXAODBphysMonTool::fillEfficiencyGroup(const std::string & groupName, const std::string & chainName){
+     // helper method for dedicated Efficiency chains
+     ATH_MSG_DEBUG("fillEfficiencyGroup: " << groupName << " " << chainName);
+     TString prefix = m_prefix + "_" + groupName; // convert from std::string to TString
+     
+
+     const auto& fc       = getTDT()->features(chainName);
+     const auto& fc_bphys   = fc.get<xAOD::TrigBphysContainer>();
+     
+     std::list<std::pair<const xAOD::TrackParticle *,const xAOD::TrackParticle *>>cur_pairs_list(m_efficiency_denomnoVtxOS_pairs);                           
+                               
+     ATH_MSG_DEBUG("Size of vector< Trig::Feature<xAOD::TrigBphysContainer> > = " << fc_bphys.size());
+    
+     for( auto cont_bphys : fc_bphys ) {
+       ATH_MSG_DEBUG("REGTEST Got Bphysics container, size = " << cont_bphys.cptr()->size());
+       for ( auto bphys:  *(cont_bphys.cptr()) )  {
             ATH_MSG_DEBUG("REGTEST Level = " << bphys->level());
-            
             // ignore l2 objects
             if ((bphys->level() != xAOD::TrigBphys::EF) &&  (bphys->level() != xAOD::TrigBphys::HLT)) continue;
             
@@ -594,6 +635,7 @@ StatusCode HLTXAODBphysMonTool::fillEfficiencyGroup(const std::string & groupNam
                 ATH_MSG_DEBUG("REGTEST Unexpected number of tracks " << trackVector.size());
                 continue;
             }
+          
             const xAOD::TrackParticle *trk1(nullptr),*trk2(nullptr);
             if (!trackVector.at(0).isValid() || (*trackVector.at(0) == nullptr)) {
                 ATH_MSG_DEBUG("REGTEST Track 1 is invalid");
@@ -606,18 +648,21 @@ StatusCode HLTXAODBphysMonTool::fillEfficiencyGroup(const std::string & groupNam
             trk1 = *trackVector.at(0);
             trk2 = *trackVector.at(1);
             
+            auto cur_pair    = std::make_pair (trk1, trk2);
+            auto cur_pair_rev= std::make_pair (trk2, trk1);             
+            bool sawThisPair      =std::find(cur_pairs_list.begin(),cur_pairs_list.end(),cur_pair    )!=cur_pairs_list.end();
+            bool sawThisPair_rev  =std::find(cur_pairs_list.begin(),cur_pairs_list.end(),cur_pair_rev)!=cur_pairs_list.end();
+
+
             // refitted track parameters
             TLorentzVector origTrk1 = trk1->p4();
             TLorentzVector origTrk2 = trk2->p4();
             
             TLorentzVector orig_onia = origTrk1 + origTrk2;
             
-            //double mass      = orig_onia.M();
-            double eta     = orig_onia.Eta();  // mass from refitted tracks
-            double pt      = orig_onia.Pt();                        // pt from refitted tracks
-            double phi     = orig_onia.Phi();                        // pt from refitted tracks
-            //double rapidity  = orig_onia.Rapidity();
-            //double abs_rapidity = fabs(rapidity);
+            double eta     = orig_onia.Eta(); 
+            double pt      = orig_onia.Pt();  
+            double phi     = orig_onia.Phi(); 
             
             double phiTrk1 = origTrk1.Phi();
             double etaTrk1 = origTrk1.Eta();
@@ -626,188 +671,77 @@ StatusCode HLTXAODBphysMonTool::fillEfficiencyGroup(const std::string & groupNam
             double phiTrk2 = origTrk2.Phi();
             double etaTrk2 = origTrk2.Eta();
             double ptTrk2  = origTrk2.Pt();
-            
 
-            // ******** SHIFTER ********* //
             ATH_MSG_VERBOSE("Efficiency shifter hists " << m_base_path_shifter << " " << groupName);
-            setCurrentMonGroup(m_base_path_shifter+"/Efficiency/"+groupName);
-            hist(Form("%s_eta",prefix.Data()))->Fill(eta);
             ATH_MSG_VERBOSE("Efficiency eta ");
-            hist(Form("%s_phi",prefix.Data()))->Fill(phi);
-            hist(Form("%s_pt", prefix.Data()))->Fill(pt*0.001);
-            
-            hist(Form("%s_eta1",prefix.Data()))->Fill(etaTrk1);
-            hist(Form("%s_phi1",prefix.Data()))->Fill(phiTrk1);
-            hist(Form("%s_pt1", prefix.Data()))->Fill(ptTrk1*0.001);
-            hist(Form("%s_eta2",prefix.Data()))->Fill(etaTrk2);
-            hist(Form("%s_phi2",prefix.Data()))->Fill(phiTrk2);
-            hist(Form("%s_pt2", prefix.Data()))->Fill(ptTrk2*0.001);
-            
+            if ((sawThisPair) || (sawThisPair_rev)) {
+               
+               if(sawThisPair) { 
+                 cur_pairs_list.erase(std::find(cur_pairs_list.begin(),cur_pairs_list.end(),cur_pair    )); 
+               }           
+               else  { 
+                 cur_pairs_list.erase(std::find(cur_pairs_list.begin(),cur_pairs_list.end(),cur_pair_rev)); 
+               }         
+                // ******** SHIFTER ********* //
+               setCurrentMonGroup(m_base_path_shifter+"/Efficiency/"+groupName);
+               profile(Form("%s_eta",prefix.Data()))->Fill(eta,1.0,1.0);
+               profile(Form("%s_phi",prefix.Data()))->Fill(phi,1.0,1.0);
+               profile(Form("%s_pt", prefix.Data()))->Fill(pt*0.001,1.0,1.0);
+               profile(Form("%s_eta1",prefix.Data()))->Fill(etaTrk1,1.0,1.0);
+               profile(Form("%s_phi1",prefix.Data()))->Fill(phiTrk1,1.0,1.0);
+               profile(Form("%s_pt1", prefix.Data()))->Fill(ptTrk1*0.001,1.0,1.0);
+               profile(Form("%s_eta2",prefix.Data()))->Fill(etaTrk2,1.0,1.0);
+               profile(Form("%s_phi2",prefix.Data()))->Fill(phiTrk2,1.0,1.0);
+               profile(Form("%s_pt2", prefix.Data()))->Fill(ptTrk2*0.001,1.0,1.0);
+             }
+             // ******** EXPERT ********* //
+             setCurrentMonGroup(m_base_path_expert+"/Efficiency/"+groupName);
+             ATH_MSG_VERBOSE("Efficiency expert hists " << m_base_path_expert << " " << groupName);
 
-            
-            // ******** EXPERT ********* //
-            setCurrentMonGroup(m_base_path_expert+"/Efficiency/"+groupName);
-            ATH_MSG_VERBOSE("Efficiency expert hists " << m_base_path_expert << " " << groupName);
-
-        } // loop over bphys objects
-    } // loop over containers
-    
-
-
-    
-    
-    return StatusCode::SUCCESS;
+        }  
+     }
+     for(auto It=cur_pairs_list.begin();It!=cur_pairs_list.end();It++) {
+   
+        auto cur_pair=*It;
+        // refitted track parameters
+        TLorentzVector origTrk1 = cur_pair.first ->p4();
+        TLorentzVector origTrk2 = cur_pair.second->p4();
+        
+        TLorentzVector orig_onia = origTrk1 + origTrk2;
+        
+        double eta     = orig_onia.Eta();  
+        double pt      = orig_onia.Pt();                      
+        double phi     = orig_onia.Phi();                        
+        
+        double phiTrk1 = origTrk1.Phi();
+        double etaTrk1 = origTrk1.Eta();
+        double ptTrk1  = origTrk1.Pt();
+        
+        double phiTrk2 = origTrk2.Phi();
+        double etaTrk2 = origTrk2.Eta();
+        double ptTrk2  = origTrk2.Pt();
+        // ******** SHIFTER ********* //
+        ATH_MSG_VERBOSE("Efficiency shifter hists " << m_base_path_shifter << " " << groupName);
+        setCurrentMonGroup(m_base_path_shifter+"/Efficiency/"+groupName);
+        profile(Form("%s_eta",prefix.Data()))->Fill(eta,0.0,1.0);
+        profile(Form("%s_phi",prefix.Data()))->Fill(phi,0.0,1.0);
+        profile(Form("%s_pt", prefix.Data()))->Fill(pt*0.001,0.0,1.0);
+        profile(Form("%s_eta1",prefix.Data()))->Fill(etaTrk1,0.0,1.0);
+        profile(Form("%s_phi1",prefix.Data()))->Fill(phiTrk1,0.0,1.0);                     
+        profile(Form("%s_pt1", prefix.Data()))->Fill(ptTrk1*0.001,0.0,1.0); 
+        profile(Form("%s_eta2",prefix.Data()))->Fill(etaTrk2,0.0,1.0);       
+        profile(Form("%s_phi2",prefix.Data()))->Fill(phiTrk2,0.0,1.0);      
+        profile(Form("%s_pt2", prefix.Data()))->Fill(ptTrk2*0.001,0.0,1.0);             
+         
+                
+        // ******** EXPERT ********* //
+        setCurrentMonGroup(m_base_path_expert+"/Efficiency/"+groupName+"_effV2");
+        ATH_MSG_VERBOSE("Efficiency expert hists " << m_base_path_expert << " " << groupName);
+     }
+     return StatusCode::SUCCESS;
 }
 
 
-
-StatusCode HLTXAODBphysMonTool::divideEfficiencyGroups() {
-    //! fill the hists for the efficiency groups
-    ATH_MSG_DEBUG("divideEfficiencyGroups: ");
-
-    // ID Tracking efficiency
-    // MS efficieny
-    // L1 & L2 efficieny
-    // EF efficieny
-    // noVtx_noOs efficiency
-    for (const auto& effpair: m_efficiency_chains) {
-        if (divideEfficiencyGroup("noVtx_noOS",Form("noVtx_noOS_%s",effpair.first.c_str()),
-                                  "noVtx_noOS",effpair.second).isFailure()) {
-            ATH_MSG_ERROR("Problems in Eff. divide noVtx_noOS " << effpair.first << " " << effpair.second);
-            continue;
-        } // if
-    } // for
-    
-    // L1Topo efficiencies
-
-    return StatusCode::SUCCESS;
-}
-
-StatusCode HLTXAODBphysMonTool::divideEfficiencyGroup(const std::string & denomGroupName, const std::string & numeratorGroupName,
-                                 const std::string & denominatorChainName, const std::string & numeratorChainName){
-    //! helper method for dedicated Efficiency chains
-    // The chain names aren't really needed, but here for debugging / future useage. 
-    
-    ATH_MSG_DEBUG("divideEfficiencyGroup: " << denomGroupName << "  " << numeratorGroupName
-                  << " denom: " << denominatorChainName << " num: " << numeratorChainName);
-
-    const std::string denomName = (m_prefix + "_" + denomGroupName);
-    const std::string numerName = (m_prefix + "_" + numeratorGroupName);
-    const std::string efficName = (m_prefix + "_" + numeratorGroupName+"_eff");
-
-    const std::string denomPathShifter = m_base_path_shifter+"/Efficiency/"+denomGroupName;
-    const std::string numerPathShifter = m_base_path_shifter+"/Efficiency/"+numeratorGroupName;
-    const std::string efficPathShifter = m_base_path_shifter+"/Efficiency/"+numeratorGroupName+"_eff";
-    
-    
-    ATH_MSG_DEBUG("divideEfficiencyGroup: denom: " << denomName);
-    ATH_MSG_DEBUG("divideEfficiencyGroup: numer: " << numerName);
-    ATH_MSG_DEBUG("divideEfficiencyGroup: effic: " << efficName);
-    
-    
-    // do a test retrival
-    //    setCurrentMonGroup(m_base_path_shifter+"/Efficiency/"+numeratorGroupName);
-    //    TH1* hn_test  = hist(Form("%s_eta",numerName.c_str()));
-    TH1* hn_test  = hist(Form("%s_eta",numerName.c_str()), m_base_path_shifter+"/Efficiency/"+numeratorGroupName );
-    if (!hn_test) {
-        ATH_MSG_ERROR("Hist not found: " << Form("%s_eta",numerName.c_str()));
-    } else {
-        ATH_MSG_DEBUG("Hist found: " << Form("%s_eta",numerName.c_str()) << " " << hn_test);
-    }
-    
-    TH1* hd_test  = hist(Form("%s_eta",denomName.c_str()), m_base_path_shifter+"/Efficiency/"+denomGroupName);
-    if (!hd_test) {
-        ATH_MSG_ERROR("Hist not found: " << Form("%s_eta",denomName.c_str()));
-    } else {
-        ATH_MSG_DEBUG("Hist found: " << Form("%s_eta",denomName.c_str()) << " " << hd_test);
-    }
-    
-    TH1* hr_test  = hist(Form("%s_eta",efficName.c_str()), m_base_path_shifter+"/Efficiency/"+numeratorGroupName+"_eff");
-    if (!hr_test) {
-        ATH_MSG_ERROR("Hist not found: " << Form("%s_eta",efficName.c_str()));
-    } else {
-        ATH_MSG_DEBUG("Hist found: " << Form("%s_eta",efficName.c_str()) << " " << hr_test);
-    }
- 
-    
-    
-
-    // get the denominator histograms
-
-    // ******** SHIFTER ********* //
-    setCurrentMonGroup(m_base_path_shifter+"/Efficiency/"+denomGroupName);
-    
-    TH1* hd_eta  = hist(Form("%s_eta",denomName.c_str()),denomPathShifter);
-    TH1* hd_phi  = hist(Form("%s_phi",denomName.c_str()),denomPathShifter);
-    TH1* hd_pt   = hist(Form("%s_pt", denomName.c_str()),denomPathShifter);
-    
-    TH1* hd_eta1 = hist(Form("%s_eta1",denomName.c_str()),denomPathShifter);
-    TH1* hd_phi1 = hist(Form("%s_phi1",denomName.c_str()),denomPathShifter);
-    TH1* hd_pt1  = hist(Form("%s_pt1", denomName.c_str()),denomPathShifter);
-    TH1* hd_eta2 = hist(Form("%s_eta2",denomName.c_str()),denomPathShifter);
-    TH1* hd_phi2 = hist(Form("%s_phi2",denomName.c_str()),denomPathShifter);
-    TH1* hd_pt2  = hist(Form("%s_pt2", denomName.c_str()),denomPathShifter);
-    
-
-    // ******** EXPERT ********* //
-    setCurrentMonGroup(m_base_path_expert+"/Efficiency/"+denomGroupName);
-
-    
-    
-
-    // ******** SHIFTER ********* //
-    setCurrentMonGroup(m_base_path_shifter+"/Efficiency/"+numeratorGroupName);
-    TH1* hn_eta  = hist(Form("%s_eta",numerName.c_str()),numerPathShifter);
-    TH1* hn_phi  = hist(Form("%s_phi",numerName.c_str()),numerPathShifter);
-    TH1* hn_pt   = hist(Form("%s_pt", numerName.c_str()),numerPathShifter);
-    
-    TH1* hn_eta1 = hist(Form("%s_eta1",numerName.c_str()),numerPathShifter);
-    TH1* hn_phi1 = hist(Form("%s_phi1",numerName.c_str()),numerPathShifter);
-    TH1* hn_pt1  = hist(Form("%s_pt1", numerName.c_str()),numerPathShifter);
-    TH1* hn_eta2 = hist(Form("%s_eta2",numerName.c_str()),numerPathShifter);
-    TH1* hn_phi2 = hist(Form("%s_phi2",numerName.c_str()),numerPathShifter);
-    TH1* hn_pt2  = hist(Form("%s_pt2", numerName.c_str()),numerPathShifter);
-    
-
-    // ******** EXPERT ********* //
-    setCurrentMonGroup(m_base_path_expert+"/Efficiency/"+numeratorGroupName);
-
-    
-
-    
-    // ******** SHIFTER ********* //
-    setCurrentMonGroup(m_base_path_shifter+"/Efficiency/"+numeratorGroupName+"_eff");
-    TH1* hq_eta  = hist(Form("%s_eta",efficName.c_str()),efficPathShifter);
-    TH1* hq_phi  = hist(Form("%s_phi",efficName.c_str()),efficPathShifter);
-    TH1* hq_pt   = hist(Form("%s_pt", efficName.c_str()),efficPathShifter);
-    
-    TH1* hq_eta1 = hist(Form("%s_eta1",efficName.c_str()),efficPathShifter);
-    TH1* hq_phi1 = hist(Form("%s_phi1",efficName.c_str()),efficPathShifter);
-    TH1* hq_pt1  = hist(Form("%s_pt1", efficName.c_str()),efficPathShifter);
-    TH1* hq_eta2 = hist(Form("%s_eta2",efficName.c_str()),efficPathShifter);
-    TH1* hq_phi2 = hist(Form("%s_phi2",efficName.c_str()),efficPathShifter);
-    TH1* hq_pt2  = hist(Form("%s_pt2", efficName.c_str()),efficPathShifter);
-    
-    // ******** EXPERT ********* //
-    setCurrentMonGroup(m_base_path_expert+"/Efficiency/"+numeratorGroupName+"_eff");
-    
-
-    
-    // divisions
-    divide(hn_eta,hd_eta,hq_eta);
-    divide(hn_phi,hd_phi,hq_phi);
-    divide(hn_pt ,hd_pt ,hq_pt );
-    
-    divide(hn_eta1,hd_eta1,hq_eta1);
-    divide(hn_phi1,hd_phi1,hq_phi1);
-    divide(hn_pt1 ,hd_pt1 ,hq_pt1 );
-    divide(hn_eta2,hd_eta2,hq_eta2);
-    divide(hn_phi2,hd_phi2,hq_phi2);
-    divide(hn_pt2 ,hd_pt2 ,hq_pt2 );
-
-    
-    return StatusCode::SUCCESS;
-}
 
 
 StatusCode HLTXAODBphysMonTool::bookJpsiFinder() {
@@ -956,12 +890,15 @@ StatusCode HLTXAODBphysMonTool::fillJpsiFinder(){
         //double error     = invariantMassError(jpsiCandidate, std::vector<double>(2, m_muonMass));  // invariant mass error
         double rapidity  = ref_onia.Rapidity();
         double abs_rapidity = fabs(rapidity);
+        //double phi       = ref_onia.Phi();
 
         float phiTrk1 = refTrk1.Phi();
         float etaTrk1 = refTrk1.Eta();
+        //float ptTrk1  = refTrk1.Pt();
 
         float phiTrk2 = refTrk2.Phi();
         float etaTrk2 = refTrk2.Eta();
+        //float ptTrk2  = refTrk2.Pt();
 
         float sumCharges(0.);
         for (auto tpel: jpsiCandidate->trackParticleLinks()) {
@@ -1009,8 +946,6 @@ StatusCode HLTXAODBphysMonTool::fillJpsiFinder(){
 
         float aLxy_bs      = (hasAccessorVariables ? acc_Lxy_bs(*jpsiCandidate) : 0.);
         float aTau_bs      = (hasAccessorVariables ? acc_Tau_bs(*jpsiCandidate) : 0.);
-        
-        
         float apT          = (hasAccessorVariables ? acc_pT(*jpsiCandidate) : 0.);
         float aphiStar     = (hasAccessorVariables ? acc_phiStar(*jpsiCandidate) : 0.);
         float acosThetaStar= (hasAccessorVariables ? acc_cosThetaStar(*jpsiCandidate) : 0.);

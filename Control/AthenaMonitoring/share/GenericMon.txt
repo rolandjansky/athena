@@ -1,5 +1,5 @@
 // -*- C -*-
-// statrtup script for GenericMonTool tests
+// startup script for GenericMonTool tests
 
 ApplicationMgr.DLLs += { "StoreGate", "AthenaMonitoring" };
 ApplicationMgr.ExtSvc += { "ClassIDSvc" };
@@ -11,21 +11,15 @@ ApplicationMgr.ExtSvc += { "THistSvc/THistSvc" };
 AuditorSvc.Auditors  += { "AlgContextAuditor"};
 StoreGateSvc.OutputLevel = 5;
 StoreGateSvc.ActivateHistory = false;
-//CLIDSvc.OutputLevel = 1;
-//ClassIDSvc.OutputLevel = 1;
-//MessageSvc.OutputLevel = 1;
 MessageSvc.useColors        = false;
 THistSvc.OutputLevel = 0;
 THistSvc.Output= {"EXPERT DATAFILE='expert-monitoring.root' OPT='RECREATE'" };
 ToolSvc.MonTool.OutputLevel =0;
 ToolSvc.MonTool.HistPath="TestGroup";
-ToolSvc.MonTool.Histograms = { "EXPERT, TH1F, Eta, #eta of Clusters; #eta; number of RoIs, 2, -2.500000, 2.500000, "};
-ToolSvc.MonTool.Histograms += { "EXPERT, TH1F, Phi, #phi of Clusters; #phi; number of RoIs, 2, -3.15, 3.15, " };
-ToolSvc.MonTool.Histograms += { "EXPERT, TH2F, Eta,Phi, #eta vs #phi of Clusters; #eta; #phi; number of RoIs,  2, -2.500000, 2.500000, 2, -3.15, 3.15, " };
-ToolSvc.MonTool.Histograms += { "EXPERT, TH1F, TIME_t1, Timing of tool 1, 100, 0., 1000., "};
-ToolSvc.MonTool.Histograms += { "EXPERT, TH1F, TIME_t2, Timing of tool 2, 100, 0., 1000., "};
-
-// intentionally a very small number of bins
-// RoICache_test.OutputLevel=3;
+ToolSvc.MonTool.Histograms = { "EXPERT, TH1F, Eta, #eta of Clusters; #eta; number of RoIs, 2, -2.500000, 2.500000" };
+ToolSvc.MonTool.Histograms += { "EXPERT, TH1F, Phi, #phi of Clusters; #phi; number of RoIs, 2, -3.15, 3.15" };
+ToolSvc.MonTool.Histograms += { "EXPERT, TH2F, Eta,Phi, #eta vs #phi of Clusters; #eta; #phi; number of RoIs,  2, -2.500000, 2.500000, 2, -3.15, 3.15" };
+ToolSvc.MonTool.Histograms += { "EXPERT, TH1F, TIME_t1, Timing of tool 1, 100, 0., 1000." };
+ToolSvc.MonTool.Histograms += { "EXPERT, TH1F, TIME_t2, Timing of tool 2, 100, 0., 1000." };
 
 
