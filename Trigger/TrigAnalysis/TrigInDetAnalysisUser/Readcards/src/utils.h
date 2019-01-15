@@ -1,27 +1,25 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-/**************************************************************************
+/* emacs: this is -*- c++ -*- */
+/**
  **
- **   File:         utils.h  
+ **   @file         utils.h  
  **
- **   Description:    
+ **                   
  **                   
  **                   
  ** 
- **   Author:       M.Sutton  
+ **   @author       M.Sutton  
  **
- **   Created:      Thu Jun 23 01:53:36 BST 2005
- **   Modified:     
+ **   @date         Thu Jun 23 01:53:36 BST 2005
+ **
+ **   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  **                   
  **                   
  **
- **************************************************************************/ 
+ **/
 
 
-#ifndef __UTILS_H
-#define __UTILS_H
+#ifndef READCARDS_UTILS_H
+#define READCARDS_UTILS_H
 
 #include <string>
 #include <vector>
@@ -74,7 +72,7 @@ std::string number(const double& d, const std::string& s="%lf");
 
 
 
-#endif  /* __UTILS_H */
+#endif  /* READCARDS_UTILS_H */
 
 
 

@@ -1,23 +1,21 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
 
-/**************************************************************************
+/**
  **
- **   File:         Value.cxx        
+ **   @file         Value.cxx        
  **
- **   Description:    
+ **                   
  **                   
  **                   
  ** 
- **   Author:       M.Sutton    
+ **   @author       M.Sutton    
  **
- **   Created:      Fri May 11 17:29:29 BST 2007
- **   Modified:     
+ **   @date         Fri May 11 17:29:29 BST 2007
+ **
+ **   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  **                   
  **                   
  **
- **************************************************************************/ 
+ **/
 
 
 #include "Value.h"

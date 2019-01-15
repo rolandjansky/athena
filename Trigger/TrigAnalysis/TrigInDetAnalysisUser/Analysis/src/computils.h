@@ -1,15 +1,12 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    computils.h         
-//   
-//
-//   @author M.Sutton
-// 
-//
-//   $Id: comparitor.cxx, v0.0   Sat Aug 30 2014 14:38:03 CEST  sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    computils.h
+ **
+ **     @author  mark sutton
+ **     @date    Sat Aug 30 2014 14:38:03 CEST  
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 #ifndef COMPUTILS_H
 #define COMPUTILS_H

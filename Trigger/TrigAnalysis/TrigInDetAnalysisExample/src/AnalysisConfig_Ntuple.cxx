@@ -1,12 +1,10 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    AnalysisConfig_Ntuple.cxx         
-//   
-//
-//   @author M.Sutton
-// 
+/**
+ **     @file    AnalysisConfig_Ntuple.cxx
+ **
+ **     @author  mark sutton
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #include <cstdio>

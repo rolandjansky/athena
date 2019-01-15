@@ -1,16 +1,18 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    grl_run.h        
-//
-//            basic run class for the good runs list - contsins the 
-//            run number and a vector of ( first, last ) pairs of valid 
-//            lumi block ranges                   
-//  
-//
-//   $Id: grl_run.h, v0.0   Mon 24 Oct 2016 17:12:10 CEST sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    grl_run.h
+ **
+ **     @basic   basic run class for the good runs list 
+ **
+ **              contsins the run number and a vector of 
+ **              ( first, last ) pairs of valid lumi block 
+ **              ranges                   
+ **
+ **     @author  mark sutton
+ **     @date    Mon 24 Oct 2016 17:12:10 CEST 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #ifndef  GRLRUN_H

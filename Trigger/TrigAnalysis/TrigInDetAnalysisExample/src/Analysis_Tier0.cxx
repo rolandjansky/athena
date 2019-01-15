@@ -1,9 +1,12 @@
-//
-//   @file    Analysis_Tier0.cxx        
-//                    
-//   $Id: Analysis_Tier0.cxx   Thu 18 May 2017 15:35:34 CEST sutt $
-//
-//   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+/**
+ **     @file    Analysis_Tier0.cxx
+ **
+ **     @author  mark sutton
+ **     @date    $Id: Analysis_Tier0.cxx   Thu 18 May 2017 15:35:34 CEST 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
+
 
 #include <cmath>
 

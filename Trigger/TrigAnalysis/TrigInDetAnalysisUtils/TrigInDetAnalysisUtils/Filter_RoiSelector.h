@@ -1,14 +1,12 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    Filter_RoiSelector.h        
-//
-//                   
-// 
-//
-//   $Id: Filter_RoiSelector.h, v0.0   Wed 28 Oct 2009 02:44:40 CET sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    Filter_RoiSelector.h
+ **
+ **     @author  mark sutton
+ **     @date    Wed 28 Oct 2009 02:44:40 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #ifndef TRIGINDETANALYSISUTILS_FILTER_ROISELECTOR_H
