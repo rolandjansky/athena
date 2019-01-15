@@ -14,7 +14,6 @@
 #include "AthenaKernel/IAthRNGSvc.h"
 
 // ACTS
-#include "Acts/Plugins/MaterialMapping/MaterialTrack.hpp"
 #include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Propagator/detail/SteppingLogger.hpp"
 #include "ActsGeometry/IActsPropStepRootWriterSvc.h"
