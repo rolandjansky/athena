@@ -348,8 +348,24 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
       xAOD::EventInfo *pOverEvent = new xAOD::EventInfo();
       xAOD::EventAuxInfo *pOverEventAux = new xAOD::EventAuxInfo();
       pOverEvent->setStore( pOverEventAux );
+
+      ATH_MSG_INFO("MN:  #subevents in orig =" << pEvent->subEvents().size());
+      if( pEvent->subEvents().size() > 1 ) {
+         ATH_MSG_INFO("     orig subev[1] link=" << pEvent->subEvents()[1].link() );
+      }
+
       // Copy the eventInfo data from origStream event
       *pOverEvent = *pEvent;
+      pOverEvent->clearSubEvents();  // start clean without any subevents
+
+      ATH_MSG_INFO("MN:  #subevents in copy =" << pOverEvent->subEvents().size());
+      if( pOverEvent->subEvents().size() > 1 ) {
+         ATH_MSG_INFO("     copy subev[1] link=" << pOverEvent->subEvents()[1].link() );
+      }
+      ATH_MSG_INFO("MN:  #subevents in orig =" << pEvent->subEvents().size());
+      if( pEvent->subEvents().size() > 1 ) {
+         ATH_MSG_INFO("     orig subev[1] link=" << pEvent->subEvents()[1].link() );
+      }
       
       // Record the xAOD object(s):
       CHECK( m_evtStore->record( pOverEventAux, "McEventInfoAux." ) );
@@ -402,28 +418,29 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
           pOverEvent->setEventTypeBitmask( pEvent->eventTypeBitmask() | xAOD::EventInfo::IS_SIMULATION );
       }
 
-      if(m_isEmbedding || m_isEventOverlayJobMC)
-        {
+      if(m_isEmbedding || m_isEventOverlayJobMC) {
           pOverEvent->setActualInteractionsPerCrossing(pEvent->actualInteractionsPerCrossing());
           pOverEvent->setAverageInteractionsPerCrossing(pEvent->averageInteractionsPerCrossing());
-          cout <<"MN: p2  " << m_isEmbedding <<" "<< m_isEventOverlayJobMC << endl;
-        }
-      if(m_isEventOverlayJob)
-        {
-           // Propagate core event flags
-           pOverEvent->setEventFlags(xAOD::EventInfo::Core,
-                                     pEventSignal->eventFlags(xAOD::EventInfo::Core)
-                                     | pEvent->eventFlags(xAOD::EventInfo::Core) );
-           pOverEvent->setErrorState(xAOD::EventInfo::Core,
-                                     std::max( pEventSignal->errorState(xAOD::EventInfo::Core),
-                                               pEvent->errorState(xAOD::EventInfo::Core) ) );
-        }
+      }
+      if(m_isEventOverlayJob) {
+         // Propagate core event flags
+         pOverEvent->setEventFlags(xAOD::EventInfo::Core,
+                                   pEventSignal->eventFlags(xAOD::EventInfo::Core)
+                                   | pEvent->eventFlags(xAOD::EventInfo::Core) );
+         pOverEvent->setErrorState(xAOD::EventInfo::Core,
+                                   std::max( pEventSignal->errorState(xAOD::EventInfo::Core),
+                                             pEvent->errorState(xAOD::EventInfo::Core) ) );
+      }
       ATH_MSG_VERBOSE ( "BCID =" << pOverEvent->bcid() );
+
+      cout <<"MN: EventLoopMgr flags: " << m_isEmbedding <<", "<< m_isEventOverlayJob
+           << ", " << m_isEventOverlayJobMC << endl;
 
       // when doing overlay add the hard-scatter event as sub-event
       if( m_isEventOverlayJob ) {
-         ATH_MSG_INFO ( "MN: add EventSignal" );
+         ATH_MSG_INFO ( "MN: add EventSignal as first subev" );
          puei->push_back( new xAOD::EventInfo( *pEventSignal ) );
+
          // link to the fresh EI added to the container:
          ElementLink< xAOD::EventInfoContainer > eilink( puei_sg_key, puei->size()-1,  &*m_evtStore );
          xAOD::EventInfo::SubEvent  subev( 0, pOverEvent->subEvents().size(), xAOD::EventInfo::Signal, eilink );
@@ -437,7 +454,7 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
       {
          auto it = pEvent->subEvents().begin();
          auto end = pEvent->subEvents().end();
-         ATH_MSG_INFO ( "MN: nextEvent(): copy subevents " << (int)(end-it) ); 
+         ATH_MSG_INFO ( "MN: copy subevents " << (int)(end-it) ); 
          if( m_isEventOverlayJobMC ) {
             // we can skip the first sub-event when doing MC+MC overlay
             if( it != end ) ++it;
@@ -456,6 +473,7 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
       if( addpEvent ) {
          ATH_MSG_INFO ( "MN: addpEvent" );
          xAOD::EventInfo* ei = new xAOD::EventInfo( *pEvent );
+         ei->clearSubEvents();  // MN: FIX - verify that subevents should be cleared!
          puei->push_back( ei );
          // link to the fresh EI added to the container:
          ElementLink< xAOD::EventInfoContainer > eilink( puei_sg_key, puei->size()-1,  &*m_evtStore );
