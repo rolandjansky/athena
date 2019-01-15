@@ -34,11 +34,13 @@ namespace top {
     /* explicit */ GhostTrackSystematicsMaker::GhostTrackSystematicsMaker(const std::string & name)
         : ::asg::AsgTool(name),
         m_config(nullptr),
+	m_jetPtCut(0.),
         m_runPeriods(),
         m_specifiedSystematics(),
         m_recommendedSystematics(),
         m_nominalSystematicSet(),
-        m_tools() {
+        m_tools()
+	 {
 
         declareProperty("config" , m_config);
     }
@@ -81,6 +83,9 @@ namespace top {
 
         // Pass the systematics list back to the top::TopConfig object.
         m_config->systematicsJetGhostTrack(specifiedSystematics());
+	
+	
+	m_jetPtCut=17000.;
 
         ATH_MSG_INFO(" top::GhostTrackSystematicsMaker completed initialize" );
         return StatusCode::SUCCESS;
@@ -90,6 +95,7 @@ namespace top {
                                                                const CP::SystematicSet & syst) const {
         ///-- Loop over the xAOD Container --///
         for(const auto & jet : * nominal ){
+	    if( jet->pt()<m_jetPtCut )continue;
             // Copy nominal ghost track container into the systematic variation.
             const auto & nominalGhostTracks =
                 jet->getAssociatedObjects<xAOD::IParticle>(m_config->decoKeyJetGhostTrack());
@@ -109,11 +115,19 @@ namespace top {
 
         ///-- Loop over the xAOD Container --///
         for(const auto & jet : * nominal ){
+	    if( jet->pt()<m_jetPtCut )continue;
             const auto & ghostTracks =
                 jet->getAssociatedObjects<xAOD::IParticle>(m_config->decoKeyJetGhostTrack());
             std::vector<const xAOD::IParticle *> newGhosts;
 
+	    if( std::find(ghostTracks.begin(),ghostTracks.end(), nullptr ) !=  ghostTracks.end()){
+		std::cout << "Warning in GhostTrackSystematicsMaker: Found nullptr in ghostTrack vector. Systematic variations won't be calculated for this jet." << std::endl;
+		std::cout << "Jet pt: " << jet->pt() << " eta: " << jet->eta() << std::endl;
+		continue;
+	    }
+
             for (std::size_t iGhost=0; iGhost<ghostTracks.size(); ++iGhost){
+		
                 const xAOD::TrackParticle *
                     tp{dynamic_cast<const xAOD::TrackParticle*>(ghostTracks[iGhost])};
                 top::check(tp, "Failed to convert xAOD::IParticle to xAOD::TrackParticle for ghost track");
@@ -141,8 +155,16 @@ namespace top {
 
         ///-- Loop over the xAOD Container --///
         for(const auto & jet : * nominal ){
+	    if( jet->pt()<m_jetPtCut )continue;
             const auto & ghostTracks = jet->getAssociatedObjects<xAOD::IParticle>(m_config->decoKeyJetGhostTrack());
             std::vector<const xAOD::IParticle *> newGhosts;
+
+	    if( std::find(ghostTracks.begin(),ghostTracks.end(), nullptr ) !=  ghostTracks.end()){
+		std::cout << "Warning in GhostTrackSystematicsMaker: Found nullptr in ghostTrack vector. Systematic variations won't be calculated for this jet." << std::endl;
+		std::cout << "Jet pt: " << jet->pt() << " eta: " << jet->eta() << std::endl;
+		continue;
+	    }
+
 
             for (std::size_t iGhost=0; iGhost<ghostTracks.size(); ++iGhost){
                 const xAOD::TrackParticle *
@@ -185,9 +207,16 @@ namespace top {
         newTrackParticles->setStore(newTrackParticlesAux);
 
         for (const auto & jet : * nominal){
+	    if( jet->pt()<m_jetPtCut )continue;
             const auto & ghostTracks = jet->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack());
 
             std::vector<const xAOD::IParticle *> newGhosts;
+	    
+	    if( std::find(ghostTracks.begin(),ghostTracks.end(), nullptr ) !=  ghostTracks.end()){
+		std::cout << "Warning in GhostTrackSystematicsMaker: Found nullptr in ghostTrack vector. Systematic variations won't be calculated for this jet." << std::endl;
+		std::cout << "Jet pt: " << jet->pt() << " eta: " << jet->eta() << std::endl;
+		continue;
+	    }
 
             for (std::size_t iGhost=0; iGhost<ghostTracks.size(); ++iGhost){
                 const xAOD::TrackParticle *
@@ -231,9 +260,17 @@ namespace top {
         newTrackParticles->setStore(newTrackParticlesAux);
 
         for (const auto & jet : * nominal){
+	  
+	    if( jet->pt()<m_jetPtCut )continue;
             const auto & ghostTracks = jet->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack());
 
             std::vector<const xAOD::IParticle *> newGhosts;
+	    
+	    if( std::find(ghostTracks.begin(),ghostTracks.end(), nullptr ) !=  ghostTracks.end()){
+		std::cout << "Warning in GhostTrackSystematicsMaker: Found nullptr in ghostTrack vector. Systematic variations won't be calculated for this jet." << std::endl;
+		std::cout << "Jet pt: " << jet->pt() << " eta: " << jet->eta() << std::endl;
+		continue;
+	    }
 
             for (std::size_t iGhost=0; iGhost<ghostTracks.size(); ++iGhost){
                 const xAOD::TrackParticle *
@@ -505,3 +542,6 @@ namespace top {
     }
 
 }
+
+
+

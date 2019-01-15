@@ -142,12 +142,15 @@ namespace top {
 
     private:
         std::shared_ptr<top::TopConfig> m_config;
+	double m_jetPtCut;
         std::vector<std::uint32_t> m_runPeriods;
 
         std::list<CP::SystematicSet> m_specifiedSystematics;
         std::list<CP::SystematicSet> m_recommendedSystematics;
 
         CP::SystematicSet m_nominalSystematicSet;
+
+	
 
         struct {
             void makeUnique(){
