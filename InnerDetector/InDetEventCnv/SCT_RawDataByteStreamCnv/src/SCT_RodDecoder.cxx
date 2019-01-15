@@ -297,7 +297,8 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
               if (rdoMade == -1) {
                 sc=StatusCode::RECOVERABLE;
                 addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
-              } else {
+              } 
+              else {
                 saved[oldSide*768+oldStrip] = rdoMade; 
               }
               oldStrip = strip;
@@ -313,7 +314,8 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
               if (rdoMade == -1) {
                 sc=StatusCode::RECOVERABLE;
                 addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
-              } else {
+              } 
+              else {
                 saved[oldSide*768+oldStrip] = rdoMade; 
               }
               oldStrip = strip;
@@ -336,7 +338,8 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
             if (rdoMade == -1) {
               sc=StatusCode::RECOVERABLE;
               addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
-            } else {
+            } 
+            else {
               saved[oldSide*768+oldStrip] = rdoMade; 
             }
             oldStrip = strip;
@@ -345,7 +348,8 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
           }
           groupSize+=nStripsInWord; // Split clusters have the same strip number.
      
-        } else if (condensedMode) {
+        } 
+        else if (condensedMode) {
     
           /** condensed mode
            *  chip info : 4 bits  data16[n]>>11)0xF
@@ -372,7 +376,8 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
               if (rdoMade == -1) {
                 sc=StatusCode::RECOVERABLE;
                 addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
-              } else {
+              } 
+              else {
                 saved[oldSide*768+oldStrip] = rdoMade; 
               }
               oldStrip = strip;
@@ -388,7 +393,8 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
               if (rdoMade == -1) {
                 sc=StatusCode::RECOVERABLE;
                 addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
-              } else {
+              } 
+              else {
                 saved[oldSide*768+oldStrip] = rdoMade; 
               }
               oldStrip = strip;
@@ -411,7 +417,8 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
               if (rdoMade == -1) {
                 sc=StatusCode::RECOVERABLE;
                 addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
-              } else {
+              } 
+              else {
                 saved[oldSide*768+oldStrip] = rdoMade; 
               }
               oldStrip = strip;
@@ -427,7 +434,8 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
               sc=StatusCode::RECOVERABLE;
             }
             groupSize = (groupSize>=2 ? groupSize : 1);
-          } else { /** 2-hits */
+          } 
+          else { /** 2-hits */
             if (strip > 767) {
               addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
               sc=StatusCode::RECOVERABLE;
@@ -444,7 +452,8 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
               if (rdoMade == -1) {
                 sc=StatusCode::RECOVERABLE;
                 addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
-              } else {
+              } 
+              else {
                 saved[oldSide*768+oldStrip] = rdoMade; 
               }
               oldStrip = strip;
@@ -467,7 +476,8 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
             }
             groupSize = 2;
           }
-        } else {
+        } 
+        else {
           /** Expanded mode
            * chip info from the first word of expanded cluster : 4 bits  data16[n]>>11)0xF
            * chip number == (data16[n]>>11)&0x7 and chip side == (data16[n]>>14)&0x1
@@ -502,11 +512,13 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
             if (rdoMade == -1) {
               sc=StatusCode::RECOVERABLE;
               addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
-            } else {
+            } 
+            else {
               saved[side*768+strip] = rdoMade; 
             }
             groupSize = 0;
-          } else { /** next hits cluster expanded */
+          } 
+          else { /** next hits cluster expanded */
             if (data16[n]&0x80) { /** paired hits */
               if (strip > 767) {
                 addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
@@ -529,7 +541,8 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
               if (rdoMade1 == -1) {
                 sc=StatusCode::RECOVERABLE;
                 addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
-              } else {
+              } 
+              else {
                 saved[side*768+strip] = rdoMade1;
               }
               /** second hit from the pair */
@@ -539,11 +552,13 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
               if (rdoMade2 == -1) {
                 sc=StatusCode::RECOVERABLE;
                 addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
-              } else {
+              } 
+              else {
                 saved[side*768+strip] = rdoMade2;
               }
               groupSize = 0;
-            } else {  /** Last hit of the cluster */
+            } 
+            else {  /** Last hit of the cluster */
               m_lastExpHitNumber++;
               if (chip>5) {
                 ATH_MSG_DEBUG("Expanded Hit: last hit xxx ERROR chip Nb = " << chip << " > 5");  
@@ -558,7 +573,8 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
               if (rdoMade == -1) {
                 sc=StatusCode::RECOVERABLE;
                 addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
-              } else {
+              } 
+              else {
                 saved[side*768+strip] = rdoMade; 
               }
               groupSize = 0; 
@@ -580,7 +596,8 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
           if (rdoMade == -1) {
             sc=StatusCode::RECOVERABLE;
             addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
-          } else {
+          } 
+          else {
             saved[side*768+strip] = rdoMade; 
           }
         }
@@ -605,7 +622,8 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
           sc=StatusCode::RECOVERABLE;
           ATH_MSG_DEBUG("Header: xxx Link number out of range (skipping following data)" << std::dec << linkNumber);
           break;
-        } else {
+        } 
+        else {
           currentLinkIDHash = m_cabling->getHashFromOnlineId(onlineID);
         }
         /// look for masked off links - bit 7
@@ -731,7 +749,8 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
         if (onlineID == 0) {
           addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
           continue;
-        } else {
+        } 
+        else {
           flagIDHash = m_cabling->getHashFromOnlineId(onlineID);
         }
         ATH_MSG_DEBUG(" xxx Flagged ABCD ERROR in chip " << chip << " Error code abcError " << abcError << " Link Number (or Stream) "<<linkNumber);
@@ -741,7 +760,8 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
           ATH_MSG_DEBUG("ABCD error has an invalid error code " << abcError <<
                         " the 16-bit word is 0x" << std::hex << data16[n] << std::dec << " for hash " << flagIDHash);
           addSingleError(flagIDHash, SCT_ByteStreamErrors::ABCDError_Invalid, errs);
-        } else {
+        } 
+        else {
           // Chip is 4 bits. The highest bit 3 represents side. Chip 0-5 on side 0 and chip 8-13 on side 1.
           const unsigned int sideABCDError{static_cast<unsigned int>(chip/8)};
           if (flagIDHash.value()%2!=sideABCDError) {
@@ -758,7 +778,8 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
                           " the 16-bit word is 0x" << std::hex << data16[n] << std::dec <<
                           " for hash " << flagIDHash.value());
             addSingleError(flagIDHash, SCT_ByteStreamErrors::ABCDError_Invalid, errs);
-          } else {
+          } 
+          else {
             if (     abcError==0x1) addSingleError(flagIDHash, SCT_ByteStreamErrors::ABCDError_Error1, errs);
             else if (abcError==0x2) addSingleError(flagIDHash, SCT_ByteStreamErrors::ABCDError_Error2, errs);
             else if (abcError==0x4) addSingleError(flagIDHash, SCT_ByteStreamErrors::ABCDError_Error4, errs);
@@ -774,7 +795,8 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
         addSingleError(flagIDHash, SCT_ByteStreamErrors::ABCDError, errs);
         sc=StatusCode::RECOVERABLE;
         continue;
-      } else if (((data16[n]>>13)&0x7) == 0x3) {
+      } 
+      else if (((data16[n]>>13)&0x7) == 0x3) {
         ///---------------------------------------------------------------------
         /// Raw Data
         ///---------------------------------------------------------------------
@@ -782,7 +804,8 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
         if (onlineID == 0) {
           addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
           continue;
-        } else {
+        } 
+        else {
           rawIDHash = m_cabling->getHashFromOnlineId(onlineID);
         }
 
@@ -792,7 +815,8 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
         addSingleError(rawIDHash, SCT_ByteStreamErrors::RawError, errs);
         sc=StatusCode::RECOVERABLE;
         continue;
-      } else {
+      } 
+      else {
         ATH_MSG_DEBUG("Data word format unknown ");
         m_unknownDataFormat++;
         addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
@@ -807,7 +831,8 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
     if (rdoMade == -1) {
       sc=StatusCode::RECOVERABLE;
       addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
-    } else {
+    } 
+    else {
       saved[side*768+strip] = rdoMade; 
     }
   }
@@ -852,7 +877,8 @@ int SCT_RodDecoder::makeRDO(int strip, int groupSize, int timeBin, uint32_t onli
     if (idCollHash == cache.skipHash) {
       ATH_MSG_VERBOSE("Collection for Hash not to be decoded, skip");
       return 0;
-    } else if (idCollHash != cache.lastHash) {
+    } 
+    else if (idCollHash != cache.lastHash) {
       cache.lastHash = idCollHash;
       /** maybe the new hash is not in the list, so test it */
       std::vector<IdentifierHash>::const_iterator idHashIterator{find(cache.vecHash->begin(), cache.vecHash->end(), idCollHash)};
@@ -971,14 +997,17 @@ SCT_RodDecoder::setFirstTempMaskedChip(const IdentifierHash& hashID, unsigned in
     if (badLinks.first and not badLinks.second) {
       // link-1 is broken
       type = 1;
-    } else if (badLinks.second and not badLinks.first) {
+    } 
+    else if (badLinks.second and not badLinks.first) {
       // link-0 is broken
       type = 2;
-    } else if (badLinks.first and badLinks.second) {
+    } 
+    else if (badLinks.first and badLinks.second) {
       // both link-0 and link-1 are working
       ATH_MSG_WARNING("setFirstTempMaskedChip: Both link-0 and link-1 are working. But Rx redundancy is used... Why?");
       return;
-    } else {
+    } 
+    else {
       // both link-0 and link-1 are broken
       ATH_MSG_WARNING("setFirstTempMaskedChip: Both link-0 and link-1 are broken. But data are coming... Why?");
       return;
@@ -1064,7 +1093,8 @@ SCT_RodDecoder::setFirstTempMaskedChip(const IdentifierHash& hashID, unsigned in
         addSingleError(hashSide1, SCT_ByteStreamErrors::TempMaskedChip0+iChip-6, errs);
       }
     }
-  } else {
+  } 
+  else {
     // type=1, 2, 3, 4: cases using Rx redundancy
     bool toBeMasked{false};
     for (int iChip{0}; iChip<12; iChip++) {
