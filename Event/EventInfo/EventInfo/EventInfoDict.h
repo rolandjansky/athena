@@ -1,7 +1,7 @@
 // dear emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTINFO_EVENTINFODICT_H
@@ -92,5 +92,7 @@ struct EventInfoInstan
   std::list<PileUpEventInfo::SubEvent>::const_iterator i2;
   std::pair<CLID, std::string> p;
 };
+
+template struct std::pair<CLID, std::string>;
 
 #endif // EVENTINFO_EVENTINFODICT_H
