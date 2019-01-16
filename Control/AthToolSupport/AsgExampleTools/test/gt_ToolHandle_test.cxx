@@ -14,7 +14,7 @@
 
 #include <AsgTools/ToolHandle.h>
 #include <AsgTools/MessageCheck.h>
-#include <AsgTools/UnitTest.h>
+#include <AsgTesting/UnitTest.h>
 #include <AsgExampleTools/UnitTestTool1.h>
 #include <AsgExampleTools/UnitTestTool2.h>
 #include <cmath>

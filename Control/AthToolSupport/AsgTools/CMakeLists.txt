@@ -23,8 +23,6 @@ atlas_depends_on_subdirs( PUBLIC ${deps} )
 # External dependencies:
 find_package( Boost COMPONENTS regex )
 find_package( ROOT COMPONENTS Core )
-find_package( GTest )
-find_package( GMock )
 
 # Decide which sources to use:
 if( XAOD_STANDALONE )
@@ -43,7 +41,6 @@ endif()
 atlas_add_library( AsgTools
    AsgTools/*.h AsgTools/*.icc ${sources}
    PUBLIC_HEADERS AsgTools
-   INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${libs}
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} )
@@ -67,11 +64,6 @@ if( APPLE AND TARGET AsgTools )
 endif()
 
 # Test(s) in the package:
-atlas_add_test( gt_UnitTest_test
-   SOURCES test/gt_UnitTest_test.cxx
-   INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-   LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools
-   EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)|functionFailure" )
 
 atlas_add_test( ut_asgtools_statuscode
    SOURCES test/ut_asgtools_statuscode.cxx
@@ -80,41 +72,6 @@ atlas_add_test( ut_asgtools_statuscode
 atlas_add_test( ut_asgtools_toolstore
    SOURCES test/ut_asgtools_toolstore.cxx
    LINK_LIBRARIES AsgTools )
-
-if( XAOD_STANDALONE )
-
-   atlas_add_test( gt_AsgTool
-      SOURCES test/gt_AsgTool.cxx
-      INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-      LINK_LIBRARIES ${GMOCK_LIBRARIES} AsgTools
-      EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )
-
-   atlas_add_test( gt_MessageCheck
-      SOURCES test/gt_MessageCheck.cxx
-      INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-      LINK_LIBRARIES ${GMOCK_LIBRARIES} AsgTools
-      EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )
-
-   atlas_add_test( gt_TProperty
-      SOURCES test/gt_TProperty.cxx
-      INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-      LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools
-      EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )
-
-   atlas_add_test( gt_asgtools_toolhandle_test
-      SOURCES test/gt_asgtools_toolhandle_test.cxx
-      INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-      LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools
-      EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )
-
-endif()
-
-
-atlas_add_test( gt_AnaCheck
-   SOURCES test/gt_AnaCheck.cxx
-   INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-   LINK_LIBRARIES ${GMOCK_LIBRARIES} AsgTools
-   EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )
 
 atlas_add_executable (asg_tools_test_init util/asg_tools_test_init.cxx
                       LINK_LIBRARIES AsgTools )

@@ -12,7 +12,7 @@
 // includes
 //
 
-#include <AsgTools/UnitTest.h>
+#include <AsgTesting/UnitTest.h>
 
 #include <boost/regex.hpp>
 
