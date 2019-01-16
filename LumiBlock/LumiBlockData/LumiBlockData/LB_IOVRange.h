@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////// 
@@ -18,9 +18,7 @@ class LB_IOVRange: public IOVRange
  LB_IOVRange();
  LB_IOVRange( const IOVTime& start, const IOVTime& stop );
  LB_IOVRange( const IOVRange& r);
- LB_IOVRange( const LB_IOVRange& r);
  LB_IOVRange( const IOVRange& r, uint32_t numExpected, uint32_t numSeen);
- LB_IOVRange( LB_IOVRange& r);
 
 
  uint32_t getNumExpected() const {return m_NumExpected;}

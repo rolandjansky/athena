@@ -18,6 +18,9 @@ public:
      /** Default Constructor  needed for persistency */
     MuonSpShowerContainer_p1();
 
+    MuonSpShowerContainer_p1(const MuonSpShowerContainer_p1&);
+    MuonSpShowerContainer_p1& operator=(const MuonSpShowerContainer_p1&);
+
      /** Destructor */
     virtual ~MuonSpShowerContainer_p1();
 

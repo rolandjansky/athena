@@ -345,13 +345,6 @@ StatusCode PixelByteStreamErrorsSvc::recordData() {
   }
 
   StatusCode sc = StatusCode::SUCCESS;
-  if (cont->size()==m_max_hashes) {
-    m_BSErrContWrite = SG::makeHandle(m_BSErrContWriteKey);
-    sc = m_BSErrContWrite.record(std::move(cont));
-  }
-
-
-/*
   if (cont->size()==m_pixel_id->wafer_hash_max()) {
     m_checkError = -1;
   }
@@ -360,7 +353,6 @@ StatusCode PixelByteStreamErrorsSvc::recordData() {
     m_BSErrContWrite = SG::makeHandle(m_BSErrContWriteKey);
     sc = m_BSErrContWrite.record(std::move(cont));
   }
-*/
 
   if (sc.isFailure() ){
     ATH_MSG_ERROR("Failed to record/overwrite BSErrors to SG");

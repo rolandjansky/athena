@@ -100,7 +100,7 @@ atlas_add_test( AthTPCnvSvc
 atlas_add_test( SimplePOSIXTimeKeeperSvc
    SCRIPT test/SimplePOSIXTimeKeeperSvc.sh
    PROPERTIES TIMEOUT 300
-   EXTRA_PATTERNS "allocated job time|average time" )
+   EXTRA_PATTERNS "allocated job time|average time|start processing|done processing|waste some time|all times in|start of run|BeginRun" )
 
 
 atlas_add_test( AthDictLoaderSvc

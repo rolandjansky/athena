@@ -31,7 +31,9 @@ ChainDictionary ={  'HLT_e8'           : ['HLT_e8'],
                     'HLT_j100'         : ['HLT_j100'],
                     'HLT_j35_gsc45_boffperf_split' : ['HLT_j35_gsc45_boffperf_split'],
                     'HLT_j35_gsc45_bmv2c1070_split' : ['HLT_j35_gsc45_bmv2c1070_split'],
-                    'HLT_j35_gsc45_bmv2c1070' : ['HLT_j35_gsc45_bmv2c1070']
+                    'HLT_j35_gsc45_bmv2c1070' : ['HLT_j35_gsc45_bmv2c1070'],
+                    'HLT_xe65_L1XE50': ['HLT_xe65_L1XE50'],
+                    'HLT_xe30_L1XE10': ['HLT_xe30_L1XE10']
                  }
 
 

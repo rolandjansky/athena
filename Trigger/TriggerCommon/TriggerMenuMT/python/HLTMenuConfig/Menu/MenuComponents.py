@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 import sys, re, copy
 from AthenaCommon.Logging import logging
 from AthenaCommon.Constants import VERBOSE,INFO,DEBUG
@@ -6,13 +8,13 @@ log.setLevel( VERBOSE )
 logLevel=DEBUG
 
 from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
 
 class Node():
     """ base class representing one Alg + inputs + outputs, to be used to Draw dot diagrams and connect objects"""
     def __init__(self, Alg):
         self.name = ("%sNode")%( Alg.name())
         self.Alg=Alg
-#        self.algname = Alg.name()
         self.inputs=[]
         self.outputs=[]
         
@@ -169,7 +171,6 @@ class SequenceFilterNode(AlgNode):
     """Node for any kind of sequence filter"""
     def __init__(self, Alg, inputProp, outputProp):
         AlgNode.__init__(self,  Alg, inputProp, outputProp)
-        self.seeds = []
               
     def setChains(self, name):
         log.debug("Adding Chain %s to filter %s"%(name, self.Alg.name()))
@@ -178,15 +179,8 @@ class SequenceFilterNode(AlgNode):
     def getChains(self):
         return self.getPar("Chains")
 
-    def addSeed(self, seed):
-        self.seeds.append(seed)
-
-
-    
     def __str__(self):
-        return "SequenceFilter::%s  [%s] -> [%s], seeds=[%s], chains=%s"%(self.Alg.name(),' '.join(map(str, self.getInputList())),' '.join(map(str, self.getOutputList())), ' '.join(map(str, self.seeds)), self.getChains()) 
-
-
+        return "SequenceFilter::%s  [%s] -> [%s], chains=%s"%(self.Alg.name(),' '.join(map(str, self.getInputList())),' '.join(map(str, self.getOutputList())), self.getChains())
 
 
 class RoRSequenceFilterNode(SequenceFilterNode):
@@ -290,12 +284,12 @@ class WrappedList:
 # NOW sequences and chains
 ##########################################################
 
-        
+       
 class MenuSequence():
     """ Class to group reco sequences with the Hypo"""
     def __init__(self, Sequence, Maker,  Hypo, HypoToolGen ):
         from AthenaCommon.AlgSequence import AthSequencer
-        self.name = "S_%s"%(Hypo.name()) # sequence name is based on hypo name
+        self.name = CFNaming.menuSequenceName(Hypo.name())
         self.sequence     = Node( Alg=Sequence)
         self.maker        = InputMakerNode( Alg = Maker )
         self.hypoToolConf = HypoToolConf( HypoToolGen )
@@ -307,30 +301,33 @@ class MenuSequence():
 
     def replaceHypoForCombo(self, HypoAlg):
         log.debug("set new Hypo %s for combo sequence %s "%(HypoAlg.name(), self.name))
-        self.hypo= HypoAlgNode( Alg=HypoAlg)
+        self.hypo= HypoAlgNode( Alg=HypoAlg )
     
-    def connectToFilter(self,sfilter, line):
-        new_output = "%s_from_%s"%(self.hypo.Alg.name(), line)
-        self.hypo.addOutput(new_output)
-#        print self.hypo.readOutputList()
-#        print self.hypo.outputs
-        self.outputs.append(new_output)
+    def connectToFilter(self, sfilter, outfilter):
+        """ Sets the input and output of the hypo, and links to the input maker """
 
-        #### Connect the InputMaker
-        self.maker.addInput(line)       
-        self.inputs.append(line)
-        
-        input_maker_output="%s_from_%s"%(self.maker.Alg.name(),line)
-        self.maker.addOutput(input_maker_output) 
-        self.hypo.setPreviousDecision(input_maker_output)
-        log.debug("MenuSequence.connectToFilter: connecting InputMaker and HypoAlg, adding: \
-        InputMaker::%s.output=%s, \
-        HypoAlg::%s.previousDecision=%s, \
+        #### Connect filter to the InputMaker
+        self.maker.addInput(outfilter)       
+        input_maker_output = CFNaming.inputMakerOutName(self.maker.Alg.name(),outfilter)
+        self.maker.addOutput(input_maker_output)       
+
+        #### Add input/output Decision to Hypo
+        self.hypo.setPreviousDecision( input_maker_output)
+        hypo_output = CFNaming.hypoAlgOutName(self.hypo.Alg.name(), input_maker_output)
+        self.hypo.addOutput(hypo_output)
+
+        # needed for drawing
+        self.inputs.append(outfilter)
+        self.outputs.append(hypo_output)
+
+       
+        log.debug("MenuSequence.connectToFilter: connecting InputMaker and HypoAlg, adding: \n\
+        InputMaker::%s.output=%s, \n\
+        HypoAlg::%s.previousDecision=%s, \n\
         HypoAlg::%s.output=%s",\
-                  self.maker.Alg.name(), input_maker_output, self.hypo.Alg.name(), input_maker_output, self.hypo.Alg.name(), new_output )
+                self.maker.Alg.name(), input_maker_output, self.hypo.Alg.name(), input_maker_output, self.hypo.Alg.name(), hypo_output )
         
     def __str__(self):
-        #return "MenuSequence::%s \n Hypo::%s \n Maker::%s \n Sequence::%s"%(self.name, self.hypo, self.maker, self.sequence, new_output)
         return "MenuSequence::%s \n Hypo::%s \n Maker::%s \n Sequence::%s"%(self.name, self.hypo, self.maker, self.sequence)
 
     
@@ -401,7 +398,6 @@ class CFSequence():
    
     """
     def __init__(self, ChainStep, FilterAlg):
-        self.name = ChainStep.name   # not needed?     
         self.filter = FilterAlg
         self.step = ChainStep
         self.connect()
@@ -424,17 +420,9 @@ class CFSequence():
         
         nseq=0
         for seq in self.step.sequences:
-            #check that they have the same SEED
-            if seq.seed != self.filter.seeds[nseq]:
-                sys.exit("ERROR: sequence and filteroutput have different seeds:  %s  %s"%(seq.seed, self.filter.seeds[nseq]))
-            
-            if seq.seed not in self.filter.seeds:
-                sys.exit("ERROR: not seed %s found in Filter %s"%(seq.seed, self.filter.name))
-
-            line = filter_output[nseq]
-            log.debug("Found input %s to sequence::%s from Filter::%s (from seed %s)", line, seq.name, self.filter.Alg.name(), seq.seed)
-
-            seq.connectToFilter(self.filter, line )
+            filter_out = filter_output[nseq]
+            log.debug("Found input %s to sequence::%s from Filter::%s (from seed %s)", filter_out, seq.name, self.filter.Alg.name(), seq.seed)
+            seq.connectToFilter(self.filter, filter_out )
             nseq+=1
             
 
@@ -472,17 +460,11 @@ class ChainStep:
         if self.isCombo:            
             self.makeCombo(Sequences)
         else:
-            self.sequences = Sequences
-        
-    def replaceSequence(self, old, new):
-        # maybe obsolete?
-        idx=self.sequences.index(old) # this raise exception
-        self.sequences.pop(idx)
-        self.sequences.insert(idx, new)
+            self.sequences = Sequences          
 
     def makeCombo(self, Sequences):        
         # For combo sequences, duplicate the sequence, the Hypo with differnt names and create the ComboHypoAlg
-        self.combo = ComboMaker("ComboHypo_%s"%self.name)
+        self.combo = ComboMaker(CFNaming.comboHypoName(self.name))
         duplicatedHypos = []
         for sequence in Sequences:         
             oldhypo=sequence.hypo.Alg
@@ -490,9 +472,9 @@ class ChainStep:
             ncopy=duplicatedHypos.count(oldhypo.name())
                
             new_sequence=copy.deepcopy(sequence)
-            new_sequence.name="%s%d_for_%s"%(sequence.name,ncopy, self.name)            
+            new_sequence.name = CFNaming.comboSequenceCopyName(sequence.name,ncopy, self.name)
             
-            newHypoAlgName = "%s%d_for_%s"%(oldhypo.name(),ncopy, self.name)            
+            newHypoAlgName = CFNaming.comboHypoCopyName(oldhypo.name(),ncopy, self.name)
             new_hypoAlg=oldhypo.clone(newHypoAlgName)
             new_sequence.replaceHypoForCombo(new_hypoAlg)
             self.sequences.append(new_sequence)            

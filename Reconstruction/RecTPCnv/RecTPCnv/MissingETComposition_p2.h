@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RECTPCNV_MISSINGETCOMPOSITION_P2_H
@@ -28,7 +28,7 @@ class MissingETComposition_p2
     friend class MissingETCompositionConverterBase;
   
   MissingETComposition_p2() { };
-  virtual ~MissingETComposition_p2() { };
+  virtual ~MissingETComposition_p2() = default;
   
   //GeneratePersNavigableType_p2<MissingETComposition, Weight_p1>::type m_nav;
   Navigable_p2<unsigned int, Weight_p1>         m_nav;

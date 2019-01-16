@@ -14,7 +14,6 @@
 #include "AthenaKernel/IAthRNGSvc.h"
 
 // ACTS
-#include "Acts/Plugins/MaterialMapping/MaterialTrack.hpp"
 #include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Propagator/detail/SteppingLogger.hpp"
 #include "ActsGeometry/IActsPropStepRootWriterSvc.h"
@@ -22,7 +21,7 @@
 // PACKAGE
 #include "ActsGeometry/ActsExtrapolationTool.h"
 #include "ActsInterop/Logger.h"
-#include "ActsGeometry/IActsMaterialTrackWriterSvc.h"
+//#include "ActsGeometry/IActsMaterialTrackWriterSvc.h"
 
 // OTHER
 #include "CLHEP/Random/RandomEngine.h"
@@ -36,8 +35,8 @@ ActsExtrapolationAlg::ActsExtrapolationAlg(const std::string& name,
                                  ISvcLocator* pSvcLocator)
     : AthReentrantAlgorithm(name, pSvcLocator),
       m_propStepWriterSvc("ActsPropStepRootWriterSvc", name),
-      m_rndmGenSvc("AthRNGSvc", name),
-      m_materialTrackWriterSvc("ActsMaterialTrackWriterSvc", name)
+      m_rndmGenSvc("AthRNGSvc", name)//,
+      //m_materialTrackWriterSvc("ActsMaterialTrackWriterSvc", name)
 {
 }
 
@@ -49,9 +48,9 @@ StatusCode ActsExtrapolationAlg::initialize() {
   ATH_CHECK( m_extrapolationTool.retrieve() );
   ATH_CHECK( m_propStepWriterSvc.retrieve() );
 
-  if (m_writeMaterialTracks) {
-    ATH_CHECK( m_materialTrackWriterSvc.retrieve() );
-  }
+  //if (m_writeMaterialTracks) {
+    //ATH_CHECK( m_materialTrackWriterSvc.retrieve() );
+  //}
 
   m_objOut = std::make_unique<std::ofstream>("steps.obj");
 
@@ -94,7 +93,8 @@ StatusCode ActsExtrapolationAlg::execute(const EventContext& ctx) const
 
   double qop =  charge / momentum.norm();
     
-  Acts::PerigeeSurface surface(Acts::Vector3D(0, 0, 0));
+  std::shared_ptr<Acts::PerigeeSurface> surface 
+    = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3D(0, 0, 0));
 
 
   Acts::ActsVectorD<5> pars;
@@ -106,7 +106,7 @@ StatusCode ActsExtrapolationAlg::execute(const EventContext& ctx) const
   if(charge != 0.) {
       // charged extrapolation - with hit recording
       Acts::BoundParameters startParameters(
-          std::move(cov), std::move(pars), surface);
+          std::move(cov), std::move(pars), std::move(surface));
       steps = m_extrapolationTool->propagate(startParameters);
       writeStepsObj(steps);
       m_propStepWriterSvc->write(steps);

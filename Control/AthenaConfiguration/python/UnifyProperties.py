@@ -42,7 +42,10 @@ _propsToUnify={"GeoModelSvc.DetectorTools":unifySet,
                "TagInfoMgr.ExtraTagValuePairs":unifySetOfPairs,
                "AthenaOutputStream.ItemList":unifySet,
                "AthenaPoolCnvSvc.PoolAttributes":unifySet,
-               "*.HypoTools": unifySet
+               "*.HypoTools": unifySet,
+               "AtDSFMTGenSvc.Seeds": unifySet,
+               "AtRanluxGenSvc.Seeds": unifySet,
+               "AtRndmGenSvc.Seeds": unifySet,
                }
 
 def matchPropName(propname):

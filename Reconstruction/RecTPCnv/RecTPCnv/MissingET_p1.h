@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RECTPCNV_MISSINGET_P1_H
@@ -38,7 +38,7 @@ class MissingET_p1
   {};
 
   /** destructor */
-  ~MissingET_p1();
+  ~MissingET_p1() = default;
 
 
  protected:

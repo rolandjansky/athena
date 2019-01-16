@@ -511,6 +511,8 @@ StatusCode FastShowerCellBuilderTool::initialize()
     msg(MSG::INFO)<<endmsg;
   }
 
+  init_shape_correction();
+
   ATH_CHECK( m_mcCollectionKey.initialize() );
 
   if (m_storeFastShowerInfo) {
@@ -2289,11 +2291,6 @@ void FastShowerCellBuilderTool::init_shape_correction()
 StatusCode FastShowerCellBuilderTool::process(CaloCellContainer* theCellContainer)
 {
   const EventContext& ctx = Gaudi::Hive::currentContext();
-
-  if(!m_is_init_shape_correction) {
-    init_shape_correction();
-    m_is_init_shape_correction=true;
-  }
 
   ATH_MSG_DEBUG("Executing start calo size=" <<theCellContainer->size()<<" Event="<<ctx.evt());
 

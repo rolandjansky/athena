@@ -132,7 +132,7 @@ MyROBData::MyROBData (const std::string& fname)
 }
 
 
-void test1 (TileROD_Decoder* decoder)
+void test1 (const TileROD_Decoder* decoder)
 {
   std::cout << "test1 (fillCollection)\n";
 
@@ -168,7 +168,7 @@ void test1 (TileROD_Decoder* decoder)
 }
 
 
-void test2 (TileROD_Decoder* decoder)
+void test2 (const TileROD_Decoder* decoder)
 {
   std::cout << "test2 (fillCollection_TileMuRcv)\n";
 
@@ -221,7 +221,7 @@ void test3 (TileROD_Decoder* decoder_nc)
     decoder_nc->loadRw2Pmt  (i, r2map);
   }
 
-  TileROD_Decoder* decoder = decoder_nc;
+  const TileROD_Decoder* decoder = decoder_nc;
 
   MyROBData data01 (findFile ("TileData-01.dump"));
   {
@@ -269,7 +269,7 @@ void test3 (TileROD_Decoder* decoder_nc)
 }
 
 
-void test4 (TileROD_Decoder* decoder)
+void test4 (const TileROD_Decoder* decoder)
 {
   std::cout << "test4 (fillCollectionL2)\n";
 
@@ -288,7 +288,7 @@ void test4 (TileROD_Decoder* decoder)
 }
 
 
-void test5 (TileROD_Decoder* decoder)
+void test5 (const TileROD_Decoder* decoder)
 {
   std::cout << "test5 (fillTileLaserObj)\n";
 

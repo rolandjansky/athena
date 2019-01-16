@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // CaloEnergy_p1.h 
@@ -49,7 +49,7 @@ public:
 
   /** Destructor: 
    */
-  ~CaloEnergy_p1();
+  ~CaloEnergy_p1() = default;
 
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 

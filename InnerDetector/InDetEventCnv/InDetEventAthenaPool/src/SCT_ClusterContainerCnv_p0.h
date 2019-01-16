@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_CLUSTERCONTAINERCNV_P0_H
@@ -21,7 +21,7 @@ class SCT_ClusterContainerCnv_p0  : public T_AthenaPoolTPCnvBase<InDet::SCT_Clus
   SCT_ClusterContainerCnv_p0();
 
   // ID helper can't be used in the constructor, need initialize()
-  StatusCode initialize( MsgStream &log );
+  StatusCode initialize( MsgStream& log );
 
   virtual void   persToTrans(const SCT_ClusterContainer_p0*, InDet::SCT_ClusterContainer*, MsgStream&) override {
     // everything is done in createTransient()

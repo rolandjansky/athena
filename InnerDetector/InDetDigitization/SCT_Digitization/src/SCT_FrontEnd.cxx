@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_FrontEnd.h"
@@ -999,19 +999,36 @@ StatusCode SCT_FrontEnd::doClustering(SiChargedDiodeCollection& collection) cons
       ++strip; // !< This is the starting point of the next cluster within this collection
     } while (strip < m_strip_max);
   } else {
-    do { // Expanded read out mode, one RDO/strip per cluster
+    // Expanded read out mode, basically one RDO/strip per cluster
+    // But if consecutively fired strips have the same time bin, those are converted into one cluster.
+    do {
+      clusterSize = 1;
       if (m_StripHitsOnWafer[strip] > 0) {
-        clusterSize = 1;
         hitStrip = m_sct_id->strip_id(collection.identify(), strip);
-        SiChargedDiode& HitDiode = *(collection.find(hitStrip));
-        SiHelper::SetStripNum(HitDiode, clusterSize);
+        SiChargedDiode& hitDiode = *(collection.find(hitStrip));
+        int timeBin = SiHelper::GetTimeBin(hitDiode);
+        SiChargedDiode* previousHitDiode = &hitDiode;
+        // Check if consecutively fired strips have the same time bin
+        for (int newStrip=strip+1; newStrip<m_strip_max; newStrip++) {
+          if (not (m_StripHitsOnWafer[newStrip]>0)) break;
+          Identifier newHitStrip = m_sct_id->strip_id(collection.identify(), newStrip);
+          SiChargedDiode& newHitDiode = *(collection.find(newHitStrip));
+          if (timeBin!=SiHelper::GetTimeBin(newHitDiode)) break;
+          SiHelper::ClusterUsed(newHitDiode, true);
+          previousHitDiode->setNextInCluster(&newHitDiode);
+          previousHitDiode = &newHitDiode;
+          clusterSize++;
+        }
+        SiHelper::SetStripNum(hitDiode, clusterSize);
 
 #ifdef SCT_DIG_DEBUG
-        ATH_MSG_DEBUG("RDO Strip = " << strip << ", tbin = " << SiHelper::GetTimeBin(HitDiode) <<
-                      ", HitInfo(1=real, 2=crosstalk, 3=noise): " << m_StripHitsOnWafer[strip]);
+        ATH_MSG_DEBUG("RDO Strip = " << strip << ", tbin = " <<
+                      SiHelper::GetTimeBin(hitDiode) <<
+                      ", HitInfo(1=real, 2=crosstalk, 3=noise): " <<
+                      m_StripHitsOnWafer[strip]);
 #endif
       }
-      ++strip; // !< This is the starting point of the next cluster within this collection
+      strip += clusterSize; // If more than one strip fires, those following strips are skipped.
     } while (strip < m_strip_max);
   }
 

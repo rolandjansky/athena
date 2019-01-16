@@ -17,7 +17,8 @@ namespace LVL1TGCTrigger {
 class TGCTileMuCoincidenceMap {
 public:
 
-  TGCTileMuCoincidenceMap(const std::string& version="NA");
+  TGCTileMuCoincidenceMap(const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
+                          const std::string& version="NA");
   virtual ~TGCTileMuCoincidenceMap();
 
   TGCTileMuCoincidenceMap(const TGCTileMuCoincidenceMap& right);
@@ -71,7 +72,7 @@ private:
   int map[N_Input_TileMuModule][N_Endcap_SSC][N_EndcapSector][N_Side];    
 
   std::string m_verName;
-  SG::ReadCondHandleKey<TGCTriggerData> m_readCondKey;
+  const SG::ReadCondHandleKey<TGCTriggerData>& m_readCondKey;
 };
 
 

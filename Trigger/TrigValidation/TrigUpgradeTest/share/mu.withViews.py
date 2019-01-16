@@ -19,6 +19,8 @@ if not 'doL2ISO' in dir():
   doL2ISO = True 
 if not 'doEFSA' in dir():
   doEFSA = True
+if not 'doEFCB' in dir():
+  doEFCB = True
 if not 'doEFISO' in dir():
   doEFISO=True
 
@@ -108,7 +110,6 @@ from InDetRecExample.InDetKeys import InDetKeys
 include("InDetRecExample/InDetRecConditionsAccess.py")
 
 ### Load data from Muon detectors ###
-import MuonRecExample.MuonRecStandaloneOnlySetup
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 muonRecFlags.doTrackPerformance    = True
 muonRecFlags.TrackPerfSummaryLevel = 2
@@ -136,7 +137,7 @@ if TriggerFlags.doMuon:
 
   ### set up L1RoIsFilter ###
   filterL1RoIsAlg = RoRSeqFilter("filterL1RoIsAlg")
-  filterL1RoIsAlg.Input = ["MURoIDecisions"]
+  filterL1RoIsAlg.Input = ["L1MU"]
   filterL1RoIsAlg.Output = ["FilteredMURoIDecisions"]
   filterL1RoIsAlg.Chains = testChains
   filterL1RoIsAlg.OutputLevel = DEBUG
@@ -228,24 +229,28 @@ if TriggerFlags.doMuon:
 
     ### RoRSeqFilter step2 ###
     filterEFSAAlg = RoRSeqFilter("filterEFSAAlg")
-    if doL2CB and doL2SA:
-      filterEFSAAlg.Input = [trigmuCombHypo.HypoOutputDecisions]
-      filterEFSAAlg.Output = ["Filtered"+trigmuCombHypo.HypoOutputDecisions]
-    else :
-      # for now just use the L1 input when L2 is not running
-      filterEFSAAlg.Input = ["MURoIDecisions"]
-      filterEFSAAlg.Output = ["FilteredMURoIDecisionsForEF"]
-    filterEFSAAlg.Chains = testChains
-    filterEFSAAlg.OutputLevel = DEBUG
-
     ### set the EVCreator ###
     efMuViewsMaker = EventViewCreatorAlgorithm("efMuViewsMaker", OutputLevel=DEBUG)
     efMuViewsMaker.ViewFallThrough = True
-    # probably wrong input to the EVMaker
-    efMuViewsMaker.InputMakerInputDecisions = filterL1RoIsAlg.Output
+
+    if doL2CB and doL2SA:
+      filterEFSAAlg.Input = [trigmuCombHypo.HypoOutputDecisions]
+      filterEFSAAlg.Output = ["Filtered"+trigmuCombHypo.HypoOutputDecisions]
+      efMuViewsMaker.InputMakerInputDecisions = [ filterEFSAAlg.Output[0] ]
+      efMuViewsMaker.RoIsLink = "roi" # -||-
+    else :
+      # for now just use the L1 input when L2 is not running
+      filterEFSAAlg.Input = ["L1MU"]
+      filterEFSAAlg.Output = ["FilteredMURoIDecisionsForEF"]
+      efMuViewsMaker.InputMakerInputDecisions = filterL1RoIsAlg.Output
+      efMuViewsMaker.RoIsLink = "initialRoI" # -||-
+
+    filterEFSAAlg.Chains = testChains
+    filterEFSAAlg.OutputLevel = DEBUG
+
+
     efMuViewsMaker.InputMakerOutputDecisions = ["MURoIDecisionsOutputEF"]
-    efMuViewsMaker.RoIsLink = "initialRoI" # -||-
-    efMuViewsMaker.InViewRoIs = "MURoIs" # contract with the consumer
+    efMuViewsMaker.InViewRoIs = "EFMURoIs" # contract with the consumer
     efMuViewsMaker.Views = "EFMUViewRoIs"
 
     ### get EF reco sequence ###
@@ -272,6 +277,50 @@ if TriggerFlags.doMuon:
 
     ### make step ### 
     muonEFSAStep = stepSeq("muonEFSAStep", filterEFSAAlg, [muEFSASequence, muonEFSADecisionsDumper])
+
+
+  if doEFCB:
+
+    ### RoRSeqFilter step2 ###
+    filterEFCBAlg = RoRSeqFilter("filterEFCBAlg")
+    filterEFCBAlg.Input = [trigMuonEFSAHypo.HypoOutputDecisions]
+    filterEFCBAlg.Output = ["Filtered"+trigMuonEFSAHypo.HypoOutputDecisions]
+    filterEFCBAlg.Chains = testChains
+    filterEFCBAlg.OutputLevel = DEBUG
+
+    ### set the EVCreator ###
+    efCBMuViewsMaker = EventViewCreatorAlgorithm("efCBMuViewsMaker", OutputLevel=DEBUG)
+    efCBMuViewsMaker.ViewFallThrough = True
+    efCBMuViewsMaker.InputMakerInputDecisions = [ filterEFCBAlg.Output[0] ]
+    efCBMuViewsMaker.InputMakerOutputDecisions = ["MuonEFSADecisionsOutput"]
+    efCBMuViewsMaker.RoIsLink = "roi" # -||-
+    efCBMuViewsMaker.InViewRoIs = "MUCBRoIs" # contract with the consumer
+    efCBMuViewsMaker.Views = "EFMUCBViewRoIs"
+
+    ### get EF reco sequence ###
+    from TrigUpgradeTest.MuonSetup import muEFCBRecoSequence
+    muEFCBRecoSequence, muEFCBSequenceOut = muEFCBRecoSequence( efCBMuViewsMaker.InViewRoIs, OutputLevel=DEBUG )
+ 
+    efCBMuViewsMaker.ViewNodeName = muEFCBRecoSequence.name()
+
+    #Setup EF CB hypo
+    from TrigMuonHypo.TrigMuonHypoConfigMT import TrigMuonEFCombinerHypoConfig
+    trigMuonEFCBHypo = TrigMuonEFCombinerHypoConfig("TrigMuonEFCBHypoAlg")
+    trigMuonEFCBHypo.OutputLevel = DEBUG
+    trigMuonEFCBHypo.MuonDecisions = muEFCBSequenceOut
+    trigMuonEFCBHypo.HypoOutputDecisions = "EFMuonCBDecisions"
+    trigMuonEFCBHypo.HypoInputDecisions = efCBMuViewsMaker.InputMakerOutputDecisions[0]
+
+    trigMuonEFCBHypo.HypoTools = [ trigMuonEFCBHypo.TrigMuonEFCombinerHypoToolFromName( "TrigMuonEFCombinerHypoTool", c ) for c in testChains ] 
+
+    ### set the dumper ###
+    muonEFCBDecisionsDumper = DumpDecisions("muonEFCBDecisionsDumper", OutputLevel=DEBUG, Decisions = trigMuonEFCBHypo.HypoOutputDecisions )
+
+    ### make sequence ### 
+    muEFCBSequence = seqAND("muEFCBSequence", [efCBMuViewsMaker, muEFCBRecoSequence, trigMuonEFCBHypo])
+
+    ### make step ### 
+    muonEFCBStep = stepSeq("muonEFCBStep", filterEFCBAlg, [muEFCBSequence, muonEFCBDecisionsDumper])
 
 
   if doL2CB and doL2ISO:
@@ -358,6 +407,12 @@ def muonViewsMergers( name ):
     muonViewsMerger.MuonContainerInViews = [ muEFSASequenceOut ]
     muonViewsMerger.MuonContainer = [ muEFSASequenceOut ]
 
+  if doEFCB==True:
+    muonViewsMerger.TrigCompositeContainer += [ filterEFCBAlg.Output[0], trigMuonEFCBHypo.HypoOutputDecisions ]
+    muonViewsMerger.MuonContainerViews = [ efCBMuViewsMaker.Views ]
+    muonViewsMerger.MuonContainerInViews = [ muEFCBSequenceOut ]
+    muonViewsMerger.MuonContainer = [ muEFCBSequenceOut ]
+
   if doL2CB==True and doL2ISO==True: # L2CB should be also executed with L2ISO
     muonViewsMerger.TrigCompositeContainer += [ filterL2MuisoAlg.Output[0], trigmuIsoHypo.HypoOutputDecisions ]
     muonViewsMerger.L2IsoMuonContainerViews = [ l2muIsoViewsMaker.Views ]
@@ -405,6 +460,10 @@ def muonStreamESD( muonViewsMerger ):
     StreamESD.ItemList += [ "xAOD::MuonContainer#"+muEFSASequenceOut ]
     StreamESD.ItemList += [ "xAOD::MuonAuxContainer#"+muEFSASequenceOut+"Aux." ]
 
+  if doEFCB==True:
+    StreamESD.ItemList += [ "xAOD::MuonContainer#"+muEFCBSequenceOut ]
+    StreamESD.ItemList += [ "xAOD::MuonAuxContainer#"+muEFCBSequenceOut+"Aux." ]
+
   if doL2CB==True and doL2ISO==True:
     StreamESD.ItemList += [ "xAOD::L2IsoMuonContainer#"+l2muIsoSequenceOut ]
     StreamESD.ItemList += [ "xAOD::L2IsoMuonAuxContainer#"+l2muIsoSequenceOut+"Aux." ]
@@ -419,7 +478,7 @@ def muonStreamESD( muonViewsMerger ):
 
 
 
-### NO Trackinhg ###
+### NO Tracking ###
 if TriggerFlags.doMuon==True and TriggerFlags.doID==False:    
   from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
   if doL2SA==True and doL2CB==False and doEFSA==False and doL2ISO==False:
@@ -503,28 +562,31 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
     topSequence += hltTop   
 
 
-  if doL2SA==True and doL2CB==True and doEFSA==True and doL2ISO==False:
+  if doL2SA==True and doL2CB==True and doEFSA==True and doEFCB==True and doL2ISO==False:
     summary0 = summarySteps("Step1", ["L2MuonFastDecisions"] )
     step0 = parOR("step0", [ muFastStep, summary0 ] )
     summary1 = summarySteps("Step2", ["MuonL2CBDecisions"] )
     step1 = parOR("step1", [ muCombStep, summary1 ] )
     summary2 = summarySteps("Step3", ["EFMuonSADecisions"] )
     step2 = parOR("step2", [ muonEFSAStep, summary2 ] )
+    summary3 = summarySteps("Step4", ["EFMuonCBDecisions"] )
+    step3 = parOR("step3", [ muonEFCBStep, summary3 ] )
     step0filter = parOR("step0filter", [ filterL1RoIsAlg ] )
     step1filter = parOR("step1filter", [ filterL2SAAlg ] )
     step2filter = parOR("step2filter", [ filterEFSAAlg] )
-    HLTsteps = seqAND("HLTsteps", [ step0filter, step0, step1filter, step1, step2filter, step2 ]  )
+    step3filter = parOR("step3filter", [ filterEFCBAlg] )
+    HLTsteps = seqAND("HLTsteps", [ step0filter, step0, step1filter, step1, step2filter, step2, step3filter, step3 ]  )
 
-    muonViewsMerger = muonViewsMergers("L2SAandL2CBandEFSA")
+    muonViewsMerger = muonViewsMergers("L2SAandL2CBandEFSAandEFCB")
 
     ### final summary
-    summary = summarySteps("FinalAlg", ["EFMuonSADecisions"] )
+    summary = summarySteps("FinalAlg", ["EFMuonCBDecisions"] )
     summary.OutputTools = [ muonViewsMerger ]
 
 
     StreamESD = muonStreamESD(muonViewsMerger)
 
-    hltTop = seqOR( "hltTop", [ HLTsteps ] + __mon( "EFMuonSADecisions", [ "L2MuonFastDecisions",  "MuonL2CBDecisions", "EFMuonSADecisions"]) + [summary, StreamESD ] )
+    hltTop = seqOR( "hltTop", [ HLTsteps ] + __mon( "EFMuonCBDecisions", [ "L2MuonFastDecisions",  "MuonL2CBDecisions", "EFMuonSADecisions", "EFMuonCBDecisions"]) + [summary, StreamESD ] )
     topSequence += hltTop   
 
 
@@ -552,27 +614,30 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
     topSequence += hltTop   
 
  
-  if doL2SA==True and doL2CB==True and doEFSA==True and doL2ISO==True:
+  if doL2SA==True and doL2CB==True and doEFSA==True and doEFCB==True and doL2ISO==True:
     summary0 = summarySteps("Step1", ["L2MuonFastDecisions"] )
     step0 = parOR("step0", [ muFastStep, summary0 ] )
     summary1 = summarySteps("Step2", ["MuonL2CBDecisions"] )
     step1 = parOR("step1", [ muCombStep, summary1 ] )
-    summary2 = summarySteps("Step3", ["EFMuonSADecisions", "MuonL2IsoDecisions"] )
-    step2 = parOR("step2", [ muonEFSAStep, l2muIsoStep, summary2 ] )
+    summary2 = summarySteps("Step3", ["EFMuonSADecisions"] )
+    step2 = parOR("step2", [ muonEFSAStep, summary2 ] )
+    summary3 = summarySteps("Step4", ["EFMuonCBDecisions", "MuonL2IsoDecisions"] )
+    step3 = parOR("step3", [ muonEFCBStep, l2muIsoStep, summary3 ] )
     step0filter = parOR("step0filter", [ filterL1RoIsAlg ] )
     step1filter = parOR("step1filter", [ filterL2SAAlg ] )
-    step2filter = parOR("step2filter", [ filterEFSAAlg, filterL2MuisoAlg] )
-    HLTsteps = seqAND("HLTsteps", [ step0filter, step0, step1filter, step1, step2filter, step2 ]  )
+    step2filter = parOR("step2filter", [ filterEFSAAlg] )
+    step3filter = parOR("step3filter", [ filterEFCBAlg, filterL2MuisoAlg] )
+    HLTsteps = seqAND("HLTsteps", [ step0filter, step0, step1filter, step1, step2filter, step2, step3filter, step3 ]  )
 
     muonViewsMerger = muonViewsMergers("all")
 
     ### final summary
-    summary = summarySteps("FinalAlg", ["EFMuonSADecisions", "MuonL2IsoDecisions"] )
+    summary = summarySteps("FinalAlg", ["EFMuonCBDecisions", "MuonL2IsoDecisions"] )
     summary.OutputTools = [ muonViewsMerger ]
 
     StreamESD = muonStreamESD(muonViewsMerger)
 
-    hltTop = seqOR( "hltTop", [ HLTsteps ] + __mon("EFMuonSADecisions", ["L2MuonFastDecisions", "MuonL2CBDecisions", "EFMuonSADecisions"]) +[ summary, StreamESD ] )
+    hltTop = seqOR( "hltTop", [ HLTsteps ] + __mon("EFMuonCBDecisions", ["L2MuonFastDecisions", "MuonL2CBDecisions", "EFMuonSADecisions", "EFMuonCBDecisions"]) +[ summary, StreamESD ] )
     topSequence += hltTop   
 
    

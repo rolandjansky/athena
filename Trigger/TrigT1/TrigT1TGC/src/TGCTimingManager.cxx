@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //$Id: TGCTimingManager.cxx,v 1.4 2009-05-13 02:53:51 isaya Exp $
@@ -26,8 +26,9 @@
 namespace LVL1TGCTrigger {
 
  
-TGCTimingManager::TGCTimingManager():
-  bunchCounter(0)
+TGCTimingManager::TGCTimingManager(const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey)
+  : bunchCounter(0),
+    m_readCondKey (readCondKey)
 {
 }
 
@@ -96,7 +97,7 @@ void TGCTimingManager::startSectorLogic(TGCSector* sector)
 #endif
 
   TGCSectorLogic* sl= sector->getSL();
-  if(sl!=0) sl->clockIn(bunchCounter);
+  if(sl!=0) sl->clockIn(m_readCondKey, bunchCounter);
 }
 
 } //end of namespace bracket
