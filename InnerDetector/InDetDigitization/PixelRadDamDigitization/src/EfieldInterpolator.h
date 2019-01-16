@@ -25,14 +25,15 @@
 
 // Different options to retrieve E field
 // default: interspline
+
+namespace RadDam{
+
 enum interpolationMethod{
     TCAD,               //use Precomputed TCAD map 
     interspline,        //use interpolation based on cubic splines
     interinvdist,       //use inverse distance weighted estimate
     linearField         //linear field according to bias voltage
 };
-
-namespace RadDam{
 
 class EfieldInterpolator: public AthAlgTool { 
  public: 
