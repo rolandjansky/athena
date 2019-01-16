@@ -55,6 +55,7 @@ atlas_depends_on_subdirs(
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )
 find_package( Eigen )
+find_package( lwtnn )
 find_package( ROOT COMPONENTS TMVA Core Tree MathCore Hist RIO pthread
     MathMore Minuit Minuit2 Matrix Physics HistPainter Rint RooFitCore RooFit )
 
@@ -86,11 +87,13 @@ atlas_add_library(
     src/parse_json.cxx src/Stack.cxx src/RNNIPTag.cxx
 
     PUBLIC_HEADERS JetTagTools
-    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
+    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+    ${EIGEN_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
     PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS}
     DEFINITIONS ${CLHEP_DEFINITIONS}
 
     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES}
+    ${LWTNN_LIBRARIES}
     AsgTools AthenaBaseComps SGTools GeoPrimitives xAODBTagging xAODJet
     xAODTracking GaudiKernel JetTagInfo JetSubStructureUtils TrkParameters
     JetRecLib JetSubStructureMomentToolsLib egammaMVACalibLib MVAUtils
