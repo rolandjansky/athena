@@ -14,7 +14,7 @@ if [ -z ${TEST} ]; then
   export TEST="TrigP1Test"
 fi
 
-export NAME=Trigreco_physicsV7_currentT0
+export NAME=Trigreco_physicsV8_currentT0
 export JOB_LOG="${NAME}.log"
 
 timeout 100m trigtest_ART.pl --cleardir --test ${NAME}  --rundir ${NAME} --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
@@ -22,7 +22,7 @@ timeout 100m trigtest_ART.pl --cleardir --test ${NAME}  --rundir ${NAME} --conf 
 ATH_RETURN=${PIPESTATUS[0]}
 echo "art-result: ${ATH_RETURN} ${NAME}"
 
-export NAME=TrigEDMCheck_physicsV7_currentT0_ESD
+export NAME=TrigEDMCheck_physicsV8_currentT0_ESD
 export JOB_LOG="${NAME}.log"
 
 timeout 50m trigtest_ART.pl --cleardir  --test ${NAME} --rundir ${NAME} --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
@@ -30,7 +30,7 @@ timeout 50m trigtest_ART.pl --cleardir  --test ${NAME} --rundir ${NAME} --conf T
 ATH_RETURN=${PIPESTATUS[0]}
 echo "art-result: ${ATH_RETURN} ${NAME}"
 
-export NAME=TrigEDMCheck_physicsV7_currentT0_AOD
+export NAME=TrigEDMCheck_physicsV8_currentT0_AOD
 export JOB_LOG="${NAME}.log"
 
 timeout 50m trigtest_ART.pl --cleardir  --test ${NAME} --rundir ${NAME} --conf TrigP1Test_ART.conf | tee ${JOB_LOG}

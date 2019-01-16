@@ -1050,6 +1050,10 @@ class triggerMenuSetup(JobProperty):
         'Physics_pp_v7_tight_physics_prescale','Physics_pp_v7_unprescaled_only_physics_prescale',
 
         # -----------------------------------------------------------------
+        # Run 3
+        'MC_pp_v8','Physics_pp_v8', 'Physics_pp_v8_lowmu.py',
+
+        # -----------------------------------------------------------------
         # Upgrade
         'MC_PhaseII',
         ]
