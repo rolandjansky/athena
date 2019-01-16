@@ -32,8 +32,8 @@ StatusCode ExampleMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     lumiPerBCID = lbAverageInteractionsPerCrossing();
     lb = GetEventInfo(ctx)->lumiBlock();
     if (m_doRandom) {
-        TRandom *r = new TRandom();
-        random = r->Rndm();
+        TRandom r;
+        random = r.Rndm();
     }
 
     // Use the getGroup method to get your instance of the GenericMonitoringTool by name

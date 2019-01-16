@@ -116,7 +116,6 @@ if __name__=='__main__':
     file = 'data16_13TeV.00311321.physics_Main.recon.AOD.r9264/AOD.11038520._000001.pool.root.1'
     ConfigFlags.Input.Files = [nightly+file]
     ConfigFlags.Input.isMC = False
-    ConfigFlags.DQ.FileKey = 'EXPERT'
     ConfigFlags.Output.HISTFileName = 'ExampleMonitor.root'
     ConfigFlags.lock()
 
@@ -127,7 +126,6 @@ if __name__=='__main__':
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     exampleMonitorAcc,exampleMonitorAlg = ExampleMonitoringConfig(ConfigFlags)
-    exampleMonitorAlg.ClustersOutputName = ConfigFlags.DQ.FileKey
     
     cfg.merge(exampleMonitorAcc)
     cfg.run()
