@@ -38,7 +38,9 @@ atlas_depends_on_subdirs( PUBLIC
 
 
 # External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread Eigen CLHEP )
+find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( Eigen )
+find_package( CLHEP )
 
 # Component(s) in the package:
 atlas_add_library( FTK_RecToolsLib
