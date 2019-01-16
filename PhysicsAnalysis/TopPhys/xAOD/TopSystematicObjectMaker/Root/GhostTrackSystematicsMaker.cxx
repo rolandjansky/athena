@@ -241,9 +241,14 @@ namespace top {
     StatusCode GhostTrackSystematicsMaker::applyBiasingSystematic(xAOD::JetContainer * nominal,
                                                                    InDet::InDetTrackBiasingTool * tool,
                                                                    const CP::SystematicSet & syst) const {
-        ///-- Inform the tool --///
+        
+	
+	std::cout << "Entering applyBiasingSystematic function." << std::endl;
+	///-- Inform the tool --///
         top::check(tool->applySystematicVariation(syst),
                    "Failed to configure tool for systematic variation");
+
+	std::cout << "Systematic variation applied" << std::endl;
 
         const std::string sgKey{m_config->decoKeyJetGhostTrack() +
                 "_Particles_" + syst.name()};
@@ -266,6 +271,8 @@ namespace top {
 
             std::vector<const xAOD::IParticle *> newGhosts;
 	    
+	    std::cout << "jet->pt(): " << jet->pt() << std::endl;
+	    
 	    if( std::find(ghostTracks.begin(),ghostTracks.end(), nullptr ) !=  ghostTracks.end()){
 		std::cout << "Warning in GhostTrackSystematicsMaker: Found nullptr in ghostTrack vector. Systematic variations won't be calculated for this jet." << std::endl;
 		std::cout << "Jet pt: " << jet->pt() << " eta: " << jet->eta() << std::endl;
@@ -278,8 +285,10 @@ namespace top {
                 top::check(tp, "Failed to convert xAOD::IParticle to xAOD::TrackParticle for ghost track");
 
                 xAOD::TrackParticle * newTp{nullptr};
+		std::cout << "Getting corrected copy" << std::endl;
                 top::check(tool->correctedCopy(* tp, newTp),
                            "Failure to apply ghost track systematic");
+		std::cout << "Corrected copy obtained" << std::endl;	   
                 top::check(newTp, "Systematically varied xAOD::TrackParticle is nullptr");
 
                 newTrackParticles->push_back(newTp);
@@ -288,6 +297,8 @@ namespace top {
 
             jet->setAssociatedObjects(m_config->decoKeyJetGhostTrack(syst.hash()), newGhosts);
         }
+
+	std::cout << "Leaving applyBiasingSystematic function." << std::endl;
 
         return StatusCode::SUCCESS;
     }
