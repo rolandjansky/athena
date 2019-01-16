@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -20,7 +20,8 @@
 #include "xAODTracking/TrackMeasurementValidation.h"
 #include "xAODTracking/TrackMeasurementValidationContainer.h"
 
-#include "PixelConditionsTools/IPixelDCSConditionsTool.h"
+#include "PixelConditionsData/PixelDCSConditionsData.h"
+#include "PixelConditionsData/PixelModuleData.h"
 #include "InDetCondServices/ISiLorentzAngleTool.h"
 #include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 #include "PixelConditionsServices/IPixelCalibSvc.h"
@@ -103,7 +104,13 @@ private:
   bool m_useSiHitsGeometryMatching;
 
   ServiceHandle<IPixelCalibSvc> m_calibSvc;
-  ToolHandle<IPixelDCSConditionsTool> m_DCSConditionsTool{this, "PixelDCSConditionsTool", "PixelDCSConditionsTool", "Tool to retrieve Pixel information"};
+
+  SG::ReadCondHandleKey<PixelModuleData> m_condDCSStateKey{this, "PixelDCSStateCondData", "PixelDCSStateCondData", "Pixel FSM state key"};
+  SG::ReadCondHandleKey<PixelModuleData> m_condDCSStatusKey{this, "PixelDCSStatusCondData", "PixelDCSStatusCondData", "Pixel FSM status key"};
+
+  SG::ReadCondHandleKey<PixelDCSConditionsData> m_readKeyTemp{this, "ReadKeyeTemp", "PixelDCSTempCondData",         "Key of input sensor temperature conditions folder"};
+  SG::ReadCondHandleKey<PixelDCSConditionsData> m_readKeyHV  {this, "ReadKeyHV",    "PixelDCSHVCondData",           "Key of input bias voltage conditions folder"};
+
   ServiceHandle<IPixelByteStreamErrorsSvc> m_pixelBSErrorsSvc;
   ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool", "Tool to retreive Lorentz angle"};
 

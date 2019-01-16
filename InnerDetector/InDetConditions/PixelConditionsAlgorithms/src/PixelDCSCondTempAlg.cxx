@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelDCSCondTempAlg.h"
@@ -10,12 +10,19 @@
 
 PixelDCSCondTempAlg::PixelDCSCondTempAlg(const std::string& name, ISvcLocator* pSvcLocator):
   ::AthAlgorithm(name, pSvcLocator),
+  m_pixelID(nullptr),
+  m_useConditions(true),
+  m_defaultTemperature(-7.0),
   m_condSvc("CondSvc", name)
 {
+  declareProperty("UseConditions", m_useConditions); 
+  declareProperty("Temperature",   m_defaultTemperature, "Default temperature in Celcius."); 
 }
 
 StatusCode PixelDCSCondTempAlg::initialize() {
   ATH_MSG_DEBUG("PixelDCSCondTempAlg::initialize()");
+
+  ATH_CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
 
   ATH_CHECK(m_condSvc.retrieve());
 
@@ -60,16 +67,28 @@ StatusCode PixelDCSCondTempAlg::execute() {
 
   // Read temperature info
   std::string param{"temperature"};
-  for (CondAttrListCollection::const_iterator attrList=readCdo->begin(); attrList!=readCdo->end(); ++attrList) {
-    CondAttrListCollection::ChanNum channelNumber{attrList->first};
-    CondAttrListCollection::AttributeList payload{attrList->second};
-    if (payload.exists(param) and not payload[param].isNull()) {
-      float val = payload[param].data<float>();
-      writeCdo->setValue(channelNumber, val);
-    } 
-    else {
-      ATH_MSG_WARNING(param << " does not exist for ChanNum " << channelNumber);
-      writeCdo->setValue(channelNumber, -88.0);
+  if (m_useConditions) {
+    for (CondAttrListCollection::const_iterator attrList=readCdo->begin(); attrList!=readCdo->end(); ++attrList) {
+      CondAttrListCollection::ChanNum channelNumber{attrList->first};
+      CondAttrListCollection::AttributeList payload{attrList->second};
+      if (payload.exists(param) and not payload[param].isNull()) {
+        float val = payload[param].data<float>();
+        if (val>100.0 || val<-80.0) {
+          writeCdo->setValue((int)channelNumber, m_defaultTemperature);
+        }
+        else {
+          writeCdo->setValue((int)channelNumber, val);
+        }
+      } 
+      else {
+        ATH_MSG_WARNING(param << " does not exist for ChanNum " << channelNumber);
+        writeCdo->setValue((int)channelNumber, m_defaultTemperature);
+      }
+    }
+  }
+  else {
+    for (int i=0; i<(int)m_pixelID->wafer_hash_max(); i++) {
+      writeCdo->setValue(i, m_defaultTemperature);
     }
   }
 

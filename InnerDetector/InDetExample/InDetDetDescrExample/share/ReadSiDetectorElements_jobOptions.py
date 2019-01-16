@@ -66,13 +66,8 @@ from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc
 # Pixel
 #
 # Load DCS service
-from PixelConditionsTools.PixelDCSConditionsToolSetup import PixelDCSConditionsToolSetup
-pixelDCSConditionsToolSetup = PixelDCSConditionsToolSetup()
-pixelDCSConditionsToolSetup.setIsDATA(isData)
-pixelDCSConditionsToolSetup.setup()
 from SiPropertiesSvc.PixelSiPropertiesToolSetup import PixelSiPropertiesToolSetup
 pixelSiPropertiesToolSetup = PixelSiPropertiesToolSetup()
-pixelSiPropertiesToolSetup.setSiliconTool(pixelDCSConditionsToolSetup.getTool())
 pixelSiPropertiesToolSetup.setup()
 pixelSiPropertiesTool = pixelSiPropertiesToolSetup.getTool()
 

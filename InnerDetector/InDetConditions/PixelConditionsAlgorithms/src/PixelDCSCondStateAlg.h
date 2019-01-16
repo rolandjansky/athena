@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #ifndef PIXELDCSCONDSTATEALG
@@ -11,7 +11,7 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include "StoreGate/WriteCondHandleKey.h"
-#include "PixelConditionsData/PixelDCSConditionsData.h"
+#include "PixelConditionsData/PixelModuleData.h"
 
 #include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/Property.h"
@@ -28,8 +28,9 @@ class PixelDCSCondStateAlg : public AthAlgorithm {
   private:
     SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyState   {this, "ReadKeyState",   "/PIXEL/DCS/FSMSTATE",    "Key of input (raw) State conditions folder"};
     SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyStatus  {this, "ReadKeyStatus",  "/PIXEL/DCS/FSMSTATUS",   "Key of input (raw) Status conditions folder"};
-    SG::WriteCondHandleKey<PixelDCSConditionsData> m_writeKeyState {this, "WriteKeyState",  "PixelDCSStateCondData",  "Key of output (derived) State conditions folder"};
-    SG::WriteCondHandleKey<PixelDCSConditionsData> m_writeKeyStatus{this, "WriteKeyStatus", "PixelDCSStatusCondData", "Key of output (derived) Status conditions folder"};
+
+    SG::WriteCondHandleKey<PixelModuleData> m_writeKeyState {this, "WriteKeyState",  "PixelDCSStateCondData",  "Key of output (derived) State conditions folder"};
+    SG::WriteCondHandleKey<PixelModuleData> m_writeKeyStatus{this, "WriteKeyStatus", "PixelDCSStatusCondData", "Key of output (derived) Status conditions folder"};
 
     ServiceHandle<ICondSvc> m_condSvc;
 };

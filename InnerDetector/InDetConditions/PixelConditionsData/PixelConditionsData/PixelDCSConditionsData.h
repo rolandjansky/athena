@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELDCSCONDDATA_H
 #define PIXELDCSCONDDATA_H
 
 #include "AthenaKernel/CLASS_DEF.h"
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include <map>
 
 class PixelDCSConditionsData {
@@ -14,17 +13,13 @@ class PixelDCSConditionsData {
     PixelDCSConditionsData();
     virtual ~PixelDCSConditionsData();
 
-    void setValue(const CondAttrListCollection::ChanNum& chanNum, const float value);
-    void setValue(const CondAttrListCollection::ChanNum& chanNum, const std::string value);
-    bool getValue(const CondAttrListCollection::ChanNum& chanNum, float& value) const;
-    bool getValue(const CondAttrListCollection::ChanNum& chanNum, std::string& value) const;
+    void setValue(const int chanNum, const float value);
+    bool getValue(const int chanNum, float& value) const;
     void clear();
 
   private:
-    typedef std::map<CondAttrListCollection::ChanNum, float> FloatConditions;
-    typedef std::map<CondAttrListCollection::ChanNum, std::string> StringConditions;
+    typedef std::map<int, float> FloatConditions;
     FloatConditions  m_channelValues;
-    StringConditions m_channelStrings;
 };
 
 CLASS_DEF( PixelDCSConditionsData , 345532773 , 1 )

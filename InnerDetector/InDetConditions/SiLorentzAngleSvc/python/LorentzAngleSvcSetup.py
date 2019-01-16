@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # Usage:
 #
@@ -53,8 +53,6 @@ class LorentzAngleSvcSetup:
             from PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
             pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
             self.pixel = pixelLorentzAngleToolSetup.PixelLorentzAngleTool
-            self.pixelDCSConditionsTool = pixelLorentzAngleToolSetup.PixelDCSConditionsTool
-            self.PixelDCSConditionsTool = pixelLorentzAngleToolSetup.PixelDCSConditionsTool
             self.pixelSiPropertiesTool  = pixelLorentzAngleToolSetup.PixelSiPropertiesTool
             self.PixelSiPropertiesTool  = pixelLorentzAngleToolSetup.PixelSiPropertiesTool
         ##

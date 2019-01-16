@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelConfigCondAlg.h"
@@ -156,8 +156,8 @@ StatusCode PixelConfigCondAlg::execute() {
           int moduleStatus = std::atoi(moduleStringStatus[0].c_str());
           int chipStatus   = std::atoi(moduleStringStatus[1].c_str());
 
-          writeCdo -> setModuleStatus(moduleHash, moduleStatus);
-          writeCdo -> setChipStatus(moduleHash, chipStatus);
+          if (moduleStatus>0) { writeCdo->setModuleStatus(moduleHash, moduleStatus); }
+          if (chipStatus>0)   { writeCdo->setChipStatus(moduleHash, chipStatus); }
         }
       }
       // RUN-1, RUN-2 format
@@ -179,15 +179,11 @@ StatusCode PixelConfigCondAlg::execute() {
         int moduleStatus = std::atoi(moduleStringStatus[0].c_str());
         int chipStatus   = std::atoi(moduleStringStatus[1].c_str());
 
-        writeCdo -> setModuleStatus(moduleHash, moduleStatus);
-        writeCdo -> setChipStatus(moduleHash, chipStatus);
+        if (moduleStatus>0) { writeCdo->setModuleStatus(moduleHash, moduleStatus); }
+        if (chipStatus>0)   { writeCdo->setChipStatus(moduleHash, chipStatus); }
       } 
       else {
         ATH_MSG_WARNING("Can not retrieve " << channelNumber);
-        for (int i=0; i<2048; i++) {
-          writeCdo -> setModuleStatus(i, 0);
-          writeCdo -> setChipStatus(i, 0);
-        }
       }
     }
   }

@@ -1,21 +1,23 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelTDAQCondAlg.h"
-#include "Identifier/IdentifierHash.h"
 #include "GaudiKernel/EventIDRange.h"
 #include <memory>
 #include <sstream>
 
 PixelTDAQCondAlg::PixelTDAQCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
   ::AthAlgorithm(name, pSvcLocator),
+  m_pixelID(0),
   m_condSvc("CondSvc", name)
 {
 }
 
 StatusCode PixelTDAQCondAlg::initialize() {
   ATH_MSG_INFO("PixelTDAQCondAlg::initialize()");
+
+  ATH_CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
 
   ATH_CHECK(m_condSvc.retrieve());
 
@@ -56,10 +58,16 @@ StatusCode PixelTDAQCondAlg::execute() {
   std::unique_ptr<PixelModuleData> writeCdo(std::make_unique<PixelModuleData>());
 
   // Read dead map info
+  std::vector<int> checkActive;
   for (CondAttrListCollection::const_iterator attrList=readCdo->begin(); attrList!=readCdo->end(); ++attrList) {
     CondAttrListCollection::ChanNum channelNumber = attrList->first;
     CondAttrListCollection::AttributeList payload = attrList->second;
-    writeCdo -> setTDAQModuleStatus(channelNumber-1, 0);
+    checkActive.push_back((int)channelNumber-1);
+  }
+  
+  for (int i=0; i<(int)m_pixelID->wafer_hash_max(); i++) {
+    auto itr = std::find(checkActive.begin(),checkActive.end(),i);
+    if ((size_t)std::distance(checkActive.begin(),itr)==checkActive.size()) { writeCdo->setModuleStatus(i,1); }
   }
 
   if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
