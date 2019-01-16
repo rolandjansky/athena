@@ -11,7 +11,7 @@ from GaudiKernel.GaudiHandles import PublicToolHandle, PublicToolHandleArray, Se
 import ast
 import collections
 
-from UnifyProperties import unifyProperty, unifySet
+from UnifyProperties import unifyProperty, unifySet, matchProperty
 
 
 class DeduplicationFailed(RuntimeError):
@@ -175,8 +175,12 @@ class ComponentAccumulator(object):
         for algo in algorithms:
             if not isinstance(algo, ConfigurableAlgorithm):
                 raise TypeError("Attempt to add wrong type: %s as event algorithm" % type( algo ).__name__)
-             
-            seq+=algo #TODO: Deduplication necessary?
+
+            existingAlg = findAlgorithm(seq, algo.getName())
+            if existingAlg:
+                self._deduplicateComponent(algo, existingAlg)
+            else:
+                seq+=algo #TODO: Deduplication necessary?
             pass
         return None
 
@@ -271,11 +275,13 @@ class ComponentAccumulator(object):
                 if type(oldprop) != type(newprop):
                     raise DeduplicationFailed(" '%s' defined multiple times with conflicting types %s and %s" % \
                                                       (comp.getJobOptName(),type(oldprop),type(newprop)))
-                
+
+                propid = "%s.%s" % (comp.getType(), str(prop))
+
                 #Note that getattr for a list property works, even if it's not in ValuedProperties
                 if (oldprop!=newprop):
                     #found property mismatch
-                    if isinstance(oldprop,PublicToolHandle) or isinstance(oldprop,ServiceHandle): 
+                    if isinstance(oldprop,PublicToolHandle) or isinstance(oldprop,ServiceHandle):
                         if oldprop.getFullName()==newprop.getFullName():
                             # For public tools/services we check only their full name because they are already de-duplicated in addPublicTool/addSerivce
                             continue
@@ -283,24 +289,29 @@ class ComponentAccumulator(object):
                             raise DeduplicationFailed("PublicToolHandle / ServiceHandle '%s.%s' defined multiple times with conflicting values %s and %s" % \
                                                               (comp.getJobOptName(),oldprop.getFullName(),newprop.getFullName()))
                     elif isinstance(oldprop,PublicToolHandleArray):
-                            for newtool in newprop:
-                                if newtool not in oldprop: 
-                                    oldprop+=[newtool,]
-                            continue
+                        for newtool in newprop:
+                            if newtool not in oldprop:
+                                oldprop+=[newtool,]
+                        continue
                     elif isinstance(oldprop,ConfigurableAlgTool):
                         self._deduplicateComponent(oldprop,newprop)
                         pass
                     elif isinstance(oldprop,GaudiHandles.GaudiHandleArray):
+
+                        if matchProperty(propid):
+                            mergeprop = unifyProperty(propid, oldprop, newprop)
+                            setattr(comp, prop, mergeprop)
+                            continue
+
                         for newTool in newprop:
                             self._deduplicate(newTool,oldprop)
                         pass
                     elif isinstance(oldprop,list): #if properties are mergeable, do that!
-                        propid="%s.%s" % (comp.getType(),str(prop))
                         #Try merging this property. Will raise on failure
                         mergeprop=unifyProperty(propid,oldprop,newprop)
                         setattr(comp,prop,mergeprop)
                     elif isinstance(oldprop,dict): #Dicts/maps can be unified
-                        #find conflicting keys 
+                        #find conflicting keys
                         doubleKeys= set(oldprop.keys()) & set(prop.keys())
                         for k in doubleKeys():
                             if oldprop[k]!= prop[k]:
@@ -427,7 +438,7 @@ class ComponentAccumulator(object):
                     existingAlg = findAlgorithm( dest, c.name(), depth=1 )
                     if existingAlg:
                         if existingAlg != c: # if it is the same we can just skip it, else this indicates an error
-                            raise ConfigurationError( "Duplicate algorithm %s in source and destination sequences %s" % ( c.name(), src.name()  ) )
+                            self._deduplicate(c, existingAlg)
                     else: # absent, adding
                         self._msg.debug("  Merging algorithm %s to a sequence %s", c.name(), dest.name() )
                         dest += c
