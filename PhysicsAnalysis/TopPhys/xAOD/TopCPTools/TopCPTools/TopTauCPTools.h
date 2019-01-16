@@ -15,6 +15,9 @@
 #include "AsgTools/ToolHandleArray.h"
 #include "AsgTools/AnaToolHandle.h"
 
+//PileupReweighting include:
+#include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
+
 // Tau include(s):
 #include "TauAnalysisTools/ITauSelectionTool.h"
 #include "TauAnalysisTools/ITauSmearingTool.h"
@@ -38,6 +41,7 @@ class TauCPTools final : public asg::AsgTool {
 
   ToolHandle<TauAnalysisTools::ITauSelectionTool> m_tauSelectionTool;
   ToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauEffCorrTool;
+  ToolHandle<CP::IPileupReweightingTool> m_pileupReweightingTool;
 
   ToolHandle<TauAnalysisTools::ITauSelectionTool> m_tauSelectionToolLoose;
   ToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauEffCorrToolLoose;
