@@ -14,11 +14,8 @@
 #include "AthenaKernel/getMessageSvc.h"
 #include "CxxUtils/ubsan_suppress.h"
 
-
 #include "AthenaMonitoring/GenericMonitoringTool.h"
-#include "AthenaMonitoring/MonitoredGroup.h"
-#include "AthenaMonitoring/MonitoredScalar.h"
-#include "AthenaMonitoring/MonitoredTimer.h"
+#include "AthenaMonitoring/Monitored.h"
 
 
 TH1* getHist( ITHistSvc* histSvc, const std::string& histName ) {
