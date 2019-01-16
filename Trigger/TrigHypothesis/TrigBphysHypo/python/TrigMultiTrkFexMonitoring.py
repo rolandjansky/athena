@@ -2,11 +2,11 @@
 
 from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig 
 
-ERROR_labels = ' No_EventInfo : WrongNum_Input_TE : BphysColl_Fails '
-ERROR_number = 3
+ERROR_labels = ' AlgorithmProblem : BphysColl_Fails '
+ERROR_number = 2
 
 ACCEPTANCE_labels = ' Input : HltExecute : PassNL2SAMuons : PassNL2CombMuons : PassNEFMuons : PassNTracks : HighPtTrack : NTrkCharge : NTrkMass : PairCharge : PairMass : RecordedCollection '
-ACCEPTANCE_number = 12
+ACCEPTANCE_number = 13
 
 class TrigMultiTrkFexValidationMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="TrigMultiTrkFexValidationMonitoring"):
@@ -38,7 +38,10 @@ class TrigMultiTrkFexValidationMonitoring(TrigGenericMonitoringToolConfig):
                                            xbins=100, xmin=0., xmax=100.) ]
         self.Histograms += [ defineHistogram('NPair_accepted', type='TH1F', title="Number of hight pt pairs (accepted)",
                                            xbins=100, xmin=0., xmax=100.) ]
-        
+        self.Histograms += [ defineHistogram('logNCombinations_processed', type='TH1F', title="Log10 (Number of combinations processed)",
+                                           xbins=50, xmin=0., xmax=5.) ]
+        self.Histograms += [ defineHistogram('logNCombinations_accepted', type='TH1F', title=" Log10 (Number of combinations accepted)",
+                                           xbins=50, xmin=0., xmax=5.) ]
 
 
 
@@ -69,8 +72,11 @@ class TrigMultiTrkFexOnlineMonitoring(TrigGenericMonitoringToolConfig):
                                            xbins=100, xmin=0., xmax=100.) ]
         self.Histograms += [ defineHistogram('NTrkHighPt_accepted', type='TH1F', title="Number of high pt tracks (accepted)",
                                            xbins=100, xmin=0., xmax=100.) ]
-        self.Histograms += [ defineHistogram('NPair_all', type='TH1F', title="Number of hight pt pairs",
-                                           xbins=100, xmin=0., xmax=100.) ]
-        self.Histograms += [ defineHistogram('NPair_accepted', type='TH1F', title="Number of hight pt pairs (accepted)",
-                                           xbins=100, xmin=0., xmax=100.) ]
-        
+        #self.Histograms += [ defineHistogram('NPair_all', type='TH1F', title="Number of hight pt pairs",
+        #                                   xbins=100, xmin=0., xmax=100.) ]
+        #self.Histograms += [ defineHistogram('NPair_accepted', type='TH1F', title="Number of hight pt pairs (accepted)",
+        #                                   xbins=100, xmin=0., xmax=100.) ]
+        self.Histograms += [ defineHistogram('logNCombinations_processed', type='TH1F', title="Log10 (Number of combinations processed)",
+                                           xbins=50, xmin=0., xmax=5.) ]
+        self.Histograms += [ defineHistogram('logNCombinations_accepted', type='TH1F', title=" Log10 (Number of combinations accepted)",
+                                           xbins=50, xmin=0., xmax=5.) ]

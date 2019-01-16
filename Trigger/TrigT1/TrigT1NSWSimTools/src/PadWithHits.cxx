@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1NSWSimTools/PadWithHits.h"
@@ -8,18 +8,11 @@
 #include "TVector3.h"
 
 #include "TrigT1NSWSimTools/TriggerTypes.h"
-// #include "NSWNtuple/sTGCgeometry.h"
 #include "TrigT1NSWSimTools/vector_utils.h"
-// #include "NSWNtuple/NSW_sTGCHitPosition.h"
 
-#include <algorithm>
 #include <cassert>
-#include <functional>
 #include <float.h> // FLT_MIN/FLT_MAX
-#include <iostream>
-#include <math.h>  // M_PI
 #include <sstream>
-
 
 namespace NSWL1 {
  std::string Pad::pickle() const
@@ -36,27 +29,6 @@ namespace NSWL1 {
     return oo.str();
   }
 
-/*
-  //-------------------------------------
-  bool operator== (const Pad &lhs, const Pad &rhs) {
-    return lhs.ieta  ==rhs.ieta
-      &&   lhs.iphi  ==rhs.iphi
-      &&   lhs.multiplet ==rhs.multiplet
-      &&   lhs.layer ==rhs.layer
-      &&   lhs.sector==rhs.sector
-      &&   lhs.sectortype==rhs.sectortype
-      &&   lhs.side  ==rhs.side
-      &&   lhs.module ==rhs.module;
-  }
-  //-------------------------------------
-  std::ostream& operator<<( std::ostream& oo, const Pad &p){
-    oo<<"pad["<<p.ieta<<","<<p.iphi<<"] :"
-      " (m="<<p.multiplet<<", l="<<p.layer<<", s="<<p.sector<<", st="<<p.sectortype
-      <<", side="<<(p.side==0 ? "A" : "C")<<", m="<<p.module
-      <<")";
-    return oo;
-  }
-  */
   //-------------------------------------
   
   //S.I : A lot of cleaning up can be done in this file. Most of the methods below are never used..
@@ -69,15 +41,15 @@ namespace NSWL1 {
   //--------------------------------------------------------------
   float phi_mpi_pi(const double &val) {
     double value(val);
-    while(value <= -M_PI) value += 2.*M_PI;
-    while(value >  +M_PI) value -= 2.*M_PI;
+    while(value <= -TMath::Pi()) value += 2.*TMath::Pi();
+    while(value >  +TMath::Pi()) value -= 2.*TMath::Pi();
     return value;
   }
   //--------------------------------------------------------------
   float phi_zero_2pi(const double &val) {
     double value(val);
-    while(value <= 0.     ) value += 2.*M_PI;
-    while(value >  2.*M_PI) value -= 2.*M_PI;
+    while(value <= 0.     ) value += 2.*TMath::Pi();
+    while(value >  2.*TMath::Pi()) value -= 2.*TMath::Pi();
     return value;
   }
 

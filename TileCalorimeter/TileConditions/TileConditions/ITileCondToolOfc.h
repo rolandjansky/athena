@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_ITILECONDTOOLOFC_H
@@ -18,16 +18,17 @@ typedef struct { // OFC weights
 
 
 class ITileCondToolOfc : public virtual IAlgTool {
- public:
+public:
+  DeclareInterfaceID(ITileCondToolOfc, 1, 0);
 
   virtual ~ITileCondToolOfc() {}
 
-  virtual const TileOfcWeightsStruct * getOfcWeights(unsigned int drawerIdx, unsigned int channel, unsigned int adc, float& phase, bool of2) = 0 ;
-
-  virtual int getNSamples(void) = 0 ;
-
-  DeclareInterfaceID(ITileCondToolOfc, 1, 0);
-
+  virtual StatusCode getOfcWeights(unsigned int drawerIdx,
+                                   unsigned int channel,
+                                   unsigned int adc,
+                                   float& phase,
+                                   bool of2,
+                                   TileOfcWeightsStruct& weights) const  = 0;
 };
 
 #endif

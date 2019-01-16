@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -577,17 +577,21 @@ double TileRawChannelBuilderOpt2Filter::compute(int ros, int drawer, int channel
   float ofcPhase = (float) phase;
 
   unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
-  const TileOfcWeightsStruct* weights;
-  weights = m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, ofcPhase, m_of2);
+  TileOfcWeightsStruct weights;
+  if (m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, ofcPhase, m_of2, weights).isFailure())
+  {
+    ATH_MSG_ERROR( "getOfcWeights fails" );
+    return 0;
+  }
 
   phase = ofcPhase;
 
   for (i = 0; i < digits_size; ++i) {
-    a[i] = weights->w_a[i];
-    b[i] = weights->w_b[i];
-    g[i] = weights->g[i];
-    dg[i] = weights->dg[i];
-    if (m_of2) c[i] = weights->w_c[i]; // [OptFilterPha+100];
+    a[i] = weights.w_a[i];
+    b[i] = weights.w_b[i];
+    g[i] = weights.g[i];
+    dg[i] = weights.dg[i];
+    if (m_of2) c[i] = weights.w_c[i]; // [OptFilterPha+100];
   }
 
   // for DSP emulation

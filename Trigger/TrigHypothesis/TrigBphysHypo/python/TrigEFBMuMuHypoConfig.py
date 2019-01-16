@@ -24,7 +24,7 @@ class TrigEFBMuMuHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
 class EFBMuMuHypo_1 (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_1"):
-        super( TrigEFBMuMuHypo, self ).__init__( name )
+        super( EFBMuMuHypo_1, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -45,7 +45,7 @@ class EFBMuMuHypo_1 (TrigEFBMuMuHypo):
 class EFBMuMuHypo_DiMu (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_DiMu"):
-        super( TrigEFBMuMuHypo, self ).__init__( name )
+        super( EFBMuMuHypo_DiMu, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -66,7 +66,7 @@ class EFBMuMuHypo_DiMu (TrigEFBMuMuHypo):
 class EFBMuMuHypo_DiMu_DY (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_DiMu_DY"):
-        super( TrigEFBMuMuHypo, self ).__init__( name )
+        super( EFBMuMuHypo_DiMu_DY, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -87,7 +87,7 @@ class EFBMuMuHypo_DiMu_DY (TrigEFBMuMuHypo):
 class EFBMuMuHypo_DiMu_DY25 (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_DiMu_DY25"):
-        super( TrigEFBMuMuHypo, self ).__init__( name )
+        super( EFBMuMuHypo_DiMu_DY25, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -108,7 +108,7 @@ class EFBMuMuHypo_DiMu_DY25 (TrigEFBMuMuHypo):
 class EFBMuMuHypo_DiMu_DY20 (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_DiMu_DY20"):
-        super( TrigEFBMuMuHypo, self ).__init__( name )
+        super( EFBMuMuHypo_DiMu_DY20, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -129,7 +129,7 @@ class EFBMuMuHypo_DiMu_DY20 (TrigEFBMuMuHypo):
 class EFBMuMuHypo_DiMu_DY14 (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_DiMu_DY14"):
-        super( TrigEFBMuMuHypo, self ).__init__( name )
+        super( TrigEFBMuMuHypo_DiMu_DY14, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -150,7 +150,7 @@ class EFBMuMuHypo_DiMu_DY14 (TrigEFBMuMuHypo):
 class EFBMuMuHypo_Jpsi (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_Jpsi"):
-        super( TrigEFBMuMuHypo, self ).__init__( name )
+        super( EFBMuMuHypo_Jpsi, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -168,10 +168,31 @@ class EFBMuMuHypo_Jpsi (TrigEFBMuMuHypo):
         online = TrigEFBMuMuHypoOnlineMonitoring()
         self.AthenaMonTools = [ validation, online, time ]
 
+class EFBMuMuHypo_Jpsi_noId (TrigEFBMuMuHypo):
+    __slots__ = []
+    def __init__(self, name = "EFBMuMuHypo_Jpsi_noId"):
+        super( EFBMuMuHypo_Jpsi_noId, self ).__init__( name )
+
+        # AcceptAll flag: if true take events regardless of cuts
+        self.AcceptAll = False
+
+        # EF Bmumu cuts
+        self.LowerMassCut      = 2500.
+        self.UpperMassCut      = 4300.
+        self.ApplyUpperMassCut = True
+        self.ApplyChi2Cut      = False
+
+        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+        time = TrigTimeHistToolConfig("Time")
+
+        validation = TrigEFBMuMuHypoValidationMonitoring()
+        online = TrigEFBMuMuHypoOnlineMonitoring()
+        self.AthenaMonTools = [ validation, online, time ]
+
 class EFBMuMuHypo_Upsi (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_Upsi"):
-        super( TrigEFBMuMuHypo, self ).__init__( name )
+        super( EFBMuMuHypo_Upsi, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -192,7 +213,7 @@ class EFBMuMuHypo_Upsi (TrigEFBMuMuHypo):
 class EFBMuMuHypo_B (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_B"):
-        super( TrigEFBMuMuHypo, self ).__init__( name )
+        super( EFBMuMuHypo_B, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -254,10 +275,41 @@ class EFBMuMuHypo_DiMu_Lxy0 (EFBMuMuHypo_DiMu):
         validation = TrigEFBMuMuHypoValidationMonitoring()
         online = TrigEFBMuMuHypoOnlineMonitoring()
         self.AthenaMonTools = [ validation, online, time ]
+
+class EFBMuMuHypo_DiMu2700 (EFBMuMuHypo_DiMu):
+    __slots__ = []
+    def __init__(self, name = "EFBMuMuHypo_DiMu2700"):
+        super( EFBMuMuHypo_DiMu2700, self ).__init__( name )
+
+        self.ApplyLxyCut = True
+        self.UpperMassCut  = 2700.
+
+        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+        time = TrigTimeHistToolConfig("Time")
+
+        validation = TrigEFBMuMuHypoValidationMonitoring()
+        online = TrigEFBMuMuHypoOnlineMonitoring()
+        self.AthenaMonTools = [ validation, online, time ]
+        
+class EFBMuMuHypo_DiMu2700_Lxy0 (EFBMuMuHypo_DiMu):
+    __slots__ = []
+    def __init__(self, name = "EFBMuMuHypo_DiMu2700_Lxy0"):
+        super( EFBMuMuHypo_DiMu2700_Lxy0, self ).__init__( name )
+
+        self.ApplyLxyCut = True
+        self.LxyCut        = 0.
+        self.UpperMassCut  = 2700.
+
+        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+        time = TrigTimeHistToolConfig("Time")
+
+        validation = TrigEFBMuMuHypoValidationMonitoring()
+        online = TrigEFBMuMuHypoOnlineMonitoring()
+        self.AthenaMonTools = [ validation, online, time ]
         
 class EFBMuMuHypo_B_tightChi2 (EFBMuMuHypo_B):
     __slots__ = []
-    def __init__(self, name = "EFBMuMuHypo_B_Lxy"):
+    def __init__(self, name = "EFBMuMuHypo_B_tightChi2"):
         super( EFBMuMuHypo_B_tightChi2, self ).__init__( name )
 
         self.Chi2VtxCut        = 10.
@@ -314,7 +366,7 @@ class EFBMuMuHypo_Upsi_tightChi2 (EFBMuMuHypo_Upsi):
 class EFBMuMuHypo_Z (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_Z"):
-        super( TrigEFBMuMuHypo, self ).__init__( name )
+        super( EFBMuMuHypo_Z, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -323,7 +375,7 @@ class EFBMuMuHypo_Z (TrigEFBMuMuHypo):
         self.LowerMassCut      = 60000.
         self.UpperMassCut      = 120000.
         self.ApplyUpperMassCut = True
-        self.Chi2VtxCut        = 20.
+        self.ApplyChi2Cut      = False
 
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("Time")
@@ -335,7 +387,7 @@ class EFBMuMuHypo_Z (TrigEFBMuMuHypo):
 class EFBMuMuHypo_DiMu_noVtx (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_DiMu_noVtx"):
-        super( TrigEFBMuMuHypo, self ).__init__( name )
+        super( EFBMuMuHypo_DiMu_noVtx, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -357,7 +409,7 @@ class EFBMuMuHypo_DiMu_noVtx (TrigEFBMuMuHypo):
 class EFBMuMuHypo_DiMu_DY_noVtx (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_DiMu_DY_noVtx"):
-        super( TrigEFBMuMuHypo, self ).__init__( name )
+        super( EFBMuMuHypo_DiMu_DY_noVtx, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -379,7 +431,7 @@ class EFBMuMuHypo_DiMu_DY_noVtx (TrigEFBMuMuHypo):
 class EFBMuMuHypo_DiMu_DY14_noVtx (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_DiMu_DY14_noVtx"):
-        super( TrigEFBMuMuHypo, self ).__init__( name )
+        super( EFBMuMuHypo_DiMu_DY14_noVtx, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -401,7 +453,7 @@ class EFBMuMuHypo_DiMu_DY14_noVtx (TrigEFBMuMuHypo):
 class EFBMuMuHypo_DiMu_7invm9_noVtx (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_DiMu_7invm9_noVtx"):
-        super( TrigEFBMuMuHypo, self ).__init__( name )
+        super( EFBMuMuHypo_DiMu_7invm9_noVtx, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -521,7 +573,7 @@ class EFBMuMuHypo_DiMu_18invm60_noVtx (TrigEFBMuMuHypo):
 class EFBMuMuHypo_DiMu_noinvm_noVtx (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_DiMu_noinvm_noVtx"):
-        super( TrigEFBMuMuHypo, self ).__init__( name )
+        super( EFBMuMuHypo_DiMu_noinvm_noVtx, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -543,7 +595,7 @@ class EFBMuMuHypo_DiMu_noinvm_noVtx (TrigEFBMuMuHypo):
 class EFBMuMuHypo_passEF (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_passEF"):
-        super( TrigEFBMuMuHypo, self ).__init__( name )
+        super( EFBMuMuHypo_passEF, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = True

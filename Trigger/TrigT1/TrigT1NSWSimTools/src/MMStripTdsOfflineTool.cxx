@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Athena/Gaudi includes
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 // local includes
 #include "TrigT1NSWSimTools/MMStripTdsOfflineTool.h"
@@ -14,45 +15,9 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
-//#include "HitManagement/TimedHitPtr.h"
-
-// Muon software includes
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonReadoutGeometry/MMReadoutElement.h"
-#include "MuonIdHelpers/MmIdHelper.h"
-#include "MuonDigitContainer/MmDigitContainer.h"
-#include "MuonDigitContainer/MmDigit.h"
-#include "MuonSimData/MuonSimDataCollection.h"
-#include "MuonSimData/MuonSimData.h"
-#include "MuonSimEvent/GenericMuonSimHitCollection.h"
-#include "MuonSimEvent/MM_SimIdToOfflineId.h"
-//#include "MuonReadoutGeometry/NSWenumeration.h"
-//#include "MuonReadoutGeometry/NSWgeometry.h"
-#include "GeneratorObjects/McEventCollection.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "TrackRecord/TrackRecordCollection.h"
-#include "CLHEP/Vector/ThreeVector.h"
-
-
-// random numbers
-#include "AthenaKernel/IAtRndmGenSvc.h"
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGauss.h"
-
-// local includes
-#include "TTree.h"
+// ROOT includes
 #include "TVector3.h"
 #include "TMath.h"
-//#include "MMStripUtil.h"
-
-#include <functional>
-#include <algorithm>
-#include <map>
-#include <utility>
-
-using namespace std;
 
 const bool striphack=true;
 
@@ -75,16 +40,9 @@ namespace NSWL1 {
     MMStripTdsOfflineTool::MMStripTdsOfflineTool( const std::string& type, const std::string& name, const IInterface* parent) :
       AthAlgTool(type,name,parent),
       m_incidentSvc("IncidentSvc",name),
-      m_rndmSvc("AtRndmGenSvc",name),
-      m_rndmEngine(0),
-      m_detManager(0),
-      m_MmIdHelper(0),
       m_mmstrip_cache_runNumber(-1),
       m_mmstrip_cache_eventNumber(-1),
       m_mmstrip_cache_status(CLEARED),
-      m_rndmEngineName(""),
-      m_MmDigitContainer(""),
-      m_MmSdoContainer(""),
       m_doNtuple(false),
       m_tree(0)
 
@@ -92,13 +50,7 @@ namespace NSWL1 {
     {
       declareInterface<NSWL1::IMMStripTdsTool>(this);
 
-      declareProperty("RndmEngineName", m_rndmEngineName = "MMStripTdsOfflineTool", "the name of the random engine");
-      declareProperty("MM_DigitContainerName", m_MmDigitContainer = "MM_DIGITS", "the name of the MM digit container");
-      declareProperty("MM_SdoContainerName"  , m_MmSdoContainer = "MM_SDO", "the name of the MM SDO container");
-      declareProperty("MM_HitContainerName"  , m_MmHitContainer = "MicromegasSensitiveDetector", "the name of the MM hits container");
       declareProperty("DoNtuple", m_doNtuple = true, "input the MMStripTds branches into the analysis ntuple");
-      declareProperty("Truth_ContainerName", m_Truth_ContainerName="TruthEvent","name of truth container");
-      declareProperty("MuonEntryLayer_ContainerName", m_MuEntry_ContainerName="MuonEntryLayer", "name of muon entry container");
 
       // reserve enough slots for the trigger sectors and fills empty vectors
       m_mmstrip_cache.reserve(32);
@@ -127,11 +79,8 @@ namespace NSWL1 {
       ATH_MSG_INFO( "initializing " << name() );
 
       ATH_MSG_INFO( name() << " configuration:");
-      ATH_MSG_INFO(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_rndmEngineName.name() << m_rndmEngineName.value());
-      ATH_MSG_INFO(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_MmDigitContainer.name() << m_MmDigitContainer.value());
-      ATH_MSG_INFO(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_MmSdoContainer.name() << m_MmSdoContainer.value());
-      ATH_MSG_INFO(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_doNtuple.name() << ((m_doNtuple)? "[True]":"[False]")
-                       << setfill(' ') << setiosflags(ios::right) );
+      ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_doNtuple.name() << ((m_doNtuple)? "[True]":"[False]")
+		   << std::setfill(' ') << std::setiosflags(std::ios::right) );
 
 
 
@@ -175,37 +124,6 @@ namespace NSWL1 {
         ATH_MSG_INFO("Incident Service successfully rertieved");
       }
       m_incidentSvc->addListener(this,IncidentType::BeginEvent);
-
-      // retrieve the Random Service
-      if( m_rndmSvc.retrieve().isFailure() ) {
-        ATH_MSG_FATAL("Failed to retrieve the Random Number Service");
-        return StatusCode::FAILURE;
-      } else {
-        ATH_MSG_INFO("Random Number Service successfully retrieved");
-      }
-
-      // retrieve the random engine
-      m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-      if (m_rndmEngine==0) {
-        ATH_MSG_FATAL("Could not retrieve the random engine " << m_rndmEngineName);
-        return StatusCode::FAILURE;
-      }
-
-      //  retrieve the MuonDetectormanager
-      if( detStore()->retrieve( m_detManager ).isFailure() ) {
-        ATH_MSG_FATAL("Failed to retrieve the MuonDetectorManager");
-        return StatusCode::FAILURE;
-      } else {
-        ATH_MSG_INFO("MuonDetectorManager successfully retrieved");
-      }
-
-      //  retrieve the Mm offline Id helper
-      if( detStore()->retrieve( m_MmIdHelper ).isFailure() ){
-        ATH_MSG_FATAL("Failed to retrieve MmIdHelper");
-        return StatusCode::FAILURE;
-      } else {
-        ATH_MSG_INFO("MmIdHelper successfully retrieved");
-      }
 
       return StatusCode::SUCCESS;
     }
@@ -265,11 +183,6 @@ namespace NSWL1 {
       m_NSWMM_dig_truth_globalPosY = new std::vector<double>;
       m_NSWMM_dig_truth_globalPosZ = new std::vector<double>;
 
-      //m_NSWMM_dig_stripForTrigger     = new std::vector<int>;
-      //m_NSWMM_dig_stripTimeForTrigger = new std::vector<float>;
-
-
-
       m_NSWMM_trackId  = new std::vector<int>;
       m_NSWMM_truthEl  = new std::vector<int>;
       m_NSWMM_globalTime = new std::vector<double>;
@@ -319,16 +232,6 @@ namespace NSWL1 {
       m_NSWMM_off_multiplet   = new std::vector<int>;
       m_NSWMM_off_gas_gap     = new std::vector<int>;
       m_NSWMM_off_channel     = new std::vector<int>;
-      /*m_nMMStripHits = 0;
-      m_MMhitPDGId  = new std::vector<int>();
-      m_MMhitDepositEnergy = new std::vector<float>();
-      m_MMhitKineticEnergy = new std::vector<float>();
-      m_mmstripGlobalX = new std::vector<float>();
-      m_mmstripGlobalY = new std::vector<float>();
-      m_mmstripGlobalZ = new std::vector<float>();
-      m_mmstripTruthHitGlobalX = new std::vector<float>();
-      m_mmstripTruthHitGlobalY = new std::vector<float>();
-      m_mmstripTruthHitGlobalZ = new std::vector<float>(); */
 
       if (m_tree) {
         std::string ToolName = name().substr(  name().find("::")+2,std::string::npos );
@@ -344,25 +247,6 @@ namespace NSWL1 {
         m_tree->Branch(TString::Format("%s_res_phi",n).Data(),&m_res_phi);
         m_tree->Branch(TString::Format("%s_res_dth",n).Data(),&m_res_dth);
 
-        /*
-        m_tree->Branch(TString::Format("%s_nMMStripHits",n).Data(),&m_nMMStripHits,TString::Format("%s_nMMStripHits/i",n).Data());
-
-        m_tree->Branch(TString::Format("%s_MMhitPDGId",n).Data(),&m_MMhitPDGId);
-        m_tree->Branch(TString::Format("%s_MMhitDepositEnergy",n).Data(),&m_MMhitDepositEnergy);
-        m_tree->Branch(TString::Format("%s_MMhitKineticEnergy",n).Data(),&m_MMhitKineticEnergy);
-        m_tree->Branch(TString::Format("%s_mmstripGlobalX",n).Data(),&m_mmstripGlobalX);
-        m_tree->Branch(TString::Format("%s_mmstripGlobalY",n).Data(),&m_mmstripGlobalY);
-        m_tree->Branch(TString::Format("%s_mmstripGlobalZ",n).Data(),&m_mmstripGlobalZ);
-        m_tree->Branch(TString::Format("%s_mmstripTruthHitGlobalX",n).Data(),&m_mmstripTruthHitGlobalX);
-        m_tree->Branch(TString::Format("%s_mmstripTruthHitGlobalY",n).Data(),&m_mmstripTruthHitGlobalY);
-        m_tree->Branch(TString::Format("%s_mmstripTruthHitGlobalZ",n).Data(),&m_mmstripTruthHitGlobalZ);
-        */
-
-       // m_tree->Branch(TString::Format("%s_mmstripGlobalX",n).Data(),&m_mmstripGlobalX);
-       // m_tree->Branch(TString::Format("%s_mmstripGlobalY",n).Data(),&m_mmstripGlobalY);
-       // m_tree->Branch(TString::Format("%s_mmstripGlobalZ",n).Data(),&m_mmstripGlobalZ);
-
-       // m_tree->Branch("Digits_MM",    &m_NSWMM_nDigits, "Digits_MM_n/i");
         m_tree->Branch("Digits_MM_stationName", &m_NSWMM_dig_stationName);
         m_tree->Branch("Digits_MM_stationEta",  &m_NSWMM_dig_stationEta);
         m_tree->Branch("Digits_MM_stationPhi",  &m_NSWMM_dig_stationPhi);
@@ -448,11 +332,6 @@ namespace NSWL1 {
         m_tree->Branch("Hits_MM_off_channel", &m_NSWMM_off_channel);
 
 
-        //m_tree->Branch("Digits_MM_stripForTrigger",     &m_NSWMM_dig_stripForTrigger);
-       // m_tree->Branch("Digits_MM_stripTimeForTrigger", &m_NSWMM_dig_stripTimeForTrigger);
-
-
-
       } else {
         return StatusCode::FAILURE;
       }
@@ -468,17 +347,6 @@ namespace NSWL1 {
       //reset the ntuple variables
 
       clear_ntuple_variables();
-      /*
-      m_nMMStripHits = 0;
-      m_MMhitPDGId->clear();
-      m_MMhitDepositEnergy->clear();
-      m_MMhitKineticEnergy->clear();
-      m_mmstripGlobalX->clear();
-      m_mmstripGlobalY->clear();
-      m_mmstripGlobalZ->clear();
-      m_mmstripTruthHitGlobalX->clear();
-      m_mmstripTruthHitGlobalY->clear();
-      m_mmstripTruthHitGlobalZ->clear();*/
     }
 
     void MMStripTdsOfflineTool::clear_ntuple_variables() {
@@ -495,24 +363,6 @@ namespace NSWL1 {
       m_res_the->clear();
       m_res_phi->clear();
       m_res_dth->clear();
-      /*
-      m_MMhitPDGId->clear();
-      m_MMhitDepositEnergy->clear();
-      m_MMhitKineticEnergy->clear();
-      m_mmstripGlobalX->clear();
-      m_mmstripGlobalY->clear();
-      m_mmstripGlobalZ->clear();
-      m_mmstripTruthHitGlobalX->clear();
-      m_mmstripTruthHitGlobalY->clear();
-      m_mmstripTruthHitGlobalZ->clear();
-      */
-
-
-    //  m_mmstripGlobalX->clear();
-    //  m_mmstripGlobalY->clear();
-    //  m_mmstripGlobalZ->clear();
-
-    //  m_NSWMM_nDigits = 0;
 
       // information of the module down to the channel closest to the initial G4 hit
       // size of vector is m_NSWMM_nDigits
@@ -588,9 +438,6 @@ namespace NSWL1 {
       m_NSWMM_hitToRsurfacePositionY->clear();
       m_NSWMM_hitToRsurfacePositionZ->clear();
 
-      //m_NSWMM_FastDigitRsurfacePositionX->clear();
-      //m_NSWMM_FastDigitRsurfacePositionY->clear();
-
 
       m_NSWMM_particleEncoding->clear();
       m_NSWMM_kineticEnergy->clear();
@@ -612,30 +459,6 @@ namespace NSWL1 {
       m_NSWMM_off_gas_gap->clear();
       m_NSWMM_off_channel->clear();
 
-      // more information (size is m_NSWMM_nDigits)
-     // m_NSWMM_dig_stripForTrigger->clear();
-     // m_NSWMM_dig_stripTimeForTrigger->clear();
-
-
-
-      // Caused seg fault when calling push_back on any of these vectors, not sure why?
-
-      //m_fitThe = nullptr;
-      //m_fitPhi = nullptr;
-      //m_fitDth = nullptr;
-
-      /*m_nMMStripHits = 0;
-      m_MMhitPDGId = 0;
-      m_MMhitDepositEnergy = 0;
-      m_MMhitKineticEnergy = 0;
-      m_mmstripGlobalX = 0;
-      m_mmstripGlobalY = 0;
-      m_mmstripGlobalZ = 0;
-      m_mmstripTruthHitGlobalX = 0;
-      m_mmstripTruthHitGlobalX->push_back( 0 );
-        std::cout << "BLAHBLAH3";
-      m_mmstripTruthHitGlobalY = nullptr;
-      m_mmstripTruthHitGlobalZ = nullptr;*/
     }
 
 
@@ -660,7 +483,6 @@ namespace NSWL1 {
       // retrieve the current run number and event number
       const EventInfo* pevt = 0;
       StatusCode sc = evtStore()->retrieve(pevt);
-      // int event = pevt->event_ID()->event_number();
 
       if ( !sc.isSuccess() ) {
         ATH_MSG_WARNING( "Could not retrieve the EventInfo, so cannot associate run and event number to the current Strip cache" );
@@ -723,7 +545,6 @@ namespace NSWL1 {
       }
 
       ATH_MSG_DEBUG( "delivered n. " << mmstrips.size() << " MM Strip hits." );
-      // cout << "CHECKCHECK!";
        //comment out end
       return StatusCode::SUCCESS;
     }
@@ -767,10 +588,10 @@ namespace NSWL1 {
     }
   }
 
-  vector<hitData_key> MMStripTdsOfflineTool::event_hitData_keys(int find_event) const{
-    vector<hitData_key> ravel;
+  std::vector<hitData_key> MMStripTdsOfflineTool::event_hitData_keys(int find_event) const{
+    std::vector<hitData_key> ravel;
     int fnd_entries=0;
-    for(map<hitData_key,hitData_entry>::const_iterator entry=Hits_Data_Set_Time.begin(); entry!=Hits_Data_Set_Time.end(); ++entry){
+    for(std::map<hitData_key,hitData_entry>::const_iterator entry=m_Hits_Data_Set_Time.begin(); entry!=m_Hits_Data_Set_Time.end(); ++entry){
       if(entry->second.event==find_event){
         ravel.push_back(entry->first);
         fnd_entries++;
@@ -783,16 +604,14 @@ namespace NSWL1 {
 
   int MMStripTdsOfflineTool::Get_Strip_ID(double X,double Y,int plane) const{  //athena_strip_id,module_y_center,plane)
     if(Y==-9999) return -1;
-    //cout<<"Strip (width="<<m_par->strip_width<<") for (X,Y,pl)=("<<X<<","<<Y<<","<<plane<<") is ";
-    string setup(m_par->setup);
+    std::string setup(m_par->setup);
     double strip_width=m_par->strip_width.getFixed(), degree=TMath::DegToRad()*(m_par->stereo_degree.getFixed());//,vertical_strip_width_UV = strip_width/cos(degree);
     double y_hit=Y;
     int setl=setup.length();
     if(plane>=setl||plane<0){
-      cerr<<"Pick a plane in [0,"<<setup.length()<<"] not "<<plane<<endl; exit(1);
+      ATH_MSG_ERROR("Pick a plane in [0,"<<setup.length()<<"] not "<<plane); exit(1);
     }
-  //   if(debug) cout<<"SUBSTR CALL MMT_L--2\n";
-    string xuv=setup.substr(plane,1);
+    std::string xuv=setup.substr(plane,1);
     if(xuv=="u"){//||xuv=="v"){
       if(striphack)return ceil(Y*cos(degree)/strip_width);
       y_hit = X*sin(degree)+Y*cos(degree);
@@ -800,13 +619,11 @@ namespace NSWL1 {
     else if(xuv=="v"){
       if(striphack)return ceil(Y*cos(degree)/strip_width);
       y_hit = -X*sin(degree)+Y*cos(degree);
-      // cout<<"-X*sin("<<degree<<")+Y*cos(degree) is"<<-X*sin(degree)+Y*cos(degree)<<endl;
     }
     else if(xuv!="x"){
-      cerr<<"Invalid plane option " << xuv << endl; exit(2);
+      ATH_MSG_ERROR("Invalid plane option " << xuv); exit(2);
     }
     double strip_hit = ceil(y_hit*1./strip_width);
-    // cout <<"(y_hit="<<y_hit<<"), "<< strip_hit<<endl;
     return strip_hit;
   }
 
@@ -816,8 +633,6 @@ namespace NSWL1 {
   }
 
   int MMStripTdsOfflineTool::strip_number(int station,int plane,int spos)const{
-    //assert(station>0&&station<=m_par->n_stations_eta);
-    //assert(plane>=0&&plane<(int)m_par->setup.size());
     if (station<=0||station>m_par->n_stations_eta) {
       int base_strip = 0;
 
@@ -842,8 +657,8 @@ namespace NSWL1 {
       ybase=z*tan(2*atan(exp(-1.*this_eta)));
       */
     }
-    double width=m_par->strip_width.getFixed(); string plane_char=m_par->setup.substr(plane,1);
-  //   if(plane_char.compare("u")==0||plane_char.compare("v")==0) width/=cos(TMath::DegToRad()*(m_par->stereo_degree));
+    double width=m_par->strip_width.getFixed(); 
+    std::string plane_char=m_par->setup.substr(plane,1);
     int base_strip=ceil(ybase/width)+spos;
     return base_strip;
   }
@@ -857,29 +672,29 @@ namespace NSWL1 {
     }
     else{
       int VMM_chip=candy.VMM_chip-1,plane=candy.plane,time=candy.time;  //true time in sub ns from simulation
-      if(!VMM_chip_status[VMM_chip][plane]){ //is the chip active?
-        if(VMM__chip_last_hit_time[VMM_chip][plane] + VMM_deadtime <= time){  //if not, should the chip be active?
-    VMM__chip_last_hit_time[VMM_chip][plane]=0;
-    VMM_chip_status[VMM_chip][plane]=true;
+      if(!m_VMM_chip_status[VMM_chip][plane]){ //is the chip active?
+        if(m_VMM__chip_last_hit_time[VMM_chip][plane] + m_VMM_deadtime <= time){  //if not, should the chip be active?
+	  m_VMM__chip_last_hit_time[VMM_chip][plane]=0;
+	  m_VMM_chip_status[VMM_chip][plane]=true;
         }
         else{
-    candy.VMM_chip=0;
-    return false;
+	  candy.VMM_chip=0;
+	  return false;
         }
       }
-      if(VMM_chip_status[VMM_chip][plane]){ //is the chip active?
+      if(m_VMM_chip_status[VMM_chip][plane]){ //is the chip active?
 
-        VMM_chip_status[VMM_chip][plane]=false;
-        VMM__chip_last_hit_time[VMM_chip][plane]=time;
+        m_VMM_chip_status[VMM_chip][plane]=false;
+        m_VMM__chip_last_hit_time[VMM_chip][plane]=time;
       }
     }
     return true;
   }
 
-  vector<hitData_entry> MMStripTdsOfflineTool::event_hitDatas(int find_event) const{
-    vector<hitData_entry> bolero;
+  std::vector<hitData_entry> MMStripTdsOfflineTool::event_hitDatas(int find_event) const{
+    std::vector<hitData_entry> bolero;
     int fnd_entries=0;
-    for(map<hitData_key,hitData_entry>::const_iterator entry=Hits_Data_Set_Time.begin(); entry!=Hits_Data_Set_Time.end(); ++entry){
+    for(std::map<hitData_key,hitData_entry>::const_iterator entry=m_Hits_Data_Set_Time.begin(); entry!=m_Hits_Data_Set_Time.end(); ++entry){
       if(entry->second.event==find_event){
         bolero.push_back(entry->second);
         fnd_entries++;
@@ -891,25 +706,16 @@ namespace NSWL1 {
 
   int MMStripTdsOfflineTool::eta_bin(double theta) const{
     int ebin=-999; double eta=-log(tan(0.5*theta));
-    //cout << "WOAH";
-    //cout << n_etabins;
-    //cout << "WOAH1";
-    for(int i=0;i<=n_etabins;i++){
+    for(int i=0;i<=m_n_etabins;i++){
       if(eta<m_etabins[i]){
-        //cout << "WOAH2";
         ebin=i-1;
         break;
       }
     }
-      //we want the histograms binned on truth eta
+    //we want the histograms binned on truth eta
     //event selection eta cuts are done on theta_ip, not theta_pos
     if(ebin==-1) return 0;
-    else if(ebin==-999) return n_etabins-1;
-    /*
-    if(ebin==-1){
-      cerr<<"Theta of "<<theta<<" yields eta of "<<eta<<" not in ["<<etalo<<","<<etahi<<"]...exiting"<<endl;
-      exit(6);
-      }*/
+    else if(ebin==-999) return m_n_etabins-1;
     return ebin;
   }
 

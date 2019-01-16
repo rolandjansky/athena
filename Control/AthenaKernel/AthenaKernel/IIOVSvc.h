@@ -5,29 +5,15 @@
 #ifndef ATHENAKERNEL_IIOVSVC_H
 #define ATHENAKERNEL_IIOVSVC_H
 
-#ifndef GAUDIKERNEL_ISERVICE_H
- #include "GaudiKernel/IService.h"
-#endif
-#ifndef KERNEL_STATUSCODES_H
- #include "GaudiKernel/StatusCode.h"
-#endif
-#ifndef GAUDIKERNEL_CLASSID_H
- #include "GaudiKernel/ClassID.h"
-#endif
+#include "GaudiKernel/IService.h"
+#include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/ClassID.h"
 
-#ifndef _CPP_STRING
- #include <string>
-#endif
-#ifndef _CPP_VECTOR
- #include <vector>
-#endif
-#ifndef _CPP_SET
- #include <set>
-#endif
+#include <string>
+#include <vector>
+#include <set>
 
-#ifndef ATHENAKERNEL_IOVSVCDEFS_H
- #include "AthenaKernel/IOVSvcDefs.h"
-#endif
+#include "AthenaKernel/IOVSvcDefs.h"
 
 class IOVRange;
 class IOVTime;

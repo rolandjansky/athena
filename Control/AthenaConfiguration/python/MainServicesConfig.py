@@ -66,6 +66,10 @@ def MainServicesThreadedCfg(cfgFlags):
     if cfgFlags.Concurrency.NumThreads==0:
         return MainServicesSerialCfg()
 
+    if cfgFlags.Concurrency.NumConcurrentEvents==0:
+        # In a threaded job this will mess you up because no events will be processed
+        raise Exception("Requested Concurrency.NumThreads>0 and Concurrency.NumConcurrentEvents==0, which will not process events!")
+
     cfg = MainServicesSerialCfg("AthenaHiveEventLoopMgr")
 
     # Migrated code from AtlasThreadedJob.py

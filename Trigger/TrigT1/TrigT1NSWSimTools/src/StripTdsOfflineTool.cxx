@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ITHistSvc.h"
@@ -21,15 +21,8 @@
 #include "MuonAGDDDescription/sTGCDetectorDescription.h"
 #include "MuonAGDDDescription/sTGCDetectorHelper.h"
 
-#include "AthenaKernel/IAtRndmGenSvc.h"
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGauss.h"
-
 #include "TTree.h"
-#include "TVector3.h"
 
-#include <functional>
-#include <algorithm>
 #include <map>
 #include <utility>
 
@@ -52,8 +45,6 @@ namespace NSWL1 {
     StripTdsOfflineTool::StripTdsOfflineTool( const std::string& type, const std::string& name, const IInterface* parent) :
       AthAlgTool(type,name,parent),
       m_incidentSvc("IncidentSvc",name),
-      m_rndmSvc("AtRndmGenSvc",name),
-      m_rndmEngine(0),
       m_detManager(0),
       m_sTgcIdHelper(0),
       m_strip_cache_runNumber(-1),
@@ -64,14 +55,10 @@ namespace NSWL1 {
     {
       declareInterface<NSWL1::IStripTdsTool>(this);
 
-      declareProperty("RndmEngineName", m_rndmEngineName = "StripTdsOfflineTool", "the name of the random engine");
       declareProperty("sTGC_DigitContainerName", m_sTgcDigitContainer = "sTGC_DIGITS", "the name of the sTGC digit container");
       declareProperty("sTGC_SdoContainerName", m_sTgcSdoContainer = "sTGC_SDO", "the name of the sTGC SDO container");
       declareProperty("DoNtuple", m_doNtuple = false, "input the StripTds branches into the analysis ntuple"); 
 
-      // reserve enough slots for the trigger sectors and fills empty vectors
-      // std::vector< std::vector<StripData*> >::iterator it = m_strip_cache.begin();
-      //std::vector<std::unique_ptr<StripData>>::iterator it = m_strip_cache.begin();
     }
 
     StripTdsOfflineTool::~StripTdsOfflineTool() {
@@ -87,8 +74,6 @@ namespace NSWL1 {
 
     void StripTdsOfflineTool::clear_cache() {
       ATH_MSG_INFO( "Clearing Strip Cache"); 
-      for(unsigned int i = 0; i < m_strip_cache.size(); ++i)
-	    //delete m_strip_cache[i];
       m_strip_cache.clear();     
     }
   
@@ -96,7 +81,6 @@ namespace NSWL1 {
     ATH_MSG_INFO( "initializing " << name() ); 
     
     ATH_MSG_INFO( name() << " configuration:");
-    ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_rndmEngineName.name() << m_rndmEngineName.value());
     ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_sTgcDigitContainer.name() << m_sTgcDigitContainer.value());
     ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_sTgcSdoContainer.name() << m_sTgcSdoContainer.value());
     ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_doNtuple.name() << ((m_doNtuple)? "[True]":"[False]")
@@ -117,7 +101,6 @@ namespace NSWL1 {
         }
 
         char ntuple_name[40]={'\0'};
-        //memset(ntuple_name,'\0',40*sizeof(char));
         sprintf(ntuple_name,"%sTree",algo_name.c_str());
 
         m_tree = 0;
@@ -144,21 +127,6 @@ namespace NSWL1 {
         ATH_MSG_INFO("Incident Service successfully rertieved");
       }
       m_incidentSvc->addListener(this,IncidentType::BeginEvent);
-
-      // retrieve the Random Service
-      if( m_rndmSvc.retrieve().isFailure() ) {
-        ATH_MSG_FATAL("Failed to retrieve the Random Number Service");
-        return StatusCode::FAILURE;
-      } else {
-        ATH_MSG_INFO("Random Number Service successfully retrieved");
-      }
-
-      // retrieve the random engine
-      m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-      if (m_rndmEngine==0) {
-        ATH_MSG_FATAL("Could not retrieve the random engine " << m_rndmEngineName);
-        return StatusCode::FAILURE;
-      }
 
       //  retrieve the MuonDetectormanager
       if( detStore()->retrieve( m_detManager ).isFailure() ) {
@@ -235,24 +203,6 @@ namespace NSWL1 {
 	m_tree->Branch(TString::Format("%s_wedge",n).Data(),&m_strip_wedge);
 	m_tree->Branch(TString::Format("%s_time",n).Data(),&m_strip_time);
 
-
-//	m_tree->Branch(TString::Format("%s_stripTruthHitGlobalX",n).Data(),&m_stripTruthHitGlobalX);
-//	m_tree->Branch(TString::Format("%s_stripTruthHitGlobalY",n).Data(),&m_stripTruthHitGlobalY);
-//	m_tree->Branch(TString::Format("%s_stripTruthHitGlobalZ",n).Data(),&m_stripTruthHitGlobalZ);
-
-      
-
-      //   m_tree->Branch(TString::Format("%s_stripGlobalY",n).Data(),&m_stripGlobalY);
-      //   m_tree->Branch(TString::Format("%s_stripGlobalZ",n).Data(),&m_stripGlobalZ);
-      //  m_tree->Branch(TString::Format("%s_stripTruthHitGlobal",n).Data(),&m_stripTruthHitGlobalZ);
-      //   m_tree->Branch(TString::Format("%s_stripEtaIdFromOfflineId",n).Data(),&m_stripEtaIdFromOfflineId);
-      //   m_tree->Branch(TString::Format("%s_stripPhiIdFromOfflineId",n).Data(),&m_stripPhiIdFromOfflineId);
-      //   m_tree->Branch(TString::Format("%s_stripIsSmallIdFromOfflineId",n).Data(),&m_stripIsSmallFromOfflineId);
-      //   m_tree->Branch(TString::Format("%s_stripLayerFromOfflineId",n).Data(),&m_stripLayerFromOfflineId);
-      //   m_tree->Branch(TString::Format("%s_offlineIdStripEtaIdConverted",n).Data(),&m_offlineIdStripEtaConverted);
-      //   m_tree->Branch(TString::Format("%s_offlineIdStripPhiIdConverted",n).Data(),&m_offlineIdStripPhiConverted);
-      //   m_tree->Branch(TString::Format("%s_stripEtaIdFromOldSimu",n).Data(),&m_stripEtaIdFromOldSimu);
-      //   m_tree->Branch(TString::Format("%s_stripPhiIdFromOldSimu",n).Data(),&m_stripPhiIdFromOldSimu);
       }
       else { 
          return StatusCode::FAILURE;
@@ -384,7 +334,7 @@ namespace NSWL1 {
 
       ATH_MSG_DEBUG( "retrieved sTGC Digit Container with " << digit_container->digit_size() << " collection" );
       int strip_hit_number = 0;
-      //std::vector<StripHits> strip_hits;
+
       for(; it!=it_e; ++it) {
         const sTgcDigitCollection* coll = *it;
   
@@ -401,10 +351,7 @@ namespace NSWL1 {
 	  rdoEl->stripPosition(Id,strip_lpos);
 	  Amg::Vector3D pos(strip_lpos.x(),strip_lpos.y(),0.0);
 	  
-	  //	  ATH_MSG_DEBUG( "Grabbed local pos" );
 	  rdoEl->surface(Id).localToGlobal(strip_lpos, strip_gpos, strip_gpos);
-	  //strip_gpos = rdoEl->localToGlobalCoords(pos,Id);
-
 
 
 	  std::string stName = m_sTgcIdHelper->stationNameString(m_sTgcIdHelper->stationName(Id));
@@ -465,7 +412,6 @@ namespace NSWL1 {
 
 
       //S.I
-	  //StripOfflineData* strip = new StripOfflineData(Id,m_sTgcIdHelper,digit);
 	  auto strip=std::make_unique<StripOfflineData>(Id,m_sTgcIdHelper,digit);
       //S.I
       strip->set_locX(strip_lpos.x());
@@ -475,11 +421,6 @@ namespace NSWL1 {
 	  bool read_strip=false;
 	  bool tmp=false;
 	  for( const auto& p : padTriggers){
-	    //	    if(p->sectorId()!=stationPhi)
-	    //  {
-	    //		ATH_MSG_INFO("ReadStrip Trigger Candidate in different sector " << p->sectorId() << "  " <<stationPhi );
-	    //		continue; //Only take triggers in the same sector
-	    //  }
 
 	    if(p->sideId()!=strip->sideId()){
 	      ATH_MSG_DEBUG(" ReadStrip Trigger Candidate in different side " << p->sideId() << "  " <<strip->sideId() );
@@ -562,7 +503,6 @@ namespace NSWL1 {
     //Get_sTGCDetector's 2nd input value can range from eta=1 to eta=3
     //moduleID() provides the values -1 to -3 and 1 to 3, so we need abs value
     sTGC = sTGC_helper.Get_sTGCDetector(type,std::abs(strip->moduleId()),strip->sectorId(),strip->wedge(),side);
-    //sTGCDetectorDescription *sTGC = sTGC_helper.Get_sTGCDetector(strip->stationName());
 
     if (!sTGC){
       ATH_MSG_WARNING("StripTdsOfflineTool:ReadStrip: Could not find detector with:\n" <<
@@ -607,14 +547,6 @@ namespace NSWL1 {
     ATH_MSG_DEBUG("StripTdsOfflineTool:NoMATCH");
     return false;
   }
-
-    /*   else { ATH_MSG_DEBUG("StripCluster:ReadStrip Found detector with:\n" <<
-			"type:" << type << "\n"
-			<<"moduleID:"<< strip->moduleId() << "\n"
-			<<"sectiorID:"<< strip->sectorId()<< "\n"
-			<<"layer:"<<layer<< "\n"
-			<<"side:"<<side<< "\n");}*/
-
 
     /* Code for when pand id is fixed*/
 

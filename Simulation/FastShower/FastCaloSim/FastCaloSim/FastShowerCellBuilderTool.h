@@ -68,6 +68,7 @@ class TRandom;
 class ICoolHistSvc;
 class FastShowerInfoContainer;
 class TLateralShapeCorrectionBase;
+class TRandom3;
 
 #include "TrkParameters/TrackParameters.h"
 //#include "TrkParameters/Perigee.h"
@@ -75,6 +76,18 @@ class TLateralShapeCorrectionBase;
 class FastShowerCellBuilderTool: public BasicCellBuilderTool
 {
 public:
+  struct Stats {
+    double m_E_tot_em = 0;
+    double m_E_tot_had = 0;
+    double m_Et_tot_em = 0;
+    double m_Et_tot_had = 0;
+
+    double m_E_tot_sample[CaloCell_ID_FCS::MaxSample] = {0};
+    double m_E_lost_sample[CaloCell_ID_FCS::MaxSample] = {0};
+    double m_Et_tot_sample[CaloCell_ID_FCS::MaxSample] = {0};
+    double m_Et_lost_sample[CaloCell_ID_FCS::MaxSample] = {0};
+  };
+
   FastShowerCellBuilderTool(
                             const std::string& type,
                             const std::string& name,
@@ -87,11 +100,14 @@ public:
   // update theCellContainer
   virtual StatusCode process(CaloCellContainer* theCellContainer) override final;
   StatusCode setupEvent();
-  StatusCode releaseEvent();
+  StatusCode releaseEvent (Stats& stats) const;
   // the actual simulation code for one particle can run standalone without process(CaloCellContainer* theCellContainer),
   // but setupEvent() should be called before the first particle and releaseEvent() after the last particle
   StatusCode process_particle(CaloCellContainer* theCellContainer, std::vector<Trk::HitInfo>* hitVector,
-                              Amg::Vector3D initMom, double mass, int pdgId, int barcode );
+                              Amg::Vector3D initMom, double mass, int pdgId, int barcode,
+                              FastShowerInfoContainer* fastShowerInfoContainer,
+                              Stats& stats,
+                              const EventContext& ctx) const;
 
   StatusCode callBack( IOVSVC_CALLBACK_ARGS );
 
@@ -188,7 +204,6 @@ private:
   //std::vector< double > m_spline_reweight_x;
   //std::vector< double > m_spline_reweight_y;
 
-  bool m_is_init_shape_correction{false};
   void init_shape_correction();
   typedef std::vector< TLateralShapeCorrectionBase* > t_shape_correction;
   t_shape_correction m_shape_correction;
@@ -220,64 +235,26 @@ private:
   t_map_PSP_ID m_map_ParticleShapeParametrizationMap;
 
 
-  std::map< int , double> m_simul_map_energy;
-  std::map< int , double> m_simul_map_energyEM;
-  std::map< int , double> m_simul_map_energyHAD;
-
-  std::map< int , double> m_simul_sum_energy;
-  std::map< int , double> m_simul_sum_energyEM;
-  std::map< int , double> m_simul_sum_energyHAD;
-
-// Variables used during single event generation
-private:
-  double m_E_tot_em;
-  double m_E_tot_had;
-  double m_Et_tot_em;
-  double m_Et_tot_had;
-
-  double m_E_tot_sample[CaloCell_ID_FCS::MaxSample];
-  double m_E_lost_sample[CaloCell_ID_FCS::MaxSample];
-  double m_Et_tot_sample[CaloCell_ID_FCS::MaxSample];
-  double m_Et_lost_sample[CaloCell_ID_FCS::MaxSample];
-
-private:
-  double m_ptruth_eta;
-  double m_ptruth_phi;
-  double m_ptruth_e;
-  //double ptruth_et;
-  double m_ptruth_pt;
-  double m_ptruth_p;
-  //int pdgid;
-  int m_refid;
-
-  double m_eta_calo_surf;
-  double m_phi_calo_surf;
-  double m_d_calo_surf;
-
-  bool   m_layerCaloOK[CaloCell_ID_FCS::MaxSample];
-  double m_letaCalo[CaloCell_ID_FCS::MaxSample];
-  double m_lphiCalo[CaloCell_ID_FCS::MaxSample];
-  double m_dCalo[CaloCell_ID_FCS::MaxSample];
-  double m_distetaCaloBorder[CaloCell_ID_FCS::MaxSample];
-
-  CaloCell_ID_FCS::CaloSample m_sample_calo_surf;
 public:
-  bool get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector,CaloCell_ID_FCS::CaloSample sample);
-  bool get_calo_surface(std::vector<Trk::HitInfo>* hitVector);
+  bool get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector,
+                       CaloCell_ID_FCS::CaloSample sample,
+                       double eta_calo_surf,
+                       double phi_calo_surf,
+                       bool layerCaloOK[CaloCell_ID_FCS::MaxSample],
+                       double letaCalo[CaloCell_ID_FCS::MaxSample],
+                       double lphiCalo[CaloCell_ID_FCS::MaxSample],
+                       double dCalo[CaloCell_ID_FCS::MaxSample],
+                       double distetaCaloBorder[CaloCell_ID_FCS::MaxSample]) const;
 
-  CaloCell_ID_FCS::CaloSample get_sample_calo_surf() const {return m_sample_calo_surf;};
-  double get_eta_calo_surf() const {return m_eta_calo_surf;};
-  double get_phi_calo_surf() const {return m_phi_calo_surf;};
-  double get_d_calo_surf() const {return m_d_calo_surf;};
-  double get_eta_calo_surf(int layer) const {return m_letaCalo[layer];};
-  double get_phi_calo_surf(int layer) const {return m_lphiCalo[layer];};
-  double get_d_calo_surf(int layer) const {return m_dCalo[layer];};
+  bool get_calo_surface(std::vector<Trk::HitInfo>* hitVector,
+                        double& eta_calo_surf,
+                        double& phi_calo_surf,
+                        double& d_calo_surf) const;
 
 private:
   SG::WriteHandleKey<FastShowerInfoContainer>  m_FastShowerInfoContainerKey
   { this, "FastShowerInfoContainerKey", "FastShowerInfoContainer" };
   bool                     m_storeFastShowerInfo{false};
-  FastShowerInfoContainer* m_FastShowerInfoContainer{};
   Trk::PdgToParticleHypothesis        m_pdgToParticleHypothesis;
   mutable const Trk::TrackingVolume*  m_caloEntrance{};
   std::string                         m_caloEntranceName{"InDet::Containers::InnerDetector"};

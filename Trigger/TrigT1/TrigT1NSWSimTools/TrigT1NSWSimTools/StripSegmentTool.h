@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STRIPSEGMENTTOOL_H
@@ -20,19 +20,7 @@
 
 //forward declarations
 class IIncidentSvc;
-class IAtRndmGenSvc;
-class sTgcIdHelper;
-class sTgcDigit;
 class TTree;
-
-namespace CLHEP {
-  class HepRandomEngine;
-}
-
-namespace MuonGM {
-  class MuonDetectorManager;
-}
-
 
 // namespace for the NSW LVL1 related classes
 namespace NSWL1 {
@@ -75,15 +63,10 @@ namespace NSWL1 {
 
     // needed Servives, Tools and Helpers
     ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
-    ServiceHandle< IAtRndmGenSvc >     m_rndmSvc;           //!< Athena random number service
-    CLHEP::HepRandomEngine*            m_rndmEngine;        //!< Random number engine
-    const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
-    const sTgcIdHelper*                m_sTgcIdHelper;      //!< sTgc offline Id helper
 
     // analysis ntuple
     TTree* m_tree;                                          //!< ntuple for analysis
     BooleanProperty  m_doNtuple;                            //!< property, see @link StripTdsOfflineTool::StripTdsOfflineTool @endlink                         
-    StringProperty   m_sTgcSdoContainer;                    //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink                          
     // analysis variable to be put into the ntuple
     int m_seg_n;                                            //!< number of Segments found
     std::vector<int> *m_seg_wedge1_size;                        //!< theta

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -134,13 +134,11 @@ class SCTCalib : public AthAlgorithm {
       StringProperty m_runEndTime{this, "RunEndTime", "", "from runInfo.txt"};
       StringProperty m_LBMax{this, "LBMax", "1000", "from runInfo.txt"};
 
-      BooleanProperty m_useDCS{this, "UseDCS", false};
       BooleanProperty m_useConfiguration{this, "UseConfiguration", true};
       BooleanProperty m_useCalibration{this, "UseCalibration", true};
       BooleanProperty m_useMajority{this, "UseMajority", true};
       BooleanProperty m_useBSError{this, "UseBSError", false};
 
-      StringArrayProperty m_input_bs{this, "InputBS", {}, "list of BS"};
       StringArrayProperty m_input_hist{this, "InputHist", {}, "list of HIST (assuming 1 file)"};
 
       BooleanProperty m_readBS{this, "ReadBS", false, "True if BS is used"};
@@ -186,11 +184,6 @@ class SCTCalib : public AthAlgorithm {
       FloatProperty           m_noisyChipFraction{this, "NoisyChipFraction", 0.500};
 
       IntegerProperty m_maxtbins{this, "HVBinWidth", 5};
-      IntegerProperty m_maxq{this, "HVQlength", 100};
-      DoubleProperty  m_absolutetriplimit{this, "HVAbsTripLimit", 5.};
-      DoubleProperty  m_relativetriplimit{this, "HVRelTripLimit", 4.};
-      BooleanProperty m_outputlowhits{this, "OutputLowHits", false};
-      IntegerProperty m_lowHitCut{this, "LowHitsCut", 100};
 
       UnsignedIntegerProperty m_deadStripMinStat{this, "DeadStripMinStat", 200000};
       UnsignedIntegerProperty m_deadStripMinStatBusy{this, "DeadStripMinStatBusy", 1600000};
@@ -215,10 +208,6 @@ class SCTCalib : public AthAlgorithm {
       StringProperty m_tagID4DeadStrips{this, "TagID4DeadStrips", "SctDerivedDeadStrips-001-00"};
       StringProperty m_tagID4DeadChips{this, "TagID4DeadChips", "SctDerivedDeadChips-001-00"};
       StringProperty m_tagID4NoiseOccupancy{this,  "TagID4NoiseOccupancy", "SctDerivedNoiseOccupancy-001-00"};
-      StringProperty m_tagID4RawOccupancy{this, "TagID4RawOccupancy", "SctDerivedRawOccupancy-001-00"};
-      StringProperty m_tagID4Efficiency{this, "TagID4Efficiency", "SctDerivedEfficiency-001-00"};
-      StringProperty m_tagID4BSErrors{this, "TagID4BSErrors", "SctDerivedBSErrors-000-00"};
-      StringProperty m_tagID4LorentzAngle{this, "TagID4LorentzAngle", "SctDerivedLorentzAngle-000-00"};
 
       StringProperty m_badStripsAllFile{this, "BadStripsAllFile", "BadStripsAllFile.xml", "Output XML for all noisy strips"};
       StringProperty m_badStripsNewFile{this, "BadStripsNewFile", "BadStripsNewFile.xml", "Output XML for newly found noisy strips (i.e. not in config/calib data)"};
@@ -244,7 +233,6 @@ class SCTCalib : public AthAlgorithm {
       int             m_numOfLBsProcessed;
       unsigned long long m_numberOfEvents;
       unsigned long long m_numberOfEventsHist; // For number of events from HIST
-      unsigned long long m_eventCounter;
       std::string        m_utcBegin;
       std::string        m_utcEnd;
       int                m_LBRange;
@@ -261,18 +249,14 @@ class SCTCalib : public AthAlgorithm {
       std::vector<TProfile2D *> m_pnoiseoccupancymapHistoVectorECm;
       std::vector<TProfile *>   m_h_phiVsNstripsSideHistoVector;
 
-      SCT_ID::const_id_iterator m_waferItrBegin;
-      SCT_ID::const_id_iterator m_waferItrEnd;
-
       // Book histograms
 
       // Methods implemented
       StatusCode prepareHV();
       StatusCode doHVPrintXML(const std::pair<int, int> & timeInterval, const std::pair<int, int> & lbRange, Identifier);
 
-      bool       notEnoughStatistics(const int required, const int obtained, const std::string & histogramName="HIST");
+      bool       notEnoughStatistics(const int required, const int obtained, const std::string & histogramName="HIST") const;
 
-      void       checkHVTrips();
       StatusCode getNoisyStrip();
       StatusCode getDeadStrip();
       StatusCode getNoiseOccupancy();
@@ -288,14 +272,9 @@ class SCTCalib : public AthAlgorithm {
 
       // To handle XML file for Summary
       StatusCode openXML4MonSummary( std::ofstream&, const char* ) const;
-      StatusCode openXML4DeadSummary( std::ofstream& file, const char* type, int n_Module=0, int n_Link=0, int n_Chip=0, int n_Strip=0 )
-      const;
+      StatusCode openXML4DeadSummary( std::ofstream& file, const char* type, int n_Module=0, int n_Link=0, int n_Chip=0, int n_Strip=0 ) const;
       StatusCode wrapUpXML4Summary( std::ofstream&, const char*, std::ostringstream& ) const;
       StatusCode addToSummaryStr( std::ostringstream&, const Identifier&, const char*, const char*, const char* ) const;
-
-      // For retrieving informations of the run for MONP200 rerated things
-      //unsigned long long getDuration(std::string runStart, std::string runEnd);
-      unsigned long long getNevents();
 
       template<class S>
       bool retrievedService(S & service) {
@@ -306,10 +285,10 @@ class SCTCalib : public AthAlgorithm {
          return true;
       }
       std::string
-      xmlChannelNoiseOccDataString(const Identifier & waferId,  const float occupancy, const SCT_SerialNumber & serial);
+      xmlChannelNoiseOccDataString(const Identifier & waferId,  const float occupancy, const SCT_SerialNumber & serial) const;
 
       std::string
-      xmlChannelEfficiencyDataString(const Identifier & waferId,  const float efficiency, const SCT_SerialNumber & serial);
+      xmlChannelEfficiencyDataString(const Identifier & waferId,  const float efficiency, const SCT_SerialNumber & serial) const;
 
       std::pair<int, bool>
       getNumNoisyStrips( const Identifier& waferId ) const;
@@ -343,7 +322,4 @@ class SCTCalib : public AthAlgorithm {
       getLBList( const std::set<int>& LBList ) const;
 }; // end of class
 
-#endif
-
-
-
+#endif // SCTCalib_H

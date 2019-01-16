@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILECONDTOOLOFC_H
@@ -45,32 +45,21 @@ class TileCondToolOfc: public extends<AthAlgTool, ITileCondToolOfc> {
     TileCondToolOfc(const std::string& type, const std::string& name, const IInterface* parent);
     virtual ~TileCondToolOfc();
 
-    StatusCode initialize();
-    StatusCode finalize();
-
-    void CalcWeights(unsigned int drawerIdx, unsigned int channel, int gain, float phase, bool of2);
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
     //===============================================================
     //=== ITileCondTollOfc methods
     //===============================================================
 
-    const TileOfcWeightsStruct* getOfcWeights(unsigned int drawerIdx, unsigned int channel, unsigned int adc, float& phase, bool of2);
-
-    int getNSamples(void);
+    virtual StatusCode getOfcWeights(unsigned int drawerIdx,
+                                     unsigned int channel,
+                                     unsigned int adc,
+                                     float& phase,
+                                     bool of2,
+                                     TileOfcWeightsStruct& weights) const override;
 
   private:
-
-    /** @brief Returns cache index used for online calibration constants.
-        @details Returns cache index used for the calibration constant applied in the DSP
-        @param drawerIdx Drawer index                                                                                                                                         @param channel Tile channel                                                                                                                                           @param adc Gain 
-    */
-    inline unsigned int cacheIndex(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const {
-      return m_drawerCacheSize * drawerIdx + m_maxChannels * adc + channel;
-    };
-
-    typedef std::map<int, std::unique_ptr<TileOfcWeightsStruct> > OfcPhaseCache;
-    std::vector<std::unique_ptr<OfcPhaseCache> > m_ofc_phase_cache;
-
     ToolHandle<TileCondToolPulseShape> m_tileToolPulseShape{this,
         "TileCondToolPulseShape", "TileCondToolPulseShape", "Tile pulse shape tool"};
 
@@ -78,18 +67,11 @@ class TileCondToolOfc: public extends<AthAlgTool, ITileCondToolOfc> {
         "TileCondToolAutoCr", "TileCondToolAutoCr", "Tile auto correlation matrix tool"};
 
     const TileInfo* m_tileInfo;
-    TileOfcWeightsStruct m_weights;
 
     //=== properties
     int m_nSamples;
     int m_t0Sample;
     bool m_deltaCorrelation;
-    unsigned int m_cache;
-
-    unsigned int m_maxChannels;
-    unsigned int m_maxGains;
-    unsigned int m_drawerCacheSize;
-
 };
 
 #endif

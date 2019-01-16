@@ -1,18 +1,27 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
 
 #ifndef TrigEgammaSelectorBaseTool_H_
 #define TrigEgammaSelectorBaseTool_H_
 
 
 #include "AsgTools/AsgTool.h"
+#include "PATCore/TAccept.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 #include "LumiBlockComps/ILuminosityTool.h"
 #include "AthContainers/AuxElement.h"
 #include "TrigEgammaEmulationTool/ITrigEgammaSelectorBaseTool.h"
 #include <bitset>
+#include <map>
+#include <boost/any.hpp>
+
+//#include "xAODCaloRings/RingSetContainer.h"                     //
+//#include "xAODCaloRings/CaloRingsContainer.h"                   //
+//#include "xAODCaloRings/tools/getCaloRingsDecorator.h"          //
+
 
 
 //define RINGER_OFFLINE_PACKAGES
@@ -45,12 +54,14 @@ namespace Trig{
       //how generate this for these levels.
       bool emulation(const xAOD::EmTauRoI               *, bool&, const Trig::Info &){return true;};
       bool emulation(const xAOD::TrigEMCluster          *, bool&, const Trig::Info &){return true;};
+      bool emulation(const xAOD::IParticle              *, bool&, const Trig::Info &){return true;};
       bool emulation(const xAOD::IParticleContainer     *, bool&, const Trig::Info &){return true;};
-
+      
       //parser TDT tool as a pointer
-      void setParents(ToolHandle<Trig::TrigDecisionTool> &t, StoreGateSvc *s){ m_trigdec=&(*t); m_storeGate=s; };
-      void setParents(Trig::TrigDecisionTool *t, StoreGateSvc *s){ m_trigdec=t; m_storeGate=s; };
-
+      void setParents(ToolHandle<Trig::TrigDecisionTool> &t, StoreGateSvc *s)
+      { m_trigdec=&(*t); m_storeGate=s;};
+      void setParents(Trig::TrigDecisionTool *t, StoreGateSvc *s)
+      { m_trigdec=t; m_storeGate=s;};
       void setTe(const HLT::TriggerElement *te){m_te=te;}; 
 
     protected:

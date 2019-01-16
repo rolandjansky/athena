@@ -814,7 +814,6 @@ if not OfcFromCOOL and (doTileOpt2 or doTileOptATLAS or doTileOF1):
     tileCondToolOfc = TileCondToolOfc()
     tileCondToolOfc.nSamples = TileFrameLength # default = 7
     tileCondToolOfc.OptFilterDeltaCorrelation = False # False - use matrix from DB
-    tileCondToolOfc.CacheSize = 0 # (max phases per channel) 0-no cache (default)
     tileCondToolOfc.OutputLevel = OutputLevel
 
     ToolSvc += tileCondToolOfc
@@ -1233,9 +1232,6 @@ if doTileMon:
         runType = 10
     else:
         runType = TileRunType
-
-    from TileRecUtils.TileBeamInfoProviderDefault import TileBeamInfoProviderDefault
-    TileBeamInfoProviderDefault()
 
     from AthenaMonitoring.AthenaMonitoringConf import *
     TileMon = AthenaMonManager( "TileMon" )

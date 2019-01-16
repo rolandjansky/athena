@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1TGC/TGCDatabaseManager.hh"
@@ -99,7 +99,8 @@ TGCDatabaseManager::TGCDatabaseManager()
 
 }
 
-TGCDatabaseManager::TGCDatabaseManager(const std::string& ver, bool )
+TGCDatabaseManager::TGCDatabaseManager(const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
+                                       const std::string& ver, bool )
 {
   bool status = true;
 
@@ -146,17 +147,17 @@ TGCDatabaseManager::TGCDatabaseManager(const std::string& ver, bool )
   // RPhi Coincidence Map
   for (int side=0; side<NumberOfSide; side +=1) {
     for (int oct=0; oct<NumberOfOctant; oct++) {
-       mapRphi[side][oct] = new TGCRPhiCoincidenceMap(ver_BW, side, oct);
+       mapRphi[side][oct] = new TGCRPhiCoincidenceMap(readCondKey, ver_BW, side, oct);
     }
   }
 
   // Inner Coincidence Map
   for (int side=0; side<NumberOfSide; side +=1) {
-    mapInner[side] = new TGCInnerCoincidenceMap(ver_EIFI, side);
+    mapInner[side] = new TGCInnerCoincidenceMap(readCondKey, ver_EIFI, side);
   }
 
   // Tile-Mu coincidence Map
-  mapTileMu = new TGCTileMuCoincidenceMap(ver_TILE);
+  mapTileMu = new TGCTileMuCoincidenceMap(readCondKey, ver_TILE);
    
  
 }
@@ -283,29 +284,6 @@ const std::vector<std::string> TGCDatabaseManager::splitCW(const std::string& in
     result.push_back(field);
   }
   return result;
-}
-
-StatusCode TGCDatabaseManager::updateMap()
-{
-  // BW 
-  for (int side = 0; side < NumberOfSide; side +=1) {
-    for (int oct=0; oct<NumberOfOctant; oct++) {
-
-      if (!mapRphi[side][oct]->readMap()) {
-        return StatusCode::SUCCESS;
-      }
-    }
-  }
-
-  // EIFI
-  for (int side=0; side<NumberOfSide; side +=1) {
-    mapInner[side]->readMap();
-  }
-  
-  // TILE
-  mapTileMu->readMap(); 
-
-  return StatusCode::SUCCESS;
 }
 
 } //end of namespace bracket

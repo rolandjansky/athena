@@ -58,6 +58,7 @@ TrigEFBMuMuXHypo::TrigEFBMuMuXHypo(const std::string & name, ISvcLocator* pSvcLo
 ,m_countPassedBcDstar(0)
 ,m_countPassedBcD0(0)
 {
+  declareProperty("bphysCollectionKey", m_bphysCollectionKey  = "EFBMuMuXFex" );
   declareProperty("AcceptAll",    m_acceptAll=true); // Should we just accept all events
   
   declareProperty("AcceptBplus",    m_acceptBplus=true); 
@@ -128,15 +129,9 @@ TrigEFBMuMuXHypo::~TrigEFBMuMuXHypo()
 
 HLT::ErrorCode TrigEFBMuMuXHypo::hltInitialize()
 {
-  msg() << MSG::INFO << "Running TrigEFBMuMuXHypo::hltInitialize" << endmsg;
+  ATH_MSG_INFO("Running TrigEFBMuMuXHypo::hltInitialize" );
+  ATH_MSG_DEBUG(" AcceptAll=          " << m_acceptAll );
 
-  if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << " AcceptAll=          " << m_acceptAll << endmsg;
-    /*
-    msg() << MSG::DEBUG << "LowerBMassCut      = " << m_lowerBMassCut << endmsg;
-    msg() << MSG::DEBUG << "UpperBMassCut      = " << m_upperBMassCut << endmsg;
-    */
-  }
   m_lastEvent=-1;
   m_lastEventPassed=-1;
   m_countTotalEvents=0;
@@ -159,20 +154,20 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltInitialize()
 HLT::ErrorCode TrigEFBMuMuXHypo::hltFinalize()
 {
 
-  msg() << MSG::INFO << "Running TrigEFBMuMuXHypo::hltFinalize" << endmsg;
+  ATH_MSG_INFO("Running TrigEFBMuMuXHypo::hltFinalize" );
   MsgStream log(msgSvc(), name());
 
-  msg() << MSG::INFO << "|----------------------- SUMMARY FROM TrigEFBMuMuXHypo -------------|" << endmsg;
-  msg() << MSG::INFO << "Run on events/RoIs       " << m_countTotalEvents << "/" << m_countTotalRoI <<  endmsg;
-  msg() << MSG::INFO << "Passed events/RoIs       " << m_countPassedEvents << "/" << m_countPassedRoIs <<  endmsg;
-  msg() << MSG::INFO << "RoIs Passed B+:          " << m_countPassedBplus << endmsg;
-  msg() << MSG::INFO << "RoIs Passed Bd:          " << m_countPassedBd << endmsg;
-  msg() << MSG::INFO << "RoIs Passed Bs:          " << m_countPassedBs << endmsg;
-  msg() << MSG::INFO << "RoIs Passed Lb:          " << m_countPassedLb << endmsg;
-  msg() << MSG::INFO << "RoIs Passed Bc:          " << m_countPassedBc << endmsg;
-  msg() << MSG::INFO << "RoIs Passed BcDplus:     " << m_countPassedBcDplus << endmsg;
-  msg() << MSG::INFO << "RoIs Passed BcDstar:     " << m_countPassedBcDstar << endmsg;
-  msg() << MSG::INFO << "RoIs Passed BcD0:        " << m_countPassedBcD0 << endmsg;
+  ATH_MSG_INFO("|----------------------- SUMMARY FROM TrigEFBMuMuXHypo -------------|" );
+  ATH_MSG_INFO("Run on events/RoIs       " << m_countTotalEvents << "/" << m_countTotalRoI );
+  ATH_MSG_INFO("Passed events/RoIs       " << m_countPassedEvents << "/" << m_countPassedRoIs );
+  ATH_MSG_INFO("RoIs Passed B+:          " << m_countPassedBplus );
+  ATH_MSG_INFO("RoIs Passed Bd:          " << m_countPassedBd );
+  ATH_MSG_INFO("RoIs Passed Bs:          " << m_countPassedBs );
+  ATH_MSG_INFO("RoIs Passed Lb:          " << m_countPassedLb );
+  ATH_MSG_INFO("RoIs Passed Bc:          " << m_countPassedBc );
+  ATH_MSG_INFO("RoIs Passed BcDplus:     " << m_countPassedBcDplus );
+  ATH_MSG_INFO("RoIs Passed BcDstar:     " << m_countPassedBcDstar );
+  ATH_MSG_INFO("RoIs Passed BcD0:        " << m_countPassedBcD0 );
 
   return HLT::OK;
 }
@@ -181,8 +176,7 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltFinalize()
 HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& pass)
 {
   
-  if ( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << "Running TrigEFBMuMuXHypo::hltExecute" << endmsg;
+  ATH_MSG_DEBUG("Running TrigEFBMuMuXHypo::hltExecute" );
 
   bool result = false;
   bool PassedBplus=false;
@@ -202,19 +196,18 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
     const EventInfo* pEventInfo(0);
     const xAOD::EventInfo *evtInfo(0);
     if ( store()->retrieve(evtInfo).isFailure() ) {
-        if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Failed to get xAOD::EventInfo " << endmsg;
+        ATH_MSG_DEBUG("Failed to get xAOD::EventInfo " );
         // now try the old event ifo
         if ( store()->retrieve(pEventInfo).isFailure() ) {
-            if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Failed to get EventInfo " << endmsg;
+            ATH_MSG_DEBUG("Failed to get EventInfo " );
             //mon_Errors.push_back( ERROR_No_EventInfo );
         } else {
             IdRun   = pEventInfo->event_ID()->run_number();
             IdEvent = pEventInfo->event_ID()->event_number();
-            if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Run " << IdRun << " Event " << IdEvent <<  endmsg;
+            ATH_MSG_DEBUG(" Run " << IdRun << " Event " << IdEvent );
         }// found old event info
     }else { // found the xAOD event info
-        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Run " << evtInfo->runNumber()
-            << " Event " << evtInfo->eventNumber() << endmsg;
+        ATH_MSG_DEBUG(" Run " << evtInfo->runNumber() << " Event " << evtInfo->eventNumber() );
         IdRun   = evtInfo->runNumber();
         IdEvent = evtInfo->eventNumber();
     } // get event ifo
@@ -226,48 +219,38 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
 
   // Accept-All mode: temporary patch; should be done with force-accept
   if (m_acceptAll) {
-    if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << "AcceptAll property is set: taking all events" << endmsg;
+    ATH_MSG_DEBUG("AcceptAll property is set: taking all events" );
     pass = true;
     return HLT::OK;
   } else {
-    if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << "AcceptAll property not set: applying selection" << endmsg;
+    ATH_MSG_DEBUG("AcceptAll property not set: applying selection" );
   }
 
-  if ( msgLvl() <= MSG::DEBUG ){
-    msg() << MSG::DEBUG
-        << "Using outputTE ( " << outputTE << " ) ->getId(): " << outputTE->getId() << endmsg;
-  }
+  ATH_MSG_DEBUG("Using outputTE ( " << outputTE << " ) ->getId(): " << outputTE->getId() );
+  
   
   // create vector for TrigEFBphys particles
     //  const TrigEFBphysContainer* trigBphysColl = 0;
     const xAOD::TrigBphysContainer * xAODTrigBphysColl(0);
     
   // get vector of TrigEFBphys particles from outputTE
-  HLT::ErrorCode status = getFeature(outputTE, xAODTrigBphysColl, "EFBMuMuXFex");
+  HLT::ErrorCode status = getFeature(outputTE, xAODTrigBphysColl, m_bphysCollectionKey);
   if ( status != HLT::OK ) {
-    if ( msgLvl() <= MSG::WARNING )
-      msg() << MSG::WARNING << "Failed to get xAODTrigBphysColl collection" << endmsg;
+    ATH_MSG_WARNING("Failed to get xAODTrigBphysColl collection" );
     return HLT::OK;
   }
   
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Retrieved Bphys collection  xAODTrigBphysColl = " << xAODTrigBphysColl << endmsg;
+  ATH_MSG_DEBUG(" Retrieved Bphys collection  xAODTrigBphysColl = " << xAODTrigBphysColl );
   if ( xAODTrigBphysColl == 0 ) {
-    if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << "No Bphys particles to analyse, leaving!" << endmsg;
+    ATH_MSG_DEBUG("No Bphys particles to analyse, leaving!" );
     return HLT::OK;
   }
   
-  if ( msgLvl() <= MSG::DEBUG ) {
-    msg() << MSG::DEBUG << "Got xAODTrigBphysColl collection with " << xAODTrigBphysColl->size()
-        << " TrigBphys particles " << endmsg;
-  }
+  ATH_MSG_DEBUG("Got xAODTrigBphysColl collection with " << xAODTrigBphysColl->size() << " TrigBphys particles " );
   
   // if no Bphys particles were found, just leave TrigBphysColl. empty and leave
   if ( xAODTrigBphysColl->size() == 0 ) {
-    if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << "No Bphys particles to analyse, leaving!" << endmsg;
+    ATH_MSG_DEBUG("No Bphys particles to analyse, leaving!" );
 //     delete trigBphysColl;
     return HLT::OK;
   }
@@ -290,9 +273,7 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
     if(decayType == xAOD::TrigBphys::BCDPMUMU)    decayName = "Bc -> mu mu D+";
     if(decayType == xAOD::TrigBphys::BCDSTMUMU)   decayName = "Bc -> mu mu D*+ or Bc -> mu mu D0";
 
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Bphys particle type: " << decayName << ", "
-        << decayType << " with mass " << (*bphysIter)->mass() << endmsg;
-
+    ATH_MSG_DEBUG("Bphys particle type: " << decayName << ", " << decayType << " with mass " << (*bphysIter)->mass() );
 
 //     if ((*bphysIter)->particleType() == TrigEFBphys::BMUMUX ) {
     if (decayType == xAOD::TrigBphys::BKMUMU    || decayType == xAOD::TrigBphys::BDKSTMUMU ||
@@ -311,15 +292,15 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
       
       float BMass = (*bphysIter)->mass();
       float BChi2 = (*bphysIter)->fitchi2();
-      if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "BMass = " << BMass << endmsg;
-      if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "BChi2 = " << BChi2 << endmsg;
+      ATH_MSG_DEBUG("BMass = " << BMass );
+      ATH_MSG_DEBUG("BChi2 = " << BChi2 );
       
       if( decayType == xAOD::TrigBphys::BKMUMU ) {
         if( m_acceptBplus ) {
           if ( BMass > m_lowerBplusMassCut && BMass < m_upperBplusMassCut ) {
-            if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Mass =  " << BMass  << " -> B+ Mass passed " << endmsg;
+            ATH_MSG_DEBUG(" Mass =  " << BMass  << " -> B+ Mass passed " );
             if( BChi2 < m_BplusChi2Cut /*&& BChi2 >= -0.0001*/ ) {  // allow -nve chi2 for not fitted
-              if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  Chi2 =  " << BChi2  << " -> B+ Chi2 passed " << endmsg;
+              ATH_MSG_DEBUG("  Chi2 =  " << BChi2  << " -> B+ Chi2 passed " );
               PassedBplus=true;
               thisPassedBplus=true;
             }
@@ -329,25 +310,23 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
       else { // bD_to_Kstar, bS_to_Phi, lB_to_L, bC_to_Ds
         const xAOD::TrigBphys* trigPartX = (*bphysIter)->secondaryDecay();
         if(!trigPartX) {
-          msg() << MSG::WARNING << "No secondary decay pointer in Bphys particle of type " << (*bphysIter)->particleType() << endmsg;
+          ATH_MSG_WARNING("No secondary decay pointer in Bphys particle of type " << (*bphysIter)->particleType() );
         } else {
           float XMass = trigPartX->mass();
           float XChi2 = trigPartX->fitchi2();
           int nXParticles = trigPartX->trackParticleLinks().size();
-          if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "XMass = " << XMass << endmsg;
-          if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "XChi2 = " << XChi2 << endmsg;
-          if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "nXParticles = " << nXParticles << endmsg;
+          ATH_MSG_DEBUG("XMass = " << XMass << ", XChi2 = " << XChi2 << ", nXParticles = " << nXParticles );
           
           // Bd -> Mu Mu Kstar
           if( (decayType == xAOD::TrigBphys::BDKSTMUMU) && m_acceptBd ) {
             if ( BMass > m_lowerBdMassCut && BMass < m_upperBdMassCut ) {
-              if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " BMass =  " << BMass  << " -> Bd Mass passed " << endmsg;
+              ATH_MSG_DEBUG(" BMass =  " << BMass  << " -> Bd Mass passed " );
               if ( XMass > m_lowerKstarMassCut && XMass < m_upperKstarMassCut ) {
-                if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  XMass =  " << XMass  << " -> K* Mass passed " << endmsg;
+                ATH_MSG_DEBUG("  XMass =  " << XMass  << " -> K* Mass passed " );
                 if( BChi2 < m_BdChi2Cut /*&& BChi2 >= -0.0001*/) { // allow -nve chi2 for not fitted
-                  if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "   BChi2 =  " << BChi2  << " -> Bd Chi2 passed " << endmsg;
+                  ATH_MSG_DEBUG("   BChi2 =  " << BChi2  << " -> Bd Chi2 passed " );
                   if ( XChi2 < m_KstarChi2Cut /*&& XChi2 >= -0.0001*/) { // allow -nve chi2 for not fitted
-                    if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "    XChi2 =  " << XChi2  << " -> K* Chi2 passed " << endmsg;
+                    ATH_MSG_DEBUG("    XChi2 =  " << XChi2  << " -> K* Chi2 passed " );
                     PassedBd=true;
                     thisPassedBd=true;
                   }
@@ -359,13 +338,13 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
           // Bs -> Mu Mu Phi
           if( (decayType == xAOD::TrigBphys::BSPHIMUMU) && m_acceptBs ) {
             if ( BMass > m_lowerBsMassCut && BMass < m_upperBsMassCut ) {
-              if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " BMass =  " << BMass  << " -> Bs Mass passed " << endmsg;
+              ATH_MSG_DEBUG(" BMass =  " << BMass  << " -> Bs Mass passed " );
               if ( XMass > m_lowerPhi1020MassCut && XMass < m_upperPhi1020MassCut ) {
-                if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  XMass =  " << XMass  << " -> Phi Mass passed " << endmsg;
+                ATH_MSG_DEBUG("  XMass =  " << XMass  << " -> Phi Mass passed " );
                   if( BChi2 < m_BsChi2Cut /*&& BChi2 >= -0.0001*/ ) { // allow -nve chi2 for not fitted
-                  if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "   BChi2 =  " << BChi2  << " -> Bs Chi2 passed " << endmsg;
+                  ATH_MSG_DEBUG("   BChi2 =  " << BChi2  << " -> Bs Chi2 passed " );
                   if ( XChi2 < m_Phi1020Chi2Cut /*&& XChi2 >= -0.0001*/) { // allow -nve chi2 for not fitted
-                    if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "    XChi2 =  " << XChi2  << " -> Phi Chi2 passed " << endmsg;
+                    ATH_MSG_DEBUG("    XChi2 =  " << XChi2  << " -> Phi Chi2 passed " );
                     PassedBs=true;
                     thisPassedBs=true;
                   }
@@ -377,13 +356,13 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
           // Lambda_b -> Mu Mu Lambda
           if( (decayType == xAOD::TrigBphys::LBLMUMU) && m_acceptLb ) {
             if ( BMass > m_lowerLbMassCut && BMass < m_upperLbMassCut ) {
-              if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " BMass =  " << BMass  << " -> Lambda_b Mass passed " << endmsg;
+              ATH_MSG_DEBUG(" BMass =  " << BMass  << " -> Lambda_b Mass passed " );
               if ( XMass > m_lowerLambdaMassCut && XMass < m_upperLambdaMassCut ) {
-                if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  XMass =  " << XMass  << " -> Lambda Mass passed " << endmsg;
+                ATH_MSG_DEBUG("  XMass =  " << XMass  << " -> Lambda Mass passed " );
                 if( BChi2 < m_LbChi2Cut /*&& BChi2 >= -0.0001*/) {// allow -nve chi2 for not fitted
-                  if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "   BChi2 =  " << BChi2  << " -> Lambda_b Chi2 passed " << endmsg;
+                  ATH_MSG_DEBUG("   BChi2 =  " << BChi2  << " -> Lambda_b Chi2 passed " );
                   if ( XChi2 < m_LambdaChi2Cut /*&& XChi2 >= -0.0001*/ ) { // allow -nve chi2 for not fitted
-                    if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "    XChi2 =  " << XChi2  << " -> Lambda Chi2 passed " << endmsg;
+                    ATH_MSG_DEBUG("    XChi2 =  " << XChi2  << " -> Lambda Chi2 passed " );
                     PassedLb=true;
                     thisPassedLb=true;
                   }
@@ -395,13 +374,13 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
           // Bc -> Mu Mu Ds
           if( (decayType == xAOD::TrigBphys::BCDSMUMU) && m_acceptBc ) {
             if ( BMass > m_lowerBcMassCut && BMass < m_upperBcMassCut ) {
-              if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " BMass =  " << BMass  << " -> Bc Mass passed " << endmsg;
+              ATH_MSG_DEBUG(" BMass =  " << BMass  << " -> Bc Mass passed " );
               if ( XMass > m_lowerDsMassCut && XMass < m_upperDsMassCut ) {
-                if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  XMass =  " << XMass  << " -> Ds Mass passed " << endmsg;
+                ATH_MSG_DEBUG("  XMass =  " << XMass  << " -> Ds Mass passed " );
                 if( BChi2 < m_BcChi2Cut && BChi2 >= -0.0001) {
-                  if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "   BChi2 =  " << BChi2  << " -> Bc Chi2 passed " << endmsg;
+                  ATH_MSG_DEBUG("   BChi2 =  " << BChi2  << " -> Bc Chi2 passed " );
                   if ( XChi2 < m_DsChi2Cut && XChi2 >= -0.0001) {
-                    if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "    XChi2 =  " << XChi2  << " -> Ds Chi2 passed " << endmsg;
+                    ATH_MSG_DEBUG("    XChi2 =  " << XChi2  << " -> Ds Chi2 passed " );
                     PassedBc=true;
                     thisPassedBc=true;
                   }
@@ -413,13 +392,13 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
           // Bc -> Mu Mu D+
           if( (decayType == xAOD::TrigBphys::BCDPMUMU) && m_acceptBcDplus ) {
             if ( BMass > m_lowerBcDplusMassCut && BMass < m_upperBcDplusMassCut ) {
-              if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " BMass =  " << BMass  << " -> BcDplus Mass passed " << endmsg;
+              ATH_MSG_DEBUG(" BMass =  " << BMass  << " -> BcDplus Mass passed " );
               if ( XMass > m_lowerDplusMassCut && XMass < m_upperDplusMassCut ) {
-                if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  XMass =  " << XMass  << " -> Dplus Mass passed " << endmsg;
+                ATH_MSG_DEBUG("  XMass =  " << XMass  << " -> Dplus Mass passed " );
                 if( BChi2 < m_BcDplusChi2Cut && BChi2 >= -0.0001) {
-                  if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "   BChi2 =  " << BChi2  << " -> BcDplus Chi2 passed " << endmsg;
+                  ATH_MSG_DEBUG("   BChi2 =  " << BChi2  << " -> BcDplus Chi2 passed " );
                   if ( XChi2 < m_DplusChi2Cut && XChi2 >= -0.0001) {
-                    if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "    XChi2 =  " << XChi2  << " -> Dplus Chi2 passed " << endmsg;
+                    ATH_MSG_DEBUG("    XChi2 =  " << XChi2  << " -> Dplus Chi2 passed " );
                     PassedBcDplus=true;
                     thisPassedBcDplus=true;
                   }
@@ -431,13 +410,13 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
           // Bc -> Mu Mu D*
           if( (decayType == xAOD::TrigBphys::BCDSTMUMU) && nXParticles == 3 && m_acceptBcDstar ) {
             if ( BMass > m_lowerBcDstarMassCut && BMass < m_upperBcDstarMassCut ) {
-              if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " BMass =  " << BMass  << " -> BcDstar Mass passed " << endmsg;
+              ATH_MSG_DEBUG(" BMass =  " << BMass  << " -> BcDstar Mass passed " );
               if ( XMass > m_lowerDstarMassCut && XMass < m_upperDstarMassCut ) {
-                if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  XMass =  " << XMass  << " -> Dstar Mass passed " << endmsg;
+                ATH_MSG_DEBUG("  XMass =  " << XMass  << " -> Dstar Mass passed " );
                 if( BChi2 < m_BcDstarChi2Cut && BChi2 >= -0.0001) {
-                  if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "   BChi2 =  " << BChi2  << " -> BcDstar Chi2 passed " << endmsg;
+                  ATH_MSG_DEBUG("   BChi2 =  " << BChi2  << " -> BcDstar Chi2 passed " );
                   if ( XChi2 < m_DstarChi2Cut && XChi2 >= -0.0001) {
-                    if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "    XChi2 =  " << XChi2  << " -> Dstar Chi2 passed " << endmsg;
+                    ATH_MSG_DEBUG("    XChi2 =  " << XChi2  << " -> Dstar Chi2 passed " );
                     PassedBcDstar=true;
                     thisPassedBcDstar=true;
                   }
@@ -449,13 +428,13 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
           // Bc -> Mu Mu D0
           if( (decayType == xAOD::TrigBphys::BCDSTMUMU) && nXParticles == 2 && m_acceptBcD0 ) {
             if ( BMass > m_lowerBcD0MassCut && BMass < m_upperBcD0MassCut ) {
-              if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " BMass =  " << BMass  << " -> BcD0 Mass passed " << endmsg;
+              ATH_MSG_DEBUG(" BMass =  " << BMass  << " -> BcD0 Mass passed " );
               if ( XMass > m_lowerD0MassCut && XMass < m_upperD0MassCut ) {
-                if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  XMass =  " << XMass  << " -> D0 Mass passed " << endmsg;
+                ATH_MSG_DEBUG("  XMass =  " << XMass  << " -> D0 Mass passed " );
                 if( BChi2 < m_BcD0Chi2Cut && BChi2 >= -0.0001) {
-                  if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "   BChi2 =  " << BChi2  << " -> BcD0 Chi2 passed " << endmsg;
+                  ATH_MSG_DEBUG("   BChi2 =  " << BChi2  << " -> BcD0 Chi2 passed " );
                   if ( XChi2 < m_D0Chi2Cut && XChi2 >= -0.0001) {
-                    if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "    XChi2 =  " << XChi2  << " -> D0 Chi2 passed " << endmsg;
+                    ATH_MSG_DEBUG("    XChi2 =  " << XChi2  << " -> D0 Chi2 passed " );
                     PassedBcD0=true;
                     thisPassedBcD0=true;
                   }
@@ -501,17 +480,17 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
   }
 
   // Reach this point successfully
-  if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Run: " << IdRun << " Event: " << IdEvent << "  result is " << result << endmsg;
+  ATH_MSG_DEBUG("Run: " << IdRun << " Event: " << IdEvent << "  result is " << result );
 
   if (!m_acceptAll) pass = result;
 
   // store result
   //if ( attachBits(outputTE, bits) != HLT::OK ) {
-  //  msg() << MSG::ERROR << "Problem attaching TrigPassBits! " << endmsg;
+  //  ATH_MSG_ERROR("Problem attaching TrigPassBits! " );
   //}
-  if(attachFeature(outputTE, xBits.release(),"passbits") != HLT::OK)
+  if(attachFeature(outputTE, xBits.release(),"passbits") != HLT::OK){
       ATH_MSG_ERROR("Could not store TrigPassBits! ");
-  
+  }
 //   delete trigBphysColl;
 
   return HLT::OK;

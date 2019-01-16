@@ -48,7 +48,7 @@ def TrigL2PhotonHypoToolFromName( name, conf ):
 
 
 if __name__ == "__main__":
-    tool = TrigL2PhotonHypoToolFromName("HLT_g5_etcut")   
+    tool = TrigL2PhotonHypoToolFromName("HLT_g5_etcut", "HLT_g5_etcut")   
     assert tool, "Not configured simple tool"
 
 

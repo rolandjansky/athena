@@ -12,6 +12,7 @@ class SctTrigPrepRawDataFormatMonitorBase(TrigGenericMonitoringToolConfig):
 
     maxclu = 200
     maxid = 400
+    maxerrbins = 45
     from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
     deta = InDetTrigSliceSettings[('etaHalfWidth',type)]
     if deta>3.:
@@ -37,8 +38,8 @@ class SctTrigPrepRawDataFormatMonitorBase(TrigGenericMonitoringToolConfig):
     self.Histograms += [ defineHistogram('SctBSErr',
                                          type='TH1F',
                                          title="SCT BS decoding errors", 
-                                         xbins = 15, xmin=0., xmax=20,
-                                         labels='ByteStreamParseError: TimeOutError: BCIDError: LVL1IDError: PreambleError: FormatterError: TrailerError: TrailerOverflowError: HeaderTrailerLimitError: ABCDError: RawError: MaskedLink: RODClockError: TruncatedROD: ROBFragmentError'
+                                         xbins = maxerrbins, xmin=0.5, xmax=maxerrbins+0.5,
+                                         labels='ByteStreamParseError: TimeOutError: BCIDError: LVL1IDError: PreambleError: FormatterError: TrailerError: TrailerOverflowError: HeaderTrailerLimitError: ABCDError: RawError: MaskedLink: RODClockError: TruncatedROD: ROBFragmentError: MissingLinkHeaderError: MaskedROD: ABCDError_Chip0:xxxxx ABCDError_Chip1: ABCDError_Chip2: ABCDError_Chip3: ABCDError_Chip4: ABCDError_Chip5: ABCDError_Error1: ABCDError_Error2: ABCDError_Error4: TempMaskedChip0: TempMaskedChip1: TempMaskedChip2: TempMaskedChip3: TempMaskedChip4: TempMaskedChip5: ABCDError_Error7: ABCDError_Invalid'
                                          ) ]
 
     self.Histograms += [ defineHistogram('SctHashId',

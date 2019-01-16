@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATE_READMETAHANDLE_H
@@ -58,7 +58,7 @@ namespace SG {
     // current SID
     SG::SourceID m_sid;
     // pinter to container
-    MetaCont<T>*  m_cont {nullptr};
+    const MetaCont<T>*  m_cont {nullptr};
     // pointer to object in container for current SID
     T* m_ent {nullptr};
     

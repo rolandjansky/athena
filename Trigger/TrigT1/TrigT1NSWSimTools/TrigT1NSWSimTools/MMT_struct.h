@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_STRUCT_H
 #define MM_STRUCT_H
 
 #include <fstream>
-// #include "fixed_point.h"
 
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -15,15 +14,8 @@
 
 #include "AthenaKernel/MsgStreamMember.h"
 
-
-#include "TTree.h"
-#include "TH1F.h"
 #include "TLorentzVector.h"
 #include "TMath.h"
-
-#include<cmath>
-
-// using namespace fpml;
 
 //flags
 const double crep_pt=200.;
@@ -34,10 +26,8 @@ const double crep_pt=200.;
   --road (Finder in MMT_Finder)
 */
 
-//constants and convsersions
+//constants and conversions
 const int yzdex=2,bkdex=13,zbardex=2;
-// double store_const;
-
 
 template<unsigned char T> class float32fixed
 {
@@ -68,7 +58,6 @@ public:
     //=== return input value with fixed point precision
     return ::roundf(m_fixp_content * std::pow(2., scale)) / std::pow(2., scale);
 
-    // return fixedPointPrecision(T, m_fixp_content);
   }
 
 
@@ -190,7 +179,6 @@ struct par_par{
   double h;
   int ctx,ctuv;
   double uverr;
-  //fixed_point<int,1> uverr; //need int here
   std::string setup;
   bool islarge,q_dlm,genbg;
   double qt;
@@ -204,9 +192,6 @@ struct par_par{
 
 
 };
-
-// const par_par standard=par_par(0.0009,4,4,0.0035,"xxuvxxuv",true);
-// const par_par dlm=par_par(0.0009,4,4,0.007,"xxuvuvxx",true,true); //.0035 for uv_tol before...
 
 class MMT_Parameters{
  public:
@@ -232,7 +217,6 @@ class MMT_Parameters{
   int ybin(float32fixed<18> y,int plane=0)const;
   int ybin(float32fixed<yzdex> y,int plane=0)const;
   int ybin(double y,int plane=0)const;
-  // double ymid_eta_bin(int bin,int plane)const;
 
   //fill the tables
   void Local_Slope_A_B();
@@ -430,26 +414,14 @@ struct hitData_info{
 
   //members
   int plane;
-  //char addc,vmm,strip;//strip is in a vmm (0-63); char for storage as a byte
   float32fixed<yzdex> y,z;//actual values divided by store_const() to make fixed point calculations doable--all this stuff is dimensionless in the end, so it's okay.
   float32fixed<2> slope;
 
-
-  // /// Log a message using the Athena controlled logging system
-  // MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-  // /// Check whether the logging system is active at the provided verbosity level
-  // bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
-
-  // private:
-  //   /// Private message stream member
-  //   mutable Athena::MsgStreamMember m_msg;
 };
 
 struct Hit{
   //make a well-behaved constructor
-/*   Hit(int _plane=-1, int _strip=0, int _station_eta=0, double _slope=0, int bct=0, double t=0, double gt=0, int vmm=0); */
   Hit(const hitData_key&k=hitData_key(),const hitData_info&i=hitData_info());
-/*   double slope()const {return info.slope();} */
   bool operator==(const Hit& rhs) const;
   void print_track(const std::vector<Hit>& track) const;
   void print() const;

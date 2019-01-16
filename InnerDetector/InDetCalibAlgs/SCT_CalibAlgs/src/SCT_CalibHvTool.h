@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -73,7 +73,6 @@ class SCT_CalibHvTool : public extends<AthAlgTool, ISCT_CalibHistoTool>
       typedef std::vector<int> VecInt;
       VecInt *m_sct_waferHash;
       VecInt *m_sct_numHitsInWafer;
-      mutable int m_lumiBlock;
 
       //private use in this class
       int m_maxq;

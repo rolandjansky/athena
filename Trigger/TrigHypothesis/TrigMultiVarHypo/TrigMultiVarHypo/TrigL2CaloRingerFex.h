@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
 #ifndef TRIGL2CALORINGERFEX_H
 #define TRIGL2CALORINGERFEX_H
 
@@ -18,8 +17,12 @@
 #include "xAODTrigRinger/TrigRNNOutput.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
 
-#include "TrigMultiVarHypo/preprocessor/TrigRingerPreprocessor.h"
-#include "TrigMultiVarHypo/discriminator/MultiLayerPerceptron.h"
+/// Luminosity tool
+#include "LumiBlockComps/ILumiBlockMuTool.h"
+#include "TrigMultiVarHypo/tools/MultiLayerPerceptron.h"
+#include "TrigMultiVarHypo/tools/TrigL2CaloRingerReader.h"
+#include "TrigMultiVarHypo/preproc/TrigRingerPreprocessor.h"
+
 
 class TrigL2CaloRingerFex: public HLT::FexAlgo {
  
@@ -46,46 +49,44 @@ class TrigL2CaloRingerFex: public HLT::FexAlgo {
     /* Helper functions for feature extraction */
     const xAOD::TrigEMCluster* get_cluster(const HLT::TriggerElement* te);
 
+    std::string m_calibPath;
     ///feature keys
     std::string m_hlt_feature;
     std::string m_feature;
     std::string m_key;
 
+    float       m_lumiCut;
+    float       m_output;
+    bool        m_useLumiTool;
+    bool        m_useEtaVar;
+    bool        m_useLumiVar;
+    
+    //LumiTool
+    ToolHandle<ILumiBlockMuTool>  m_lumiBlockMuTool;
     ///Prepoc configuration
     std::vector<unsigned int>  m_nRings;
     std::vector<unsigned int>  m_normRings;
     std::vector<unsigned int>  m_sectionRings;
     
-    ///Discriminator configuration
-    std::vector<unsigned int>                m_nodes;
-    std::vector<std::vector<double>>         m_weights;
-    std::vector<std::vector<double>>         m_bias;
-    std::vector<double>                      m_threshold;
-    std::vector<std::vector<double>>         m_etaBins;
-    std::vector<std::vector<double>>         m_etBins;
-  
-    unsigned  m_nDiscr;
-    unsigned  m_nPreproc;
-    float     m_output;
-
     ///Discriminator holder 
-    std::vector<MultiLayerPerceptron*> m_discriminators;
-    ///Pre-processing holder 
+    std::vector<MultiLayerPerceptron*>       m_discriminators;
     std::vector<TrigRingerPreprocessor*>     m_preproc; 
+    TrigL2CaloRingerReader                   m_reader;
+
 };
 //!===============================================================================================
 /// get the cluster inside of container
 const xAOD::TrigEMCluster* TrigL2CaloRingerFex::get_cluster(const HLT::TriggerElement* te) {
-    const xAOD::TrigEMCluster *pattern = 0;
+    const xAOD::TrigEMCluster *pattern = nullptr;
     HLT::ErrorCode status = getFeature(te, pattern, m_feature);
-    return (status == HLT::OK) ? pattern : 0;
+    return (status == HLT::OK) ? pattern : nullptr;
 }
 //!===============================================================================================
 // get the ringer rings inside of container
 const xAOD::TrigRingerRings* TrigL2CaloRingerFex::get_rings(const HLT::TriggerElement* te){
-    const xAOD::TrigRingerRings *pattern = 0;
+    const xAOD::TrigRingerRings *pattern = nullptr;
     HLT::ErrorCode status = getFeature(te, pattern, m_feature);
-    return (status == HLT::OK) ? pattern : 0;
+    return (status == HLT::OK) ? pattern : nullptr;
 }
 //!===============================================================================================
 #endif /* TRIGL2CALORINGERHYPO_H */

@@ -13,6 +13,7 @@
 #include "SGTools/CallBackID.h"
 #include "AthContainersInterfaces/AuxStore_traits.h"
 #include "AthenaKernel/ClassName.h"
+#include "CxxUtils/checker_macros.h"
 #include "boost/bind.hpp"
 #include <vector>
 
@@ -67,7 +68,7 @@ StoreGateSvc::proxy_exact (SG::sgkey_t sgkey) const {
 
 template <typename H, typename TKEY>
 StatusCode 
-StoreGateSvc::regHandle( const DataHandle<H>& handle, const TKEY& key )
+StoreGateSvc::regHandle ATLAS_NOT_THREAD_SAFE ( const DataHandle<H>& handle, const TKEY& key )
 {
   CLID clid = ClassID_traits<H>::ID();
   IResetable *ir = const_cast<IResetable*> (static_cast<const IResetable*> (&handle));
@@ -84,7 +85,7 @@ StoreGateSvc::regHandle( const DataHandle<H>& handle, const TKEY& key )
 /// non-const method - will return an error
 template <typename H, typename TKEY>
 StatusCode 
-StoreGateSvc::regHandle( DataHandle<H>& handle, const TKEY& key)
+StoreGateSvc::regHandle( DataHandle<H>& /*handle*/, const TKEY& key)
 {
   error() << "regHandle(): DataHandle must be const: "
           << ClassName<H>::name() << "[" + key + "]"
@@ -96,9 +97,9 @@ StoreGateSvc::regHandle( DataHandle<H>& handle, const TKEY& key)
 /// register a callback function, with handle + key
 template <typename T, typename H, typename TKEY>
 StatusCode 
-StoreGateSvc::regFcn(StatusCode (T::*updFcn)(IOVSVC_CALLBACK_ARGS), 
-                     const T* obj, const DataHandle<H>& handle, 
-                     const TKEY& key, bool trigger)
+StoreGateSvc::regFcn ATLAS_NOT_THREAD_SAFE (StatusCode (T::*updFcn)(IOVSVC_CALLBACK_ARGS), 
+                                            const T* obj, const DataHandle<H>& handle, 
+                                            const TKEY& key, bool trigger)
 {
   CLID clid = ClassID_traits<H>::ID();
   IResetable *ir = const_cast<IResetable*> (static_cast<const IResetable*> (&handle));
@@ -135,10 +136,10 @@ StoreGateSvc::regFcn(StatusCode (T::* /*updFcn*/)(IOVSVC_CALLBACK_ARGS),
 /// register a callback function(2) with an already registered function(1)
 template <typename T1, typename T2>
 StatusCode 
-StoreGateSvc::regFcn(StatusCode (T1::*fcn1)(IOVSVC_CALLBACK_ARGS), 
-                     const T1* obj1,
-                     StatusCode (T2::*fcn2)(IOVSVC_CALLBACK_ARGS), 
-                     const T2* obj2, bool trigger)
+StoreGateSvc::regFcn ATLAS_NOT_THREAD_SAFE (StatusCode (T1::*fcn1)(IOVSVC_CALLBACK_ARGS), 
+                                            const T1* obj1,
+                                            StatusCode (T2::*fcn2)(IOVSVC_CALLBACK_ARGS), 
+                                            const T2* obj2, bool trigger)
 {
   const CallBackID c1(fcn1, obj1);
   const CallBackID c2(fcn2, obj2);
@@ -151,9 +152,9 @@ StoreGateSvc::regFcn(StatusCode (T1::*fcn1)(IOVSVC_CALLBACK_ARGS),
 /// register a callback function(2) with an already registered AlgTool
 template <typename T2>
 StatusCode 
-StoreGateSvc::regFcn(const std::string& toolName,
-                     StatusCode (T2::*fcn2)(IOVSVC_CALLBACK_ARGS), 
-                     const T2* obj2, bool trigger)
+StoreGateSvc::regFcn ATLAS_NOT_THREAD_SAFE (const std::string& toolName,
+                                            StatusCode (T2::*fcn2)(IOVSVC_CALLBACK_ARGS), 
+                                            const T2* obj2, bool trigger)
 {
   const CallBackID c2(fcn2, obj2);
   IOVSvcCallBackFcn fcn( boost::bind(fcn2,const_cast<T2*>(obj2),_1,_2));
@@ -204,7 +205,10 @@ template <typename T, typename TKEY>
 StatusCode StoreGateSvc::record(const T* pObject, const TKEY& key)
 {
   const bool NOMODS(false);
-  return record(const_cast<T*>(pObject), key, NOMODS);   // do not allow mods
+  // Ok --- we hold objects as non-const pointers internally, but mark
+  // them as const, so they can only be retrieved as const.
+  T* pObject_nc ATLAS_THREAD_SAFE = const_cast<T*> (pObject);
+  return record(pObject_nc, key, NOMODS);   // do not allow mods
 }
 
 //-------------------------------------------------------------------
@@ -625,7 +629,7 @@ StoreGateSvc::keys(std::vector<std::string>& vkeys,
 
 template <typename T, typename TKEY>
 StatusCode 
-StoreGateSvc::bind(const DataHandle<T>& handle, const TKEY& key) {
+StoreGateSvc::bind ATLAS_NOT_THREAD_SAFE (const DataHandle<T>& handle, const TKEY& key) {
   CLID clid = ClassID_traits<T>::ID();
   IResetable *ir = const_cast<IResetable*> (static_cast<const IResetable*> (&handle));
   SG::DataProxy *dp = 0;
@@ -650,7 +654,9 @@ StatusCode StoreGateSvc::record(std::unique_ptr<const T> pUnique,
                                 const TKEY& key)
 {
   const bool NOMODS(false);
-  T* ptr = const_cast<T*> (pUnique.release());
+  // Ok --- we hold objects as non-const pointers internally, but mark
+  // them as const, so they can only be retrieved as const.
+  T* ptr ATLAS_THREAD_SAFE = const_cast<T*> (pUnique.release());
   return record1(SG::asStorable (ptr), ptr,
                  key, NOMODS);   // do not allow mods
 }
@@ -1160,7 +1166,9 @@ bool StoreGateSvc::associateAux (const DOBJ* ptr,
                                  bool ignoreMissing) const
 {
   typename SG::AuxStore_traits<DOBJ>::const_type* pDummy(0); //used to pass down auxstore type
-  DOBJ* ptr_nc = const_cast<DOBJ*> (ptr);
+  // Should generally be ok, since any actual modification is done
+  // inside the store lock.  Still kind of a wart that we still do this, though.
+  DOBJ* ptr_nc ATLAS_THREAD_SAFE = const_cast<DOBJ*> (ptr);
   bool hasAux=associateAux_impl(ptr_nc, key, pDummy) || ignoreMissing;
   if (!hasAux) SG_MSG_WARNING("associateAux const: Could not associate AuxStore of type "  
                               << SG::AuxStore_traits<DOBJ>::const_typeName()

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////// 
@@ -32,9 +32,6 @@
    LumiBlockRange_p1(unsigned long long start, unsigned long long stop): 
                    m_start(start),m_stop(stop) {};
    LumiBlockRange_p1() : m_start(0),m_stop(0) {};
-   LumiBlockRange_p1(const LumiBlockRange_p1& rhs) : m_start(rhs.m_start),
-                                                     m_stop(rhs.m_stop) {};
-   ~LumiBlockRange_p1() {};
       
  }; 
 

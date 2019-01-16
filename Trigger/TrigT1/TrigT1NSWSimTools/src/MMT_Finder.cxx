@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1NSWSimTools/MMT_Finder.h"
@@ -9,11 +9,9 @@ using std::map;
 using std::pair;
 using std::string;
 
-MMT_Finder::MMT_Finder(MMT_Parameters *par, int nUVRoads, int outputLevel){
+MMT_Finder::MMT_Finder(MMT_Parameters *par, int nUVRoads){
 
-  m_msg.get().setLevel(outputLevel);
-
-  msg(MSG::DEBUG) << "MMT_Finder::building finder" << endmsg;
+  ATH_MSG_DEBUG("MMT_Finder::building finder");
 
   m_par = par;
   m_nUVRoads = nUVRoads;
@@ -26,12 +24,12 @@ MMT_Finder::MMT_Finder(MMT_Parameters *par, int nUVRoads, int outputLevel){
 
   int nplanes=m_par->setup.size();
 
-  msg(MSG::DEBUG) << "MMT_Find::finder entries " << m_nRoads << " " << m_par->slope_max.getFixed() << " " << m_par->slope_min.getFixed() << " " << m_par->h.getFixed() << endmsg;
+  ATH_MSG_DEBUG( "MMT_Find::finder entries " << m_nRoads << " " << m_par->slope_max.getFixed() << " " << m_par->slope_min.getFixed() << " " << m_par->h.getFixed() );
 
   m_gateFlags = vector<vector<double> >(m_nRoads,(vector<double>(2,0)));// sloperoad,
   m_finder    = vector<vector<finder_entry> >(m_nRoads,(vector<finder_entry>(nplanes,finder_entry())));  //[strip,slope,hit_index];
 
-  msg(MSG::DEBUG) << "MMT_Find::built finder" << endmsg;
+  ATH_MSG_DEBUG("MMT_Find::built finder");
 
   return;
 
@@ -47,7 +45,7 @@ void MMT_Finder::fillHitBuffer( map< pair<int,int> , finder_entry > & hitBuffer,
 
   //Conver hit to slope here
   float32fixed<3> slope=hit.info.slope.getFixed();
-  msg(MSG::DEBUG) << "SLOPE " << hit.info.slope.getFixed() << endmsg;
+  ATH_MSG_DEBUG("SLOPE " << hit.info.slope.getFixed());
 
   //Plane and key info of the hit
   int plane=hit.info.plane;
@@ -168,7 +166,7 @@ int MMT_Finder::Coincidence_Gate(const vector<bool>& plane_hits) const{
 
   //8 for eight detector planes
   if(plane_hits.size()!=8){
-    msg(MSG::DEBUG) << "Coincidence_Gate: Don't have 8 plane hit!" << endmsg;
+    ATH_MSG_DEBUG("Coincidence_Gate: Don't have 8 plane hit!");
   }
   //Might want to establish a heirarchy of gates
   //Eg, 4X+4UV > 3+3.   Also,
@@ -189,12 +187,12 @@ int MMT_Finder::Coincidence_Gate(const vector<bool>& plane_hits) const{
   value = 10*X_count+UV_count;
   if(!xpass||!uvpass){
     value*=-1;
-    if(value<-10) msg(MSG::DEBUG) << "Coincidence_Gate: hit count fail with value: "<<value<< endmsg;
+    if(value<-10) ATH_MSG_DEBUG("Coincidence_Gate: hit count fail with value: "<<value);
   }
   else if(!fbpass&&X_count+UV_count>0){
     if(value>0)value*=-1;
     value-=5;
-    msg(MSG::DEBUG) << "Coincidence_Gate: quadruplet fail with value: "<<value<< endmsg;
+    ATH_MSG_DEBUG("Coincidence_Gate: quadruplet fail with value: "<<value);
   }
   return value;
 }

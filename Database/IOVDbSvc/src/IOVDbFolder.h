@@ -140,13 +140,9 @@ private:
                        const IOVRange& range);
   // - version for multichannel collection
   bool addMetaAttrListColl(const CondAttrListCollection* coll);
-  // add type information to calculate size of attributeList
-  void addType(const std::string& type,const unsigned int ielm);
+ 
   // setup shared AttributeListSpecification cache
   void setSharedSpec(const coral::AttributeList& atrlist);
-  // calculate bytesize of given attributeList, using cached typeinfo
-  void countSize(const coral::AttributeList& atrlist);
-  
   
   // add this IOV to cache, including channel counting if over edge of cache
   void addIOVtoCache(cool::ValidityKey since, cool::ValidityKey until);
@@ -206,10 +202,6 @@ private:
   std::string m_addrheader; // address header string from folder description
   CLID m_clid;         // CLID, read from folder description or ClassIDSvc
 
-  // read statistcs
-  typedef std::pair<unsigned int, unsigned int> VarSizePair;
-  std::vector<VarSizePair> m_varfields;
-  unsigned int m_fixedfields;
   unsigned int m_ndbread; // number of times data read from DB
   unsigned int m_ncacheread; // number of times data read from cache
   unsigned int m_nobjread; // number of objects read from DB

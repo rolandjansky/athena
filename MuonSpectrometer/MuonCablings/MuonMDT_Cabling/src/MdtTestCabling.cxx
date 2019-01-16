@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonMDT_Cabling/MdtTestCabling.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 
 MdtTestCabling::MdtTestCabling(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name,pSvcLocator),

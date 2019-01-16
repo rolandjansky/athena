@@ -222,8 +222,11 @@ TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits
     for (int it = 0; it < m_maxIterations; it++) {
 
       float ofcPhase(-t_ch);
-      const TileOfcWeightsStruct* weights;
-      weights = m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, ofcPhase, true);
+      TileOfcWeightsStruct weights;
+      if (m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, ofcPhase, true, weights).isFailure()) {
+        ATH_MSG_ERROR("getOfcWeights fails.");
+        return nullptr;
+      }
       
       t_ch = -ofcPhase;
 
@@ -232,9 +235,9 @@ TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits
       double dg[9] = {0};
 
       for (k = 0; k < m_digits.size(); ++k) {
-        b[k] = weights->w_b[k];
-        g[k] = weights->g[k];
-        dg[k] = weights->dg[k];
+        b[k] = weights.w_b[k];
+        g[k] = weights.g[k];
+        dg[k] = weights.dg[k];
         if (it == 0) {
           amp_mf += g[k] * (m_digits[k] - ped_ch);  // matched filter
           amp_norm += g[k] * g[k];  // matched filter calibration for amp estimation
@@ -409,9 +412,12 @@ TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits
       if (m_correctAmplitude && cof[3] > m_ampMinThresh && t_ch > m_timeMinThresh && t_ch < m_timeMaxThresh) {
         double correction = 0.0;
         ofcPhase = -t_ch;
-        weights = m_tileCondToolOfcOnFly->getOfcWeights(drawerIdx, channel, gain, ofcPhase, true);
+        if (m_tileCondToolOfcOnFly->getOfcWeights(drawerIdx, channel, gain, ofcPhase, true, weights).isFailure()) {
+          ATH_MSG_ERROR("getOfcWeights fails.");
+          return nullptr;
+        }
         for (j = 0; j < n; ++j) {
-          correction += weights->g[j] * resultH[iBC3][j];
+          correction += weights.g[j] * resultH[iBC3][j];
         }
         cof[3] += (1 - correction) * cof[3];
       }

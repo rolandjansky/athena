@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_ISLIMMINGHDLR_H 
@@ -27,7 +27,7 @@ class ISlimmingHdlr
 public:
   /** @brief virtual destructor
    */
-  virtual ~ISlimmingHdlr();
+  virtual ~ISlimmingHdlr() = default;
 
   /** @brief returns a pointer to the object being slimmed
    */

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGGSectorLogic_hh
@@ -21,7 +21,8 @@
 #include "TrigT1TGC/TGCSLSelectorOut.hh"
 #include "TrigT1TGC/TGCInnerTrackletSlotHolder.hh"
 
-class ITGCTriggerDbTool;
+#include "StoreGate/ReadCondHandle.h"
+#include "MuonCondSvc/TGCTriggerData.h"
 
 namespace LVL1TGCTrigger {
 
@@ -40,7 +41,8 @@ public:
   int  getInnerStationWord() const;
 
   void eraseSelectorOut(); 
-  void clockIn(int bidIn);
+  void clockIn(const SG::ReadCondHandleKey<TGCTriggerData> readCondKey,
+               int bidIn);
 
   int getId() const;
   int getModuleID() const;
@@ -78,7 +80,8 @@ protected:
   enum {MaxNumberOfWireHighPtBoard =2};
   void collectInput();
 
-  void doInnerCoincidence(int SSCId,  TGCRPhiCoincidenceOut* coincidenceOut);
+  void doInnerCoincidence(const SG::ReadCondHandleKey<TGCTriggerData> readCondKey,
+                          int SSCId,  TGCRPhiCoincidenceOut* coincidenceOut);
 
 private:
   TGCSectorLogic& operator=(const TGCSectorLogic& right);
@@ -113,8 +116,6 @@ private:
   const TGCInnerTrackletSlot* m_innerTrackletSlots[TGCInnerTrackletSlotHolder::NUMBER_OF_SLOTS_PER_TRIGGER_SECTOR];
   bool useInner;
   bool useTileMu;
-
-  ToolHandle<ITGCTriggerDbTool> m_condDbTool; 
 };
 
 inline

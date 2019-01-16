@@ -10,7 +10,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include "InDetIdentifier/SCT_ID.h"
 
 #include "Identifier/IdentifierHash.h"
-
+#include "AthViews/View.h"
 namespace InDet{
 
     CacheCreator::CacheCreator(const std::string &name, ISvcLocator *pSvcLocator) :
@@ -25,7 +25,7 @@ namespace InDet{
     m_SCTSpacePointCacheKey(""),
 
     m_SCTRDOCacheKey(""), m_PixRDOCacheKey(""),
-    m_disableTRT(false)
+    m_disableTRT(false), m_disableWarning(false)
     {
         declareProperty("TRT_DriftCircleKey", m_rioContainerCacheKey);
         declareProperty("SCT_ClusterKey"    , m_SCTclusterContainerCacheKey);
@@ -35,6 +35,7 @@ namespace InDet{
         declareProperty("SCTRDOCacheKey", m_SCTRDOCacheKey);
         declareProperty("disableTRT"  , m_disableTRT);
         declareProperty("PixRDOCacheKey", m_PixRDOCacheKey);
+        declareProperty("DisableViewWarning", m_disableWarning);
     }
 
 
@@ -55,22 +56,33 @@ namespace InDet{
 
     CacheCreator::~CacheCreator() {}
 
+    bool CacheCreator::isInsideView(const EventContext& context) const
+    {
+        const IProxyDict* proxy = context.getExtension<Atlas::ExtendedEventContext>().proxy();
+        const SG::View* view = dynamic_cast<const SG::View*>(proxy);
+        return view != nullptr;
+    }
+
     StatusCode CacheCreator::execute (const EventContext& ctx) const
     {
 
-        if(!m_disableTRT) ATH_CHECK(CreateContainer(m_rioContainerCacheKey, m_pTRTHelper->straw_layer_hash_max(), ctx));
+        if(!m_disableWarning && isInsideView(ctx)){
+           ATH_MSG_WARNING("CacheCreator is running inside a view, this is probably a misconfiguration");
+        }
+
+        if(!m_disableTRT) ATH_CHECK(createContainer(m_rioContainerCacheKey, m_pTRTHelper->straw_layer_hash_max(), ctx));
         
-        ATH_CHECK(CreateContainer(m_SCTclusterContainerCacheKey, m_sct_idHelper->wafer_hash_max(), ctx));
+        ATH_CHECK(createContainer(m_SCTclusterContainerCacheKey, m_sct_idHelper->wafer_hash_max(), ctx));
         
-        ATH_CHECK(CreateContainer(m_PIXclusterContainerCacheKey, m_pix_idHelper->wafer_hash_max(), ctx));
+        ATH_CHECK(createContainer(m_PIXclusterContainerCacheKey, m_pix_idHelper->wafer_hash_max(), ctx));
 
-        ATH_CHECK(CreateContainer(m_PIXSpacePointCacheKey, m_pix_idHelper->wafer_hash_max(), ctx));
+        ATH_CHECK(createContainer(m_PIXSpacePointCacheKey, m_pix_idHelper->wafer_hash_max(), ctx));
 
-        ATH_CHECK(CreateContainer(m_SCTSpacePointCacheKey, m_sct_idHelper->wafer_hash_max(), ctx));
+        ATH_CHECK(createContainer(m_SCTSpacePointCacheKey, m_sct_idHelper->wafer_hash_max(), ctx));
 
-        ATH_CHECK(CreateContainer(m_SCTRDOCacheKey, m_sct_idHelper->wafer_hash_max(), ctx));
+        ATH_CHECK(createContainer(m_SCTRDOCacheKey, m_sct_idHelper->wafer_hash_max(), ctx));
 
-        ATH_CHECK(CreateContainer(m_PixRDOCacheKey, m_pix_idHelper->wafer_hash_max(), ctx));
+        ATH_CHECK(createContainer(m_PixRDOCacheKey, m_pix_idHelper->wafer_hash_max(), ctx));
 
         return StatusCode::SUCCESS;
     }

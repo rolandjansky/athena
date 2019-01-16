@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************
@@ -26,6 +26,7 @@ TrigEgammaEFPhotonSelectorTool( const std::string& myname )
     : TrigEgammaSelectorBaseTool(myname)
 {
   declareProperty("PhotonOnlPPSelector"        , m_photonOnlIsEMTool    );
+  declareProperty("IsolationSelector"          , m_isolationTool        );
 
   m_PidToolMap["Tight"] = 0;
   m_PidToolMap["Medium"]= 1;
@@ -102,3 +103,27 @@ bool TrigEgammaEFPhotonSelectorTool::ApplyPhotonPid(const xAOD::Photon *eg, cons
   return passTool;
 }
 //!==========================================================================
+bool TrigEgammaEFPhotonSelectorTool::ApplyIsolation(const xAOD::Photon *ph, const Trig::Info &info)
+{
+  bool status = false;
+  bool isIsolated = false;
+
+  if(boost::contains(info.trigName,"icalotight")){
+    status = m_isolationTool[0]->emulation( ph, isIsolated, info );
+  }else if(boost::contains(info.trigName,"icalomedium")){
+    status =  m_isolationTool[1]->emulation( ph, isIsolated, info );
+  }else if(boost::contains(info.trigName,"icaloloose")){
+    status =  m_isolationTool[2]->emulation( ph, isIsolated, info );
+  }else if(boost::contains(info.trigName,"icalovloose")){
+    status =  m_isolationTool[3]->emulation( ph, isIsolated, info );
+  }else{
+    ATH_MSG_DEBUG("No Isolation tool, continue without ISO");
+    return true;
+  }
+
+  if (!status)
+    ATH_MSG_WARNING("Problem to emulate the isolation selector.");
+
+
+  return isIsolated;
+}

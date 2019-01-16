@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -332,12 +332,17 @@ std::string CoreDumpSvc::dump() const
     std::string currentAlg;
     if (algExecStateSvc) {
       ATH_MSG_DEBUG("Using AlgExecStateSvc to determine current algorithm(s)");
-      // We copy on purpose to avoid modification while we examine it
-      auto states = algExecStateSvc->algExecStates(EventContext(0,t));
-      for (const auto& kv : states) {
-        if (kv.second.state()==AlgExecState::State::Executing)
-          currentAlg += (kv.first + " ");
-      }      
+      try {
+        // We copy on purpose to avoid modification while we examine it
+        auto states = algExecStateSvc->algExecStates(EventContext(0,t));
+        for (const auto& kv : states) {
+          if (kv.second.state()==AlgExecState::State::Executing)
+            currentAlg += (kv.first + " ");
+        }
+      }
+      catch (const GaudiException&) {  // can happen if we get called before any algo execution
+        ATH_MSG_INFO("No information from AlgExecStateSvc because no algorithm was executed yet.");
+      }
     }
     else if (algContextSvc) {
       ATH_MSG_DEBUG("Using AlgContextSvc to determine current algorithm");

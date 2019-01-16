@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <boost/tokenizer.hpp>
@@ -207,7 +207,8 @@ const HistogramDef HistogramDef::parse(const std::string& jobOpts) {
     }
   }
 
-  if (itr->find(":") != std::string::npos ) { // it means that last paramater has format str1:str2:str3:str4 which means these are bins labels
+  // check if there are bin labels (e.g. str1:str2:str3:str4)
+  if (itr != histProperty.end() && itr->find(":") != std::string::npos ) {
     // split it 
     boost::char_separator<char> colon(":");
     tokenizer_t labels(*itr, colon);

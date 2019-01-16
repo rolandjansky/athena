@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -98,7 +98,7 @@ TileRawChannelOF1Corrector::process (TileMutableRawChannelContainer& rchCont) co
       digitsContainer = allDigits.cptr();
     }
 
-  for (IdentifierHash hash : rchCont.GetAllCurrentHashes()) {
+    for (IdentifierHash hash : rchCont.GetAllCurrentHashes()) {
       TileRawChannelCollection* rawChannelCollection = rchCont.indexFindPtr (hash);
 
       int fragId = rawChannelCollection->identify();
@@ -133,10 +133,10 @@ TileRawChannelOF1Corrector::process (TileMutableRawChannelContainer& rchCont) co
 
           float onlinePedestalDifference = m_tileToolNoiseSample->getOnlinePedestalDifference(drawerIdx, channel, gain, rawChannelUnit);
           float phase = -m_tileToolTiming->getSignalPhase(drawerIdx, channel, gain);
-          // FIXME: const violation
-          const TileOfcWeightsStruct* weights = m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, phase, false);
+          TileOfcWeightsStruct weights;
+          ATH_CHECK( m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, phase, false, weights) );
           float weightsSum(0.0);
-          for (int i = 0; i < weights->n_samples; ++i) weightsSum += weights->w_a[i];
+          for (int i = 0; i < weights.n_samples; ++i) weightsSum += weights.w_a[i];
           float energyCorrection = onlinePedestalDifference * weightsSum;
           ATH_MSG_VERBOSE( TileCalibUtils::getDrawerString(ros, drawer) 
                            << " ch" << channel << (gain ? " HG: " : " LG: ")

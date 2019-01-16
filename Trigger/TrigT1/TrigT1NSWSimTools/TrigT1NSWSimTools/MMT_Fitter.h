@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MMT_FITTER_H
@@ -19,7 +19,6 @@ class MMT_Fitter{
   int get_last() const {return m_last;}
   int SC_ROI_n_x() const {return m_par->n_x;}
   int SC_ROI_n_y() const {return m_par->n_y;}
-/*   std::vector<int> xent,yent; */
   int find_hitData(const std::vector<hitData_entry>& hitDatas, const hitData_key& key) const;
 
 

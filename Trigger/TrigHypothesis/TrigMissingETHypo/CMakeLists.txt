@@ -12,7 +12,9 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Event/xAOD/xAODTrigMissingET
                           GaudiKernel
-                          Trigger/TrigEvent/TrigMissingEtEvent )
+                          Trigger/TrigEvent/TrigMissingEtEvent 
+                          Trigger/TrigSteer/DecisionHandling
+                          Trigger/TrigAlgorithms/TrigEFMissingET)
 
 # External dependencies:
 find_package( CLHEP )
@@ -26,12 +28,12 @@ atlas_add_library( TrigMissingETHypoLib
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES TrigInterfacesLib TrigTimeAlgsLib
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} xAODTrigMissingET GaudiKernel TrigMissingEtEvent )
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} xAODTrigMissingET GaudiKernel TrigMissingEtEvent DecisionHandling )
 
 atlas_add_component( TrigMissingETHypo
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} TrigInterfacesLib TrigTimeAlgsLib xAODTrigMissingET GaudiKernel TrigMissingEtEvent TrigMissingETHypoLib )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} TrigInterfacesLib TrigTimeAlgsLib xAODTrigMissingET GaudiKernel TrigMissingEtEvent TrigMissingETHypoLib DecisionHandling  )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

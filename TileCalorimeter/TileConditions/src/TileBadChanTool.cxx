@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -16,15 +16,8 @@
 #include "StoreGate/ReadCondHandle.h"
 
 #include <string>
+#include <algorithm>
 
-//
-//____________________________________________________________________
-/*
-const InterfaceID& TileBadChanTool::interfaceID() {
-
-  return ITileBadChanTool::interfaceID();
-}
-*/
 
 //
 //____________________________________________________________________
@@ -228,4 +221,15 @@ const std::vector<float>& TileBadChanTool::getTripsProbabilities(unsigned int ro
   }
 
   return m_defaultTripsProbs;
+}
+
+
+bool TileBadChanTool::isDrawerMasked(unsigned int frag_id) const {
+
+  SG::ReadCondHandle<TileBadChannels> badChannels(m_badChannelsKey);
+  const std::vector<int>& maskedDrawers = badChannels->getMaskedDrawers();
+
+  return std::binary_search (maskedDrawers.begin(),
+                             maskedDrawers.end(),
+                             frag_id);
 }

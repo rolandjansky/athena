@@ -86,7 +86,7 @@ ActsLayerBuilder::buildLayers(Acts::LayerVector& layersOutput, int type)
   std::vector<std::shared_ptr<const ActsDetectorElement>> elements = getDetectorElements();
 
 
-  std::map<std::pair<int, int>, std::vector<const Surface*>> layers;
+  std::map<std::pair<int, int>, std::vector<std::shared_ptr<const Surface>>> layers;
 
   for (const auto &element : elements) {
 
@@ -121,11 +121,11 @@ ActsLayerBuilder::buildLayers(Acts::LayerVector& layersOutput, int type)
 
     if (layers.count(layerKey) == 0) {
       // layer not set yet
-      layers.insert(std::make_pair(layerKey, std::vector<const Surface*>()));
+      layers.insert(std::make_pair(layerKey, std::vector<std::shared_ptr<const Surface>>()));
     }
 
     // push into correct layer
-    layers.at(layerKey).push_back(&element->surface());
+    layers.at(layerKey).push_back(element->surface().getSharedPtr());
 
   }
 
@@ -136,7 +136,7 @@ ActsLayerBuilder::buildLayers(Acts::LayerVector& layersOutput, int type)
   if(logger().doPrint(Acts::Logging::VERBOSE)) {
     size_t n = 1;
     for (const auto& layerPair : layers) {
-      std::vector<const Surface*> layerSurfaces = layerPair.second;
+      const std::vector<std::shared_ptr<const Surface>>& layerSurfaces = layerPair.second;
       auto key = layerPair.first;
       Acts::ProtoLayer pl(layerSurfaces);
       ACTS_VERBOSE("Layer #" << n << " with layerKey: ("
@@ -157,7 +157,8 @@ ActsLayerBuilder::buildLayers(Acts::LayerVector& layersOutput, int type)
     std::unique_ptr<Acts::ApproachDescriptor> approachDescriptor = nullptr;
     std::shared_ptr<const Acts::SurfaceMaterialProxy> materialProxy = nullptr;
 
-    std::vector<const Surface*> layerSurfaces = layerPair.second;
+    // use ref here, copy later
+    const std::vector<std::shared_ptr<const Surface>>& layerSurfaces = layerPair.second;
 
     if (type == 0) {  // BARREL
       // layers and extent are determined, build actual layer
@@ -175,14 +176,14 @@ ActsLayerBuilder::buildLayers(Acts::LayerVector& layersOutput, int type)
         = std::make_shared<const Transform3D>(Translation3D(0., 0., -layerZ));
       // set up approach descriptor
 
-      Acts::CylinderSurface* innerBoundary 
-        = new Acts::CylinderSurface(transform, pl.minR, layerHalfZ);
+      std::shared_ptr<Acts::CylinderSurface> innerBoundary 
+        = Acts::Surface::makeShared<Acts::CylinderSurface>(transform, pl.minR, layerHalfZ);
       
-      Acts::CylinderSurface* outerBoundary 
-        = new Acts::CylinderSurface(transform, pl.maxR, layerHalfZ);
+      std::shared_ptr<Acts::CylinderSurface> outerBoundary 
+        = Acts::Surface::makeShared<Acts::CylinderSurface>(transform, pl.maxR, layerHalfZ);
       
-      Acts::CylinderSurface* centralSurface 
-        = new Acts::CylinderSurface(transform, (pl.minR + pl.maxR)/2., layerHalfZ);
+      std::shared_ptr<Acts::CylinderSurface> centralSurface 
+        = Acts::Surface::makeShared<Acts::CylinderSurface>(transform, (pl.minR + pl.maxR)/2., layerHalfZ);
       
       size_t binsPhi = m_cfg.barrelMaterialBins.first;
       size_t binsZ = m_cfg.barrelMaterialBins.second;
@@ -208,13 +209,15 @@ ActsLayerBuilder::buildLayers(Acts::LayerVector& layersOutput, int type)
       // @TODO: make this configurable somehow
       innerBoundary->setAssociatedMaterial(materialProxy);
 
-      approachDescriptor 
-        = std::make_unique<Acts::GenericApproachDescriptor<Acts::Surface>>(
-            std::vector<const Acts::Surface*>({innerBoundary, 
-                                               centralSurface,
-                                               outerBoundary}));
+      std::vector<std::shared_ptr<const Acts::Surface>> aSurfaces;
+      aSurfaces.push_back(std::move(innerBoundary));
+      aSurfaces.push_back(std::move(centralSurface));
+      aSurfaces.push_back(std::move(outerBoundary));
 
-      auto layer = m_cfg.layerCreator->cylinderLayer(layerSurfaces, 
+      approachDescriptor 
+        = std::make_unique<Acts::GenericApproachDescriptor>(std::move(aSurfaces));
+
+      auto layer = m_cfg.layerCreator->cylinderLayer(layerSurfaces,
                                                      Acts::equidistant, 
                                                      Acts::equidistant, 
                                                      pl, 
@@ -248,14 +251,14 @@ ActsLayerBuilder::buildLayers(Acts::LayerVector& layersOutput, int type)
       auto transformOuter
         = std::make_shared<const Transform3D>(Translation3D(0., 0., layerZOuter));
 
-      Acts::DiscSurface* innerBoundary 
-        = new Acts::DiscSurface(transformInner, pl.minR, pl.maxR);
+      std::shared_ptr<Acts::DiscSurface> innerBoundary 
+        = Acts::Surface::makeShared<Acts::DiscSurface>(transformInner, pl.minR, pl.maxR);
       
-      Acts::DiscSurface* nominalSurface 
-        = new Acts::DiscSurface(transformNominal, pl.minR, pl.maxR);
+      std::shared_ptr<Acts::DiscSurface> nominalSurface 
+        = Acts::Surface::makeShared<Acts::DiscSurface>(transformNominal, pl.minR, pl.maxR);
       
-      Acts::DiscSurface* outerBoundary 
-        = new Acts::DiscSurface(transformOuter, pl.minR, pl.maxR);
+      std::shared_ptr<Acts::DiscSurface> outerBoundary 
+        = Acts::Surface::makeShared<Acts::DiscSurface>(transformOuter, pl.minR, pl.maxR);
 
       size_t matBinsPhi = m_cfg.endcapMaterialBins.first;
       size_t matBinsR = m_cfg.endcapMaterialBins.second;
@@ -308,12 +311,13 @@ ActsLayerBuilder::buildLayers(Acts::LayerVector& layersOutput, int type)
 
       ACTS_VERBOSE("Creating r x phi binned layer with " << nBinsR << " x " << nBinsPhi << " bins");
 
+      std::vector<std::shared_ptr<const Acts::Surface>> aSurfaces;
+      aSurfaces.push_back(std::move(innerBoundary));
+      aSurfaces.push_back(std::move(nominalSurface));
+      aSurfaces.push_back(std::move(outerBoundary));
 
       approachDescriptor 
-        = std::make_unique<Acts::GenericApproachDescriptor<Acts::Surface>>(
-            std::vector<const Acts::Surface*>({innerBoundary, 
-                                               nominalSurface,
-                                               outerBoundary}));
+        = std::make_unique<Acts::GenericApproachDescriptor>(aSurfaces);
 
       auto layer = m_cfg.layerCreator->discLayer(layerSurfaces, 
                                                  nBinsR, 

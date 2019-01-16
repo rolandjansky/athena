@@ -23,6 +23,7 @@
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "CxxUtils/unused.h"
+#include "CxxUtils/checker_macros.h"
 #include <cassert>
 #include <iostream>
 
@@ -47,7 +48,7 @@ public:
   virtual size_t size() const override { return 0; }
   virtual void lockDecoration (SG::auxid_t) override { std::abort(); }
 
-  static std::vector<int> deleted;
+  static std::vector<int> deleted ATLAS_THREAD_SAFE;
 };
 std::vector<int> MyObjAux::deleted;
 CLASS_DEF (MyObjAux, 293847296, 1)
@@ -62,7 +63,7 @@ public:
   int x;
   MyObjAux* aux {nullptr};
 
-  static std::vector<int> deleted;
+  static std::vector<int> deleted ATLAS_THREAD_SAFE;
 };
 std::vector<int> MyObj::deleted;
 CLASS_DEF (MyObj, 293847295, 1)
@@ -85,7 +86,7 @@ public:
   ~MyDObj() { deleted.push_back (x); }
   int x;
 
-  static std::vector<int> deleted;
+  static std::vector<int> deleted ATLAS_THREAD_SAFE;
 };
 std::vector<int> MyDObj::deleted;
 CLASS_DEF (MyDObj, 293847297, 1)
