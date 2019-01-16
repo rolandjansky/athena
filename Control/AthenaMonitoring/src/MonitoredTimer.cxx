@@ -12,6 +12,8 @@ namespace Monitored {
 
   constexpr const char* Timer::TIMER_PREFIX;
 
+  Timer MonitoredTimer::declare(std::string name) { return Monitored::Timer(name); }
+
   Timer::Timer(std::string name) : IMonitoredVariable(std::move(name)) {
     // Enforce some naming convention for timers
     if (!boost::algorithm::starts_with(m_name, TIMER_PREFIX)) {

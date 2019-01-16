@@ -46,6 +46,10 @@ namespace Monitored {
     Timer& operator=(Timer const&) = delete;
   };
 
+  // TEMPORARY: for backwards compatibility
+  namespace MonitoredTimer {
+    Timer declare(std::string name);
+  }
 } // namespace Monitored
 
 #endif /* AthenaMonitoring_MonitoredTimer_h */

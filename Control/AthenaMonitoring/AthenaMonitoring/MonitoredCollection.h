@@ -18,10 +18,8 @@ namespace Monitored {
    */
 
   // Forward declares
-  template <class T>
-  class ValuesCollection;
-  template <class T>
-  class ObjectsCollection;
+  template <class T> class ValuesCollection;
+  template <class T> class ObjectsCollection;
 
   /**
    * Declare a monitored (double-convertable) collection
@@ -36,8 +34,7 @@ namespace Monitored {
    *   auto m = Monitored::Collection("Eta", eta);
    * \endcode
    */
-  template <class T>
-  ValuesCollection<T> Collection(std::string name, const T& collection) {
+  template <class T> ValuesCollection<T> Collection(std::string name, const T& collection) {
     return ValuesCollection<T>(std::move(name), collection);
   }
 
@@ -55,34 +52,36 @@ namespace Monitored {
    *   auto phi = Monitored::Collection( "Phi", tracks, []( const Track& t ) { return
    * t.phi(); } ); \endcode
    */
-  template <class T>
-  ObjectsCollection<T>
+  template <class T> ObjectsCollection<T>
   Collection(std::string name, const T& collection,
              std::function<double(const typename ObjectsCollection<T>::const_value_type&)>
                  converterToDouble) {
     return ObjectsCollection<T>(std::move(name), collection, std::move(converterToDouble));
   }
 
+  // TEMPORARY: for backwards compatibility
+  namespace MonitoredCollection {
+
+    template <class T> ValuesCollection<T> declare(std::string name, const T& collection) {
+      return ValuesCollection<T>(std::move(name), collection);
+    }
+
+    template <class T> ObjectsCollection<T>
+    declare(std::string name, const T& collection,
+            std::function<double(const typename ObjectsCollection<T>::const_value_type&)>
+                converterToDouble) {
+      return ObjectsCollection<T>(std::move(name), collection, std::move(converterToDouble));
+    }
+  } // namespace MonitoredCollection
+
   namespace detail {
     /// Get element type for containers
-    template <typename T>
-    struct get_value_type {
-      typedef typename T::value_type value_type;
-    };
+    template <typename T> struct get_value_type { typedef typename T::value_type value_type; };
     /// Get element type for arrays
-    template <typename T, size_t N>
-    struct get_value_type<T[N]> {
-      typedef T value_type;
-    };
+    template <typename T, size_t N> struct get_value_type<T[N]> { typedef T value_type; };
 
-    template <typename T>
-    struct make_pointer_const {
-      typedef T type;
-    };
-    template <typename T>
-    struct make_pointer_const<T*> {
-      typedef const T* type;
-    };
+    template <typename T> struct make_pointer_const { typedef T type; };
+    template <typename T> struct make_pointer_const<T*> { typedef const T* type; };
   } // namespace detail
 
   /**
@@ -90,8 +89,7 @@ namespace Monitored {
    *
    * This class is not supposed to be used by the end user.
    */
-  template <class T>
-  class ValuesCollection : public IMonitoredVariable {
+  template <class T> class ValuesCollection : public IMonitoredVariable {
   public:
     /// Type of the collection elements
     using value_type = typename detail::get_value_type<T>::value_type;
@@ -101,6 +99,9 @@ namespace Monitored {
 
     /// @brief .     \if empty doc string required due to doxygen bug 787131 \endif
     friend ValuesCollection<T> Collection<T>(std::string name, const T& collection);
+    // TEMPORARY: for backwards compatibility
+    friend ValuesCollection<T> MonitoredCollection::declare<T>(std::string name,
+                                                               const T& collection);
 
     ValuesCollection(ValuesCollection&&) = default;
 
@@ -122,8 +123,7 @@ namespace Monitored {
    *
    * This class is not supposed to be used by the end user.
    */
-  template <class T>
-  class ObjectsCollection : public IMonitoredVariable {
+  template <class T> class ObjectsCollection : public IMonitoredVariable {
   public:
     /// Type of the collection elements
     using value_type = typename detail::get_value_type<T>::value_type;
@@ -132,11 +132,16 @@ namespace Monitored {
     /// @brief .     \if empty doc string required due to doxygen bug 787131 \endif
     // With a non-template friend declaration, clang 4.0.1
     // fails to match the friend.
-    template <class U>
-    friend ObjectsCollection<U>
+    template <class U> friend ObjectsCollection<U>
     Collection(std::string name, const U& collection,
                std::function<double(const typename ObjectsCollection<U>::const_value_type&)>
                    converterToDouble);
+
+    // TEMPORARY: for backwards compatibility
+    template <class U> friend ObjectsCollection<U> MonitoredCollection::declare(
+        std::string name, const U& collection,
+        std::function<double(const typename ObjectsCollection<U>::const_value_type&)>
+            converterToDouble);
 
     ObjectsCollection(ObjectsCollection&&) = default;
 
