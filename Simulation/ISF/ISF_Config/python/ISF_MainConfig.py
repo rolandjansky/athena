@@ -306,7 +306,8 @@ def getKernel_G4FastCalo(name="ISF_Kernel_G4FastCalo", **kwargs):
     kwargs.setdefault("IDSimulationSelectors"      , [ 'ISF_DefaultAFIIGeant4Selector' ]            )
     kwargs.setdefault("CaloSimulationSelectors"    , [ 'ISF_MuonAFIIGeant4Selector',
                                                        'ISF_EtaGreater5ParticleKillerSimSelector',
-                                                       'ISF_DefaultFastCaloSimV2Selector' ] )
+##DR HARDCODED, not to be committed in 21.0                'ISF_DefaultFastCaloSimV2Selector' ] )
+                                                       'ISF_DefaultDNNCaloSimSelector' ] ) 
     kwargs.setdefault("MSSimulationSelectors"      , [ 'ISF_DefaultAFIIGeant4Selector' ]            )
     kwargs.setdefault("CavernSimulationSelectors"  , [ 'ISF_DefaultParticleKillerSelector' ]        )
     from G4AtlasApps.SimFlags import simFlags
@@ -455,11 +456,13 @@ def getKernel_ATLFASTIIF_IDCalo(name="ISF_Kernel_ATLFASTIIF_IDCalo", **kwargs):
 
 ############## Simulator: FastOnly ###############
 def getKernel_FastOnly(name="ISF_Kernel_FastOnly", **kwargs):
-    kwargs.setdefault("BeamPipeSimulationSelectors" , [ 'ISF_DefaultParticleKillerSelector' ] )
-    kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_DefaultFatrasSelector'         ] )
-    kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_DefaultFastCaloSimSelector'    ] )
-    kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_DefaultFatrasSelector'         ] )
-    kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_DefaultParticleKillerSelector' ] )
+    #DR Allows to run DNNCaloSim standalone, for faster test. not to be commited in 21.0
+    #DR kwargs.setdefault("BeamPipeSimulationSelectors" , [ 'ISF_DefaultParticleKillerSelector' ] )
+    #DR kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_DefaultFatrasSelector'         ] )
+    #DR kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_DefaultFastCaloSimSelector'    ] )
+    kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_DefaultDNNCaloSimSelector'    ] )
+    #kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_DefaultFatrasSelector'         ] )
+    #kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_DefaultParticleKillerSelector' ] )
     return getKernel_GenericSimulatorNoG4(name, **kwargs)
 
 ############## Simulator: G4GammaCones ###############

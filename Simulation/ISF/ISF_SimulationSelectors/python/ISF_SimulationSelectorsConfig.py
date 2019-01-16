@@ -55,6 +55,10 @@ def getDefaultFastCaloSimV2Selector(name="ISF_DefaultFastCaloSimV2Selector", **k
     kwargs.setdefault("Simulator"   , 'ISF_FastCaloSimSvcV2')
     return getDefaultSimSelector(name, **kwargs )
 
+def getDefaultDNNCaloSimSelector(name="ISF_DefaultDNNCaloSimSelector", **kwargs):
+    kwargs.setdefault("Simulator"   , 'ISF_DNNCaloSimSvc')
+    return getDefaultSimSelector(name, **kwargs )
+
 def getFastHitConvAlgFastCaloSimSelector(name="ISF_FastHitConvAlgFastCaloSimSelector", **kwargs):
     kwargs.setdefault("Simulator"   , 'ISF_FastHitConvAlgFastCaloSimSvc')
     return getDefaultSimSelector(name, **kwargs )

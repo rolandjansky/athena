@@ -36,6 +36,7 @@ addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFastCaloSimPil
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFastHitConvAlgFastCaloSimSelector"    , "ISF_FastHitConvAlgFastCaloSimSelector"   )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultLegacyAFIIFastCaloSimSelector" , "ISF_DefaultLegacyAFIIFastCaloSimSelector")
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultFastCaloSimV2Selector"         , "ISF_DefaultFastCaloSimV2Selector"        )
+addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultDNNCaloSimSelector"         , "ISF_DefaultDNNCaloSimSelector"        )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFastHitConvAlgLegacyAFIIFastCaloSimSelector" , "ISF_FastHitConvAlgLegacyAFIIFastCaloSimSelector")
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultFatrasSelector"                , "ISF_DefaultFatrasSelector"               )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultFatrasNewExtrapolationSelector", "ISF_DefaultFatrasNewExtrapolationSelector")
