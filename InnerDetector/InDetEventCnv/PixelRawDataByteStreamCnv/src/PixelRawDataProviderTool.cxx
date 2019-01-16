@@ -130,6 +130,8 @@ StatusCode PixelRawDataProviderTool::convert(std::vector<const ROBFragment*>& ve
       }
     }
   }
-  CHECK(m_bsErrSvc->recordData());
+  if (isNewEvent) {
+    CHECK(m_bsErrSvc->recordData());
+  }
   return StatusCode::SUCCESS; 
 }
