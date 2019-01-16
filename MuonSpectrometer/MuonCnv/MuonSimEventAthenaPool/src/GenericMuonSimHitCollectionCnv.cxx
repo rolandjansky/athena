@@ -27,7 +27,7 @@ GenericMuonSimHitCollectionCnv::~GenericMuonSimHitCollectionCnv() {
 GenericMuonSimHitCollection_PERS*    GenericMuonSimHitCollectionCnv::createPersistent (GenericMuonSimHitCollection* transCont) {
     MsgStream log(msgSvc(), "GenericMuonSimHitCollectionCnv" );
     ATH_MSG_DEBUG("createPersistent(): main converter");
-    GenericMuonSimHitCollection_PERS *pixdc_p= m_TPConverter_p1.createPersistent( transCont, log );
+    GenericMuonSimHitCollection_PERS *pixdc_p= m_TPConverter_p2.createPersistent( transCont, log );
     return pixdc_p;
 }
 

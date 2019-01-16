@@ -25,7 +25,7 @@ MuonSimDataCollectionCnv::~MuonSimDataCollectionCnv() {
 MuonSimDataCollection_PERS*    MuonSimDataCollectionCnv::createPersistent (MuonSimDataCollection* transCont) {
     MsgStream log(msgSvc(), "MuonSimDataCollectionCnv" );
     ATH_MSG_DEBUG("createPersistent(): main converter");
-    MuonSimDataCollection_PERS *pixdc_p= m_TPConverter_p1.createPersistent( transCont, log );
+    MuonSimDataCollection_PERS *pixdc_p= m_TPConverter_p2.createPersistent( transCont, log );
     return pixdc_p;
 }
 
