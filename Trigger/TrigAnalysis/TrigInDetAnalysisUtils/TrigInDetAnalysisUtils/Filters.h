@@ -227,7 +227,7 @@ class Filter_Combined : public TrackFilter {
 public:
 
   Filter_Combined( TrackFilter* f1, TrackFilter* f2) : 
-    mf1(f1), mf2(f2), m_roi(0), 
+    m_f1(f1), m_f2(f2), m_roi(0), 
     m_debugPrintout(false), 
     m_containPhi(true),
     m_contain(false)
@@ -328,18 +328,18 @@ public:
     if ( r!=0 ) m_roi = r;
     
     if ( m_debugPrintout ) { 
-      std::cout << "\tFilter: " << this << "\tfilter1 " << mf1->select(t,m_roi) << "\tfilter2 " << mf2->select(t,m_roi) << "\troi " << m_roi << std::endl;
+      std::cout << "\tFilter: " << this << "\tfilter1 " << m_f1->select(t,m_roi) << "\tfilter2 " << m_f2->select(t,m_roi) << "\troi " << m_roi << std::endl;
     }
 
     /// no roi so just return the and of the input filters
-    if ( m_roi==0 ) return ( mf1->select(t,r) && mf2->select(t,r) );
+    if ( m_roi==0 ) return ( m_f1->select(t,r) && m_f2->select(t,r) );
     else {
 
       if ( m_debugPrintout ) { 
-	std::cout << "\tFilter::filter1 " << mf1->select(t,m_roi) << "\tfilter2 " << mf2->select(t,m_roi) << "\troi " << *m_roi << std::endl; 
+	std::cout << "\tFilter::filter1 " << m_f1->select(t,m_roi) << "\tfilter2 " << m_f2->select(t,m_roi) << "\troi " << *m_roi << std::endl; 
       }
 
-      if ( contains( t, m_roi ) )  return ( mf1->select(t,m_roi) && mf2->select(t,m_roi) );
+      if ( contains( t, m_roi ) )  return ( m_f1->select(t,m_roi) && m_f2->select(t,m_roi) );
       else  return false;
 
     }
@@ -380,8 +380,8 @@ public:
   
 private:
 
-  TrackFilter* mf1;
-  TrackFilter* mf2;
+  TrackFilter* m_f1;
+  TrackFilter* m_f2;
 
   const TIDARoiDescriptor* m_roi;
 

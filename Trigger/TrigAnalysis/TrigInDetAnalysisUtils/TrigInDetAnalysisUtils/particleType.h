@@ -18,8 +18,8 @@
  **/
 
 
-#ifndef PARTICLETYPE_H
-#define PARTICLETYPE_H
+#ifndef TIDAUTILS_PARTICLETYPE_H
+#define TIDAUTILS_PARTICLETYPE_H
 
 #include <iostream>
 #include <string>
