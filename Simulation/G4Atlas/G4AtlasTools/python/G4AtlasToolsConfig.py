@@ -241,6 +241,10 @@ def getPhysicsListToolBase(name="PhysicsListToolBase", **kwargs):
     ## from AthenaCommon.SystemOfUnits import eV, TeV
     ## kwargs.setdefault("EMMaxEnergy"     , 7*TeV)
     ## kwargs.setdefault("EMMinEnergy"     , 100*eV)
+    """ --- ATLASSIM-3967 ---
+        these two options are replaced by SetNumberOfBinsPerDecade
+        which now controls both values.
+    """
     ## kwargs.setdefault("EMDEDXBinning"   , 77)
     ## kwargs.setdefault("EMLambdaBinning" , 77)
     return CfgMgr.PhysicsListToolBase(name, **kwargs)
