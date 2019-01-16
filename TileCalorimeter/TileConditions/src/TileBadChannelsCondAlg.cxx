@@ -255,7 +255,7 @@ StatusCode TileBadChannelsCondAlg::execute() {
       }
     }
 
-    if (!maskedDrawers.empty()) badChannelsData->setMaskedDrawers(maskedDrawers);
+    if (!maskedDrawers.empty()) badChannelsData->setMaskedDrawers(std::move(maskedDrawers));
 
     // Check if drawer trips probabilities for simulation are exist in DB.
     // By special convention trips probabilities are stored in drawer number: 2
@@ -287,7 +287,7 @@ StatusCode TileBadChannelsCondAlg::execute() {
 	  }
 	}
 
-        badChannelsData->setTripsProbabilities(tripsProbs);
+        badChannelsData->setTripsProbabilities(std::move(tripsProbs));
 
       } else {
 	ATH_MSG_INFO("No drawer trips probabilities found in DB");
