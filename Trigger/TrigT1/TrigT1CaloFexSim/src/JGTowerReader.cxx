@@ -238,15 +238,6 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
 
   ATH_MSG_DEBUG("Found " << jTs->size() << " jTowers");
   
-  // sort out the wrong-size list of noise vector
-  if(jTs->size() > jT_noise.size()) {
-    ATH_MSG_ERROR("Found " << jTs->size() << " jTowers, but the noise vector only has " << jT_noise.size() << " entries");
-    ATH_MSG_WARNING("Setting the jTower noise vector to have the right number of entries, all 500");
-    jT_noise.clear();
-    for(int i=0; i<int(jTs->size()); i++){
-      jT_noise.push_back(500);
-    }
-  }
 
 
   if(m_makeSquareJets) {
