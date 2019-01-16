@@ -36,7 +36,7 @@ enum interpolationMethod{
 };
 
 class EfieldInterpolator: public AthAlgTool { 
- public: 
+public: 
 
   EfieldInterpolator( const std::string& type, const std::string& name,const IInterface* parent);
   virtual ~EfieldInterpolator(); 
@@ -49,15 +49,6 @@ class EfieldInterpolator: public AthAlgTool {
   virtual StatusCode  finalize();  
 
   static const InterfaceID& interfaceID() ;
-
-    // Member variables	
-  bool initialized;
-  bool saveDocu   ;
-  bool useSpline  ;  
-  int sensorDepth ;          //um - default is IBL layer
-  interpolationMethod efieldOrigin;
-  TH1D* efieldProfile;            //Final efield profile
-  TString fInter;  //= "InterpolationTTree.root";    //path to .root file for saving interpolation TTree, i.e. ordered by pixeldepth z
 
   // Member Functions
   TString load_TCADfiles(TString targetList = "");
@@ -77,6 +68,14 @@ class EfieldInterpolator: public AthAlgTool {
   void ReliabilityCheck(Double_t aimFluence, std::vector<Double_t> fluences, Double_t aimVoltage, std::vector<Double_t> voltages);
 
 private:  
+    // Member variables	
+  bool initialized;
+  bool saveDocu   ;
+  bool useSpline  ;  
+  int sensorDepth ;          //um - default is IBL layer
+  interpolationMethod efieldOrigin;
+  TH1D* efieldProfile;            //Final efield profile
+  TString fInter;  //= "InterpolationTTree.root";    //path to .root file for saving interpolation TTree, i.e. ordered by pixeldepth z
 	//TFile* defFile; 	//File containing ttrees TCAD and Interpolation
   std::vector<std::vector<TString>> list_files(TString fileList_TCADsamples);
   Double_t extrapolateLinear(Double_t x1, Double_t y1, Double_t x2, Double_t y2, Double_t xaim );
