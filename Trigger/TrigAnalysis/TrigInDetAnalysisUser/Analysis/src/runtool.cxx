@@ -1,14 +1,13 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    runtool.cxx         
-//   
-//
-//   @Author.Sutton
-// 
-//
-//   $Id: runtool.cxx, v0.0   Mon 24 Oct 2016 15:25:43 CEST sutt $
+/**
+ **     @file    runtool.cxx
+ **
+ **       @Author.Sutton
+ **
+ **     @author  mark sutton
+ **     @date    Mon 24 Oct 2016 15:25:43 CEST 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #include <string>

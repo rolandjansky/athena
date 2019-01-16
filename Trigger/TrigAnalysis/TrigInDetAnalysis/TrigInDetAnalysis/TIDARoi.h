@@ -1,15 +1,15 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    TIDARoi.h        
-//
-//            Roi class, contains RoiDescriptor and also a 
-//            vector of Tracks       
-// 
-//
-//   $Id: TIDARoi.h, v0.0   Mon  1 Feb 2010 11:34:52 GMT sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    TIDARoi.h
+ **
+ **     @brief   Roi class, contains RoiDescriptor and also a 
+ **              vector of Tracks       
+ **
+ **     @author  mark sutton
+ **     @date    Mon  1 Feb 2010 11:34:52 GMT 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #ifndef TRIGINDETANALYSIS_TRACKROI_H

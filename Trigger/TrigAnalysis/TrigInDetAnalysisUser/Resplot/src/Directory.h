@@ -1,27 +1,25 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-/**************************************************************************
+/* emacs: this is -*- c++ -*- */
+/**
  **
- **   File:         Directory.h  
+ **   @file         Directory.h  
  **
- **   Description:  class to keep a directory for each object 
+ **                 class to keep a directory for each object 
  **                 in a root sort of way, but needed to keep 
  **                 the root objects out of the actual code.   
  ** 
- **   Author:       M.Sutton  
+ **   @author       M.Sutton  
  **
- **   Created:      Wed May  4 17:54:25 BST 2005
- **   Modified:     
+ **   @date         Wed May  4 17:54:25 BST 2005
+ **
+ **   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  **                   
  **                   
  **
- **************************************************************************/ 
+ **/
 
 
-#ifndef __DIRECTORY_H
-#define __DIRECTORY_H
+#ifndef RESPLOT_DIRECTORY_H
+#define RESPLOT_DIRECTORY_H
 
 #include "TDirectory.h"
 #include "TH1.h"
@@ -62,7 +60,7 @@ class Directory {
 
 
 
-#endif  /* __DIRECTORY_H */
+#endif  /* RESPLOT_DIRECTORY_H */
 
 
 

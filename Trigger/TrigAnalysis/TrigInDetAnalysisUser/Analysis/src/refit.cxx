@@ -1,16 +1,15 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    refit.cxx         
-//            navigates through the directory structure of a file copying 
-//            the histograms or recalculating efficiencies, or refitting 
-//            Resplots if it finds any
-//            
-//   @author M.Sutton
-// 
-//
-//   $Id: refit.cxx, v0.0   Thu  5 Sep 2013 20:32:47 CEST sutt $
+/**
+ **     @file    refit.cxx
+ **
+ **     @brief  navigates through the directory structure of a file copying 
+ **             the histograms or recalculating efficiencies, or refitting 
+ **             Resplots if it finds any
+ **
+ **     @author  mark sutton
+ **     @date    Thu  5 Sep 2013 20:32:47 CEST 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #include <iostream>

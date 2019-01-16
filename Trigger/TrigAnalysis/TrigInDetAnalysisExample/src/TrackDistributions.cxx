@@ -1,14 +1,11 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    TrackEfficiency.cxx         
-//   
-//
-//                   
-// 
-//
-//   $Id: TrackEfficiency.cxx, v0.0   Mon 19 Jan 2009 17:25:51 GMT sutt $
+/**
+ **     @file    TrackDistributions.cxx
+ **
+ **     @author  mark sutton
+ **     @date    Mon 19 Jan 2009 17:25:51 GMT 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #include "TrigInDetAnalysis/Track.h"

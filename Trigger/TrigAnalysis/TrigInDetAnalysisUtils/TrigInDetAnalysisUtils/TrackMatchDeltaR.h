@@ -1,14 +1,12 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    TrackMatchDeltaR.h        
-//
-//                   
-// 
-//
-//   $Id: TrackMatchDeltaR.h, v0.0   Sun 18 Jan 2009 19:40:47 GMT sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    TrackMatchDeltaR.h
+ **
+ **     @author  mark sutton
+ **     @date    Sun 18 Jan 2009 19:40:47 GMT 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #ifndef TRIGINDETANALYSISUTILS_TRACKMATCHDELTAR_H

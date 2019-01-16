@@ -32,67 +32,34 @@ endif
 ifeq ($(TestArea),)
     ATLASBASE = $(HOME)/atlas/TIDA
 else
-#   ATLASBASE = $(TestArea)/Trigger/TrigAnalysis
+    ATLASBASE = $(TestArea)
 #   ATLASBASE = /cvmfs/atlas-nightlies.cern.ch/repo/sw/21.1-dev/2018-04-09T2234/AthenaP1/21.1.24/InstallArea/x86_64-slc6-gcc62-opt/src/Trigger/TrigAnalysis
-    ATLASBASE = /cvmfs/atlas-nightlies.cern.ch/repo/sw/21.1-dev/2018-05-15T2242/AthenaP1/21.1.27/InstallArea/x86_64-slc6-gcc62-opt/src/Trigger/TrigAnalysis
+#   ATLASBASE = /cvmfs/atlas-nightlies.cern.ch/repo/sw/21.1-dev/2018-05-15T2242/AthenaP1/21.1.27/InstallArea/x86_64-slc6-gcc62-opt/src/Trigger/TrigAnalysis
+
+#   ifeq ($(AtlasArea),)
+#     ATLASBASE = /cvmfs/atlas-nightlies.cern.ch/repo/sw/21.1-dev/2018-07-31T2248/AthenaP1/21.1.33/InstallArea/x86_64-slc6-gcc62-opt/src/Trigger/TrigAnalysis
+#      ATLASBASE = $TestArea
+#   else
+#     ATLASBASE = $(AtlasArea)/InstallArea/x86_64-slc6-gcc62-opt/src/Trigger/TrigAnalysis
+#   endif
+
 endif
 
 CMTCONFIG=
 
 
+USEATHENALIBS = 0	
 
-ifeq ($(CMTCONFIG),)
+TID   = $(ATLASBASE)/Trigger/TrigAnalysis/TrigInDetAnalysis
+TIDU  = $(ATLASBASE)/Trigger/TrigAnalysis/TrigInDetAnalysisUtils
+TIDE  = $(ATLASBASE)/Trigger/TrigAnalysis/TrigInDetAnalysisExample
+TIDUB = $(ATLASBASE)/Trigger/TrigAnalysis/TrigInDetAnalysisUser
 
-
-#    ATLAS_ARCH = $(shell ./setarch.sh)
-#    ATLAS_ARCH = x86
-
-
-    # "PUT YOUR BASE DIRECTORY HERE"
-    # ATLASBASE = $(TestArea)/Trigger/TrigAnalysis/
-    # ATLASBASE = /tmp/sutt/new/Trigger/TrigAnalysis
-    # ATLASBASE = $(ATLAS_TEST_AREA)/Trigger/TrigAnalysis
-    # ATLASBASE = $(TestArea)/Trigger/TrigAnalysis
-    # ATLASBASE = $(HOME)/atlas/TIDA
-    # ATLASBASE = /tmp/sutt/duff/Trigger/TrigAnalysis
-    # ATLASBASE = /tmp/sutt/tida/Trigger/TrigAnalysis/
-
-    USEATHENALIBS = 0	
-
-#    ifeq ($(USER),sutt)
-       # sutt uses with_version_directory so need the versions
-#       TID   = $(ATLASBASE)/TrigInDetAnalysis/TrigInDetAnalysis-01-01-27
-#       TIDU  = $(ATLASBASE)/TrigInDetAnalysisUtils/TrigInDetAnalysisUtils-00-01-57
-#       TIDE  = $(ATLASBASE)/TrigInDetAnalysisExample/TrigInDetAnalysisExample-00-03-07
-#      TIDUB = $(ATLASBASE)/TrigInDetAnalysisUser/TrigInDetAnalysisUser-00-01-11
-#       TIDUB = ../..
-#    else
-
-       TID   = $(ATLASBASE)/TrigInDetAnalysis
-#      TIDU  = $(ATLASBASE)/TrigInDetAnalysisUtils
-       TIDU  = $(TestArea)/Trigger/TrigAnalysis/TrigInDetAnalysisUtils
-       TIDE  = $(ATLASBASE)/TrigInDetAnalysisExample
 #      TIDUB = $(ATLASBASE)/TrigInDetAnalysisUser
-       TIDUB = $(TestArea)/Trigger/TrigAnalysis/TrigInDetAnalysisUser
-#    endif
+#      TIDU  = $(TestArea)/Trigger/TrigAnalysis/TrigInDetAnalysisUtils
+#      TIDUB = $(TestArea)/Trigger/TrigAnalysis/TrigInDetAnalysisUser
 
-    CXXFLAGS += -I$(TID) -I$(TIDU) -I$(TIDE) -fPIC 	
-
-else 
-
-    USEATHENALIBS = 1 	
-
-    ATLASBASE = $(TestArea)/Trigger/TrigAnalysis
-#   ATLASBASE = $(TestArea)/InstallArea
-
-    TID   = $(ATLASBASE)/TrigInDetAnalysis
-    TIDU  = $(ATLASBASE)/TrigInDetAnalysisUtils
-    TIDE  = $(ATLASBASE)/TrigInDetAnalysisExample
-    TIDUB = ../..
-
-    CXXFLAGS += -I$(TID) -I$(TIDU) -I$(TIDE) 	
-
-endif
+CXXFLAGS += -I$(TID) -I$(TIDU) -I$(TIDE) -fPIC 	
 
 
 ARCH_TYPE = $(ATLAS_ARCH)
@@ -143,9 +110,9 @@ CC  = gcc
 # DEPENDENCIES = $(patsubst %.cpp, %.d, $(CSOURCES))
 
 
-CXXFLAGS += -g -D_STANDALONE 
-CFLAGS   += -g -D_STANDALONE 
-# -D_UPGRADE  -D__OLD
+CXXFLAGS += -g
+CFLAGS   += -g
+
 
 
 CXXFLAGS += -I. -I$(TID) -I$(TIDU) -I$(TIDE) $(ROOTCFLAGS) -Wno-deprecated   

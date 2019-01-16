@@ -1,18 +1,16 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    Efficiency.h        
-//
-//                   
-// 
-//
-//   $Id: Efficiency.h, v0.0   Mon 26 Oct 2009 01:22:40 GMT sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    Efficiency.h
+ **
+ **     @author  mark sutton
+ **     @date    Mon 26 Oct 2009 01:22:40 GMT 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
-#ifndef __EFFICIENCY_H
-#define __EFFICIENCY_H
+#ifndef TIDA_EFFICIENCY_H
+#define TIDA_EFFICIENCY_H
 
 #include <iostream>
 #include <string>
@@ -214,7 +212,7 @@ inline std::ostream& operator<<( std::ostream& s, const Efficiency&  ) {
 }
 
 
-#endif  // __EFFICIENCY_H 
+#endif  // TIDA_EFFICIENCY_H 
 
 
 

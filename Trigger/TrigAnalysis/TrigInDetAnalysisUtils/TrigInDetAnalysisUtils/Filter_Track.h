@@ -1,27 +1,26 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    Filter_Track.h        
-//
-//            generic track filter to filter on kinematics, si and 
-//            trt hit content
-//            NB: Should really make this up from sub filters, ie 
-//                with classes Filter_Param, Filter_Hits...
-//                   
-//                Filter_Track : Filter_Param, Filter_Hits { 
-//                   bool select(..) { 
-//		       return Filter_Param::select(..) && Filter_Hits::select(..);
-//                   }
-//                };                       
-// 
-//
-//   $Id: Filter_Track.h, v0.0   Wed 28 Oct 2009 02:47:05 CET sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    Filter_Track.h
+ **
+ **       generic track filter to filter on kinematics, si and 
+ **       trt hit content
+ **       NB: Should really make this up from sub filters, ie 
+ **       with classes Filter_Param, Filter_Hits...
+ **       Filter_Track : Filter_Param, Filter_Hits { 
+ **       bool select(..) { 
+ **       		       return Filter_Param::select(..) && Filter_Hits::select(..);
+ **       }
+ **       };                       
+ **
+ **     @author  mark sutton
+ **     @date    Wed 28 Oct 2009 02:47:05 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
-#ifndef __FILTER_TRACK_H
-#define __FILTER_TRACK_H
+#ifndef TIDAUTILS_FILTER_TRACK_H
+#define TIDAUTILS_FILTER_TRACK_H
 
 #include <iostream>
 #include <cmath>
@@ -117,7 +116,7 @@ inline std::ostream& operator<<( std::ostream& s, const Filter_Track& ) {
 }
 
 
-#endif  // __FILTER_TRACK_H 
+#endif  // TIDAUTILS_FILTER_TRACK_H 
 
 
 

@@ -1,14 +1,11 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    TrigTrackSelector.cxx         
-//   
-//
-//   @author M.Sutton
-// 
-//
-//   $Id: TrigTrackSelector.cxx, v0.0   Sun  2 Nov 2014 11:10:06 CET sutt $
+/**
+ **     @file    TrigTrackSelector.cxx
+ **
+ **     @author  mark sutton
+ **     @date    Sun  2 Nov 2014 11:10:06 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #include "TrigInDetAnalysisUtils/TrigTrackSelector.h"

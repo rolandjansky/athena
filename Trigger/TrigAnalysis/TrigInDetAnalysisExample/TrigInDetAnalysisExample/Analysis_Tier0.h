@@ -1,10 +1,13 @@
-// emacs: this is -*- c++ -*-
-//
-//   @file    Analysis_Tier0.h        
-//                    
-//   $Id: Analysis_Tier0.h   Thu 18 May 2017 15:29:53 CEST sutt $
-//
-//   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    Analysis_Tier0.h
+ **
+ **     @author  mark sutton
+ **     @date    $Id: Analysis_Tier0.h   Thu 18 May 2017 15:29:53 CEST 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
+
 
 #ifndef TrigInDetAnalysisExample_Analysis_Tier0_H
 #define TrigInDetAnalysisExample_Analysis_Tier0_H
@@ -22,8 +25,12 @@
 #include "TrigInDetAnalysisExample/VtxAnalysis.h"
 
 class Analysis_Tier0 : public TrackAnalysis { 
+
+public:
+
+  using TrackAnalysis::execute;
   
- public:
+public:
   
   Analysis_Tier0(const std::string& name, double pTCut, double etaCut, double d0Cut, double z0Cut);
   

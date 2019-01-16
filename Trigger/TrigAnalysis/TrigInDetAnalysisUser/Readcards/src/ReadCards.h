@@ -1,27 +1,25 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-/**************************************************************************
+/* emacs: this is -*- c++ -*- */
+/**
  **
- **   File:         ReadCards.h  
+ **   @file         ReadCards.h  
  **
- **   Description:    
+ **                   
  **                   
  **                   
  ** 
- **   Author:       M.Sutton  
+ **   @author       M.Sutton  
  **
- **   Created:      Tue Apr 26 13:44:30 CEST 2005
- **   Modified:     
+ **   @date         Tue Apr 26 13:44:30 CEST 2005
+ **
+ **   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  **                   
  **                   
  **
- **************************************************************************/ 
+ **/
 
 
-#ifndef __READCARDS_H
-#define __READCARDS_H
+#ifndef READCARDS_READCARDS_H
+#define READCARDS_READCARDS_H
 
 #include <iostream>
 #include <sstream>
@@ -252,7 +250,7 @@ private:
 
 };
 
-#endif  /* __READCARDS_H */
+#endif  /* READCARDS_READCARDS_H */
 
 
 

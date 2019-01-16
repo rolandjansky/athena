@@ -1,14 +1,12 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    zbeam.h        
-//
-//                   
-//  
-//
-//   $Id: zbeam.h, v0.0   Thu 30 Jul 2015 10:50:19 CEST sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    zbeam.h
+ **
+ **     @author  mark sutton
+ **     @date    Thu 30 Jul 2015 10:50:19 CEST 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #ifndef  ZBEAM_H
