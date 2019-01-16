@@ -25,7 +25,10 @@ from TrigBjetHypo.TrigBtagFexConfig import (getBtagFexFTKInstance,
                                             getBtagFexSplitInstance)
 
 from TrigBjetHypo.TrigBjetEtHypoConfig import getBjetEtHypoInstance
-from TrigBjetHypo.TrigGSCFexConfig import getGSCFexSplitInstance
+from TrigBjetHypo.TrigGSCFexConfig import (getGSCFexSplitInstance,
+                                           getGSCFexFTKInstance,
+                                           getGSCFexFTKRefitInstance,
+                                           getGSCFexFTKVtxInstance)
 
 from TrigBjetHypo.TrigBjetHypoConfig import (getBjetHypoInstance,
                                              getBjetHypoAllTEInstance,
@@ -298,7 +301,7 @@ def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1):
     #
     if doGSC:
         gsc_jetTrackTEPreCut  = "HLT_precut_gsc"+str(minBTagThreshold)+"_eta"+"_jsplit"+"_"+tracking
-        theGSCFex      = getGSCFexSplitInstance(algoInstance)
+        theGSCFex = getGSCFexSplitInstance(algoInstance)
         theChainDef.addSequence(theGSCFex,      secVtxTE                ,       gsc_jetTrackTEPreCut )
 
         algoInstance = "GSC"   
@@ -472,7 +475,14 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     #--------------------
     # GSC
     if ('gscThreshold' in chainParts) and chainParts['gscThreshold']:
-        theGSCFex      = getGSCFexSplitInstance(algoInstance)
+        if 'FTKRefit' in chainParts['bTracking']:
+            theGSCFex = getGSCFexFTKRefitInstance(algoInstance)
+        elif 'FTKVtx' in chainParts['bTracking']:
+            theGSCFex = getGSCFexFTKVtxInstance(algoInstance)
+        elif 'FTK' in chainParts['bTracking']:
+            theGSCFex = getGSCFexFTKInstance(algoInstance)
+        else:
+            theGSCFex = getGSCFexSplitInstance(algoInstance)
         #from TrigBjetHypo.TrigBjetEtHypoConfig import getBjetEtHypoInstance
         theGSCEtHypo   = getBjetEtHypoInstance("GSC", "Btagging", gscthresh.replace("gsc","")+"GeV" )
     #--------------------
