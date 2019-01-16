@@ -1,3 +1,7 @@
+#
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#
+
 '''@file ExampleMonitorAlgorithm.py
 @author C. D. Burton
 @author P. Onyisi
