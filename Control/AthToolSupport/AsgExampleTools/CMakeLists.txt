@@ -19,10 +19,12 @@ atlas_depends_on_subdirs(
    PUBLIC
    Control/AthToolSupport/AsgTools
    PRIVATE
+   Control/AthToolSupport/AsgTesting
    ${extra_deps} )
 
 # External dependencies:
 find_package( GTest )
+find_package( GMock )
 
 # Libraries in the package:
 atlas_add_root_dictionary( AsgExampleToolsLib AsgExampleToolsCintDict
@@ -58,9 +60,44 @@ endif()
 atlas_add_test( gt_ToolHandle_test
    SOURCES test/gt_ToolHandle_test.cxx
    INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-   LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools AsgExampleToolsLib ${extra_libs} )
+   LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib ${extra_libs} )
 
 atlas_add_test( gt_AnaToolHandle_test
    SOURCES test/gt_AnaToolHandle_test.cxx
    INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-   LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools AsgExampleToolsLib )
+   LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib )
+
+if( XAOD_STANDALONE )
+
+   atlas_add_test( gt_AsgTool
+      SOURCES test/gt_AsgTool.cxx
+      INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
+      LINK_LIBRARIES ${GMOCK_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib
+      EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )
+
+   atlas_add_test( gt_MessageCheck
+      SOURCES test/gt_MessageCheck.cxx
+      INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
+      LINK_LIBRARIES ${GMOCK_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib
+      EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )
+
+   atlas_add_test( gt_TProperty
+      SOURCES test/gt_TProperty.cxx
+      INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
+      LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib
+      EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )
+
+   atlas_add_test( gt_asgtools_toolhandle_test
+      SOURCES test/gt_asgtools_toolhandle_test.cxx
+      INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
+      LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib
+      EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )
+
+endif()
+
+
+atlas_add_test( gt_AnaCheck
+   SOURCES test/gt_AnaCheck.cxx
+   INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
+   LINK_LIBRARIES ${GMOCK_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib
+   EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )

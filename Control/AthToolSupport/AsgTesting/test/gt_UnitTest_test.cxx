@@ -14,7 +14,7 @@
 
 #include <AsgTools/AnaToolHandle.h>
 #include <AsgTools/MessageCheck.h>
-#include <AsgTools/UnitTest.h>
+#include <AsgTesting/UnitTest.h>
 #include <cmath>
 #include <gtest/gtest.h>
 #include <gtest/gtest-spi.h>
