@@ -43,6 +43,22 @@ def checkTileCalibrationHitFormat(inputlist):
         logOverlayPoolReadMetadata.info("Input file uses new TileCalibHitContainers names: %s", newnames);
     return
 
+def listOptionalContainers(inputlist):
+    """Generate a list of optional containers"""
+    supported = ['TrackRecordCollection', 'CaloCalibrationHitContainer', 'HijingEventParams']
+
+    containers = {}
+    for entry in inputlist:
+        if entry[0] not in supported:
+            continue
+
+        if entry[0] not in containers:
+            containers[entry[0]] = set()
+
+        containers[entry[0]].add(entry[1])
+
+    return containers
+
 ## Helper functions
 def skipCheck(key):
     """This check is not required"""
@@ -209,6 +225,12 @@ def buildDict(inputtype, inputfile):
             from Digitization.DigitizationFlags import digitizationFlags
             digitizationFlags.experimentalDigi += ['OldTileCalibHitContainers']
 
+        ## Generate optional containers list
+        if 'eventdata_items' in f.infos.keys():
+            metadatadict['OptionalContainers'] = listOptionalContainers(f.infos['eventdata_items'])
+        else:
+            metadatadict['OptionalContainers'] = {}
+
         ##End of Patch for older hit files
         logOverlayPoolReadMetadata.debug("%s Simulation MetaData Dictionary Successfully Created.",inputtype)
         logOverlayPoolReadMetadata.debug("Found %s KEY:VALUE pairs in %s Simulation MetaData." , Nkvp,inputtype)
@@ -296,9 +318,9 @@ def signalMetaDataCheck(metadatadict):
     ## Digitization will only digitize detectors which have been simulated.
     ## If users want to digitize an un simulated detector this will be an expert
     ## action which will require hacking the python code.
-    from AthenaCommon.DetFlags import DetFlags
     if not skipCheck('SimulatedDetectors'):
         if 'SimulatedDetectors' in simkeys:
+            from AthenaCommon.DetFlags import DetFlags
             logOverlayPoolReadMetadata.debug("Switching off subdetectors which were not simulated")
             possibleSubDetectors=['pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','Micromegas','sTGC','Truth']
             switchedOffSubDetectors=[]
@@ -316,6 +338,11 @@ def signalMetaDataCheck(metadatadict):
             else:
                 logOverlayPoolReadMetadata.info("All sub-detectors were simulated, so none needed to be switched off in digitization.")
             DetFlags.Print()
+
+    # Check for optional containers presence
+    if not skipCheck('OptionalContainers'):
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        overlayFlags.optionalContainerMap.set_Value_and_Lock(metadatadict['OptionalContainers'])
 
     ## Any other checks here
     logOverlayPoolReadMetadata.info("Completed checks of Digitization properties against Signal Simulation MetaData.")
