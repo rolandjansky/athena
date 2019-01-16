@@ -69,13 +69,13 @@ public:
 
 private:  
     // Member variables	
-  bool initialized;
-  bool saveDocu   ;
-  bool useSpline  ;  
-  int sensorDepth ;          //um - default is IBL layer
-  interpolationMethod efieldOrigin;
-  TH1D* efieldProfile;            //Final efield profile
-  TString fInter;  //= "InterpolationTTree.root";    //path to .root file for saving interpolation TTree, i.e. ordered by pixeldepth z
+  bool m_initialized;
+  bool m_saveDocu   ;
+  bool m_useSpline  ;  
+  int m_sensorDepth ;          //um - default is IBL layer
+  interpolationMethod m_efieldOrigin;
+  TH1D* m_efieldProfile;            //Final efield profile
+  TString m_fInter;  //= "InterpolationTTree.root";    //path to .root file for saving interpolation TTree, i.e. ordered by pixeldepth z
 	//TFile* defFile; 	//File containing ttrees TCAD and Interpolation
   std::vector<std::vector<TString>> list_files(TString fileList_TCADsamples);
   Double_t extrapolateLinear(Double_t x1, Double_t y1, Double_t x2, Double_t y2, Double_t xaim );
