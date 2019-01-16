@@ -387,7 +387,7 @@ def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1):
     else:
         theBjetFex = getBtagFexSplitInstance(algoInstance,"2012","EFID")
 
-    btaggingTE = jetsForBTagging+"_btagged"+tracking
+    btaggingTE = jetsForBTagging+"_btagged"
     theChainDef.addSequence(theBjetFex, jetsForBTagging, btaggingTE)
 
     #
