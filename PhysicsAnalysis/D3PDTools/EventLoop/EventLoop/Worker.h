@@ -19,6 +19,7 @@
 
 #include <EventLoop/IWorker.h>
 #include <map>
+#include <memory>
 
 class TList;
 class TStopwatch;
