@@ -114,18 +114,20 @@ StatusCode JGTowerReader::initialize() {
   CHECK(detStore()->retrieve(m_jTowerId));
   CHECK(detStore()->retrieve(m_gTowerId));
 
-  TFile*noise = new TFile(m_noise_file.c_str());
-  TH1F*jh_noise = (TH1F*)noise->Get("jT_noise");
-  TH1F*gh_noise = (TH1F*)noise->Get("gT_noise");
-
-  for(int i=0;i<jh_noise->GetSize();i++){
-    jT_noise.push_back( jh_noise->GetBinContent(i+1) );
-  }
+  std::ifstream noise_exist(m_noise_file.c_str());
+  if(noise_exist){
+    TFile*noise = new TFile(m_noise_file.c_str());
+    TH1F*jh_noise = (TH1F*)noise->Get("jT_noise");
+    TH1F*gh_noise = (TH1F*)noise->Get("gT_noise");
   
-  for(int i=0;i<gh_noise->GetSize();i++){
-    gT_noise.push_back( gh_noise->GetBinContent(i+1) );
-  } 
-
+    for(int i=0;i<jh_noise->GetSize();i++){
+       jT_noise.push_back( jh_noise->GetBinContent(i+1) );
+    }
+  
+    for(int i=0;i<gh_noise->GetSize();i++){
+       gT_noise.push_back( gh_noise->GetBinContent(i+1) );
+    } 
+  }
   // read in the tower map
   if(m_makeJetsFromMap) {
     CHECK( ReadTowerMap() );
@@ -167,9 +169,25 @@ StatusCode JGTowerReader::execute() {
 
   const xAOD::JGTowerContainer* jTowers =0;
   CHECK( evtStore()->retrieve( jTowers,"JTower"));
+  //when noise file is not available, set the noise as constant for EM, Had, and FCal respectively
+  if(jT_noise.size()==0){
+    for(unsigned int jT_hs=0; jT_hs<jTowers->size(); jT_hs++){
+       const xAOD::JGTower*jT = jTowers->at(jT_hs);      
+       if(jT->sampling()==0) jT_noise.push_back(450);
+       else if(jT->sampling()==1) jT_noise.push_back(2400);
+       else jT_noise.push_back(2000);
+    }
+  }
 
   const xAOD::JGTowerContainer* gTowers =0;
   CHECK( evtStore()->retrieve( gTowers,"GTower"));
+  //when noise file is not available, set the noise as constant for EM, Had, and FCal respectively
+  if(gT_noise.size()==0){
+    for(unsigned int gT_hs=0; gT_hs<gTowers->size(); gT_hs++){
+       gT_noise.push_back(1500);
+    }
+  }
+
 
   ATH_MSG_DEBUG ("Successfully retrieved cells, jTowers and gTowers");
 
