@@ -52,7 +52,7 @@ ISF::DNNCaloSimSvc::DNNCaloSimSvc(const std::string& name, ISvcLocator* svc) :
   m_randomEngine(nullptr),
   m_caloGeo(nullptr)
 {
-  declareProperty("ParamsInputFilename"            ,       m_paramsFilename,"TFCSparam.root");
+  declareProperty("ParamsInputFilename"            ,       m_paramsFilename,"twoCritic_nn.json");
   //  declareProperty("ParamsInputObject"              ,       m_paramsObject,"SelPDGID");
   declareProperty("CaloCellsOutputName"            ,       m_caloCellsOutputName) ;
   declareProperty("CaloCellMakerTools_setup"       ,       m_caloCellMakerToolsSetup) ;
@@ -68,18 +68,34 @@ ISF::DNNCaloSimSvc::~DNNCaloSimSvc()
 /** framework methods */
 StatusCode ISF::DNNCaloSimSvc::initialize()
 {
-  // get your saved JSON file as an std::istream object
   ATH_MSG_INFO("start neural network part");
-  //std::ifstream input("/exp/atlas/ghosh/fcs/athena/Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimServices/share/twoCritic_nn.json");
-  std::ifstream input("/exp/atlas/ghosh/fcs/athena/Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimServices/share/oneIn1OutSoftmax_nn.json");
-  //std::ifstream input("/exp/atlas/ghosh/fcs/athena/Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimServices/share/oneIn3OutSwish_nn.json");
+  // get neural net JSON file as an std::istream object
+  std::ifstream input(m_paramsFilename);
   // build the graph
   lwt::LightweightGraph graph(lwt::parse_json_graph(input));
 
   // fill a map of input nodes
   std::map<std::string, std::map<std::string, double> > inputs;
-  //inputs["input_node"] = {{"value", 1}, {"value_2", 2}};
-  inputs["node_0"] = {{"variable_0", 1}};
+  for (int in_var = 0; in_var< 300; in_var ++)
+   {
+    inputs["Z"].insert ( std::pair<std::string,double>(std::to_string(in_var),1.) );
+    }
+  for (int in_var = 0; in_var< 1; in_var ++)
+   {
+    inputs["E_true"].insert ( std::pair<std::string,double>(std::to_string(in_var),1.) );
+    }
+  for (int in_var = 0; in_var< 4; in_var ++)
+   {
+    inputs["pconfig"].insert ( std::pair<std::string,double>(std::to_string(in_var),1.) );
+    }
+  for (int in_var = 0; in_var< 2; in_var ++)
+   {
+    inputs["econfig"].insert ( std::pair<std::string,double>(std::to_string(in_var),1.) );
+    }
+  for (int in_var = 0; in_var< 2; in_var ++)
+   {
+    inputs["ripos"].insert ( std::pair<std::string,double>(std::to_string(in_var),1.) );
+    }
   // compute the output values
   std::map<std::string, double> outputs = graph.compute(inputs);
   ATH_MSG_INFO("neural network output = "<<outputs);
