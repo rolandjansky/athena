@@ -11,6 +11,8 @@ usage() {
     echo "     build"
     echo " -c: Build the externals for the continuous integration (CI) system,"
     echo "     skipping the build of the externals RPMs."
+    echo " -x: Extra cmake argument(s) to provide for the build(configuration)"
+    echo "     of all externals needed by AthSimulation."
     echo "If a build_dir is not given the default is '../build'"
     echo "relative to the athena checkout"
 }
@@ -20,7 +22,8 @@ BUILDDIR=""
 BUILDTYPE="RelWithDebInfo"
 FORCE=""
 CI=""
-while getopts ":t:b:fch" opt; do
+EXTRACMAKE=()
+while getopts ":t:b:x:fch" opt; do
     case $opt in
         t)
             BUILDTYPE=$OPTARG
@@ -33,6 +36,9 @@ while getopts ":t:b:fch" opt; do
             ;;
         c)
             CI="1"
+            ;;
+        x)
+            EXTRACMAKE+=($OPTARG)
             ;;
         h)
             usage
@@ -50,25 +56,6 @@ while getopts ":t:b:fch" opt; do
             ;;
     esac
 done
-
-# Version comparison function. Taken from a StackOverflow article.
-verlte() {
-    if [ "$1" = "`echo -e "$1\n$2" | sort -V | head -n1`" ]; then
-        return 1
-    fi
-    return 0
-}
-
-# First off, check that we are using a new enough version of Git. We need
-# at least version 1.8.1.
-git_min_version=1.8.1
-git_version=`git --version | awk '{print $3}'`
-verlte "${git_min_version}" "${git_version}"
-if [ $? = 0 ]; then
-    echo "Detected git version (${git_version}) not new enough."
-    echo "Need at least: ${git_min_version}"
-    exit 1
-fi
 
 # Stop on errors from here on out:
 set -e
@@ -131,7 +118,7 @@ ${scriptsdir}/build_atlasexternals.sh \
     -b ${BUILDDIR}/build/AthSimulationExternals \
     -i ${BUILDDIR}/install/AthSimulationExternals/${NICOS_PROJECT_VERSION} \
     -p AthSimulationExternals ${RPMOPTIONS} -t ${BUILDTYPE} \
-    -v ${NICOS_PROJECT_VERSION}
+    ${EXTRACMAKE[@]/#/-x } -v ${NICOS_PROJECT_VERSION}
 
 # Get the "platform name" from the directory created by the AthSimulationExternals
 # build:
@@ -152,4 +139,5 @@ ${scriptsdir}/build_Gaudi.sh \
     -b ${BUILDDIR}/build/GAUDI \
     -i ${BUILDDIR}/install/GAUDI/${NICOS_PROJECT_VERSION} \
     -e ${BUILDDIR}/install/AthSimulationExternals/${NICOS_PROJECT_VERSION}/InstallArea/${platform} \
-    -p AthSimulationExternals -f ${platform} ${RPMOPTIONS} -t ${BUILDTYPE}
+    -p AthSimulationExternals -f ${platform} ${EXTRACMAKE[@]/#/-x } \
+    ${RPMOPTIONS} -t ${BUILDTYPE}
