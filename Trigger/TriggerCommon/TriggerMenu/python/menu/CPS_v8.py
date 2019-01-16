@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+
 HLT_CPS_Groups = {				       
     'RATE:CPS:HLT_j260_320eta490' : ['j260_320eta490',
                                     'j260_320eta490_nojcalib',
