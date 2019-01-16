@@ -269,7 +269,7 @@ if not isOnline:
         #conddb.addFolder('TRIGGER', "/TRIGGER/LVL1/BunchGroupContent") # already added by some other alg
         if LHCFillStateAvailable:
             conddb.addFolder('DCS_OFL', "/LHC/DCS/FILLSTATE")
-        conddb.addFolder('TDAQ', "/TDAQ/RunCtrl/DataTakingMode")
+        conddb.addFolder('TDAQ', '/TDAQ/RunCtrl/DataTakingMode', className='AthenaAttributeList')
         conddb.addFolder('TRIGGER', "/TRIGGER/LVL1/RFPhase")
         conddb.addFolder('TRIGGER', '/TRIGGER/LVL1/CTPCoreInputMapping')
 
