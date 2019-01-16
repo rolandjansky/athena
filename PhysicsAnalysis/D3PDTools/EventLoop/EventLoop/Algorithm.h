@@ -61,7 +61,7 @@ namespace EL
     /// description: the worker that is controlling us
     /// guarantee: no-fail
   public:
-    Worker *wk () const;
+    IWorker *wk () const;
 
 
     /// \brief book the given histogram
@@ -304,7 +304,7 @@ namespace EL
 
     // description: members directly corresponding to accessors
   private:
-    Worker *m_wk; //!
+    IWorker *m_wk; //!
 
     /// \brief the value of \ref evtStore
   private:

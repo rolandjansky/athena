@@ -38,7 +38,7 @@ class PropertyMgr;
 namespace EL
 {
 #ifdef ROOTCORE
-  class Worker;
+  class IWorker;
 #endif
 
   /// \brief the (new) base class for EventLoop algorithms
@@ -226,7 +226,7 @@ namespace EL
     ///   job not running in EventLoop
     /// \post result != nullptr
   public:
-    Worker *wk () const;
+    IWorker *wk () const;
 #endif
 
 
@@ -407,7 +407,7 @@ namespace EL
     /// \par Failures
     ///   service already configured
   public:
-    void setWk (Worker *val_wk);
+    void setWk (IWorker *val_wk);
 
     /// \brief add an object to release when this algorithm gets
     /// destructed
@@ -502,7 +502,7 @@ namespace EL
 #ifdef ROOTCORE
     /// \brief the value of \ref wk
   private:
-    Worker *m_wk = nullptr;
+    IWorker *m_wk = nullptr;
 #endif
 
 #ifdef ROOTCORE

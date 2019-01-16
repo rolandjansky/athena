@@ -39,7 +39,7 @@ namespace EL
   /// requires: worker != 0
   /// requires: !outputStream.empty()
   /// postcondition: result != 0
-  NTupleSvc *getNTupleSvc (Worker *worker,
+  NTupleSvc *getNTupleSvc (IWorker *worker,
 			   const std::string& outputStream,
 			   const std::string& treeName = "");
 

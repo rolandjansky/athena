@@ -185,7 +185,7 @@ namespace EL
 
 
 
-  Worker *AnaAlgorithm ::
+  IWorker *AnaAlgorithm ::
   wk () const
   {
     if (!m_wk)
@@ -378,7 +378,7 @@ namespace EL
 
 
   void AnaAlgorithm ::
-  setWk (Worker *val_wk)
+  setWk (IWorker *val_wk)
   {
     if (m_wk)
       throw std::logic_error ("set wk twice on algorithm " + name());
