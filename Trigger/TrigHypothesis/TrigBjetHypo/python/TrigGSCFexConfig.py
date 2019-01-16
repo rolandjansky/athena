@@ -23,7 +23,7 @@ def getGSCFexInstance( instance ):
     return GSCFex( instance=instance, name="EFGSCFex_EFID" )
 
 def getGSCFexSplitInstance( instance):
-    return GSCFexSplit( instance=instance, name=instance+"GSCFexSplit_EFIF" )
+    return GSCFexSplit( instance=instance, name=instance+"GSCFexSplit_EFID" )
 
 def getGSCFexFTKInstance( instance ):
     return GSCFexSplit( instance=instance, name=instance+"GSCFexFTK_EFID",
