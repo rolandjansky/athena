@@ -27,7 +27,7 @@ RPMDIR=""
 BUILDTYPE="Release"
 PROJECTVERSION=""
 EXTRACMAKE=()
-while getopts ":s:b:i:p:r:t:v:hx:d" opt; do
+while getopts ":s:b:i:p:r:t:v:hx:" opt; do
     case $opt in
         s)
             SOURCEDIR=$OPTARG
