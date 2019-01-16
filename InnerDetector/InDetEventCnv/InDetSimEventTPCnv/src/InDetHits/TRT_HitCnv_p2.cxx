@@ -19,7 +19,7 @@ TRT_HitCnv_p2::persToTrans(const TRT_Hit_p2* persObj, TRTUncompressedHit* transO
   HepMcPLCnv.persToTrans(&(persObj->m_partLink),&link, log);
 
   *transObj = TRTUncompressedHit (persObj-> hitID,
-                                  link.barcode(),
+                                  link,
                                   persObj->particleEncoding,
                                   persObj->kineticEnergy,
                                   persObj->energyDeposit,
@@ -34,7 +34,23 @@ TRT_HitCnv_p2::persToTrans(const TRT_Hit_p2* persObj, TRTUncompressedHit* transO
 
 
 void
-TRT_HitCnv_p2::transToPers(const TRTUncompressedHit*, TRT_Hit_p2*, MsgStream &/*log*/)
+TRT_HitCnv_p2::transToPers(const TRTUncompressedHit* transObj, TRT_Hit_p2* persObj,
+                           MsgStream &log)
 {
-  throw std::runtime_error("TRT_HitCnv_p2::transToPers is not supported in this release!");
+  //    if (log.level() <= MSG::DEBUG)  log << MSG::DEBUG << "TRT_HitCnv_p2::transToPers called " << endmsg;
+  HepMcParticleLinkCnv_p2 HepMcPLCnv;
+  persObj->hitID         = transObj-> GetHitID();
+  HepMcPLCnv.transToPers(&(transObj->particleLink()),&(persObj->m_partLink), log);
+  persObj->particleEncoding = transObj->GetParticleEncoding();
+  persObj->kineticEnergy = transObj->GetKineticEnergy();
+  persObj->energyDeposit = transObj->GetEnergyDeposit();
+
+  persObj->preStepX      = transObj->GetPreStepX();
+  persObj->preStepY      = transObj->GetPreStepY();
+  persObj->preStepZ      = transObj->GetPreStepZ();
+
+  persObj->postStepX     = transObj->GetPostStepX();
+  persObj->postStepY     = transObj->GetPostStepY();
+  persObj->postStepZ     = transObj->GetPostStepZ();
+  persObj->globalTime    = transObj->GetGlobalTime();
 }

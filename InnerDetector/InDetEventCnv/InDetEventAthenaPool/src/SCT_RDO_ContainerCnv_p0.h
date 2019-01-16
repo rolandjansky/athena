@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_RDO_CONTAINERCNV_P0_H
@@ -30,7 +30,7 @@ public:
   virtual SCT_RDO_Container* createTransient(const SCT_RDO_Container_p0* persObj, MsgStream& log);
 
   // ID helper can't be used in the constructor, need initialize()
-  void initialize(const SCT_ID *idhelper) { m_sctId = idhelper; }
+  void initialize(const SCT_ID* idhelper) { m_sctId = idhelper; }
 };
 
 #endif/*SCT_RDO_CONTAINERCNV_P0_H*/

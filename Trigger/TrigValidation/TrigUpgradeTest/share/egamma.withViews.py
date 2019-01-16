@@ -69,14 +69,14 @@ def createFastCaloSequence(rerun=False):
    clusterMaker.ClustersName=clustersKey
    svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
-   # from TrigMultiVarHypo.TrigL2CaloRingerFexMTInit import init_ringer
-   # trigL2CaloRingerFexMT = init_ringer()
-   # trigL2CaloRingerFexMT.ClustersKey = clusterMaker.ClustersName
-   # trigL2CaloRingerFexMT.OutputLevel = DEBUG    
+   from TrigMultiVarHypo.TrigL2CaloRingerFexMTInit import init_ringer
+   trigL2CaloRingerFexMT = init_ringer()
+   trigL2CaloRingerFexMT.ClustersKey = clusterMaker.ClustersName
+   trigL2CaloRingerFexMT.OutputLevel = DEBUG    
    
    
-   #fastCaloInViewAlgs = seqAND( __prefix+"fastCaloInViewAlgs", [ clusterMaker, trigL2CaloRingerFexMT ])
-   fastCaloInViewAlgs = seqAND( __prefix+"fastCaloInViewAlgs", [ clusterMaker ])
+   fastCaloInViewAlgs = seqAND( __prefix+"fastCaloInViewAlgs", [ clusterMaker, trigL2CaloRingerFexMT ])
+   
 
    filterL1RoIsAlg = RoRSeqFilter( __prefix+"filterL1RoIsAlg")
    filterL1RoIsAlg.Input = [__l1RoIDecisions]

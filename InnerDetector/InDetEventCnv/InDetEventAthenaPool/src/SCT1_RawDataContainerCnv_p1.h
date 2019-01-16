@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT1_RAWDATACONTAINERCNV_P1_H
@@ -25,21 +25,21 @@ class SCT_ID;
 class SCT1_RawDataContainerCnv_p1 : public T_AthenaPoolTPCnvBase<SCT_RDO_Container, InDetRawDataContainer_p1>
 {
  private:
-  const SCT_ID *m_sctId = nullptr;
+  const SCT_ID* m_sctId = nullptr;
  public:
   SCT1_RawDataContainerCnv_p1() {};
   
   virtual void	persToTrans(const InDetRawDataContainer_p1* persCont,
 			    SCT_RDO_Container* transCont,
-			    MsgStream &log) ;
+			    MsgStream& log) ;
   virtual void	transToPers(const SCT_RDO_Container* transCont,
 			    InDetRawDataContainer_p1* persCont,
-			    MsgStream &log) ;
+			    MsgStream& log) ;
   virtual SCT_RDO_Container* createTransient(const InDetRawDataContainer_p1* persObj, MsgStream& log) ;
 
 
   // ID helper can't be used in the constructor, need initialize()
-  void initialize(const SCT_ID *idhelper) { m_sctId = idhelper; }
+  void initialize(const SCT_ID* idhelper) { m_sctId = idhelper; }
   
 };
 
