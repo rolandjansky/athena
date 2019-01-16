@@ -10,7 +10,9 @@ atlas_subdir( SampleHandler )
 atlas_depends_on_subdirs(
    PUBLIC
    Control/AthToolSupport/AsgTools
-   PhysicsAnalysis/D3PDTools/RootCoreUtils )
+   PhysicsAnalysis/D3PDTools/RootCoreUtils
+   PRIVATE
+   Control/AthToolSupport/AsgTesting )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO PyROOT Proof )
@@ -57,7 +59,7 @@ endfunction( _add_gtest )
 
 file( GLOB _gtests test/gt_*.cxx )
 foreach( gtest ${_gtests} )
-   _add_gtest( ${gtest} )
+   _add_gtest( ${gtest} LINK_LIBRARIES AsgTestingLib )
 endforeach()
 
 # Ok, this should be an automatically run test, but it requires a grid
@@ -66,7 +68,7 @@ endforeach()
 # a test.
 atlas_add_executable (SampleHandler_test_GridTools SOURCES test/it_GridTools.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} SampleHandler )
+      LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} SampleHandler AsgTestingLib )
 
 function( _add_test cxx_name )
    get_filename_component( test_name ${cxx_name} NAME_WE )
