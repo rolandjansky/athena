@@ -13,6 +13,12 @@ class PixelModuleData {
     PixelModuleData();
     virtual ~PixelModuleData();
 
+    void setBiasVoltage(const int chanNum, const float value);
+    float getBiasVoltage(const int chanNum) const;
+
+    void setTemperature(const int chanNum, const float value);
+    float getTemperature(const int chanNum) const;
+
     void setModuleStatus(const int chanNum, const int value);
     int getModuleStatus(const int chanNum) const;
 
@@ -64,7 +70,10 @@ class PixelModuleData {
     void clear();
 
   private:
+    typedef std::map<int, float> FloatConditions;
     typedef std::map<int, int> IntConditions;
+    FloatConditions  m_biasVoltage;
+    FloatConditions  m_temperature;
     IntConditions  m_moduleStatus;
     IntConditions  m_chipStatus;
 

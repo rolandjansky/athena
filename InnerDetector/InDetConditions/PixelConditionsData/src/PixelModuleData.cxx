@@ -5,12 +5,34 @@
 #include "PixelConditionsData/PixelModuleData.h"
 
 PixelModuleData::PixelModuleData():
+  m_biasVoltage(),
+  m_temperature(),
   m_moduleStatus(),
   m_chipStatus()
 {
 }
 
 PixelModuleData::~PixelModuleData() { }
+
+void PixelModuleData::setBiasVoltage(const int chanNum, const float value) {
+  m_biasVoltage[chanNum] = value;
+}
+
+float PixelModuleData::getBiasVoltage(const int chanNum) const {
+  auto itr = m_biasVoltage.find(chanNum);
+  if (itr!=m_biasVoltage.end()) { return itr->second; }
+  return 0;
+}
+
+void PixelModuleData::setTemperature(const int chanNum, const float value) {
+  m_temperature[chanNum] = value;
+}
+
+float PixelModuleData::getTemperature(const int chanNum) const {
+  auto itr = m_temperature.find(chanNum);
+  if (itr!=m_temperature.end()) { return itr->second; }
+  return 0;
+}
 
 // Module status
 void PixelModuleData::setModuleStatus(const int chanNum, const int value) {
@@ -128,6 +150,8 @@ int PixelModuleData::getIBLOverflowToT() const {
 }
 
 void PixelModuleData::clear() {
+  m_biasVoltage.clear();
+  m_temperature.clear();
   m_moduleStatus.clear();
   m_chipStatus.clear();
 }

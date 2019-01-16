@@ -229,16 +229,9 @@ StatusCode PixelPrepDataToxAOD::execute()
         AUXDATA(xprd,int,isBSError) = (int)m_pixelBSErrorsSvc->isActive(moduleHash);
         AUXDATA(xprd,int,DCSState) = SG::ReadCondHandle<PixelModuleData>(m_condDCSStateKey)->getModuleStatus(moduleHash);
 
-        float temperature = 0.0;
-        SG::ReadCondHandle<PixelDCSConditionsData>(m_readKeyTemp)->getValue(moduleHash,temperature);
-
         float deplVoltage = 0.0;
-
-        float biasVoltage = 0.0;
-        SG::ReadCondHandle<PixelDCSConditionsData>(m_readKeyHV)->getValue(moduleHash,biasVoltage);
-
-        AUXDATA(xprd,float,BiasVoltage) = biasVoltage;
-        AUXDATA(xprd,float,Temperature) = temperature;
+        AUXDATA(xprd,float,BiasVoltage) = SG::ReadCondHandle<PixelModuleData>(m_readKeyHV)->getBiasVoltage(moduleHash);
+        AUXDATA(xprd,float,Temperature) = SG::ReadCondHandle<PixelModuleData>(m_readKeyTemp)->getTemperature(moduleHash);
         AUXDATA(xprd,float,DepletionVoltage) = deplVoltage;
 
         AUXDATA(xprd,float,LorentzShift) = (float)m_lorentzAngleTool->getLorentzShift(moduleHash);

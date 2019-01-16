@@ -10,7 +10,7 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "PixelConditionsData/PixelDCSConditionsData.h"
+#include "PixelConditionsData/PixelModuleData.h"
 #include "GaudiKernel/ICondSvc.h"
 #include "SiPropertiesSvc/ISiPropertiesTool.h"
 
@@ -42,10 +42,10 @@ class PixelSiLorentzAngleCondAlg: public AthAlgorithm {
     ServiceHandle<ICondSvc> m_condSvc;
     ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
 
-    SG::ReadCondHandleKey<PixelDCSConditionsData> m_readKeyTemp{this, "ReadKeyeTemp", "PixelDCSTempCondData",         "Key of input sensor temperature conditions folder"};
-    SG::ReadCondHandleKey<PixelDCSConditionsData> m_readKeyHV  {this, "ReadKeyHV",    "PixelDCSHVCondData",           "Key of input bias voltage conditions folder"};
-
+    SG::ReadCondHandleKey<PixelModuleData> m_readKeyTemp{this, "ReadKeyeTemp", "PixelDCSTempCondData",         "Key of input sensor temperature conditions folder"};
+    SG::ReadCondHandleKey<PixelModuleData> m_readKeyHV  {this, "ReadKeyHV",    "PixelDCSHVCondData",           "Key of input bias voltage conditions folder"};
     SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyBFieldSensor{this, "ReadKeyBFieldSensor", "/EXT/DCS/MAGNETS/SENSORDATA", "Key of input B-field sensor"};
+
     SG::WriteCondHandleKey<SiLorentzAngleCondData> m_writeKey{this, "WriteKey", "PixelSiLorentzAngleCondData", "Key of output SiLorentzAngleCondData"};
 
     ToolHandle<ISiPropertiesTool>   m_siPropertiesTool{this, "SiPropertiesTool", "SiPropertiesTool", "Tool to retrieve SiProperties"};

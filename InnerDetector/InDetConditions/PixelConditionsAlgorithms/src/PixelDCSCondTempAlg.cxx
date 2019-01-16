@@ -39,7 +39,7 @@ StatusCode PixelDCSCondTempAlg::initialize() {
 StatusCode PixelDCSCondTempAlg::execute() {
   ATH_MSG_DEBUG("PixelDCSCondTempAlg::execute()");
 
-  SG::WriteCondHandle<PixelDCSConditionsData> writeHandle(m_writeKey);
+  SG::WriteCondHandle<PixelModuleData> writeHandle(m_writeKey);
   // Do we have a valid Write Cond Handle for current time?
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid.. In theory this should not be called, but may happen if multiple concurrent events are being processed out of order.");
@@ -63,7 +63,7 @@ StatusCode PixelDCSCondTempAlg::execute() {
   ATH_MSG_INFO("Range of input is " << rangeW);
   
   // Construct the output Cond Object and fill it in
-  std::unique_ptr<PixelDCSConditionsData> writeCdo(std::make_unique<PixelDCSConditionsData>());
+  std::unique_ptr<PixelModuleData> writeCdo(std::make_unique<PixelModuleData>());
 
   // Read temperature info
   std::string param{"temperature"};
@@ -74,26 +74,26 @@ StatusCode PixelDCSCondTempAlg::execute() {
       if (payload.exists(param) and not payload[param].isNull()) {
         float val = payload[param].data<float>();
         if (val>100.0 || val<-80.0) {
-          writeCdo->setValue((int)channelNumber, m_defaultTemperature);
+          writeCdo->setTemperature((int)channelNumber, m_defaultTemperature);
         }
         else {
-          writeCdo->setValue((int)channelNumber, val);
+          writeCdo->setTemperature((int)channelNumber, val);
         }
       } 
       else {
         ATH_MSG_WARNING(param << " does not exist for ChanNum " << channelNumber);
-        writeCdo->setValue((int)channelNumber, m_defaultTemperature);
+        writeCdo->setTemperature((int)channelNumber, m_defaultTemperature);
       }
     }
   }
   else {
     for (int i=0; i<(int)m_pixelID->wafer_hash_max(); i++) {
-      writeCdo->setValue(i, m_defaultTemperature);
+      writeCdo->setTemperature(i, m_defaultTemperature);
     }
   }
 
   if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
-    ATH_MSG_FATAL("Could not record PixelDCSConditionsData " << writeHandle.key() << " with EventRange " << rangeW << " into Conditions Store");
+    ATH_MSG_FATAL("Could not record PixelModuleData " << writeHandle.key() << " with EventRange " << rangeW << " into Conditions Store");
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");

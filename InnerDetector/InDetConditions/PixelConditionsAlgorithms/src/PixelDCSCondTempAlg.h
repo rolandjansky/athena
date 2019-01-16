@@ -11,7 +11,7 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include "StoreGate/WriteCondHandleKey.h"
-#include "PixelConditionsData/PixelDCSConditionsData.h"
+#include "PixelConditionsData/PixelModuleData.h"
 
 #include "InDetIdentifier/PixelID.h"
 
@@ -34,7 +34,7 @@ class PixelDCSCondTempAlg : public AthAlgorithm {
     float m_defaultTemperature;
 
     SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this, "ReadKey", "/PIXEL/DCS/TEMPERATURE", "Key of input (raw) temperature conditions folder"};
-    SG::WriteCondHandleKey<PixelDCSConditionsData> m_writeKey{this, "WriteKey", "PixelDCSTempCondData", "Key of output (derived) temperature conditions folder"};
+    SG::WriteCondHandleKey<PixelModuleData> m_writeKey{this, "WriteKey", "PixelDCSTempCondData", "Key of output (derived) temperature conditions folder"};
 
     ServiceHandle<ICondSvc> m_condSvc;
 };

@@ -11,7 +11,7 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include "StoreGate/WriteCondHandleKey.h"
-#include "PixelConditionsData/PixelDCSConditionsData.h"
+#include "PixelConditionsData/PixelModuleData.h"
 
 #include "InDetIdentifier/PixelID.h"
 
@@ -34,7 +34,7 @@ class PixelDCSCondHVAlg : public AthAlgorithm {
     float m_defaultBiasVoltage;
 
     SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this, "ReadKey", "/PIXEL/DCS/HV", "Key of input (raw) HV conditions folder"};
-    SG::WriteCondHandleKey<PixelDCSConditionsData> m_writeKey{this, "WriteKey", "PixelDCSHVCondData", "Key of output (derived) HV conditions data"};
+    SG::WriteCondHandleKey<PixelModuleData> m_writeKey{this, "WriteKey", "PixelDCSHVCondData", "Key of output (derived) HV conditions data"};
 
     ServiceHandle<ICondSvc> m_condSvc;
 };

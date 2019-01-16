@@ -46,8 +46,8 @@ StatusCode PixelSiPropertiesCondAlg::execute() {
   }
 
   // Read Cond Handle (temperature)
-  SG::ReadCondHandle<PixelDCSConditionsData> readHandleTemp(m_readKeyTemp);
-  const PixelDCSConditionsData* readCdoTemp(*readHandleTemp);
+  SG::ReadCondHandle<PixelModuleData> readHandleTemp(m_readKeyTemp);
+  const PixelModuleData* readCdoTemp(*readHandleTemp);
   if (readCdoTemp==nullptr) {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
     return StatusCode::FAILURE;
@@ -60,8 +60,8 @@ StatusCode PixelSiPropertiesCondAlg::execute() {
   ATH_MSG_INFO("Input is " << readHandleTemp.fullKey() << " with the range of " << rangeTemp);
 
   // Read Cond Handle (HV)
-  SG::ReadCondHandle<PixelDCSConditionsData> readHandleHV(m_readKeyHV);
-  const PixelDCSConditionsData* readCdoHV(*readHandleHV);
+  SG::ReadCondHandle<PixelModuleData> readHandleHV(m_readKeyHV);
+  const PixelModuleData* readCdoHV(*readHandleHV);
   if (readCdoHV==nullptr) {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
     return StatusCode::FAILURE;
@@ -87,15 +87,9 @@ StatusCode PixelSiPropertiesCondAlg::execute() {
   for (PixelID::size_type hash=0; hash<wafer_hash_max; hash++) {
     const IdentifierHash elementHash = static_cast<IdentifierHash::value_type>(hash);
 
-    float tempCdo = 0.0;
-    readCdoTemp->getValue(elementHash,tempCdo);
-    double temperature = tempCdo+273.15;
-    
+    double temperature = readCdoTemp->getTemperature(elementHash)+273.15;
     double deplVoltage = 0.0*CLHEP::volt;
-
-    float hvCdo = 0.0;
-    readCdoHV->getValue(elementHash,hvCdo);
-    double biasVoltage = hvCdo*CLHEP::volt;
+    double biasVoltage = readCdoHV->getBiasVoltage(elementHash)*CLHEP::volt;
 
     const InDetDD::SiDetectorElement* element = m_detManager->getDetectorElement(elementHash);
     double depletionDepth = element->thickness();

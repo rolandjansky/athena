@@ -37,7 +37,7 @@ StatusCode PixelDCSCondHVAlg::initialize() {
 StatusCode PixelDCSCondHVAlg::execute() {
   ATH_MSG_DEBUG("PixelDCSCondHVAlg::execute()");
 
-  SG::WriteCondHandle<PixelDCSConditionsData> writeHandle(m_writeKey);
+  SG::WriteCondHandle<PixelModuleData> writeHandle(m_writeKey);
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid.. In theory this should not be called, but may happen if multiple concurrent events are being processed out of order.");
     return StatusCode::SUCCESS; 
@@ -59,7 +59,7 @@ StatusCode PixelDCSCondHVAlg::execute() {
   ATH_MSG_INFO("Range of input is " << rangeW);
   
   // Construct the output Cond Object and fill it in
-  std::unique_ptr<PixelDCSConditionsData> writeCdo(std::make_unique<PixelDCSConditionsData>());
+  std::unique_ptr<PixelModuleData> writeCdo(std::make_unique<PixelModuleData>());
 
   // Read HV info
   std::string param("HV");
@@ -70,26 +70,26 @@ StatusCode PixelDCSCondHVAlg::execute() {
       if (payload.exists(param) and not payload[param].isNull()) {
         float val = payload[param].data<float>();
         if (val>1000.0 || val<-1000.0) {
-          writeCdo -> setValue((int)channelNumber, m_defaultBiasVoltage);
+          writeCdo -> setBiasVoltage((int)channelNumber, m_defaultBiasVoltage);
         }
         else {
-          writeCdo -> setValue((int)channelNumber, val);
+          writeCdo -> setBiasVoltage((int)channelNumber, val);
         }
       } 
       else {
         ATH_MSG_WARNING(param << " does not exist for ChanNum " << channelNumber);
-        writeCdo -> setValue((int)channelNumber, m_defaultBiasVoltage);
+        writeCdo -> setBiasVoltage((int)channelNumber, m_defaultBiasVoltage);
       }
     }
   }
   else {
     for (int i=0; i<(int)m_pixelID->wafer_hash_max(); i++) {
-      writeCdo->setValue(i, m_defaultBiasVoltage);
+      writeCdo -> setBiasVoltage(i, m_defaultBiasVoltage);
     }
   }
 
   if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
-    ATH_MSG_FATAL("Could not record PixelDCSConditionsData " << writeHandle.key() << " with EventRange " << rangeW << " into Conditions Store");
+    ATH_MSG_FATAL("Could not record PixelModuleData " << writeHandle.key() << " with EventRange " << rangeW << " into Conditions Store");
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
