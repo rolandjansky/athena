@@ -9,6 +9,7 @@ find_package( GMock )
 # The package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
+   Control/AthToolSupport/AsgTesting
    PhysicsAnalysis/D3PDTools/RootCoreUtils
    PhysicsAnalysis/D3PDTools/SampleHandler
    PhysicsAnalysis/D3PDTools/EventLoop
@@ -33,7 +34,7 @@ atlas_add_library( EventLoopTestLib
    PUBLIC_HEADERS EventLoopTest
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${GMOCK_LIBRARIES} RootCoreUtils
-   SampleHandler EventLoop
+   SampleHandler EventLoop AsgTestingLib
    PRIVATE_LINK_LIBRARIES AsgTools xAODRootAccess )
 
 target_compile_definitions (EventLoopTestLib PUBLIC USE_CMAKE)

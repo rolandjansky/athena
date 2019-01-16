@@ -18,7 +18,7 @@
 #include <EventLoopTest/UnitTestAlg2.h>
 #include <AsgTools/ToolHandle.h>
 #include <AsgTools/MessageCheck.h>
-#include <AsgTools/UnitTest.h>
+#include <AsgTesting/UnitTest.h>
 #include <cmath>
 #include <gtest/gtest.h>
 
