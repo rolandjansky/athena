@@ -347,8 +347,8 @@ StatusCode NSWPRDValAlg::NSWMatchingAlg () {
   ofstream efficiencies;
   efficiencies.open("NSWMatchingAlg_efficiencies.txt");
   efficiencies << "NSW Matching algorithm, efficiencies of conversion from and to various EDM objects" << endl;
-  efficiencies << "Settings:\n doNSWMatchingMuonOnly = " << doNSWMatchingMuonOnly << endl;
-  efficiencies << "Maximum Strip Distance = " << setMaxStripDistance << endl;
+  efficiencies << "Settings:\n" << m_doNSWMatchingMuon << endl;
+  efficiencies << " 'Maximum Strip Distance':" << m_maxStripDiff << endl;
   efficiencies.close();
 
   // sTGC matching
@@ -360,7 +360,7 @@ StatusCode NSWPRDValAlg::NSWMatchingAlg () {
     ATH_CHECK( NSWMatchingAlg(Digits_sTGC, RDO_sTGC) );
     ATH_CHECK( NSWMatchingAlg(SDO_sTGC, RDO_sTGC) );
   }
-  if (m_doSTGCRDO && m_doSTGCPRD) { NSWMatchingAlg(RDO_sTGC, PRD_sTGC); }
+  if (m_doSTGCRDO && m_doSTGCPRD) { ATH_CHECK( NSWMatchingAlg(RDO_sTGC, PRD_sTGC) ); }
 
   // sTGC fast digitization
   if (m_doSTGCHit && m_doSTGCFastDigit) { 
@@ -378,7 +378,7 @@ StatusCode NSWPRDValAlg::NSWMatchingAlg () {
     ATH_CHECK( NSWMatchingAlg(Digits_MM, RDO_MM) );
     ATH_CHECK( NSWMatchingAlg(SDO_MM, RDO_MM) );
   }
-  if (m_doMMRDO && m_doMMPRD) { NSWMatchingAlg(RDO_MM, PRD_MM); }
+  if (m_doMMRDO && m_doMMPRD) { ATH_CHECK( NSWMatchingAlg(RDO_MM, PRD_MM) ); }
 
   //  MM fast digitization
   if (m_doMMHit && m_doMMFastDigit) { 
@@ -392,13 +392,15 @@ StatusCode NSWPRDValAlg::NSWMatchingAlg () {
 
 // This part of the matching algortihm does the actual comparison given two EDM obects
 StatusCode NSWPRDValAlg::NSWMatchingAlg (EDM_object data0, EDM_object data1) {
-  if (data0.getDetector() != data1.getDetector()) 
-    { ATH_MSG_ERROR ("Matching " << data0.getDetector() << " data with " << data1.getDetector() << " data. This is not implemented in this algorithm"); }
+  if (data0.getDetector() != data1.getDetector()) { ATH_MSG_ERROR ("Matching " << data0.getDetector() << " data with " << data1.getDetector() << " data. This is not implemented in this algorithm"); }
+  
   ATH_MSG_INFO("NSWMatchingAlg: Start matching " << data0.getName() << " and " << data1.getName() << " for " << data0.getDetector());
+  data0.setMatchedwith(data1.getName());
+  data1.setMatchedwith(data0.getName());
 
   // Prepare Muon ony check
   vector<int>* TruthParticle_Pdg;
-  if ( doNSWMatchingMuonOnly ) { m_tree->SetBranchAddress("TruthParticle_Pdg", &TruthParticle_Pdg); }
+  if ( m_doNSWMatchingMuon ) { m_tree->SetBranchAddress("TruthParticle_Pdg", &TruthParticle_Pdg); }
 
   Long64_t nEntries = m_tree->GetEntriesFast();
   for (Long64_t i_entry = 0; i_entry < nEntries; ++i_entry) {
@@ -413,7 +415,7 @@ StatusCode NSWPRDValAlg::NSWMatchingAlg (EDM_object data0, EDM_object data1) {
                   ", number of " << data1.getDetector() << data1.getName() << ": " << data1.size());
 
   //only muon events:
-  if (doNSWMatchingMuonOnly) {
+  if (m_doNSWMatchingMuon) {
     bool allMu = true;
     int mu_pdg = 13;
     for ( int pdg : *TruthParticle_Pdg ) { allMu &= (abs(pdg) == mu_pdg); }
@@ -437,7 +439,7 @@ StatusCode NSWPRDValAlg::NSWMatchingAlg (EDM_object data0, EDM_object data1) {
               data1.update_match(j, data0.m_channel->at(i));
            }
         }
-        ATH_MSG_VERBOSE("Total Number of matches found: " << nMatch << data1.getName() << " for a single " << data0.getName() );
+        ATH_MSG_VERBOSE("Total Number of matches found: " << nMatch << " " << data1.getName() << " for a single " << data0.getName() );
         if (nMatch == 0) {
           ATH_MSG_WARNING("No match found!");
         }
