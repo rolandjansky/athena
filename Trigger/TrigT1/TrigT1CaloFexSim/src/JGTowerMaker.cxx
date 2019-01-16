@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  e (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // xAODL1Calo includes
@@ -27,6 +27,7 @@ JGTowerMaker::JGTowerMaker( const std::string& name, ISvcLocator* pSvcLocator ) 
   declareProperty("useSCQuality",m_useSCQuality=true);
   declareProperty("useAllCalo",m_useAllCalo=false);
   declareProperty("SuperCellType",m_scType="SCell");
+  declareProperty("SuperCellQuality",m_scQuality=0x200);
 }
 
 
@@ -86,7 +87,7 @@ StatusCode JGTowerMaker::FexAlg(std::vector<JGTower*> jgT, xAOD::JGTowerContaine
          const Identifier scid=m_scid->cell_id(jgTowerSCIndex.at(i));
          const IdentifierHash sc_hash = m_scid->calo_cell_hash(scid);
          CaloCell* scell = (CaloCell*) scells->findCell(sc_hash);
-         if(scell==nullptr||!(m_useSCQuality&&( scell->provenance()  &  0x200 ))) continue;
+         if(scell==nullptr||!(m_useSCQuality&&( scell->provenance()  &  m_scQuality ))) continue;
          float scell_et = scell->et();
          jgEt += scell_et; 
          lar_et+=scell_et;
