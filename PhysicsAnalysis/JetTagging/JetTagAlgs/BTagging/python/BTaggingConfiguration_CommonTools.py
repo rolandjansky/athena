@@ -45,9 +45,13 @@ def toolthisBTagLabeling(name, useBTagFlagsDefaults = True, **options):
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
                   **options: Python dictionary with options for the tool.
     output: The actual tool, which can then be added to ToolSvc via ToolSvc += output."""
-    btagJetTruthMatching = toolBTagJetTruthMatching('BTagJetTruthMatching')
+    if useBTagFlagsDefaults:
+        btagJetTruthMatching = toolBTagJetTruthMatching('BTagJetTruthMatching')
+        defaults = { 'OutputLevel'                : BTaggingFlags.OutputLevel,
+                     'JetTruthMatchTool'          : btagJetTruthMatching }
+        for option in defaults:
+            options.setdefault(option, defaults[option])
     options['name'] = name
-    options['JetTruthMatchTool'] = btagJetTruthMatching
     from BTagging.BTaggingConf import Analysis__BTagLabeling
     return Analysis__BTagLabeling(**options)
 
