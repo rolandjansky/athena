@@ -26,7 +26,7 @@
 #include <TTree.h>
 #include <EventLoop/Job.h>
 #include <EventLoop/StatusCode.h>
-#include <EventLoop/Worker.h>
+#include <EventLoop/IWorker.h>
 #include <EventLoopAlgs/WhiteBoardSvc.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/ThrowMsg.h>
