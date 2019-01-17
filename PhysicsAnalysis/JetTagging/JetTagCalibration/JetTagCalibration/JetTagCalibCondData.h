@@ -37,7 +37,7 @@ public:
   // Constructor
   JetTagCalibCondData();
   // Destructor
-  virtual ~JetTagCalibCondData() = default;
+  ~JetTagCalibCondData();
 
   /** Resize the data members */
   void resize(const std::vector<std::string> sizeHisto);
@@ -46,6 +46,7 @@ public:
   void printHistosStatus() const; 
   std::string getChannelAlias(const std::string& originalChannel) const;
   void addHisto(const unsigned int indexTagger, const std::string& name, TObject *);
+  void deleteHistos();
   void addDL1NN(const std::string& tagger, const std::string& channel, const lwt::JSONConfig& );
   void addChannelAlias(const std::string& channel, const std::string& alias);
   TH1* retrieveHistogram(const std::string& folder, const std::string& channel, const std::string& hname) const; 
@@ -55,7 +56,6 @@ public:
   std::string channelName(const std::string& fullHistoName) const;
   std::string histoName(const std::string& fullHistoName) const ;
   std::string fullHistoName(const std::string& channel, const std::string& histoName) const;
-  std::vector<std::string> tokenize(std::string str, std::string delim);
 
 private:
   std::vector< std::map<std::string, TObject*> > m_histos;
