@@ -21,7 +21,7 @@
 
 #include <AsgTools/MsgStream.h>
 #include <EventLoop/Job.h>
-#include <EventLoop/Worker.h>
+#include <EventLoop/IWorker.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/ThrowMsg.h>
 #include <SampleHandler/MetaFields.h>
