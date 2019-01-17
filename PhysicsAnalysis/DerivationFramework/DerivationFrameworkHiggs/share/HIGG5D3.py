@@ -310,6 +310,8 @@ addDefaultTrimmedJets(higg5d3Seq,"HIGG5D3Jets");
 # Also add Hbb Tagger
 addVRJets(higg5d3Seq)
 addHbbTagger(higg5d3Seq, ToolSvc)
+# QGTaggerTool ###
+addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=higg5d3Seq, algname="QGTaggerToolAlg")
 
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = higg5d3Seq)
 
