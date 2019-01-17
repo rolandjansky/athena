@@ -12,9 +12,7 @@
 #define PIXELDIGITIZATION_EFIELDINTERPOLATOR_H 
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "TROOT.h"
 #include "TH1.h"
-
 
 namespace RadDam{
 
@@ -73,7 +71,7 @@ private:
   Double_t extrapolateLinear(Double_t x1, Double_t y1, Double_t x2, Double_t y2, Double_t xaim );
   int fillXYvectors(std::vector<Double_t> vLoop,int ifix, std::vector<std::vector<Double_t>> v2vsv1, std::vector<Double_t>* &xx, std::vector<Double_t>* &yy, bool regularOrder = true);
   void FillEdgeValues(TH1D* hin);
-  bool isInterpolation(std::vector<Double_t> vval, Double_t aimval) 
+  bool isInterpolation(const std::vector<Double_t> vval, Double_t aimval) 
       { return ( vval.front() <= aimval && aimval <= vval.back() ); };
   bool isInterpolation(std::vector<Double_t>* vval, Double_t aimval)
       {return ( vval->front() <= aimval && aimval <= vval->back()   );};
