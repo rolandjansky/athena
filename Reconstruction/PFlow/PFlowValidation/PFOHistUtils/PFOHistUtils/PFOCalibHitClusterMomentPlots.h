@@ -21,26 +21,26 @@ namespace PFO {
   private:
 
     /** Histograms inclusive in eta */
-    TH1* m_PFO_ENG_CALIB_FRAC_EM;
-    TH1* m_PFO_ENG_CALIB_FRAC_HAD;
-    TH1* m_PFO_ENG_CALIB_FRAC_REST;
+    TH1* m_PFO_ENG_CALIB_FRAC_EM = nullptr;
+    TH1* m_PFO_ENG_CALIB_FRAC_HAD = nullptr;
+    TH1* m_PFO_ENG_CALIB_FRAC_REST = nullptr;
 
     /** Same histograms binned in eta regions */
-    TH1* m_PFO_ENG_CALIB_FRAC_EM_etaBinA;
-    TH1* m_PFO_ENG_CALIB_FRAC_HAD_etaBinA;
-    TH1* m_PFO_ENG_CALIB_FRAC_REST_etaBinA;
+    TH1* m_PFO_ENG_CALIB_FRAC_EM_etaBinA = nullptr;
+    TH1* m_PFO_ENG_CALIB_FRAC_HAD_etaBinA = nullptr;
+    TH1* m_PFO_ENG_CALIB_FRAC_REST_etaBinA = nullptr;
 
-    TH1* m_PFO_ENG_CALIB_FRAC_EM_etaBinB;
-    TH1* m_PFO_ENG_CALIB_FRAC_HAD_etaBinB;
-    TH1* m_PFO_ENG_CALIB_FRAC_REST_etaBinB;
+    TH1* m_PFO_ENG_CALIB_FRAC_EM_etaBinB = nullptr;
+    TH1* m_PFO_ENG_CALIB_FRAC_HAD_etaBinB = nullptr;
+    TH1* m_PFO_ENG_CALIB_FRAC_REST_etaBinB = nullptr;
 
-    TH1* m_PFO_ENG_CALIB_FRAC_EM_etaBinC;
-    TH1* m_PFO_ENG_CALIB_FRAC_HAD_etaBinC;
-    TH1* m_PFO_ENG_CALIB_FRAC_REST_etaBinC;
+    TH1* m_PFO_ENG_CALIB_FRAC_EM_etaBinC = nullptr;
+    TH1* m_PFO_ENG_CALIB_FRAC_HAD_etaBinC = nullptr;
+    TH1* m_PFO_ENG_CALIB_FRAC_REST_etaBinC = nullptr;
 
-    TH1* m_PFO_ENG_CALIB_FRAC_EM_etaBinD;
-    TH1* m_PFO_ENG_CALIB_FRAC_HAD_etaBinD;
-    TH1* m_PFO_ENG_CALIB_FRAC_REST_etaBinD;
+    TH1* m_PFO_ENG_CALIB_FRAC_EM_etaBinD = nullptr;
+    TH1* m_PFO_ENG_CALIB_FRAC_HAD_etaBinD = nullptr;
+    TH1* m_PFO_ENG_CALIB_FRAC_REST_etaBinD = nullptr;
     
     void initializePlots();
     std::string m_sPFOContainerName;

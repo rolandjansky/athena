@@ -7,25 +7,6 @@
 namespace PFO {
 
   PFOCalibHitClusterMomentPlots::PFOCalibHitClusterMomentPlots(PlotBase* pParent, std::string sDir, std::string sPFOContainerName) : PlotBase(pParent, sDir), m_sPFOContainerName(sPFOContainerName){
-    m_PFO_ENG_CALIB_FRAC_EM = nullptr;
-    m_PFO_ENG_CALIB_FRAC_HAD = nullptr;
-    m_PFO_ENG_CALIB_FRAC_REST = nullptr;
-
-    m_PFO_ENG_CALIB_FRAC_EM_etaBinA = nullptr;
-    m_PFO_ENG_CALIB_FRAC_HAD_etaBinA = nullptr;
-    m_PFO_ENG_CALIB_FRAC_REST_etaBinA = nullptr;
-
-    m_PFO_ENG_CALIB_FRAC_EM_etaBinB = nullptr;
-    m_PFO_ENG_CALIB_FRAC_HAD_etaBinB = nullptr;
-    m_PFO_ENG_CALIB_FRAC_REST_etaBinB = nullptr;
-
-    m_PFO_ENG_CALIB_FRAC_EM_etaBinC = nullptr;
-    m_PFO_ENG_CALIB_FRAC_HAD_etaBinC = nullptr;
-    m_PFO_ENG_CALIB_FRAC_REST_etaBinC = nullptr;
-
-    m_PFO_ENG_CALIB_FRAC_EM_etaBinD = nullptr;
-    m_PFO_ENG_CALIB_FRAC_HAD_etaBinD = nullptr;
-    m_PFO_ENG_CALIB_FRAC_REST_etaBinD = nullptr;
   }
 
   void PFOCalibHitClusterMomentPlots::initializePlots(){
