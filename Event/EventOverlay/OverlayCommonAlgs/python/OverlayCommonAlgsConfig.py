@@ -1,6 +1,20 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
+from AthenaCommon.ConfiguredFactory import ConfigurationError
+
+
+def getCopyCaloCalibrationHitContainer(name, collectionName="", **kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+
+    if not collectionName:
+        raise ConfigurationError("'collectionName' should be set! Use `CfgGetter.getAlgorithmClone`")
+
+    kwargs.setdefault("collectionName", collectionName)
+    kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+" + collectionName)
+    kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+" + collectionName)
+
+    return CfgMgr.CopyCaloCalibrationHitContainer(name, **kwargs)
 
 
 def getCopyInTimeJetTruthInfo(name="CopyInTimeJetTruthInfo", **kwargs):
@@ -49,3 +63,16 @@ def getCopyTimings(name="CopyTimings", **kwargs):
     kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+EVNTtoHITS_timings")
 
     return CfgMgr.CopyTimings(name, **kwargs)
+
+
+def getCopyTrackRecordCollection(name, collectionName="", **kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+
+    if not collectionName:
+        raise ConfigurationError("'collectionName' should be set! Use `CfgGetter.getAlgorithmClone`")
+
+    kwargs.setdefault("collectionName", collectionName) 
+    kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+" + collectionName)
+    kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+" + collectionName)
+
+    return CfgMgr.CopyTrackRecordCollection(name, **kwargs)
