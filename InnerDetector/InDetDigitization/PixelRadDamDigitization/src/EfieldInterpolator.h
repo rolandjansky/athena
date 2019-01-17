@@ -14,20 +14,12 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TROOT.h"
 #include "TH1.h"
-#include "TF1.h"
-#include "TVectorD.h"
-#include <TFile.h>
-#include "TTreeReader.h"
-#include "TTreeReaderValue.h"
-#include "TTreeReaderArray.h"
-#include <TMath.h>
-#include <TGraph.h>
 
-// Different options to retrieve E field
-// default: interspline
 
 namespace RadDam{
 
+// Different options to retrieve E field
+// default: interspline
 enum interpolationMethod{
     TCAD,               //use Precomputed TCAD map 
     interspline,        //use interpolation based on cubic splines
