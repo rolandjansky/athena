@@ -27,17 +27,17 @@ public:
    virtual ~AthenaRootSerializeSvc();
 
    /// Gaudi Service Interface method implementations:
-   StatusCode initialize();
-   StatusCode finalize();
-   StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
+   StatusCode initialize() override;
+   StatusCode finalize() override;
+   StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
 
-   void* serialize(const void* object, const std::string& name, size_t& nbytes) const;
-   void* serialize(const void* object, const Guid& id, size_t& nbytes) const;
-   void* serialize(const void* object, const RootType& cltype, size_t& nbytes) const;
+   void* serialize(const void* object, const std::string& name, size_t& nbytes) const override;
+   void* serialize(const void* object, const Guid& id, size_t& nbytes) const override;
+   void* serialize(const void* object, const RootType& cltype, size_t& nbytes) const override;
 
-   void* deserialize(void* buffer, size_t& nbytes, const std::string& name) const;
-   void* deserialize(void* buffer, size_t& nbytes, const Guid& id) const;
-   void* deserialize(void* buffer, size_t& nbytes, const RootType& cltype) const;
+   void* deserialize(void* buffer, size_t& nbytes, const std::string& name) const override;
+   void* deserialize(void* buffer, size_t& nbytes, const Guid& id) const override;
+   void* deserialize(void* buffer, size_t& nbytes, const RootType& cltype) const override;
 };
 
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Trigger includes
@@ -557,8 +557,15 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree& /*pt*/)
   // Nothing happens if the online TrigMonTHistSvc is used as there are no output files.
   boost::filesystem::path worker_dir = boost::filesystem::absolute("athenaHLT_workers");
   worker_dir /= m_applicationName.value();
+  // Delete worker directory if it exists already
+  if ( boost::filesystem::exists(worker_dir) ) {
+    if ( !boost::filesystem::remove_all(worker_dir) ) {
+      ATH_MSG_FATAL("Cannot delete previous worker directory " << worker_dir);
+      return StatusCode::FAILURE;
+    }
+  }
   if ( !boost::filesystem::create_directories(worker_dir) ) {
-    ATH_MSG_ERROR("Cannot create worker directory " << worker_dir);
+    ATH_MSG_FATAL("Cannot create worker directory " << worker_dir);
     return StatusCode::FAILURE;
   }
   ATH_CHECK(m_ioCompMgr->io_update_all(worker_dir.string()));

@@ -86,12 +86,12 @@ def all_DataFlow_to_dot(name, step_list):
 #                print cfseq.name
                 file.write("  %s[fillcolor=%s style=filled]\n"%(cfseq.filter.Alg.name(),algColor(cfseq.filter.Alg)))            
                 step_connections.append(cfseq.filter)                      
-                file.write(  '\n  subgraph cluster_%s {\n'%(cfseq.name)\
+                file.write(  '\n  subgraph cluster_%s {\n'%(cfseq.step.name)\
                             +'     node [color=white style=filled]\n'\
                             +'     style=filled\n'\
                             +'     color=lightgrey\n'\
                             +'     fontname=Helvetica\n'\
-                            +'     label = %s\n'%(cfseq.name))
+                            +'     label = %s\n'%(cfseq.step.name))
 
                 cfseq_algs = []
                 cfseq_algs.append(cfseq.filter)
@@ -147,12 +147,12 @@ def stepCF_DataFlow_to_dot(name, cfseq_list):
             for inp in cfseq.filter.getInputList():
                 file.write(addConnection(name, cfseq.filter.Alg.name(), inp))
 
-            file.write(  '\n  subgraph cluster_%s {\n'%(cfseq.name)\
+            file.write(  '\n  subgraph cluster_%s {\n'%(cfseq.step.name)\
                         +'     node [color=white style=filled]\n'\
                         +'     style=filled\n'\
                         +'     color=lightgrey\n'\
                         +'     fontname=Helvetica\n'\
-                        +'     label = %s\n'%(cfseq.name))
+                        +'     label = %s\n'%(cfseq.step.name))
 
             cfseq_algs = []
             cfseq_algs.append(cfseq.filter)

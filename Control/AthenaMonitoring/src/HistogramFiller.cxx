@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include <algorithm>
+#include <set>
 #include "AthenaMonitoring/HistogramFiller.h"
 
-using namespace std;
 using namespace Monitored;
 
 HistogramFillerFactory::HistogramFillerFactory(const ServiceHandle<ITHistSvc>& histSvc,
@@ -91,7 +91,7 @@ HBASE* HistogramFillerFactory::create(const HistogramDef& def, Types&&... hargs)
   // if def path contains any of: EXPERT, SHIFT, DEBUG, RUNSTAT, EXPRES this is online convention
   // this becomes the first element of the path followed by the group name
   // else if the def.path is DEFAULT then only the group name is used
-  // if the path jet different is is concatenated with the group name
+  // if the path yet different is concatenated with the group name
   //
   const static std::set<std::string> online( { "EXPERT", "SHIFT", "DEBUG", "RUNSTAT", "EXPRES" } );
   std::string path;
@@ -111,7 +111,7 @@ HBASE* HistogramFillerFactory::create(const HistogramDef& def, Types&&... hargs)
   // Check if histogram exists already
   HBASE* histo = nullptr;
   if ( m_histSvc->exists( fullName ) ) {
-    if ( m_histSvc->getHist( fullName, histo ).isFailure() ) {
+    if ( !m_histSvc->getHist( fullName, histo ) ) {
       throw HistogramFillerCreateException("Histogram >"+ fullName + "< seems to exist but can not be obtained from THistSvc");
     }    
     return histo;
@@ -119,7 +119,7 @@ HBASE* HistogramFillerFactory::create(const HistogramDef& def, Types&&... hargs)
 
   // Create the histogram and register it
   H* h = new H(def.alias.c_str(), def.title.c_str(), std::forward<Types>(hargs)...);
-  if ( m_histSvc->regHist( fullName, static_cast<TH1*>( h ) ).isFailure() ) {    
+  if ( !m_histSvc->regHist( fullName, static_cast<TH1*>(h) ) ) {
     delete h;
     throw HistogramFillerCreateException("Histogram >"+ fullName + "< can not be registered in THistSvc");
 
@@ -149,7 +149,7 @@ TH1* HistogramFillerFactory::create2DProfile(const HistogramDef& def) {
                             def.ybins, def.ymin, def.ymax, def.zmin, def.zmax);
 }
 
-void HistogramFillerFactory::setOpts(TH1* hist, const string& opt) {
+void HistogramFillerFactory::setOpts(TH1* hist, const std::string& opt) {
   // try to apply an option
   if ( opt.find("kCanRebin") != std::string::npos ) {
      hist->SetCanExtend(TH1::kAllAxes);
@@ -162,7 +162,7 @@ void HistogramFillerFactory::setOpts(TH1* hist, const string& opt) {
   }
 }
 
-void HistogramFillerFactory::setLabels(TH1* hist, const vector<string>& labels) {
+void HistogramFillerFactory::setLabels(TH1* hist, const std::vector<std::string>& labels) {
   if (labels.empty()){
     return;
   }
@@ -186,7 +186,7 @@ unsigned HistogramFiller1D::fill() {
 
   unsigned i(0);
   auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
-  lock_guard<mutex> lock(*(this->m_mutex));
+  std::lock_guard<std::mutex> lock(*(this->m_mutex));
 
   for (auto value : valuesVector) {
     histogram()->Fill(value);
@@ -204,7 +204,7 @@ unsigned CumulativeHistogramFiller1D::fill() {
   unsigned i(0);
   auto hist = histogram();
   auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
-  lock_guard<mutex> lock(*(this->m_mutex));
+  std::lock_guard<std::mutex> lock(*(this->m_mutex));
 
   for (auto value : valuesVector) {
     unsigned bin = hist->FindBin(value);
@@ -227,7 +227,7 @@ unsigned VecHistogramFiller1D::fill() {
   unsigned i(0);
   auto hist = histogram();
   auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
-  lock_guard<mutex> lock(*(this->m_mutex));
+  std::lock_guard<std::mutex> lock(*(this->m_mutex));
 
   for (auto value : valuesVector) {
     hist->AddBinContent(i+1, value);
@@ -247,7 +247,7 @@ unsigned VecHistogramFiller1DWithOverflows::fill() {
   unsigned i(0);
   auto hist = histogram();
   auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
-  lock_guard<mutex> lock(*(this->m_mutex));
+  std::lock_guard<std::mutex> lock(*(this->m_mutex));
 
   for (auto value : valuesVector) {
     hist->AddBinContent(i, value);
@@ -268,7 +268,7 @@ unsigned HistogramFillerProfile::fill() {
   auto hist = histogram();
   auto valuesVector1 = m_monVariables[0].get().getVectorRepresentation();
   auto valuesVector2 = m_monVariables[1].get().getVectorRepresentation();
-  lock_guard<mutex> lock(*(this->m_mutex));
+  std::lock_guard<std::mutex> lock(*(this->m_mutex));
 
   if (valuesVector1.size() != valuesVector2.size()) {
     if (valuesVector1.size() == 1) {
@@ -278,7 +278,7 @@ unsigned HistogramFillerProfile::fill() {
         ++i;
       }
     } else if (valuesVector2.size() == 1)  {
-      // second varaible is scalar -- loop over first
+      // second variable is scalar -- loop over first
       for (auto value1 : valuesVector1) {
         hist->Fill(value1, valuesVector2[0]); 
         ++i;
@@ -303,7 +303,7 @@ unsigned HistogramFiller2DProfile::fill() {
   auto valuesVector1 = m_monVariables[0].get().getVectorRepresentation();
   auto valuesVector2 = m_monVariables[1].get().getVectorRepresentation();
   auto valuesVector3 = m_monVariables[2].get().getVectorRepresentation();
-  lock_guard<mutex> lock(*(this->m_mutex));
+  std::lock_guard<std::mutex> lock(*(this->m_mutex));
   /*HERE NEED TO INCLUDE CASE IN WHICH SOME VARIABLES ARE SCALAR AND SOME VARIABLES ARE VECTORS
   unsigned i(0);
   if (m_variable1->size() != m_variable2->size() || m_variable1->size() != m_variable3->size() || m_variable2->size() != m_variable3->size() ) {
@@ -327,7 +327,7 @@ unsigned HistogramFiller2D::fill() {
   auto hist = histogram();
   auto valuesVector1 = m_monVariables[0].get().getVectorRepresentation();
   auto valuesVector2 = m_monVariables[1].get().getVectorRepresentation();
-  lock_guard<mutex> lock(*(this->m_mutex));
+  std::lock_guard<std::mutex> lock(*(this->m_mutex));
 
   if (valuesVector1.size() != valuesVector2.size()) {
     if (valuesVector1.size() == 1) {

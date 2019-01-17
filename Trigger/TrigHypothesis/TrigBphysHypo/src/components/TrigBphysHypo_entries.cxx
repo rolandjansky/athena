@@ -1,3 +1,4 @@
+#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "../TrigL2BMuMuXHypo.h"
 #include "../TrigL2BMuMuXFex.h"
 #include "../TrigL2BMuMuHypo.h"
@@ -6,6 +7,7 @@
 #include "../TrigL2BMuMuFex.h"
 #include "../TrigEFBMuMuXHypo.h"
 #include "../TrigEFBMuMuXFex.h"
+#include "../TrigEFBEEXFex.h"
 #include "../TrigEFBMuMuHypo.h"
 #include "../TrigEFMultiMuHypo.h"
 //#include "../TrigL2DiMuHypo.h"
@@ -19,6 +21,9 @@
 #include "../TrigL2TrkMassHypo.h"
 #include "../TrigEFTrkMassHypo.h"
 #include "../TrigMultiTrkFex.h"
+#include "../TrigBphysMuonCounter.h"
+#include "../TrigBphysTrackRoiMaker.h"
+#include "../TrigBphysElectronCounter.h"
 
 //#include "../TrigL2LooseMuonHypo.h"
 
@@ -40,6 +45,7 @@ DECLARE_COMPONENT( TrigL2MultiMuHypo )
 DECLARE_COMPONENT( TrigL2MultiMuFex )
 DECLARE_COMPONENT( TrigEFBMuMuXHypo )
 DECLARE_COMPONENT( TrigEFBMuMuXFex )
+DECLARE_COMPONENT( TrigEFBEEXFex )
 DECLARE_COMPONENT( TrigEFBMuMuHypo )
 DECLARE_COMPONENT( TrigEFMultiMuHypo )
 //DECLARE_COMPONENT( TrigL2DiMuHypo )
@@ -52,9 +58,11 @@ DECLARE_COMPONENT( TrigEFTrkMassHypo )
 
 DECLARE_COMPONENT( TrigBphysHelperUtilsTool )
 
-DECLARE_COMPONENT( TrigEFBMuMuFex )
+DECLARE_COMPONENT( TrigEFBMuMuFex   )
 DECLARE_COMPONENT( TrigEFMultiMuFex )
 DECLARE_COMPONENT( TrigMultiTrkFex )
 DECLARE_COMPONENT( TrigEFTrkMassFex )
+DECLARE_COMPONENT( TrigBphysMuonCounter )
+DECLARE_COMPONENT( TrigBphysTrackRoiMaker )
+DECLARE_COMPONENT( TrigBphysElectronCounter )
 //DECLARE_COMPONENT( TrigBphysL1DiMuComboFex )
-

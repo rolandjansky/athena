@@ -40,19 +40,22 @@ atlas_add_component( AthenaMonitoring
                      LINK_LIBRARIES AthenaMonitoringLib )
 
 
-foreach ( name GenericMonParsing_test GenericMonFilling_test )
+# Install files from the package:
+atlas_install_python_modules( python/*.py )
+atlas_install_joboptions( share/*.py )
 
+# Units tests:
+foreach ( name GenericMonParsing_test GenericMonFilling_test )
 	atlas_add_test( ${name}
 			SOURCES test/${name}.cxx
 			LINK_LIBRARIES AthenaMonitoringLib GaudiKernel TestTools AthenaKernel
 			ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
 			POST_EXEC_SCRIPT "true"
-                        PROPERTIES TIMEOUT 300
+            PROPERTIES TIMEOUT 300
 	)
-
 endforeach()
 
-# Install files from the package:
-atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )
-
+atlas_add_test( defineHistogram
+   SCRIPT python ${CMAKE_CURRENT_SOURCE_DIR}/test/test_defineHistogram.py
+   POST_EXEC_SCRIPT "true"
+)

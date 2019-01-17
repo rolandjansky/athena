@@ -4,13 +4,8 @@
 
 #ifndef CONSTRAINTS_KEYCONCEPT_H
 #define CONSTRAINTS_KEYCONCEPT_H
-#ifndef _CPP_STRING
- #include <string>
-#endif
-#include <boost/version.hpp>
-#ifndef BOOST_CONCEPT_CHECKS_HPP
- #include <boost/concept_check.hpp>
-#endif
+#include <string>
+#include <boost/concept_check.hpp>
 
 //CONCEPT
 template <class T, class ID=std::string > 
@@ -90,13 +85,7 @@ template <class T>
 struct KeyClass {
   KeyClass() {}
   ~KeyClass() {}
-#ifndef CODEWIZARD
-#  if BOOST_VERSION < 103700
-    BOOST_CLASS_REQUIRES(T, KeyConcept);
-#  else
-    BOOST_CONCEPT_ASSERT((KeyConcept<T>));
-#  endif
-#endif
+  BOOST_CONCEPT_ASSERT((KeyConcept<T>));
 };
 
 #endif

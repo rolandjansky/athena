@@ -1,8 +1,11 @@
 #
-#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
+from AthenaCommon.Logging import logging
 from AthenaMonitoring.AthenaMonitoringConf import GenericMonitoringTool as _GenericMonitoringTool
+
+log = logging.getLogger(__name__)
 
 class GenericMonitoringTool(_GenericMonitoringTool):
     """Configurable of a GenericMonitoringTool"""
@@ -16,7 +19,7 @@ class GenericMonitoringTool(_GenericMonitoringTool):
 #  For full details see the GenericMonitoringTool documentation.
 #  @param varname  one (1D) or two (2D) variable names separated by comma
 #  @param type     histogram type
-#  @param path     top-level histrogram directory
+#  @param path     top-level histogram directory (e.g. EXPERT, SHIFT, etc.)
 #  @param title    Histogram title and optional axis title (same syntax as in TH constructor)
 #  @param opt      Histrogram options (see GenericMonitoringTool)
 #  @param labels   List of bin labels (for a 2D histogram, sequential list of x- and y-axis labels)
@@ -28,21 +31,24 @@ def defineHistogram(varname, type='TH1F', path='EXPERT',
     if title is None: title=varname
     coded = "%s, %s, %s, %s, %d, %f, %f" % (path, type, varname, title, xbins, xmin, xmax)
     if ybins is not None:
-        coded += ",%d, %f, %f" % (ybins, ymin, ymax)
+        coded += ", %d, %f, %f" % (ybins, ymin, ymax)
         if zmin is not None:
             coded += ", %f, %f" % (zmin, zmax)
     if ybins is None and ymin is not None:
         coded += ", %f, %f" % (ymin, ymax)
 
     if isinstance(labels, list) and len(labels)>0:
-        coded += ',' + ':'.join(labels) + ':'
+        coded += ', ' + ':'.join(labels) + ':'    # C++ parser expects at least one ":"
 
     # For backwards compatibility
     elif labels is not None:
+        log.warning("The 'label1:label2' syntax in defineHistogram is deprecated. "
+                    "Please use a list instead: ['label1','label2']")
         labels = labels.strip()   # remove spurious white-spaces
         if len(labels)>0:
-            if labels[-1]!=':': labels += ':'  # C++ parser expects at least one ":"
+            if labels[-1]!=':': labels += ':'
             coded += ",%s " % labels
-    coded += ", %s" % opt
+
+    if len(opt)>0: coded += ", %s" % opt
 
     return coded

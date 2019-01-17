@@ -22,6 +22,7 @@
 #include "TrigNavigation/Navigation.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include "TrigDecisionTool/TrigDecisionTool.h"
 
 #include <string>
 
@@ -171,6 +172,9 @@ class TrigEDMChecker : public AthAnalysisAlgorithm  {
    bool m_doDumpStoreGate;
    StatusCode dumpStoreGate();
 
+   bool m_doTDTCheck;
+   StatusCode dumpTDT();
+
    bool m_doDumpxAODTrigMinBias;
    StatusCode dumpxAODTrigMinBias();
    void dumpTrigSpacePointCounts();
@@ -215,6 +219,7 @@ class TrigEDMChecker : public AthAnalysisAlgorithm  {
    SG::ReadHandleKey< xAOD::TrigNavigation > m_navigationHandleKey{ this, "TrigNavigation", "TrigNavigation", "" };
    SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_decisionsKey{ this, "Decisions", "RoIDecisions", "Decisions created from TEs" };
    ToolHandle< HLT::Navigation > m_navigationTool{ this, "NavigationTool", "HLT::Navigation/Navigation", "" };
+   ToolHandle< Trig::TrigDecisionTool > m_trigDec{ this, "TriggerDecisionTool", "Trig::TrigDecisionTool/TrigDecisionTool", ""};
 };
 
 #endif // TRIG_EDM_CHECKER_H

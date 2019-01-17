@@ -19,6 +19,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkParticleBase
                           Tracking/TrkEvent/TrkTrack
+			  Tracking/TrkEvent/TrkTrackLink
                           Event/xAOD/xAODTracking
                           Trigger/TrigEvent/TrigParticle )
 

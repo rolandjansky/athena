@@ -5,6 +5,9 @@
 #include "TrigT1TGC/TGCInnerTrackletSlot.hh"
 
 namespace LVL1TGCTrigger {
+
+  extern bool        g_USE_CONDDB;
+
   /** Constructor */
   TGCInnerTrackletSlot::TGCInnerTrackletSlot() {
     m_sideId = -1;
@@ -51,6 +54,7 @@ namespace LVL1TGCTrigger {
     if(region>=NUMBER_OF_REGIONS) return false;
     if(readout>=NUMBER_OF_READOUTS) return false;
     if(iBit>=NUMBER_OF_TRIGGER_BITS) return false;
+
     return m_triggerBit[region][readout][iBit];
   }
 

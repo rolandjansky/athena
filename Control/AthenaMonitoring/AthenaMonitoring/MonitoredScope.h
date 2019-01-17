@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AthenaMonitoring_MonitoredScope_h
@@ -8,8 +8,8 @@
 #include <functional>
 #include <vector>
 #include <string>
-#include <iostream>
 
+#include "GaudiKernel/ToolHandle.h"
 #include "AthenaMonitoring/IMonitoredVariable.h"
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 #include "AthenaMonitoring/HistogramFiller.h"
@@ -90,7 +90,7 @@ namespace Monitored {
   void save( const ToolHandle<GenericMonitoringTool>& tool, T&&... variables ) {
     if ( ! tool.empty() ) {
       for( auto filler: tool->getHistogramsFillers( {std::forward<T>(variables)...} ) ) {
-	filler->fill();	
+        filler->fill();
       }
     }
   }

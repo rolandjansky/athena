@@ -23,8 +23,10 @@
 //typedef TRT_HitCollectionCnv_p1  TRT_HitCollectionCnv_PERS;
 //typedef TRT_HitCollection_p2     TRT_HitCollection_PERS;
 //typedef TRT_HitCollectionCnv_p2  TRT_HitCollectionCnv_PERS;
-typedef TRT_HitCollection_p3     TRT_HitCollection_PERS;
-typedef TRT_HitCollectionCnv_p3  TRT_HitCollectionCnv_PERS;
+//typedef TRT_HitCollection_p3     TRT_HitCollection_PERS;
+//typedef TRT_HitCollectionCnv_p3  TRT_HitCollectionCnv_PERS;
+typedef TRT_HitCollection_p4     TRT_HitCollection_PERS;
+typedef TRT_HitCollectionCnv_p4  TRT_HitCollectionCnv_PERS;
 
 class TRTUncompressedHitCollectionCnv  : public T_AthenaPoolCustomCnv<TRTUncompressedHitCollection, TRT_HitCollection_PERS > {
   friend class CnvFactory<TRTUncompressedHitCollectionCnv>;

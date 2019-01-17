@@ -76,3 +76,9 @@ atlas_add_test( LUCID_SimHitCnv_p1_test
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib AthenaPoolUtilities LUCID_RawEvent LUCID_SimEvent GeneratorObjectsTPCnv TestTools Identifier GaudiKernel LUCID_EventTPCnv )
 
+atlas_add_test( LUCID_SimHitCnv_p2_test
+                SOURCES
+                test/LUCID_SimHitCnv_p2_test.cxx
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib AthenaPoolUtilities LUCID_RawEvent LUCID_SimEvent GeneratorObjectsTPCnv TestTools Identifier GaudiKernel LUCID_EventTPCnv )
+

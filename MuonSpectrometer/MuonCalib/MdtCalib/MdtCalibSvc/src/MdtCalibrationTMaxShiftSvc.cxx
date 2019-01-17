@@ -87,7 +87,7 @@ StatusCode MdtCalibrationTMaxShiftSvc::initializeMap() {
   std::map<uint8_t, MdtAmtMap *> *listOfAmt;
   std::map<uint8_t, MdtAmtMap *>::const_iterator it_amt;
 
-  DataHandle<MuonMDT_CablingMap> cablingMap = m_cablingSvc->getCablingMap();
+  const MuonMDT_CablingMap* cablingMap = m_cablingSvc->getCablingMap();
   listOfSubdet = cablingMap->getListOfElements();
 
   int subdetectorId, rodId, csmId, amtId;

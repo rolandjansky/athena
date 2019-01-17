@@ -25,7 +25,7 @@ StatusCode EFMissingETAlgMT::initialize() {
 
 
 //!< Converts from MeV to GeV and them log10, preserving the sign, the minimum dictated by monitoring histograms
-double toLogGeV( double x, double fallback = 0, double epsilon = 1.189 ) {
+double EFMissingETAlgMT::toLogGeV( double x, double fallback , double epsilon ) {
   const double absXGeV =  std::fabs( x * 1.e-3 );
   if ( absXGeV < epsilon ) 
     return fallback;
@@ -33,7 +33,7 @@ double toLogGeV( double x, double fallback = 0, double epsilon = 1.189 ) {
 }
 
 //!< converts to from MeV to GeV if above threshold, else falback value
-double toLinGeV( double x, double fallback = 0, double epsilon = 1e-6 ) {
+double EFMissingETAlgMT::toLinGeV( double x, double fallback , double epsilon ) {
     const double xGeV = x * 1.e-3;
   if ( xGeV < epsilon ) 
     return fallback;

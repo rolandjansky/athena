@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // SGInputLoader.cxx 
@@ -18,6 +18,26 @@
 
 //---------------------------------------------------------------------------------
 
+
+namespace
+{
+  struct DataObjIDSorter {
+    bool operator()( const DataObjID* a, const DataObjID* b ) { return a->fullKey() < b->fullKey(); }
+  };
+
+  // Sort a DataObjIDColl in a well-defined, reproducible manner.
+  // Used for making debugging dumps.
+  std::vector<const DataObjID*> sortedDataObjIDColl( const DataObjIDColl& coll )
+  {
+    std::vector<const DataObjID*> v;
+    v.reserve( coll.size() );
+    for ( const DataObjID& id : coll ) v.push_back( &id );
+    std::sort( v.begin(), v.end(), DataObjIDSorter() );
+    return v;
+  }
+}
+
+//---------------------------------------------------------------------------------
 
 SGInputLoader::SGInputLoader( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 
@@ -90,10 +110,10 @@ SGInputLoader::execute()
 
     // check if objects are not in EventStore
     DataObjIDColl toLoad;
-    for (auto obj : m_load) {
-      SG::VarHandleKey vhk(obj.clid(),obj.key(),Gaudi::DataHandle::Writer);
+    for (const DataObjID* obj : sortedDataObjIDColl (m_load)) {
+      SG::VarHandleKey vhk(obj->clid(),obj->key(),Gaudi::DataHandle::Writer);
       if (StoreID::findStoreID(vhk.storeHandle().name()) == StoreID::EVENT_STORE) {
-        toLoad.emplace(obj);
+        toLoad.emplace(*obj);
       } else {
         ATH_MSG_WARNING("Will not auto-load proxy for non-EventStore object: "
                         << obj);
