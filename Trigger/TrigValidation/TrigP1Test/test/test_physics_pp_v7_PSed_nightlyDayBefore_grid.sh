@@ -41,18 +41,21 @@ cat releaseFromSMK.log  | tee -a ${JOB_LOG}
 eval "$( grep 'export release=' releaseFromSMK.log)" 
 if [ -z ${release} ]; then
    echo "Release not found" | tee -a ${JOB_LOG} 
-fi
-
-l1psk="'lvl1key': ${l1psk}"
-subshellcmd='source $AtlasSetup/scripts/asetup.sh Athena,21.3,'${release}' | tee -a '${JOB_LOG}'; athenaHLT.py -n 5000 -f /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00339070.physics_EnhancedBias.merge.RAW._lb0101._SFO-1._0001.1 -o HLT_physicsV7_prescaled -J TrigConf::HLTJobOptionsSvc --use-database --db-type "Coral" --db-server "TRIGGERDBART" --db-smkey '${smk}' --db-hltpskey '${hltpsk}' --db-extra "{'${l1psk}'}" | tee -a '${JOB_LOG}' ; Trig_reco_tf.py --inputBSFile=HLT_physicsV7_prescaled._0001.data --outputNTUP_TRIGCOST=trig_cost.root  | tee -a '${JOB_LOG}'; RunTrigCostD3PD -f trig_cost.root --outputTagFromAthena --costMode --monitorRates --isCPUPrediction --useEBWeight --patternsMonitor HLT_costmonitor HLT_mistimemonj400 HLT_mistimemoncaltimenomu HLT_mistimemoncaltime HLT_l1topodebug HLT_l1calooverflow HLT_e5_lhvloose_nod0_bBeexM6000t HLT_2e5_lhvloose_nod0_bBeexM6000t HLT_cscmon_L1All HLT_j0_perf_ds1_L1J100 --patternsInvert  --predictionLumi 1.50e34 | tee -a '${JOB_LOG}'; chainDump.py -n -S  2>&1 | tee -a '${JOB_LOG}
+   ATH_RETURN=111
+   echo "art-result: ${ATH_RETURN} ${NAME}"
+elif
+   l1psk="'lvl1key': ${l1psk}"
+   subshellcmd='source $AtlasSetup/scripts/asetup.sh Athena,21.3,'${release}' | tee -a '${JOB_LOG}'; athenaHLT.py -n 5000 -f /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00339070.physics_EnhancedBias.merge.RAW._lb0101._SFO-1._0001.1 -o HLT_physicsV7_prescaled -J TrigConf::HLTJobOptionsSvc --use-database --db-type "Coral" --db-server "TRIGGERDBART" --db-smkey '${smk}' --db-hltpskey '${hltpsk}' --db-extra "{'${l1psk}'}" | tee -a '${JOB_LOG}' ; Trig_reco_tf.py --inputBSFile=HLT_physicsV7_prescaled._0001.data --outputNTUP_TRIGCOST=trig_cost.root  | tee -a '${JOB_LOG}'; RunTrigCostD3PD -f trig_cost.root --outputTagFromAthena --costMode --monitorRates --isCPUPrediction --useEBWeight --patternsMonitor HLT_costmonitor HLT_mistimemonj400 HLT_mistimemoncaltimenomu HLT_mistimemoncaltime HLT_l1topodebug HLT_l1calooverflow HLT_e5_lhvloose_nod0_bBeexM6000t HLT_2e5_lhvloose_nod0_bBeexM6000t HLT_cscmon_L1All HLT_j0_perf_ds1_L1J100 --patternsInvert  --predictionLumi 1.50e34 | tee -a '${JOB_LOG}'; chainDump.py -n -S  2>&1 | tee -a '${JOB_LOG}
 echo "running in subshell: $subshellcmd"
 (eval $subshellcmd)
 
-grep -r "RATE_" costMonitoring_*/csv/Table_Rate_Group_HLT_All.csv  | awk '{split($0,a,","); print a[1]"\t"a[4] }' >> HLTChain.txt
-grep "TrigSteer_HLT.TrigChainMoni" ${JOB_LOG} | awk '{split($0,a,":|\t"); print a[4]" "a[10] }' | sed 's/\s*active\s*/_rerun\t/g' | sed 's/\s*HLT/HLT/g' >> HLTChain.txt
+   grep -r "RATE_" costMonitoring_*/csv/Table_Rate_Group_HLT_All.csv  | awk '{split($0,a,","); print a[1]"\t"a[4] }' >> HLTChain.txt
+   grep "TrigSteer_HLT.TrigChainMoni" ${JOB_LOG} | awk '{split($0,a,":|\t"); print a[4]" "a[10] }' | sed 's/\s*active\s*/_rerun\t/g' | sed 's/\s*HLT/HLT/g' >> HLTChain.txt
 
-ATH_RETURN=${PIPESTATUS[0]}
-echo "art-result: ${ATH_RETURN} ${NAME}"
+   ATH_RETURN=${PIPESTATUS[0]}
+   echo "art-result: ${ATH_RETURN} ${NAME}"
+
+fi
 
 #exec_art_trigp1test_post.sh
 

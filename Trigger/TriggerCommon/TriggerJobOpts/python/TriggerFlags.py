@@ -1051,6 +1051,10 @@ class triggerMenuSetup(JobProperty):
         'MC_pp_v8', 'Physics_pp_v8', 'Physics_pp_v8_lowmu',
 
         # -----------------------------------------------------------------
+        # Run 3
+        'MC_pp_v8','Physics_pp_v8', 'Physics_pp_v8_lowmu.py',
+
+        # -----------------------------------------------------------------
         # Upgrade
         'MC_PhaseII',
         ]

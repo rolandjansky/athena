@@ -8,7 +8,7 @@ if [ -z ${TEST} ]; then
   export TEST="TrigP1Test"
 fi
 
-export NAME=HLT_physicsV7_menu
+export NAME=HLT_physicsV8_menu
 export JOB_LOG="${NAME}.log"
 
 timeout 100m trigtest_ART.pl --cleardir --test ${NAME} --rundir ${NAME} --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
@@ -24,7 +24,7 @@ timeout 120m trigtest_ART.pl --cleardir --test ${NAME} --rundir ${NAME} --conf T
 ATH_RETURN=${PIPESTATUS[0]}
 echo "art-result: ${ATH_RETURN} ${NAME}"
 
-export NAME=HLT_physicsV7_ROSsim_17000
+export NAME=HLT_physicsV8_ROSsim_17000
 export JOB_LOG="${NAME}.log"
 
 timeout 150m trigtest_ART.pl --cleardir --test ${NAME} --rundir ${NAME} --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
@@ -32,7 +32,7 @@ timeout 150m trigtest_ART.pl --cleardir --test ${NAME} --rundir ${NAME} --conf T
 ATH_RETURN=${PIPESTATUS[0]}
 echo "art-result: ${ATH_RETURN} ${NAME}"
 
-export NAME=HLT_physicsV7_ROSsim_9000
+export NAME=HLT_physicsV8_ROSsim_9000
 export JOB_LOG="${NAME}.log"
 
 timeout 150m trigtest_ART.pl --cleardir --test ${NAME} --rundir ${NAME} --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
