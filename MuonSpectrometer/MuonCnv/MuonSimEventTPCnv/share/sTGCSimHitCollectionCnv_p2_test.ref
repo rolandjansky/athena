@@ -1,14 +1,20 @@
+<<<<<<< HEAD
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
                                           running on karma on Sat Oct  6 12:12:27 2018
 ====================================================================================================================================
+=======
+>>>>>>> 1c5e36d24c... Merge branch 'NSWMMHit0701' into '21.3'
 ApplicationMgr       INFO Application Manager Configured successfully
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
 HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
+<<<<<<< HEAD
 ClassIDSvc           INFO  getRegistryEntries: read 2754 CLIDRegistry entries for module ALL
+=======
+>>>>>>> 1c5e36d24c... Merge branch 'NSWMMHit0701' into '21.3'
 test1
 HepMcParticleLink    INFO find_hostkey: Using TruthEvent as McEventCollection key for this job 
