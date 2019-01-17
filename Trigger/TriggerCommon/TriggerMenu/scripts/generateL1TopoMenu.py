@@ -27,6 +27,8 @@ def generateL1TopoMenu(menu):
 def main():
 
     if len(sys.argv)==1:
+        generateL1TopoMenu(menu="MC_pp_v8")
+        generateL1TopoMenu(menu="Physics_pp_v8")
         generateL1TopoMenu(menu="MC_pp_v7")
         generateL1TopoMenu(menu="Physics_pp_v7")
         generateL1TopoMenu(menu="MC_pp_v6")
@@ -40,7 +42,7 @@ def main():
         generateL1TopoMenu(menu="MC_PhaseII")
         return 0
 
-    if sys.argv[1] in ["Physics_HI_v5", "MC_HI_v5","Physics_HI_v4", "MC_HI_v4", "LS1_v1", "DC14","Physics_pp_v7", "MC_pp_v7","Physics_pp_v6", "MC_pp_v6", "MC_PhaseII"]: # explicit names for TMXML nightly
+    if sys.argv[1] in ["Physics_HI_v5", "MC_HI_v5","Physics_HI_v4", "MC_HI_v4", "LS1_v1", "DC14","Physics_pp_v8_lowmu","Physics_pp_v8", "MC_pp_v8","Physics_pp_v7", "MC_pp_v7","Physics_pp_v6", "MC_pp_v6", "MC_PhaseII"]: # explicit names for TMXML nightly
         generateL1TopoMenu(menu=sys.argv[1])
         return 0
     
