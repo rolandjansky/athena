@@ -265,9 +265,11 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
 
   // step 1 : gather all inputs
   // given extrapolation find the impact cell in the middle layer,
-  // get the eta and phi impact parameter
-  // get the configuration value
-  // fill the short array of cell calo_hash, and reset the energy in the short array of cell calo_hash
+  // we need : icalohash, ieta, iphi of the middle layer cell impact
+  // we need : the eta and phi impact parameter
+  // energy 
+  // from icalohash, ieta, iphi we need theconfiguration
+   // fill the short array of cell calo_hash, and reset the energy in the short array of cell calo_hash
 
   // step 2 : run the network
   // generate the latent space
