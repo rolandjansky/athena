@@ -701,6 +701,16 @@ namespace top {
                   systematicTree->makeOutputVariable(m_jet_isTrueHS, "jet_isTrueHS");
 		  systematicTree->makeOutputVariable(m_jet_HadronConeExclExtendedTruthLabelID, "jet_truthflavExtended");
                 }
+		
+		
+		if (m_config->useJetGhostTrack() ) {
+		  systematicTree->makeOutputVariable(m_jet_ghostTrack_pt,      "jet_ghostTrack_pt");
+		  systematicTree->makeOutputVariable(m_jet_ghostTrack_eta,     "jet_ghostTrack_eta");
+		  systematicTree->makeOutputVariable(m_jet_ghostTrack_phi,     "jet_ghostTrack_phi");
+		  systematicTree->makeOutputVariable(m_jet_ghostTrack_e,       "jet_ghostTrack_e");
+		}
+		
+		
                 for( auto& tagWP : m_config -> bTagWP_available()){
                   if (tagWP.find("Continuous") == std::string::npos) systematicTree->makeOutputVariable(m_jet_isbtagged[tagWP] , "jet_isbtagged_"+shortBtagWP(tagWP));
                   else systematicTree->makeOutputVariable(m_jet_tagWeightBin[tagWP] , "jet_tagWeightBin_"+tagWP);
@@ -1999,6 +2009,15 @@ namespace top {
             m_jet_ip3dsv1.resize(event.m_jets.size());
             m_jet_jvt.resize(event.m_jets.size());
             m_jet_passfjvt.resize(event.m_jets.size());
+	    
+	    // ghost tracks
+	    if( m_config->useJetGhostTrack() ){
+	      m_jet_ghostTrack_pt.resize(event.m_jets.size());
+              m_jet_ghostTrack_eta.resize(event.m_jets.size());
+              m_jet_ghostTrack_phi.resize(event.m_jets.size());
+              m_jet_ghostTrack_e.resize(event.m_jets.size());
+	    }
+	    
 	    // R21 b-tagging
 	    if(m_config->getReleaseSeries() == 25){
 	      m_jet_MV2r.resize(event.m_jets.size());
@@ -2059,6 +2078,40 @@ namespace top {
 		    jetPtr->getAttribute("HadronConeExclExtendedTruthLabelID", m_jet_HadronConeExclExtendedTruthLabelID[i]);
 		  }
                 }
+		
+		if( m_config->useJetGhostTrack() ){
+		  const auto & ghostTracks = jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(event.m_hashValue) );
+		  
+		  const auto & ghostTracksNominal = jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(m_config->nominalHashValue()) );
+		  
+		  
+		  
+		  const unsigned int nghostTracks=ghostTracks.size();
+		  
+		  m_jet_ghostTrack_pt[i].resize(nghostTracks);
+		  m_jet_ghostTrack_eta[i].resize(nghostTracks);
+		  m_jet_ghostTrack_phi[i].resize(nghostTracks);
+		  m_jet_ghostTrack_e[i].resize(nghostTracks);
+		  
+		  for (unsigned int iGhost=0; iGhost<nghostTracks; ++iGhost){
+		    m_jet_ghostTrack_pt[i][iGhost]=ghostTracks.at(iGhost)->pt();
+		    m_jet_ghostTrack_eta[i][iGhost]=ghostTracks.at(iGhost)->eta();
+		    m_jet_ghostTrack_phi[i][iGhost]=ghostTracks.at(iGhost)->phi();
+		    m_jet_ghostTrack_e[i][iGhost]=ghostTracks.at(iGhost)->e();
+		    
+		    //if( m_config->systematicName(event.m_hashValue) == "TRK_EFF_TIGHT_PHYSMODEL" ) {
+		      //std::cout << "GhostTracks pt: shifted - nominal: " << ghostTracks.at(iGhost)->pt() - ghostTracksNominal.at(iGhost)->pt() << std::endl;
+		      //std::cout << "GhostTracks eta: shifted - nominal: " << ghostTracks.at(iGhost)->eta() - ghostTracksNominal.at(iGhost)->eta() << std::endl;
+		    
+		    //}
+		    
+		    
+		  }
+		  
+		  
+		}
+		
+		
                 for( auto& tagWP : m_config -> bTagWP_available()){
                   if (tagWP.find("Continuous") == std::string::npos) {
                     m_jet_isbtagged[tagWP][i] = false;
