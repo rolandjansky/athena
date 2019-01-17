@@ -539,6 +539,9 @@ private:
     std::vector<std::vector<float> > m_jet_ghostTrack_eta;
     std::vector<std::vector<float> > m_jet_ghostTrack_phi;
     std::vector<std::vector<float> > m_jet_ghostTrack_e;
+    std::vector<std::vector<float> > m_jet_ghostTrack_d0;
+    std::vector<std::vector<float> > m_jet_ghostTrack_z0;
+    std::vector<std::vector<float> > m_jet_ghostTrack_qOverP;
     
     // R21 b-tagging
     std::vector<float> m_jet_MV2r;

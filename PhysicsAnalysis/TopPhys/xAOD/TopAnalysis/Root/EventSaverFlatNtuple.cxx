@@ -708,6 +708,9 @@ namespace top {
 		  systematicTree->makeOutputVariable(m_jet_ghostTrack_eta,     "jet_ghostTrack_eta");
 		  systematicTree->makeOutputVariable(m_jet_ghostTrack_phi,     "jet_ghostTrack_phi");
 		  systematicTree->makeOutputVariable(m_jet_ghostTrack_e,       "jet_ghostTrack_e");
+		  systematicTree->makeOutputVariable(m_jet_ghostTrack_d0,       "jet_ghostTrack_d0");
+		  systematicTree->makeOutputVariable(m_jet_ghostTrack_z0,       "jet_ghostTrack_z0");
+		  systematicTree->makeOutputVariable(m_jet_ghostTrack_qOverP,       "jet_ghostTrack_qOverP");
 		}
 		
 		
@@ -2016,6 +2019,9 @@ namespace top {
               m_jet_ghostTrack_eta.resize(event.m_jets.size());
               m_jet_ghostTrack_phi.resize(event.m_jets.size());
               m_jet_ghostTrack_e.resize(event.m_jets.size());
+              m_jet_ghostTrack_d0.resize(event.m_jets.size());
+              m_jet_ghostTrack_z0.resize(event.m_jets.size());
+              m_jet_ghostTrack_qOverP.resize(event.m_jets.size());
 	    }
 	    
 	    // R21 b-tagging
@@ -2080,6 +2086,11 @@ namespace top {
                 }
 		
 		if( m_config->useJetGhostTrack() ){
+		  
+		  static SG::AuxElement::Accessor< float > accD0( "d0" );
+		  static SG::AuxElement::Accessor< float > accZ0( "z0" );
+		  static SG::AuxElement::Accessor< float > accQOverP( "qOverP" );
+		  
 		  const auto & ghostTracks = jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(event.m_hashValue) );
 		  
 		  const auto & ghostTracksNominal = jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(m_config->nominalHashValue()) );
@@ -2092,19 +2103,18 @@ namespace top {
 		  m_jet_ghostTrack_eta[i].resize(nghostTracks);
 		  m_jet_ghostTrack_phi[i].resize(nghostTracks);
 		  m_jet_ghostTrack_e[i].resize(nghostTracks);
+		  m_jet_ghostTrack_d0[i].resize(nghostTracks);
+		  m_jet_ghostTrack_z0[i].resize(nghostTracks);
+		  m_jet_ghostTrack_qOverP[i].resize(nghostTracks);
 		  
 		  for (unsigned int iGhost=0; iGhost<nghostTracks; ++iGhost){
 		    m_jet_ghostTrack_pt[i][iGhost]=ghostTracks.at(iGhost)->pt();
 		    m_jet_ghostTrack_eta[i][iGhost]=ghostTracks.at(iGhost)->eta();
 		    m_jet_ghostTrack_phi[i][iGhost]=ghostTracks.at(iGhost)->phi();
 		    m_jet_ghostTrack_e[i][iGhost]=ghostTracks.at(iGhost)->e();
-		    
-		    //if( m_config->systematicName(event.m_hashValue) == "TRK_EFF_TIGHT_PHYSMODEL" ) {
-		      //std::cout << "GhostTracks pt: shifted - nominal: " << ghostTracks.at(iGhost)->pt() - ghostTracksNominal.at(iGhost)->pt() << std::endl;
-		      //std::cout << "GhostTracks eta: shifted - nominal: " << ghostTracks.at(iGhost)->eta() - ghostTracksNominal.at(iGhost)->eta() << std::endl;
-		    
-		    //}
-		    
+		    m_jet_ghostTrack_d0[i][iGhost]=accD0(*ghostTracks.at(iGhost));
+		    m_jet_ghostTrack_z0[i][iGhost]=accZ0(*ghostTracks.at(iGhost));
+		    m_jet_ghostTrack_qOverP[i][iGhost]=accQOverP(*ghostTracks.at(iGhost));
 		    
 		  }
 		  
