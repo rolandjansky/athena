@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: AuxContainerBase.cxx 793746 2017-01-24 21:23:52Z ssnyder $
@@ -16,6 +16,8 @@
 #include "xAODCore/AuxContainerBase.h"
 #include "xAODCore/tools/IOStats.h"
 #include "xAODCore/tools/ReadStats.h"
+
+#include "CxxUtils/checker_macros.h"
 
 using namespace std;
 
@@ -66,11 +68,11 @@ namespace xAOD {
    ///
    /// @param store Another store that should be wrapped, but not owned
    ///
-   AuxContainerBase::AuxContainerBase( const SG::IAuxStore* store )
+   AuxContainerBase::AuxContainerBase( SG::IAuxStore* store )
       : SG::IAuxStore(),
         m_selection(),
         m_auxids(), m_vecs(),
-        m_store( const_cast< SG::IAuxStore* >( store ) ),
+        m_store( store ),
         m_storeIO( 0 ), m_ownsStore( false ),
         m_locked( false),
         m_name( "UNKNOWN" ) {
@@ -195,10 +197,11 @@ namespace xAOD {
 
       if( ( auxid >= m_vecs.size() ) || ( ! m_vecs[ auxid ] ) ) {
          if( m_store ) {
-            size_t nids = m_store->getAuxIDs().size();
             const void* result = m_store->getData( auxid );
-            if( result && nids != m_store->getAuxIDs().size() ) {
-               m_auxids.insert( auxid );
+            if( result ) {
+              auxid_set_t& auxids_nc ATLAS_THREAD_SAFE =
+                const_cast<auxid_set_t&> (m_auxids);
+              auxids_nc.insert( auxid );
             }
             return result;
          } else {
@@ -243,9 +246,8 @@ namespace xAOD {
        if( ( auxid >= m_vecs.size() ) || ( ! m_vecs[ auxid ] ) ) {
          // If not, but we have a dynamic store, push it in there:
          if( m_store ) {
-           size_t nids = m_store->getAuxIDs().size();
            void* result = m_store->getDecoration( auxid, size, capacity );
-           if( result && ( nids != m_store->getAuxIDs().size() ) ) {
+           if( result ) {
              m_auxids.insert( auxid );
            }
            return result;
@@ -365,9 +367,8 @@ namespace xAOD {
       if( ( auxid >= m_vecs.size() ) || ( ! m_vecs[ auxid ] ) ) {
 
          if( m_store ) {
-            size_t nids = m_store->getAuxIDs().size();
             void* result = m_store->getData( auxid, size, capacity );
-            if( result && nids != m_store->getAuxIDs().size() ) {
+            if( result ) {
                m_auxids.insert( auxid );
             }
             return result;
