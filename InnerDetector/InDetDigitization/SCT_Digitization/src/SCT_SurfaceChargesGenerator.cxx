@@ -72,9 +72,7 @@ SCT_SurfaceChargesGenerator::SCT_SurfaceChargesGenerator(const std::string& type
   m_h_gen2{nullptr},
   m_h_velocity_trap{nullptr},
   m_h_mobility_trap{nullptr},
-  m_h_trap_pos{nullptr},
-  m_rndmEngine{nullptr},
-  m_rndmEngineName{"SCT_Digitization"} {
+  m_h_trap_pos{nullptr} {
     declareInterface<ISCT_SurfaceChargesGenerator>(this);
 
     declareProperty("FixedTime", m_tfix = -999.); // !< fixed timing
@@ -348,9 +346,9 @@ float SCT_SurfaceChargesGenerator::surfaceDriftTime(float ysurf) const {
 // -------------------------------------------------------------------------------------------
 void SCT_SurfaceChargesGenerator::process(const SiDetectorElement* element,
                                           const TimedHitPtr<SiHit>& phit,
-                                          const ISiSurfaceChargesInserter& inserter) const {
+                                          const ISiSurfaceChargesInserter& inserter, CLHEP::HepRandomEngine * rndmEngine) const {
   ATH_MSG_VERBOSE("SCT_SurfaceChargesGenerator::process starts");
-  processSiHit(element, *phit, inserter, phit.eventTime(), phit.eventId());
+  processSiHit(element, *phit, inserter, phit.eventTime(), phit.eventId(), rndmEngine);
   return;
 }
 
@@ -362,7 +360,7 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiDetectorElement* element,
                                                const SiHit& phit,
                                                const ISiSurfaceChargesInserter& inserter,
                                                float p_eventTime,
-                                               unsigned short p_eventId) const {
+                                               unsigned short p_eventId, CLHEP::HepRandomEngine * rndmEngine) const {
   const SCT_ModuleSideDesign* design{dynamic_cast<const SCT_ModuleSideDesign*>(&(element->design()))};
   if (design==nullptr) {
     ATH_MSG_ERROR("SCT_SurfaceChargesGenerator::process can not get " << design);
@@ -480,9 +478,9 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiDetectorElement* element,
       const float sigma{diffusionSigma(zReadout, element)};
 
       for (int i{0}; i < m_numberOfCharges; ++i) {
-        const float rx{CLHEP::RandGaussZiggurat::shoot(m_rndmEngine)};
+        const float rx{CLHEP::RandGaussZiggurat::shoot(rndmEngine)};
         const float xd{x1 + sigma * rx};
-        const float ry{CLHEP::RandGaussZiggurat::shoot(m_rndmEngine)};
+        const float ry{CLHEP::RandGaussZiggurat::shoot(rndmEngine)};
         const float yd{y1 + sigma * ry};
 
         // For charge trapping with Ramo potential
