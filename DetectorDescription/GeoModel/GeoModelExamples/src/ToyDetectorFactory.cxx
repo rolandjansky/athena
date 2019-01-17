@@ -6,7 +6,6 @@
 #include "CentralScrutinizer.h"  
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
 #include "GeoModelKernel/GeoMaterial.h"  
 #include "GeoModelKernel/GeoBox.h"  
 #include "GeoModelKernel/GeoTube.h"  
@@ -23,6 +22,7 @@
 #include "GeoGenericFunctions/Sin.h"
 #include "GeoGenericFunctions/Cos.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 using namespace GeoGenfun;
@@ -67,7 +67,7 @@ void ToyDetectorFactory::create(GeoPhysVol *world)
   //-----------------------------------------------------------------------------------//  
   // Next make the box that describes the shape of the toy volume:                     //  
   //                                                                                   //  
-  const GeoBox      *toyBox    = new GeoBox(800*GeoModelKernelUnits::cm,800*GeoModelKernelUnits::cm, 1000*GeoModelKernelUnits::cm);                   //  
+  const GeoBox      *toyBox    = new GeoBox(800*Gaudi::Units::cm,800*Gaudi::Units::cm, 1000*Gaudi::Units::cm);                   //
   //                                                                                   //  
   // Bundle this with a material into a logical volume:                                //  
   //                                                                                   //  
@@ -86,7 +86,7 @@ void ToyDetectorFactory::create(GeoPhysVol *world)
   // Daughters                                                                         //  
   //                                                                                   //  
   //                                                                                   //  
-  const GeoTube     *ringTube  = new GeoTube(500*GeoModelKernelUnits::cm, 1000*GeoModelKernelUnits::cm, 5.0*GeoModelKernelUnits::cm);                 //  
+  const GeoTube     *ringTube  = new GeoTube(500*Gaudi::Units::cm, 1000*Gaudi::Units::cm, 5.0*Gaudi::Units::cm);                 //
   //                                                                                   //  
   // Bundle this with a material into a logical volume:                                //  
   //                                                                                   //  
@@ -98,7 +98,7 @@ void ToyDetectorFactory::create(GeoPhysVol *world)
   toyPhys->add(ringName);                                                              //  
   for (int i=0;i<100;i++) {                                                            //  
     GeoFullPhysVol         *ringPhys = new GeoFullPhysVol(ringLog);                    //  
-    GeoAlignableTransform  *xform    = new GeoAlignableTransform(GeoTrf::TranslateZ3D((i-50)*20*GeoModelKernelUnits::cm));  
+    GeoAlignableTransform  *xform    = new GeoAlignableTransform(GeoTrf::TranslateZ3D((i-50)*20*Gaudi::Units::cm));
     toyPhys->add(xform);                                                               //  
     toyPhys->add(ringPhys);                                                            //  
     m_detectorManager->addCentralScrutinizer(new CentralScrutinizer(ringPhys));          //  
@@ -113,11 +113,11 @@ void ToyDetectorFactory::create(GeoPhysVol *world)
   //  parametrizations in the Toy                                                      //
   //-----------------------------------------------------------------------------------//
 
-  GeoBox       *sPass = new GeoBox(5.0*GeoModelKernelUnits::cm, 30*GeoModelKernelUnits::cm, 30*GeoModelKernelUnits::cm);
+  GeoBox       *sPass = new GeoBox(5.0*Gaudi::Units::cm, 30*Gaudi::Units::cm, 30*Gaudi::Units::cm);
   GeoLogVol    *lPass = new GeoLogVol("Passive", sPass, poly);
   GeoPhysVol   *pPass = new GeoPhysVol(lPass);
 
-  GeoBox       *sIPass = new GeoBox(4*GeoModelKernelUnits::cm, 25*GeoModelKernelUnits::cm, 25*GeoModelKernelUnits::cm);
+  GeoBox       *sIPass = new GeoBox(4*Gaudi::Units::cm, 25*Gaudi::Units::cm, 25*Gaudi::Units::cm);
   GeoLogVol    *lIPass = new GeoLogVol("InnerPassive", sIPass, air);
   GeoPhysVol   *pIPass = new GeoPhysVol(lIPass);
   
@@ -126,11 +126,11 @@ void ToyDetectorFactory::create(GeoPhysVol *world)
   const unsigned int NPLATES=100;
   Variable       i;
   Sin            sin;
-  GENFUNCTION    f = 360*GeoModelKernelUnits::deg/NPLATES*i;
+  GENFUNCTION    f = 360*Gaudi::Units::deg/NPLATES*i;
   GENFUNCTION    g = sin(4*f);
   GENFUNCTION    h = -g;
-  TRANSFUNCTION t1 = Pow(GeoTrf::RotateZ3D(1.0),f)*GeoTrf::TranslateX3D(1100*GeoModelKernelUnits::cm)*Pow(GeoTrf::TranslateZ3D(800*GeoModelKernelUnits::cm),g);
-  TRANSFUNCTION t2 = Pow(GeoTrf::RotateZ3D(1.0),f)*GeoTrf::TranslateX3D(1100*GeoModelKernelUnits::cm)*Pow(GeoTrf::TranslateZ3D(800*GeoModelKernelUnits::cm),h);
+  TRANSFUNCTION t1 = Pow(GeoTrf::RotateZ3D(1.0),f)*GeoTrf::TranslateX3D(1100*Gaudi::Units::cm)*Pow(GeoTrf::TranslateZ3D(800*Gaudi::Units::cm),g);
+  TRANSFUNCTION t2 = Pow(GeoTrf::RotateZ3D(1.0),f)*GeoTrf::TranslateX3D(1100*Gaudi::Units::cm)*Pow(GeoTrf::TranslateZ3D(800*Gaudi::Units::cm),h);
 
   //-----------------------------------------------------------------------------------//
   // Inside, by the way, the serial transformer will evaluate the functions:           //

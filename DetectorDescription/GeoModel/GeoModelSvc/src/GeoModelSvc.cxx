@@ -7,7 +7,6 @@
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoMaterial.h" 
 #include "GeoModelKernel/GeoVolumeCursor.h"
-#include "GeoModelKernel/Units.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GeoModelSvc.h"
 #include "RDBMaterialManager.h"
@@ -15,6 +14,7 @@
 #include "GeoModelInterfaces/IGeoAlignTool.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IConversionSvc.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "CxxUtils/make_unique.h"
 
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -315,7 +315,7 @@ StatusCode GeoModelSvc::geoInit()
 
   // Build the world node from which everything else will be suspended
   const GeoMaterial* air = theMaterialManager->getMaterial("std::Air");  
-  const GeoBox* worldBox = new GeoBox(1000*GeoModelKernelUnits::cm,1000*GeoModelKernelUnits::cm, 1000*GeoModelKernelUnits::cm); 
+  const GeoBox* worldBox = new GeoBox(1000*Gaudi::Units::cm,1000*Gaudi::Units::cm, 1000*Gaudi::Units::cm);
   const GeoLogVol* worldLog = new GeoLogVol("WorldLog", worldBox, air);
   GeoPhysVol *worldPhys=new GeoPhysVol(worldLog);
   
