@@ -109,11 +109,11 @@ StatusCode NSWPRDValAlg::initialize() {
 
   ATH_CHECK( service("THistSvc", m_thistSvc) );
 
-  m_tree = new TTree("NSWHitsTree", "Ntuple of NSWHits");
+  m_tree = new TTree("NSWValTree", "Ntuple for NSW EDM Validation");
   m_tree->Branch("runNumber", &m_runNumber, "runNumber/i");
   m_tree->Branch("eventNumber", &m_eventNumber, "eventNumber/i");
 
-  ATH_CHECK( m_thistSvc->regTree("/NSWPRDValAlg/NSWHitsTree", m_tree) );
+  ATH_CHECK( m_thistSvc->regTree("/NSWPRDValAlg/NSWValTree", m_tree) );
 
   ATH_CHECK( detStore()->retrieve( m_detManager ) );
 
@@ -398,7 +398,7 @@ StatusCode NSWPRDValAlg::NSWMatchingAlg (EDM_object data0, EDM_object data1) {
   data0.setMatchedwith(data1.getName());
   data1.setMatchedwith(data0.getName());
 
-  // Prepare Muon ony check
+  // Prepare Muon only check
   vector<int>* TruthParticle_Pdg;
   if ( m_doNSWMatchingMuon ) { m_tree->SetBranchAddress("TruthParticle_Pdg", &TruthParticle_Pdg); }
 
