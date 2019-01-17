@@ -56,7 +56,7 @@ StatusCode GhostTrackCPTools::initialize() {
   //       input of size n, n-1 ranges are formed. The i-th element is the
   //       lower bound (incl) of the i-th range; the (i+1)-th element is
   //       the upper bound (excl) of the i-th range.
-  m_runPeriods = {276262, 296939, 324320, 348197, 999999};
+  m_runPeriods = {276262, 297730, 300909, 311482, 334738, 341650, 999999};
   
   m_config->runPeriodJetGhostTrack(m_runPeriods);
   

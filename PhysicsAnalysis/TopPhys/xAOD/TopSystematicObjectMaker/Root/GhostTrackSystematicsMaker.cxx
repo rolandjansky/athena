@@ -80,6 +80,13 @@ namespace top {
             // No need to manually handle the AllGhostTrack case in here.
             specifiedSystematics(syst);
         }
+	
+	
+	std::cout << "GhostTrackSystematicsMaker::specifiedSystematics: Listing systematic branches" << std::endl;
+	for(const auto& sys : m_specifiedSystematics) std::cout << sys.name() << std::endl;
+	std::cout << "GhostTrackSystematicsMaker::specifiedSystematics: Listing recommended branches" << std::endl;
+	for(const auto& sys : m_recommendedSystematics) std::cout << sys.name() << std::endl;
+	
 
         // Pass the systematics list back to the top::TopConfig object.
         m_config->systematicsJetGhostTrack(specifiedSystematics());
@@ -242,13 +249,9 @@ namespace top {
                                                                    InDet::InDetTrackBiasingTool * tool,
                                                                    const CP::SystematicSet & syst) const {
         
-	
-	std::cout << "Entering applyBiasingSystematic function." << std::endl;
 	///-- Inform the tool --///
         top::check(tool->applySystematicVariation(syst),
                    "Failed to configure tool for systematic variation");
-
-	std::cout << "Systematic variation applied" << std::endl;
 
         const std::string sgKey{m_config->decoKeyJetGhostTrack() +
                 "_Particles_" + syst.name()};
@@ -270,9 +273,7 @@ namespace top {
             const auto & ghostTracks = jet->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack());
 
             std::vector<const xAOD::IParticle *> newGhosts;
-	    
-	    std::cout << "jet->pt(): " << jet->pt() << std::endl;
-	    
+	    	    
 	    if( std::find(ghostTracks.begin(),ghostTracks.end(), nullptr ) !=  ghostTracks.end()){
 		std::cout << "Warning in GhostTrackSystematicsMaker: Found nullptr in ghostTrack vector. Systematic variations won't be calculated for this jet." << std::endl;
 		std::cout << "Jet pt: " << jet->pt() << " eta: " << jet->eta() << std::endl;
@@ -285,10 +286,8 @@ namespace top {
                 top::check(tp, "Failed to convert xAOD::IParticle to xAOD::TrackParticle for ghost track");
 
                 xAOD::TrackParticle * newTp{nullptr};
-		std::cout << "Getting corrected copy" << std::endl;
                 top::check(tool->correctedCopy(* tp, newTp),
                            "Failure to apply ghost track systematic");
-		std::cout << "Corrected copy obtained" << std::endl;	   
                 top::check(newTp, "Systematically varied xAOD::TrackParticle is nullptr");
 
                 newTrackParticles->push_back(newTp);
@@ -297,8 +296,6 @@ namespace top {
 
             jet->setAssociatedObjects(m_config->decoKeyJetGhostTrack(syst.hash()), newGhosts);
         }
-
-	std::cout << "Leaving applyBiasingSystematic function." << std::endl;
 
         return StatusCode::SUCCESS;
     }
@@ -324,7 +321,7 @@ namespace top {
 
         ///-- SMEARING --///
         for (const auto & syst : m_systs.smearing){
-            // std::cout << "[A] SYSTEMATIC = " << m_config->systematicName(syst.hash()) << std::endl;
+             //std::cout << "[A] SYSTEMATIC = " << m_config->systematicName(syst.hash()) << std::endl;
             top::check(applySmearingSystematic(nominalJets, &(* m_tools.smearing), syst),
                        "Failure to apply GhostTrackSystematic");
         }
@@ -336,7 +333,7 @@ namespace top {
 
             top::check(biasingTool, "Failure to selected biasing tool");
             for (const auto & syst : m_systs.bias){
-                // std::cout << "[B] SYSTEMATIC = " << m_config->systematicName(syst.hash()) << std::endl;
+                 //std::cout << "[B] SYSTEMATIC = " << m_config->systematicName(syst.hash()) << std::endl;
                 top::check(applyBiasingSystematic(nominalJets, biasingTool, syst),
                            "Failure to apply GhostTrackSystematic");
             }
@@ -351,7 +348,7 @@ namespace top {
 
             if (randomRunNumber == 0){
                 for (const auto & syst : m_systs.bias){
-                    // std::cout << "[B.1] SYSTEMATIC = " << m_config->systematicName(syst.hash()) << std::endl;
+                     //std::cout << "[B.1] SYSTEMATIC = " << m_config->systematicName(syst.hash()) << std::endl;
                     top::check(applyNoOpSystematic(nominalJets, syst),
                                "Failure to apply GhostTrackSystematic");
                 }
@@ -369,7 +366,7 @@ namespace top {
                 }
                 top::check(biasingTool, "Failure to selected biasing tool");
                 for (const auto & syst : m_systs.bias){
-                    // std::cout << "[B.2] SYSTEMATIC = " << m_config->systematicName(syst.hash()) << std::endl;
+                     //std::cout << "[B.2] SYSTEMATIC = " << m_config->systematicName(syst.hash()) << std::endl;
                     top::check(applyBiasingSystematic(nominalJets, biasingTool, syst),
                                "Failure to apply GhostTrackSystematic");
                 }
@@ -378,14 +375,14 @@ namespace top {
 
         ///-- TRUTH FILTER --///
         for (const auto & syst : m_systs.truthFilter){
-            // std::cout << "[C] SYSTEMATIC = " << m_config->systematicName(syst.hash()) << std::endl;
+             //std::cout << "[C] SYSTEMATIC = " << m_config->systematicName(syst.hash()) << std::endl;
             top::check(applyTruthFilterSystematic(nominalJets, &(* m_tools.truthFilter), syst),
                        "Failure to apply GhostTrackSystematic");
         }
 
         ///-- JET TRACK FILTER --///
         for (const auto & syst : m_systs.jetTrackFilter){
-            // std::cout << "[D] SYSTEMATIC = " << m_config->systematicName(syst.hash()) << std::endl;
+             //std::cout << "[D] SYSTEMATIC = " << m_config->systematicName(syst.hash()) << std::endl;
             top::check(applyJetTrackFilterSystematic(nominalJets, &(* m_tools.jetTrackFilter), syst),
                        "Failure to apply GhostTrackSystematic");
         }
@@ -395,10 +392,12 @@ namespace top {
     }
 
 
-    void GhostTrackSystematicsMaker::specifiedSystematics(const std::set<std::string> & specifiedSystematics) {
+    void GhostTrackSystematicsMaker::specifiedSystematics(const std::set<std::string> & specSys) {
         // NOTE: For this function -- unlike the "proper" ObjectCollectionMakers in AnalysisTop -- an empty specifiedSystematics input is considered to represent "No Systematics". All GhostTrack systematics can be requested with the string "AllGhostTrack".
-        const bool allGhostTrackSystematics = m_config->contains(specifiedSystematics,
+	const bool allGhostTrackSystematics = m_config->contains(specSys,
                                                                  "AllGhostTrack");
+
+	std::cout << "allGhostTrackSystematics: " << allGhostTrackSystematics << std::endl;
 
         // Acquire the recommended systematics from the various tools and put
         // into containers that store the per-tool systematics as well as a
@@ -447,7 +446,7 @@ namespace top {
                         continue;
                     }
 
-                    for (const auto & i : specifiedSystematics) {
+                    for (const auto & i : specSys) {
                         if (i == s.name()) {
                             m_specifiedSystematics.push_back(s);
                         }

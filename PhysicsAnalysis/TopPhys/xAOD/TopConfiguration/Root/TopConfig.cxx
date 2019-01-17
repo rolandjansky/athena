@@ -1562,6 +1562,7 @@ namespace top{
           for(auto s : syst){
               (* m_systMapJetGhostTrack)[s.hash()] = s;
               (* m_systDecoKeyMapJetGhostTrack)[s.hash()] = m_decoKeyJetGhostTrack + "_" + s.name();
+	      m_list_systHashAll->push_back( s.hash() );
               m_jetGhostTrackSystematics.push_back(s.name());
           }
 
@@ -1572,6 +1573,9 @@ namespace top{
                                   m_jetGhostTrackSystematics.end());
           m_jetGhostTrackSystematics.erase(last,
                                         m_jetGhostTrackSystematics.end());
+					
+	  m_list_systHashAll->sort();
+	  m_list_systHashAll->unique();
       }
   }
 
@@ -1837,6 +1841,12 @@ namespace top{
       for (Itr i=m_systMapTrackJets->begin();i!=m_systMapTrackJets->end();++i) {
         m_systAllTTreeNames->insert( std::make_pair( (*i).first , (*i).second.name() ) );
       }
+    }
+    if (m_useJetGhostTrack){
+      for (Itr i=m_systMapJetGhostTrack->begin();i!=m_systMapJetGhostTrack->end();++i) {
+        m_systAllTTreeNames->insert( std::make_pair( (*i).first , (*i).second.name() ) );
+      }
+    
     }
     for (Itr i=m_systMapMET->begin();i!=m_systMapMET->end();++i) {
       m_systAllTTreeNames->insert( std::make_pair( (*i).first , (*i).second.name() ) );
