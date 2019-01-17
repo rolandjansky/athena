@@ -42,7 +42,7 @@ public:
   virtual ~EfieldInterpolator(); 
   void SetLayer(int layer);
   //Recommended constructor
-  StatusCode LoadTCADList(TString TCADfileListToLoad );  
+  StatusCode LoadTCADList(std::string TCADfileListToLoad );  
   //defFct
 
   virtual StatusCode  initialize();

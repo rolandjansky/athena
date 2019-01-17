@@ -111,10 +111,10 @@ void EfieldInterpolator::SetLayer(int layer)
         ATH_MSG_INFO("EfieldInterpolator: Default ctor");
 }
 
-StatusCode EfieldInterpolator::LoadTCADList(TString TCADfileListToLoad )
+StatusCode EfieldInterpolator::LoadTCADList(std::string TCADfileListToLoad )
 {
         m_efieldOrigin    = interspline;
-	ATH_MSG_INFO("Load from list " << TCADfileListToLoad.Data());
+	ATH_MSG_INFO("Load from list " << TCADfileListToLoad);
         if(!initializeFromFile(TCADfileListToLoad) ){
             ATH_MSG_WARNING("ERROR: Initialize failed looking for file " << TCADfileListToLoad );
             //Check if given path links to directory:
