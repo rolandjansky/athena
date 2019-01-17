@@ -132,6 +132,7 @@
 + Event/EventContainers
 + Event/EventInfo
 + Event/EventInfoMgt
++ Event/EventInfoUtils
 + Event/EventKernel
 + Event/EventPTCnv
 + Event/EventPrimitives
