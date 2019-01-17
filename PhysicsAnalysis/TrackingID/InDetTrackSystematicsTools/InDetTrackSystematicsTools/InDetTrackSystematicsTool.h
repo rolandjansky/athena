@@ -53,6 +53,9 @@ namespace InDet {
     const CP::SystematicSet* m_activeSysts = nullptr;
 
     bool isActive( TrackSystematic ) const;
+    
+    bool m_firstTime;
+    
   };
 
 
