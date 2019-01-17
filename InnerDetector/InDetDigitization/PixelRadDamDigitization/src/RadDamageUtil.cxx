@@ -248,7 +248,7 @@ const StatusCode RadDam::RadDamageUtil::generateEfieldMap( TH1F* eFieldMap, InDe
     double fluence              = 8.;//*e14 neq/cm^2 
     eFieldMap = new TH1F("hefieldz","hefieldz",200,0,sensorThickness*1e3);
     
-    TString TCAD_list = PathResolver::find_file("ibl_TCAD_EfieldProfiles.txt", "DATAPATH"); //IBL layer 
+    std::string TCAD_list = PathResolver::find_file("ibl_TCAD_EfieldProfiles.txt", "DATAPATH"); //IBL layer 
     if(sensorThickness > 0.2){
         //is blayer
         TCAD_list = PathResolver::find_file("blayer_TCAD_EfieldProfiles.txt", "DATAPATH"); //B layer 
@@ -290,7 +290,7 @@ const StatusCode RadDam::RadDamageUtil::generateEfieldMap( TH1F* eFieldMap, InDe
   return StatusCode::SUCCESS;
 }
 
-StatusCode RadDam::RadDamageUtil::generateEfieldMap( TH1F* &eFieldMap, InDetDD::PixelModuleDesign* module, double fluence,  double biasVoltage, int layer, TString TCAD_list, bool interpolate ){
+StatusCode RadDam::RadDamageUtil::generateEfieldMap( TH1F* &eFieldMap, InDetDD::PixelModuleDesign* module, double fluence,  double biasVoltage, int layer, std::string TCAD_list, bool interpolate ){
 
     TString id;
     //TODO adapt saving location for documentation of E field interpolation
@@ -304,8 +304,9 @@ StatusCode RadDam::RadDamageUtil::generateEfieldMap( TH1F* &eFieldMap, InDetDD::
         CHECK( m_EfieldInterpolator->LoadTCADList(TCAD_list) );
         eFieldMap = (TH1F*) m_EfieldInterpolator->getEfield(fluence , biasVoltage);		
     }else{
-        m_EfieldInterpolator->LoadTCADList(layer);
-        ATH_MSG_INFO("Load Efield map from " << TCAD_list.Data() );
+        //retrieve E field directly from file (needs to be .dat file with table)
+        CHECK( m_EfieldInterpolator->LoadTCADList(TCAD_list) );
+        ATH_MSG_INFO("Load Efield map from " << TCAD_list );
     }
     if(!eFieldMap){
         ATH_MSG_ERROR("E field has not been created!");

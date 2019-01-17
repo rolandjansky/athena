@@ -52,7 +52,7 @@ public:
   StatusCode initTools();
   const StatusCode generateRamoMap(TH3F* ramPotentialMap, InDetDD::PixelModuleDesign* module);
   const StatusCode generateEfieldMap(TH1F* eFieldMap, InDetDD::PixelModuleDesign* module);
-  StatusCode generateEfieldMap(TH1F* &eFieldMap, InDetDD::PixelModuleDesign* module, double fluence, double biasVoltage, int layer, TString TCAD_list, bool interpolate);
+  StatusCode generateEfieldMap(TH1F* &eFieldMap, InDetDD::PixelModuleDesign* module, double fluence, double biasVoltage, int layer, std::string TCAD_list, bool interpolate);
   const StatusCode generateDistanceTimeMap( TH2F* &distanceMap_e, TH2F* &distanceMap_h, TH1F* &timeMap_e, TH1F* &timeMap_h, TH2F* &lorentzMap_e, TH2F* &lorentzMap_h, TH1F* &eFieldMap, InDetDD::PixelModuleDesign* module);
   
   const std::pair<double,double> getTrappingTimes( double fluence ) const;
