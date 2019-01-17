@@ -25,7 +25,6 @@ public:
 	void printEfficiency (ofstream& file);
 
 	// setters
-	void setDataAdress (EDM_object &oData, TString branch_name);
 	void setName (TString name) { m_name = name; }
 	void setName (TString name, TString detector) { m_name = name; m_detector = detector; }
 	void setDetector (TString detector) { m_detector = detector; }
