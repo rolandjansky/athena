@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HISubtractedCellMakerTool.h"
@@ -30,6 +30,12 @@ StatusCode HISubtractedCellMakerTool::initialize()
 
 StatusCode HISubtractedCellMakerTool::process(CaloCellContainer* theCells)
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  if (ctx.slot() > 1) {
+    ATH_MSG_ERROR("This tool hasn't been converted for MT.");
+    return StatusCode::FAILURE;    
+  }
+
   const xAOD::HIEventShapeContainer* shape=0;
   CHECK(evtStore()->retrieve(shape,m_event_shape_key));
   const HIEventShapeIndex* index=HIEventShapeMap::getIndex(m_event_shape_key);
