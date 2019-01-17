@@ -30,7 +30,7 @@ export INPUT="ftk"
 export COST_MONITORING="False"
 export TEST="TrigAnalysisTest"
 export MENU="MC_pp_v7"
-export EVENTS="100"
+export EVENTS="50"
 export JOBOPTION="TrigAnalysisTest/testAthenaTrigRDOtoESDAOD.py"
 
 source exec_athena_art_trigger_validation.sh
