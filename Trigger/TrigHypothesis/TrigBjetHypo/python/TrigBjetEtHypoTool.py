@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 import re
-re_Bjet = re.compile(r'^HLT_(?P<multiplicity>\d+)?j(?P<threshold>\d+)(?:_gsc(?P<gscThreshold>\d+))?(?:_b(?P<bTag>[^_]+)(?:_(?P<bConfig>split))?)?$')
+re_Bjet = re.compile(r'^HLT_(?P<multiplicity>\d+)?j(?P<threshold>\d+)(?:_gsc(?P<gscThreshold>\d+))?(?:_b(?P<bTag>[^_]+)(?:_(?P<bConfig>split))?(?:_(?P<minEta>\d+)eta(?P<maxEta>\d+))?)?$')
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.SystemOfUnits import GeV
@@ -17,7 +17,9 @@ def TrigBjetEtHypoToolFromName_j( name, conf ):
                      'multiplicity' : '1',
                      'gscThreshold' : '0',
                      'bTag' : 'offperf',
-                     'bConfig' : 'split' }
+                     'bConfig' : 'EF',
+                     'minEta' : '0',
+                     'maxEta' : '320'}
     
     chain = conf
     match = re_Bjet.match( chain )
@@ -32,6 +34,8 @@ def TrigBjetEtHypoToolFromName_j( name, conf ):
     tool.OutputLevel = DEBUG
     tool.AcceptAll   = False
     tool.EtThreshold  = float(conf_dict['threshold']) * GeV
+    tool.MinEtaThreshold = float(conf_dict['minEta']) / 100
+    tool.MaxEtaThreshold = float(conf_dict['maxEta']) / 100
 
     print "TrigBjetEtHypoToolFromName_j: name = %s, cut_j = %s "%(name,tool.EtThreshold)
     return tool
@@ -44,7 +48,9 @@ def TrigBjetEtHypoToolFromName_gsc( name, conf ):
                      'multiplicity' : '1',
                      'gscThreshold' : '0',
                      'bTag' : 'offperf',
-                     'bConfig' : 'split' }
+                     'bConfig' : 'EF',
+                     'minEta' : '0',
+                     'maxEta' : '320'}
     
     chain = conf
     match = re_Bjet.match( chain )
@@ -59,6 +65,8 @@ def TrigBjetEtHypoToolFromName_gsc( name, conf ):
     tool.OutputLevel = DEBUG
     tool.AcceptAll   = False
     tool.EtThreshold  = float(conf_dict['gscThreshold']) * GeV
+    tool.MinEtaThreshold = float(conf_dict['minEta']) / 100
+    tool.MaxEtaThreshold = float(conf_dict['maxEta']) / 100
 
     print "TrigBjetEtHypoToolFromName_gsc: name = %s, cut_j = %s "%(name,tool.EtThreshold)
     return tool
