@@ -35,11 +35,8 @@ TileBeamElemContByteStreamCnv::TileBeamElemContByteStreamCnv(ISvcLocator* svcloc
   , m_name("TileBeamElemContByteStreamCnv")
   , m_robSvc("ROBDataProviderSvc", m_name)
   , m_decoder("TileROD_Decoder")
-  , m_event(0)
-  , m_robFrag(0)
   , m_ROBID()
-  , m_hid2re(0)
-  , m_container(0)
+  , m_hid2re(nullptr)
 {
 }
 
@@ -61,10 +58,6 @@ StatusCode TileBeamElemContByteStreamCnv::initialize() {
   m_ROBID.clear();
   m_ROBID.push_back( m_hid2re->getRobFromFragID(DIGI_PAR_FRAG) );
   m_ROBID.push_back( m_hid2re->getRobFromFragID(LASER_OBJ_FRAG) );
-
-  // create empty TileBeamElemContainer and all collections inside
-  m_container = new TileBeamElemContainer(true); 
-  m_container->addRef(); // make sure it's not deleted at the end of event
 
   return StatusCode::SUCCESS;
 }
@@ -90,11 +83,12 @@ StatusCode TileBeamElemContByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataO
   m_robSvc->getROBData(m_ROBID, robf);
   m_robFrag = (robf.size() > 0 ) ? robf[0] : 0;
 
+  TileMutableBeamElemContainer* cont = m_queue.get (true);
+  ATH_CHECK( cont->status() );
+
   // iterate over all collections in a container and fill them
-
-  for(const TileBeamElemCollection* constBeamCollection : *m_container) {
-
-    TileBeamElemCollection* beamCollection = const_cast<TileBeamElemCollection*>(constBeamCollection);
+  for (IdentifierHash hash : cont->GetAllCurrentHashes()) {
+    TileBeamElemCollection* beamCollection = cont->indexFindPtr (hash);
     beamCollection->clear();
     TileBeamElemCollection::ID collID = beamCollection->identify();  
 
@@ -114,7 +108,8 @@ StatusCode TileBeamElemContByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataO
 
   ATH_MSG_DEBUG( " Creating Container " << *(pRE_Addr->par()) );
 
-  pObj = SG::asStorable( m_container ) ; 
+  TileBeamElemContainer* basecont = cont;
+  pObj = SG::asStorable( basecont ) ; 
   return StatusCode::SUCCESS;  
 }
 
@@ -126,16 +121,7 @@ StatusCode TileBeamElemContByteStreamCnv::createRep(DataObject* /* pObj */, IOpa
   return   StatusCode::FAILURE ; 
 }
 
-StatusCode TileBeamElemContByteStreamCnv::finalize() {
-
-  ATH_MSG_DEBUG( " Clearing Container " );
-
-  // iterate over all collections in a container and clear them
-  for(const TileBeamElemCollection* beamCollection : *m_container) {
-    const_cast<TileBeamElemCollection*>(beamCollection)->clear();
-  }
-
-  m_container->release(); 
-
+StatusCode TileBeamElemContByteStreamCnv::finalize()
+{
   return Converter::finalize(); 
 }
