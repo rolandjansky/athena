@@ -80,13 +80,6 @@ namespace top {
             // No need to manually handle the AllGhostTrack case in here.
             specifiedSystematics(syst);
         }
-	
-	
-	std::cout << "GhostTrackSystematicsMaker::specifiedSystematics: Listing systematic branches" << std::endl;
-	for(const auto& sys : m_specifiedSystematics) std::cout << sys.name() << std::endl;
-	std::cout << "GhostTrackSystematicsMaker::specifiedSystematics: Listing recommended branches" << std::endl;
-	for(const auto& sys : m_recommendedSystematics) std::cout << sys.name() << std::endl;
-	
 
         // Pass the systematics list back to the top::TopConfig object.
         m_config->systematicsJetGhostTrack(specifiedSystematics());
@@ -396,8 +389,6 @@ namespace top {
         // NOTE: For this function -- unlike the "proper" ObjectCollectionMakers in AnalysisTop -- an empty specifiedSystematics input is considered to represent "No Systematics". All GhostTrack systematics can be requested with the string "AllGhostTrack".
 	const bool allGhostTrackSystematics = m_config->contains(specSys,
                                                                  "AllGhostTrack");
-
-	std::cout << "allGhostTrackSystematics: " << allGhostTrackSystematics << std::endl;
 
         // Acquire the recommended systematics from the various tools and put
         // into containers that store the per-tool systematics as well as a
