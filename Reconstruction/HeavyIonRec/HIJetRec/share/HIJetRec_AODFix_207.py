@@ -146,7 +146,7 @@ for R in HIJetFlags.AntiKtRValues() :
 #make missing truth large jet collections
 if is_mc_or_overlay:
     for R in HIJetFlags.AntiKtRValues() :
-        if not HasTruthCollection("AntiKt%sTruthJets" % int(10*R)):
+        if not HasCollection("AntiKt%sTruthJets" % int(10*R)):
             truthjetfinder=jtm.addJetFinder("AntiKt%sTruthJets" % int(10*R),'AntiKt',R,'truth')
             jtm.HIJetRecs+=[truthjetfinder]
 

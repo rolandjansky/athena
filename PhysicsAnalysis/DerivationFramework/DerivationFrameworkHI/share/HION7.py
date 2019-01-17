@@ -11,6 +11,7 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkHI.HIJetDerivationTools import *
 from DerivationFrameworkHI.HISkimmingTools import *
 from DerivationFrameworkHI.HIDerivationFlags import HIDerivationFlags
+from HIJetRec.HIJetRecUtils import HasCollection
 
 #====================================================================
 #Read and set conditions
@@ -100,10 +101,13 @@ thinningTools=[TPThinningTool]
 
 #Jet collections to be stored
 CollectionList=['DFAntiKt2HIJets','DFAntiKt4HIJets']
-if HIDerivationFlags.isPP() : CollectionList=['AntiKt2HIJets','AntiKt4HIJets','DFAntiKt2HIJets','DFAntiKt4HIJets'] 
+if HIDerivationFlags.isPP() :CollectionList=['AntiKt2HIJets','AntiKt4HIJets','DFAntiKt2HIJets','DFAntiKt4HIJets'] 
+BtaggedCollectionList=['BTagging_DFAntiKt4HI']
+if HIDerivationFlags.isPP() and HasCollection("BTagging_AntiKt4HI"): BtaggedCollectionList.append('BTagging_AntiKt4HI')
 
 #Jet thinning only for PbPb data
 if not HIDerivationFlags.isSimulation() and not HIDerivationFlags.doMinBiasSelection() and not HIDerivationFlags.isPP() : 
+    for collection in BtaggedCollectionList :thinningTools.append(addBtaggThinningTool(collection, collection.split("_",1)[1]+"Jets", DerivationName, JetThinningThreshold[collection.split("_",1)[1]+"Jets"]))
     for collection in CollectionList : thinningTools.append(addJetThinningTool(collection,DerivationName,JetThinningThreshold[collection]))
 
 if HIDerivationFlags.isSimulation() :
@@ -129,14 +133,18 @@ for item in extra_Bjets :
         SlimmingHelper.AppendToDictionary[item]='xAOD::BTaggingContainer'
         SlimmingHelper.AppendToDictionary[item+"Aux"]='xAOD::BTaggingAuxContainer'
 
+
+
 ##SmartVariables
 SlimmingHelper.SmartCollections = [ "InDetTrackParticles",
                                     "Electrons",
                                     "Muons",
                                     "Photons",
-                                    "PrimaryVertices"]
+                                    "PrimaryVertices",
+                                    "BTagging_DFAntiKt4HI"]
+if HIDerivationFlags.isPP() and HasCollection("BTagging_AntiKt4HI"): SlimmingHelper.SmartCollections.append('BTagging_AntiKt4HI')
 ##AllVariables
-AllVarContent=["AntiKt4HITrackJets","BTagging_DFAntiKt4HI"]
+AllVarContent=["AntiKt4HITrackJets"]
 AllVarContent+=HIGlobalVars
 if HIDerivationFlags.isSimulation() : 
     AllVarContent+=["AntiKt2TruthJets","AntiKt4TruthJets","TruthEvents","TruthParticles"]

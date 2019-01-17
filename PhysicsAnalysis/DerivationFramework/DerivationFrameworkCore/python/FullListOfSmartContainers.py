@@ -52,6 +52,8 @@ FullListOfSmartContainers = [
    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2GASub_expert",
    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3GASub_expert",
    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub_expert",
+   "BTagging_AntiKt4HI",
+   "BTagging_DFAntiKt4HI",
    "InDetTrackParticles",
    "PrimaryVertices",
    "HLT_xAOD__MuonContainer_MuonEFInfo",

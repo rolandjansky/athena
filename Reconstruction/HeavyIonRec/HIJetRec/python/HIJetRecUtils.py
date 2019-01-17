@@ -361,7 +361,7 @@ def GetHIModifierList(coll_name='AntiKt4HIJets',prepend_tools=[],append_tools=[]
     mod_list+=jtm.modifiersMap['HI']
     mod_list+=append_tools
     return mod_list
-def HasTruthCollection(collection='') :
+def HasCollection(collection='') :
 	from PyUtils import AthFile
 	from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 	af = AthFile.fopen(svcMgr.EventSelector.InputCollections[0])

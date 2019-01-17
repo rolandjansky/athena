@@ -12,6 +12,19 @@ def addJetThinningTool(collection="AntiKt4HIJets",deriv="HION7",jet_pt_threshold
 
     ToolSvc+=jet_tool
     return jet_tool
+
+def addBtaggThinningTool(Btaggcollection="BTagging_DFAntiKt4HI",jetcollection="DFAntiKt4HIJets",deriv="HION7",jet_pt_threshold=15) :
+    from AthenaCommon.AppMgr import ToolSvc
+    from DerivationFrameworkHI.DerivationFrameworkHIConf import DerivationFramework__BtaggedObjectThinning
+    bjet_tool = DerivationFramework__BtaggedObjectThinning(name                    = "%sJetThinningTool_%s" % (deriv,Btaggcollection),
+                                                          ThinningService         = "%sThinningSvc" % deriv,
+                                                          ContainerName           = Btaggcollection,
+                                                          SelectionString         = "%s.pt  > (%d* GeV)" % (jetcollection,jet_pt_threshold),
+                                                          ApplyAnd                = False)
+                                                                 
+
+    ToolSvc+=bjet_tool
+    return bjet_tool
     
 def addJetClusterThinningTool(collection="AntiKt4HIJets",deriv="HION7",pt_cut=25) :
     from AthenaCommon.AppMgr import ToolSvc
