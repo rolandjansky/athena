@@ -49,8 +49,8 @@ namespace Monitored {
    *
    * \code
    *   std::vector<Track> tracks;
-   *   auto phi = Monitored::Collection( "Phi", tracks, []( const Track& t ) { return
-   * t.phi(); } ); \endcode
+   *   auto phi = Monitored::Collection("Phi", tracks, [](const Track& t) {return t.phi();});
+   * \endcode
    */
   template <class T> ObjectsCollection<T>
   Collection(std::string name, const T& collection,

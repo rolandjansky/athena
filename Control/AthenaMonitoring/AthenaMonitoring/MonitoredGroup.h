@@ -22,8 +22,8 @@ namespace Monitored {
      *
      * In order to maintain correlations when filling histograms (e.g. eta and phi of a track) the
      * monitored quantities need to be grouped within a Monitored::Group. The filling of the
-     *histogram occurs when the Monitored::Group object goes out of scope or when fill() is called
-     *explicitly.
+     * histogram occurs when the Monitored::Group object goes out of scope or when fill() is called
+     * explicitly.
      *
      * \code
      * {
@@ -68,9 +68,19 @@ namespace Monitored {
       /**
        * @brief enables/disables filling when Monitored::Group leaves the scope
        *
-       * Typically one time fill, this should be left enabled (true)
-       * while in tight loops this should disabled "setAutoFill(false)"
-       * and explicit call fill() used with the same Monitored::Group object.
+       * By default Monitored::Group will perform a one time fill each time it goes
+       * out of scope. In tight loops one may want to re-use the same Monitored::Group
+       * and instead trigger the filling manually:
+       *
+       * \code
+       *   auto pt = Monitored::Scalar("pt");
+       *   auto mon = Monitored::Group(m_monTool, pt);
+       *   mon.setAutoFill(false);
+       *   for (...) {
+       *      // fill pt
+       *      mon.fill();
+       *   }
+       * \endcode
        **/
       void setAutoFill(bool isEnabled) { m_autoFill = isEnabled; }
 

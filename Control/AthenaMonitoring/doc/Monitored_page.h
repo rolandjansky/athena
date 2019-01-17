@@ -5,7 +5,8 @@
 /**
    @namespace Monitored
    @brief athenaMT monitoring infrastructure
-   
+
+   ## General use ##
    The Monitored namespace collects the infrastructure to create histograms from
    quantitities within an athena component. While this infrastrcucture has been
    created specifically for the use in athenaMT it is of course also usable in
@@ -37,7 +38,6 @@
      - Monitored::Collection
      - Monitored::Timer
 
-  The declaration in all cases is done via the `declare` method in the relevant namespace.
   For example to declare a simple scalar, use:
    \code
    Monitored::Scalar(std::string name, const T& defaultVaule):
@@ -46,7 +46,7 @@
    @copydetails Monitored::Scalar(std::string name, const T& defaultVaule)
    
    4)
-   @copydoc Monitored::Group
+   @copydoc Monitored::impl::Group
 
    5) Configure the list of histograms in python
    \code
@@ -64,8 +64,17 @@
 
    \remark Without this python configuration, i.e. the last line, no monitoring tool is instantiated
    and no monitoring histograms created thus reducing the overhead (both time and memory) to a minimum.
-                                             
-   Additional documentation:
+
+   ## Advanced usage ##
+   ### Filling in tight loops ###
+   @copydetails Monitored::impl::Group::setAutoFill()
+
+   ### Monitoring of collections (of objects) ###
+   Existing iterable collections can be monitored directly without the need to create temporaries.
+   If the collection contains objects, an accessor can be defined to retrieve the relevant quantity.
+   See the examples in Monitored::Collection.
+
+   ## Additional documentation ##
    - The MonitoredAlg standalone example and its MonitoredOptions.py job
    options
    - <a href="https://gitlab.cern.ch/atlas/athena/blob/master/Control/AthenaMonitoring/test/GenericMonFilling_test.cxx">GenericMonFilling_test.cxx</a>
