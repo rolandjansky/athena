@@ -83,7 +83,7 @@ private:
 
 
 template<typename T>
-inline std::ostream& operator<<( std::ostream& s, const TIDA::Feature<T>& _t ) { 
+inline std::ostream& operator<<( std::ostream& s, const TIDA::Feature<T>& ) { 
   return s;
 }
 

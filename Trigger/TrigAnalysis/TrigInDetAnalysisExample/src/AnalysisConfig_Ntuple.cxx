@@ -71,11 +71,11 @@ bool tida_first = true;
 
 
 std::string date() { 
-  time_t _t;
-  time(&_t);
-  std::string _mtime = ctime(&_t);
-  _mtime.erase( std::remove(_mtime.begin(), _mtime.end(), '\n'), _mtime.end() );
-  return _mtime;
+  time_t t;
+  time(&t);
+  std::string mtime = ctime(&t);
+  mtime.erase( std::remove(mtime.begin(), mtime.end(), '\n'), mtime.end() );
+  return mtime;
 }
 
 
@@ -665,7 +665,6 @@ void AnalysisConfig_Ntuple::loop() {
 		/// of "processes" with *no* particles in them for some 
 		/// reason, whoever programed this f**cked up structure 
 		/// that needs this sort of fannying around to navigate 
-		/// through ***REMOVED***
 
 		//      DataVector<HepMC::GenEvent>::iterator 
 		McEventCollection::const_iterator evitr(mcevent->begin());

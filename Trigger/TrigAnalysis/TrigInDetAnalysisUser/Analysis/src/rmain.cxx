@@ -597,7 +597,7 @@ int main(int argc, char** argv)
 
   std::vector<ChainString> chainConfig;
 
-  for ( unsigned ic=0 ; ic<testChains.size() ; ic++ ) { 
+  for ( size_t ic=0 ; ic<testChains.size() ; ic++ ) { 
     chainConfig.push_back( ChainString( testChains[ic] ) );
     testChains[ic] =  chainConfig.back().pre(); 
   }
