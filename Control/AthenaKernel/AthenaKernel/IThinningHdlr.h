@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_ITHINNINGHDLR_H 
@@ -13,19 +13,12 @@
 #include <list>
 #include <utility> // for std::pair
 
-// boost includes
-#ifndef BOOST_MPL_IF_HPP_INCLUDED
- #include <boost/mpl/if.hpp>
-#endif
-#ifndef BOOST_TT_IS_BASE_OF_HPP_INCLUDED
- #include <boost/type_traits/is_base_of.hpp>
-#endif
-#ifndef BOOST_TT_REMOVE_POINTER_HPP_INCLUDED
- #include <boost/type_traits/remove_pointer.hpp>
-#endif
-#ifndef GAUDIKERNEL_DATAOBJECT_H
- #include "GaudiKernel/DataObject.h"
-#endif
+#include <boost/mpl/if.hpp>
+#include <boost/type_traits/is_base_of.hpp>
+#include <boost/type_traits/remove_pointer.hpp>
+#include "GaudiKernel/DataObject.h"
+
+#include "CxxUtils/checker_macros.h"
 
 // FrameWork includes
 
@@ -82,9 +75,11 @@ namespace detail {
  * @brief Handle @c DataProxy holding @c DataVector.
  * This class defines a (type-safe) protocol to pack and unpack 
  * thinned @c DataVector.
+ *
+ * This is not MT-safe!
  */
 template <typename Container>
-class DvThinningHdlr : public ::Athena::IThinningHdlr
+class ATLAS_NOT_THREAD_SAFE DvThinningHdlr : public ::Athena::IThinningHdlr
 {
   typedef typename Container::PtrVector PtrVector;
   /** Vector holding the pointers to the elements of @c DataVector, before
@@ -130,9 +125,11 @@ public:
  * @brief Handle @c DataProxy holding @c std::vector<T>
  * This class defines a (type-safe) protocol to pack and unpack 
  * thinned @c DataVector.
+ *
+ * This is not MT-safe!
  */
 template <typename Container>
-class StdThinningHdlr : public ::Athena::IThinningHdlr
+class ATLAS_NOT_THREAD_SAFE StdThinningHdlr : public ::Athena::IThinningHdlr
 {
   typedef Container Vector_t;
   /** Vector holding the pointers to the elements of @c std::vector<T>, before
@@ -178,9 +175,11 @@ public:
  * @brief Handle @c DataProxy holding @c IdentifiableContainer
  * This class defines a (type-safe) protocol to pack and unpack 
  * thinned @c IdentifiableContainer
+ *
+ * This is not MT-safe!
  */
 template <typename Container>
-class IdcThinningHdlr : public ::Athena::IThinningHdlr
+class ATLAS_NOT_THREAD_SAFE IdcThinningHdlr : public ::Athena::IThinningHdlr
 {
   typedef Container                               Idc_t;
   typedef typename Idc_t::IDENTIFIABLE            Identifiable_t;
