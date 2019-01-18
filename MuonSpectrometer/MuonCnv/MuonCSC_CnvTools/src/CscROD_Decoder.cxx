@@ -515,7 +515,11 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
   }
 
   if(rawCollection) {
-    lock.addOrDelete(std::move( rawCollection ) );
+    StatusCode status_lock = lock.addOrDelete(std::move( rawCollection ) );
+    if (status_lock.isFailure()) {
+      ATH_MSG_ERROR ( "Could not insert CscRawDataCollection into CscRawDataContainer..." );
+      return;
+    }
   }
 
   ATH_MSG_DEBUG ( "end of CscROD_Decode::fillCollection()" );
@@ -649,8 +653,13 @@ void Muon::CscROD_Decoder::rodVersion1(const ROBFragment& robFrag,  CscRawDataCo
     if (i < (size-rodFooter)) dpuFragment = rodReadOut.isDPU(p[i]);
     numberOfDPU++;
   }
+
   if(rawCollection) {
-    lock.addOrDelete(std::move( rawCollection ) );
+    StatusCode status_lock = lock.addOrDelete(std::move( rawCollection ) );
+    if (status_lock.isFailure()) {
+      ATH_MSG_ERROR ( "Could not insert CscRawDataCollection into CscRawDataContainer..." );
+      return;
+    }
   }
 
   return;
@@ -751,9 +760,15 @@ void Muon::CscROD_Decoder::rodVersion0(const ROBFragment& robFrag,  CscRawDataCo
     // check that the new fragment is body
     bodyFragment = rodReadOut.isBody(p[i]);
   }
+
   if(rawCollection) {
-    lock.addOrDelete(std::move( rawCollection ) );
+    StatusCode status_lock = lock.addOrDelete(std::move( rawCollection ) );
+    if (status_lock.isFailure()) {
+      ATH_MSG_ERROR ( "Could not insert CscRawDataCollection into CscRawDataContainer..." );
+      return;
+    }
   }
+
   return;
 
 }
