@@ -25,22 +25,22 @@ class SCT_ID;
 class SCT_RawDataContainerCnv_p1 : public T_AthenaPoolTPCnvBase<SCT_RDO_Container, SCT_RawDataContainer_p1>
 {
  private:
-  const SCT_ID *m_sctId = nullptr;
+  const SCT_ID* m_sctId = nullptr;
   int m_type;
  public:
   SCT_RawDataContainerCnv_p1() :m_type(0) {};
   
   virtual void	persToTrans(const SCT_RawDataContainer_p1* persCont,
 			    SCT_RDO_Container* transCont,
-			    MsgStream &log) ;
+			    MsgStream& log) ;
   virtual void	transToPers(const SCT_RDO_Container* transCont,
 			    SCT_RawDataContainer_p1* persCont,
-			    MsgStream &log) ;
+			    MsgStream& log) ;
   virtual SCT_RDO_Container* createTransient(const SCT_RawDataContainer_p1* persObj, MsgStream& log) ;
 
 
   // ID helper can't be used in the constructor, need initialize()
-  void initialize(const SCT_ID *idhelper) { m_sctId = idhelper; }
+  void initialize(const SCT_ID* idhelper) { m_sctId = idhelper; }
   void setType(int type) {m_type = type; }
 };
 
