@@ -1,0 +1,10 @@
+TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_tau0_perf_ptonly_L1TAU12 ID#372992233
+TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_tau25_medium1_tracktwo ID#3693875985
+TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_tau0_perf_ptonly_L1TAU12 ID#372992233
+TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_tau25_medium1_tracktwo ID#3693875985
+TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_tau0_perf_ptonly_L1TAU12 ID#372992233
+TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_tau25_medium1_tracktwo ID#3693875985
+TrigSignatureMoniMT                                INFO HLT_tau0_perf_ptonly_L1TAU12  20        20        3         3         
+TrigSignatureMoniMT                                INFO HLT_tau0_perf_ptonly_L1TAU12 decisions                    3         
+TrigSignatureMoniMT                                INFO HLT_tau25_medium1_tracktwo    20        20        3         3         
+TrigSignatureMoniMT                                INFO HLT_tau25_medium1_tracktwo decisions                    3  
