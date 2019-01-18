@@ -156,7 +156,7 @@ template<class Tin, class Tout> int TrigBphysElectronCounter::passNObjects(int n
     // calculate isEM
     unsigned int isEMTrig = 0;
     bool isLHAcceptTrig = false;
-    float lhval=0;
+    //float lhval=0;
 
     if( m_applyIsEM ) {
       if(m_useAthElectronLHIDSelector){
