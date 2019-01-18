@@ -69,38 +69,6 @@ ISF::DNNCaloSimSvc::~DNNCaloSimSvc()
 /** framework methods */
 StatusCode ISF::DNNCaloSimSvc::initialize()
 {
-  ATH_MSG_INFO("start neural network part");
-  // get neural net JSON file as an std::istream object
-  std::ifstream input(m_paramsFilename);
-  // build the graph
-  lwt::LightweightGraph graph(lwt::parse_json_graph(input));
-
-  // fill a map of input nodes
-  std::map<std::string, std::map<std::string, double> > inputs;
-  for (int in_var = 0; in_var< 300; in_var ++)
-   {
-    inputs["Z"].insert ( std::pair<std::string,double>(std::to_string(in_var),1.) );
-    }
-  for (int in_var = 0; in_var< 1; in_var ++)
-   {
-    inputs["E_true"].insert ( std::pair<std::string,double>(std::to_string(in_var),1.) );
-    }
-  for (int in_var = 0; in_var< 4; in_var ++)
-   {
-    inputs["pconfig"].insert ( std::pair<std::string,double>(std::to_string(in_var),1.) );
-    }
-  for (int in_var = 0; in_var< 2; in_var ++)
-   {
-    inputs["econfig"].insert ( std::pair<std::string,double>(std::to_string(in_var),1.) );
-    }
-  for (int in_var = 0; in_var< 2; in_var ++)
-   {
-    inputs["ripos"].insert ( std::pair<std::string,double>(std::to_string(in_var),1.) );
-    }
-  // compute the output values
-  std::map<std::string, double> outputs = graph.compute(inputs);
-  ATH_MSG_INFO("neural network output = "<<outputs);
-
   ATH_MSG_INFO(m_screenOutputPrefix << "Initializing ...");
 
   ATH_CHECK(m_rndGenSvc.retrieve());
@@ -324,8 +292,8 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
   //for(const auto& theCell : * m_theCellContainer) {
   int n_sqCuts = 0;
   double vall, valll;
-  std::vector<CaloCell> v;
-  v.reserve(266);
+  std::vector<CaloCell*> windowCells;
+  windowCells.reserve(266);
 
   CaloCell_ID::CaloSample sampling;
   for(const auto& theCell : * m_theContainer) {
@@ -346,7 +314,7 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
   if ((sampling == 0) || (sampling == 1) ){
     if ((theCell->caloDDE()->eta_raw() < 0.2125 + 0.025*3.5) && (theCell->caloDDE()->eta_raw() > 0.2125 - 0.025*3.5)) {
     n_sqCuts ++;
-    v.push_back(*theCell);
+    windowCells.push_back(theCell);
     // add to vector
   }
   }
@@ -354,7 +322,7 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
     if ((theCell->caloDDE()->phi_raw() < (-1.242524) + (0.0859)) && (theCell->caloDDE()->phi_raw() > (-1.242524) - (0.0859))) {
       if ((theCell->caloDDE()->eta_raw() < 0.2125 + 0.025*3.5) && (theCell->caloDDE()->eta_raw() > 0.2125 - 0.025*3.5)) {
         n_sqCuts ++;
-        v.push_back(*theCell);
+        windowCells.push_back(theCell);
       }
     }
   }
@@ -362,7 +330,7 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
   else if(sampling == 3){
   if ((theCell->caloDDE()->phi_raw() < (-1.242524) + (0.0859)) && (theCell->caloDDE()->phi_raw() > (-1.242524) - (0.0859))) {
     n_sqCuts ++;
-    v.push_back(*theCell);
+    windowCells.push_back(theCell);
   }
 
 }
@@ -381,11 +349,51 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
 
   ATH_MSG_DEBUG("NNN total cells passing cuts     " << n_sqCuts << "        eta phi raw" << vall << "and" << valll<< "sampling" << sampling);
   //ATH_MSG_DEBUG("NNN total cells passing cuts" << n_sqCuts );
-  //for(const auto& windowCell : * v) {
-  std::vector<CaloCell>::iterator windowCell;
-  for ( windowCell = v.begin(); windowCell != v.end(); ++windowCell ) {
-    ATH_MSG_DEBUG("NNN eta phi " << windowCell->caloDDE()->eta_raw() << " and " << windowCell->caloDDE()->phi_raw() << " sampling " <<
-      windowCell->caloDDE()->getSampling());
+
+  ATH_MSG_INFO("start neural network part");
+  // get neural net JSON file as an std::istream object
+  std::ifstream input(m_paramsFilename);
+  // build the graph
+  lwt::LightweightGraph graph(lwt::parse_json_graph(input));
+
+  // fill a map of input nodes
+  std::map<std::string, std::map<std::string, double> > inputs;
+  for (int in_var = 0; in_var< 300; in_var ++)
+   {
+    inputs["Z"].insert ( std::pair<std::string,double>(std::to_string(in_var),1.) );
+    }
+  for (int in_var = 0; in_var< 1; in_var ++)
+   {
+    inputs["E_true"].insert ( std::pair<std::string,double>(std::to_string(in_var),1.) );
+    }
+  for (int in_var = 0; in_var< 4; in_var ++)
+   {
+    inputs["pconfig"].insert ( std::pair<std::string,double>(std::to_string(in_var),1.) );
+    }
+  for (int in_var = 0; in_var< 2; in_var ++)
+   {
+    inputs["econfig"].insert ( std::pair<std::string,double>(std::to_string(in_var),1.) );
+    }
+  for (int in_var = 0; in_var< 2; in_var ++)
+   {
+    inputs["ripos"].insert ( std::pair<std::string,double>(std::to_string(in_var),1.) );
+    }
+  // compute the output values
+  std::map<std::string, double> outputs = graph.compute(inputs);
+  ATH_MSG_INFO("neural network output = "<<outputs);
+
+
+  std::vector<CaloCell*>::iterator windowCell;
+  int i = 0;
+  for ( windowCell = windowCells.begin(); windowCell != windowCells.end(); ++windowCell ) {
+      ATH_MSG_DEBUG("NNN eta phi " << (*windowCell)->caloDDE()->eta_raw() << " and " << (*windowCell)->caloDDE()->phi_raw() << " sampling " <<
+              (*windowCell)->caloDDE()->getSampling() << "energy" << (*windowCell)->energy());
+      (*windowCell)->addEnergy(65000. * outputs[std::to_string(i)]);
+
+      ATH_MSG_DEBUG("NNN added " << (*windowCell)->caloDDE()->eta_raw() << " and " << (*windowCell)->caloDDE()->phi_raw() << " sampling " <<
+              (*windowCell)->caloDDE()->getSampling() << "energy" << (*windowCell)->energy());
+      i++;
+
 
   }
 
