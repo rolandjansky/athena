@@ -2,13 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfoAODFixAlg.cxx 298140 2013-11-19 11:32:49Z emoyse $
+// $Id: EventInfoRunNumberFixAlg.cxx 298140 2013-11-19 11:32:49Z emoyse $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
 
 // Local include(s):
-#include "xAODEventInfo/EventInfoAODFixAlg.h"
+#include "EventInfoRunNumberFixAlg.h"
 #include "xAODEventInfo/EventInfoAuxContainer.h"
 
 // Misc
@@ -17,7 +17,7 @@
 
 namespace xAOD {
 
-  EventInfoAODFixAlg::EventInfoAODFixAlg( const std::string& name,
+  EventInfoRunNumberFixAlg::EventInfoRunNumberFixAlg( const std::string& name,
     ISvcLocator* svcLoc )
     : AthAlgorithm( name, svcLoc )
   {
@@ -25,13 +25,13 @@ namespace xAOD {
     declareProperty( "RunNumber", m_runNumber = 999 );
   }
 
-  StatusCode EventInfoAODFixAlg::initialize() {
+  StatusCode EventInfoRunNumberFixAlg::initialize() {
       // Return gracefully:
     return StatusCode::SUCCESS;
     
   }
 
-  StatusCode EventInfoAODFixAlg::execute() {
+  StatusCode EventInfoRunNumberFixAlg::execute() {
     
     std::string m_containerName = "EventInfo";
     const SG::DataProxy* proxy =

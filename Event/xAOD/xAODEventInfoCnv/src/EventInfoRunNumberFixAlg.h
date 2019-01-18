@@ -20,11 +20,11 @@ namespace xAOD {
    /**
     *  @short Algorithm to fix AOD EventInfo  
     */
-   class EventInfoAODFixAlg : public AthAlgorithm {
+   class EventInfoRunNumberFixAlg : public AthAlgorithm {
 
    public:
       /// Regular algorithm constructor
-      EventInfoAODFixAlg( const std::string& name, ISvcLocator* svcLoc );
+      EventInfoRunNumberFixAlg( const std::string& name, ISvcLocator* svcLoc );
 
       /// Function initialising the algorithm
       virtual StatusCode initialize();
@@ -36,7 +36,7 @@ namespace xAOD {
       /// Correct number number to be used to update EventInfo
       uint32_t m_runNumber;
 
-   }; // class EventInfoAODFixAlg
+   }; // class EventInfoRunNumberFixAlg
 
 } // namespace xAODMaker
 
