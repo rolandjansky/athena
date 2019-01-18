@@ -61,11 +61,11 @@ void TGCConnectionInPP::readConnectionTable(TGCPatchPanel* PP)
     if(label==Label){
       // create arrays store entries in database.
       for( int i=0; i<NumberOfPPOutputConnector; i+=1){
-        line>>nCh[i];
-        patchPanelIn[i] = new TGCPatchPanel* [nCh[i]];
-        for( int j=0; j<nCh[i]; j+=1) patchPanelIn[i][j]=0;
-        connectorIn[i] = new int [nCh[i]];
-        channelIn[i] = new int [nCh[i]];
+        line>>m_nCh[i];
+        m_patchPanelIn[i] = new TGCPatchPanel* [m_nCh[i]];
+        for( int j=0; j<m_nCh[i]; j+=1) m_patchPanelIn[i][j]=0;
+        m_connectorIn[i] = new int [m_nCh[i]];
+        m_channelIn[i] = new int [m_nCh[i]];
       }
       while(file.getline(buf,BufferSize)&&(isspace(buf[0])||isdigit(buf[0]))){
         int iCon = 0;
@@ -77,26 +77,26 @@ void TGCConnectionInPP::readConnectionTable(TGCPatchPanel* PP)
         if((i1PP!=-1)&&(PP->getId()==oPP)){
           if(PP->getId()==i1PP){
             // Channel correspond to this output channel is in same board.
-            patchPanelIn[oCon][oCh]=PP;
+            m_patchPanelIn[oCon][oCh]=PP;
           }else{
             // Channel correspond to this output channel is in adjacent boards.
             if(PP->getAdjacentPP(0)!=0){
               if(PP->getAdjacentPP(0)->getId()==i1PP){
-                patchPanelIn[oCon][oCh]=PP->getAdjacentPP(0);
+                m_patchPanelIn[oCon][oCh]=PP->getAdjacentPP(0);
               }
             }
             if(PP->getAdjacentPP(1)!=0){
               if(PP->getAdjacentPP(1)->getId()==i1PP){
-                patchPanelIn[oCon][oCh]=PP->getAdjacentPP(1);
+                m_patchPanelIn[oCon][oCh]=PP->getAdjacentPP(1);
               }
             }
           }
-          connectorIn[oCon][oCh]=iCon;
-          channelIn[oCon][oCh]=iCh;
+          m_connectorIn[oCon][oCh]=iCon;
+          m_channelIn[oCon][oCh]=iCh;
 #ifdef TGCDEBUG_CONNECTION
           std::cout << "TGCConnectionInPP: " << label << " PPIn= " << i1PP 
-               << " " << connectorIn[oCon][oCh]
-               << " " << channelIn[oCon][oCh]
+               << " " << m_connectorIn[oCon][oCh]
+               << " " << m_channelIn[oCon][oCh]
                << " PPOut= " << oPP  << " " << oCon << " " << oCh;
 #endif 
 
@@ -105,30 +105,30 @@ void TGCConnectionInPP::readConnectionTable(TGCPatchPanel* PP)
           // i2PP, iCon and iCh are PatchPanel ID, connector
           // ID and channel number ored.
           if((i2PP>0)||(iCon!=0)||(iCh!=0)){
-            if(oredPatchPanelIn[oCon]==0){
-              oredPatchPanelIn[oCon] = new TGCPatchPanel* [nCh[oCon]];
-              oredConnectorIn[oCon] = new int [nCh[oCon]];
-              oredChannelIn[oCon] = new int [nCh[oCon]];
-              for(int  j=0; j<nCh[oCon]; j+=1) oredPatchPanelIn[oCon][j]=0;
+            if(m_oredPatchPanelIn[oCon]==0){
+              m_oredPatchPanelIn[oCon] = new TGCPatchPanel* [m_nCh[oCon]];
+              m_oredConnectorIn[oCon] = new int [m_nCh[oCon]];
+              m_oredChannelIn[oCon] = new int [m_nCh[oCon]];
+              for(int  j=0; j<m_nCh[oCon]; j+=1) m_oredPatchPanelIn[oCon][j]=0;
             }
-            oredConnectorIn[oCon][oCh]=iCon;
-            oredChannelIn[oCon][oCh]=iCh;
+            m_oredConnectorIn[oCon][oCh]=iCon;
+            m_oredChannelIn[oCon][oCh]=iCh;
 #ifdef TGCDEBUG_CONNECTION
-            std::cout << "  PPOR= " << i2PP << " " << oredConnectorIn[oCon][oCh]
-                                       << " " << oredChannelIn[oCon][oCh];
+            std::cout << "  PPOR= " << i2PP << " " << m_oredConnectorIn[oCon][oCh]
+                                       << " " << m_oredChannelIn[oCon][oCh];
 #endif 
 
             if(PP->getId()==i2PP){
-              oredPatchPanelIn[oCon][oCh]=PP;
+              m_oredPatchPanelIn[oCon][oCh]=PP;
             }else{
               if(PP->getAdjacentPP(0)!=0){
                 if(PP->getAdjacentPP(0)->getId()==i2PP){
-                  oredPatchPanelIn[oCon][oCh]=PP->getAdjacentPP(0);
+                  m_oredPatchPanelIn[oCon][oCh]=PP->getAdjacentPP(0);
                 }
               }
               if(PP->getAdjacentPP(1)!=0){
                 if(PP->getAdjacentPP(1)->getId()==i2PP){
-                  oredPatchPanelIn[oCon][oCh]=PP->getAdjacentPP(1);
+                  m_oredPatchPanelIn[oCon][oCh]=PP->getAdjacentPP(1);
                 }
               }
             }
@@ -149,7 +149,7 @@ void TGCConnectionInPP::readConnectionTable(TGCPatchPanel* PP)
 bool TGCConnectionInPP::existOredSignal() const
 {
   for( int i=0; i<NumberOfPPOutputConnector; i+=1){
-    if(oredPatchPanelIn[i]!=0) return true;
+    if(m_oredPatchPanelIn[i]!=0) return true;
   }
   return false;
 }
@@ -161,20 +161,20 @@ void TGCConnectionInPP::dumpConnection(int PPId) const
   file.setf(std::ios::right);
 
   for( int i=0; i<NumberOfPPOutputConnector; i+=1){
-    for( int j=0; j<nCh[i]; j+=1){
-      if(patchPanelIn[i]!=0){
+    for( int j=0; j<m_nCh[i]; j+=1){
+      if(m_patchPanelIn[i]!=0){
         file.width(3); file<<PPId;
         file.width(3); file<<i;
         file.width(3); file<<j;
-        if(patchPanelIn[i][j]!=0){
-          file.width(3);  file<<patchPanelIn[i][j]->getId();
-          file.width(3);  file<<connectorIn[i][j];
-          file.width(3);  file<<channelIn[i][j];
-          if(oredPatchPanelIn[i]!=0){
-            if(oredPatchPanelIn[i][j]!=0){
-              file.width(3);  file<<oredPatchPanelIn[i][j]->getId();
-              file.width(3);  file<<oredConnectorIn[i][j];
-              file.width(3);  file<<oredChannelIn[i][j];
+        if(m_patchPanelIn[i][j]!=0){
+          file.width(3);  file<<m_patchPanelIn[i][j]->getId();
+          file.width(3);  file<<m_connectorIn[i][j];
+          file.width(3);  file<<m_channelIn[i][j];
+          if(m_oredPatchPanelIn[i]!=0){
+            if(m_oredPatchPanelIn[i][j]!=0){
+              file.width(3);  file<<m_oredPatchPanelIn[i][j]->getId();
+              file.width(3);  file<<m_oredConnectorIn[i][j];
+              file.width(3);  file<<m_oredChannelIn[i][j];
             }
           }
         }else{
@@ -193,32 +193,32 @@ void TGCConnectionInPP::dumpConnection(int PPId) const
 TGCConnectionInPP::TGCConnectionInPP()
 {
   for( int i=0; i<NumberOfPPOutputConnector; i+=1){
-    nCh[i] = 0;
-    patchPanelIn[i] = 0;
-    channelIn[i] = 0;
-    connectorIn[i] = 0;
-    oredPatchPanelIn[i] = 0;
-    oredChannelIn[i] = 0;
-    oredConnectorIn[i] = 0;
+    m_nCh[i] = 0;
+    m_patchPanelIn[i] = 0;
+    m_channelIn[i] = 0;
+    m_connectorIn[i] = 0;
+    m_oredPatchPanelIn[i] = 0;
+    m_oredChannelIn[i] = 0;
+    m_oredConnectorIn[i] = 0;
   }
 }
 
 TGCConnectionInPP::~TGCConnectionInPP()
 {
   for( int i=0; i<NumberOfPPOutputConnector; i+=1){
-    if(patchPanelIn[i]!=0) delete [] patchPanelIn[i];
-    patchPanelIn[i] = 0;
-    if(channelIn[i]!=0) delete [] channelIn[i];
-    channelIn[i] = 0;
-    if(connectorIn[i]!=0) delete [] connectorIn[i];
-    connectorIn[i] = 0;
+    if(m_patchPanelIn[i]!=0) delete [] m_patchPanelIn[i];
+    m_patchPanelIn[i] = 0;
+    if(m_channelIn[i]!=0) delete [] m_channelIn[i];
+    m_channelIn[i] = 0;
+    if(m_connectorIn[i]!=0) delete [] m_connectorIn[i];
+    m_connectorIn[i] = 0;
 
-    if(oredPatchPanelIn[i]!=0) delete [] oredPatchPanelIn[i];
-    oredPatchPanelIn[i] = 0;
-    if(oredChannelIn[i]!=0) delete [] oredChannelIn[i];
-    oredChannelIn[i] = 0;
-    if(oredConnectorIn[i]!=0) delete [] oredConnectorIn[i];
-    oredConnectorIn[i] = 0;
+    if(m_oredPatchPanelIn[i]!=0) delete [] m_oredPatchPanelIn[i];
+    m_oredPatchPanelIn[i] = 0;
+    if(m_oredChannelIn[i]!=0) delete [] m_oredChannelIn[i];
+    m_oredChannelIn[i] = 0;
+    if(m_oredConnectorIn[i]!=0) delete [] m_oredConnectorIn[i];
+    m_oredConnectorIn[i] = 0;
   }
 }
 
@@ -226,43 +226,43 @@ TGCConnectionInPP::~TGCConnectionInPP()
 TGCConnectionInPP::TGCConnectionInPP(const TGCConnectionInPP& right)
 {
   for( int i=0; i<NumberOfPPOutputConnector; i+=1){
-    nCh[i] = right.nCh[i];
-    int nPPOutCh = nCh[i];
+    m_nCh[i] = right.m_nCh[i];
+    int nPPOutCh = m_nCh[i];
 
-    patchPanelIn[i] = 0;
-    if(right.patchPanelIn[i]) {
-      patchPanelIn[i] = new TGCPatchPanel* [nPPOutCh]; 
-      for(int iCh=0; iCh<nPPOutCh; iCh++) patchPanelIn[i][iCh] = right.patchPanelIn[i][iCh];
+    m_patchPanelIn[i] = 0;
+    if(right.m_patchPanelIn[i]) {
+      m_patchPanelIn[i] = new TGCPatchPanel* [nPPOutCh]; 
+      for(int iCh=0; iCh<nPPOutCh; iCh++) m_patchPanelIn[i][iCh] = right.m_patchPanelIn[i][iCh];
     }
 
-    channelIn[i] = 0;
-    if(right.channelIn[i]) {
-      channelIn[i] = new int [nPPOutCh];
-      for(int iCh=0; iCh<nPPOutCh; iCh++) channelIn[i][iCh] = right.channelIn[i][iCh];
+    m_channelIn[i] = 0;
+    if(right.m_channelIn[i]) {
+      m_channelIn[i] = new int [nPPOutCh];
+      for(int iCh=0; iCh<nPPOutCh; iCh++) m_channelIn[i][iCh] = right.m_channelIn[i][iCh];
     }
 
-    connectorIn[i] = 0;
-    if(right.connectorIn[i]) {
-      connectorIn[i] = new int [nPPOutCh];
-      for(int iCh=0; iCh<nPPOutCh; iCh++) connectorIn[i][iCh] = right.connectorIn[i][iCh];
+    m_connectorIn[i] = 0;
+    if(right.m_connectorIn[i]) {
+      m_connectorIn[i] = new int [nPPOutCh];
+      for(int iCh=0; iCh<nPPOutCh; iCh++) m_connectorIn[i][iCh] = right.m_connectorIn[i][iCh];
     }
 
-    oredPatchPanelIn[i] = 0;
-    if(right.oredPatchPanelIn[i]) {
-       oredPatchPanelIn[i] = new TGCPatchPanel* [nPPOutCh]; 
-       for(int iCh=0; iCh<nPPOutCh; iCh++) oredPatchPanelIn[i][iCh] = right.oredPatchPanelIn[i][iCh];
+    m_oredPatchPanelIn[i] = 0;
+    if(right.m_oredPatchPanelIn[i]) {
+       m_oredPatchPanelIn[i] = new TGCPatchPanel* [nPPOutCh]; 
+       for(int iCh=0; iCh<nPPOutCh; iCh++) m_oredPatchPanelIn[i][iCh] = right.m_oredPatchPanelIn[i][iCh];
      }
  
-    oredChannelIn[i] = 0;
-     if(right.oredChannelIn[i]) {
-       oredChannelIn[i] = new int [nPPOutCh];
-       for(int iCh=0; iCh<nPPOutCh; iCh++) oredChannelIn[i][iCh] = right.oredChannelIn[i][iCh];
+    m_oredChannelIn[i] = 0;
+     if(right.m_oredChannelIn[i]) {
+       m_oredChannelIn[i] = new int [nPPOutCh];
+       for(int iCh=0; iCh<nPPOutCh; iCh++) m_oredChannelIn[i][iCh] = right.m_oredChannelIn[i][iCh];
      }
      
-     oredConnectorIn[i] = 0;
-     if(right.oredConnectorIn[i]) {
-       oredConnectorIn[i] = new int [nPPOutCh];
-       for(int iCh=0; iCh<nPPOutCh; iCh++) oredConnectorIn[i][iCh] = right.oredConnectorIn[i][iCh];
+     m_oredConnectorIn[i] = 0;
+     if(right.m_oredConnectorIn[i]) {
+       m_oredConnectorIn[i] = new int [nPPOutCh];
+       for(int iCh=0; iCh<nPPOutCh; iCh++) m_oredConnectorIn[i][iCh] = right.m_oredConnectorIn[i][iCh];
      }
   }
 }
@@ -272,49 +272,49 @@ TGCConnectionInPP::operator=(const TGCConnectionInPP& right)
 {
   if( this != &right ) {
     for( int i=0; i<NumberOfPPOutputConnector; i+=1){
-      nCh[i] = right.nCh[i];
-      int nPPOutCh = nCh[i];
+      m_nCh[i] = right.m_nCh[i];
+      int nPPOutCh = m_nCh[i];
 
-      delete [] patchPanelIn[i];
-      patchPanelIn[i] = 0;
-      if(right.patchPanelIn[i]) {
-	patchPanelIn[i] = new TGCPatchPanel* [nPPOutCh];
-	for(int iCh=0; iCh<nPPOutCh; iCh++) patchPanelIn[i][iCh] = right.patchPanelIn[i][iCh];
+      delete [] m_patchPanelIn[i];
+      m_patchPanelIn[i] = 0;
+      if(right.m_patchPanelIn[i]) {
+	m_patchPanelIn[i] = new TGCPatchPanel* [nPPOutCh];
+	for(int iCh=0; iCh<nPPOutCh; iCh++) m_patchPanelIn[i][iCh] = right.m_patchPanelIn[i][iCh];
       }
 
-      delete [] channelIn[i];
-      channelIn[i] = 0;
-      if(right.channelIn[i]) {
-	channelIn[i] = new int [nPPOutCh];
-	for(int iCh=0; iCh<nPPOutCh; iCh++) channelIn[i][iCh] = right.channelIn[i][iCh];
+      delete [] m_channelIn[i];
+      m_channelIn[i] = 0;
+      if(right.m_channelIn[i]) {
+	m_channelIn[i] = new int [nPPOutCh];
+	for(int iCh=0; iCh<nPPOutCh; iCh++) m_channelIn[i][iCh] = right.m_channelIn[i][iCh];
       }
     
-      delete [] connectorIn[i];
-      connectorIn[i] = 0;
-      if(right.connectorIn[i]) {
-	connectorIn[i] = new int [nPPOutCh];
-	for(int iCh=0; iCh<nPPOutCh; iCh++) connectorIn[i][iCh] = right.connectorIn[i][iCh];
+      delete [] m_connectorIn[i];
+      m_connectorIn[i] = 0;
+      if(right.m_connectorIn[i]) {
+	m_connectorIn[i] = new int [nPPOutCh];
+	for(int iCh=0; iCh<nPPOutCh; iCh++) m_connectorIn[i][iCh] = right.m_connectorIn[i][iCh];
       }
 
-      delete [] oredPatchPanelIn[i];
-      oredPatchPanelIn[i] = 0;
-      if(right.oredPatchPanelIn[i]) {
-	oredPatchPanelIn[i] = new TGCPatchPanel* [nPPOutCh];
-	for(int iCh=0; iCh<nPPOutCh; iCh++) oredPatchPanelIn[i][iCh] = right.oredPatchPanelIn[i][iCh];
+      delete [] m_oredPatchPanelIn[i];
+      m_oredPatchPanelIn[i] = 0;
+      if(right.m_oredPatchPanelIn[i]) {
+	m_oredPatchPanelIn[i] = new TGCPatchPanel* [nPPOutCh];
+	for(int iCh=0; iCh<nPPOutCh; iCh++) m_oredPatchPanelIn[i][iCh] = right.m_oredPatchPanelIn[i][iCh];
       }
 
-      delete [] oredChannelIn[i];
-      oredChannelIn[i] = 0;
-      if(right.oredChannelIn[i]) {
-	oredChannelIn[i] = new int [nPPOutCh];
-	for(int iCh=0; iCh<nPPOutCh; iCh++) oredChannelIn[i][iCh] = right.oredChannelIn[i][iCh];
+      delete [] m_oredChannelIn[i];
+      m_oredChannelIn[i] = 0;
+      if(right.m_oredChannelIn[i]) {
+	m_oredChannelIn[i] = new int [nPPOutCh];
+	for(int iCh=0; iCh<nPPOutCh; iCh++) m_oredChannelIn[i][iCh] = right.m_oredChannelIn[i][iCh];
       }
 
-      delete [] oredConnectorIn[i];
-      oredConnectorIn[i] = 0;
-      if(right.oredConnectorIn[i]) {
-	oredConnectorIn[i] = new int [nPPOutCh];
-	for(int iCh=0; iCh<nPPOutCh; iCh++) oredConnectorIn[i][iCh] = right.oredConnectorIn[i][iCh];
+      delete [] m_oredConnectorIn[i];
+      m_oredConnectorIn[i] = 0;
+      if(right.m_oredConnectorIn[i]) {
+	m_oredConnectorIn[i] = new int [nPPOutCh];
+	for(int iCh=0; iCh<nPPOutCh; iCh++) m_oredConnectorIn[i][iCh] = right.m_oredConnectorIn[i][iCh];
       }
     }
   }
@@ -323,63 +323,63 @@ TGCConnectionInPP::operator=(const TGCConnectionInPP& right)
 
 int TGCConnectionInPP::getChannelIn(int connectorOut, int chOut)
 {
-  return channelIn[connectorOut][chOut];
+  return m_channelIn[connectorOut][chOut];
 }
 
 int TGCConnectionInPP::getConnectorIn(int connectorOut, int chOut)
 {
-  return connectorIn[connectorOut][chOut];
+  return m_connectorIn[connectorOut][chOut];
 }
 
 TGCPatchPanel* TGCConnectionInPP::getPPIn(int connectorOut, int chOut)
 {
-  if(patchPanelIn[connectorOut]!=0)
-    return patchPanelIn[connectorOut][chOut];
+  if(m_patchPanelIn[connectorOut]!=0)
+    return m_patchPanelIn[connectorOut][chOut];
   else
     return 0;
 }
 
 int TGCConnectionInPP::getOredChannelIn(int connectorOut, int chOut)
 {
-  return oredChannelIn[connectorOut][chOut];
+  return m_oredChannelIn[connectorOut][chOut];
 }
 
 int TGCConnectionInPP::getOredConnectorIn(int connectorOut, int chOut)
 {
-  return oredConnectorIn[connectorOut][chOut];
+  return m_oredConnectorIn[connectorOut][chOut];
 }
 
 TGCPatchPanel* TGCConnectionInPP::getOredPPIn(int connectorOut, int chOut)
 {
-  if(oredPatchPanelIn[connectorOut]!=0)
-    return oredPatchPanelIn[connectorOut][chOut];
+  if(m_oredPatchPanelIn[connectorOut]!=0)
+    return m_oredPatchPanelIn[connectorOut][chOut];
   else
     return 0;
 }
 
 void TGCConnectionInPP::setConnection(int out, int chOut, int in, int chIn, TGCPatchPanel* PP)
 {
-  if (patchPanelIn[out][chOut]==0) {
-    patchPanelIn[out][chOut] = PP;
-    connectorIn[out][chOut] = in;
-    channelIn[out][chOut] = chIn;
+  if (m_patchPanelIn[out][chOut]==0) {
+    m_patchPanelIn[out][chOut] = PP;
+    m_connectorIn[out][chOut] = in;
+    m_channelIn[out][chOut] = chIn;
   }else{
     // When the output channel correspond to the input channel has
     // already connected, the input channel is connected as ored channel.
     if(!existOredSignal()){
       // prepare arrays for ored channel.s
-      int nPPOutCh = nCh[out];
-      oredPatchPanelIn[out] = new TGCPatchPanel* [nPPOutCh];
-      channelIn[out] = new int [nPPOutCh];
-      connectorIn[out] = new int [nPPOutCh];
-      oredPatchPanelIn[out] = new TGCPatchPanel* [nPPOutCh];
-      oredChannelIn[out] = new int [nPPOutCh];
-      oredConnectorIn[out] = new int [nPPOutCh];
+      int nPPOutCh = m_nCh[out];
+      m_oredPatchPanelIn[out] = new TGCPatchPanel* [nPPOutCh];
+      m_channelIn[out] = new int [nPPOutCh];
+      m_connectorIn[out] = new int [nPPOutCh];
+      m_oredPatchPanelIn[out] = new TGCPatchPanel* [nPPOutCh];
+      m_oredChannelIn[out] = new int [nPPOutCh];
+      m_oredConnectorIn[out] = new int [nPPOutCh];
     }
-    if (oredPatchPanelIn[out][chOut]==0) {
-      oredPatchPanelIn[out][chOut] = PP;
-      oredConnectorIn[out][chOut] = in;
-      oredChannelIn[out][chOut] = chIn;
+    if (m_oredPatchPanelIn[out][chOut]==0) {
+      m_oredPatchPanelIn[out][chOut] = PP;
+      m_oredConnectorIn[out][chOut] = in;
+      m_oredChannelIn[out][chOut] = chIn;
     }
    } 
 }
@@ -394,17 +394,17 @@ bool TGCConnectionInPP::replacePatchPanelPointers(TGCPatchPanel* newPatchPanel,
   if(oldPatchPanels.size()!=3) return false;
 
   for(int i=0; i<NumberOfPPOutputConnector; i++) {
-    int nPPOutCh = nCh[i];
-    if(patchPanelIn[i]) {
+    int nPPOutCh = m_nCh[i];
+    if(m_patchPanelIn[i]) {
       for(int iCh=0; iCh<nPPOutCh; iCh++) {
 	// Null pointers are NOT updated. 
-	if(patchPanelIn[i][iCh]) {
-	  if(       patchPanelIn[i][iCh]==oldPatchPanels.at(0)) {
-	    patchPanelIn[i][iCh] = newPatchPanel;
-	  } else if(patchPanelIn[i][iCh]==oldPatchPanels.at(1)) {
-	    patchPanelIn[i][iCh] = newPatchPanel->getAdjacentPP(0);
-	  } else if(patchPanelIn[i][iCh]==oldPatchPanels.at(2)) {
-	    patchPanelIn[i][iCh] = newPatchPanel->getAdjacentPP(1);
+	if(m_patchPanelIn[i][iCh]) {
+	  if(       m_patchPanelIn[i][iCh]==oldPatchPanels.at(0)) {
+	    m_patchPanelIn[i][iCh] = newPatchPanel;
+	  } else if(m_patchPanelIn[i][iCh]==oldPatchPanels.at(1)) {
+	    m_patchPanelIn[i][iCh] = newPatchPanel->getAdjacentPP(0);
+	  } else if(m_patchPanelIn[i][iCh]==oldPatchPanels.at(2)) {
+	    m_patchPanelIn[i][iCh] = newPatchPanel->getAdjacentPP(1);
 	  } else { // This should not happen. 
 	    return false;
 	  }
@@ -412,16 +412,16 @@ bool TGCConnectionInPP::replacePatchPanelPointers(TGCPatchPanel* newPatchPanel,
       }
     }
 
-    if(oredPatchPanelIn[i]) {
+    if(m_oredPatchPanelIn[i]) {
       for(int iCh=0; iCh<nPPOutCh; iCh++) {
 	// Null pointers are NOT updated. 
-	if(oredPatchPanelIn[i][iCh]) {
-	  if(       oredPatchPanelIn[i][iCh]==oldPatchPanels.at(0)) {
-	    oredPatchPanelIn[i][iCh] = newPatchPanel;
-	  } else if(oredPatchPanelIn[i][iCh]==oldPatchPanels.at(1)) {
-	    oredPatchPanelIn[i][iCh] = newPatchPanel->getAdjacentPP(0);
-	  } else if(oredPatchPanelIn[i][iCh]==oldPatchPanels.at(2)) {
-	    oredPatchPanelIn[i][iCh] = newPatchPanel->getAdjacentPP(1);
+	if(m_oredPatchPanelIn[i][iCh]) {
+	  if(       m_oredPatchPanelIn[i][iCh]==oldPatchPanels.at(0)) {
+	    m_oredPatchPanelIn[i][iCh] = newPatchPanel;
+	  } else if(m_oredPatchPanelIn[i][iCh]==oldPatchPanels.at(1)) {
+	    m_oredPatchPanelIn[i][iCh] = newPatchPanel->getAdjacentPP(0);
+	  } else if(m_oredPatchPanelIn[i][iCh]==oldPatchPanels.at(2)) {
+	    m_oredPatchPanelIn[i][iCh] = newPatchPanel->getAdjacentPP(1);
 	  } else { // This should not happen. 
 	    return false;
 	  }

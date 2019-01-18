@@ -12,7 +12,7 @@ namespace LVL1TGCTrigger {
 
 class TGCBoardConnection {
  public:
-  inline int getNumberOfType() const { return nType; }
+  inline int getNumberOfType() const { return m_nType; }
   int getNumber(int ntype) const;
   int getId(int type, int board) const;
 
@@ -27,25 +27,25 @@ class TGCBoardConnection {
   virtual ~TGCBoardConnection();  
 
  protected:
-  int nType;
-  int* numberOfBoard;
-  int** id;
+  int m_nType;
+  int* m_numberOfBoard;
+  int** m_id;
 };
 
 inline int TGCBoardConnection::getNumber(int type) const
 {
-  if(numberOfBoard==0) {
+  if(m_numberOfBoard==0) {
     std::cerr << "TGCBoardConnection::getNumber : numberOfBoard is zero" << std::endl;  
     return -1;
   }
-  return numberOfBoard[type];
+  return m_numberOfBoard[type];
 }
 
 inline
 int TGCBoardConnection::getId(int type, int board) const
 {
-  if(id!=0)
-    return id[type][board];
+  if(m_id!=0)
+    return m_id[type][board];
   else { 
     std::cerr << "TGCBoardConnection::getId: id is zero" << std::endl;  
     return -1; 

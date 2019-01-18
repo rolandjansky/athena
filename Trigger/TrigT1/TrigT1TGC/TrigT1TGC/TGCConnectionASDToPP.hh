@@ -26,18 +26,18 @@ public:
   TGCConnectionASDToPP& operator=(const TGCConnectionASDToPP& right);
 
 private:
-  int totalNumberOfChannel;
-  int type;
-  TGCForwardBackwardType forwardBackward;
+  int m_totalNumberOfChannel;
+  int m_type;
+  TGCForwardBackwardType m_forwardBackward;
   // for ASD
-  int* layerId;
-  int* chamberId;
-  int* lineId;
+  int* m_layerId;
+  int* m_chamberId;
+  int* m_lineId;
   // for PP
-  int* PPId;
-  int* connectorId;
-  int* channelId;
-  static const int forwardLayer[];
+  int* m_PPId;
+  int* m_connectorId;
+  int* m_channelId;
+  static const int s_forwardLayer[];
 };
 
 } //end of namespace bracket

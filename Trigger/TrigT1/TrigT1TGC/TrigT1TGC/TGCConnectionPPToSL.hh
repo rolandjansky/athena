@@ -21,14 +21,14 @@ public:
   TGCConnectionPPToSL& operator =(const TGCConnectionPPToSL& );
 
   bool  readData(TGCRegionType type);
-  const TGCConnectionPPToSB* getPPToSB() const { return &PPToSB; };
-  const TGCConnectionSBToHPB* getSBToHPB() const { return &SBToHPB; };
-  const TGCConnectionHPBToSL* getHPBToSL() const { return &HPBToSL; };
+  const TGCConnectionPPToSB* getPPToSB() const { return &m_PPToSB; };
+  const TGCConnectionSBToHPB* getSBToHPB() const { return &m_SBToHPB; };
+  const TGCConnectionHPBToSL* getHPBToSL() const { return &m_HPBToSL; };
 
 private:
-  TGCConnectionPPToSB PPToSB;
-  TGCConnectionSBToHPB SBToHPB;
-  TGCConnectionHPBToSL HPBToSL;
+  TGCConnectionPPToSB m_PPToSB;
+  TGCConnectionSBToHPB m_SBToHPB;
+  TGCConnectionHPBToSL m_HPBToSL;
 };
 
 
