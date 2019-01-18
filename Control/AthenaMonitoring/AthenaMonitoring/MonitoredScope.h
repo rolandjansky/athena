@@ -5,7 +5,7 @@
 #ifndef AthenaMonitoring_MonitoredScope_h
 #define AthenaMonitoring_MonitoredScope_h
 
-//#warning "This is an obsolete header. Use MonitoredGroup.h instead"
+#warning "This is an obsolete header. Use MonitoredGroup.h or Monitored.h instead"
 #include "AthenaMonitoring/MonitoredGroup.h"
 #include "AthenaMonitoring/Monitored.h"   // TEMPORARY: for backwards compatibility
 
