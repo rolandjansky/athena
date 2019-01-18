@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -105,6 +105,12 @@ StatusCode  FastHitConvertTool::initialize()
 
 StatusCode  FastHitConvertTool::process(CaloCellContainer *theCellContainer)
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  if (ctx.slot() > 1) {
+    ATH_MSG_ERROR ("FastHitConvertTool doesn't work with MT.");
+    return StatusCode::FAILURE;
+  }
+
   CHECK(this->initEvent());
   CHECK(this->hitConstruction(theCellContainer));
   CHECK(this->finaliseEvent());
