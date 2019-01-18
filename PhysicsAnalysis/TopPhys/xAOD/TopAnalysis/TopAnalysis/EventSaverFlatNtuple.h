@@ -373,18 +373,44 @@ private:
 
     // Taus
     float m_weight_tauSF;
-    float m_weight_tauSF_ELEOLR_UP;
-    float m_weight_tauSF_ELEOLR_DOWN;
-    float m_weight_tauSF_TRUEELECTRON_ELEOLR_UP;
-    float m_weight_tauSF_TRUEELECTRON_ELEOLR_DOWN;
-    float m_weight_tauSF_JETID_UP;
-    float m_weight_tauSF_JETID_DOWN;
-    float m_weight_tauSF_JETID_HIGHPT_UP;
+    float m_weight_tauSF_ELEOLR_TOTAL_DOWN;
+    float m_weight_tauSF_ELEOLR_TOTAL_UP;
+    float m_weight_tauSF_TRUEELECTRON_ELEOLR_HIGHMU_DOWN;
+    float m_weight_tauSF_TRUEELECTRON_ELEOLR_HIGHMU_UP;
+    float m_weight_tauSF_TRUEELECTRON_ELEOLR_LOWMU_DOWN;
+    float m_weight_tauSF_TRUEELECTRON_ELEOLR_LOWMU_UP;
+    float m_weight_tauSF_TRUEELECTRON_ELEOLR_SYST_DOWN;
+    float m_weight_tauSF_TRUEELECTRON_ELEOLR_SYST_UP;
+    float m_weight_tauSF_TRUEELECTRON_ELEBDT_MC16A_DOWN;
+    float m_weight_tauSF_TRUEELECTRON_ELEBDT_MC16A_UP;
+    float m_weight_tauSF_TRUEELECTRON_ELEBDT_MC16D_DOWN;
+    float m_weight_tauSF_TRUEELECTRON_ELEBDT_MC16D_UP;
+    float m_weight_tauSF_TRUEELECTRON_ELEBDT_SYST_DOWN;
+    float m_weight_tauSF_TRUEELECTRON_ELEBDT_SYST_UP;
+    float m_weight_tauSF_JETID_1P2025_DOWN;
+    float m_weight_tauSF_JETID_1P2025_UP;
+    float m_weight_tauSF_JETID_1P2530_DOWN;
+    float m_weight_tauSF_JETID_1P2530_UP;
+    float m_weight_tauSF_JETID_1P3040_DOWN;
+    float m_weight_tauSF_JETID_1P3040_UP;
+    float m_weight_tauSF_JETID_1PGE40_DOWN;
+    float m_weight_tauSF_JETID_1PGE40_UP;
+    float m_weight_tauSF_JETID_3P2030_DOWN;
+    float m_weight_tauSF_JETID_3P2030_UP;
+    float m_weight_tauSF_JETID_3PGE30_DOWN;
+    float m_weight_tauSF_JETID_3PGE30_UP;
     float m_weight_tauSF_JETID_HIGHPT_DOWN;
-    float m_weight_tauSF_RECO_UP;
-    float m_weight_tauSF_RECO_DOWN;
-    float m_weight_tauSF_RECO_HIGHPT_UP;
+    float m_weight_tauSF_JETID_HIGHPT_UP;
+    float m_weight_tauSF_JETID_SYST_DOWN;
+    float m_weight_tauSF_JETID_SYST_UP;
+    float m_weight_tauSF_JETID_AF2_DOWN;
+    float m_weight_tauSF_JETID_AF2_UP;
+    float m_weight_tauSF_RECO_TOTAL_DOWN;
+    float m_weight_tauSF_RECO_TOTAL_UP;
     float m_weight_tauSF_RECO_HIGHPT_DOWN;
+    float m_weight_tauSF_RECO_HIGHPT_UP;
+    float m_weight_tauSF_RECO_AF2_DOWN;
+    float m_weight_tauSF_RECO_AF2_UP;
 
     // Photons
     float m_weight_photonSF = 0.;
@@ -991,19 +1017,48 @@ protected:
   const float& weight_indiv_SF_MU_TTVA_STAT_DOWN() const { return m_weight_indiv_SF_MU_TTVA_STAT_DOWN;}
 
   // Taus
-  const float& weight_tauSF() const { return m_weight_tauSF;}
-  const float& weight_tauSF_ELEOLR_UP() const { return m_weight_tauSF_ELEOLR_UP;}
-  const float& weight_tauSF_ELEOLR_DOWN() const { return m_weight_tauSF_ELEOLR_DOWN;}
-  const float& weight_tauSF_TRUEELECTRON_ELEOLR_UP() const { return m_weight_tauSF_TRUEELECTRON_ELEOLR_UP;}
-  const float& weight_tauSF_TRUEELECTRON_ELEOLR_DOWN() const { return m_weight_tauSF_TRUEELECTRON_ELEOLR_DOWN;}
-  const float& weight_tauSF_JETID_UP() const { return m_weight_tauSF_JETID_UP;}
-  const float& weight_tauSF_JETID_DOWN() const { return m_weight_tauSF_JETID_DOWN;}
-  const float& weight_tauSF_JETID_HIGHPT_UP() const { return m_weight_tauSF_JETID_HIGHPT_UP;}
+// Tau-electron overlap removal
+  const float& weight_tauSF_ELEOLR_TOTAL_DOWN() const { return m_weight_tauSF_ELEOLR_TOTAL_DOWN;}
+  const float& weight_tauSF_ELEOLR_TOTAL_UP() const { return m_weight_tauSF_ELEOLR_TOTAL_UP;}
+  const float& weight_tauSF_TRUEELECTRON_ELEOLR_HIGHMU_DOWN() const { return m_weight_tauSF_TRUEELECTRON_ELEOLR_HIGHMU_DOWN;}
+  const float& weight_tauSF_TRUEELECTRON_ELEOLR_HIGHMU_UP() const { return m_weight_tauSF_TRUEELECTRON_ELEOLR_HIGHMU_UP;}
+  const float& weight_tauSF_TRUEELECTRON_ELEOLR_LOWMU_DOWN() const { return m_weight_tauSF_TRUEELECTRON_ELEOLR_LOWMU_DOWN;}
+  const float& weight_tauSF_TRUEELECTRON_ELEOLR_LOWMU_UP() const { return m_weight_tauSF_TRUEELECTRON_ELEOLR_LOWMU_UP;}
+  const float& weight_tauSF_TRUEELECTRON_ELEOLR_SYST_DOWN() const { return m_weight_tauSF_TRUEELECTRON_ELEOLR_SYST_DOWN;}
+  const float& weight_tauSF_TRUEELECTRON_ELEOLR_SYST_UP() const { return m_weight_tauSF_TRUEELECTRON_ELEOLR_SYST_UP;}
+  const float& weight_tauSF_TRUEELECTRON_ELEBDT_MC16A_DOWN() const { return m_weight_tauSF_TRUEELECTRON_ELEBDT_MC16A_DOWN;}
+  const float& weight_tauSF_TRUEELECTRON_ELEBDT_MC16A_UP() const { return m_weight_tauSF_TRUEELECTRON_ELEBDT_MC16A_UP;}
+  const float& weight_tauSF_TRUEELECTRON_ELEBDT_MC16D_DOWN() const { return m_weight_tauSF_TRUEELECTRON_ELEBDT_MC16D_DOWN;}
+  const float& weight_tauSF_TRUEELECTRON_ELEBDT_MC16D_UP() const { return m_weight_tauSF_TRUEELECTRON_ELEBDT_MC16D_UP;}
+  const float& weight_tauSF_TRUEELECTRON_ELEBDT_SYST_DOWN() const { return m_weight_tauSF_TRUEELECTRON_ELEBDT_SYST_DOWN;}
+  const float& weight_tauSF_TRUEELECTRON_ELEBDT_SYST_UP() const { return m_weight_tauSF_TRUEELECTRON_ELEBDT_SYST_UP;}
+// Tau Jet IDWP
+  const float& weight_tauSF_JETID_1P2025_DOWN() const { return m_weight_tauSF_JETID_1P2025_DOWN;}
+  const float& weight_tauSF_JETID_1P2025_UP() const { return m_weight_tauSF_JETID_1P2025_UP;}
+  const float& weight_tauSF_JETID_1P2530_DOWN() const { return m_weight_tauSF_JETID_1P2530_DOWN;}
+  const float& weight_tauSF_JETID_1P2530_UP() const { return m_weight_tauSF_JETID_1P2530_UP;}
+  const float& weight_tauSF_JETID_1P3040_DOWN() const { return m_weight_tauSF_JETID_1P3040_DOWN;}
+  const float& weight_tauSF_JETID_1P3040_UP() const { return m_weight_tauSF_JETID_1P3040_UP;}
+  const float& weight_tauSF_JETID_1PGE40_DOWN() const { return m_weight_tauSF_JETID_1PGE40_DOWN;}
+  const float& weight_tauSF_JETID_1PGE40_UP() const { return m_weight_tauSF_JETID_1PGE40_UP;}
+  const float& weight_tauSF_JETID_3P2030_DOWN() const { return m_weight_tauSF_JETID_3P2030_DOWN;}
+  const float& weight_tauSF_JETID_3P2030_UP() const { return m_weight_tauSF_JETID_3P2030_UP;}
+  const float& weight_tauSF_JETID_3PGE30_DOWN() const { return m_weight_tauSF_JETID_3PGE30_DOWN;}
+  const float& weight_tauSF_JETID_3PGE30_UP() const { return m_weight_tauSF_JETID_3PGE30_UP;}
   const float& weight_tauSF_JETID_HIGHPT_DOWN() const { return m_weight_tauSF_JETID_HIGHPT_DOWN;}
-  const float& weight_tauSF_RECO_UP() const { return m_weight_tauSF_RECO_UP;}
-  const float& weight_tauSF_RECO_DOWN() const { return m_weight_tauSF_RECO_DOWN;}
-  const float& weight_tauSF_RECO_HIGHPT_UP() const { return m_weight_tauSF_RECO_HIGHPT_UP;}
+  const float& weight_tauSF_JETID_HIGHPT_UP() const { return m_weight_tauSF_JETID_HIGHPT_UP;}
+  const float& weight_tauSF_JETID_SYST_DOWN() const { return m_weight_tauSF_JETID_SYST_DOWN;}
+  const float& weight_tauSF_JETID_SYST_UP() const { return m_weight_tauSF_JETID_SYST_UP;}
+  const float& weight_tauSF_JETID_AF2_DOWN() const { return m_weight_tauSF_JETID_AF2_DOWN;}
+  const float& weight_tauSF_JETID_AF2_UP() const { return m_weight_tauSF_JETID_AF2_UP;}
+// Tau reconstruction
+  const float& weight_tauSF_RECO_TOTAL_DOWN() const { return m_weight_tauSF_RECO_TOTAL_DOWN;}
+  const float& weight_tauSF_RECO_TOTAL_UP() const { return m_weight_tauSF_RECO_TOTAL_UP;}
   const float& weight_tauSF_RECO_HIGHPT_DOWN() const { return m_weight_tauSF_RECO_HIGHPT_DOWN;}
+  const float& weight_tauSF_RECO_HIGHPT_UP() const { return m_weight_tauSF_RECO_HIGHPT_UP;}
+  const float& weight_tauSF_RECO_AF2_DOWN() const { return m_weight_tauSF_RECO_AF2_DOWN;}
+  const float& weight_tauSF_RECO_AF2_UP() const { return m_weight_tauSF_RECO_AF2_UP;}
+
 
   // Photons
   const float& weight_photonSF () const { return m_weight_photonSF ;}
