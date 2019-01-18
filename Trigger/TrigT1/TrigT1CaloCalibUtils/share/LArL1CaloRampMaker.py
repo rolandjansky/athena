@@ -131,7 +131,6 @@ else:
 
     include( "TileRec/TileRec_jobOptions.py" )
     include( "TileRec/TileCellMaker_jobOptions.py" )
-    ToolSvc.TileBeamInfoProvider.TileRawChannelContainer = 'TileRawChannelOpt2'
     # turn off masking of bad channels
     ToolSvc.TileCellBuilder.maskBadChannels = False
 
