@@ -53,7 +53,7 @@ namespace {
 // Standard constructor
 // =============================================================================
 TrigByteStreamCnvSvc::TrigByteStreamCnvSvc(const std::string& name, ISvcLocator* svcLoc)
-: ByteStreamCnvSvcBase(name, svcLoc),
+: ByteStreamCnvSvc(name, svcLoc),
   m_evtStore("StoreGateSvc", name),
   m_robDataProviderSvc("ROBDataProviderSvc", name) {}
 
@@ -67,6 +67,7 @@ TrigByteStreamCnvSvc::~TrigByteStreamCnvSvc() {}
 // =============================================================================
 StatusCode TrigByteStreamCnvSvc::initialize() {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
+  ATH_CHECK(ByteStreamCnvSvc::initialize());
   ATH_CHECK(m_evtStore.retrieve());
   ATH_CHECK(m_robDataProviderSvc.retrieve());
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
@@ -83,6 +84,7 @@ StatusCode TrigByteStreamCnvSvc::finalize() {
   if (m_evtStore.release().isFailure())
     ATH_MSG_WARNING("Failed to release service " << m_evtStore.typeAndName());
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
+  ATH_CHECK(ByteStreamCnvSvc::finalize());
   return StatusCode::SUCCESS;
 }
 
@@ -134,7 +136,7 @@ StatusCode TrigByteStreamCnvSvc::connectOutput(const std::string& outputFile, co
 StatusCode TrigByteStreamCnvSvc::commitOutput(const std::string& /*outputFile*/, bool /*do_commit*/) {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
 
-  printRawEvent();
+  if (msgLvl(MSG::DEBUG)) printRawEvent();
 
   // Serialise the output FullEventFragment
   std::unique_ptr<uint32_t[]> rawEventPtr;

@@ -398,9 +398,30 @@ l = [ c.split("#")[0].split("_")[0] + "#" + deserialiser.Prefix + c.split("#")[1
 
 
 
+
+
+
+if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
+   from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc 
+   svcMgr += ByteStreamAddressProviderSvc()
+svcMgr.ByteStreamAddressProviderSvc.TypeNames = ["ROIB::RoIBResult/RoIBResult", ]
+
+from ByteStreamCnvSvc import WriteByteStream
+streamBS = WriteByteStream.getStream("EventStorage","StreamBSFileOutput")
+ServiceMgr.ByteStreamCnvSvc.OutputLevel = VERBOSE
+ServiceMgr.ByteStreamCnvSvc.IsSimulation = True
+ServiceMgr.ByteStreamCnvSvc.InitCnvs += ["HLT::HLTResultMT"]
+streamBS.ItemList += ["HLT::HLTResultMT#HLTResultMT"]
+
+svcMgr.EventPersistencySvc.CnvServices += [ "ByteStreamCnvSvc" ]
+svcMgr.ByteStreamEventStorageOutputSvc.OutputLevel = VERBOSE
+
+
+
+
 ################################################################################
 # assemble top list of algorithms
-hltTop = seqOR( "hltTop", [ steps,  summary,  summMaker, mon, hltResultMakerAlg, deserialiser, StreamESD ] )
+hltTop = seqOR( "hltTop", [ steps,  summary,  summMaker, mon, hltResultMakerAlg, deserialiser, StreamESD, streamBS ] )
 
 
 
@@ -444,6 +465,9 @@ from AthenaCommon.AlgSequence import dumpSequence
 dumpSequence(topSequence)
 print("Dump of serviceMgr")
 dumpSequence(ServiceMgr)
+
+
+
 
 #print theElectronFex
 #print ViewVerify
