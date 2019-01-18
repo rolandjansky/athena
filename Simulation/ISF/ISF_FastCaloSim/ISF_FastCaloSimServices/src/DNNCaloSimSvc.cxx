@@ -241,17 +241,54 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
     return StatusCode::SUCCESS;
   }
 
+  ATH_MSG_DEBUG(" particle: " << isfp.pdgCode() << " Ekin: " << isfp.ekin() << " position eta: " << particle_position.eta() << " direction eta: " << particle_direction.eta() << " position phi: " << particle_position.phi() << "direction phi: " << particle_direction.phi() );
+
   TFCSTruthState truth(isfp.momentum().x(),isfp.momentum().y(),isfp.momentum().z(),sqrt(isfp.momentum().mag2()+pow(isfp.mass(),2)),isfp.pdgCode());
   truth.set_vertex(particle_position[Amg::x], particle_position[Amg::y], particle_position[Amg::z]);
 
   TFCSExtrapolationState extrapol;
   m_FastCaloSimCaloExtrapolation->extrapolate(extrapol,&truth);
+  ATH_MSG_DEBUG(" calo surface eta " << extrapol.CaloSurface_eta() <<
+		" phi " << extrapol.CaloSurface_phi() );
+  extrapol.Print();
+ // namespace CaloCell_ID_FCS {
+ //   enum CaloSample {
+ //     FirstSample=CaloCell_ID::PreSamplerB,
+ //     PreSamplerB=CaloCell_ID::PreSamplerB, EMB1=CaloCell_ID::EMB1, EMB2=CaloCell_ID::EMB2, EMB3=CaloCell_ID::EMB3,       // LAr barrel
+ //     PreSamplerE=CaloCell_ID::PreSamplerE, EME1=CaloCell_ID::EME1, EME2=CaloCell_ID::EME2, EME3=CaloCell_ID::EME3,       // LAr EM endcap
+ //     HEC0=CaloCell_ID::HEC0, HEC1=CaloCell_ID::HEC1, HEC2=CaloCell_ID::HEC2, HEC3=CaloCell_ID::HEC3,      // Hadronic end cap cal.
+ //     TileBar0=CaloCell_ID::TileBar0, TileBar1=CaloCell_ID::TileBar1, TileBar2=CaloCell_ID::TileBar2,      // Tile barrel
+ //     TileGap1=CaloCell_ID::TileGap1, TileGap2=CaloCell_ID::TileGap2, TileGap3=CaloCell_ID::TileGap3,      // Tile gap (ITC & scint)
+ //     TileExt0=CaloCell_ID::TileExt0, TileExt1=CaloCell_ID::TileExt1, TileExt2=CaloCell_ID::TileExt2,      // Tile extended barrel
+ //     FCAL0=CaloCell_ID::FCAL0, FCAL1=CaloCell_ID::FCAL1, FCAL2=CaloCell_ID::FCAL2,                        // Forward EM endcap
+ 
+ //     // Beware of MiniFCAL! We don't have it, so different numbers after FCAL2
+     
+ //     LastSample = CaloCell_ID::FCAL2,
+ //     MaxSample = LastSample+1,
+ //     noSample = -1
+ 
+
+  for (int isam=0; isam< CaloCell_ID_FCS::MaxSample ; isam++){
+    //enum SUBPOS { SUBPOS_MID = 0, SUBPOS_ENT = 1, SUBPOS_EXT = 2}; //MID=middle, ENT=entrance, EXT=exit of cal layer
+
+    for (int isubpos=0; isubpos< 3 ; isubpos++){
+    
+      ATH_MSG_DEBUG("EXTRAPO isam=" << isam <<
+		    " isubpos=" << isubpos <<
+		    " OK="    << extrapol.OK(isam,isubpos) <<
+		    " eta="  << extrapol.eta(isam,isubpos) <<
+		    " phi="  << extrapol.phi(isam,isubpos) <<
+		    " r="  << extrapol.r(isam,isubpos) );
+
+    }
+  }
+
   TFCSSimulationState simulstate(m_randomEngine);
 
-  ATH_MSG_DEBUG(" particle: " << isfp.pdgCode() << " Ekin: " << isfp.ekin() << " position eta: " << particle_position.eta() << " direction eta: " << particle_direction.eta() << " position phi: " << particle_position.phi() << "direction phi: " << particle_direction.phi() );
 
   
-  ATH_MSG_DEBUG ("DNNCaloSim do nothing for now!");
+  ATH_MSG_DEBUG ("DNNCaloSim only debugging!");
   //  m_param->setLevel(MSG::DEBUG);
   // compute simulstate, simulated cells and a few more goodies
   // FIXME run the DNN HERE
@@ -262,6 +299,15 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
 
 
   // note that m_theCellContainer has all the calorimeter cells
+  // for(const auto& theCell : * m_theCellContainer) {
+  //  theCaloDDE=theCell->caloDDE();
+    
+  //   ATH_MSG_DEBUG(" particle: " << theCell->eta() << " phi" << theCaloDDE->phi() << theCaloDDE->calo_hash() << " Ekin: " << isfp.ekin() << " position eta: " << particle_position.eta() << " direction eta: " << particle_direction.eta() << " position phi: " << particle_position.phi() << "direction phi: " << particle_direction.phi() );
+     
+  //   CaloCell* theCell = (CaloCell*)m_theContainer->findCell(iter.first->calo_hash());
+  //   theCell->addEnergy(iter.second);
+  // }
+
 
   // step 1 : gather all inputs
   // given extrapolation find the impact cell in the middle layer,
@@ -290,6 +336,8 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
   //   CaloCell* theCell = (CaloCell*)m_theContainer->findCell(iter.first->calo_hash());
   //   theCell->addEnergy(iter.second);
   // }
+
+
   
   return StatusCode::SUCCESS;
 }
