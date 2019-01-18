@@ -33,6 +33,9 @@ namespace xAOD {
 
    private:
 
+      // Container name
+      std::string m_containerName;
+
       /// Correct number number to be used to update EventInfo
       uint32_t m_runNumber;
 
