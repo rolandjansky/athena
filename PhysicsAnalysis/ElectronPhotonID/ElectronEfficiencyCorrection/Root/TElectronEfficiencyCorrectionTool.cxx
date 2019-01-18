@@ -124,17 +124,6 @@ int Root::TElectronEfficiencyCorrectionTool::initialize() {
   ATH_MSG_DEBUG("Initializing tool with " << m_corrFileNameList.size() 
                 << " configuration file(s)");
 
-  /* 
-   * Check if the first file can be opened 
-   * It is needed for auto-setting of the seed based on the md5-sum of the file
-   */
-  const std::unique_ptr<char> fname(gSystem->ExpandPathName(m_corrFileNameList[0].c_str()));
-  std::unique_ptr<TFile> rootFile_tmp( TFile::Open(fname.get(), "READ") );
-  if (!rootFile_tmp) {
-    ATH_MSG_ERROR("No ROOT file found here: " << m_corrFileNameList[0]);
-    return 0;
-  }
-  rootFile_tmp->Close();
   
   if (m_doToyMC && m_doCombToyMC) {
     ATH_MSG_ERROR(" Both regular and combined toy MCs booked!" << " Only use one!");
@@ -146,6 +135,8 @@ int Root::TElectronEfficiencyCorrectionTool::initialize() {
    */
   if (m_doToyMC || m_doCombToyMC) {
     if (m_seed == 0) {
+    // Use the name of the correction  for auto-setting of the seed based on the md5-sum of the file
+      const std::unique_ptr<char[]> fname(gSystem->ExpandPathName(m_corrFileNameList[0].c_str()));
       std::unique_ptr<TMD5> tmd=CxxUtils::make_unique<TMD5>();
       const char* tmd_as_string=tmd->FileChecksum(fname.get())->AsString();
       m_seed = *(reinterpret_cast<const unsigned long int*>(tmd_as_string));
@@ -650,10 +641,9 @@ int Root::TElectronEfficiencyCorrectionTool::getHistograms() {
   /*
    * Get all ROOT files and histograms
    */
-
   for (unsigned int i = 0; i < m_corrFileNameList.size(); ++i) {
     // Load the ROOT file
-    const std::unique_ptr<char> fname (gSystem->ExpandPathName(m_corrFileNameList[i].c_str()));
+    const std::unique_ptr<char[]> fname (gSystem->ExpandPathName(m_corrFileNameList[i].c_str()));
     std::unique_ptr<TFile> rootFile( TFile::Open(fname.get(), "READ") );
     if (!rootFile) {
       ATH_MSG_ERROR( "No ROOT file found here: " <<m_corrFileNameList[i]);
@@ -661,21 +651,21 @@ int Root::TElectronEfficiencyCorrectionTool::getHistograms() {
     }
     // Loop over all directories inside the root file (correspond to the run number ranges
     TIter nextdir(rootFile->GetListOfKeys());
-    TKey *dir;
-    TObject *obj;
+    TKey *dir=nullptr;
+    TObject *obj=nullptr;
     while ((dir = (TKey *) nextdir())) {
       obj = dir->ReadObj();
       if (obj->IsA()->InheritsFrom("TDirectory")) {
         // splits string by delimiter --> e.g RunNumber1_RunNumber2
-        TObjArray dirNameArray = *(TString(obj->GetName()).Tokenize("_"));
+        std::unique_ptr<TObjArray> dirNameArray(TString(obj->GetName()).Tokenize("_"));
         // returns index of last string --> if one, the directory name does not contain any run numbers
-        int lastIdx = dirNameArray.GetLast();
+        int lastIdx = dirNameArray->GetLast();
         if (lastIdx != 1) {
           ATH_MSG_ERROR("The folder name seems to have the wrong format! Directory name:"<< obj->GetName());
           return 0;
         }
         rootFile->cd(obj->GetName());
-        if (0 == this->setupHistogramsInFolder(dirNameArray, lastIdx)) {
+        if (0 == this->setupHistogramsInFolder(*dirNameArray, lastIdx)) {
           ATH_MSG_ERROR("Unable to setup the histograms in directory " << dir->GetName()
                         << "in file " << m_corrFileNameList[i]);
           return 0;
@@ -733,8 +723,8 @@ int Root::TElectronEfficiencyCorrectionTool::setupHistogramsInFolder(const TObjA
   std::vector<TObjArray > sysObjsFast;
 
   TIter nextkey(gDirectory->GetListOfKeys());
-  TKey *key;
-  TObject *obj(0);
+  TKey *key=nullptr;
+  TObject *obj=nullptr;
   int seenSystematics= 0;
 
   //Loop of the keys 
