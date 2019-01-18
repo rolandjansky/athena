@@ -17,6 +17,12 @@ atlas_add_test( MuonDataDecodeTest
                 EXTRA_PATTERNS "GeoModelSvc.MuonDetectorTool.*SZ=|Cache alignment|Range of input|recorded new|map from"
                 SCRIPT test/testMuonDataDecode.sh )
 
+# Adding an identical test for the ByteStream identifiable caches (and future RDO caches)
+atlas_add_test( MuonDataDecodeTest_Cache
+                PROPERTIES TIMEOUT 1000
+                EXTRA_PATTERNS "GeoModelSvc.MuonDetectorTool.*SZ=|Cache alignment|Range of input|recorded new|map from"
+                SCRIPT test/testMuonDataDecode_Cache.sh )
+
 atlas_add_test( MuonCablingConfigTest
    SCRIPT python -m MuonConfig.MuonCablingConfig
    POST_EXEC_SCRIPT nopost.sh )

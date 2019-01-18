@@ -148,7 +148,8 @@ def CscClusterBuildCfg(flags, forTrigger=False):
 
 
 # This function runs the decoding on a data file
-def muonRdoDecodeTestData():
+def muonRdoDecodeTestData( forTrigger = False ):
+    # Add a flag, forTrigger, which will initially put the ByteStreamDecodeCfg code into "Cached Container" mode
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
 
@@ -174,6 +175,12 @@ def muonRdoDecodeTestData():
     from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
     cfg.merge(TrigBSReadCfg(ConfigFlags ))
 
+    # Setup IdentifiableCaches before anything else
+    from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheCfg
+    muoncacheacc, muoncachealg = MuonCacheCfg()
+    cfg.merge( muoncacheacc )
+    cfg.addEventAlgo( muoncachealg )
+
     # Schedule Rpc bytestream data decoding - once mergeAll is working can simplify these lines
     from MuonConfig.MuonBytestreamDecodeConfig import RpcBytestreamDecodeCfg
     rpcdecodingAcc, rpcdecodingAlg = RpcBytestreamDecodeCfg( ConfigFlags ) 
@@ -187,12 +194,12 @@ def muonRdoDecodeTestData():
     cfg.addEventAlgo( tgcdecodingAlg )
 
     from MuonConfig.MuonBytestreamDecodeConfig import MdtBytestreamDecodeCfg
-    mdtdecodingAcc, mdtdecodingAlg = MdtBytestreamDecodeCfg( ConfigFlags )
+    mdtdecodingAcc, mdtdecodingAlg = MdtBytestreamDecodeCfg( ConfigFlags, forTrigger )    
     cfg.merge( mdtdecodingAcc )
     cfg.addEventAlgo( mdtdecodingAlg )
 
     from MuonConfig.MuonBytestreamDecodeConfig import CscBytestreamDecodeCfg
-    cscdecodingAcc, cscdecodingAlg = CscBytestreamDecodeCfg( ConfigFlags ) 
+    cscdecodingAcc, cscdecodingAlg = CscBytestreamDecodeCfg( ConfigFlags, forTrigger ) 
     cfg.merge( cscdecodingAcc )
     cfg.addEventAlgo( cscdecodingAlg )
 

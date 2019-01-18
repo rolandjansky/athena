@@ -158,7 +158,8 @@ def CscBytestreamDecodeCfg(flags, forTrigger=False):
     # Setup the RAW data provider tool
     from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CSC_RawDataProviderTool
     MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderTool(name    = "CSC_RawDataProviderTool",
-                                                               Decoder = CSCRodDecoder )
+                                                               Decoder = CSCRodDecoder,
+                                                               OutputLevel = VERBOSE)
     if forTrigger:
         MuonCscRawDataProviderTool.CscContainerCacheKey = "CscCache"
 
