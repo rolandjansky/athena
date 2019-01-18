@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ShallowAuxContainer.h 793737 2017-01-24 20:11:10Z ssnyder $
@@ -17,6 +17,7 @@
 #ifndef XAOD_STANDALONE
 #   include "AthenaKernel/ILockable.h"
 #endif // not XAOD_STANDALONE
+#include "CxxUtils/checker_macros.h"
 
 // Local include(s):
 #include "xAODCore/AuxSelection.h"
@@ -189,7 +190,7 @@ namespace xAOD {
       /// Link to the parent object
       DataLink< SG::IConstAuxStore > m_parentLink;
       /// Optional pointer to the IO interface of the parent object
-      mutable SG::IAuxStoreIO* m_parentIO;
+      const SG::IAuxStoreIO* m_parentIO;
       /// Flag for whether to do "shallow IO" or not
       bool m_shallowIO;
 
@@ -198,8 +199,10 @@ namespace xAOD {
       typedef AthContainers_detail::lock_guard<mutex_t> guard_t;
       mutable mutex_t m_mutex;
 
-      mutable auxid_set_t m_auxids;
-      mutable bool m_auxidsValid;
+      // Mutable is thread-safe since we lock access, and the object
+      // is a ConcurrentBitset.
+      mutable auxid_set_t m_auxids ATLAS_THREAD_SAFE;
+      mutable bool m_auxidsValid ATLAS_THREAD_SAFE;
 
       /// Name of the container in memory. Set externally.
       std::string m_name;
