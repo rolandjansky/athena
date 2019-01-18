@@ -21,7 +21,6 @@ namespace TrigCostRootAnalysis {
                            bool doFractional, AutoMonResult* result) :
     m_Varname(Varname),
     m_variable_option(VarOpt),
-    m_total_result(0.0),
     m_doFractional(doFractional),
     m_test_name(TestName),
     m_result(result) {
@@ -65,7 +64,7 @@ namespace TrigCostRootAnalysis {
     } else {
       std::string errorMSG = "Counter " + counter->getName() +
                              " does not have a variable with requested ConfKey or VariableOption";
-      Error("AutoMonTest::applyThresholds", errorMSG.c_str());
+      Error("AutoMonTest::applyThresholds", "%s", errorMSG.c_str());
       return;
     }
 
