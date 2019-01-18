@@ -108,17 +108,21 @@ atlas_install_xmls( data/*.xml )
 
 # List of menus to be created:
 
+#atlas_build_trigger_menu( Physics_pp_v8 )
+#atlas_build_trigger_menu( Physics_pp_v8_lowmu )
+#atlas_build_trigger_menu( MC_pp_v8 )
+
 atlas_build_trigger_menu( Physics_pp_v7 )
 atlas_build_trigger_menu( Physics_pp_v7_tight_physics_prescale )
 atlas_build_trigger_menu( Physics_pp_v7_unprescaled_only_physics_prescale )
+atlas_build_trigger_menu( Physics_pp_v7_primaries )
 atlas_build_trigger_menu( MC_pp_v7 )
-atlas_build_trigger_menu( MC_pp_v7_tight_mc_prescale )
-atlas_build_trigger_menu( MC_pp_v7_tightperf_mc_prescale )
 atlas_build_trigger_menu( MC_pp_v7_BulkMCProd_mc_prescale )
 atlas_build_trigger_menu( MC_pp_v7_CPSampleProd_mc_prescale )
 atlas_build_trigger_menu( MC_pp_v7_TriggerValidation_mc_prescale )
 
 atlas_build_trigger_menu( Physics_HI_v5 )
+atlas_build_trigger_menu( Physics_HI_v5_tight_physics_prescale )
 atlas_build_trigger_menu( MC_HI_v5 )
 atlas_build_trigger_menu( MC_HI_v5_tight_mc_prescale )
 

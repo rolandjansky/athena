@@ -20,6 +20,7 @@
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
 # art-output: TotalEventsProcessed.txt
+# art-output: *.regtest
 
 export NAME="physics_pp_v7_rdotobstoesd_build"
 export COST_MONITORING="False"

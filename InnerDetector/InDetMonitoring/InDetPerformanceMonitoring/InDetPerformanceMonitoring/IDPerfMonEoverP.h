@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef IDPerfMonEoverP_H
 #define IDPerfMonEoverP_H
@@ -94,7 +94,7 @@ class IDPerfMonEoverP : public AthAlgorithm
  private:
   /** @brief addToValidationNutple*/
   void addToValidationNtuple(const Trk::Perigee*, const xAOD::CaloCluster*,  int isOrginal);
-
+  void addToValidationNtuplexAOD(const xAOD::Electron *eg) const;
   void clearValidationNtuple();
 
   void validationAction() const;
@@ -212,6 +212,9 @@ class IDPerfMonEoverP : public AthAlgorithm
   mutable int                     m_nTRT[NOS_ELECTRONS];
   mutable int                     m_nSCT[NOS_ELECTRONS];
   mutable int                     m_nBLayer[NOS_ELECTRONS];
+  mutable int                     m_nBLayerOutlier[NOS_ELECTRONS];
+  mutable int                     m_nexpectBLayer[NOS_ELECTRONS];
+  mutable int                     m_nBLayerHitPlusOutlier[NOS_ELECTRONS];
   mutable int                     m_nPIX[NOS_ELECTRONS];
   mutable int                     m_nTRTout[NOS_ELECTRONS];
   mutable int                     m_nSCTout[NOS_ELECTRONS];
@@ -292,6 +295,7 @@ class IDPerfMonEoverP : public AthAlgorithm
   TH2F *  m_WenuTightElectron_PTEtaPos;
   TH2F *  m_WenuTightElectron_PTEtaNeg;
 
+  TH1F *  m_LHResult; // result of electron likelihood for each electron (debug purposes)
 
   //!< validation tree name - to be acessed by this from root
   std::string                     m_smallValidationTreeName;
@@ -302,6 +306,8 @@ class IDPerfMonEoverP : public AthAlgorithm
   //!< Root Validation Tree
   TTree*                          m_smallValidationTree;
 
+  // Flag for xAOD
+  bool                            m_isxAOD;
 
   double m_small_QoverP;
   double m_small1_QoverP;

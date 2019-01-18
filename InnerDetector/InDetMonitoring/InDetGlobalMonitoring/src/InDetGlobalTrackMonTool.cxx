@@ -234,9 +234,9 @@ StatusCode InDetGlobalTrackMonTool::bookHistograms()
 
     registerManHist( m_Trk_eta_phi_Tight, "InDetGlobal/Track", detailsInterval,
 		     "Trk_Tight_eta_phi","Distribution of eta vs phi for combined tracks passing monitoring selection",
-                     m_nBinsEta, -c_etaRange, c_etaRange,
-                     m_nBinsPhi, -M_PI, M_PI,
-                     "eta", "#phi_{0}" ).ignore();
+		     m_nBinsEta, -c_etaRange, c_etaRange,
+		     m_nBinsPhi, -M_PI, M_PI,
+		     "eta", "#phi_{0}" ).ignore();
 
     registerManHist( m_Trk_eta_phi_Tight_ratio, "InDetGlobal/Track", detailsInterval,
 		     "Trk_Tight_eta_phi_ratio","Distribution of eta vs phi for combined tracks passing Tight selection",
@@ -649,8 +649,9 @@ StatusCode InDetGlobalTrackMonTool::fillHistograms()
 	}
 	
 	// Skip tracks that are not inside out
-	if ( ( m_dataType == AthenaMonManager::collisions || m_dataType == AthenaMonManager::userDefined )
-	     && ! track->info().patternRecoInfo( Trk::TrackInfo::SiSPSeededFinder ) )
+        if ( ( m_dataType == AthenaMonManager::collisions || m_dataType == AthenaMonManager::userDefined )
+             && ! ( track->info().patternRecoInfo( Trk::TrackInfo::SiSPSeededFinder ) ||  
+		    track->info().patternRecoInfo( Trk::TrackInfo::SiSpacePointsSeedMaker_HeavyIon ) ) )
 	    continue;
 	
 	if ( ! m_baseline_selTool->accept(*track) )
@@ -873,9 +874,9 @@ void InDetGlobalTrackMonTool::FillEtaPhi( const Trk::Track *track, const std::un
 	else
 	    m_Trk_eta_phi_noTRText_ratio->Fill( eta, phi, 0 );
     }
-
+ 
     m_Trk_eta_phi_Tight->Fill( eta, phi);
-    
+
     /// TRACKSEL: Tight
     if ( m_tight_selTool->accept(*track) )
     {

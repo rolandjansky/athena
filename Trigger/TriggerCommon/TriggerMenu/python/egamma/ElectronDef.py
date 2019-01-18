@@ -16,6 +16,7 @@ from TrigEgammaHypo.TrigEFCaloHypoConfig import TrigEFCaloHypo_EtCut
 from TrigEgammaHypo.TrigL2ElectronFexConfig import L2ElectronFex_Clean
 from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyCopyAllTEAlgo
 from TriggerMenu.commonUtils.makeCaloSequences import getFullScanCaloSequences
+from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo as DummyRoI
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger("TriggerMenu.egamma.ElectronDef")
@@ -69,7 +70,7 @@ class L2EFChain_e(L2EFChainDef):
         self.setRingerSelection()
 
         #if TriggerFlags.run2Config() == '2017':
-        if '_v7' in TriggerFlags.triggerMenuSetup():
+        if '_v7' in TriggerFlags.triggerMenuSetup() or '_v8' in TriggerFlags.triggerMenuSetup():
             self.use_v7=True
         
         self.doCaloIsolation=False
@@ -343,8 +344,9 @@ class L2EFChain_e(L2EFChainDef):
         precisecalocalib.insert(1,theElectronUEMonitoring) 
         
         self.L2sequenceList += [[self.L2InputTE,self.el_sequences['fastcalo'],'L2_e_step1']]                      
-        self.EFsequenceList += [[['L2_e_step1'],[theFSCellMaker], 'EF_e_step1_fs']] 
-        self.EFsequenceList += [[['EF_e_step1_fs'],[theUEMaker], 'EF_e_step1_ue']] 
+        self.EFsequenceList += [[[""],[DummyRoI("MinBiasDummyRoI")], 'L2_dummy_sp']]
+        self.EFsequenceList += [[['L2_dummy_sp'],[theFSCellMaker], 'EF_AllCells']]
+        self.EFsequenceList += [[['EF_AllCells'],[theUEMaker], 'EF_UE']]
         self.EFsequenceList += [[['L2_e_step1'],self.el_sequences['precisecalo'],'EF_e_step1']]                      
         self.EFsequenceList += [[['EF_e_step1'],precisecalocalib,'EF_e_step2']] 
         self.EFsequenceList += [[['EF_e_step2'],self.el_sequences['trackrec'],'EF_e_step3']] 
@@ -353,8 +355,9 @@ class L2EFChain_e(L2EFChainDef):
         ########### Signatures ###########
 
         self.L2signatureList += [ [['L2_e_step1']*self.mult] ]
-        self.L2signatureList += [ [['EF_e_step1_fs']] ]
-        self.L2signatureList += [ [['EF_e_step1_ue']] ]
+        self.EFsignatureList += [ [['L2_dummy_sp']] ]
+        self.EFsignatureList += [ [['EF_AllCells']] ]
+        self.EFsignatureList += [ [['EF_UE']] ]
         self.EFsignatureList += [ [['EF_e_step1']*self.mult] ]
         self.EFsignatureList += [ [['EF_e_step2']*self.mult] ]
         self.EFsignatureList += [ [['EF_e_step3']*self.mult] ]
@@ -364,8 +367,8 @@ class L2EFChain_e(L2EFChainDef):
 
         self.TErenamingDict = {
             'L2_e_step1': mergeRemovingOverlap('L2_', self.chainPartNameNoMult+'cl'),
-            'EF_e_step1_fs': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'fs'),
-            'EF_e_step1_ue': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'ue'),
+            #'EF_e_step1_fs': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'fs'),
+            #'EF_e_step1_ue': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'ue'),
             'EF_e_step1': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'cl'),
             'EF_e_step2': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'calocalib'),
             'EF_e_step3': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'trk'),
@@ -417,11 +420,11 @@ class L2EFChain_e(L2EFChainDef):
         self.setupFromDict(seq_te_dict,seq_dict)
         
         # Now insert additional steps
-        self.EFsequenceList.insert(0,[['L2_e_step3'],[theFSCellMaker], 'EF_e_step1_fs'])
-        self.EFsequenceList.insert(1,[['EF_e_step1_fs'],[theUEMaker], 'EF_e_step1_ue'])
-        self.EFsignatureList.insert(0, [['EF_e_step1_fs']] )
-        self.EFsignatureList.insert(1, [['EF_e_step1_ue']] )
+        self.EFsequenceList.insert(0,[[""],[DummyRoI("MinBiasDummyRoI")], 'L2_dummy_sp'])
+        self.EFsequenceList.insert(1,[['L2_dummy_sp'],[theFSCellMaker], 'EF_AllCells'])
+        self.EFsequenceList.insert(2,[['EF_AllCells'],[theUEMaker], 'EF_UE'])
+        self.EFsignatureList.insert(0, [['L2_dummy_sp']] )
+        self.EFsignatureList.insert(1, [['EF_AllCells']] )
+        self.EFsignatureList.insert(2, [['EF_UE']] )
 
-        self.TErenamingDict['EF_e_step1_fs']=mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'fs')
-        self.TErenamingDict['EF_e_step1_ue']=mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'ue')
         

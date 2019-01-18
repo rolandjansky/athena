@@ -22,6 +22,8 @@
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
+#include "InDetIdentifier/SCT_ID.h"
+#include "InDetIdentifier/PixelID.h"
 
 namespace InDet{
 
@@ -52,6 +54,8 @@ namespace InDet{
       Trk::IPRD_AssociationTool*          assoTool   () const {return m_assoTool   ;}
       IInDetConditionsSvc*                pixcond    () const {return m_pixcond    ;}
       IInDetConditionsSvc*                sctcond    () const {return m_sctcond    ;}
+      const PixelID*                      pixIdHelper() const {return m_pixIdHelper;}
+      const SCT_ID*                       sctIdHelper() const {return m_sctIdHelper;}
       const double&                       xi2max     () const {return m_xi2max     ;}
       const double&                       xi2maxBrem () const {return m_xi2maxBrem ;}
       const double&                       xi2maxNoAdd() const {return m_xi2maxNoAdd;}
@@ -66,6 +70,7 @@ namespace InDet{
       const bool&                         bremNoise  () const {return m_bremnoise  ;}
       const bool&                         electron   () const {return m_electron   ;}
       const bool&                         heavyion   () const {return m_heavyion   ;}
+      const bool&                        cleanSCTClus() const {return m_cleanSCTClus;}
 
       void setTools
 	(Trk::IPatternParametersPropagator* ,
@@ -80,11 +85,14 @@ namespace InDet{
  
       void setTools(IInDetConditionsSvc*,IInDetConditionsSvc*); 
 
+      void setTools (const PixelID* pixIdHelper,const SCT_ID* sctIdHelper);
+
       void setXi2pTmin(const double&,const double&,const double&,const double&);
       void setHolesClusters(const int&,const int&,const int&);
       void setAssociation(const int&);
       void setMultiTracks(const int,double);
       void setBremNoise  (bool,bool);
+      void setCleanSCTClus(const int&);
       void setHeavyIon   (bool);
 
     protected:
@@ -101,6 +109,8 @@ namespace InDet{
       Trk::IRIO_OnTrackCreator*       m_riotool    ;  // RIOonTrack creator
       IInDetConditionsSvc*            m_pixcond    ;  // Condtionos for pixels 
       IInDetConditionsSvc*            m_sctcond    ;  // Conditions for sct
+      const PixelID*                  m_pixIdHelper;  // Pixel ID helper
+      const SCT_ID*                   m_sctIdHelper;  // SCT ID helper
 
       double                          m_xi2max     ;  // Max Xi2 for updator 
       double                          m_xi2maxBrem ;  // Max Xi2 for updator (brem fit)  
@@ -116,6 +126,7 @@ namespace InDet{
       bool                            m_bremnoise  ;  // Do brem noise
       bool                            m_electron   ;  // Do electron mode
       bool                            m_heavyion   ;  // Is it heavy ion event
+      bool                            m_cleanSCTClus; // Clean spurious SCT clusters in forward extension
 
       ///////////////////////////////////////////////////////////////////
       // Methods
@@ -135,6 +146,8 @@ namespace InDet{
       m_riotool     = 0   ;  
       m_pixcond     = 0   ;
       m_sctcond     = 0   ;
+      m_pixIdHelper = 0   ;
+      m_sctIdHelper = 0   ;
       m_xi2max      = 9.  ;
       m_xi2maxBrem  = 15. ;
       m_xi2maxlink  = 200.;
@@ -149,6 +162,7 @@ namespace InDet{
       m_bremnoise   = false;
       m_electron    = false;
       m_heavyion    = false;
+      m_cleanSCTClus = false;
       m_fieldService= 0    ;
     }
 
@@ -169,6 +183,8 @@ namespace InDet{
 	m_riotool     = T.m_riotool    ;
 	m_pixcond     = T.m_pixcond    ;
 	m_sctcond     = T.m_sctcond    ;
+        m_pixIdHelper = T.m_pixIdHelper;
+        m_sctIdHelper = T.m_sctIdHelper;
 	m_xi2max      = T.m_xi2max     ;
 	m_xi2maxBrem  = T.m_xi2maxBrem ;
 	m_xi2maxlink  = T.m_xi2maxlink ;
@@ -181,6 +197,7 @@ namespace InDet{
 	m_multitrack  = T.m_multitrack ; 
 	m_bremnoise   = T.m_bremnoise  ;
 	m_electron    = T.m_electron   ; 
+        m_cleanSCTClus = T.m_cleanSCTClus;
 	m_heavyion    = T.m_heavyion   ;
       }
       return(*this);
@@ -214,6 +231,12 @@ namespace InDet{
       m_pixcond = pix;
       m_sctcond = sct;
     } 
+
+  inline void SiTools_xk::setTools (const PixelID* pixIdHelper,const SCT_ID* sctIdHelper)
+    {
+      m_pixIdHelper = pixIdHelper;
+      m_sctIdHelper = sctIdHelper;
+    }
  
   inline void SiTools_xk::setXi2pTmin
     (const double& xi2m,const double& xi2mNoAdd,const double& xi2ml,const double& pT)    
@@ -247,6 +270,11 @@ namespace InDet{
     {
       m_bremnoise = B;
       m_electron  = E;
+    }
+
+  inline void SiTools_xk::setCleanSCTClus(const int& C)
+    {
+      C ? m_cleanSCTClus = true : false;
     }
 
   inline void SiTools_xk::setHeavyIon(bool HI)

@@ -107,7 +107,7 @@ namespace G4UA
       std::cout<<"Material: "<<tackab->GetPhysicalVolume()->GetLogicalVolume()->GetMaterial()->GetName()<<std::endl;
       std::cout<<"-------------------"<<std::endl;
       std::cout<<"Step length: "<<theStep->GetStepLength()<<std::endl;
-      G4cout<<"Energy dep.: "<<theStep->GetTotalEnergyDeposit()<<G4endl;
+      G4cout<<"Energy dep.: "<<theStep->GetTotalEnergyDeposit()*theStep->GetTrack()->GetWeight()<<G4endl;
 
 
       LArG4SimpleSD* lsd = 0;

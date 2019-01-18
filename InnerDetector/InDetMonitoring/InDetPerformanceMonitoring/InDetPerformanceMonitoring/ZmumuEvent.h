@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef IDPERFMON_ZMUMUEVENT_H
 #define IDPERFMON_ZMUMUEVENT_H
@@ -60,6 +60,7 @@ class ZmumuEvent : public EventAnalysis
   // Public access methods
   unsigned int  getNumberOfTaggedMuons()         {  return m_numberOfFullPassMuons; }
   const std::string   getRegion() const ;
+  void setDebugMode(bool debug) { m_doDebug=debug;}
 
   const xAOD::Muon*      getCombMuon(  unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxRecMuon[uPart] : NULL;  }
   const xAOD::TrackParticle*  getMSTrack (  unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxMSTrack[uPart] : NULL;  }
@@ -84,7 +85,22 @@ class ZmumuEvent : public EventAnalysis
     m_xMuonID.doIsoSelection(doIso);
   }
 
+  void doIPSelection(bool doIPsel) {
+    m_xMuonID.doIPSelection(doIPsel);
+  }
+
+  void        OrderMuonList ();
+  inline void SetMuonPtCut (double newvalue) { m_xMuonID.SetPtCut(newvalue);}
+
+  inline void SetMassWindowLow (double newvalue) {m_MassWindowLow = newvalue;}
+  inline void SetMassWindowHigh (double newvalue) {m_MassWindowHigh = newvalue;}
+  void SetLeadingMuonPtCut (double newvalue); 
+  void SetSecondMuonPtCut (double newvalue); 
+  inline void SetOpeningAngleCut (double newvalue) {m_OpeningAngleCut = newvalue;}
+  inline void SetZ0GapCut (double newvalue) {m_Z0GapCut = newvalue;}
+
   void setContainer( PerfMonServices::CONTAINERS container) { m_container = container; };
+  inline double GetInvMass() {return m_DiMuonPairInvMass;}
 
  protected:
   virtual void BookHistograms();
@@ -94,7 +110,7 @@ class ZmumuEvent : public EventAnalysis
 
   // Private methods
   void  Clear();
-  bool  EventSelection();
+  bool  EventSelection (ZTYPE eType);
   void  ReconstructKinematics();
   void  RecordMuon( const xAOD::Muon* pxMuon );
 
@@ -107,6 +123,15 @@ class ZmumuEvent : public EventAnalysis
   unsigned int m_uTrackMatch;
   bool m_bLooseMatch;
   double m_etaCut;
+  double m_DiMuonPairInvMass;
+
+  double m_LeadingMuonPtCut;
+  double m_SecondMuonPtCut;
+  double m_MassWindowLow;
+  double m_MassWindowHigh;
+  double m_OpeningAngleCut;
+  double m_Z0GapCut;
+
   bool m_doDebug;
   // Member variables : Mostly to store relevant muon data for quick access.
   unsigned int     m_numberOfFullPassMuons;
@@ -130,6 +155,14 @@ class ZmumuEvent : public EventAnalysis
     ZMASS_MUON, ZMASS_MUONADJ, ZMASS_TRACK, ZMASS_COMB,
     NUM_1HISTOS
   };
+
+  // muon selector configuration
+  bool m_SelectMuonByIso;
+  bool m_SelectMuonByIP;
+
+  // selected muon identifiers
+  int m_muon1;
+  int m_muon2;
 };
 //==============================================================================
 #endif

@@ -60,6 +60,8 @@ atlas_add_root_dictionary( ISF_FastCaloSimParametrizationLib
                            ISF_FastCaloSimParametrization/TFCSSimpleLateralShapeParametrization.h
                            ISF_FastCaloSimParametrization/TreeReader.h
                            ISF_FastCaloSimParametrization/FCS_Cell.h
+                           ISF_FastCaloSimParametrization/CaloGeometry.h
+                           ISF_FastCaloSimParametrization/CaloGeometryLookup.h 
                            Root/LinkDef.h
                            EXTERNAL_PACKAGES  ROOT HepPDT XercesC CLHEP HepMC Geant4 )
 

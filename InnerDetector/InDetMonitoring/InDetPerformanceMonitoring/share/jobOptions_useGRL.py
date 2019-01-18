@@ -14,17 +14,17 @@ svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.LumiBlockMetaDataTool ]
 from GoodRunsLists.GoodRunsListsConf import *
 ToolSvc += GoodRunsListSelectorTool()
 
-GoodRunsListSelectorTool.GoodRunsListVec = [ '$TestArea/InnerDetector/InDetMonitoring/InDetPerformanceMonitoring/share/data15_13TeV.periodAllYear_DetStatus-v69-pro19-03_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml' ]
-#GoodRunsListSelectorTool.GoodRunsListVec = [ 'data15_13TeV.periodAllYear_DetStatus-v65-pro19-01_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml' ]
+GoodRunsListSelectorTool.GoodRunsListVec = [ '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data15_13TeV/20170619/data15_13TeV.periodAllYear_DetStatus-v89-pro21-02_Unknown_PHYS_StandardGRL_All_Good_25ns.xml
+' ]
+GoodRunsListSelectorTool.GoodRunsListVec += [ '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data16_13TeV/20180129/data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.xml' ]
 
-#GoodRunsListSelectorTool.GoodRunsListVec = [ 'data15_13TeV.periodAllYear_DetStatus-v63-pro18-01_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml' ]
-#GoodRunsListSelectorTool.OutputLevel = VERBOSE
+
 
 ## This Athena job consists of algorithms that loop over events;
 ## here, the (default) top sequence is used:
-from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
-job = AlgSequence()
-seq = AthSequencer("AthFilterSeq")
+#from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
+#job = AlgSequence()
+#seq = AthSequencer("AthFilterSeq")
 
 ## AthFilterSeq is always executed before the top sequence, and is configured such that
 ## any follow-up sequence (eg. top sequence) is not executed in case GRLTriggerAlg1 does
@@ -33,7 +33,7 @@ seq = AthSequencer("AthFilterSeq")
 ## are skipped when an event gets rejects
 from GoodRunsListsUser.GoodRunsListsUserConf import *
 seq += GRLTriggerSelectorAlg('GRLTriggerAlg1')
-seq.GRLTriggerAlg1.GoodRunsListArray = ['PHYS_StandardGRL_All_Good']        ## pick up correct name from inside xml file!
+seq.GRLTriggerAlg1.GoodRunsListArray = ['PHYS_StandardGRL_All_Good_25ns']        ## pick up correct name from inside xml file!
 #seq.GRLTriggerAlg1.TriggerSelectionRegistration = 'L1_MBTS_1' ## set this to your favorite trigger, eg. L1_MBTS_1_1
 
 ## Add the ntuple dumper to the top sequence, as usual

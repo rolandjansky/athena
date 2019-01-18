@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALIBRATEDMUONSPROVIDER
@@ -13,7 +13,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
-
+#include <AsgAnalysisInterfaces/IPileupReweightingTool.h>
 
 namespace CP {
 
@@ -35,7 +35,9 @@ namespace CP {
       std::string m_inputKey,m_outputKey;
 
       /// Scale factor tool
-      ToolHandle< IMuonCalibrationAndSmearingTool > m_tool;
+      ToolHandle <IMuonCalibrationAndSmearingTool > m_tool;
+      ToolHandle <IPileupReweightingTool> m_prwTool;
+      bool m_useRndNumber;
 
    }; // class 
 

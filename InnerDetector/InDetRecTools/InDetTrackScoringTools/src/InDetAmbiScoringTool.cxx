@@ -68,6 +68,7 @@ InDet::InDetAmbiScoringTool::InDetAmbiScoringTool(const std::string& t,
   declareProperty("useTRT_AmbigFcn",   m_useTRT_AmbigFcn    = false);
   declareProperty("useLogProbBins",    m_useLogProbBins     = false);
   declareProperty("useSigmaChi2",      m_useSigmaChi2       = false);
+  declareProperty("doAllHitScoring",   m_doAllHitScoring    = true);
 
   // tools
   declareProperty("Extrapolator",      m_extrapolator);
@@ -538,17 +539,19 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::ambigScore( const Trk::Track& track
     }
   }
 
-  int iHits = 0;
-  iHits += m_usePixel ? trackSummary.get(Trk::numberOfPixelHits) : 3;  // if Pixel off, do not count as inefficient
-  iHits += m_useSCT   ? trackSummary.get(Trk::numberOfSCTHits)   : 8;  // if SCT off, do not count as inefficient
-  if (iHits > -1 && m_maxHits > 0) {
-    if (iHits > m_maxHits) {
-      prob *= (iHits - m_maxHits + 1); // hits are good !
-      iHits = m_maxHits; 
+  if(m_doAllHitScoring){
+    int iHits = 0;
+    iHits += m_usePixel ? trackSummary.get(Trk::numberOfPixelHits) : 3;  // if Pixel off, do not count as inefficient
+    iHits += m_useSCT   ? trackSummary.get(Trk::numberOfSCTHits)   : 8;  // if SCT off, do not count as inefficient
+    if (iHits > -1 && m_maxHits > 0) {
+      if (iHits > m_maxHits) {
+        prob *= (iHits - m_maxHits + 1); // hits are good !
+        iHits = m_maxHits; 
+      }
+      prob *= m_factorHits[iHits]; 
+      ATH_MSG_DEBUG ("Modifier for " << iHits << " Sihits: "<<m_factorHits[iHits]
+         << "  New score now: " << prob);
     }
-    prob *= m_factorHits[iHits]; 
-    ATH_MSG_DEBUG ("Modifier for " << iHits << " Sihits: "<<m_factorHits[iHits]
-       << "  New score now: " << prob);
   }
 
   //

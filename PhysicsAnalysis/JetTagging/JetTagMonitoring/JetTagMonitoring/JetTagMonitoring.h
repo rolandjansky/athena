@@ -87,6 +87,7 @@ class JetTagMonitoring : public ManagedMonitorToolBase {
   bool passJetQualityCuts(const xAOD::Jet *jet);
   bool passKinematicCuts(const xAOD::Jet *jet);
   bool passJVTCuts(const xAOD::Jet *jet);
+  bool passMuonOverlap(const xAOD::Jet *jet);
   double getMVweight(const xAOD::Jet *jet);
   Jet_t getTaggabilityLabel(const xAOD::Jet *jet);
   bool isTopEvent();
@@ -103,6 +104,7 @@ class JetTagMonitoring : public ManagedMonitorToolBase {
 
   /** @brief String to retrieve JetContainer from StoreGate. */
   std::string m_jetName;
+  bool m_skipJetQuality; //true for HI/HI-p collisions, false for pp collisions
   /** @brief String to retrieve TrackParticleContainer from StoreGate. */
   std::string m_trackParticleName;
   /** @brief String to retrieve PrimaryVertexContainer from StoreGate. */
@@ -361,7 +363,7 @@ class JetTagMonitoring : public ManagedMonitorToolBase {
   TH1F_LW* m_n_mu = nullptr;
   TH1F_LW* m_tag_mv_w_mu0_30 = nullptr;
   TH1F_LW* m_tag_mv_w_mu30_50 = nullptr;
-  TH1F_LW* m_tag_mv_w_mu50_70 = nullptr;
+  TH1F_LW* m_tag_mv_w_mu50_100 = nullptr;
   TH1F_LW* m_tag_mv_w_tracks0_10 = nullptr;
   TH1F_LW* m_tag_mv_w_tracks10_20 = nullptr;
   TH1F_LW* m_tag_mv_w_tracks20_50 = nullptr;
@@ -409,11 +411,14 @@ class JetTagMonitoring : public ManagedMonitorToolBase {
   TH2F_LW* m_jet_2D_all = nullptr;
   TH2F_LW* m_jet_2D_good = nullptr;
   TH2F_LW* m_jet_2D_kinematic = nullptr;
-  TH2F_LW* m_jet_2D_kinematic_LS = nullptr;
-  TH2F_LW* m_jet_2D_jvt = nullptr;
+  TH2F_LW* m_jet_2D_mjvt = nullptr;
+  TH2F_LW* m_jet_2D_overlap = nullptr;
   TH2F_LW* m_jet_2D_quality = nullptr;
   TH2F_LW* m_jet_2D_suspect = nullptr;
-  TH2F_LW* m_jet_2D_bad = nullptr;
+  TH2F_LW* m_jet_2D_tbad = nullptr;
+  TH2F_LW* m_jet_2D_tsmt = nullptr;
+  TH2F_LW* m_jet_2D_quality_LS = nullptr;
+  TH2F_LW* m_jet_2D_kinematic_LS = nullptr;
 
   /** @brief 2D map of tag rates. */
   TH2F_LW* m_sv1ip3d_tag_pos_rate_2D = nullptr;
@@ -422,13 +427,11 @@ class JetTagMonitoring : public ManagedMonitorToolBase {
   TH2F_LW* m_mv_tag_60_2D = nullptr;
   TH2F_LW* m_mv_tag_70_2D = nullptr;
   TH2F_LW* m_mv_tag_77_2D = nullptr;   
-  TH2F_LW* m_mv_tag_77_2D_LS = nullptr;    
-
-  TH1F_LW* m_tag_mv_w_eta_sum85OP_LS =nullptr;
-  TH1F_LW* m_tag_mv_w_eta_sum77OP_LS =nullptr;
-  TH1F_LW* m_tag_mv_w_eta_sum70OP_LS =nullptr;
-  TH1F_LW* m_tag_mv_w_eta_sum60OP_LS =nullptr;
-  TH1F_LW* m_tag_mv_w_eta_sumAll_LS =nullptr;
+  TH2F_LW* m_mv_tag_85_2D = nullptr;   
+  TH2F_LW* m_mv_tag_60_2D_LS = nullptr;
+  TH2F_LW* m_mv_tag_70_2D_LS = nullptr;
+  TH2F_LW* m_mv_tag_77_2D_LS = nullptr;
+  TH2F_LW* m_mv_tag_85_2D_LS = nullptr;       
 
   enum Cuts_t { pTMin, d0Max, z0Max, sigd0Max, sigz0Max, etaMax,
 		nHitBLayer, deadBLayer, nHitPix, nHitSct, nHitSi, nHitTrt, nHitTrtHighE,

@@ -739,6 +739,10 @@ else:
     # ------------------------------------------------------------
     
     if InDetFlags.doTrackSegmentsPixelThreeLayer():
+      InputPixelInDetTracks = []
+      InputPixelInDetTracks += InputCombinedInDetTracks
+      if InDetFlags.doForwardTracks():
+        InputPixelInDetTracks +=[ InDetForwardTracksSiPattern.SiTrackCollection()]
       # --- load cuts for pixel segment finding
       if (not 'InDetNewTrackingCutsPixelThreeLayer' in dir()):
         print "InDetRec_jobOptions: InDetNewTrackingCutsPixelThreeLayer not set before - import them now"
@@ -747,7 +751,7 @@ else:
       InDetNewTrackingCutsPixelThreeLayer.printInfo()
       # --- configure pixel segment finding
       include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
-      InDetPixelThreeLayerTrackingSiPattern = ConfiguredNewTrackingSiPattern([],InDetKeys.ResolvedPixelThreeLayerTracks(),
+      InDetPixelThreeLayerTrackingSiPattern = ConfiguredNewTrackingSiPattern(InputPixelInDetTracks,InDetKeys.ResolvedPixelThreeLayerTracks(),
                                                                             InDetKeys.SiSpSeededPixelThreeLayerTracks(),
                                                                             InDetNewTrackingCutsPixelThreeLayer,
                                                                             TrackCollectionKeys,

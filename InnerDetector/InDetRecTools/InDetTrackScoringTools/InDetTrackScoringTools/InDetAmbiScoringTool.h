@@ -102,6 +102,7 @@ class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool,
   bool m_useTRT_AmbigFcn;
   bool m_useLogProbBins;
   bool m_useSigmaChi2;
+  bool m_doAllHitScoring;
   
   bool m_usePixel;
   bool m_useSCT;

@@ -70,6 +70,10 @@ namespace InDet{
 
       bool isNextClusterHoleB(bool&,double&);
       bool isNextClusterHoleF(bool&,double&);
+      int getSCTLayerSide();
+      int getSCTLayer();
+      bool isPixel();
+      bool isSCT();
 
       ///////////////////////////////////////////////////////////////////
       // Methods update with cluster information
@@ -326,6 +330,8 @@ namespace InDet{
       const InDetDD::SiDetectorElement*           m_detelement  ;
       const InDet::SiDetElementBoundaryLink_xk*   m_detlink     ;
       const Trk::Surface*                         m_surface     ;
+      const PixelID*                              m_pixIdHelper ;
+      const SCT_ID*                               m_sctIdHelper ;
       InDet::SiClusterCollection ::const_iterator m_sibegin     ;
       InDet::SiClusterCollection ::const_iterator m_siend       ;
       const InDet::SiCluster*                     m_cluster     ;
@@ -392,6 +398,8 @@ namespace InDet{
       m_detelement  = 0 ; 
       m_detlink     = 0 ;
       m_surface     = 0 ;
+      m_pixIdHelper = 0 ;
+      m_sctIdHelper = 0 ;
       m_cluster     = 0 ;
       m_clusterOld  = 0 ;
       m_clusterNoAdd= 0 ;
@@ -437,6 +445,8 @@ namespace InDet{
       m_detelement   = E.m_detelement  ;
       m_detlink      = E.m_detlink     ;
       m_surface      = E.m_surface     ;
+      m_pixIdHelper  = E.m_pixIdHelper ;
+      m_sctIdHelper  = E.m_sctIdHelper ;
       m_sibegin      = E.m_sibegin     ;
       m_siend        = E.m_siend       ; 
       m_cluster      = E.m_cluster     ;

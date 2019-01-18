@@ -83,7 +83,11 @@ lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/env_setup_install.sh
 install( FILES ${CMAKE_BINARY_DIR}/env_setup_install.sh
    DESTINATION . RENAME env_setup.sh )
 
-# Configure and install the post-configuration file:
+# Set tdaq project paths:
+string( REPLACE "$ENV{TDAQ_RELEASE_BASE}" "\$ENV{TDAQ_RELEASE_BASE}"
+   TDAQ_ROOT "${TDAQ_ROOT}" )
+string( REPLACE "${TDAQ_VERSION}" "\${TDAQ_VERSION}"
+   TDAQ_ROOT "${TDAQ_ROOT}" )
 string( REPLACE "$ENV{TDAQ_RELEASE_BASE}" "\$ENV{TDAQ_RELEASE_BASE}"
    TDAQ-COMMON_ROOT "${TDAQ-COMMON_ROOT}" )
 string( REPLACE "${TDAQ-COMMON_VERSION}" "\${TDAQ-COMMON_VERSION}"
@@ -92,6 +96,8 @@ string( REPLACE "$ENV{TDAQ_RELEASE_BASE}" "\$ENV{TDAQ_RELEASE_BASE}"
    DQM-COMMON_ROOT "${DQM-COMMON_ROOT}" )
 string( REPLACE "${DQM-COMMON_VERSION}" "\${DQM-COMMON_VERSION}"
    DQM-COMMON_ROOT "${DQM-COMMON_ROOT}" )
+
+# Configure and install the post-configuration file:
 configure_file( ${CMAKE_SOURCE_DIR}/PostConfig.cmake.in
    ${CMAKE_BINARY_DIR}/PostConfig.cmake @ONLY )
 install( FILES ${CMAKE_BINARY_DIR}/PostConfig.cmake

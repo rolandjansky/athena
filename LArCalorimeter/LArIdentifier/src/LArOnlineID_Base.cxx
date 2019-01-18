@@ -155,7 +155,7 @@ std::string LArOnlineID_Base::feedthrough_name( const HWIdentifier id )const{
       if( ft==3 ){result = "A02L";}
       if( ft==4 ){result = "A03R";}
       if( ft==5 ){result = "A03L";}
-      if( ft==6 ){result = "A04L";}
+      if( ft==6 ){result = "A04R";}
       if( ft==7 ){result = "A05R";}
       if( ft==8 ){result = "A05L";}
       if( ft==9 ){result = "A06R";}

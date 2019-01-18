@@ -37,7 +37,8 @@ TrigTestMonToolAC::TrigTestMonToolAC(const std::string & type, const std::string
      m_keepAllEvents(false),
      m_fileopen(false),
      m_requireDecision(false),
-     m_containTracks(false)
+     m_containTracks(false),
+     m_filter_on_roi(false)
 {
   msg(MSG::WARNING) << "TrigTestMonToolAC::TrigTestMonToolAC() compiled: " << __DATE__ << " " << __TIME__ << endmsg;
 
@@ -73,6 +74,8 @@ TrigTestMonToolAC::TrigTestMonToolAC(const std::string & type, const std::string
   declareProperty( "matchPhi", m_matchPhi = 0.1 );
 
   declareProperty( "ContainTracks", m_containTracks = false );
+
+  declareProperty( "FilterOnRoi", m_filter_on_roi = false );
 
   declareProperty( "ntupleChainNames",  m_ntupleChainNames );
   declareProperty( "releaseMetaData",   m_releaseMetaData );
@@ -132,7 +135,8 @@ StatusCode TrigTestMonToolAC::init() {
 						      m_keepAllEvents ) );
     m_sequences.back()->releaseData(m_releaseMetaData);
     if ( m_requireDecision ) m_sequences.back()->setRequireDecision(true);
-    if ( m_mcTruth ) m_sequences.back()->setMCTruth(m_mcTruth);
+    if ( m_mcTruth )         m_sequences.back()->setMCTruth(m_mcTruth);
+    m_sequences.back()->setFilterOnRoi( m_filter_on_roi );
   }  
   
   /// NB: Do NOT create the sequences here - leave it until the book() method, since

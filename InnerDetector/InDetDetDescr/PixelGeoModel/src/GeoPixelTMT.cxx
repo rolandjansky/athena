@@ -30,8 +30,6 @@ GeoPixelTMT::GeoPixelTMT()
 
 GeoVPhysVol* GeoPixelTMT::Build() {
 
-  std::cout << " new implementation of the Pixel TMT " << std::endl;
-
   // we want to use a assemby, tehrefor we need to dummy volume to trigger the mechanism
   const GeoMaterial* ether = mat_mgr->getMaterial("special::Ether");
   GeoBox* dummybox= new GeoBox(4711., 4711., 4711.);

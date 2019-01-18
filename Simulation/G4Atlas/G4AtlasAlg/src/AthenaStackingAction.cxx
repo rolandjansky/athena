@@ -27,6 +27,7 @@
 #include "G4AntiNeutrinoMu.hh"
 #include "G4AntiNeutrinoTau.hh"
 #include "G4Gamma.hh"
+#include "G4Neutron.hh"
 
 
 namespace G4UA
@@ -35,9 +36,18 @@ namespace G4UA
   //---------------------------------------------------------------------------
   // Constructor
   //---------------------------------------------------------------------------
-  AthenaStackingAction::AthenaStackingAction(const Config& config)
-    : m_config(config)
-  {}
+  AthenaStackingAction::AthenaStackingAction(const Config& config):
+    m_config(config),
+    m_russianRouletteForNeutrons(false),
+    m_oneOverWeight(0)
+  {
+    // bool that checks if the Russian Roulette is active for neutrons
+    m_russianRouletteForNeutrons = m_config.russianRouletteThreshold > 0;
+
+    // calculate this division only once
+    if (m_russianRouletteForNeutrons)
+      m_oneOverWeight = 1./m_config.russianRouletteWeight;
+  }
 
   //---------------------------------------------------------------------------
   // Classify a new track
@@ -64,6 +74,19 @@ namespace G4UA
     G4Event* ev = G4EventManager::GetEventManager()->GetNonconstCurrentEvent();
     EventInformation* eventInfo __attribute__ ((unused)) =
       static_cast<EventInformation*> (ev->GetUserInformation());
+
+    // Neutron Russian Roulette
+    if (m_russianRouletteForNeutrons and isNeutron(track) &&
+        track->GetWeight() < m_config.russianRouletteWeight && // do not re-Roulette particles
+        track->GetKineticEnergy() < m_config.russianRouletteThreshold) {
+      // shoot random number
+      if ( CLHEP::RandFlat::shoot() > m_oneOverWeight ) {
+        // Kill (w-1)/w neutrons
+        return fKill;
+      }
+      // Weight the rest 1/w neutrons with a weight of w
+      mutableTrack->SetWeight(m_config.russianRouletteWeight);
+    }
 
     // Handle primary particles
     if(track->GetParentID() == 0) { // Condition for Primaries
@@ -129,10 +152,17 @@ namespace G4UA
             particleDef == G4NeutrinoTau::NeutrinoTauDefinition()       ||
             particleDef == G4AntiNeutrinoTau::AntiNeutrinoTauDefinition());
   }
+
   //---------------------------------------------------------------------------
   bool AthenaStackingAction::isGamma(const G4Track* track) const
   {
     return track->GetParticleDefinition() == G4Gamma::Gamma();
+  }
+
+  //---------------------------------------------------------------------------
+  bool AthenaStackingAction::isNeutron(const G4Track* track) const
+  {
+    return track->GetParticleDefinition() == G4Neutron::Neutron();
   }
 
 } // namespace G4UA

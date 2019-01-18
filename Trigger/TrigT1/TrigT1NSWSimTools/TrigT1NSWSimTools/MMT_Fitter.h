@@ -17,8 +17,8 @@ class MMT_Fitter{
   void Get_Fit(vector<Hit>& track, map<int,evFit_entry>& Event_Fit, map<hitData_key,hitData_entry>& Hits_Data_Set_Time);
   evFit_entry fit_event(int event, vector<Hit>& track, vector<hitData_entry>& hitDatas, int& nfit, vector<pair<double,double> >&mxmy, double& mxl, double& mv, double& mu) const;
   int get_last() const {return m_last;}
-  int SC_ROI_n_x() const {return m_par->n_x;}
-  int SC_ROI_n_y() const {return m_par->n_y;}
+  int SC_ROI_n_x() const {return m_par->m_n_x;}
+  int SC_ROI_n_y() const {return m_par->m_n_y;}
   int find_hitData(const vector<hitData_entry>& hitDatas, const hitData_key& key) const;
 
 

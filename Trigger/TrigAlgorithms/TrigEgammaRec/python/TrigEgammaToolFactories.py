@@ -31,12 +31,6 @@ from TrigEgammaHypo.TrigEgammaPidTools import ElectronPidTools
 from TrigEgammaHypo.TrigEgammaPidTools import PhotonPidTools
 ElectronPidTools()
 PhotonPidTools()
-#from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
-#lumiTool = LuminosityToolOnline()
-
-#from LumiBlockComps.LumiBlockCompsConf import LumiBlockMuTool
-#ToolSvc += LumiBlockMuTool("LumiBlockMuTool")
-
 
 # Following tools have TrigEgamma factories
 from egammaTools.egammaToolsFactories import EMTrackMatchBuilder, EMFourMomBuilder, EMShowerBuilder
@@ -260,4 +254,8 @@ TrigPhotonSuperClusterBuilder = ToolFactory( egammaToolsConf.photonSuperClusterB
                                          AddCellsWindowEtaCellsEndcap=5,
                                          AddCellsWindowPhiCellsEndcap=999
                                          )
+
+from TrigEgammaRec.TrigEMBremCollectionBuilder import TrigEMBremCollectionBuilder
+TrigEMBremCollectionBuilder = ToolFactory( TrigEMBremCollectionBuilder,
+                                           name = 'TrigEgammaEMBremCollectionBuilder')
 del mlog

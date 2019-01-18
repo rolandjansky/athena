@@ -644,8 +644,7 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
 
        // now check if the number of output objects is too large for further processing. In principle a few candidate is already enough for further steps.
        if( m_maxNOutputObject> 0 && ((int)xAODTrigBphysColl->size() > m_maxNOutputObject ||  (int)index_0.size() > m_maxNOutputObject*m_nTrk) ){
-	 if(msgLvl() <= MSG::INFO) msg() << MSG::INFO << " found "<<  xAODTrigBphysColl->size()
-					 << " suitable objects and "<< index_0.size()<< " tracks, enough for acceptance, stopping" <<endmsg;
+	 ATH_MSG_DEBUG("Found "<<  xAODTrigBphysColl->size() << " suitable objects and "<< index_0.size()<< " tracks, enough for acceptance, stopping");
 	 break;
        }
        
@@ -654,8 +653,6 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
   //------------- end of combination loop
     if( m_mon_NComb > 0 ) m_mon_NComb = log10(m_mon_NComb);
     if( m_mon_acceptedNComb > 0 ) m_mon_acceptedNComb = log10(m_mon_acceptedNComb);
-
-    
 
     if(  passHighPtTrack )   m_mon_Acceptance.push_back( ACCEPT_HighPtTrack );
     if(  passNTrkCharge  )   m_mon_Acceptance.push_back( ACCEPT_NTrkCharge  );
@@ -666,10 +663,6 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
 
     // record collection now
     if ( timerSvc() )  m_BmmHypTot->stop();
-
-      
-    
-
     
     HLT::TriggerElement* outputTE = addRoI(output);  
 

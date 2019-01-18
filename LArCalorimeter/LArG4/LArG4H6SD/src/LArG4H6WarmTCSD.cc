@@ -83,7 +83,7 @@ G4bool LArG4H6WarmTCSD::ProcessHits(G4Step* aStep,G4TouchableHistory* ROhist)
 #ifdef DEBUG_ME
   std::cout<<"LArG4H6WarmTCSD::LArG4H6WarmTCSD: processing: "<<this->GetName()<<std::endl;
 #endif
-  edep  = aStep->GetTotalEnergyDeposit();
+  edep  = aStep->GetTotalEnergyDeposit() * aStep->GetTrack()->GetWeight();
   if(edep == 0.) {
     if(m_isCalib){
       EventInformation * event_info = dynamic_cast<EventInformation*>(G4RunManager::GetRunManager()->GetCurrentEvent()->GetUserInformation());

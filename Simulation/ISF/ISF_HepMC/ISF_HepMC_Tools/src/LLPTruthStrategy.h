@@ -50,9 +50,6 @@ namespace ISF {
       int  m_passProcessCodeRangeLow;
       int  m_passProcessCodeRangeHigh;
       int  m_passProcessCategory;
-
-      /** Returns true if the given |pdgID| is a SUSY particle */
-      bool isSUSYParticle(const int absPdgID) const;
   }; 
 
 }

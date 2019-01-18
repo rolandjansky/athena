@@ -165,6 +165,7 @@ class MonitorDef:
             "L1_FTK-J",
             "L1_MJJ-500-NFF",
             "L1_DPHI-2EM3",
+            "L1_KF-XE75",
             "L1_EM18VHI_MJJ-300",
             "L1_2MU4_J20_XE40_DPHI-J20s2XE30",
             "L1_J50_DETA20-J50J",
@@ -181,10 +182,10 @@ class MonitorDef:
 
         monItemsHF[TBP|TAP|TAV] = [
             "L1_BCM_Wide_BGRP0",
-            "L1_BCM_AC_CA_BGRP0",
             "L1_BCM_AC_UNPAIRED_ISO",
             "L1_BCM_CA_UNPAIRED_ISO",
             "L1_J12",
+            "L1_EM12",
             "L1_MBTS_1", "L1_MBTS_2", "L1_MBTS_1_1",
             ]
 

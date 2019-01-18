@@ -161,5 +161,4 @@ namespace xAOD {
       return *link;
    }
 
-
 } // namespace xAOD

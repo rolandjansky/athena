@@ -40,6 +40,12 @@ if DetFlags.overlay.LVL1_on():
     
     if DetFlags.simulateLVL1.Tile_on():
         include( "TileSimAlgs/TileTTL1_jobOptions.py" )
+
+        # If we are doing MC overlay
+        if not isRealData:
+            job.TileHitToTTL1.TileTTL1Container = overlayFlags.evtStore() + '/TileTTL1Cnt'
+            job.TileHitToTTL1.TileMBTSTTL1Container = overlayFlags.evtStore() + '/TileTTL1MBTS'
+
         include( "TileSimAlgs/TileMuonReceiver_jobOptions.py" )
 
     # Add special TTL1 overlay algorithm only for MC+MC overlay

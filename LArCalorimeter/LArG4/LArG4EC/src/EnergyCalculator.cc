@@ -214,7 +214,7 @@ G4bool EnergyCalculator::Process_Default(const G4Step* step, std::vector<LArHitD
     return false;
   }
 
-  G4double E = step->GetTotalEnergyDeposit();
+  G4double E = step->GetTotalEnergyDeposit() * step->GetTrack()->GetWeight();
   if (m_birksLaw) {
     const G4ThreeVector midpoint = (startPointinLocal + endPointinLocal) * 0.5;
     const G4double wholeStepLengthCm = step->GetStepLength() / CLHEP::cm;
@@ -291,7 +291,7 @@ G4bool EnergyCalculator::Process_Barrett(const G4Step* step, std::vector<LArHitD
     } // end of calibr. calculator
   }  // end if cell id not found
   // compute signal in 'normal' calculator mode, if cellid is found
-  G4double E = step->GetTotalEnergyDeposit();
+  G4double E = step->GetTotalEnergyDeposit() * step->GetTrack()->GetWeight();
   if (m_birksLaw){
     const G4ThreeVector midpoint = (startPointinLocal + endPointinLocal) * 0.5;
     const G4double wholeStepLengthCm = step->GetStepLength() / CLHEP::cm;

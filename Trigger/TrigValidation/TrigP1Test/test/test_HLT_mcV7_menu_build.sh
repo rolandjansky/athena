@@ -2,6 +2,7 @@
 
 # art-description:  Run athenaHLT with and without rerunL1 to create the menu configurations to create SMK for reprocessings 
 # art-type: build
+# art-include: 21.3/Athena
 # art-include: 21.1/AthenaP1
 # art-include: 21.1-dev/AthenaP1
 # art-include: 21.0/AthenaP1

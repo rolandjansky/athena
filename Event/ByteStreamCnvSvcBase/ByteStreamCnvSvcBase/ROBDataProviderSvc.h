@@ -98,6 +98,7 @@ protected:
 
    /// Filter out empty ROB fragments which are send by the ROS
    BooleanProperty m_filterEmptyROB;
+   BooleanProperty m_maskGoodROB;
 
    /// flag which tells if module IDs from the L2 and EF result should be masked off
    bool m_maskL2EFModuleID;

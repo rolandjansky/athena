@@ -30,6 +30,13 @@ def defineMenu():
         #'L1_RD2_BGRP14' : 463,
         'L1_RD3_BGRP15' : 510,
     })
+    #Check that no two items have the same ctp-id
+    inversemap = {}
+    for l1,ctpid in Lvl1Flags.CtpIdMap().iteritems():
+        if ctpid in inversemap:
+            log.error ('Two items have the same CTPID assigned: %s %s'%(l1,inversemap[ctpid]))
+        else:
+            inversemap[ctpid] = l1
 
     #---------------------------------
     # L1menu in MCppV5 is basis 
