@@ -19,7 +19,7 @@
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigConfL1Data/L1DataDef.h"
 #include "TrigConfHLTData/HLTUtils.h"
-#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/Monitored.h"
 
 #include "./FakeRoI.h"
 
@@ -123,9 +123,8 @@ StatusCode FakeRoI::execute() {
 	m_decisions->setStore(m_decisionsAux.ptr());
 
 
-    using namespace Monitored;
-    auto roiCount = MonitoredScalar::declare<int>("roiCount",0);
-    auto monitorit = MonitoredScope::declare(m_monTool, roiCount);
+    auto roiCount = Monitored::Scalar<int>("roiCount",0);
+    auto monitorit = Monitored::Group(m_monTool, roiCount);
 
 	for (auto& fakeRoI : m_inputData[m_currentRowNumber]) {
         roiCount += 1;

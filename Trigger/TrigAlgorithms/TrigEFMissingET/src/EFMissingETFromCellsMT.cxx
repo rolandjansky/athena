@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 // FrameWork includes
-#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/Monitored.h"
 #include "GaudiKernel/IToolSvc.h"
 
 // TrigEFMissingET includes
@@ -33,13 +33,13 @@ StatusCode EFMissingETFromCellsMT::initialize()
 
 StatusCode EFMissingETFromCellsMT::update( xAOD::TrigMissingET */*met*/,
 					   TrigEFMissingEtHelper *metHelper ) const {
-  using namespace Monitored;
-  auto totalTimer = MonitoredTimer::declare( "TIME_Total" );  
+
+  auto totalTimer = Monitored::Timer( "TIME_Total" );
   const EventContext context{ Gaudi::Hive::currentContext() };
   auto caloCellsHandle = SG::makeHandle( m_cellsKey );
 
-  auto loopTimer = MonitoredTimer::declare( "TIME_Loop" );  
-  auto countUsedCells = MonitoredScalar::declare<unsigned>( "UsedCells", 0 );  
+  auto loopTimer = Monitored::Timer( "TIME_Loop" );
+  auto countUsedCells = Monitored::Scalar<unsigned>( "UsedCells", 0 );
 
   // now it is time to iterate over the cells
   ATH_MSG_INFO("About to loop over cells from CellMET");

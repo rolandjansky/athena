@@ -5,7 +5,7 @@
 
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/Combinators.h"
-#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/Monitored.h"
 
 #include "TrigL2ElectronHypoTool.h"
 
@@ -50,17 +50,16 @@ TrigL2ElectronHypoTool::~TrigL2ElectronHypoTool() {}
 
 bool TrigL2ElectronHypoTool::decideOnSingleObject( const xAOD::TrigElectron* electron, 
 						   size_t cutIndex ) const {
-  using namespace Monitored;
-  auto cutCounter = MonitoredScalar::declare<int>( "CutCounter", -1 );  
-  auto cutIndexM  = MonitoredScalar::declare<int>( "CutIndex", cutIndex );  // one can do 2D plots for each cut independently
-  auto ptCalo     = MonitoredScalar::declare( "PtCalo", -999. );
-  auto ptTrack    = MonitoredScalar::declare( "PtTrack", -999. );
-  auto dEtaCalo   = MonitoredScalar::declare( "CaloTrackEta", -1. );
-  auto dPhiCalo   = MonitoredScalar::declare( "CaloTrackPhi", -1. );
-  auto eToverPt   = MonitoredScalar::declare( "CaloTrackEoverP", -1. );
-  auto caloEta    = MonitoredScalar::declare( "CaloEta", -100. );
-  auto caloPhi    = MonitoredScalar::declare( "CaloEta", -100. );
-  auto monitorIt  = MonitoredScope::declare( m_monTool, 
+  auto cutCounter = Monitored::Scalar<int>( "CutCounter", -1 );  
+  auto cutIndexM  = Monitored::Scalar<int>( "CutIndex", cutIndex );  // one can do 2D plots for each cut independently
+  auto ptCalo     = Monitored::Scalar( "PtCalo", -999. );
+  auto ptTrack    = Monitored::Scalar( "PtTrack", -999. );
+  auto dEtaCalo   = Monitored::Scalar( "CaloTrackEta", -1. );
+  auto dPhiCalo   = Monitored::Scalar( "CaloTrackPhi", -1. );
+  auto eToverPt   = Monitored::Scalar( "CaloTrackEoverP", -1. );
+  auto caloEta    = Monitored::Scalar( "CaloEta", -100. );
+  auto caloPhi    = Monitored::Scalar( "CaloEta", -100. );
+  auto monitorIt  = Monitored::Group( m_monTool, 
 					     cutCounter, cutIndexM,
 					     ptCalo, ptTrack,    
 					     dEtaCalo, dPhiCalo,   
