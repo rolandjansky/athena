@@ -7,6 +7,7 @@
 PFONeutralValidationPlots::PFONeutralValidationPlots(PlotBase* pParent, std::string sDir,  std::string sPFOContainerName) : PlotBase(pParent, sDir),
 													     m_PFOPlots(this,"",sPFOContainerName),
 													     m_PFOClusterMomentPlots(this,"",sPFOContainerName),
+													     m_PFOCalibHitClusterMomentPlots(this,"",sPFOContainerName),
 													     m_PFOAttributePlots(this,"",sPFOContainerName),
 													     m_PFOEMPlots(this,"",sPFOContainerName)
 {}
@@ -14,6 +15,7 @@ PFONeutralValidationPlots::PFONeutralValidationPlots(PlotBase* pParent, std::str
 void PFONeutralValidationPlots::fill(const xAOD::PFO& thePFO){
   m_PFOPlots.fill(thePFO);
   m_PFOClusterMomentPlots.fill(thePFO);
+  m_PFOCalibHitClusterMomentPlots.fill(thePFO);
   m_PFOAttributePlots.fill(thePFO);
   m_PFOEMPlots.fill(thePFO);
 }
