@@ -51,6 +51,7 @@ ISF::DNNCaloSimSvc::DNNCaloSimSvc(const std::string& name, ISvcLocator* svc) :
   m_theContainer(nullptr),
   m_rndGenSvc("AtRndmGenSvc", name),
   m_randomEngine(nullptr),
+  m_caloDetDescrManager(nullptr),
   m_caloGeo(nullptr)
 {
   declareProperty("ParamsInputFilename"            ,       m_paramsFilename,"twoCritic_nn.json");
@@ -79,12 +80,12 @@ StatusCode ISF::DNNCaloSimSvc::initialize()
    return StatusCode::FAILURE;
   }
   
-  const CaloDetDescrManager* calo_dd_man  = CaloDetDescrManager::instance();
+  m_caloDetDescrManager  = CaloDetDescrManager::instance();
   const FCALDetectorManager * fcalManager=NULL;
   ATH_CHECK(detStore()->retrieve(fcalManager));
   
   m_caloGeo = new CaloGeometryFromCaloDDM();
-  m_caloGeo->LoadGeometryFromCaloDDM(calo_dd_man);
+  m_caloGeo->LoadGeometryFromCaloDDM(m_caloDetDescrManager);
   if(!m_caloGeo->LoadFCalChannelMapFromFCalDDM(fcalManager) )ATH_MSG_FATAL("Found inconsistency between FCal_Channel map and GEO file. Please, check if they are configured properly.");
   
   const std::string fileName = m_paramsFilename;
@@ -241,20 +242,23 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
  //     noSample = -1
  
 
-  for (int isam=0; isam< CaloCell_ID_FCS::MaxSample ; isam++){
-    //enum SUBPOS { SUBPOS_MID = 0, SUBPOS_ENT = 1, SUBPOS_EXT = 2}; //MID=middle, ENT=entrance, EXT=exit of cal layer
+  if (false)
+    {
+      for (int isam=0; isam< CaloCell_ID_FCS::MaxSample ; isam++){
+	//enum SUBPOS { SUBPOS_MID = 0, SUBPOS_ENT = 1, SUBPOS_EXT = 2}; //MID=middle, ENT=entrance, EXT=exit of cal layer
 
-    for (int isubpos=0; isubpos< 3 ; isubpos++){
+	for (int isubpos=0; isubpos< 3 ; isubpos++){
+      
+	  ATH_MSG_DEBUG("EXTRAPO isam=" << isam <<
+			" isubpos=" << isubpos <<
+			" OK="    << extrapol.OK(isam,isubpos) <<
+			" eta="  << extrapol.eta(isam,isubpos) <<
+			" phi="  << extrapol.phi(isam,isubpos) <<
+			" r="  << extrapol.r(isam,isubpos) );
 
-      ATH_MSG_DEBUG("EXTRAPO isam=" << isam <<
-		    " isubpos=" << isubpos <<
-		    " OK="    << extrapol.OK(isam,isubpos) <<
-		    " eta="  << extrapol.eta(isam,isubpos) <<
-		    " phi="  << extrapol.phi(isam,isubpos) <<
-		    " r="  << extrapol.r(isam,isubpos) );
-
+	}
+      }
     }
-  }
 
   //FIXME deal with endcap as well 
   int isam=CaloCell_ID_FCS::EMB2;
@@ -272,6 +276,31 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
 		" phi="  << phiExtrap );
 
   //now find the cell it corresponds to  
+  //FIXME this is barrel should also look in endcap 
+  // (note that is really looking up eta, phi, not raw eta phi
+  const CaloDetDescrElement* impactCellDDE=m_caloDetDescrManager->get_element(CaloCell_ID::EMB2,etaExtrap,phiExtrap);
+  double caloHashImpactCell=-999;
+  double etaImpactCell=-999;
+  double phiImpactCell=-999;
+  double etaRawImpactCell=-999;
+  double phiRawImpactCell=-999;
+
+  if (impactCellDDE!=nullptr){
+    caloHashImpactCell=impactCellDDE->calo_hash();
+    etaImpactCell=impactCellDDE->eta();
+    phiImpactCell=impactCellDDE->phi();
+    etaRawImpactCell=impactCellDDE->eta_raw();
+    phiRawImpactCell=impactCellDDE->phi_raw();
+
+  }
+  ATH_MSG_DEBUG("impact cell calohash=" << caloHashImpactCell <<
+		" eta="  << etaImpactCell << 
+		" phi="  << phiImpactCell <<
+		" eta raw="  << etaRawImpactCell << 
+		" phi raw="  << phiRawImpactCell  );
+
+
+
 
   TFCSSimulationState simulstate(m_randomEngine);
 

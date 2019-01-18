@@ -28,6 +28,8 @@
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
 #include "CaloIdentifier/TileID.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
+
 
 namespace CLHEP
 {
@@ -83,6 +85,8 @@ namespace ISF {
       CLHEP::HepRandomEngine*         m_randomEngine;
       std::string                     m_randomEngineName;
       
+
+      const CaloDetDescrManager* m_caloDetDescrManager;
       CaloGeometryFromCaloDDM* m_caloGeo;
       
       std::string  m_caloCellsOutputName;
