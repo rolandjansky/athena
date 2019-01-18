@@ -94,8 +94,7 @@ namespace Rec {
       if(sample== CaloSampling::PreSamplerB) {
         pos2 = entryExitLayerMap.find(CaloSampling::EMB1);
 	if (pos2==entryExitLayerMap.end()) {
-	    ATH_MSG_WARNING("Failed to find EMB1 in entryExitLayerMap");
-	    continue;
+	    pos2=pos;
 	  }
       } 
       //// calculate 3D path length
