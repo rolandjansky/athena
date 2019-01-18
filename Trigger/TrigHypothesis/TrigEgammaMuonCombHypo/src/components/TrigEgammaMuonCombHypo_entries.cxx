@@ -6,9 +6,6 @@
 #include "TrigEgammaMuonCombHypo/TrigEFElectronMuonAngleFexRun2Algo.h"
 #include "TrigEgammaMuonCombHypo/TrigEFPhotonMuonAngleFexAlgo.h"
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
-
 DECLARE_COMPONENT( TrigL2ElectronMuonAngleHypo )
 DECLARE_COMPONENT( TrigL2ElectronMuonAngleFexAlgo )
 DECLARE_COMPONENT( TrigEFElectronMuonAngleHypo )
