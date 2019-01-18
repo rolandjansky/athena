@@ -184,6 +184,7 @@ namespace top{
     m_jetPtcut(25000.),
     m_jetEtacut(2.5),
     m_fwdJetAndMET("Default"),
+    m_jetPtGhostTracks(17000.),
     m_jetUncertainties_BunchSpacing("25ns"),
     m_jetUncertainties_NPModel("AllNuisanceParameters"),
     m_jetUncertainties_QGFracFile("None"),
@@ -722,6 +723,7 @@ namespace top{
     this->jetPtcut( std::stof(settings->value("JetPt")) );
     this->jetEtacut( std::stof(settings->value("JetEta")) );
     this->fwdJetAndMET( settings->value("FwdJetAndMET") );
+    this->jetPtGhostTracks(std::stof(settings->value("JetPtGhostTracks")) );
     this->jetUncertainties_BunchSpacing( settings->value("JetUncertainties_BunchSpacing") );
     this->jetUncertainties_NPModel( settings->value("JetUncertainties_NPModel") );
     this->jetUncertainties_QGFracFile( settings->value("JetUncertainties_QGFracFile") );

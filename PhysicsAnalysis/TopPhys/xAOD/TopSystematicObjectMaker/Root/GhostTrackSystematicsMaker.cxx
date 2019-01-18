@@ -85,8 +85,10 @@ namespace top {
         m_config->systematicsJetGhostTrack(specifiedSystematics());
 	
 	
-	m_jetPtCut=17000.;
+	m_jetPtCut=m_config->jetPtGhostTracks();
 
+	ATH_MSG_INFO(" top::GhostTrackSystematicsMaker: Systematic variations of ghost tracks will be done only for jets with pt >= " << m_jetPtCut );
+	
         ATH_MSG_INFO(" top::GhostTrackSystematicsMaker completed initialize" );
         return StatusCode::SUCCESS;
     }
