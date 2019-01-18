@@ -16,6 +16,7 @@
 #include "ISF_FastCaloSimEvent/TFCSTruthState.h"
 #include "ISF_FastCaloSimEvent/TFCSExtrapolationState.h"
 #include "ISF_FastCaloSimParametrization/CaloGeometryFromCaloDDM.h"
+#include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
 
 //!
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -247,6 +248,9 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
   truth.set_vertex(particle_position[Amg::x], particle_position[Amg::y], particle_position[Amg::z]);
 
   TFCSExtrapolationState extrapol;
+  //FIXME this is extrapolating to many layers, when we only need middle layer middle surface
+  //FIXME could have dedicated extrapolation to save time 
+  //FIXME check which surface was used to generate the training file
   m_FastCaloSimCaloExtrapolation->extrapolate(extrapol,&truth);
   ATH_MSG_DEBUG(" calo surface eta " << extrapol.CaloSurface_eta() <<
 		" phi " << extrapol.CaloSurface_phi() );
@@ -273,7 +277,7 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
     //enum SUBPOS { SUBPOS_MID = 0, SUBPOS_ENT = 1, SUBPOS_EXT = 2}; //MID=middle, ENT=entrance, EXT=exit of cal layer
 
     for (int isubpos=0; isubpos< 3 ; isubpos++){
-    
+
       ATH_MSG_DEBUG("EXTRAPO isam=" << isam <<
 		    " isubpos=" << isubpos <<
 		    " OK="    << extrapol.OK(isam,isubpos) <<
@@ -283,6 +287,23 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
 
     }
   }
+
+  //FIXME deal with endcap as well 
+  int isam=CaloCell_ID_FCS::EMB2;
+  int isubpos=SUBPOS_MID;
+  double etaExtrap=-999.;
+  double phiExtrap=-999.;
+  if (extrapol.eta(isam,isubpos)) {
+    etaExtrap=extrapol.eta(isam,isubpos);
+    phiExtrap=extrapol.phi(isam,isubpos);
+  }
+
+  ATH_MSG_DEBUG("Will use isam=" << isam <<
+		" isubpos=" << isubpos <<
+		" eta="  << etaExtrap << 
+		" phi="  << phiExtrap );
+
+  //now find the cell it corresponds to  
 
   TFCSSimulationState simulstate(m_randomEngine);
 
@@ -299,6 +320,7 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
 
 
   // note that m_theCellContainer has all the calorimeter cells
+
   //for(const auto& theCell : * m_theCellContainer) {
   int n_sqCuts = 0;
   double vall, valll;
