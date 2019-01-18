@@ -247,7 +247,7 @@ Double_t EfieldInterpolator::relativeDistance(Double_t x1, Double_t x2)
 //Use as definition for distance in Fluence/Voltage space
 Double_t EfieldInterpolator::relativeDistance(Double_t x1, Double_t y1, Double_t x2, Double_t y2)
 {
-    return( TMath::Sqrt( TMath::Power(relativeDistance(x1,x2),2) + TMath::Power(relativeDistance(y1,y2),2)) );
+    return( std::sqrt( relativeDistance(x1,x2)*relativeDistance(x1,x2) + relativeDistance(y1,y2)*relativeDistance(y1,y2))) ;
 }
 
 Double_t EfieldInterpolator::extrapolateLinear(Double_t x1, Double_t y1, Double_t x2, Double_t y2, Double_t xaim){
