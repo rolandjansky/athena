@@ -42,32 +42,14 @@ EfieldInterpolator::~EfieldInterpolator()
 }
 
 StatusCode EfieldInterpolator::initialize() {
-  ATH_MSG_INFO ("Initializing " << name() << "...");
+  ATH_MSG_DEBUG("Initializing " << name() << "...");
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode EfieldInterpolator::finalize() {
-  ATH_MSG_INFO ("Finalizing " << name() << "...");
+  ATH_MSG_DEBUG ("Finalizing " << name() << "...");
   return StatusCode::SUCCESS;
-}
-
-//Helper Functions
-void print3Dvec(std::vector<std::vector<std::vector<Double_t>>> inv){
-	for(uint i0 = 0; i0< inv.size(); i0++){
-		for(uint i1 = 0; i1< inv.at(i0).size(); i1++){
-			for(uint i2 = 0; i2< inv.at(i0).at(i1).size(); i2++){
-				printf("Entry (%i,%i,%i)=%f\n ", i0,i1,i2, inv.at(i0).at(i1).at(i2));
-			}
-		}
-	}
-}
-void print2Dvec(std::vector<std::vector<Double_t>> inv){
-	for(uint i0 = 0; i0< inv.size(); i0++){
-		for(uint i1 = 0; i1< inv.at(i0).size(); i1++){
-			printf("Entry (%i,%i)=%f\n ", i0,i1,inv.at(i0).at(i1) );
-		}
-	}
 }
 
 //Cast for using TGraph consrtuctor
@@ -226,9 +208,13 @@ bool EfieldInterpolator::initializeFromFile(TString fpath){
 void EfieldInterpolator::ReliabilityCheck(Double_t aimFluence, std::vector<Double_t> fluences, Double_t aimVoltage, std::vector<Double_t> voltages){
     bool tooLowVolt     = true;
     bool tooHighVolt    = true;
-    for(uint iv = 0; iv< voltages.size(); iv++){
-        if( aimVoltage < voltages.at(iv) ) tooHighVolt= false;
-        if( aimVoltage > voltages.at(iv) ) tooLowVolt= false;
+    //for(uint iv = 0; iv< voltages.size(); iv++){
+    //    if( aimVoltage < voltages.at(iv) ) tooHighVolt= false;
+    //    if( aimVoltage > voltages.at(iv) ) tooLowVolt= false;
+    //}
+    for(const auto iv : voltages){
+        if( aimVoltage < iv ) tooHighVolt= false;
+        if( aimVoltage > iv ) tooLowVolt= false;
     }
     bool tooLowFlu     = true;
     bool tooHighFlu    = true;
