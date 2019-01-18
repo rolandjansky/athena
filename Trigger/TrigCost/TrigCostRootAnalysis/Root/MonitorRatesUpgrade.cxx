@@ -262,8 +262,8 @@ namespace TrigCostRootAnalysis {
               if (t == 15) triggerLogic.addCondition("TE", 1, sE, 0, 0, 49);
               if (t == 16) triggerLogic.addCondition("HT", 1, sE, 0, 0, 49);
 
-              auto _it = m_upgradeChains.insert(ChainInfo(name.str(), 1, triggerLogic, group.str(), "", 1., 1.));
-              TriggerLogic* tl = const_cast<TriggerLogic*>(&(_it->m_triggerLogic)); //Why is this const in the first
+              auto it = m_upgradeChains.insert(ChainInfo(name.str(), 1, triggerLogic, group.str(), "", 1., 1.));
+              TriggerLogic* tl = const_cast<TriggerLogic*>(&(it->m_triggerLogic)); //Why is this const in the first
                                                                                      // place?
 
               RatesChainItem* L1 = new RatesChainItem(name.str(), /*chainLevel=*/ 1, 1.);
@@ -276,7 +276,7 @@ namespace TrigCostRootAnalysis {
     }
 
     for (std::multiset<ChainInfo>::iterator it = m_upgradeChains.begin(); it != m_upgradeChains.end(); ++it) {
-      //for (auto _item : m_upgradeChains) {
+      //for (auto item : m_upgradeChains) {
       if (it->m_level == 2) {
         continue; // not doing HLT yet
       }
@@ -373,18 +373,18 @@ namespace TrigCostRootAnalysis {
     // for (int jE = 10; jE <= 25; jE += 5) {
     //   for (int TE = 250; TE <= 500; TE += 50) {
 
-    //     std::string _chainName = "L1_4J" + std::to_string(jE) + "__AND__L1_TE" + std::to_string(TE);
-    //     CounterRatesIntersection* _L1Chain = new CounterRatesIntersection(m_costData, _chainName, ID++, 10,
+    //     std::string chainName = "L1_4J" + std::to_string(jE) + "__AND__L1_TE" + std::to_string(TE);
+    //     CounterRatesIntersection* L1Chain = new CounterRatesIntersection(m_costData, chainName, ID++, 10,
     // (MonitorBase*)this); // Mint new counter
-    //     _L1Chain->decorate(kDecRatesGroupName, "Intersection" );
-    //     _L1Chain->decorate(kDecPrescaleStr, "-");
-    //     _L1Chain->decorate(kDecType, "Intersection");
-    //     _L1Chain->addL1Item( m_chainItemsL1["L1_4J" + std::to_string(jE)] );
-    //     _L1Chain->addL1Item( m_chainItemsL1["L1_TE" + std::to_string(TE)] );
+    //     L1Chain->decorate(kDecRatesGroupName, "Intersection" );
+    //     L1Chain->decorate(kDecPrescaleStr, "-");
+    //     L1Chain->decorate(kDecType, "Intersection");
+    //     L1Chain->addL1Item( m_chainItemsL1["L1_4J" + std::to_string(jE)] );
+    //     L1Chain->addL1Item( m_chainItemsL1["L1_TE" + std::to_string(TE)] );
     //     assert( m_chainItemsL1.count("L1_4J" + std::to_string(jE)) +   m_chainItemsL1.count("L1_TE" +
     // std::to_string(TE)) == 2);
-    //     (*counterMap)[_chainName] = static_cast<CounterBase*>(_L1Chain); // Insert into the counterMap
-    //     Info("MonitorRatesUpgrade::createL1Counters","Made a L1 counter for: %s", _L1Chain->getName().c_str() );
+    //     (*counterMap)[chainName] = static_cast<CounterBase*>(L1Chain); // Insert into the counterMap
+    //     Info("MonitorRatesUpgrade::createL1Counters","Made a L1 counter for: %s", L1Chain->getName().c_str() );
     //   }
     // }
 
@@ -724,11 +724,11 @@ namespace TrigCostRootAnalysis {
 
 
     //if ( fabs( m_eventsToMix - round(m_eventsToMix) ) <  0.1) m_eventsToMix = round(m_eventsToMix);
-    ////static Int_t _debug2 = 0;
-    // if (++_debug2 < 20) Info("MonitorRatesUpgrade::newEvent", "Mixing %i events (f %f)", (Int_t)
+    ////static Int_t debug2 = 0;
+    // if (++debug2 < 20) Info("MonitorRatesUpgrade::newEvent", "Mixing %i events (f %f)", (Int_t)
     // round(m_eventsToMix), m_eventsToMix);
     // // Add pileup
-    // for (Int_t _pu = 0; _pu <  (Int_t) round(m_eventsToMix); ++_pu) { // Cast to int rounds down
+    // for (Int_t pu = 0; pu <  (Int_t) round(m_eventsToMix); ++pu) { // Cast to int rounds down
     //   UInt_t pileupLottery = m_R3.Integer( m_pileupDatabase.size() );
     //   m_thisEventPtr->add( m_pileupDatabase.at( pileupLottery ) );
     // }
