@@ -273,7 +273,7 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
     //enum SUBPOS { SUBPOS_MID = 0, SUBPOS_ENT = 1, SUBPOS_EXT = 2}; //MID=middle, ENT=entrance, EXT=exit of cal layer
 
     for (int isubpos=0; isubpos< 3 ; isubpos++){
-    
+      
       ATH_MSG_DEBUG("EXTRAPO isam=" << isam <<
 		    " isubpos=" << isubpos <<
 		    " OK="    << extrapol.OK(isam,isubpos) <<
