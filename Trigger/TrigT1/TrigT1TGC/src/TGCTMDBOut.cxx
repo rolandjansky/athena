@@ -24,14 +24,14 @@ namespace LVL1TGCTrigger {
 
 //////////////////////
 TGCTMDBOut::TGCTMDBOut()
-  : sideID(0), moduleID(-1), hit_56(0), hit_6(0)
+  : m_sideID(0), m_moduleID(-1), m_hit_56(0), m_hit_6(0)
 //////////////////////
 {
 }
 
 ///////////////////////////////////////////////////////////////
 TGCTMDBOut::TGCTMDBOut(int side, int module, int hit56, int hit6)
-  : sideID(side), moduleID(module), hit_56(hit56), hit_6(hit6)
+  : m_sideID(side), m_moduleID(module), m_hit_56(hit56), m_hit_6(hit6)
 ///////////////////////////////////////////////////////////////
 {
 }
@@ -40,10 +40,10 @@ TGCTMDBOut::TGCTMDBOut(int side, int module, int hit56, int hit6)
 ///////////////////////////////////////////////////////////////
 TGCTMDBOut::TGCTMDBOut(const TGCTMDBOut& right)
 /////////////////////////////////////////////////////////////
-    :sideID(right.sideID), 
-     moduleID(right.moduleID),
-     hit_56(right.hit_56),
-     hit_6(right.hit_6)
+    :m_sideID(right.m_sideID), 
+     m_moduleID(right.m_moduleID),
+     m_hit_56(right.m_hit_56),
+     m_hit_6(right.m_hit_6)
 {
 }
 
@@ -53,10 +53,10 @@ TGCTMDBOut& TGCTMDBOut::operator=(const TGCTMDBOut& right)
 /////////////////////////////////////////////////////////////
 {
   if (this != &right) {
-    sideID    = right.sideID; 
-    moduleID  = right.moduleID;
-    hit_56    = right.hit_56;
-    hit_6     = right.hit_6;
+    m_sideID    = right.m_sideID; 
+    m_moduleID  = right.m_moduleID;
+    m_hit_56    = right.m_hit_56;
+    m_hit_6     = right.m_hit_6;
   }
   return *this;
 }
@@ -65,10 +65,10 @@ TGCTMDBOut& TGCTMDBOut::operator=(const TGCTMDBOut& right)
 void TGCTMDBOut::Print() const
 /////////////////////////////
 {
-  std::cout << "Side=" << sideID
-            << " :: ModuleID=" << moduleID
-            << " :: Hit_56=" << hit_56
-            << " :: Hit_6=" << hit_6
+  std::cout << "Side=" << m_sideID
+            << " :: ModuleID=" << m_moduleID
+            << " :: Hit_56=" << m_hit_56
+            << " :: Hit_6=" << m_hit_6
            << std::endl; 
 }
 

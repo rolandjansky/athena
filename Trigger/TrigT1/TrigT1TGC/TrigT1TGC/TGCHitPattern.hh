@@ -57,32 +57,32 @@ public:
   const char* bool2char(void);
 
 private:
-  bool* pattern; // this array is created when the length is specified
-  int length;
+  bool* m_pattern; // this array is created when the length is specified
+  int m_length;
 
-  char* cPattern;
+  char* m_cPattern;
 };
 
 inline
 int TGCHitPattern::getLength() const
 {
-  return length;
+  return m_length;
 }
 
 inline
 void TGCHitPattern::onChannel(int iChannel)
 {
-  pattern[iChannel] = true;
-  if(cPattern){delete [] cPattern;}
-  cPattern = 0;
+  m_pattern[iChannel] = true;
+  if(m_cPattern){delete [] m_cPattern;}
+  m_cPattern = 0;
 }
 
 inline
 void TGCHitPattern::offChannel(int iChannel)
 {
-  pattern[iChannel] = false;
-  if(cPattern){delete [] cPattern;}
-  cPattern = 0;
+  m_pattern[iChannel] = false;
+  if(m_cPattern){delete [] m_cPattern;}
+  m_cPattern = 0;
 }
 
 

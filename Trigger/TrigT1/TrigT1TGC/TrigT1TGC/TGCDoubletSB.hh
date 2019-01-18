@@ -29,16 +29,16 @@ protected:
   virtual void doCoincidenceInSubMatrix(const int block, TGCHitPattern** LCOut);
   bool element(bool A, bool B, bool C, bool D);
 
-  int priorSign;    // prior sign of dr or dphi in coincidence matrix.
-  int numberOfData; // number of data  
-  int nChInBlock;   // number of channel in pivot plane
-  int maxDev;       // maximum of absolute value of dr,dphi
-  int posMaxDev;    // maximum of positive value of dr,dphi
-  int negMaxDev;    // maximum of negative value of dr,dphi
-  int nChAdj;       // number of channel from adjacent PatchPanel
-  int iChBase;      //
-  int MatrixOverlap;
-  TGCSignalType SType;
+  int m_priorSign;    // prior sign of dr or dphi in coincidence matrix.
+  int m_numberOfData; // number of data  
+  int m_nChInBlock;   // number of channel in pivot plane
+  int m_maxDev;       // maximum of absolute value of dr,dphi
+  int m_posMaxDev;    // maximum of positive value of dr,dphi
+  int m_negMaxDev;    // maximum of negative value of dr,dphi
+  int m_nChAdj;       // number of channel from adjacent PatchPanel
+  int m_iChBase;      //
+  int m_MatrixOverlap;
+  TGCSignalType m_SType;
 
 };
 

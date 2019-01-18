@@ -26,8 +26,8 @@ class TGCASDOut;
  
 class TGCEvent {
 protected:
-  int eventNumber;
-  std::vector<TGCASDOut*> vecASDOut;
+  int m_eventNumber;
+  std::vector<TGCASDOut*> m_vecASDOut;
 
 public:
 //  double eta;//for test
@@ -42,8 +42,8 @@ public:
  
   const TGCEvent& operator=(const TGCEvent& right)
   {
-    eventNumber= right.eventNumber;
-    vecASDOut= right.vecASDOut;
+    m_eventNumber= right.m_eventNumber;
+    m_vecASDOut= right.m_vecASDOut;
 
     return *this;
   }
@@ -59,7 +59,7 @@ public:
   }
 
   // set functions
-  void SetEventNumber(int num) { eventNumber= num; }
+  void SetEventNumber(int num) { m_eventNumber= num; }
 
   TGCASDOut* NewASDOut(TGCIndex tgcindex, int ilyr, 
 		       TGCSignalType sigtype=WIREGROUP, int id=-1, 
@@ -70,20 +70,20 @@ public:
 		       double tof=0);
 
   // get functions
-  int GetEventNumber() const { return eventNumber; }
+  int GetEventNumber() const { return m_eventNumber; }
 
   // ASDOut ...
-  int GetNASDOut() const { return vecASDOut.size(); }
+  int GetNASDOut() const { return m_vecASDOut.size(); }
 
   const TGCASDOut* GetASDOut(int index) const
   {
-    if(index<=0 || (unsigned int)index> vecASDOut.size()) return 0;
-    else return vecASDOut[index-1];
+    if(index<=0 || (unsigned int)index> m_vecASDOut.size()) return 0;
+    else return m_vecASDOut[index-1];
   }
 
   std::vector<TGCASDOut*>& GetASDOutVector() const
   {
-    return (std::vector<TGCASDOut*>&)vecASDOut;
+    return (std::vector<TGCASDOut*>&)m_vecASDOut;
   }
 
   // operations

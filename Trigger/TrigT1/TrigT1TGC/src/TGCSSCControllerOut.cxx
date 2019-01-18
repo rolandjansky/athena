@@ -8,28 +8,28 @@
 
 namespace LVL1TGCTrigger {
 
-const int TGCSSCControllerOut::chamber[TotalNumTGCRegionType][TGCSSCControllerOut::MaxNumberOfSubSectorCluster]
+const int TGCSSCControllerOut::s_chamber[TotalNumTGCRegionType][TGCSSCControllerOut::MaxNumberOfSubSectorCluster]
  = {{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 
     { 0, 0, 0, 1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4 } 
    }; 
     
 TGCSSCControllerOut::TGCSSCControllerOut(TGCRegionType region): 
-  regionType(region) 
+  m_regionType(region) 
 { 
   for(int i=0; i<MaxNumberOfChamberInR; i++ ){
     for(int j=0; j<MaxNumberOfPhiInSSC; j++) {
-      phi[i][j]   =0;
-      dPhi[i][j]  = 0;
-      ptPhi[i][j] =0;
-      hitPhi[i][j] = false;
+      m_phi[i][j]   =0;
+      m_dPhi[i][j]  = 0;
+      m_ptPhi[i][j] =0;
+      m_hitPhi[i][j] = false;
     }
   }
 
   for (int i=0; i<MaxNumberOfSubSectorCluster; i++ ){
-    r[i]    = 0;
-    dR[i]   = 0;
-    ptR[i]  = 0; 
-    hitR[i] = false;
+    m_r[i]    = 0;
+    m_dR[i]   = 0;
+    m_ptR[i]  = 0; 
+    m_hitR[i] = false;
   }
 } 
 
@@ -37,11 +37,11 @@ bool TGCSSCControllerOut::hasHit(int ssc, bool ored) const
 {
   for(int phiposInSSC = 0 ;phiposInSSC < MaxNumberOfPhiInSSC; phiposInSSC++){
     if(!ored){
-      if(hitR[ssc]&&hitPhi[getChamberNumber(ssc)][phiposInSSC]) return true;
+      if(m_hitR[ssc]&&m_hitPhi[getChamberNumber(ssc)][phiposInSSC]) return true;
     } else if(hasChamberBoundary(ssc)){
       int idx =getOredChamberNumber(ssc);
-      if( hitR[ssc] && (idx>=0) &&
-         hitPhi[idx][phiposInSSC]) return true;
+      if( m_hitR[ssc] && (idx>=0) &&
+         m_hitPhi[idx][phiposInSSC]) return true;
     }
   }
   return false;
@@ -50,11 +50,11 @@ bool TGCSSCControllerOut::hasHit(int ssc, bool ored) const
 bool TGCSSCControllerOut::hasHit(int ssc, int phiposInSSC, bool ored) const
 {
   if(!ored){
-    if(hitR[ssc]&&hitPhi[getChamberNumber(ssc)][phiposInSSC]) return true;
+    if(m_hitR[ssc]&&m_hitPhi[getChamberNumber(ssc)][phiposInSSC]) return true;
   } else if(hasChamberBoundary(ssc)){
     int idx =getOredChamberNumber(ssc);
-    if( hitR[ssc] && (idx>=0) &&
-       hitPhi[idx][phiposInSSC]) return true;
+    if( m_hitR[ssc] && (idx>=0) &&
+       m_hitPhi[idx][phiposInSSC]) return true;
   }
   return false;
 }
@@ -68,14 +68,14 @@ void TGCSSCControllerOut::print() const
 
   for( j=0; j<getNumberOfChamberInR(); j+=1)
     for( k=0; k<MaxNumberOfPhiInSSC; k++)
-      if(hitPhi[j][k]) std::cout<<"#Chamber= "<< j << " Phi" << k
-                        <<" phi= "<<phi[j][k]<<" dPhi= "<<dPhi[j][k]
-                        <<" H/L= "<<ptPhi[j][k]<<std::endl;
+      if(m_hitPhi[j][k]) std::cout<<"#Chamber= "<< j << " Phi" << k
+                        <<" phi= "<<m_phi[j][k]<<" dPhi= "<<m_dPhi[j][k]
+                        <<" H/L= "<<m_ptPhi[j][k]<<std::endl;
 
   for( i=0; i<getNumberOfSubSectorCluster(); i+=1)
-    if(hitR[i]) std::cout<<"#SSC= "<<i
-                    <<" r= "<<r[i]<<" dR= "<<dR[i]
-                    <<" H/L= "<<ptR[i]<<std::endl;
+    if(m_hitR[i]) std::cout<<"#SSC= "<<i
+                    <<" r= "<<m_r[i]<<" dR= "<<m_dR[i]
+                    <<" H/L= "<<m_ptR[i]<<std::endl;
 
   std::cout<<"TGCSSCControllerOut::print() end"<<std::endl;
 #endif
@@ -86,10 +86,10 @@ void TGCSSCControllerOut::clear()
   int i, j;
   for( i=0; i<getNumberOfChamberInR(); i+=1)
     for( j=0; j<MaxNumberOfPhiInSSC; j++)
-      hitPhi[i][j]=false;
+      m_hitPhi[i][j]=false;
 
   for( i=0; i<getNumberOfSubSectorCluster(); i+=1)
-    hitR[i]=false;
+    m_hitR[i]=false;
 }
 
 

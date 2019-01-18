@@ -11,12 +11,12 @@ namespace LVL1TGCTrigger {
 class TGCWireDoubletSB : public TGCDoubletSB {
 public:
   TGCWireDoubletSB(){
-    maxDev=7;
-    nChAdj=4;
-    iChBase=9;
-    posMaxDev=7;
-    negMaxDev=-7;
-    SType = WIREGROUP;
+    m_maxDev=7;
+    m_nChAdj=4;
+    m_iChBase=9;
+    m_posMaxDev=7;
+    m_negMaxDev=-7;
+    m_SType = WIREGROUP;
   };
   ~TGCWireDoubletSB(){};
 

@@ -46,7 +46,7 @@ public:
   void Print() const;
   
 protected:
-  TGCTMDBOut* buffer[2*NumberOfTileModule];
+  TGCTMDBOut* m_buffer[2*NumberOfTileModule];
 
 };
 

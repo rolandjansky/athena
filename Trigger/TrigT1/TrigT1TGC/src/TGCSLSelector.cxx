@@ -22,7 +22,7 @@ TGCSLSelectorOut* TGCSLSelector::select(TGCSLPreSelectorOut* PSOut,
 
       if(PSOut->getHit(pt,j)){
 	out->setPtLevel(nCan,pt);
-	int R= 2*PSOut->getIdSSC(pt,j)+PSOut->getR(pt,j) - (sectorLogic->getRegion()==Endcap ? 1 : 0);
+	int R= 2*PSOut->getIdSSC(pt,j)+PSOut->getR(pt,j) - (m_sectorLogic->getRegion()==Endcap ? 1 : 0);
 	out->setR(nCan,R);
 	out->setPhi(nCan,PSOut->getPhi(pt,j));
 	out->setDR(nCan,2*PSOut->getDR(pt,j));
@@ -36,7 +36,7 @@ TGCSLSelectorOut* TGCSLSelector::select(TGCSLPreSelectorOut* PSOut,
   return out;
 }
 TGCSLSelector::TGCSLSelector( const TGCSectorLogic* sL): 
-  sectorLogic(sL) 
+  m_sectorLogic(sL) 
 { 
 } 
 

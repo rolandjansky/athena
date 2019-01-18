@@ -21,10 +21,10 @@ namespace LVL1TGCTrigger {
  
 class TGCTMDBOut {
 protected:
-  int            sideID;     // 0:A-side 1:C-side
-  int            moduleID;   // 0..63
-  int            hit_56;     // 0: No Hit, 1: Low 2: High 3: NA
-  int            hit_6;      // 0: No Hit, 1: Low 2: High 3: NA
+  int            m_sideID;     // 0:A-side 1:C-side
+  int            m_moduleID;   // 0..63
+  int            m_hit_56;     // 0: No Hit, 1: Low 2: High 3: NA
+  int            m_hit_6;      // 0: No Hit, 1: Low 2: High 3: NA
 
 public:
   TGCTMDBOut();
@@ -49,17 +49,17 @@ public:
   enum { TM_NOHIT=0, TM_LOW=1, TM_HIGH=2 };
 
   // set functons
-  void SetSide(int side){ sideID = side; }
-  void SetModuleID(int module){ moduleID = module; }
-  void SetHit56(int hit){ hit_56 = hit; }
-  void SetHit6(int hit){ hit_6 = hit; }
-  void Clear() {  hit_56 =0; hit_6 = 0; }
+  void SetSide(int side){ m_sideID = side; }
+  void SetModuleID(int module){ m_moduleID = module; }
+  void SetHit56(int hit){ m_hit_56 = hit; }
+  void SetHit6(int hit){ m_hit_6 = hit; }
+  void Clear() {  m_hit_56 =0; m_hit_6 = 0; }
 
   // get functions
-  int GetSide() const { return sideID; }
-  int GetModuleID() const { return moduleID; }
-  int GetHit56() const { return hit_56; }
-  int GetHit6() const { return hit_6; }
+  int GetSide() const { return m_sideID; }
+  int GetModuleID() const { return m_moduleID; }
+  int GetHit56() const { return m_hit_56; }
+  int GetHit6() const { return m_hit_6; }
 
   // methods  
   void Print() const;
