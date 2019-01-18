@@ -31,11 +31,11 @@ JetTagCalibCondData::~JetTagCalibCondData() {
 }
 
 void JetTagCalibCondData::deleteHistos() {
+    MsgStream log(Athena::getMessageSvc(), "JetTagCalibCondData");
     std::map<std::string, TObject*>::const_iterator iter_hist;
     for(unsigned int i=0;i<m_histos.size();i++) {
       iter_hist = m_histos[i].begin();
       for(;iter_hist!=m_histos[i].end();++iter_hist) {
-        MsgStream log(Athena::getMessageSvc(), "JetTagCalibCondData");
         log << MSG::DEBUG << "#BTAG# delete histo of " << iter_hist->first << endmsg;
         delete iter_hist->second;
       }
