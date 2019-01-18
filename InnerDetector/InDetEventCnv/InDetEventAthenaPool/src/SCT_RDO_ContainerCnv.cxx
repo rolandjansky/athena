@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_RDO_ContainerCnv.h"
@@ -15,7 +15,7 @@
 //================================================================
 namespace {
 #ifdef SCT_DEBUG
-  std::string shortPrint(const SCT_RDO_Container *main_input_SCT, unsigned maxprint=25) {
+  std::string shortPrint(const SCT_RDO_Container* main_input_SCT, unsigned maxprint=25) {
     std::ostringstream os;
     if(main_input_SCT) {
       for(unsigned i=0; i<maxprint; i++) {
@@ -64,7 +64,7 @@ StatusCode SCT_RDO_ContainerCnv::initialize() {
    }
    
    // get DetectorStore service
-   StoreGateSvc *detStore(0);
+   StoreGateSvc* detStore(nullptr);
    if (service("DetectorStore", detStore).isFailure()) {
      ATH_MSG_FATAL("DetectorStore service not found !");
      return StatusCode::FAILURE;
@@ -73,7 +73,7 @@ StatusCode SCT_RDO_ContainerCnv::initialize() {
    }
    
    // Get the sct helper from the detector store
-   const SCT_ID* idhelper(0);
+   const SCT_ID* idhelper(nullptr);
    if (detStore->retrieve(idhelper, "SCT_ID").isFailure()) {
      ATH_MSG_FATAL("Could not get SCT_ID helper !");
      return StatusCode::FAILURE;
@@ -86,6 +86,7 @@ StatusCode SCT_RDO_ContainerCnv::initialize() {
    m_converter_SCT_TP1.initialize(idhelper);
    m_converter_SCT_TP2.initialize(idhelper);
    m_converter_SCT_TP3.initialize(idhelper);
+   m_converter_SCT_TP4.initialize(idhelper);
    m_converter_PERS.initialize(idhelper);
 
    //   ATH_MSG_DEBUG("Converter initialized");
@@ -110,7 +111,7 @@ SCT_RDO_Container_PERS* SCT_RDO_ContainerCnv::createPersistent(SCT_RDO_Container
   if(it_Coll != it_CollEnd) {
     while (it_Coll != it_CollEnd && (*it_Coll)->size() == 0 ) it_Coll++;
     if(it_Coll != it_CollEnd) {
-      const SCT_RDORawData *test((**it_Coll)[0]);
+      const SCT_RDORawData* test((**it_Coll)[0]);
       if(dynamic_cast<const SCT1_RawData*>(test) != 0 ) {
 	//ATH_MSG_DEBUG("Found container with SCT1_RawData concrete type objects");
          converter_num=1;
@@ -129,7 +130,7 @@ SCT_RDO_Container_PERS* SCT_RDO_ContainerCnv::createPersistent(SCT_RDO_Container
   }
   // Switch facility depending on the concrete data type of the contained objects
   // Should do by getting the type_info of one of the contained objects
-  SCT_RDO_Container_PERS *persObj(0);
+  SCT_RDO_Container_PERS* persObj(nullptr);
   if(converter_num == 1 || converter_num == 3) { 
      m_converter_PERS.setType(converter_num);
      persObj = m_converter_PERS.createPersistent( transCont, msg() );
@@ -150,17 +151,31 @@ SCT_RDO_Container* SCT_RDO_ContainerCnv::createTransient() {
   static pool::Guid   SCT_TP1_guid("8E13963E-13E5-4D10-AA8B-73F00AFF8FA8"); // for t/p separated version with SCT_RawDataContainer_p1
   static pool::Guid   SCT_TP2_guid("D1258125-2CBA-476E-8578-E09D54F477E1"); // for t/p separated version with SCT_RawDataContainer_p2
   static pool::Guid   SCT_TP3_guid("5FBC8D4D-7B4D-433A-8487-0EA0C870CBDB"); // for t/p separated version with SCT_RawDataContainer_p3
+  static pool::Guid   SCT_TP4_guid("6C7540BE-E85C-4777-BC1C-A9FF11460F54"); // for t/p separated version with SCT_RawDataContainer_p4
 
 #ifdef SCT_DEBUG
   ATH_MSG_DEBUG("createTransient(): main converter");
 #endif
-  if( compareClassGuid(SCT_TP3_guid) ) {
+  if( compareClassGuid(SCT_TP4_guid) ) {
+#ifdef SCT_DEBUG
+    ATH_MSG_DEBUG("createTransient(): New TP version - TP4 branch");
+#endif
+
+    std::unique_ptr< SCT_RawDataContainer_p4 >   col_vect( poolReadObject< SCT_RawDataContainer_p4 >() );
+    SCT_RDO_Container* res = m_converter_SCT_TP4.createTransient( col_vect.get(), msg() );
+#ifdef SCT_DEBUG
+    ATH_MSG_DEBUG("createTransient(), TP4 branch: returns TRANS = "<<shortPrint(res));
+#endif
+    return res;
+
+  }
+  else if( compareClassGuid(SCT_TP3_guid) ) {
 #ifdef SCT_DEBUG
     ATH_MSG_DEBUG("createTransient(): New TP version - TP3 branch");
 #endif
 
     std::unique_ptr< SCT_RawDataContainer_p3 >   col_vect( poolReadObject< SCT_RawDataContainer_p3 >() );
-    SCT_RDO_Container *res = m_converter_SCT_TP3.createTransient( col_vect.get(), msg() );
+    SCT_RDO_Container* res = m_converter_SCT_TP3.createTransient( col_vect.get(), msg() );
 #ifdef SCT_DEBUG
     ATH_MSG_DEBUG("createTransient(), TP3 branch: returns TRANS = "<<shortPrint(res));
 #endif
@@ -173,7 +188,7 @@ SCT_RDO_Container* SCT_RDO_ContainerCnv::createTransient() {
 #endif
 
     std::unique_ptr< SCT_RawDataContainer_p2 >   col_vect( poolReadObject< SCT_RawDataContainer_p2 >() );
-    SCT_RDO_Container *res = m_converter_SCT_TP2.createTransient( col_vect.get(), msg() );
+    SCT_RDO_Container* res = m_converter_SCT_TP2.createTransient( col_vect.get(), msg() );
 #ifdef SCT_DEBUG
     ATH_MSG_DEBUG("createTransient(), TP2 branch: returns TRANS = "<<shortPrint(res));
 #endif
@@ -185,7 +200,7 @@ SCT_RDO_Container* SCT_RDO_ContainerCnv::createTransient() {
     ATH_MSG_DEBUG("createTransient(): New TP version - TP1 branch");
 #endif
     std::unique_ptr< SCT_RawDataContainer_p1 >   col_vect( poolReadObject< SCT_RawDataContainer_p1 >() );
-    SCT_RDO_Container *res = m_converter_SCT_TP1.createTransient( col_vect.get(), msg() );
+    SCT_RDO_Container* res = m_converter_SCT_TP1.createTransient( col_vect.get(), msg() );
 #ifdef SCT_DEBUG
     ATH_MSG_DEBUG("createTransient(), TP1 branch: returns TRANS = "<<shortPrint(res));
 #endif
@@ -197,7 +212,7 @@ SCT_RDO_Container* SCT_RDO_ContainerCnv::createTransient() {
     ATH_MSG_DEBUG("createTransient(): New TP version - TP1 branch");
                                                                                                                                                              
     std::unique_ptr< InDetRawDataContainer_p1 >   col_vect( poolReadObject< InDetRawDataContainer_p1 >() );
-    SCT_RDO_Container *res = m_converter_TP1.createTransient( col_vect.get(), msg() );
+    SCT_RDO_Container* res = m_converter_TP1.createTransient( col_vect.get(), msg() );
 #ifdef SCT_DEBUG
     ATH_MSG_DEBUG("createTransient(), TP1 branch: returns TRANS = "<<shortPrint(res));
 #endif
@@ -210,7 +225,7 @@ SCT_RDO_Container* SCT_RDO_ContainerCnv::createTransient() {
     ATH_MSG_DEBUG("createTransient(): Old input file - p0 branch");
 #endif
     std::unique_ptr< SCT_RDO_Container_p0 >   col_vect( poolReadObject< SCT_RDO_Container_p0 >() );
-    SCT_RDO_Container *res = m_converter_p0.createTransient( col_vect.get(), msg() );
+    SCT_RDO_Container* res = m_converter_p0.createTransient( col_vect.get(), msg() );
 #ifdef SCT_DEBUG
     ATH_MSG_DEBUG("createTransient(), p0 branch: returns TRANS = "<<shortPrint(res));
 #endif

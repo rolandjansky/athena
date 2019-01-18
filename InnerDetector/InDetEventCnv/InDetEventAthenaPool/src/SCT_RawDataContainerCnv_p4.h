@@ -2,15 +2,15 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef SCT_RAWDATACONTAINERCNV_P3_H
-#define SCT_RAWDATACONTAINERCNV_P3_H
+#ifndef SCT_RAWDATACONTAINERCNV_P4_H
+#define SCT_RAWDATACONTAINERCNV_P4_H
 
-// SCT_RawDataContainerCnv_p3, T/P separation of SCT Raw data
-// author D.Costanzo <davide.costanzo@cern.ch>
+// SCT_RawDataContainerCnv_p4, T/P separation of SCT Raw data
+// author Susumu Oda <Susumu.Oda@cern.ch>
 
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
-#include "InDetEventAthenaPool/SCT_RawDataContainer_p3.h"
+#include "InDetEventAthenaPool/SCT_RawDataContainer_p4.h"
 class SCT_ID;
 
 
@@ -22,21 +22,21 @@ class SCT_ID;
 // converter if the objects are of the correct type
 
 
-class SCT_RawDataContainerCnv_p3 : public T_AthenaPoolTPCnvBase<SCT_RDO_Container, SCT_RawDataContainer_p3>
+class SCT_RawDataContainerCnv_p4 : public T_AthenaPoolTPCnvBase<SCT_RDO_Container, SCT_RawDataContainer_p4>
 {
 private:
     const SCT_ID* m_sctId;
     int m_type;
 public:
-    SCT_RawDataContainerCnv_p3() : m_sctId(nullptr), m_type(0) {};
+    SCT_RawDataContainerCnv_p4() : m_sctId(nullptr), m_type(0) {};
   
-    virtual void	persToTrans(const SCT_RawDataContainer_p3* persCont,
+    virtual void	persToTrans(const SCT_RawDataContainer_p4* persCont,
                                     SCT_RDO_Container* transCont,
                                     MsgStream& log) ;
     virtual void	transToPers(const SCT_RDO_Container* transCont,
-                                    SCT_RawDataContainer_p3* persCont,
+                                    SCT_RawDataContainer_p4* persCont,
                                     MsgStream& log) ;
-    virtual SCT_RDO_Container* createTransient(const SCT_RawDataContainer_p3* persObj, MsgStream& log) ;
+    virtual SCT_RDO_Container* createTransient(const SCT_RawDataContainer_p4* persObj, MsgStream& log) ;
 
 
     // ID helper can't be used in the constructor, need initialize()
