@@ -11,6 +11,7 @@ atlas_depends_on_subdirs(
    PUBLIC
    Control/AthContainers
    Control/AthLinks
+   Control/AthenaBaseComps
    Event/xAOD/xAODCore )
 
 # External dependencies:
@@ -20,7 +21,7 @@ find_package( ROOT COMPONENTS Core Tree RIO )
 atlas_add_library( xAODEventInfo
    xAODEventInfo/*.h Root/*.cxx
    PUBLIC_HEADERS xAODEventInfo
-   LINK_LIBRARIES AthContainers AthLinks xAODCore )
+   LINK_LIBRARIES AthContainers AthLinks AthenaBaseComps xAODCore )
 
 atlas_add_dictionary( xAODEventInfoDict
    xAODEventInfo/xAODEventInfoDict.h
