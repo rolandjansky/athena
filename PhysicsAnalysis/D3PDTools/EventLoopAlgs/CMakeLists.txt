@@ -33,7 +33,6 @@ atlas_add_library( EventLoopAlgs
    LINK_LIBRARIES ${ROOT_LIBRARIES} EventLoop MultiDraw SampleHandler
    PRIVATE_LINK_LIBRARIES xAODEventInfo )
 
-
 # Test(s) in the package:
 atlas_add_test( ut_DuplicateChecker
    SOURCES test/ut_DuplicateChecker.cxx
@@ -44,6 +43,5 @@ set_tests_properties (EventLoopAlgs_ut_DuplicateChecker_ctest PROPERTIES LABELS 
 
 atlas_add_test( ut_alg_skim
    SOURCES test/ut_alg_skim.cxx
-   LINK_LIBRARIES EventLoop RootCoreUtils SampleHandler EventLoopAlgs
-   ${EXTRA_ARGS} )
+   LINK_LIBRARIES EventLoop RootCoreUtils SampleHandler EventLoopAlgs )
 set_tests_properties (EventLoopAlgs_ut_alg_skim_ctest PROPERTIES LABELS "EventLoopAlgs;EventLoop;SampleHandler" )
