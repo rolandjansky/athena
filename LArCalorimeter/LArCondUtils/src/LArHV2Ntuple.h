@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // TheLArHV2Ntuple.h
 //
 
-#ifndef _LArCondUtils_LArHV2Ntuple_H
-#define _LArCondUtils_LArHV2Ntuple_H
+#ifndef LARCONDUTILS_LARHV2NTUPLE_H
+#define LARCONDUTILS_LARHV2NTUPLE_H
 
 #include <string>
 

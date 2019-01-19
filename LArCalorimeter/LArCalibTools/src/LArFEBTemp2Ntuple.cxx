@@ -4,7 +4,6 @@
 
 #include "LArCalibTools/LArFEBTemp2Ntuple.h"
 #include "LArElecCalib/ILArFEBTempTool.h"
-#include "LArCondUtils/LArFEBTempTool.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "LArCabling/LArCablingService.h"

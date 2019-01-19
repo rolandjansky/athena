@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -16,15 +16,13 @@
 //
 //-----------------------------------------------------------------------
 
+#include "LArFecLvTempDcsTool.h" 
 #include "LArIdentifier/LArIdManager.h"
-#include "LArCondUtils/LArFecLvTempDcsTool.h" 
 #include "LArRawConditions/LArFecLvTempDcs.h" 
 
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include <iostream> 
@@ -73,21 +71,6 @@ StatusCode LArFecLvTempDcsTool::initialize()
 StatusCode LArFecLvTempDcsTool::getV1( const std::string& cratename, 
 			float&  hv  ) 
 {
-/*
-  // first print event number and time details
-  const EventInfo* event;
-  if (StatusCode::SUCCESS==StoreGate->retrieve(event)) {
-    int time=event->event_ID()->time_stamp();
-    log << MSG::INFO << "In run/event [" << event->event_ID()->run_number() <<
-      "," << event->event_ID()->event_number() << "] timestamp " << time <<
-      endmsg;
-  } else {
-    log << MSG::ERROR << "Could not get pointer to event" << endmsg;
-  }
-
-
-*/
-
    bool crate_found = false;
    if ( m_atrlistcol.isValid() ) 
    {
@@ -118,21 +101,6 @@ StatusCode LArFecLvTempDcsTool::getV1( const std::string& cratename,
 StatusCode LArFecLvTempDcsTool::getFec( const std::string& cratename, 
 			LArFecLvTempDcs&  fec  ) 
 {
-/*
-  // first print event number and time details
-  const EventInfo* event;
-  if (StatusCode::SUCCESS==StoreGate->retrieve(event)) {
-    int time=event->event_ID()->time_stamp();
-    log << MSG::INFO << "In run/event [" << event->event_ID()->run_number() <<
-      "," << event->event_ID()->event_number() << "] timestamp " << time <<
-      endmsg;
-  } else {
-    log << MSG::ERROR << "Could not get pointer to event" << endmsg;
-  }
-  const CondAttrListCollection* atrlistcol;
-
-*/
-
   bool crate_found = false;
   // through joboptions
   if (m_atrlistcol.isValid() ) {

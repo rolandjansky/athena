@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LARFEBTEMPTOOL_H
-#define LARFEBTEMPTOOL_H
+#ifndef LARCONDUTILS_LARFEBTEMPTOOL_H
+#define LARCONDUTILS_LARFEBTEMPTOOL_H
 
 /**
  @class LArFEBTempTool

@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LARFECLVTEMPDCSTOOL_H
-#define LARFECLVTEMPDCSTOOL_H
+#ifndef LARCONDUTILS_LARFECLVTEMPDCSTOOL_H
+#define LARCONDUTILS_LARFECLVTEMPDCSTOOL_H
 
 /**
  @class LArFecLvTempDcsTool
