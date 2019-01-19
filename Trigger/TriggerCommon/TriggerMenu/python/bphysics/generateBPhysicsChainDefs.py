@@ -543,6 +543,7 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
             L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiMu"+fexNameExt)
             L2Fex.setTrackThresholds( trkmuons )
             L2Hypo = EFMultiMuHypo_Upsi("L2MultiMuTrkHypo_Upsi")
+            L2Hypo.bphysCollectionKey = "MultiTrkFex"
         else :
             from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_Upsi
             from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_Upsi
