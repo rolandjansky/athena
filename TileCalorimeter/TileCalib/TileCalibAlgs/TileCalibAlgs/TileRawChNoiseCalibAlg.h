@@ -28,6 +28,7 @@
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/ITileBadChanTool.h"
 #include "TileEvent/TileDQstatus.h"
+#include "TileEvent/TileRawChannelContainer.h"
 
 #include <cmath>
 #include <vector>
@@ -65,7 +66,9 @@ class TileRawChNoiseCalibAlg: public AthAlgorithm {
 
     StatusCode FirstEvt_initialize(); // real initialization is done in this method
 
-    StatusCode fillRawChannels(const TileDQstatus* dqStatus, std::string rcCnt, RCtype rctype); // raw chans variables is done here
+    StatusCode fillRawChannels(const TileDQstatus* dqStatus,
+                     const SG::ReadHandleKey<TileRawChannelContainer>& rawChannelContainerKey,
+                     RCtype rctype); // raw chans variables is done here
     void StoreRunInfo(const TileDQstatus* dqStatus); // called only at the first event. General variables
     void removeRC(RCtype rctype); // if a RawChannel container doesn't exist, it is removed from the list
 
@@ -112,6 +115,25 @@ class TileRawChNoiseCalibAlg: public AthAlgorithm {
     SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
     ToolHandle<TileCondIdTransforms> m_tileIdTrans;
     const uint32_t* m_cispar;
+
+    SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerFixedKey{this,
+         "TileRawChannelContainerFixed", "TileRawChannelFixed", 
+         "Input Tile raw channel container reconstructed with ATLAS method"};
+    SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerFitKey{this,
+         "TileRawChannelContainerFit", "TileRawChannelFit", 
+         "Input Tile raw channel container reconstructed with Fit method"};
+    SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerOptKey{this,
+         "TileRawChannelContainerOpt", "TileRawChannelOpt2", 
+         "Input Tile raw channel container reconstructed with Opt method"};
+    SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerDspKey{this,
+         "TileRawChannelContainerDsp", "TileRawChannelCnt", 
+         "Input Tile raw channel container from DSP"};
+     SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerOF1Key{this,
+         "TileRawChannelContainerOF1", "TileRawChannelOF1", 
+         "Input Tile raw channel container reconstructed with OF1 method"};     
+     SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerMFKey{this,
+         "TileRawChannelContainerMF", "TileRawChannelMF", 
+         "Input Tile raw channel container reconstructed with MF method"};
 
     // jobOptions
 

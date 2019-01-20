@@ -93,12 +93,6 @@ TileRawChNoiseCalibAlg::TileRawChNoiseCalibAlg(const std::string& name, ISvcLoca
   declareProperty("InvertChanRatio", m_invertChanRatio = true); // swap two sigmas and invert ratio if it is above 1.0 (channel fit only)
   declareProperty("MaskBadChannels",m_maskBadChannels = true);
   declareProperty("UseforCells" , m_UseforCells  = 2); // Fit=0, Fixed=1,  Opt=2, Dsp=3, OF1=4, MF=5
-  declareProperty("TileRawChannelContainerFixed", m_fixedRawChannelContainer = "TileRawChannelFixed");
-  declareProperty("TileRawChannelContainerFit", m_fitRawChannelContainer = "TileRawChannelFit"); // 
-  declareProperty("TileRawChannelContainerOpt", m_optRawChannelContainer = "TileRawChannelOpt2"); //
-  declareProperty("TileRawChannelContainerDsp", m_dspRawChannelContainer = "TileRawChannelCnt"); //
-  declareProperty("TileRawChannelContainerOF1", m_OF1RawChannelContainer = "TileRawChannelOF1"); //
-  declareProperty("TileRawChannelContainerMF",  m_MFRawChannelContainer = "TileRawChannelMF"); //
   declareProperty("CalibMode", m_calibMode = true);  
   declareProperty("UsePMT", m_usePMT = false);  
   declareProperty("RunNumber", m_run=0);
@@ -229,6 +223,13 @@ StatusCode TileRawChNoiseCalibAlg::initialize() {
 
   CHECK( m_dqStatusKey.initialize() );
 
+  ATH_CHECK( m_rawChannelContainerFitKey.initialize(m_doFit) );
+  ATH_CHECK( m_rawChannelContainerFixedKey.initialize(m_doFixed) );
+  ATH_CHECK( m_rawChannelContainerOptKey.initialize(m_doOpt) );
+  ATH_CHECK( m_rawChannelContainerDspKey.initialize(m_doDsp) );
+  ATH_CHECK( m_rawChannelContainerOF1Key.initialize(m_doOF1) );
+  ATH_CHECK( m_rawChannelContainerMFKey.initialize(m_doMF) );
+
   return StatusCode::SUCCESS;
 }
 
@@ -305,12 +306,13 @@ StatusCode TileRawChNoiseCalibAlg::execute() {
   m_cispar = dqStatus->cispar();
   if (m_evtNr % 1000 == 0) ATH_MSG_INFO( " events processed so far " << m_evtNr );
   
-  if (m_doFit){empty &= (fillRawChannels(dqStatus, m_fitRawChannelContainer, Fit).isFailure());}
-  if (m_doFixed){empty &= (fillRawChannels(dqStatus, m_fixedRawChannelContainer, Fixed).isFailure());}
-  if (m_doOpt){empty &= (fillRawChannels(dqStatus, m_optRawChannelContainer, Opt).isFailure());}
-  if (m_doDsp) {empty &= (fillRawChannels(dqStatus, m_dspRawChannelContainer, Dsp).isFailure());}
-  if (m_doOF1) {empty &= (fillRawChannels(dqStatus, m_OF1RawChannelContainer, OF1).isFailure());}
-  if (m_doMF) {empty &= (fillRawChannels(dqStatus, m_MFRawChannelContainer, MF).isFailure());}
+
+  if (m_doFit) {empty &= (fillRawChannels(dqStatus, m_rawChannelContainerFitKey, Fit).isFailure());}
+  if (m_doFixed) {empty &= (fillRawChannels(dqStatus, m_rawChannelContainerFixedKey, Fixed).isFailure());}
+  if (m_doOpt) {empty &= (fillRawChannels(dqStatus, m_rawChannelContainerOptKey, Opt).isFailure());}
+  if (m_doDsp) {empty &= (fillRawChannels(dqStatus, m_rawChannelContainerDspKey, Dsp).isFailure());}
+  if (m_doOF1) {empty &= (fillRawChannels(dqStatus, m_rawChannelContainerOF1Key, OF1).isFailure());}
+  if (m_doMF) {empty &= (fillRawChannels(dqStatus, m_rawChannelContainerMFKey, MF).isFailure());}
 
 
   if (empty) {ATH_MSG_ERROR( "Error in execute " ); }
@@ -661,13 +663,15 @@ void TileRawChNoiseCalibAlg::StoreRunInfo(const TileDQstatus* dqStatus) {
 // Statistics is summed for Average, RMS calculations
 /*---------------------------------------------------------*/
 StatusCode TileRawChNoiseCalibAlg::fillRawChannels(const TileDQstatus* dqStatus,
-                                                   std::string rcCnt, RCtype rctype) {
+                                                   const SG::ReadHandleKey<TileRawChannelContainer>& rawChannelContainerKey,
+                                                   RCtype rctype) {
 /*---------------------------------------------------------*/
 
-  const TileRawChannelContainer* RawChannelCnt;
+  SG::ReadHandle<TileRawChannelContainer> rawChannelContainer(rawChannelContainerKey);
+  ATH_CHECK( rawChannelContainer.isValid() );
 
-  if (evtStore()->retrieve(RawChannelCnt, rcCnt).isFailure()) {
-    ATH_MSG_ERROR( "can't retrieve RawChannelContainer " << rcCnt << " from TDS" );
+  if (!rawChannelContainer.isValid()) {
+    ATH_MSG_ERROR( "can't retrieve RawChannelContainer " << rawChannelContainerKey << " from TDS" );
     removeRC(rctype);
     return StatusCode::FAILURE;
   }
@@ -678,10 +682,10 @@ StatusCode TileRawChNoiseCalibAlg::fillRawChannels(const TileDQstatus* dqStatus,
     return StatusCode::FAILURE;
   }
 
-  TileRawChannelUnit::UNIT RChUnit = RawChannelCnt->get_unit();
+  TileRawChannelUnit::UNIT RChUnit = rawChannelContainer->get_unit();
 
-  TileRawChannelContainer::const_iterator collItr = RawChannelCnt->begin();
-  TileRawChannelContainer::const_iterator lastColl = RawChannelCnt->end();
+  TileRawChannelContainer::const_iterator collItr = rawChannelContainer->begin();
+  TileRawChannelContainer::const_iterator lastColl = rawChannelContainer->end();
 
   for (; collItr != lastColl; ++collItr) {
 
