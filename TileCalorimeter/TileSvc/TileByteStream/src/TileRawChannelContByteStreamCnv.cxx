@@ -8,7 +8,6 @@
 #include "GaudiKernel/DataObject.h"
 #include "GaudiKernel/IRegistry.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 // Athena includes
@@ -47,8 +46,6 @@ TileRawChannelContByteStreamCnv::TileRawChannelContByteStreamCnv(ISvcLocator* sv
   , m_robSvc("ROBDataProviderSvc", m_name)
   , m_decoder("TileROD_Decoder")
   , m_hid2re(0)
-  , m_containers(2,0)
-
 {
 }
 
@@ -71,28 +68,6 @@ StatusCode TileRawChannelContByteStreamCnv::initialize() {
   ATH_CHECK( m_tool.retrieve() );
 
   ATH_CHECK( m_robSvc.retrieve() );
-
-  TileFragHash::TYPE type;
-  TileRawChannelUnit::UNIT unit;
-
-  // create empty TileRawChannelContainer and all collections inside
-  type = TileFragHash::OptFilterDsp;
-  unit = TileRawChannelUnit::ADCcounts;
-  m_containers[0] = new TileRawChannelContainer(true, type, unit); 
-  m_containers[0]->addRef(); // make sure it's not deleted at the end of event
-
-  type = TileFragHash::MF;
-  unit = TileRawChannelUnit::ADCcounts;
-  m_containers[1] = new TileRawChannelContainer(true, type, unit);
-  m_containers[1]->addRef(); // make sure it's not deleted at the end of event
-
-  // Register incident handler
-  ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", m_name);
-  if ( !incSvc.retrieve().isSuccess() ) {
-    ATH_MSG_WARNING("Unable to retrieve the IncidentSvc");
-  } else {
-    incSvc->addListener(this, "StoreCleared");
-  }
 
   ATH_CHECK( m_activeStore.retrieve() );
 
@@ -121,10 +96,19 @@ StatusCode TileRawChannelContByteStreamCnv::createObj(IOpaqueAddress* pAddr, Dat
     robid[0] = 0;
     std::vector<const ROBDataProviderSvc::ROBF*> robf;
 
-    // iterate over all collections in a container and fill them
-    for (const TileRawChannelCollection* constRawChCollection : *m_containers[icnt]) {
-      TileRawChannelCollection* rawChannelCollection = const_cast<TileRawChannelCollection*>(constRawChCollection);
+    TileMutableRawChannelContainer* cont = m_queue.get (true);
+    ATH_CHECK( cont->status() );
 
+    if (isTMDB) {
+      cont->set_type (TileFragHash::MF);
+    }
+    else {
+      cont->set_type (TileFragHash::OptFilterDsp);
+    }
+
+    // iterate over all collections in a container and fill them
+    for (IdentifierHash hash : cont->GetAllCurrentHashes()) {
+      TileRawChannelCollection* rawChannelCollection = cont->indexFindPtr (hash);
       rawChannelCollection->clear();
       TileRawChannelCollection::ID collID = rawChannelCollection->identify();  
 
@@ -146,7 +130,7 @@ StatusCode TileRawChannelContByteStreamCnv::createObj(IOpaqueAddress* pAddr, Dat
         if (isTMDB) {// reid for TMDB 0x5x010x
 	  m_decoder->fillCollection_TileMuRcv_RawChannel(robf[0], *rawChannelCollection);
         } else {
-          m_decoder->fillCollection(robf[0], *rawChannelCollection, m_containers[icnt]);
+          m_decoder->fillCollection(robf[0], *rawChannelCollection, cont);
         }
       } else {
         rawChannelCollection->setFragGlobalCRC(TileROD_Decoder::NO_ROB);
@@ -155,10 +139,11 @@ StatusCode TileRawChannelContByteStreamCnv::createObj(IOpaqueAddress* pAddr, Dat
 
     ATH_MSG_DEBUG( "Creating Container " << *(pRE_Addr->par()) );  
 
+    TileRawChannelContainer* basecont = cont;
     if (isTMDB) {
-      ATH_CHECK( m_activeStore->activeStore()->record( m_containers[icnt], "MuRcvRawChCnt" ) );
+      ATH_CHECK( m_activeStore->activeStore()->record( basecont, "MuRcvRawChCnt" ) );
     } else {
-      pObj = SG::asStorable( m_containers[icnt] ) ;
+      pObj = SG::asStorable( basecont );
     }
   }
 
@@ -195,32 +180,8 @@ StatusCode TileRawChannelContByteStreamCnv::createRep(DataObject* pObj, IOpaqueA
   return StatusCode::SUCCESS;
 }
 
-StatusCode TileRawChannelContByteStreamCnv::finalize() {
-
-  ATH_MSG_DEBUG(" Clearing Container ");
-
-  for (TileRawChannelContainer* rawChannelContainer : m_containers){
-    for (const TileRawChannelCollection* rawChannelCollection : *rawChannelContainer) {
-      const_cast<TileRawChannelCollection*>(rawChannelCollection)->clear();
-    }
-    
-    rawChannelContainer->release(); 
-  }
-
+StatusCode TileRawChannelContByteStreamCnv::finalize()
+{
   return Converter::finalize(); 
 }
 
-void TileRawChannelContByteStreamCnv::handle(const Incident& incident) {
-
-  if (incident.type() == "StoreCleared") {
-    if (const StoreClearedIncident* inc = dynamic_cast<const StoreClearedIncident*> (&incident)) {
-      if (inc->store() == m_activeStore->activeStore()) {
-        for (TileRawChannelContainer* rawChannelContainer : m_containers){
-          for (const TileRawChannelCollection* rawChannelCollection : *rawChannelContainer) {
-            const_cast<TileRawChannelCollection*>(rawChannelCollection)->clear();
-          }
-        }
-      }
-    }
-  }
-}
