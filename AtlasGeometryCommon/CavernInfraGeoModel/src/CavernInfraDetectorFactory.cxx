@@ -19,6 +19,7 @@
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 #include "GeoModelKernel/GeoTransform.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "RDBAccessSvc/IRDBRecord.h"
@@ -79,18 +80,18 @@ void CavernInfraDetectorFactory::create(GeoPhysVol *world)
  //// -----------------------------------Build SX1------------------------------------------
  
   recordIndex = elementMap["SX1"];
-  double SX1Xpos = (*cavernElements)[recordIndex]->getDouble("XPOS")*GeoModelKernelUnits::m;
-  double SX1Ypos = (*cavernElements)[recordIndex]->getDouble("YPOS")*GeoModelKernelUnits::m;
-  double SX1Zpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*GeoModelKernelUnits::m;
-  double SX1HalfLength = (*cavernElements)[recordIndex]->getDouble("HALFLENGTH")*GeoModelKernelUnits::m;
-  double SX1HalfWidth  = (*cavernElements)[recordIndex]->getDouble("HALFWIDTH")*GeoModelKernelUnits::m;
-  double SX1HalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*GeoModelKernelUnits::m;
+  double SX1Xpos = (*cavernElements)[recordIndex]->getDouble("XPOS")*Gaudi::Units::m;
+  double SX1Ypos = (*cavernElements)[recordIndex]->getDouble("YPOS")*Gaudi::Units::m;
+  double SX1Zpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*Gaudi::Units::m;
+  double SX1HalfLength = (*cavernElements)[recordIndex]->getDouble("HALFLENGTH")*Gaudi::Units::m;
+  double SX1HalfWidth  = (*cavernElements)[recordIndex]->getDouble("HALFWIDTH")*Gaudi::Units::m;
+  double SX1HalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*Gaudi::Units::m;
   
   recordIndex = elementMap["SX1Air"];
-  double SX1AirYpos = (*cavernElements)[recordIndex]->getDouble("YPOS")*GeoModelKernelUnits::m;
-  double SX1AirHalfLength = (*cavernElements)[recordIndex]->getDouble("HALFLENGTH")*GeoModelKernelUnits::m;  
-  double SX1AirHalfWidth  = (*cavernElements)[recordIndex]->getDouble("HALFWIDTH")*GeoModelKernelUnits::m;   
-  double SX1AirHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*GeoModelKernelUnits::m;
+  double SX1AirYpos = (*cavernElements)[recordIndex]->getDouble("YPOS")*Gaudi::Units::m;
+  double SX1AirHalfLength = (*cavernElements)[recordIndex]->getDouble("HALFLENGTH")*Gaudi::Units::m;  
+  double SX1AirHalfWidth  = (*cavernElements)[recordIndex]->getDouble("HALFWIDTH")*Gaudi::Units::m;   
+  double SX1AirHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*Gaudi::Units::m;
 
   GeoTransform *s1XYZt = new GeoTransform(GeoTrf::Translate3D(SX1Xpos,SX1Ypos,SX1Zpos)); //1.7  -8.7
   world->add(s1XYZt);
@@ -112,49 +113,49 @@ void CavernInfraDetectorFactory::create(GeoPhysVol *world)
  //// ------------------First: Build cavern with concrete-----------------------------
 
   recordIndex = elementMap["WallACConc"];
-  double WallACConcHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*GeoModelKernelUnits::m;
-  double WallACConcMinR = (*cavernElements)[recordIndex]->getDouble("MINR")*GeoModelKernelUnits::m;     
-  double WallACConcMaxR = (*cavernElements)[recordIndex]->getDouble("MAXR")*GeoModelKernelUnits::m;
+  double WallACConcHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*Gaudi::Units::m;
+  double WallACConcMinR = (*cavernElements)[recordIndex]->getDouble("MINR")*Gaudi::Units::m;     
+  double WallACConcMaxR = (*cavernElements)[recordIndex]->getDouble("MAXR")*Gaudi::Units::m;
   double WallACConcSphi= (*cavernElements)[recordIndex]->getDouble("SPHI");
   double WallACConcDphi= (*cavernElements)[recordIndex]->getDouble("DPHI"); 
 
   recordIndex = elementMap["BoxConc"];
-  double BoxConcHalfLength = (*cavernElements)[recordIndex]->getDouble("HALFLENGTH")*GeoModelKernelUnits::m; 
-  double BoxConcHalfWidth = (*cavernElements)[recordIndex]->getDouble("HALFWIDTH")*GeoModelKernelUnits::m;  
-  double BoxConcHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*GeoModelKernelUnits::m;
+  double BoxConcHalfLength = (*cavernElements)[recordIndex]->getDouble("HALFLENGTH")*Gaudi::Units::m; 
+  double BoxConcHalfWidth = (*cavernElements)[recordIndex]->getDouble("HALFWIDTH")*Gaudi::Units::m;  
+  double BoxConcHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*Gaudi::Units::m;
 
   recordIndex = elementMap["VaultConc"];
-  double VaultConcZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*GeoModelKernelUnits::m; 
+  double VaultConcZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*Gaudi::Units::m; 
   double VaultConcYrotate = (*cavernElements)[recordIndex]->getDouble("YROTATE");
-  double VaultConcHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*GeoModelKernelUnits::m;
-  double VaultConcMinR = (*cavernElements)[recordIndex]->getDouble("MINR")*GeoModelKernelUnits::m;     
-  double VaultConcMaxR = (*cavernElements)[recordIndex]->getDouble("MAXR")*GeoModelKernelUnits::m;
+  double VaultConcHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*Gaudi::Units::m;
+  double VaultConcMinR = (*cavernElements)[recordIndex]->getDouble("MINR")*Gaudi::Units::m;     
+  double VaultConcMaxR = (*cavernElements)[recordIndex]->getDouble("MAXR")*Gaudi::Units::m;
   double VaultConcSphi= (*cavernElements)[recordIndex]->getDouble("SPHI");
   double VaultConcDphi= (*cavernElements)[recordIndex]->getDouble("DPHI");
 
   recordIndex = elementMap["HallConc"];
-  double HallConcHalfLength = (*cavernElements)[recordIndex]->getDouble("HALFLENGTH")*GeoModelKernelUnits::m; 
-  double HallConcHalfWidth = (*cavernElements)[recordIndex]->getDouble("HALFWIDTH")*GeoModelKernelUnits::m;  
-  double HallConcHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*GeoModelKernelUnits::m;
+  double HallConcHalfLength = (*cavernElements)[recordIndex]->getDouble("HALFLENGTH")*Gaudi::Units::m; 
+  double HallConcHalfWidth = (*cavernElements)[recordIndex]->getDouble("HALFWIDTH")*Gaudi::Units::m;  
+  double HallConcHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*Gaudi::Units::m;
 
   recordIndex = elementMap["BoxConcW"];
-  double BoxConcWZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*GeoModelKernelUnits::m; 
+  double BoxConcWZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*Gaudi::Units::m; 
   double BoxConcWYrotate = (*cavernElements)[recordIndex]->getDouble("YROTATE");
 
   recordIndex = elementMap["BoxConcVleft"];
-  double BoxConcVleftZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*GeoModelKernelUnits::m; 
+  double BoxConcVleftZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*Gaudi::Units::m; 
   double BoxConcVleftYrotate = (*cavernElements)[recordIndex]->getDouble("YROTATE");
 
   recordIndex = elementMap["BoxConcVright"];
-  double BoxConcVrightZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*GeoModelKernelUnits::m; 
+  double BoxConcVrightZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*Gaudi::Units::m; 
   double BoxConcVrightYrotate = (*cavernElements)[recordIndex]->getDouble("YROTATE");
 
   recordIndex = elementMap["SurfaceFloor"];
-  double SurfaceFloorXpos = (*cavernElements)[recordIndex]->getDouble("XPOS")*GeoModelKernelUnits::m;
-  double SurfaceFloorZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*GeoModelKernelUnits::m; 
-  double SurfaceFloorHalfLength = (*cavernElements)[recordIndex]->getDouble("HALFLENGTH")*GeoModelKernelUnits::m; 
-  double SurfaceFloorHalfWidth = (*cavernElements)[recordIndex]->getDouble("HALFWIDTH")*GeoModelKernelUnits::m;  
-  double SurfaceFloorHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*GeoModelKernelUnits::m;
+  double SurfaceFloorXpos = (*cavernElements)[recordIndex]->getDouble("XPOS")*Gaudi::Units::m;
+  double SurfaceFloorZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*Gaudi::Units::m; 
+  double SurfaceFloorHalfLength = (*cavernElements)[recordIndex]->getDouble("HALFLENGTH")*Gaudi::Units::m; 
+  double SurfaceFloorHalfWidth = (*cavernElements)[recordIndex]->getDouble("HALFWIDTH")*Gaudi::Units::m;  
+  double SurfaceFloorHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*Gaudi::Units::m;
 
    
   GeoTubs *WallACConcrete      = new GeoTubs(WallACConcMinR, WallACConcMaxR, WallACConcHalfHeight, WallACConcSphi, WallACConcDphi);    
@@ -168,18 +169,18 @@ void CavernInfraDetectorFactory::create(GeoPhysVol *world)
   GeoTrf::Transform3D BoxCutVaulRightConc     = GeoTrf::TranslateZ3D(BoxConcVrightZpos)*GeoTrf::RotateY3D(BoxConcVrightYrotate);
 
   recordIndex = elementMap["HoleJN"];
-  double HoleJNrmin = (*cavernElements)[recordIndex]->getDouble("MINR")*GeoModelKernelUnits::mm;
-  double HoleJNrmax = (*cavernElements)[recordIndex]->getDouble("MAXR")*GeoModelKernelUnits::mm;
-  double HoleJNdz = (*cavernElements)[recordIndex]->getDouble("HALFLENGTH")*GeoModelKernelUnits::mm;
+  double HoleJNrmin = (*cavernElements)[recordIndex]->getDouble("MINR")*Gaudi::Units::mm;
+  double HoleJNrmax = (*cavernElements)[recordIndex]->getDouble("MAXR")*Gaudi::Units::mm;
+  double HoleJNdz = (*cavernElements)[recordIndex]->getDouble("HALFLENGTH")*Gaudi::Units::mm;
   GeoTubs *HoleJN              = new GeoTubs(HoleJNrmin,HoleJNrmax,HoleJNdz, 0.,2.*M_PI); // should be 2300mm in radius
 
   recordIndex = elementMap["WallAAir"];
-  double WallAAirZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*GeoModelKernelUnits::m;
-  double WallAAirXpos = (*cavernElements)[recordIndex]->getDouble("XPOS")*GeoModelKernelUnits::m;
+  double WallAAirZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*Gaudi::Units::m;
+  double WallAAirXpos = (*cavernElements)[recordIndex]->getDouble("XPOS")*Gaudi::Units::m;
 
   recordIndex = elementMap["WallCAir"];
-  double WallCAirZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*GeoModelKernelUnits::m;
-  double WallCAirXpos = (*cavernElements)[recordIndex]->getDouble("XPOS")*GeoModelKernelUnits::m;
+  double WallCAirZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*Gaudi::Units::m;
+  double WallCAirXpos = (*cavernElements)[recordIndex]->getDouble("XPOS")*Gaudi::Units::m;
   double WallCAirZrotate = (*cavernElements)[recordIndex]->getDouble("ZROTATE");
 
   //---------------- Cut the vault and side walls----------------------------
@@ -189,25 +190,25 @@ void CavernInfraDetectorFactory::create(GeoPhysVol *world)
                                                     subtract((*BoxConc) << GeoTrf::Transform3D(BoxCutVaulRightConc));
  
   recordIndex = elementMap["ShaftCut"];
-  double ShaftCutZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*GeoModelKernelUnits::m; 
+  double ShaftCutZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*Gaudi::Units::m; 
   double ShaftCutYrotate = (*cavernElements)[recordIndex]->getDouble("YROTATE");
-  double ShaftCutHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*GeoModelKernelUnits::m;
-  double ShaftCutMinR = (*cavernElements)[recordIndex]->getDouble("MINR")*GeoModelKernelUnits::m;     
-  double ShaftCutMaxR = (*cavernElements)[recordIndex]->getDouble("MAXR")*GeoModelKernelUnits::m;
+  double ShaftCutHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*Gaudi::Units::m;
+  double ShaftCutMinR = (*cavernElements)[recordIndex]->getDouble("MINR")*Gaudi::Units::m;     
+  double ShaftCutMaxR = (*cavernElements)[recordIndex]->getDouble("MAXR")*Gaudi::Units::m;
 
   recordIndex = elementMap["PX14Conc"];
-  double PX14ConcXpos = (*cavernElements)[recordIndex]->getDouble("XPOS")*GeoModelKernelUnits::m; 
-  double PX14ConcYpos = (*cavernElements)[recordIndex]->getDouble("YPOS")*GeoModelKernelUnits::m;
-  double PX14ConcHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*GeoModelKernelUnits::m;
-  double PX14ConcMinR = (*cavernElements)[recordIndex]->getDouble("MINR")*GeoModelKernelUnits::m;     
-  double PX14ConcMaxR = (*cavernElements)[recordIndex]->getDouble("MAXR")*GeoModelKernelUnits::m;
+  double PX14ConcXpos = (*cavernElements)[recordIndex]->getDouble("XPOS")*Gaudi::Units::m; 
+  double PX14ConcYpos = (*cavernElements)[recordIndex]->getDouble("YPOS")*Gaudi::Units::m;
+  double PX14ConcHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*Gaudi::Units::m;
+  double PX14ConcMinR = (*cavernElements)[recordIndex]->getDouble("MINR")*Gaudi::Units::m;     
+  double PX14ConcMaxR = (*cavernElements)[recordIndex]->getDouble("MAXR")*Gaudi::Units::m;
 
   recordIndex = elementMap["PX16Conc"];
-  double PX16ConcXpos = (*cavernElements)[recordIndex]->getDouble("XPOS")*GeoModelKernelUnits::m; 
-  double PX16ConcYpos = (*cavernElements)[recordIndex]->getDouble("YPOS")*GeoModelKernelUnits::m;
-  double PX16ConcHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*GeoModelKernelUnits::m;
-  double PX16ConcMinR = (*cavernElements)[recordIndex]->getDouble("MINR")*GeoModelKernelUnits::m;     
-  double PX16ConcMaxR = (*cavernElements)[recordIndex]->getDouble("MAXR")*GeoModelKernelUnits::m;
+  double PX16ConcXpos = (*cavernElements)[recordIndex]->getDouble("XPOS")*Gaudi::Units::m; 
+  double PX16ConcYpos = (*cavernElements)[recordIndex]->getDouble("YPOS")*Gaudi::Units::m;
+  double PX16ConcHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*Gaudi::Units::m;
+  double PX16ConcMinR = (*cavernElements)[recordIndex]->getDouble("MINR")*Gaudi::Units::m;     
+  double PX16ConcMaxR = (*cavernElements)[recordIndex]->getDouble("MAXR")*Gaudi::Units::m;
 
   //--------------- Build concrete shafts------------------------------.
   GeoTube     *ShaftCut  = new GeoTube(ShaftCutMinR, ShaftCutMaxR, ShaftCutHalfHeight);
@@ -220,36 +221,36 @@ void CavernInfraDetectorFactory::create(GeoPhysVol *world)
 	subtract((*ShaftCut)   << GeoTrf::TranslateZ3D(ShaftCutZpos)*GeoTrf::RotateY3D(ShaftCutYrotate));
  
   recordIndex = elementMap["WallCConc"];
-  double WallCConcZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*GeoModelKernelUnits::m;
-  double WallCConcXpos = (*cavernElements)[recordIndex]->getDouble("XPOS")*GeoModelKernelUnits::m; 
+  double WallCConcZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*Gaudi::Units::m;
+  double WallCConcXpos = (*cavernElements)[recordIndex]->getDouble("XPOS")*Gaudi::Units::m; 
   double WallCConcZrotate = (*cavernElements)[recordIndex]->getDouble("ZROTATE");
 
   recordIndex = elementMap["WallAConc"];
-  double WallAConcZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*GeoModelKernelUnits::m;
-  double WallAConcXpos = (*cavernElements)[recordIndex]->getDouble("XPOS")*GeoModelKernelUnits::m; 
+  double WallAConcZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*Gaudi::Units::m;
+  double WallAConcXpos = (*cavernElements)[recordIndex]->getDouble("XPOS")*Gaudi::Units::m; 
 
   recordIndex = elementMap["ShaftsConc"];
-  double ShaftsConcZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*GeoModelKernelUnits::m;
+  double ShaftsConcZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*Gaudi::Units::m;
 
   //--------------- Build concrete nose ------------------------------.
   recordIndex =elementMap["BoxConcJN"];
-  double BoxConcJNDX = (*cavernElements)[recordIndex]->getDouble("HALFLENGTH")*GeoModelKernelUnits::mm;
-  double BoxConcJNDY = (*cavernElements)[recordIndex]->getDouble("HALFWIDTH")*GeoModelKernelUnits::mm;
-  double BoxConcJNDZ = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*GeoModelKernelUnits::mm;
-  double BoxConcJNXpos = (*cavernElements)[recordIndex]->getDouble("XPOS")*GeoModelKernelUnits::mm;
+  double BoxConcJNDX = (*cavernElements)[recordIndex]->getDouble("HALFLENGTH")*Gaudi::Units::mm;
+  double BoxConcJNDY = (*cavernElements)[recordIndex]->getDouble("HALFWIDTH")*Gaudi::Units::mm;
+  double BoxConcJNDZ = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*Gaudi::Units::mm;
+  double BoxConcJNXpos = (*cavernElements)[recordIndex]->getDouble("XPOS")*Gaudi::Units::mm;
   recordIndex =elementMap["BoxConcExtraJN"];
-  double BoxConcExtraJNDX = (*cavernElements)[recordIndex]->getDouble("HALFLENGTH")*GeoModelKernelUnits::mm;
-  double BoxConcExtraJNDY = (*cavernElements)[recordIndex]->getDouble("HALFWIDTH")*GeoModelKernelUnits::mm;
-  double BoxConcExtraJNDZ = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*GeoModelKernelUnits::mm;
-  double BoxConcExtraJNXpos = (*cavernElements)[recordIndex]->getDouble("XPOS")*GeoModelKernelUnits::mm;
+  double BoxConcExtraJNDX = (*cavernElements)[recordIndex]->getDouble("HALFLENGTH")*Gaudi::Units::mm;
+  double BoxConcExtraJNDY = (*cavernElements)[recordIndex]->getDouble("HALFWIDTH")*Gaudi::Units::mm;
+  double BoxConcExtraJNDZ = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*Gaudi::Units::mm;
+  double BoxConcExtraJNXpos = (*cavernElements)[recordIndex]->getDouble("XPOS")*Gaudi::Units::mm;
   double BoxConcExtraJNYpos = (*cavernElements)[recordIndex]->getDouble("YPOS");
   recordIndex =elementMap["StrutConcJN"];
-  double StrutConcJNDX = (*cavernElements)[recordIndex]->getDouble("HALFLENGTH")*GeoModelKernelUnits::mm;
-  double StrutConcJNDY = (*cavernElements)[recordIndex]->getDouble("HALFWIDTH")*GeoModelKernelUnits::mm;
-  double StrutConcJNDZ = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*GeoModelKernelUnits::mm;
-  double StrutConcJNXpos = (*cavernElements)[recordIndex]->getDouble("XPOS")*GeoModelKernelUnits::mm;
-  double StrutConcJNYpos = (*cavernElements)[recordIndex]->getDouble("YPOS")*GeoModelKernelUnits::mm;
-  double StrutConcJNZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*GeoModelKernelUnits::mm;
+  double StrutConcJNDX = (*cavernElements)[recordIndex]->getDouble("HALFLENGTH")*Gaudi::Units::mm;
+  double StrutConcJNDY = (*cavernElements)[recordIndex]->getDouble("HALFWIDTH")*Gaudi::Units::mm;
+  double StrutConcJNDZ = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*Gaudi::Units::mm;
+  double StrutConcJNXpos = (*cavernElements)[recordIndex]->getDouble("XPOS")*Gaudi::Units::mm;
+  double StrutConcJNYpos = (*cavernElements)[recordIndex]->getDouble("YPOS")*Gaudi::Units::mm;
+  double StrutConcJNZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*Gaudi::Units::mm;
 
   GeoBox  *BoxConcJNC          = new GeoBox(BoxConcJNDX,BoxConcJNDY,BoxConcJNDZ);
   GeoBox  *BoxConcJNA          = new GeoBox(BoxConcJNDX,BoxConcJNDY,BoxConcJNDZ);
@@ -258,7 +259,7 @@ void CavernInfraDetectorFactory::create(GeoPhysVol *world)
   const GeoBox  *StrutConcJN   = new GeoBox(StrutConcJNDX,StrutConcJNDY,StrutConcJNDZ);
 
   recordIndex = elementMap["CavernAir"];
-  double CavernAirZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*GeoModelKernelUnits::m;
+  double CavernAirZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*Gaudi::Units::m;
 
   //----------------Assemble everything--------------------------------.
   const GeoShape & Concrete= (*HallConcrete).
@@ -270,15 +271,15 @@ void CavernInfraDetectorFactory::create(GeoPhysVol *world)
 
         add((*BoxConcJNC)    << GeoTrf::TranslateX3D(BoxConcJNXpos) * GeoTrf::TranslateZ3D(-WallAAirZpos*0.5+CavernAirZpos) * GeoTrf::TranslateY3D(-WallCAirXpos*1.0) ).
         add((*BoxConcStupidExtraJNC) << GeoTrf::TranslateX3D(BoxConcExtraJNXpos) * GeoTrf::TranslateZ3D(-WallAAirZpos*0.5+CavernAirZpos) * GeoTrf::TranslateY3D(-WallCAirXpos*1.0) * GeoTrf::TranslateY3D(-BoxConcExtraJNYpos) ).
-        add((*BoxConcJNA)    << GeoTrf::TranslateX3D(-BoxConcJNXpos-15*GeoModelKernelUnits::mm) * GeoTrf::TranslateZ3D(-WallAAirZpos*0.5+CavernAirZpos) * GeoTrf::TranslateY3D(-WallCAirXpos*1.0) ).
-        add((*BoxConcStupidExtraJNA) << GeoTrf::TranslateX3D(-BoxConcExtraJNXpos-15*GeoModelKernelUnits::mm) * GeoTrf::TranslateZ3D(-WallAAirZpos*0.5+CavernAirZpos) * GeoTrf::TranslateY3D(-WallCAirXpos*1.0) * GeoTrf::TranslateY3D(BoxConcExtraJNYpos) ).
+        add((*BoxConcJNA)    << GeoTrf::TranslateX3D(-BoxConcJNXpos-15*Gaudi::Units::mm) * GeoTrf::TranslateZ3D(-WallAAirZpos*0.5+CavernAirZpos) * GeoTrf::TranslateY3D(-WallCAirXpos*1.0) ).
+        add((*BoxConcStupidExtraJNA) << GeoTrf::TranslateX3D(-BoxConcExtraJNXpos-15*Gaudi::Units::mm) * GeoTrf::TranslateZ3D(-WallAAirZpos*0.5+CavernAirZpos) * GeoTrf::TranslateY3D(-WallCAirXpos*1.0) * GeoTrf::TranslateY3D(BoxConcExtraJNYpos) ).
 
         add((*StrutConcJN)  << GeoTrf::TranslateX3D(StrutConcJNXpos) * GeoTrf::TranslateZ3D(-StrutConcJNZpos-WallAAirZpos*0.5+CavernAirZpos) * GeoTrf::TranslateY3D(-WallCAirXpos*1.0) ).
         add((*StrutConcJN)  << GeoTrf::TranslateX3D(StrutConcJNXpos) * GeoTrf::TranslateZ3D(-StrutConcJNZpos-WallAAirZpos*0.5+CavernAirZpos) * GeoTrf::TranslateY3D(StrutConcJNYpos) * GeoTrf::TranslateY3D(-WallCAirXpos*1.0) ).
         add((*StrutConcJN)  << GeoTrf::TranslateX3D(StrutConcJNXpos) * GeoTrf::TranslateZ3D(-StrutConcJNZpos-WallAAirZpos*0.5+CavernAirZpos) * GeoTrf::TranslateY3D(-StrutConcJNYpos) * GeoTrf::TranslateY3D(-WallCAirXpos*1.0) ).
-        add((*StrutConcJN)  << GeoTrf::TranslateX3D(-StrutConcJNXpos-15.*GeoModelKernelUnits::mm) * GeoTrf::TranslateZ3D(-StrutConcJNZpos-WallAAirZpos*0.5+CavernAirZpos) * GeoTrf::TranslateY3D(-WallCAirXpos*1.0) ).
-        add((*StrutConcJN)  << GeoTrf::TranslateX3D(-StrutConcJNXpos-15.*GeoModelKernelUnits::mm) * GeoTrf::TranslateZ3D(-StrutConcJNZpos-WallAAirZpos*0.5+CavernAirZpos) * GeoTrf::TranslateY3D(StrutConcJNYpos) * GeoTrf::TranslateY3D(-WallCAirXpos*1.0) ).
-        add((*StrutConcJN)  << GeoTrf::TranslateX3D(-StrutConcJNXpos-15.*GeoModelKernelUnits::mm) * GeoTrf::TranslateZ3D(-StrutConcJNZpos-WallAAirZpos*0.5+CavernAirZpos) * GeoTrf::TranslateY3D(-StrutConcJNYpos) * GeoTrf::TranslateY3D(-WallCAirXpos*1.0) );
+        add((*StrutConcJN)  << GeoTrf::TranslateX3D(-StrutConcJNXpos-15.*Gaudi::Units::mm) * GeoTrf::TranslateZ3D(-StrutConcJNZpos-WallAAirZpos*0.5+CavernAirZpos) * GeoTrf::TranslateY3D(-WallCAirXpos*1.0) ).
+        add((*StrutConcJN)  << GeoTrf::TranslateX3D(-StrutConcJNXpos-15.*Gaudi::Units::mm) * GeoTrf::TranslateZ3D(-StrutConcJNZpos-WallAAirZpos*0.5+CavernAirZpos) * GeoTrf::TranslateY3D(StrutConcJNYpos) * GeoTrf::TranslateY3D(-WallCAirXpos*1.0) ).
+        add((*StrutConcJN)  << GeoTrf::TranslateX3D(-StrutConcJNXpos-15.*Gaudi::Units::mm) * GeoTrf::TranslateZ3D(-StrutConcJNZpos-WallAAirZpos*0.5+CavernAirZpos) * GeoTrf::TranslateY3D(-StrutConcJNYpos) * GeoTrf::TranslateY3D(-WallCAirXpos*1.0) );
 
 //        subtract((*HoleJN) << GeoTrf::RotateY3D(M_PI*0.5) << GeoTrf::TranslateZ3D(-0.5*WallAAirZpos+CavernAirZpos)*GeoTrf::TranslateY3D(-WallCAirXpos*1.0) );
 //        subtract((*HoleJN) << GeoTrf::RotateY3D(M_PI*0.5) << GeoTrf::TranslateZ3D(-0.5*WallAAirZpos)*GeoTrf::TranslateY3D(-WallCAirXpos*1.0) );
@@ -288,47 +289,47 @@ void CavernInfraDetectorFactory::create(GeoPhysVol *world)
 
   // Create variables for Concrete Cavern and get index of the record in cavernElements
    recordIndex = elementMap["WallACAir"];
-  double WallACAirHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*GeoModelKernelUnits::m;
-  double WallACAirMinR = (*cavernElements)[recordIndex]->getDouble("MINR")*GeoModelKernelUnits::m;     
-  double WallACAirMaxR = (*cavernElements)[recordIndex]->getDouble("MAXR")*GeoModelKernelUnits::m;
+  double WallACAirHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*Gaudi::Units::m;
+  double WallACAirMinR = (*cavernElements)[recordIndex]->getDouble("MINR")*Gaudi::Units::m;     
+  double WallACAirMaxR = (*cavernElements)[recordIndex]->getDouble("MAXR")*Gaudi::Units::m;
   double WallACAirSphi= (*cavernElements)[recordIndex]->getDouble("SPHI");
   double WallACAirDphi= (*cavernElements)[recordIndex]->getDouble("DPHI"); 
  
   recordIndex = elementMap["BoxAir"];
-  double BoxAirHalfLength = (*cavernElements)[recordIndex]->getDouble("HALFLENGTH")*GeoModelKernelUnits::m; 
-  double BoxAirHalfWidth = (*cavernElements)[recordIndex]->getDouble("HALFWIDTH")*GeoModelKernelUnits::m;  
-  double BoxAirHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*GeoModelKernelUnits::m;
+  double BoxAirHalfLength = (*cavernElements)[recordIndex]->getDouble("HALFLENGTH")*Gaudi::Units::m; 
+  double BoxAirHalfWidth = (*cavernElements)[recordIndex]->getDouble("HALFWIDTH")*Gaudi::Units::m;  
+  double BoxAirHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*Gaudi::Units::m;
  
   recordIndex = elementMap["VaultAir"];
-  double VaultAirZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*GeoModelKernelUnits::m; 
+  double VaultAirZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*Gaudi::Units::m; 
   double VaultAirYrotate = (*cavernElements)[recordIndex]->getDouble("YROTATE");
-  double VaultAirHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*GeoModelKernelUnits::m;
-  double VaultAirMinR = (*cavernElements)[recordIndex]->getDouble("MINR")*GeoModelKernelUnits::m;     
-  double VaultAirMaxR = (*cavernElements)[recordIndex]->getDouble("MAXR")*GeoModelKernelUnits::m;
+  double VaultAirHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*Gaudi::Units::m;
+  double VaultAirMinR = (*cavernElements)[recordIndex]->getDouble("MINR")*Gaudi::Units::m;     
+  double VaultAirMaxR = (*cavernElements)[recordIndex]->getDouble("MAXR")*Gaudi::Units::m;
   double VaultAirSphi= (*cavernElements)[recordIndex]->getDouble("SPHI");
   double VaultAirDphi= (*cavernElements)[recordIndex]->getDouble("DPHI");
  
   recordIndex = elementMap["HallAir"];
-  double HallAirHalfLength = (*cavernElements)[recordIndex]->getDouble("HALFLENGTH")*GeoModelKernelUnits::m; 
-  double HallAirHalfWidth = (*cavernElements)[recordIndex]->getDouble("HALFWIDTH")*GeoModelKernelUnits::m;  
-  double HallAirHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*GeoModelKernelUnits::m;
+  double HallAirHalfLength = (*cavernElements)[recordIndex]->getDouble("HALFLENGTH")*Gaudi::Units::m; 
+  double HallAirHalfWidth = (*cavernElements)[recordIndex]->getDouble("HALFWIDTH")*Gaudi::Units::m;  
+  double HallAirHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*Gaudi::Units::m;
  
   recordIndex = elementMap["BaseAir"];
-  double BaseAirZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*GeoModelKernelUnits::m; 
-  double BaseAirHalfLength = (*cavernElements)[recordIndex]->getDouble("HALFLENGTH")*GeoModelKernelUnits::m; 
-  double BaseAirHalfWidth = (*cavernElements)[recordIndex]->getDouble("HALFWIDTH")*GeoModelKernelUnits::m;  
-  double BaseAirHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*GeoModelKernelUnits::m;
+  double BaseAirZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*Gaudi::Units::m; 
+  double BaseAirHalfLength = (*cavernElements)[recordIndex]->getDouble("HALFLENGTH")*Gaudi::Units::m; 
+  double BaseAirHalfWidth = (*cavernElements)[recordIndex]->getDouble("HALFWIDTH")*Gaudi::Units::m;  
+  double BaseAirHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*Gaudi::Units::m;
  
   recordIndex = elementMap["BoxAirW"];
-  double BoxAirWZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*GeoModelKernelUnits::m; 
+  double BoxAirWZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*Gaudi::Units::m; 
   double BoxAirWYrotate = (*cavernElements)[recordIndex]->getDouble("YROTATE");
 
   recordIndex = elementMap["BoxAirVleft"];
-  double BoxAirVleftZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*GeoModelKernelUnits::m; 
+  double BoxAirVleftZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*Gaudi::Units::m; 
   double BoxAirVleftYrotate = (*cavernElements)[recordIndex]->getDouble("YROTATE");
  
   recordIndex = elementMap["BoxAirVright"];
-  double BoxAirVrightZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*GeoModelKernelUnits::m; 
+  double BoxAirVrightZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*Gaudi::Units::m; 
   double BoxAirVrightYrotate = (*cavernElements)[recordIndex]->getDouble("YROTATE");
 
   GeoTubs *WallACAir         = new GeoTubs(WallACAirMinR, WallACAirMaxR, WallACAirHalfHeight, WallACAirSphi, WallACAirDphi);        
@@ -347,24 +348,24 @@ void CavernInfraDetectorFactory::create(GeoPhysVol *world)
 
   //--------------- Build air shafts------------------------------.
   recordIndex = elementMap["PX14Air"];
-  double PX14AirXpos = (*cavernElements)[recordIndex]->getDouble("XPOS")*GeoModelKernelUnits::m; 
-  double PX14AirYpos = (*cavernElements)[recordIndex]->getDouble("YPOS")*GeoModelKernelUnits::m;
-  double PX14AirHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*GeoModelKernelUnits::m;
-  double PX14AirMinR = (*cavernElements)[recordIndex]->getDouble("MINR")*GeoModelKernelUnits::m;     
-  double PX14AirMaxR = (*cavernElements)[recordIndex]->getDouble("MAXR")*GeoModelKernelUnits::m;
+  double PX14AirXpos = (*cavernElements)[recordIndex]->getDouble("XPOS")*Gaudi::Units::m; 
+  double PX14AirYpos = (*cavernElements)[recordIndex]->getDouble("YPOS")*Gaudi::Units::m;
+  double PX14AirHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*Gaudi::Units::m;
+  double PX14AirMinR = (*cavernElements)[recordIndex]->getDouble("MINR")*Gaudi::Units::m;     
+  double PX14AirMaxR = (*cavernElements)[recordIndex]->getDouble("MAXR")*Gaudi::Units::m;
  
   recordIndex = elementMap["PX16Air"];
-  double PX16AirXpos = (*cavernElements)[recordIndex]->getDouble("XPOS")*GeoModelKernelUnits::m; 
-  double PX16AirYpos = (*cavernElements)[recordIndex]->getDouble("YPOS")*GeoModelKernelUnits::m;
-  double PX16AirHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*GeoModelKernelUnits::m;
-  double PX16AirMinR = (*cavernElements)[recordIndex]->getDouble("MINR")*GeoModelKernelUnits::m;     
-  double PX16AirMaxR = (*cavernElements)[recordIndex]->getDouble("MAXR")*GeoModelKernelUnits::m;
+  double PX16AirXpos = (*cavernElements)[recordIndex]->getDouble("XPOS")*Gaudi::Units::m; 
+  double PX16AirYpos = (*cavernElements)[recordIndex]->getDouble("YPOS")*Gaudi::Units::m;
+  double PX16AirHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*Gaudi::Units::m;
+  double PX16AirMinR = (*cavernElements)[recordIndex]->getDouble("MINR")*Gaudi::Units::m;     
+  double PX16AirMaxR = (*cavernElements)[recordIndex]->getDouble("MAXR")*Gaudi::Units::m;
 
   GeoTube     *PX14Air   = new GeoTube(PX14AirMinR, PX14AirMaxR, PX14AirHalfHeight);  
   GeoTube     *PX16Air   = new GeoTube(PX16AirMinR, PX16AirMaxR, PX16AirHalfHeight);
 
   recordIndex = elementMap["CavShaftsConc"];
-  double CavShaftsYPos = (*cavernElements)[recordIndex]->getDouble("YPOS")*GeoModelKernelUnits::m;
+  double CavShaftsYPos = (*cavernElements)[recordIndex]->getDouble("YPOS")*Gaudi::Units::m;
   double CavShaftsXrotate = (*cavernElements)[recordIndex]->getDouble("XROTATE");
   double CavShaftsYrotate = (*cavernElements)[recordIndex]->getDouble("YROTATE");
 
@@ -382,20 +383,20 @@ void CavernInfraDetectorFactory::create(GeoPhysVol *world)
 
       subtract((*BoxConcJNC)    << GeoTrf::TranslateX3D(BoxConcJNXpos) * GeoTrf::TranslateZ3D(-WallAAirZpos*0.5) * GeoTrf::TranslateY3D(-WallCAirXpos*1.0) ).
       subtract((*BoxConcStupidExtraJNC) << GeoTrf::TranslateX3D(BoxConcExtraJNXpos) * GeoTrf::TranslateZ3D(-WallAAirZpos*0.5) * GeoTrf::TranslateY3D(-WallCAirXpos*1.0) * GeoTrf::TranslateY3D(-BoxConcExtraJNYpos) ).
-      subtract((*BoxConcJNA)    << GeoTrf::TranslateX3D(-BoxConcJNXpos-15*GeoModelKernelUnits::mm) * GeoTrf::TranslateZ3D(-WallAAirZpos*0.5) * GeoTrf::TranslateY3D(-WallCAirXpos*1.0) ).
-      subtract((*BoxConcStupidExtraJNA) << GeoTrf::TranslateX3D(-BoxConcExtraJNXpos-15*GeoModelKernelUnits::mm) * GeoTrf::TranslateZ3D(-WallAAirZpos*0.5) * GeoTrf::TranslateY3D(-WallCAirXpos*1.0) * GeoTrf::TranslateY3D(BoxConcExtraJNYpos) ).
+      subtract((*BoxConcJNA)    << GeoTrf::TranslateX3D(-BoxConcJNXpos-15*Gaudi::Units::mm) * GeoTrf::TranslateZ3D(-WallAAirZpos*0.5) * GeoTrf::TranslateY3D(-WallCAirXpos*1.0) ).
+      subtract((*BoxConcStupidExtraJNA) << GeoTrf::TranslateX3D(-BoxConcExtraJNXpos-15*Gaudi::Units::mm) * GeoTrf::TranslateZ3D(-WallAAirZpos*0.5) * GeoTrf::TranslateY3D(-WallCAirXpos*1.0) * GeoTrf::TranslateY3D(BoxConcExtraJNYpos) ).
 
       subtract((*StrutConcJN)  << GeoTrf::TranslateX3D(StrutConcJNXpos) * GeoTrf::TranslateZ3D(-StrutConcJNZpos-WallAAirZpos*0.5) * GeoTrf::TranslateY3D(-WallCAirXpos*1.0) ).
       subtract((*StrutConcJN)  << GeoTrf::TranslateX3D(StrutConcJNXpos) * GeoTrf::TranslateZ3D(-StrutConcJNZpos-WallAAirZpos*0.5) * GeoTrf::TranslateY3D(StrutConcJNYpos) * GeoTrf::TranslateY3D(-WallCAirXpos*1.0) ).
       subtract((*StrutConcJN)  << GeoTrf::TranslateX3D(StrutConcJNXpos) * GeoTrf::TranslateZ3D(-StrutConcJNZpos-WallAAirZpos*0.5) * GeoTrf::TranslateY3D(-StrutConcJNYpos) * GeoTrf::TranslateY3D(-WallCAirXpos*1.0) ).
-      subtract((*StrutConcJN)  << GeoTrf::TranslateX3D(-StrutConcJNXpos-15.*GeoModelKernelUnits::mm) * GeoTrf::TranslateZ3D(-StrutConcJNZpos-WallAAirZpos*0.5) * GeoTrf::TranslateY3D(-WallCAirXpos*1.0) ).
-      subtract((*StrutConcJN)  << GeoTrf::TranslateX3D(-StrutConcJNXpos-15.*GeoModelKernelUnits::mm) * GeoTrf::TranslateZ3D(-StrutConcJNZpos-WallAAirZpos*0.5) * GeoTrf::TranslateY3D(StrutConcJNYpos) * GeoTrf::TranslateY3D(-WallCAirXpos*1.0) ).
-      subtract((*StrutConcJN)  << GeoTrf::TranslateX3D(-StrutConcJNXpos-15.*GeoModelKernelUnits::mm) * GeoTrf::TranslateZ3D(-StrutConcJNZpos-WallAAirZpos*0.5) * GeoTrf::TranslateY3D(-StrutConcJNYpos) * GeoTrf::TranslateY3D(-WallCAirXpos*1.0) ).
+      subtract((*StrutConcJN)  << GeoTrf::TranslateX3D(-StrutConcJNXpos-15.*Gaudi::Units::mm) * GeoTrf::TranslateZ3D(-StrutConcJNZpos-WallAAirZpos*0.5) * GeoTrf::TranslateY3D(-WallCAirXpos*1.0) ).
+      subtract((*StrutConcJN)  << GeoTrf::TranslateX3D(-StrutConcJNXpos-15.*Gaudi::Units::mm) * GeoTrf::TranslateZ3D(-StrutConcJNZpos-WallAAirZpos*0.5) * GeoTrf::TranslateY3D(StrutConcJNYpos) * GeoTrf::TranslateY3D(-WallCAirXpos*1.0) ).
+      subtract((*StrutConcJN)  << GeoTrf::TranslateX3D(-StrutConcJNXpos-15.*Gaudi::Units::mm) * GeoTrf::TranslateZ3D(-StrutConcJNZpos-WallAAirZpos*0.5) * GeoTrf::TranslateY3D(-StrutConcJNYpos) * GeoTrf::TranslateY3D(-WallCAirXpos*1.0) ).
       add((*HoleJN) << GeoTrf::RotateY3D(M_PI*0.5) << GeoTrf::TranslateZ3D(-0.5*WallAAirZpos+CavernAirZpos)*GeoTrf::TranslateY3D(-WallCAirXpos*1.0) << GeoTrf::TranslateY3D(CavShaftsYPos)*GeoTrf::RotateY3D(CavShaftsYrotate)*GeoTrf::RotateX3D(CavShaftsXrotate) );
 
 
   recordIndex = elementMap["ShaftsAir"];
-  double ShaftsAirZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*GeoModelKernelUnits::m;
+  double ShaftsAirZpos = (*cavernElements)[recordIndex]->getDouble("ZPOS")*Gaudi::Units::m;
 
   const GeoShape & AirHall=
           ((CavernAir     << GeoTrf::TranslateZ3D(CavernAirZpos))).
@@ -404,11 +405,11 @@ void CavernInfraDetectorFactory::create(GeoPhysVol *world)
  //// -----------------------Build BedRock for Shafts and Cavern-------------------------------
  
   recordIndex = elementMap["Rock"];
-  double RockHalfLength = (*cavernElements)[recordIndex]->getDouble("HALFLENGTH")*GeoModelKernelUnits::m; 
-  double RockHalfWidth = (*cavernElements)[recordIndex]->getDouble("HALFWIDTH")*GeoModelKernelUnits::m;  
-  double RockHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*GeoModelKernelUnits::m;
-  double RockXPos = (*cavernElements)[recordIndex]->getDouble("XPOS")*GeoModelKernelUnits::m;
-  double RockYPos = (*cavernElements)[recordIndex]->getDouble("YPOS")*GeoModelKernelUnits::m;
+  double RockHalfLength = (*cavernElements)[recordIndex]->getDouble("HALFLENGTH")*Gaudi::Units::m; 
+  double RockHalfWidth = (*cavernElements)[recordIndex]->getDouble("HALFWIDTH")*Gaudi::Units::m;  
+  double RockHalfHeight = (*cavernElements)[recordIndex]->getDouble("HALFHEIGHT")*Gaudi::Units::m;
+  double RockXPos = (*cavernElements)[recordIndex]->getDouble("XPOS")*Gaudi::Units::m;
+  double RockYPos = (*cavernElements)[recordIndex]->getDouble("YPOS")*Gaudi::Units::m;
   
   GeoBox     *Rockbox     = new GeoBox( RockHalfWidth, RockHalfHeight, RockHalfLength); // 300, 50.75, 300
   const GeoShape & BedRock = ((*Rockbox) .

@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ForDetEnvelopeFactory.h"
-
 
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelKernel/GeoMaterial.h"  
@@ -15,6 +14,7 @@
 #include "GeoModelKernel/GeoShapeUnion.h"
 
 #include "StoreGate/StoreGateSvc.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 
@@ -44,10 +44,10 @@ void ForDetEnvelopeFactory::create(GeoPhysVol *world)
   const GeoMaterial* air = m_materialManager->getMaterial("std::Air");
 
   // Build boolean shape: union of two tubes
-  const GeoTube* tube1 = new GeoTube(0.,2000.*GeoModelKernelUnits::mm,188750.*GeoModelKernelUnits::mm);
-  GeoTube* tube2 = new GeoTube(0.,2000.*GeoModelKernelUnits::mm,188750.*GeoModelKernelUnits::mm);
-  GeoTrf::TranslateZ3D xfRelativeA(211250.*GeoModelKernelUnits::mm);
-  GeoTrf::TranslateZ3D xfRelativeC(-211250.*GeoModelKernelUnits::mm);
+  const GeoTube* tube1 = new GeoTube(0.,2000.*Gaudi::Units::mm,188750.*Gaudi::Units::mm);
+  GeoTube* tube2 = new GeoTube(0.,2000.*Gaudi::Units::mm,188750.*Gaudi::Units::mm);
+  GeoTrf::TranslateZ3D xfRelativeA(211250.*Gaudi::Units::mm);
+  GeoTrf::TranslateZ3D xfRelativeC(-211250.*Gaudi::Units::mm);
 
   const GeoShapeShift& envShape1 = (*tube1)<<xfRelativeA;
   const GeoShapeUnion& envShape = envShape1.add((*tube2)<<xfRelativeC);
