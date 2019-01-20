@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArG4Validation/SingleTrackValidation.h"
+#include "SingleTrackValidation.h"
 #include "StoreGate/StoreGateSvc.h"
 
 // For MC Truth information:
@@ -31,8 +31,6 @@
 #include "LArSimEvent/LArHitContainer.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/LArID_Exception.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 // To make it easier for us to access hit info
 #include "GeoAdaptors/GeoLArHit.h"
 
@@ -303,11 +301,9 @@ StatusCode SingleTrackValidation::execute() {
   StoreGateSvc *stg;
   sc=service("StoreGateSvc", stg);
     
-  const DataHandle<EventInfo> evt;
-  sc=stg->retrieve(evt);
-  if (sc.isFailure()) return StatusCode::SUCCESS;
-  int RunNum=evt->event_ID()->run_number();
-  int EvtNum=evt->event_ID()->event_number();
+  const EventContext& context = getContext();
+  int RunNum=context.eventID().run_number();
+  int EvtNum=context.eventID().event_number();
   double RunStr=double(RunNum);
   double EvtStr=double(EvtNum);
   m_c->EventNo=EvtStr;
