@@ -1213,9 +1213,15 @@ if doTileNtuple:
 
     TileNtuple.CheckDCS = TileUseDCS
 
-    dqStatus.TileBeamElemContainer   = getattr (TileNtuple, 'TileBeamElemContainer', '')
-    dqStatus.TileDigitsContainer     = getattr (TileNtuple, 'TileDigitsContainer', '')
-    dqStatus.TileRawChannelContainer = getattr (TileNtuple, 'TileRawChannelContainer', '')
+    dqStatus.TileBeamElemContainer   = getattr (TileNtuple,
+                                                'TileBeamElemContainer',
+                                                TileNtuple.getDefaultProperty('TileBeamElemContainer'))
+    dqStatus.TileDigitsContainer     = getattr (TileNtuple,
+                                                'TileDigitsContainer',
+                                                TileNtuple.getDefaultProperty('TileDigitsContainer'))
+    dqStatus.TileRawChannelContainer = getattr (TileNtuple,
+                                                'TileRawChannelContainerDsp',
+                                                TileNtuple.getDefaultProperty('TileRawChannelContainerDsp'))
 
 if doTileMon:
     # Monitoring historgrams
