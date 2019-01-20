@@ -85,7 +85,7 @@ class TileDigiNoiseCalibAlg: public AthAlgorithm {
 
     SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
     SG::ReadHandleKey<TileDigitsContainer> m_digitsContainerKey{this,
-      "TileDigitsContainer", "TileDigitsContainer", "Input Tile digits container"};
+      "TileDigitsContainer", "TileDigitsCnt", "Tile digits container"};
 
   // Tools / storegate info
     ToolHandle<TileRawChannelBuilderFlatFilter> m_adderFilterAlgTool;

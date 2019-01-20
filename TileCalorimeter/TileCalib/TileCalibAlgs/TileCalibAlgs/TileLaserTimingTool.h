@@ -238,9 +238,9 @@ class TileLaserTimingTool: public AthAlgTool, virtual public ITileCalibTool {
     SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,
       "EventInfo", "EventInfo", "EventInfo key"};
     SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this,
-      "TileRawChannelContainer", "TileRawChannelContainer", "Input Tile raw channel container"};
+      "TileRawChannelContainer", "TileRawChannelFit", "Tile raw channel container"};
     SG::ReadHandleKey<TileDigitsContainer> m_digitsContainerKey{this,
-      "TileDigitsContainer", "TileDigitsContainer", "Input Tile digits container"};
+      "TileDigitsContainer", "TileDigitsCnt", "Tile digits container"};
 
     // Tools info
     const TileHWID* m_tileHWID;

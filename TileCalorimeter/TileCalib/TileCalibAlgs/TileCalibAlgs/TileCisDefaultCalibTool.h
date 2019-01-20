@@ -92,9 +92,9 @@ class TileCisDefaultCalibTool: public AthAlgTool
     SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
 
     SG::ReadHandleKey<TileDigitsContainer> m_digitsContainerKey{this,
-      "TileDigitsContainer", "TileDigitsContainer", "Input Tile digits container"};
+      "TileDigitsContainer", "TileDigitsCnt", "Tile digits container"};
     SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this,
-      "TileRawChannelContainer", "TileRawChannelContainer", "Input Tile raw channel container"};
+      "TileRawChannelContainer", "TileRawChannelFit", "Tile raw channel container"};
     // jobOptions
     std::string m_rawChannelContainerName;
     std::string m_ntupleID;
