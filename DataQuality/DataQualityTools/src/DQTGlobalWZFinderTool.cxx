@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -513,7 +513,7 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
 	 }
 	 
 	 
-	 ATH_MSG_DEBUG("Muon accept: " << m_muonSelectionTool->accept(**muonItr));
+	 ATH_MSG_DEBUG("Muon accept: " << static_cast<bool>(m_muonSelectionTool->accept(**muonItr)));
 	 ATH_MSG_DEBUG("Muon pt: " << (*muonItr)->pt() << " " << m_muonPtCut*GeV);
 	 ATH_MSG_DEBUG("Muon iso: " << static_cast<bool> (m_isolationSelectionTool->accept(**muonItr)));
 	 ATH_MSG_DEBUG("Muon d0sig: " << d0sig);
