@@ -1,10 +1,10 @@
-EMViewsMaker                                      DEBUG Property update for OutputLevel : new value = 2
-EMViewsMaker                                      DEBUG input handles: 1
-EMViewsMaker                                      DEBUG output handles: 2
-EMViewsMaker                                      DEBUG Data Deps for EMViewsMaker
-EMViewsMaker                                      DEBUG input handles: 1
-EMViewsMaker                                      DEBUG output handles: 2
-EMViewsMaker                                      DEBUG Data Deps for EMViewsMaker
+EMViewsMaker                                0     DEBUG Property update for OutputLevel : new value = 2
+EMViewsMaker                                0     DEBUG input handles: 1
+EMViewsMaker                                0     DEBUG output handles: 2
+EMViewsMaker                                0     DEBUG Data Deps for EMViewsMaker
+EMViewsMaker                                0     DEBUG input handles: 1
+EMViewsMaker                                0     DEBUG output handles: 2
+EMViewsMaker                                0     DEBUG Data Deps for EMViewsMaker
 EMViewsMaker                            0   0     DEBUG Placed RoICollection with a single RoI  RoIid: 0 RoIword: 1	 z: 0 (-225 - 225) eta: -0.6 (-0.7 - -0.5) phi: 0.2 (0.1 - 0.3) in the view EMViewsMaker_view_0
 EMViewsMaker                            0   0     DEBUG Placed RoICollection with a single RoI  RoIid: 0 RoIword: 1	 z: 0 (-225 - 225) eta: 1 (0.9 - 1.1) phi: -1.1 (-1.2 - -1) in the view EMViewsMaker_view_1
 EMViewsMaker                            0   0     DEBUG Execution in 2 Views performed
