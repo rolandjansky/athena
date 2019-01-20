@@ -24,7 +24,8 @@
 namespace top {
 
 TauCPTools::TauCPTools(const std::string& name) :
-    asg::AsgTool(name) {
+    asg::AsgTool(name),
+    m_pileupReweightingTool("CP::PileupReweightingTool"){
   declareProperty("config", m_config);
   declareProperty("release_series", m_release_series );
 
@@ -206,6 +207,9 @@ StatusCode TauCPTools::setupCalibration() {
     } else {
       ITauEffCorrTool* tauEffCorrTool
         = new TauAnalysisTools::TauEfficiencyCorrectionsTool(tauEffCorrName);
+      top::check( m_pileupReweightingTool.retrieve(), "Failed to retireve pileup reweighting tool" );
+      top::check(asg::setProperty(tauEffCorrTool, "PileupReweightingTool", m_pileupReweightingTool),
+                  "Failed to set PileupReweightingTool for " + tauEffCorrName);
       top::check(asg::setProperty(tauEffCorrTool, "TauSelectionTool", m_tauSelectionTool),
                   "Failed to set TauSelectionTool for " + tauEffCorrName);
       top::check(tauEffCorrTool->initialize() , "Failed to initialize");
@@ -264,6 +268,9 @@ StatusCode TauCPTools::setupCalibration() {
     } else {
       ITauEffCorrTool* tauEffCorrTool
         =  new TauAnalysisTools::TauEfficiencyCorrectionsTool(tauEffCorrNameLoose);
+      top::check( m_pileupReweightingTool.retrieve(), "Failed to retireve pileup reweighting tool" );
+      top::check(asg::setProperty(tauEffCorrTool, "PileupReweightingTool", m_pileupReweightingTool),
+                  "Failed to set PileupReweightingTool for " + tauEffCorrNameLoose);
       top::check(asg::setProperty(tauEffCorrTool, "TauSelectionTool", m_tauSelectionToolLoose),
                   "Failed to set TauSelectionTool for " + tauEffCorrNameLoose);
       top::check(tauEffCorrTool->initialize() , "Failed to initialize");
