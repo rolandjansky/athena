@@ -99,13 +99,15 @@ public:
 
   // update theCellContainer
   virtual StatusCode process(CaloCellContainer* theCellContainer) override final;
-  StatusCode setupEvent();
+  StatusCode setupEvent (const EventContext& ctx,
+                         TRandom3& rndm) const;
   StatusCode releaseEvent (Stats& stats) const;
   // the actual simulation code for one particle can run standalone without process(CaloCellContainer* theCellContainer),
   // but setupEvent() should be called before the first particle and releaseEvent() after the last particle
   StatusCode process_particle(CaloCellContainer* theCellContainer, std::vector<Trk::HitInfo>* hitVector,
                               Amg::Vector3D initMom, double mass, int pdgId, int barcode,
                               FastShowerInfoContainer* fastShowerInfoContainer,
+                              TRandom3& rndm,
                               Stats& stats,
                               const EventContext& ctx) const;
 
@@ -171,8 +173,6 @@ private:
   CaloCell_ID_FCS::CaloSample    m_surfacelist[CaloCell_ID_FCS::MaxSample];
 
   HepPDT::ParticleDataTable*     m_particleDataTable{};
-
-  TRandom*                       m_rndm{};
 
   std::vector< int >             m_invisibles;
 
