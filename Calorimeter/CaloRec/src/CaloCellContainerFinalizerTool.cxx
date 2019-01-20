@@ -66,55 +66,6 @@ template <class CONTAINER>
 StatusCode CaloCellContainerFinalizerTool::doProcess(CONTAINER* theCont )
 {
 
-  // check whether has max hash id size
-  const CaloDetDescrManager * theCaloDDM = CaloDetDescrManager::instance() ;
-  const CaloCell_ID * theCaloCCIDM   = theCaloDDM->getCaloCell_ID() ;
-  unsigned int hashMax=theCaloCCIDM->calo_cell_hash_max();
-  if (theCont->size()<hashMax) {
-    ATH_MSG_DEBUG("CaloCellContainer size " << theCont->size() << " smaller than hashMax: " << hashMax);
-  }
-  else if (theCont->size()==hashMax)  {
-    ATH_MSG_DEBUG("CaloCellContainer size " << theCont->size() << " correspond to hashMax : " << hashMax);
-    theCont->setHasTotalSize(true);
-  } 	
-  else {
-    msg(MSG::WARNING) << "CaloCellContainer size " << theCont->size() 
-	<< " larger than hashMax ! Too many cells ! " << hashMax << endreq ;
-
-    }
-  
-  
-  // check whether in order
-  if (theCont->checkOrdered()){
-    ATH_MSG_DEBUG("CaloCellContainer ordered");
-    theCont->setIsOrdered(true);
-  } else {	
-    ATH_MSG_DEBUG("CaloCellContainer not ordered");
-    theCont->setIsOrdered(false);
-  }
-
-  /*
-  CaloCellContainer::const_iterator itrCell=theCont->begin();
-  unsigned int index=0;
-  
-  for (; itrCell!=theCont->end();++itrCell){
-    const CaloDetDescrElement * theDDE=(*itrCell)->caloDDE();
-    std::cout << " index " << index << " hash " << theDDE->calo_hash() << std::endl;
-    
-    ++index ;
-  }
-  */
-
-
-  // check whether in order and complete
-  if (theCont->checkOrderedAndComplete()){
-    ATH_MSG_DEBUG("CaloCellContainer ordered and complete");
-    theCont->setIsOrderedAndComplete(true);
-  } else {	
-    ATH_MSG_DEBUG("CaloCellContainer not ordered or incomplete");
-    theCont->setIsOrderedAndComplete(false);
-  }
-  
   if (!theCont->isOrdered()) {
     ATH_MSG_DEBUG("Now ordering CaloCellContainer");
     theCont->order();

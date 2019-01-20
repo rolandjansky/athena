@@ -124,7 +124,42 @@ void EmptyCellBuilderTool::create_empty_calo(CaloCellContainer * theCellContaine
   }
 
   log << MSG::DEBUG << ncreate<<" cells created, "<<nfound<<" cells already found: size="<<theCellContainer->size()<<" e="<<E_tot<<" ; et="<<Et_tot<<". Now initialize and order calo..." << endreq;
-  theCellContainer->order();
+
+  // check whether has max hash id size
+  const CaloCell_ID * theCaloCCIDM   = m_caloDDM->getCaloCell_ID() ;
+  unsigned int hashMax=theCaloCCIDM->calo_cell_hash_max();
+  if (theCellContainer->size()<hashMax) {
+    ATH_MSG_DEBUG("CaloCellContainer size " << theCellContainer->size() << " smaller than hashMax: " << hashMax);
+  }
+  else if (theCellContainer->size()==hashMax)  {
+    ATH_MSG_DEBUG("CaloCellContainer size " << theCellContainer->size() << " correspond to hashMax : " << hashMax);
+    theCellContainer->setHasTotalSize(true);
+  } 	
+  else {
+    msg(MSG::WARNING) << "CaloCellContainer size " << theCellContainer->size() 
+	<< " larger than hashMax ! Too many cells ! " << hashMax << endreq ;
+
+    }
+
+  // check whether in order and complete
+  if (theCellContainer->checkOrderedAndComplete()){
+    ATH_MSG_DEBUG("CaloCellContainer ordered and complete");
+    theCellContainer->setIsOrderedAndComplete(true);
+    theCellContainer->setIsOrdered(true);
+  } else {	
+    ATH_MSG_DEBUG("CaloCellContainer not ordered or incomplete");
+    theCellContainer->setIsOrderedAndComplete(false);
+    // check whether in order
+    if (theCellContainer->checkOrdered()){
+      ATH_MSG_DEBUG("CaloCellContainer ordered");
+      theCellContainer->setIsOrdered(true);
+    } else {	
+      ATH_MSG_DEBUG("CaloCellContainer not ordered");
+      theCellContainer->setIsOrdered(false);
+    }
+  }
+
+  if (!theCellContainer->isOrdered()) theCellContainer->order();
 
   #if FastCaloSim_project_release_v1 == 12
   #else  
