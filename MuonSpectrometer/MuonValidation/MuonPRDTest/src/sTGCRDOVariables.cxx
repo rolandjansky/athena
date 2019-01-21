@@ -5,6 +5,7 @@
 #include "sTGCRDOVariables.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
+#include "MuonReadoutGeometry/sTgcReadoutElement.h"
 #include "MuonSimData/MuonSimDataCollection.h"
 
 #include "MuonRDO/STGC_RawDataContainer.h"
@@ -70,6 +71,26 @@ StatusCode sTGCRDOVariables::fillVariables()
       m_NSWsTGC_rdo_bcTag->push_back(rdo->bcTag());
       m_NSWsTGC_rdo_isDead->push_back(rdo->isDead());
 
+      // get the readout element class where the RDO is recorded
+      int isSmall = stName[2] == 'S';
+      const MuonGM::sTgcReadoutElement* rdoEl = m_detManager->getsTgcRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet );
+
+      Amg::Vector2D localStripPos(0.,0.);
+      if ( rdoEl->stripPosition(Id,localStripPos) )  {
+        m_NSWsTGC_rdo_localPosX->push_back(localStripPos.x());
+        m_NSWsTGC_rdo_localPosY->push_back(localStripPos.y());
+        ATH_MSG_DEBUG("sTGC RDO: local pos.:  x=" << localStripPos[0] << ",  y=" << localStripPos[1]);
+      } else { 
+        ATH_MSG_WARNING("sTGC RDO: local Strip position not defined"); 
+      }
+
+       // asking the detector element to transform this local to the global position
+      Amg::Vector3D globalStripPos(0., 0., 0.);
+      rdoEl->surface(Id).localToGlobal(localStripPos,Amg::Vector3D(0.,0.,0.),globalStripPos);
+      m_NSWsTGC_rdo_globalPosX->push_back(globalStripPos.x());
+      m_NSWsTGC_rdo_globalPosY->push_back(globalStripPos.y());
+      m_NSWsTGC_rdo_globalPosZ->push_back(globalStripPos.z());
+
       // rdo counter for the ntuple
       m_NSWsTGC_nrdo++;
     }
@@ -100,6 +121,13 @@ StatusCode sTGCRDOVariables::clearVariables()
   m_NSWsTGC_rdo_bcTag->clear();
   m_NSWsTGC_rdo_isDead->clear();
 
+  m_NSWsTGC_rdo_globalPosX->clear();
+  m_NSWsTGC_rdo_globalPosY->clear();
+  m_NSWsTGC_rdo_globalPosZ->clear();
+
+  m_NSWsTGC_rdo_localPosX->clear();
+  m_NSWsTGC_rdo_localPosY->clear();
+
   return StatusCode::SUCCESS;
 }
 
@@ -122,6 +150,12 @@ StatusCode sTGCRDOVariables::initializeVariables()
   m_NSWsTGC_rdo_bcTag       = new std::vector<uint16_t>();
   m_NSWsTGC_rdo_isDead      = new std::vector<bool>();
 
+  m_NSWsTGC_rdo_localPosX   = new std::vector<double>();
+  m_NSWsTGC_rdo_localPosY   = new std::vector<double>();
+
+  m_NSWsTGC_rdo_globalPosX   = new std::vector<double>();
+  m_NSWsTGC_rdo_globalPosY   = new std::vector<double>();
+  m_NSWsTGC_rdo_globalPosZ   = new std::vector<double>();
 
   if(m_tree) {
     m_tree->Branch("RDO_sTGC_n",            &m_NSWsTGC_nrdo);
@@ -136,6 +170,13 @@ StatusCode sTGCRDOVariables::initializeVariables()
     m_tree->Branch("RDO_sTGC_charge",       &m_NSWsTGC_rdo_charge);
     m_tree->Branch("RDO_sTGC_bcTag",        &m_NSWsTGC_rdo_bcTag);
     m_tree->Branch("RDO_sTGC_isDead",       &m_NSWsTGC_rdo_isDead);
+
+    m_tree->Branch("RDO_sTGC_localPosX",   &m_NSWsTGC_rdo_localPosX);
+    m_tree->Branch("RDO_sTGC_localPosY",   &m_NSWsTGC_rdo_localPosY);
+
+    m_tree->Branch("RDO_sTGC_globalPosX",  &m_NSWsTGC_rdo_globalPosX);
+    m_tree->Branch("RDO_sTGC_globalPosY",  &m_NSWsTGC_rdo_globalPosY);
+    m_tree->Branch("RDO_sTGC_globalPosZ",  &m_NSWsTGC_rdo_globalPosZ);
   }
 
   return StatusCode::SUCCESS;
@@ -157,6 +198,11 @@ void sTGCRDOVariables::deleteVariables()
   delete m_NSWsTGC_rdo_charge;
   delete m_NSWsTGC_rdo_bcTag;
   delete m_NSWsTGC_rdo_isDead;
+  delete m_NSWsTGC_rdo_localPosX;
+  delete m_NSWsTGC_rdo_localPosY;
+  delete m_NSWsTGC_rdo_globalPosX;
+  delete m_NSWsTGC_rdo_globalPosY;
+  delete m_NSWsTGC_rdo_globalPosZ;
 
   m_NSWsTGC_nrdo = 0;
   m_NSWsTGC_rdo_stationName = nullptr;
@@ -170,6 +216,11 @@ void sTGCRDOVariables::deleteVariables()
   m_NSWsTGC_rdo_charge = nullptr;
   m_NSWsTGC_rdo_bcTag = nullptr;
   m_NSWsTGC_rdo_isDead = nullptr;
+  m_NSWsTGC_rdo_localPosX = nullptr;
+  m_NSWsTGC_rdo_localPosY = nullptr;
+  m_NSWsTGC_rdo_globalPosX = nullptr;
+  m_NSWsTGC_rdo_globalPosY = nullptr;
+  m_NSWsTGC_rdo_globalPosZ = nullptr;
 
   return;
 }
