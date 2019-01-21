@@ -14,7 +14,6 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 #include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
 #include "InDetReadoutGeometry/SCT_BarrelModuleSideDesign.h"

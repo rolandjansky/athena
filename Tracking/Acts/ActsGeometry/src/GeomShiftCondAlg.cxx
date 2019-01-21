@@ -11,8 +11,8 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "InDetReadoutGeometry/ExtendedAlignableTransform.h"
@@ -129,12 +129,9 @@ StatusCode GeomShiftCondAlg::execute() {
 
     ActsAlignmentStore* alignStore = new ActsAlignmentStore();
     
-    const InDetDD::PixelDetectorManager* pixMgr 
-      = dynamic_cast<const InDetDD::PixelDetectorManager*>(p_pixelManager);
-
     InDetDD::PixelDetectorManager::AlignableTransformMap& atMatL1 
       = const_cast<InDetDD::PixelDetectorManager::AlignableTransformMap&>(
-          pixMgr->m_higherAlignableTransforms.at(1));
+          p_pixelManager->m_higherAlignableTransforms.at(1));
 
 
     PixelID idHelper;
