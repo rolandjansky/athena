@@ -474,6 +474,8 @@ def getKernel_FastOnly(name="ISF_Kernel_FastOnly", **kwargs):
     kwargs.setdefault("BeamPipeSimulationSelectors" , [ 'ISF_DefaultParticleKillerSelector' ] )
     kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_DefaultFatrasSelector'         ] )
     kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_DefaultFastCaloSimSelector'    ] )
+    kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_DefaultFatrasSelector'         ] )
+    kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_DefaultParticleKillerSelector' ] )
     return getKernel_GenericSimulatorNoG4(name, **kwargs)
 
 ############## Simulator: DNNOnly ###############
