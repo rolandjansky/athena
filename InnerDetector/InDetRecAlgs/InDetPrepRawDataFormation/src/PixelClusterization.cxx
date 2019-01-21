@@ -18,7 +18,7 @@
 #include "Identifier/Identifier.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"
 
 
