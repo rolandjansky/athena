@@ -89,7 +89,19 @@ if DerivationFrameworkIsMonteCarlo:
 
 #====================================================================
 # THINNING TOOL 
-#====================================================================\
+#====================================================================
+
+# Thin all unless kept by something else
+from DerivationFrameworkExamples.DerivationFrameworkExamplesConf import DerivationFramework__NANOThinningTool
+NANOThinningTool = DerivationFramework__NANOThinningTool(name			 = "NANOThinningTool",
+                                                         ThinningService	 = NANOThinningHelper.ThinningSvc(),
+                                                         ContainersToThin  = ["InDetTrackParticles",
+                                                                              "CaloCalTopoClusters",
+                                                                              "egammaClusters",
+                                                                              "GSFTrackParticles"])
+ToolSvc += NANOThinningTool
+thinningTools.append(NANOThinningTool)
+
 
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning

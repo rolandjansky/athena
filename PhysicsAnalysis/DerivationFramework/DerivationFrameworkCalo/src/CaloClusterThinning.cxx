@@ -138,60 +138,61 @@ namespace DerivationFramework {
       const xAOD::IParticleContainer* importedParticles = nullptr;
       ATH_CHECK( evtStore()->retrieve( importedParticles, m_sgKey ) );
 
+      //No particles in the input
       const size_t nParticles = importedParticles->size();
+      if( nParticles == 0 ) {
+         return StatusCode::SUCCESS;
+      }
 
       // Check whether we'll be able to use the container:
-      
-      if (nParticles>0) {
-	const xAOD::Type::ObjectType oType = importedParticles->at( 0 )->type();
-	if( ( oType != xAOD::Type::Electron ) &&
-	    ( oType != xAOD::Type::Photon ) &&
-	    ( oType != xAOD::Type::Muon ) &&
-	    ( oType != xAOD::Type::Tau ) && ( m_coneSize < 0.0 ) ) {
-	  ATH_MSG_ERROR( "This tool is designed for Egamma, Muons and Taus and "
-			 << m_sgKey << " is not a one of these collections. "
-			 << "For general iParticles dR needs to be specified" );
-	  return StatusCode::FAILURE;
-	}
-	
-	// Select the particles to use:
-	std::vector< const xAOD::IParticle* > particlesToCheck;
-	if( m_parser ) {
-	  const std::vector< int > entries =
-	    m_parser->parser().evaluateAsVector();
-	  unsigned int nEntries = entries.size();
-	  // check the sizes are compatible
-	  if( nParticles != nEntries ) {
+      const xAOD::Type::ObjectType oType = importedParticles->at( 0 )->type();
+      if( ( oType != xAOD::Type::Electron ) &&
+          ( oType != xAOD::Type::Photon ) &&
+          ( oType != xAOD::Type::Muon ) &&
+          ( oType != xAOD::Type::Tau ) && ( m_coneSize < 0.0 ) ) {
+         ATH_MSG_ERROR( "This tool is designed for Egamma, Muons and Taus and "
+                        << m_sgKey << " is not a one of these collections. "
+                        << "For general iParticles dR needs to be specified" );
+         return StatusCode::FAILURE;
+      }
+
+      // Select the particles to use:
+      std::vector< const xAOD::IParticle* > particlesToCheck;
+      if( m_parser ) {
+         const std::vector< int > entries =
+               m_parser->parser().evaluateAsVector();
+         unsigned int nEntries = entries.size();
+         // check the sizes are compatible
+         if( nParticles != nEntries ) {
             ATH_MSG_ERROR( "Sizes incompatible! Are you sure your selection "
                            "string used the right container??");
             return StatusCode::FAILURE;
-	  }
-	  // identify which particles to keep for the thinning check
-	  for( size_t i = 0; i < nParticles; ++i ) {
+         }
+         // identify which particles to keep for the thinning check
+         for( size_t i = 0; i < nParticles; ++i ) {
             if( entries.at( i ) == 1 ) {
-	      particlesToCheck.push_back( importedParticles->at( i ) );
+               particlesToCheck.push_back( importedParticles->at( i ) );
             }
-	  }
-	} else {
-	  // If no selection was specified, use all the particles:
-	  for( const xAOD::IParticle* p : *importedParticles ) {
+         }
+      } else {
+         // If no selection was specified, use all the particles:
+         for( const xAOD::IParticle* p : *importedParticles ) {
             particlesToCheck.push_back( p );
-	  }
-	}
-	
-	// Process the particles:
-	for( const xAOD::IParticle* particle : particlesToCheck ) {
-	  if( importedCaloCluster ) {
+         }
+      }
+
+      // Process the particles:
+      for( const xAOD::IParticle* particle : particlesToCheck ) {
+         if( importedCaloCluster ) {
             ATH_CHECK( particleCluster( mask, particle, importedCaloCluster ) );
             ATH_CHECK( setClustersMask( mask, particle, importedCaloCluster ) );
-	  }
-	  if( importedTopoCaloCluster ) {
+         }
+         if( importedTopoCaloCluster ) {
             ATH_CHECK( particleCluster( topomask, particle,
                                         importedTopoCaloCluster ) );
             ATH_CHECK( setClustersMask( topomask, particle,
                                         importedTopoCaloCluster ) );
-	  }
-      }
+         }
       }
 
       // Count up the mask contents
