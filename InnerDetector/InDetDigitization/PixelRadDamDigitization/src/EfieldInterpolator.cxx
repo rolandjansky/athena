@@ -87,7 +87,7 @@ void EfieldInterpolator::SetLayer(int layer)
         ATH_MSG_INFO("EfieldInterpolator: Default ctor");
 }
 
-StatusCode EfieldInterpolator::LoadTCADList(std::string TCADfileListToLoad )
+StatusCode EfieldInterpolator::loadTCADlist(std::string TCADfileListToLoad )
 {
         m_efieldOrigin    = interspline;
 	ATH_MSG_INFO("Load from list " << TCADfileListToLoad);
@@ -102,8 +102,8 @@ StatusCode EfieldInterpolator::LoadTCADList(std::string TCADfileListToLoad )
         return StatusCode::SUCCESS;
 }
 
-bool EfieldInterpolator::initializeFromDirectory(TString fpath){
-    //similar to function  load_TCADfiles() 
+bool EfieldInterpolator::initializeFromDirectory(const std::string fpath){
+    //similar to function  loadTCADfiles() 
     //instead of reading file list, list files from directory fpath and create file listing information  
     
     //retrieve fluence and bias voltage from file name (including path, directory names fluence value)
@@ -116,7 +116,7 @@ bool EfieldInterpolator::initializeFromDirectory(TString fpath){
     TPRegexp rfl("\\bfl([\\w.]+)e[0-9]{1,2}");
     TString ext = ".dat";
     TString sflu, svol, fullpath;
-    TSystemDirectory dir(fpath, fpath); 
+    TSystemDirectory dir( (TString) fpath, (TString) fpath); 
     TList *files = dir.GetListOfFiles(); 
     if (files) { 
         TSystemFile *file; 
@@ -175,16 +175,16 @@ bool EfieldInterpolator::initializeFromFile(TString fpath){
     TString fTCAD = "";
     if(fpath.EndsWith(".txt")){
         //File list path, fluence and bias voltage of TCAD simulation as plain text
-	fTCAD = load_TCADfiles(fpath);
+	fTCAD = loadTCADfiles(fpath);
         ATH_MSG_INFO("Loaded file " << fpath << " - all maps accumulated in " << fTCAD);
-        m_fInter = create_interpolation_from_TCAD_tree(fTCAD); 
+        m_fInter = createInterpolationFromTCADtree(fTCAD); 
         ATH_MSG_INFO("created interpolation tree ");
 	m_initialized 	= true;
         ATH_MSG_INFO("Loaded from .txt file");
     }else{
         if(fpath.EndsWith("toTTree.root") ){
             //File list TCAD efield maps as leaves
-            m_fInter = create_interpolation_from_TCAD_tree(fpath); 
+            m_fInter = createInterpolationFromTCADtree(fpath); 
 	    m_initialized 	= true;
         }else{
             if(fpath.EndsWith(".root")){
@@ -199,7 +199,7 @@ bool EfieldInterpolator::initializeFromFile(TString fpath){
 }
 
 // Check if requested values out of range of given TCAD samples
-void EfieldInterpolator::ReliabilityCheck(Double_t aimFluence, std::vector<Double_t> fluences, Double_t aimVoltage, std::vector<Double_t> voltages){
+void EfieldInterpolator::reliabilityCheck(Double_t aimFluence, std::vector<Double_t> fluences, Double_t aimVoltage, std::vector<Double_t> voltages){
     bool tooLowVolt     = true;
     bool tooHighVolt    = true;
     for(const auto iv : voltages){
@@ -266,12 +266,12 @@ TH1D* EfieldInterpolator::loadEfieldFromDat(TString fname, bool fillEdges ){
             hefieldz->Fill(z.Atof(), e.Atof());
     }
     in.close();
-    if(fillEdges) EfieldInterpolator::FillEdgeValues(hefieldz);
+    if(fillEdges) EfieldInterpolator::fillEdgeValues(hefieldz);
     return hefieldz;
 }
 
 // original TCAD simulations given as txt (.dat) files (zVal efieldVal)
-TString EfieldInterpolator::load_TCADfiles(TString targetList)
+TString EfieldInterpolator::loadTCADfiles(TString targetList)
 {
         bool isIBL = true;
 	TString tl = targetList;
@@ -315,7 +315,7 @@ TString EfieldInterpolator::load_TCADfiles(TString targetList)
                             ATH_MSG_DEBUG("Break for file No. " << ifile << ": "<< infile.at(ifile).at(0) <<" . After " << nlines << " steps");
                             break;
                         }
-                        ATH_MSG_DEBUG("Reading input line: fluence=" << (infile.at(ifile).at(1)).Data() << fluence << " voltage=" << voltage <<  " e="<< e.Atof() <<"="<< e.Data() << ", z="<< (int) z.Atof() <<"="<< z.Data() <<"  in file = "<< ifile );
+                        ATH_MSG_DEBUG("Reading input line: fluence=" << (infile.at(ifile).at(1)).Data() << fluence << " voltage=" << voltage <<  " e="<< efAtof() <<"="<< e.Data() << ", z="<< (int) z.Atof() <<"="<< z.Data() <<"  in file = "<< ifile );
       			nlines++;
 			efield.push_back(e.Atof());
 			pixeldepth.push_back((int) z.Atof());
@@ -368,7 +368,7 @@ std::vector<std::vector<TString>> EfieldInterpolator::list_files(TString fileLis
 
 // Return path to file containing tree
 // Final tree is restructured providing e field value as function of fluence, voltage and pixeldepth
-TString EfieldInterpolator::create_interpolation_from_TCAD_tree(TString fTCAD){ 
+TString EfieldInterpolator::createInterpolationFromTCADtree(TString fTCAD){ 
         m_fInter  = fTCAD; 
         m_fInter.ReplaceAll("toTTree","toInterpolationTTree");
 	TFile* faim = new TFile(m_fInter, "Recreate");
@@ -709,7 +709,7 @@ TH1D* EfieldInterpolator::createEfieldProfile(Double_t aimFluence, Double_t aimV
 		efieldfluvol	= *inefield;	
                 // Check if interpolation is reliable based on given TCAD samples
                 if(ientry < 2){
-                    ReliabilityCheck(aimFluence, xfluence, aimVoltage, yvoltage);
+                    reliabilityCheck(aimFluence, xfluence, aimVoltage, yvoltage);
                 }
 		Double_t aimEf =0.;
                 switch(m_efieldOrigin)
@@ -746,7 +746,7 @@ TH1D* EfieldInterpolator::createEfieldProfile(Double_t aimFluence, Double_t aimV
 	ftreeInterpolation->Close(); 
 	//Check edge values
         ATH_MSG_DEBUG("Fill edges");
-	FillEdgeValues(m_efieldProfile);
+	fillEdgeValues(m_efieldProfile);
         scaleIntegralTo(m_efieldProfile,aimVoltage*10000, 2,m_sensorDepth );  //exclude first and last bin
         TString newtitle =  m_efieldProfile->GetTitle();
         switch(m_efieldOrigin)
@@ -767,7 +767,7 @@ TH1D* EfieldInterpolator::createEfieldProfile(Double_t aimFluence, Double_t aimV
 }
 
 //First few and last few bins of TCAD maps not filled due to edge effect - fill with extrapolation
-void EfieldInterpolator::FillEdgeValues(TH1D* hin){
+void EfieldInterpolator::fillEdgeValues(TH1D* hin){
 	int nBins = hin->GetNbinsX();
 	//Check first and last bins if filled
 	// if not extrapolate linearly from two neighbouring values

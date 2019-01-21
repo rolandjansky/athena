@@ -258,7 +258,7 @@ const StatusCode RadDam::RadDamageUtil::generateEfieldMap( TH1F* eFieldMap, InDe
         }
     }
 
-    m_EfieldInterpolator->LoadTCADList(TCAD_list);
+    m_EfieldInterpolator->loadTCADlist(TCAD_list);
     eFieldMap = (TH1F*) m_EfieldInterpolator->getEfield(fluence , biasVoltage);		
    /* 
     //Set depletion width
@@ -301,11 +301,11 @@ StatusCode RadDam::RadDamageUtil::generateEfieldMap( TH1F* &eFieldMap, InDetDD::
         id = "TCAD";
     }
     if(interpolate){
-        CHECK( m_EfieldInterpolator->LoadTCADList(TCAD_list) );
+        CHECK( m_EfieldInterpolator->loadTCADlist(TCAD_list) );
         eFieldMap = (TH1F*) m_EfieldInterpolator->getEfield(fluence , biasVoltage);		
     }else{
         //retrieve E field directly from file (needs to be .dat file with table)
-        CHECK( m_EfieldInterpolator->LoadTCADList(TCAD_list) );
+        CHECK( m_EfieldInterpolator->loadTCADlist(TCAD_list) );
         ATH_MSG_INFO("Load Efield map from " << TCAD_list );
     }
     if(!eFieldMap){
