@@ -195,6 +195,16 @@ class ISF_HitAnalysis : public AthAlgorithm {
    std::vector<float>* m_newTTC_Angle3D;
    std::vector<float>* m_newTTC_AngleEta;
 
+
+   std::vector<float>* m_MuonEntryLayer_Energy;
+   std::vector<float>* m_MuonEntryLayer_Momentum_X;
+   std::vector<float>* m_MuonEntryLayer_Momentum_Y;
+   std::vector<float>* m_MuonEntryLayer_Momentum_Z;
+   std::vector<float>* m_MuonEntryLayer_Position_X;
+   std::vector<float>* m_MuonEntryLayer_Position_Y;
+   std::vector<float>* m_MuonEntryLayer_Position_Z;
+   std::vector<int>* m_MuonEntryLayer_PDG_Code;
+
    /** The new Extrapolator setup */
    ToolHandle<Trk::ITimedExtrapolator>  m_extrapolator;
    ToolHandle<ICaloSurfaceHelper>       m_caloSurfaceHelper;

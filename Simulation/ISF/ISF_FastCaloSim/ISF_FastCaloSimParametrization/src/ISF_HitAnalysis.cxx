@@ -26,6 +26,10 @@
 #include "TileSimEvent/TileHit.h"
 #include "TileSimEvent/TileHitVector.h"
 
+//Track Record
+#include "TrackRecord/TrackRecordCollection.h"
+
+#include "G4SimTPCnv/TrackRecordCollection_p2.h"
 //CaloCell
 #include "CaloEvent/CaloCellContainer.h"
 
@@ -162,6 +166,15 @@ ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
    , m_newTTC_IDCaloBoundary_z(0)
    , m_newTTC_Angle3D(0)
    , m_newTTC_AngleEta(0)
+
+   , m_MuonEntryLayer_Energy(0)
+   , m_MuonEntryLayer_Momentum_X(0)
+   , m_MuonEntryLayer_Momentum_Y(0)
+   , m_MuonEntryLayer_Momentum_Z(0)
+   , m_MuonEntryLayer_Position_X(0)
+   , m_MuonEntryLayer_Position_Y(0)
+   , m_MuonEntryLayer_Position_Z(0)
+   , m_MuonEntryLayer_PDG_Code(0)
 
    , m_caloEntrance(0)
    , m_calo_tb_coord(0)
@@ -546,6 +559,16 @@ StatusCode ISF_HitAnalysis::initialize()
   m_newTTC_Angle3D = new std::vector<float>;
   m_newTTC_AngleEta = new std::vector<float>;
 
+  m_MuonEntryLayer_Energy = new std::vector<float>;
+  m_MuonEntryLayer_Momentum_X = new std::vector<float>;
+  m_MuonEntryLayer_Momentum_Y = new std::vector<float>;
+  m_MuonEntryLayer_Momentum_Z = new std::vector<float>;
+  m_MuonEntryLayer_Position_X = new std::vector<float>;
+  m_MuonEntryLayer_Position_Y = new std::vector<float>;
+  m_MuonEntryLayer_Position_Z = new std::vector<float>;
+  m_MuonEntryLayer_PDG_Code = new std::vector<int>;
+
+
   // Optional branches
   if(m_saveAllBranches){
     m_tree->Branch("HitX",                 &m_hit_x);
@@ -636,6 +659,18 @@ StatusCode ISF_HitAnalysis::initialize()
   m_tree->Branch("newTTC_IDCaloBoundary_z",&m_newTTC_IDCaloBoundary_z);
   m_tree->Branch("newTTC_Angle3D",&m_newTTC_Angle3D);
   m_tree->Branch("newTTC_AngleEta",&m_newTTC_AngleEta);
+
+
+
+  m_tree->Branch("muonEntryLayer_Energy",&m_MuonEntryLayer_Energy);
+  m_tree->Branch("muonEntryLayer_Momentum_X",&m_MuonEntryLayer_Momentum_X);
+  m_tree->Branch("muonEntryLayer_Momentum_Y",&m_MuonEntryLayer_Momentum_Y);
+  m_tree->Branch("muonEntryLayer_Momentum_Z",&m_MuonEntryLayer_Momentum_Z);
+  m_tree->Branch("muonEntryLayer_Position_X",&m_MuonEntryLayer_Position_X);
+  m_tree->Branch("muonEntryLayer_Position_Y",&m_MuonEntryLayer_Position_Y);
+  m_tree->Branch("muonEntryLayer_Position_Z",&m_MuonEntryLayer_Position_Z);
+  m_tree->Branch("muonEntryLayer_PDG_Code",&m_MuonEntryLayer_PDG_Code);
+
 
  }
  dummyFile->Close();
@@ -833,6 +868,16 @@ StatusCode ISF_HitAnalysis::execute()
  m_newTTC_IDCaloBoundary_z->clear();
  m_newTTC_Angle3D->clear();
  m_newTTC_AngleEta->clear();
+
+
+ m_MuonEntryLayer_Energy->clear();
+ m_MuonEntryLayer_Momentum_X->clear();
+ m_MuonEntryLayer_Momentum_Y->clear();
+ m_MuonEntryLayer_Momentum_Z->clear();
+ m_MuonEntryLayer_Position_X->clear();
+ m_MuonEntryLayer_Position_Y->clear();
+ m_MuonEntryLayer_Position_Z->clear();
+
  //##########################
 
  //Get the FastCaloSim step info collection from store
@@ -1082,6 +1127,33 @@ StatusCode ISF_HitAnalysis::execute()
      } //mcevent size
    } //mcEvent
  }//truth event
+
+
+
+ //Retrieve and save MuonEntryLayer information 
+ const TrackRecordCollection *MuonEntry = 0;
+ sc = evtStore()->retrieve(MuonEntry, "MuonEntryLayer");
+ if (sc.isFailure())
+ {
+ ATH_MSG_WARNING( "Couldn't read MuonEntry from StoreGate");
+ //return NULL;
+ }
+
+ TrackRecordCollection::const_iterator itrMuonEntry = MuonEntry->begin();
+ TrackRecordCollection::const_iterator itrMuonEntryLast = MuonEntry->end();
+
+ for ( ; itrMuonEntry!=itrMuonEntryLast; ++itrMuonEntry){
+    m_MuonEntryLayer_Energy->push_back((*itrMuonEntry).GetEnergy());
+    m_MuonEntryLayer_Momentum_X->push_back((*itrMuonEntry).GetMomentum().getX());
+    m_MuonEntryLayer_Momentum_Y->push_back((*itrMuonEntry).GetMomentum().getY());
+    m_MuonEntryLayer_Momentum_Z->push_back((*itrMuonEntry).GetMomentum().getZ());
+    m_MuonEntryLayer_Position_X->push_back((*itrMuonEntry).GetPosition().getX());
+    m_MuonEntryLayer_Position_Y->push_back((*itrMuonEntry).GetPosition().getY());
+    m_MuonEntryLayer_Position_Z->push_back((*itrMuonEntry).GetPosition().getZ());
+    m_MuonEntryLayer_PDG_Code->push_back((*itrMuonEntry).GetPDGCode());
+ }
+
+
 
  //Get reco cells if available
  const CaloCellContainer *cellColl = 0;

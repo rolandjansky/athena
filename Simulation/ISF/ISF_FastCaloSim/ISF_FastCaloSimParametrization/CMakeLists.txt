@@ -27,6 +27,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloEvent
                           Calorimeter/CaloIdentifier
                           Calorimeter/CaloTrackingGeometry
+                          Simulation/G4Sim/TrackRecord
+                          Simulation/G4SimCnv/G4SimTPCnv
                           Database/AthenaPOOL/AthenaPoolUtilities
                           DetectorDescription/GeoModel/GeoAdaptors
                           DetectorDescription/GeoModel/GeoModelInterfaces
@@ -60,8 +62,6 @@ atlas_add_root_dictionary( ISF_FastCaloSimParametrizationLib
                            ISF_FastCaloSimParametrization/TFCSSimpleLateralShapeParametrization.h
                            ISF_FastCaloSimParametrization/TreeReader.h
                            ISF_FastCaloSimParametrization/FCS_Cell.h
-                           ISF_FastCaloSimParametrization/CaloGeometry.h
-                           ISF_FastCaloSimParametrization/CaloGeometryLookup.h 
                            Root/LinkDef.h
                            EXTERNAL_PACKAGES  ROOT HepPDT XercesC CLHEP HepMC Geant4 )
 
