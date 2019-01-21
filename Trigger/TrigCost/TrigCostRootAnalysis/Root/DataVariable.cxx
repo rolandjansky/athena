@@ -335,7 +335,9 @@ namespace TrigCostRootAnalysis {
     data->m_sumw2 += (value * weight * weight);
     if (data->m_hist == 0 && data->m_histoTitle != 0) makeHist(data);
     if (data->m_hist != 0) {
+#ifdef MTHREAD
       static std::mutex mutex;
+#endif
       MUTEX_ON
       data->m_hist->Fill(value, weight);
       MUTEX_OFF
@@ -384,7 +386,9 @@ namespace TrigCostRootAnalysis {
       Float_t effectiveWeight = 0;
       if (!isZero(data->m_bufferVal)) effectiveWeight = data->m_bufferValW / data->m_bufferVal;
       //TODO what if m_bufferVal is zero? Could still have a large weight we want on the histogram?
+#ifdef MTHREAD
        static std::mutex mutex;
+#endif
       MUTEX_ON
       data->m_hist->Fill(data->m_bufferVal, effectiveWeight);  //TODO double check
       MUTEX_OFF
@@ -422,7 +426,9 @@ namespace TrigCostRootAnalysis {
         //TODO what if m_bufferVal is zero? Could still have a large weight we want on the histogram?
         //NOTE We assume here that the demoninator is weighted hence take the weighted numerator too.
         //If this is ever not the case, may want to put a flag in
+#ifdef MTHREAD
         static std::mutex mutex;
+#endif
         MUTEX_ON
         data->m_hist->Fill(data->m_bufferValW / data->m_denominator, effectiveWeight); //TODO check, do we divide
                                                                                            // effW by denom?
@@ -448,7 +454,9 @@ namespace TrigCostRootAnalysis {
    * @param data Pointer to data struct.
    */
   void DataVariable::makeHist(Data* data) {
+#ifdef MTHREAD
     static std::mutex mutex;
+#endif
     MUTEX_ON
     std::string name;
     CounterBase* holdingCounter = m_parentDataStore->getParent();

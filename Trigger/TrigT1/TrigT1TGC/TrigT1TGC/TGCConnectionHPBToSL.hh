@@ -26,20 +26,20 @@ class TGCConnectionHPBToSL : public TGCBoardConnection
   TGCConnectionHPBToSL& operator=(const TGCConnectionHPBToSL& right);
 
  private:
-  int* SLPortToHPB[NumberOfHighPtBoardType];
+  int* m_SLPortToHPB[NumberOfHighPtBoardType];
 };
 
 inline
 int TGCConnectionHPBToSL::getSLPortToHPB(int type, int index) const
 {
-  return SLPortToHPB[type][index];
+  return m_SLPortToHPB[type][index];
 }
 
 inline
 void TGCConnectionHPBToSL::setSLPortToHPB(int type, int index, int port)
 {
-  if(SLPortToHPB[type]==0) SLPortToHPB[type] = new int [numberOfBoard[type]];
-  SLPortToHPB[type][index] = port;
+  if(m_SLPortToHPB[type]==0) m_SLPortToHPB[type] = new int [m_numberOfBoard[type]];
+  m_SLPortToHPB[type][index] = port;
 }
 } //end of namespace bracket
 

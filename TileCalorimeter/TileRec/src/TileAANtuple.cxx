@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///*****************************************************************************
@@ -31,7 +31,6 @@
 #include "TileEvent/TileContainer.h"
 #include "TileEvent/TileLaserObject.h"
 #include "TileEvent/TileMuonReceiverContainer.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileByteStream/TileBeamElemContByteStreamCnv.h"
 #include "TileL2Algs/TileL2Builder.h"
 
@@ -44,9 +43,11 @@
 //Atlas include
 #include "AthenaKernel/errorcheck.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadHandleKey.h"
 
 // Gaudi includes
 #include "GaudiKernel/ITHistSvc.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "TTree.h"
 #include <iomanip>
@@ -188,7 +189,6 @@ TileAANtuple::TileAANtuple(std::string name, ISvcLocator* pSvcLocator)
 , m_tileMgr(0)
 , m_tileBadChanTool("TileBadChanTool")
 , m_tileToolEmscale("TileCondToolEmscale")
-, m_beamInfo("TileBeamInfoProvider/TileBeamInfoProvider")
 , m_beamCnv(0)
 , m_l2Builder()
 , m_sumEt_xx()
@@ -205,7 +205,7 @@ TileAANtuple::TileAANtuple(std::string name, ISvcLocator* pSvcLocator)
   declareProperty("TileCondToolEmscale", m_tileToolEmscale);
   declareProperty("TileDigitsContainer", m_digitsContainer = "TileDigitsCnt");
   declareProperty("TileDigitsContainerFlt", m_fltDigitsContainer = "" /* "TileDigitsFlt" */);
-  declareProperty("TileBeamElemContainer", m_beamElemContainer = "TileBeamElemCnt");
+  declareProperty("TileBeamElemContainer", m_beamElemContainerKey = "TileBeamElemCnt");
   declareProperty("TileRawChannelContainer", m_rawChannelContainer = "TileRawChannelCnt");
   declareProperty("TileRawChannelContainerFit", m_fitRawChannelContainer = "");      //
   declareProperty("TileRawChannelContainerFitCool", m_fitcRawChannelContainer = ""); // don't create
@@ -298,33 +298,21 @@ StatusCode TileAANtuple::initialize() {
   //=== get TileCondToolEmscale
   ATH_CHECK( m_tileToolEmscale.retrieve() );
   
-  //=== get TileBeamInfo
-  ATH_CHECK( m_beamInfo.retrieve() );
-  
   //=== get TileL2Builder
   if (m_compareMode) {
     ATH_CHECK( m_l2Builder.retrieve() );
   }
-  
-  //=== change properties of TileBeamInfo - to make sure that all parameters are consistent
-  if (m_beamElemContainer.size() > 0) {
-    ATH_CHECK( m_beamInfo->setProperty("TileBeamElemContainer",m_beamElemContainer) );
-  }
-  
-  if (m_digitsContainer.size() > 0) {
-    ATH_CHECK( m_beamInfo->setProperty("TileDigitsContainer",m_digitsContainer) );
-  }
-  
-  if (m_dspRawChannelContainer.size() > 0) {
-    ATH_CHECK( m_beamInfo->setProperty("TileRawChannelContainer",m_dspRawChannelContainer) );
-  }
+
+  ATH_CHECK( m_DQstatusKey.initialize() );
+
+  ATH_CHECK( m_beamElemContainerKey.initialize(m_bsInput) );
   
   ATH_MSG_INFO( "initialization completed" ) ;
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode TileAANtuple::ntuple_initialize() {
+StatusCode TileAANtuple::ntuple_initialize(const TileDQstatus& DQstatus) {
   
   if (m_bsInput) {
     ServiceHandle<IConversionSvc> cnvSvc("ByteStreamCnvSvc", "");
@@ -346,7 +334,7 @@ StatusCode TileAANtuple::ntuple_initialize() {
     m_beamCnv = NULL;
   }
   
-  uint32_t calib = m_beamInfo->calibMode();
+  uint32_t calib = DQstatus.calibMode();
   bool calibMode  = (calib == 1);
   if ( calibMode != m_calibMode && calib!=0xFFFFFFFF ) {
     ATH_MSG_INFO( "Calib mode from data is " << calibMode );
@@ -389,9 +377,11 @@ StatusCode TileAANtuple::ntuple_initialize() {
 
 
 StatusCode TileAANtuple::execute() {
-  
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  const TileDQstatus* DQstatus = SG::makeHandle (m_DQstatusKey, ctx).get();
+
   if (m_evtNr < 0) {
-    if (ntuple_initialize().isFailure()) {
+    if (ntuple_initialize(*DQstatus).isFailure()) {
       ATH_MSG_ERROR( "ntuple_initialize failed" );
     }
   }
@@ -407,8 +397,8 @@ StatusCode TileAANtuple::execute() {
   bool empty = true;
   
   // store BeamElements
-  if (m_beamElemContainer.size() > 0) {
-    empty &= storeBeamElements().isFailure();
+  if (!m_beamElemContainerKey.key().empty()) {
+    empty &= storeBeamElements(*DQstatus).isFailure();
   }
   
   //store Laser Object
@@ -438,6 +428,7 @@ StatusCode TileAANtuple::execute() {
   empty &= storeTMDBRawChannel().isFailure();
 
   if (m_beamCnv) {
+    SG::makeHandle (m_beamElemContainerKey, ctx).get();
     m_evTime = m_beamCnv->eventFragment()->bc_time_seconds();
     m_evt = m_beamCnv->eventFragment()->global_id();
     if ( m_beamCnv->validBeamFrag() )
@@ -648,9 +639,9 @@ StatusCode TileAANtuple::storeLaser() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TileAANtuple::storeBeamElements() {
+StatusCode TileAANtuple::storeBeamElements(const TileDQstatus& DQstatus) {
   
-  static const uint32_t* cispar = m_beamInfo->cispar();
+  const uint32_t* cispar = DQstatus.cispar();
   
   uint32_t oldval = 0;
   int last = 0;
@@ -1715,7 +1706,7 @@ void TileAANtuple::TRIGGER_clearBranch(void) {
  //////////////////////////////////////////////////////////////////////////////
  */
 void TileAANtuple::CISPAR_addBranch(void) {
-  if (m_beamElemContainer.size() > 0) {
+  if (!m_beamElemContainerKey.key().empty()) {
     m_ntuplePtr->Branch("cispar",m_cispar,"cispar[110]/i");
   }
 }
@@ -1728,7 +1719,7 @@ void TileAANtuple::CISPAR_addBranch(void) {
  //////////////////////////////////////////////////////////////////////////////
  */
 void TileAANtuple::CISPAR_clearBranch(void) {
-  if (m_beamElemContainer.size() > 0) {
+  if (!m_beamElemContainerKey.key().empty()) {
     CLEAR(m_cispar);
   }
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PanTauEvent/TauFeature.h"
@@ -21,11 +21,6 @@ PanTau::TauFeature::TauFeature()
 {
 }
 
-
-
-PanTau::TauFeature::~TauFeature()
-{
-}
 
 
 double PanTau::TauFeature::value(const std::string& ItsName, bool& isValid) const

@@ -1,14 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LArHVPathologyDbAlg_H
-#define LArHVPathologyDbAlg_H
+#ifndef LARCONDUTILS_LARHVPATHOLOGYDBALG_H
+#define LARCONDUTILS_LARHVPATHOLOGYDBALG_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
-class EventInfo;
 class IIOVRegistrationSvc;
 class ILArHVPathologyDbTool;
 class LArCablingService ;
@@ -45,8 +44,6 @@ class LArHVPathologyDbAlg : public AthAlgorithm
   StringProperty            m_folder;
   StringProperty            m_outpTag;
 
-  const EventInfo*          m_evt;
- 
   ServiceHandle<IIOVRegistrationSvc>   m_regSvc;
   ToolHandle<ILArHVPathologyDbTool>    m_pathologyTool;
 

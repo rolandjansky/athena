@@ -32,6 +32,8 @@ class TruthParticleContainer;
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
 #include "StoreGate/ReadHandleKeyArray.h"
 
+#include "xAODTruth/TruthParticleContainer.h"
+
 #include <string>
 #include <vector>
 #include <set>
@@ -195,11 +197,9 @@ class CaloCalibClusterMomentsMaker2: public AthAlgTool, virtual public CaloClust
    * hits outside the calorimeter systems - i.e. dead material hits ... */
   SG::ReadHandleKeyArray<CaloCalibrationHitContainer> m_DMCalibrationHitContainerNames;
 
-  /** 
-   * @brief name of truth particle container
-   */
-  std::string m_truthParticleCollectionName;
-
+  /** ReadHandleKey for truth particle container */
+  SG::ReadHandleKey<xAOD::TruthParticleContainer> m_truthParticleContainerKey{this,"TruthParticles","TruthParticles","ReadHandleKey for truth particle container"};
+  
   const CaloDetDescrManager* m_calo_dd_man; 
 
   const CaloCell_ID* m_calo_id;
@@ -235,11 +235,10 @@ class CaloCalibClusterMomentsMaker2: public AthAlgTool, virtual public CaloClust
   float m_energyMinCalib;
   float m_apars_alpha;
   float m_apars_r0;
-  //double m_showerScale;
   int m_MatchDmType;
 
   double angle_mollier_factor(double x) const;
-  void get_calib_frac(const TruthParticleContainer& truthParticles,
+  void get_calib_frac(const std::map<unsigned int,int>& truthBarcodeToPdgCodeMap,
                       const MyClusInfo& clusInfo, std::vector<double> &engFrac) const;
 };
 

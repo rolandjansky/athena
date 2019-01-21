@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MonitoredAlg.h"
-#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/Monitored.h"
 
 #include <vector>
 #include <cmath>
@@ -35,21 +35,20 @@ private:
 
 StatusCode MonitoredAlg::execute() 
 {
-  using namespace Monitored;   
   std::vector<Track> tracks;
 
   // In case you want to measure the execution time
-  auto timer = MonitoredTimer::declare("TIME_execute");
+  auto timer = Monitored::Timer("TIME_execute");
 
-  auto count = MonitoredScalar::declare<int>("nTracks", 0);  // explicit type
+  auto count = Monitored::Scalar<int>("nTracks", 0);  // explicit type
 
   // Access via member
-  auto eta = MonitoredCollection::declare("eta", tracks, &Track::eta);
+  auto eta = Monitored::Collection("eta", tracks, &Track::eta);
 
   // Access via function/lambda
-  auto absphi = MonitoredCollection::declare("AbsPhi", tracks, []( const Track& t ) { return abs(t.phi()); });  
+  auto absphi = Monitored::Collection("AbsPhi", tracks, []( const Track& t ) { return abs(t.phi()); });
 
-  auto mon = MonitoredScope::declare(m_monTool, count, eta, absphi, timer);
+  auto mon = Monitored::Group(m_monTool, count, eta, absphi, timer);
 
   count = 1 + (rand() % 10);   // random number of tracks
 

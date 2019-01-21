@@ -63,13 +63,13 @@ protected:
   enum {N_ROI_IN_SSC=8};
 
 private:
-  int flagPT[N_PT_THRESH][N_Endcap_SSC][N_EndcapSector][N_Side]; 
+  int m_flagPT[N_PT_THRESH][N_Endcap_SSC][N_EndcapSector][N_Side]; 
   // 1 use; 0: not use; -1: not used for Trigger
 
-  int flagROI[N_ROI_IN_SSC][N_Endcap_SSC][N_EndcapSector][N_Side]; 
+  int m_flagROI[N_ROI_IN_SSC][N_Endcap_SSC][N_EndcapSector][N_Side]; 
   // 1 use; 0: not use; -1: not used for Trigger
 
-  int map[N_Input_TileMuModule][N_Endcap_SSC][N_EndcapSector][N_Side];    
+  int m_map[N_Input_TileMuModule][N_Endcap_SSC][N_EndcapSector][N_Side];    
 
   std::string m_verName;
   const SG::ReadCondHandleKey<TGCTriggerData>& m_readCondKey;

@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
    @namespace Monitored
    @brief athenaMT monitoring infrastructure
-   
+
+   ## General use ##
    The Monitored namespace collects the infrastructure to create histograms from
    quantitities within an athena component. While this infrastrcucture has been
    created specifically for the use in athenaMT it is of course also usable in
@@ -33,24 +34,19 @@
 
    3) Declare the monitored quantities to the monitoring framework.
    Several classes are available to export different types to the monitoring framwork: 
-     - Monitored::MonitoredScalar
-     - Monitored::MonitoredCollection
-     - Monitored::MonitoredTimer
+     - Monitored::Scalar
+     - Monitored::Collection
+     - Monitored::Timer
 
-  The declaration in all cases is done via the `declare` method in the relevant namespace.
   For example to declare a simple scalar, use:
    \code
-   Monitored::MonitoredScalar::declare(std::string name, const T& defaultVaule):
+   Monitored::Scalar(std::string name, const T& defaultVaule):
    \endcode
 
-   @copydetails Monitored::MonitoredScalar::declare(std::string name, const T& defaultVaule)
+   @copydetails Monitored::Scalar(std::string name, const T& defaultVaule)
    
-   All above functions are within the Monitored namespace. Consider adding
-   \code using namespace Monitored;\endcode
-   to your function (but avoid doing this at global scope).
-
    4)
-   @copydoc Monitored::MonitoredScope
+   @copydoc Monitored::impl::Group
 
    5) Configure the list of histograms in python
    \code
@@ -68,8 +64,17 @@
 
    \remark Without this python configuration, i.e. the last line, no monitoring tool is instantiated
    and no monitoring histograms created thus reducing the overhead (both time and memory) to a minimum.
-                                             
-   Additional documentation:
+
+   ## Advanced usage ##
+   ### Filling in tight loops ###
+   @copydetails Monitored::impl::Group::setAutoFill()
+
+   ### Monitoring of collections (of objects) ###
+   Existing iterable collections can be monitored directly without the need to create temporaries.
+   If the collection contains objects, an accessor can be defined to retrieve the relevant quantity.
+   See the examples in Monitored::Collection.
+
+   ## Additional documentation ##
    - The MonitoredAlg standalone example and its MonitoredOptions.py job
    options
    - <a href="https://gitlab.cern.ch/atlas/athena/blob/master/Control/AthenaMonitoring/test/GenericMonFilling_test.cxx">GenericMonFilling_test.cxx</a>

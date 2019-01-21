@@ -41,10 +41,8 @@ TileLaserObjByteStreamCnv::TileLaserObjByteStreamCnv(ISvcLocator* svcloc)
   , m_name("TileLaserObjByteStreamCnv")
   , m_robSvc("ROBDataProviderSvc", m_name)
   , m_decoder("TileROD_Decoder")
-  , m_robFrag(0)
   , m_ROBID()
   , m_hid2re(0)
-  , m_container(0)
 {
 }
 
@@ -89,17 +87,15 @@ StatusCode TileLaserObjByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObjec
   m_robSvc->getROBData(m_ROBID, robf);
 
   // create TileLaserObject
-  m_container = new TileLaserObject() ; 
+  auto cont = std::make_unique<TileLaserObject>() ; 
 
   if (robf.size() > 0 ) {
-    m_robFrag = robf[0];
-    m_decoder->fillTileLaserObj(m_robFrag, *m_container);
+    m_decoder->fillTileLaserObj(robf[0], *cont);
   } else {
     ATH_MSG_DEBUG( " No LASTROD fragment in BS, TileLaserObject will be empty." );
-    m_robFrag = 0;
   }
 
-  pObj = SG::asStorable( m_container ) ; 
+  pObj = SG::asStorable( std::move(cont) ) ; 
 
   return StatusCode::SUCCESS;  
 }

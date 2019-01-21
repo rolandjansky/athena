@@ -9,11 +9,11 @@
 #include <vector>
 
 namespace Monitored {
-    class MonitoredScope;
+    class MonitoredGroup;
     
     class IMonitoredVariable {
     public:
-        friend MonitoredScope;
+        friend MonitoredGroup;
         virtual ~IMonitoredVariable() {}
         
         const std::string& name() const { return m_name; }

@@ -31,7 +31,32 @@
 #include "TileL2Algs/TileL2Builder.h"
 
 
-#include <string> 
+#include <string>
+
+
+TileRecyclableL2Container::TileRecyclableL2Container (const TileROD_Decoder& decoder)
+{
+  this->reserve(256);
+  for(int i = 0; i < 256; ++i) {
+    int collId = decoder.hashFunc()->identifier(i);
+    this->push_back (std::make_unique<TileL2> (collId));
+  }
+}
+
+
+/**
+ * @brief Recycle this object for use in another event.
+ *
+ * This is called from AthenaKernel/RecyclableDataObject when this object
+ * is released by StoreGate.  Unlock the object so that non-const access
+ * is again possible, and clear out the contents if the collections.
+ */
+void TileRecyclableL2Container::recycle()
+{
+  for (TileL2* elt : *this) {
+    elt->clear();
+  }
+}
 
 
 TileL2ContByteStreamCnv::TileL2ContByteStreamCnv(ISvcLocator* svcloc)
@@ -44,7 +69,6 @@ TileL2ContByteStreamCnv::TileL2ContByteStreamCnv(ISvcLocator* svcloc)
   , m_storeGate("StoreGateSvc", m_name)
   , m_robSvc("ROBDataProviderSvc", m_name)
   , m_decoder("TileROD_Decoder")
-  , m_container(0)
 {
 }
 
@@ -67,24 +91,6 @@ StatusCode TileL2ContByteStreamCnv::initialize() {
   ATH_CHECK( m_tool.retrieve() );
 
   ATH_CHECK( m_robSvc.retrieve() );
-  
-  // create empty TileL2Container and all TileL2 inside
-  m_container = new TileL2Container(); 
-  m_container->reserve(256);
-
-  for(int i = 0; i < 256; ++i) {
-    int collId = m_decoder->hashFunc()->identifier(i);
-    TileL2 *l2 = new TileL2(collId);
-    m_container->push_back(l2);
-  }
-
-  // Register incident handler
-  ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", m_name);
-  if ( !incSvc.retrieve().isSuccess() ) {
-    ATH_MSG_WARNING( "Unable to retrieve the IncidentSvc" );
-  } else {
-    incSvc->addListener(this, "StoreCleared");
-  }
 
   ATH_CHECK( m_storeGate.retrieve() );
 
@@ -109,14 +115,13 @@ StatusCode TileL2ContByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObject*
     return StatusCode::FAILURE;
   }
 
-  if (!m_decoder->convert(re, m_container).isSuccess()) {
+  TileL2Container* cont = m_queue.get (*m_decoder);
+
+  if (!m_decoder->convert(re, cont).isSuccess()) {
     ATH_MSG_WARNING( "Conversion tool returned an error. TileL2Container might be empty." );
   }
 
-  // new container will not own elements, i.e. TileL2 will not be deleted
-  TileL2Container* new_container = new TileL2Container(*m_container);
-  
-  pObj = SG::asStorable( new_container ) ; 
+  pObj = SG::asStorable( cont ) ; 
 
   return StatusCode::SUCCESS;  
 }
@@ -152,27 +157,7 @@ StatusCode TileL2ContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*&
 }
 
 
-StatusCode TileL2ContByteStreamCnv::finalize() {
-
-  ATH_MSG_DEBUG( " Clearing TileL2 Container " );
-
-  m_container->clear();
-
-  delete m_container; 
-
+StatusCode TileL2ContByteStreamCnv::finalize()
+{
   return Converter::finalize(); 
-}
-
-void TileL2ContByteStreamCnv::handle(const Incident& incident) {
-
-  if (incident.type() == "StoreCleared") {
-    if (const StoreClearedIncident* inc = dynamic_cast<const StoreClearedIncident*> (&incident)) {
-      if (inc->store() == &*m_storeGate) {
-        for (const TileL2* tileL2 : *m_container) {
-          const_cast<TileL2*>(tileL2)->clear();
-        }
-      }
-    }
-  }
-
 }

@@ -37,9 +37,9 @@ public:
   TGCSector* getSector(TGCReadoutIndex index) const;
   TGCSector* getSector(int side, int oct, int mod) const { 
     if ( (side<0) || (oct<0) || (mod<0) ) return 0;
-    return sector[side][oct][mod];
+    return m_sector[side][oct][mod];
   };
-  TGCTMDB* getTMDB() const {return tmdb;}
+  TGCTMDB* getTMDB() const {return m_tmdb;}
 
   TGCElectronicsSystem(TGCDatabaseManager* database, bool isAtlas=true);
   ~TGCElectronicsSystem();
@@ -51,9 +51,9 @@ private:
   TGCElectronicsSystem& operator=(const TGCElectronicsSystem& right);
 
 private:
-  TGCDatabaseManager* DB;
-  TGCSector* sector[NumberOfSide][NumberOfOctant][NumberOfModule];
-  TGCTMDB*   tmdb;
+  TGCDatabaseManager* m_DB;
+  TGCSector* m_sector[NumberOfSide][NumberOfOctant][NumberOfModule];
+  TGCTMDB*   m_tmdb;
 };
 
 

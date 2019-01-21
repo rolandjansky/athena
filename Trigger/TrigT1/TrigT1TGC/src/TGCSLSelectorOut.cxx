@@ -7,34 +7,34 @@
 
 namespace LVL1TGCTrigger {
 
-TGCSLSelectorOut::TGCSLSelectorOut():nCandidate(0)
+TGCSLSelectorOut::TGCSLSelectorOut():m_nCandidate(0)
 {
   for( int i=0; i<NCandidateInSLSelector; i+=1){
-    ptLevel[i]=0;
-    r[i]=0;
-    phi[i]=0;
-    dr[i]=99;
-    dphi[i]=99;
-    iVeto[i]=false;
+    m_ptLevel[i]=0;
+    m_r[i]=0;
+    m_phi[i]=0;
+    m_dr[i]=99;
+    m_dphi[i]=99;
+    m_iVeto[i]=false;
   }
 }
 
 void TGCSLSelectorOut::setPtLevel(int order, int ptLevelIn)
 {
   if(order<NCandidateInSLSelector){
-    ptLevel[order]=ptLevelIn;
-    nCandidate++;
+    m_ptLevel[order]=ptLevelIn;
+    m_nCandidate++;
   }
 }
 
 void TGCSLSelectorOut::print() const
 {
 #ifdef TGCCOUT
-  for(int i=0; i<nCandidate; i+=1){
-    std::cout << i << " PtLevel=" << ptLevel[i]
-	      << " R=" << r[i] 
-	      << " Phi=" << phi[i]
-	      << "InnerVetor=" << iVeto[i]
+  for(int i=0; i<m_nCandidate; i+=1){
+    std::cout << i << " PtLevel=" << m_ptLevel[i]
+	      << " R=" << m_r[i] 
+	      << " Phi=" << m_phi[i]
+	      << "InnerVetor=" << m_iVeto[i]
 	      << std::endl;
   }
 #endif

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## @brief Specialist reconstruction and bytestream transforms
 #  @author atlas-comp-jt-dev@cern.ch
@@ -209,6 +209,19 @@ def addOverlay_BSSubstep(executorSet):
                                    substep = 'overlayBS', tryDropAndReload = False, perfMonFile = 'ntuple.pmon.gz',
                                    inData = [('HITS', 'BS_SKIM')], outData = ['RDO', 'RDO_SGNL']))
 
+# New common overlay skeleton
+def addOverlaySubstep(executorSet, inRecoChain = False):
+    executor = athenaExecutor(name = 'Overlay', skeletonFile = 'EventOverlayJobTransforms/skeleton.Overlay_tf.py',
+                              substep = 'overlay', tryDropAndReload = False, perfMonFile = 'ntuple.pmon.gz',
+                              inData = [('HITS', 'RDO_BKG')], outData = ['RDO', 'RDO_SGNL'])
+
+    if inRecoChain:
+        executor.inData = []
+        executor.outData = []
+ 
+    executorSet.add(executor)
+
+
 ### Append Sub-step Methods
 def appendOverlayBSTrigFilterSubstep(trf):
     executor = set()
@@ -229,3 +242,16 @@ def appendOverlay_BSSubstep(trf):
     addOverlay_BSSubstep(executor)
     trf.appendToExecutorSet(executor)
 
+# New common overlay skeleton
+def addOverlayArguments(parser):
+    from SimuJobTransforms.simTrfArgs import addBasicDigiArgs, addForwardDetTrfArgs
+    from EventOverlayJobTransforms.overlayTrfArgs import addOverlayTrfArgs, addOverlayPoolTrfArgs
+    addBasicDigiArgs(parser)
+    addForwardDetTrfArgs(parser)
+    addOverlayTrfArgs(parser)
+    addOverlayPoolTrfArgs(parser)
+
+def appendOverlaySubstep(trf, inRecoChain = False):
+    executor = set()
+    addOverlaySubstep(executor, inRecoChain)
+    trf.appendToExecutorSet(executor)

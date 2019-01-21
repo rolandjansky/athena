@@ -20,7 +20,7 @@
 
 // forward declarations
 namespace InDetDD {
-  class SiDetectorManager;
+  class PixelDetectorManager;
 }  
 
 namespace MagField {
@@ -37,7 +37,7 @@ class PixelSiLorentzAngleCondAlg: public AthAlgorithm {
 
   private:
     const PixelID* m_pixid;
-    const InDetDD::SiDetectorManager* m_detManager;
+    const InDetDD::PixelDetectorManager* m_detManager;
 
     ServiceHandle<ICondSvc> m_condSvc;
     ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;

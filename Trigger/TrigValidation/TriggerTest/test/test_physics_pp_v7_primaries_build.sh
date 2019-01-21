@@ -20,7 +20,7 @@
 # art-output: TotalEventsProcessed.txt
 # art-output: *.regtest.new
 
-export NAME="physics_pp_v7_build_primaries"
+export NAME="physics_pp_v7_primaries_build"
 export MENU="Physics_pp_v7_primaries"
 export EVENTS="5"
 export COST_MONITORING="False"

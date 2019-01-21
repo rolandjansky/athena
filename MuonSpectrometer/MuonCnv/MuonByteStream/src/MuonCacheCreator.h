@@ -34,7 +34,7 @@ protected:
 
   /// ID helpers
   const MdtIdHelper* m_mdtIdHelper = 0;
-  bool m_disableWarning = false;
+  mutable bool m_disableWarning = false;
   bool isInsideView(const EventContext&) const;
 };//class MuonCacheCreator
 

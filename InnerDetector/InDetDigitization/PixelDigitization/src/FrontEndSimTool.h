@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELDIGITIZATION_FrontEndSimTool_H
@@ -39,9 +39,6 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
   public:
     FrontEndSimTool( const std::string& type, const std::string& name,const IInterface* parent):
       AthAlgTool(type,name,parent),
-      m_rndmSvc("AtRndmGenSvc",name),
-      m_rndmEngineName("PixelDigitization"),
-      m_rndmEngine(nullptr),
       m_pixelCalibSvc("PixelCalibSvc",name),
       m_timeBCN(1),
       m_timeZero(5.0),
@@ -57,8 +54,6 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
       m_disableProbability(9e-3)
   {
     declareInterface<FrontEndSimTool>(this);
-    declareProperty("RndmSvc",                   m_rndmSvc,        "Random number service used in FE simulation");
-    declareProperty("RndmEngine",                m_rndmEngineName, "Random engine name");
     declareProperty("PixelCalibSvc",             m_pixelCalibSvc);
 	  declareProperty("TimeBCN",                   m_timeBCN,        "Number of BCID");	
 	  declareProperty("TimeZero",                  m_timeZero,       "Time zero...?");
@@ -74,24 +69,11 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
     static const InterfaceID& interfaceID() { return IID_IFrontEndSimTool; }
 
     virtual StatusCode initialize() {
-      ATH_CHECK(AthAlgTool::initialize()); 
-
-      ATH_CHECK(m_rndmSvc.retrieve());
-
       ATH_CHECK(m_pixelConditionsTool.retrieve());
 
       ATH_CHECK(m_pixelCalibSvc.retrieve());
 
       ATH_CHECK(m_moduleDataKey.initialize());
-
-      m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-      if (!m_rndmEngine) {
-        ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName);
-        return StatusCode::FAILURE;
-      }
-      else {
-        ATH_MSG_DEBUG("Found RndmEngine : " << m_rndmEngineName);
-      }
 
       ATH_CHECK(m_ComTimeKey.initialize(m_useComTime));
       if (m_useComTime) {
@@ -109,7 +91,7 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
 
     virtual StatusCode finalize() { return StatusCode::FAILURE; }
     virtual ~FrontEndSimTool() {}
-    virtual void process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Collection &rdoCollection) = 0;
+    virtual void process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Collection &rdoCollection, CLHEP::HepRandomEngine *rndmEngine) = 0;
 
     void CrossTalk(double crossTalk, SiChargedDiodeCollection &chargedDiodes) const {
       const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&(chargedDiodes.element())->design());
@@ -141,21 +123,21 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
       return;
     }
 
-    void ThermalNoise(double thermalNoise, SiChargedDiodeCollection &chargedDiodes) const {
+    void ThermalNoise(double thermalNoise, SiChargedDiodeCollection &chargedDiodes, CLHEP::HepRandomEngine *rndmEngine) const {
       for (SiChargedDiodeIterator i_chargedDiode=chargedDiodes.begin(); i_chargedDiode!=chargedDiodes.end(); ++i_chargedDiode) {
-        SiCharge charge(thermalNoise*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine),0,SiCharge::noise);
+        SiCharge charge(thermalNoise*CLHEP::RandGaussZiggurat::shoot(rndmEngine),0,SiCharge::noise);
         (*i_chargedDiode).second.add(charge);
       }
       return;
     }
 
-    void RandomNoise(SiChargedDiodeCollection &chargedDiodes) const {
+    void RandomNoise(SiChargedDiodeCollection &chargedDiodes, CLHEP::HepRandomEngine *rndmEngine) const {
       const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&(chargedDiodes.element())->design());
-      int nNoise = CLHEP::RandPoisson::shoot(m_rndmEngine, p_design->numberOfCircuits()*p_design->columnsPerCircuit()*p_design->rowsPerCircuit()*m_noiseOccupancy*static_cast<double>(m_timeBCN)); 
+      int nNoise = CLHEP::RandPoisson::shoot(rndmEngine, p_design->numberOfCircuits()*p_design->columnsPerCircuit()*p_design->rowsPerCircuit()*m_noiseOccupancy*static_cast<double>(m_timeBCN)); 
       for (int i=0; i<nNoise; i++) {
-        int circuit = CLHEP::RandFlat::shootInt(m_rndmEngine,p_design->numberOfCircuits());
-        int column  = CLHEP::RandFlat::shootInt(m_rndmEngine,p_design->columnsPerCircuit());
-        int row     = CLHEP::RandFlat::shootInt(m_rndmEngine,p_design->rowsPerCircuit());
+        int circuit = CLHEP::RandFlat::shootInt(rndmEngine,p_design->numberOfCircuits());
+        int column  = CLHEP::RandFlat::shootInt(rndmEngine,p_design->columnsPerCircuit());
+        int row     = CLHEP::RandFlat::shootInt(rndmEngine,p_design->rowsPerCircuit());
         if (row>159 && p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI3) { row += 8; } // jump over ganged pixels - rowsPerCircuit == 320 above
 
         InDetDD::SiReadoutCellId roCell(row, p_design->columnsPerCircuit()*circuit+column);
@@ -164,13 +146,13 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
         if (roCell.isValid()) {
           InDetDD::SiCellId diodeNoise = roCell;
 
-          double x = CLHEP::RandFlat::shoot(m_rndmEngine,0.,1.);
+          double x = CLHEP::RandFlat::shoot(rndmEngine,0.,1.);
           int bin=0;
           for (size_t j=1; j<m_noiseShape.size(); j++) {
             if (x>m_noiseShape[j-1] && x<=m_noiseShape[j]) { bin=j-1; continue; }
           }
           double noiseToTm = bin+1.5;
-          double noiseToT = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine,noiseToTm,1.);
+          double noiseToT = CLHEP::RandGaussZiggurat::shoot(rndmEngine,noiseToTm,1.);
 
           double chargeShape = m_pixelCalibSvc->getCharge(noisyID,noiseToT);
           chargedDiodes.add(diodeNoise,SiCharge(chargeShape,0,SiCharge::noise));
@@ -179,9 +161,9 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
       return;
     }
 
-    void RandomDisable(SiChargedDiodeCollection &chargedDiodes) const {
+    void RandomDisable(SiChargedDiodeCollection &chargedDiodes, CLHEP::HepRandomEngine *rndmEngine) const {
       for (SiChargedDiodeIterator i_chargedDiode=chargedDiodes.begin(); i_chargedDiode!=chargedDiodes.end(); ++i_chargedDiode) {
-        if (CLHEP::RandFlat::shoot(m_rndmEngine)<m_disableProbability) {
+        if (CLHEP::RandFlat::shoot(rndmEngine)<m_disableProbability) {
           SiHelper::disabled((*i_chargedDiode).second,true,false);
         }
       }
@@ -193,10 +175,6 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
     FrontEndSimTool();
 
   protected:
-    ServiceHandle<IAtRndmGenSvc> m_rndmSvc;
-    std::string                  m_rndmEngineName;
-    CLHEP::HepRandomEngine      *m_rndmEngine;	
-
     ToolHandle<IInDetConditionsTool> m_pixelConditionsTool{this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
     ServiceHandle<IPixelCalibSvc>        m_pixelCalibSvc;
 

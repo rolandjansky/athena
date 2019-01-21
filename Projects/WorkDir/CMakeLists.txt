@@ -45,6 +45,11 @@ unset( _defaultUseFortran )
 # Find the project that we depend on:
 find_package( ${ATLAS_PROJECT} REQUIRED )
 
+# Temporary fix for ATLINFR-2883:
+if ( DOXYGEN_FOUND )
+   find_package( graphviz )
+endif()
+
 # Set up CTest:
 atlas_ctest_setup()
 

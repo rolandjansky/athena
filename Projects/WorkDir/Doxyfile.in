@@ -1,0 +1,21 @@
+# Doxygen configuration for the WorkDir project. 
+# Building the 'doc' target will create the doxygen pages for locally selected packges.
+# Similar settings are used as for the "official" ATLAS doxygen pages.
+#
+PROJECT_NAME           = "ATLAS Offline Software"
+INPUT                  = @CMAKE_SOURCE_DIR@ @SELECTED_PACKAGES@
+STRIP_FROM_PATH        = @CMAKE_SOURCE_DIR@
+STRIP_FROM_INC_PATH    = @SELECTED_PACKAGES@
+OUTPUT_DIRECTORY       = @CMAKE_BINARY_DIR@/docs
+INLINE_INHERITED_MEMB  = YES
+JAVADOC_AUTOBRIEF      = YES
+QT_AUTOBRIEF           = YES
+BUILTIN_STL_SUPPORT    = YES
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+RECURSIVE              = YES
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = YES
+GENERATE_LATEX         = NO
+DOT_PATH               = @GRAPHVIZ_DIR@/bin
+HAVE_DOT               = YES

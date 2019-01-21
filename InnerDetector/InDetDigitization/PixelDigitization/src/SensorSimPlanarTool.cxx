@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -66,7 +66,7 @@ StatusCode SensorSimPlanarTool::finalize() {
 //===============================================
 //    I N D U C E    C H A R G E
 //===============================================
-StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection &chargedDiodes, const InDetDD::SiDetectorElement &Module, const InDetDD::PixelModuleDesign &p_design, std::vector< std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions) {
+StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection &chargedDiodes, const InDetDD::SiDetectorElement &Module, const InDetDD::PixelModuleDesign &p_design, std::vector< std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions, CLHEP::HepRandomEngine *rndmEngine) {
 
   // So far, this is only discriminating variable from 3D sensor.
   if (p_design.numberOfCircuits()<2){
@@ -96,7 +96,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
   if (Module.isDBM()){
     eleholePairEnergy = 1. / (13. * CLHEP::eV); // was 3.62 eV.
     m_diffusionConstant = .00265;
-    smearRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+    smearRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
   }
   else{
     eleholePairEnergy = siProperties.electronHolePairsPerEnergy();
@@ -140,9 +140,9 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
       double rdif=this->m_diffusionConstant*sqrt(dist_electrode*coLorentz/0.3);
 
       // position at the surface
-      double phiRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+      double phiRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
       double phi_drifted=phi_i+dist_electrode*tanLorentz+rdif*phiRand;
-      double etaRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+      double etaRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
       double eta_drifted=eta_i+rdif*etaRand;
 
       // amount of energy to be converted into charges at current step

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAEVENT_ELECTRONCONSTITUENT_H
@@ -54,7 +54,7 @@ namespace Analysis
       /** @brief constructor */
       ElectronConstituent(NameType& name) ;  
       /** @brief destructor */
-      ~ElectronConstituent() ; 
+      ~ElectronConstituent() = default;
 
       /** @brief method to set the name */
       virtual void setName(NameType& name);

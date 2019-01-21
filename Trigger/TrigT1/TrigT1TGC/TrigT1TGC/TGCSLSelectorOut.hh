@@ -12,19 +12,19 @@ const int NCandidateInSLSelector = 2;
 class TGCSLSelectorOut {
 public:
   void setPtLevel(int order, int ptLevel);
-  void setR(int order, int rIn) { r[order]=rIn;};
-  void setPhi(int order, int phiIn) {phi[order]=phiIn;};
-  void setDR(int order, int drIn) { dr[order]=drIn;};
-  void setDPhi(int order, int dphiIn) {dphi[order]=dphiIn;};
-  void setInnerVeto(int order, bool vetoIn) {iVeto[order]=vetoIn;};
+  void setR(int order, int rIn) { m_r[order]=rIn;};
+  void setPhi(int order, int phiIn) {m_phi[order]=phiIn;};
+  void setDR(int order, int drIn) { m_dr[order]=drIn;};
+  void setDPhi(int order, int dphiIn) {m_dphi[order]=dphiIn;};
+  void setInnerVeto(int order, bool vetoIn) {m_iVeto[order]=vetoIn;};
 
-  int  getPtLevel(int order) const { return ptLevel[order];}; 
-  int  getR(int order) const { return r[order];}; 
-  int  getPhi(int order) const { return phi[order];}; 
-  int  getDR(int order) const { return dr[order];}; 
-  int  getDPhi(int order) const { return dphi[order];}; 
-  bool getInnerVeto(int order) const { return iVeto[order];}; 
-  int  getNCandidate() const { return nCandidate;};
+  int  getPtLevel(int order) const { return m_ptLevel[order];}; 
+  int  getR(int order) const { return m_r[order];}; 
+  int  getPhi(int order) const { return m_phi[order];}; 
+  int  getDR(int order) const { return m_dr[order];}; 
+  int  getDPhi(int order) const { return m_dphi[order];}; 
+  bool getInnerVeto(int order) const { return m_iVeto[order];}; 
+  int  getNCandidate() const { return m_nCandidate;};
 
   void print() const;
 
@@ -32,13 +32,13 @@ public:
   ~TGCSLSelectorOut(){};
 
 private:
-  int  nCandidate;
-  int  ptLevel[NCandidateInSLSelector];
-  int  r[NCandidateInSLSelector];
-  int  phi[NCandidateInSLSelector];
-  int  dr[NCandidateInSLSelector];
-  int  dphi[NCandidateInSLSelector];
-  bool iVeto[NCandidateInSLSelector];
+  int  m_nCandidate;
+  int  m_ptLevel[NCandidateInSLSelector];
+  int  m_r[NCandidateInSLSelector];
+  int  m_phi[NCandidateInSLSelector];
+  int  m_dr[NCandidateInSLSelector];
+  int  m_dphi[NCandidateInSLSelector];
+  bool m_iVeto[NCandidateInSLSelector];
 };
 
 } //end of namespace bracket

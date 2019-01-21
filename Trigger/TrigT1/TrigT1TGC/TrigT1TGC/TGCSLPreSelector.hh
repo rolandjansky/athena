@@ -27,9 +27,9 @@ public:
 
 private:
   enum {MaxNumberOfSubSectorCluster = 19}; 
-  TGCRPhiCoincidenceOut* coincidenceOut[MaxNumberOfSubSectorCluster]; 
+  TGCRPhiCoincidenceOut* m_coincidenceOut[MaxNumberOfSubSectorCluster]; 
 
-  const TGCSectorLogic* sectorLogic; 
+  const TGCSectorLogic* m_sectorLogic; 
 };
 
 

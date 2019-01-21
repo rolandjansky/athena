@@ -11,13 +11,13 @@ TGCSLPreSelectorOut::TGCSLPreSelectorOut()
 {
   for(int  i=1; i<=NumberOfPtLevel; i+=1)
     for( int j=0; j<NCandidateInSLPreSelector; j+=1){
-      idSSC[i][j]=0;
-      r[i][j]=0;
-      phi[i][j]=0;
-      dr[i][j]=99;
-      dphi[i][j]=99;
-      hit[i][j]=false;
-      iVeto[i][j]=false;
+      m_idSSC[i][j]=0;
+      m_r[i][j]=0;
+      m_phi[i][j]=0;
+      m_dr[i][j]=99;
+      m_dphi[i][j]=99;
+      m_hit[i][j]=false;
+      m_iVeto[i][j]=false;
     }      
 }
 
@@ -29,9 +29,9 @@ void TGCSLPreSelectorOut::print() const
   std::cout<<std::endl<<"TGCSLPreSelectorOut::print() begin"<<std::endl;
   for( i=1; i<=NumberOfPtLevel; i+=1)
     for( j=0; j<NCandidateInSLPreSelector; j+=1)
-      if(hit[i][j]) std::cout<<" No."<<j<<" Pt= "<<i<<" #SSC="<<idSSC[i][j]
-			     <<" r= "<<r[i][j]<<" phi= "<<phi[i][j]
-			     <<" veto= "<<iVeto[i][j] 
+      if(m_hit[i][j]) std::cout<<" No."<<j<<" Pt= "<<i<<" #SSC="<<m_idSSC[i][j]
+			     <<" r= "<<m_r[i][j]<<" phi= "<<m_phi[i][j]
+			     <<" veto= "<<m_iVeto[i][j] 
 			     << std::endl;
   std::cout<<"TGCSLPreSelectorOut::print() end"<<std::endl;
 #endif
