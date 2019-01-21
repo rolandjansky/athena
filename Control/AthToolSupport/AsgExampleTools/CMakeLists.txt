@@ -61,11 +61,13 @@ atlas_add_test( gt_ToolHandle_test
    SOURCES test/gt_ToolHandle_test.cxx
    INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
    LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib ${extra_libs} )
+set_tests_properties (AsgExampleTools_gt_ToolHandle_test_ctest PROPERTIES LABELS "AsgTools;AsgExampleTools" )
 
 atlas_add_test( gt_AnaToolHandle_test
    SOURCES test/gt_AnaToolHandle_test.cxx
    INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
    LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib )
+set_tests_properties (AsgExampleTools_gt_AnaToolHandle_test_ctest PROPERTIES LABELS "AsgTools;AsgExampleTools" )
 
 if( XAOD_STANDALONE )
 
@@ -74,24 +76,28 @@ if( XAOD_STANDALONE )
       INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
       LINK_LIBRARIES ${GMOCK_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib
       EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )
+   set_tests_properties (AsgExampleTools_gt_AsgTool_ctest PROPERTIES LABELS "AsgTools;AsgExampleTools" )
 
    atlas_add_test( gt_MessageCheck
       SOURCES test/gt_MessageCheck.cxx
       INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
       LINK_LIBRARIES ${GMOCK_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib
       EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )
+   set_tests_properties (AsgExampleTools_gt_MessageCheck_ctest PROPERTIES LABELS "AsgTools;AsgExampleTools" )
 
    atlas_add_test( gt_TProperty
       SOURCES test/gt_TProperty.cxx
       INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
       LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib
       EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )
+   set_tests_properties (AsgExampleTools_gt_TProperty_ctest PROPERTIES LABELS "AsgTools;AsgExampleTools" )
 
    atlas_add_test( gt_asgtools_toolhandle_test
       SOURCES test/gt_asgtools_toolhandle_test.cxx
       INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
       LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib
       EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )
+   set_tests_properties (AsgExampleTools_gt_asgtools_toolhandle_test_ctest PROPERTIES LABELS "AsgTools;AsgExampleTools" )
 
 endif()
 
@@ -101,3 +107,4 @@ atlas_add_test( gt_AnaCheck
    INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
    LINK_LIBRARIES ${GMOCK_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib
    EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )
+set_tests_properties (AsgExampleTools_gt_AnaCheck_ctest PROPERTIES LABELS "AsgTools;AsgExampleTools" )
