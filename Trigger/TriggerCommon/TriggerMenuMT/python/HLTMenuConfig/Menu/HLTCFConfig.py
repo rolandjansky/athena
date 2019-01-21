@@ -6,6 +6,7 @@ from AthenaCommon.Logging import logging
 from AthenaCommon.AlgSequence import dumpSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import  stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 import sys
 import copy
@@ -19,8 +20,9 @@ def makeSummary(name, flatDecisions):
     """ Returns a TriggerSummaryAlg connected to given decisions"""
     from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
     summary = TriggerSummaryAlg( name, OutputLevel = 2 )
-    summary.InputDecision = "L1DecoderSummary"  
+    summary.InputDecision = "L1DecoderSummary"
     summary.FinalDecisions = flatDecisions
+    # summary.HLTSummary = "MonitoringSummary" + name
     return summary
 
 
@@ -295,7 +297,7 @@ def decisionTree_From_Chains(HLTNode, chains):
         #end of loop over chains for this step, now implement CF:
     
         log.debug("\n******** Create CF Tree %s with AthSequencers", stepCF_name)
-        
+
         #first make the filter step
         stepFilter = createStepFilterNode(stepCF_name, CFseq_list, dump=False)
         HLTNode += stepFilter
@@ -341,7 +343,7 @@ def generateDecisionTree(HLTNode, chains):
 
     ## Fill chain steps matrix
     for chain in chains:
-        chain.decodeHypoToolConfs()
+        # chain.decodeHypoToolConfs()
         for stepNumber, chainStep in enumerate(chain.steps):
             chainName = chainStep.name.split('_')[0]
             chainStepsMatrix[stepNumber][chainName].append(chain)
@@ -375,6 +377,7 @@ def generateDecisionTree(HLTNode, chains):
             sfilter = buildFilter(filterName,  filter_input)
 
             chainStep = firstChain.steps[nstep]
+
             CFseq = CFSequence( ChainStep=chainStep, FilterAlg=sfilter )
             CFsequences.append( CFseq )
 
@@ -432,7 +435,7 @@ def buildFilter(filter_name,  filter_input):
     sfilter = RoRSequenceFilterNode(name=filter_name)
     for i in filter_input: sfilter.addInput(i)
     for i in filter_input: sfilter.addOutput(CFNaming.filterOutName(filter_name, i))
-        
+
     log.debug("Added inputs to filter: %s", sfilter.getInputList())
     log.debug("Added outputs to filter: %s", sfilter.getOutputList())
     log.debug("Filter Done: %s", sfilter.Alg.name())

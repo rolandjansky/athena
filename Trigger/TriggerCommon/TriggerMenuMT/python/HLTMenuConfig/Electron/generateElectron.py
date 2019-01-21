@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
-from TrigUpgradeTest.ElectronMenuConfig import l2CaloRecoCfg, l2CaloHypoCfg
+from TrigUpgradeTest.ElectronMenuConfig import l2CaloRecoCfg, l2CaloHypoCfg, l2CaloAlgCfg
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, \
     ChainStep, Chain, RecoFragmentsPool, getChainStepName
 
@@ -20,20 +20,37 @@ def generateChains( flags,  chainDict ):
 
     acc = ComponentAccumulator()
 
-    l2CaloHypo = RecoFragmentsPool.retrieve( l2CaloHypoCfg,
-                                             flags,
-                                             name = 'L2ElectronCaloHypo',
-                                             CaloClusters = 'L2CaloEMClusters' )
+    l2CaloHypo = TrigL2CaloHypoAlgMT('L2ElectronCaloHypo')
+    l2CaloHypo.CaloClusters = 'L2CaloEMClusters'
+
+    l2CaloHypoTool = TrigL2CaloHypoToolFromName(chainDict['chainName'], chainDict['chainName'])
+    l2CaloHypo.HypoTools = [l2CaloHypoTool]
+
+    # l2CaloHypo = RecoFragmentsPool.retrieve(l2CaloHypoCfg,
+    #                                         flags,
+    #                                         name = 'L2ElectronCaloHypo',
+    #                                         CaloClusters = 'L2CaloEMClusters' )
+
+
+    # from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
+    # l2CaloReco = InViewReco("FastCaloEMReco")
+    # algAcc, alg = l2CaloAlgCfg(flags, roisKey=l2CaloReco.name + 'RoIs')
+    # l2CaloReco.addRecoAlg(alg)
+    # l2CaloReco.merge(algAcc)
 
     l2CaloReco = RecoFragmentsPool.retrieve(l2CaloRecoCfg, flags)
+    # l2CaloReco.addHypoAlg(l2CaloHypo)
     acc.merge(l2CaloReco)
+
+    # acc.addEventAlgo(l2CaloHypo)
 
     fastCaloSequence = MenuSequence( Sequence    = l2CaloReco.sequence(),
                                      Maker       = l2CaloReco.inputMaker(),
                                      Hypo        = l2CaloHypo,
-                                     HypoToolGen = TrigL2CaloHypoToolFromName )
+                                     HypoToolGen = None )
 
     fastCaloStep = ChainStep(getChainStepName('Electron', 1), [fastCaloSequence])
+
 
            
     # # # fast ID

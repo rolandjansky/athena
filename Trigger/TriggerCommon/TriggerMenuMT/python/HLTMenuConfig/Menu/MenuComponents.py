@@ -566,6 +566,9 @@ class InViewReco( ComponentAccumulator ):
         log.warning( "InViewReco.addRecoAlgo: consider using mergeReco that takes care of the CA accumulation and moving algorithms" )
         self.addEventAlgo( alg, self.viewsSeq.name() )
 
+    def addHypoAlg(self, alg):
+        self.addEventAlgo( alg, self.mainSeq.name() )
+
     def sequence( self ):
         return self.mainSeq
 
