@@ -69,7 +69,7 @@ private:
 	//TFile* defFile; 	//File containing ttrees TCAD and Interpolation
   std::vector<std::vector<TString>> list_files(TString fileList_TCADsamples);
   Double_t extrapolateLinear(Double_t x1, Double_t y1, Double_t x2, Double_t y2, Double_t xaim );
-  int fillXYvectors(std::vector<Double_t> vLoop,int ifix, std::vector<std::vector<Double_t>> v2vsv1, std::vector<Double_t>* &xx, std::vector<Double_t>* &yy, bool regularOrder = true);
+  int fillXYvectors(std::vector<Double_t> vLoop,int ifix, std::vector<std::vector<Double_t>> v2vsv1, std::vector<Double_t> &xx, std::vector<Double_t> &yy, bool regularOrder = true);
   void FillEdgeValues(TH1D* hin);
   bool isInterpolation(const std::vector<Double_t> &vval, Double_t aimval) 
       { return ( vval.front() <= aimval && aimval <= vval.back() ); };
