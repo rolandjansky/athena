@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELDIGITIZATION_RD53SimTool_H
@@ -16,7 +16,7 @@ class RD53SimTool:public FrontEndSimTool {
     virtual StatusCode initialize();
     virtual StatusCode finalize();
     virtual ~RD53SimTool();
-    virtual void process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Collection &rdoCollection);
+    virtual void process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Collection &rdoCollection, CLHEP::HepRandomEngine *rndmEngine);
 
   private:
     RD53SimTool();

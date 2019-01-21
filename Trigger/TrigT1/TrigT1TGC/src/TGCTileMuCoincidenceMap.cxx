@@ -33,16 +33,16 @@ TGCTileMuCoincidenceMap::TGCTileMuCoincidenceMap(const SG::ReadCondHandleKey<TGC
     for (size_t sec=0; sec< N_EndcapSector; sec++){
       for (size_t ssc=0; ssc< N_Endcap_SSC; ssc++){
 	for (size_t input=0; input< N_Input_TileMuModule; input++){
-	  map[input][ssc][sec][side] = TM_NA;
+	  m_map[input][ssc][sec][side] = TM_NA;
 	}
-	flagPT[0][ssc][sec][side]  =0; //pt1     
-	flagPT[1][ssc][sec][side]  =0; //pt2     
-	flagPT[2][ssc][sec][side]  =0; //pt3     
-	flagPT[3][ssc][sec][side]  =0; //pt4     
-	flagPT[4][ssc][sec][side]  =1; //pt5     
-	flagPT[5][ssc][sec][side]  =1; //pt6     
+	m_flagPT[0][ssc][sec][side]  =0; //pt1     
+	m_flagPT[1][ssc][sec][side]  =0; //pt2     
+	m_flagPT[2][ssc][sec][side]  =0; //pt3     
+	m_flagPT[3][ssc][sec][side]  =0; //pt4     
+	m_flagPT[4][ssc][sec][side]  =1; //pt5     
+	m_flagPT[5][ssc][sec][side]  =1; //pt6     
 	for (size_t pos=0; pos< N_ROI_IN_SSC; pos++){
-	  flagROI[pos][ssc][sec][side]  = 1;
+	  m_flagROI[pos][ssc][sec][side]  = 1;
 	}
       }
     }
@@ -70,12 +70,12 @@ TGCTileMuCoincidenceMap::TGCTileMuCoincidenceMap(const SG::ReadCondHandleKey<TGC
     for (size_t side=0; side< N_Side; side++){
       for (size_t sec=0; sec< N_EndcapSector; sec++){
 	for (size_t ssc=0; ssc< N_Endcap_SSC; ssc++){
-	  flagPT[0][ssc][sec][side]  =0; //pt1     
-	  flagPT[1][ssc][sec][side]  =0; //pt2     
-	  flagPT[2][ssc][sec][side]  =0; //pt3     
-	  flagPT[3][ssc][sec][side]  =0; //pt4     
-	  flagPT[4][ssc][sec][side]  =0; //pt5     
-	  flagPT[5][ssc][sec][side]  =0; //pt6     
+	  m_flagPT[0][ssc][sec][side]  =0; //pt1     
+	  m_flagPT[1][ssc][sec][side]  =0; //pt2     
+	  m_flagPT[2][ssc][sec][side]  =0; //pt3     
+	  m_flagPT[3][ssc][sec][side]  =0; //pt4     
+	  m_flagPT[4][ssc][sec][side]  =0; //pt5     
+	  m_flagPT[5][ssc][sec][side]  =0; //pt6     
 	}
       }    
     }
@@ -98,16 +98,16 @@ TGCTileMuCoincidenceMap::TGCTileMuCoincidenceMap(const TGCTileMuCoincidenceMap& 
     for (size_t sec=0; sec< N_EndcapSector; sec++){
       for (size_t ssc=0; ssc< N_Endcap_SSC; ssc++){
 	for (size_t input=0; input< N_Input_TileMuModule; input++){
-	  map[input][ssc][sec][side] = right.map[input][ssc][sec][side];
+	  m_map[input][ssc][sec][side] = right.m_map[input][ssc][sec][side];
 	}
-	flagPT[0][ssc][sec][side] = right.flagPT[0][ssc][sec][side];
-	flagPT[1][ssc][sec][side] = right.flagPT[1][ssc][sec][side];
-	flagPT[2][ssc][sec][side] = right.flagPT[2][ssc][sec][side];
-	flagPT[3][ssc][sec][side] = right.flagPT[3][ssc][sec][side];
-	flagPT[4][ssc][sec][side] = right.flagPT[4][ssc][sec][side];
-	flagPT[5][ssc][sec][side] = right.flagPT[5][ssc][sec][side];
+	m_flagPT[0][ssc][sec][side] = right.m_flagPT[0][ssc][sec][side];
+	m_flagPT[1][ssc][sec][side] = right.m_flagPT[1][ssc][sec][side];
+	m_flagPT[2][ssc][sec][side] = right.m_flagPT[2][ssc][sec][side];
+	m_flagPT[3][ssc][sec][side] = right.m_flagPT[3][ssc][sec][side];
+	m_flagPT[4][ssc][sec][side] = right.m_flagPT[4][ssc][sec][side];
+	m_flagPT[5][ssc][sec][side] = right.m_flagPT[5][ssc][sec][side];
 	for (size_t pos=0; pos< N_ROI_IN_SSC; pos++){
-	  flagROI[pos][ssc][sec][side] = right.flagROI[pos][ssc][sec][side];
+	  m_flagROI[pos][ssc][sec][side] = right.m_flagROI[pos][ssc][sec][side];
 	}
       }
     }
@@ -121,16 +121,16 @@ TGCTileMuCoincidenceMap& TGCTileMuCoincidenceMap::operator=(const TGCTileMuCoinc
       for (size_t sec=0; sec< N_EndcapSector; sec++){
 	for (size_t ssc=0; ssc< N_Endcap_SSC; ssc++){
 	  for (size_t input=0; input< N_Input_TileMuModule; input++){
-	    map[input][ssc][sec][side] = right.map[input][ssc][sec][side];
+	    m_map[input][ssc][sec][side] = right.m_map[input][ssc][sec][side];
 	  }
-	  flagPT[0][ssc][sec][side] = right.flagPT[0][ssc][sec][side];
-	  flagPT[1][ssc][sec][side] = right.flagPT[1][ssc][sec][side];
-	  flagPT[2][ssc][sec][side] = right.flagPT[2][ssc][sec][side];
-	  flagPT[3][ssc][sec][side] = right.flagPT[3][ssc][sec][side];
-	  flagPT[4][ssc][sec][side] = right.flagPT[4][ssc][sec][side];
-	  flagPT[5][ssc][sec][side] = right.flagPT[5][ssc][sec][side];
+	  m_flagPT[0][ssc][sec][side] = right.m_flagPT[0][ssc][sec][side];
+	  m_flagPT[1][ssc][sec][side] = right.m_flagPT[1][ssc][sec][side];
+	  m_flagPT[2][ssc][sec][side] = right.m_flagPT[2][ssc][sec][side];
+	  m_flagPT[3][ssc][sec][side] = right.m_flagPT[3][ssc][sec][side];
+	  m_flagPT[4][ssc][sec][side] = right.m_flagPT[4][ssc][sec][side];
+	  m_flagPT[5][ssc][sec][side] = right.m_flagPT[5][ssc][sec][side];
 	  for (size_t pos=0; pos< N_ROI_IN_SSC; pos++){
-	    flagROI[pos][ssc][sec][side] = right.flagROI[pos][ssc][sec][side];
+	    m_flagROI[pos][ssc][sec][side] = right.m_flagROI[pos][ssc][sec][side];
 	  }
 	}
       }
@@ -197,10 +197,10 @@ bool TGCTileMuCoincidenceMap::readMap()
       return false;
     }
     for (size_t pt=0; pt<N_PT_THRESH; pt++){
-      flagPT[pt][sscId][sectorId][sideId]   = use[pt];
+      m_flagPT[pt][sscId][sectorId][sideId]   = use[pt];
     }
     for (size_t pos=0; pos< N_ROI_IN_SSC; pos++){
-      flagROI[pos][sscId][sectorId][sideId] = roi[pos];
+      m_flagROI[pos][sscId][sectorId][sideId] = roi[pos];
     }
 
     // get trigger word
@@ -209,7 +209,7 @@ bool TGCTileMuCoincidenceMap::readMap()
     unsigned int word;
     for(size_t pos=0; pos<N_Input_TileMuModule; pos++){
       cont >> word;
-      map[pos][sscId][sectorId][sideId] = word;
+      m_map[pos][sscId][sectorId][sideId] = word;
     }
   }
   file.close();	  
@@ -229,25 +229,25 @@ void TGCTileMuCoincidenceMap::dumpMap() const
     for (size_t sec=0; sec< N_EndcapSector; sec++){
       for (size_t ssc=0; ssc< N_Endcap_SSC; ssc++){
 	file << "# " << side << " " << sec << " " << ssc << " "
-	     << flagPT[0][ssc][sec][side] << " "
-	     << flagPT[1][ssc][sec][side]  << " "
-	     << flagPT[2][ssc][sec][side]  << " "
-	     << flagPT[3][ssc][sec][side]  << " "
-	     << flagPT[4][ssc][sec][side]  << " "
-	     << flagPT[5][ssc][sec][side]  << " "
-	     << flagROI[0][ssc][sec][side]  << " "
-	     << flagROI[1][ssc][sec][side]  << " "
-	     << flagROI[2][ssc][sec][side]  << " "
-	     << flagROI[3][ssc][sec][side]  << " "
-	     << flagROI[4][ssc][sec][side]  << " "
-	     << flagROI[5][ssc][sec][side]  << " "
-	     << flagROI[6][ssc][sec][side]  << " "
-	     << flagROI[7][ssc][sec][side]  << " "
+	     << m_flagPT[0][ssc][sec][side] << " "
+	     << m_flagPT[1][ssc][sec][side]  << " "
+	     << m_flagPT[2][ssc][sec][side]  << " "
+	     << m_flagPT[3][ssc][sec][side]  << " "
+	     << m_flagPT[4][ssc][sec][side]  << " "
+	     << m_flagPT[5][ssc][sec][side]  << " "
+	     << m_flagROI[0][ssc][sec][side]  << " "
+	     << m_flagROI[1][ssc][sec][side]  << " "
+	     << m_flagROI[2][ssc][sec][side]  << " "
+	     << m_flagROI[3][ssc][sec][side]  << " "
+	     << m_flagROI[4][ssc][sec][side]  << " "
+	     << m_flagROI[5][ssc][sec][side]  << " "
+	     << m_flagROI[6][ssc][sec][side]  << " "
+	     << m_flagROI[7][ssc][sec][side]  << " "
 	     << std::endl;
-	file << map[0][ssc][sec][side]  << " "
-	     << map[1][ssc][sec][side]  << " "
-	     << map[2][ssc][sec][side]  << " "
-	     << map[3][ssc][sec][side]  << " "
+	file << m_map[0][ssc][sec][side]  << " "
+	     << m_map[1][ssc][sec][side]  << " "
+	     << m_map[2][ssc][sec][side]  << " "
+	     << m_map[3][ssc][sec][side]  << " "
 	     << std::endl;
       }
     }
@@ -270,7 +270,7 @@ int  TGCTileMuCoincidenceMap::getMask(const int module,
     const TGCTriggerData* readCdo{*readHandle};
     return readCdo->getTrigMaskTile(module, ssc, sec, side);
   } else {
-    return  map[module][ssc][sec][side];
+    return  m_map[module][ssc][sec][side];
   }
 }
 
@@ -289,7 +289,7 @@ int  TGCTileMuCoincidenceMap::getFlagPT(const int pt,
     const TGCTriggerData* readCdo{*readHandle};
     return readCdo->getFlagPtTile(pt, ssc, sec, side);
   } else {
-    return  flagPT[pt-1][ssc][sec][side];
+    return  m_flagPT[pt-1][ssc][sec][side];
   }
 }
 
@@ -308,7 +308,7 @@ int  TGCTileMuCoincidenceMap::getFlagROI(const int roi,
     const TGCTriggerData* readCdo{*readHandle};
     return readCdo->getFlagRoiTile(roi, ssc, sec, side);
   } else {
-    return  flagROI[roi][ssc][sec][side];
+    return  m_flagROI[roi][ssc][sec][side];
   }
 }
 

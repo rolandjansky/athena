@@ -20,8 +20,8 @@ class SCT_FlaggedCondDataCnv_p1 : public T_AthenaPoolTPCnvBase<SCT_FlaggedCondDa
 {
 public:
   SCT_FlaggedCondDataCnv_p1() {}
-  virtual void persToTrans(const SCT_FlaggedCondData_p1* persObj, SCT_FlaggedCondData* transObj, MsgStream &log);
-  virtual void transToPers(const SCT_FlaggedCondData* transObj, SCT_FlaggedCondData_p1* persObj, MsgStream &log);
+  virtual void persToTrans(const SCT_FlaggedCondData_p1* persObj, SCT_FlaggedCondData* transObj, MsgStream& log);
+  virtual void transToPers(const SCT_FlaggedCondData* transObj, SCT_FlaggedCondData_p1* persObj, MsgStream& log);
 };
 
 #endif // SCT_FlaggedCondDataCnv_p1_h

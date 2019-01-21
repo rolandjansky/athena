@@ -92,7 +92,7 @@ globalflags.DataSource.set_Value_and_Lock('geant4')
 if 'ALL' in digitizationFlags.overrideMetadata.get_Value():
     overlaylog.info("Skipping input file MetaData check.")
 else :
-    from EventOverlayJobTransforms.OverlayPoolReadMetaData import readInputFileMetadata
+    from EventOverlayJobTransforms.OverlayReadMetaData import readInputFileMetadata
     readInputFileMetadata()
 
 import MagFieldServices.SetupField

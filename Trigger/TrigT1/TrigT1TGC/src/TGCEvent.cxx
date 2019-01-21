@@ -23,7 +23,7 @@ namespace LVL1TGCTrigger {
 
 ////////////////////
 TGCEvent::TGCEvent()
-  : eventNumber(0)
+  : m_eventNumber(0)
 ////////////////////
 {
 }
@@ -43,7 +43,7 @@ TGCASDOut* TGCEvent::NewASDOut(TGCIndex tgcindex, int ilyr,
 /////////////////////////////////////////////////////////////////////////
 {
   TGCASDOut* asdout= new TGCASDOut(tgcindex, ilyr, sigtype, id, tof);
-  vecASDOut.push_back(asdout);
+  m_vecASDOut.push_back(asdout);
   return asdout;
 }
 
@@ -54,7 +54,7 @@ TGCASDOut* TGCEvent::NewASDOut(TGCReadoutIndex tgcrindex,
 /////////////////////////////////////////////////////////////////////////
 {
   TGCASDOut* asdout= new TGCASDOut(tgcrindex, sigtype, id, tof);
-  vecASDOut.push_back(asdout);
+  m_vecASDOut.push_back(asdout);
   return asdout;
 }
 
@@ -65,12 +65,12 @@ void TGCEvent::Clear()
 
   // delete ASDOut
   std::vector<TGCASDOut*>::iterator it_vecASDOut;
-  for (it_vecASDOut= vecASDOut.begin(); 
-       it_vecASDOut != vecASDOut.end(); it_vecASDOut++) {
+  for (it_vecASDOut= m_vecASDOut.begin(); 
+       it_vecASDOut != m_vecASDOut.end(); it_vecASDOut++) {
 
     if(*it_vecASDOut) delete *it_vecASDOut;
   }
-  vecASDOut.clear();
+  m_vecASDOut.clear();
 }
 
 
@@ -78,7 +78,7 @@ void TGCEvent::Clear()
 void TGCEvent::Print() const
 ////////////////////////////
 {
-  std::cout << " Event#= " << eventNumber << std::endl;
+  std::cout << " Event#= " << m_eventNumber << std::endl;
 }
 
 

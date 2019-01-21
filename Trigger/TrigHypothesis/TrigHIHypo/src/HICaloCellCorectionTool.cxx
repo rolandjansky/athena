@@ -4,32 +4,29 @@
 
 
 #include "HICaloCellCorectionTool.h"
+#include "StoreGate/ReadHandle.h"
+
 
 HICaloCellCorectionTool::HICaloCellCorectionTool(const std::string& type, 
 						 const std::string& name, 
 						 const IInterface* parent)
-  :AthAlgTool(type,name,parent),
-   m_eventShape(nullptr),
-   m_avgEnergy(0)
+  : base_class(type,name,parent)
 {
-  declareInterface<ICaloCellMakerTool>(this);
-  //  declareProperty("CaloCellContainerName",m_CaloCellContainerName="SubtractedCells", "Name of corrected collection of cells");
-  declareProperty("HIEventShapeContainerName",m_HIEventShapeContainerName="HLT_xAOD__HIEventShapeContainer_HIUE", "This HIEventShapeContainer object will be used");
-  //  declareProperty("EventShapeFillerTool", m_eventShapeTool,"EventShapeFillerTool ");
+  declareProperty("HIEventShapeContainerName",m_eventShapeKey="HLT_xAOD__HIEventShapeContainer_HIUE", "This HIEventShapeContainer object will be used");
 }
 
-StatusCode HICaloCellCorectionTool::initialize(){
-  
+StatusCode HICaloCellCorectionTool::initialize()
+{
+  ATH_CHECK( m_eventShapeKey.initialize() );
   return StatusCode::SUCCESS;
 }
 
 StatusCode HICaloCellCorectionTool::process(CaloCellContainer* cells){
-
+  const EventContext& ctx = Gaudi::Hive::currentContext();
 
   //  ATH_MSG_INFO( evtStore()->dump() );  
-  
-  m_eventShape = nullptr;
-  CHECK( evtStore()->retrieve(m_eventShape, m_HIEventShapeContainerName) );
+
+  SG::ReadHandle<xAOD::HIEventShapeContainer> eventShape (m_eventShapeKey, ctx);
 
   CaloCellContainer clone(SG::VIEW_ELEMENTS); // this is not newed as it will be disposed at the return from this fucntion
   clone.insert(clone.end(), cells->begin(), cells->end());
@@ -44,12 +41,12 @@ StatusCode HICaloCellCorectionTool::process(CaloCellContainer* cells){
     double cellEta = cell->eta();
     double cellsinTheta = cell->sinTh();
     
-    m_avgEnergy = getAvgEnergy(cellLayer, cellEta);
+    double avgEnergy = getAvgEnergy(*eventShape, cellLayer, cellEta);
     double cellEt = cell->et();
     
-    //ATH_MSG_INFO( "Correction " << cellEt << " " << m_avgEnergy);
+    //ATH_MSG_INFO( "Correction " << cellEt << " " << avgEnergy);
 
-    double totEnergy = cellEt - m_avgEnergy;
+    double totEnergy = cellEt - avgEnergy;
     totEnergy /= cellsinTheta;
     CaloCell* cell_clone = cell->clone();
     cell_clone->setEnergy(totEnergy);
@@ -61,11 +58,15 @@ StatusCode HICaloCellCorectionTool::process(CaloCellContainer* cells){
 }
 
 
-double HICaloCellCorectionTool::getAvgEnergy(const int layer, const double eta){
-  unsigned int size = m_eventShape->size();
+double
+HICaloCellCorectionTool::getAvgEnergy(const xAOD::HIEventShapeContainer& eventShape,
+                                      const int layer,
+                                      const double eta) const
+{
+  unsigned int size = eventShape.size();
   
   for(unsigned int i =0; i<size; i++){
-    const xAOD::HIEventShape* ev = m_eventShape->at(i);
+    const xAOD::HIEventShape* ev = eventShape.at(i);
     int evLayer = ev->layer();
     
     if(evLayer == layer && (eta <= ev->etaMax() && eta > ev->etaMin())){
@@ -76,6 +77,4 @@ double HICaloCellCorectionTool::getAvgEnergy(const int layer, const double eta){
     else continue;
   }
   return 0.;
-  
-  
 }

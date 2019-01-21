@@ -2,20 +2,20 @@ Storing config in the config newJOtest.pkl
 Py:Athena            INFO now loading newJOtest.pkl  ... 
 TrigSignatureMoniMT                                INFO Chains passing step (1st row events & 2nd row decision counts
 TrigSignatureMoniMT                                INFO Chain name                   L1,      AfterPS, [... steps ...], Output
-TrigSignatureMoniMT                                INFO All                           20        20        0         0         15
-TrigSignatureMoniMT                                INFO HLT_e3_etcut                  20        20        15        0         15
-TrigSignatureMoniMT                                INFO HLT_e3_etcut decisions                            44        0
-TrigSignatureMoniMT                                INFO HLT_e5_etcut                  20        20        14        0         14
-TrigSignatureMoniMT                                INFO HLT_e5_etcut decisions                            41        0
-TrigSignatureMoniMT                                INFO HLT_e7_etcut                  20        20        8         0         8
-TrigSignatureMoniMT                                INFO HLT_e7_etcut decisions                            13        0
-TrigSignatureMoniMT                                INFO HLT_g10_etcut                 20        20        8         8         8
-TrigSignatureMoniMT                                INFO HLT_g10_etcut decisions                           12        12
-TrigSignatureMoniMT                                INFO HLT_g15_etcut                 20        20        5         8         8
-TrigSignatureMoniMT                                INFO HLT_g15_etcut decisions                           6         12
-TrigSignatureMoniMT                                INFO HLT_mu10                      20        20        1         0         1
-TrigSignatureMoniMT                                INFO HLT_mu10 decisions                                1         0
-TrigSignatureMoniMT                                INFO HLT_mu20                      20        20        0         0         0
-TrigSignatureMoniMT                                INFO HLT_mu20 decisions                                0         0
-TrigSignatureMoniMT                                INFO HLT_mu8                       20        20        1         0         1
-TrigSignatureMoniMT                                INFO HLT_mu8 decisions                                 1         0
+TrigSignatureMoniMT                                INFO All                           20        20        0         0         8         
+TrigSignatureMoniMT                                INFO HLT_e3_etcut                  20        20        15        0         0         
+TrigSignatureMoniMT                                INFO HLT_e3_etcut decisions                            44        0         
+TrigSignatureMoniMT                                INFO HLT_e5_etcut                  20        20        14        0         0         
+TrigSignatureMoniMT                                INFO HLT_e5_etcut decisions                            41        0         
+TrigSignatureMoniMT                                INFO HLT_e7_etcut                  20        20        8         0         0         
+TrigSignatureMoniMT                                INFO HLT_e7_etcut decisions                            13        0         
+TrigSignatureMoniMT                                INFO HLT_g10_etcut                 20        20        8         8         8         
+TrigSignatureMoniMT                                INFO HLT_g10_etcut decisions                           12        12        
+TrigSignatureMoniMT                                INFO HLT_g15_etcut                 20        20        5         8         8         
+TrigSignatureMoniMT                                INFO HLT_g15_etcut decisions                           6         12        
+TrigSignatureMoniMT                                INFO HLT_mu10                      20        20        1         0         1         
+TrigSignatureMoniMT                                INFO HLT_mu10 decisions                                1         0         
+TrigSignatureMoniMT                                INFO HLT_mu20                      20        20        0         0         0         
+TrigSignatureMoniMT                                INFO HLT_mu20 decisions                                0         0         
+TrigSignatureMoniMT                                INFO HLT_mu8                       20        20        1         0         1         
+TrigSignatureMoniMT                                INFO HLT_mu8 decisions                                 1         0         

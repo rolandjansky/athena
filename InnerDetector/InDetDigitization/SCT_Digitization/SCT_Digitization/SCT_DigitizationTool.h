@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_DIGITZATION_SCT_DIGITZATIONTOOL_H
@@ -16,7 +16,7 @@
 #include "PileUpTools/PileUpToolBase.h"
 
 // Athena headers
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 #include "HitManagement/TimedHitCollection.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
@@ -70,8 +70,8 @@ public:
 
 protected:
 
-  bool       digitizeElement(SiChargedDiodeCollection* chargedDiodes, TimedHitCollection<SiHit>*& thpcsi) const ; //!
-  void       applyProcessorTools(SiChargedDiodeCollection* chargedDiodes) const; //!
+  bool       digitizeElement(SiChargedDiodeCollection* chargedDiodes, TimedHitCollection<SiHit>*& thpcsi, CLHEP::HepRandomEngine * rndmEngine) const ; //!
+  void       applyProcessorTools(SiChargedDiodeCollection* chargedDiodes, CLHEP::HepRandomEngine * rndmEngine) const; //!
   void       addSDO(SiChargedDiodeCollection* collection, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap) const;
 
   void storeTool(ISiChargedDiodesProcessorTool* p_processor) {m_diodeCollectionTools.push_back(p_processor);}
@@ -82,10 +82,6 @@ private:
      @brief initialize the required services
   */
   StatusCode initServices();
-  /**
-     @brief initialize the random number engine
-  */
-  StatusCode initRandomEngine();
   /**
      @brief Initialize the SCT_FrontEnd AlgTool
   */
@@ -112,8 +108,8 @@ private:
   SCT_RDO_Collection* createRDO(SiChargedDiodeCollection* collection) const;
 
   StatusCode getNextEvent();
-  void       digitizeAllHits(SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, std::vector<bool>* processedElements, TimedHitCollection<SiHit>* thpcsi) const; //!< digitize all hits
-  void       digitizeNonHits(SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, const std::vector<bool>* processedElements) const;     //!< digitize SCT without hits
+  void       digitizeAllHits(SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, std::vector<bool>* processedElements, TimedHitCollection<SiHit>* thpcsi, CLHEP::HepRandomEngine * rndmEngine) const; //!< digitize all hits
+  void       digitizeNonHits(SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, const std::vector<bool>* processedElements, CLHEP::HepRandomEngine * rndmEngine) const;     //!< digitize SCT without hits
 
   float m_tfix;           //!< Use fixed timing for cosmics
 
@@ -149,10 +145,9 @@ private:
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   std::string                                        m_inputObjectName;     //! name of the sub event  hit collections.
-  ServiceHandle <IAtRndmGenSvc>                      m_rndmSvc;             //!< Random number service
+  ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service
   ServiceHandle <PileUpMergeSvc>                     m_mergeSvc; //!
 
-  CLHEP::HepRandomEngine*                            m_rndmEngine;          //! Random number engine used - not init in SiDigitization
   std::list<ISiChargedDiodesProcessorTool*>          m_diodeCollectionTools;
   TimedHitCollection<SiHit>*                         m_thpcsi;
   IntegerProperty                                    m_vetoThisBarcode;

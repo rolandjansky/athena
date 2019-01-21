@@ -185,6 +185,9 @@ namespace xAOD {
 
    private:
 
+    /** Gives access to cluster moments direct from the PFO - getClusterMoment calls this, if needed */
+    bool getClusterMomentFromPFO(float& theMoment, xAOD::CaloCluster::MomentType momentType) const;
+    
     /** This does the vertex correction of neutral PFO */
     void VertexCorrectTheFourVector(const TVector3& vertexToCorrectTo, TLorentzVector& theFourVector) const;
 

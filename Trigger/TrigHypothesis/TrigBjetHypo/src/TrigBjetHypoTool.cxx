@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -62,8 +62,8 @@ bool TrigBjetHypoTool::decide(  const xAOD::BTagging* bTag, const TrigRoiDescrip
   ATH_MSG_DEBUG(  "Executing TrigBjetHypoTool"  );
 
   // initialise monitoring variables 
-  Monitored::MonitoredScalar::MonitoredScalar< int > PassedCuts = Monitored::MonitoredScalar::declare<int>( "CutCounter", -1 );
-  Monitored::MonitoredScope monitorIt  = Monitored::MonitoredScope::declare( m_monTool, PassedCuts );
+  auto PassedCuts = Monitored::MonitoredScalar::declare<int>( "CutCounter", -1 );
+  auto monitorIt  = Monitored::MonitoredScope::declare( m_monTool, PassedCuts );
   // when leaving scope it will ship data to monTool
   PassedCuts = PassedCuts + 1; //got called (data in place)
 

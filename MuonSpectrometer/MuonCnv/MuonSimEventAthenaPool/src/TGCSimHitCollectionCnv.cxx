@@ -27,7 +27,7 @@ TGCSimHitCollectionCnv::~TGCSimHitCollectionCnv() {
 TGCSimHitCollection_PERS*    TGCSimHitCollectionCnv::createPersistent (TGCSimHitCollection* transCont) {
     MsgStream log(msgSvc(), "TGCSimHitCollectionCnv" );
     log<<MSG::DEBUG<<"createPersistent(): main converter"<<endmsg;
-    TGCSimHitCollection_PERS *pixdc_p= m_TPConverter_p3.createPersistent( transCont, log );
+    TGCSimHitCollection_PERS *pixdc_p= m_TPConverter_p4.createPersistent( transCont, log );
     return pixdc_p;
 }
 

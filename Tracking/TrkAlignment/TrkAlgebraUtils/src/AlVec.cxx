@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/StatusCode.h"
@@ -212,10 +212,10 @@ double AlVec::norm() const {
 void AlVec::reSize(int Nnew) {
   if ( Nnew>=0 && Nnew != m_size ) {
     double*  p = m_ptr_data;
-    int m_size_old = m_size;
+    int size_old = m_size;
     m_ptr_data = new double[Nnew];
     m_size = Nnew;
-    int k = m_size <= m_size_old ? m_size : m_size_old;
+    int k = m_size <= size_old ? m_size : size_old;
 
     p += k;
     double*  q = m_ptr_data + k;

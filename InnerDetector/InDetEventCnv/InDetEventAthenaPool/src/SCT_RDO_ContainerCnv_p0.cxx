@@ -1,24 +1,19 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_RDO_ContainerCnv_p0.h"
 
+#include "CreateTransientTemplate.h"
+
+#include "InDetIdentifier/SCT_ID.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetRawData/SCT_RDO_Collection.h"
-#include "InDetIdentifier/SCT_ID.h"
-
-#include <string>
-#include <iostream>
-#include <sstream>
-#include "CreateTransientTemplate.h"
 
 //================================================================
 SCT_RDO_Container* SCT_RDO_ContainerCnv_p0::createTransient(const SCT_RDO_Container_p0* persObj, MsgStream& log) {
-  std::unique_ptr<SCT_RDO_Container> trans(new SCT_RDO_Container(m_sctId->wafer_hash_max()));
+  std::unique_ptr<SCT_RDO_Container> trans(std::make_unique<SCT_RDO_Container>(m_sctId->wafer_hash_max()));
 
-  //  MSG_DEBUG(log,"Read RDO vector, size " << persObj->size());
-  
   SCT_RDO_Container_p0::const_iterator it   = persObj->begin();
   SCT_RDO_Container_p0::const_iterator last = persObj->end();
   for (; it != last; ++it) {
@@ -26,7 +21,7 @@ SCT_RDO_Container* SCT_RDO_ContainerCnv_p0::createTransient(const SCT_RDO_Contai
     // Old persistent format used collection templated on the specific raw data type
     const InDetRawDataCollection<SCT1_RawData>* rdoCollOld = *it;
     
-    if(!rdoCollOld) {
+    if (rdoCollOld==nullptr) {
       throw std::runtime_error("Got NULL collection reading old format SCT_RDO_Container");
     }
 
@@ -40,9 +35,7 @@ SCT_RDO_Container* SCT_RDO_ContainerCnv_p0::createTransient(const SCT_RDO_Contai
     }
   }
 
-  return(trans.release());
+  return trans.release();
 }
 
 //================================================================
-
-

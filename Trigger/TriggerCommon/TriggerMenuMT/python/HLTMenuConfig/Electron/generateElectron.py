@@ -8,6 +8,11 @@ from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlgMT
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
+# TODO remove once full tracking is in place
+def fakeHypoAlgCfg(flags, name="FakeHypoForElectron"):
+    from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoAlg
+    return HLTTest__TestHypoAlg( name, Input="" )
+
 
 def generateChains( flags,  chainDict ):
     import pprint
@@ -15,10 +20,10 @@ def generateChains( flags,  chainDict ):
 
     acc = ComponentAccumulator()
 
-    l2CaloHypo = RecoFragmentsPool.retrieve(l2CaloHypoCfg,
-                                            flags,
-                                            name = 'L2ElectronCaloHypo',
-                                            CaloClusters = 'L2CaloEMClusters' )
+    l2CaloHypo = RecoFragmentsPool.retrieve( l2CaloHypoCfg,
+                                             flags,
+                                             name = 'L2ElectronCaloHypo',
+                                             CaloClusters = 'L2CaloEMClusters' )
 
     l2CaloReco = RecoFragmentsPool.retrieve(l2CaloRecoCfg, flags)
     acc.merge(l2CaloReco)
@@ -31,7 +36,30 @@ def generateChains( flags,  chainDict ):
     fastCaloStep = ChainStep(getChainStepName('Electron', 1), [fastCaloSequence])
 
            
-    # # # fast ID 
+    # # # fast ID
+    from TrigUpgradeTest.InDetConfig import indetInViewRecoCfg
+    fastInDetReco = RecoFragmentsPool.retrieve( indetInViewRecoCfg,
+                                                flags,
+                                                viewMakerName="ElectronInDet" )
+    acc.merge( fastInDetReco )
+    # TODO once tracking fully works remove fake hypos
+
+    from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
+
+    # TODO remove once full tracking is in place    
+    fakeHypoAlg = RecoFragmentsPool.retrieve( fakeHypoAlgCfg, flags, name="FakeHypoForElectron" )
+
+    
+    def makeFakeHypoTool(name, cfg):
+        return HLTTest__TestHypoTool(name)
+    
+    fastInDetSequence = MenuSequence( Sequence    = fastInDetReco.sequence(),
+                                      Maker       = fastInDetReco.inputMaker(),
+                                      Hypo        = fakeHypoAlg,
+                                      HypoToolGen = makeFakeHypoTool )
+    
+    fastInDetStep = ChainStep( getChainStepName( "Electron", 2 ), [fastInDetSequence] )
+
     
     # # # EF calo
 
@@ -39,5 +67,5 @@ def generateChains( flags,  chainDict ):
     
     # # # offline egamma
 
-    chain = Chain(chainDict['chainName'], chainDict['L1item'], [fastCaloStep] )
+    chain = Chain( chainDict['chainName'], chainDict['L1item'], [fastCaloStep, fastInDetStep] )
     return acc, chain

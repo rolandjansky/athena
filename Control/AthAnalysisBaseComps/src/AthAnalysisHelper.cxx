@@ -6,6 +6,8 @@
 
 #include "AthContainers/AuxTypeRegistry.h"
 
+const std::string AthAnalysisHelper::UNDEFINED = "__UNDEFINED__";
+
 ServiceHandle<IJobOptionsSvc> AthAnalysisHelper::joSvc = ServiceHandle<IJobOptionsSvc>("JobOptionsSvc","AthAnalysisHelper");
 
 //need a constructor, implemented here, so that the dictionary library is linked to 
@@ -33,6 +35,17 @@ IAppMgrUI* AthAnalysisHelper::initGaudi(const char* options) {
     return theApp;
 }
 
+bool AthAnalysisHelper::toolExists( const std::string& fullName ) {
+  ServiceHandle<IToolSvc> toolSvc("ToolSvc","AthAnalysisHelper");
+  if(toolSvc.retrieve().isFailure()) return false;
+  auto existingTools = toolSvc->getInstances();
+  for(auto& toolName : existingTools) {
+    if(fullName==toolName) { toolSvc.release().ignore(); return true; }
+  }
+  toolSvc.release().ignore();
+  return false;
+}
+
 void AthAnalysisHelper::dumpJobOptionProperties(const std::string& client) {
    ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","AthAnalysisHelper");
    if(joSvc.retrieve().isFailure()) return;
@@ -46,6 +59,20 @@ void AthAnalysisHelper::dumpJobOptionProperties(const std::string& client) {
       }
    }
    joSvc.release().ignore();
+}
+
+std::string AthAnalysisHelper::getProperty(const std::string& client, const std::string& property) {
+   std::string out(UNDEFINED);
+   ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","AthAnalysisHelper");
+   if(joSvc.retrieve().isFailure()) return out;
+   auto props = joSvc->getProperties(client);
+   if(!props) { joSvc.release().ignore(); return out; }
+   for(auto prop : *props) {
+     if(prop->name()!=property) continue;
+     out = prop->toString(); break;
+   }
+   joSvc.release().ignore();
+   return out;
 }
 
 void AthAnalysisHelper::printAuxElement(const SG::AuxElement& ae) {

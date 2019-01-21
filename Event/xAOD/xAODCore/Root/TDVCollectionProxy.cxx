@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TDVCollectionProxy.cxx 660500 2015-04-14 14:04:12Z krasznaa $
@@ -19,6 +19,7 @@
 // EDM include(s):
 #include "AthContainers/DataVector.h"
 #include "CxxUtils/no_sanitize_undefined.h"
+#include "CxxUtils/checker_macros.h"
 
 // Local include(s):
 #include "xAODCore/tools/TDVCollectionProxy.h"
@@ -416,7 +417,9 @@ namespace xAOD {
       // Find the underlying vector.
       const std::vector< char* >& vec = dv->stdcont();
       // And store its address.
-      buff.fCont = const_cast< std::vector< char* >* >( &vec );
+      std::vector<char*>* vptr ATLAS_THREAD_SAFE =
+        const_cast< std::vector< char* >* >( &vec );
+      buff.fCont = vptr;
 
       return;
    }

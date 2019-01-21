@@ -22,7 +22,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Event/EventInfo
                           LArCalorimeter/LArCOOLConditions
-                          LArCalorimeter/LArCondUtils
                           LArCalorimeter/LArRawEvent
                           LArCalorimeter/LArTools )
 

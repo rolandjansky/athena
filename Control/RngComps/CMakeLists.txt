@@ -69,6 +69,9 @@ atlas_add_test( RNGWrapper_test
    LINK_LIBRARIES ${CLHEP_LIBRARIES} TestTools AthenaKernel StoreGateLib
    GaudiKernel AtlasCLHEP_RandomGenerators )
 
+atlas_add_test( RandomServices_test
+                SCRIPT python/RandomServices_test.py )
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )

@@ -25,34 +25,34 @@ public:
   TGCConnectionSBToHPB& operator=(const TGCConnectionSBToHPB& right);
 
 private:
-  int* HPBPortToSB[NumberOfSlaveBoardType];
-  int* HPBIdToSB[NumberOfSlaveBoardType];
+  int* m_HPBPortToSB[NumberOfSlaveBoardType];
+  int* m_HPBIdToSB[NumberOfSlaveBoardType];
 };
 
 inline
 int TGCConnectionSBToHPB::getHPBPortToSB(int type, int index) const
 {
-  return HPBPortToSB[type][index];
+  return m_HPBPortToSB[type][index];
 }
 
 inline
 void TGCConnectionSBToHPB::setHPBPortToSB(int type, int index, int port)
 {
-  if(HPBPortToSB[type]==0) HPBPortToSB[type] = new int [numberOfBoard[type]];
-  HPBPortToSB[type][index] = port;
+  if(m_HPBPortToSB[type]==0) m_HPBPortToSB[type] = new int [m_numberOfBoard[type]];
+  m_HPBPortToSB[type][index] = port;
 }
 
 inline
 int TGCConnectionSBToHPB::getHPBIdToSB(int type, int index) const
 {
-  return HPBIdToSB[type][index];
+  return m_HPBIdToSB[type][index];
 }
 
 inline
 void TGCConnectionSBToHPB::setHPBIdToSB(int type, int index, int id)
 {
-  if(HPBIdToSB[type]==0) HPBIdToSB[type] = new int [numberOfBoard[type]];
-  HPBIdToSB[type][index] = id;
+  if(m_HPBIdToSB[type]==0) m_HPBIdToSB[type] = new int [m_numberOfBoard[type]];
+  m_HPBIdToSB[type][index] = id;
 }
 
 } //end of namespace bracket

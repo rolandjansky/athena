@@ -1,5 +1,5 @@
-#include "LArG4Validation/SingleTrackValidation.h"
-#include "LArG4Validation/AODReader.h"
+#include "../SingleTrackValidation.h"
+#include "../AODReader.h"
 
 
 DECLARE_COMPONENT( SingleTrackValidation )

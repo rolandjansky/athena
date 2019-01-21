@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -430,12 +430,12 @@ HLT::ErrorCode TrigEFMissingETHypo::hltExecute(const HLT::TriggerElement* output
     unsigned int Imax = met->getNumberOfComponents()-2;
     for (unsigned int i=Imin; i<=Imax; ++i) {
       if( (met->nameOfComponent(i)).substr(0,4)!="FCal") {
-	if(msgLvl() <= MSG::WARNING) {
-	  msg() << MSG::WARNING << 
-	    "ERROR: cannot find 'FCal' in component name - FCal not subtracted!"
-		<< endmsg;
-	}
-	break;
+      	if(msgLvl() <= MSG::WARNING) {
+      	  msg() << MSG::WARNING << 
+      	    "ERROR: cannot find 'FCal' in component name - FCal not subtracted!"
+      		<< endmsg;
+      	}
+        break;
       }
       float ex = met->exComponent(i);
       float ey = met->eyComponent(i);
@@ -450,6 +450,7 @@ HLT::ErrorCode TrigEFMissingETHypo::hltExecute(const HLT::TriggerElement* output
       fcalEz  += sumOfSigns * c0 + c1 * ez;
       fcalSET += sumOfSigns * c0 + c1 * SumEt;
     } // loop on FCal samplings
+
     fcalMET = sqrt(fcalEx*fcalEx + fcalEy*fcalEy);
     // subtract FCAL
     centralEx  -= fcalEx;
@@ -470,9 +471,8 @@ HLT::ErrorCode TrigEFMissingETHypo::hltExecute(const HLT::TriggerElement* output
     ) {
 
     msg() << MSG::DEBUG << "doMuonCorrection=" << m_doMuonCorrection
-	  << ", Forward=" << m_forward << ", Central=" << m_central << endmsg;
-	  
-	msg() << MSG::DEBUG << "doEMScaleTC="<<m_doEMScaleTC << endmsg;  
+	       << ", Forward=" << m_forward << ", Central=" << m_central << endmsg;
+  	msg() << MSG::DEBUG << "doEMScaleTC="<<m_doEMScaleTC << endmsg;  
 
     char buff[2000];
     std::snprintf(buff,sizeof(buff),

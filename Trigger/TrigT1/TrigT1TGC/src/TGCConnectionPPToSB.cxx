@@ -14,8 +14,8 @@ TGCConnectionPPToSB::~TGCConnectionPPToSB()
   int i,j;
   for( i=0; i<NumberOfPPPort; i+=1)
     for( j=0; j<NumberOfPatchPanelType; j+=1){
-      if(SBIdToPP[i][j]!=0) delete [] SBIdToPP[i][j];
-      SBIdToPP[i][j]=0;
+      if(m_SBIdToPP[i][j]!=0) delete [] m_SBIdToPP[i][j];
+      m_SBIdToPP[i][j]=0;
     }
 }
 
@@ -25,7 +25,7 @@ TGCConnectionPPToSB::TGCConnectionPPToSB()
   int i,j;
   for( i=0; i<NumberOfPPPort; i+=1)
     for( j=0; j<NumberOfPatchPanelType; j+=1)
-      SBIdToPP[i][j]=0;
+      m_SBIdToPP[i][j]=0;
 }
 
 TGCConnectionPPToSB::TGCConnectionPPToSB(const TGCConnectionPPToSB& right) : 
@@ -34,10 +34,10 @@ TGCConnectionPPToSB::TGCConnectionPPToSB(const TGCConnectionPPToSB& right) :
   int i,j,k;
   for( i=0; i<NumberOfPPPort; i+=1)
     for( j=0; j<NumberOfPatchPanelType; j+=1){
-      if(SBIdToPP[i][j]!=0) delete [] SBIdToPP[i][j];
-      SBIdToPP[i][j] = new int [numberOfBoard[j]];
-      for( k=0; k<numberOfBoard[j]; k+=1)
-	SBIdToPP[i][j][k] = right.SBIdToPP[i][j][k];
+      if(m_SBIdToPP[i][j]!=0) delete [] m_SBIdToPP[i][j];
+      m_SBIdToPP[i][j] = new int [m_numberOfBoard[j]];
+      for( k=0; k<m_numberOfBoard[j]; k+=1)
+	m_SBIdToPP[i][j][k] = right.m_SBIdToPP[i][j][k];
     }
 }
 
@@ -47,10 +47,10 @@ TGCConnectionPPToSB& TGCConnectionPPToSB::operator=(const TGCConnectionPPToSB& r
     int i,j,k;
     for( i=0; i<NumberOfPPPort; i+=1)
       for( j=0; j<NumberOfPatchPanelType; j+=1){
-	if(SBIdToPP[i][j]!=0) delete [] SBIdToPP[i][j];
-	SBIdToPP[i][j] = new int [numberOfBoard[j]];
-	for( k=0; k<numberOfBoard[j]; k+=1)
-	  SBIdToPP[i][j][k] = right.SBIdToPP[i][j][k];
+	if(m_SBIdToPP[i][j]!=0) delete [] m_SBIdToPP[i][j];
+	m_SBIdToPP[i][j] = new int [m_numberOfBoard[j]];
+	for( k=0; k<m_numberOfBoard[j]; k+=1)
+	  m_SBIdToPP[i][j][k] = right.m_SBIdToPP[i][j][k];
       }
   }
   return *this;

@@ -84,28 +84,20 @@ def setupCommonServices():
     theApp.CreateSvc += [ svcMgr.DetDescrCnvSvc.getFullName() ]
     svcMgr.EventPersistencySvc.CnvServices += [ "DetDescrCnvSvc" ]
 
-    # ByteStreamCnvSvc configuration
-    from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamCnvSvc
-    svcMgr += ByteStreamCnvSvc("ByteStreamCnvSvc")
+    # Online services for ByteStream input/output
+    from TrigByteStreamCnvSvc.TrigByteStreamCnvSvcConf import TrigByteStreamCnvSvc, TrigByteStreamInputSvc, TrigEventSelectorByteStream
+    svcMgr += TrigByteStreamCnvSvc("ByteStreamCnvSvc") # this name is hard-coded in some converters
     svcMgr.EventPersistencySvc.CnvServices += [ "ByteStreamCnvSvc" ]
-
-    from TrigByteStreamCnvSvc.TrigByteStreamCnvSvcConf import TrigByteStreamInputSvc
     svcMgr += TrigByteStreamInputSvc("ByteStreamInputSvc")
-
-    from TrigByteStreamCnvSvc.TrigByteStreamCnvSvcConf import TrigEventSelectorByteStream
-    svcMgr += TrigEventSelectorByteStream("EventSelector",
-                                          ByteStreamInputSvc = svcMgr.ByteStreamInputSvc)
+    svcMgr += TrigEventSelectorByteStream("EventSelector", ByteStreamInputSvc = svcMgr.ByteStreamInputSvc)
     theApp.EvtSel = "EventSelector"
-
-    from TrigByteStreamCnvSvc.TrigByteStreamCnvSvcConf import TrigByteStreamCnvSvc
-    svcMgr += TrigByteStreamCnvSvc("TrigByteStreamCnvSvc")
 
     # make the HltEventLoopMgr service available
     svcMgr.HltEventLoopMgr = theApp.service( "HltEventLoopMgr" )     # already instantiated
     svcMgr.HltEventLoopMgr.WhiteboardSvc = "EventDataSvc"
     svcMgr.HltEventLoopMgr.SchedulerSvc = AlgScheduler.getScheduler().getName()
     svcMgr.HltEventLoopMgr.EvtSel = svcMgr.EventSelector
-    svcMgr.HltEventLoopMgr.OutputCnvSvc = svcMgr.TrigByteStreamCnvSvc
+    svcMgr.HltEventLoopMgr.OutputCnvSvc = svcMgr.ByteStreamCnvSvc
 
     from TrigOutputHandling.TrigOutputHandlingConfig import HLTResultMTMakerCfg
     svcMgr.HltEventLoopMgr.ResultMaker = HLTResultMTMakerCfg()

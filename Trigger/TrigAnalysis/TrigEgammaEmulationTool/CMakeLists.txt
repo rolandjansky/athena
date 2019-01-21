@@ -25,6 +25,7 @@ atlas_depends_on_subdirs(
    LumiBlock/LumiBlockComps
    InnerDetector/InDetRecTools/InDetTrackSelectionTool
    Reconstruction/RecoTools/RecoToolInterfaces
+   Tools/PathResolver
    Trigger/TrigAnalysis/TrigDecisionTool
    Trigger/TrigConfiguration/TrigConfHLTData
    Trigger/TrigEvent/TrigSteeringEvent
@@ -55,7 +56,7 @@ atlas_add_library( TrigEgammaEmulationToolLib
 
 atlas_add_component( TrigEgammaEmulationTool
     src/*.h src/*.cxx src/components/*.cxx
-    LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES}
+    LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES}
     AthContainers AsgTools xAODBase xAODCaloEvent xAODEgamma  xAODTracking
     xAODTrigCalo xAODTrigEgamma xAODTrigRinger xAODTrigger PATCoreLib
     ElectronPhotonSelectorToolsLib TrigDecisionToolLib TrigConfHLTData

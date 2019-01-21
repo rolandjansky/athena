@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -81,11 +81,10 @@ class SCT_DetailedSurfaceChargesGenerator : public extends<AthAlgTool, ISCT_Surf
 
   // Non-const methods are used in initialization
   void setFixedTime(float fixedTime) { m_tfix = fixedTime; }
-  void setRandomEngine(CLHEP::HepRandomEngine *rndmEngine) { m_rndmEngine = rndmEngine; }
 
   /** create a list of surface charges from a hit */
-  virtual void process(const InDetDD::SiDetectorElement* element, const TimedHitPtr<SiHit>& phit, const ISiSurfaceChargesInserter& inserter) const;
-  void processSiHit(const InDetDD::SiDetectorElement* element, const SiHit& phit, const ISiSurfaceChargesInserter& inserter, const float eventTime, const unsigned short eventID) const;
+  virtual void process(const InDetDD::SiDetectorElement* element, const TimedHitPtr<SiHit>& phit, const ISiSurfaceChargesInserter& inserter, CLHEP::HepRandomEngine * rndmEngine) const;
+  void processSiHit(const InDetDD::SiDetectorElement* element, const SiHit& phit, const ISiSurfaceChargesInserter& inserter, const float eventTime, const unsigned short eventID, CLHEP::HepRandomEngine * rndmEngine) const;
 
   // some diagnostics methods are needed here too
   float DriftTime(float zhit, const InDetDD::SiDetectorElement* element) const; //!< calculate drift time perpandicular to the surface for a charge at distance zhit from mid gap
@@ -111,8 +110,8 @@ class SCT_DetailedSurfaceChargesGenerator : public extends<AthAlgTool, ISCT_Surf
   double ExValue150(int ix, int iy) const;
   double EyValue150(int ix, int iy) const;
   double GetPotentialValue(int ix, int iy) const;
-  void holeTransport(double& x0, double& y0, double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2) const;
-  void electronTransport(double& x0, double& y0, double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2) const;
+  void holeTransport(double& x0, double& y0, double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2, CLHEP::HepRandomEngine * rndmEngine) const;
+  void electronTransport(double& x0, double& y0, double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2, CLHEP::HepRandomEngine * rndmEngine) const;
   double inducedCharge(int& istrip, double& x, double& y, double& t) const;
 
   int m_numberOfCharges; //!< number of charges
@@ -194,9 +193,6 @@ class SCT_DetailedSurfaceChargesGenerator : public extends<AthAlgTool, ISCT_Surf
   ToolHandle<ISiPropertiesTool> m_siPropertiesTool{this, "SiPropertiesTool", "SCT_SiPropertiesTool", "Tool to retrieve SCT silicon properties"};
   ToolHandle<ISiliconConditionsTool> m_siConditionsTool{this, "SiConditionsTool", "SCT_SiliconConditionsTool", "Tool to retrieve SCT silicon information"};
   ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
-
-  CLHEP::HepRandomEngine* m_rndmEngine; //!< Random Engine
-  std::string m_rndmEngineName; //!< name of random engine, actual pointer in SiDigitization
 
   bool m_isOverlay; // flag for overlay
 };

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -33,7 +33,7 @@ namespace Analysis
     public:
       ElectronAssociation() ;      //!< constructor
       ElectronAssociation(const NameType& name) ;      //!< constructor
-      ~ElectronAssociation() ;      //!< destructor
+      ~ElectronAssociation() = default;
       
       virtual JetAssociationBase* clone() const; 
       //!< a clone method for the proper workings of the copy constructor

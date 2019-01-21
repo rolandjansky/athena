@@ -229,5 +229,7 @@ bool TileBadChanTool::isDrawerMasked(unsigned int frag_id) const {
   SG::ReadCondHandle<TileBadChannels> badChannels(m_badChannelsKey);
   const std::vector<int>& maskedDrawers = badChannels->getMaskedDrawers();
 
-  return (std::find(maskedDrawers.begin(), maskedDrawers.end(), frag_id) != maskedDrawers.end());
+  return std::binary_search (maskedDrawers.begin(),
+                             maskedDrawers.end(),
+                             frag_id);
 }
