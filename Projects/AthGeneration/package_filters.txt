@@ -52,7 +52,7 @@
 + Database/APR/CollectionBase
 + Database/APR/CollectionUtilities
 + Database/APR/FileCatalog
-#+ Database/APR/ImplicitCollection
++ Database/APR/ImplicitCollection
 + Database/APR/POOLCore 
 + Database/APR/PersistencySvc
 #+ Database/APR/RelationalCollection
