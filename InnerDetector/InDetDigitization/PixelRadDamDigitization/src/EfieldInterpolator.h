@@ -32,7 +32,7 @@ public:
   virtual ~EfieldInterpolator(); 
   void SetLayer(int layer);
   //Recommended constructor
-  StatusCode LoadTCADList(std::string TCADfileListToLoad );  
+  StatusCode loadTCADlist(std::string TCADfileListToLoad );  
   //defFct
 
   virtual StatusCode  initialize();
@@ -41,11 +41,11 @@ public:
   static const InterfaceID& interfaceID() ;
 
   // Member Functions
-  TString load_TCADfiles(TString targetList = "");
-  TString create_interpolation_from_TCAD_tree(TString fTCAD);//TTree* tTCAD); 
+  TString loadTCADfiles(TString targetList = "");
+  TString createInterpolationFromTCADtree(TString fTCAD);//TTree* tTCAD); 
   bool initializeFromFile(TString fpath);
-  bool initializeFromDirectory(TString fpath);
-  void InitInterpolationTree(TString interpolationTreesFile = "");	
+  bool initializeFromDirectory(const std::string fpath);
+  //void initInterpolationTree(TString interpolationTreesFile = "");	
   Double_t estimateEfield(std::vector<Double_t> vvol, std::vector<Double_t> vflu, std::vector<std::vector<Double_t>> vfluvvol, Double_t aimFlu, Double_t aimVol, TString prepend="", bool debug =false);
   Double_t estimateEfieldInvDistance(std::vector<Double_t> vvol, std::vector<Double_t> vflu, std::vector<std::vector<Double_t>> vfluvvol, Double_t aimFlu, Double_t aimVol, Double_t measure = 1.);
   
@@ -55,7 +55,7 @@ public:
   void scaleIntegralTo(TH1* hin, Double_t aimInt, int first = 1, int last = -1);
   //TFile* debugFile = new TFile("/afs/cern.ch/user/l/ladam/Allpix/allpix/share/debug_interpolation.root", "RECREATE");
   //TString deIbugPrefix = "/afs/cern.ch/user/l/ladam/NegativeEfieldInterpolated/";
-  void ReliabilityCheck(Double_t aimFluence, std::vector<Double_t> fluences, Double_t aimVoltage, std::vector<Double_t> voltages);
+  void reliabilityCheck(Double_t aimFluence, std::vector<Double_t> fluences, Double_t aimVoltage, std::vector<Double_t> voltages);
 
 private:  
     // Member variables	
@@ -70,7 +70,7 @@ private:
   std::vector<std::vector<TString>> list_files(TString fileList_TCADsamples);
   Double_t extrapolateLinear(Double_t x1, Double_t y1, Double_t x2, Double_t y2, Double_t xaim );
   int fillXYvectors(std::vector<Double_t> vLoop,int ifix, std::vector<std::vector<Double_t>> v2vsv1, std::vector<Double_t> &xx, std::vector<Double_t> &yy, bool regularOrder = true);
-  void FillEdgeValues(TH1D* hin);
+  void fillEdgeValues(TH1D* hin);
   bool isInterpolation(const std::vector<Double_t> &vval, Double_t aimval) 
       { return ( vval.front() <= aimval && aimval <= vval.back() ); };
   bool isInterpolation(std::vector<Double_t>* vval, Double_t aimval)
