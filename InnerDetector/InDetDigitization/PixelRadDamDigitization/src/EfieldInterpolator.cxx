@@ -15,6 +15,7 @@
 #include <TSystemDirectory.h>
 #include <TSystemFile.h>
 #include <TGraph2D.h>
+#include <algorithm>
 
 using namespace RadDam;
 
@@ -315,7 +316,7 @@ TString EfieldInterpolator::loadTCADfiles(TString targetList)
                             ATH_MSG_DEBUG("Break for file No. " << ifile << ": "<< infile.at(ifile).at(0) <<" . After " << nlines << " steps");
                             break;
                         }
-                        ATH_MSG_DEBUG("Reading input line: fluence=" << (infile.at(ifile).at(1)).Data() << fluence << " voltage=" << voltage <<  " e="<< efAtof() <<"="<< e.Data() << ", z="<< (int) z.Atof() <<"="<< z.Data() <<"  in file = "<< ifile );
+                        ATH_MSG_DEBUG("Reading input line: fluence=" << (infile.at(ifile).at(1)).Data() << fluence << " voltage=" << voltage <<  " e="<< e.Atof() <<"="<< e.Data() << ", z="<< (int) z.Atof() <<"="<< z.Data() <<"  in file = "<< ifile );
       			nlines++;
 			efield.push_back(e.Atof());
 			pixeldepth.push_back((int) z.Atof());
@@ -396,8 +397,8 @@ TString EfieldInterpolator::createInterpolationFromTCADtree(TString fTCAD){
 		ne++;
 	}
 	//put into ascending order
-	sort(allFluences.begin(), allFluences.end());	
-	sort(allVoltages.begin(), allVoltages.end());	
+        std::sort(allFluences.begin(), allFluences.end());	
+	std::sort(allVoltages.begin(), allVoltages.end());	
 	for(uint i=0; i<allFluences.size();i++ ) ATH_MSG_DEBUG("fluences recorded: "<< allFluences.at(i));
 	for(uint i=0; i<allVoltages.size();i++ ) ATH_MSG_DEBUG("voltages recorded: "<< allVoltages.at(i));
 	std::vector<Double_t> tmpef;	
