@@ -646,7 +646,7 @@ double EfieldInterpolator::estimateEfield(std::vector<double> vvol, std::vector<
 }
 
 //Save all E field values as function of fluence and bias voltage for debugging
-void EfieldInterpolator::saveTGraph(std::vector<double> vvol, std::vector<double> vflu, std::vector<std::vector<double>> vfluvvol, double aimFlu, double aimVol, TString prepend, bool skipNegative){
+void EfieldInterpolator::saveTGraph(std::vector<double> vvol, std::vector<double> vflu, std::vector<std::vector<double>> vfluvvol, double aimFlu, double aimVol, std::string prepend, bool skipNegative){
     TString name = "VoltageEfield";
     name += "-aimFlu";
     name += TString::Format("%.1f",aimFlu);
