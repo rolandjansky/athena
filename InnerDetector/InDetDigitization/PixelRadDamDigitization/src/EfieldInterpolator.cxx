@@ -207,10 +207,6 @@ bool EfieldInterpolator::initializeFromFile(TString fpath){
 void EfieldInterpolator::ReliabilityCheck(Double_t aimFluence, std::vector<Double_t> fluences, Double_t aimVoltage, std::vector<Double_t> voltages){
     bool tooLowVolt     = true;
     bool tooHighVolt    = true;
-    //for(uint iv = 0; iv< voltages.size(); iv++){
-    //    if( aimVoltage < voltages.at(iv) ) tooHighVolt= false;
-    //    if( aimVoltage > voltages.at(iv) ) tooLowVolt= false;
-    //}
     for(const auto iv : voltages){
         if( aimVoltage < iv ) tooHighVolt= false;
         if( aimVoltage > iv ) tooLowVolt= false;
@@ -284,7 +280,6 @@ TString EfieldInterpolator::load_TCADfiles(TString targetList)
 {
         bool isIBL = true;
 	TString tl = targetList;
-        //TString fName = "tTCADtree_loaded.root";
         TString fName   = targetList;
         fName.ReplaceAll(".txt", "_toTTree.root");
         fName  =fName.Remove(0,fName.Last('/')+1); //Remove prepending path and store in run directory
@@ -325,10 +320,7 @@ TString EfieldInterpolator::load_TCADfiles(TString targetList)
                             ATH_MSG_DEBUG("Break for file No. " << ifile << ": "<< infile.at(ifile).at(0) <<" . After " << nlines << " steps");
                             break;
                         }
-                        //example output
-                              //if (nlines < 3 && ifile%10==0) printf("e=%s=%f, z=%s=%i  \n",e.Data(), e.Atof(),z.Data(), (int) z.Atof() );
-                              //DEBUG
-                              //if ( (nlines < 3) && (ifile%10 ==0) ) ATH_MSG_INFO("fluence=" << (infile.at(ifile).at(1)).Data() << fluence << " voltage=" << voltage <<  " e="<< e.Atof() <<"="<< e.Data() << ", z="<< (int) z.Atof() <<"="<< z.Data() <<"  in file = "<< ifile );
+                        ATH_MSG_DEBUG("Reading input line: fluence=" << (infile.at(ifile).at(1)).Data() << fluence << " voltage=" << voltage <<  " e="<< e.Atof() <<"="<< e.Data() << ", z="<< (int) z.Atof() <<"="<< z.Data() <<"  in file = "<< ifile );
       			nlines++;
 			efield.push_back(e.Atof());
 			pixeldepth.push_back((int) z.Atof());
@@ -356,7 +348,7 @@ std::vector<std::vector<TString>> EfieldInterpolator::list_files(TString fileLis
 	TString tmpvolt = "";
 	std::vector<TString> vstr;
         std::ifstream in;
-	//printf("Try to open: %s \n", fileList_TCADsamples.Data());
+	ATH_MSG_DEBUG("Try to open: " << fileList_TCADsamples.Data());
 	in.open(fileList_TCADsamples);
 	int nlines = 0;
 	while (1) {
@@ -364,13 +356,12 @@ std::vector<std::vector<TString>> EfieldInterpolator::list_files(TString fileLis
 		nlines++;
       		if (!in.good()) break;
 		if (tmpname.BeginsWith('#')) continue;
-      		//if (nlines < 5) printf("TCAD to be loaded: %s\n",tmp.Data());
 		if (tmpname.EndsWith(".dat")){
 			vstr.push_back(tmpname);
 			vstr.push_back(tmpfluence);
 			vstr.push_back(tmpvolt);
  			filelist.push_back(vstr);
-			//printf("Found and load: %fneq/cm2 %fV - %s\n", tmpfluence.Atof(), tmpvolt.Atof(), tmpname.Data());
+			ATH_MSG_DEBUG("Found and load:"<< tmpfluence.Atof() <<" neq/cm2 " << tmpvolt.Atof() <<  "V - " << tmpname.Data());
 			vstr.clear();
 		}else{
 			ATH_MSG_WARNING("Wrong extension: "<< tmpname.Data() <<" -- check input " );
@@ -383,12 +374,9 @@ std::vector<std::vector<TString>> EfieldInterpolator::list_files(TString fileLis
 // Return path to file containing tree
 // Final tree is restructured providing e field value as function of fluence, voltage and pixeldepth
 TString EfieldInterpolator::create_interpolation_from_TCAD_tree(TString fTCAD){ 
-        //TString m_fInter ="InterpolationTTree.root";
         m_fInter  = fTCAD; 
         m_fInter.ReplaceAll("toTTree","toInterpolationTTree");
-        //m_fInter  =m_fInter.Remove(0,m_fInter.Length()-m_fInter.Last('/')); //Remove prepending path and store in run directory
 	TFile* faim = new TFile(m_fInter, "Recreate");
-	//tTCAD->Print();
 	TFile* ftreeTCAD = new TFile(fTCAD.Data());
 	TTreeReader myReader("tcad", ftreeTCAD);
 	TTreeReaderValue<Double_t> 		involtage(myReader	, "voltage"	);
@@ -396,7 +384,6 @@ TString EfieldInterpolator::create_interpolation_from_TCAD_tree(TString fTCAD){
 	TTreeReaderValue<std::vector<Double_t>> 	inefield(myReader	, "efield"	);
 	TTreeReaderValue<std::vector<int>> 		inpixeldepth(myReader   , "pixeldepth");
 	// Get Data from TCAD tree
-	
 	// Loop tree once to initialize values
 	// Finding which values for fluence and bias voltage exist
 	// do not hardcode values to maintain compatibility with new simulations available
@@ -406,17 +393,11 @@ TString EfieldInterpolator::create_interpolation_from_TCAD_tree(TString fTCAD){
 	int ne = 0;
 	Double_t tmpflu, tmpvol;
 	while(myReader.Next()){
-		// store only once
-                //if (inpixeldepth.GetSize() > 0)   printf("Got %i entries inpixeldepth\n",inpixeldepth.GetSize());
-                //if (inefield.GetSize() > 0)       printf("Got %i entries inpixeldepth\n",inefield.GetSize());
 		tmpflu = *influence;
 		tmpvol = *involtage;
-                //if(0>isContainedAt(allFluences, tmpflu) ) allFluences.push_back(tmpflu); 
                 //Check if (double) value of fluence and bias voltage is already saved: if not save
                 if( std::find_if(allFluences.begin(), allFluences.end(), [&tmpflu](const double &b) { return (std::abs( tmpflu - b) < 1E-6); } ) == allFluences.end()) allFluences.push_back(tmpflu); 
                 if( std::find_if(allVoltages.begin(), allVoltages.end(), [&tmpvol](const double &b) { return (std::abs( tmpvol - b) < 1E-6); } ) == allVoltages.end()) allVoltages.push_back(tmpvol); 
-                //if(0>isContainedAt(allVoltages, tmpvol) ) allVoltages.push_back(tmpvol); 
-	        //for(int i=0; i<allEfield.size();i++ ) printf("efield recorded: %f\n", allEfield.at(i));
 		ne++;
 	}
 	//put into ascending order
@@ -438,7 +419,6 @@ TString EfieldInterpolator::create_interpolation_from_TCAD_tree(TString fTCAD){
 	std::vector<std::vector<Double_t>> 	zvoltage(nz,std::vector<Double_t>( ne, -1));
 	std::vector<std::vector<Double_t>> 	zefield(nz, std::vector<Double_t>( ne, -1));
 	std::vector<std::vector<std::vector<Double_t>>> zefieldmap(nz,std::vector<std::vector<Double_t>>(allFluences.size(), std::vector<Double_t>(allVoltages.size(), -1) )); 
-	//myReader.Restart();//Available from ROOT 6.10.
 	int iev = 0;
         ATH_MSG_INFO("Access TTreeReader second time\n");
                
@@ -448,11 +428,10 @@ TString EfieldInterpolator::create_interpolation_from_TCAD_tree(TString fTCAD){
 	    ATH_MSG_DEBUG("Number of available z values = " << tmpz.size());
             if(tmpz.at(0) > leftEdge ) ATH_MSG_WARNING("Map starting from high pixeldepth = " << tmpz.at(0) << ". Might trouble readout.");
 	    for(int iz = leftEdge; iz < rightEdge; iz++){
-		//if(iev==0) zefieldmap.push_back( std::vector<std::vector<Double_t>> (allFluences.size(), std::vector<Double_t>(allVoltages.size(), -1)));
 		int index = 0;
 		//Safety check: 
                 //files starting from z=1, z=2 or z=3
-		// determine correct index to match sensor depth
+		//determine correct index to match sensor depth
                 ATH_MSG_DEBUG("Access tmpz \n");
                 ATH_MSG_DEBUG("Adapt index shift \n");
 		while( (tmpz.at(index) != iz) && (index < nz) ){
@@ -467,13 +446,10 @@ TString EfieldInterpolator::create_interpolation_from_TCAD_tree(TString fTCAD){
         	zvoltage.at(iz-leftEdge).at(iev) = tmpvol;
         	zefield .at(iz-leftEdge).at(iev) = tmpef.at(index) ;
 		((zefieldmap.at(iz-leftEdge)).at(isContainedAt(allFluences, tmpflu))).at(isContainedAt(allVoltages,tmpvol)) = tmpef.at(index);
-                        //DEBUG
-                //ATH_MSG_INFO ("Event #" << iev << "-z="<< iz << ": fluence ="<< tmpflu <<" voltage=" << tmpvol <<", E="<< tmpef.at(index));
-		//if(iz%2 == 0) printf("Event #%i - z=%i: fluence = %f, voltage=%f, E=%f\n",iev, iz, tmpflu, tmpvol, tmpef.at(index) );
+                ATH_MSG_DEBUG ("Event #" << iev << "-z="<< iz << ": fluence ="<< tmpflu <<" voltage=" << tmpvol <<", E="<< tmpef.at(index));
 	}
         iev++;
     }
-    //ftreeTCAD->Close();
     ATH_MSG_DEBUG("# Start filling interpolation tree \n");
     //Filling the interpolation tree
     faim->cd(); 
@@ -494,7 +470,7 @@ TString EfieldInterpolator::create_interpolation_from_TCAD_tree(TString fTCAD){
     tz_tmp->Branch("efield"		,&efield );
     tz_tmp->Branch("efieldfluvol"	,&efieldfluvol);
     for(int iz = leftEdge; iz < rightEdge; iz++ ){
-    	pixeldepth 	= iz;//zpixeldepth.at(iz);
+    	pixeldepth 	= iz;
     	fluence 	= zfluence.at(iz-leftEdge);
     	voltage		= zvoltage.at(iz-leftEdge);
     	efield		= zefield .at(iz-leftEdge);   
@@ -510,11 +486,9 @@ TString EfieldInterpolator::create_interpolation_from_TCAD_tree(TString fTCAD){
     faim->cd();
     tz_tmp->Write();
     faim->Close();
-    //return tz_tmp;
     return m_fInter;
 } 
 
-//HelperFunction: transform std::vectors
 // Retrieve fluence values corresponding to a fixed voltage or viceversa if regular order == false
 int EfieldInterpolator::fillXYvectors(std::vector<Double_t> vLoop,int ifix, std::vector<std::vector<Double_t>> v2vsv1, std::vector<Double_t>* &xx, std::vector<Double_t>* &yy, bool regularOrder ){
 	yy->clear();
@@ -528,19 +502,19 @@ int EfieldInterpolator::fillXYvectors(std::vector<Double_t> vLoop,int ifix, std:
 				xx->push_back(vLoop.at(ie));
 				nfills++;
 			}else{
-				//ATH_MSG_DEBUG("E field value not available for Phi=" << vLoop.at(ie) <<" index Vol= " << ifix);
+				ATH_MSG_DEBUG("E field value not available for Phi=" << vLoop.at(ie) <<" index Vol= " << ifix);
                                 //Values not ordered in a regular fluence-bias voltage grid 
 			}
 		}
 	}else{
 		for(uint ie = 0; ie < v2vsv1.at(0).size(); ie++ ){
-			Double_t ef = v2vsv1.at(ifix).at(ie); // 5 different voltages for fluences
+			Double_t ef = v2vsv1.at(ifix).at(ie); 
 			if(ef > 0){
 				yy->push_back(ef);
 				xx->push_back(vLoop.at(ie));
 				nfills++;
 			}else{
-				//ATH_MSG_DEBUG("E field value not available for Phi="<< vLoop.at(ifix) << " U="<<  vLoop.at(ie));
+				ATH_MSG_DEBUG("E field value not available for Phi="<< vLoop.at(ifix) << " U="<<  vLoop.at(ie));
                                 //Values not ordered in a regular fluence-bias voltage grid 
 			}
 		}
@@ -557,7 +531,7 @@ Double_t EfieldInterpolator::estimateEfieldLinear(Double_t aimVoltage){
 //Interpolate following inverse distance weighted Interpolation
 Double_t EfieldInterpolator::estimateEfieldInvDistance(std::vector<Double_t> vvol, std::vector<Double_t> vflu, std::vector<std::vector<Double_t>> vfluvvol, Double_t aimFlu, Double_t aimVol, Double_t measure)
 {
-    //printf("inverse distance weighted\n");
+    ATH_MSG_WARNING("Use interpolation method _Inverse distance weighted_ - guarantees positive E field but no reliable interpolation");
     Double_t weight     = 0.;
     Double_t meanEf     = 0.;
     Double_t distance   = 1.;
@@ -567,9 +541,7 @@ Double_t EfieldInterpolator::estimateEfieldInvDistance(std::vector<Double_t> vvo
         for(uint iflu = 0; iflu < vflu.size(); iflu++ ){
             efEntry = vfluvvol.at(iflu).at(ivol);
             if(efEntry > 0. ){ //Otherwise (-1), TCAD not available
-                //printf("volt=%f flu=%f ", vvol.at(ivol), vflu.at(iflu) );
                 distance = relativeDistance(aimVol, aimFlu, vvol.at(ivol), vflu.at(iflu) );
-                //printf("aim %f/%f distance %f \n", aimVol, aimFlu, distance);
                 if( distance < 0.00001 ) return efEntry;         //fluence and voltage almost correpsond to available TCAD simulation 
                 meanEf += efEntry * TMath::Power( (1./distance), measure);
                 weight += TMath::Power( (1./distance),measure);
@@ -583,7 +555,7 @@ Double_t EfieldInterpolator::estimateEfieldInvDistance(std::vector<Double_t> vvo
 // E efield values given as function of fluence and bias voltage (vvol, vflu)
 // interpolate to value for aimFluence and aimVoltage
 Double_t EfieldInterpolator::estimateEfield(std::vector<Double_t> vvol, std::vector<Double_t> vflu, std::vector<std::vector<Double_t>> vfluvvol, Double_t aimFlu, Double_t aimVol, TString prepend, bool debug){
-	//printf("Estimating efield\n");	
+	ATH_MSG_DEBUG("Estimating efield");	
 	std::vector<Double_t> evol;          // e field values for fixed voltages inter- or extrapolated to fluence of interest     
 	std::vector<Double_t> vvolWoEp;      // fixed voltages values for which no extrapolation is used to obatin E field in between fluences
 	std::vector<Double_t> evolWoEp;
@@ -715,7 +687,7 @@ TH1D* EfieldInterpolator::createEfieldProfile(Double_t aimFluence, Double_t aimV
             return NULL;
         } 
         if(aimFluence > 1e12) aimFluence = aimFluence/1e14; //adapt units - TCAD files save 20 for 20e14 neq/cm2
-	TString title = "hefieldz"; // Title set in allpix macro
+	TString title = "hefieldz"; 
 	TString info  = "#Phi=";
 	info += TString::Format("%.2f",aimFluence);
 	info += "-U="; 
@@ -723,7 +695,6 @@ TH1D* EfieldInterpolator::createEfieldProfile(Double_t aimFluence, Double_t aimV
 	info += ";Pixeldepth z [#mum]";
 	info += ";E [V/cm]";
 	m_efieldProfile = new TH1D(title, info, m_sensorDepth,-0.5,m_sensorDepth + 0.5); 
-	//printf("Start interpolating map %s\n",info.Data() );
 	Double_t 			pixeldepth;
 	std::vector<Double_t> 		xfluence;
 	std::vector<Double_t> 		yvoltage;
@@ -736,7 +707,7 @@ TH1D* EfieldInterpolator::createEfieldProfile(Double_t aimFluence, Double_t aimV
 	TTreeReaderValue<Double_t> 			inpixeldepth(myReader   , "pixeldepth"	);
 	int ientry = 0;
 	while(myReader.Next()){
-		//printf("TTree entry: %i\n", ientry);
+		ATH_MSG_DEBUG("TTree entry: " << ientry);
 		pixeldepth 	= *inpixeldepth;		
         	xfluence	= *influence;
         	yvoltage	= *involtage;
@@ -745,14 +716,12 @@ TH1D* EfieldInterpolator::createEfieldProfile(Double_t aimFluence, Double_t aimV
                 if(ientry < 2){
                     ReliabilityCheck(aimFluence, xfluence, aimVoltage, yvoltage);
                 }
-		//printf("Pixeldepth = %f, #fluenceval=%i, #volval=%i \n",pixeldepth, xfluence.size(), yvoltage.size() );
-		//printf(" #fluvol=%i x %i \n",efieldfluvol.size(), efieldfluvol.at(0).size() );
 		Double_t aimEf =0.;
                 switch(m_efieldOrigin)
                 {
                     case interspline    : aimEf = estimateEfield(yvoltage, xfluence, efieldfluvol,aimFluence, aimVoltage )              ; break;
                     case interinvdist   : aimEf = estimateEfieldInvDistance(yvoltage, xfluence, efieldfluvol,aimFluence, aimVoltage)    ; break;
-                    case linearField    : m_useSpline = false; // 
+                    case linearField    : m_useSpline = false;  
                                           aimEf = estimateEfield(yvoltage, xfluence, efieldfluvol,aimFluence, aimVoltage )              ; break; 
                     case TCAD           : aimEf = estimateEfieldLinear(aimVoltage)                                                      ;
                                           if(aimEf < 0.) ATH_MSG_ERROR("TCAD E field negative at" << pixeldepth <<" !")                 ; break;
@@ -775,10 +744,8 @@ TH1D* EfieldInterpolator::createEfieldProfile(Double_t aimFluence, Double_t aimV
                     }
 
                     myReader.Restart();
-                    //m_useSpline = true;
                 }
-		//printf("ientry = %i\n", ientry);
-		m_efieldProfile->SetBinContent(m_efieldProfile->FindBin(pixeldepth), aimEf ); // !! only valid if pixeldepth is given as integer
+		m_efieldProfile->SetBinContent(m_efieldProfile->FindBin(pixeldepth), aimEf ); 
 		ientry++;
 	}
 	ftreeInterpolation->Close(); 
