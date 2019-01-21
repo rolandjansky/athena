@@ -11,7 +11,7 @@ class AthMonitorCfgHelper(object):
         self.monSeq = AthSequencer('AthMonSeq_' + monName)
         self.resobj = ComponentAccumulator()
 
-    def AddAlgorithm(self,algClassOrObj, *args, **kwargs):
+    def addAlgorithm(self,algClassOrObj, *args, **kwargs):
         from AthenaCommon.Configurable import Configurable
         if issubclass(algClassOrObj, Configurable):
             algObj = algClassOrObj(*args, **kwargs)
@@ -25,7 +25,7 @@ class AthMonitorCfgHelper(object):
         self.monSeq += algObj
         return algObj
 
-    def AddGroup(self, alg, name, topPath=''):
+    def addGroup(self, alg, name, topPath=''):
         from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
         tool = GenericMonitoringTool(name)
         acc, histsvc = GetDQTHistSvc(self.inputFlags)

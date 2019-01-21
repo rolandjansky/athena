@@ -20,6 +20,6 @@ public:
     StatusCode initialize();
     virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
 private:
-	bool m_doRandom;
+	Gaudi::Property<bool> m_doRandom {this,"RandomHist",false};
 };
 #endif

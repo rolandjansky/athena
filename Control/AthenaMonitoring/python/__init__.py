@@ -4,4 +4,3 @@
 
 from AthMonitorCfgHelper import AthMonitorCfgHelper
 from AtlasReadyFilterTool import GetAtlasReadyFilterTool
-import DQConfigFlags

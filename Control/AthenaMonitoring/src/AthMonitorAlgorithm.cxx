@@ -6,41 +6,11 @@
 
 AthMonitorAlgorithm::AthMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
 :AthReentrantAlgorithm(name,pSvcLocator)
-,m_tools(this)
-,m_trigDecTool("")
-,m_trigTranslator("")
-,m_DQFilterTools(this)
-,m_lumiTool("LuminosityTool")
-,m_liveTool("TrigLivefractionTool")
 ,m_environment(Environment_t::user)
 ,m_dataType(DataType_t::userDefined)
-,m_environmentStr("user")
-,m_dataTypeStr("userDefined")
-,m_triggerChainString("")
 ,m_vTrigChainNames({})
-,m_fileKey("")
 ,m_hasRetrievedLumiTool(false)
-,m_useLumi(false)
-,m_defaultLBDuration(60.)
-,m_detailLevel(1)
-,m_EventInfoKey("EventInfo")
-{
-    // The following properties are set in the python configuration and
-    // picked up here to be converted into the method variables. For an
-    // explanation of each variable, see the header.
-    declareProperty("GMTools",m_tools);
-    declareProperty("TrigDecisionTool",m_trigDecTool);
-    declareProperty("TriggerTranslatorTool",m_trigTranslator);
-    declareProperty("FilterTools",m_DQFilterTools);
-    declareProperty("Environment",m_environmentStr);
-    declareProperty("DataType",m_dataTypeStr);
-    declareProperty("TriggerChain",m_triggerChainString);
-    declareProperty("FileKey",m_fileKey);
-    declareProperty("EnableLumi",m_useLumi); 
-    declareProperty("DefaultLBDuration",m_defaultLBDuration);
-    declareProperty("DetailLevel",m_detailLevel);
-    declareProperty("EventInfoKey",m_EventInfoKey);
-}
+{}
 
 
 AthMonitorAlgorithm::~AthMonitorAlgorithm() {}
@@ -51,19 +21,12 @@ StatusCode AthMonitorAlgorithm::initialize() {
 
     // Retrieve the generic monitoring tools (a ToolHandleArray)
     if ( !m_tools.empty() ) {
-        sc = m_tools.retrieve();
-        if ( !sc.isSuccess() ) {
-            ATH_MSG_ERROR("Unable to retrieve the generic monitoring tools." << endmsg);
-        }
+        ATH_CHECK( m_tools.retrieve() );
     }
 
     // Retrieve the trigger decision tool if requested
     if ( !m_trigDecTool.empty() ) {
-        sc = m_trigDecTool.retrieve();
-        if( !sc.isSuccess() ) {
-            ATH_MSG_ERROR("Unable to retrieve the TrigDecisionTool." << endmsg);
-            return sc;
-        }
+        ATH_CHECK( m_trigDecTool.retrieve() );
 
         // If the trigger chain is specified, parse it into a list.
         if ( m_triggerChainString!="" ) {
@@ -76,11 +39,7 @@ StatusCode AthMonitorAlgorithm::initialize() {
             // Then, retrieve the trigger translator if requested. Finally, convert 
             // into a usable format using the unpackTriggerCategories function.
             if (!m_trigTranslator.empty()) {
-                sc = m_trigTranslator.retrieve();
-                if ( !sc.isSuccess() ) {
-                    ATH_MSG_ERROR("Unable to retrieve the TrigTranslatorTool." << endmsg);
-                    return sc;
-                }
+                ATH_CHECK( m_trigTranslator.retrieve() );
                 unpackTriggerCategories(m_vTrigChainNames);
             }
         }
@@ -144,7 +103,7 @@ AthMonitorAlgorithm::Environment_t AthMonitorAlgorithm::environment() const {
 }
 
 
-AthMonitorAlgorithm::Environment_t AthMonitorAlgorithm::envStringToEnum( const std::string& str ) {
+AthMonitorAlgorithm::Environment_t AthMonitorAlgorithm::envStringToEnum( const std::string& str ) const {
     // convert the string to all lowercase
     std::string lowerCaseStr = str;
     std::transform(lowerCaseStr.begin(), lowerCaseStr.end(), lowerCaseStr.begin(), ::tolower);
@@ -177,7 +136,7 @@ AthMonitorAlgorithm::DataType_t AthMonitorAlgorithm::dataType() const {
 }
 
 
-AthMonitorAlgorithm::DataType_t AthMonitorAlgorithm::dataTypeStringToEnum( const std::string& str ) {
+AthMonitorAlgorithm::DataType_t AthMonitorAlgorithm::dataTypeStringToEnum( const std::string& str ) const {
     // convert the string to all lowercase
     std::string lowerCaseStr = str;
     std::transform(lowerCaseStr.begin(), lowerCaseStr.end(), lowerCaseStr.begin(), ::tolower);

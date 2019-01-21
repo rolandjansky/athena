@@ -7,9 +7,7 @@
 ExampleMonitorAlgorithm::ExampleMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
 :AthMonitorAlgorithm(name,pSvcLocator)
 ,m_doRandom(false)
-{
-    declareProperty("RandomHist",m_doRandom);
-}
+{}
 
 
 ExampleMonitorAlgorithm::~ExampleMonitorAlgorithm() {}

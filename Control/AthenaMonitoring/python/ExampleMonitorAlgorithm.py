@@ -21,7 +21,7 @@ def ExampleMonitoringConfig(inputFlags):
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
     from AthenaMonitoring import AthMonitorCfgHelper
-    helper = AthMonitorCfgHelper(inputFlags,"ExampleMonitor")
+    helper = AthMonitorCfgHelper(inputFlags,'ExampleAthMonitorCfg')
 
 
     ### STEP 2 ###
@@ -31,11 +31,11 @@ def ExampleMonitoringConfig(inputFlags):
     # base class configuration following the inputFlags. The returned object 
     # is the algorithm.
     from AthenaMonitoring.AthenaMonitoringConf import ExampleMonitorAlgorithm
-    exampleMonAlg = helper.AddAlgorithm(ExampleMonitorAlgorithm)
+    exampleMonAlg = helper.addAlgorithm(ExampleMonitorAlgorithm,'ExampleMonAlg')
 
     # You can actually make multiple instances of the same algorithm and give 
     # them different configurations
-    anotherExampleMonAlg = helper.AddAlgorithm(ExampleMonitorAlgorithm)
+    anotherExampleMonAlg = helper.addAlgorithm(ExampleMonitorAlgorithm,'AnotherExampleMonAlg')
 
     # # If for some really obscure reason you need to instantiate an algorithm
     # # yourself, the AddAlgorithm method will still configure the base 
@@ -44,14 +44,8 @@ def ExampleMonitoringConfig(inputFlags):
 
 
     ### STEP 3 ###
-    # Edit properties of a algorithm, using inputFlags.
-    exampleMonAlg.FileKey = inputFlags.DQ.FileKey
-    exampleMonAlg.Environment = inputFlags.DQ.Environment
-    exampleMonAlg.DataType = inputFlags.DQ.DataType
-    
+    # Edit properties of a algorithm
     exampleMonAlg.TriggerChain = ''
-    exampleMonAlg.EnableLumi = True
-
 
     ### STEP 4 ###
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
@@ -72,20 +66,28 @@ def ExampleMonitoringConfig(inputFlags):
 
     # Add a generic monitoring tool (a "group" in old language). The returned 
     # object here is the standard GenericMonitoringTool.
-    myGroup = helper.AddGroup(
+    myGroup = helper.addGroup(
         exampleMonAlg,
-        "ExampleMonitor",
-        "OneRing/"
+        'ExampleMonitor',
+        'OneRing/'
     )
+
+    # Add a GMT for the other example monitor algorithm
+    anotherGroup = helper.addGroup(anotherExampleMonAlg,'ExampleMonitor')
 
     ### STEP 5 ###
     # Configure histograms
-    myGroup.defineHistogram("lumiPerBCID;lumiPerBCID", title="Luminosity;L/BCID;Events",
+    myGroup.defineHistogram('lumiPerBCID;lumiPerBCID', title='Luminosity;L/BCID;Events',
                             path='ToRuleThemAll',xbins=10,xmin=0.0,xmax=10.0)
-    myGroup.defineHistogram("lb;lb", title="Luminosity Block;lb;Events",
+    myGroup.defineHistogram('lb;lb', title='Luminosity Block;lb;Events',
                             path='ToFindThem',xbins=1000,xmin=-0.5,xmax=999.5)
-    myGroup.defineHistogram("random;random", title="LB;x;Events",
+    myGroup.defineHistogram('random;random', title='LB;x;Events',
                             path='ToBringThemAll',xbins=30,xmin=0,xmax=1)
+
+
+    anotherGroup.defineHistogram('lbWithFilter;lbWithFilter',title='Lumi;lb;Events',
+                                 path='top',xbins=1000,xmin=-0.5,xmax=999.5)
+
 
     ### STEP 6 ###
     # Finalize. The return value should be a tuple of the ComponentAccumulator
@@ -116,7 +118,7 @@ if __name__=='__main__':
     file = 'data16_13TeV.00311321.physics_Main.recon.AOD.r9264/AOD.11038520._000001.pool.root.1'
     ConfigFlags.Input.Files = [nightly+file]
     ConfigFlags.Input.isMC = False
-    ConfigFlags.Output.HISTFileName = 'ExampleMonitor.root'
+    ConfigFlags.Output.HISTFileName = 'ExampleMonitorOutput.root'
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.

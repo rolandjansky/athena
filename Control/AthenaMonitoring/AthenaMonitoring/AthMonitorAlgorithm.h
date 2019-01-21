@@ -52,7 +52,7 @@ public:
      * 
      * @return StatusCode
      */
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
 
     /** 
@@ -61,7 +61,7 @@ public:
      * @param ctx event context for reentrant Athena call
      * @return StatusCode
      */
-    virtual StatusCode execute(const EventContext& ctx) const;
+    virtual StatusCode execute(const EventContext& ctx) const override;
 
 
     /** 
@@ -125,7 +125,7 @@ public:
      *
      * @return a value in the Environment_t enumeration which matches the input string.
      */
-    Environment_t envStringToEnum( const std::string& str );
+    Environment_t envStringToEnum( const std::string& str ) const;
 
 
     /** 
@@ -141,7 +141,7 @@ public:
      * 
      * @return a value in the DataType_t enumeration which matches the input string.
      */
-    DataType_t dataTypeStringToEnum( const std::string& str );
+    DataType_t dataTypeStringToEnum( const std::string& str ) const;
 
 
     /** 
@@ -261,27 +261,30 @@ public:
 
 
 protected:
-    ToolHandleArray<GenericMonitoringTool> m_tools; ///< Array of Generic Monitoring Tools
-    ToolHandle<Trig::ITrigDecisionTool> m_trigDecTool; ///< Tool to tell whether a specific trigger is passed
-    ToolHandle<ITriggerTranslatorTool> m_trigTranslator; ///< Tool to unpack trigger categories into a trigger list
-    ToolHandleArray<IDQFilterTool> m_DQFilterTools; ///< Array of Data Quality filter tools
-    ToolHandle<ILuminosityTool> m_lumiTool; ///< Tool for calculating various luminosity quantities
-    ToolHandle<ITrigLivefractionTool> m_liveTool; ///< Tool for calculating various live luminosity quantities
+    // Using the new way to declare JO properties: Gaudi::Property<int> m_myProperty {this,"MyProperty",0};
+
+    ToolHandleArray<GenericMonitoringTool> m_tools {this,"GMTools",{}}; ///< Array of Generic Monitoring Tools
+    ToolHandle<Trig::ITrigDecisionTool> m_trigDecTool {this,"TrigDecisionTool",""}; ///< Tool to tell whether a specific trigger is passed
+    ToolHandle<ITriggerTranslatorTool> m_trigTranslator {this,"TriggerTranslatorTool",""}; ///< Tool to unpack trigger categories into a trigger list
+    ToolHandleArray<IDQFilterTool> m_DQFilterTools {this,"FilterTools",{}}; ///< Array of Data Quality filter tools
+
+    ToolHandle<ILuminosityTool> m_lumiTool {this,"lumiTool","LuminosityTool"}; ///< Tool for calculating various luminosity quantities
+    ToolHandle<ITrigLivefractionTool> m_liveTool {this,"liveTool","TrigLivefractionTool"}; ///< Tool for calculating various live luminosity quantities
 
     AthMonitorAlgorithm::Environment_t m_environment; ///< Instance of the Environment_t enum
     AthMonitorAlgorithm::DataType_t m_dataType; ///< Instance of the DataType_t enum
-    std::string m_environmentStr; ///< Environment string pulled from the job option and converted to enum
-    std::string m_dataTypeStr; ///< DataType string pulled from the job option and converted to enum
+    Gaudi::Property<std::string> m_environmentStr {this,"Environment","user"}; ///< Environment string pulled from the job option and converted to enum
+    Gaudi::Property<std::string> m_dataTypeStr {this,"DataType","userDefined"}; ///< DataType string pulled from the job option and converted to enum
 
-    std::string m_triggerChainString; ///< Trigger chain string pulled from the job option and parsed into a vector
+    Gaudi::Property<std::string> m_triggerChainString {this,"TriggerChain",""}; ///< Trigger chain string pulled from the job option and parsed into a vector
     std::vector<std::string> m_vTrigChainNames; ///< Vector of trigger chain names parsed from trigger chain string
 
-    std::string m_fileKey;
+    Gaudi::Property<std::string> m_fileKey {this,"FileKey",""}; ///< Internal Athena name for file
     bool m_hasRetrievedLumiTool; ///< Allows use of various luminosity functions
-    bool m_useLumi; ///< Allows use of various luminosity functions
-    float m_defaultLBDuration; ///< Default duration of one lumi block
-    int m_detailLevel; ///< Sets the level of detail used in the monitoring
-    SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey; // key for retrieving EventInfo from StoreGate
+    Gaudi::Property<bool> m_useLumi {this,"EnableLumi",false}; ///< Allows use of various luminosity functions
+    Gaudi::Property<float> m_defaultLBDuration {this,"DefaultLBDuration",60.}; ///< Default duration of one lumi block
+    Gaudi::Property<int> m_detailLevel {this,"DetailLevel",0}; ///< Sets the level of detail used in the monitoring
+    SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey {this,"EventInfoKey","EventInfo"}; ///< Key for retrieving EventInfo from StoreGate
 };
 
 #endif
