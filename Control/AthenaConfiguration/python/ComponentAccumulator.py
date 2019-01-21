@@ -437,7 +437,7 @@ class ComponentAccumulator(object):
                 else: # an algorithm
                     existingAlg = findAlgorithm( dest, c.name(), depth=1 )
                     if existingAlg:
-                        if existingAlg != c: # if it is the same we can just skip it, else this indicates an error
+                        if existingAlg != c:
                             self._deduplicate(c, existingAlg)
                     else: # absent, adding
                         self._msg.debug("  Merging algorithm %s to a sequence %s", c.name(), dest.name() )
