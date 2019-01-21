@@ -52,14 +52,6 @@ StatusCode EfieldInterpolator::finalize() {
   return StatusCode::SUCCESS;
 }
 
-//Cast for using TGraph consrtuctor
-TVectorD CastStdVec(const std::vector<Double_t>* vin ){
-	TVectorD tmp(vin->size());
-	for(uint i = 0; i<vin->size(); i++ ){
-		tmp[i] = vin->at(i);
-	}
-	return tmp;
-}
 TVectorD CastStdVec(const std::vector<Double_t> vin ){
 	TVectorD tmp(vin.size());
 	//for(uint i = 0; i<vin.size(); i++ ){
@@ -493,16 +485,16 @@ TString EfieldInterpolator::create_interpolation_from_TCAD_tree(TString fTCAD){
 } 
 
 // Retrieve fluence values corresponding to a fixed voltage or viceversa if regular order == false
-int EfieldInterpolator::fillXYvectors(std::vector<Double_t> vLoop,int ifix, std::vector<std::vector<Double_t>> v2vsv1, std::vector<Double_t>* &xx, std::vector<Double_t>* &yy, bool regularOrder ){
-	yy->clear();
-	xx->clear();
+int EfieldInterpolator::fillXYvectors(std::vector<Double_t> vLoop,int ifix, std::vector<std::vector<Double_t>> v2vsv1, std::vector<Double_t> &xx, std::vector<Double_t> &yy, bool regularOrder ){
+	yy.clear();
+	xx.clear();
 	int nfills = 0;
 	if(regularOrder){
 		for(uint ie = 0; ie <  v2vsv1.size(); ie++ ){
 			Double_t ef = v2vsv1.at(ie).at(ifix); // different fluences for volatge ifix
 			if(ef > 0){
-				yy->push_back(ef);
-				xx->push_back(vLoop.at(ie));
+				yy.push_back(ef);
+				xx.push_back(vLoop.at(ie));
 				nfills++;
 			}else{
 				ATH_MSG_DEBUG("E field value not available for Phi=" << vLoop.at(ie) <<" index Vol= " << ifix);
@@ -513,8 +505,8 @@ int EfieldInterpolator::fillXYvectors(std::vector<Double_t> vLoop,int ifix, std:
 		for(uint ie = 0; ie < v2vsv1.at(0).size(); ie++ ){
 			Double_t ef = v2vsv1.at(ifix).at(ie); 
 			if(ef > 0){
-				yy->push_back(ef);
-				xx->push_back(vLoop.at(ie));
+				yy.push_back(ef);
+				xx.push_back(vLoop.at(ie));
 				nfills++;
 			}else{
 				ATH_MSG_DEBUG("E field value not available for Phi="<< vLoop.at(ifix) << " U="<<  vLoop.at(ie));
@@ -564,8 +556,8 @@ Double_t EfieldInterpolator::estimateEfield(std::vector<Double_t> vvol, std::vec
 	std::vector<Double_t> evolWoEp;
 	//Loop the voltages
 	for(uint ifix = 0; ifix < vvol.size(); ifix++  ){
-		std::vector<Double_t>* vx = new std::vector<Double_t> ;
-		std::vector<Double_t>* vy = new std::vector<Double_t>;
+		std::vector<Double_t> vx;// = new std::vector<Double_t> ;
+		std::vector<Double_t> vy;// = new std::vector<Double_t>;
 		Double_t  efflu = -1.;
 		int availableTCADpoints = fillXYvectors(vflu, ifix,  vfluvvol,  vx, vy);
                 ATH_MSG_DEBUG("Number of available TCAD points for voltage " << vvol.at(ifix) << ": " << availableTCADpoints );
@@ -605,8 +597,8 @@ Double_t EfieldInterpolator::estimateEfield(std::vector<Double_t> vvol, std::vec
                 }
 		
                 delete tmpgr;
-		delete vx;
-		delete vy;
+		//delete vx;
+		//delete vy;
 		evol.push_back(efflu); //includes extrapolated values
 	}//end loop voltages
         
