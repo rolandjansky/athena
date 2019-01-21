@@ -1,14 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-/***************************************************************************
- LArCalorimeter/LArAlignment/LArAloignmentAlgs package
- -----------------------------------------
- ***************************************************************************/
-
-#ifndef LARALIGNDBALG_LARALIGNDBALG_H
-#define LARALIGNDBALG_LARALIGNDBALG_H
+#ifndef LARALIGNMENTALGS_LARALIGNDBALG_H
+#define LARALIGNMENTALGS_LARALIGNDBALG_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -16,7 +11,6 @@
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
 #include "RegistrationServices/IIOVRegistrationSvc.h"
 
-class EventInfo;
 class IIOVRegistrationSvc;
 
 /**
@@ -49,8 +43,6 @@ class LArAlignDbAlg: public AthAlgorithm
   StringProperty            m_outpFile;
   StringProperty            m_outpTag;
   
-  const EventInfo*          m_evt;
-
   ServiceHandle<IIOVRegistrationSvc>   m_regSvc;
   ToolHandle<IAthenaOutputStreamTool>  m_streamer;  
 };
