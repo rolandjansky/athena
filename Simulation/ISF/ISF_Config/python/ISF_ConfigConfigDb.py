@@ -2,7 +2,7 @@
 
 """
 Configuration database for ISF
-G Tan, 17/06/2012
+KG Tan, 17/06/2012
 """
 
 from AthenaCommon.CfgGetter import addAlgorithm
