@@ -245,7 +245,7 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
 
   //FIXME deal with endcap as well 
   int isam=CaloCell_ID_FCS::EMB2;
-  int isubpos=SUBPOS_MID;
+  int isubpos=SUBPOS_ENT;
   double etaExtrap=-999.;
   double phiExtrap=-999.;
   if (extrapol.eta(isam,isubpos)) {
