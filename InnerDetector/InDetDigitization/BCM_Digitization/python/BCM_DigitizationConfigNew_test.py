@@ -25,14 +25,15 @@ ConfigFlags.Input.Files = [inputDir + fileDir]
 ConfigFlags.Output.HITFileName = "myHITS.pool.root"
 ConfigFlags.lock()
 # Construct ComponentAccumulator
-cfg = MainServicesSerialCfg() #This syntax for storegate
+cfg = MainServicesSerialCfg()
 cfg.merge(PoolReadCfg(ConfigFlags))
 # Use BCM tools
 BCMflags = createBCMCfgFlags()
 acc = BCM_DigitizationCfg(BCMflags)
 cfg.merge(acc)
 # Add configuration to write HITS pool file
-outConfig = OutputStreamCfg(ConfigFlags, "HITS")
+outConfig = OutputStreamCfg(ConfigFlags, "HITS",
+    ItemList=["InDetSimDataCollection#*", "BCM_RDO_Container#*"])
 cfg.merge(outConfig)
 cfg.getService("StoreGateSvc").Dump=True
 cfg.printConfig(withDetails=True)
