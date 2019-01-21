@@ -68,7 +68,7 @@ StatusCode PixelDCSCondStateAlg::execute(const EventContext& ctx) const {
        const CondAttrListCollection::ChanNum &channelNumber = attrListState->first;
        const CondAttrListCollection::AttributeList &payload = attrListState->second;
        if (payload.exists(paramState.c_str()) and not payload[paramState.c_str()].isNull()) {
-         std::string val = payload[paramState.c_str()].data<std::string>();
+         const std::string &val = payload[paramState.c_str()].data<std::string>();
          writeCdoState -> setValue(channelNumber, val);
        } 
        else {
@@ -114,7 +114,7 @@ StatusCode PixelDCSCondStateAlg::execute(const EventContext& ctx) const {
        const CondAttrListCollection::ChanNum &channelNumber = attrListStatus->first;
        const CondAttrListCollection::AttributeList &payload = attrListStatus->second;
        if (payload.exists(paramStatus.c_str()) and not payload[paramStatus.c_str()].isNull()) {
-         std::string val = payload[paramStatus.c_str()].data<std::string>();
+         const std::string &val = payload[paramStatus.c_str()].data<std::string>();
          writeCdoStatus -> setValue(channelNumber, val);
        } 
        else {

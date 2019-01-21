@@ -9,7 +9,7 @@
 #include <sstream>
 
 PixelConfigCondAlg::PixelConfigCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  ::AthAlgorithm(name, pSvcLocator),
+  ::AthReentrantAlgorithm(name, pSvcLocator),
   m_BarrelAnalogThreshold({-1,-1,-1,-1,-1,-1,-1}),
   m_EndcapAnalogThreshold({-1,-1,-1,-1,-1,-1,-1}),
   m_DBMAnalogThreshold({-1,-1,-1,-1,-1,-1,-1}),
@@ -81,10 +81,10 @@ StatusCode PixelConfigCondAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelConfigCondAlg::execute() {
+StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("PixelConfigCondAlg::execute()");
 
-  SG::WriteCondHandle<PixelModuleData> writeHandle(m_writeKey);
+  SG::WriteCondHandle<PixelModuleData> writeHandle(m_writeKey, ctx);
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid.. In theory this should not be called, but may happen if multiple concurrent events are being processed out of order.");
     return StatusCode::SUCCESS; 
@@ -101,7 +101,7 @@ StatusCode PixelConfigCondAlg::execute() {
   //==============
   EventIDRange rangeDeadMap{start, stop};
   if (m_useDeadMap) {
-    SG::ReadCondHandle<CondAttrListCollection> readHandle(m_readDeadMapKey);
+    SG::ReadCondHandle<CondAttrListCollection> readHandle(m_readDeadMapKey, ctx);
     const CondAttrListCollection* readCdo = *readHandle; 
     if (readCdo==nullptr) {
       ATH_MSG_FATAL("Null pointer to the read conditions object");
@@ -117,12 +117,12 @@ StatusCode PixelConfigCondAlg::execute() {
 
     // Read dead map info
     for (CondAttrListCollection::const_iterator attrList=readCdo->begin(); attrList!=readCdo->end(); ++attrList) {
-      CondAttrListCollection::ChanNum channelNumber = attrList->first;
-      CondAttrListCollection::AttributeList payload = attrList->second;
+      const CondAttrListCollection::ChanNum &channelNumber = attrList->first;
+      const CondAttrListCollection::AttributeList &payload = attrList->second;
 
       // RUN-3 format
       if (payload.exists("data_array") and not payload["data_array"].isNull()) {
-        std::string stringStatus = payload["data_array"].data<std::string>();
+        const std::string &stringStatus = payload["data_array"].data<std::string>();
 
         std::stringstream ss(stringStatus);
         std::vector<std::string> component;
@@ -164,7 +164,7 @@ StatusCode PixelConfigCondAlg::execute() {
       else if (payload.exists("moduleID") and not payload["moduleID"].isNull() && payload.exists("ModuleSpecialPixelMap_Clob") and not payload["ModuleSpecialPixelMap_Clob"].isNull()) {
 
         int moduleHash = payload["moduleID"].data<int>();
-        std::string stringStatus = payload["ModuleSpecialPixelMap_Clob"].data<std::string>();
+        const std::string &stringStatus = payload["ModuleSpecialPixelMap_Clob"].data<std::string>();
 
         std::stringstream ss(stringStatus);
         std::vector<std::string> moduleStringStatus;
