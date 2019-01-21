@@ -412,9 +412,9 @@ TString EfieldInterpolator::create_interpolation_from_TCAD_tree(TString fTCAD){
 		tmpflu = *influence;
 		tmpvol = *involtage;
                 //if(0>isContainedAt(allFluences, tmpflu) ) allFluences.push_back(tmpflu); 
-                //Check if (double) value of fluence and bias voltage is available
-                if( std::find_if(allFluences.begin(), allFluences.end(), [&tmpflu](const double &b) { return (std::abs( tmpflu - b) < 1E-6); } ) != allFluences.end()) allFluences.push_back(tmpflu); 
-                if( std::find_if(allVoltages.begin(), allVoltages.end(), [&tmpvol](const double &b) { return (std::abs( tmpvol - b) < 1E-6); } ) != allVoltages.end()) allVoltages.push_back(tmpvol); 
+                //Check if (double) value of fluence and bias voltage is already saved: if not save
+                if( std::find_if(allFluences.begin(), allFluences.end(), [&tmpflu](const double &b) { return (std::abs( tmpflu - b) < 1E-6); } ) == allFluences.end()) allFluences.push_back(tmpflu); 
+                if( std::find_if(allVoltages.begin(), allVoltages.end(), [&tmpvol](const double &b) { return (std::abs( tmpvol - b) < 1E-6); } ) == allVoltages.end()) allVoltages.push_back(tmpvol); 
                 //if(0>isContainedAt(allVoltages, tmpvol) ) allVoltages.push_back(tmpvol); 
 	        //for(int i=0; i<allEfield.size();i++ ) printf("efield recorded: %f\n", allEfield.at(i));
 		ne++;
