@@ -32,9 +32,9 @@ EfieldInterpolator::EfieldInterpolator(const std::string& type, const std::strin
 {
   declareInterface< EfieldInterpolator >( this );
   declareProperty( "initialized", m_initialized, "Flag whether already initalized" );
-  declareProperty( "saveDocu", m_saveDocu, "Flag whether to save individual Histograms for documentation" ); //
-  declareProperty( "useSpline", m_useSpline, "Flag whether to use cubic splines for interpolation" ); //
-  declareProperty( "sensorDepth", m_sensorDepth, "Depth of E fields in sensors in um" ); //
+  declareProperty( "saveDocu", m_saveDocu, "Flag whether to save individual Histograms for documentation" ); 
+  declareProperty( "useSpline", m_useSpline, "Flag whether to use cubic splines for interpolation" ); 
+  declareProperty( "sensorDepth", m_sensorDepth, "Depth of E fields in sensors in um" ); 
 }
 
 EfieldInterpolator::~EfieldInterpolator() 
@@ -68,7 +68,6 @@ TVectorD CastStdVec(std::vector<Double_t> vin ){
 	return tmp;
 }
 
-//HelperFunction
 //Returns index at of std::vectorv where val is contained
 int isContainedAt(std::vector<Double_t> v, Double_t val){
 	for(uint i=0; i<v.size(); i++){
@@ -412,9 +411,11 @@ TString EfieldInterpolator::create_interpolation_from_TCAD_tree(TString fTCAD){
                 //if (inefield.GetSize() > 0)       printf("Got %i entries inpixeldepth\n",inefield.GetSize());
 		tmpflu = *influence;
 		tmpvol = *involtage;
-                //allEfield = *inefield;
-        	if(0>isContainedAt(allFluences, tmpflu) ) allFluences.push_back(tmpflu); 
-        	if(0>isContainedAt(allVoltages, tmpvol) ) allVoltages.push_back(tmpvol); 
+                //if(0>isContainedAt(allFluences, tmpflu) ) allFluences.push_back(tmpflu); 
+                //Check if (double) value of fluence and bias voltage is available
+                if( std::find_if(allFluences.begin(), allFluences.end(), [&tmpflu](const double &b) { return (std::abs( tmpflu - b) < 1E-6); } ) != allFluences.end()) allFluences.push_back(tmpflu); 
+                if( std::find_if(allVoltages.begin(), allVoltages.end(), [&tmpvol](const double &b) { return (std::abs( tmpvol - b) < 1E-6); } ) != allVoltages.end()) allVoltages.push_back(tmpvol); 
+                //if(0>isContainedAt(allVoltages, tmpvol) ) allVoltages.push_back(tmpvol); 
 	        //for(int i=0; i<allEfield.size();i++ ) printf("efield recorded: %f\n", allEfield.at(i));
 		ne++;
 	}
