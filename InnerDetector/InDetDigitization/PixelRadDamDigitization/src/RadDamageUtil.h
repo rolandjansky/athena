@@ -59,8 +59,6 @@ public:
   const std::pair<double,double> getMobility( double electricField, double temperature) const;
   double getTanLorentzAngle(double electricField, double temperature, double bField,  bool isHole);
 
-  double betaElectrons; //TODO: should be replaced my DB version 
-  double betaHoles; //TODO: should be replaced my DB version 
   int m_defaultRamo; //TODO: need to decide what we want to do with this.
   int m_defaultEField; //TODO: need to decide what we want to do with this.
   
@@ -68,6 +66,9 @@ public:
 
 private:
   RadDamageUtil();
+
+  double m_betaElectrons; //TODO: should be replaced my DB version 
+  double m_betaHoles; //TODO: should be replaced my DB version 
 
   double alpha(int n, int Nrep, double a); //Poisson solution factor
   double weighting3D(double x, double y, double z, int n, int m, int Nrep, double a, double b);

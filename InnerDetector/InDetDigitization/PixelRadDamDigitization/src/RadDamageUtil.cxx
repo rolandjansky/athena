@@ -44,8 +44,8 @@ using namespace std;
 // Constructor with parameters:
 RadDam::RadDamageUtil::RadDamageUtil(const std::string& type, const std::string& name,const IInterface* parent):
   AthAlgTool(type,name,parent),
-  betaElectrons(4.5e-16),
-  betaHoles(6.0e-16),
+  m_betaElectrons(4.5e-16),
+  m_betaHoles(6.0e-16),
   m_defaultRamo( 1 ),
   m_defaultEField( 1 ),
   m_EfieldInterpolator(nullptr),
@@ -494,8 +494,8 @@ const std::pair<double,double> RadDam::RadDamageUtil::getTrappingTimes( double f
   double trappingTimeElectrons(0.), trappingTimeHoles(0.);
 
   if(fluence!=0.0){
-    trappingTimeElectrons = 1.0/(betaElectrons*fluence); //Make memberVar
-    trappingTimeHoles = 1.0/(betaHoles*fluence); //ns
+    trappingTimeElectrons = 1.0/(m_betaElectrons*fluence); //Make memberVar
+    trappingTimeHoles = 1.0/(m_betaHoles*fluence); //ns
   }
   else{//fluence = 0 so do not trap!
     trappingTimeElectrons = 1000; //~infinity
