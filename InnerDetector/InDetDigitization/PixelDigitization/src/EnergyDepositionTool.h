@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -23,7 +23,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "CLHEP/Random/RandomEngine.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/Service.h"
@@ -60,12 +59,12 @@ public:
   virtual ~EnergyDepositionTool();
   StatusCode initTools();
   
-  std::vector<std::pair<double,double> > BichselSim(double BetaGamma, int ParticleType, double TotalLength, double InciEnergy) const;   // output hit record in the format (hit position, energy loss)
+  std::vector<std::pair<double,double> > BichselSim(double BetaGamma, int ParticleType, double TotalLength, double InciEnergy, CLHEP::HepRandomEngine *rndmEngine) const;   // output hit record in the format (hit position, energy loss)
   
   std::vector<std::pair<double,double> > ClusterHits(std::vector<std::pair<double,double> >& rawHitRecord, int n_pieces) const;         // cluster hits into n steps (there could be thousands of hit)
   int trfPDG(int pdgId) const;                                                             // convert pdgId to ParticleType. If it is unsupported particle, -1 is returned.
   
-  virtual StatusCode depositEnergy(const TimedHitPtr<SiHit> &phit, const InDetDD::SiDetectorElement &Module, std::vector<std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions);
+  virtual StatusCode depositEnergy(const TimedHitPtr<SiHit> &phit, const InDetDD::SiDetectorElement &Module, std::vector<std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions, CLHEP::HepRandomEngine *rndmEngine);
 
 
 // Variables
@@ -88,11 +87,6 @@ private:
 
   PublicToolHandle<IModuleDistortionsTool> m_pixDistoTool
      {this,"PixelDistortionsTool","PixelDistortionsTool",""};
-
-protected:
-  ServiceHandle<IAtRndmGenSvc> m_rndmSvc;
-  std::string                  m_rndmEngineName;
-  CLHEP::HepRandomEngine*      m_rndmEngine;
 
 // Functions
 private:

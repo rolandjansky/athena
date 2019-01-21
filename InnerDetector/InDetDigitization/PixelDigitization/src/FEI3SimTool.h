@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELDIGITIZATION_FEI3SimTool_H
@@ -16,16 +16,16 @@ class FEI3SimTool:public FrontEndSimTool {
     virtual StatusCode initialize();
     virtual StatusCode finalize();
     virtual ~FEI3SimTool();
-    virtual void process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Collection &rdoCollection);
+    virtual void process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Collection &rdoCollection, CLHEP::HepRandomEngine *rndmEngine);
 
   private:
     FEI3SimTool();
 
     int m_timingTune;
 
-    int relativeBunch2009(const double threshold, const double intimethreshold, const SiTotalCharge &totalCharge) const;
+    int relativeBunch2009(const double threshold, const double intimethreshold, const SiTotalCharge &totalCharge, CLHEP::HepRandomEngine *rndmEngine) const;
 
-    int relativeBunch2015(const SiTotalCharge &totalCharge, int barrel_ec, int layer_disk, int moduleID) const;
+    int relativeBunch2015(const SiTotalCharge &totalCharge, int barrel_ec, int layer_disk, int moduleID, CLHEP::HepRandomEngine *rndmEngine) const;
 
 };
 

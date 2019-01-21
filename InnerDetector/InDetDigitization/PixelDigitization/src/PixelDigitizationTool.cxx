@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,10 @@
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/PixelID.h"
 
+// Random Number Generation
+#include "AthenaKernel/RNGWrapper.h"
+#include "CLHEP/Random/RandomEngine.h"
+
 #include <limits>
 #include <cstdint>
 static constexpr unsigned int crazyParticleBarcode(std::numeric_limits<int32_t>::max());
@@ -29,7 +33,6 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   m_simDataCollKey("PixelSDO_Map"),
   m_HardScatterSplittingMode(0),
   m_HardScatterSplittingSkipper(false),
-  m_rndmEngineName("PixelDigitization"),
   m_onlyHitElements(false),
   m_chargeTool(nullptr),
   m_fesimTool(nullptr),
@@ -37,9 +40,7 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   m_detID(nullptr),
   m_vetoThisBarcode(crazyParticleBarcode),
   m_timedHits(nullptr),
-  m_rndmSvc("AtRndmGenSvc",name),
   m_mergeSvc("PileUpMergeSvc",name),
-  m_rndmEngine(nullptr),
   m_detManager(nullptr),
   m_inputObjectName(""),
   m_createNoiseSDO(false)
@@ -47,13 +48,11 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   declareProperty("ChargeTools",      m_chargeTool,      "List of charge tools");
   declareProperty("FrontEndSimTools", m_fesimTool,       "List of Front-End simulation tools");
   declareProperty("EnergyDepositionTool",   m_energyDepositionTool,       "Energy deposition tool");
-  declareProperty("RndmSvc",          m_rndmSvc,         "Random number service used in Pixel Digitization");
   declareProperty("MergeSvc",         m_mergeSvc,        "Merge service used in Pixel digitization");
   declareProperty("InputObjectName",  m_inputObjectName, "Input Object name" );
   declareProperty("CreateNoiseSDO",   m_createNoiseSDO,  "Set create noise SDO flag");
   declareProperty("RDOCollName",      m_rdoContainerKey, "RDO collection name");
   declareProperty("SDOCollName",      m_simDataCollKey,  "SDO collection name");
-  declareProperty("RndmEngine",       m_rndmEngineName,  "Random engine name");
   declareProperty("OnlyHitElements",  m_onlyHitElements, "Process only elements with hits");
   declareProperty("HardScatterSplittingMode", m_HardScatterSplittingMode, "Control pileup & signal splitting" );
   declareProperty("ParticleBarcodeVeto",m_vetoThisBarcode=crazyParticleBarcode, "Barcode of particle to ignore");
@@ -78,15 +77,7 @@ StatusCode PixelDigitizationTool::initialize() {
   CHECK(m_mergeSvc.retrieve());
 
   // Initialize random number generator
-  CHECK(m_rndmSvc.retrieve());
-  m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-  if (!m_rndmEngine) {
-    ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName);
-    return StatusCode::FAILURE;
-  }
-  else {
-    ATH_MSG_DEBUG("Found RndmEngine : " << m_rndmEngineName);
-  }
+  ATH_CHECK(m_rndmSvc.retrieve());
 
   // Initialize detector manager
   CHECK(detStore()->retrieve(m_detManager,"Pixel"));
@@ -161,6 +152,11 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
   std::vector<bool> processedElements;
   processedElements.resize(m_detID->wafer_hash_max(),false);
 
+  // Set the RNG to use for this event.
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
+  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
+  CLHEP::HepRandomEngine *rndmEngine = *rngWrapper;
+
   TimedHitCollection<SiHit>::const_iterator firstHit, lastHit;
   
   ////////////////////////////////////////////////
@@ -198,12 +194,12 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
         ATH_MSG_DEBUG("Running sensor simulation.");
 
         //Deposit energy in sensor
-        CHECK(m_energyDepositionTool->depositEnergy( *phit,  *sielement, trfHitRecord, initialConditions));
+        CHECK(m_energyDepositionTool->depositEnergy( *phit,  *sielement, trfHitRecord, initialConditions, rndmEngine));
 
         //Create signal in sensor, loop over collection of loaded sensorTools
         for (unsigned int itool=0; itool<m_chargeTool.size(); itool++) {
           ATH_MSG_DEBUG("Executing tool " << m_chargeTool[itool]->name());
-          if (m_chargeTool[itool]->induceCharge( *phit, *chargedDiodes, *sielement, *p_design, trfHitRecord, initialConditions)==StatusCode::FAILURE) { break; }
+          if (m_chargeTool[itool]->induceCharge( *phit, *chargedDiodes, *sielement, *p_design, trfHitRecord, initialConditions, rndmEngine)==StatusCode::FAILURE) { break; }
         }
         initialConditions.clear();
         trfHitRecord.clear();
@@ -226,7 +222,7 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
     RDOColl->setIdentifier(chargedDiodes->identify());
     for (unsigned int itool=0; itool<m_fesimTool.size(); itool++) {
       ATH_MSG_DEBUG("Executing tool " << m_fesimTool[itool]->name());
-      m_fesimTool[itool]->process(*chargedDiodes,*RDOColl);
+      m_fesimTool[itool]->process(*chargedDiodes,*RDOColl, rndmEngine);
     }
     CHECK(m_rdoContainer->addCollection(RDOColl,RDOColl->identifyHash()));
 
@@ -260,7 +256,7 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
           RDOColl->setIdentifier(chargedDiodes->identify());
           for (unsigned int itool=0; itool<m_fesimTool.size(); itool++) {
             ATH_MSG_DEBUG("Executing tool " << m_fesimTool[itool]->name());
-            m_fesimTool[itool]->process(*chargedDiodes,*RDOColl);
+            m_fesimTool[itool]->process(*chargedDiodes,*RDOColl, rndmEngine);
           }
           CHECK(m_rdoContainer->addCollection(RDOColl,RDOColl->identifyHash()));
 

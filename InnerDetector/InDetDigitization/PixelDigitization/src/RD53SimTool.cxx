@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RD53SimTool.h"
@@ -30,7 +30,7 @@ StatusCode RD53SimTool::finalize() {
 	return StatusCode::SUCCESS;
 }
 
-void RD53SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Collection &rdoCollection) {
+void RD53SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Collection &rdoCollection, CLHEP::HepRandomEngine *rndmEngine) {
 
   const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&(chargedDiodes.element())->design());
   if (p_design->getReadoutTechnology()!=InDetDD::PixelModuleDesign::RD53) { return; }
@@ -59,13 +59,13 @@ void RD53SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
   CrossTalk(module_data->getCrossTalk(barrel_ec,layerIndex),chargedDiodes);
 
   // Add thermal noise
-  ThermalNoise(module_data->getThermalNoise(barrel_ec,layerIndex),chargedDiodes);
+  ThermalNoise(module_data->getThermalNoise(barrel_ec,layerIndex),chargedDiodes,rndmEngine);
 
   // Add random noise
-  RandomNoise(chargedDiodes);
+  RandomNoise(chargedDiodes,rndmEngine);
 
   // Add random diabled pixels
-  RandomDisable(chargedDiodes);
+  RandomDisable(chargedDiodes,rndmEngine);
 
   for (SiChargedDiodeIterator i_chargedDiode=chargedDiodes.begin(); i_chargedDiode!=chargedDiodes.end(); ++i_chargedDiode) {
 
@@ -75,7 +75,7 @@ void RD53SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
     // Apply analogu threshold, timing simulation
     double th0  = m_pixelCalibSvc->getThreshold(diodeID);
 
-    double threshold = th0+m_pixelCalibSvc->getThresholdSigma(diodeID)*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine)+m_pixelCalibSvc->getNoise(diodeID)*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+    double threshold = th0+m_pixelCalibSvc->getThresholdSigma(diodeID)*CLHEP::RandGaussZiggurat::shoot(rndmEngine)+m_pixelCalibSvc->getNoise(diodeID)*CLHEP::RandGaussZiggurat::shoot(rndmEngine);
 
     if (charge>threshold) {
 
@@ -84,7 +84,7 @@ void RD53SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
         bunchSim = static_cast<int>(floor((getG4Time((*i_chargedDiode).second.totalCharge())+m_timeZero)/m_timePerBCO));
       } 
       else {
-        bunchSim = CLHEP::RandFlat::shootInt(m_rndmEngine,m_timeBCN);
+        bunchSim = CLHEP::RandFlat::shootInt(rndmEngine,m_timeBCN);
       }
 
       if (bunchSim<0 || bunchSim>m_timeBCN) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
@@ -99,7 +99,7 @@ void RD53SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
     // charge to ToT conversion
     double tot    = m_pixelCalibSvc->getTotMean(diodeID,charge);
     double totsig = m_pixelCalibSvc->getTotRes(diodeID,tot);
-    int nToT = static_cast<int>(CLHEP::RandGaussZiggurat::shoot(m_rndmEngine,tot,totsig));
+    int nToT = static_cast<int>(CLHEP::RandGaussZiggurat::shoot(rndmEngine,tot,totsig));
 
     if (nToT<1) { nToT=1; }
 
