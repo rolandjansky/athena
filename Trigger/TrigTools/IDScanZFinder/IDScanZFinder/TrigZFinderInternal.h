@@ -18,8 +18,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef TRIGZFINDERINTERNAL_H
-#define TRIGZFINDERINTERNAL_H
+#ifndef __TRIGZFINDERINTERNAL_H__
+#define __TRIGZFINDERINTERNAL_H__
 
 #include <cmath>
 #include <vector>
