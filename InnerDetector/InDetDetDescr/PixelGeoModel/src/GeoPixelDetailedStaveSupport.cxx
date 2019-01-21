@@ -21,6 +21,7 @@
 
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoDefinitions.h"
+#include "GaudiKernel/PhysicalConstants.h"
 
 #include <algorithm>
 using std::max;
@@ -201,9 +202,9 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
   double halfMecStaveWidth=MechanicalStaveWidth*0.5;
 
   // SafetyMargin
-  m_SafetyMargin=.001*GeoModelKernelUnits::mm;
+  m_SafetyMargin=.001*Gaudi::Units::mm;
   double xGblOffset=FacePlateThick+m_SafetyMargin;
-  double safetyMarginZ=.001*GeoModelKernelUnits::mm;
+  double safetyMarginZ=.001*Gaudi::Units::mm;
 
   // Compute approximated stave shape based on DB parameters
   ComputeStaveExternalShape();
@@ -450,7 +451,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 										 omegaVolume,
 										 omegaVolume,"pix::Omega_IBL",
 										 glueVolume,"pix::Stycast2850FT");
-      m_gmt_mgr->msg(MSG::INFO)<<"***> new material : "<<omega_material->getName()<<" "<<omega_material->getDensity()/(GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3)<<endmsg;
+      m_gmt_mgr->msg(MSG::INFO)<<"***> new material : "<<omega_material->getName()<<" "<<omega_material->getDensity()/(GeoModelKernelUnits::gram/Gaudi::Units::cm3)<<endmsg;
       omega_logVol = new GeoLogVol("Omega",omega_shape,omega_material);
     }
 
@@ -459,7 +460,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 
   //       const GeoMaterial* omega_material = m_mat_mgr->getMaterial(m_gmt_mgr->getMaterialName("Omega",0,0));
   //       GeoNameTag* omega_tag = new GeoNameTag("Omega");
-  //       GeoTransform* omega_xform = new GeoTransform(GeoTrf::Transform3D(GeoModelKernelUnits::HepRotation(),GeoTrf::Vector3D()));
+  //       GeoTransform* omega_xform = new GeoTransform(GeoTrf::Transform3D(Gaudi::Units::HepRotation(),GeoTrf::Vector3D()));
   //      GeoLogVol * omega_logVol = new GeoLogVol("Omega",omega_shape,omega_material);
 
   GeoPhysVol * omega_logVolPV = new GeoPhysVol(omega_logVol);
@@ -500,7 +501,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 								  facePlateVolume,
 								  facePlateVolume,"pix::FacePlate_IBL",
 								  glueVolume,"pix::Stycast2850FT");
-      m_gmt_mgr->msg(MSG::INFO)<<"***> new material : "<<faceplate_material->getName()<<" "<<faceplate_material->getDensity()/(GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3)<<endmsg;
+      m_gmt_mgr->msg(MSG::INFO)<<"***> new material : "<<faceplate_material->getName()<<" "<<faceplate_material->getDensity()/(GeoModelKernelUnits::gram/Gaudi::Units::cm3)<<endmsg;
     }
 
   // Create composite material made of faceplate + grease if a thickness of grease is defined is DB
@@ -525,7 +526,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 										     facePlateVolume,faceplateMatName,
 										     greaseVolume,"pix::ThermGrease_IBL");
       faceplate_logVol = new GeoLogVol("FacePlate",faceplate_shape,faceplate_material);
-      m_gmt_mgr->msg(MSG::INFO)<<"***> new material : "<<faceplate_material->getName()<<" "<<faceplate_material->getDensity()/(GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3)<<endmsg;
+      m_gmt_mgr->msg(MSG::INFO)<<"***> new material : "<<faceplate_material->getName()<<" "<<faceplate_material->getDensity()/(GeoModelKernelUnits::gram/Gaudi::Units::cm3)<<endmsg;
     }
 
   //  const GeoMaterial* faceplate_material = m_mat_mgr->getMaterial(m_gmt_mgr->getMaterialName("FacePlate",0,0));
@@ -626,7 +627,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 
       // Add flex in 3D model : A component
       GeoTrf::Translation3D cableflex_pos((flex1x+flex2x+flex3x+flex4x)*0.25,(flex1y+flex2y+flex3y+flex4y)*0.25,ModulePosZ+flexGapZ*0.5);
-      //      GeoTransform* cableflex_xform = new GeoTransform(GeoTrf::Transform3D(GeoModelKernelUnits::HepRotation(0.0,0.0,-fabs(flex_angle)),cableflex_pos));
+      //      GeoTransform* cableflex_xform = new GeoTransform(GeoTrf::Transform3D(Gaudi::Units::HepRotation(0.0,0.0,-fabs(flex_angle)),cableflex_pos));
       GeoTransform* cableflex_xform = new GeoTransform(GeoTrf::Transform3D(cableflex_pos*GeoTrf::RotateZ3D(fabs(flex_angle))));
 
       GeoLogVol * cableflex_logVol = 0;
@@ -833,16 +834,16 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
   else
     {
       m_gmt_mgr->msg(MSG::INFO)<<"** TUBE : with Stycast "<<TubeGlueThick<<"  diam "<<TubeOuterDiam*0.5<<" "<<TubeInnerDiam*0.5<<endmsg;
-      double glueVolume = (TubeOuterDiam*0.5+TubeGlueThick)*(TubeOuterDiam*0.5+TubeGlueThick)*GeoModelKernelUnits::pi*MiddleSectionLength;
-      double tubeOuterVolume = TubeOuterDiam*TubeOuterDiam*0.25*GeoModelKernelUnits::pi*MiddleSectionLength;
-      double tubeInnerVolume = TubeInnerDiam*TubeInnerDiam*0.25*GeoModelKernelUnits::pi*MiddleSectionLength;
+      double glueVolume = (TubeOuterDiam*0.5+TubeGlueThick)*(TubeOuterDiam*0.5+TubeGlueThick)*Gaudi::Units::pi*MiddleSectionLength;
+      double tubeOuterVolume = TubeOuterDiam*TubeOuterDiam*0.25*Gaudi::Units::pi*MiddleSectionLength;
+      double tubeInnerVolume = TubeInnerDiam*TubeInnerDiam*0.25*Gaudi::Units::pi*MiddleSectionLength;
 
       const std::string compMatName="CoolingPipeGlue_IBL";
       const GeoMaterial* cp_material = m_mat_mgr->getCompositeMaterialForVolume(compMatName,
 									      tubeOuterVolume-tubeInnerVolume,
 									      tubeOuterVolume-tubeInnerVolume,"pix::CoolingPipe_IBL",
 									      glueVolume-tubeOuterVolume,"pix::Stycast2850FT");
-      m_gmt_mgr->msg(MSG::INFO)<<"***> new material : "<<cp_material->getName()<<" "<<cp_material->getDensity()/(GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3)<<endmsg;
+      m_gmt_mgr->msg(MSG::INFO)<<"***> new material : "<<cp_material->getName()<<" "<<cp_material->getDensity()/(GeoModelKernelUnits::gram/Gaudi::Units::cm3)<<endmsg;
       cp_logVol = new GeoLogVol("CoolingPipe",coolingPipe,cp_material);
     }
 
@@ -1050,7 +1051,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
   
 //   GeoNameTag* cp_service_tag = new GeoNameTag("ServiceCoolingPipe");
 //   GeoTrf::Vector3D cp_service_pos(xGblOffset+TubeMiddlePos,0.0,0.0);
-//   GeoTransform* cp_service_xform = new GeoTransform(GeoTrf::Transform3D(GeoModelKernelUnits::HepRotation(),cp_service_pos));
+//   GeoTransform* cp_service_xform = new GeoTransform(GeoTrf::Transform3D(Gaudi::Units::HepRotation(),cp_service_pos));
 //   //       service_logVolPV->add(cp_service_tag);
 //   //       service_logVolPV->add(cp_service_xform);
 //   //       service_logVolPV->add(cp_service_logPV);
@@ -1311,7 +1312,7 @@ void GeoPixelDetailedStaveSupport::RemoveCoincidentAndColinearPointsFromShape(st
 	  int i2=(iPt+1)%(nbPoint);
 	  
 	  double zDist=fabs(sqrt((xPoint[i1]-xPoint[i2])*(xPoint[i1]-xPoint[i2])+(yPoint[i1]-yPoint[i2])*(yPoint[i1]-yPoint[i2])));
-	  if(zDist<0.01*GeoModelKernelUnits::mm){
+	  if(zDist<0.01*Gaudi::Units::mm){
 	      xPoint.erase(xPoint.begin()+i1);
 	      yPoint.erase(yPoint.begin()+i1);
 	      bRemovedPoint=true;
@@ -1514,11 +1515,11 @@ void GeoPixelDetailedStaveSupport::ComputeStaveExternalShape()
 
   GeoTrf::Vector3D midStaveCenter(m_gmt_mgr->IBLStaveOmegaMidCenterX(),0.0,0.0);
   double midStaveRadius=m_gmt_mgr->IBLStaveOmegaMidRadius();
-  double midStaveAngle=90.0*GeoModelKernelUnits::deg-m_gmt_mgr->IBLStaveOmegaMidAngle();
+  double midStaveAngle=90.0*Gaudi::Units::deg-m_gmt_mgr->IBLStaveOmegaMidAngle();
 
   GeoTrf::Vector3D endStaveCenter(m_gmt_mgr->IBLStaveOmegaEndCenterX(),m_gmt_mgr->IBLStaveOmegaEndCenterY(),0.0);
   double endStaveRadius=m_gmt_mgr->IBLStaveOmegaEndRadius();
-  double endStaveAngle=90.0*GeoModelKernelUnits::deg+m_gmt_mgr->IBLStaveOmegaEndAngle();
+  double endStaveAngle=90.0*Gaudi::Units::deg+m_gmt_mgr->IBLStaveOmegaEndAngle();
 
   double omegaThick = m_gmt_mgr->IBLStaveOmegaThickness();
   double omegaEndStavePointY = m_gmt_mgr->IBLStaveMechanicalStaveWidth()*0.5;

@@ -169,7 +169,7 @@ class OraclePixGeoManager : public PixelGeometryManager {
   // db version
   int m_dbVersion;
 
-  // default length unit set according to db version (GeoModelKernelUnits::mm or GeoModelKernelUnits::cm)
+  // default length unit set according to db version (Gaudi::Units::mm or Gaudi::Units::cm)
   double m_defaultLengthUnit;
 
  public:
@@ -836,7 +836,7 @@ class OraclePixGeoManager : public PixelGeometryManager {
   double CalculateThickness(double,std::string);
   int determineDbVersion();
   void addDefaultMaterials();
-  // return default length unit (GeoModelKernelUnits::mm or GeoModelKernelUnits::cm)
+  // return default length unit (Gaudi::Units::mm or Gaudi::Units::cm)
   double mmcm() {return m_defaultLengthUnit;}
 
 };

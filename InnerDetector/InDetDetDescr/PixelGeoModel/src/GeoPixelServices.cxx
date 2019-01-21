@@ -34,7 +34,7 @@
 // TUBS
 //   Ignored: RIN2,ROUT2
 //   PHI: phi start location of tube sector
-//   WIDTH (GeoModelKernelUnits::deg): phi width of sector  
+//   WIDTH (Gaudi::Units::deg): phi width of sector  
 //   REPEAT: Repeat the tube sector this many times in phi with equal distance between them.
 // CONS, CONE
 //   WIDTH,REPEAT ignored if CONE
@@ -72,30 +72,30 @@
 //   Ignored: ROUT, RIN2, ROUT2
 //   RIN: Radial position of center of tube
 //   PHI: phi position of center
-//   WIDTH (GeoModelKernelUnits::mm): diameter 
+//   WIDTH (Gaudi::Units::mm): diameter 
 //   REPEAT: Repeat this many times in phi with equal distance between them.
 // ROD2
 //   Ignored: ROUT, RIN2, ROUT2
 //   RIN: Radial position of center of tube
 //   PHI: phi position of center
-//   WIDTH (GeoModelKernelUnits::mm): diameter 
+//   WIDTH (Gaudi::Units::mm): diameter 
 //   REPEAT: Repeat this many times in phi with equal distance between them.
 // BOX
 //   Ignored: RIN2, ROUT2
 //   ROUT-RIN = thickness of box (radially)
 //   (RIN+ROUT)/2 = radial poistion of center of box
 //   PHI: phi position of center
-//   WIDTH (GeoModelKernelUnits::mm) = width of box
+//   WIDTH (Gaudi::Units::mm) = width of box
 //   REPEAT: Repeat this many times in phi with equal distance between them.
 // TRAP
 //   Ignored: RIN2, ROUT2
 //   ROUT-RIN = thickness of trapezoid (radially)
 //   (RIN+ROUT)/2 = radial poistion of center of trapzoid
 //   PHI: phi position of center
-//   WIDTH (GeoModelKernelUnits::mm) = width of trapezoid at center
+//   WIDTH (Gaudi::Units::mm) = width of trapezoid at center
 //   REPEAT: Repeat this many times in phi with equal distance between them.
 //
-//   **IMPORTANT NOTE** WIDTH can be in degrees or GeoModelKernelUnits::mm. See OraclePixGeoManager
+//   **IMPORTANT NOTE** WIDTH can be in degrees or Gaudi::Units::mm. See OraclePixGeoManager
 
 
 #include "GeoPixelServices.h"
@@ -104,7 +104,7 @@
 #include "InDetGeoModelUtils/ServiceVolume.h"
 #include "InDetGeoModelUtils/ServiceVolumeMaker.h"
 #include "InDetGeoModelUtils/IInDetServMatBuilderTool.h"
-
+#include "GaudiKernel/PhysicalConstants.h"
 
 #include <sstream>
 #include <iomanip>
@@ -206,7 +206,7 @@ GeoPixelServices::GeoPixelServices(InDetDD::Zone * pixZone)
     std::vector<const InDetDD::ServiceVolume *> servicesOutPix;
     double svc3_rMin = 99999., svc3_rMax = 0.;
     std::vector<const InDetDD::ServiceVolume *> servicesOther;
-    double safety=0.001*GeoModelKernelUnits::mm;
+    double safety=0.001*Gaudi::Units::mm;
 
     for(std::vector<const InDetDD::ServiceVolume *>::const_iterator it=services.begin(); it!=services.end(); it++)
       {
@@ -403,15 +403,15 @@ void GeoPixelServices::initializeOld(const std::string & a)
       double phiLoc =  m_gmt_mgr->PixelServicePhiLoc(a, ii);
       double phiWidth =  m_gmt_mgr->PixelServiceWidth(a, ii);
       
-      // Can be in degree or GeoModelKernelUnits::mm. Usually it is GeoModelKernelUnits::deg expect for BOX, TRAP and ROD shape
+      // Can be in degree or Gaudi::Units::mm. Usually it is Gaudi::Units::deg expect for BOX, TRAP and ROD shape
       // Geometry manager makes no assumptions about units. So we must interpret here.
       if (shapeType == "BOX" || shapeType == "ROD" || shapeType == "ROD2" || shapeType == "TRAP") {
-	phiWidth *= GeoModelKernelUnits::mm;
+	phiWidth *= Gaudi::Units::mm;
       } else {
-	phiWidth *= GeoModelKernelUnits::degree;
+	phiWidth *= Gaudi::Units::degree;
       }
       
-      if (phiWidth == 0) phiWidth = 2*GeoModelKernelUnits::pi;
+      if (phiWidth == 0) phiWidth = 2*Gaudi::Units::pi;
       if (rmin2 <= 0) rmin2 = param.rmin(); 
       if (rmax2 <= 0) rmax2 = param.rmax(); 
       if (repeat == 0) repeat = 1;
