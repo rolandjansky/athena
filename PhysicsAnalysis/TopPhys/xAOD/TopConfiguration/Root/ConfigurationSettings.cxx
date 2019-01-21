@@ -303,6 +303,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
                       "If nothing is set, the default values will be used (recommended).",
                       " ");
     registerParameter("PRWUnrepresentedDataTolerance", "Specify value between 0 and 1 to represent acceptable fraction of unrepresented data in PRW [default: 0.05]", "0.05");
+    registerParameter("PRWPeriodAssignments", "Specify period number assignments to run numbers ranges in this form: \"XXX:XXX:XXX\", where XXX are runnumbers, first number is the associated run number, second number is the period block start, the third number is the period block end. You can pass any number of these sets (total number of provided RunNumbers needs to be divisible by 3). Default is used if not specified", " ");
 
     registerParameter("MuonTriggerSF", "Muon trigger SFs to calculate", "HLT_mu20_iloose_L1MU15_OR_HLT_mu50");
 
