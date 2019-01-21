@@ -41,20 +41,17 @@ public:
   static const InterfaceID& interfaceID() ;
 
   // Member Functions
-  TString loadTCADfiles(TString targetList = "");
-  TString createInterpolationFromTCADtree(TString fTCAD);//TTree* tTCAD); 
-  bool initializeFromFile(TString fpath);
+  std::string loadTCADfiles(std::string targetList = "");
+  std::string createInterpolationFromTCADtree(std::string fTCAD);//TTree* tTCAD); 
+  bool initializeFromFile(std::string finpath);
   bool initializeFromDirectory(const std::string fpath);
-  //void initInterpolationTree(TString interpolationTreesFile = "");	
-  double estimateEfield(std::vector<double> vvol, std::vector<double> vflu, std::vector<std::vector<double>> vfluvvol, double aimFlu, double aimVol, TString prepend="", bool debug =false);
+  double estimateEfield(std::vector<double> vvol, std::vector<double> vflu, std::vector<std::vector<double>> vfluvvol, double aimFlu, double aimVol, std::string prepend="", bool debug =false);
   double estimateEfieldInvDistance(std::vector<double> vvol, std::vector<double> vflu, std::vector<std::vector<double>> vfluvvol, double aimFlu, double aimVol, double measure = 1.);
   
   TH1D* createEfieldProfile(double aimFluence, double aimVoltage);
   TH1D* getEfield(double aimFluence, double aimVoltage);
-  TH1D* loadEfieldFromDat(TString fname, bool fillEdges =  true);
+  TH1D* loadEfieldFromDat(std::string fname, bool fillEdges =  true);
   void scaleIntegralTo(TH1* hin, double aimInt, int first = 1, int last = -1);
-  //TFile* debugFile = new TFile("/afs/cern.ch/user/l/ladam/Allpix/allpix/share/debug_interpolation.root", "RECREATE");
-  //TString deIbugPrefix = "/afs/cern.ch/user/l/ladam/NegativeEfieldInterpolated/";
   void reliabilityCheck(double aimFluence, std::vector<double> fluences, double aimVoltage, std::vector<double> voltages);
 
 private:  
@@ -65,8 +62,7 @@ private:
   int m_sensorDepth ;          //um - default is IBL layer
   interpolationMethod m_efieldOrigin;
   TH1D* m_efieldProfile;            //Final efield profile
-  TString m_fInter;  //= "InterpolationTTree.root";    //path to .root file for saving interpolation TTree, i.e. ordered by pixeldepth z
-	//TFile* defFile; 	//File containing ttrees TCAD and Interpolation
+  std::string m_fInter;  //path to .root file for saving interpolation TTree, i.e. ordered by pixeldepth z
   std::vector<std::vector<TString>> list_files(TString fileList_TCADsamples);
   double extrapolateLinear(double x1, double y1, double x2, double y2, double xaim );
   int fillXYvectors(std::vector<double> vLoop,int ifix, std::vector<std::vector<double>> v2vsv1, std::vector<double> &xx, std::vector<double> &yy, bool regularOrder = true);

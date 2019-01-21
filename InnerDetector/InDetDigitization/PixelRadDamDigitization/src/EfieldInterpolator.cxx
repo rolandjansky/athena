@@ -171,21 +171,22 @@ bool EfieldInterpolator::initializeFromDirectory(const std::string fpath){
     return success;
 }
 // Load maps into TTree for faster processing 
-bool EfieldInterpolator::initializeFromFile(TString fpath){
+bool EfieldInterpolator::initializeFromFile(std::string finpath){
+    TString fpath = finpath ;
     m_initialized = false;
     TString fTCAD = "";
     if(fpath.EndsWith(".txt")){
         //File list path, fluence and bias voltage of TCAD simulation as plain text
-	fTCAD = loadTCADfiles(fpath);
+	fTCAD = loadTCADfiles(fpath.Data());
         ATH_MSG_INFO("Loaded file " << fpath << " - all maps accumulated in " << fTCAD);
-        m_fInter = createInterpolationFromTCADtree(fTCAD); 
+        m_fInter = createInterpolationFromTCADtree(fTCAD.Data()); 
         ATH_MSG_INFO("created interpolation tree ");
 	m_initialized 	= true;
         ATH_MSG_INFO("Loaded from .txt file");
     }else{
         if(fpath.EndsWith("toTTree.root") ){
             //File list TCAD efield maps as leaves
-            m_fInter = createInterpolationFromTCADtree(fpath); 
+            m_fInter = createInterpolationFromTCADtree(fpath.Data()); 
 	    m_initialized 	= true;
         }else{
             if(fpath.EndsWith(".root")){
@@ -252,13 +253,13 @@ double EfieldInterpolator::extrapolateLinear(double x1, double y1, double x2, do
 
 // Return E field which is directly read from TCAD simulation
 // and fill edges values
-TH1D* EfieldInterpolator::loadEfieldFromDat(TString fname, bool fillEdges ){
+TH1D* EfieldInterpolator::loadEfieldFromDat(std::string fname, bool fillEdges ){
     TH1D* hefieldz = new TH1D( "hefieldz", "hefieldz",m_sensorDepth +1,-0.5, m_sensorDepth + 0.5);
     std::ifstream in;
-    in.open(fname.Data());
+    in.open(fname);
     TString z,e;
     int nlines =0;
-    ATH_MSG_INFO("Load E field from " << fname.Data());
+    ATH_MSG_INFO("Load E field from " << fname);
     while (1) {
     	in >> z >> e;
     	if (!in.good()) break;
@@ -272,7 +273,7 @@ TH1D* EfieldInterpolator::loadEfieldFromDat(TString fname, bool fillEdges ){
 }
 
 // original TCAD simulations given as txt (.dat) files (zVal efieldVal)
-TString EfieldInterpolator::loadTCADfiles(TString targetList)
+std::string EfieldInterpolator::loadTCADfiles(std::string targetList)
 {
         bool isIBL = true;
 	TString tl = targetList;
@@ -333,7 +334,7 @@ TString EfieldInterpolator::loadTCADfiles(TString targetList)
         bufferTCADtree->cd();
         tcadtree->Write();	
         bufferTCADtree->Close();
-	return fName;
+	return fName.Data();
 }
 
 std::vector<std::vector<TString>> EfieldInterpolator::list_files(TString fileList_TCADsamples)
@@ -369,11 +370,11 @@ std::vector<std::vector<TString>> EfieldInterpolator::list_files(TString fileLis
 
 // Return path to file containing tree
 // Final tree is restructured providing e field value as function of fluence, voltage and pixeldepth
-TString EfieldInterpolator::createInterpolationFromTCADtree(TString fTCAD){ 
-        m_fInter  = fTCAD; 
-        m_fInter.ReplaceAll("toTTree","toInterpolationTTree");
-	TFile* faim = new TFile(m_fInter, "Recreate");
-	TFile* ftreeTCAD = new TFile(fTCAD.Data());
+std::string EfieldInterpolator::createInterpolationFromTCADtree(std::string fTCAD){ 
+        TString tmpfinter = fTCAD;
+        tmpfinter.ReplaceAll("toTTree","toInterpolationTTree");
+	TFile* faim = new TFile(tmpfinter, "Recreate");
+	TFile* ftreeTCAD = new TFile(fTCAD.c_str());
 	TTreeReader myReader("tcad", ftreeTCAD);
 	TTreeReaderValue<double> 		involtage(myReader	, "voltage"	);
 	TTreeReaderValue<double> 		influence(myReader	, "fluence"	);
@@ -482,6 +483,7 @@ TString EfieldInterpolator::createInterpolationFromTCADtree(TString fTCAD){
     faim->cd();
     tz_tmp->Write();
     faim->Close();
+    m_fInter =  tmpfinter.Data();
     return m_fInter;
 } 
 
@@ -550,7 +552,7 @@ double EfieldInterpolator::estimateEfieldInvDistance(std::vector<double> vvol, s
 // Interpolate using cubic splines
 // E efield values given as function of fluence and bias voltage (vvol, vflu)
 // interpolate to value for aimFluence and aimVoltage
-double EfieldInterpolator::estimateEfield(std::vector<double> vvol, std::vector<double> vflu, std::vector<std::vector<double>> vfluvvol, double aimFlu, double aimVol, TString prepend, bool debug){
+double EfieldInterpolator::estimateEfield(std::vector<double> vvol, std::vector<double> vflu, std::vector<std::vector<double>> vfluvvol, double aimFlu, double aimVol, std::string prepend, bool debug){
 	ATH_MSG_DEBUG("Estimating efield");	
 	std::vector<double> evol;          // e field values for fixed voltages inter- or extrapolated to fluence of interest     
 	std::vector<double> vvolWoEp;      // fixed voltages values for which no extrapolation is used to obatin E field in between fluences
@@ -693,7 +695,7 @@ TH1D* EfieldInterpolator::createEfieldProfile(double aimFluence, double aimVolta
 	std::vector<double> 		xfluence;
 	std::vector<double> 		yvoltage;
 	std::vector<std::vector<double>>	efieldfluvol; 	
-        TFile* ftreeInterpolation = TFile::Open(m_fInter.Data());
+        TFile* ftreeInterpolation = TFile::Open(m_fInter.c_str());
 	TTreeReader myReader("tz", ftreeInterpolation);
 	TTreeReaderValue<std::vector<double>> 		involtage(myReader	, "yvoltage"	);
 	TTreeReaderValue<std::vector<double>> 		influence(myReader	, "xfluence"	);
@@ -725,14 +727,14 @@ TH1D* EfieldInterpolator::createEfieldProfile(double aimFluence, double aimVolta
                     if(m_useSpline){
                         TString debugName = "negativeSplineZ"; 
                         debugName+= TString::Format("%.0f",pixeldepth);
-		        aimEf = estimateEfield(yvoltage, xfluence, efieldfluvol,aimFluence, aimVoltage,debugName, true );
+		        aimEf = estimateEfield(yvoltage, xfluence, efieldfluvol,aimFluence, aimVoltage,debugName.Data(), true );
                         ATH_MSG_INFO("InterpolatorMessage: linearly interpolated e=" << aimEf << ", z=" << pixeldepth <<" Phi=,"<< aimFluence <<" U=" << aimVoltage);
                         m_useSpline = false;
                         m_efieldOrigin = linearField; // not as good as interpolation
                     }else{     
                         TString debugName = "negativeLinearZ"; 
                         debugName+= TString::Format("%.0f",pixeldepth);
-		        aimEf = estimateEfield(yvoltage, xfluence, efieldfluvol,aimFluence, aimVoltage,debugName, true );
+		        aimEf = estimateEfield(yvoltage, xfluence, efieldfluvol,aimFluence, aimVoltage,debugName.Data(), true );
                         ATH_MSG_ERROR("InterpolatorMessage: spline and linear interpolation failed => InvDistWeighhted  e=" << aimEf << ", z=" << pixeldepth <<" Phi=,"<< aimFluence <<" U=" << aimVoltage);
                         m_efieldOrigin = interinvdist; // not as good as interpolation (linear or spline) but guaranteed to be positive
                     }
