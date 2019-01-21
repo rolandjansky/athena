@@ -126,7 +126,7 @@ if __name__ == "__main__":
     parser.add_argument('-o', '--outDir', help='Specify a destination directory', default="Plots")
     parser.add_argument('-l', '--label', help='Specify the dataset you used with MuonEfficiencyCorrectionsSFFilesTest', default="361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu")
     parser.add_argument('-w', '--WP', help='Specify a WP to plot', nargs='+', default=[])
-    parser.add_argument('--varType', help='Specify a variation type', nargs='+', default=["", "MUON_EFF_RECO_SYS__1down", "MUON_EFF_RECO_STAT__1down"])
+    parser.add_argument('--varType', help='Specify a variation type', nargs='+', default=["", "MUON_EFF_RECO_SYS__1down", "MUON_EFF_RECO_STAT__1down", "MUON_EFF_RECO_SYS__1up" ])
     parser.add_argument('-c', '--SFConstituent', help='Specify if you want to plot nominal value, sys or stat error', nargs='+', default=["SF","DataEff","MCEff"])
     parser.add_argument('--bonusname', help='Specify a bonus name for the filename', default="")
     parser.add_argument('--bonuslabel', help='Specify a bonus label printed in the histogram', default="")
@@ -193,16 +193,16 @@ if __name__ == "__main__":
                 for var in Options.varType:
                     histoname = "%s_%s_%s_%s"%(CR,wp,t,var)
                     if var != "":
-                        Histos[CR][wp][t][var] = ROOT.TH1F(histoname,histoname,Options.nBins,0,0.15)
+                        Histos[CR][wp][t][var] = ROOT.TH1D(histoname,histoname,Options.nBins,0,0.15)
                     else:
                         Histos[CR][wp][t][var] = DiagnosticHisto(name = histoname,
                                                                 axis_title = t,
                                                                 min = 1.,
-                                                                bin_width = 0.001)
+                                                                bin_width = 0.0001)
 
     for i in range(tree.GetEntries()):
         tree.GetEntry(i)
-        if math.fabs(tree.Muon_eta) > 2.5: continue # or  tree.Muon_author != 8 or tree.Muon_pt > 100.e3: continue
+        if math.fabs(tree.Muon_eta) > 2.5 or tree.Muon_pt < 15.e3: continue
         
         for CR in calibReleases:
             for wp in WPs:

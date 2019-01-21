@@ -119,8 +119,8 @@ namespace CP {
                 std::shared_ptr<EffiCollection::CollectionContainer> container = retrieveContainer(file_type);
                 if (container->isNominal()) continue;
                 if (container->seperateBinSyst()){
-                    // Let the world implode... Yeaha register foreach bin
-                    // a systematic variation
+                    /// Let the world implode... Yeaha register foreach bin
+                    /// a systematic variation
                     for (unsigned int b = nBins() - 1; b > 0  ; --b){
                         unsigned int bin = b + container->globalOffSet();
                         m_syst_set->insert(CP::SystematicVariation::makeToyVariation("MUON_EFF_" + container->sysname()  + GetBinName(bin) , bin, glob_sys));

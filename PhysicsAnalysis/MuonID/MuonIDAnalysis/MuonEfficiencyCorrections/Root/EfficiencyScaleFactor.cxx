@@ -69,12 +69,17 @@ namespace CP {
         std::function<void(std::unique_ptr<HistHandler>&, const std::string& )> syst_loader = [this, &f, &time_unit, &syst_type_bitmap] (std::unique_ptr<HistHandler>& nominal, const std::string& hist_type) {
             if(!nominal) return;
             std::unique_ptr<HistHandler> sys = ReadHistFromFile(Form("%s_%s_%s", hist_type.c_str() ,
-                                                                                m_syst_name.c_str(), 
-                                                                                (syst_type_bitmap & EffiCollection::Symmetric ? "SYS" : (m_is_up ? "1UP" : "1DN")) ), 
+                                                                                 m_syst_name.c_str(), 
+                                                                                 (syst_type_bitmap & EffiCollection::Symmetric ? "SYM" : (m_is_up ? "1UP" : "1DN")) ), 
                                                                 f.get(), time_unit);
             if (sys) {               
+                std::cout<<"Dadadadadadadadadadadada "<<f->GetName()<<" "<<m_syst_name<<" "<<hist_type<<" "<<time_unit<<" "<<m_is_up<<std::endl;
+                
                 for (int i = 1; i <= nominal->NBins(); ++i) {
-                    nominal->SetBinContent(i, nominal->GetBinContent(i) + (IsUpVariation() ? 1. : -1.)*sys->GetBinContent(i));
+                    double content = nominal->GetBinContent(i);
+                    double variation = (m_is_up ? 1. : -1.)*sys->GetBinContent(i);
+                    std::cout<<i<<" "<<content<<" "<<Form("%f",variation)<<std::endl;
+                    nominal->SetBinContent(i,content + variation);
                 }
                 return;
             }
@@ -92,12 +97,14 @@ namespace CP {
                      nominal->SetBinContent(i, nominal->GetBinContent(i) + (IsUpVariation() ? 1. : -1.)*old_sys->GetBinContent(i));
                 }
             } 
-            /// Stat error can be retrieved from the nominal histogram
+            /// Stat error can be retrieved from the nominal histogram itself
             else if (m_syst_name == "STAT") {
                 for (int i = 1; i<= nominal->NBins(); ++i) {
                      nominal->SetBinContent(i, nominal->GetBinContent(i) + (IsUpVariation() ? 1. : -1.)*nominal->GetBinError(i));
                 }
-            } else if (m_syst_name == "PTDEPENDENCY"){
+            } 
+            /// This systematic name is reserved for the kinematic histhandler
+            else if (m_syst_name == "PTDEPENDENCY"){
                 return;
             } 
             /// Some other systematic is asked for... Failure

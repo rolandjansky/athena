@@ -18,18 +18,18 @@ theJob = AlgSequence()
 from MuonEfficiencyCorrections.MuonEfficiencyCorrectionsConf import CP__MuonEfficiencyCorrections_TestAlg
 alg = CP__MuonEfficiencyCorrections_TestAlg("EffiTestAlg")
 alg.PileupReweightingTool = GetPRWTool()
-alg.DefaultRelease="cMoriond2018"
-alg.ValidationRelease="cSummer2018"
+alg.DefaultRelease="cSummer2018"
+alg.ValidationRelease="cMoriond2019"
 
 WPs = [
          # reconstruction WPs
-       #  "LowPt",
-      #   "Loose", 
+        "LowPt",
+         "Loose", 
          "Medium", 
-       #  "Tight", 
+         "Tight", 
        #  "HighPt",
          # track-to-vertex-association WPs
-        # "TTVA",
+       #  "TTVA",
          # BadMuon veto SFs
         # "BadMuonVeto_HighPt",
          # isolation WPs
@@ -39,7 +39,7 @@ WPs = [
 
 for WP in WPs: 
     alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, Release = "180516_HighEtaUpdate")]
-    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, Release="Summer_2018", CustomInput = "/afs/ipp-garching.mpg.de/home/j/junggjo9/Athena/Rel21/MCP/source/MuonTPPostProcessing/python/SFFileCreation/SFFiles/")]
+    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, Release="Moriond_2019", CustomInput = "/ptmp/mpp/junggjo9/ClusterTP/SFFiles/Moriond_2019_HybridID/")]
 
 theJob += alg
 

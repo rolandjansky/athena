@@ -494,32 +494,22 @@ namespace CP {
         ATH_MSG_DEBUG(mySysConf.name() << " made it into applySystematicVariation()");
 
         unsigned int currentBinNumber = 0;
-        /*MuonEfficiencySystType currentEfficiencySystType = MuonEfficiencySystType::Nominal;
-        if ((*m_Sys1Down) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::Sys1Down;
-        else if ((*m_Sys1Up) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::Sys1Up;
-        else if (m_LowPtSys1Up && (*m_LowPtSys1Up) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::LowPtSys1Up;
-        else if (m_LowPtSys1Down && (*m_LowPtSys1Down) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::LowPtSys1Down;
-        else if (!m_seperateSystBins) {
-            if ((*m_Stat1Down) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::Stat1Down;
-            else if ((*m_Stat1Up) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::Stat1Up;
-            else if (m_LowPtStat1Up && (*m_LowPtStat1Up) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::LowPtStat1Up;
-            else if (m_LowPtStat1Down && (*m_LowPtStat1Down) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::LowPtStat1Down;
-        } 
-        
-        else if (!mySysConf.name().empty()) {
-            for (std::set<SystematicVariation>::iterator t = mySysConf.begin(); t != mySysConf.end(); ++t) {
+        std::vector<std::unique_ptr<EffiCollection>>::const_iterator SFiter =  m_sf_sets.end();
+        if (m_seperateSystBins && !mySysConf.name().empty()) {
+            for (std::set<SystematicVariation>::const_iterator t = mySysConf.begin(); t != mySysConf.end(); ++t) {
                 if ((*t).isToyVariation()) {
                     std::pair<unsigned, float> pair = (*t).getToyVariation();
                     currentBinNumber = pair.first;
-                    currentEfficiencySystType = MuonEfficiencySystType(pair.second);
+                    int pos = pair.second;
+                    if (pos < m_sf_sets.size()) SFiter = m_sf_sets.begin() + pos;
                 }
             }
-            ATH_MSG_DEBUG("need to access currentBinNumber=" << currentBinNumber);
-        }*/ 
-        
-        std::vector<std::unique_ptr<EffiCollection>>::const_iterator SFiter= std::find_if(m_sf_sets.begin(), m_sf_sets.end(), [&mySysConf](const std::unique_ptr<EffiCollection>& a){
-                    return a->isAffectedBySystematic(mySysConf);
-        });
+            ATH_MSG_DEBUG("Set current bin" << currentBinNumber);
+        } else{         
+            SFiter= std::find_if(m_sf_sets.begin(), m_sf_sets.end(), [&mySysConf](const std::unique_ptr<EffiCollection>& a){
+                                    return a->isAffectedBySystematic(mySysConf);
+                                });
+        }
         if (SFiter != m_sf_sets.end()) {
             m_current_sf = SFiter->get();
             if (m_seperateSystBins && currentBinNumber != 0) {
@@ -540,31 +530,28 @@ namespace CP {
     }
     
     std::string MuonEfficiencyScaleFactors::getUncorrelatedSysBinName(unsigned int Bin) const {
-        return "";
+        if (!m_current_sf){
+           ATH_MSG_WARNING("No systematic has been loaded. Cannot return any syst-bin");
+           return "It's not my wallet";
+        }        
+        return m_current_sf->GetBinName(Bin);
     }
     int MuonEfficiencyScaleFactors::getUnCorrelatedSystBin(const xAOD::Muon& mu) const {
-        return -1;
+        if (!m_current_sf){
+               ATH_MSG_WARNING("No systematic has been loaded. Cannot return any syst-bin");
+               return -1;
+        }
+        return m_current_sf->getUnCorrelatedSystBin(mu);
     }
     std::string MuonEfficiencyScaleFactors::getUncorrelatedSysBinName(const SystematicSet& systConfig) const {
-                return "";
-//         for (std::set<SystematicVariation>::iterator t = systConfig.begin(); t != systConfig.end(); ++t) {
-//             if ((*t).isToyVariation()) {
-//                 std::pair<unsigned, float> pair = (*t).getToyVariation();
-//                 return getUncorrelatedSysBinName(pair.first);
-// 
-//             }
-//         }
-//         ATH_MSG_ERROR("The given systematic " << systConfig.name() << " is not an unfolded one. Return  unknown bin ");
-//         return "unknown bin";
-//     }
-//     int MuonEfficiencyScaleFactors::getUnCorrelatedSystBin(const xAOD::Muon& mu) const {
-//         if (!m_init) {
-//             ATH_MSG_ERROR("The tool is not initialized yet");
-//             return -1;
-// 
-//         }
-//         return m_sf_sets.at(MuonEfficiencySystType::Nominal)->getUnCorrelatedSystBin(mu);
-// 
+        for (std::set<SystematicVariation>::const_iterator t = systConfig.begin(); t != systConfig.end(); ++t) {
+             if ((*t).isToyVariation()) {
+                 std::pair<unsigned, float> pair = (*t).getToyVariation();
+                 return getUncorrelatedSysBinName(pair.first);
+            }
+      }
+      ATH_MSG_ERROR("The given systematic " << systConfig.name() << " is not an unfolded one. Return  unknown bin ");
+      return "unknown bin";
     }
 
 } /* namespace CP */
