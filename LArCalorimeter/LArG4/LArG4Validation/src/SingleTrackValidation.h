@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _SingleTrackValidation_h_
-#define _SingleTrackValidation_h_
+#ifndef LARG4VALIDATION_SINGLETRACKVALIDATION_H
+#define LARG4VALIDATION_SINGLETRACKVALIDATION_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "TH1F.h"
