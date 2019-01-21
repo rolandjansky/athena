@@ -110,11 +110,8 @@ StatusCode SensorSimPlanarTool::initialize() {
     std::string sensorFiles     = PathResolverFindCalibDirectory("PixelDigitization/TCAD_Blayer_efields/fei4-250um/");
 
     // For each layer one configuration
-    TCADpath_list.push_back(iblFiles);          //"/afs/cern.ch/work/l/ladam/public/ATHENA_calib/ibl_TCAD_EfieldProfiles.txt");//IBL - 200um sensor depth
-    TCADpath_list.push_back(sensorFiles);       //"/afs/cern.ch/work/l/ladam/public/ATHENA_calib/blayer_TCAD_EfieldProfiles.txt");   // B layer 
-    TCADpath_list.push_back(sensorFiles);       //"/afs/cern.ch/work/l/ladam/public/ATHENA_calib/blayer_TCAD_EfieldProfiles.txt");   // Layer 1
-    TCADpath_list.push_back(sensorFiles);       //"/afs/cern.ch/work/l/ladam/public/ATHENA_calib/blayer_TCAD_EfieldProfiles.txt");   // layer 2
-//    Replpicate thesesensorFiles files to afs/GroupData https://twiki.cern.ch/twiki/bin/view/AtlasComputing/PathResolver
+    TCADpath_list = {iblFiles, sensorFiles, sensorFiles, sensorFiles};           //IBL - 200um sensor depth, B layer - 20um, layer 1, layer 2
+//    Replpicate the sesensorFiles files to afs/GroupData https://twiki.cern.ch/twiki/bin/view/AtlasComputing/PathResolver
 //    If you want only certain TCAD E field files to be used to create an interpolated E field, hand over a list like these instead of the directory
 //    TCADpath_list.push_back(PathResolverFindCalibFile("PixelDigitization/ibl_TCAD_EfieldProfiles.txt"   );
 //    TCADpath_list.push_back(PathResolverFindCalibFile("PixelDigitization/blayer_TCAD_EfieldProfiles.txt");
@@ -340,14 +337,13 @@ StatusCode SensorSimPlanarTool::initialize() {
     
     if(doInterpolateEfield){
         CHECK(m_radDamageUtil->generateDistanceTimeMap( distanceMap_e_hold, distanceMap_h_hold, timeMap_e_hold, timeMap_h_hold, lorentzMap_e_hold, lorentzMap_h_hold, eFieldMap_hold, NULL ));
-        //printf("\n \n #### \n distanceMap_e_hold integral %f, entries of bin 1,1 8,5: %f %f \n ", distanceMap_e_hold->Integral(), distanceMap_e_hold->Integral(1,1), distanceMap_e_hold->GetBinContent(8,5));
+        // For debugging and documentation: uncomment to save different maps which are based on the interpolated E field
         //TH2F*   clonelorentzMap_e_hold    =(TH2F*) lorentzMap_e_hold ->Clone()   ;
         //TH2F*   clonelorentzMap_h_hold    =(TH2F*) lorentzMap_h_hold ->Clone()   ;
         //TH2F*   clonedistanceMap_h_hold   =(TH2F*) distanceMap_h_hold->Clone()   ;
         //TH2F*   clonedistanceMap_e_hold   =(TH2F*) distanceMap_e_hold->Clone()   ;
         //TH1F*   clonetimeMap_e_hold       =(TH1F*) timeMap_e_hold    ->Clone()   ;
         //TH1F*   clonetimeMap_h_hold       =(TH1F*) timeMap_h_hold    ->Clone()   ;
-        // For debugging and documentation: uncomment to save different maps which are based on the interpolated E field
         //TString prename = "map_layer_";
         //prename += i;
         //prename += "distance_e.root";
