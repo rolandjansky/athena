@@ -53,17 +53,20 @@ StatusCode EfieldInterpolator::finalize() {
 }
 
 //Cast for using TGraph consrtuctor
-TVectorD CastStdVec(std::vector<Double_t>* vin ){
+TVectorD CastStdVec(const std::vector<Double_t>* vin ){
 	TVectorD tmp(vin->size());
 	for(uint i = 0; i<vin->size(); i++ ){
-		tmp[i]=vin->at(i);
+		tmp[i] = vin->at(i);
 	}
 	return tmp;
 }
-TVectorD CastStdVec(std::vector<Double_t> vin ){
+TVectorD CastStdVec(const std::vector<Double_t> vin ){
 	TVectorD tmp(vin.size());
-	for(uint i = 0; i<vin.size(); i++ ){
-		tmp[i]=vin.at(i);
+	//for(uint i = 0; i<vin.size(); i++ ){
+        uint index = 0;
+        for(auto i : vin){
+		tmp[index] = i;
+                index++;
 	}
 	return tmp;
 }
