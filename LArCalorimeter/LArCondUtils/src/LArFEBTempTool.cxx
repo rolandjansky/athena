@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -16,15 +16,13 @@
 //
 //-----------------------------------------------------------------------
 
-#include "LArCondUtils/LArFEBTempTool.h" 
+#include "LArFEBTempTool.h" 
 #include "LArIdentifier/LArOnlineID.h"
 
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 // constructor 

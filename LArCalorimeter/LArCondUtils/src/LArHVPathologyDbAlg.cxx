@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArCondUtils/LArHVPathologyDbAlg.h"
+#include "LArHVPathologyDbAlg.h"
 #include "LArElecCalib/ILArHVPathologyDbTool.h"
 #include "LArRecConditions/LArHVPathologiesDb.h"
 #include "RegistrationServices/IIOVRegistrationSvc.h"
@@ -34,10 +34,6 @@
 #include "LArHV/FCALHVLineConstLink.h"
 #include "LArHV/FCALHVLine.h"
 
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
 #include <fstream>
 #include <cstdlib>
 
@@ -48,7 +44,6 @@ LArHVPathologyDbAlg::LArHVPathologyDbAlg(const std::string& name, ISvcLocator* p
   , m_outFile("")
   , m_folder("")
   , m_outpTag("HVPathologies-TEST")
-  , m_evt(0)
   , m_regSvc("IOVRegistrationSvc",name)
   , m_pathologyTool("LArHVPathologyDbTool")
   , m_mode(0)
@@ -135,28 +130,21 @@ StatusCode LArHVPathologyDbAlg::execute()
 {
   msg(MSG::INFO) <<" in execute()" <<endmsg;
 
-  StatusCode sc = evtStore()->retrieve(m_evt);
-  if(!sc.isSuccess()) {
-     msg(MSG::ERROR) << "Could not get event info " << endmsg;
-     return sc;
-  }
- 
-  int nevt = m_evt->event_ID()->event_number();
+  int nevt = getContext().eventID().event_number();
 
   if(m_writeCondObjs && nevt==1) {
     msg(MSG::INFO) << "Creating conditions objects" << endmsg;
 
     // Create cond objects
-    sc = createCondObjects(); 
-    if(!sc.isSuccess()) {
+    if(!createCondObjects().isSuccess()) {
       msg(MSG::ERROR) << "Could not create cond objects " << endmsg;
       m_writeCondObjs = false;
-      return sc;
+      return StatusCode::FAILURE;
     }
   }
 
   // Dump cond objects
-  sc = printCondObjects();
+  StatusCode sc = printCondObjects();
   if(!sc.isSuccess()) {
     msg(MSG::ERROR) << "Could not print out cond objects" << endmsg;
     return sc;
