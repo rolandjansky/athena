@@ -106,8 +106,7 @@ if l1caloRawMon:
         if athenaCommonFlags.isOnline:
             from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
             theBCTool = BunchCrossingTool()
-            # ToolSvc += theBCTool
-            L1CaloMan.AthenaMonTools += [theBCTool]
+            ToolSvc += theBCTool
             L1PPrStabilityMonTool.BunchCrossingTool = theBCTool
 
     else:
@@ -183,11 +182,9 @@ if l1caloRawMon:
             PPMSimBSMonTool = LVL1__PPMSimBSMon("PPMSimBSMonTool")
             #ToolSvc += PPMSimBSMonTool
             L1CaloMan.AthenaMonTools += [PPMSimBSMonTool]
-            #ToolSvc.PPMSimBSMonTool.OutputLevel = DEBUG
             from TrigT1CaloTools.TrigT1CaloToolsConf import LVL1__L1TriggerTowerTool
             L1TriggerTowerTool = LVL1__L1TriggerTowerTool("L1TriggerTowerTool")
-            # ToolSvc += L1TriggerTowerTool
-            L1CaloMan.AthenaMonTools += [L1TriggerTowerTool]
+            ToolSvc += L1TriggerTowerTool
             from TrigT1CaloCondSvc.TrigT1CaloCondSvcConf import L1CaloCondSvc
             ServiceMgr += L1CaloCondSvc()
             from IOVDbSvc.CondDB import conddb
