@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "InDetGeoModelUtils/GenericTubeMaker.h"
@@ -13,7 +13,7 @@
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include "RDBAccessSvc/IRDBRecord.h"
 
@@ -113,7 +113,7 @@ namespace InDetDD {
 
       // Place in negative z as well.
       if (m_volData.bothZ()) {
-        GeoTransform* xformNeg = new GeoTransform(GeoTrf::RotateY3D(180 * GeoModelKernelUnits::deg) * GeoTrf::TranslateZ3D(
+        GeoTransform* xformNeg = new GeoTransform(GeoTrf::RotateY3D(180 * Gaudi::Units::deg) * GeoTrf::TranslateZ3D(
                                                     zOffset) * GeoTrf::RotateZ3D(phi));
         if (parent) {
           parent->add(xformNeg);
@@ -149,7 +149,7 @@ namespace InDetDD {
 
       // Place in negative z as well.
       if (m_volData.bothZ()) {
-        GeoTransform* xformNeg = new GeoTransform(GeoTrf::RotateY3D(180 * GeoModelKernelUnits::deg) * GeoTrf::TranslateZ3D(
+        GeoTransform* xformNeg = new GeoTransform(GeoTrf::RotateY3D(180 * Gaudi::Units::deg) * GeoTrf::TranslateZ3D(
                                                     zOffset) * GeoTrf::RotateZ3D(phi));
         if (parentNeg) {
           parentNeg->add(xformNeg);
