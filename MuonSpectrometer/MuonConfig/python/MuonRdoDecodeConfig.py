@@ -2,7 +2,7 @@
 #  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaCommon.Constants import DEBUG, INFO
+from AthenaCommon.Constants import VERBOSE, DEBUG, INFO
 
 ## This configuration function sets up everything for decoding RPC RDO to PRD conversion
 #
@@ -194,12 +194,18 @@ def muonRdoDecodeTestData( forTrigger = False ):
     cfg.addEventAlgo( tgcdecodingAlg )
 
     from MuonConfig.MuonBytestreamDecodeConfig import MdtBytestreamDecodeCfg
-    mdtdecodingAcc, mdtdecodingAlg = MdtBytestreamDecodeCfg( ConfigFlags, forTrigger )    
+    mdtdecodingAcc, mdtdecodingAlg = MdtBytestreamDecodeCfg( ConfigFlags, forTrigger )
+    # Put into a verbose logging mode to check the caching
+    if forTrigger:
+        mdtdecodingAlg.ProviderTool.OutputLevel = VERBOSE    
     cfg.merge( mdtdecodingAcc )
     cfg.addEventAlgo( mdtdecodingAlg )
 
     from MuonConfig.MuonBytestreamDecodeConfig import CscBytestreamDecodeCfg
     cscdecodingAcc, cscdecodingAlg = CscBytestreamDecodeCfg( ConfigFlags, forTrigger ) 
+    # Put into a verbose logging mode to check the caching
+    if forTrigger:
+        cscdecodingAlg.ProviderTool.OutputLevel = VERBOSE 
     cfg.merge( cscdecodingAcc )
     cfg.addEventAlgo( cscdecodingAlg )
 

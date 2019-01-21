@@ -121,8 +121,7 @@ def MdtBytestreamDecodeCfg(flags, forTrigger=False):
     # Setup the RAW data provider tool
     from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MDT_RawDataProviderTool
     MuonMdtRawDataProviderTool = Muon__MDT_RawDataProviderTool(name    = "MDT_RawDataProviderTool",
-                                                               Decoder = MDTRodDecoder,
-                                                               OutputLevel = VERBOSE)
+                                                               Decoder = MDTRodDecoder)
     if forTrigger:
         MuonMdtRawDataProviderTool.CsmContainerCacheKey = "MdtCsmCache"
 
@@ -158,8 +157,7 @@ def CscBytestreamDecodeCfg(flags, forTrigger=False):
     # Setup the RAW data provider tool
     from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CSC_RawDataProviderTool
     MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderTool(name    = "CSC_RawDataProviderTool",
-                                                               Decoder = CSCRodDecoder,
-                                                               OutputLevel = VERBOSE)
+                                                               Decoder = CSCRodDecoder)
     if forTrigger:
         MuonCscRawDataProviderTool.CscContainerCacheKey = "CscCache"
 

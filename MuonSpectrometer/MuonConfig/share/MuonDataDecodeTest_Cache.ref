@@ -1244,9 +1244,7 @@ Py:Athena            INFO Print Config
 | | |-AuditStart                        = False
 | | |-AuditStop                         = False
 | | |-AuditTools                        = False
-| | |-CsmContainerCacheKey              = 'StoreGateSvc+'
 | | |-MonitorService                    = 'MonitorSvc'
-| | |-OutputLevel                       = 0
 | | |-RdoLocation                       = 'StoreGateSvc+MDTCSM'
 | | |-ReadKey                           = 'ConditionStore+MuonMDT_CablingMap'
 | | |=/***** Private AlgTool MdtROD_Decoder/MdtRawDataProvider.MDT_RawDataProviderTool.MdtROD_Decoder *****
@@ -1292,9 +1290,7 @@ Py:Athena            INFO Print Config
 | | |-AuditStart                        = False
 | | |-AuditStop                         = False
 | | |-AuditTools                        = False
-| | |-CscContainerCacheKey              = 'StoreGateSvc+'
 | | |-MonitorService                    = 'MonitorSvc'
-| | |-OutputLevel                       = 0
 | | |-RdoLocation                       = 'StoreGateSvc+CSCRDO'
 | | |=/***** Private AlgTool Muon::CscROD_Decoder/CscRawDataProvider.CSC_RawDataProviderTool.CscROD_Decoder *****
 | | | |-AuditFinalize                  = False
@@ -1923,17 +1919,28 @@ MuonTGC_CablingSvc   INFO for 1/12 sector initialize
 ToolSvc.TGCCabl...   INFO initialize
 TgcRawDataProvi...   INFO initialize() successful in TgcRawDataProvider.TGC_RawDataProviderTool
 MdtRawDataProvider   INFO MdtRawDataProvider::initialize
+MdtRawDataProvi...VERBOSE Starting init
+MdtRawDataProvi...VERBOSE Getting m_robDataProvider
 MdtRawDataProvi...   INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
+MdtRawDataProvi...VERBOSE Getting MuonDetectorManager
+MdtRawDataProvi...VERBOSE Getting m_decoder
 MdtRawDataProvi...   INFO Processing configuration for layouts with BME chambers.
 MdtRawDataProvi...   INFO Processing configuration for layouts with BMG chambers.
 MdtRawDataProvi...   INFO Retrieved tool Decoder = PrivateToolHandle('MdtROD_Decoder/MdtROD_Decoder')
 MdtRawDataProvi...   INFO  Tool = MdtRawDataProvider.MDT_RawDataProviderTool is connected to JobOptionsSvc Service = JobOptionsSvc
+MdtRawDataProvi...  DEBUG Could not find TrigConf::HLTJobOptionsSvc
 MdtRawDataProvi...   INFO initialize() successful in MdtRawDataProvider.MDT_RawDataProviderTool
+MdtRawDataProvi...  DEBUG Adding private ToolHandle tool MdtRawDataProvider.MDT_RawDataProviderTool.MdtROD_Decoder (MdtROD_Decoder)
+CscRawDataProvi...VERBOSE ServiceLocatorHelper::service: found service ActiveStoreSvc
 CscRawDataProvi...   INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
+CscRawDataProvi...VERBOSE ServiceLocatorHelper::service: found service JobOptionsSvc
 CscRawDataProvi...   INFO  Tool = CscRawDataProvider.CSC_RawDataProviderTool is connected to JobOptionsSvc Service = JobOptionsSvc
+CscRawDataProvi...  DEBUG Could not find TrigConf::HLTJobOptionsSvc
+CscRawDataProvi...  DEBUG  Found the CscIdHelper. 
 CscRawDataProvi...   INFO Retrieved tool Decoder = PrivateToolHandle('Muon::CscROD_Decoder/CscROD_Decoder')
 CscRawDataProvi...   INFO The Muon Geometry version is R.08.01
 CscRawDataProvi...   INFO initialize() successful in CscRawDataProvider.CSC_RawDataProviderTool
+CscRawDataProvi...  DEBUG Adding private ToolHandle tool CscRawDataProvider.CSC_RawDataProviderTool.CscROD_Decoder (Muon::CscROD_Decoder)
 RpcRdoToRpcPrep...   INFO properties are 
 RpcRdoToRpcPrep...   INFO processingData                     0
 RpcRdoToRpcPrep...   INFO produceRpcCoinDatafromTriggerWords 1
@@ -2106,120 +2113,1111 @@ MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
+MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
+MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
+MdtRawDataProvi...  DEBUG fillCollection: starting
+MdtRawDataProvi...  DEBUG **********Decoder dumping the words******** 
+MdtRawDataProvi...  DEBUG The size of this ROD-read is 
+MdtRawDataProvi...  DEBUG word 0 = 8003e994
+MdtRawDataProvi...  DEBUG word 1 = 81040007
+MdtRawDataProvi...  DEBUG word 2 = 18030370
+MdtRawDataProvi...  DEBUG word 3 = 890003ff
+MdtRawDataProvi...  DEBUG word 4 = a3994153
+MdtRawDataProvi...  DEBUG word 5 = 30a403c0
+MdtRawDataProvi...  DEBUG word 6 = 30a004ce
+MdtRawDataProvi...  DEBUG word 7 = 8a994005
+MdtRawDataProvi...  DEBUG word 8 = 8104000d
+MdtRawDataProvi...  DEBUG word 9 = 18030371
+MdtRawDataProvi...  DEBUG word 10 = 89000fff
+MdtRawDataProvi...  DEBUG word 11 = a2994153
+MdtRawDataProvi...  DEBUG word 12 = 306c0472
+MdtRawDataProvi...  DEBUG word 13 = 306804d5
+MdtRawDataProvi...  DEBUG word 14 = a3994153
+MdtRawDataProvi...  DEBUG word 15 = 20080000
+MdtRawDataProvi...  DEBUG word 16 = a4994153
+MdtRawDataProvi...  DEBUG word 17 = 301c0504
+MdtRawDataProvi...  DEBUG word 18 = 30180562
+MdtRawDataProvi...  DEBUG word 19 = 20000010
+MdtRawDataProvi...  DEBUG word 20 = 8a99400b
+MdtRawDataProvi...  DEBUG word 21 = 81040006
+MdtRawDataProvi...  DEBUG word 22 = 18030372
+MdtRawDataProvi...  DEBUG word 23 = 89003fff
+MdtRawDataProvi...  DEBUG word 24 = a6994153
+MdtRawDataProvi...  DEBUG word 25 = 20008000
+MdtRawDataProvi...  DEBUG word 26 = 8a994004
+MdtRawDataProvi...  DEBUG word 27 = 8104000f
+MdtRawDataProvi...  DEBUG word 28 = 18030373
+MdtRawDataProvi...  DEBUG word 29 = 89003fff
+MdtRawDataProvi...  DEBUG word 30 = a0994153
+MdtRawDataProvi...  DEBUG word 31 = 3034054a
+MdtRawDataProvi...  DEBUG word 32 = 303005c2
+MdtRawDataProvi...  DEBUG word 33 = a7994153
+MdtRawDataProvi...  DEBUG word 34 = 3084023a
+MdtRawDataProvi...  DEBUG word 35 = 3080029e
+MdtRawDataProvi...  DEBUG word 36 = a8994153
+MdtRawDataProvi...  DEBUG word 37 = 307c03f6
+MdtRawDataProvi...  DEBUG word 38 = 30ac03f8
+MdtRawDataProvi...  DEBUG word 39 = 307804c4
+MdtRawDataProvi...  DEBUG word 40 = 30a804cb
+MdtRawDataProvi...  DEBUG word 41 = 8a99400d
+MdtRawDataProvi...  DEBUG word 42 = 81040008
+MdtRawDataProvi...  DEBUG word 43 = 18030374
+MdtRawDataProvi...  DEBUG word 44 = 8903ffff
+MdtRawDataProvi...  DEBUG word 45 = af994153
+MdtRawDataProvi...  DEBUG word 46 = 302c05c7
+MdtRawDataProvi...  DEBUG word 47 = 30280664
+MdtRawDataProvi...  DEBUG word 48 = 305c0673
+MdtRawDataProvi...  DEBUG word 49 = 8a994006
+MdtRawDataProvi...  DEBUG word 50 = 81040031
+MdtRawDataProvi...  DEBUG word 51 = 18030375
+MdtRawDataProvi...  DEBUG word 52 = 8903ffff
+MdtRawDataProvi...  DEBUG word 53 = a0994153
+MdtRawDataProvi...  DEBUG word 54 = 3054055c
+MdtRawDataProvi...  DEBUG word 55 = 305005fb
+MdtRawDataProvi...  DEBUG word 56 = a2994153
+MdtRawDataProvi...  DEBUG word 57 = 20010000
+MdtRawDataProvi...  DEBUG word 58 = a8994153
+MdtRawDataProvi...  DEBUG word 59 = 306c034f
+MdtRawDataProvi...  DEBUG word 60 = 309c0349
+MdtRawDataProvi...  DEBUG word 61 = 308c0394
+MdtRawDataProvi...  DEBUG word 62 = 309803d9
+MdtRawDataProvi...  DEBUG word 63 = 304c03f8
+MdtRawDataProvi...  DEBUG word 64 = 30680422
+MdtRawDataProvi...  DEBUG word 65 = 30880439
+MdtRawDataProvi...  DEBUG word 66 = 30bc03f3
+MdtRawDataProvi...  DEBUG word 67 = 3048049a
+MdtRawDataProvi...  DEBUG word 68 = 30b80479
+MdtRawDataProvi...  DEBUG word 69 = 305c05e9
+MdtRawDataProvi...  DEBUG word 70 = 30580652
+MdtRawDataProvi...  DEBUG word 71 = af994153
+MdtRawDataProvi...  DEBUG word 72 = 30940521
+MdtRawDataProvi...  DEBUG word 73 = 30840583
+MdtRawDataProvi...  DEBUG word 74 = 308c0583
+MdtRawDataProvi...  DEBUG word 75 = 309c0585
+MdtRawDataProvi...  DEBUG word 76 = 308005e7
+MdtRawDataProvi...  DEBUG word 77 = 308805f5
+MdtRawDataProvi...  DEBUG word 78 = 3090061d
+MdtRawDataProvi...  DEBUG word 79 = 309805f1
+MdtRawDataProvi...  DEBUG word 80 = 30a40587
+MdtRawDataProvi...  DEBUG word 81 = 30ac0588
+MdtRawDataProvi...  DEBUG word 82 = 30b40589
+MdtRawDataProvi...  DEBUG word 83 = 30bc058d
+MdtRawDataProvi...  DEBUG word 84 = 30a005fc
+MdtRawDataProvi...  DEBUG word 85 = 30a805f2
+MdtRawDataProvi...  DEBUG word 86 = 30b005e7
+MdtRawDataProvi...  DEBUG word 87 = 30b805d8
+MdtRawDataProvi...  DEBUG word 88 = b0994153
+MdtRawDataProvi...  DEBUG word 89 = 306c0082
+MdtRawDataProvi...  DEBUG word 90 = 3068012b
+MdtRawDataProvi...  DEBUG word 91 = 303c01ed
+MdtRawDataProvi...  DEBUG word 92 = 30380250
+MdtRawDataProvi...  DEBUG word 93 = 306c0556
+MdtRawDataProvi...  DEBUG word 94 = 306805a3
+MdtRawDataProvi...  DEBUG word 95 = 20004000
+MdtRawDataProvi...  DEBUG word 96 = b1994153
+MdtRawDataProvi...  DEBUG word 97 = 20010000
+MdtRawDataProvi...  DEBUG word 98 = 8a99402f
+MdtRawDataProvi...  DEBUG word 99 = f0000064
+MdtRawDataProvi...  DEBUG Found the beginning of buffer 
+MdtRawDataProvi...  DEBUG Level 1 Id : 256404
+MdtRawDataProvi...  DEBUG Found the Beginnning of Link 
+MdtRawDataProvi...  DEBUG subdetId : 97 mrodId : 0 csmId : 0
+MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result: 
+MdtRawDataProvi...  DEBUG Name : 0
+MdtRawDataProvi...  DEBUG Eta  : 1
+MdtRawDataProvi...  DEBUG Phi  : 1
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 3
+MdtRawDataProvi...  DEBUG Found the Beginnning of Link 
+MdtRawDataProvi...  DEBUG subdetId : 97 mrodId : 0 csmId : 1
+MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result: 
+MdtRawDataProvi...  DEBUG Name : 0
+MdtRawDataProvi...  DEBUG Eta  : 2
+MdtRawDataProvi...  DEBUG Phi  : 1
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 2
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 3
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 4
+MdtRawDataProvi...  DEBUG Found the Beginnning of Link 
+MdtRawDataProvi...  DEBUG subdetId : 97 mrodId : 0 csmId : 2
+MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result: 
+MdtRawDataProvi...  DEBUG Name : 2
+MdtRawDataProvi...  DEBUG Eta  : 1
+MdtRawDataProvi...  DEBUG Phi  : 1
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 6
+MdtRawDataProvi...  DEBUG Found the Beginnning of Link 
+MdtRawDataProvi...  DEBUG subdetId : 97 mrodId : 0 csmId : 3
+MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result: 
+MdtRawDataProvi...  DEBUG Name : 2
+MdtRawDataProvi...  DEBUG Eta  : 2
+MdtRawDataProvi...  DEBUG Phi  : 1
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 0
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 7
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 8
+MdtRawDataProvi...  DEBUG Found the Beginnning of Link 
+MdtRawDataProvi...  DEBUG subdetId : 97 mrodId : 0 csmId : 4
+MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result: 
+MdtRawDataProvi...  DEBUG Name : 4
+MdtRawDataProvi...  DEBUG Eta  : 1
+MdtRawDataProvi...  DEBUG Phi  : 1
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 15
+MdtRawDataProvi...  DEBUG Found the Beginnning of Link 
+MdtRawDataProvi...  DEBUG subdetId : 97 mrodId : 0 csmId : 5
+MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result: 
+MdtRawDataProvi...  DEBUG Name : 4
+MdtRawDataProvi...  DEBUG Eta  : 2
+MdtRawDataProvi...  DEBUG Phi  : 1
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 0
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 2
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 8
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 15
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 16
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 17
+MdtRawDataProvi...  DEBUG fillCollection: starting
+MdtRawDataProvi...  DEBUG **********Decoder dumping the words******** 
+MdtRawDataProvi...  DEBUG The size of this ROD-read is 
+MdtRawDataProvi...  DEBUG word 0 = 8003e994
+MdtRawDataProvi...  DEBUG word 1 = 81040004
+MdtRawDataProvi...  DEBUG word 2 = 18030210
+MdtRawDataProvi...  DEBUG word 3 = 890003ff
+MdtRawDataProvi...  DEBUG word 4 = 8a994002
+MdtRawDataProvi...  DEBUG word 5 = 81040014
+MdtRawDataProvi...  DEBUG word 6 = 18030211
+MdtRawDataProvi...  DEBUG word 7 = 89000fff
+MdtRawDataProvi...  DEBUG word 8 = a1994153
+MdtRawDataProvi...  DEBUG word 9 = 20000500
+MdtRawDataProvi...  DEBUG word 10 = a3994153
+MdtRawDataProvi...  DEBUG word 11 = 20000028
+MdtRawDataProvi...  DEBUG word 12 = aa994153
+MdtRawDataProvi...  DEBUG word 13 = 303c0116
+MdtRawDataProvi...  DEBUG word 14 = 3038016f
+MdtRawDataProvi...  DEBUG word 15 = 308c0202
+MdtRawDataProvi...  DEBUG word 16 = 3088026b
+MdtRawDataProvi...  DEBUG word 17 = 20100000
+MdtRawDataProvi...  DEBUG word 18 = ab994153
+MdtRawDataProvi...  DEBUG word 19 = 3074012d
+MdtRawDataProvi...  DEBUG word 20 = 30700187
+MdtRawDataProvi...  DEBUG word 21 = 3084015b
+MdtRawDataProvi...  DEBUG word 22 = 308001ca
+MdtRawDataProvi...  DEBUG word 23 = 20140150
+MdtRawDataProvi...  DEBUG word 24 = 8a994012
+MdtRawDataProvi...  DEBUG word 25 = 81040007
+MdtRawDataProvi...  DEBUG word 26 = 18030212
+MdtRawDataProvi...  DEBUG word 27 = 89003fff
+MdtRawDataProvi...  DEBUG word 28 = a3994153
+MdtRawDataProvi...  DEBUG word 29 = 307c0071
+MdtRawDataProvi...  DEBUG word 30 = 30780094
+MdtRawDataProvi...  DEBUG word 31 = 8a994005
+MdtRawDataProvi...  DEBUG word 32 = 81040014
+MdtRawDataProvi...  DEBUG word 33 = 18030213
+MdtRawDataProvi...  DEBUG word 34 = 89003fff
+MdtRawDataProvi...  DEBUG word 35 = a3994153
+MdtRawDataProvi...  DEBUG word 36 = 30b401cb
+MdtRawDataProvi...  DEBUG word 37 = 30bc0213
+MdtRawDataProvi...  DEBUG word 38 = 30b00256
+MdtRawDataProvi...  DEBUG word 39 = 30b802c7
+MdtRawDataProvi...  DEBUG word 40 = 307c032d
+MdtRawDataProvi...  DEBUG word 41 = 30840397
+MdtRawDataProvi...  DEBUG word 42 = 307803e7
+MdtRawDataProvi...  DEBUG word 43 = 308003f1
+MdtRawDataProvi...  DEBUG word 44 = a6994153
+MdtRawDataProvi...  DEBUG word 45 = 30b40533
+MdtRawDataProvi...  DEBUG word 46 = 30740552
+MdtRawDataProvi...  DEBUG word 47 = 30a40588
+MdtRawDataProvi...  DEBUG word 48 = 307005cb
+MdtRawDataProvi...  DEBUG word 49 = 30a00611
+MdtRawDataProvi...  DEBUG word 50 = 30b0063b
+MdtRawDataProvi...  DEBUG word 51 = 8a994012
+MdtRawDataProvi...  DEBUG word 52 = 8104001c
+MdtRawDataProvi...  DEBUG word 53 = 18030214
+MdtRawDataProvi...  DEBUG word 54 = 8903ffff
+MdtRawDataProvi...  DEBUG word 55 = a2994153
+MdtRawDataProvi...  DEBUG word 56 = 30b0002f
+MdtRawDataProvi...  DEBUG word 57 = 3084019b
+MdtRawDataProvi...  DEBUG word 58 = 30800237
+MdtRawDataProvi...  DEBUG word 59 = 20540100
+MdtRawDataProvi...  DEBUG word 60 = a4994153
+MdtRawDataProvi...  DEBUG word 61 = 306c019f
+MdtRawDataProvi...  DEBUG word 62 = 30680214
+MdtRawDataProvi...  DEBUG word 63 = 30140429
+MdtRawDataProvi...  DEBUG word 64 = 30100474
+MdtRawDataProvi...  DEBUG word 65 = 20000ad4
+MdtRawDataProvi...  DEBUG word 66 = a5994153
+MdtRawDataProvi...  DEBUG word 67 = 30bc0362
+MdtRawDataProvi...  DEBUG word 68 = 30b80481
+MdtRawDataProvi...  DEBUG word 69 = a6994153
+MdtRawDataProvi...  DEBUG word 70 = 20004000
+MdtRawDataProvi...  DEBUG word 71 = a8994153
+MdtRawDataProvi...  DEBUG word 72 = 20000820
+MdtRawDataProvi...  DEBUG word 73 = aa994153
+MdtRawDataProvi...  DEBUG word 74 = 20000002
+MdtRawDataProvi...  DEBUG word 75 = ae994153
+MdtRawDataProvi...  DEBUG word 76 = 20000080
+MdtRawDataProvi...  DEBUG word 77 = b0994153
+MdtRawDataProvi...  DEBUG word 78 = 20000200
+MdtRawDataProvi...  DEBUG word 79 = 8a99401a
+MdtRawDataProvi...  DEBUG word 80 = 81040025
+MdtRawDataProvi...  DEBUG word 81 = 18030215
+MdtRawDataProvi...  DEBUG word 82 = 8903ffff
+MdtRawDataProvi...  DEBUG word 83 = a5994153
+MdtRawDataProvi...  DEBUG word 84 = 304c054e
+MdtRawDataProvi...  DEBUG word 85 = 304805fd
+MdtRawDataProvi...  DEBUG word 86 = a6994153
+MdtRawDataProvi...  DEBUG word 87 = 20000040
+MdtRawDataProvi...  DEBUG word 88 = a8994153
+MdtRawDataProvi...  DEBUG word 89 = 306c0098
+MdtRawDataProvi...  DEBUG word 90 = 30bc0093
+MdtRawDataProvi...  DEBUG word 91 = 308400fd
+MdtRawDataProvi...  DEBUG word 92 = 308c00fe
+MdtRawDataProvi...  DEBUG word 93 = 309400fb
+MdtRawDataProvi...  DEBUG word 94 = 309c00fd
+MdtRawDataProvi...  DEBUG word 95 = 30a400f9
+MdtRawDataProvi...  DEBUG word 96 = 30ac00fc
+MdtRawDataProvi...  DEBUG word 97 = 30b400f9
+MdtRawDataProvi...  DEBUG word 98 = 302c0185
+MdtRawDataProvi...  DEBUG word 99 = 306801a0
+MdtRawDataProvi...  DEBUG word 100 = 30800148
+MdtRawDataProvi...  DEBUG word 101 = 30880147
+MdtRawDataProvi...  DEBUG word 102 = 30900149
+MdtRawDataProvi...  DEBUG word 103 = 30980168
+MdtRawDataProvi...  DEBUG word 104 = 30a00169
+MdtRawDataProvi...  DEBUG word 105 = 30a80163
+MdtRawDataProvi...  DEBUG word 106 = 30b00161
+MdtRawDataProvi...  DEBUG word 107 = 30b801a3
+MdtRawDataProvi...  DEBUG word 108 = 30280271
+MdtRawDataProvi...  DEBUG word 109 = a9994153
+MdtRawDataProvi...  DEBUG word 110 = 301c00b6
+MdtRawDataProvi...  DEBUG word 111 = 309c00d1
+MdtRawDataProvi...  DEBUG word 112 = 301801bc
+MdtRawDataProvi...  DEBUG word 113 = 309801b9
+MdtRawDataProvi...  DEBUG word 114 = 305c01f8
+MdtRawDataProvi...  DEBUG word 115 = 305802ec
+MdtRawDataProvi...  DEBUG word 116 = 8a994023
+MdtRawDataProvi...  DEBUG word 117 = f0000076
+MdtRawDataProvi...  DEBUG Found the beginning of buffer 
+MdtRawDataProvi...  DEBUG Level 1 Id : 256404
+MdtRawDataProvi...  DEBUG Found the Beginnning of Link 
+MdtRawDataProvi...  DEBUG subdetId : 97 mrodId : 1 csmId : 0
+MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result: 
+MdtRawDataProvi...  DEBUG Name : 0
+MdtRawDataProvi...  DEBUG Eta  : 1
+MdtRawDataProvi...  DEBUG Phi  : 2
+MdtRawDataProvi...  DEBUG Found the Beginnning of Link 
+MdtRawDataProvi...  DEBUG subdetId : 97 mrodId : 1 csmId : 1
+MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result: 
+MdtRawDataProvi...  DEBUG Name : 0
+MdtRawDataProvi...  DEBUG Eta  : 2
+MdtRawDataProvi...  DEBUG Phi  : 2
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 1
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 3
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 10
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 11
+MdtRawDataProvi...  DEBUG Found the Beginnning of Link 
+MdtRawDataProvi...  DEBUG subdetId : 97 mrodId : 1 csmId : 2
+MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result: 
+MdtRawDataProvi...  DEBUG Name : 2
+MdtRawDataProvi...  DEBUG Eta  : 1
+MdtRawDataProvi...  DEBUG Phi  : 2
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 3
+MdtRawDataProvi...  DEBUG Found the Beginnning of Link 
+MdtRawDataProvi...  DEBUG subdetId : 97 mrodId : 1 csmId : 3
+MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result: 
+MdtRawDataProvi...  DEBUG Name : 2
+MdtRawDataProvi...  DEBUG Eta  : 2
+MdtRawDataProvi...  DEBUG Phi  : 2
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 3
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 6
+MdtRawDataProvi...  DEBUG Found the Beginnning of Link 
+MdtRawDataProvi...  DEBUG subdetId : 97 mrodId : 1 csmId : 4
+MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result: 
+MdtRawDataProvi...  DEBUG Name : 4
+MdtRawDataProvi...  DEBUG Eta  : 1
+MdtRawDataProvi...  DEBUG Phi  : 2
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 2
+MdtRawDataProvi...  DEBUG Error: corresponding leading edge not found for the trailing edge tdc: 2 chan: 22
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 4
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 5
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 6
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 8
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 10
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 14
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 16
+MdtRawDataProvi...  DEBUG Found the Beginnning of Link 
+MdtRawDataProvi...  DEBUG subdetId : 97 mrodId : 1 csmId : 5
+MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result: 
+MdtRawDataProvi...  DEBUG Name : 4
+MdtRawDataProvi...  DEBUG Eta  : 2
+MdtRawDataProvi...  DEBUG Phi  : 2
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 5
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 6
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 8
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 9
+MdtRawDataProvi...  DEBUG fillCollection: starting
+MdtRawDataProvi...  DEBUG **********Decoder dumping the words******** 
+MdtRawDataProvi...  DEBUG The size of this ROD-read is 
+MdtRawDataProvi...  DEBUG word 0 = 8003e994
+MdtRawDataProvi...  DEBUG word 1 = 81040004
+MdtRawDataProvi...  DEBUG word 2 = 180300d0
+MdtRawDataProvi...  DEBUG word 3 = 890003ff
+MdtRawDataProvi...  DEBUG word 4 = 8a994002
+MdtRawDataProvi...  DEBUG word 5 = 81040004
+MdtRawDataProvi...  DEBUG word 6 = 180300d1
+MdtRawDataProvi...  DEBUG word 7 = 89000fff
+MdtRawDataProvi...  DEBUG word 8 = 8a994002
+MdtRawDataProvi...  DEBUG word 9 = 8104000e
+MdtRawDataProvi...  DEBUG word 10 = 180300d2
+MdtRawDataProvi...  DEBUG word 11 = 89000fff
+MdtRawDataProvi...  DEBUG word 12 = a0994153
+MdtRawDataProvi...  DEBUG word 13 = 30a00056
+MdtRawDataProvi...  DEBUG word 14 = 20105050
+MdtRawDataProvi...  DEBUG word 15 = a1994153
+MdtRawDataProvi...  DEBUG word 16 = 30b40578
+MdtRawDataProvi...  DEBUG word 17 = 30b0060a
+MdtRawDataProvi...  DEBUG word 18 = a8994153
+MdtRawDataProvi...  DEBUG word 19 = 20000400
+MdtRawDataProvi...  DEBUG word 20 = a9994153
+MdtRawDataProvi...  DEBUG word 21 = 307c067b
+MdtRawDataProvi...  DEBUG word 22 = 8a99400c
+MdtRawDataProvi...  DEBUG word 23 = 81040011
+MdtRawDataProvi...  DEBUG word 24 = 180300d3
+MdtRawDataProvi...  DEBUG word 25 = 89003fff
+MdtRawDataProvi...  DEBUG word 26 = a5994153
+MdtRawDataProvi...  DEBUG word 27 = 308c0359
+MdtRawDataProvi...  DEBUG word 28 = 30880397
+MdtRawDataProvi...  DEBUG word 29 = 20020000
+MdtRawDataProvi...  DEBUG word 30 = a7994153
+MdtRawDataProvi...  DEBUG word 31 = 30600040
+MdtRawDataProvi...  DEBUG word 32 = 20001000
+MdtRawDataProvi...  DEBUG word 33 = a8994153
+MdtRawDataProvi...  DEBUG word 34 = 302403a8
+MdtRawDataProvi...  DEBUG word 35 = 3020040f
+MdtRawDataProvi...  DEBUG word 36 = a9994153
+MdtRawDataProvi...  DEBUG word 37 = 309c0635
+MdtRawDataProvi...  DEBUG word 38 = 308c0671
+MdtRawDataProvi...  DEBUG word 39 = 8a99400f
+MdtRawDataProvi...  DEBUG word 40 = 81040017
+MdtRawDataProvi...  DEBUG word 41 = 180300d4
+MdtRawDataProvi...  DEBUG word 42 = 8900ffff
+MdtRawDataProvi...  DEBUG word 43 = a1994153
+MdtRawDataProvi...  DEBUG word 44 = 304c0488
+MdtRawDataProvi...  DEBUG word 45 = 308c0498
+MdtRawDataProvi...  DEBUG word 46 = 302c0500
+MdtRawDataProvi...  DEBUG word 47 = 30280581
+MdtRawDataProvi...  DEBUG word 48 = 3048052d
+MdtRawDataProvi...  DEBUG word 49 = 3088056a
+MdtRawDataProvi...  DEBUG word 50 = 301c05a2
+MdtRawDataProvi...  DEBUG word 51 = 30180610
+MdtRawDataProvi...  DEBUG word 52 = 309c0646
+MdtRawDataProvi...  DEBUG word 53 = a4994153
+MdtRawDataProvi...  DEBUG word 54 = 30640517
+MdtRawDataProvi...  DEBUG word 55 = 306005a2
+MdtRawDataProvi...  DEBUG word 56 = 302405e1
+MdtRawDataProvi...  DEBUG word 57 = 30200624
+MdtRawDataProvi...  DEBUG word 58 = a9994153
+MdtRawDataProvi...  DEBUG word 59 = 200000a0
+MdtRawDataProvi...  DEBUG word 60 = ab994153
+MdtRawDataProvi...  DEBUG word 61 = 20041100
+MdtRawDataProvi...  DEBUG word 62 = 8a994015
+MdtRawDataProvi...  DEBUG word 63 = 8104001c
+MdtRawDataProvi...  DEBUG word 64 = 180300d5
+MdtRawDataProvi...  DEBUG word 65 = 8903ffff
+MdtRawDataProvi...  DEBUG word 66 = a0994153
+MdtRawDataProvi...  DEBUG word 67 = 3014000e
+MdtRawDataProvi...  DEBUG word 68 = 30100032
+MdtRawDataProvi...  DEBUG word 69 = 30940069
+MdtRawDataProvi...  DEBUG word 70 = 3090008d
+MdtRawDataProvi...  DEBUG word 71 = 20000400
+MdtRawDataProvi...  DEBUG word 72 = a1994153
+MdtRawDataProvi...  DEBUG word 73 = 3070001a
+MdtRawDataProvi...  DEBUG word 74 = 30040377
+MdtRawDataProvi...  DEBUG word 75 = 30000398
+MdtRawDataProvi...  DEBUG word 76 = 20014001
+MdtRawDataProvi...  DEBUG word 77 = a2994153
+MdtRawDataProvi...  DEBUG word 78 = 20000020
+MdtRawDataProvi...  DEBUG word 79 = a3994153
+MdtRawDataProvi...  DEBUG word 80 = 20000040
+MdtRawDataProvi...  DEBUG word 81 = a9994153
+MdtRawDataProvi...  DEBUG word 82 = 30a40400
+MdtRawDataProvi...  DEBUG word 83 = 30a00424
+MdtRawDataProvi...  DEBUG word 84 = aa994153
+MdtRawDataProvi...  DEBUG word 85 = 20008000
+MdtRawDataProvi...  DEBUG word 86 = ab994153
+MdtRawDataProvi...  DEBUG word 87 = 20080000
+MdtRawDataProvi...  DEBUG word 88 = b0994153
+MdtRawDataProvi...  DEBUG word 89 = 20080000
+MdtRawDataProvi...  DEBUG word 90 = 8a99401a
+MdtRawDataProvi...  DEBUG word 91 = f000005c
+MdtRawDataProvi...  DEBUG Found the beginning of buffer 
+MdtRawDataProvi...  DEBUG Level 1 Id : 256404
+MdtRawDataProvi...  DEBUG Found the Beginnning of Link 
+MdtRawDataProvi...  DEBUG subdetId : 97 mrodId : 2 csmId : 0
+MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result: 
+MdtRawDataProvi...  DEBUG Name : 0
+MdtRawDataProvi...  DEBUG Eta  : 1
+MdtRawDataProvi...  DEBUG Phi  : 3
+MdtRawDataProvi...  DEBUG Found the Beginnning of Link 
+MdtRawDataProvi...  DEBUG subdetId : 97 mrodId : 2 csmId : 1
+MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result: 
+MdtRawDataProvi...  DEBUG Name : 0
+MdtRawDataProvi...  DEBUG Eta  : 2
+MdtRawDataProvi...  DEBUG Phi  : 3
+MdtRawDataProvi...  DEBUG Found the Beginnning of Link 
+MdtRawDataProvi...  DEBUG subdetId : 97 mrodId : 2 csmId : 2
+MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result: 
+MdtRawDataProvi...  DEBUG Name : 2
+MdtRawDataProvi...  DEBUG Eta  : 1
+MdtRawDataProvi...  DEBUG Phi  : 3
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 0
+MdtRawDataProvi...  DEBUG Error: corresponding leading edge not found for the trailing edge tdc: 0 chan: 20
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 1
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 8
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 9
+MdtRawDataProvi...  DEBUG Found the Beginnning of Link 
+MdtRawDataProvi...  DEBUG subdetId : 97 mrodId : 2 csmId : 3
+MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result: 
+MdtRawDataProvi...  DEBUG Name : 2
+MdtRawDataProvi...  DEBUG Eta  : 2
+MdtRawDataProvi...  DEBUG Phi  : 3
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 5
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 7
+MdtRawDataProvi...  DEBUG Error: corresponding leading edge not found for the trailing edge tdc: 7 chan: 12
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 8
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 9
+MdtRawDataProvi...  DEBUG Found the Beginnning of Link 
+MdtRawDataProvi...  DEBUG subdetId : 97 mrodId : 2 csmId : 4
+MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result: 
+MdtRawDataProvi...  DEBUG Name : 4
+MdtRawDataProvi...  DEBUG Eta  : 1
+MdtRawDataProvi...  DEBUG Phi  : 3
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 1
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 4
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 9
+MdtRawDataProvi...  DEBUG  Decoding data from TDC number : 11
+MdtRawDataProvi...  DEBUG Found the Beginnning of Link 
+MdtRawDataProvi...  DEBUG subdetId : 97 mrodId : 2 csmId : 5
+MdtRawDataProvi...  DEBUG getOfflineIdfromOnlineID result: 
+MdtRawDataProvi...  DEBUG Name : 4
+MdtRawDataProvi...  DEBUG Eta  : 2
+MdtRawDataProvi...WARNING DEBUG message limit (500) reached for MdtRawDataProvider.MDT_RawDataProviderTool.MdtROD_Decoder. Suppressing further output.
+MdtRawDataProvi...  DEBUG After processing numColls=1136
+CscRawDataProvi...VERBOSE Number of ROB ids 32
+CscRawDataProvi...VERBOSE Number of ROB fragments 32
+CscRawDataProvi...  DEBUG Created container using cache for CscCache
+CscRawDataProvi...  DEBUG Before processing numColls=0
+CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
+CscRawDataProvi...  DEBUG in CscROD_Decode::fillCollection()
+CscRawDataProvi...  DEBUG in CscROD_Decoder::fillCollection :ROD version 401
+CscRawDataProvi...  DEBUG  
+CscRawDataProvi...  DEBUG ===================================================
+CscRawDataProvi...  DEBUG in CscROD_Decode::fillCollection() - ROD version 2
+CscRawDataProvi...  DEBUG Online ROD id is 0x80
+CscRawDataProvi...  DEBUG Online ROD / ROD / collection / subDetector IDs are 0x80 24 8 106
+CscRawDataProvi...  DEBUG CSC RDO collection does not exist - creating a new one with hash = 8
+CscRawDataProvi...  DEBUG Event Type: 5407e04
+CscRawDataProvi...  DEBUG Sampling Time: 50  Number of Samples: 4
+CscRawDataProvi...  DEBUG Is Calibration Enabled?: 0  Calibration Amplitude: 5
+CscRawDataProvi...  DEBUG Calibration Layer: 0  Latency: 126
+CscRawDataProvi...  DEBUG Is neutron rejection ON?: 0  Is sparsified data?: 1
+CscRawDataProvi...  DEBUG CscROD_Decoder Total words received = 112
+CscRawDataProvi...  DEBUG RPU ID original = 5
+CscRawDataProvi...  DEBUG RPU ID Updated = 5
+CscRawDataProvi...  DEBUG RPU size = 112
+CscRawDataProvi...  DEBUG SCA Address = 724315438
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 0 Cluster Counts = 0
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 1 Cluster Counts = 2
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 2 Cluster Counts = 2
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 3 Cluster Counts = 2
+CscRawDataProvi...  DEBUG Summed Number of Clusters for non-precision layers 6
+CscRawDataProvi...  DEBUG Cluster Data Words = 108
+CscRawDataProvi...  DEBUG Total summed Cluster Count for precision and non-precision layers = 12
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 8 31725  6  51 :: measphi0 L2 strId 46 nStr 4 T0 nSampWords 8 [7.51.-1.1.1.2.2.0.46]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 8 31733  6  51 :: measphi0 L2 strId 54 nStr 3 T0 nSampWords 6 [7.51.-1.1.1.2.2.0.54]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 8 31916  7  51 :: measphi0 L3 strId 45 nStr 5 T0 nSampWords 10 [7.51.-1.1.1.2.3.0.45]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 8 31927  7  51 :: measphi0 L3 strId 56 nStr 4 T0 nSampWords 8 [7.51.-1.1.1.2.3.0.56]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 8 32109  8  51 :: measphi0 L4 strId 46 nStr 3 T0 nSampWords 6 [7.51.-1.1.1.2.4.0.46]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 8 32121  8  51 :: measphi0 L4 strId 58 nStr 3 T0 nSampWords 6 [7.51.-1.1.1.2.4.0.58]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 8 55491  9  51 :: measphi1 L1 strId 4 nStr 3 T0 nSampWords 6 [7.51.-1.1.1.2.1.1.4]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 8 55544  9  51 :: measphi1 L2 strId 9 nStr 3 T0 nSampWords 6 [7.51.-1.1.1.2.2.1.9]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 8 55566  9  51 :: measphi1 L2 strId 31 nStr 3 T0 nSampWords 6 [7.51.-1.1.1.2.2.1.31]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 8 55591  9  51 :: measphi1 L3 strId 8 nStr 5 T0 nSampWords 10 [7.51.-1.1.1.2.3.1.8]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 8 55614  9  51 :: measphi1 L3 strId 31 nStr 3 T0 nSampWords 6 [7.51.-1.1.1.2.3.1.31]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 8 55640  9  51 :: measphi1 L4 strId 9 nStr 3 T0 nSampWords 6 [7.51.-1.1.1.2.4.1.9]
+CscRawDataProvi...  DEBUG ****Total Cluster count = 12 for RPU ID 5
+CscRawDataProvi...  DEBUG end of CscROD_Decode::fillCollection()
+CscRawDataProvi...  DEBUG in CscROD_Decode::fillCollection()
+CscRawDataProvi...  DEBUG in CscROD_Decoder::fillCollection :ROD version 401
+CscRawDataProvi...  DEBUG  
+CscRawDataProvi...  DEBUG ===================================================
+CscRawDataProvi...  DEBUG in CscROD_Decode::fillCollection() - ROD version 2
+CscRawDataProvi...  DEBUG Online ROD id is 0x81
+CscRawDataProvi...  DEBUG Online ROD / ROD / collection / subDetector IDs are 0x81 16 0 106
+CscRawDataProvi...  DEBUG CSC RDO collection does not exist - creating a new one with hash = 0
+CscRawDataProvi...  DEBUG Event Type: 5407e04
+CscRawDataProvi...  DEBUG Sampling Time: 50  Number of Samples: 4
+CscRawDataProvi...  DEBUG Is Calibration Enabled?: 0  Calibration Amplitude: 5
+CscRawDataProvi...  DEBUG Calibration Layer: 0  Latency: 126
+CscRawDataProvi...  DEBUG Is neutron rejection ON?: 0  Is sparsified data?: 1
+CscRawDataProvi...  DEBUG CscROD_Decoder Total words received = 122
+CscRawDataProvi...  DEBUG RPU ID original = 13
+CscRawDataProvi...  DEBUG RPU ID Updated = 11
+CscRawDataProvi...  DEBUG RPU size = 122
+CscRawDataProvi...  DEBUG SCA Address = 2358087311
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 0 Cluster Counts = 2
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 1 Cluster Counts = 0
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 2 Cluster Counts = 0
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 3 Cluster Counts = 2
+CscRawDataProvi...  DEBUG Summed Number of Clusters for non-precision layers 7
+CscRawDataProvi...  DEBUG Cluster Data Words = 118
+CscRawDataProvi...  DEBUG Total summed Cluster Count for precision and non-precision layers = 11
+CscRawDataProvi...  DEBUG cluster location word 0x810
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 0 784  0  50 :: measphi0 L1 strId 17 nStr 4 T0 nSampWords 8 [7.50.-1.1.1.2.1.0.17]
+CscRawDataProvi...  DEBUG cluster location word 0x868
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 0 872  0  50 :: measphi0 L1 strId 105 nStr 7 T0 nSampWords 14 [7.50.-1.1.1.2.1.0.105]
+CscRawDataProvi...  DEBUG cluster location word 0xe11
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 0 1361  3  50 :: measphi0 L4 strId 18 nStr 10 T0 nSampWords 20 [7.50.-1.1.1.2.4.0.18]
+CscRawDataProvi...  DEBUG cluster location word 0xe41
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 0 1409  3  50 :: measphi0 L4 strId 66 nStr 4 T0 nSampWords 8 [7.50.-1.1.1.2.4.0.66]
+CscRawDataProvi...  DEBUG cluster location word 0x916
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 0 24790  4  50 :: measphi1 L1 strId 23 nStr 5 T0 nSampWords 10 [7.50.-1.1.1.2.1.1.23]
+CscRawDataProvi...  DEBUG cluster location word 0xb16
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 0 24838  4  50 :: measphi1 L2 strId 23 nStr 3 T0 nSampWords 6 [7.50.-1.1.1.2.2.1.23]
+CscRawDataProvi...  DEBUG cluster location word 0xd03
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 0 24867  4  50 :: measphi1 L3 strId 4 nStr 3 T0 nSampWords 6 [7.50.-1.1.1.2.3.1.4]
+CscRawDataProvi...  DEBUG cluster location word 0xd15
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 0 24885  4  50 :: measphi1 L3 strId 22 nStr 3 T0 nSampWords 6 [7.50.-1.1.1.2.3.1.22]
+CscRawDataProvi...  DEBUG cluster location word 0xd2d
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 0 24909  4  50 :: measphi1 L3 strId 46 nStr 3 T0 nSampWords 6 [7.50.-1.1.1.2.3.1.46]
+CscRawDataProvi...  DEBUG cluster location word 0xf15
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 0 24933  4  50 :: measphi1 L4 strId 22 nStr 3 T0 nSampWords 6 [7.50.-1.1.1.2.4.1.22]
+CscRawDataProvi...  DEBUG cluster location word 0xf1e
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 0 24942  4  50 :: measphi1 L4 strId 31 nStr 3 T0 nSampWords 6 [7.50.-1.1.1.2.4.1.31]
+CscRawDataProvi...  DEBUG ****Total Cluster count = 11 for RPU ID 11
+CscRawDataProvi...  DEBUG end of CscROD_Decode::fillCollection()
+CscRawDataProvi...  DEBUG in CscROD_Decode::fillCollection()
+CscRawDataProvi...  DEBUG in CscROD_Decoder::fillCollection :ROD version 401
+CscRawDataProvi...  DEBUG  
+CscRawDataProvi...  DEBUG ===================================================
+CscRawDataProvi...  DEBUG in CscROD_Decode::fillCollection() - ROD version 2
+CscRawDataProvi...  DEBUG Online ROD id is 0x82
+CscRawDataProvi...  DEBUG Online ROD / ROD / collection / subDetector IDs are 0x82 25 9 106
+CscRawDataProvi...  DEBUG CSC RDO collection does not exist - creating a new one with hash = 9
+CscRawDataProvi...  DEBUG Event Type: 5407e04
+CscRawDataProvi...  DEBUG Sampling Time: 50  Number of Samples: 4
+CscRawDataProvi...  DEBUG Is Calibration Enabled?: 0  Calibration Amplitude: 5
+CscRawDataProvi...  DEBUG Calibration Layer: 0  Latency: 126
+CscRawDataProvi...  DEBUG Is neutron rejection ON?: 0  Is sparsified data?: 1
+CscRawDataProvi...  DEBUG CscROD_Decoder Total words received = 50
+CscRawDataProvi...  DEBUG RPU ID original = 5
+CscRawDataProvi...  DEBUG RPU ID Updated = 5
+CscRawDataProvi...  DEBUG RPU size = 50
+CscRawDataProvi...  DEBUG SCA Address = 269554195
+CscRawDataProvi...  DEBUG Number of Precision Cluster word 0x102
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 0 Cluster Counts = 0
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 1 Cluster Counts = 0
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 2 Cluster Counts = 1
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 3 Cluster Counts = 2
+CscRawDataProvi...  DEBUG Summed Number of Clusters for non-precision layers 2
+CscRawDataProvi...  DEBUG Cluster Data Words = 46
+CscRawDataProvi...  DEBUG Total summed Cluster Count for precision and non-precision layers = 5
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 9 33431  7  51 :: measphi0 L3 strId 24 nStr 5 T0 nSampWords 10 [7.51.-1.2.1.2.3.0.24]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 9 33622  8  51 :: measphi0 L4 strId 23 nStr 3 T0 nSampWords 6 [7.51.-1.2.1.2.4.0.23]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 9 33626  8  51 :: measphi0 L4 strId 27 nStr 3 T0 nSampWords 6 [7.51.-1.2.1.2.4.0.27]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 9 56004  9  51 :: measphi1 L3 strId 37 nStr 4 T0 nSampWords 8 [7.51.-1.2.1.2.3.1.37]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 9 56052  9  51 :: measphi1 L4 strId 37 nStr 3 T0 nSampWords 6 [7.51.-1.2.1.2.4.1.37]
+CscRawDataProvi...  DEBUG ****Total Cluster count = 5 for RPU ID 5
+CscRawDataProvi...  DEBUG end of CscROD_Decode::fillCollection()
+CscRawDataProvi...  DEBUG in CscROD_Decode::fillCollection()
+CscRawDataProvi...  DEBUG in CscROD_Decoder::fillCollection :ROD version 401
+CscRawDataProvi...  DEBUG  
+CscRawDataProvi...  DEBUG ===================================================
+CscRawDataProvi...  DEBUG in CscROD_Decode::fillCollection() - ROD version 2
+CscRawDataProvi...  DEBUG Online ROD id is 0x83
+CscRawDataProvi...  DEBUG Online ROD / ROD / collection / subDetector IDs are 0x83 17 1 106
+CscRawDataProvi...  DEBUG CSC RDO collection does not exist - creating a new one with hash = 1
+CscRawDataProvi...  DEBUG Event Type: 5407e04
+CscRawDataProvi...  DEBUG Sampling Time: 50  Number of Samples: 4
+CscRawDataProvi...  DEBUG Is Calibration Enabled?: 0  Calibration Amplitude: 5
+CscRawDataProvi...  DEBUG Calibration Layer: 0  Latency: 126
+CscRawDataProvi...  DEBUG Is neutron rejection ON?: 0  Is sparsified data?: 1
+CscRawDataProvi...  DEBUG CscROD_Decoder Total words received = 116
+CscRawDataProvi...  DEBUG RPU ID original = 13
+CscRawDataProvi...  DEBUG RPU ID Updated = 11
+CscRawDataProvi...  DEBUG RPU size = 116
+CscRawDataProvi...  DEBUG SCA Address = 1920169077
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 0 Cluster Counts = 1
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 1 Cluster Counts = 1
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 2 Cluster Counts = 1
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 3 Cluster Counts = 2
+CscRawDataProvi...  DEBUG Summed Number of Clusters for non-precision layers 6
+CscRawDataProvi...  DEBUG Cluster Data Words = 112
+CscRawDataProvi...  DEBUG Total summed Cluster Count for precision and non-precision layers = 11
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 1 2328  0  50 :: measphi0 L1 strId 25 nStr 4 T0 nSampWords 8 [7.50.-1.2.1.2.1.0.25]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 1 2519  1  50 :: measphi0 L2 strId 24 nStr 6 T0 nSampWords 12 [7.50.-1.2.1.2.2.0.24]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 1 2711  2  50 :: measphi0 L3 strId 24 nStr 5 T0 nSampWords 10 [7.50.-1.2.1.2.3.0.24]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 1 2904  3  50 :: measphi0 L4 strId 25 nStr 4 T0 nSampWords 8 [7.50.-1.2.1.2.4.0.25]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 1 3068  3  50 :: measphi0 L4 strId 189 nStr 3 T0 nSampWords 6 [7.50.-1.2.1.2.4.0.189]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 1 25161  4  50 :: measphi1 L1 strId 10 nStr 4 T0 nSampWords 8 [7.50.-1.2.1.2.1.1.10]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 1 25209  4  50 :: measphi1 L2 strId 10 nStr 5 T0 nSampWords 10 [7.50.-1.2.1.2.2.1.10]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 1 25257  4  50 :: measphi1 L3 strId 10 nStr 4 T0 nSampWords 8 [7.50.-1.2.1.2.3.1.10]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 1 25270  4  50 :: measphi1 L3 strId 23 nStr 3 T0 nSampWords 6 [7.50.-1.2.1.2.3.1.23]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 1 25305  4  50 :: measphi1 L4 strId 10 nStr 4 T0 nSampWords 8 [7.50.-1.2.1.2.4.1.10]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 1 25336  4  50 :: measphi1 L4 strId 41 nStr 3 T0 nSampWords 6 [7.50.-1.2.1.2.4.1.41]
+CscRawDataProvi...  DEBUG ****Total Cluster count = 11 for RPU ID 11
+CscRawDataProvi...  DEBUG end of CscROD_Decode::fillCollection()
+CscRawDataProvi...  DEBUG in CscROD_Decode::fillCollection()
+CscRawDataProvi...  DEBUG in CscROD_Decoder::fillCollection :ROD version 401
+CscRawDataProvi...  DEBUG  
+CscRawDataProvi...  DEBUG ===================================================
+CscRawDataProvi...  DEBUG in CscROD_Decode::fillCollection() - ROD version 2
+CscRawDataProvi...  DEBUG Online ROD id is 0x84
+CscRawDataProvi...  DEBUG Online ROD / ROD / collection / subDetector IDs are 0x84 26 10 106
+CscRawDataProvi...  DEBUG CSC RDO collection does not exist - creating a new one with hash = 10
+CscRawDataProvi...  DEBUG Event Type: 5407e04
+CscRawDataProvi...  DEBUG Sampling Time: 50  Number of Samples: 4
+CscRawDataProvi...  DEBUG Is Calibration Enabled?: 0  Calibration Amplitude: 5
+CscRawDataProvi...  DEBUG Calibration Layer: 0  Latency: 126
+CscRawDataProvi...  DEBUG Is neutron rejection ON?: 0  Is sparsified data?: 1
+CscRawDataProvi...  DEBUG CscROD_Decoder Total words received = 114
+CscRawDataProvi...  DEBUG RPU ID original = 5
+CscRawDataProvi...  DEBUG RPU ID Updated = 5
+CscRawDataProvi...  DEBUG RPU size = 114
+CscRawDataProvi...  DEBUG SCA Address = 1414878807
+CscRawDataProvi...  DEBUG Number of Precision Cluster word 0x200
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 0 Cluster Counts = 0
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 1 Cluster Counts = 0
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 2 Cluster Counts = 2
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 3 Cluster Counts = 0
+CscRawDataProvi...  DEBUG Summed Number of Clusters for non-precision layers 4
+CscRawDataProvi...  DEBUG Cluster Data Words = 110
+CscRawDataProvi...  DEBUG Total summed Cluster Count for precision and non-precision layers = 6
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 10 34947  7  51 :: measphi0 L3 strId 4 nStr 5 T0 nSampWords 10 [7.51.-1.3.1.2.3.0.4]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 10 35046  7  51 :: measphi0 L3 strId 103 nStr 19 T0 nSampWords 38 [7.51.-1.3.1.2.3.0.103]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 10 56283  9  51 :: measphi1 L1 strId 28 nStr 3 T0 nSampWords 6 [7.51.-1.3.1.2.1.1.28]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 10 56361  9  51 :: measphi1 L3 strId 10 nStr 6 T0 nSampWords 12 [7.51.-1.3.1.2.3.1.10]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 10 56383  9  51 :: measphi1 L3 strId 32 nStr 3 T0 nSampWords 6 [7.51.-1.3.1.2.3.1.32]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 10 56387  9  51 :: measphi1 L3 strId 36 nStr 13 T0 nSampWords 26 [7.51.-1.3.1.2.3.1.36]
+CscRawDataProvi...  DEBUG ****Total Cluster count = 6 for RPU ID 5
+CscRawDataProvi...  DEBUG end of CscROD_Decode::fillCollection()
+CscRawDataProvi...  DEBUG in CscROD_Decode::fillCollection()
+CscRawDataProvi...  DEBUG in CscROD_Decoder::fillCollection :ROD version 401
+CscRawDataProvi...  DEBUG  
+CscRawDataProvi...  DEBUG ===================================================
+CscRawDataProvi...  DEBUG in CscROD_Decode::fillCollection() - ROD version 2
+CscRawDataProvi...  DEBUG Online ROD id is 0x85
+CscRawDataProvi...  DEBUG Online ROD / ROD / collection / subDetector IDs are 0x85 18 2 106
+CscRawDataProvi...  DEBUG CSC RDO collection does not exist - creating a new one with hash = 2
+CscRawDataProvi...  DEBUG Event Type: 5407e04
+CscRawDataProvi...  DEBUG Sampling Time: 50  Number of Samples: 4
+CscRawDataProvi...  DEBUG Is Calibration Enabled?: 0  Calibration Amplitude: 5
+CscRawDataProvi...  DEBUG Calibration Layer: 0  Latency: 126
+CscRawDataProvi...  DEBUG Is neutron rejection ON?: 0  Is sparsified data?: 1
+CscRawDataProvi...  DEBUG CscROD_Decoder Total words received = 90
+CscRawDataProvi...  DEBUG RPU ID original = 13
+CscRawDataProvi...  DEBUG RPU ID Updated = 11
+CscRawDataProvi...  DEBUG RPU size = 90
+CscRawDataProvi...  DEBUG SCA Address = 1482250843
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 0 Cluster Counts = 0
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 1 Cluster Counts = 2
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 2 Cluster Counts = 1
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 3 Cluster Counts = 0
+CscRawDataProvi...  DEBUG Summed Number of Clusters for non-precision layers 4
+CscRawDataProvi...  DEBUG Cluster Data Words = 86
+CscRawDataProvi...  DEBUG Total summed Cluster Count for precision and non-precision layers = 7
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 2 4056  1  50 :: measphi0 L2 strId 25 nStr 8 T0 nSampWords 16 [7.50.-1.3.1.2.2.0.25]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 2 4090  1  50 :: measphi0 L2 strId 59 nStr 4 T0 nSampWords 8 [7.50.-1.3.1.2.2.0.59]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 2 4250  2  50 :: measphi0 L3 strId 27 nStr 6 T0 nSampWords 12 [7.50.-1.3.1.2.3.0.27]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 2 25601  4  50 :: measphi1 L2 strId 18 nStr 3 T0 nSampWords 6 [7.50.-1.3.1.2.2.1.18]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 2 25608  4  50 :: measphi1 L2 strId 25 nStr 5 T0 nSampWords 10 [7.50.-1.3.1.2.2.1.25]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 2 25614  4  50 :: measphi1 L2 strId 31 nStr 5 T0 nSampWords 10 [7.50.-1.3.1.2.2.1.31]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 2 25652  4  50 :: measphi1 L3 strId 21 nStr 5 T0 nSampWords 10 [7.50.-1.3.1.2.3.1.21]
+CscRawDataProvi...  DEBUG ****Total Cluster count = 7 for RPU ID 11
+CscRawDataProvi...  DEBUG end of CscROD_Decode::fillCollection()
+CscRawDataProvi...  DEBUG in CscROD_Decode::fillCollection()
+CscRawDataProvi...  DEBUG in CscROD_Decoder::fillCollection :ROD version 401
+CscRawDataProvi...  DEBUG  
+CscRawDataProvi...  DEBUG ===================================================
+CscRawDataProvi...  DEBUG in CscROD_Decode::fillCollection() - ROD version 2
+CscRawDataProvi...  DEBUG Online ROD id is 0x86
+CscRawDataProvi...  DEBUG Online ROD / ROD / collection / subDetector IDs are 0x86 27 11 106
+CscRawDataProvi...  DEBUG CSC RDO collection does not exist - creating a new one with hash = 11
+CscRawDataProvi...  DEBUG Event Type: 5407e04
+CscRawDataProvi...  DEBUG Sampling Time: 50  Number of Samples: 4
+CscRawDataProvi...  DEBUG Is Calibration Enabled?: 0  Calibration Amplitude: 5
+CscRawDataProvi...  DEBUG Calibration Layer: 0  Latency: 126
+CscRawDataProvi...  DEBUG Is neutron rejection ON?: 0  Is sparsified data?: 1
+CscRawDataProvi...  DEBUG CscROD_Decoder Total words received = 58
+CscRawDataProvi...  DEBUG RPU ID original = 5
+CscRawDataProvi...  DEBUG RPU ID Updated = 5
+CscRawDataProvi...  DEBUG RPU size = 58
+CscRawDataProvi...  DEBUG SCA Address = 151653132
+CscRawDataProvi...  DEBUG Number of Precision Cluster word 0x201
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 0 Cluster Counts = 0
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 1 Cluster Counts = 0
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 2 Cluster Counts = 2
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 3 Cluster Counts = 1
+CscRawDataProvi...  DEBUG Summed Number of Clusters for non-precision layers 1
+CscRawDataProvi...  DEBUG Cluster Data Words = 54
+CscRawDataProvi...  DEBUG Total summed Cluster Count for precision and non-precision layers = 4
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 11 36527  7  51 :: measphi0 L3 strId 48 nStr 3 T0 nSampWords 6 [7.51.-1.4.1.2.3.0.48]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 11 36566  7  51 :: measphi0 L3 strId 87 nStr 8 T0 nSampWords 16 [7.51.-1.4.1.2.3.0.87]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 11 36759  8  51 :: measphi0 L4 strId 88 nStr 7 T0 nSampWords 14 [7.51.-1.4.1.2.4.0.88]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 11 56788  9  51 :: measphi1 L4 strId 5 nStr 5 T0 nSampWords 10 [7.51.-1.4.1.2.4.1.5]
+CscRawDataProvi...  DEBUG ****Total Cluster count = 4 for RPU ID 5
+CscRawDataProvi...  DEBUG end of CscROD_Decode::fillCollection()
+CscRawDataProvi...  DEBUG in CscROD_Decode::fillCollection()
+CscRawDataProvi...  DEBUG in CscROD_Decoder::fillCollection :ROD version 401
+CscRawDataProvi...  DEBUG  
+CscRawDataProvi...  DEBUG ===================================================
+CscRawDataProvi...  DEBUG in CscROD_Decode::fillCollection() - ROD version 2
+CscRawDataProvi...  DEBUG Online ROD id is 0x87
+CscRawDataProvi...  DEBUG Online ROD / ROD / collection / subDetector IDs are 0x87 19 3 106
+CscRawDataProvi...  DEBUG CSC RDO collection does not exist - creating a new one with hash = 3
+CscRawDataProvi...  DEBUG Event Type: 5407e04
+CscRawDataProvi...  DEBUG Sampling Time: 50  Number of Samples: 4
+CscRawDataProvi...  DEBUG Is Calibration Enabled?: 0  Calibration Amplitude: 5
+CscRawDataProvi...  DEBUG Calibration Layer: 0  Latency: 126
+CscRawDataProvi...  DEBUG Is neutron rejection ON?: 0  Is sparsified data?: 1
+CscRawDataProvi...  DEBUG CscROD_Decoder Total words received = 92
+CscRawDataProvi...  DEBUG RPU ID original = 13
+CscRawDataProvi...  DEBUG RPU ID Updated = 11
+CscRawDataProvi...  DEBUG RPU size = 92
+CscRawDataProvi...  DEBUG SCA Address = 404298267
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 0 Cluster Counts = 1
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 1 Cluster Counts = 1
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 2 Cluster Counts = 1
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 3 Cluster Counts = 1
+CscRawDataProvi...  DEBUG Summed Number of Clusters for non-precision layers 6
+CscRawDataProvi...  DEBUG Cluster Data Words = 88
+CscRawDataProvi...  DEBUG Total summed Cluster Count for precision and non-precision layers = 10
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 3 5461  0  50 :: measphi0 L1 strId 86 nStr 4 T0 nSampWords 8 [7.50.-1.4.1.2.1.0.86]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 3 5692  1  50 :: measphi0 L2 strId 125 nStr 3 T0 nSampWords 6 [7.50.-1.4.1.2.2.0.125]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 3 5879  2  50 :: measphi0 L3 strId 120 nStr 5 T0 nSampWords 10 [7.50.-1.4.1.2.3.0.120]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 3 6065  3  50 :: measphi0 L4 strId 114 nStr 3 T0 nSampWords 6 [7.50.-1.4.1.2.4.0.114]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 3 25947  4  50 :: measphi1 L1 strId 28 nStr 3 T0 nSampWords 6 [7.50.-1.4.1.2.1.1.28]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 3 25951  4  50 :: measphi1 L1 strId 32 nStr 3 T0 nSampWords 6 [7.50.-1.4.1.2.1.1.32]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 3 25956  4  50 :: measphi1 L1 strId 37 nStr 3 T0 nSampWords 6 [7.50.-1.4.1.2.1.1.37]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 3 25991  4  50 :: measphi1 L2 strId 24 nStr 3 T0 nSampWords 6 [7.50.-1.4.1.2.2.1.24]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 3 26039  4  50 :: measphi1 L3 strId 24 nStr 4 T0 nSampWords 8 [7.50.-1.4.1.2.3.1.24]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 3 26106  4  50 :: measphi1 L4 strId 43 nStr 3 T0 nSampWords 6 [7.50.-1.4.1.2.4.1.43]
+CscRawDataProvi...  DEBUG ****Total Cluster count = 10 for RPU ID 11
+CscRawDataProvi...  DEBUG end of CscROD_Decode::fillCollection()
+CscRawDataProvi...  DEBUG in CscROD_Decode::fillCollection()
+CscRawDataProvi...  DEBUG in CscROD_Decoder::fillCollection :ROD version 401
+CscRawDataProvi...  DEBUG  
+CscRawDataProvi...  DEBUG ===================================================
+CscRawDataProvi...  DEBUG in CscROD_Decode::fillCollection() - ROD version 2
+CscRawDataProvi...  DEBUG Online ROD id is 0x88
+CscRawDataProvi...  DEBUG Online ROD / ROD / collection / subDetector IDs are 0x88 28 12 106
+CscRawDataProvi...  DEBUG CSC RDO collection does not exist - creating a new one with hash = 12
+CscRawDataProvi...  DEBUG Event Type: 5407e04
+CscRawDataProvi...  DEBUG Sampling Time: 50  Number of Samples: 4
+CscRawDataProvi...  DEBUG Is Calibration Enabled?: 0  Calibration Amplitude: 5
+CscRawDataProvi...  DEBUG Calibration Layer: 0  Latency: 126
+CscRawDataProvi...  DEBUG Is neutron rejection ON?: 0  Is sparsified data?: 1
+CscRawDataProvi...  DEBUG CscROD_Decoder Total words received = 74
+CscRawDataProvi...  DEBUG RPU ID original = 5
+CscRawDataProvi...  DEBUG RPU ID Updated = 5
+CscRawDataProvi...  DEBUG RPU size = 74
+CscRawDataProvi...  DEBUG SCA Address = 1499093852
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 0 Cluster Counts = 2
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 1 Cluster Counts = 0
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 2 Cluster Counts = 0
+CscRawDataProvi...  DEBUG Number of precision Cluster Counts - Layer Index = 3 Cluster Counts = 1
+CscRawDataProvi...  DEBUG Summed Number of Clusters for non-precision layers 5
+CscRawDataProvi...  DEBUG Cluster Data Words = 70
+CscRawDataProvi...  DEBUG Total summed Cluster Count for precision and non-precision layers = 8
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 12 37681  5  51 :: measphi0 L1 strId 50 nStr 3 T0 nSampWords 6 [7.51.-1.5.1.2.1.0.50]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 12 37803  5  51 :: measphi0 L1 strId 172 nStr 3 T0 nSampWords 6 [7.51.-1.5.1.2.1.0.172]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 12 38211  8  51 :: measphi0 L4 strId 4 nStr 5 T0 nSampWords 10 [7.51.-1.5.1.2.4.0.4]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 12 57032  9  51 :: measphi1 L1 strId 9 nStr 3 T0 nSampWords 6 [7.51.-1.5.1.2.1.1.9]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 12 57070  9  51 :: measphi1 L1 strId 47 nStr 2 T0 nSampWords 4 [7.51.-1.5.1.2.1.1.47]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 12 57072  9  51 :: measphi1 L2 strId 1 nStr 2 T0 nSampWords 4 [7.51.-1.5.1.2.2.1.1]
+CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 12 57133  9  51 :: measphi1 L3 strId 14 nStr 3 T0 nSampWords 6 [7.51.-1.5.1.2.3.1.14]
+CscRawDataProvi...WARNING DEBUG message limit (500) reached for CscRawDataProvider.CSC_RawDataProviderTool.CscROD_Decoder. Suppressing further output.
+CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186525031, run #327265 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186524665, run #327265 1 events processed so far  <<<===
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
+MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
+MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
+MdtRawDataProvi...  DEBUG After processing numColls=1136
+CscRawDataProvi...VERBOSE Number of ROB ids 32
+CscRawDataProvi...VERBOSE Number of ROB fragments 32
+CscRawDataProvi...  DEBUG Created container using cache for CscCache
+CscRawDataProvi...  DEBUG Before processing numColls=0
+CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
+CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186524665, run #327265 2 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186542447, run #327265 2 events processed so far  <<<===
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
+MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
+MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
+MdtRawDataProvi...  DEBUG After processing numColls=1136
+CscRawDataProvi...VERBOSE Number of ROB ids 32
+CscRawDataProvi...VERBOSE Number of ROB fragments 32
+CscRawDataProvi...  DEBUG Created container using cache for CscCache
+CscRawDataProvi...  DEBUG Before processing numColls=0
+CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
+CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186542447, run #327265 3 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186543405, run #327265 3 events processed so far  <<<===
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
+MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
+MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
+MdtRawDataProvi...  DEBUG After processing numColls=1136
+CscRawDataProvi...VERBOSE Number of ROB ids 32
+CscRawDataProvi...VERBOSE Number of ROB fragments 32
+CscRawDataProvi...  DEBUG Created container using cache for CscCache
+CscRawDataProvi...  DEBUG Before processing numColls=0
+CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
+CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186543405, run #327265 4 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186548387, run #327265 4 events processed so far  <<<===
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
+MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
+MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
+MdtRawDataProvi...  DEBUG After processing numColls=1136
+CscRawDataProvi...VERBOSE Number of ROB ids 32
+CscRawDataProvi...VERBOSE Number of ROB fragments 32
+CscRawDataProvi...  DEBUG Created container using cache for CscCache
+CscRawDataProvi...  DEBUG Before processing numColls=0
+CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
+CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186548387, run #327265 5 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186515186, run #327265 5 events processed so far  <<<===
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
+MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
+MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
+MdtRawDataProvi...  DEBUG After processing numColls=1136
+CscRawDataProvi...VERBOSE Number of ROB ids 32
+CscRawDataProvi...VERBOSE Number of ROB fragments 32
+CscRawDataProvi...  DEBUG Created container using cache for CscCache
+CscRawDataProvi...  DEBUG Before processing numColls=0
+CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
+CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186515186, run #327265 6 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186556019, run #327265 6 events processed so far  <<<===
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
+MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
+MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
+MdtRawDataProvi...  DEBUG After processing numColls=1136
+CscRawDataProvi...VERBOSE Number of ROB ids 32
+CscRawDataProvi...VERBOSE Number of ROB fragments 32
+CscRawDataProvi...  DEBUG Created container using cache for CscCache
+CscRawDataProvi...  DEBUG Before processing numColls=0
+CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
+CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186556019, run #327265 7 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186542866, run #327265 7 events processed so far  <<<===
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
+MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
+MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
+MdtRawDataProvi...  DEBUG After processing numColls=1136
+CscRawDataProvi...VERBOSE Number of ROB ids 32
+CscRawDataProvi...VERBOSE Number of ROB fragments 32
+CscRawDataProvi...  DEBUG Created container using cache for CscCache
+CscRawDataProvi...  DEBUG Before processing numColls=0
+CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
+CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186542866, run #327265 8 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186537901, run #327265 8 events processed so far  <<<===
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
+MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
+MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
+MdtRawDataProvi...  DEBUG After processing numColls=1136
+CscRawDataProvi...VERBOSE Number of ROB ids 32
+CscRawDataProvi...VERBOSE Number of ROB fragments 32
+CscRawDataProvi...  DEBUG Created container using cache for CscCache
+CscRawDataProvi...  DEBUG Before processing numColls=0
+CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
+CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186537901, run #327265 9 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186517811, run #327265 9 events processed so far  <<<===
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
+MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
+MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
+MdtRawDataProvi...  DEBUG After processing numColls=1136
+CscRawDataProvi...VERBOSE Number of ROB ids 32
+CscRawDataProvi...VERBOSE Number of ROB fragments 32
+CscRawDataProvi...  DEBUG Created container using cache for CscCache
+CscRawDataProvi...  DEBUG Before processing numColls=0
+CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
+CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186517811, run #327265 10 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186534221, run #327265 10 events processed so far  <<<===
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
+MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
+MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
+MdtRawDataProvi...  DEBUG After processing numColls=1136
+CscRawDataProvi...VERBOSE Number of ROB ids 32
+CscRawDataProvi...VERBOSE Number of ROB fragments 32
+CscRawDataProvi...  DEBUG Created container using cache for CscCache
+CscRawDataProvi...  DEBUG Before processing numColls=0
+CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
+CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186534221, run #327265 11 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186540986, run #327265 11 events processed so far  <<<===
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
+MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
+MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
+MdtRawDataProvi...  DEBUG After processing numColls=1136
+CscRawDataProvi...VERBOSE Number of ROB ids 32
+CscRawDataProvi...VERBOSE Number of ROB fragments 32
+CscRawDataProvi...  DEBUG Created container using cache for CscCache
+CscRawDataProvi...  DEBUG Before processing numColls=0
+CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
+CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186540986, run #327265 12 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186535104, run #327265 12 events processed so far  <<<===
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
+MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
+MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
+MdtRawDataProvi...  DEBUG After processing numColls=1136
+CscRawDataProvi...VERBOSE Number of ROB ids 32
+CscRawDataProvi...VERBOSE Number of ROB fragments 32
+CscRawDataProvi...  DEBUG Created container using cache for CscCache
+CscRawDataProvi...  DEBUG Before processing numColls=0
+CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
+CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186535104, run #327265 13 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186539903, run #327265 13 events processed so far  <<<===
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
+MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
+MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
+MdtRawDataProvi...  DEBUG After processing numColls=1136
+CscRawDataProvi...VERBOSE Number of ROB ids 32
+CscRawDataProvi...VERBOSE Number of ROB fragments 32
+CscRawDataProvi...  DEBUG Created container using cache for CscCache
+CscRawDataProvi...  DEBUG Before processing numColls=0
+CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
+CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186539903, run #327265 14 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186552713, run #327265 14 events processed so far  <<<===
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
+MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
+MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
+MdtRawDataProvi...  DEBUG After processing numColls=1136
+CscRawDataProvi...VERBOSE Number of ROB ids 32
+CscRawDataProvi...VERBOSE Number of ROB fragments 32
+CscRawDataProvi...  DEBUG Created container using cache for CscCache
+CscRawDataProvi...  DEBUG Before processing numColls=0
+CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
+CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186552713, run #327265 15 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186524730, run #327265 15 events processed so far  <<<===
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
+MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
+MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
+MdtRawDataProvi...  DEBUG After processing numColls=1136
+CscRawDataProvi...VERBOSE Number of ROB ids 32
+CscRawDataProvi...VERBOSE Number of ROB fragments 32
+CscRawDataProvi...  DEBUG Created container using cache for CscCache
+CscRawDataProvi...  DEBUG Before processing numColls=0
+CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
+CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186524730, run #327265 16 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186547632, run #327265 16 events processed so far  <<<===
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
+MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
+MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
+MdtRawDataProvi...  DEBUG After processing numColls=1136
+CscRawDataProvi...VERBOSE Number of ROB ids 32
+CscRawDataProvi...VERBOSE Number of ROB fragments 32
+CscRawDataProvi...  DEBUG Created container using cache for CscCache
+CscRawDataProvi...  DEBUG Before processing numColls=0
+CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
+CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186547632, run #327265 17 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186555621, run #327265 17 events processed so far  <<<===
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
+MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
+MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
+MdtRawDataProvi...  DEBUG After processing numColls=1136
+CscRawDataProvi...VERBOSE Number of ROB ids 32
+CscRawDataProvi...VERBOSE Number of ROB fragments 32
+CscRawDataProvi...  DEBUG Created container using cache for CscCache
+CscRawDataProvi...  DEBUG Before processing numColls=0
+CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
+CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186555621, run #327265 18 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186568452, run #327265 18 events processed so far  <<<===
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
+MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
+MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
+MdtRawDataProvi...  DEBUG After processing numColls=1136
+CscRawDataProvi...VERBOSE Number of ROB ids 32
+CscRawDataProvi...VERBOSE Number of ROB fragments 32
+CscRawDataProvi...  DEBUG Created container using cache for CscCache
+CscRawDataProvi...  DEBUG Before processing numColls=0
+CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
+CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186568452, run #327265 19 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186580451, run #327265 19 events processed so far  <<<===
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
 MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
+MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
+MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
+MdtRawDataProvi...  DEBUG After processing numColls=1136
+CscRawDataProvi...VERBOSE Number of ROB ids 32
+CscRawDataProvi...VERBOSE Number of ROB fragments 32
+CscRawDataProvi...  DEBUG Created container using cache for CscCache
+CscRawDataProvi...  DEBUG Before processing numColls=0
+CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
+CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186580451, run #327265 20 events processed so far  <<<===
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
@@ -2254,4 +3252,8 @@ ToolSvc.TGCCabl...   INFO finalize
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully
 ApplicationMgr       INFO Application Manager Terminated successfully
+Listing sources of suppressed message: 
+ Message Source              |   Level |    Count
+ CscRawDataProvider.CSC_RawDataProviderTool.CscROD_Decoder|   DEBUG |    35169
+ MdtRawDataProvider.MDT_RawDataProviderTool.MdtROD_Decoder|   DEBUG |   854603
 Py:Athena            INFO leaving with code 0: "successful run"
