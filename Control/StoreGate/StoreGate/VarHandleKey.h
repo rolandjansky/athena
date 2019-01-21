@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -24,6 +24,11 @@
 
 
 namespace SG {
+
+
+enum AllowEmptyEnum {
+  AllowEmpty = 1
+};
 
 
 class VarHandleBase;
@@ -121,6 +126,18 @@ public:
 
 
   /**
+   * @brief If this object is used as a property, then this should be called
+   *        during the initialize phase.  This variant will allow the key
+   *        to be blank.
+   * @param Flag to select this variant.  Call like
+   *@code
+   *  ATH_CHECK( key.initialize (SG::AllowEmpty) );
+   @endcode
+   */
+  StatusCode initialize (AllowEmptyEnum);
+
+
+  /**
    * @brief Return the class ID for the referenced object.
    */
   CLID clid() const;
@@ -130,6 +147,13 @@ public:
    * @brief Return the StoreGate ID for the referenced object.
    */
   const std::string& key() const;
+
+
+  /**
+   * @brief Test if the key is blank.
+   */
+  bool empty() const;
+
 
   /**
    * @brief Return handle to the referenced store.
