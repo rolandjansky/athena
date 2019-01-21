@@ -74,7 +74,7 @@ private:
   double relativeDistance(double x1, double x2);                            //difference between x1 x2 scaled to x1
   double relativeDistance(double x1, double y1, double x2, double y2);
   double estimateEfieldLinear(double aimVoltage);
-  void saveTGraph(std::vector<double> vvol, std::vector<double> vflu, std::vector<std::vector<double>> vfluvvol, double aimFlu, double aimVol, TString prepend, bool skipNegative = true);
+  void saveTGraph(std::vector<double> vvol, std::vector<double> vflu, std::vector<std::vector<double>> vfluvvol, double aimFlu, double aimVol, std::string prepend, bool skipNegative = true);
 }; 
 
 }
