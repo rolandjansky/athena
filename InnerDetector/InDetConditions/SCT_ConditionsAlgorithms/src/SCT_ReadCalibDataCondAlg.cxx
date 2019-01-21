@@ -217,7 +217,7 @@ StatusCode SCT_ReadCalibDataCondAlg::execute() {
     CondAttrListCollection::const_iterator itLoop_end{readCdo[i]->end()};
     for (; itLoop!=itLoop_end; ++itLoop) {
       CondAttrListCollection::ChanNum chanNum{(*itLoop).first};
-      coral::AttributeList anAttrList{(*itLoop).second};
+      const coral::AttributeList &anAttrList{(*itLoop).second};
   
       // Convert chanNum=offlineID into identifier
       Identifier moduleId{chanNum};
@@ -238,10 +238,10 @@ StatusCode SCT_ReadCalibDataCondAlg::execute() {
       theseDefects.parValue.clear();
   
       // Get all defect parameters from COOL attrib list
-      std::string gaindefectb{(anAttrList["defectBeginChannel"]).data<std::string>()};
-      std::string gaindefecte{(anAttrList["defectEndChannel"]).data<std::string>()};
-      std::string defectType{(anAttrList["defectType"]).data<std::string>()};
-      std::string parValue{(anAttrList["defectParameter"]).data<std::string>()};
+      const std::string &gaindefectb{(anAttrList["defectBeginChannel"]).data<std::string>()};
+      const std::string &gaindefecte{(anAttrList["defectEndChannel"]).data<std::string>()};
+      const std::string &defectType{(anAttrList["defectType"]).data<std::string>()};
+      const std::string &parValue{(anAttrList["defectParameter"]).data<std::string>()};
 
       // Convert the defect strings to vectors
       std::vector<unsigned int> gaindefectbvec;

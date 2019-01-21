@@ -92,8 +92,8 @@ StatusCode SCT_TdaqEnabledCondAlg::execute()
     for (; attrList!=end; ++attrList) {
       // A CondAttrListCollection is a map of ChanNum and AttributeList
       CondAttrListCollection::ChanNum channelNumber{attrList->first};
-      CondAttrListCollection::AttributeList payload{attrList->second};
-      std::string enabled{payload["class"].data<std::string>()};
+      const CondAttrListCollection::AttributeList &payload{attrList->second};
+      const std::string &enabled{payload["class"].data<std::string>()};
       std::string chanName{readCdo->chanName(channelNumber)};
       unsigned int rodNumber{parseChannelName(chanName)};
       // range check on the rod channel number has been removed, since it refers both to existing channel names
