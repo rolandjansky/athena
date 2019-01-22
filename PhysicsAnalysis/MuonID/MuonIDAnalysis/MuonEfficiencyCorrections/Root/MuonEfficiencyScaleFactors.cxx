@@ -500,7 +500,7 @@ namespace CP {
                 if ((*t).isToyVariation()) {
                     std::pair<unsigned, float> pair = (*t).getToyVariation();
                     currentBinNumber = pair.first;
-                    int pos = pair.second;
+                    unsigned int pos = pair.second;
                     if (pos < m_sf_sets.size()) SFiter = m_sf_sets.begin() + pos;
                 }
             }
