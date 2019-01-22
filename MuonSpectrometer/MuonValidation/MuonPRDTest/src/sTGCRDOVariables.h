@@ -32,7 +32,12 @@ class sTGCRDOVariables : public ValAlgVariables
     m_NSWsTGC_rdo_time(0),
     m_NSWsTGC_rdo_charge(0),
     m_NSWsTGC_rdo_bcTag(0),
-    m_NSWsTGC_rdo_isDead(0)
+    m_NSWsTGC_rdo_isDead(0),
+    m_NSWsTGC_rdo_localPosX(0),
+    m_NSWsTGC_rdo_localPosY(0),
+    m_NSWsTGC_rdo_globalPosX(0),
+    m_NSWsTGC_rdo_globalPosY(0),
+    m_NSWsTGC_rdo_globalPosZ(0)
   {
     setHelper(idhelper);
   }
@@ -70,6 +75,12 @@ class sTGCRDOVariables : public ValAlgVariables
   std::vector<uint16_t> *m_NSWsTGC_rdo_bcTag;
   std::vector<bool> *m_NSWsTGC_rdo_isDead;
 
+  std::vector<double> *m_NSWsTGC_rdo_localPosX;
+  std::vector<double> *m_NSWsTGC_rdo_localPosY;
+
+  std::vector<double> *m_NSWsTGC_rdo_globalPosX;
+  std::vector<double> *m_NSWsTGC_rdo_globalPosY;
+  std::vector<double> *m_NSWsTGC_rdo_globalPosZ;
 };
 
 #endif // STGCRDOVARIABLES_H
