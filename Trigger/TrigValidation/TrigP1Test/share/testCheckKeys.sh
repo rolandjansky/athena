@@ -42,7 +42,7 @@ elif [ "$type" == "HLT_physicsV7" ]; then
   stump="Physics_pp_v7"
 elif [ "$type" == "HLT_HIV5" ]; then
   stump="Physics_HI_v5"
-elif [ "$type" == "HLT_physicsVi8" ]; then
+elif [ "$type" == "HLT_physicsV8" ]; then
   stump="Physics_pp_v8"
 elif [ "$type" == "HLT_physicsV8_rerunLVL1" ]; then
   stump="Physics_pp_v8"
