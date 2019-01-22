@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 #include "UserPhotonFlux.h"
 
   UserPhotonFlux::UserPhotonFlux(const std::string& type, const std::string& name, const IInterface* parent) :
@@ -24,13 +27,15 @@
       pythia.setPhotonFluxPtr(photonFlux, 0);
       return StatusCode::SUCCESS;
     }
-    else if(m_process ==2) {    
+    else if(m_process ==2 || m_process ==3) {    
       ATH_MSG_INFO( "InitializePythiaInfo " << name() << " using nuclear photon flux with Z = " << m_flux_Z << ", bmin = " << m_flux_min_b);
       Nucleus2gamma* photonFlux = new Nucleus2gamma(-11);
       photonFlux->setZ(m_flux_Z);
       photonFlux->setMinB(m_flux_min_b);
       photonFlux->setMinX(m_flux_min_x);
-      pythia.setPhotonFluxPtr(photonFlux, 0);
+      Nucleus2gamma* photonFlux2 = nullptr;
+      if(m_process==3) photonFlux2=photonFlux;
+      pythia.setPhotonFluxPtr(photonFlux, photonFlux2);
       return StatusCode::SUCCESS;
     }
     else {
