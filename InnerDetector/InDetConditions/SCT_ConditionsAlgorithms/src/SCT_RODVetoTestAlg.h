@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -18,20 +18,20 @@
 #include "SCT_ConditionsTools/ISCT_ConditionsTool.h"
 
 //Gaudi
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
 //STL
 #include <string>
 
 ///Example algorithm to show calling the SCT_RODVeto to exclude bad components
-class SCT_RODVetoTestAlg : public AthAlgorithm {
+class SCT_RODVetoTestAlg : public AthReentrantAlgorithm {
  public:
   SCT_RODVetoTestAlg(const std::string &name,ISvcLocator *pSvcLocator);
   virtual ~SCT_RODVetoTestAlg() = default;
 
   StatusCode initialize() override;
-  StatusCode execute() override;
+  StatusCode execute(const EventContext& ctx) const override;
   StatusCode finalize() override;
    
  private:

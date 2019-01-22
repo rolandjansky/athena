@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file SCT_ConditionsParameterTestAlg.cxx  Implementation file for SCT_ConditionsParameterTestAlg class.
@@ -29,7 +29,7 @@
 using namespace SCT_ConditionsAlgorithms;
 
 SCT_ConditionsParameterTestAlg::SCT_ConditionsParameterTestAlg(const std::string& name, ISvcLocator* pSvcLocator ) : 
-  AthAlgorithm(name, pSvcLocator)
+  AthReentrantAlgorithm(name, pSvcLocator)
 { //nop
 }
 
@@ -47,7 +47,7 @@ StatusCode SCT_ConditionsParameterTestAlg::initialize() {
 } // SCT_ConditionsParameterTestAlg::execute()
 
 //----------------------------------------------------------------------
-StatusCode SCT_ConditionsParameterTestAlg::execute() {
+StatusCode SCT_ConditionsParameterTestAlg::execute(const EventContext& ctx) const {
   //This method is only used to test the service, and only used within this package,
   // so the INFO level messages have no impact on performance of these services when used by clients
   ATH_MSG_DEBUG("in execute()");
@@ -55,7 +55,7 @@ StatusCode SCT_ConditionsParameterTestAlg::execute() {
   StatusCode sc{StatusCode::SUCCESS, true};
   
   // Get the current event
-  SG::ReadHandle<xAOD::EventInfo> currentEvent{m_currentEventKey};
+  SG::ReadHandle<xAOD::EventInfo> currentEvent{m_currentEventKey, ctx};
   if (not currentEvent.isValid()) {
     ATH_MSG_WARNING("Could not get event info");
     return sc;
