@@ -160,7 +160,7 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
 	{
 	  ATH_MSG_INFO("TIGHT " << year << " " << trigKey << " " << electronID << " " << electronIsolation );
 	  auto t = m_electronToolsFactory.emplace(m_electronToolsFactory.end(), "AsgElectronEfficiencyCorrectionTool/ElTrigEff_"+std::to_string(j)+"_"+std::to_string(nTools));
-	  top::check(t->setProperty("MapFilePath", "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/map1.txt"), "Fail");
+	  top::check(t->setProperty("MapFilePath", "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/map3.txt"), "Fail");
 	  top::check(t->setProperty("TriggerKey", (j? year+"_"+trigKey : "Eff_"+year+"_"+trigKey)), "Failed to set TriggerKey");
 	  if (electronID != "None")
 	    top::check(t->setProperty("IdKey", electronID), "Failed to set IdKey");
@@ -195,7 +195,7 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
 	{	  
 	  ATH_MSG_INFO("LOOSE " << year << " " << trigKey << " " << electronIDLoose << " " << electronIsolationLoose );
 	  auto tLoose = m_electronToolsFactoryLoose.emplace(m_electronToolsFactoryLoose.end(), "AsgElectronEfficiencyCorrectionTool/ElTrigEffLoose_"+std::to_string(j)+"_"+std::to_string(nTools));
-	  top::check(tLoose->setProperty("MapFilePath", "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/map1.txt"), "Fail");
+	  top::check(tLoose->setProperty("MapFilePath", "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/map3.txt"), "Fail");
 	  top::check(tLoose->setProperty("TriggerKey", (j? year+"_"+trigKey : "Eff_"+year+"_"+trigKey)),"Failed to set TriggerKey");
 	  if (electronIDLoose != "None")
 	    top::check(tLoose->setProperty("IdKey", electronIDLoose),"Failed to set IdKey");
