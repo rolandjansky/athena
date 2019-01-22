@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // vim: ts=2 sw=2
@@ -7,7 +7,8 @@
 #define HLTTAUSELECTION_H
 
 
-#include "PATCore/TAccept.h"
+#include "PATCore/AcceptInfo.h"
+#include "PATCore/AcceptData.h"
 
 //EDM include
 #include "xAODTau/TauJet.h"
@@ -26,12 +27,14 @@ class HltTauID
     // Destructor
     virtual ~HltTauID() {};
 
+    virtual const asg::AcceptInfo& getAcceptInfo() const;
+
     // Get the decision
-    virtual const Root::TAccept& accept(const xAOD::TauJet * hltau) const;
+    virtual asg::AcceptData accept(const xAOD::TauJet * hltau) const;
 
   private:
 
-    mutable Root::TAccept m_accept;
+    asg::AcceptInfo m_accept;
 
     std::string m_id_level;
     bool m_use_tauid;
@@ -54,12 +57,14 @@ class HltTauCaloPresel
     // Destructor
     virtual ~HltTauCaloPresel() {};
 
+    virtual const asg::AcceptInfo& getAcceptInfo() const;
+
     // Get the decision
-    virtual const Root::TAccept& accept(const xAOD::TauJet * hltau) const;
+    virtual asg::AcceptData accept(const xAOD::TauJet * hltau) const;
 
   private:
 
-    mutable Root::TAccept m_accept;
+    asg::AcceptInfo m_accept;
 
     bool m_use_presel;
     bool m_use_calo_presel;
@@ -93,17 +98,19 @@ class FastTrackSelection
     // Destructor
     virtual ~FastTrackSelection() {};
 
+    virtual const asg::AcceptInfo& getAcceptInfo() const;
+
     // Get the decision for a specific FastTrackRoI
-    virtual const Root::TAccept& accept(const xAOD::TauJet * hltau, const DataVector<xAOD::TrackParticle> *preselTracksIso, const DataVector<xAOD::TrackParticle> *preselTracksCore) const;
-    virtual const Root::TAccept& accept(const xAOD::TauJet * hltau, const DataVector<xAOD::TrackParticle> * tracks) const;
-    virtual const Root::TAccept& accept(const xAOD::TauJet * presel_tau) const;
+    virtual asg::AcceptData accept(const xAOD::TauJet * hltau, const DataVector<xAOD::TrackParticle> *preselTracksIso, const DataVector<xAOD::TrackParticle> *preselTracksCore) const;
+    virtual asg::AcceptData accept(const xAOD::TauJet * hltau, const DataVector<xAOD::TrackParticle> * tracks) const;
+    virtual asg::AcceptData accept(const xAOD::TauJet * presel_tau) const;
 
   private:
 
     bool trackSelection(const xAOD::TauJet *hlt_tau, const xAOD::TrackParticle *leadingTrack, const DataVector<xAOD::TrackParticle> *tracks) const;
     const xAOD::TrackParticle* findLeadingTrack(const xAOD::TauJet*, const DataVector<xAOD::TrackParticle>*) const;
 
-    mutable Root::TAccept m_accept;
+    asg::AcceptInfo m_accept;
 
     bool m_use_fasttracking;
     double m_d0;
