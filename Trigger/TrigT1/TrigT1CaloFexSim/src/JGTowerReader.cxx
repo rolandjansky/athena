@@ -171,8 +171,7 @@ StatusCode JGTowerReader::execute() {
   CHECK( evtStore()->retrieve( jTowers,"JTower"));
   //when noise file is not available, set the noise as constant for EM, Had, and FCal respectively
   if(jT_noise.size()==0){
-    for(unsigned int jT_hs=0; jT_hs<jTowers->size(); jT_hs++){
-       const xAOD::JGTower*jT = jTowers->at(jT_hs);      
+    for( const auto &jT : *jTowers){
        if(jT->sampling()==0) jT_noise.push_back(450);
        else if(jT->sampling()==1) jT_noise.push_back(2400);
        else jT_noise.push_back(2000);
@@ -183,7 +182,7 @@ StatusCode JGTowerReader::execute() {
   CHECK( evtStore()->retrieve( gTowers,"GTower"));
   //when noise file is not available, set the noise as constant for EM, Had, and FCal respectively
   if(gT_noise.size()==0){
-    for(unsigned int gT_hs=0; gT_hs<gTowers->size(); gT_hs++){
+    for(const auto &gT : *gTowers){
        gT_noise.push_back(1500);
     }
   }
