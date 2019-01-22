@@ -62,6 +62,7 @@ namespace Monitored {
   // TEMPORARY: for backwards compatibility
   namespace MonitoredScalar {
     template <typename T>
+    [[deprecated("Use Monitored::Scalar instead (see MR athena!20403)")]]
     static impl::Scalar<T> declare(std::string name, const T& defaultValue = {}) {
       return impl::Scalar<T>(name, defaultValue);
     }

@@ -7,7 +7,7 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
-#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/Monitored.h"
 
 #include "DecisionHandling/Combinators.h"
 
@@ -79,13 +79,12 @@ bool TrigMuonEFTrackIsolationHypoTool::decideOnSingleObject(TrigMuonEFTrackIsola
 {
    ATH_MSG_DEBUG("Decision ...");
 
-   using namespace Monitored;
    std::vector<float> ini_ptcone02(0);
    std::vector<float> ini_ptcone03(0);
-   auto fex_ptcone02 = MonitoredCollection::declare("PtCone02", ini_ptcone02);
-   auto fex_ptcone03 = MonitoredCollection::declare("PtCone03", ini_ptcone03);
+   auto fex_ptcone02 = Monitored::Collection("PtCone02", ini_ptcone02);
+   auto fex_ptcone03 = Monitored::Collection("PtCone03", ini_ptcone03);
 
-   auto monitorIt    = MonitoredScope::declare( m_monTool, fex_ptcone02, fex_ptcone03 );
+   auto monitorIt    = Monitored::Group( m_monTool, fex_ptcone02, fex_ptcone03 );
 
    ATH_MSG_VERBOSE( "Cut index " << cutIndex );
 

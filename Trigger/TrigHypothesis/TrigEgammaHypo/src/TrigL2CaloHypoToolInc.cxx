@@ -5,7 +5,7 @@
 #include <algorithm>
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/Combinators.h"
-#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/Monitored.h"
 
 #include "TrigL2CaloHypoToolInc.h"
 
@@ -71,25 +71,24 @@ bool TrigL2CaloHypoToolInc::decide( const ITrigL2CaloHypoTool::ClusterInfo& inpu
 
   bool pass = false;
 
-  using namespace Monitored;
   // TB Not sure if anything else than the CutCounter should monitored it in every cut tool, 
   // Should  quantitities be filled only after the succesful selection?
 
-  auto dEta         = MonitoredScalar::declare( "dEta", -1. ); 
-  auto dPhi         = MonitoredScalar::declare( "dPhi", -1. );
-  auto eT_T2Calo    = MonitoredScalar::declare( "Et_em"   , -1.0 );
-  auto hadET_T2Calo = MonitoredScalar::declare( "Et_had", -1.0 );
-  auto rCore        = MonitoredScalar::declare( "RCore"       , -1.0 );
-  auto energyRatio  = MonitoredScalar::declare( "ERatio" , -1.0 );
-  auto etaBin       = MonitoredScalar::declare( "EtaBin", -1. );
-  auto monEta       = MonitoredScalar::declare( "Eta", -99. ); 
-  auto monPhi       = MonitoredScalar::declare( "Phi", -99. );
-  auto F1           = MonitoredScalar::declare( "F1"          , -1.0 );  
-  auto Weta2        = MonitoredScalar::declare( "Weta2"       , -1.0 );
-  auto Wstot        = MonitoredScalar::declare( "Wstot"       , -1.0 );
-  auto F3           = MonitoredScalar::declare( "F3"          , -1.0 );
-  auto PassedCuts   = MonitoredScalar::declare<int>( "CutCounter", -1 );  
-  auto monitorIt    = MonitoredScope::declare( m_monTool, 
+  auto dEta         = Monitored::Scalar( "dEta", -1. ); 
+  auto dPhi         = Monitored::Scalar( "dPhi", -1. );
+  auto eT_T2Calo    = Monitored::Scalar( "Et_em"   , -1.0 );
+  auto hadET_T2Calo = Monitored::Scalar( "Et_had", -1.0 );
+  auto rCore        = Monitored::Scalar( "RCore"       , -1.0 );
+  auto energyRatio  = Monitored::Scalar( "ERatio" , -1.0 );
+  auto etaBin       = Monitored::Scalar( "EtaBin", -1. );
+  auto monEta       = Monitored::Scalar( "Eta", -99. ); 
+  auto monPhi       = Monitored::Scalar( "Phi", -99. );
+  auto F1           = Monitored::Scalar( "F1"          , -1.0 );  
+  auto Weta2        = Monitored::Scalar( "Weta2"       , -1.0 );
+  auto Wstot        = Monitored::Scalar( "Wstot"       , -1.0 );
+  auto F3           = Monitored::Scalar( "F3"          , -1.0 );
+  auto PassedCuts   = Monitored::Scalar<int>( "CutCounter", -1 );  
+  auto monitorIt    = Monitored::Group( m_monTool, 
 					       dEta, dPhi, eT_T2Calo, hadET_T2Calo,
 					       rCore, energyRatio, etaBin, monEta,
 					       monPhi, F1, Weta2, Wstot, F3, PassedCuts );

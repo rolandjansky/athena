@@ -3,11 +3,11 @@
 */
 
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/Monitored.h"
 
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
-#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/Monitored.h"
 
 #include "TrigL2CaloRingerFexMT.h"
 #include "TrigMultiVarHypo/preproc/TrigRingerPreprocessor.h"
@@ -127,13 +127,12 @@ StatusCode TrigL2CaloRingerFexMT::finalize(){
 StatusCode TrigL2CaloRingerFexMT::execute(){
   
   ATH_MSG_DEBUG("start RingerMT");
-  using namespace Monitored;
-  auto etMon    = MonitoredScalar::declare( "Et", -100. );
-  auto etaMon    = MonitoredScalar::declare( "Eta", -100. );
-  auto rnnOutMon = MonitoredScalar::declare( "rnnOut", -100. );
-  auto monitorIt  = MonitoredScope::declare( m_monTool, etMon, etaMon, rnnOutMon );
+  auto etMon    = Monitored::Scalar( "Et", -100. );
+  auto etaMon    = Monitored::Scalar( "Eta", -100. );
+  auto rnnOutMon = Monitored::Scalar( "rnnOut", -100. );
+  auto monitorIt  = Monitored::Group( m_monTool, etMon, etaMon, rnnOutMon );
 
-  auto totalTime = Monitored::MonitoredTimer::declare("TIME_total");
+  auto totalTime = Monitored::Timer("TIME_total");
   totalTime.start();
   ATH_MSG_DEBUG( "start RingerMT" );
   
@@ -182,19 +181,19 @@ StatusCode TrigL2CaloRingerFexMT::execute(){
 
     
     ATH_MSG_DEBUG( "Et = " << et << " GeV, |eta| = " << eta );
-    auto preprocessTime = Monitored::MonitoredTimer::declare("TIME_preprocess");
+    auto preprocessTime = Monitored::Timer("TIME_preprocess");
     ///pre-processing shape
     preprocessTime.start();
     if(preproc)     preproc->ppExecute(refRings);
     preprocessTime.stop();
     
     ATH_MSG_DEBUG( "after preproc refRings.size() is: " << rings.size() );
-    auto decisionTime = Monitored::MonitoredTimer::declare("TIME_decision");
+    auto decisionTime = Monitored::Timer("TIME_decision");
     ///Apply the discriminator
     decisionTime.start();
     if(discr)  m_output = discr->propagate(refRings);
     decisionTime.stop();
-    auto scope = Monitored::MonitoredScope::declare( m_monTool, preprocessTime, decisionTime );
+    auto scope = Monitored::Group( m_monTool, preprocessTime, decisionTime );
     
   }else{
      ATH_MSG_DEBUG("There is no discriminator into this Fex.");
@@ -216,7 +215,7 @@ StatusCode TrigL2CaloRingerFexMT::execute(){
   ATH_CHECK( outputHandle.record(std::move(rnnOutput)) );
 
   totalTime.stop();
-  auto scope = Monitored::MonitoredScope::declare( m_monTool, totalTime );
+  auto scope = Monitored::Group( m_monTool, totalTime );
   
   return StatusCode::SUCCESS;
 }

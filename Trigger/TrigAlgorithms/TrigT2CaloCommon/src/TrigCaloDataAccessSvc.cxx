@@ -1,7 +1,7 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/Monitored.h"
 #include "TrigCaloDataAccessSvc.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
@@ -180,7 +180,7 @@ unsigned int TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContex
 
   HLTCaloEventCache* cache = m_hLTCaloSlot.get( context );
   
-  auto lockTime = Monitored::MonitoredTimer::declare ( "TIME_locking_LAr_FullDet" );  
+  auto lockTime = Monitored::Timer ( "TIME_locking_LAr_FullDet" );
   std::lock_guard<std::mutex> collectionLock { cache->mutex };  
   lockTime.stop();
 
@@ -210,9 +210,9 @@ unsigned int TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContex
   } // end of for m_vrodid32fullDetHG.size()
 
   int detid(0);
-  auto detidMon = Monitored::MonitoredScalar::declare<int>( "det", detid );
+  auto detidMon = Monitored::Scalar<int>( "det", detid );
 
-  Monitored::MonitoredScope::declare( m_monTool, lockTime, detidMon );
+  Monitored::Group( m_monTool, lockTime, detidMon );
   return status;
 }
 
@@ -225,7 +225,7 @@ unsigned int TrigCaloDataAccessSvc::prepareTileFullCollections( const EventConte
 
   HLTCaloEventCache* cache = m_hLTCaloSlot.get( context );
 
-  auto lockTime = Monitored::MonitoredTimer::declare ( "TIME_locking_LAr_FullDet" );
+  auto lockTime = Monitored::Timer ( "TIME_locking_LAr_FullDet" );
   std::lock_guard<std::mutex> collectionLock { cache->mutex };
   lockTime.stop();
 
@@ -236,9 +236,9 @@ unsigned int TrigCaloDataAccessSvc::prepareTileFullCollections( const EventConte
   convertROBs( m_rIdstile, (cache->tileContainer) );
 
   int detid(0);
-  auto detidMon = Monitored::MonitoredScalar::declare<int>( "det", detid );
+  auto detidMon = Monitored::Scalar<int>( "det", detid );
 
-  Monitored::MonitoredScope::declare( m_monTool, lockTime, detidMon );
+  Monitored::Group( m_monTool, lockTime, detidMon );
   return status;
 }
 
@@ -551,7 +551,7 @@ unsigned int TrigCaloDataAccessSvc::prepareLArCollections( const EventContext& c
     return 0x1; // dummy code
   }
 
-  auto lockTime = Monitored::MonitoredTimer::declare ( "TIME_locking_LAr_RoI" );  
+  auto lockTime = Monitored::Timer ( "TIME_locking_LAr_RoI" );
   std::lock_guard<std::mutex> collectionLock { cache->mutex };  
   lockTime.stop();
 
@@ -568,11 +568,11 @@ unsigned int TrigCaloDataAccessSvc::prepareLArCollections( const EventContext& c
     status |= 0x1; // dummy code
     clearMissing( requestROBs, robFrags, ( cache->larContainer ) );
   }
-  auto roiROBs = Monitored::MonitoredScalar::declare( "roiROBs_LAr", robFrags.size() );
-  auto roiEta = Monitored::MonitoredScalar::declare( "roiEta_LAr", roi.eta() );
-  auto roiPhi = Monitored::MonitoredScalar::declare( "roiPhi_LAr", roi.phi() );
+  auto roiROBs = Monitored::Scalar( "roiROBs_LAr", robFrags.size() );
+  auto roiEta = Monitored::Scalar( "roiEta_LAr", roi.eta() );
+  auto roiPhi = Monitored::Scalar( "roiPhi_LAr", roi.phi() );
 
-  Monitored::MonitoredScope::declare( m_monTool, lockTime, roiEta, roiPhi, roiROBs );
+  Monitored::Group( m_monTool, lockTime, roiEta, roiPhi, roiROBs );
   return status;
 }
 

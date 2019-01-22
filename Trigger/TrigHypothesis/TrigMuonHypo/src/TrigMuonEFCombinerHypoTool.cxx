@@ -6,7 +6,7 @@
 #include "TrigMuonHypo/TrigMuonEFCombinerHypoTool.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
-#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/Monitored.h"
 class ISvcLocator;
 TrigMuonEFCombinerHypoTool::TrigMuonEFCombinerHypoTool(const std::string & type, const std::string & name, const IInterface* parent):
   AthAlgTool(type, name, parent),
@@ -43,16 +43,15 @@ StatusCode TrigMuonEFCombinerHypoTool::initialize(){
 }
 bool TrigMuonEFCombinerHypoTool::decideOnSingleObject(TrigMuonEFCombinerHypoTool::MuonEFInfo& input, size_t cutIndex) const{
   ATH_MSG_DEBUG( "deciding...");
-  using namespace Monitored;
   //Monitored Variables
   std::vector<float> fexPt, fexEta, fexPhi, selPt, selEta, selPhi;
-  auto muonPtMon = MonitoredCollection::declare("Pt", fexPt);
-  auto muonEtaMon = MonitoredCollection::declare("Eta", fexEta);
-  auto muonPhiMon = MonitoredCollection::declare("Phi", fexPhi);
-  auto muonPtSelMon = MonitoredCollection::declare("Pt_sel", selPt);
-  auto muonEtaSelMon = MonitoredCollection::declare("Eta_sel", selEta);
-  auto muonPhiSelMon = MonitoredCollection::declare("Phi_sel", selPhi);
-  auto monitorIt	= MonitoredScope::declare(m_monTool, muonPtMon, muonEtaMon, muonPhiMon, muonPtSelMon, muonEtaSelMon, muonPhiSelMon); 
+  auto muonPtMon = Monitored::Collection("Pt", fexPt);
+  auto muonEtaMon = Monitored::Collection("Eta", fexEta);
+  auto muonPhiMon = Monitored::Collection("Phi", fexPhi);
+  auto muonPtSelMon = Monitored::Collection("Pt_sel", selPt);
+  auto muonEtaSelMon = Monitored::Collection("Eta_sel", selEta);
+  auto muonPhiSelMon = Monitored::Collection("Phi_sel", selPhi);
+  auto monitorIt	= Monitored::Group(m_monTool, muonPtMon, muonEtaMon, muonPhiMon, muonPtSelMon, muonEtaSelMon, muonPhiSelMon); 
   bool result = false;
   //for pass through mode
   if(m_acceptAll) {

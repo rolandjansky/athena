@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -22,7 +22,7 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ListItem.h"
 //
-#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/Monitored.h"
 
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -176,16 +176,14 @@ StatusCode TrigCaloCellMakerMT::finalize()
 
 StatusCode TrigCaloCellMakerMT::execute()
 {
-  using namespace Monitored;   
-
   // Monitoring initialization...
-  auto timer = MonitoredTimer::declare("TIME_execute");
-  auto time_tools = MonitoredTimer::declare("TIME_ContainerTools");
-  auto mon_CellContainerSize = MonitoredScalar::declare("CellContainerSize", 0.);
-  auto mon_roi_phi = MonitoredScalar::declare("RoIPhi", 0.);
-  auto mon_roi_eta = MonitoredScalar::declare("RoIEta", 0.);
+  auto timer = Monitored::Timer("TIME_execute");
+  auto time_tools = Monitored::Timer("TIME_ContainerTools");
+  auto mon_CellContainerSize = Monitored::Scalar("CellContainerSize", 0.);
+  auto mon_roi_phi = Monitored::Scalar("RoIPhi", 0.);
+  auto mon_roi_eta = Monitored::Scalar("RoIEta", 0.);
 
-  auto monitorIt = MonitoredScope::declare( m_monTool, timer, time_tools, mon_roi_eta,  mon_roi_phi,  mon_CellContainerSize);
+  auto monitorIt = Monitored::Group( m_monTool, timer, time_tools, mon_roi_eta,  mon_roi_phi,  mon_CellContainerSize);
 
   //  for(int id=0; id<IAlgToolEFCalo::MAXNEFCALO; id++) m_conversionError[id]=0;
   

@@ -7,7 +7,7 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
-#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/Monitored.h"
 
 #include "DecisionHandling/Combinators.h"
 
@@ -52,12 +52,11 @@ StatusCode TrigMuisoHypoTool::initialize()
 bool TrigMuisoHypoTool::decideOnSingleObject( TrigMuisoHypoTool::MuisoInfo& input,
                                               size_t cutIndex ) const
 {
-  using namespace Monitored;
 
-  auto cutCounter = MonitoredScalar::declare( "CutCounter", 0 );
-  auto sumPtCone  = MonitoredScalar::declare( "SumPtCone", 0 );
+  auto cutCounter = Monitored::Scalar( "CutCounter", 0 );
+  auto sumPtCone  = Monitored::Scalar( "SumPtCone", 0 );
 
-  auto monitorIt  = MonitoredScope::declare( m_monTool, cutCounter, sumPtCone ); 
+  auto monitorIt  = Monitored::Group( m_monTool, cutCounter, sumPtCone ); 
 
   ATH_MSG_VERBOSE( "Cut index " << cutIndex );
 
