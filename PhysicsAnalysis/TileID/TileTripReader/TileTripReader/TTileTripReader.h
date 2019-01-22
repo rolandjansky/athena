@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -18,8 +18,8 @@
 #include <iosfwd>
 
 #ifndef ROOTCORE
-#include "PATCore/TSelectorToolBase.h"
-#include "PATCore/TAccept.h"
+#include "PATCore/AcceptData.h"
+#include "PATCore/AcceptInfo.h"
 #endif /*ROOTCORE*/
 
 
@@ -38,9 +38,6 @@ struct TripRegion{
 namespace Root{
 
 class TTileTripReader
-#ifndef ROOTCORE
-        : public TSelectorToolBase
-#endif /*ROOTCORE*/
 {
 public:
     enum Verbosity{
@@ -51,6 +48,14 @@ public:
     TTileTripReader(const char* name="TTileTripReader" );
     virtual ~TTileTripReader();
     
+    /** Get the name of the class instance */
+    inline const char* getName() const { return m_name.c_str(); };
+
+    const asg::AcceptInfo& getAcceptInfo( ) const
+    {
+      return m_accept;
+    }
+
 #ifndef ROOTCORE
     /**
      * 
@@ -61,11 +66,11 @@ public:
      * @param phi Phi position
      * @param tileError the tileError value
      * @param tileFlags the tileFlags value
-     * @return Constant TAccept& containing the result of the check
+     * @return Constant AcceptData containing the result of the check
      * 
      * Trip result is stored under "InTrip", event check is stored under "BadEvent"
      */
-    const TAccept& accept(int run,int lbn, unsigned int event=0,double eta=-99.9,double phi=-99.9, int tileError=0, int tileFlags=0);
+    asg::AcceptData accept(int run,int lbn, unsigned int event=0,double eta=-99.9,double phi=-99.9, int tileError=0, int tileFlags=0);
 #endif /*ROOTCORE*/
     
     /**
@@ -201,6 +206,13 @@ private:
      * Fills the bad event map
      */
     void setBadEventList();
+
+
+    /** The name of the class instance */
+    std::string m_name;
+
+    asg::AcceptInfo m_accept;
+
     TTree* m_trips;
     TTree* m_runMap;
     int m_mapRun;
