@@ -76,7 +76,7 @@ StatusCode SCT_ModuleVetoCondAlg::execute() {
   std::unique_ptr<SCT_ModuleVetoCondData> writeCdo{std::make_unique<SCT_ModuleVetoCondData>()};
 
   // Read bad wafer info
-  std::string badModuleString{(*readCdo)["ModuleList"].data<std::string>()};
+  const std::string &badModuleString{(*readCdo)["ModuleList"].data<std::string>()};
   std::vector<int> v{string2Vector<int>(badModuleString)};
   int numberInDb{static_cast<int>(v.size())};
   ATH_MSG_INFO(numberInDb << " elements were declared bad in the database.");

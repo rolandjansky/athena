@@ -9,7 +9,7 @@
 #include <sstream>
 
 PixelTDAQCondAlg::PixelTDAQCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  ::AthAlgorithm(name, pSvcLocator),
+  ::AthReentrantAlgorithm(name, pSvcLocator),
   m_condSvc("CondSvc", name)
 {
 }
@@ -28,16 +28,16 @@ StatusCode PixelTDAQCondAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelTDAQCondAlg::execute() {
+StatusCode PixelTDAQCondAlg::execute(const EventContext& ctx) const {
   ATH_MSG_INFO("PixelTDAQCondAlg::execute()");
 
-  SG::WriteCondHandle<PixelModuleData> writeHandle(m_writeKey);
+  SG::WriteCondHandle<PixelModuleData> writeHandle(m_writeKey, ctx);
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid.. In theory this should not be called, but may happen if multiple concurrent events are being processed out of order.");
     return StatusCode::SUCCESS; 
   }
 
-  SG::ReadCondHandle<CondAttrListCollection> readHandle(m_readKey);
+  SG::ReadCondHandle<CondAttrListCollection> readHandle(m_readKey, ctx);
   const CondAttrListCollection* readCdo = *readHandle; 
   if (readCdo==nullptr) {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
@@ -57,8 +57,7 @@ StatusCode PixelTDAQCondAlg::execute() {
 
   // Read dead map info
   for (CondAttrListCollection::const_iterator attrList=readCdo->begin(); attrList!=readCdo->end(); ++attrList) {
-    CondAttrListCollection::ChanNum channelNumber = attrList->first;
-    CondAttrListCollection::AttributeList payload = attrList->second;
+    const CondAttrListCollection::ChanNum &channelNumber = attrList->first;
     writeCdo -> setTDAQModuleStatus(channelNumber-1, 0);
   }
 

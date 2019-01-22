@@ -70,7 +70,7 @@ StatusCode SCT_LinkMaskingCondAlg::execute() {
   for (;linkItr != linkEnd; ++linkItr) {
     //A CondAttrListCollection is a map of ChanNum and AttributeList
     Identifier waferId{(*linkItr).first};
-    CondAttrListCollection::AttributeList payload{(*linkItr).second};
+    const CondAttrListCollection::AttributeList &payload{(*linkItr).second};
     bool lastProbedState{payload[0].data<bool>()};
     if (not lastProbedState) writeCdo->setBadWaferId(waferId);
     ATH_MSG_INFO("LINK " << waferId << " (" << waferId.get_identifier32().get_compact() << " in 32 bit): " << lastProbedState);

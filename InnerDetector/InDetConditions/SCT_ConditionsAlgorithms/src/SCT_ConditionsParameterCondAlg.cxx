@@ -154,7 +154,7 @@ StatusCode SCT_ConditionsParameterCondAlg::execute() {
         //short id      = channelItr->second[2].data<short>(); //chip 0-11
         float vthr{mVperDacBit * channelItr->second[10].data<short>()};  //threshold setting
         short rcFunctionIndex{channelItr->second[15].data<short>()}; //response curve function
-        std::string rcArgumentString{channelItr->second[16].data<std::string>()}; //response curve arguments
+        const std::string &rcArgumentString{channelItr->second[16].data<std::string>()}; //response curve arguments
         parseResponseCurveArguments(parameters, rcArgumentString);
         //float target = channelItr->second[18].data<float>(); //trim target...use for debugging only
         float femtoCoulombThreshold{responseCurve(parameters[0], parameters[1], parameters[2], vthr, rcFunctionIndex)};
