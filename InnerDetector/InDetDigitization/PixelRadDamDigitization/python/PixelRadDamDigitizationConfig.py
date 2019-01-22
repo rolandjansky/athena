@@ -43,16 +43,31 @@ def EnergyDepositionTool(name="EnergyDepositionTool", **kwargs):
     return CfgMgr.RadDam__EnergyDepositionTool(name, **kwargs)
 
 def SensorSimPlanarTool(name="SensorSimPlanarTool", **kwargs):
+    if not hasattr(ToolSvc, "PixelSiPropertiesTool"):
+        from SiPropertiesSvc.PixelSiPropertiesToolSetup import PixelSiPropertiesToolSetup
+        pixelSiPropertiesToolSetup = PixelSiPropertiesToolSetup()
+        pixelSiPropertiesToolSetup.setup()
+    kwargs.setdefault("SiPropertiesTool", ToolSvc.PixelSiPropertiesTool)
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
     return CfgMgr.RadDam__SensorSimPlanarTool(name, **kwargs)
 
 def SensorSim3DTool(name="SensorSim3DTool", **kwargs):
+    if not hasattr(ToolSvc, "PixelSiPropertiesTool"):
+        from SiPropertiesSvc.PixelSiPropertiesToolSetup import PixelSiPropertiesToolSetup
+        pixelSiPropertiesToolSetup = PixelSiPropertiesToolSetup()
+        pixelSiPropertiesToolSetup.setup()
+    kwargs.setdefault("SiPropertiesTool", ToolSvc.PixelSiPropertiesTool)
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
     return CfgMgr.RadDam__SensorSim3DTool(name, **kwargs)
 
 def SensorSimTool(name="SensorSimTool", **kwargs):
+    if not hasattr(ToolSvc, "PixelSiPropertiesTool"):
+        from SiPropertiesSvc.PixelSiPropertiesToolSetup import PixelSiPropertiesToolSetup
+        pixelSiPropertiesToolSetup = PixelSiPropertiesToolSetup()
+        pixelSiPropertiesToolSetup.setup()
+    kwargs.setdefault("SiPropertiesTool", ToolSvc.PixelSiPropertiesTool)
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
     return CfgMgr.RadDam__SensorSimTool(name, **kwargs)
@@ -160,11 +175,6 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     PixelCablingSvc = getService("PixelCablingSvc")
     ServiceMgr += PixelCablingSvc
     print  PixelCablingSvc
-    if not hasattr(ServiceMgr, "PixelSiPropertiesSvc"):
-      from SiLorentzAngleSvc.LorentzAngleSvcSetup import lorentzAngleSvc
-      from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc
-      pixelSiPropertiesSvc = SiPropertiesSvc(name = "PixelSiPropertiesSvc",DetectorName="Pixel",SiConditionsServices = lorentzAngleSvc.pixelSiliconConditionsSvc)
-      ServiceMgr += pixelSiPropertiesSvc
     kwargs.setdefault("InputObjectName", "PixelHits")
     procTools = []
     chargeTools = [] #Tools in array for flexibility
