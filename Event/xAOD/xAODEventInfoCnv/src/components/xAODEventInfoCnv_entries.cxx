@@ -15,6 +15,7 @@
 #include "../EventInfoModifierAlg.h"
 
 #include "../EventInfoMCWeightFixAlg.h"
+#include "../EventInfoRunNumberFixAlg.h"
 
 DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, EventInfoCnvTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, EventInfoSelectorTool )
@@ -25,6 +26,7 @@ DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, EventInfoNonConstCnvAlg )
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODReader, EventInfoModifierAlg )
 
 DECLARE_ALGORITHM_FACTORY( EventInfoMCWeightFixAlg )
+DECLARE_ALGORITHM_FACTORY( EventInfoRunNumberFixAlg )
 
 DECLARE_FACTORY_ENTRIES( xAODEventInfoCnv ) {
 
@@ -37,5 +39,6 @@ DECLARE_FACTORY_ENTRIES( xAODEventInfoCnv ) {
    DECLARE_NAMESPACE_ALGORITHM( xAODReader, EventInfoModifierAlg )
 
    DECLARE_ALGORITHM( EventInfoMCWeightFixAlg )
+   DECLARE_ALGORITHM( EventInfoRunNumberFixAlg )
 
 }
