@@ -10,7 +10,7 @@
 #define SCTSiLorentzAngleCondAlg_h
 
 // Athena includes
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -24,6 +24,7 @@
 // Gaudi includes
 #include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/ToolHandle.h"
 
 // forward declarations
@@ -36,13 +37,13 @@ namespace MagField {
  * This class prepares SiLorentAngleCondData using SiPropertiesTool
  **/
 
-class SCTSiLorentzAngleCondAlg: public AthAlgorithm
+class SCTSiLorentzAngleCondAlg: public AthReentrantAlgorithm
 {
  public:
   SCTSiLorentzAngleCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~SCTSiLorentzAngleCondAlg() = default;
   virtual StatusCode initialize() override;
-  virtual StatusCode execute() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
   virtual StatusCode finalize() override;
 
  private:
@@ -60,17 +61,18 @@ class SCTSiLorentzAngleCondAlg: public AthAlgorithm
   ToolHandle<ISiliconConditionsTool> m_siConditionsTool{this, "SiConditionsTool", "SCT_SiliconConditionsTool", "Tool to retrieve SCT silicon information"};
 
   // Properties
-  double                   m_temperature;
-  double                   m_deplVoltage;
-  double                   m_biasVoltage;
-  double                   m_nominalField;
-  bool                     m_useMagFieldSvc;
-  bool                     m_useMagFieldDcs;
-  bool                     m_sctDefaults;
-  bool                     m_useGeoModel;
+  // YOU NEED TO USE THE SAME PROPERTIES AS USED IN SCTLorentzAngleTool!!!
+  DoubleProperty           m_temperature{this, "Temperature", -7., "Default temperature in Celcius."};
+  DoubleProperty           m_temperatureMin{this, "TemperatureMin", -80., "Minimum temperature allowed in Celcius."};
+  DoubleProperty           m_temperatureMax{this, "TemperatureMax", 100., "Maximum temperature allowed in Celcius."};
+  DoubleProperty           m_deplVoltage{this, "DepletionVoltage", 70., "Default depletion voltage in Volt."};
+  DoubleProperty           m_biasVoltage{this, "BiasVoltage", 150., "Default bias voltage in Volt."};
+  DoubleProperty           m_nominalField{this, "NominalField", 2.0834*Gaudi::Units::tesla};
+  BooleanProperty          m_useMagFieldSvc{this, "UseMagFieldSvc", true};
+  BooleanProperty          m_useMagFieldDcs{this, "UseMagFieldDcs", true};
+  BooleanProperty          m_sctDefaults{this, "useSctDefaults", false};
+  BooleanProperty          m_useGeoModel{this, "UseGeoModel", false};
   unsigned int             m_maxHash;
-  double                   m_temperatureMin;
-  double                   m_temperatureMax;
 
   Amg::Vector3D getMagneticField(const InDetDD::SiDetectorElement* element) const;
 };
