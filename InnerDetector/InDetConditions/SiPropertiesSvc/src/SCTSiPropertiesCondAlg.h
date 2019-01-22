@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #ifndef SCTSIPROPERTIESCONDALG
 #define SCTSIPROPERTIESCONDALG
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
@@ -20,13 +20,13 @@
 
 class SCT_ID;
 
-class SCTSiPropertiesCondAlg : public AthAlgorithm 
+class SCTSiPropertiesCondAlg : public AthReentrantAlgorithm 
 {  
  public:
   SCTSiPropertiesCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~SCTSiPropertiesCondAlg() = default;
   virtual StatusCode initialize() override;
-  virtual StatusCode execute() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
   virtual StatusCode finalize() override;
 
  private:

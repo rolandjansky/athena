@@ -61,6 +61,7 @@ class SCTSiLorentzAngleCondAlg: public AthReentrantAlgorithm
   ToolHandle<ISiliconConditionsTool> m_siConditionsTool{this, "SiConditionsTool", "SCT_SiliconConditionsTool", "Tool to retrieve SCT silicon information"};
 
   // Properties
+  // YOU NEED TO USE THE SAME PROPERTIES AS USED IN SCTLorentzAngleTool!!!
   DoubleProperty           m_temperature{this, "Temperature", -7., "Default temperature in Celcius."};
   DoubleProperty           m_temperatureMin{this, "TemperatureMin", -80., "Minimum temperature allowed in Celcius."};
   DoubleProperty           m_temperatureMax{this, "TemperatureMax", 100., "Maximum temperature allowed in Celcius."};

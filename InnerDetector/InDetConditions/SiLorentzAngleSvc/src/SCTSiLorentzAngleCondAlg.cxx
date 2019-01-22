@@ -27,7 +27,6 @@ SCTSiLorentzAngleCondAlg::SCTSiLorentzAngleCondAlg(const std::string& name, ISvc
   m_magFieldSvc{"AtlasFieldSvc", name},
   m_maxHash{0}
 {
-  // YOU NEED TO USE THE SAME PROPERTIES AS USED IN SCTLorentzAngleTool!!!
   declareProperty("MagFieldSvc", m_magFieldSvc);
 }
 
