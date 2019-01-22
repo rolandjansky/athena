@@ -30,7 +30,7 @@ public:
 
   EfieldInterpolator( const std::string& type, const std::string& name,const IInterface* parent);
   virtual ~EfieldInterpolator(); 
-  void SetLayer(int layer);
+  void setLayer(int layer);
   //Recommended constructor
   StatusCode loadTCADlist(std::string TCADfileListToLoad );  
   //defFct
