@@ -47,8 +47,6 @@ protected:
   const CscIdHelper* m_cscIdHelper = 0;
   const RpcIdHelper* m_rpcIdHelper = 0;
   const TgcIdHelper* m_tgcIdHelper = 0;  
-  bool m_disableWarning = false;
-
   mutable bool m_disableWarning = false;
   bool isInsideView(const EventContext&) const;
 
