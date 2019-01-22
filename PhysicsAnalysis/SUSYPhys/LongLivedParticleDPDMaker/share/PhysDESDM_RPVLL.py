@@ -18,6 +18,8 @@
 
 # MJF: Needs attention and cleaning up - lots of PrimaryDPDMaker dependencies!
 
+print "Executing PhysDESDM_RPVLL"
+
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 
 from LongLivedParticleDPDMaker.LongLivedDPDFlags import WriteRPVLLStream
@@ -86,6 +88,11 @@ if primRPVLLDESDM.doHnl():
 # Exotics displaced hadronic jets =search (contact: Heather Russell)
 if primRPVLLDESDM.doHV():
     include("LongLivedParticleDPDMaker/PhysDESDM_HV.py")
+    pass
+
+# Exotics VH low track jets search (contact: Amber Roepe)                                                                                                              
+if primRPVLLDESDM.doVH():
+    include("LongLivedParticleDPDMaker/PhysDESDM_VH.py")
     pass
 
 # ##########################################################################################

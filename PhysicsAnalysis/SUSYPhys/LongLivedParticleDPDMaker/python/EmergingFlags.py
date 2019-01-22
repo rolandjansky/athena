@@ -7,10 +7,6 @@ import AthenaCommon.SystemOfUnits as Units
 
 primRPVLLDESDM = jobproperties.PrimaryDPDFlags_RPVLLStream
 
-## TriggerAPI ##
-from LongLivedParticleDPDMaker.RPVLLTriggers import RPVLLTriggers
-apitriggers = RPVLLTriggers()
-
 class Emerging_FilterFlags(JobProperty):
     statusOn     = True
     allowedTypes = ['bool']
@@ -26,8 +22,6 @@ class Emerging_FilterFlags(JobProperty):
                     "HLT_4j140",
                     "HLT_4j150"
                     ]
-    if apitriggers.doTriggerAPI:
-        Triggers    += apitriggers.getEmergingTriggers() ## TriggerAPI
 primRPVLLDESDM.add_JobProperty(Emerging_FilterFlags)
 
 class Emerging_containerFlags(JobProperty):

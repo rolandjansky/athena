@@ -7,9 +7,6 @@ import AthenaCommon.SystemOfUnits as Units
 
 primRPVLLDESDM=jobproperties.PrimaryDPDFlags_RPVLLStream
 
-## TriggerAPI ##
-from LongLivedParticleDPDMaker.RPVLLTriggers import RPVLLTriggers
-apitriggers = RPVLLTriggers()
 
 class HV_MuvtxTriggerFlags(JobProperty):
     statusOn = True
@@ -22,8 +19,7 @@ class HV_MuvtxTriggerFlags(JobProperty):
         #"HLT_j30_muvtx_L1MU4_UNPAIRED_ISO",
         #EMPTY and UNPAIRED_ISO triggers are currently in physics_Late, and thus not part of DRAW_RPVLL    
     ]
-    if apitriggers.doTriggerAPI:
-        TriggerNames += apitriggers.getHVMuvtxTriggers() ## TriggerAPI
+
     pass
 primRPVLLDESDM.add_JobProperty(HV_MuvtxTriggerFlags)
 
@@ -34,8 +30,6 @@ class HV_prescaledMuvtxTriggerFlags(JobProperty):
     TriggerNames = [
         "HLT_j30_muvtx_noiso",
     ]
-    if apitriggers.doTriggerAPI:
-        TriggerNames += apitriggers.getHVprescaledMuvtxTriggers() ## TriggerAPI
     Prescale = 1
     pass
 primRPVLLDESDM.add_JobProperty(HV_prescaledMuvtxTriggerFlags)
@@ -71,8 +65,6 @@ class HV_CalRatioTriggerFlags(JobProperty):
         #"HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU8_UNPAIRED_ISO"
         #EMPTY and UNPAIRED_ISO triggers are currently in physics_Late, and thus not part of DRAW_RPVLL    
     ]
-    if apitriggers.doTriggerAPI:
-        TriggerNames += apitriggers.getHVCalRatioTriggers() ## TriggerAPI
 
     pass
 primRPVLLDESDM.add_JobProperty(HV_CalRatioTriggerFlags)

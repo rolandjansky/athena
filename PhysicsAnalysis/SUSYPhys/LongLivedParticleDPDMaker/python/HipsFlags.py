@@ -12,16 +12,12 @@ jobproperties.add_Container(PrimaryDPDFlags_HIPsStream)
 
 primHIPsDESD=jobproperties.PrimaryDPDFlags_HIPsStream
 
-## TriggerAPI ##
-from LongLivedParticleDPDMaker.RPVLLTriggers import RPVLLTriggers
-apitriggers = RPVLLTriggers()
+
+primHIPsDESD=jobproperties.PrimaryDPDFlags_HIPsStream
 
 class HipsTriggerFilterExpression(JobProperty):
     statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = True
-    triggers = ['HLT_g0_hiptrt_L1EM18VH', 'HLT_g0_hiptrt_L1EM20VH', 'HLT_g0_hiptrt_L1EM20VHI', 'HLT_g0_hiptrt_L1EM22VHI', 'HLT_g0_hiptrt_L1EM24VHI', 'HLT_g0_hiptrt_L1EM24VHIM']
-    if apitriggers.doTriggerAPI:
-        triggers += apitriggers.getHIPsTriggers() # TriggerAPI
+    allowedTypes = ['string']
+    StoredValue  = 'HLT_g0_hiptrt_L1EM18VH || HLT_g0_hiptrt_L1EM20VH || HLT_g0_hiptrt_L1EM20VHI || HLT_g0_hiptrt_L1EM22VHI || HLT_g0_hiptrt_L1EM24VHI || HLT_g0_hiptrt_L1EM24VHIM' 
     pass
 primHIPsDESD.add_JobProperty(HipsTriggerFilterExpression)

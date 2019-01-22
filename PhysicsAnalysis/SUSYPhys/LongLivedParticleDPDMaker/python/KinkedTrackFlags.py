@@ -21,10 +21,6 @@ import AthenaCommon.SystemOfUnits as Units
 
 primRPVLLDESDM=jobproperties.PrimaryDPDFlags_RPVLLStream
 
-## TriggerAPI ##
-from LongLivedParticleDPDMaker.RPVLLTriggers import RPVLLTriggers
-apitriggers = RPVLLTriggers()
-
 class KinkedTrack_containerFlags(JobProperty):
     statusOn = True
     jetCollectionName = "AntiKt4EMTopoJets"
@@ -147,10 +143,6 @@ class KinkedTrack_singleJetMetFilterFlags(JobProperty):
         'HLT_xe110_pufit_L1XE50',
         'HLT_xe110_pufit_L1XE55',
         'HLT_xe110_pufit_L1XE60',
-        'HLT_xe100_pufit_xe75_L1XE60',
-        'HLT_xe110_pufit_xe70_L1XE50',
-        'HLT_xe110_pufit_xe65_L1XE55',
-        'HLT_xe110_pufit_xe65_L1XE60',
         'HLT_xe110_L1XE60',
         'HLT_xe110_mht_L1XE60',
         'HLT_xe110_mht_L1XE50',
@@ -169,13 +161,8 @@ class KinkedTrack_singleJetMetFilterFlags(JobProperty):
         'HLT_xe120_pufit_wEFMu',
         'HLT_xe120_tc_em_wEFMu',
         'HLT_xe120_tc_lcw_wEFMu',
-        'HLT_xe120_pufit_L1XE50',
-        'HLT_xe120_pufit_L1XE55',
-        'HLT_xe120_pufit_L1XE60',
         'HLT_xe130_mht_L1XE50'        
         ]
-    if apitriggers.doTriggerAPI:
-        triggerNames += apitriggers.getKinkedTrackJetMetTriggers() ## TriggerAPI
     cutsEtMin = [80.0*Units.GeV, 40.0*Units.GeV]
     cutsEtMinForStublet = [90.0*Units.GeV, 40.0*Units.GeV]
     cutsEtMinForMultiJets = [60.0*Units.GeV, 60.0*Units.GeV]
@@ -236,8 +223,6 @@ class KinkedTrack_ZeeFilterFlags(JobProperty):
         'HLT_e28_lhtight_nod0_iloose',
         'HLT_e28_lhtight_nod0_ivarloose',
         ]
-    if apitriggers.doTriggerAPI:
-        triggerNames += apitriggers.getKinkedTrackZeeTriggers() ## TriggerAPI
     doTriggerMatch = False
     electronPtMin = 40*Units.GeV
     electronEtaMax = 2.5
@@ -270,8 +255,6 @@ class KinkedTrack_ZmumuFilterFlags(JobProperty):
         'HLT_mu26_imedium',
         'HLT_mu26_ivarmedium',
         ]
-    if apitriggers.doTriggerAPI:
-        triggerNames += apitriggers.getKinkedTrackZmumuTriggers() ## TriggerAPI
     doTriggerMatch = False
     muonPtMin = 40*Units.GeV
     muonEtaMax = 2.5
