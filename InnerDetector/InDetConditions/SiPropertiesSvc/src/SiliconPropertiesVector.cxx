@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
-//   Source file for class SiliconPropertiesVector for SiPropertiesCHSvc
+//   Source file for class SiliconPropertiesVector for SiPropertiesTool
 ///////////////////////////////////////////////////////////////////
 
 #include "SiPropertiesSvc/SiliconPropertiesVector.h"
