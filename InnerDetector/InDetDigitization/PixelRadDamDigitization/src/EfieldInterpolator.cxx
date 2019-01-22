@@ -75,7 +75,7 @@ int isContainedAt(std::vector<double> v, double val){
 
 // Initialize indicating layer due to different geometry
 // One instance interpolates only for fixed geometry (=pixel depth)
-void EfieldInterpolator::SetLayer(int layer)
+void EfieldInterpolator::setLayer(int layer)
 {
 	ATH_MSG_INFO("Create interpolator for layer "<< layer);
         if(layer > 0){
