@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // LVL1TGCTrigger.h
-#ifndef __LVL1TGCTRIGGER_H__
-#define __LVL1TGCTRIGGER_H__
+#ifndef TRIGT1TGC_LVL1TGCTRIGGER_H
+#define TRIGT1TGC_LVL1TGCTRIGGER_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
@@ -28,11 +28,13 @@
 // EIFI-SL connection
 #include "TrigT1TGC/TGCInnerTrackletSlotHolder.hh"
 
+#include "StoreGate/ReadCondHandle.h"
+#include "MuonCondSvc/TGCTriggerData.h"
+
 class TgcRdo;
 class TgcRawData;
 class ITGCcablingSvc;
 class TgcDigitContainer; 
-class ITGCTriggerDbTool;
 
 namespace TrigConf {
   class ILVL1ConfigSvc;
@@ -120,8 +122,6 @@ class LVL1TGCTrigger : public AthAlgorithm
 			   const TGCSLSelectorOut *selectorOut, 
 			   unsigned int subsystem);
  
-  StatusCode updateDatabase(IOVSVC_CALLBACK_ARGS_P(I, keys));
-  ToolHandle<ITGCTriggerDbTool> m_condDbTool;
 
  
   // Properties
@@ -176,9 +176,11 @@ class LVL1TGCTrigger : public AthAlgorithm
   // log 
   mutable MsgStream   m_log;
   bool                m_debuglevel;
+
+  SG::ReadCondHandleKey<TGCTriggerData> m_readCondKey;
 }; // class LVL1TGCTrigger
 
 
 } // namespace LVL1TGCTrigger
 
-#endif // __LVL1TGCTRIGGER_H__
+#endif // not TRIGT1TGC_LVL1TGCTRIGGER_H

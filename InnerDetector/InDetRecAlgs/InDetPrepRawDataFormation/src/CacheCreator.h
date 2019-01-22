@@ -51,7 +51,7 @@ namespace InDet{
         SG::WriteHandleKey<SCT_RDO_Cache>      m_SCTRDOCacheKey;
         SG::WriteHandleKey<PixelRDO_Cache>     m_PixRDOCacheKey;
         bool m_disableTRT;
-        bool m_disableWarning;
+        mutable bool m_disableWarning;
 	//Temporary workarounds for problem in scheduler - remove later
         SG::ReadCondHandleKey<PixelCalib::PixelOfflineCalibData> m_condKey5{ this, "PixelOfflineCalibData", "PixelOfflineCalibData", "" };
         SG::ReadCondHandleKey<DetectorSpecialPixelMap> m_condKey12{ this, "SpecialPixelMap", "SpecialPixelMap", "" };

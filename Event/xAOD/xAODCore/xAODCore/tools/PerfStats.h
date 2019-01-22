@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: PerfStats.h 634033 2014-12-05 14:46:38Z krasznaa $
@@ -10,6 +10,9 @@
 
 // ROOT include(s):
 #include <TVirtualPerfStats.h>
+
+#include "CxxUtils/checker_macros.h"
+#include <mutex>
 
 // Forward declaration(s):
 class TTree;
@@ -125,7 +128,11 @@ namespace xAOD {
 
    private:
       /// The single instance of the object
-      static PerfStats* m_instance;
+      static PerfStats* s_instance ATLAS_THREAD_SAFE;
+
+      /// Lock controlling access to the singleton.
+      static std::mutex s_mutex;
+      typedef std::lock_guard<std::mutex> lock_t;
 
       /// Another performance monitoring object
       ::TVirtualPerfStats* m_otherPerfStats;

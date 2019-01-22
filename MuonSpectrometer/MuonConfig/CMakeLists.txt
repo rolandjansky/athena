@@ -14,7 +14,7 @@ atlas_install_data( share/*.ref )
 # Cache alignment will change depending on whether FRONTIER_SERVER is defined.
 atlas_add_test( MuonDataDecodeTest
                 PROPERTIES TIMEOUT 1000
-                EXTRA_PATTERNS "GeoModelSvc.MuonDetectorTool.*SZ=|Cache alignment|Range of input|recorded new|map from"
+                EXTRA_PATTERNS "GeoModelSvc.MuonDetectorTool.*SZ=|Cache alignment|Range of input|recorded new|map from|DEBUG Reconciled configuration"
                 SCRIPT test/testMuonDataDecode.sh )
 
 # Adding an identical test for the ByteStream identifiable caches (and future RDO caches)

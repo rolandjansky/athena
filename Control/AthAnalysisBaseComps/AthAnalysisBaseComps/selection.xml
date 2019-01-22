@@ -1,4 +1,11 @@
 <lcgdict>
   <class name="AthAnalysisHelper" />
   <class name="AAH" />
+  <exclusion>
+    <class name="AAH">
+      <method name="addPropertyToCatalgoue" />
+      <method name="dumpJobOptionProperties" />
+      <method name="printAuxElement" />
+    </class>
+  </exclusion>
 </lcgdict>

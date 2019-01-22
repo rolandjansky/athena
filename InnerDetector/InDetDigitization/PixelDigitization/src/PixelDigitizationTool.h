@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,6 +13,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "PileUpTools/PileUpToolBase.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 #include "HitManagement/TimedHitCollection.h"
 #include "InDetSimEvent/SiHitCollection.h"
 
@@ -63,7 +64,6 @@ class PixelDigitizationTool : public PileUpToolBase {
 
     int               m_HardScatterSplittingMode;
     bool              m_HardScatterSplittingSkipper;
-    std::string       m_rndmEngineName;
 
     bool              m_onlyHitElements;
 
@@ -79,10 +79,9 @@ class PixelDigitizationTool : public PileUpToolBase {
 
   protected:
 
-    ServiceHandle <IAtRndmGenSvc> m_rndmSvc;
+    ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service
     ServiceHandle <PileUpMergeSvc> m_mergeSvc;
 
-    CLHEP::HepRandomEngine *m_rndmEngine;
     const InDetDD::PixelDetectorManager *m_detManager;
 
     std::string   m_inputObjectName;

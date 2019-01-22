@@ -48,7 +48,7 @@ namespace TrigCostRootAnalysis {
   void AutoMonResult::saveOutput() const {
     const std::string output = Config::config().getStr(kOutputDirectory) + "/AutoMonResult.json";
 
-    Info("AutoMonResult::saveOutput", ("Outputting AutoMonResult to " + output).c_str());
+    Info("AutoMonResult::saveOutput", "Outputting AutoMonResult to %s", output.c_str());
     std::ofstream fout(output.c_str());
 
     JsonExport json;
@@ -119,7 +119,7 @@ namespace TrigCostRootAnalysis {
                                                     (list_iter->second)->getVarOption()));
       const std::string outputString = alertLevel + " " + testName + " " + counterName + " " + MonitorName + " " +
                                        range + " " + " " + value + " " + upOrDown + " " + threshold;
-      Info("AutoMonResult::printList", outputString.c_str());
+      Info("AutoMonResult::printList", "%s", outputString.c_str());
     }// end of loop over list
   } // end printList
 

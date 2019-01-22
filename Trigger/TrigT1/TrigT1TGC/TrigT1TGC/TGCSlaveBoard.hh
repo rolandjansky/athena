@@ -38,27 +38,27 @@ public:
   TGCSlaveBoardOut* getOutput() const;
   void eraseOutput();
 
-  int getId() const { return id;};
-  void setId(int idIn){ id=idIn;};
+  int getId() const { return m_id;};
+  void setId(int idIn){ m_id=idIn;};
 
   void setPatchPanel(TGCPatchPanel* PPIn);
 
   int getIdHighPtBoard() const;
-  void setIdHighPtBoard(int id);
+  void setIdHighPtBoard(int m_id);
 
-  int getType() const { return type;};
-  void setType(int typeIn){ type=typeIn;};
+  int getType() const { return m_type;};
+  void setType(int typeIn){ m_type=typeIn;};
 
-  TGCRegionType getRegion() const { return region;};
-  void setRegion(TGCRegionType regionIn){ region=regionIn;};
+  TGCRegionType getRegion() const { return m_region;};
+  void setRegion(TGCRegionType regionIn){ m_region=regionIn;};
 
   void showResult()  const;
   std::string getTypeName(int typeIn) const;
 
-  void setPatchPanelOut(TGCPatchPanelOut* PPOut){ patchPanelOut=PPOut;};
+  void setPatchPanelOut(TGCPatchPanelOut* PPOut){ m_patchPanelOut=PPOut;};
 
   void storeSlbIn();
-  const std::bitset<200>& GetSlbIn(void) const { return slbin; } // for readout
+  const std::bitset<200>& GetSlbIn(void) const { return m_slbin; } // for readout
 
 protected:
   void collectInput();
@@ -69,19 +69,19 @@ protected:
   virtual void doCoincidence() = 0;
   virtual void createSlaveBoardOut() = 0;
 
-  int lengthOfCoincidenceOut;
-  TGCHitPattern* coincidenceOut;
-  TGCSlaveBoardOut* slaveBoardOut;
+  int m_lengthOfCoincidenceOut;
+  TGCHitPattern* m_coincidenceOut;
+  TGCSlaveBoardOut* m_slaveBoardOut;
 
-  int id;
-  int bid;
-  int idHighPtBoard;
-  int type;
-  TGCRegionType region;
+  int m_id;
+  int m_bid;
+  int m_idHighPtBoard;
+  int m_type;
+  TGCRegionType m_region;
 
-  TGCPatchPanel* patchPanel;
-  TGCPatchPanelOut* patchPanelOut;
-  std::bitset<200> slbin; // store SlaveBoard input for readout
+  TGCPatchPanel* m_patchPanel;
+  TGCPatchPanelOut* m_patchPanelOut;
+  std::bitset<200> m_slbin; // store SlaveBoard input for readout
 };
 
 } //end of namespace bracket

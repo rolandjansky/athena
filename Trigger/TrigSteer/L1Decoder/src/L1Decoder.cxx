@@ -109,8 +109,8 @@ StatusCode L1Decoder::execute (const EventContext& ctx) const {
   HLT::IDVec activeChains; // Chains which are activated to run in the first pass (seeded and pass prescale)
   HLT::IDVec prescaledChains; // Chains which are activated but do not run in the first pass (seeded but prescaled out)
 
-  std::set_difference( l1SeededChains.begin(), l1SeededChains.end(),
-           activeChains.begin(), activeChains.end(),
+  std::set_difference( activeChains.begin(), activeChains.end(),
+           l1SeededChains.begin(), l1SeededChains.end(),
            std::back_inserter(prescaledChains) );
 
   ATH_CHECK( m_prescaler->prescaleChains( ctx, l1SeededChains, activeChains ) );    

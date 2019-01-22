@@ -1,3 +1,17 @@
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
+from AthenaCommon.ConcurrencyFlags import jobproperties
+nThreads = jobproperties.ConcurrencyFlags.NumThreads()
+if nThreads >=1 :
+    from AthenaCommon.AlgScheduler import AlgScheduler
+    AlgScheduler.OutputLevel( INFO )
+    AlgScheduler.ShowControlFlow( True )
+    AlgScheduler.ShowDataDependencies( True )
+    AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
+    if not hasattr(topSequence, "SGInputLoader"):
+        from SGComps.SGCompsConf import SGInputLoader
+        topSequence+=SGInputLoader(OutputLevel=DEBUG, ShowEventDump=False)
+
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root"]
 

@@ -25,14 +25,30 @@ SiHitCnv_p2::persToTrans(const SiHit_p2* persObj, SiHit* transObj, MsgStream &lo
                                                 persObj->m_enZ),
                       persObj->m_energyLoss,
                       persObj->m_meanTime,
-                      link.barcode(),
+                      link,
                       persObj->m_ID
                       );
 }
 
 
 void
-SiHitCnv_p2::transToPers(const SiHit*, SiHit_p2*, MsgStream &/*log*/)
+SiHitCnv_p2::transToPers(const SiHit* transObj, SiHit_p2* persObj, MsgStream &log)
 {
-  throw std::runtime_error("SiHitCnv_p2::transToPers is not supported in this release!");
+//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "SiHitCnv_p2::transToPers called " << endmsg;
+   HepMcParticleLinkCnv_p2 HepMcPLCnv;
+
+   HepGeom::Point3D<double> st = transObj->localStartPosition();
+   persObj->m_stX         = st.x();
+   persObj->m_stY         = st.y();
+   persObj->m_stZ         = st.z();
+
+   HepGeom::Point3D<double> en = transObj->localEndPosition();
+   persObj->m_enX         = en.x();
+   persObj->m_enY         = en.y();
+   persObj->m_enZ         = en.z();
+
+   persObj->m_energyLoss  = transObj->energyLoss();
+   persObj->m_meanTime    = transObj->meanTime();
+   persObj->m_ID          = transObj->identify();
+   HepMcPLCnv.transToPers(&(transObj->particleLink()),&(persObj->m_partLink), log);
 }

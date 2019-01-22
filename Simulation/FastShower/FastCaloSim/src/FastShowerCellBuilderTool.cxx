@@ -131,7 +131,6 @@ FastShowerCellBuilderTool::FastShowerCellBuilderTool(const std::string& type, co
   };
   m_n_surfacelist=n_surfacelist;
   for(int i=0;i<n_surfacelist;++i) m_surfacelist[i]=surfacelist[i];
-  m_rndm=new TRandom3();
 
   declareProperty("ParticleParametrizationFileName",m_ParticleParametrizationFileName);
   declareProperty("AdditionalParticleParametrizationFileNames",m_AdditionalParticleParametrizationFileNames);
@@ -510,6 +509,8 @@ StatusCode FastShowerCellBuilderTool::initialize()
     }
     msg(MSG::INFO)<<endmsg;
   }
+
+  init_shape_correction();
 
   ATH_CHECK( m_mcCollectionKey.initialize() );
 
@@ -1173,6 +1174,7 @@ FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCellContainer,
                                             int pdgid,
                                             int barcode,
                                             FastShowerInfoContainer* fastShowerInfoContainer,
+                                            TRandom3& rndm,
                                             Stats& stats,
                                             const EventContext& /*ctx*/) const
 {
@@ -1422,7 +1424,7 @@ FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCellContainer,
     if(Epara) {
       Epara_E = Epara->E();
       ATH_MSG_DEBUG("take  : "<< Epara->GetTitle());
-      Epara->DiceParticle(p,*m_rndm);
+      Epara->DiceParticle(p,rndm);
 
       if(m_storeFastShowerInfo) Epara->CopyDebugInfo(fastshowerinfo); // old version: fastshowerinfo->SetParticleEnergyParam( *Epara );
 
@@ -2290,14 +2292,10 @@ StatusCode FastShowerCellBuilderTool::process(CaloCellContainer* theCellContaine
 {
   const EventContext& ctx = Gaudi::Hive::currentContext();
 
-  if(!m_is_init_shape_correction) {
-    init_shape_correction();
-    m_is_init_shape_correction=true;
-  }
-
   ATH_MSG_DEBUG("Executing start calo size=" <<theCellContainer->size()<<" Event="<<ctx.evt());
 
-  if(setupEvent().isFailure() ) {
+  TRandom3 rndm;
+  if(setupEvent(ctx, rndm).isFailure() ) {
     ATH_MSG_ERROR("setupEvent() failed");
     return StatusCode::FAILURE;
   }
@@ -2497,6 +2495,7 @@ StatusCode FastShowerCellBuilderTool::process(CaloCellContainer* theCellContaine
                         (*part)->pdg_id(),
                         (*part)->barcode(),
                         fastShowerInfoContainer.get(),
+                        rndm,
                         stats,
                         ctx))
     {
@@ -2554,7 +2553,8 @@ StatusCode FastShowerCellBuilderTool::process(CaloCellContainer* theCellContaine
   return StatusCode::SUCCESS;
 }
 
-StatusCode FastShowerCellBuilderTool::setupEvent()
+StatusCode FastShowerCellBuilderTool::setupEvent (const EventContext& /*ctx*/,
+                                                  TRandom3& rndm) const
 {
   m_rndmSvc->print(m_randomEngineName);
   unsigned int rseed=0;
@@ -2562,10 +2562,10 @@ StatusCode FastShowerCellBuilderTool::setupEvent()
     rseed=(unsigned int)( CLHEP::RandFlat::shoot(m_randomEngine) * std::numeric_limits<unsigned int>::max() );
   }
   gRandom->SetSeed(rseed);
-  m_rndm->SetSeed(rseed);
+  rndm.SetSeed(rseed);
 
   //if(gRandom) log<<" seed(gRandom="<<gRandom->ClassName()<<")="<<gRandom->GetSeed();
-  //if(m_rndm)  log<<" seed(m_rndm="<<m_rndm->ClassName()<<")="<<m_rndm->GetSeed();
+  //            log<<" seed(rndm="<<rndm.ClassName()<<")="<<rndm.GetSeed();
   //log<< endmsg;
 
   return StatusCode::SUCCESS;

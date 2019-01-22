@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCRPhiCoincidenceMap_hh
@@ -10,8 +10,8 @@
 #include <string>
 
 #include "GaudiKernel/ToolHandle.h"
-
-class ITGCTriggerDbTool;
+#include "StoreGate/ReadCondHandleKey.h"
+#include "MuonCondSvc/TGCTriggerData.h"
 
 namespace LVL1TGCTrigger {
 
@@ -27,8 +27,9 @@ public:
   int   getOctantId() const;
   bool  isFullCW() const;
   void  setFullCW( bool val);
- 
-  TGCRPhiCoincidenceMap(const std::string& version,
+
+  TGCRPhiCoincidenceMap(const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
+                        const std::string& version,
 			int   sideId=0, int octantId=0);
 
   virtual ~TGCRPhiCoincidenceMap();
@@ -40,7 +41,7 @@ public:
   bool readMap();  
 
 private: // hide default constructor
-  TGCRPhiCoincidenceMap();
+  TGCRPhiCoincidenceMap() = delete;
 
 protected:
   bool checkVersion();
@@ -56,15 +57,15 @@ protected:
   enum {DR_offset=-15, DPhi_offset=-7};
 
 private:
-  std::map<int, std::map<int,int> > mapDB[N_PT_THRESH];
+  std::map<int, std::map<int,int> > m_mapDB[N_PT_THRESH];
 
-  int numberOfDR,numberOfDPhi;
+  int m_numberOfDR,m_numberOfDPhi;
   std::string m_verName;
   int m_side;
   int m_octant;
   bool m_fullCW;
 
-  ToolHandle<ITGCTriggerDbTool> m_condDbTool;
+  const SG::ReadCondHandleKey<TGCTriggerData>& m_readCondKey;
 };
 
 

@@ -80,7 +80,7 @@ void RPCSimHitCollectionCnv_p2::persToTrans(const Muon::RPCSimHitCollection_p2* 
       hepMcPLCnv.persToTrans(&persCont->m_partLink[i],&link, log);   
 
       transCont->Emplace(persCont->m_RPCid[i], persCont->m_globalTime[i], position,
-                         link.barcode(), postPosition, 
+                         link, postPosition, 
 			 persCont->m_energyDeposit[i], persCont->m_stepLength[i], 
 			 persCont->m_particleEncoding[i], persCont->m_kineticEnergy[i]);
   }

@@ -131,12 +131,6 @@ public:
                        SG::detail::IteratorBase& cibegin, 
                        SG::detail::IteratorBase& ciend) const;
 
-  /** Look up a keyed object in TDS (compare also tryRetrieve)
-   *  returns false if object not available in TDS or persistent stores 
-   *  Usage: if (!p_store->contains<Foo>("fooKey")) { ... } */
-  ///
-  template <typename T, typename TKEY> 
-  bool contains(const TKEY& key) const;
 
   //@}
 

@@ -70,12 +70,12 @@ public:
   int getId() const;
   void dumpModule();
 
-  int getSideId() const { return sideId; }
-  int getOctantId() const { return octantId; }
-  int getModuleId() const { return moduleId; }
+  int getSideId() const { return m_sideId; }
+  int getOctantId() const { return m_octantId; }
+  int getModuleId() const { return m_moduleId; }
 
 private:
-  const TGCTMDB* getTMDB() const { return TMDB; }
+  const TGCTMDB* getTMDB() const { return m_TMDB; }
   
   int getPatchPanelType(TGCSignalType signal, int layer) const;
 
@@ -96,80 +96,80 @@ private:
   friend void TGCTimingManager::startSectorLogic(TGCSector* sector);
 
 private:
-  int id;
-  TGCRegionType regionType;
-  int numberOfHit;
-  int sideId;
-  int octantId;
-  int moduleId;
+  int m_id;
+  TGCRegionType m_regionType;
+  int m_numberOfHit;
+  int m_sideId;
+  int m_octantId;
+  int m_moduleId;
 
-  TGCForwardBackwardType forwardBackward;
-  TGCConnectionASDToPP* ASDToPP[NumberOfPatchPanelType];
+  TGCForwardBackwardType m_forwardBackward;
+  TGCConnectionASDToPP* m_ASDToPP[NumberOfPatchPanelType];
 
-  int numberOfPP[NumberOfPatchPanelType];
-  TGCPatchPanel**  PP[NumberOfPatchPanelType];
+  int m_numberOfPP[NumberOfPatchPanelType];
+  TGCPatchPanel**  m_PP[NumberOfPatchPanelType];
 
-  int numberOfSB[NumberOfSlaveBoardType];
-  TGCSlaveBoard**  SB[NumberOfSlaveBoardType];
+  int m_numberOfSB[NumberOfSlaveBoardType];
+  TGCSlaveBoard**  m_SB[NumberOfSlaveBoardType];
 
-  int numberOfHPB[NumberOfHighPtBoardType];
-  TGCHighPtBoard**  HPB[NumberOfHighPtBoardType];
+  int m_numberOfHPB[NumberOfHighPtBoardType];
+  TGCHighPtBoard**  m_HPB[NumberOfHighPtBoardType];
 
-  TGCSectorLogic* SL;
-  const TGCTMDB* TMDB;
+  TGCSectorLogic* m_SL;
+  const TGCTMDB* m_TMDB;
 };
 
 inline 
  bool TGCSector::hasHit() const
 {
-  return (numberOfHit>0);
+  return (m_numberOfHit>0);
 }
 inline 
  void TGCSector::clearNumberOfHit()
-{ numberOfHit = 0;}
+{ m_numberOfHit = 0;}
 inline
  TGCPatchPanel* TGCSector::getPP(int type, int index) const
 { 
   if ((type<0) || (index<0)) return 0;
-  return PP[type][index];
+  return m_PP[type][index];
 }
 inline
  TGCSlaveBoard* TGCSector::getSB(int type, int index) const
 {   
   if ((type<0) || (index<0)) return 0;
-  return SB[type][index];
+  return m_SB[type][index];
 }
 inline
  TGCHighPtBoard* TGCSector::getHPB(int type, int index) const
 {   
   if ((type<0) || (index<0)) return 0;
-  return HPB[type][index];
+  return m_HPB[type][index];
 }
 inline
  TGCSectorLogic* TGCSector::getSL() const
-{ return SL;}
+{ return m_SL;}
 inline
  int TGCSector::getNumberOfPP(int type) const 
 { 
   if (type<0) return -1;
-  return numberOfPP[type];
+  return m_numberOfPP[type];
 }
 inline
  int TGCSector::getNumberOfSB(int type) const 
 { if (type<0) return -1;
-  return numberOfSB[type];
+  return m_numberOfSB[type];
 }
 inline
  int TGCSector::getNumberOfHPB(int type) const 
 { if (type<0) return -1;
-  return numberOfHPB[type];
+  return m_numberOfHPB[type];
 }
 inline
  TGCRegionType TGCSector::getRegionType()const
-{ return regionType;}
+{ return m_regionType;}
 inline
  int TGCSector::getId() const
-{ return id;}
+{ return m_id;}
 
 } //end of namespace bracket
 

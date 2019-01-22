@@ -18,7 +18,7 @@ StatusCode TrigSignatureMoniMT::initialize() {
   ATH_CHECK( m_l1DecisionsKey.initialize() );
   ATH_CHECK( m_finalDecisionKey.initialize() );
   ATH_CHECK( m_collectorTools.retrieve() );
-  CHECK( m_histSvc.retrieve() );
+  ATH_CHECK( m_histSvc.retrieve() );
       
   
   {
@@ -46,15 +46,15 @@ StatusCode TrigSignatureMoniMT::initialize() {
     m_countHistogram->SetTitle("Positive decisions count per step;chain;step");
     
 
-    m_histSvc->regHist( m_bookingPath + "/"+m_passHistogram->GetName(), m_passHistogram );
-    m_histSvc->regHist( m_bookingPath + "/"+m_countHistogram->GetName(), m_countHistogram );
+    ATH_CHECK( m_histSvc->regHist( m_bookingPath + "/"+m_passHistogram->GetName(), m_passHistogram ) );
+    ATH_CHECK( m_histSvc->regHist( m_bookingPath + "/"+m_countHistogram->GetName(), m_countHistogram ) );
 
 
     
 
   }
-  CHECK( initHist( m_passHistogram ) );
-  CHECK( initHist( m_countHistogram ) );
+  ATH_CHECK( initHist( m_passHistogram ) );
+  ATH_CHECK( initHist( m_countHistogram ) );
   
 
   return StatusCode::SUCCESS;
@@ -143,14 +143,14 @@ StatusCode TrigSignatureMoniMT::execute()  {
     TrigCompositeUtils::DecisionIDContainer ids;    
     TrigCompositeUtils::decisionIDs( l1Decisions->at( index ), ids );
     ATH_MSG_DEBUG( "L1 " << index << " N positive decisions " << ids.size()  );
-    CHECK( fillPass( ids, index + 1 ) );
+    ATH_CHECK( fillPass( ids, index + 1 ) );
     if ( not ids.empty() )
       m_passHistogram->Fill( 1, double(index + 1) );
     return StatusCode::SUCCESS;
   };
 
-  CHECK( fillL1(0) );
-  CHECK( fillL1(1) );
+  ATH_CHECK( fillL1(0) );
+  ATH_CHECK( fillL1(1) );
   int step = 0;
   for ( auto& ctool: m_collectorTools ) {
     std::vector<TrigCompositeUtils::DecisionID> stepSum;

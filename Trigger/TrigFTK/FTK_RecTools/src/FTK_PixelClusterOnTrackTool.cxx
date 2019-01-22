@@ -852,7 +852,7 @@ FTK_PixelClusterOnTrackTool::getErrorsTIDE_Ambi(const InDet::PixelCluster *pixel
 
   bool correctdR = false;
   
-  std::array<float, 3> correctiondR = {0., 0., 0.};
+  std::array<float, 3> correctiondR = {{0., 0., 0.}};
   
   if(m_applydRcorrection){
     SG::ReadHandle<InDet::DRMap> mapHandle(m_dRMap);

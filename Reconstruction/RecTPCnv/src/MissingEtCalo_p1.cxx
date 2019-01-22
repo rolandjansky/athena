@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -16,9 +16,3 @@ PURPOSE:  Persistent rapresentation of MissingEtCalo class
 // RecTPCnv includes
 #include "RecTPCnv/MissingEtCalo_p1.h"
 
-/////////////////////////////////////////////////////////////////// 
-/// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-MissingEtCalo_p1::~MissingEtCalo_p1()
-{}

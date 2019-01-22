@@ -123,7 +123,7 @@ void SiHitCollectionCnv_p2::transToPers(const SiHitCollection* transCont, SiHitC
       }
     }
 
-    HepGeom::Point3D<double> st = siHit->localStartPosition();    
+    HepGeom::Point3D<double> st = siHit->localStartPosition();
     HepGeom::Point3D<double> en = siHit->localEndPosition();
 
     const double dx = st.x() - lastTransEnd.x();

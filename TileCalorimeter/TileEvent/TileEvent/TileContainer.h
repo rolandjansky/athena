@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //********************************************************************
@@ -45,7 +45,7 @@ public:
     TileContainer(SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS) : DataVector < TELEMENT > (ownPolicy) { }
 
     // destructor
-    virtual ~TileContainer() { }
+    virtual ~TileContainer() = default;
 
     // insert a Tile element into a collection.
     inline void add (TELEMENT* rc) { MyVector::push_back(rc); }

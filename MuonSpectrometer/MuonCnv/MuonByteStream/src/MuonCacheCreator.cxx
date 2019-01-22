@@ -50,8 +50,12 @@ bool MuonCacheCreator::isInsideView(const EventContext& context) const
 
 StatusCode MuonCacheCreator::execute (const EventContext& ctx) const {
 
-  if(!m_disableWarning && isInsideView(ctx)){
-     ATH_MSG_WARNING("CacheCreator is running inside a view, this is probably a misconfiguration");
+  if(!m_disableWarning){
+     if(isInsideView(ctx)){
+        ATH_MSG_ERROR("CacheCreator is running inside a view, this is probably a misconfiguration");
+        return StatusCode::FAILURE;
+     }
+     m_disableWarning = true; //only check once
   }
   // Create the MDT cache container
   auto maxHashMDTs = m_mdtIdHelper->stationNameIndex("BME") != -1 ? m_mdtIdHelper->detectorElement_hash_max() : m_mdtIdHelper->module_hash_max();

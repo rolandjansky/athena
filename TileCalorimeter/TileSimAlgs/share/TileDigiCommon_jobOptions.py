@@ -187,30 +187,27 @@ if doTileDigitToRawChannel:
         elif jobproperties.TileRecFlags.doTileMF():
             TileRawChannelBuilderMF.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
 
+    if TileRawChannelBuilderOpt2Filter:
+        TileRawChannelBuilderOpt2Filter.DSPContainer = ''
+    if TileRawChannelBuilderOptATLAS:
+        TileRawChannelBuilderOptATLAS.DSPContainer = ''
+    if TileRawChannelBuilderMF:
+        TileRawChannelBuilderMF.DSPContainer = ''
 
-    if jobproperties.TileRecFlags.doTileMF():
-        print  TileRawChannelBuilderMF
-    if jobproperties.TileRecFlags.doTileOptATLAS():
-        print  TileRawChannelBuilderOptATLAS
-    if jobproperties.TileRecFlags.doTileOpt2():
-        print  TileRawChannelBuilderOpt2Filter
-
-    from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
-    dqstatus = TileDQstatusAlgDefault()
-
-if not hasattr( ToolSvc, "TileBeamInfoProvider" ):
-    from TileRecUtils.TileRecUtilsConf import TileBeamInfoProvider
-    theTileBeamInfoProvider = TileBeamInfoProvider()
-    ToolSvc += theTileBeamInfoProvider
-
-# change default parameters for TileBeamInfo
-ToolSvc.TileBeamInfoProvider.TileBeamElemContainer=""; # disable reading of trigger type from BeamElem container
-ToolSvc.TileBeamInfoProvider.TileDigitsContainer="";   # disable checking of Digits container size for bi-gain mode
-ToolSvc.TileBeamInfoProvider.TileRawChannelContainer=""; # disable checking of DQstatus for simulated data
+# Change default parameters for TileDQstatusAlg.
+from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
+dqstatus = TileDQstatusAlgDefault()
+dqstatus.TileBeamElemContainer=""; # disable reading of trigger type from BeamElem container
+dqstatus.TileDigitsContainer="";   # disable checking of Digits container size for bi-gain mode
+dqstatus.TileRawChannelContainer=""; # disable checking of DQstatus for simulated data
 
 
 #
 include( "TileSimAlgs/TileSamplingFraction_jobOptions.py" )
 
-
-
+if jobproperties.TileRecFlags.doTileMF():
+    print  TileRawChannelBuilderMF
+if jobproperties.TileRecFlags.doTileOptATLAS():
+    print  TileRawChannelBuilderOptATLAS
+if jobproperties.TileRecFlags.doTileOpt2():
+    print  TileRawChannelBuilderOpt2Filter

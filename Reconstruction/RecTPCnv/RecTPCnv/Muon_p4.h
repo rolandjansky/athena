@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Muon_p4.h 
@@ -66,7 +66,7 @@ public:
 
   /** Destructor: 
    */
-  ~Muon_p4();
+  ~Muon_p4() = default;
 
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 

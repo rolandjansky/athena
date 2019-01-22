@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 789390 2016-12-12 23:31:36Z tsulaia $
 ################################################################################
 # Package: CollectionUtilities
 ################################################################################
@@ -20,7 +19,6 @@ atlas_depends_on_subdirs(
 find_package( Boost )
 find_package( CORAL COMPONENTS CoralBase )
 find_package( XercesC )
-find_package( CURL )
 
 # Component(s) in the package:
 atlas_add_library( CollectionUtilities
@@ -49,10 +47,8 @@ atlas_add_library( CollectionUtilities
 # Helper macro declaring the utilities of the package:
 macro( collection_utility name )
   atlas_add_executable( ${name} utilities/${name}.cpp
-    INCLUDE_DIRS ${CURL_INCLUDE_DIRS} 
-    ${CORAL_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS}
-    LINK_LIBRARIES ${CURL_LIBRARIES} 
-    ${CORAL_LIBRARIES} ${XERCESC_LIBRARIES} CollectionBase
+    INCLUDE_DIRS $${CORAL_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS}
+    LINK_LIBRARIES ${CORAL_LIBRARIES} ${XERCESC_LIBRARIES} CollectionBase
     PersistentDataModel FileCatalog POOLCore CollectionUtilities )
 endmacro( collection_utility )
 

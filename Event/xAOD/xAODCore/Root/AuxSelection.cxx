@@ -13,11 +13,15 @@
 
 // Local include(s):
 #include "xAODCore/AuxSelection.h"
+#include "CxxUtils/checker_macros.h"
+#include <mutex>
 
 namespace {
 
-   /// Helper variable to only print warning about missing variables once
-   static std::set< std::string > mentionedVariableNames;
+   /// Helper variable to only print warning about missing variables once,
+   /// with a mutex.
+   std::set< std::string > mentionedVariableNames ATLAS_THREAD_SAFE;
+   std::mutex mentionedMutex;
 
 } // private namespace
 
@@ -103,6 +107,7 @@ namespace xAOD {
                }
             } else {
                // Check if a warning should be printed at this time or not:
+               std::lock_guard<std::mutex> lock (mentionedMutex);
                if( ::mentionedVariableNames.insert( *name_itr ).second ) {
                   // Apparently we didn't complain about this name yet...
                   std::cerr << "xAOD::AuxSelection WARNING Selected dynamic "

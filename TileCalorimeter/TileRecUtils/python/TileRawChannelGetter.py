@@ -69,7 +69,7 @@ class TileRawChannelGetter ( Configured)  :
         # true for real data, false for MC - GlobalFlags.DataSource.is_data()
         # true for nominal ATLAS configuration - GlobalFlags.DetGeo.is_atlas()
         from AthenaCommon.GlobalFlags import globalflags
-        if globalflags.DataSource()=='data':
+        if globalflags.DataSource() == 'data' and not globalflags.isOverlay():
             # apply noise filter for real data (if this option was not set before)
             if jobproperties.TileRecFlags.noiseFilter() < 0:
                 jobproperties.TileRecFlags.noiseFilter=1

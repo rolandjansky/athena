@@ -16,6 +16,7 @@
 #include "SGTools/ProxyMap.h"
 #include "SGTools/DataProxy.h"
 #include "SGTools/DataHandleBase.h"
+#include "CxxUtils/checker_macros.h"
 #include <iterator>
 
 template <typename DATA>
@@ -47,7 +48,7 @@ bool operator!= (const DataHandle<DATA>& h1,
  * $Id: DataHandle.h,v 1.40 2008-09-26 23:37:52 calaf Exp $
  **/
 template <typename DATA> 
-class DataHandle :
+class ATLAS_NOT_THREAD_SAFE DataHandle :
   public DataHandleBase,
   public std::iterator<std::forward_iterator_tag, DATA> 
 {
@@ -87,7 +88,6 @@ public:
   /// \name validity checks
   //@{
   bool isValid() const; ///<RETRIEVES the DO to check it is valid and unlocked
-  bool isValid();       ///<RETRIEVES the DO to check it is valid
 
   // FIXME op! is to keep backward compatibility with Gaudi
   // FIXME similar to checking the SmartDataPtr
@@ -106,19 +106,15 @@ public:
   DataHandle operator++ (int) const;           ///<postfix
     
   const_pointer_type operator->() const   { return cptr(); }
-  pointer_type operator->()               { return ptr();  }
 
   const_reference_type operator*() const    { return *cptr(); }   
-  reference_type operator*()                { return *ptr();  }
   //@}
 
   /// \name access to the underlying ptr
   //@{
-  operator pointer_type()             { return ptr(); }  ///< often ambiguous
   operator const_pointer_type() const { return cptr(); } ///< often ambiguous
 
   const_pointer_type cptr() const;   ///< safer explicit ptr accessor 
-  pointer_type ptr();                ///< safer explicit ptr accessor 
 
   virtual void reset (bool /*hard*/) override { m_ptr = 0; }        ///< reset pointer
   //@}
@@ -142,8 +138,10 @@ public:
                     const DataHandle<DATA>& h2); 
 private:
 
-  mutable pointer_type m_ptr;
-  pointer_type dataPointer() const;
+  // OK since DataHandle should only be used locally, not shared between threads.
+  // Eventually we'd like to deprecate DataHandle anyway.
+  mutable const_pointer_type m_ptr;
+  const_pointer_type dataPointer() const;
 
 
 };
@@ -151,22 +149,20 @@ private:
 /// \name Comparison ops (compare proxies)
 //@{
 template <class DATA>
-bool operator==(const DataHandle<DATA>& h1,
-                const DataHandle<DATA>& h2)
+bool operator== ATLAS_NOT_THREAD_SAFE (const DataHandle<DATA>& h1,
+                                       const DataHandle<DATA>& h2)
 {
   return (h1.m_proxy == h2.m_proxy); 
 }
 template <class DATA>
-bool operator!=(const DataHandle<DATA>& h1,
-                const DataHandle<DATA>& h2)
+bool operator!= ATLAS_NOT_THREAD_SAFE (const DataHandle<DATA>& h1,
+                                       const DataHandle<DATA>& h2)
 {
   return (h1.m_proxy != h2.m_proxy); 
 }
 //@}
 
-#ifndef STOREGATE_DATAHANDLE_ICC
 #include "StoreGate/DataHandle.icc"
-#endif
 
 /* FIXME LEGACY - No dependency on ActiveStoreSvc here, but a number of Muon AtlasEvent packages are 
    getting the include through this one!!!! */

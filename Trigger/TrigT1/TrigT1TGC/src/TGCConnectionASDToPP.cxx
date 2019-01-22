@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -18,19 +18,19 @@
 namespace LVL1TGCTrigger {
 
 //   Strip backwardLayer  ->                      0  1  2  3  4  5  6  7  8
-const int TGCConnectionASDToPP::forwardLayer[] = {2, 1, 0, 4, 3, 6, 5, 8, 7};
+const int TGCConnectionASDToPP::s_forwardLayer[] = {2, 1, 0, 4, 3, 6, 5, 8, 7};
 
 int TGCConnectionASDToPP::getConnection(const int /*sideId*/, const int layer, const int chamber,
 					const int line, int* pp, int* connector, int* channel)
 {
   int i;
-  for( i=0; i<totalNumberOfChannel; i+=1){
+  for( i=0; i<m_totalNumberOfChannel; i+=1){
     // wiregroupID assign in ASDOut and ASD2PP.db are different.
-    if((layerId[i]==layer)&&(chamberId[i]==chamber)&&(lineId[i]==line)){
-    //    if((layerId[i]==layer)&&(lineId[i]==line)){
-      *pp = PPId[i];
-      *connector = connectorId[i];
-      *channel = channelId[i];
+    if((m_layerId[i]==layer)&&(m_chamberId[i]==chamber)&&(m_lineId[i]==line)){
+    //    if((m_layerId[i]==layer)&&(m_lineId[i]==line)){
+      *pp = m_PPId[i];
+      *connector = m_connectorId[i];
+      *channel = m_channelId[i];
       return 0;
     }
   }
@@ -44,10 +44,10 @@ void TGCConnectionASDToPP::dump() const
 {
 #ifdef TGCCOUT
   int i;
-  std::cout << "TGCConnectionASDToPP::dump "<<totalNumberOfChannel<< std::endl;
+  std::cout << "TGCConnectionASDToPP::dump "<<m_totalNumberOfChannel<< std::endl;
   std::cout << "layerId chamberID line(WireGroup)  PPID ConnectorID" << std::endl;
-  for( i=0; i<totalNumberOfChannel; i+=1)
-    std::cout<<layerId[i]<<" "<<chamberId[i]<<" "<<lineId[i]<<" "<<PPId[i]<<" "<<connectorId[i]<<" "<<channelId[i]<< std::endl;
+  for( i=0; i<m_totalNumberOfChannel; i+=1)
+    std::cout<<m_layerId[i]<<" "<<m_chamberId[i]<<" "<<m_lineId[i]<<" "<<m_PPId[i]<<" "<<m_connectorId[i]<<" "<<m_channelId[i]<< std::endl;
 #endif
 }
 
@@ -55,8 +55,8 @@ void TGCConnectionASDToPP::dump() const
 bool TGCConnectionASDToPP::readData(TGCRegionType region, int type, 
 				    TGCForwardBackwardType forwardBackward)
 {
-  this->type = type;
-  this->forwardBackward = forwardBackward;
+  this->m_type = type;
+  this->m_forwardBackward = forwardBackward;
 
   enum { BufferSize = 1024 };
   char buf[BufferSize];
@@ -78,23 +78,23 @@ bool TGCConnectionASDToPP::readData(TGCRegionType region, int type,
       std::istringstream line(buf);
       int nChannel;
       line >> PPType >> nChannel;
-      // find a entry matches in region and Patch Panel type.
+      // find a entry matches in region and Patch Panel m_type.
       if(((region==Endcap)&&
-          (  (PPType=="EWT"&&type==WTPP)||(PPType=="EWD"&&type==WDPP)
-           ||(PPType=="EST"&&type==STPP)||(PPType=="ESD"&&type==SDPP)
-           ||(PPType=="EWI"&&type==WIPP)||(PPType=="ESI"&&type==SIPP) ) )||
+          (  (PPType=="EWT"&&m_type==WTPP)||(PPType=="EWD"&&m_type==WDPP)
+           ||(PPType=="EST"&&m_type==STPP)||(PPType=="ESD"&&m_type==SDPP)
+           ||(PPType=="EWI"&&m_type==WIPP)||(PPType=="ESI"&&m_type==SIPP) ) )||
          ((region==Forward)&&
-          (  (PPType=="FWT"&&type==WTPP)||(PPType=="FWD"&&type==WDPP)
-           ||(PPType=="FST"&&type==STPP)||(PPType=="FSD"&&type==SDPP)
-           ||(PPType=="FWI"&&type==WIPP)||(PPType=="FSI"&&type==SIPP) ) )    ){
-        totalNumberOfChannel = nChannel;
+          (  (PPType=="FWT"&&m_type==WTPP)||(PPType=="FWD"&&m_type==WDPP)
+           ||(PPType=="FST"&&m_type==STPP)||(PPType=="FSD"&&m_type==SDPP)
+           ||(PPType=="FWI"&&m_type==WIPP)||(PPType=="FSI"&&m_type==SIPP) ) )    ){
+        m_totalNumberOfChannel = nChannel;
 
-        layerId = new int [totalNumberOfChannel]; 
-        chamberId = new int [totalNumberOfChannel]; 
-        lineId = new int [totalNumberOfChannel]; 
-        PPId = new int [totalNumberOfChannel]; 
-        connectorId = new int [totalNumberOfChannel]; 
-        channelId = new int [totalNumberOfChannel]; 
+        m_layerId = new int [m_totalNumberOfChannel]; 
+        m_chamberId = new int [m_totalNumberOfChannel]; 
+        m_lineId = new int [m_totalNumberOfChannel]; 
+        m_PPId = new int [m_totalNumberOfChannel]; 
+        m_connectorId = new int [m_totalNumberOfChannel]; 
+        m_channelId = new int [m_totalNumberOfChannel]; 
          
 
         //******************************************************
@@ -104,44 +104,44 @@ bool TGCConnectionASDToPP::readData(TGCRegionType region, int type,
         //******************************************************
         int lineIdBase=0;
 	// initialize array
-        for(int i=0; i<totalNumberOfChannel; i+=1){
-	  layerId[i]     = 0;
-	  chamberId[i]   = 0;
-	  lineId[i]      = 0;
-	  PPId[i]        = 0;
-	  connectorId[i] = 0;
-	  channelId[i]   = 0;
+        for(int i=0; i<m_totalNumberOfChannel; i+=1){
+	  m_layerId[i]     = 0;
+	  m_chamberId[i]   = 0;
+	  m_lineId[i]      = 0;
+	  m_PPId[i]        = 0;
+	  m_connectorId[i] = 0;
+	  m_channelId[i]   = 0;
 	}
 	// read lines
-        for(int i=0; i<totalNumberOfChannel; i+=1){
+        for(int i=0; i<m_totalNumberOfChannel; i+=1){
           file.getline(buf,BufferSize);
           std::istringstream line(buf);
-          line >> layerId[i] >> chamberId[i] >> lineId[i] 
-               >> PPId[i] >> connectorId[i] >> channelId[i]; 
+          line >> m_layerId[i] >> m_chamberId[i] >> m_lineId[i] 
+               >> m_PPId[i] >> m_connectorId[i] >> m_channelId[i]; 
 
 	  // DB is Backward
           if(PPType=="FST"||PPType=="FSD"||PPType=="EST"||PPType=="ESD"||PPType=="FSI"||PPType=="ESI"){
             if(forwardBackward==ForwardSector){
-               layerId[i] = forwardLayer[layerId[i]];
+               m_layerId[i] = s_forwardLayer[m_layerId[i]];
             }
           }
 
 
           //******************************************************
           // ChamberID in kmura's def. start from 1 in T1 station.
-          chamberId[i]+=chamberIdBase;
+          m_chamberId[i]+=chamberIdBase;
           //******************************************************
           //******************************************************
           // hitID assign for each Module in kmura's def., 
           // not for each chamber like in hasuko's def. 
-          if( (type==WTPP)||(type==WDPP)||(type==WIPP) ){
-            if((i!=0)&&(chamberId[i]!=chamberId[i-1])){
-              if(layerId[i]==layerId[i-1])
-                lineIdBase=lineId[i-1]+1;
+          if( (m_type==WTPP)||(m_type==WDPP)||(m_type==WIPP) ){
+            if((i!=0)&&(m_chamberId[i]!=m_chamberId[i-1])){
+              if(m_layerId[i]==m_layerId[i-1])
+                lineIdBase=m_lineId[i-1]+1;
               else
                 lineIdBase=0;
             }
-            lineId[i]+=lineIdBase;
+            m_lineId[i]+=lineIdBase;
           }
           //******************************************************
         }
@@ -154,31 +154,31 @@ bool TGCConnectionASDToPP::readData(TGCRegionType region, int type,
 
 TGCConnectionASDToPP::TGCConnectionASDToPP(const TGCConnectionASDToPP& right)
 {
-  totalNumberOfChannel = right.totalNumberOfChannel;
-  type = right.type;
-  forwardBackward = right.forwardBackward;
-  layerId = 0;
-  chamberId = 0;
-  lineId = 0;
-  PPId = 0;
-  connectorId = 0;
-  channelId = 0;
+  m_totalNumberOfChannel = right.m_totalNumberOfChannel;
+  m_type = right.m_type;
+  m_forwardBackward = right.m_forwardBackward;
+  m_layerId = 0;
+  m_chamberId = 0;
+  m_lineId = 0;
+  m_PPId = 0;
+  m_connectorId = 0;
+  m_channelId = 0;
 
-  if(totalNumberOfChannel!=0){
-    layerId = new int [totalNumberOfChannel];
-    chamberId = new int [totalNumberOfChannel];
-    lineId = new int [totalNumberOfChannel];
-    PPId = new int [totalNumberOfChannel];
-    connectorId = new int [totalNumberOfChannel];
-    channelId = new int [totalNumberOfChannel];
+  if(m_totalNumberOfChannel!=0){
+    m_layerId = new int [m_totalNumberOfChannel];
+    m_chamberId = new int [m_totalNumberOfChannel];
+    m_lineId = new int [m_totalNumberOfChannel];
+    m_PPId = new int [m_totalNumberOfChannel];
+    m_connectorId = new int [m_totalNumberOfChannel];
+    m_channelId = new int [m_totalNumberOfChannel];
 
-    for( int i=0; i<totalNumberOfChannel; i+=1){
-      layerId[i]=right.layerId[i];
-      chamberId[i]=right.chamberId[i];
-      lineId[i]=right.lineId[i];
-      PPId[i]=right.PPId[i];
-      connectorId[i]=right.connectorId[i];
-      channelId[i]=right.channelId[i];
+    for( int i=0; i<m_totalNumberOfChannel; i+=1){
+      m_layerId[i]=right.m_layerId[i];
+      m_chamberId[i]=right.m_chamberId[i];
+      m_lineId[i]=right.m_lineId[i];
+      m_PPId[i]=right.m_PPId[i];
+      m_connectorId[i]=right.m_connectorId[i];
+      m_channelId[i]=right.m_channelId[i];
     }
   }
 }
@@ -187,29 +187,29 @@ TGCConnectionASDToPP&
 TGCConnectionASDToPP::operator=(const TGCConnectionASDToPP& right)
 {
   if(this != &right) {
-    totalNumberOfChannel = right.totalNumberOfChannel;
-    if(layerId!=0) {
-      delete [] layerId;
-      delete [] chamberId;
-      delete [] lineId;
-      delete [] PPId;
-      delete [] connectorId;
-      delete [] channelId;
+    m_totalNumberOfChannel = right.m_totalNumberOfChannel;
+    if(m_layerId!=0) {
+      delete [] m_layerId;
+      delete [] m_chamberId;
+      delete [] m_lineId;
+      delete [] m_PPId;
+      delete [] m_connectorId;
+      delete [] m_channelId;
     }
-    if(totalNumberOfChannel!=0){
-      layerId = new int [totalNumberOfChannel];
-      chamberId = new int [totalNumberOfChannel];
-      lineId = new int [totalNumberOfChannel];
-      PPId = new int [totalNumberOfChannel];
-      connectorId = new int [totalNumberOfChannel];
-      channelId = new int [totalNumberOfChannel];
-      for( int i=0; i<totalNumberOfChannel; i+=1){
-        layerId[i]=right.layerId[i];
-        chamberId[i]=right.chamberId[i];
-        lineId[i]=right.lineId[i];
-        PPId[i]=right.PPId[i];
-        connectorId[i]=right.connectorId[i];
-        channelId[i]=right.channelId[i];
+    if(m_totalNumberOfChannel!=0){
+      m_layerId = new int [m_totalNumberOfChannel];
+      m_chamberId = new int [m_totalNumberOfChannel];
+      m_lineId = new int [m_totalNumberOfChannel];
+      m_PPId = new int [m_totalNumberOfChannel];
+      m_connectorId = new int [m_totalNumberOfChannel];
+      m_channelId = new int [m_totalNumberOfChannel];
+      for( int i=0; i<m_totalNumberOfChannel; i+=1){
+        m_layerId[i]=right.m_layerId[i];
+        m_chamberId[i]=right.m_chamberId[i];
+        m_lineId[i]=right.m_lineId[i];
+        m_PPId[i]=right.m_PPId[i];
+        m_connectorId[i]=right.m_connectorId[i];
+        m_channelId[i]=right.m_channelId[i];
       }
     }
   } 
@@ -217,27 +217,27 @@ TGCConnectionASDToPP::operator=(const TGCConnectionASDToPP& right)
 }
 
 TGCConnectionASDToPP::TGCConnectionASDToPP():
-  totalNumberOfChannel(0),type(0),forwardBackward(ForwardSector),
-  layerId(0),chamberId(0),lineId(0),
-  PPId(0),connectorId(0),channelId(0)
+  m_totalNumberOfChannel(0),m_type(0),m_forwardBackward(ForwardSector),
+  m_layerId(0),m_chamberId(0),m_lineId(0),
+  m_PPId(0),m_connectorId(0),m_channelId(0)
 {
 }
 
 
 TGCConnectionASDToPP::~TGCConnectionASDToPP()
 {
-  if(layerId!=0) delete [] layerId;
-  layerId=0;
-  if(chamberId!=0) delete [] chamberId;
-  chamberId=0;
-  if(lineId!=0) delete [] lineId;
-  lineId=0;
-  if(PPId!=0) delete [] PPId;
-  PPId=0;
-  if(connectorId!=0) delete [] connectorId;
-  connectorId=0;
-  if(channelId!=0) delete [] channelId;
-  channelId=0;
+  if(m_layerId!=0) delete [] m_layerId;
+  m_layerId=0;
+  if(m_chamberId!=0) delete [] m_chamberId;
+  m_chamberId=0;
+  if(m_lineId!=0) delete [] m_lineId;
+  m_lineId=0;
+  if(m_PPId!=0) delete [] m_PPId;
+  m_PPId=0;
+  if(m_connectorId!=0) delete [] m_connectorId;
+  m_connectorId=0;
+  if(m_channelId!=0) delete [] m_channelId;
+  m_channelId=0;
 }
 
 } //end of namespace bracket

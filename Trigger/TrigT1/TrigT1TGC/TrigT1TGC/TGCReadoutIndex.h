@@ -23,11 +23,11 @@ namespace LVL1TGCTrigger {
 
 class TGCReadoutIndex {
 protected:
-  TGCZDirection zDirection;
-  int octantNumber;
-  int moduleNumber;
-  int rNumber;
-  int layerNumber;
+  TGCZDirection m_zDirection;
+  int m_octantNumber;
+  int m_moduleNumber;
+  int m_rNumber;
+  int m_layerNumber;
 
 public:
   TGCReadoutIndex();
@@ -46,11 +46,11 @@ public:
   TGCReadoutIndex& operator=(const TGCReadoutIndex& right)
   {
     if (this != &right) {
-      zDirection= right.zDirection;
-      octantNumber= right.octantNumber;
-      moduleNumber= right.moduleNumber;
-      rNumber= right.rNumber;
-      layerNumber= right.layerNumber;
+      m_zDirection= right.m_zDirection;
+      m_octantNumber= right.m_octantNumber;
+      m_moduleNumber= right.m_moduleNumber;
+      m_rNumber= right.m_rNumber;
+      m_layerNumber= right.m_layerNumber;
     }
     return *this;
   }
@@ -70,14 +70,14 @@ public:
   void SetIndex(TGCIndex tgcindex, int ilyr);
 
   // get functions
-  TGCZDirection GetZDirection() const { return zDirection; }
-  int GetSideNumber() const { if(zDirection==kZ_FORWARD) return 0;
-                              if(zDirection==kZ_BACKWARD) return 1;
+  TGCZDirection GetZDirection() const { return m_zDirection; }
+  int GetSideNumber() const { if(m_zDirection==kZ_FORWARD) return 0;
+                              if(m_zDirection==kZ_BACKWARD) return 1;
                               return -1;}
-  int GetOctantNumber() const { return octantNumber; }
-  int GetModuleNumber() const { return moduleNumber; }
-  int GetRNumber() const { return rNumber; }
-  int GetLayerNumber() const { return layerNumber; }
+  int GetOctantNumber() const { return m_octantNumber; }
+  int GetModuleNumber() const { return m_moduleNumber; }
+  int GetRNumber() const { return m_rNumber; }
+  int GetLayerNumber() const { return m_layerNumber; }
 
   // operations
   void Print() const;

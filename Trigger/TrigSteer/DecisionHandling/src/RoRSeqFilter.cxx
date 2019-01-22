@@ -102,16 +102,16 @@ StatusCode RoRSeqFilter::execute() {
       // already made handles, so this code could be simplified to a loop over inputHandles.
       auto inputHandle = SG::makeHandle( inputKey );
 
-      if( not inputHandle.isValid() ) continue;  // implicit
-      
-      ATH_MSG_DEBUG( "Checking inputHandle "<< inputKey.key() <<" with " << inputHandle->size() <<" elements");
-      TrigCompositeUtils::createAndStore(outputHandles[outputIndex]);
-      TrigCompositeUtils::DecisionContainer* output = outputHandles[outputIndex].ptr();
-      passCounter += copyPassing( *inputHandle, inputKey.key(), *output );
-
-      if (output->size() >0){ // data handle reduction       
-        ATH_MSG_DEBUG( "Recorded output key " <<  m_outputKeys[ outputIndex ].key() <<" of size "<<output->size()  <<" at index "<< outputIndex);
-        // record done by createAndStore above
+      if( not inputHandle.isValid() ) {
+	ATH_MSG_DEBUG( "InputHandle "<< inputKey.key() <<" not present" );
+      } else if ( inputHandle->empty() ) {
+	ATH_MSG_DEBUG( "InputHandle "<< inputKey.key() <<" contains all rejected decisions, skipping" );
+      } else {
+	ATH_MSG_DEBUG( "Checking inputHandle "<< inputKey.key() <<" with " << inputHandle->size() <<" elements");
+	TrigCompositeUtils::createAndStore(outputHandles[outputIndex]);
+	TrigCompositeUtils::DecisionContainer* output = outputHandles[outputIndex].ptr();
+	passCounter += copyPassing( *inputHandle, inputKey.key(), *output );	
+	ATH_MSG_DEBUG( "Recorded output key " <<  m_outputKeys[ outputIndex ].key() <<" of size "<<output->size()  <<" at index "<< outputIndex);
       }
       outputIndex++; // Keep the mapping of inputKey<->outputKey correct
     }

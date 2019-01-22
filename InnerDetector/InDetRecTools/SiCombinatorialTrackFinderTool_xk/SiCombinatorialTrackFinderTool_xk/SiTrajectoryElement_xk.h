@@ -127,7 +127,7 @@ namespace InDet{
       // Main methods
       ///////////////////////////////////////////////////////////////////
 
-      bool set(int,
+      void set(int,
 	       const InDet::SiDetElementBoundaryLink_xk*&       ,
 	       const InDet::SiClusterCollection::const_iterator&, 
 	       const InDet::SiClusterCollection::const_iterator&,

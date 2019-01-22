@@ -128,7 +128,7 @@ class L2EFChain_Beamspot(L2EFChainDef):
            mlog.error('Cannot assemble chain %s - only configured for trkFS,allTE and activeTE' % (self.chainPartName))
 
         from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-        [trk_alg] = TrigInDetSequence("BeamSpot", "beamSpot", "IDTrig", "FTF").getSequence()
+        [trk_alg] = TrigInDetSequence("BeamSpot", "beamSpot", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
         teaddition = 'trkfast'
         
      elif ('FTK' in self.l2IDAlg):
@@ -152,10 +152,12 @@ class L2EFChain_Beamspot(L2EFChainDef):
            
         if 'idperf' in self.chainPart['addInfo']:
            from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-           [trk_alg] = TrigInDetSequence("BeamSpot", "beamSpot", "IDTrig", "FTF").getSequence()
-           
+           [trk_alg] = TrigInDetSequence("BeamSpot", "beamSpot", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
            from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
-           [ftk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", "").getSequence()
+           [ftk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", "mon").getSequence()
+        if 'mon' in self.chainPart['addInfo']:
+           from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
+           [trk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", "mon").getSequence()
         else:   
            from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
            [trk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", "").getSequence()
@@ -181,7 +183,7 @@ class L2EFChain_Beamspot(L2EFChainDef):
 
         if 'idperf' in self.chainPart['addInfo']:
            from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-           [trk_alg] = TrigInDetSequence("BeamSpot", "beamSpot", "IDTrig", "FTF").getSequence()
+           [trk_alg] = TrigInDetSequence("BeamSpot", "beamSpot", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
            from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
            [ftk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", "refit").getSequence()
         else: 

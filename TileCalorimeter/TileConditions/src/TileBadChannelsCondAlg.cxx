@@ -1,12 +1,13 @@
 //Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
 // Tile includes
 #include "TileBadChannelsCondAlg.h"
 #include "TileConditions/TileCalibData.h"
+#include "TileConditions/TileCablingService.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileIdentifier/TileHWID.h"
 
@@ -220,6 +221,42 @@ StatusCode TileBadChannelsCondAlg::execute() {
                  << TileBchStatus::getDefinitionBadTiming().getString() );
 
 
+    // Find Tile drawers masked completely
+    std::vector<int> maskedDrawers;
+    TileCablingService* cabling = TileCablingService::getInstance();
+    unsigned int maxChannels = cabling->getMaxChannels();
+
+    for (unsigned int ros = 1; ros < TileCalibUtils::MAX_ROS; ++ros) {
+      for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
+        unsigned int channel = 0;
+        for ( ; channel < maxChannels; ++channel) {
+          int index(-1);
+          int pmt(-1);
+          HWIdentifier channelID = tileHWID->channel_id(ros, drawer, channel);
+          cabling->h2s_cell_id_index(channelID, index, pmt);
+          if (index >= 0 && !badChannelsData->getChannelStatus(channelID).isBad()) { // good normal cell
+            break;
+          }
+        }
+        if (channel == maxChannels) maskedDrawers.push_back(tileHWID->frag(ros, drawer));
+      }
+    }
+
+
+    if (msgLvl(MSG::DEBUG)) {
+      if (!maskedDrawers.empty()) {
+        msg(MSG::DEBUG) << "List of fully masked drawers: " << MSG::hex;
+        for(int maskedDrawer : maskedDrawers) {
+          msg(MSG::DEBUG) << " 0x" << maskedDrawer;
+        }
+        msg(MSG::DEBUG) << MSG::dec << endmsg;
+      } else {
+        msg(MSG::DEBUG) << "No bad drawers found" << endmsg;
+      }
+    }
+
+    if (!maskedDrawers.empty()) badChannelsData->setMaskedDrawers(std::move(maskedDrawers));
+
     // Check if drawer trips probabilities for simulation are exist in DB.
     // By special convention trips probabilities are stored in drawer number: 2
     // like integers number plus one denominator per ros
@@ -250,7 +287,7 @@ StatusCode TileBadChannelsCondAlg::execute() {
 	  }
 	}
 
-        badChannelsData->setTripsProbabilities(tripsProbs);
+        badChannelsData->setTripsProbabilities(std::move(tripsProbs));
 
       } else {
 	ATH_MSG_INFO("No drawer trips probabilities found in DB");

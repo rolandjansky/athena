@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: AuxContainerBase.h 793737 2017-01-24 20:11:10Z ssnyder $
@@ -65,7 +65,7 @@ namespace xAOD {
       /// Copy constructor
       AuxContainerBase( const AuxContainerBase& parent );
       /// Constructor receiving a "dynamic auxiliary store"
-      AuxContainerBase( const SG::IAuxStore* store );
+      AuxContainerBase( SG::IAuxStore* store );
       /// Destructor
       ~AuxContainerBase();
 
@@ -193,7 +193,7 @@ namespace xAOD {
       /// Dynamic attributes selection implementation
       AuxSelection  m_selection;
       /// Internal list of all available variables
-      mutable auxid_set_t m_auxids;
+      auxid_set_t m_auxids;
       /// Internal list of all managed variables
       std::vector< SG::IAuxTypeVector* > m_vecs;
 

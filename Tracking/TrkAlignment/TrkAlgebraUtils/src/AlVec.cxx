@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/StatusCode.h"
@@ -216,6 +216,7 @@ void AlVec::reSize(int Nnew) {
     m_ptr_data = new double[Nnew];
     m_size = Nnew;
     int k = m_size <= size_old ? m_size : size_old;
+
     p += k;
     double*  q = m_ptr_data + k;
     while (q > m_ptr_data) *(--q) = *(--p);
@@ -477,8 +478,8 @@ StatusCode AlVec::InitializeOutputVector(const std::string& filename, bool binar
 StatusCode AlVec::ReadPartial(const std::string &filename, double &scale, 
 			      std::map<int,unsigned long long> &modmap, float &version)
 {
-  bool stdUnits = true;
-  if (StatusCode::SUCCESS != CheckVecVersion(m_pathbin+filename, stdUnits)) {
+  bool StdUnits = true;
+  if (StatusCode::SUCCESS != CheckVecVersion(m_pathbin+filename, StdUnits)) {
     //std::cout<<"CheckVecVersion failed"<<std::endl;
     return StatusCode::FAILURE;
   }
@@ -497,10 +498,10 @@ StatusCode AlVec::ReadPartial(const std::string &filename, double &scale,
   invec.read((char*)&scale, sizeof(scale));
 //  scale=io_scale;
 
-  if (stdUnits)
+  if (StdUnits)
     invec.read((char*)&version, sizeof (version));
 
-//  std::cout << "AlVec::StdUnits: " << stdUnits << std::endl;
+//  std::cout << "AlVec::StdUnits: " << StdUnits << std::endl;
 //  std::cout << "AlVec::scale: " << scale << std::endl;
 //  std::cout << "AlVec::version: " << version << std::endl;
 
@@ -555,9 +556,8 @@ StatusCode AlVec::Read(const std::string &filename, double &scale,
                        std::map<int,unsigned long long> &modmap, float &version)
 {
 
-  bool stdUnits = true;
-  if (StatusCode::SUCCESS != CheckVecVersion(m_pathbin+filename, stdUnits)) {
-    std::cout<<"CheckVecVersion failed"<<std::endl;
+  bool StdUnits = true;
+  if (StatusCode::SUCCESS != CheckVecVersion(m_pathbin+filename, StdUnits)) {
     //std::cout<<"CheckVecVersion failed"<<std::endl;
     return StatusCode::FAILURE;
   }
@@ -576,10 +576,10 @@ StatusCode AlVec::Read(const std::string &filename, double &scale,
 //  scale=io_scale;
 //  std::cout<<"scale="<<scale<<std::endl;
 
-  if (stdUnits)
+  if (StdUnits)
     invec.read((char*)&version, sizeof (version));
 
-//  std::cout << "AlVec::StdUnits: " << stdUnits << std::endl;
+//  std::cout << "AlVec::StdUnits: " << StdUnits << std::endl;
 //  std::cout << "AlVec::scale: " << scale << std::endl;
 //  std::cout << "AlVec::version: " << version << std::endl;
 

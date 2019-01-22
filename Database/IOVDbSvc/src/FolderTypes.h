@@ -45,6 +45,9 @@ namespace IOVDbNamespace{
    determineFolderType(const CondAttrListCollection * pAttrListColl);
    
    FolderType
+   determineFolderType(const CondAttrListCollection & pAttrListColl);
+   
+   FolderType
    determineFolderType(const coral::AttributeSpecification& spec);
    
    bool
@@ -52,6 +55,9 @@ namespace IOVDbNamespace{
    
    bool
    poolCompatible(const CondAttrListCollection * pAttrListColl);
+   
+   bool
+   poolCompatible(const CondAttrListCollection & pAttrListColl);
 }
 
 #endif

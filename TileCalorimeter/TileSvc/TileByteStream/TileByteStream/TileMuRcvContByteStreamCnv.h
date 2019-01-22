@@ -5,15 +5,11 @@
 #ifndef TILEBYTESTREAM_TILEMURCVCONTBYTESTREAMCNV_H
 #define TILEBYTESTREAM_TILEMURCVCONTBYTESTREAMCNV_H
 
-// Gaudi includes
+#include "TileEvent/TileContainer.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "GaudiKernel/Converter.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-
-// Athena includes
-#include "AthenaBaseComps/AthMessaging.h"
-
-#include "TileEvent/TileContainer.h"
 
 class DataObject;
 class StatusCode;
@@ -30,6 +26,7 @@ template <class TYPE> class CnvFactory;
 
 // Externals 
 extern long ByteStream_StorageType;
+
 
 /**
  * @class TileMuRcvContByteStreamCnv
@@ -48,13 +45,13 @@ class TileMuRcvContByteStreamCnv
 
   typedef TileMuRcvContByteStreamTool  BYTESTREAMTOOL ; 
 
-  virtual StatusCode initialize();
-  virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj); 
-  virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr);
-   virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj) override;
+  virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr) override;
+  virtual StatusCode finalize() override;
 
   /// Storage type and class ID
-  virtual long repSvcType() const  { return ByteStream_StorageType; }
+  virtual long repSvcType() const override { return ByteStream_StorageType; }
   static long storageType()  { return ByteStream_StorageType; }
   static const CLID& classID();
 

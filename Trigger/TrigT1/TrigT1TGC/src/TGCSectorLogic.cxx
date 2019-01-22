@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TGCSectorLogic.cxx,v 1.14 2009-03-15 18:07:55 isaya Exp $
@@ -10,7 +10,9 @@
 #include "TrigT1TGC/TGCHighPtChipOut.hh"
 #include "TrigT1TGC/TGCTMDB.h"
 #include "TrigT1TGC/TGCTMDBOut.h"
-#include "MuonCondInterface/ITGCTriggerDbTool.h"
+
+#include "StoreGate/ReadCondHandle.h"
+#include "MuonCondSvc/TGCTriggerData.h"
 
 #include <iostream>
 
@@ -22,147 +24,147 @@ namespace LVL1TGCTrigger {
   extern bool g_USE_CONDDB;
 
 TGCSectorLogic::TGCSectorLogic(TGCRegionType regionIn, int idIn):
-    bid(0),
-    id(idIn),
-    sectorId(0), moduleId(0),
-    sideId(0),   octantId(0),
-    region(regionIn),
-    NumberOfWireHighPtBoard(0), 
-    SSCController(this), 
-    matrix(this),
-    mapInner(0),
-    mapTileMu(0),
-    pTMDB(0),
-    preSelector(this), 
-    selector(this), 
-    selectorOut(0),
-    wordTileMuon(0),
-    wordInnerStation(0),
-    stripHighPtBoard(0),
-    stripHighPtChipOut(0),
-    useInner(false),
-    useTileMu(false),
-    m_condDbTool("TGCTriggerDbTool")
+    m_bid(0),
+    m_id(idIn),
+    m_sectorId(0), m_moduleId(0),
+    m_sideId(0),   m_octantId(0),
+    m_region(regionIn),
+    m_NumberOfWireHighPtBoard(0), 
+    m_SSCController(this), 
+    m_matrix(this),
+    m_mapInner(0),
+    m_mapTileMu(0),
+    m_pTMDB(0),
+    m_preSelector(this), 
+    m_selector(this), 
+    m_selectorOut(0),
+    m_wordTileMuon(0),
+    m_wordInnerStation(0),
+    m_stripHighPtBoard(0),
+    m_stripHighPtChipOut(0),
+    m_useInner(false),
+    m_useTileMu(false)
 {
-  sideId = (idIn/NumberOfModule)/NumberOfOctant;
-  octantId = (idIn/NumberOfModule)%NumberOfOctant;
-  moduleId = idIn%NumberOfModule;
-  if (region==ENDCAP) {
-    sectorId  = moduleId%3 + 2*(moduleId/3);
-    sectorId += 6*octantId;
+  m_sideId = (idIn/NumberOfModule)/NumberOfOctant;
+  m_octantId = (idIn/NumberOfModule)%NumberOfOctant;
+  m_moduleId = idIn%NumberOfModule;
+  if (m_region==ENDCAP) {
+    m_sectorId  = m_moduleId%3 + 2*(m_moduleId/3);
+    m_sectorId += 6*m_octantId;
   } else {
-    sectorId  = moduleId/3; 
-    sectorId += 3*octantId;
+    m_sectorId  = m_moduleId/3; 
+    m_sectorId += 3*m_octantId;
   }
 
   for(int i=0; i<MaxNumberOfWireHighPtBoard; i++){
-      wireHighPtBoard[i] = 0;
-      wireHighPtChipOut[i] = 0;
+      m_wireHighPtBoard[i] = 0;
+      m_wireHighPtChipOut[i] = 0;
   }
   
   for(unsigned int iSlot=0; iSlot<TGCInnerTrackletSlotHolder::NUMBER_OF_SLOTS_PER_TRIGGER_SECTOR; iSlot++) {
     m_innerTrackletSlots[iSlot] = 0;
   }
 
-  SSCController.setRegion(regionIn);
+  m_SSCController.setRegion(regionIn);
 
-  useInner  = g_USE_INNER && (region==ENDCAP); 
-  useTileMu = g_TILE_MU && (region==ENDCAP); 
+  m_useInner  = g_USE_INNER && (m_region==ENDCAP); 
+  m_useTileMu = g_TILE_MU && (m_region==ENDCAP); 
 }
 
 TGCSectorLogic::~TGCSectorLogic()
 {
-  if(selectorOut) delete selectorOut;
+  if(m_selectorOut) delete m_selectorOut;
 }
 
 void TGCSectorLogic::setRPhiMap(const TGCRPhiCoincidenceMap* map,
 				const TGCInnerCoincidenceMap* mapI)
 {
-  matrix.setRPhiMap(map);
-  mapInner = mapI;
-  if (mapInner ==0) useInner = false;
+  m_matrix.setRPhiMap(map);
+  m_mapInner = mapI;
+  if (m_mapInner ==0) m_useInner = false;
 }
 
 void TGCSectorLogic::setInnerMap(const TGCInnerCoincidenceMap* mapI)
 {
-  mapInner = mapI;
-  if (mapInner ==0) useInner = false;
+  m_mapInner = mapI;
+  if (m_mapInner ==0) m_useInner = false;
 }
 
 void TGCSectorLogic::setTileMuMap(const TGCTMDB* tmdb,
 				  const  TGCTileMuCoincidenceMap* mapTM)
 {
-  pTMDB = tmdb;
-  mapTileMu = mapTM;
-  if (mapTileMu ==0 || pTMDB==0) useTileMu = false;
+  m_pTMDB = tmdb;
+  m_mapTileMu = mapTM;
+  if (m_mapTileMu ==0 || m_pTMDB==0) m_useTileMu = false;
 }
 
 void TGCSectorLogic::setWireHighPtBoard(int port, TGCHighPtBoard* highPtBoard)
 {
-  wireHighPtBoard[port] = highPtBoard;
-  NumberOfWireHighPtBoard +=1;
+  m_wireHighPtBoard[port] = highPtBoard;
+  m_NumberOfWireHighPtBoard +=1;
 }
 
 void TGCSectorLogic::setStripHighPtBoard(TGCHighPtBoard* highPtBoard)
 {
-  stripHighPtBoard = highPtBoard;	 
+  m_stripHighPtBoard = highPtBoard;	 
 }
 
 TGCSLSelectorOut* TGCSectorLogic::getSelectorOutput() const
 {
-  return selectorOut;
+  return m_selectorOut;
 }
 
 void TGCSectorLogic::eraseSelectorOut()
 {
-  selectorOut=0;
+  m_selectorOut=0;
 }
 
-void TGCSectorLogic::clockIn(int bidIn)
+void TGCSectorLogic::clockIn(const SG::ReadCondHandleKey<TGCTriggerData> readCondKey,
+                             int bidIn)
 {
   int SSCid, phiposInSSC;
-  bid=bidIn;
+  m_bid=bidIn;
 
   collectInput();
 
   TGCSSCControllerOut* SSCCOut =
-    SSCController.distribute(wireHighPtChipOut,stripHighPtChipOut);
+    m_SSCController.distribute(m_wireHighPtChipOut,m_stripHighPtChipOut);
 #ifdef TGCDEBUG
   SSCCOut->print();
 #endif  
   deleteHPBOut();
 
-  preSelector.init();
+  m_preSelector.init();
 
   for(SSCid=0; SSCid<getNumberOfSubSectorCluster(); SSCid+=1){
     TGCRPhiCoincidenceOut* coincidenceOut = 0;
     if(SSCCOut->hasHit(SSCid)){
-      matrix.clear();
-      matrix.setSSCId(SSCid);
-      matrix.inputR(SSCCOut->getR(SSCid),SSCCOut->getDR(SSCid),SSCCOut->getPtR(SSCid));
+      m_matrix.clear();
+      m_matrix.setSSCId(SSCid);
+      m_matrix.inputR(SSCCOut->getR(SSCid),SSCCOut->getDR(SSCid),SSCCOut->getPtR(SSCid));
       for(phiposInSSC = 0 ;phiposInSSC < MaxNumberOfPhiInSSC; phiposInSSC++){
         if(SSCCOut->hasHit(SSCid, phiposInSSC)){
-          matrix.inputPhi(SSCCOut->getPhi(SSCid,phiposInSSC),
+          m_matrix.inputPhi(SSCCOut->getPhi(SSCid,phiposInSSC),
                           SSCCOut->getDPhi(SSCid,phiposInSSC),
                           SSCCOut->getPtPhi(SSCid,phiposInSSC));
         }
       }
-      coincidenceOut = matrix.doCoincidence();
+      coincidenceOut = m_matrix.doCoincidence();
     }
     ////// for SSC has chamber boundary //////
     if(SSCCOut->hasHit(SSCid,true)){
-      matrix.clear();
-      matrix.setSSCId(SSCid);
-      matrix.inputR(SSCCOut->getR(SSCid),SSCCOut->getDR(SSCid),SSCCOut->getPtR(SSCid));
+      m_matrix.clear();
+      m_matrix.setSSCId(SSCid);
+      m_matrix.inputR(SSCCOut->getR(SSCid),SSCCOut->getDR(SSCid),SSCCOut->getPtR(SSCid));
       for(phiposInSSC = 0 ;phiposInSSC < MaxNumberOfPhiInSSC; phiposInSSC++){
         if(SSCCOut->hasHit(SSCid, phiposInSSC, true)){
-          matrix.inputPhi(SSCCOut->getPhi(SSCid,phiposInSSC,true),
+          m_matrix.inputPhi(SSCCOut->getPhi(SSCid,phiposInSSC,true),
                           SSCCOut->getDPhi(SSCid,phiposInSSC,true),
                           SSCCOut->getPtPhi(SSCid,phiposInSSC,true));
         }
       }
       
-      TGCRPhiCoincidenceOut* oredCoincidenceOut = matrix.doCoincidence();
+      TGCRPhiCoincidenceOut* oredCoincidenceOut = m_matrix.doCoincidence();
       if (oredCoincidenceOut) {
 	if(coincidenceOut) {
 	  if (coincidenceOut->isSuperior(oredCoincidenceOut)) {
@@ -178,36 +180,36 @@ void TGCSectorLogic::clockIn(int bidIn)
     }
     ////////////////////////////////////////////
     // do coincidence with Inner Tracklet and/or TileMu
-    if (useInner) doInnerCoincidence(SSCid, coincidenceOut);
+    if (m_useInner) doInnerCoincidence(readCondKey, SSCid, coincidenceOut);
 
-    if(coincidenceOut) preSelector.input(coincidenceOut);
+    if(coincidenceOut) m_preSelector.input(coincidenceOut);
       // coincidenceOut will be deleted 
-      //  in preSelector.input() if coincidenceOut has no hit
-      //  in preSelector.select() if if coincidenceOut has hit
+      //  in m_preSelector.input() if coincidenceOut has no hit
+      //  in m_preSelector.select() if if coincidenceOut has hit
   }
   if(SSCCOut!=0) delete SSCCOut;
   SSCCOut=0;
 
 #ifdef TGCDEBUG
-  preSelector.dumpInput();
+  m_preSelector.dumpInput();
 #endif
   
   // get SLPreSelectorOut
-  TGCSLPreSelectorOut* preSelectorOut = preSelector.select();
-   // preSelectorOut will be deleted after selector.select() 
+  TGCSLPreSelectorOut* preSelectorOut = m_preSelector.select();
+   // preSelectorOut will be deleted after m_selector.select() 
 
 #ifdef TGCDEBUG
   preSelectorOut->print();
 #endif
 
   // delete SLSelectorOut if exists
-  if(selectorOut!=0) delete selectorOut;
+  if(m_selectorOut!=0) delete m_selectorOut;
   // create new  SLSelectorOut
-  selectorOut = new TGCSLSelectorOut;
+  m_selectorOut = new TGCSLSelectorOut;
 
   if(preSelectorOut!=0){
     // select final canidates
-    selector.select(preSelectorOut,selectorOut);
+    m_selector.select(preSelectorOut,m_selectorOut);
     
     // delete SLPreSelectorOut
     delete preSelectorOut;
@@ -215,15 +217,15 @@ void TGCSectorLogic::clockIn(int bidIn)
   }
 
 #ifdef TGCDEBUG
-  showResult(selectorOut);
+  showResult(m_selectorOut);
 #endif
   // EIFI trigger information is dumped when we have Endcap SL trigger
   /*
-  if(region==ENDCAP && selectorOut!=0 && selectorOut->getNCandidate()) {
+  if(m_region==ENDCAP && m_selectorOut!=0 && m_selectorOut->getNCandidate()) {
     for(unsigned int iSlot=0; iSlot<TGCInnerTrackletSlotHolder::NUMBER_OF_SLOTS_PER_TRIGGER_SECTOR; iSlot++) {
       std::cout << " innerTrackletSlots[" << iSlot << "]"; 
       if(m_innerTrackletSlots[iSlot]) {
-	std::cout << " sideId " << m_innerTrackletSlots[iSlot]->getSideId() 
+	std::cout << " m_sideId " << m_innerTrackletSlots[iSlot]->getSideId() 
 		  << " slotId " << m_innerTrackletSlots[iSlot]->getSlotId()
 		  << " triggerBits ";
 	for(unsigned int iRegion=0; iRegion<TGCInnerTrackletSlot::NUMBER_OF_REGIONS; iRegion++) {
@@ -243,24 +245,24 @@ void TGCSectorLogic::clockIn(int bidIn)
 void TGCSectorLogic::collectInput()
 {
   int i;
-  for( i = 0; i < SSCController.getNumberOfWireHighPtBoard(); i += 1) {
-    wireHighPtChipOut[i] = wireHighPtBoard[i]->getOutput();
-    wireHighPtBoard[i]->eraseOutput();
+  for( i = 0; i < m_SSCController.getNumberOfWireHighPtBoard(); i += 1) {
+    m_wireHighPtChipOut[i] = m_wireHighPtBoard[i]->getOutput();
+    m_wireHighPtBoard[i]->eraseOutput();
   }  
 
-  stripHighPtChipOut = stripHighPtBoard->getOutput();
-  stripHighPtBoard->eraseOutput();
+  m_stripHighPtChipOut = m_stripHighPtBoard->getOutput();
+  m_stripHighPtBoard->eraseOutput();
 }
 
 void TGCSectorLogic::deleteHPBOut()
 {
-  if(stripHighPtChipOut!=0) delete stripHighPtChipOut;
-  stripHighPtChipOut=0;
+  if(m_stripHighPtChipOut!=0) delete m_stripHighPtChipOut;
+  m_stripHighPtChipOut=0;
 
   int i;
-  for( i = 0; i < SSCController.getNumberOfWireHighPtBoard(); i += 1) {
-    if(wireHighPtChipOut[i]!=0) delete wireHighPtChipOut[i];
-    wireHighPtChipOut[i]=0;
+  for( i = 0; i < m_SSCController.getNumberOfWireHighPtBoard(); i += 1) {
+    if(m_wireHighPtChipOut[i]!=0) delete m_wireHighPtChipOut[i];
+    m_wireHighPtChipOut[i]=0;
   }
 }
 
@@ -268,9 +270,9 @@ void TGCSectorLogic::deleteHPBOut()
 void TGCSectorLogic::showResult(TGCSLSelectorOut* out)
 {
   int i;
-  std::cout<<"#SL O"<<" BID:"<<bid
-	   <<" region:"<<((region==FORWARD) ? "FWD" : "END")
-	   <<" SLid:"<<id<<" ";
+  std::cout<<"#SL O"<<" BID:"<<m_bid
+	   <<" region:"<<((m_region==FORWARD) ? "FWD" : "END")
+	   <<" SLid:"<<m_id<<" ";
 
   for( i=0; i<out->getNCandidate(); i+=1){
     std::cout<<"  "<<i<<" "
@@ -284,30 +286,30 @@ void TGCSectorLogic::showResult(TGCSLSelectorOut* out)
 
 
 TGCSectorLogic::TGCSectorLogic(const TGCSectorLogic& right): 
-     bid(right.id), id(right.id),
-     sectorId(right.sectorId), moduleId(right.moduleId),
-     sideId(right.sideId), octantId(right.octantId),
-     region(right.region),
-     NumberOfWireHighPtBoard(right.NumberOfWireHighPtBoard),
-     SSCController(this), 
-     matrix(this),
-     mapInner(right.mapInner),
-     mapTileMu(right.mapTileMu), pTMDB(right.pTMDB),
-     preSelector(this), selector(this),
-     selectorOut(0),
-     wordTileMuon(0), wordInnerStation(0),
-     stripHighPtBoard(right.stripHighPtBoard), 
-     stripHighPtChipOut(0),
-     useInner(right.useInner), useTileMu(right.useTileMu) 
+     m_bid(right.m_id), m_id(right.m_id),
+     m_sectorId(right.m_sectorId), m_moduleId(right.m_moduleId),
+     m_sideId(right.m_sideId), m_octantId(right.m_octantId),
+     m_region(right.m_region),
+     m_NumberOfWireHighPtBoard(right.m_NumberOfWireHighPtBoard),
+     m_SSCController(this), 
+     m_matrix(this),
+     m_mapInner(right.m_mapInner),
+     m_mapTileMu(right.m_mapTileMu), m_pTMDB(right.m_pTMDB),
+     m_preSelector(this), m_selector(this),
+     m_selectorOut(0),
+     m_wordTileMuon(0), m_wordInnerStation(0),
+     m_stripHighPtBoard(right.m_stripHighPtBoard), 
+     m_stripHighPtChipOut(0),
+     m_useInner(right.m_useInner), m_useTileMu(right.m_useTileMu)
 {
   for(int i=0; i<MaxNumberOfWireHighPtBoard; i++){
-      wireHighPtBoard[i] = 0;
-      wireHighPtChipOut[i] = 0;
+      m_wireHighPtBoard[i] = 0;
+      m_wireHighPtChipOut[i] = 0;
   }
 
-  for( int i = 0; i < SSCController.getNumberOfWireHighPtBoard(); i += 1) {
-    wireHighPtBoard[i]   = right.wireHighPtBoard[i];
-    wireHighPtChipOut[i] = right.wireHighPtChipOut[i];
+  for( int i = 0; i < m_SSCController.getNumberOfWireHighPtBoard(); i += 1) {
+    m_wireHighPtBoard[i]   = right.m_wireHighPtBoard[i];
+    m_wireHighPtChipOut[i] = right.m_wireHighPtChipOut[i];
   }
 
   for (unsigned int iSlot=0; iSlot<TGCInnerTrackletSlotHolder::NUMBER_OF_SLOTS_PER_TRIGGER_SECTOR; iSlot++) {
@@ -319,28 +321,28 @@ TGCSectorLogic&
 TGCSectorLogic::operator=(const TGCSectorLogic& right)
 {
   if ( this != &right ) {
-    bid =right.id;
-    id  =right.id;
-    sectorId=right.sectorId;
-    moduleId=right.moduleId;
-    sideId=right.sideId;
-    octantId=right.octantId;
-    region=right.region;
-    NumberOfWireHighPtBoard=right.NumberOfWireHighPtBoard;
-    mapInner=right.mapInner;
-    mapTileMu=right.mapTileMu;
-    pTMDB=right.pTMDB;
-    delete selectorOut;
-    selectorOut=0;
-    wordTileMuon=0;
-    wordInnerStation=0;
-    stripHighPtBoard=right.stripHighPtBoard;  
-    stripHighPtChipOut=0;
-    useInner=right.useInner;
-    useTileMu=right.useTileMu;
-    for( int i = 0; i < SSCController.getNumberOfWireHighPtBoard(); i += 1) {
-      wireHighPtBoard[i]   = right.wireHighPtBoard[i];
-      wireHighPtChipOut[i] = right.wireHighPtChipOut[i];
+    m_bid =right.m_bid;
+    m_id  =right.m_id;
+    m_sectorId=right.m_sectorId;
+    m_moduleId=right.m_moduleId;
+    m_sideId=right.m_sideId;
+    m_octantId=right.m_octantId;
+    m_region=right.m_region;
+    m_NumberOfWireHighPtBoard=right.m_NumberOfWireHighPtBoard;
+    m_mapInner=right.m_mapInner;
+    m_mapTileMu=right.m_mapTileMu;
+    m_pTMDB=right.m_pTMDB;
+    delete m_selectorOut;
+    m_selectorOut=0;
+    m_wordTileMuon=0;
+    m_wordInnerStation=0;
+    m_stripHighPtBoard=right.m_stripHighPtBoard;  
+    m_stripHighPtChipOut=0;
+    m_useInner=right.m_useInner;
+    m_useTileMu=right.m_useTileMu;
+    for( int i = 0; i < m_SSCController.getNumberOfWireHighPtBoard(); i += 1) {
+      m_wireHighPtBoard[i]   = right.m_wireHighPtBoard[i];
+      m_wireHighPtChipOut[i] = right.m_wireHighPtChipOut[i];
     }
     for (unsigned int iSlot=0; iSlot<TGCInnerTrackletSlotHolder::NUMBER_OF_SLOTS_PER_TRIGGER_SECTOR; iSlot++) {
       m_innerTrackletSlots[iSlot] = right.m_innerTrackletSlots[iSlot];
@@ -369,7 +371,8 @@ void TGCSectorLogic::setInnerTrackletSlots(const TGCInnerTrackletSlot* innerTrac
 }
 
  
-void TGCSectorLogic::doInnerCoincidence(int ssc,  
+void TGCSectorLogic::doInnerCoincidence(const SG::ReadCondHandleKey<TGCTriggerData> readCondKey,
+                                        int ssc,
 					TGCRPhiCoincidenceOut* coincidenceOut)
 {
   if (coincidenceOut ==0) return;
@@ -377,23 +380,27 @@ void TGCSectorLogic::doInnerCoincidence(int ssc,
   int pt = coincidenceOut->getPtLevel();
   if (pt==0) return;
 
+  SG::ReadCondHandle<TGCTriggerData> readHandle{readCondKey};
+  const TGCTriggerData* readCdo{*readHandle};
+
   if (g_USE_CONDDB) {
-    bool isActiveTile = m_condDbTool->isActive(ITGCTriggerDbTool::CW_TILE);
-    useTileMu = isActiveTile && (region==ENDCAP);
+    bool isActiveTile = readCdo->isActive(TGCTriggerData::CW_TILE);
+    m_useTileMu = isActiveTile && (m_region==ENDCAP);
   }
 
   // check if inner is used for the ptLevel
-  bool validInner = (mapInner->getFlagPT(pt, ssc, sectorId) == 1);
-   // check if TileMu is used for the ptLevel
+  bool validInner = (m_mapInner->getFlagPT(pt, ssc, m_sectorId) == 1);
+
+  // check if TileMu is used for the ptLevel
   bool validTileMu = false;
-  if (useTileMu)  validTileMu = (mapTileMu->getFlagPT(pt, ssc, sectorId, sideId) == 1) ;
+  if (m_useTileMu)  validTileMu = (m_mapTileMu->getFlagPT(pt, ssc, m_sectorId, m_sideId) == 1) ;
   
   int pos = 4*coincidenceOut->getR() +  coincidenceOut->getPhi();
   // check if inner is used for the roi 
-  if (validInner) validInner = (mapInner->getFlagROI(pos, ssc, sectorId) == 1);
+  if (validInner) validInner = (m_mapInner->getFlagROI(pos, ssc, m_sectorId) == 1);
  
   // check if TileMu is used for the roi 
-  if (validTileMu) validTileMu = (mapTileMu->getFlagROI(pos, ssc, sectorId, sideId) == 1);
+  if (validTileMu) validTileMu = (m_mapTileMu->getFlagROI(pos, ssc, m_sectorId, m_sideId) == 1);
   // not use InnerStation if TileMu is used
   if (validTileMu) validInner = false;
 
@@ -401,30 +408,29 @@ void TGCSectorLogic::doInnerCoincidence(int ssc,
   bool isHitInner = false;
   if (validInner) {
     for(unsigned int iSlot=0; (!isHitInner) && (iSlot<TGCInnerTrackletSlotHolder::NUMBER_OF_SLOTS_PER_TRIGGER_SECTOR); iSlot++) {
-      const TGCInnerTrackletSlot* mask 
-	= mapInner->getInnerTrackletMask(iSlot, ssc, sectorId); 
       const TGCInnerTrackletSlot* hit = m_innerTrackletSlots[iSlot];
       
       for (size_t reg=0; (!isHitInner) && (reg< TGCInnerTrackletSlot::NUMBER_OF_REGIONS); reg++){
 	// Wire    
 	bool isHitWire = false;
+        
 	for (size_t bit=0; (!isHitWire) && (bit< TGCInnerTrackletSlot::NUMBER_OF_TRIGGER_BITS); bit++){
-	  isHitWire =   mask->getTriggerBit(reg,TGCInnerTrackletSlot::WIRE,bit) 
+	  isHitWire =   m_mapInner->getTriggerBit(iSlot, ssc, m_sectorId, reg, TGCInnerTrackletSlot::WIRE, bit)
 	    &&   hit->getTriggerBit(reg,TGCInnerTrackletSlot::WIRE,bit) ;
 	}
 	// Strip
 	bool isHitStrip = false;
 	for (size_t bit=0; (!isHitStrip) && (bit< TGCInnerTrackletSlot::NUMBER_OF_TRIGGER_BITS); bit++){
-	  isHitStrip =  mask->getTriggerBit(reg,TGCInnerTrackletSlot::STRIP,bit) 
+	  isHitStrip =  m_mapInner->getTriggerBit(iSlot, ssc, m_sectorId, reg, TGCInnerTrackletSlot::STRIP, bit)
 	    && hit->getTriggerBit(reg,TGCInnerTrackletSlot::STRIP,bit);
 	}
 	isHitInner = isHitWire && isHitStrip;
       }
     }
 
-    // wordInnerStation
+    // m_wordInnerStation
     // FI[3:0] EI[3:0]
-    wordInnerStation = 0;
+    m_wordInnerStation = 0;
     for(unsigned int iSlot=0; iSlot<TGCInnerTrackletSlotHolder::NUMBER_OF_SLOTS_PER_TRIGGER_SECTOR; iSlot++) {
       const TGCInnerTrackletSlot* hit = m_innerTrackletSlots[iSlot];
       for (size_t reg=0; reg< TGCInnerTrackletSlot::NUMBER_OF_REGIONS; reg++){ // reg = 0:FI, 1:EI
@@ -435,7 +441,7 @@ void TGCSectorLogic::doInnerCoincidence(int ssc,
 	  isHitS  = isHitS || hit->getTriggerBit(reg,TGCInnerTrackletSlot::STRIP,bit);
 	}
 	if (isHitW && isHitS) {
-	  wordInnerStation |= (2-reg)<<(iSlot*2);
+	  m_wordInnerStation |= (2-reg)<<(iSlot*2);
 	}
       }
     }
@@ -445,8 +451,8 @@ void TGCSectorLogic::doInnerCoincidence(int ssc,
   bool isHitTileMu = false;
   if (validTileMu) {
     for ( int mod=0; mod< TGCTileMuCoincidenceMap::N_Input_TileMuModule; mod++){
-      int maskTM =  mapTileMu->getMask(mod, ssc, sectorId, sideId);
-      const TGCTMDBOut* tm = pTMDB->getOutput(sideId, sectorId, mod); 
+      int maskTM =  m_mapTileMu->getMask(mod, ssc, m_sectorId, m_sideId);
+      const TGCTMDBOut* tm = m_pTMDB->getOutput(m_sideId, m_sectorId, mod); 
       int  hit6      = tm->GetHit6();
       int  hit56     = tm->GetHit56(); 
       if          (maskTM == TGCTileMuCoincidenceMap::TM_D6_L) {
@@ -459,8 +465,8 @@ void TGCSectorLogic::doInnerCoincidence(int ssc,
 	isHitTileMu = isHitTileMu || (hit56==TGCTMDBOut::TM_HIGH) ;
       } 
 #ifdef TGCDEBUG
-     std::cout<<"SL id=" << id 
-	       <<" sector="<<sectorId
+      std::cout<<"SL id=" << m_id 
+	       <<" sector="<<m_sectorId
 	       <<" TMDB mod=" << mod 
 	       <<"  mask:"<< maskTM
 	       <<"  hit56:"<< hit56
@@ -470,14 +476,14 @@ void TGCSectorLogic::doInnerCoincidence(int ssc,
     }
 
     // wordTIleMuon
-    wordTileMuon =0;
+    m_wordTileMuon =0;
     for ( int mod=0; mod< TGCTileMuCoincidenceMap::N_Input_TileMuModule; mod++){
-      const TGCTMDBOut* tm = pTMDB->getOutput(sideId, sectorId, mod); 
-      if (tm->GetHit6()>0)  wordTileMuon |= 0x02 << mod*2;
-      if (tm->GetHit56()>0) wordTileMuon |= 0x01 << mod*2;
+      const TGCTMDBOut* tm = m_pTMDB->getOutput(m_sideId, m_sectorId, mod); 
+      if (tm->GetHit6()>0)  m_wordTileMuon |= 0x02 << mod*2;
+      if (tm->GetHit56()>0) m_wordTileMuon |= 0x01 << mod*2;
     }
   } 
-  
+ 
   if ( !validInner && !validTileMu ) return;  //OK
  
   if ( validInner   &&  isHitInner)  return; //OK
@@ -491,19 +497,19 @@ void TGCSectorLogic::doInnerCoincidence(int ssc,
   
   bool innerVeto = g_INNER_VETO;
   if (g_USE_CONDDB) {
-    bool isActiveEifi = m_condDbTool->isActive(ITGCTriggerDbTool::CW_EIFI);  
-    innerVeto  = isActiveEifi && (region==ENDCAP);
+    bool isActiveEifi = readCdo->isActive(TGCTriggerData::CW_EIFI);  
+    innerVeto  = isActiveEifi && (m_region==ENDCAP);
   }
 
   coincidenceOut->clearHit(pt);
   
   while (innerVeto && validInner && (pt>1) ) {
     pt = pt-1;
-    validInner = (mapInner->getFlagPT(pt, ssc, sectorId) == 1);
+    validInner = (m_mapInner->getFlagPT(pt, ssc, m_sectorId) == 1);
   }
-  while (useTileMu && validTileMu && (pt>1) ){
+  while (m_useTileMu && validTileMu && (pt>1) ){
     pt = pt-1;
-    validTileMu = (mapTileMu->getFlagPT(pt, ssc, sectorId, sideId) == 1) ;
+    validTileMu = (m_mapTileMu->getFlagPT(pt, ssc, m_sectorId, m_sideId) == 1) ;
   }
   coincidenceOut->setHit(pt);
  

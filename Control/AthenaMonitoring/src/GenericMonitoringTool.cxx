@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <map>
@@ -12,26 +12,17 @@
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 #include "AthenaMonitoring/HistogramDef.h"
 
-using namespace std;
 using namespace Monitored;
 
-const InterfaceID& GenericMonitoringTool::interfaceID() {
-	static InterfaceID GenericMonitoringTool_ID("GenericMonitoringTool", 1, 0);
-
-	return GenericMonitoringTool_ID;
-}
 
 GenericMonitoringTool::GenericMonitoringTool(const std::string & type, const std::string & name, const IInterface* parent)
-  : AthAlgTool(type, name, parent) { 
-  declareInterface<GenericMonitoringTool>(this);
+  : AthAlgTool(type, name, parent) {
 }
-
-GenericMonitoringTool::~GenericMonitoringTool() { }
 
 StatusCode GenericMonitoringTool::initialize() {
   ATH_CHECK(m_histSvc.retrieve());
   if ( not m_explicitBooking ) {
-    ATH_MSG_DEBUG("Proceeding to histograms booking");
+    ATH_MSG_DEBUG("Proceeding to histogram booking");
     return book();
   }
   return StatusCode::SUCCESS;
@@ -46,12 +37,12 @@ StatusCode GenericMonitoringTool::book() {
     m_histoPath = named ? named->name() : name();
   } 
   
-  ATH_MSG_DEBUG("Booking hostograms in path:" << m_histoPath << ":");
+  ATH_MSG_DEBUG("Booking histograms in path: " << m_histoPath.value());
 
   HistogramFillerFactory factory(m_histSvc, m_histoPath);
 
   m_fillers.reserve(m_histograms.size());
-  for (const string& item : m_histograms) {
+  for (const std::string& item : m_histograms) {
     ATH_MSG_DEBUG( "Configuring monitoring for: " << item );
     HistogramDef def = HistogramDef::parse(item);
 
@@ -61,7 +52,7 @@ StatusCode GenericMonitoringTool::book() {
         if (filler != nullptr) {
             m_fillers.push_back(filler);
         } else {
-          ATH_MSG_WARNING( "The histogram filler can not be instantiated for: " << def.name );
+          ATH_MSG_WARNING( "The histogram filler cannot be instantiated for: " << def.name );
         }
     } else {
       ATH_MSG_ERROR( "Unparsable histogram definition: " << item );
@@ -81,12 +72,12 @@ StatusCode GenericMonitoringTool::book() {
   return StatusCode::SUCCESS;
 }
 
-vector<HistogramFiller*> GenericMonitoringTool::getHistogramsFillers(vector<reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables) {
-  vector<HistogramFiller*> result;
+std::vector<HistogramFiller*> GenericMonitoringTool::getHistogramsFillers(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables) {
+  std::vector<HistogramFiller*> result;
 
   for (auto filler : m_fillers) {
     auto fillerVariables = filler->histogramVariablesNames();
-    vector<reference_wrapper<Monitored::IMonitoredVariable>> variables;
+    std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> variables;
 
     for (auto fillerVariable : fillerVariables) {
       for (auto monValue : monitoredVariables) {

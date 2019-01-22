@@ -27,21 +27,21 @@ public:
   TGCConnectionPPToSB(const TGCConnectionPPToSB& right);
   TGCConnectionPPToSB& operator=(const TGCConnectionPPToSB& right);
 private:
-  int* SBIdToPP[NumberOfPPPort][NumberOfPatchPanelType];
+  int* m_SBIdToPP[NumberOfPPPort][NumberOfPatchPanelType];
 };
 
 inline
 int TGCConnectionPPToSB::getSBIdToPP(int type, int port, int index) const
 {
-  return SBIdToPP[port][type][index];
+  return m_SBIdToPP[port][type][index];
 }
 
 inline
 void TGCConnectionPPToSB::setSBIdToPP(int type, int port, int index, int idIn)
 {
-  if(SBIdToPP[port][type]==0)
-    SBIdToPP[port][type] = new int [numberOfBoard[type]];
-  SBIdToPP[port][type][index] = idIn;
+  if(m_SBIdToPP[port][type]==0)
+    m_SBIdToPP[port][type] = new int [m_numberOfBoard[type]];
+  m_SBIdToPP[port][type][index] = idIn;
 }
 
 inline TGCPatchPanelType operator++(TGCPatchPanelType &rs, int)

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 # Package: TrigMultiVarHypo
@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigSteer/TrigInterfaces
                           Trigger/TrigTools/TrigTimeAlgs
                           PRIVATE
+                          Trigger/TrigSteer/DecisionHandling
                           LumiBlock/LumiBlockComps
                           Tools/PathResolver
                           GaudiKernel
@@ -30,7 +31,7 @@ atlas_add_library( TrigMultiVarHypoLib
                    LINK_LIBRARIES xAODTrigCalo xAODTrigRinger TrigCaloEvent
 		   TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib
 		   LumiBlockCompsLib PathResolver DecisionHandlingLib
-                   PRIVATE_LINK_LIBRARIES GaudiKernel )
+                   PRIVATE_LINK_LIBRARIES GaudiKernel AthViews )
 
 atlas_add_component( TrigMultiVarHypo
                      src/components/*.cxx
