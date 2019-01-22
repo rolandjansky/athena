@@ -264,11 +264,11 @@ StatusCode SensorSimPlanarTool::initialize() {
         m_voltage_layers.push_back(m_voltage1);
         m_voltage_layers.push_back(m_voltage2);
     }else{
-        if(doInterpolateEfield){
+        if(!doInterpolateEfield){
             ATH_MSG_INFO("m_fluence set to becnhmark value. Use becnhmark values for all layers.");
         }else{
             ATH_MSG_INFO("No BM values found and no appropriate values for fluence/bias voltage set");
-            return StatusCode::FAILURE; //Obviously, remove this when gen. code is set up
+            return StatusCode::FAILURE; 
         }
     }
     
