@@ -670,15 +670,8 @@ StatusCode TileRawChNoiseCalibAlg::fillRawChannels(const TileDQstatus* dqStatus,
   SG::ReadHandle<TileRawChannelContainer> rawChannelContainer(rawChannelContainerKey);
   ATH_CHECK( rawChannelContainer.isValid() );
 
-  if (!rawChannelContainer.isValid()) {
-    ATH_MSG_ERROR( "can't retrieve RawChannelContainer " << rawChannelContainerKey << " from TDS" );
-    removeRC(rctype);
-    return StatusCode::FAILURE;
-  }
-
   if ((rctype == Dsp) && (m_trigType != Phys)) {
     ATH_MSG_ERROR( "Removing DSP RawChannelContainer for non Phys run. TrigType is: " << m_trigType );
-    removeRC(rctype);
     return StatusCode::FAILURE;
   }
 
@@ -750,19 +743,6 @@ StatusCode TileRawChNoiseCalibAlg::fillRawChannels(const TileDQstatus* dqStatus,
                                                //when all the cells have been built
 
   return StatusCode::SUCCESS;
-}
-
-/// removeRC
-/// 
-/*---------------------------------------------------------*/
-void TileRawChNoiseCalibAlg::removeRC(RCtype rctype) {
-/*---------------------------------------------------------*/
-  if (rctype == Fixed) m_doFixed = false;
-  else if (rctype == Opt) m_doOpt = false;
-  else if (rctype == Fit) m_doFit = false;
-  else if (rctype == Dsp) m_doDsp = false;
-  else if (rctype == OF1) m_doOF1 = false;
-  else if (rctype == MF)  m_doMF = false;
 }
 
 /// finalDigits is called during finalize
