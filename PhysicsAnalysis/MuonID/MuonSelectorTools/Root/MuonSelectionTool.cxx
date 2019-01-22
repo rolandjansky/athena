@@ -29,6 +29,10 @@ namespace CP {
     //for users of high-pT working point to choose whether to include "safe" 2-station muons
     declareProperty( "Use2stationMuonsHighPt", m_use2stationMuonsHighPt = false );
 
+    //for users of low-pT working point to choose whether to use MVA
+    declareProperty( "UseMVALowPt", m_useMVALowPt = false );
+
+
     // DEVELOPEMENT MODE: EXPERTS ONLY!!! 
     declareProperty( "ExpertDevelopMode", m_developMode = false );
     // these are for debugging / testing, *not* for general use!
@@ -44,6 +48,17 @@ namespace CP {
     m_tightWP_mediumPt_rhoCuts = 0;
     m_tightWP_highPt_rhoCuts = 0;
     //
+    readerE_MUID = 0;
+    readerO_MUID = 0;
+    readerE_MUGIRL = 0;
+    readerO_MUGIRL = 0;
+    //
+    lowPTmva_middleHoles = new Float_t; lowPTmva_muonSeg1ChamberIdx = new Float_t;
+    lowPTmva_muonSeg2ChamberIdx = new Float_t; lowPTmva_momentumBalanceSig = new Float_t;
+    lowPTmva_scatteringCurvatureSig = new Float_t; lowPTmva_scatteringNeighbourSig = new Float_t;
+    lowPTmva_energyLoss = new Float_t; lowPTmva_muonSegmentDeltaEta = new Float_t;
+
+
     ATH_MSG_DEBUG("Creating MuonSelectionTool named "<<m_name);
   }
     
@@ -69,6 +84,16 @@ namespace CP {
     m_tightWP_mediumPt_rhoCuts = 0;
     m_tightWP_highPt_rhoCuts = 0;
     //
+    readerE_MUID = 0;
+    readerO_MUID = 0;
+    readerE_MUGIRL = 0;
+    readerO_MUGIRL = 0;
+    //
+    lowPTmva_middleHoles = new Float_t; lowPTmva_muonSeg1ChamberIdx = new Float_t;
+    lowPTmva_muonSeg2ChamberIdx = new Float_t; lowPTmva_momentumBalanceSig = new Float_t;
+    lowPTmva_scatteringCurvatureSig = new Float_t; lowPTmva_scatteringNeighbourSig = new Float_t;
+    lowPTmva_energyLoss = new Float_t; lowPTmva_muonSegmentDeltaEta = new Float_t;
+
     ATH_MSG_DEBUG("Creating copy of MuonSelectionTool named "<<m_name);
   }
   
@@ -91,6 +116,26 @@ namespace CP {
       delete m_tightWP_highPt_rhoCuts;
       m_tightWP_highPt_rhoCuts = 0;
     }
+    //
+    if( readerE_MUID ){
+      delete readerE_MUID;
+      readerE_MUID = 0;
+    }
+    if( readerO_MUID ){
+      delete readerO_MUID;
+      readerO_MUID = 0;
+    }
+    if( readerE_MUGIRL ){
+      delete readerE_MUGIRL;
+      readerE_MUGIRL = 0;
+    }
+    if( readerO_MUGIRL ){
+      delete readerO_MUGIRL;
+      readerO_MUGIRL = 0;
+    }
+    //
+    delete lowPTmva_middleHoles; delete lowPTmva_muonSeg1ChamberIdx; delete lowPTmva_muonSeg2ChamberIdx; delete lowPTmva_momentumBalanceSig;
+    delete lowPTmva_scatteringCurvatureSig; delete lowPTmva_scatteringNeighbourSig; delete lowPTmva_energyLoss; delete lowPTmva_muonSegmentDeltaEta;
   }
   
   StatusCode MuonSelectionTool::initialize() {
@@ -163,6 +208,30 @@ namespace CP {
     // 
     file->Close();
     delete file;
+
+
+    //Set up TMVA readers for MVA-based low-pT working point
+    //E and O refer to even and odd event numbers to avoid applying the MVA on events used for training
+    TString weightPath_EVEN_MuidCB = PathResolverFindCalibFile("MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuidCB_EVEN.weights.xml");
+    TString weightPath_ODD_MuidCB = PathResolverFindCalibFile("MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuidCB_ODD.weights.xml");
+    TString weightPath_EVEN_MuGirl = PathResolverFindCalibFile("MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuGirl_EVEN.weights.xml");
+    TString weightPath_ODD_MuGirl = PathResolverFindCalibFile("MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuGirl_ODD.weights.xml");
+
+    readerE_MUID = new TMVA::Reader();
+    PrepareReader( readerE_MUID );
+    readerE_MUID->BookMVA("BDTG", weightPath_EVEN_MuidCB);
+
+    readerO_MUID = new TMVA::Reader();
+    PrepareReader( readerO_MUID );
+    readerO_MUID->BookMVA("BDTG", weightPath_ODD_MuidCB);
+
+    readerE_MUGIRL = new TMVA::Reader();
+    PrepareReader( readerE_MUGIRL );
+    readerE_MUGIRL->BookMVA("BDTG", weightPath_EVEN_MuGirl);
+
+    readerO_MUGIRL = new TMVA::Reader();
+    PrepareReader( readerO_MUGIRL );
+    readerO_MUGIRL->BookMVA("BDTG", weightPath_ODD_MuGirl);
     
     // Return gracefully:
     return StatusCode::SUCCESS;
@@ -185,6 +254,21 @@ namespace CP {
     ATH_MSG_INFO( "Successfully read tight working point histogram: " << hist->GetName()  );
     //
     return StatusCode::SUCCESS;
+  }
+
+
+  void MuonSelectionTool::PrepareReader( TMVA::Reader* reader ) {
+    // ::
+    reader->AddVariable( "momentumBalanceSignificance", lowPTmva_momentumBalanceSig );
+    reader->AddVariable( "scatteringCurvatureSignificance", lowPTmva_scatteringCurvatureSig );
+    reader->AddVariable( "scatteringNeighbourSignificance", lowPTmva_scatteringNeighbourSig );
+    reader->AddVariable( "EnergyLoss", lowPTmva_energyLoss );
+    reader->AddVariable( "middleLargeHoles+middleSmallHoles", lowPTmva_middleHoles );
+    reader->AddVariable( "muonSegmentDeltaEta", lowPTmva_muonSegmentDeltaEta );
+    reader->AddVariable( "muonSeg1ChamberIdx", lowPTmva_muonSeg1ChamberIdx );
+    reader->AddVariable( "muonSeg2ChamberIdx", lowPTmva_muonSeg2ChamberIdx );
+    // ::
+    return;
   }
 
   
@@ -592,7 +676,7 @@ namespace CP {
     }
 
     // requiring Medium in forward regions
-    if( fabs(mu.eta())>1.55 && thisMu_quality > xAOD::Muon::Medium ) return false;
+    if( !m_useMVALowPt && fabs(mu.eta())>1.55 && thisMu_quality > xAOD::Muon::Medium ) return false;
     
     // rejection of muons with out-of-bounds hits 
     uint8_t m_combinedTrackOutBoundsPrecisionHits;
@@ -623,6 +707,9 @@ namespace CP {
     }
     else return false;
 
+    if (m_useMVALowPt)
+      return passedLowPtEfficiencyMVACut(mu);
+
     // apply some loose quality requirements 
     float momentumBalanceSignificance(0.), scatteringCurvatureSignificance(0.), scatteringNeighbourSignificance(0.);
     if( !mu.parameter(momentumBalanceSignificance,xAOD::Muon::momentumBalanceSignificance) 
@@ -638,6 +725,75 @@ namespace CP {
     // passed low pt selection 
     return true;
   }
+
+
+  bool MuonSelectionTool::passedLowPtEfficiencyMVACut( const xAOD::Muon& mu ) const{
+
+    //set values for all BDT input variables from the muon in question
+    uint8_t middleSmallHoles,middleLargeHoles;
+    if( !mu.parameter(*lowPTmva_momentumBalanceSig,xAOD::Muon::momentumBalanceSignificance)
+	|| !mu.parameter(*lowPTmva_scatteringCurvatureSig,xAOD::Muon::scatteringCurvatureSignificance)
+	|| !mu.parameter(*lowPTmva_scatteringNeighbourSig,xAOD::Muon::scatteringNeighbourSignificance)
+	|| !mu.parameter(*lowPTmva_energyLoss,xAOD::Muon::EnergyLoss)
+	|| !mu.parameter(*lowPTmva_muonSegmentDeltaEta,xAOD::Muon::segmentDeltaEta)
+	|| !mu.summaryValue(middleSmallHoles, xAOD::MuonSummaryType::middleSmallHoles)
+	|| !mu.summaryValue(middleLargeHoles, xAOD::MuonSummaryType::middleLargeHoles) ) {
+      ATH_MSG_WARNING("passedLowPtEfficiencyMVACut - some low-pT MVA input variables missing in combined muon! Failing selection...");
+      return false;
+    }
+
+    *lowPTmva_middleHoles = (Float_t)(middleSmallHoles + middleLargeHoles);
+
+    if (mu.nMuonSegments() > 0)
+      *lowPTmva_muonSeg1ChamberIdx = mu.muonSegment(0)->chamberIndex();
+    else
+      *lowPTmva_muonSeg1ChamberIdx = -9.0;
+
+    if (mu.nMuonSegments() > 1)
+      *lowPTmva_muonSeg2ChamberIdx = mu.muonSegment(1)->chamberIndex();
+    else
+      *lowPTmva_muonSeg2ChamberIdx = -9.0;
+
+
+    //get event number from event info
+    const xAOD::EventInfo* info = nullptr;
+    if (!evtStore()->contains<xAOD::EventInfo>(m_eventInfoContName) || !evtStore()->retrieve(info, m_eventInfoContName).isSuccess()) {
+      ATH_MSG_WARNING("Could not retrieve the xAOD::EventInfo with name: " << m_eventInfoContName << ". Failing selection for low-pT MVA...");
+      return false;
+    }
+
+    // get the BDT discriminant response
+    float BDTdiscriminant;
+    if( info->eventNumber() % 2 == 1) {
+
+      if( mu.author() == 1 )
+	BDTdiscriminant = readerE_MUID->EvaluateMVA( "BDTG" );
+      else if( mu.author() == 6 || mu.author() == 4 )
+	BDTdiscriminant = readerE_MUGIRL->EvaluateMVA( "BDTG" );
+      else {
+	ATH_MSG_WARNING("Invalid author for low-pT MVA, failing selection...");
+	return false;
+      }
+    }
+    else {
+
+      if( mu.author() == 1 )
+	BDTdiscriminant = readerO_MUID->EvaluateMVA( "BDTG" );
+      else if( mu.author() == 6 || mu.author() == 4 )
+	BDTdiscriminant = readerO_MUGIRL->EvaluateMVA( "BDTG" );
+      else {
+	ATH_MSG_WARNING("Invalid author for low-pT MVA, failing selection...");
+	return false;
+      }
+    }
+
+    //cut on dicriminant at -0.6
+    if (BDTdiscriminant > -0.6)
+      return true;
+    else
+      return false;
+  }
+
 
   bool MuonSelectionTool::passedHighPtCuts( const xAOD::Muon& mu ) const {
     using namespace xAOD;
