@@ -17,7 +17,8 @@
 
 namespace InDetDD {
   class InDetDetectorManager;
-  class SiDetectorManager;
+  class PixelDetectorManager;
+  class SCT_DetectorManager;
   class TRT_DetectorManager;
 }
 
@@ -54,8 +55,8 @@ private:
   ServiceHandle<IActsTrackingGeometrySvc> m_trackingGeometrySvc;
 
   ServiceHandle<StoreGateSvc> m_detStore;
-  const InDetDD::SiDetectorManager* p_pixelManager;
-  const InDetDD::SiDetectorManager* p_SCTManager;
+  const InDetDD::PixelDetectorManager* p_pixelManager;
+  const InDetDD::SCT_DetectorManager* p_SCTManager;
   const InDetDD::TRT_DetectorManager* p_TRTManager;
 
   std::vector<const GeoAlignableTransform*> m_topAligns;

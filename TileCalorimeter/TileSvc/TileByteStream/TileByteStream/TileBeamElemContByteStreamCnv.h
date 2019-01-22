@@ -9,10 +9,13 @@
 #include "GaudiKernel/Converter.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ContextSpecificPtr.h"
 
 
 // Athena includes
 #include "AthenaBaseComps/AthMessaging.h"
+#include "TileEvent/TileMutableBeamElemContainer.h"
+#include "AthenaKernel/RecyclableDataObject.h"
 
 
 #include "eformat/ROBFragment.h"
@@ -21,7 +24,6 @@
 class DataObject;
 class StatusCode;
 class IAddressCreator;
-class TileBeamElemContainer; 
 class IROBDataProviderSvc;
 class TileHid2RESrcID;
 class TileROD_Decoder;
@@ -49,18 +51,21 @@ class TileBeamElemContByteStreamCnv
   public:
     TileBeamElemContByteStreamCnv(ISvcLocator* svcloc);
 
-    virtual StatusCode initialize();
-    virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj); 
-    virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr);
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj) override;
+    virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr) override;
+    virtual StatusCode finalize() override;
 
     /// Storage type and class ID
-    virtual long repSvcType() const  { return ByteStream_StorageType; }
+    virtual long repSvcType() const override { return ByteStream_StorageType; }
     static long storageType()  { return ByteStream_StorageType; }
     static const CLID& classID();
 
-    inline const eformat::FullEventFragment<const uint32_t*> * eventFragment() const { return m_event; }
-    inline const eformat::ROBFragment<const uint32_t*> * robFragment() const { return m_robFrag; }
+    // FIXME: Eliminate this backdoor access to RAW data.
+    //        If clients need raw data, they should get it from the
+    //        existing ByteStreamSvc interfaces.
+    inline const eformat::FullEventFragment<const uint32_t*> * eventFragment() const { return m_event.get(); }
+    inline const eformat::ROBFragment<const uint32_t*> * robFragment() const { return m_robFrag.get(); }
     inline bool  validBeamFrag() const { return m_robFrag != 0; }
   
   private: 
@@ -73,22 +78,19 @@ class TileBeamElemContByteStreamCnv
     /** Pointer to TileROD_Decoder */
     ToolHandle<TileROD_Decoder> m_decoder;
 
-    const eformat::FullEventFragment<const uint32_t*>* m_event;
-    //const EventFormat::Abstract::FullEventFragment * m_event;
-    //const EventFormat::FullEventHeader m_eventHeader;
+    Gaudi::Hive::ContextSpecificPtr<
+      const eformat::FullEventFragment<const uint32_t*> > m_event;
 
-    const eformat::ROBFragment<const uint32_t*>* m_robFrag;
-    // const EventFormat::Abstract::RODFragment * m_rodFrag;
-    // const EventFormat::RODHeader m_RODHeader;
+    Gaudi::Hive::ContextSpecificPtr<
+      const eformat::ROBFragment<const uint32_t*> > m_robFrag;
 
     std::vector<uint32_t> m_ROBID;
 
     /** Pointer to TileHid2RESrcID */
     const TileHid2RESrcID* m_hid2re;
 
-    /** Pointer to TileBeamElemContainer */
-    TileBeamElemContainer* m_container ; 
-
+    /** Queue of data objects to recycle. */
+    Athena::RecyclableDataQueue<TileMutableBeamElemContainer> m_queue;
 };
 #endif
 

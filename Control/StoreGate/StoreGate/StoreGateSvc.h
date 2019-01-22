@@ -279,7 +279,7 @@ public:
    *    m_myFoo->useMe();
    */
   template <typename T, typename TKEY> 
-  StatusCode bind(const DataHandle<T>& handle, const TKEY& key);
+  StatusCode bind ATLAS_NOT_THREAD_SAFE (const DataHandle<T>& handle, const TKEY& key);
 
   //@}
 
@@ -555,7 +555,7 @@ public:
   //@{
 
   template <typename H, typename TKEY>
-  StatusCode regHandle( const DataHandle<H>& handle, const TKEY& key );
+  StatusCode regHandle ATLAS_NOT_THREAD_SAFE ( const DataHandle<H>& handle, const TKEY& key );
 
   /// non-const method - will return an error
   template <typename H, typename TKEY>
@@ -563,28 +563,28 @@ public:
 
   /// register a callback function, with handle + key
   template <typename T, typename H, typename TKEY>
-  StatusCode regFcn(StatusCode (T::*updFcn)(IOVSVC_CALLBACK_ARGS), 
-                    const T* obj, const DataHandle<H>& handle, 
-                    const TKEY& key, bool trigger=false);
+  StatusCode regFcn ATLAS_NOT_THREAD_SAFE (StatusCode (T::*updFcn)(IOVSVC_CALLBACK_ARGS), 
+                                           const T* obj, const DataHandle<H>& handle, 
+                                           const TKEY& key, bool trigger=false);
 
   /// register a callback function, with handle + key. Non const. Error
   template <typename T, typename H, typename TKEY>
-  StatusCode regFcn(StatusCode (T::*updFcn)(IOVSVC_CALLBACK_ARGS), 
-                    const T* obj, DataHandle<H>& handle, 
-                    const TKEY& key, bool trigger=false);
+  StatusCode regFcn ATLAS_NOT_THREAD_SAFE (StatusCode (T::*updFcn)(IOVSVC_CALLBACK_ARGS), 
+                                           const T* obj, DataHandle<H>& handle, 
+                                           const TKEY& key, bool trigger=false);
 
   /// register a callback function(2) with an already registered function(1)
   template <typename T1, typename T2>
-  StatusCode regFcn(StatusCode (T1::*fcn1)(IOVSVC_CALLBACK_ARGS), 
-                    const T1* obj1,
-                    StatusCode (T2::*fcn2)(IOVSVC_CALLBACK_ARGS), 
-                    const T2* obj2, bool trigger=false);
+  StatusCode regFcn ATLAS_NOT_THREAD_SAFE (StatusCode (T1::*fcn1)(IOVSVC_CALLBACK_ARGS), 
+                                           const T1* obj1,
+                                           StatusCode (T2::*fcn2)(IOVSVC_CALLBACK_ARGS), 
+                                           const T2* obj2, bool trigger=false);
 
   /// register a callback function(2) with an already registered AlgTool
   template <typename T2>
-  StatusCode regFcn(const std::string& toolName,
-                    StatusCode (T2::*fcn2)(IOVSVC_CALLBACK_ARGS), 
-                    const T2* obj2, bool trigger=false);
+  StatusCode regFcn ATLAS_NOT_THREAD_SAFE (const std::string& toolName,
+                                           StatusCode (T2::*fcn2)(IOVSVC_CALLBACK_ARGS), 
+                                           const T2* obj2, bool trigger=false);
 
   //@}
   /////////////////////////////////////////////////////////////////////////

@@ -73,7 +73,9 @@ class TrigEFBMuMuHypo: public HLT::HypoAlgo  {
 
   int m_mon_cutCounter;
   double m_mon_MuMumass;
+
   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
+
 };
 
 #endif

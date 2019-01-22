@@ -294,7 +294,7 @@ namespace xAOD {
       return isValid;
     }
     else{
-      const static ConstAccessor<float>* p_acc = PFOAttributesAccessor_v1<float>::constAccessor(AttributeType);
+      const ConstAccessor<float>* p_acc = PFOAttributesAccessor_v1<float>::constAccessor(AttributeType);
       //check if accessor pointer is NULL
       if( ! p_acc ) {  return false ;}
       //check if variable is avaialable
@@ -405,23 +405,27 @@ namespace xAOD {
 
     if (theCluster){
       bool gotMoment = theCluster->retrieveMoment( momentType, myMoment);
-      if (!gotMoment) return false;
+      //if cluster does not have the moment, check if the PFO stored it - this can happen due to the way we redirect the ElementLinks to clusters in PFONeutralCreatorAlgorithm
+      if (!gotMoment) return getClusterMomentFromPFO(theMoment,momentType);
       else if (gotMoment) {
 	theMoment = static_cast<float>(myMoment);
 	return true;
       }
     }
-    else{
-      xAOD::PFODetails::PFOAttributes myAttribute;
-      bool haveGotAttributeInMap = this->getAttributeName_FromClusterMoment(myAttribute,momentType);
-      if (false == haveGotAttributeInMap) return false;
-      else {
-	bool isRetrieved = this->attribute(myAttribute, theMoment);
-	return isRetrieved;
-      }
-    }
-    return false;
+    else return getClusterMomentFromPFO(theMoment,momentType);
 
+    return false;
+    
+  }
+
+  bool PFO_v1::getClusterMomentFromPFO(float& theMoment, xAOD::CaloCluster::MomentType momentType) const{
+    xAOD::PFODetails::PFOAttributes myAttribute;
+    bool haveGotAttributeInMap = this->getAttributeName_FromClusterMoment(myAttribute,momentType);
+    if (false == haveGotAttributeInMap) return false;
+    else {
+      bool isRetrieved = this->attribute(myAttribute, theMoment);
+      return isRetrieved;
+    }
   }
 
   bool PFO_v1::getAttributeName_FromClusterMoment(xAOD::PFODetails::PFOAttributes& myAttribute, xAOD::CaloCluster::MomentType& momentType) const{

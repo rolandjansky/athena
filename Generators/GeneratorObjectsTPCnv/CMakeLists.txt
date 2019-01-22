@@ -58,3 +58,9 @@ atlas_add_test( HepMcParticleLinkCnv_p1_test
                 test/HepMcParticleLinkCnv_p1_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaPoolCnvSvcLib GaudiKernel GeneratorObjects TestTools StoreGateLib SGtests GeneratorObjectsTPCnv )
+
+atlas_add_test( HepMcParticleLinkCnv_p2_test
+                SOURCES
+                test/HepMcParticleLinkCnv_p2_test.cxx
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaPoolCnvSvcLib GaudiKernel GeneratorObjects TestTools StoreGateLib SGtests GeneratorObjectsTPCnv )

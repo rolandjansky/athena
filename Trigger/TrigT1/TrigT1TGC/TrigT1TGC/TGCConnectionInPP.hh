@@ -23,7 +23,7 @@ public:
   int getOredChannelIn(int connectorOut, int chOut);
   int getOredConnectorIn(int connectorOut, int chOut);
   TGCPatchPanel* getOredPPIn(int connectorOut, int chOut);
-  int getNumberOfChannel(int i)const{return nCh[i];};
+  int getNumberOfChannel(int i)const{return m_nCh[i];};
 
   void setConnection(int connectorOut, int chOut,
   int connectorIn, int chIn, TGCPatchPanel* PP);
@@ -42,14 +42,14 @@ public:
   TGCConnectionInPP& operator=(const TGCConnectionInPP& right);
 
 private:
-  int nCh[NumberOfPPOutputConnector];
-  TGCPatchPanel** patchPanelIn[NumberOfPPOutputConnector];
-  int* channelIn[NumberOfPPOutputConnector];
-  int* connectorIn[NumberOfPPOutputConnector];
+  int m_nCh[NumberOfPPOutputConnector];
+  TGCPatchPanel** m_patchPanelIn[NumberOfPPOutputConnector];
+  int* m_channelIn[NumberOfPPOutputConnector];
+  int* m_connectorIn[NumberOfPPOutputConnector];
 
-  TGCPatchPanel** oredPatchPanelIn[NumberOfPPOutputConnector];
-  int* oredChannelIn[NumberOfPPOutputConnector];
-  int* oredConnectorIn[NumberOfPPOutputConnector];
+  TGCPatchPanel** m_oredPatchPanelIn[NumberOfPPOutputConnector];
+  int* m_oredChannelIn[NumberOfPPOutputConnector];
+  int* m_oredConnectorIn[NumberOfPPOutputConnector];
 }; 
 
 

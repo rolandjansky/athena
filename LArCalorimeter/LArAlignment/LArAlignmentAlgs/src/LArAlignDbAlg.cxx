@@ -2,11 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArAlignmentAlgs/LArAlignDbAlg.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
+#include "LArAlignDbAlg.h"
 #include "DetDescrConditions/DetCondKeyTrans.h"
 
 #include <fstream>
@@ -27,7 +23,6 @@ LArAlignDbAlg::LArAlignDbAlg(const std::string& name, ISvcLocator* pSvcLocator) 
     m_inpFile("LArAlign.inp"),
     m_outpFile("LArAlign-TEST.pool.root"),
     m_outpTag("LARAlign-TEST"),
-    m_evt(0),
     m_regSvc("IOVRegistrationSvc",name),
     m_streamer("AthenaOutputStreamTool")
 {
@@ -69,10 +64,10 @@ StatusCode LArAlignDbAlg::execute()
 {
   ATH_MSG_DEBUG(" in execute() "  );
 
-  ATH_CHECK( evtStore()->retrieve(m_evt) );
+  const EventContext& context = getContext();
+  int nrun = context.eventID().run_number();
+  int nevt = context.eventID().event_number();
 
-  int nrun = m_evt->event_ID()->run_number();
-  int nevt = m_evt->event_ID()->event_number();
   ATH_MSG_DEBUG( " Event: [" << nrun << "," << nevt << "]"  );
 
   // If I need to write out the conditions object I'll do that on the first event

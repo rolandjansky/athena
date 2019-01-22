@@ -7,7 +7,6 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/DataObject.h"
 #include "GaudiKernel/IRegistry.h"
-#include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IToolSvc.h"
 
@@ -51,7 +50,6 @@ TileDigitsContByteStreamCnv::TileDigitsContByteStreamCnv(ISvcLocator* svcloc)
   , m_robSvc("ROBDataProviderSvc", m_name)
   , m_decoder("TileROD_Decoder")
   , m_hid2re(0)
-  , m_containers(2,0)
 {
 }
 
@@ -76,21 +74,6 @@ StatusCode TileDigitsContByteStreamCnv::initialize() {
 
   ATH_CHECK( m_robSvc.retrieve() );
 
-  // create empty TileDigitsContainer and all collections inside
-  m_containers[0] = new TileDigitsContainer(true); 
-  m_containers[0]->addRef(); // make sure it's not deleted at the end of event
-
-  m_containers[1] =  new TileDigitsContainer(true);
-  m_containers[1]->addRef(); // make sure it's not deleted at the end of event
-
-  // Register incident handler
-  ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", m_name);
-  if ( !incSvc.retrieve().isSuccess() ) {
-    ATH_MSG_WARNING("Unable to retrieve the IncidentSvc");
-  } else {
-    incSvc->addListener(this, "StoreCleared");
-  }
-  
   ATH_CHECK( m_activeStore.retrieve() );
   
   return StatusCode::SUCCESS;
@@ -116,12 +99,14 @@ StatusCode TileDigitsContByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObj
     std::vector<uint32_t> robid(1); 
     robid[0] = 0;
     std::vector<const ROBDataProviderSvc::ROBF*> robf;
+
+    TileMutableDigitsContainer* cont = m_queue.get (true);
+    ATH_CHECK( cont->status() );
     
     // iterate over all collections in a container and fill them
     //
-    for (const TileDigitsCollection* constDigitsCollection : *m_containers[icnt]) {
-      
-      TileDigitsCollection* digitsCollection = const_cast<TileDigitsCollection*>(constDigitsCollection);
+    for (IdentifierHash hash : cont->GetAllCurrentHashes()) {
+      TileDigitsCollection* digitsCollection = cont->indexFindPtr (hash);
       digitsCollection->clear();
       TileDigitsCollection::ID collID = digitsCollection->identify();  
       
@@ -152,10 +137,11 @@ StatusCode TileDigitsContByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObj
 
     ATH_MSG_DEBUG( "Creating digits container " << *(pRE_Addr->par()) );
 
+    TileDigitsContainer* basecont = cont;
     if (isTMDB) {
-      ATH_CHECK( m_activeStore->activeStore()->record( m_containers[icnt], "MuRcvDigitsCnt" ) );
+      ATH_CHECK( m_activeStore->activeStore()->record( basecont, "MuRcvDigitsCnt" ) );
     } else {
-      pObj = SG::asStorable( m_containers[icnt] ) ;
+      pObj = SG::asStorable( basecont ) ;
     }
   }
 
@@ -196,32 +182,7 @@ StatusCode TileDigitsContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddre
   return m_tool->convert(digicont, fea);
 }
 
-StatusCode TileDigitsContByteStreamCnv::finalize() {
-
-  ATH_MSG_DEBUG(" Clearing Container ");
-
-  for (TileDigitsContainer* digitsContainer : m_containers){
-    for (const TileDigitsCollection* digitsCollection : *digitsContainer) {
-      const_cast<TileDigitsCollection*>(digitsCollection)->clear();
-    }
-    
-    digitsContainer->release(); 
-  }
-
+StatusCode TileDigitsContByteStreamCnv::finalize()
+{
   return Converter::finalize(); 
-}
-
-void TileDigitsContByteStreamCnv::handle(const Incident& incident) {
-
-  if (incident.type() == "StoreCleared") {
-    if (const StoreClearedIncident* inc = dynamic_cast<const StoreClearedIncident*> (&incident)) {
-      if (inc->store() == m_activeStore->activeStore()) {
-        for (TileDigitsContainer* digitsContainer : m_containers){
-          for (const TileDigitsCollection* digitsCollection : *digitsContainer) {
-            const_cast<TileDigitsCollection*>(digitsCollection)->clear();
-          }
-        }
-      }
-    }
-  }
 }

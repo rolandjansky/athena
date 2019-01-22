@@ -5,16 +5,14 @@
 #ifndef TILEBYTESTREAM_TILERAWCHANNELCONTRAWEVENTCNV_H
 #define TILEBYTESTREAM_TILERAWCHANNELCONTRAWEVENTCNV_H
 
-// Gauid includes
-#include "GaudiKernel/Converter.h"
-#include "GaudiKernel/IIncidentListener.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-
-// Athena includes
 #include "AthenaBaseComps/AthMessaging.h"
+#include "TileEvent/TileMutableRawChannelContainer.h"
+#include "AthenaKernel/RecyclableDataObject.h"
 #include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
+#include "GaudiKernel/Converter.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include <vector>
 
@@ -46,7 +44,6 @@ extern long ByteStream_StorageType;
 
 class TileRawChannelContByteStreamCnv
   : public Converter
-  , public IIncidentListener
   , public ::AthMessaging
 {
   public:
@@ -54,16 +51,13 @@ class TileRawChannelContByteStreamCnv
 
     typedef TileRawChannelContByteStreamTool  BYTESTREAMTOOL ; 
 
-    virtual StatusCode initialize();
-    virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj); 
-    virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr);
-    virtual StatusCode finalize();
-    
-    /// Incident listener
-    virtual void handle( const Incident& incident );
+    virtual StatusCode initialize() override;
+    virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj) override;
+    virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr) override;
+    virtual StatusCode finalize() override;
     
     /// Storage type and class ID
-    virtual long repSvcType() const  { return ByteStream_StorageType; }
+    virtual long repSvcType() const override  { return ByteStream_StorageType; }
     static long storageType()  { return ByteStream_StorageType; }
     static const CLID& classID();
     
@@ -89,9 +83,9 @@ class TileRawChannelContByteStreamCnv
     /** Pointer to TileHid2RESrcID */
     const TileHid2RESrcID* m_hid2re; 
 
-    /** Pointer to TileDigitsContainer */
-    std::vector<TileRawChannelContainer*> m_containers; 
 
+    /** Queue of data objects to recycle. */
+    Athena::RecyclableDataQueue<TileMutableRawChannelContainer> m_queue;
 };
 #endif
 

@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileConditions/TileBadChannels.h"
+#include <algorithm>
 
 
 TileBadChannels::TileBadChannels() {
@@ -22,7 +23,7 @@ void TileBadChannels::addAdcStatus(const HWIdentifier channel_id, const HWIdenti
 
 const TileBchStatus& TileBadChannels::getAdcStatus(const HWIdentifier adc_id) const {
 
-  std::map<const HWIdentifier, TileBchStatus>::const_iterator adcStatus = m_adcStatus.find(adc_id);
+  BchMap::const_iterator adcStatus = m_adcStatus.find(adc_id);
   if (adcStatus == m_adcStatus.end()) {
     return m_defaultStatus;
   } else {
@@ -33,11 +34,17 @@ const TileBchStatus& TileBadChannels::getAdcStatus(const HWIdentifier adc_id) co
 
 const TileBchStatus& TileBadChannels::getChannelStatus(const HWIdentifier channel_id) const {
 
-  std::map<const HWIdentifier, TileBchStatus>::const_iterator channelStatus = m_channelStatus.find(channel_id);
+  BchMap::const_iterator channelStatus = m_channelStatus.find(channel_id);
   if (channelStatus == m_channelStatus.end()) {
     return m_defaultStatus;
   } else {
     return channelStatus->second;
   }
 
+}
+
+
+void TileBadChannels::setMaskedDrawers(std::vector<int>&& maskedDrawers) {
+  m_maskedDrawers = std::move(maskedDrawers);
+  std::sort (m_maskedDrawers.begin(), m_maskedDrawers.end());
 }

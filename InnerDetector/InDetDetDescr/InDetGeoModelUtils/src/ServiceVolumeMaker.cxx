@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "InDetGeoModelUtils/ServiceVolumeMaker.h"
@@ -10,7 +10,7 @@
 
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "GeometryDBSvc/IGeometryDBSvc.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 namespace InDetDD {
   ServiceVolumeSchema::ServiceVolumeSchema() {
@@ -97,56 +97,56 @@ namespace InDetDD {
 
   double
   ServiceVolumeMakerMgr::rmin(int index) const {
-    return db()->getDouble(m_table, m_schema.rmin(), index) * GeoModelKernelUnits::mm;
+    return db()->getDouble(m_table, m_schema.rmin(), index) * Gaudi::Units::mm;
   }
 
   double
   ServiceVolumeMakerMgr::rmax(int index) const {
-    return db()->getDouble(m_table, m_schema.rmax(), index) * GeoModelKernelUnits::mm;
+    return db()->getDouble(m_table, m_schema.rmax(), index) * Gaudi::Units::mm;
   }
 
   double
   ServiceVolumeMakerMgr::rmin2(int index) const {
-    return db()->getDouble(m_table, m_schema.rmin2(), index) * GeoModelKernelUnits::mm;
+    return db()->getDouble(m_table, m_schema.rmin2(), index) * Gaudi::Units::mm;
   }
 
   double
   ServiceVolumeMakerMgr::rmax2(int index) const {
-    return db()->getDouble(m_table, m_schema.rmax2(), index) * GeoModelKernelUnits::mm;
+    return db()->getDouble(m_table, m_schema.rmax2(), index) * Gaudi::Units::mm;
   }
 
   double
   ServiceVolumeMakerMgr::zmin(int index) const {
-    return db()->getDouble(m_table, m_schema.zmin(), index) * GeoModelKernelUnits::mm;
+    return db()->getDouble(m_table, m_schema.zmin(), index) * Gaudi::Units::mm;
   }
 
   double
   ServiceVolumeMakerMgr::zmax(int index) const {
-    return db()->getDouble(m_table, m_schema.zmax(), index) * GeoModelKernelUnits::mm;
+    return db()->getDouble(m_table, m_schema.zmax(), index) * Gaudi::Units::mm;
   }
 
   double
   ServiceVolumeMakerMgr::phiDelta(int index) const {
-    return db()->getDouble(m_table, m_schema.phiDelta(), index) * GeoModelKernelUnits::deg;
+    return db()->getDouble(m_table, m_schema.phiDelta(), index) * Gaudi::Units::deg;
   }
 
   double
   ServiceVolumeMakerMgr::width(int index) const {
     if (m_schema.has_width()) {
-      return db()->getDouble(m_table, m_schema.width(), index) * GeoModelKernelUnits::mm;
+      return db()->getDouble(m_table, m_schema.width(), index) * Gaudi::Units::mm;
     }
     return 0;
   }
 
   double
   ServiceVolumeMakerMgr::phiStart(int index) const {
-    return db()->getDouble(m_table, m_schema.phiStart(), index) * GeoModelKernelUnits::deg;
+    return db()->getDouble(m_table, m_schema.phiStart(), index) * Gaudi::Units::deg;
   }
 
   double
   ServiceVolumeMakerMgr::phiStep(int index) const {
     if (m_schema.has_phiStep()) {
-      return db()->getDouble(m_table, m_schema.phiStep(), index) * GeoModelKernelUnits::deg;
+      return db()->getDouble(m_table, m_schema.phiStep(), index) * Gaudi::Units::deg;
     }
     return 0;
   }
@@ -309,8 +309,8 @@ namespace InDetDD {
       double phiDelta = m_mgr->phiDelta(ii);
 
       bool fullPhiSector = false;
-      if (phiDelta == 0 || phiDelta >= 359.9 * GeoModelKernelUnits::degree) {
-        phiDelta = 360 * GeoModelKernelUnits::degree;
+      if (phiDelta == 0 || phiDelta >= 359.9 * Gaudi::Units::degree) {
+        phiDelta = 360 * Gaudi::Units::degree;
         fullPhiSector = true;
       }
       //else {
@@ -340,7 +340,7 @@ namespace InDetDD {
       double phiWidth = phiDelta;
 
       if (shapeType == "CONS" || shapeType == "TUBS") {
-        const double phiepsilon = 0.001 * GeoModelKernelUnits::degree;
+        const double phiepsilon = 0.001 * Gaudi::Units::degree;
         phiWidth -= 2 * phiepsilon;
         phiStart += phiepsilon;
       }

@@ -34,7 +34,6 @@ namespace IOVDbNamespace{
   ReadFromFileMetaData::ReadFromFileMetaData( const IOVMetaDataContainer* container, 
         const cool::ValidityKey & refTimeKey, const bool useEpochTimestamp)
         :ReadFromFileMetaData(container,makeEpochOrRunLumi(refTimeKey,useEpochTimestamp),useEpochTimestamp){
-  std::cout<<"delegated constructor"<<std::endl;//nop, we delegated the constructor
   }
   //
   ReadFromFileMetaData::~ReadFromFileMetaData(){

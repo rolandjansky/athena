@@ -33,9 +33,9 @@ static const char* strModule[7]= { "N/A", "A", "B", "C", "D", "E", "F" };
 
 ////////////////////
 TGCIndex::TGCIndex()
- : zDirection(kZ_FORWARD), stationType(T1), 
-   octantNumber(0),regionType(FORWARD), 
-   moduleNumber(0), rNumber(0)
+ : m_zDirection(kZ_FORWARD), m_stationType(T1), 
+   m_octantNumber(0),m_regionType(FORWARD), 
+   m_moduleNumber(0), m_rNumber(0)
 ////////////////////
 {
 }
@@ -43,8 +43,8 @@ TGCIndex::TGCIndex()
 //////////////////////////////////////////////////////////////////
 TGCIndex::TGCIndex(TGCZDirection iz, TGCStationType ist, int ioct, 
 		   TGCRegionType irgn, int imd, int ir)
- : zDirection(iz), stationType(ist), octantNumber(ioct),
-   regionType(irgn), moduleNumber(imd), rNumber(ir)
+ : m_zDirection(iz), m_stationType(ist), m_octantNumber(ioct),
+   m_regionType(irgn), m_moduleNumber(imd), m_rNumber(ir)
 /////////////////////////////////////////////////////////////////
 {
 }
@@ -54,23 +54,23 @@ void TGCIndex::SetIndex(TGCZDirection iz, TGCStationType ist, int ioct,
 			TGCRegionType irgn, int imd, int ir)
 ///////////////////////////////////////////////////////////////////////
 {
-  zDirection= iz;
-  stationType= ist;
-  octantNumber= ioct;
-  regionType= irgn; 
-  moduleNumber= imd;
-  rNumber= ir;
+  m_zDirection= iz;
+  m_stationType= ist;
+  m_octantNumber= ioct;
+  m_regionType= irgn; 
+  m_moduleNumber= imd;
+  m_rNumber= ir;
 }
 
 ////////////////////////////
 void TGCIndex::Print() const
 ////////////////////////////
 {
-  std::cout << "  " << gkTgcZdirName[zDirection] << "-" 
-	    << strStation[stationType] << "-"
-	    << strRegion[regionType] << ":" << octantNumber << "-"
-	    << strModule[moduleNumber] << "-"
-	    << rNumber;
+  std::cout << "  " << gkTgcZdirName[m_zDirection] << "-" 
+	    << strStation[m_stationType] << "-"
+	    << strRegion[m_regionType] << ":" << m_octantNumber << "-"
+	    << strModule[m_moduleNumber] << "-"
+	    << m_rNumber;
 }
 
 

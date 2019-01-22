@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKTRACK_LINKTOXAODTRACKPARTICLE_H
@@ -38,9 +38,9 @@ namespace Trk
     
     /** constructor with ElementLink */
     LinkToXAODTrackParticle( ElementLink<xAOD::TrackParticleContainer>& link );
-    
+
     /** default destructor */
-    virtual ~LinkToXAODTrackParticle();
+    virtual ~LinkToXAODTrackParticle() = default;
    
     /** return the track parameters of the track (to which the EL< TrackCollection > points) */
     const TrackParameters* parameters() const;
@@ -51,9 +51,6 @@ namespace Trk
     /** method to clone the LinkToXAODTrackParticle object */
     LinkToXAODTrackParticle * clone() const ;
     
-    /** assignment operator */
-    Trk::LinkToXAODTrackParticle& operator= ( const Trk::LinkToXAODTrackParticle& rhs );
-   
     // This is here to make sure that the TrackCollection typedef
     // will make it into the dictionary.
    // typedef TrackCollection TrackCollectionForDict;

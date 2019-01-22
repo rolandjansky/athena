@@ -1,15 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s):
 #include "xAODCore/tools/IOStats.h"
+#include "CxxUtils/checker_macros.h"
 
 namespace xAOD {
 
    IOStats& IOStats::instance() {
 
-      static IOStats obj;
+      static IOStats obj ATLAS_THREAD_SAFE;
       return obj;
    }
 

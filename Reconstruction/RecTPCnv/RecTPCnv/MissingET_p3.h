@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RECTPCNV_MISSINGET_P3_H
@@ -20,7 +20,7 @@ class MissingET_p3{
  
  public:
 	MissingET_p3() {};
-	~MissingET_p3(){};
+       ~MissingET_p3() = default;
  protected:
   	std::vector<float> m_AllTheData;
  

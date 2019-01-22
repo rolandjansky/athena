@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // STL
@@ -109,11 +109,6 @@ namespace LVL1TGCTrigger {
     declareProperty("FULLCW",              m_FULLCW              =true);  // Obsolete
     declareProperty("TILEMU",              m_TILEMU              =false); // Obsolete
     declareProperty("ReadCondKey",         m_readCondKey); 
-
-    StatusCode sc = m_readCondKey.initialize();
-    if (sc.isFailure()) {
-      return;
-    }  
 }
 
 
@@ -208,8 +203,10 @@ namespace LVL1TGCTrigger {
     }
    
  
+    ATH_CHECK( m_readCondKey.initialize() );
+
     // initialize TGCDataBase
-    m_db = new TGCDatabaseManager(m_VerCW);
+    m_db = new TGCDatabaseManager(m_readCondKey,m_VerCW);
     
     // try to initialize the TGCcabling
     sc = getCabling();
@@ -1441,7 +1438,7 @@ StatusCode LVL1TGCTrigger::getCabling()
   //m_db = new TGCDatabaseManager(m_VerCW);
   m_system = new TGCElectronicsSystem(m_db);
     
-  m_TimingManager = new TGCTimingManager;
+  m_TimingManager = new TGCTimingManager (m_readCondKey);
   m_TimingManager->setBunchCounter(0);
   m_nEventInSector = 0;
     

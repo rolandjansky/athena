@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: PerfStats.cxx 634033 2014-12-05 14:46:38Z krasznaa $
@@ -20,18 +20,20 @@ ClassImp( xAOD::PerfStats )
 namespace xAOD {
 
    // Initialize the static variable(s):
-   PerfStats* PerfStats::m_instance = 0;
+   PerfStats* PerfStats::s_instance = 0;
+   std::mutex PerfStats::s_mutex;
 
    /// The destructor is a quite important function in this class.
-   /// it makes sure that the static m_instance variable gets reset,
+   /// it makes sure that the static s_instance variable gets reset,
    /// and that all TVirtualPerfStats objects really get deleted.
    ///
    PerfStats::~PerfStats() {
 
+      lock_t lock (s_mutex);
       // Since this object can only be deleted by deleting the global
       // gPerfStats object, make sure that all the objects get deleted
       // if the user asked for it...
-      m_instance = 0;
+      s_instance = 0;
       if( m_otherPerfStats ) {
          delete m_otherPerfStats;
       }
@@ -44,16 +46,13 @@ namespace xAOD {
    ///
    PerfStats& PerfStats::instance() {
 
+      lock_t lock (s_mutex);
       // Construct the object if it is now available at the moment:
-      if( ! m_instance ) {
-         m_instance = new PerfStats();
+      if( ! s_instance ) {
+         s_instance = new PerfStats();
       }
 
-      // Make sure that this is still the object that receives
-      // monitoring information:
-      gPerfStats = m_instance;
-
-      return *m_instance;
+      return *s_instance;
    }
 
    /// The user is supposed to call this function after the initialization of
@@ -63,6 +62,7 @@ namespace xAOD {
    ///
    void PerfStats::start( bool clear ) {
 
+      lock_t lock (s_mutex);
       // Return right away if we are running already:
       if( m_running ) return;
 
@@ -85,6 +85,7 @@ namespace xAOD {
    ///
    void PerfStats::stop() {
 
+      lock_t lock (s_mutex);
       // Return right away if we are not running:
       if( ! m_running ) return;
 
@@ -348,6 +349,8 @@ namespace xAOD {
    PerfStats::PerfStats()
       : m_otherPerfStats( 0 ), m_running( false ), m_startTime( 0.0 ),
         m_tree( 0 ), m_file( 0 ), m_treeWarningPrinted( false ) {
+
+      // locked via instance().
 
       // Remember a possible former performance monitoring object:
       if( gPerfStats && ( gPerfStats != this ) ) {

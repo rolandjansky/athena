@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -44,7 +44,7 @@ namespace Analysis
       
     public:
       //IConstituent() {};
-      virtual ~IConstituent() {};      //!< destructor
+      virtual ~IConstituent() = default;      //!< destructor
 
       virtual void setName(NameType& name) = 0;
       //!< to set the name

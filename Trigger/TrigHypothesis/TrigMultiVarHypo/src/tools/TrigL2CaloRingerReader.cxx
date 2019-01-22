@@ -77,7 +77,7 @@ bool TrigL2CaloRingerReader::retrieve( std::string &calibPath, std::vector<Multi
 	  	  discriminators.push_back(new MultiLayerPerceptron(*m_nodes,*m_weights,*m_bias,m_etBins->at(0),
               m_etBins->at(1),m_etaBins->at(0),m_etaBins->at(1), -999, 999) ); 
         //msg() << MSG::INFO << "Added new discriminator into the list." << endmsg;
-	    }catch(std::bad_alloc xa){
+	    }catch(const std::bad_alloc& xa){
         msg() << MSG::ERROR << "Can not alloc cutDefs on memory." << endmsg;
         return false;
       }
@@ -105,7 +105,7 @@ bool TrigL2CaloRingerReader::retrieve( std::string &calibPath, std::vector<Multi
 	  	  discriminators.push_back(new MultiLayerPerceptron(*m_nodes,*m_weights,*m_bias,m_etBins->at(0),
               m_etBins->at(1),m_etaBins->at(0),m_etaBins->at(1), m_muBins->at(0), m_muBins->at(1) ) ); 
         //msg() << MSG::INFO << "Added new discriminator into the list." << endmsg;
-	    }catch(std::bad_alloc xa){
+	    }catch(const std::bad_alloc& xa){
         msg() << MSG::ERROR << "Can not alloc cutDefs on memory." << endmsg;
         return false;
       }
@@ -157,7 +157,7 @@ bool TrigL2CaloRingerReader::retrieve( std::string &calibPath, std::vector<TrigC
         cutDefs.push_back(new TrigCaloRingsHelper::CutDefsHelper(*m_thresholds,m_etaBins->at(0),
                                                     m_etaBins->at(1), m_etBins->at(0),m_etBins->at(1),-999 , 999));
         //msg() << MSG::INFO << "Added new cutDef into the list." << endmsg;
-      }catch(std::bad_alloc xa){
+      }catch(const std::bad_alloc& xa){
         msg() << MSG::ERROR << "Can not alloc cutDefs on memory." << endmsg;
         return false;
       }
@@ -183,7 +183,7 @@ bool TrigL2CaloRingerReader::retrieve( std::string &calibPath, std::vector<TrigC
                                                     m_etaBins->at(1), m_etBins->at(0),m_etBins->at(1),
                                                     m_muBins->at(0), m_muBins->at(1)) );
         //msg() << MSG::INFO << "Added new cutDef into the list." << endmsg;
-      }catch(std::bad_alloc xa){
+      }catch(const std::bad_alloc& xa){
         msg() << MSG::ERROR << "Can not alloc cutDefs on memory." << endmsg;
         return false;
       }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///@file tauAnalysisHelperObject.h  DEPRECATED DO NOT USE 
@@ -54,8 +54,8 @@ class tauAnalysisHelperObject
         typedef ElementLinkVector<CaloCellContainer>               tauCellColl_type;
         typedef tauCellColl_type::iterator                         tauCellColl_iterator;
 
-        tauAnalysisHelperObject() {};
-        virtual ~tauAnalysisHelperObject() {};
+        tauAnalysisHelperObject() = default;
+        ~tauAnalysisHelperObject() = default;
 
         /** @name Analysis Helper
          *  set by tauAnalysisHelper::execute()

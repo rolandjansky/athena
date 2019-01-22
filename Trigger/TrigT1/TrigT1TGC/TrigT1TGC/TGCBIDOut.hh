@@ -17,11 +17,11 @@ public:
 
   virtual ~TGCBIDOut() = default;
 
-  void setBid(int bidIn){ bid=bidIn;};
-  int getBid() const { return bid;};
+  void setBid(int bidIn){ m_bid=bidIn;};
+  int getBid() const { return m_bid;};
 
 private:
-  int bid;
+  int m_bid;
 };
 
 

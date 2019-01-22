@@ -8,46 +8,46 @@
 namespace LVL1TGCTrigger {
 
 TGCBoardConnection::TGCBoardConnection()
- : nType(0), numberOfBoard(0), id(0)
+ : m_nType(0), m_numberOfBoard(0), m_id(0)
 {}
 
 
 TGCBoardConnection::~TGCBoardConnection()
 {
-  if(numberOfBoard!=0) delete [] numberOfBoard;
-  if(id!=0){
+  if(m_numberOfBoard!=0) delete [] m_numberOfBoard;
+  if(m_id!=0){
     int i;
-    for( i=0; i<nType; i+=1){
-      if(id[i]!=0)
-        delete [] id[i];
+    for( i=0; i<m_nType; i+=1){
+      if(m_id[i]!=0)
+        delete [] m_id[i];
     }
-    delete [] id;
-    id=0;
+    delete [] m_id;
+    m_id=0;
   }
 }
 
 void TGCBoardConnection::setNumberOfType(int ntype)
 {
-  nType=ntype;
-  if(numberOfBoard!=0) delete [] numberOfBoard; 
-  numberOfBoard = new int [ntype];
-  if(id!=0) delete [] id; 
-  id = new int* [ntype];
+  m_nType=ntype;
+  if(m_numberOfBoard!=0) delete [] m_numberOfBoard; 
+  m_numberOfBoard = new int [ntype];
+  if(m_id!=0) delete [] m_id; 
+  m_id = new int* [ntype];
   int i;
   for( i=0; i<ntype; i+=1) {
-    id[i]=0;
-    numberOfBoard[i]=0;
+    m_id[i]=0;
+    m_numberOfBoard[i]=0;
   }
 }
 
 void TGCBoardConnection::setNumber(int type, int nBoard)
 {
-  if(numberOfBoard!=0){
-    if(type<nType){
-      numberOfBoard[type] = nBoard;
+  if(m_numberOfBoard!=0){
+    if(type<m_nType){
+      m_numberOfBoard[type] = nBoard;
       if(nBoard!=0){
-	if(id[type]!=0) delete [] id[type];
-	id[type] = new int [nBoard];
+	if(m_id[type]!=0) delete [] m_id[type];
+	m_id[type] = new int [nBoard];
       }
     }
   }
@@ -55,28 +55,28 @@ void TGCBoardConnection::setNumber(int type, int nBoard)
 
 void TGCBoardConnection::setId(int type, int board, int idIn) 
 {
-  if(numberOfBoard!=0)
-    if((type<nType)&&(type>=0))
-      if((id[type]!=0)&&(board<numberOfBoard[type])&&(board>=0))
-	id[type][board] = idIn;
+  if(m_numberOfBoard!=0)
+    if((type<m_nType)&&(type>=0))
+      if((m_id[type]!=0)&&(board<m_numberOfBoard[type])&&(board>=0))
+	m_id[type][board] = idIn;
 }
 
 
 TGCBoardConnection::TGCBoardConnection(const TGCBoardConnection& right)
- : nType(0), numberOfBoard(0), id(0)
+ : m_nType(0), m_numberOfBoard(0), m_id(0)
 {
-  nType = right.nType;
-  if(nType!=0){
-    if(numberOfBoard!=0) delete [] numberOfBoard; 
-    numberOfBoard = new int [nType];
-    for(int i=0; i<nType; i+=1) numberOfBoard[i] = right.numberOfBoard[i];
+  m_nType = right.m_nType;
+  if(m_nType!=0){
+    if(m_numberOfBoard!=0) delete [] m_numberOfBoard; 
+    m_numberOfBoard = new int [m_nType];
+    for(int i=0; i<m_nType; i+=1) m_numberOfBoard[i] = right.m_numberOfBoard[i];
 
-    if(id!=0) delete [] id;
-    id = new int* [nType];
-    for(int i=0; i<nType; i+=1){
-      if(numberOfBoard[i]!=0){
-	id[i] = new int [numberOfBoard[i]];
-	for(int j=0; j<numberOfBoard[i]; j+=1) id[i][j]=right.id[i][j];
+    if(m_id!=0) delete [] m_id;
+    m_id = new int* [m_nType];
+    for(int i=0; i<m_nType; i+=1){
+      if(m_numberOfBoard[i]!=0){
+	m_id[i] = new int [m_numberOfBoard[i]];
+	for(int j=0; j<m_numberOfBoard[i]; j+=1) m_id[i][j]=right.m_id[i][j];
       }
     }
   }
@@ -85,22 +85,22 @@ TGCBoardConnection::TGCBoardConnection(const TGCBoardConnection& right)
 TGCBoardConnection& TGCBoardConnection::operator=(const TGCBoardConnection& right)
 {
   if(this!=&right){
-    nType = right.nType;
-    if(nType!=0){
-      if(numberOfBoard!=0) delete [] numberOfBoard; 
-      numberOfBoard = new int [nType];
+    m_nType = right.m_nType;
+    if(m_nType!=0){
+      if(m_numberOfBoard!=0) delete [] m_numberOfBoard; 
+      m_numberOfBoard = new int [m_nType];
       int i;
-      for( i=0; i<nType; i+=1)
-	numberOfBoard[i] = right.numberOfBoard[i];
+      for( i=0; i<m_nType; i+=1)
+	m_numberOfBoard[i] = right.m_numberOfBoard[i];
 
-      if(id!=0)	delete [] id; 
-      id = new int* [nType];
-      for( i=0; i<nType; i+=1){
-	if(numberOfBoard[i]!=0){
-	  id[i] = new int [numberOfBoard[i]];
+      if(m_id!=0)	delete [] m_id; 
+      m_id = new int* [m_nType];
+      for( i=0; i<m_nType; i+=1){
+	if(m_numberOfBoard[i]!=0){
+	  m_id[i] = new int [m_numberOfBoard[i]];
 	  int j;
-	  for( j=0; j<numberOfBoard[i]; j+=1)
-	    id[i][j]=right.id[i][j];
+	  for( j=0; j<m_numberOfBoard[i]; j+=1)
+	    m_id[i][j]=right.m_id[i][j];
 	}
       }
     }

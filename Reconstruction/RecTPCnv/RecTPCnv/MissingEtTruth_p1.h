@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RECTPCNV_MISSINGETTRUTH_P1_H
@@ -31,7 +31,7 @@ class MissingEtTruth_p1
   MissingEtTruth_p1() {};
 
   /** destructor */
-  ~MissingEtTruth_p1();
+  ~MissingEtTruth_p1() = default;
 
 
  protected:

@@ -34,7 +34,6 @@ namespace TrigCostRootAnalysis {
     m_PSWeight(1. / m_PS), // Reciprocal of the prescale - this is the basic weight quantity for this ChainItem
     m_PSReduced(1.),
     m_PSReducedWeight(1.),
-    m_PSExpress(PSExpress),
     m_PSExpressWeight(1. / PSExpress),
     m_extraEfficiency(1.),
     m_R(++s_chainCount),

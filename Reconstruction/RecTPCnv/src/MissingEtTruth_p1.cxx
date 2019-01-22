@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -16,9 +16,3 @@ PURPOSE:  Persistent rapresentation of MissingEtTruth class
 // RecTPCnv includes
 #include "RecTPCnv/MissingEtTruth_p1.h"
 
-/////////////////////////////////////////////////////////////////// 
-/// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-MissingEtTruth_p1::~MissingEtTruth_p1()
-{}

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // DepositInCalo_p2.cxx 
@@ -25,7 +25,3 @@ DepositInCalo_p2::DepositInCalo_p2 (const DepositInCalo_p1& other)
     m_etDeposited (0)
 {
 }
-
-
-DepositInCalo_p2::~DepositInCalo_p2()
-{}

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FEI3SimTool.h"
@@ -24,7 +24,7 @@ StatusCode FEI3SimTool::finalize() {
 	return StatusCode::SUCCESS;
 }
 
-void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Collection &rdoCollection) {
+void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Collection &rdoCollection, CLHEP::HepRandomEngine *rndmEngine) {
 
   const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&(chargedDiodes.element())->design());
   if (p_design->getReadoutTechnology()!=InDetDD::PixelModuleDesign::FEI3) { return; }
@@ -44,13 +44,13 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
   CrossTalk(module_data->getCrossTalk(barrel_ec,layerIndex),chargedDiodes);
 
   // Add thermal noise
-  ThermalNoise(module_data->getThermalNoise(barrel_ec,layerIndex),chargedDiodes);
+  ThermalNoise(module_data->getThermalNoise(barrel_ec,layerIndex),chargedDiodes, rndmEngine);
 
   // Add random noise
-  RandomNoise(chargedDiodes);
+  RandomNoise(chargedDiodes, rndmEngine);
 
   // Add random diabled pixels
-  RandomDisable(chargedDiodes);
+  RandomDisable(chargedDiodes, rndmEngine);
 
   for (SiChargedDiodeIterator i_chargedDiode=chargedDiodes.begin(); i_chargedDiode!=chargedDiodes.end(); ++i_chargedDiode) {
     // Merge ganged pixel
@@ -92,17 +92,17 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
     double th0  = m_pixelCalibSvc->getThreshold(diodeID);
     double ith0 = m_pixelCalibSvc->getTimeWalk(diodeID);
 
-    double threshold = th0+m_pixelCalibSvc->getThresholdSigma(diodeID)*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine)+m_pixelCalibSvc->getNoise(diodeID)*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+    double threshold = th0+m_pixelCalibSvc->getThresholdSigma(diodeID)*CLHEP::RandGaussZiggurat::shoot(rndmEngine)+m_pixelCalibSvc->getNoise(diodeID)*CLHEP::RandGaussZiggurat::shoot(rndmEngine);
     double intimethreshold = (ith0/th0)*threshold;
 
     if (charge>threshold) {
       int bunchSim;
       if ((*i_chargedDiode).second.totalCharge().fromTrack()) {
-        if (m_timingTune==2015) { bunchSim = relativeBunch2015((*i_chargedDiode).second.totalCharge(),barrel_ec,layerIndex,moduleIndex); }
-        else                    { bunchSim = relativeBunch2009(threshold,intimethreshold,(*i_chargedDiode).second.totalCharge()); }
+        if (m_timingTune==2015) { bunchSim = relativeBunch2015((*i_chargedDiode).second.totalCharge(),barrel_ec,layerIndex,moduleIndex, rndmEngine); }
+        else                    { bunchSim = relativeBunch2009(threshold,intimethreshold,(*i_chargedDiode).second.totalCharge(), rndmEngine); }
       } 
       else {
-        bunchSim = CLHEP::RandFlat::shootInt(m_rndmEngine,m_timeBCN);
+        bunchSim = CLHEP::RandFlat::shootInt(rndmEngine,m_timeBCN);
       }
 
       if (bunchSim<0 || bunchSim>m_timeBCN) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
@@ -117,7 +117,7 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
     // charge to ToT conversion
     double tot    = m_pixelCalibSvc->getTotMean(diodeID,charge);
     double totsig = m_pixelCalibSvc->getTotRes(diodeID,tot);
-    int nToT = static_cast<int>(CLHEP::RandGaussZiggurat::shoot(m_rndmEngine,tot,totsig));
+    int nToT = static_cast<int>(CLHEP::RandGaussZiggurat::shoot(rndmEngine,tot,totsig));
 
     if (nToT<1) { nToT=1; }
 
@@ -163,7 +163,7 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
   return;
 }
 
-int FEI3SimTool::relativeBunch2009(const double threshold, const double intimethreshold, const SiTotalCharge &totalCharge) const {
+int FEI3SimTool::relativeBunch2009(const double threshold, const double intimethreshold, const SiTotalCharge &totalCharge, CLHEP::HepRandomEngine *rndmEngine) const {
 
   int BCID=0;
   double myTimeWalkEff = 0.;
@@ -180,9 +180,9 @@ int FEI3SimTool::relativeBunch2009(const double threshold, const double intimeth
 
   double myTimeWalk    = -p0 -p1 * log(1. - threshold/totalCharge.charge());
 
-  myTimeWalkEff = myTimeWalk+myTimeWalk*0.2*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+  myTimeWalkEff = myTimeWalk+myTimeWalk*0.2*CLHEP::RandGaussZiggurat::shoot(rndmEngine);
 
-  double randomjitter  = CLHEP::RandFlat::shoot(m_rndmEngine,(-m_timeJitter/2.0),(m_timeJitter/2.0));    	
+  double randomjitter  = CLHEP::RandFlat::shoot(rndmEngine,(-m_timeJitter/2.0),(m_timeJitter/2.0));    	
 
   //double G4Time	 = totalCharge.time();
 
@@ -195,7 +195,7 @@ int FEI3SimTool::relativeBunch2009(const double threshold, const double intimeth
 }
 
 // This is the new parameterization based on the 2015 collision data.
-int FEI3SimTool::relativeBunch2015(const SiTotalCharge &totalCharge, int barrel_ec, int layer_disk, int moduleID) const {
+int FEI3SimTool::relativeBunch2015(const SiTotalCharge &totalCharge, int barrel_ec, int layer_disk, int moduleID, CLHEP::HepRandomEngine *rndmEngine) const {
 
   /**
    * 2016.03.29  Soshi.Tsuno@cern.ch
@@ -394,7 +394,7 @@ int FEI3SimTool::relativeBunch2015(const SiTotalCharge &totalCharge, int barrel_
   }
 
   double G4Time = getG4Time(totalCharge);
-  double rnd    = CLHEP::RandFlat::shoot(m_rndmEngine,0.0,1.0);    	
+  double rnd    = CLHEP::RandFlat::shoot(rndmEngine,0.0,1.0);    	
 
   double timeWalk = 0.0;
   if (rnd<prob) { timeWalk = 25.0; }

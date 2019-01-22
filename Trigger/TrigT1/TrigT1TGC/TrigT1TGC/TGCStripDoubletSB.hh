@@ -12,13 +12,13 @@ namespace LVL1TGCTrigger {
 class TGCStripDoubletSB : public TGCDoubletSB {
 public:
   TGCStripDoubletSB(){
-    maxDev=3;
-    nChAdj=0;
-    iChBase=1;
-    posMaxDev=3;
-    negMaxDev=-3;
+    m_maxDev=3;
+    m_nChAdj=0;
+    m_iChBase=1;
+    m_posMaxDev=3;
+    m_negMaxDev=-3;
 
-    SType = STRIP;
+    m_SType = STRIP;
   };
 
   ~TGCStripDoubletSB(){};

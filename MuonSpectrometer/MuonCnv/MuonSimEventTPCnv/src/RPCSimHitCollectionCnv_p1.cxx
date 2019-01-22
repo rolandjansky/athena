@@ -67,7 +67,7 @@ void RPCSimHitCollectionCnv_p1::persToTrans(const Muon::RPCSimHitCollection_p1* 
       hepMcPLCnv.persToTrans(&persCont->m_partLink[i],&link, log);   
 
       transCont->Emplace(persCont->m_RPCid[i], persCont->m_globalTime[i], position,
-                         link.barcode());
+                         link,Amg::Vector3D(0.,0.,0.),-1,-1,0,-1);
   }
 }
 

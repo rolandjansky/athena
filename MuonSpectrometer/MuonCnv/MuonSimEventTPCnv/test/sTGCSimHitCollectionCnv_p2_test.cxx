@@ -64,16 +64,16 @@ void compare (const sTGCSimHitCollection& p1,
 
 //** The test is empty because sTGCSimHitCollectionCnv_p2
 //** is not supported yet
-void testit (const sTGCSimHitCollection& /*trans1*/)
+void testit (const sTGCSimHitCollection& trans1)
 {
   MsgStream log (0, "test");
-//  sTGCSimHitCollectionCnv_p2 cnv;
-//  Muon::sTGCSimHitCollection_p2 pers;
-//  cnv.transToPers (&trans1, &pers, log);
-//  sTGCSimHitCollection trans2;
-//  cnv.persToTrans (&pers, &trans2, log);
-//
-//  compare (trans1, trans2);
+  sTGCSimHitCollectionCnv_p2 cnv;
+  Muon::sTGCSimHitCollection_p2 pers;
+  cnv.transToPers (&trans1, &pers, log);
+  sTGCSimHitCollection trans2;
+  cnv.persToTrans (&pers, &trans2, log);
+
+  compare (trans1, trans2);
 }
 
 
@@ -91,11 +91,12 @@ void test1(std::vector<HepMC::GenParticle*> genPartVector)
   sTGCSimHitCollection trans1 ("coll");
   for (int i=0; i < 10; i++) {
     const HepMC::GenParticle* pGenParticle = genPartVector.at(i);
-    trans1.Emplace (123, 10.5, 
+    HepMcParticleLink trkLink(pGenParticle->barcode(),pGenParticle->parent_event()->event_number());
+    trans1.Emplace (123, 10.5,
                     Amg::Vector3D (12.5, 13.5, 14.5),
                     pGenParticle->pdg_id(),
                     Amg::Vector3D (26.5, 27.5, 28.5),
-                    29.5, pGenParticle->barcode()
+                    29.5, trkLink
                     );
   }
 

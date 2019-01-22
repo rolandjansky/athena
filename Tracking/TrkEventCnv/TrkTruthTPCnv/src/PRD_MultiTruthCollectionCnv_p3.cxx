@@ -33,9 +33,19 @@ void PRD_MultiTruthCollectionCnv_p3::persToTrans( const Trk::PRD_MultiTruthColle
   msg<<MSG::DEBUG<<"PRD_MultiTruthCollectionCnv_p3::persToTrans() DONE"<<endmsg;
 }
 
-void PRD_MultiTruthCollectionCnv_p3::transToPers( const PRD_MultiTruthCollection*,
-                                                  Trk::PRD_MultiTruthCollection_p3*,
-                                                  MsgStream& /*msg */)
+void PRD_MultiTruthCollectionCnv_p3::transToPers( const PRD_MultiTruthCollection* trans,
+                                                  Trk::PRD_MultiTruthCollection_p3* pers,
+                                                  MsgStream& msg )
 {
-  throw std::runtime_error("PRD_MultiTruthCollectionCnv_p3::transToPers is not supported in this release!");
+  msg<<MSG::DEBUG<<"PRD_MultiTruthCollectionCnv_p3::transToPers()"<<endmsg;
+
+  pers->m_entries.reserve(trans->size());
+
+  for(PRD_MultiTruthCollection::const_iterator i=trans->begin(); i!=trans->end(); i++) {
+    HepMcParticleLink_p2 link;
+    particleLinkConverter.transToPers(&i->second, &link, msg);
+    pers->m_entries.push_back(Trk::PRD_MultiTruthCollection_p3::Entry(i->first.get_compact(), link));
+  }
+
+  msg<<MSG::DEBUG<<"PRD_MultiTruthCollectionCnv_p3::transToPers() DONE"<<endmsg;
 }
