@@ -7,8 +7,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IIncidentSvc.h"
-#include "EventInfo/EventInfo.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "AthenaKernel/IIOVDbSvc.h"
 #include "AthenaKernel/IIOVSvc.h"
@@ -30,13 +28,11 @@ public:
   virtual StatusCode execute() override;
 
 private:
-  SG::ReadHandleKey<EventInfo> m_eventInfoKey{this, "EventInfoKey", "McEventInfo"};
   Gaudi::Property<std::string> m_attrListKey{this, "AttrListKey", "/DMTest/TestAttrList"};
   Gaudi::Property<std::map<int,std::string>> m_cmd{this, "Commands", {}, "Commands to be executed on LB change"};
 
   ServiceHandle<IIOVSvc> m_iovSvc;
   ServiceHandle<IIOVDbSvc> m_iovDbSvc;
-  ServiceHandle<IIncidentSvc> m_incidentSvc;
 };
 
 } // namespace DMTest
