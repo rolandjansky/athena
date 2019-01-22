@@ -43,6 +43,7 @@
 #include "PATCore/TSelectorToolBase.h"
 #include "AsgTools/AsgMessaging.h"
 #include "SafeTH1.h"
+#include "memory"
 
 namespace LikeEnumForward {
   enum Menu {
@@ -197,7 +198,7 @@ namespace Root {
     static const unsigned int  s_fnEtaBins        = 10;
     static const unsigned int  s_fnVariables      = 8;
     static const char*  s_fVariables  [s_fnVariables]; 
-    EGSelectors::SafeTH1* m_fPDFbins [2][s_IP_FBINS][s_fnEtBinsHist][s_fnEtaBins][s_fnVariables]; // [sig(0)/bkg(1)][ip][et][eta][variable]
+    std::unique_ptr<EGSelectors::SafeTH1> m_fPDFbins [2][s_IP_FBINS][s_fnEtBinsHist][s_fnEtaBins][s_fnVariables]; // [sig(0)/bkg(1)][ip][et][eta][variable]
   };
 
 } // End: namespace Root
