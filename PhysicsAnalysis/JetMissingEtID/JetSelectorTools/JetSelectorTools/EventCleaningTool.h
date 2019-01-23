@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __EVENTCLEANINGTOOL__
-#define __EVENTCLEANINGTOOL__
+#ifndef JETSELECTORTOOLS_EVENTCLEANINGTOOL_H
+#define JETSELECTORTOOLS_EVENTCLEANINGTOOL_H
 
 /**
    @class EventCleaningTool
@@ -23,7 +23,6 @@
 #include "AsgTools/AnaToolHandle.h"
 
 // Local includes
-#include "PATCore/TAccept.h"
 #include "IEventCleaningTool.h"
 #include "xAODJet/Jet.h"
 #include "xAODEventInfo/EventInfo.h"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -29,7 +29,7 @@ class TrigIDHitStats_p1
  public:
   
   TrigIDHitStats_p1() {}
-  virtual ~TrigIDHitStats_p1(){}
+  virtual ~TrigIDHitStats_p1() = default;
 
 
  private:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1TGC/TGCDatabaseManager.hh"
@@ -76,30 +76,31 @@ void TGCDatabaseManager::addConnectionInPP(const TGCPatchPanel* patchPanel,
 }
 
 TGCDatabaseManager::TGCDatabaseManager()
-  : mapTileMu(0)
+  : m_mapTileMu(0)
 {
   // default constructor 
   int i,j,k;
   for( j=0; j<NumberOfRegionType; j+=1){
     for( i=0; i<NumberOfPatchPanelType; i+=1){
        for( k=0; k<TotalNumForwardBackwardType; k+=1){
-         ASDToPP[j][i][k] = 0;
+         m_ASDToPP[j][i][k] = 0;
        }
     }
   }
   for( i=0; i<NumberOfRegionType; i+=1){
-    PPToSL[i] = 0;
+    m_PPToSL[i] = 0;
   }
   for (int side=0; side<NumberOfSide; side +=1) {
-    mapInner[side] = 0;
+    m_mapInner[side] = 0;
     for (int oct=0; oct<NumberOfOctant; oct++) {
-      mapRphi[side][oct] = 0;
+      m_mapRphi[side][oct] = 0;
     }
   }
 
 }
 
-TGCDatabaseManager::TGCDatabaseManager(const std::string& ver, bool )
+TGCDatabaseManager::TGCDatabaseManager(const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
+                                       const std::string& ver, bool )
 {
   bool status = true;
 
@@ -107,15 +108,15 @@ TGCDatabaseManager::TGCDatabaseManager(const std::string& ver, bool )
   for( j=0; j<NumberOfRegionType; j+=1) {
     for( i=0; i<NumberOfPatchPanelType; i+=1){
        for( k=0; k<TotalNumForwardBackwardType; k+=1){
-	 ASDToPP[j][i][k] = new TGCConnectionASDToPP;
+	 m_ASDToPP[j][i][k] = new TGCConnectionASDToPP;
 	 status = status && 
-	   ASDToPP[j][i][k]->readData((TGCRegionType)(j+1),i,(TGCForwardBackwardType)k);
+	   m_ASDToPP[j][i][k]->readData((TGCRegionType)(j+1),i,(TGCForwardBackwardType)k);
        }
     }
   }
   for( i=0; i<NumberOfRegionType; i+=1){
-    PPToSL[i] = new TGCConnectionPPToSL;
-    status = status && PPToSL[i]->readData((TGCRegionType)(i+1));
+    m_PPToSL[i] = new TGCConnectionPPToSL;
+    status = status && m_PPToSL[i]->readData((TGCRegionType)(i+1));
   }
 
   if (g_DEBUGLEVEL) {
@@ -146,17 +147,17 @@ TGCDatabaseManager::TGCDatabaseManager(const std::string& ver, bool )
   // RPhi Coincidence Map
   for (int side=0; side<NumberOfSide; side +=1) {
     for (int oct=0; oct<NumberOfOctant; oct++) {
-       mapRphi[side][oct] = new TGCRPhiCoincidenceMap(ver_BW, side, oct);
+       m_mapRphi[side][oct] = new TGCRPhiCoincidenceMap(readCondKey, ver_BW, side, oct);
     }
   }
 
   // Inner Coincidence Map
   for (int side=0; side<NumberOfSide; side +=1) {
-    mapInner[side] = new TGCInnerCoincidenceMap(ver_EIFI, side);
+    m_mapInner[side] = new TGCInnerCoincidenceMap(readCondKey, ver_EIFI, side);
   }
 
   // Tile-Mu coincidence Map
-  mapTileMu = new TGCTileMuCoincidenceMap(ver_TILE);
+  m_mapTileMu = new TGCTileMuCoincidenceMap(readCondKey, ver_TILE);
    
  
 }
@@ -164,8 +165,8 @@ TGCDatabaseManager::TGCDatabaseManager(const std::string& ver, bool )
 void TGCDatabaseManager::deleteConnectionPPToSL()
 {
   for(int i=0; i<NumberOfRegionType; i+=1){
-    delete PPToSL[i];
-    PPToSL[i]=0;
+    delete m_PPToSL[i];
+    m_PPToSL[i]=0;
   }
 }
 
@@ -176,25 +177,25 @@ TGCDatabaseManager::~TGCDatabaseManager()
   for( j=0; j<NumberOfRegionType; j+=1){
     for( i=0; i<NumberOfPatchPanelType; i+=1){
       for( k=0; k<TotalNumForwardBackwardType; k+=1){
-	if(ASDToPP[j][i][k]!=0) delete ASDToPP[j][i][k];
-	ASDToPP[j][i][k]=0;
+	if(m_ASDToPP[j][i][k]!=0) delete m_ASDToPP[j][i][k];
+	m_ASDToPP[j][i][k]=0;
       }
     }
-    if(PPToSL[j]!=0) delete PPToSL[j];
-    PPToSL[j]=0;
+    if(m_PPToSL[j]!=0) delete m_PPToSL[j];
+    m_PPToSL[j]=0;
   }
 
   for (int side=0; side<NumberOfSide; side +=1) {
     for (int oct=0; oct<NumberOfOctant; oct++)
-       delete mapRphi[side][oct];
+       delete m_mapRphi[side][oct];
   }
 
   for(int side=0; side<NumberOfSide; side +=1) {
-    delete mapInner[side];
+    delete m_mapInner[side];
   }
 
-  delete mapTileMu;
-  mapTileMu = 0;
+  delete m_mapTileMu;
+  m_mapTileMu = 0;
 }
 
 TGCDatabaseManager::TGCDatabaseManager(const TGCDatabaseManager& right)
@@ -202,19 +203,19 @@ TGCDatabaseManager::TGCDatabaseManager(const TGCDatabaseManager& right)
   for(int j=0; j<NumberOfRegionType; j+=1){
     for(int i=0; i<NumberOfPatchPanelType; i+=1){
       for(int  k=0; k<TotalNumForwardBackwardType; k+=1){
-	ASDToPP[j][i][k] = 0;
+	m_ASDToPP[j][i][k] = 0;
       }
     }
   }
-  for( int i=0; i<NumberOfRegionType; i+=1) PPToSL[i] = 0;
+  for( int i=0; i<NumberOfRegionType; i+=1) m_PPToSL[i] = 0;
   for (int side=0; side<NumberOfSide; side +=1) {
-    mapInner[side] =0;
+    m_mapInner[side] =0;
     
     for (int oct=0; oct<NumberOfOctant; oct++) {
-      mapRphi[side][oct] = 0;
+      m_mapRphi[side][oct] = 0;
     }
   }
-  mapTileMu = 0;
+  m_mapTileMu = 0;
 
   *this = right;
 }
@@ -226,28 +227,28 @@ TGCDatabaseManager::operator=(const TGCDatabaseManager& right)
     for( int j=0; j<NumberOfRegionType; j+=1){
       for( int i=0; i<NumberOfPatchPanelType; i+=1){
 	for( int k=0; k<TotalNumForwardBackwardType; k+=1){
-	  if(ASDToPP[j][i][k]!=0) delete ASDToPP[j][i][k];
-	  ASDToPP[j][i][k] = new TGCConnectionASDToPP;
-	  *ASDToPP[j][i][k] = *right.ASDToPP[j][i][k];
+	  if(m_ASDToPP[j][i][k]!=0) delete m_ASDToPP[j][i][k];
+	  m_ASDToPP[j][i][k] = new TGCConnectionASDToPP;
+	  *m_ASDToPP[j][i][k] = *right.m_ASDToPP[j][i][k];
 	}
       }
     }
     for(int i=0; i<NumberOfRegionType; i+=1){
-      if(PPToSL[i]!=0) delete PPToSL[i];
-      PPToSL[i] = new TGCConnectionPPToSL( *right.PPToSL[i] );
+      if(m_PPToSL[i]!=0) delete m_PPToSL[i];
+      m_PPToSL[i] = new TGCConnectionPPToSL( *right.m_PPToSL[i] );
     }
     
     for (int side=0; side<NumberOfSide; side +=1) {
-      if (mapInner[side]!=0) delete mapInner[side];
-      mapInner[side] = new TGCInnerCoincidenceMap(*(right.mapInner[side]));
+      if (m_mapInner[side]!=0) delete m_mapInner[side];
+      m_mapInner[side] = new TGCInnerCoincidenceMap(*(right.m_mapInner[side]));
       
       for (int oct=0; oct<NumberOfOctant; oct++) {
-	if(mapRphi[side][oct]!=0) delete mapRphi[side][oct];
-	mapRphi[side][oct] = new TGCRPhiCoincidenceMap(*(right.mapRphi[side][oct]));
+	if(m_mapRphi[side][oct]!=0) delete m_mapRphi[side][oct];
+	m_mapRphi[side][oct] = new TGCRPhiCoincidenceMap(*(right.m_mapRphi[side][oct]));
       }
     }
 
-  mapTileMu = new TGCTileMuCoincidenceMap(*(right.mapTileMu));
+  m_mapTileMu = new TGCTileMuCoincidenceMap(*(right.m_mapTileMu));
 
     m_patchPanelToConnectionInPP = right.m_patchPanelToConnectionInPP;
   }

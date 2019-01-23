@@ -68,12 +68,12 @@ void test1(std::vector<HepMC::GenParticle*>& genPartVector)
   std::cout << "test1\n";
   const HepMC::GenParticle *particle = genPartVector.at(0);
   // Create HepMcParticleLink outside of leak check.
-  HepMcParticleLink dummyHMPL(particle->barcode(),0);
+  HepMcParticleLink dummyHMPL(particle->barcode(),particle->parent_event()->event_number());
   assert(dummyHMPL.cptr()==particle);
   Athena_test::Leakcheck check;
 
   const HepMC::GenParticle *pGenParticle = genPartVector.at(0);
-  HepMcParticleLink trkLink(pGenParticle->barcode(),0);
+  HepMcParticleLink trkLink(pGenParticle->barcode(),pGenParticle->parent_event()->event_number());
   TRTUncompressedHit trans1 (101, trkLink, pGenParticle->pdg_id(),
                              104.5, 105.5,
                              106.5, 107.5, 108.5,

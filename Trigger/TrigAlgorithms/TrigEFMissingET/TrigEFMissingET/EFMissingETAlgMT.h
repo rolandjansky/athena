@@ -33,11 +33,16 @@ class EFMissingETAlgMT : public ::AthReentrantAlgorithm
 
   virtual StatusCode  initialize() override;
   virtual StatusCode  execute(const EventContext& context) const override;
- 
+
+  //!< Converts from MeV to GeV and them log10, preserving the sign, the minimum dictated by monitoring histograms
+  static double toLogGeV(double x, double fallback=0, double epsilon=1e-6);
+  
+  //!< converts to from MeV to GeV if above threshold, else falback value
+  static double toLinGeV(double x, double fallback=0, double epsilon=1e-6); 
  private: 
   
   SG::WriteHandleKey<xAOD::TrigMissingETContainer> m_metContainerKey { this, "METContainerKey", "HLT_MET", "Name of the output collection" };
-  ToolHandleArray<IMissingETTool> m_metTools { this, "METTools", {}, "Tools to fille MET object" };
+  ToolHandleArray<IMissingETTool> m_metTools { this, "METTools", {}, "Tools to fill MET object" };
   ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Monitoring tool" };
   ToolHandle<EFMissingETFromHelper> m_helperTool{ this, "HelperTool", "EFMissingETFromHelper/HelperTool", "Helper tool" };
 }; 

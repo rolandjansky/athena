@@ -47,7 +47,7 @@ public:
   void setIdSlaveBoard(int port,int id);
 
   // pointer to adjacent Patch Panel board.
-  TGCPatchPanel* getAdjacentPP(int side) const { return PPAdj[side]; };
+  TGCPatchPanel* getAdjacentPP(int side) const { return m_PPAdj[side]; };
   void setAdjacentPP(int side, TGCPatchPanel* PP);
 
   void setASDOut(int connector, int ch, TGCASDOut* asdOut);
@@ -61,10 +61,10 @@ public:
 
   int getId() const;
   void setId(int idIn);
-  int getType() const { return type; };
-  void setType(int typeIn) { type=typeIn; };
-  TGCRegionType getRegion() const { return region; };
-  void setRegion(TGCRegionType regionIn) { region=regionIn; };
+  int getType() const { return m_type; };
+  void setType(int typeIn) { m_type=typeIn; };
+  TGCRegionType getRegion() const { return m_region; };
+  void setRegion(TGCRegionType regionIn) { m_region=regionIn; };
 
   void connect();
   std::string getTypeName(int typeIn) const;
@@ -84,20 +84,20 @@ private:
   void clearASDOut();
   void deleteBIDOut();
 
-  int id;
-  int idSlaveBoard[NumberOfPatchPanelOut];
-  int type;
-  TGCRegionType region;
-  int bunchCounter;
-  bool hasASDOut;
-  bool hasBIDOut;
-  int  nHit; // 18-Jan-01 Added by KH
+  int m_id;
+  int m_idSlaveBoard[NumberOfPatchPanelOut];
+  int m_type;
+  TGCRegionType m_region;
+  int m_bunchCounter;
+  bool m_hasASDOut;
+  bool m_hasBIDOut;
+  int  m_nHit; // 18-Jan-01 Added by KH
 
-  TGCPatchPanelOut* PPOut[NumberOfPatchPanelOut];
-  TGCASDOut* ASDOut[NChOfPPOutputConnector][MaxNumberOfConnector];
-  TGCBIDOut* BIDOut[NChOfPPOutputConnector][MaxNumberOfConnector][NumberOfBunchKeptInPP];
-  TGCPatchPanel* PPAdj[2]; // pointer to adjacent board.
-  TGCConnectionInPP* connectionInPP;
+  TGCPatchPanelOut* m_PPOut[NumberOfPatchPanelOut];
+  TGCASDOut* m_ASDOut[NChOfPPOutputConnector][MaxNumberOfConnector];
+  TGCBIDOut* m_BIDOut[NChOfPPOutputConnector][MaxNumberOfConnector][NumberOfBunchKeptInPP];
+  TGCPatchPanel* m_PPAdj[2]; // pointer to adjacent board.
+  TGCConnectionInPP* m_connectionInPP;
 };
 
 

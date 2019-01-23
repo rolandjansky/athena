@@ -23,43 +23,43 @@ extern bool g_DEBUGLEVEL;
 
 void TGCRPhiCoincidenceMatrix::inputR(int rIn, int dRIn, int ptRIn)
 {
-  r=rIn;
-  dR=dRIn;
-  ptR=ptRIn;
+  m_r=rIn;
+  m_dR=dRIn;
+  m_ptR=ptRIn;
   
 #ifdef TGCDEBUG
   std::cout <<"LVL1TGCTrigger::TGCRPhiCoincidenceMatrix  "
-    	    <<"inputR r=" <<r <<" dR=" <<dR <<" H/L=" <<ptR <<std::endl;
+    	    <<"inputR r=" <<m_r <<" dR=" <<m_dR <<" H/L=" <<m_ptR <<std::endl;
 #endif
 }
 
 void TGCRPhiCoincidenceMatrix::inputPhi(int phiIn, int dPhiIn, int ptPhiIn)
 {
-  if(nPhiHit<MaxNPhiHit){
-    phi[nPhiHit]=phiIn;
-    dPhi[nPhiHit]=dPhiIn;
-    ptPhi[nPhiHit]=ptPhiIn;
+  if(m_nPhiHit<MaxNPhiHit){
+    m_phi[m_nPhiHit]=phiIn;
+    m_dPhi[m_nPhiHit]=dPhiIn;
+    m_ptPhi[m_nPhiHit]=ptPhiIn;
 
 #ifdef TGCDEBUG
   std::cout <<"LVL1TGCTrigger::TGCRPhiCoincidenceMatrix  "
-            << "inputPhi phi" << nPhiHit << "="<< phi[nPhiHit] 
-	    << " dPhi=" << dPhi[nPhiHit] << " H/L=" << ptPhi[nPhiHit] 
+            << "inputPhi phi" << m_nPhiHit << "="<< m_phi[m_nPhiHit] 
+	    << " dPhi=" << m_dPhi[m_nPhiHit] << " H/L=" << m_ptPhi[m_nPhiHit] 
 	    << std::endl;
 #endif
     
-    nPhiHit++;
+    m_nPhiHit++;
   }
 }
 
 void TGCRPhiCoincidenceMatrix::clear()
 {
-  SSCId=0;
-  r=dR=ptR=0;
+  m_SSCId=0;
+  m_r=m_dR=m_ptR=0;
 
-  nPhiHit=0;
+  m_nPhiHit=0;
   int i;
   for( i=0; i<MaxNPhiHit; i+=1)
-    phi[i]=dPhi[i]=ptPhi[i]=0;
+    m_phi[i]=m_dPhi[i]=m_ptPhi[i]=0;
 }
 
 TGCRPhiCoincidenceOut* TGCRPhiCoincidenceMatrix::doCoincidence()
@@ -67,26 +67,26 @@ TGCRPhiCoincidenceOut* TGCRPhiCoincidenceMatrix::doCoincidence()
   TGCRPhiCoincidenceOut* out = new TGCRPhiCoincidenceOut;
   out->clear();
 
-  if(nPhiHit ==0)  return out;
+  if(m_nPhiHit ==0)  return out;
 
-  out->setIdSSC(SSCId);
+  out->setIdSSC(m_SSCId);
 
   int j0 = -1;
   int ptMax=-1;
-  for( int j=nPhiHit-1; j>=0; j-=1){     // left half-SSC has priority when both output same pT
+  for( int j=m_nPhiHit-1; j>=0; j-=1){     // left half-SSC has priority when both output same pT
     int subsector;
     int ptOut = -99;
-    if(sectorLogic->getRegion()==Endcap){
-      subsector = 4*(2*SSCId+r-1)+phi[j];
+    if(m_sectorLogic->getRegion()==Endcap){
+      subsector = 4*(2*m_SSCId+m_r-1)+m_phi[j];
     } else {
-      subsector = 4*(2*SSCId+r)+phi[j];
+      subsector = 4*(2*m_SSCId+m_r)+m_phi[j];
     }
     
-    int type = map->getMapType(ptR, ptPhi[j]);
+    int type = m_map->getMapType(m_ptR, m_ptPhi[j]);
     for( int pt=NumberOfPtLevel-1; pt>=0; pt-=1){
-      if(map->test(sectorLogic->getOctantID(),sectorLogic->getModuleID(),subsector,
+      if(m_map->test(m_sectorLogic->getOctantID(),m_sectorLogic->getModuleID(),subsector,
 		   type, pt,
-		   dR,dPhi[j])) {
+		   m_dR,m_dPhi[j])) {
 	ptOut = pt;
 	break;
       }
@@ -94,9 +94,9 @@ TGCRPhiCoincidenceOut* TGCRPhiCoincidenceMatrix::doCoincidence()
       
     if (g_OUTCOINCIDENCE) {
       TGCCoincidence * coin
-	= new TGCCoincidence(sectorLogic->getBid(), sectorLogic->getId(), sectorLogic->getModuleID(), 
-			     sectorLogic->getRegion(), SSCId, r, phi[j], subsector, 
-			     ptR, dR, ptPhi[j], dPhi[j], ptOut);
+	= new TGCCoincidence(m_sectorLogic->getBid(), m_sectorLogic->getId(), m_sectorLogic->getModuleID(), 
+			     m_sectorLogic->getRegion(), m_SSCId, m_r, m_phi[j], subsector, 
+			     m_ptR, m_dR, m_ptPhi[j], m_dPhi[j], ptOut);
       g_TGCCOIN->push_back(coin);
     }
 
@@ -104,12 +104,12 @@ TGCRPhiCoincidenceOut* TGCRPhiCoincidenceMatrix::doCoincidence()
     if( ptOut >= ptMax ){
       ptMax = ptOut;
       out->clear();    
-      out->setIdSSC(SSCId);
+      out->setIdSSC(m_SSCId);
       out->setHit(ptMax+1);   
-      out->setR(r);
-      out->setPhi(phi[j]);
-      out->setDR(dR);
-      out->setDPhi(dPhi[j]);
+      out->setR(m_r);
+      out->setPhi(m_phi[j]);
+      out->setDR(m_dR);
+      out->setDPhi(m_dPhi[j]);
       j0 = j;
     }
   }
@@ -118,72 +118,72 @@ TGCRPhiCoincidenceOut* TGCRPhiCoincidenceMatrix::doCoincidence()
     IMessageSvc* msgSvc = 0;
     ISvcLocator* svcLocator = Gaudi::svcLocator();
     if (svcLocator->service("MessageSvc", msgSvc) != StatusCode::FAILURE) {
-      MsgStream m_log(msgSvc, "LVL1TGCTrigger::TGCRPhiCoincidenceMatrix");
+      MsgStream log(msgSvc, "LVL1TGCTrigger::TGCRPhiCoincidenceMatrix");
       if (j0>0) {
-	m_log << MSG::DEBUG << " Trigger Out : "
-	      << " pt =" << ptMax+1 << " R=" << r << " Phi=" << phi[j0]
-	      << " ptR=" << ptR << " dR=" << dR 
-	      << " ptPhi=" << ptPhi[j0] << " dPhi=" << dPhi[j0] 
+	log << MSG::DEBUG << " Trigger Out : "
+	      << " pt =" << ptMax+1 << " R=" << m_r << " Phi=" << m_phi[j0]
+	      << " ptR=" << m_ptR << " dR=" << m_dR 
+	      << " ptPhi=" << m_ptPhi[j0] << " dPhi=" << m_dPhi[j0] 
 	      << endmsg;
       } else {
-	m_log << MSG::DEBUG << "NO Trigger Out : " << endmsg;
+	log << MSG::DEBUG << "NO Trigger Out : " << endmsg;
       }
     }
   }
   
-  //matrixOut = out;  
+  //m_matrixOut = out;  
   return out;
 }
 
 void TGCRPhiCoincidenceMatrix::setRPhiMap(const TGCRPhiCoincidenceMap* map)
 {
-  this->map = map;
+  this->m_map = map;
 }
 
 TGCRPhiCoincidenceMatrix::TGCRPhiCoincidenceMatrix(const TGCSectorLogic* sL) 
-  : sectorLogic(sL),
-    matrixOut(0), map(0),
-    nPhiHit(0), SSCId(0), r(0), dR(0), ptR(0)
+  : m_sectorLogic(sL),
+    m_matrixOut(0), m_map(0),
+    m_nPhiHit(0), m_SSCId(0), m_r(0), m_dR(0), m_ptR(0)
 {
   for (int i=0; i<MaxNPhiHit; i++) {
-    phi[i]=0;
-    dPhi[i]=0;
-    ptPhi[i]=0;
+    m_phi[i]=0;
+    m_dPhi[i]=0;
+    m_ptPhi[i]=0;
   }
 }
 
 TGCRPhiCoincidenceMatrix::~TGCRPhiCoincidenceMatrix()
 {
-  matrixOut=0;
-  map = 0;
+  m_matrixOut=0;
+  m_map = 0;
 }
 
 TGCRPhiCoincidenceMatrix& TGCRPhiCoincidenceMatrix::operator=(const TGCRPhiCoincidenceMatrix& right)
 {
   if (this != &right){
-    sectorLogic = right.sectorLogic;
-    delete matrixOut;
-    matrixOut =0;
-    delete map;
-    map = new TGCRPhiCoincidenceMap(*(right.map));
-    nPhiHit = 0;
-    SSCId   = 0;
-    r       = 0;
-    dR      = 0;
-    ptR     = 0;
+    m_sectorLogic = right.m_sectorLogic;
+    delete m_matrixOut;
+    m_matrixOut =0;
+    delete m_map;
+    m_map = new TGCRPhiCoincidenceMap(*(right.m_map));
+    m_nPhiHit = 0;
+    m_SSCId   = 0;
+    m_r       = 0;
+    m_dR      = 0;
+    m_ptR     = 0;
     for (int i=0; i<MaxNPhiHit; i++) {
-      phi[i]=0;
-      dPhi[i]=0;
-      ptPhi[i]=0;
+      m_phi[i]=0;
+      m_dPhi[i]=0;
+      m_ptPhi[i]=0;
     }
   }
   return *this;
 }
 
 TGCRPhiCoincidenceMatrix::TGCRPhiCoincidenceMatrix(const TGCRPhiCoincidenceMatrix& right)
-  : sectorLogic(0),
-    matrixOut(0), map(0),
-    nPhiHit(0), SSCId(0), r(0), dR(0), ptR(0)
+  : m_sectorLogic(0),
+    m_matrixOut(0), m_map(0),
+    m_nPhiHit(0), m_SSCId(0), m_r(0), m_dR(0), m_ptR(0)
 {
   *this = right;  
 }

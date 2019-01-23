@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -47,15 +47,14 @@ class ISCT_SurfaceChargesGenerator : virtual public IAlgTool {
 
   //Retrieve interface ID
   static const InterfaceID& interfaceID() { return IID_ISCT_SurfaceChargesGenerator; }
-  
+
   // Destructor:
   virtual ~ISCT_SurfaceChargesGenerator() {}
 
   virtual void process(const InDetDD::SiDetectorElement* ele,
                        const TimedHitPtr<SiHit>& phit,
-                       const ISiSurfaceChargesInserter& inserter) const =0;
-  virtual void setFixedTime(float fixedTime) =0;                             
-  virtual void setRandomEngine(CLHEP::HepRandomEngine* rndmEngine) =0;       
+                       const ISiSurfaceChargesInserter& inserter, CLHEP::HepRandomEngine * rndmEngine) const =0;
+  virtual void setFixedTime(float fixedTime) =0;
 };
 
 #endif // SIDIGITIZATION_ISCT_SURFACECHARGESGENERATOR_H

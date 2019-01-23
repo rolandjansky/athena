@@ -6,7 +6,7 @@
 #define GeoExtendedMaterial_h 1
 
 #include "GeoModelKernel/GeoMaterial.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/PhysicalConstants.h"
 
 #include "GeoModelUtilities/GeoMaterialPropertiesTable.h"
 
@@ -18,8 +18,8 @@ class GeoExtendedMaterial : public GeoMaterial
   GeoExtendedMaterial(const std::string &Name,
 		      double Density,
 		      GeoMaterialState State = stateUndefined,
-		      double Temperature = GeoModelKernelUnits::STP_Temperature,
-		      double Pressure  = GeoModelKernelUnits::STP_Pressure);
+		      double Temperature = Gaudi::Units::STP_Temperature,
+		      double Pressure  = Gaudi::Units::STP_Pressure);
   
   virtual ~GeoExtendedMaterial();
   

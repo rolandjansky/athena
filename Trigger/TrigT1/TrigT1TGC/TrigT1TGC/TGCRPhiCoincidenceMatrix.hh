@@ -17,7 +17,7 @@ const int NumberOfPtLevel = 6;
 
 class TGCRPhiCoincidenceMatrix {
 public:
-  void setSSCId(int SSCIdIn){ SSCId=SSCIdIn;};
+  void setSSCId(int SSCIdIn){ m_SSCId=SSCIdIn;};
   void setRPhiMap(const TGCRPhiCoincidenceMap* map);
   void inputR(int rIn, int dRIn, int ptRIn);
   void inputPhi(int phiIn, int dPhiIn, int ptPhiIn);
@@ -34,19 +34,19 @@ private:
 
   enum {MaxNPhiHit = 2}; 
     
-  const  TGCSectorLogic*  sectorLogic; 
+  const  TGCSectorLogic*  m_sectorLogic; 
 
-  TGCRPhiCoincidenceOut* matrixOut;
-  const TGCRPhiCoincidenceMap* map;
+  TGCRPhiCoincidenceOut* m_matrixOut;
+  const TGCRPhiCoincidenceMap* m_map;
 
-  int nPhiHit;
-  int SSCId;
-  int r;
-  int dR;
-  int ptR;
-  int phi[MaxNPhiHit];
-  int dPhi[MaxNPhiHit];
-  int ptPhi[MaxNPhiHit];
+  int m_nPhiHit;
+  int m_SSCId;
+  int m_r;
+  int m_dR;
+  int m_ptR;
+  int m_phi[MaxNPhiHit];
+  int m_dPhi[MaxNPhiHit];
+  int m_ptPhi[MaxNPhiHit];
 };
 
 } //end of namespace bracket

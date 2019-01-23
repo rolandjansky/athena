@@ -36,19 +36,45 @@ class AthAnalysisHelper { //thought about being a namespace but went for static 
 public:
     AthAnalysisHelper(); //need a constructor to link the dictionary library with the implementation library
 
+   static const std::string UNDEFINED;  //used in getProperty
+   
    ///initGaudi method starts the gaudi ApplicationMgr ready for working with all the components
    static IAppMgrUI* initGaudi(const char* options = "");
 
    
    ///helper method for adding a property to the JobOptionsSvc
    ///to list all the properties in the catalogue, do: AthAnalysisHelper::dumpJobOptionProperties()
-   template<typename W> static StatusCode addPropertyToCatalogue( const std::string& name , const std::string& property, const W& value) {
+   template<typename W> static StatusCode addPropertyToCatalogue( const std::string& name , const std::string& property, const W& value, bool override=true) {
      ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","AthAnalysisHelper");
      if(joSvc.retrieve().isFailure()) return StatusCode::FAILURE;
+     if(!override) {
+      //check if property already defined. If so, then print a warning and return failure
+      std::string pValue = getProperty( name, property );
+      if( pValue != UNDEFINED) {
+        std::cout << "WARNING: " << name << "." << property << " already defined as " << pValue << " ... ignoring " <<  Gaudi::Utils::toString ( value ) << std::endl;
+        return StatusCode::FAILURE;
+      }
+     }
      StatusCode result = joSvc->addPropertyToCatalogue( name , StringProperty( property , Gaudi::Utils::toString ( value ) ) );
      if(joSvc.release().isFailure()) return StatusCode::FAILURE;
      return result;
    }
+   
+
+   //alias for above
+   template<typename W> static StatusCode setProperty( const std::string& name , const std::string& property, const W& value, bool override=true) {
+    return addPropertyToCatalogue(name,property,value,override);
+   }
+   
+   ///non-template method, for use in joboptions
+   ///current usage would be:
+   /// ... usual joboptions ...
+   /// theApp.setup() #triggers population of property catalogue
+   /// import ROOT
+   /// ROOT.AAH.setProperty( "ToolSvc.MyTool" , "Property" , str(value) )
+   static StatusCode setProperty( const std::string& name , const std::string& property, const std::string& value, bool override=true) { 
+    return addPropertyToCatalogue( name, property, value, override );
+   } //set a property for a client in the catalogue
 
 
    ///helper method for setting a property on a tool before retrieving it
@@ -63,10 +89,12 @@ public:
    ///The last example assumes the 'MyTool' class has declared a ToolHandle("SubTool/PrivateToolHandleName",this)
    ///and 'SubTool' class has an integer property called 'SubToolIntegerProperty' declared
 
-   template<typename T, typename W> static StatusCode setProperty(const ToolHandle<T>& toolHandle, const std::string& property, const W& value) {
-      if(toolHandle.isSet()) {
-         std::cout << "ERROR: Cannot setProperty on a tool that is already initialized" << std::endl;
-         return StatusCode::FAILURE;
+  template<class W, typename = typename std::enable_if<!std::is_base_of<GaudiHandleBase,W>::value && 
+						       !std::is_base_of<GaudiHandleArrayBase,W>::value>::type> 
+   static StatusCode setProperty(const GaudiHandleBase& toolHandle, const std::string& property, const W& value, bool override=true) {
+      if(toolHandle.empty()) {
+          std::cout << "ERROR: Empty toolHandle passed to AthAnalysisHelper::setProperty" << std::endl;
+          return StatusCode::FAILURE;
       }
       std::string fullName = toolHandle.parentName() + "." + toolHandle.name();
       std::string thePropertyName(property);
@@ -77,34 +105,24 @@ public:
          thePropertyName = thePropertyName.substr(dotLocation+1,thePropertyName.length()-dotLocation);
       }
       //check if the tool already exists, if so then we are too late!!
-      ServiceHandle<IToolSvc> toolSvc("ToolSvc","AthAnalysisHelper");
-      if(toolSvc.retrieve().isFailure()) return StatusCode::FAILURE;
-      auto existingTools = toolSvc->getInstances();
-      for(auto& toolName : existingTools) {
-         if(fullName==toolName) {
-            std::cout << "ERROR: Cannot setProperty on a tool that is already initialized" << std::endl;
-            return StatusCode::FAILURE;
-         }
+      if( toolExists( fullName ) ) {
+        std::cout << "ERROR: Cannot setProperty on a tool that is already initialized" << std::endl;
+        return StatusCode::FAILURE;
       }
-      if(toolSvc.release().isFailure()) return StatusCode::FAILURE;
       //tool not existing, ok so add property to catalogue
-      ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","AthAnalysisHelper");
-      if(joSvc.retrieve().isFailure()) return StatusCode::FAILURE;
-      StatusCode result = joSvc->addPropertyToCatalogue(fullName , StringProperty( thePropertyName, Gaudi::Utils::toString ( value ) ) );
-      if(joSvc.release().isFailure()) return StatusCode::FAILURE;
-      return result;
+      return addPropertyToCatalogue(fullName, thePropertyName, value, override);
    }
    
    ///Partial template specialization for ToolHandles and ToolHandleArrays ... strips parent name from tool name, for setting private handles on
-   template<typename T, typename W> static StatusCode setProperty(const ToolHandle<T>& toolHandle, const std::string& property, const ToolHandle<W>& value) {
+   static StatusCode setProperty(const GaudiHandleBase& toolHandle, const std::string& property, const GaudiHandleBase& value, bool override=true) {
       std::string subToolName(value.name());
       size_t start_pos = subToolName.find(toolHandle.name()+".");
       if(start_pos!=std::string::npos) { subToolName.replace( start_pos, toolHandle.name().length()+1, "" ); }
       std::string typeAndName = value.type(); if(!subToolName.empty()) typeAndName += "/"+subToolName;
-      return setProperty( toolHandle, property, typeAndName );
+      return setProperty( toolHandle, property, typeAndName, override );
    }
-   template<typename T, typename W> static StatusCode setProperty(const ToolHandle<T>& toolHandle, const std::string& property, const ToolHandleArray<W>& value) {
-      return setProperty( toolHandle, property, value.typesAndNames() );
+   static StatusCode setProperty(const GaudiHandleBase& toolHandle, const std::string& property, const GaudiHandleArrayBase& value, bool override=true) {
+      return setProperty( toolHandle, property, value.typesAndNames(), override );
    }
 
    ///setProperty on any tool, even when initialized
@@ -153,11 +171,7 @@ public:
       } 
 
       //service not existing, ok so add property to catalogue
-      ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","AthAnalysisHelper");
-      if(joSvc.retrieve().isFailure()) return StatusCode::FAILURE;
-      StatusCode result = joSvc->addPropertyToCatalogue(fullName , StringProperty( thePropertyName, Gaudi::Utils::toString ( value ) ) );
-      if(joSvc.release().isFailure()) return StatusCode::FAILURE;
-      return result;
+      return addPropertyToCatalogue(fullName, thePropertyName, value);
    }
 
    ///Create a tool using the gaudi factory methods. This creates tools that wont be known to the ToolSvc
@@ -203,6 +217,11 @@ public:
       out->addRef(); //important to increment the reference count so that Gaudi Garbage collection wont delete alg ahead of time 
       return out;
    }
+   
+   
+   ///check if tool already exists. FullName = Parent.Name
+   static bool toolExists( const std::string& fullName );
+   static bool toolExists(const GaudiHandleBase& toolHandle) { return toolExists( toolHandle.parentName() + "." + toolHandle.name() ); }
 
   
   ///method that always returns as a string
@@ -310,26 +329,30 @@ public:
    ///athena -i myJobOptions.py
    ///athena> theApp.setup()
    ///athena> import ROOT
-   ///athena> ROOT.AthAnalysisHelper.dumpJobOptionProperties()
+   ///athena> ROOT.AAH.dumpJobOptionProperties()
    ///This will display all the joboption properties declared at the start of your job
    static void dumpJobOptionProperties(const std::string& client="");
+   inline static void dumpProperties(const std::string& client="") { dumpJobOptionProperties(client); } //list properties of client present in catalogue
+
+   ///Check catalogue for property of specified client
+   ///returns AAH::UNDEFINED in case of no property value available (i.e. component will take the default property value)
+   ///otherwise returns the property value in its string representation
+   static std::string getProperty(const std::string& client, const std::string& property); //get property of client present in catalogue, or return AAH::UNDEFINED
 
 
    ///Print the aux variables of an xAOD object (aux element)
    ///An alternative to this method is the 'xAOD::dump' method
    static void printAuxElement(const SG::AuxElement& ae);
+   static void dumpProperties(const SG::AuxElement& ae) { printAuxElement(ae); } //list properties of an xAOD object
 
 
    ///Dump the properties of an IProperty
    //these aren't necessarily the same as what is in the JobOptionsSvc
-  static void dumpProperties(const IProperty& component);
+  static void dumpProperties(const IProperty& component); //list properties of an existing component (may not match what is in the catalogue)
     
-  template<typename T> static void dumpProperties(const ServiceHandle<T>& handle) {
-    if(!handle.isSet()) {std::cout << "Please retrieve service before dumping properties" << std::endl; return;}
-    return dumpProperties(dynamic_cast<const IProperty&>(*handle));
-  }
-   template<typename T> static void dumpProperties(const ToolHandle<T>& handle) {
-    if(!handle.isSet()) {std::cout << "Please retrieve service before dumping properties" << std::endl; return;}
+
+   template<typename T> static void dumpProperties(const GaudiHandle<T>& handle) {
+    if(!handle.isSet()) {std::cout << "Please retrieve handle before dumping properties" << std::endl; return;}
     return dumpProperties(dynamic_cast<const IProperty&>(*handle));
   }
 

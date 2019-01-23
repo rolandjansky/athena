@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 import re
-re_Bjet = re.compile(r'^HLT_(?P<multiplicity>\d+)?j(?P<threshold>\d+)(?:_gsc(?P<gscThreshold>\d+))?(?:_b(?P<bTag>[^_]+)(?:_(?P<bConfig>split))?)?$')
+re_Bjet = re.compile(r'^HLT_(?P<multiplicity>\d+)?j(?P<threshold>\d+)(?:_gsc(?P<gscThreshold>\d+))?(?:_b(?P<bTag>[^_]+)(?:_(?P<bConfig>split))?(?:_(?P<minEta>\d+)eta(?P<maxEta>\d+))?)?(?:_L1(?P<L1>.*))?$')
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.SystemOfUnits import GeV
@@ -43,7 +43,9 @@ def TrigBjetHypoToolFromName( name, conf ):
                      'multiplicity' : '1',
                      'gscThreshold' : '0',
                      'bTag' : 'offperf',
-                     'bConfig' : 'split' }
+                     'bConfig' : 'EF',
+                     'minEta' : '0',
+                     'maxEta' : '320'}
 
     chain = conf
     match = re_Bjet.match( chain )

@@ -35,95 +35,95 @@ public:
   void setSel(int chip, int iCandidate, int selIn);
 
   int getBid() const;
-  void setBid(int bidIn){ bid=bidIn;};
+  void setBid(int bidIn){ m_bid=bidIn;};
 
   void clear();
 
-  void setOrigin(const TGCHighPtBoard* originIn) { origin = originIn;};
+  void setOrigin(const TGCHighPtBoard* originIn) { m_origin = originIn;};
   const TGCHighPtBoard* getOrigin() const;
 
 private:
-  const TGCHighPtBoard* origin;
-  int bid;
+  const TGCHighPtBoard* m_origin;
+  int m_bid;
 
-  int pt[NumberOfChip][NHitInTrackSelector]; //[chip][iCandidate]
-  int pos[NumberOfChip][NHitInTrackSelector];
-  int hitID[NumberOfChip][NHitInTrackSelector];
-  int dev[NumberOfChip][NHitInTrackSelector];
-  int select[NumberOfChip][NHitInTrackSelector];
+  int m_pt[NumberOfChip][NHitInTrackSelector]; //[chip][iCandidate]
+  int m_pos[NumberOfChip][NHitInTrackSelector];
+  int m_hitID[NumberOfChip][NHitInTrackSelector];
+  int m_dev[NumberOfChip][NHitInTrackSelector];
+  int m_select[NumberOfChip][NHitInTrackSelector];
 };
 
 inline
 void TGCHighPtChipOut::setDev(int chip, int iCandidate, int devIn)
 {
-  dev[chip][iCandidate] = devIn;
+  m_dev[chip][iCandidate] = devIn;
 }
 
 inline
 void TGCHighPtChipOut::setPos(int chip, int iCandidate, int posIn)
 {
-  pos[chip][iCandidate] = posIn;
+  m_pos[chip][iCandidate] = posIn;
 }
 
 inline
 void TGCHighPtChipOut::setHitID(int chip, int iCandidate, int hitIdIn)
 {
-  hitID[chip][iCandidate] = hitIdIn;
+  m_hitID[chip][iCandidate] = hitIdIn;
 }
 
 inline
 void TGCHighPtChipOut::setPt(int chip, int iCandidate, int ptIn)
 {
-  pt[chip][iCandidate] =ptIn;
+  m_pt[chip][iCandidate] =ptIn;
 }
 
 inline
 const TGCHighPtBoard* TGCHighPtChipOut::getOrigin() const
 {
-  return origin;
+  return m_origin;
 }
 
 inline
 int TGCHighPtChipOut::getDev(int chip, int iCandidate) const
 {
-  return dev[chip][iCandidate];
+  return m_dev[chip][iCandidate];
 }
 
 inline
 int TGCHighPtChipOut::getPos(int chip, int iCandidate) const
 {
-  return pos[chip][iCandidate];
+  return m_pos[chip][iCandidate];
 }
 
 inline
 int TGCHighPtChipOut::getHitID(int chip, int iCandidate) const
 {
-  return hitID[chip][iCandidate];
+  return m_hitID[chip][iCandidate];
 }
 
 
 inline
 int TGCHighPtChipOut::getPt(int chip, int iCandidate) const
 {
-  return pt[chip][iCandidate];
+  return m_pt[chip][iCandidate];
 }
 
 inline
 int TGCHighPtChipOut::getBid() const
 {
-  return bid;
+  return m_bid;
 }
 
 inline
 int TGCHighPtChipOut::getSel(int chip, int iCandidate) const
 {
-  return select[chip][iCandidate];
+  return m_select[chip][iCandidate];
 }
 
 inline
 void TGCHighPtChipOut::setSel(int chip, int iCandidate, int selIn)
 {
-  select[chip][iCandidate] = selIn;
+  m_select[chip][iCandidate] = selIn;
 }
 
 

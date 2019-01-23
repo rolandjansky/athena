@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // vim: ts=2 sw=2
@@ -25,26 +25,32 @@ StatusCode JetRoISelectionTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-// Accept method
-const Root::TAccept& JetRoISelectionTool::accept(const xAOD::JetRoI& l1jet) const
+const asg::AcceptInfo& JetRoISelectionTool::getAcceptInfo() const
 {
-  m_accept.clear();
-  m_accept.setCutResult("JetRoI", false);
+  return m_accept;
+}
+
+
+// Accept method
+asg::AcceptData JetRoISelectionTool::accept(const xAOD::JetRoI& l1jet) const
+{
+  asg::AcceptData acceptData (&m_accept);
+  acceptData.setCutResult("JetRoI", false);
 
   if (fabs(l1jet.eta()) > m_roi_eta) {
     MY_MSG_DEBUG("reject L1: did not pass RoI eta cut");
-    return m_accept;
+    return acceptData;
   }
 
   // if (l1jet.et8x8() <= m_roi_pt)
-  //   return m_accept;
+  //   return acceptData;
 
   if (l1jet.etLarge() <= m_roi_pt) {
     MY_MSG_DEBUG("reject L1: did not pass RoI pT cut");
-    return m_accept;
+    return acceptData;
   }
 
-  m_accept.setCutResult("JetRoI", true);
-  return m_accept;
+  acceptData.setCutResult("JetRoI", true);
+  return acceptData;
 }
 

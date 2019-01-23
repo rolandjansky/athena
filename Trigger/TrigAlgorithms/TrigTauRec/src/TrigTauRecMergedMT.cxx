@@ -44,7 +44,7 @@
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 
 #include "TrigTauRecMergedMT.h"
-#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/Monitored.h"
 
 
 using namespace std;
@@ -153,7 +153,6 @@ StatusCode TrigTauRecMergedMT::execute()
 
    auto ctx = getContext();
 
-   using namespace Monitored;
    // variables to initialize and keep values for monitoring variables
    std::vector<unsigned char> calo_errors(0);
    std::vector<unsigned char> track_errors(0);
@@ -161,50 +160,50 @@ StatusCode TrigTauRecMergedMT::execute()
    std::vector<float> deltaZ0coreTrks(0);
    std::vector<float> deltaZ0wideTrks(0);
 
-   auto nCells             = MonitoredScalar::declare<int>("nRoI_EFTauCells",    0);
-   auto nTracks            = MonitoredScalar::declare<int>("nRoI_EFTauTracks", -10);
-   auto dEta               = MonitoredScalar::declare<float>("dEtaEFTau_RoI",    -10.);
-   auto dPhi               = MonitoredScalar::declare<float>("dPhiEFTau_RoI",    -10.);
-   auto emRadius           = MonitoredScalar::declare<float>("EF_EMRadius", -0.099);
-   auto hadRadius          = MonitoredScalar::declare<float>("EF_EMRadius", -0.099);
-   auto EtFinal            = MonitoredScalar::declare<float>("EF_EtFinal", 0.);
-   auto Et                 = MonitoredScalar::declare<float>("EF_Et", 0.);
-   auto EtHad              = MonitoredScalar::declare<float>("EF_EtHad",-10.);
-   auto EtEm               = MonitoredScalar::declare<float>("EF_EtEm",-10.);
-   auto EMFrac             = MonitoredScalar::declare<float>("EF_EMFrac",-10.);
-   auto IsoFrac            = MonitoredScalar::declare<float>("EF_IsoFrac",-1.);
-   auto centFrac           = MonitoredScalar::declare<float>("EF_centFrac",-10.);
-   auto nWideTrk           = MonitoredScalar::declare<int>("EF_nWideTrk",0);
-   auto ipSigLeadTrk       = MonitoredScalar::declare<float>("EF_ipSigLeadTrk",-1000.);
-   auto trFlightPathSig    = MonitoredScalar::declare<float>("EF_trFlightPathSig",-10.);
-   auto massTrkSys         = MonitoredScalar::declare<float>("EF_massTrkSys",-10.);
-   auto dRmax              = MonitoredScalar::declare<float>("EF_dRmax",-10.);
-   auto numTrack           = MonitoredScalar::declare<int>("EF_NTrk", -10);
-   auto trkAvgDist         = MonitoredScalar::declare<float>("EF_TrkAvgDist",-1.0);
-   auto etovPtLead         = MonitoredScalar::declare<float>("EF_EtovPtLead",-10.);
-   auto PSSFraction        = MonitoredScalar::declare<float>("EF_PSSFraction",-999.9);
-   auto EMPOverTrkSysP     = MonitoredScalar::declare<float>("EF_EMPOverTrkSysP",-999.9);
-   auto ChPiEMEOverCaloEME = MonitoredScalar::declare<float>("EF_ChPiEMEOverCaloEME",-999.9);
-   auto SumPtTrkFrac       = MonitoredScalar::declare<float>("EF_SumPtTrkFrac",-999.9);
-   auto innerTrkAvgDist    = MonitoredScalar::declare<float>("EF_innerTrkAvgDist",-1.0);
-   auto Ncand              = MonitoredScalar::declare<int>("EF_nCand",0);
-   auto ActualInteractions = MonitoredScalar::declare<float>("EF_ActualInteractions",-999.9);
-   auto AvgInteractions    = MonitoredScalar::declare<float>("EF_AvgInteractions",-999.9);
-   auto beamspot_x         = MonitoredScalar::declare<float>("EF_beamspot_x",-999.9);
-   auto beamspot_y         = MonitoredScalar::declare<float>("EF_beamspot_y",-999.9);
-   auto beamspot_z         = MonitoredScalar::declare<float>("EF_beamspot_z",-999.9);
-   auto EtaL1                 = MonitoredScalar::declare<float>("EtaL1",-99.9);
-   auto PhiL1                 = MonitoredScalar::declare<float>("PhiL1",-99.9);
-   auto EtaEF                 = MonitoredScalar::declare<float>("EtaEF",-99.9);
-   auto PhiEF                 = MonitoredScalar::declare<float>("PhiEF",-99.9);
+   auto nCells             = Monitored::Scalar<int>("nRoI_EFTauCells",    0);
+   auto nTracks            = Monitored::Scalar<int>("nRoI_EFTauTracks", -10);
+   auto dEta               = Monitored::Scalar<float>("dEtaEFTau_RoI",    -10.);
+   auto dPhi               = Monitored::Scalar<float>("dPhiEFTau_RoI",    -10.);
+   auto emRadius           = Monitored::Scalar<float>("EF_EMRadius", -0.099);
+   auto hadRadius          = Monitored::Scalar<float>("EF_EMRadius", -0.099);
+   auto EtFinal            = Monitored::Scalar<float>("EF_EtFinal", 0.);
+   auto Et                 = Monitored::Scalar<float>("EF_Et", 0.);
+   auto EtHad              = Monitored::Scalar<float>("EF_EtHad",-10.);
+   auto EtEm               = Monitored::Scalar<float>("EF_EtEm",-10.);
+   auto EMFrac             = Monitored::Scalar<float>("EF_EMFrac",-10.);
+   auto IsoFrac            = Monitored::Scalar<float>("EF_IsoFrac",-1.);
+   auto centFrac           = Monitored::Scalar<float>("EF_centFrac",-10.);
+   auto nWideTrk           = Monitored::Scalar<int>("EF_nWideTrk",0);
+   auto ipSigLeadTrk       = Monitored::Scalar<float>("EF_ipSigLeadTrk",-1000.);
+   auto trFlightPathSig    = Monitored::Scalar<float>("EF_trFlightPathSig",-10.);
+   auto massTrkSys         = Monitored::Scalar<float>("EF_massTrkSys",-10.);
+   auto dRmax              = Monitored::Scalar<float>("EF_dRmax",-10.);
+   auto numTrack           = Monitored::Scalar<int>("EF_NTrk", -10);
+   auto trkAvgDist         = Monitored::Scalar<float>("EF_TrkAvgDist",-1.0);
+   auto etovPtLead         = Monitored::Scalar<float>("EF_EtovPtLead",-10.);
+   auto PSSFraction        = Monitored::Scalar<float>("EF_PSSFraction",-999.9);
+   auto EMPOverTrkSysP     = Monitored::Scalar<float>("EF_EMPOverTrkSysP",-999.9);
+   auto ChPiEMEOverCaloEME = Monitored::Scalar<float>("EF_ChPiEMEOverCaloEME",-999.9);
+   auto SumPtTrkFrac       = Monitored::Scalar<float>("EF_SumPtTrkFrac",-999.9);
+   auto innerTrkAvgDist    = Monitored::Scalar<float>("EF_innerTrkAvgDist",-1.0);
+   auto Ncand              = Monitored::Scalar<int>("EF_nCand",0);
+   auto ActualInteractions = Monitored::Scalar<float>("EF_ActualInteractions",-999.9);
+   auto AvgInteractions    = Monitored::Scalar<float>("EF_AvgInteractions",-999.9);
+   auto beamspot_x         = Monitored::Scalar<float>("EF_beamspot_x",-999.9);
+   auto beamspot_y         = Monitored::Scalar<float>("EF_beamspot_y",-999.9);
+   auto beamspot_z         = Monitored::Scalar<float>("EF_beamspot_z",-999.9);
+   auto EtaL1                 = Monitored::Scalar<float>("EtaL1",-99.9);
+   auto PhiL1                 = Monitored::Scalar<float>("PhiL1",-99.9);
+   auto EtaEF                 = Monitored::Scalar<float>("EtaEF",-99.9);
+   auto PhiEF                 = Monitored::Scalar<float>("PhiEF",-99.9);
 
-   auto EF_calo_errors        = MonitoredCollection::declare("calo_errors",calo_errors);
-   auto EF_track_errors       = MonitoredCollection::declare("track_errors",track_errors);
-   auto EF_author             = MonitoredCollection::declare("author",author);
-   auto EF_deltaZ0coreTrks    = MonitoredCollection::declare("deltaZ0coreTrks",deltaZ0coreTrks);
-   auto EF_deltaZ0wideTrks    = MonitoredCollection::declare("deltaZ0wideTrks",deltaZ0wideTrks);
+   auto EF_calo_errors        = Monitored::Collection("calo_errors",calo_errors);
+   auto EF_track_errors       = Monitored::Collection("track_errors",track_errors);
+   auto EF_author             = Monitored::Collection("author",author);
+   auto EF_deltaZ0coreTrks    = Monitored::Collection("deltaZ0coreTrks",deltaZ0coreTrks);
+   auto EF_deltaZ0wideTrks    = Monitored::Collection("deltaZ0wideTrks",deltaZ0wideTrks);
 
-   auto monitorIt = MonitoredScope::declare( m_monTool, nCells, nTracks, dEta, dPhi, emRadius, hadRadius,
+   auto monitorIt = Monitored::Group( m_monTool, nCells, nTracks, dEta, dPhi, emRadius, hadRadius,
    EtFinal, Et, EtHad, EtEm, EMFrac, IsoFrac, centFrac, nWideTrk, ipSigLeadTrk, trFlightPathSig, massTrkSys,
    dRmax, numTrack, trkAvgDist, etovPtLead, PSSFraction, EMPOverTrkSysP, ChPiEMEOverCaloEME, SumPtTrkFrac,
    innerTrkAvgDist, Ncand, ActualInteractions, AvgInteractions, beamspot_x, beamspot_y, beamspot_z, EtaL1,

@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOTOOL_h
@@ -28,6 +28,8 @@
 // Tracking includes
 #include "TrkExInterfaces/ITimedExtrapolator.h"
 #include "TrkEventPrimitives/PdgToParticleHypothesis.h"
+
+#include "TRandom3.h"
 
 // forward declarations
 class ITrackingGeometrySvc;
@@ -105,6 +107,7 @@ private:
 
   SG::WriteHandleKey< CaloCellContainer > m_caloCellKey{ this, "CaloCells", "DefaultCaloCellContainer", "The name of the output CaloCellContainer" };
 
+  TRandom3 m_rndm;
 };
 
 }

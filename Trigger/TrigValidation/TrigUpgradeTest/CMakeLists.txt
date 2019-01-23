@@ -102,6 +102,15 @@ atlas_add_test( muMenu
    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_muMenu
    )
 
+
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_tauMenu )
+atlas_add_test( tauMenu
+   SCRIPT test/test_tau_menu.sh
+   EXTRA_PATTERNS "-s TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"
+   PROPERTIES TIMEOUT 1000
+   PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_tauMenu
+   )
+
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_jet )
 atlas_add_test( jetRunData
    SCRIPT test/test_jet.sh
@@ -185,12 +194,21 @@ atlas_add_test( bJetMenuALLTE
    )
 
 
-file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met )
-atlas_add_test( met
-                SCRIPT test/test_met.sh
-                PROPERTIES TIMEOUT 500
-                PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met)
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met_standalone )
+atlas_add_test( met_standalone
+    SCRIPT test/test_met_standalone.sh
+    PROPERTIES TIMEOUT 1000
+   	EXTRA_PATTERNS "-s METHypoAlg.*MET.*value" 	   
+    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met_standalone
+    )
 
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met_menu )
+atlas_add_test( met_menu
+    SCRIPT test/test_met_menu.sh
+    PROPERTIES TIMEOUT 1000
+   	EXTRA_PATTERNS "-s TrigSignatureMoniMT.*HLT_.*" 	   
+    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met_menu 
+    )
 atlas_install_joboptions( share/*.py )
 atlas_install_data( share/*.ref )
 atlas_install_python_modules( python/*.py )

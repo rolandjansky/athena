@@ -76,7 +76,7 @@ void test1(std::vector<HepMC::GenParticle*> genPartVector)
   std::cout << "test1\n";
   const HepMC::GenParticle *particle = genPartVector.at(0);
   // Create HepMcParticleLink outside of leak check.
-  HepMcParticleLink dummyHMPL(particle->barcode(),0);
+  HepMcParticleLink dummyHMPL(particle->barcode(),particle->parent_event()->event_number());
   assert(dummyHMPL.cptr()==particle);
   // Create DVL info outside of leak check.
   TGCSimHitCollection dum ("coll");
@@ -85,10 +85,11 @@ void test1(std::vector<HepMC::GenParticle*> genPartVector)
   TGCSimHitCollection trans1 ("coll");
   for (int i=0; i < 10; i++) {
     const HepMC::GenParticle* pGenParticle = genPartVector.at(i);
+    HepMcParticleLink trkLink(pGenParticle->barcode(),pGenParticle->parent_event()->event_number());
     trans1.Emplace (123, 10.5,
                     Amg::Vector3D (12.5, 13.5, 14.5),
                     Amg::Vector3D (16.5, 17.5, 18.5),
-                    pGenParticle->barcode(), 20.5, 21.5, pGenParticle->pdg_id(), 23.5);
+                    trkLink, 20.5, 21.5, pGenParticle->pdg_id(), 23.5);
   }
 
   testit (trans1);

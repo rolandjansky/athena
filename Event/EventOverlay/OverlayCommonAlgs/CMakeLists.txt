@@ -9,6 +9,7 @@ atlas_subdir( OverlayCommonAlgs )
 atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
+                          Calorimeter/CaloSimEvent
                           Control/AthenaBaseComps
                           Control/StoreGate
                           Event/ByteStreamCnvSvc
@@ -17,6 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODJet
                           Generators/GeneratorObjects
                           Reconstruction/RecEvent
+                          Simulation/G4Sim/TrackRecord
                           Trigger/TrigConfiguration/TrigConfInterfaces
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigT1/TrigT1Result )
@@ -25,7 +27,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( OverlayCommonAlgs
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel AthenaBaseComps ByteStreamCnvSvcLib StoreGateLib OverlayAlgBase EventInfo GeneratorObjects RecEvent xAODJet
+                     LINK_LIBRARIES GaudiKernel AthenaBaseComps ByteStreamCnvSvcLib StoreGateLib OverlayAlgBase CaloSimEvent EventInfo GeneratorObjects RecEvent xAODJet
                      TrigSteeringEvent TrigT1Result )
 
 # Install files from the package:

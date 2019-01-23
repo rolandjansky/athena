@@ -87,9 +87,8 @@ namespace TrigCostRootAnalysis {
     Double_t m_PSWeight; //!< The equivalent PS weight, = 1/PS
     Double_t m_PSReduced; //!< prescaled with any coherent part factored out
     Double_t m_PSReducedWeight; //!< = 1/PSReduced
-    Double_t m_PSExpress; //!< Express stream prescale
-    Double_t m_PSExpressWeight; //!< 1/Express stream presca;e
-    Double_t m_extraEfficiency; //<! Extra factor which can be supplied to scale the rate of this triggeer
+    Double_t m_PSExpressWeight; //!< 1/Express stream prescale
+    Double_t m_extraEfficiency; //<! Extra factor which can be supplied to scale the rate of this trigger
     TRandom3 m_R; //!< Random number generator for when applying the PS directly.
     UInt_t m_ID; //!< ID number, sequential, used for random seed
     static UInt_t s_chainCount; //!< Static counter of how many RatesChainItems have been made, used as random seed.

@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BeamPipeDetectorFactory.h"
-
 
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelKernel/GeoMaterial.h"  
@@ -16,10 +15,8 @@
 #include "GeoModelKernel/GeoFullPhysVol.h"  
 #include "GeoModelKernel/GeoTransform.h"  
 #include "GeoModelKernel/GeoDefinitions.h"  
-#include "GeoModelKernel/Units.h"  
 
 #include "StoreGate/StoreGateSvc.h"
-
 
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 
@@ -29,6 +26,7 @@
 
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <iomanip>
 #include <vector>
@@ -40,7 +38,7 @@ BeamPipeDetectorFactory::BeamPipeDetectorFactory(StoreGateSvc *detStore,
    m_materialManager(0),
    m_detectorStore(detStore),
    m_access(pAccess),
-   m_centralRegionZMax(1500*GeoModelKernelUnits::mm)
+   m_centralRegionZMax(1500*Gaudi::Units::mm)
 {}
 
 BeamPipeDetectorFactory::~BeamPipeDetectorFactory()
@@ -69,8 +67,8 @@ void BeamPipeDetectorFactory::create(GeoPhysVol *world)
   // It is split into 3 sections. 
   // left, right and central. This is to allow different truth scoring in the different regions.
   
-  m_centralRegionZMax = 1500 * GeoModelKernelUnits::mm; // For backward compatibility in DB.
-  if (bpipeGeneral->size() != 0) m_centralRegionZMax = (*bpipeGeneral)[0]->getDouble("CENTRALZMAX") * GeoModelKernelUnits::mm;
+  m_centralRegionZMax = 1500 * Gaudi::Units::mm; // For backward compatibility in DB.
+  if (bpipeGeneral->size() != 0) m_centralRegionZMax = (*bpipeGeneral)[0]->getDouble("CENTRALZMAX") * Gaudi::Units::mm;
 
   EnvelopeShapes envelopes;
 
@@ -104,9 +102,9 @@ void BeamPipeDetectorFactory::create(GeoPhysVol *world)
   double beamy = 0.0;
   double beamz = 0.0;
   if (bpipePosition->size() != 0) {
-    beamx = (*bpipePosition)[0]->getDouble("POSX") * GeoModelKernelUnits::mm;
-    beamy = (*bpipePosition)[0]->getDouble("POSY") * GeoModelKernelUnits::mm;
-    beamz = (*bpipePosition)[0]->getDouble("POSZ") * GeoModelKernelUnits::mm;
+    beamx = (*bpipePosition)[0]->getDouble("POSX") * Gaudi::Units::mm;
+    beamy = (*bpipePosition)[0]->getDouble("POSY") * Gaudi::Units::mm;
+    beamz = (*bpipePosition)[0]->getDouble("POSZ") * Gaudi::Units::mm;
   }
 
   // Only shift the central section
@@ -124,7 +122,7 @@ void BeamPipeDetectorFactory::create(GeoPhysVol *world)
 
   // FwdMinus
   world->add(tag);
-  world->add(new GeoTransform(GeoTrf::RotateY3D(180*GeoModelKernelUnits::degree)));
+  world->add(new GeoTransform(GeoTrf::RotateY3D(180*Gaudi::Units::degree)));
   world->add(pvMotherFwdMinus);
   m_detectorManager->addTreeTop(pvMotherFwdMinus);
 
@@ -150,12 +148,12 @@ void BeamPipeDetectorFactory::addSections(GeoPhysVol* parent, int region)
   for (unsigned int itemp=0; itemp<bpipeSections->size(); itemp++)
   {
     std::string material = (*bpipeSections)[itemp]->getString("MATERIAL");
-    double rMin1 = (*bpipeSections)[itemp]->getDouble("RMIN1") * GeoModelKernelUnits::mm;
-    double rMax1 = (*bpipeSections)[itemp]->getDouble("RMAX1") * GeoModelKernelUnits::mm;
-    double rMin2 = (*bpipeSections)[itemp]->getDouble("RMIN2") * GeoModelKernelUnits::mm;
-    double rMax2 = (*bpipeSections)[itemp]->getDouble("RMAX2") * GeoModelKernelUnits::mm;
-    double z = (*bpipeSections)[itemp]->getDouble("Z") * GeoModelKernelUnits::mm;
-    double dZ = (*bpipeSections)[itemp]->getDouble("DZ") * GeoModelKernelUnits::mm;
+    double rMin1 = (*bpipeSections)[itemp]->getDouble("RMIN1") * Gaudi::Units::mm;
+    double rMax1 = (*bpipeSections)[itemp]->getDouble("RMAX1") * Gaudi::Units::mm;
+    double rMin2 = (*bpipeSections)[itemp]->getDouble("RMIN2") * Gaudi::Units::mm;
+    double rMax2 = (*bpipeSections)[itemp]->getDouble("RMAX2") * Gaudi::Units::mm;
+    double z = (*bpipeSections)[itemp]->getDouble("Z") * Gaudi::Units::mm;
+    double dZ = (*bpipeSections)[itemp]->getDouble("DZ") * Gaudi::Units::mm;
     int secNum = (*bpipeSections)[itemp]->getInt("SECNUM");
       
     double zmin = z - dZ;
@@ -206,7 +204,7 @@ void BeamPipeDetectorFactory::addSections(GeoPhysVol* parent, int region)
       shape = new GeoCons(rMin1,rMin2,
 			  rMax1,rMax2,
 			  dZnew,
-			  0*GeoModelKernelUnits::deg,360*GeoModelKernelUnits::deg);
+			  0*Gaudi::Units::deg,360*Gaudi::Units::deg);
       isTube = false;
     }
 
@@ -223,7 +221,7 @@ void BeamPipeDetectorFactory::addSections(GeoPhysVol* parent, int region)
     pvSection->ref();
     
     // Determine if this is a geometry where the first section can act as the mother of the following
-    // sections. The following sections are only added to this if their ave GeoModelKernelUnits::radius is within the GeoModelKernelUnits::radial
+    // sections. The following sections are only added to this if their ave radius is within the radial
     // extent and their ave z is within the z extent. 
     // As soon as one section fails to meet this the latter sections are not considered.
     if(secNum==1) {
@@ -272,7 +270,7 @@ void BeamPipeDetectorFactory::addSections(GeoPhysVol* parent, int region)
 	tfSectionRot = new GeoTransform(GeoTrf::TranslateZ3D(-znew));
       } else {
 	// For cone we need to rotate around Y axis.
-	tfSectionRot = new GeoTransform(GeoTrf::TranslateZ3D(-znew)*GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg));
+	tfSectionRot = new GeoTransform(GeoTrf::TranslateZ3D(-znew)*GeoTrf::RotateY3D(180*Gaudi::Units::deg));
       }
       parent->add(ntSection);
       parent->add(tfSectionRot);
@@ -305,8 +303,8 @@ BeamPipeDetectorFactory::makeEnvelope(IRDBRecordset_ptr bpipeEnvelope)
   std::vector<EnvelopeEntry> fwdEntry;
 
   for (unsigned int i=0; i<bpipeEnvelope->size(); i++) {
-    double z = (*bpipeEnvelope)[i]->getDouble("Z") * GeoModelKernelUnits::mm;
-    double r = (*bpipeEnvelope)[i]->getDouble("R") * GeoModelKernelUnits::mm;
+    double z = (*bpipeEnvelope)[i]->getDouble("Z") * Gaudi::Units::mm;
+    double r = (*bpipeEnvelope)[i]->getDouble("R") * Gaudi::Units::mm;
     EnvelopeEntry entry(z,r);
     if (z < m_centralRegionZMax) {
       centralEntry.push_back(entry);
@@ -329,7 +327,7 @@ BeamPipeDetectorFactory::makeEnvelope(IRDBRecordset_ptr bpipeEnvelope)
     envelopes.centralShape  = new GeoTube(0, rFwd, m_centralRegionZMax);
   } else {
     // This case probably will never get used and is untested.
-    GeoPcon* pcone = new GeoPcon(0, 360*GeoModelKernelUnits::deg);
+    GeoPcon* pcone = new GeoPcon(0, 360*Gaudi::Units::deg);
 
     pcone->addPlane(-m_centralRegionZMax,0,rFwd);
     for (int i=centralEntry.size()-1; i>=0; i--) {  
@@ -349,12 +347,12 @@ BeamPipeDetectorFactory::makeEnvelope(IRDBRecordset_ptr bpipeEnvelope)
   
   // forward
   {
-    GeoPcon* pcone = new GeoPcon(0, 360*GeoModelKernelUnits::deg);
+    GeoPcon* pcone = new GeoPcon(0, 360*Gaudi::Units::deg);
     pcone->addPlane(m_centralRegionZMax,0,rFwd);
     if (fwdEntry.size() == 0) { 
       // Unlikely case but for completeness
       // we make small fwd region if everything is in central region.
-      pcone->addPlane(m_centralRegionZMax+0.1*GeoModelKernelUnits::mm,0,rFwd);
+      pcone->addPlane(m_centralRegionZMax+0.1*Gaudi::Units::mm,0,rFwd);
     }
     for (unsigned int i=0; i<fwdEntry.size(); i++) {  
       double z = fwdEntry[i].z();
@@ -373,12 +371,12 @@ BeamPipeDetectorFactory::EnvelopeShapes
 BeamPipeDetectorFactory::makeEnvelopeOld(IRDBRecordset_ptr atlasMother)
 {
 
-  double iir = (*atlasMother)[0]->getDouble("IDETIR")*GeoModelKernelUnits::cm;
-  double cir = (*atlasMother)[0]->getDouble("CALOIR")*GeoModelKernelUnits::cm;
-  double mir = (*atlasMother)[0]->getDouble("MUONIR")*GeoModelKernelUnits::cm;
-  double totlen = (*atlasMother)[0]->getDouble("ZMAX")*GeoModelKernelUnits::cm;
-  double ilen = (*atlasMother)[0]->getDouble("IDETZMX")*GeoModelKernelUnits::cm;
-  double clen = (*atlasMother)[0]->getDouble("CALOZMX")*GeoModelKernelUnits::cm;
+  double iir = (*atlasMother)[0]->getDouble("IDETIR")*Gaudi::Units::cm;
+  double cir = (*atlasMother)[0]->getDouble("CALOIR")*Gaudi::Units::cm;
+  double mir = (*atlasMother)[0]->getDouble("MUONIR")*Gaudi::Units::cm;
+  double totlen = (*atlasMother)[0]->getDouble("ZMAX")*Gaudi::Units::cm;
+  double ilen = (*atlasMother)[0]->getDouble("IDETZMX")*Gaudi::Units::cm;
+  double clen = (*atlasMother)[0]->getDouble("CALOZMX")*Gaudi::Units::cm;
 
   // Central Section.
   GeoTube * bpipeCentralShape = new GeoTube(0, iir, m_centralRegionZMax);
@@ -388,7 +386,7 @@ BeamPipeDetectorFactory::makeEnvelopeOld(IRDBRecordset_ptr atlasMother)
 
   // Right section (+ve z)
 
-  GeoPcon* bpipeEnvPcone = new GeoPcon(0, 360*GeoModelKernelUnits::deg);
+  GeoPcon* bpipeEnvPcone = new GeoPcon(0, 360*Gaudi::Units::deg);
   bpipeEnvPcone->addPlane(m_centralRegionZMax,0,iir);
   bpipeEnvPcone->addPlane(ilen,0,iir);
   bpipeEnvPcone->addPlane(ilen,0,cir); 

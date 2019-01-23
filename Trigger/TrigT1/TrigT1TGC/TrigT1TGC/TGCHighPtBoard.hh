@@ -41,14 +41,14 @@ public:
   int getId() const;
   void setId(int idIn);
   int getType() const;
-  void setType(int typeIn){ type=typeIn;};
-  int getRegion() const { return region;};
-  void setRegion(int regionIn){ region=regionIn;};
+  void setType(int typeIn){ m_type=typeIn;};
+  int getRegion() const { return m_region;};
+  void setRegion(int regionIn){ m_region=regionIn;};
 
   void setDSB(int connector, TGCSlaveBoard* SBIn);
   void setTSB(int connector, TGCSlaveBoard* SBIn);
   TGCSlaveBoardOut* getTSBOut(int chip, int port);
-  void setAdjacentHPB(int side, TGCHighPtBoard* hpt){ adjacentHPB[side]=hpt;};
+  void setAdjacentHPB(int side, TGCHighPtBoard* hpt){ m_adjacentHPB[side]=hpt;};
 
   void showResult() const;
 
@@ -83,52 +83,52 @@ protected:
   virtual void setDecoderIn()=0;
   virtual void clearDecoderIn()=0;
 
-  TGCHighPtChipOut* highPtChipOut;
+  TGCHighPtChipOut* m_highPtChipOut;
 
-  TGCHighPtBoardOut* highPtBoardOut;
-  TGCHighPtBoardOut* lowPtBoardOut;	//Low-pT Outputs from SLB ASICs.
+  TGCHighPtBoardOut* m_highPtBoardOut;
+  TGCHighPtBoardOut* m_lowPtBoardOut;	//Low-pT Outputs from SLB ASICs.
 
-  TGCSlaveBoard* DSB[NumberOfChip][NumberOfDSBOut];
-  TGCSlaveBoard* TSB[NumberOfChip][NumberOfTSBOut];
-  TGCSlaveBoardOut* DSBOut[NumberOfChip][NumberOfDSBOut];
-  TGCSlaveBoardOut* TSBOut[NumberOfChip][NumberOfTSBOut];
-  TGCHighPtBoard* adjacentHPB[NumberOfAdjacentHPB];
-  TGCSlaveBoardOut* decoderInTSB[NumberOfChip][NDecoderInTSB];
-  TGCSlaveBoardOut* decoderInDSB[NumberOfChip][NDecoderInDSB];
+  TGCSlaveBoard* m_DSB[NumberOfChip][NumberOfDSBOut];
+  TGCSlaveBoard* m_TSB[NumberOfChip][NumberOfTSBOut];
+  TGCSlaveBoardOut* m_DSBOut[NumberOfChip][NumberOfDSBOut];
+  TGCSlaveBoardOut* m_TSBOut[NumberOfChip][NumberOfTSBOut];
+  TGCHighPtBoard* m_adjacentHPB[NumberOfAdjacentHPB];
+  TGCSlaveBoardOut* m_decoderInTSB[NumberOfChip][NDecoderInTSB];
+  TGCSlaveBoardOut* m_decoderInDSB[NumberOfChip][NDecoderInDSB];
 
-  int id;
-  int bid;
-  int idSectorLogic;
-  int type;
-  int region;
+  int m_id;
+  int m_bid;
+  int m_idSectorLogic;
+  int m_type;
+  int m_region;
 
-  int priorSign;
-  int maxNumberOfHPBData;
-  int maxDev;
-  int maxDevOred;
-  int nChOfTSBOut;
-  int nChOfDSBOut;
-  int nChOfDSBHit;
-  int nChOfTSBHit;
-  int nChInTSBRegion;
+  int m_priorSign;
+  int m_maxNumberOfHPBData;
+  int m_maxDev;
+  int m_maxDevOred;
+  int m_nChOfTSBOut;
+  int m_nChOfDSBOut;
+  int m_nChOfDSBHit;
+  int m_nChOfTSBHit;
+  int m_nChInTSBRegion;
 };
 
 inline
 void TGCHighPtBoard::setId(int idIn)
 {
-  id = idIn;
+  m_id = idIn;
 }
 
 inline
 int TGCHighPtBoard::getId() const
 {
-  return id;
+  return m_id;
 }
 
 inline
 int TGCHighPtBoard::getType() const
 {
-  return type;
+  return m_type;
 }
 
 inline
@@ -136,7 +136,7 @@ void TGCHighPtBoard::setDSB(int connector, TGCSlaveBoard* SBIn)
 {
   int port = connector%NumberOfDSBOut;
   int chip = connector/NumberOfDSBOut;
-  DSB[chip][port] = SBIn;
+  m_DSB[chip][port] = SBIn;
 }
 
 inline
@@ -144,7 +144,7 @@ void TGCHighPtBoard::setTSB(int connector, TGCSlaveBoard* SBIn)
 {
   int port = connector%NumberOfTSBOut;
   int chip = connector/NumberOfTSBOut;
-  TSB[chip][port] = SBIn;
+  m_TSB[chip][port] = SBIn;
 }
 
 

@@ -41,7 +41,7 @@ class PixelRDORawData;
 class PixelID;
 
 namespace InDetDD{
-  class SiDetectorManager;
+  class PixelDetectorManager;
 }
 namespace InDet {
   class PixelGangedAmbiguitiesFinder;
@@ -58,7 +58,6 @@ namespace InDet {
 class PixelClusterization : public AthAlgorithm {
 public:
   typedef InDetRawDataCollection<PixelRDORawData> COLLECTION;
-  typedef InDetDD::SiDetectorManager SiDetectorManager;
 
   /// Constructor with parameters:
   PixelClusterization(const std::string &name,ISvcLocator *pSvcLocator);
@@ -90,7 +89,7 @@ private:
   SG::WriteHandleKey<SiClusterContainer> m_clusterContainerLinkKey;
   SG::WriteHandleKey<PixelGangedClusterAmbiguities> m_ambiguitiesMapKey;
   SG::UpdateHandleKey<InDet::PixelClusterContainerCache> m_clusterContainercacheKey;
-  const SiDetectorManager* m_manager;
+  const InDetDD::PixelDetectorManager* m_manager;
 };
 
 }//end of ns

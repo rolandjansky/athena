@@ -37,7 +37,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODEventInfo
                           Event/NavFourMom
                           LArCalorimeter/LArElecCalib
-                          LArCalorimeter/LArCondUtils
                           LArCalorimeter/LArRecEvent
                           LArCalorimeter/LArGeoModel/LArHV
                           LArCalorimeter/LArGeoModel/LArReadoutGeometry

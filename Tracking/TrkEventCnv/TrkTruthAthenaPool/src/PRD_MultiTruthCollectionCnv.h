@@ -12,9 +12,9 @@
 #include "TrkTruthTPCnv/PRD_MultiTruthCollectionCnv_p3.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 
-namespace Trk { class PRD_MultiTruthCollection_p2; }
+namespace Trk { class PRD_MultiTruthCollection_p3; }
 
-typedef Trk::PRD_MultiTruthCollection_p2 PRD_MultiTruthCollectionPERS;
+typedef Trk::PRD_MultiTruthCollection_p3 PRD_MultiTruthCollectionPERS;
 
 
 typedef T_AthenaPoolCustomCnv<PRD_MultiTruthCollection,PRD_MultiTruthCollectionPERS> PRD_MultiTruthCollectionCnvBase;

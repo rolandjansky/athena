@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file SCT_ConditionsParameterTestAlg.h  Header file for TestConditionsParameter class.
@@ -11,7 +11,7 @@
 #define SCT_ConditionsParameterTestAlg_H
 
 // Include Athena stuff
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "SCT_ConditionsTools/ISCT_ConditionsParameterTool.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
@@ -21,7 +21,7 @@
 
 /** This class acts as a test/sample client the ConditionsParameter class.
  */
-class SCT_ConditionsParameterTestAlg : public AthAlgorithm {
+class SCT_ConditionsParameterTestAlg : public AthReentrantAlgorithm {
  public:
   // Structors
   SCT_ConditionsParameterTestAlg(const std::string& name, ISvcLocator* pSvcLocator);
@@ -29,7 +29,7 @@ class SCT_ConditionsParameterTestAlg : public AthAlgorithm {
     
   // Standard Gaudi functions
   StatusCode initialize() override; //!< Gaudi initialiser
-  StatusCode execute() override;    //!< Gaudi executer
+  StatusCode execute(const EventContext& ctx) const override;    //!< Gaudi executer
   StatusCode finalize() override;   //!< Gaudi finaliser
     
  private:

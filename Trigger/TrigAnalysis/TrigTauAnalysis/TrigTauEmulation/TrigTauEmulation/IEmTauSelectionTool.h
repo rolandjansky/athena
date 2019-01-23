@@ -1,12 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IEMTAUSELECTIONTOOL_EMTAUSELECTIONTOOL_H
 #define IEMTAUSELECTIONTOOL_EMTAUSELECTIONTOOL_H
 
 #include "AsgTools/IAsgTool.h"
-#include "PATCore/TAccept.h"
+#include "PATCore/AcceptInfo.h"
+#include "PATCore/AcceptData.h"
 #include "TrigTauEmulation/ILevel1SelectionTool.h"
 
 //EDM include
@@ -18,7 +19,8 @@ class IEmTauSelectionTool : public virtual ILevel1SelectionTool
     
  public:
 
-  virtual const Root::TAccept& accept(const xAOD::EmTauRoI& l1tau) const = 0;
+  virtual const asg::AcceptInfo& getAcceptInfo() const = 0;
+  virtual asg::AcceptData accept(const xAOD::EmTauRoI& l1tau) const = 0;
   virtual ~IEmTauSelectionTool() {};
 
 };

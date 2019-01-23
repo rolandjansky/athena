@@ -34,8 +34,6 @@ def EnergyDepositionTool(name="EnergyDepositionTool", **kwargs):
     kwargs.setdefault("DeltaRayCut", 117.)
     kwargs.setdefault("nCols", 5)
     kwargs.setdefault("LoopLimit", 100000)
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
-    kwargs.setdefault("RndmEngine", "PixelDigitization")
     kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
     kwargs.setdefault("doBichselBetaGammaCut", 0.7)   # dEdx not quite consistent below this
     kwargs.setdefault("doDeltaRay", False)            # needs validation
@@ -53,8 +51,6 @@ def SensorSimPlanarTool(name="SensorSimPlanarTool", **kwargs):
         pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
     kwargs.setdefault("SiPropertiesTool", ToolSvc.PixelSiPropertiesTool)
     kwargs.setdefault("LorentzAngleTool", ToolSvc.PixelLorentzAngleTool)
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
-    kwargs.setdefault("RndmEngine", "PixelDigitization")
     return CfgMgr.SensorSimPlanarTool(name, **kwargs)
 
 def SensorSim3DTool(name="SensorSim3DTool", **kwargs):
@@ -67,19 +63,13 @@ def SensorSim3DTool(name="SensorSim3DTool", **kwargs):
         from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
         pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
     kwargs.setdefault("SiPropertiesTool", ToolSvc.PixelSiPropertiesTool)
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
-    kwargs.setdefault("RndmEngine", "PixelDigitization")
     return CfgMgr.SensorSim3DTool(name, **kwargs)
 
 def SensorSimTool(name="SensorSimTool", **kwargs):
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
-    kwargs.setdefault("RndmEngine", "PixelDigitization")
     return CfgMgr.SensorSimTool(name, **kwargs)
 
 def FrontEndSimTool(name="FrontEndSimTool", **kwargs):
     from AthenaCommon.AppMgr import ToolSvc
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
-    kwargs.setdefault("RndmEngine", "PixelDigitization")
     kwargs.setdefault("PixelConditionsSummaryTool", ToolSvc.PixelConditionsSummaryTool)
     from AthenaCommon.BeamFlags import jobproperties
     if jobproperties.Beam.beamType == "cosmics" :
@@ -95,8 +85,6 @@ def FrontEndSimTool(name="FrontEndSimTool", **kwargs):
 
 def BarrelRD53SimTool(name="BarrelRD53SimTool", **kwargs):
     kwargs.setdefault("BarrelEC", 0)
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
-    kwargs.setdefault("RndmEngine", "PixelDigitization")
     kwargs.setdefault("Analogthreshold", [-1, -1, -1, -1, -1])
     kwargs.setdefault("ToTthreshold", [-1, -1, -1, -1, -1])
     kwargs.setdefault("ThermalNoise", [160.0,160.0,160.0,160.0,160.0])
@@ -107,8 +95,6 @@ def BarrelRD53SimTool(name="BarrelRD53SimTool", **kwargs):
 
 def EndcapRD53SimTool(name="EndcapRD53SimTool", **kwargs):
     kwargs.setdefault("BarrelEC", 2)
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
-    kwargs.setdefault("RndmEngine", "PixelDigitization")
     kwargs.setdefault("Analogthreshold", [-1, -1, -1, -1, -1])
     kwargs.setdefault("ToTthreshold", [-1, -1, -1, -1, -1])
     kwargs.setdefault("ThermalNoise", [160.0,160.0,160.0,160.0,160.0])
@@ -119,8 +105,6 @@ def EndcapRD53SimTool(name="EndcapRD53SimTool", **kwargs):
 
 def BarrelFEI4SimTool(name="BarrelFEI4SimTool", **kwargs):
     kwargs.setdefault("BarrelEC", 0)
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
-    kwargs.setdefault("RndmEngine", "PixelDigitization")
 
     from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
     PixelConfigCondAlg.BarrelAnalogThreshold=[-1]
@@ -136,8 +120,6 @@ def BarrelFEI4SimTool(name="BarrelFEI4SimTool", **kwargs):
 
 def DBMFEI4SimTool(name="DBMFEI4SimTool", **kwargs):
     kwargs.setdefault("BarrelEC", 4)
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
-    kwargs.setdefault("RndmEngine", "PixelDigitization")
 
     from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
     PixelConfigCondAlg.DBMAnalogThreshold=[-1,-1,-1]
@@ -153,8 +135,6 @@ def DBMFEI4SimTool(name="DBMFEI4SimTool", **kwargs):
 
 def BarrelFEI3SimTool(name="BarrelFEI3SimTool", **kwargs):
     kwargs.setdefault("BarrelEC", 0)
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
-    kwargs.setdefault("RndmEngine", "PixelDigitization")
 
     from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
     PixelConfigCondAlg.BarrelAnalogThreshold=[-1,-1,-1,-1]
@@ -173,8 +153,6 @@ def BarrelFEI3SimTool(name="BarrelFEI3SimTool", **kwargs):
 
 def EndcapFEI3SimTool(name="EndcapFEI3SimTool", **kwargs):
     kwargs.setdefault("BarrelEC", 2)
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
-    kwargs.setdefault("RndmEngine", "PixelDigitization")
 
     from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
     PixelConfigCondAlg.EndcapAnalogThreshold=[-1,-1,-1,]
@@ -193,10 +171,6 @@ def EndcapFEI3SimTool(name="EndcapFEI3SimTool", **kwargs):
 
 def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     from AthenaCommon import CfgGetter
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
-    streamName = kwargs.setdefault("RndmEngine", "PixelDigitization")
-    if not digitizationFlags.rndmSeedList.checkForExistingSeed(streamName):
-        digitizationFlags.rndmSeedList.addSeed(streamName, 10513239, 492615104 )
     from AthenaCommon.Resilience import protectedInclude
     from AthenaCommon.Include import include
     from AthenaCommon.AppMgr import ServiceMgr

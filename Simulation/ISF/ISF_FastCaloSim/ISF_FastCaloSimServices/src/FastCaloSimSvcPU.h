@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMSVCPU_H
@@ -25,6 +25,8 @@
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "CaloIdentifier/LArEM_ID.h"
+
+#include "TRandom3.h"
 
 // forward declarations
 class ITrackingGeometrySvc;
@@ -126,6 +128,7 @@ namespace ISF
       std::vector<float> m_puEnergyWeights_tile;
       	      //<-
 
+      TRandom3 m_rndm;
   }; 
   
 }

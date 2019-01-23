@@ -80,13 +80,13 @@ namespace TrigCostRootAnalysis {
     } else {
       const std::string rangeError = "Unable to find/use range : " + m_range;
       const std::string infoString = "Exam " + m_exam_name + " will run over zero counters!";
-      Error("AutoMonExam::retrieveCounterCollection", rangeError.c_str());
-      Info("AutoMonExam::retrieveCounterCollection", infoString.c_str());
+      Error("AutoMonExam::retrieveCounterCollection", "%s", rangeError.c_str());
+      Info("AutoMonExam::retrieveCounterCollection", "%s", infoString.c_str());
     }
 
     for (auto iter = m_all_counters_in_monitor->begin(); iter != m_all_counters_in_monitor->end(); ++iter) {
       const std::string counterString = "Counter in monitor : " + (iter->second)->getName();
-      Info("AutoMonExam::retrieveCounterCollection", counterString.c_str());
+      Info("AutoMonExam::retrieveCounterCollection", "%s", counterString.c_str());
     }
     printTests();
   } // end retrieveCounterCollection
@@ -115,10 +115,10 @@ namespace TrigCostRootAnalysis {
   void AutoMonExam::printTests() {
     const std::string header = "Printing tests found in exam : " + m_exam_name + '\n';
 
-    Info("AutoMonExam::printTests", header.c_str());
+    Info("AutoMonExam::printTests", "%s", header.c_str());
     for (auto test_iter = m_test_list.begin(); test_iter != m_test_list.end(); ++test_iter) {
       const std::string testString = "Test : " + (*test_iter)->getTestName() + '\n';
-      Info("AutoMonExam::printTests", testString.c_str());
+      Info("AutoMonExam::printTests", "%s", testString.c_str());
       (*test_iter)->printThresholds(std::cout);
     }//end for loop over test list
   } //end printTests
@@ -156,7 +156,7 @@ namespace TrigCostRootAnalysis {
         } else {
           std::string errorMSG = "AutoMonExam >> Counter with name: " + (*iter) +
                                  " specified but not found in Counter Map";
-          Error("AutoMonExam::setupSpecify", errorMSG.c_str());
+          Error("AutoMonExam::setupSpecify", "%s", errorMSG.c_str());
         }
       }//end forloop over m_specify_list
     } //end if no counters specified
@@ -175,7 +175,7 @@ namespace TrigCostRootAnalysis {
       } else {
         const std::string errorMSG = "AutoMonExam >> Counter with name " + (*iter) +
                                      "requested to be excluded - not found in Counter Map";
-        Error("AutoMonExam::setupExclude", errorMSG.c_str());
+        Error("AutoMonExam::setupExclude", "%s", errorMSG.c_str());
       }
     } //end forloop over m_exclude_list
   }//end setupExclude()
@@ -202,16 +202,16 @@ namespace TrigCostRootAnalysis {
   void AutoMonExam::printCountersToExam() const {
     const std::string header = "Counters to Examine are :";
 
-    Info("AutoMonExam::printCountersToExam", header.c_str());
+    Info("AutoMonExam::printCountersToExam", "%s", header.c_str());
     int i = 1;
     for (auto counter_iter = m_counters_to_exam.begin(); counter_iter != m_counters_to_exam.end(); ++counter_iter) {
       const std::string counterInfo = "Counter " + std::to_string(i) + " to examine: " +
                                       (counter_iter->second)->getName();
-      Info("AutoMonExam::printCountersToExam", counterInfo.c_str());
+      Info("AutoMonExam::printCountersToExam", "%s", counterInfo.c_str());
       ++i;
     }
     const std::string footer = "---------------Finished List ";
-    Info("AutoMonExam::printCountersToExam", footer.c_str());
+    Info("AutoMonExam::printCountersToExam", "%s", footer.c_str());
   } //end printCountersToExam
 
   /**
@@ -221,11 +221,11 @@ namespace TrigCostRootAnalysis {
   void AutoMonExam::runExam() {
     const std::string header = "Running exam : " + m_exam_name;
 
-    Info("AutoMonExam::runExam", header.c_str());
+    Info("AutoMonExam::runExam", "%s", header.c_str());
 
     for (auto test_iter = m_test_list.begin(); test_iter != m_test_list.end(); ++test_iter) {
       const std::string testInfo = "Running Test : " + (*test_iter)->getTestName();
-      Info("AutoMonExam::runExam", testInfo.c_str());
+      Info("AutoMonExam::runExam", "%s", testInfo.c_str());
       (*test_iter)->runTest(m_counters_to_exam);
     } //end for loop over test list
   } //end runExam

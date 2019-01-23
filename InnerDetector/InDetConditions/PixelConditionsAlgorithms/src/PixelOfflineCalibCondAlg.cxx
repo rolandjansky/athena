@@ -10,7 +10,7 @@
 #include <sstream>
 
 PixelOfflineCalibCondAlg::PixelOfflineCalibCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  ::AthAlgorithm(name, pSvcLocator),
+  ::AthReentrantAlgorithm(name, pSvcLocator),
   m_condSvc("CondSvc", name)
 {
   declareProperty("InputSource",m_inputSource=2,"Source of data: 0 (none), 1 (text file), 2 (database)");
@@ -36,10 +36,10 @@ StatusCode PixelOfflineCalibCondAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelOfflineCalibCondAlg::execute() {
+StatusCode PixelOfflineCalibCondAlg::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("PixelOfflineCalibCondAlg::execute()");
 
-  SG::WriteCondHandle<PixelCalib::PixelOfflineCalibData> writeHandle(m_writeKey);
+  SG::WriteCondHandle<PixelCalib::PixelOfflineCalibData> writeHandle(m_writeKey, ctx);
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid.. In theory this should not be called, but may happen if multiple concurrent events are being processed out of order.");
     return StatusCode::SUCCESS; 
@@ -108,7 +108,7 @@ StatusCode PixelOfflineCalibCondAlg::execute() {
 
   }
   else if (m_inputSource==2) {
-    SG::ReadCondHandle<DetCondCFloat> readHandle{m_readKey};
+    SG::ReadCondHandle<DetCondCFloat> readHandle{m_readKey, ctx};
     const DetCondCFloat* readCdo{*readHandle}; 
     if (readCdo==nullptr) {
       ATH_MSG_FATAL("Null pointer to the read conditions object");

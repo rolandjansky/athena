@@ -23,8 +23,8 @@ namespace LVL1TGCTrigger {
 
 //////////////////////////////////
 TGCReadoutIndex::TGCReadoutIndex()
- : zDirection(kZ_FORWARD), octantNumber(0),
-   moduleNumber(0), rNumber(0), layerNumber(0)
+ : m_zDirection(kZ_FORWARD), m_octantNumber(0),
+   m_moduleNumber(0), m_rNumber(0), m_layerNumber(0)
 //////////////////////////////////
 {
 }
@@ -32,16 +32,16 @@ TGCReadoutIndex::TGCReadoutIndex()
 ///////////////////////////////////////////////////////////
 TGCReadoutIndex::TGCReadoutIndex(TGCZDirection iz, int ioct, 
 				 int imd, int ir, int ilyr)
- : zDirection(iz), octantNumber(ioct),
-   moduleNumber(imd), rNumber(ir), layerNumber(ilyr)
+ : m_zDirection(iz), m_octantNumber(ioct),
+   m_moduleNumber(imd), m_rNumber(ir), m_layerNumber(ilyr)
 ///////////////////////////////////////////////////////////
 {
 }
 
 /////////////////////////////////////////////////////////////
 TGCReadoutIndex::TGCReadoutIndex(TGCIndex tgcindex, int ilyr)
- : zDirection(kZ_FORWARD), octantNumber(0),
-   moduleNumber(0), rNumber(0), layerNumber(0)
+ : m_zDirection(kZ_FORWARD), m_octantNumber(0),
+   m_moduleNumber(0), m_rNumber(0), m_layerNumber(0)
 /////////////////////////////////////////////////////////////
 {
   SetIndex(tgcindex, ilyr);
@@ -51,8 +51,8 @@ TGCReadoutIndex::TGCReadoutIndex(TGCIndex tgcindex, int ilyr)
 void TGCReadoutIndex::SetIndex(TGCIndex tgcindex, int ilyr)
 ///////////////////////////////////////////////////////////
 {
-  zDirection= tgcindex.GetZDirection();
-  octantNumber= tgcindex.GetOctantNumber()-1; // 0..7
+  m_zDirection= tgcindex.GetZDirection();
+  m_octantNumber= tgcindex.GetOctantNumber()-1; // 0..7
 
   TGCStationType station= tgcindex.GetStationType();
   TGCRegionType region= tgcindex.GetRegionType();
@@ -76,24 +76,24 @@ void TGCReadoutIndex::SetIndex(TGCIndex tgcindex, int ilyr)
 
   if( station!=TI ) {        // T1, T2, T3
     if( region==ENDCAP ) {
-      moduleNumber= modmapE[module];
-      // rNumber (reversed order, 0-offset)
-      //if(station==T1) rNumber= 4- rIndex;
-      //else rNumber= 5- rIndex;
-      rNumber= 5- rIndex;
+      m_moduleNumber= modmapE[module];
+      // m_rNumber (reversed order, 0-offset)
+      //if(station==T1) m_rNumber= 4- rIndex;
+      //else m_rNumber= 5- rIndex;
+      m_rNumber= 5- rIndex;
 
     } else if( region==FORWARD ) {
-      moduleNumber= modmapF[module];
-      rNumber= rIndex-1;
+      m_moduleNumber= modmapF[module];
+      m_rNumber= rIndex-1;
     }
   } else {    // TI
     if( region==ENDCAP ) {
-      moduleNumber= modmapEI[module];
-      rNumber= rIndex-1;  // 0-offset
+      m_moduleNumber= modmapEI[module];
+      m_rNumber= rIndex-1;  // 0-offset
 
     } else if( region==FORWARD ) {
-      moduleNumber= modmapFI[module];
-      rNumber= rIndex-1;
+      m_moduleNumber= modmapFI[module];
+      m_rNumber= rIndex-1;
     }
   }
 
@@ -102,9 +102,9 @@ void TGCReadoutIndex::SetIndex(TGCIndex tgcindex, int ilyr)
   //                        N/A  T1  T2  T3  TI
   const int lyr_offset[5]= { 0,  -1,  2,  4,  6 };
   if ((station<0) || (station>4)) {
-    layerNumber= ilyr + lyr_offset[0];
+    m_layerNumber= ilyr + lyr_offset[0];
   } else {
-    layerNumber= ilyr + lyr_offset[station];
+    m_layerNumber= ilyr + lyr_offset[station];
   }
 }
 
@@ -112,11 +112,11 @@ void TGCReadoutIndex::SetIndex(TGCIndex tgcindex, int ilyr)
 void TGCReadoutIndex::Print() const
 ///////////////////////////////////
 {
-  std::cout << "  " << gkTgcZdirName[zDirection] << "-" 
-            << std::setw(1) << octantNumber << "-"
-            << std::setw(2) << moduleNumber << "-" 
-            << rNumber << "-"
-            << layerNumber;
+  std::cout << "  " << gkTgcZdirName[m_zDirection] << "-" 
+            << std::setw(1) << m_octantNumber << "-"
+            << std::setw(2) << m_moduleNumber << "-" 
+            << m_rNumber << "-"
+            << m_layerNumber;
 }
 
 

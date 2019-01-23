@@ -1,11 +1,11 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "InDetGeoModelUtils/VolumeSplitter.h"
 #include "InDetGeoModelUtils/VolumeSplitterUtils.h"
 #include "InDetGeoModelUtils/ServiceVolume.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <sstream>
 #include <algorithm>
@@ -13,7 +13,7 @@
 namespace InDetDD {
   VolumeSplitter::VolumeSplitter()
     : m_ownVolumes(true),
-    m_epsilon(0.0001 * GeoModelKernelUnits::mm)
+    m_epsilon(0.0001 * Gaudi::Units::mm)
   {}
 
   VolumeSplitter::~VolumeSplitter() {

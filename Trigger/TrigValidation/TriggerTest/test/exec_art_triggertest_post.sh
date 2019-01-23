@@ -66,21 +66,24 @@ else
   echo $(date "+%FT%H:%M %Z")"     file trig_cost.root does not exist thus RunTrigCostD3PD will not be run"
 fi
 
-
+# SKIP_CHAIN_DUMP=1 skips this step
+# SKIP_CHAIN_DUMP=2 skips the L1 and HLTTE checks, but does the HLTChain check
 echo "trigedm SKIP_CHAIN_DUMP" $[SKIP_CHAIN_DUMP]
 if [ $[SKIP_CHAIN_DUMP] != 1 ]; then 
    echo $(date "+%FT%H:%M %Z")"     Running check for zero L1, HLT or TE counts"
    export COUNT_EXIT=0
-   if [[ `sed 's|.*\(.* \)|\1|' L1AV.txt | sed 's/^[ \t]*//' |  sed '/^0/'d | wc -l` == 0 ]]; then 
-      echo "L1 counts   ERROR  : all entires are ZERO please consult L1AV.txt"
-     (( COUNT_EXIT = COUNT_EXIT || 1 ))
+   if [ $[SKIP_CHAIN_DUMP] != 2 ]; then
+      if [[ `sed 's|.*\(.* \)|\1|' L1AV.txt | sed 's/^[ \t]*//' |  sed '/^0/'d | wc -l` == 0 ]]; then
+         echo "L1 counts   ERROR  : all entires are ZERO please consult L1AV.txt"
+         (( COUNT_EXIT = COUNT_EXIT || 1 ))
+      fi
+      if [[ `sed 's|.*\(.* \)|\1|' HLTTE.txt | sed 's/^[ \t]*//' |  sed '/^0/'d | wc -l` == 0 ]]; then
+         echo "HLTTE counts   ERROR  : all entires are ZERO please consult HLTTE.txt"
+         (( COUNT_EXIT = COUNT_EXIT || 1 ))
+      fi
    fi
-   if [[ `sed 's|.*\(.* \)|\1|' HLTChain.txt | sed 's/^[ \t]*//' |  sed '/^0/'d | wc -l` == 0 ]]; then 
+   if [[ `sed 's|.*\(.* \)|\1|' HLTChain.txt | sed 's/^[ \t]*//' |  sed '/^0/'d | wc -l` == 0 ]]; then
       echo "HLTChain counts   ERROR  : all entires are ZERO please consult HLTChain.txt"
-      (( COUNT_EXIT = COUNT_EXIT || 1 ))
-   fi
-   if [[ `sed 's|.*\(.* \)|\1|' HLTTE.txt | sed 's/^[ \t]*//' |  sed '/^0/'d | wc -l` == 0 ]]; then 
-      echo "HLTTE counts   ERROR  : all entires are ZERO please consult HLTTE.txt"
       (( COUNT_EXIT = COUNT_EXIT || 1 ))
    fi
    echo "art-result: ${COUNT_EXIT} ZeroCounts"

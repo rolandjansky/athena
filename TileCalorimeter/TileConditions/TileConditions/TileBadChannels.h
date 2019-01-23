@@ -19,6 +19,7 @@
  */
 
 #include <map>
+#include <vector>
 
 class TileBadChannels {
 
@@ -54,7 +55,7 @@ class TileBadChannels {
     * @brief Store trips probabilities for all Tile drawers
     * @param tripsProbs Trips probabilites for all Tile drawers
     */
-    void setTripsProbabilities(std::vector<std::vector<float>>& tripsProbs);
+    void setTripsProbabilities(std::vector<std::vector<float>>&& tripsProbs);
 
    /**
     * @brief Return trips probabilities for all Tile drawers
@@ -67,7 +68,7 @@ class TileBadChannels {
     * @brief Store Tile drawers masked completely
     * @param maskedDrawers Array of Tile drawers (frag identifiers) masked comletely
     */
-    void setMaskedDrawers(std::vector<int>& maskedDrawers);
+    void setMaskedDrawers(std::vector<int>&& maskedDrawers);
 
    /**
     * @brief Return Tile drawers masked completely
@@ -80,8 +81,9 @@ class TileBadChannels {
 
     TileBchStatus m_defaultStatus;
 
-    std::map<const HWIdentifier, TileBchStatus> m_adcStatus;
-    std::map<const HWIdentifier, TileBchStatus> m_channelStatus;
+    typedef std::map<const HWIdentifier, TileBchStatus> BchMap;
+    BchMap m_adcStatus;
+    BchMap m_channelStatus;
 
     std::vector<std::vector<float>> m_tripsProbs;
     std::vector<int> m_maskedDrawers;
@@ -96,13 +98,8 @@ CONDCONT_DEF ( TileBadChannels, 136686108);
 
 // inlines
 inline
-void TileBadChannels::setTripsProbabilities(std::vector<std::vector<float>>& tripsProbs) {
+void TileBadChannels::setTripsProbabilities(std::vector<std::vector<float>>&& tripsProbs) {
   m_tripsProbs = std::move(tripsProbs);
-}
-
-inline
-void TileBadChannels::setMaskedDrawers(std::vector<int>& maskedDrawers) {
-  m_maskedDrawers = std::move(maskedDrawers);
 }
 
 #endif // TILECONDITIONS_TILEBADCHANNELS_H

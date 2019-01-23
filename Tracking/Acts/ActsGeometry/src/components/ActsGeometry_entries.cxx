@@ -8,7 +8,7 @@
 #include "ActsGeometry/ActsExtrapolationTool.h"
 #include "ActsGeometry/ActsObjWriterTool.h"
 //#include "ActsGeometry/ActsExCellWriterSvc.h"
-#include "ActsGeometry/ActsMaterialTrackWriterSvc.h"
+//#include "ActsGeometry/ActsMaterialTrackWriterSvc.h"
 
 //#include "ActsGeometry/GeomShiftCondAlg.h"
 #include "ActsGeometry/NominalAlignmentCondAlg.h"
@@ -22,7 +22,7 @@ DECLARE_COMPONENT( ActsTrackingGeometrySvc )
 DECLARE_COMPONENT( ActsExtrapolationTool )
 DECLARE_COMPONENT( ActsObjWriterTool )
 //DECLARE_COMPONENT( ActsExCellWriterSvc )
-DECLARE_COMPONENT( ActsMaterialTrackWriterSvc )
+//DECLARE_COMPONENT( ActsMaterialTrackWriterSvc )
 
 //DECLARE_COMPONENT( GeomShiftCondAlg )
 DECLARE_COMPONENT( NominalAlignmentCondAlg )

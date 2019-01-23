@@ -59,6 +59,10 @@ class TrigBjetEtHypoTool : virtual public ::AthAlgTool {
   Gaudi::Property< bool > m_acceptAll {this,"AcceptAll",false,"if acceptAll flag is set to true, every event is taken"};
   /** @brief DeclareProperty: Et threshold cut. */
   Gaudi::Property< float > m_etThreshold {this,"EtThreshold",0.0,"Et threshold cut"};
+  /** @brief DeclareProperty: min eta threshold cut. */
+  Gaudi::Property< float > m_minEtaThreshold {this,"MinEtaThreshold",0.0,"Min Eta threshold cut"};
+  /** @brief DeclareProperty: max eta threshold cut. */
+  Gaudi::Property< float > m_maxEtaThreshold {this,"MaxEtaThreshold",0.0,"Max Eta threshold cut"};
 };
 
 inline const InterfaceID& TrigBjetEtHypoTool::interfaceID()

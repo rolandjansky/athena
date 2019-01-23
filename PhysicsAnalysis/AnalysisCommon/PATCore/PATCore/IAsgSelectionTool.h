@@ -30,8 +30,7 @@ namespace xAOD{
 
 // this ought to be deprecated, but we have so many clients, that we
 // are not doing it yet.
-//class [[deprecated("do not use for multi-threaded code")]] IAsgSelectionTool
-class IAsgSelectionTool
+class [[deprecated("do not use for multi-threaded code")]] IAsgSelectionTool
   : virtual public asg::IAsgTool
 { 
   /// Declare the interface ID for this pure-virtual interface class to the Athena framework

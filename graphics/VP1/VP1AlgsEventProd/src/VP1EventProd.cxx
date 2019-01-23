@@ -7,8 +7,6 @@
 #include "VP1UtilsBase/VP1FileUtilities.h"
 
 #include "StorageSvc/DbType.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "EventInfo/EventIncident.h"
 #include "PathResolver/PathResolver.h"
 
@@ -164,9 +162,10 @@ void VP1EventProd::handle(const Incident& inc)
   m_nEvent++;
 
   // Update run_number/event_number/time_stamp
-  m_eventNumber = eventInc->eventInfo().event_ID()->event_number(); // from EventInfo/EventID.h
-  m_runNumber = eventInc->eventInfo().event_ID()->run_number();
-  m_timeStamp = eventInc->eventInfo().event_ID()->time_stamp();
+  const EventContext& context = getContext();
+  m_eventNumber = context.eventID().event_number();
+  m_runNumber = context.eventID().run_number();
+  m_timeStamp = context.eventID().time_stamp();
 
   msg(MSG::DEBUG) << " Got run number = " << m_runNumber
 		  << ", event number = " << m_eventNumber

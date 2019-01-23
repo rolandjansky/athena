@@ -57,7 +57,6 @@ namespace TrigCostRootAnalysis {
     CounterMap_t* m_all_counters_in_monitor;
 
     std::vector<double> m_results;
-    double m_collection_total;
   };
 }// namespace TrigCostRootAnalysis
 

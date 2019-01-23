@@ -9,7 +9,7 @@
   <class name="TagInfo" />
   <class name="EventStreamInfo" id="2415BBB1-D76A-43CA-B4F6-34A9531EB10B"/>
   <class name="std::set<std::pair<CLID, std::string> >"/>
-  <class pattern="*pair*<unsigned*basic_string<char,*char_traits<char>,*allocator<char> > >"/>
+  <class pattern="*pair*<unsigned*basic_string*"/>
   <class name="std::set<EventType>"/>
   <class name="PileUpEventInfo" id="6A58157B-6B6E-430F-A72A-EAAA4BDC4AE2">
     <field name="m_subEvents" transient="true"/>

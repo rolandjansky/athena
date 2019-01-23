@@ -81,34 +81,14 @@ globalflags.DetGeo = 'commis'
 globalflags.DataSource.set_Value_and_Lock('data')
 #GlobalFlags.DataSource.set_data()
 
-import PyUtils.AthFile as af
-def getHITSFile(runArgs):
-    if hasattr(runArgs,"inputHITSFile"):
-        return runArgs.inputHITSFile[0]
-    elif hasattr(runArgs,"inputHitsFile"):
-        return runArgs.inputHitsFile[0]
-    else:
-        raise SystemExit("No HITS file in runArgs!!")
-try:
-    f = af.fopen(getHITSFile(runArgs))
-except AssertionError:
-    skeletonLog.error("Failed to open input file: %s", getHITSFile(runArgs))
-metadatadict = dict()
-if 'metadata' in f.infos.keys():
-    if '/Simulation/Parameters' in f.infos['metadata'].keys():
-        metadatadict = f.infos['metadata']['/Simulation/Parameters']
-        if isinstance(metadatadict, list):
-            skeletonLog.warning("%s inputfile: %s contained %s sets of Simulation Metadata. Using the final set in the list.",inputtype,inputfile,len(metadatadict))
-            metadatadict=metadatadict[-1]
-        if 'RunNumber' in metadatadict.keys():
-            year = metadatadict['RunNumber']%100
-            print "Found Year = %s", year
-            from RecExConfig.RecFlags import rec
-            rec.projectName = 'data'+str(year)
-            pass
-        pass
-    pass
-pass
+#--------------------------------------------------------------
+# Read Simulation MetaData (unless override flag set to True)
+#--------------------------------------------------------------
+if 'ALL' in digitizationFlags.overrideMetadata.get_Value():
+    overlaylog.info("Skipping input file MetaData check.")
+else :
+    from EventOverlayJobTransforms.OverlayReadMetaData import readInputFileMetadata
+    readInputFileMetadata()
 
 import MagFieldServices.SetupField
 

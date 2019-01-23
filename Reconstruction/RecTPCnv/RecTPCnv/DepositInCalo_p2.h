@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // DepositInCalo_p2.h 
@@ -46,7 +46,7 @@ public:
 
   /** Destructor: 
    */
-  ~DepositInCalo_p2();
+  ~DepositInCalo_p2() = default;
 
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 

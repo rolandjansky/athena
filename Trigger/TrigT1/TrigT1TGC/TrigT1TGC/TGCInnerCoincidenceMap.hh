@@ -19,8 +19,9 @@ namespace LVL1TGCTrigger {
 class TGCInnerCoincidenceMap {
 public:
 
-  TGCInnerCoincidenceMap();
-  TGCInnerCoincidenceMap(const std::string& version,int   sideId=0);
+  TGCInnerCoincidenceMap(const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey);
+  TGCInnerCoincidenceMap(const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
+                         const std::string& version,int   sideId=0);
   virtual ~TGCInnerCoincidenceMap();
 
   TGCInnerCoincidenceMap(const TGCInnerCoincidenceMap& right);
@@ -62,19 +63,19 @@ protected:
   enum {N_ROI_IN_SSC=8};
 
 private:
-  int flagPT[N_PT_THRESH][N_Endcap_SSC][N_EndcapSector]; 
+  int m_flagPT[N_PT_THRESH][N_Endcap_SSC][N_EndcapSector]; 
   // 1 use; 0: not use; -1: not used for Trigger
 
-  int flagROI[N_ROI_IN_SSC][N_Endcap_SSC][N_EndcapSector]; 
+  int m_flagROI[N_ROI_IN_SSC][N_Endcap_SSC][N_EndcapSector]; 
   // 1 use; 0: not use; -1: not used for Trigger
 
-  TGCInnerTrackletSlot map[N_Input_InnerSector][N_Endcap_SSC][N_EndcapSector];    
+  TGCInnerTrackletSlot m_map[N_Input_InnerSector][N_Endcap_SSC][N_EndcapSector];    
 
   std::string m_verName;
   int m_side; 
   bool m_fullCW;
 
-  SG::ReadCondHandleKey<TGCTriggerData> m_readCondKey;
+  const SG::ReadCondHandleKey<TGCTriggerData>& m_readCondKey;
 };
 
 
@@ -111,7 +112,7 @@ inline
   if ((ssc<0)||(ssc>=N_Endcap_SSC)) return 0;
   if ((sec<0)||(sec>=N_EndcapSector)) return 0;
 
-  return  &(map[input][ssc][sec]);    
+  return  &(m_map[input][ssc][sec]);    
 }
 
 

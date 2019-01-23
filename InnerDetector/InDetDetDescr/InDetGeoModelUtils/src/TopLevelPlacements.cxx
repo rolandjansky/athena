@@ -1,9 +1,9 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "InDetGeoModelUtils/TopLevelPlacements.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include <iostream>
@@ -59,12 +59,12 @@ TopLevelPlacements::fillPlacements(IRDBRecordset_ptr topLevelTable) {
 
 GeoTrf::Transform3D
 TopLevelPlacements::partTransform(const IRDBRecord* record) const {
-  double posX = record->getDouble("POSX") * GeoModelKernelUnits::mm;
-  double posY = record->getDouble("POSY") * GeoModelKernelUnits::mm;
-  double posZ = record->getDouble("POSZ") * GeoModelKernelUnits::mm;
-  double rotX = record->getDouble("ROTX") * GeoModelKernelUnits::degree;
-  double rotY = record->getDouble("ROTY") * GeoModelKernelUnits::degree;
-  double rotZ = record->getDouble("ROTZ") * GeoModelKernelUnits::degree;
+  double posX = record->getDouble("POSX") * Gaudi::Units::mm;
+  double posY = record->getDouble("POSY") * Gaudi::Units::mm;
+  double posZ = record->getDouble("POSZ") * Gaudi::Units::mm;
+  double rotX = record->getDouble("ROTX") * Gaudi::Units::degree;
+  double rotY = record->getDouble("ROTY") * Gaudi::Units::degree;
+  double rotZ = record->getDouble("ROTZ") * Gaudi::Units::degree;
   int rotOrder = record->getInt("ROTORDER");
 
   // Translation part

@@ -168,7 +168,7 @@ class L2EFChain_tau(L2EFChainDef):
             [trkfast, trkprec[:]] = TrigInDetSequence("Tau", "tau", "IDTrig").getSequence()
         # Use cosmic-specific tracking algorithm
         if selection == 'cosmic':
-            [trkfast] = TrigInDetSequence("Cosmics", "cosmics", "IDTrig", "FTF").getSequence()
+            [trkfast] = TrigInDetSequence("Cosmics", "cosmics", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
 
         # Run fast-tracking
         self.EFsequenceList += [[[ self.currentItem ],
@@ -230,7 +230,7 @@ class L2EFChain_tau(L2EFChainDef):
     def addTwoStepTrackingSequence(self,threshold,selection,preselection,idperf,trkprec): 
         # Get the necessary fexes
         # use [:] so the list trkprec is modified by this function
-        [trkcore, trkiso, trkprec[:]] = TrigInDetSequence("Tau", "tau", "IDTrig", "2step").getSequence()
+        [trkcore, trkiso, trkprec[:]] = TrigInDetSequence("Tau", "tau", "IDTrig", sequenceFlavour=["2step"]).getSequence()
 
         # Get the HLTTrackTauHypo_rejectNoTracks
         tauRejectEmpty = HLTTrackTauHypo_rejectNoTracks("TauRejectEmpty")

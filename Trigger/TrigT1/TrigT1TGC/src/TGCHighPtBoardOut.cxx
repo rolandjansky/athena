@@ -7,12 +7,12 @@
 namespace LVL1TGCTrigger {
 
 TGCHighPtBoardOut::TGCHighPtBoardOut(TGCHighPtBoard* hpt, int bidIn):
-  origin(hpt), bid(bidIn)
+  m_origin(hpt), m_bid(bidIn)
 {
 }
 
 TGCHighPtBoardOut::TGCHighPtBoardOut():
-  origin(0), bid(-1)
+  m_origin(0), m_bid(-1)
 {
 }
 
@@ -21,8 +21,8 @@ void TGCHighPtBoardOut::clear()
   int i,j;
   for( i=0; i<NumberOfChip ; i+=1)
     for( j=0; j<MaxNumberOfHPBData; j+=1){
-      hit[i][j] = false;
-      select[i][j] = 0;
+      m_hit[i][j] = false;
+      m_select[i][j] = 0;
     }
 }
 

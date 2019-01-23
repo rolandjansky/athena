@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -25,6 +25,8 @@ LArCellMaskingTool::LArCellMaskingTool(
     m_onlineID(nullptr),
     m_offlineID(nullptr)
 {
+  m_mapInitialized = false;
+
   declareInterface<ICaloCellMakerTool>(this); 
   //List of strings to determine detector parts to be masked.
   //Syntax: barrel_endcap pos_neg Feedthrough slot channel (integers separated by white space)
@@ -64,7 +66,8 @@ StatusCode LArCellMaskingTool::initialize()
 
 }
 
-StatusCode LArCellMaskingTool::fillIncludedCellsMap(const LArOnOffIdMapping* cabling) {
+StatusCode LArCellMaskingTool::fillIncludedCellsMap(const LArOnOffIdMapping* cabling) const
+{
 
   std::vector<std::string>::const_iterator it=m_rejLArChannels.begin();
   std::vector<std::string>::const_iterator it_e= m_rejLArChannels.end();
@@ -155,13 +158,17 @@ StatusCode LArCellMaskingTool::fillIncludedCellsMap(const LArOnOffIdMapping* cab
 
 StatusCode LArCellMaskingTool::process(CaloCellContainer * theCont )
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
   if (! m_mapInitialized) {
-    //To make this (practically never used) method re-entrant, 
-    //protect the following with a mutex
-    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
-    const LArOnOffIdMapping* cabling=*cablingHdl;
-    ATH_CHECK(fillIncludedCellsMap(cabling));
-    m_mapInitialized=true;
+    // FIXME: Can we do this in start()?
+    std::lock_guard<std::mutex> lock (m_mutex);
+    if (!m_mapInitialized) {
+      SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl (m_cablingKey, ctx);
+      const LArOnOffIdMapping* cabling=*cablingHdl;
+      ATH_CHECK(fillIncludedCellsMap(cabling));
+      m_mapInitialized=true;
+    }
   }
 
   //Build bitmap to keep track which cells have been added to reducedCellContainer;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -18,39 +18,27 @@
 
 // Gaudi include
 #include "GaudiKernel/PhysicalConstants.h"
-#include "GaudiKernel/SystemOfUnits.h"
 
 // STL include
 
 SCTSiLorentzAngleCondAlg::SCTSiLorentzAngleCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  ::AthAlgorithm(name, pSvcLocator),
+  ::AthReentrantAlgorithm(name, pSvcLocator),
   m_condSvc{"CondSvc", name},
   m_magFieldSvc{"AtlasFieldSvc", name},
   m_maxHash{0}
 {
-  // YOU NEED TO USE THE SAME PROPERTIES AS USED IN SCTLorentzAngleTool!!!
   declareProperty("MagFieldSvc", m_magFieldSvc);
-  declareProperty("Temperature", m_temperature = -7., "Default temperature in Celcius.");
-  declareProperty("DepletionVoltage", m_deplVoltage = 70., "Default depletion voltage in Volt.");
-  declareProperty("BiasVoltage", m_biasVoltage = 150., "Default bias voltage in Volt.");
-  declareProperty("NominalField", m_nominalField = 2.0834*Gaudi::Units::tesla);
-  declareProperty("UseMagFieldSvc", m_useMagFieldSvc = true);
-  declareProperty("UseMagFieldDcs", m_useMagFieldDcs = true);
-  declareProperty("useSctDefaults", m_sctDefaults = false);
-  declareProperty("UseGeoModel", m_useGeoModel = false);
-  declareProperty("TemperatureMin", m_temperatureMin = -80., "Minimum temperature allowed in Celcius.");
-  declareProperty("TemperatureMax", m_temperatureMax = 100., "Maximum temperature allowed in Celcius.");
 }
 
 StatusCode SCTSiLorentzAngleCondAlg::initialize()
 {
-  if (m_siConditionsTool.empty()) m_sctDefaults = true;
+  if (m_siConditionsTool.empty()) m_sctDefaults.setValue(true);
 
-  if (not m_sctDefaults) {
+  if (not m_sctDefaults.value()) {
     // SCTSiliconConditionsTool
     ATH_CHECK(m_siConditionsTool.retrieve());
     // Read Cond handle
-    if (not m_useGeoModel) {
+    if (not m_useGeoModel.value()) {
       ATH_CHECK(m_readKeyTemp.initialize());
       ATH_CHECK(m_readKeyHV.initialize());
     }
@@ -58,11 +46,11 @@ StatusCode SCTSiLorentzAngleCondAlg::initialize()
     m_siConditionsTool.disable();
   }
 
-  if (m_useMagFieldSvc) {
+  if (m_useMagFieldSvc.value()) {
     // MagFieldSvc
     ATH_CHECK(m_magFieldSvc.retrieve());
     // Read Cond handle
-    if (m_useMagFieldDcs) {
+    if (m_useMagFieldDcs.value()) {
       ATH_CHECK(m_readKeyBFieldSensor.initialize());
     }
   }
@@ -85,10 +73,10 @@ StatusCode SCTSiLorentzAngleCondAlg::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCTSiLorentzAngleCondAlg::execute()
+StatusCode SCTSiLorentzAngleCondAlg::execute(const EventContext& ctx) const
 {
   // Write Cond Handle
-  SG::WriteCondHandle<SiLorentzAngleCondData> writeHandle{m_writeKey};
+  SG::WriteCondHandle<SiLorentzAngleCondData> writeHandle{m_writeKey, ctx};
   // Do we have a valid Write Cond Handle for current time?
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
@@ -107,7 +95,7 @@ StatusCode SCTSiLorentzAngleCondAlg::execute()
   EventIDRange rangeBField{eidStart, eidStop};
 
   // Get SCT_DetectorElementCollection
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey, ctx);
   const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
   if (elements==nullptr) {
     ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
@@ -119,9 +107,9 @@ StatusCode SCTSiLorentzAngleCondAlg::execute()
     return StatusCode::FAILURE;
   }
 
-  if ((not m_sctDefaults) and (not m_useGeoModel)) {
+  if ((not m_sctDefaults.value()) and (not m_useGeoModel.value())) {
     // Read Cond Handle (temperature)
-    SG::ReadCondHandle<SCT_DCSFloatCondData> readHandleTemp{m_readKeyTemp};
+    SG::ReadCondHandle<SCT_DCSFloatCondData> readHandleTemp{m_readKeyTemp, ctx};
     const SCT_DCSFloatCondData* readCdoTemp{*readHandleTemp};
     if (readCdoTemp==nullptr) {
       ATH_MSG_FATAL("Null pointer to the read conditions object");
@@ -135,7 +123,7 @@ StatusCode SCTSiLorentzAngleCondAlg::execute()
     ATH_MSG_INFO("Input is " << readHandleTemp.fullKey() << " with the range of " << rangeTemp);
     
     // Read Cond Handle (HV)
-    SG::ReadCondHandle<SCT_DCSFloatCondData> readHandleHV{m_readKeyHV};
+    SG::ReadCondHandle<SCT_DCSFloatCondData> readHandleHV{m_readKeyHV, ctx};
     const SCT_DCSFloatCondData* readCdoHV{*readHandleHV};
     if (readCdoHV==nullptr) {
       ATH_MSG_FATAL("Null pointer to the read conditions object");
@@ -156,10 +144,10 @@ StatusCode SCTSiLorentzAngleCondAlg::execute()
     }
   }
   
-  if (m_useMagFieldSvc) {
-    if (m_useMagFieldDcs) {
+  if (m_useMagFieldSvc.value()) {
+    if (m_useMagFieldDcs.value()) {
       // Read Cond Handle (B field sensor)
-      SG::ReadCondHandle<CondAttrListCollection> readHandleBFieldSensor{m_readKeyBFieldSensor};
+      SG::ReadCondHandle<CondAttrListCollection> readHandleBFieldSensor{m_readKeyBFieldSensor, ctx};
       const CondAttrListCollection* readCdoBFieldSensor{*readHandleBFieldSensor};
       if (readCdoBFieldSensor==nullptr) {
         ATH_MSG_FATAL("Null pointer to the read conditions object");
@@ -200,10 +188,10 @@ StatusCode SCTSiLorentzAngleCondAlg::execute()
     double deplVoltage{0.0};
     double biasVoltage{0.0};
 
-    if (m_sctDefaults) {
-      temperatureC = m_temperature;
-      deplVoltage = m_deplVoltage * CLHEP::volt;
-      biasVoltage = m_biasVoltage * CLHEP::volt;
+    if (m_sctDefaults.value()) {
+      temperatureC = m_temperature.value();
+      deplVoltage = m_deplVoltage.value() * CLHEP::volt;
+      biasVoltage = m_biasVoltage.value() * CLHEP::volt;
     } else {
       temperatureC = m_siConditionsTool->temperature(elementHash);
       deplVoltage = m_siConditionsTool->depletionVoltage(elementHash) * CLHEP::volt;
@@ -213,8 +201,8 @@ StatusCode SCTSiLorentzAngleCondAlg::execute()
 
     // Protect against invalid temperature
     if (not ((temperatureC>m_temperatureMin) and (temperatureC<m_temperatureMax))) {
-      temperatureC = m_temperature;
-      ATH_MSG_DEBUG("Invalid temperature: " << temperatureC << " C. " << "Setting to " << m_temperature << " C. " << "Detector element hash: " << elementHash);
+      temperatureC = m_temperature.value();
+      ATH_MSG_DEBUG("Invalid temperature: " << temperatureC << " C. " << "Setting to " << m_temperature.value() << " C. " << "Detector element hash: " << elementHash);
     }
     double temperature{temperatureC + Gaudi::Units::STP_Temperature}; // C -> K
 
@@ -293,7 +281,7 @@ StatusCode SCTSiLorentzAngleCondAlg::finalize()
 }
 
 Amg::Vector3D SCTSiLorentzAngleCondAlg::getMagneticField(const InDetDD::SiDetectorElement* element) const {
-  if (m_useMagFieldSvc) {
+  if (m_useMagFieldSvc.value()) {
     Amg::Vector3D pointvec{element->center()};
     ATH_MSG_VERBOSE("Getting magnetic field from magnetic field service.");
     double point[3];

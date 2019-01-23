@@ -77,14 +77,6 @@
 #include "TTree.h"
 #include "CLHEP/Vector/LorentzVector.h"
 
-/*
-#include "EventInfo/EventIncident.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
-#include "EventInfo/TriggerInfo.h"
-*/
-
 #include "xAODEventInfo/EventInfo.h"
 
 #include "CaloEvent/CaloCellContainer.h"

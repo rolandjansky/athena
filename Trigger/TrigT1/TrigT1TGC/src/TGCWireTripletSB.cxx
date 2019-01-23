@@ -16,35 +16,35 @@ TGCWireTripletSB::TGCWireTripletSB():TGCSlaveBoard()
 
 void TGCWireTripletSB::createSlaveBoardOut()
 {
-  if(coincidenceOut!=0){
-    if ( slaveBoardOut != 0 ) delete slaveBoardOut;
-    slaveBoardOut = new  TGCSlaveBoardOut(this, bid);
-    if ( !slaveBoardOut ) {
+  if(m_coincidenceOut!=0){
+    if ( m_slaveBoardOut != 0 ) delete m_slaveBoardOut;
+    m_slaveBoardOut = new  TGCSlaveBoardOut(this, m_bid);
+    if ( !m_slaveBoardOut ) {
       std::cerr << "TGCWireTripletSB::createSlaveBoardOut: Memory allocation failure."<<std::endl;
       exit(1);
     }
-    slaveBoardOut->clear();
-    slaveBoardOut->setNumberOfData(NumberOfWireTripletSBData);
+    m_slaveBoardOut->clear();
+    m_slaveBoardOut->setNumberOfData(NumberOfWireTripletSBData);
 
     // fill SlaveBoardOut.
     // select largest R hit in each sections.
-    int lengthOfSection = (coincidenceOut->getLength()-2*NChAdjInWTSB)/NumberOfWireTripletSBData;
+    int lengthOfSection = (m_coincidenceOut->getLength()-2*NChAdjInWTSB)/NumberOfWireTripletSBData;
     int i,j;
     for( i=0; i<NumberOfWireTripletSBData; i+=1){ // i=0:a 1:b 2:c
-      slaveBoardOut->setPos(i,-1);
-      slaveBoardOut->setPos(i,0);
-      slaveBoardOut->setHit(i,false);
+      m_slaveBoardOut->setPos(i,-1);
+      m_slaveBoardOut->setPos(i,0);
+      m_slaveBoardOut->setHit(i,false);
       for( j=0; j<lengthOfSection; j+=1) {
-        if(coincidenceOut->getChannel(NChAdjInWTSB+j+i*lengthOfSection)){
-          slaveBoardOut->setPos(i,j);
-          slaveBoardOut->setHit(i,true);
+        if(m_coincidenceOut->getChannel(NChAdjInWTSB+j+i*lengthOfSection)){
+          m_slaveBoardOut->setPos(i,j);
+          m_slaveBoardOut->setHit(i,true);
           break;
         }
       }
-      if(slaveBoardOut->getHit(i)){
-          slaveBoardOut->setbPos(i, slaveBoardOut->getPos(i));
+      if(m_slaveBoardOut->getHit(i)){
+          m_slaveBoardOut->setbPos(i, m_slaveBoardOut->getPos(i));
 #ifdef TGCCOUT
-          slaveBoardOut->getbPos(i)->printb();
+          m_slaveBoardOut->getbPos(i)->printb();
 	  std::cout << " " << i << std::endl;
 #endif
       }
@@ -57,8 +57,8 @@ void TGCWireTripletSB::doCoincidence()
   TGCHitPattern* pattern[2];
   // pattern[0] has hit pattern of layer0[36-71].
   // pattern[1] has hit pattern of layer1[0-35] and layer2[36-71] .
-  pattern[0] = patchPanelOut->getHitPattern(0);
-  pattern[1] = patchPanelOut->getHitPattern(1);
+  pattern[0] = m_patchPanelOut->getHitPattern(0);
+  pattern[1] = m_patchPanelOut->getHitPattern(1);
   
   if(pattern[1]!=0){ // necessary for 2/3 coincidence. 
 
@@ -66,9 +66,9 @@ void TGCWireTripletSB::doCoincidence()
     int unitLength=length/2;
     int totalLength=3*unitLength;
 
-    lengthOfCoincidenceOut = LengthOfWTSBCoincidenceOut;
-    if( coincidenceOut!=0 ) delete coincidenceOut;
-    coincidenceOut = new TGCHitPattern(lengthOfCoincidenceOut);
+    m_lengthOfCoincidenceOut = LengthOfWTSBCoincidenceOut;
+    if( m_coincidenceOut!=0 ) delete m_coincidenceOut;
+    m_coincidenceOut = new TGCHitPattern(m_lengthOfCoincidenceOut);
 
     // rearrange bit pattern for coincidence.
     bool* b = new bool [totalLength];
@@ -109,10 +109,10 @@ void TGCWireTripletSB::doCoincidence()
     }
     std::cout << std::endl;
 #endif
-    //    int base=(totalLength-lengthOfCoincidenceOut)/2;
+    //    int base=(totalLength-m_lengthOfCoincidenceOut)/2;
     int base = 0;
-    for( i=0; i<lengthOfCoincidenceOut; i+=1)
-      coincidenceOut->setChannel(i,out[i+base]);
+    for( i=0; i<m_lengthOfCoincidenceOut; i+=1)
+      m_coincidenceOut->setChannel(i,out[i+base]);
 
     delete [] b;
     delete [] out;
@@ -122,19 +122,19 @@ void TGCWireTripletSB::doCoincidence()
 TGCWireTripletSB::TGCWireTripletSB(const TGCWireTripletSB& right) :
   TGCSlaveBoard(right)
 {
-  id = right.id;
-  bid = right.bid;
-  idHighPtBoard = right.idHighPtBoard;
-  type = right.type;
-  lengthOfCoincidenceOut = right.lengthOfCoincidenceOut;
-  *slaveBoardOut = *right.slaveBoardOut;
-  *patchPanel = *right.patchPanel;
-  *patchPanelOut = *right.patchPanelOut;
+  m_id = right.m_id;
+  m_bid = right.m_bid;
+  m_idHighPtBoard = right.m_idHighPtBoard;
+  m_type = right.m_type;
+  m_lengthOfCoincidenceOut = right.m_lengthOfCoincidenceOut;
+  *m_slaveBoardOut = *right.m_slaveBoardOut;
+  *m_patchPanel = *right.m_patchPanel;
+  *m_patchPanelOut = *right.m_patchPanelOut;
 
-  if ( lengthOfCoincidenceOut > 0) { 
-    if ( coincidenceOut ) delete  coincidenceOut; 
-    coincidenceOut = new TGCHitPattern (lengthOfCoincidenceOut);
-    if ( !coincidenceOut ) 
+  if ( m_lengthOfCoincidenceOut > 0) { 
+    if ( m_coincidenceOut ) delete  m_coincidenceOut; 
+    m_coincidenceOut = new TGCHitPattern (m_lengthOfCoincidenceOut);
+    if ( !m_coincidenceOut ) 
       std::cerr << "TGCWireTripletSB::TGCWireTripletSB: Memory allocation failure." << std::endl;
   }
 }
@@ -142,19 +142,19 @@ TGCWireTripletSB::TGCWireTripletSB(const TGCWireTripletSB& right) :
 TGCWireTripletSB& TGCWireTripletSB::operator=(const TGCWireTripletSB& right)
 {
   if ( this != &right ) {
-    id = right.id;
-    bid = right.bid;
-    idHighPtBoard = right.idHighPtBoard;
-    type = right.type;
-    lengthOfCoincidenceOut = right.lengthOfCoincidenceOut;
-    *slaveBoardOut = *right.slaveBoardOut;
-    *patchPanel = *right.patchPanel;
-    *patchPanelOut = *right.patchPanelOut;
+    m_id = right.m_id;
+    m_bid = right.m_bid;
+    m_idHighPtBoard = right.m_idHighPtBoard;
+    m_type = right.m_type;
+    m_lengthOfCoincidenceOut = right.m_lengthOfCoincidenceOut;
+    *m_slaveBoardOut = *right.m_slaveBoardOut;
+    *m_patchPanel = *right.m_patchPanel;
+    *m_patchPanelOut = *right.m_patchPanelOut;
 
-    if ( lengthOfCoincidenceOut > 0) { 
-      if ( coincidenceOut ) delete  coincidenceOut; 
-      coincidenceOut = new TGCHitPattern (lengthOfCoincidenceOut);
-      if ( !coincidenceOut ) {
+    if ( m_lengthOfCoincidenceOut > 0) { 
+      if ( m_coincidenceOut ) delete  m_coincidenceOut; 
+      m_coincidenceOut = new TGCHitPattern (m_lengthOfCoincidenceOut);
+      if ( !m_coincidenceOut ) {
         std::cerr << "TGCWireTripletSB::TGCWireTripletSB: Memory allocation failure." << std::endl;
         exit(1);
       }

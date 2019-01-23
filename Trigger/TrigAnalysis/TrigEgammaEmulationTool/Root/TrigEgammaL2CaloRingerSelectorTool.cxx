@@ -87,7 +87,7 @@ StatusCode TrigEgammaL2CaloRingerSelectorTool::initialize() {
     TrigRingerPreprocessor *preproc;
     try{
       preproc = new TrigRingerPreprocessor(m_nRings,m_normRings,m_sectionRings);
-    }catch(std::bad_alloc xa){
+    }catch(const std::bad_alloc& xa){
       ATH_MSG_ERROR( "Bad alloc for TrigRingerPrepoc." );
       return StatusCode::FAILURE;
     }

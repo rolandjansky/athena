@@ -59,7 +59,7 @@ def collectFilters( steps ):
     return filters
 
 
-def collectDecisionObjects( steps, l1decoder ):
+def collectDecisionObjects(  hypos, filters, l1decoder ):
     """
     Returns the set of all decision objects of HLT
     """
@@ -70,16 +70,15 @@ def collectDecisionObjects( steps, l1decoder ):
 
     
     __log.info("Collecting decision obejcts from hypos")
-    hypos = collectHypos( steps )
     __log.info(hypos)
-    for s, sh in hypos.iteritems():
-        for hypo in sh:
-            print hypo
-            decisionObjects.add( hypo.HypoInputDecisions )
-            decisionObjects.add( hypo.HypoOutputDecisions )
+    for step, stepHypos in hypos.iteritems():
+        for hypoAlg in stepHypos:
+            __log.debug( "Hypo %s with input %s and output %s " % (hypoAlg.getName(), str(hypoAlg.HypoInputDecisions), str(hypoAlg.HypoOutputDecisions) ) )
+            __log.debug( "and hypo tools %s " % (str( [ t.getName() for t in hypoAlg.HypoTools ] ) ) ) 
+            decisionObjects.add( hypoAlg.HypoInputDecisions )
+            decisionObjects.add( hypoAlg.HypoOutputDecisions )
         
     __log.info("Collecting decision obejcts from filters")
-    filters = collectFilters( steps )
     for step, stepFilters in filters.iteritems():
         for filt in stepFilters:
             decisionObjects.update( filt.Input )
@@ -235,6 +234,7 @@ def triggerRunCfg( flags, menu=None ):
     
     # collect hypothesis algorithms from all sequence
     hypos = collectHypos( HLTSteps )           
+    filters = collectFilters( HLTSteps )
     
     summaryAcc, summaryAlg = triggerSummaryCfg( flags, hypos )
     acc.merge( summaryAcc ) 
@@ -244,7 +244,7 @@ def triggerRunCfg( flags, menu=None ):
     monitoringAcc, monitoringAlg = triggerMonitoringCfg( flags, hypos, l1DecoderAlg )
     acc.merge( monitoringAcc )
 
-    decObj = collectDecisionObjects( HLTSteps, l1DecoderAlg )
+    decObj = collectDecisionObjects( hypos, filters, l1DecoderAlg )
     __log.info( "Number of decision objects found in HLT CF %d" % len( decObj ) )
     __log.info( str( decObj ) )
     

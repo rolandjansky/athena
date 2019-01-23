@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigSteer/TrigInterfaces
                           Trigger/TrigTools/TrigTimeAlgs
                           PRIVATE
+                          Trigger/TrigSteer/DecisionHandling
                           LumiBlock/LumiBlockComps
                           Tools/PathResolver
                           GaudiKernel

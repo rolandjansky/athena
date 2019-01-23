@@ -21,7 +21,6 @@
 #include <vector>
 
 
-class TileBeamInfoProvider;
 class TileDQstatusTool;
 class TileRawChannelCollection;
 class TileDigitsContainer;
@@ -48,8 +47,6 @@ class MsgStream;
 */
 class TileDQstatus
 {
-  //FIXME: Remove
-  friend class TileBeamInfoProvider;
   friend class TileDQstatusTool;
 
 public:

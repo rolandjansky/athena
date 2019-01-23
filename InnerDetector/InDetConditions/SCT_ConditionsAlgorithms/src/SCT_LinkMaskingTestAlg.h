@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -15,7 +15,7 @@
 #define SCT_LinkMaskingTestAlg_H 
 
 //Athena
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "SCT_ConditionsTools/ISCT_ConditionsTool.h"
 
 //Gaudi
@@ -25,13 +25,13 @@
 #include <string>
 
 ///Example class to show calling the SCT_LinkMaskingTool
-class SCT_LinkMaskingTestAlg : public AthAlgorithm {
+class SCT_LinkMaskingTestAlg : public AthReentrantAlgorithm {
  public:
   SCT_LinkMaskingTestAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~SCT_LinkMaskingTestAlg() = default;
 
   StatusCode initialize() override;
-  StatusCode execute() override;
+  StatusCode execute(const EventContext& ctx) const override;
   StatusCode finalize() override;
    
  private:

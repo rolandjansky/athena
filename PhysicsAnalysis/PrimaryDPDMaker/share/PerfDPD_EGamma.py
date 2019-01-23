@@ -147,8 +147,9 @@ from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramew
 DESDM_EGAMMACellsInConeThinningEl = DerivationFramework__CellsInConeThinning( name = "DESDM_EGAMMACellsInConeThinningEl",
                                                                                InputSGKey = "Electrons",
                                                                                InputCellsSGKey = "AllCalo",
-                                                                               OutputClusterSGKey = "EgammaDummyClustersEl",                                                                            
-                                                                               deltaR = 0.5                                                            
+                                                                               OutputClusterSGKey ="EgammaDummyClustersEl",
+                                                                               OutputCellLinksSGKey="EgammaDummyClustersEl_links",
+                                                                               deltaR = 0.5
                                                                                )
 
 ToolSvc += DESDM_EGAMMACellsInConeThinningEl
@@ -156,7 +157,8 @@ ToolSvc += DESDM_EGAMMACellsInConeThinningEl
 DESDM_EGAMMACellsInConeThinningPh = DerivationFramework__CellsInConeThinning( name = "DESDM_EGAMMACellsInConeThinningPh", 
                                                                               InputSGKey = "Photons",
                                                                               InputCellsSGKey = "AllCalo",
-                                                                              OutputClusterSGKey = "EgammaDummyClustersPh",                                                                            
+                                                                              OutputClusterSGKey = "EgammaDummyClustersPh",
+                                                                              OutputCellLinksSGKey="EgammaDummyClustersPh_links",
                                                                               deltaR = 0.5                                                            
                                                                               )
 

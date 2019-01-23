@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -47,7 +47,7 @@ bool TGCRPhiCoincidenceMap::test(int octantId, int moduleId, int subsector,
   if (g_USE_CONDDB) {
     readMap = readCdo->getReadMapBw(m_side, m_octant, pt);
   } else {
-    readMap = mapDB[pt];
+    readMap = m_mapDB[pt];
   }
 
   std::map<int, std::map<int, int> >::const_iterator it = readMap.find(addr);
@@ -63,20 +63,16 @@ bool TGCRPhiCoincidenceMap::test(int octantId, int moduleId, int subsector,
   else return false;
 }
 
-TGCRPhiCoincidenceMap::TGCRPhiCoincidenceMap(const std::string& version,
+TGCRPhiCoincidenceMap::TGCRPhiCoincidenceMap(const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
+                                             const std::string& version,
 					     int   sideId, int octantId)
-  :numberOfDR(0), numberOfDPhi(0),
+  :m_numberOfDR(0), m_numberOfDPhi(0),
    m_verName(version),
    m_side(sideId),
    m_octant(octantId),
    m_fullCW(false),
-   m_readCondKey("TGCTriggerData")
+   m_readCondKey(readCondKey)
 {
-   StatusCode sc = m_readCondKey.initialize();
-   if (sc.isFailure()) {
-     return;
-   }
-
   if (!g_USE_CONDDB) {
     if (!checkVersion()){
       m_verName = "NA";
@@ -159,17 +155,11 @@ TGCRPhiCoincidenceMap::~TGCRPhiCoincidenceMap()
 {
 }
 
-TGCRPhiCoincidenceMap::TGCRPhiCoincidenceMap()
-  :numberOfDR(0), numberOfDPhi(0), m_verName("NA"),
-   m_side(0), m_octant(0), m_fullCW(false),m_readCondKey("TGCTriggerData")
-{
-}
-
 TGCRPhiCoincidenceMap::TGCRPhiCoincidenceMap(const TGCRPhiCoincidenceMap& right)
-   : m_readCondKey("TGCTriggerData")
+  : m_readCondKey(right.m_readCondKey)
 {
-  numberOfDR=right.numberOfDR;
-  numberOfDPhi=right.numberOfDPhi;
+  m_numberOfDR=right.m_numberOfDR;
+  m_numberOfDPhi=right.m_numberOfDPhi;
   m_verName=right.m_verName;
   m_side=right.m_side;
   m_octant=right.m_octant;
@@ -181,8 +171,8 @@ TGCRPhiCoincidenceMap::TGCRPhiCoincidenceMap(const TGCRPhiCoincidenceMap& right)
 TGCRPhiCoincidenceMap& TGCRPhiCoincidenceMap::operator=(const TGCRPhiCoincidenceMap& right)
 {
    if (this != &right) {
-    numberOfDR=right.numberOfDR;
-    numberOfDPhi=right.numberOfDPhi;
+    m_numberOfDR=right.m_numberOfDR;
+    m_numberOfDPhi=right.m_numberOfDPhi;
     m_verName=right.m_verName;
     m_side=right.m_side;
     m_octant=right.m_octant;
@@ -281,14 +271,14 @@ bool TGCRPhiCoincidenceMap::readMap()
 	  }
 	}
 	int addr = SUBSECTORADD(ssId,mod,phimod2,type);
-	if (mapDB[ptLevel-1].find(addr)!=mapDB[ptLevel-1].end()) {
+	if (m_mapDB[ptLevel-1].find(addr)!=m_mapDB[ptLevel-1].end()) {
 	  if (g_DEBUGLEVEL) {
 	    log << MSG::DEBUG
 		<< "This subsector was already reserved." 
 		<< endmsg;
 	  }
 	} else {
-	  mapDB[ptLevel-1][addr]=aWindow;
+	  m_mapDB[ptLevel-1][addr]=aWindow;
 	}
       }
     }

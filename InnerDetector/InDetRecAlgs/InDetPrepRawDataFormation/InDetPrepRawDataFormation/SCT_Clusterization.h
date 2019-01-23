@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**   @file SCT_Clusterization
@@ -12,7 +12,7 @@
 #define INDETPREPRAWDATAFORMATION_SCT_CLUSTERIZATION_H
 
 // Base class
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 //InDet includes
 //Stored by value, cannot be fwd declared
@@ -49,7 +49,7 @@ namespace InDet {
  *    The class loops over an RDO grouping strips and creating collections of clusters, subsequently recorded in StoreGate
  *    Uses SCT_ConditionsTools to determine which strips to include.
  */
-class SCT_Clusterization : public AthAlgorithm {
+class SCT_Clusterization : public AthReentrantAlgorithm {
 public:
   /// Constructor with parameters:
   SCT_Clusterization(const std::string& name, ISvcLocator* pSvcLocator);
@@ -59,7 +59,7 @@ public:
   ///Retrieve the tools used and initialize variables
   virtual StatusCode initialize() override;
   ///Form clusters and record them in StoreGate (detector store)
-  virtual StatusCode execute() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
   ///Clean up and release the collection containers
   virtual StatusCode finalize() override;
   //@}
