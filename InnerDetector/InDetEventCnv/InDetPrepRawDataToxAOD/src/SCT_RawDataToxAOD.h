@@ -1,13 +1,13 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_RAWDATATOXAOD_H
 #define SCT_RAWDATATOXAOD_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 // StoreGate Data Handle Key
 #include "StoreGate/ReadHandleKey.h"
@@ -24,12 +24,12 @@ class SCT_ID;
 
 /** Algorithm to read RDO information from SCT ntuple and write augmented xAOD.
  **/
-class SCT_RawDataToxAOD : public AthAlgorithm {
+class SCT_RawDataToxAOD : public AthReentrantAlgorithm {
 public:
   SCT_RawDataToxAOD(const std::string& name, ISvcLocator* pSvcLocator);
 
   StatusCode initialize();
-  StatusCode execute();
+  StatusCode execute(const EventContext& ctx) const;
   StatusCode finalize();
 
 private:
