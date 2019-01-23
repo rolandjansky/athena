@@ -6,7 +6,6 @@
 #include "TileRecUtils/TileRawChannelBuilderQIEFilter.h"
 #include "TileRecUtils/TileRawChannelBuilderManyAmps.h"
 #include "TileRecUtils/TileRawChannelBuilderMF.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileRecUtils/TileCellBuilder.h"
 #include "TileRecUtils/TileCellBuilderFromHit.h"
 #include "TileRecUtils/TileCellFakeProb.h"
@@ -36,7 +35,6 @@ DECLARE_COMPONENT( TileRawChannelBuilderOpt2Filter )
 DECLARE_COMPONENT( TileRawChannelBuilderQIEFilter )
 DECLARE_COMPONENT( TileRawChannelBuilderManyAmps )
 DECLARE_COMPONENT( TileRawChannelBuilderMF )
-DECLARE_COMPONENT( TileBeamInfoProvider )
 DECLARE_COMPONENT( TileCellBuilder )
 DECLARE_COMPONENT( TileCellBuilderFromHit )
 DECLARE_COMPONENT( TileCellFakeProb )

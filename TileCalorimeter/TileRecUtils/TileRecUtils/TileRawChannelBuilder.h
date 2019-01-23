@@ -51,7 +51,6 @@ class TileRawChannel;
 class TileID;
 class TileHWID;
 class TileInfo;
-class TileBeamInfoProvider;
 class StoreGateSvc;
 
 typedef std::vector<std::pair<TileRawChannel*, const TileDigits*> > Overflows_t;
@@ -182,7 +181,7 @@ class TileRawChannelBuilder: public AthAlgTool {
     const TileInfo* m_tileInfo;
 
     ToolHandleArray<ITileRawChannelTool> m_noiseFilterTools{this,
-        "NoiseFilterTools", {}, "Tile nose filter tools"};
+        "NoiseFilterTools", {}, "Tile noise filter tools"};
 
     ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
         "TileCondToolEmscale", "TileCondToolEmscale", "Tile EM scale calibration tool"};

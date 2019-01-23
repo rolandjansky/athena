@@ -28,7 +28,6 @@
 #include "TileConditions/TilePulseShapes.h"
 #include "TileConditions/TileCondToolNoiseSample.h"
 
-class TileBeamInfoProvider;
 
 class TileRawChannelBuilderFitFilter: public TileRawChannelBuilder {
   public:

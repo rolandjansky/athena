@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -36,8 +36,6 @@ This package contains the algorithms and tools used for TileCal reconstruction
   - TileRawChannelBuilderOpt2Filter: used by TileDigitsMaker. TileRawChannels are built using the Optimal Filtering method, based on linear combinations of the samples minimizing the noise contribution. Two version of the method are used: OF1 (which computes amplitude and phase) and OF2 (which computes amplitude, phase and pedestal). The Opt2Filter makes several iterations, so the time doesn't need to be known in advance. Default method for cosmics since 2008.
 
   - TileRawChannelBuilderManyAmps: used by TileDigitsMaker. TileRawChannels are built using the method developed by Frank Marritt, based on fitting the digital samples to to a series of pulses (for pileup handling). Default method for full ATLAS reconstruction.
-
-  - TileBeamInfoProvider: provides the contents of cispar fragment, header, status and trigType from the objects in a TileBeamElemContainer
 
   - TileCellBuilder: creates TileCells from TileRawChannels, which are stored in a container. By default uses Opt2 Optimal Filter, and on-th-fly cell masking.
 
