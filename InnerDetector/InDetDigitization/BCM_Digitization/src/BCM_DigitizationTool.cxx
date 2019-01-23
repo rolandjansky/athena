@@ -96,19 +96,19 @@ StatusCode BCM_DigitizationTool::createOutputContainers()
 //----------------------------------------------------------------------
 void BCM_DigitizationTool::processSiHit(const SiHit &currentHit, double eventTime, unsigned int evtIndex)
 {
-  int moduleNo = currentHit.getLayerDisk();
-  float enerDep = computeEnergy(currentHit.energyLoss(), currentHit.localStartPosition(), currentHit.localEndPosition());
-  float hitTime = currentHit.meanTime() + eventTime + m_timeDelay;
+  const int moduleNo = currentHit.getLayerDisk();
+  const float enerDep = computeEnergy(currentHit.energyLoss(), currentHit.localStartPosition(), currentHit.localEndPosition());
+  const float hitTime = currentHit.meanTime() + eventTime + m_timeDelay;
   // Fill vectors with hit info
   m_enerVect[moduleNo].push_back(enerDep);
   m_timeVect[moduleNo].push_back(hitTime);
   // Create new deposit and add to vector
-  InDetSimData::Deposit deposit(HepMcParticleLink(currentHit.trackNumber(), evtIndex),currentHit.energyLoss());
-  int barcode = deposit.first.barcode();
+  HepMcParticleLink particleLink(currentHit.trackNumber(), evtIndex);
+  const int barcode = particleLink.barcode();
   if (barcode == 0 || barcode == 10001){
     return;
   }
-  m_depositVect[moduleNo].push_back(deposit);
+  m_depositVect[moduleNo].emplace_back(particleLink,currentHit.energyLoss());
   return;
 }
 
