@@ -17,7 +17,6 @@
 
 
 // Needed for tests.
-#include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileRecUtils/ITileDQstatusTool.h"
 #include "TileRecUtils/TileRawChannelBuilder.h"
 
