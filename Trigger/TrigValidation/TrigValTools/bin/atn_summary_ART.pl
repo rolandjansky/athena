@@ -185,7 +185,7 @@ sub main(){
                         
                         \$nightlies = glob(dirname(__FILE__) . '/../../*');
                         \$nightlies = array_values(\$nightlies);
-                        \$content = file_get_contents(dirname(__FILE__).'/test_HLT_physicsV7_menu_ART_and_ROSsim_build/HLT_physicsV7_ROSsim_17000/ATLASros2rob2018.py');
+                        \$content = file_get_contents(dirname(__FILE__).'/test_HLT_physics_menu_ART_and_ROSsim_build/HLT_physicsV8_ROSsim_17000/ATLASros2rob2018.py');
                         //echo \$content;
                         preg_match_all('/ROS-.[A-Z]+-.[A-Z]+-.[0-9]+/i',\$content,\$ROSes);
                         \$ROSes = array_values(\$ROSes);
@@ -198,7 +198,7 @@ sub main(){
 
                         echo \"                data.addRows([\";
                         foreach(\$nightlies as \$nightly){
-                                \$content = file_get_contents(\$nightly.'/TrigP1Test/test_HLT_physicsV7_menu_ART_and_ROSsim_build/HLT_physicsV7_ROSsim_17000/ROStest.reference.new');
+                                \$content = file_get_contents(\$nightly.'/TrigP1Test/test_HLT_physics_menu_ART_and_ROSsim_build/HLT_physicsV8_ROSsim_17000/ROStest.reference.new');
                                 //echo \$content.'\\n';                           
                                 echo \"                ['\".basename(\$nightly).\"',\";
                                 foreach(\$ROSes as \$ros){
@@ -246,7 +246,7 @@ sub main(){
                         
                         \$nightlies = glob(dirname(__FILE__) . '/../../*');
                         \$nightlies = array_values(\$nightlies);
-                        \$content = file_get_contents(dirname(__FILE__).'/test_HLT_physicsV7_menu_ART_and_ROSsim_build/HLT_physicsV7_ROSsim_17000/ATLASros2rob2018.py');
+                        \$content = file_get_contents(dirname(__FILE__).'/test_HLT_physics_menu_ART_and_ROSsim_build/HLT_physicsV8_ROSsim_17000/ATLASros2rob2018.py');
                         //echo \$content;
                         preg_match_all('/ROS-.[A-Z]+-.[A-Z]+-.[0-9]+/i',\$content,\$ROSes);
                         \$ROSes = array_values(\$ROSes);
@@ -259,7 +259,7 @@ sub main(){
 
                         echo \"                data.addRows([\";
                         foreach(\$nightlies as \$nightly){
-                                \$content = file_get_contents(\$nightly.'/TrigP1Test/test_HLT_physicsV7_menu_ART_and_ROSsim_build/HLT_physicsV7_ROSsim_17000/ROStest.reference.new');
+                                \$content = file_get_contents(\$nightly.'/TrigP1Test/test_HLT_physics_menu_ART_and_ROSsim_build/HLT_physicsV8_ROSsim_17000/ROStest.reference.new');
                                 //echo \$content.'\\n';                           
                                 echo \"                ['\".basename(\$nightly).\"',\";
                                 foreach(\$ROSes as \$ros){
