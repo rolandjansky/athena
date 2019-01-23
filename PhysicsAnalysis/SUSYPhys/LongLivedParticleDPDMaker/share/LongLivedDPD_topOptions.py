@@ -10,8 +10,6 @@
 
 ## use AutoConfiguration to setup everything
 
-print "Executing LongLivedDPD_topOptions"
-
 from RecExConfig.RecFlags import rec
 rec.AutoConfiguration=['everything']
 
@@ -41,7 +39,6 @@ primRPVLLDESDM.doKinkedTrack=True
 primRPVLLDESDM.doHips=True
 primRPVLLDESDM.doStopped=True
 primRPVLLDESDM.doHV=True
-primRPVLLDESDM.doVH=True
 
 # Some global flags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
