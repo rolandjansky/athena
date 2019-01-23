@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -111,8 +111,8 @@ SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash) const {
   bool result{true};
 
   for (SCT_ByteStreamErrors::errorTypes badError: SCT_ByteStreamErrors::BadErrors) {
-    const std::set<IdentifierHash>& errorSet{getErrorSet(badError, ctx)};
-    result = (errorSet.count(elementIdHash)==0);
+    const std::set<IdentifierHash>* errorSet{getErrorSet(badError, ctx)};
+    result = (errorSet->count(elementIdHash)==0);
     if (not result) return result;
   }
   
@@ -265,9 +265,9 @@ const std::set<IdentifierHash>*
 SCT_ByteStreamErrorsTool::getErrorSet(int errorType) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   if (errorType>=0 and errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES) {
-    return &getErrorSet(static_cast<SCT_ByteStreamErrors::errorTypes>(errorType), ctx);
+    return getErrorSet(errorType, ctx);
   }
-  return 0;
+  return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -383,8 +383,8 @@ SCT_ByteStreamErrorsTool::isRODSimulatedData() const {
 bool
 SCT_ByteStreamErrorsTool::isRODSimulatedData(const IdentifierHash& elementIdHash) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
-  const std::set<IdentifierHash>& errorSet{getErrorSet(SCT_ByteStreamErrors::RODSimulatedData, ctx)};
-  return (errorSet.count(elementIdHash)!=0);
+  const std::set<IdentifierHash>* errorSet{getErrorSet(SCT_ByteStreamErrors::RODSimulatedData, ctx)};
+  return (errorSet->count(elementIdHash)!=0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -436,13 +436,13 @@ const InDetDD::SiDetectorElement* SCT_ByteStreamErrorsTool::getDetectorElement(c
   return m_detectorElements->getDetectorElement(waferHash);
 }
 
-const std::set<IdentifierHash>& SCT_ByteStreamErrorsTool::getErrorSet(SCT_ByteStreamErrors::errorTypes errorType, const EventContext& ctx) const {
+const std::set<IdentifierHash>* SCT_ByteStreamErrorsTool::getErrorSet(int errorType, const EventContext& ctx) const {
   StatusCode sc{fillData(ctx)};
   if (sc.isFailure()) {
     ATH_MSG_ERROR("fillData in getErrorSet fails");
   }
 
-  return m_bsErrors[errorType][ctx.slot()];
+  return &m_bsErrors[errorType][ctx.slot()];
 }
 
 const std::map<Identifier, unsigned int>& SCT_ByteStreamErrorsTool::getTempMaskedChips(const EventContext& ctx) const { 
