@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -17,6 +17,9 @@
 
 class SiChargedDiodeCollection;
 class NPtGainSummaryData;
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 static const InterfaceID IID_ISiChargedDiodesProcessorTool("ISiChargedDiodesProcessorTool",1,0);
 
@@ -38,7 +41,7 @@ public:
   ///////////////////////////////////////////////////////////////////
 
   // process the collection of charged diodes
-  virtual void process(SiChargedDiodeCollection &collection) const =0;
+  virtual void process(SiChargedDiodeCollection &collection, CLHEP::HepRandomEngine * rndmEngine) const =0;
 };
 
 #endif // SIDIGITIZATION_ISICHARGEDDIODESPROCESSORTOOL_H

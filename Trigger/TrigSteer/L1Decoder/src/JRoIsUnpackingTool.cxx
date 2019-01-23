@@ -5,7 +5,7 @@
 #include "JRoIsUnpackingTool.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
-#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/Monitored.h"
 #include "TrigConfL1Data/CTPConfig.h"
 
 JRoIsUnpackingTool::JRoIsUnpackingTool( const std::string& type, 
@@ -117,11 +117,10 @@ StatusCode JRoIsUnpackingTool::unpack( const EventContext& ctx,
 
   // monitoring
   {
-    using namespace Monitored;
-    auto RoIsCount = MonitoredScalar::declare( "count", trigRoIs->size() );
-    auto RoIsPhi   = MonitoredCollection::declare( "phi", *trigRoIs, &TrigRoiDescriptor::phi );
-    auto RoIsEta   = MonitoredCollection::declare( "eta", *trigRoIs, &TrigRoiDescriptor::eta );
-    MonitoredScope::declare( m_monTool,  RoIsCount, RoIsEta, RoIsPhi );
+    auto RoIsCount = Monitored::Scalar( "count", trigRoIs->size() );
+    auto RoIsPhi   = Monitored::Collection( "phi", *trigRoIs, &TrigRoiDescriptor::phi );
+    auto RoIsEta   = Monitored::Collection( "eta", *trigRoIs, &TrigRoiDescriptor::eta );
+    Monitored::Group( m_monTool,  RoIsCount, RoIsEta, RoIsPhi );
   }
 
   ATH_MSG_DEBUG( "Number of decision IDs associated with FS RoI: " <<  TrigCompositeUtils::decisionIDs( decision ).size()  );

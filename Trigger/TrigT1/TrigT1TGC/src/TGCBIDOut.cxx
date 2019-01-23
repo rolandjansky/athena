@@ -6,12 +6,12 @@
 
 namespace LVL1TGCTrigger {
 
-  TGCBIDOut::TGCBIDOut():TGCASDOut(),bid(0)
+  TGCBIDOut::TGCBIDOut():TGCASDOut(),m_bid(0)
   {
   }
   
 
-  TGCBIDOut::TGCBIDOut(const TGCASDOut* ASDOut):TGCASDOut(*ASDOut),bid(0)
+  TGCBIDOut::TGCBIDOut(const TGCASDOut* ASDOut):TGCASDOut(*ASDOut),m_bid(0)
   {
   }
 

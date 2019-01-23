@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_Digitization/SCT_DigitizationTool.h"
@@ -24,6 +24,10 @@
 #include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/ReadHandle.h"
 
+// Random Number Generation
+#include "AthenaKernel/RNGWrapper.h"
+#include "CLHEP/Random/RandomEngine.h"
+
 // C++ Standard Library
 #include <limits>
 #include <memory>
@@ -40,9 +44,7 @@ SCT_DigitizationTool::SCT_DigitizationTool(const std::string& type,
   base_class(type, name, parent),
   m_HardScatterSplittingSkipper{false},
   m_detID{nullptr},
-  m_rndmSvc{"AtRndmGenSvc", name},
   m_mergeSvc{"PileUpMergeSvc", name},
-  m_rndmEngine{nullptr},
   m_thpcsi{nullptr},
   m_vetoThisBarcode{crazyParticleBarcode} {
     declareInterface<SCT_DigitizationTool>(this);
@@ -56,7 +58,6 @@ SCT_DigitizationTool::SCT_DigitizationTool(const std::string& type,
     declareProperty("CreateNoiseSDO", m_createNoiseSDO = false, "Set create noise SDO flag");
     declareProperty("WriteSCT1_RawData", m_WriteSCT1_RawData = false, "Write out SCT1_RawData rather than SCT3_RawData");
     declareProperty("InputObjectName", m_inputObjectName = "", "Input Object name");
-    declareProperty("RndmSvc", m_rndmSvc, "Random Number Service used in SCT & Pixel digitization");
     declareProperty("MergeSvc", m_mergeSvc, "Merge service used in Pixel & SCT digitization");
     declareProperty("HardScatterSplittingMode", m_HardScatterSplittingMode = 0, "Control pileup & signal splitting");
     declareProperty("ParticleBarcodeVeto", m_vetoThisBarcode = crazyParticleBarcode, "Barcode of particle to ignore");
@@ -88,9 +89,6 @@ StatusCode SCT_DigitizationTool::initialize() {
 
   // +++ Init the services
   ATH_CHECK(initServices());
-
-  // +++ Get the random generator engine
-  ATH_CHECK(initRandomEngine());
 
   // +++ Get the Surface Charges Generator tool
   ATH_CHECK(initSurfaceChargesGeneratorTool());
@@ -162,8 +160,6 @@ namespace {
 StatusCode SCT_DigitizationTool::initSurfaceChargesGeneratorTool() {
   ATH_CHECK(m_sct_SurfaceChargesGenerator.retrieve());
 
-  m_sct_SurfaceChargesGenerator->setRandomEngine(m_rndmEngine);
-
   if (m_cosmicsRun and m_tfix > -998) {
     m_sct_SurfaceChargesGenerator->setFixedTime(m_tfix);
     ATH_MSG_INFO("Use of FixedTime = " << m_tfix << " in cosmics");
@@ -180,25 +176,9 @@ StatusCode SCT_DigitizationTool::initSurfaceChargesGeneratorTool() {
 StatusCode SCT_DigitizationTool::initFrontEndTool() {
   ATH_CHECK(m_sct_FrontEnd.retrieve());
 
-  m_sct_FrontEnd->setRandomEngine(m_rndmEngine);
   storeTool(&(*m_sct_FrontEnd));
 
   ATH_MSG_DEBUG("Retrieved and initialised tool " << m_sct_FrontEnd);
-  return StatusCode::SUCCESS;
-}
-
-// ----------------------------------------------------------------------
-// Initialize the Random Engine
-// ----------------------------------------------------------------------
-StatusCode SCT_DigitizationTool::initRandomEngine() {
-  std::string rndmEngineName{"SCT_Digitization"};
-
-  m_rndmEngine = m_rndmSvc->GetEngine(rndmEngineName);
-  if (m_rndmEngine == nullptr) {
-    ATH_MSG_FATAL("Could not find RndmEngine : " << rndmEngineName);
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_DEBUG("Get random number engine : <" << rndmEngineName << ">");
   return StatusCode::SUCCESS;
 }
 
@@ -223,7 +203,6 @@ StatusCode SCT_DigitizationTool::initDisabledCells() {
   // +++ Retrieve the SCT_RandomDisabledCellGenerator
   ATH_CHECK(m_sct_RandomDisabledCellGenerator.retrieve());
 
-  m_sct_RandomDisabledCellGenerator->setRandomEngine(m_rndmEngine);
   storeTool(&(*m_sct_RandomDisabledCellGenerator));
 
   ATH_MSG_INFO("Retrieved the SCT_RandomDisabledCellGenerator tool:" << m_sct_RandomDisabledCellGenerator);
@@ -234,9 +213,14 @@ StatusCode SCT_DigitizationTool::processAllSubEvents() {
   if (prepareEvent(0).isFailure()) {
     return StatusCode::FAILURE;
   }
+  // Set the RNG to use for this event.
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
+  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
+  CLHEP::HepRandomEngine *rndmEngine = *rngWrapper;
+
   ATH_MSG_VERBOSE("Begin digitizeAllHits");
   if (m_enableHits and (not getNextEvent().isFailure())) {
-    digitizeAllHits(&m_rdoContainer, &m_simDataCollMap, &m_processedElements, m_thpcsi);
+    digitizeAllHits(&m_rdoContainer, &m_simDataCollMap, &m_processedElements, m_thpcsi, rndmEngine);
   } else {
     ATH_MSG_DEBUG("no hits found in event!");
   }
@@ -244,7 +228,7 @@ StatusCode SCT_DigitizationTool::processAllSubEvents() {
 
   // loop over elements without hits
   if (not m_onlyHitElements) {
-    digitizeNonHits(&m_rdoContainer, &m_simDataCollMap, &m_processedElements);
+    digitizeNonHits(&m_rdoContainer, &m_simDataCollMap, &m_processedElements, rndmEngine);
     ATH_MSG_DEBUG("Digitized Elements without Hits");
   }
 
@@ -283,13 +267,17 @@ StatusCode SCT_DigitizationTool::prepareEvent(unsigned int /*index*/) {
 StatusCode SCT_DigitizationTool::mergeEvent() {
   ATH_MSG_VERBOSE("SCT_DigitizationTool::mergeEvent()");
 
+  // Set the RNG to use for this event.
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
+  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
+  CLHEP::HepRandomEngine *rndmEngine = *rngWrapper;
 
   if (m_enableHits) {
-    digitizeAllHits(&m_rdoContainer, &m_simDataCollMap, &m_processedElements, m_thpcsi);
+    digitizeAllHits(&m_rdoContainer, &m_simDataCollMap, &m_processedElements, m_thpcsi, rndmEngine);
   }
 
   if (not m_onlyHitElements) {
-    digitizeNonHits(&m_rdoContainer, &m_simDataCollMap, &m_processedElements);
+    digitizeNonHits(&m_rdoContainer, &m_simDataCollMap, &m_processedElements, rndmEngine);
   }
 
   for (SiHitCollection* hit: m_hitCollPtrs) {
@@ -305,7 +293,7 @@ StatusCode SCT_DigitizationTool::mergeEvent() {
   return StatusCode::SUCCESS;
 }
 
-void SCT_DigitizationTool::digitizeAllHits(SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, std::vector<bool>* processedElements, TimedHitCollection<SiHit>* thpcsi) const {
+void SCT_DigitizationTool::digitizeAllHits(SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, std::vector<bool>* processedElements, TimedHitCollection<SiHit>* thpcsi, CLHEP::HepRandomEngine * rndmEngine) const {
   /////////////////////////////////////////////////
   //
   // In order to process all element rather than just those with hits we
@@ -318,7 +306,7 @@ void SCT_DigitizationTool::digitizeAllHits(SG::WriteHandle<SCT_RDO_Container>* r
 
   SiChargedDiodeCollection chargedDiodes;
 
-  while (digitizeElement(&chargedDiodes, thpcsi)) {
+  while (digitizeElement(&chargedDiodes, thpcsi, rndmEngine)) {
     ATH_MSG_DEBUG("Hit collection ID=" << m_detID->show_to_string(chargedDiodes.identify()));
 
     hitcount++;  // Hitcount will be a number in the hit collection minus
@@ -356,7 +344,7 @@ void SCT_DigitizationTool::digitizeAllHits(SG::WriteHandle<SCT_RDO_Container>* r
 }
 
 // digitize elements without hits
-void SCT_DigitizationTool::digitizeNonHits(SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, const std::vector<bool>* processedElements) const {
+void SCT_DigitizationTool::digitizeNonHits(SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, const std::vector<bool>* processedElements, CLHEP::HepRandomEngine * rndmEngine) const {
   // Get SCT_DetectorElementCollection
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
   const InDetDD::SiDetectorElementCollection* elements{sctDetEle.retrieve()};
@@ -385,7 +373,7 @@ void SCT_DigitizationTool::digitizeNonHits(SG::WriteHandle<SCT_RDO_Container>* r
 
         chargedDiodes.setDetectorElement(element);
         ATH_MSG_DEBUG("calling applyProcessorTools() for NON hits");
-        applyProcessorTools(&chargedDiodes);
+        applyProcessorTools(&chargedDiodes, rndmEngine);
 
         // Create and store RDO and SDO
         // Don't create empty ones.
@@ -405,7 +393,7 @@ void SCT_DigitizationTool::digitizeNonHits(SG::WriteHandle<SCT_RDO_Container>* r
   return;
 }
 
-bool SCT_DigitizationTool::digitizeElement(SiChargedDiodeCollection* chargedDiodes, TimedHitCollection<SiHit>*& thpcsi) const {
+bool SCT_DigitizationTool::digitizeElement(SiChargedDiodeCollection* chargedDiodes, TimedHitCollection<SiHit>*& thpcsi, CLHEP::HepRandomEngine * rndmEngine) const {
   if (nullptr == thpcsi) {
     ATH_MSG_ERROR("thpcsi should not be nullptr!");
 
@@ -461,11 +449,11 @@ bool SCT_DigitizationTool::digitizeElement(SiChargedDiodeCollection* chargedDiod
                                                                        phit->getEtaModule(),
                                                                        phit->getSide())));
       ATH_MSG_DEBUG("calling process() for all methods");
-      m_sct_SurfaceChargesGenerator->process(sielement, phit, SiDigitizationSurfaceChargeInserter(sielement, chargedDiodes));
+      m_sct_SurfaceChargesGenerator->process(sielement, phit, SiDigitizationSurfaceChargeInserter(sielement, chargedDiodes), rndmEngine);
       ATH_MSG_DEBUG("charges filled!");
     }
   }
-  applyProcessorTools(chargedDiodes); // !< Use of the new AlgTool surface
+  applyProcessorTools(chargedDiodes, rndmEngine); // !< Use of the new AlgTool surface
   // charges generator class
   return true;
 }
@@ -473,12 +461,12 @@ bool SCT_DigitizationTool::digitizeElement(SiChargedDiodeCollection* chargedDiod
 // -----------------------------------------------------------------------------
 // Applies processors to the current detector element for the current element:
 // -----------------------------------------------------------------------------
-void SCT_DigitizationTool::applyProcessorTools(SiChargedDiodeCollection* chargedDiodes) const {
+void SCT_DigitizationTool::applyProcessorTools(SiChargedDiodeCollection* chargedDiodes, CLHEP::HepRandomEngine * rndmEngine) const {
   ATH_MSG_DEBUG("applyProcessorTools()");
   int processorNumber{0};
 
   for (ISiChargedDiodesProcessorTool* proc: m_diodeCollectionTools) {
-    proc->process(*chargedDiodes);
+    proc->process(*chargedDiodes, rndmEngine);
 
     processorNumber++;
     ATH_MSG_DEBUG("Applied processor # " << processorNumber);

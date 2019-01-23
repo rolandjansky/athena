@@ -82,13 +82,19 @@ class extraTagInfoPairs(JobProperty):
     allowedTypes=['dict']
     StoredValue=dict()
 
-## Definition and registration of the simulation flag container
+class optionalContainerMap(JobProperty):
+    """ workaround to track presence of optional containers
+    """
+    statusOn=False
+    allowedTypes=['dict']
+    StoredValue=dict()
 
+## Definition and registration of the simulation flag container
 class Overlay_Flags(JobPropertyContainer):
     """ The global Overlay flag/job property container.
     """
-## Register and populate the Overlay_Flags container
 
+## Register and populate the Overlay_Flags container
 jobproperties.add_Container(Overlay_Flags)
 for jpname in dir():
     jp = eval(jpname)

@@ -187,19 +187,27 @@ if doTileDigitToRawChannel:
         elif jobproperties.TileRecFlags.doTileMF():
             TileRawChannelBuilderMF.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
 
+    if TileRawChannelBuilderOpt2Filter:
+        TileRawChannelBuilderOpt2Filter.DSPContainer = ''
+    if TileRawChannelBuilderOptATLAS:
+        TileRawChannelBuilderOptATLAS.DSPContainer = ''
+    if TileRawChannelBuilderMF:
+        TileRawChannelBuilderMF.DSPContainer = ''
 
-    if jobproperties.TileRecFlags.doTileMF():
-        print  TileRawChannelBuilderMF
-    if jobproperties.TileRecFlags.doTileOptATLAS():
-        print  TileRawChannelBuilderOptATLAS
-    if jobproperties.TileRecFlags.doTileOpt2():
-        print  TileRawChannelBuilderOpt2Filter
+# Change default parameters for TileDQstatusAlg.
+from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
+dqstatus = TileDQstatusAlgDefault()
+dqstatus.TileBeamElemContainer=""; # disable reading of trigger type from BeamElem container
+dqstatus.TileDigitsContainer="";   # disable checking of Digits container size for bi-gain mode
+dqstatus.TileRawChannelContainer=""; # disable checking of DQstatus for simulated data
 
-    from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
-    dqstatus = TileDQstatusAlgDefault()
 
 #
 include( "TileSimAlgs/TileSamplingFraction_jobOptions.py" )
 
-
-
+if jobproperties.TileRecFlags.doTileMF():
+    print  TileRawChannelBuilderMF
+if jobproperties.TileRecFlags.doTileOptATLAS():
+    print  TileRawChannelBuilderOptATLAS
+if jobproperties.TileRecFlags.doTileOpt2():
+    print  TileRawChannelBuilderOpt2Filter

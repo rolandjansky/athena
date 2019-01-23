@@ -31,7 +31,6 @@
 #include "LArIdentifier/LArElectrodeID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloIdManager.h"
-//#include "LArCondUtils/LArHVToolDB.h"
 //#include "LArElecCalib/ILArHVTool.h"
 
 // Trigger

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "InDetGeoModelUtils/VolumeBuilder.h"
@@ -12,7 +12,7 @@
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 namespace InDetDD {
   VolumeBuilder::VolumeBuilder(const Zone& zone, const std::vector<const ServiceVolume* >& services)
@@ -226,7 +226,7 @@ namespace InDetDD {
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << "Volume/material: " << logName << "/" << materialName << endmsg;
       if (!param.shapeType().empty()) msg(MSG::DEBUG) << " shape: " << param.shapeType() << endmsg;
-      msg(MSG::DEBUG) << " volume (cm3): " << volume / GeoModelKernelUnits::cm3 << endmsg;
+      msg(MSG::DEBUG) << " volume (cm3): " << volume / Gaudi::Units::cm3 << endmsg;
       msg(MSG::DEBUG) << " rmin,rmax,zmin,zmax: "
                       << param.rmin() << ", "
                       << param.rmax() << ", "
@@ -305,10 +305,10 @@ namespace InDetDD {
     const std::string& shapeType = param.shapeType();
     if (shapeType == "TRAP" || shapeType == "TRAP2") {
       // Need to rotate by -90 deg.
-      xform = GeoTrf::RotateZ3D(-90. * GeoModelKernelUnits::deg) * xform;
+      xform = GeoTrf::RotateZ3D(-90. * Gaudi::Units::deg) * xform;
     }
     if (shapeType == "TRAP2") {
-      xform = GeoTrf::RotateZ3D(-90. * GeoModelKernelUnits::deg) * xform;  // * GeoTrf::RotateX3D(-90.*GeoModelKernelUnits::deg);
+      xform = GeoTrf::RotateZ3D(-90. * Gaudi::Units::deg) * xform;  // * GeoTrf::RotateX3D(-90.*Gaudi::Units::deg);
     }
     if (shapeType == "BOX" || shapeType == "TRAP" || shapeType == "TRAP2") {
       double radius = 0.5 * (param.rmin() + param.rmax());
@@ -330,7 +330,7 @@ namespace InDetDD {
     }
     // For shapes that are not symmetric about a rotation around Y axis. We need to rotate.
     if (rotateAroundY) {
-      xform = GeoTrf::RotateY3D(180. * GeoModelKernelUnits::degree) * xform;
+      xform = GeoTrf::RotateY3D(180. * Gaudi::Units::degree) * xform;
     }
     return new GeoTransform(xform);
   }
@@ -360,11 +360,11 @@ namespace InDetDD {
     // BOX, ROD and TRAP need special treatment.
     if (shapeType == "TRAP") {
       // Need to rotate by -90 deg.
-      xform = GeoTrf::RotateZ3D(-90. * GeoModelKernelUnits::deg) * xform;
+      xform = GeoTrf::RotateZ3D(-90. * Gaudi::Units::deg) * xform;
     }
     if (shapeType == "TRAP2") {
       // Need to rotate by -90 deg.
-      xform = GeoTrf::RotateX3D(-90. * GeoModelKernelUnits::deg) * xform;
+      xform = GeoTrf::RotateX3D(-90. * Gaudi::Units::deg) * xform;
     }
     if (shapeType == "BOX" || shapeType == "TRAP" || shapeType == "TRAP2") {
       double radius = 0.5 * (param.rmin() + param.rmax()) - rCenter;
@@ -386,7 +386,7 @@ namespace InDetDD {
     }
     // For shapes that are not symmetric about a rotation around Y axis. We need to rotate.
     if (rotateAroundY) {
-      xform = GeoTrf::RotateY3D(180. * GeoModelKernelUnits::degree) * xform;
+      xform = GeoTrf::RotateY3D(180. * Gaudi::Units::degree) * xform;
     }
     return new GeoTransform(xform);
   }

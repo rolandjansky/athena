@@ -6,7 +6,7 @@
 
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/Combinators.h"
-#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/Monitored.h"
 
 #include "TrigL2PhotonHypoTool.h"
 
@@ -50,20 +50,19 @@ TrigL2PhotonHypoTool::~TrigL2PhotonHypoTool() {}
 
 
 bool TrigL2PhotonHypoTool::decideOnSingleObject( const xAOD::TrigPhoton* photon,size_t cutIndex ) const {
-  using namespace Monitored;
 
-  auto cutCounter = MonitoredScalar::declare<int>( "CutCounter", -1 );
-  auto cutIndexM  = MonitoredScalar::declare<int>( "CutIndex", cutIndex );
-  auto PhEt =  MonitoredScalar::declare( "PhEt", -99. );
-  auto PhEta = MonitoredScalar::declare( "PhEta", -99. );
-  auto PhPhi = MonitoredScalar::declare( "PhPhi", -99. );
-  auto dEta = MonitoredScalar::declare( "dEta", -99. );
-  auto dPhi = MonitoredScalar::declare( "dPhi", -99. );
-  auto PhRcore = MonitoredScalar::declare( "PhRcore", -99. );
-  auto PhEratio = MonitoredScalar::declare( "PhRcore", -99. );
-  auto PhHadEt = MonitoredScalar::declare( "PhHadEt", -99. );
-  auto PhF1 = MonitoredScalar::declare( "PhF1", -99. );
-  auto monitorIt  = MonitoredScope::declare( m_monTool,
+  auto cutCounter = Monitored::Scalar<int>( "CutCounter", -1 );
+  auto cutIndexM  = Monitored::Scalar<int>( "CutIndex", cutIndex );
+  auto PhEt =  Monitored::Scalar( "PhEt", -99. );
+  auto PhEta = Monitored::Scalar( "PhEta", -99. );
+  auto PhPhi = Monitored::Scalar( "PhPhi", -99. );
+  auto dEta = Monitored::Scalar( "dEta", -99. );
+  auto dPhi = Monitored::Scalar( "dPhi", -99. );
+  auto PhRcore = Monitored::Scalar( "PhRcore", -99. );
+  auto PhEratio = Monitored::Scalar( "PhRcore", -99. );
+  auto PhHadEt = Monitored::Scalar( "PhHadEt", -99. );
+  auto PhF1 = Monitored::Scalar( "PhF1", -99. );
+  auto monitorIt  = Monitored::Group( m_monTool,
                                              cutCounter, cutIndexM,
                                              PhEt,
                                              PhEta, PhPhi,

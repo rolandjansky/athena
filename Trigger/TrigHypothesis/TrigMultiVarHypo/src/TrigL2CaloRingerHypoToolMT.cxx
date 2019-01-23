@@ -5,7 +5,7 @@
 
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/Combinators.h"
-#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/Monitored.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "TrigL2CaloRingerHypoToolMT.h"
 

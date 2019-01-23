@@ -8,7 +8,7 @@
 #include <memory>
 
 PixelDCSCondHVAlg::PixelDCSCondHVAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  ::AthAlgorithm(name, pSvcLocator),
+  ::AthReentrantAlgorithm(name, pSvcLocator),
   m_condSvc("CondSvc", name)
 {
 }
@@ -27,16 +27,16 @@ StatusCode PixelDCSCondHVAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelDCSCondHVAlg::execute() {
+StatusCode PixelDCSCondHVAlg::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("PixelDCSCondHVAlg::execute()");
 
-  SG::WriteCondHandle<PixelDCSConditionsData> writeHandle(m_writeKey);
+  SG::WriteCondHandle<PixelDCSConditionsData> writeHandle(m_writeKey, ctx);
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid.. In theory this should not be called, but may happen if multiple concurrent events are being processed out of order.");
     return StatusCode::SUCCESS; 
   }
 
-  SG::ReadCondHandle<CondAttrListCollection> readHandle(m_readKey);
+  SG::ReadCondHandle<CondAttrListCollection> readHandle(m_readKey, ctx);
   const CondAttrListCollection* readCdo = *readHandle; 
   if (readCdo==nullptr) {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
@@ -57,8 +57,8 @@ StatusCode PixelDCSCondHVAlg::execute() {
   // Read HV info
   std::string param("HV");
   for (CondAttrListCollection::const_iterator attrList=readCdo->begin(); attrList!=readCdo->end(); ++attrList) {
-    CondAttrListCollection::ChanNum channelNumber = attrList->first;
-    CondAttrListCollection::AttributeList payload = attrList->second;
+    const CondAttrListCollection::ChanNum &channelNumber = attrList->first;
+    const CondAttrListCollection::AttributeList &payload = attrList->second;
     if (payload.exists(param) and not payload[param].isNull()) {
       float val = payload[param].data<float>();
       writeCdo -> setValue(channelNumber, val);

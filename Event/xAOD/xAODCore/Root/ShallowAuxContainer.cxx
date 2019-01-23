@@ -62,9 +62,7 @@ namespace xAOD {
         m_name( "UNKNOWN" ) {
 
       m_storeIO = dynamic_cast< SG::IAuxStoreIO* >( m_store );
-      const SG::IAuxStoreIO* temp =
-         dynamic_cast< const SG::IAuxStoreIO* >( m_parentLink.cptr() );
-      m_parentIO = const_cast< SG::IAuxStoreIO* >( temp );
+      m_parentIO = dynamic_cast< const SG::IAuxStoreIO* >( m_parentLink.cptr() );
    }
 
    ShallowAuxContainer::~ShallowAuxContainer() {
@@ -115,9 +113,7 @@ namespace xAOD {
 
       guard_t guard (m_mutex);
       m_parentLink = link;
-      const SG::IAuxStoreIO* temp =
-         dynamic_cast< const SG::IAuxStoreIO* >( m_parentLink.cptr() );
-      m_parentIO = const_cast< SG::IAuxStoreIO* >( temp );
+      m_parentIO = dynamic_cast< const SG::IAuxStoreIO* >( m_parentLink.cptr() );
       m_auxidsValid = false;
       return;
    }
@@ -417,15 +413,8 @@ namespace xAOD {
       }
 
       // Do we have a parent that has it?
-      if( m_parentLink.isValid() ) {
-         if( ! m_parentIO ) {
-            const SG::IAuxStoreIO* temp =
-               dynamic_cast< const SG::IAuxStoreIO* >( m_parentLink.cptr() );
-            m_parentIO = const_cast< SG::IAuxStoreIO* >( temp );
-         }
-         if( m_parentIO ) {
-            return m_parentIO->getIOData( auxid );
-         }
+      if( m_parentIO ) {
+        return m_parentIO->getIOData( auxid );
       }
 
       // If not, then where did this variable come from?!?
@@ -445,15 +434,8 @@ namespace xAOD {
       }
 
       // Do we have a parent that has it?
-      if( m_parentLink.isValid() ) {
-         if( ! m_parentIO ) {
-            const SG::IAuxStoreIO* temp =
-               dynamic_cast< const SG::IAuxStoreIO* >( m_parentLink.cptr() );
-            m_parentIO = const_cast< SG::IAuxStoreIO* >( temp );
-         }
-         if( m_parentIO ) {
-            return m_parentIO->getIOType( auxid );
-         }
+      if( m_parentIO ) {
+        return m_parentIO->getIOType( auxid );
       }
 
       // If not, then where did this variable come from?!?

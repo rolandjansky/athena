@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -29,7 +29,6 @@ AthTileTripReader::AthTileTripReader(const std::string& type,
         const IInterface* parent): AthAlgTool(type,name,parent) {
     
     m_tripReader=new Root::TTileTripReader;
-    declareInterface<IAthSelectorTool>(this);
     declareInterface<AthTileTripReader>(this);
     
     declareProperty("TileTripFile",
@@ -80,12 +79,12 @@ StatusCode AthTileTripReader::finalize(){
     return StatusCode::SUCCESS;
 }
 
-const TAccept& AthTileTripReader::accept(const INavigable4Momentum* part){
+asg::AcceptData AthTileTripReader::accept(const INavigable4Momentum* part){
     const EventInfo* evt=0;
     StatusCode sc=evtStore()->retrieve(evt,"ByteStreamEventInfo");
     if(sc.isFailure()){
         ATH_MSG_ERROR ( "ERROR! Could not retrieve event info from store gate!");
-        return m_acceptDummy;
+        return asg::AcceptData(&m_tripReader->getAcceptInfo());
     }
     if(!part) return m_tripReader->accept(evt->runNumber(),
 					  evt->lumiBlock(),

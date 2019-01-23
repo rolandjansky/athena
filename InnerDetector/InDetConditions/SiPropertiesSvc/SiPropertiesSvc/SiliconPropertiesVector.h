@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SIPROPERTIESSVC_SILICONPROPERTIESVECTOR_H
 #define SIPROPERTIESSVC_SILICONPROPERTIESVECTOR_H
 
 ///////////////////////////////////////////////////////////////////
-//   Header file for class SiliconPropertiesVector for SiPropertiesCHSvc
+//   Header file for class SiliconPropertiesVector for SiPropertiesTool
 ///////////////////////////////////////////////////////////////////
 
 #include <vector>

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetRawData/SCT1_RawData.h"
@@ -15,17 +15,17 @@
 
 
 void
-SCT1_RawDataCnv_p2::persToTrans(const InDetRawData_p2* persObj, SCT1_RawData* transObj, MsgStream &log)
+SCT1_RawDataCnv_p2::persToTrans(const InDetRawData_p2* persObj, SCT1_RawData* transObj, MsgStream& log)
 {
-   MSG_VERBOSE(log,"SCT1_RawDataCnv_p2::persToTrans called ");
-   *transObj = SCT1_RawData (Identifier(persObj->m_rdoId),
-                             persObj->m_word);
+  MSG_VERBOSE(log,"SCT1_RawDataCnv_p2::persToTrans called ");
+  *transObj = SCT1_RawData(Identifier(persObj->m_rdoId),
+                           persObj->m_word);
 }
 
 void
-SCT1_RawDataCnv_p2::transToPers(const SCT1_RawData* transObj, InDetRawData_p2* persObj, MsgStream &log) 
+SCT1_RawDataCnv_p2::transToPers(const SCT1_RawData* transObj, InDetRawData_p2* persObj, MsgStream& log)
 {
-   MSG_VERBOSE(log,"SCT1_RawDataCnv_p2::transToPers called ");
-   persObj->m_rdoId = transObj->identify().get_compact();
-   persObj->m_word = transObj->getWord();
+  MSG_VERBOSE(log,"SCT1_RawDataCnv_p2::transToPers called ");
+  persObj->m_rdoId = transObj->identify().get_compact();
+  persObj->m_word = transObj->getWord();
 }

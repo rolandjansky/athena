@@ -78,7 +78,7 @@ StatusCode SCT_MajorityCondAlg::execute()
   for (;majItr != majEnd; ++majItr) {
     // A CondAttrListCollection is a map of ChanNum and AttributeList
     CondAttrListCollection::ChanNum channelNumber{(*majItr).first};
-    CondAttrListCollection::AttributeList payload{(*majItr).second};
+    const CondAttrListCollection::AttributeList &payload{(*majItr).second};
     // Possible components
     if ((channelNumber == SCT_ConditionsData::OVERALL) or 
         (channelNumber == SCT_ConditionsData::BARREL) or 

@@ -91,7 +91,7 @@ StatusCode SCT_ReadCalibChipGainCondAlg::execute() {
   CondAttrListCollection::const_iterator itLoop_end{readCdo->end()};
   for (; itLoop!=itLoop_end; ++itLoop) {
     CondAttrListCollection::ChanNum chanNum{itLoop->first};
-    coral::AttributeList anAttrList{itLoop->second};
+    const coral::AttributeList &anAttrList{itLoop->second};
     // Convert chanNum=offlineID into identifier
     Identifier32 moduleId{chanNum};
     //find the corresponding hash
@@ -123,7 +123,7 @@ void
 SCT_ReadCalibChipGainCondAlg::insertNptGainFolderData(SCT_ModuleGainCalibData& theseCalibData, const coral::AttributeList& folderData) {
   for (int i{0}; i!=N_NPTGAIN; ++i) {
     SCT_ModuleCalibParameter& datavec{theseCalibData[i]};
-    std::string dbData{((folderData)[nPtGainDbParameterNames[i]]).data<std::string>()};
+    const std::string &dbData{((folderData)[nPtGainDbParameterNames[i]]).data<std::string>()};
     fillFromString(dbData, datavec);
   }
 }

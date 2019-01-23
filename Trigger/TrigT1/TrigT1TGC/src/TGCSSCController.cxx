@@ -17,18 +17,18 @@ extern   bool g_SHPT_ORED;
   
 //constructor 
 TGCSSCController::TGCSSCController(const TGCSectorLogic* sL) 
-  :sectorLogic(sL), NumberOfWireHighPtBoard(0),
-   region(FORWARD)
+  :m_sectorLogic(sL), m_NumberOfWireHighPtBoard(0),
+   m_region(FORWARD)
 { 
 } 
 
 // distribute signals to appropriate r-phi coincidence matrix.
 TGCSSCControllerOut* TGCSSCController::distribute(TGCHighPtChipOut* wire[], TGCHighPtChipOut* strip)
 {
-  TGCSSCControllerOut* out = new TGCSSCControllerOut(sectorLogic->getRegion());
+  TGCSSCControllerOut* out = new TGCSSCControllerOut(m_sectorLogic->getRegion());
   out->clear();
 
-  for(int HPBid=0; HPBid < sectorLogic->getNumberOfWireHighPtBoard(); HPBid++){
+  for(int HPBid=0; HPBid < m_sectorLogic->getNumberOfWireHighPtBoard(); HPBid++){
     if(wire[HPBid]==0) continue; // NO wire HIT
     for(int chip=0; chip<NumberOfChip; chip+=1){
       for(int iCandidate=1; iCandidate>=0; iCandidate-=1){
@@ -36,13 +36,13 @@ TGCSSCControllerOut* TGCSSCController::distribute(TGCHighPtChipOut* wire[], TGCH
 	  // If both candidates has same HitID, ignore 2nd candidate(iCandidate==1).
 	  if(iCandidate==1 && (wire[HPBid]->getHitID(chip,1)) == (wire[HPBid]->getHitID(chip,0))) continue;
 	  int SSCId = getSSCId(HPBid,chip,wire[HPBid]->getHitID(chip,iCandidate));
-	  if(SSCId<sectorLogic->getNumberOfSubSectorCluster()){
+	  if(SSCId<m_sectorLogic->getNumberOfSubSectorCluster()){
 	    out->setR(SSCId,wire[HPBid]->getPos(chip,iCandidate));
 	    out->setDR(SSCId,wire[HPBid]->getDev(chip,iCandidate));
 	    out->setPtR(SSCId,wire[HPBid]->getPt(chip,iCandidate));
 	    out->setHitR(SSCId,true);
 	  }else{
-	    std::cerr << "internal error in TGCSSCController::distribute() bid=" << sectorLogic->getBid() << " ";
+	    std::cerr << "internal error in TGCSSCController::distribute() bid=" << m_sectorLogic->getBid() << " ";
 	    std::cerr << " SSCId="<<SSCId<<std::endl;
 	  }
 	}
@@ -91,7 +91,7 @@ TGCSSCControllerOut* TGCSSCController::distribute(TGCHighPtChipOut* wire[], TGCH
 
 int TGCSSCController::getSSCId(int nHPB, int chip, int block) const
 {
-    if(region==Forward){
+    if(m_region==Forward){
         return (block+chip*MaxNumberOfHPBData);
     }else{
         return (block+chip*MaxNumberOfHPBData+nHPB*MaxNumberOfHPBData*NumberOfChip-5);
@@ -105,7 +105,7 @@ int TGCSSCController::convertPhi(int /* chip */, int block, int pos) const
 
 int TGCSSCController::getChamberNo(int chip, int block) const
 {
-  if(region==Endcap){
+  if(m_region==Endcap){
     int chamber = ((block+chip*MaxNumberOfHPBData)/2);
     if(chamber==5) return (chamber-1);
     else if(chamber==4) return 0;

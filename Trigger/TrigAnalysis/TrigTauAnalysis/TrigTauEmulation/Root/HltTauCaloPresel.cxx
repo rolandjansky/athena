@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigTauEmulation/HltTauSelection.h"
@@ -19,33 +19,39 @@ HltTauCaloPresel::HltTauCaloPresel() :
 }
 
 
+const asg::AcceptInfo& HltTauCaloPresel::getAcceptInfo() const
+{
+  return m_accept;
+}
+
+
 // Accept method
-const Root::TAccept& HltTauCaloPresel::accept(const xAOD::TauJet * hltau) const
+asg::AcceptData HltTauCaloPresel::accept(const xAOD::TauJet * hltau) const
 
 {
-  m_accept.clear();
-  m_accept.setCutResult("CaloPreSel", false);
+  asg::AcceptData acceptData (&m_accept);
+  acceptData.setCutResult("CaloPreSel", false);
 
   if (not m_use_presel) {
     // passthrough mode
-    m_accept.setCutResult("CaloPreSel", true);
-    return m_accept;
+    acceptData.setCutResult("CaloPreSel", true);
+    return acceptData;
   }
 
   if (topo_cluster_pt(hltau) < m_pt)
-    return m_accept;
+    return acceptData;
 
   if (not m_use_calo_presel) {
     // passthrough mode
-    m_accept.setCutResult("CaloPreSel", true);
-    return m_accept;
+    acceptData.setCutResult("CaloPreSel", true);
+    return acceptData;
   }
 
   if (!centfrac_cut(hltau, m_centfrac_strategy))
-    return m_accept;
+    return acceptData;
 
-  m_accept.setCutResult("CaloPreSel", true);
-  return m_accept;
+  acceptData.setCutResult("CaloPreSel", true);
+  return acceptData;
 }
 
 

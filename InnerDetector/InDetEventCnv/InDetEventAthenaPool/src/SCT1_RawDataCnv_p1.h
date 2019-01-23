@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT1_RAWDATACNV_P1_H
@@ -23,8 +23,8 @@ class SCT1_RawDataCnv_p1  : public T_AthenaPoolTPCnvBase<SCT1_RawData, InDetRawD
 public:
 
   SCT1_RawDataCnv_p1() {}
-  virtual void          persToTrans(const InDetRawData_p1* persObj, SCT1_RawData* transObj, MsgStream &log);
-  virtual void          transToPers(const SCT1_RawData* transObj, InDetRawData_p1* persObj, MsgStream &log);
+  virtual void          persToTrans(const InDetRawData_p1* persObj, SCT1_RawData* transObj, MsgStream& log);
+  virtual void          transToPers(const SCT1_RawData* transObj, InDetRawData_p1* persObj, MsgStream& log);
 };
 
 

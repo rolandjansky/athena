@@ -27,7 +27,7 @@ MDTSimHitCollectionCnv::~MDTSimHitCollectionCnv() {
 MDTSimHitCollection_PERS*    MDTSimHitCollectionCnv::createPersistent (MDTSimHitCollection* transCont) {
     MsgStream log(msgSvc(), "MDTSimHitCollectionCnv" );
     ATH_MSG_DEBUG("createPersistent(): main converter");
-    MDTSimHitCollection_PERS *pixdc_p= m_TPConverter_p2.createPersistent( transCont, log );
+    MDTSimHitCollection_PERS *pixdc_p= m_TPConverter_p3.createPersistent( transCont, log );
     return pixdc_p;
 }
 

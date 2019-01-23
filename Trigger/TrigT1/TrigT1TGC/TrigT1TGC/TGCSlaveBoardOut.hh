@@ -54,30 +54,30 @@ public:
   const TGCSlaveBoard* getOrigin() const;
 
 private:
-  const TGCSlaveBoard* origin;
-  int bid;
-  int orgBoardType;
-  int orgSBid;
+  const TGCSlaveBoard* m_origin;
+  int m_bid;
+  int m_orgBoardType;
+  int m_orgSBid;
 
-  int numberOfData; // number of block   A board have OutPutBlock:a,b ,numberOfData is 2.
-  int dev[MaxNumberOfSBData]; // a b c [d [a b c d]]
-  int pos[MaxNumberOfSBData];
-  bool hit[MaxNumberOfSBData];
+  int m_numberOfData; // number of block   A board have OutPutBlock:a,b ,m_numberOfData is 2.
+  int m_dev[MaxNumberOfSBData]; // a b c [d [a b c d]]
+  int m_pos[MaxNumberOfSBData];
+  bool m_hit[MaxNumberOfSBData];
 
-  TGCHitPattern* bpos[MaxNumberOfSBData]; // a b c d  [StripTriplet]a b c d
-  TGCHitPattern* bdev[2];// 2=TotalNumberOfOutputData[1]
+  TGCHitPattern* m_bpos[MaxNumberOfSBData]; // a b c d  [StripTriplet]a b c d
+  TGCHitPattern* m_bdev[2];// 2=TotalNumberOfOutputData[1]
 
 };
 
 inline 
 void TGCSlaveBoardOut::setbPos(int block, int pos)
 {
-  if (block<TotalNumberOfOutputData[orgBoardType]){
-    bpos[block]->dec2bin(pos);
+  if (block<TotalNumberOfOutputData[m_orgBoardType]){
+    m_bpos[block]->dec2bin(pos);
   } else {
     std::cerr << "TGCSlaveBoardOut::setbPos  : illegal block "
-	      << " Type=" << orgBoardType 
-	      << " #block=" << TotalNumberOfOutputData[orgBoardType]
+	      << " Type=" << m_orgBoardType 
+	      << " #block=" << TotalNumberOfOutputData[m_orgBoardType]
 	      << " block=" << block << std::endl;
   }
 }
@@ -88,7 +88,7 @@ void TGCSlaveBoardOut::setHit(int iData, bool hitIn)
   if (MaxNumberOfSBData <= iData){
      std::cerr << "internal error TGCSlaveBoardOut::setHit()" << std::endl;
   } else {
-    hit[iData] = hitIn;
+    m_hit[iData] = hitIn;
   }
 }
 
@@ -98,62 +98,62 @@ void TGCSlaveBoardOut::setDev(int iData, int devIn)
   if(MaxNumberOfSBData <= iData) {
     std::cerr << "Internal error TGCSlaveBoardOut::setDev()" << std::endl;
   } else {
-    dev[iData] = devIn;
+    m_dev[iData] = devIn;
   }
 }
 
 inline
 TGCHitPattern* TGCSlaveBoardOut::getbPos(int iData)
 {
-  return bpos[iData];
+  return m_bpos[iData];
 }
 
 inline
 const TGCSlaveBoard* TGCSlaveBoardOut::getOrigin() const
 {
-  return origin;
+  return m_origin;
 }
 
 inline
 int TGCSlaveBoardOut::getDev(int iData) const
 {
-  return dev[iData];
+  return m_dev[iData];
 }
 
 inline
 int TGCSlaveBoardOut::getPos(int iData) const
 {
-  return pos[iData];
+  return m_pos[iData];
 }
 
 inline
 bool TGCSlaveBoardOut::getHit(int iData) const
 {
-  return hit[iData];
+  return m_hit[iData];
 }
 
 inline
 int TGCSlaveBoardOut::getBid() const
 {
-  return bid;
+  return m_bid;
 }
 
 inline
 int TGCSlaveBoardOut::getOrgBoardType() const
 {
-  return orgBoardType;
+  return m_orgBoardType;
 }
 
 inline
 void TGCSlaveBoardOut::setNumberOfData(int nData) 
 {
-  numberOfData = nData;
+  m_numberOfData = nData;
 }
 
 inline
 int TGCSlaveBoardOut::getNumberOfData() const 
 {
-  return numberOfData;
+  return m_numberOfData;
 }
 
 

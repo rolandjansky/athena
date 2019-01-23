@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
  */
 
 //
@@ -86,7 +86,7 @@
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoTrap.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <string>
 #include <iostream>
@@ -239,10 +239,10 @@ namespace InDetDD {
       // Inner edge
       GeoShape* shapeTmp2 = 0;
       if (m_rmin == m_rmin2) {
-        shapeTmp2 = new GeoTube(0, m_rmin, halflength + 0.1 * GeoModelKernelUnits::mm);
+        shapeTmp2 = new GeoTube(0, m_rmin, halflength + 0.1 * Gaudi::Units::mm);
         volume -= 2 * M_PI * m_rmin * m_rmin * halflength;
       } else {
-        shapeTmp2 = new GeoCons(0, 0, m_rmin, m_rmin2, halflength + 0.1 * GeoModelKernelUnits::mm, 0, 2 * M_PI);
+        shapeTmp2 = new GeoCons(0, 0, m_rmin, m_rmin2, halflength + 0.1 * Gaudi::Units::mm, 0, 2 * M_PI);
         volume -= 2 * M_PI * pow(0.5 * (m_rmin + m_rmin2), 2) * halflength;
       }
       serviceShape = &(shapeTmp1->subtract(*shapeTmp2));

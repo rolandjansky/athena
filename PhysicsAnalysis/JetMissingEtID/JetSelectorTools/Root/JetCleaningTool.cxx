@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /******************************************************************************
@@ -192,34 +192,34 @@ StatusCode JetCleaningTool::initialize()
 //===============================================================
 // Calculate the accept from the DFCommonJets_jetClean decorator
 //===============================================================
-const Root::TAccept& JetCleaningTool::accept( const int isJetClean, const int fmaxIndex ) const
+asg::AcceptData JetCleaningTool::accept( const int isJetClean, const int fmaxIndex ) const
 {                
-    m_accept.clear();
-    m_accept.setCutResult( "Cleaning", false );
+    asg::AcceptData acceptData (&m_accept);
+    acceptData.setCutResult( "Cleaning", false );
 
     //=============================================================
     //Run-II ugly cuts
     //=============================================================
-    if(m_doUgly && fmaxIndex==17) return m_accept;
+    if(m_doUgly && fmaxIndex==17) return acceptData;
 
     //=============================================================
     //Loose/tight cleaning taken from decoration
     //=============================================================
-    if(isJetClean==0) return m_accept; 
+    if(isJetClean==0) return acceptData;
     else{
-        m_accept.setCutResult( "Cleaning", true );
-        return m_accept;
+        acceptData.setCutResult( "Cleaning", true );
+        return acceptData;
     }
 
     // We should never arrive here!
     ATH_MSG_ERROR( "Unknown cut name: " << getCutName( m_cutLevel ) << " in JetCleaningTool" );
-    return m_accept;
+    return acceptData;
 
 }
 //===============================================================
 // Calculate tight cleaning from loose decoration + variables
 //===============================================================
-const Root::TAccept& JetCleaningTool::accept( const int isJetClean,
+asg::AcceptData JetCleaningTool::accept( const int isJetClean,
         const double sumpttrk, //in MeV, same as sumpttrk
         const double fmax,
         const double eta,
@@ -227,36 +227,36 @@ const Root::TAccept& JetCleaningTool::accept( const int isJetClean,
         const int    fmaxIndex                        
         ) const
 {                
-    m_accept.clear();
-    m_accept.setCutResult( "Cleaning", false );
+    asg::AcceptData acceptData (&m_accept);
+    acceptData.setCutResult( "Cleaning", false );
     const double chf=sumpttrk/pt;
 
     //=============================================================
     //Run-II ugly cuts
     //=============================================================
-    if(m_doUgly && fmaxIndex==17) return m_accept;
+    if(m_doUgly && fmaxIndex==17) return acceptData;
 
     //=============================================================
     //Tight cleaning taken from decoration
     //=============================================================
-    if(isJetClean==0) return m_accept;  //fails Loose cleaning
-    else if (fmax<DBL_MIN) return m_accept;
-        else if(std::fabs(eta)<2.4 && chf/fmax<0.1) return m_accept;    
+    if(isJetClean==0) return acceptData;  //fails Loose cleaning
+    else if (fmax<DBL_MIN) return acceptData;
+        else if(std::fabs(eta)<2.4 && chf/fmax<0.1) return acceptData;
     else{
-        m_accept.setCutResult( "Cleaning", true );
-        return m_accept;
+        acceptData.setCutResult( "Cleaning", true );
+        return acceptData;
     }
 
     // We should never arrive here!
     ATH_MSG_ERROR( "Unknown cut name: " << getCutName( m_cutLevel ) << " in JetCleaningTool" );
-    return m_accept;
+    return acceptData;
 
 }
 
 //=============================================================================
 // Calculate the actual accept of each cut individually.
 //=============================================================================
-const Root::TAccept& JetCleaningTool::accept( const double emf,
+asg::AcceptData JetCleaningTool::accept( const double emf,
                               const double hecf,
                               const double larq,
                               const double hecq,
@@ -270,28 +270,28 @@ const Root::TAccept& JetCleaningTool::accept( const double emf,
                               const int    fmaxIndex
                               ) const
 {
-  m_accept.clear();
-  m_accept.setCutResult( "Cleaning", false );
+  asg::AcceptData acceptData (&m_accept);
+  acceptData.setCutResult( "Cleaning", false );
 
   // -----------------------------------------------------------
   // Do the actual selection
-  if (pt<DBL_MIN) return m_accept;
+  if (pt<DBL_MIN) return acceptData;
   const double chf=sumpttrk/pt;
 
   //=============================================================
   //Run-II ugly cuts
   //=============================================================
-  if(m_doUgly && fmaxIndex==17) return m_accept;
+  if(m_doUgly && fmaxIndex==17) return acceptData;
 
   //=============================================================
   //Run-II very loose LLP cuts
   // From https://indico.cern.ch/event/642438/contributions/2704590/attachments/1514445/2362870/082117a_HCW_NCB_LLP.pdf
   //=============================================================
   if (VeryLooseBadLLP == m_cutLevel){
-    if (fmax>0.80) return m_accept;
-    if (emf>0.96) return m_accept;
-    m_accept.setCutResult( "Cleaning", true );
-    return m_accept;
+    if (fmax>0.80) return acceptData;
+    if (emf>0.96) return acceptData;
+    acceptData.setCutResult( "Cleaning", true );
+    return acceptData;
   }
 
   //=============================================================
@@ -301,38 +301,38 @@ const Root::TAccept& JetCleaningTool::accept( const double emf,
   const bool useLLP = (LooseBadLLP == m_cutLevel); // LLP cleaning cannot use emf...
   const bool isTrigger = (LooseBadTrigger == m_cutLevel); // trigger cannot use chf
   if (!useLLP) {
-    if(!isTrigger && emf<0.05 && chf<0.05 && std::fabs(eta)<2)            return m_accept;
-    if(emf<0.05 && std::fabs(eta)>=2)                       return m_accept;
+    if(!isTrigger && emf<0.05 && chf<0.05 && std::fabs(eta)<2)            return acceptData;
+    if(emf<0.05 && std::fabs(eta)>=2)                       return acceptData;
   }
-  if(fmax>0.99 && std::fabs(eta)<2)                       return m_accept;
+  if(fmax>0.99 && std::fabs(eta)<2)                       return acceptData;
   //HEC spike-- gone as of 2017! 
-  if(hecf>0.5 && std::fabs(hecq)>0.5 && AverageLArQF/65535>0.8)                     return m_accept;
+  if(hecf>0.5 && std::fabs(hecq)>0.5 && AverageLArQF/65535>0.8)                     return acceptData;
   //EM calo noise
-  if(emf>0.95 && std::fabs(larq)>0.8 && std::fabs(eta)<2.8 && AverageLArQF/65535>0.8)    return m_accept;
+  if(emf>0.95 && std::fabs(larq)>0.8 && std::fabs(eta)<2.8 && AverageLArQF/65535>0.8)    return acceptData;
   // LLP cleaning uses negative energy cut
   // (https://indico.cern.ch/event/472320/contribution/8/attachments/1220731/1784456/JetTriggerMeeting_20160102.pdf)
-  if (useLLP && std::fabs(negE*0.001)>4 && fmax >0.85) return m_accept;
+  if (useLLP && std::fabs(negE*0.001)>4 && fmax >0.85) return acceptData;
   
   if (LooseBad==m_cutLevel || LooseBadLLP==m_cutLevel || LooseBadTrigger==m_cutLevel){
-    m_accept.setCutResult( "Cleaning", true );
-    return m_accept;
+    acceptData.setCutResult( "Cleaning", true );
+    return acceptData;
   }
 
   //=============================================================
   //Run-II tight cuts
   //=============================================================
   // NCB monojet-style cut in central, EMF cut in forward
-  if (fmax<DBL_MIN) return m_accept;
-  if(std::fabs(eta)<2.4 && chf/fmax<0.1) return m_accept;
-  //if(std::fabs(eta)>=2.4 && emf<0.1) return m_accept;
+  if (fmax<DBL_MIN) return acceptData;
+  if(std::fabs(eta)<2.4 && chf/fmax<0.1) return acceptData;
+  //if(std::fabs(eta)>=2.4 && emf<0.1) return acceptData;
   if(TightBad==m_cutLevel){
-    m_accept.setCutResult( "Cleaning", true );
-    return m_accept;
+    acceptData.setCutResult( "Cleaning", true );
+    return acceptData;
   }
 
   // We should never arrive here!
   ATH_MSG_ERROR( "Unknown cut name: " << getCutName( m_cutLevel ) << " in JetCleaningTool" );
-  return m_accept;
+  return acceptData;
 }
 
 
@@ -342,7 +342,7 @@ void JetCleaningTool::missingVariable(const std::string& varName) const
     throw std::runtime_error(Form("JetCleaningTool failed to retrieve a required variable - please confirm that the xAOD::Jet being passed contains the variable named %s",varName.c_str()));
 }
 
-const Root::TAccept& JetCleaningTool::accept( const xAOD::Jet& jet) const
+asg::AcceptData JetCleaningTool::accept( const xAOD::Jet& jet) const
 {
   std::vector<float> sumPtTrkvec;
   jet.getAttribute( xAOD::JetAttribute::SumPtTrkPt500, sumPtTrkvec );

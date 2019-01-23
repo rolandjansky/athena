@@ -54,11 +54,11 @@ public:
 
 
 private:
-  TGCRPhiCoincidenceMap* mapRphi[NumberOfSide][NumberOfOctant];
-  TGCInnerCoincidenceMap* mapInner[NumberOfSide];
-  TGCTileMuCoincidenceMap* mapTileMu;
-  TGCConnectionPPToSL* PPToSL[NumberOfRegionType];
-  TGCConnectionASDToPP* ASDToPP[NumberOfRegionType][NumberOfPatchPanelType][TotalNumForwardBackwardType];
+  TGCRPhiCoincidenceMap* m_mapRphi[NumberOfSide][NumberOfOctant];
+  TGCInnerCoincidenceMap* m_mapInner[NumberOfSide];
+  TGCTileMuCoincidenceMap* m_mapTileMu;
+  TGCConnectionPPToSL* m_PPToSL[NumberOfRegionType];
+  TGCConnectionASDToPP* m_ASDToPP[NumberOfRegionType][NumberOfPatchPanelType][TotalNumForwardBackwardType];
 
   std::map<PatchPanelIDs, std::pair<const TGCConnectionInPP, PatchPanelPointers> > m_patchPanelToConnectionInPP;
 };
@@ -66,31 +66,31 @@ private:
 inline 
 TGCRPhiCoincidenceMap* TGCDatabaseManager::getRPhiCoincidenceMap(int sideId, int octantId) const
 {
-  return mapRphi[sideId][octantId];
+  return m_mapRphi[sideId][octantId];
 }
 
 inline 
 TGCInnerCoincidenceMap* TGCDatabaseManager::getInnerCoincidenceMap(int sideId) const
 {
-  return mapInner[sideId];
+  return m_mapInner[sideId];
 }
 
 inline 
 TGCTileMuCoincidenceMap* TGCDatabaseManager::getTileMuCoincidenceMap() const
 {
-  return mapTileMu;
+  return m_mapTileMu;
 }
 
 inline 
  TGCConnectionPPToSL* TGCDatabaseManager::getConnectionPPToSL(TGCRegionType type) const
 {
-  return PPToSL[type-1];
+  return m_PPToSL[type-1];
 }
 
 inline 
  TGCConnectionASDToPP* TGCDatabaseManager::getConnectionASDToPP(TGCRegionType region, int type, TGCForwardBackwardType forwardBackward) const
 {
-  return ASDToPP[region-1][type][forwardBackward];
+  return m_ASDToPP[region-1][type][forwardBackward];
 }
 
 } //end of namespace bracket

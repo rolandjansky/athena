@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -20,11 +20,10 @@
 
 #include "HitManagement/TimedHitPtr.h"
 #include "SiDigitization/SiChargedDiodeCollection.h"
-#include "SiPropertiesSvc/ISiPropertiesSvc.h"
+#include "SiPropertiesSvc/ISiPropertiesTool.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "SiDigitization/SiChargedDiodeCollection.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
-#include "SiPropertiesSvc/ISiPropertiesSvc.h"
 
 static const InterfaceID IID_ISensorSimTool("SensorSimTool", 1, 0);
 
@@ -33,13 +32,11 @@ class SensorSimTool:public AthAlgTool,virtual public IAlgTool {
   public:
     SensorSimTool( const std::string& type, const std::string& name,const IInterface* parent) : 
       AthAlgTool(type,name,parent),
-      m_siPropertiesSvc("PixelSiPropertiesSvc",name),
       m_rndmSvc("AtDSFMTGenSvc",name),
       m_rndmEngineName("PixelDigitization"),
       m_rndmEngine(nullptr)	
   {
     declareInterface<SensorSimTool>(this);
-    declareProperty("SiPropertiesSvc",   m_siPropertiesSvc,    "SiPropertiesSvc");
     declareProperty("RndmSvc",           m_rndmSvc,            "Random Number Service used in SCT & Pixel digitization");
     declareProperty("RndmEngine",        m_rndmEngineName,     "Random engine name");
   }
@@ -49,7 +46,7 @@ class SensorSimTool:public AthAlgTool,virtual public IAlgTool {
     virtual StatusCode initialize() {
       CHECK(AthAlgTool::initialize()); 
 
-      CHECK(m_siPropertiesSvc.retrieve());
+      CHECK(m_siPropertiesTool.retrieve());
 
       CHECK(m_rndmSvc.retrieve());
 
@@ -73,7 +70,7 @@ class SensorSimTool:public AthAlgTool,virtual public IAlgTool {
     SensorSimTool();
 
   protected:
-    ServiceHandle<ISiPropertiesSvc>	m_siPropertiesSvc;
+    ToolHandle<ISiPropertiesTool>   m_siPropertiesTool{this, "SiPropertiesTool", "SiPropertiesTool", "Tool to retrieve SiProperties"};
     ServiceHandle<IAtRndmGenSvc>    m_rndmSvc;
     std::string 		                m_rndmEngineName;
     CLHEP::HepRandomEngine         *m_rndmEngine;	

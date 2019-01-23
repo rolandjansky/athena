@@ -22,9 +22,7 @@
 #include "TrigConfL1ItemsNamed.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "EventInfo/EventIncident.h"
 #include "EventInfo/EventInfo.h"
-#include "EventInfo/EventType.h"
 #include "ByteStreamData/ByteStreamMetadata.h"
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h" 
 #include "PersistentDataModel/DataHeader.h"

@@ -14,16 +14,16 @@
 namespace LVL1TGCTrigger {
 
 TGCConnectionPPToSL::TGCConnectionPPToSL():
-  PPToSB(),
-  SBToHPB(),
-  HPBToSL()
+  m_PPToSB(),
+  m_SBToHPB(),
+  m_HPBToSL()
 {
 }
 
 TGCConnectionPPToSL::TGCConnectionPPToSL(const TGCConnectionPPToSL& right):
-  PPToSB(right.PPToSB),
-  SBToHPB(right.SBToHPB),
-  HPBToSL(right.HPBToSL)
+  m_PPToSB(right.m_PPToSB),
+  m_SBToHPB(right.m_SBToHPB),
+  m_HPBToSL(right.m_HPBToSL)
 {
 }
 
@@ -31,9 +31,9 @@ TGCConnectionPPToSL::TGCConnectionPPToSL(const TGCConnectionPPToSL& right):
 TGCConnectionPPToSL& TGCConnectionPPToSL::operator =(const TGCConnectionPPToSL& right)
 { 
   if (this != &right) {
-    PPToSB  = right.PPToSB;
-    SBToHPB = right.SBToHPB;
-    HPBToSL = right.HPBToSL;
+    m_PPToSB  = right.m_PPToSB;
+    m_SBToHPB = right.m_SBToHPB;
+    m_HPBToSL = right.m_HPBToSL;
   }
   return *this;
 }
@@ -56,11 +56,11 @@ bool TGCConnectionPPToSL::readData(TGCRegionType type)
   char buf[1024];
 
   // create arrays of number of boards for each type. 
-  const int NHPB= HPBToSL.getNumberOfType();
+  const int NHPB= m_HPBToSL.getNumberOfType();
   int* aNHPB = new int [NHPB];
-  const int NSB = SBToHPB.getNumberOfType();
+  const int NSB = m_SBToHPB.getNumberOfType();
   int* aNSB = new int [NSB];
-  const int NPP = PPToSB.getNumberOfType();
+  const int NPP = m_PPToSB.getNumberOfType();
   int* aNPP = new int [NPP];
 
   // find entries match in region type.
@@ -92,16 +92,16 @@ bool TGCConnectionPPToSL::readData(TGCRegionType type)
     std::cout<<Name<<" "<<aNHPB[WHPB]<<" "<<aNHPB[SHPB]<<std::endl;
 #endif
     for(int i=0; i<NHPB; i++) {
-      HPBToSL.setNumber(i, aNHPB[i]);
+      m_HPBToSL.setNumber(i, aNHPB[i]);
       for (int j=0; j<aNHPB[i]; j+=1) {
 	inputfile.getline(buf,BufferSize);
 	std::istringstream infileS2(buf);
 	infileS2 >> id >> port;
-	HPBToSL.setId(i,j,id);
+	m_HPBToSL.setId(i,j,id);
 #ifdef TGCDEBUG
-	std::cout<<"HPBID="<<HPBToSL.getId(i,j)<<std::endl;
+	std::cout<<"HPBID="<<m_HPBToSL.getId(i,j)<<std::endl;
 #endif
-	HPBToSL.setSLPortToHPB(i,id,port);
+	m_HPBToSL.setSLPortToHPB(i,id,port);
       }
     }
   }
@@ -118,7 +118,7 @@ bool TGCConnectionPPToSL::readData(TGCRegionType type)
       // No HPB for Inner
       if ( i == WISB ) continue;
       if ( i == SISB ) continue;
-      SBToHPB.setNumber(i,aNSB[i]);
+      m_SBToHPB.setNumber(i,aNSB[i]);
       for (int  j=0; j<aNSB[i]; j+=1) {
 	inputfile.getline(buf,BufferSize);
 	std::istringstream infileS2(buf);
@@ -127,9 +127,9 @@ bool TGCConnectionPPToSL::readData(TGCRegionType type)
 	std::cerr<<  id <<" " << idHPB <<" " << port <<std::endl;
 #endif
         if (id<0 || idHPB<0 || port<0) continue;
-	SBToHPB.setId(i,j,id); //BoardType, Number in a type, id
-	SBToHPB.setHPBIdToSB(i,id,idHPB);
-	SBToHPB.setHPBPortToSB(i,id,port);
+	m_SBToHPB.setId(i,j,id); //BoardType, Number in a type, id
+	m_SBToHPB.setHPBIdToSB(i,id,idHPB);
+	m_SBToHPB.setHPBPortToSB(i,id,port);
       }
     }
   }
@@ -148,17 +148,17 @@ bool TGCConnectionPPToSL::readData(TGCRegionType type)
 	     <<std::endl;
 #endif
     for(int i=0; i<NPP; i+=1){
-      PPToSB.setNumber(i,aNPP[i]);
+      m_PPToSB.setNumber(i,aNPP[i]);
       for(int j=0; j<aNPP[i]; j+=1) {
 	inputfile.getline(buf,BufferSize);
 	std::istringstream infileS2(buf);
 	infileS2 >> id; //PP ID
-	PPToSB.setId(i,j,id);
+	m_PPToSB.setId(i,j,id);
 
 	infileS2 >> idSB1; //SB ID for Port0
-	PPToSB.setSBIdToPP(i,0,j,idSB1);//!! assume id = index 
+	m_PPToSB.setSBIdToPP(i,0,j,idSB1);//!! assume id = index 
 	infileS2 >> idSB2; //SB ID for Port1
-	PPToSB.setSBIdToPP(i,1,j,idSB2);//!! assume id = index 
+	m_PPToSB.setSBIdToPP(i,1,j,idSB2);//!! assume id = index 
 
 #ifdef TGCDEBUG
 	if ((i==WIPP)||(i==SIPP)) {

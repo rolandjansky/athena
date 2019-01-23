@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // vim: ts=2 sw=2
@@ -7,7 +7,8 @@
 #define IHLTTAUSELECTIONTOOL_HLTTAUSELECTIONTOOL_H
 
 #include "AsgTools/IAsgTool.h"
-#include "PATCore/TAccept.h"
+#include "PATCore/AcceptInfo.h"
+#include "PATCore/AcceptData.h"
 
 //EDM include
 #include "xAODTau/TauJetContainer.h"
@@ -23,9 +24,11 @@ class IHltTauSelectionTool : public virtual ISelectionTool
 
   public:
 
-    virtual const Root::TAccept& accept(const DecoratedHltTau& hlttau) const = 0; 
-    virtual const Root::TAccept& accept(const xAOD::TauJet * hlttau, const DataVector<xAOD::TrackParticle> *preselTracksIso, const DataVector<xAOD::TrackParticle> *preselTracksCore) const = 0;
-    virtual const Root::TAccept& accept(const xAOD::TauJet * hlttau, const xAOD::TauJetContainer* presel_taus) const = 0;
+    virtual const asg::AcceptInfo& getAcceptInfo() const = 0;
+
+    virtual asg::AcceptData accept(const DecoratedHltTau& hlttau) const = 0; 
+    virtual asg::AcceptData accept(const xAOD::TauJet * hlttau, const DataVector<xAOD::TrackParticle> *preselTracksIso, const DataVector<xAOD::TrackParticle> *preselTracksCore) const = 0;
+    virtual asg::AcceptData accept(const xAOD::TauJet * hlttau, const xAOD::TauJetContainer* presel_taus) const = 0;
 
     virtual ~IHltTauSelectionTool() {};
 

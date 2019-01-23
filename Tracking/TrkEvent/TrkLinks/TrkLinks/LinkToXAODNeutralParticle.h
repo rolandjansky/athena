@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKTRACK_LINKTOXAODNEUTRALPARTICLE_H
@@ -38,7 +38,7 @@ namespace Trk
     LinkToXAODNeutralParticle( ElementLink<xAOD::NeutralParticleContainer>& link );
     
     /** default destructor */
-    virtual ~LinkToXAODNeutralParticle();
+    virtual ~LinkToXAODNeutralParticle() = default;
    
     /** dummy function to return 0 if TrackParameters are asked for */
     const TrackParameters* parameters() const { return NULL; };
@@ -49,9 +49,6 @@ namespace Trk
     /** method to clone the LinkToXAODNeutralParticle object */
     LinkToXAODNeutralParticle * clone() const ;
     
-    /** assignment operator */
-    Trk::LinkToXAODNeutralParticle& operator= ( const Trk::LinkToXAODNeutralParticle& rhs );
-   
     // This is here to make sure that the NeutralCollection typedef
     // will make it into the dictionary.
    // typedef NeutralCollection NeutralCollectionForDict;

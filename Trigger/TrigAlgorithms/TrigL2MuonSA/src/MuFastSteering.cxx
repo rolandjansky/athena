@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <numeric>
@@ -23,7 +23,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/Monitored.h"
 
 using namespace SG;
 // --------------------------------------------------------------------------------
@@ -275,10 +275,8 @@ StatusCode MuFastSteering::execute()
 {
   ATH_MSG_DEBUG("StatusCode MuFastSteering::execute start");
 
-  // TimerSvc
-  using namespace Monitored;
-  auto totalTimer = MonitoredTimer::declare( "TIME_Total" );
-  auto monitorIt	= MonitoredScope::declare(m_monTool, totalTimer );
+  auto totalTimer = Monitored::Timer( "TIME_Total" );
+  auto monitorIt	= Monitored::Group(m_monTool, totalTimer );
   totalTimer.start();
 
   auto ctx = getContext();
@@ -383,10 +381,8 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* /*inputTE*/
 {
   ATH_MSG_DEBUG("hltExecute called");
 
-  // TimerSvc
-  using namespace Monitored;
-  auto totalTimer = MonitoredTimer::declare( "TIME_Total" );
-  auto monitorIt	= MonitoredScope::declare(m_monTool, totalTimer );
+  auto totalTimer = Monitored::Timer( "TIME_Total" );
+  auto monitorIt	= Monitored::Group(m_monTool, totalTimer );
   totalTimer.start();
 
   std::vector< const TrigRoiDescriptor*> roids;
@@ -570,16 +566,15 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
   ATH_MSG_DEBUG("StatusCode MuFastSteering::findMuonSignature start");
   StatusCode sc = StatusCode::SUCCESS;
 
-  using namespace Monitored;
-  auto prepTimer           = MonitoredTimer::declare( "TIME_Data_Preparator" );
-  auto patternTimer        = MonitoredTimer::declare( "TIME_Pattern_Finder" );
-  auto stationFitterTimer  = MonitoredTimer::declare( "TIME_Station_Fitter" );
-  auto trackFitterTimer    = MonitoredTimer::declare( "TIME_Track_Fitter" );
-  auto trackExtraTimer     = MonitoredTimer::declare( "TIME_Track_Extrapolator" );
-  auto calibrationTimer    = MonitoredTimer::declare( "TIME_Calibration_Streamer" );
+  auto prepTimer           = Monitored::Timer( "TIME_Data_Preparator" );
+  auto patternTimer        = Monitored::Timer( "TIME_Pattern_Finder" );
+  auto stationFitterTimer  = Monitored::Timer( "TIME_Station_Fitter" );
+  auto trackFitterTimer    = Monitored::Timer( "TIME_Track_Fitter" );
+  auto trackExtraTimer     = Monitored::Timer( "TIME_Track_Extrapolator" );
+  auto calibrationTimer    = Monitored::Timer( "TIME_Calibration_Streamer" );
 
-  auto monitorIt	= MonitoredScope::declare(m_monTool, prepTimer, patternTimer, stationFitterTimer, 
-                                                  trackFitterTimer, trackExtraTimer, calibrationTimer );
+  auto monitorIt	= Monitored::Group(m_monTool, prepTimer, patternTimer, stationFitterTimer,
+                                                trackFitterTimer, trackExtraTimer, calibrationTimer );
  
   if (m_use_timer) {
     for (unsigned int i_timer=0; i_timer<m_timingTimers.size(); i_timer++) {
@@ -1665,19 +1660,18 @@ StatusCode MuFastSteering::updateMonitor(const LVL1::RecMuonRoI*                
                                          const TrigL2MuonSA::MdtHits&               mdtHits,
                                          std::vector<TrigL2MuonSA::TrackPattern>&   trackPatterns )
 {
-  using namespace Monitored;
   // initialize monitored variable
-  auto inner_mdt_hits 	= MonitoredScalar::declare("InnMdtHits", -1);
-  auto middle_mdt_hits 	= MonitoredScalar::declare("MidMdtHits", -1);
-  auto outer_mdt_hits 	= MonitoredScalar::declare("OutMdtHits", -1);
-  auto invalid_rpc_roi_number = MonitoredScalar::declare("InvalidRpcRoINumber", -1);
+  auto inner_mdt_hits 	= Monitored::Scalar("InnMdtHits", -1);
+  auto middle_mdt_hits 	= Monitored::Scalar("MidMdtHits", -1);
+  auto outer_mdt_hits 	= Monitored::Scalar("OutMdtHits", -1);
+  auto invalid_rpc_roi_number = Monitored::Scalar("InvalidRpcRoINumber", -1);
 
-  auto efficiency 	= MonitoredScalar::declare("Efficiency", 0);
-  auto sag_inverse 	= MonitoredScalar::declare("SagInv", 9999.);
-  auto address 		= MonitoredScalar::declare("Address", 9999.);
-  auto absolute_pt 	= MonitoredScalar::declare("AbsPt", 9999.);
-  auto sagitta	 	= MonitoredScalar::declare("Sagitta", 9999.);
-  auto track_pt 	= MonitoredScalar::declare("TrackPt", 9999.);
+  auto efficiency 	= Monitored::Scalar("Efficiency", 0);
+  auto sag_inverse 	= Monitored::Scalar("SagInv", 9999.);
+  auto address 		= Monitored::Scalar("Address", 9999.);
+  auto absolute_pt 	= Monitored::Scalar("AbsPt", 9999.);
+  auto sagitta	 	= Monitored::Scalar("Sagitta", 9999.);
+  auto track_pt 	= Monitored::Scalar("TrackPt", 9999.);
 
   std::vector<float> t_eta, t_phi;
   std::vector<float> f_eta, f_phi;
@@ -1693,20 +1687,20 @@ StatusCode MuFastSteering::updateMonitor(const LVL1::RecMuonRoI*                
   r_outer.clear();
   f_residuals.clear();
 
-  auto track_eta	= MonitoredCollection::declare("TrackEta", t_eta);
-  auto track_phi	= MonitoredCollection::declare("TrackPhi", t_phi);
-  auto failed_eta	= MonitoredCollection::declare("FailedRoIEta", f_eta);
-  auto failed_phi	= MonitoredCollection::declare("FailedRoIPhi", f_phi);
-  auto res_inner	= MonitoredCollection::declare("ResInner", r_inner);
-  auto res_middle	= MonitoredCollection::declare("ResMiddle", r_middle);
-  auto res_outer	= MonitoredCollection::declare("ResOuter", r_outer);
-  auto fit_residuals	= MonitoredCollection::declare("FitResiduals", f_residuals);
+  auto track_eta	= Monitored::Collection("TrackEta", t_eta);
+  auto track_phi	= Monitored::Collection("TrackPhi", t_phi);
+  auto failed_eta	= Monitored::Collection("FailedRoIEta", f_eta);
+  auto failed_phi	= Monitored::Collection("FailedRoIPhi", f_phi);
+  auto res_inner	= Monitored::Collection("ResInner", r_inner);
+  auto res_middle	= Monitored::Collection("ResMiddle", r_middle);
+  auto res_outer	= Monitored::Collection("ResOuter", r_outer);
+  auto fit_residuals	= Monitored::Collection("FitResiduals", f_residuals);
 
-  auto monitorIt	= MonitoredScope::declare(m_monTool, inner_mdt_hits, middle_mdt_hits, outer_mdt_hits, 
-						  invalid_rpc_roi_number,
-					          efficiency, sag_inverse, address, absolute_pt, sagitta, track_pt,
-					          track_eta, track_phi, failed_eta, failed_phi, 
-						  res_inner, res_middle, res_outer, fit_residuals );
+  auto monitorIt	= Monitored::Group(m_monTool, inner_mdt_hits, middle_mdt_hits, outer_mdt_hits,
+                                                invalid_rpc_roi_number,
+                                                efficiency, sag_inverse, address, absolute_pt, sagitta, track_pt,
+                                                track_eta, track_phi, failed_eta, failed_phi,
+                                                res_inner, res_middle, res_outer, fit_residuals );
   
   const float ZERO_LIMIT = 1e-5;
 

@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // LVL1TGCTrigger.h
-#ifndef __LVL1TGCTRIGGER_H__
-#define __LVL1TGCTRIGGER_H__
+#ifndef TRIGT1TGC_LVL1TGCTRIGGER_H
+#define TRIGT1TGC_LVL1TGCTRIGGER_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
@@ -183,4 +183,4 @@ class LVL1TGCTrigger : public AthAlgorithm
 
 } // namespace LVL1TGCTrigger
 
-#endif // __LVL1TGCTRIGGER_H__
+#endif // not TRIGT1TGC_LVL1TGCTRIGGER_H

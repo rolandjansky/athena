@@ -7,7 +7,6 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
 #include "CaloIdentifier/CaloIdManager.h"
-#include "LArCondUtils/LArFEBTempTool.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 
 LArCond2NtupleBase::LArCond2NtupleBase(const std::string& name, ISvcLocator* pSvcLocator): 

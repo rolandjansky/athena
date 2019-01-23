@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkLinks/LinkToXAODTrackParticle.h"
@@ -13,9 +13,6 @@ namespace Trk
 	{}
 
 	LinkToXAODTrackParticle::LinkToXAODTrackParticle ( ElementLink<xAOD::TrackParticleContainer>& link ) : ElementLink<xAOD::TrackParticleContainer> ( link )
-	{}
-
-	LinkToXAODTrackParticle::~LinkToXAODTrackParticle()
 	{}
 
         const TrackParameters* LinkToXAODTrackParticle::parameters() const
@@ -34,12 +31,4 @@ namespace Trk
 		return new LinkToXAODTrackParticle ( *this );
 	}
 
-	Trk::LinkToXAODTrackParticle& Trk::LinkToXAODTrackParticle::operator= ( const Trk::LinkToXAODTrackParticle& rhs )
-	{
-		if ( this!=&rhs )
-		{
-			ElementLink<xAOD::TrackParticleContainer>::operator= ( rhs );
-		}
-		return *this;
-	}
 }//end of namespace definitions

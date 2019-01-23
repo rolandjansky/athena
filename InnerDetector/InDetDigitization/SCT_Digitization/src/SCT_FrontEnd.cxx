@@ -1,14 +1,14 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_FrontEnd.h"
 
 // Random number
-#include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"  // for RandGaussZiggurat
 #include "CLHEP/Random/RandPoisson.h"
+#include "CLHEP/Random/RandomEngine.h"
 
 #include "SiDigitization/SiHelper.h"
 #include "SCT_Digitization/ISCT_Amp.h"
@@ -31,8 +31,7 @@ using namespace InDetDD;
 SCT_FrontEnd::SCT_FrontEnd(const std::string& type, const std::string& name, const IInterface* parent)
   : AthAlgTool(type, name, parent),
     m_SCTdetMgr(nullptr),
-    m_sct_id(nullptr),
-    m_rndmEngine(nullptr) {
+    m_sct_id(nullptr) {
   declareInterface<ISCT_FrontEnd>(this);
 
   declareProperty("NoiseBarrel", m_NoiseBarrel = 1500.0, "NoiseBarrel");
@@ -147,7 +146,7 @@ StatusCode SCT_FrontEnd::initVectors(int strips) const {
 // ----------------------------------------------------------------------
 // prepare gain and offset for the strips for a given module
 // ----------------------------------------------------------------------
-StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collection, const Identifier& moduleId) const {
+StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collection, const Identifier& moduleId, CLHEP::HepRandomEngine * rndmEngine) const {
   // now we need to generate gain and offset channel by channel: some algebra
   // for generation of partially correlated random numbers
   float W = m_OGcorr * m_GainRMS * m_Ospread / (m_GainRMS * m_GainRMS - m_Ospread * m_Ospread);
@@ -219,8 +218,8 @@ StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collecti
         for (; i < i_end; i++) {
           // Need to check if strip is already setup
           if (m_Analogue[1][i] <= 0.0) {
-            float g = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine, 0.0, S1);
-            float o = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine, 0.0, S2);
+            float g = CLHEP::RandGaussZiggurat::shoot(rndmEngine, 0.0, S1);
+            float o = CLHEP::RandGaussZiggurat::shoot(rndmEngine, 0.0, S2);
 
             m_GainFactor[i] = 1.0 + (cosfi * g + sinfi * o);
             m_Offset[i] = (cosfi * o - sinfi * g);
@@ -228,14 +227,14 @@ StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collecti
 
             // Fill the noise and offset values into the Analogue
             if (m_data_compression_mode == 1 and m_data_readout_mode == 0) { // level mode x1x
-              m_Analogue[1][i] = m_Offset[i] + m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+              m_Analogue[1][i] = m_Offset[i] + m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
             } else if (m_data_compression_mode == 2 and m_data_readout_mode == 0) { // edge mode 01x
-              m_Analogue[0][i] = m_Offset[i] + m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
-              m_Analogue[1][i] = m_Offset[i] + m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+              m_Analogue[0][i] = m_Offset[i] + m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
+              m_Analogue[1][i] = m_Offset[i] + m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
             } else if (m_data_compression_mode == 3 or m_data_readout_mode == 1) { // any hit mode xxx or expanded read out mode
-              m_Analogue[0][i] = m_Offset[i] + m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
-              m_Analogue[1][i] = m_Offset[i] + m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
-              m_Analogue[2][i] = m_Offset[i] + m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+              m_Analogue[0][i] = m_Offset[i] + m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
+              m_Analogue[1][i] = m_Offset[i] + m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
+              m_Analogue[2][i] = m_Offset[i] + m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
             }
           }
         }
@@ -250,7 +249,7 @@ StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collecti
 // prepare gain and offset for the strips for a given module using
 // Cond Db data to get the chip calibration data
 // ----------------------------------------------------------------------
-StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collection, int side, const Identifier& moduleId) const {
+StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collection, int side, const Identifier& moduleId, CLHEP::HepRandomEngine * rndmEngine) const {
   // Get chip data from calib DB
   std::vector<float> gainByChipVect = m_ReadCalibChipDataTool->getNPtGainData(moduleId, side, "GainByChip");
   std::vector<float> gainRMSByChipVect = m_ReadCalibChipDataTool->getNPtGainData(moduleId, side, "GainRMSByChip");
@@ -265,7 +264,7 @@ StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collecti
   // Need to check if empty, most should have data, but a few old DEAD modules don't
   if (gainByChipVect.empty() or noiseByChipVect.empty()) {
     ATH_MSG_DEBUG("No calibration data in cond DB for module " << moduleId << " using JO values");
-    if (StatusCode::SUCCESS != prepareGainAndOffset(collection, moduleId)) {
+    if (StatusCode::SUCCESS != prepareGainAndOffset(collection, moduleId, rndmEngine)) {
       return StatusCode::FAILURE;
     } else {
       return StatusCode::SUCCESS;
@@ -276,7 +275,7 @@ StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collecti
   float gainMeanValue = meanValue(gainByChipVect);
   if (gainMeanValue < 0.0) {
     ATH_MSG_DEBUG("All chip gain values are 0 for module " << moduleId << " using JO values");
-    if (StatusCode::SUCCESS != prepareGainAndOffset(collection, moduleId)) {
+    if (StatusCode::SUCCESS != prepareGainAndOffset(collection, moduleId, rndmEngine)) {
       return StatusCode::FAILURE;
     } else {
       return StatusCode::SUCCESS;
@@ -341,8 +340,8 @@ StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collecti
           if (m_Analogue[1][i] <= 0.0) {
             // Values depends on which chip the strip is on (complex when strip is on chip edge)
             int chip = i / 128;
-            float g = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine, 0.0, S1[chip]);
-            float o = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine, 0.0, S2[chip]);
+            float g = CLHEP::RandGaussZiggurat::shoot(rndmEngine, 0.0, S1[chip]);
+            float o = CLHEP::RandGaussZiggurat::shoot(rndmEngine, 0.0, S2[chip]);
 
             m_GainFactor[i] = gain[chip] + (cosfi[chip] * g + sinfi[chip] * o);
             m_Offset[i] = offset[chip]   + (cosfi[chip] * o - sinfi[chip] * g);
@@ -350,14 +349,14 @@ StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collecti
 
             // Fill the noise and offset values into the Analogue
             if (m_data_compression_mode == 1 and m_data_readout_mode == 0) { // level mode x1x
-              m_Analogue[1][i] = m_Offset[i] + m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+              m_Analogue[1][i] = m_Offset[i] + m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
             } else if (m_data_compression_mode == 2 and m_data_readout_mode == 0) { // edge mode 01x
-              m_Analogue[0][i] = m_Offset[i] + m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
-              m_Analogue[1][i] = m_Offset[i] + m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+              m_Analogue[0][i] = m_Offset[i] + m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
+              m_Analogue[1][i] = m_Offset[i] + m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
             } else if (m_data_compression_mode == 3 or m_data_readout_mode == 1) { // any hit mode xxx or expanded read out mode
-              m_Analogue[0][i] = m_Offset[i] + m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
-              m_Analogue[1][i] = m_Offset[i] + m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
-              m_Analogue[2][i] = m_Offset[i] + m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+              m_Analogue[0][i] = m_Offset[i] + m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
+              m_Analogue[1][i] = m_Offset[i] + m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
+              m_Analogue[2][i] = m_Offset[i] + m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
             }
           }
         }
@@ -371,7 +370,7 @@ StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collecti
 // ----------------------------------------------------------------------
 //
 // ----------------------------------------------------------------------
-StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection& collection, const Identifier& moduleId) const {
+StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection& collection, const Identifier& moduleId, CLHEP::HepRandomEngine * rndmEngine) const {
   // Add random noise
 
   double occupancy = 0.0;
@@ -443,14 +442,14 @@ StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection& collection, const
   if (nEmptyStrips != 0) {
     // Should randomize the fixed NO values, so we get some differences per
     // wafer
-    occupancy = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine, NoiseOccupancy, NoiseOccupancy * 0.1);
+    occupancy = CLHEP::RandGaussZiggurat::shoot(rndmEngine, NoiseOccupancy, NoiseOccupancy * 0.1);
 
     // Modify the occupancy if threshold is not 1.0 fC
     if (m_Threshold > 6242.3 or m_Threshold < 6242.1) {
       const float fC = 6242.2;
       occupancy = occupancy * exp(-(0.5 / (Noise * Noise) * (m_Threshold * m_Threshold - fC * fC)));
     }
-    nNoisyStrips = CLHEP::RandPoisson::shoot(m_rndmEngine, m_strip_max * occupancy * mode);
+    nNoisyStrips = CLHEP::RandPoisson::shoot(rndmEngine, m_strip_max * occupancy * mode);
 
     // Check and adapt the number of noisy strips to the number of free strips
     if (nEmptyStrips < nNoisyStrips) {
@@ -459,7 +458,7 @@ StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection& collection, const
 
     // Find random strips to get noise hits
     for (int i = 0; i < nNoisyStrips; i++) {
-      int index = CLHEP::RandFlat::shootInt(m_rndmEngine, nEmptyStrips - i); // strip == 10, 12 free strips
+      int index = CLHEP::RandFlat::shootInt(rndmEngine, nEmptyStrips - i); // strip == 10, 12 free strips
       // have vector [10000100100200211001] 20 strips
       int strip = emptyStrips.at(index);
       emptyStrips.erase(emptyStrips.begin()+index); // Erase it not to use it again
@@ -469,7 +468,7 @@ StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection& collection, const
       m_StripHitsOnWafer[strip] = 3; // !< Random Noise hit
       // Add tbin info to noise diode
       if (noise_expanded_mode) { // !< if any hit mode, any time bin otherwise fixed tbin=2
-        int noise_tbin = CLHEP::RandFlat::shootInt(m_rndmEngine, 3);
+        int noise_tbin = CLHEP::RandFlat::shootInt(rndmEngine, 3);
         // !< random number 0, 1 or 2
         if (noise_tbin == 0) {
           noise_tbin = 4; // !< now 1,2 or 4
@@ -491,7 +490,7 @@ StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection& collection, const
 // ----------------------------------------------------------------------
 //
 // ----------------------------------------------------------------------
-StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection& collection, const Identifier& moduleId, int side) const {
+StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection& collection, const Identifier& moduleId, int side, CLHEP::HepRandomEngine * rndmEngine) const {
   int n_chips = 6;
   int chipStripmax = m_strip_max / n_chips;
   std::vector<float> NOByChipVect(n_chips, 0.0);
@@ -513,7 +512,7 @@ StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection& collection, const
   // Need to check if empty, most should have data, but a few old DEAD modules don't, and 9C...
   if (NOByChipVect.empty()) {
     ATH_MSG_DEBUG("No calibration data in cond DB for module " << moduleId << " using JO values");
-    if (StatusCode::SUCCESS != randomNoise(collection, moduleId)) {
+    if (StatusCode::SUCCESS != randomNoise(collection, moduleId, rndmEngine)) {
       return StatusCode::FAILURE;
     } else {
       return StatusCode::SUCCESS;
@@ -529,7 +528,7 @@ StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection& collection, const
         NOByChipVect[i] = NOByChipVect[i] * exp(-(0.5 / (ENCByChipVect[i]*ENCByChipVect[i]) * (m_Threshold*m_Threshold - fC*fC)));
       }
 
-      nNoisyStrips[i] = CLHEP::RandPoisson::shoot(m_rndmEngine, chipStripmax * NOByChipVect[i] * mode);
+      nNoisyStrips[i] = CLHEP::RandPoisson::shoot(rndmEngine, chipStripmax * NOByChipVect[i] * mode);
     }
   }
 
@@ -557,7 +556,7 @@ StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection& collection, const
 
       // Find random strips to get noise hits
       for (int i = 0; i < nNoisyStrips[chip_index]; i++) {
-        int index = CLHEP::RandFlat::shootInt(m_rndmEngine, nEmptyStripsOnChip - i);
+        int index = CLHEP::RandFlat::shootInt(rndmEngine, nEmptyStripsOnChip - i);
         int strip_on_chip = emptyStripsOnChip.at(index);
         emptyStripsOnChip.erase(emptyStripsOnChip.begin()+index); // Erase it not to use it again
         int strip = strip_on_chip + chip_strip_offset;
@@ -568,7 +567,7 @@ StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection& collection, const
         // Add tbin info to noise diode
         if (noise_expanded_mode) { // !< if any hit mode, any time bin
           // !< otherwise fixed tbin=2
-          int noise_tbin = CLHEP::RandFlat::shootInt(m_rndmEngine, 3);
+          int noise_tbin = CLHEP::RandFlat::shootInt(rndmEngine, 3);
           // !< random number 0, 1 or 2
           if (noise_tbin == 0) {
             noise_tbin = 4; // !< now 1, 2 or 4
@@ -593,7 +592,7 @@ StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection& collection, const
 // all single-strip pre-digits calculate the amplifier response add noise
 // (this could be moved elsewhere later) apply threshold do clustering
 // ----------------------------------------------------------------------
-void SCT_FrontEnd::process(SiChargedDiodeCollection& collection) const {
+void SCT_FrontEnd::process(SiChargedDiodeCollection& collection, CLHEP::HepRandomEngine * rndmEngine) const {
   // get SCT module side design and check it
   const SCT_ModuleSideDesign *p_design = dynamic_cast<const SCT_ModuleSideDesign*>(&(collection.design()));
 
@@ -648,11 +647,11 @@ void SCT_FrontEnd::process(SiChargedDiodeCollection& collection) const {
   if (not collection.empty()) {
     // Setup gain/offset/noise to the hit and neighbouring strips
     if (m_useCalibData) { // Use calib cond DB data
-      if (StatusCode::SUCCESS != prepareGainAndOffset(collection, side, moduleId)) {
+      if (StatusCode::SUCCESS != prepareGainAndOffset(collection, side, moduleId, rndmEngine)) {
         ATH_MSG_ERROR("\tCan't prepare Gain and Offset");
       }
     } else { // Use JO values
-      if (StatusCode::SUCCESS != prepareGainAndOffset(collection, moduleId)) {
+      if (StatusCode::SUCCESS != prepareGainAndOffset(collection, moduleId, rndmEngine)) {
         ATH_MSG_ERROR("\tCan't prepare Gain and Offset");
       }
     }
@@ -672,11 +671,11 @@ void SCT_FrontEnd::process(SiChargedDiodeCollection& collection) const {
 
   if (m_NoiseOn) {
     if (m_useCalibData) { // Check if using DB or not
-      if (StatusCode::SUCCESS != randomNoise(collection, moduleId, side)) {
+      if (StatusCode::SUCCESS != randomNoise(collection, moduleId, side, rndmEngine)) {
         ATH_MSG_ERROR("\tCan't do random noise on wafer?!");
       }
     } else { // Use JO fixed values
-      if (StatusCode::SUCCESS != randomNoise(collection, moduleId)) {
+      if (StatusCode::SUCCESS != randomNoise(collection, moduleId, rndmEngine)) {
         ATH_MSG_ERROR("\tCan't do random noise on wafer?!");
       }
     }
@@ -999,19 +998,36 @@ StatusCode SCT_FrontEnd::doClustering(SiChargedDiodeCollection& collection) cons
       ++strip; // !< This is the starting point of the next cluster within this collection
     } while (strip < m_strip_max);
   } else {
-    do { // Expanded read out mode, one RDO/strip per cluster
+    // Expanded read out mode, basically one RDO/strip per cluster
+    // But if consecutively fired strips have the same time bin, those are converted into one cluster.
+    do {
+      clusterSize = 1;
       if (m_StripHitsOnWafer[strip] > 0) {
-        clusterSize = 1;
         hitStrip = m_sct_id->strip_id(collection.identify(), strip);
-        SiChargedDiode& HitDiode = *(collection.find(hitStrip));
-        SiHelper::SetStripNum(HitDiode, clusterSize);
+        SiChargedDiode& hitDiode = *(collection.find(hitStrip));
+        int timeBin = SiHelper::GetTimeBin(hitDiode);
+        SiChargedDiode* previousHitDiode = &hitDiode;
+        // Check if consecutively fired strips have the same time bin
+        for (int newStrip=strip+1; newStrip<m_strip_max; newStrip++) {
+          if (not (m_StripHitsOnWafer[newStrip]>0)) break;
+          Identifier newHitStrip = m_sct_id->strip_id(collection.identify(), newStrip);
+          SiChargedDiode& newHitDiode = *(collection.find(newHitStrip));
+          if (timeBin!=SiHelper::GetTimeBin(newHitDiode)) break;
+          SiHelper::ClusterUsed(newHitDiode, true);
+          previousHitDiode->setNextInCluster(&newHitDiode);
+          previousHitDiode = &newHitDiode;
+          clusterSize++;
+        }
+        SiHelper::SetStripNum(hitDiode, clusterSize);
 
 #ifdef SCT_DIG_DEBUG
-        ATH_MSG_DEBUG("RDO Strip = " << strip << ", tbin = " << SiHelper::GetTimeBin(HitDiode) <<
-                      ", HitInfo(1=real, 2=crosstalk, 3=noise): " << m_StripHitsOnWafer[strip]);
+        ATH_MSG_DEBUG("RDO Strip = " << strip << ", tbin = " <<
+                      SiHelper::GetTimeBin(hitDiode) <<
+                      ", HitInfo(1=real, 2=crosstalk, 3=noise): " <<
+                      m_StripHitsOnWafer[strip]);
 #endif
       }
-      ++strip; // !< This is the starting point of the next cluster within this collection
+      strip += clusterSize; // If more than one strip fires, those following strips are skipped.
     } while (strip < m_strip_max);
   }
 

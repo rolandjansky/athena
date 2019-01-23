@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**   @file SCT_Clusterization.cxx
@@ -25,7 +25,7 @@ namespace InDet {
 
   // Constructor with parameters:
   SCT_Clusterization::SCT_Clusterization(const std::string& name, ISvcLocator* pSvcLocator) :
-    AthAlgorithm(name, pSvcLocator),
+    AthReentrantAlgorithm(name, pSvcLocator),
     m_regionSelector{"RegSelSvc", name},
     m_idHelper{nullptr}
   {
@@ -69,13 +69,13 @@ namespace InDet {
   }
 
   // Execute method:
-  StatusCode SCT_Clusterization::execute() {
+  StatusCode SCT_Clusterization::execute(const EventContext& ctx) const {
     // Register the IdentifiableContainer into StoreGate
-    SG::WriteHandle<SCT_ClusterContainer> clusterContainer{m_clusterContainerKey};
+    SG::WriteHandle<SCT_ClusterContainer> clusterContainer{m_clusterContainerKey, ctx};
     if (m_clusterContainerCacheKey.key().empty()) {
       ATH_CHECK(clusterContainer.record(std::make_unique<SCT_ClusterContainer>(m_idHelper->wafer_hash_max())));
     } else {
-      SG::UpdateHandle<SCT_ClusterContainerCache> clusterContainercache{m_clusterContainerCacheKey};
+      SG::UpdateHandle<SCT_ClusterContainerCache> clusterContainercache{m_clusterContainerCacheKey, ctx};
       ATH_CHECK(clusterContainer.record(std::make_unique<SCT_ClusterContainer>(clusterContainercache.ptr())));
     }
     ATH_MSG_DEBUG("Container '" << clusterContainer.name() << "' initialised");
@@ -84,13 +84,13 @@ namespace InDet {
     ATH_CHECK(clusterContainer.isValid());
     ATH_MSG_DEBUG("SCT clusters '" << clusterContainer.name() << "' symlinked in StoreGate");
 
-    SG::WriteHandle<SCT_FlaggedCondData> flaggedCondData{m_flaggedCondDataKey};
+    SG::WriteHandle<SCT_FlaggedCondData> flaggedCondData{m_flaggedCondDataKey, ctx};
     ATH_CHECK(flaggedCondData.record(std::make_unique<SCT_FlaggedCondData>()));
 
     // First, we have to retrieve and access the container, not because we want to 
     // use it, but in order to generate the proxies for the collections, if they 
     // are being provided by a container converter.
-    SG::ReadHandle<SCT_RDO_Container> rdoContainer{m_rdoContainerKey};
+    SG::ReadHandle<SCT_RDO_Container> rdoContainer{m_rdoContainerKey, ctx};
     ATH_CHECK(rdoContainer.isValid());
 
     // Anything to dereference the DataHandle will trigger the converter
@@ -153,7 +153,7 @@ namespace InDet {
           }
         }
       } else { //enter RoI-seeded mode
-        SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection{m_roiCollectionKey};
+        SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection{m_roiCollectionKey, ctx};
         ATH_CHECK(roiCollection.isValid());
         TrigRoiDescriptorCollection::const_iterator roi{roiCollection->begin()};
         TrigRoiDescriptorCollection::const_iterator roiE{roiCollection->end()};

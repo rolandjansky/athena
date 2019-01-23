@@ -5,7 +5,7 @@
 #ifndef PIXELOFFLINECALIBCONDALG
 #define PIXELOFFLINECALIBCONDALG
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "StoreGate/ReadCondHandleKey.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -17,13 +17,13 @@
 #include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/Property.h"
 
-class PixelOfflineCalibCondAlg : public AthAlgorithm {  
+class PixelOfflineCalibCondAlg : public AthReentrantAlgorithm {
   public:
     PixelOfflineCalibCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
     virtual ~PixelOfflineCalibCondAlg() = default;
 
     virtual StatusCode initialize() override;
-    virtual StatusCode execute() override;
+    virtual StatusCode execute(const EventContext& ctx) const override;
     virtual StatusCode finalize() override;
 
   private:

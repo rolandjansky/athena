@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -49,8 +49,7 @@ class SCT_RandomDisabledCellGenerator : public extends<AthAlgTool, ISCT_RandomDi
   /** AlgTool finalize */
   virtual StatusCode finalize();
 
-  virtual void process(SiChargedDiodeCollection& collection) const;
-  void setRandomEngine(CLHEP::HepRandomEngine* rndmEngine) {m_rndmEngine = rndmEngine;}
+  virtual void process(SiChargedDiodeCollection& collection, CLHEP::HepRandomEngine * rndmEngine) const;
 
  private:
 
@@ -60,7 +59,6 @@ class SCT_RandomDisabledCellGenerator : public extends<AthAlgTool, ISCT_RandomDi
  private:
 
   float m_disableProbability;   // probability that a cell is disabled
-  CLHEP::HepRandomEngine *m_rndmEngine; // local rndm stream
 
 };
 

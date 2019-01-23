@@ -173,7 +173,7 @@ class TrigInDetSequence(TrigInDetSequenceBase):
                signatureName="Electron",
                signature="electron", 
                sequenceType="IDTrig",
-               sequenceFlavour="Fast"):
+               sequenceFlavour=["Fast"]):
 
     TrigInDetSequenceBase.__init__(self)
     self.__signatureName__ = signatureName
@@ -182,7 +182,11 @@ class TrigInDetSequence(TrigInDetSequenceBase):
     self.__sequenceFlavour__  = sequenceFlavour
     self.__step__ = [signature]
 
-    if self.__sequenceFlavour__ =="2step":
+    if type(sequenceFlavour)!=type(list()):
+      log.error("TrigInDetSequence invoked with a non-list sequenceFlavour argument %s" )
+
+
+    if "2step" in self.__sequenceFlavour__:
       if self.__signature__ == "tau":
         self.__step__ = ["tauCore","tauIso","tau"]; 
       elif self.__signature__ == "muon":
@@ -206,7 +210,7 @@ class TrigInDetSequence(TrigInDetSequenceBase):
     cnvname = "InDetTrigTrackingxAODCnv_%s_FTF"
     cnvptname = ""
 
-    if sequenceFlavour=="2step":
+    if "2step" in self.__sequenceFlavour__:
       ftfname = "TrigFastTrackFinder_%sCore";  ftf2name = "TrigFastTrackFinder_%sIso"; 
       cnvname = "InDetTrigTrackingxAODCnv_%sCore_FTF";  cnv2name = "InDetTrigTrackingxAODCnv_%sIso_FTF";  
       roiupdater = "IDTrigRoiUpdater_%sCore_IDTrig";  roi2updater="IDTrigRoiUpdater_%sIso_IDTrig"
@@ -237,7 +241,7 @@ class TrigInDetSequence(TrigInDetSequenceBase):
         if vertexXAODCnvNeeded(): 
           algos += [("InDetTrigVertexxAODCnv","")]
 
-      if sequenceFlavour=="2step" and self.__signature__=="bjet":
+      if "2step" in self.__sequenceFlavour__ and self.__signature__=="bjet":
         algos += [("TrigVxPrimary","")]
         if vertexXAODCnvNeeded(): 
            algos += [("InDetTrigVertexxAODCnv","")]
@@ -245,7 +249,7 @@ class TrigInDetSequence(TrigInDetSequenceBase):
       fullseq.append(algos)
  
 
-      if sequenceFlavour=="2step":
+      if "2step" in self.__sequenceFlavour__:
         algos = [("IDTrigRoiUpdater", roi2updater)]
         algos += dataprep
         algos += [("TrigFastTrackFinder",ftf2name),
@@ -254,20 +258,23 @@ class TrigInDetSequence(TrigInDetSequenceBase):
         fullseq.append(algos)
 
 
-      if sequenceFlavour != "FTF":
+      if not ("FTF" in self.__sequenceFlavour__):
         algos = [("TrigAmbiguitySolver",""),
                  ("TRTDriftCircleMaker","TRTDriftCircleMaker_IDTrig"),
                  ("InDetTrigPRD_MultiTruthMaker",""), 
                  ("TRTTrackExtAlg",""),
                  ("TrigExtProcessor",""),
-                 #("InDetTrigTrackSlimmer",""),
                  ("InDetTrigTrackingxAODCnv",cnvptname),
                  ("InDetTrigDetailedTrackTruthMaker",""),
-                 #("TrigVxPrimary",""),
-                 #("InDetTrigParticleCreation",""),
-                 #("InDetTrigTrackParticleTruthMaker",""),
-                 #("InDetTrigVertexxAODCnv","")
                  ]
+        if 'noTRT' in self.__sequenceFlavour__:
+          algos = [("TrigAmbiguitySolver",""),
+                   ("InDetTrigPRD_MultiTruthMaker",""), 
+                   ("InDetTrigTrackingxAODCnv",cnvptname),
+                   ("InDetTrigDetailedTrackTruthMaker",""),
+                   ]
+
+
         if self.__signature__ != "bjet":
           algos += [("TrigVxPrimary","")]
           if vertexXAODCnvNeeded(): 

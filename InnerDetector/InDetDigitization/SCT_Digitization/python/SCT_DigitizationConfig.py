@@ -189,11 +189,6 @@ def commonSCT_DigitizationConfig(name,**kwargs):
     # write out SCT1_RawData
     #kwargs.setdefault("WriteSCT1_RawData", False)
 
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc() )
-    streamName = "SCT_Digitization" # FIXME ideally random stream name would be configurable
-    if not digitizationFlags.rndmSeedList.checkForExistingSeed(streamName):
-        digitizationFlags.rndmSeedList.addSeed(streamName, 49261510, 105132394 )
-
     if digitizationFlags.doXingByXingPileUp():
         kwargs.setdefault("FirstXing", SCT_FirstXing())
         kwargs.setdefault("LastXing",  SCT_LastXing() )

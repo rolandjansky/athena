@@ -26,6 +26,21 @@ JetTagCalibCondData::JetTagCalibCondData()
     m_channelAliasesMap.clear();
   }
 
+JetTagCalibCondData::~JetTagCalibCondData() {
+    this->deleteHistos();
+}
+
+void JetTagCalibCondData::deleteHistos() {
+    MsgStream log(Athena::getMessageSvc(), "JetTagCalibCondData");
+    std::map<std::string, TObject*>::const_iterator iter_hist;
+    for(unsigned int i=0;i<m_histos.size();i++) {
+      iter_hist = m_histos[i].begin();
+      for(;iter_hist!=m_histos[i].end();++iter_hist) {
+        log << MSG::DEBUG << "#BTAG# delete histo of " << iter_hist->first << endmsg;
+        delete iter_hist->second;
+      }
+    }
+}
 
 void JetTagCalibCondData::resize(const std::vector<std::string> taggers) {
     m_histos.reserve(taggers.size());
@@ -117,23 +132,6 @@ lwt::JSONConfig JetTagCalibCondData::retrieveDL1NN(std::string& tagger, const st
   }
 
   return config;
-}
-
-std::vector<std::string> JetTagCalibCondData::tokenize(std::string str, std::string delim){
-  std::vector<std::string> tokens;
-  std::string::size_type sPos, sEnd, sLen;
-  // if str starts with a character in delim, do you want an empty string in tokens?
-  // sPos = 0; // if answer is yes
-  sPos = str.find_first_not_of(delim);  // if answer is no
-  while(sPos != std::string::npos){
-    sEnd = str.find_first_of(delim, sPos);
-    if(sEnd == std::string::npos) sEnd = str.length();
-    sLen = sEnd - sPos;
-    std::string token = str.substr(sPos, sLen);
-    tokens.push_back(token);
-    sPos = str.find_first_not_of(delim, sEnd);
-  }
-  return tokens;
 }
 
 std::string JetTagCalibCondData::channelName(const std::string& fname) const {

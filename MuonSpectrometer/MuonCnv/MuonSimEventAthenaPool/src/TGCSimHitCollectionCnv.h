@@ -14,7 +14,7 @@
 #include "MuonSimEventTPCnv/TGCSimHitCollectionCnv_p4.h"
 
 // the latest persistent representation type of DataCollection:
-typedef  Muon::TGCSimHitCollection_p3  TGCSimHitCollection_PERS;
+typedef  Muon::TGCSimHitCollection_p4  TGCSimHitCollection_PERS;
 typedef  T_AthenaPoolCustomCnv<TGCSimHitCollection, TGCSimHitCollection_PERS >  TGCSimHitCollectionCnvBase;
 
 /**

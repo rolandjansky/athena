@@ -91,8 +91,10 @@ set( _jobOPath "${_jobOPath}:$ENV{JOBOPTSEARCHPATH}" )
 
 # Set up the tests of the package:
 foreach( name CscMcDataCnv_p1_test CscSimDataCnv_p1_test
-      CscSimDataCollectionCnv_p1_test MuonMCDataCnv_p1_test
+      CscSimDataCollectionCnv_p1_test CscSimDataCnv_p2_test
+      CscSimDataCollectionCnv_p2_test MuonMCDataCnv_p1_test
       MuonSimDataCnv_p1_test MuonSimDataCollectionCnv_p1_test
+      MuonSimDataCnv_p2_test MuonSimDataCollectionCnv_p2_test
       CscClusterOnTrackCnv_p2_test RpcClusterOnTrackCnv_p3_test
       TgcClusterOnTrackCnv_p2_test MM_ClusterOnTrackCnv_p1_test
       STGC_ClusterOnTrackCnv_p1_test MdtDriftCircleOnTrackCnv_p2_test

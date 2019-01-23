@@ -34,46 +34,46 @@ public:
   void clear();
 
 private:
-  int bid;
-  const TGCPatchPanel* origin; // pointer to Patch Panel generate this PatchPanelOut.
-  TGCHitPattern* signalPattern[NumberOfConnectorPerPPOut];
+  int m_bid;
+  const TGCPatchPanel* m_origin; // pointer to Patch Panel generate this PatchPanelOut.
+  TGCHitPattern* m_signalPattern[NumberOfConnectorPerPPOut];
 };
 
 
 inline
 TGCHitPattern* TGCPatchPanelOut::getHitPattern(int connector) const
 {
-  return signalPattern[connector];
+  return m_signalPattern[connector];
 }
 
 inline
 const TGCPatchPanel* TGCPatchPanelOut::getOrigin() const
 {
-  return origin;
+  return m_origin;
 }
 
 inline
 void TGCPatchPanelOut::setBid(int bidIn) 
 {
-  bid = bidIn; 
+  m_bid = bidIn; 
 }
 
 inline
 void TGCPatchPanelOut::setHitPattern(int connector, TGCHitPattern* sig)
 {
-  signalPattern[connector] = sig;
+  m_signalPattern[connector] = sig;
 }
 
 inline
 int TGCPatchPanelOut::getBid() const
 {
-  return bid;
+  return m_bid;
 }
 
 inline
 void TGCPatchPanelOut::setOrigin(const TGCPatchPanel* pp)
 {
-  origin = pp;
+  m_origin = pp;
 }
 
 

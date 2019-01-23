@@ -21,7 +21,7 @@ public:
 
 private:
 
-  const TGCSectorLogic* sectorLogic;
+  const TGCSectorLogic* m_sectorLogic;
 
 };
 

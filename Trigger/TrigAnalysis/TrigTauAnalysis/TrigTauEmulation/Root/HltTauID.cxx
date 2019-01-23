@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigTauEmulation/HltTauSelection.h"
@@ -15,22 +15,28 @@ HltTauID::HltTauID() :
 
 }
 
+const asg::AcceptInfo& HltTauID::getAcceptInfo() const
+{
+  return m_accept;
+}
+
+
 // Accept method -- Rely on the already computed decision for now
-const Root::TAccept& HltTauID::accept(const xAOD::TauJet * hltau) const
+asg::AcceptData HltTauID::accept(const xAOD::TauJet * hltau) const
 
 {
-  m_accept.clear();
-  m_accept.setCutResult("TauID", false);
+  asg::AcceptData acceptData (&m_accept);
+  acceptData.setCutResult("TauID", false);
 
   if (not m_use_tauid) {
     // passthrough mode
-    m_accept.setCutResult("TauID", true);
-    return m_accept;
+    acceptData.setCutResult("TauID", true);
+    return acceptData;
   }
 
   // Select only 1,2,3 core tracks candidate
   if (hltau->nTracks() < 1 or hltau->nTracks() > 3)
-    return m_accept;
+    return acceptData;
 
 
   bool pass = false;
@@ -42,10 +48,10 @@ const Root::TAccept& HltTauID::accept(const xAOD::TauJet * hltau) const
     pass = hltau->isTau(xAOD::TauJetParameters::JetBDTSigTight);
   
   if (not pass) 
-    return m_accept;
+    return acceptData;
 
-  m_accept.setCutResult("TauID", true);
-  return m_accept;
+  acceptData.setCutResult("TauID", true);
+  return acceptData;
 }
 
 

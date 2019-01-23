@@ -34,13 +34,13 @@ void TGCElectronicsSystem::distributeSignal(LVL1TGCTrigger::TGCEvent* event)
 }
 
 TGCElectronicsSystem::TGCElectronicsSystem()
-  :DB(0),
-   tmdb(0)
+  :m_DB(0),
+   m_tmdb(0)
 {
   for(int side=0; side < NumberOfSide; side++){
     for(int oct=0; oct < NumberOfOctant; oct++){
       for(int mod=0; mod < NumberOfModule; mod++){
-        sector[side][oct][mod]=0;
+        m_sector[side][oct][mod]=0;
       } // loop module
     } // loop octant
   } //loop side
@@ -50,11 +50,11 @@ TGCElectronicsSystem::TGCElectronicsSystem()
 
 TGCElectronicsSystem::TGCElectronicsSystem(TGCDatabaseManager* database,
 					   bool                ):
-  DB(database),
-  tmdb(0)
+  m_DB(database),
+  m_tmdb(0)
 { 
   // TileMu
-  tmdb = new TGCTMDB();
+  m_tmdb = new TGCTMDB();
 
   int SectorId;
   LVL1TGCTrigger::TGCRegionType RegionType;
@@ -65,10 +65,10 @@ TGCElectronicsSystem::TGCElectronicsSystem(TGCDatabaseManager* database,
         SectorId   = getSectorId(side,oct,mod);
         RegionType = getRegionType(mod);
         forwardBackward = getForwardBackward(side,oct,mod);
-        sector[side][oct][mod] = new TGCSector(SectorId, RegionType, 
+        m_sector[side][oct][mod] = new TGCSector(SectorId, RegionType, 
 					       forwardBackward, 
-					       DB,
-					       tmdb);
+					       m_DB,
+					       m_tmdb);
       } // loop module
     } // loop octant
   } //loop side
@@ -169,7 +169,7 @@ int TGCElectronicsSystem::getSectorId(int side, int oct, int mod) const
 TGCSector* TGCElectronicsSystem::getSector(LVL1TGCTrigger::TGCReadoutIndex index) const
 { 
   if (index.GetSideNumber()<0) return 0;
-  return sector[index.GetSideNumber()][index.GetOctantNumber()][index.GetModuleNumber()];
+  return m_sector[index.GetSideNumber()][index.GetOctantNumber()][index.GetModuleNumber()];
 }
 
 TGCElectronicsSystem::~TGCElectronicsSystem()
@@ -178,23 +178,23 @@ TGCElectronicsSystem::~TGCElectronicsSystem()
   for( i=0; i<NumberOfSide; i+=1){
     for( j=0; j<NumberOfOctant; j+=1){
       for( k=0; k<NumberOfModule; k+=1){
-        if(sector[i][j][k]!=0) delete sector[i][j][k];
-        sector[i][j][k]=0;
+        if(m_sector[i][j][k]!=0) delete m_sector[i][j][k];
+        m_sector[i][j][k]=0;
       } // loop module
     } // loop octant
   } // loop side
 
-  if (tmdb) delete tmdb;
+  if (m_tmdb) delete m_tmdb;
 }
 
 // hiddedn copy constructor
 TGCElectronicsSystem::TGCElectronicsSystem(const TGCElectronicsSystem& )
-  : DB(0), tmdb(0)
+  : m_DB(0), m_tmdb(0)
 {
   for( int i=0; i<NumberOfSide; i+=1){
     for( int j=0; j<NumberOfOctant; j+=1) {
       for( int k=0; k<NumberOfModule; k+=1){
-        sector[i][j][k]=0;
+        m_sector[i][j][k]=0;
       } // loop module
     } // loop octant
   } // loop side

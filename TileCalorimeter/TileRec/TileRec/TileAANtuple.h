@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -46,11 +46,14 @@
 #include "TileConditions/TileCablingService.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
 #include "TileEvent/TileLaserObject.h"
+#include "TileEvent/TileDQstatus.h"
+#include "TileEvent/TileBeamElemContainer.h"
 #include "TileConditions/ITileDCSTool.h"
 
 // Athena includes
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
 
 // Gauid includes
 #include "GaudiKernel/ToolHandle.h"
@@ -79,7 +82,6 @@ class TileID;
 class TileHWID;
 class TileInfo;
 class TileDetDescrManager;
-class TileBeamInfoProvider;
 class TileBeamElemContByteStreamCnv;
 class ITileBadChanTool;
 class TileCondToolEmscale;
@@ -95,7 +97,7 @@ class TileAANtuple : public AthAlgorithm {
     virtual ~TileAANtuple();
 
     //Gaudi Hooks
-    StatusCode ntuple_initialize();
+    StatusCode ntuple_initialize(const TileDQstatus& DQstatus);
     StatusCode ntuple_clear();
     StatusCode initialize();
     StatusCode execute();
@@ -126,7 +128,7 @@ class TileAANtuple : public AthAlgorithm {
     StatusCode storeTMDBDigits();
     StatusCode storeTMDBRawChannel();
 
-    StatusCode storeBeamElements();
+    StatusCode storeBeamElements(const TileDQstatus& DQstatus);
     StatusCode storeLaser();
     StatusCode storeDCS();
 
@@ -326,7 +328,7 @@ class TileAANtuple : public AthAlgorithm {
     // jobOptions parameters - container names
     std::string m_digitsContainer;
     std::string m_fltDigitsContainer;
-    std::string m_beamElemContainer;
+    SG::ReadHandleKey<TileBeamElemContainer> m_beamElemContainerKey;
     std::string m_rawChannelContainer;
     std::string m_fitRawChannelContainer;
     std::string m_fitcRawChannelContainer;
@@ -379,8 +381,6 @@ class TileAANtuple : public AthAlgorithm {
 
     ToolHandle<TileCondToolEmscale> m_tileToolEmscale; //!< main Tile Calibration tool
 
-    ToolHandle<TileBeamInfoProvider> m_beamInfo;
-
     TileBeamElemContByteStreamCnv* m_beamCnv;
 
     ToolHandle<ITileDCSTool> m_tileDCS{this, "TileDCSTool", "TileDCSTool", "Tile DCS tool"};
@@ -399,6 +399,9 @@ class TileAANtuple : public AthAlgorithm {
     bool m_bad[N_ROS][N_MODULES][N_CHANS];
 
     int m_skipEvents;
+
+    SG::ReadHandleKey<TileDQstatus> m_DQstatusKey
+    { this, "TileDQstatus", "TileDQstatus", "TileDQstatus key" };
 };
 
 #endif // TILEREC_TILEAANTUPLE_H

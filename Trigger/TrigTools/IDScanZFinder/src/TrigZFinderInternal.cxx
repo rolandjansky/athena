@@ -639,7 +639,7 @@ std::vector<typename TrigZFinderInternal::vertex>* TrigZFinderInternal::findZInt
 			       zHisto[bending][bestPhi][binMax-1] ) /maxh;
 	
         /// if found a vertex flag the bins so we don't use them again 
-        if ( m_numberOfPeaks>1 ) { 
+        if ( m_numberOfPeaks>0 ) { 
           nHisto[bending][bestPhi][binMax]   = -1;
           nHisto[bending][bestPhi][binMax-1] = -1;
           nHisto[bending][bestPhi][binMax+1] = -1;
@@ -669,7 +669,7 @@ std::vector<typename TrigZFinderInternal::vertex>* TrigZFinderInternal::findZInt
 	  double significance = 0;
 	  if ( bg>0 ) { 
 	    significance = (maxh-bg)/std::sqrt(bg);
-	    if ( significance < m_minVtxSignificance ) addvtx = false;
+	    if ( significance < m_minVtxSignificance ) break; // if this vertex is not significant then no subsequent vertex could be either  
 	  }
 
 	  if ( addvtx ) { 

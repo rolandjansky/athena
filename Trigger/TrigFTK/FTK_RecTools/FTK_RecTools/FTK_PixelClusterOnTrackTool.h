@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -89,7 +89,7 @@ public:
       of the intersecting track.
   */
   virtual const InDet::PixelClusterOnTrack* correct(const Trk::PrepRawData&,
-                                                    const Trk::TrackParameters&) const;
+                                                    const Trk::TrackParameters&) const override;
 
   virtual const InDet::PixelClusterOnTrack* correctDefault(const Trk::PrepRawData&, 
                                                            const Trk::TrackParameters&) const;

@@ -68,7 +68,7 @@ void MDTSimHitCollectionCnv_p1::persToTrans(const Muon::MDTSimHitCollection_p1* 
       hepMcPLCnv.persToTrans(&persCont->m_partLink[i],&link, log);   
 
       transCont->Emplace(persCont->m_MDTid[i], persCont->m_globalTime[i], persCont->m_driftRadius[i], position,
-                         link.barcode());
+                         link,-9999999.,-1.,0,-1.);
   }
 }
 

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArCondUtils/LArHVToolDB.h" 
+#include "LArHVToolDB.h" 
 #include "GaudiKernel/IToolSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "LArElecCalib/ILArHVPathologyDbTool.h"
