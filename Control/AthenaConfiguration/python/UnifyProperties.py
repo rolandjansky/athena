@@ -48,20 +48,43 @@ _propsToUnify={"GeoModelSvc.DetectorTools":unifySet,
                "AtRndmGenSvc.Seeds": unifySet,
                }
 
-def matchPropName(propname):
+
+def getUnificationKey(propname):
     if propname in _propsToUnify:
-        return True
+        return propname
     try:
         objectName, variableName = propname.split('.')[-2:]
-        return '*.{}'.format(variableName) in _propsToUnify or '{}.*'.format(objectName) in _propsToUnify
+
+        matchingByVariable = '*.{}'.format(variableName)
+        if matchingByVariable in _propsToUnify:
+            return matchingByVariable
+
+        matchingByObject = '{}.*'.format(objectName)
+        if matchingByObject in _propsToUnify:
+            return matchingByObject
+
     except:
-        return False
+        pass
+
+    return None
+
+
+def matchProperty(propname):
+    return getUnificationKey(propname) is not None
+
+
+def getUnificationFunc(propname):
+    unificationKey = getUnificationKey(propname)
+    if unificationKey is None:
+        return None
+    return _propsToUnify[unificationKey]
 
 
 def unifyProperty(propname,prop1,prop2):
-    if not matchPropName(propname):
+    unificationFunc = getUnificationFunc(propname)
+    if unificationFunc is None:
         from AthenaConfiguration.ComponentAccumulator import DeduplicationFailed
         raise DeduplicationFailed("List property %s defined multiple times with conflicting values.\n " % propname \
                                       + str(prop1) +"\n and \n" +str(prop2) \
                                       + "\nIf this property should be merged, consider adding it to AthenaConfiguration/UnifyProperties.py")
-    return _propsToUnify[propname](prop1,prop2)
+    return unificationFunc(prop1,prop2)
