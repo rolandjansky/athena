@@ -16,7 +16,7 @@
 # Imports and initial setup
 # ##########################################################################################
 
-print "Executing PhysDRAW_RPVLL"
+
 
 from LongLivedParticleDPDMaker.LongLivedDPDFlags import WriteRPVLLStream
 from LongLivedParticleDPDMaker.PrimaryDPDFlags_RPVLLStream import primRPVLLDESDM
@@ -83,11 +83,6 @@ if primRPVLLDESDM.doHnl():
 # Exotics displaced hadronic jets =search (contact: Heather Russell)
 if primRPVLLDESDM.doHV():
     include("LongLivedParticleDPDMaker/PhysDESDM_HV.py")
-    pass
-
-# Exotics VH low track jets search (contact: Amber Roepe)
-if primRPVLLDESDM.doVH():
-    include("LongLivedParticleDPDMaker/PhysDESDM_VH.py")
     pass
 
 

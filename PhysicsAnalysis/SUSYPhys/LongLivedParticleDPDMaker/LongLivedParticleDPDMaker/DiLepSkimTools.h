@@ -25,7 +25,7 @@ namespace DerivationFramework
   class DiLepSkim : public AthAlgTool, public ISkimmingTool
   {
     public:
-      enum class Filters {None, SiEl, SiPhX, SiMu, DiEl, DiPh, DiElPh, DiLoElPh};
+      enum class Filters {None, SiEl, SiPhX, SiMu, SiMuBa, DiEl, DiPh, DiElPh, DiLoElPh};
 
       DiLepSkim(const std::string& t, const std::string& n, const IInterface* p);
 
