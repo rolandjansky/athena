@@ -17,8 +17,11 @@
 #include "RootCoreUtils/ThrowMsg.h"
 #include "SampleHandler/Sample.h"
 #include "EventLoop/Algorithm.h"
+#include "EventLoop/EventRange.h"
 #include "EventLoop/Job.h"
+#include "EventLoop/MessageCheck.h"
 #include "EventLoop/OutputStream.h"
+#include "EventLoopGrid/GridReportingModule.h"
 
 ClassImp(EL::GridWorker)
 
@@ -37,7 +40,9 @@ namespace EL
 			  PandaRootTools& pandaTools)
     : Worker(meta, output), 
       m_meta(meta), m_location(location), m_pandaTools(pandaTools) {
-        
+
+    using namespace msgEventLoop;
+
     {//Create and register the "big" output files with base class
       TIter itr(&bigOutputs);
       TObject *obj = 0;
@@ -46,7 +51,7 @@ namespace EL
 	if (os) {
 	  const std::string name
 	    = location + "/" + os->label() + ".root";
-	  addOutputFile (os->label(), new TFile (name.c_str(), "RECREATE"));
+	  ANA_CHECK_THROW (addOutputFile (os->label(), std::make_unique<TFile> (name.c_str(), "RECREATE")));
 	}
 	else {
 	  throw "ERROR: Bad input"; 
@@ -62,55 +67,49 @@ namespace EL
 
   void GridWorker::run() {
     using namespace std;
+    using namespace msgEventLoop;
     RCU_CHANGE_INVARIANT (this);
 
-    for (TFile* f = m_pandaTools.OpenNextFile();
-	 f != 0;
-	 f = m_pandaTools.OpenNextFile()) {
+    addModule (std::make_unique<Detail::GridReportingModule> ());
+    ANA_CHECK_THROW (initialize());
 
-      setInputFile (f);
-      treeEntry(0);
-      algsChangeInput();
+    for (TString fileUrl = m_pandaTools.getNextFile();
+	 fileUrl != "";
+	 fileUrl = m_pandaTools.getNextFile()) {
 
+      EventRange eventRange;
+      eventRange.m_url = fileUrl;
 
-      Long64_t nEvents = inputFileNumEntries();
-      std::cout << "Running loop over " << nEvents << " events\n"; 
-      for (Long64_t i = 0; i < nEvents; i++) {
-	m_pandaTools.NotifyNewEvent();
-	treeEntry(i);
-	
-	try {
+      try {
+        if (processEvents (eventRange).isFailure()) {
+          m_pandaTools.Fail(eventsProcessed());
+        }
 
-	  algsExecute();
+      }
+      catch (exception& e) {
+        cout << "Caught exception while executing algorithm:\n"
+             << e.what() << "\n";
+        m_pandaTools.Fail(eventsProcessed());
+      }
+      catch (char const* e) {
+        cout << "Caught exception while executing algorithm:\n"
+             << e << "\n";
+        m_pandaTools.Fail(eventsProcessed());
+      }
+      catch (...) {
+        cout << "Caught unknown exception while executing algorithm";
+        m_pandaTools.Fail(eventsProcessed());
+      }
+    }    
 
-	}
-	catch (exception& e) {
-	  cout << "Caught exception while executing algorithm:\n"
-	       << e.what() << "\n";
-	  m_pandaTools.Fail();
-	}
-	catch (char const* e) {
-	  cout << "Caught exception while executing algorithm:\n"
-	       << e << "\n";
-	  m_pandaTools.Fail();
-	}
-	catch (...) {
-	  cout << "Caught unknown exception while executing algorithm";
-	  m_pandaTools.Fail();
-	}
+    ANA_CHECK_THROW (finalize ());
 
-      }    
-      f->Close();    
-    }
-
-    algsFinalize();
-
-    int nEvents = m_pandaTools.GetEventsRead();
+    int nEvents = eventsProcessed();
     int nFiles = m_pandaTools.GetFilesRead();
     cout << "\nLoop finished. ";
     cout << "Read " << nEvents << " events in " << nFiles << " files.\n";
 
-    m_pandaTools.NotifyJobFinished();
+    m_pandaTools.NotifyJobFinished(eventsProcessed());
   }
 
 }
