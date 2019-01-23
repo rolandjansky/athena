@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.Configurable import Configurable,ConfigurableService,ConfigurableAlgorithm,ConfigurableAlgTool
@@ -618,7 +618,7 @@ class ComponentAccumulator(object):
         self._wasMerged=True
 
 
-    def run(self,maxEvents=None,OutputLevel=3):
+    def createApp(self,OutputLevel=3):
         log = logging.getLogger("ComponentAccumulator")
         self._wasMerged=True
         from Gaudi.Main import BootstrapHelper
@@ -693,18 +693,24 @@ class ComponentAccumulator(object):
             pass
 
     
-     #Public Tools:
+        #Public Tools:
         for pt in self._publicTools:
             addCompToJos(pt)
             pass
 
+        return app
+
+
+    def run(self,maxEvents=None,OutputLevel=3):
+        log = logging.getLogger("ComponentAccumulator")
+        app = self.createApp (OutputLevel)
+        
         #Determine maxEvents
         if maxEvents is None:
             if "EvtMax" in self._theAppProps:
                 maxEvents=self._theAppProps["EvtMax"]
             else:
                 maxEvents=-1
-
 
         print "INITIALIZE STEP"
         sc = app.initialize()
