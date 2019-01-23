@@ -76,7 +76,7 @@ def arg_ros2rob(s):
       if type(ros2robdict) is not dict:
          raise(ValueError)
       return ros2robdict
-   except:
+   except Exception:
       sys.stderr.write("ERROR! ros2rob cannot be evaluated as it is not a proper python dictionary: {}\n".format(s))
       sys.stderr.write("Using empty ros2rob dictionary instead\n")
       return {}
