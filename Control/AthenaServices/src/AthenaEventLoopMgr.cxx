@@ -54,7 +54,7 @@ AthenaEventLoopMgr::AthenaEventLoopMgr(const std::string& nam,
   : MinimalEventLoopMgr(nam, svcLoc), 
     m_incidentSvc ( "IncidentSvc",  nam ), 
     m_eventStore( "StoreGateSvc", nam ), 
-    m_evtSelector(nullptr), m_evtContext(nullptr),
+    m_evtSelector(nullptr), m_evtSelCtxt(nullptr),
     m_histoDataMgrSvc( "HistogramDataSvc",         nam ), 
     m_histoPersSvc   ( "HistogramPersistencySvc",  nam ), 
     m_activeStoreSvc ( "ActiveStoreSvc",           nam ),
@@ -252,7 +252,7 @@ StatusCode AthenaEventLoopMgr::initialize()
       m_evtSelector = theEvtSel;
       
       // reset iterator
-      if (m_evtSelector->createContext(m_evtContext).isFailure()) {
+      if (m_evtSelector->createContext(m_evtSelCtxt).isFailure()) {
 	fatal() << "Can not create the event selector Context." 
                 << endmsg;
 	return StatusCode::FAILURE;
@@ -408,7 +408,7 @@ StatusCode AthenaEventLoopMgr::finalize()
   m_evtSelector   = releaseInterface(m_evtSelector);
   m_incidentSvc.release().ignore();
 
-  delete m_evtContext; m_evtContext = nullptr;
+  delete m_evtSelCtxt; m_evtSelCtxt = nullptr;
 
   if(m_useTools) {
     tool_iterator firstTool = m_tools.begin();
@@ -621,7 +621,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
   const EventInfo* pEvent(nullptr);
   std::unique_ptr<EventInfo> pEventPtr;
   unsigned int conditionsRun = EventIDBase::UNDEFNUM;
-  if ( m_evtContext )
+  if ( m_evtSelCtxt )
   { // Deal with the case when an EventSelector is provided
     // Retrieve the Event object
     const AthenaAttributeList* pAttrList = eventStore()->tryConstRetrieve<AthenaAttributeList>();
@@ -908,12 +908,12 @@ StatusCode AthenaEventLoopMgr::nextEvent(int maxevt)
     //-----------------------------------------------------------------------
     // we need an EventInfo Object to fire the incidents. 
     //-----------------------------------------------------------------------
-    if ( m_evtContext )
+    if ( m_evtSelCtxt )
     {   // Deal with the case when an EventSelector is provided
 
       IOpaqueAddress* addr = nullptr;
 
-      sc = m_evtSelector->next(*m_evtContext);
+      sc = m_evtSelector->next(*m_evtSelCtxt);
 
       if ( !sc.isSuccess() )
       {
@@ -923,7 +923,7 @@ StatusCode AthenaEventLoopMgr::nextEvent(int maxevt)
         break;
       }
 
-      if (m_evtSelector->createAddress(*m_evtContext, addr).isFailure()) {
+      if (m_evtSelector->createAddress(*m_evtSelCtxt, addr).isFailure()) {
         error()
 	      << "Could not create an IOpaqueAddress" << endmsg;
         break;
@@ -992,15 +992,15 @@ StatusCode AthenaEventLoopMgr::seek (int evt)
     return StatusCode::FAILURE;
   }
 
-  if (!m_evtContext) {
-    if (m_evtSelector->createContext(m_evtContext).isFailure()) {
+  if (!m_evtSelCtxt) {
+    if (m_evtSelector->createContext(m_evtSelCtxt).isFailure()) {
       fatal() << "Can not create the event selector Context."
               << endmsg;
       return StatusCode::FAILURE;
     }
   }
 
-  StatusCode sc = is->seek (*m_evtContext, evt);
+  StatusCode sc = is->seek (*m_evtSelCtxt, evt);
   if (sc.isSuccess()) {
     m_nevt = evt;
   }
@@ -1031,15 +1031,15 @@ int AthenaEventLoopMgr::size()
     return -1;
   }
 
-  if (!m_evtContext) {
-    if (m_evtSelector->createContext(m_evtContext).isFailure()) {
+  if (!m_evtSelCtxt) {
+    if (m_evtSelector->createContext(m_evtSelCtxt).isFailure()) {
       fatal() << "Can not create the event selector Context."
               << endmsg;
       return -1;
     }
   }
 
-  return cs->size (*m_evtContext);
+  return cs->size (*m_evtSelCtxt);
 }
 
 void AthenaEventLoopMgr::handle(const Incident& inc)
@@ -1047,7 +1047,7 @@ void AthenaEventLoopMgr::handle(const Incident& inc)
   if(inc.type()!="BeforeFork")
     return;
 
-  if(!m_evtContext || !m_firstRun) {
+  if(!m_evtSelCtxt || !m_firstRun) {
     warning() << "Skipping BeforeFork handler. Either no event selector is provided or begin run has already passed" << endmsg;
   }
 
@@ -1061,12 +1061,12 @@ void AthenaEventLoopMgr::handle(const Incident& inc)
   // Construct EventInfo
   const EventInfo* pEvent(nullptr);
   IOpaqueAddress* addr = nullptr;
-  sc = m_evtSelector->next(*m_evtContext);
+  sc = m_evtSelector->next(*m_evtSelCtxt);
   if(!sc.isSuccess()) {
     info() << "No more events in event selection " << endmsg;
     return;
   }
-  sc = m_evtSelector->createAddress(*m_evtContext, addr);
+  sc = m_evtSelector->createAddress(*m_evtSelCtxt, addr);
   if (sc.isFailure()) {
     error() << "Could not create an IOpaqueAddress" << endmsg;
     return; 
