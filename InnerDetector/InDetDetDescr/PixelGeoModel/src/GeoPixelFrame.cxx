@@ -15,7 +15,7 @@
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoTransform.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/PhysicalConstants.h"
 #include <algorithm>
 
 GeoPixelFrame::GeoPixelFrame()
@@ -47,18 +47,18 @@ void GeoPixelFrame::BuildAndPlace(GeoFullPhysVol * parent, int section)
   ////////////////////////
   
   // Make envelope to hold the frame
-  //double safety = 0.001 * GeoModelKernelUnits::mm;
-  double epsilon = 0.00001 * GeoModelKernelUnits::mm;
+  //double safety = 0.001 * Gaudi::Units::mm;
+  double epsilon = 0.00001 * Gaudi::Units::mm;
   double halflength = 0.5*std::abs(zmax - zmin); 
 
-  double alpha = GeoModelKernelUnits::pi/numSides;
+  double alpha = Gaudi::Units::pi/numSides;
   double cosalpha = cos(alpha);
   double sinalpha = sin(alpha);
   
   /*
   double rminEnv = (rminSide-safety)/cosalpha;
   double rmaxEnv = (rmaxSide+safety)/cosalpha;
-  GeoPgon * frameEnvShape = new GeoPgon(phiLoc-alpha,2*GeoModelKernelUnits::pi,numSides);
+  GeoPgon * frameEnvShape = new GeoPgon(phiLoc-alpha,2*Gaudi::Units::pi,numSides);
   frameEnvShape->addPlane(zCenter-halflength-0.5*epsilon,rminEnv,rmaxEnv);
   frameEnvShape->addPlane(zCenter+halflength+0.5*epsilon,rminEnv,rmaxEnv);
 
@@ -172,7 +172,7 @@ void GeoPixelFrame::BuildAndPlace(GeoFullPhysVol * parent, int section)
 	double thetaPara = 0; 
 	double phiPara = 0;
 	sideElementShape = new GeoPara(0.5*std::abs(zMax1-zMin1),  0.5*sideWidth-epsilon, 0.5*sideThick, alphaPara, thetaPara, phiPara);
-	rotateShape = GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg);
+	rotateShape = GeoTrf::RotateY3D(-90*Gaudi::Units::deg);
 	shapeVolume =  std::abs(zMax1-zMin1) * (sideWidth-2*epsilon) * sideThick;
       } else {// 
 	      // other cases not implemented. Should not occur for the frame.
@@ -220,7 +220,7 @@ void GeoPixelFrame::BuildAndPlace(GeoFullPhysVol * parent, int section)
       double angleSide   = phiLoc + alpha * (2*iSide);
       GeoTrf::Transform3D oddEvenRotate(GeoTrf::Transform3D::Identity());
       if (iSide%2 && mirrorSides) {
-	      oddEvenRotate = GeoTrf::RotateZ3D(GeoModelKernelUnits::pi); // Every 2nd side we mirror the side. 
+	      oddEvenRotate = GeoTrf::RotateZ3D(Gaudi::Units::pi); // Every 2nd side we mirror the side. 
       }
       GeoTransform * sideTrans = new GeoTransform(GeoTrf::TranslateZ3D(zSideCenter)*GeoTrf::RotateZ3D(angleSide)
 						  *GeoTrf::TranslateX3D(midRadius)*oddEvenRotate);

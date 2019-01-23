@@ -16,6 +16,7 @@
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GeoModelKernel/GeoMaterial.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
@@ -109,17 +110,17 @@ GeoPixelSiCrystal::GeoPixelSiCrystal(bool isBLayer, bool isModule3D)
 
   if ( (m_gmt_mgr->DesignRPActiveArea(m_isModule3D) > width) ||
        (m_gmt_mgr->DesignZActiveArea(m_isModule3D) >  length) || 
-       (width - m_gmt_mgr->DesignRPActiveArea(m_isModule3D) > 4 * GeoModelKernelUnits::mm) || 
-       (length - m_gmt_mgr->DesignZActiveArea(m_isModule3D) > 4 * GeoModelKernelUnits::mm) ) { 
+       (width - m_gmt_mgr->DesignRPActiveArea(m_isModule3D) > 4 * Gaudi::Units::mm) || 
+       (length - m_gmt_mgr->DesignZActiveArea(m_isModule3D) > 4 * Gaudi::Units::mm) ) { 
     m_gmt_mgr->msg(MSG::WARNING) << "GeoPixelSiCrystal: Active area not consistent with sensor size. Sensor: " 
-			       << width/GeoModelKernelUnits::mm << " x " << length/GeoModelKernelUnits::mm << ", Active: " 
-			       << m_gmt_mgr->DesignRPActiveArea(m_isModule3D)/GeoModelKernelUnits::mm << " x " << m_gmt_mgr->DesignZActiveArea(m_isModule3D)/GeoModelKernelUnits::mm 
+			       << width/Gaudi::Units::mm << " x " << length/Gaudi::Units::mm << ", Active: " 
+			       << m_gmt_mgr->DesignRPActiveArea(m_isModule3D)/Gaudi::Units::mm << " x " << m_gmt_mgr->DesignZActiveArea(m_isModule3D)/Gaudi::Units::mm 
 			       << endmsg;
   } else {
     if (m_gmt_mgr->msgLvl(MSG::DEBUG)) m_gmt_mgr->msg(MSG::DEBUG) 
       << "GeoPixelSiCrystal: Sensor: "  
-      << width/GeoModelKernelUnits::mm << " x " << length/GeoModelKernelUnits::mm << ", Active: " 
-      << m_gmt_mgr->DesignRPActiveArea(m_isModule3D)/GeoModelKernelUnits::mm << " x " << m_gmt_mgr->DesignZActiveArea(m_isModule3D)/GeoModelKernelUnits::mm 
+      << width/Gaudi::Units::mm << " x " << length/Gaudi::Units::mm << ", Active: " 
+      << m_gmt_mgr->DesignRPActiveArea(m_isModule3D)/Gaudi::Units::mm << " x " << m_gmt_mgr->DesignZActiveArea(m_isModule3D)/Gaudi::Units::mm 
       << endmsg;		       
   }
 

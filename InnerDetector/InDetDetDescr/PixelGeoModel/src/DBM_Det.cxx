@@ -11,6 +11,7 @@
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoTrd.h"
 #include "GeoModelKernel/GeoTube.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 
 #include <iostream>
@@ -21,7 +22,7 @@ DBM_Det::DBM_Det() {
   
   // Radius to beamline
   // Hardcoded, so if change then change in DBM_module too
-  double trans_rad = 46.678*GeoModelKernelUnits::mm + (m_gmt_mgr->DBMTelescopeY()) / 2.; // 10-GeoModelKernelUnits::degree version
+  double trans_rad = 46.678*Gaudi::Units::mm + (m_gmt_mgr->DBMTelescopeY()) / 2.; // 10-Gaudi::Units::degree version
 
   //                 TRANS_X                        TRANS_Y                        TRANS_Z                          ROT_X                       ROT_Y                      ROT_Z        
   m_module[0].push_back(trans_rad);   m_module[0].push_back(0);         m_module[0].push_back(Trans_Y);    m_module[0].push_back(0);     m_module[0].push_back(0);    m_module[0].push_back(270);  
@@ -36,9 +37,9 @@ GeoVPhysVol* DBM_Det::Build()
   double safety = 0.001;
 
   //create a cylinder 8mm smaller than the BPSS outer radius to place the 4 DBM telescopes
-  double rmin = 45.*GeoModelKernelUnits::mm;//41.0*GeoModelKernelUnits::mm;
-  double rmax = 150.*GeoModelKernelUnits::mm; //244.*GeoModelKernelUnits::mm;
-  double halflength = m_gmt_mgr->DBMTelescopeZ()/2.;//200.*GeoModelKernelUnits::mm
+  double rmin = 45.*Gaudi::Units::mm;//41.0*Gaudi::Units::mm;
+  double rmax = 150.*Gaudi::Units::mm; //244.*Gaudi::Units::mm;
+  double halflength = m_gmt_mgr->DBMTelescopeZ()/2.;//200.*Gaudi::Units::mm
   GeoTube * Shape = new GeoTube(rmin,rmax,halflength);
   const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   const GeoLogVol* Log = new GeoLogVol("OutsideDBM",Shape,air);
@@ -66,9 +67,9 @@ GeoVPhysVol* DBM_Det::Build()
       else if ((m_gmt_mgr->GetSide() < 0) && (i == 2)) m_gmt_mgr->SetPhi(0);
 
       //setting transformation
-      GeoTrf::Transform3D rm  = GeoTrf::RotateZ3D(m_module[i].at(5)*GeoModelKernelUnits::deg)
-	* GeoTrf::RotateY3D(m_module[i].at(4)*GeoModelKernelUnits::deg)
-	* GeoTrf::RotateX3D(m_module[i].at(3)*GeoModelKernelUnits::deg);
+      GeoTrf::Transform3D rm  = GeoTrf::RotateZ3D(m_module[i].at(5)*Gaudi::Units::deg)
+	* GeoTrf::RotateY3D(m_module[i].at(4)*Gaudi::Units::deg)
+	* GeoTrf::RotateX3D(m_module[i].at(3)*Gaudi::Units::deg);
       GeoTrf::Translation3D pos(m_module[i].at(0), m_module[i].at(1), m_module[i].at(2));
       GeoTransform* xform = new GeoTransform(GeoTrf::Transform3D(pos*rm));
 

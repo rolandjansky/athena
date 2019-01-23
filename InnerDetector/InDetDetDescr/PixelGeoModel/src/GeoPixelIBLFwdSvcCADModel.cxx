@@ -25,6 +25,7 @@
 #include "GeoModelKernel/GeoNameTag.h"
 
 #include "GeoModelKernel/GeoTransform.h"
+#include "GaudiKernel/PhysicalConstants.h"
 
 #include <algorithm>
 #include <iostream> 
@@ -53,7 +54,7 @@ GeoVPhysVol* GeoPixelIBLFwdSvcCADModel::Build()
 
   m_gmt_mgr->msg(MSG::INFO) <<"Build IBL fwd services - CAD tool design - Torus object is defined"<<endmsg;
 
-  //  double safety = 0.01*GeoModelKernelUnits::mm;
+  //  double safety = 0.01*Gaudi::Units::mm;
 
   // IBL layer shift ( 2mm shift issue )
   double layerZshift = m_gmt_mgr->PixelLayerGlobalShift();
@@ -63,7 +64,7 @@ GeoVPhysVol* GeoPixelIBLFwdSvcCADModel::Build()
 
   // check if sectors are properly defined
   if(nSectors==0) return 0;
-  double angle=360./(double)nSectors*GeoModelKernelUnits::deg;
+  double angle=360./(double)nSectors*Gaudi::Units::deg;
   
   // Defines the IBL_Fwd02 section in the IBL services area
   double innerRadius = 33.;
@@ -94,7 +95,7 @@ GeoVPhysVol* GeoPixelIBLFwdSvcCADModel::Build()
   double lgFwdSvc[4]={511., 561., 560., 706. };
   double devLgFwdSvc[4]={512., 562., 562., 707. };
   double devTotalLength = 2460.188;
-  double pi = GeoModelKernelUnits::pi;
+  double pi = Gaudi::Units::pi;
 
   // Cable bundle sizes
   double rminCable = 0.;
@@ -112,7 +113,7 @@ GeoVPhysVol* GeoPixelIBLFwdSvcCADModel::Build()
   double zposRing = 0.;
   double totalLength=0.;
   double hermJunction = .4;
-  double breakAngle = 11.*GeoModelKernelUnits::deg;
+  double breakAngle = 11.*Gaudi::Units::deg;
 
   //  Loop over the wavy shape sections to build a cable and a cooling pipe
   const GeoShape * gblShapeCableA = 0;
@@ -195,12 +196,12 @@ GeoVPhysVol* GeoPixelIBLFwdSvcCADModel::Build()
 
   // -------------- Alignement of the services with the previous services (Fwd01 area)
   double cooling_radius = 35.1;
-  double cooling_angle = -2.154*GeoModelKernelUnits::deg;
+  double cooling_angle = -2.154*Gaudi::Units::deg;
 
   if(m_gmt_mgr->PixelStaveAxe()==1)   
     {
       cooling_radius = 34.7 + layerRadius-33.25;
-      cooling_angle = -.1*GeoModelKernelUnits::deg;
+      cooling_angle = -.1*Gaudi::Units::deg;
     }
 
   double cable_radius = 36.501;

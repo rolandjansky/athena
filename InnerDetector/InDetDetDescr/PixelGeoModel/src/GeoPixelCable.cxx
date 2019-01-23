@@ -70,7 +70,7 @@ GeoVPhysVol* GeoPixelCable::Build() {
   std::ostringstream o;
   o << m_gmt_mgr->getLD_Label() << label;
   logName = logName+o.str();
-  //std::cout << logName << ": " << weight/GeoModelKernelUnits::g << " g, " << thickness << std::endl;
+  //std::cout << logName << ": " << weight/Gaudi::Units::g << " g, " << thickness << std::endl;
 
   GeoLogVol* theCable = new GeoLogVol(logName,cableBox,cableMat);
   GeoPhysVol* cablePhys = new GeoPhysVol(theCable);

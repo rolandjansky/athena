@@ -20,6 +20,7 @@
 #include "GeoModelKernel/GeoNameTag.h"
 
 #include "GeoModelKernel/GeoTransform.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <algorithm>
 #include <iostream> 
@@ -39,7 +40,7 @@ GeoVPhysVol* GeoPixelIBLFwdSvcModel1::Build()
 
   m_gmt_mgr->msg(MSG::INFO) <<"Build IBL fwd services"<<endmsg;
 
-  //  double safety = 0.01*GeoModelKernelUnits::mm;
+  //  double safety = 0.01*Gaudi::Units::mm;
 
   // IBL layer shift ( 2mm shift issue )
   double layerZshift = m_gmt_mgr->PixelLayerGlobalShift();
@@ -49,7 +50,7 @@ GeoVPhysVol* GeoPixelIBLFwdSvcModel1::Build()
 
   // check if sectors are properly defined
   if(nSectors==0) return 0;
-  double angle=360./(double)nSectors*GeoModelKernelUnits::deg;
+  double angle=360./(double)nSectors*Gaudi::Units::deg;
   
   // Defines the IBL_Fwd02 section in the IBL services area
   double innerRadius = 33.;
@@ -98,15 +99,15 @@ GeoVPhysVol* GeoPixelIBLFwdSvcModel1::Build()
   //  double zposRing = 0.;
   double totalLength=0.;
   //  double hermJunction = .4;
-  double breakAngle = 11.*GeoModelKernelUnits::deg;
+  double breakAngle = 11.*Gaudi::Units::deg;
 
   double cooling_radius = 35.1;
-  double cooling_angle = -2.154*GeoModelKernelUnits::deg;
+  double cooling_angle = -2.154*Gaudi::Units::deg;
 
   if(m_gmt_mgr->PixelStaveAxe()==1)   
     {
       cooling_radius = 34.7 + layerRadius-33.25;
-      cooling_angle = -.1*GeoModelKernelUnits::deg;
+      cooling_angle = -.1*Gaudi::Units::deg;
     }
 
   double cable_radius = 36.501;
@@ -189,7 +190,7 @@ GeoVPhysVol* GeoPixelIBLFwdSvcModel1::Build()
 
 	// Cable
 	const GeoTube* cableShape = new GeoTube(rminCable, rmaxCable, zHalfLength);	
-	double angle = 0.; //11.*GeoModelKernelUnits::deg;
+	double angle = 0.; //11.*Gaudi::Units::deg;
 	GeoTrf::Transform3D trfA1 = GeoTrf::RotateZ3D(angle)*GeoTrf::TranslateZ3D(zpos-zMiddle);
 	gblShapeCableA = addShape(gblShapeCableA, cableShape, trfA1 );
 	GeoTrf::Transform3D trfC1 = GeoTrf::RotateZ3D(angle)*GeoTrf::TranslateZ3D(zMax-(zpos-zMin)-zMiddle);

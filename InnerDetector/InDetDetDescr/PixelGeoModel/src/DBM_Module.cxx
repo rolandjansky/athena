@@ -9,7 +9,7 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoNameTag.h"
 #include "GeoModelKernel/GeoBox.h"
-
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/PixelID.h"
@@ -64,7 +64,7 @@ GeoVPhysVol* DBM_Module::Build()
   GeoIdentifierTag* diamondTag = new GeoIdentifierTag(400);
 
 
-    double safety = 0.003*GeoModelKernelUnits::mm;
+    double safety = 0.003*Gaudi::Units::mm;
 
     //diamond dimension
     double diamond_X = m_gmt_mgr->DBMDiamondX();
@@ -84,8 +84,8 @@ GeoVPhysVol* DBM_Module::Build()
     
     //distances from bottom of the ceramic
     //Hardcoded!
-    double bot2Chip = 0.0*GeoModelKernelUnits::mm;
-    double bot2Diamond = 1.685*GeoModelKernelUnits::mm;
+    double bot2Chip = 0.0*Gaudi::Units::mm;
+    double bot2Diamond = 1.685*Gaudi::Units::mm;
 
 
     //---------------------------------------------
@@ -93,8 +93,8 @@ GeoVPhysVol* DBM_Module::Build()
   
     // Position of the corner closest to IP and beamline
     // Hardcoded, so if change then change in GeoPixelEnvelope and DBM_Det too
-    double ZToIP = 887.002*GeoModelKernelUnits::mm;
-    double RToBeam = 46.678*GeoModelKernelUnits::mm;
+    double ZToIP = 887.002*Gaudi::Units::mm;
+    double RToBeam = 46.678*Gaudi::Units::mm;
 
     // layer spacing
     double Zspacing = m_gmt_mgr->DBMSpacingZ();
@@ -146,7 +146,7 @@ GeoVPhysVol* DBM_Module::Build()
     const GeoLogVol* dbmModuleLog = new GeoLogVol("dbmModuleLog", dbmModuleBox, air);
     GeoPhysVol* dbmModulePhys = new GeoPhysVol(dbmModuleLog);
     
-    GeoTrf::Transform3D rm = GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(270.*GeoModelKernelUnits::deg);
+    GeoTrf::Transform3D rm = GeoTrf::RotateZ3D(90.*Gaudi::Units::deg)*GeoTrf::RotateY3D(270.*Gaudi::Units::deg);
 
     //diamond
     const GeoBox* dbmDiamondBox = new GeoBox(diamond_Z/2.0, diamond_X/2.0, diamond_Y/2.0 );
@@ -224,7 +224,7 @@ GeoVPhysVol* DBM_Module::Build()
     double globPosZ = ZToIP + layerUnitPos_Z + (sensorPosInModuleCage_Z * cos(angle) - sensorPosInModuleCage_Y * sin(angle));
     double globPosY = RToBeam + layerUnitPos_Y + (sensorPosInModuleCage_Z * sin(angle) + sensorPosInModuleCage_Y * cos(angle));
 
-    GeoTrf::RotateX3D rmX10(-10.*GeoModelKernelUnits::deg);
+    GeoTrf::RotateX3D rmX10(-10.*Gaudi::Units::deg);
     GeoTrf::Translation3D alignTransformPos(0, globPosY, globPosZ);
     GeoAlignableTransform *xformAlign = new GeoAlignableTransform(GeoTrf::Transform3D(alignTransformPos*rmX10));
     m_DDmgr->addAlignableTransform(0, idwafer, xformAlign, dbmDiamondPhys);
