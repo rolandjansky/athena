@@ -185,6 +185,7 @@ StatusCode MetaDataSvc::finalize() {
 }
 //__________________________________________________________________________
 StatusCode MetaDataSvc::stop() {
+   ATH_MSG_INFO("MetaDataSvc::stop()");
    ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc", name());
    if (!joSvc.retrieve().isSuccess()) {
       ATH_MSG_WARNING("Cannot get JobOptionsSvc.");
@@ -205,6 +206,10 @@ StatusCode MetaDataSvc::stop() {
       }
    }
 
+   // Set to be listener for end of event
+   Incident metaDataStopIncident(name(), "MetaDataStop");
+   m_incSvc->fireIncident(metaDataStopIncident);
+   
    // finalizing tools via metaDataStop
    ATH_CHECK(this->prepareOutput());
        
@@ -318,6 +323,7 @@ StatusCode MetaDataSvc::retireMetadataSource(const Incident& inc)
 
 StatusCode MetaDataSvc::prepareOutput()
 {
+   ATH_MSG_DEBUG("prepareOutput");
    StatusCode rc(StatusCode::SUCCESS);
    for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
       ATH_MSG_DEBUG(" calling metaDataStop for " << (*it)->name());
@@ -396,6 +402,9 @@ StatusCode MetaDataSvc::transitionMetaDataFile(bool ignoreInputFile) {
    if (!m_allowMetaDataStop && !ignoreInputFile) {
       return(StatusCode::FAILURE);
    }
+
+   Incident metaDataStopIncident(name(), "MetaDataStop");
+   m_incSvc->fireIncident(metaDataStopIncident);
 
    // Set to be listener for end of event
    ATH_CHECK(this->prepareOutput());
