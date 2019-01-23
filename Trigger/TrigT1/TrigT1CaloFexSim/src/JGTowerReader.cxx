@@ -114,18 +114,20 @@ StatusCode JGTowerReader::initialize() {
   CHECK(detStore()->retrieve(m_jTowerId));
   CHECK(detStore()->retrieve(m_gTowerId));
 
-  TFile*noise = new TFile(m_noise_file.c_str());
-  TH1F*jh_noise = (TH1F*)noise->Get("jT_noise");
-  TH1F*gh_noise = (TH1F*)noise->Get("gT_noise");
-
-  for(int i=0;i<jh_noise->GetSize();i++){
-    jT_noise.push_back( jh_noise->GetBinContent(i+1) );
-  }
+  std::ifstream noise_exist(m_noise_file.c_str());
+  if(noise_exist){
+    TFile*noise = new TFile(m_noise_file.c_str());
+    TH1F*jh_noise = (TH1F*)noise->Get("jT_noise");
+    TH1F*gh_noise = (TH1F*)noise->Get("gT_noise");
   
-  for(int i=0;i<gh_noise->GetSize();i++){
-    gT_noise.push_back( gh_noise->GetBinContent(i+1) );
-  } 
-
+    for(int i=0;i<jh_noise->GetSize();i++){
+       jT_noise.push_back( jh_noise->GetBinContent(i+1) );
+    }
+  
+    for(int i=0;i<gh_noise->GetSize();i++){
+       gT_noise.push_back( gh_noise->GetBinContent(i+1) );
+    } 
+  }
   // read in the tower map
   if(m_makeJetsFromMap) {
     CHECK( ReadTowerMap() );
@@ -167,9 +169,24 @@ StatusCode JGTowerReader::execute() {
 
   const xAOD::JGTowerContainer* jTowers =0;
   CHECK( evtStore()->retrieve( jTowers,"JTower"));
+  //when noise file is not available, set the noise as constant for EM, Had, and FCal respectively
+  if(jT_noise.size()==0){
+    for( const auto &jT : *jTowers){
+       if(jT->sampling()==0) jT_noise.push_back(450);
+       else if(jT->sampling()==1) jT_noise.push_back(2400);
+       else jT_noise.push_back(2000);
+    }
+  }
 
   const xAOD::JGTowerContainer* gTowers =0;
   CHECK( evtStore()->retrieve( gTowers,"GTower"));
+  //when noise file is not available, set the noise as constant for EM, Had, and FCal respectively
+  if(gT_noise.size()==0){
+    for(const auto &gT : *gTowers){
+       gT_noise.push_back(1500);
+    }
+  }
+
 
   ATH_MSG_DEBUG ("Successfully retrieved cells, jTowers and gTowers");
 
@@ -220,15 +237,6 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
 
   ATH_MSG_DEBUG("Found " << jTs->size() << " jTowers");
   
-  // sort out the wrong-size list of noise vector
-  if(jTs->size() > jT_noise.size()) {
-    ATH_MSG_ERROR("Found " << jTs->size() << " jTowers, but the noise vector only has " << jT_noise.size() << " entries");
-    ATH_MSG_WARNING("Setting the jTower noise vector to have the right number of entries, all 500");
-    jT_noise.clear();
-    for(int i=0; i<int(jTs->size()); i++){
-      jT_noise.push_back(500);
-    }
-  }
 
 
   if(m_makeSquareJets) {

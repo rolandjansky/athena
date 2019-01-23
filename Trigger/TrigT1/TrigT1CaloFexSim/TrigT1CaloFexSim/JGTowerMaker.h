@@ -52,6 +52,8 @@ class JGTowerMaker: public ::AthAlgorithm {
   bool  m_useSCQuality;
   bool  m_useAllCalo;
   bool  m_TileMapped;
+  std::string m_scType;
+  uint16_t m_scQuality;
   bool  JMatched;
   std::map<TString, TH1*> hName;
   std::map<TString, TH2*> h2Name;

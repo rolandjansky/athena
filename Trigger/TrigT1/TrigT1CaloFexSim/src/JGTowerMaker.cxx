@@ -26,6 +26,8 @@ JGTowerMaker::JGTowerMaker( const std::string& name, ISvcLocator* pSvcLocator ) 
 
   declareProperty("useSCQuality",m_useSCQuality=true);
   declareProperty("useAllCalo",m_useAllCalo=false);
+  declareProperty("SuperCellType",m_scType="SCell");
+  declareProperty("SuperCellQuality",m_scQuality=0x200);
 }
 
 
@@ -65,7 +67,7 @@ StatusCode JGTowerMaker::finalize() {
 StatusCode JGTowerMaker::FexAlg(std::vector<JGTower*> jgT, xAOD::JGTowerContainer*jgTContainer){
 
   const CaloCellContainer* scells = 0;
-  CHECK( evtStore()->retrieve( scells, "SCell") );
+  CHECK( evtStore()->retrieve( scells, m_scType.data()) );
 
   for (unsigned hs=0;hs<jgT.size();++hs){
       
@@ -85,7 +87,7 @@ StatusCode JGTowerMaker::FexAlg(std::vector<JGTower*> jgT, xAOD::JGTowerContaine
          const Identifier scid=m_scid->cell_id(jgTowerSCIndex.at(i));
          const IdentifierHash sc_hash = m_scid->calo_cell_hash(scid);
          CaloCell* scell = (CaloCell*) scells->findCell(sc_hash);
-         if(scell==nullptr||!(m_useSCQuality&&( scell->provenance()  & 0x40))) continue;
+         if(scell==nullptr||!(m_useSCQuality&&( scell->provenance()  &  m_scQuality ))) continue;
          float scell_et = scell->et();
          jgEt += scell_et; 
          lar_et+=scell_et;
