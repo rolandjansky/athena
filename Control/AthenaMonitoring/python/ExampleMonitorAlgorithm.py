@@ -87,7 +87,8 @@ def ExampleMonitoringConfig(inputFlags):
 
     anotherGroup.defineHistogram('lbWithFilter;lbWithFilter',title='Lumi;lb;Events',
                                  path='top',xbins=1000,xmin=-0.5,xmax=999.5)
-
+    anotherGroup.defineHistogram('run;run',title='Run Number;run;Events',
+                                 path='top',xbins=1000000,xmin=-0.5,xmax=999999.5)
 
     ### STEP 6 ###
     # Finalize. The return value should be a tuple of the ComponentAccumulator

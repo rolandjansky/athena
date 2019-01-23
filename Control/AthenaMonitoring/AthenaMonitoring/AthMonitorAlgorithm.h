@@ -79,24 +79,24 @@ public:
     /**
      * Adds variables from an event to a group by name.
      * 
-     * At the end of the fillHistograms routine, one should save the monitored variables 
-     * to the group. This function wraps the process of getting the desired group by a 
-     * call to AthMonitorAlgorithm::getGroup() and a call to Monitored::Group::fill(), 
-     * which also disables the auto-fill feature to avoid double-filling. Note, users 
-     * should avoid using this specific function name in daughter classes.
-     * 
      * @param groupName The string name of the GenericMonitoringTool
      * @param variables Variables desired to be saved.
      * @return StatusCode
      */
     template <typename... T>
     void fill( const std::string& groupName, T&&... variables ) const {
-        Monitored::Group(getGroup(groupName),std::forward<T>(variables)...).fill();
+        fill(getGroup(groupName),std::forward<T>(variables)...);
     }
 
 
     /**
-     * Adds variables from an event to a group by object reference.
+     * Adds variables from an event to a group by the group's object reference.
+     * 
+     * At the end of the fillHistograms routine, one should save the monitored variables 
+     * to the group. This function wraps the process of getting the desired group by a 
+     * call to AthMonitorAlgorithm::getGroup() and a call to Monitored::Group::fill(), 
+     * which also disables the auto-fill feature to avoid double-filling. Note, users 
+     * should avoid using this specific function name in daughter classes.
      * 
      * @param groupHandle A reference of the GenericMonitoringTool to which add variables.
      * @param variables Variables desired to be saved

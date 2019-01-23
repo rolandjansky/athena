@@ -22,10 +22,10 @@ StatusCode ExampleMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     using namespace Monitored;
 
     // Declare the quantities which should be monitored
-    auto lumiPerBCID = MonitoredScalar::declare<float>("lumiPerBCID",0.0);
-    auto lb = MonitoredScalar::declare<int>("lb",0);
-    auto run = MonitoredScalar::declare<int>("run",0);
-    auto random = MonitoredScalar::declare<float>("random",0.0);
+    auto lumiPerBCID = Monitored::Scalar<float>("lumiPerBCID",0.0);
+    auto lb = Monitored::Scalar<int>("lb",0);
+    auto run = Monitored::Scalar<int>("run",0);
+    auto random = Monitored::Scalar<float>("random",0.0);
     // Set the values of the monitored variables for the event
     lumiPerBCID = lbAverageInteractionsPerCrossing();
     lb = GetEventInfo(ctx)->lumiBlock();
