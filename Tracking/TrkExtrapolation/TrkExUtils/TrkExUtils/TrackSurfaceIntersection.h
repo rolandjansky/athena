@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ namespace Trk {
 	  /**Constructor*/
 	  TrackSurfaceIntersection(const Amg::Vector3D& pos, const Amg::Vector3D& dir, double path);
 	  /**Destructor*/
-	  virtual ~TrackSurfaceIntersection();
+	  virtual ~TrackSurfaceIntersection() = default;
 
           TrackSurfaceIntersection (const TrackSurfaceIntersection& other);
           TrackSurfaceIntersection& operator= (const TrackSurfaceIntersection& other) = default;
