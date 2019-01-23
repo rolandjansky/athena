@@ -4,6 +4,8 @@
 
 #include "JetCalibTools/JetCalibrationTool.h"
 
+#include "PATInterfaces/CorrectionTool.h"
+
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAuxContainer.h"
@@ -164,13 +166,14 @@ int main (int argc, char* argv[])
 
             // Jet kinematics set, now apply calibration
             xAOD::Jet* calibJet = nullptr;
-            calibTool->calibratedCopy(*jet,calibJet);
+            if(calibTool->calibratedCopy(*jet,calibJet) != CP::CorrectionCode::Ok){
+              std::cout << "ERROR: calibratedCopy returned a non OK status" << std::endl;
+              return 0;
+	    }
+	    std::unique_ptr<xAOD::Jet> calibJetPtr (calibJet);
 
             // Calculate etaReco - etaTruth
-            const double PosEtaJES = startingScale(*jet).eta()-calibJet->eta();
-
-            // Clean up
-            delete calibJet;
+            const double PosEtaJES = startingScale(*jet).eta()-calibJetPtr->eta();
 
 	    // Negative eta case
             eta *= -1.;
@@ -193,10 +196,14 @@ int main (int argc, char* argv[])
 
             // Jet kinematics set, now apply calibration
             calibJet = nullptr;
-            calibTool->calibratedCopy(*jet,calibJet);
+            if(calibTool->calibratedCopy(*jet,calibJet) != CP::CorrectionCode::Ok){
+              std::cout << "ERROR: calibratedCopy returned a non OK status" << std::endl;
+              return 0;
+	    }
+	    calibJetPtr = std::unique_ptr<xAOD::Jet>(calibJet);
 
             // Calculate sgn(eta) * (etaReco - etaTruth)
-            double NegEtaJES = calibJet->eta()-startingScale(*jet).eta();
+            double NegEtaJES = calibJetPtr->eta()-startingScale(*jet).eta();
 
 	    // Average results
 	    const double EtaJES = 0.5*(PosEtaJES + NegEtaJES);
@@ -210,8 +217,6 @@ int main (int argc, char* argv[])
 	      }
 	    }
             
-            // Clean up
-            delete calibJet;
         }
     }
 
