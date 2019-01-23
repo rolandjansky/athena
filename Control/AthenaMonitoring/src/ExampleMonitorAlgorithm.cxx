@@ -24,20 +24,23 @@ StatusCode ExampleMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     // Declare the quantities which should be monitored
     auto lumiPerBCID = MonitoredScalar::declare<float>("lumiPerBCID",0.0);
     auto lb = MonitoredScalar::declare<int>("lb",0);
-    auto random = MonitoredScalar::declare<float>("random",0.0);    
-    
+    auto run = MonitoredScalar::declare<int>("run",0);
+    auto random = MonitoredScalar::declare<float>("random",0.0);
     // Set the values of the monitored variables for the event
     lumiPerBCID = lbAverageInteractionsPerCrossing();
     lb = GetEventInfo(ctx)->lumiBlock();
+    run = GetEventInfo(ctx)->runNumber();
     if (m_doRandom) {
         TRandom r;
         random = r.Rndm();
     }
 
-    // Use the getGroup method to get your instance of the GenericMonitoringTool by name
-    auto& tool = getGroup("ExampleMonitor");
-    // Save. First argument is the tool, all others are the variables to be saved.
-    Monitored::save(&tool,lumiPerBCID,lb,random);
+    // Fill. First argument is the tool name, all others are the variables to be saved.
+    fill("ExampleMonitor",lumiPerBCID,lb,random);
+
+    // Alternative fill method. Get the group yourself, and pass it to the fill function.
+    auto tool = getGroup("ExampleMonitor");
+    fill(tool,run);
     
     return StatusCode::SUCCESS;
 }

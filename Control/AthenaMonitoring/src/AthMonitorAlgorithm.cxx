@@ -93,8 +93,9 @@ StatusCode AthMonitorAlgorithm::execute( const EventContext& ctx ) const {
     return fillHistograms(ctx);
 }
 
+
 SG::ReadHandle<xAOD::EventInfo> AthMonitorAlgorithm::GetEventInfo( const EventContext& ctx ) const {
-  return SG::ReadHandle<xAOD::EventInfo>(m_EventInfoKey, ctx);
+    return SG::ReadHandle<xAOD::EventInfo>(m_EventInfoKey, ctx);
 }
 
 
@@ -160,14 +161,16 @@ AthMonitorAlgorithm::DataType_t AthMonitorAlgorithm::dataTypeStringToEnum( const
 }
 
 
-GenericMonitoringTool& AthMonitorAlgorithm::getGroup( const std::string& name ) const {
-    // get the pointer to the tool, check that it exists, and return
-    GenericMonitoringTool* tool = &(*(*m_tools[name]));
-    if (tool == nullptr) {
+ToolHandle<GenericMonitoringTool> AthMonitorAlgorithm::getGroup( const std::string& name ) const {
+    // get the pointer to the tool, and check that it exists
+    const ToolHandle<GenericMonitoringTool> toolHandle = *(m_tools[name]);
+    if ( toolHandle.empty() ) {
         ATH_MSG_FATAL("The tool "<<name<<" could not be found in the monitoring algorithm's tool array."<<endmsg);
     }
-    return *tool;
+    // return the tool handle
+    return toolHandle;
 }
+
 
 
 const ToolHandle<Trig::ITrigDecisionTool>& AthMonitorAlgorithm::getTrigDecisionTool() {

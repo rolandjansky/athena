@@ -23,6 +23,7 @@
 #include "AthenaMonitoring/IDQFilterTool.h"
 #include "AthenaMonitoring/IMonitorToolBase.h"
 #include "AthenaMonitoring/ITriggerTranslatorTool.h"
+#include "AthenaMonitoring/Monitored.h"
 
 #include "LumiBlockComps/ILuminosityTool.h"
 #include "TrigDecisionInterface/ITrigDecisionTool.h"
@@ -33,7 +34,6 @@
 
 class AthMonitorAlgorithm : public AthReentrantAlgorithm {
 public:
-
 
     /** 
      * Constructor
@@ -74,6 +74,38 @@ public:
      * @return StatusCode
      */
     virtual StatusCode fillHistograms(const EventContext& ctx) const = 0;
+
+
+    /**
+     * Adds variables from an event to a group by name.
+     * 
+     * At the end of the fillHistograms routine, one should save the monitored variables 
+     * to the group. This function wraps the process of getting the desired group by a 
+     * call to AthMonitorAlgorithm::getGroup() and a call to Monitored::Group::fill(), 
+     * which also disables the auto-fill feature to avoid double-filling. Note, users 
+     * should avoid using this specific function name in daughter classes.
+     * 
+     * @param groupName The string name of the GenericMonitoringTool
+     * @param variables Variables desired to be saved.
+     * @return StatusCode
+     */
+    template <typename... T>
+    void fill( const std::string& groupName, T&&... variables ) const {
+        Monitored::Group(getGroup(groupName),std::forward<T>(variables)...).fill();
+    }
+
+
+    /**
+     * Adds variables from an event to a group by object reference.
+     * 
+     * @param groupHandle A reference of the GenericMonitoringTool to which add variables.
+     * @param variables Variables desired to be saved
+     * @return StatusCode
+     */
+    template <typename... T>
+    void fill( const ToolHandle<GenericMonitoringTool>& groupHandle, T&&... variables ) const {
+        Monitored::Group(groupHandle,std::forward<T>(variables)...).fill();
+    }
 
 
     /**
@@ -148,14 +180,13 @@ public:
      * Get a specific monitoring tool from the tool handle array.
      * 
      * Finds a specific GenericMonitoringTool instance from the list of monitoring
-     * tools (a ToolHandleArray). Throws a FATAL warning if the object found is a
-     * null pointer.
+     * tools (a ToolHandleArray). Throws a FATAL warning if the object found is 
+     * empty.
      * 
      * @param name string name of the desired tool
      * @return reference to the desired monitoring tool
      */
-    GenericMonitoringTool& getGroup( const std::string& name ) const;
-
+    ToolHandle<GenericMonitoringTool> getGroup( const std::string& name ) const;
 
     /** 
      * Get the trigger decision tool member.
@@ -262,7 +293,6 @@ public:
 
 protected:
     // Using the new way to declare JO properties: Gaudi::Property<int> m_myProperty {this,"MyProperty",0};
-
     ToolHandleArray<GenericMonitoringTool> m_tools {this,"GMTools",{}}; ///< Array of Generic Monitoring Tools
     ToolHandle<Trig::ITrigDecisionTool> m_trigDecTool {this,"TrigDecisionTool",""}; ///< Tool to tell whether a specific trigger is passed
     ToolHandle<ITriggerTranslatorTool> m_trigTranslator {this,"TriggerTranslatorTool",""}; ///< Tool to unpack trigger categories into a trigger list

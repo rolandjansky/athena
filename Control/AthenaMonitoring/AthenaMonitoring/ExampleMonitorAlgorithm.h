@@ -6,10 +6,7 @@
 #define EXAMPLEMONITORALGORITHM_H
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
-
-#include "AthenaMonitoring/MonitoredScope.h"
-#include "AthenaMonitoring/MonitoredScalar.h"
-#include "AthenaMonitoring/MonitoredCollection.h"
+#include "AthenaMonitoring/Monitored.h"
 
 #include "TRandom3.h"
 
