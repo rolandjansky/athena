@@ -292,6 +292,9 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
 		" phi raw="  << phiRawImpactCell <<
     " true energy=" << trueEnergy  );
 
+  int impactEtaIndex = m_emID->eta(impactCellDDE->identify());
+  int impactPhiIndex = m_emID->phi(impactCellDDE->identify());
+
     ATH_MSG_DEBUG("rrr impact eta_index " << m_emID->eta(impactCellDDE->identify()) << " phi_index " << m_emID->phi(impactCellDDE->identify()) <<
     " sampling " << m_emID->sampling(impactCellDDE->identify()));
 
@@ -383,7 +386,21 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
   double randGaussz = 0.;
   double sum = 0.;
   double sqsum = 0.;
-  double sd=0.;
+  double sd = 0.;
+
+  int pconf = impactPhiIndex % 4 ;
+  int econf = (impactEtaIndex + 1) % 2 ; // ofset corresponds to difference in index calculated for neural net preprocessing
+    
+    riImpactEta = ((etaExtrap - etaRawImpactCell) - m_riImpactEtaMean_const)/m_riImpactEtaScale_const; // ??? or imact - extrap?
+    riImpactPhi = ((phiExtrap - phiRawImpactCell) - m_riImpactPhiMean_const);
+    // keep phi in -pi to pi
+    if (riImpactPhi > CLHEP::pi){
+      riImpactPhi -= 2 * CLHEP::pi;
+    }
+    else if (riImpactPhi < - CLHEP::pi){
+      riImpactPhi += 2 * CLHEP::pi;
+    }
+    riImpactPhi = riImpactPhi/m_riImpactPhiScale_const;
 
   for (int in_var = 0; in_var< 300; in_var ++)
    {
@@ -405,25 +422,25 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
     }
   for (int in_var = 0; in_var< 4; in_var ++)
    {
-    inputs["pconfig"].insert ( std::pair<std::string,double>(std::to_string(in_var),1.) );
+    if (in_var == pconf){
+      inputs["pconfig"].insert ( std::pair<std::string,double>(std::to_string(in_var),1.) );
     }
-  for (int in_var = 0; in_var< 2; in_var ++)
-   {
-    inputs["econfig"].insert ( std::pair<std::string,double>(std::to_string(in_var),1.) );
+    else{
+      inputs["pconfig"].insert ( std::pair<std::string,double>(std::to_string(in_var),0.) );
     }
+    }
+  for (int in_var = 0; in_var< 2; in_var ++){
+    if (in_var == econf){
+      inputs["econfig"].insert ( std::pair<std::string,double>(std::to_string(in_var),1.) );
+    }
+    else{
+      inputs["econfig"].insert ( std::pair<std::string,double>(std::to_string(in_var),0.) );
+    }
+  }
 
-    riImpactEta = ((etaExtrap - etaRawImpactCell) - m_riImpactEtaMean_const)/m_riImpactEtaScale_const; // ??? or imact - extrap?
-    riImpactPhi = ((phiExtrap - phiRawImpactCell) - m_riImpactPhiMean_const);
-    // keep phi in -pi to pi
-    if (riImpactPhi > CLHEP::pi){
-      riImpactPhi -= 2 * CLHEP::pi;
-    }
-    else if (riImpactPhi < - CLHEP::pi){
-      riImpactPhi += 2 * CLHEP::pi;
-    }
-    riImpactPhi = riImpactPhi/m_riImpactPhiScale_const;
     inputs["ripos"].insert ( std::pair<std::string,double>("0", riImpactEta) ); 
     inputs["ripos"].insert ( std::pair<std::string,double>("1", riImpactPhi ) );
+
   // compute the output values
   std::map<std::string, double> outputs = graph.compute(inputs);
   ATH_MSG_DEBUG("neural network output = "<<outputs);
@@ -431,13 +448,33 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
 
   std::vector<CaloCell*>::iterator windowCell;
   int i = 0;
+  double myPhiIndex = -999.;
+  double myEtaIndex = -999.;
+
   for ( windowCell = windowCells.begin(); windowCell != windowCells.end(); ++windowCell ) {
     (*windowCell)->addEnergy(trueEnergy * outputs[std::to_string(i)]);
 
       ATH_MSG_DEBUG("NNN added " << (*windowCell)->caloDDE()->eta_raw() << " and " << (*windowCell)->caloDDE()->phi_raw() << " sampling " <<
               (*windowCell)->caloDDE()->getSampling() << "energy " << (*windowCell)->energy());
-ATH_MSG_DEBUG("lll cell eta_index " << m_emID->eta((*windowCell)->caloDDE()->identify()) << " phi_index " << m_emID->phi((*windowCell)->caloDDE()->identify()) <<
-    "  sampling " << m_emID->sampling((*windowCell)->caloDDE()->identify()));
+     myPhiIndex = (*windowCell)->caloDDE()->phi_raw() - (-3.1323888); // phi_right
+     //myPhiIndex = (*windowCell)->caloDDE()->phi_raw() - (-3.126253); // phi_left
+
+     //myEtaIndex = (*windowCell)->caloDDE()->eta_raw() - (-1.4375); // eta_left
+     myEtaIndex = (*windowCell)->caloDDE()->eta_raw() - (1.4375); // eta_right
+
+     if (myPhiIndex > CLHEP::pi){
+      myPhiIndex -= 2 * CLHEP::pi;
+     }
+     myPhiIndex /= m_MiddleCellWidthPhi_const;
+     myEtaIndex /= m_MiddleCellWidthEta_const;
+    //if (((*windowCell)->caloDDE()->eta_raw() < 0) && (*windowCell)->caloDDE()->getSampling() == 2) {
+     if (((*windowCell)->caloDDE()->eta_raw() > 0) && (*windowCell)->caloDDE()->getSampling() == 2) {
+      ATH_MSG_DEBUG("lll cell eta_index " << m_emID->eta((*windowCell)->caloDDE()->identify()) << " phi_index " << m_emID->phi((*windowCell)->caloDDE()->identify()) <<
+        "  sampling " << m_emID->sampling((*windowCell)->caloDDE()->identify()) << 
+        "  myPhiIndex " << myPhiIndex <<
+      "  myEtaIndex " << myEtaIndex);
+      }
+      
       i++;
   }
 
