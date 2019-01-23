@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #ifndef SCT_ReadCalibChipGainCondAlg_h
 #define SCT_ReadCalibChipGainCondAlg_h
 
 // Include parent class
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 // Include Gaudi classes
 #include "GaudiKernel/ICondSvc.h"
@@ -25,17 +25,17 @@
 // Forward declarations
 class SCT_ID;
 
-class SCT_ReadCalibChipGainCondAlg : public AthAlgorithm 
+class SCT_ReadCalibChipGainCondAlg : public AthReentrantAlgorithm 
 {  
  public:
   SCT_ReadCalibChipGainCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~SCT_ReadCalibChipGainCondAlg() = default;
   StatusCode initialize() override;
-  StatusCode execute() override;
+  StatusCode execute(const EventContext& ctx) const override;
   StatusCode finalize() override;
 
  private:
-  void insertNptGainFolderData(SCT_ModuleGainCalibData& theseCalibData, const coral::AttributeList& folderData);
+  void insertNptGainFolderData(SCT_ModuleGainCalibData& theseCalibData, const coral::AttributeList& folderData) const;
 
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this, "ReadKey", "/SCT/DAQ/Calibration/ChipGain", "Key of input (raw) gain conditions folder"};
   SG::WriteCondHandleKey<SCT_GainCalibData> m_writeKey{this, "WriteKey", "SCT_GainCalibData", "Key of output (derived) gain conditions data"};
