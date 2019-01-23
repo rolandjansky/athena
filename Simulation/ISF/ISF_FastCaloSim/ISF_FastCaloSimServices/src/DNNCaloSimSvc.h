@@ -88,6 +88,20 @@ namespace ISF {
 
       const CaloDetDescrManager* m_caloDetDescrManager;
       CaloGeometryFromCaloDDM* m_caloGeo;
+      const LArEM_ID* m_emID;
+      const double m_logTrueEnergyMean_const = 9.70406053;
+      const double m_logTrueEnergyScale_const = 1.76099569;
+      const double m_riImpactEtaMean_const = 3.47603256e-05;
+      const double m_riImpactEtaScale_const = 0.00722316;
+      const double m_riImpactPhiMean_const = -5.42153684e-05;
+      const double m_riImpactPhiScale_const = 0.00708241;
+
+      const double m_MiddleCellWidthEta_const = 0.025;
+      const double m_MiddleCellWidthPhi_const = CLHEP::pi / pow(2,7);
+      const double m_EtaRawMiddleCut_const = m_MiddleCellWidthEta_const * 3.5;
+      const double m_EtaRawBackCut_const = m_MiddleCellWidthEta_const * 4.;
+      const double m_PhiRawMiddleCut_const = m_MiddleCellWidthPhi_const * 3.5;
+      const double m_PhiRawStripCut_const = m_MiddleCellWidthPhi_const * 6.0;
       
       std::string  m_caloCellsOutputName;
   };
