@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EfficiencyTool_H
@@ -30,8 +30,10 @@ private:
 
 protected:
   void fillEfficiency(const std::string,bool,const float,const std::string,const xAOD::Egamma *,bool fill2D=true);
-  void inefficiency(const std::string&,const std::string,const float,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
-  void fillInefficiency(const std::string&,const std::string,const xAOD::Electron *,const xAOD::Photon *,const xAOD::CaloCluster *,const xAOD::TrackParticle *); 
+  void inefficiency(const std::string&,const std::string,const float,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj,
+                    const asg::AcceptData& acceptData);
+  void fillInefficiency(const std::string&,const std::string,const xAOD::Electron *,const xAOD::Photon *,const xAOD::CaloCluster *,const xAOD::TrackParticle *,
+                        const asg::AcceptData& acceptData); 
   bool analyseIsEM(const xAOD::Electron *,const std::string);
   bool analyseIsEMLH(const xAOD::Electron *,const std::string/*,const std::bitset<4>*/);
    /*! Include more detailed histograms */

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************
@@ -555,9 +555,10 @@ bool TrigEgammaAnalysisBaseTool::isPrescaled(const std::string trigger){
     return false; // Not prescaled, use event
 }
 
-void TrigEgammaAnalysisBaseTool::setAccept(const HLT::TriggerElement *te,const TrigInfo info){
+asg::AcceptData
+TrigEgammaAnalysisBaseTool::setAccept(const HLT::TriggerElement *te,const TrigInfo info){
     ATH_MSG_DEBUG("setAccept");
-    m_accept.clear();
+    asg::AcceptData acceptData (&m_accept);
     bool passedL1Calo=false;
     bool passedL2Calo=false;
     bool passedEFCalo=false;
@@ -599,12 +600,12 @@ void TrigEgammaAnalysisBaseTool::setAccept(const HLT::TriggerElement *te,const T
         }
     }
 
-    m_accept.setCutResult("L1Calo",passedL1Calo);
-    m_accept.setCutResult("L2Calo",passedL2Calo);
-    m_accept.setCutResult("L2",passedL2);
-    m_accept.setCutResult("EFCalo",passedEFCalo);
-    m_accept.setCutResult("EFTrack",passedEFTrk);
-    m_accept.setCutResult("HLT",passedEF);
+    acceptData.setCutResult("L1Calo",passedL1Calo);
+    acceptData.setCutResult("L2Calo",passedL2Calo);
+    acceptData.setCutResult("L2",passedL2);
+    acceptData.setCutResult("EFCalo",passedEFCalo);
+    acceptData.setCutResult("EFTrack",passedEFTrk);
+    acceptData.setCutResult("HLT",passedEF);
     ATH_MSG_DEBUG("Accept results:");
     ATH_MSG_DEBUG("L1: "<< passedL1Calo);
     ATH_MSG_DEBUG("L2Calo: " << passedL2Calo);
@@ -612,6 +613,7 @@ void TrigEgammaAnalysisBaseTool::setAccept(const HLT::TriggerElement *te,const T
     ATH_MSG_DEBUG("EFCalo: "<< passedEFCalo);
     ATH_MSG_DEBUG("HLT: "<<passedEF);
 
+    return acceptData;
 }
 
 float TrigEgammaAnalysisBaseTool::dR(const float eta1, const float phi1, const float eta2, const float phi2){
