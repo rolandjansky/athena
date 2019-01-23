@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -19,7 +19,7 @@
 #include "StoreGate/ReadHandle.h"
 
 SCT_MonitorConditionsTestAlg::SCT_MonitorConditionsTestAlg(const std::string& name, ISvcLocator* pSvcLocator) : 
-  AthAlgorithm(name, pSvcLocator), 
+  AthReentrantAlgorithm(name, pSvcLocator),
   m_sctId{nullptr}
 {
 }
@@ -42,7 +42,7 @@ StatusCode SCT_MonitorConditionsTestAlg::initialize()
 
 }
 
-StatusCode SCT_MonitorConditionsTestAlg::execute()
+StatusCode SCT_MonitorConditionsTestAlg::execute(const EventContext& ctx) const
 {
   //This method is only used to test the summary service, and only used within this package,
   // so the INFO level messages have no impact on performance of these services when used by clients
@@ -56,7 +56,7 @@ StatusCode SCT_MonitorConditionsTestAlg::execute()
 
   ATH_MSG_DEBUG(" in execute()");
 
-  SG::ReadHandle<xAOD::EventInfo> evt{m_evtKey};
+  SG::ReadHandle<xAOD::EventInfo> evt{m_evtKey, ctx};
   if (not evt.isValid()) {
     ATH_MSG_FATAL("could not get event info ");
     return StatusCode::FAILURE;

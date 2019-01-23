@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -11,7 +11,7 @@
 #define SCT_TestConfigConditions_H
 
 // Athena includes
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
 
 // Gaudi includes
@@ -27,7 +27,7 @@ class SCT_ID;
  * This class acts as a test/sample client for the SCT_ConfigurationSConditionsSvc class. 
  */
 
-class SCT_ConfigurationConditionsTestAlg : public AthAlgorithm {
+class SCT_ConfigurationConditionsTestAlg : public AthReentrantAlgorithm {
  public:
   // Structors
   SCT_ConfigurationConditionsTestAlg (const std::string& name, ISvcLocator* pSvcLocator); 
@@ -35,7 +35,7 @@ class SCT_ConfigurationConditionsTestAlg : public AthAlgorithm {
   
   // Standard Gaudi functions
   StatusCode initialize() override;
-  StatusCode execute() override;
+  StatusCode execute(const EventContext& ctx) const override;
   StatusCode finalize() override;
   
  private:

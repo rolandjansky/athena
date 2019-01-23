@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ConfigurationCondAlg.h"
@@ -28,7 +28,7 @@ const std::string SCT_ConfigurationCondAlg::s_coolModuleFolderName2{"/SCT/DAQ/Co
 const std::string SCT_ConfigurationCondAlg::s_coolMurFolderName2{"/SCT/DAQ/Config/MUR"};
 
 SCT_ConfigurationCondAlg::SCT_ConfigurationCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
-  : ::AthAlgorithm(name, pSvcLocator)
+  : ::AthReentrantAlgorithm(name, pSvcLocator)
   , m_condSvc{"CondSvc", name}
   , m_pHelper{nullptr}
 {
@@ -77,11 +77,11 @@ StatusCode SCT_ConfigurationCondAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_ConfigurationCondAlg::execute() {
+StatusCode SCT_ConfigurationCondAlg::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("execute " << name());
 
   // Write Cond Handle
-  SG::WriteCondHandle<SCT_ConfigurationCondData> writeHandle{m_writeKey};
+  SG::WriteCondHandle<SCT_ConfigurationCondData> writeHandle{m_writeKey, ctx};
   // Do we have a valid Write Cond Handle for current time?
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
@@ -97,7 +97,7 @@ StatusCode SCT_ConfigurationCondAlg::execute() {
 
   // Fill module data
   EventIDRange rangeModule;
-  if (fillModuleData(writeCdo.get(), rangeModule).isFailure()) {
+  if (fillModuleData(writeCdo.get(), rangeModule, ctx).isFailure()) {
     return StatusCode::FAILURE;
   }
 
@@ -105,7 +105,7 @@ StatusCode SCT_ConfigurationCondAlg::execute() {
   EventIDRange rangeChannel;
   EventIDRange rangeMur;
   EventIDRange rangeDetEle;
-  if (fillChannelData(writeCdo.get(), rangeChannel, rangeMur, rangeDetEle).isFailure()) {
+  if (fillChannelData(writeCdo.get(), rangeChannel, rangeMur, rangeDetEle, ctx).isFailure()) {
     return StatusCode::FAILURE;
   }
 
@@ -128,7 +128,7 @@ StatusCode SCT_ConfigurationCondAlg::execute() {
 }
 
 // Fill bad strip, chip and link info
-StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* writeCdo, EventIDRange& rangeChannel, EventIDRange& rangeMur, EventIDRange& rangeDetEle) {
+StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* writeCdo, EventIDRange& rangeChannel, EventIDRange& rangeMur, EventIDRange& rangeDetEle, const EventContext& ctx) const {
   // Check if the pointer of derived conditions object is valid.
   if (writeCdo==nullptr) {
     ATH_MSG_FATAL("Pointer of derived conditions object is null");
@@ -165,10 +165,10 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* 
   writeCdo->clearBadStripIds();
   writeCdo->clearBadChips();
   // Fill link status
-  if (fillLinkStatus(writeCdo, rangeMur).isFailure()) return StatusCode::FAILURE;
+  if (fillLinkStatus(writeCdo, rangeMur, ctx).isFailure()) return StatusCode::FAILURE;
 
   // Get channel folder for link info 
-  SG::ReadCondHandle<CondAttrListVec> readHandle{m_readKeyChannel};
+  SG::ReadCondHandle<CondAttrListVec> readHandle{m_readKeyChannel, ctx};
   const CondAttrListVec* readCdo{*readHandle};
   if (readCdo==nullptr) {
     ATH_MSG_FATAL("Could not find MUR configuration data: " << m_readKeyChannel.key());
@@ -183,7 +183,7 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* 
   }
 
   // Get SCT_DetectorElementCollection
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle{m_SCTDetEleCollKey, ctx};
   const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
   if (elements==nullptr) {
     ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
@@ -293,7 +293,7 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* 
 }
 
 // Fill bad module info
-StatusCode SCT_ConfigurationCondAlg::fillModuleData(SCT_ConfigurationCondData* writeCdo, EventIDRange& rangeModule) {
+StatusCode SCT_ConfigurationCondAlg::fillModuleData(SCT_ConfigurationCondData* writeCdo, EventIDRange& rangeModule, const EventContext& ctx) const {
   // Check if the pointer of derived conditions object is valid.
   if (writeCdo==nullptr) {
     ATH_MSG_FATAL("Pointer of derived conditions object is null");
@@ -310,7 +310,7 @@ StatusCode SCT_ConfigurationCondAlg::fillModuleData(SCT_ConfigurationCondData* w
   writeCdo->clearBadWaferIds();
 
   // Get Module folder
-  SG::ReadCondHandle<CondAttrListVec> readHandle{m_readKeyModule};
+  SG::ReadCondHandle<CondAttrListVec> readHandle{m_readKeyModule, ctx};
   const CondAttrListVec* readCdo{*readHandle};
   if (readCdo==nullptr) {
     ATH_MSG_FATAL("Could not find MUR configuration data: " << m_readKeyModule.key());
@@ -366,7 +366,7 @@ StatusCode SCT_ConfigurationCondAlg::fillModuleData(SCT_ConfigurationCondData* w
 }
 
 // Fill link info
-StatusCode SCT_ConfigurationCondAlg::fillLinkStatus(SCT_ConfigurationCondData* writeCdo, EventIDRange& rangeMur) {
+StatusCode SCT_ConfigurationCondAlg::fillLinkStatus(SCT_ConfigurationCondData* writeCdo, EventIDRange& rangeMur, const EventContext& ctx) const {
   // Check if the pointer of derived conditions object is valid.
   if (writeCdo==nullptr) {
     ATH_MSG_FATAL("Pointer of derived conditions object is null");
@@ -380,7 +380,7 @@ StatusCode SCT_ConfigurationCondAlg::fillLinkStatus(SCT_ConfigurationCondData* w
   writeCdo->clearBadLinks();
 
   // Get MUR folder for link info 
-  SG::ReadCondHandle<CondAttrListVec> readHandle{m_readKeyMur};
+  SG::ReadCondHandle<CondAttrListVec> readHandle{m_readKeyMur, ctx};
   const CondAttrListVec* readCdo{*readHandle};
   if (readCdo==nullptr) {
     ATH_MSG_FATAL("Could not find MUR configuration data: " << m_readKeyMur.key());
