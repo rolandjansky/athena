@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -25,13 +25,8 @@ const double width=2.*pi/64.;
 
 namespace Root{
 
-TTileTripReader::TTileTripReader(const char*
-#ifndef ROOTCORE
-      name)
-    : TSelectorToolBase(name)
-#else
-      )
-#endif /*ROOTCORE*/
+TTileTripReader::TTileTripReader(const char* name)
+  : m_name (name)
 {
     m_trips=new TChain("TripList");
     m_runMap=new TChain("RunMap");
@@ -65,14 +60,15 @@ TTileTripReader::~TTileTripReader() {
     if(m_runMap)delete m_runMap;
 }
 #ifndef ROOTCORE
-const TAccept& TTileTripReader::accept(int run, int lbn, unsigned int event, double eta, double phi, int tileError, int tileFlags){
+asg::AcceptData TTileTripReader::accept(int run, int lbn, unsigned int event, double eta, double phi, int tileError, int tileFlags){
+    asg::AcceptData acceptData (&m_accept);
     readTileFlags(run,lbn,tileError,tileFlags);
     if(eta!=-99.9 && phi!=-99.9)
-        m_accept.setCutResult("InTrip",checkEtaPhi(run,lbn,eta,phi));
-    m_accept.setCutResult("BadEvent",checkEvent((unsigned int)run,
+        acceptData.setCutResult("InTrip",checkEtaPhi(run,lbn,eta,phi));
+    acceptData.setCutResult("BadEvent",checkEvent((unsigned int)run,
             (unsigned short)lbn,
             (unsigned int)event));
-    return m_accept;
+    return acceptData;
 }
 #endif /*ROOTCORE*/
 double TTileTripReader::areaTripFraction(int run, int lbn, double eta, double phi, double dR){

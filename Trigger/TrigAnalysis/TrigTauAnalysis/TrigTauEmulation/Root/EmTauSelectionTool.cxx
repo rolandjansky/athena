@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // vim: ts=2 sw=2
@@ -48,42 +48,48 @@ StatusCode EmTauSelectionTool::initialize()
   return StatusCode::SUCCESS;
 }
 
+const asg::AcceptInfo& EmTauSelectionTool::getAcceptInfo() const
+{
+  return m_accept;
+}
+
+
 // Accept method
-const Root::TAccept& EmTauSelectionTool::accept(const xAOD::EmTauRoI& l1tau) const
+asg::AcceptData EmTauSelectionTool::accept(const xAOD::EmTauRoI& l1tau) const
 
 {
-  m_accept.clear();
-  m_accept.setCutResult("EmTauRoI", false);
+  asg::AcceptData acceptData (&m_accept);
+  acceptData.setCutResult("EmTauRoI", false);
 
   // if (fabs(l1tau.eta()) >= m_roi_eta_cut)
-  //   return m_accept;
+  //   return acceptData;
 
   double roi_pt = m_use_emclus ? l1tau.emClus() : l1tau.tauClus();
   //std::cout << "=> testing L1 cut" << std::endl;
   if (roi_pt <= m_roi_pt_cut) {
     //std::cout << "reject L1: did not pass pT cut (" << roi_pt << " <= " << m_roi_pt_cut <<  ")" << std::endl;
-    return m_accept;
+    return acceptData;
   }
 
   if (!pass_isolation(l1tau)) {
     //std::cout << "reject L1: did not pass isolation cut" << std::endl;
-    return m_accept;
+    return acceptData;
   }
 
   if (!pass_hadronic_leakage(l1tau)) {
     //std::cout << "reject L1: did not pass hadronic leakage" << std::endl;
-    return m_accept;
+    return acceptData;
   }
 
   int roi_type = m_use_emclus ? xAOD::EmTauRoI::EMRoIWord : xAOD::EmTauRoI::TauRoIWord;
   if (l1tau.roiType() != roi_type) {
     //std::cout << "reject L1: did not pass RoI type cut" << std::endl;
-    return m_accept;
+    return acceptData;
   }
 
   //std::cout << "PASSED L1 CUTS" << std::endl;
-  m_accept.setCutResult("EmTauRoI", true);
-  return m_accept;
+  acceptData.setCutResult("EmTauRoI", true);
+  return acceptData;
 }
 
 bool EmTauSelectionTool::pass_isolation(const xAOD::EmTauRoI& l1tau) const

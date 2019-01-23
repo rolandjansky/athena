@@ -30,16 +30,16 @@ StatusCode PixelTDAQCondAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelTDAQCondAlg::execute() {
+StatusCode PixelTDAQCondAlg::execute(const EventContext& ctx) const {
   ATH_MSG_INFO("PixelTDAQCondAlg::execute()");
 
-  SG::WriteCondHandle<PixelModuleData> writeHandle(m_writeKey);
+  SG::WriteCondHandle<PixelModuleData> writeHandle(m_writeKey, ctx);
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid.. In theory this should not be called, but may happen if multiple concurrent events are being processed out of order.");
     return StatusCode::SUCCESS; 
   }
 
-  SG::ReadCondHandle<CondAttrListCollection> readHandle(m_readKey);
+  SG::ReadCondHandle<CondAttrListCollection> readHandle(m_readKey, ctx);
   const CondAttrListCollection* readCdo = *readHandle; 
   if (readCdo==nullptr) {
     ATH_MSG_FATAL("Null pointer to the read conditions object");

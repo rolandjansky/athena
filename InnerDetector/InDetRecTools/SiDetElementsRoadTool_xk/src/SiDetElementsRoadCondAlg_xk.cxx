@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SiDetElementsRoadCondAlg_xk.h"
@@ -16,7 +16,7 @@
 ///////////////////////////////////////////////////////////////////
 
 InDet::SiDetElementsRoadCondAlg_xk::SiDetElementsRoadCondAlg_xk(const std::string& name, ISvcLocator* pSvcLocator)
-  : ::AthAlgorithm(name, pSvcLocator),
+  : ::AthReentrantAlgorithm(name, pSvcLocator),
   m_pixmgr{nullptr},
   m_condSvc{"CondSvc", name}
 {
@@ -68,12 +68,12 @@ StatusCode InDet::SiDetElementsRoadCondAlg_xk::finalize()
 // Taken from InDet::SiDetElementsRoadMaker_xk::mapDetectorElementsProduction()
 ///////////////////////////////////////////////////////////////////
 
-StatusCode InDet::SiDetElementsRoadCondAlg_xk::execute()
+StatusCode InDet::SiDetElementsRoadCondAlg_xk::execute(const EventContext& ctx) const
 {
   const double pi2=2.*M_PI;
   const double pi=M_PI;
 
-  SG::WriteCondHandle<SiDetElementsLayerVectors_xk> writeHandle{m_writeKey};
+  SG::WriteCondHandle<SiDetElementsLayerVectors_xk> writeHandle{m_writeKey, ctx};
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
                   << ". In theory this should not be called, but may happen"
@@ -96,24 +96,24 @@ StatusCode InDet::SiDetElementsRoadCondAlg_xk::execute()
       else                              pW[0].push_back((*s)); // Left  endcap
     }
 
-    SG::ReadCondHandle<CondAttrListCollection> iblDistFolder(m_IBLDistFolderKey);
+    SG::ReadCondHandle<CondAttrListCollection> iblDistFolder(m_IBLDistFolderKey, ctx);
     if (not iblDistFolder.isValid()) {
-      ATH_MSG_ERROR(m_IBLDistFolderKey.fullKey() << " is not available.");
+      ATH_MSG_FATAL(m_IBLDistFolderKey.fullKey() << " is not available.");
       return StatusCode::FAILURE;
     }
     if (not iblDistFolder.range(rangePixel)) {
-      ATH_MSG_ERROR("Failed to retrieve validity range for " << iblDistFolder.key());
+      ATH_MSG_FATAL("Failed to retrieve validity range for " << iblDistFolder.key());
       return StatusCode::FAILURE;
     }
     if (m_useDynamicAlignFolders) {
-      SG::ReadCondHandle<CondAttrListCollection> pixelL2Folder(m_pixelL2FolderKey);
+      SG::ReadCondHandle<CondAttrListCollection> pixelL2Folder(m_pixelL2FolderKey, ctx);
       if (not pixelL2Folder.isValid()) {
-        ATH_MSG_ERROR(pixelL2Folder.fullKey() << " is not available.");
+        ATH_MSG_FATAL(pixelL2Folder.fullKey() << " is not available.");
         return StatusCode::FAILURE;
       }
       EventIDRange rangePixelL2;
       if (not pixelL2Folder.range(rangePixelL2)) {
-        ATH_MSG_ERROR("Failed to retrieve validity range for " << pixelL2Folder.key());
+        ATH_MSG_FATAL("Failed to retrieve validity range for " << pixelL2Folder.key());
         return StatusCode::FAILURE;
       }
       rangePixel = EventIDRange::intersect(rangePixel, rangePixelL2);
@@ -123,10 +123,10 @@ StatusCode InDet::SiDetElementsRoadCondAlg_xk::execute()
   EventIDRange rangeSct;
   if (m_useSCT) {
     // Loop over each wafer of sct
-    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey);
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey, ctx);
     const InDetDD::SiDetectorElementCollection* sctDetEle{*sctDetEleHandle};
     if (not sctDetEleHandle.isValid() or sctDetEle==nullptr) {
-      ATH_MSG_ERROR(m_SCTDetEleCollKey.fullKey() << " is not available.");
+      ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " is not available.");
       return StatusCode::FAILURE;
     }
     for (const InDetDD::SiDetectorElement* s: *sctDetEle) {
@@ -136,7 +136,7 @@ StatusCode InDet::SiDetElementsRoadCondAlg_xk::execute()
     }
 
     if (not sctDetEleHandle.range(rangeSct)) {
-      ATH_MSG_ERROR("Failed to retrieve validity range for " << sctDetEleHandle.key());
+      ATH_MSG_FATAL("Failed to retrieve validity range for " << sctDetEleHandle.key());
       return StatusCode::FAILURE;
     }
   }
@@ -233,7 +233,7 @@ StatusCode InDet::SiDetElementsRoadCondAlg_xk::execute()
 
   EventIDRange rangeW{EventIDRange::intersect(rangePixel, rangeSct)};
   if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
-    ATH_MSG_ERROR("Could not record " << writeHandle.key()
+    ATH_MSG_FATAL("Could not record " << writeHandle.key()
                   << " with EventRange " << rangeW
                   << " into Conditions Store");
     return StatusCode::FAILURE;

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // PhysValMET.cxx 
@@ -1406,7 +1406,7 @@ namespace MissingEtDQA {
   bool PhysValMET::Accept(const xAOD::Muon* mu)
   {
     if( mu->pt()<2.5e3 || mu->pt()/cosh(mu->eta())<4e3 ) return false;
-    return m_muonSelTool->accept(*mu);
+    return static_cast<bool> (m_muonSelTool->accept(*mu));
   }
 
   bool PhysValMET::Accept(const xAOD::Electron* el)
@@ -1422,7 +1422,7 @@ namespace MissingEtDQA {
   }
 
   bool PhysValMET::Accept(const xAOD::TauJet* tau)
-  { return m_tauSelTool->accept( *tau ); }
+  { return static_cast<bool> (m_tauSelTool->accept( *tau )); }
 
   bool PhysValMET::Accept(const xAOD::Jet* jet, double JvtCut)
   {

@@ -104,6 +104,7 @@ namespace Monitored {
   // TEMPORARY: for backwards compatibility
   namespace MonitoredScope {
     template <typename... T>
+    [[deprecated("Use Monitored::Group instead (see MR athena!20403)")]]
     static impl::Group declare(const ToolHandle<GenericMonitoringTool>& tool, T&&... monitoredGroup) {
       return impl::Group(tool, monitoredGroup...);
     }

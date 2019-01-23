@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -17,7 +17,7 @@
 #include "Identifier/Identifier.h"
 
 SCT_ModuleVetoTestAlg::SCT_ModuleVetoTestAlg(const std::string& name, ISvcLocator* pSvcLocator) : 
-  AthAlgorithm(name, pSvcLocator)
+  AthReentrantAlgorithm(name, pSvcLocator)
 {
   //nop
 }
@@ -32,7 +32,7 @@ SCT_ModuleVetoTestAlg::initialize() {
 
 //Execute
 StatusCode 
-SCT_ModuleVetoTestAlg::execute() {
+SCT_ModuleVetoTestAlg::execute(const EventContext& /*ctx*/) const {
   //This method is only used to test the summary service, and only used within this package,
   // so the INFO level messages have no impact on performance of these services when used by clients
 

@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SiElementPropertiesTableCondAlg_h
 #define SiElementPropertiesTableCondAlg_h
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 
@@ -18,13 +18,13 @@ class SCT_ID;
 
 namespace InDet {
 
-  class SiElementPropertiesTableCondAlg : public AthAlgorithm {
+  class SiElementPropertiesTableCondAlg : public AthReentrantAlgorithm {
   public:
     SiElementPropertiesTableCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
     virtual ~SiElementPropertiesTableCondAlg() override = default;
 
     virtual StatusCode initialize() override;
-    virtual StatusCode execute() override;
+    virtual StatusCode execute(const EventContext& ctx) const override;
     virtual StatusCode finalize() override;
 
   private:

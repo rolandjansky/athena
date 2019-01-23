@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SiElementPropertiesTableCondAlg.h"
@@ -12,7 +12,7 @@
 namespace InDet {
 
   SiElementPropertiesTableCondAlg::SiElementPropertiesTableCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
-    : ::AthAlgorithm(name, pSvcLocator)
+    : ::AthReentrantAlgorithm(name, pSvcLocator)
     , m_condSvc{"CondSvc", name}
     , m_idHelper{nullptr}
 {
@@ -37,12 +37,12 @@ namespace InDet {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode SiElementPropertiesTableCondAlg::execute()
+  StatusCode SiElementPropertiesTableCondAlg::execute(const EventContext& ctx) const
   {
     ATH_MSG_DEBUG("execute " << name());
 
     // ____________ Construct Write Cond Handle and check its validity ____________
-    SG::WriteCondHandle<InDet::SiElementPropertiesTable> writeHandle{m_writeKey};
+    SG::WriteCondHandle<InDet::SiElementPropertiesTable> writeHandle{m_writeKey, ctx};
 
     // Do we have a valid Write Cond Handle for current time?
     if (writeHandle.isValid()) {
@@ -53,7 +53,7 @@ namespace InDet {
     }
 
     // ____________ Get Read Cond Object ____________
-    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> readHandle{m_readKey};
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> readHandle{m_readKey, ctx};
     const InDetDD::SiDetectorElementCollection* readCdo{*readHandle};
     if (readCdo==nullptr) {
       ATH_MSG_FATAL("Null pointer to the read conditions object of " << m_readKey.key());
@@ -74,7 +74,7 @@ namespace InDet {
 
     // Record WriteCondHandle
     if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
-      ATH_MSG_ERROR("Could not record " << writeHandle.key()
+      ATH_MSG_FATAL("Could not record " << writeHandle.key()
                     << " with EventRange " << rangeW
                     << " into Conditions Store");
       return StatusCode::FAILURE;

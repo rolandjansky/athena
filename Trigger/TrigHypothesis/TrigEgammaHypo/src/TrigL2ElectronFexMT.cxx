@@ -23,7 +23,7 @@
 #include "TrigL2ElectronFexMT.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
-#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/Monitored.h"
 class ISvcLocator;
 
 template <class SRC>
@@ -97,7 +97,6 @@ StatusCode TrigL2ElectronFexMT::finalize()
 
 
 StatusCode TrigL2ElectronFexMT::execute() {
- using namespace Monitored;   
  using namespace xAOD;   
 
  ATH_MSG_DEBUG( "Executing " <<name());
@@ -167,14 +166,14 @@ StatusCode TrigL2ElectronFexMT::execute() {
   // monitoring
   std::vector<float> calotrkdeta_noextrap_mon; //!< monitor preselection between track eta and cluster before extrapolation 
 
-  auto caloPtMon = MonitoredCollection::declare("PtCalo",   *trigElecColl,  getCaloPt );
-  auto trackPtMon = MonitoredCollection::declare("PtTrack", *trigElecColl, getTkPt );
-  auto caloTrackDEtaMon = MonitoredCollection::declare("CaloTrackdEta", *trigElecColl, &xAOD::TrigElectron::trkClusDeta );
-  auto caloTrackDPhiMon = MonitoredCollection::declare("CaloTrackdPhi", *trigElecColl, &xAOD::TrigElectron::trkClusDphi );
-  auto etOverPtMon = MonitoredCollection::declare("CaloTrackEoverP", *trigElecColl, &xAOD::TrigElectron::etOverPt );
-  auto caloTrackDEtaNoExtrapMon = MonitoredCollection::declare("CaloTrackdEtaNoExtrapMon", calotrkdeta_noextrap_mon );
+  auto caloPtMon = Monitored::Collection("PtCalo",   *trigElecColl,  getCaloPt );
+  auto trackPtMon = Monitored::Collection("PtTrack", *trigElecColl, getTkPt );
+  auto caloTrackDEtaMon = Monitored::Collection("CaloTrackdEta", *trigElecColl, &xAOD::TrigElectron::trkClusDeta );
+  auto caloTrackDPhiMon = Monitored::Collection("CaloTrackdPhi", *trigElecColl, &xAOD::TrigElectron::trkClusDphi );
+  auto etOverPtMon = Monitored::Collection("CaloTrackEoverP", *trigElecColl, &xAOD::TrigElectron::etOverPt );
+  auto caloTrackDEtaNoExtrapMon = Monitored::Collection("CaloTrackdEtaNoExtrapMon", calotrkdeta_noextrap_mon );
 
-  auto mon = MonitoredScope::declare(m_monTool,  caloPtMon, trackPtMon, caloTrackDEtaMon, caloTrackDPhiMon, etOverPtMon, caloTrackDEtaNoExtrapMon );
+  auto mon = Monitored::Group(m_monTool,  caloPtMon, trackPtMon, caloTrackDEtaMon, caloTrackDPhiMon, etOverPtMon, caloTrackDEtaNoExtrapMon );
 
 
 

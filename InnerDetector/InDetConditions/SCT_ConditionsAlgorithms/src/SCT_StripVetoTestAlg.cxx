@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -19,7 +19,7 @@
 #include <vector>
 
 SCT_StripVetoTestAlg::SCT_StripVetoTestAlg(const std::string& name, ISvcLocator* pSvcLocator) : 
-  AthAlgorithm(name, pSvcLocator) {
+  AthReentrantAlgorithm(name, pSvcLocator) {
 }
 
 //Initialize
@@ -36,7 +36,7 @@ StatusCode SCT_StripVetoTestAlg::initialize() {
 }
 
 //Execute
-StatusCode SCT_StripVetoTestAlg::execute() {
+StatusCode SCT_StripVetoTestAlg::execute(const EventContext& /*ctx*/) const {
   std::vector<Identifier::value_type> stripIds{576522359582752768ULL,
                                                576522475009998848ULL,
                                                576522475278434304ULL,

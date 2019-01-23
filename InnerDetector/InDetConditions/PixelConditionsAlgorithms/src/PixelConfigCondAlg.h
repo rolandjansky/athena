@@ -5,7 +5,7 @@
 #ifndef PIXELCONFIGCONDALG
 #define PIXELCONFIGCONDALG
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "StoreGate/ReadCondHandleKey.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -16,12 +16,12 @@
 #include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/Property.h"
 
-class PixelConfigCondAlg : public AthAlgorithm {  
+class PixelConfigCondAlg : public AthReentrantAlgorithm {
   public:
     PixelConfigCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
     virtual StatusCode initialize() override;
-    virtual StatusCode execute() override;
+    virtual StatusCode execute(const EventContext& ctx) const override;
     virtual StatusCode finalize() override;
 
   private:

@@ -97,7 +97,7 @@ StatusCode SCT_DCSConditionsStatCondAlg::execute() {
   for (; attrListState!=endState; ++attrListState) {
     // A CondAttrListCollection is a map of ChanNum and AttributeList
     CondAttrListCollection::ChanNum channelNumber{attrListState->first};
-    CondAttrListCollection::AttributeList payload{attrListState->second};
+    const CondAttrListCollection::AttributeList &payload{attrListState->second};
     if (payload.exists(paramState) and not payload[paramState].isNull()) {
       unsigned int val{payload[paramState].data<unsigned int>()};
       unsigned int hvstate{val bitand 240};
@@ -146,7 +146,7 @@ StatusCode SCT_DCSConditionsStatCondAlg::execute() {
     for (; attrListHV!=endHV; ++attrListHV) {
       // A CondAttrListCollection is a map of ChanNum and AttributeList
       CondAttrListCollection::ChanNum channelNumber{attrListHV->first};
-      CondAttrListCollection::AttributeList payload{attrListHV->second};
+      const CondAttrListCollection::AttributeList &payload{attrListHV->second};
       if (payload.exists(paramHV) and not payload[paramHV].isNull()) {
         float hvval{payload[paramHV].data<float>()};
         if ((hvval<m_hvLowLimit) or (hvval>m_hvUpLimit)) {

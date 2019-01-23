@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -79,11 +79,10 @@
 #include "AnalysisUtils/KinematicSelectorCore.h"
 #include "AssociationKernel/IAssociationTool.h"
 
-#include "PATCore/IAthSelectorTool.h"
-#include "PATCore/TAccept.h"
-
 // Include the filter tool
 #include "D2PDMaker/FilterTool.h"
+
+#include "TString.h"
 
 //#include "tauEvent/TauJet.h"
 
@@ -149,10 +148,6 @@ protected:
 
   /** Get a handle on the ISelectorCore tools; an array of tools */
   ToolHandleArray<ISelector> m_selectionTools;
-
-
-  /** Get a handle on the PATCore tools; an array of tools */
-  ToolHandleArray<IAthSelectorTool> m_selectorTools;
 
 
   /** Get a handle on the AssociationTools; an array of tools */

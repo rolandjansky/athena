@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -23,7 +23,7 @@
 #include "GaudiKernel/ListItem.h"
 #include "CaloInterface/ISetCaloCellContainerName.h"
 //
-#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/Monitored.h"
 
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
 //
@@ -160,11 +160,10 @@ return StatusCode::SUCCESS;
 
 StatusCode TrigCaloClusterMakerMT::execute() 
 {
-  using namespace Monitored;   
   // Monitoring initialization...
-  auto time_tot = MonitoredTimer::declare("TIME_execute");
-  auto time_clusMaker = MonitoredTimer::declare("TIME_ClustMaker");
-  auto time_clusCorr = MonitoredTimer::declare("TIME_ClustCorr");
+  auto time_tot = Monitored::Timer("TIME_execute");
+  auto time_clusMaker = Monitored::Timer("TIME_ClustMaker");
+  auto time_clusCorr = Monitored::Timer("TIME_ClustCorr");
 
 
 
@@ -186,21 +185,21 @@ StatusCode TrigCaloClusterMakerMT::execute()
 
 
   // monitored variables 
-  auto mon_container_size = MonitoredScalar::declare("container_size", 0.);
-  auto mon_clusEt = MonitoredCollection::declare("Et",   *pCaloClusterContainer, &xAOD::CaloCluster::et );
-  auto mon_clusSignalState = MonitoredCollection::declare("signalState",   *pCaloClusterContainer, &xAOD::CaloCluster::signalState );
-  auto mon_clusSize = MonitoredCollection::declare("clusterSize",   *pCaloClusterContainer, &xAOD::CaloCluster::clusterSize );
+  auto mon_container_size = Monitored::Scalar("container_size", 0.);
+  auto mon_clusEt = Monitored::Collection("Et",   *pCaloClusterContainer, &xAOD::CaloCluster::et );
+  auto mon_clusSignalState = Monitored::Collection("signalState",   *pCaloClusterContainer, &xAOD::CaloCluster::signalState );
+  auto mon_clusSize = Monitored::Collection("clusterSize",   *pCaloClusterContainer, &xAOD::CaloCluster::clusterSize );
   std::vector<double>       clus_phi;
   std::vector<double>       clus_eta;
   std::vector<double>       N_BAD_CELLS;
   std::vector<double>       ENG_FRAC_MAX;
   std::vector<unsigned int> sizeVec; 
-  auto mon_clusPhi = MonitoredCollection::declare("Phi", clus_phi); // phi and eta are virtual methods of CaloCluster
-  auto mon_clusEta = MonitoredCollection::declare("Eta", clus_eta); 
-  auto mon_badCells = MonitoredCollection::declare("N_BAD_CELLS",N_BAD_CELLS );
-  auto mon_engFrac = MonitoredCollection::declare("ENG_FRAC_MAX",N_BAD_CELLS );
-  auto mon_size = MonitoredCollection::declare("size",sizeVec );
-  auto monitorIt = MonitoredScope::declare( m_monTool, time_clusMaker,  time_clusCorr, mon_container_size, mon_clusEt, 
+  auto mon_clusPhi = Monitored::Collection("Phi", clus_phi); // phi and eta are virtual methods of CaloCluster
+  auto mon_clusEta = Monitored::Collection("Eta", clus_eta);
+  auto mon_badCells = Monitored::Collection("N_BAD_CELLS",N_BAD_CELLS );
+  auto mon_engFrac = Monitored::Collection("ENG_FRAC_MAX",N_BAD_CELLS );
+  auto mon_size = Monitored::Collection("size",sizeVec );
+  auto monitorIt = Monitored::Group( m_monTool, time_clusMaker,  time_clusCorr, mon_container_size, mon_clusEt,
 					    mon_clusPhi, mon_clusEta, mon_clusSignalState, mon_clusSize, 
 					    mon_badCells, mon_engFrac, mon_size);	    
 

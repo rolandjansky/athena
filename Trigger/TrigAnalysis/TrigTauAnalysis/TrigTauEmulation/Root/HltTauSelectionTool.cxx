@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // vim: ts=2 sw=2
@@ -98,15 +98,21 @@ StatusCode HltTauSelectionTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-const Root::TAccept& HltTauSelectionTool::accept(const DecoratedHltTau& hlttau) const {
+const asg::AcceptInfo& HltTauSelectionTool::getAcceptInfo() const
+{
+  return m_accept;
+}
+
+
+asg::AcceptData HltTauSelectionTool::accept(const DecoratedHltTau& hlttau) const {
   return accept(hlttau.getHltTau(), hlttau.getPreselTracksIso(), hlttau.getPreselTracksCore()); 
 }
 
 // accept based on EDM tau candidate and first step FTF tracks from the TDT
-const Root::TAccept& HltTauSelectionTool::accept(const xAOD::TauJet *hlttau, const DataVector<xAOD::TrackParticle> *preselTracksIso, const DataVector<xAOD::TrackParticle> *preselTracksCore) const {
+asg::AcceptData HltTauSelectionTool::accept(const xAOD::TauJet *hlttau, const DataVector<xAOD::TrackParticle> *preselTracksIso, const DataVector<xAOD::TrackParticle> *preselTracksCore) const {
 
-  m_accept.clear();
-  m_accept.setCutResult("HltTau", false);
+  asg::AcceptData acceptData (&m_accept);
+  acceptData.setCutResult("HltTau", false);
 
 // #ifdef ASGTOOL_STANDALONE
 //   if (m_recalculateBDTscore) {
@@ -118,28 +124,28 @@ const Root::TAccept& HltTauSelectionTool::accept(const xAOD::TauJet *hlttau, con
 // #endif
 
   if (not m_calopresel->accept(hlttau)) {
-    return m_accept;
+    return acceptData;
   }
 
   if (m_use_fasttracking) {
     if (not m_ftf_tool->accept(hlttau, preselTracksIso, preselTracksCore)) {
-      return m_accept;
+      return acceptData;
     }
   }
 
   if (not m_tauid->accept(hlttau)) {
-    return m_accept;
+    return acceptData;
   }
 
-  m_accept.setCutResult("HltTau", true);
-  return m_accept;
+  acceptData.setCutResult("HltTau", true);
+  return acceptData;
 
 }
 
-const Root::TAccept& HltTauSelectionTool::accept(const xAOD::TauJet * hlttau, const xAOD::TauJetContainer * presel_taus) const {
+asg::AcceptData HltTauSelectionTool::accept(const xAOD::TauJet * hlttau, const xAOD::TauJetContainer * presel_taus) const {
 
-  m_accept.clear();
-  m_accept.setCutResult("HltTau", false);
+  asg::AcceptData acceptData (&m_accept);
+  acceptData.setCutResult("HltTau", false);
 
   // #ifdef ASGTOOL_STANDALONE
   //   if (m_recalculateBDTscore) {
@@ -153,7 +159,7 @@ const Root::TAccept& HltTauSelectionTool::accept(const xAOD::TauJet * hlttau, co
   //MY_MSG_INFO("\t\tBefore calo cuts");
   if (not m_calopresel->accept(hlttau)) {
     //std::cout << "not accepting calo presel" << std::endl;
-    return m_accept;
+    return acceptData;
   }
 
   const xAOD::TauJet *presel_tau = NULL;
@@ -168,19 +174,19 @@ const Root::TAccept& HltTauSelectionTool::accept(const xAOD::TauJet * hlttau, co
   // MY_MSG_INFO("\t\tBefore preselection check");
   if (m_use_fasttracking and presel_tau == NULL) { 
     //std::cout << "no presel_tau present" << std::endl;
-    return m_accept;
+    return acceptData;
   }
 
   if (m_use_fasttracking)
     if (not m_ftf_tool->accept(hlttau)) {
-      return m_accept;
+      return acceptData;
     }
 
   // --> not needed anymore (central tool now) / will remove soooon
   // // MY_MSG_INFO("\t\tBefore FTk cuts");
   // if (not m_ftk->accept(presel_tau)) {
   //   //std::cout << "not accepting tracking cut" << std::endl;
-  //   return m_accept;
+  //   return acceptData;
   // } else {
   //   //std::cout << "accepting tracking cut" << std::endl;
   // }
@@ -188,13 +194,13 @@ const Root::TAccept& HltTauSelectionTool::accept(const xAOD::TauJet * hlttau, co
   // MY_MSG_INFO("\t\tBefore BDT cuts");
   if (not m_tauid->accept(hlttau)) {
     //std::cout << "not accepting tau ID cut" << std::endl;
-    return m_accept;
+    return acceptData;
   } else {
     //std::cout << "accepting tau ID cut" << std::endl;
   }
 
   // MY_MSG_INFO("\t\tPass all cuts");
-  m_accept.setCutResult("HltTau", true);
-  return m_accept;
+  acceptData.setCutResult("HltTau", true);
+  return acceptData;
 
 }

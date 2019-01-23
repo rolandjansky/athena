@@ -50,19 +50,9 @@ class TileRawChannelGetter_DigiHSTruth ( Configured)  :
         from AthenaCommon.AppMgr import ToolSvc
 
         from TileRecUtils.TileRecFlags import jobproperties
-        from TileRecUtils.TileRecUtilsConf import TileBeamInfoProvider
-        theTileBeamInfoProvider = TileBeamInfoProvider()
-
-        from AthenaCommon.AlgSequence import AthSequencer
-        condSequence = AthSequencer("AthCondSeq")
-        if hasattr(condSequence, 'TileDCSCondAlg'):
-            theTileBeamInfoProvider.CheckDCS = True
 
         # true for nominal ATLAS configuration - GlobalFlags.DetGeo.is_atlas()
         from AthenaCommon.GlobalFlags import globalflags
-        theTileBeamInfoProvider.TileBeamElemContainer="";
-        theTileBeamInfoProvider.TileDigitsContainer="";
-        theTileBeamInfoProvider.TileRawChannelContainer="";
 
         # set time window for amplitude correction if it was not set correctly before
         if jobproperties.TileRecFlags.TimeMaxForAmpCorrection() <= jobproperties.TileRecFlags.TimeMinForAmpCorrection() :
@@ -75,8 +65,6 @@ class TileRawChannelGetter_DigiHSTruth ( Configured)  :
                 jobproperties.TileRecFlags.TimeMinForAmpCorrection = -halfBS
                 jobproperties.TileRecFlags.TimeMaxForAmpCorrection = halfBS
 
-        ToolSvc += theTileBeamInfoProvider
-        
         NoiseFilterTools = []
         if jobproperties.TileRecFlags.noiseFilter() == 1:
             from TileRecUtils.TileRecUtilsConf import TileRawChannelNoiseFilter

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkLinks/LinkToXAODNeutralParticle.h"
@@ -13,9 +13,6 @@ namespace Trk
 	{}
 
 	LinkToXAODNeutralParticle::LinkToXAODNeutralParticle ( ElementLink<xAOD::NeutralParticleContainer>& link ) : ElementLink<xAOD::NeutralParticleContainer> ( link )
-	{}
-
-	LinkToXAODNeutralParticle::~LinkToXAODNeutralParticle()
 	{}
 
         const NeutralParameters* LinkToXAODNeutralParticle::neutralParameters() const
@@ -34,12 +31,4 @@ namespace Trk
 		return new LinkToXAODNeutralParticle ( *this );
 	}
 
-	Trk::LinkToXAODNeutralParticle& Trk::LinkToXAODNeutralParticle::operator= ( const Trk::LinkToXAODNeutralParticle& rhs )
-	{
-		if ( this!=&rhs )
-		{
-			ElementLink<xAOD::NeutralParticleContainer>::operator= ( rhs );
-		}
-		return *this;
-	}
 }//end of namespace definitions

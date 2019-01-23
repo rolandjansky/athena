@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_LinkMaskingCondAlg.h"
@@ -9,7 +9,7 @@
 #include <memory>
 
 SCT_LinkMaskingCondAlg::SCT_LinkMaskingCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
-  : ::AthAlgorithm(name, pSvcLocator)
+  : ::AthReentrantAlgorithm(name, pSvcLocator)
   , m_condSvc{"CondSvc", name}
 {
 }
@@ -32,11 +32,11 @@ StatusCode SCT_LinkMaskingCondAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_LinkMaskingCondAlg::execute() {
+StatusCode SCT_LinkMaskingCondAlg::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("execute " << name());
 
   // Write Cond Handle
-  SG::WriteCondHandle<SCT_ModuleVetoCondData> writeHandle{m_writeKey};
+  SG::WriteCondHandle<SCT_ModuleVetoCondData> writeHandle{m_writeKey, ctx};
   // Do we have a valid Write Cond Handle for current time?
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
@@ -46,7 +46,7 @@ StatusCode SCT_LinkMaskingCondAlg::execute() {
   }
 
   // Read Cond Handle
-  SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey};
+  SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey, ctx};
   const CondAttrListCollection* readCdo{*readHandle}; 
   if (readCdo==nullptr) {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
@@ -70,7 +70,7 @@ StatusCode SCT_LinkMaskingCondAlg::execute() {
   for (;linkItr != linkEnd; ++linkItr) {
     //A CondAttrListCollection is a map of ChanNum and AttributeList
     Identifier waferId{(*linkItr).first};
-    CondAttrListCollection::AttributeList payload{(*linkItr).second};
+    const CondAttrListCollection::AttributeList &payload{(*linkItr).second};
     bool lastProbedState{payload[0].data<bool>()};
     if (not lastProbedState) writeCdo->setBadWaferId(waferId);
     ATH_MSG_INFO("LINK " << waferId << " (" << waferId.get_identifier32().get_compact() << " in 32 bit): " << lastProbedState);

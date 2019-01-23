@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -115,7 +115,7 @@ namespace InDetDD {
       SiDetectorElement(const Identifier &id, 
                         const SiDetectorDesign *design,
                         const GeoVFullPhysVol *geophysvol,
-                        SiCommonItems * commonItems,
+                        const SiCommonItems * commonItems,
                         const GeoAlignmentStore* geoAlignStore=nullptr);
     
       /// Destructor:
@@ -589,7 +589,7 @@ namespace InDetDD {
       IdentifierHash m_idHash; // hash id
       const SiDetectorDesign *m_design; // local description of this detector element
       //const AtlasDetectorID* m_idHelper; // id helper
-      SiCommonItems * m_commonItems;
+      const SiCommonItems * m_commonItems;
     
       const SiDetectorElement * m_nextInEta;
       const SiDetectorElement * m_prevInEta;

@@ -20,7 +20,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/AlgTool.h"
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
-#include "SiPropertiesSvc/ISiPropertiesSvc.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"

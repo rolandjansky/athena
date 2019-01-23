@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -21,7 +21,7 @@
 
 SCT_RODVetoCondAlg::SCT_RODVetoCondAlg(const std::string& name, 
                                        ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
+  AthReentrantAlgorithm(name, pSvcLocator),
   m_pHelper{nullptr}
 {
 }
@@ -34,13 +34,13 @@ StatusCode SCT_RODVetoCondAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_RODVetoCondAlg::execute() {
+StatusCode SCT_RODVetoCondAlg::execute(const EventContext& ctx) const {
   ATH_MSG_INFO(m_badRODElementsInput.value().size() <<" RODs were declared bad");
 
   std::vector<unsigned int> allRods;
   m_cabling->getAllRods(allRods);
   
-  SG::WriteHandle<IdentifierSet> badIds{m_badIds};
+  SG::WriteHandle<IdentifierSet> badIds{m_badIds, ctx};
   ATH_CHECK(badIds.record(std::make_unique<IdentifierSet>()));
 
   for (unsigned int thisRod: m_badRODElementsInput.value()) {

@@ -59,11 +59,6 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
             from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc
             InDetPixelCalibSvc = PixelCalibSvc()
             ServiceMgr += InDetPixelCalibSvc
-        if not hasattr(ServiceMgr, "PixelSiPropertiesSvc"):
-            from SiLorentzAngleSvc.LorentzAngleSvcSetup import lorentzAngleSvc
-            from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc;
-            PixelSiPropertiesSvc = SiPropertiesSvc(name = "PixelSiPropertiesSvc",DetectorName="Pixel",SiConditionsServices = lorentzAngleSvc.pixelSiliconConditionsSvc)
-            ServiceMgr += PixelSiPropertiesSvc
 
     from AthenaCommon import CfgMgr
     return CfgMgr.InDet__ClusterMakerTool(name,**kwargs)

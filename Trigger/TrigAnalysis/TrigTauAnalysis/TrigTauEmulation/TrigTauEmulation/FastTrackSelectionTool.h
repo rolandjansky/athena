@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FASTTRACKSELECTIONTOOL_FASTTRACKSELECTIONTOOL_H
@@ -26,14 +26,16 @@ class FastTrackSelectionTool : public virtual IFastTrackSelectionTool, public as
 
   virtual ~FastTrackSelectionTool() {};
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
-  virtual const Root::TAccept& accept(const xAOD::TauJet * hlttau, const DataVector<xAOD::TrackParticle> *preselTracksIso, const DataVector<xAOD::TrackParticle> *preselTracksCore) const;
-  virtual const Root::TAccept& accept(const xAOD::TauJet * presel_tau) const;
+  virtual const asg::AcceptInfo& getAcceptInfo() const override;
+
+  virtual asg::AcceptData accept(const xAOD::TauJet * hlttau, const DataVector<xAOD::TrackParticle> *preselTracksIso, const DataVector<xAOD::TrackParticle> *preselTracksCore) const override;
+  virtual asg::AcceptData accept(const xAOD::TauJet * presel_tau) const override;
 
  private:
  
-  mutable Root::TAccept m_accept;
+  asg::AcceptInfo m_accept;
 
   // ftk
   double m_d0;
