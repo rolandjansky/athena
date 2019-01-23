@@ -65,7 +65,6 @@ private:
   double m_lastBinLowEdge;
   double m_binWidth;
   double m_integral;
-  char m_string[500];
 };
 }
 }

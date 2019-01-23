@@ -84,7 +84,7 @@ Root::TElectronLikelihoodTool::TElectronLikelihoodTool(const char* name) :
       for (unsigned int ip = 0; ip < s_IP_BINS; ip++){
         for(unsigned int et = 0; et < s_fnEtBinsHist; et++){
           for(unsigned int eta = 0; eta < s_fnEtaBins; eta++){
-            m_fPDFbins[s_or_b][ip][et][eta][varIndex] = 0;
+            m_fPDFbins[s_or_b][ip][et][eta][varIndex] = nullptr;
           }
         }
       }
@@ -92,28 +92,11 @@ Root::TElectronLikelihoodTool::TElectronLikelihoodTool(const char* name) :
   }
 }
 
-
-
-
 //=============================================================================
 // Destructor
 //=============================================================================
 Root::TElectronLikelihoodTool::~TElectronLikelihoodTool()
 {
-  for(unsigned int varIndex = 0; varIndex < s_fnVariables; varIndex++){
-    for(unsigned int s_or_b = 0; s_or_b < 2; s_or_b++){
-      for (unsigned int ip = 0; ip < s_IP_BINS; ip++){
-        for(unsigned int et = 0; et < s_fnEtBinsHist; et++){
-          for(unsigned int eta = 0; eta < s_fnEtaBins; eta++){
-            if (m_fPDFbins[s_or_b][ip][et][eta][varIndex]){
-              delete m_fPDFbins[s_or_b][ip][et][eta][varIndex];
-              m_fPDFbins[s_or_b][ip][et][eta][varIndex] = 0;
-            }
-          }
-        }
-      }
-    }
-  }
 }
 
 
@@ -374,7 +357,7 @@ int Root::TElectronLikelihoodTool::LoadVarHistograms(std::string vstr,unsigned i
 	  }
 	  if (((TDirectory*)m_pdfFile->Get(pdfdir))->GetListOfKeys()->Contains(pdf)) {
 	    TH1F* hist = (TH1F*)(((TDirectory*)m_pdfFile->Get(pdfdir))->Get(pdf));
-	    m_fPDFbins[s_or_b][ip][et][eta][varIndex] = new EGSelectors::SafeTH1(hist);
+	    m_fPDFbins[s_or_b][ip][et][eta][varIndex] = std::make_unique<EGSelectors::SafeTH1>(hist);
 	    delete hist;
 	  }
 	  else {
@@ -719,16 +702,16 @@ double Root::TElectronLikelihoodTool::EvaluateLikelihood(std::vector<double> var
 
       double prob = 0;
       if (doSmoothBinInterpolation) {
-	prob = InterpolatePdfs(s_or_b,ipbin,et,eta,bin,var);
+        prob = InterpolatePdfs(s_or_b,ipbin,et,eta,bin,var);
       } 
       else {
-	double integral = double(m_fPDFbins[s_or_b][ipbin][etbin][etabin][var]->Integral());
-	if (integral == 0) {
-	  ATH_MSG_WARNING("Error! PDF integral == 0!");
-	  return -1.35;
-	}
+        double integral = double(m_fPDFbins[s_or_b][ipbin][etbin][etabin][var]->Integral());
+        if (integral == 0) {
+          ATH_MSG_WARNING("Error! PDF integral == 0!");
+          return -1.35;
+        }
         
-	prob = double(m_fPDFbins[s_or_b][ipbin][etbin][etabin][var]->GetBinContent(bin)) / integral;
+        prob = double(m_fPDFbins[s_or_b][ipbin][etbin][etabin][var]->GetBinContent(bin)) / integral;
       }
 
       if   (s_or_b == 0) SigmaS *= prob;

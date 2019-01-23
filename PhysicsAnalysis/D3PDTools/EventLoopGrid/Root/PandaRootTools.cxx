@@ -28,11 +28,10 @@ PandaRootTools::PandaRootTools() {
   }
 
   m_currentFile = 0;
-  m_nEventsProcessed = 0;
 
 }
 
-TFile* PandaRootTools::OpenNextFile() {
+TString PandaRootTools::getNextFile() {
 
   using namespace std;
 
@@ -44,7 +43,7 @@ TFile* PandaRootTools::OpenNextFile() {
   }
 
   if (m_currentFile == m_fileList.size() + 1) {
-    return 0;
+    return "";
   }
 
   if (m_currentFile > m_fileList.size() + 1) {
@@ -56,30 +55,15 @@ TFile* PandaRootTools::OpenNextFile() {
     Abort();
   }
 
-  try {
-    TFile* f = TFile::Open(m_fileList.at(m_currentFile - 1)); 
-    if (f == 0)  
-      gSystem->Exit(EC_BADINPUT);
-    if (f->IsZombie())
-      gSystem->Exit(EC_BADINPUT);
-    return f;
-  }
-  catch (...) {    
-    gSystem->Exit(EC_BADINPUT);
-  }
-  return 0;
+  return m_fileList.at(m_currentFile - 1);
 }
 
-void PandaRootTools::NotifyNewEvent() {
-  m_nEventsProcessed++;
-}
-
-void PandaRootTools::NotifyJobFinished() {
+void PandaRootTools::NotifyJobFinished(uint64_t eventsProcessed) {
   if (m_fileList.size() > m_currentFile + 1) {
     //Error: Did not read all files!
     gSystem->Exit(EC_NOTFINISHED);
   }    
-  createJobSummary();
+  createJobSummary(eventsProcessed);
 }
 
 int PandaRootTools::GetNumberOfInputFiles() {
@@ -93,11 +77,7 @@ int PandaRootTools::GetFilesRead() {
   return nFiles;
 }
 
-int PandaRootTools::GetEventsRead() {
-  return m_nEventsProcessed;
-}
-
-void PandaRootTools::createJobSummary() {
+void PandaRootTools::createJobSummary(uint64_t eventsProcessed) {
   std::ofstream summaryfile("../AthSummary.txt");
   if (summaryfile.is_open()) {
     unsigned int nFiles = m_currentFile;
@@ -107,7 +87,7 @@ void PandaRootTools::createJobSummary() {
     for (unsigned int i = 0; i < nFiles; i++) {
       summaryfile << "  " << m_fileList.at(i) << std::endl;
     }      
-    summaryfile << "Events Read:    " << m_nEventsProcessed << std::endl;
+    summaryfile << "Events Read:    " << eventsProcessed << std::endl;
     summaryfile.close();
   }
   else {
@@ -115,10 +95,10 @@ void PandaRootTools::createJobSummary() {
   } 
 }
 
-void PandaRootTools::Fail() {
+void PandaRootTools::Fail(uint64_t eventsProcessed) {
   using namespace std;
   try {
-    cerr << "Error reported at event " << m_nEventsProcessed
+    cerr << "Error reported at event " << eventsProcessed
 	 << " in file " << m_currentFile << " (" 
 	 << m_fileList.at(m_currentFile) << ")\n"
 	 << "ending job with status \"failed\"\n";

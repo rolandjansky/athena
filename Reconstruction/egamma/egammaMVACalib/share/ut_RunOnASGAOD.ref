@@ -1,0 +1,1338 @@
+testClusterMVACalib       INFO    Environment initialised for data access
+msg_egammaMVACalib_Check INFO    Opening file: /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/DAOD_PHYSVAL/mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.DAOD_PHYSVAL.e5458_s3126_r9364_r9315_AthDerivation-21.2.1.0.root
+msg_egammaMVACalib_Check INFO    Number of events in the file: 10000
+egammaMVACalib           INFO    Accessing calibration from egammaMVACalib/offline/v7
+egammaMVACalib           INFO    Reading weights from egammaMVACalib/offline/v7
+egammaMVACalib           INFO    117 readers created
+egammaMVACalib           INFO    egammaMVACalib::printReadersInfo 100 eta bin(s) -- ( 0 < abs(el_cl_eta) < 2.5
+egammaMVACalib           INFO    egammaMVACalib::printReadersInfo 100 energy bin(s) -- ( 0  < (el_rawcl_Es1 + el_rawcl_Es2 + el_rawcl_Es3)/cosh(el_cl_eta) < 50000GeV
+egammaMVACalib           INFO    Number of variables:10
+myMVATool                INFO    Using layer correction
+myMVATool                INFO    10 variables for electrons
+MVATreeElectron          INFO    creating tree for 10 variables: el_cl_E,el_cl_E_TileGap3,el_cl_eta,el_cl_etaCalo,el_cl_phi,el_cl_phiCalo,el_rawcl_Es0,el_rawcl_Es1,el_rawcl_Es2,el_rawcl_Es3
+egammaMVACalib           INFO    Variable that defines particleType not set. Using default formula: ph_Rconv > 0. && ph_Rconv < 800.
+egammaMVACalib           INFO    Accessing calibration from egammaMVACalib/offline/v7
+egammaMVACalib           INFO    Reading weights from egammaMVACalib/offline/v7
+egammaMVACalib           INFO    234 readers created
+egammaMVACalib           INFO    egammaMVACalib::printReadersInfo 100 eta bin(s) -- ( 0 < abs(ph_cl_eta) < 2.5
+egammaMVACalib           INFO    egammaMVACalib::printReadersInfo 100 energy bin(s) -- ( 0  < (ph_rawcl_Es1 + ph_rawcl_Es2 + ph_rawcl_Es3)/cosh(ph_cl_eta) < 50000GeV
+egammaMVACalib           INFO    Number of variables:14
+myMVATool                INFO    configuration does not contain list of variables, try to guess:
+myMVATool                INFO    18 variables for photons
+myMVATool                INFO      ph_Rconv
+myMVATool                INFO      ph_cl_E
+myMVATool                INFO      ph_cl_E_TileGap3
+myMVATool                INFO      ph_cl_eta
+myMVATool                INFO      ph_cl_etaCalo
+myMVATool                INFO      ph_cl_phi
+myMVATool                INFO      ph_cl_phiCalo
+myMVATool                INFO      ph_convtrk1nPixHits
+myMVATool                INFO      ph_convtrk1nSCTHits
+myMVATool                INFO      ph_convtrk2nPixHits
+myMVATool                INFO      ph_convtrk2nSCTHits
+myMVATool                INFO      ph_pt1conv
+myMVATool                INFO      ph_pt2conv
+myMVATool                INFO      ph_ptconv
+myMVATool                INFO      ph_rawcl_Es0
+myMVATool                INFO      ph_rawcl_Es1
+myMVATool                INFO      ph_rawcl_Es2
+myMVATool                INFO      ph_rawcl_Es3
+MVATreePhoton            INFO    creating tree for 18 variables: ph_Rconv,ph_cl_E,ph_cl_E_TileGap3,ph_cl_eta,ph_cl_etaCalo,ph_cl_phi,ph_cl_phiCalo,ph_convtrk1nPixHits,ph_convtrk1nSCTHits,ph_convtrk2nPixHits,ph_convtrk2nSCTHits,ph_pt1conv,ph_pt2conv,ph_ptconv,ph_rawcl_Es0,ph_rawcl_Es1,ph_rawcl_Es2,ph_rawcl_Es3
+msg_egammaMVACalib_Check INFO    ========= Event: 0 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :160624. After re-calibration : 160424
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :38361.1. After re-calibration : 38610.1
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :29548. After re-calibration : 29626
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :7475.96. After re-calibration : 7464.8
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :29709.6. After re-calibration : 29504
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :14465.8. After re-calibration : 14425.9
+msg_egammaMVACalib_Check INFO    Electron # 6 Energy at input :3552.36. After re-calibration : 3926.57
+msg_egammaMVACalib_Check INFO    Electron # 7 Energy at input :6439.41. After re-calibration : 6795.42
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :162793. After re-calibration: 162842
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :41066.4. After re-calibration: 41256.6
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :17919.4. After re-calibration: 17414.8
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :5517.14. After re-calibration: 6604.82
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :11714.3. After re-calibration: 11485.1
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :18631.7. After re-calibration: 19592.3
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :9320.14. After re-calibration: 9501.72
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :3904.65. After re-calibration: 3996.38
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :7616.81. After re-calibration: 7716.83
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :13351. After re-calibration: 12997.8
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :9612.28. After re-calibration: 9434.66
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :2270.09. After re-calibration: 2221.24
+msg_egammaMVACalib_Check INFO    Photon # 12 Energy at input :2557.67. After re-calibration: 2695.34
+msg_egammaMVACalib_Check INFO    Photon # 13 Energy at input :7375.59. After re-calibration: 7783.93
+msg_egammaMVACalib_Check INFO    Photon # 14 Energy at input :7448.46. After re-calibration: 8223.77
+msg_egammaMVACalib_Check INFO    Photon # 15 Energy at input :5242.32. After re-calibration: 6075.11
+msg_egammaMVACalib_Check INFO    Photon # 16 Energy at input :1874.12. After re-calibration: 1822.59
+msg_egammaMVACalib_Check INFO    Photon # 17 Energy at input :7802.34. After re-calibration: 7760.35
+msg_egammaMVACalib_Check INFO    Photon # 18 Energy at input :2140.83. After re-calibration: 2077.53
+msg_egammaMVACalib_Check INFO    Photon # 19 Energy at input :8624.02. After re-calibration: 8051.56
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 1 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :160187. After re-calibration : 160423
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :21165.4. After re-calibration : 21143.3
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :18068.4. After re-calibration : 17986.6
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :13131.5. After re-calibration : 13019.2
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :9426.2. After re-calibration : 9518.73
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :22591.5. After re-calibration: 26643.8
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :15685.3. After re-calibration: 15683.7
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :8810.53. After re-calibration: 8823.8
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :6664.88. After re-calibration: 7017.85
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :4432.73. After re-calibration: 4354.35
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :3030.68. After re-calibration: 2971.39
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :2452.31. After re-calibration: 2492.41
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :7121.07. After re-calibration: 6631.4
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :2743.53. After re-calibration: 2762.32
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :2266.44. After re-calibration: 2239.61
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :2781.63. After re-calibration: 2747.82
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :1918.11. After re-calibration: 1835.44
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 2 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :142876. After re-calibration : 142744
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :98645.6. After re-calibration : 98813.4
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :33645.5. After re-calibration : 33470.4
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :52129.3. After re-calibration : 55091
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :41339.6. After re-calibration : 43634.5
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :22462.4. After re-calibration : 21407
+msg_egammaMVACalib_Check INFO    Electron # 6 Energy at input :9573.33. After re-calibration : 10499.9
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :113109. After re-calibration: 113449
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :33461.3. After re-calibration: 34114.2
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :53359.8. After re-calibration: 56934.1
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :20157.7. After re-calibration: 19966.8
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :3578.75. After re-calibration: 3495.21
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :3957.02. After re-calibration: 4141.91
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :7982.66. After re-calibration: 8052.69
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :2538.74. After re-calibration: 2518.28
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :2411.06. After re-calibration: 2470.62
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :10662.4. After re-calibration: 9875.57
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :7922.2. After re-calibration: 8163.99
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :2796.28. After re-calibration: 2917.41
+msg_egammaMVACalib_Check INFO    Photon # 12 Energy at input :4706.25. After re-calibration: 4792.88
+msg_egammaMVACalib_Check INFO    Photon # 13 Energy at input :11860.9. After re-calibration: 11612.3
+msg_egammaMVACalib_Check INFO    Photon # 14 Energy at input :2407.26. After re-calibration: 2333.55
+msg_egammaMVACalib_Check INFO    Photon # 15 Energy at input :2353.22. After re-calibration: 2307.68
+msg_egammaMVACalib_Check INFO    Photon # 16 Energy at input :2026.13. After re-calibration: 2007.49
+msg_egammaMVACalib_Check INFO    Photon # 17 Energy at input :10214.1. After re-calibration: 10187.1
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 3 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :285838. After re-calibration : 285098
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :43372.3. After re-calibration : 42966.5
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :14500.9. After re-calibration : 14531
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :17371.4. After re-calibration : 17302.2
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :17709.6. After re-calibration : 17527.9
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :19492.6. After re-calibration : 19477.9
+msg_egammaMVACalib_Check INFO    Electron # 6 Energy at input :20005.6. After re-calibration : 19792.5
+msg_egammaMVACalib_Check INFO    Electron # 7 Energy at input :5118.06. After re-calibration : 5140.14
+msg_egammaMVACalib_Check INFO    Electron # 8 Energy at input :5456.89. After re-calibration : 5541.08
+msg_egammaMVACalib_Check INFO    Electron # 9 Energy at input :4323.65. After re-calibration : 4285.23
+msg_egammaMVACalib_Check INFO    Electron # 10 Energy at input :4780.24. After re-calibration : 4673.12
+msg_egammaMVACalib_Check INFO    Electron # 11 Energy at input :16174.6. After re-calibration : 16864.5
+msg_egammaMVACalib_Check INFO    Electron # 12 Energy at input :22182.4. After re-calibration : 21775.1
+msg_egammaMVACalib_Check INFO    Electron # 13 Energy at input :13064.6. After re-calibration : 13109.5
+msg_egammaMVACalib_Check INFO    Electron # 14 Energy at input :4544.71. After re-calibration : 4432.88
+msg_egammaMVACalib_Check INFO    Electron # 15 Energy at input :18495.1. After re-calibration : 18752.6
+msg_egammaMVACalib_Check INFO    Electron # 16 Energy at input :4147.25. After re-calibration : 4312.46
+msg_egammaMVACalib_Check INFO    Electron # 17 Energy at input :5472.9. After re-calibration : 5510.82
+msg_egammaMVACalib_Check INFO    Electron # 18 Energy at input :2425.13. After re-calibration : 2209.51
+msg_egammaMVACalib_Check INFO    Electron # 19 Energy at input :6171.63. After re-calibration : 5840.47
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :14314.3. After re-calibration: 14283.7
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :13105.8. After re-calibration: 13130.2
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :5491.62. After re-calibration: 5489.18
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :10848.7. After re-calibration: 10513.4
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :5134.6. After re-calibration: 5123.17
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :21776.3. After re-calibration: 21207.6
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :3936.29. After re-calibration: 3865.87
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :6372.18. After re-calibration: 6049.08
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :10019.2. After re-calibration: 10296.4
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :4295.58. After re-calibration: 3673.86
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :2610.57. After re-calibration: 2619.18
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :10444. After re-calibration: 10586.9
+msg_egammaMVACalib_Check INFO    Photon # 12 Energy at input :3117. After re-calibration: 3124.11
+msg_egammaMVACalib_Check INFO    Photon # 13 Energy at input :4474.64. After re-calibration: 4528.16
+msg_egammaMVACalib_Check INFO    Photon # 14 Energy at input :4694.66. After re-calibration: 4860.97
+msg_egammaMVACalib_Check INFO    Photon # 15 Energy at input :2826.62. After re-calibration: 2843.75
+msg_egammaMVACalib_Check INFO    Photon # 16 Energy at input :2078.71. After re-calibration: 2037.36
+msg_egammaMVACalib_Check INFO    Photon # 17 Energy at input :4340.28. After re-calibration: 4147.01
+msg_egammaMVACalib_Check INFO    Photon # 18 Energy at input :9739.66. After re-calibration: 9762.68
+msg_egammaMVACalib_Check INFO    Photon # 19 Energy at input :6535.01. After re-calibration: 7863.56
+msg_egammaMVACalib_Check INFO    Photon # 20 Energy at input :2138.63. After re-calibration: 2213.73
+msg_egammaMVACalib_Check INFO    Photon # 21 Energy at input :2107.46. After re-calibration: 2038.91
+msg_egammaMVACalib_Check INFO    Photon # 22 Energy at input :7492.17. After re-calibration: 7497.21
+msg_egammaMVACalib_Check INFO    Photon # 23 Energy at input :8661.16. After re-calibration: 8412.4
+msg_egammaMVACalib_Check INFO    Photon # 24 Energy at input :1951.42. After re-calibration: 1926.97
+msg_egammaMVACalib_Check INFO    Photon # 25 Energy at input :2006.41. After re-calibration: 1986.75
+msg_egammaMVACalib_Check INFO    Photon # 26 Energy at input :2241.91. After re-calibration: 2206.15
+msg_egammaMVACalib_Check INFO    Photon # 27 Energy at input :2944.62. After re-calibration: 2927.48
+msg_egammaMVACalib_Check INFO    Photon # 28 Energy at input :3776.42. After re-calibration: 3930.42
+msg_egammaMVACalib_Check INFO    Photon # 29 Energy at input :3035.4. After re-calibration: 3035.64
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 4 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :98698. After re-calibration : 99480.2
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :65459.8. After re-calibration : 65020.7
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :83963.5. After re-calibration : 84356.5
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :25271.6. After re-calibration : 25243.5
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :11831.2. After re-calibration : 11349.9
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :9370.86. After re-calibration : 9334.02
+msg_egammaMVACalib_Check INFO    Electron # 6 Energy at input :10422.2. After re-calibration : 10847.6
+msg_egammaMVACalib_Check INFO    Electron # 7 Energy at input :7896.6. After re-calibration : 7914.27
+msg_egammaMVACalib_Check INFO    Electron # 8 Energy at input :9842.53. After re-calibration : 9754.11
+msg_egammaMVACalib_Check INFO    Electron # 9 Energy at input :5518.18. After re-calibration : 6135.02
+msg_egammaMVACalib_Check INFO    Electron # 10 Energy at input :5669.65. After re-calibration : 5530.48
+msg_egammaMVACalib_Check INFO    Electron # 11 Energy at input :4982.03. After re-calibration : 4885.47
+msg_egammaMVACalib_Check INFO    Electron # 12 Energy at input :3700.36. After re-calibration : 3703.58
+msg_egammaMVACalib_Check INFO    Electron # 13 Energy at input :5600.15. After re-calibration : 5954.17
+msg_egammaMVACalib_Check INFO    Electron # 14 Energy at input :3085.39. After re-calibration : 3194.66
+msg_egammaMVACalib_Check INFO    Electron # 15 Energy at input :3869.28. After re-calibration : 3615.99
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :100642. After re-calibration: 101981
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :64106.2. After re-calibration: 64039.4
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :9360.21. After re-calibration: 9364.28
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :7372.76. After re-calibration: 7527.73
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :9070.13. After re-calibration: 9012.66
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :8731.01. After re-calibration: 8825.45
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :6042.97. After re-calibration: 5939
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :9502.6. After re-calibration: 8859.16
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :4373.3. After re-calibration: 4257.99
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :2012.22. After re-calibration: 1990.03
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :3031.44. After re-calibration: 3062.15
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :3736.73. After re-calibration: 3599.24
+msg_egammaMVACalib_Check INFO    Photon # 12 Energy at input :6435.45. After re-calibration: 6254.4
+msg_egammaMVACalib_Check INFO    Photon # 13 Energy at input :7284.64. After re-calibration: 7222.66
+msg_egammaMVACalib_Check INFO    Photon # 14 Energy at input :2095.75. After re-calibration: 2025.87
+msg_egammaMVACalib_Check INFO    Photon # 15 Energy at input :1981.17. After re-calibration: 1971.42
+msg_egammaMVACalib_Check INFO    Photon # 16 Energy at input :2139.97. After re-calibration: 2222.26
+msg_egammaMVACalib_Check INFO    Photon # 17 Energy at input :4274.93. After re-calibration: 4276.41
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 5 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :9379.98. After re-calibration : 9300.96
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :3169.94. After re-calibration : 3110.47
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :3452.08. After re-calibration: 3446.64
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :3708.99. After re-calibration: 3747.6
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :15717.5. After re-calibration: 16107.6
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :2537.15. After re-calibration: 2525.88
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :3340.85. After re-calibration: 3415.08
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :3679.23. After re-calibration: 3817.15
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :6813.52. After re-calibration: 10297.3
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :2791.86. After re-calibration: 2730.28
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :8785.76. After re-calibration: 11308.1
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :6556.75. After re-calibration: 7842.1
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :2588.05. After re-calibration: 2546.04
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :2277.2. After re-calibration: 2176.91
+msg_egammaMVACalib_Check INFO    Photon # 12 Energy at input :2304.4. After re-calibration: 2251.64
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 6 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :24310.2. After re-calibration : 24371.4
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :4165.18. After re-calibration : 4279.27
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :7166.57. After re-calibration : 7448.07
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :8921.42. After re-calibration : 8855.78
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :6713.74. After re-calibration : 6487.08
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :36886.6. After re-calibration: 37262.8
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :9655.93. After re-calibration: 9800
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :13728. After re-calibration: 13653.8
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :7669.29. After re-calibration: 6984.88
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :5599.59. After re-calibration: 5303.05
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :5497.56. After re-calibration: 5334.63
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :6001.24. After re-calibration: 5868.44
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :2001.32. After re-calibration: 1962.16
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 7 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :28986.8. After re-calibration : 28948.9
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :9326.02. After re-calibration : 9184.12
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :15470.2. After re-calibration : 15648
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :3219.46. After re-calibration: 3135.15
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :5266.83. After re-calibration: 5143.74
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :7784.79. After re-calibration: 7629.1
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :2590.8. After re-calibration: 2523.08
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :8412.42. After re-calibration: 11042.3
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :2255.42. After re-calibration: 2217.81
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :5054.92. After re-calibration: 5269.56
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :10383.1. After re-calibration: 10214.7
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :10025.4. After re-calibration: 10689.5
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :2926.24. After re-calibration: 3080.05
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 8 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :40293.3. After re-calibration : 40214.6
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :12890.2. After re-calibration : 13028.7
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :15623.4. After re-calibration : 16053.5
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :10192.2. After re-calibration : 10206.2
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :21710. After re-calibration : 21576.1
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :3948.9. After re-calibration : 3883.77
+msg_egammaMVACalib_Check INFO    Electron # 6 Energy at input :5382.42. After re-calibration : 5459.62
+msg_egammaMVACalib_Check INFO    Electron # 7 Energy at input :10051.7. After re-calibration : 9989.95
+msg_egammaMVACalib_Check INFO    Electron # 8 Energy at input :3616.97. After re-calibration : 3552.27
+msg_egammaMVACalib_Check INFO    Electron # 9 Energy at input :5413.98. After re-calibration : 6054.45
+msg_egammaMVACalib_Check INFO    Electron # 10 Energy at input :11086.2. After re-calibration : 11840.1
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :12032.1. After re-calibration: 11899.8
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :5600.71. After re-calibration: 5607.57
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :3667.74. After re-calibration: 3535.29
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :4358.09. After re-calibration: 4374.31
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :4122.11. After re-calibration: 4118.82
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :2521.21. After re-calibration: 2629.85
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :2735.8. After re-calibration: 2793.47
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :3415.12. After re-calibration: 3314.57
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :2922.77. After re-calibration: 2906.95
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :8429.48. After re-calibration: 8816.26
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :5537.76. After re-calibration: 5566.25
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :2201.6. After re-calibration: 2279.04
+msg_egammaMVACalib_Check INFO    Photon # 12 Energy at input :2837.02. After re-calibration: 2792.94
+msg_egammaMVACalib_Check INFO    Photon # 13 Energy at input :2834.32. After re-calibration: 2832.98
+msg_egammaMVACalib_Check INFO    Photon # 14 Energy at input :3899.53. After re-calibration: 3913.29
+msg_egammaMVACalib_Check INFO    Photon # 15 Energy at input :4841.93. After re-calibration: 5012
+msg_egammaMVACalib_Check INFO    Photon # 16 Energy at input :8280.1. After re-calibration: 8077.91
+msg_egammaMVACalib_Check INFO    Photon # 17 Energy at input :6361.31. After re-calibration: 6344.25
+msg_egammaMVACalib_Check INFO    Photon # 18 Energy at input :3594.2. After re-calibration: 3715.59
+msg_egammaMVACalib_Check INFO    Photon # 19 Energy at input :7470.16. After re-calibration: 7122.49
+msg_egammaMVACalib_Check INFO    Photon # 20 Energy at input :2761.23. After re-calibration: 2797.49
+msg_egammaMVACalib_Check INFO    Photon # 21 Energy at input :1939.32. After re-calibration: 1827.45
+msg_egammaMVACalib_Check INFO    Photon # 22 Energy at input :3017.4. After re-calibration: 3101.68
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 9 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :169149. After re-calibration : 167992
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :205882. After re-calibration : 206266
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :78210.6. After re-calibration : 79613.1
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :17824.8. After re-calibration : 17717.4
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :15997. After re-calibration : 16006.8
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :33292.4. After re-calibration : 33173.2
+msg_egammaMVACalib_Check INFO    Electron # 6 Energy at input :30195.4. After re-calibration : 30092.3
+msg_egammaMVACalib_Check INFO    Electron # 7 Energy at input :9420.08. After re-calibration : 9410.63
+msg_egammaMVACalib_Check INFO    Electron # 8 Energy at input :29473.7. After re-calibration : 21606.3
+msg_egammaMVACalib_Check INFO    Electron # 9 Energy at input :16904.2. After re-calibration : 13438.7
+msg_egammaMVACalib_Check INFO    Electron # 10 Energy at input :7719.02. After re-calibration : 8052.82
+msg_egammaMVACalib_Check INFO    Electron # 11 Energy at input :10903.7. After re-calibration : 11403.5
+msg_egammaMVACalib_Check INFO    Electron # 12 Energy at input :15664.1. After re-calibration : 14974.8
+msg_egammaMVACalib_Check INFO    Electron # 13 Energy at input :6282.01. After re-calibration : 6059.76
+msg_egammaMVACalib_Check INFO    Electron # 14 Energy at input :15800.1. After re-calibration : 18848.9
+msg_egammaMVACalib_Check INFO    Electron # 15 Energy at input :4451.86. After re-calibration : 4453.8
+msg_egammaMVACalib_Check INFO    Electron # 16 Energy at input :19314.7. After re-calibration : 17029.4
+msg_egammaMVACalib_Check INFO    Electron # 17 Energy at input :5917.34. After re-calibration : 6335.36
+msg_egammaMVACalib_Check INFO    Electron # 18 Energy at input :11868.5. After re-calibration : 10494.7
+msg_egammaMVACalib_Check INFO    Electron # 19 Energy at input :5864.76. After re-calibration : 5896.99
+msg_egammaMVACalib_Check INFO    Electron # 20 Energy at input :11334.1. After re-calibration : 10941.2
+msg_egammaMVACalib_Check INFO    Electron # 21 Energy at input :9280.41. After re-calibration : 9055.06
+msg_egammaMVACalib_Check INFO    Electron # 22 Energy at input :4561.31. After re-calibration : 4289.45
+msg_egammaMVACalib_Check INFO    Electron # 23 Energy at input :8042.72. After re-calibration : 8197.07
+msg_egammaMVACalib_Check INFO    Electron # 24 Energy at input :2303.25. After re-calibration : 2233.46
+msg_egammaMVACalib_Check INFO    Electron # 25 Energy at input :31335.6. After re-calibration : 31521.8
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :36820.6. After re-calibration: 37260.7
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :29262.2. After re-calibration: 29645.2
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :68211.7. After re-calibration: 70311.6
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :25568. After re-calibration: 26083.7
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :6837.63. After re-calibration: 6816.23
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :5891.08. After re-calibration: 5930.69
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :4281.47. After re-calibration: 4296.08
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :3431.04. After re-calibration: 3417.16
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :9549.17. After re-calibration: 9488.6
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :6967. After re-calibration: 7115.45
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :4349.91. After re-calibration: 4365.2
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :8323. After re-calibration: 8037.82
+msg_egammaMVACalib_Check INFO    Photon # 12 Energy at input :4694.11. After re-calibration: 4706.97
+msg_egammaMVACalib_Check INFO    Photon # 13 Energy at input :5218.9. After re-calibration: 5378.07
+msg_egammaMVACalib_Check INFO    Photon # 14 Energy at input :13293. After re-calibration: 12168
+msg_egammaMVACalib_Check INFO    Photon # 15 Energy at input :5429.46. After re-calibration: 5503.46
+msg_egammaMVACalib_Check INFO    Photon # 16 Energy at input :3721.36. After re-calibration: 3680.49
+msg_egammaMVACalib_Check INFO    Photon # 17 Energy at input :9903.78. After re-calibration: 9899.22
+msg_egammaMVACalib_Check INFO    Photon # 18 Energy at input :8489.74. After re-calibration: 8388.04
+msg_egammaMVACalib_Check INFO    Photon # 19 Energy at input :10307.9. After re-calibration: 10721.6
+msg_egammaMVACalib_Check INFO    Photon # 20 Energy at input :2835.82. After re-calibration: 2805.86
+msg_egammaMVACalib_Check INFO    Photon # 21 Energy at input :4786.87. After re-calibration: 4866.32
+msg_egammaMVACalib_Check INFO    Photon # 22 Energy at input :2190.06. After re-calibration: 2169.74
+msg_egammaMVACalib_Check INFO    Photon # 23 Energy at input :2544.93. After re-calibration: 2475.48
+msg_egammaMVACalib_Check INFO    Photon # 24 Energy at input :2198.6. After re-calibration: 2143.76
+msg_egammaMVACalib_Check INFO    Photon # 25 Energy at input :5998.93. After re-calibration: 8063.98
+msg_egammaMVACalib_Check INFO    Photon # 26 Energy at input :10854.2. After re-calibration: 10883.3
+msg_egammaMVACalib_Check INFO    Photon # 27 Energy at input :6698.61. After re-calibration: 7067.5
+msg_egammaMVACalib_Check INFO    Photon # 28 Energy at input :8469.89. After re-calibration: 8226.7
+msg_egammaMVACalib_Check INFO    Photon # 29 Energy at input :2053.69. After re-calibration: 1992.04
+msg_egammaMVACalib_Check INFO    Photon # 30 Energy at input :1883.05. After re-calibration: 1846.63
+msg_egammaMVACalib_Check INFO    Photon # 31 Energy at input :6910. After re-calibration: 6597.82
+msg_egammaMVACalib_Check INFO    Photon # 32 Energy at input :1706.28. After re-calibration: 1688.6
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 10 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :22880.1. After re-calibration : 22945.9
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :41258. After re-calibration : 40873.8
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :11822.2. After re-calibration : 11951.8
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :27517.9. After re-calibration : 30838.2
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :30857. After re-calibration : 30192.7
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :6300.67. After re-calibration : 6176.58
+msg_egammaMVACalib_Check INFO    Electron # 6 Energy at input :22470.2. After re-calibration : 25968.7
+msg_egammaMVACalib_Check INFO    Electron # 7 Energy at input :4416.15. After re-calibration : 4394.12
+msg_egammaMVACalib_Check INFO    Electron # 8 Energy at input :3953.29. After re-calibration : 3944.65
+msg_egammaMVACalib_Check INFO    Electron # 9 Energy at input :15676.3. After re-calibration : 15472.6
+msg_egammaMVACalib_Check INFO    Electron # 10 Energy at input :4511.87. After re-calibration : 4521.74
+msg_egammaMVACalib_Check INFO    Electron # 11 Energy at input :11059.6. After re-calibration : 14430
+msg_egammaMVACalib_Check INFO    Electron # 12 Energy at input :3151.58. After re-calibration : 3103.5
+msg_egammaMVACalib_Check INFO    Electron # 13 Energy at input :1999.28. After re-calibration : 1962.04
+msg_egammaMVACalib_Check INFO    Electron # 14 Energy at input :3898.64. After re-calibration : 4350.23
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :22907.4. After re-calibration: 22226.4
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :4613.46. After re-calibration: 4591.56
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :4149.72. After re-calibration: 4192.17
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :5150.5. After re-calibration: 4970.53
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :3592.74. After re-calibration: 3573.5
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :2829.67. After re-calibration: 2792.39
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :7564.13. After re-calibration: 7629.09
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :6238.05. After re-calibration: 6079.15
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :2847.56. After re-calibration: 2903.61
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :7091.06. After re-calibration: 6713.14
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :2747.22. After re-calibration: 2865.33
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :6470.54. After re-calibration: 8069.46
+msg_egammaMVACalib_Check INFO    Photon # 12 Energy at input :4536.82. After re-calibration: 4445.12
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 11 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :52334.4. After re-calibration : 52213.6
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :10156.1. After re-calibration : 10095.3
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :3934.72. After re-calibration : 3880.31
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :17474.6. After re-calibration : 15518.7
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :23614.3. After re-calibration : 22970.7
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :3508.63. After re-calibration : 3519.8
+msg_egammaMVACalib_Check INFO    Electron # 6 Energy at input :15748.4. After re-calibration : 16380.8
+msg_egammaMVACalib_Check INFO    Electron # 7 Energy at input :12701.3. After re-calibration : 12767.4
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :52037.6. After re-calibration: 52059.4
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :6553.15. After re-calibration: 6535.74
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :6023.31. After re-calibration: 6145.58
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :5484.97. After re-calibration: 5455.79
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :6652.44. After re-calibration: 7001.78
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :2767.62. After re-calibration: 2681.65
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :2724.72. After re-calibration: 2794.64
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :4575.31. After re-calibration: 4822.82
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :2226.14. After re-calibration: 2160.54
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :1954.57. After re-calibration: 2031.15
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :2083.46. After re-calibration: 2061.09
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :3614.57. After re-calibration: 3646.36
+msg_egammaMVACalib_Check INFO    Photon # 12 Energy at input :2745.25. After re-calibration: 2702.01
+msg_egammaMVACalib_Check INFO    Photon # 13 Energy at input :1956.36. After re-calibration: 1937.84
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 12 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :9462.7. After re-calibration : 9383.79
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :21579.5. After re-calibration : 21798.7
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :14220.7. After re-calibration : 14054.2
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :6309.13. After re-calibration : 6268.54
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :12261.3. After re-calibration : 12275.3
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :14201.2. After re-calibration: 14155.7
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :7792.07. After re-calibration: 7731.65
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :5250.65. After re-calibration: 5210.16
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :5159.42. After re-calibration: 5266.31
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :10284.8. After re-calibration: 8244.6
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :7617.74. After re-calibration: 8066.41
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :2712.43. After re-calibration: 2656.26
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :3343.52. After re-calibration: 3200.38
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :2589.75. After re-calibration: 2532.37
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :8800.09. After re-calibration: 8040.73
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :2803.17. After re-calibration: 2923.22
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 13 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :249347. After re-calibration : 248806
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :76459.5. After re-calibration : 76530
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :48822.6. After re-calibration : 49268.6
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :4277.7. After re-calibration: 4321.54
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :2607.2. After re-calibration: 2552.56
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :5947.78. After re-calibration: 5122.66
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :3472.63. After re-calibration: 3528.08
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :2724.52. After re-calibration: 2685.33
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :3766.17. After re-calibration: 3750.99
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :2299.04. After re-calibration: 2240.73
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :1863.34. After re-calibration: 1808.6
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :9732.18. After re-calibration: 9829.41
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :2336.55. After re-calibration: 2253.89
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :11525. After re-calibration: 12079.2
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :3903.6. After re-calibration: 3941.36
+msg_egammaMVACalib_Check INFO    Photon # 12 Energy at input :2695.02. After re-calibration: 2706.46
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 14 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :102890. After re-calibration : 104390
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :78668.8. After re-calibration : 78874.9
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :83080.1. After re-calibration : 82603.7
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :34057.9. After re-calibration : 35554.5
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :22207.4. After re-calibration : 22327.8
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :4478.97. After re-calibration : 4514.94
+msg_egammaMVACalib_Check INFO    Electron # 6 Energy at input :20197.8. After re-calibration : 20818.3
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :81665.2. After re-calibration: 81726.7
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :41064.2. After re-calibration: 41020.7
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :11303.8. After re-calibration: 12166.1
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :28696.1. After re-calibration: 33152.6
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :21028.3. After re-calibration: 21090.2
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :13207.8. After re-calibration: 13539
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :4406.17. After re-calibration: 4263.66
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :4303.11. After re-calibration: 4270.46
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :4433.3. After re-calibration: 4650.2
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :4877.67. After re-calibration: 5060.64
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :2423.91. After re-calibration: 2478.93
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :10729.7. After re-calibration: 9385.85
+msg_egammaMVACalib_Check INFO    Photon # 12 Energy at input :1923.07. After re-calibration: 1882.13
+msg_egammaMVACalib_Check INFO    Photon # 13 Energy at input :10565.8. After re-calibration: 10595.7
+msg_egammaMVACalib_Check INFO    Photon # 14 Energy at input :10621. After re-calibration: 10457.9
+msg_egammaMVACalib_Check INFO    Photon # 15 Energy at input :5198.58. After re-calibration: 5249.58
+msg_egammaMVACalib_Check INFO    Photon # 16 Energy at input :6886.47. After re-calibration: 6976.54
+msg_egammaMVACalib_Check INFO    Photon # 17 Energy at input :2063.48. After re-calibration: 2053.51
+msg_egammaMVACalib_Check INFO    Photon # 18 Energy at input :1808.68. After re-calibration: 1745.07
+msg_egammaMVACalib_Check INFO    Photon # 19 Energy at input :2103.88. After re-calibration: 2151.27
+msg_egammaMVACalib_Check INFO    Photon # 20 Energy at input :2285.36. After re-calibration: 2315.2
+msg_egammaMVACalib_Check INFO    Photon # 21 Energy at input :1855.33. After re-calibration: 1856.72
+msg_egammaMVACalib_Check INFO    Photon # 22 Energy at input :4346.48. After re-calibration: 4395.95
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 15 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :23593.4. After re-calibration : 23606.6
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :10064.3. After re-calibration : 10176.7
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :10410.2. After re-calibration : 10218.5
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :3266.15. After re-calibration : 3240.33
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :8876.17. After re-calibration : 8621.93
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :7904.08. After re-calibration : 7742.63
+msg_egammaMVACalib_Check INFO    Electron # 6 Energy at input :9388.85. After re-calibration : 7992.19
+msg_egammaMVACalib_Check INFO    Electron # 7 Energy at input :5985.05. After re-calibration : 6369.7
+msg_egammaMVACalib_Check INFO    Electron # 8 Energy at input :1862.8. After re-calibration : 1832.58
+msg_egammaMVACalib_Check INFO    Electron # 9 Energy at input :5137.03. After re-calibration : 5243.27
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :22697.4. After re-calibration: 22802
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :24369.3. After re-calibration: 25163.3
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :4448.47. After re-calibration: 4564.52
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :10705.1. After re-calibration: 10916.8
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :4331.99. After re-calibration: 4225.31
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :3508.65. After re-calibration: 3505.16
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :11441.8. After re-calibration: 10664.1
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :6065.97. After re-calibration: 5420.61
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :4535.03. After re-calibration: 4790.86
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :2782.68. After re-calibration: 2762.23
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :2579.31. After re-calibration: 2589.24
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :3088.71. After re-calibration: 3113.23
+msg_egammaMVACalib_Check INFO    Photon # 12 Energy at input :7799.89. After re-calibration: 8027.4
+msg_egammaMVACalib_Check INFO    Photon # 13 Energy at input :7511.73. After re-calibration: 7325.27
+msg_egammaMVACalib_Check INFO    Photon # 14 Energy at input :9263.28. After re-calibration: 8924.12
+msg_egammaMVACalib_Check INFO    Photon # 15 Energy at input :6527.53. After re-calibration: 6375.3
+msg_egammaMVACalib_Check INFO    Photon # 16 Energy at input :2481.71. After re-calibration: 2454.61
+msg_egammaMVACalib_Check INFO    Photon # 17 Energy at input :6105.33. After re-calibration: 6338.47
+msg_egammaMVACalib_Check INFO    Photon # 18 Energy at input :7212.6. After re-calibration: 6439.68
+msg_egammaMVACalib_Check INFO    Photon # 19 Energy at input :2079. After re-calibration: 1994.95
+msg_egammaMVACalib_Check INFO    Photon # 20 Energy at input :7320.98. After re-calibration: 6989.02
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 16 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :8230.75. After re-calibration : 8024.38
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :9290.21. After re-calibration : 10029.2
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :6916.94. After re-calibration : 6898.64
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :4344.58. After re-calibration : 4274.31
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :3636.02. After re-calibration : 3499.99
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :9739.28. After re-calibration : 8398.89
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :6666.35. After re-calibration: 6918.32
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :3654.25. After re-calibration: 3549.12
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :4201.06. After re-calibration: 4127.28
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :5954.73. After re-calibration: 5729.54
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :8389.75. After re-calibration: 8245.71
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :4172.69. After re-calibration: 3971.17
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :2152.3. After re-calibration: 2102.1
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 17 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :29454. After re-calibration : 29358.1
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :14090.8. After re-calibration : 14195.6
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :16529.8. After re-calibration : 16026.6
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :20292. After re-calibration : 20627.2
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :15092.9. After re-calibration : 16878.1
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :5584.15. After re-calibration : 5531.2
+msg_egammaMVACalib_Check INFO    Electron # 6 Energy at input :14159.9. After re-calibration : 14743.7
+msg_egammaMVACalib_Check INFO    Electron # 7 Energy at input :19417. After re-calibration : 22281.9
+msg_egammaMVACalib_Check INFO    Electron # 8 Energy at input :9514.7. After re-calibration : 9845.29
+msg_egammaMVACalib_Check INFO    Electron # 9 Energy at input :9286.48. After re-calibration : 8958.9
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :13048.7. After re-calibration: 13190.6
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :8924.15. After re-calibration: 8736.29
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :13246.8. After re-calibration: 13370.5
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :5077.66. After re-calibration: 4765.04
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :17407.3. After re-calibration: 17070.7
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :2952.19. After re-calibration: 2855.39
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :9515.96. After re-calibration: 9515.55
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :6950.66. After re-calibration: 6878.39
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :8437.22. After re-calibration: 8381.35
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :2361.49. After re-calibration: 2323.95
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :2490.15. After re-calibration: 2429.27
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :13603.8. After re-calibration: 13698.4
+msg_egammaMVACalib_Check INFO    Photon # 12 Energy at input :1946.37. After re-calibration: 1891.45
+msg_egammaMVACalib_Check INFO    Photon # 13 Energy at input :7819.85. After re-calibration: 8158.56
+msg_egammaMVACalib_Check INFO    Photon # 14 Energy at input :2637.68. After re-calibration: 2618.19
+msg_egammaMVACalib_Check INFO    Photon # 15 Energy at input :2870.5. After re-calibration: 2850.2
+msg_egammaMVACalib_Check INFO    Photon # 16 Energy at input :18863.4. After re-calibration: 18720.2
+msg_egammaMVACalib_Check INFO    Photon # 17 Energy at input :3610.33. After re-calibration: 3605.9
+msg_egammaMVACalib_Check INFO    Photon # 18 Energy at input :4657.07. After re-calibration: 4591.11
+msg_egammaMVACalib_Check INFO    Photon # 19 Energy at input :2208.76. After re-calibration: 2199.44
+msg_egammaMVACalib_Check INFO    Photon # 20 Energy at input :1700.9. After re-calibration: 1641.94
+msg_egammaMVACalib_Check INFO    Photon # 21 Energy at input :9139.47. After re-calibration: 8998.43
+msg_egammaMVACalib_Check INFO    Photon # 22 Energy at input :1955.49. After re-calibration: 1903.63
+msg_egammaMVACalib_Check INFO    Photon # 23 Energy at input :5183.99. After re-calibration: 5450.98
+msg_egammaMVACalib_Check INFO    Photon # 24 Energy at input :4034.22. After re-calibration: 4046.9
+msg_egammaMVACalib_Check INFO    Photon # 25 Energy at input :4108.79. After re-calibration: 4086.56
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 18 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :47419.1. After re-calibration : 47761.7
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :21450.6. After re-calibration : 21454.2
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :20980.3. After re-calibration : 20860.9
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :30792. After re-calibration : 31251
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :74861. After re-calibration : 76363.1
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :10377.6. After re-calibration : 9209.25
+msg_egammaMVACalib_Check INFO    Electron # 6 Energy at input :18332.9. After re-calibration : 18888.1
+msg_egammaMVACalib_Check INFO    Electron # 7 Energy at input :11287.3. After re-calibration : 11342.2
+msg_egammaMVACalib_Check INFO    Electron # 8 Energy at input :4836.6. After re-calibration : 4767.06
+msg_egammaMVACalib_Check INFO    Electron # 9 Energy at input :13912.6. After re-calibration : 11901.9
+msg_egammaMVACalib_Check INFO    Electron # 10 Energy at input :16632.8. After re-calibration : 16795.3
+msg_egammaMVACalib_Check INFO    Electron # 11 Energy at input :3975.83. After re-calibration : 3910.08
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :13021.2. After re-calibration: 13185.3
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :75782.2. After re-calibration: 75594.4
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :8153.55. After re-calibration: 8173.46
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :5145.33. After re-calibration: 5119.21
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :6269.98. After re-calibration: 6226.46
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :4475.98. After re-calibration: 4496.86
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :17945.5. After re-calibration: 17360.5
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :7732.12. After re-calibration: 8304.4
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :4010.96. After re-calibration: 3950.06
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :5165.59. After re-calibration: 5212.8
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :3099.62. After re-calibration: 3178.87
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :3087.42. After re-calibration: 3158.34
+msg_egammaMVACalib_Check INFO    Photon # 12 Energy at input :2541.08. After re-calibration: 2536.32
+msg_egammaMVACalib_Check INFO    Photon # 13 Energy at input :2960.9. After re-calibration: 3001.45
+msg_egammaMVACalib_Check INFO    Photon # 14 Energy at input :2479.13. After re-calibration: 2449.84
+msg_egammaMVACalib_Check INFO    Photon # 15 Energy at input :3516.15. After re-calibration: 3582.08
+msg_egammaMVACalib_Check INFO    Photon # 16 Energy at input :2665.01. After re-calibration: 2598.85
+msg_egammaMVACalib_Check INFO    Photon # 17 Energy at input :9779.69. After re-calibration: 9995.08
+msg_egammaMVACalib_Check INFO    Photon # 18 Energy at input :2382.56. After re-calibration: 2353.66
+msg_egammaMVACalib_Check INFO    Photon # 19 Energy at input :1609.56. After re-calibration: 1708.76
+msg_egammaMVACalib_Check INFO    Photon # 20 Energy at input :6592.75. After re-calibration: 7079.42
+msg_egammaMVACalib_Check INFO    Photon # 21 Energy at input :2365.67. After re-calibration: 2387.93
+msg_egammaMVACalib_Check INFO    Photon # 22 Energy at input :2200.56. After re-calibration: 2288.06
+msg_egammaMVACalib_Check INFO    Photon # 23 Energy at input :5244.27. After re-calibration: 5467.79
+msg_egammaMVACalib_Check INFO    Photon # 24 Energy at input :4647.46. After re-calibration: 4757.65
+msg_egammaMVACalib_Check INFO    Photon # 25 Energy at input :3703.99. After re-calibration: 3631.1
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 19 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :10819.1. After re-calibration : 10705.7
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :7352.42. After re-calibration : 7445.44
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :6874.56. After re-calibration : 6866.65
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :8262.39. After re-calibration : 8373.12
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :5669.24. After re-calibration : 5577.22
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :7443.25. After re-calibration : 7255.68
+msg_egammaMVACalib_Check INFO    Electron # 6 Energy at input :3587.55. After re-calibration : 3550.94
+msg_egammaMVACalib_Check INFO    Electron # 7 Energy at input :2936.94. After re-calibration : 3062.53
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :5404.69. After re-calibration: 5452.1
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :4699.08. After re-calibration: 4716.52
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :3920.43. After re-calibration: 3958.29
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :3355.07. After re-calibration: 3469.45
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :3681.23. After re-calibration: 3639.01
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :2819.65. After re-calibration: 2795.45
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :3172.07. After re-calibration: 3113.15
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :9929.19. After re-calibration: 10186.6
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :3360.18. After re-calibration: 3292.38
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :2810.05. After re-calibration: 2619.54
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :2124.94. After re-calibration: 2098.58
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :2041.58. After re-calibration: 1994.32
+msg_egammaMVACalib_Check INFO    Photon # 12 Energy at input :2900.12. After re-calibration: 2792.76
+msg_egammaMVACalib_Check INFO    Photon # 13 Energy at input :1866.61. After re-calibration: 1780.93
+msg_egammaMVACalib_Check INFO    Photon # 14 Energy at input :2431.38. After re-calibration: 2357.76
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 20 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :17429.4. After re-calibration : 17503.8
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :22992.8. After re-calibration : 22687.6
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :29694.1. After re-calibration : 29391.5
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :20170.7. After re-calibration : 19930.3
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :5678.12. After re-calibration : 5661.72
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :9697.5. After re-calibration : 9708.03
+msg_egammaMVACalib_Check INFO    Electron # 6 Energy at input :12098.1. After re-calibration : 12085.5
+msg_egammaMVACalib_Check INFO    Electron # 7 Energy at input :3565.53. After re-calibration : 3525.11
+msg_egammaMVACalib_Check INFO    Electron # 8 Energy at input :2536.81. After re-calibration : 2452.03
+msg_egammaMVACalib_Check INFO    Electron # 9 Energy at input :7106.41. After re-calibration : 6860.86
+msg_egammaMVACalib_Check INFO    Electron # 10 Energy at input :2281.4. After re-calibration : 2194.59
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :17525.4. After re-calibration: 17474.6
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :8274.83. After re-calibration: 8320.3
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :4022.56. After re-calibration: 4044.91
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :2917.86. After re-calibration: 2909.7
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :1961.65. After re-calibration: 2004.4
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :3417.26. After re-calibration: 3358.3
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :2355.34. After re-calibration: 2326.17
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :6694.59. After re-calibration: 6805.56
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :2442.92. After re-calibration: 2426.22
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :2007.12. After re-calibration: 1976.79
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 21 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :78327.1. After re-calibration : 77713.2
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :47021.5. After re-calibration : 46507.9
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :44892.8. After re-calibration : 44351.1
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :32640.2. After re-calibration : 32563.6
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :37090.3. After re-calibration : 37319
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :10240. After re-calibration : 10239.4
+msg_egammaMVACalib_Check INFO    Electron # 6 Energy at input :11538.3. After re-calibration : 11279.5
+msg_egammaMVACalib_Check INFO    Electron # 7 Energy at input :21050.2. After re-calibration : 21497.5
+msg_egammaMVACalib_Check INFO    Electron # 8 Energy at input :5850.82. After re-calibration : 6021.47
+msg_egammaMVACalib_Check INFO    Electron # 9 Energy at input :6162.23. After re-calibration : 6175.51
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :46048. After re-calibration: 45814.1
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :11227.2. After re-calibration: 11435.8
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :9907.87. After re-calibration: 9327.57
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :5787.45. After re-calibration: 5779.35
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :3956.1. After re-calibration: 3860.74
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :3904.27. After re-calibration: 3915.92
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :4394.51. After re-calibration: 4421.77
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :11474.3. After re-calibration: 11666.3
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :2611.12. After re-calibration: 2562.91
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :3190.8. After re-calibration: 3075.86
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :3110.47. After re-calibration: 3117.85
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :11112.4. After re-calibration: 11122.7
+msg_egammaMVACalib_Check INFO    Photon # 12 Energy at input :4033.92. After re-calibration: 4171.67
+msg_egammaMVACalib_Check INFO    Photon # 13 Energy at input :2540.84. After re-calibration: 2491.26
+msg_egammaMVACalib_Check INFO    Photon # 14 Energy at input :2858.05. After re-calibration: 2796.03
+msg_egammaMVACalib_Check INFO    Photon # 15 Energy at input :1870.99. After re-calibration: 1809.57
+msg_egammaMVACalib_Check INFO    Photon # 16 Energy at input :11563.2. After re-calibration: 10613.3
+msg_egammaMVACalib_Check INFO    Photon # 17 Energy at input :4677.66. After re-calibration: 4599.48
+msg_egammaMVACalib_Check INFO    Photon # 18 Energy at input :2322.91. After re-calibration: 2265.85
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 22 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :44361.1. After re-calibration : 44709.3
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :16150.3. After re-calibration : 16118.3
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :21440.1. After re-calibration : 21390.7
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :69726.8. After re-calibration : 69577.5
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :44318. After re-calibration : 44110.6
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :19417.3. After re-calibration : 18993.3
+msg_egammaMVACalib_Check INFO    Electron # 6 Energy at input :19127.6. After re-calibration : 19413.3
+msg_egammaMVACalib_Check INFO    Electron # 7 Energy at input :13962.8. After re-calibration : 14545.9
+msg_egammaMVACalib_Check INFO    Electron # 8 Energy at input :8587.55. After re-calibration : 8569.38
+msg_egammaMVACalib_Check INFO    Electron # 9 Energy at input :4922.6. After re-calibration : 5687.95
+msg_egammaMVACalib_Check INFO    Electron # 10 Energy at input :6582.87. After re-calibration : 6631.66
+msg_egammaMVACalib_Check INFO    Electron # 11 Energy at input :2043.63. After re-calibration : 1985.77
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :15886.2. After re-calibration: 15942.6
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :11623.8. After re-calibration: 11487.2
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :6252.56. After re-calibration: 6309.68
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :18305.3. After re-calibration: 18696.2
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :4687.04. After re-calibration: 4701.64
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :14901.5. After re-calibration: 14969.2
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :4589.6. After re-calibration: 4690.21
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :13071.2. After re-calibration: 13106.1
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :3594.36. After re-calibration: 3686.15
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :9726.9. After re-calibration: 9945.06
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :2674.17. After re-calibration: 2615.38
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :11471.8. After re-calibration: 11243.7
+msg_egammaMVACalib_Check INFO    Photon # 12 Energy at input :2745.99. After re-calibration: 2798.56
+msg_egammaMVACalib_Check INFO    Photon # 13 Energy at input :2741.47. After re-calibration: 2736.97
+msg_egammaMVACalib_Check INFO    Photon # 14 Energy at input :9375.34. After re-calibration: 9725.37
+msg_egammaMVACalib_Check INFO    Photon # 15 Energy at input :3535.55. After re-calibration: 3426.89
+msg_egammaMVACalib_Check INFO    Photon # 16 Energy at input :3391.35. After re-calibration: 3285.37
+msg_egammaMVACalib_Check INFO    Photon # 17 Energy at input :4272.51. After re-calibration: 4202.13
+msg_egammaMVACalib_Check INFO    Photon # 18 Energy at input :8840.52. After re-calibration: 8683.36
+msg_egammaMVACalib_Check INFO    Photon # 19 Energy at input :6316.6. After re-calibration: 6372.15
+msg_egammaMVACalib_Check INFO    Photon # 20 Energy at input :16671.6. After re-calibration: 15424.5
+msg_egammaMVACalib_Check INFO    Photon # 21 Energy at input :2547.62. After re-calibration: 2459.61
+msg_egammaMVACalib_Check INFO    Photon # 22 Energy at input :1985.08. After re-calibration: 1970.41
+msg_egammaMVACalib_Check INFO    Photon # 23 Energy at input :5534.92. After re-calibration: 5086.13
+msg_egammaMVACalib_Check INFO    Photon # 24 Energy at input :6925.29. After re-calibration: 6533.45
+msg_egammaMVACalib_Check INFO    Photon # 25 Energy at input :2317.08. After re-calibration: 2299.22
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 23 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :115840. After re-calibration : 112370
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :52445. After re-calibration : 50190.2
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :19644.5. After re-calibration : 21155.5
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :45238.6. After re-calibration: 48509.5
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :5630.92. After re-calibration: 5548.84
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :5349.77. After re-calibration: 5483.58
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :6728.99. After re-calibration: 6664.7
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :7665.48. After re-calibration: 7653.16
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :2481.87. After re-calibration: 2445.86
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :2251.69. After re-calibration: 2229.73
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :2078.56. After re-calibration: 2028.46
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :1906.43. After re-calibration: 1864.31
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :1858.29. After re-calibration: 1810.35
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 24 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :20608.4. After re-calibration : 20659.8
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :15758.6. After re-calibration : 15861.7
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :24902.5. After re-calibration : 25141.1
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :6437.44. After re-calibration : 6466.39
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :6015.4. After re-calibration : 5969.95
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :10756.2. After re-calibration : 11004.2
+msg_egammaMVACalib_Check INFO    Electron # 6 Energy at input :7335.27. After re-calibration : 7783.28
+msg_egammaMVACalib_Check INFO    Electron # 7 Energy at input :4065.74. After re-calibration : 3587.19
+msg_egammaMVACalib_Check INFO    Electron # 8 Energy at input :5890.8. After re-calibration : 5973.37
+msg_egammaMVACalib_Check INFO    Electron # 9 Energy at input :3237.75. After re-calibration : 3281.61
+msg_egammaMVACalib_Check INFO    Electron # 10 Energy at input :6917.44. After re-calibration : 6936.13
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :7671.29. After re-calibration: 7740.33
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :4501.87. After re-calibration: 4693.55
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :2994.63. After re-calibration: 2979.44
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :2594.3. After re-calibration: 2563.54
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :3628.44. After re-calibration: 3698.13
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :5438.58. After re-calibration: 5464.68
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :3794.25. After re-calibration: 3792.61
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :2738.38. After re-calibration: 2799.35
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :3421.26. After re-calibration: 3456.02
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :2580.2. After re-calibration: 2590.44
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :9326.09. After re-calibration: 8876.02
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :6404.64. After re-calibration: 6852.33
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 25 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :27540.7. After re-calibration : 27552.9
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :15976. After re-calibration : 15882.3
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :15757.6. After re-calibration : 15636.9
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :26204.7. After re-calibration : 24052.7
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :10423.2. After re-calibration : 10426.9
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :9599.94. After re-calibration : 9649.29
+msg_egammaMVACalib_Check INFO    Electron # 6 Energy at input :7924.44. After re-calibration : 7967.55
+msg_egammaMVACalib_Check INFO    Electron # 7 Energy at input :4315.51. After re-calibration : 4273.21
+msg_egammaMVACalib_Check INFO    Electron # 8 Energy at input :10594.9. After re-calibration : 10606.2
+msg_egammaMVACalib_Check INFO    Electron # 9 Energy at input :3595.09. After re-calibration : 3570.94
+msg_egammaMVACalib_Check INFO    Electron # 10 Energy at input :3463.21. After re-calibration : 3543.57
+msg_egammaMVACalib_Check INFO    Electron # 11 Energy at input :2528.97. After re-calibration : 2560.48
+msg_egammaMVACalib_Check INFO    Electron # 12 Energy at input :1779.63. After re-calibration : 1739.54
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :15504.5. After re-calibration: 15483.4
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :5018.15. After re-calibration: 5023.6
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :2888.2. After re-calibration: 2860.13
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :4069.38. After re-calibration: 3998.59
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :6288.66. After re-calibration: 6015.07
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :14405.8. After re-calibration: 14333.9
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :2991.85. After re-calibration: 2958.1
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :9125.19. After re-calibration: 9290.41
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :2941.83. After re-calibration: 2977.51
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :5237.32. After re-calibration: 5240.57
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :8313.22. After re-calibration: 7843.56
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :7152.7. After re-calibration: 6893.36
+msg_egammaMVACalib_Check INFO    Photon # 12 Energy at input :8165.59. After re-calibration: 8468.21
+msg_egammaMVACalib_Check INFO    Photon # 13 Energy at input :2827.02. After re-calibration: 2766.67
+msg_egammaMVACalib_Check INFO    Photon # 14 Energy at input :2368.34. After re-calibration: 2402.78
+msg_egammaMVACalib_Check INFO    Photon # 15 Energy at input :1940.51. After re-calibration: 1902.41
+msg_egammaMVACalib_Check INFO    Photon # 16 Energy at input :6518.42. After re-calibration: 6881.91
+msg_egammaMVACalib_Check INFO    Photon # 17 Energy at input :2859.99. After re-calibration: 2830.42
+msg_egammaMVACalib_Check INFO    Photon # 18 Energy at input :2385.49. After re-calibration: 2433.75
+msg_egammaMVACalib_Check INFO    Photon # 19 Energy at input :2347.07. After re-calibration: 2263.62
+msg_egammaMVACalib_Check INFO    Photon # 20 Energy at input :5492.01. After re-calibration: 5111.55
+msg_egammaMVACalib_Check INFO    Photon # 21 Energy at input :2021.89. After re-calibration: 2067.14
+msg_egammaMVACalib_Check INFO    Photon # 22 Energy at input :2735.88. After re-calibration: 2762.07
+msg_egammaMVACalib_Check INFO    Photon # 23 Energy at input :5766.96. After re-calibration: 6946.99
+msg_egammaMVACalib_Check INFO    Photon # 24 Energy at input :2079.24. After re-calibration: 2080.09
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 26 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :79259.7. After re-calibration : 79283
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :50809.2. After re-calibration : 50993.8
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :37929.7. After re-calibration : 37734
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :65812.2. After re-calibration : 66295.2
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :43457.8. After re-calibration : 43261.5
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :17756. After re-calibration : 17561.1
+msg_egammaMVACalib_Check INFO    Electron # 6 Energy at input :14299.3. After re-calibration : 14491.7
+msg_egammaMVACalib_Check INFO    Electron # 7 Energy at input :54816.4. After re-calibration : 55182.9
+msg_egammaMVACalib_Check INFO    Electron # 8 Energy at input :13896.7. After re-calibration : 11185
+msg_egammaMVACalib_Check INFO    Electron # 9 Energy at input :9154.27. After re-calibration : 8574.12
+msg_egammaMVACalib_Check INFO    Electron # 10 Energy at input :13380.1. After re-calibration : 14829
+msg_egammaMVACalib_Check INFO    Electron # 11 Energy at input :9209.15. After re-calibration : 10101.2
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :60073.5. After re-calibration: 59921.7
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :88286.5. After re-calibration: 88252.6
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :42018.5. After re-calibration: 41992.1
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :13768.8. After re-calibration: 13879.1
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :12708.4. After re-calibration: 12763.3
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :3966.61. After re-calibration: 3924.72
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :13589.4. After re-calibration: 13766
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :10001.8. After re-calibration: 9352.65
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :13785.9. After re-calibration: 20497.3
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :12987.7. After re-calibration: 12580.1
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :4238.03. After re-calibration: 4188.69
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :2163.35. After re-calibration: 2131.89
+msg_egammaMVACalib_Check INFO    Photon # 12 Energy at input :2290.55. After re-calibration: 2357.69
+msg_egammaMVACalib_Check INFO    Photon # 13 Energy at input :12093.8. After re-calibration: 11972
+msg_egammaMVACalib_Check INFO    Photon # 14 Energy at input :2683.58. After re-calibration: 2591.9
+msg_egammaMVACalib_Check INFO    Photon # 15 Energy at input :2083.55. After re-calibration: 2071.47
+msg_egammaMVACalib_Check INFO    Photon # 16 Energy at input :2657.87. After re-calibration: 2596.41
+msg_egammaMVACalib_Check INFO    Photon # 17 Energy at input :11545.3. After re-calibration: 10413.8
+msg_egammaMVACalib_Check INFO    Photon # 18 Energy at input :1837.19. After re-calibration: 1846.2
+msg_egammaMVACalib_Check INFO    Photon # 19 Energy at input :3244.12. After re-calibration: 3210.03
+msg_egammaMVACalib_Check INFO    Photon # 20 Energy at input :5628.45. After re-calibration: 5690.97
+msg_egammaMVACalib_Check INFO    Photon # 21 Energy at input :2845.98. After re-calibration: 2936.35
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 27 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :15380.9. After re-calibration : 15554.5
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :21495.6. After re-calibration : 21509.4
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :28570.3. After re-calibration : 28611.6
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :9939.31. After re-calibration : 12347.4
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :4704.06. After re-calibration : 4616.45
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :19818.7. After re-calibration : 20462.7
+msg_egammaMVACalib_Check INFO    Electron # 6 Energy at input :12002.1. After re-calibration : 13661.1
+msg_egammaMVACalib_Check INFO    Electron # 7 Energy at input :3452.08. After re-calibration : 3455.17
+msg_egammaMVACalib_Check INFO    Electron # 8 Energy at input :5070.38. After re-calibration : 4973.45
+msg_egammaMVACalib_Check INFO    Electron # 9 Energy at input :3486.72. After re-calibration : 3449.53
+msg_egammaMVACalib_Check INFO    Electron # 10 Energy at input :13900.4. After re-calibration : 13901.5
+msg_egammaMVACalib_Check INFO    Electron # 11 Energy at input :8369.19. After re-calibration : 8951.77
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :8465.91. After re-calibration: 8491.55
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :3180.47. After re-calibration: 3284.22
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :27362.8. After re-calibration: 27653.7
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :4617.81. After re-calibration: 4809.22
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :11432.1. After re-calibration: 11672.4
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :5164.6. After re-calibration: 5131.65
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :3540.35. After re-calibration: 3456.07
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :3321.88. After re-calibration: 3388.79
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :9140.83. After re-calibration: 10508.6
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :2992.27. After re-calibration: 2986.64
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :5310.53. After re-calibration: 5500.9
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :2268.44. After re-calibration: 2230.36
+msg_egammaMVACalib_Check INFO    Photon # 12 Energy at input :8036.12. After re-calibration: 8465.37
+msg_egammaMVACalib_Check INFO    Photon # 13 Energy at input :2764.45. After re-calibration: 2806.08
+msg_egammaMVACalib_Check INFO    Photon # 14 Energy at input :10983. After re-calibration: 10842.2
+msg_egammaMVACalib_Check INFO    Photon # 15 Energy at input :3641.29. After re-calibration: 3737.35
+msg_egammaMVACalib_Check INFO    Photon # 16 Energy at input :7164.12. After re-calibration: 7021.95
+msg_egammaMVACalib_Check INFO    Photon # 17 Energy at input :2312.91. After re-calibration: 2294.73
+msg_egammaMVACalib_Check INFO    Photon # 18 Energy at input :13228.8. After re-calibration: 14674.7
+msg_egammaMVACalib_Check INFO    Photon # 19 Energy at input :11698.1. After re-calibration: 11766.4
+msg_egammaMVACalib_Check INFO    Photon # 20 Energy at input :1857.35. After re-calibration: 1837.35
+msg_egammaMVACalib_Check INFO    Photon # 21 Energy at input :13751.7. After re-calibration: 13585.3
+msg_egammaMVACalib_Check INFO    Photon # 22 Energy at input :2459.14. After re-calibration: 2443.57
+msg_egammaMVACalib_Check INFO    Photon # 23 Energy at input :8297.11. After re-calibration: 7864.77
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 28 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :12017.5. After re-calibration : 12089.5
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :24997.3. After re-calibration : 25788
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :6934.49. After re-calibration : 6854.76
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :6871.55. After re-calibration : 6815.26
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :6613.35. After re-calibration : 6655.56
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :23529.1. After re-calibration : 22678.6
+msg_egammaMVACalib_Check INFO    Electron # 6 Energy at input :5910.69. After re-calibration : 5940.62
+msg_egammaMVACalib_Check INFO    Electron # 7 Energy at input :7016.31. After re-calibration : 6973.1
+msg_egammaMVACalib_Check INFO    Electron # 8 Energy at input :4527.6. After re-calibration : 4466.67
+msg_egammaMVACalib_Check INFO    Electron # 9 Energy at input :36150.2. After re-calibration : 35485.1
+msg_egammaMVACalib_Check INFO    Electron # 10 Energy at input :3087.26. After re-calibration : 3089.83
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :6623.11. After re-calibration: 6645.03
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :23024.4. After re-calibration: 22946
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :5060.93. After re-calibration: 5070.41
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :4618.41. After re-calibration: 4829.13
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :11772.2. After re-calibration: 12925.2
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :3484.86. After re-calibration: 3511.3
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :9410.84. After re-calibration: 9493.19
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :3660.35. After re-calibration: 3554.34
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :10885.2. After re-calibration: 11160.8
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :2229.8. After re-calibration: 2261.51
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :9232.66. After re-calibration: 8619.78
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :3636.25. After re-calibration: 3717.87
+msg_egammaMVACalib_Check INFO    Photon # 12 Energy at input :2111.42. After re-calibration: 2128.26
+msg_egammaMVACalib_Check INFO    Photon # 13 Energy at input :7142.75. After re-calibration: 7240.58
+msg_egammaMVACalib_Check INFO    Photon # 14 Energy at input :12804.7. After re-calibration: 10492.4
+msg_egammaMVACalib_Check INFO    Photon # 15 Energy at input :6652.44. After re-calibration: 6972.45
+msg_egammaMVACalib_Check INFO    Photon # 16 Energy at input :10818.9. After re-calibration: 11131.6
+msg_egammaMVACalib_Check INFO    Photon # 17 Energy at input :5969.67. After re-calibration: 5972.59
+msg_egammaMVACalib_Check INFO    Photon # 18 Energy at input :7869.49. After re-calibration: 7565.38
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 29 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :34619.7. After re-calibration : 34511.6
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :35774.2. After re-calibration : 35759.9
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :41563.5. After re-calibration : 41350
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :52431.2. After re-calibration : 52471.3
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :2569.07. After re-calibration : 2644.14
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :10805.2. After re-calibration : 11008.2
+msg_egammaMVACalib_Check INFO    Electron # 6 Energy at input :3515.28. After re-calibration : 3452.4
+msg_egammaMVACalib_Check INFO    Electron # 7 Energy at input :11322.6. After re-calibration : 11336.3
+msg_egammaMVACalib_Check INFO    Electron # 8 Energy at input :2939.38. After re-calibration : 2922.21
+msg_egammaMVACalib_Check INFO    Electron # 9 Energy at input :4330.95. After re-calibration : 4146.31
+msg_egammaMVACalib_Check INFO    Electron # 10 Energy at input :8599.74. After re-calibration : 8376.61
+msg_egammaMVACalib_Check INFO    Electron # 11 Energy at input :2107.13. After re-calibration : 2270.33
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :7074.55. After re-calibration: 7108.88
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :5676.84. After re-calibration: 5603.52
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :3651.44. After re-calibration: 3739.17
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :14660. After re-calibration: 14099.5
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :4493.37. After re-calibration: 4659.68
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :10648.1. After re-calibration: 10564.7
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :8171.75. After re-calibration: 7966.13
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :8595.1. After re-calibration: 8942.67
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :2511.78. After re-calibration: 2462.38
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :11788.4. After re-calibration: 11631
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :13113.8. After re-calibration: 12763.4
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :3457.51. After re-calibration: 3513.32
+msg_egammaMVACalib_Check INFO    Photon # 12 Energy at input :3003.64. After re-calibration: 3226.24
+msg_egammaMVACalib_Check INFO    Photon # 13 Energy at input :2326.36. After re-calibration: 2288.43
+msg_egammaMVACalib_Check INFO    Photon # 14 Energy at input :3838.12. After re-calibration: 4236.37
+msg_egammaMVACalib_Check INFO    Photon # 15 Energy at input :8663.07. After re-calibration: 9041.84
+msg_egammaMVACalib_Check INFO    Photon # 16 Energy at input :25410.2. After re-calibration: 21639.5
+msg_egammaMVACalib_Check INFO    Photon # 17 Energy at input :5005.43. After re-calibration: 5008.48
+msg_egammaMVACalib_Check INFO    Photon # 18 Energy at input :2480.2. After re-calibration: 2524.55
+msg_egammaMVACalib_Check INFO    Photon # 19 Energy at input :7293.33. After re-calibration: 7319.03
+msg_egammaMVACalib_Check INFO    Photon # 20 Energy at input :1935.48. After re-calibration: 1894.4
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 30 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :41766.9. After re-calibration : 41688.7
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :90195.7. After re-calibration : 89818.7
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :11629.2. After re-calibration : 11499
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :11545.2. After re-calibration : 11631.7
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :3100.02. After re-calibration : 3123.78
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :3093.18. After re-calibration : 2984.19
+msg_egammaMVACalib_Check INFO    Electron # 6 Energy at input :2060.3. After re-calibration : 2077.42
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :13928.7. After re-calibration: 13978.2
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :8962.08. After re-calibration: 9123.62
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :4460.74. After re-calibration: 4403.09
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :10577.7. After re-calibration: 10651.5
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :10109.6. After re-calibration: 9860.4
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :2426.39. After re-calibration: 2476.48
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :8738.91. After re-calibration: 9149.63
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :2890.21. After re-calibration: 2910.08
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :9825.39. After re-calibration: 10160.3
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :2649.03. After re-calibration: 2553.35
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :2985.68. After re-calibration: 3013.07
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :5724.87. After re-calibration: 7364.21
+msg_egammaMVACalib_Check INFO    Photon # 12 Energy at input :1970.87. After re-calibration: 2038.27
+msg_egammaMVACalib_Check INFO    Photon # 13 Energy at input :2092.14. After re-calibration: 2079.29
+msg_egammaMVACalib_Check INFO    Photon # 14 Energy at input :2274.16. After re-calibration: 2188.22
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 31 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :107661. After re-calibration : 107711
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :41688.6. After re-calibration : 41969.3
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :42394.2. After re-calibration : 42272
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :18774.1. After re-calibration : 18560.5
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :51123.6. After re-calibration : 51123.1
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :12889.9. After re-calibration : 12838.8
+msg_egammaMVACalib_Check INFO    Electron # 6 Energy at input :31891.5. After re-calibration : 26764.8
+msg_egammaMVACalib_Check INFO    Electron # 7 Energy at input :13368.9. After re-calibration : 13129.4
+msg_egammaMVACalib_Check INFO    Electron # 8 Energy at input :9025.29. After re-calibration : 8875.26
+msg_egammaMVACalib_Check INFO    Electron # 9 Energy at input :55507.7. After re-calibration : 56057
+msg_egammaMVACalib_Check INFO    Electron # 10 Energy at input :16261.7. After re-calibration : 16695.5
+msg_egammaMVACalib_Check INFO    Electron # 11 Energy at input :5531.36. After re-calibration : 5450.71
+msg_egammaMVACalib_Check INFO    Electron # 12 Energy at input :18347.3. After re-calibration : 18347.7
+msg_egammaMVACalib_Check INFO    Electron # 13 Energy at input :22213.1. After re-calibration : 21729.7
+msg_egammaMVACalib_Check INFO    Electron # 14 Energy at input :19776.7. After re-calibration : 20366.5
+msg_egammaMVACalib_Check INFO    Electron # 15 Energy at input :4885.33. After re-calibration : 5874.86
+msg_egammaMVACalib_Check INFO    Electron # 16 Energy at input :4588.96. After re-calibration : 4393.06
+msg_egammaMVACalib_Check INFO    Electron # 17 Energy at input :15214.9. After re-calibration : 15686.3
+msg_egammaMVACalib_Check INFO    Electron # 18 Energy at input :5093.21. After re-calibration : 5459.61
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :32369. After re-calibration: 32290.5
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :29972.7. After re-calibration: 32586.4
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :9315. After re-calibration: 9416.58
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :35502.4. After re-calibration: 35293.4
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :20411.8. After re-calibration: 20273.4
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :2571.8. After re-calibration: 2663.79
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :7434.05. After re-calibration: 7280.78
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :8791.47. After re-calibration: 8794.13
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :3569.81. After re-calibration: 3571.98
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :10104.4. After re-calibration: 10174.8
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :2983.55. After re-calibration: 2954.39
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :15546.7. After re-calibration: 17129.6
+msg_egammaMVACalib_Check INFO    Photon # 12 Energy at input :9313.9. After re-calibration: 9541.17
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 32 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :16027.9. After re-calibration : 16045.8
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :44124.6. After re-calibration : 44758
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :14611.6. After re-calibration : 14481.4
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :18611.5. After re-calibration : 18392.6
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :9143.8. After re-calibration : 8161.01
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :10830.9. After re-calibration : 10661.7
+msg_egammaMVACalib_Check INFO    Electron # 6 Energy at input :5775.18. After re-calibration : 5650.31
+msg_egammaMVACalib_Check INFO    Electron # 7 Energy at input :31472.4. After re-calibration : 31580
+msg_egammaMVACalib_Check INFO    Electron # 8 Energy at input :16904. After re-calibration : 17299.9
+msg_egammaMVACalib_Check INFO    Electron # 9 Energy at input :8714.82. After re-calibration : 8996.77
+msg_egammaMVACalib_Check INFO    Electron # 10 Energy at input :6893.71. After re-calibration : 6439.3
+msg_egammaMVACalib_Check INFO    Electron # 11 Energy at input :4392.07. After re-calibration : 4304.28
+msg_egammaMVACalib_Check INFO    Electron # 12 Energy at input :6264.45. After re-calibration : 6351.37
+msg_egammaMVACalib_Check INFO    Electron # 13 Energy at input :9010.45. After re-calibration : 8853.55
+msg_egammaMVACalib_Check INFO    Electron # 14 Energy at input :3991.7. After re-calibration : 3919.84
+msg_egammaMVACalib_Check INFO    Electron # 15 Energy at input :3511.91. After re-calibration : 3517.11
+msg_egammaMVACalib_Check INFO    Electron # 16 Energy at input :11352.1. After re-calibration : 11217.1
+msg_egammaMVACalib_Check INFO    Electron # 17 Energy at input :15813.1. After re-calibration : 15458.7
+msg_egammaMVACalib_Check INFO    Electron # 18 Energy at input :2453.06. After re-calibration : 2291.45
+msg_egammaMVACalib_Check INFO    Electron # 19 Energy at input :4869.59. After re-calibration : 5676.28
+msg_egammaMVACalib_Check INFO    Electron # 20 Energy at input :2174.16. After re-calibration : 2214.75
+msg_egammaMVACalib_Check INFO    Electron # 21 Energy at input :4110.39. After re-calibration : 4607.82
+msg_egammaMVACalib_Check INFO    Electron # 22 Energy at input :14501. After re-calibration : 14702.7
+msg_egammaMVACalib_Check INFO    Electron # 23 Energy at input :7330.21. After re-calibration : 7696.02
+msg_egammaMVACalib_Check INFO    Electron # 24 Energy at input :2589.79. After re-calibration : 2879.7
+msg_egammaMVACalib_Check INFO    Electron # 25 Energy at input :7607.83. After re-calibration : 6643.96
+msg_egammaMVACalib_Check INFO    Electron # 26 Energy at input :6088.48. After re-calibration : 5853.86
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :48516.6. After re-calibration: 48654.5
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :40471.9. After re-calibration: 38824
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :8605.75. After re-calibration: 8790.04
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :5242.89. After re-calibration: 5276.18
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :33803.4. After re-calibration: 33601.6
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :4245.22. After re-calibration: 4297.69
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :3816. After re-calibration: 3791.3
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :10565. After re-calibration: 10554.7
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :2845.25. After re-calibration: 2965.56
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :15328.1. After re-calibration: 16278.5
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :8614.29. After re-calibration: 8843.7
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :3092.84. After re-calibration: 3134.1
+msg_egammaMVACalib_Check INFO    Photon # 12 Energy at input :3957. After re-calibration: 3921.44
+msg_egammaMVACalib_Check INFO    Photon # 13 Energy at input :29519.1. After re-calibration: 30408
+msg_egammaMVACalib_Check INFO    Photon # 14 Energy at input :4332.21. After re-calibration: 4447.25
+msg_egammaMVACalib_Check INFO    Photon # 15 Energy at input :9403.1. After re-calibration: 9507.78
+msg_egammaMVACalib_Check INFO    Photon # 16 Energy at input :15396.9. After re-calibration: 15020.2
+msg_egammaMVACalib_Check INFO    Photon # 17 Energy at input :3185.28. After re-calibration: 3275.49
+msg_egammaMVACalib_Check INFO    Photon # 18 Energy at input :3839.16. After re-calibration: 3756.15
+msg_egammaMVACalib_Check INFO    Photon # 19 Energy at input :2799.64. After re-calibration: 2754.32
+msg_egammaMVACalib_Check INFO    Photon # 20 Energy at input :2638.02. After re-calibration: 2702.11
+msg_egammaMVACalib_Check INFO    Photon # 21 Energy at input :2602.18. After re-calibration: 2615.35
+msg_egammaMVACalib_Check INFO    Photon # 22 Energy at input :5182.57. After re-calibration: 5202.45
+msg_egammaMVACalib_Check INFO    Photon # 23 Energy at input :12185.9. After re-calibration: 11252.1
+msg_egammaMVACalib_Check INFO    Photon # 24 Energy at input :3249.86. After re-calibration: 3256.94
+msg_egammaMVACalib_Check INFO    Photon # 25 Energy at input :7875.2. After re-calibration: 7701.79
+msg_egammaMVACalib_Check INFO    Photon # 26 Energy at input :12852.7. After re-calibration: 12910.3
+msg_egammaMVACalib_Check INFO    Photon # 27 Energy at input :10168.7. After re-calibration: 10073.3
+msg_egammaMVACalib_Check INFO    Photon # 28 Energy at input :4575.65. After re-calibration: 4487.38
+msg_egammaMVACalib_Check INFO    Photon # 29 Energy at input :9772.02. After re-calibration: 9400.37
+msg_egammaMVACalib_Check INFO    Photon # 30 Energy at input :2336.21. After re-calibration: 2354.84
+msg_egammaMVACalib_Check INFO    Photon # 31 Energy at input :6293.71. After re-calibration: 6759.38
+msg_egammaMVACalib_Check INFO    Photon # 32 Energy at input :5322.3. After re-calibration: 5279.91
+msg_egammaMVACalib_Check INFO    Photon # 33 Energy at input :9465. After re-calibration: 9691.4
+msg_egammaMVACalib_Check INFO    Photon # 34 Energy at input :3616.9. After re-calibration: 3573.89
+msg_egammaMVACalib_Check INFO    Photon # 35 Energy at input :10008.6. After re-calibration: 9737.05
+msg_egammaMVACalib_Check INFO    Photon # 36 Energy at input :2300.3. After re-calibration: 2251.15
+msg_egammaMVACalib_Check INFO    Photon # 37 Energy at input :5864.15. After re-calibration: 6007.77
+msg_egammaMVACalib_Check INFO    Photon # 38 Energy at input :2501.88. After re-calibration: 2387.11
+msg_egammaMVACalib_Check INFO    Photon # 39 Energy at input :2175.27. After re-calibration: 2134.71
+msg_egammaMVACalib_Check INFO    Photon # 40 Energy at input :6484.93. After re-calibration: 6749.3
+msg_egammaMVACalib_Check INFO    Photon # 41 Energy at input :2102.92. After re-calibration: 2087.29
+msg_egammaMVACalib_Check INFO    Photon # 42 Energy at input :3303.37. After re-calibration: 3380.97
+msg_egammaMVACalib_Check INFO    Photon # 43 Energy at input :7632.75. After re-calibration: 7507.2
+msg_egammaMVACalib_Check INFO    Photon # 44 Energy at input :2432.51. After re-calibration: 2445.61
+msg_egammaMVACalib_Check INFO    Photon # 45 Energy at input :13646.6. After re-calibration: 13629.6
+msg_egammaMVACalib_Check INFO    Photon # 46 Energy at input :3202.36. After re-calibration: 3350.31
+msg_egammaMVACalib_Check INFO    Photon # 47 Energy at input :5738.34. After re-calibration: 5653.02
+msg_egammaMVACalib_Check INFO    Photon # 48 Energy at input :4307.19. After re-calibration: 4268.85
+msg_egammaMVACalib_Check INFO    Photon # 49 Energy at input :1822.26. After re-calibration: 1884.65
+msg_egammaMVACalib_Check INFO    Photon # 50 Energy at input :1975.84. After re-calibration: 1953.34
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 33 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :46924.8. After re-calibration : 47207.4
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :29657.2. After re-calibration : 29573.1
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :27714. After re-calibration : 27744.3
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :13162.8. After re-calibration : 13142.3
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :6094.19. After re-calibration : 6284.71
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :9889.49. After re-calibration : 9696.37
+msg_egammaMVACalib_Check INFO    Electron # 6 Energy at input :5657.18. After re-calibration : 5681.69
+msg_egammaMVACalib_Check INFO    Electron # 7 Energy at input :4566.99. After re-calibration : 4927.59
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :4872.98. After re-calibration: 4840.7
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :7208.94. After re-calibration: 7240.62
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :4067.13. After re-calibration: 4087.87
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :2786.45. After re-calibration: 2703.17
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :2799.04. After re-calibration: 2937.4
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :8415.72. After re-calibration: 8126.34
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :1969.22. After re-calibration: 1936.08
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :2220.81. After re-calibration: 2213.52
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 34 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :53626. After re-calibration : 53398.3
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :81213.8. After re-calibration : 80837.6
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :65954.8. After re-calibration : 65974
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :27427.8. After re-calibration : 28542
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :10005.6. After re-calibration : 10080.4
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :9075.74. After re-calibration : 9008.9
+msg_egammaMVACalib_Check INFO    Electron # 6 Energy at input :31306.8. After re-calibration : 31673.1
+msg_egammaMVACalib_Check INFO    Electron # 7 Energy at input :29586.1. After re-calibration : 29997.8
+msg_egammaMVACalib_Check INFO    Electron # 8 Energy at input :10533.8. After re-calibration : 10498.2
+msg_egammaMVACalib_Check INFO    Electron # 9 Energy at input :8722.77. After re-calibration : 8577.77
+msg_egammaMVACalib_Check INFO    Electron # 10 Energy at input :5447.26. After re-calibration : 5345.14
+msg_egammaMVACalib_Check INFO    Electron # 11 Energy at input :4700.55. After re-calibration : 5219.53
+msg_egammaMVACalib_Check INFO    Electron # 12 Energy at input :4722.43. After re-calibration : 5339.78
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :65359.8. After re-calibration: 65056.8
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :7478.16. After re-calibration: 7749.08
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :10332.6. After re-calibration: 10678.4
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :9403.59. After re-calibration: 8857.65
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :5593.15. After re-calibration: 5790.84
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :5272.53. After re-calibration: 5360.88
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :3619.43. After re-calibration: 3682.04
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :3105.94. After re-calibration: 3047.11
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :7907.31. After re-calibration: 8253.77
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :2088.33. After re-calibration: 2076.44
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :2823.08. After re-calibration: 2757.18
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :3083.77. After re-calibration: 3099.79
+msg_egammaMVACalib_Check INFO    Photon # 12 Energy at input :2870.54. After re-calibration: 2983.3
+msg_egammaMVACalib_Check INFO    Photon # 13 Energy at input :2281.29. After re-calibration: 2300.03
+msg_egammaMVACalib_Check INFO    Photon # 14 Energy at input :7496.63. After re-calibration: 7339.73
+msg_egammaMVACalib_Check INFO    Photon # 15 Energy at input :7363.04. After re-calibration: 7482.27
+msg_egammaMVACalib_Check INFO    Photon # 16 Energy at input :3012.92. After re-calibration: 3161.87
+msg_egammaMVACalib_Check INFO    Photon # 17 Energy at input :10916.1. After re-calibration: 10739.4
+msg_egammaMVACalib_Check INFO    Photon # 18 Energy at input :2961.07. After re-calibration: 2891.62
+msg_egammaMVACalib_Check INFO    Photon # 19 Energy at input :3881.79. After re-calibration: 3859.06
+msg_egammaMVACalib_Check INFO    Photon # 20 Energy at input :4258.5. After re-calibration: 4208.81
+msg_egammaMVACalib_Check INFO    Photon # 21 Energy at input :2464.79. After re-calibration: 2454.65
+msg_egammaMVACalib_Check INFO    Photon # 22 Energy at input :6982.78. After re-calibration: 7031.66
+msg_egammaMVACalib_Check INFO    Photon # 23 Energy at input :10666.9. After re-calibration: 9274.59
+msg_egammaMVACalib_Check INFO    Photon # 24 Energy at input :2616.46. After re-calibration: 2607.9
+msg_egammaMVACalib_Check INFO    Photon # 25 Energy at input :2613.51. After re-calibration: 2585.08
+msg_egammaMVACalib_Check INFO    Photon # 26 Energy at input :2125.43. After re-calibration: 2185.69
+msg_egammaMVACalib_Check INFO    Photon # 27 Energy at input :2301.47. After re-calibration: 2297.43
+msg_egammaMVACalib_Check INFO    Photon # 28 Energy at input :1723.57. After re-calibration: 1680.86
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 35 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :105989. After re-calibration : 105531
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :9447.61. After re-calibration : 9420.63
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :3236.31. After re-calibration : 3241.5
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :9936.01. After re-calibration : 10386.1
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :4326.92. After re-calibration : 4322.4
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :3505.02. After re-calibration : 3490.29
+msg_egammaMVACalib_Check INFO    Electron # 6 Energy at input :2851.79. After re-calibration : 2746.97
+msg_egammaMVACalib_Check INFO    Electron # 7 Energy at input :2458.1. After re-calibration : 2401.34
+msg_egammaMVACalib_Check INFO    Electron # 8 Energy at input :6751.15. After re-calibration : 6627.84
+msg_egammaMVACalib_Check INFO    Electron # 9 Energy at input :13599.7. After re-calibration : 15684.6
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :6637.55. After re-calibration: 6567.58
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :4139.15. After re-calibration: 4303.67
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :14890.5. After re-calibration: 21405
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :3338.41. After re-calibration: 3326
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :3517.19. After re-calibration: 3359.73
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :2890.71. After re-calibration: 2864.45
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :3071.1. After re-calibration: 3068.67
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :2177.3. After re-calibration: 2137.32
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :5380.94. After re-calibration: 5177.55
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :2380.96. After re-calibration: 2357.5
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :3435.46. After re-calibration: 3525.21
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :11733.9. After re-calibration: 11405.2
+msg_egammaMVACalib_Check INFO    Photon # 12 Energy at input :7736.32. After re-calibration: 7561.03
+msg_egammaMVACalib_Check INFO    Photon # 13 Energy at input :3056.81. After re-calibration: 3023.82
+msg_egammaMVACalib_Check INFO    Photon # 14 Energy at input :6399.19. After re-calibration: 6303.65
+msg_egammaMVACalib_Check INFO    Photon # 15 Energy at input :8313.49. After re-calibration: 9590.74
+msg_egammaMVACalib_Check INFO    Photon # 16 Energy at input :2394.46. After re-calibration: 2295.7
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 36 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :36132.3. After re-calibration : 36253.4
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :64533.5. After re-calibration : 64412.7
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :29069.2. After re-calibration : 29496.8
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :20208.8. After re-calibration : 19002.9
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :7259.81. After re-calibration : 7540.25
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :11769. After re-calibration : 11402.3
+msg_egammaMVACalib_Check INFO    Electron # 6 Energy at input :7158.67. After re-calibration : 7690.35
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :67137.2. After re-calibration: 67125.9
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :10302.2. After re-calibration: 10317
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :21314. After re-calibration: 21840.2
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :4517.28. After re-calibration: 4566.64
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :8639.49. After re-calibration: 9544.19
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :3204.95. After re-calibration: 3252.31
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :2094.39. After re-calibration: 2048.72
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :6336.22. After re-calibration: 6061.47
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :4470.4. After re-calibration: 4130.14
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 37 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :157520. After re-calibration : 156730
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :67246.5. After re-calibration : 66897
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :48481.7. After re-calibration : 48069.1
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :51414.1. After re-calibration : 51749.5
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :8986.24. After re-calibration : 7795.44
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :15733. After re-calibration : 9922.57
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :224585. After re-calibration: 224533
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :35372.9. After re-calibration: 35545.4
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :8419.87. After re-calibration: 8442.43
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :28960.3. After re-calibration: 28943.3
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :4552.56. After re-calibration: 4597.05
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :8054.17. After re-calibration: 8256.36
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :3097.53. After re-calibration: 3039.09
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :5534.77. After re-calibration: 5635.93
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :2115.03. After re-calibration: 2091.92
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :2342.68. After re-calibration: 2307.31
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :8712.02. After re-calibration: 9463.19
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :7158.33. After re-calibration: 7571.25
+msg_egammaMVACalib_Check INFO    Photon # 12 Energy at input :2055.24. After re-calibration: 2040.76
+msg_egammaMVACalib_Check INFO    Photon # 13 Energy at input :9962.42. After re-calibration: 10322.3
+msg_egammaMVACalib_Check INFO    Photon # 14 Energy at input :14194.8. After re-calibration: 14106.6
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 38 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :179892. After re-calibration : 179717
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :47413.7. After re-calibration : 47414.2
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :18179.2. After re-calibration : 17970.5
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :13784. After re-calibration : 13827.4
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :9918.49. After re-calibration : 10335.2
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :10367. After re-calibration : 10109.6
+msg_egammaMVACalib_Check INFO    Electron # 6 Energy at input :13390.9. After re-calibration : 13909.7
+msg_egammaMVACalib_Check INFO    Electron # 7 Energy at input :12044. After re-calibration : 12021.2
+msg_egammaMVACalib_Check INFO    Electron # 8 Energy at input :15120.7. After re-calibration : 15547.9
+msg_egammaMVACalib_Check INFO    Electron # 9 Energy at input :5597.8. After re-calibration : 6060.86
+msg_egammaMVACalib_Check INFO    Electron # 10 Energy at input :8316.87. After re-calibration : 9222.83
+msg_egammaMVACalib_Check INFO    Electron # 11 Energy at input :9848.65. After re-calibration : 9176.44
+msg_egammaMVACalib_Check INFO    Electron # 12 Energy at input :7980.58. After re-calibration : 7393.54
+msg_egammaMVACalib_Check INFO    Electron # 13 Energy at input :7203.67. After re-calibration : 7578.32
+msg_egammaMVACalib_Check INFO    Electron # 14 Energy at input :7246.93. After re-calibration : 6894.16
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :165164. After re-calibration: 162714
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :10527.9. After re-calibration: 10435.2
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :6094.49. After re-calibration: 6141.69
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :5581.32. After re-calibration: 5536.91
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :19963.2. After re-calibration: 20642.9
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :5496.83. After re-calibration: 5574.3
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :5029.26. After re-calibration: 5031.24
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :3387.73. After re-calibration: 3337.3
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :13266.6. After re-calibration: 13368.4
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :4944.78. After re-calibration: 4992.2
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :8259.33. After re-calibration: 8015.89
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :3149.42. After re-calibration: 3154.99
+msg_egammaMVACalib_Check INFO    Photon # 12 Energy at input :1805.98. After re-calibration: 1766.3
+msg_egammaMVACalib_Check INFO    Photon # 13 Energy at input :3815.08. After re-calibration: 3823.73
+msg_egammaMVACalib_Check INFO    Photon # 14 Energy at input :16011.6. After re-calibration: 15124.1
+msg_egammaMVACalib_Check INFO    Photon # 15 Energy at input :5443.91. After re-calibration: 5347.33
+msg_egammaMVACalib_Check INFO    Photon # 16 Energy at input :2774.13. After re-calibration: 2707.81
+msg_egammaMVACalib_Check INFO    Photon # 17 Energy at input :6202.38. After re-calibration: 6880.2
+msg_egammaMVACalib_Check INFO    Photon # 18 Energy at input :8887.71. After re-calibration: 8862.41
+msg_egammaMVACalib_Check INFO    Photon # 19 Energy at input :8572. After re-calibration: 8951.29
+msg_egammaMVACalib_Check INFO    Photon # 20 Energy at input :4253.19. After re-calibration: 4193.83
+msg_egammaMVACalib_Check INFO    Photon # 21 Energy at input :3882.87. After re-calibration: 3908.44
+msg_egammaMVACalib_Check INFO    Photon # 22 Energy at input :2614.63. After re-calibration: 2533.2
+msg_egammaMVACalib_Check INFO    Photon # 23 Energy at input :2829.36. After re-calibration: 2842.05
+msg_egammaMVACalib_Check INFO    Photon # 24 Energy at input :4744.25. After re-calibration: 4831.45
+msg_egammaMVACalib_Check INFO    Photon # 25 Energy at input :10353.8. After re-calibration: 9988.95
+msg_egammaMVACalib_Check INFO    Photon # 26 Energy at input :8340.33. After re-calibration: 8772.56
+msg_egammaMVACalib_Check INFO    Photon # 27 Energy at input :3030.96. After re-calibration: 2983.54
+msg_egammaMVACalib_Check INFO    Photon # 28 Energy at input :3414.43. After re-calibration: 3420.56
+msg_egammaMVACalib_Check INFO    Photon # 29 Energy at input :1992.94. After re-calibration: 1971.47
+msg_egammaMVACalib_Check INFO    =============================
+
+msg_egammaMVACalib_Check INFO    ========= Event: 39 ========
+msg_egammaMVACalib_Check INFO    Electron # 0 Energy at input :108336. After re-calibration : 108557
+msg_egammaMVACalib_Check INFO    Electron # 1 Energy at input :18270.5. After re-calibration : 18292.6
+msg_egammaMVACalib_Check INFO    Electron # 2 Energy at input :30260.3. After re-calibration : 30229.7
+msg_egammaMVACalib_Check INFO    Electron # 3 Energy at input :16990.3. After re-calibration : 16856.9
+msg_egammaMVACalib_Check INFO    Electron # 4 Energy at input :11819.8. After re-calibration : 11709.7
+msg_egammaMVACalib_Check INFO    Electron # 5 Energy at input :10081.3. After re-calibration : 10440.2
+msg_egammaMVACalib_Check INFO    Electron # 6 Energy at input :29160.9. After re-calibration : 29198
+msg_egammaMVACalib_Check INFO    Electron # 7 Energy at input :6312.63. After re-calibration : 6790.82
+msg_egammaMVACalib_Check INFO    Electron # 8 Energy at input :3496.84. After re-calibration : 3500.87
+msg_egammaMVACalib_Check INFO    Electron # 9 Energy at input :3961.82. After re-calibration : 3841.57
+msg_egammaMVACalib_Check INFO    Electron # 10 Energy at input :3569.39. After re-calibration : 3536.15
+msg_egammaMVACalib_Check INFO    Electron # 11 Energy at input :3775.85. After re-calibration : 3775.04
+msg_egammaMVACalib_Check INFO    Electron # 12 Energy at input :3620.04. After re-calibration : 3545.94
+msg_egammaMVACalib_Check INFO    Electron # 13 Energy at input :3585.55. After re-calibration : 3557.41
+msg_egammaMVACalib_Check INFO    Electron # 14 Energy at input :3605.67. After re-calibration : 3614.71
+msg_egammaMVACalib_Check INFO    Photon # 0 Energy at input :12252.5. After re-calibration: 12629.2
+msg_egammaMVACalib_Check INFO    Photon # 1 Energy at input :7455.93. After re-calibration: 7253.4
+msg_egammaMVACalib_Check INFO    Photon # 2 Energy at input :8538.04. After re-calibration: 8937.43
+msg_egammaMVACalib_Check INFO    Photon # 3 Energy at input :7636.62. After re-calibration: 7499.92
+msg_egammaMVACalib_Check INFO    Photon # 4 Energy at input :4251.21. After re-calibration: 4172.1
+msg_egammaMVACalib_Check INFO    Photon # 5 Energy at input :18655.4. After re-calibration: 16593.9
+msg_egammaMVACalib_Check INFO    Photon # 6 Energy at input :3251.71. After re-calibration: 3293.75
+msg_egammaMVACalib_Check INFO    Photon # 7 Energy at input :5980.63. After re-calibration: 3998.82
+msg_egammaMVACalib_Check INFO    Photon # 8 Energy at input :3053.86. After re-calibration: 3070.04
+msg_egammaMVACalib_Check INFO    Photon # 9 Energy at input :4457.64. After re-calibration: 4594.36
+msg_egammaMVACalib_Check INFO    Photon # 10 Energy at input :3023.76. After re-calibration: 2989.57
+msg_egammaMVACalib_Check INFO    Photon # 11 Energy at input :3158.99. After re-calibration: 3093.41
+msg_egammaMVACalib_Check INFO    Photon # 12 Energy at input :2654.13. After re-calibration: 2559.69
+msg_egammaMVACalib_Check INFO    Photon # 13 Energy at input :2403.04. After re-calibration: 2399.03
+msg_egammaMVACalib_Check INFO    Photon # 14 Energy at input :4357.94. After re-calibration: 4253.61
+msg_egammaMVACalib_Check INFO    Photon # 15 Energy at input :3320.28. After re-calibration: 3325.33
+msg_egammaMVACalib_Check INFO    Photon # 16 Energy at input :5054.99. After re-calibration: 5300.53
+msg_egammaMVACalib_Check INFO    Photon # 17 Energy at input :2309.25. After re-calibration: 2311.43
+msg_egammaMVACalib_Check INFO    Photon # 18 Energy at input :2387.29. After re-calibration: 2403.06
+msg_egammaMVACalib_Check INFO    Photon # 19 Energy at input :7721.63. After re-calibration: 8025.3
+msg_egammaMVACalib_Check INFO    Photon # 20 Energy at input :2067.93. After re-calibration: 2042.41
+msg_egammaMVACalib_Check INFO    Photon # 21 Energy at input :2283.69. After re-calibration: 2250.07
+msg_egammaMVACalib_Check INFO    Photon # 22 Energy at input :6211.59. After re-calibration: 6300.49
+msg_egammaMVACalib_Check INFO    Photon # 23 Energy at input :3171.94. After re-calibration: 3072.87
+msg_egammaMVACalib_Check INFO    Photon # 24 Energy at input :1916.82. After re-calibration: 1873.39
+msg_egammaMVACalib_Check INFO    Photon # 25 Energy at input :6804.49. After re-calibration: 6499.32
+msg_egammaMVACalib_Check INFO    Photon # 26 Energy at input :10959. After re-calibration: 12240.8
+msg_egammaMVACalib_Check INFO    Photon # 27 Energy at input :6677.54. After re-calibration: 6781.71
+msg_egammaMVACalib_Check INFO    =============================
+

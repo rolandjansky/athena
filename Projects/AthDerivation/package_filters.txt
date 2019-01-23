@@ -203,6 +203,7 @@
 + MuonSpectrometer/MuonSimData
 
 # Physics analysis package(s):
++ PhysicsAnalysis/Algorithms/.*
 + PhysicsAnalysis/AnalysisCommon/AODSelect
 + PhysicsAnalysis/AnalysisCommon/AnalysisUtils
 + PhysicsAnalysis/AnalysisCommon/AssociationUtils

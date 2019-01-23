@@ -8,6 +8,7 @@ from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 
 def makePhotonAnalysisSequence( dataType, workingPoint,
+                                deepCopyOutput = False,
                                 postfix = '',
                                 recomputeIsEM = False ):
     """Create a photon analysis algorithm sequence
@@ -15,6 +16,9 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
     Keywrod arguments:
       dataType -- The data type to run on ("data", "mc" or "afii")
       workingPoint -- The working point to use
+      deepCopyOutput -- If set to 'True', the output containers will be
+                        standalone, deep copies (slower, but needed for xAOD
+                        output writing)
       postfix -- a postfix to apply to decorations and algorithm
                  names.  this is mostly used/needed when using this
                  sequence with multiple working points to ensure all
@@ -194,6 +198,15 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
     alg.histPattern = 'photon_%VAR%_%SYS%' + postfix
     seq.append( alg, inputPropName = 'input',
                 stageName = 'selection' )
+
+    # Set up a final deep copy making algorithm if requested:
+    if deepCopyOutput:
+        alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
+                               'PhotonDeepCopyMaker' + postfix )
+        alg.deepCopy = True
+        seq.append( alg, inputPropName = 'input', outputPropName = 'output',
+                    stageName = 'selection' )
+        pass
 
     # Return the sequence:
     return seq
