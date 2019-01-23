@@ -73,5 +73,5 @@ atlas_add_test( RandomServices_test
                 SCRIPT test/RandomServices_test.py )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py  test/*.py )
-atlas_install_joboptions( share/*.py )
+atlas_install_python_modules( python/*.py )
+atlas_install_joboptions( share/*.py test/*.py )
