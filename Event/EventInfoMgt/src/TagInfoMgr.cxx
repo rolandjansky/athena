@@ -661,10 +661,8 @@ TagInfoMgr::handle(const Incident& inc) {
     }
 
     // Return quickly for BeginEvent if not needed
-    if (!m_newFileIncidentSeen && inc.type() == "BeginEvent") {
-       m_log << MSG::DEBUG << "Nothing to do, return" << endmsg;
-       return;
-    }
+    if (!m_newFileIncidentSeen && inc.type() == "BeginEvent") return;
+
     // At first BeginRun we retrieve TagInfo and trigger IOVDbSvc to
     // use it
     if (inc.type() == "BeginRun" && m_isFirstBeginRun) {
@@ -834,7 +832,6 @@ TagInfoMgr::handle(const Incident& inc) {
             if (m_log.level() <= MSG::DEBUG) m_log << MSG::DEBUG << "handle - BeginInputFile: Wrote TagInfo to MetaDataStore " << endmsg;
         }
     }
-    m_log << MSG::DEBUG << "Finished handling incident" << endmsg;
 }
 
 
