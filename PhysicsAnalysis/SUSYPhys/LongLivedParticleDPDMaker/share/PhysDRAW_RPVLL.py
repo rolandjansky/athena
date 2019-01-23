@@ -16,7 +16,6 @@
 # Imports and initial setup
 # ##########################################################################################
 
-print "Executing PhysDRAW_RPVLL"
 
 from LongLivedParticleDPDMaker.LongLivedDPDFlags import WriteRPVLLStream
 from LongLivedParticleDPDMaker.PrimaryDPDFlags_RPVLLStream import primRPVLLDESDM

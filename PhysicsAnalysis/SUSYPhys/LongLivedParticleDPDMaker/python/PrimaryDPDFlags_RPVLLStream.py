@@ -13,7 +13,6 @@
 ##
 ##=============================================================================
 
-print "Executing PrimaryDPDFlags_RPVLLStream"
 
 __doc__ = """Here, all necessary job flags for the RPV/LL SUSY  DESD are defined."""
 
@@ -52,9 +51,9 @@ import VHFlags
 #===============================================================
 
 class doDiLep(JobProperty):
-    statusOn=True
+    statusOn = True
     allowedTypes = ["bool"]
-    StoredValue=True
+    StoredValue = True
     pass
 primRPVLLDESDM.add_JobProperty(doDiLep)
     
@@ -73,9 +72,9 @@ class doKinkedTrack(JobProperty):
 primRPVLLDESDM.add_JobProperty(doKinkedTrack)
 
 class doEmerging(JobProperty):
-    statusOn=True
+    statusOn = True
     allowedTypes = ["bool"]
-    StoredValue=True # FIXME: Set True to turn this on
+    StoredValue = True # FIXME: Set True to turn this on
     pass
 primRPVLLDESDM.add_JobProperty(doEmerging)
     
@@ -94,9 +93,9 @@ class doVH_DV(JobProperty):
 primRPVLLDESDM.add_JobProperty(doVH_DV)
 
 class doQuirks(JobProperty):
-    statusOn=True
+    statusOn = True
     allowedTypes = ["bool"]
-    StoredValue=False
+    StoredValue = False
     pass
 primRPVLLDESDM.add_JobProperty(doQuirks)
 
@@ -145,8 +144,8 @@ primRPVLLDESDM.add_JobProperty(doVH)
 class prescaleFlags(JobProperty):
     statusOn = True
     allowedTypes = ['bool']
-    StoredValue=False
+    StoredValue = False
     applyPrescale = False
-    prescaleFactor=1.0
+    prescaleFactor = 1.0
 primRPVLLDESDM.add_JobProperty(prescaleFlags)
 

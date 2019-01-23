@@ -10,7 +10,6 @@
 
 ## use AutoConfiguration to setup everything
 
-print "Executing LongLivedDPD_topOptions"
 
 from RecExConfig.RecFlags import rec
 rec.AutoConfiguration=['everything']
