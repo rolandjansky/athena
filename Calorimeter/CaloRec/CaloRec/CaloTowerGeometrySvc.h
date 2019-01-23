@@ -191,8 +191,8 @@ private:
   ///@name Helpers
   ///@{
   StatusCode f_setupTowerGrid();                                         ///< Internally used function setting up the lookup store
-  StatusCode f_setupTowerGridFCal(const CaloDetDescrElement* pCaloDDE);  ///< Internally used function setting up the lookup store for the FCal
-  StatusCode f_setupTowerGridProj(const CaloDetDescrElement* pCaloDDE);  ///< Internally used function setting up the lookup store for calorimeters with projective readout
+  StatusCode f_setupTowerGridFCal(const CaloDetDescrElement* pCaloDDE);  ///< Internally used function mapping an FCal cell onto the tower grid
+  StatusCode f_setupTowerGridProj(const CaloDetDescrElement* pCaloDDE);  ///< Internally used function mapping a projective cell onto the tower grid
   ///@}
 
   ///@name Access to detector store and other services and stores
@@ -210,6 +210,7 @@ protected:
   elementmap_t m_towerLookup;   ///< Cell-to-tower mapping lookup store
   double       m_towerEtaWidth; ///< Width of tower bin in pseudorapidity
   double       m_towerPhiWidth; ///< Width of tower bin in azimuth 
+  double       m_towerArea;     ///< Area of individual tower
   ///@}
   
   ///@name Properties
@@ -222,7 +223,6 @@ protected:
   double m_towerPhiMin;  ///< Lower boundary @f$ \phi_{\rm min} @f$
   double m_towerPhiMax;  ///< Upper boundary @f$ \phi_{\rm max} @f$
   size_t m_towerBins;    ///< Total number of towers
-  double m_towerArea;    ///< Area of individual tower
   double m_fcal1Xslice;  ///< Number of x slices for cells in FCal1
   double m_fcal1Yslice;  ///< Number of y slices for cells in FCal1
   double m_fcal2Xslice;  ///< Number of x slices for cells in FCal2

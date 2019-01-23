@@ -9,15 +9,15 @@ CaloTowerGeometrySvc::CaloTowerGeometrySvc(const std::string& name,ISvcLocator* 
   , m_detectorStore("StoreGateSvc/DetectorStore",name)
   , m_caloDDM((CaloDetDescrManager*)0)
   , m_towerEtaWidth(0.)
-  , m_towerPhiWidth(0.)                         ////////////////////////////////////////////
-  , m_towerEtaBins(100)                         // Default tower definition is "hadronic" //
-  , m_towerEtaMin(-5.0)                         // towers of size 0.1 x pi/32.            // 
-  , m_towerEtaMax(5.0)                          ////////////////////////////////////////////
-  , m_towerPhiBins(64)                          
+  , m_towerPhiWidth(0.)
+  , m_towerArea(0.)
+  , m_towerEtaBins(100)                         ////////////////////////////////////////////
+  , m_towerEtaMin(-5.0)                         // Default tower definition is "hadronic" //
+  , m_towerEtaMax(5.0)                          // towers of size 0.1 x pi/32.            // 
+  , m_towerPhiBins(64)                          ////////////////////////////////////////////
   , m_towerPhiMin(-std::M_PI)                   
   , m_towerPhiMax(-std::M_PI)                   ////////////////////////////////////////////
   , m_towerBins(0)                              // FCal vertical and horizontal cell      //
-  , m_towerArea(0.)
   , m_fcal1Xslice(4.)                           // slicing creates "mini-cells" which are //
   , m_fcal1Yslice(4.)                           // then projected onto towers. The mini-  //
   , m_fcal2Xslice(4.)                           // cell signal is 1/(Nx x Ny) x Ecell,    //
