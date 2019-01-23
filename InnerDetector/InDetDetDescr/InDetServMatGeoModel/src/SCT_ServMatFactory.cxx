@@ -25,6 +25,7 @@
 
 #include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <sstream>
 #include <iostream>
@@ -72,14 +73,14 @@ void SCT_ServMatFactory::create(GeoPhysVol *mother)
 
   //------------------------------------------
   //VK  10/09/2005 Construct a gap for rails
-  double outROfIDet =       (*atls)[0]->getDouble("IDETOR")*GeoModelKernelUnits::cm;
-  double endZOfIDet =       (*atls)[0]->getDouble("IDETZMX")*GeoModelKernelUnits::cm;
-  //  double minRofGap  =       1050.0*GeoModelKernelUnits::mm;
-  //  double minRofGap  =       1110.0*GeoModelKernelUnits::mm;
-  double minRofGap  =       1089.0*GeoModelKernelUnits::mm;
-  double phiWid=(70.*GeoModelKernelUnits::mm)/outROfIDet;   
+  double outROfIDet =       (*atls)[0]->getDouble("IDETOR")*Gaudi::Units::cm;
+  double endZOfIDet =       (*atls)[0]->getDouble("IDETZMX")*Gaudi::Units::cm;
+  //  double minRofGap  =       1050.0*Gaudi::Units::mm;
+  //  double minRofGap  =       1110.0*Gaudi::Units::mm;
+  double minRofGap  =       1089.0*Gaudi::Units::mm;
+  double phiWid=(70.*Gaudi::Units::mm)/outROfIDet;   
   //  std::cout << "Gap phiWid = " << phiWid << std::endl;
-  double safetyGap=1.*GeoModelKernelUnits::mm;
+  double safetyGap=1.*Gaudi::Units::mm;
 
   //created by Adam Agocs 
 
@@ -131,7 +132,7 @@ void SCT_ServMatFactory::create(GeoPhysVol *mother)
     double volumeCut = 0;
     const GeoShape* serviceTube = serviceTubeTmp;
     const GeoShape* serviceTube2 = serviceTubeTmp; //because of asymmetry
-    if( tubeHelper.volData().maxRadius() > minRofGap && tubeHelper.volData().phiStart()*GeoModelKernelUnits::radian < phiTop)  {
+    if( tubeHelper.volData().maxRadius() > minRofGap && tubeHelper.volData().phiStart()*Gaudi::Units::radian < phiTop)  {
       // Subtract RailGap out of services
       if (NameOfService == "PPB1EFEG" || NameOfService == "CableTrayEFEG")
       {
@@ -173,8 +174,8 @@ void SCT_ServMatFactory::create(GeoPhysVol *mother)
 
      GeoTransform * xform1    = new GeoTransform(trans);
      GeoTransform * xform1Neg = new GeoTransform(trans2);
-     GeoTransform * xform2    = new GeoTransform(GeoTrf::RotateZ3D(180*GeoModelKernelUnits::deg)*trans);
-     GeoTransform * xform2Neg = new GeoTransform(GeoTrf::RotateZ3D(180*GeoModelKernelUnits::deg)*trans2);
+     GeoTransform * xform2    = new GeoTransform(GeoTrf::RotateZ3D(180*Gaudi::Units::deg)*trans);
+     GeoTransform * xform2Neg = new GeoTransform(GeoTrf::RotateZ3D(180*Gaudi::Units::deg)*trans2);
     
 //     std::cerr << xform1 << std::endl << xform1Neg << std::endl << xform2 << std::endl << xform2Neg << std::endl;
      
@@ -204,12 +205,12 @@ void SCT_ServMatFactory::create(GeoPhysVol *mother)
 
     for (unsigned int ii =0; ii < sctsup->size(); ii++) {
       
-      RMinW          = (*sctsup)[ii]->getFloat("RMIN")*GeoModelKernelUnits::mm;
-      RMaxW          = (*sctsup)[ii]->getFloat("RMAX")*GeoModelKernelUnits::mm;
-      ZHalfLengthW   = (*sctsup)[ii]->getFloat("THICK")/2.*GeoModelKernelUnits::mm;
-      WidI           = (*sctsup)[ii]->getFloat("WIDTHINNER")*GeoModelKernelUnits::mm;
-      WidO           = (*sctsup)[ii]->getFloat("WIDTHOUTER")*GeoModelKernelUnits::mm;
-      ZStartW        = (*sctsup)[ii]->getFloat("ZSTART")*GeoModelKernelUnits::mm;
+      RMinW          = (*sctsup)[ii]->getFloat("RMIN")*Gaudi::Units::mm;
+      RMaxW          = (*sctsup)[ii]->getFloat("RMAX")*Gaudi::Units::mm;
+      ZHalfLengthW   = (*sctsup)[ii]->getFloat("THICK")/2.*Gaudi::Units::mm;
+      WidI           = (*sctsup)[ii]->getFloat("WIDTHINNER")*Gaudi::Units::mm;
+      WidO           = (*sctsup)[ii]->getFloat("WIDTHOUTER")*Gaudi::Units::mm;
+      ZStartW        = (*sctsup)[ii]->getFloat("ZSTART")*Gaudi::Units::mm;
       NameOfMaterial = (*sctsup)[ii]->getString("MATERIAL");
       DPhi = asin(WidI/2./RMinW);
       
@@ -293,14 +294,14 @@ void SCT_ServMatFactory::create(GeoPhysVol *mother)
 
   //------------------------------------------
   //VK  10/09/2005 Construct a gap for rails
-  double outROfIDet =       (*atls)[0]->getDouble("IDETOR")*GeoModelKernelUnits::cm;
-  double endZOfIDet =       (*atls)[0]->getDouble("IDETZMX")*GeoModelKernelUnits::cm;
-  //  double minRofGap  =       1050.0*GeoModelKernelUnits::mm;
-  //  double minRofGap  =       1110.0*GeoModelKernelUnits::mm;
-  double minRofGap  =       1089.0*GeoModelKernelUnits::mm;
-  double phiWid=(70.*GeoModelKernelUnits::mm)/outROfIDet;   
+  double outROfIDet =       (*atls)[0]->getDouble("IDETOR")*Gaudi::Units::cm;
+  double endZOfIDet =       (*atls)[0]->getDouble("IDETZMX")*Gaudi::Units::cm;
+  //  double minRofGap  =       1050.0*Gaudi::Units::mm;
+  //  double minRofGap  =       1110.0*Gaudi::Units::mm;
+  double minRofGap  =       1089.0*Gaudi::Units::mm;
+  double phiWid=(70.*Gaudi::Units::mm)/outROfIDet;   
   //  std::cout << "Gap phiWid = " << phiWid << std::endl;
-  double safetyGap=1.*GeoModelKernelUnits::mm;
+  double safetyGap=1.*Gaudi::Units::mm;
   const GeoShape* railGap1=new GeoTubs( minRofGap, outROfIDet+safetyGap ,endZOfIDet+safetyGap , 
 					-phiWid/2.,phiWid);
   const GeoShape* railGap2=new GeoTubs( minRofGap, outROfIDet+safetyGap ,endZOfIDet+safetyGap ,
@@ -367,12 +368,12 @@ void SCT_ServMatFactory::create(GeoPhysVol *mother)
 
     for (unsigned int ii =0; ii < sctsup->size(); ii++) {
       
-      RMinW        = (*sctsup)[ii]->getFloat("RMIN")*GeoModelKernelUnits::mm;
-      RMaxW        = (*sctsup)[ii]->getFloat("RMAX")*GeoModelKernelUnits::mm;
-      ZHalfLengthW = (*sctsup)[ii]->getFloat("THICK")/2.*GeoModelKernelUnits::mm;
-      WidI         = (*sctsup)[ii]->getFloat("WIDTHINNER")*GeoModelKernelUnits::mm;
-      WidO         = (*sctsup)[ii]->getFloat("WIDTHOUTER")*GeoModelKernelUnits::mm;
-      ZStartW      = (*sctsup)[ii]->getFloat("ZSTART")*GeoModelKernelUnits::mm;
+      RMinW        = (*sctsup)[ii]->getFloat("RMIN")*Gaudi::Units::mm;
+      RMaxW        = (*sctsup)[ii]->getFloat("RMAX")*Gaudi::Units::mm;
+      ZHalfLengthW = (*sctsup)[ii]->getFloat("THICK")/2.*Gaudi::Units::mm;
+      WidI         = (*sctsup)[ii]->getFloat("WIDTHINNER")*Gaudi::Units::mm;
+      WidO         = (*sctsup)[ii]->getFloat("WIDTHOUTER")*Gaudi::Units::mm;
+      ZStartW      = (*sctsup)[ii]->getFloat("ZSTART")*Gaudi::Units::mm;
       DPhi = asin(WidI/2./RMinW);
       
       const GeoShape* pTub1 = new GeoTubs(RMinW, RMaxW, ZHalfLengthW, 0.-DPhi, 2.*DPhi);  //Basic shape

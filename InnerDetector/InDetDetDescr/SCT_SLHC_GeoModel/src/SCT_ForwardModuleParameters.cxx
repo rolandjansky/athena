@@ -6,8 +6,7 @@
 #include "SCT_SLHC_GeoModel/SCT_DataBase.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "GeometryDBSvc/IGeometryDBSvc.h"
-
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <cmath>
 #include <iostream>
@@ -42,55 +41,55 @@ SCT_ForwardModuleParameters::fwdSensorNumWafers(int iModuleType) const
 double 
 SCT_ForwardModuleParameters::moduleInterSidesGap(int iModuleType) const
 {
-  return db()->getDouble(m_SctFwdModule,"INTERSIDESGAP",iModuleType) * GeoModelKernelUnits::mm;
+  return db()->getDouble(m_SctFwdModule,"INTERSIDESGAP",iModuleType) * Gaudi::Units::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdSensorThickness(int iModuleType) const
 {
-  return db()->getDouble(m_SctFwdSensor,"THICKNESS",iModuleType) * GeoModelKernelUnits::mm;
+  return db()->getDouble(m_SctFwdSensor,"THICKNESS",iModuleType) * Gaudi::Units::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdSensorLength(int iModuleType) const
 {
-  return db()->getDouble(m_SctFwdSensor,"LENGTH",iModuleType) * GeoModelKernelUnits::mm;
+  return db()->getDouble(m_SctFwdSensor,"LENGTH",iModuleType) * Gaudi::Units::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdSensorInnerWidth(int iModuleType) const
 {
-  return db()->getDouble(m_SctFwdSensor,"INNERWIDTH",iModuleType) * GeoModelKernelUnits::mm;
+  return db()->getDouble(m_SctFwdSensor,"INNERWIDTH",iModuleType) * Gaudi::Units::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdSensorOuterWidth(int iModuleType) const
 {
-  return db()->getDouble(m_SctFwdSensor,"OUTERWIDTH",iModuleType) * GeoModelKernelUnits::mm;
+  return db()->getDouble(m_SctFwdSensor,"OUTERWIDTH",iModuleType) * Gaudi::Units::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdSensorInnerRadius(int iModuleType) const
 {
-  return db()->getDouble(m_SctFwdSensor,"INNERRADIUS",iModuleType) * GeoModelKernelUnits::mm;
+  return db()->getDouble(m_SctFwdSensor,"INNERRADIUS",iModuleType) * Gaudi::Units::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdSensorOuterRadius(int iModuleType) const
 {
-  return db()->getDouble(m_SctFwdSensor,"OUTERRADIUS",iModuleType) * GeoModelKernelUnits::mm;
+  return db()->getDouble(m_SctFwdSensor,"OUTERRADIUS",iModuleType) * Gaudi::Units::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdSensorMiddleRadius(int iModuleType) const
 {
-  return db()->getDouble(m_SctFwdSensor,"MIDDLERADIUS",iModuleType) * GeoModelKernelUnits::mm;
+  return db()->getDouble(m_SctFwdSensor,"MIDDLERADIUS",iModuleType) * Gaudi::Units::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdSensorDeltaPhi(int iModuleType) const
 {
-   return db()->getDouble(m_SctFwdSensor,"DELTAPHI",iModuleType) * GeoModelKernelUnits::mm;
+   return db()->getDouble(m_SctFwdSensor,"DELTAPHI",iModuleType) * Gaudi::Units::mm;
 }
 
 std::string 
@@ -102,13 +101,13 @@ SCT_ForwardModuleParameters::fwdSensorMaterial(int iModuleType) const
 double 
 SCT_ForwardModuleParameters::fwdSensorActiveHalfLength(int iModuleType) const
 {
-  return db()->getDouble(m_SctFwdSensor,"ACTIVEHALFLENGTH",iModuleType) * GeoModelKernelUnits::mm;
+  return db()->getDouble(m_SctFwdSensor,"ACTIVEHALFLENGTH",iModuleType) * Gaudi::Units::mm;
 }  
 
 double 
 SCT_ForwardModuleParameters::fwdSensorAngularPitch(int iModuleType) const
 {
-  return db()->getDouble(m_SctFwdSensor,"ANGULARPITCH",iModuleType) * GeoModelKernelUnits::radian;
+  return db()->getDouble(m_SctFwdSensor,"ANGULARPITCH",iModuleType) * Gaudi::Units::radian;
 }
 
 int
@@ -120,7 +119,7 @@ SCT_ForwardModuleParameters::fwdSensorNumReadoutStrips(int iModuleType) const
 double 
 SCT_ForwardModuleParameters::fwdModuleStereoAngle(int iModuleType) const
 {
-  return db()->getDouble(m_SctFwdModule,"STEREOANGLE",iModuleType) * GeoModelKernelUnits::milliradian;
+  return db()->getDouble(m_SctFwdModule,"STEREOANGLE",iModuleType) * Gaudi::Units::milliradian;
 }
 
 int 
@@ -138,24 +137,24 @@ SCT_ForwardModuleParameters::fwdSensorChargeCarrier(int iModuleType) const
 double 
 SCT_ForwardModuleParameters::fwdSpineThickness(int iModuleType) const
 {
-  return db()->getDouble(m_SctFwdSpine,"THICKNESS",iModuleType) * GeoModelKernelUnits::mm;
+  return db()->getDouble(m_SctFwdSpine,"THICKNESS",iModuleType) * Gaudi::Units::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdSpineLength(int iModuleType) const
 {
-  return db()->getDouble(m_SctFwdSpine,"LENGTH",iModuleType) * GeoModelKernelUnits::mm;
+  return db()->getDouble(m_SctFwdSpine,"LENGTH",iModuleType) * Gaudi::Units::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdSpineMiddleRadius(int iModuleType) const
 {
-  return db()->getDouble(m_SctFwdSpine,"MIDDLERADIUS",iModuleType) * GeoModelKernelUnits::mm;
+  return db()->getDouble(m_SctFwdSpine,"MIDDLERADIUS",iModuleType) * Gaudi::Units::mm;
 }
 
 double 
 SCT_ForwardModuleParameters::fwdSpineDeltaPhi(int iModuleType) const{
-  return db()->getDouble(m_SctFwdSpine,"DELTAPHI",iModuleType) * GeoModelKernelUnits::radian;
+  return db()->getDouble(m_SctFwdSpine,"DELTAPHI",iModuleType) * Gaudi::Units::radian;
 }
 
 std::string 

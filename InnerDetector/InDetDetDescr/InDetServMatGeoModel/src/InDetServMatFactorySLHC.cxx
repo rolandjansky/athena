@@ -35,7 +35,7 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 
-
+#include "GaudiKernel/PhysicalConstants.h"
 #include <iostream>
 
 InDetServMatFactorySLHC::InDetServMatFactorySLHC(const InDetServMatAthenaComps * athenaComps)
@@ -75,9 +75,9 @@ void InDetServMatFactorySLHC::create(GeoPhysVol *world )
     double cylLength;
     
     if (oldEnvelope()) {
-      innerRadius = geomDB()->getDouble("","SERVICESINNERRADIUS") * GeoModelKernelUnits::mm;
-      outerRadius = geomDB()->getDouble("","SERVICESOUTERRADIUS") * GeoModelKernelUnits::mm; 
-      cylLength   = geomDB()->getDouble("","SERVICESCYLLENGTH") * GeoModelKernelUnits::mm; 
+      innerRadius = geomDB()->getDouble("","SERVICESINNERRADIUS") * Gaudi::Units::mm;
+      outerRadius = geomDB()->getDouble("","SERVICESOUTERRADIUS") * Gaudi::Units::mm; 
+      cylLength   = geomDB()->getDouble("","SERVICESCYLLENGTH") * Gaudi::Units::mm; 
     } else {
       innerRadius = envelopeRMin();
       outerRadius = envelopeRMax();
@@ -86,7 +86,7 @@ void InDetServMatFactorySLHC::create(GeoPhysVol *world )
     envelopeShape = new GeoTube(innerRadius, outerRadius, 0.5*cylLength);
     zone = new InDetDD::TubeZone("InDetServMat", -0.5*cylLength, 0.5*cylLength, innerRadius, outerRadius);
   } else {
-    GeoPcon* envelopeShapeTmp  = new GeoPcon(0.,2*GeoModelKernelUnits::pi);
+    GeoPcon* envelopeShapeTmp  = new GeoPcon(0.,2*Gaudi::Units::pi);
     // table contains +ve z values only and envelope is assumed to be symmetric around z.
     int numPlanes = envelopeNumPlanes();
     for (int i = 0; i < numPlanes * 2; i++) {
@@ -183,7 +183,7 @@ InDetServMatFactorySLHC::envelopeNumPlanes() const
 double 
 InDetServMatFactorySLHC::envelopeZ(int i) const 
 {
-  double zmin =  geomDB()->getDouble(m_InDetServGenEnvelope,"Z",i) * GeoModelKernelUnits::mm;
+  double zmin =  geomDB()->getDouble(m_InDetServGenEnvelope,"Z",i) * Gaudi::Units::mm;
   if (zmin < 0) msg(MSG::ERROR) << "InDetServGenEnvelope table should only contain +ve z values" << endmsg;
   return std::abs(zmin);
 }
@@ -191,11 +191,11 @@ InDetServMatFactorySLHC::envelopeZ(int i) const
 double 
 InDetServMatFactorySLHC::envelopeRMin(int i) const 
 {
-  return geomDB()->getDouble(m_InDetServGenEnvelope,"RMIN",i) * GeoModelKernelUnits::mm;
+  return geomDB()->getDouble(m_InDetServGenEnvelope,"RMIN",i) * Gaudi::Units::mm;
 }
 
 double 
 InDetServMatFactorySLHC::envelopeRMax(int i) const
 {
-  return geomDB()->getDouble(m_InDetServGenEnvelope,"RMAX",i) * GeoModelKernelUnits::mm;
+  return geomDB()->getDouble(m_InDetServGenEnvelope,"RMAX",i) * Gaudi::Units::mm;
 }
