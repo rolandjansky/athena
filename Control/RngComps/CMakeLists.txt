@@ -70,7 +70,7 @@ atlas_add_test( RNGWrapper_test
    GaudiKernel AtlasCLHEP_RandomGenerators )
 
 atlas_add_test( RandomServices_test
-                SCRIPT python/RandomServices_test.py )
+                SCRIPT test/RandomServices_test.py )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

@@ -6,7 +6,7 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from AthenaCommon.Logging import log
 from AthenaCommon.Constants import DEBUG
 from AthenaCommon.Configurable import Configurable
-from RandomServices import dSFMT, Ranlux64, Ranecu, RNG
+from RngComps.RandomServices import dSFMT, Ranlux64, Ranecu, RNG
 
 # Set up logging and new style config
 log.setLevel(DEBUG)
