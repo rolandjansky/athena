@@ -43,13 +43,14 @@ namespace CP {
                 /// are named with an extra LOWPT
                 JPsiAnalysis = CentralLowPt | CaloLowPt,
                 
+                OwnFallBack = 1<<5,
                
             };
             enum Systematic{
-                Symmetric = 1<<5,
-                PtDependent = 1<<6,
-                UnCorrelated = 1<<7,
-                UpVariation = 1<<8,
+                Symmetric = 1<<6,
+                PtDependent = 1<<7,
+                UnCorrelated = 1<<8,
+                UpVariation = 1<<9,
             };
             static std::string FileTypeName(EffiCollection::CollectionType T);
             

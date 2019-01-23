@@ -87,10 +87,12 @@ namespace CP {
         return std::string("Replica") + mc_effi_decoration();
     }
     size_t MuonEfficiencyScaleFactors::getPosition(const EffiCollection* coll) const {
-        std::vector< std::unique_ptr<EffiCollection>>::const_iterator itr = std::find_if(m_sf_sets.begin(), m_sf_sets.end(), [coll] (const std::unique_ptr<EffiCollection>& a){
-                                                                                                                                        return a.get() == coll;});
-        if (itr == m_sf_sets.end()) return -1;
-        return (itr- m_sf_sets.begin());
+        size_t i = 0;
+        for (const auto& sf: m_sf_sets) {
+            if (sf.get() == coll) return i;
+            ++i;
+        }
+        return  i;
     }               
     size_t MuonEfficiencyScaleFactors::getNCollections() const{
         return m_sf_sets.size();
@@ -359,20 +361,19 @@ namespace CP {
                 unsigned int b_flipped = ~b;
                 return a & b_flipped;
         };
-        
         /// Now we can fill the map with the individual sets
         for (const auto& syst: systematics){
             /// Filter the bits which are not assigning the files
-            if ( (syst.second & EffiCollection::ZAnalysis) &&  (syst.second & EffiCollection::JPsiAnalysis)){
+            if ((syst.second & EffiCollection::ZAnalysis) && (syst.second & EffiCollection::JPsiAnalysis)) {
                 ///J-psi stream... Kick all bits from the Z
-                m_sf_sets.push_back(std::make_unique<EffiCollection>(nominal,*this, syst.first, not_inB(syst.second, EffiCollection::ZAnalysis), false));
-                m_sf_sets.push_back(std::make_unique<EffiCollection>(nominal,*this, syst.first, not_inB(syst.second, EffiCollection::ZAnalysis), true));
+                m_sf_sets.push_back(std::make_unique < EffiCollection > (nominal, *this, syst.first, not_inB(syst.second, EffiCollection::ZAnalysis), false));
+                m_sf_sets.push_back(std::make_unique < EffiCollection > (nominal, *this, syst.first, not_inB(syst.second, EffiCollection::ZAnalysis), true));
                 ///...and the Z stream. Kick all bits from the JPsi
-                m_sf_sets.push_back(std::make_unique<EffiCollection>(nominal,*this, syst.first, not_inB(syst.second, EffiCollection::JPsiAnalysis), true));
-                m_sf_sets.push_back(std::make_unique<EffiCollection>(nominal,*this, syst.first, not_inB(syst.second, EffiCollection::JPsiAnalysis), false));
+                m_sf_sets.push_back(std::make_unique < EffiCollection > (nominal, *this, syst.first, not_inB(syst.second, EffiCollection::JPsiAnalysis), true));
+                m_sf_sets.push_back(std::make_unique < EffiCollection > (nominal, *this, syst.first, not_inB(syst.second, EffiCollection::JPsiAnalysis), false));
             } else {
-                m_sf_sets.push_back(std::make_unique<EffiCollection>(nominal,*this, syst.first, syst.second, false));
-                m_sf_sets.push_back(std::make_unique<EffiCollection>(nominal,*this, syst.first, syst.second, true));
+                m_sf_sets.push_back(std::make_unique < EffiCollection > (nominal, *this, syst.first, syst.second, false));
+                m_sf_sets.push_back(std::make_unique < EffiCollection > (nominal, *this, syst.first, syst.second, true));
             }
         }
         for(auto& sf: m_sf_sets){
@@ -412,6 +413,8 @@ namespace CP {
                 break;
             }
             insert_bit("STAT", get_bit(look_up));
+            if (measurement() == TTVA) insert_bit("STAT", EffiCollection::OwnFallBack);
+
           
             /// If the systematics shall be split into bins
             if (m_seperateSystBins) insert_bit("STAT", EffiCollection::UnCorrelated);
@@ -448,6 +451,7 @@ namespace CP {
                 if (is_symmetric) insert_bit(*syst_name, EffiCollection::Symmetric);
                 if (has_pt_sys)   insert_bit(*syst_name, EffiCollection::PtDependent);
                 if (m_seperateSystBins && uncorrelated) insert_bit(*syst_name, EffiCollection::UnCorrelated);
+                if (measurement() == TTVA) insert_bit(*syst_name, EffiCollection::OwnFallBack);
             }
         }
         return syst_map;
@@ -497,18 +501,24 @@ namespace CP {
         std::vector<std::unique_ptr<EffiCollection>>::const_iterator SFiter =  m_sf_sets.end();
         if (m_seperateSystBins && !mySysConf.name().empty()) {
             for (std::set<SystematicVariation>::const_iterator t = mySysConf.begin(); t != mySysConf.end(); ++t) {
+                /// Only decorrelated systematics are toy variations the rest
+                /// are the ordinary ones
                 if ((*t).isToyVariation()) {
                     std::pair<unsigned, float> pair = (*t).getToyVariation();
                     currentBinNumber = pair.first;
                     unsigned int pos = pair.second;
                     if (pos < m_sf_sets.size()) SFiter = m_sf_sets.begin() + pos;
+                } else {
+                    SFiter = std::find_if(m_sf_sets.begin(), m_sf_sets.end(), [&mySysConf](const std::unique_ptr<EffiCollection>& a) {
+                        return a->isAffectedBySystematic(mySysConf);
+                    });
                 }
             }
             ATH_MSG_DEBUG("Set current bin" << currentBinNumber);
         } else{         
-            SFiter= std::find_if(m_sf_sets.begin(), m_sf_sets.end(), [&mySysConf](const std::unique_ptr<EffiCollection>& a){
-                                    return a->isAffectedBySystematic(mySysConf);
-                                });
+            SFiter = std::find_if(m_sf_sets.begin(), m_sf_sets.end(), [&mySysConf](const std::unique_ptr<EffiCollection>& a) {
+                return a->isAffectedBySystematic(mySysConf);
+            });
         }
         if (SFiter != m_sf_sets.end()) {
             m_current_sf = SFiter->get();

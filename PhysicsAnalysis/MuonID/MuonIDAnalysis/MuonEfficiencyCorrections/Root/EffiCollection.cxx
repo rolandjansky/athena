@@ -8,6 +8,7 @@
 #include <TTree.h>
 namespace CP {
     const std::vector<std::string> ToRemove { "GeV", "MeV", "[", "]", "{", "}", "(", ")", "#", " " };
+    const std::vector<std::string> ToReplace { "-", "." };
     EffiCollection::EffiCollection(const MuonEfficiencyScaleFactors& ref_tool) :
             m_ref_tool(ref_tool),
             m_central_eff(),
@@ -46,11 +47,14 @@ namespace CP {
     
         if (is_up) syst_bit_map |= EffiCollection::UpVariation;
         /// Use a lambda function to assign the maps easily
-        std::function< std::shared_ptr<EffiCollection::CollectionContainer>(CollectionType)>  make_variation = [&ref_tool, Nominal, syst_bit_map, syst](CollectionType type){
+        std::function< std::shared_ptr<EffiCollection::CollectionContainer>(CollectionType)>  make_variation = [this,&ref_tool, Nominal, syst_bit_map, syst](CollectionType type){
                 if (syst_bit_map & type) return std::make_shared<CollectionContainer>(ref_tool,
                                                                                  Nominal->retrieveContainer(type).get(),
                                                                                  syst,
                                                                                  syst_bit_map);
+                if (syst_bit_map &(CollectionType::OwnFallBack|CollectionType::Central)){
+return m_central_eff;
+                }
                 return Nominal->retrieveContainer(type);
             };
         m_central_eff = make_variation(CollectionType::Central);
@@ -213,6 +217,9 @@ namespace CP {
             std::string BinName = FileTypeName(Cont->type()) + Cont->GetBinName(bin);
             for (auto R : ToRemove) {
                 BinName = ReplaceExpInString(BinName, R, "");
+            }
+            for (auto R : ToReplace) {
+                BinName = ReplaceExpInString(BinName, R, "_");
             }
             return BinName;
         }

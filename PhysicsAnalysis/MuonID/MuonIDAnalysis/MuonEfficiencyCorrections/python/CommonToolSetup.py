@@ -65,7 +65,7 @@ def GetTriggerSFTool(MuonWP="Medium", Binning="fine"):
         ToolSvc += TriggerTool
     return getattr(ToolSvc,ToolName)
 
-def GetMuonEfficiencyTool(MuonWP="Medium", Release="", CustomInput = ""):
+def GetMuonEfficiencyTool(MuonWP="Medium", Release="", CustomInput = "", BreakDownSystematics=False, UncorrelateSystematics=False):
     from AthenaCommon.AppMgr import ToolSvc
     from AthenaCommon import CfgMgr, GlobalFlags
     ToolName = "MuonEfficiencyTool_%s%s"%(MuonWP, Release if len(Release) == 0 else "_"+Release)
@@ -74,7 +74,8 @@ def GetMuonEfficiencyTool(MuonWP="Medium", Release="", CustomInput = ""):
         EffiTool = CfgMgr.CP__MuonEfficiencyScaleFactors(ToolName)
         EffiTool.WorkingPoint = MuonWP
         EffiTool.LowPtThreshold = 15.e3
-        #EffiTool.BreakDownSystematics = True
+        EffiTool.BreakDownSystematics = BreakDownSystematics
+        EffiTool.UncorrelateSystematics = UncorrelateSystematics
         if len(CustomInput) > 0 : EffiTool.CustomInputFolder = CustomInput
         elif len(Release) > 0: EffiTool.CalibrationRelease = Release
         ToolSvc += EffiTool

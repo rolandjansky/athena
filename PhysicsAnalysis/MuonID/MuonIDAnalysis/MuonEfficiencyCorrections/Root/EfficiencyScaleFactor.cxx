@@ -54,7 +54,7 @@ namespace CP {
         // now we can read our three mean histograms Histos
         m_eff = ReadHistFromFile("Eff", f.get(), time_unit);
         m_mc_eff = ReadHistFromFile("MC_Eff", f.get(), time_unit);
-        m_sf = ReadHistFromFile("SF", f.get() ,time_unit);
+        m_sf = ReadHistFromFile("SF", f.get(), time_unit);
         /// Nominal set loaded nothing needs to be done further
         if (syst_name.empty()) return;
         
@@ -72,13 +72,10 @@ namespace CP {
                                                                                  m_syst_name.c_str(), 
                                                                                  (syst_type_bitmap & EffiCollection::Symmetric ? "SYM" : (m_is_up ? "1UP" : "1DN")) ), 
                                                                 f.get(), time_unit);
-            if (sys) {               
-                std::cout<<"Dadadadadadadadadadadada "<<f->GetName()<<" "<<m_syst_name<<" "<<hist_type<<" "<<time_unit<<" "<<m_is_up<<std::endl;
-                
+            if (sys) {
                 for (int i = 1; i <= nominal->NBins(); ++i) {
                     double content = nominal->GetBinContent(i);
                     double variation = (m_is_up ? 1. : -1.)*sys->GetBinContent(i);
-                    std::cout<<i<<" "<<content<<" "<<Form("%f",variation)<<std::endl;
                     nominal->SetBinContent(i,content + variation);
                 }
                 return;
@@ -399,8 +396,9 @@ namespace CP {
     }
     
     bool EfficiencyScaleFactor::SetSystematicBin(int bin) {
+        if (m_syst_name.empty()) return true;
         if (!m_NominalFallBack) {
-            Error("EfficiencyScaleFactor::SetSystematicBin()", "No fallback has been given");
+            Error("EfficiencyScaleFactor::SetSystematicBin()", "No fallback has been given for %s", sysname().c_str());
             return false;
         }
         if (!m_seperateBinSyst || bin < 1 || bin > nBins()) {
