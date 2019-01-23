@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __JETCLEANINGTOOL__
-#define __JETCLEANINGTOOL__
+#ifndef JETSELECTORTOOLS_JETCLEANINGTOOL_H
+#define JETSELECTORTOOLS_JETCLEANINGTOOL_H
 
 /**
    @class JetCleaningTool
@@ -26,7 +26,8 @@
 #include "xAODJet/Jet.h"
 
 // Return object
-#include "PATCore/TAccept.h"
+#include "PATCore/AcceptInfo.h"
+#include "PATCore/AcceptData.h"
 
 namespace JCT { class HotCell; }
 
@@ -54,11 +55,16 @@ class JetCleaningTool : public asg::AsgTool , virtual public IJetSelector
     /** Initialize method */
     virtual StatusCode initialize();
 
+    const asg::AcceptInfo& getAcceptInfo() const
+    {
+      return m_accept;
+    }
+
     /** The DFCommonJets decoration accept method */
-    const Root::TAccept& accept( const int isJetClean, const int fmaxIndex ) const;
+    asg::AcceptData accept( const int isJetClean, const int fmaxIndex ) const;
     
     /** The DFCommonJets decoration + tight method  */
-    const Root::TAccept& accept( const int isJetClean,
+    asg::AcceptData accept( const int isJetClean,
                                               const double sumpttrk, //in MeV, same as sumpttrk
                                               const double fmax,
 					      const double eta,
@@ -66,7 +72,7 @@ class JetCleaningTool : public asg::AsgTool , virtual public IJetSelector
                                               const int    fmaxIndex ) const;
 
     /** The main accept method: the actual cuts are applied here */
-    const Root::TAccept& accept( const double emf,
+    asg::AcceptData accept( const double emf,
                  const double hecf,
                  const double larq,
                  const double hecq,
@@ -79,13 +85,10 @@ class JetCleaningTool : public asg::AsgTool , virtual public IJetSelector
                  const int    fMaxIndex     ) const;
 
     /** The D3PDReader accept method */
-    const Root::TAccept& accept( const xAOD::Jet& jet) const;
+    asg::AcceptData accept( const xAOD::Jet& jet) const;
 
-    int keep(const xAOD::Jet& jet) const
-#if __cplusplus >= 201100
-                  final
-#endif // GCC XML, you make me so sad, with your lack of C++11 support making my code ugly
-                 { return accept(jet); }
+    int keep(const xAOD::Jet& jet) const final
+    { return static_cast<bool>(accept(jet)); }
 
     /** Hot cell checks */
     bool containsHotCells( const xAOD::Jet& jet, const unsigned int runNumber) const;
@@ -104,8 +107,7 @@ class JetCleaningTool : public asg::AsgTool , virtual public IJetSelector
     SG::AuxElement::ConstAccessor<char> m_acc_jetClean;
     SG::AuxElement::ConstAccessor<char> m_acc_looseClean;
 
-    /** Previous decision */
-    mutable Root::TAccept m_accept;
+    asg::AcceptInfo m_accept;
 
     /** Hot cells caching */
     std::string m_hotCellsFile;
