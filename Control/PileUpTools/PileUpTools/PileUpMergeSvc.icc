@@ -212,10 +212,6 @@ PileUpMergeSvc::retrieveSubEvtsData(const KEY& dataKey, //orig evt key
   //FIXME we still have to check we are dealing with a sequence:
   //  boost::function_requires < boost::SequenceConcept<TIMEDDATA> > ();
   const xAOD::EventInfo* pEvent = getPileUpEvent();
-
-  void dumpPileup( const xAOD::EventInfo* );
-  dumpPileup( pEvent );  //MN: remove
- 
   if (pEvent) {
      // access the sub events DATA objects...
      for( const xAOD::EventInfo::SubEvent& subEv : pEvent->subEvents() ) {

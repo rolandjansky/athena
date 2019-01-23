@@ -39,28 +39,6 @@ using std::bind1st;
 using std::mem_fun;
 using std::string;
 
-
-#include <iostream>
-using namespace std;
-#include "xAODCore/tools/PrintHelpers.h"
-
-void dumpPileup( const xAOD::EventInfo* ev ) {
-   std::cout << "MN: dumpPileup: ";
-   if( ev ) {  
-      cout << ev->subEvents().size() << " subevents" << std::endl;
-      xAOD::dump( *ev );
-      int n = 0;
-      for( const xAOD::EventInfo::SubEvent& subEv : ev->subEvents() ) {
-         std::cout << "   MN: subev " << n << " : time =" <<  subEv.time() << std::endl;
-         std::cout << "             : index =" <<  subEv.index() << std::endl;
-         std::cout << "             : ptr =" <<  subEv.ptr() << std::endl;
-         std::cout << "             : link =" <<  subEv.link() << std::endl;
-         if( n++ > 0 ) break;
-      }
-   }
-   cout << endl;
-}
-
 /// Standard Constructor
 PileUpMergeSvc::PileUpMergeSvc(const std::string& name,ISvcLocator* svc)
   : AthService(name,svc), 
@@ -155,7 +133,6 @@ const xAOD::EventInfo* PileUpMergeSvc::getPileUpEvent( StoreGateSvc* sg, const s
    const xAOD::EventInfo* xAODEventInfo = einame.empty()?
       sg->tryConstRetrieve<xAOD::EventInfo>()
       : sg->tryConstRetrieve<xAOD::EventInfo>( einame );
-   cout << "MN: getPileUpEvent: xAODEI=" << (void*)xAODEventInfo << endl;
    if( xAODEventInfo ) {
       ATH_MSG_INFO("Found xAOD::EventInfo");
       ATH_MSG_INFO(" EventInfo has" <<   xAODEventInfo->subEvents().size() << " subevents" );
@@ -169,7 +146,6 @@ const xAOD::EventInfo* PileUpMergeSvc::getPileUpEvent( StoreGateSvc* sg, const s
       const EventInfo* pEvent = einame.empty()?
          sg->tryConstRetrieve< ::EventInfo >()
          : sg->tryConstRetrieve< ::EventInfo >( einame );
-      cout << "MN: getPileUpEvent: EI<" << einame << "> =" << (void*)pEvent << endl;
       if( pEvent ) {
          ATH_MSG_INFO("Found OverlayEvent old type EventInfo" );
 
@@ -188,7 +164,6 @@ const xAOD::EventInfo* PileUpMergeSvc::getPileUpEvent( StoreGateSvc* sg, const s
 
          const PileUpEventInfo* pileupEvent(dynamic_cast<const PileUpEventInfo*>(pEvent));
          if( pileupEvent ) {
-            cout << "MN: PileUpStream: converting PileUpEventInfo" << endl;
             // Create an EventInfoContainer for the pileup events:
             std::unique_ptr< xAOD::EventInfoContainer > puei(new xAOD::EventInfoContainer());
             std::unique_ptr< xAOD::EventInfoAuxContainer > puaux(new xAOD::EventInfoAuxContainer());
@@ -222,8 +197,6 @@ const xAOD::EventInfo* PileUpMergeSvc::getPileUpEvent( StoreGateSvc* sg, const s
             auto pu_end = pileupEvent->endSubEvt();
             const unsigned int countEvents = std::distance(pu_itr,pu_end);
             ATH_MSG_VERBOSE( "CHECKING: There are " << countEvents << " subevents in this Event." );
-            cout << "MN: There are " << countEvents << " subevents in this Event." <<endl;
-
             for( ; pu_itr != pu_end; ++pu_itr ) {
                // Create a new xAOD::EventInfo object:
                std::unique_ptr< xAOD::EventInfo > ei( new xAOD::EventInfo() );
