@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // -------------------------------------------------------------
@@ -39,7 +39,7 @@ namespace TrigCostRootAnalysis {
       set(SMK, L1PSK, HLTPSK);
     }
 
-    ~DBKey() {}
+    ~DBKey() = default;
     void set(Int_t SMK, Int_t L1PSK, Int_t HLTPSK) {
       if (m_SMK == SMK && m_L1PSK == L1PSK && m_HLTPSK == HLTPSK) return;
 
