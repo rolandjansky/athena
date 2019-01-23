@@ -136,21 +136,39 @@ public:
   elementvector_t getTowers(IdentifierHash caloHash) const; 
   ///@}
 
+  ///@name Tower bin descriptors
+  ///@{
+  int    etaBins()   const; ///< Number of pseudorapidity bins
+  double etaMin()    const; ///< Lower boundary of pseudorapidity range
+  double etaMax()    const; ///< Upper boundary of pseudorapidity range 
+  double etaWidth()  const; ///< Width of pseudorapidity bin  
+  int    phiBins()   const; ///< Number of azimuth bins
+  double phiMin()    const; ///< Lower boundary of azimuth
+  double phiMax()    const; ///< Upper boundary of azimuth
+  double phiWidth()  const; ///< Width of azimuth bin
+  int    towerBins() const; ///< Total number of towers
+  double towerArea() const; ///< Area of individual tower 
+  ///@}
+
   ///@name Tower index calculators, translaters, manipulators and converters
   ///@{
-  index_t etaIndex(const CaloCell* pCell)           const; ///< Get tower @f$ \eta @f$ bin index for a calorimeter cell referenced by a pointer
-  index_t etaIndex(IdentifierHash cellHash)         const; ///< Get tower @f$ \eta @f$ bin index for a calorimeter cell referenced by its hash identifier
-  index_t etaIndex(double eta)                      const; ///< Get tower @f$ \eta @f$ bin index for a given value of @f$ \eta @f$
-  index_t phiIndex(const CaloCell* pCell)           const; ///< Get tower @f$ \phi @f$ bin index for a calorimeter cell referenced by a pointer
-  index_t phiIndex(IdentifierHash cellHash)         const; ///< Get tower @f$ \phi @f$ bin index for a calorimeter cell referenced by its hash identifier
-  index_t phiIndex(double phi)                      const; ///< Get tower @f$ \phi @f$ bin index for a given value of @f$ \phi @f$
-  index_t towerIndex(const CaloCell* pCell)         const; ///< Get global tower index for a calorimeter cell referenced by a pointer
-  index_t towerIndex(IdentifierHash cellHash)       const; ///< Get global tower index for a calorimeter cell referenced by its hash identifier
-  index_t towerIndex(double eta,double phi)         const; ///< Get global tower index for a pair of @f$ (\eta,\phi) @f$ values
-  index_t towerIndex(index_t etaIdx,index_t phiIdx) const; ///< Get global tower index for a pair of @f$ (\eta,\phi) @f$ indices
-  index_t towerIndex(const element_t& elm)          const; ///< Get global tower index from payload data
-  index_t invalidIndex()                            const; ///< Returns value of invalid index
-  bool    isInvalidIndex(index_t idx)               const; ///< Returns @c true if argument is invalid index 
+  index_t etaIndex(const CaloCell* pCell)            const; ///< Get tower @f$ \eta @f$ bin index for a calorimeter cell referenced by a pointer
+  index_t etaIndex(IdentifierHash cellHash)          const; ///< Get tower @f$ \eta @f$ bin index for a calorimeter cell referenced by its hash identifier
+  index_t etaIndex(double eta)                       const; ///< Get tower @f$ \eta @f$ bin index for a given value of @f$ \eta @f$
+  index_t phiIndex(const CaloCell* pCell)            const; ///< Get tower @f$ \phi @f$ bin index for a calorimeter cell referenced by a pointer
+  index_t phiIndex(IdentifierHash cellHash)          const; ///< Get tower @f$ \phi @f$ bin index for a calorimeter cell referenced by its hash identifier
+  index_t phiIndex(double phi)                       const; ///< Get tower @f$ \phi @f$ bin index for a given value of @f$ \phi @f$
+  index_t towerIndex(const CaloCell* pCell)          const; ///< Get global tower index for a calorimeter cell referenced by a pointer
+  index_t towerIndex(IdentifierHash cellHash)        const; ///< Get global tower index for a calorimeter cell referenced by its hash identifier
+  index_t towerIndex(double eta,double phi)          const; ///< Get global tower index for a pair of @f$ (\eta,\phi) @f$ values
+  index_t towerIndex(index_t etaIdx,index_t phiIdx)  const; ///< Get global tower index for a pair of @f$ (\eta,\phi) @f$ indices
+  index_t towerIndex(const element_t& elm)           const; ///< Get global tower index from payload data
+  index_t invalidIndex()                             const; ///< Returns value of invalid index
+  bool    isInvalidIndex(index_t idx)                const; ///< Returns @c true if argument is equal to the value provided by @c invalidIndex() 
+  bool    isInvalidIndex(jndex_t idx,index_t maxIdx) const; ///< Returns @c true if first argument is equal to the value provided by @c invalidIndex() or if first argument is not smaller than second argument
+  bool    isInvalidEtaIndex(index_t idx)             const; ///< Returns @c true if argument is not a valid pseudorapidity index
+  bool    isInvalidPhiIndex(index_t idx)             const; ///< Returns @c true if argumant is not a valid azimuth index
+  bool    isInvalidTowerIndex(index_t idx)           const; ///< Returns @c true if argument is not a valid tower index
   ///@}
 
   ///@name Variable generators using tower indices
@@ -203,6 +221,8 @@ protected:
   size_t m_towerPhiBins; ///< Number of @f$ \phi @f$ bins 
   double m_towerPhiMin;  ///< Lower boundary @f$ \phi_{\rm min} @f$
   double m_towerPhiMax;  ///< Upper boundary @f$ \phi_{\rm max} @f$
+  size_t m_towerBins;    ///< Total number of towers
+  double m_towerArea;    ///< Area of individual tower
   double m_fcal1Xslice;  ///< Number of x slices for cells in FCal1
   double m_fcal1Yslice;  ///< Number of y slices for cells in FCal1
   double m_fcal2Xslice;  ///< Number of x slices for cells in FCal2
@@ -231,24 +251,38 @@ protected:
 
 inline CaloTowerGeometrySvc::StoreGateSvc_t& CaloTowerGeometrySvc::detStore() const { return m_detectorStore; }
 
-inline CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::invalidIndex(index_t idx) const { return m_invalidIndex; } 
+inline CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::invalidIndex() const { return m_invalidIndex; }
+
+inline int    CaloTowerGeometrySvc::etaBins() const  { return m_towerEtaBins; }
+inline double CaloTowerGeometrySvc::etaMin()  const  { return m_towerEtaMin;  }
+inline double CaloTowerGeometrySvc::etaMax()  const  { return m_towerEtaMax;  }
+inline double CaloTowerGeometrySvc::etaWidth() const { return m_towerEtaWidth; }
+
+inline int    CaloTowerGeometrySvc::phiBins()  const { return m_towerPhiBins; }
+inline double CaloTowerGeometrySvc::phiMin()   const { return m_towerPhiMin;  }
+inline double CaloTowerGeometrySvc::phiMax()   const { return m_towerPhiMax;  }
+inline double CaloTowerGeometrySvc::etaWidth() const { return m_towerEtaWidth; }
+
+inline int    CaloTowerGeometrySvc::towerBins() const { return m_towerBins; }
+inline double CaloTowerGeometrySvc::towerArea() const { return m_towerArea; } 
+ 
+inline bool CaloTowerGeometrySvc::isInvalidIndex(index_t idx)                const { return idx == invalidIndex(); }
+inline bool CaloTowerGeometrySvc::isInvalidIndex(index_t idx,index_t maxIdx) const { return idx == invalidIndex() || idx >= maxIdx; }
+inline bool CaloTowerGeometrySvc::isInvalidEtaIndex(index_t idx)             const { return isInvalidIndex(idx,m_towerEtaBins); }
+inline bool CaloTowerGeometrySvc::isInvalidPhiIndex(index_t idx)             const { return isInvalidIndex(idx,m_towerPhiBins); }
+inline bool CaloTowerGeometrySvc::isInvalidTowerIndex(index_t idx)           const { return isInvalidIndex(idx,m_towerBins); }
 
 inline const CaloDetDescrManager* f_caloDDM()                        const { return m_caloDDM; } 
 inline const CaloDetDescrElement* f_caloDDE(const CaloCell* pCell)   const { return pCell->caloDDE(); }
 inline const CaloDetDescrElement* f_caloDDE(IdentifierHash cellHash) const { return f_caloDDM()->get_element(cellHash); }
 
 inline CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::etaIndex(const CaloCell* pCell)   const { return etaIndex(pCell->eta()); }
-inline CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::etaIndex(IdentifierHash cellHash) const { return etaIndex(f_caloDDE(cellHash)->eta()); }
-
 inline CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::phiIndex(const CaloCell* pCell)   const { return phiIndex(pCell->phi()); }
-inline CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::phiIndex(IdentifierHash cellHash) const { return phiIndex(f_caloDDE(cellHash)->phi()); }
 
-inline CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::towerIndex(index_t etaIdx,index_t phiIdx) const { 
-  return etaIdx < m_towerEtaBins && phiIdx < m_towerPhiBins ? etaIdx+phiIdx*m_towerPhiBins : invalidIndex(); 
-} 
-inline CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::towerIndex(double eta,double phi)         const { return towerIndex(etaIndex(eta),phiIndex(phi)); }
-inline CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::towerIndex(const CaloCell* pCell)         const { return towerIndex(pCell->eta(),pCell->phi()); }
-inline CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::towerIndex(const element_t& elm)          const { return elm.get<0>(); }
+inline CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::towerIndex(IdentifierHash cellHash) const { return towerIndex(etaIndex(cellHash),phiIndex(cellHash)); }
+inline CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::towerIndex(double eta,double phi)   const { return towerIndex(etaIndex(eta),phiIndex(phi)); }
+inline CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::towerIndex(const CaloCell* pCell)   const { return towerIndex(pCell->eta(),pCell->phi()); }
+inline CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::towerIndex(const element_t& elm)    const { return elm.get<0>(); }
 
 inline double CaloTowerGeometrySvc::f_cellEta(IdentifierHash cellHash) const { return f_caloDDE(cellHash)->eta(); }
 inline double CaloTowerGeometrySvc::f_cellPhi(IdentifierHash cellHash) const { return CaloPhiRange::fix(f_caloDDE(cellHash)->phi()); }
