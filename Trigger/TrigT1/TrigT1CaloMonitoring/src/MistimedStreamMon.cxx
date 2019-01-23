@@ -77,8 +77,7 @@ MistimedStreamMon::~MistimedStreamMon()
 StatusCode MistimedStreamMon::initialize()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endmsg;
+  ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
 
   CHECK(ManagedMonitorToolBase::initialize());
   CHECK(m_errorTool.retrieve());
