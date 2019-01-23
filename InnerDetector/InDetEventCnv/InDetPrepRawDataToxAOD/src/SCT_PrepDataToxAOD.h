@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -10,7 +10,7 @@
 #ifndef SCT_PREPDATATOXAOD_H
 #define SCT_PREPDATATOXAOD_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
@@ -39,7 +39,7 @@ namespace InDet
 }
 
 
-class SCT_PrepDataToxAOD : public AthAlgorithm {
+class SCT_PrepDataToxAOD : public AthReentrantAlgorithm {
 
 public:
   // Constructor with parameters:
@@ -47,7 +47,7 @@ public:
 
   // Basic algorithm methods:
   virtual StatusCode initialize();
-  virtual StatusCode execute();
+  virtual StatusCode execute(const EventContext& ctx) const;
   virtual StatusCode finalize();
 
 private:
@@ -87,7 +87,7 @@ private:
   BooleanProperty m_writeSiHits{this, "WriteSiHits", true};
   
   // --- private members
-  std::atomic_bool m_firstEventWarnings;
+  mutable std::atomic_bool m_firstEventWarnings;
   
 };
 
