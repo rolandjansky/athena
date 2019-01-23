@@ -24,8 +24,8 @@
 namespace top {
 
 TauCPTools::TauCPTools(const std::string& name) :
-    m_pileupReweightingTool("CP::PileupReweightingTool"),
-    asg::AsgTool(name) {
+    asg::AsgTool(name),
+    m_pileupReweightingTool("CP::PileupReweightingTool"){
   declareProperty("config", m_config);
   declareProperty("release_series", m_release_series );
 

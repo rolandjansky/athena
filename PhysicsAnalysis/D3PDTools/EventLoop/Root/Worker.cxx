@@ -17,9 +17,15 @@
 
 #include <EventLoop/Worker.h>
 
-#include <EventLoop/Algorithm.h>
+#include <EventLoop/AlgorithmStateModule.h>
+#include <EventLoop/EventCountModule.h>
+#include <EventLoop/EventRange.h>
+#include <EventLoop/FileExecutedModule.h>
 #include <EventLoop/Job.h>
+#include <EventLoop/LeakCheckModule.h>
+#include <EventLoop/MessageCheck.h>
 #include <EventLoop/StatusCode.h>
+#include <EventLoop/StopwatchModule.h>
 #include <EventLoop/TEventSvc.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/RootUtils.h>
@@ -27,14 +33,10 @@
 #include <SampleHandler/DiskWriter.h>
 #include <SampleHandler/MetaFields.h>
 #include <SampleHandler/MetaObject.h>
+#include <SampleHandler/ToolsOther.h>
 #include <TFile.h>
 #include <TH1.h>
-#include <TStopwatch.h>
 #include <TTree.h>
-#include <TDirectory.h>
-#include <TSystem.h>
-#include <iostream>
-#include <memory>
 
 //
 // method implementations
@@ -44,22 +46,16 @@ namespace EL
 {
   namespace
   {
-    void checkStatus (const StatusCode& status, const char *function)
-    {
-      if (status != StatusCode::SUCCESS)
-	RCU_THROW_MSG (std::string (function) + " returned StatusCode::FAILURE");
-    }
-
     struct MyWriter : public SH::DiskWriter
     {
       /// description: this is a custom writer for the old-school
       ///   drivers that don't use an actual writer
 
     public:
-      TFile *m_file;
+      std::unique_ptr<TFile> m_file;
 
-      explicit MyWriter (TFile *val_file)
-	: m_file (val_file)
+      explicit MyWriter (std::unique_ptr<TFile> val_file)
+	: m_file (std::move (val_file))
       {}
 
       ~MyWriter ()
@@ -76,7 +72,7 @@ namespace EL
       TFile *getFile ()
       {
 	RCU_REQUIRE2_SOFT (m_file != 0, "file already closed");
-	return m_file;
+	return m_file.get();
       }
 
       void doClose ()
@@ -134,21 +130,17 @@ namespace EL
   Worker ::
   ~Worker ()
   {
+    using namespace msgEventLoop;
+
     RCU_DESTROY_INVARIANT (this);
 
-    for (std::size_t iter = 0, end = m_algs.size(); iter != end; ++ iter)
-      delete m_algs[iter];
     for (outputFilesIter iter = m_outputFiles.begin(),
 	   end = m_outputFiles.end(); iter != end; ++ iter)
     {
       delete iter->second;
     }
 
-    std::cout << "worker finished:" << std::endl;
-    m_stopwatch->Stop ();
-    m_stopwatch->Print ();
-
-    delete m_fileExecutedName;
+    ANA_MSG_INFO ("worker finished");
   }
 
 
@@ -292,7 +284,7 @@ namespace EL
   tree () const
   {
     RCU_READ_INVARIANT (this);
-    return m_tree;
+    return m_inputTree;
   }
 
 
@@ -301,7 +293,7 @@ namespace EL
   treeEntry () const
   {
     RCU_READ_INVARIANT (this);
-    return m_treeEntry;
+    return m_inputTreeEntry;
   }
 
 
@@ -310,7 +302,7 @@ namespace EL
   inputFile () const
   {
     RCU_READ_INVARIANT (this);
-    return m_inputFile;
+    return m_inputFile.get();
   }
 
 
@@ -370,10 +362,10 @@ namespace EL
   getAlg (const std::string& name) const
   {
     RCU_READ_INVARIANT (this);
-    for (algsIter alg = m_algs.begin(), end = m_algs.end(); alg != end; ++ alg)
+    for (auto& alg : m_algs)
     {
-      if ((*alg)->hasName (name))
-	return *alg;
+      if (alg->hasName (name))
+	return alg.m_algorithm.get();
     }
     return 0;
   }
@@ -409,24 +401,14 @@ namespace EL
 
   Worker ::
   Worker (const SH::MetaObject *val_metaData, TList *output)
-    : m_metaData (val_metaData), m_inputFile (0), m_tree (0), m_treeEntry (0),
-      m_output (output), m_eventCount (0), m_stopwatch (new TStopwatch),
-      m_initState (AIS_NONE), m_execState (AES_NONE)
   {
     RCU_REQUIRE (val_metaData != 0);
     RCU_REQUIRE (output != 0);
 
-    m_stopwatch->Start ();
+    m_metaData = val_metaData;
+    m_output = output;
 
     RCU_NEW_INVARIANT (this);
-
-    std::unique_ptr<TTree> fileExecutedTree
-      (new TTree ("EventLoop_FileExecuted", "executed files"));
-    m_fileExecutedName = new TString;
-    fileExecutedTree->Branch ("file", &m_fileExecutedName);
-    addOutput (m_fileExecutedTree = fileExecutedTree.release());
-    m_initState = AIS_NEW;
-    m_execState = AES_BLANK;
   }
 
 
@@ -438,141 +420,289 @@ namespace EL
     for (std::unique_ptr<Algorithm>& alg : jobConfig.extractAlgorithms())
     {
       alg->m_wk = this;
-      m_algs.push_back (alg.get());
-      alg.release ();
+      m_algs.push_back (std::move (alg));
     }
   }
 
 
 
-  void Worker ::
-  addOutputFile (const std::string& label, TFile *file_swallow)
+  ::StatusCode Worker ::
+  initialize ()
+  {
+    using namespace msgEventLoop;
+    RCU_CHANGE_INVARIANT (this);
+
+    m_modules.push_back (std::make_unique<Detail::LeakCheckModule> ());
+    m_modules.push_back (std::make_unique<Detail::StopwatchModule> ());
+    m_modules.push_back (std::make_unique<Detail::FileExecutedModule> ());
+    m_modules.push_back (std::make_unique<Detail::EventCountModule> ());
+    m_modules.push_back (std::make_unique<Detail::AlgorithmStateModule> ());
+
+    m_jobStats = std::make_unique<TTree>
+      ("EventLoop_JobStats", "EventLoop job statistics");
+    m_jobStats->SetDirectory (nullptr);
+
+    for (auto& module : m_modules)
+      ANA_CHECK (module->preInitialize (*this));
+
+    for (auto& module : m_modules)
+      ANA_CHECK (module->onInitialize (*this));
+    for (auto& module : m_modules)
+      ANA_CHECK (module->postInitialize (*this));
+    
+    return ::StatusCode::SUCCESS;
+  }
+
+
+
+  ::StatusCode Worker ::
+  finalize ()
+  {
+    using namespace msgEventLoop;
+
+    RCU_CHANGE_INVARIANT (this);
+
+    ANA_CHECK (openInputFile (""));
+    for (auto& module : m_modules)
+      ANA_CHECK (module->onFinalize (*this));
+    for (outputFilesIter iter = m_outputFiles.begin(),
+           end = m_outputFiles.end(); iter != end; ++ iter)
+    {
+      iter->second->close ();
+      std::string path = iter->second->path ();
+      if (!path.empty())
+        addOutputList ("EventLoop_OutputStream_" + iter->first, new TObjString (path.c_str()));
+    }
+    for (auto& module : m_modules)
+      ANA_CHECK (module->postFinalize (*this));
+    if (m_jobStats->GetListOfBranches()->GetEntries() > 0)
+    {
+      if (m_jobStats->Fill() <= 0)
+      {
+        ANA_MSG_ERROR ("failed to fill the job statistics tree");
+        return ::StatusCode::FAILURE;
+      }
+      m_output->Add (m_jobStats.release());
+    }
+    for (auto& module : m_modules)
+      ANA_CHECK (module->onWorkerEnd (*this));
+    return ::StatusCode::SUCCESS;
+  }
+
+
+
+  ::StatusCode Worker ::
+  processEvents (EventRange& eventRange)
+  {
+    using namespace msgEventLoop;
+
+    RCU_CHANGE_INVARIANT (this);
+    RCU_REQUIRE (!eventRange.m_url.empty());
+    RCU_REQUIRE (eventRange.m_beginEvent >= 0);
+    RCU_REQUIRE (eventRange.m_eventEvent == EventRange::eof || eventRange.m_endEvent >= eventRange.m_beginEvent);
+
+    ANA_CHECK (openInputFile (eventRange.m_url));
+
+    if (eventRange.m_beginEvent > inputFileNumEntries())
+    {
+      ANA_MSG_ERROR ("first event (" << eventRange.m_beginEvent << ") points beyond last event in file (" << inputFileNumEntries() << ")");
+      return ::StatusCode::FAILURE;
+    }
+    if (eventRange.m_endEvent == EventRange::eof)
+    {
+      eventRange.m_endEvent = inputFileNumEntries();
+    } else if (eventRange.m_endEvent > inputFileNumEntries())
+    {
+      ANA_MSG_ERROR ("end event (" << eventRange.m_endEvent << ") points beyond last event in file (" << inputFileNumEntries() << ")");
+      return ::StatusCode::FAILURE;
+    }
+
+    m_inputTreeEntry = eventRange.m_beginEvent;
+    if (m_newInputFile)
+    {
+      m_newInputFile = false;
+      for (auto& module : m_modules)
+        ANA_CHECK (module->onNewInputFile (*this));
+    }
+
+    if (eventRange.m_beginEvent == 0)
+    {
+      for (auto& module : m_modules)
+        ANA_CHECK (module->onFileExecute (*this));
+    }
+
+    ANA_MSG_INFO ("Processing events " << eventRange.m_beginEvent << "-" << eventRange.m_endEvent << " in file " << eventRange.m_url);
+
+    for (Long64_t event = eventRange.m_beginEvent;
+         event != eventRange.m_endEvent;
+         ++ event)
+    {
+      m_inputTreeEntry = event;
+      ANA_CHECK (algsExecute ());
+      m_eventsProcessed += 1;
+      if (m_eventsProcessed % 10000 == 0)
+        ANA_MSG_INFO ("Processed " << m_eventsProcessed << " events");
+    }
+    return ::StatusCode::SUCCESS;
+  }
+
+
+
+  ::StatusCode Worker ::
+  openInputFile (std::string inputFileUrl)
+  {
+    using namespace msgEventLoop;
+
+    RCU_CHANGE_INVARIANT (this);
+
+    if (m_inputFileUrl == inputFileUrl)
+      return ::StatusCode::SUCCESS;
+
+    if (!m_inputFileUrl.empty())
+    {
+      if (m_newInputFile == false)
+      {
+        for (auto& module : m_modules)
+          ANA_CHECK (module->onCloseInputFile (*this));
+      }
+      m_newInputFile = false;
+      m_inputTree = nullptr;
+      m_inputFile.reset ();
+      m_inputFileUrl.clear ();
+    }
+
+    if (inputFileUrl.empty())
+      return ::StatusCode::SUCCESS;
+
+    ANA_MSG_INFO ("Opening file " << inputFileUrl);
+    std::unique_ptr<TFile> inputFile;
+    try
+    {
+      inputFile = SH::openFile (inputFileUrl, *metaData());
+    } catch (...)
+    {
+      Detail::report_exception ();
+    }
+    if (inputFile.get() == 0)
+    {
+      ANA_MSG_ERROR ("failed to open file " << inputFileUrl);
+      for (auto& module : m_modules)
+        module->reportInputFailure (*this);
+      return ::StatusCode::FAILURE;
+    }
+    if (inputFile->IsZombie())
+    {
+      ANA_MSG_ERROR ("input file is a zombie: " << inputFileUrl);
+      for (auto& module : m_modules)
+        module->reportInputFailure (*this);
+      return ::StatusCode::FAILURE;
+    }
+
+    TTree *tree = 0;
+    const std::string treeName
+      = m_metaData->castString (SH::MetaFields::treeName, SH::MetaFields::treeName_default);
+    tree = dynamic_cast<TTree*>(inputFile->Get (treeName.c_str()));
+    if (tree == nullptr)
+    {
+      ANA_MSG_INFO ("tree " << treeName << " not found in input file: " << inputFileUrl);
+      ANA_MSG_INFO ("treating this like a tree with no events");
+    }
+
+    m_newInputFile = true;
+    m_inputTree = tree;
+    m_inputFile = std::move (inputFile);
+    m_inputFileUrl = std::move (inputFileUrl);
+
+    return ::StatusCode::SUCCESS;
+  }
+
+
+
+  ::StatusCode Worker ::
+  addOutputFile (const std::string& label, std::unique_ptr<TFile> file)
   {
     RCU_CHANGE_INVARIANT (this);
     RCU_REQUIRE (file_swallow != 0);
 
-    addOutputWriter (label, new MyWriter (file_swallow));
+    return addOutputWriter (label, std::make_unique<MyWriter> (std::move (file)));
   }
 
 
 
-  void Worker ::
-  addOutputWriter (const std::string& label, SH::DiskWriter *writer_swallow)
+  ::StatusCode Worker ::
+  addOutputWriter (const std::string& label,
+                   std::unique_ptr<SH::DiskWriter> writer)
   {
-    std::auto_ptr<SH::DiskWriter> writer (writer_swallow);
-
+    using namespace msgEventLoop;
     RCU_CHANGE_INVARIANT (this);
-    RCU_REQUIRE (writer_swallow != 0);
+    RCU_REQUIRE (writer != 0);
 
     if (m_outputFiles.find (label) != m_outputFiles.end())
-      RCU_THROW_MSG ("output file already defined for label: " + label);
+    {
+      ANA_MSG_ERROR ("output file already defined for label: " + label);
+      return ::StatusCode::FAILURE;
+    }
     m_outputFiles[label] = writer.get();
     writer.release();
+    return ::StatusCode::SUCCESS;
   }
 
 
 
-  void Worker ::
-  algsChangeInput ()
-  {
-    RCU_CHANGE_INVARIANT (this);
-
-    changeAlgState (AIS_NONE, AES_BLANK, VALID_FILE);
-    changeAlgState (AIS_NONE, AES_FILE_EXECUTED, VALID_FILE);
-  }
-
-
-
-  void Worker ::
+  ::StatusCode Worker ::
   algsExecute ()
   {
+    using namespace msgEventLoop;
     RCU_CHANGE_INVARIANT (this);
 
-    changeAlgState (AIS_INITIALIZED, AES_INPUT_CHANGED, VALID_EVENT);
-
-    m_runTime->Fill (2);
-
-    m_execState = AES_NONE;
     m_skipEvent = false;
-    std::size_t iter = 0;
-    for (std::size_t end = m_algs.size();
-	 iter != end && !m_skipEvent; ++ iter)
+    auto iter = m_algs.begin();
+    try
     {
-      m_eventCount->Fill (iter);
-      checkStatus (m_algs[iter]->execute (), "Algorithm::execute");
+      for (auto end = m_algs.end();
+           iter != end; ++ iter)
+      {
+        iter->m_executeCount += 1;
+        if (iter->m_algorithm->execute() == StatusCode::FAILURE)
+        {
+          ANA_MSG_ERROR ("while calling execute() on algorithm " << iter->m_algorithm->GetName());
+          return ::StatusCode::FAILURE;
+        }
+
+        if (m_skipEvent)
+        {
+          iter->m_skipCount += 1;
+          return ::StatusCode::SUCCESS;
+        }
+      }
+    } catch (...)
+    {
+      Detail::report_exception ();
+      ANA_MSG_ERROR ("while calling execute() on algorithm " << iter->m_algorithm->GetName());
+      return ::StatusCode::FAILURE;
     }
+
     /// rationale: this will make sure that the post-processing runs
     ///   for all algorithms for which the regular processing was run
     RCU_ASSERT (iter <= m_algs.size());
-    for (std::size_t jter = 0, end = iter;
-	 jter != end && !m_skipEvent; ++ jter)
-      checkStatus (m_algs[jter]->postExecute (), "Algorithm::postExecute");
-    if (!m_skipEvent)
-      m_eventCount->Fill (m_algs.size());
-    m_execState = AES_INPUT_CHANGED;
-  }
-
-
-
-  void Worker ::
-  algsEndOfFile ()
-  {
-    RCU_CHANGE_INVARIANT (this);
-
-    changeAlgState (AIS_NONE, AES_BLANK, VALID_NONE);
-  }
-
-
-
-  void Worker ::
-  algsFinalize ()
-  {
-    RCU_CHANGE_INVARIANT (this);
-
-    changeAlgState (AIS_HIST_FINALIZED, AES_NONE, VALID_NONE);
-  }
-
-
-
-  void Worker ::
-  setInputFile (TFile *val_inputFile)
-  {
-    RCU_CHANGE_INVARIANT (this);
-
-    TTree *tree = 0;
-    if (val_inputFile != 0)
+    try
     {
-      std::string treeName = m_metaData->castString (SH::MetaFields::treeName, SH::MetaFields::treeName_default);
-      tree = dynamic_cast<TTree*>(val_inputFile->Get (treeName.c_str()));
-      if (tree)
+      for (auto jter = m_algs.begin(), end = iter;
+           jter != end && !m_skipEvent; ++ jter)
       {
-	double cacheSize = m_metaData->castDouble (Job::optCacheSize, 0);
-	if (cacheSize > 0)
-	  tree->SetCacheSize (cacheSize);
-	double cacheLearnEntries = m_metaData->castDouble (Job::optCacheLearnEntries, 0);
-	if (cacheLearnEntries > 0)
-	  tree->SetCacheLearnEntries (cacheLearnEntries);
-      } else
-      {
-	std::cout << "INFO: tree " << treeName << " not found in input file: " << val_inputFile->GetName() << std::endl;
-	std::cout << "INFO: treating this like a tree with no events" << std::endl;
+        if (jter->m_algorithm->postExecute() == StatusCode::FAILURE)
+        {
+          ANA_MSG_ERROR ("while calling postExecute() on algorithm " << iter->m_algorithm->GetName());
+          return ::StatusCode::FAILURE;
+        }
       }
+    } catch (...)
+    {
+      Detail::report_exception ();
+      ANA_MSG_ERROR ("while calling postExecute() on algorithm " << iter->m_algorithm->GetName());
+      return ::StatusCode::FAILURE;
     }
-    m_inputFile = val_inputFile;
-    m_tree = tree;
-  }
-
-
-
-  void Worker ::
-  setTreeProofOnly (TTree *val_tree)
-  {
-    RCU_CHANGE_INVARIANT (this);
-    if (val_tree)
-      m_inputFile = val_tree->GetCurrentFile ();
-    else
-      m_inputFile = 0;
-    m_tree = val_tree;
+    return ::StatusCode::SUCCESS;
   }
 
 
@@ -583,284 +713,28 @@ namespace EL
     RCU_READ_INVARIANT (this);
     RCU_REQUIRE (inputFile() != 0);
 
-    if (m_tree != 0)
-      return m_tree->GetEntries();
+    if (m_inputTree != 0)
+      return m_inputTree->GetEntries();
     else
       return 0;
   }
 
 
 
+  uint64_t Worker ::
+  eventsProcessed () const noexcept
+  {
+    RCU_READ_INVARIANT (this);
+    return m_eventsProcessed;
+  }
+
+
+
   void Worker ::
-  treeEntry (Long64_t val_treeEntry)
+  addModule (std::unique_ptr<Detail::Module> module)
   {
     RCU_CHANGE_INVARIANT (this);
-    m_treeEntry = val_treeEntry;
-  }
-
-
-
-  Long_t Worker ::
-  memIncreaseResident () const
-  {
-     // Check that the user called the function at the correct time.
-     if ((m_initMemResident == -1) || (m_finMemResident == -1)) {
-        RCU_THROW_MSG ("Function called at incorrect time");
-     }
-     // Return the resident memory increase.
-     return (m_finMemResident - m_initMemResident);
-  }
-
-
-
-  Long_t Worker ::
-  memIncreaseVirtual () const
-  {
-     // Check that the user called the function at the correct time.
-     if ((m_initMemVirtual == -1) || (m_finMemVirtual == -1)) {
-        RCU_THROW_MSG ("Function called at incorrect time");
-     }
-     // Return the resident memory increase.
-     return (m_finMemVirtual - m_initMemVirtual);
-  }
-
-
-
-  void Worker ::
-  changeAlgState (const AlgInitState targetInit,
-		  const AlgExecState targetExec,
-		  const InputState inputState)
-  {
-    if (m_initState == AIS_NONE || m_execState == AES_NONE)
-    {
-      RCU_THROW_MSG ("trying to change state, after algorithm error");
-      return; // compiler dummy
-    }
-
-    if (targetInit != m_initState) switch (targetInit)
-    {
-    case AIS_NEW:
-      RCU_THROW_MSG ("invalid state change request");
-      return; //compiler dummy
-    case AIS_HIST_INITIALIZED:
-      switch (m_initState)
-      {
-      case AIS_NEW:
-	m_initState = AIS_NONE;
-	addOutput (m_eventCount = new TH1D ("EventLoop_EventCount", "number of events per algorithm", m_algs.size()+1, 0, m_algs.size()+1));
-	addOutput (m_runTime = new TH1D ("EventLoop_RunTime", "worker run-time summary", 5, 0, 5));
-	m_runTime->Fill (0);
-	m_runTime->GetXaxis()->SetBinLabel (1, "jobs");
-	m_runTime->GetXaxis()->SetBinLabel (2, "files");
-	m_runTime->GetXaxis()->SetBinLabel (3, "events");
-	m_runTime->GetXaxis()->SetBinLabel (4, "cpu time");
-	m_runTime->GetXaxis()->SetBinLabel (5, "real time");
-	addOutput (m_jobStats = new TTree ("EventLoop_JobStats",
-	                                   "EventLoop job statistics"));
-	m_jobStats->SetDirectory (nullptr);
-	for (std::size_t iter = 0, end = m_algs.size(); iter != end; ++ iter)
-	  checkStatus (m_algs[iter]->histInitialize (), "Algorithm::histInitialize");
-	m_initState = AIS_HIST_INITIALIZED;
-	{
-	   // Get the memory usage of the process after initialisation.
-	   ::ProcInfo_t pinfo;
-	   if (gSystem->GetProcInfo (&pinfo) != 0) {
-	      RCU_THROW_MSG ("Could not get memory usage information");
-	   }
-	   m_initMemResident = pinfo.fMemResident;
-	   m_initMemVirtual = pinfo.fMemVirtual;
-	}
-	changeAlgState (targetInit, targetExec, inputState);
-	break;
-      case AIS_INITIALIZED:
-      case AIS_FINALIZED:
-      case AIS_HIST_FINALIZED:
-	RCU_THROW_MSG ("invalid state change request");
-	return; //compiler dummy
-      case AIS_HIST_INITIALIZED:
-      case AIS_NONE:
-	RCU_ASSERT0 ("should not get here");
-	return; //compiler dummy
-      }
-      break;
-    case AIS_INITIALIZED:
-      if (inputState < VALID_EVENT)
-      {
-	RCU_ASSERT0 ("invalid state change request");
-	return; //compiler dummy
-      }
-      switch (m_initState)
-      {
-      case AIS_NEW:
-      case AIS_HIST_INITIALIZED:
-	changeAlgState (AIS_HIST_INITIALIZED, AES_INPUT_CHANGED, inputState);
-	m_initState = AIS_NONE;
-	for (std::size_t iter = 0, end = m_algs.size(); iter != end; ++ iter)
-	  checkStatus (m_algs[iter]->initialize (), "Algorithm::initialize");
-	m_initState = AIS_INITIALIZED;
-	break;
-      case AIS_FINALIZED:
-      case AIS_HIST_FINALIZED:
-	RCU_THROW_MSG ("invalid state change request");
-	return; //compiler dummy
-      case AIS_INITIALIZED:
-      case AIS_NONE:
-	RCU_ASSERT0 ("should not get here");
-	return; //compiler dummy
-      }
-      break;
-    case AIS_FINALIZED:
-      changeAlgState (AIS_INITIALIZED, AES_NONE, inputState);
-      m_initState = AIS_NONE;
-      for (std::size_t iter = 0, end = m_algs.size(); iter != end; ++ iter)
-	checkStatus (m_algs[iter]->finalize (), "Algorithm::finalize");
-      m_initState = AIS_FINALIZED;
-      break;
-    case AIS_HIST_FINALIZED:
-      switch (m_initState)
-      {
-      case AIS_NEW:
-	changeAlgState (AIS_HIST_INITIALIZED, AES_NONE, inputState);
-	break;
-      case AIS_INITIALIZED:
-	changeAlgState (AIS_FINALIZED, AES_NONE, inputState);
-	break;
-      case AIS_HIST_INITIALIZED:
-      case AIS_FINALIZED:
-	break;
-      case AIS_HIST_FINALIZED:
-      case AIS_NONE:
-	RCU_ASSERT0 ("should not get here");
-	return; //compiler dummy
-      }
-      m_initState = AIS_NONE;
-      for (std::size_t iter = 0, end = m_algs.size(); iter != end; ++ iter)
-	checkStatus (m_algs[iter]->histFinalize (), "Algorithm::histFinalize");
-      for (outputFilesIter iter = m_outputFiles.begin(),
-	     end = m_outputFiles.end(); iter != end; ++ iter)
-      {
-	iter->second->close ();
-	std::string path = iter->second->path ();
-	if (!path.empty())
-	  addOutputList ("EventLoop_OutputStream_" + iter->first, new TObjString (path.c_str()));
-      }
-      m_stopwatch->Stop ();
-      m_runTime->Fill (3, m_stopwatch->CpuTime());
-      m_runTime->Fill (4, m_stopwatch->RealTime());
-      {
-         // Get the memory usage of the process after finalisation.
-         ::ProcInfo_t pinfo;
-         if (gSystem->GetProcInfo (&pinfo) != 0) {
-            RCU_THROW_MSG ("Could not get memory usage information");
-         }
-         m_finMemResident = pinfo.fMemResident;
-         m_finMemVirtual = pinfo.fMemVirtual;
-
-         // Save the memory increase values into the job statistics tree.
-         RCU_ASSERT (m_jobStats != nullptr);
-         Float_t incRes = memIncreaseResident();
-         if (! m_jobStats->Branch ("memIncreaseResident", &incRes)) {
-            RCU_THROW_MSG ("Failed to create branch memIncreaseResident");
-         }
-         Float_t incVirt = memIncreaseVirtual();
-         if (! m_jobStats->Branch ("memIncreaseVirtual", &incVirt)) {
-            RCU_THROW_MSG ("Failed to create branch memIncreaseVirtual");
-         }
-         if (m_jobStats->Fill() <= 0) {
-            RCU_THROW_MSG ("Failed to fill the job statistics tree");
-         }
-      }
-      m_stopwatch->Continue ();
-      m_initState = AIS_HIST_FINALIZED;
-      break;
-    case AIS_NONE:
-      break;
-    }
-    RCU_ASSERT (targetInit == AIS_NONE || m_initState == targetInit);
-
-    if (targetExec != m_execState) switch (targetExec)
-    {
-    case AES_BLANK:
-      if (m_execState == AES_INPUT_CHANGED)
-      {
-	m_execState = AES_NONE;
-	if (m_metaData->castBool (Job::optPrintPerFileStats, false))
-	{
-	  std::cout << "file stats for: " << inputFile()->GetName() << std::endl;
-	  m_tree->PrintCacheStats ();
-	}
-	for (std::size_t iter = 0, end = m_algs.size(); iter != end; ++ iter)
-	  checkStatus (m_algs[iter]->endOfFile (), "Algorithm::endOfFile");
-      }
-      m_execState = AES_BLANK;
-      break;
-    case AES_FILE_EXECUTED:
-      if (inputState < VALID_FILE)
-      {
-	RCU_ASSERT0 ("invalid state change request");
-	return; //compiler dummy
-      }
-      switch (m_initState)
-      {
-      case AIS_NEW:
-      case AIS_HIST_INITIALIZED:
-	changeAlgState (AIS_HIST_INITIALIZED, AES_BLANK, inputState);
-	break;
-      case AIS_INITIALIZED:
-	changeAlgState (AIS_INITIALIZED, AES_BLANK, inputState);
-	break;
-      case AIS_FINALIZED:
-      case AIS_HIST_FINALIZED:
-	RCU_ASSERT0 ("invalid state change request");
-	return; //compiler dummy
-      case AIS_NONE:
-	RCU_ASSERT0 ("should not get here");
-	return; //compiler dummy
-      }
-      m_execState = AES_NONE;
-      if (m_treeEntry == 0)
-      {
-	m_runTime->Fill (1);
-	for (std::size_t iter = 0, end = m_algs.size(); iter != end; ++ iter)
-	  checkStatus (m_algs[iter]->fileExecute (), "Algorithm::fileExecute");
-	*m_fileExecutedName = TString (TString (inputFileName()));
-	m_fileExecutedTree->Fill ();
-      }
-      m_execState = AES_FILE_EXECUTED;
-      break;
-    case AES_INPUT_CHANGED:
-      if (inputState < VALID_EVENT)
-      {
-	RCU_ASSERT0 ("invalid state change request");
-	return; //compiler dummy
-      }
-      switch (m_initState)
-      {
-      case AIS_NEW:
-      case AIS_HIST_INITIALIZED:
-	changeAlgState (AIS_HIST_INITIALIZED, AES_FILE_EXECUTED, inputState);
-	break;
-      case AIS_INITIALIZED:
-	changeAlgState (AIS_INITIALIZED, AES_FILE_EXECUTED, inputState);
-	break;
-      case AIS_FINALIZED:
-      case AIS_HIST_FINALIZED:
-	RCU_ASSERT0 ("invalid state change request");
-	return; //compiler dummy
-      case AIS_NONE:
-	RCU_ASSERT0 ("should not get here");
-	return; //compiler dummy
-      }
-      m_execState = AES_NONE;
-      for (std::size_t iter = 0, end = m_algs.size(); iter != end; ++ iter)
-	checkStatus (m_algs[iter]->changeInput (m_initState == AIS_HIST_INITIALIZED), "Algorithm::changeInput");
-      m_execState = AES_INPUT_CHANGED;
-      break;
-    case AES_NONE:
-      break;
-    }
-
-    RCU_PROVIDE (targetInit == AIS_NONE || m_initState == targetInit);
-    RCU_PROVIDE (targetExec == AES_NONE || m_execState == targetExec);
+    RCU_REQUIRE (module != nullptr);
+    m_modules.push_back (std::move (module));
   }
 }

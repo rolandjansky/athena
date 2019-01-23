@@ -104,7 +104,7 @@ def addExKtCoM(sequence, ToolSvc, JetCollectionExCoM, nSubjets, doTrackSubJet, d
       subjetAlgName = "Kt"
     from JetRec.JetRecStandard import jtm
     ExCoMJetCollection__SubJet = []
-    
+
     (ExCoMbbTagToolInstance, SubjetContainerName) = buildExclusiveSubjets(ToolSvc, JetCollectionExCoM, subjetAlgName, nSubjets, doGhostAssoc, doTrackSubJet, ExGhostLabels, min_subjet_pt_mev)
 
     ExCoMJetCollection__SubJet += [SubjetContainerName]
@@ -633,7 +633,7 @@ def addExKtDoubleTaggerRCJets(sequence, ToolSvc):#, ExKtJetCollection__FatJetCon
    DFisMC = (globalflags.DataSource()=='geant4')
    jetToolName = "DFReclustertingTool"
    algoName = "DFJetReclusteringAlgo"
-   
+
    ExKtJetCollection__FatJet = "AntiKt8EMTopoJets"
    ExKtJetCollection__SubJet = []
 
@@ -652,16 +652,16 @@ def addExKtDoubleTaggerRCJets(sequence, ToolSvc):#, ExKtJetCollection__FatJetCon
 
      sequence += CfgMgr.AthJetReclusteringAlgo(algoName, JetReclusteringTool = getattr(ToolSvc,jetToolName))
      DFJetAlgs[jetToolName] = getattr(ToolSvc,jetToolName)
-   
+
    # build subjets
    GhostLabels = ["GhostTrack"]
    if(DFisMC):
      GhostLabels += ["GhostBHadronsFinal"]
      GhostLabels += ["GhostCHadronsFinal"]
    # N=2 subjets
-   ExKtJetCollection__SubJet += addExKtCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets=2, doTrackSubJet=True, ExGhostLabels=GhostLabels)
+   ExKtJetCollection__SubJet += addExKtCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets=2, doTrackSubJet=True, ExGhostLabels=GhostLabels, min_subjet_pt_mev=1)
    # N=3 subjets
-   ExKtJetCollection__SubJet += addExKtCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets=3, doTrackSubJet=True, ExGhostLabels=GhostLabels)
+   ExKtJetCollection__SubJet += addExKtCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets=3, doTrackSubJet=True, ExGhostLabels=GhostLabels, min_subjet_pt_mev=1)
 
    sequence += CfgMgr.xAODMaker__ElementLinkResetAlg("ELReset_AfterSubjetBuild", SGKeys=[name+"Aux." for name in ExKtJetCollection__SubJet])
 

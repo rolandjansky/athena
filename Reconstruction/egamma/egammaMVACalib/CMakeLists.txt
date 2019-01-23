@@ -68,9 +68,8 @@ endif()
 # Test(s) in the package:
 atlas_add_test( mem_test SCRIPT test/mem_test.py )
 if( XAOD_STANDALONE )
-# Disable until we have reasonable input/to check 
-# against 
-#  atlas_add_test( ut_test SCRIPT test/ut_test.py)
+atlas_add_test(ut_RunOnASGAOD
+	SCRIPT testClusterMVACalib  $ASG_TEST_FILE_MC 40)
 endif()
 
 # Install files from the package:

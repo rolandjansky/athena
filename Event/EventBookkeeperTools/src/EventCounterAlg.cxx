@@ -87,7 +87,7 @@ StatusCode EventCounterAlg::execute()
   if (m_trackOtherMCWeights) {
     // Get the EventInfo object
     const xAOD::EventInfo* evtInfo = 0;
-    ATH_CHECK( evtStore()->retrieve(evtInfo) );
+    ATH_CHECK( evtStore()->retrieve(evtInfo, "EventInfo") );
     // Only try to access the mcEventWeight is we are running on Monte Carlo, duhhh!
     if ( !(evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION)) ) {
       ATH_MSG_DEBUG("We are not running on simulation and thus, nothing to be done here");

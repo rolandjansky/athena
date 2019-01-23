@@ -34,7 +34,7 @@ Root::TForwardElectronLikelihoodTool::TForwardElectronLikelihoodTool(const char*
       for (unsigned int ip = 0; ip < s_IP_FBINS; ip++){
         for(unsigned int et = 0; et < s_fnEtBinsHist; et++){
           for(unsigned int eta = 0; eta < s_fnEtaBins; eta++){
-            m_fPDFbins[s_or_b][ip][et][eta][varIndex] = 0;
+            m_fPDFbins[s_or_b][ip][et][eta][varIndex] = nullptr;
           }
         }
       }
@@ -47,20 +47,6 @@ Root::TForwardElectronLikelihoodTool::TForwardElectronLikelihoodTool(const char*
 //=============================================================================
 Root::TForwardElectronLikelihoodTool::~TForwardElectronLikelihoodTool()
 {
-  for(unsigned int varIndex = 0; varIndex < s_fnVariables; varIndex++){
-    for(unsigned int s_or_b = 0; s_or_b < 2; s_or_b++){
-      for (unsigned int ip = 0; ip < s_IP_FBINS; ip++){
-        for(unsigned int et = 0; et < s_fnEtBinsHist; et++){
-          for(unsigned int eta = 0; eta < s_fnEtaBins; eta++){
-            if (m_fPDFbins[s_or_b][ip][et][eta][varIndex]){
-              delete m_fPDFbins[s_or_b][ip][et][eta][varIndex];
-              m_fPDFbins[s_or_b][ip][et][eta][varIndex] = 0;
-            }
-          }
-        }
-      }
-    }
-  }
 }
 
 
@@ -192,7 +178,7 @@ int Root::TForwardElectronLikelihoodTool::LoadVarHistograms(TFile* pdfFile, std:
           }
           if (((TDirectory*)pdfFile->Get(pdfdir))->GetListOfKeys()->Contains(pdf)) {
             TH1F* hist = (TH1F*)(((TDirectory*)pdfFile->Get(pdfdir))->Get(pdf));
-            m_fPDFbins[s_or_b][ip][et][eta][varIndex] = new EGSelectors::SafeTH1(hist);
+            m_fPDFbins[s_or_b][ip][et][eta][varIndex] =std::make_unique<EGSelectors::SafeTH1>(hist);
             delete hist;
           }
           else {
