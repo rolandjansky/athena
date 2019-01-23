@@ -46,6 +46,8 @@
 #include "TileConditions/TileCablingService.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
 #include "TileEvent/TileLaserObject.h"
+#include "TileEvent/TileMuonReceiverContainer.h"
+#include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileDQstatus.h"
 #include "TileEvent/TileBeamElemContainer.h"
 #include "TileConditions/ITileDCSTool.h"
@@ -97,7 +99,8 @@ class TileAANtuple : public AthAlgorithm {
     virtual ~TileAANtuple();
 
     //Gaudi Hooks
-    StatusCode ntuple_initialize(const TileDQstatus& DQstatus);
+    StatusCode ntuple_initialize(const EventContext& ctx,
+                                 const TileDQstatus& DQstatus);
     StatusCode ntuple_clear();
     StatusCode initialize();
     StatusCode execute();
@@ -105,34 +108,37 @@ class TileAANtuple : public AthAlgorithm {
 
   private:
 
-    StatusCode storeRawChannels(std::string cntID
+    StatusCode storeRawChannels(const EventContext& ctx
+                                 , const SG::ReadHandleKey<TileRawChannelContainer>& containerKey
 		  	        , float ene[N_ROS2][N_MODULES][N_CHANS]
 			        , float time[N_ROS2][N_MODULES][N_CHANS]
 			        , float chi2[N_ROS2][N_MODULES][N_CHANS]
 			        , float ped[N_ROS2][N_MODULES][N_CHANS]
 			        , bool fillAll);
                                
-    StatusCode storeMFRawChannels(std::string cntID
+    StatusCode storeMFRawChannels(const EventContext& ctx
+                                  , const SG::ReadHandleKey<TileRawChannelContainer>& containerKey
                                   , float ene[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES]
                                   , float time[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES]
                                   , float chi2[N_ROS2][N_MODULES][N_CHANS]
                                   , float ped[N_ROS2][N_MODULES][N_CHANS]
                                   , bool fillAll);
 
-    StatusCode storeDigits(std::string cntID
+    StatusCode storeDigits(const EventContext& ctx
+                           , const SG::ReadHandleKey<TileDigitsContainer>& containerKey
 			   , short sample[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES]
 			   , short gain[N_ROS2][N_MODULES][N_CHANS]
 		  	   , bool fillAll);
 
-    StatusCode storeTMDBDecision();
-    StatusCode storeTMDBDigits();
-    StatusCode storeTMDBRawChannel();
+    StatusCode storeTMDBDecision(const EventContext& ctx);
+    StatusCode storeTMDBDigits(const EventContext& ctx);
+    StatusCode storeTMDBRawChannel(const EventContext& ctxx);
 
     StatusCode storeBeamElements(const TileDQstatus& DQstatus);
-    StatusCode storeLaser();
+    StatusCode storeLaser(const EventContext& ctx);
     StatusCode storeDCS();
 
-    StatusCode initNTuple(void);
+    StatusCode initNTuple(const EventContext& ctx);
 
     void fillCellMap(TTree* ntuplePtr);
 
@@ -326,21 +332,22 @@ class TileAANtuple : public AthAlgorithm {
     int m_nBadTotal;
 
     // jobOptions parameters - container names
-    std::string m_digitsContainer;
-    std::string m_fltDigitsContainer;
+    SG::ReadHandleKey<TileDigitsContainer> m_digitsContainerKey;
+    SG::ReadHandleKey<TileDigitsContainer> m_fltDigitsContainerKey;
     SG::ReadHandleKey<TileBeamElemContainer> m_beamElemContainerKey;
-    std::string m_rawChannelContainer;
-    std::string m_fitRawChannelContainer;
-    std::string m_fitcRawChannelContainer;
-    std::string m_optRawChannelContainer;
-    std::string m_qieRawChannelContainer;
-    std::string m_dspRawChannelContainer;
-    std::string m_mfRawChannelContainer;
-    std::string m_of1RawChannelContainer;
-    std::string m_laserObject;
-    std::string m_tileMuRcvRawChannelContainer; // TMDB
-    std::string m_tileMuRcvDigitsContainer; // TMDB
-    std::string m_tileMuRcvContainer; // TMDB
+    SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey;
+    SG::ReadHandleKey<TileRawChannelContainer> m_fitRawChannelContainerKey;
+    SG::ReadHandleKey<TileRawChannelContainer> m_fitcRawChannelContainerKey;
+    SG::ReadHandleKey<TileRawChannelContainer> m_optRawChannelContainerKey;
+    SG::ReadHandleKey<TileRawChannelContainer> m_qieRawChannelContainerKey;
+    SG::ReadHandleKey<TileRawChannelContainer> m_dspRawChannelContainerKey;
+    SG::ReadHandleKey<TileRawChannelContainer> m_mfRawChannelContainerKey;
+    SG::ReadHandleKey<TileRawChannelContainer> m_of1RawChannelContainerKey;
+    SG::ReadHandleKey<TileLaserObject> m_laserObjectKey;
+    SG::ReadHandleKey<TileRawChannelContainer> m_tileMuRcvRawChannelContainerKey; // TMDB
+    SG::ReadHandleKey<TileDigitsContainer> m_tileMuRcvDigitsContainerKey; // TMDB
+    SG::ReadHandleKey<TileMuonReceiverContainer> m_tileMuRcvContainerKey; // TMDB
+    SG::ReadHandleKey<TileL2Container> m_l2CntKey;
 
    // other jobOptions parameters
     bool m_calibrateEnergy; //!< convert energy to new units or use amplitude from RawChannel directly
