@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 OutputLevel=WARNING
 include("TrigUpgradeTest/testHLT_MT.py")
@@ -12,10 +12,10 @@ from TrigT2CaloCommon.TrigT2CaloCommonConf import TrigCaloDataAccessSvc#, TestCa
 from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 
 mon = GenericMonitoringTool("CaloDataAccessSvcMon")
-mon.Histograms += [defineHistogram( "TIME_locking_LAr_RoI", title="Time spent in unlocking the LAr collection", xbins=100, xmin=0, xmax=100 ),
-                   defineHistogram( "roiROBs_LAr", title="Number of ROBs unpacked in RoI requests", xbins=20, xmin=0, xmax=20 ),
-                   defineHistogram( "TIME_locking_LAr_FullDet", title="Time spent in unlocking the LAr collection", xbins=100, xmin=0, xmax=100 ),
-                   defineHistogram( "roiEta_LAr,roiPhi_LAr", type="TH2F", title="Geometric usage", xbins=50, xmin=-5, xmax=5, ybins=64, ymin=-math.pi, ymax=math.pi )]
+mon.Histograms += [defineHistogram( "TIME_locking_LAr_RoI", path='EXPERT', title="Time spent in unlocking the LAr collection", xbins=100, xmin=0, xmax=100 ),
+                   defineHistogram( "roiROBs_LAr", path='EXPERT', title="Number of ROBs unpacked in RoI requests", xbins=20, xmin=0, xmax=20 ),
+                   defineHistogram( "TIME_locking_LAr_FullDet", path='EXPERT', title="Time spent in unlocking the LAr collection", xbins=100, xmin=0, xmax=100 ),
+                   defineHistogram( "roiEta_LAr,roiPhi_LAr", type="TH2F", path='EXPERT', title="Geometric usage", xbins=50, xmin=-5, xmax=5, ybins=64, ymin=-math.pi, ymax=math.pi )]
 
 svcMgr += TrigCaloDataAccessSvc()
 svcMgr.TrigCaloDataAccessSvc.MonTool = mon
@@ -52,8 +52,8 @@ metAlg.HelperTool= helperTool
 metAlg.OutputLevel=WARNING
 
 metMon = GenericMonitoringTool("METMonTool")
-metMon.Histograms = [ defineHistogram( "TIME_Total", title="Time spent Alg", xbins=100, xmin=0, xmax=100 ),
-                      defineHistogram( "TIME_Loop", title="Time spent in Tools loop", xbins=100, xmin=0, xmax=100 )]
+metMon.Histograms = [ defineHistogram( "TIME_Total", path='EXPERT', title="Time spent Alg", xbins=100, xmin=0, xmax=100 ),
+                      defineHistogram( "TIME_Loop", path='EXPERT', title="Time spent in Tools loop", xbins=100, xmin=0, xmax=100 )]
 from TrigEFMissingET.TrigEFMissingETMonitoring import ( hEx_log, hEy_log, hEz_log, hMET_log, hSumEt_log, 
                                                  hMET_lin, hSumEt_lin, 
                                                  hXS, hMETPhi, hMETStatus,
