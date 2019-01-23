@@ -14,7 +14,6 @@
 #include <TROOT.h>
 #include <TSystem.h>
 #include <TString.h>
-#include <TFile.h>
 
 class PandaRootTools {
 
@@ -24,16 +23,14 @@ class PandaRootTools {
 
   virtual ~PandaRootTools(){}
 
-  TFile* OpenNextFile();
+  TString getNextFile();
 
   int GetNumberOfInputFiles();
   int GetFilesRead();
-  int GetEventsRead();
 
-  void NotifyNewEvent();
-  void NotifyJobFinished();
+  void NotifyJobFinished(uint64_t eventsProcessed);
 
-  void Fail();
+  void Fail(uint64_t eventsProcessed);
   void Abort();
 
  private:    
@@ -47,9 +44,8 @@ class PandaRootTools {
 
   std::vector<TString> m_fileList; 
   unsigned int m_currentFile;
-  unsigned int m_nEventsProcessed;
 
-  void createJobSummary();
+  void createJobSummary(uint64_t eventsProcessed);
 
   ClassDef(PandaRootTools, 1)
 };

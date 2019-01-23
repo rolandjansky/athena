@@ -31,6 +31,7 @@ namespace EL
   class DirectDriver;
   class DirectWorker;
   class Driver;
+  struct EventRange;
   class GEDriver;
   class Job;
   class JobConfig;
@@ -43,6 +44,15 @@ namespace EL
   class TorqueDriver;
   class IWorker;
   class Worker;
+
+  namespace Detail
+  {
+    struct AlgorithmData;
+    class Module;
+    struct ModuleData;
+
+    class AlgorithmStateModule;
+  }
 }
 
 #endif

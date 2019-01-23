@@ -22,6 +22,12 @@
 namespace EL
 {
   ANA_MSG_HEADER (msgEventLoop)
+
+  namespace Detail
+  {
+    /// \brief print out the currently evaluated exception
+    void report_exception ();
+  }
 }
 
 #endif

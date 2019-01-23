@@ -17,6 +17,7 @@
 #include "SampleHandler/Sample.h"
 #include "SampleHandler/SampleGrid.h"
 #include "SampleHandler/SampleHandler.h"
+#include "TFile.h"
 #include "TList.h"
 #include "TRegexp.h"
 #include "TSystem.h"
