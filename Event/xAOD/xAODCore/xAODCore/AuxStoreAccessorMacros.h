@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: AuxStoreAccessorMacros.h 633587 2014-12-04 09:09:41Z ssnyder $
@@ -36,11 +36,11 @@
 #define AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(CL, TYPE, NAME, \
                                              SETTER)         \
    TYPE CL::NAME() const {                                   \
-      static Accessor< TYPE > acc( #NAME );                  \
+      static const Accessor< TYPE > acc( #NAME );            \
       return acc( *this );                                   \
    }                                                         \
    void CL::SETTER( TYPE value ) {                           \
-      static Accessor< TYPE > acc( #NAME );                  \
+      static const Accessor< TYPE > acc( #NAME );            \
       acc( *this ) = value;                                  \
       return;                                                \
    }
@@ -58,7 +58,7 @@
 ///
 #define AUXSTORE_PRIMITIVE_GETTER(CL, TYPE, NAME ) \
    TYPE CL::NAME() const {                         \
-      static Accessor< TYPE > acc( #NAME );        \
+      static const Accessor< TYPE > acc( #NAME );  \
       return acc( *this );                         \
    }
 
@@ -76,11 +76,11 @@
 ///
 #define AUXSTORE_OBJECT_SETTER_AND_GETTER(CL, TYPE, NAME, SETTER) \
    const TYPE& CL::NAME() const {                                 \
-      static Accessor< TYPE > acc( #NAME );                       \
+      static const Accessor< TYPE > acc( #NAME );                 \
       return acc( *this );                                        \
    }                                                              \
    void CL::SETTER( const TYPE& value ) {                         \
-      static Accessor< TYPE > acc( #NAME );                       \
+      static const Accessor< TYPE > acc( #NAME );                 \
       acc( *this ) = value;                                       \
       return;                                                     \
    }
@@ -103,7 +103,7 @@
 #else
 # define AUXSTORE_OBJECT_MOVE(CL, TYPE, NAME, SETTER)             \
    void CL::SETTER( typename SG::AuxDataTraits<TYPE>::element_type&& value ) { \
-      static Accessor< TYPE > acc( #NAME );                       \
+      static const Accessor< TYPE > acc( #NAME );                 \
       acc( *this ) = std::move(value);                            \
       return;                                                     \
    }
@@ -122,7 +122,7 @@
 ///
 #define AUXSTORE_OBJECT_GETTER(CL, TYPE, NAME )    \
    const TYPE& CL::NAME() const {                  \
-      static Accessor< TYPE > acc( #NAME );        \
+      static const Accessor< TYPE > acc( #NAME );  \
       return acc( *this );                         \
    }
 
@@ -143,7 +143,7 @@
 #define AUXSTORE_PRIMITIVE_GETTER_WITH_CAST(CL, PERSTYPE, TRANSTYPE,    \
                                             NAME)                       \
    TRANSTYPE CL::NAME() const {                                         \
-      static Accessor< PERSTYPE > acc( #NAME );                         \
+      static const Accessor< PERSTYPE > acc( #NAME );                   \
       return static_cast< TRANSTYPE >( acc( *this ) );                  \
    }
 
@@ -164,7 +164,7 @@
 #define AUXSTORE_PRIMITIVE_SETTER_WITH_CAST(CL, PERSTYPE, TRANSTYPE,  \
                                             NAME, SETTER)             \
    void CL::SETTER( TRANSTYPE value ) {                               \
-      static Accessor< PERSTYPE > acc( #NAME );                       \
+      static const Accessor< PERSTYPE > acc( #NAME );                 \
       acc( *this ) = static_cast< PERSTYPE >( value );                \
       return;                                                         \
    }
