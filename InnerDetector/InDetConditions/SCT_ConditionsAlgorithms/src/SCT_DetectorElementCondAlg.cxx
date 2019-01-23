@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_DetectorElementCondAlg.h"
@@ -16,7 +16,6 @@ SCT_DetectorElementCondAlg::SCT_DetectorElementCondAlg(const std::string& name, 
   , m_readKey{"SCTAlignmentStore", "SCTAlignmentStore"}
   , m_condSvc{"CondSvc", name}
   , m_detManager{nullptr}
-  , m_commonItems{nullptr}
 {
   declareProperty("ReadKey", m_readKey);
 }
@@ -85,17 +84,10 @@ StatusCode SCT_DetectorElementCondAlg::execute()
   writeCdo->resize(oldColl->size(), nullptr);
   InDetDD::SiDetectorElementCollection::iterator newEl{writeCdo->begin()};
   for (const InDetDD::SiDetectorElement* oldEl: *oldColl) {
-    // At the first time access, SiCommonItems are prepared using the first old element
-    if (m_commonItems.get()==nullptr) {
-      const InDetDD::SiCommonItems* oldCommonItems{oldEl->getCommonItems()};
-      m_commonItems = std::make_unique<InDetDD::SiCommonItems>(oldCommonItems->getIdHelper());
-      m_commonItems->setSolenoidFrame(oldCommonItems->solenoidFrame());
-    }
-
     *newEl = new InDetDD::SiDetectorElement(oldEl->identify(),
                                             &(oldEl->design()),
                                             oldEl->GeoVDetectorElement::getMaterialGeom(),
-                                            m_commonItems.get(),
+                                            oldEl->getCommonItems(),
                                             readCdo);
     oldToNewMap[oldEl] = *newEl;
     newEl++;
