@@ -24,7 +24,7 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GaudiKernel/Bootstrap.h"
-
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <iostream>
 #include <math.h>
@@ -72,18 +72,18 @@ void SupportRailFactoryFS::create(GeoPhysVol *motherP,GeoPhysVol *motherM)
 //
 // Default(initial) values
 //    
-    double RMAX_ID      = 1150.0*GeoModelKernelUnits::mm -1.0*GeoModelKernelUnits::mm;   //Some safety margin
-    double railLengthB  = 1600.0*GeoModelKernelUnits::mm;
-    double railWidthB   = 5.5*GeoModelKernelUnits::mm;
-    double railThickB   = 34.7*GeoModelKernelUnits::mm;
+    double RMAX_ID      = 1150.0*Gaudi::Units::mm -1.0*Gaudi::Units::mm;   //Some safety margin
+    double railLengthB  = 1600.0*Gaudi::Units::mm;
+    double railWidthB   = 5.5*Gaudi::Units::mm;
+    double railThickB   = 34.7*Gaudi::Units::mm;
 //
-    double railLengthE  = 2600.0*GeoModelKernelUnits::mm;
-    double railWidthE   = 14.*GeoModelKernelUnits::mm;
-    double railThickE   = 14.7*GeoModelKernelUnits::mm;
+    double railLengthE  = 2600.0*Gaudi::Units::mm;
+    double railWidthE   = 14.*Gaudi::Units::mm;
+    double railThickE   = 14.7*Gaudi::Units::mm;
 //
-    double suppLength   = 6800.0*GeoModelKernelUnits::mm;
-    double suppWidth    = 54.*GeoModelKernelUnits::mm;
-    double suppThick    = 22.6*GeoModelKernelUnits::mm;
+    double suppLength   = 6800.0*Gaudi::Units::mm;
+    double suppWidth    = 54.*Gaudi::Units::mm;
+    double suppThick    = 22.6*Gaudi::Units::mm;
 //
 //   Database 
 //
@@ -106,20 +106,20 @@ void SupportRailFactoryFS::create(GeoPhysVol *motherP,GeoPhysVol *motherM)
     
     double epsilon = 0.01;  // +Some safety margin
  
-     RMAX_ID = (*atls)[0]->getDouble("IDETOR")*GeoModelKernelUnits::cm;  
-     railLengthB = (*railrec)[0]->getDouble("LENGTHB")*GeoModelKernelUnits::mm;
-     railWidthB  = (*railrec)[0]->getDouble("WIDTHB")*GeoModelKernelUnits::mm;
-     railThickB  = (*railrec)[0]->getDouble("THICKB")*GeoModelKernelUnits::mm;
+     RMAX_ID = (*atls)[0]->getDouble("IDETOR")*Gaudi::Units::cm;  
+     railLengthB = (*railrec)[0]->getDouble("LENGTHB")*Gaudi::Units::mm;
+     railWidthB  = (*railrec)[0]->getDouble("WIDTHB")*Gaudi::Units::mm;
+     railThickB  = (*railrec)[0]->getDouble("THICKB")*Gaudi::Units::mm;
   //------------ Limited by EP ExternalShell
-     railLengthE = (*endplate)[0]->getDouble("ZSTART")*GeoModelKernelUnits::mm  
-                  +(*endplate)[0]->getDouble("ZSHIFT")*GeoModelKernelUnits::mm
-                  +(*endplate)[0]->getDouble("ZGAP")*GeoModelKernelUnits::mm   - railLengthB*0.5;
-     railWidthE  = (*railrec)[0]->getDouble("WIDTHE")*GeoModelKernelUnits::mm;
-     railThickE  = (*railrec)[0]->getDouble("THICKE")*GeoModelKernelUnits::mm;
+     railLengthE = (*endplate)[0]->getDouble("ZSTART")*Gaudi::Units::mm  
+                  +(*endplate)[0]->getDouble("ZSHIFT")*Gaudi::Units::mm
+                  +(*endplate)[0]->getDouble("ZGAP")*Gaudi::Units::mm   - railLengthB*0.5;
+     railWidthE  = (*railrec)[0]->getDouble("WIDTHE")*Gaudi::Units::mm;
+     railThickE  = (*railrec)[0]->getDouble("THICKE")*Gaudi::Units::mm;
  
      suppLength = railLengthB + 2.*railLengthE;
-     suppWidth  = (*railrec)[0]->getDouble("WIDTHSUP")*GeoModelKernelUnits::mm;
-     suppThick  = (*railrec)[0]->getDouble("THICKSUP")*GeoModelKernelUnits::mm;
+     suppWidth  = (*railrec)[0]->getDouble("WIDTHSUP")*Gaudi::Units::mm;
+     suppThick  = (*railrec)[0]->getDouble("THICKSUP")*Gaudi::Units::mm;
 //
 // To avoid rail corner outside ID envelope
      RMAX_ID = sqrt(RMAX_ID*RMAX_ID-suppWidth*suppWidth/4.)-epsilon;  

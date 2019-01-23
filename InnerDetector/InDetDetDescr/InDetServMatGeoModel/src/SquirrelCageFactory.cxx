@@ -23,6 +23,7 @@
 #include "RDBAccessSvc/IRDBQuery.h"
 #include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
+#include "GaudiKernel/PhysicalConstants.h"
 
 #include <iostream>
 
@@ -70,37 +71,37 @@ void SquirrelCageFactory::create(GeoPhysVol *mother)
 //     Squirrel cage rings
 //  Default (initial) ring parameters
 //
-//     double rminInt    = 1074.0*GeoModelKernelUnits::mm;
-//     double ringThick  = 4.0*GeoModelKernelUnits::mm;
-//     double ringGap    = 20.*GeoModelKernelUnits::mm;
-//     double ringWid    = 40.*GeoModelKernelUnits::mm;
+//     double rminInt    = 1074.0*Gaudi::Units::mm;
+//     double ringThick  = 4.0*Gaudi::Units::mm;
+//     double ringGap    = 20.*Gaudi::Units::mm;
+//     double ringWid    = 40.*Gaudi::Units::mm;
 //
-    double rminInt    = (*cage)[0]->getDouble("RINGRMIN")*GeoModelKernelUnits::mm;
-    double ringThick  = (*cage)[0]->getDouble("RINGTHICK")*GeoModelKernelUnits::mm;
-    double ringGap    = (*cage)[0]->getDouble("RINGGAP")*GeoModelKernelUnits::mm;
-    double ringWid    = (*cage)[0]->getDouble("RINGWIDTH")*GeoModelKernelUnits::mm;
+    double rminInt    = (*cage)[0]->getDouble("RINGRMIN")*Gaudi::Units::mm;
+    double ringThick  = (*cage)[0]->getDouble("RINGTHICK")*Gaudi::Units::mm;
+    double ringGap    = (*cage)[0]->getDouble("RINGGAP")*Gaudi::Units::mm;
+    double ringWid    = (*cage)[0]->getDouble("RINGWIDTH")*Gaudi::Units::mm;
 //
 //--- Default (initial) z positions
-//     double zposFirstRing  = 805.0*GeoModelKernelUnits::mm+161.0*GeoModelKernelUnits::mm;
-//     double zposGap1  = 390.*GeoModelKernelUnits::mm;
-//     double zposGap2  = 402.*GeoModelKernelUnits::mm;
-//     double zposGap3  = 446.*GeoModelKernelUnits::mm;
-//     double zposGap4  = 331.*GeoModelKernelUnits::mm;
+//     double zposFirstRing  = 805.0*Gaudi::Units::mm+161.0*Gaudi::Units::mm;
+//     double zposGap1  = 390.*Gaudi::Units::mm;
+//     double zposGap2  = 402.*Gaudi::Units::mm;
+//     double zposGap3  = 446.*Gaudi::Units::mm;
+//     double zposGap4  = 331.*Gaudi::Units::mm;
 //
-    double zposFirstRing  = (*cage)[0]->getDouble("ZBASE")*GeoModelKernelUnits::mm;
-    double zposGap1  = (*cage)[0]->getDouble("ZGAP1")*GeoModelKernelUnits::mm;
-    double zposGap2  = (*cage)[0]->getDouble("ZGAP2")*GeoModelKernelUnits::mm;
-    double zposGap3  = (*cage)[0]->getDouble("ZGAP3")*GeoModelKernelUnits::mm;
-    double zposGap4  = (*cage)[0]->getDouble("ZGAP4")*GeoModelKernelUnits::mm;
+    double zposFirstRing  = (*cage)[0]->getDouble("ZBASE")*Gaudi::Units::mm;
+    double zposGap1  = (*cage)[0]->getDouble("ZGAP1")*Gaudi::Units::mm;
+    double zposGap2  = (*cage)[0]->getDouble("ZGAP2")*Gaudi::Units::mm;
+    double zposGap3  = (*cage)[0]->getDouble("ZGAP3")*Gaudi::Units::mm;
+    double zposGap4  = (*cage)[0]->getDouble("ZGAP4")*Gaudi::Units::mm;
 //
 // Now support ring
-//     double rminSup    = 830.0*GeoModelKernelUnits::mm;
-//     double supThick   = 90.0*GeoModelKernelUnits::mm;
-//     double supWid     = 12.0*GeoModelKernelUnits::mm;
+//     double rminSup    = 830.0*Gaudi::Units::mm;
+//     double supThick   = 90.0*Gaudi::Units::mm;
+//     double supWid     = 12.0*Gaudi::Units::mm;
 //
-    double rminSup    = (*cage)[0]->getDouble("SUPRMIN")*GeoModelKernelUnits::mm;
-    double supThick   = (*cage)[0]->getDouble("SUPTHICK")*GeoModelKernelUnits::mm;
-    double supWid     = (*cage)[0]->getDouble("SUPWIDTH")*GeoModelKernelUnits::mm;
+    double rminSup    = (*cage)[0]->getDouble("SUPRMIN")*Gaudi::Units::mm;
+    double supThick   = (*cage)[0]->getDouble("SUPTHICK")*Gaudi::Units::mm;
+    double supWid     = (*cage)[0]->getDouble("SUPWIDTH")*Gaudi::Units::mm;
 //
     double zposSupRing  = zposFirstRing+ringWid*5. + zposGap1 + zposGap2 + zposGap3 + zposGap4;
 
@@ -196,14 +197,14 @@ void SquirrelCageFactory::create(GeoPhysVol *mother)
 //Inner 
    
     double phiICRT = asin((yWidthUSP1/2. + yWidthUSP2 + coordY) / rminInt);
-    double DphiICRT = GeoModelKernelUnits::pi - 2*phiICRT;
+    double DphiICRT = Gaudi::Units::pi - 2*phiICRT;
  
     double phiICRB = asin((yWidthUSP1/2. + yWidthUSP2 - coordY) / rminInt);
-    double DphiICRB = GeoModelKernelUnits::pi - 2*phiICRB;
+    double DphiICRB = Gaudi::Units::pi - 2*phiICRB;
 
     GeoTubs* ICRT = new GeoTubs(rminInt, rminInt + ringThick, ringWid/2., phiICRT, DphiICRT);
   
-    GeoTubs* ICRB = new GeoTubs(rminInt, rminInt + ringThick, ringWid/2., GeoModelKernelUnits::pi + phiICRB, DphiICRB);
+    GeoTubs* ICRB = new GeoTubs(rminInt, rminInt + ringThick, ringWid/2., Gaudi::Units::pi + phiICRB, DphiICRB);
 
 
     const GeoLogVol* ICRTLog = new GeoLogVol("SQringIntTop", ICRT, ringMat);
@@ -215,10 +216,10 @@ void SquirrelCageFactory::create(GeoPhysVol *mother)
 //Outer
   
     double phiECRT = asin((yWidthUSP1/2. + yWidthUSP2 + coordY) / (rminInt+ringGap+ringThick));
-    double DphiECRT = GeoModelKernelUnits::pi - 2*phiECRT;
+    double DphiECRT = Gaudi::Units::pi - 2*phiECRT;
 
     double phiECRB = asin((yWidthUSP1/2. + yWidthUSP2 - coordY) / (rminInt+ringGap+ringThick));
-    double DphiECRB = GeoModelKernelUnits::pi - 2*phiECRB;
+    double DphiECRB = Gaudi::Units::pi - 2*phiECRB;
 
 //     std::cerr << "phiET: " << phiECRT << ", DphiET: " << DphiECRT << std::endl;
 //     std::cerr << "phiIT: " << phiICRT << ", DphiIT: " << DphiICRT << std::endl;
@@ -226,7 +227,7 @@ void SquirrelCageFactory::create(GeoPhysVol *mother)
 //     std::cerr << "phiIB: " << phiICRB << ", DphiIB: " << DphiICRB << std::endl;
 
     GeoTubs* ECRT = new GeoTubs(rminInt+ringGap+ringThick, rminInt+2.*ringThick+ringGap, ringWid/2., phiECRT, DphiECRT);
-    GeoTubs* ECRB = new GeoTubs(rminInt+ringGap+ringThick, rminInt+2.*ringThick+ringGap, ringWid/2., GeoModelKernelUnits::pi + phiECRB, DphiECRB);
+    GeoTubs* ECRB = new GeoTubs(rminInt+ringGap+ringThick, rminInt+2.*ringThick+ringGap, ringWid/2., Gaudi::Units::pi + phiECRB, DphiECRB);
 
     const GeoLogVol* ECRTLog = new GeoLogVol("SQringExtTop", ECRT, ringMat);
     GeoVPhysVol* ECRTPhys = new GeoPhysVol(ECRTLog);
@@ -366,46 +367,46 @@ void SquirrelCageFactory::create(GeoPhysVol *mother)
 //     Squirrel cage rings
 //  Default (initial) ring parameters
 //
-    double rminInt    = 1074.0*GeoModelKernelUnits::mm;
-    double ringThick  = 4.0*GeoModelKernelUnits::mm;
-    double ringGap    = 20.*GeoModelKernelUnits::mm;
-    double ringWid    = 40.*GeoModelKernelUnits::mm;
+    double rminInt    = 1074.0*Gaudi::Units::mm;
+    double ringThick  = 4.0*Gaudi::Units::mm;
+    double ringGap    = 20.*Gaudi::Units::mm;
+    double ringWid    = 40.*Gaudi::Units::mm;
 //
-    rminInt    = (*cage)[0]->getDouble("RINGRMIN")*GeoModelKernelUnits::mm;
-    ringThick  = (*cage)[0]->getDouble("RINGTHICK")*GeoModelKernelUnits::mm;
-    ringGap    = (*cage)[0]->getDouble("RINGGAP")*GeoModelKernelUnits::mm;
-    ringWid    = (*cage)[0]->getDouble("RINGWIDTH")*GeoModelKernelUnits::mm;
+    rminInt    = (*cage)[0]->getDouble("RINGRMIN")*Gaudi::Units::mm;
+    ringThick  = (*cage)[0]->getDouble("RINGTHICK")*Gaudi::Units::mm;
+    ringGap    = (*cage)[0]->getDouble("RINGGAP")*Gaudi::Units::mm;
+    ringWid    = (*cage)[0]->getDouble("RINGWIDTH")*Gaudi::Units::mm;
 //
 //--- Default (initial) z positions
-    double zposFirstRing  = 805.0*GeoModelKernelUnits::mm+161.0*GeoModelKernelUnits::mm;
-    double zposGap1  = 390.*GeoModelKernelUnits::mm;
-    double zposGap2  = 402.*GeoModelKernelUnits::mm;
-    double zposGap3  = 446.*GeoModelKernelUnits::mm;
-    double zposGap4  = 331.*GeoModelKernelUnits::mm;
+    double zposFirstRing  = 805.0*Gaudi::Units::mm+161.0*Gaudi::Units::mm;
+    double zposGap1  = 390.*Gaudi::Units::mm;
+    double zposGap2  = 402.*Gaudi::Units::mm;
+    double zposGap3  = 446.*Gaudi::Units::mm;
+    double zposGap4  = 331.*Gaudi::Units::mm;
 //
-    zposFirstRing  = (*cage)[0]->getDouble("ZBASE")*GeoModelKernelUnits::mm;
-    zposGap1  = (*cage)[0]->getDouble("ZGAP1")*GeoModelKernelUnits::mm;
-    zposGap2  = (*cage)[0]->getDouble("ZGAP2")*GeoModelKernelUnits::mm;
-    zposGap3  = (*cage)[0]->getDouble("ZGAP3")*GeoModelKernelUnits::mm;
-    zposGap4  = (*cage)[0]->getDouble("ZGAP4")*GeoModelKernelUnits::mm;
+    zposFirstRing  = (*cage)[0]->getDouble("ZBASE")*Gaudi::Units::mm;
+    zposGap1  = (*cage)[0]->getDouble("ZGAP1")*Gaudi::Units::mm;
+    zposGap2  = (*cage)[0]->getDouble("ZGAP2")*Gaudi::Units::mm;
+    zposGap3  = (*cage)[0]->getDouble("ZGAP3")*Gaudi::Units::mm;
+    zposGap4  = (*cage)[0]->getDouble("ZGAP4")*Gaudi::Units::mm;
 //
 // Now support ring
-    double rminSup    = 830.0*GeoModelKernelUnits::mm;
-    double supThick   = 90.0*GeoModelKernelUnits::mm;
-    double supWid     = 12.0*GeoModelKernelUnits::mm;
+    double rminSup    = 830.0*Gaudi::Units::mm;
+    double supThick   = 90.0*Gaudi::Units::mm;
+    double supWid     = 12.0*Gaudi::Units::mm;
 //
-    rminSup    = (*cage)[0]->getDouble("SUPRMIN")*GeoModelKernelUnits::mm;
-    supThick   = (*cage)[0]->getDouble("SUPTHICK")*GeoModelKernelUnits::mm;
-    supWid     = (*cage)[0]->getDouble("SUPWIDTH")*GeoModelKernelUnits::mm;
+    rminSup    = (*cage)[0]->getDouble("SUPRMIN")*Gaudi::Units::mm;
+    supThick   = (*cage)[0]->getDouble("SUPTHICK")*Gaudi::Units::mm;
+    supWid     = (*cage)[0]->getDouble("SUPWIDTH")*Gaudi::Units::mm;
 //
     double zposSupRing  = zposFirstRing+ringWid*5. + zposGap1 + zposGap2 + zposGap3 + zposGap4;
 //
 // Now support ribbon
-    double ribWid     = 68.0*GeoModelKernelUnits::mm ;
-    ribWid = (*cage)[0]->getDouble("RIBWIDTH")*GeoModelKernelUnits::mm;
+    double ribWid     = 68.0*Gaudi::Units::mm ;
+    ribWid = (*cage)[0]->getDouble("RIBWIDTH")*Gaudi::Units::mm;
     double ribLeng    = ringWid*5. + zposGap1 + zposGap2 + zposGap3 + zposGap4;
     double ribThick = 0; 
-    if (sqversion >= 3) ribThick = (*cage)[0]->getDouble("RIBTHICK")*GeoModelKernelUnits::mm;
+    if (sqversion >= 3) ribThick = (*cage)[0]->getDouble("RIBTHICK")*Gaudi::Units::mm;
     double safety =0.01;
     double ribThickMax = ringGap - 2*safety;
     if (ribThick == 0 || ribThick > ribThickMax) {

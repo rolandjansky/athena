@@ -24,10 +24,8 @@
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeShift.h"
-#include "GeoModelKernel/Units.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-
-
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <sstream>
 #include <cmath>
@@ -219,7 +217,7 @@ SCT_Ski::placeModule(GeoPhysVol * ski, SCT_Identifier id, int iModule, int side,
   }
   GeoTrf::Transform3D rot = GeoTrf::RotateX3D(stereoAngle);
   //the module is rotated, around X axis, one way or the other (u or v)
-  if (flip) rot = rot * GeoTrf::RotateZ3D(180*GeoModelKernelUnits::deg);
+  if (flip) rot = rot * GeoTrf::RotateZ3D(180*Gaudi::Units::deg);
   GeoTrf::Translation3D pos(xModulePos, 0.0, zModulePos);
   GeoTrf::Transform3D modulePos = GeoTrf::Transform3D(pos*rot);
 

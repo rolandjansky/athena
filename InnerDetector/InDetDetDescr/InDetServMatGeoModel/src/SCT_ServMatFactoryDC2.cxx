@@ -27,6 +27,8 @@
 
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GaudiKernel/Bootstrap.h"
+#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/PhysicalConstants.h"
 #include <stdexcept>
 #define TRTELEMENTSINEL 9
 #define SCTELEMENTSINEL 8
@@ -78,20 +80,20 @@ void SCT_ServMatFactoryDC2::create(GeoPhysVol *mother)
   // Build SCT services in Endcap.
   // (Code taken from TRT_GeoModel)
 
-  double innerRadiusOfSCTSupport = (*tsci)[0]->getDouble("RMIN")*GeoModelKernelUnits::cm + 2*epsilon;
-  double outerRadiusOfSCTSupport = (*tsci)[0]->getDouble("RMAX")*GeoModelKernelUnits::cm;
-  double lengthOfSCTSupport = ((*tsci)[0]->getDouble("ZMAX")-(*tsci)[0]->getDouble("ZMIN"))*GeoModelKernelUnits::cm - epsilon;
-  double positionOfSCTSupport= 0.5 * ((*tsci)[0]->getDouble("ZMAX")+(*tsci)[0]->getDouble("ZMIN"))*GeoModelKernelUnits::cm;
+  double innerRadiusOfSCTSupport = (*tsci)[0]->getDouble("RMIN")*Gaudi::Units::cm + 2*epsilon;
+  double outerRadiusOfSCTSupport = (*tsci)[0]->getDouble("RMAX")*Gaudi::Units::cm;
+  double lengthOfSCTSupport = ((*tsci)[0]->getDouble("ZMAX")-(*tsci)[0]->getDouble("ZMIN"))*Gaudi::Units::cm - epsilon;
+  double positionOfSCTSupport= 0.5 * ((*tsci)[0]->getDouble("ZMAX")+(*tsci)[0]->getDouble("ZMIN"))*Gaudi::Units::cm;
 
-  double innerRadiusOfSCTCables = (*tsci)[1]->getDouble("RMIN")*GeoModelKernelUnits::cm + 2*epsilon;
-  double outerRadiusOfSCTCables = (*tsci)[1]->getDouble("RMAX")*GeoModelKernelUnits::cm;
-  double lengthOfSCTCables = ((*tsci)[1]->getDouble("ZMAX")-(*tsci)[1]->getDouble("ZMIN"))*GeoModelKernelUnits::cm - epsilon;
-  double positionOfSCTCables = 0.5 * ((*tsci)[1]->getDouble("ZMAX")+(*tsci)[1]->getDouble("ZMIN"))*GeoModelKernelUnits::cm;
+  double innerRadiusOfSCTCables = (*tsci)[1]->getDouble("RMIN")*Gaudi::Units::cm + 2*epsilon;
+  double outerRadiusOfSCTCables = (*tsci)[1]->getDouble("RMAX")*Gaudi::Units::cm;
+  double lengthOfSCTCables = ((*tsci)[1]->getDouble("ZMAX")-(*tsci)[1]->getDouble("ZMIN"))*Gaudi::Units::cm - epsilon;
+  double positionOfSCTCables = 0.5 * ((*tsci)[1]->getDouble("ZMAX")+(*tsci)[1]->getDouble("ZMIN"))*Gaudi::Units::cm;
  
-  double innerRadiusOfSCTCooling = (*tsci)[2]->getDouble("RMIN")*GeoModelKernelUnits::cm + 2*epsilon;
-  double outerRadiusOfSCTCooling = (*tsci)[2]->getDouble("RMAX")*GeoModelKernelUnits::cm;
-  double lengthOfSCTCooling = ((*tsci)[2]->getDouble("ZMAX")-(*tsci)[2]->getDouble("ZMIN"))*GeoModelKernelUnits::cm - epsilon;
-  double positionOfSCTCooling = 0.5 * ((*tsci)[2]->getDouble("ZMAX")+(*tsci)[2]->getDouble("ZMIN"))*GeoModelKernelUnits::cm;
+  double innerRadiusOfSCTCooling = (*tsci)[2]->getDouble("RMIN")*Gaudi::Units::cm + 2*epsilon;
+  double outerRadiusOfSCTCooling = (*tsci)[2]->getDouble("RMAX")*Gaudi::Units::cm;
+  double lengthOfSCTCooling = ((*tsci)[2]->getDouble("ZMAX")-(*tsci)[2]->getDouble("ZMIN"))*Gaudi::Units::cm - epsilon;
+  double positionOfSCTCooling = 0.5 * ((*tsci)[2]->getDouble("ZMAX")+(*tsci)[2]->getDouble("ZMIN"))*Gaudi::Units::cm;
 
 
   // For new LMT we get name from SCT table ZSCG.
@@ -106,15 +108,15 @@ void SCT_ServMatFactoryDC2::create(GeoPhysVol *mother)
     // We define it here for now as a quick fix.
     
     // Thickness of CuK 896 tapes smeared in phi = 0.08575cm
-    double tapeCrossSection = (*zscg)[0]->getDouble("ALAREA")*GeoModelKernelUnits::cm2;
+    double tapeCrossSection = (*zscg)[0]->getDouble("ALAREA")*Gaudi::Units::cm2;
     double rave = 2*innerRadiusOfSCTCables*outerRadiusOfSCTCables/(innerRadiusOfSCTCables+outerRadiusOfSCTCables);
-    double thickness = 988*tapeCrossSection/(2*GeoModelKernelUnits::pi*rave);
+    double thickness = 988*tapeCrossSection/(2*Gaudi::Units::pi*rave);
     // We need to scale the density to fit in with space given.
-    //std::cout << "LMT thickness (GeoModelKernelUnits::mm) = " << thickness/GeoModelKernelUnits::mm << std::endl;
+    //std::cout << "LMT thickness (Gaudi::Units::mm) = " << thickness/Gaudi::Units::mm << std::endl;
     double densityfactor = thickness/lengthOfSCTCables;
     const GeoElement  *copper  = m_materialManager->getElement("Copper");
     const GeoMaterial *kapton  = m_materialManager->getMaterial("std::Kapton");
-    GeoMaterial * matCuKapton   = new GeoMaterial("CuKaptoninTRT",densityfactor * 2.94*GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3);
+    GeoMaterial * matCuKapton   = new GeoMaterial("CuKaptoninTRT",densityfactor * 2.94*GeoModelKernelUnits::gram/Gaudi::Units::cm3);
     matCuKapton->add(const_cast<GeoElement*>(copper),  0.6142);
     matCuKapton->add(const_cast<GeoMaterial*>(kapton), 0.3858);
     matCuKapton->lock();
@@ -167,15 +169,15 @@ void SCT_ServMatFactoryDC2::create(GeoPhysVol *mother)
     std::ostringstream o;
     o << jj;
     std::string logName = "SctInel"+o.str();  
-    double halflength = ((*inel)[ii]->getFloat("ZMAX")-(*inel)[ii]->getFloat("ZMIN"))/2.*GeoModelKernelUnits::cm;
+    double halflength = ((*inel)[ii]->getFloat("ZMAX")-(*inel)[ii]->getFloat("ZMIN"))/2.*Gaudi::Units::cm;
     int volType = (int) (*inel)[ii]->getFloat("VOLTYP");
 
     const GeoShape* serviceTube = createShape(volType,
-					      (*inel)[ii]->getFloat("RMIN1")*GeoModelKernelUnits::cm,
-					      (*inel)[ii]->getFloat("RMAX1")*GeoModelKernelUnits::cm,
+					      (*inel)[ii]->getFloat("RMIN1")*Gaudi::Units::cm,
+					      (*inel)[ii]->getFloat("RMAX1")*Gaudi::Units::cm,
 					      halflength,
-					      (*inel)[ii]->getFloat("RMIN2")*GeoModelKernelUnits::cm,
-					      (*inel)[ii]->getFloat("RMAX2")*GeoModelKernelUnits::cm);
+					      (*inel)[ii]->getFloat("RMIN2")*Gaudi::Units::cm,
+					      (*inel)[ii]->getFloat("RMAX2")*Gaudi::Units::cm);
     
 
     // create the material...
@@ -194,16 +196,16 @@ void SCT_ServMatFactoryDC2::create(GeoPhysVol *mother)
       cylMat = createMaterial(nameStr.str(),
 			      volType,
 			      fractionRL,
-			      (*inel)[ii]->getFloat("RMIN1")*GeoModelKernelUnits::cm,
-			      (*inel)[ii]->getFloat("RMAX1")*GeoModelKernelUnits::cm,
+			      (*inel)[ii]->getFloat("RMIN1")*Gaudi::Units::cm,
+			      (*inel)[ii]->getFloat("RMAX1")*Gaudi::Units::cm,
 			      halflength,
-			      (*inel)[ii]->getFloat("RMIN2")*GeoModelKernelUnits::cm,
-			      (*inel)[ii]->getFloat("RMAX2")*GeoModelKernelUnits::cm); 
+			      (*inel)[ii]->getFloat("RMIN2")*Gaudi::Units::cm,
+			      (*inel)[ii]->getFloat("RMAX2")*Gaudi::Units::cm); 
     }
 
     const GeoLogVol* ServLog = new GeoLogVol(logName,serviceTube,cylMat);
     GeoVPhysVol* ServPhys = new GeoPhysVol(ServLog);
-    double zpos = ((*inel)[ii]->getFloat("ZMAX")+(*inel)[ii]->getFloat("ZMIN"))/2.*GeoModelKernelUnits::cm+epsilon;
+    double zpos = ((*inel)[ii]->getFloat("ZMAX")+(*inel)[ii]->getFloat("ZMIN"))/2.*Gaudi::Units::cm+epsilon;
     // place two
     GeoTrf::Translate3D servpos1(0.,0.,zpos);
     GeoTrf::Translate3D servpos2(0.,0.,-zpos);
@@ -227,7 +229,7 @@ const GeoShape* SCT_ServMatFactoryDC2::createShape(int volType,
 						double rmax2=0.) 
   
 {
-  const double epsilon = 0.001*GeoModelKernelUnits::mm;
+  const double epsilon = 0.001*Gaudi::Units::mm;
   enum VOLTYPE{Tube=1, Cone, ICone};
   const GeoShape* IDShape = 0;
   if(volType == Tube) {
