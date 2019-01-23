@@ -12,7 +12,7 @@
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <cmath>
 #include <iostream>
@@ -58,7 +58,7 @@ SCT_FwdOptoHarness::build()
   m_material = materials.getMaterialForVolume(m_materialName, optoHarnessShape->volume());
   //  m_material = materials.getMaterial(m_materialName);
   //  cout << "Material = " << m_material->getName() << endl;
-  //  cout << "Density = " << m_material->getDensity()/(gram/GeoModelKernelUnits::cm3) << endl;
+  //  cout << "Density = " << m_material->getDensity()/(gram/Gaudi::Units::cm3) << endl;
   const GeoLogVol * optoHarnessLog = new GeoLogVol(getName(), optoHarnessShape, m_material);
 
   GeoPhysVol * optoHarness = new GeoPhysVol(optoHarnessLog);

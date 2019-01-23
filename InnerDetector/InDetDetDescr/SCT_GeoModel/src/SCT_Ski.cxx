@@ -29,7 +29,7 @@
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <sstream>
 #include <cmath>
@@ -102,8 +102,8 @@ SCT_Ski::getParameters()
 const GeoLogVol * 
 SCT_Ski::preBuild()
 {
-  const double rphiClearance = 0.5*GeoModelKernelUnits::mm;
-  const double radialClearance = 0.5*GeoModelKernelUnits::mm;
+  const double rphiClearance = 0.5*Gaudi::Units::mm;
+  const double radialClearance = 0.5*Gaudi::Units::mm;
 
 
   // Make components.
@@ -134,7 +134,7 @@ SCT_Ski::preBuild()
 
   // *** 18:00 Fri 27th May 2005 D.Naito put some comments.
   // I need to calculate moduleYMax and moduleYMin for yModuleOffset,
-  // because the modules is asyGeoModelKernelUnits::mmetry in y direction.
+  // because the modules is asyGaudi::Units::mmetry in y direction.
 
   //
   // These are coordinates of corners of module's envelopes.

@@ -37,11 +37,8 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoShapeShift.h"
-#include "GeoModelKernel/Units.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-
-
-
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <sstream>
 #include <cmath>
@@ -111,12 +108,12 @@ SCT_FwdWheel::getParameters()
 
   // FIXME: Check and put these in DB or calculate them
   // We have a maximum width of 80.2. Make it 75 for some clearance.
-  //m_innerRadius = 267 * GeoModelKernelUnits::mm;
-  //m_outerRadius = 590 * GeoModelKernelUnits::mm;
-  //m_thickness = 100 * GeoModelKernelUnits::mm;
+  //m_innerRadius = 267 * Gaudi::Units::mm;
+  //m_outerRadius = 590 * Gaudi::Units::mm;
+  //m_thickness = 100 * Gaudi::Units::mm;
   // These get swapped later if the wheel is rotated.
-  m_thicknessFront = 30 * GeoModelKernelUnits::mm;
-  m_thicknessBack  = 45 * GeoModelKernelUnits::mm;
+  m_thicknessFront = 30 * Gaudi::Units::mm;
+  m_thicknessBack  = 45 * Gaudi::Units::mm;
 
   m_numFSITypes = parameters->fwdFSINumGeomTypes();
   m_fsiVector =  &(parameters->fsiVector(m_iWheel));
@@ -207,7 +204,7 @@ SCT_FwdWheel::preBuild()
   // If first or last wheel there is nothing protruding beyond the rings so we reduce the
   // envelope size. Comes to about 20 mm. Note the front becomes the back later for the last wheel.
   if ((m_iWheel == 0) || (m_iWheel == m_numWheels - 1)) {
-     m_thicknessFront = maxModuleThickness + 1*GeoModelKernelUnits::mm; // We give plenty of safety as we have the room.
+     m_thicknessFront = maxModuleThickness + 1*Gaudi::Units::mm; // We give plenty of safety as we have the room.
   // But now modified by disc fixations
      if(m_discFixationPresent) {
        m_thicknessFront = std::max(m_thicknessFront,m_discFixation->radius() + m_safety);
@@ -249,7 +246,7 @@ SCT_FwdWheel::preBuild()
 
   // TODO. Have to account for FSI and patch panels
   //m_thickness   = 2. * maxRingOffset + maxThickness; 
-  // m_thickness  = 100 * GeoModelKernelUnits::mm;
+  // m_thickness  = 100 * Gaudi::Units::mm;
 
   //  std::cout << "Wheel " << m_iWheel << ":" << std::endl;
   //  std::cout << " innerRadius = " << m_innerRadius << std::endl;
@@ -391,7 +388,7 @@ SCT_FwdWheel::build(SCT_Identifier id) const
     for (int iRepeat = 0; iRepeat < numRepeat; iRepeat++) {
   
       // Calculate the location.
-      double patchPanelAngle = m_patchPanelLocAngle[iPPLoc] + iRepeat * 90*GeoModelKernelUnits::degree;
+      double patchPanelAngle = m_patchPanelLocAngle[iPPLoc] + iRepeat * 90*Gaudi::Units::degree;
       double patchPanelZpos =  patchPanelSide * (powerTapeZMax + 0.5*m_patchPanel[ppType]->thickness() + m_safety);
       double patchPanelR = m_patchPanel[ppType]->midRadius();
 
@@ -471,8 +468,8 @@ SCT_FwdWheel::build(SCT_Identifier id) const
     //        << "Sim type: " << (*m_fsiVector)[iFSI]->simTypeString() << ", "
     //        << "Actual type: " << (*m_fsiVector)[iFSI]->actualType() << ", "
     //        << "Loc type: " << (*m_fsiVector)[iFSI]->locationType() << ", "
-    //        << "Radius(mm): " << fsiRadius/GeoModelKernelUnits::mm << ", "
-    //        << "Phi(deg): " << fsiPhi/GeoModelKernelUnits::deg << ", "
+    //        << "Radius(mm): " << fsiRadius/Gaudi::Units::mm << ", "
+    //        << "Phi(deg): " << fsiPhi/Gaudi::Units::deg << ", "
     //        << "Thickness(mm): " << m_fsiType[type]->thickness() << ", "
     //        << "ZOffset(mm): " << m_fsiType[type]->zOffset() << ", "
     //        << "RPhi(mm): " << m_fsiType[type]->rphi() << ", "
@@ -515,7 +512,7 @@ SCT_FwdWheel::build(SCT_Identifier id) const
       // The disc fixations repeat in the four quadrants.
       for (int iRepeat = 0; iRepeat < 4; iRepeat++) {
         // Calculate the location.
-        double discFixationAngle = m_discFixationLocAngle[iLoc] + iRepeat * 90*GeoModelKernelUnits::degree;
+        double discFixationAngle = m_discFixationLocAngle[iLoc] + iRepeat * 90*Gaudi::Units::degree;
         double discFixationR = m_ringMaxRadius + 0.5*m_discFixation->thickness() + m_safety;
         // Check is within wheel
         if (discFixationR + 0.5*m_discFixation->thickness() >= m_outerRadius) {
@@ -524,7 +521,7 @@ SCT_FwdWheel::build(SCT_Identifier id) const
           std::cout << " Wheel outer radius: " << m_outerRadius << std::endl;
         }
        // Add it to the wheel
-        wheel->add(new GeoTransform(GeoTrf::RotateY3D(90.*GeoModelKernelUnits::degree)*GeoTrf::RotateX3D(discFixationAngle)*GeoTrf::TranslateZ3D(discFixationR)));
+        wheel->add(new GeoTransform(GeoTrf::RotateY3D(90.*Gaudi::Units::degree)*GeoTrf::RotateX3D(discFixationAngle)*GeoTrf::TranslateZ3D(discFixationR)));
         wheel->add(m_discFixation->getVolume());
       }
     }

@@ -50,8 +50,8 @@
 #include "GaudiKernel/ISvcLocator.h"
 
 #include "GeoModelKernel/GeoDefinitions.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
-#include "GeoModelKernel/Units.h"
 
 
 #include <iostream> 
@@ -246,7 +246,7 @@ void SCT_DetectorFactory::create(GeoPhysVol *world)
     GeoVPhysVol * forwardMinusPV = sctForwardMinus.build(idFwdMinus);
 
     GeoTrf::Transform3D rot;
-    rot = GeoTrf::RotateY3D(180 * GeoModelKernelUnits::degree);
+    rot = GeoTrf::RotateY3D(180 * Gaudi::Units::degree);
   
     GeoTrf::Transform3D fwdTransformMinus(sctTransform  
                                            * sctGeneral->partTransform(forwardMinusLabel)  

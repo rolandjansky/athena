@@ -31,11 +31,9 @@
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoMaterial.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include "GeoModelKernel/GeoDefinitions.h"
-
-
 
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SCT_ForwardModuleSideDesign.h"
@@ -316,10 +314,10 @@ void SCT_FwdSensor::makeDesign()
   // This is the default and no action is required. 
   // Can force axes not to be swapped by setting to false.
   // 
-  // bool phiSyGeoModelKernelUnits::mmetric = true;
-  // bool etaSyGeoModelKernelUnits::mmetric = false; 
-  // bool depthSyGeoModelKernelUnits::mmetric = true;
-  // m_design->setSyGeoModelKernelUnits::mmetry(phiSyGeoModelKernelUnits::mmetric, etaSyGeoModelKernelUnits::mmetric, depthSyGeoModelKernelUnits::mmetric,
+  // bool phiSyGaudi::Units::mmetric = true;
+  // bool etaSyGaudi::Units::mmetric = false; 
+  // bool depthSyGaudi::Units::mmetric = true;
+  // m_design->setSyGaudi::Units::mmetry(phiSyGaudi::Units::mmetric, etaSyGaudi::Units::mmetric, depthSyGaudi::Units::mmetric,
   //
 
 }

@@ -40,7 +40,7 @@
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <sstream>
 #include <cmath>
@@ -149,7 +149,7 @@ SCT_Layer::preBuild()
   // Calculations for making active layer components - called ski.
   // This is the modules + doglegs + cooling blocks + coolingpipe 
   // 
-  double divisionAngle  = 360 * GeoModelKernelUnits::degree / m_skisPerLayer;
+  double divisionAngle  = 360 * Gaudi::Units::degree / m_skisPerLayer;
 
   // We define here the first module(id = 0) as the nearest module to phi = 0 with positive phi.
   // We allow slightly negative in case of rounding errors.
@@ -199,7 +199,7 @@ SCT_Layer::preBuild()
   // Build the volume representing the cooling inlets, outlet and U-bends.
   // We cannot do this until we have the dimensions of the clamp
   double coolingInnerRadius = m_clamp->outerRadius();
-  double clearance = 1*GeoModelKernelUnits::mm;
+  double clearance = 1*Gaudi::Units::mm;
   double coolingLength = 0.5*m_cylinderLength - 0.5*m_activeLength - clearance;
   m_coolingEnd = new SCT_CoolingEnd("CoolingEnd"+layerNumStr, m_iLayer, coolingInnerRadius, coolingLength);
 
@@ -271,7 +271,7 @@ SCT_Layer::build(SCT_Identifier id) const
   // We make this a fullPhysVol for alignment code.
   GeoFullPhysVol * layer = new GeoFullPhysVol(m_logVolume);
 
-  double divisionAngle  = 360 * GeoModelKernelUnits::degree / m_skisPerLayer;
+  double divisionAngle  = 360 * Gaudi::Units::degree / m_skisPerLayer;
 
   //
   // Active Layer
@@ -290,7 +290,7 @@ SCT_Layer::build(SCT_Identifier id) const
    
     double phi = m_skiPhiStart + iSki * divisionAngle;
 
-    //    std::cout << "m_skiPhiStart = " << m_skiPhiStart/GeoModelKernelUnits::degree << ", phi = " << phi/GeoModelKernelUnits::degree << std::endl;
+    //    std::cout << "m_skiPhiStart = " << m_skiPhiStart/Gaudi::Units::degree << ", phi = " << phi/Gaudi::Units::degree << std::endl;
 
     GeoTrf::Vector3D pos(m_radius, 0, 0);
     pos = GeoTrf::RotateZ3D(phi)*pos;
@@ -379,7 +379,7 @@ SCT_Layer::build(SCT_Identifier id) const
     double jewelRadius = std::sqrt(m_fibreMask->innerRadius()*m_fibreMask->innerRadius() - 0.25 * m_endJewel->rPhiWidth()*m_endJewel->rPhiWidth()) - 0.5 * m_endJewel->radialWidth();
     //  std::cout << "jewelRadius = " << jewelRadius << std::endl;
     for ( int i=0; i<m_nRepeatEndJewel; i++) {
-      double jewelAngle = m_phiEndJewel + i * 360.*GeoModelKernelUnits::degree/m_nRepeatEndJewel;
+      double jewelAngle = m_phiEndJewel + i * 360.*Gaudi::Units::degree/m_nRepeatEndJewel;
       //    std::cout << "jewelAngle = " << jewelAngle << std::endl;
       supportLayer->add(new GeoTransform(GeoTrf::RotateZ3D(jewelAngle)*GeoTrf::TranslateX3D(jewelRadius)*GeoTrf::TranslateZ3D(m_zEndJewel)));
       supportLayer->add(m_endJewel->getVolume());
@@ -391,7 +391,7 @@ SCT_Layer::build(SCT_Identifier id) const
     double scorpionRadius = std::sqrt(m_supportCyl->innerRadius()*m_supportCyl->innerRadius() - 0.25 * m_scorpion->rPhiWidth()*m_scorpion->rPhiWidth()) - 0.5 * m_scorpion->radialWidth();
     //  std::cout << "scorpionRadius = " << scorpionRadius << std::endl;
     for ( int i=0; i<m_nRepeatScorpion; i++) {
-      double scorpionAngle = m_phiScorpion + i * 360.*GeoModelKernelUnits::degree/m_nRepeatScorpion;
+      double scorpionAngle = m_phiScorpion + i * 360.*Gaudi::Units::degree/m_nRepeatScorpion;
       //    std::cout << "scorpionAngle = " << scorpionAngle << std::endl;
       supportLayer->add(new GeoTransform(GeoTrf::RotateZ3D(scorpionAngle)*GeoTrf::TranslateX3D(scorpionRadius)*GeoTrf::TranslateZ3D(m_zScorpion)));
       supportLayer->add(m_scorpion->getVolume());
@@ -465,7 +465,7 @@ SCT_Layer::calcSkiPhiOffset()
 
   // First calculated for abs(m_tilt). 
 
-  double divisionAngle  = 360 * GeoModelKernelUnits::degree / m_skisPerLayer;
+  double divisionAngle  = 360 * Gaudi::Units::degree / m_skisPerLayer;
 
   // double activeHalfWidth =     0.5 * m_skiAux->ski()->module()->activeWidth();
   // double moduleHalfThickness = 0.5 * m_skiAux->ski()->module()->thickness();
@@ -495,7 +495,7 @@ SCT_Layer::calcSkiPhiOffset()
   //// std::cout << "  Active width = " << m_skiAux->ski()->module()->activeWidth() << std::endl;
   //std::cout << "  Module width = " << m_module->width() << std::endl;
   //std::cout << "  Active width = " << m_module->activeWidth() << std::endl;
-  //std::cout << "  Division angle = " << divisionAngle/GeoModelKernelUnits::degree << " GeoModelKernelUnits::deg" << std::endl;
-  //std::cout << "  Ski phi offset = " << skiPhiOffset/GeoModelKernelUnits::degree  << " GeoModelKernelUnits::deg" << std::endl;
+  //std::cout << "  Division angle = " << divisionAngle/Gaudi::Units::degree << " Gaudi::Units::deg" << std::endl;
+  //std::cout << "  Ski phi offset = " << skiPhiOffset/Gaudi::Units::degree  << " Gaudi::Units::deg" << std::endl;
   return skiPhiOffset;
 }

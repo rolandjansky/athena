@@ -27,7 +27,7 @@
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/Units.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include <iostream>
 #include <sstream>
 #include <cmath>
@@ -94,7 +94,7 @@ SCT_SkiPowerTape::build()
     
     // nPos is used to stack the power tapes. Modules closest to interlink are
     // furthest from support. The positive and negative z positions are 
-    // syGeoModelKernelUnits::mmetric. nPos = 5,4,3,2,1,0,0,1,2,3,4,5 for the 12 modules.
+    // syGaudi::Units::mmetric. nPos = 5,4,3,2,1,0,0,1,2,3,4,5 for the 12 modules.
     int nPos;
 
     // test sign of zpos to determine whether the tape runs to the
@@ -157,7 +157,7 @@ SCT_SkiPowerTape::build()
     // Position the tape
     skiPowerTape->add(new GeoTransform(GeoTrf::Translate3D(xTapePos, yTapePos, tapeMid)));
     skiPowerTape->add(powerTape.getVolume());
-    mass += (powerTape.getVolume()->getLogVol()->getShape()->volume()/GeoModelKernelUnits::cm3)*(powerTape.material()->getDensity()/GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
+    mass += (powerTape.getVolume()->getLogVol()->getShape()->volume()/Gaudi::Units::cm3)*(powerTape.material()->getDensity()/GeoModelKernelUnits::g/Gaudi::Units::cm3);
     ltot += tapeLength;
 
   }    

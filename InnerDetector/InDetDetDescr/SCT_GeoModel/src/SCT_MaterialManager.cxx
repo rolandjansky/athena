@@ -11,6 +11,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <iostream>
 
@@ -64,7 +65,7 @@ SCT_MaterialManager::loadMaterials()
   //const GeoMaterial *kapton   = getMaterial("std::Kapton"); // 30th Aug 2005 D.Naito added.
 
   // CuKapton for Low Mass Tapes
-  //GeoMaterial * matCuKapton   = new GeoMaterial("sct::CuKapton",2.94*gram/GeoModelKernelUnits::cm3);
+  //GeoMaterial * matCuKapton   = new GeoMaterial("sct::CuKapton",2.94*gram/Gaudi::Units::cm3);
   //matCuKapton->add(const_cast<GeoElement*>(copper),  0.6142);
   //matCuKapton->add(const_cast<GeoMaterial*>(kapton), 0.3858);
   //addMaterial(matCuKapton);

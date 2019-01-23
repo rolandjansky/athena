@@ -32,7 +32,7 @@
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoMaterial.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <sstream>
 #include <cmath>
@@ -224,7 +224,7 @@ SCT_Forward::build(SCT_Identifier id) const
       // Calculate radius to start placing power tapes. This is half way bewteen outer radius
       // of support fram and outer radius of forward envelope.
       // The -1 mm is to avoid a clash with the thermal shield.
-      double innerRadiusPowerTapes = 0.5*(supportFrame.outerRadius() + m_outerRadius) - 1*GeoModelKernelUnits::mm;
+      double innerRadiusPowerTapes = 0.5*(supportFrame.outerRadius() + m_outerRadius) - 1*Gaudi::Units::mm;
 
       // Inner radius of cylinder representing power tapes. Gets incremented for each wheel.
       double rStart = innerRadiusPowerTapes;

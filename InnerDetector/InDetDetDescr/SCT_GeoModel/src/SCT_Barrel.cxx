@@ -33,7 +33,7 @@
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoShapeShift.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <iostream>
 
@@ -59,7 +59,7 @@ SCT_Barrel::getParameters()
   m_thermalShieldEndWallThickness = parameters->thermalShieldEndCapThickness();
 
   // Clearannce in z between layer and interlink.
-  m_zClearance = 1*GeoModelKernelUnits::mm;
+  m_zClearance = 1*Gaudi::Units::mm;
 
   // Layer internal structure and services depend on geometry version
   m_isOldGeometry = parameters->isOldGeometry();
@@ -277,10 +277,10 @@ void SCT_Barrel::buildEMIShield(GeoFullPhysVol * parent) const
   if (!m_isOldGeometry) {
     double dphi = jointRPhi / outerRadius;
     const GeoTubs* emiJointTubs = new GeoTubs(outerRadius, outerRadius+jointDeltaR, 0.5*length,
-                                              -0.5 * dphi * GeoModelKernelUnits::radian, dphi * GeoModelKernelUnits::radian);
+                                              -0.5 * dphi * Gaudi::Units::radian, dphi * Gaudi::Units::radian);
     //    std::cout << "EMIJoint tubs volume = " << emiJointTubs->volume() << std::endl; 
     const GeoTubs* jointCutOut = new GeoTubs(outerRadius, outerRadius+jointDeltaR, 0.5*pixelAttachmentLength,
-                                             -0.5 * dphi * GeoModelKernelUnits::radian, dphi * GeoModelKernelUnits::radian);
+                                             -0.5 * dphi * Gaudi::Units::radian, dphi * Gaudi::Units::radian);
     //    std::cout << "Cut-out volume = " << jointCutOut->volume() << std::endl; 
     const GeoShape* jointTemp = (GeoShape*)&(emiJointTubs->subtract(*jointCutOut << GeoTrf::TranslateZ3D(pixelAttachmentZpos)));
     const GeoShape* emiJointShape = (GeoShape*)&jointTemp->subtract(*jointCutOut << GeoTrf::TranslateZ3D(-pixelAttachmentZpos));
@@ -291,7 +291,7 @@ void SCT_Barrel::buildEMIShield(GeoFullPhysVol * parent) const
     GeoPhysVol * emiJoint = new GeoPhysVol(emiJointLog);
     // Place 3 copies
     for (int i=0; i<3; i++) {
-      double angle = (90. + i * 120.) * GeoModelKernelUnits::degree;
+      double angle = (90. + i * 120.) * Gaudi::Units::degree;
       parent->add(new GeoTransform(GeoTrf::RotateZ3D(angle)));
       parent->add(emiJoint);
     }

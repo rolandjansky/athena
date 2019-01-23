@@ -24,15 +24,10 @@
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
-
-#include "GeoModelKernel/Units.h"
-
 #include "GeoModelKernel/GeoDefinitions.h"
-
-
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <cmath>
-
 
 SCT_FwdSpine::SCT_FwdSpine(const std::string & name,
          int ringType)
@@ -70,7 +65,7 @@ SCT_FwdSpine::getParameters()
     - parameters->fwdHybridMountPointToInnerEdge()
     - parameters->fwdModuleHybridEdgeToSpine(m_ringType);
    
-  // (zssp[m_ringType].spndox + zsmi[m_ringType].mountd - zhyb->hybysh - zhyb->hybgap0) * GeoModelKernelUnits::cm;
+  // (zssp[m_ringType].spndox + zsmi[m_ringType].mountd - zhyb->hybysh - zhyb->hybgap0) * Gaudi::Units::cm;
 
 }
 
