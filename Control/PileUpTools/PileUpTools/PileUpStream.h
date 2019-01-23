@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PILEUPSTREAM_PILEUPSTREAM_H
@@ -23,10 +23,7 @@ class IMessageSvc;
 class ISvcLocator;
 class StoreGateSvc;
 class ActiveStoreSvc;
-namespace xAODMaker
-{
-  class IEventInfoCnvTool;
-}
+class PileUpMergeSvc;
 
 /** @class PileUpStream
  * @brief a triple selector/context/store defines a stream
@@ -73,8 +70,6 @@ public:
   bool setupStore();
   /// backward compatibility
   inline bool setupStore(bool ) { return setupStore();}
-
-  void setEICnvTool( xAODMaker::IEventInfoCnvTool *tool ) { m_xAODCnvTool = tool; }
 
   /// finalize and release store. To be called on ... finalize()
   StatusCode finalize();
@@ -127,6 +122,8 @@ private:
   /// Input Iterators
   EvtIterator* p_iter; 
 
+  PileUpMergeSvc* p_mergeSvc;
+  
   ActiveStoreSvc* p_activeStore;
 
   //mutable so that ownership can be passed upon copy
@@ -139,10 +136,6 @@ private:
   bool m_used; ///has this stream already been used? (for the current event)
   bool m_hasRing;
   unsigned int m_iOriginalRing; ///> original ring in which event was used
-
-public:
-  /// EventInfo -> xAOD::EventInfo converter tool
-  static xAODMaker::IEventInfoCnvTool *m_xAODCnvTool;
 };
 #endif // PILEUPSTREAM_PILEUPSTREAM_H
 

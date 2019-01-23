@@ -16,6 +16,7 @@
 #include "EventInfo/PileUpTimeEventIndex.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "PileUpTools/IPileUpTool.h"    /* subEventIterator*/
+#include "xAODCnvInterfaces/IEventInfoCnvTool.h"
 
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ClassID.h"
@@ -113,9 +114,11 @@ public:
   static const InterfaceID& interfaceID();
   virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
 
+  /// get EventInfo from SG, by default using p_overStore
+  const xAOD::EventInfo* getPileUpEvent( StoreGateSvc* sg = nullptr,
+                                         const std::string& einame = "OverlayEvent" ) const;
+
 private:
-  // hack to make gcc happy
-  const xAOD::EventInfo* getPileUpEvent() const;
   ServiceHandle<StoreGateSvc> p_overStore;      ///< overlaid SG (default)
   ServiceHandle<ActiveStoreSvc> p_activeStore;  ///< current active store
   ToolHandleArray<IPileUpXingFolder> m_intervals; ///< Property: bunch xing intervals
@@ -173,6 +176,8 @@ private:
 
   bool doRefresh(const Range& r, int iXing);
 
+  /// property: Handle to the EventInfo -> xAOD::EventInfo converter tool
+  ToolHandle< xAODMaker::IEventInfoCnvTool > m_xAODCnvTool;
 };
 #include "PileUpTools/PileUpMergeSvc.icc"
 #endif /* PILEUPTOOLS_PILEUPMERGESVC_H */

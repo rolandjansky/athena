@@ -29,10 +29,6 @@
 class IBeamIntensity;
 class IBeamLuminosity;
 class IBkgStreamsCache;
-namespace xAODMaker
-{
-  class IEventInfoCnvTool;
-}
 class IEvtSelector;
 class IIncidentSvc;
 class ITimeKeeper;
@@ -156,8 +152,6 @@ private:
   ServiceHandle<IBeamIntensity> m_beamInt;
   /// property: beam intensity service handle for luminosity profile in iovtime
   ServiceHandle<IBeamLuminosity> m_beamLumi;
-  /// property: Handle to the EventInfo -> xAOD::EventInfo converter tool
-  ToolHandle< xAODMaker::IEventInfoCnvTool > m_xAODCnvTool;
   //@}
 
   /// current run number

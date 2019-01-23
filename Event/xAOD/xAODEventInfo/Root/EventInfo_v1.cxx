@@ -825,7 +825,7 @@ namespace xAOD {
       return m_evtStore;
    }
 
-   void EventInfo_v1::setEvtStore( StoreGateSvc* svc ) {
+   void EventInfo_v1::setEvtStore( StoreGateSvc* svc ) const {
 
       m_evtStore = svc;
       return;

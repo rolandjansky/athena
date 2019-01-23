@@ -33,7 +33,6 @@
 
 // xAOD include(s):
 #include "xAODCore/tools/PrintHelpers.h"
-#include "xAODCnvInterfaces/IEventInfoCnvTool.h"
 #include "EventInfoUtils/EventInfoFromxAOD.h"
 
 // Gaudi headers
@@ -72,7 +71,6 @@ PileUpEventLoopMgr::PileUpEventLoopMgr(const std::string& name,
     m_failureMode(1),
     m_beamInt("FlatBM", name),
     m_beamLumi("LumiProfileSvc", name),
-    m_xAODCnvTool("xAODMaker::EventInfoCnvTool/EventInfoCnvTool", this),//Will need a special configuration here + extra config tweaks
     m_currentRun(0), m_firstRun(true),
     m_msg( name ),
     m_maxBunchCrossingPerOrbit(3564),
@@ -108,7 +106,6 @@ PileUpEventLoopMgr::PileUpEventLoopMgr(const std::string& name,
   declareProperty("BeamLuminosity", m_beamLumi,
                   "The service providing the beam luminosity distribution vs. run");
   declareProperty("PileUpMergeSvc", m_mergeSvc, "PileUp Merge Service");
-  declareProperty( "xAODCnvTool", m_xAODCnvTool );
   declareProperty("IsEmbedding", m_isEmbedding, "Set this to True for embedding jobs.");
   declareProperty("AllowSerialAndMPToDiffer", m_allowSerialAndMPToDiffer, "When set to False, this will allow the code to reproduce serial output in an AthenaMP job, albeit with a significant performance penalty.");
   //  m_caches.push_back("BkgStreamsCache/MinBiasCache");
@@ -152,9 +149,6 @@ StatusCode PileUpEventLoopMgr::initialize()
 
   //locate the IncidentSvc and initialize our local ptr
   CHECK(m_incidentSvc.retrieve());
-
-  // Retrieve the converter tool:
-  CHECK(m_xAODCnvTool.retrieve());
 
   //locate the PileUpMergeSvc and initialize our local ptr
   CHECK(m_mergeSvc.retrieve());
@@ -655,8 +649,6 @@ PileUpEventLoopMgr::setupStreams()
           return StatusCode::FAILURE;
         }
     }
-  // MN: FIX:  Pass the converter tool to PileUpStream in an ugly hack
-  PileUpStream::m_xAODCnvTool = &*m_xAODCnvTool;
 
   //now get the bkg stream caches, and set them up
   CHECK(m_caches.retrieve());

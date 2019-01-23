@@ -112,9 +112,20 @@ PileUpMergeSvc::retrieveSubEvtsData(const KEY& dataKey, //orig evt key
     }  
     //reset active store pointer to default event store FIXME DANGEROUS
     p_activeStore->setStore(&*p_overStore);
-  } else {		
-     ATH_MSG_FATAL ( "no EventInfo object found!" );
-     return StatusCode::FAILURE;
+  } else {
+     ATH_MSG_DEBUG ( "default PileUpEventInfo not found, trying any EventInfo" ); 
+     // check for EventInfo with any key name
+     pEvent = getPileUpEvent( p_activeStore->activeStore(), "" );
+     if( pEvent ) {
+        DataLink_t dLink;
+        fillLink(dLink, dataKey);
+        if (dLink.isValid()) {
+           timedData.push_back(std::make_pair(0, dLink));
+        }
+     } else {
+        ATH_MSG_FATAL ( "no EventInfo object found!" );
+        return StatusCode::FAILURE;
+     }
   }
   return StatusCode::SUCCESS;
 }
@@ -188,7 +199,6 @@ PileUpMergeSvc::retrieveSingleSubEvtData(const KEY& dataKey, const DATA*& data, 
 
 }
 
-
 ///retrieve keyed DATA objs for all sub-events and attach a time to them
 template <typename KEY, typename TIMEDDATA>
 StatusCode 
@@ -202,9 +212,13 @@ PileUpMergeSvc::retrieveSubEvtsData(const KEY& dataKey, //orig evt key
   //FIXME we still have to check we are dealing with a sequence:
   //  boost::function_requires < boost::SequenceConcept<TIMEDDATA> > ();
   const xAOD::EventInfo* pEvent = getPileUpEvent();
+
+  void dumpPileup( const xAOD::EventInfo* );
+  dumpPileup( pEvent );  //MN: remove
+ 
   if (pEvent) {
-    // access the sub events DATA objects...
-    for( const xAOD::EventInfo::SubEvent& subEv : pEvent->subEvents() ) {
+     // access the sub events DATA objects...
+     for( const xAOD::EventInfo::SubEvent& subEv : pEvent->subEvents() ) {
       //skip if dobj not active for this xing 
       //FIXME      if (!isLive<data_t>(dataKey, int(iEvt->time()))) {
       //FIXME turning the double iEvt->time() is fraught with peril. Luckily 
@@ -251,9 +265,20 @@ PileUpMergeSvc::retrieveSubEvtsData(const KEY& dataKey, //orig evt key
     }  
     //reset active store pointer to default event store FIXME DANGEROUS
     p_activeStore->setStore(&*p_overStore);
-  } else {		
-     ATH_MSG_FATAL ( "no EventInfo object found!" );
-     return StatusCode::FAILURE;
+  } else {
+     ATH_MSG_DEBUG ( "default PileUpEventInfo not found, trying any EventInfo" ); 
+     // check for EventInfo with any key name
+     pEvent = getPileUpEvent( p_activeStore->activeStore(), "" );
+     if( pEvent ) {
+        DataLink_t dLink;
+        fillLink(dLink, dataKey);
+        if (dLink.isValid()) {
+           timedData.push_back(std::make_pair(0, dLink));
+        }
+     } else {
+        ATH_MSG_FATAL ( "no EventInfo object found!" );
+        return StatusCode::FAILURE;
+     }
   }
   return StatusCode::SUCCESS;
 }
