@@ -11,19 +11,20 @@ CaloTowerGeometrySvc::CaloTowerGeometrySvc(const std::string& name,ISvcLocator* 
   , m_towerEtaWidth(0.)
   , m_towerPhiWidth(0.)
   , m_towerArea(0.)
-  , m_towerEtaBins(100)                         ////////////////////////////////////////////
-  , m_towerEtaMin(-5.0)                         // Default tower definition is "hadronic" //
-  , m_towerEtaMax(5.0)                          // towers of size 0.1 x pi/32.            // 
-  , m_towerPhiBins(64)                          ////////////////////////////////////////////
-  , m_towerPhiMin(-std::M_PI)                   
-  , m_towerPhiMax(-std::M_PI)                   ////////////////////////////////////////////
-  , m_towerBins(0)                              // FCal vertical and horizontal cell      //
+  , m_towerBins(0)                              
+  , m_maxCellHash(0)                            //----------------------------------------//
+  , m_towerEtaBins(100)                         // Default tower definition is "hadronic" //
+  , m_towerEtaMin(-5.0)                         // towers of size 0.1 x pi/32.            // 
+  , m_towerEtaMax(5.0)                          //----------------------------------------//
+  , m_towerPhiBins(64)                          
+  , m_towerPhiMin(-std::M_PI)                   //----------------------------------------//
+  , m_towerPhiMax(std::M_PI)                    // FCal vertical and horizontal cell      //
   , m_fcal1Xslice(4.)                           // slicing creates "mini-cells" which are //
   , m_fcal1Yslice(4.)                           // then projected onto towers. The mini-  //
   , m_fcal2Xslice(4.)                           // cell signal is 1/(Nx x Ny) x Ecell,    //
   , m_fcal2Yslice(6.)                           // where Nx(y) are the number of x(y)     //
   , m_fcal3Xslice(6.)                           // slices.                                //
-  , m_fcal3Yslice(6.)                           ////////////////////////////////////////////
+  , m_fcal3Yslice(6.)                           //----------------------------------------//
 {                                               
   declareProperty("TowerEtaBins",m_towerEtaBins,    "Number of pseudorapidity bins in tower grid");
   declareProperty("TowerEtaMin", m_towerEtaMin,     "Lower boundary of pseudorapidity range");
@@ -42,9 +43,9 @@ CaloTowerGeometrySvc::CaloTowerGeometrySvc(const std::string& name,ISvcLocator* 
   declareProperty("DetStore",      m_detectorStore, "Handle to detector store");
 }
 
-/////////////////////////////
+//-------------------------//
 // Initialize and Finalize //
-/////////////////////////////
+//-------------------------//
 
 StatusCode CaloTowerGeometrySvc::initialize()
 { 
@@ -73,12 +74,13 @@ StatusCode CaloTowerGeometrySvc::initialize()
     return StatusCode::FAILURE;
   }
 
-  m_towerBins = m_towerEtaBins*m_towerPhiBins;
-  m_towerArea = m_towerEtaWidth*m_towerPhiWidth;
+  m_towerBins   = m_towerEtaBins*m_towerPhiBins;
+  m_towerArea   = m_towerEtaWidth*m_towerPhiWidth;
+  m_maxCellHash = f_caloDDM()->element_size();
 
   char buffer[512];
-  int  nbuf(sprintf(buffer,"Tower description (EtaBins,EtaMin,EtaMax,EtaWidth) = (%3z,%6.3f,%6.3f%,%6.4f) (PhiBins,PhiMin,PhiMax,PhiWidth) = (%3z,%6.3f,%6.3f%,%6.4f) Max number of towers: %z Area: %6.4f",
-		    m_towerEtaBins, m_towerEtaMin, m_towerEtaMax, m_towerEtaWidth, m_towerPhiBins, m_towerPhiMin, m_towerPhiMax, m_towerPhiWidth, m_towerBins, m_towerArea ));
+  int  nbuf(sprintf(buffer,"Tower description Eta(bins,min,max,width) = (%3z,%6.3f,%6.3f%,%6.4f) Phi(bins,min,max,width) = (%3z,%6.3f,%6.3f%,%6.4f) Towers max#: %z Area: %6.4f max cell hash: %z",
+		    m_towerEtaBins, m_towerEtaMin, m_towerEtaMax, m_towerEtaWidth, m_towerPhiBins, m_towerPhiMin, m_towerPhiMax, m_towerPhiWidth, m_towerBins, m_towerArea, m_maxCellHash ));
   ATH_MSG_INFO("Tower description (EtaBins,EtaMin,EtaMax,EtaWidth) = (" << std::string(buffer,nbuf) );
 
   return f_setupTowerGrid(); 
@@ -87,17 +89,15 @@ StatusCode CaloTowerGeometrySvc::initialize()
 StatusCode CaloTowerGeometrySvc::finalize()
 { return StatusCode::SUCCESS; }
 
-///////////
+//-------//
 // Setup //
-///////////
+//-------//
 
 StatusCode CaloTowerGeometrySvc::f_setupTowerGrid()
 {
-
-  // allocate calorimeter detector descriptoin manager
-  const CaloDetDesrManager* pCaloDDM(f_caloDDM());
-  if ( pCaloDDM == 0 ) { 
-    ATH_MSG_ERROR("Initialization failed - could not retrieve calorimeter detector description manager from detector store");
+  // initialized
+  if ( m_maxCellHash == 0 ) { 
+    ATH_MSG_ERROR("Service not initialized? Maximum cell hash is " << m_maxCellHash ); 
     return StatusCode::FAILURE;
   }
 
@@ -105,9 +105,8 @@ StatusCode CaloTowerGeometrySvc::f_setupTowerGrid()
   elementvector_t ev;
 
   // set up lookup table
-  size_t ncells(pCaloDDM->element_size()); 
-  ATH_MSG_DEBUG( "Setting up cell-to-tower lookup for " << ncells << " calorimeter cells" );
-  m_towerLookup.resize(ncells,ev); 
+  ATH_MSG_INFO( "Setting up cell-to-tower lookup for " << m_maxCellHash << " calorimeter cells" );
+  m_towerLookup.resize(m_maxCellHash,ev); 
 
   // loop cells
   for ( auto fcell(m_caloDDM->element_begin()); fcell != m_caloDDM->element_end(); ++fcell ) {
@@ -130,10 +129,10 @@ StatusCode CaloTowerGeometrySvc::f_setupTowerGrid()
 
 StatusCode CaloTowerGeometrySvc::setupTowerGridFCal(const CaloDetDescrElement* pCaloDDE)
 {
-  /////////////////////////////////////////////////////////////////////////////////////////////
+  //-----------------------------------------------------------------------------------------//
   // FCal special - the rectangular (in linear space) calorimeter cells are sub-divided into //
   // small cells and then shared across as many towers as the small cells cover.             //
-  /////////////////////////////////////////////////////////////////////////////////////////////
+  //-----------------------------------------------------------------------------------------//
 
   // collect geometrical variables
   int    cLayer(pCaloDDE->getLayer()-1);   // FCal layer number 1..3 -> array indices 0..2
@@ -217,10 +216,25 @@ StatusCode CaloTowerGeometrySvc::f_setupTowerGridProj(const CaloDetDescrElement*
   return StatusCode::SUCCESS;
 } 
 
+//------//
+// Fill //
+//------//
 
-////////////
+double CaloTowerGeometrySvc::f_assign(IdentifierHash cellHash,index_t towerIdx,double wght) 
+{
+  // check if cell-tower already related
+  size_t cidx((size_t)cellHash);
+  for ( auto elm : m_towerLookup.at(cidx) ) { 
+    if ( towerIndex(elm) == towerIdx ) { std::get<1>(elm) += wght; return cellWeight(elm); }
+  }
+  // not yet related
+  m_towerLookup[cidx].emplace_back(towerIdx,wght);
+  return cellWeight(m_towerLookup.at(cidx).back()); 
+}
+
+//--------//
 // Access //
-////////////
+//--------//
 
 StatusCode CaloTowerGeometrySvc::access(const CaloCell* pCell,std::vector<size_t>& towerIdx,std::vector<double>& towerWghts) const
 { return this->access(f_caloDDE(pCell)->calo_hash(),towerIdx,towerWghts); }
@@ -232,7 +246,7 @@ StatusCode CaloTowerGeometrySvc::access(IdentifierHash cellHash,std::vector<size
 
   size_t cidx((size_t)cellHash);
 
-  if ( cidx > m_towerLookup.size() ) { 
+  if ( cidx >= m_towerLookup.size() ) { 
     ATH_MSG_WARNING("Invalid cell hash index " << cellHash << ", corresponding index " << cidx << " not found in tower lookup");
     return StatusCode::SUCCESS;
   }
@@ -255,11 +269,11 @@ CaloTowerGeometrySvc::elementvector_t CaloTowerGeometrySvc::getTowers(Identifier
   return cidx < m_towerLookup.size() ? m_towerLookup.at(cidx) : elementvector_t();  
 } 
 
-///////////////////////////
+//-----------------------//
 // Tower Geometry Helper //
-///////////////////////////
+//-----------------------//
 
-double CaloTowerGeometrySvc::cellWeight(IdentifierHash cellHash,index_t toweridx) const
+double CaloTowerGeometrySvc::cellWeight(IdentifierHash cellHash,index_t towerIdx) const
 {
   index_t cidx((index_t)cellHash);
   double cwght(0.);
@@ -272,9 +286,14 @@ double CaloTowerGeometrySvc::cellWeight(IdentifierHash cellHash,index_t toweridx
   return cwght;
 }
 
-///////////////////
+std::vector<std::string> CaloTowerGeometrySvc::dumpLookup() const 
+{
+  std::vector<std::string> dlist; dlist.reserve(
+}
+
+//---------------//
 // Index Helpers //
-///////////////////
+//---------------//
 
 CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::etaIndex(IdentifierHash cellHash) const
 {
@@ -302,12 +321,4 @@ CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::phiIndex(double phi) const
     ? index_t(std::min((size_t)((phi-m_towerPhiMin)/m_towerPhiWidth),m_towerPhiBins-1))
     : invalidIndex();
 }
-
-
-CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::towerIndex(index_t etaIdx,index_t phiIdx) const 
-{
-  if ( isInvalidIndex(etaIdx) || etaIdx >= m_towerEtaBins ) { return invalidIndex(); }
-  if ( isInvalidIndex(phiIdx) || phiIdx >= m_towerPhiBins ) { return invalidIndex(); }
-  return etaIdx+phiIdx*m_towerPhiBins;
-} 
 
