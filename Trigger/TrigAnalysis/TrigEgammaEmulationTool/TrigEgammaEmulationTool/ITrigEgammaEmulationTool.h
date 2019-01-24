@@ -26,7 +26,8 @@
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
 #include "xAODTrigger/EmTauRoIContainer.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
-#include "PATCore/TAccept.h"
+#include "PATCore/AcceptInfo.h"
+#include "PATCore/AcceptData.h"
 #include <vector>
 #include <map>
 
@@ -42,11 +43,11 @@ namespace Trig{
 
             virtual bool EventWiseContainer()=0;
 
-            virtual const Root::TAccept& executeTool( const HLT::TriggerElement *, const std::string & )=0;
-            virtual const Root::TAccept& executeTool( const std::string & )=0;
+            virtual asg::AcceptData executeTool( const HLT::TriggerElement *, const std::string & )=0;
+            virtual asg::AcceptData executeTool( const std::string & )=0;
             virtual bool isPassed(const std::string&)=0;
             virtual bool isPassed(const std::string&, const std::string&)=0;
-            virtual const Root::TAccept& getAccept()=0;
+            virtual const asg::AcceptInfo& getAccept() const =0;
             /* Experimental methods */
             virtual void ExperimentalAndExpertMethods()=0;
             virtual void match( const xAOD::Egamma *, const HLT::TriggerElement *&)=0;
