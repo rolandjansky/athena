@@ -37,16 +37,29 @@
 
 int last_lumiBlock0=-99;
 
+const size_t nBarrelStraws { 1642 };
+const size_t nEndcapStraws { 3840 };
+const size_t nAllStraws    { nBarrelStraws + nEndcapStraws };
+
+const size_t nBarrelBoards { 9 };
+const size_t nEndcapBoards { 20 };
+const size_t nAllBoards    { nBarrelBoards + nEndcapBoards };
+
+const size_t nBarrelChips  { 104 };
+const size_t nEndcapChips  { 240 };
+const size_t nAllChips     { nBarrelChips + nAllChips };
+
+const size_t nBarrelPads   { 2 * nBarrelChips };
+const size_t nEndcapPads   { 2 * nEndcapChips }; 
+const size_t nAllPads      { 2 * nAllChips }; 
+
 //================ Constructor =================================================
 
 InDet::TRT_StrawStatus::TRT_StrawStatus(const std::string& name, ISvcLocator* pSvcLocator)
 :
 AthAlgorithm(name,pSvcLocator),
-m_nBarrelStraws(1642), m_nEndcapStraws(3840), m_nAllStraws(5482),
-m_nBarrelBoards(9), m_nEndcapBoards(20), m_nAllBoards(29),
-m_nBarrelChips(104), m_nEndcapChips(240), m_nAllChips(344),
-m_nBarrelPads(208), m_nEndcapPads(480), m_nAllPads(688),
 m_nEvents(0), m_runNumber(0),
+m_accumulateHits(0),
 m_TRTHelper(0),
 m_mapSvc("TRT_HWMappingSvc",name),
 m_DCSSvc("TRT_DCS_ConditionsSvc",name),
@@ -64,8 +77,8 @@ m_printDetailedInformation(0) // print the information on mapping as well as whi
     declareProperty("HWMapSvc", m_mapSvc);
     declareProperty("InDetTRT_DCS_ConditionsSvc",m_DCSSvc);
     declareProperty("locR_cut",                 m_locR_cut );
-    declareProperty("printDetailedInformation", m_printDetailedInformation); 
-    clear();  
+    declareProperty("printDetailedInformation", m_printDetailedInformation);
+
 }
 
 //================ Destructor =================================================
@@ -78,6 +91,11 @@ InDet::TRT_StrawStatus::~TRT_StrawStatus()
 
 StatusCode InDet::TRT_StrawStatus::initialize()
 {
+
+  m_accumulateHits = new ACCHITS_t;
+  assert( (*m_accumulateHits)[0][0].size() == nAllStraws );
+  clear();
+  
   // Code entered here will be executed once at program start.
   // Initialize ReadHandleKey
   ATH_CHECK(m_eventInfoKey.initialize());
@@ -100,6 +118,7 @@ StatusCode InDet::TRT_StrawStatus::finalize(){
     reportResults();
     if (m_printDetailedInformation) printDetailedInformation();
     // Code entered here will be executed once at the end of the program run.
+    delete m_accumulateHits;
     return StatusCode::SUCCESS;
 }
 
@@ -218,8 +237,8 @@ StatusCode InDet::TRT_StrawStatus::execute(){
             
             Identifier id = driftCircle->identify();
             int index[6]; myStrawIndex(id, index); // side, layer, phi, straw_layer, straw_within_layer, straw_index
-            m_accumulateHits[(index[0]>0)?0:1][index[2]][index[5]][1]++; // accumulate hits on track
-            if (driftCircle->highLevel()) m_accumulateHits[(index[0]>0)?0:1][index[2]][index[5]][3]++; // accumulate hits on track
+            (*m_accumulateHits)[(index[0]>0)?0:1][index[2]][index[5]][1]++; // accumulate hits on track
+            if (driftCircle->highLevel()) (*m_accumulateHits)[(index[0]>0)?0:1][index[2]][index[5]][3]++; // accumulate hits on track
             
         } // end trackStatesIt loop
         
@@ -255,8 +274,8 @@ StatusCode InDet::TRT_StrawStatus::execute(){
         for (DataVector<TRT_RDORawData>::const_iterator trtIt = TRTCollection->begin(); trtIt != TRTCollection->end(); trtIt++) {
             Identifier id = (*trtIt)->identify();
             int index[6]; myStrawIndex(id, index); // side, layer, phi, straw_layer, straw_within_layer, straw_index
-            m_accumulateHits[(index[0]>0)?0:1][index[2]][index[5]][0]++; // accumulate all hits 
-            if ((*trtIt)->highLevel()) m_accumulateHits[(index[0]>0)?0:1][index[2]][index[5]][2]++; // accumulate TR hits
+            (*m_accumulateHits)[(index[0]>0)?0:1][index[2]][index[5]][0]++; // accumulate all hits 
+            if ((*trtIt)->highLevel()) (*m_accumulateHits)[(index[0]>0)?0:1][index[2]][index[5]][2]++; // accumulate TR hits
             
             if (std::find(holeIdentifiers.begin(), holeIdentifiers.end(), id) != holeIdentifiers.end())  // a hole was found on the same straw, but hits is there
                 holeIdentifiersWithHits.push_back( id );            
@@ -273,10 +292,10 @@ StatusCode InDet::TRT_StrawStatus::execute(){
 
         int index[6]; myStrawIndex(id, index); // side, layer, phi, straw_layer, straw_within_layer, straw_index
         
-        m_accumulateHits[(index[0]>0)?0:1][index[2]][index[5]][4]++;
+        (*m_accumulateHits)[(index[0]>0)?0:1][index[2]][index[5]][4]++;
         
         if (std::find(holeIdentifiersWithHits.begin(), holeIdentifiersWithHits.end(), id) != holeIdentifiersWithHits.end())
-            m_accumulateHits[(index[0]>0)?0:1][index[2]][index[5]][5]++;
+          (*m_accumulateHits)[(index[0]>0)?0:1][index[2]][index[5]][5]++;
     }
     
     //================ End loop over all hits 
@@ -317,8 +336,7 @@ StatusCode InDet::TRT_StrawStatus::execute(){
 
 void InDet::TRT_StrawStatus::clear() {
     m_nEvents = 0;
-    for (int i=0; i<2; i++) for (int j=0; j<32; j++) for (int k=0; k<m_nAllStraws; k++) for (int m=0; m<6; m++)
-        m_accumulateHits[i][j][k][m] = 0;
+    *m_accumulateHits = {};
     return;
 }
 
@@ -328,11 +346,11 @@ void InDet::TRT_StrawStatus::reportResults() {
     snprintf(fileName, 299,"%s.%07d_newFormat.txt", m_fileName.c_str(), m_runNumber);
     FILE *f = fopen(fileName, "w");
     fprintf(f, "%d %d %d %d %d %d %d %d %d \n", 0, 0, 0, 0, 0, 0, 0, 0, m_nEvents);
-    for (int i=0; i<2; i++) for (int j=0; j<32; j++) for (int k=0; k<m_nAllStraws; k++) {
+    for (size_t i=0; i<2; i++) for (size_t j=0; j<32; j++) for (size_t k=0; k<nAllStraws; k++) {
         int side = (i>0)?-1:1;
         if (k>=1642) side *= 2;
-        fprintf(f, "%d %d %d", side, j, k);
-        for (int m=0; m<6; m++) fprintf(f, " %d", m_accumulateHits[i][j][k][m]);
+        fprintf(f, "%d %zu %zu", side, j, k);
+        for (int m=0; m<6; m++) fprintf(f, " %d", (*m_accumulateHits)[i][j][k][m]);
         fprintf(f, "\n");   
     }
     fclose(f);
