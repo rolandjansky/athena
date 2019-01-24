@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -43,19 +43,11 @@ StatusCode IDVarCalculator::initialize() {
 }
 
 //-------------------------------------------------------------------------
-// Event Finalize
-//-------------------------------------------------------------------------
-
-StatusCode IDVarCalculator::eventFinalize(DiTauCandidateData * ) {
-
-    return StatusCode::SUCCESS;
-}
-
-//-------------------------------------------------------------------------
 // execute
 //-------------------------------------------------------------------------
 
-StatusCode IDVarCalculator::execute(DiTauCandidateData * data) {
+StatusCode IDVarCalculator::execute(DiTauCandidateData * data,
+                                    const EventContext& /*ctx*/) const {
 
     ATH_MSG_DEBUG("execute IDVarCalculator...");
 
@@ -85,10 +77,11 @@ StatusCode IDVarCalculator::execute(DiTauCandidateData * data) {
     }
 
     // cells if available 
+    bool useCells = m_useCells;;
     std::vector<const CaloCell*> vSubjetCells = data->subjetCells;
     if (vSubjetCells.size()==0) {
         ATH_MSG_DEBUG("No cell information available.");
-        m_useCells = false; 
+        useCells = false; 
     } 
 
 
@@ -105,7 +98,7 @@ StatusCode IDVarCalculator::execute(DiTauCandidateData * data) {
     // ----------------------------------------------------------------------------
     // write f_core
     // ----------------------------------------------------------------------------
-    if (m_useCells == false) {
+    if (useCells == false) {
         ATH_MSG_DEBUG("no cells are used for ID variable calculation. Continue.");
         return StatusCode::SUCCESS;
     }

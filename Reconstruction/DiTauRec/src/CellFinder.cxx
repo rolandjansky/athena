@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -57,19 +57,11 @@ StatusCode CellFinder::initialize() {
 }
 
 //-------------------------------------------------------------------------
-// Event Finalize
-//-------------------------------------------------------------------------
-
-StatusCode CellFinder::eventFinalize(DiTauCandidateData * ) {
-
-    return StatusCode::SUCCESS;
-}
-
-//-------------------------------------------------------------------------
 // execute
 //-------------------------------------------------------------------------
 
-StatusCode CellFinder::execute(DiTauCandidateData * data) {
+StatusCode CellFinder::execute(DiTauCandidateData * data,
+                               const EventContext& /*ctx*/) const {
 
     ATH_MSG_DEBUG("execute CellFinder...");
 
