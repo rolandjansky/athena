@@ -5,6 +5,7 @@
 #include "LArReadoutGeometry/HECDetDescr.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
@@ -68,7 +69,7 @@ HECDetDescr::HECDetDescr (const HECDetectorManager *detManager
 	m_zMax.push_back(back);
       }
       pos += m_manager->getBlock(b)->getDepth();
-      if(isTestBeam && b==2) pos += (*hadronicEndcap)[0]->getDouble("GAPWHL")*GeoModelKernelUnits::cm;
+      if(isTestBeam && b==2) pos += (*hadronicEndcap)[0]->getDouble("GAPWHL")*Gaudi::Units::cm;
     }
   }
 }

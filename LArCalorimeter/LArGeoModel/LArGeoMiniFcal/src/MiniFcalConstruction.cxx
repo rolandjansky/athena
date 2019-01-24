@@ -19,7 +19,6 @@
 #include "GeoModelKernel/GeoSerialTransformer.h"
 #include "GeoModelKernel/GeoSerialIdentifier.h"
 #include "GeoModelKernel/GeoIdentifierTag.h"  
-#include "GeoModelKernel/Units.h"
 #include "GeoGenericFunctions/Variable.h"
 
 #include "GeoModelInterfaces/IGeoModelSvc.h"
@@ -32,6 +31,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <string>
 #include <cmath>
@@ -127,9 +127,9 @@ GeoFullPhysVol* LArGeo::MiniFcalConstruction::GetEnvelope()
   //_________ Define geometry __________________________
 
   //__Copper envelope
-  double halfLength = envParameters->getDouble("DZ")*GeoModelKernelUnits::mm; 
-  double Router     = envParameters->getDouble("RMAX")*GeoModelKernelUnits::mm; 
-  double Rinner     = envParameters->getDouble("RMIN")*GeoModelKernelUnits::mm;
+  double halfLength = envParameters->getDouble("DZ")*Gaudi::Units::mm; 
+  double Router     = envParameters->getDouble("RMAX")*Gaudi::Units::mm; 
+  double Rinner     = envParameters->getDouble("RMIN")*Gaudi::Units::mm;
 
   // Buld a Cu block and place layers into that...
   GeoTubs *solidMiniFcal = new GeoTubs(Rinner, Router, halfLength, 0., 2.*M_PI); // Big outer radius
@@ -165,15 +165,15 @@ GeoFullPhysVol* LArGeo::MiniFcalConstruction::GetEnvelope()
     for(unsigned i=0; i<recRings->size(); ++i)
       ringIndexes[(*recRings)[i]->getInt("RINGNUM")] = i;
 
-    double L1         =  (*recCommon)[0]->getDouble("ABSORBERTHICKNESS")*GeoModelKernelUnits::mm; // Cu plates of fixed thickness
-    double LayerThick =  (*recCommon)[0]->getDouble("LAYERTHICKNESS")*GeoModelKernelUnits::mm;    // Layers between the Cu plates 
-    double WaferThick =  (*recCommon)[0]->getDouble("WAFERTHICKNESS")*GeoModelKernelUnits::mm;   // Diamond wafers - thickness
-    double WaferSize  =  (*recCommon)[0]->getDouble("WAFERSIZEX")*GeoModelKernelUnits::mm;    // Square Daimond wafers
+    double L1         =  (*recCommon)[0]->getDouble("ABSORBERTHICKNESS")*Gaudi::Units::mm; // Cu plates of fixed thickness
+    double LayerThick =  (*recCommon)[0]->getDouble("LAYERTHICKNESS")*Gaudi::Units::mm;    // Layers between the Cu plates 
+    double WaferThick =  (*recCommon)[0]->getDouble("WAFERTHICKNESS")*Gaudi::Units::mm;   // Diamond wafers - thickness
+    double WaferSize  =  (*recCommon)[0]->getDouble("WAFERSIZEX")*Gaudi::Units::mm;    // Square Daimond wafers
     int    NLayers    =  (*recCommon)[0]->getInt("NLAYERS");      // Have 11 gaps and 12 Cu plates
 
-    log << MSG::DEBUG << "=====> Build a Mini FCal of length  " << 2.*halfLength << " GeoModelKernelUnits::mm and " 
-	<< NLayers << " layers of  " << LayerThick << " GeoModelKernelUnits::mm thickness each; place them every  "
-	<< L1 << " GeoModelKernelUnits::mm " << endmsg;
+    log << MSG::DEBUG << "=====> Build a Mini FCal of length  " << 2.*halfLength << " Gaudi::Units::mm and " 
+	<< NLayers << " layers of  " << LayerThick << " Gaudi::Units::mm thickness each; place them every  "
+	<< L1 << " Gaudi::Units::mm " << endmsg;
 
     // Make the Layers (all the same) - out of Feldspar (perhaps close to ceramics)
     std::string layerName = moduleName + "::Layer" ;
@@ -182,7 +182,7 @@ GeoFullPhysVol* LArGeo::MiniFcalConstruction::GetEnvelope()
     
     //-- Construct wafers and arrange them in rings inside the ceramic layers.
     std::string waferName = moduleName + "::Wafer" ;
-    GeoBox* solidWafer = new GeoBox( (WaferSize/2.)*GeoModelKernelUnits::mm, (WaferSize/2.)*GeoModelKernelUnits::mm, (WaferThick/2.)*GeoModelKernelUnits::mm);
+    GeoBox* solidWafer = new GeoBox( (WaferSize/2.)*Gaudi::Units::mm, (WaferSize/2.)*Gaudi::Units::mm, (WaferThick/2.)*Gaudi::Units::mm);
     GeoLogVol* logiWafer = new GeoLogVol(waferName,solidWafer,Diamond);
     GeoPhysVol* physiWafer = new GeoPhysVol(logiWafer);
 
@@ -210,7 +210,7 @@ GeoFullPhysVol* LArGeo::MiniFcalConstruction::GetEnvelope()
       int nwafers(0);
 
       double phishift = (*recLayers)[layerIndexes[j]]->getDouble("PHISHIFT");
-      double rshift = (*recLayers)[layerIndexes[j]]->getDouble("RSHIFT")*GeoModelKernelUnits::mm;
+      double rshift = (*recLayers)[layerIndexes[j]]->getDouble("RSHIFT")*Gaudi::Units::mm;
 
       for (unsigned int i=0; i<recRings->size(); i++){  // loop over the number of wafer rings
 	if(ringIndexes.find(i)==ringIndexes.end()) {
@@ -231,14 +231,14 @@ GeoFullPhysVol* LArGeo::MiniFcalConstruction::GetEnvelope()
 	// for the negative z-side have to add pi to get things right:
 	GeoGenfun::GENFUNCTION RotationAngle = activate*(M_PI) + phisense * (phishift + wAngle/2. + wAngle*Index) ;
 	GeoXF::TRANSFUNCTION t  = 
-	  GeoXF::Pow(GeoTrf::RotateZ3D(1.0),RotationAngle) * GeoTrf::TranslateX3D(rshift+rwafer+5.*GeoModelKernelUnits::mm) * GeoTrf::TranslateZ3D(-LayerThick/2.+ WaferThick/2.) ;
+	  GeoXF::Pow(GeoTrf::RotateZ3D(1.0),RotationAngle) * GeoTrf::TranslateX3D(rshift+rwafer+5.*Gaudi::Units::mm) * GeoTrf::TranslateZ3D(-LayerThick/2.+ WaferThick/2.) ;
 	GeoSerialTransformer *sTF = new GeoSerialTransformer (physiWafer,&t,nwafers);
 	physiLayer->add(sIF);
 	physiLayer->add(sTF);
       }
 
       log << MSG::DEBUG << "- Working on layer " << j << " now. Place it at " 
-	  << ( -halfLength + L1 + double(j)*( L1 + LayerThick) + LayerThick/2. ) << " GeoModelKernelUnits::mm " << endmsg;
+	  << ( -halfLength + L1 + double(j)*( L1 + LayerThick) + LayerThick/2. ) << " Gaudi::Units::mm " << endmsg;
       m_physiMiniFcal->add(new GeoIdentifierTag(j));        
       GeoTransform *xf = new GeoTransform(GeoTrf::TranslateZ3D( -halfLength + L1 + double(j)*( L1 + LayerThick) + LayerThick/2. ));
       m_physiMiniFcal->add(xf);
@@ -248,7 +248,7 @@ GeoFullPhysVol* LArGeo::MiniFcalConstruction::GetEnvelope()
 
 
   //________ Construct top transform object _____________
-  m_transform = GeoTrf::TranslateZ3D(envParameters->getDouble("ZPOS")*GeoModelKernelUnits::mm);
+  m_transform = GeoTrf::TranslateZ3D(envParameters->getDouble("ZPOS")*Gaudi::Units::mm);
   // Layers should be fully equipeed now. Put them into MiniFcal
  
   return m_physiMiniFcal;
