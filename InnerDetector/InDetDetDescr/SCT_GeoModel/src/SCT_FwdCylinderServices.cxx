@@ -17,16 +17,11 @@
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoMaterial.h"
-#include "GeoModelKernel/Units.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-
-
-
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <sstream>
 #include <cmath>
-
-#include <iostream>
 
 SCT_FwdCylinderServices::SCT_FwdCylinderServices(const std::string & name,
                                                  double rmin,
@@ -136,7 +131,7 @@ SCT_FwdCylinderServices::build()
   double coolingDPhi = m_coolingRPhi / coolingRmin;
   const GeoCons* coolingShape = new GeoCons(coolingRmin, coolingRmin, coolingRmax1, coolingRmax2, 
                                             0.5 * m_length, 
-                                            -0.5 * coolingDPhi * GeoModelKernelUnits::radian, coolingDPhi * GeoModelKernelUnits::radian);
+                                            -0.5 * coolingDPhi * Gaudi::Units::radian, coolingDPhi * Gaudi::Units::radian);
   const GeoLogVol * coolingLog = new GeoLogVol("CoolingPipe", coolingShape, materials.getMaterialForVolume(m_coolingMaterialName, coolingShape->volume()));
   GeoPhysVol * coolingPipe = new GeoPhysVol(coolingLog);
 
@@ -146,7 +141,7 @@ SCT_FwdCylinderServices::build()
   double lmtRmax2 = lmtRmin + 1.8 * m_lmtDeltaR;
   double lmtDPhi = m_lmtRPhi / lmtRmin;
   const GeoCons* lmtShape = new GeoCons(lmtRmin, lmtRmin, lmtRmax1, lmtRmax2, 0.5 * m_length, 
-                                        -0.5 * lmtDPhi * GeoModelKernelUnits::radian, lmtDPhi * GeoModelKernelUnits::radian);
+                                        -0.5 * lmtDPhi * Gaudi::Units::radian, lmtDPhi * Gaudi::Units::radian);
   const GeoLogVol * lmtLog = new GeoLogVol("LMT", lmtShape, materials.getMaterialForVolume(m_lmtMaterialName,lmtShape->volume()));
   GeoPhysVol * lmt = new GeoPhysVol(lmtLog);
 
@@ -156,7 +151,7 @@ SCT_FwdCylinderServices::build()
   double lmtCoolingDPhi = m_lmtCoolingRPhi / lmtCoolingRmin;
   double lmtLength = m_length - 2. * m_lmtCoolingZOffset;
   const GeoTubs* lmtCoolingShape = new GeoTubs(lmtCoolingRmin, lmtCoolingRmax, 0.5 * lmtLength, 
-                                               -0.5 * lmtCoolingDPhi * GeoModelKernelUnits::radian, lmtCoolingDPhi * GeoModelKernelUnits::radian);
+                                               -0.5 * lmtCoolingDPhi * Gaudi::Units::radian, lmtCoolingDPhi * Gaudi::Units::radian);
   const GeoLogVol * lmtCoolingLog = new GeoLogVol("LMTCooling", lmtCoolingShape, materials.getMaterialForVolume(m_lmtCoolingMaterialName,lmtCoolingShape->volume()));
   GeoPhysVol * lmtCooling = new GeoPhysVol(lmtCoolingLog);
 
@@ -166,7 +161,7 @@ SCT_FwdCylinderServices::build()
   double fibreRmax2 = fibreRmin + 1.8 * m_fibreDeltaR;
   double fibreDPhi = m_fibreRPhi / fibreRmin;
   const GeoCons* fibreShape = new GeoCons(fibreRmin, fibreRmin, fibreRmax1, fibreRmax2, 0.5 * m_length,
-                                          -0.5 * fibreDPhi * GeoModelKernelUnits::radian, fibreDPhi * GeoModelKernelUnits::radian);
+                                          -0.5 * fibreDPhi * Gaudi::Units::radian, fibreDPhi * Gaudi::Units::radian);
   const GeoLogVol * fibreLog = new GeoLogVol("Fibres", fibreShape, materials.getMaterialForVolume(m_fibreMaterialName,fibreShape->volume()));
   GeoPhysVol * fibres = new GeoPhysVol(fibreLog);
 
@@ -175,7 +170,7 @@ SCT_FwdCylinderServices::build()
   double nPipeRmax = nPipeRmin + m_nPipeDeltaR;
   double nPipeDPhi = m_nPipeRPhi / nPipeRmin;
   const GeoTubs* nPipeShape = new GeoTubs(nPipeRmin, nPipeRmax, 0.5 * m_length, 
-                                          -0.5 * nPipeDPhi * GeoModelKernelUnits::radian, nPipeDPhi * GeoModelKernelUnits::radian);
+                                          -0.5 * nPipeDPhi * Gaudi::Units::radian, nPipeDPhi * Gaudi::Units::radian);
   const GeoLogVol * nPipeLog = new GeoLogVol("NPipe", nPipeShape, materials.getMaterialForVolume(m_nPipeMaterialName,nPipeShape->volume()));
   GeoPhysVol * nPipe = new GeoPhysVol(nPipeLog);
 
@@ -184,7 +179,7 @@ SCT_FwdCylinderServices::build()
   double railRmax = railRmin + m_railDeltaR;
   double railDPhi = m_railRPhi / railRmin;
   const GeoTubs* railShape = new GeoTubs(railRmin, railRmax,
-                                         0.5 * m_length, -0.5 * railDPhi * GeoModelKernelUnits::radian, railDPhi * GeoModelKernelUnits::radian);
+                                         0.5 * m_length, -0.5 * railDPhi * Gaudi::Units::radian, railDPhi * Gaudi::Units::radian);
   const GeoLogVol * railLog = new GeoLogVol("Rail", railShape, materials.getMaterialForVolume(m_railMaterialName,railShape->volume()));
   GeoPhysVol * rail = new GeoPhysVol(railLog);
 
@@ -193,16 +188,14 @@ SCT_FwdCylinderServices::build()
 
     // Cooling pipe
     for (unsigned int iLoc = 0; iLoc < m_coolingLocAngle.size(); iLoc++) {
-      double coolingAngle = m_coolingLocAngle[iLoc] + iquad * 90*GeoModelKernelUnits::degree;
-      //      std::cout << "Placing cooling pipe at " << coolingAngle / GeoModelKernelUnits::degree << " GeoModelKernelUnits::degrees" << std::endl;
+      double coolingAngle = m_coolingLocAngle[iLoc] + iquad * 90*Gaudi::Units::degree;
       cylinder->add(new GeoTransform(GeoTrf::RotateZ3D(coolingAngle)));
       cylinder->add(coolingPipe);
     }
 
     // Low Mass Tapes and LMT Cooling are at same phi positions
     for (unsigned int iLoc = 0; iLoc < m_lmtLocAngle.size(); iLoc++) {
-      double lmtAngle = m_lmtLocAngle[iLoc] + iquad * 90*GeoModelKernelUnits::degree;
-      //      std::cout << "Placing LMT at " << lmtAngle / GeoModelKernelUnits::degree << " GeoModelKernelUnits::degrees" << std::endl;
+      double lmtAngle = m_lmtLocAngle[iLoc] + iquad * 90*Gaudi::Units::degree;
       cylinder->add(new GeoTransform(GeoTrf::RotateZ3D(lmtAngle)));
       cylinder->add(lmt);
       cylinder->add(new GeoTransform(GeoTrf::RotateZ3D(lmtAngle)*GeoTrf::TranslateZ3D(m_lmtCoolingZOffset)));
@@ -211,24 +204,21 @@ SCT_FwdCylinderServices::build()
 
     // Fibres are between pairs of LMTs
     for (unsigned int iLoc = 0; iLoc < m_fibreLocAngle.size(); iLoc++) {
-      double fibreAngle = m_fibreLocAngle[iLoc] + iquad * 90*GeoModelKernelUnits::degree;
-      //      std::cout << "Placing fibres at " << fibreAngle / GeoModelKernelUnits::degree << " GeoModelKernelUnits::degrees" << std::endl;
+      double fibreAngle = m_fibreLocAngle[iLoc] + iquad * 90*Gaudi::Units::degree;
       cylinder->add(new GeoTransform(GeoTrf::RotateZ3D(fibreAngle)));
       cylinder->add(fibres);
     }
 
     // N2 Pipes
     for (unsigned int iLoc = 0; iLoc < m_nPipeLocAngle.size(); iLoc++) {
-      double nPipeAngle = m_nPipeLocAngle[iLoc] + iquad * 90*GeoModelKernelUnits::degree;
-      //      std::cout << "Placing N2 pipe at " << nPipeAngle / GeoModelKernelUnits::degree << " GeoModelKernelUnits::degrees" << std::endl;
+      double nPipeAngle = m_nPipeLocAngle[iLoc] + iquad * 90*Gaudi::Units::degree;
       cylinder->add(new GeoTransform(GeoTrf::RotateZ3D(nPipeAngle)));
       cylinder->add(nPipe);
     }
 
     // Rails
     for (unsigned int iLoc = 0; iLoc < m_railLocAngle.size(); iLoc++) {
-      double railAngle = m_railLocAngle[iLoc] + iquad * 90*GeoModelKernelUnits::degree;
-      //      std::cout << "Placing rail at " << railAngle / GeoModelKernelUnits::degree << " GeoModelKernelUnits::degrees" << std::endl;
+      double railAngle = m_railLocAngle[iLoc] + iquad * 90*Gaudi::Units::degree;
       cylinder->add(new GeoTransform(GeoTrf::RotateZ3D(railAngle)));
       cylinder->add(rail);
     }

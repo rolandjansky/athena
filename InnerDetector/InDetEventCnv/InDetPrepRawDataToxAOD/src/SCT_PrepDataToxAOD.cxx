@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@
 //
 /////////////////////////////////////////////////////////////////////
 SCT_PrepDataToxAOD::SCT_PrepDataToxAOD(const std::string &name, ISvcLocator *pSvcLocator) :
-  AthAlgorithm(name,pSvcLocator),
+  AthReentrantAlgorithm(name,pSvcLocator),
   m_SCTHelper{nullptr},
   m_firstEventWarnings{true}
 { 
@@ -72,12 +72,12 @@ StatusCode SCT_PrepDataToxAOD::initialize()
 //        Execute method: 
 //
 /////////////////////////////////////////////////////////////////////
-StatusCode SCT_PrepDataToxAOD::execute() 
-{     
+StatusCode SCT_PrepDataToxAOD::execute(const EventContext& ctx) const
+{
   // the cluster ambiguity map
   std::map< Identifier, const SCT_RDORawData* > idToRAWDataMap;
   if (m_writeRDOinformation.value()) {
-    SG::ReadHandle<SCT_RDO_Container> rdoContainer(m_rdoContainer);
+    SG::ReadHandle<SCT_RDO_Container> rdoContainer(m_rdoContainer, ctx);
     if (rdoContainer.isValid()) {
       // get all the RIO_Collections in the container
       for (const auto& collection: *rdoContainer) {
@@ -101,18 +101,18 @@ StatusCode SCT_PrepDataToxAOD::execute()
   ATH_MSG_DEBUG("Size of RDO map is "<<idToRAWDataMap.size());
 
   // Mandatory. This is needed and required if this algorithm is scheduled.
-  SG::ReadHandle<InDet::SCT_ClusterContainer> sctClusterContainer(m_clustercontainer);
+  SG::ReadHandle<InDet::SCT_ClusterContainer> sctClusterContainer(m_clustercontainer, ctx);
   if (not sctClusterContainer.isValid()) {
     ATH_MSG_FATAL("Cannot retrieve SCT PrepDataContainer " << m_clustercontainer.key());
     return StatusCode::FAILURE;
   }
 
   // Create the xAOD container and its auxiliary store:
-  SG::WriteHandle<xAOD::TrackMeasurementValidationContainer> xaod(m_xAodContainer);
+  SG::WriteHandle<xAOD::TrackMeasurementValidationContainer> xaod(m_xAodContainer, ctx);
   ATH_CHECK( xaod.record(std::make_unique<xAOD::TrackMeasurementValidationContainer>(),
                          std::make_unique<xAOD::TrackMeasurementValidationAuxContainer>()) );
   
-  SG::WriteHandle<std::vector<unsigned int> > offsets(m_xAodOffset);
+  SG::WriteHandle<std::vector<unsigned int> > offsets(m_xAodOffset, ctx);
   ATH_CHECK( offsets.record(std::make_unique<std::vector<unsigned int> >( m_SCTHelper->wafer_hash_max(), 0 )) );
   
   // Loop over the container
@@ -203,7 +203,7 @@ StatusCode SCT_PrepDataToxAOD::execute()
       
       // Use the MultiTruth Collection to get a list of all true particle contributing to the cluster
       if (m_useTruthInfo.value()) {
-        SG::ReadHandle<PRD_MultiTruthCollection> prdmtColl(m_multiTruth);
+        SG::ReadHandle<PRD_MultiTruthCollection> prdmtColl(m_multiTruth, ctx);
         if (prdmtColl.isValid()) {
           std::vector<int> barcodes;
           //std::pair<PRD_MultiTruthCollection::const_iterator,PRD_MultiTruthCollection::const_iterator>;
@@ -218,7 +218,7 @@ StatusCode SCT_PrepDataToxAOD::execute()
       // Use the SDO Collection to get a list of all true particle contributing to the cluster per readout element
       //  Also get the energy deposited by each true particle per readout element   
       if (m_writeSDOs.value()) {
-        SG::ReadHandle<InDetSimDataCollection> sdoCollection(m_SDOcontainer);
+        SG::ReadHandle<InDetSimDataCollection> sdoCollection(m_SDOcontainer, ctx);
         if (sdoCollection.isValid()) {
           addSDOInformation( xprd, prd, &*sdoCollection);
         }
@@ -227,7 +227,7 @@ StatusCode SCT_PrepDataToxAOD::execute()
       // Now Get the most detailed truth from the SiHits
       // Note that this could get really slow if there are a lot of hits and clusters
       if (m_writeSiHits.value()) {
-        SG::ReadHandle<SiHitCollection> sihitCollection(m_sihitContainer);
+        SG::ReadHandle<SiHitCollection> sihitCollection(m_sihitContainer, ctx);
         if (sihitCollection.isValid()) {
           addSiHitInformation( xprd, prd, &*sihitCollection);
         }

@@ -8,7 +8,7 @@
 #include "LArReadoutGeometry/HECCellConstLink.h"
 #include "GeoModelKernel/GeoVDetectorElement.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "CLHEP/Geometry/Point3D.h"
 
@@ -42,7 +42,7 @@ class HECDetectorRegion : public GeoVDetectorElement
   HECDetectorRegion (const GeoVFullPhysVol *physVol
 		     , const HECDetDescr *hecDescriptor
 		     , DetectorSide endcap
-		     , double projectivityDisplacement = 4*GeoModelKernelUnits::cm);
+		     , double projectivityDisplacement = 4*Gaudi::Units::cm);
 
   /**
    * @brief Destructor

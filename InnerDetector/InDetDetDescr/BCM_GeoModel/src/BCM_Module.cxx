@@ -13,6 +13,8 @@
 #include "GeoModelKernel/GeoIdentifierTag.h"
 #include "GeoModelKernel/GeoSimplePolygonBrep.h" 
 
+#include "GaudiKernel/SystemOfUnits.h"
+
 GeoPhysVol* BCM_Module::Build(const AbsMaterialManager* mat_mgr, const BCM_ModuleParameters* parameters, MsgStream* /*msg*/)
 {
   //module outside dimensions
@@ -110,7 +112,7 @@ GeoPhysVol* BCM_Module::Build(const AbsMaterialManager* mat_mgr, const BCM_Modul
   GeoPhysVol* WallC = wall.Build(ModLength/2, ReducedModWidth/2, G10Thick, CuThick, g10, copper, mat_mgr);
 		
   GeoTrf::Translation3D WallCPos(ModHeight/2 - WallThick/2, 0, 0);
-  GeoTrf::RotateY3D rmC(90.*GeoModelKernelUnits::deg);
+  GeoTrf::RotateY3D rmC(90.*Gaudi::Units::deg);
   GeoTransform* xform = new GeoTransform(GeoTrf::Transform3D(WallCPos*rmC));
   GeoNameTag* tag = new GeoNameTag("Wall C");
   env_bcmModPhys->add(tag);
@@ -236,7 +238,7 @@ GeoPhysVol* BCM_Module::Build(const AbsMaterialManager* mat_mgr, const BCM_Modul
   GeoPhysVol* WallA = wall.Build(ModTailHeight/2, (ModLength - ModHeadLength)/2, CuThick, G10Thick, copper, g10, mat_mgr);
   
   GeoTrf::Translation3D WallAPos((ModHeight - ModTailHeight)/2 , (ReducedModWidth + WallThick)/2, -ModHeadLength/2);
-  GeoTrf::RotateX3D rmA(90.*GeoModelKernelUnits::deg);
+  GeoTrf::RotateX3D rmA(90.*Gaudi::Units::deg);
   xform = new GeoTransform(GeoTrf::Transform3D(WallAPos*rmA));
   tag = new GeoNameTag("Wall A");
   env_bcmModPhys->add(tag);
@@ -278,7 +280,7 @@ GeoPhysVol* BCM_Module::Build(const AbsMaterialManager* mat_mgr, const BCM_Modul
   // Add the BCM envelop inside the new complex encompassing volume
   // --------------------------------------------------------------------------------------
 
-  GeoTrf::Transform3D rmEnv = GeoTrf::RotateY3D(90.*GeoModelKernelUnits::deg)*GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg);
+  GeoTrf::Transform3D rmEnv = GeoTrf::RotateY3D(90.*Gaudi::Units::deg)*GeoTrf::RotateZ3D(90.*Gaudi::Units::deg);
   xform = new GeoTransform(rmEnv);
   tag = new GeoNameTag("EnvBcmWallLog");
   bcmModPhys->add(tag);

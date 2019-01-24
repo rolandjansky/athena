@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -33,7 +33,7 @@ class StoreGateSvc;
 class TileGeoG4DMLookupBuilder {
 public:
   TileGeoG4DMLookupBuilder(TileGeoG4LookupBuilder* tile_lookup_builder, ServiceHandle<IRDBAccessSvc> &access,
-                           ServiceHandle<IGeoModelSvc> &geo_svc, ServiceHandle<StoreGateSvc> &pDetStore,
+                           ServiceHandle<IGeoModelSvc> &geo_svc, const ServiceHandle<StoreGateSvc> &pDetStore,
                            const int verboseLevel);
   ~TileGeoG4DMLookupBuilder();
 

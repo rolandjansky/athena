@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_SiliconTempCondAlg.h"
@@ -12,7 +12,7 @@
 #include <memory>
 
 SCT_SiliconTempCondAlg::SCT_SiliconTempCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
-  : ::AthAlgorithm(name, pSvcLocator)
+  : ::AthReentrantAlgorithm(name, pSvcLocator)
   , m_condSvc{"CondSvc", name}
   , m_pHelper{nullptr}
 {
@@ -43,11 +43,11 @@ StatusCode SCT_SiliconTempCondAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_SiliconTempCondAlg::execute() {
+StatusCode SCT_SiliconTempCondAlg::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("execute " << name());
 
   // Write Cond Handle
-  SG::WriteCondHandle<SCT_DCSFloatCondData> writeHandle{m_writeKey};
+  SG::WriteCondHandle<SCT_DCSFloatCondData> writeHandle{m_writeKey, ctx};
   // Do we have a valid Write Cond Handle for current time?
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
@@ -57,7 +57,7 @@ StatusCode SCT_SiliconTempCondAlg::execute() {
   }
 
   // Read Cond Handle (temperature)
-  SG::ReadCondHandle<SCT_DCSFloatCondData> readHandleTemp0{m_readKeyTemp0};
+  SG::ReadCondHandle<SCT_DCSFloatCondData> readHandleTemp0{m_readKeyTemp0, ctx};
   const SCT_DCSFloatCondData* readCdoTemp0{*readHandleTemp0};
   if (readCdoTemp0==nullptr) {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
@@ -74,7 +74,7 @@ StatusCode SCT_SiliconTempCondAlg::execute() {
 
   if (m_useState.value()) {
     // Read Cond Handle (state)
-    SG::ReadCondHandle<SCT_DCSStatCondData> readHandleState{m_readKeyState};
+    SG::ReadCondHandle<SCT_DCSStatCondData> readHandleState{m_readKeyState, ctx};
     const SCT_DCSStatCondData* readCdoState{*readHandleState};
     if (readCdoState==nullptr) {
       ATH_MSG_FATAL("Null pointer to the read conditions object");

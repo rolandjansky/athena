@@ -22,6 +22,7 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #define SKIPCYLINDER 3
 #define NUMBEROFCYLINDER 7
@@ -76,8 +77,8 @@ void PixelServMatFactoryDC2::create(GeoPhysVol *mother)
     std::string matName =  mat[(int) (*pbfi)[ii]->getFloat("MAT")];
 
     const GeoMaterial* cylMat = materialManager->getMaterial(matName);
-    double rmin = (*pbfi)[ii]->getFloat("RIN")*GeoModelKernelUnits::cm;
-    double rmax = (*pbfi)[ii]->getFloat("ROUT")*GeoModelKernelUnits::cm;
+    double rmin = (*pbfi)[ii]->getFloat("RIN")*Gaudi::Units::cm;
+    double rmax = (*pbfi)[ii]->getFloat("ROUT")*Gaudi::Units::cm;
     double zmin = (*pbfi)[ii]->getFloat("ZIN");
     double zmax = (*pbfi)[ii]->getFloat("ZOUT");
     // elaborate it 'a la G3...
@@ -86,9 +87,9 @@ void PixelServMatFactoryDC2::create(GeoPhysVol *mother)
       double rl = cylMat->getRadLength();
       halflength = fabs(zmax) * rl /200. ;
     } else {
-      halflength = fabs(zmax-zmin)*GeoModelKernelUnits::cm;
+      halflength = fabs(zmax-zmin)*Gaudi::Units::cm;
     }
-    double zpos = fabs(zmin*GeoModelKernelUnits::cm)+halflength+epsilon;
+    double zpos = fabs(zmin*Gaudi::Units::cm)+halflength+epsilon;
     // Build the Phys Vol
     std::ostringstream o;
     o << ii;

@@ -17,7 +17,6 @@
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "Identifier/Identifier.h"
-#include "InDetConditionsSummaryService/ISiliconConditionsSvc.h"
 
 #include "InDetReadoutGeometry/SiLocalPosition.h"
 

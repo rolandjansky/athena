@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #ifndef SCT_DCSCONDITIONSHVCONDALG
 #define SCT_DCSCONDITIONSHVCONDALG
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "SCT_ConditionsData/SCT_DCSFloatCondData.h"
@@ -15,13 +15,13 @@
 #include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/Property.h"
 
-class SCT_DCSConditionsHVCondAlg : public AthAlgorithm 
+class SCT_DCSConditionsHVCondAlg : public AthReentrantAlgorithm 
 {  
  public:
   SCT_DCSConditionsHVCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~SCT_DCSConditionsHVCondAlg() = default;
   StatusCode initialize() override;
-  StatusCode execute() override;
+  StatusCode execute(const EventContext& ctx) const override;
   StatusCode finalize() override;
 
  private:

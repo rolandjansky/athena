@@ -30,6 +30,7 @@
 
 #include "GeoModelKernel/GeoTubs.h"
 #include "GeoModelKernel/GeoPhysVol.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <sstream>
 
@@ -304,7 +305,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   //
   // Layer dimensions from above, etc
   //
-  double safety = 0.01 * GeoModelKernelUnits::mm;
+  double safety = 0.01 * Gaudi::Units::mm;
   double rmin =  m_gmt_mgr->PixelLayerRadius()-layerThicknessN - safety;
   double rmax =  m_gmt_mgr->PixelLayerRadius()+layerThicknessP + safety;
   double length = m_gmt_mgr->PixelLadderLength() + 4*m_epsilon; // Ladder has length m_gmt_mgr->PixelLadderLength() +  2*m_epsilon
@@ -315,7 +316,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   if(m_gmt_mgr->GetLD()==0&&m_gmt_mgr->ibl()&&m_gmt_mgr->PixelStaveLayout()>3&&m_gmt_mgr->PixelStaveLayout()<8)
     {
       bAddIBLStaveRings=true;
-      double safety = 0.001 * GeoModelKernelUnits::mm;
+      double safety = 0.001 * Gaudi::Units::mm;
       double outerRadius = m_gmt_mgr->IBLSupportMidRingInnerRadius();  
       rmax=outerRadius-safety;
 
@@ -346,7 +347,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   //
   // A few variables needed below
   //  
-  double angle=(nSectors>0)?(360./(double)nSectors)*GeoModelKernelUnits::deg:(360.*GeoModelKernelUnits::deg);
+  double angle=(nSectors>0)?(360./(double)nSectors)*Gaudi::Units::deg:(360.*Gaudi::Units::deg);
   GeoTrf::Transform3D transRadiusAndTilt = GeoTrf::TranslateX3D(layerRadius)*GeoTrf::RotateZ3D(ladderTilt);
   double phiOfModuleZero =  m_gmt_mgr->PhiOfModuleZero();
 

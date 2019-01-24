@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ReadCalibDataCondAlg.h"
@@ -49,7 +49,7 @@ namespace {
 }
 
 SCT_ReadCalibDataCondAlg::SCT_ReadCalibDataCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
-  : ::AthAlgorithm(name, pSvcLocator)
+  : ::AthReentrantAlgorithm(name, pSvcLocator)
   , m_defectMapIntToString{}
   , m_condSvc{"CondSvc", name}
   , m_id_sct{nullptr}
@@ -130,13 +130,13 @@ StatusCode SCT_ReadCalibDataCondAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_ReadCalibDataCondAlg::execute() {
+StatusCode SCT_ReadCalibDataCondAlg::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("execute " << name());
 
   // Write Cond Handle
   bool validWriteCondHandle{true};
   // Do we have a valid Write Cond Handle for current time?
-  SG::WriteCondHandle<SCT_CalibDefectData> writeHandleData[NFEATURES]{m_writeKeyGain, m_writeKeyNoise};
+  SG::WriteCondHandle<SCT_CalibDefectData> writeHandleData[NFEATURES]{{m_writeKeyGain, ctx}, {m_writeKeyNoise, ctx}};
   for (unsigned int i{GAIN}; i<NFEATURES; i++) {
     if (writeHandleData[i].isValid()) {
       ATH_MSG_DEBUG("CondHandle " << writeHandleData[i].fullKey() << " is already valid."
@@ -146,7 +146,7 @@ StatusCode SCT_ReadCalibDataCondAlg::execute() {
       validWriteCondHandle = false;
     }
   }
-  SG::WriteCondHandle<SCT_AllGoodStripInfo> writeHandleInfo{m_writeKeyInfo};
+  SG::WriteCondHandle<SCT_AllGoodStripInfo> writeHandleInfo{m_writeKeyInfo, ctx};
   if (writeHandleInfo.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandleInfo.fullKey() << " is already valid."
                   << ". In theory this should not be called, but may happen"
@@ -157,7 +157,7 @@ StatusCode SCT_ReadCalibDataCondAlg::execute() {
   if (validWriteCondHandle) return StatusCode::SUCCESS;
 
   // Read Cond Handle
-  SG::ReadCondHandle<CondAttrListCollection> readHandle[NFEATURES]{m_readKeyGain, m_readKeyNoise};
+  SG::ReadCondHandle<CondAttrListCollection> readHandle[NFEATURES]{{m_readKeyGain, ctx}, {m_readKeyNoise, ctx}};
   const CondAttrListCollection* readCdo[NFEATURES]{*readHandle[GAIN], *readHandle[NOISE]};
   EventIDRange rangeR[NFEATURES];
   for (unsigned int i{GAIN}; i<NFEATURES; i++) {
@@ -175,8 +175,8 @@ StatusCode SCT_ReadCalibDataCondAlg::execute() {
   }
 
   // Get SCT_DetectorElementCollection
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
-  const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle{m_SCTDetEleCollKey, ctx};
+  const InDetDD::SiDetectorElementCollection* elements{sctDetEle.retrieve()};
   if (elements==nullptr) {
     ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
     return StatusCode::FAILURE;
@@ -258,7 +258,7 @@ StatusCode SCT_ReadCalibDataCondAlg::execute() {
       for (long unsigned int i{0}; i<gainvec_size; ++i) {
         theseDefects.begDefects.push_back(gaindefectbvec[i]);
         theseDefects.endDefects.push_back(gaindefectevec[i]);
-        theseDefects.typeOfDefect.push_back(m_defectMapIntToString[defectTypevec[i]]);
+        theseDefects.typeOfDefect.push_back(m_defectMapIntToString.at(defectTypevec[i]));
         theseDefects.parValue.push_back(coerceToFloatRange(parValuevec[i]));
       }
       // Fill the isGoodWaferArray

@@ -16,6 +16,7 @@
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 using std::max;
 
@@ -137,7 +138,7 @@ GeoVPhysVol* GeoPixelModule::Build( ) {
   //
   // Place the Hybrid
   //
-  if (m_gmt_mgr->PixelHybridThickness(m_isModule3D)>0.00001*GeoModelKernelUnits::mm){
+  if (m_gmt_mgr->PixelHybridThickness(m_isModule3D)>0.00001*Gaudi::Units::mm){
     GeoPixelHybrid ph(m_isModule3D);
     double hybxpos = -0.5*(m_gmt_mgr->PixelBoardThickness(m_isModule3D)+m_gmt_mgr->PixelHybridThickness(m_isModule3D));
     GeoTransform* xform = new GeoTransform(GeoTrf::TranslateX3D(hybxpos));
@@ -200,7 +201,7 @@ double GeoPixelModule::ThicknessN_noSvc() {
   // is the max of ThicknessP and thickness from the module center to
   // the outer surface of the hybrid plus some safety.
   //
-  double safety = 0.01*GeoModelKernelUnits::mm; 
+  double safety = 0.01*Gaudi::Units::mm; 
   double thickn = 0.5 * m_gmt_mgr->PixelBoardThickness(m_isModule3D)+ m_gmt_mgr->PixelHybridThickness(m_isModule3D) + safety;
   double thick = max(thickn, ThicknessP()); 
   
@@ -234,7 +235,7 @@ double GeoPixelModule::ThicknessN() {
   //
 
 
-  double safety = 0.01*GeoModelKernelUnits::mm; 
+  double safety = 0.01*Gaudi::Units::mm; 
   double thickn = 0.5 * m_gmt_mgr->PixelBoardThickness(m_isModule3D)+ m_gmt_mgr->PixelHybridThickness(m_isModule3D) + safety;
   double thick = max(thickn, ThicknessP()); 
 
@@ -265,7 +266,7 @@ double GeoPixelModule::ThicknessP() {
   // is thickness from the module center to the outer surface of the
   // chips plus some safety.
 
-  double safety = 0.01*GeoModelKernelUnits::mm;
+  double safety = 0.01*Gaudi::Units::mm;
   double thick = 0.5 * m_gmt_mgr->PixelBoardThickness(m_isModule3D) +
     m_gmt_mgr->PixelChipThickness(m_isModule3D)+m_gmt_mgr->PixelChipGap(m_isModule3D) + safety;
 

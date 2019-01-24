@@ -17,7 +17,7 @@
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoNameTag.h"
-
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <algorithm>
 using std::max;
@@ -48,7 +48,7 @@ GeoVPhysVol* GeoPixelStaveRing::Build(){
 
   m_gmt_mgr->msg(MSG::INFO) <<"Build detailed stave ring support : "<<m_ringName<<"  "<<m_ringPosition<<endmsg;
 
-  double safety = 0.001*GeoModelKernelUnits::mm; 
+  double safety = 0.001*Gaudi::Units::mm; 
   bool isBLayer = false;
   if(m_gmt_mgr->GetLD() == 0) isBLayer = true;
   GeoPixelSiCrystal theSensor(isBLayer);

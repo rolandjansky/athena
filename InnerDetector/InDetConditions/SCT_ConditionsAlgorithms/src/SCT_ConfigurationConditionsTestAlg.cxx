@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file Test class for SCT_ConfigurationConditionsSvc
@@ -14,7 +14,7 @@
 #include "InDetIdentifier/SCT_ID.h"
 
 SCT_ConfigurationConditionsTestAlg::SCT_ConfigurationConditionsTestAlg(const std::string& name, ISvcLocator* pSvcLocator) : 
-  AthAlgorithm(name, pSvcLocator),
+  AthReentrantAlgorithm(name, pSvcLocator),
   m_sctId{nullptr}
 {
 }
@@ -29,7 +29,7 @@ StatusCode SCT_ConfigurationConditionsTestAlg::initialize() {
   return StatusCode::SUCCESS;
 } 
 
-StatusCode SCT_ConfigurationConditionsTestAlg::execute() {
+StatusCode SCT_ConfigurationConditionsTestAlg::execute(const EventContext& /*ctx*/) const {
   ATH_MSG_INFO("in execute()");
 
   // Bad modules

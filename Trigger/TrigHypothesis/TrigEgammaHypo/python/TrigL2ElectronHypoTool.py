@@ -1,14 +1,11 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-def TrigL2ElectronHypoToolFromName( name, conf ):
-    """ provides configuration of the hypo tool giben the chain name
-    The argument will be replaced by "parsed" chain dict. For now it only serves simplest chain HLT_eXYZ.
-    """
-    bname = conf.split('_')
+def TrigL2ElectronHypoToolFromDict( chainDict ):
+    """ Use menu decoded chain dictionary to configure the tool """
+    thresholds = sum([ [cpart['threshold']]*int(cpart['multiplicity']) for cpart in chainDict['chainParts']], [])
 
-    threshold = bname[1]
-    from TrigEgammaHypo.TrigL2CaloHypoTool import decodeThreshold
-    thresholds = decodeThreshold( threshold )
-
+    name = chainDict['chainName']
+    
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2ElectronHypoTool
     tool = TrigL2ElectronHypoTool(name)
     tool.RespectPreviousDecision = True
@@ -56,6 +53,19 @@ def TrigL2ElectronHypoToolFromName( name, conf ):
         else:
             raise RuntimeError('No threshold: Default cut configured')
     return tool
+
+
+def TrigL2ElectronHypoToolFromName( name, conf ):
+    """ provides configuration of the hypo tool giben the chain name
+    The argument will be replaced by "parsed" chain dict. For now it only serves simplest chain HLT_eXYZ.
+    """
+    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName
+    decoder = DictFromChainName()
+    decodedDict = decoder.analyseShortName(conf, [], "") # no L1 info
+    decodedDict['chainName'] = name # override
+        
+    return TrigL2ElectronHypoToolFromDict( decodedDict )
+
 
 
 if __name__ == "__main__":

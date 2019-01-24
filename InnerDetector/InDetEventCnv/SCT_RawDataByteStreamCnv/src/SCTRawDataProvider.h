@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_RAWDATABYTESTREAMCNV_SCTRAWDATAPROVIDER_H
 #define SCT_RAWDATABYTESTREAMCNV_SCTRAWDATAPROVIDER_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "InDetRawData/InDetTimeCollection.h"
 #include "InDetRawData/SCT_RDO_Container.h"
@@ -39,7 +39,7 @@ class SCT_ByteStreamFractionContainer;
  *
  * Class based on TRT equivalent.
  */
-class SCTRawDataProvider : public AthAlgorithm
+class SCTRawDataProvider : public AthReentrantAlgorithm
 {
  public:
 
@@ -53,7 +53,7 @@ class SCTRawDataProvider : public AthAlgorithm
   virtual StatusCode initialize() override;
 
   /** Execute */
-  virtual StatusCode execute() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
 
  private:
 
