@@ -195,6 +195,41 @@ StatusCode ISF::DNNCaloSimSvc::releaseEvent()
  return StatusCode::SUCCESS;
  
 }
+bool compCellsForDNNSortMirror(const CaloCell* a, const CaloCell* b)
+{
+    if ((a->caloDDE()->getSampling()) < (b->caloDDE()->getSampling()))
+        return true;
+    else if ((a->caloDDE()->getSampling()) > (b->caloDDE()->getSampling()))
+        return false;
+      // reverse sort in eta for left half of detector
+    if ((a->caloDDE()->eta_raw()) < (b->caloDDE()->eta_raw()))
+        return false;
+    else if ((a->caloDDE()->eta_raw()) > (b->caloDDE()->eta_raw()))
+        return true;
+
+    if (((a->caloDDE()->phi_raw()) > (b->caloDDE()->phi_raw())))
+        return false;
+
+    return true;
+}
+
+bool compCellsForDNNSort(const CaloCell* a, const CaloCell* b)
+{
+    if ((a->caloDDE()->getSampling()) < (b->caloDDE()->getSampling()))
+        return true;
+    else if ((a->caloDDE()->getSampling()) > (b->caloDDE()->getSampling()))
+        return false;
+
+    if ((a->caloDDE()->eta_raw()) < (b->caloDDE()->eta_raw()))
+        return true;
+    else if ((a->caloDDE()->eta_raw()) > (b->caloDDE()->eta_raw()))
+        return false;
+
+    if (((a->caloDDE()->phi_raw()) > (b->caloDDE()->phi_raw())))
+        return false;
+
+    return true;
+}
 
 /** Simulation Call */
 StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
@@ -451,10 +486,18 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
   double myPhiIndex = -999.;
   double myEtaIndex = -999.;
 
+  if (etaRawImpactCell < 0){
+    std::sort(windowCells.begin(), windowCells.end(), &compCellsForDNNSortMirror);
+  }
+  else{
+    std::sort(windowCells.begin(), windowCells.end(), &compCellsForDNNSort);
+  }
+  
+
   for ( windowCell = windowCells.begin(); windowCell != windowCells.end(); ++windowCell ) {
     (*windowCell)->addEnergy(trueEnergy * outputs[std::to_string(i)]);
 
-      ATH_MSG_DEBUG("NNN added " << (*windowCell)->caloDDE()->eta_raw() << " and " << (*windowCell)->caloDDE()->phi_raw() << " sampling " <<
+      ATH_MSG_DEBUG("NNN ImactEtaRaw" << etaRawImpactCell << " cell eta_raw " << (*windowCell)->caloDDE()->eta_raw() << " phi_raw " << (*windowCell)->caloDDE()->phi_raw() << " sampling " <<
               (*windowCell)->caloDDE()->getSampling() << "energy " << (*windowCell)->energy());
      myPhiIndex = (*windowCell)->caloDDE()->phi_raw() - (-3.1323888); // phi_right
      //myPhiIndex = (*windowCell)->caloDDE()->phi_raw() - (-3.126253); // phi_left
@@ -468,12 +511,12 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
      myPhiIndex /= m_MiddleCellWidthPhi_const;
      myEtaIndex /= m_MiddleCellWidthEta_const;
     //if (((*windowCell)->caloDDE()->eta_raw() < 0) && (*windowCell)->caloDDE()->getSampling() == 2) {
-     if (((*windowCell)->caloDDE()->eta_raw() > 0) && (*windowCell)->caloDDE()->getSampling() == 2) {
+    // if (((*windowCell)->caloDDE()->eta_raw() > 0) && (*windowCell)->caloDDE()->getSampling() == 2) {
       ATH_MSG_DEBUG("lll cell eta_index " << m_emID->eta((*windowCell)->caloDDE()->identify()) << " phi_index " << m_emID->phi((*windowCell)->caloDDE()->identify()) <<
         "  sampling " << m_emID->sampling((*windowCell)->caloDDE()->identify()) << 
-        "  myPhiIndex " << myPhiIndex <<
-      "  myEtaIndex " << myEtaIndex);
-      }
+        "  myPhiIndex(right) " << myPhiIndex <<
+      "  myEtaIndex(right) " << myEtaIndex);
+     // }
       
       i++;
   }
