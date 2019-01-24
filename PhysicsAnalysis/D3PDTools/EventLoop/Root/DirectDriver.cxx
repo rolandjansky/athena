@@ -79,17 +79,7 @@ namespace EL
     for (SH::SampleHandler::iterator sample = job.sampleHandler().begin(),
 	   end = job.sampleHandler().end(); sample != end; ++ sample)
     {
-      SH::MetaObject meta (*(*sample)->meta());
-      meta.fetchDefaults (*job.options());
-      meta.fetchDefaults (*options());
-
-      TList output;
-      DirectWorker worker (*sample, &output, job, location, &meta);
-
-      std::cout << "Running sample: " << (*sample)->name() << std::endl;
-      worker.run ();
-
-      saveOutput (location, (*sample)->name(), output);
+      DirectWorker::execute (*sample, job, location, *options());
     }
     diskOutputSave (location, job);
   }

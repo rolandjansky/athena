@@ -21,6 +21,7 @@
 #include <AnaAlgorithm/IHistogramWorker.h>
 #include <AnaAlgorithm/ITreeWorker.h>
 #include <EventLoop/ModuleData.h>
+#include <EventLoop/OutputStreamData.h>
 #include <Rtypes.h>
 #include <map>
 
@@ -235,7 +236,21 @@ namespace EL
     /// warning: you have to keep the meta-data object around until
     ///   the worker object is destroyed.
   protected:
-    Worker (const SH::MetaObject *val_metaData, TList *output);
+    Worker ();
+
+
+    /// \brief set the \ref metaData
+    /// \par Guarantee
+    ///   no-fail
+  protected:
+    void setMetaData (const SH::MetaObject *val_metaData);
+
+
+    /// \brief set the histogram output list
+    /// \par Guarantee
+    ///   no-fail
+  protected:
+    void setOutputHist (TList *val_output);
 
 
     /// \brief set the \ref JobConfig
@@ -326,12 +341,9 @@ namespace EL
     /// guarantee: strong
     /// failures: low level errors II
     /// failures: label already used
-    /// requires: file_swallow != 0
   protected:
-    ::StatusCode addOutputFile (const std::string& label,
-                                std::unique_ptr<TFile> file);
-    ::StatusCode addOutputWriter (const std::string& label,
-                                  std::unique_ptr<SH::DiskWriter> writer);
+    ::StatusCode addOutputStream (const std::string& label,
+                                  Detail::OutputStreamData output);
 
 
     /// effects: tell all algorithms that they should process the next
@@ -388,8 +400,7 @@ namespace EL
 
     /// description: the list of output files
   private:
-    typedef std::map<std::string,SH::DiskWriter*>::const_iterator outputFilesIter;
-    std::map<std::string,SH::DiskWriter*> m_outputFiles;
+    std::map<std::string,Detail::OutputStreamData> m_outputs; //!
 
 
     /// description: whether we are skipping the event
@@ -399,7 +410,7 @@ namespace EL
 
     /// \brief the list of modules we hold
   private:
-    std::vector<std::unique_ptr<Detail::Module> > m_modules;
+    std::vector<std::unique_ptr<Detail::Module> > m_modules; //!
 
 
     /// \brief whether this is a new input file (i.e. one that has not

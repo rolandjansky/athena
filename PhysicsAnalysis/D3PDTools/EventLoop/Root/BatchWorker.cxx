@@ -59,24 +59,10 @@ namespace EL
   BatchWorker ::
   BatchWorker (const BatchJob *val_job,
 	       const BatchSample *val_sample,
-	       const BatchSegment *val_segment,
-	       TList *output)
-    : Worker ((RCU_REQUIRE (val_job != 0),
-	       RCU_REQUIRE (val_sample != 0),
-	       RCU_REQUIRE (val_segment != 0),
-	       RCU_REQUIRE (output != 0),
-	       &val_sample->meta), output),
-      m_job (val_job), m_sample (val_sample), m_segment (val_segment)
+	       const BatchSegment *val_segment)
+    : m_job (val_job), m_sample (val_sample), m_segment (val_segment)
   {
     using namespace msgEventLoop;
-
-    setJobConfig (JobConfig (val_job->job.jobConfig()));
-
-    for (Job::outputIter out = m_job->job.outputBegin(),
-	   end = m_job->job.outputEnd(); out != end; ++ out)
-    {
-      ANA_CHECK_THROW (addOutputWriter (out->label(), std::unique_ptr<SH::DiskWriter> (out->output()->makeWriter ("", m_segment->name, -1, ".root"))));
-    }
 
     RCU_NEW_INVARIANT (this);
   }
@@ -84,11 +70,22 @@ namespace EL
 
 
   void BatchWorker ::
-  run ()
+  run (const BatchJob *val_job)
   {
     using namespace msgEventLoop;
 
     RCU_CHANGE_INVARIANT (this);
+
+    setJobConfig (JobConfig (val_job->job.jobConfig()));
+
+    for (Job::outputIter out = m_job->job.outputBegin(),
+	   end = m_job->job.outputEnd(); out != end; ++ out)
+    {
+      Detail::OutputStreamData data;
+      data.m_writer.reset
+        (out->output()->makeWriter ("", m_segment->name, -1, ".root"));
+      ANA_CHECK_THROW (addOutputStream (out->label(), std::move (data)));
+    }
  
     Long64_t beginFile = m_segment->begin_file;
     Long64_t endFile   = m_segment->end_file;
@@ -133,9 +130,10 @@ namespace EL
       gSystem->MakeDirectory ("output");
 
       TList output;
-      BatchWorker worker (job.get(), sample, segment,
-			  &output);
-      worker.run ();
+      BatchWorker worker (job.get(), sample, segment);
+      worker.setMetaData (&sample->meta);
+      worker.setOutputHist (&output);
+      worker.run (job.get());
 
       std::ostringstream job_name;
       job_name << job_id;
