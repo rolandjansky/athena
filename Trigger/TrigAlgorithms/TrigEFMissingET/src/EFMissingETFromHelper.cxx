@@ -69,8 +69,61 @@ StatusCode EFMissingETFromHelper::finalize()
   return StatusCode::SUCCESS;
 }
 
+void EFMissingETFromHelper::setMET(xAOD::TrigMissingET *met, 
+                                  const float ex, const float ey, const float ez,
+                                  const float sumE, const float sumEt, 
+                                  const short sumOfSigns, const float c0, const float c1)
+{
+  met->setEx( met->ex() + sumOfSigns * c0 + c1 * ex );
+  met->setEy( met->ey() + sumOfSigns * c0 + c1 * ey );
+  met->setEz( met->ez() + sumOfSigns * c0 + c1 * ez );
+  met->setSumE( met->sumE() + sumOfSigns * c0 + c1 * sumE );
+  met->setSumEt( met->sumEt() + sumOfSigns * c0 + c1 * sumEt );
+  return;
+}
 
+void EFMissingETFromHelper::setMETComp(xAOD::TrigMissingET *met, const int comp_i, const char* comp_name,
+                                      const float ex, const float ey, const float ez,
+                                      const float sumE, float sumEt,
+                                      const short sumOfSigns, const float c0, const float c1,
+                                      const short status, const unsigned short Ntot,
+                                      bool update)
+{
+  if (comp_name && !update) 
+    met->setNameOfComponent(        comp_i, comp_name );
+  met->setExComponent(              comp_i, ex );
+  met->setEyComponent(              comp_i, ey );
+  met->setEzComponent(              comp_i, ez );
+  met->setSumEtComponent(           comp_i, sumEt );
+  met->setSumEComponent(            comp_i, sumE );
+  met->setCalib0Component(          comp_i, c0 );
+  met->setCalib1Component(          comp_i, c1 );
+  met->setStatusComponent(          comp_i, status );
+  met->setSumOfSignsComponent(      comp_i, sumOfSigns );
+  met->setUsedChannelsComponent(    comp_i, Ntot );
+  return;
+}
 
+void EFMissingETFromHelper::updateMETComp(xAOD::TrigEFMissingET *met, const int comp_i,
+                                          float ex, float ey, float ez,
+                                          float sumE, float sumEt,
+                                          short sumOfSigns, float c0, float c1,
+                                          short status, unsigned short Ntot)
+{
+  setMETComp(met, comp_i, nullptr, 
+            ex         + met->exComponent(comp_i+1),
+            ey         + met->eyComponent(comp_i+1),
+            ez         + met->ezComponent(comp_i+1),
+            sumE       + met->sumEComponent(comp_i+1),
+            sumEt      + met->sumEtComponent(comp_i+1),
+            sumOfSigns + met->sumOfSignsComponent(comp_i+1),
+            c0, c1,
+            status     | met->statusComponent(comp_i+1),
+            Ntot       + met->usedChannelsComponent(comp_i+1),
+            true
+            )
+
+}
 StatusCode EFMissingETFromHelper::execute()
 {
   return StatusCode::SUCCESS;
@@ -162,169 +215,56 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
 
     // basic info - DK calibration
     if (i<elem-18){  // skip muon or Had Topo granular or EM Topo correction for all quantities
-      met->setEx( met->ex() + sumOfSigns * c0 + c1 * ex );
-      met->setEy( met->ey() + sumOfSigns * c0 + c1 * ey );
-      met->setEz( met->ez() + sumOfSigns * c0 + c1 * ez );
-      met->setSumE( met->sumE() + sumOfSigns * c0 + c1 * sumE );
-      met->setSumEt( met->sumEt() + sumOfSigns * c0 + c1 * sumEt );
+      setMET(met, ex, ey, ez, sumE, sumEt, sumOfSigns, c0, c1);
     }
 
     if(save9comp && i == 24) { // Save summed HAD MET
-      met->setEx( met->ex() + sumOfSigns * c0 + c1 * ex );
-      met->setEy( met->ey() + sumOfSigns * c0 + c1 * ey );
-      met->setEz( met->ez() + sumOfSigns * c0 + c1 * ez );
-      met->setSumE( met->sumE() + sumOfSigns * c0 + c1 * sumE );
-      met->setSumEt( met->sumEt() + sumOfSigns * c0 + c1 * sumEt );
+      setMET(met, ex, ey, ez, sumE, sumEt, sumOfSigns, c0, c1);
     }
 
     if( (save2comp || save6comp) && i == 34) { // Save JET MET
-      met->setEx( met->ex() + sumOfSigns * c0 + c1 * ex );
-      met->setEy( met->ey() + sumOfSigns * c0 + c1 * ey );
-      met->setEz( met->ez() + sumOfSigns * c0 + c1 * ez );
-      met->setSumE( met->sumE() + sumOfSigns * c0 + c1 * sumE );
-      met->setSumEt( met->sumEt() + sumOfSigns * c0 + c1 * sumEt );
+      setMET(met, ex, ey, ez, sumE, sumEt, sumOfSigns, c0, c1);
     }
 
     if(save3comp && i == 39) { // Save PUC MET
-      met->setEx( met->ex() + sumOfSigns * c0 + c1 * ex );
-      met->setEy( met->ey() + sumOfSigns * c0 + c1 * ey );
-      met->setEz( met->ez() + sumOfSigns * c0 + c1 * ez );
-      met->setSumE( met->sumE() + sumOfSigns * c0 + c1 * sumE );
-      met->setSumEt( met->sumEt() + sumOfSigns * c0 + c1 * sumEt );
+      setMET(met, ex, ey, ez, sumE, sumEt, sumOfSigns, c0, c1);
     }
 
     if (skipAuxInfo) continue;
 
     // auxiliary info - uncorrected
     if (comp == unsigned(elem-17) && i < 24) { // finest granularity
-      met->setNameOfComponent( i, metComp->m_name );
-      met->setExComponent(     i, ex );
-      met->setEyComponent(     i, ey );
-      met->setEzComponent(     i, ez );
-      met->setSumEtComponent(  i, sumEt );
-      met->setSumEComponent(   i, sumE );
-      met->setCalib0Component( i, c0 );
-      met->setCalib1Component( i, c1 );
-      met->setStatusComponent(          i, status );
-      met->setSumOfSignsComponent(      i, sumOfSigns );
-      met->setUsedChannelsComponent(    i, Ntot );
+      setMETComp(met, i, metComp->m_name, ex, ey, ez, sumE, sumEt, sumOfSigns, c0, c1, status, Ntot);
     } else if(comp == unsigned(elem-17) && i == 41) { // save muons
-      met->setNameOfComponent( i-17, metComp->m_name );
-      met->setExComponent(     i-17, ex );
-      met->setEyComponent(     i-17, ey );
-      met->setEzComponent(     i-17, ez );
-      met->setSumEtComponent(  i-17, sumEt );
-      met->setSumEComponent(   i-17, sumE );
-      met->setCalib0Component( i-17, c0 );
-      met->setCalib1Component( i-17, c1 );
-      met->setStatusComponent(          i-17, status );
-      met->setSumOfSignsComponent(      i-17, sumOfSigns );
-      met->setUsedChannelsComponent(    i-17, Ntot );
+      setMETComp(met, i-17, metComp->m_name, ex, ey, ez, sumE, sumEt, sumOfSigns, c0, c1, status, Ntot);
     } else if (save6comp) {
       if (i>=34 && i < 39) { // Central and Forward Jets
-        met->setNameOfComponent( i-34, metComp->m_name );
-        met->setExComponent(     i-34, ex );
-        met->setEyComponent(     i-34, ey );
-        met->setEzComponent(     i-34, ez );
-        met->setSumEtComponent(  i-34, sumEt );
-        met->setSumEComponent(   i-34, sumE );
-        met->setCalib0Component( i-34, c0 );
-        met->setCalib1Component( i-34, c1 );
-        met->setStatusComponent(          i-34, status );
-        met->setSumOfSignsComponent(      i-34, sumOfSigns );
-        met->setUsedChannelsComponent(    i-34, Ntot );
+        setMETComp(met, i-34, metComp->m_name, ex, ey, ez, sumE, sumEt, sumOfSigns, c0, c1, status, Ntot);
       }
       if (i==41) { // Muons
-        met->setNameOfComponent( 5, metComp->m_name );
-        met->setExComponent(     5, ex );
-        met->setEyComponent(     5, ey );
-        met->setEzComponent(     5, ez );
-        met->setSumEtComponent(  5, sumEt );
-        met->setSumEComponent(   5, sumE );
-        met->setCalib0Component( 5, c0 );
-        met->setCalib1Component( 5, c1 );
-        met->setStatusComponent(          5, status );
-        met->setSumOfSignsComponent(      5, sumOfSigns );
-        met->setUsedChannelsComponent(    5, Ntot );
+        setMETComp(met, 5, metComp->m_name, ex, ey, ez, sumE, sumEt, sumOfSigns, c0, c1, status, Ntot);
       }
 
     } else if (save9comp) {
       if (i > 24 && i < 29 ) { // HAD scale quantities
-      met->setNameOfComponent( i-25, metComp->m_name );
-      met->setExComponent(     i-25, ex );
-      met->setEyComponent(     i-25, ey );
-      met->setEzComponent(     i-25, ez );
-      met->setSumEtComponent(  i-25, sumEt );
-      met->setSumEComponent(   i-25, sumE );
-      met->setCalib0Component( i-25, c0 );
-      met->setCalib1Component( i-25, c1 );
-      met->setStatusComponent(          i-25, status );
-      met->setSumOfSignsComponent(      i-25, sumOfSigns );
-      met->setUsedChannelsComponent(    i-25, Ntot );
+        setMETComp(met, metComp, i-25, metComp->m_name, ex, ey, ez, sumE, sumEt, sumOfSigns, c0, c1, status, Ntot);
       } else if( i > 29 && i < 34) {     // EM scale quantities
-      met->setNameOfComponent( i-25-1, metComp->m_name );
-      met->setExComponent(     i-25-1, ex );
-      met->setEyComponent(     i-25-1, ey );
-      met->setEzComponent(     i-25-1, ez );
-      met->setSumEtComponent(  i-25-1, sumEt );
-      met->setSumEComponent(   i-25-1, sumE );
-      met->setCalib0Component( i-25-1, c0 );
-      met->setCalib1Component( i-25-1, c1 );
-      met->setStatusComponent(          i-25-1, status );
-      met->setSumOfSignsComponent(      i-25-1, sumOfSigns );
-      met->setUsedChannelsComponent(    i-25-1, Ntot );
+        setMETComp(met, metComp, i-25-1, metComp->m_name, ex, ey, ez, sumE, sumEt, sumOfSigns, c0, c1, status, Ntot);
       } else if( i == 41) {    // Muon
-      met->setNameOfComponent( i-25-8, metComp->m_name );
-      met->setExComponent(     i-25-8, ex );
-      met->setEyComponent(     i-25-8, ey );
-      met->setEzComponent(     i-25-8, ez );
-      met->setSumEtComponent(  i-25-8, sumEt );
-      met->setSumEComponent(   i-25-8, sumE );
-      met->setCalib0Component( i-25-8, c0 );
-      met->setCalib1Component( i-25-8, c1 );
-      met->setStatusComponent(          i-25-8, status );
-      met->setSumOfSignsComponent(      i-25-8, sumOfSigns );
-      met->setUsedChannelsComponent(    i-25-8, Ntot );
+      setMETComp(met, metComp, i-25-8, metComp->m_name, ex, ey, ez, sumE, sumEt, sumOfSigns, c0, c1, status, Ntot);
       }
     } else if (save5comp) {
       switch (i) {
         case 0: case 1: case 2: case 3: // LAr, barrel
-          met->setExComponent(     0, ex         + met->exComponent(1)    );
-          met->setEyComponent(     0, ey         + met->eyComponent(1)    );
-          met->setEzComponent(     0, ez         + met->ezComponent(1)    );
-          met->setSumEtComponent(  0, sumEt      + met->sumEtComponent(1) );
-          met->setSumEComponent(   0, sumE       + met->sumEComponent(1)  );
-          met->setSumOfSignsComponent(      0, sumOfSigns + met->sumOfSignsComponent(1)     );
-          met->setUsedChannelsComponent(    0, Ntot       + met->usedChannelsComponent(1)   );
-          met->setStatusComponent(          0, status     | met->statusComponent(1)         );
-          met->setCalib0Component( 0, c0 );
-          met->setCalib1Component( 0, c1 );
+          updateMETComp(met, 0, ex, ey, ez, sumE, sumEt, sumOfSigns, c0, c1, status, Ntot);
           break;
         case 4: case 5: case 6: case 7: // LAr, end-cap
         case 21:                        // + FCalEM
-          met->setExComponent(     1, ex         + met->exComponent(2)    );
-          met->setEyComponent(     1, ey         + met->eyComponent(2)    );
-          met->setEzComponent(     1, ez         + met->ezComponent(2)    );
-          met->setSumEtComponent(  1, sumEt      + met->sumEtComponent(2) );
-          met->setSumEComponent(   1, sumE       + met->sumEComponent(2)  );
-          met->setSumOfSignsComponent(      1, sumOfSigns + met->sumOfSignsComponent(2)     );
-          met->setUsedChannelsComponent(    1, Ntot       + met->usedChannelsComponent(2)   );
-          met->setStatusComponent(          1, status     | met->statusComponent(2)         );
-          met->setCalib0Component( 1, c0 );
-          met->setCalib1Component( 1, c1 );
+          updateMETComp(met, 1, ex, ey, ez, sumE, sumEt, sumOfSigns, c0, c1, status, Ntot);
           break;
         case 12: case 13: case 14: // Tile, barrel +
         case 18: case 19: case 20: // Tile, extended barrel
-          met->setExComponent(     2, ex         + met->exComponent(3)    );
-          met->setEyComponent(     2, ey         + met->eyComponent(3)    );
-          met->setEzComponent(     2, ez         + met->ezComponent(3)    );
-          met->setSumEtComponent(  2, sumEt      + met->sumEtComponent(3) );
-          met->setSumEComponent(   2, sumE       + met->sumEComponent(3)  );
-          met->setSumOfSignsComponent(      2, sumOfSigns + met->sumOfSignsComponent(3)     );
-          met->setUsedChannelsComponent(    2, Ntot       + met->usedChannelsComponent(3)   );
-          met->setStatusComponent(          2, status     | met->statusComponent(3)         );
-          met->setCalib0Component( 2, c0 );
-          met->setCalib1Component( 2, c1 );
+          updateMETComp(met, 2, ex, ey, ez, sumE, sumEt, sumOfSigns, c0, c1, status, Ntot);
           break;
         case 24: case 25: case 26: case 27: case 28:
         case 29: case 30: case 31: case 32: case 33:
@@ -332,110 +272,32 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
         case 39: case 40 :             // Topo. cluster elements or jets - do nothing.
           break;
         case 41: // muons
-          met->setExComponent(     4, ex );
-          met->setEyComponent(     4, ey );
-          met->setEzComponent(     4, ez );
-          met->setSumEtComponent(  4, sumEt );
-          met->setSumEComponent(   4, sumE  );
-          met->setCalib0Component( 4, c0 );
-          met->setCalib1Component( 4, c1 );
-          met->setStatusComponent(          4, status );
-          met->setSumOfSignsComponent(      4, sumOfSigns );
-          met->setUsedChannelsComponent(    4, Ntot );
+          setMETComp(met, 4, ex, ey, ez, sumE, sumEt, sumOfSigns, c0, c1, status, Ntot);
           break;
         default: // Hadr. end-cap + Tile gap + FCalHad
-          met->setExComponent(     3, ex         + met->exComponent(4)    );
-          met->setEyComponent(     3, ey         + met->eyComponent(4)    );
-          met->setEzComponent(     3, ez         + met->ezComponent(4)    );
-          met->setSumEtComponent(  3, sumEt      + met->sumEtComponent(4) );
-          met->setSumEComponent(   3, sumE       + met->sumEComponent(4)  );
-          met->setSumOfSignsComponent(      3, sumOfSigns + met->sumOfSignsComponent(4)     );
-          met->setUsedChannelsComponent(    3, Ntot       + met->usedChannelsComponent(4)   );
-          met->setStatusComponent(          3, status     | met->statusComponent(4)         );
-          met->setCalib0Component( 3, c0 );
-          met->setCalib1Component( 3, c1 );
+          updateMETComp(met, 3, ex, ey, ez, sumE, sumEt, sumOfSigns, c0, c1, status, Ntot);
       }
     } else if (save3comp) {
       switch (i) {
         case 39: // Corrected MET
-          met->setNameOfComponent( 0, metComp->m_name );
-          met->setExComponent(     0, ex );
-          met->setEyComponent(     0, ey );
-          met->setEzComponent(     0, ez );
-          met->setSumEtComponent(  0, sumEt );
-          met->setSumEComponent(   0, sumE );
-          met->setCalib0Component( 0, c0 );
-          met->setCalib1Component( 0, c1 );
-          met->setStatusComponent(          0, status );
-          met->setSumOfSignsComponent(      0, sumOfSigns );
-          met->setUsedChannelsComponent(    0, Ntot );
+          setMETComp(met, 0, metComp->m_name, ex, ey, ez, sumE, sumEt, sumOfSigns, c0, c1, status, Ntot);
           break;
         case 40: // Original MET
-          met->setNameOfComponent( 1, metComp->m_name );
-          met->setExComponent(     1, ex );
-          met->setEyComponent(     1, ey );
-          met->setEzComponent(     1, ez );
-          met->setSumEtComponent(  1, sumEt );
-          met->setSumEComponent(   1, sumE );
-          met->setCalib0Component( 1, c0 );
-          met->setCalib1Component( 1, c1 );
-          met->setStatusComponent(          1, status );
-          met->setSumOfSignsComponent(      1, sumOfSigns );
-          met->setUsedChannelsComponent(    1, Ntot );
+          setMETComp(met, 1, metComp->m_name, ex, ey, ez, sumE, sumEt, sumOfSigns, c0, c1, status, Ntot);
           break;
         case 41: // Muons
-          met->setNameOfComponent( 2, metComp->m_name );
-          met->setExComponent(     2, ex );
-          met->setEyComponent(     2, ey );
-          met->setEzComponent(     2, ez );
-          met->setSumEtComponent(  2, sumEt );
-          met->setSumEComponent(   2, sumE );
-          met->setCalib0Component( 2, c0 );
-          met->setCalib1Component( 2, c1 );
-          met->setStatusComponent(          2, status );
-          met->setSumOfSignsComponent(      2, sumOfSigns );
-          met->setUsedChannelsComponent(    2, Ntot );
+          setMETComp(met, 2, metComp->m_name, ex, ey, ez, sumE, sumEt, sumOfSigns, c0, c1, status, Ntot);
       }
     } else if (save2comp) { // Jets + muons only
       if (i==34) { // Jets
-        met->setNameOfComponent( 0, metComp->m_name );
-        met->setExComponent(     0, ex );
-        met->setEyComponent(     0, ey );
-        met->setEzComponent(     0, ez );
-        met->setSumEtComponent(  0, sumEt );
-        met->setSumEComponent(   0, sumE );
-        met->setCalib0Component( 0, c0 );
-        met->setCalib1Component( 0, c1 );
-        met->setStatusComponent(          0, status );
-        met->setSumOfSignsComponent(      0, sumOfSigns );
-        met->setUsedChannelsComponent(    0, Ntot );
+        setMETComp(met, 0, metComp->m_name, ex, ey, ez, sumE, sumEt, sumOfSigns, c0, c1, status, Ntot);
       }
       if (i==41) { // Muons
-        met->setNameOfComponent( 1, metComp->m_name );
-        met->setExComponent(     1, ex );
-        met->setEyComponent(     1, ey );
-        met->setEzComponent(     1, ez );
-        met->setSumEtComponent(  1, sumEt );
-        met->setSumEComponent(   1, sumE );
-        met->setCalib0Component( 1, c0 );
-        met->setCalib1Component( 1, c1 );
-        met->setStatusComponent(          1, status );
-        met->setSumOfSignsComponent(      1, sumOfSigns );
-        met->setUsedChannelsComponent(    1, Ntot );
+        setMETComp(met, 1, metComp->m_name, ex, ey, ez, sumE, sumEt, sumOfSigns, c0, c1, status, Ntot);
       }
     } else if (save1comp) { // muons only
       if (i==41) { // REPLACE WITH A TEST OVER COMP. NAME
-        met->setNameOfComponent( 0, metComp->m_name );
-        met->setExComponent(     0, ex );
-        met->setEyComponent(     0, ey );
-        met->setEzComponent(     0, ez );
-        met->setSumEtComponent(  0, sumEt );
-        met->setSumEComponent(   0, sumE );
-        met->setCalib0Component( 0, c0 );
-        met->setCalib1Component( 0, c1 );
-        met->setStatusComponent(          0, status );
-        met->setSumOfSignsComponent(      0, sumOfSigns );
-        met->setUsedChannelsComponent(    0, Ntot );
+        setMETComp(met, 0, metComp->m_name, ex, ey, ez, sumE, sumEt, sumOfSigns, c0, c1, status, Ntot);
       }
     }
 
