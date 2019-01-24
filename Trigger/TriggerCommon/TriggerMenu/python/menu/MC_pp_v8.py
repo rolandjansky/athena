@@ -105,7 +105,14 @@ def setupMenu():
 
 
     if TriggerFlags.doFTK():
-        TriggerFlags.MuonSlice.signatures = TriggerFlags.MuonSlice.signatures() + []
+        TriggerFlags.MuonSlice.signatures = TriggerFlags.MuonSlice.signatures() + [
+            ['mu24_idperf_FTK_L1MU20MU21_FTK',       'L1_MU20MU21_FTK', ['L1_MU20_FTK'], [PhysicsStream], ['RATE:IDMonitoring', 'BW:Muon', 'BW:ID'], -1], 
+            ['mu6_idperf_FTK_L1MU6_FTK',             'L1_MU6_FTK',            [], [PhysicsStream], ['RATE:IDMonitoring', 'BW:Muon', 'BW:ID'], -1],
+            ['mu24_idperf_FTKRefit_L1MU20MU21_FTK',  'L1_MU20MU21_FTK', ['L1_MU20_FTK'], [PhysicsStream], ['RATE:IDMonitoring', 'BW:Muon', 'BW:ID'], -1], 
+            ['mu6_idperf_FTKRefit_L1MU6_FTK',        'L1_MU6_FTK',            [], [PhysicsStream], ['RATE:IDMonitoring', 'BW:Muon', 'BW:ID'], -1],
+            ['mu22_mu8noL1_FTKFS_L1MU20MU21_FTK',    'L1_MU20MU21_FTK', ['L1_MU20_FTK',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu22','mu8noL1_FTKFS']]],
+            ['mu26_ivarmedium_FTK_L1MU20MU21_FTK',   'L1_MU20MU21_FTK', ['L1_MU20_FTK'], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+]
 
     TriggerFlags.JetSlice.signatures = TriggerFlags.JetSlice.signatures() + [
         ['j0_perf_ds1_L1J50',      'L1_J50',  [], ['DataScouting_05_Jets'], ['RATE:Jets_DS', 'BW:Jet'], -1],
@@ -390,7 +397,12 @@ def setupMenu():
 
 
     if TriggerFlags.doFTK():
-        TriggerFlags.JetSlice.signatures = TriggerFlags.JetSlice.signatures() + [] 
+        TriggerFlags.JetSlice.signatures = TriggerFlags.JetSlice.signatures() + [
+        ['j0_perf_FTK',   'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j0_perf_FTKRefit',   'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j0_gsc0_boffperf_split_', 'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['j0_gsc0_boffperf_split_FTK', 'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+] 
 
     TriggerFlags.BjetSlice.signatures = TriggerFlags.BjetSlice.signatures() + [
         ['j35_boffperf_split',  'L1_J15', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
@@ -435,7 +447,40 @@ def setupMenu():
 			 ]
 
     if TriggerFlags.doFTK():
-        TriggerFlags.BjetSlice.signatures = TriggerFlags.BjetSlice.signatures() + []
+        TriggerFlags.BjetSlice.signatures = TriggerFlags.BjetSlice.signatures() + [
+           ['j35_boffperf_split_FTK_L1J15_FTK', 'L1_J15_FTK', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+           ['j35_boffperf_split_FTKVtx_L1J15_FTK', 'L1_J15_FTK', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+           ['j35_boffperf_split_FTKRefit_L1J15_FTK', 'L1_J15_FTK', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+
+           ['j150_boffperf_split_FTK_L1J40_FTK', 'L1_J40_FTK', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+           ['j150_boffperf_split_FTKVtx_L1J40_FTK', 'L1_J40_FTK', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+           ['j150_boffperf_split_FTKRefit_L1J40_FTK', 'L1_J40_FTK', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+
+           ['j225_boffperf_split_FTK_L1J100_FTK',    'L1_J100_FTK', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+           ['j225_boffperf_split_FTKVtx_L1J100_FTK',    'L1_J100_FTK', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+           ['j225_boffperf_split_FTKRefit_L1J100_FTK',    'L1_J100_FTK', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+
+           ['j225_bmv2c1050_FTK_L1J100_FTK', 'L1_J100_FTK', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+           ['j225_bmv2c1050_FTKVtx_FTK', 'L1_J100_FTK', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+           ['j225_bmv2c1050_FTKRefit_FTK', 'L1_J100_FTK', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+
+           ['j150_boffperf_split_j50_boffperf_split_FTK_L1J100_FTK', 'L1_J100_FTK', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+           ['j150_boffperf_split_j50_boffperf_split_FTKVtx_L1J100_FTK', 'L1_J100_FTK', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+           ['j150_boffperf_split_j50_boffperf_split_FTKRefit_L1J100_FTK', 'L1_J100_FTK', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+
+           ['j150_bmv2c1050_split_j50_bmv2c1050_split_FTK_L1J100_FTK', 'L1_J100_FTK', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+           ['j150_bmv2c1050_split_j50_bmv2c1050_split_FTKVtx_L1J100_FTK', 'L1_J100_FTK', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+           ['j150_bmv2c1050_split_j50_bmv2c1050_split_FTKRefit_L1J100_FTK', 'L1_J100_FTK', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+
+           ['2j35_boffperf_split_FTK_2j35_L14J15.0ETA25_FTK', 'L1_4J15.0ETA25_FTK', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+           ['2j35_boffperf_split_FTKVtx_2j35_L14J15.0ETA25_FTK', 'L1_4J15.0ETA25_FTK', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+           ['2j35_boffperf_split_FTKRefit_2j35_L14J15.0ETA25_FTK', 'L1_4J15.0ETA25_FTK', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+
+           ['2j35_bmv2c1050_split_FTK2j35_L14J15.0ETA25_FTK', 'L1_4J15.0ETA25_FTK', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+           ['2j35_bmv2c1050_split_FTKVtx_2j35_L14J15.0ETA25_FTK', 'L1_4J15.0ETA25_FTK', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+           ['2j35_bmv2c1050_split_FTKRefit_2j35_L14J15.0ETA25_FTK', 'L1_4J15.0ETA25_FTK', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+
+]
 
 
     TriggerFlags.METSlice.signatures = TriggerFlags.METSlice.signatures() + [
@@ -455,9 +500,21 @@ def setupMenu():
         ['xe110_pufit_xe70_L1XE60', 'L1_XE60', ['L1_XE60','L1_XE60'], [PhysicsStream], ['Primary:20000','RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe110_pufit','x70_L1XE60'] ]],
         ['xe110_pufit_xe75_L1XE60', 'L1_XE60', ['L1_XE60','L1_XE60'], [PhysicsStream], ['Primary:20000','RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe110_pufit','x75_L1XE60'] ]],
 
-			 ]
+]
 
-        
+    if TriggerFlags.doFTK():
+        TriggerFlags.METSlice.signatures = TriggerFlags.METSlice.signatures() + [
+            ['xe0noL1_l2fsperf_trkmht_FTK', '', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+            ['xe0noL1_l2fsperf_trktc_lcw_FTK', '', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+            ['xe100_trkmht_FTK_L1XE50', 'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+            ['xe110_trkmht_FTK_L1XE50', 'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+            ['xe120_trkmht_FTK_L1XE50', 'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+            ['xe100_trktc_lcw_FTK_L1XE50', 'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+            ['xe110_trktc_lcw_FTK_L1XE50', 'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+            ['xe120_trktc_lcw_FTK_L1XE50', 'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+]
+
+       
 
     TriggerFlags.TauSlice.signatures = TriggerFlags.TauSlice.signatures() + [
         ['tau25_idperf_track',                     'L1_TAU12IM', [], [PhysicsStream, 'express'], ['RATE:IDMonitoring', 'BW:Tau', 'BW:ID'], -1],
@@ -855,7 +912,10 @@ def setupMenu():
         ]
 
     if TriggerFlags.doFTK():
-        TriggerFlags.BphysicsSlice.signatures = TriggerFlags.BphysicsSlice.signatures() + []
+        TriggerFlags.BphysicsSlice.signatures = TriggerFlags.BphysicsSlice.signatures() + [
+            ['2mu4_bBmumuxv2_Ftk',                'L1_2MU4', [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
+
+]
 
 
 
