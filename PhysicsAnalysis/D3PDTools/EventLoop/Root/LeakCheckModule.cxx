@@ -63,7 +63,7 @@ namespace EL
         m_finMemVirtual = pinfo.fMemVirtual;
 
         // Save the memory increase values into the job statistics tree.
-        RCU_ASSERT (m_jobStats != nullptr);
+        RCU_ASSERT (data.m_jobStats != nullptr);
         Float_t incRes = memIncreaseResident();
         if (! data.m_jobStats->Branch ("memIncreaseResident", &incRes)) {
           ANA_MSG_ERROR ("Failed to create branch memIncreaseResident");

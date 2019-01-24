@@ -105,17 +105,9 @@ namespace EL
     RCU_INVARIANT (this != nullptr);
     RCU_INVARIANT (m_metaData != nullptr);
     RCU_INVARIANT (m_output != nullptr);
-    RCU_INVARIANT (m_eventCount != nullptr || m_initState == AIS_NONE || m_initState == AIS_NEW);
-    RCU_INVARIANT (m_runTime != nullptr || m_initState == AIS_NONE || m_initState == AIS_NEW);
-    RCU_INVARIANT (m_jobStats != nullptr || m_initState == AIS_NONE || m_initState == AIS_NEW);
-    RCU_INVARIANT (m_fileExecutedTree != nullptr || m_initState == AIS_NONE);
-    RCU_INVARIANT (m_fileExecutedName != nullptr || m_initState == AIS_NONE);
-    RCU_INVARIANT (m_initState <= AIS_NONE);
-    RCU_INVARIANT (m_execState <= AES_NONE);
-    RCU_INVARIANT (m_stopwatch != nullptr);
     for (std::size_t iter = 0, end = m_algs.size(); iter != end; ++ iter)
     {
-      RCU_INVARIANT (m_algs[iter] != nullptr);
+      RCU_INVARIANT (m_algs[iter].m_algorithm != nullptr);
       RCU_INVARIANT (m_algs[iter]->wk() == this);
     }
     for (outputFilesIter iter = m_outputFiles.begin(),
@@ -499,7 +491,7 @@ namespace EL
     RCU_CHANGE_INVARIANT (this);
     RCU_REQUIRE (!eventRange.m_url.empty());
     RCU_REQUIRE (eventRange.m_beginEvent >= 0);
-    RCU_REQUIRE (eventRange.m_eventEvent == EventRange::eof || eventRange.m_endEvent >= eventRange.m_beginEvent);
+    RCU_REQUIRE (eventRange.m_endEvent == EventRange::eof || eventRange.m_endEvent >= eventRange.m_beginEvent);
 
     ANA_CHECK (openInputFile (eventRange.m_url));
 
@@ -622,7 +614,7 @@ namespace EL
   addOutputFile (const std::string& label, std::unique_ptr<TFile> file)
   {
     RCU_CHANGE_INVARIANT (this);
-    RCU_REQUIRE (file_swallow != 0);
+    RCU_REQUIRE (file != 0);
 
     return addOutputWriter (label, std::make_unique<MyWriter> (std::move (file)));
   }
@@ -684,7 +676,6 @@ namespace EL
 
     /// rationale: this will make sure that the post-processing runs
     ///   for all algorithms for which the regular processing was run
-    RCU_ASSERT (iter <= m_algs.size());
     try
     {
       for (auto jter = m_algs.begin(), end = iter;
