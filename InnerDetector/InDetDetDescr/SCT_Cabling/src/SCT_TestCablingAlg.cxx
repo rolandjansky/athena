@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -37,7 +37,7 @@ using namespace std;
 using namespace SCT_Cabling;
  
 SCT_TestCablingAlg::SCT_TestCablingAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  AthAlgorithm(name, pSvcLocator),
+  AthReentrantAlgorithm(name, pSvcLocator),
   m_idHelper{nullptr} {
   //nop
 }
@@ -51,7 +51,7 @@ SCT_TestCablingAlg::initialize() {
 }
 
 std::string
-SCT_TestCablingAlg::coordString(const Identifier& offlineId) {
+SCT_TestCablingAlg::coordString(const Identifier& offlineId) const {
   using std::to_string;
   const std::string sep{", "};
   std::string result{std::string("[") + to_string(m_idHelper->barrel_ec(offlineId)) + sep};
@@ -63,7 +63,7 @@ SCT_TestCablingAlg::coordString(const Identifier& offlineId) {
 }
 
 StatusCode
-SCT_TestCablingAlg::execute() {
+SCT_TestCablingAlg::execute(const EventContext& /*ctx*/) const {
   const string testAreaPath{CoveritySafe::getenv("TestArea")};
   string filename{testAreaPath+"/cabling.txt"};
   ATH_MSG_INFO("Filename: " << filename << " will be written to your $TestArea.");
