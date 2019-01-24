@@ -6,7 +6,6 @@
 #include "GaudiKernel/Property.h"
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
-#include "AthenaMonitoring/MonitoredScope.h"
 #include "TrigEFMissingET/EFMissingETAlgMT.h"
 
 using namespace TrigCompositeUtils;
