@@ -130,7 +130,7 @@ def setupSecVtxTool(name, JetCollection, Verbose = False, options={}):
       tool = Analysis__BTagSecVertexing(**options)
       return tool
 
-def setupBTagTool(jetcol, TaggerList, useBTagFlagsDefaults = True, Verbose = False, options={}):
+def setupBTagTool(ConfigFlags, jetcol, TaggerList, useBTagFlagsDefaults = True, Verbose = False, options={}):
       """Adds a new myBTagTool instance and registers it.
 
       input: jetcol:             The name of the jet collections.
@@ -152,7 +152,7 @@ def setupBTagTool(jetcol, TaggerList, useBTagFlagsDefaults = True, Verbose = Fal
       tagToolList = []
 
       if 'IP2D' in TaggerList:
-          ip2dtool = IP2DTagCfg('IP2DTag')
+          ip2dtool = IP2DTagCfg('IP2DTag', ConfigFlags)
           tagToolList.append(ip2dtool)
 
       if 'IP3D' in TaggerList:
@@ -174,19 +174,18 @@ def setupBTagTool(jetcol, TaggerList, useBTagFlagsDefaults = True, Verbose = Fal
       if 'SoftMu' in TaggerList:
           softmutool = SoftMuonTagCfg('SoftMu')
           tagToolList.append(softmutool) 
+ 
+      if 'MultiSVbb1' in TaggerList:
+          multisvbb1tool = MultiSVbb1TagCfg('MultiSVbb1')
+          tagToolList.append(multisvbb1tool)
+ 
 
       options = dict(options)
       if useBTagFlagsDefaults:
-        from BTagging.BTaggingConfiguration_CommonTools import toolthisBTagLabeling as toolthisBTagLabeling
-        options.setdefault('JetTruthMatchTool',None)
-        btagLabeling = toolthisBTagLabeling('thisBTagLabeling',useBTagFlagsDefaults = False, **options)
-        del options['JetTruthMatchTool']
-        #crash with default JetTruthMatchTool
-        #btagLabeling = toolthisBTagLabeling('thisBTagLabeling')
         defaults = { 'Runmodus'                     : BTaggingFlags.Runmodus,
                      'PrimaryVertexName'            : BTaggingFlags.PrimaryVertexCollectionName,
                      'BaselineTagger'               : BTaggingFlags.BaselineTagger,
-                     'BTagLabelingTool'             : btagLabeling,
+                     'BTagLabelingTool'             : None,
                      'vxPrimaryCollectionName'      : BTaggingFlags.PrimaryVertexCollectionName,
                      'TagToolList'                  : tagToolList,
                      'OutputLevel'                  : BTaggingFlags.OutputLevel }
@@ -218,14 +217,14 @@ def toolBTagTrackToJetAssociator(name, useBTagFlagsDefaults = True, **options):
     return Analysis__ParticleToJetAssociator(**options)
 
 
-def setupJetBTaggerAlg(JetCollection="", TaggerList=[], SetupScheme="", Verbose = True, options={}, StripJetsSuffix = True):
+def setupJetBTaggerAlg(ConfigFlags, JetCollection="", TaggerList=[], SetupScheme="", Verbose = True, options={}, StripJetsSuffix = True):
 
     jetcol = JetCollection
 
     from BTagging.BTaggingConfiguration import getConfiguration
     ConfInstance = getConfiguration()
     
-    btagtool = setupBTagTool(jetcol, TaggerList,  Verbose = Verbose, options=options)
+    btagtool = setupBTagTool(ConfigFlags, jetcol, TaggerList,  Verbose = Verbose, options=options)
     options.setdefault('BTagTool', btagtool)
 
     from BTagging.BTaggingConf import Analysis__JetBTaggerAlg as JetBTaggerAlg
@@ -251,14 +250,146 @@ def setupJetBTaggerAlg(JetCollection="", TaggerList=[], SetupScheme="", Verbose 
     return jetbtaggeralg
 
 
-def IP2DTagCfg(name, suffix = "", options = {}):
+def toolIP2DTag(name, ConfigFlags, useBTagFlagsDefaults = True, **options):
+    """Sets up a IP2DTag tool and returns it.
+
+    The following options have BTaggingFlags defaults:
+
+    OutputLevel                         default: BTaggingFlags.OutputLevel
+    Runmodus                            default: BTaggingFlags.Runmodus
+    referenceType                       default: BTaggingFlags.ReferenceType
+    impactParameterView                 default: "2D"
+    trackGradePartitions                default: [ "Good", "BlaShared", "PixShared", "SctShared", "0HitBLayer" ]
+    RejectBadTracks                     default: False
+    originalTPCollectionName            default: BTaggingFlags.TrackParticleCollectionName
+    jetCollectionList                   default: BTaggingFlags.Jets
+    unbiasIPEstimation                  default: False (switch to true (better!) when creating new PDFs)
+    SecVxFinderName                     default: "SV1"
+    UseCHypo                            default: True
+
+    input:             name: The name of the tool (should be unique).
+      useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
+                  **options: Python dictionary with options for the tool.
+    output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
+    if useBTagFlagsDefaults:
+        grades= [ "0HitIn0HitNInExp2","0HitIn0HitNInExpIn","0HitIn0HitNInExpNIn","0HitIn0HitNIn",
+                  "0HitInExp", "0HitIn",
+                  "0HitNInExp", "0HitNIn",
+                  "InANDNInShared", "PixShared", "SctShared",
+                  "InANDNInSplit", "PixSplit",
+                  "Good"]
+        #if btagrun1: grades=[ "Good", "BlaShared", "PixShared", "SctShared", "0HitBLayer" ]
+
+        #from BTagging.BTaggingConfiguration_CommonTools import toolBTagTrackToVertexIPEstimator as toolBTagTrackToVertexIPEstimator
+        trackToVertexIPEstimator = toolBTagTrackToVertexIPEstimator('TrkToVxIPEstimator', ConfigFlags)
+        from BTagging.BTaggingConfiguration_IP2DTag import toolSVForIPTool_IP2D, toolIP2DDetailedTrackGradeFactory, toolIP2DTrackSelector, toolIP2DNewLikelihoodTool
+        svForIPTool = toolSVForIPTool_IP2D('SVForIPTool')
+        trackGradeFactory = toolIP2DDetailedTrackGradeFactory('IP2DDetailedTrackGradeFactory')
+        trackSelectorTool = toolIP2DTrackSelector('IP2DTrackSelector')
+        likelihood = toolIP2DNewLikelihoodTool('IP2DNewLikelihoodTool')
+
+        defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
+                     'Runmodus'                         : BTaggingFlags.Runmodus,
+                     'referenceType'                    : BTaggingFlags.ReferenceType,
+                     'jetPtMinRef'                      : BTaggingFlags.JetPtMinRef,
+                     'impactParameterView'              : '2D',
+                     'trackGradePartitions'             : grades,
+                     'RejectBadTracks'                  : True,
+                     'originalTPCollectionName'         : BTaggingFlags.TrackParticleCollectionName,
+                     'jetCollectionList'                : BTaggingFlags.Jets,
+                     'unbiasIPEstimation'               : False,
+                     'UseCHypo'                         : True,
+                     'SecVxFinderName'                  : 'SV1',
+                     'storeTrackParticles': True,
+                     'storeTrackParameters': True,
+                     'storeIpValues': False,
+                     'LikelihoodTool'                   : likelihood,
+                     'trackSelectorTool'                : trackSelectorTool,
+                     'SVForIPTool'                      : svForIPTool,
+                     'trackGradeFactory'                : trackGradeFactory,
+                     'TrackToVertexIPEstimator'         : trackToVertexIPEstimator,
+                     }
+        for option in defaults:
+            options.setdefault(option, defaults[option])
+    options['name'] = name
+    from JetTagTools.JetTagToolsConf import Analysis__IPTag
+    return Analysis__IPTag(**options)
+
+def toolBTagTrackToVertexIPEstimator(name, ConfigFlags, useBTagFlagsDefaults = True, **options):
+    """Sets up a TrackToVertexIPEstimator tool and returns it.
+
+    The following options have BTaggingFlags defaults:
+
+    OutputLevel                         default: BTaggingFlags.OutputLevel
+
+    input:             name: The name of the tool (should be unique).
+      useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
+                  **options: Python dictionary with options for the tool.
+    output: The actual tool, which can then be added to ToolSvc via ToolSvc += output."""
+
+    if useBTagFlagsDefaults:
+        print('Manu in toolBTagTrackToVertexIPEstimator before toolBTagFullLinearizedTrackFactory')
+        print(ConfigFlags)
+        btagFullLinearizedTrackFactory = toolBTagFullLinearizedTrackFactory('FullLinearizedTrackFactory', ConfigFlags)
+        print('Manu in toolBTagTrackToVertexIPEstimator after toolBTagFullLinearizedTrackFactory')
+        ConfigFlags.dump()
+        atlasExtrapolator = toolAtlasExtrapolator('AtlasExtrapolator', ConfigFlags)
+        defaults = { 'OutputLevel' : BTaggingFlags.OutputLevel,
+                     'Extrapolator' : atlasExtrapolator,
+                     'LinearizedTrackFactory' : btagFullLinearizedTrackFactory, }
+        for option in defaults:
+            options.setdefault(option, defaults[option])
+    options['name'] = name
+    from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__TrackToVertexIPEstimator
+    return Trk__TrackToVertexIPEstimator(**options)
+
+def toolBTagFullLinearizedTrackFactory(name, ConfigFlags, useBTagFlagsDefaults = True, **options):
+    """Sets up a BTagFullLinearizedTrackFactory tool and returns it.
+
+    input:             name: The name of the tool (should be unique).
+      useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
+                             Note however that this tool has no BTaggingFlags defaults; the option is
+                             here only for consistency.
+                  **options: Python dictionary with options for the tool.
+    output: The actual tool, which can then be added to ToolSvc via ToolSvc += output."""
+    print('Manu in toolBTagFullLinearizedTrackFactory')
+    ConfigFlags.dump()
+    if useBTagFlagsDefaults:
+        atlasExtrapolator = toolAtlasExtrapolator('AtlasExtrapolator', ConfigFlags)
+        defaults = { 'Extrapolator'            : atlasExtrapolator}
+        for option in defaults:
+            options.setdefault(option, defaults[option])
+    options['name'] = name
+    from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__FullLinearizedTrackFactory
+    return Trk__FullLinearizedTrackFactory(**options)
+
+def toolAtlasExtrapolator(name, ConfigFlags, useBTagFlagsDefaults = True, **options):
+    """Sets up a AtlasExtrapolator tool and returns it.
+
+    input:             name: The name of the tool (should be unique).
+      useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
+                             (this function does not have any though, just here for consistency).
+                  **options: Python dictionary with options for the tool.
+    output: The actual tool, which can then be added to ToolSvc via ToolSvc += output."""
+    print("Manu in toolAtlasExtrapolator")
+    if useBTagFlagsDefaults:
+        defaults = {}
+        for option in defaults:
+            options.setdefault(option, defaults[option])
+    options['name'] = name
+    from TrkExTools.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+    print(ConfigFlags)
+    atlasextrapolator = AtlasExtrapolatorCfg(name)
+    return atlasextrapolator
+
+def IP2DTagCfg(name, ConfigFlags, suffix = "", options = {}):
     options['xAODBaseName'] = 'IP2D'
     options['trackAssociationName'] = 'BTagTrackToJetAssociator'
 
     #tool_type was used to define the name of the tool and the metadata to be used
     if (suffix == ""):
-        from BTagging.BTaggingConfiguration_IP2DTag import toolIP2DTag
-        return toolIP2DTag(name, **options)
+        #from BTagging.BTaggingConfiguration_IP2DTag import toolIP2DTag
+        return toolIP2DTag(name, ConfigFlags, **options)
 
 
 def IP3DTagCfg(name, suffix = "", options = {}):
@@ -303,6 +434,12 @@ def SoftMuonTagCfg(name, suffix = "", options = {}):
         from BTagging.BTaggingConfiguration_SoftMuonTag import toolSoftMuonTag
         return toolSoftMuonTag(name, **options)
 
+def MultiSVbb1TagCfg(name, suffix = "", options = {}):
+    options['xAODBaseName'] = 'MSV'
+    if (suffix == ""):
+        from BTagging.BTaggingConfiguration_MultiSVbb1Tag import toolMultiSVbb1Tag
+        return toolMultiSVbb1Tag(name, **options)
+
 def JetTagCalibCfg(ConfigFlags, scheme=""):
     result=ComponentAccumulator()
 
@@ -345,6 +482,16 @@ def JetTagCalibCfg(ConfigFlags, scheme=""):
 
     return result
 
+def AllBTaggingPublicToolsCfg(inputFlags,**kwargs):
+    result=ComponentAccumulator()
+
+
+    #Material updator
+    from TrkExTools.TrkExToolsConf import Trk__MaterialEffectsUpdator
+    materialupdator = Trk__MaterialEffectsUpdator(name = 'AtlasMaterialEffectsUpdator')
+    result.addPublicTool(materialupdator) #TODO remove one day
+
+    return result
 
 def BTagCfg(inputFlags,**kwargs):
 
@@ -416,7 +563,6 @@ def BTagCfg(inputFlags,**kwargs):
     #jet = 'AntiKt4LCTopo'
     #Register input ESD container
     ConfInstance.RegisterOutputContainersForJetCollection(JetCollection = jet, Verbose=True)
-
     #Create BTagging containers with prefix "New" and register containers
     ConfInstance.setOutputFilesPrefix('New'+ConfInstance.getOutputFilesPrefix())
     ConfInstance.RegisterOutputContainersForJetCollection(JetCollection = jet, Verbose=True)
@@ -429,7 +575,8 @@ def BTagCfg(inputFlags,**kwargs):
     result.getService('ProxyProviderSvc').ProviderNames += [ "AddressRemappingSvc" ]
    
     taggerList = ['IP2D','IP3D','MultiSVbb1','MultiSVbb2','SV1','SoftMu','JetFitterNN','MV2c10','MV2c10mu','MV2c10rnn','MV2c100','MV2cl100','RNNIP','DL1','DL1mu','DL1rnn','JetVertexCharge']
-    btagger = setupJetBTaggerAlg(JetCollection = jet, TaggerList = taggerList)
+    taggerList = ['IP2D']
+    btagger = setupJetBTaggerAlg(inputFlags, JetCollection = jet, TaggerList = taggerList)
 
     result.addEventAlgo(btagger)
 
@@ -456,19 +603,25 @@ if __name__=="__main__":
     cfg.merge(PoolReadCfg(cfgFlags))
 
     cfg.merge(JetTagCalibCfg(cfgFlags))
+    cfg.merge(AllBTaggingPublicToolsCfg(cfgFlags))
 
     Acc=BTagCfg(cfgFlags) 
    
     cfg.merge(Acc) 
 
+
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    print(BTaggingFlags.btaggingESDList)    
     cfg.merge(OutputStreamCfg(cfgFlags,"ESD", ItemList=BTaggingFlags.btaggingESDList))
+    cfg.getEventAlgo("OutputStreamESD").ForceRead = True
+
+
     cfg.getService("StoreGateSvc").Dump=True
 
 
     cfg.setAppProperty("EvtMax",10)
-   
+
+    cfg.printConfig(withDetails=True)
+
 
     cfg.run()
     #f=open("BTag.pkl","w")

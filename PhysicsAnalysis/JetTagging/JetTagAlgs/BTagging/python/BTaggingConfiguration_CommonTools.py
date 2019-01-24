@@ -203,9 +203,11 @@ def toolBTagFullLinearizedTrackFactory(name, useBTagFlagsDefaults = True, **opti
                              here only for consistency.
                   **options: Python dictionary with options for the tool.
     output: The actual tool, which can then be added to ToolSvc via ToolSvc += output."""
+    if useBTagFlagsDefaults:
+        atlasExtrapolator = toolAtlasExtrapolator('AtlasExtrapolator')
+        defaults = { 'Extrapolator'            : atlasExtrapolator}
+        for option in defaults:
+            options.setdefault(option, defaults[option])
     options['name'] = name
-    atlasExtrapolator = toolAtlasExtrapolator('AtlasExtrapolator')
-    options['Extrapolator'] = atlasExtrapolator
-
     from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__FullLinearizedTrackFactory
     return Trk__FullLinearizedTrackFactory(**options)
