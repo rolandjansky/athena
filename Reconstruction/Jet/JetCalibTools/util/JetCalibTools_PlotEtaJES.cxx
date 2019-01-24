@@ -4,6 +4,8 @@
 
 #include "JetCalibTools/JetCalibrationTool.h"
 
+#include "PATInterfaces/CorrectionTool.h"
+
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAuxContainer.h"
@@ -41,9 +43,9 @@ namespace jet
 int main (int argc, char* argv[])
 {
     // Check argument usage
-    if (argc < 4 || argc > 7)
+    if (argc < 4 || argc > 6)
     {
-        std::cout << "USAGE: " << argv[0] << " <JetCollection> <ConfigFile> <OutputFile> (dev mode switch) (JES_vs_E switch) (pT above 20GeV switch)" << std::endl;
+        std::cout << "USAGE: " << argv[0] << " <JetCollection> <ConfigFile> <OutputFile> (dev mode switch) (JES_vs_E switch)" << std::endl;
         return 1;
     }
 
@@ -53,19 +55,20 @@ int main (int argc, char* argv[])
     const TString outFile = argv[3];
     const bool isDevMode  = ( argc > 4 && (TString(argv[4]) == "true" || TString(argv[4]) == "dev") ) ? true : false;
     const bool vsE        = ( argc > 5 && (TString(argv[5]) == "true") ) ? true : false;
-    const bool pTabove20  = ( argc > 6 && (TString(argv[6]) == "true") ) ? true : false;
 
-    // Minimum pT if vsE and pTabove20
+    // Protection
+    if (!outFile.EndsWith(".root") ){
+      std::cout << "Output file should end with .root" << std::endl;
+      return 0;
+    }
+
+    // Minimum pT if vsE
     double minpT = 20000.; // MeV
-
-    // Derived information
-    const bool outFileIsExtensible = outFile.EndsWith(".pdf") || outFile.EndsWith(".ps") || outFile.EndsWith(".root");
 
     // Assumed constants
     const TString calibSeq = "EtaJES"; // only want to apply the JES here
     const bool isData = false; // doesn't actually matter for JES, which is always active
-    float massForScan = 80.385e3; // W-boson
-    if ( !jetAlgo.Contains("AntiKt10") ) massForScan = 0;
+    float massForScan = 0;
 
     // Accessor strings
     TString startingScaleString = "JetConstitScaleMomentum";
@@ -78,7 +81,6 @@ int main (int argc, char* argv[])
     jet::JetFourMomAccessor endingScale(endingScaleString.Data());
     SG::AuxElement::Accessor<float> detectorEta(detectorEtaString.Data());
     
-
     // Create the calib tool
     asg::AnaToolHandle<IJetCalibrationTool> calibTool;
     calibTool.setTypeAndName("JetCalibrationTool/MyJetCalibTool");
@@ -121,20 +123,19 @@ int main (int argc, char* argv[])
         }
     }
 
-
     // Build a jet container and a jet for us to manipulate later
     xAOD::TEvent event;
     xAOD::TStore store;
-    xAOD::JetContainer* jets = new xAOD::JetContainer();
-    jets->setStore(new xAOD::JetAuxContainer());
-    jets->push_back(new xAOD::Jet());
-    xAOD::Jet* jet = jets->at(0);
-    
-    
+    auto jets = std::make_unique< xAOD::JetContainer >();
+    auto jetsAux = std::make_unique< xAOD::JetAuxContainer >();
+    jets->setStore( jetsAux.get() );
+    jets->push_back(std::make_unique<xAOD::Jet>());
+    auto jet = jets->at(0);
+   
     // Make the histogram to fill
-    TH2D* hist_pt_eta;
-    if ( jetAlgo.Contains("AntiKt10") ) hist_pt_eta = new TH2D("JES_pt_eta",Form("JES for jets with mass=%.1f GeV",massForScan/1.e3),1200,100,2500,60,-3,3);
-    else { hist_pt_eta = new TH2D("JES_pt_eta",Form("JES for jets with mass=%.1f GeV",massForScan/1.e3),2500,20,5000,90,-4.5,4.5); }
+    std::unique_ptr<TH2D> hist_pt_eta;
+    if ( jetAlgo.Contains("AntiKt10") ) hist_pt_eta = std::make_unique<TH2D>("JES_pt_eta",Form("JES for jets with mass=%.1f GeV",massForScan/1.e3),1200,100,2500,30,0,3);
+    else { hist_pt_eta = std::make_unique<TH2D>("JES_pt_eta",Form("JES for jets with mass=%.1f GeV",massForScan/1.e3),2500,20,5000,45,0,4.5); }
     
     // Fill the histogram
     for (int xBin = 1; xBin <= hist_pt_eta->GetNbinsX(); ++xBin)
@@ -142,9 +143,12 @@ int main (int argc, char* argv[])
         const double pt = hist_pt_eta->GetXaxis()->GetBinCenter(xBin)*1.e3; // E if vsE
         for (int yBin = 1; yBin <= hist_pt_eta->GetNbinsY(); ++yBin)
         {
-            const double eta = hist_pt_eta->GetYaxis()->GetBinCenter(yBin);
 
+	    // Positive eta case
+            double eta = hist_pt_eta->GetYaxis()->GetBinCenter(yBin);
 	    bool fill = false; // only used if vsE
+	    bool fillpos = false; // only used if vsE
+	    bool fillneg = false; // only used if vsE
 
             // Set the main 4-vector and scale 4-vector
 	    if ( !vsE ){
@@ -154,11 +158,7 @@ int main (int argc, char* argv[])
 	    } else {
               const double E = pt; // pt is actually E if vsE
 	      const double pT = sqrt((E*E)-(massForScan*massForScan))/cosh(eta);
-              if ( pTabove20 ){
-	        if ( pT >= minpT ) fill = true;
-	      } else {
-	        fill = true;
-	      }
+	      if ( pT >= minpT ) fillpos = true;
               jet->setJetP4(xAOD::JetFourMom_t(pT,eta,0,massForScan));
               detectorEta(*jet) = eta;
               startingScale.setAttribute(*jet,xAOD::JetFourMom_t(pT,eta,0,massForScan));
@@ -166,35 +166,60 @@ int main (int argc, char* argv[])
 
             // Jet kinematics set, now apply calibration
             xAOD::Jet* calibJet = nullptr;
-            calibTool->calibratedCopy(*jet,calibJet);
+            if(calibTool->calibratedCopy(*jet,calibJet) != CP::CorrectionCode::Ok){
+              std::cout << "ERROR: calibratedCopy returned a non OK status" << std::endl;
+              return 0;
+	    }
+	    std::unique_ptr<xAOD::Jet> calibJetPtr (calibJet);
 
-            // Calculate the scale factors
-            const double JES     = calibJet->e()/startingScale(*jet).e();
+            // Calculate etaReco - etaTruth
+            const double PosEtaJES = startingScale(*jet).eta()-calibJetPtr->eta();
 
-            // JMS retrieved, fill the plot(s)
-	    if ( !vsE ) hist_pt_eta->SetBinContent(xBin,yBin,JES);
+	    // Negative eta case
+            eta *= -1.;
+
+            // Set the main 4-vector and scale 4-vector
+	    if ( !vsE ){
+              jet->setJetP4(xAOD::JetFourMom_t(pt,eta,0,massForScan));
+              detectorEta(*jet) = eta;
+              startingScale.setAttribute(*jet,xAOD::JetFourMom_t(pt,eta,0,massForScan));
+	    } else {
+              const double E = pt; // pt is actually E if vsE
+	      const double pT = sqrt((E*E)-(massForScan*massForScan))/cosh(eta);
+	      if ( pT >= minpT ) fillneg = true;
+              jet->setJetP4(xAOD::JetFourMom_t(pT,eta,0,massForScan));
+              detectorEta(*jet) = eta;
+              startingScale.setAttribute(*jet,xAOD::JetFourMom_t(pT,eta,0,massForScan));
+	    }
+
+	    if (fillneg && fillpos) fill = true;
+
+            // Jet kinematics set, now apply calibration
+            calibJet = nullptr;
+            if(calibTool->calibratedCopy(*jet,calibJet) != CP::CorrectionCode::Ok){
+              std::cout << "ERROR: calibratedCopy returned a non OK status" << std::endl;
+              return 0;
+	    }
+	    calibJetPtr = std::unique_ptr<xAOD::Jet>(calibJet);
+
+            // Calculate sgn(eta) * (etaReco - etaTruth)
+            double NegEtaJES = calibJetPtr->eta()-startingScale(*jet).eta();
+
+	    // Average results
+	    const double EtaJES = 0.5*(PosEtaJES + NegEtaJES);
+
+            // Fill the plot
+	    if ( !vsE ) hist_pt_eta->SetBinContent(xBin,yBin,EtaJES);
 	    else { // JES_vs_E
-	      if ( fill ) hist_pt_eta->SetBinContent(xBin,yBin,JES);
+	      if ( fill ){ 
+		hist_pt_eta->SetBinContent(xBin,yBin,EtaJES);
+	        hist_pt_eta->SetBinError(xBin,yBin,0.00005); // Set the errors to some randomly small value!
+	      }
 	    }
             
-            // Clean up
-            delete calibJet;
         }
     }
 
-
-    
-    // Make the plots
-
-    // First the canvas
-    TCanvas* canvas = new TCanvas("canvas");
-    canvas->SetMargin(0.07,0.13,0.1,0.10);
-    canvas->SetFillStyle(4000);
-    canvas->SetFillColor(0);
-    canvas->SetFrameBorderMode(0);
-    canvas->cd();
-    canvas->SetLogx(true);
-    
     // Now labels/etc
     hist_pt_eta->SetStats(false);
     if ( !vsE ) hist_pt_eta->GetXaxis()->SetTitle("Jet #it{p}_{T} [GeV]");
@@ -203,33 +228,12 @@ int main (int argc, char* argv[])
     hist_pt_eta->GetXaxis()->SetMoreLogLabels();
     hist_pt_eta->GetYaxis()->SetTitle("#eta");
     hist_pt_eta->GetYaxis()->SetTitleOffset(0.9);
-    hist_pt_eta->GetZaxis()->SetTitle("JES_{Factor}");
+    hist_pt_eta->GetZaxis()->SetTitle("Eta_{Factor}");
 
-    // Now write them out
-    if (outFileIsExtensible)
-    {
-
-        if ( outFile.EndsWith(".pdf") || outFile.EndsWith(".ps") ){
-          canvas->Print(outFile+"[");
-          hist_pt_eta->Draw("colz");
-          canvas->Print(outFile);
-          canvas->Print(outFile+"]");
-	} else if ( outFile.EndsWith(".root") ){
-	  TFile *fout = new TFile(outFile.Data(),"RECREATE");
-	  hist_pt_eta->Write();
-	  fout->Close();
-	  delete fout;
-	}
-
-    }
-    else
-    {
-        unsigned int counter = 1;
-        hist_pt_eta->Draw("colz");
-        canvas->Print(Form("%u-fixMass-%s",counter++,outFile.Data()));
-    }
-
-    delete hist_pt_eta;
+    // Now write out the histogram
+    std::unique_ptr<TFile> fout = std::make_unique<TFile>(outFile.Data(),"RECREATE");
+    hist_pt_eta->Write();
+    fout->Close();
 
     return 0;
 }
