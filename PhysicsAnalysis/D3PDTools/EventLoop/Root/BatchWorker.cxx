@@ -129,15 +129,14 @@ namespace EL
       gSystem->Exec ("pwd");
       gSystem->MakeDirectory ("output");
 
-      TList output;
       BatchWorker worker (job.get(), sample, segment);
       worker.setMetaData (&sample->meta);
-      worker.setOutputHist (&output);
+      worker.setOutputHist (job->location + "/fetch");
+      worker.setSegmentName (segment->name);
       worker.run (job.get());
 
       std::ostringstream job_name;
       job_name << job_id;
-      Driver::saveOutput (job->location + "/fetch", segment->name, output);
       std::ofstream completed ((job->location + "/status/completed-" + job_name.str()).c_str());
     } catch (std::exception& e)
     {

@@ -54,7 +54,6 @@ namespace EL
   }
 
   GridWorker::GridWorker (const SH::MetaObject *meta, 
-			  TList *output,
 			  const std::string& location,
 			  PandaRootTools& pandaTools)
     : m_meta(meta), m_location(location), m_pandaTools(pandaTools) {
@@ -188,13 +187,12 @@ namespace EL
     
       const std::string location = ".";
 
-      TList output;
       EL::GridWorker worker(mo, 
-			    &output, 
                             location, 
 			    pandaTools);
       worker.setMetaData (mo);
-      worker.setOutputHist (&output);
+      worker.setOutputHist (location);
+      worker.setSegmentName ("output");
       
       ANA_MSG_INFO ("Starting EventLoop Grid worker");
 
@@ -202,8 +200,6 @@ namespace EL
 
       ANA_MSG_INFO ("EventLoop Grid worker finished");
       ANA_MSG_INFO ("Saving output");
-
-      EL::Driver::saveOutput (location, "output", output);    
     }
     catch (std::exception& e) {
       std::cout << "Aborting job due to internal GridWorker error:\n" << e.what() 

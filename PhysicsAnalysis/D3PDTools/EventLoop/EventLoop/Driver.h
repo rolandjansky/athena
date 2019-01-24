@@ -172,23 +172,6 @@ namespace EL
     // semi-public interface
     //
 
-    /// \brief write the list of output objects to disk and clear it
-    ///
-    /// This is made static and public, because depending on the
-    /// implementation it may be called either from the Driver or the
-    /// Worker.  however, normal users would have no interest in
-    /// calling it.
-    ///
-    /// \par Guarantee
-    ///   basic
-    /// \par Failures
-    ///   i/o errors
-  public:
-    static void
-    saveOutput (const std::string& location, const std::string& name,
-		TList& output);
-
-
     /// \brief make the name of the merged output data file
     ///
     /// This is optional, but it is convenient for drivers to put
