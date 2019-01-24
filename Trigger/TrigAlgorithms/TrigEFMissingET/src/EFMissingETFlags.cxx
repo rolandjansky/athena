@@ -475,8 +475,8 @@ StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
     for (unsigned char c=0; c<elem; ++c) {
       TrigEFMissingEtComponent* metComp = metHelper->GetComponent(c);
       for (int b=0; b<16; ++b) {
-	unsigned short mask = (1<<b);
-	if (metComp->m_status & mask) m_hCompFlags->Fill(c,b);
+      	unsigned short mask = (1<<b);
+      	if (metComp->m_status & mask) m_hCompFlags->Fill(c,b);
       }
     }
   }
