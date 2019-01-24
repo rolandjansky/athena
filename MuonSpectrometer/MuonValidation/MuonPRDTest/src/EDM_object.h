@@ -8,7 +8,7 @@
 #include "TString.h"
 
 #include <fstream>
-#include <std::vector>
+#include <vector>
 
 class EDM_object
 {
