@@ -11,7 +11,6 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
-#include "PATCore/TAccept.h"
 
 namespace Trig {
 TrigEgammaEmulationToolAlg::
