@@ -107,7 +107,7 @@ namespace EL
         if (maxEvents != -1 &&
             inTreeEntries > maxEvents + eventRange.m_beginEvent)
           eventRange.m_endEvent = maxEvents + eventRange.m_beginEvent;
-        processEvents (eventRange);
+        ANA_CHECK_THROW (processEvents (eventRange));
       }
     }
     ANA_CHECK_THROW (finalize ());
