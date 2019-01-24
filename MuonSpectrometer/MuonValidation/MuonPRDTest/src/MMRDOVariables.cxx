@@ -68,9 +68,24 @@ StatusCode MMRDOVariables::fillVariables()
       m_NSWMM_rdo_charge->push_back(rdo->charge());
 
       // get the readout element class where the RDO is recorded
-      // int isSmall = (stName[2] == 'S');
-      // const MuonGM::MMReadoutElement* rdoEl = m_detManager->getMMRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet );
+      int isSmall = (stName[2] == 'S');
+      const MuonGM::MMReadoutElement* rdoEl = m_detManager->getMMRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet );
 
+      Amg::Vector2D localStripPos(0.,0.);
+      if ( rdoEl->stripPosition(Id,localStripPos) )  {
+        m_NSWMM_rdo_localPosX->push_back(localStripPos.x());
+        m_NSWMM_rdo_localPosY->push_back(localStripPos.y());
+        ATH_MSG_DEBUG("MM RDO: local pos.:  x=" << localStripPos[0] << ",  y=" << localStripPos[1]);
+      } else { 
+        ATH_MSG_WARNING("MM RDO: local Strip position not defined"); 
+      }
+      
+      // asking the detector element to transform this local to the global position
+      Amg::Vector3D globalStripPos(0., 0., 0.);
+      rdoEl->surface(Id).localToGlobal(localStripPos,Amg::Vector3D(0.,0.,0.),globalStripPos);
+      m_NSWMM_rdo_globalPosX->push_back(globalStripPos.x());
+      m_NSWMM_rdo_globalPosY->push_back(globalStripPos.y());
+      m_NSWMM_rdo_globalPosZ->push_back(globalStripPos.z());
 
       // rdo counter for the ntuple
       m_NSWMM_nrdo++;
@@ -99,6 +114,13 @@ StatusCode MMRDOVariables::clearVariables()
   m_NSWMM_rdo_time->clear();
   m_NSWMM_rdo_charge->clear();
 
+  m_NSWMM_rdo_globalPosX->clear();
+  m_NSWMM_rdo_globalPosY->clear();
+  m_NSWMM_rdo_globalPosZ->clear();
+
+  m_NSWMM_rdo_localPosX->clear();
+  m_NSWMM_rdo_localPosY->clear();
+
   return StatusCode::SUCCESS;
 }
 
@@ -118,6 +140,13 @@ StatusCode MMRDOVariables::initializeVariables()
   m_NSWMM_rdo_time        = new std::vector<int>();
   m_NSWMM_rdo_charge      = new std::vector<int>();
 
+  m_NSWMM_rdo_localPosX   = new std::vector<double>();
+  m_NSWMM_rdo_localPosY   = new std::vector<double>();
+
+  m_NSWMM_rdo_globalPosX   = new std::vector<double>();
+  m_NSWMM_rdo_globalPosY   = new std::vector<double>();
+  m_NSWMM_rdo_globalPosZ   = new std::vector<double>();
+
 
   if(m_tree) {
     m_tree->Branch("RDO_MM_n",           &m_NSWMM_nrdo);
@@ -129,6 +158,14 @@ StatusCode MMRDOVariables::initializeVariables()
     m_tree->Branch("RDO_MM_channel",     &m_NSWMM_rdo_channel);
     m_tree->Branch("RDO_MM_time",        &m_NSWMM_rdo_time);
     m_tree->Branch("RDO_MM_charge",      &m_NSWMM_rdo_charge);
+    
+    m_tree->Branch("RDO_MM_localPosX",   &m_NSWMM_rdo_localPosX);
+    m_tree->Branch("RDO_MM_localPosY",   &m_NSWMM_rdo_localPosY);
+
+    m_tree->Branch("RDO_MM_globalPosX",  &m_NSWMM_rdo_globalPosX);
+    m_tree->Branch("RDO_MM_globalPosY",  &m_NSWMM_rdo_globalPosY);
+    m_tree->Branch("RDO_MM_globalPosZ",  &m_NSWMM_rdo_globalPosZ);
+
   }
 
   return StatusCode::SUCCESS;
@@ -147,7 +184,12 @@ void MMRDOVariables::deleteVariables()
   delete m_NSWMM_rdo_channel;
   delete m_NSWMM_rdo_time;
   delete m_NSWMM_rdo_charge;
-  
+  delete m_NSWMM_rdo_localPosX;
+  delete m_NSWMM_rdo_localPosY;
+  delete m_NSWMM_rdo_globalPosX;
+  delete m_NSWMM_rdo_globalPosY;
+  delete m_NSWMM_rdo_globalPosZ;
+
 
   m_NSWMM_nrdo = 0;
   m_NSWMM_rdo_stationName = nullptr;
@@ -158,6 +200,11 @@ void MMRDOVariables::deleteVariables()
   m_NSWMM_rdo_channel = nullptr;
   m_NSWMM_rdo_time = nullptr;
   m_NSWMM_rdo_charge = nullptr;
+  m_NSWMM_rdo_localPosX = nullptr;
+  m_NSWMM_rdo_localPosY = nullptr;
+  m_NSWMM_rdo_globalPosX = nullptr;
+  m_NSWMM_rdo_globalPosY = nullptr;
+  m_NSWMM_rdo_globalPosZ = nullptr;
 
   return;
 }
