@@ -113,22 +113,9 @@ SCT_FwdSensor::getParameters()
     m_sensorOffset = m_radiusF - m_sensorRadius;
   }
   
-  //std::cout << "SCT_FwdSensor : " << std::endl;
-  //std::cout << "  ringType = " << m_ringType << std::endl;
-  //std::cout << "  sensorCenterRadius = " << m_sensorRadius << std::endl;
-  //std::cout << "  innerRadius = " << m_innerRadius << std::endl;
-  //std::cout << "  outerRadius = " << m_outerRadius << std::endl;
-
-
-   
-
   // The thickness of the two are the same, but to be pedantic.
   m_thickness = std::max(m_thicknessF, m_thicknessN);
-
-
 }
-
-
 
 const GeoLogVol * SCT_FwdSensor::preBuild()
 {
@@ -280,11 +267,6 @@ void SCT_FwdSensor::makeDesign()
      
   double step = parameters->fwdSensorAngularPitch(m_ringType);
 
-  /* 
-     std::cout << "ZB -----------------" << cells << " " << std::endl;
-     std::cout << radius1 << "  " << radius2 << "  " << halfHeight1 << "  " << halfHeight2 << std::endl;
-  */
-
   // Readout direction is same direction as local phi direction for outer module
   // and the opposite direction for inner and middle module.
   bool swapStripReadout = (m_ringType != 0); // ie false for outer module only.
@@ -346,7 +328,6 @@ GeoVPhysVol *SCT_FwdSensor::build(SCT_Identifier id) const
     detectorManager()->addDetectorElement(detElement);
 
   } else {
-    // std::cout << " ZB --> build - warning" << std::endl;
     static bool noElementWarning = true; // So we don't get the message thousands of times.
     if (noElementWarning) {
       std::cout << "WARNING!!!!: No SCT id helper and so no elements being produced." << std::endl;

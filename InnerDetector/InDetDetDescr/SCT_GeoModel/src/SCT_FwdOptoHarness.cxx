@@ -56,9 +56,6 @@ SCT_FwdOptoHarness::build()
 
   const GeoTube * optoHarnessShape = new GeoTube(m_innerRadius, m_outerRadius, 0.5 * m_thickness);
   m_material = materials.getMaterialForVolume(m_materialName, optoHarnessShape->volume());
-  //  m_material = materials.getMaterial(m_materialName);
-  //  cout << "Material = " << m_material->getName() << endl;
-  //  cout << "Density = " << m_material->getDensity()/(gram/Gaudi::Units::cm3) << endl;
   const GeoLogVol * optoHarnessLog = new GeoLogVol(getName(), optoHarnessShape, m_material);
 
   GeoPhysVol * optoHarness = new GeoPhysVol(optoHarnessLog);

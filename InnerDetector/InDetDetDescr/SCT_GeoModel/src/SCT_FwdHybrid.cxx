@@ -112,7 +112,6 @@ GeoVPhysVol * SCT_FwdHybrid::build()
   SCT_MaterialManager materials;
   const GeoShapeUnion & hybridShape = hybridPos1.add(hybridPos2);
   // error getting volume directly.
-  //m_material = materials.getMaterialForVolume(m_materialName, hybridShape.volume());
   m_material = materials.getMaterialForVolume(m_materialName, hybridShape1->volume()+hybridShape2->volume());
   const GeoLogVol * hybridLog = new GeoLogVol(getName(), &hybridShape, m_material);
   GeoPhysVol * hybrid = new GeoPhysVol(hybridLog);

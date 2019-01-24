@@ -33,7 +33,6 @@ SCT_MaterialManager::SCT_MaterialManager()
     }
 
     const SCT_DataBase * rdb = SCT_DataBase::instance();
-    //s_materialManager =  new InDetMaterialManager("SCT_MaterialManager", detStore, rdb->weightTable(), "sct")
     s_materialManager =  new InDetMaterialManager("SCT_MaterialManager", rdb->athenaComps());
     s_materialManager->addWeightTable(rdb->weightTable(), "sct");
     s_materialManager->addScalingTable(rdb->scalingTable());

@@ -13,9 +13,7 @@
 #include "SCT_GeoModel/SCT_GeometryManager.h"
 #include "SCT_GeoModel/SCT_BarrelParameters.h"
 
-//#include "SCT_GeoModel/SCT_Dogleg.h" // Tue 30th Aug 2005 D.Naito removed.
 #include "SCT_GeoModel/SCT_Ski.h"
-//#include "SCT_GeoModel/SCT_PowerTape.h"
 #include "SCT_GeoModel/SCT_PowerTape.h"
 #include "SCT_GeoModel/SCT_Module.h"  // 28th Mar 2005 S.Mima modified.
 
@@ -162,8 +160,5 @@ SCT_SkiPowerTape::build()
 
   }    
 
-  //  std::cout << "Total power tape mass = " << mass << std::endl;
-  //  std::cout << "Total power tape length = " << ltot << std::endl;
   return skiPowerTape;
-
 }

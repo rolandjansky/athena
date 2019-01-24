@@ -82,7 +82,6 @@ void
 SCT_FwdModule::getParameters()
 {
   const SCT_ForwardModuleParameters * parameters = geometryManager()->forwardModuleParameters();
-  // m_safety = geometryManager()->safety();
   m_glueThickness = parameters->fwdModuleGlueThickness(m_ringType);
   m_distBtwMountPoints = parameters->fwdModuleDistBtwMountPoints(m_ringType);
   m_mountPointToCenter = parameters->fwdModuleMountPoint(m_ringType);

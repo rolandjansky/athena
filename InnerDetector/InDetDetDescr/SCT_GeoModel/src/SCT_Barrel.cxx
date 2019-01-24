@@ -256,17 +256,14 @@ void SCT_Barrel::buildEMIShield(GeoFullPhysVol * parent) const
   const GeoShape * emiShieldShape  = 0;
   const GeoMaterial * material;
   const GeoTube * emiShieldTube  = new GeoTube(innerRadius, outerRadius,  0.5*length);
-  //  std::cout << "EMI tube volume = " << emiShieldTube->volume() << std::endl; 
   if (m_isOldGeometry) {
     emiShieldShape = emiShieldTube;
     material = materials.getMaterial(materialName);
   } else {
     const GeoTube* cutOut = new GeoTube(innerRadius, outerRadius, 0.5*pixelAttachmentLength);
-    //    std::cout << "Cut-out volume = " << cutOut->volume() << std::endl; 
     const GeoShape* emiTemp = (GeoShape*)&(emiShieldTube->subtract(*cutOut << GeoTrf::TranslateZ3D(pixelAttachmentZpos)));
     emiShieldShape = (GeoShape*)&emiTemp->subtract(*cutOut << GeoTrf::TranslateZ3D(-pixelAttachmentZpos));
     double emiVolume = emiShieldTube->volume() - 2. * cutOut->volume();
-    //    std::cout << "EMI final volume = " << emiVolume << std::endl; 
     material = materials.getMaterialForVolume(materialName, emiVolume);
   }
   const GeoLogVol  * emiShieldLog = new GeoLogVol("EMIShield", emiShieldShape, material);
@@ -278,14 +275,11 @@ void SCT_Barrel::buildEMIShield(GeoFullPhysVol * parent) const
     double dphi = jointRPhi / outerRadius;
     const GeoTubs* emiJointTubs = new GeoTubs(outerRadius, outerRadius+jointDeltaR, 0.5*length,
                                               -0.5 * dphi * Gaudi::Units::radian, dphi * Gaudi::Units::radian);
-    //    std::cout << "EMIJoint tubs volume = " << emiJointTubs->volume() << std::endl; 
     const GeoTubs* jointCutOut = new GeoTubs(outerRadius, outerRadius+jointDeltaR, 0.5*pixelAttachmentLength,
                                              -0.5 * dphi * Gaudi::Units::radian, dphi * Gaudi::Units::radian);
-    //    std::cout << "Cut-out volume = " << jointCutOut->volume() << std::endl; 
     const GeoShape* jointTemp = (GeoShape*)&(emiJointTubs->subtract(*jointCutOut << GeoTrf::TranslateZ3D(pixelAttachmentZpos)));
     const GeoShape* emiJointShape = (GeoShape*)&jointTemp->subtract(*jointCutOut << GeoTrf::TranslateZ3D(-pixelAttachmentZpos));
     double jointVolume = emiJointTubs->volume() - 2. * jointCutOut->volume();
-    //    std::cout << "EMIJoint final volume = " << jointVolume << std::endl; 
     const GeoMaterial * jointMaterial = materials.getMaterialForVolume(jointMaterialName, jointVolume);
     const GeoLogVol  * emiJointLog = new GeoLogVol("EMIShieldJoint", emiJointShape, jointMaterial);
     GeoPhysVol * emiJoint = new GeoPhysVol(emiJointLog);

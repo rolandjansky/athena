@@ -34,19 +34,11 @@
 inline double sqr(double x) {return x*x;}
 
 SCT_FwdRing::SCT_FwdRing(const std::string & name, 
-                         //int ringType, 
                          const SCT_FwdModule * module, 
-                         //const SCT_FwdRingCooling * cooling,
-                         //int stereoSign,
-                         //int ringSide)
                          int iWheel,
                          int iRing,
                          int ec)
   : SCT_UniqueComponentFactory(name), 
-    //    m_ringType(ringType), 
-    // m_ringSide(ringSide), 
-    //m_stereoSign(stereoSign), 
-    //m_cooling(cooling)
     m_iWheel(iWheel),
     m_iRing(iRing),
     m_endcap(ec),
@@ -94,14 +86,6 @@ SCT_FwdRing::~SCT_FwdRing()
 const GeoLogVol * 
 SCT_FwdRing::preBuild()
 {
-  //   std::cout << getName() << std::endl;
-  //   std::cout << "Wheel, Ring = " << m_iWheel << ", " << m_iRing << std::endl;
-  //   std::cout << "m_module->thickness() = " << m_module->thickness() << std::endl;
-  //   std::cout << "m_moduleStagger = " << m_moduleStagger << std::endl;
-  //   std::cout << "m_refStartAngle = " << m_refStartAngle << std::endl;
-  //   std::cout << "m_refFirstStagger = " << m_refFirstStagger << std::endl;
-  //   std::cout << "m_ringOffset = " << m_ringOffset << std::endl;
-
   // Make a ring. This is made of two half rings. They are identical but as
   // we need different identifiers they are made seperately.
   // We will refer to the two halves as inner and outer.
@@ -147,13 +131,6 @@ SCT_FwdRing::preBuild()
   m_firstStagger = m_refFirstStagger;
   if (moduleCountInt % 2) m_firstStagger = -m_refFirstStagger;
 
-  //   std::cout << "RingType, RingSide, Stereo, rotated = " << m_iRing << " " << m_ringSide << " "
-  //          << m_stereoSign << " " << m_discRotated << std::endl;
-  //   std::cout << "Ref   Start angle and stagger " << m_refStartAngle/Gaudi::Units::deg << " " << m_refFirstStagger << std::endl;
-  //   std::cout << "First Start angle and stagger " << m_startAngle/Gaudi::Units::deg << " " << m_firstStagger << std::endl;
-  //   std::cout << "Module zero in -ve endcap " << m_moduleZero << std::endl;
-
-
   makeModuleServices();
 
   // Make envelope for ring
@@ -165,17 +142,6 @@ SCT_FwdRing::preBuild()
     + 0.5*m_module->stereoAngle()*(0.5*m_module->outerWidth()) + moduleClearanceR;
 
   // Calculate clearance we have. NB. This is an approximate.
-  //std::cout << "Module clearance (radial value does not take into account stereo rotation:" << std::endl;
-  //std::cout << " radial: " << moduleClearanceR/Gaudi::Units::mm << " mm" << std::endl;
-  //std::cout << " away from disc in z " << moduleClearanceZ/Gaudi::Units::mm << " mm" << std::endl;
-  //std::cout << " Lo Module to cooling block: " << -m_moduleStagger-0.5*m_module->thickness() - m_moduleServicesLoOuterZPos << std::endl;
-  //std::cout << " Hi Module to cooling block: " << +m_moduleStagger-0.5*m_module->thickness() - m_moduleServicesHiOuterZPos << std::endl;
-  //std::cout << " Module to Module: " << m_moduleStagger-m_module->thickness() << std::endl;
-  //std::cout << " towards disc in z "   
-  //     << std::min(m_moduleStagger-m_module->thickness(), 
-  //   std::min(-m_moduleStagger-0.5*m_module->thickness() - m_moduleServicesLoOuterZPos,
-  //     +m_moduleStagger-0.5*m_module->thickness() - m_moduleServicesHiOuterZPos)) / Gaudi::Units::mm << " mm" << std::endl;
-
   m_thicknessOuter = 0.5 * m_module->thickness() + m_moduleStagger + moduleClearanceZ;
   m_thicknessInner = m_maxModuleServicesBaseToRingCenter + 2*m_safety;
   // We have to at least include 1*m_safety as the moduleservices envelope is increased by this amount.
@@ -191,11 +157,7 @@ SCT_FwdRing::preBuild()
   const GeoShape & ringEnvelopeShape = (*tmpShape <<  GeoTrf::Translate3D(0, 0, envelopeShift));
   GeoLogVol * ringLog = new GeoLogVol(getName(), &ringEnvelopeShape, materials.gasMaterial());
 
-  //std::cout << "m_innerRadius = " << m_innerRadius << std::endl;
-  //std::cout << "m_outerRadius = " << m_outerRadius << std::endl;
-
   return ringLog;
-
 }
 
 
@@ -237,15 +199,6 @@ SCT_FwdRing::build(SCT_Identifier id) const
       idModule = (m_numModules + m_moduleZero - idNumber) % m_numModules; 
     }
 
-    //std::cout << "Endcap# = " <<id.getBarrelEC() 
-    //       << ", idModule = " << idModule 
-    //        << ", idModuleSimulation = " <<  idModuleSimulation 
-    //       << ", idModule2 = " << (idModuleSimulation & 0xffff)
-    //       << ", max    = " << ((idModuleSimulation & 0x00ff0000) >> 16)
-    //       << ", moduleZero = " << ((idModuleSimulation & 0xff000000) >> 24)
-    //       << std::endl;
-
-    
     // The module is a TRD with length along z-axis. 
     // We need to rotate this so length is along the y-axis
     // This can be achieved with a 90 deg rotation around Y. 
@@ -258,11 +211,6 @@ SCT_FwdRing::build(SCT_Identifier id) const
     // It is assumed that the module is centered on the physics center (center of sensor)
 
     double phi = i * deltaPhi + m_startAngle;
-
-    //std::cout << "Endcap# = " <<id.getBarrelEC() 
-    //       << ", idModule = " << idModule 
-    //       << ", i = " << i 
-    //       << ", phi = " << phi/Gaudi::Units::degree << std::endl;
 
     GeoTrf::Transform3D rot = GeoTrf::RotateZ3D(phi + 0.5 * m_module->stereoAngle() * m_stereoSign);
     if (m_ringSide > 0) {

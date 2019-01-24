@@ -10,9 +10,6 @@
 #include "GeoModelKernel/GeoDefinitions.h"
 #include "InDetGeoModelUtils/TopLevelPlacements.h"
 
-#include <iostream>
-
-
 const double SCT_SAFETY = 0.01 * Gaudi::Units::mm; // Used in some places to make envelopes slightly larger to ensure
                                      // no overlaps due to rounding errors.
 

@@ -11,7 +11,6 @@
 #include "GaudiKernel/SystemOfUnits.h"
 
 #include <cmath>
-#include <iostream>
 
 
 SCT_BarrelParameters::SCT_BarrelParameters()

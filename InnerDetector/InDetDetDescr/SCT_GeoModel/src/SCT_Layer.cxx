@@ -108,11 +108,6 @@ SCT_Layer::getParameters()
   detectorManager()->numerology().setNumPhiModulesForLayer(m_iLayer,m_skisPerLayer);
   detectorManager()->numerology().setNumEtaModulesForLayer(m_iLayer,parameters->modulesPerSki());
 
-  //  std::cout << "In SCT_Layer:" << std::endl;
-  //  std::cout << " skisPerLayer = " << m_skisPerLayer << std::endl;
-  //  std::cout << " radius = " << m_radius << std::endl;
-  //  std::cout << " tilt = " << m_tilt << std::endl;
-
 }
 
 
@@ -136,7 +131,6 @@ SCT_Layer::preBuild()
     m_endJewel   = new SCT_FSIEndJewel("FSIEndJewel"+layerNumStr);
     m_scorpion   = new SCT_FSIScorpion("FSIScorpion"+layerNumStr);
     double length_mask = 0.5*m_cylinderLength - m_flange->length() - m_zScorpion - 0.5*m_scorpion->length();
-    //    std::cout << "length_mask = " << length_mask << std::endl;
     m_fibreMask = new SCT_FSIFibreMask("FSIFibreMask"+layerNumStr, m_iLayer, length_mask);
   }
   else {
@@ -247,10 +241,6 @@ SCT_Layer::preBuild()
   //  if (m_iLayer == 0) {length = m_cylinderLength + m_safety;}
   const GeoTube * layerEnvelopeTube = new GeoTube(m_innerRadius, m_outerRadius, 0.5 * length);
 
-  //  std::cout << "Layer " << m_iLayer << " envelope, rmin, rmax, length = " 
-  //       << m_innerRadius << ", " <<m_outerRadius << ", " << length
-  //       << std::endl;
-
   GeoLogVol * layerLog = new GeoLogVol(getName(), layerEnvelopeTube, materials.gasMaterial());
 
 
@@ -278,9 +268,6 @@ SCT_Layer::build(SCT_Identifier id) const
   //
   // Make envelope for active layer
   //
-  //  std::cout << "Making Active Layer: rmin,rmax,len = " << m_innerRadiusActive 
-  //       << " " << m_outerRadiusActive << " " << 0.5 * m_cylinderLength 
-  //       << std::endl;
   const GeoTube * activeLayerEnvelopeShape = new GeoTube(m_innerRadiusActive, m_outerRadiusActive, 0.5 * m_cylinderLength);
   GeoLogVol * activeLayerLog = new GeoLogVol(getName()+"Active", activeLayerEnvelopeShape, materials.gasMaterial());
   GeoPhysVol * activeLayer = new GeoPhysVol(activeLayerLog);
@@ -290,8 +277,6 @@ SCT_Layer::build(SCT_Identifier id) const
    
     double phi = m_skiPhiStart + iSki * divisionAngle;
 
-    //    std::cout << "m_skiPhiStart = " << m_skiPhiStart/Gaudi::Units::degree << ", phi = " << phi/Gaudi::Units::degree << std::endl;
-
     GeoTrf::Vector3D pos(m_radius, 0, 0);
     pos = GeoTrf::RotateZ3D(phi)*pos;
     GeoTrf::Transform3D rot = GeoTrf::RotateZ3D(m_tilt)*GeoTrf::RotateZ3D(phi);
@@ -300,8 +285,6 @@ SCT_Layer::build(SCT_Identifier id) const
     // apply the inverse of refPointTransform() of the ski.
     GeoTrf::Transform3D trans(GeoTrf::Transform3D(GeoTrf::Translate3D(pos.x(),pos.y(),pos.z())*rot) * m_ski->getRefPointTransform()->getTransform().inverse());
 
-    //    std::cout << "Adding ski at pos: " << pos << std::endl;
-    //    std::cout << " StereoInner = " << m_module->stereoInner() << std::endl;
     activeLayer->add(new GeoAlignableTransform(trans));
     activeLayer->add(new GeoNameTag(name.str()));
     activeLayer->add(new GeoIdentifierTag(iSki));
@@ -326,9 +309,6 @@ SCT_Layer::build(SCT_Identifier id) const
   // Aux Layer
   // Envelope for brackets and powertapes.
   //
-  //  std::cout << "Making Aux Layer: rmin,rmax,len = " << m_skiAux->innerRadius() 
-  //     << " " << m_skiAux->outerRadius() << " " << 0.5 * m_skiAux->length() 
-  //       << std::endl;
   const GeoTube * auxLayerEnvelopeShape = new GeoTube(m_skiAux->innerRadius(), m_skiAux->outerRadius(),
                                                       0.5*m_skiAux->length());
   GeoLogVol * auxLayerLog = new GeoLogVol(getName()+"Aux", auxLayerEnvelopeShape, materials.gasMaterial());
@@ -349,9 +329,6 @@ SCT_Layer::build(SCT_Identifier id) const
   // Envelope for support cylinder, flanges and FSI.
   // Layer0 no longer needs cut-out 
   //
-  //  std::cout << "Making Support Layer: rmin,rmax,len = " << m_innerRadius 
-  //       << " " << m_outerRadiusOfSupport << " " << 0.5 * m_cylinderLength 
-  //       << std::endl;
   const GeoTube * supportLayerTube = new GeoTube(m_innerRadius, m_outerRadiusOfSupport, 0.5 * m_cylinderLength); 
   GeoLogVol * supportLayerLog = new GeoLogVol(getName()+"Support", supportLayerTube, 
                                               materials.gasMaterial());
@@ -377,10 +354,8 @@ SCT_Layer::build(SCT_Identifier id) const
 
     // Position FSI End jewels
     double jewelRadius = std::sqrt(m_fibreMask->innerRadius()*m_fibreMask->innerRadius() - 0.25 * m_endJewel->rPhiWidth()*m_endJewel->rPhiWidth()) - 0.5 * m_endJewel->radialWidth();
-    //  std::cout << "jewelRadius = " << jewelRadius << std::endl;
     for ( int i=0; i<m_nRepeatEndJewel; i++) {
       double jewelAngle = m_phiEndJewel + i * 360.*Gaudi::Units::degree/m_nRepeatEndJewel;
-      //    std::cout << "jewelAngle = " << jewelAngle << std::endl;
       supportLayer->add(new GeoTransform(GeoTrf::RotateZ3D(jewelAngle)*GeoTrf::TranslateX3D(jewelRadius)*GeoTrf::TranslateZ3D(m_zEndJewel)));
       supportLayer->add(m_endJewel->getVolume());
       supportLayer->add(new GeoTransform(GeoTrf::RotateZ3D(jewelAngle)*GeoTrf::TranslateX3D(jewelRadius)*GeoTrf::TranslateZ3D(-m_zEndJewel)));
@@ -389,10 +364,8 @@ SCT_Layer::build(SCT_Identifier id) const
 
     // Position FSI Scorpions
     double scorpionRadius = std::sqrt(m_supportCyl->innerRadius()*m_supportCyl->innerRadius() - 0.25 * m_scorpion->rPhiWidth()*m_scorpion->rPhiWidth()) - 0.5 * m_scorpion->radialWidth();
-    //  std::cout << "scorpionRadius = " << scorpionRadius << std::endl;
     for ( int i=0; i<m_nRepeatScorpion; i++) {
       double scorpionAngle = m_phiScorpion + i * 360.*Gaudi::Units::degree/m_nRepeatScorpion;
-      //    std::cout << "scorpionAngle = " << scorpionAngle << std::endl;
       supportLayer->add(new GeoTransform(GeoTrf::RotateZ3D(scorpionAngle)*GeoTrf::TranslateX3D(scorpionRadius)*GeoTrf::TranslateZ3D(m_zScorpion)));
       supportLayer->add(m_scorpion->getVolume());
       supportLayer->add(new GeoTransform(GeoTrf::RotateZ3D(scorpionAngle)*GeoTrf::TranslateX3D(scorpionRadius)*GeoTrf::TranslateZ3D(-m_zScorpion)));
@@ -490,12 +463,5 @@ SCT_Layer::calcSkiPhiOffset()
   // skiPhiOffset < 0 for +ve tilt and > 0 for -ve tilt.
   double skiPhiOffset = tiltSign * (0.5 * divisionAngle - alpha);
 
-  //std::cout << "In Volume: " << getName() << ":" << std::endl;
-  //// std::cout << "  Module width = " << m_skiAux->ski()->module()->width() << std::endl;
-  //// std::cout << "  Active width = " << m_skiAux->ski()->module()->activeWidth() << std::endl;
-  //std::cout << "  Module width = " << m_module->width() << std::endl;
-  //std::cout << "  Active width = " << m_module->activeWidth() << std::endl;
-  //std::cout << "  Division angle = " << divisionAngle/Gaudi::Units::degree << " Gaudi::Units::deg" << std::endl;
-  //std::cout << "  Ski phi offset = " << skiPhiOffset/Gaudi::Units::degree  << " Gaudi::Units::deg" << std::endl;
   return skiPhiOffset;
 }

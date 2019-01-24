@@ -15,25 +15,6 @@
 
 using std::abs;
 
-//
-// A few hard wired numbers (some of which should go in NOVA)
-//
-/*
-const double SCT_MODULE_HYBRID_OFFSET = 5.0 * Gaudi::Units::mm; // Planar distance from center of sensor to edge of hybrid.
-const int STEREO_UPPER_SIGN = -1; // Sign of stereo rotation of upper sensor with axis going
-                                  // from lower to upper  
-
-const double PITCH = 80 * micrometer;
-const double HALF_ACTIVE_STRIP_LENGTH = 31 * Gaudi::Units::mm;
-const double NOMINAL_WAFER_LENGTH = 63.960 * Gaudi::Units::mm;
-const double REF_DISTANCE_BETWEEN_FIDUCIALS = 2.19 * Gaudi::Units::mm; 
-const double DISTANCE_CORNER_MARK_TO_CENTER = 31.750 * Gaudi::Units::mm; 
-const double DISTANCE_CORNER_MARK_TO_FIDUCIAL = 0.8 * Gaudi::Units::mm; 
-const double DISTANCE_CENTER_TO_CENTER = 2 * (DISTANCE_CORNER_MARK_TO_CENTER - 
-                                              DISTANCE_CORNER_MARK_TO_FIDUCIAL)
-                                         + REF_DISTANCE_BETWEEN_FIDUCIALS;
-*/
-
 SCT_BarrelModuleParameters::SCT_BarrelModuleParameters()
 {
   m_rdb = SCT_DataBase::instance();

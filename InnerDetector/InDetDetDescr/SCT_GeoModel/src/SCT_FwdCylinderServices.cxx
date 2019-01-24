@@ -23,8 +23,6 @@
 #include <sstream>
 #include <cmath>
 
-#include <iostream>
-
 SCT_FwdCylinderServices::SCT_FwdCylinderServices(const std::string & name,
                                                  double rmin,
                                                  double rmax,
@@ -191,7 +189,6 @@ SCT_FwdCylinderServices::build()
     // Cooling pipe
     for (unsigned int iLoc = 0; iLoc < m_coolingLocAngle.size(); iLoc++) {
       double coolingAngle = m_coolingLocAngle[iLoc] + iquad * 90*Gaudi::Units::degree;
-      //      std::cout << "Placing cooling pipe at " << coolingAngle / Gaudi::Units::degree << " Gaudi::Units::degrees" << std::endl;
       cylinder->add(new GeoTransform(GeoTrf::RotateZ3D(coolingAngle)));
       cylinder->add(coolingPipe);
     }
@@ -199,7 +196,6 @@ SCT_FwdCylinderServices::build()
     // Low Mass Tapes and LMT Cooling are at same phi positions
     for (unsigned int iLoc = 0; iLoc < m_lmtLocAngle.size(); iLoc++) {
       double lmtAngle = m_lmtLocAngle[iLoc] + iquad * 90*Gaudi::Units::degree;
-      //      std::cout << "Placing LMT at " << lmtAngle / Gaudi::Units::degree << " Gaudi::Units::degrees" << std::endl;
       cylinder->add(new GeoTransform(GeoTrf::RotateZ3D(lmtAngle)));
       cylinder->add(lmt);
       cylinder->add(new GeoTransform(GeoTrf::RotateZ3D(lmtAngle)*GeoTrf::TranslateZ3D(m_lmtCoolingZOffset)));
@@ -209,7 +205,6 @@ SCT_FwdCylinderServices::build()
     // Fibres are between pairs of LMTs
     for (unsigned int iLoc = 0; iLoc < m_fibreLocAngle.size(); iLoc++) {
       double fibreAngle = m_fibreLocAngle[iLoc] + iquad * 90*Gaudi::Units::degree;
-      //      std::cout << "Placing fibres at " << fibreAngle / Gaudi::Units::degree << " Gaudi::Units::degrees" << std::endl;
       cylinder->add(new GeoTransform(GeoTrf::RotateZ3D(fibreAngle)));
       cylinder->add(fibres);
     }
@@ -217,7 +212,6 @@ SCT_FwdCylinderServices::build()
     // N2 Pipes
     for (unsigned int iLoc = 0; iLoc < m_nPipeLocAngle.size(); iLoc++) {
       double nPipeAngle = m_nPipeLocAngle[iLoc] + iquad * 90*Gaudi::Units::degree;
-      //      std::cout << "Placing N2 pipe at " << nPipeAngle / Gaudi::Units::degree << " Gaudi::Units::degrees" << std::endl;
       cylinder->add(new GeoTransform(GeoTrf::RotateZ3D(nPipeAngle)));
       cylinder->add(nPipe);
     }
@@ -225,7 +219,6 @@ SCT_FwdCylinderServices::build()
     // Rails
     for (unsigned int iLoc = 0; iLoc < m_railLocAngle.size(); iLoc++) {
       double railAngle = m_railLocAngle[iLoc] + iquad * 90*Gaudi::Units::degree;
-      //      std::cout << "Placing rail at " << railAngle / Gaudi::Units::degree << " Gaudi::Units::degrees" << std::endl;
       cylinder->add(new GeoTransform(GeoTrf::RotateZ3D(railAngle)));
       cylinder->add(rail);
     }

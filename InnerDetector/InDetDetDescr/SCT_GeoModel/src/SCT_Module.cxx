@@ -41,7 +41,6 @@
 
 SCT_Module::SCT_Module(const std::string & name) 
   : SCT_UniqueComponentFactory(name),
-    //m_stereoSign(0),
     m_innerSide(0),
     m_outerSide(0),
     m_baseBoard(0)
@@ -149,20 +148,6 @@ SCT_Module::preBuild()
   GeoTrf::Vector3D x(0.0, u.y(),w.z());
   
   // for corner of hybrid, connectorouter and pigtail of outer side.
-  //GeoTrf::Vector3D i(0.0, 
-  //        0.5*outerSideHybridWidth,
-  //        m_outerSide->hybridOffsetZ() + 0.5*outerSideHybridLength);
-  //  GeoTrf::Vector3D k(0.0,
-  //        -0.5*outerSideHybridWidth,
-  //        m_outerSide->hybridOffsetZ() + 0.5*outerSidePigtailLength);
-  //GeoTrf::Vector3D l(0.0,
-  //        -0.5*outerSideHybridWidth - m_outerSide->pigtail()->width(), k.z());
-  //GeoTrf::Vector3D m(0.0, l.y(),
-  //        m_outerSide->hybridOffsetZ() - 0.5*outerSidePigtailLength);
-  //GeoTrf::Vector3D n(0.0, k.y(),m.z());
-  //GeoTrf::Vector3D p(0.0, i.y(),
-  //        m_outerSide->hybridOffsetZ() - 0.5*outerSideHybridLength);
-
   GeoTrf::Vector3D i(0.0, 
                       0.5*outerSideHybridWidth,
                       m_outerSide->hybridOffsetZ() + 0.5*outerSidePigtailLength);
@@ -214,9 +199,6 @@ SCT_Module::preBuild()
   const double y_eh = std::max(e.y(), h.y());
   const double y_bc = std::min(b.y(), c.y());
   const double y_fg = std::min(f.y(), g.y());
-
-  //const double y_ux = std::max(u.y(), x.y());
-  //const double y_vw = std::min(v.y(), w.y());
 
   const double zmaxEnv1 = std::max(z_ab, z_ef);
   const double zminEnv1 = std::min(z_cd, z_gh);

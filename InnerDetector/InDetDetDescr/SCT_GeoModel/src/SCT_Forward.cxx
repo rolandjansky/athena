@@ -104,7 +104,6 @@ SCT_Forward::preBuild()
   for (int iWheel = 0; iWheel < m_numWheels; iWheel++){
     // Build Wheels
     std::ostringstream name; name << "Wheel" << iWheel << ((m_endcap > 0) ? "A" : "C");
-    //std::cout << getName() << ", iWheel = " << iWheel << ", " <<  name.str() << ", m_endcap = " << m_endcap << std::endl;
     const SCT_FwdWheel * wheel = new SCT_FwdWheel(name.str(), iWheel, m_modules, m_endcap);
     m_wheels.push_back(wheel);
   }
@@ -127,17 +126,9 @@ SCT_Forward::build(SCT_Identifier id) const
 
   for (int iWheel = 0; iWheel < m_numWheels; iWheel++){
 
-    // Build Wheels
-    // std::cout << "iWheel = " << iWheel << std::endl;
-    //std::ostringstream name; name << "Wheel" << iWheel << ((m_endcap > 0) ? "A" : "C");
-    //const SCT_FwdWheel * wheel = new SCT_FwdWheel(name.str(), iWheel, m_modules, m_endcap);
-    //m_wheels.push_back(wheel);
-
     const SCT_FwdWheel * wheel = m_wheels[iWheel];
     std::ostringstream wheelName; wheelName << "Wheel#" << iWheel;
     double zpos = wheel->zPosition() - zCenter();
-    //    std::cout << "Adding wheel " << iWheel << ", z = " << m_wheels[iWheel]->zPosition()
-    //          << " at " << zpos << ", thickness = " << wheel->thickness() << std::endl;
     forward->add(new GeoNameTag(wheelName.str()));
     forward->add(new GeoIdentifierTag(iWheel));
     GeoAlignableTransform * transform = new GeoAlignableTransform(GeoTrf::TranslateZ3D(zpos));
@@ -196,11 +187,8 @@ SCT_Forward::build(SCT_Identifier id) const
         int numPipes = 8 * m_wheels[iWheel]->numRings();
     
         // Label Cooling pipe with W# at end of string  
-        // std::ostringstream label; label << "CoolingPipeW" << iWheel + 1;       
-        //SCT_FwdCoolingPipe * coolingPipe = new SCT_FwdCoolingPipe(label.str(), numPipes, rStart, startPos, endPos);
         SCT_FwdCoolingPipe coolingPipe("OffDiskCoolingPipeW"+intToString(iWheel),
                                        numPipes, rStart, startPos, endPos);  
-        //std::cout << "Cooling pipe rmin,rmax: " << coolingPipe.innerRadius() << ", " << coolingPipe.outerRadius()  << std::endl;
       
         // Place the cooling pipes
         double coolingPipeZPos = coolingPipe.zPosition() - zCenter();
@@ -238,12 +226,8 @@ SCT_Forward::build(SCT_Identifier id) const
         int numModules = m_wheels[iWheel]->totalModules();
 
         // Label power tape with W# at end of string  
-        //std::ostringstream label; label << "PowerTapeW" << iWheel + 1;       
-        //SCT_FwdPowerTape * powerTape = new SCT_FwdPowerTape(label.str(), numModules, rStart, startPos, endPos);
         SCT_FwdPowerTape powerTape("OffDiskPowerTapeW"+intToString(iWheel),
                                    numModules, rStart, startPos, endPos);
-        //std::cout << "PowerTape rmin,rmax: " << powerTape.innerRadius() << ", " << powerTape.outerRadius()  << std::endl;
-
 
         // Place Power Tapes
         double powerTapeZPos = powerTape.zPosition() - zCenter();
