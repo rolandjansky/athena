@@ -20,7 +20,7 @@ public:
 
 	// Efficiency	
 	void update_efficiency ( int maximum_difference );
-	void printEfficiency (ofstream& file);
+	void printEfficiency (std::ofstream& file);
 
 	// setters
 	void setName (TString name) { m_name = name; }
@@ -43,7 +43,7 @@ public:
 	EDM_object ();
 	~EDM_object () { clearVars(); }
 
-	std::vector<string>  *m_stationName;
+	std::vector<std::string>  *m_stationName;
 	std::vector<int>     *m_stationEta;
 	std::vector<int>     *m_stationPhi;
 	std::vector<int>     *m_multiplet;

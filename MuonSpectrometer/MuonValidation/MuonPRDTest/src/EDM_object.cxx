@@ -12,8 +12,6 @@
 
 #include "EDM_object.h"
 
-using namespace std;
-
 EDM_object::EDM_object () { 
 	m_stationName = nullptr; 
 	m_stationEta = nullptr;
@@ -96,7 +94,7 @@ bool EDM_object::update_match(int index, int ch_candidate) {
 
 void EDM_object::init_matching () {
 	if (empty()) { return; }
-	m_matchedchannel = new vector<int>(this->size());
+	m_matchedchannel = new std::vector<int>(this->size());
 	for ( uint i = 0; i < this->size(); ++i) { m_matchedchannel->at(i) = -10; }
 }
 
@@ -116,8 +114,8 @@ void EDM_object::update_efficiency ( int maximum_difference ) {
 	m_mismatches += (n_obj - nMatches);
 }
 
-void EDM_object::printEfficiency(ofstream& file) {
-	file << "\nMatching " << m_name << " to " << m_matchedwith << " for " << m_detector << endl;
-	file << "Total: " << m_total << ", number of mismatches: " << m_mismatches <<endl;
-	file << "Efficiency: " << (m_total - m_mismatches) / (double)m_total * 100. << "%" << endl;
+void EDM_object::printEfficiency(std::ofstream& file) {
+	file << "\nMatching " << m_name << " to " << m_matchedwith << " for " << m_detector << std::endl;
+	file << "Total: " << m_total << ", number of mismatches: " << m_mismatches << std::endl;
+	file << "Efficiency: " << (m_total - m_mismatches) / (double)m_total * 100. << "%" << std::endl;
 }

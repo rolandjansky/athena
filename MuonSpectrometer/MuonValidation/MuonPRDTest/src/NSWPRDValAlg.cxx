@@ -344,11 +344,11 @@ StatusCode NSWPRDValAlg::NSWMatchingAlg () {
   }
 
   // Prepare the output file
-  ofstream efficiencies;
+  std::ofstream efficiencies;
   efficiencies.open("NSWMatchingAlg_efficiencies.txt");
-  efficiencies << "NSW Matching algorithm, efficiencies of conversion from and to various EDM objects" << endl;
-  efficiencies << "Settings:\n" << m_doNSWMatchingMuon << endl;
-  efficiencies << " 'Maximum Strip Distance':" << m_maxStripDiff << endl;
+  efficiencies << "NSW Matching algorithm, efficiencies of conversion from and to various EDM objects" << std::endl;
+  efficiencies << "Settings:\n" << m_doNSWMatchingMuon << std::endl;
+  efficiencies << " 'Maximum Strip Distance':" << m_maxStripDiff << std::endl;
   efficiencies.close();
 
   // sTGC matching
@@ -399,7 +399,7 @@ StatusCode NSWPRDValAlg::NSWMatchingAlg (EDM_object data0, EDM_object data1) {
   data1.setMatchedwith(data0.getName());
 
   // Prepare Muon only check
-  vector<int>* TruthParticle_Pdg;
+  std::vector<int>* TruthParticle_Pdg;
   if ( m_doNSWMatchingMuon ) { m_tree->SetBranchAddress("TruthParticle_Pdg", &TruthParticle_Pdg); }
 
   Long64_t nEntries = m_tree->GetEntriesFast();
@@ -460,8 +460,8 @@ StatusCode NSWPRDValAlg::NSWMatchingAlg (EDM_object data0, EDM_object data1) {
   }
 
   // Write result to file
-  ofstream efficiencies; 
-  efficiencies.open("NSWMatchingAlg_efficiencies.txt", ofstream::app);
+  std::ofstream efficiencies; 
+  efficiencies.open("NSWMatchingAlg_efficiencies.txt", std::ofstream::app);
   data0.printEfficiency(efficiencies);
   data1.printEfficiency(efficiencies);
   efficiencies.close();
