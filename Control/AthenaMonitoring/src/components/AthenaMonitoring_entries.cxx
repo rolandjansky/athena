@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "AthenaMonitoring/AthenaMon.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolTest.h"
@@ -8,6 +12,7 @@
 #include "AthenaMonitoring/DQBadLBFilterAlg.h"
 #include "AthenaMonitoring/TriggerTranslatorSimple.h"
 #include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoring/ExampleMonitorAlgorithm.h"
 
 
 DECLARE_COMPONENT( AthenaMon )
@@ -20,3 +25,4 @@ DECLARE_COMPONENT( DQBadLBFilterTool )
 DECLARE_COMPONENT( DQBadLBFilterAlg )
 DECLARE_COMPONENT( TriggerTranslatorToolSimple )
 DECLARE_COMPONENT( GenericMonitoringTool )
+DECLARE_COMPONENT( ExampleMonitorAlgorithm )
