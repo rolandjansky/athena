@@ -68,6 +68,13 @@ class ApplyEtaJESCalibration(JobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
 
+class ApplyTowerEtaPhiCorrection(JobProperty):
+    """ Option to apply MC-derived calibration 
+    """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = True
+
 class DCutMaxOverMean(JobProperty):
     """ Cut for first step in seed finding: max/mean of constituent ET's must be > that this.
     """
@@ -241,7 +248,7 @@ class TWConfigFile(JobProperty):
     """
     statusOn     = True
     allowedTypes = ['str']
-    StoredValue  = 'cluster.geo.root'
+    StoredValue  = 'cluster.geo.HIJING_2018.root'
 # add the flags container to the top container 
 jobproperties.add_Container(HIJetRecFlags)
 
@@ -278,7 +285,8 @@ list_jobproperties = [UnsubtractedSuffix,
                       WriteSeeds,
                       UseHITracks,
                       MomentsSkipped,
-                      TWConfigFile
+                      TWConfigFile,
+                      ApplyTowerEtaPhiCorrection
                       ]
 
 for i in list_jobproperties:
