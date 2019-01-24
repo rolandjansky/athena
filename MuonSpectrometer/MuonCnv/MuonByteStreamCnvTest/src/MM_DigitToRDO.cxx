@@ -70,7 +70,29 @@ StatusCode MM_DigitToRDO::execute()
 
 	for ( unsigned int i=0 ; i<nstrips ; ++i ) {
 
-	  MM_RawData* rdo = new MM_RawData(id,
+	  ///
+	  /// set the rdo id to a value consistent with the channel number
+	  /// 
+	  bool isValid;
+	  int stationName = m_idHelper->stationName(id);
+	  int stationEta  = m_idHelper->stationEta(id);
+	  int stationPhi  = m_idHelper->stationPhi(id);
+	  int multilayer  = m_idHelper->multilayer(id);
+	  int gasGap      = m_idHelper->gasGap(id);
+	  ///
+	  int channel     = digit->stripResponsePosition().at(i);
+
+	  Identifier newId = m_idHelper->channelID(stationName,stationEta,
+						   stationPhi,multilayer,gasGap,channel,true,&isValid);
+
+	  if (!isValid) {
+	    ATH_MSG_WARNING("Invalid MM identifier. StationName="<<stationName <<
+			    " stationEta=" << stationEta << " stationPhi=" << stationPhi << 
+			    " multi=" << multilayer << " gasGap=" << gasGap << " channel=" << channel);
+	    continue;
+	  } 
+
+	  MM_RawData* rdo = new MM_RawData(newId,
 					   digit->stripResponsePosition().at(i),
 					   digit->stripResponseTime().at(i),
 					   digit->stripResponseCharge().at(i));
