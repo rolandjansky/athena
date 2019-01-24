@@ -46,12 +46,10 @@ namespace EL
     /// requires: val_job != 0
     /// requires: val_sample != 0
     /// requires: val_segment != 0
-    /// requires: output != 0
   public:
     BatchWorker (const BatchJob *val_job,
 		 const BatchSample *val_sample,
-		 const BatchSegment *val_segment,
-		 TList *output);
+		 const BatchSegment *val_segment);
 
 
     /// effects: run the job
@@ -59,7 +57,7 @@ namespace EL
     /// failures: out of memory II
     /// failures: job failures
   public:
-    void run ();
+    void run (const BatchJob *val_job);
 
 
     /// effects: do what is needed to execute the given job segment

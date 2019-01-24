@@ -27,6 +27,7 @@
 #include <EventLoop/StatusCode.h>
 #include <EventLoop/StopwatchModule.h>
 #include <EventLoop/TEventSvc.h>
+#include <EventLoop/OutputStreamData.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/RootUtils.h>
 #include <RootCoreUtils/ThrowMsg.h>
@@ -103,17 +104,10 @@ namespace EL
   testInvariant () const
   {
     RCU_INVARIANT (this != nullptr);
-    RCU_INVARIANT (m_metaData != nullptr);
-    RCU_INVARIANT (m_output != nullptr);
     for (std::size_t iter = 0, end = m_algs.size(); iter != end; ++ iter)
     {
       RCU_INVARIANT (m_algs[iter].m_algorithm != nullptr);
       RCU_INVARIANT (m_algs[iter]->wk() == this);
-    }
-    for (outputFilesIter iter = m_outputFiles.begin(),
-	   end = m_outputFiles.end(); iter != end; ++ iter)
-    {
-      RCU_INVARIANT (iter->second != nullptr);
     }
   }
 
@@ -125,12 +119,6 @@ namespace EL
     using namespace msgEventLoop;
 
     RCU_DESTROY_INVARIANT (this);
-
-    for (outputFilesIter iter = m_outputFiles.begin(),
-	   end = m_outputFiles.end(); iter != end; ++ iter)
-    {
-      delete iter->second;
-    }
 
     ANA_MSG_INFO ("worker finished");
   }
@@ -202,10 +190,10 @@ namespace EL
   getOutputFileNull (const std::string& label) const
   {
     RCU_READ_INVARIANT (this);
-    outputFilesIter iter = m_outputFiles.find (label);
-    if (iter == m_outputFiles.end())
+    auto iter = m_outputs.find (label);
+    if (iter == m_outputs.end())
       return 0;
-    return iter->second->file();
+    return iter->second.m_writer->file();
   }
 
 
@@ -392,15 +380,31 @@ namespace EL
 
 
   Worker ::
-  Worker (const SH::MetaObject *val_metaData, TList *output)
+  Worker ()
   {
+    RCU_NEW_INVARIANT (this);
+  }
+
+
+
+  void Worker ::
+  setMetaData (const SH::MetaObject *val_metaData)
+  {
+    RCU_CHANGE_INVARIANT (this);
     RCU_REQUIRE (val_metaData != 0);
-    RCU_REQUIRE (output != 0);
 
     m_metaData = val_metaData;
-    m_output = output;
+  }
 
-    RCU_NEW_INVARIANT (this);
+
+
+  void Worker ::
+  setOutputHist (TList *output)
+  {
+    RCU_CHANGE_INVARIANT (this);
+    RCU_REQUIRE (output != 0);
+
+    m_output = output;
   }
 
 
@@ -457,13 +461,12 @@ namespace EL
     ANA_CHECK (openInputFile (""));
     for (auto& module : m_modules)
       ANA_CHECK (module->onFinalize (*this));
-    for (outputFilesIter iter = m_outputFiles.begin(),
-           end = m_outputFiles.end(); iter != end; ++ iter)
+    for (auto& output : m_outputs)
     {
-      iter->second->close ();
-      std::string path = iter->second->path ();
+      output.second.m_writer->close ();
+      std::string path = output.second.m_writer->path ();
       if (!path.empty())
-        addOutputList ("EventLoop_OutputStream_" + iter->first, new TObjString (path.c_str()));
+        addOutputList ("EventLoop_OutputStream_" + output.first, new TObjString (path.c_str()));
     }
     for (auto& module : m_modules)
       ANA_CHECK (module->postFinalize (*this));
@@ -611,31 +614,21 @@ namespace EL
 
 
   ::StatusCode Worker ::
-  addOutputFile (const std::string& label, std::unique_ptr<TFile> file)
-  {
-    RCU_CHANGE_INVARIANT (this);
-    RCU_REQUIRE (file != 0);
-
-    return addOutputWriter (label, std::make_unique<MyWriter> (std::move (file)));
-  }
-
-
-
-  ::StatusCode Worker ::
-  addOutputWriter (const std::string& label,
-                   std::unique_ptr<SH::DiskWriter> writer)
+  addOutputStream (const std::string& label,
+                   Detail::OutputStreamData data)
   {
     using namespace msgEventLoop;
     RCU_CHANGE_INVARIANT (this);
-    RCU_REQUIRE (writer != 0);
+    RCU_REQUIRE (data.m_writer != nullptr || data.m_file != nullptr);
 
-    if (m_outputFiles.find (label) != m_outputFiles.end())
+    if (m_outputs.find (label) != m_outputs.end())
     {
       ANA_MSG_ERROR ("output file already defined for label: " + label);
       return ::StatusCode::FAILURE;
     }
-    m_outputFiles[label] = writer.get();
-    writer.release();
+    if (data.m_file) 
+      data.m_writer = std::make_unique<MyWriter> (std::move (data.m_file));
+    m_outputs[label] = std::move (data);
     return ::StatusCode::SUCCESS;
   }
 

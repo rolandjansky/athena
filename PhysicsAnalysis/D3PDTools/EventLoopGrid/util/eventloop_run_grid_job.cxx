@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <EventLoopGrid/GridJobLoader.h>
+#include <EventLoopGrid/GridWorker.h>
 #include <TROOT.h>
 #include <iostream>
 #include <string>
@@ -24,12 +24,5 @@ int main (int argc, char **argv)
 
   std::string sampleName = argv[1];
 
-  std::cout << "Running with ROOT version " << gROOT->GetVersion();
-  std::cout << " (" << gROOT->GetVersionDate() << ")\n";
-  std::cout << "Loading RootCore packages\n";
-
-  std::cout << "Loading EventLoop grid job\n";
-
-  EL::GridJobLoader gjl;
-  gjl.Run(sampleName);
+  EL::GridWorker::execute (sampleName);
 }

@@ -18,6 +18,7 @@
 #include <EventLoop/DirectWorker.h>
 
 #include <EventLoop/Algorithm.h>
+#include <EventLoop/Driver.h>
 #include <EventLoop/EventRange.h>
 #include <EventLoop/Job.h>
 #include <EventLoop/MessageCheck.h>
@@ -47,20 +48,11 @@ namespace EL
 
 
   DirectWorker ::
-  DirectWorker (const SH::SamplePtr& sample, TList *output,
-		const Job& job, const std::string& location,
-		const SH::MetaObject *meta)
-    : Worker (meta, output), m_sample (sample), m_location (location)
+  DirectWorker (const SH::SamplePtr& sample,
+		const std::string& location)
+    : m_sample (sample), m_location (location)
   {
     using namespace msgEventLoop;
-
-    setJobConfig (JobConfig (job.jobConfig()));
-
-    for (Job::outputIter out = job.outputBegin(),
-	   end = job.outputEnd(); out != end; ++ out)
-    {
-      ANA_CHECK_THROW (addOutputWriter (out->label(), std::unique_ptr<SH::DiskWriter> (out->output()->makeWriter (sample->name(), "", -1, ".root"))));
-    }
 
     RCU_NEW_INVARIANT (this);
   }
@@ -68,11 +60,22 @@ namespace EL
 
 
   void DirectWorker ::
-  run ()
+  run (const SH::SamplePtr& sample, const Job& job)
   {
     using namespace msgEventLoop;
 
     RCU_CHANGE_INVARIANT (this);
+
+    setJobConfig (JobConfig (job.jobConfig()));
+
+    for (Job::outputIter out = job.outputBegin(),
+	   end = job.outputEnd(); out != end; ++ out)
+    {
+      Detail::OutputStreamData data;
+      data.m_writer.reset
+        (out->output()->makeWriter (sample->name(), "", -1, ".root"));
+      ANA_CHECK_THROW (addOutputStream (out->label(), std::move (data)));
+    }
 
     ANA_CHECK_THROW (initialize ());
 
@@ -111,5 +114,28 @@ namespace EL
       }
     }
     ANA_CHECK_THROW (finalize ());
+  }
+
+
+
+  void DirectWorker ::
+  execute (const SH::SamplePtr& sample, const Job& job,
+           const std::string& location, const SH::MetaObject& options)
+  {
+    using namespace msgEventLoop;
+
+    SH::MetaObject meta (*sample->meta());
+    meta.fetchDefaults (*job.options());
+    meta.fetchDefaults (options);
+
+    TList output;
+    DirectWorker worker (sample, location);
+    worker.setMetaData (&meta);
+    worker.setOutputHist (&output);
+
+    ANA_MSG_INFO ("Running sample: " << sample->name());
+    worker.run (sample, job);
+
+    Driver::saveOutput (location, sample->name(), output);
   }
 }
