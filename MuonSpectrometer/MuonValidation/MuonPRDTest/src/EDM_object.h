@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EDM_OBJECT_H
@@ -8,9 +8,7 @@
 #include "TString.h"
 
 #include <fstream>
-#include <vector>
-
-using namespace std;
+#include <std::vector>
 
 class EDM_object
 {
@@ -45,15 +43,15 @@ public:
 	EDM_object ();
 	~EDM_object () { clearVars(); }
 
-	vector<string>  *m_stationName;
-	vector<int>     *m_stationEta;
-	vector<int>     *m_stationPhi;
-	vector<int>     *m_multiplet;
-	vector<int>     *m_gas_gap;
-	vector<int>     *m_channel_type;
-	vector<int>     *m_channel;
+	std::vector<string>  *m_stationName;
+	std::vector<int>     *m_stationEta;
+	std::vector<int>     *m_stationPhi;
+	std::vector<int>     *m_multiplet;
+	std::vector<int>     *m_gas_gap;
+	std::vector<int>     *m_channel_type;
+	std::vector<int>     *m_channel;
 
-	vector<int>     *m_matchedchannel;
+	std::vector<int>     *m_matchedchannel;
 
 private:
 	TString m_name;

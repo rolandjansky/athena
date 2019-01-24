@@ -1,9 +1,6 @@
-//////////////////////////////////////////////////////////
-// This class has been automatically generated on
-// Tue Apr  3 14:27:40 2018 by ROOT version 6.12/04
-// from TTree NSWHitsTree/Ntuple of NSWHits
-// found on file: NSWPRDValAlg.digi.ntuple.root
-//////////////////////////////////////////////////////////
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 
 #ifndef NSWstudies_match_h
 #define NSWstudies_match_h
