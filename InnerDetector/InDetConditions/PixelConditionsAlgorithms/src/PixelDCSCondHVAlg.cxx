@@ -8,7 +8,7 @@
 #include <memory>
 
 PixelDCSCondHVAlg::PixelDCSCondHVAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  ::AthAlgorithm(name, pSvcLocator),
+  ::AthReentrantAlgorithm(name, pSvcLocator),
   m_pixelID(nullptr),
   m_useConditions(true),
   m_defaultBiasVoltage(150.0),
@@ -37,7 +37,7 @@ StatusCode PixelDCSCondHVAlg::initialize() {
 StatusCode PixelDCSCondHVAlg::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("PixelDCSCondHVAlg::execute()");
 
-  SG::WriteCondHandle<PixelDCSConditionsData> writeHandle(m_writeKey, ctx);
+  SG::WriteCondHandle<PixelModuleData> writeHandle(m_writeKey, ctx);
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid.. In theory this should not be called, but may happen if multiple concurrent events are being processed out of order.");
     return StatusCode::SUCCESS; 

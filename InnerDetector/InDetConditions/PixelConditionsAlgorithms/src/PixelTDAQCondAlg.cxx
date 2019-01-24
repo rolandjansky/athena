@@ -8,8 +8,8 @@
 #include <sstream>
 
 PixelTDAQCondAlg::PixelTDAQCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  ::AthAlgorithm(name, pSvcLocator),
-  m_pixelID(0),
+  ::AthReentrantAlgorithm(name, pSvcLocator),
+  m_pixelID(nullptr),
   m_condSvc("CondSvc", name)
 {
 }

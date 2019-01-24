@@ -164,7 +164,7 @@ def TrigInDetCondConfig( flags ):
   PixelDeadMapInstance = "PIXEL_OFL"
 
   acc.merge(addFolders(flags, PixelTempFolder, PixelDBInstance, className="CondAttrListCollection"))
-  acc.merge(addFolders(flags, PixelDeadMapFolder, PixelDeadMapInstance, className="CondAttrListCollection")
+  acc.merge(addFolders(flags, PixelDeadMapFolder, PixelDeadMapInstance, className="CondAttrListCollection"))
 
   from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
   acc.addCondAlgo(PixelConfigCondAlg(name="PixelConfigCondAlg", UseDeadMap=False, ReadDeadMapKey=PixelDeadMapFolder))
