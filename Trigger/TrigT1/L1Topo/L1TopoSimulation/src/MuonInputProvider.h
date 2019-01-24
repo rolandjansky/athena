@@ -56,6 +56,17 @@ namespace LVL1 {
       TCS::MuonTOB createMuonTOB(uint32_t roiword) const;
       TCS::MuonTOB createMuonTOB(const MuCTPIL1TopoCandidate & roi) const;
       TCS::LateMuonTOB createLateMuonTOB(const MuCTPIL1TopoCandidate & roi) const;
+      /**
+         @brief convert the 2-bit value from MuCTPIL1TopoCandidate::getptL1TopoCode() to an actual pt
+
+         The muon TOB encodes pt values in 2 bits.
+         A MuCTPIL1TopoCandidate provides the encoded 2-bit value with
+         the function getptL1TopoCode().
+         This function uses the information from the l1 trigger menu
+         configuration to convert the threshold to an actual pt value.
+         For more details, see ATR-16781.
+      */
+      unsigned int topoMuonPtThreshold(const MuCTPIL1TopoCandidate &mctpiCand) const;
 
       SG::ReadHandleKey<ROIB::RoIBResult> m_roibLocation;
 

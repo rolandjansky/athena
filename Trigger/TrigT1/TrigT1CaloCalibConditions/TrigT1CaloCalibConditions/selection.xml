@@ -29,7 +29,7 @@
 	<class name="L1CaloPprConditionsContainer" id="CDC75AED-FE0B-41AD-957B-94CD6A75B4EF" />
 	<class name="L1CaloPprConditions" />
 	<class name="L1CaloPprConditionsContainerRun2" id="CDC75AED-FE0B-41AD-957B-94CD6A75B4EF" />
-<!--	<class name="L1CaloPprConditionsRun2" /> -->
+	<!--	<class name="L1CaloPprConditionsRun2" /> -->
 
 	<class name="ChanCalibErrorCode" />
 	<class name="ChanDeadErrorCode" />
@@ -61,4 +61,18 @@
 	<class name="L1CaloDisabledTowersContainer" id="C3641506-70A4-4F96-844C-6B7B74F8A48C" />
 	<class name="L1CaloDisabledTowersContainer::const_iterator" />
 	<class name="L1CaloDisabledTowers" />
-</lcgdict>
+
+	<class name="L1CaloPprChanStrategyContainer" id="E1ADA778-3F76-4774-BBE4-A384BF2E268D" />
+	<class name="L1CaloPprChanStrategyContainer::const_iterator" />
+	<class name="L1CaloPprChanStrategy" />
+
+	<class name="L1CaloDerivedRunParsContainer" id="F6852A0F-35C3-4FCF-B6C0-22CB27EA1857" />
+   	<class name="L1CaloDerivedRunParsContainer::const_iterator" />
+	<class name="L1CaloDerivedRunPars" />
+
+	<class name="L1CaloRunParametersContainer" id="C32C53CB-FDDC-44A0-9140-B0CCDD32AE6F" />
+	<class name="L1CaloRunParametersContainer::const_iterator" />
+	<class name="L1CaloRunParameters" />
+
+
+  </lcgdict>

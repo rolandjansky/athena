@@ -2,10 +2,6 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-/***************************************************************************
- *                                                                         *
- *                                                                         *
- ***************************************************************************/
 
 #ifndef LVL1L1JETCMXTOOLS_H
 #define LVL1L1JETCMXTOOLS_H
