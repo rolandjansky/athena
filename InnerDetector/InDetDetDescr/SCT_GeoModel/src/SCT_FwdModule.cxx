@@ -38,10 +38,7 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
-
-
-
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <cmath>
 #include <sstream>
@@ -85,7 +82,6 @@ void
 SCT_FwdModule::getParameters()
 {
   const SCT_ForwardModuleParameters * parameters = geometryManager()->forwardModuleParameters();
-  // m_safety = geometryManager()->safety();
   m_glueThickness = parameters->fwdModuleGlueThickness(m_ringType);
   m_distBtwMountPoints = parameters->fwdModuleDistBtwMountPoints(m_ringType);
   m_mountPointToCenter = parameters->fwdModuleMountPoint(m_ringType);
@@ -104,42 +100,42 @@ const GeoLogVol * SCT_FwdModule::preBuild()
   const SCT_GeneralParameters * generalParameters = geometryManager()->generalParameters();
   
   double safety = generalParameters->safety();
-  double safetyTmp = safety * GeoModelKernelUnits::cm; // For compatibility with minor bug in older version - safety already in CLHEP units;
+  double safetyTmp = safety * Gaudi::Units::cm; // For compatibility with minor bug in older version - safety already in CLHEP units;
 
-  // module_length = (zhyb->hyby - zhyb->hybysh + zsmi[m_ringType].mountd2 + 0.33 ) * GeoModelKernelUnits::cm + safety;
+  // module_length = (zhyb->hyby - zhyb->hybysh + zsmi[m_ringType].mountd2 + 0.33 ) * Gaudi::Units::cm + safety;
   // Distance from outer bybrid edge to outer spine edge.
-  // FIXME: The 1.05GeoModelKernelUnits::mm is not needed
-  double moduleLength = m_hybrid->mountPointToOuterEdge() + m_mountPointToCenter + m_spine->moduleCenterToEnd() + 1.05 * GeoModelKernelUnits::mm;
+  // FIXME: The 1.05Gaudi::Units::mm is not needed
+  double moduleLength = m_hybrid->mountPointToOuterEdge() + m_mountPointToCenter + m_spine->moduleCenterToEnd() + 1.05 * Gaudi::Units::mm;
   m_length = moduleLength + safety; // We add a bit of safety for the envelope
 
-  //  module_thickness = (zhyb->hybz0 * 2 + safety) * GeoModelKernelUnits::cm;
+  //  module_thickness = (zhyb->hybz0 * 2 + safety) * Gaudi::Units::cm;
   double sensorEnvelopeThickness = 2 * m_sensor->thickness() + m_spine->thickness() + 2 * m_glueThickness;
   m_thickness = std::max(sensorEnvelopeThickness,  m_hybrid->thickness());
 
-  // module_widthInner = ((zsmo->subdq + zssp[m_ringType].ssp0l + 0.325) * 2.+ 0.7 + safety)*GeoModelKernelUnits::cm;   // upto to NOVA_760
-  // module_widthOuter = ((zsmo->subdq + zssp[m_ringType].ssp2l + 0.325) * 2.+ 0.7 + safety)*GeoModelKernelUnits::cm;   // upto to NOVA_760
+  // module_widthInner = ((zsmo->subdq + zssp[m_ringType].ssp0l + 0.325) * 2.+ 0.7 + safety)*Gaudi::Units::cm;   // upto to NOVA_760
+  // module_widthOuter = ((zsmo->subdq + zssp[m_ringType].ssp2l + 0.325) * 2.+ 0.7 + safety)*Gaudi::Units::cm;   // upto to NOVA_760
   
-  //module_widthInner = ((zsmo->subdq + zssp[m_ringType].ssp0l) * 2.+ 0.7 + safety)*GeoModelKernelUnits::cm;
-  //module_widthOuter = ((zsmo->subdq + zssp[m_ringType].ssp2l) * 2.+ 0.7 + safety)*GeoModelKernelUnits::cm;
+  //module_widthInner = ((zsmo->subdq + zssp[m_ringType].ssp0l) * 2.+ 0.7 + safety)*Gaudi::Units::cm;
+  //module_widthOuter = ((zsmo->subdq + zssp[m_ringType].ssp2l) * 2.+ 0.7 + safety)*Gaudi::Units::cm;
   
-  m_widthInner = (m_spine->width() + 2 * m_subspineL->innerWidth() + 0.7*GeoModelKernelUnits::cm) + safetyTmp; 
-  m_widthOuter = (m_spine->width() + 2 * m_subspineL->outerWidth() + 0.7*GeoModelKernelUnits::cm) + safetyTmp; 
+  m_widthInner = (m_spine->width() + 2 * m_subspineL->innerWidth() + 0.7*Gaudi::Units::cm) + safetyTmp; 
+  m_widthOuter = (m_spine->width() + 2 * m_subspineL->outerWidth() + 0.7*Gaudi::Units::cm) + safetyTmp; 
   
 
 
   if (m_ringType == 3 ) {
-    //  module_widthOuter = (( zsmo->subdq + zssp[m_ringType].ssp2l + 0.325) * 2.+ 1.6 + safety)*GeoModelKernelUnits::cm;  // upto to NOVA_760
-    //  module_widthOuter = (( zsmo->subdq + zssp[m_ringType].ssp2l) * 2.+ 1.6 + safety)*GeoModelKernelUnits::cm; 
-    m_widthOuter = m_spine->width() + 2 * m_subspineL->outerWidth() + 1.6*GeoModelKernelUnits::cm + safetyTmp; 
+    //  module_widthOuter = (( zsmo->subdq + zssp[m_ringType].ssp2l + 0.325) * 2.+ 1.6 + safety)*Gaudi::Units::cm;  // upto to NOVA_760
+    //  module_widthOuter = (( zsmo->subdq + zssp[m_ringType].ssp2l) * 2.+ 1.6 + safety)*Gaudi::Units::cm; 
+    m_widthOuter = m_spine->width() + 2 * m_subspineL->outerWidth() + 1.6*Gaudi::Units::cm + safetyTmp; 
   }  
     
   // Calculate module shift. Distance between module physics center and center of envelope.  
   int hybridSign =  m_hybridIsOnInnerEdge ? +1: -1;
-  //module_shift = (zhyb->hyby - zhyb->hybysh + zsmi[m_ringType].mountd + 0.05)*GeoModelKernelUnits::cm;
+  //module_shift = (zhyb->hyby - zhyb->hybysh + zsmi[m_ringType].mountd + 0.05)*Gaudi::Units::cm;
   //module_shift = hybrid * (module_length / 2. - module_shift);
 
-  double moduleCenterToHybridOuterEdge = m_hybrid->mountPointToOuterEdge() + m_mountPointToCenter + 0.5*GeoModelKernelUnits::mm;
-  //FIXME: Should be: (ie don't need the 0.5GeoModelKernelUnits::mm)
+  double moduleCenterToHybridOuterEdge = m_hybrid->mountPointToOuterEdge() + m_mountPointToCenter + 0.5*Gaudi::Units::mm;
+  //FIXME: Should be: (ie don't need the 0.5Gaudi::Units::mm)
   // double moduleCenterToHybridOuterEdge = m_hybrid->mountPointToOuterEdge() + m_mountPointToCenter ;
   m_moduleShift = hybridSign * (0.5 * m_length - moduleCenterToHybridOuterEdge);
 
@@ -196,7 +192,7 @@ GeoVPhysVol * SCT_FwdModule::build(SCT_Identifier id) const
   rotation = 0.5 * m_stereoAngle;
   GeoTrf::Translation3D vecB(positionX,0,0);
   // Rotate so that X axis goes from backside to implant side 
-  GeoTrf::Transform3D rotB = GeoTrf::RotateX3D(rotation)*GeoTrf::RotateZ3D(180*GeoModelKernelUnits::degree);
+  GeoTrf::Transform3D rotB = GeoTrf::RotateX3D(rotation)*GeoTrf::RotateZ3D(180*Gaudi::Units::degree);
   // First translate in z (only non-zero for truncated middle)
   // Then rotate and then translate in x.
   GeoAlignableTransform *bottomTransform
@@ -223,7 +219,7 @@ GeoVPhysVol * SCT_FwdModule::build(SCT_Identifier id) const
   positionX=-positionX;
   rotation=-rotation;
   GeoTrf::RotateX3D rotT(rotation);
-  //rotT.rotateZ(180*GeoModelKernelUnits::degree); // Rotate so that X axis goes from implant side to backside 
+  //rotT.rotateZ(180*Gaudi::Units::degree); // Rotate so that X axis goes from implant side to backside 
   GeoTrf::Translation3D vecT(positionX,0,0);
   // First translate in z (only non-zero for truncated middle)
   // Then rotate and then translate in x.
