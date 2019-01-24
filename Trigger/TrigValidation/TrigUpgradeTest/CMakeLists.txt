@@ -144,7 +144,7 @@ atlas_add_test( idCaloRunData
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_CaloOnlyRunData )
 atlas_add_test( CaloOnlyRunData
    SCRIPT test/test_calo_only_data.sh
-   EXTRA_PATTERNS "-s testReFastAlgo.*REGTEST*"
+   EXTRA_PATTERNS "-s FastCaloAlgo.*REGTEST*"
    PROPERTIES TIMEOUT 1000
    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_CaloOnlyRunData
    )

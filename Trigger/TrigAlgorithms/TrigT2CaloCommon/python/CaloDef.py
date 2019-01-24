@@ -29,27 +29,45 @@ def algoHLTTopoCluster(inputEDM="CellsClusters", OutputLevel=ERROR) :
    return algo
 
 def algoL2Egamma(inputEDM="EMRoIs",OutputLevel=ERROR):
-   setMinimalCaloSetup();
-   from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
-   algo=T2CaloEgamma_ReFastAlgo("testReFastAlgo")
-   algo.RoIs=inputEDM
-   algo.OutputLevel=OutputLevel
-   return algo
+    setMinimalCaloSetup();
+    from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
+    algo=T2CaloEgamma_ReFastAlgo("FastCaloAlgo")
+    algo.RoIs=inputEDM
+    algo.ClustersName="L2CaloClusters" # defalut value, added for debugging
+    algo.OutputLevel=OutputLevel
+    return algo
 
-def createFastCaloSequence():
 
-     InViewRoIs="EMCaloRoIs"
+def fastCaloRecoSequence(InViewRoIs):
+    from TrigT2CaloCommon.CaloDef import algoL2Egamma
+    fastCaloAlg = algoL2Egamma(OutputLevel=DEBUG,inputEDM=InViewRoIs)
+    fastCaloInViewSequence = seqAND( 'fastCaloInViewSequence', [fastCaloAlg] )
+    sequenceOut = fastCaloAlg.ClustersName
+    return (fastCaloInViewSequence, sequenceOut)
 
-     from TrigT2CaloCommon.CaloDef import algoL2Egamma
-     fastCaloInViewSequence = seqAND( 'fastCaloInViewSequence', [algoL2Egamma(OutputLevel=DEBUG,inputEDM=InViewRoIs)] )
-     fastCaloViewsMaker = EventViewCreatorAlgorithm( "fastCaloViewsMaker", OutputLevel=DEBUG)
-     fastCaloViewsMaker.ViewFallThrough = True
-     fastCaloViewsMaker.InputMakerInputDecisions =  [ "FilteredEMRoIDecisions" ]
-     fastCaloViewsMaker.RoIsLink = "initialRoI"
-     fastCaloViewsMaker.InViewRoIs = InViewRoIs
-     fastCaloViewsMaker.Views = "EMCaloViews"
-     fastCaloViewsMaker.ViewNodeName = "fastCaloInViewSequence"
-     fastCaloViewsMaker.InputMakerOutputDecisions = [ "L2CaloLinks"]
 
-     fastCaloSequence = seqAND("fastCaloSequence", [fastCaloViewsMaker, fastCaloInViewSequence ])
-     return fastCaloSequence
+def fastCaloEVCreator():
+
+    InViewRoIs="EMCaloRoIs"     
+    fastCaloViewsMaker = EventViewCreatorAlgorithm( "fastCaloViewsMaker", OutputLevel=DEBUG)
+    fastCaloViewsMaker.ViewFallThrough = True
+    fastCaloViewsMaker.RoIsLink = "initialRoI"
+    fastCaloViewsMaker.InViewRoIs = InViewRoIs
+    fastCaloViewsMaker.Views = "EMCaloViews"
+    fastCaloViewsMaker.ViewNodeName = "fastCaloInViewSequence"
+    return (fastCaloViewsMaker, InViewRoIs)
+    
+def createFastCaloSequence(EMRoIDecisions):
+
+    (fastCaloViewsMaker, InViewRoIs) = fastCaloEVCreator()
+    # connect 
+    fastCaloViewsMaker.InputMakerInputDecisions =  [ EMRoIDecisions ]         
+    fastCaloViewsMaker.InputMakerOutputDecisions = [ EMRoIDecisions + "IMOUTPUT"]
+
+    (fastCaloInViewSequence, sequenceOut) = fastCaloRecoSequence(InViewRoIs)
+     
+    fastCaloSequence = seqAND("fastCaloSequence", [fastCaloViewsMaker, fastCaloInViewSequence ])
+    return (fastCaloSequence, sequenceOut)
+
+
+ 

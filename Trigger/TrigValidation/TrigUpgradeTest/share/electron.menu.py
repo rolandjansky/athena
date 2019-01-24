@@ -9,9 +9,12 @@ include("TrigUpgradeTest/testHLT_MT.py")
 # menu
 ##########################################
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
-from TrigUpgradeTest.electronMenuDefs import fastCaloSequence, electronSequence
+from TrigUpgradeTest.electronMenuDefs import electronSequence
+from TrigUpgradeTest.CaloMenuDefs import fastCaloMenuSequence
 
-fastCaloStep= fastCaloSequence()
+
+
+fastCaloStep= fastCaloMenuSequence()
 electronStep= electronSequence()
 
 step1=ChainStep("Step1_etcut", [fastCaloStep])

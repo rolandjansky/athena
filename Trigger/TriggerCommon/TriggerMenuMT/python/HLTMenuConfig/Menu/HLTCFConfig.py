@@ -241,9 +241,14 @@ def decisionTree_From_Chains(HLTNode, chains):
                 log.debug("Seeds added; having in the filter now: %s", filter_input)
             else:
                 prev = chain.steps[nstep-1].sequences
-                for seq in prev:
-                    filter_input.extend(seq.outputs)
-                log.debug("Connect to previous sequence through these filter inputs: %s" %str( filter_input) )
+                 # previous filter name
+                pre_filter_name = CFNaming.filterName(chain.steps[nstep-1])
+                for seq in prev:                   
+                    for out in seq.outputs:
+                        if pre_filter_name in out:
+                            newinput = out
+                            filter_input.extend(newinput)
+                            log.debug("Connect to previous sequence through these filter inputs: %s" %str( filter_input) )
 
             # get the filter:
             filter_name = CFNaming.filterName(chain_step.name)
@@ -266,8 +271,8 @@ def decisionTree_From_Chains(HLTNode, chains):
                 for seq in chain_step.sequences:
                     finalDecisions[nstep].extend(seq.outputs)
                     log.debug(seq.outputs)
-            else:
-                log.debug("len(chain.steps) != nstep+1")
+#            else:
+#                log.debug("len(chain.steps) != nstep+1")
             #end of loop over menu sequences
                 
         #end of loop over chains for this step, now implement CF:

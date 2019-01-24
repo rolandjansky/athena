@@ -303,7 +303,8 @@ class MenuSequence():
         log.debug("set new Hypo %s for combo sequence %s "%(HypoAlg.name(), self.name))
         self.hypo= HypoAlgNode( Alg=HypoAlg )
     
-    def connectToFilter(self, sfilter, outfilter):
+    def connectToFilter(self, outfilter):
+            #def connectToFilter(self, sfilter, outfilter):
         """ Sets the input and output of the hypo, and links to the input maker """
 
         #### Connect filter to the InputMaker
@@ -411,10 +412,12 @@ class CFSequence():
         log.debug("CFSequence: Connect Filter %s with menuSequences of step %s"%(self.filter.Alg.name(), self.step.name))
         filter_output = self.filter.getOutputList()
         if len(filter_output) == 0:
+            log.error("ERROR, no filter outputs are set!")
             sys.exit("ERROR, no filter outputs are set!")
 
         # check whether the number of filter outputs are the same as the number of sequences in the step
         if len(filter_output) != len(self.step.sequences):
+            log.error("Found %d filter outputs and %d MenuSequences in Step %s"%( len(self.filter.getOutputList()), len(self.step.sequences), self.step.name))
             sys.exit("ERROR: Found %d filter outputs differnt from %d MenuSequences in Step %s"%( len(self.filter.getOutputList()), len(self.step.sequences), self.step.name))
                         
         
@@ -422,7 +425,8 @@ class CFSequence():
         for seq in self.step.sequences:
             filter_out = filter_output[nseq]
             log.debug("Found input %s to sequence::%s from Filter::%s (from seed %s)", filter_out, seq.name, self.filter.Alg.name(), seq.seed)
-            seq.connectToFilter(self.filter, filter_out )
+            seq.connectToFilter( filter_out )
+            #seq.connectToFilter(self.filter, filter_out )
             nseq+=1
             
 

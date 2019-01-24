@@ -9,10 +9,12 @@ include("TrigUpgradeTest/testHLT_MT.py")
 # menu
 ##########################################
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
-from TrigUpgradeTest.photonMenuDefs import fastCaloSequence, photonSequence
+from TrigUpgradeTest.CaloMenuDefs import fastCaloMenuSequence
+from TrigUpgradeTest.photonMenuDefs import photonMenuSequence
 
-calostep=fastCaloSequence()
-photonstep= photonSequence()
+calostep=fastCaloMenuSequence()
+photonstep= photonMenuSequence()
+
 
 photonChains = [
    Chain(name='HLT_g5_etcut', Seed="L1_EM3",   \
