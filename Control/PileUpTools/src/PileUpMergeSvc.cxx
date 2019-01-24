@@ -135,11 +135,15 @@ const xAOD::EventInfo* PileUpMergeSvc::getPileUpEvent( StoreGateSvc* sg, const s
       : sg->tryConstRetrieve<xAOD::EventInfo>( einame );
    if( xAODEventInfo ) {
       ATH_MSG_INFO("Found xAOD::EventInfo");
-      ATH_MSG_INFO(" EventInfo has" <<   xAODEventInfo->subEvents().size() << " subevents" );
-      // the loop below serves 2 purposes: to recreate subevent links cache
-      // and set SG pointer in subevents
-      for( auto& subev : xAODEventInfo->subEvents() ) {
-         const_cast<xAOD::EventInfo*>(subev.ptr())->setEvtStore( sg );
+      ATH_MSG_INFO(" EventInfo has " <<   xAODEventInfo->subEvents().size() << " subevents" );
+      if( xAODEventInfo->evtStore() == nullptr ) {
+         // SG is 0 only when the xAODEventInfo is first read
+         xAODEventInfo->setEvtStore( sg );
+         // the loop below serves 2 purposes: to recreate subevent links cache
+         // and set SG pointer in subevents 
+         for( auto& subev : xAODEventInfo->subEvents() ) {
+            subev.ptr()->setEvtStore( sg );
+         }
       }
    } else {
       // Try reading old EventInfo
@@ -154,6 +158,7 @@ const xAOD::EventInfo* PileUpMergeSvc::getPileUpEvent( StoreGateSvc* sg, const s
          std::unique_ptr< xAOD::EventInfo >  pxAODEventInfo( new xAOD::EventInfo() );
          std::unique_ptr< xAOD::EventAuxInfo > pxAODEventAuxInfo(new xAOD::EventAuxInfo());
          pxAODEventInfo->setStore( pxAODEventAuxInfo.get() );
+         pxAODEventInfo->setEvtStore( sg );
          if( !m_xAODCnvTool->convert( pEvent, pxAODEventInfo.get(), false, false ).isSuccess() ) {
             ATH_MSG_ERROR("Failed to convert  xAOD::EventInfo in SG");
             return nullptr;
@@ -253,7 +258,6 @@ const xAOD::EventInfo* PileUpMergeSvc::getPileUpEvent( StoreGateSvc* sg, const s
    }
 
    if( xAODEventInfo ) {
-      const_cast<xAOD::EventInfo*>(xAODEventInfo)->setEvtStore( sg );
       ATH_MSG_INFO("Dumping xAOD::EventInfo");
       xAOD::dump( *xAODEventInfo );
    } else {

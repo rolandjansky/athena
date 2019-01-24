@@ -304,7 +304,7 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
       }
     }
 
-  const xAOD::EventInfo*  pEvent(0), *pEventSignal(0);
+  const xAOD::EventInfo*  pEvent(nullptr), *pEventSignal(nullptr);
   
   // loop over events if the maxevt (received as input) is different from -1.
   // if evtmax is -1 it means infinite loop (till time limit that is)
@@ -344,23 +344,11 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
       pOverEvent->setStore( pOverEventAux );
 
       ATH_MSG_INFO("MN:  #subevents in orig =" << pEvent->subEvents().size());
-      if( pEvent->subEvents().size() > 1 ) {
-         ATH_MSG_INFO("     orig subev[1] link=" << pEvent->subEvents()[1].link() );
-      }
 
       // Copy the eventInfo data from origStream event
       *pOverEvent = *pEvent;
       pOverEvent->clearSubEvents();  // start clean without any subevents
 
-      ATH_MSG_INFO("MN:  #subevents in copy =" << pOverEvent->subEvents().size());
-      if( pOverEvent->subEvents().size() > 1 ) {
-         ATH_MSG_INFO("     copy subev[1] link=" << pOverEvent->subEvents()[1].link() );
-      }
-      ATH_MSG_INFO("MN:  #subevents in orig =" << pEvent->subEvents().size());
-      if( pEvent->subEvents().size() > 1 ) {
-         ATH_MSG_INFO("     orig subev[1] link=" << pEvent->subEvents()[1].link() );
-      }
-      
       // Record the xAOD object(s):
       CHECK( m_evtStore->record( pOverEventAux, "McEventInfoAux." ) );
       CHECK( m_evtStore->record( pOverEvent, "McEventInfo" ) );
@@ -437,7 +425,8 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
 
          // link to the fresh EI added to the container:
          ElementLink< xAOD::EventInfoContainer > eilink( puei_sg_key, puei->size()-1,  &*m_evtStore );
-         xAOD::EventInfo::SubEvent  subev( 0, pOverEvent->subEvents().size(), xAOD::EventInfo::Signal, eilink );
+         xAOD::EventInfo::SubEvent  subev( 0, pOverEvent->subEvents().size(),
+                                           xAOD::EventInfo::Signal, eilink );
          pOverEvent->addSubEvent( subev );
          // pOverEvent->addSubEvt(0, PileUpTimeEventIndex::Signal, pEventSignal, &m_signalStream.store());
       }
@@ -465,7 +454,6 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
       }
       
       if( addpEvent ) {
-         ATH_MSG_INFO ( "MN: addpEvent" );
          xAOD::EventInfo* ei = new xAOD::EventInfo( *pEvent );
          ei->clearSubEvents();  // MN: FIX - verify that subevents should be cleared!
          puei->push_back( ei );
