@@ -128,14 +128,12 @@ namespace EL
     meta.fetchDefaults (*job.options());
     meta.fetchDefaults (options);
 
-    TList output;
     DirectWorker worker (sample, location);
     worker.setMetaData (&meta);
-    worker.setOutputHist (&output);
+    worker.setOutputHist (location);
+    worker.setSegmentName (sample->name());
 
     ANA_MSG_INFO ("Running sample: " << sample->name());
     worker.run (sample, job);
-
-    Driver::saveOutput (location, sample->name(), output);
   }
 }

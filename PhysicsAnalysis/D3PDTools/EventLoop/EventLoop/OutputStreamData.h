@@ -14,6 +14,10 @@
 #include <SampleHandler/DiskWriter.h>
 #include <TFile.h>
 #include <memory>
+#include <unordered_map>
+
+class TH1;
+class TTree;
 
 namespace EL
 {
@@ -28,6 +32,29 @@ namespace EL
 
       /// \brief the writer we use
       std::unique_ptr<SH::DiskWriter> m_writer;
+
+      /// \brief the list of objects to write out at the end of job
+      std::vector<std::unique_ptr<TObject> > m_output;
+
+      /// \brief the output histogram map
+      std::unordered_map<std::string,TH1*> m_outputHistMap;
+
+      /// \brief the output tree map
+      std::unordered_map<std::string,TTree*> m_outputTreeMap;
+
+
+      /// \brief write the list of output objects to disk and clear it
+      ///
+      /// This is made static and public, because depending on the
+      /// implementation it may be called either from the Driver or the
+      /// Worker.  however, normal users would have no interest in
+      /// calling it.
+      ///
+      /// \par Guarantee
+      ///   basic
+      /// \par Failures
+      ///   i/o errors
+      void saveOutput ();
     };
   }
 }

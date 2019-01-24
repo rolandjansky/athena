@@ -239,54 +239,6 @@ namespace EL
 
 
 
-  void Driver ::
-  saveOutput (const std::string& location, const std::string& name,
-	      TList& output)
-  {
-    try
-    {
-      std::unique_ptr<TFile> file (TFile::Open ((location + "/hist-" + name + ".root").c_str(), "RECREATE"));
-      TIter iter (&output);
-      TObject *object = 0;
-      while ((object = iter.Next()))
-      {
-	TDirectory *dir = file.get();
-	std::string path = object->GetName();
-	std::string name;
-	std::string::size_type split = path.rfind ("/");
-	if (split == std::string::npos)
-	{
-	  name = path;
-	} else
-	{
-	  std::string dirname = path.substr (0, split);
-	  name = path.substr (split + 1);
-	  TNamed *named = dynamic_cast<TNamed*>(object);
-	  if (named)
-	    named->SetName (name.c_str());
-	  dir = dynamic_cast<TDirectory*>(file->Get (dirname.c_str()));
-	  if (!dir)
-	  {
-	    file->mkdir (dirname.c_str());
-	    dir = dynamic_cast<TDirectory*>(file->Get (dirname.c_str()));
-	  }
-	  RCU_ASSERT (dir != 0);
-	}
-
-	if (!RCU::SetDirectory (object, dir))
-	  dir->WriteObject (object, name.c_str());
-      }
-      file->Write ();
-      output.Clear ("nodelete");
-    } catch (...)
-    {
-      output.Clear ("nodelete");
-      throw;
-    }
-  }
-
-
-
   std::string Driver ::
   mergedOutputName (const std::string& location, const OutputStream& output,
 		    const std::string& sample)

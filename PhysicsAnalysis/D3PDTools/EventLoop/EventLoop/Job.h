@@ -476,6 +476,16 @@ namespace EL
     /// @}
 
 
+    /// \brief the name of the histogram output stream
+    ///
+    /// Normally users don't need to worry about the histogram output
+    /// stream, and it just gets created for you automatically, but in
+    /// some situations you will need to reconfigure the histogram
+    /// output stream.
+    static const std::string histogramStreamName;
+
+
+
     //
     // private interface
     //

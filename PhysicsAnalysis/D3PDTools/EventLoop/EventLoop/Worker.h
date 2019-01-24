@@ -23,6 +23,7 @@
 #include <EventLoop/ModuleData.h>
 #include <EventLoop/OutputStreamData.h>
 #include <Rtypes.h>
+#include <unordered_map>
 
 class TList;
 class TStopwatch;
@@ -245,7 +246,14 @@ namespace EL
     /// \par Guarantee
     ///   no-fail
   protected:
-    void setOutputHist (TList *val_output);
+    void setOutputHist (const std::string& val_outputTarget);
+
+
+    /// \brief set the segment name
+    /// \par Guarantee
+    ///   no-fail
+  protected:
+    void setSegmentName (const std::string& val_segmentName);
 
 
     /// \brief set the \ref JobConfig
@@ -380,18 +388,6 @@ namespace EL
   private:
     Long64_t m_inputTreeEntry {0};
 
-    /// \brief the output map
-  private:
-    typedef std::map<std::string,TH1*>::const_iterator OutputHistMapIter;
-    std::map<std::string,TH1*> m_outputHistMap;
-
-
-    /// description: the list of output trees
-  private:
-    typedef std::map<std::pair<std::string,std::string>,TTree*>::const_iterator
-       OutputTreeMapIter;
-    std::map<std::pair<std::string,std::string>,TTree*> m_outputTreeMap;
-
 
     /// description: the list of output files
   private:
@@ -412,6 +408,16 @@ namespace EL
     /// yet been connected to the algorithms)
   private:
     bool m_newInputFile {false};
+
+
+    /// \brief the target file to which we will write the histogram output
+  private:
+    std::string m_outputTarget;
+
+
+    /// \brief the name of the segment we are processing
+  private:
+    std::string m_segmentName;
   };
 }
 

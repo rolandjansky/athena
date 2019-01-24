@@ -18,6 +18,7 @@
 #include <EventLoop/Worker.h>
 
 #include <EventLoop/AlgorithmStateModule.h>
+#include <EventLoop/Driver.h>
 #include <EventLoop/EventCountModule.h>
 #include <EventLoop/EventRange.h>
 #include <EventLoop/FileExecutedModule.h>
@@ -134,11 +135,11 @@ namespace EL
     RCU_REQUIRE_SOFT (output_swallow != 0);
 
     RCU::SetDirectory (output_swallow, 0);
-    m_output->Add (output.release());
+    ModuleData::addOutput (std::move (output));
 
     TH1 *hist = dynamic_cast<TH1*> (output_swallow);
     if (hist)
-      m_outputHistMap[hist->GetName()] = hist;
+      m_histOutput->m_outputHistMap[hist->GetName()] = hist;
   }
 
 
@@ -165,8 +166,8 @@ namespace EL
   {
     RCU_READ_INVARIANT (this);
 
-    OutputHistMapIter iter = m_outputHistMap.find (name);
-    if (iter == m_outputHistMap.end())
+    auto iter = m_histOutput->m_outputHistMap.find (name);
+    if (iter == m_histOutput->m_outputHistMap.end())
       RCU_THROW_MSG ("unknown output histogram: " + name);
     RCU_ASSERT (iter->second != 0);
     return iter->second;
@@ -201,36 +202,43 @@ namespace EL
   ::StatusCode Worker::
   addTree( const TTree& tree, const std::string& stream )
   {
-     RCU_READ_INVARIANT( this );
+    using namespace msgEventLoop;
+    RCU_READ_INVARIANT( this );
 
-     // Do not change the user's "current directory" during any of the
-     // following...
-     DirectoryReset dirReset;
+    // Do not change the user's "current directory" during any of the
+    // following...
+    DirectoryReset dirReset;
 
-     // Access the output file with this stream/label name.
-     TFile* file = getOutputFileNull( stream );
-     if( ! file ) {
-        RCU_ERROR_MSG( "No output file with stream name \"" + stream +
-                       "\" found" );
-        return ::StatusCode::FAILURE;
-     }
+    auto outputIter = m_outputs.find (stream);
+    if (outputIter == m_outputs.end())
+    {
+      ANA_MSG_ERROR ( "No output file with stream name \"" + stream +
+                      "\" found" );
+      return ::StatusCode::FAILURE;
+    }
 
-     // Make a clone of the tree, and make the output file own it from here
-     // on out.
-     file->cd();
-     TTree* clone = dynamic_cast< TTree* >( tree.Clone() );
-     if( ! clone ) {
-        RCU_ERROR_MSG( "Unexpected error while cloning TTree" );
-        return ::StatusCode::FAILURE;
-     }
-     clone->SetDirectory( file );
+    // Make a clone of the tree, and make the output file own it from
+    // here on out.
+    TFile *file {nullptr};
+    if (outputIter->second.m_writer)
+      file = outputIter->second.m_writer->file();
+    else
+      file = outputIter->second.m_file.get();
+    file->cd();
 
-     // Hold on to the pointer of the tree in our internal cache.
-     m_outputTreeMap[ std::make_pair( stream,
-                                      std::string( clone->GetName() ) ) ] = clone;
+    TTree* clone = dynamic_cast< TTree* >( tree.Clone() );
+    if( ! clone )
+    {
+      ANA_MSG_ERROR ( "Unexpected error while cloning TTree" );
+      return ::StatusCode::FAILURE;
+    }
+    clone->SetDirectory( file );
 
-     // Return gracefully:
-     return ::StatusCode::SUCCESS;
+    // Hold on to the pointer of the tree in our internal cache.
+    outputIter->second.m_outputTreeMap[ std::string (clone->GetName()) ] = clone;
+
+    // Return gracefully:
+    return ::StatusCode::SUCCESS;
   }
 
 
@@ -238,15 +246,23 @@ namespace EL
   TTree *Worker::
   getOutputTree( const std::string& name, const std::string& stream ) const
   {
-     RCU_READ_INVARIANT( this );
-     auto key = std::make_pair( stream, name );
-     auto itr = m_outputTreeMap.find( key );
-     if( itr == m_outputTreeMap.end() ) {
-        RCU_THROW_MSG( "No tree with name \"" + name + "\" in stream \"" +
-                       stream + "\"" );
-     }
-     RCU_ASSERT( itr->second != nullptr );
-     return itr->second;
+    using namespace msgEventLoop;
+    RCU_READ_INVARIANT( this );
+
+    auto outputIter = m_outputs.find (stream);
+    if (outputIter == m_outputs.end())
+    {
+      RCU_THROW_MSG ( "No output file with stream name \"" + stream
+                      + "\" found" );
+    }
+
+    auto itr = outputIter->second.m_outputTreeMap.find( name );
+    if( itr == outputIter->second.m_outputTreeMap.end() ) {
+      RCU_THROW_MSG ( "No tree with name \"" + name + "\" in stream \"" +
+                      stream + "\"" );
+    }
+    RCU_ASSERT( itr->second != nullptr );
+    return itr->second;
   }
 
 
@@ -399,12 +415,21 @@ namespace EL
 
 
   void Worker ::
-  setOutputHist (TList *output)
+  setOutputHist (const std::string& val_outputTarget)
   {
     RCU_CHANGE_INVARIANT (this);
-    RCU_REQUIRE (output != 0);
 
-    m_output = output;
+    m_outputTarget = val_outputTarget;
+  }
+
+
+
+  void Worker ::
+  setSegmentName (const std::string& val_segmentName)
+  {
+    RCU_CHANGE_INVARIANT (this);
+
+    m_segmentName = val_segmentName;
   }
 
 
@@ -433,6 +458,15 @@ namespace EL
     m_modules.push_back (std::make_unique<Detail::FileExecutedModule> ());
     m_modules.push_back (std::make_unique<Detail::EventCountModule> ());
     m_modules.push_back (std::make_unique<Detail::AlgorithmStateModule> ());
+
+    if (m_outputs.find (Job::histogramStreamName) == m_outputs.end())
+    {
+      Detail::OutputStreamData data;
+      data.m_file.reset (TFile::Open ((m_outputTarget + "/hist-" + m_segmentName + ".root").c_str(), "RECREATE"));
+      ANA_CHECK (addOutputStream (Job::histogramStreamName, std::move (data)));
+    }
+    RCU_ASSERT (m_outputs.find (Job::histogramStreamName) != m_outputs.end());
+    m_histOutput = &m_outputs[Job::histogramStreamName];
 
     m_jobStats = std::make_unique<TTree>
       ("EventLoop_JobStats", "EventLoop job statistics");
@@ -463,10 +497,13 @@ namespace EL
       ANA_CHECK (module->onFinalize (*this));
     for (auto& output : m_outputs)
     {
-      output.second.m_writer->close ();
-      std::string path = output.second.m_writer->path ();
-      if (!path.empty())
-        addOutputList ("EventLoop_OutputStream_" + output.first, new TObjString (path.c_str()));
+      if (output.first != Job::histogramStreamName)
+      {
+        output.second.m_writer->close ();
+        std::string path = output.second.m_writer->path ();
+        if (!path.empty())
+          addOutputList ("EventLoop_OutputStream_" + output.first, new TObjString (path.c_str()));
+      }
     }
     for (auto& module : m_modules)
       ANA_CHECK (module->postFinalize (*this));
@@ -477,8 +514,9 @@ namespace EL
         ANA_MSG_ERROR ("failed to fill the job statistics tree");
         return ::StatusCode::FAILURE;
       }
-      m_output->Add (m_jobStats.release());
+      ModuleData::addOutput (std::move (m_jobStats));
     }
+    m_histOutput->saveOutput ();
     for (auto& module : m_modules)
       ANA_CHECK (module->onWorkerEnd (*this));
     return ::StatusCode::SUCCESS;
@@ -628,7 +666,7 @@ namespace EL
     }
     if (data.m_file) 
       data.m_writer = std::make_unique<MyWriter> (std::move (data.m_file));
-    m_outputs[label] = std::move (data);
+    m_outputs.insert (std::make_pair (label, std::move (data)));
     return ::StatusCode::SUCCESS;
   }
 

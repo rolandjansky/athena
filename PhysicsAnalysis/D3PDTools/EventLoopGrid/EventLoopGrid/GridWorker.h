@@ -24,7 +24,6 @@ namespace EL
     void testInvariant() const;
 
     GridWorker(const SH::MetaObject *sample, 
-	       TList *output,
 	       const std::string& location,
 	       PandaRootTools& pandaTools);
 
