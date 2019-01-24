@@ -38,6 +38,12 @@ RpcPadContainer::RpcPadContainer( unsigned int hashmax)
   // std::cout<<"RpcPadContainer ctor ["<<this<<"]"<<std::endl;
 }
 
+RpcPadContainer::RpcPadContainer( RpcPad_Cache* cache)
+: IdentifiableContainer<RpcPad>(cache) 
+{
+  // std::cout<<"RpcPadContainer ctor ["<<this<<"]"<<std::endl;
+}
+
 //**********************************************************************
 
 // Destructor.

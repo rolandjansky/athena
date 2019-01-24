@@ -6,6 +6,7 @@
 #define MUONRDO_STGC_RawDataCONAINTER_H
 
 #include "MuonRDO/STGC_RawDataCollection.h"
+#include "MuonRDO/STGC_RawDataCollection_Cache.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include "EventContainers/IdentifiableContainer.h" 
 
@@ -18,6 +19,7 @@ class STGC_RawDataContainer
 public:  
   STGC_RawDataContainer();
   STGC_RawDataContainer(unsigned int hashmax);
+  STGC_RawDataContainer(STGC_RawDataCollection_Cache* cache);
   ~STGC_RawDataContainer(); 
   
   // class ID

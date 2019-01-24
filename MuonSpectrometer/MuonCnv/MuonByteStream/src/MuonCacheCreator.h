@@ -7,8 +7,16 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "MuonRDO/MdtCsm_Cache.h"
+#include "MuonRDO/CscRawDataCollection_Cache.h"
+#include "MuonRDO/RpcPad_Cache.h"
+#include "MuonRDO/TgcRdo_Cache.h"
+
 
 class MdtIdHelper;
+class CscIdHelper;
+class RpcIdHelper;
+class TgcIdHelper;
+
 
 class MuonCacheCreator : public AthReentrantAlgorithm {
  public:
@@ -31,11 +39,17 @@ protected:
   
   /// Write handle key for the MDT CSM cache container
   SG::WriteHandleKey<MdtCsm_Cache> m_MdtCsmCacheKey;
-
+  SG::WriteHandleKey<CscRawDataCollection_Cache> m_CscCacheKey;
+  SG::WriteHandleKey<RpcPad_Cache> m_RpcCacheKey;
+  SG::WriteHandleKey<TgcRdo_Cache> m_TgcCacheKey;
   /// ID helpers
   const MdtIdHelper* m_mdtIdHelper = 0;
+  const CscIdHelper* m_cscIdHelper = 0;
+  const RpcIdHelper* m_rpcIdHelper = 0;
+  const TgcIdHelper* m_tgcIdHelper = 0;  
   mutable bool m_disableWarning = false;
   bool isInsideView(const EventContext&) const;
+
 };//class MuonCacheCreator
 
 // copied from http://acode-browser1.usatlas.bnl.gov/lxr/source/athena/InnerDetector/InDetRecAlgs/InDetPrepRawDataFormation/src/CacheCreator.h#0062
