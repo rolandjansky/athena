@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**   
@@ -173,7 +173,7 @@ namespace {
 
 // Constructor
 SCT_CablingCondAlgFromCoraCool::SCT_CablingCondAlgFromCoraCool(const std::string& name, ISvcLocator* pSvcLocator):
-  AthAlgorithm(name, pSvcLocator),
+  AthReentrantAlgorithm(name, pSvcLocator),
   m_condSvc{"CondSvc", name}
 {
 }
@@ -227,9 +227,9 @@ SCT_CablingCondAlgFromCoraCool::finalize() {
 
 //
 StatusCode
-SCT_CablingCondAlgFromCoraCool::execute() {
+SCT_CablingCondAlgFromCoraCool::execute(const EventContext& ctx) const {
   // Write Cond Handle
-  SG::WriteCondHandle<SCT_CablingData> writeHandle{m_writeKey};
+  SG::WriteCondHandle<SCT_CablingData> writeHandle{m_writeKey, ctx};
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
                   << ". In theory this should not be called, but may happen"
@@ -244,7 +244,7 @@ SCT_CablingCondAlgFromCoraCool::execute() {
   bool isRun2{m_readKeyRod.key()==rodFolderName2};
 
   // let's get the ROD AttrLists
-  SG::ReadCondHandle<CondAttrListVec> readHandleRod{m_readKeyRod};
+  SG::ReadCondHandle<CondAttrListVec> readHandleRod{m_readKeyRod, ctx};
   const CondAttrListVec* pRod{*readHandleRod};
   if (pRod==nullptr) {
     ATH_MSG_FATAL("Could not find ROD configuration data: " << m_readKeyRod.key());
@@ -310,7 +310,7 @@ SCT_CablingCondAlgFromCoraCool::execute() {
    * In fact for the barrel its obvious, so only extract the endcap ones
    **/
   IntMap geoMurMap;
-  SG::ReadCondHandle<CondAttrListVec> readHandleGeo{m_readKeyGeo};
+  SG::ReadCondHandle<CondAttrListVec> readHandleGeo{m_readKeyGeo, ctx};
   const CondAttrListVec* pGeo{*readHandleGeo};
   if (pGeo==nullptr) {
     ATH_MSG_FATAL("Could not find Geog configuration data: " << m_readKeyGeo.key());
@@ -330,7 +330,7 @@ SCT_CablingCondAlgFromCoraCool::execute() {
    * so make a temporary data structure.
    **/
   IntMap murPositionMap;
-  SG::ReadCondHandle<CondAttrListVec> readHandleRodMur{m_readKeyRodMur};
+  SG::ReadCondHandle<CondAttrListVec> readHandleRodMur{m_readKeyRodMur, ctx};
   const CondAttrListVec* pRodMur{*readHandleRodMur};
   if (pRodMur==nullptr) {
     ATH_MSG_FATAL("Could not find RodMur configuration data: " << m_readKeyRodMur.key());
@@ -359,7 +359,7 @@ SCT_CablingCondAlgFromCoraCool::execute() {
   if (not allInsertsSucceeded) ATH_MSG_WARNING("Some MUR-position map inserts failed.");
 
   // let's get the MUR AttrLists
-  SG::ReadCondHandle<CondAttrListVec> readHandleMur{m_readKeyMur};
+  SG::ReadCondHandle<CondAttrListVec> readHandleMur{m_readKeyMur, ctx};
   const CondAttrListVec* pMur{*readHandleMur};
   if (pMur==nullptr) {
     ATH_MSG_FATAL("Could not find ROD configuration data: " << m_readKeyMur.key());
@@ -538,7 +538,7 @@ SCT_CablingCondAlgFromCoraCool::execute() {
 
 //
 bool
-SCT_CablingCondAlgFromCoraCool::insert(const IdentifierHash& hash, const SCT_OnlineId& onlineId, const SCT_SerialNumber& sn, SCT_CablingData* data) {
+SCT_CablingCondAlgFromCoraCool::insert(const IdentifierHash& hash, const SCT_OnlineId& onlineId, const SCT_SerialNumber& sn, SCT_CablingData* data) const {
   if (not sn.isWellFormed()) {
     ATH_MSG_FATAL("Serial number is not in correct format");
     return false;
