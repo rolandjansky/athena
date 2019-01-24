@@ -21,7 +21,7 @@ def BCM_DigitizationToolCfg(configFlags, name="BCM_DigitizationTool", **kwargs):
     Engine = configFlags.Random.Engine
     acc.merge(RNG(Engine))
     # Build the argument dict
-    kwargs.setdefault("RndmSvc", AthEngines[Engine])
+    kwargs.setdefault("RndmSvc", "AthRNGSvc")
     kwargs.setdefault("HitCollName", "BCMHits")
     if configFlags.Digitization.DoInnerDetectorNoise:
         kwargs.setdefault("ModNoise", [90.82] * 8)
