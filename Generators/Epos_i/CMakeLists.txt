@@ -41,6 +41,7 @@ atlas_add_component( Epos_i
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
-atlas_install_runtime( share/epos_crmc.param ${CRMC_ROOT}/tabs/epos.inics ${CRMC_ROOT}/tabs/epos.inidi.lhc ${CRMC_ROOT}/tabs/epos.inirj.lhc ${CRMC_ROOT}/tabs/epos.inirj ${CRMC_ROOT}/tabs/epos.iniev ${CRMC_ROOT}/tabs/epos.initl ${CRMC_ROOT}/tabs/dpmjet.dat )
-
-
+atlas_install_runtime( share/epos_crmc.param ${CRMC_LCGROOT}/tabs/epos.inics
+   ${CRMC_LCGROOT}/tabs/epos.inidi.lhc ${CRMC_LCGROOT}/tabs/epos.inirj.lhc
+   ${CRMC_LCGROOT}/tabs/epos.inirj ${CRMC_LCGROOT}/tabs/epos.iniev
+   ${CRMC_LCGROOT}/tabs/epos.initl ${CRMC_LCGROOT}/tabs/dpmjet.dat )
