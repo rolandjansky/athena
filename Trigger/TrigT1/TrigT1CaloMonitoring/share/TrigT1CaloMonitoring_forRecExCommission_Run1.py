@@ -321,7 +321,7 @@ if l1caloRawMon:
         #                                                       )
         #     #from AthenaCommon.AppMgr import ToolSvc
         #     ToolSvc += JetCleaningTool('JetCleaningLooseTool')
-        #      #ToolSvc += JetCleaningTool('JetCleaningMediumTool')
+        #     # ToolSvc += JetCleaningTool('JetCleaningMediumTool')
         #     ToolSvc += JetCleaningTool('JetCleaningTightTool')
         #     L1JetEfficienciesMonTool.JetCleaningLooseTool = ConfiguredJetCleaningTool_Loose("JetCleaningLooseTool")       
         #     # L1JetEfficienciesMonTool.JetCleaningMediumTool = ConfiguredJetCleaningTool_Medium("JetCleaningMediumTool")

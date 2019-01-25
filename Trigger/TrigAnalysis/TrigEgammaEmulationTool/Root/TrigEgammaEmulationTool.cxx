@@ -153,7 +153,7 @@ StatusCode TrigEgammaEmulationTool::initialize() {
     }
    
     ATH_MSG_INFO("Initialising accept...");
-    //add cuts into TAccept
+    //add cuts into AcceptInfo
     m_accept.addCut("L1Calo"  , "Trigger L1Calo step"     );
     m_accept.addCut("L2Calo"  , "Trigger L2Calo step"     );
     m_accept.addCut("L2"      , "Trigger L2Electron step" );
@@ -289,10 +289,10 @@ bool TrigEgammaEmulationTool::EventWiseContainer(){
 }
 //!==========================================================================
 //! Emulation from Trigger Element
-const Root::TAccept& TrigEgammaEmulationTool::executeTool(const HLT::TriggerElement *te_external, const std::string &trigger) {
+asg::AcceptData TrigEgammaEmulationTool::executeTool(const HLT::TriggerElement *te_external, const std::string &trigger) {
 
   ATH_MSG_DEBUG("TrigEgammaEmulationTool::executeTool(te, trigger)");
-  m_accept.clear(); 
+  asg::AcceptData acceptData (&m_accept);
   
   if(m_trigInfo.count(trigger) != 0){
 
@@ -311,7 +311,7 @@ const Root::TAccept& TrigEgammaEmulationTool::executeTool(const HLT::TriggerElem
       const auto* l1 = getFeature<xAOD::EmTauRoI>(te_external);
       if(!l1){
         ATH_MSG_WARNING("Can not retrieve the support element because the current TE does not has xAOD::EmTauRoI object!");
-        return m_accept;
+        return acceptData;
       }
       // This object is not fully completed, try to found other.
       for (const auto &fctrigger : m_supportingTrigList){
@@ -347,7 +347,7 @@ const Root::TAccept& TrigEgammaEmulationTool::executeTool(const HLT::TriggerElem
         ATH_MSG_WARNING("This Trigger Element does not have all features needed by the emulation tool. The external match is " <<
                      " not possible! Maybe the support trigger list not attend all requirements."); 
         setTEMatched(nullptr);
-        return m_accept;
+        return acceptData;
       }
     }
 
@@ -369,47 +369,47 @@ const Root::TAccept& TrigEgammaEmulationTool::executeTool(const HLT::TriggerElem
 
     //Level 1
     m_l1Selector->emulation( l1, passedL1Calo , info);
-    m_accept.setCutResult("L1Calo", passedL1Calo);
+    acceptData.setCutResult("L1Calo", passedL1Calo);
 
     if( (passedL1Calo ) && !info.isL1 ){
 
       m_l2Selector->emulation( emCluster, passedL2Calo , info);
-      m_accept.setCutResult("L2Calo", passedL2Calo);
+      acceptData.setCutResult("L2Calo", passedL2Calo);
 
       if(passedL2Calo ){
         if(info.perf){//bypass L2 Electron/Photon Level
           passedL2=true;
-          m_accept.setCutResult("L2", passedL2);
+          acceptData.setCutResult("L2", passedL2);
         }else{
           if (info.type == "electron") {
             if(m_doL2ElectronFex)
               m_l2Selector->emulation( trigElCont, passedL2, info);
             else
               passedL2=true;
-            m_accept.setCutResult("L2", passedL2);
+            acceptData.setCutResult("L2", passedL2);
           }
           else if (info.type == "photon") {
             //m_l2Selector->emulation( trigPhCont, passedL2, trigger);
             //m_efPhotonSelector->emulation( phCont, passedEF, trigger);
             passedL2=true;
-            m_accept.setCutResult("L2", passedL2);
+            acceptData.setCutResult("L2", passedL2);
           }
         }//bypass L2
 
         if (passedL2){
           m_efCaloSelector->emulation( elCont, passedEFCalo, info);
-          m_accept.setCutResult("EFCalo", passedEFCalo);
+          acceptData.setCutResult("EFCalo", passedEFCalo);
           
           if(passedEFCalo){
             passedEFTrack=true;
-            m_accept.setCutResult("EFTrack"    , passedEFTrack);
+            acceptData.setCutResult("EFTrack"    , passedEFTrack);
 
             if(passedEFTrack){
               if(!emulationHLT(elCont, passedHLT, info)){
-                m_accept.clear();
-                return m_accept;
+                acceptData.clear();
+                return acceptData;
               }else{
-                m_accept.setCutResult("HLT"    , passedHLT);
+                acceptData.setCutResult("HLT"    , passedHLT);
               }
             }//EFTrack
           }//EFCalo 
@@ -420,13 +420,13 @@ const Root::TAccept& TrigEgammaEmulationTool::executeTool(const HLT::TriggerElem
     ATH_MSG_WARNING("Can not emulate " << trigger << ". This chain must be added into trigList before the creation.");
   }
 
-  return m_accept;
+  return acceptData;
 }
 //!==========================================================================
 //! Emulation from xAOD containers not using TDT tools
-const Root::TAccept& TrigEgammaEmulationTool::executeTool(const std::string &trigger) {
+asg::AcceptData TrigEgammaEmulationTool::executeTool(const std::string &trigger) {
   clearDecorations();
-  m_accept.clear();
+  asg::AcceptData acceptData (&m_accept);
   
   if( m_trigInfo.count(trigger) != 0){
     Trig::Info info     = getTrigInfo(trigger);
@@ -448,7 +448,7 @@ const Root::TAccept& TrigEgammaEmulationTool::executeTool(const std::string &tri
       bit++;
     }
     if(bitL1Accept.count()>0)  passedL1Calo=true;
-    m_accept.setCutResult("L1Calo", passedL1Calo);
+    acceptData.setCutResult("L1Calo", passedL1Calo);
 
     if(passedL1Calo  && !info.isL1){
       bit=0; pass=false;
@@ -460,44 +460,44 @@ const Root::TAccept& TrigEgammaEmulationTool::executeTool(const std::string &tri
       }
   
       if(bitL2CaloAccept.count()>0)  passedL2Calo=true;
-      m_accept.setCutResult("L2Calo", passedL2Calo);
+      acceptData.setCutResult("L2Calo", passedL2Calo);
       
       if(passedL2Calo) {
         if(info.perf){//bypass L2 Electron/Photon Level
           passedL2=true;
-          m_accept.setCutResult("L2", passedL2);
+          acceptData.setCutResult("L2", passedL2);
         }else{
           if (info.type == "electron") {
             if(m_doL2ElectronFex)
               m_l2Selector->emulation(m_trigElectrons, passedL2, info);
             else
               passedL2=true;
-            m_accept.setCutResult("L2", passedL2);
+            acceptData.setCutResult("L2", passedL2);
           }
           else if (info.type == "photon") {
             //m_l2Selector->emulation( trigPhCont, passedL2, trigger);
             //m_efPhotonSelector->emulation( phCont, passedEF, trigger);
             passedL2=true;
-            m_accept.setCutResult("L2", passedL2);
+            acceptData.setCutResult("L2", passedL2);
           }
         }//bypass L2
 
         if (passedL2){
 
           m_efCaloSelector->emulation(m_onlElectrons, passedEFCalo, info);
-          m_accept.setCutResult("EFCalo", passedEFCalo);
+          acceptData.setCutResult("EFCalo", passedEFCalo);
           
           if(passedEFCalo){
             //TODO: running the EF track step
             passedEFTrack=true;
-            m_accept.setCutResult("EFTrack", passedEFTrack);
+            acceptData.setCutResult("EFTrack", passedEFTrack);
             
             if(passedEFTrack){
               if(!emulationHLT(m_onlElectrons, passedHLT, info)){
-                m_accept.clear();
-                return m_accept;
+                acceptData.clear();
+                return acceptData;
               }else{
-                m_accept.setCutResult("HLT"    , passedHLT);
+                acceptData.setCutResult("HLT"    , passedHLT);
               }
             }//EFTrack
 
@@ -508,27 +508,25 @@ const Root::TAccept& TrigEgammaEmulationTool::executeTool(const std::string &tri
   }else{
     ATH_MSG_WARNING("Can not emulate. Trigger not configurated");
   }
-  return m_accept;
+  return acceptData;
 }
 
 
 //!==========================================================================
 bool TrigEgammaEmulationTool::isPassed(const std::string &trigger) {
-  m_accept.clear();
-  m_accept = executeTool(trigger);
+  asg::AcceptData acceptData = executeTool(trigger);
   ATH_MSG_DEBUG("Trigger = "<< trigger );
-  ATH_MSG_DEBUG("isPassed()::L1Calo = " << m_accept.getCutResult("L1"));
-  ATH_MSG_DEBUG("isPassed()::L2Calo = " << m_accept.getCutResult("L2Calo"));
-  ATH_MSG_DEBUG("isPassed()::L2     = " << m_accept.getCutResult("L2"));
-  ATH_MSG_DEBUG("isPassed()::EFCalo = " << m_accept.getCutResult("EFCalo"));
-  ATH_MSG_DEBUG("isPassed()::EFTrack= " << m_accept.getCutResult("EFTrack"));
-  ATH_MSG_DEBUG("isPassed()::HLT    = " << m_accept.getCutResult("HLT"));
-  return m_accept.getCutResult("HLT");
+  ATH_MSG_DEBUG("isPassed()::L1Calo = " << acceptData.getCutResult("L1"));
+  ATH_MSG_DEBUG("isPassed()::L2Calo = " << acceptData.getCutResult("L2Calo"));
+  ATH_MSG_DEBUG("isPassed()::L2     = " << acceptData.getCutResult("L2"));
+  ATH_MSG_DEBUG("isPassed()::EFCalo = " << acceptData.getCutResult("EFCalo"));
+  ATH_MSG_DEBUG("isPassed()::EFTrack= " << acceptData.getCutResult("EFTrack"));
+  ATH_MSG_DEBUG("isPassed()::HLT    = " << acceptData.getCutResult("HLT"));
+  return acceptData.getCutResult("HLT");
 }
 
 //!==========================================================================
 bool TrigEgammaEmulationTool::isPassed(const std::string &trigger, const std::string &fctrigger) {
-  m_accept.clear();
   const HLT::TriggerElement *finalFC = NULL;
   auto fc = m_trigdec->features(fctrigger, TrigDefs::alsoDeactivateTEs);
   auto vec = fc.get<xAOD::ElectronContainer>();
@@ -539,14 +537,14 @@ bool TrigEgammaEmulationTool::isPassed(const std::string &trigger, const std::st
     bit++;
     finalFC = feat.te();
     if (!finalFC) continue;
-    m_accept = executeTool(finalFC, trigger);
-    if(m_accept.getCutResult("HLT"))  bitAccept.set(bit-1,true);
-    ATH_MSG_DEBUG("isPassed()::L1Calo = " << m_accept.getCutResult("L1"));
-    ATH_MSG_DEBUG("isPassed()::L2Calo = " << m_accept.getCutResult("L2Calo"));
-    ATH_MSG_DEBUG("isPassed()::L2     = " << m_accept.getCutResult("L2"));
-    ATH_MSG_DEBUG("isPassed()::EFCalo = " << m_accept.getCutResult("EFCalo"));
-    ATH_MSG_DEBUG("isPassed()::EFTrack= " << m_accept.getCutResult("EFTrack"));
-    ATH_MSG_DEBUG("isPassed()::HLT    = " << m_accept.getCutResult("HLT")); 
+    asg::AcceptData acceptData = executeTool(finalFC, trigger);
+    if(acceptData.getCutResult("HLT"))  bitAccept.set(bit-1,true);
+    ATH_MSG_DEBUG("isPassed()::L1Calo = " << acceptData.getCutResult("L1"));
+    ATH_MSG_DEBUG("isPassed()::L2Calo = " << acceptData.getCutResult("L2Calo"));
+    ATH_MSG_DEBUG("isPassed()::L2     = " << acceptData.getCutResult("L2"));
+    ATH_MSG_DEBUG("isPassed()::EFCalo = " << acceptData.getCutResult("EFCalo"));
+    ATH_MSG_DEBUG("isPassed()::EFTrack= " << acceptData.getCutResult("EFTrack"));
+    ATH_MSG_DEBUG("isPassed()::HLT    = " << acceptData.getCutResult("HLT")); 
   }
   bool pass=false;
   if(bitAccept.count()>0)  pass=true;

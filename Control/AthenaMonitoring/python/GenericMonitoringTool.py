@@ -13,6 +13,8 @@ class GenericMonitoringTool(_GenericMonitoringTool):
     def __init__(self, name, **kwargs):
         super(GenericMonitoringTool, self).__init__(name, **kwargs)
 
+    def defineHistogram(self, *args, **kwargs):
+        self.Histograms.append(defineHistogram(*args, **kwargs))
 
 ## Generate histogram definition string for the `GenericMonitoringTool.Histograms` property
 #

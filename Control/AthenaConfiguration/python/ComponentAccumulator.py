@@ -90,13 +90,13 @@ class ComponentAccumulator(object):
                         return seq.getValuedProperties()[name]                    
                     return seq.getDefaultProperties()[name]
 
-                self._msg.info( " "*nestLevel +"\__ "+ seq.name() +" (seq: %s %s)" %(  "SEQ" if __prop("Sequential") else "PAR", "OR" if __prop("ModeOR") else "AND"  ) )
+                self._msg.info( " "*nestLevel +"\\__ "+ seq.name() +" (seq: %s %s)" %(  "SEQ" if __prop("Sequential") else "PAR", "OR" if __prop("ModeOR") else "AND"  ) )
                 nestLevel += 3
                 for c in seq.getChildren():
                     if isSequence(c):
                         printSeqAndAlgs(c, nestLevel )
                     else:
-                        self._msg.info( " "*nestLevel +"\__ "+ c.name() +" (alg)" )
+                        self._msg.info( " "*nestLevel +"\\__ "+ c.name() +" (alg)" )
                         if summariseProps:
                             printProperties(c, nestLevel)
             printSeqAndAlgs(self._sequence) 
@@ -251,7 +251,7 @@ class ComponentAccumulator(object):
         #The following is to work with internal list of service as well as gobal svcMgr as second parameter
         try:
             compList.append(newComp)
-        except:
+        except Exception:
             compList+=newComp
             pass
         return True #True means something got added

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 //////////////////////////////////////////////////////////////////////
-//  L1DynamicPedestalProviderRoot.cxx (c) Veit Scjarf
+//  L1DynamicPedestalProviderRoot.cxx 
 ///////////////////////////////////////////////////////////////////////
 
 #include "TrigT1CaloTools/L1DynamicPedestalProviderRoot.h"

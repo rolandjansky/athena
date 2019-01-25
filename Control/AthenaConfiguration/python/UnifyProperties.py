@@ -63,7 +63,7 @@ def getUnificationKey(propname):
         if matchingByObject in _propsToUnify:
             return matchingByObject
 
-    except:
+    except Exception:
         pass
 
     return None

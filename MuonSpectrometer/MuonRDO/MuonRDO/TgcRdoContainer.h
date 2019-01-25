@@ -9,6 +9,7 @@
 
 #include "MuonRDO/TgcRdo.h"
 #include "MuonRDO/TgcRdoIdHash.h"
+#include "MuonRDO/TgcRdo_Cache.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include "EventContainers/IdentifiableContainer.h" 
 
@@ -25,6 +26,8 @@ class TgcRdoContainer
 public:  
   TgcRdoContainer();
   TgcRdoContainer(unsigned int hashmax);
+  TgcRdoContainer(TgcRdo_Cache* cache);
+
   ~TgcRdoContainer(); 
   
   typedef IdentifiableContainer<TgcRdo> MyBase; 

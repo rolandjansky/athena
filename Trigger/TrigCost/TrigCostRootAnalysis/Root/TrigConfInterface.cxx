@@ -526,7 +526,7 @@ namespace TrigCostRootAnalysis {
     if (Config::config().debug()) Info("TrigConfInterface::dump", "Saving trigger configuration to %s",
                                        fileName.c_str());
 
-    //std::ofstream _foutHtml( std::string(fileName + ".htm").c_str() );
+    //std::ofstream foutHtml( std::string(fileName + ".htm").c_str() );
     std::ofstream foutJson(fileName.c_str());
 
     JsonExport* json = new JsonExport();
@@ -541,9 +541,9 @@ namespace TrigCostRootAnalysis {
     // CHAIN
     for (UInt_t c = 0; c < getTCT()->GetChainN(); ++c) {
       Bool_t isL1 = kFALSE;
-      //std::string _counter = "</b>, Counter:<i>";
+      //std::string counter = "</b>, Counter:<i>";
       if (getTCT()->GetChainLevel(c) == 1) {
-        //_counter = "</b>, CTPID:<i>";
+        //counter = "</b>, CTPID:<i>";
         isL1 = kTRUE;
       } else if (jsonDoingL1 == kTRUE) {
         //switch over to HLT
@@ -552,16 +552,16 @@ namespace TrigCostRootAnalysis {
         jsonDoingL1 = kFALSE;
       }
       //foutHtml << "<hr>" << std::endl;
-      //foutHtml << "<li>Trigger Chain: Name:<b>" << getTCT()->GetChainName(c) << _counter <<
+      //foutHtml << "<li>Trigger Chain: Name:<b>" << getTCT()->GetChainName(c) << counter <<
       // getTCT()->GetChainCounter(c) << "</i></li>" << std::endl;
       std::string chainName = getTCT()->GetChainName(c);
       json->addNode(foutJson, chainName + " (PS:" + floatToString(getTCT()->GetPrescale(chainName), 2) + ")", "C");
       // foutHtml << "<li>Prescale:<i>" << getPrescale( getTCT()->GetChainName(c) ) << "</i></li>" << std::endl;
       // if (getTCT()->GetChainGroupNameSize(c)) {
       //   foutHtml << "<li>Groups:<i>";
-      //   for (UInt_t _g = 0; _g < getTCT()->GetChainGroupNameSize(c); ++_g) {
-      //     foutHtml << getTCT()->GetChainGroupName( c, _g );
-      //     if (_g != getTCT()->GetChainGroupNameSize(c) - 1) foutHtml << ",";
+      //   for (UInt_t g = 0; g < getTCT()->GetChainGroupNameSize(c); ++g) {
+      //     foutHtml << getTCT()->GetChainGroupName( c, g );
+      //     if (g != getTCT()->GetChainGroupNameSize(c) - 1) foutHtml << ",";
       //   }
       //   foutHtml << "</i></li>" << std::endl;
       // }

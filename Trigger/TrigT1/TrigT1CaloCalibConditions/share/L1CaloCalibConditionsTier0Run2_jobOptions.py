@@ -10,6 +10,7 @@ from IOVDbSvc.CondDB import conddb
 L1CaloFolderList = []
 L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Calibration/PpmDeadChannels"]
 L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Conditions/DisabledTowers"]
+L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Conditions/RunParameters"]
 L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Configuration/PprChanDefaults"]
 L1CaloFolderList += ["/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults"]
 

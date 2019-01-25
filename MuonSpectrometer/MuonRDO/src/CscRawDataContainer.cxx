@@ -16,6 +16,11 @@ CscRawDataContainer::CscRawDataContainer(unsigned int hashmax)
 {
 }
 
+CscRawDataContainer::CscRawDataContainer(CscRawDataCollection_Cache* cache)
+  : IdentifiableContainer<CscRawDataCollection>(cache) 
+{
+}
+
 // Destructor.
 CscRawDataContainer::~CscRawDataContainer() 
 {}

@@ -92,11 +92,15 @@ public:
   double etaExtent() const;//>0: extent means to a given radius, <0: extent means to a given z.
 
   //TrackingVolumes
-	bool showTrackingVolumes() const;
+  bool showTrackingVolumes() const;
   bool showInnerDetector() const;
   bool showCalorimeters() const;
   bool showMuonSpectrometer() const;
 	
+  // Lines
+  bool showLines() const;
+  double lineLength() const;
+  SbVec3f lineDirection() const;
   
   //ID Proj surfs:
 
@@ -150,6 +154,8 @@ signals:
   void showInnerDetectorChanged(bool);
   void showCalorimetersChanged(bool);
   void showMuonSpectrometerChanged(bool);
+  void showLinesChanged(bool);
+  void lineDirectionChanged(const SbVec3f&);
 
 private:
 
@@ -194,6 +200,8 @@ private slots:
   void possibleChange_showInnerDetector();
   void possibleChange_showCalorimeters();
   void possibleChange_showMuonSpectrometer();
+  void possibleChange_showLines();
+  void possibleChange_lineDirection();
 };
 
 
