@@ -36,6 +36,7 @@
 
 #include <boost/tokenizer.hpp>
 #include <cassert>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -461,6 +462,7 @@ StatusCode AthenaOutputStream::write() {
    // Connect the output file to the service
    // FIXME: this double looping sucks... got to query the
    // data store for object of a given type/key.
+   std::lock_guard<std::mutex> lock(m_itemSvc->streamMutex());
    if (m_streamer->connectOutput(m_outSeqSvc->buildSequenceFileName(m_outputName) + m_outputAttributes).isSuccess()) {
       // First check if there are any new items in the list
       collectAllObjects();
