@@ -855,9 +855,9 @@ def getAddNoiseCellBuilderTool(name="ISF_AddNoiseCellBuilderTool", **kwargs):
     from FastCaloSim.FastCaloSimConf import AddNoiseCellBuilderTool
     return AddNoiseCellBuilderTool(name, **kwargs )
 
-def getCaloCellContainerFinalizerTool(name="ISF_CaloCellContainerFinalizerTool", **kwargs):
-    from CaloRec.CaloRecConf import CaloCellContainerFinalizerTool
-    return CaloCellContainerFinalizerTool(name, **kwargs )
+def getCaloCellContainerFCSFinalizerTool(name="ISF_CaloCellContainerFCSFinalizerTool", **kwargs):
+    from FastCaloSim.FastCaloSimConf import CaloCellContainerFCSFinalizerTool
+    return CaloCellContainerFCSFinalizerTool(name, **kwargs )
 
 def getFastHitConvAlg(name="ISF_FastHitConvAlg", **kwargs):
     from ISF_FastCaloSimServices.ISF_FastCaloSimJobProperties import ISF_FastCaloSimFlags
