@@ -24,7 +24,7 @@
 #include "GeoGenericFunctions/Cos.h"
 #include "CLHEP/Geometry/Point3D.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 
@@ -46,28 +46,28 @@
 
 void FWD_CONFIGURATION::clear()
 {
-    TCL4JawDistB1I = 57*GeoModelKernelUnits::mm;
-    TCL5JawDistB1I = 57*GeoModelKernelUnits::mm;
-    TCL6JawDistB1I = 57*GeoModelKernelUnits::mm;
-    TCL4JawDistB2I = 57*GeoModelKernelUnits::mm;
-    TCL5JawDistB2I = 57*GeoModelKernelUnits::mm;
-    TCL6JawDistB2I = 57*GeoModelKernelUnits::mm;
-    TCL4JawDistB1O = 57*GeoModelKernelUnits::mm;
-    TCL5JawDistB1O = 57*GeoModelKernelUnits::mm;
-    TCL6JawDistB1O = 57*GeoModelKernelUnits::mm;
-    TCL4JawDistB2O = 57*GeoModelKernelUnits::mm;
-    TCL5JawDistB2O = 57*GeoModelKernelUnits::mm;
-    TCL6JawDistB2O = 57*GeoModelKernelUnits::mm;
+    TCL4JawDistB1I = 57*Gaudi::Units::mm;
+    TCL5JawDistB1I = 57*Gaudi::Units::mm;
+    TCL6JawDistB1I = 57*Gaudi::Units::mm;
+    TCL4JawDistB2I = 57*Gaudi::Units::mm;
+    TCL5JawDistB2I = 57*Gaudi::Units::mm;
+    TCL6JawDistB2I = 57*Gaudi::Units::mm;
+    TCL4JawDistB1O = 57*Gaudi::Units::mm;
+    TCL5JawDistB1O = 57*Gaudi::Units::mm;
+    TCL6JawDistB1O = 57*Gaudi::Units::mm;
+    TCL4JawDistB2O = 57*Gaudi::Units::mm;
+    TCL5JawDistB2O = 57*Gaudi::Units::mm;
+    TCL6JawDistB2O = 57*Gaudi::Units::mm;
     vp1Compatibility = false;
     buildTCL4 = false;
     buildTCL6 = false;
     ALFAInNewPosition = false;
-    newPosB7L1 = 245656.77*GeoModelKernelUnits::mm;
-    newPosB7R1 = -245656.11*GeoModelKernelUnits::mm;
-    posAFPL1 = 204500*GeoModelKernelUnits::mm;
-    posAFPL2 = 212675*GeoModelKernelUnits::mm;
-    posAFPR1 = -204500*GeoModelKernelUnits::mm;
-    posAFPL2 = -212675*GeoModelKernelUnits::mm;
+    newPosB7L1 = 245656.77*Gaudi::Units::mm;
+    newPosB7R1 = -245656.11*Gaudi::Units::mm;
+    posAFPL1 = 204500*Gaudi::Units::mm;
+    posAFPL2 = 212675*Gaudi::Units::mm;
+    posAFPR1 = -204500*Gaudi::Units::mm;
+    posAFPL2 = -212675*Gaudi::Units::mm;
 }
 
 
@@ -116,7 +116,7 @@ void ForwardRegionGeoModelFactory::DefineMaterials()
 
     // water
     matName = "water";
-    GeoMaterial *water = new GeoMaterial("H20", 1.0*GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3);
+    GeoMaterial *water = new GeoMaterial("H20", 1.0*GeoModelKernelUnits::gram/Gaudi::Units::cm3);
     GeoElement *hydrogen = new GeoElement("Hydrogen","H",1.0, 1.010);
     GeoElement *oxygen   = new GeoElement("Oxygen",  "O", 8.0, 16.0);
     water->add(hydrogen,0.11);
@@ -144,7 +144,7 @@ void ForwardRegionGeoModelFactory::DefineMaterials()
 
     // Copper for beam screens
     matName = "Copper";
-    GeoMaterial *copper = new GeoMaterial("Copper", 8.94*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
+    GeoMaterial *copper = new GeoMaterial("Copper", 8.94*GeoModelKernelUnits::g/Gaudi::Units::cm3);
     copper->add(const_cast<GeoElement*> (Cu),1.0);
     copper->lock();
     m_MapMaterials.insert(std::pair<std::string,GeoMaterial*>(matName,copper));
@@ -152,7 +152,7 @@ void ForwardRegionGeoModelFactory::DefineMaterials()
     // Tungsten for TCL6
     matName = "Tungsten";
     const GeoElement* W = materialManager->getElement("Wolfram");
-    GeoMaterial *tungsten = new GeoMaterial("Tungsten", 19.25*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
+    GeoMaterial *tungsten = new GeoMaterial("Tungsten", 19.25*GeoModelKernelUnits::g/Gaudi::Units::cm3);
     tungsten->add(const_cast<GeoElement*> (W),1.0);
     tungsten->lock();
     m_MapMaterials.insert(std::pair<std::string,GeoMaterial*>(matName,tungsten));
@@ -160,14 +160,14 @@ void ForwardRegionGeoModelFactory::DefineMaterials()
     // GlidCop AL15 copper -- aproximate composition (trace impurities (< 0.01 wt. %) not included)
     // source: http://www-ferp.ucsd.edu/LIB/PROPS/compcu15.html
     matName = "GlidCopAL15";
-    GeoMaterial *glidcop=new GeoMaterial("GlidCopAL15", 8.90*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
+    GeoMaterial *glidcop=new GeoMaterial("GlidCopAL15", 8.90*GeoModelKernelUnits::g/Gaudi::Units::cm3);
 
     double aCu, aAl, aO, aB, aTot;
 
-    aCu=99.7*Cu->getA()/(GeoModelKernelUnits::g/GeoModelKernelUnits::mole);
-    aAl=0.15*Al->getA()/(GeoModelKernelUnits::g/GeoModelKernelUnits::mole);
-    aO=0.13*O->getA()/(GeoModelKernelUnits::g/GeoModelKernelUnits::mole);
-    aB=0.02*B->getA()/(GeoModelKernelUnits::g/GeoModelKernelUnits::mole);
+    aCu=99.7*Cu->getA()/(GeoModelKernelUnits::g/Gaudi::Units::mole);
+    aAl=0.15*Al->getA()/(GeoModelKernelUnits::g/Gaudi::Units::mole);
+    aO=0.13*O->getA()/(GeoModelKernelUnits::g/Gaudi::Units::mole);
+    aB=0.02*B->getA()/(GeoModelKernelUnits::g/Gaudi::Units::mole);
     aTot=aCu+aAl+aO+aB;
 
     glidcop->add(const_cast<GeoElement*> (Cu), aCu/aTot);
@@ -179,20 +179,20 @@ void ForwardRegionGeoModelFactory::DefineMaterials()
 
     // Steel Grade 316L (Roman Pot)
     matName = "Steel";
-    GeoMaterial *steel=new GeoMaterial("Steel", 8*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
+    GeoMaterial *steel=new GeoMaterial("Steel", 8*GeoModelKernelUnits::g/Gaudi::Units::cm3);
 
     double aC,aN,aSi,aP,aS,aCr,aMn,aFe,aNi,aMo,Atot;
 
-    aFe=62.045*Fe->getA()/(GeoModelKernelUnits::g/GeoModelKernelUnits::mole);
-    aC =0.03*C ->getA()/(GeoModelKernelUnits::g/GeoModelKernelUnits::mole);
-    aMn=2.0*Mn ->getA()/(GeoModelKernelUnits::g/GeoModelKernelUnits::mole);
-    aSi=0.75*Si->getA()/(GeoModelKernelUnits::g/GeoModelKernelUnits::mole);
-    aP =0.045*P->getA()/(GeoModelKernelUnits::g/GeoModelKernelUnits::mole);
-    aS =0.03*S ->getA()/(GeoModelKernelUnits::g/GeoModelKernelUnits::mole);
-    aCr=18.0*Cr->getA()/(GeoModelKernelUnits::g/GeoModelKernelUnits::mole);
-    aMo=3.0*Mo ->getA()/(GeoModelKernelUnits::g/GeoModelKernelUnits::mole);
-    aNi=14.0*Ni->getA()/(GeoModelKernelUnits::g/GeoModelKernelUnits::mole);
-    aN =0.10*N ->getA()/(GeoModelKernelUnits::g/GeoModelKernelUnits::mole);
+    aFe=62.045*Fe->getA()/(GeoModelKernelUnits::g/Gaudi::Units::mole);
+    aC =0.03*C ->getA()/(GeoModelKernelUnits::g/Gaudi::Units::mole);
+    aMn=2.0*Mn ->getA()/(GeoModelKernelUnits::g/Gaudi::Units::mole);
+    aSi=0.75*Si->getA()/(GeoModelKernelUnits::g/Gaudi::Units::mole);
+    aP =0.045*P->getA()/(GeoModelKernelUnits::g/Gaudi::Units::mole);
+    aS =0.03*S ->getA()/(GeoModelKernelUnits::g/Gaudi::Units::mole);
+    aCr=18.0*Cr->getA()/(GeoModelKernelUnits::g/Gaudi::Units::mole);
+    aMo=3.0*Mo ->getA()/(GeoModelKernelUnits::g/Gaudi::Units::mole);
+    aNi=14.0*Ni->getA()/(GeoModelKernelUnits::g/Gaudi::Units::mole);
+    aN =0.10*N ->getA()/(GeoModelKernelUnits::g/Gaudi::Units::mole);
     Atot=aFe+aC+aMn+aSi+aP+aS+aCr+aMo+aNi+aN;
 
     steel->add(const_cast<GeoElement*> (Fe),aFe/Atot);
@@ -262,8 +262,8 @@ void ForwardRegionGeoModelFactory::constructElements(GeoPhysVol *fwrPhys,std::ve
             double startX = pointMagStart[0];
             double endX   = pointMagEnd[0];
             double rotationAngle = atan2(endX - startX,endZ - startZ);
-            double r = atof(loadedDataFile[i][xAperture].c_str())*GeoModelKernelUnits::mm/2;
-            double dL = abs(r*tan(rotationAngle))+0.2*GeoModelKernelUnits::mm;
+            double r = atof(loadedDataFile[i][xAperture].c_str())*Gaudi::Units::mm/2;
+            double dL = abs(r*tan(rotationAngle))+0.2*Gaudi::Units::mm;
 
 
             // move start and end points of the magnet element and neighbour elemens accordingly
@@ -288,12 +288,12 @@ void ForwardRegionGeoModelFactory::constructElements(GeoPhysVol *fwrPhys,std::ve
     // --------------- elements cycle -----------------
     for(int i=0; i < lDFSize; i++)
     {
-        startZ = atof(loadedDataFile[i][zStart].c_str())*GeoModelKernelUnits::m;
-        endZ   = atof(loadedDataFile[i][zEnd].c_str())*GeoModelKernelUnits::m;
-        startX = atof(loadedDataFile[i][xStart].c_str())*GeoModelKernelUnits::m;
-        endX   = atof(loadedDataFile[i][xEnd].c_str())*GeoModelKernelUnits::m;
-        startY = atof(loadedDataFile[i][yStart].c_str())*GeoModelKernelUnits::m;
-        endY   = atof(loadedDataFile[i][yEnd].c_str())*GeoModelKernelUnits::m;
+        startZ = atof(loadedDataFile[i][zStart].c_str())*Gaudi::Units::m;
+        endZ   = atof(loadedDataFile[i][zEnd].c_str())*Gaudi::Units::m;
+        startX = atof(loadedDataFile[i][xStart].c_str())*Gaudi::Units::m;
+        endX   = atof(loadedDataFile[i][xEnd].c_str())*Gaudi::Units::m;
+        startY = atof(loadedDataFile[i][yStart].c_str())*Gaudi::Units::m;
+        endY   = atof(loadedDataFile[i][yEnd].c_str())*Gaudi::Units::m;
 
         // translation of element
         x = (startX + endX)/2;
@@ -307,10 +307,10 @@ void ForwardRegionGeoModelFactory::constructElements(GeoPhysVol *fwrPhys,std::ve
         // half-length of element
         halfL = sqrt((endX - startX)*(endX - startX) + (endZ - startZ)*(endZ - startZ))/2;
 
-        r = atof(loadedDataFile[i][xAperture].c_str())*GeoModelKernelUnits::mm/2;
+        r = atof(loadedDataFile[i][xAperture].c_str())*Gaudi::Units::mm/2;
 
         // overlap correction
-        dL = abs(r*tan(rotationAngle))+0.2*GeoModelKernelUnits::mm;
+        dL = abs(r*tan(rotationAngle))+0.2*Gaudi::Units::mm;
 
         // do not shorten magnetic volumes
         if(loadedDataFile[i][name].find("Mag") != std::string::npos)
@@ -322,7 +322,7 @@ void ForwardRegionGeoModelFactory::constructElements(GeoPhysVol *fwrPhys,std::ve
         if(atoi(loadedDataFile[i][type].c_str()) == 0){
             // envelope to allow tracking with G4TrackAction
             if(loadedDataFile[i][name] == "VCDBP.7R1.B"){
-                GeoPhysVol* trackEnv = insertMagnetEnvelope(loadedDataFile[i][name], x, y, z, rotationAngle, 100*GeoModelKernelUnits::mm, halfL, dL, fwrPhys);
+                GeoPhysVol* trackEnv = insertMagnetEnvelope(loadedDataFile[i][name], x, y, z, rotationAngle, 100*Gaudi::Units::mm, halfL, dL, fwrPhys);
                 insertCircularElement(loadedDataFile[i][name], x, y, z, rotationAngle, atof(loadedDataFile[i][xAperture].c_str()), atof(loadedDataFile[i][yAperture].c_str()), halfL, dL, atof(loadedDataFile[i][tubeThickness].c_str()), trackEnv);
             }
             else
@@ -349,20 +349,20 @@ void ForwardRegionGeoModelFactory::constructElements(GeoPhysVol *fwrPhys,std::ve
 
         // elliptical aperture
         if(atoi(loadedDataFile[i][type].c_str()) == 1) {
-            magEnv = insertMagnetEnvelope(loadedDataFile[i][name], x, y, z, rotationAngle, 20*GeoModelKernelUnits::cm, halfL, dL, fwrPhys);
+            magEnv = insertMagnetEnvelope(loadedDataFile[i][name], x, y, z, rotationAngle, 20*Gaudi::Units::cm, halfL, dL, fwrPhys);
             insertEllipticalElement(loadedDataFile[i][name], x, y, z, rotationAngle, atof(loadedDataFile[i][xAperture].c_str()), atof(loadedDataFile[i][yAperture].c_str()), halfL, dL, atof(loadedDataFile[i][tubeThickness].c_str()), magEnv);
         }
 
 
-        double magDiam = 19.4*GeoModelKernelUnits::cm;
+        double magDiam = 19.4*Gaudi::Units::cm;
         if(loadedDataFile[i][name].find("Mag") != std::string::npos)
-            magDiam= 19.4*GeoModelKernelUnits::cm;
+            magDiam= 19.4*Gaudi::Units::cm;
         if(loadedDataFile[i][name] == "LQXAA.1R1MagQ1" || loadedDataFile[i][name] == "LQXAG.3R1MagQ3")
-            magDiam = 48*GeoModelKernelUnits::cm;
+            magDiam = 48*Gaudi::Units::cm;
         if(loadedDataFile[i][name] == "LQXBA.2R1MagQ2a" || loadedDataFile[i][name] == "LQXBA.2R1MagQ2b")
-            magDiam = 52*GeoModelKernelUnits::cm;
+            magDiam = 52*Gaudi::Units::cm;
         //else magDiam = std::max(atof(loadedDataFile[i][xAperture].c_str()), atof(loadedDataFile[i][yAperture].c_str()))+2*atof(loadedDataFile[i][tubeThickness].c_str());
-        //else magDiam = 19.4*GeoModelKernelUnits::cm;
+        //else magDiam = 19.4*Gaudi::Units::cm;
 
         // rectcircular aperture with flats in x
         if(atoi(loadedDataFile[i][type].c_str()) == 2) {
@@ -396,16 +396,16 @@ void ForwardRegionGeoModelFactory::create(GeoPhysVol *world)
 
   double startZ,endZ;
 
-  if(m_Config.vp1Compatibility) startZ = 19.0*GeoModelKernelUnits::m;
-  else startZ = 22.0*GeoModelKernelUnits::m;
-  endZ = 268.904*GeoModelKernelUnits::m;
+  if(m_Config.vp1Compatibility) startZ = 19.0*Gaudi::Units::m;
+  else startZ = 22.0*Gaudi::Units::m;
+  endZ = 268.904*Gaudi::Units::m;
 
   //rotationAngle_old = 0;
 
   // mother volume -- union of tubes, one for each side
-  //const GeoBox      *fwrBox    = new GeoBox(2*GeoModelKernelUnits::m,0.5*GeoModelKernelUnits::m,(endZ-startZ)/2);
-  const GeoTube     *fwrTubeL    = new GeoTube(0,2*GeoModelKernelUnits::m,(endZ-startZ)/2);
-  GeoTube     *fwrTubeR    = new GeoTube(0,2*GeoModelKernelUnits::m,(endZ-startZ)/2);
+  //const GeoBox      *fwrBox    = new GeoBox(2*Gaudi::Units::m,0.5*Gaudi::Units::m,(endZ-startZ)/2);
+  const GeoTube     *fwrTubeL    = new GeoTube(0,2*Gaudi::Units::m,(endZ-startZ)/2);
+  GeoTube     *fwrTubeR    = new GeoTube(0,2*Gaudi::Units::m,(endZ-startZ)/2);
   GeoTrf::Transform3D shiftL = GeoTrf::Translate3D(0,0,(endZ+startZ)/2);
   GeoTrf::Transform3D shiftR = GeoTrf::Translate3D(0,0,-(endZ+startZ)/2);
 
@@ -413,16 +413,16 @@ void ForwardRegionGeoModelFactory::create(GeoPhysVol *world)
   const GeoShapeUnion& fwrTube1 = fwrTube0.add((*fwrTubeR)<<shiftR);
 
   // cut out slots for ALFA
-  const GeoTube     *alfa    = new GeoTube(0, 2*GeoModelKernelUnits::m, 500*GeoModelKernelUnits::mm);
-  GeoTrf::Transform3D shiftAlfaL1 = GeoTrf::Translate3D(0,0,237388*GeoModelKernelUnits::mm);
-  GeoTrf::Transform3D shiftAlfaR1 = GeoTrf::Translate3D(0,0,-237408*GeoModelKernelUnits::mm);
-  GeoTrf::Transform3D shiftAlfaL2 = GeoTrf::Translate3D(0,0,(m_Config.ALFAInNewPosition ? m_Config.newPosB7L1 : 241528*GeoModelKernelUnits::mm));
-  GeoTrf::Transform3D shiftAlfaR2 = GeoTrf::Translate3D(0,0,(m_Config.ALFAInNewPosition ? m_Config.newPosB7R1 :-241548*GeoModelKernelUnits::mm));
+  const GeoTube     *alfa    = new GeoTube(0, 2*Gaudi::Units::m, 500*Gaudi::Units::mm);
+  GeoTrf::Transform3D shiftAlfaL1 = GeoTrf::Translate3D(0,0,237388*Gaudi::Units::mm);
+  GeoTrf::Transform3D shiftAlfaR1 = GeoTrf::Translate3D(0,0,-237408*Gaudi::Units::mm);
+  GeoTrf::Transform3D shiftAlfaL2 = GeoTrf::Translate3D(0,0,(m_Config.ALFAInNewPosition ? m_Config.newPosB7L1 : 241528*Gaudi::Units::mm));
+  GeoTrf::Transform3D shiftAlfaR2 = GeoTrf::Translate3D(0,0,(m_Config.ALFAInNewPosition ? m_Config.newPosB7R1 :-241548*Gaudi::Units::mm));
   const GeoShapeSubtraction& fwrTube2 = fwrTube1.subtract((*alfa)<<shiftAlfaL1).subtract((*alfa)<<shiftAlfaL2).subtract((*alfa)<<shiftAlfaR1).subtract((*alfa)<<shiftAlfaR2);
 
   // cut out slots for AFP
-  const GeoTube     *afp    = new GeoTube(0, 2.5*GeoModelKernelUnits::m, 280*GeoModelKernelUnits::mm);
-  const GeoTube     *afp2    = new GeoTube(0, 2.5*GeoModelKernelUnits::m, 580*GeoModelKernelUnits::mm);
+  const GeoTube     *afp    = new GeoTube(0, 2.5*Gaudi::Units::m, 280*Gaudi::Units::mm);
+  const GeoTube     *afp2    = new GeoTube(0, 2.5*Gaudi::Units::m, 580*Gaudi::Units::mm);
   GeoTrf::Transform3D shiftAfpL1 = GeoTrf::Translate3D(0,0,m_Config.posAFPL1);
   GeoTrf::Transform3D shiftAfpR1 = GeoTrf::Translate3D(0,0,m_Config.posAFPR1);
   GeoTrf::Transform3D shiftAfpL2 = GeoTrf::Translate3D(0,0,m_Config.posAFPL2);

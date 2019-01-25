@@ -18,11 +18,10 @@
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
 #include "GeoGenericFunctions/AbsFunction.h"
 #include "GeoGenericFunctions/Sin.h"
 #include "GeoGenericFunctions/Cos.h"
-
+#include "GaudiKernel/SystemOfUnits.h"
 
 GeoPhysVol* ForwardRegionGeoModelFactory::insertMagnetEnvelope(std::string name, double x, double y, double z, double rotationAngle, double diameter, double halfL, double dL, GeoPhysVol* fwrPhys)
 {
@@ -30,7 +29,7 @@ GeoPhysVol* ForwardRegionGeoModelFactory::insertMagnetEnvelope(std::string name,
 
     GeoTrf::Transform3D shift = GeoTrf::Translate3D(x,y,z);
     GeoTrf::Transform3D rotate = GeoTrf::RotateY3D(rotationAngle);
-//    Transform3D rotateX180 = GeoTrf::RotateX3D(180*GeoModelKernelUnits::deg);
+//    Transform3D rotateX180 = GeoTrf::RotateX3D(180*Gaudi::Units::deg);
 
     const GeoShapeShift& magTube0 = (*tube)<<rotate<<shift;
 //    const GeoShapeUnion& magTube = magTube0.add((*tube)<<rotate<<shift<<rotateX180);
@@ -49,7 +48,7 @@ GeoPhysVol* ForwardRegionGeoModelFactory::insertMagnetEnvelope(std::string name,
 
 void ForwardRegionGeoModelFactory::insertCircularElement(std::string name, double x, double y, double z, double rotationAngle, double xAperture, double yAperture, double halfL, double dL, double tubeThickness, GeoPhysVol* fwrPhys)
 {
-    double r0 = std::max(xAperture,yAperture)*GeoModelKernelUnits::mm/2;
+    double r0 = std::max(xAperture,yAperture)*Gaudi::Units::mm/2;
 
     const GeoTube     *ringTube  = new GeoTube(r0, r0+tubeThickness, halfL-dL);
 
@@ -69,7 +68,7 @@ void ForwardRegionGeoModelFactory::insertCircularElement(std::string name, doubl
     fwrPhys->add(ringPhys);
 
 //    // The other side of the forward region may be obtained by rotation
-//    GeoTransform *rotateX180  = new GeoTransform(GeoTrf::RotateX3D(180*GeoModelKernelUnits::deg));
+//    GeoTransform *rotateX180  = new GeoTransform(GeoTrf::RotateX3D(180*Gaudi::Units::deg));
 
 //    // the other side
 //    fwrPhys->add(rotateX180);
@@ -87,12 +86,12 @@ void ForwardRegionGeoModelFactory::insertEllipticalElement(std::string name, dou
 
     // GeoEllipticalTube causes VP1 to fall, so for visualization GeoBox is used
     if(!m_Config.vp1Compatibility) {
-        ringTube0  = new GeoEllipticalTube(xAperture*GeoModelKernelUnits::mm/2+tubeThickness, yAperture*GeoModelKernelUnits::mm/2+tubeThickness, halfL-dL);
-        ringTube2  = new GeoEllipticalTube(xAperture*GeoModelKernelUnits::mm/2, yAperture*GeoModelKernelUnits::mm/2, halfL-dL);
+        ringTube0  = new GeoEllipticalTube(xAperture*Gaudi::Units::mm/2+tubeThickness, yAperture*Gaudi::Units::mm/2+tubeThickness, halfL-dL);
+        ringTube2  = new GeoEllipticalTube(xAperture*Gaudi::Units::mm/2, yAperture*Gaudi::Units::mm/2, halfL-dL);
     }
     else {
-        ringTube0  = new GeoBox(xAperture*GeoModelKernelUnits::mm/2+tubeThickness, yAperture*GeoModelKernelUnits::mm/2+tubeThickness, halfL-dL);
-        ringTube2  = new GeoBox(xAperture*GeoModelKernelUnits::mm/2, yAperture*GeoModelKernelUnits::mm/2, halfL-dL);
+        ringTube0  = new GeoBox(xAperture*Gaudi::Units::mm/2+tubeThickness, yAperture*Gaudi::Units::mm/2+tubeThickness, halfL-dL);
+        ringTube2  = new GeoBox(xAperture*Gaudi::Units::mm/2, yAperture*Gaudi::Units::mm/2, halfL-dL);
     }
     GeoShapeSubtraction * ringTube = new GeoShapeSubtraction(ringTube0, ringTube2);
 
@@ -112,7 +111,7 @@ void ForwardRegionGeoModelFactory::insertEllipticalElement(std::string name, dou
     fwrPhys->add(ringPhys);
 
 //    // The other side of the forward region may be obtained by rotation
-//    GeoTransform *rotateX180  = new GeoTransform(GeoTrf::RotateX3D(180*GeoModelKernelUnits::deg));
+//    GeoTransform *rotateX180  = new GeoTransform(GeoTrf::RotateX3D(180*Gaudi::Units::deg));
 
 //    // the other side
 //    fwrPhys->add(rotateX180);
@@ -125,22 +124,22 @@ void ForwardRegionGeoModelFactory::insertEllipticalElement(std::string name, dou
 
 void ForwardRegionGeoModelFactory::insertXRecticircularElement(std::string name, double x, double y, double z, double rotationAngle, double xAperture, double yAperture, double halfL, double dL, double tubeThickness, GeoPhysVol* fwrPhys)
 {
-    double beamScreenSeparation = 1.5*GeoModelKernelUnits::mm;
-    double beamScreenCuThick = 0.05*GeoModelKernelUnits::mm;
-    double beamScreenSteelThick = 1*GeoModelKernelUnits::mm;
+    double beamScreenSeparation = 1.5*Gaudi::Units::mm;
+    double beamScreenCuThick = 0.05*Gaudi::Units::mm;
+    double beamScreenSteelThick = 1*Gaudi::Units::mm;
 
-    const GeoTube     *ringTube  = new GeoTube(yAperture*GeoModelKernelUnits::mm/2+beamScreenCuThick+beamScreenSteelThick+beamScreenSeparation, yAperture*GeoModelKernelUnits::mm/2+beamScreenCuThick+beamScreenSteelThick+beamScreenSeparation+tubeThickness, halfL-dL);
-    const GeoTube     *circ  = new GeoTube(0, yAperture*GeoModelKernelUnits::mm/2, halfL-dL);
-    const GeoBox      *rect  = new GeoBox(xAperture*GeoModelKernelUnits::mm/2, yAperture*GeoModelKernelUnits::mm/2, halfL-dL);
+    const GeoTube     *ringTube  = new GeoTube(yAperture*Gaudi::Units::mm/2+beamScreenCuThick+beamScreenSteelThick+beamScreenSeparation, yAperture*Gaudi::Units::mm/2+beamScreenCuThick+beamScreenSteelThick+beamScreenSeparation+tubeThickness, halfL-dL);
+    const GeoTube     *circ  = new GeoTube(0, yAperture*Gaudi::Units::mm/2, halfL-dL);
+    const GeoBox      *rect  = new GeoBox(xAperture*Gaudi::Units::mm/2, yAperture*Gaudi::Units::mm/2, halfL-dL);
     GeoShapeIntersection *innerVac = new GeoShapeIntersection(rect,circ);
 
-    const GeoTube     *circ2  = new GeoTube(0, yAperture*GeoModelKernelUnits::mm/2+beamScreenCuThick, halfL-dL);
-    const GeoBox      *rect2  = new GeoBox(xAperture*GeoModelKernelUnits::mm/2+beamScreenCuThick, yAperture*GeoModelKernelUnits::mm/2+beamScreenCuThick, halfL-dL);
+    const GeoTube     *circ2  = new GeoTube(0, yAperture*Gaudi::Units::mm/2+beamScreenCuThick, halfL-dL);
+    const GeoBox      *rect2  = new GeoBox(xAperture*Gaudi::Units::mm/2+beamScreenCuThick, yAperture*Gaudi::Units::mm/2+beamScreenCuThick, halfL-dL);
     GeoShapeIntersection *beamScreenCu0 = new GeoShapeIntersection(rect2,circ2);
     GeoShapeSubtraction *beamScreenCu = new GeoShapeSubtraction(beamScreenCu0, innerVac);
 
-    const GeoTube     *circ3  = new GeoTube(0, yAperture*GeoModelKernelUnits::mm/2+beamScreenCuThick+beamScreenSteelThick, halfL-dL);
-    const GeoBox      *rect3  = new GeoBox(xAperture*GeoModelKernelUnits::mm/2+beamScreenCuThick+beamScreenSteelThick, yAperture*GeoModelKernelUnits::mm/2+beamScreenCuThick+beamScreenSteelThick, halfL-dL);
+    const GeoTube     *circ3  = new GeoTube(0, yAperture*Gaudi::Units::mm/2+beamScreenCuThick+beamScreenSteelThick, halfL-dL);
+    const GeoBox      *rect3  = new GeoBox(xAperture*Gaudi::Units::mm/2+beamScreenCuThick+beamScreenSteelThick, yAperture*Gaudi::Units::mm/2+beamScreenCuThick+beamScreenSteelThick, halfL-dL);
     GeoShapeIntersection *beamScreenSteel01 = new GeoShapeIntersection(rect3,circ3);
     GeoShapeSubtraction *beamScreenSteel02 = new GeoShapeSubtraction(beamScreenSteel01, innerVac);
     GeoShapeSubtraction *beamScreenSteel = new GeoShapeSubtraction(beamScreenSteel02, beamScreenCu);
@@ -179,7 +178,7 @@ void ForwardRegionGeoModelFactory::insertXRecticircularElement(std::string name,
 
 
 //    // The other side of the forward region may be obtain by rotation
-//    GeoTransform *rotateX180  = new GeoTransform(GeoTrf::RotateX3D(180*GeoModelKernelUnits::deg));
+//    GeoTransform *rotateX180  = new GeoTransform(GeoTrf::RotateX3D(180*Gaudi::Units::deg));
 
 //    // the other side
 //    fwrPhys->add(rotateX180);
@@ -206,22 +205,22 @@ void ForwardRegionGeoModelFactory::insertXRecticircularElement(std::string name,
 
 void ForwardRegionGeoModelFactory::insertYRecticircularElement(std::string name, double x, double y, double z, double rotationAngle, double xAperture, double yAperture, double halfL, double dL, double tubeThickness, GeoPhysVol* fwrPhys)
 {
-    double beamScreenSeparation = 1.5*GeoModelKernelUnits::mm;
-    double beamScreenCuThick = 0.05*GeoModelKernelUnits::mm;
-    double beamScreenSteelThick = 1*GeoModelKernelUnits::mm;
+    double beamScreenSeparation = 1.5*Gaudi::Units::mm;
+    double beamScreenCuThick = 0.05*Gaudi::Units::mm;
+    double beamScreenSteelThick = 1*Gaudi::Units::mm;
 
-    const GeoTube     *ringTube  = new GeoTube(xAperture*GeoModelKernelUnits::mm/2+beamScreenCuThick+beamScreenSteelThick+beamScreenSeparation, xAperture*GeoModelKernelUnits::mm/2+beamScreenCuThick+beamScreenSteelThick+beamScreenSeparation+tubeThickness, halfL-dL);
-    const GeoTube     *circ  = new GeoTube(0, xAperture*GeoModelKernelUnits::mm/2, halfL-dL);
-    const GeoBox      *rect  = new GeoBox(xAperture*GeoModelKernelUnits::mm/2, yAperture*GeoModelKernelUnits::mm/2, halfL-dL);
+    const GeoTube     *ringTube  = new GeoTube(xAperture*Gaudi::Units::mm/2+beamScreenCuThick+beamScreenSteelThick+beamScreenSeparation, xAperture*Gaudi::Units::mm/2+beamScreenCuThick+beamScreenSteelThick+beamScreenSeparation+tubeThickness, halfL-dL);
+    const GeoTube     *circ  = new GeoTube(0, xAperture*Gaudi::Units::mm/2, halfL-dL);
+    const GeoBox      *rect  = new GeoBox(xAperture*Gaudi::Units::mm/2, yAperture*Gaudi::Units::mm/2, halfL-dL);
     GeoShapeIntersection *innerVac = new GeoShapeIntersection(rect,circ);
 
-    const GeoTube     *circ2  = new GeoTube(0, xAperture*GeoModelKernelUnits::mm/2+beamScreenCuThick, halfL-dL);
-    const GeoBox      *rect2  = new GeoBox(xAperture*GeoModelKernelUnits::mm/2+beamScreenCuThick, yAperture*GeoModelKernelUnits::mm/2+beamScreenCuThick, halfL-dL);
+    const GeoTube     *circ2  = new GeoTube(0, xAperture*Gaudi::Units::mm/2+beamScreenCuThick, halfL-dL);
+    const GeoBox      *rect2  = new GeoBox(xAperture*Gaudi::Units::mm/2+beamScreenCuThick, yAperture*Gaudi::Units::mm/2+beamScreenCuThick, halfL-dL);
     GeoShapeIntersection *beamScreenCu0 = new GeoShapeIntersection(rect2,circ2);
     GeoShapeSubtraction *beamScreenCu = new GeoShapeSubtraction(beamScreenCu0, innerVac);
 
-    const GeoTube     *circ3  = new GeoTube(0, xAperture*GeoModelKernelUnits::mm/2+beamScreenCuThick+beamScreenSteelThick, halfL-dL);
-    const GeoBox      *rect3  = new GeoBox(xAperture*GeoModelKernelUnits::mm/2+beamScreenCuThick+beamScreenSteelThick, yAperture*GeoModelKernelUnits::mm/2+beamScreenCuThick+beamScreenSteelThick, halfL-dL);
+    const GeoTube     *circ3  = new GeoTube(0, xAperture*Gaudi::Units::mm/2+beamScreenCuThick+beamScreenSteelThick, halfL-dL);
+    const GeoBox      *rect3  = new GeoBox(xAperture*Gaudi::Units::mm/2+beamScreenCuThick+beamScreenSteelThick, yAperture*Gaudi::Units::mm/2+beamScreenCuThick+beamScreenSteelThick, halfL-dL);
     GeoShapeIntersection *beamScreenSteel01 = new GeoShapeIntersection(rect3,circ3);
     GeoShapeSubtraction *beamScreenSteel02 = new GeoShapeSubtraction(beamScreenSteel01, innerVac);
     GeoShapeSubtraction *beamScreenSteel = new GeoShapeSubtraction(beamScreenSteel02, beamScreenCu);
@@ -258,7 +257,7 @@ void ForwardRegionGeoModelFactory::insertYRecticircularElement(std::string name,
     fwrPhys->add(ringPhysSteel);
 
 //    // The other side of the forward region may be obtain by rotation
-//    GeoTransform *rotateX180  = new GeoTransform(GeoTrf::RotateX3D(180*GeoModelKernelUnits::deg));
+//    GeoTransform *rotateX180  = new GeoTransform(GeoTrf::RotateX3D(180*Gaudi::Units::deg));
 
 //    // the other side
 //    fwrPhys->add(rotateX180);
@@ -290,13 +289,13 @@ void ForwardRegionGeoModelFactory::insertTrousersElement(std::string name, doubl
 
     // CONSTANTS
     double TAN_A, TAN_B, TAN_C, TAN_Dsmall, TAN_Dbig, TAN_thick1, TAN_xseparation;
-    TAN_A = 700*GeoModelKernelUnits::mm;
-    TAN_B = 500*GeoModelKernelUnits::mm;
-    TAN_C = 3700*GeoModelKernelUnits::mm;
-    TAN_Dsmall = 52*GeoModelKernelUnits::mm;
-    TAN_Dbig = 212*GeoModelKernelUnits::mm;
-    TAN_thick1 = 4.5*GeoModelKernelUnits::mm;
-    TAN_xseparation = 80*GeoModelKernelUnits::mm;
+    TAN_A = 700*Gaudi::Units::mm;
+    TAN_B = 500*Gaudi::Units::mm;
+    TAN_C = 3700*Gaudi::Units::mm;
+    TAN_Dsmall = 52*Gaudi::Units::mm;
+    TAN_Dbig = 212*Gaudi::Units::mm;
+    TAN_thick1 = 4.5*Gaudi::Units::mm;
+    TAN_xseparation = 80*Gaudi::Units::mm;
 
     // Derived constants
     double TAN_Rsmall, TAN_Rbig, TAN_coneZh, TAN_coneR, TAN_coneXh;//, TAN_halflength;
@@ -310,12 +309,12 @@ void ForwardRegionGeoModelFactory::insertTrousersElement(std::string name, doubl
     // volume construction
 
     // inner part
-    GeoPcon *TANi_cone0 = new GeoPcon(0,360*GeoModelKernelUnits::deg);
+    GeoPcon *TANi_cone0 = new GeoPcon(0,360*Gaudi::Units::deg);
     TANi_cone0->addPlane(2*TAN_coneZh, TAN_Rsmall, 2*TAN_Rbig);
     TANi_cone0->addPlane(TAN_coneZh, TAN_Rsmall, 2*TAN_Rbig);
     TANi_cone0->addPlane(-TAN_coneZh, TAN_coneR, 2*TAN_Rbig);
     GeoTrf::Transform3D TAN_moveCone = GeoTrf::Translate3D(TAN_coneXh,0,0.5*(TAN_A-TAN_B));
-    GeoTrf::Transform3D TAN_rotateCone = GeoTrf::RotateY3D(5*GeoModelKernelUnits::deg);
+    GeoTrf::Transform3D TAN_rotateCone = GeoTrf::RotateY3D(5*Gaudi::Units::deg);
     const GeoShapeShift& TANi_cone = (*TANi_cone0)<<TAN_rotateCone<<TAN_moveCone;
 
     const GeoBox *TAN_box0 = new GeoBox(2*TAN_Rbig,2*TAN_Rbig,TAN_A+TAN_B);
@@ -328,13 +327,13 @@ void ForwardRegionGeoModelFactory::insertTrousersElement(std::string name, doubl
 
     GeoShapeSubtraction *TANi_h = new GeoShapeSubtraction(TANi_hcyl, &TANi_cone);
     GeoTrf::Transform3D TAN_moveH = GeoTrf::Translate3D(0,0,-0.5*TAN_C);
-    GeoTrf::Transform3D TAN_rotateH = GeoTrf::RotateZ3D(180*GeoModelKernelUnits::deg);
+    GeoTrf::Transform3D TAN_rotateH = GeoTrf::RotateZ3D(180*Gaudi::Units::deg);
 
     GeoTrf::Transform3D TAN_moveTube1 = GeoTrf::Translate3D(TAN_xseparation,0,0.5*(TAN_A+TAN_B));
     GeoTrf::Transform3D TAN_moveTube2 = GeoTrf::Translate3D(-TAN_xseparation,0,0.5*(TAN_A+TAN_B));
 
     // outer part
-    GeoPcon *TANo_cone0 = new GeoPcon(0,360*GeoModelKernelUnits::deg);
+    GeoPcon *TANo_cone0 = new GeoPcon(0,360*Gaudi::Units::deg);
     TANo_cone0->addPlane(2*TAN_coneZh, TAN_Rsmall+TAN_thick1, 2*TAN_Rbig);
     TANo_cone0->addPlane(TAN_coneZh, TAN_Rsmall+TAN_thick1, 2*TAN_Rbig);
     TANo_cone0->addPlane(-TAN_coneZh, TAN_coneR+TAN_thick1, 2*TAN_Rbig);
@@ -355,7 +354,7 @@ void ForwardRegionGeoModelFactory::insertTrousersElement(std::string name, doubl
     const GeoShapeShift& TAN_shape1 = (*TAN_shape)<<TAN_moveH;
     const GeoShapeShift& TAN_shape2 = (*TAN_shape)<<TAN_moveH<<TAN_rotateH;
 
-    const GeoTube *TANo_ftube = new GeoTube(TAN_Rsmall,TAN_Rsmall+TAN_thick1,0.5*TAN_C-0.1*GeoModelKernelUnits::mm);
+    const GeoTube *TANo_ftube = new GeoTube(TAN_Rsmall,TAN_Rsmall+TAN_thick1,0.5*TAN_C-0.1*Gaudi::Units::mm);
     const GeoShapeShift& TANo_ftube1 = (*TANo_ftube)<<TAN_moveTube1;
     const GeoShapeShift& TANo_ftube2 = (*TANo_ftube)<<TAN_moveTube2;
 
@@ -380,7 +379,7 @@ void ForwardRegionGeoModelFactory::insertTrousersElement(std::string name, doubl
     fwrPhys->add(ringPhys);
 
 //    // The other side of the forward region may be obtained by rotation
-//    GeoTransform *rotateX180  = new GeoTransform(GeoTrf::RotateX3D(180*GeoModelKernelUnits::deg));
+//    GeoTransform *rotateX180  = new GeoTransform(GeoTrf::RotateX3D(180*Gaudi::Units::deg));
 
 //    // the other side
 //    fwrPhys->add(rotateX180);
@@ -395,43 +394,43 @@ void ForwardRegionGeoModelFactory::insertTCLElement(std::string name, double x, 
 {
     // Constants
     double TCL_BOX_halflength, TCL_BOX_halfwidth, TCL_BOX_halfheight, TCL_BOX_sideThickness, TCL_BOX_topBottomThickness, TCL_BOX_endThickness, TCL_TUBE_halflength, TCL_TUBE_halfapperture, TCL_TUBE_thickness;
-    TCL_BOX_sideThickness = 6*GeoModelKernelUnits::mm;
-    TCL_BOX_topBottomThickness = 18*GeoModelKernelUnits::mm;
-    TCL_BOX_endThickness = 18*GeoModelKernelUnits::mm;
+    TCL_BOX_sideThickness = 6*Gaudi::Units::mm;
+    TCL_BOX_topBottomThickness = 18*Gaudi::Units::mm;
+    TCL_BOX_endThickness = 18*Gaudi::Units::mm;
 
-    TCL_BOX_halflength = 621*GeoModelKernelUnits::mm;
-    TCL_BOX_halfwidth = 132*GeoModelKernelUnits::mm;
+    TCL_BOX_halflength = 621*Gaudi::Units::mm;
+    TCL_BOX_halfwidth = 132*Gaudi::Units::mm;
     TCL_BOX_halfheight = 60+TCL_BOX_topBottomThickness;
 
-    TCL_TUBE_halflength = 59.5*GeoModelKernelUnits::mm;
-    TCL_TUBE_halfapperture = 53*GeoModelKernelUnits::mm;
-    TCL_TUBE_thickness = 2*GeoModelKernelUnits::mm;
+    TCL_TUBE_halflength = 59.5*Gaudi::Units::mm;
+    TCL_TUBE_halfapperture = 53*Gaudi::Units::mm;
+    TCL_TUBE_thickness = 2*Gaudi::Units::mm;
 
     double TCL_CuBlock_halflength, TCL_CuBlock_halfwidth, TCL_CuBlock_halfheight, TCL_CuBlockCylCut_zDepth, TCL_CuBlockCylCut_angle, TCL_CuBlockCylCut_cylR, TCL_CuBlockCylCut_cylHalflength, TCL_CuBlockCylCut_xDepth, TCL_CuBlockCylCut_xShift;
-    TCL_CuBlock_halflength = 597*GeoModelKernelUnits::mm;
-    TCL_CuBlock_halfwidth = 14.5*GeoModelKernelUnits::mm;
-    TCL_CuBlock_halfheight = 40*GeoModelKernelUnits::mm;
+    TCL_CuBlock_halflength = 597*Gaudi::Units::mm;
+    TCL_CuBlock_halfwidth = 14.5*Gaudi::Units::mm;
+    TCL_CuBlock_halfheight = 40*Gaudi::Units::mm;
 
-    TCL_CuBlockCylCut_zDepth = 90*GeoModelKernelUnits::mm;
-    TCL_CuBlockCylCut_angle = 12*GeoModelKernelUnits::deg;
-    TCL_CuBlockCylCut_cylR = 40*GeoModelKernelUnits::mm;
+    TCL_CuBlockCylCut_zDepth = 90*Gaudi::Units::mm;
+    TCL_CuBlockCylCut_angle = 12*Gaudi::Units::deg;
+    TCL_CuBlockCylCut_cylR = 40*Gaudi::Units::mm;
 
     TCL_CuBlockCylCut_cylHalflength = TCL_CuBlockCylCut_zDepth/cos(TCL_CuBlockCylCut_angle);
     TCL_CuBlockCylCut_xDepth = TCL_CuBlockCylCut_zDepth*tan(TCL_CuBlockCylCut_angle);
     TCL_CuBlockCylCut_xShift = -TCL_CuBlock_halfwidth-TCL_CuBlockCylCut_cylR/cos(TCL_CuBlockCylCut_angle)+TCL_CuBlockCylCut_xDepth;
 
     double TCL_CuBeam_halflength, TCL_CuBeam_halfwidth, TCL_CuBeam_halfheight, TCL_Cooling_width;
-    TCL_CuBeam_halflength = 530*GeoModelKernelUnits::mm;
-    TCL_CuBeam_halfwidth = 15*GeoModelKernelUnits::mm;
-    TCL_CuBeam_halfheight = 40*GeoModelKernelUnits::mm;
+    TCL_CuBeam_halflength = 530*Gaudi::Units::mm;
+    TCL_CuBeam_halfwidth = 15*Gaudi::Units::mm;
+    TCL_CuBeam_halfheight = 40*Gaudi::Units::mm;
 
-    TCL_Cooling_width = 9*GeoModelKernelUnits::mm;
+    TCL_Cooling_width = 9*Gaudi::Units::mm;
 
 
 
     // rotate by 180 deg around X and Y
-    GeoTrf::Transform3D rotateX180 = GeoTrf::RotateX3D(180*GeoModelKernelUnits::deg);
-    GeoTrf::Transform3D rotateY180 = GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg);
+    GeoTrf::Transform3D rotateX180 = GeoTrf::RotateX3D(180*Gaudi::Units::deg);
+    GeoTrf::Transform3D rotateY180 = GeoTrf::RotateY3D(180*Gaudi::Units::deg);
 
     // inner vacuum volume solid
     const GeoBox * boxIn = new GeoBox(TCL_BOX_halfwidth-TCL_BOX_sideThickness, TCL_BOX_halfheight-TCL_BOX_topBottomThickness, TCL_BOX_halflength-TCL_BOX_endThickness);
