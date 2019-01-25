@@ -93,15 +93,15 @@ EnabledElComboChains = []
 
 # muon chains
 if doMuon:
-    from TrigUpgradeTest.HLTSignatureConfig import muStep1Sequence, muStep2Sequence
-    muStep1 = muStep1Sequence()
-    muStep2 = muStep2Sequence()
+    from TrigUpgradeTest.HLTSignatureConfig import muStep1MenuSequence, muStep2MenuSequence
+    muStep1 = muStep1MenuSequence()
+    muStep2 = muStep2MenuSequence()
 
 
     MuChains  = [
-        Chain(name='HLT_mu20', Seed="L1_MU10",   ChainSteps=[ChainStep("Step1_mu", [muStep1]) , ChainStep("Step2_mu", [muStep2] )]) ,
+        Chain(name='HLT_mu20', Seed="L1_MU10",      ChainSteps=[ChainStep("Step1_mu", [muStep1]) , ChainStep("Step2_mu", [muStep2] )]) ,
         Chain(name='HLT_mu81step', Seed="L1_MU6",   ChainSteps=[ChainStep("Step1_mu", [muStep1]) ]) ,
-        Chain(name='HLT_mu8',  Seed="L1_MU6",    ChainSteps=[ChainStep("Step1_mu", [muStep1]) , ChainStep("Step2_mu",  [muStep2] ) ] )
+        Chain(name='HLT_mu8',  Seed="L1_MU6",       ChainSteps=[ChainStep("Step1_mu", [muStep1]) , ChainStep("Step2_mu",  [muStep2] ) ] )
         ]
 
     HLTChains += MuChains
@@ -112,11 +112,11 @@ if doMuon:
 
 ## #electron chains
 if doElectron:
-    from TrigUpgradeTest.HLTSignatureConfig import elStep1Sequence, elStep2Sequence, gammStep1Sequence
-    elStep1 = elStep1Sequence()
-    elStep2 = elStep2Sequence()
+    from TrigUpgradeTest.HLTSignatureConfig import elStep1MenuSequence, elStep2MenuSequence, gammStep1MenuSequence
+    elStep1 = elStep1MenuSequence()
+    elStep2 = elStep2MenuSequence()
 
-    gammStep1 = gammStep1Sequence()
+    gammStep1 = gammStep1MenuSequence()
     
     ElChains  = [
         Chain(name='HLT_e5'  , Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_em",  [elStep1]), ChainStep("Step2_em",  [elStep2]) ] ),
@@ -131,11 +131,11 @@ if doElectron:
 
 # combined chain
 if doCombo:
-    from TrigUpgradeTest.HLTSignatureConfig import elStep1Sequence, muStep1Sequence, elStep2Sequence, muStep2Sequence
-    elStep1 = elStep1Sequence()
-    muStep1 = muStep1Sequence()
-    elStep2 = elStep2Sequence()
-    muStep2 = muStep2Sequence()
+    from TrigUpgradeTest.HLTSignatureConfig import elStep1MenuSequence, muStep1MenuSequence, elStep2MenuSequence, muStep2MenuSequence
+    elStep1 = elStep1MenuSequence()
+    muStep1 = muStep1MenuSequence()
+    elStep2 = elStep2MenuSequence()
+    muStep2 = muStep2MenuSequence()
 
     
     CombChains =[
