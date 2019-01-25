@@ -115,13 +115,6 @@ _setup_python_package( futures
    a6fa247e3c5fe3d60d8e12f1b873cc88
    )
 
-# Install jsonpickle:
-_setup_python_package( jsonpickle
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/jsonpickle-0.4.0.tar.gz
-   63916228294218ca6e53fd1b16b626fa
-   DEPENDS simplejson
-   SINGLE_VERSION )
-
 # Install pyflakes:
 _setup_python_package( pyflakes
    ${CMAKE_CURRENT_SOURCE_DIR}/src/pyflakes-2.0.0.tar.gz
@@ -171,12 +164,6 @@ _setup_python_package( pyyaml
    45e5b429265d7815699be439adc8b37e
    EXTRA_ARGS --without-libyaml
    SINGLE_VERSION )
-
-# Install simplejson:
-_setup_python_package( simplejson
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/simplejson-2.1.6.tar.gz
-   2f8351f6e6fe7ef25744805dfa56c0d5
-   )
 
 # Install gcovr:
 _setup_python_package( gcovr
