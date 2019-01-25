@@ -1379,7 +1379,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doNewTracking                     , True )
        self.checkThenSet(self.doLowPt                           , False)
        self.checkThenSet(self.doVeryLowPt                       , False)
-       self.checkThenSet(self.doSLHCConversionFinding           , True )
+       self.checkThenSet(self.doSLHCConversionFinding           , False )
        self.checkThenSet(self.doBeamGas                         , False)
        self.checkThenSet(self.doBeamHalo                        , False)
        self.checkThenSet(self.doxKalman                         , False)
