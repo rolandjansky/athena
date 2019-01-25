@@ -65,6 +65,7 @@ globalflags.InputFormat.set_Value_and_Lock('bytestream')
 
 svcMgr.ByteStreamAddressProviderSvc.TypeNames += [
     'TileRawChannelContainer/TileRawChannelCnt',
+    'TileRawChannelContainer/MuRcvRawChCnt',
     ]
 
 include('TileConditions/TileConditions_jobOptions.py')
@@ -92,7 +93,6 @@ topSequence += TileRawChannelDumper ('TileRawChannelCntDumper',
                                      Prefix = dumpdir + '/')
 topSequence += TileRawChannelDumper ('MuRcvRawChannelCntDumper',
                                      TileRawChannelContainer = 'MuRcvRawChCnt',
-                                     AltTileRawChannelContainer = 'TileRawChannelCnt',
                                      Prefix = dumpdir + '/')
 
 
