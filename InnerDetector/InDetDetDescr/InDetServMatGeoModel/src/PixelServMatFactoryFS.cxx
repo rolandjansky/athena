@@ -28,6 +28,7 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include <iostream>
 
 
@@ -105,7 +106,7 @@ void PixelServMatFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
 				    servicePcon->getDPhi());
 
       GeoCons* cons = new GeoCons(servicePcon->getRMinPlane(2),servicePcon->getRMinPlane(3),
-				   servicePcon->getRMaxPlane(2),servicePcon->getRMaxPlane(3)+1E-9*GeoModelKernelUnits::mm,
+				   servicePcon->getRMaxPlane(2),servicePcon->getRMaxPlane(3)+1E-9*Gaudi::Units::mm,
 				   (servicePcon->getZPlane(3)-servicePcon->getZPlane(2))*0.5,
 				   servicePcon->getSPhi(),
 				   servicePcon->getDPhi());

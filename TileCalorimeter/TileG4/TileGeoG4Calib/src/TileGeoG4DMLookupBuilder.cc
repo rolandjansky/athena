@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -44,7 +44,7 @@
 TileGeoG4DMLookupBuilder::TileGeoG4DMLookupBuilder(TileGeoG4LookupBuilder* lookup_builder,
                                                    ServiceHandle<IRDBAccessSvc> &raccess,
                                                    ServiceHandle<IGeoModelSvc> &geo_svc,
-                                                   ServiceHandle<StoreGateSvc> &pDetStore, const int verboseLevel)
+                                                   const ServiceHandle<StoreGateSvc> &pDetStore, const int verboseLevel)
 : rBMin(0),
   rBMax(0),
   zBarrMaxPos(0),

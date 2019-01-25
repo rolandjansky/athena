@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -86,7 +86,7 @@ typedef std::vector<double> E_4;
 class TileGeoG4CalibSD: public G4VSensitiveDetector {
 public:
   TileGeoG4CalibSD(const G4String& name, const std::vector<std::string>& m_outputCollectionNames,
-                   ITileCalculator* tileCalculator, ServiceHandle<StoreGateSvc> &detStore);
+                   ITileCalculator* tileCalculator, const ServiceHandle<StoreGateSvc> &detStore);
   ~TileGeoG4CalibSD();
 
   void InvokeUserRunAction();

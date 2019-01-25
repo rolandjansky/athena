@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file: AthenaCommon/python/ConfigurationShelve.py
 # @author: Wim Lavrijsen (WLavrijsen@lbl.gov)
@@ -311,7 +311,7 @@ def loadJobOptionsCatalogue( cfg_fname ):
          p = gaudi.StringProperty( n, '' )
          try:
             p.fromString(v).ignore()
-         except:
+         except Exception:
             print "Failed to convert",n,v
 
          if not josvc.addPropertyToCatalogue( client, p ).isSuccess():

@@ -16,26 +16,37 @@ if( NOT LCG_NIGHTLY )
        message( STATUS "Using LCG_NIGHTLY: ${LCG_NIGHTLY}" )
    endif()
 endif()
- 
+
 # Set the versions of the TDAQ externals to pick up for the build:
 if( LCG_NIGHTLY )
     # TDAQ_RELEASE_BASE should be set to a NIGHTLY TDAQ build!
-    set( TDAQ-COMMON_VERSION "99-00-00" )
-    set( DQM-COMMON_VERSION "99-00-00" )
-    set( TDAQ_VERSION "99-00-00" )
+    set( TDAQ-COMMON_VERSION "99-00-00" CACHE STRING
+       "The version of tdaq-common to use for the build" )
+    set( DQM-COMMON_VERSION "99-00-00" CACHE STRING
+       "The version of dqm-common to use for the build" )
+    set( TDAQ_VERSION "99-00-00" CACHE STRING
+       "The version of tdaq to use for the build" )
 else()
-    set( TDAQ-COMMON_VERSION "02-09-00" )
-    set( DQM-COMMON_VERSION "01-09-00" )
-    set( TDAQ_VERSION "08-01-01" )
+    set( TDAQ-COMMON_VERSION "02-09-00" CACHE STRING
+       "The version of tdaq-common to use for the build" )
+    set( DQM-COMMON_VERSION "01-09-00" CACHE STRING
+       "The version of dqm-common to use for the build" )
+    set( TDAQ_VERSION "08-01-01" CACHE STRING
+       "The version of tdaq to use for the build" )
 endif()
 
-set( TDAQ-COMMON_ROOT
-   "$ENV{TDAQ_RELEASE_BASE}/tdaq-common/tdaq-common-${TDAQ-COMMON_VERSION}" )
-set( DQM-COMMON_ROOT
-   "$ENV{TDAQ_RELEASE_BASE}/dqm-common/dqm-common-${DQM-COMMON_VERSION}" )
-set( TDAQ_PROJECT_NAME "tdaq")
-set( TDAQ_ROOT
-   "$ENV{TDAQ_RELEASE_BASE}/${TDAQ_PROJECT_NAME}/${TDAQ_PROJECT_NAME}-${TDAQ_VERSION}" )
+set( TDAQ-COMMON_ATROOT
+   "$ENV{TDAQ_RELEASE_BASE}/tdaq-common/tdaq-common-${TDAQ-COMMON_VERSION}"
+   CACHE PATH "The directory to pick up tdaq-common from" )
+set( DQM-COMMON_ATROOT
+   "$ENV{TDAQ_RELEASE_BASE}/dqm-common/dqm-common-${DQM-COMMON_VERSION}"
+   CACHE PATH "The directory to pick up dqm-common from" )
+set( TDAQ_PROJECT_NAME "tdaq" CACHE STRING "The name of the tdaq project" )
+set( TDAQ_ATROOT
+   "$ENV{TDAQ_RELEASE_BASE}/${TDAQ_PROJECT_NAME}/${TDAQ_PROJECT_NAME}-${TDAQ_VERSION}"
+   CACHE PATH "The directory to pick up tdaq from" )
+mark_as_advanced( TDAQ-COMMON_ATROOT DQM-COMMON_ATROOT TDAQ_PROJECT_NAME
+   TDAQ_ATROOT )
 
 # Find the ATLAS CMake code:
 find_package( AtlasCMake QUIET )

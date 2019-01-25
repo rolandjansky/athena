@@ -26,6 +26,7 @@
 #include <cstdlib>
 #include <string>
 #include <vector>
+#include <array>
 
 class AtlasDetectorID;
 class Identifier;
@@ -82,28 +83,13 @@ namespace InDet
 		  number boards 0-9 barrel, 0-19 endcap (first 12 on A wheels, ordering from smaller to larger |z|)
 		  number chips 0-103 barrel, 0-239 endcap
 		  number pads: chips x 2 */
-		  
-      int m_nBarrelStraws; // 1642
-      int m_nEndcapStraws; // 3840
-      int m_nAllStraws; // 1642+3840=5484
-	  
-      int m_nBarrelBoards; // 9
-      int m_nEndcapBoards; // 20
-      int m_nAllBoards; // 29
-
-      int m_nBarrelChips; // 104
-      int m_nEndcapChips; // 240
-      int m_nAllChips; // 344
-
-      int m_nBarrelPads; // 2 x N of chips
-      int m_nEndcapPads; 
-      int m_nAllPads; 
-	  
+		  	  
       int m_nEvents; // count N of processed events, needed for normalization
       int m_runNumber;
- 
+
       /** accumulate hits, last index: 0 - all hits, 1 - hits on track, 2 - all HT (TR) hits, 3 - HT (TR) hits on track */	 
-      int m_accumulateHits[2][32][5482][6];
+      typedef std::array<std::array<std::array<std::array<int,6>,5482>,32>,2> ACCHITS_t;
+      ACCHITS_t *m_accumulateHits;
 
       const TRT_ID *m_TRTHelper;
 

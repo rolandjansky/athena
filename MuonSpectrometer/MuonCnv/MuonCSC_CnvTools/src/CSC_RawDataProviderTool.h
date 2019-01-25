@@ -14,6 +14,7 @@
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 #include "MuonCSC_CnvTools/ICSC_ROD_Decoder.h"
 #include "MuonRDO/CscRawDataContainer.h"
+#include "MuonRDO/CscRawDataCollection_Cache.h"
 #include "CSCcabling/CSCcablingSvc.h"
 #include "CSC_Hid2RESrcID.h"
 
@@ -68,6 +69,9 @@ private:
 
   ActiveStoreSvc*                     m_activeStore;
   bool				      m_createContainerEachEvent;
+
+  /// CSC container cache key
+  SG::UpdateHandleKey<CscRawDataCollection_Cache> m_rdoContainerCacheKey ;
 };
 } // end of namespace
 

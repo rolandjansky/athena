@@ -17,6 +17,7 @@
 #include "GeoModelKernel/GeoNameTag.h"
 
 #include "GeoModelKernel/GeoTransform.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <algorithm>
 using std::max;
@@ -35,7 +36,7 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
 
   m_gmt_mgr->msg(MSG::INFO) <<"Build IBL I-Flex services"<<endmsg;
 
-  double safety = 0.01*GeoModelKernelUnits::mm;
+  double safety = 0.01*Gaudi::Units::mm;
 
   // IBL layer shift ( 2mm shift issue )
   double layerZshift = m_gmt_mgr->PixelLayerGlobalShift();
@@ -45,7 +46,7 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
 
   // check if sectors are properly defined
   if(nSectors==0) return 0;
-  double angle=360./(double)nSectors*GeoModelKernelUnits::deg;
+  double angle=360./(double)nSectors*Gaudi::Units::deg;
 
   double zmin=0., zmax=0.;
   double deltaLength = 0.;
@@ -108,12 +109,12 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
   double cooling_radius = 35.1;
   double TubeOuterDiam = m_gmt_mgr->IBLStaveTubeOuterDiameter();
   double TubeInnerDiam = m_gmt_mgr->IBLStaveTubeInnerDiameter();
-  double cooling_angle = -2.154*GeoModelKernelUnits::deg;
+  double cooling_angle = -2.154*Gaudi::Units::deg;
 
   if(m_gmt_mgr->PixelStaveAxe()==1)   
     {
       cooling_radius = 34.7 + layerRadius-33.25;
-      cooling_angle = -.1*GeoModelKernelUnits::deg;
+      cooling_angle = -.1*Gaudi::Units::deg;
     }
 
   const GeoTube* service_coolingPipeA = new GeoTube(0.0,TubeOuterDiam*0.5,halfLengthA);
@@ -145,9 +146,9 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
   GeoLogVol* flex_logVolA = 0;
   GeoLogVol* flex_logVolC = 0;
 
-  double flex_angle = -15.001*GeoModelKernelUnits::deg;
+  double flex_angle = -15.001*Gaudi::Units::deg;
   if(m_gmt_mgr->PixelStaveAxe()==1)   
-    flex_angle += 2.14*GeoModelKernelUnits::deg;
+    flex_angle += 2.14*Gaudi::Units::deg;
 
   double flex_rot=0.30265;
   flex_rot=-0.30265*.5;
@@ -244,12 +245,12 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
     if(m_section==2){
 
       // Intermediate flex
-      GeoTransform* xformA2 = new GeoTransform(GeoTrf::RotateZ3D(phiOfFlex)*GeoTrf::TranslateX3D(flexYmidPos)*GeoTrf::RotateZ3D(-90.*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(-90.*GeoModelKernelUnits::deg)*GeoTrf::RotateX3D(flex_rot));
+      GeoTransform* xformA2 = new GeoTransform(GeoTrf::RotateZ3D(phiOfFlex)*GeoTrf::TranslateX3D(flexYmidPos)*GeoTrf::RotateZ3D(-90.*Gaudi::Units::deg)*GeoTrf::RotateY3D(-90.*Gaudi::Units::deg)*GeoTrf::RotateX3D(flex_rot));
       m_supportPhysA->add(tag2);
       m_supportPhysA->add(xformA2);
       m_supportPhysA->add(flexPhysVolA);
 
-      GeoTransform* xformC2 = new GeoTransform(GeoTrf::RotateZ3D(phiOfFlex)*GeoTrf::TranslateX3D(flexYmidPos)*GeoTrf::RotateZ3D(-90.*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(90.*GeoModelKernelUnits::deg)*GeoTrf::RotateX3D(-flex_rot));
+      GeoTransform* xformC2 = new GeoTransform(GeoTrf::RotateZ3D(phiOfFlex)*GeoTrf::TranslateX3D(flexYmidPos)*GeoTrf::RotateZ3D(-90.*Gaudi::Units::deg)*GeoTrf::RotateY3D(90.*Gaudi::Units::deg)*GeoTrf::RotateX3D(-flex_rot));
       m_supportPhysC->add(tag2);
       m_supportPhysC->add(xformC2);
       m_supportPhysC->add(flexPhysVolC);

@@ -33,7 +33,7 @@
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 // 8th Aug 2005 S.Mima modified.
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 
@@ -41,7 +41,6 @@
 
 SCT_Module::SCT_Module(const std::string & name) 
   : SCT_UniqueComponentFactory(name),
-    //m_stereoSign(0),
     m_innerSide(0),
     m_outerSide(0),
     m_baseBoard(0)
@@ -149,20 +148,6 @@ SCT_Module::preBuild()
   GeoTrf::Vector3D x(0.0, u.y(),w.z());
   
   // for corner of hybrid, connectorouter and pigtail of outer side.
-  //GeoTrf::Vector3D i(0.0, 
-  //        0.5*outerSideHybridWidth,
-  //        m_outerSide->hybridOffsetZ() + 0.5*outerSideHybridLength);
-  //  GeoTrf::Vector3D k(0.0,
-  //        -0.5*outerSideHybridWidth,
-  //        m_outerSide->hybridOffsetZ() + 0.5*outerSidePigtailLength);
-  //GeoTrf::Vector3D l(0.0,
-  //        -0.5*outerSideHybridWidth - m_outerSide->pigtail()->width(), k.z());
-  //GeoTrf::Vector3D m(0.0, l.y(),
-  //        m_outerSide->hybridOffsetZ() - 0.5*outerSidePigtailLength);
-  //GeoTrf::Vector3D n(0.0, k.y(),m.z());
-  //GeoTrf::Vector3D p(0.0, i.y(),
-  //        m_outerSide->hybridOffsetZ() - 0.5*outerSideHybridLength);
-
   GeoTrf::Vector3D i(0.0, 
                       0.5*outerSideHybridWidth,
                       m_outerSide->hybridOffsetZ() + 0.5*outerSidePigtailLength);
@@ -181,28 +166,28 @@ SCT_Module::preBuild()
   GeoTrf::Vector3D s(0.0, r.y(), m_innerSide->hybridOffsetZ() - 0.5*innerSideHybridLength);
   GeoTrf::Vector3D t(0.0, q.y(), s.z());
 
-  // All points turn +-20 mGeoModelKernelUnits::rad around physical center of module.
-  a = GeoTrf::RotateX3D(m_stereoOuter/GeoModelKernelUnits::radian)*a;
-  b = GeoTrf::RotateX3D(m_stereoOuter/GeoModelKernelUnits::radian)*b;
-  c = GeoTrf::RotateX3D(m_stereoOuter/GeoModelKernelUnits::radian)*c;
-  d = GeoTrf::RotateX3D(m_stereoOuter/GeoModelKernelUnits::radian)*d;
+  // All points turn +-20 mGaudi::Units::rad around physical center of module.
+  a = GeoTrf::RotateX3D(m_stereoOuter/Gaudi::Units::radian)*a;
+  b = GeoTrf::RotateX3D(m_stereoOuter/Gaudi::Units::radian)*b;
+  c = GeoTrf::RotateX3D(m_stereoOuter/Gaudi::Units::radian)*c;
+  d = GeoTrf::RotateX3D(m_stereoOuter/Gaudi::Units::radian)*d;
 
-  e = GeoTrf::RotateX3D(m_stereoInner/GeoModelKernelUnits::radian)*e;
-  f = GeoTrf::RotateX3D(m_stereoInner/GeoModelKernelUnits::radian)*f;
-  g = GeoTrf::RotateX3D(m_stereoInner/GeoModelKernelUnits::radian)*g;
-  h = GeoTrf::RotateX3D(m_stereoInner/GeoModelKernelUnits::radian)*h;
+  e = GeoTrf::RotateX3D(m_stereoInner/Gaudi::Units::radian)*e;
+  f = GeoTrf::RotateX3D(m_stereoInner/Gaudi::Units::radian)*f;
+  g = GeoTrf::RotateX3D(m_stereoInner/Gaudi::Units::radian)*g;
+  h = GeoTrf::RotateX3D(m_stereoInner/Gaudi::Units::radian)*h;
 
-  i = GeoTrf::RotateX3D(m_stereoOuter/GeoModelKernelUnits::radian)*i;
-  //k.rotateX(m_stereoOuter/GeoModelKernelUnits::radian);
-  l = GeoTrf::RotateX3D(m_stereoOuter/GeoModelKernelUnits::radian)*l;
-  m = GeoTrf::RotateX3D(m_stereoOuter/GeoModelKernelUnits::radian)*m;
-  //n.rotateX(m_stereoOuter/GeoModelKernelUnits::radian);
-  p = GeoTrf::RotateX3D(m_stereoOuter/GeoModelKernelUnits::radian)*p;
+  i = GeoTrf::RotateX3D(m_stereoOuter/Gaudi::Units::radian)*i;
+  //k.rotateX(m_stereoOuter/Gaudi::Units::radian);
+  l = GeoTrf::RotateX3D(m_stereoOuter/Gaudi::Units::radian)*l;
+  m = GeoTrf::RotateX3D(m_stereoOuter/Gaudi::Units::radian)*m;
+  //n.rotateX(m_stereoOuter/Gaudi::Units::radian);
+  p = GeoTrf::RotateX3D(m_stereoOuter/Gaudi::Units::radian)*p;
 
-  q = GeoTrf::RotateX3D(m_stereoInner/GeoModelKernelUnits::radian)*q;
-  r = GeoTrf::RotateX3D(m_stereoInner/GeoModelKernelUnits::radian)*r;
-  s = GeoTrf::RotateX3D(m_stereoInner/GeoModelKernelUnits::radian)*s;
-  t = GeoTrf::RotateX3D(m_stereoInner/GeoModelKernelUnits::radian)*t;
+  q = GeoTrf::RotateX3D(m_stereoInner/Gaudi::Units::radian)*q;
+  r = GeoTrf::RotateX3D(m_stereoInner/Gaudi::Units::radian)*r;
+  s = GeoTrf::RotateX3D(m_stereoInner/Gaudi::Units::radian)*s;
+  t = GeoTrf::RotateX3D(m_stereoInner/Gaudi::Units::radian)*t;
 
   // Calculate demension of envelope1.
   const double z_ab = std::max(a.z(), b.z());
@@ -214,9 +199,6 @@ SCT_Module::preBuild()
   const double y_eh = std::max(e.y(), h.y());
   const double y_bc = std::min(b.y(), c.y());
   const double y_fg = std::min(f.y(), g.y());
-
-  //const double y_ux = std::max(u.y(), x.y());
-  //const double y_vw = std::min(v.y(), w.y());
 
   const double zmaxEnv1 = std::max(z_ab, z_ef);
   const double zminEnv1 = std::min(z_cd, z_gh);
@@ -330,7 +312,7 @@ SCT_Module::preBuild()
   //
   // inner side
   //
-  GeoTrf::Transform3D rotInner = GeoTrf::RotateX3D(m_stereoInner) * GeoTrf::RotateZ3D(180*GeoModelKernelUnits::deg);
+  GeoTrf::Transform3D rotInner = GeoTrf::RotateX3D(m_stereoInner) * GeoTrf::RotateZ3D(180*Gaudi::Units::deg);
   m_innerSidePos = new GeoTrf::Transform3D(GeoTrf::Transform3D(GeoTrf::Translation3D(ISPosX, 0.0, 0.0)*rotInner));
 
   //

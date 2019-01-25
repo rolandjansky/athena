@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -62,6 +62,7 @@ public:
   virtual bool isGood(const IdentifierHash& elementIdHash) const override;
   
   const std::set<IdentifierHash>* getErrorSet(int errorType) const override; // Used by SCTRawDataProviderTool and others
+  const std::set<IdentifierHash>* getErrorSet(int errorType, const EventContext& ctx) const override; // Used by SCTRawDataProviderTool and others
 
   virtual unsigned int tempMaskedChips(const Identifier& moduleId) const override; // Internally used
   virtual unsigned int abcdErrorChips(const Identifier& moduleId) const override; // Internally used
@@ -111,7 +112,6 @@ private:
   const SCT_ByteStreamFractionContainer* getFracData() const;
   const InDetDD::SiDetectorElement* getDetectorElement(const IdentifierHash& waferHash) const;
 
-  const std::set<IdentifierHash>& getErrorSet(SCT_ByteStreamErrors::errorTypes errorType, const EventContext& ctx) const;
   const std::map<Identifier, unsigned int>& getTempMaskedChips(const EventContext& ctx) const;
   const std::map<Identifier, unsigned int>& getAbcdErrorChips(const EventContext& ctx) const;
 };

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCTEventFlagWriter.h"
@@ -9,7 +9,7 @@
 // Constructor
 
 SCTEventFlagWriter::SCTEventFlagWriter(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator)
+  AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -25,14 +25,14 @@ StatusCode SCTEventFlagWriter::initialize()
 
 // Execute
 
-StatusCode SCTEventFlagWriter::execute()
+StatusCode SCTEventFlagWriter::execute(const EventContext& ctx) const
 {
-  long unsigned int nLVL1IDErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::LVL1IDError)->size()};
-  long unsigned int nROBFragmentErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::ROBFragmentError)->size()};
+  long unsigned int nLVL1IDErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::LVL1IDError, ctx)->size()};
+  long unsigned int nROBFragmentErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::ROBFragmentError, ctx)->size()};
 
   if ((nLVL1IDErrors > 500) or (nROBFragmentErrors > 1000)) { // Check if number of errors exceed threshold
     bool setOK_xAOD{false};
-    SG::ReadHandle<xAOD::EventInfo> xAODEvtInfo{m_xAODEvtInfoKey}; // Retrive xAOD EventInfo
+    SG::ReadHandle<xAOD::EventInfo> xAODEvtInfo{m_xAODEvtInfoKey, ctx}; // Retrive xAOD EventInfo
     if (xAODEvtInfo.isValid()) { // Retriving xAOD EventInfo successful
       setOK_xAOD = xAODEvtInfo->updateErrorState(xAOD::EventInfo::SCT, xAOD::EventInfo::Error);
     } 

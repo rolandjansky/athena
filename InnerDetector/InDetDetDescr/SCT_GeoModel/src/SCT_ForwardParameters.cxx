@@ -10,7 +10,7 @@
 #include "RDBAccessSvc/IRDBRecord.h"
 
 #include "SCT_GeoModel/SCT_FSIHelper.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <iostream>
 #include <cmath>
@@ -38,13 +38,13 @@ SCT_ForwardParameters::fwdRingNumModules(int iRing) const
 double
 SCT_ForwardParameters::fwdRingModuleStagger(int iRing) const
 {
-  return m_rdb->fwdRing(iRing)->getDouble("MODULESTAGGER") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdRing(iRing)->getDouble("MODULESTAGGER") * Gaudi::Units::mm;
 }
 
 double
 SCT_ForwardParameters::fwdRingPhiOfRefModule(int iRing) const
 {
-  return m_rdb->fwdRing(iRing)->getDouble("PHIOFREFMODULE") * GeoModelKernelUnits::deg;
+  return m_rdb->fwdRing(iRing)->getDouble("PHIOFREFMODULE") * Gaudi::Units::deg;
 }
 
 
@@ -57,7 +57,7 @@ SCT_ForwardParameters::fwdRingUsualRingSide(int iRing) const
 double
 SCT_ForwardParameters::fwdRingDistToDiscCenter(int iRing) const
 {
-  return m_rdb->fwdRing(iRing)->getDouble("RINGTODISCCENTER") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdRing(iRing)->getDouble("RINGTODISCCENTER") * Gaudi::Units::mm;
 }
 
 
@@ -68,7 +68,7 @@ SCT_ForwardParameters::fwdRingDistToDiscCenter(int iRing) const
 double
 SCT_ForwardParameters::fwdWheelZPosition(int iWheel) const
 {
-  return m_rdb->fwdWheel(iWheel)->getDouble("ZPOSITION") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdWheel(iWheel)->getDouble("ZPOSITION") * Gaudi::Units::mm;
 }
 
 // Returns +/-1 
@@ -167,19 +167,19 @@ SCT_ForwardParameters::fwdWheelModuleType(int iWheel, int iRing, int ec) const
 double
 SCT_ForwardParameters::fwdDiscSupportInnerRadius() const
 {
-  return m_rdb->fwdDiscSupport()->getDouble("INNERRADIUS") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdDiscSupport()->getDouble("INNERRADIUS") * Gaudi::Units::mm;
 }
 
 double
 SCT_ForwardParameters::fwdDiscSupportOuterRadius() const
 {
-  return m_rdb->fwdDiscSupport()->getDouble("OUTERRADIUS") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdDiscSupport()->getDouble("OUTERRADIUS") * Gaudi::Units::mm;
 }
  
 double
 SCT_ForwardParameters::fwdDiscSupportThickness() const
 {
-  return m_rdb->fwdDiscSupport()->getDouble("THICKNESS") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdDiscSupport()->getDouble("THICKNESS") * Gaudi::Units::mm;
 }
 
 std::string
@@ -206,7 +206,7 @@ SCT_ForwardParameters::fwdPatchPanelType(int iLoc) const
 double
 SCT_ForwardParameters::fwdPatchPanelLocAngle(int iLoc) const
 {
-  return m_rdb->fwdPatchPanelLoc(iLoc)->getDouble("LOCANGLE") * GeoModelKernelUnits::degree;
+  return m_rdb->fwdPatchPanelLoc(iLoc)->getDouble("LOCANGLE") * Gaudi::Units::degree;
 }
 
 bool
@@ -224,26 +224,26 @@ SCT_ForwardParameters::fwdNumPatchPanelTypes() const
 double
 SCT_ForwardParameters::fwdPatchPanelThickness(int iType) const
 {
-  return m_rdb->fwdPatchPanel(iType)->getDouble("THICKNESS") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdPatchPanel(iType)->getDouble("THICKNESS") * Gaudi::Units::mm;
 }
 
 double
 SCT_ForwardParameters::fwdPatchPanelMidRadius(int iType) const
 {
-  return m_rdb->fwdPatchPanel(iType)->getDouble("MIDRADIUS") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdPatchPanel(iType)->getDouble("MIDRADIUS") * Gaudi::Units::mm;
 }
 
  
 double
 SCT_ForwardParameters::fwdPatchPanelDeltaR(int iType) const
 {
-  return m_rdb->fwdPatchPanel(iType)->getDouble("DELTAR") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdPatchPanel(iType)->getDouble("DELTAR") * Gaudi::Units::mm;
 }
 
 double
 SCT_ForwardParameters::fwdPatchPanelRPhi(int iType) const
 {
-  return m_rdb->fwdPatchPanel(iType)->getDouble("RPHI") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdPatchPanel(iType)->getDouble("RPHI") * Gaudi::Units::mm;
 }
 
 std::string
@@ -269,19 +269,19 @@ SCT_ForwardParameters::fwdPPConnectorPresent() const
 double
 SCT_ForwardParameters::fwdPPConnectorThickness() const
 {
-  return m_rdb->fwdPPConnector()->getDouble("THICKNESS") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdPPConnector()->getDouble("THICKNESS") * Gaudi::Units::mm;
 }
 
 double
 SCT_ForwardParameters::fwdPPConnectorDeltaR() const
 {
-  return m_rdb->fwdPPConnector()->getDouble("DELTAR") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdPPConnector()->getDouble("DELTAR") * Gaudi::Units::mm;
 }
 
 double
 SCT_ForwardParameters::fwdPPConnectorRPhi() const
 {
-  return m_rdb->fwdPPConnector()->getDouble("RPHI") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdPPConnector()->getDouble("RPHI") * Gaudi::Units::mm;
 }
 
 std::string
@@ -307,19 +307,19 @@ SCT_ForwardParameters::fwdPPCoolingPresent() const
 double
 SCT_ForwardParameters::fwdPPCoolingThickness() const
 {
-  return m_rdb->fwdPPCooling()->getDouble("THICKNESS") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdPPCooling()->getDouble("THICKNESS") * Gaudi::Units::mm;
 }
 
 double
 SCT_ForwardParameters::fwdPPCoolingDeltaR() const
 {
-  return m_rdb->fwdPPCooling()->getDouble("DELTAR") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdPPCooling()->getDouble("DELTAR") * Gaudi::Units::mm;
 }
 
 double
 SCT_ForwardParameters::fwdPPCoolingRPhi() const
 {
-  return m_rdb->fwdPPCooling()->getDouble("RPHI") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdPPCooling()->getDouble("RPHI") * Gaudi::Units::mm;
 }
 
 std::string
@@ -347,25 +347,25 @@ SCT_ForwardParameters::fwdCoolingBlockMainOrSecondary(int iType) const
 double
 SCT_ForwardParameters::fwdCoolingBlockDeltaR(int iType) const
 {
-  return m_rdb->fwdCoolingBlock(iType)->getDouble("DELTAR") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdCoolingBlock(iType)->getDouble("DELTAR") * Gaudi::Units::mm;
 }
 
 double
 SCT_ForwardParameters::fwdCoolingBlockRPhi(int iType) const
 {
-  return m_rdb->fwdCoolingBlock(iType)->getDouble("RPHI") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdCoolingBlock(iType)->getDouble("RPHI") * Gaudi::Units::mm;
 }
 
 double
 SCT_ForwardParameters::fwdCoolingBlockThickness(int iType) const
 {
-  return m_rdb->fwdCoolingBlock(iType)->getDouble("THICKNESS") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdCoolingBlock(iType)->getDouble("THICKNESS") * Gaudi::Units::mm;
 }
 
 double
 SCT_ForwardParameters::fwdCoolingBlockOffsetFromDisc(int iType) const
 {
-  return m_rdb->fwdCoolingBlock(iType)->getDouble("OFFSETFROMDISC") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdCoolingBlock(iType)->getDouble("OFFSETFROMDISC") * Gaudi::Units::mm;
 }
 
 std::string
@@ -381,19 +381,19 @@ SCT_ForwardParameters::fwdCoolingBlockMaterial(int iType) const
 double 
 SCT_ForwardParameters::fwdDiscPowerTapeInnerRadius(int iRing) const
 {
-  return m_rdb->fwdRingServices(iRing)->getDouble("POWERTAPEINNERRADIUS") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdRingServices(iRing)->getDouble("POWERTAPEINNERRADIUS") * Gaudi::Units::mm;
 }
 
 double 
 SCT_ForwardParameters::fwdDiscPowerTapeOuterRadius(int iRing) const
 {
-  return m_rdb->fwdRingServices(iRing)->getDouble("POWERTAPEOUTERRADIUS") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdRingServices(iRing)->getDouble("POWERTAPEOUTERRADIUS") * Gaudi::Units::mm;
 }
 
 double 
 SCT_ForwardParameters::fwdDiscPowerTapeThickness(int iRing) const
 {
-  return m_rdb->fwdRingServices(iRing)->getDouble("POWERTAPETHICKNESS") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdRingServices(iRing)->getDouble("POWERTAPETHICKNESS") * Gaudi::Units::mm;
 }
 
 std::string
@@ -410,19 +410,19 @@ SCT_ForwardParameters::fwdDiscPowerTapeMaterial(int iRing) const
 double 
 SCT_ForwardParameters::fwdRingCoolingInnerRadius(int iRing) const
 {
-  return m_rdb->fwdRingServices(iRing)->getDouble("COOLINGINNERRADIUS") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdRingServices(iRing)->getDouble("COOLINGINNERRADIUS") * Gaudi::Units::mm;
 }
 
 double 
 SCT_ForwardParameters::fwdRingCoolingOuterRadius(int iRing) const
 {
-  return m_rdb->fwdRingServices(iRing)->getDouble("COOLINGOUTERRADIUS") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdRingServices(iRing)->getDouble("COOLINGOUTERRADIUS") * Gaudi::Units::mm;
 }
 
 double 
 SCT_ForwardParameters::fwdRingCoolingThickness(int iRing) const
 {
-  return m_rdb->fwdRingServices(iRing)->getDouble("COOLINGTHICKNESS") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdRingServices(iRing)->getDouble("COOLINGTHICKNESS") * Gaudi::Units::mm;
 }
 
 std::string
@@ -448,13 +448,13 @@ SCT_ForwardParameters::fwdDiscFixationPresent() const
 double
 SCT_ForwardParameters::fwdDiscFixationThickness() const
 {
-  return m_rdb->fwdDiscFixation()->getDouble("THICKNESS") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdDiscFixation()->getDouble("THICKNESS") * Gaudi::Units::mm;
 }
 
 double
 SCT_ForwardParameters::fwdDiscFixationRadius() const
 {
-  return m_rdb->fwdDiscFixation()->getDouble("RADIUS") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdDiscFixation()->getDouble("RADIUS") * Gaudi::Units::mm;
 }
 
 std::string
@@ -469,25 +469,25 @@ SCT_ForwardParameters::fwdDiscFixationMaterial() const
 double 
 SCT_ForwardParameters::fwdSupportFrameRadialThickness() const
 {
-  return m_rdb->fwdServices()->getDouble("SUPPORTFRAMEDELTAR") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdServices()->getDouble("SUPPORTFRAMEDELTAR") * Gaudi::Units::mm;
 }
 
 double 
 SCT_ForwardParameters::fwdSupportFrameInnerRadius() const
 {
-  return m_rdb->fwdServices()->getDouble("SUPPORTFRAMEINNERRAD") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdServices()->getDouble("SUPPORTFRAMEINNERRAD") * Gaudi::Units::mm;
 }
 
 double 
 SCT_ForwardParameters::fwdSupportFrameZMin() const 
 {
-  return m_rdb->fwdServices()->getDouble("SUPPORTFRAMEZMIN") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdServices()->getDouble("SUPPORTFRAMEZMIN") * Gaudi::Units::mm;
 }
 
 double 
 SCT_ForwardParameters::fwdSupportFrameZMax() const 
 {
-  return m_rdb->fwdServices()->getDouble("SUPPORTFRAMEZMAX") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdServices()->getDouble("SUPPORTFRAMEZMAX") * Gaudi::Units::mm;
 } 
 
 std::string 
@@ -502,7 +502,7 @@ SCT_ForwardParameters::fwdSupportFrameMaterial() const
 double
 SCT_ForwardParameters::fwdCoolingPipeRadius() const
 {
-  return m_rdb->fwdServices()->getDouble("COOLINGPIPERADIUS") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdServices()->getDouble("COOLINGPIPERADIUS") * Gaudi::Units::mm;
 }
 
 std::string
@@ -517,7 +517,7 @@ SCT_ForwardParameters::fwdCoolingPipeMaterial() const
 double
 SCT_ForwardParameters::fwdPowerTapeCrossSectArea() const
 {
-  return m_rdb->fwdServices()->getDouble("POWERTAPECROSSSECT") * GeoModelKernelUnits::mm2;
+  return m_rdb->fwdServices()->getDouble("POWERTAPECROSSSECT") * Gaudi::Units::mm2;
 }
 
 
@@ -539,21 +539,21 @@ SCT_ForwardParameters::fwdFSINumGeomTypes() const
 double
 SCT_ForwardParameters::fwdFSIGeomDeltaR(int iType) const
 {
-  return m_rdb->fwdFSIType(iType)->getDouble("DELTAR") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdFSIType(iType)->getDouble("DELTAR") * Gaudi::Units::mm;
 }
 
 double
 SCT_ForwardParameters::fwdFSIGeomRPhi(int iType) const
 {
-  return m_rdb->fwdFSIType(iType)->getDouble("RPHI") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdFSIType(iType)->getDouble("RPHI") * Gaudi::Units::mm;
 }
 
 double
 SCT_ForwardParameters::fwdFSIGeomThickness(int iType) const
 {
   // Fix for SCT-DC3-03. May be removed when ATLAS-DC3-07 is obsolete.
-  if (iType == 0 && m_rdb->versionTag() == "SCT-DC3-03") return  26*GeoModelKernelUnits::mm;
-  return m_rdb->fwdFSIType(iType)->getDouble("THICKNESS") * GeoModelKernelUnits::mm;
+  if (iType == 0 && m_rdb->versionTag() == "SCT-DC3-03") return  26*Gaudi::Units::mm;
+  return m_rdb->fwdFSIType(iType)->getDouble("THICKNESS") * Gaudi::Units::mm;
 }
 
 std::string
@@ -566,8 +566,8 @@ double
 SCT_ForwardParameters::fwdFSIGeomZOffset(int iType) const
 {
   // Fix for SCT-DC3-03. May be removed when ATLAS-DC3-07 is obsolete.
-  if (iType == 0 && m_rdb->versionTag() == "SCT-DC3-03") return  22*GeoModelKernelUnits::mm;
-  return m_rdb->fwdFSIType(iType)->getDouble("ZOFFSET") * GeoModelKernelUnits::mm;
+  if (iType == 0 && m_rdb->versionTag() == "SCT-DC3-03") return  22*Gaudi::Units::mm;
+  return m_rdb->fwdFSIType(iType)->getDouble("ZOFFSET") * Gaudi::Units::mm;
 }
 
 
@@ -616,7 +616,7 @@ SCT_ForwardParameters::fwdCylinderServiceLocName(int iLoc) const
 double
 SCT_ForwardParameters::fwdCylinderServiceLocAngle(int iLoc) const
 {
-  return m_rdb->fwdCylServLoc(iLoc)->getDouble("LOCANGLE") * GeoModelKernelUnits::degree;
+  return m_rdb->fwdCylServLoc(iLoc)->getDouble("LOCANGLE") * Gaudi::Units::degree;
 }
 
 int
@@ -640,13 +640,13 @@ SCT_ForwardParameters::fwdCylinderServiceMaterial(int iType) const
 double
 SCT_ForwardParameters::fwdCylinderServiceDeltaR(int iType) const
 {
-  return m_rdb->fwdCylServ(iType)->getDouble("DELTAR") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdCylServ(iType)->getDouble("DELTAR") * Gaudi::Units::mm;
 }
 
 double
 SCT_ForwardParameters::fwdCylinderServiceRPhi(int iType) const
 {
-  return m_rdb->fwdCylServ(iType)->getDouble("RPHI") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdCylServ(iType)->getDouble("RPHI") * Gaudi::Units::mm;
 }
 
 //
@@ -667,25 +667,25 @@ SCT_ForwardParameters::fwdThermalShieldMaterial(int iElement) const
 double
 SCT_ForwardParameters::fwdThermalShieldInnerRadius(int iElement) const
 {
-  return m_rdb->fwdThermalShield(iElement)->getDouble("INNERRADIUS") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdThermalShield(iElement)->getDouble("INNERRADIUS") * Gaudi::Units::mm;
 }
 
 double 
 SCT_ForwardParameters::fwdThermalShieldOuterRadius(int iElement) const
 {
-  return m_rdb->fwdThermalShield(iElement)->getDouble("OUTERRADIUS") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdThermalShield(iElement)->getDouble("OUTERRADIUS") * Gaudi::Units::mm;
 }
 
 double 
 SCT_ForwardParameters::fwdThermalShieldZMin(int iElement) const 
 {
-  return m_rdb->fwdThermalShield(iElement)->getDouble("ZMIN") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdThermalShield(iElement)->getDouble("ZMIN") * Gaudi::Units::mm;
 }
 
 double 
 SCT_ForwardParameters::fwdThermalShieldZMax(int iElement) const 
 {
-  return m_rdb->fwdThermalShield(iElement)->getDouble("ZMAX") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdThermalShield(iElement)->getDouble("ZMAX") * Gaudi::Units::mm;
 } 
 
 
@@ -701,31 +701,31 @@ SCT_ForwardParameters::fwdNumWheels() const
 double
 SCT_ForwardParameters::fwdInnerRadius() const
 {
-  return m_rdb->fwdGeneral()->getDouble("INNERRADIUS") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdGeneral()->getDouble("INNERRADIUS") * Gaudi::Units::mm;
 }
 
 double
 SCT_ForwardParameters::fwdOuterRadius() const
 {
-  return m_rdb->fwdGeneral()->getDouble("OUTERRADIUS") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdGeneral()->getDouble("OUTERRADIUS") * Gaudi::Units::mm;
 }
 
 double
 SCT_ForwardParameters::fwdZMin() const
 {
-  return m_rdb->fwdGeneral()->getDouble("ZMIN") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdGeneral()->getDouble("ZMIN") * Gaudi::Units::mm;
 }
 
 double
 SCT_ForwardParameters::fwdZMax() const
 {
-  return m_rdb->fwdGeneral()->getDouble("ZMAX") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdGeneral()->getDouble("ZMAX") * Gaudi::Units::mm;
 }
 
 double
 SCT_ForwardParameters::fwdTrtGapPos() const
 {
-  return m_rdb->fwdGeneral()->getDouble("TRTGAPPOS") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdGeneral()->getDouble("TRTGAPPOS") * Gaudi::Units::mm;
 }
 
 //
@@ -751,19 +751,19 @@ SCT_ForwardParameters::fwdOptoHarnessDiscType(int index) const
 double 
 SCT_ForwardParameters::fwdOptoHarnessInnerRadius(int index) const
 {
-  return m_rdb->fwdOptoHarness(index)->getDouble("INNERRADIUS") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdOptoHarness(index)->getDouble("INNERRADIUS") * Gaudi::Units::mm;
 }
 
 double 
 SCT_ForwardParameters::fwdOptoHarnessOuterRadius(int index) const
 {
-  return m_rdb->fwdOptoHarness(index)->getDouble("OUTERRADIUS") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdOptoHarness(index)->getDouble("OUTERRADIUS") * Gaudi::Units::mm;
 }
 
 double 
 SCT_ForwardParameters::fwdOptoHarnessThickness(int index) const
 {
-  return m_rdb->fwdOptoHarness(index)->getDouble("THICKNESS") * GeoModelKernelUnits::mm;
+  return m_rdb->fwdOptoHarness(index)->getDouble("THICKNESS") * Gaudi::Units::mm;
 }
 
 std::string

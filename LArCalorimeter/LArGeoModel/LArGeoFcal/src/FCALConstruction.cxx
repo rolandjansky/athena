@@ -23,7 +23,6 @@
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoTrap.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
@@ -44,6 +43,7 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include <string>
 #include <cmath>
 #include <cfloat>
@@ -163,9 +163,9 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
 
   std::string baseName = "LAr::FCAL::";
 
-  double startZFCal1 = (*m_fcalMod)[0]->getDouble("STARTPOSITION"); //466.85 * GeoModelKernelUnits::cm;
-  //double startZFCal2 = (*m_fcalMod)[1]->getDouble("STARTPOSITION"); //512.83 * GeoModelKernelUnits::cm;
-  double startZFCal3 = (*m_fcalMod)[2]->getDouble("STARTPOSITION"); //560.28 * GeoModelKernelUnits::cm;
+  double startZFCal1 = (*m_fcalMod)[0]->getDouble("STARTPOSITION"); //466.85 * cm;
+  //double startZFCal2 = (*m_fcalMod)[1]->getDouble("STARTPOSITION"); //512.83 * cm;
+  double startZFCal3 = (*m_fcalMod)[2]->getDouble("STARTPOSITION"); //560.28 * cm;
 
   double outerModuleRadius1=(*m_fcalMod)[0]->getDouble("OUTERMODULERADIUS");
   double outerModuleRadius2=(*m_fcalMod)[1]->getDouble("OUTERMODULERADIUS");
@@ -199,7 +199,7 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
     double halfDepth   = totalDepth/2.;
 
     std::string name = baseName + "LiquidArgonC";
-    GeoTubs *tubs = new GeoTubs(innerRadius,outerRadius,halfDepth,0,360*GeoModelKernelUnits::deg);
+    GeoTubs *tubs = new GeoTubs(innerRadius,outerRadius,halfDepth,0,360*Gaudi::Units::deg);
     GeoLogVol *logVol= new GeoLogVol(name, tubs, LAr);
     fcalPhysical = new GeoFullPhysVol(logVol);
   }
@@ -234,7 +234,7 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
 	GeoAlignableTransform *xfAbs1 = new GeoAlignableTransform(xfPos);
 	
 	fcalPhysical->add(xfAbs1);
-	if (!bPos)  fcalPhysical->add(new GeoTransform(GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg)));
+	if (!bPos)  fcalPhysical->add(new GeoTransform(GeoTrf::RotateY3D(180*Gaudi::Units::deg)));
 	fcalPhysical->add(physVol);
 	modPhysical = physVol;
 	
@@ -253,17 +253,17 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
       // 16 Troughs representing  Cable Harnesses:
       if(m_fullGeo)
 	if(m_absPhysical1==0) {
-	  double troughDepth       = 1.0 * GeoModelKernelUnits::cm;
+	  double troughDepth       = 1.0 * Gaudi::Units::cm;
 	  double outerRadius       = outerModuleRadius1;
 	  double innerRadius       = outerRadius - troughDepth;
 	  double halfLength        = fullModuleDepth1/ 2.0;
-	  double deltaPhi          = 5.625 * GeoModelKernelUnits::deg;
-	  double startPhi          = 11.25 * GeoModelKernelUnits::deg - deltaPhi/2.0;
+	  double deltaPhi          = 5.625 * Gaudi::Units::deg;
+	  double startPhi          = 11.25 * Gaudi::Units::deg - deltaPhi/2.0;
 	  GeoTubs * tubs = new GeoTubs(innerRadius,outerRadius,halfLength,startPhi,deltaPhi );
 	  GeoLogVol *logVol = new GeoLogVol(baseName+"Module1::CableTrough",tubs,FCalCableHarness);
 	  GeoPhysVol *physVol = new GeoPhysVol(logVol);
 	  GeoGenfun::Variable i;
-	  GeoGenfun::GENFUNCTION rotationAngle = 22.5*GeoModelKernelUnits::deg*i;
+	  GeoGenfun::GENFUNCTION rotationAngle = 22.5*Gaudi::Units::deg*i;
 	  GeoXF::TRANSFUNCTION xf = GeoXF::Pow(GeoTrf::RotateZ3D(1.0),rotationAngle);
 	  GeoSerialTransformer *st = new GeoSerialTransformer(physVol,&xf,16);
 	  modPhysical->add(st);
@@ -329,7 +329,7 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
 	    
 	    if (m_VisLimit != -1 && (counter++ > m_VisLimit)) continue;
 	    if(m_fullGeo) {	      
-	      GeoTransform *xf = new GeoTransform(GeoTrf::Translate3D(thisTubeX*GeoModelKernelUnits::cm, thisTubeY*GeoModelKernelUnits::cm,0));
+	      GeoTransform *xf = new GeoTransform(GeoTrf::Translate3D(thisTubeX*Gaudi::Units::cm, thisTubeY*Gaudi::Units::cm,0));
 	      modPhysical->add(xf);
 	      modPhysical->add(physVol);
 	    }
@@ -366,7 +366,7 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
 	GeoAlignableTransform *xfAbs2 = new GeoAlignableTransform(xfPos);
 	
 	fcalPhysical->add(xfAbs2);
-	if (!bPos)  fcalPhysical->add(new GeoTransform(GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg)));
+	if (!bPos)  fcalPhysical->add(new GeoTransform(GeoTrf::RotateY3D(180*Gaudi::Units::deg)));
 	fcalPhysical->add(physVol);
 	modPhysical = physVol;
 	
@@ -385,17 +385,17 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
       // 16 Troughs representing  Cable Harnesses:
       if(m_fullGeo)
 	if(m_absPhysical2==0) {
-	  double troughDepth       = 1.0 * GeoModelKernelUnits::cm;
+	  double troughDepth       = 1.0 * Gaudi::Units::cm;
 	  double outerRadius       = outerModuleRadius2;
 	  double innerRadius       = outerRadius - troughDepth;
 	  double halfLength        = fullModuleDepth2/ 2.0;
-	  double deltaPhi          = 5.625 * GeoModelKernelUnits::deg;
-	  double startPhi          = 11.25 * GeoModelKernelUnits::deg - deltaPhi/2.0;
+	  double deltaPhi          = 5.625 * Gaudi::Units::deg;
+	  double startPhi          = 11.25 * Gaudi::Units::deg - deltaPhi/2.0;
 	  GeoTubs * tubs = new GeoTubs(innerRadius,outerRadius,halfLength,startPhi,deltaPhi );
 	  GeoLogVol *logVol = new GeoLogVol(baseName+"Module2::CableTrough",tubs,FCalCableHarness);
 	  GeoPhysVol *physVol = new GeoPhysVol(logVol);
 	  GeoGenfun::Variable i;
-	  GeoGenfun::GENFUNCTION rotationAngle = 22.5*GeoModelKernelUnits::deg*i;
+	  GeoGenfun::GENFUNCTION rotationAngle = 22.5*Gaudi::Units::deg*i;
 	  GeoXF::TRANSFUNCTION xf = GeoXF::Pow(GeoTrf::RotateZ3D(1.0),rotationAngle);
 	  GeoSerialTransformer *st = new GeoSerialTransformer(physVol,&xf,16);
 	  modPhysical->add(st);
@@ -469,7 +469,7 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
 	    
 	    if (m_VisLimit != -1 && (counter++ > m_VisLimit)) continue;
 	    if(m_fullGeo) {	      
-	      GeoTransform *xf = new GeoTransform(GeoTrf::Translate3D(thisTubeX*GeoModelKernelUnits::cm, thisTubeY*GeoModelKernelUnits::cm,0));
+	      GeoTransform *xf = new GeoTransform(GeoTrf::Translate3D(thisTubeX*Gaudi::Units::cm, thisTubeY*Gaudi::Units::cm,0));
 	      modPhysical->add(xf);
 	      modPhysical->add(gapPhys);
 	    }
@@ -506,7 +506,7 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
 	GeoAlignableTransform *xfAbs3 = new GeoAlignableTransform(xfPos);
 	
 	fcalPhysical->add(xfAbs3);
-	if (!bPos)  fcalPhysical->add(new GeoTransform(GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg)));
+	if (!bPos)  fcalPhysical->add(new GeoTransform(GeoTrf::RotateY3D(180*Gaudi::Units::deg)));
 	fcalPhysical->add(physVol);
 	modPhysical = physVol;
 
@@ -527,38 +527,38 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
       if(m_fullGeo)
 	if(m_absPhysical3==0) {
 	  static double rotAngles[] =
-	    { 11.25 * GeoModelKernelUnits::deg,
-	      22.50 * GeoModelKernelUnits::deg,
-	      45.00 * GeoModelKernelUnits::deg,
-	      56.25 * GeoModelKernelUnits::deg,
-	      67.50 * GeoModelKernelUnits::deg,
-	      90.00 * GeoModelKernelUnits::deg,  // first quarter
-	      101.25 * GeoModelKernelUnits::deg,
-	      112.50 * GeoModelKernelUnits::deg,
-	      135.00 * GeoModelKernelUnits::deg,
-	      146.25 * GeoModelKernelUnits::deg,
-	      157.50 * GeoModelKernelUnits::deg,
-	      180.00 * GeoModelKernelUnits::deg,  // second quarter
-	      191.25 * GeoModelKernelUnits::deg,
-	      202.50 * GeoModelKernelUnits::deg,
-	      225.00 * GeoModelKernelUnits::deg,
-	      236.25 * GeoModelKernelUnits::deg,
-	      247.50 * GeoModelKernelUnits::deg,
-	      270.00 * GeoModelKernelUnits::deg,  // third quarter
-	      281.25 * GeoModelKernelUnits::deg,
-	      292.50 * GeoModelKernelUnits::deg,
-	      315.00 * GeoModelKernelUnits::deg,
-	      326.25 * GeoModelKernelUnits::deg,
-	      337.50 * GeoModelKernelUnits::deg,
-	      360.00 * GeoModelKernelUnits::deg };
+	    { 11.25 * Gaudi::Units::deg,
+	      22.50 * Gaudi::Units::deg,
+	      45.00 * Gaudi::Units::deg,
+	      56.25 * Gaudi::Units::deg,
+	      67.50 * Gaudi::Units::deg,
+	      90.00 * Gaudi::Units::deg,  // first quarter
+	      101.25 * Gaudi::Units::deg,
+	      112.50 * Gaudi::Units::deg,
+	      135.00 * Gaudi::Units::deg,
+	      146.25 * Gaudi::Units::deg,
+	      157.50 * Gaudi::Units::deg,
+	      180.00 * Gaudi::Units::deg,  // second quarter
+	      191.25 * Gaudi::Units::deg,
+	      202.50 * Gaudi::Units::deg,
+	      225.00 * Gaudi::Units::deg,
+	      236.25 * Gaudi::Units::deg,
+	      247.50 * Gaudi::Units::deg,
+	      270.00 * Gaudi::Units::deg,  // third quarter
+	      281.25 * Gaudi::Units::deg,
+	      292.50 * Gaudi::Units::deg,
+	      315.00 * Gaudi::Units::deg,
+	      326.25 * Gaudi::Units::deg,
+	      337.50 * Gaudi::Units::deg,
+	      360.00 * Gaudi::Units::deg };
 	
 	  GeoGenfun::ArrayFunction rotationAngle(rotAngles,rotAngles+24);
-	  double troughDepth       = 1.0 * GeoModelKernelUnits::cm;
+	  double troughDepth       = 1.0 * Gaudi::Units::cm;
 	  double outerRadius       = outerModuleRadius3;
 	  double innerRadius       = outerRadius - troughDepth;
 	  double halfLength        = fullModuleDepth3/ 2.0;
-	  double deltaPhi          = 5.625 * GeoModelKernelUnits::deg;
-	  double startPhi          = 11.25 * GeoModelKernelUnits::deg - deltaPhi/2.0;
+	  double deltaPhi          = 5.625 * Gaudi::Units::deg;
+	  double startPhi          = 11.25 * Gaudi::Units::deg - deltaPhi/2.0;
 	  GeoTubs * tubs = new GeoTubs(innerRadius,outerRadius,halfLength,startPhi,deltaPhi );
 	  GeoLogVol *logVol = new GeoLogVol(baseName+"Module3::CableTrough",tubs,FCalCableHarness);
 	  GeoPhysVol *physVol = new GeoPhysVol(logVol);
@@ -637,7 +637,7 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
 	    
 	    if (m_VisLimit != -1 && (counter++ > m_VisLimit)) continue;
 	    if(m_fullGeo) {	      
-	      GeoTransform *xf = new GeoTransform(GeoTrf::Translate3D(thisTubeX*GeoModelKernelUnits::cm, thisTubeY*GeoModelKernelUnits::cm,0));
+	      GeoTransform *xf = new GeoTransform(GeoTrf::Translate3D(thisTubeX*Gaudi::Units::cm, thisTubeY*Gaudi::Units::cm,0));
 	      modPhysical->add(xf);
 	      modPhysical->add(gapPhys);
 	    }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -135,6 +135,24 @@ StatusCode VarHandleKey::initialize (bool used /*= true*/)
 
 
 /**
+ * @brief If this object is used as a property, then this should be called
+ *        during the initialize phase.  This variant will allow the key
+ *        to be blank.
+ * @param Flag to select this variant.  Call like
+ *@code
+ *  ATH_CHECK( key.initialize (SG::AllowEmpty) );
+ @endcode
+*/
+StatusCode VarHandleKey::initialize (AllowEmptyEnum)
+{
+  if (key().empty()) {
+    return StatusCode::SUCCESS;
+  }
+  return initialize (true);
+}
+
+
+/**
  * @brief Return the class ID for the referenced object.
  */
 CLID VarHandleKey::clid() const
@@ -150,6 +168,16 @@ const std::string& VarHandleKey::key() const
 {
   return m_sgKey;
 }
+
+
+/**
+ * @brief Test if the key is blank.
+ */
+bool VarHandleKey::empty() const
+{
+  return m_sgKey.empty();
+}
+
 
 /**
  * @brief Prevent this method from being called.

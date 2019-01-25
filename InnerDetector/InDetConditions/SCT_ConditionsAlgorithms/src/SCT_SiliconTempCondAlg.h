@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #ifndef SCT_SILICONTEMPCONDALG
 #define SCT_SILICONTEMPCONDALG
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "SCT_ConditionsData/SCT_DCSStatCondData.h"
 #include "SCT_ConditionsData/SCT_DCSFloatCondData.h"
@@ -17,13 +17,13 @@
 
 class SCT_ID;
 
-class SCT_SiliconTempCondAlg : public AthAlgorithm 
+class SCT_SiliconTempCondAlg : public AthReentrantAlgorithm
 {  
  public:
   SCT_SiliconTempCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~SCT_SiliconTempCondAlg() = default;
   StatusCode initialize() override;
-  StatusCode execute() override;
+  StatusCode execute(const EventContext& ctx) const override;
   StatusCode finalize() override;
 
  private:

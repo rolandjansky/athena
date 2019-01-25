@@ -22,11 +22,19 @@ unsigned long long	Trk::TrackSurfaceIntersection::s_serialNumber = 0;
 Trk::TrackSurfaceIntersection::TrackSurfaceIntersection(const Amg::Vector3D&	pos,
 							const Amg::Vector3D&	dir,
 							double			path)
+  : m_position (pos),
+    m_direction (dir),
+    m_pathlength (path)
 {
     m_serialNumber	= ++s_serialNumber;
-    m_position		= pos;
-    m_direction		= dir;
-    m_pathlength	= path;
+}
+
+Trk::TrackSurfaceIntersection::TrackSurfaceIntersection(const TrackSurfaceIntersection& other)
+  : m_position (other.m_position),
+    m_direction (other.m_direction),
+    m_pathlength (other.m_pathlength)
+{
+    m_serialNumber	= ++s_serialNumber;
 }
 
 // destructor

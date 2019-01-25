@@ -24,7 +24,7 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GaudiKernel/Bootstrap.h"
-
+#include "GaudiKernel/SystemOfUnits.h"
 
 #define NUMBEROFPANEL 2
 #define TRTELEMENTSINEL 9
@@ -75,10 +75,10 @@ void TRT_ServMatFactoryDC2::create(GeoPhysVol *mother)
   
   for (int ii=0; ii<NUMBEROFPANEL; ii++) {
     const GeoMaterial* cylMat = m_materialManager->getMaterial("trt::PatchOut");
-    double rmin = (*ipan)[ii]->getFloat("RMIN")*GeoModelKernelUnits::cm;
-    double rmax = (*ipan)[ii]->getFloat("RMAX")*GeoModelKernelUnits::cm;
-    double zmin = (*ipan)[ii]->getFloat("ZMIN")*GeoModelKernelUnits::cm;
-    double zmax = (*ipan)[ii]->getFloat("ZMAX")*GeoModelKernelUnits::cm;
+    double rmin = (*ipan)[ii]->getFloat("RMIN")*Gaudi::Units::cm;
+    double rmax = (*ipan)[ii]->getFloat("RMAX")*Gaudi::Units::cm;
+    double zmin = (*ipan)[ii]->getFloat("ZMIN")*Gaudi::Units::cm;
+    double zmax = (*ipan)[ii]->getFloat("ZMAX")*Gaudi::Units::cm;
 
     double halflength = (zmax-zmin)/2.-2*epsilon;
     double zpos = zmin + halflength+2*epsilon;
@@ -107,15 +107,15 @@ void TRT_ServMatFactoryDC2::create(GeoPhysVol *mother)
     std::ostringstream o;
     o << ii;
     std::string logName = "TrtInel"+o.str();  
-    double halflength = ((*inel)[ii]->getFloat("ZMAX")-(*inel)[ii]->getFloat("ZMIN"))/2.*GeoModelKernelUnits::cm;
+    double halflength = ((*inel)[ii]->getFloat("ZMAX")-(*inel)[ii]->getFloat("ZMIN"))/2.*Gaudi::Units::cm;
     int volType = (int) (*inel)[ii]->getFloat("VOLTYP");
 
     const GeoShape* serviceTube = createShape(volType,
-					      (*inel)[ii]->getFloat("RMIN1")*GeoModelKernelUnits::cm,
-					      (*inel)[ii]->getFloat("RMAX1")*GeoModelKernelUnits::cm,
+					      (*inel)[ii]->getFloat("RMIN1")*Gaudi::Units::cm,
+					      (*inel)[ii]->getFloat("RMAX1")*Gaudi::Units::cm,
 					      halflength,
-					      (*inel)[ii]->getFloat("RMIN2")*GeoModelKernelUnits::cm,
-					      (*inel)[ii]->getFloat("RMAX2")*GeoModelKernelUnits::cm);
+					      (*inel)[ii]->getFloat("RMIN2")*Gaudi::Units::cm,
+					      (*inel)[ii]->getFloat("RMAX2")*Gaudi::Units::cm);
     // create the material...
     // In AGE the radiation length is specified and from that the density is
     // calculated assuming the material is C. I do the same here for now but
@@ -132,16 +132,16 @@ void TRT_ServMatFactoryDC2::create(GeoPhysVol *mother)
       cylMat = createMaterial(nameStr.str(),
 			      volType,
 			      fractionRL,
-			      (*inel)[ii]->getFloat("RMIN1")*GeoModelKernelUnits::cm,
-			      (*inel)[ii]->getFloat("RMAX1")*GeoModelKernelUnits::cm,
+			      (*inel)[ii]->getFloat("RMIN1")*Gaudi::Units::cm,
+			      (*inel)[ii]->getFloat("RMAX1")*Gaudi::Units::cm,
 			      halflength,
-			      (*inel)[ii]->getFloat("RMIN2")*GeoModelKernelUnits::cm,
-			      (*inel)[ii]->getFloat("RMAX2")*GeoModelKernelUnits::cm); 
+			      (*inel)[ii]->getFloat("RMIN2")*Gaudi::Units::cm,
+			      (*inel)[ii]->getFloat("RMAX2")*Gaudi::Units::cm); 
     }
 
     const GeoLogVol* ServLog = new GeoLogVol(logName,serviceTube,cylMat);
     GeoVPhysVol* ServPhys = new GeoPhysVol(ServLog);
-    double zpos = ((*inel)[ii]->getFloat("ZMAX")+(*inel)[ii]->getFloat("ZMIN"))/2.*GeoModelKernelUnits::cm+epsilon;
+    double zpos = ((*inel)[ii]->getFloat("ZMAX")+(*inel)[ii]->getFloat("ZMIN"))/2.*Gaudi::Units::cm+epsilon;
     // place two
     GeoTrf::Translate3D servpos1(0.,0.,zpos);
     GeoTrf::Translate3D servpos2(0.,0.,-zpos);
@@ -165,7 +165,7 @@ const GeoShape* TRT_ServMatFactoryDC2::createShape(int volType,
 						double rmax2=0.) 
   
 {
-  const double epsilon = 0.001*GeoModelKernelUnits::mm;
+  const double epsilon = 0.001*Gaudi::Units::mm;
   enum VOLTYPE{Tube=1, Cone, ICone};
   const GeoShape* IDShape = 0;
   if(volType == Tube) {

@@ -13,6 +13,7 @@
 #include "GeoModelKernel/GeoNameTag.h"  
 #include "GeoModelKernel/GeoPhysVol.h"  
 #include "GeoModelKernel/GeoAlignableTransform.h"  
+#include "GaudiKernel/SystemOfUnits.h"
 
 // InDetReadoutGeometry
 #include "InDetReadoutGeometry/SiCommonItems.h" 
@@ -120,8 +121,8 @@ void PixelDetectorFactory::create(GeoPhysVol *world)
   m_geometryManager->SetCurrentLD(0);
   m_geometryManager->SetBarrel();
   if(msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << " B-Layer basic eta pitch: " << m_geometryManager->DesignPitchZ()/GeoModelKernelUnits::micrometer << "um" << endmsg;  
-    msg(MSG::DEBUG) << " B-Layer sensor thickness: " << m_geometryManager->PixelBoardThickness()/GeoModelKernelUnits::micrometer << "um" << endmsg;   
+    msg(MSG::DEBUG) << " B-Layer basic eta pitch: " << m_geometryManager->DesignPitchZ()/Gaudi::Units::micrometer << "um" << endmsg;  
+    msg(MSG::DEBUG) << " B-Layer sensor thickness: " << m_geometryManager->PixelBoardThickness()/Gaudi::Units::micrometer << "um" << endmsg;   
   }
 
   // Top level transform

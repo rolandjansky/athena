@@ -35,6 +35,7 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 
+#include "GaudiKernel/PhysicalConstants.h"
 #include <iostream>
 
 InDetServMatFactoryDC3::InDetServMatFactoryDC3(const InDetDD::AthenaComps * athenaComps)
@@ -87,24 +88,24 @@ void InDetServMatFactoryDC3::create(GeoPhysVol *world )
   InDetMaterialManager * materialManager = new InDetMaterialManager("InDetServMatMaterialManager", getAthenaComps());
 
 
-  double ZMaxBrlTRT =        envelopes->getDouble("ZMAXBRLTRT") * GeoModelKernelUnits::mm;
-  double ZMaxBrlSCT =        envelopes->getDouble("ZMAXBRLSCT") * GeoModelKernelUnits::mm;
-  double ZMinFwdSCTandTRT =  envelopes->getDouble("ZMINFWDSCTANDTRT") * GeoModelKernelUnits::mm;
-  double ZMinSCTServInTRT =  envelopes->getDouble("ZMINSCTSERVINTRT") * GeoModelKernelUnits::mm;
-  double ZMaxSCTServInTRT =  envelopes->getDouble("ZMAXSCTSERVINTRT") * GeoModelKernelUnits::mm;
-  double ZMinPixServ    =    envelopes->getDouble("ZMINPIXSERV") * GeoModelKernelUnits::mm;
-  double ZMaxFwdTRTC =       envelopes->getDouble("ZMAXFWDTRTC") * GeoModelKernelUnits::mm;
-  double ZMaxIDet =          (*atls)[0]->getDouble("IDETZMX") * GeoModelKernelUnits::cm;  // 3490 mm
+  double ZMaxBrlTRT =        envelopes->getDouble("ZMAXBRLTRT") * Gaudi::Units::mm;
+  double ZMaxBrlSCT =        envelopes->getDouble("ZMAXBRLSCT") * Gaudi::Units::mm;
+  double ZMinFwdSCTandTRT =  envelopes->getDouble("ZMINFWDSCTANDTRT") * Gaudi::Units::mm;
+  double ZMinSCTServInTRT =  envelopes->getDouble("ZMINSCTSERVINTRT") * Gaudi::Units::mm;
+  double ZMaxSCTServInTRT =  envelopes->getDouble("ZMAXSCTSERVINTRT") * Gaudi::Units::mm;
+  double ZMinPixServ    =    envelopes->getDouble("ZMINPIXSERV") * Gaudi::Units::mm;
+  double ZMaxFwdTRTC =       envelopes->getDouble("ZMAXFWDTRTC") * Gaudi::Units::mm;
+  double ZMaxIDet =          (*atls)[0]->getDouble("IDETZMX") * Gaudi::Units::cm;  // 3490 mm
 
-  double RMinBrlSCT =        envelopes->getDouble("RMINBRLSCT") * GeoModelKernelUnits::mm;
-  double RMaxBrlTRT =        envelopes->getDouble("RMAXBRLTRT") * GeoModelKernelUnits::mm;
-  double RMinBrlTRT =        envelopes->getDouble("RMINBRLTRT") * GeoModelKernelUnits::mm;
-  double RMaxFwdTRT =        envelopes->getDouble("RMAXFWDTRT") * GeoModelKernelUnits::mm;
-  double RMaxFwdSCT =        envelopes->getDouble("RMAXFWDSCT") * GeoModelKernelUnits::mm;
-  double RMaxFwdTRTC =       envelopes->getDouble("RMAXFWDTRTC") * GeoModelKernelUnits::mm;
-  double RMinPixServ =       envelopes->getDouble("RMINPIXSERV") * GeoModelKernelUnits::mm;
-  double RMaxPixServ =       envelopes->getDouble("RMAXPIXSERV") * GeoModelKernelUnits::mm;
-  double RMaxIDet =          (*atls)[0]->getDouble("IDETOR") * GeoModelKernelUnits::cm; // 1147 mm
+  double RMinBrlSCT =        envelopes->getDouble("RMINBRLSCT") * Gaudi::Units::mm;
+  double RMaxBrlTRT =        envelopes->getDouble("RMAXBRLTRT") * Gaudi::Units::mm;
+  double RMinBrlTRT =        envelopes->getDouble("RMINBRLTRT") * Gaudi::Units::mm;
+  double RMaxFwdTRT =        envelopes->getDouble("RMAXFWDTRT") * Gaudi::Units::mm;
+  double RMaxFwdSCT =        envelopes->getDouble("RMAXFWDSCT") * Gaudi::Units::mm;
+  double RMaxFwdTRTC =       envelopes->getDouble("RMAXFWDTRTC") * Gaudi::Units::mm;
+  double RMinPixServ =       envelopes->getDouble("RMINPIXSERV") * Gaudi::Units::mm;
+  double RMaxPixServ =       envelopes->getDouble("RMAXPIXSERV") * Gaudi::Units::mm;
+  double RMaxIDet =          (*atls)[0]->getDouble("IDETOR") * Gaudi::Units::cm; // 1147 mm
 
 
 
@@ -112,8 +113,8 @@ void InDetServMatFactoryDC3::create(GeoPhysVol *world )
   // Create the envelope for the Pixel Services:
   //
   const GeoMaterial* air = materialManager->getMaterial("std::Air");
-  GeoPcon* pixServP = new GeoPcon(0.,2*GeoModelKernelUnits::pi);
-  GeoPcon* pixServM = new GeoPcon(0.,2*GeoModelKernelUnits::pi);
+  GeoPcon* pixServP = new GeoPcon(0.,2*Gaudi::Units::pi);
+  GeoPcon* pixServM = new GeoPcon(0.,2*Gaudi::Units::pi);
 
   // Plane 1: Start at the end of the SCT endcap
   pixServP->addPlane(ZMinPixServ,  RMinPixServ, RMaxPixServ);
@@ -132,7 +133,7 @@ void InDetServMatFactoryDC3::create(GeoPhysVol *world )
   const GeoShapeUnion *ServVolAux = new GeoShapeUnion(pixServP, pixServM);
 
   // This is the volume for the TRT/SCT services
-  GeoPcon *sctTrtServ = new GeoPcon(0.,2*GeoModelKernelUnits::pi);
+  GeoPcon *sctTrtServ = new GeoPcon(0.,2*Gaudi::Units::pi);
   
   // THE BEGINNING
   sctTrtServ->addPlane(-ZMaxIDet, RMaxFwdTRTC, RMaxIDet);

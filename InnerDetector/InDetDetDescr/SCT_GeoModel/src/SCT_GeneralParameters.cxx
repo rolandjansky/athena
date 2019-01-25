@@ -6,14 +6,11 @@
 #include "SCT_GeoModel/SCT_DataBase.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "GeoModelKernel/GeoDefinitions.h"
 #include "InDetGeoModelUtils/TopLevelPlacements.h"
 
-#include <iostream>
-
-
-const double SCT_SAFETY = 0.01 * GeoModelKernelUnits::mm; // Used in some places to make envelopes slightly larger to ensure
+const double SCT_SAFETY = 0.01 * Gaudi::Units::mm; // Used in some places to make envelopes slightly larger to ensure
                                      // no overlaps due to rounding errors.
 
 
@@ -62,9 +59,9 @@ double
 SCT_GeneralParameters::temperature() const
 {
   if (m_rdb->conditionsTable()->size() == 0) {
-    return 266.15 * GeoModelKernelUnits::kelvin; // -7 C
+    return 266.15 * Gaudi::Units::kelvin; // -7 C
   }
-  return (m_rdb->conditions()->getDouble("TEMPERATURE") + 273.15) * GeoModelKernelUnits::kelvin;
+  return (m_rdb->conditions()->getDouble("TEMPERATURE") + 273.15) * Gaudi::Units::kelvin;
 }
 
 
@@ -72,18 +69,18 @@ double
 SCT_GeneralParameters::biasVoltage() const
 {
   if (m_rdb->conditionsTable()->size() == 0) {
-    return 100 * GeoModelKernelUnits::volt;
+    return 100 * Gaudi::Units::volt;
   }
-  return m_rdb->conditions()->getDouble("BIASVOLT") * GeoModelKernelUnits::volt;
+  return m_rdb->conditions()->getDouble("BIASVOLT") * Gaudi::Units::volt;
 }
 
 double 
 SCT_GeneralParameters::depletionVoltage() const
 {
   if (m_rdb->conditionsTable()->size() == 0) {
-    return 20 * GeoModelKernelUnits::volt;
+    return 20 * Gaudi::Units::volt;
   }
-  return m_rdb->conditions()->getDouble("DEPLETIONVOLT") * GeoModelKernelUnits::volt;
+  return m_rdb->conditions()->getDouble("DEPLETIONVOLT") * Gaudi::Units::volt;
 }
 
 

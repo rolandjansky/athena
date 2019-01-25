@@ -39,6 +39,8 @@ Muon::CSC_RawDataProviderTool::CSC_RawDataProviderTool(const std::string& t,
 {
   declareInterface<IMuonRawDataProviderTool>(this);
   declareProperty("Decoder",     m_decoder);
+  declareProperty ("CscContainerCacheKey", m_rdoContainerCacheKey, "Optional external cache for the CSC container");
+
 }
 
 //================ Destructor =================================================
@@ -151,6 +153,8 @@ StatusCode Muon::CSC_RawDataProviderTool::initialize()
   m_activeStore->setStore( &*evtStore() );
   m_createContainerEachEvent = has_bytestream || m_containerKey.key() != "CSCRDO";
 
+  // Initialise the container cache if available  
+  ATH_CHECK( m_rdoContainerCacheKey.initialize( !m_rdoContainerCacheKey.key().empty() ) );
 
   // Retrieve decoder
   if (m_decoder.retrieve().isFailure()) {
@@ -228,14 +232,25 @@ StatusCode Muon::CSC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs
     return StatusCode::SUCCESS;
   }
 
-  SG::WriteHandle<CscRawDataContainer> handle(m_containerKey);
-  if (handle.isPresent())
+  SG::WriteHandle<CscRawDataContainer> rdoContainerHandle(m_containerKey);
+  if (rdoContainerHandle.isPresent())
     return StatusCode::SUCCESS;
-  ATH_CHECK( handle.record(std::unique_ptr<CscRawDataContainer>( 
-           new CscRawDataContainer(m_muonMgr->cscIdHelper()->module_hash_max())) ));
-  
-  CscRawDataContainer* container = handle.ptr();
 
+  // Split the methods to have one where we use the cache and one where we just setup the container
+  const bool externalCacheRDO = !m_rdoContainerCacheKey.key().empty();
+  if(!externalCacheRDO){
+    //ATH_CHECK( handle.record(std::unique_ptr<CscRawDataContainer>( new CscRawDataContainer(m_muonMgr->cscIdHelper()->module_hash_max())) ));
+    ATH_CHECK( rdoContainerHandle.record(std::make_unique<CscRawDataContainer>( m_muonMgr->cscIdHelper()->module_hash_max() )));
+    ATH_MSG_DEBUG( "Created CSCRawDataContainer" );
+  }
+  else{
+    SG::UpdateHandle<CscRawDataCollection_Cache> update(m_rdoContainerCacheKey);
+    ATH_CHECK(update.isValid());
+    ATH_CHECK(rdoContainerHandle.record (std::make_unique<CscRawDataContainer>( update.ptr() )));
+    ATH_MSG_DEBUG("Created container using cache for " << m_rdoContainerCacheKey.key());
+  }
+  
+  CscRawDataContainer* container = rdoContainerHandle.ptr();
 
   m_activeStore->setStore( &*evtStore() );   
   const EventInfo* thisEventInfo;

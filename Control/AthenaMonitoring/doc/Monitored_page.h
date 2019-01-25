@@ -67,7 +67,7 @@
 
    ## Advanced usage ##
    ### Filling in tight loops ###
-   @copydetails Monitored::impl::Group::setAutoFill()
+   @copydetails Monitored::impl::Group::fill()
 
    ### Monitoring of collections (of objects) ###
    Existing iterable collections can be monitored directly without the need to create temporaries.

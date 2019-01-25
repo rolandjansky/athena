@@ -369,7 +369,7 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
-   * @param _eventTOBs A TOBAccumulator of all TOBs in this event or pseudo-event (simulated high pileup TOB overlay).
+   * @param eventTOBs A TOBAccumulator of all TOBs in this event or pseudo-event (simulated high pileup TOB overlay).
    * Note - this function call requires a TriggerLogic pointer to be set, this logic will be used against the set of
    *TOBs
    */

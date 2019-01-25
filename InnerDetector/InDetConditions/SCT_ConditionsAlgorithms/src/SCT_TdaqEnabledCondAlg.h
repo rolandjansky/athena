@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #ifndef SCT_TDAQENABLEDCONDALG
 #define SCT_TDAQENABLEDCONDALG
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "EventInfo/EventInfo.h"
@@ -17,17 +17,17 @@
 
 #include "GaudiKernel/ICondSvc.h"
 
-class SCT_TdaqEnabledCondAlg : public AthAlgorithm 
+class SCT_TdaqEnabledCondAlg : public AthReentrantAlgorithm 
 {  
  public:
   SCT_TdaqEnabledCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~SCT_TdaqEnabledCondAlg() = default;
   StatusCode initialize() override;
-  StatusCode execute() override;
+  StatusCode execute(const EventContext& ctx) const override;
   StatusCode finalize() override;
 
  private:
-  bool unfilledRun() const;
+  bool unfilledRun(const EventContext& ctx) const;
 
   unsigned int parseChannelName(const std::string &chanNameString) const;
   std::string inWords(const unsigned int aNumber) const;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -15,7 +15,7 @@
 #define SCT_ConditionsSummaryTestAlg_H 
 
 //Athena
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 
@@ -26,13 +26,13 @@
 #include <string>
 
 ///Example class to show calling the SCT_ConditionsSummaryTool
-class SCT_ConditionsSummaryTestAlg : public AthAlgorithm {
+class SCT_ConditionsSummaryTestAlg : public AthReentrantAlgorithm {
  public:
   SCT_ConditionsSummaryTestAlg(const std::string &name,ISvcLocator *pSvcLocator) ;
   virtual ~SCT_ConditionsSummaryTestAlg() = default;
 
   StatusCode initialize() override;
-  StatusCode execute() override;
+  StatusCode execute(const EventContext& ctx) const override;
   StatusCode finalize() override;
    
  private:

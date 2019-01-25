@@ -142,7 +142,7 @@ namespace TrigCostRootAnalysis {
   /**
    * Construct new counter of correct derived type, pass back as base type.
    * This function must be implemented by all derived monitor types.
-   * @see MonitorBase::addCounter( const std::string &_name, Int_t _ID )
+   * @see MonitorBase::addCounter( const std::string &_name, Int_t ID )
    * @param name Cost reference to name of counter.
    * @param ID Reference to ID number of counter.
    * @returns Base class pointer to new counter object of correct serived type.

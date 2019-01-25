@@ -1,12 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-import re
-_pattern = "(?P<mult>\d*)(e(?P<threshold1>\d+))(e(?P<threshold2>\d+))*"
-_cpattern = re.compile( _pattern )
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.SystemOfUnits import GeV
-
-
-
 
 def _IncTool(name, threshold, sel):
 
@@ -119,19 +113,6 @@ def _MultTool(name):
     return TrigL2CaloHypoToolMult( name )
 
 
-def decodeThreshold( threshold ):
-    """ decodes the thresholds of the form e10, 2e10, e10e15, ... """
-    print "TrigL2CaloHypoToolFromName: decoding threshold ", threshold
-    if threshold[0].isdigit(): # is if the from NeX, return as list [X,X,X...N times...]
-        assert threshold[1] == 'e', "Two digit multiplicity not supported"
-        return [ threshold[2:] ] * int( threshold[0] )
-
-    if threshold.count('e') > 1: # is of the form eXeYeZ, return as [X, Y, Z]
-        return threshold.strip('e').split('e')
-
-    # inclusive, return as 1 element list
-    return [ threshold[1:] ] 
-
 
 def TrigL2CaloHypoToolFromDict( d ):
     """ Use menu decoded chain dictionary to configure the tool """
@@ -165,7 +146,7 @@ def TrigL2CaloHypoToolFromName( name, conf ):
     """ To be phased out """
     from AthenaCommon.Constants import DEBUG
     """ set the name of the HypoTool (name=chain) and figure out the threshold and selection from conf """
-    #print "Configuring ", name
+
     from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName
     decoder = DictFromChainName()
     decodedDict = decoder.analyseShortName(conf, [], "") # no L1 info

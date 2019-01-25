@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -14,21 +14,21 @@
 #ifndef SCT_SiliconConditionsTestAlg_H
 #define SCT_SiliconConditionsTestAlg_H 
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
 
 //Gaudi
 #include "GaudiKernel/ToolHandle.h"
 
-///Example class to show calling the SCT_SiliconConditionsSvc
-class SCT_SiliconConditionsTestAlg : public AthAlgorithm {
+///Example class to show calling the SCT_SiliconConditionsTool
+class SCT_SiliconConditionsTestAlg : public AthReentrantAlgorithm {
  public:
   SCT_SiliconConditionsTestAlg(const std::string& name,ISvcLocator* pSvcLocator);
   virtual ~SCT_SiliconConditionsTestAlg() = default;
 
   StatusCode initialize() override;
-  StatusCode execute() override;
+  StatusCode execute(const EventContext& ctx) const override;
   StatusCode finalize() override;
    
  private:

@@ -24,6 +24,7 @@
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GaudiKernel/Bootstrap.h"
 
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <iostream>
 
@@ -64,29 +65,29 @@ void EndPlateFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
 //----------------------------------------------------------------------------------
 //    std::string matName =  mat[(int) (*pbfi)[ii]->getFloat("MAT")];
 //    const GeoMaterial* cylMat = materialManager->getMaterial(matName);
-//    double rmin = (*pbfi)[ii]->getFloat("RIN")*GeoModelKernelUnits::cm;
+//    double rmin = (*pbfi)[ii]->getFloat("RIN")*Gaudi::Units::cm;
 //----------------------------------------------------------------------------------
-    double safety = 0.01*GeoModelKernelUnits::mm;
-    double maxRofEP = 1075.0*GeoModelKernelUnits::mm - safety; // Interfere with TRT PatchPanel1
-    double RibConnection = 550.0*GeoModelKernelUnits::mm;
+    double safety = 0.01*Gaudi::Units::mm;
+    double maxRofEP = 1075.0*Gaudi::Units::mm - safety; // Interfere with TRT PatchPanel1
+    double RibConnection = 550.0*Gaudi::Units::mm;
 
-    maxRofEP      = (*shell)[0]->getDouble("EPMAXR")*GeoModelKernelUnits::mm - safety; 
-    RibConnection = (*ribs)[0]->getDouble("RIBCONNECTION")*GeoModelKernelUnits::mm; 
+    maxRofEP      = (*shell)[0]->getDouble("EPMAXR")*Gaudi::Units::mm - safety; 
+    RibConnection = (*ribs)[0]->getDouble("RIBCONNECTION")*Gaudi::Units::mm; 
 //
 //     Internal shell. Default (initial) values
 //
-    double rminInt = 425.*GeoModelKernelUnits::mm;
-    double rmaxInt = 1040.*GeoModelKernelUnits::mm;
-    double thickShell = 3.*GeoModelKernelUnits::mm;
-    double thick2     = 10.*GeoModelKernelUnits::mm;
-    double zposEP     = 3370.*GeoModelKernelUnits::mm;
-    double zleng      = 42.*GeoModelKernelUnits::mm;
-    rminInt    = (*shell)[0]->getDouble("RMININT")*GeoModelKernelUnits::mm; 
-    rmaxInt    = (*shell)[0]->getDouble("RMAXINT")*GeoModelKernelUnits::mm;
-    thickShell = (*shell)[0]->getDouble("THICKSHELL")*GeoModelKernelUnits::mm;
-    thick2     = (*shell)[0]->getDouble("THICKADD")*GeoModelKernelUnits::mm;
-    zposEP     = (*shell)[0]->getDouble("ZSTART")*GeoModelKernelUnits::mm;
-    zleng      = (*shell)[0]->getDouble("ZSHIFT")*GeoModelKernelUnits::mm;
+    double rminInt = 425.*Gaudi::Units::mm;
+    double rmaxInt = 1040.*Gaudi::Units::mm;
+    double thickShell = 3.*Gaudi::Units::mm;
+    double thick2     = 10.*Gaudi::Units::mm;
+    double zposEP     = 3370.*Gaudi::Units::mm;
+    double zleng      = 42.*Gaudi::Units::mm;
+    rminInt    = (*shell)[0]->getDouble("RMININT")*Gaudi::Units::mm; 
+    rmaxInt    = (*shell)[0]->getDouble("RMAXINT")*Gaudi::Units::mm;
+    thickShell = (*shell)[0]->getDouble("THICKSHELL")*Gaudi::Units::mm;
+    thick2     = (*shell)[0]->getDouble("THICKADD")*Gaudi::Units::mm;
+    zposEP     = (*shell)[0]->getDouble("ZSTART")*Gaudi::Units::mm;
+    zleng      = (*shell)[0]->getDouble("ZSHIFT")*Gaudi::Units::mm;
  
     GeoTube* shellInt1 = new GeoTube(rminInt,rminInt+thick2,zleng*0.5);
     GeoTube* shellInt2 = new GeoTube(rminInt,rmaxInt,thickShell*0.5);
@@ -120,12 +121,12 @@ void EndPlateFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
 //
 //     External shell (default/initial values)
 
-    double zgap     = 50.*GeoModelKernelUnits::mm;
-    double rminExt  = 250.*GeoModelKernelUnits::mm;
+    double zgap     = 50.*Gaudi::Units::mm;
+    double rminExt  = 250.*Gaudi::Units::mm;
     double rmaxExt  = maxRofEP;
     
-    zgap    = (*shell)[0]->getDouble("ZGAP")*GeoModelKernelUnits::mm;
-    rminExt = (*shell)[0]->getDouble("RMINEXT")*GeoModelKernelUnits::mm;
+    zgap    = (*shell)[0]->getDouble("ZGAP")*Gaudi::Units::mm;
+    rminExt = (*shell)[0]->getDouble("RMINEXT")*Gaudi::Units::mm;
 
 
     const GeoTube*   shellExt    = new GeoTube(rminExt,rmaxExt,thickShell/2.);
@@ -146,19 +147,19 @@ void EndPlateFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
 //
 //     Insert - default (initial) values
 
-    double zthick  = 16.0*GeoModelKernelUnits::mm;
-    double zinsert = 3018.*GeoModelKernelUnits::mm-zthick;
-    double rminins = 252.*GeoModelKernelUnits::mm;
-    double rmaxins = 435.*GeoModelKernelUnits::mm;
-    double rthick  = 5.*GeoModelKernelUnits::mm;
-    double zlengi   = 410.*GeoModelKernelUnits::mm;
+    double zthick  = 16.0*Gaudi::Units::mm;
+    double zinsert = 3018.*Gaudi::Units::mm-zthick;
+    double rminins = 252.*Gaudi::Units::mm;
+    double rmaxins = 435.*Gaudi::Units::mm;
+    double rthick  = 5.*Gaudi::Units::mm;
+    double zlengi   = 410.*Gaudi::Units::mm;
 
-    zthick  = (*insert)[0]->getDouble("ZTHICK")*GeoModelKernelUnits::mm;
-    zinsert = (*insert)[0]->getDouble("ZINSERT")*GeoModelKernelUnits::mm;
-    rminins = (*insert)[0]->getDouble("RMININS")*GeoModelKernelUnits::mm;
-    rmaxins = (*insert)[0]->getDouble("RMAXINS")*GeoModelKernelUnits::mm;
-    rthick  = (*insert)[0]->getDouble("RTHICK")*GeoModelKernelUnits::mm;
-    zlengi  = (*insert)[0]->getDouble("ZLENGINS")*GeoModelKernelUnits::mm;
+    zthick  = (*insert)[0]->getDouble("ZTHICK")*Gaudi::Units::mm;
+    zinsert = (*insert)[0]->getDouble("ZINSERT")*Gaudi::Units::mm;
+    rminins = (*insert)[0]->getDouble("RMININS")*Gaudi::Units::mm;
+    rmaxins = (*insert)[0]->getDouble("RMAXINS")*Gaudi::Units::mm;
+    rthick  = (*insert)[0]->getDouble("RTHICK")*Gaudi::Units::mm;
+    zlengi  = (*insert)[0]->getDouble("ZLENGINS")*Gaudi::Units::mm;
 
     GeoTube* Insert1 = new GeoTube(rminins,rmaxins+rthick,zthick*0.5);
     GeoTube* Insert2 = new GeoTube(rmaxins,rmaxins+rthick,(zlengi-zthick)*0.5);
@@ -194,15 +195,15 @@ void EndPlateFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
 //     Short ribs - default (initial) values
 //     Initial position is along X axis then move and rotate
 //
-    double ribY   = 12.0*GeoModelKernelUnits::mm;
+    double ribY   = 12.0*Gaudi::Units::mm;
     double ribZ   = zgap - safety;
-    double ribX   = 380.0*GeoModelKernelUnits::mm;
-    double posX   = 550.0*GeoModelKernelUnits::mm+ribX/2.;
+    double ribX   = 380.0*Gaudi::Units::mm;
+    double posX   = 550.0*Gaudi::Units::mm+ribX/2.;
 
-    ribY   = (*ribs)[0]->getDouble("SHORTWID")*GeoModelKernelUnits::mm;
+    ribY   = (*ribs)[0]->getDouble("SHORTWID")*Gaudi::Units::mm;
     ribZ   = zgap - safety;
-    ribX   = (*ribs)[0]->getDouble("SHORTLENG")*GeoModelKernelUnits::mm;
-    posX   = (*ribs)[0]->getDouble("SHORTRSTART")*GeoModelKernelUnits::mm + ribX/2.;
+    ribX   = (*ribs)[0]->getDouble("SHORTLENG")*Gaudi::Units::mm;
+    posX   = (*ribs)[0]->getDouble("SHORTRSTART")*Gaudi::Units::mm + ribX/2.;
 
     const GeoBox* ribShort = new GeoBox(ribX/2., ribY/2., ribZ/2.);
 
@@ -232,22 +233,22 @@ void EndPlateFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
 //---------------------------------------------------------------------------------
 //     Long ribs (initial position is along X axis then move and rotate)
 //
-    double ribY1   = 20.0*GeoModelKernelUnits::mm;
+    double ribY1   = 20.0*Gaudi::Units::mm;
     double ribZ1   = zgap - safety;
-    double ribX1   = RibConnection-250.*GeoModelKernelUnits::mm;
-    double posX1   = 250.*GeoModelKernelUnits::mm+ribX1/2.;
+    double ribX1   = RibConnection-250.*Gaudi::Units::mm;
+    double posX1   = 250.*Gaudi::Units::mm+ribX1/2.;
 
-    double ribY2   = 30.0*GeoModelKernelUnits::mm;
+    double ribY2   = 30.0*Gaudi::Units::mm;
     double ribZ2   = zgap - safety;
     double ribX2   = maxRofEP - RibConnection;
     double posX2   = RibConnection+ribX2/2.;
 
-    ribY1   = (*ribs)[0]->getDouble("LONGWID1")*GeoModelKernelUnits::mm;
+    ribY1   = (*ribs)[0]->getDouble("LONGWID1")*Gaudi::Units::mm;
     ribZ1   = zgap - safety;
-    ribX1   = RibConnection - (*ribs)[0]->getDouble("LONGLENG1")*GeoModelKernelUnits::mm;  // LONGLENG1 is a RMIN of ribs
-    posX1   = (*ribs)[0]->getDouble("LONGLENG1")*GeoModelKernelUnits::mm + ribX1/2.;       // It's determined by Pixel volume -> so 250.0!!!
+    ribX1   = RibConnection - (*ribs)[0]->getDouble("LONGLENG1")*Gaudi::Units::mm;  // LONGLENG1 is a RMIN of ribs
+    posX1   = (*ribs)[0]->getDouble("LONGLENG1")*Gaudi::Units::mm + ribX1/2.;       // It's determined by Pixel volume -> so 250.0!!!
  
-    ribY2   = (*ribs)[0]->getDouble("LONGWID2")*GeoModelKernelUnits::mm;
+    ribY2   = (*ribs)[0]->getDouble("LONGWID2")*Gaudi::Units::mm;
     ribZ2   = zgap - safety;
     ribX2   = maxRofEP - RibConnection;
     posX2   = RibConnection+ribX2/2.;

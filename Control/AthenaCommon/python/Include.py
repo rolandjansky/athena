@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/Include.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
@@ -57,7 +57,7 @@ class IncludeError( RuntimeError ):
 ### files locator ------------------------------------------------------------
 try:
    optionsPathEnv = os.environ[ 'JOBOPTSEARCHPATH' ]
-except:
+except Exception:
    optionsPathEnv = os.curdir
 
 optionsPath = re.split( ',|' + os.pathsep, optionsPathEnv )
@@ -232,7 +232,7 @@ class Include( object ):
             try:
                if 'import' in _filecache[ f.f_code.co_filename ][ f.f_lineno ]:
                   return self._trace_include
-            except:
+            except Exception:
                pass
             f = f.f_back
          del f

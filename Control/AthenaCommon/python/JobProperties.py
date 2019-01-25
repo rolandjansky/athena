@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #=======================================================================
 # File: JobProperties/python/JobProperties.py
@@ -483,13 +483,13 @@ class JobPropertyContainer (object):
                   closestMatch=get_close_matches(name,self.__dict__.keys(),1)
                   if len(closestMatch)>0:
                       errString+=". Did you mean \'%s\'?" %  closestMatch[0] 
-              except:
+              except Exception:
                   pass #No execption from here
                   
               raise AttributeError(errString)
         try: 
             protected=hasattr(self.__dict__[name],'_context_name') 
-        except:
+        except Exception:
             protected=False 
         if not protected:
             self.__dict__[name] = n_value

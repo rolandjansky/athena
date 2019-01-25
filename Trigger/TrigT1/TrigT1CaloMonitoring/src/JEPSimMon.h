@@ -320,6 +320,10 @@ private:
   /// Load ROD Headers
   void  loadRodHeaders();
 
+  template <typename T>
+  void dumpDataAndSim(const std::string& msg, const std::map<int, T*>& data,
+                         const std::map<int, T*>& sim);
+
   /// CMX-Jet simulation tool
   ToolHandle<LVL1::IL1JetCMXTools>            m_jetCmxTool;
   /// JEM RoI simulation tool
@@ -461,6 +465,22 @@ private:
   std::vector<TH2I_LW*> m_v_2d_MismatchEvents;       ///< Mismatch Event Number Samples
 
 };
+
+template <typename T> inline
+void JEPSimMon::dumpDataAndSim(const std::string& msg, const std::map<int, T*>& data,
+                    const std::map<int, T*>& sim) {
+  if (!m_debug) return;
+
+  ATH_MSG_DEBUG(msg);
+  for (const auto& p : data) {
+    ATH_MSG_DEBUG(" DAT " << *p.second);
+    auto itSim =  sim.find(p.first);
+    if (itSim != sim.end()) {
+      ATH_MSG_DEBUG(" SIM " << *itSim->second << std::endl);
+    }
+  }
+  ATH_MSG_DEBUG("End Compare");
+  }
 
 } // end namespace
 

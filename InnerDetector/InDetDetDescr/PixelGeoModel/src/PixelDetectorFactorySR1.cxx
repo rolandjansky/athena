@@ -16,6 +16,7 @@
 #include "GeoModelKernel/GeoIdentifierTag.h"  
 #include "GeoModelKernel/GeoPhysVol.h"  
 #include "GeoModelKernel/GeoAlignableTransform.h"  
+#include "GaudiKernel/SystemOfUnits.h"
 
 // InDetReadoutGeometry
 #include "InDetReadoutGeometry/SiCommonItems.h" 
@@ -110,8 +111,8 @@ void PixelDetectorFactorySR1::create(GeoPhysVol *world)
     msg(MSG::INFO) << " " << m_detectorManager->getVersion().fullDescription() << endmsg;
 
     // Printout the parameters that are different in DC1 and DC2.
-    msg(MSG::INFO) << " B-Layer basic eta pitch: " << m_geometryManager->DesignPitchZ()/GeoModelKernelUnits::micrometer << "um" << endmsg;
-    msg(MSG::INFO) << " B-Layer sensor thickness: " << m_geometryManager->PixelBoardThickness()/GeoModelKernelUnits::micrometer << "um" << endmsg;   
+    msg(MSG::INFO) << " B-Layer basic eta pitch: " << m_geometryManager->DesignPitchZ()/Gaudi::Units::micrometer << "um" << endmsg;
+    msg(MSG::INFO) << " B-Layer sensor thickness: " << m_geometryManager->PixelBoardThickness()/Gaudi::Units::micrometer << "um" << endmsg;   
   }  
 
   bool barrelPresent   = m_geometryManager->partPresent("Barrel");
@@ -195,7 +196,7 @@ void PixelDetectorFactorySR1::create(GeoPhysVol *world)
       physVol = pec.Build();
       
       GeoTrf::Transform3D endcapCTransform = m_geometryManager->partTransform("EndcapC");
-      transform = new GeoAlignableTransform(topTransform * endcapCTransform * GeoTrf::TranslateZ3D(-zpos) * GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg));
+      transform = new GeoAlignableTransform(topTransform * endcapCTransform * GeoTrf::TranslateZ3D(-zpos) * GeoTrf::RotateY3D(180*Gaudi::Units::deg));
       
       GeoNameTag* tag  = new GeoNameTag("Pixel");
       world->add(tag);

@@ -9,7 +9,7 @@
 #include "LArReadoutGeometry/FCALTile.h"
 #include "GeoModelKernel/GeoVDetectorElement.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
 class FCALDetectorManager;
@@ -45,7 +45,7 @@ class FCALModule : public GeoVDetectorElement
   FCALModule (const GeoVFullPhysVol *physVol
 	      , Module module
 	      , Endcap endcap
-	      , double projectivityDisplacement = 4*GeoModelKernelUnits::cm);
+	      , double projectivityDisplacement = 4*Gaudi::Units::cm);
     
   /**
    * @brief Desctructor

@@ -5,8 +5,6 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from AthenaCommon import CfgMgr
 from RngComps.RandomServices import RNG, AthEngines
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from Digitization.DigitizationFlags import digitizationFlags
-from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
 # The earliest and last bunch crossing times for which interactions will be sent
 # to the BCM Digitization code.
@@ -23,7 +21,7 @@ def BCM_DigitizationToolCfg(configFlags, name="BCM_DigitizationTool", **kwargs):
     Engine = configFlags.Random.Engine
     acc.merge(RNG(Engine))
     # Build the argument dict
-    kwargs.setdefault("RndmSvc", AthEngines[Engine])
+    kwargs.setdefault("RndmSvc", "AthRNGSvc")
     kwargs.setdefault("HitCollName", "BCMHits")
     if configFlags.Digitization.DoInnerDetectorNoise:
         kwargs.setdefault("ModNoise", [90.82] * 8)

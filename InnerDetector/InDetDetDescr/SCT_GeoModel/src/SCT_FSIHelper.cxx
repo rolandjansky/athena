@@ -6,7 +6,7 @@
 #include "SCT_GeoModel/SCT_FSIHelper.h"
 #include "SCT_GeoModel/SCT_DataBase.h"
 #include "RDBAccessSvc/IRDBRecord.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <iostream>
 
@@ -66,8 +66,8 @@ FSIHelper::fill()
   // Loop through location types
   for (int iLocIndex = 0; iLocIndex < m_rdb->fwdFSILocationSize(); iLocIndex++) {
     std::string locType =  m_rdb->fwdFSILocation(iLocIndex)->getString("LOCTYPE");
-    double radius =  m_rdb->fwdFSILocation(iLocIndex)->getDouble("LOCR") * GeoModelKernelUnits::mm;
-    double rphi = m_rdb->fwdFSILocation(iLocIndex)->getDouble("LOCPHI") * GeoModelKernelUnits::deg;
+    double radius =  m_rdb->fwdFSILocation(iLocIndex)->getDouble("LOCR") * Gaudi::Units::mm;
+    double rphi = m_rdb->fwdFSILocation(iLocIndex)->getDouble("LOCPHI") * Gaudi::Units::deg;
     int side =  m_rdb->fwdFSILocation(iLocIndex)->getInt("SIDE");
     FSILocation * location = new  FSILocation(locType, radius, rphi, side);
     m_locationTypes[locType] = location;

@@ -4,8 +4,6 @@
 
 #include "CondWriterExtAlg.h"
 
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventIncident.h"
 #include "StoreGate/ReadHandle.h"
 #include "AthenaKernel/IOVTime.h"
 #include "AthenaKernel/IOVRange.h"
@@ -17,30 +15,26 @@ namespace DMTest {
 CondWriterExtAlg::CondWriterExtAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_iovSvc("IOVSvc", name),
-  m_iovDbSvc("IOVDbSvc", name),
-  m_incidentSvc("IncidentSvc", name)
+  m_iovDbSvc("IOVDbSvc", name)
 {
 }
 
 StatusCode CondWriterExtAlg::initialize()
 {
-  ATH_CHECK( m_eventInfoKey.initialize() );    
   ATH_CHECK( m_iovSvc.retrieve() );
   ATH_CHECK( m_iovDbSvc.retrieve() );
-  ATH_CHECK( m_incidentSvc.retrieve() );
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode CondWriterExtAlg::execute()
 {
-  SG::ReadHandle<EventInfo> eventInfo (m_eventInfoKey);
-
-  ATH_MSG_INFO ("Event " << eventInfo->event_ID()->event_number() <<
-                " LBN " << eventInfo->event_ID()->lumi_block());
+  const EventContext& context = getContext();
+  ATH_MSG_INFO ("Event " << context.eventID().event_number() <<
+                " LBN " << context.eventID().lumi_block());
 
   // Check if we need to execute a command
-  auto it = m_cmd.find(eventInfo->event_ID()->lumi_block());
+  auto it = m_cmd.find(context.eventID().lumi_block());
   if (it != m_cmd.end()) {
     ATH_MSG_INFO("Executing: " << it->second);
     if ( system(it->second.c_str()) != 0 ) {
