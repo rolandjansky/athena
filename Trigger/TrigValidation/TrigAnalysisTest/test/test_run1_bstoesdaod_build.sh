@@ -22,6 +22,7 @@
 # art-output: TotalEventsProcessed.txt
 # art-output: AOD.pool.root.checkFile0
 # art-output: AOD.pool.root.checkFiletrigSize.txt
+# art-output: *.regtest.new
 
 export NAME="run1_bstoesdaod_build"
 export COST_MONITORING="False"
