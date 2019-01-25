@@ -49,6 +49,7 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <string>
 #include <cmath>
@@ -112,37 +113,37 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
 
   //LAr
 
-  GeoMaterial* LAr = new GeoMaterial(name="LiquidArgon", density=1.396*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
+  GeoMaterial* LAr = new GeoMaterial(name="LiquidArgon", density=1.396*GeoModelKernelUnits::g/Gaudi::Units::cm3);
   LAr->add(Ar,1.);
   LAr->lock();
  
   //Alu
 
-  GeoMaterial* Alu = new GeoMaterial(name="Alu", density=2.7*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
+  GeoMaterial* Alu = new GeoMaterial(name="Alu", density=2.7*GeoModelKernelUnits::g/Gaudi::Units::cm3);
   Alu->add(Al,1.);
   Alu->lock();
 
   //Iron
 
-  GeoMaterial* Iron = new GeoMaterial(name="Iron", density=7.87*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
+  GeoMaterial* Iron = new GeoMaterial(name="Iron", density=7.87*GeoModelKernelUnits::g/Gaudi::Units::cm3);
   Iron->add(Fe,1.);
   Iron->lock();
 
   //Copper
 
-  GeoMaterial* Copper = new GeoMaterial(name="Copper", density=8.96*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
+  GeoMaterial* Copper = new GeoMaterial(name="Copper", density=8.96*GeoModelKernelUnits::g/Gaudi::Units::cm3);
   Copper->add(Cu,1.);
   Copper->lock();
 
   //Lead
 
-  GeoMaterial* Lead = new GeoMaterial(name="Lead", density=11.35*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
+  GeoMaterial* Lead = new GeoMaterial(name="Lead", density=11.35*GeoModelKernelUnits::g/Gaudi::Units::cm3);
   Lead->add(Pb,1.);
   Lead->lock();
 
   // Air	,  at 20 deg C, 1 atm density=1.2931*mg/cm3
 
-  GeoMaterial* Air=new GeoMaterial(name="Air", density=1.290*GeoModelKernelUnits::mg/GeoModelKernelUnits::cm3);
+  GeoMaterial* Air=new GeoMaterial(name="Air", density=1.290*Gaudi::Units::mg/Gaudi::Units::cm3);
   Air->add(N, .8);
   Air->add(O, .2);
   Air->lock();
@@ -150,7 +151,7 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   //Prepreg glue for absorbers, composition to be checked!
   //ref:STR.CAL.01.CRB.6,(23-Jan-2003,J.T.)
 
-  GeoMaterial* Glue=new GeoMaterial(name="Glue", density=1.8*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
+  GeoMaterial* Glue=new GeoMaterial(name="Glue", density=1.8*GeoModelKernelUnits::g/Gaudi::Units::cm3);
   aH=8.*H->getA();
   aO=2.*O->getA();
   aC=5.*C->getA();
@@ -169,7 +170,7 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   //PermaliE730 for Front middle ring, composition to be checked!
   //                     ref.: STR.CAL.01.CRB.6,(23-Jan-2003,J.T.)
 
-  GeoMaterial* PermaliE730=new GeoMaterial(name="PermaliE730",density=1.83*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
+  GeoMaterial* PermaliE730=new GeoMaterial(name="PermaliE730",density=1.83*GeoModelKernelUnits::g/Gaudi::Units::cm3);
   aH=8.*H->getA();
   aO=2.*O->getA();
   aC=5.*C->getA();
@@ -187,7 +188,7 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
 
   // Gten  ( C8 H14 O4 ), alias glass epoxy for long.&transv.bars
 
-  GeoMaterial* Gten = new GeoMaterial(name="Gten", density=1.8*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
+  GeoMaterial* Gten = new GeoMaterial(name="Gten", density=1.8*GeoModelKernelUnits::g/Gaudi::Units::cm3);
   aH=14.*H->getA();
   aO= 4.*O->getA();
   aC= 8.*C->getA();
@@ -206,7 +207,7 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   // Kapton 11-Jan-2002 ML from accbgeo.age: the Kapton_E density is 1.46g/cm3
   //        one assumes it is the same as for the Kapton_H -> C22 H10 O5 N2
  
-  GeoMaterial* Kapton= new GeoMaterial(name="Kapton",density=1.46*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
+  GeoMaterial* Kapton= new GeoMaterial(name="Kapton",density=1.46*GeoModelKernelUnits::g/Gaudi::Units::cm3);
   aH=10.*H->getA();
   aO= 5.*O->getA();
   aC=22.*C->getA();
@@ -227,9 +228,9 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
 
   // THIN absorber: outer wheel
   //               11-Jan-2002 ML source: endegeo.age and Fig.7-3 of TDR
-  Tggl = 0.3*GeoModelKernelUnits::mm;
-  Tgfe = 0.4*GeoModelKernelUnits::mm;
-  Tgpb = 1.7*GeoModelKernelUnits::mm;
+  Tggl = 0.3*Gaudi::Units::mm;
+  Tgfe = 0.4*Gaudi::Units::mm;
+  Tgpb = 1.7*Gaudi::Units::mm;
   Totalthick=Tggl+Tgfe+Tgpb;
   m1=Tggl*Glue->getDensity();
   m2=Tgfe*Iron->getDensity();
@@ -250,9 +251,9 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
 
   // THICK absorber: inner wheel
   //                 11-Jan-2002 ML source: endegeo.age and Fig.7-3 of TDR
-  Thgl = 0.3*GeoModelKernelUnits::mm;
-  Thfe = 0.4*GeoModelKernelUnits::mm;
-  Thpb = 2.2*GeoModelKernelUnits::mm;
+  Thgl = 0.3*Gaudi::Units::mm;
+  Thfe = 0.4*Gaudi::Units::mm;
+  Thpb = 2.2*Gaudi::Units::mm;
   Totalthick=Thgl+Thfe+Thpb;
   m1=Thgl*Glue->getDensity();
   m2=Thfe*Iron->getDensity();
@@ -273,8 +274,8 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
 
   // Electrode,   as a mixture Kapton+Cu, 11-Jan-2002 ML
 
-  Thcu = 0.105*GeoModelKernelUnits::mm;
-  Thka = 0.170*GeoModelKernelUnits::mm;  //together with glue J.T.
+  Thcu = 0.105*Gaudi::Units::mm;
+  Thka = 0.170*Gaudi::Units::mm;  //together with glue J.T.
   Totalthicke = Thcu+Thka;
   m1=Thcu*Copper->getDensity();
   m2=Thka*Kapton->getDensity();
@@ -303,7 +304,7 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
     FracC =aC*inv_Atot;
     FracAr=aAr*inv_Atot;
   }
-  GeoMaterial* Elect_LAr= new GeoMaterial(name="Elnics",density=1.28*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
+  GeoMaterial* Elect_LAr= new GeoMaterial(name="Elnics",density=1.28*GeoModelKernelUnits::g/Gaudi::Units::cm3);
   Elect_LAr->add(H ,FracH);
   Elect_LAr->add(C ,FracC);
   Elect_LAr->add(Ar,FracAr);
@@ -316,9 +317,9 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
 
   // G10FeInner for barrette in the inner wheel(J.T.08.01.2003)
 
-  Thfe  =0.4*GeoModelKernelUnits::mm;
-  Thgl  =0.3*GeoModelKernelUnits::mm;
-  Thpb  =2.2*GeoModelKernelUnits::mm;
+  Thfe  =0.4*Gaudi::Units::mm;
+  Thgl  =0.3*Gaudi::Units::mm;
+  Thpb  =2.2*Gaudi::Units::mm;
   ThGten=Thpb;
   Totalthick =Thfe+Thgl+ThGten;
   //Totalthicki=Totalthick;
@@ -343,9 +344,9 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
 
  // G10FeOuter for barrette in the outer wheel(J.T.08.01.2003)
 
-  Thfe  =0.4*GeoModelKernelUnits::mm;
-  Thgl  =0.3*GeoModelKernelUnits::mm;
-  Thpb  =1.7*GeoModelKernelUnits::mm;
+  Thfe  =0.4*Gaudi::Units::mm;
+  Thgl  =0.3*Gaudi::Units::mm;
+  Thpb  =1.7*Gaudi::Units::mm;
   ThGten=Thpb;
   Totalthick =Thfe+Thgl+ThGten;
   //Totalthicko=Totalthick;
@@ -381,13 +382,13 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
 // V.N: From LarWheelSolid, to get bounding polycone. Previoulsy G4 routine. No GeoModel equivalent so far ...
 //
   
-  double zWheelFrontFace 		= 3689.5*GeoModelKernelUnits::mm;
+  double zWheelFrontFace 		= 3689.5*Gaudi::Units::mm;
   
-  double dWRPtoFrontFace 		= 11.*GeoModelKernelUnits::mm;
+  double dWRPtoFrontFace 		= 11.*Gaudi::Units::mm;
 
-  double dMechFocaltoWRP                 = 3691. *GeoModelKernelUnits::mm;  //=endg_z1*GeoModelKernelUnits::cm
+  double dMechFocaltoWRP                 = 3691. *Gaudi::Units::mm;  //=endg_z1*Gaudi::Units::cm
                                                          //"LArEMECNomLarOrig" 
-  double rOuterCutoff                    = 2034. *GeoModelKernelUnits::mm;  //=endg_rlimit*GeoModelKernelUnits::cm
+  double rOuterCutoff                    = 2034. *Gaudi::Units::mm;  //=endg_rlimit*Gaudi::Units::cm
                                               //"LArEMECMaxRadiusActivePart
 
 //*****************      
@@ -399,32 +400,32 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   double Rin1, Rin2, Rout1, Rout2;
 
   if ( m_isInnerWheel ) {
-    Rin1 = 279.*GeoModelKernelUnits::mm;
-    Rin2 = 324.*GeoModelKernelUnits::mm;
+    Rin1 = 279.*Gaudi::Units::mm;
+    Rin2 = 324.*Gaudi::Units::mm;
   }
   else {
-    Rin1 = 590.*GeoModelKernelUnits::mm;
-    Rin2 = 678.*GeoModelKernelUnits::mm; 
+    Rin1 = 590.*Gaudi::Units::mm;
+    Rin2 = 678.*Gaudi::Units::mm; 
   }
   if ( m_isOuterWheel ) {
-    Rout1 = 2070.*GeoModelKernelUnits::mm;
-    Rout2 = 2070.*GeoModelKernelUnits::mm;
+    Rout1 = 2070.*Gaudi::Units::mm;
+    Rout2 = 2070.*Gaudi::Units::mm;
   }
   else {
-    Rout1 = 647.*GeoModelKernelUnits::mm;
-    Rout2 = 732.*GeoModelKernelUnits::mm;
+    Rout1 = 647.*Gaudi::Units::mm;
+    Rout2 = 732.*Gaudi::Units::mm;
   }
 
   // --> EndOfRadiiSelection <--
    
-  double emecMotherZplan[] = { 3639.5*GeoModelKernelUnits::mm, 3639.5*GeoModelKernelUnits::mm + 630.*GeoModelKernelUnits::mm };    //cold (J.T)                               
+  double emecMotherZplan[] = { 3639.5*Gaudi::Units::mm, 3639.5*Gaudi::Units::mm + 630.*Gaudi::Units::mm };    //cold (J.T)                               
   double emecMotherRin[]   = { Rin1, Rin2 };	
   double emecMotherRout[]  = { Rout1, Rout2 }; 
   int lastPlaneEmec = ( sizeof( emecMotherZplan )/sizeof( double ) );
 
   if ( m_isTB ) { 
      for ( int i = 0; i < lastPlaneEmec; i++ ) emecMotherZplan[ i ] -= zWheelFrontFace;
-     zWheelFrontFace = 0.*GeoModelKernelUnits::mm;
+     zWheelFrontFace = 0.*Gaudi::Units::mm;
   }
 
   double phiPosition = M_PI/2;
@@ -449,8 +450,8 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   double tanThetaMid   = 2. * exp(-eta_mid) / (1. - exp(2.*-eta_mid));
   double tanThetaOuter = 2. * exp(-eta_low) / (1. - exp(2.*-eta_low));
 
-  double zWheelThickness = 514.*GeoModelKernelUnits::mm;     // endg_etot-2.*(endg_sabl*GeoModelKernelUnits::cm-2.*GeoModelKernelUnits::mm)
-  double gapBetweenWheels= 1.5*GeoModelKernelUnits::mm*2.;  // "LArEMECHalfCrack"*2.
+  double zWheelThickness = 514.*Gaudi::Units::mm;     // endg_etot-2.*(endg_sabl*Gaudi::Units::cm-2.*Gaudi::Units::mm)
+  double gapBetweenWheels= 1.5*Gaudi::Units::mm*2.;  // "LArEMECHalfCrack"*2.
 
 //J.T************
 // zWheelFrontFace for mechanical design
@@ -654,14 +655,14 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
 
   // V.N. --> Support selected
 
-  z0 = zWheelFrontFace - 61.*GeoModelKernelUnits::mm;
+  z0 = zWheelFrontFace - 61.*Gaudi::Units::mm;
   EMECSupportConstruction *fsc = new EMECSupportConstruction( FrontIndx, true, "LAr::EMEC::", M_PI/2 );
   GeoPhysVol* physicalFSM = fsc->GetEnvelope();
   emecMotherPhysical->add( new GeoIdentifierTag( 1 ) );
   emecMotherPhysical->add( new GeoTransform( GeoTrf::TranslateZ3D( z0 ) ) );
   emecMotherPhysical->add( physicalFSM );
 
-  z0 = zWheelFrontFace + 514.*GeoModelKernelUnits::mm + 55.*GeoModelKernelUnits::mm;
+  z0 = zWheelFrontFace + 514.*Gaudi::Units::mm + 55.*Gaudi::Units::mm;
   EMECSupportConstruction *bsc = new EMECSupportConstruction( BackIndx, true, "LAr::EMEC::", M_PI/2 );
   GeoPhysVol *physicalBSM = bsc->GetEnvelope();
   emecMotherPhysical->add( new GeoIdentifierTag( 1 ) );
@@ -670,7 +671,7 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   emecMotherPhysical->add( physicalBSM );
 
   if ( m_isOuterWheel ) {
-    z0 = zWheelFrontFace + 514.*GeoModelKernelUnits::mm/2;
+    z0 = zWheelFrontFace + 514.*Gaudi::Units::mm/2;
     EMECSupportConstruction *osc = new EMECSupportConstruction( 2, true, "LAr::EMEC::", M_PI/2 );
     GeoPhysVol *physicalOSM = osc->GetEnvelope();
     emecMotherPhysical->add( new GeoIdentifierTag( 1 ) );
@@ -679,7 +680,7 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   }
  
   if ( m_isInnerWheel ) {
-    z0 = zWheelFrontFace + 514.*GeoModelKernelUnits::mm/2;
+    z0 = zWheelFrontFace + 514.*Gaudi::Units::mm/2;
     EMECSupportConstruction *isc = new EMECSupportConstruction( 3, true, "LAr::EMEC::", M_PI/2 );
     GeoPhysVol *physicalISM = isc->GetEnvelope();
     emecMotherPhysical->add( new GeoIdentifierTag( 1 ) );
@@ -687,7 +688,7 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
     emecMotherPhysical->add( physicalISM );
   }
  
-  z0 = zWheelFrontFace + 514.*GeoModelKernelUnits::mm/2;
+  z0 = zWheelFrontFace + 514.*Gaudi::Units::mm/2;
   EMECSupportConstruction *msc = new EMECSupportConstruction( 4, true, "LAr::EMEC::", M_PI/2 );
   GeoPhysVol *physicalMSM = msc->GetEnvelope();
   emecMotherPhysical->add( new GeoIdentifierTag( 1 ) );
