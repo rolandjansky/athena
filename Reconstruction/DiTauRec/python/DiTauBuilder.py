@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 import os
 
@@ -74,7 +74,6 @@ class DiTauBuilder(Configured):
         DiTauBuilder = DiTauBuilder(
             name=self.name,
             DiTauContainer=_outputKey,
-            DiTauAuxContainer=_outputAuxKey,
             Tools=tools,
             SeedJetName=_jet_container,
             minPt=diTauFlags.diTauRecJetSeedPt(),

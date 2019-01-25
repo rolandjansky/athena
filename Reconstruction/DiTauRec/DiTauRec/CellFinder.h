@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DITAUREC_CELLFINDER_H
@@ -25,14 +25,13 @@ public:
  //-------------------------------------------------------------
  virtual ~CellFinder();
 
- virtual StatusCode initialize();
+ virtual StatusCode initialize() override;
 
- virtual StatusCode execute(DiTauCandidateData * data);
+ virtual StatusCode execute(DiTauCandidateData * data,
+                            const EventContext& ctx) const override;
 
- virtual StatusCode eventFinalize(DiTauCandidateData *data);
 
-
- virtual void cleanup(DiTauCandidateData *) { }
+ virtual void cleanup(DiTauCandidateData *) override { }
  
 
 private:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -10,6 +10,7 @@
 
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/Vertex.h"
+#include "StoreGate/ReadHandle.h"
 
 //-------------------------------------------------------------------------
 // Constructor
@@ -19,15 +20,10 @@ VertexFinder::VertexFinder(const std::string& type,
     const std::string& name,
     const IInterface * parent) :
     DiTauToolBase(type, name, parent),
-    m_primVtxContainerName("PrimaryVertices"),
-    m_assocTracksName("GhostTrack"),
-    m_trackVertexAssocName("JetTrackVtxAssoc_forDiTaus"),
-    m_maxJVF(-100)
+    m_assocTracksName("GhostTrack")
 {
     declareInterface<DiTauToolBase > (this);
-    declareProperty("PrimVtxContainerName", m_primVtxContainerName);
     declareProperty("AssociatedTracks", m_assocTracksName);
-    declareProperty("TrackVertexAssociation", m_trackVertexAssocName);
 }
 
 //-------------------------------------------------------------------------
@@ -43,23 +39,17 @@ VertexFinder::~VertexFinder() {
 
 StatusCode VertexFinder::initialize() {
 
-    return StatusCode::SUCCESS;
-}
-
-//-------------------------------------------------------------------------
-// Event Finalize
-//-------------------------------------------------------------------------
-
-StatusCode VertexFinder::eventFinalize(DiTauCandidateData * ) {
-
-    return StatusCode::SUCCESS;
+  ATH_CHECK( m_primVtxContainerName.initialize() );
+  ATH_CHECK( m_trackVertexAssocName.initialize() );
+  return StatusCode::SUCCESS;
 }
 
 //-------------------------------------------------------------------------
 // execute
 //-------------------------------------------------------------------------
 
-StatusCode VertexFinder::execute(DiTauCandidateData * data) {
+StatusCode VertexFinder::execute(DiTauCandidateData * data,
+                                 const EventContext& ctx) const {
 
     ATH_MSG_DEBUG("execute VertexFinder...");
 
@@ -67,15 +57,10 @@ StatusCode VertexFinder::execute(DiTauCandidateData * data) {
   
     // get the primary vertex container from StoreGate
     //do it here because of tau trigger
-    const xAOD::VertexContainer* vxContainer = 0;
     const xAOD::Vertex* vxPrimary = 0;
-  
-    StatusCode sc = evtStore()->retrieve(vxContainer, m_primVtxContainerName);
-    if (sc.isFailure() || vxContainer->size() == 0) {
-        ATH_MSG_WARNING("Container (" << m_primVtxContainerName << 
-                        ") not found in StoreGate.");
-        return StatusCode::FAILURE;
-    }
+
+    SG::ReadHandle<xAOD::VertexContainer> vxContainer
+      (m_primVtxContainerName, ctx);
 
     // find default PrimaryVertex
     // see https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/VertexReselectionOnAOD
@@ -96,19 +81,20 @@ StatusCode VertexFinder::execute(DiTauCandidateData * data) {
     }
         
     // associate vertex to tau
-    pDiTau->setVertex(vxContainer, vxPrimary);
+    pDiTau->setVertex(vxContainer.get(), vxPrimary);
        
 
     // try to find new PV with TJVA
     ATH_MSG_DEBUG("TJVA enabled -> try to find new PV for the tau candidate");
 
-    ElementLink<xAOD::VertexContainer> newPrimaryVertexLink = getPV_TJVA(pDiTau, vxContainer);
+    float maxJVF = -100;
+    ElementLink<xAOD::VertexContainer> newPrimaryVertexLink = getPV_TJVA(pDiTau, vxContainer.get(), maxJVF, ctx);
     if (newPrimaryVertexLink.isValid()) {
         // set new primary vertex
         // will overwrite default one which was set above
         pDiTau->setVertexLink(newPrimaryVertexLink);
         // save highest JVF value
-        pDiTau->setDetail(xAOD::DiTauJetParameters::TauJetVtxFraction,static_cast<float>(m_maxJVF));
+        pDiTau->setDetail(xAOD::DiTauJetParameters::TauJetVtxFraction,static_cast<float>(maxJVF));
         ATH_MSG_DEBUG("TJVA vertex found and set");
     }
     else {
@@ -119,7 +105,9 @@ StatusCode VertexFinder::execute(DiTauCandidateData * data) {
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-ElementLink<xAOD::VertexContainer> VertexFinder::getPV_TJVA(const xAOD::DiTauJet* pDiTau, const xAOD::VertexContainer* vertices)
+ElementLink<xAOD::VertexContainer> VertexFinder::getPV_TJVA(const xAOD::DiTauJet* pDiTau, const xAOD::VertexContainer* vertices,
+                                                            float& maxJVF,
+                                                            const EventContext& ctx) const
 {
     const xAOD::Jet* pJetSeed = (*pDiTau->jetLink());
 
@@ -133,26 +121,23 @@ ElementLink<xAOD::VertexContainer> VertexFinder::getPV_TJVA(const xAOD::DiTauJet
     }
 
     // Get the TVA object
-    const jet::TrackVertexAssociation* tva = NULL;
-    if (evtStore()->retrieve(tva, m_trackVertexAssocName).isFailure()) {
-        ATH_MSG_ERROR("Could not retrieve the TrackVertexAssociation from evtStore: " << m_trackVertexAssocName);
-        return ElementLink<xAOD::VertexContainer>();
-    }
+    SG::ReadHandle<jet::TrackVertexAssociation> tva
+      (m_trackVertexAssocName, ctx);
 
     // Calculate Jet Vertex Fraction
     std::vector<float> jvf;
     jvf.resize(vertices->size());
     for (size_t iVertex = 0; iVertex < vertices->size(); ++iVertex) {
-        jvf.at(iVertex) = getJetVertexFraction(vertices->at(iVertex),assocTracks,tva);
+      jvf.at(iVertex) = getJetVertexFraction(vertices->at(iVertex),assocTracks,tva.get());
     }
     
     // Get the highest JVF vertex and store maxJVF for later use
     // Note: the official JetMomentTools/JetVertexFractionTool doesn't provide any possibility to access the JVF value, but just the vertex.
-    m_maxJVF=-100.;
+    maxJVF=-100.;
     size_t maxIndex = 0;
     for (size_t iVertex = 0; iVertex < jvf.size(); ++iVertex) {
-        if (jvf.at(iVertex) > m_maxJVF) {
-            m_maxJVF = jvf.at(iVertex);
+        if (jvf.at(iVertex) > maxJVF) {
+            maxJVF = jvf.at(iVertex);
             maxIndex = iVertex;
         }
     }
