@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ut_xaodeventinfo_evtstore_test.cxx 727083 2016-03-01 15:20:50Z krasznaa $
@@ -7,6 +7,7 @@
 // System include(s):
 #include <memory>
 #include <iostream>
+#include <unistd.h>
 
 // ROOT include(s):
 #include <TFile.h>
@@ -162,7 +163,7 @@ int main() {
 
    // Close and delete the file:
    ifile->Close();
-   SIMPLE_ASSERT( gSystem->Unlink( "eiTest.root" ) == 0 );
+   SIMPLE_ASSERT( unlink( "eiTest.root" ) == 0 );
 
    // Return gracefully:
    return 0;
