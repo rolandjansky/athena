@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.Constants import VERBOSE, DEBUG, INFO
@@ -239,9 +239,14 @@ def muonRdoDecodeTestData( forTrigger = False ):
     log.info('Print Config')
     cfg.printConfig(withDetails=True)
 
+    if forTrigger:
+        pklName = 'MuonRdoDecode_Cache.pkl'
+    else:
+        pklName = 'MuonRdoDecode.pkl'
+
     # Store config as pickle
     log.info('Save Config')
-    with open('MuonRdoDecode.pkl','w') as f:
+    with open(pklName,'w') as f:
         cfg.store(f)
         f.close()
 
