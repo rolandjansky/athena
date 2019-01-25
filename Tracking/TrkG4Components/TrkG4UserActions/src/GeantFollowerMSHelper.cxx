@@ -41,80 +41,6 @@ Trk::GeantFollowerMSHelper::GeantFollowerMSHelper(const std::string& t, const st
  , m_validationTreeDescription("Output of the G4Follower_")
  , m_validationTreeFolder("/val/G4Follower")
  , m_validationTree(nullptr)
- , m_t_x(0.)
- , m_t_y(0.)
- , m_t_z(0.)
- , m_t_theta(0.)
- , m_t_eta(0.)
- , m_t_phi(0.)
- , m_t_p(0.)
- , m_t_charge(0.)
- , m_t_pdg(0)
- , m_m_x(0.)
- , m_m_y(0.)
- , m_m_z(0.)
- , m_m_theta(0.)
- , m_m_eta(0.)
- , m_m_phi(0.)
- , m_m_p(0.)
- , m_b_x(0.)
- , m_b_y(0.)
- , m_b_z(0.)
- , m_b_theta(0.)
- , m_b_eta(0.)
- , m_b_phi(0.)
- , m_b_p(0.)
- , m_b_X0(0.)
- , m_b_Eloss(0.)
- , m_g4_steps(-1)
- , m_g4_p{0}
- , m_g4_eta{0}
- , m_g4_theta{0}
- , m_g4_phi{0}
- , m_g4_x{0}
- , m_g4_y{0}
- , m_g4_z{0}
- , m_g4_tX0{0}
- , m_g4_t{0}
- , m_g4_X0{0}
- , m_trk_status{0}
- , m_trk_p{0}
- , m_trk_eta{0}
- , m_trk_theta{0}
- , m_trk_phi{0}
- , m_trk_x{0}
- , m_trk_y{0}
- , m_trk_z{0}
- , m_trk_lx{0}
- , m_trk_ly{0}
- , m_trk_eloss{0}
- , m_trk_eloss1{0}
- , m_trk_eloss0{0}
- , m_trk_eloss5{0}
- , m_trk_eloss10{0}
- , m_trk_scaleeloss{0}
- , m_trk_scalex0{0}
- , m_trk_x0{0}
- , m_trk_erd0{0}
- , m_trk_erz0{0}
- , m_trk_erphi{0}
- , m_trk_ertheta{0}
- , m_trk_erqoverp{0}
- , m_trk_scats(0)
- , m_trk_sstatus{0}
- , m_trk_sx{0}
- , m_trk_sy{0}
- , m_trk_sz{0}
- , m_trk_sx0{0}
- , m_trk_seloss{0}
- , m_trk_smeanIoni{0}
- , m_trk_ssigIoni{0}
- , m_trk_smeanRad{0}
- , m_trk_ssigRad{0}
- , m_trk_ssigTheta{0}
- , m_trk_ssigPhi{0}
- , m_g4_stepsMS(-1)
-
 {
    // properties
    declareProperty("Extrapolator",                   m_extrapolator);
@@ -134,7 +60,8 @@ Trk::GeantFollowerMSHelper::~GeantFollowerMSHelper()
 // initialize
 StatusCode Trk::GeantFollowerMSHelper::initialize()
 {
-    
+   m_treeData = std::make_unique<TreeData>();
+
    if (m_extrapolator.retrieve().isFailure()){
        ATH_MSG_ERROR("Could not retrieve Extrapolator " << m_extrapolator << " . Abort.");
        return StatusCode::FAILURE;
@@ -155,117 +82,117 @@ StatusCode Trk::GeantFollowerMSHelper::initialize()
    // create the new Tree
    m_validationTree = new TTree(m_validationTreeName.c_str(), m_validationTreeDescription.c_str());
    
-   m_validationTree->Branch("InitX",        &m_t_x,       "initX/F");
-   m_validationTree->Branch("InitY",        &m_t_y,       "initY/F");
-   m_validationTree->Branch("InitZ",        &m_t_z,       "initZ/F");
-   m_validationTree->Branch("InitTheta",    &m_t_theta,   "initTheta/F");
-   m_validationTree->Branch("InitEta",      &m_t_eta,     "initEta/F");
-   m_validationTree->Branch("InitPhi",      &m_t_phi,     "initPhi/F");
-   m_validationTree->Branch("InitP",        &m_t_p,       "initP/F");
-   m_validationTree->Branch("InitPdg",      &m_t_pdg,     "initPdg/I");
-   m_validationTree->Branch("InitCharge",   &m_t_charge,  "initQ/F");
+   m_validationTree->Branch("InitX",        &m_treeData->m_t_x,       "initX/F");
+   m_validationTree->Branch("InitY",        &m_treeData->m_t_y,       "initY/F");
+   m_validationTree->Branch("InitZ",        &m_treeData->m_t_z,       "initZ/F");
+   m_validationTree->Branch("InitTheta",    &m_treeData->m_t_theta,   "initTheta/F");
+   m_validationTree->Branch("InitEta",      &m_treeData->m_t_eta,     "initEta/F");
+   m_validationTree->Branch("InitPhi",      &m_treeData->m_t_phi,     "initPhi/F");
+   m_validationTree->Branch("InitP",        &m_treeData->m_t_p,       "initP/F");
+   m_validationTree->Branch("InitPdg",      &m_treeData->m_t_pdg,     "initPdg/I");
+   m_validationTree->Branch("InitCharge",   &m_treeData->m_t_charge,  "initQ/F");
 
-   m_validationTree->Branch("MEntryX",        &m_m_x,       "mentryX/F");
-   m_validationTree->Branch("MEntryY",        &m_m_y,       "mentryY/F");
-   m_validationTree->Branch("MEntryZ",        &m_m_z,       "mentryZ/F");
-   m_validationTree->Branch("MEntryTheta",    &m_m_theta,   "mentryTheta/F");
-   m_validationTree->Branch("MEntryEta",      &m_m_eta,     "mentryEta/F");
-   m_validationTree->Branch("MEntryPhi",      &m_m_phi,     "mentryPhi/F");
-   m_validationTree->Branch("MEntryP",        &m_m_p,       "mentryP/F");
+   m_validationTree->Branch("MEntryX",        &m_treeData->m_m_x,       "mentryX/F");
+   m_validationTree->Branch("MEntryY",        &m_treeData->m_m_y,       "mentryY/F");
+   m_validationTree->Branch("MEntryZ",        &m_treeData->m_m_z,       "mentryZ/F");
+   m_validationTree->Branch("MEntryTheta",    &m_treeData->m_m_theta,   "mentryTheta/F");
+   m_validationTree->Branch("MEntryEta",      &m_treeData->m_m_eta,     "mentryEta/F");
+   m_validationTree->Branch("MEntryPhi",      &m_treeData->m_m_phi,     "mentryPhi/F");
+   m_validationTree->Branch("MEntryP",        &m_treeData->m_m_p,       "mentryP/F");
 
-   m_validationTree->Branch("BackX",        &m_b_x,       "backX/F");
-   m_validationTree->Branch("BackY",        &m_b_y,       "backY/F");
-   m_validationTree->Branch("BackZ",        &m_b_z,       "backZ/F");
-   m_validationTree->Branch("BackTheta",    &m_b_theta,   "backTheta/F");
-   m_validationTree->Branch("BackEta",      &m_b_eta,     "backEta/F");
-   m_validationTree->Branch("BackPhi",      &m_b_phi,     "backPhi/F");
-   m_validationTree->Branch("BackP",        &m_b_p,       "backP/F");
-   m_validationTree->Branch("BackX0",       &m_b_X0,      "backX0/F");
-   m_validationTree->Branch("BackEloss",    &m_b_Eloss,   "backEloss/F");
+   m_validationTree->Branch("BackX",        &m_treeData->m_b_x,       "backX/F");
+   m_validationTree->Branch("BackY",        &m_treeData->m_b_y,       "backY/F");
+   m_validationTree->Branch("BackZ",        &m_treeData->m_b_z,       "backZ/F");
+   m_validationTree->Branch("BackTheta",    &m_treeData->m_b_theta,   "backTheta/F");
+   m_validationTree->Branch("BackEta",      &m_treeData->m_b_eta,     "backEta/F");
+   m_validationTree->Branch("BackPhi",      &m_treeData->m_b_phi,     "backPhi/F");
+   m_validationTree->Branch("BackP",        &m_treeData->m_b_p,       "backP/F");
+   m_validationTree->Branch("BackX0",       &m_treeData->m_b_X0,      "backX0/F");
+   m_validationTree->Branch("BackEloss",    &m_treeData->m_b_Eloss,   "backEloss/F");
  
-   m_validationTree->Branch("G4Steps",      &m_g4_steps, "g4steps/I");
-   m_validationTree->Branch("TrkStepScats", &m_trk_scats, "trkscats/I");
+   m_validationTree->Branch("G4Steps",      &m_treeData->m_g4_steps, "g4steps/I");
+   m_validationTree->Branch("TrkStepScats", &m_treeData->m_trk_scats, "trkscats/I");
 
-   m_validationTree->Branch("G4StepP",      m_g4_p,      "g4stepP[g4steps]/F");
-   m_validationTree->Branch("G4StepEta",    m_g4_eta,    "g4stepEta[g4steps]/F");
-   m_validationTree->Branch("G4StepTheta",  m_g4_theta,  "g4stepTheta[g4steps]/F");
-   m_validationTree->Branch("G4StepPhi",    m_g4_phi,    "g4stepPhi[g4steps]/F");
-   m_validationTree->Branch("G4StepX",      m_g4_x,      "g4stepX[g4steps]/F");
-   m_validationTree->Branch("G4StepY",      m_g4_y,      "g4stepY[g4steps]/F");
-   m_validationTree->Branch("G4StepZ",      m_g4_z,      "g4stepZ[g4steps]/F");
-   m_validationTree->Branch("G4AccumTX0",   m_g4_tX0,    "g4stepAccTX0[g4steps]/F");
-   m_validationTree->Branch("G4StepT",      m_g4_t,      "g4stepTX[g4steps]/F");
-   m_validationTree->Branch("G4StepX0",     m_g4_X0,     "g4stepX0[g4steps]/F");
+   m_validationTree->Branch("G4StepP",      m_treeData->m_g4_p,      "g4stepP[g4steps]/F");
+   m_validationTree->Branch("G4StepEta",    m_treeData->m_g4_eta,    "g4stepEta[g4steps]/F");
+   m_validationTree->Branch("G4StepTheta",  m_treeData->m_g4_theta,  "g4stepTheta[g4steps]/F");
+   m_validationTree->Branch("G4StepPhi",    m_treeData->m_g4_phi,    "g4stepPhi[g4steps]/F");
+   m_validationTree->Branch("G4StepX",      m_treeData->m_g4_x,      "g4stepX[g4steps]/F");
+   m_validationTree->Branch("G4StepY",      m_treeData->m_g4_y,      "g4stepY[g4steps]/F");
+   m_validationTree->Branch("G4StepZ",      m_treeData->m_g4_z,      "g4stepZ[g4steps]/F");
+   m_validationTree->Branch("G4AccumTX0",   m_treeData->m_g4_tX0,    "g4stepAccTX0[g4steps]/F");
+   m_validationTree->Branch("G4StepT",      m_treeData->m_g4_t,      "g4stepTX[g4steps]/F");
+   m_validationTree->Branch("G4StepX0",     m_treeData->m_g4_X0,     "g4stepX0[g4steps]/F");
    
-   m_validationTree->Branch("TrkStepStatus",m_trk_status, "trkstepStatus[g4steps]/I");
-   m_validationTree->Branch("TrkStepP",     m_trk_p,      "trkstepP[g4steps]/F");
-   m_validationTree->Branch("TrkStepEta",   m_trk_eta,    "trkstepEta[g4steps]/F");
-   m_validationTree->Branch("TrkStepTheta", m_trk_theta,  "trkstepTheta[g4steps]/F");
-   m_validationTree->Branch("TrkStepPhi",   m_trk_phi,    "trkstepPhi[g4steps]/F");
-   m_validationTree->Branch("TrkStepX",     m_trk_x,      "trkstepX[g4steps]/F");
-   m_validationTree->Branch("TrkStepY",     m_trk_y,      "trkstepY[g4steps]/F");
-   m_validationTree->Branch("TrkStepZ",     m_trk_z,      "trkstepZ[g4steps]/F");
-   m_validationTree->Branch("TrkStepLocX",  m_trk_lx,     "trkstepLX[g4steps]/F");
-   m_validationTree->Branch("TrkStepLocY",  m_trk_ly,     "trkstepLY[g4steps]/F");
-   m_validationTree->Branch("TrkStepEloss", m_trk_eloss,  "trkstepEloss[g4steps]/F");
-   m_validationTree->Branch("TrkStepEloss1", m_trk_eloss1, "trkstepEloss1[g4steps]/F");
-   m_validationTree->Branch("TrkStepEloss0", m_trk_eloss0, "trkstepEloss0[g4steps]/F");
-   m_validationTree->Branch("TrkStepEloss5", m_trk_eloss5, "trkstepEloss5[g4steps]/F");
-   m_validationTree->Branch("TrkStepEloss10", m_trk_eloss10,"trkstepEloss10[g4steps]/F");
-   m_validationTree->Branch("TrkStepScaleEloss",m_trk_scaleeloss, "trkstepScaleEloss[g4steps]/F");
-   m_validationTree->Branch("TrkStepScaleX0",m_trk_scalex0,"trkstepScaleX0[g4steps]/F");
-   m_validationTree->Branch("TrkStepX0",    m_trk_x0,     "trkstepX0[g4steps]/F");
-   m_validationTree->Branch("TrkStepErd0",  m_trk_erd0,   "trkstepErd0[g4steps]/F");
-   m_validationTree->Branch("TrkStepErz0",  m_trk_erz0,   "trkstepErz0[g4steps]/F");
-   m_validationTree->Branch("TrkStepErphi", m_trk_erphi,   "trkstepErphi[g4steps]/F");
-   m_validationTree->Branch("TrkStepErtheta",m_trk_ertheta,"trkstepErtheta[g4steps]/F");
-   m_validationTree->Branch("TrkStepErqoverp",m_trk_erqoverp,"trkstepErqoverp[g4steps]/F");
+   m_validationTree->Branch("TrkStepStatus",m_treeData->m_trk_status, "trkstepStatus[g4steps]/I");
+   m_validationTree->Branch("TrkStepP",     m_treeData->m_trk_p,      "trkstepP[g4steps]/F");
+   m_validationTree->Branch("TrkStepEta",   m_treeData->m_trk_eta,    "trkstepEta[g4steps]/F");
+   m_validationTree->Branch("TrkStepTheta", m_treeData->m_trk_theta,  "trkstepTheta[g4steps]/F");
+   m_validationTree->Branch("TrkStepPhi",   m_treeData->m_trk_phi,    "trkstepPhi[g4steps]/F");
+   m_validationTree->Branch("TrkStepX",     m_treeData->m_trk_x,      "trkstepX[g4steps]/F");
+   m_validationTree->Branch("TrkStepY",     m_treeData->m_trk_y,      "trkstepY[g4steps]/F");
+   m_validationTree->Branch("TrkStepZ",     m_treeData->m_trk_z,      "trkstepZ[g4steps]/F");
+   m_validationTree->Branch("TrkStepLocX",  m_treeData->m_trk_lx,     "trkstepLX[g4steps]/F");
+   m_validationTree->Branch("TrkStepLocY",  m_treeData->m_trk_ly,     "trkstepLY[g4steps]/F");
+   m_validationTree->Branch("TrkStepEloss", m_treeData->m_trk_eloss,  "trkstepEloss[g4steps]/F");
+   m_validationTree->Branch("TrkStepEloss1", m_treeData->m_trk_eloss1, "trkstepEloss1[g4steps]/F");
+   m_validationTree->Branch("TrkStepEloss0", m_treeData->m_trk_eloss0, "trkstepEloss0[g4steps]/F");
+   m_validationTree->Branch("TrkStepEloss5", m_treeData->m_trk_eloss5, "trkstepEloss5[g4steps]/F");
+   m_validationTree->Branch("TrkStepEloss10", m_treeData->m_trk_eloss10,"trkstepEloss10[g4steps]/F");
+   m_validationTree->Branch("TrkStepScaleEloss",m_treeData->m_trk_scaleeloss, "trkstepScaleEloss[g4steps]/F");
+   m_validationTree->Branch("TrkStepScaleX0",m_treeData->m_trk_scalex0,"trkstepScaleX0[g4steps]/F");
+   m_validationTree->Branch("TrkStepX0",    m_treeData->m_trk_x0,     "trkstepX0[g4steps]/F");
+   m_validationTree->Branch("TrkStepErd0",  m_treeData->m_trk_erd0,   "trkstepErd0[g4steps]/F");
+   m_validationTree->Branch("TrkStepErz0",  m_treeData->m_trk_erz0,   "trkstepErz0[g4steps]/F");
+   m_validationTree->Branch("TrkStepErphi", m_treeData->m_trk_erphi,   "trkstepErphi[g4steps]/F");
+   m_validationTree->Branch("TrkStepErtheta",m_treeData->m_trk_ertheta,"trkstepErtheta[g4steps]/F");
+   m_validationTree->Branch("TrkStepErqoverp",m_treeData->m_trk_erqoverp,"trkstepErqoverp[g4steps]/F");
    
-   m_validationTree->Branch("TrkStepScatStatus", m_trk_sstatus,"trkscatStatus[trkscats]/I");
-   m_validationTree->Branch("TrkStepScatX",      m_trk_sx,     "trkscatX[trkscats]/F");
-   m_validationTree->Branch("TrkStepScatY",      m_trk_sy,     "trkscatY[trkscats]/F");
-   m_validationTree->Branch("TrkStepScatZ",      m_trk_sz,     "trkscatZ[trkscats]/F");
-   m_validationTree->Branch("TrkStepScatX0",     m_trk_sx0,    "trkscatX0[trkscats]/F");
-   m_validationTree->Branch("TrkStepScatEloss",  m_trk_seloss, "trkscatEloss[trkscats]/F");
-   m_validationTree->Branch("TrkStepScatMeanIoni",m_trk_smeanIoni, "trkscatMeanIoni[trkscats]/F");
-   m_validationTree->Branch("TrkStepScatSigIoni",m_trk_ssigIoni, "trkscatSigIoni[trkscats]/F");
-   m_validationTree->Branch("TrkStepScatMeanRad",m_trk_smeanRad, "trkscatMeanRad[trkscats]/F");
-   m_validationTree->Branch("TrkStepScatSigRad", m_trk_ssigRad, "trkscatSigRad[trkscats]/F");
-   m_validationTree->Branch("TrkStepScatSigTheta", m_trk_ssigTheta, "trkscatSigTheta[trkscats]/F");
-   m_validationTree->Branch("TrkStepScatSigPhi", m_trk_ssigPhi, "trkscatSigPhi[trkscats]/F");
+   m_validationTree->Branch("TrkStepScatStatus", m_treeData->m_trk_sstatus,"trkscatStatus[trkscats]/I");
+   m_validationTree->Branch("TrkStepScatX",      m_treeData->m_trk_sx,     "trkscatX[trkscats]/F");
+   m_validationTree->Branch("TrkStepScatY",      m_treeData->m_trk_sy,     "trkscatY[trkscats]/F");
+   m_validationTree->Branch("TrkStepScatZ",      m_treeData->m_trk_sz,     "trkscatZ[trkscats]/F");
+   m_validationTree->Branch("TrkStepScatX0",     m_treeData->m_trk_sx0,    "trkscatX0[trkscats]/F");
+   m_validationTree->Branch("TrkStepScatEloss",  m_treeData->m_trk_seloss, "trkscatEloss[trkscats]/F");
+   m_validationTree->Branch("TrkStepScatMeanIoni",m_treeData->m_trk_smeanIoni, "trkscatMeanIoni[trkscats]/F");
+   m_validationTree->Branch("TrkStepScatSigIoni",m_treeData->m_trk_ssigIoni, "trkscatSigIoni[trkscats]/F");
+   m_validationTree->Branch("TrkStepScatMeanRad",m_treeData->m_trk_smeanRad, "trkscatMeanRad[trkscats]/F");
+   m_validationTree->Branch("TrkStepScatSigRad", m_treeData->m_trk_ssigRad, "trkscatSigRad[trkscats]/F");
+   m_validationTree->Branch("TrkStepScatSigTheta", m_treeData->m_trk_ssigTheta, "trkscatSigTheta[trkscats]/F");
+   m_validationTree->Branch("TrkStepScatSigPhi", m_treeData->m_trk_ssigPhi, "trkscatSigPhi[trkscats]/F");
 
    // initialize
    //
-   m_t_x        = 0.;    
-   m_t_y        = 0.; 
-   m_t_z        = 0.; 
-   m_t_theta    = 0.; 
-   m_t_eta      = 0.; 
-   m_t_phi      = 0.; 
-   m_t_p        = 0.; 
-   m_t_charge   = 0.; 
-   m_t_pdg      = 0;         
-   m_g4_steps   = -1;
+   m_treeData->m_t_x        = 0.;    
+   m_treeData->m_t_y        = 0.; 
+   m_treeData->m_t_z        = 0.; 
+   m_treeData->m_t_theta    = 0.; 
+   m_treeData->m_t_eta      = 0.; 
+   m_treeData->m_t_phi      = 0.; 
+   m_treeData->m_t_p        = 0.; 
+   m_treeData->m_t_charge   = 0.; 
+   m_treeData->m_t_pdg      = 0;         
+   m_treeData->m_g4_steps   = -1;
 
-   m_m_x        = 0.;
-   m_m_y        = 0.;
-   m_m_z        = 0.;
-   m_m_theta    = 0.;
-   m_m_eta      = 0.;
-   m_m_phi      = 0.;
-   m_m_p        = 0.;
+   m_treeData->m_m_x        = 0.;
+   m_treeData->m_m_y        = 0.;
+   m_treeData->m_m_z        = 0.;
+   m_treeData->m_m_theta    = 0.;
+   m_treeData->m_m_eta      = 0.;
+   m_treeData->m_m_phi      = 0.;
+   m_treeData->m_m_p        = 0.;
 
-   m_b_x        = 0.;
-   m_b_y        = 0.;
-   m_b_z        = 0.;
-   m_b_theta    = 0.;
-   m_b_eta      = 0.;
-   m_b_phi      = 0.;
-   m_b_p        = 0.;
-   m_b_X0       = 0.;
-   m_b_Eloss    = 0.;
+   m_treeData->m_b_x        = 0.;
+   m_treeData->m_b_y        = 0.;
+   m_treeData->m_b_z        = 0.;
+   m_treeData->m_b_theta    = 0.;
+   m_treeData->m_b_eta      = 0.;
+   m_treeData->m_b_phi      = 0.;
+   m_treeData->m_b_p        = 0.;
+   m_treeData->m_b_X0       = 0.;
+   m_treeData->m_b_Eloss    = 0.;
 
-   m_trk_scats  = 0;
+   m_treeData->m_trk_scats  = 0;
    
    m_crossedMuonEntry = false;
    m_exitLayer = false;   
@@ -294,37 +221,37 @@ StatusCode Trk::GeantFollowerMSHelper::finalize()
 
 void Trk::GeantFollowerMSHelper::beginEvent() const
 {
-    m_t_x        = 0.;    
-    m_t_y        = 0.;
-    m_t_z        = 0.;
-    m_t_theta    = 0.; 
-    m_t_eta      = 0.;
-    m_t_phi      = 0.;
-    m_t_p        = 0.;
-    m_t_charge   = 0.;
-    m_t_pdg      = 0; 
+    m_treeData->m_t_x        = 0.;    
+    m_treeData->m_t_y        = 0.;
+    m_treeData->m_t_z        = 0.;
+    m_treeData->m_t_theta    = 0.; 
+    m_treeData->m_t_eta      = 0.;
+    m_treeData->m_t_phi      = 0.;
+    m_treeData->m_t_p        = 0.;
+    m_treeData->m_t_charge   = 0.;
+    m_treeData->m_t_pdg      = 0; 
 
-    m_m_x        = 0.;
-    m_m_y        = 0.;
-    m_m_z        = 0.;
-    m_m_theta    = 0.;
-    m_m_eta      = 0.;
-    m_m_phi      = 0.;
-    m_m_p        = 0.;
+    m_treeData->m_m_x        = 0.;
+    m_treeData->m_m_y        = 0.;
+    m_treeData->m_m_z        = 0.;
+    m_treeData->m_m_theta    = 0.;
+    m_treeData->m_m_eta      = 0.;
+    m_treeData->m_m_phi      = 0.;
+    m_treeData->m_m_p        = 0.;
 
-    m_b_x        = 0.;
-    m_b_y        = 0.;
-    m_b_z        = 0.;
-    m_b_theta    = 0.;
-    m_b_eta      = 0.;
-    m_b_phi      = 0.;
-    m_b_p        = 0.;
-    m_b_X0       = 0.;
-    m_b_Eloss    = 0.;
+    m_treeData->m_b_x        = 0.;
+    m_treeData->m_b_y        = 0.;
+    m_treeData->m_b_z        = 0.;
+    m_treeData->m_b_theta    = 0.;
+    m_treeData->m_b_eta      = 0.;
+    m_treeData->m_b_phi      = 0.;
+    m_treeData->m_b_p        = 0.;
+    m_treeData->m_b_X0       = 0.;
+    m_treeData->m_b_Eloss    = 0.;
 
-    m_g4_steps   = -1;
-    m_g4_stepsMS = -1;
-    m_trk_scats  = 0;
+    m_treeData->m_g4_steps   = -1;
+    m_treeData->m_g4_stepsMS = -1;
+    m_treeData->m_trk_scats  = 0;
     m_tX0Cache   = 0.;
 
     m_crossedMuonEntry = false;
@@ -351,18 +278,18 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
 //    if(m_crossedMuonEntry)  std::cout << " crossed Muon Entry " << std::endl;
 //    if(m_exitLayer)  std::cout << " crossed Exit Layer " << std::endl;
 
-    if (m_g4_steps==-1){
+    if (m_treeData->m_g4_steps==-1){
         ATH_MSG_INFO("Initial step ... preparing event cache.");
-        m_t_x        = npos.x();        
-        m_t_y        = npos.y(); 
-        m_t_z        = npos.z(); 
-        m_t_theta    = nmom.theta(); 
-        m_t_eta      = nmom.eta(); 
-        m_t_phi      = nmom.phi(); 
-        m_t_p        = nmom.mag(); 
-        m_t_charge   = charge; 
-        m_t_pdg      = pdg;         
-        m_g4_steps   = 0;
+        m_treeData->m_t_x        = npos.x();        
+        m_treeData->m_t_y        = npos.y(); 
+        m_treeData->m_t_z        = npos.z(); 
+        m_treeData->m_t_theta    = nmom.theta(); 
+        m_treeData->m_t_eta      = nmom.eta(); 
+        m_treeData->m_t_phi      = nmom.phi(); 
+        m_treeData->m_t_p        = nmom.mag(); 
+        m_treeData->m_t_charge   = charge; 
+        m_treeData->m_t_pdg      = pdg;         
+        m_treeData->m_g4_steps   = 0;
         m_tX0Cache   = 0.;
         // construct the intial parameters
         
@@ -384,15 +311,15 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
 //    if(useMuonEntry&&!m_crossedMuonEntry&&(fabs(npos.z())>2744||npos.perp()>1106)) {
 // Muon Entry 
     if(useMuonEntry&&!m_crossedMuonEntry&&(fabs(npos.z())>zMuonEntry||npos.perp()>4254)) {
-        m_m_x        = npos.x();
-        m_m_y        = npos.y();
-        m_m_z        = npos.z();
-        m_m_theta    = nmom.theta();
-        m_m_eta      = nmom.eta();
-        m_m_phi      = nmom.phi();
-        m_m_p        = nmom.mag();
+        m_treeData->m_m_x        = npos.x();
+        m_treeData->m_m_y        = npos.y();
+        m_treeData->m_m_z        = npos.z();
+        m_treeData->m_m_theta    = nmom.theta();
+        m_treeData->m_m_eta      = nmom.eta();
+        m_treeData->m_m_phi      = nmom.phi();
+        m_treeData->m_m_p        = nmom.mag();
 // overwrite everything before ME layer
-        m_g4_stepsMS   = 0;
+        m_treeData->m_g4_stepsMS   = 0;
         // construct the intial parameters
         m_parameterCacheMS = new Trk::CurvilinearParameters(npos, nmom, charge);
         m_parameterCache = new Trk::CurvilinearParameters(npos, nmom, charge);
@@ -401,7 +328,7 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
         m_parameterCacheMSCov = new Trk::CurvilinearParameters(npos, nmom, charge, covMatrix);
         ATH_MSG_DEBUG( "m_crossedMuonEntry x " << m_parameterCacheMS->position().x() << " y " << m_parameterCacheMS->position().y() << " z " << m_parameterCacheMS->position().z() );
         m_crossedMuonEntry = true;
-        Trk::CurvilinearParameters* g4Parameters = new Trk::CurvilinearParameters(npos, nmom, m_t_charge);
+        Trk::CurvilinearParameters* g4Parameters = new Trk::CurvilinearParameters(npos, nmom, m_treeData->m_t_charge);
 // Muon Entry
         m_destinationSurface = &(g4Parameters->associatedSurface());
         delete g4Parameters;
@@ -409,14 +336,14 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
 
     
     // jumping over inital step
-    m_g4_steps = (m_g4_steps == -1) ? 0 : m_g4_steps;
+    m_treeData->m_g4_steps = (m_treeData->m_g4_steps == -1) ? 0 : m_treeData->m_g4_steps;
     
     if (!m_parameterCache){
         ATH_MSG_WARNING("No Parameters available. Bailing out.");
         return;
     }
     
-    if ( m_g4_steps >= MAXPROBES) {
+    if ( m_treeData->m_g4_steps >= MAXPROBES) {
         ATH_MSG_WARNING("Maximum number of " << MAXPROBES << " reached, step is ignored.");
         return;
     }
@@ -433,9 +360,9 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
 // ID envelop
 //      if(fabs(npos.z())>zMuonEntry||npos.perp()>4255) crossedExitLayer = true;
       if(fabs(npos.z())>21800||npos.perp()>12500) crossedExitLayer = true;
-      if(m_crossedMuonEntry&&m_g4_steps>=2&&!crossedExitLayer) return;
-      if(m_g4_steps>2) return;
-      if(m_g4_steps>4) return;
+      if(m_crossedMuonEntry&&m_treeData->m_g4_steps>=2&&!crossedExitLayer) return;
+      if(m_treeData->m_g4_steps>2) return;
+      if(m_treeData->m_g4_steps>4) return;
     }
 
     Trk::EnergyLoss* eloss = new EnergyLoss(0.,0.,0.,0.,0.,0);
@@ -444,14 +371,14 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
 // Cache ONLY used for extrapolateM and extrapolate with covariance Matrix
 
     // parameters of the G4 step point
-    Trk::CurvilinearParameters* g4Parameters = new Trk::CurvilinearParameters(npos, nmom, m_t_charge);
+    Trk::CurvilinearParameters* g4Parameters = new Trk::CurvilinearParameters(npos, nmom, m_treeData->m_t_charge);
     // destination surface
     const Trk::PlaneSurface& destinationSurface = g4Parameters->associatedSurface();
     // extrapolate to the destination surface
     const Trk::TrackParameters* trkParameters = m_extrapolateDirectly&&m_crossedMuonEntry ?
         m_extrapolator->extrapolateDirectly(*m_parameterCache,destinationSurface,Trk::alongMomentum,false,Trk::muon) :
         m_extrapolator->extrapolate(*m_parameterCache,destinationSurface,Trk::alongMomentum,false,Trk::muon);
-    if(m_g4_stepsMS==0) {
+    if(m_treeData->m_g4_stepsMS==0) {
         ATH_MSG_DEBUG( " Extrapolate m_parameterCacheCov with covMatrix ");
         extrapolationCache->reset();
         trkParameters = m_extrapolateDirectly&&m_crossedMuonEntry ?
@@ -465,7 +392,7 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
     }
     
     //sroe: coverity 31530
-    m_trk_status[m_g4_steps] = trkParameters ? 1 : 0;
+    m_treeData->m_trk_status[m_treeData->m_g4_steps] = trkParameters ? 1 : 0;
 
     if(!trkParameters) {
       delete eloss;
@@ -480,7 +407,7 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
 //    if(!m_exitLayer&&(fabs(npos.z())>zMuonEntry||npos.perp()>4255)&&trkParameters) {
     if(!m_exitLayer&&(fabs(npos.z())>21800||npos.perp()>12500)&&trkParameters) {
       ATH_MSG_DEBUG (" exit layer found ");
-      m_trk_status[m_g4_steps] =  1000;
+      m_treeData->m_trk_status[m_treeData->m_g4_steps] =  1000;
 // Get extrapolatio with errors 
       extrapolationCache->reset();
       trkParameters = m_extrapolateDirectly&&m_crossedMuonEntry ?
@@ -506,14 +433,14 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
         if(trkParameters_BACK) {
           ATH_MSG_DEBUG (" back extrapolation succeeded ");
           m_exitLayer = true;
-          m_b_p      =  trkParameters_BACK->momentum().mag();
-          m_b_eta    =  trkParameters_BACK->momentum().eta();
-          m_b_theta  =  trkParameters_BACK->momentum().theta();
-          m_b_phi    =  trkParameters_BACK->momentum().phi();
-          m_b_x      =  trkParameters_BACK->position().x();
-          m_b_y      =  trkParameters_BACK->position().y();
-          m_b_z      =  trkParameters_BACK->position().z();
-          if(fabs(m_m_p-m_b_p)>10.) ATH_MSG_DEBUG (" Back extrapolation to Muon Entry finds different momentum  difference MeV " << m_m_p-m_b_p);  
+          m_treeData->m_b_p      =  trkParameters_BACK->momentum().mag();
+          m_treeData->m_b_eta    =  trkParameters_BACK->momentum().eta();
+          m_treeData->m_b_theta  =  trkParameters_BACK->momentum().theta();
+          m_treeData->m_b_phi    =  trkParameters_BACK->momentum().phi();
+          m_treeData->m_b_x      =  trkParameters_BACK->position().x();
+          m_treeData->m_b_y      =  trkParameters_BACK->position().y();
+          m_treeData->m_b_z      =  trkParameters_BACK->position().z();
+          if(fabs(m_treeData->m_m_p-m_treeData->m_b_p)>10.) ATH_MSG_DEBUG (" Back extrapolation to Muon Entry finds different momentum  difference MeV " << m_treeData->m_m_p-m_treeData->m_b_p);  
           delete trkParameters_BACK;
           extrapolationCache->reset();
           const std::vector<const Trk::TrackStateOnSurface*> *matvec_BACK = m_extrapolator->extrapolateM(*trkParameters_FW,*m_destinationSurface,Trk::oppositeMomentum,false,Trk::muon,extrapolationCache);
@@ -528,7 +455,7 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
               const Trk::MaterialEffectsBase* matEf = (*it)->materialEffectsOnTrack();
               if( matEf ) {
                 mmat++;
-                if(m_trk_status[m_g4_steps] == 1000) ATH_MSG_DEBUG (" mmat " << mmat << " matEf->thicknessInX0() " << matEf->thicknessInX0() );
+                if(m_treeData->m_trk_status[m_treeData->m_g4_steps] == 1000) ATH_MSG_DEBUG (" mmat " << mmat << " matEf->thicknessInX0() " << matEf->thicknessInX0() );
                 x0 += matEf->thicknessInX0();
                 const Trk::MaterialEffectsOnTrack* matEfs = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(matEf);
                 double eloss0 = 0.;
@@ -547,7 +474,7 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
                     sigmaIoni = eLoss->sigmaIoni();
                     meanRad = eLoss->meanRad();
                     sigmaRad = eLoss->sigmaRad();
-                    if(m_trk_status[m_g4_steps] == 1000) ATH_MSG_DEBUG ( " mmat " << mmat << " eLoss->deltaE() "  << eLoss->deltaE() << "  eLoss->length() " << eLoss->length() );
+                    if(m_treeData->m_trk_status[m_treeData->m_g4_steps] == 1000) ATH_MSG_DEBUG ( " mmat " << mmat << " eLoss->deltaE() "  << eLoss->deltaE() << "  eLoss->length() " << eLoss->length() );
                   }
                 }
                 const Trk::ScatteringAngles* scatAng = (matEfs)->scatteringAngles();
@@ -555,29 +482,29 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
                    sigmaTheta = scatAng->sigmaDeltaTheta();
                    sigmaPhi = scatAng->sigmaDeltaPhi();
                 }             
-                if ( m_trk_scats < 500) {
+                if ( m_treeData->m_trk_scats < 500) {
 // backwards
-                  if(m_trk_status[m_g4_steps] == 1000) m_trk_sstatus[m_trk_scats] = -1000;
+                  if(m_treeData->m_trk_status[m_treeData->m_g4_steps] == 1000) m_treeData->m_trk_sstatus[m_treeData->m_trk_scats] = -1000;
                   if((*it)->trackParameters()) {
-                    m_trk_sx[m_trk_scats] = (*it)->trackParameters()->position().x();
-                    m_trk_sy[m_trk_scats] = (*it)->trackParameters()->position().y();
-                    m_trk_sz[m_trk_scats] = (*it)->trackParameters()->position().z();
+                    m_treeData->m_trk_sx[m_treeData->m_trk_scats] = (*it)->trackParameters()->position().x();
+                    m_treeData->m_trk_sy[m_treeData->m_trk_scats] = (*it)->trackParameters()->position().y();
+                    m_treeData->m_trk_sz[m_treeData->m_trk_scats] = (*it)->trackParameters()->position().z();
                   }
-                  m_trk_sx0[m_trk_scats] = matEf->thicknessInX0();   
-                  m_trk_seloss[m_trk_scats] = eloss0;   
-                  m_trk_smeanIoni[m_trk_scats] = meanIoni;   
-                  m_trk_ssigIoni[m_trk_scats] = sigmaIoni;   
-                  m_trk_smeanRad[m_trk_scats] = meanRad;   
-                  m_trk_ssigRad[m_trk_scats] = sigmaRad;   
-                  m_trk_ssigTheta[m_trk_scats] = sigmaTheta;   
-                  m_trk_ssigPhi[m_trk_scats] = sigmaPhi;   
-                  m_trk_scats++;
+                  m_treeData->m_trk_sx0[m_treeData->m_trk_scats] = matEf->thicknessInX0();   
+                  m_treeData->m_trk_seloss[m_treeData->m_trk_scats] = eloss0;   
+                  m_treeData->m_trk_smeanIoni[m_treeData->m_trk_scats] = meanIoni;   
+                  m_treeData->m_trk_ssigIoni[m_treeData->m_trk_scats] = sigmaIoni;   
+                  m_treeData->m_trk_smeanRad[m_treeData->m_trk_scats] = meanRad;   
+                  m_treeData->m_trk_ssigRad[m_treeData->m_trk_scats] = sigmaRad;   
+                  m_treeData->m_trk_ssigTheta[m_treeData->m_trk_scats] = sigmaTheta;   
+                  m_treeData->m_trk_ssigPhi[m_treeData->m_trk_scats] = sigmaPhi;   
+                  m_treeData->m_trk_scats++;
                 }
               }
             }
           }
-          m_b_X0         =  x0;
-          m_b_Eloss      =  Eloss;
+          m_treeData->m_b_X0         =  x0;
+          m_treeData->m_b_Eloss      =  Eloss;
           delete matvec_BACK;
          }
         }
@@ -587,10 +514,10 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
 
     extrapolationCache->reset();
     const std::vector<const Trk::TrackStateOnSurface*> *matvec = m_extrapolator->extrapolateM(*m_parameterCache,destinationSurface,Trk::alongMomentum,false,Trk::muon,extrapolationCache);
-    if(m_g4_stepsMS==0) matvec = m_extrapolator->extrapolateM(*m_parameterCacheCov,destinationSurface,Trk::alongMomentum,false,Trk::muon,extrapolationCache);
+    if(m_treeData->m_g4_stepsMS==0) matvec = m_extrapolator->extrapolateM(*m_parameterCacheCov,destinationSurface,Trk::alongMomentum,false,Trk::muon,extrapolationCache);
 
-    if(m_g4_stepsMS==0) ATH_MSG_DEBUG(" G4 extrapolateM to Muon Entry " << " X0 " << extrapolationCache->x0tot() << " Eloss deltaE " <<   extrapolationCache->eloss()->deltaE()  << " Eloss sigma " << extrapolationCache->eloss()->sigmaDeltaE() << " meanIoni " << extrapolationCache->eloss()->meanIoni()  << " sigmaIoni " << extrapolationCache->eloss()->sigmaIoni() << " meanRad " <<  extrapolationCache->eloss()->meanRad() << " sigmaRad " << extrapolationCache->eloss()->sigmaRad());
-//    if(m_trk_status[m_g4_steps] == 1000) matvec = m_extrapolator->extrapolateM(*m_parameterCache,destinationSurface,Trk::alongMomentum,false,Trk::muon);
+    if(m_treeData->m_g4_stepsMS==0) ATH_MSG_DEBUG(" G4 extrapolateM to Muon Entry " << " X0 " << extrapolationCache->x0tot() << " Eloss deltaE " <<   extrapolationCache->eloss()->deltaE()  << " Eloss sigma " << extrapolationCache->eloss()->sigmaDeltaE() << " meanIoni " << extrapolationCache->eloss()->meanIoni()  << " sigmaIoni " << extrapolationCache->eloss()->sigmaIoni() << " meanRad " <<  extrapolationCache->eloss()->meanRad() << " sigmaRad " << extrapolationCache->eloss()->sigmaRad());
+//    if(m_treeData->m_trk_status[m_treeData->m_g4_steps] == 1000) matvec = m_extrapolator->extrapolateM(*m_parameterCache,destinationSurface,Trk::alongMomentum,false,Trk::muon);
 
 //      modifyTSOSvector(const std::vector<const Trk::TrackStateOnSurface*> matvec, double scaleX0, double scaleEloss, bool reposition, bool aggregate, bool updateEloss, double caloEnergy, double caloEnergyError, double pCaloEntry, double momentumError, double & Eloss_tot);
     double Elosst = 0.;
@@ -616,15 +543,15 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
 //
 // Muon sytem
 //   
-      m_elossupdator->getX0ElossScales(0, m_m_eta, m_m_phi, X0Scale, ElossScale );
+      m_elossupdator->getX0ElossScales(0, m_treeData->m_m_eta, m_treeData->m_m_phi, X0Scale, ElossScale );
       ATH_MSG_DEBUG ( " muonSystem scales X0 " << X0Scale << " ElossScale " << ElossScale);
       
-      const std::vector<const Trk::TrackStateOnSurface*>  matvecNew1 = modifyTSOSvector(*matvec, X0Scale , 1., true, true, true, 0., 0., m_m_p, 0., Eloss1);
-      const std::vector<const Trk::TrackStateOnSurface*>  matvecNew0 = modifyTSOSvector(*matvec, X0Scale , ElossScale, true, true, true, 0., 0., m_m_p, 0., Eloss0);
+      const std::vector<const Trk::TrackStateOnSurface*>  matvecNew1 = modifyTSOSvector(*matvec, X0Scale , 1., true, true, true, 0., 0., m_treeData->m_m_p, 0., Eloss1);
+      const std::vector<const Trk::TrackStateOnSurface*>  matvecNew0 = modifyTSOSvector(*matvec, X0Scale , ElossScale, true, true, true, 0., 0., m_treeData->m_m_p, 0., Eloss0);
       ATH_MSG_DEBUG ( " muon system modify with 5 percent ");
-      const std::vector<const Trk::TrackStateOnSurface*>  matvecNew5 = modifyTSOSvector(*matvec, X0Scale , ElossScale, true, true, true, 0., 0., m_m_p, 0.05*m_m_p, Eloss5);
+      const std::vector<const Trk::TrackStateOnSurface*>  matvecNew5 = modifyTSOSvector(*matvec, X0Scale , ElossScale, true, true, true, 0., 0., m_treeData->m_m_p, 0.05*m_treeData->m_m_p, Eloss5);
       ATH_MSG_DEBUG ( " muon system modify with 10 percent ");
-      const std::vector<const Trk::TrackStateOnSurface*>  matvecNew10 = modifyTSOSvector(*matvec, X0Scale , ElossScale, true, true, true, 0., 0., m_m_p, 0.10*m_m_p, Eloss10);
+      const std::vector<const Trk::TrackStateOnSurface*>  matvecNew10 = modifyTSOSvector(*matvec, X0Scale , ElossScale, true, true, true, 0., 0., m_treeData->m_m_p, 0.10*m_treeData->m_m_p, Eloss10);
 
 //      if(&matvecNew0!=0)  delete &matvecNew0;
 //      if(&matvecNew5!=0)  delete &matvecNew5;
@@ -634,24 +561,24 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
 //
 // Calorimeter  sytem
 //    
-      double phiCaloExit = atan2(m_m_y,m_m_x); 
-      m_elossupdator->getX0ElossScales(1, m_t_eta, phiCaloExit , X0Scale, ElossScale );
+      double phiCaloExit = atan2(m_treeData->m_m_y,m_treeData->m_m_x); 
+      m_elossupdator->getX0ElossScales(1, m_treeData->m_t_eta, phiCaloExit , X0Scale, ElossScale );
       ATH_MSG_DEBUG ( " calorimeter scales X0 " << X0Scale << " ElossScale " << ElossScale);
-      const std::vector<const Trk::TrackStateOnSurface*>  matvecNew1 = modifyTSOSvector(*matvec, X0Scale , 1., true, true, true, 0., 0., m_m_p, 0., Eloss1);
-      const std::vector<const Trk::TrackStateOnSurface*>  matvecNew0 = modifyTSOSvector(*matvec, X0Scale , ElossScale, true, true, true, 0., 0., m_t_p, 0., Eloss0);
+      const std::vector<const Trk::TrackStateOnSurface*>  matvecNew1 = modifyTSOSvector(*matvec, X0Scale , 1., true, true, true, 0., 0., m_treeData->m_m_p, 0., Eloss1);
+      const std::vector<const Trk::TrackStateOnSurface*>  matvecNew0 = modifyTSOSvector(*matvec, X0Scale , ElossScale, true, true, true, 0., 0., m_treeData->m_t_p, 0., Eloss0);
       if(fabs(Eloss1)>0) ATH_MSG_DEBUG ( " **** Cross Check calorimeter with Eloss Scale1 " <<  Eloss1 << " Eloss0 " << Eloss0 << " ratio " << Eloss0/Eloss1 );
 
       ATH_MSG_DEBUG ( " calorimeter modify with 5 percent ");
-      const std::vector<const Trk::TrackStateOnSurface*>  matvecNew5 = modifyTSOSvector(*matvec, X0Scale , ElossScale, true, true, true, 0., 0., m_t_p, 0.05*m_m_p, Eloss5);
+      const std::vector<const Trk::TrackStateOnSurface*>  matvecNew5 = modifyTSOSvector(*matvec, X0Scale , ElossScale, true, true, true, 0., 0., m_treeData->m_t_p, 0.05*m_treeData->m_m_p, Eloss5);
       ATH_MSG_DEBUG ( " calorimeter modify with 10 percent ");
-      const std::vector<const Trk::TrackStateOnSurface*>  matvecNew10 = modifyTSOSvector(*matvec, X0Scale , ElossScale, true, true, true, 0., 0., m_t_p, 0.10*m_m_p, Eloss10);
+      const std::vector<const Trk::TrackStateOnSurface*>  matvecNew10 = modifyTSOSvector(*matvec, X0Scale , ElossScale, true, true, true, 0., 0., m_treeData->m_t_p, 0.10*m_treeData->m_m_p, Eloss10);
 
 //      if(&matvecNew0!=0)  delete &matvecNew0;
 //      if(&matvecNew5!=0)  delete &matvecNew5;
 //      if(&matvecNew10!=0) delete &matvecNew10;
     }
 
-    ATH_MSG_DEBUG ( " status " << m_trk_status[m_g4_steps] << "Eloss1 " << Eloss1 << " Eloss0 " << Eloss0 << " Eloss5 " << Eloss5 << " Eloss10 " << Eloss10 );
+    ATH_MSG_DEBUG ( " status " << m_treeData->m_trk_status[m_treeData->m_g4_steps] << "Eloss1 " << Eloss1 << " Eloss0 " << Eloss0 << " Eloss5 " << Eloss5 << " Eloss10 " << Eloss10 );
 
 
     double Eloss = 0.;
@@ -666,7 +593,7 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
           const Trk::MaterialEffectsBase* matEf = (*it)->materialEffectsOnTrack();
           if( matEf ) {
              mmat++;
-             if(m_trk_status[m_g4_steps] == 1000) ATH_MSG_DEBUG (" mmat " << mmat << " matEf->thicknessInX0() " << matEf->thicknessInX0() );
+             if(m_treeData->m_trk_status[m_treeData->m_g4_steps] == 1000) ATH_MSG_DEBUG (" mmat " << mmat << " matEf->thicknessInX0() " << matEf->thicknessInX0() );
              x0 += matEf->thicknessInX0();
              const Trk::MaterialEffectsOnTrack* matEfs = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(matEf);
              double eloss0 = 0.;
@@ -685,8 +612,8 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
                     sigmaIoni = eLoss->sigmaIoni();
                     meanRad = eLoss->meanRad();
                     sigmaRad = eLoss->sigmaRad();
-                    ATH_MSG_DEBUG ( "m_g4_stepsMS " << m_g4_stepsMS <<" mmat " << mmat << " X0 " << matEf->thicknessInX0() << " eLoss->deltaE() "  << eLoss->deltaE() << " meanIoni " << meanIoni << " Total Eloss " << Eloss << "  eLoss->length() " << eLoss->length() );
-//                    if(m_trk_status[m_g4_steps] == 1000) ATH_MSG_DEBUG ( " mmat " << mmat << " eLoss->deltaE() "  << eLoss->deltaE() );
+                    ATH_MSG_DEBUG ( "m_treeData->m_g4_stepsMS " << m_treeData->m_g4_stepsMS <<" mmat " << mmat << " X0 " << matEf->thicknessInX0() << " eLoss->deltaE() "  << eLoss->deltaE() << " meanIoni " << meanIoni << " Total Eloss " << Eloss << "  eLoss->length() " << eLoss->length() );
+//                    if(m_treeData->m_trk_status[m_treeData->m_g4_steps] == 1000) ATH_MSG_DEBUG ( " mmat " << mmat << " eLoss->deltaE() "  << eLoss->deltaE() );
                   } 
              } 
              //sroe: coverity 31532
@@ -695,29 +622,29 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
              if(scatAng) {
                 sigmaTheta = scatAng->sigmaDeltaTheta();
                 sigmaPhi = scatAng->sigmaDeltaPhi();
-                ATH_MSG_DEBUG ( "m_g4_stepsMS " << m_g4_stepsMS <<" mmat " << mmat << " sigmaTheta " << sigmaTheta << " sigmaPhi " << sigmaPhi );
+                ATH_MSG_DEBUG ( "m_treeData->m_g4_stepsMS " << m_treeData->m_g4_stepsMS <<" mmat " << mmat << " sigmaTheta " << sigmaTheta << " sigmaPhi " << sigmaPhi );
              }             
 
-             if ( m_trk_scats < 500) {
-               if( m_g4_stepsMS==0 || m_trk_status[m_g4_steps]==1000 )  {
+             if ( m_treeData->m_trk_scats < 500) {
+               if( m_treeData->m_g4_stepsMS==0 || m_treeData->m_trk_status[m_treeData->m_g4_steps]==1000 )  {
 // forwards
-                 if(m_g4_stepsMS==0) m_trk_sstatus[m_trk_scats] = 10;
-                 if(m_trk_status[m_g4_steps]==1000) m_trk_sstatus[m_trk_scats] = 1000;
+                 if(m_treeData->m_g4_stepsMS==0) m_treeData->m_trk_sstatus[m_treeData->m_trk_scats] = 10;
+                 if(m_treeData->m_trk_status[m_treeData->m_g4_steps]==1000) m_treeData->m_trk_sstatus[m_treeData->m_trk_scats] = 1000;
                  if((*it)->trackParameters()) {
-                   m_trk_sx[m_trk_scats] = (*it)->trackParameters()->position().x();
-                   m_trk_sy[m_trk_scats] = (*it)->trackParameters()->position().y();
-                   m_trk_sz[m_trk_scats] = (*it)->trackParameters()->position().z();
+                   m_treeData->m_trk_sx[m_treeData->m_trk_scats] = (*it)->trackParameters()->position().x();
+                   m_treeData->m_trk_sy[m_treeData->m_trk_scats] = (*it)->trackParameters()->position().y();
+                   m_treeData->m_trk_sz[m_treeData->m_trk_scats] = (*it)->trackParameters()->position().z();
                  }
-                 m_trk_sx0[m_trk_scats] = matEf->thicknessInX0();   
-                 m_trk_seloss[m_trk_scats] = eloss0;   
-                 m_trk_smeanIoni[m_trk_scats] = meanIoni;   
+                 m_treeData->m_trk_sx0[m_treeData->m_trk_scats] = matEf->thicknessInX0();   
+                 m_treeData->m_trk_seloss[m_treeData->m_trk_scats] = eloss0;   
+                 m_treeData->m_trk_smeanIoni[m_treeData->m_trk_scats] = meanIoni;   
 //                 std::cout << "  eloss0 " <<  eloss0 << " meanIoni " << meanIoni << std::endl;
-                 m_trk_ssigIoni[m_trk_scats] = sigmaIoni;   
-                 m_trk_smeanRad[m_trk_scats] = meanRad;   
-                 m_trk_ssigRad[m_trk_scats] = sigmaRad;   
-                 m_trk_ssigTheta[m_trk_scats] = sigmaTheta;   
-                 m_trk_ssigPhi[m_trk_scats] = sigmaPhi;   
-                 m_trk_scats++;
+                 m_treeData->m_trk_ssigIoni[m_treeData->m_trk_scats] = sigmaIoni;   
+                 m_treeData->m_trk_smeanRad[m_treeData->m_trk_scats] = meanRad;   
+                 m_treeData->m_trk_ssigRad[m_treeData->m_trk_scats] = sigmaRad;   
+                 m_treeData->m_trk_ssigTheta[m_treeData->m_trk_scats] = sigmaTheta;   
+                 m_treeData->m_trk_ssigPhi[m_treeData->m_trk_scats] = sigmaPhi;   
+                 m_treeData->m_trk_scats++;
                }
              }  
           }
@@ -725,38 +652,38 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
         delete matvec;
     }
 
-    ATH_MSG_DEBUG ("  m_g4_steps " << m_g4_steps << " Radius " << npos.perp() << " z " << npos.z() << " size matvec " << " total X0 " << x0 << " total Eloss " << Eloss );
-//    std::cout << "  m_g4_steps " << m_g4_steps << " Radius " << npos.perp() << " z " << npos.z() << " size matvec " << " total X0 " << x0 << " total Eloss " << Eloss << std::endl;
+    ATH_MSG_DEBUG ("  m_treeData->m_g4_steps " << m_treeData->m_g4_steps << " Radius " << npos.perp() << " z " << npos.z() << " size matvec " << " total X0 " << x0 << " total Eloss " << Eloss );
+//    std::cout << "  m_treeData->m_g4_steps " << m_treeData->m_g4_steps << " Radius " << npos.perp() << " z " << npos.z() << " size matvec " << " total X0 " << x0 << " total Eloss " << Eloss << std::endl;
     // fill the geant information and the trk information
-    m_g4_p[m_g4_steps]       =  nmom.mag(); 
-    m_g4_eta[m_g4_steps]     =  nmom.eta();   
-    m_g4_theta[m_g4_steps]   =  nmom.theta();
-    m_g4_phi[m_g4_steps]     =  nmom.phi();
-    m_g4_x[m_g4_steps]       =  npos.x();
-    m_g4_y[m_g4_steps]       =  npos.y();
-    m_g4_z[m_g4_steps]       =  npos.z();
-    m_g4_tX0[m_g4_steps]     = m_tX0Cache;
-    m_g4_t[m_g4_steps]       = t;
-    m_g4_X0[m_g4_steps]      = X0;
+    m_treeData->m_g4_p[m_treeData->m_g4_steps]       =  nmom.mag(); 
+    m_treeData->m_g4_eta[m_treeData->m_g4_steps]     =  nmom.eta();   
+    m_treeData->m_g4_theta[m_treeData->m_g4_steps]   =  nmom.theta();
+    m_treeData->m_g4_phi[m_treeData->m_g4_steps]     =  nmom.phi();
+    m_treeData->m_g4_x[m_treeData->m_g4_steps]       =  npos.x();
+    m_treeData->m_g4_y[m_treeData->m_g4_steps]       =  npos.y();
+    m_treeData->m_g4_z[m_treeData->m_g4_steps]       =  npos.z();
+    m_treeData->m_g4_tX0[m_treeData->m_g4_steps]     = m_tX0Cache;
+    m_treeData->m_g4_t[m_treeData->m_g4_steps]       = t;
+    m_treeData->m_g4_X0[m_treeData->m_g4_steps]      = X0;
     
-    m_trk_p[m_g4_steps]      = trkParameters ? trkParameters->momentum().mag()      : 0.;
-    m_trk_eta[m_g4_steps]    = trkParameters ? trkParameters->momentum().eta()      : 0.;
-    m_trk_theta[m_g4_steps]  = trkParameters ? trkParameters->momentum().theta()    : 0.;
-    m_trk_phi[m_g4_steps]    = trkParameters ? trkParameters->momentum().phi()      : 0.;
-    m_trk_x[m_g4_steps]      = trkParameters ? trkParameters->position().x()        : 0.;
-    m_trk_y[m_g4_steps]      = trkParameters ? trkParameters->position().y()        : 0.;
-    m_trk_z[m_g4_steps]      = trkParameters ? trkParameters->position().z()        : 0.;
-    m_trk_lx[m_g4_steps]     = trkParameters ? trkParameters->parameters()[Trk::locX] : 0.;
-    m_trk_ly[m_g4_steps]     = trkParameters ? trkParameters->parameters()[Trk::locY] : 0.;
-    m_trk_eloss[m_g4_steps]  = Eloss;
-    m_trk_eloss0[m_g4_steps] = Eloss0;
-    m_trk_eloss1[m_g4_steps] = Eloss1;
-    m_trk_eloss5[m_g4_steps] = Eloss5;
-    m_trk_eloss10[m_g4_steps]= Eloss10;
-    m_trk_scaleeloss[m_g4_steps]= ElossScale;
-    m_trk_scalex0[m_g4_steps]   = X0Scale;
-    m_trk_x0[m_g4_steps]     = x0;
-    if(m_g4_stepsMS==0)  m_trk_status[m_g4_steps] =  10;
+    m_treeData->m_trk_p[m_treeData->m_g4_steps]      = trkParameters ? trkParameters->momentum().mag()      : 0.;
+    m_treeData->m_trk_eta[m_treeData->m_g4_steps]    = trkParameters ? trkParameters->momentum().eta()      : 0.;
+    m_treeData->m_trk_theta[m_treeData->m_g4_steps]  = trkParameters ? trkParameters->momentum().theta()    : 0.;
+    m_treeData->m_trk_phi[m_treeData->m_g4_steps]    = trkParameters ? trkParameters->momentum().phi()      : 0.;
+    m_treeData->m_trk_x[m_treeData->m_g4_steps]      = trkParameters ? trkParameters->position().x()        : 0.;
+    m_treeData->m_trk_y[m_treeData->m_g4_steps]      = trkParameters ? trkParameters->position().y()        : 0.;
+    m_treeData->m_trk_z[m_treeData->m_g4_steps]      = trkParameters ? trkParameters->position().z()        : 0.;
+    m_treeData->m_trk_lx[m_treeData->m_g4_steps]     = trkParameters ? trkParameters->parameters()[Trk::locX] : 0.;
+    m_treeData->m_trk_ly[m_treeData->m_g4_steps]     = trkParameters ? trkParameters->parameters()[Trk::locY] : 0.;
+    m_treeData->m_trk_eloss[m_treeData->m_g4_steps]  = Eloss;
+    m_treeData->m_trk_eloss0[m_treeData->m_g4_steps] = Eloss0;
+    m_treeData->m_trk_eloss1[m_treeData->m_g4_steps] = Eloss1;
+    m_treeData->m_trk_eloss5[m_treeData->m_g4_steps] = Eloss5;
+    m_treeData->m_trk_eloss10[m_treeData->m_g4_steps]= Eloss10;
+    m_treeData->m_trk_scaleeloss[m_treeData->m_g4_steps]= ElossScale;
+    m_treeData->m_trk_scalex0[m_treeData->m_g4_steps]   = X0Scale;
+    m_treeData->m_trk_x0[m_treeData->m_g4_steps]     = x0;
+    if(m_treeData->m_g4_stepsMS==0)  m_treeData->m_trk_status[m_treeData->m_g4_steps] =  10;
 
     double errord0 = 0.;
     double errorz0 = 0.;
@@ -769,25 +696,25 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
       errorphi = (*trkParameters->covariance())(Trk::phi,Trk::phi);
       errortheta = (*trkParameters->covariance())(Trk::theta,Trk::theta);
       errorqoverp = (*trkParameters->covariance())(Trk::qOverP,Trk::qOverP);
-      ATH_MSG_DEBUG (" Covariance found for m_trk_status "  << m_trk_status[m_g4_steps]);
-      if( m_trk_status[m_g4_steps] == 10 ||  m_trk_status[m_g4_steps] == 1000 ) {
+      ATH_MSG_DEBUG (" Covariance found for m_treeData->m_trk_status "  << m_treeData->m_trk_status[m_treeData->m_g4_steps]);
+      if( m_treeData->m_trk_status[m_treeData->m_g4_steps] == 10 ||  m_treeData->m_trk_status[m_treeData->m_g4_steps] == 1000 ) {
         double x00 = errortheta*1000000.;
 // assume beta = 1 for check
-        double sigPhi = sqrt(x0)*13.6*(1+0.038*log(x00))/m_trk_p[m_g4_steps]/sin(m_trk_theta[m_g4_steps]);
+        double sigPhi = sqrt(x0)*13.6*(1+0.038*log(x00))/m_treeData->m_trk_p[m_treeData->m_g4_steps]/sin(m_treeData->m_trk_theta[m_treeData->m_g4_steps]);
         double ratio = sqrt(errorphi)/sigPhi;
-       std::cout << " m_trk_x " << m_trk_x[m_g4_steps] << "  m_trk_y " << m_trk_y[m_g4_steps] << " m_trk_z " << m_trk_z[m_g4_steps] << " cov 33 " << errortheta*1000000. << " cov22 " <<  errorphi*1000000000. << " ratio error in phi " << ratio << std::endl; 
+       std::cout << " m_treeData->m_trk_x " << m_treeData->m_trk_x[m_treeData->m_g4_steps] << "  m_treeData->m_trk_y " << m_treeData->m_trk_y[m_treeData->m_g4_steps] << " m_treeData->m_trk_z " << m_treeData->m_trk_z[m_treeData->m_g4_steps] << " cov 33 " << errortheta*1000000. << " cov22 " <<  errorphi*1000000000. << " ratio error in phi " << ratio << std::endl; 
        std::cout << " "  << std::endl;
       }
     }
 
-    m_trk_erd0[m_g4_steps]  = sqrt(errord0); 
-    m_trk_erz0[m_g4_steps]  = sqrt(errorz0); 
-    m_trk_erphi[m_g4_steps]  = sqrt(errorphi); 
-    m_trk_ertheta[m_g4_steps]  = sqrt(errortheta); 
-    m_trk_erqoverp[m_g4_steps]  = sqrt(errorqoverp); 
+    m_treeData->m_trk_erd0[m_treeData->m_g4_steps]  = sqrt(errord0); 
+    m_treeData->m_trk_erz0[m_treeData->m_g4_steps]  = sqrt(errorz0); 
+    m_treeData->m_trk_erphi[m_treeData->m_g4_steps]  = sqrt(errorphi); 
+    m_treeData->m_trk_ertheta[m_treeData->m_g4_steps]  = sqrt(errortheta); 
+    m_treeData->m_trk_erqoverp[m_treeData->m_g4_steps]  = sqrt(errorqoverp); 
 
 // reset X0 at Muon Entry  
-    if(m_g4_stepsMS==0)  m_tX0Cache   = 0.;
+    if(m_treeData->m_g4_stepsMS==0)  m_tX0Cache   = 0.;
     // update the parameters if needed/configured
     if (m_extrapolateIncrementally && trkParameters) {
         delete m_parameterCache;
@@ -804,8 +731,8 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
     delete extrapolationCache;
     delete g4Parameters;
     delete trkParameters;
-    ++m_g4_steps;
-    if(m_g4_stepsMS!=-1)  ++m_g4_stepsMS; 
+    ++m_treeData->m_g4_steps;
+    if(m_treeData->m_g4_stepsMS!=-1)  ++m_treeData->m_g4_stepsMS; 
 }
 const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::modifyTSOSvector(const std::vector<const Trk::TrackStateOnSurface*> matvec, double scaleX0, double scaleEloss, bool reposition, bool aggregate, bool updateEloss, double caloEnergy, double caloEnergyError, double pCaloEntry, double momentumError, double & Eloss_tot) const
 {
