@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
 
-#ifndef __TSELECTORTOOLBASE__
-#define __TSELECTORTOOLBASE__
+#ifndef PATCORE_TSELECTORTOOLBASE_H
+#define PATCORE_TSELECTORTOOLBASE_H
 
 /**
    @class TSelectorToolBase
@@ -19,7 +19,8 @@
 #include "TString.h"
 
 // Include the return object
-#include "TAccept.h"
+#include "PATCore/AcceptInfo.h"
+#include "PATCore/AcceptData.h"
 
 // include the configuration in RootCore environment
 // if this does not exist, call $ROOTCOREDIR/scripts/compile.sh
@@ -44,7 +45,7 @@ namespace Root {
     /** Standard constructor */
     TSelectorToolBase(const char* name="TSelectorToolBase") :
       m_name(name),
-      m_accept( Form("%s_TAccept",name) )
+      m_accept( Form("%s_Accept",name) )
     {
     }
     
@@ -65,15 +66,15 @@ namespace Root {
     inline const char* getName() const { return m_name.Data(); };
 
 
-    /** Method to get the plain TAccept */
-    const Root::TAccept& getTAccept( ) const
+    /** Method to get the plain AcceptInfo */
+    const asg::AcceptInfo& getAcceptInfo( ) const
     {
       return m_accept;
     }
 
 #ifdef PAT_CORE_D3PDREADER
     /** The generic D3PDReader accept method */
-    virtual const Root::TAccept& accept( const TObject& /*d3pd*/ ) {return m_accept;}
+    virtual asg::AcceptData accept( const TObject& /*d3pd*/ ) {return asg::AcceptData (&m_accept);}
 #endif
 
 
@@ -88,8 +89,8 @@ namespace Root {
     /** The name of the class instance */
     TString m_name;
 
-    /** The return TAccept object */
-    mutable TAccept m_accept;//!
+    /** The return AcceptInfo object */
+    mutable asg::AcceptInfo m_accept;//!
     
 
   }; // End: class definition
