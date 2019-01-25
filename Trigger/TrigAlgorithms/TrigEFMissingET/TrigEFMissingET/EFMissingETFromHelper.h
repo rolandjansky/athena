@@ -18,7 +18,8 @@ PURPOSE:  Updates TrigMissingET using TrigMissingETHelper info
  ********************************************************************/
 
 #include "TrigEFMissingET/EFMissingETBaseTool.h"
-//#include "TrigCaloEvent/TrigMissingET.h"
+#include "TrigEFMissingET/EFMissingETHelper.h"
+// #include "TrigMissingEtEvent/TrigMissingET.h"
 #include "TrigMissingEtEvent/TrigMissingET.h"
 
 
@@ -58,23 +59,10 @@ class EFMissingETFromHelper : public EFMissingETBaseTool
     StatusCode executeMT(xAOD::TrigMissingET *met, TrigEFMissingEtHelper *metHelper);
 
   private:
-    void setMET(xAOD::TrigMissingET *met, 
-                float ex, float ey, float ez,
-                float sumE, float sumEt, 
-                short sumOfSigns, float c0, float c1);
-
-    void setMETComp(xAOD::TrigMissingET *met, int comp_i, char* comp_name,
-                    float ex, float ey, float ez,
-                    float sumE, float sumEt,
-                    short sumOfSigns, float c0, float c1,
-                    short status, unsigned short Ntot,
-                    bool update=false);
-
-    void updateMETComp(xAOD::TrigEFMissingET *met, const int comp_i
-                      float ex, float ey, float ez,
-                      float sumE, float sumEt,
-                      short sumOfSigns, float c0, float c1,
-                      short status, unsigned short Ntot);
+    void setMET(xAOD::TrigMissingET *met, TrigEFMissingEtHelper *metHelper, 
+                unsigned char comp_i);
+    void setMETComp(xAOD::TrigMissingET *met, TrigEFMissingEtHelper *metHelper, 
+                    unsigned char comp_i, char add_i=-1);
 
 };
 
