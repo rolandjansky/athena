@@ -55,7 +55,7 @@ long AthenaPoolConverter::repSvcType() const {
 StatusCode AthenaPoolConverter::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) {
    std::lock_guard<CallMutex> lock(m_conv_mut);
    TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(pAddr);
-bool ownTokAddr = false;
+   bool ownTokAddr = false;
    if (tokAddr == nullptr || tokAddr->getToken() == nullptr) {
       ownTokAddr = true;
       Token* token = new Token;

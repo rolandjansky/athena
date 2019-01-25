@@ -22,6 +22,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <mutex>
 
 // fwd declares
 class INamedInterface;
@@ -56,10 +57,18 @@ public:
   // get the items for a given stream
   virtual std::vector<std::string> getItemsForStream(const std::string stream) const = 0;
 
+  // get mutex for streaming itemlist to output
+  virtual std::mutex& streamMutex();
+
+
 public:
 
   static const InterfaceID& interfaceID();
   
+private:
+
+  std::mutex m_stream_mut;
+
 }; 
 
 /////////////////////////////////////////////////////////////////// 
@@ -74,6 +83,12 @@ IItemListSvc::interfaceID()
   return IID_IItemListSvc; 
 }
 
+inline
+std::mutex&
+IItemListSvc::streamMutex()
+{
+  return m_stream_mut;
+}
 
 #endif //> !ATHENAKERNEL_IITEMLISTSVC_H
 

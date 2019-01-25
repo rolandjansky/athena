@@ -78,7 +78,7 @@ Stream1             DEBUG Registering all Tools in ToolHandleArray HelperTools
 Stream1             DEBUG Adding private ToolHandle tool Stream1.Stream1_MakeEventStreamInfo (MakeEventStreamInfo) from ToolHandleArray HelperTools
 Stream1             DEBUG Adding private ToolHandle tool Stream1.Stream1Tool (AthenaOutputStreamTool)
 Stream1             DEBUG Data Deps for Stream1
-  + INPUT   ( 'AthenaAttributeList' , 'StoreGateSvc+MagicTag' ) 
+  + INPUT   ( 'AthenaAttributeList' , 'StoreGateSvc+MagicTag' )
 ClassIDSvc           INFO  getRegistryEntries: read 337 CLIDRegistry entries for module ALL
 Stream2             DEBUG Property update for OutputLevel : new value = 2
 Stream2.Stream2...  DEBUG Property update for OutputLevel : new value = 2
@@ -104,7 +104,7 @@ Stream2             DEBUG Registering all Tools in ToolHandleArray HelperTools
 Stream2             DEBUG Adding private ToolHandle tool Stream2.Stream2_MakeEventStreamInfo (MakeEventStreamInfo) from ToolHandleArray HelperTools
 Stream2             DEBUG Adding private ToolHandle tool Stream2.Stream2Tool (AthenaOutputStreamTool)
 Stream2             DEBUG Data Deps for Stream2
-  + INPUT   ( 'AthenaAttributeList' , 'StoreGateSvc+RunEventTag' ) 
+  + INPUT   ( 'AthenaAttributeList' , 'StoreGateSvc+RunEventTag' )
 DecisionSvc          INFO Inserting stream: Stream3 with no Algs
 Stream3.Stream3...   INFO Initializing Stream3.Stream3Tool - package version AthenaServices-00-00-00
 Stream3.Stream3...   INFO Initializing Stream3.Stream3_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
