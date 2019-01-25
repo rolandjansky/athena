@@ -23,6 +23,7 @@
 #include "VP1GuideLineSystems/VP1CartesianGrid.h"
 #include "VP1GuideLineSystems/VP1CylindricalGrid.h"
 #include "VP1GuideLineSystems/VP1TrackingVolumes.h"
+#include "VP1GuideLineSystems/VP1Lines.h"
 
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Deserialise.h"
@@ -64,6 +65,7 @@ public:
   VP1EtaCone * etacone2;
   VP1EtaCone * etacone3;
   VP1TrackingVolumes * trackingVolumes;
+  VP1Lines * lines;
 
   ProjectionSurfacesHelper * projsurfhelper_pixel;
   ProjectionSurfacesHelper * projsurfhelper_sct;
@@ -213,7 +215,14 @@ void VP1GuideLineSystem::buildPermanentSceneGraph(StoreGateSvc* /*detstore*/, So
 	connect(m_d->controller,SIGNAL(showCalorimetersChanged(bool)),m_d->trackingVolumes,SLOT(setShownCalo(bool)));
 	connect(m_d->controller,SIGNAL(showMuonSpectrometerChanged(bool)),m_d->trackingVolumes,SLOT(setShownMS(bool)));
 	m_d->trackingVolumes->setShown(m_d->controller->showTrackingVolumes());	
-	
+  
+  //Lines
+  m_d->lines = new VP1Lines(root, this);
+  connect(m_d->controller,SIGNAL(showLinesChanged(bool)),m_d->lines,SLOT(setShown(bool)));
+	m_d->lines->setShown(m_d->controller->showLines());	
+  connect(m_d->controller,SIGNAL(lineDirectionChanged(const SbVec3f&)),m_d->lines,SLOT(setDirection(const SbVec3f&)));
+  m_d->lines->setDirection(m_d->controller->lineDirection());  
+  
   SoSeparator * projsep = new SoSeparator;
   root->addChild(projsep);
 
