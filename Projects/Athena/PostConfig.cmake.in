@@ -4,7 +4,6 @@
 #
 
 # Set the versions of the TDAQ projects:
-
 set( TDAQ_PROJECT_NAME "@TDAQ_PROJECT_NAME@" CACHE STRING
    "Name of the tdaq project" )
 set( TDAQ_VERSION "@TDAQ_VERSION@" CACHE STRING
@@ -23,7 +22,11 @@ set( DQM-COMMON_ATROOT "@DQM-COMMON_ATROOT@" CACHE PATH
    "The directory to pick up dqm-common from" )
 
 # Find Gaudi:
-find_package( Gaudi REQUIRED )
+if( Athena_FIND_QUIETLY )
+   find_package( Gaudi REQUIRED QUIET )
+else()
+   find_package( Gaudi REQUIRED )
+endif()
 
 # Load all the files from the externals/ subdirectory:
 get_filename_component( _thisdir ${CMAKE_CURRENT_LIST_FILE} PATH )
@@ -34,7 +37,7 @@ foreach( _external ${_externals} )
    get_filename_component( _extName ${_external} NAME_WE )
    string( TOUPPER ${_extName} _extNameUpper )
    if( NOT Athena_FIND_QUIETLY )
-      message( STATUS "Taking ${_extName} from: ${${_extNameUpper}_ROOT}" )
+      message( STATUS "Taking ${_extName} from: ${${_extNameUpper}_LCGROOT}" )
    endif()
    unset( _extName )
    unset( _extNameUpper )
