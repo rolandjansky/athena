@@ -105,7 +105,7 @@ namespace TrigCostRootAnalysis {
         L2->getLumiExtrapolationFactor(m_costData->getLumi(), m_disableEventLumiExtrapolation);
       //if (getName() == "HLT_cscmon_L1All") Info("DEBUG", "WL1:%f, NL1:%s, 1-L1: %f, HLT:%f, total: %f, lumi%f",
       // m_lowerRates->getLastWeight(), m_lowerRates->getName().c_str(),  1. - L1Weight,
-      // L2->getPSWeight(_includeExpress), L2->getPSWeight(_includeExpress) * ( 1. - L1Weight ),
+      // L2->getPSWeight(includeExpress), L2->getPSWeight(includeExpress) * ( 1. - L1Weight ),
       //  L2->getLumiExtrapolationFactor()  );
       m_cachedWeight = L2->getPSWeight(includeExpress) * (1. - L1Weight);
     } else { // A L1Chain
