@@ -12,7 +12,7 @@ import time
 import uuid
 import logging
 import glob
-from RunTier0TestsTools import ciRefFileMap
+from PROCTools.RunTier0TestsTools import ciRefFileMap
 
 ### Setup global logging
 logging.basicConfig(level=logging.INFO,
