@@ -25,20 +25,11 @@
 #include <vector>
 #include <string>
 
-///#include "TrigInterfaces/FexAlgo.h"
 #include "TrigInterfaces/AllTEAlgo.h"
 #include "IRegionSelector/RegSelEnums.h"
 #include "GaudiKernel/ITHistSvc.h"
 
 #include "eformat/SourceIdentifier.h"
-
-// Event Incident to get EventInfo
-#include "GaudiKernel/IIncidentSvc.h"
-#include "GaudiKernel/IIncidentListener.h"
-#include "GaudiKernel/Incident.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventIncident.h"
 
 #include "TH1I.h"
 

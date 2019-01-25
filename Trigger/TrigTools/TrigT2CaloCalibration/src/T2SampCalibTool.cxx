@@ -37,12 +37,6 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/Property.h"
 
-// Event Info 
-#include "EventInfo/EventIncident.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
-
 // Needed to register dB object
 #include "RegistrationServices/IIOVRegistrationSvc.h"
 
