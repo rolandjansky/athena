@@ -466,8 +466,8 @@ def setupMenu():
            ['j225_boffperf_split_FTKRefit_L1J100_FTK',    'L1_J100_FTK', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
 
            ['j225_bmv2c1050_split_FTK_L1J100_FTK', 'L1_J100_FTK', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-           ['j225_bmv2c1050_split_FTKVtx_L1J100FTK', 'L1_J100_FTK', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-           ['j225_bmv2c1050_split_FTKRefit_L1J100FTK', 'L1_J100_FTK', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+           ['j225_bmv2c1050_split_FTKVtx_L1J100_FTK', 'L1_J100_FTK', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+           ['j225_bmv2c1050_split_FTKRefit_L1J100_FTK', 'L1_J100_FTK', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
 
            ['j150_boffperf_split_j50_boffperf_split_FTK_L1J100_FTK', 'L1_J100_FTK', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
            ['j150_boffperf_split_j50_boffperf_split_FTKVtx_L1J100_FTK', 'L1_J100_FTK', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
