@@ -7,7 +7,7 @@
 
 #include "VP1Base/VP1Controller.h"
 #include "VP1CaloSystems/VP1CaloCells.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include <QByteArray>
 #include <QString>
 #include <map>
@@ -114,7 +114,7 @@ class VP1CaloCellController : public VP1Controller
   //For verbose output:
   template <class T> static QString toString( const T& t ) { return VP1Controller::toString(t); }//unhide base methods
   static QString toString(const VP1CCIntervalMap& m) { return "VP1CCIntervalMap of size "+QString::number(m.count()); }
-  static QString toString(const QPair<bool,double>& par) { return "<"+QString(par.first?"log":"linear")+", "+QString::number(par.second/(GeoModelKernelUnits::cm/GeoModelKernelUnits::GeV))+" cm/GeV>"; }
+  static QString toString(const QPair<bool,double>& par) { return "<"+QString(par.first?"log":"linear")+", "+QString::number(par.second/(Gaudi::Units::cm/Gaudi::Units::GeV))+" cm/GeV>"; }
   static QString toString(const VP1CC_GlobalCuts& cuts) { return "VP1CC global cuts: sideA=" + QString(cuts.sideA?"True":"False") + ", sideC=" + QString(cuts.sideC?"True":"False") + ", allowedEta=" + VP1Controller::toString(cuts.allowedEta) + ", allowedPhi="  + VP1Controller::toString(cuts.allowedEta); }
 
 //  // FIXME:You have to compile Qwt with Qt5. LCG's Qwt is compiled with Qt4 only...

@@ -14,7 +14,7 @@
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"
 // Units
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 // Trk
 #include "TrkDetDescrInterfaces/ITrackingVolumeArrayCreator.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumeHelper.h"
@@ -222,7 +222,7 @@ const Trk::TrackingGeometry* Muon::MuonTrackingGeometryBuilder::trackingGeometry
   }
   
   // find object's span with tolerance for the alignment 
-  if (!m_stationSpan) m_stationSpan = findVolumesSpan(m_stations, 100.*m_alignTolerance, m_alignTolerance*GeoModelKernelUnits::deg);
+  if (!m_stationSpan) m_stationSpan = findVolumesSpan(m_stations, 100.*m_alignTolerance, m_alignTolerance*Gaudi::Units::deg);
   if (!m_inertSpan)   m_inertSpan = findVolumesSpan(m_inertObjs,0.,0.);
  
   // 0) Preparation //////////////////////////////////////////////////////////////////////////////////////

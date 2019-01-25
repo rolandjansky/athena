@@ -64,7 +64,7 @@
 #include "GeoModelKernel/GeoShapeIntersection.h"   
 #include "GeoModelKernel/GeoIdentifierTag.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include <vector>
 #include <fstream>
 #include <iomanip>
@@ -227,10 +227,10 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
       GeoShape* box = new GeoBox((totthick+2.)/2., (longWidth+2.)/2., halfpitch);
       box->ref();
       const GeoShape* frontcyl = new GeoTube(0.0, halfpitch+0.001, longWidth/2.);
-      frontcyl = &( (*frontcyl) << GeoTrf::RotateX3D(90.*GeoModelKernelUnits::deg) );
+      frontcyl = &( (*frontcyl) << GeoTrf::RotateX3D(90.*Gaudi::Units::deg) );
       frontcyl->ref();
       const GeoShape* backcyl = new GeoTube(0.0, halfpitch-0.001, (longWidth+2.)/2.);
-      backcyl = &( (*backcyl) << GeoTrf::RotateX3D(90.*GeoModelKernelUnits::deg) );
+      backcyl = &( (*backcyl) << GeoTrf::RotateX3D(90.*Gaudi::Units::deg) );
       backcyl->ref();
 
       if (index > 0) {
@@ -256,7 +256,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         }
       }
       if (stname != "EIL") {
-        if (zi < 0 && !is_mirrored) strd = &( (*strd) << GeoTrf::RotateX3D(180.*GeoModelKernelUnits::deg) );
+        if (zi < 0 && !is_mirrored) strd = &( (*strd) << GeoTrf::RotateX3D(180.*Gaudi::Units::deg) );
       }
 
       box->unref();
@@ -319,21 +319,21 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
             //  of the cutouts wrt mother volume:
             if ( fabs(cut->dx-600.7)<0.1 )
             {
-                cut->dx      = cut->dx + 10.*GeoModelKernelUnits::mm;
-                cut->widthXs = cut->widthXs + 20.*GeoModelKernelUnits::mm;
-                cut->widthXl = cut->widthXl + 20.*GeoModelKernelUnits::mm;
+                cut->dx      = cut->dx + 10.*Gaudi::Units::mm;
+                cut->widthXs = cut->widthXs + 20.*Gaudi::Units::mm;
+                cut->widthXl = cut->widthXl + 20.*Gaudi::Units::mm;
                 //std::cout<<" redefining par.s for BOG1 cutouts "
                 //<<std::endl;
             }
             if ( fabs(cut->dx+600.7)<0.1 )
             {
-                cut->dx      = cut->dx - 10.*GeoModelKernelUnits::mm;
-                cut->widthXs = cut->widthXs + 20.*GeoModelKernelUnits::mm;
-                cut->widthXl = cut->widthXl + 20.*GeoModelKernelUnits::mm;
+                cut->dx      = cut->dx - 10.*Gaudi::Units::mm;
+                cut->widthXs = cut->widthXs + 20.*Gaudi::Units::mm;
+                cut->widthXl = cut->widthXl + 20.*Gaudi::Units::mm;
             }
             if (fabs(cut->lengthY-180.2)<0.001)
             {
-                cut->lengthY = cut->lengthY+(0.010)*GeoModelKernelUnits::mm;
+                cut->lengthY = cut->lengthY+(0.010)*Gaudi::Units::mm;
                 //imt	    std::cout<<"Redefining "<<stName<<" cut lengthY to "
                 //imt		     <<cut->lengthY
                 //imt		     <<std::endl;
@@ -559,7 +559,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         cut->dx = tempdx;
         cut->dy = tempdy;
 
-	if (fabs(cut->dead1) > 1. && techname=="MDT03") cut->dy = cut->dy+15.0*cos(cut->dead1*GeoModelKernelUnits::deg);
+	if (fabs(cut->dead1) > 1. && techname=="MDT03") cut->dy = cut->dy+15.0*cos(cut->dead1*Gaudi::Units::deg);
 	// should compensate for the dy position defined in amdb at the bottom of the foam in ML 1 of EMS1,3 and BOS 6
 	// can be applied only for layout >=r.04.04 in rel 15.6.X.Y due to the frozen Tier0 policy
 
@@ -609,7 +609,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         if (stName.substr(0,3) == "BOS" && zi == -6 && type == "MDT") {
           cut->dy = c->dy - cut->dy - cut->lengthY - halfpitch;
 	  cut->dead1 = 30.; // why this is not 30. or -30. already ?????
-	  if (techname=="MDT03") cut->dy = cut->dy + 30.0; // *cos(cut->dead1*GeoModelKernelUnits::deg);
+	  if (techname=="MDT03") cut->dy = cut->dy + 30.0; // *cos(cut->dead1*Gaudi::Units::deg);
 	  if (verbose) log <<MSG::VERBOSE <<"Cut dead1 for BOS 6 on C side is "<< cut->dead1<<endmsg;
         }
 
@@ -623,7 +623,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
           // reverse the position (x amdb) of the cutout if the m_station is mirrored
           Cutout* cutmirr = new Cutout(*cut);
           cutmirr->dx = - cutmirr->dx;
-          // this way, after the rotation by 180 GeoModelKernelUnits::deg, the cut will be at the same global phi
+          // this way, after the rotation by 180 Gaudi::Units::deg, the cut will be at the same global phi
           // it has for the m_station at z>0
           vcutdef.push_back(cutmirr);
           vcutdef_todel.push_back(cutmirr);
@@ -689,19 +689,19 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
       htcomponent = GeoTrf::TranslateX3D(ypos)*GeoTrf::TranslateZ3D(zpos)*GeoTrf::TranslateY3D(xpos);
       if (zi < 0 && !is_mirrored && stName[0] == 'B') { 
         // this (rotation +  shift of halfpitch) will mirror the tube structure w.r.t. the chamber at z>0
-         htcomponent = htcomponent*GeoTrf::RotateX3D(180.*GeoModelKernelUnits::deg);
+         htcomponent = htcomponent*GeoTrf::RotateX3D(180.*Gaudi::Units::deg);
          htcomponent = htcomponent*GeoTrf::TranslateZ3D(halfpitch);
       }
           
       // ss - 24-05-2006 I don't really understand if this is needed at all
       //      it was introduced by Isabel T.
       if (zi < 0 && stName.substr(0,3) == "BOG" && is_mirrored) {
-        //	      htcomponent = htcomponent*GeoTrf::RotateX3D(180.*GeoModelKernelUnits::deg);
+        //	      htcomponent = htcomponent*GeoTrf::RotateX3D(180.*Gaudi::Units::deg);
         //      tubes OK but chambers wrong
-        //	      htcomponent = GeoTrf::RotateX3D(180.*GeoModelKernelUnits::deg)*htcomponent;
+        //	      htcomponent = GeoTrf::RotateX3D(180.*Gaudi::Units::deg)*htcomponent;
         //      chambers OK but tubes wrong
-        htcomponent = GeoTrf::RotateX3D(180.*GeoModelKernelUnits::deg)*htcomponent*
-                      GeoTrf::RotateX3D(180.*GeoModelKernelUnits::deg);  // turn chambers but go back for tubes
+        htcomponent = GeoTrf::RotateX3D(180.*Gaudi::Units::deg)*htcomponent*
+                      GeoTrf::RotateX3D(180.*Gaudi::Units::deg);  // turn chambers but go back for tubes
       } // ss - 24-05-2006 I don't really understand if this is needed at all
           
       xfaligncomponent = new GeoAlignableTransform(htcomponent);
@@ -926,7 +926,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
                       GeoTrf::TranslateY3D(xpos)*GeoTrf::TranslateZ3D(zpos);
         if (rp->iswap == -1) // this is like amdb iswap 
         {
-          htcomponent = htcomponent*GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg);
+          htcomponent = htcomponent*GeoTrf::RotateY3D(180*Gaudi::Units::deg);
         }
         xfaligncomponent = new GeoAlignableTransform(htcomponent);
         //xfrpccomponent.push_back(xfcomponent);
@@ -986,7 +986,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
       if (is_mirrored) xpos = -xpos;
       htcomponent = GeoTrf::TranslateX3D(ypos)*GeoTrf::TranslateY3D(xpos)*GeoTrf::TranslateZ3D(zpos);
       //if (stname == "BMS" && (zi == -2 || zi == -4) && c->name == "DED03") 
-      //   htcomponent = htcomponent*GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg);
+      //   htcomponent = htcomponent*GeoTrf::RotateY3D(180*Gaudi::Units::deg);
       xfcomponent = new GeoTransform(htcomponent);
 
       bool dedCutoutFlag = (stname == "BOS" && std::abs(zi) == 6) ||
@@ -1450,25 +1450,25 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
           if    (zi <= 0 && !is_mirrored) {
             // the special cases 
             doubletZ = 1;
-            if (zpos<-zdivision*GeoModelKernelUnits::mm)    doubletZ=2;
-            if (fabs(xpos) > 100.*GeoModelKernelUnits::mm && ndbz[doubletR-1] > 2) {
+            if (zpos<-zdivision*Gaudi::Units::mm)    doubletZ=2;
+            if (fabs(xpos) > 100.*Gaudi::Units::mm && ndbz[doubletR-1] > 2) {
               doubletZ = 3;
               nfields++;
             }
-            if (fabs(xpos) > 100.*GeoModelKernelUnits::mm ) ndbz[doubletR-1]--;
+            if (fabs(xpos) > 100.*Gaudi::Units::mm ) ndbz[doubletR-1]--;
           } else {
             doubletZ = 1;
-            if (zpos > zdivision*GeoModelKernelUnits::mm) doubletZ=2;
-            if (fabs(xpos) > 100.*GeoModelKernelUnits::mm && ndbz[doubletR-1] > 2) {
+            if (zpos > zdivision*Gaudi::Units::mm) doubletZ=2;
+            if (fabs(xpos) > 100.*Gaudi::Units::mm && ndbz[doubletR-1] > 2) {
               doubletZ = 3;
               nfields++;
             }
-            if (fabs(xpos) > 100.*GeoModelKernelUnits::mm ) ndbz[doubletR-1]--;
+            if (fabs(xpos) > 100.*Gaudi::Units::mm ) ndbz[doubletR-1]--;
           }
 
           int dbphi = 1;
 	  //std::cout<<stName<<" ----------------------------------- dbphi = "<<dbphi<<std::endl;
-          if (xpos > 400.*GeoModelKernelUnits::mm) dbphi = 2; // this special patch is needed for BMS in the ribs where xpos is ~950mm; the theshold to 100mm (too low) caused a bug
+          if (xpos > 400.*Gaudi::Units::mm) dbphi = 2; // this special patch is needed for BMS in the ribs where xpos is ~950mm; the theshold to 100mm (too low) caused a bug
 	  // in BOG at eta +/-4 and stationEta 7 (not 6) ==>> 28 Jan 2016 raising the threshold to 400.mm 
           // doublet phi not aware of pos. in space !!!
 	  //std::cout<<" dbphi reset to  "<<dbphi<<" due to xpos "<< xpos <<" >10cm "<<std::endl;
