@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef DerivationFrameworkInterfaces_IForwardParentThinningTool_H
 #define DerivationFrameworkInterfaces_IForwardParentThinningTool_H
 

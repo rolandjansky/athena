@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef ThinningUtils_ThinAssociatedObjectsTool_H
 #define ThinningUtils_ThinAssociatedObjectsTool_H
 
@@ -18,12 +21,6 @@ namespace DerivationFramework {
   class ExpressionParserHelper;
 }
 
-// TODO:
-// This relies on the parent thinning we want being expressable with a string.
-// This is *probably* fine but it might be neat if there were a way to query the
-// thinning service for existing thinning. Alternative (more SOLID) solution
-// would be to export the responsibility of building the parent mask to a
-// separate tool, but this is possibly more complicated then necessary.
 
 /**
  * @class ThinAssociatedObjectsTool

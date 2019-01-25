@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 #include <tuple>
 #include "xAODBase/IParticleContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
@@ -12,6 +15,8 @@
 #include "xAODBTagging/BTagVertexContainer.h"
 
 namespace EleLinkThinningHelpers {
+  /// This struct provides the list of candidate types for the element link
+  /// thinning.
   struct TypeList {
     static constexpr std::tuple<
       xAOD::IParticleContainer,
