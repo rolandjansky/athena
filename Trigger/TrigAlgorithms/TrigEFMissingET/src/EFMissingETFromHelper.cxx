@@ -7,8 +7,11 @@
 NAME:     EFMissingETFromHelper.cxx
 PACKAGE:  Trigger/TrigAlgorithms/TrigEFMissingET
 
-AUTHORS:  Gabriel Gallardo, Manfredi Ronzani
-CREATED:  September 27, 2018
+AUTHORS:  Diego Casadei
+CREATED:  March 12, 2008
+
+UPDATERS: Gabriel Gallardo, Manfredi Ronzani
+DATE:     January 25, 2019
 
 PURPOSE:  Updates TrigMissingET using TrigEFMissingEtHelper info for AthenaMT.
 
@@ -247,7 +250,7 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
         setMETComp(met, metHelper, i-34);
       }
       if (i==41) { // Muons
-        setMETComp(met, metHelper, i-5);
+        setMETComp(met, metHelper, 5);
       }
 
     } else if (save9comp) {
