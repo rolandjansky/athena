@@ -18,8 +18,6 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/Incident.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "EventInfo/EventIncident.h"
 
 class IInterface;

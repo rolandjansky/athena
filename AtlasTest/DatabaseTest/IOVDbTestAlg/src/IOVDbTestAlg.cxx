@@ -22,11 +22,10 @@
 #include "GaudiKernel/GaudiException.h" 
 #include "GaudiKernel/IToolSvc.h"
 
-// Event Info 
+// Event Incident 
 #include "EventInfo/EventIncident.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
 
 // AttributeList
 #include "CoralBase/Attribute.h"
@@ -297,8 +296,7 @@ StatusCode IOVDbTestAlg::readWithBeginRun(){
 	return status;
     }
 
-    EventInfo evt(new EventID(run, event, time), new EventType);
-    EventIncident evtInc(evt, name(), "BeginRun");
+    EventIncident evtInc(name(), "BeginRun",getContext());
     incSvc->fireIncident( evtInc );
 
     return StatusCode::SUCCESS;

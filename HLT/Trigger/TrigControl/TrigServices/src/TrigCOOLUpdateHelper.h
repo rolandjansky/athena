@@ -86,7 +86,7 @@ public:
   /**
    * @brief Perform COOL udpates if needed
    * @param currentLB      Current lumiblock
-   * @param currentRun     Current run number   
+   * @param currentRun     Current run number
    * @param sor_time_sec   Start-Of-Run time in seconds
    * @param sor_time_nsec  Start-Of-Run time offset in nanoseconds
    */
@@ -94,7 +94,7 @@ public:
                            EventID::number_type currentRun,
                            EventID::number_type sor_time_sec,
                            EventID::number_type sor_time_nsec);
-  
+
   /**
    * @brief Update specified COOL folder
    * @param folder         COOL folder to reset
@@ -106,19 +106,19 @@ public:
    */
   StatusCode hltCoolUpdate(const std::string& folder,
                            EventID::number_type currentLB,
-                           EventID::number_type currentRun,                           
+                           EventID::number_type currentRun,
                            EventID::number_type sor_time_sec,
                            EventID::number_type sor_time_nsec);
 
   /**
    * @brief Force IOVSvc to recheck all IOVs (needs to be called on every LB change)
    * @param currentLB      Current lumiblock
-   * @param currentRun     Current run number      
+   * @param currentRun     Current run number
    * @param sor_time_sec   Start-Of-Run time in seconds
-   * @param sor_time_nsec  Start-Of-Run time offset in nanoseconds   
+   * @param sor_time_nsec  Start-Of-Run time offset in nanoseconds
    */
   void checkIOV(EventID::number_type currentLB,
-                EventID::number_type currentRun,                           
+                EventID::number_type currentRun,
                 EventID::number_type sor_time_sec,
                 EventID::number_type sor_time_nsec);
 

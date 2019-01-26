@@ -8,7 +8,6 @@
 #include "GaudiKernel/DataIncident.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "EventInfo/EventIncident.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
@@ -230,7 +229,8 @@ void AtDSFMTGenSvc::handle(const Incident &inc) {
     print();    
   } else if (inc.type() == "BeginEvent") {
     ATH_MSG_DEBUG (" Handle BeginEvent ");
-    const EventID* pei((dynamic_cast<const EventIncident&>(inc)).eventInfo().event_ID());
+    EventContext context = inc.context();
+    const EventIDBase& ei = context.eventID();
     //clear static RandGauss cache (generates two numbers per call to shoot()
     CLHEP::RandGauss::setFlag(false);
     //loop over generator streams, combining the stream name to the hash
@@ -239,14 +239,14 @@ void AtDSFMTGenSvc::handle(const Incident &inc) {
     //by default (when no streams are specified in streamNames, seed all
     //streams
     if (i == e) {
-      if (!(this->setAllOnDefinedSeeds(pei->event_number(), 
-                                       pei->run_number())))
+      if (!(this->setAllOnDefinedSeeds(ei.event_number(), 
+                                       ei.run_number())))
         throw GaudiException("can not reseed all streams ", name(), StatusCode::FAILURE);
     } else {
       while (i != e) {
         const string& strName(*i++);
-        if (0 == this->setOnDefinedSeeds(pei->event_number(), 
-                                         pei->run_number(),
+        if (0 == this->setOnDefinedSeeds(ei.event_number(), 
+                                         ei.run_number(),
                                          strName)) { 
           throw GaudiException(string("can not reseed stream ") + strName,  
                                name(), StatusCode::FAILURE);

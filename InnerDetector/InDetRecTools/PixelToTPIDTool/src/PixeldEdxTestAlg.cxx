@@ -14,12 +14,10 @@
 // Gaudi includes
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/GaudiException.h" 
+#include "GaudiKernel/ThreadLocalContext.h"
 
 // Event Info 
 #include "EventInfo/EventIncident.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
 
 // AttributeList
 #include "CoralBase/Attribute.h"
@@ -156,8 +154,7 @@ StatusCode PixeldEdxTestAlg::readWithBeginRun(){
     ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", name() );
     ATH_CHECK( incSvc.retrieve() );
 
-    EventInfo evt(new EventID(run, event, time), new EventType);
-    EventIncident evtInc(evt, name(), "BeginRun");
+    EventIncident evtInc(name(), "BeginRun",Gaudi::Hive::currentContext());
     incSvc->fireIncident( evtInc );
 
     return StatusCode::SUCCESS;

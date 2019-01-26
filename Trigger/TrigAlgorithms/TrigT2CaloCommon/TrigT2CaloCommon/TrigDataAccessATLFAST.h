@@ -47,13 +47,8 @@
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "eformat/old/util.h"
 
-// Event Incident to get EventInfo
-#include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/Incident.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventIncident.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
