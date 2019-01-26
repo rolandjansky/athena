@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOEVENT_CALOTOWER_V1_H
@@ -83,14 +83,14 @@ namespace xAOD {
 
     /// @name Transient four-momentum store
     /// @{
-    static  double m_towerMass;              ///> @brief Convention @f$ m_{\mathrm{tower}} = 0 @f$.
+    static  const double m_towerMass;              ///> @brief Convention @f$ m_{\mathrm{tower}} = 0 @f$.
     /// @}
   };
 }
 
-inline float& xAOD::CaloTower_v1::f_ref_e()    { static Accessor<float> acc("towerE");      return acc(*this); }
+inline float& xAOD::CaloTower_v1::f_ref_e()    { static const Accessor<float> acc("towerE"); return acc(*this); }
 
-inline float xAOD::CaloTower_v1::f_val_e()    const { static ConstAccessor<float> acc("towerE");      return acc(*this); }
+inline float xAOD::CaloTower_v1::f_val_e()    const { static const ConstAccessor<float> acc("towerE");  return acc(*this); }
 
 ///! @class xAOD::CaloTower_v1
 ///

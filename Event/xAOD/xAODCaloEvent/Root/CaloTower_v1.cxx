@@ -1,15 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "xAODCaloEvent/versions/CaloTower_v1.h"
 #include "xAODCaloEvent/versions/CaloTowerContainer_v1.h"
-
-
 #include <cmath>
 
-double xAOD::CaloTower_v1::m_towerMass = 0.;
+const double xAOD::CaloTower_v1::m_towerMass = 0.;
 
 xAOD::CaloTower_v1::CaloTower_v1() 
   : IParticle() 
