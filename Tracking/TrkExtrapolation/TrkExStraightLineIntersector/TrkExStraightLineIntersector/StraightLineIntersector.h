@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////
@@ -14,6 +14,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkExInterfaces/IIntersector.h"
 #include "TrkExUtils/TrackSurfaceIntersection.h"
+#include <atomic>
 
 namespace Trk
 {
@@ -67,77 +68,85 @@ public:
 	{ return true; }
 	
 private:
-
     // private methods
-    void		distanceToCylinder (const double cylinderRadius);
-    void		distanceToDisc (const double discZ);
-    void		distanceToLine (const Amg::Vector3D&	linePosition,
-					const Amg::Vector3D&	lineDirection);
-    void		distanceToPlane (const Amg::Vector3D&	planePosition,
-					 const Amg::Vector3D&	planeNormal);
-    void		step (void);
+    double		distanceToCylinder (const TrackSurfaceIntersection& isect,
+                                            const double cylinderRadius) const;
+    double		distanceToDisc (const TrackSurfaceIntersection& isect,
+                                        const double discZ) const;
+    double		distanceToLine (const TrackSurfaceIntersection& isect,
+                                        const Amg::Vector3D&	linePosition,
+					const Amg::Vector3D&	lineDirection) const;
+    double		distanceToPlane (const TrackSurfaceIntersection& isect,
+                                         const Amg::Vector3D&	planePosition,
+					 const Amg::Vector3D&	planeNormal) const;
+    void		step (TrackSurfaceIntersection& isect, double stepLength) const;
     
-    // current parameters:
-    Amg::Vector3D		m_direction;
-    unsigned			m_intersectionNumber;
-    Amg::Vector3D		m_position;
-    double       		m_stepLength;
-    double			m_transverseLength;
-
     // counters
-    unsigned long long		m_countExtrapolations;
+    mutable std::atomic<unsigned long long>		m_countExtrapolations;
     
 };
 
 //<<<<<< INLINE PRIVATE MEMBER FUNCTIONS                                >>>>>>
 
-inline void
-StraightLineIntersector::distanceToCylinder (const double cylinderRadius)
+inline double
+StraightLineIntersector::distanceToCylinder (const TrackSurfaceIntersection& isect,
+                                             const double cylinderRadius) const
 {
-    double sinThsqinv	= 1./m_direction.perp2();
-    m_stepLength	= (-m_position.x()*m_direction.x() - m_position.y()*m_direction.y()) *
-			  sinThsqinv;
-    double deltaRSq	= (cylinderRadius*cylinderRadius - m_position.perp2())*sinThsqinv +
-			  m_stepLength*m_stepLength;
-    if (deltaRSq > 0.) m_stepLength += sqrt(deltaRSq);
+  const Amg::Vector3D& pos = isect.position();
+  const Amg::Vector3D& dir = isect.direction();
+  double sinThsqinv	= 1./dir.perp2();
+  double stepLength	= (-pos.x()*dir.x() - pos.y()*dir.y()) * sinThsqinv;
+  double deltaRSq	= (cylinderRadius*cylinderRadius - pos.perp2())*sinThsqinv +
+    stepLength*stepLength;
+  if (deltaRSq > 0.) stepLength += sqrt(deltaRSq);
+  return stepLength;
 }
     
-inline void
-StraightLineIntersector::distanceToDisc (const double discZ)
+inline double
+StraightLineIntersector::distanceToDisc (const TrackSurfaceIntersection& isect,
+                                         const double discZ) const
 {
-    m_stepLength	= (discZ - m_position.z())/m_direction.z();
+  const Amg::Vector3D& pos = isect.position();
+  const Amg::Vector3D& dir = isect.direction();
+  return (discZ - pos.z())/dir.z();
 }
 
-inline void
-  StraightLineIntersector::distanceToLine (const Amg::Vector3D&	linePosition,
-					   const Amg::Vector3D&	lineDirection)
+inline double
+StraightLineIntersector::distanceToLine (const TrackSurfaceIntersection& isect,
+                                         const Amg::Vector3D&	linePosition,
+                                         const Amg::Vector3D&	lineDirection) const
 {
-    // offset joining track to line is given by
-    //   offset = linePosition + a*lineDirection - trackPosition - b*trackDirection
-    // 
-    // offset is perpendicular to both line and track at solution i.e.
-    //   lineDirection.dot(offset) = 0
-    //   trackDirection.dot(offset) = 0
-    double cosAngle	= lineDirection.dot(m_direction);
-    m_stepLength	= (linePosition - m_position).dot(m_direction - lineDirection*cosAngle) /
-			  (1. - cosAngle*cosAngle);
+  // offset joining track to line is given by
+  //   offset = linePosition + a*lineDirection - trackPosition - b*trackDirection
+  // 
+  // offset is perpendicular to both line and track at solution i.e.
+  //   lineDirection.dot(offset) = 0
+  //   trackDirection.dot(offset) = 0
+  const Amg::Vector3D& pos = isect.position();
+  const Amg::Vector3D& dir = isect.direction();
+  double cosAngle	= lineDirection.dot(dir);
+  return (linePosition - pos).dot(dir - lineDirection*cosAngle) /
+      (1. - cosAngle*cosAngle);
 }
     
-inline void
-  StraightLineIntersector::distanceToPlane (const Amg::Vector3D&	planePosition,
-					    const Amg::Vector3D&	planeNormal)
+inline double
+  StraightLineIntersector::distanceToPlane (const TrackSurfaceIntersection& isect,
+                                            const Amg::Vector3D&	planePosition,
+					    const Amg::Vector3D&	planeNormal) const
 {
-    // take the normal component of the offset from track position to plane position
-    // this is equal to the normal component of the required distance along the track direction
-    m_stepLength	= planeNormal.dot(planePosition - m_position) /
-			  planeNormal.dot(m_direction);
+  // take the normal component of the offset from track position to plane position
+  // this is equal to the normal component of the required distance along the track direction
+  const Amg::Vector3D& pos = isect.position();
+  const Amg::Vector3D& dir = isect.direction();
+  return planeNormal.dot(planePosition - pos) / planeNormal.dot(dir);
 }
 
+    
 inline void
-StraightLineIntersector::step (void)
+StraightLineIntersector::step (TrackSurfaceIntersection& isect, double stepLength) const
 {
-    m_position		+= m_stepLength*m_direction;
-    m_transverseLength	+= m_stepLength;
+    isect.position()	+= stepLength*isect.direction();
+    isect.pathlength()	+= stepLength;
 }
 
     
