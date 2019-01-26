@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: NeutralParticle_v1.cxx 573493 2013-12-03 13:05:51Z emoyse $
 // Misc includes
 #include <bitset>
 #include <vector>
@@ -73,7 +72,6 @@ namespace xAOD {
 
   NeutralParticle_v1::GenVecFourMom_t NeutralParticle_v1::genvecP4() const {
     using namespace std;
-    // Check if we need to reset the cached object:
     float p = 1/fabs(oneOverP());
     float thetaT = theta();
     float phiT = phi();
@@ -87,7 +85,6 @@ namespace xAOD {
   NeutralParticle_v1::FourMom_t NeutralParticle_v1::p4() const {
     using namespace std;
     FourMom_t p4;
-    // Check if we need to reset the cached object:
     float p = 1/fabs(oneOverP());
     float thetaT = theta();
     float phiT = phi();
@@ -113,9 +110,9 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_GETTER(NeutralParticle_v1, float, oneOverP)
 
   const DefiningParameters_t& NeutralParticle_v1::definingParameters() const{
-    static DefiningParameters_t tmp;
-    tmp << d0(),z0(),phi0(),theta(),oneOverP();
-    return tmp;
+      static DefiningParameters_t tmp;
+      tmp << d0(),z0(),phi0(),theta(),oneOverP();
+      return tmp;
   }
 
   void NeutralParticle_v1::setDefiningParameters(float d0, float z0, float phi0, float theta, float oneOverP) {
@@ -124,19 +121,19 @@ namespace xAOD {
     delete m_perigeeParameters;
     m_perigeeParameters=0;
     #endif // not XAOD_STANDALONE and not XAOD_MANACORE
-    static Accessor< float > acc1( "d0" );
+    static const Accessor< float > acc1( "d0" );
     acc1( *this ) = d0;
 
-    static Accessor< float > acc2( "z0" );
+    static const Accessor< float > acc2( "z0" );
     acc2( *this ) = z0;
 
-    static Accessor< float > acc3( "phi" );
+    static const Accessor< float > acc3( "phi" );
     acc3( *this ) = phi0;
 
-    static Accessor< float > acc4( "theta" );
+    static const Accessor< float > acc4( "theta" );
     acc4( *this ) = theta;
 
-    static Accessor< float > acc5( "oneOverP" );
+    static const Accessor< float > acc5( "oneOverP" );
     acc5( *this ) = oneOverP;
 
     return;
@@ -149,7 +146,7 @@ namespace xAOD {
     m_perigeeParameters=0;
     #endif // not XAOD_STANDALONE and not XAOD_MANACORE
     
-    static Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
+    static const Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
     std::vector<float>& v = acc(*this);
     v.reserve(15);
     for (size_t irow = 0; irow<5; ++irow)
@@ -158,7 +155,7 @@ namespace xAOD {
   }
 
   const xAOD::ParametersCovMatrix_t& NeutralParticle_v1::definingParametersCovMatrix() const {
-    static Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
+    static const Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
     std::vector<float> v = acc(*this);
     std::vector<float>::const_iterator it = v.begin();
     static xAOD::ParametersCovMatrix_t cov; cov.setZero();
@@ -169,12 +166,12 @@ namespace xAOD {
   }
 
   const std::vector<float>& NeutralParticle_v1::definingParametersCovMatrixVec() const {
-    static Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
+    static const Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
     return acc(*this);
   }
 
   void NeutralParticle_v1::setDefiningParametersCovMatrixVec(const std::vector<float>& cov){
-    static Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
+    static const Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
     acc(*this)=cov;
   }
 
@@ -183,25 +180,25 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_GETTER(NeutralParticle_v1, float, vz)
 
   void NeutralParticle_v1::setParametersOrigin(float x, float y, float z){
-    static Accessor< float > acc1( "vx" );
+    static const Accessor< float > acc1( "vx" );
     acc1( *this ) = x;
 
-    static Accessor< float > acc2( "vy" );
+    static const Accessor< float > acc2( "vy" );
     acc2( *this ) = y;
 
-    static Accessor< float > acc3( "vz" );
+    static const Accessor< float > acc3( "vz" );
     acc3( *this ) = z;
   }
 
 #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
   const Trk::NeutralPerigee& NeutralParticle_v1::perigeeParameters() const {
     
-    static Accessor< float > acc1( "d0" );
-    static Accessor< float > acc2( "z0" );
-    static Accessor< float > acc3( "phi" );
-    static Accessor< float > acc4( "theta" );
-    static Accessor< float > acc5( "oneOverP" );
-    static Accessor< std::vector<float> > acc6( "definingParametersCovMatrix" );
+    static const Accessor< float > acc1( "d0" );
+    static const Accessor< float > acc2( "z0" );
+    static const Accessor< float > acc3( "phi" );
+    static const Accessor< float > acc4( "theta" );
+    static const Accessor< float > acc5( "oneOverP" );
+    static const Accessor< std::vector<float> > acc6( "definingParametersCovMatrix" );
     ParametersCovMatrix_t* cov = new ParametersCovMatrix_t;
     cov->setZero();
     auto it= acc6(*this).begin();

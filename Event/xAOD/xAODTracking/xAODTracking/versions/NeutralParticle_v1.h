@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: NeutralParticle_v1.h 573493 2013-12-03 13:05:51Z emoyse $
 #ifndef XAODTRACKING_VERSIONS_NEUTRALPARTICLE_V1_H
 #define XAODTRACKING_VERSIONS_NEUTRALPARTICLE_V1_H
 
@@ -43,10 +42,10 @@ namespace xAOD {
       NeutralParticle_v1();
       /// Destructor
       ~NeutralParticle_v1();
-    /// Copy ctor. This involves copying the entire Auxilary store, and is a slow operation which should be used sparingly.
-    NeutralParticle_v1(const NeutralParticle_v1& o );
-    /// Assignment operator. This can involve creating and copying an Auxilary store, and so should be used sparingly.
-    NeutralParticle_v1& operator=(const NeutralParticle_v1& tp );
+      /// Copy ctor. This involves copying the entire Auxilary store, and is a slow operation which should be used sparingly.
+      NeutralParticle_v1(const NeutralParticle_v1& o );
+      /// Assignment operator. This can involve creating and copying an Auxilary store, and so should be used sparingly.
+      NeutralParticle_v1& operator=(const NeutralParticle_v1& tp );
       
       /// @name xAOD::IParticle functions
       /// @{
