@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDAlignMonResiduals_H
@@ -18,6 +18,8 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "TrkParameters/TrackParameters.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -71,10 +73,10 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
 
   virtual ~IDAlignMonResiduals();
 
-  virtual StatusCode initialize();
-  virtual StatusCode bookHistograms();
-  virtual StatusCode fillHistograms();
-  virtual StatusCode procHistograms();
+  virtual StatusCode initialize() override;
+  virtual StatusCode bookHistograms() override;
+  virtual StatusCode fillHistograms() override;
+  virtual StatusCode procHistograms() override;
 
   void MakePIXBarrelHistograms (MonGroup& al_mon);
   void MakePIXEndCapsHistograms (MonGroup& al_mon);
@@ -886,6 +888,9 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   float m_z_fix{};
   int m_minIBLhits{};
   bool m_doIBLLBPlots{};
+
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey
+  { this, "EventInfoKey", "EventInfo", "" };
 };
 
 #endif
