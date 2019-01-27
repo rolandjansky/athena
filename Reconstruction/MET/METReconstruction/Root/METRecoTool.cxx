@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // METRecoTool.cxx 
@@ -48,6 +48,8 @@ namespace met {
   METRecoTool::METRecoTool(const std::string& name) : 
     AsgTool(name),
     m_doMetSum(false),
+    m_metbuilders(this),
+    m_metrefiners(this),
     m_nevt(0)
   {
     declareProperty( "METBuilders",        m_metbuilders         );
@@ -90,27 +92,8 @@ namespace met {
       ATH_MSG_INFO ("Will not sum MET in this container.");
     }
 
-    // retrieve builders
-    for(ToolHandleArray<IMETToolBase>::const_iterator iBuilder=m_metbuilders.begin();
-	iBuilder != m_metbuilders.end(); ++iBuilder) {
-      ToolHandle<IMETToolBase> tool = *iBuilder;
-      if( tool.retrieve().isFailure() ) {
-	ATH_MSG_FATAL("Failed to retrieve tool: " << tool->name());
-	return StatusCode::FAILURE;
-      };
-      ATH_MSG_INFO("Retrieved tool: " << tool->name() );
-    }
-
-    // retrieve refiners
-    for(ToolHandleArray<IMETToolBase>::const_iterator iRefiner=m_metrefiners.begin();
-	iRefiner != m_metrefiners.end(); ++iRefiner) {
-      ToolHandle<IMETToolBase> tool = *iRefiner;
-      if( tool.retrieve().isFailure() ) {
-	ATH_MSG_FATAL("Failed to retrieve tool: " << tool->name());
-	return StatusCode::FAILURE;
-      };
-      ATH_MSG_INFO("Retrieved tool: " << tool->name() );
-    }
+    ATH_CHECK( m_metbuilders.retrieve() );
+    ATH_CHECK( m_metrefiners.retrieve() );
 
     // generate clocks
     unsigned int ntool = m_metbuilders.size()+m_metrefiners.size();
