@@ -21,11 +21,11 @@
 // Athena includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadHandleKey.h"
 
 // Tile includes
 #include "TileConditions/TileCablingService.h"
 #include "TileEvent/TileDQstatus.h"
-#include "StoreGate/ReadHandleKey.h"
 #include "TileEvent/TileDigitsContainer.h"
 
 #include <cmath>

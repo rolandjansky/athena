@@ -230,6 +230,10 @@ StatusCode TileRawChNoiseCalibAlg::initialize() {
   ATH_CHECK( m_rawChannelContainerOF1Key.initialize(m_doOF1) );
   ATH_CHECK( m_rawChannelContainerMFKey.initialize(m_doMF) );
 
+  if (!m_eventInfoKey.key().empty()) {
+    ATH_CHECK( m_eventInfoKey.initialize() );
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -624,8 +628,8 @@ void TileRawChNoiseCalibAlg::StoreRunInfo(const TileDQstatus* dqStatus) {
     }
   } else { // monogain can use eventinfo
 
-    const xAOD::EventInfo* eventInfo(0);
-    if (evtStore()->retrieve(eventInfo).isFailure()) {
+    SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey); 
+    if ( !eventInfo.isValid() ) {
       ATH_MSG_ERROR( "No EventInfo object found! Can't read run number!" );
       m_run = 0;
       m_time = 0;

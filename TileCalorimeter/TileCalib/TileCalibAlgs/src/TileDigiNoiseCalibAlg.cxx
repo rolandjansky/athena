@@ -312,7 +312,6 @@ void TileDigiNoiseCalibAlg::StoreRunInfo (const TileDQstatus* dqStatus) {
   } else {// monogain can use eventinfo
 
     SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey); 
-
     if ( !eventInfo.isValid() ) {
       ATH_MSG_ERROR( "No EventInfo object found! Can't read run number!" );
       m_run = 0;

@@ -21,6 +21,7 @@
 // Athena includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 
 // Tile includes
 #include "TileConditions/TileCablingService.h"
@@ -116,6 +117,8 @@ class TileRawChNoiseCalibAlg: public AthAlgorithm {
     ToolHandle<TileCondIdTransforms> m_tileIdTrans;
     const uint32_t* m_cispar;
 
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,
+      "EventInfo", "EventInfo", "EventInfo key"};
     SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerFixedKey{this,
          "TileRawChannelContainerFixed", "TileRawChannelFixed", 
          "Input Tile raw channel container reconstructed with ATLAS method"};
