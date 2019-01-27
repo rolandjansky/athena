@@ -81,10 +81,6 @@ namespace xAOD {
     float f_val_e()    const;   ///< @brief Accessor for energy 
     /// @}
 
-    /// @name Transient four-momentum store
-    /// @{
-    static  const double m_towerMass;              ///> @brief Convention @f$ m_{\mathrm{tower}} = 0 @f$.
-    /// @}
   };
 }
 

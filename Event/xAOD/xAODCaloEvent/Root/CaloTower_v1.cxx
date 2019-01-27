@@ -7,7 +7,9 @@
 #include "xAODCaloEvent/versions/CaloTowerContainer_v1.h"
 #include <cmath>
 
-const double xAOD::CaloTower_v1::m_towerMass = 0.;
+namespace{
+const double s_towerMass{0.};
+}
 
 xAOD::CaloTower_v1::CaloTower_v1() 
   : IParticle() 
@@ -45,7 +47,7 @@ double xAOD::CaloTower_v1::phi()      const {
   return pTowCont->phi(index());
 }
 
-double xAOD::CaloTower_v1::m()        const { return m_towerMass; }
+double xAOD::CaloTower_v1::m()        const { return s_towerMass; }
 double xAOD::CaloTower_v1::rapidity() const { return eta(); }
 double xAOD::CaloTower_v1::pt()       const { return genvecP4().Pt(); } 
 
