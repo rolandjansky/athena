@@ -7,7 +7,7 @@
 
 // Local include(s):
 #include "EventInfoRunNumberFixAlg.h"
-#include "xAODEventInfo/EventInfoAuxContainer.h"
+#include "xAODEventInfo/EventAuxInfo.h"
 
 // Misc
 #include "CxxUtils/make_unique.h"
@@ -32,6 +32,9 @@ namespace xAOD {
 
   StatusCode EventInfoRunNumberFixAlg::execute() {
     
+
+    std::cout << "Running  EventInfoRunNumberFixAlg with new run number: " << m_runNumber << std::endl; 
+
     const SG::DataProxy* proxy =
     evtStore()->proxy (ClassID_traits<xAOD::EventInfo>::ID(),
                        m_containerName );
@@ -42,14 +45,13 @@ namespace xAOD {
     }
         
     xAOD::EventInfo* eventInfo=nullptr;
-    
     if (proxy->isConst()) {
       const xAOD::EventInfo* originalEventInfo = nullptr;
       ATH_CHECK( evtStore()->retrieve (originalEventInfo,
                                        m_containerName) );
-    
-      eventInfo = new xAOD::EventInfo(*originalEventInfo);
-      auto store = CxxUtils::make_unique<xAOD::EventInfoAuxContainer>();
+      eventInfo = new xAOD::EventInfo();
+      *eventInfo = *originalEventInfo;
+      auto store = CxxUtils::make_unique<xAOD::EventAuxInfo>();
       eventInfo->setStore (store.get());
       eventInfo->setRunNumber(m_runNumber);
         
@@ -60,12 +62,13 @@ namespace xAOD {
                                     m_containerName + "Aux.",
                                     true, false) );
     } else {
-      ATH_CHECK( evtStore()->retrieve (eventInfo,
-                                       "EventInfo") );
-      eventInfo->setRunNumber(m_runNumber);
+    ATH_CHECK( evtStore()->retrieve (eventInfo,
+                                     "EventInfo") );
+    eventInfo->setRunNumber(m_runNumber);
+
     }
-    
     return StatusCode::SUCCESS;
+
   }
 
-}
+} // xAOD namespace
