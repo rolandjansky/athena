@@ -789,24 +789,23 @@ if InDetTrigFlags.loadSummaryTool():
 # ----------- control loading of tools which are needed by new tracking and backtracking
 #
 
-if InDetTrigFlags.doNewTracking() or InDetTrigFlags.doBackTracking() or InDetTrigFlags.doTrtSegments():
-  # Igor's propagator and updator for the pattern
-  #
-  from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import Trk__RungeKuttaPropagator as Propagator
-  InDetTrigPatternPropagator = Propagator(name = 'InDetTrigPatternPropagator')
-  
-  ToolSvc += InDetTrigPatternPropagator
-  if (InDetTrigFlags.doPrintConfigurables()):
-     print      InDetTrigPatternPropagator
+# Igor's propagator and updator for the pattern
+#
+from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import Trk__RungeKuttaPropagator as Propagator
+InDetTrigPatternPropagator = Propagator(name = 'InDetTrigPatternPropagator')
 
-  # fast Kalman updator tool
-  #
-  from TrkMeasurementUpdator_xk.TrkMeasurementUpdator_xkConf import Trk__KalmanUpdator_xk
-  InDetTrigPatternUpdator = Trk__KalmanUpdator_xk(name = 'InDetTrigPatternUpdator')
+ToolSvc += InDetTrigPatternPropagator
+if (InDetTrigFlags.doPrintConfigurables()):
+   print      InDetTrigPatternPropagator
 
-  ToolSvc += InDetTrigPatternUpdator
-  if (InDetTrigFlags.doPrintConfigurables()):
-     print      InDetTrigPatternUpdator
+# fast Kalman updator tool
+#
+from TrkMeasurementUpdator_xk.TrkMeasurementUpdator_xkConf import Trk__KalmanUpdator_xk
+InDetTrigPatternUpdator = Trk__KalmanUpdator_xk(name = 'InDetTrigPatternUpdator')
+
+ToolSvc += InDetTrigPatternUpdator
+if (InDetTrigFlags.doPrintConfigurables()):
+   print      InDetTrigPatternUpdator
 
 
 #
@@ -844,104 +843,91 @@ if (InDetTrigFlags.doPrintConfigurables()):
 
 
 
-    #default
+# SCT and Pixel detector elements road builder
+#
+from SiDetElementsRoadTool_xk.SiDetElementsRoadTool_xkConf import InDet__SiDetElementsRoadMaker_xk
 
-# from here if InDetTrigFlags.doSiSPSeededTrackFinder():
-# was unable to import with this condition from L2 TRTSegMaker
-
-#if InDetTrigFlags.doSiSPSeededTrackFinder():
-if InDetTrigFlags.doNewTracking():
-  # SCT and Pixel detector elements road builder
-  #
-  from SiDetElementsRoadTool_xk.SiDetElementsRoadTool_xkConf import InDet__SiDetElementsRoadMaker_xk
-
-  InDetTrigSiDetElementsRoadMaker = \
-                                  InDet__SiDetElementsRoadMaker_xk(name = 'InDetTrigSiDetElementsRoadMaker',
-                                                                   PropagatorTool = InDetTrigPatternPropagator,
-                                                                   usePixel     = DetFlags.haveRIO.pixel_on(), 
-                                                                   useSCT       = DetFlags.haveRIO.SCT_on(),
-                                                                   RoadWidth    = InDetTrigCutValues.RoadWidth()
-                                                                   )
-  ToolSvc += InDetTrigSiDetElementsRoadMaker
+InDetTrigSiDetElementsRoadMaker = \
+                                InDet__SiDetElementsRoadMaker_xk(name = 'InDetTrigSiDetElementsRoadMaker',
+                                                                 PropagatorTool = InDetTrigPatternPropagator,
+                                                                 usePixel     = DetFlags.haveRIO.pixel_on(), 
+                                                                 useSCT       = DetFlags.haveRIO.SCT_on(),
+                                                                 RoadWidth    = InDetTrigCutValues.RoadWidth()
+                                                                 )
+ToolSvc += InDetTrigSiDetElementsRoadMaker
 
 
-  # Local combinatorial track finding using space point seed and detector element road
-  #
-  from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiCombinatorialTrackFinder_xk
-  InDetTrigSiComTrackFinder = \
-                            InDet__SiCombinatorialTrackFinder_xk(name = 'InDetTrigSiComTrackFinder',
-                                                                 PropagatorTool	= InDetTrigPatternPropagator,
-                                                                 UpdatorTool	= InDetTrigPatternUpdator,
-                                                                 RIOonTrackTool   = InDetTrigRotCreator,
-                                                                 AssosiationTool  = InDetTrigPrdAssociationTool,
-                                                                 usePixel         = DetFlags.haveRIO.pixel_on(),
-                                                                 useSCT           = DetFlags.haveRIO.SCT_on(),   
-                                                                 PixelClusterContainer = 'PixelTrigClusters',
-                                                                 SCT_ClusterContainer = 'SCT_TrigClusters',
-                                                                 PixelSummarySvc = InDetTrigPixelConditionsSummarySvc,
-                                                                 SctSummarySvc = InDetTrigSCTConditionsSummarySvc
-                                                                 )															
-  ToolSvc += InDetTrigSiComTrackFinder
-  #to here
+# Local combinatorial track finding using space point seed and detector element road
+#
+from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiCombinatorialTrackFinder_xk
+InDetTrigSiComTrackFinder = \
+                          InDet__SiCombinatorialTrackFinder_xk(name = 'InDetTrigSiComTrackFinder',
+                                                               PropagatorTool	= InDetTrigPatternPropagator,
+                                                               UpdatorTool	= InDetTrigPatternUpdator,
+                                                               RIOonTrackTool   = InDetTrigRotCreator,
+                                                               AssosiationTool  = InDetTrigPrdAssociationTool,
+                                                               usePixel         = DetFlags.haveRIO.pixel_on(),
+                                                               useSCT           = DetFlags.haveRIO.SCT_on(),   
+                                                               PixelClusterContainer = 'PixelTrigClusters',
+                                                               SCT_ClusterContainer = 'SCT_TrigClusters',
+                                                               PixelSummarySvc = InDetTrigPixelConditionsSummarySvc,
+                                                               SctSummarySvc = InDetTrigSCTConditionsSummarySvc
+                                                               )															
+ToolSvc += InDetTrigSiComTrackFinder
 
-#move 
-if InDetTrigFlags.doAmbiSolving():
-
-  from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetAmbiTrackSelectionTool
-  InDetTrigAmbiTrackSelectionTool = \
-      InDet__InDetAmbiTrackSelectionTool(name               = 'InDetTrigAmbiTrackSelectionTool',
-                                         AssociationTool    = InDetTrigPrdAssociationTool,
-                                         DriftCircleCutTool = InDetTrigTRTDriftCircleCut,
-                                         minHits         = InDetTrigCutValues.minClusters(),
-                                         minNotShared    = InDetTrigCutValues.minSiNotShared(),
-                                         maxShared       = InDetTrigCutValues.maxShared(),
-                                         minTRTHits      = 0,  # used for Si only tracking !!!
-                                         Cosmics         = False,  #there is a different instance
-                                         UseParameterization = False,
-                                         # sharedProbCut   = 0.10,
-                                         # doPixelSplitting = InDetTrigFlags.doPixelClusterSplitting()
-                                         )
-   
-   
-  ToolSvc += InDetTrigAmbiTrackSelectionTool
-  if (InDetTrigFlags.doPrintConfigurables()):
-    print InDetTrigAmbiTrackSelectionTool
+from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetAmbiTrackSelectionTool
+InDetTrigAmbiTrackSelectionTool = \
+    InDet__InDetAmbiTrackSelectionTool(name               = 'InDetTrigAmbiTrackSelectionTool',
+                                       AssociationTool    = InDetTrigPrdAssociationTool,
+                                       DriftCircleCutTool = InDetTrigTRTDriftCircleCut,
+                                       minHits         = InDetTrigCutValues.minClusters(),
+                                       minNotShared    = InDetTrigCutValues.minSiNotShared(),
+                                       maxShared       = InDetTrigCutValues.maxShared(),
+                                       minTRTHits      = 0,  # used for Si only tracking !!!
+                                       Cosmics         = False,  #there is a different instance
+                                       UseParameterization = False,
+                                       # sharedProbCut   = 0.10,
+                                       # doPixelSplitting = InDetTrigFlags.doPixelClusterSplitting()
+                                       )
+ 
+ 
+ToolSvc += InDetTrigAmbiTrackSelectionTool
+if (InDetTrigFlags.doPrintConfigurables()):
+  print InDetTrigAmbiTrackSelectionTool
 
 
 
-if InDetTrigFlags.doNewTracking():
+#
+# ------ load new track selector (common for all vertexing algorithms, except for the moment VKalVrt
+#
+from InDetTrigRecExample.ConfiguredVertexingTrigCuts import EFIDVertexingCuts
+from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
 
-  #
-  # ------ load new track selector (common for all vertexing algorithms, except for the moment VKalVrt
-  #
-  from InDetTrigRecExample.ConfiguredVertexingTrigCuts import EFIDVertexingCuts
-  from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
-
-  InDetTrigTrackSelectorTool = \
-      InDet__InDetTrackSelectionTool(name = "InDetTrigDetailedTrackSelectorTool",
-                                     CutLevel                   =  EFIDVertexingCuts.TrackCutLevel(),
-                                     minPt                      =  EFIDVertexingCuts.minPT(),
-                                     maxD0			=  EFIDVertexingCuts.IPd0Max(),
-                                     maxZ0			=  EFIDVertexingCuts.z0Max(),
-                                     maxZ0SinTheta              =  EFIDVertexingCuts.IPz0Max(),
-                                     maxSigmaD0 = EFIDVertexingCuts.sigIPd0Max(),
-                                     maxSigmaZ0SinTheta = EFIDVertexingCuts.sigIPz0Max(),
-                                     # maxChiSqperNdf = EFIDVertexingCuts.fitChi2OnNdfMax(), # Seems not to be implemented?
-                                     maxAbsEta = EFIDVertexingCuts.etaMax(),
-                                     minNInnermostLayerHits = EFIDVertexingCuts.nHitInnermostLayer(),
-                                     minNPixelHits = EFIDVertexingCuts.nHitPix(),
-                                     maxNPixelHoles = EFIDVertexingCuts.nHolesPix(),
-                                     minNSctHits = EFIDVertexingCuts.nHitSct(),
-                                     minNTrtHits = EFIDVertexingCuts.nHitTrt(),
-                                     minNSiHits = EFIDVertexingCuts.nHitSi(),
-                                     TrackSummaryTool =  InDetTrigTrackSummaryTool,
-                                     Extrapolator     = InDetTrigExtrapolator,
-                                     #TrtDCCutTool     = InDetTrigTRTDriftCircleCut,
-                                     )
+InDetTrigTrackSelectorTool = \
+    InDet__InDetTrackSelectionTool(name = "InDetTrigDetailedTrackSelectorTool",
+                                   CutLevel                   =  EFIDVertexingCuts.TrackCutLevel(),
+                                   minPt                      =  EFIDVertexingCuts.minPT(),
+                                   maxD0			=  EFIDVertexingCuts.IPd0Max(),
+                                   maxZ0			=  EFIDVertexingCuts.z0Max(),
+                                   maxZ0SinTheta              =  EFIDVertexingCuts.IPz0Max(),
+                                   maxSigmaD0 = EFIDVertexingCuts.sigIPd0Max(),
+                                   maxSigmaZ0SinTheta = EFIDVertexingCuts.sigIPz0Max(),
+                                   # maxChiSqperNdf = EFIDVertexingCuts.fitChi2OnNdfMax(), # Seems not to be implemented?
+                                   maxAbsEta = EFIDVertexingCuts.etaMax(),
+                                   minNInnermostLayerHits = EFIDVertexingCuts.nHitInnermostLayer(),
+                                   minNPixelHits = EFIDVertexingCuts.nHitPix(),
+                                   maxNPixelHoles = EFIDVertexingCuts.nHolesPix(),
+                                   minNSctHits = EFIDVertexingCuts.nHitSct(),
+                                   minNTrtHits = EFIDVertexingCuts.nHitTrt(),
+                                   minNSiHits = EFIDVertexingCuts.nHitSi(),
+                                   TrackSummaryTool =  InDetTrigTrackSummaryTool,
+                                   Extrapolator     = InDetTrigExtrapolator,
+                                   #TrtDCCutTool     = InDetTrigTRTDriftCircleCut,
+                                   )
 
 
 
-  ToolSvc += InDetTrigTrackSelectorTool
-  if (InDetTrigFlags.doPrintConfigurables()):
-    print      InDetTrigTrackSelectorTool
+ToolSvc += InDetTrigTrackSelectorTool
+if (InDetTrigFlags.doPrintConfigurables()):
+  print      InDetTrigTrackSelectorTool
 
