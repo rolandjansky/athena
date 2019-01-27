@@ -17,6 +17,8 @@
 #include "../EventInfoMCWeightFixAlg.h"
 #include "../EventInfoRunNumberFixAlg.h"
 
+using namespace xAOD;
+
 DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, EventInfoCnvTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, EventInfoSelectorTool )
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, EventInfoCnvAlg )
