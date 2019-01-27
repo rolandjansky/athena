@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //  ***************************************************************************
 //  *   Author: John Morris (john.morris@cern.ch)                             *
@@ -9,6 +9,7 @@
 // Like it says above, please chop up this code until it does what you want !
 
 #include "TrigT1CaloCalibTools/L1CaloxAODOfflineTriggerTowerTools.h"
+#include "StoreGate/ReadHandle.h"
 
 #include <algorithm> // for std::transform
 #include <iterator> // for std::back_inserter
@@ -24,8 +25,6 @@ namespace LVL1{
     m_caloMgr(nullptr),
     m_lvl1Helper(nullptr),
     m_ttSvc(nullptr),
-    m_sgKey_CaloCells("AllCalo"),
-    m_sgKey_dbPpmChanCalib("/TRIGGER/L1Calo/V1/Calibration/Physics/PprChanCalib"),
     m_dbPpmChanCalib(nullptr)
   {      
   }
@@ -53,8 +52,9 @@ namespace LVL1{
 
     CHECK( svcLoc->service( "ToolSvc",toolSvc  ) );
     CHECK( toolSvc->retrieveTool("CaloTriggerTowerService",m_ttSvc) );
-   
-    
+
+    CHECK( m_caloCellContainerKey.initialize() );
+
     // Return gracefully:    
     return StatusCode::SUCCESS; 
   }
@@ -71,26 +71,11 @@ namespace LVL1{
   StatusCode                                 
   L1CaloxAODOfflineTriggerTowerTools::initCaloCells()
   {
-    if( ! evtStore()->contains< CaloCellContainer >( m_sgKey_CaloCells ) ){
-      ATH_MSG_INFO("Could not find CaloCellContainer with key "<<m_sgKey_CaloCells);
-      return StatusCode::FAILURE;
-    }
-    
-    const CaloCellContainer* cells(nullptr);
-    CHECK( evtStore()->retrieve( cells , m_sgKey_CaloCells ) );
+    SG::ReadHandle<CaloCellContainer> cells (m_caloCellContainerKey);
     m_cells2tt->initCaloCellsTriggerTowers( *cells );
     
     // Return gracefully:
     return StatusCode::SUCCESS;      
-  }
-  
-  StatusCode                                 
-  L1CaloxAODOfflineTriggerTowerTools::initDatabase()
-  {
-    CHECK( evtStore()->retrieve( m_dbPpmChanCalib , m_sgKey_dbPpmChanCalib ) );
-    
-    // Return gracefully:
-    return StatusCode::SUCCESS;     
   }
   
   std::vector<L1CaloRxCoolChannelId>         
