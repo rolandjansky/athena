@@ -52,6 +52,10 @@ dqm_algorithms::MDTTDCOfflineSpectrum::execute(	const std::string &  name,
   }
 
   const double minstat = dqm_algorithms::tools::GetFirstFromMap( "MinStat", config.getParameters(), -1);
+  /*
+  const bool publish = (bool) dqm_algorithms::tools::GetFirstFromMap( "PublishBins", config.getParameters(), 0); 
+  const int maxpublish = (int) dqm_algorithms::tools::GetFirstFromMap( "MaxPublish", config.getParameters(), 20); 
+  */
   
   if (histogram->GetEntries() < minstat ) {
     dqm_core::Result *result = new dqm_core::Result(dqm_core::Result::Undefined);
