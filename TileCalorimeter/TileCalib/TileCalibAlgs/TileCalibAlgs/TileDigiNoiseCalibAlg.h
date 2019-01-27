@@ -20,6 +20,7 @@
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "xAODEventInfo/EventInfo.h"
 
 // Tile includes
 #include "TileConditions/TileCablingService.h"
@@ -86,6 +87,8 @@ class TileDigiNoiseCalibAlg: public AthAlgorithm {
     SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
     SG::ReadHandleKey<TileDigitsContainer> m_digitsContainerKey{this,
       "TileDigitsContainer", "TileDigitsCnt", "Tile digits container"};
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,
+      "EventInfo", "EventInfo", "EventInfo key"};
 
   // Tools / storegate info
     ToolHandle<TileRawChannelBuilderFlatFilter> m_adderFilterAlgTool;

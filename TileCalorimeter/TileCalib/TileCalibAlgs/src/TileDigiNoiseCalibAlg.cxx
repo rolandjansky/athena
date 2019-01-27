@@ -110,6 +110,12 @@ StatusCode TileDigiNoiseCalibAlg::initialize() {
 
   CHECK( m_dqStatusKey.initialize() );
 
+  if (!m_eventInfoKey.key().empty()) {
+    ATH_CHECK( m_eventInfoKey.initialize() );
+  }
+  // TileDigitsContainer initialization
+  ATH_CHECK( m_digitsContainerKey.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -119,9 +125,6 @@ StatusCode TileDigiNoiseCalibAlg::FirstEvt_initialize() {
 
   // find TileCablingService
   m_cabling = TileCablingService::getInstance();
-
-  // TileDigitsContainer initialization
-  ATH_CHECK( m_digitsContainerKey.initialize() );
 
   // retrieve TileID helper from det store
   CHECK( detStore()->retrieve(m_tileID) );
@@ -308,8 +311,9 @@ void TileDigiNoiseCalibAlg::StoreRunInfo (const TileDQstatus* dqStatus) {
     }
   } else {// monogain can use eventinfo
 
-    const xAOD::EventInfo* eventInfo(0);
-    if (evtStore()->retrieve(eventInfo).isFailure()) {
+    SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey); 
+
+    if ( !eventInfo.isValid() ) {
       ATH_MSG_ERROR( "No EventInfo object found! Can't read run number!" );
       m_run = 0;
       m_time = 0;
@@ -322,6 +326,7 @@ void TileDigiNoiseCalibAlg::StoreRunInfo (const TileDQstatus* dqStatus) {
       else
         m_trigType = 0;
     }
+
   }
 
   if (m_time != 0) {
