@@ -1133,19 +1133,12 @@ class TrigHLTSoftKiller(TrigHLTJetRecConf.TrigHLTSoftKiller):
         self.voronoiTool = voronoiTool
         modifiers = [self.voronoiTool, self.skWeightTool]
 
-        # We only want an EM tool if we are working with EM clusters
-        # The tool should be used before calling SoftKiller (prepend to list)
-        if cluster_calib == "EM":
-            emTool = ClusterAtEMScaleTool('emTool_'+name+'_'+cluster_calib)
-            jtm.add(emTool)
-            self.emTool = emTool
-            modifiers.insert(0,self.emTool)
-        
         skclustModSeq = JetConstituentModSequence('ClustModifSequence_'+name+'_'+cluster_calib,
                                                  InputContainer = "CaloCalTopoClusters",
                                                  OutputContainer = self.output_collection_label,
                                                  InputType = "CaloCluster",
                                                  Trigger = True,
+                                                 EMTrigger = (cluster_calib=="EM"),
                                                  Modifiers = modifiers
                                                  )
         jtm.add(skclustModSeq)

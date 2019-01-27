@@ -36,6 +36,7 @@ protected:
   const xAOD::IParticleContainer* m_trigInputClusters; // used in trigger context only
   mutable xAOD::IParticleContainer* m_trigOutputClusters;
   bool m_trigger;
+  bool m_isEMTrigger;
   
   // P-A : a property defining the type name of the input constituent
   std::string m_inputTypeName = "CaloCluster"; // MEN: Check this 

@@ -20,6 +20,7 @@
 #include "xAODPFlow/PFO.h"
 #include "xAODPFlow/PFOContainer.h"
 #include "xAODPFlow/PFOAuxContainer.h"
+#include "xAODCaloEvent/CaloClusterChangeSignalState.h"
 
 JetConstituentModSequence::JetConstituentModSequence(const std::string &name): asg::AsgTool(name), m_trigInputClusters(NULL), m_trigOutputClusters(NULL) {
 
@@ -31,6 +32,7 @@ JetConstituentModSequence::JetConstituentModSequence(const std::string &name): a
   declareProperty("InputType", m_inputTypeName, "The xAOD type name for the input container.");
   declareProperty("Modifiers", m_modifiers, "List of IJet tools.");
   declareProperty("Trigger", m_trigger=false);
+  declareProperty("EMTrigger", m_isEMTrigger=false);
   declareProperty("SaveAsShallow", m_saveAsShallow=true, "Save as shallow copy");
 
 }
@@ -94,6 +96,15 @@ int JetConstituentModSequence::execute() const {
     return 1;
   }
 
+  std::vector<CaloClusterChangeSignalState*> signalStateList;
+  if(m_trigger && m_isEMTrigger){
+    xAOD::CaloClusterContainer* clust = dynamic_cast<xAOD::CaloClusterContainer*> (modifiedCont); // Get CaloCluster container
+    for(xAOD::CaloCluster* cl : *clust) {
+      CaloClusterChangeSignalState *clusterChanger = new CaloClusterChangeSignalState (cl, xAOD::CaloCluster::State(0));
+      signalStateList.push_back(clusterChanger);
+    }
+  }
+
   // Now pass the input container shallow copy through the modifiers 
 
   // Loop over the modifier tools:
@@ -101,6 +112,12 @@ int JetConstituentModSequence::execute() const {
     if(t->process(modifiedCont).isFailure()){
       ATH_MSG_WARNING("Failure in modifying constituents " << m_outputContainer );
       return 1;
+    }
+  }
+
+  if(m_trigger && m_isEMTrigger){
+    for(unsigned int i=0; i<signalStateList.size(); i++){
+      delete signalStateList[i];
     }
   }
   
