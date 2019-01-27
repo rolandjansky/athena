@@ -26,6 +26,7 @@
 #include <TROOT.h>
 #include <TH1.h>
 #include <TGraph.h>
+#include <TEfficiency.h>
 
 #include "dqm_core/exceptions.h"
 #include "dqm_core/OutputListener.h"
@@ -57,6 +58,9 @@ bool setNameGeneral(TObject* obj, const std::string& name) {
       return true;
     } else if (TGraph* g=dynamic_cast<TGraph*>(obj)) {
       g->SetName(name.c_str());
+      return true;
+    } else if (TEfficiency* e=dynamic_cast<TEfficiency*>(obj)) {
+      e->SetName(name.c_str());
       return true;
     } else {
       TClass* kl = obj->IsA();
@@ -263,7 +267,10 @@ flushResults()
 		  	TKey* key = getObjKey(m_input, storename);
 		  	if( key != 0 ) {
 		  		const char* className = key->GetClassName();
-		  		if( (strncmp(className, "TH", 2) == 0) || (strncmp(className, "TGraph", 6) == 0) || (strncmp(className, "TProfile", 8) == 0) ) {
+		  		if( (strncmp(className, "TH", 2) == 0) 
+                                 || (strncmp(className, "TGraph", 6) == 0) 
+                                 || (strncmp(className, "TProfile", 8) == 0)
+                                 || (strncmp(className, "TEfficiency", 11) == 0) ) {
 				  TNamed* transobj = dynamic_cast<TNamed*>(key->ReadObj());
 				  if (transobj != NULL) {
 				    HanHistogramLink* hhl = new HanHistogramLink(m_input, storename);
@@ -373,13 +380,21 @@ static void WriteListToDirectory(TDirectory *dir, TSeqCollection *list, TFile* f
         str = tmp;
         tmp = strtok(0, "/");
       }
-      TDirectory* daughter = dir->mkdir(str);
+      TDirectory* daughter;
+      if (!dir->FindKey(str)) {
+	daughter = dir->mkdir(str);
+      }
+      else{ 
+	std::cout << "Failed to make " << str << " from " << tmpList->GetName() << std::endl;
+	continue; 
+      }
       WriteListToDirectory(daughter, tmpList, file, level-1);
       if (level > 0) { file->Write(); delete daughter; }
     }
     else if ((strncmp(obj->ClassName(), "TH", 2) == 0)
 	     || (strncmp(obj->ClassName(), "TGraph", 6) == 0)
-	     || (strncmp(obj->ClassName(), "TProfile", 8) ==0)) {
+	     || (strncmp(obj->ClassName(), "TProfile", 8) ==0)
+             || (strncmp(obj->ClassName(), "TEfficiency", 11) == 0) ) {
       dir->GetMotherDir()->WriteTObject(obj);
     } else {
       // anything else put it in current directory
