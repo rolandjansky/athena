@@ -38,10 +38,15 @@ class AODFix_r210(AODFix_base):
 
             logAODFix_r210.debug("Executing AODFix_r210_postSystemRec")
 
+            print '---------->>>>> Running r21 AOD fix ************************************************************** '
+
             from AthenaCommon.AlgSequence import AlgSequence
             topSequence = AlgSequence()
 
             oldMetadataList = self.prevAODFix.split("-")
+            
+            self.evtInfo_postSystemRec(topSequence)
+
             if "trklinks" not in oldMetadataList:
                 self.trklinks_postSystemRec(topSequence)
                 pass
@@ -85,6 +90,14 @@ class AODFix_r210(AODFix_base):
 
     # Below are the individual AODfixes, split up and documented
     # Name must follow format: <fixID>_<whereCalled>
+
+    def evtInfo_postSystemRec(self, topSequence): 
+
+        print 'Running evtInfo_postSystemRec fix !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+        # This needs to grab the correct number; and check metadata for differences
+        from xAODEventInfoCnv.xAODEventInfoCnvConf import xAOD__EventInfoRunNumberFixAlg 
+        EventInfoRunNumberFixAlg = xAOD__EventInfoRunNumberFixAlg(RunNumber = 366032)
+        topSequence+=EventInfoRunNumberFixAlg
 
 
     def trklinks_postSystemRec(self, topSequence):
