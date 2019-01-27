@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __IZDCRECTOOL_H__
-#define __IZDCRECTOOL_H__
+#ifndef ZDCANALYSIS_IZDCRECTOOL_H
+#define ZDCANALYSIS_IZDCRECTOOL_H
 
 #include "AsgTools/IAsgTool.h"
 #include "xAODForward/ZdcModuleContainer.h"
@@ -21,7 +21,6 @@ class IZdcAnalysisTool : virtual public asg::IAsgTool
   virtual StatusCode initializeTool() = 0;
   virtual StatusCode recoZdcModule(const xAOD::ZdcModule& module) = 0;
   virtual StatusCode recoZdcModules(const xAOD::ZdcModuleContainer& moduleContainer) = 0;
-  virtual StatusCode reprocessZdc() = 0;
 };
 
 }

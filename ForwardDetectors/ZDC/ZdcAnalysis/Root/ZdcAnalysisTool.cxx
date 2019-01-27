@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ZdcAnalysis/ZdcAnalysisTool.h"
@@ -28,7 +28,6 @@ namespace ZDC
    declareInterface<IZdcAnalysisTool>(this);
 #endif
 
-  declareProperty("ZdcModuleContainerName",m_zdcModuleContainerName="ZdcModules","Location of ZDC processed data");
   declareProperty("EventInfoKey",          m_eventInfoKey,          "Location of the event info.");
   declareProperty("ZdcModuleWriteKey",     m_ZdcModuleWriteKey,     "Output location of ZDC reprocessed data");
   declareProperty("Configuration", m_configuration = "PbPb2015");
@@ -586,7 +585,6 @@ StatusCode ZdcAnalysisTool::initializeTool()
   ATH_MSG_INFO("ChisqRatioCut: "<<m_ChisqRatioCut);
 
   ATH_CHECK( m_eventInfoKey.initialize());
-  ATH_CHECK( m_zdcModuleContainerName.initialize());
   ATH_CHECK( m_ZdcModuleWriteKey.initialize() );
 
   return StatusCode::SUCCESS;
@@ -916,16 +914,6 @@ void ZdcAnalysisTool::setTimeCalibrations(unsigned int runNumber)
     }
   m_zdcDataAnalyzer->LoadT0Calibrations(T0HGOffsetSplines,T0LGOffsetSplines);
   fCalib->Close();
-}
-
-StatusCode ZdcAnalysisTool::reprocessZdc()
-{
-  SG::ReadHandle<xAOD::ZdcModuleContainer> zdc_modules(m_zdcModuleContainerName);
-  if (!zdc_modules.isValid()) return StatusCode::FAILURE;
-
-  ATH_CHECK(recoZdcModules(*zdc_modules));
-
-  return StatusCode::SUCCESS;
 }
 
   bool ZdcAnalysisTool::sigprocMaxFinder(const std::vector<unsigned short>& adc, float deltaT, float& amp, float& time, float& qual)
