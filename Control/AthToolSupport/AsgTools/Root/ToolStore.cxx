@@ -1,4 +1,6 @@
-// $Id: ToolStore.cxx 802972 2017-04-15 18:13:17Z krumnack $
+//
+// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+//
 
 // System include(s):
 #include <map>
