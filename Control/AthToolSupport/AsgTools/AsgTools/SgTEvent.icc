@@ -1,5 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: SgTEvent.icc 687011 2015-08-03 09:25:07Z krasznaa $
+//
+// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef ASGTOOLS_SGTEVENT_ICC
 #define ASGTOOLS_SGTEVENT_ICC
 

@@ -1,3 +1,10 @@
+// Dear emacs, this is -*- c++ -*-
+//
+// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+//
+#ifndef ASGTOOLS_ANATOOLHANDLE_ICC
+#define ASGTOOLS_ANATOOLHANDLE_ICC
+
 #include <AsgTools/MessageCheck.h>
 #include <assert.h>
 #include <cstdlib>
@@ -1345,3 +1352,5 @@ namespace asg
     m_allowEmpty = val_allowEmpty;
   }
 }
+
+#endif // ASGTOOLS_ANATOOLHANDLE_ICC
