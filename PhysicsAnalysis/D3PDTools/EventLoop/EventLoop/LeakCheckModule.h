@@ -28,7 +28,7 @@ namespace EL
       //
 
     public:
-      virtual ::StatusCode postInitialize (ModuleData& data) override;
+      virtual ::StatusCode postFirstEvent (ModuleData& data) override;
 
     public:
       virtual ::StatusCode onWorkerEnd (ModuleData& data) override;

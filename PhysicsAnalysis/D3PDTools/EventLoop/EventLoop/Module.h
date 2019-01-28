@@ -70,6 +70,18 @@ namespace EL
       virtual ::StatusCode postInitialize (ModuleData& data);
 
 
+      /// \brief action after processing first event
+      ///
+      /// This is mostly meant to set up benchmarks that record
+      /// per-event performance.  While a lot of initialization
+      /// happens during `initialize()` there is a fair amount of
+      /// initialization that happens on the first event, so when
+      /// recording per-event performance the first event is sort of
+      /// "special" and may need to be omitted.
+    public:
+      virtual ::StatusCode postFirstEvent (ModuleData& data);
+
+
       /// \brief actions after opening a new input file
     public:
       virtual ::StatusCode onNewInputFile (ModuleData& data);

@@ -30,7 +30,7 @@ namespace EL
   namespace Detail
   {
     ::StatusCode LeakCheckModule ::
-    postInitialize (ModuleData& /*data*/)
+    postFirstEvent (ModuleData& /*data*/)
     {
       using namespace msgEventLoop;
 
@@ -42,6 +42,7 @@ namespace EL
       }
       m_initMemResident = pinfo.fMemResident;
       m_initMemVirtual = pinfo.fMemVirtual;
+      ANA_MSG_DEBUG ("starting memory: " << pinfo.fMemResident << " " << pinfo.fMemVirtual);
       return ::StatusCode::SUCCESS;
     }
 
@@ -61,6 +62,7 @@ namespace EL
         }
         m_finMemResident = pinfo.fMemResident;
         m_finMemVirtual = pinfo.fMemVirtual;
+        ANA_MSG_DEBUG ("finishing memory: " << pinfo.fMemResident << " " << pinfo.fMemVirtual);
 
         // Save the memory increase values into the job statistics tree.
         RCU_ASSERT (data.m_jobStats != nullptr);
