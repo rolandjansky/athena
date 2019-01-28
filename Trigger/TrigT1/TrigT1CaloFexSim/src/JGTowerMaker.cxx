@@ -33,7 +33,6 @@ JGTowerMaker::JGTowerMaker( const std::string& name, ISvcLocator* pSvcLocator ) 
 
 JGTowerMaker::~JGTowerMaker() {
 
-
   jT.clear();
   gT.clear();
 }
@@ -68,19 +67,25 @@ StatusCode JGTowerMaker::FexAlg(std::vector<JGTower*> jgT, xAOD::JGTowerContaine
 
   const CaloCellContainer* scells = 0;
   CHECK( evtStore()->retrieve( scells, m_scType.data()) );
+  const CaloCellContainer* cells = 0;
+  CHECK( evtStore()->retrieve( cells, "AllCalo") );
+  const xAOD::TriggerTowerContainer* TTs;
+  if(evtStore()->retrieve(TTs,"xAODTriggerTowers").isFailure() ) {
+    ATH_MSG_INFO("ERROR loading trigger tower");
+    return StatusCode::FAILURE;
+  }
+
 
   for (unsigned hs=0;hs<jgT.size();++hs){
       
-      xAOD::JGTower* m_trigTower = new xAOD::JGTower();
-      jgTContainer->push_back(m_trigTower);
       JGTower*jgt = jgT.at(hs);      
-      m_trigTower->initialize(hs,jgt->Eta(),jgt->Phi());
       float jgEt=0;
       float lar_et=0;
       float tile_et=0;
       std::vector<int> jgTowerTileIndex = jgt->GetTileIndices();
 
       std::vector<int> jgTowerSCIndex = jgt->GetSCIndices();
+
       //Filling tower energy with SC
  
       for(unsigned i=0; i<jgTowerSCIndex.size(); i++){
@@ -92,10 +97,9 @@ StatusCode JGTowerMaker::FexAlg(std::vector<JGTower*> jgT, xAOD::JGTowerContaine
          jgEt += scell_et; 
          lar_et+=scell_et;
       }
+
       if(jgt->sampling()==1){
         if(m_useAllCalo){
-          const CaloCellContainer* cells = 0;
-          CHECK( evtStore()->retrieve( cells, "AllCalo") );
           for(unsigned cell_hs=0 ; cell_hs<jgTowerTileIndex.size(); cell_hs++){
              const CaloCell * cell = cells->findCell(jgTowerTileIndex.at(cell_hs));
              jgEt+=cell->e()*cell->sinTh();
@@ -104,11 +108,6 @@ StatusCode JGTowerMaker::FexAlg(std::vector<JGTower*> jgT, xAOD::JGTowerContaine
         } 
 
         else{
-          const xAOD::TriggerTowerContainer* TTs;
-          if(evtStore()->retrieve(TTs,"xAODTriggerTowers").isFailure() ) {
-            ATH_MSG_INFO("ERROR loading trigger tower");
-            return StatusCode::FAILURE;
-          }
 
           for(unsigned tt_hs=0 ; tt_hs<TTs->size(); tt_hs++){
              const xAOD::TriggerTower * tt = TTs->at(tt_hs);
@@ -121,6 +120,10 @@ StatusCode JGTowerMaker::FexAlg(std::vector<JGTower*> jgT, xAOD::JGTowerContaine
 
         }
       }
+      if(jgEt == 0) continue;
+      xAOD::JGTower* m_trigTower = new xAOD::JGTower();
+      jgTContainer->push_back(m_trigTower);
+      m_trigTower->initialize(hs,jgt->Eta(),jgt->Phi());
       m_trigTower->setdEta(jgt->dEta());
       m_trigTower->setdPhi(jgt->dPhi());
       m_trigTower->setEt(jgEt);
