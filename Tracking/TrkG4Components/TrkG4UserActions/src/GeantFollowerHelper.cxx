@@ -90,18 +90,6 @@ StatusCode Trk::GeantFollowerHelper::initialize()
   m_validationTree->Branch("TrkStepLocX",  m_treeData->m_trk_lx,     "trkstepLX[g4steps]/F");
   m_validationTree->Branch("TrkStepLocY",  m_treeData->m_trk_ly,     "trkstepLY[g4steps]/F");
 
-  // initialize
-  m_treeData->m_t_x        = 0.;
-  m_treeData->m_t_y        = 0.;
-  m_treeData->m_t_z        = 0.;
-  m_treeData->m_t_theta    = 0.;
-  m_treeData->m_t_eta      = 0.;
-  m_treeData->m_t_phi      = 0.;
-  m_treeData->m_t_p        = 0.;
-  m_treeData->m_t_charge   = 0.;
-  m_treeData->m_t_pdg      = 0;
-  m_treeData->m_g4_steps   = 0;
-
   // now register the Tree
   ITHistSvc* tHistSvc = 0;
   if (service("THistSvc",tHistSvc).isFailure()){
