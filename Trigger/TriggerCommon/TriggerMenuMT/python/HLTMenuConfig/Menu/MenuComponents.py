@@ -137,7 +137,6 @@ class HypoAlgNode(AlgNode):
     def __init__(self, Alg):
         assert isHypoBase(Alg), "Error in creating HypoAlgNode from Alg "  + Alg.name()
         AlgNode.__init__(self, Alg, 'HypoInputDecisions', 'HypoOutputDecisions')
-       # self.addDefaultOutput()
         self.tools = []
         self.previous=[]
 
@@ -304,7 +303,6 @@ class MenuSequence():
         self.hypo= HypoAlgNode( Alg=HypoAlg )
     
     def connectToFilter(self, outfilter):
-            #def connectToFilter(self, sfilter, outfilter):
         """ Sets the input and output of the hypo, and links to the input maker """
 
         #### Connect filter to the InputMaker

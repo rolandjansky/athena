@@ -94,8 +94,8 @@ EnabledElComboChains = []
 # muon chains
 if doMuon:
     from TrigUpgradeTest.HLTSignatureConfig import muStep1MenuSequence, muStep2MenuSequence
-    muStep1 = muStep1MenuSequence()
-    muStep2 = muStep2MenuSequence()
+    muStep1 = muStep1MenuSequence("v1")
+    muStep2 = muStep2MenuSequence("v1")
 
 
     MuChains  = [
@@ -113,14 +113,16 @@ if doMuon:
 ## #electron chains
 if doElectron:
     from TrigUpgradeTest.HLTSignatureConfig import elStep1MenuSequence, elStep2MenuSequence, gammStep1MenuSequence
-    elStep1 = elStep1MenuSequence()
-    elStep2 = elStep2MenuSequence()
-
-    gammStep1 = gammStep1MenuSequence()
+    # electron
+    elStep1 = elStep1MenuSequence("v1")
+    elStep2 = elStep2MenuSequence("v1")
+    elStep2v2 = elStep2MenuSequence("v2")
+    # gamma
+    gammStep1 = gammStep1MenuSequence("v1")
     
     ElChains  = [
         Chain(name='HLT_e5'  , Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_em",  [elStep1]), ChainStep("Step2_em",  [elStep2]) ] ),
-        Chain(name='HLT_e20' , Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_em",  [elStep1]), ChainStep("Step2_em",  [elStep2]) ] ),
+        Chain(name='HLT_e20' , Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_em",  [elStep1]), ChainStep("Step2v2_em",  [elStep2v2]) ] ),
         Chain(name='HLT_e8'  , Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_em",  [elStep1]), ChainStep("Step2_em",  [elStep2]) ] ),
         Chain(name='HLT_g5'  , Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_gam", [gammStep1]) ] )
         ]
@@ -132,10 +134,10 @@ if doElectron:
 # combined chain
 if doCombo:
     from TrigUpgradeTest.HLTSignatureConfig import elStep1MenuSequence, muStep1MenuSequence, elStep2MenuSequence, muStep2MenuSequence
-    elStep1 = elStep1MenuSequence()
-    muStep1 = muStep1MenuSequence()
-    elStep2 = elStep2MenuSequence()
-    muStep2 = muStep2MenuSequence()
+    elStep1 = elStep1MenuSequence("v1")
+    muStep1 = muStep1MenuSequence("v1")
+    elStep2 = elStep2MenuSequence("v1")
+    muStep2 = muStep2MenuSequence("v1")
 
     
     CombChains =[

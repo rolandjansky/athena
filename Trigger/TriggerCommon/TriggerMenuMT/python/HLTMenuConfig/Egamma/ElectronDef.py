@@ -12,12 +12,13 @@ from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
 
 # fragments generating configuration will be functions in New JO, so let's make them functions already now
 def fastCaloSequenceCfg( flags ):
-    from TrigUpgradeTest.electronMenuDefs import fastCaloSequence
-    return fastCaloSequence()
+    from TrigUpgradeTest.CaloMenuDefs import fastCaloMenuSequence
+    return fastCaloMenuSequence()
+
     
 def electronSequenceCfg( flags ):
-    from TrigUpgradeTest.electronMenuDefs import electronSequence        
-    return electronSequence()
+    from TrigUpgradeTest.electronMenuDefs import electronMenuSequence
+    return electronMenuSequence()
 
 def generateChain(flags, chainDict ): # in New JO  we will add flags here
     chainDict = type("chainDict", (object,), chainDict)

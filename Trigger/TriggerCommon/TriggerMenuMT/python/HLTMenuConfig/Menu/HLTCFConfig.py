@@ -243,14 +243,11 @@ def decisionTree_From_Chains(HLTNode, chains):
                 prev = chain.steps[nstep-1].sequences
                  # previous filter name
                 pre_filter_name = CFNaming.filterName(chain.steps[nstep-1].name)
-                print "Searching %s in %d sequences: "%(pre_filter_name, len(prev))
+#                print "Searching %s in %d sequences: "%(pre_filter_name, len(prev))
                 for seq in prev:
-                    print seq.name
                     for out in seq.outputs:
-                        print out
                         if pre_filter_name in out:
-                            newinput = out
-                            filter_input.append(newinput)
+                            filter_input.append(out)
                             #filter_input.extend(newinput)
                             log.debug("Connect to previous sequence through these filter inputs: %s" %str( filter_input) )
                 if len(filter_input) == 0:

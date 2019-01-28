@@ -6,9 +6,10 @@ from AthenaCommon.Include import include
 from AthenaCommon.Constants import VERBOSE,DEBUG
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 import AthenaCommon.CfgMgr as CfgMgr
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 # menu components   
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence 
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
@@ -31,7 +32,7 @@ def inDetSetup():
     from InDetRecExample.InDetKeys import InDetKeys
 
 
-def electronSequence():
+def electronSequence(ConfigFlags):
     """ second step:  tracking....."""
 
     # is this needed?
@@ -85,17 +86,23 @@ def electronSequence():
     electronInViewAlgs = parOR("electronInViewAlgs", viewAlgs + [ theElectronFex ])
     l2ElectronViewsMaker.ViewNodeName = "electronInViewAlgs"
 
+    electronAthSequence = seqAND("electronAthSequence", eventAlgs + [l2ElectronViewsMaker, electronInViewAlgs ] )
+    return (electronAthSequence, l2ElectronViewsMaker, theElectronFex.ElectronsName)
+
+
+def electronMenuSequence():
+    """ Creates 2nd step Electron  MENU sequence"""
+    # retrievee the reco seuqence+IM
+    (electronAthSequence, l2ElectronViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(electronSequence, ConfigFlags)
+
     # make the Hypo
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2ElectronHypoAlgMT
     theElectronHypo = TrigL2ElectronHypoAlgMT()
-    theElectronHypo.Electrons = theElectronFex.ElectronsName
+    theElectronHypo.Electrons = sequenceOut
     theElectronHypo.RunInView=True
     theElectronHypo.OutputLevel = VERBOSE
 
-    electronAthSequence = seqAND("electronAthSequence", eventAlgs + [l2ElectronViewsMaker, electronInViewAlgs ] )
-
     from TrigEgammaHypo.TrigL2ElectronHypoTool import TrigL2ElectronHypoToolFromName
-
 
     return  MenuSequence( Maker       = l2ElectronViewsMaker,                                        
                           Sequence    = electronAthSequence,

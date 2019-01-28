@@ -1,6 +1,7 @@
 from AthenaCommon.Constants import ERROR, DEBUG
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool, MenuSequence
 from AthenaCommon.CFElements import seqAND
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 
 class CaloMenuDefs():
@@ -9,9 +10,8 @@ class CaloMenuDefs():
 
 
 
-
-def fastCaloMenuSequence():
-    """ Creates L2 Fast Calo menu sequence"""
+def fastCaloSequence(ConfigFlags):
+    """ Creates L2 Fast Calo sequence"""
     # EV creator
     from TrigT2CaloCommon.CaloDef import fastCaloEVCreator
     (fastCaloViewsMaker, InViewRoIs) = fastCaloEVCreator()
@@ -22,7 +22,13 @@ def fastCaloMenuSequence():
 
      # connect EVC and reco
     fastCaloSequence = seqAND("fastCaloSequence", [fastCaloViewsMaker, fastCaloInViewSequence ])
-    
+    return (fastCaloSequence, fastCaloViewsMaker, sequenceOut)
+
+
+def fastCaloMenuSequence():
+    """ Creates L2 Fast Calo  MENU sequence"""
+    (sequence, fastCaloViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(fastCaloSequence, ConfigFlags)
+
     # hypo    
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlgMT
     theFastCaloHypo = TrigL2CaloHypoAlgMT("L2CaloHypo", OutputLevel = DEBUG)
@@ -31,7 +37,7 @@ def fastCaloMenuSequence():
 
  
     from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName
-    return MenuSequence( Sequence    = fastCaloSequence,
+    return MenuSequence( Sequence    = sequence,
                          Maker       = fastCaloViewsMaker, 
                          Hypo        = theFastCaloHypo,
                          HypoToolGen = TrigL2CaloHypoToolFromName )

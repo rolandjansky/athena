@@ -16,10 +16,10 @@ include("TrigUpgradeTest/testHLT_MT.py")
 ##########################################
 
 doElectron = True
-doPhoton = True
-doMuon   = False
+doPhoton = False
+doMuon   = True
 doJet    = False
-doCombo  = False
+doCombo  = True
 
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
 
@@ -30,17 +30,16 @@ EnabledElComboChains = []
 
 testChains = []
 
-#common parts:
-fastCaloStep=None
+
 
 ##################################################################
 # egamma chains
 ##################################################################
 if (doElectron):
     from TrigUpgradeTest.CaloMenuDefs import fastCaloMenuSequence
-    from TrigUpgradeTest.electronMenuDefs import electronSequence
+    from TrigUpgradeTest.electronMenuDefs import electronMenuSequence
     fastCaloStep=fastCaloMenuSequence()
-    electronStep=electronSequence()
+    electronStep=electronMenuSequence()
 
     step1=ChainStep("Step1_etcut", [fastCaloStep])
     step2=ChainStep("Step2_etcut", [electronStep])
@@ -60,9 +59,8 @@ if (doPhoton):
     from TrigUpgradeTest.CaloMenuDefs import fastCaloMenuSequence
     from TrigUpgradeTest.photonMenuDefs import photonMenuSequence
 
+    fastCaloStep=fastCaloMenuSequence()
     photonstep= photonMenuSequence()
-    if  fastCaloStep is None:
-        fastCaloStep=fastCaloMenuSequence()
 
     photonChains = [
         Chain(name='HLT_g5_etcut', Seed="L1_EM3",  ChainSteps=[ ChainStep("Step1_g5_etcut", [fastCaloStep]),  ChainStep("Step2_g5_etcut", [photonstep])]  )
