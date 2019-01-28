@@ -163,39 +163,6 @@ StatusCode Trk::GeantFollowerMSHelper::initialize()
    m_validationTree->Branch("TrkStepScatSigTheta", m_treeData->m_trk_ssigTheta, "trkscatSigTheta[trkscats]/F");
    m_validationTree->Branch("TrkStepScatSigPhi", m_treeData->m_trk_ssigPhi, "trkscatSigPhi[trkscats]/F");
 
-   // initialize
-   //
-   m_treeData->m_t_x        = 0.;    
-   m_treeData->m_t_y        = 0.; 
-   m_treeData->m_t_z        = 0.; 
-   m_treeData->m_t_theta    = 0.; 
-   m_treeData->m_t_eta      = 0.; 
-   m_treeData->m_t_phi      = 0.; 
-   m_treeData->m_t_p        = 0.; 
-   m_treeData->m_t_charge   = 0.; 
-   m_treeData->m_t_pdg      = 0;         
-   m_treeData->m_g4_steps   = -1;
-
-   m_treeData->m_m_x        = 0.;
-   m_treeData->m_m_y        = 0.;
-   m_treeData->m_m_z        = 0.;
-   m_treeData->m_m_theta    = 0.;
-   m_treeData->m_m_eta      = 0.;
-   m_treeData->m_m_phi      = 0.;
-   m_treeData->m_m_p        = 0.;
-
-   m_treeData->m_b_x        = 0.;
-   m_treeData->m_b_y        = 0.;
-   m_treeData->m_b_z        = 0.;
-   m_treeData->m_b_theta    = 0.;
-   m_treeData->m_b_eta      = 0.;
-   m_treeData->m_b_phi      = 0.;
-   m_treeData->m_b_p        = 0.;
-   m_treeData->m_b_X0       = 0.;
-   m_treeData->m_b_Eloss    = 0.;
-
-   m_treeData->m_trk_scats  = 0;
-   
    m_crossedMuonEntry = false;
    m_exitLayer = false;   
    // now register the Tree
