@@ -399,7 +399,7 @@ namespace EL
 
     /// \brief the list of modules we hold
   private:
-    std::vector<std::unique_ptr<Detail::Module> > m_modules;
+    std::vector<std::unique_ptr<Detail::Module> > m_modules; //!
 
 
     /// \brief whether this is a new input file (i.e. one that has not

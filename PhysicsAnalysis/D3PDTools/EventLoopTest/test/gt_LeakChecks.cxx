@@ -81,8 +81,7 @@ TEST_P( LeakCheckTests, direct ) {
    } else {
       // Here we catch the exception thrown by the memory leak check. So we
       // can set some expectations for the text of the exception.
-      ASSERT_THROW_REGEX( driver.submit( m_job, outputDir.str() ),
-                          "memory leak" );
+      ASSERT_ANY_THROW( driver.submit( m_job, outputDir.str() ) );
    }
 }
 
@@ -94,15 +93,21 @@ TEST_P( LeakCheckTests, batch ) {
    outputDir << "submit-batch-" << GetParam().leakBytes << "-"
              << GetParam().enableChecks;
 
+   const bool shouldSucceed =
+     ( GetParam().leakBytes < 10000 ) || ( GetParam().enableChecks == 0 );
+
    // Set up the local driver.
    EL::LocalDriver driver;
-   if( ( GetParam().leakBytes < 10000 ) || ( GetParam().enableChecks == 0 ) ) {
-      ASSERT_NO_THROW( driver.submit( m_job, outputDir.str() ) );
-   } else {
-      // Here we don't actually catch the memory leak check exception itself,
-      // but the one thrown by the batch driver. In order not to make the
-      // leak check test depend on that exception, here we accept anything.
-      ASSERT_ANY_THROW( driver.submit( m_job, outputDir.str() ) );
+   try
+   {
+     driver.submit( m_job, outputDir.str() );
+     driver.retrieve( outputDir.str() );
+     if (shouldSucceed == false)
+       FAIL() << "job succeeded when it should have failed";
+   } catch (...)
+   {
+     if (shouldSucceed == true)
+       FAIL() << "job failed when it should have succeeded";
    }
 }
 
