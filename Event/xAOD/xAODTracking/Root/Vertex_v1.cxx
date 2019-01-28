@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Vertex_v1.cxx 575751 2013-12-16 16:45:36Z krasznaa $
 
 // System include(s):
 #include <cmath>
