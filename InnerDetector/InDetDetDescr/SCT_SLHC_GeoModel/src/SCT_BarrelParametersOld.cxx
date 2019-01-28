@@ -5,7 +5,7 @@
 #include "SCT_SLHC_GeoModel/SCT_BarrelParametersOld.h"
 #include "SCT_SLHC_GeoModel/SCT_GeometryManager.h"
 #include "RDBAccessSvc/IRDBRecord.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include <iostream>
 #include <cmath>
 #include <stdio.h>
@@ -219,10 +219,10 @@ SCT_BarrelParametersOld::skiFirstStagger() const{
 
 double 
 SCT_BarrelParametersOld::skiRadialSep(int ilayer) const{
-  // return 2.8*GeoModelKernelUnits::mm;//mm
+  // return 2.8*Gaudi::Units::mm;//mm
   char paraName[50];
   sprintf(paraName, "L%d_MODULESRADIALSEPARATION", ilayer);
-  return (m_SCT_Parameters->find(paraName))->second * GeoModelKernelUnits::mm;
+  return (m_SCT_Parameters->find(paraName))->second * Gaudi::Units::mm;
 }
 
 int
@@ -256,22 +256,22 @@ double
 SCT_BarrelParametersOld::tilt(int ilayer) const{
   char paraName[50];
  sprintf(paraName, "L%d_TILT", ilayer);
-  std::cout<<"---------2 tilt layer TILT("<<ilayer<<") = "<<(m_SCT_Parameters->find(paraName))->second*GeoModelKernelUnits::degree<<std::endl;
-  return (m_SCT_Parameters->find(paraName))->second * GeoModelKernelUnits::degree;
+  std::cout<<"---------2 tilt layer TILT("<<ilayer<<") = "<<(m_SCT_Parameters->find(paraName))->second*Gaudi::Units::degree<<std::endl;
+  return (m_SCT_Parameters->find(paraName))->second * Gaudi::Units::degree;
 }
 
 double SCT_BarrelParametersOld::radius(int ilayer) const{
   char paraName[50];
   sprintf(paraName, "L%d_RLAY", ilayer);
-  std::cout<<"---------2 radius layer RLAY("<<ilayer<<") = "<<(m_SCT_Parameters->find(paraName))->second*GeoModelKernelUnits::cm<<std::endl;
-  return (m_SCT_Parameters->find(paraName))->second * GeoModelKernelUnits::cm;
+  std::cout<<"---------2 radius layer RLAY("<<ilayer<<") = "<<(m_SCT_Parameters->find(paraName))->second*Gaudi::Units::cm<<std::endl;
+  return (m_SCT_Parameters->find(paraName))->second * Gaudi::Units::cm;
 }
 
 double 
 SCT_BarrelParametersOld::cylLength(int ilayer) const{
   char paraName[50];
   sprintf(paraName, "L%d_CYLLENTGH", ilayer);
-  return (m_SCT_Parameters->find(paraName))->second * GeoModelKernelUnits::cm;
+  return (m_SCT_Parameters->find(paraName))->second * Gaudi::Units::cm;
 }
 
 bool SCT_BarrelParametersOld::doubleSided(int ilayer) const{
@@ -302,16 +302,16 @@ double
 SCT_BarrelParametersOld::supportCylInnerRadius(int ilayer) const{
   char paraName[50];
   sprintf(paraName, "L%d_RISUP", ilayer);
-  std::cout<<"---------2 supportCylInnerRadius RISUP("<<ilayer<<") = "<<(m_SCT_Parameters->find(paraName))->second*GeoModelKernelUnits::cm<<std::endl;
-  return (m_SCT_Parameters->find(paraName))->second * GeoModelKernelUnits::cm;
+  std::cout<<"---------2 supportCylInnerRadius RISUP("<<ilayer<<") = "<<(m_SCT_Parameters->find(paraName))->second*Gaudi::Units::cm<<std::endl;
+  return (m_SCT_Parameters->find(paraName))->second * Gaudi::Units::cm;
 }
 
 double 
 SCT_BarrelParametersOld::supportCylOuterRadius(int ilayer) const{
   char paraName[50];
   sprintf(paraName, "L%d_ROSUP", ilayer);
-  std::cout<<"---------2 supportCylOuterRadius ROSUP("<<ilayer<<") = "<<(m_SCT_Parameters->find(paraName))->second*GeoModelKernelUnits::cm<<std::endl;
-  return (m_SCT_Parameters->find(paraName))->second * GeoModelKernelUnits::cm;
+  std::cout<<"---------2 supportCylOuterRadius ROSUP("<<ilayer<<") = "<<(m_SCT_Parameters->find(paraName))->second*Gaudi::Units::cm<<std::endl;
+  return (m_SCT_Parameters->find(paraName))->second * Gaudi::Units::cm;
 }
 std::string 
 SCT_BarrelParametersOld::supportCylMaterial(int ilayer) const{
@@ -331,45 +331,45 @@ SCT_BarrelParametersOld::numLayers() const{
 
 double 
 SCT_BarrelParametersOld::barrelInnerRadius() const{
-  std::cout<<"---------2 barrelInnerRadius RMIN = "<<(m_SCT_Parameters->find("B_RMIN"))->second * GeoModelKernelUnits::cm<<std::endl;
+  std::cout<<"---------2 barrelInnerRadius RMIN = "<<(m_SCT_Parameters->find("B_RMIN"))->second * Gaudi::Units::cm<<std::endl;
   
-  return (m_SCT_Parameters->find("B_RMIN"))->second * GeoModelKernelUnits::cm;
+  return (m_SCT_Parameters->find("B_RMIN"))->second * Gaudi::Units::cm;
 }
 
 double 
 SCT_BarrelParametersOld::barrelIntermediateRadius() const{
-  std::cout<<"---------2 barrelIntermediateRadius RINTERMEDIATE = "<<(m_SCT_Parameters->find("B_RINTERMEDIATE"))->second * GeoModelKernelUnits::cm<<std::endl;
+  std::cout<<"---------2 barrelIntermediateRadius RINTERMEDIATE = "<<(m_SCT_Parameters->find("B_RINTERMEDIATE"))->second * Gaudi::Units::cm<<std::endl;
   
-  return (m_SCT_Parameters->find("B_RINTERMEDIATE"))->second * GeoModelKernelUnits::cm;
+  return (m_SCT_Parameters->find("B_RINTERMEDIATE"))->second * Gaudi::Units::cm;
 }
 
 double 
 SCT_BarrelParametersOld::barrelOuterRadius() const{
-  std::cout<<"---------2 barrelOuterRadius RMAX = "<<(m_SCT_Parameters->find("B_RMAX"))->second * GeoModelKernelUnits::cm<<std::endl;
+  std::cout<<"---------2 barrelOuterRadius RMAX = "<<(m_SCT_Parameters->find("B_RMAX"))->second * Gaudi::Units::cm<<std::endl;
   
-  return (m_SCT_Parameters->find("B_RMAX"))->second * GeoModelKernelUnits::cm;
+  return (m_SCT_Parameters->find("B_RMAX"))->second * Gaudi::Units::cm;
 }
 
 double 
 SCT_BarrelParametersOld::barrelLength() const{
   std::cout<<"---------2 barrelLength B_LEN = "
-	   <<(m_SCT_Parameters->find("B_LEN"))->second * GeoModelKernelUnits::cm<<std::endl;
+	   <<(m_SCT_Parameters->find("B_LEN"))->second * Gaudi::Units::cm<<std::endl;
   
-  return (m_SCT_Parameters->find("B_LEN"))->second * GeoModelKernelUnits::cm;
+  return (m_SCT_Parameters->find("B_LEN"))->second * Gaudi::Units::cm;
 }
 
 double 
 SCT_BarrelParametersOld::barrelIntermediateLength() const{
   std::cout<<"---------2 barrelIntermediateLength B_IntermediateLEN = "
-	   <<(m_SCT_Parameters->find("B_INTERMEDIATELEN"))->second * GeoModelKernelUnits::cm<<std::endl;
+	   <<(m_SCT_Parameters->find("B_INTERMEDIATELEN"))->second * Gaudi::Units::cm<<std::endl;
   
-  return (m_SCT_Parameters->find("B_INTERMEDIATELEN"))->second * GeoModelKernelUnits::cm;
+  return (m_SCT_Parameters->find("B_INTERMEDIATELEN"))->second * Gaudi::Units::cm;
 }
 
 double SCT_BarrelParametersOld::barrelServicesMaterialCylinderLength() const {
   char paraName[50];
   sprintf(paraName, "BARRELSERVICESMATERIALCYLINDERLENGTH");
-  return (double)(m_SCT_Parameters->find(paraName))->second * GeoModelKernelUnits::cm;
+  return (double)(m_SCT_Parameters->find(paraName))->second * Gaudi::Units::cm;
 }
 
 double SCT_BarrelParametersOld::barrelServicesMaterialIncreaseFactor() const {

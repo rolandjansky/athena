@@ -68,7 +68,8 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
  private: 
 
   HLTEDMCreator();
-
+  Gaudi::Property<std::string> m_remapKey{ this, "RemapKey", "remap_", "Prefix for remapped collections"};
+  Gaudi::Property<bool> m_fixLinks{ this, "FixLinks", true, "Fix links that may be pointing objects in views"};
 
 #define DEF_VIEWS(__TYPE) \
   SG::ReadHandleKeyArray< ViewContainer > m_##__TYPE##Views{ this, #__TYPE"Views", {}, "Name  views from where the "#__TYPE" will be read"}

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATE_WRITECONDHANDLE_H
@@ -125,10 +125,15 @@ namespace SG {
       return StatusCode::FAILURE;
     }
     else if (CondContBase::Category::isOverlap (sc)) {
+#if 0
+      // Temporarily disable this check until caching issues with IOVDbSvc
+      // are sorted out.
       msg << MSG::ERROR 
           << "WriteCondHandle::record() : IOV ranges overlap."
           << endmsg;
       return StatusCode::FAILURE;
+#endif
+      sc = StatusCode::SUCCESS;
     }
  
     return sc;

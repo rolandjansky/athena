@@ -405,9 +405,9 @@ namespace TrigCostRootAnalysis {
       CounterBaseRates* L1Counter = nullptr;
       if (itCm != counterMap->end()) L1Counter = (CounterBaseRates*) itCm->second;
 
-      //bool _hasL1Seed = kTRUE;
+      //bool hasL1Seed = kTRUE;
       if (L1Name == Config::config().getStr(kBlankString)) {
-        //_hasL1Seed = kFALSE;
+        //hasL1Seed = kFALSE;
         L1Counter = m_globalRateL1Counter;
       }
 
@@ -452,7 +452,7 @@ namespace TrigCostRootAnalysis {
       // Then at the end it subtracts this rate from the global rate. So we need to add *all* chains *but* this one.
 
       CounterBaseRates* thisChainsUniqueCounter = 0;
-      if (Config::config().getInt(kDoUniqueRates) == kTRUE /*&& _hasL1Seed == kTRUE*/) {
+      if (Config::config().getInt(kDoUniqueRates) == kTRUE /*&& hasL1Seed == kTRUE*/) {
         for (CounterMapIt_t itA = counterMap->begin(); itA != counterMap->end(); ++itA) {
           CounterBaseRates* counter = static_cast<CounterBaseRates*>(itA->second);
           if (counter->getStrDecoration(kDecType) != "UniqueHLT") continue;
@@ -617,7 +617,7 @@ namespace TrigCostRootAnalysis {
 
       // Debug
       // std::stringstream ss;
-      // for (UInt_t _group = 0; _group < chainGroups.size(); ++_group) ss << chainGroups.at(_group) << " ";
+      // for (UInt_t group = 0; group < chainGroups.size(); ++group) ss << chainGroups.at(group) << " ";
       // ss << TrigConfInterface::getChainCPSGroup(i);
       // Info("MonitorRates::createGroupCounters","Chain %s in groups: %s", TrigConfInterface::getChainName(i).c_str(),
       // ss.str().c_str());

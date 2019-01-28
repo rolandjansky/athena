@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // METRecoAlg.cxx
@@ -15,7 +15,9 @@ namespace met {
 
   METRecoAlg::METRecoAlg(const std::string& name,
 			 ISvcLocator* pSvcLocator )
-  : ::AthAlgorithm( name, pSvcLocator ) {
+    : ::AthAlgorithm( name, pSvcLocator ),
+      m_recotools (this)
+  {
     declareProperty( "RecoTools", m_recotools);
   }
 
@@ -26,19 +28,9 @@ namespace met {
   //**********************************************************************
 
   StatusCode METRecoAlg::initialize() {
-    ATH_MSG_INFO("Initializing " << name() << "...");
-    ATH_MSG_INFO("Retrieving tools...");
+    ATH_MSG_VERBOSE("Initializing " << name() << "...");
 
-    // retrieve tools
-    for(ToolHandleArray<IMETRecoTool>::const_iterator iTool=m_recotools.begin();
-	iTool != m_recotools.end(); ++iTool) {
-      ToolHandle<IMETRecoTool> tool = *iTool;
-      if( tool.retrieve().isFailure() ) {
-	ATH_MSG_ERROR("Failed to retrieve tool: " << tool->name());
-	return StatusCode::FAILURE;
-      };
-      ATH_MSG_INFO("Retrieved tool: " << tool->name() );
-    }
+    ATH_CHECK( m_recotools.retrieve() );
   
     return StatusCode::SUCCESS;
   }
@@ -46,7 +38,7 @@ namespace met {
   //**********************************************************************
 
   StatusCode METRecoAlg::finalize() {
-    ATH_MSG_INFO ("Finalizing " << name() << "...");
+    ATH_MSG_VERBOSE ("Finalizing " << name() << "...");
     return StatusCode::SUCCESS;
   }
 

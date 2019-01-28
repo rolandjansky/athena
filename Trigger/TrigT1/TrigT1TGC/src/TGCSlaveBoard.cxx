@@ -11,85 +11,85 @@
 namespace LVL1TGCTrigger {
 
 TGCSlaveBoard::TGCSlaveBoard()
-  :lengthOfCoincidenceOut(0),coincidenceOut(0), 
-   slaveBoardOut(0), 
-   id(0), bid(-1),idHighPtBoard(0),
-   type(0), region(FORWARD),
-   patchPanel(0), patchPanelOut(0)
+  :m_lengthOfCoincidenceOut(0),m_coincidenceOut(0), 
+   m_slaveBoardOut(0), 
+   m_id(0), m_bid(-1),m_idHighPtBoard(0),
+   m_type(0), m_region(FORWARD),
+   m_patchPanel(0), m_patchPanelOut(0)
 {
 }
 
 TGCSlaveBoard::~TGCSlaveBoard()
 {
-  if( coincidenceOut!=0) delete coincidenceOut;
-  if( slaveBoardOut!=0) delete slaveBoardOut;
+  if( m_coincidenceOut!=0) delete m_coincidenceOut;
+  if( m_slaveBoardOut!=0) delete m_slaveBoardOut;
 
-  coincidenceOut=0;
-  slaveBoardOut=0;
-  patchPanel=0;
+  m_coincidenceOut=0;
+  m_slaveBoardOut=0;
+  m_patchPanel=0;
 
   deletePatchPanelOut();
 }
 
 void TGCSlaveBoard::clockIn(int bidIn)
 {
-  bid = bidIn;
+  m_bid = bidIn;
   collectInput();
 
-  slbin.reset();
+  m_slbin.reset();
 
 #ifdef TGCDEBUG
   int i;
-  std::cout << "#SB: BID= " << bid;
-  std::cout << " Rgn= " << region;
-  std::cout << " Typ= " << getTypeName(type);
-  std::cout << " ID= "  << id <<  std::endl;
-  if(patchPanelOut!=0){
+  std::cout << "#SB: BID= " << m_bid;
+  std::cout << " Rgn= " << m_region;
+  std::cout << " Typ= " << getTypeName(m_type);
+  std::cout << " ID= "  << m_id <<  std::endl;
+  if(m_patchPanelOut!=0){
     for( i=0; i<NumberOfConnectorPerPPOut; i+=1)
-      if(patchPanelOut->getHitPattern(i)!=0){
-	std::cout<<"#SB I: BID= "<<bid;
-	if(patchPanelOut->getOrigin()!=0){
-	  std::cout << " Typ= " <<patchPanelOut->getOrigin()->getType();
-	  std::cout << " Rgn= " <<patchPanelOut->getOrigin()->getRegion();
-	  std::cout << " PPID= "<<patchPanelOut->getOrigin()->getId()<<" ";
+      if(m_patchPanelOut->getHitPattern(i)!=0){
+	std::cout<<"#SB I: BID= "<<m_bid;
+	if(m_patchPanelOut->getOrigin()!=0){
+	  std::cout << " Typ= " <<m_patchPanelOut->getOrigin()->getType();
+	  std::cout << " Rgn= " <<m_patchPanelOut->getOrigin()->getRegion();
+	  std::cout << " PPID= "<<m_patchPanelOut->getOrigin()->getId()<<" ";
 	  std::cout << " port= "<<i;
-          std::cout << "" <<id;
+          std::cout << "" <<m_id;
         }
         std::cout << ":";
-        patchPanelOut->getHitPattern(i)->print();
+        m_patchPanelOut->getHitPattern(i)->print();
       }
   } else {
     std::cout << "NO PP IN" << std::endl;
   }
 #endif
   
-  // delete slaveBoardOut and coincidenceOut 
-  if( coincidenceOut!=0) delete coincidenceOut;
-  if( slaveBoardOut!=0) delete slaveBoardOut;
-  coincidenceOut = 0;
-  slaveBoardOut  = 0;
+  // delete m_slaveBoardOut and m_coincidenceOut 
+  if( m_coincidenceOut!=0) delete m_coincidenceOut;
+  if( m_slaveBoardOut!=0) delete m_slaveBoardOut;
+  m_coincidenceOut = 0;
+  m_slaveBoardOut  = 0;
 
-  if(patchPanelOut!=0){
+  if(m_patchPanelOut!=0){
     doMaskOperation();
 
     storeSlbIn();
 
     doCoincidence();
-    if(coincidenceOut!=0) {
+    if(m_coincidenceOut!=0) {
 #ifdef TGCDEBUG_VISUAL
       std::cout << "TGCSlaveBoard::clockIn: after doCoincidence()\n";
-      coincidenceOut->visual(coincidenceOut->getLength(), 1, 0);
+      m_coincidenceOut->visual(m_coincidenceOut->getLength(), 1, 0);
 #endif 
 #ifdef TGCDEBUG
-      std::cout << "#SB C: BID= " << bid << ":";
-      coincidenceOut->print();
+      std::cout << "#SB C: BID= " << m_bid << ":";
+      m_coincidenceOut->print();
 #endif 
     }
     doDecluster();
 #ifdef TGCDEBUG_VISUAL
-    if(coincidenceOut!=0) {
+    if(m_coincidenceOut!=0) {
       std::cout << "TGCSlaveBoard::clockIn: after doDecluster()\n";
-      coincidenceOut->visual(coincidenceOut->getLength(), 1, 0);
+      m_coincidenceOut->visual(m_coincidenceOut->getLength(), 1, 0);
     }
 #endif 
     createSlaveBoardOut();
@@ -99,9 +99,9 @@ void TGCSlaveBoard::clockIn(int bidIn)
 #endif
 
     deletePatchPanelOut();
-    if(coincidenceOut!=0){
-      delete coincidenceOut;
-      coincidenceOut=0;
+    if(m_coincidenceOut!=0){
+      delete m_coincidenceOut;
+      m_coincidenceOut=0;
     }
   }
 }
@@ -109,20 +109,20 @@ void TGCSlaveBoard::clockIn(int bidIn)
 void TGCSlaveBoard::storeSlbIn()
 {
   // store SlaveBoard input for readout
-  TGCHitPattern* inner = patchPanelOut->getHitPattern(0);
-  TGCHitPattern* pivot = patchPanelOut->getHitPattern(1);
+  TGCHitPattern* inner = m_patchPanelOut->getHitPattern(0);
+  TGCHitPattern* pivot = m_patchPanelOut->getHitPattern(1);
   int i;
   if(pivot!=0){
-    for(i=0; i<pLength[type]; i++){
-        slbin.set(40+i+pOffset[type],pivot->getChannel(i+pLength[type]));   
-        slbin.set(40+36+i+pOffset[type],pivot->getChannel(i));   
+    for(i=0; i<pLength[m_type]; i++){
+      m_slbin.set(40+i+pOffset[m_type],pivot->getChannel(i+pLength[m_type]));   
+      m_slbin.set(40+36+i+pOffset[m_type],pivot->getChannel(i));   
     }
   }
   if(inner!=0){
-    for(i=0; i<iLength[type]; i++){
-        if(inner->getLength()>iLength[type])//WTSB
-          slbin.set(40+36+36+i+iOffset[type],inner->getChannel(i+iLength[type]));   
-        slbin.set(40+36+36+44+i+iOffset[type],inner->getChannel(i));   
+    for(i=0; i<iLength[m_type]; i++){
+      if(inner->getLength()>iLength[m_type])//WTSB
+        m_slbin.set(40+36+36+i+iOffset[m_type],inner->getChannel(i+iLength[m_type]));   
+      m_slbin.set(40+36+36+44+i+iOffset[m_type],inner->getChannel(i));   
     }
   }
 }
@@ -131,57 +131,57 @@ void TGCSlaveBoard::showResult() const
 {
 
   int i;
-  if(patchPanelOut!=0){
+  if(m_patchPanelOut!=0){
     for( i=0; i<NumberOfConnectorPerPPOut; i+=1)
-      if(patchPanelOut->getHitPattern(i)!=0){
-        std::cout<<"#SB I: BID= "<<bid;
-        if(patchPanelOut->getOrigin()!=0){
-          std::cout << " Typ= " <<patchPanelOut->getOrigin()->getType();
-          std::cout << " Rgn= " <<patchPanelOut->getOrigin()->getRegion();
-          std::cout << " PPID= "<<patchPanelOut->getOrigin()->getId()<<" ";
+      if(m_patchPanelOut->getHitPattern(i)!=0){
+        std::cout<<"#SB I: BID= "<<m_bid;
+        if(m_patchPanelOut->getOrigin()!=0){
+          std::cout << " Typ= " <<m_patchPanelOut->getOrigin()->getType();
+          std::cout << " Rgn= " <<m_patchPanelOut->getOrigin()->getRegion();
+          std::cout << " PPID= "<<m_patchPanelOut->getOrigin()->getId()<<" ";
           std::cout << " port= "<<i;
-          std::cout << "" <<id;
+          std::cout << "" <<m_id;
         }
         std::cout << ":";
-        patchPanelOut->getHitPattern(i)->print();
+        m_patchPanelOut->getHitPattern(i)->print();
       }
   }
 
-  if(slaveBoardOut!=0){
-    if(coincidenceOut!=0){
-      std::cout << "#SB O: BID= " << bid;
-      std::cout << " Rgn= " << region;
-      std::cout << " Typ= " << getTypeName(type);
-      std::cout << " ID= "  << id << ":";
-      for( i=0; i<slaveBoardOut->getNumberOfData(); i++){
-        if(slaveBoardOut->getHit(i)){
+  if(m_slaveBoardOut!=0){
+    if(m_coincidenceOut!=0){
+      std::cout << "#SB O: BID= " << m_bid;
+      std::cout << " Rgn= " << m_region;
+      std::cout << " Typ= " << getTypeName(m_type);
+      std::cout << " ID= "  << m_id << ":";
+      for( i=0; i<m_slaveBoardOut->getNumberOfData(); i++){
+        if(m_slaveBoardOut->getHit(i)){
           std::cout << " i= "  << i;
-          std::cout << " x= " << slaveBoardOut->getPos(i);
-          if((type==1)||(type==3))// doublet
-            std::cout << " d= " << slaveBoardOut->getDev(i);
+          std::cout << " x= " << m_slaveBoardOut->getPos(i);
+          if((m_type==1)||(m_type==3))// doublet
+            std::cout << " d= " << m_slaveBoardOut->getDev(i);
         }
       }
       std::cout<<std::endl;      
-      std::cout<<"Destination HPBID= "<<idHighPtBoard<<std::endl;
+      std::cout<<"Destination HPBID= "<<m_idHighPtBoard<<std::endl;
     }
   }
 }
 
 std::string TGCSlaveBoard::getTypeName(int /*typeIn*/) const 
 {
-  if(type==WTSB) return "WT";//0
-  if(type==WDSB) return "WD";//1
-  if(type==STSB) return "ST";//2
-  if(type==SDSB) return "SD";//3
-  if(type==WISB) return "WI";//4
-  if(type==SISB) return "SI";//5
+  if(m_type==WTSB) return "WT";//0
+  if(m_type==WDSB) return "WD";//1
+  if(m_type==STSB) return "ST";//2
+  if(m_type==SDSB) return "SD";//3
+  if(m_type==WISB) return "WI";//4
+  if(m_type==SISB) return "SI";//5
   return "";
 }
 
 void TGCSlaveBoard::deletePatchPanelOut()
 {
-  if( patchPanelOut!=0 ) delete patchPanelOut;
-  patchPanelOut=0;
+  if( m_patchPanelOut!=0 ) delete m_patchPanelOut;
+  m_patchPanelOut=0;
 }
 
 void TGCSlaveBoard::doDecluster()
@@ -189,118 +189,118 @@ void TGCSlaveBoard::doDecluster()
   int i;
   bool A, B, C, D;
 
-  if(coincidenceOut!=0){
-    TGCHitPattern* out = new TGCHitPattern (coincidenceOut->getLength());
+  if(m_coincidenceOut!=0){
+    TGCHitPattern* out = new TGCHitPattern (m_coincidenceOut->getLength());
     int length = out->getLength();
     for( i=2; i<length-1; i+=1) {
-      A = coincidenceOut->getChannel(i-2);
-      B = coincidenceOut->getChannel(i-1);
-      C = coincidenceOut->getChannel(i);
-      D = coincidenceOut->getChannel(i+1);
+      A = m_coincidenceOut->getChannel(i-2);
+      B = m_coincidenceOut->getChannel(i-1);
+      C = m_coincidenceOut->getChannel(i);
+      D = m_coincidenceOut->getChannel(i+1);
       out->setChannel(i,( !B & C & !D )|( !A & B & C ));
     }
 
     A = false;
     B = false;
-    C = coincidenceOut->getChannel(0);
-    D = coincidenceOut->getChannel(1);
+    C = m_coincidenceOut->getChannel(0);
+    D = m_coincidenceOut->getChannel(1);
     out->setChannel(0,( !B & C & !D )|( !A & B & C ));
 
     A = false;
-    B = coincidenceOut->getChannel(0);
-    C = coincidenceOut->getChannel(1);
-    D = coincidenceOut->getChannel(2);
+    B = m_coincidenceOut->getChannel(0);
+    C = m_coincidenceOut->getChannel(1);
+    D = m_coincidenceOut->getChannel(2);
     out->setChannel(1,( !B & C & !D )|( !A & B & C ));
 
-    A = coincidenceOut->getChannel(length-3);
-    B = coincidenceOut->getChannel(length-2);
-    C = coincidenceOut->getChannel(length-1);
+    A = m_coincidenceOut->getChannel(length-3);
+    B = m_coincidenceOut->getChannel(length-2);
+    C = m_coincidenceOut->getChannel(length-1);
     D = false;
     out->setChannel(length-1,( !B & C & !D )|( !A & B & C ));
 
-    delete coincidenceOut;
-    coincidenceOut=out;
+    delete m_coincidenceOut;
+    m_coincidenceOut=out;
     out=0;
   }
 }
 
 TGCSlaveBoardOut*  TGCSlaveBoard::getOutput() const
 {
-  return slaveBoardOut;
+  return m_slaveBoardOut;
 }
 
 void  TGCSlaveBoard::eraseOutput()
 {
-  slaveBoardOut=0;
+  m_slaveBoardOut=0;
 }
    
 void TGCSlaveBoard::setPatchPanel(TGCPatchPanel* PPIn)
 {
-  patchPanel = PPIn;
+  m_patchPanel = PPIn;
 }
 
 void TGCSlaveBoard::collectInput()
 {
 #ifdef TGCDEBUG    
-  std::cout << "#SB: BID= " << bid;
-  std::cout << " Rgn= " << region;
-  std::cout << " Typ= " << getTypeName(type);
-  std::cout << " ID= "  << id <<  std::endl;
-  if (patchPanel!=0) patchPanel->showProperty();
+  std::cout << "#SB: BID= " << m_bid;
+  std::cout << " Rgn= " << m_region;
+  std::cout << " Typ= " << getTypeName(m_type);
+  std::cout << " ID= "  << m_id <<  std::endl;
+  if (m_patchPanel!=0) m_patchPanel->showProperty();
 #endif
 
-  if(patchPanel!=0){
-    patchPanelOut = patchPanel->getOutput(id);
+  if(m_patchPanel!=0){
+    m_patchPanelOut = m_patchPanel->getOutput(m_id);
 #ifdef TGCDEBUG    
-    if(patchPanelOut!=0) patchPanelOut->print();
+    if(m_patchPanelOut!=0) m_patchPanelOut->print();
 #endif
-    patchPanel->eraseOutput(id);
+    m_patchPanel->eraseOutput(m_id);
 
   }
 }
 
 int TGCSlaveBoard::getIdHighPtBoard() const
 {
-  return idHighPtBoard;
+  return m_idHighPtBoard;
 }
 
 void TGCSlaveBoard::setIdHighPtBoard(int idIn) 
 {
-  idHighPtBoard = idIn;
+  m_idHighPtBoard = idIn;
 }
 
 
 TGCSlaveBoard::TGCSlaveBoard(const TGCSlaveBoard& right)
 {
-  coincidenceOut = 0;
-  slaveBoardOut = 0;
-  patchPanel = 0;
-  patchPanelOut = 0;
+  m_coincidenceOut = 0;
+  m_slaveBoardOut = 0;
+  m_patchPanel = 0;
+  m_patchPanelOut = 0;
   *this = right;
 }
 
 TGCSlaveBoard& TGCSlaveBoard::operator=(const TGCSlaveBoard& right)
 {
   if(this!=&right){
-    id = right.id;
-    bid = right.bid;
-    idHighPtBoard = right.idHighPtBoard;
-    type = right.type;
-    region = right.region;
-    patchPanel = right.patchPanel;
+    m_id = right.m_id;
+    m_bid = right.m_bid;
+    m_idHighPtBoard = right.m_idHighPtBoard;
+    m_type = right.m_type;
+    m_region = right.m_region;
+    m_patchPanel = right.m_patchPanel;
   
-    if(patchPanelOut!=0) delete patchPanelOut;
-    patchPanelOut=0;
-    if(right.patchPanelOut) patchPanelOut = new TGCPatchPanelOut(*right.patchPanelOut);
+    if(m_patchPanelOut!=0) delete m_patchPanelOut;
+    m_patchPanelOut=0;
+    if(right.m_patchPanelOut) m_patchPanelOut = new TGCPatchPanelOut(*right.m_patchPanelOut);
 
-    lengthOfCoincidenceOut = right.lengthOfCoincidenceOut;
-    if(coincidenceOut!=0) delete coincidenceOut;
-    coincidenceOut=0;
-    if(right.coincidenceOut) coincidenceOut = new TGCHitPattern(*right.coincidenceOut);
+    m_lengthOfCoincidenceOut = right.m_lengthOfCoincidenceOut;
+    if(m_coincidenceOut!=0) delete m_coincidenceOut;
+    m_coincidenceOut=0;
+    if(right.m_coincidenceOut) m_coincidenceOut = new TGCHitPattern(*right.m_coincidenceOut);
 
-    if(slaveBoardOut!=0) delete slaveBoardOut;
-    slaveBoardOut=0;
-    if(right.slaveBoardOut) slaveBoardOut = new TGCSlaveBoardOut(*right.slaveBoardOut);
+    if(m_slaveBoardOut!=0) delete m_slaveBoardOut;
+    m_slaveBoardOut=0;
+    if(right.m_slaveBoardOut) m_slaveBoardOut = new TGCSlaveBoardOut(*right.m_slaveBoardOut);
   }
   return *this;
 }

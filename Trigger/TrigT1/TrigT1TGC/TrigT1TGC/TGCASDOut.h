@@ -29,11 +29,11 @@ namespace LVL1TGCTrigger {
  
 class TGCASDOut {
 protected:
-  TGCReadoutIndex tgcReadoutIndex;
-  TGCSignalType signalType;
-  int hitID;       // index in a chamber
-  int channel;     // index in a ASD board 
-  double hitToF;
+  TGCReadoutIndex m_tgcReadoutIndex;
+  TGCSignalType m_signalType;
+  int m_hitID;       // index in a chamber
+  int m_channel;     // index in a ASD board 
+  double m_hitToF;
 
 public:
   TGCASDOut();
@@ -63,11 +63,11 @@ public:
   void SetChannel(int ch);
 
   // get functions
-  TGCReadoutIndex GetTGCReadoutIndex() const { return tgcReadoutIndex; }
-  TGCSignalType GetSignalType() const { return signalType; }
-  int GetHitID() const { return hitID; }
-  int GetChannel() const { return channel; }
-  double GetHitToF() const { return hitToF; }
+  TGCReadoutIndex GetTGCReadoutIndex() const { return m_tgcReadoutIndex; }
+  TGCSignalType GetSignalType() const { return m_signalType; }
+  int GetHitID() const { return m_hitID; }
+  int GetChannel() const { return m_channel; }
+  double GetHitToF() const { return m_hitToF; }
 
   // methods  
   void Print() const;

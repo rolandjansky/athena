@@ -4,8 +4,12 @@
 #
 
 # Set the versions of the TDAQ projects:
-set( TDAQ-COMMON_VERSION "@TDAQ-COMMON_VERSION@" )
-set( TDAQ-COMMON_ROOT "@TDAQ-COMMON_ROOT@" )
+set( TDAQ-COMMON_VERSION "@TDAQ-COMMON_VERSION@" CACHE STRING
+   "The version of tdaq-common to use for the build" )
+set( TDAQ-COMMON_ATROOT "@TDAQ-COMMON_ATROOT@" CACHE PATH
+   "The directory to pick up tdaq-common from" )
 
-set( DQM-COMMON_VERSION "@DQM-COMMON_VERSION@" )
-set( DQM-COMMON_ROOT "@DQM-COMMON_ROOT@" )
+set( DQM-COMMON_VERSION "@DQM-COMMON_VERSION@" CACHE STRING
+   "The version of dqm-common to use for the build" )
+set( DQM-COMMON_ATROOT "@DQM-COMMON_ATROOT@" CACHE PATH
+   "The directory to pick up dqm-common from" )

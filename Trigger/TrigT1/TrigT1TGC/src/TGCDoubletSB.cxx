@@ -17,9 +17,9 @@ extern bool g_STRICTSD;
 
 TGCDoubletSB::TGCDoubletSB()
   :TGCSlaveBoard(),
-   priorSign(1),numberOfData(2),nChInBlock(32),
-   maxDev(0),posMaxDev(0),negMaxDev(0),nChAdj(0),iChBase(0),
-   MatrixOverlap(4),SType(WIREGROUP)
+   m_priorSign(1),m_numberOfData(2),m_nChInBlock(32),
+   m_maxDev(0),m_posMaxDev(0),m_negMaxDev(0),m_nChAdj(0),m_iChBase(0),
+   m_MatrixOverlap(4),m_SType(WIREGROUP)
 {
 }
 
@@ -29,22 +29,22 @@ TGCDoubletSB::~TGCDoubletSB()
 
 void TGCDoubletSB::createSlaveBoardOut()
 {
-  if(coincidenceOut!=0){
+  if(m_coincidenceOut!=0){
     int i,block;
     for( block=0; block<NumberOfDoubletSBData; block+=1){
-      if(slaveBoardOut->getHit(block)){
-        slaveBoardOut->setHit(block,false);
-        for( i=0; i<nChInBlock; i+=1){
-          if(coincidenceOut->getChannel(nChAdj+nChInBlock*block+i)){
-            slaveBoardOut->setPos(block,i);
-            slaveBoardOut->setHit(block,true);
+      if(m_slaveBoardOut->getHit(block)){
+        m_slaveBoardOut->setHit(block,false);
+        for( i=0; i<m_nChInBlock; i+=1){
+          if(m_coincidenceOut->getChannel(m_nChAdj+m_nChInBlock*block+i)){
+            m_slaveBoardOut->setPos(block,i);
+            m_slaveBoardOut->setHit(block,true);
             break;
           }
         }// block 0:A 1:B
-        slaveBoardOut->setbPos(block, slaveBoardOut->getPos(block));
+        m_slaveBoardOut->setbPos(block, m_slaveBoardOut->getPos(block));
 #ifdef TGCCOUT
         std::cout << " " << block << std::endl;
-        slaveBoardOut->getbPos(block)->printb();
+        m_slaveBoardOut->getbPos(block)->printb();
 #endif
       }
     }
@@ -54,16 +54,16 @@ void TGCDoubletSB::createSlaveBoardOut()
 void TGCDoubletSB::doCoincidence()
 {
   // Local coincidence
-  TGCHitPattern** LCOut = doLocalCoincidence(patchPanelOut);
+  TGCHitPattern** LCOut = doLocalCoincidence(m_patchPanelOut);
 
-  if ( slaveBoardOut!= 0 ) delete slaveBoardOut;
-  slaveBoardOut = new TGCSlaveBoardOut(this,bid);
-  if ( !slaveBoardOut ) {
+  if ( m_slaveBoardOut!= 0 ) delete m_slaveBoardOut;
+  m_slaveBoardOut = new TGCSlaveBoardOut(this,m_bid);
+  if ( !m_slaveBoardOut ) {
     std::cerr << "TGCDoubletSB::createSlaveBoardOut: Memory allocation failure.";
     exit(1);
   }
-  slaveBoardOut->clear();
-  slaveBoardOut->setNumberOfData(NumberOfDoubletSBData);
+  m_slaveBoardOut->clear();
+  m_slaveBoardOut->setNumberOfData(NumberOfDoubletSBData);
 
   if(LCOut!=0){
     // Coincidence matrix
@@ -106,18 +106,18 @@ TGCHitPattern** TGCDoubletSB::doLocalCoincidence(const TGCPatchPanelOut* PPOut)
     LCOut[1] = new TGCHitPattern (iLength); // inner 1 hit
     LCOut[2] = new TGCHitPattern (pLength); // pivot 1 hit
     LCOut[3] = new TGCHitPattern (pLength); // pivot 2 hit
-/*
- Wire Strip         bi[1] 0  bi[3] 1        bi[iLength-1]
- C L4  L3 „¡„Ÿ„Ÿ„¢„¡„Ÿ„Ÿ„¢„¡„Ÿ„Ÿ„¢           „¡„Ÿ„Ÿ„¢          ->eta
-          „¤false „¤„Ÿ„Ÿ„£„¤„Ÿ„Ÿ„£           „¤„Ÿ„Ÿ„£   
- D L3  L4     „¡„Ÿ„Ÿ„¢„¡„Ÿ„Ÿ„¢           „¡„Ÿ„Ÿ„¢„¡false          [inner]
-              „¤„Ÿ„Ÿ„£„¤„Ÿ„Ÿ„£           „¤„Ÿ„Ÿ„£„¤„Ÿ„Ÿ„£
-               bi[0] 0  bi[2] 1        bi[iLength-2]
-                                                             ^
-               „¡„¢„¡„¢„¡„¢„¡„¢       „¡„¢„¡„¢„¡„¢„¡„¢           |
-               „¤„£„¤„£„¤„£„¤„£       „¤„£„¤„£„¤„£„¤„£
-                0   1   2   3                      iLength-1
-*/
+    /*
+      Wire Strip         bi[1] 0  bi[3] 1        bi[iLength-1]
+      C L4  L3 „¡„Ÿ„Ÿ„¢„¡„Ÿ„Ÿ„¢„¡„Ÿ„Ÿ„¢           „¡„Ÿ„Ÿ„¢          ->eta
+      „¤false „¤„Ÿ„Ÿ„£„¤„Ÿ„Ÿ„£           „¤„Ÿ„Ÿ„£   
+      D L3  L4     „¡„Ÿ„Ÿ„¢„¡„Ÿ„Ÿ„¢           „¡„Ÿ„Ÿ„¢„¡false          [inner]
+      „¤„Ÿ„Ÿ„£„¤„Ÿ„Ÿ„£           „¤„Ÿ„Ÿ„£„¤„Ÿ„Ÿ„£
+      bi[0] 0  bi[2] 1        bi[iLength-2]
+      ^
+      „¡„¢„¡„¢„¡„¢„¡„¢       „¡„¢„¡„¢„¡„¢„¡„¢           |
+      „¤„£„¤„£„¤„£„¤„£       „¤„£„¤„£„¤„£„¤„£
+      0   1   2   3                      iLength-1
+    */
     i=0;
     LCOut[0]->setChannel(i,false);
     LCOut[1]->setChannel(i,(bi[i] & !bi[i+1]));
@@ -125,7 +125,7 @@ TGCHitPattern** TGCDoubletSB::doLocalCoincidence(const TGCPatchPanelOut* PPOut)
     for(i = 1; i<iLength-1; i+=1){
       LCOut[0]->setChannel(i,(bi[i-1] & bi[i]));
       LCOut[1]->setChannel(i,((!bi[i-1] &  bi[i] & !bi[i+1]) |
-                               (bi[i-1] & !bi[i] &  bi[i+1])));
+                              (bi[i-1] & !bi[i] &  bi[i+1])));
     }
     i=iLength-1;
     LCOut[0]->setChannel(i,(bi[i-1] & bi[i]));
@@ -135,11 +135,11 @@ TGCHitPattern** TGCDoubletSB::doLocalCoincidence(const TGCPatchPanelOut* PPOut)
     int j ;
     std::cout << "C,D i";
     for(j = 0; j<iLength; j++){
-        if((j%10)+1==10){
-            std::cout << "-";
-        }else{
-            std::cout << (j%10)+1;
-        }
+      if((j%10)+1==10){
+        std::cout << "-";
+      }else{
+        std::cout << (j%10)+1;
+      }
     }
     std::cout << std::endl << "2hit ";
     LCOut[0]->printb();
@@ -148,31 +148,31 @@ TGCHitPattern** TGCDoubletSB::doLocalCoincidence(const TGCPatchPanelOut* PPOut)
     std::cout << std::endl;
 #endif    
 
-/*
-    L5  B   A L6  ©„Ÿ„Ÿ„Ÿ  Wire  [pivot]
-    L6  B   A L5  © Strip  „ 
-           „¡„¢        „    „ 
-           „ false     «   «
-       „¡„¢„ „        „¡„¢0
-  bp[0]„ „ „¤„£       „¤„£
-     0 „ „ „¡„¢       „¡„¢1„¡„¢0
-       „¤„£„ „ bp[1]  „¤„£ „¤„£
-       „¡„¢„ „    0   „¡„¢2„¡„¢1
-  bp[2]„ „ „¤„£       „¤„£ „¤„£
-     1 „ „ „¡„¢       „¡„¢3„¡„¢2
-       „¤„£„ „ bp[4]  „¤„£ „¤„£
-           „ „    1
-           „¤„£
-       „¡„¢
-       „ „ 
-       „ „ „¡„¢       „¡„¢ pLength-2
-       „¤„£„ „        „¤„£
-       „¡„¢„ „        „¡„¢ pLength-1      
-    false„ „¤„£       „¤„£
-       „ „  ª 
-       „¤„£ „¤„Ÿ  bp[pLength-1]  
+    /*
+      L5  B   A L6  ©„Ÿ„Ÿ„Ÿ  Wire  [pivot]
+      L6  B   A L5  © Strip  „ 
+      „¡„¢        „    „ 
+      „ false     «   «
+      „¡„¢„ „        „¡„¢0
+      bp[0]„ „ „¤„£       „¤„£
+      0 „ „ „¡„¢       „¡„¢1„¡„¢0
+      „¤„£„ „ bp[1]  „¤„£ „¤„£
+      „¡„¢„ „    0   „¡„¢2„¡„¢1
+      bp[2]„ „ „¤„£       „¤„£ „¤„£
+      1 „ „ „¡„¢       „¡„¢3„¡„¢2
+      „¤„£„ „ bp[4]  „¤„£ „¤„£
+      „ „    1
+      „¤„£
+      „¡„¢
+      „ „ 
+      „ „ „¡„¢       „¡„¢ pLength-2
+      „¤„£„ „        „¤„£
+      „¡„¢„ „        „¡„¢ pLength-1      
+      false„ „¤„£       „¤„£
+      „ „  ª 
+      „¤„£ „¤„Ÿ  bp[pLength-1]  
        
-*/
+    */
     LCOut[2]->setChannel(0, bp[0] & !bp[1]);
     LCOut[3]->setChannel(0, bp[0] & bp[1]);
     for( i=1; i<pLength-1; i+=1){
@@ -188,11 +188,11 @@ TGCHitPattern** TGCDoubletSB::doLocalCoincidence(const TGCPatchPanelOut* PPOut)
 #ifdef TGCDEBUG
     std::cout << "A,B p";
     for(j = 0; j<pLength; j++){
-        if((j%10)+1==10){
-            std::cout << "-";
-        }else{
-            std::cout << (j%10)+1;
-        }
+      if((j%10)+1==10){
+        std::cout << "-";
+      }else{
+        std::cout << (j%10)+1;
+      }
     }
     std::cout << std::endl << "1hit ";
     LCOut[2]->printb();
@@ -212,9 +212,9 @@ TGCHitPattern** TGCDoubletSB::doLocalCoincidence(const TGCPatchPanelOut* PPOut)
 void TGCDoubletSB::do3outof4Coincedence(TGCHitPattern** LCOut)
 {
   if(((LCOut[0]!=0)||(LCOut[1]!=0))&&((LCOut[2]!=0)||(LCOut[3]!=0))){
-    if ( coincidenceOut != 0 ) delete coincidenceOut;
-    coincidenceOut = new TGCHitPattern;
-    if ( !coincidenceOut ) {
+    if ( m_coincidenceOut != 0 ) delete m_coincidenceOut;
+    m_coincidenceOut = new TGCHitPattern;
+    if ( !m_coincidenceOut ) {
       std::cerr << "TGCDoubletSB::create coincidenceOut: Memory allocation failure.";
       exit(1);
     }
@@ -225,8 +225,8 @@ void TGCDoubletSB::do3outof4Coincedence(TGCHitPattern** LCOut)
     std::cout<<"#SB LCOut[2]: pivot 1hit";LCOut[2]->print();
     std::cout<<"#SB LCOut[3]: pivot 2hit";LCOut[3]->print();
 #endif
-    coincidenceOut->setLength(LCOut[2]->getLength());
-    coincidenceOut->clear();
+    m_coincidenceOut->setLength(LCOut[2]->getLength());
+    m_coincidenceOut->clear();
     int i;
     for( i=0; i<NumberOfDoubletSBData; i+=1)
       // select tracks in each submatrix.
@@ -240,13 +240,13 @@ void TGCDoubletSB::doCoincidenceInSubMatrix(const int block, TGCHitPattern** LCO
   bool hit = false;
   bool A, B, C, D;
 
-  slaveBoardOut->setHit(block,false);
+  m_slaveBoardOut->setHit(block,false);
   int dev,pCh,iCh;
-  for( dev=0; ( dev<=maxDev ) && !oredHit; dev+=1){
+  for( dev=0; ( dev<=m_maxDev ) && !oredHit; dev+=1){
     int i;
-    for(i = 0; i < nChAdj + nChInBlock + MatrixOverlap; i++){
-      pCh = (nChAdj + nChInBlock - MatrixOverlap)*block + i;
-      iCh = pCh + priorSign*dev + iChBase;
+    for(i = 0; i < m_nChAdj + m_nChInBlock + m_MatrixOverlap; i++){
+      pCh = (m_nChAdj + m_nChInBlock - m_MatrixOverlap)*block + i;
+      iCh = pCh + m_priorSign*dev + m_iChBase;
       if(0 <= iCh){
         if((0 <= iCh)&&(iCh < LCOut[0]->getLength())){
           A = LCOut[0]->getChannel(iCh);
@@ -263,12 +263,12 @@ void TGCDoubletSB::doCoincidenceInSubMatrix(const int block, TGCHitPattern** LCO
         hit = element(A, B, C, D);
         if(hit){
           if(block == 0){ //block A
-            if((0 <= i) && (i < nChAdj+nChInBlock)){
-              coincidenceOut->onChannel(pCh);
+            if((0 <= i) && (i < m_nChAdj+m_nChInBlock)){
+              m_coincidenceOut->onChannel(pCh);
             }
           }else{//block B
-            if((MatrixOverlap <= i) && (i < MatrixOverlap+nChInBlock+nChAdj)){
-              coincidenceOut->onChannel(pCh);
+            if((m_MatrixOverlap <= i) && (i < m_MatrixOverlap+m_nChInBlock+m_nChAdj)){
+              m_coincidenceOut->onChannel(pCh);
             }
           }
         }
@@ -276,12 +276,12 @@ void TGCDoubletSB::doCoincidenceInSubMatrix(const int block, TGCHitPattern** LCO
       }
     }
     if(oredHit){
-      if((priorSign*dev>=negMaxDev)&&(priorSign*dev<=posMaxDev)){
-        slaveBoardOut->setDev(block, priorSign*dev);
-        slaveBoardOut->setbDev(block, priorSign, dev);
-        slaveBoardOut->setHit(block, true);
+      if((m_priorSign*dev>=m_negMaxDev)&&(m_priorSign*dev<=m_posMaxDev)){
+        m_slaveBoardOut->setDev(block, m_priorSign*dev);
+        m_slaveBoardOut->setbDev(block, m_priorSign, dev);
+        m_slaveBoardOut->setHit(block, true);
 #ifdef TGCDEBUG
-	std::cout << "# DoubletSB : delta =" <<  priorSign*dev 
+	std::cout << "# DoubletSB : delta =" <<  m_priorSign*dev 
 		  << " @pivot=" << pCh << " @onner="<< iCh << std::endl; 
 #endif
         return;
@@ -290,9 +290,9 @@ void TGCDoubletSB::doCoincidenceInSubMatrix(const int block, TGCHitPattern** LCO
       }
     } else if(dev!=0) {
       // Opposite sign of dr,dphi
-      for(i = 0; i < nChAdj + nChInBlock + MatrixOverlap; i++){
-        pCh = (nChAdj + nChInBlock - MatrixOverlap)*block + i;
-        iCh = pCh - priorSign*dev + iChBase;
+      for(i = 0; i < m_nChAdj + m_nChInBlock + m_MatrixOverlap; i++){
+        pCh = (m_nChAdj + m_nChInBlock - m_MatrixOverlap)*block + i;
+        iCh = pCh - m_priorSign*dev + m_iChBase;
         if(iCh>=0){
           if((0 <= iCh)&&(iCh < LCOut[0]->getLength())){
             A = LCOut[0]->getChannel(iCh);
@@ -309,12 +309,12 @@ void TGCDoubletSB::doCoincidenceInSubMatrix(const int block, TGCHitPattern** LCO
           hit = element(A, B, C, D);
           if(hit){
             if(block == 0){ //block A
-              if((0 <= i) && (i < nChAdj+nChInBlock)){
-                coincidenceOut->onChannel(pCh);
+              if((0 <= i) && (i < m_nChAdj+m_nChInBlock)){
+                m_coincidenceOut->onChannel(pCh);
               }
             }else{//block B
-              if((MatrixOverlap <= i) && (i < MatrixOverlap+nChInBlock+nChAdj)){
-                coincidenceOut->onChannel(pCh);
+              if((m_MatrixOverlap <= i) && (i < m_MatrixOverlap+m_nChInBlock+m_nChAdj)){
+                m_coincidenceOut->onChannel(pCh);
               }
             }
           }
@@ -322,12 +322,12 @@ void TGCDoubletSB::doCoincidenceInSubMatrix(const int block, TGCHitPattern** LCO
         }
       }
       if(oredHit){
-        if((-priorSign*dev>=negMaxDev)&&(-priorSign*dev<=posMaxDev)){
-          slaveBoardOut->setDev(block,-priorSign*dev);
-          slaveBoardOut->setbDev(block, -priorSign, dev);
-          slaveBoardOut->setHit(block,true);
+        if((-m_priorSign*dev>=m_negMaxDev)&&(-m_priorSign*dev<=m_posMaxDev)){
+          m_slaveBoardOut->setDev(block,-m_priorSign*dev);
+          m_slaveBoardOut->setbDev(block, -m_priorSign, dev);
+          m_slaveBoardOut->setHit(block,true);
 #ifdef TGCDEBUG
-	std::cout << "# DoubletSB : delta =" <<  -priorSign*dev 
+	std::cout << "# DoubletSB : delta =" <<  -m_priorSign*dev 
 		  << " @pivot=" << pCh << " @onner="<< iCh << std::endl; 
 #endif
           return;
@@ -343,10 +343,10 @@ void TGCDoubletSB::doCoincidenceInSubMatrix(const int block, TGCHitPattern** LCO
 bool TGCDoubletSB::element(bool A, bool B, bool C, bool D)
 {
   if(g_STRICTWD) {
-    if(SType == WIREGROUP) return (A & D);
+    if(m_SType == WIREGROUP) return (A & D);
   }
   if (g_STRICTSD) {
-    if(SType == STRIP) return (A & D);
+    if(m_SType == STRIP) return (A & D);
   }
   
   return ((A & C)|( A & D)|( B & D));

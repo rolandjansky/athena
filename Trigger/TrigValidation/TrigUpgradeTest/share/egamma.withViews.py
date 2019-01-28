@@ -247,7 +247,7 @@ summary = TriggerSummaryAlg( "TriggerSummaryAlg" )
 summary.InputDecision = "L1DecoderSummary"
 summary.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions" ]
 
-from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
+from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator, HLTEDMCreatorAlg
 egammaViewsMerger = HLTEDMCreator("egammaViewsMerger")
 egammaViewsMerger.TrigCompositeContainer = [ "filterCaloRoIsAlg", "EgammaCaloDecisions","ElectronL2Decisions", "MuonL2Decisions", "EMRoIDecisions", "METRoIDecisions", "MURoIDecisions", "L1DecoderSummary", "JRoIDecisions", "MonitoringSummaryStep1", "RerunEMRoIDecisions", "RerunMURoIDecisions", "TAURoIDecisions", "L2CaloLinks", "FilteredEMRoIDecisions", "FilteredEgammaCaloDecisions" ]
 
@@ -269,10 +269,9 @@ egammaViewsMerger.OutputLevel = VERBOSE
 svcMgr.StoreGateSvc.OutputLevel = INFO
 
 
-summary.OutputTools = [ egammaViewsMerger ]
+edmMakerAlg = HLTEDMCreatorAlg("EDMMaker")
+edmMakerAlg.OutputTools = [ egammaViewsMerger ]
 
-
-summary.OutputLevel = DEBUG
 
 step0filter = parOR("step0filter", [ findAlgorithm( egammaCaloStep, "filterL1RoIsAlg") ] )
 step1filter = parOR("step1filter", [ findAlgorithm(egammaIDStep, "filterCaloRoIsAlg") ] )
@@ -392,15 +391,37 @@ deserialiser = TriggerEDMDeserialiserAlg()
 deserialiser.Prefix="SERIALISED_"
 deserialiser.OutputLevel=DEBUG
 
-# add prefix + remove version to class name
-l = [ c.split("#")[0].split("_")[0] + "#" + deserialiser.Prefix + c.split("#")[1] for c in serialiser.CollectionsToSerialize ] 
+# # add prefix + remove version to class name
+# l = [ c.split("#")[0].split("_")[0] + "#" + deserialiser.Prefix + c.split("#")[1] for c in serialiser.CollectionsToSerialize ] 
 #StreamESD.ItemList += l
+
+
+
+
+
+
+if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
+   from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc 
+   svcMgr += ByteStreamAddressProviderSvc()
+svcMgr.ByteStreamAddressProviderSvc.TypeNames = ["ROIB::RoIBResult/RoIBResult", ]
+
+from ByteStreamCnvSvc import WriteByteStream
+streamBS = WriteByteStream.getStream("EventStorage","StreamBSFileOutput")
+streamBS.OutputLevel=DEBUG
+ServiceMgr.ByteStreamCnvSvc.OutputLevel = VERBOSE
+ServiceMgr.ByteStreamCnvSvc.IsSimulation = False
+ServiceMgr.ByteStreamCnvSvc.InitCnvs += ["HLT::HLTResultMT"]
+streamBS.ItemList += ["HLT::HLTResultMT#HLTResultMT"]
+
+svcMgr.EventPersistencySvc.CnvServices += [ "ByteStreamCnvSvc" ]
+svcMgr.ByteStreamEventStorageOutputSvc.OutputLevel = VERBOSE
+
 
 
 
 ################################################################################
 # assemble top list of algorithms
-hltTop = seqOR( "hltTop", [ steps,  summary,  summMaker, mon, hltResultMakerAlg, deserialiser, StreamESD ] )
+hltTop = seqOR( "hltTop", [ steps,  summMaker, mon, edmMakerAlg, hltResultMakerAlg, StreamESD, streamBS, deserialiser ] )
 
 
 
@@ -444,6 +465,9 @@ from AthenaCommon.AlgSequence import dumpSequence
 dumpSequence(topSequence)
 print("Dump of serviceMgr")
 dumpSequence(ServiceMgr)
+
+
+
 
 #print theElectronFex
 #print ViewVerify

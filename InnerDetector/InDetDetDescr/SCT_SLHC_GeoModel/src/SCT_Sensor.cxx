@@ -21,9 +21,7 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
 #include "InDetReadoutGeometry/SiCommonItems.h"
-
-
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 using namespace InDetDD;
 
@@ -78,7 +76,7 @@ SCT_Sensor::preBuild()
     
     // Build the subsensor logical volume (same for all segments).
     // We reduce the size by a small amount to avoid touching volumes. 
-    double epsilon = 1e-7*GeoModelKernelUnits::mm;
+    double epsilon = 1e-7*Gaudi::Units::mm;
     const GeoBox * subSensorShape = new GeoBox(0.5*m_thickness-epsilon, 0.5*m_width-epsilon, 0.5*m_subSensorLength-epsilon);
     m_subSensorLog = new GeoLogVol(getName(), subSensorShape, m_material);  
     m_subSensorLog->ref();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ReadCalibChipNoiseCondAlg.h"
@@ -18,7 +18,7 @@ using namespace SCT_ConditionsData;
 using namespace SCT_ReadCalibChipUtilities;
 
 SCT_ReadCalibChipNoiseCondAlg::SCT_ReadCalibChipNoiseCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
-  : ::AthAlgorithm(name, pSvcLocator)
+  : ::AthReentrantAlgorithm(name, pSvcLocator)
   , m_condSvc{"CondSvc", name}
   , m_id_sct{nullptr}
 {
@@ -45,11 +45,11 @@ StatusCode SCT_ReadCalibChipNoiseCondAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_ReadCalibChipNoiseCondAlg::execute() {
+StatusCode SCT_ReadCalibChipNoiseCondAlg::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("execute " << name());
 
   // Write Cond Handle
-  SG::WriteCondHandle<SCT_NoiseCalibData> writeHandle{m_writeKey};
+  SG::WriteCondHandle<SCT_NoiseCalibData> writeHandle{m_writeKey, ctx};
   // Do we have a valid Write Cond Handle for current time?
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
@@ -59,7 +59,7 @@ StatusCode SCT_ReadCalibChipNoiseCondAlg::execute() {
   }
 
   // Read Cond Handle
-  SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey};
+  SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey, ctx};
   const CondAttrListCollection* readCdo{*readHandle};
   if (readCdo==nullptr) {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
@@ -121,7 +121,7 @@ StatusCode SCT_ReadCalibChipNoiseCondAlg::finalize() {
 }
 
 void 
-SCT_ReadCalibChipNoiseCondAlg::insertNoiseOccFolderData(SCT_ModuleNoiseCalibData& theseCalibData, const coral::AttributeList& folderData) {
+SCT_ReadCalibChipNoiseCondAlg::insertNoiseOccFolderData(SCT_ModuleNoiseCalibData& theseCalibData, const coral::AttributeList& folderData) const {
   for (int i{0}; i!=N_NOISEOCC; ++i) {
     SCT_ModuleCalibParameter& datavec{theseCalibData[i]};
     std::string dbData{((folderData)[noiseOccDbParameterNames[i]]).data<std::string>()};

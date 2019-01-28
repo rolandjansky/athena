@@ -33,6 +33,7 @@
 #include "GaudiKernel/IScheduler.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/IIoComponentMgr.h"
+#include "GaudiKernel/IIoComponent.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 
 // TDAQ includes
@@ -555,20 +556,24 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree& /*pt*/)
 
   // Make sure output files, i.e. histograms are written to their own directory.
   // Nothing happens if the online TrigMonTHistSvc is used as there are no output files.
-  boost::filesystem::path worker_dir = boost::filesystem::absolute("athenaHLT_workers");
-  worker_dir /= m_applicationName.value();
-  // Delete worker directory if it exists already
-  if ( boost::filesystem::exists(worker_dir) ) {
-    if ( !boost::filesystem::remove_all(worker_dir) ) {
-      ATH_MSG_FATAL("Cannot delete previous worker directory " << worker_dir);
+  SmartIF<IIoComponent> histsvc = serviceLocator()->service("THistSvc", /*createIf=*/ false).as<IIoComponent>();
+  if ( !m_ioCompMgr->io_retrieve(histsvc.get()).empty() ) {
+    boost::filesystem::path worker_dir = boost::filesystem::absolute("athenaHLT_workers");
+    worker_dir /= m_applicationName.value();
+    // Delete worker directory if it exists already
+    if ( boost::filesystem::exists(worker_dir) ) {
+      if ( !boost::filesystem::remove_all(worker_dir) ) {
+        ATH_MSG_FATAL("Cannot delete previous worker directory " << worker_dir);
+        return StatusCode::FAILURE;
+      }
+    }
+    if ( !boost::filesystem::create_directories(worker_dir) ) {
+      ATH_MSG_FATAL("Cannot create worker directory " << worker_dir);
       return StatusCode::FAILURE;
     }
+    ATH_MSG_INFO("Writing worker output files to " << worker_dir);
+    ATH_CHECK(m_ioCompMgr->io_update_all(worker_dir.string()));
   }
-  if ( !boost::filesystem::create_directories(worker_dir) ) {
-    ATH_MSG_FATAL("Cannot create worker directory " << worker_dir);
-    return StatusCode::FAILURE;
-  }
-  ATH_CHECK(m_ioCompMgr->io_update_all(worker_dir.string()));
   ATH_CHECK(m_ioCompMgr->io_reinitialize());
 
   // Start the timeout thread

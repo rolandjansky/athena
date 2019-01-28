@@ -96,15 +96,15 @@ def handiWithComparisons( name, resultsFile, htmlDir, runlistLoc, compare, brows
 
   if (browserMenu):
     makeAllDirsXml( htmlDir, name, s, number, resultsFile)
-    list, namelist = makeAllDirsBrowserFile( htmlDir, name, s, number, resultsFile,allDirsScriptDir )
+    dirlist, namelist = makeAllDirsBrowserFile( htmlDir, name, s, number, resultsFile,allDirsScriptDir )
   else:
-    list, namelist = makeAllDirsFile( htmlDir, name, s, number, resultsFile )
+    dirlist, namelist = makeAllDirsFile( htmlDir, name, s, number, resultsFile )
     
-  for x in range(0,len(list)):
-    makeSubDirFile( htmlDir, name, s, number, namelist[x], list[x], runlistLoc, compare, allDirsScriptDir )
-    makeColorFile( htmlDir, name, s, number, namelist[x], list[x], 'Red', runlistLoc, compare, allDirsScriptDir)
-    makeColorFile( htmlDir, name, s, number, namelist[x], list[x], 'Yellow', runlistLoc, compare, allDirsScriptDir)
-    makeColorFile( htmlDir, name, s, number, namelist[x], list[x], 'Green', runlistLoc, compare, allDirsScriptDir )
+  for x in range(0,len(dirlist)):
+    makeSubDirFile( htmlDir, name, s, number, namelist[x], dirlist[x], runlistLoc, compare, allDirsScriptDir )
+    makeColorFile( htmlDir, name, s, number, namelist[x], dirlist[x], 'Red', runlistLoc, compare, allDirsScriptDir)
+    makeColorFile( htmlDir, name, s, number, namelist[x], dirlist[x], 'Yellow', runlistLoc, compare, allDirsScriptDir)
+    makeColorFile( htmlDir, name, s, number, namelist[x], dirlist[x], 'Green', runlistLoc, compare, allDirsScriptDir )
     makeCSSFile( htmlDir,"", namelist[x] )
   
   makeCSSFile( htmlDir,"", "." )
@@ -180,8 +180,8 @@ def makeAllDirsFile( htmlDir, name, s, number, resultsFile ):
 
   # initial number of white spaces, will change to positive value once we go over the lines
   spaces=-1
-  # list = list with directories (the line number) that contain histos
-  list=[]
+  # dirlist = list with directories (the line number) that contain histos
+  dirlist=[]
   # namelist = list with corresponding direcotory names
   namelist=[]
 
@@ -224,7 +224,7 @@ def makeAllDirsFile( htmlDir, name, s, number, resultsFile ):
         else:
           g.write('<a href="'+namedir +'/index.html" >'+shortNameDir+ ':</a>')
         g.write('&nbsp;&nbsp;&nbsp;<font class="'+ sp[1]+'">'+ sp[1] + '</font>\n')
-        list.append(x)
+        dirlist.append(x)
         namelist.append(namedir)
       else:
         g.write(shortNameDir+ ':')
@@ -240,7 +240,7 @@ def makeAllDirsFile( htmlDir, name, s, number, resultsFile ):
   g.write('</font></td>\n</tr>\n</table>')
   g.write('</body>\n</html>\n')
   g.close()
-  return list, namelist
+  return dirlist, namelist
 
 
 def makeAllDirsBrowserFile( htmlDir, name, s, number, resultsFile,AllDirsScriptDir ):
@@ -268,8 +268,8 @@ def makeAllDirsBrowserFile( htmlDir, name, s, number, resultsFile,AllDirsScriptD
   g.write('</body>\n</html>\n')
   g.close()
   
-  # list = list with directories (the line number) that contain histos
-  list=[]
+  # dirlist = list with directories (the line number) that contain histos
+  dirlist=[]
   # namelist = list with corresponding direcotory names
   namelist=[]
 
@@ -282,10 +282,10 @@ def makeAllDirsBrowserFile( htmlDir, name, s, number, resultsFile,AllDirsScriptD
       if ( (x<number-1) and (s[x+1].rsplit())[3]=='ass' ): # check that dir contains histos
         if namedir=='<top_level>':
           namedir = '.'
-        list.append(x)
+        dirlist.append(x)
         namelist.append(namedir)
   g.close()
-  return list, namelist
+  return dirlist, namelist
 
 def makeSubDirFile( htmlDir, name, s, number, subname, assessIndex, runlistLoc,compare, AllDirsScriptDir):
   

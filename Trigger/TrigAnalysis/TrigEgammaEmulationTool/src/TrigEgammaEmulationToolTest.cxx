@@ -13,7 +13,6 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
-#include "PATCore/TAccept.h"
 using std::string;
 
 //**********************************************************************
@@ -118,23 +117,23 @@ StatusCode TrigEgammaEmulationToolTest::Method1() {
         ATH_MSG_DEBUG("TE is nullptr");
         continue;
       }
-      setAccept(finalFC);
+      asg::AcceptData acceptData = setAccept(finalFC);
       
       count("Method1__total__"+trigger);      
-      if(m_accept.getCutResult("L1Calo"))   count("Method1__TDT__L1Calo__" +trigger);
-      if(m_accept.getCutResult("L2Calo"))   count("Method1__TDT__L2Calo__" +trigger);
-      if(m_accept.getCutResult("L2"))       count("Method1__TDT__L2__"     +trigger);
-      if(m_accept.getCutResult("EFTrack"))  count("Method1__TDT__EFTrack__"+trigger);
-      if(m_accept.getCutResult("EFCalo"))   count("Method1__TDT__EFCalo__" +trigger);
-      if(m_accept.getCutResult("HLT"))      count("Method1__TDT__HLT__"    +trigger);
+      if(acceptData.getCutResult("L1Calo"))   count("Method1__TDT__L1Calo__" +trigger);
+      if(acceptData.getCutResult("L2Calo"))   count("Method1__TDT__L2Calo__" +trigger);
+      if(acceptData.getCutResult("L2"))       count("Method1__TDT__L2__"     +trigger);
+      if(acceptData.getCutResult("EFTrack"))  count("Method1__TDT__EFTrack__"+trigger);
+      if(acceptData.getCutResult("EFCalo"))   count("Method1__TDT__EFCalo__" +trigger);
+      if(acceptData.getCutResult("HLT"))      count("Method1__TDT__HLT__"    +trigger);
 
-      Root::TAccept accept = m_emulationTool->executeTool(finalFC, trigger);
-      if(accept.getCutResult("L1Calo"))   count("Method1__EMU__L1Calo__" +trigger);
-      if(accept.getCutResult("L2Calo"))   count("Method1__EMU__L2Calo__" +trigger);
-      if(accept.getCutResult("L2"))       count("Method1__EMU__L2__"     +trigger);
-      if(accept.getCutResult("EFTrack"))  count("Method1__EMU__EFTrack__"+trigger);
-      if(accept.getCutResult("EFCalo"))   count("Method1__EMU__EFCalo__" +trigger);
-      if(accept.getCutResult("HLT"))      count("Method1__EMU__HLT__"    +trigger);
+      asg::AcceptData accept2 = m_emulationTool->executeTool(finalFC, trigger);
+      if(accept2.getCutResult("L1Calo"))   count("Method1__EMU__L1Calo__" +trigger);
+      if(accept2.getCutResult("L2Calo"))   count("Method1__EMU__L2Calo__" +trigger);
+      if(accept2.getCutResult("L2"))       count("Method1__EMU__L2__"     +trigger);
+      if(accept2.getCutResult("EFTrack"))  count("Method1__EMU__EFTrack__"+trigger);
+      if(accept2.getCutResult("EFCalo"))   count("Method1__EMU__EFCalo__" +trigger);
+      if(accept2.getCutResult("HLT"))      count("Method1__EMU__HLT__"    +trigger);
       
     }// loop over electrons offline
   }// loop over triggers
@@ -156,22 +155,22 @@ StatusCode TrigEgammaEmulationToolTest::Method2() {
         continue;
       }
 
-      setAccept(finalFC);
+      asg::AcceptData acceptData = setAccept(finalFC);
       count("Method2__total__"+trigger);      
-      if(m_accept.getCutResult("L1Calo"))   count("Method2__TDT__L1Calo__" +trigger);
-      if(m_accept.getCutResult("L2Calo"))   count("Method2__TDT__L2Calo__" +trigger);
-      if(m_accept.getCutResult("L2"))       count("Method2__TDT__L2__"     +trigger);
-      if(m_accept.getCutResult("EFTrack"))  count("Method2__TDT__EFTrack__"+trigger);
-      if(m_accept.getCutResult("EFCalo"))   count("Method2__TDT__EFCalo__" +trigger);
-      if(m_accept.getCutResult("HLT"))      count("Method2__TDT__HLT__"    +trigger);
+      if(acceptData.getCutResult("L1Calo"))   count("Method2__TDT__L1Calo__" +trigger);
+      if(acceptData.getCutResult("L2Calo"))   count("Method2__TDT__L2Calo__" +trigger);
+      if(acceptData.getCutResult("L2"))       count("Method2__TDT__L2__"     +trigger);
+      if(acceptData.getCutResult("EFTrack"))  count("Method2__TDT__EFTrack__"+trigger);
+      if(acceptData.getCutResult("EFCalo"))   count("Method2__TDT__EFCalo__" +trigger);
+      if(acceptData.getCutResult("HLT"))      count("Method2__TDT__HLT__"    +trigger);
 
-      Root::TAccept accept = m_emulationTool->executeTool(trigger);
-      if(accept.getCutResult("L1Calo"))   count("Method2__EMU__L1Calo__" +trigger);
-      if(accept.getCutResult("L2Calo"))   count("Method2__EMU__L2Calo__" +trigger);
-      if(accept.getCutResult("L2"))       count("Method2__EMU__L2__"     +trigger);
-      if(accept.getCutResult("EFTrack"))  count("Method2__EMU__EFTrack__"+trigger);
-      if(accept.getCutResult("EFCalo"))   count("Method2__EMU__EFCalo__" +trigger);
-      if(accept.getCutResult("HLT"))      count("Method2__EMU__HLT__"    +trigger);
+      asg::AcceptData accept2 = m_emulationTool->executeTool(trigger);
+      if(accept2.getCutResult("L1Calo"))   count("Method2__EMU__L1Calo__" +trigger);
+      if(accept2.getCutResult("L2Calo"))   count("Method2__EMU__L2Calo__" +trigger);
+      if(accept2.getCutResult("L2"))       count("Method2__EMU__L2__"     +trigger);
+      if(accept2.getCutResult("EFTrack"))  count("Method2__EMU__EFTrack__"+trigger);
+      if(accept2.getCutResult("EFCalo"))   count("Method2__EMU__EFCalo__" +trigger);
+      if(accept2.getCutResult("HLT"))      count("Method2__EMU__HLT__"    +trigger);
     
     }
   }
@@ -213,11 +212,12 @@ void TrigEgammaEmulationToolTest::writeEmulationSummary(){
  
 }
 
-bool TrigEgammaEmulationToolTest::setAccept( const HLT::TriggerElement *finalFC){
-  m_accept.clear();
-  
+asg::AcceptData
+TrigEgammaEmulationToolTest::setAccept( const HLT::TriggerElement *finalFC)
+{
+  asg::AcceptData acceptData (&m_accept);
   if(!finalFC)
-    return false;
+    return acceptData;
     
   bool passedL1         = false;
   bool passedL2Calo     = false;
@@ -254,14 +254,14 @@ bool TrigEgammaEmulationToolTest::setAccept( const HLT::TriggerElement *finalFC)
   if( m_trigdec->ancestor<xAOD::ElectronContainer>(finalFC).te() != nullptr )
     passedHLT=m_trigdec->ancestor<xAOD::ElectronContainer>(finalFC).te()->getActiveState();
 
-  m_accept.setCutResult("L1Calo", passedL1);
-  m_accept.setCutResult("L2Calo", passedL2Calo);
-  m_accept.setCutResult("L2", passedL2);
-  m_accept.setCutResult("EFTrack", passedEFTrack);
-  m_accept.setCutResult("EFCalo", passedEFCalo);
-  m_accept.setCutResult("HLT", passedHLT);
+  acceptData.setCutResult("L1Calo", passedL1);
+  acceptData.setCutResult("L2Calo", passedL2Calo);
+  acceptData.setCutResult("L2", passedL2);
+  acceptData.setCutResult("EFTrack", passedEFTrack);
+  acceptData.setCutResult("EFCalo", passedEFCalo);
+  acceptData.setCutResult("HLT", passedHLT);
 
-  return true;
+  return acceptData;
 }
 
 }///namespace

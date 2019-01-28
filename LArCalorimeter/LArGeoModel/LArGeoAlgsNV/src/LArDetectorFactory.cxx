@@ -17,7 +17,7 @@
 #include "GeoModelKernel/GeoNameTag.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include "CLHEP/Geometry/Transform3D.h" 
 
@@ -237,7 +237,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	    a_container->add(endcapEnvelopePos);
 	    a_container->add( new GeoNameTag("LArEndcapNeg"));
 	    a_container->add(xfEndcapNeg);
-	    a_container->add( new GeoTransform(GeoTrf::RotateY3D(180.0*GeoModelKernelUnits::deg)));
+	    a_container->add( new GeoTransform(GeoTrf::RotateY3D(180.0*Gaudi::Units::deg)));
 	    a_container->add(endcapEnvelopeNeg);
 	  }
 	else if(!m_buildEndcap)
@@ -302,7 +302,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	    a_container->add(endcapEnvelopePos);
 	    a_container->add( new GeoNameTag("LArEndcapNeg"));
 	    a_container->add(xfEndcapNeg);
-	    a_container->add( new GeoTransform(GeoTrf::RotateY3D(180.0*GeoModelKernelUnits::deg)));
+	    a_container->add( new GeoTransform(GeoTrf::RotateY3D(180.0*Gaudi::Units::deg)));
 	    a_container->add(endcapEnvelopeNeg);
       
 	  }

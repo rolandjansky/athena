@@ -160,8 +160,8 @@ namespace TrigCostRootAnalysis {
 
       if (!Config::config().getConfKeyNameFromString(varName, confVar)) {
         doNotInstantiateTest = true;
-        const std::string varNameError = "varName not recognised : " + varName;
-        Error("AutoMonControl::parseTestXml", varNameError.c_str());
+        Error("AutoMonControl::parseTestXml", "varName not recognised : %s",
+              varName.c_str());
       }
 
       if (varOpt == "call" || varOpt == "Call") {
@@ -173,8 +173,7 @@ namespace TrigCostRootAnalysis {
       } else if (varOpt == "period" || varOpt == "Period") {
         confVarOpts = kSavePerPeriod;
       } else {
-        const std::string varOptError = "Unkown Variable Option, please use Call, Event, EventFraction or Period";
-        Error("AutoMonControl::parseTestXml", varOptError.c_str());
+        Error("AutoMonControl::parseTestXml","Unkown Variable Option, please use Call, Event, EventFraction or Period");
         doNotInstantiateTest = true;
       }
 
@@ -189,8 +188,7 @@ namespace TrigCostRootAnalysis {
         }
 
         AutoMonTest test = AutoMonTest(testName, confVar, confVarOpts, fracArg, &m_test_results);
-        const std::string testInfoString = "Making Test " + testName;
-        Info("AutoMonControl::parseTestXml", testInfoString.c_str());
+        Info("AutoMonControl::parseTestXml", "Making Test %s", testName.c_str());
 
         if (advise == "") {
           if (warn == "") {
@@ -203,11 +201,9 @@ namespace TrigCostRootAnalysis {
         }
         bankTest(test);
       } else {
-        const std::string errorString = "Error when making test, XML parsing failed. Name (if able to retrieve) : " +
-                                        testName;
-        const std::string infoString = "Continuing without adding Test";
-        Error("AutoMonControl::parseTestXml", errorString.c_str());
-        Info("infoString", infoString.c_str());
+        Error("AutoMonControl::parseTestXml", "Error when making test, XML parsing failed. Name (if able to retrieve) : %s",
+              testName.c_str());
+        Info("infoString", "Continuing without adding Test");
       }
 
       testNode = xml->GetNext(testNode); //iterate to next test node

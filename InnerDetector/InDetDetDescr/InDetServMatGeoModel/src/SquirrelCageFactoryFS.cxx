@@ -23,7 +23,7 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GaudiKernel/Bootstrap.h"
-
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <iostream>
 
@@ -74,46 +74,46 @@ void SquirrelCageFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
 //     Squirrel cage rings
 //  Default (initial) ring parameters
 //
-    double rminInt    = 1074.0*GeoModelKernelUnits::mm;
-    double ringThick  = 4.0*GeoModelKernelUnits::mm;
-    double ringGap    = 20.*GeoModelKernelUnits::mm;
-    double ringWid    = 40.*GeoModelKernelUnits::mm;
+    double rminInt    = 1074.0*Gaudi::Units::mm;
+    double ringThick  = 4.0*Gaudi::Units::mm;
+    double ringGap    = 20.*Gaudi::Units::mm;
+    double ringWid    = 40.*Gaudi::Units::mm;
 //
-    rminInt    = (*cage)[0]->getDouble("RINGRMIN")*GeoModelKernelUnits::mm;
-    ringThick  = (*cage)[0]->getDouble("RINGTHICK")*GeoModelKernelUnits::mm;
-    ringGap    = (*cage)[0]->getDouble("RINGGAP")*GeoModelKernelUnits::mm;
-    ringWid    = (*cage)[0]->getDouble("RINGWIDTH")*GeoModelKernelUnits::mm;
+    rminInt    = (*cage)[0]->getDouble("RINGRMIN")*Gaudi::Units::mm;
+    ringThick  = (*cage)[0]->getDouble("RINGTHICK")*Gaudi::Units::mm;
+    ringGap    = (*cage)[0]->getDouble("RINGGAP")*Gaudi::Units::mm;
+    ringWid    = (*cage)[0]->getDouble("RINGWIDTH")*Gaudi::Units::mm;
 //
 //--- Default (initial) z positions
-    double zposFirstRing  = 805.0*GeoModelKernelUnits::mm+161.0*GeoModelKernelUnits::mm;
-    double zposGap1  = 390.*GeoModelKernelUnits::mm;
-    double zposGap2  = 402.*GeoModelKernelUnits::mm;
-    double zposGap3  = 446.*GeoModelKernelUnits::mm;
-    double zposGap4  = 331.*GeoModelKernelUnits::mm;
+    double zposFirstRing  = 805.0*Gaudi::Units::mm+161.0*Gaudi::Units::mm;
+    double zposGap1  = 390.*Gaudi::Units::mm;
+    double zposGap2  = 402.*Gaudi::Units::mm;
+    double zposGap3  = 446.*Gaudi::Units::mm;
+    double zposGap4  = 331.*Gaudi::Units::mm;
 //
-    zposFirstRing  = (*cage)[0]->getDouble("ZBASE")*GeoModelKernelUnits::mm;
-    zposGap1  = (*cage)[0]->getDouble("ZGAP1")*GeoModelKernelUnits::mm;
-    zposGap2  = (*cage)[0]->getDouble("ZGAP2")*GeoModelKernelUnits::mm;
-    zposGap3  = (*cage)[0]->getDouble("ZGAP3")*GeoModelKernelUnits::mm;
-    zposGap4  = (*cage)[0]->getDouble("ZGAP4")*GeoModelKernelUnits::mm;
+    zposFirstRing  = (*cage)[0]->getDouble("ZBASE")*Gaudi::Units::mm;
+    zposGap1  = (*cage)[0]->getDouble("ZGAP1")*Gaudi::Units::mm;
+    zposGap2  = (*cage)[0]->getDouble("ZGAP2")*Gaudi::Units::mm;
+    zposGap3  = (*cage)[0]->getDouble("ZGAP3")*Gaudi::Units::mm;
+    zposGap4  = (*cage)[0]->getDouble("ZGAP4")*Gaudi::Units::mm;
 //
 // Now support ring
-    double rminSup    = 830.0*GeoModelKernelUnits::mm;
-    double supThick   = 90.0*GeoModelKernelUnits::mm;
-    double supWid     = 12.0*GeoModelKernelUnits::mm;
+    double rminSup    = 830.0*Gaudi::Units::mm;
+    double supThick   = 90.0*Gaudi::Units::mm;
+    double supWid     = 12.0*Gaudi::Units::mm;
 //
-    rminSup    = (*cage)[0]->getDouble("SUPRMIN")*GeoModelKernelUnits::mm;
-    supThick   = (*cage)[0]->getDouble("SUPTHICK")*GeoModelKernelUnits::mm;
-    supWid     = (*cage)[0]->getDouble("SUPWIDTH")*GeoModelKernelUnits::mm;
+    rminSup    = (*cage)[0]->getDouble("SUPRMIN")*Gaudi::Units::mm;
+    supThick   = (*cage)[0]->getDouble("SUPTHICK")*Gaudi::Units::mm;
+    supWid     = (*cage)[0]->getDouble("SUPWIDTH")*Gaudi::Units::mm;
 //
     double zposSupRing  = zposFirstRing+ringWid*5. + zposGap1 + zposGap2 + zposGap3 + zposGap4;
 //
 // Now support ribbon
-    double ribWid     = 68.0*GeoModelKernelUnits::mm ;
-    ribWid = (*cage)[0]->getDouble("RIBWIDTH")*GeoModelKernelUnits::mm;
+    double ribWid     = 68.0*Gaudi::Units::mm ;
+    ribWid = (*cage)[0]->getDouble("RIBWIDTH")*Gaudi::Units::mm;
     double ribLeng    = ringWid*5. + zposGap1 + zposGap2 + zposGap3 + zposGap4;
     double ribThick = 0; 
-    if (sqversion >= 3) ribThick = (*cage)[0]->getDouble("RIBTHICK")*GeoModelKernelUnits::mm;
+    if (sqversion >= 3) ribThick = (*cage)[0]->getDouble("RIBTHICK")*Gaudi::Units::mm;
     double safety =0.01;
     double ribThickMax = ringGap - 2*safety;
     if (ribThick == 0 || ribThick > ribThickMax) {

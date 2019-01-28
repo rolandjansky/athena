@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // vim: ts=2 sw=2
@@ -31,17 +31,19 @@ class HltTauSelectionTool : public virtual IHltTauSelectionTool, public Selectio
     HltTauSelectionTool(const std::string & name);
     HltTauSelectionTool(const HltTauSelectionTool & other);
     HltTauSelectionTool& operator=(const HltTauSelectionTool & other) = delete;
-    ~HltTauSelectionTool();
+    virtual ~HltTauSelectionTool();
 
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
-    virtual const Root::TAccept& accept(const DecoratedHltTau& hlttau) const;
-    virtual const Root::TAccept& accept(const xAOD::TauJet * hlttau, const DataVector<xAOD::TrackParticle> *preselTracksIso, const DataVector<xAOD::TrackParticle> *preselTracksCore) const;
-    virtual const Root::TAccept& accept(const xAOD::TauJet * hlttau, const xAOD::TauJetContainer * presel_taus) const;
+    virtual const asg::AcceptInfo& getAcceptInfo() const override;
+
+    virtual asg::AcceptData accept(const DecoratedHltTau& hlttau) const override;
+    virtual asg::AcceptData accept(const xAOD::TauJet * hlttau, const DataVector<xAOD::TrackParticle> *preselTracksIso, const DataVector<xAOD::TrackParticle> *preselTracksCore) const override;
+    virtual asg::AcceptData accept(const xAOD::TauJet * hlttau, const xAOD::TauJetContainer * presel_taus) const override;
 
   private:
 
-    mutable Root::TAccept m_accept;
+    asg::AcceptInfo m_accept;
 
     HltTauCaloPresel* m_calopresel;
     HltTauID* m_tauid;

@@ -210,20 +210,15 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
 
   //assert (subDetectorId == 0x6A || subDetectorId == 0x69); // 50 or 51
 
-  CscRawDataCollection * rawCollection = 0;
-  CscRawDataContainer::const_iterator it_coll = rdoIDC.indexFind(idColl);
-  if (rdoIDC.end() !=  it_coll) {
+  // Create the Csc container and use the cache to get it
+  std::unique_ptr<CscRawDataCollection> rawCollection(nullptr);
+  CscRawDataContainer::IDC_WriteHandle lock = rdoIDC.getWriteHandle( idColl );
+  if( lock.alreadyPresent() ) {
     ATH_MSG_DEBUG ( "CSC RDO collection already exist with collection hash = " << idColl << " converting is skipped!");
-    return; 
-    //rawCollection = it_coll->cptr();
-  } else {
+  }
+  else{
     ATH_MSG_DEBUG ( "CSC RDO collection does not exist - creating a new one with hash = " << idColl );
-    rawCollection = new CscRawDataCollection(idColl);
-    if ( (rdoIDC.addCollection(rawCollection, idColl)).isFailure() ) {
-       ATH_MSG_ERROR ( "Failed to add RDO collection to container" );
-       delete rawCollection;
-       return;
-    }
+    rawCollection = std::make_unique<CscRawDataCollection>(idColl);
   }
 
   /** set the ROD id and the subDector id */
@@ -518,6 +513,15 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
     //    delete rawCollection;
     //    return;
   }
+
+  if(rawCollection) {
+    StatusCode status_lock = lock.addOrDelete(std::move( rawCollection ) );
+    if (status_lock.isFailure()) {
+      ATH_MSG_ERROR ( "Could not insert CscRawDataCollection into CscRawDataContainer..." );
+      return;
+    }
+  }
+
   ATH_MSG_DEBUG ( "end of CscROD_Decode::fillCollection()" );
   return;
 }
@@ -541,20 +545,15 @@ void Muon::CscROD_Decoder::rodVersion1(const ROBFragment& robFrag,  CscRawDataCo
 
   //assert (subDetectorId <= 1);
   
-  CscRawDataCollection * rawCollection = 0;
-  CscRawDataContainer::const_iterator it_coll = rdoIDC.indexFind(idColl);
-  if (rdoIDC.end() !=  it_coll) {
+  // Create the Csc container and use the cache to get it
+  std::unique_ptr<CscRawDataCollection> rawCollection(nullptr);
+  CscRawDataContainer::IDC_WriteHandle lock = rdoIDC.getWriteHandle( idColl );
+  if( lock.alreadyPresent() ) {
     ATH_MSG_DEBUG ( "CSC RDO collection already exist with collection hash = " << idColl << " converting is skipped!");
-    return; 
-    //rawCollection = it_coll->cptr();
-  } else {
+  }
+  else{
     ATH_MSG_DEBUG ( "CSC RDO collection does not exist - creating a new one with hash = " << idColl );
-    rawCollection = new CscRawDataCollection(idColl);
-    if ( (rdoIDC.addCollection(rawCollection, idColl)).isFailure() ) {
-       ATH_MSG_ERROR ( "Failed to add RDO collection to container" );
-       delete rawCollection;
-       return;
-    }
+    rawCollection = std::make_unique<CscRawDataCollection>(idColl);
   }
 
   // set the ROD id and the subDector id
@@ -596,7 +595,6 @@ void Muon::CscROD_Decoder::rodVersion1(const ROBFragment& robFrag,  CscRawDataCo
   bool dpuFragment = rodReadOut.isDPU(p[rodHeader]);
   if (!dpuFragment) {
     ATH_MSG_ERROR ( "expecting a DPU fragment, Aborting..." );
-    delete rawCollection;
     return;
   }
 
@@ -655,6 +653,17 @@ void Muon::CscROD_Decoder::rodVersion1(const ROBFragment& robFrag,  CscRawDataCo
     if (i < (size-rodFooter)) dpuFragment = rodReadOut.isDPU(p[i]);
     numberOfDPU++;
   }
+
+  if(rawCollection) {
+    StatusCode status_lock = lock.addOrDelete(std::move( rawCollection ) );
+    if (status_lock.isFailure()) {
+      ATH_MSG_ERROR ( "Could not insert CscRawDataCollection into CscRawDataContainer..." );
+      return;
+    }
+  }
+
+  return;
+
 }
 
 void Muon::CscROD_Decoder::rodVersion0(const ROBFragment& robFrag,  CscRawDataContainer& rdoIDC, MsgStream& /*log*/) {  
@@ -683,20 +692,15 @@ void Muon::CscROD_Decoder::rodVersion0(const ROBFragment& robFrag,  CscRawDataCo
   
   uint16_t idColl        = m_cabling->collectionId(subId, rodId);
 
-  CscRawDataCollection * rawCollection = 0;
-  CscRawDataContainer::const_iterator it_coll = rdoIDC.indexFind(idColl);
-  if (rdoIDC.end() !=  it_coll) {
+  // Create the Csc container and use the cache to get it
+  std::unique_ptr<CscRawDataCollection> rawCollection(nullptr);
+  CscRawDataContainer::IDC_WriteHandle lock = rdoIDC.getWriteHandle( idColl );
+  if( lock.alreadyPresent() ) {
     ATH_MSG_DEBUG ( "CSC RDO collection already exist with collection hash = " << idColl << " converting is skipped!");
-    return; 
-    //rawCollection = it_coll->cptr();
-  } else {
+  }
+  else{
     ATH_MSG_DEBUG ( "CSC RDO collection does not exist - creating a new one with hash = " << idColl );
-    rawCollection = new CscRawDataCollection(idColl);
-    if ( (rdoIDC.addCollection(rawCollection, idColl)).isFailure() ) {
-       ATH_MSG_ERROR ( "Failed to add RDO collection to container" );
-       delete rawCollection;
-       return;
-    }
+    rawCollection = std::make_unique<CscRawDataCollection>(idColl);
   }
 
   // set the ROD id and the subDector id
@@ -711,7 +715,6 @@ void Muon::CscROD_Decoder::rodVersion0(const ROBFragment& robFrag,  CscRawDataCo
   bool bodyFragment = rodReadOut.isBody(p[rodHeader]);
   if (!bodyFragment) {
     ATH_MSG_ERROR ( "expecting a body fragment, Aborting..." );
-    delete rawCollection;
     return;
   }
   uint32_t i = rodHeader; 
@@ -757,6 +760,16 @@ void Muon::CscROD_Decoder::rodVersion0(const ROBFragment& robFrag,  CscRawDataCo
     // check that the new fragment is body
     bodyFragment = rodReadOut.isBody(p[i]);
   }
+
+  if(rawCollection) {
+    StatusCode status_lock = lock.addOrDelete(std::move( rawCollection ) );
+    if (status_lock.isFailure()) {
+      ATH_MSG_ERROR ( "Could not insert CscRawDataCollection into CscRawDataContainer..." );
+      return;
+    }
+  }
+
+  return;
 
 }
 

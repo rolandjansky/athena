@@ -72,7 +72,6 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoIdentifierTag.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
 
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
@@ -80,6 +79,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/PhysicalConstants.h"
 
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "RDBAccessSvc/IRDBRecord.h"
@@ -110,11 +110,11 @@ EMECSupportConstruction::EMECSupportConstruction
         }
 
 	m_PhiStart = 0.;
-	m_PhiSize = GeoModelKernelUnits::twopi*GeoModelKernelUnits::rad;
+	m_PhiSize = Gaudi::Units::twopi*Gaudi::Units::rad;
 
 	if(m_isModule){
-		m_PhiStart = m_Position - M_PI*GeoModelKernelUnits::rad / 8.;
-		m_PhiSize = M_PI*GeoModelKernelUnits::rad / 4.;
+		m_PhiStart = m_Position - M_PI*Gaudi::Units::rad / 8.;
+		m_PhiSize = M_PI*Gaudi::Units::rad / 4.;
 	}
 
   // Get the materials from the manager 
@@ -338,24 +338,24 @@ GeoPcon* EMECSupportConstruction::getPcon(std::string id) const
 			}
 			pcone[key] = i;
 			if(key >= 0) ++ nzplanes;
-			else R0 = (*m_DB_pcons)[i]->getDouble("RMIN")*GeoModelKernelUnits::mm;
+			else R0 = (*m_DB_pcons)[i]->getDouble("RMIN")*Gaudi::Units::mm;
 		}
 	}
 	if(nzplanes > 0){
 		zplane.resize(nzplanes); rmin.resize(nzplanes); rmax.resize(nzplanes);
 		for(int n = 0; n < nzplanes; ++ n){
-			zplane[n] = (*m_DB_pcons)[pcone[n]]->getDouble("ZPOS")*GeoModelKernelUnits::mm;
-			rmin[n] = R0 + (*m_DB_pcons)[pcone[n]]->getDouble("RMIN")*GeoModelKernelUnits::mm;
-			rmax[n] = R0 + (*m_DB_pcons)[pcone[n]]->getDouble("RMAX")*GeoModelKernelUnits::mm;
+			zplane[n] = (*m_DB_pcons)[pcone[n]]->getDouble("ZPOS")*Gaudi::Units::mm;
+			rmin[n] = R0 + (*m_DB_pcons)[pcone[n]]->getDouble("RMIN")*Gaudi::Units::mm;
+			rmax[n] = R0 + (*m_DB_pcons)[pcone[n]]->getDouble("RMAX")*Gaudi::Units::mm;
 		}
 		if(id1 == "FrontSupportMother"){
 			if(id.find("Inner") != std::string::npos){
 				zplane.resize(2); rmin.resize(2); rmax.resize(2);
-				double rlim = getNumber(m_DB_numbers, id, "Inner", 614.)*GeoModelKernelUnits::mm;
+				double rlim = getNumber(m_DB_numbers, id, "Inner", 614.)*Gaudi::Units::mm;
 				rmax[0] = rlim;
 				rmax[1] = rlim;
 			} else if(id.find("Outer") != std::string::npos){
-				double rlim = getNumber(m_DB_numbers, id, "Outer", 603.-1.)*GeoModelKernelUnits::mm;
+				double rlim = getNumber(m_DB_numbers, id, "Outer", 603.-1.)*Gaudi::Units::mm;
 				rmin[0] = rlim;
 				rmin[1] = rlim;
 			}
@@ -363,24 +363,24 @@ GeoPcon* EMECSupportConstruction::getPcon(std::string id) const
 		if(id1 == "BackSupportMother"){
 			if(id.find("Inner") != std::string::npos){
 				zplane.resize(2); rmin.resize(2); rmax.resize(2);
-				double rlim = getNumber(m_DB_numbers, id, "Inner", 699.)*GeoModelKernelUnits::mm;
+				double rlim = getNumber(m_DB_numbers, id, "Inner", 699.)*Gaudi::Units::mm;
 				rmax[0] = rlim;
 				rmax[1] = rlim;
 			} else if(id.find("Outer") != std::string::npos){
-				double rlim = getNumber(m_DB_numbers, id, "Outer", 687.-1.)*GeoModelKernelUnits::mm;
+				double rlim = getNumber(m_DB_numbers, id, "Outer", 687.-1.)*Gaudi::Units::mm;
 				rmin[0] = rlim;
 				rmin[1] = rlim;
 			}
 		}
 		if(id1 == "Stretchers"){
 			if(id == "WideStretchers"){
-				double dfiWS = 360./3./256.*24.*GeoModelKernelUnits::deg; //this is the design variable for WS
+				double dfiWS = 360./3./256.*24.*Gaudi::Units::deg; //this is the design variable for WS
 				phi_start = m_Position - dfiWS*0.5;
 				phi_size = dfiWS;
 			}
 			if(id == "NarrowStretchers"){
-			        double lengthNS = getNumber(m_DB_numbers, id, "Width", 200.)*GeoModelKernelUnits::mm; // transversal length of NS
-				double dfiNS = lengthNS / rmax[0] * GeoModelKernelUnits::rad;
+			        double lengthNS = getNumber(m_DB_numbers, id, "Width", 200.)*Gaudi::Units::mm; // transversal length of NS
+				double dfiNS = lengthNS / rmax[0] * Gaudi::Units::rad;
 				phi_start = m_Position - dfiNS*0.5;
 				phi_size = dfiNS;
 			}
@@ -395,42 +395,42 @@ for(int i = 0; i < nzplanes; ++ i){
 	} else {
 	if(id.find("FrontSupportMother") == 0){
 		zplane.resize(6);  rmin.resize(6);    rmax.resize(6);
-		zplane[0] =   0. *GeoModelKernelUnits::mm; rmin[0] =  292.*GeoModelKernelUnits::mm-1.*GeoModelKernelUnits::mm; rmax[0] = 2077.*GeoModelKernelUnits::mm-7.*GeoModelKernelUnits::mm;
-		zplane[1] =  61. *GeoModelKernelUnits::mm; rmin[1] =  292.*GeoModelKernelUnits::mm-1.*GeoModelKernelUnits::mm; rmax[1] = 2077.*GeoModelKernelUnits::mm-7.*GeoModelKernelUnits::mm;
-		zplane[2] =  61. *GeoModelKernelUnits::mm; rmin[2] = 2023.*GeoModelKernelUnits::mm-7.*GeoModelKernelUnits::mm; rmax[2] = 2077.*GeoModelKernelUnits::mm-7.*GeoModelKernelUnits::mm;
-		zplane[3] =  72.3*GeoModelKernelUnits::mm; rmin[3] = 2023.*GeoModelKernelUnits::mm-7.*GeoModelKernelUnits::mm; rmax[3] = 2077.*GeoModelKernelUnits::mm-7.*GeoModelKernelUnits::mm;
-		zplane[4] = 124.2*GeoModelKernelUnits::mm; rmin[4] = 2051.*GeoModelKernelUnits::mm-7.*GeoModelKernelUnits::mm; rmax[4] = 2077.*GeoModelKernelUnits::mm-7.*GeoModelKernelUnits::mm;
-		zplane[5] = 153. *GeoModelKernelUnits::mm; rmin[5] = 2051.*GeoModelKernelUnits::mm-7.*GeoModelKernelUnits::mm; rmax[5] = 2077.*GeoModelKernelUnits::mm-7.*GeoModelKernelUnits::mm;
+		zplane[0] =   0. *Gaudi::Units::mm; rmin[0] =  292.*Gaudi::Units::mm-1.*Gaudi::Units::mm; rmax[0] = 2077.*Gaudi::Units::mm-7.*Gaudi::Units::mm;
+		zplane[1] =  61. *Gaudi::Units::mm; rmin[1] =  292.*Gaudi::Units::mm-1.*Gaudi::Units::mm; rmax[1] = 2077.*Gaudi::Units::mm-7.*Gaudi::Units::mm;
+		zplane[2] =  61. *Gaudi::Units::mm; rmin[2] = 2023.*Gaudi::Units::mm-7.*Gaudi::Units::mm; rmax[2] = 2077.*Gaudi::Units::mm-7.*Gaudi::Units::mm;
+		zplane[3] =  72.3*Gaudi::Units::mm; rmin[3] = 2023.*Gaudi::Units::mm-7.*Gaudi::Units::mm; rmax[3] = 2077.*Gaudi::Units::mm-7.*Gaudi::Units::mm;
+		zplane[4] = 124.2*Gaudi::Units::mm; rmin[4] = 2051.*Gaudi::Units::mm-7.*Gaudi::Units::mm; rmax[4] = 2077.*Gaudi::Units::mm-7.*Gaudi::Units::mm;
+		zplane[5] = 153. *Gaudi::Units::mm; rmin[5] = 2051.*Gaudi::Units::mm-7.*Gaudi::Units::mm; rmax[5] = 2077.*Gaudi::Units::mm-7.*Gaudi::Units::mm;
 		if(id == "FrontSupportMother::Outer"){
-			rmin[0] = 603.*GeoModelKernelUnits::mm-1.*GeoModelKernelUnits::mm;
-			rmin[1] = 603.*GeoModelKernelUnits::mm-1.*GeoModelKernelUnits::mm;
+			rmin[0] = 603.*Gaudi::Units::mm-1.*Gaudi::Units::mm;
+			rmin[1] = 603.*Gaudi::Units::mm-1.*Gaudi::Units::mm;
 		}
 		if(id == "FrontSupportMother::Inner"){
 			zplane.resize(2); rmin.resize(2); rmax.resize(2);
-			rmax[0] = 614.*GeoModelKernelUnits::mm;
-			rmax[1] = 614.*GeoModelKernelUnits::mm;
+			rmax[0] = 614.*Gaudi::Units::mm;
+			rmax[1] = 614.*Gaudi::Units::mm;
 		}
 	} else if(id.find("BackSupportMother") == 0){
 		zplane.resize(4);  rmin.resize(4);    rmax.resize(4);
-		zplane[0] =   0.001*GeoModelKernelUnits::mm; rmin[0] =  333.*GeoModelKernelUnits::mm-1.*GeoModelKernelUnits::mm; rmax[0] = 2077.*GeoModelKernelUnits::mm-7.*GeoModelKernelUnits::mm;
-		zplane[1] =  55.   *GeoModelKernelUnits::mm; rmin[1] =  333.*GeoModelKernelUnits::mm-1.*GeoModelKernelUnits::mm; rmax[1] = 2077.*GeoModelKernelUnits::mm-7.*GeoModelKernelUnits::mm;
-		zplane[2] =  55.   *GeoModelKernelUnits::mm; rmin[2] = 2051.*GeoModelKernelUnits::mm-7.*GeoModelKernelUnits::mm; rmax[2] = 2077.*GeoModelKernelUnits::mm-7.*GeoModelKernelUnits::mm;
-		zplane[3] =  147.  *GeoModelKernelUnits::mm; rmin[3] = 2051.*GeoModelKernelUnits::mm-7.*GeoModelKernelUnits::mm; rmax[3] = 2077.*GeoModelKernelUnits::mm-7.*GeoModelKernelUnits::mm;
+		zplane[0] =   0.001*Gaudi::Units::mm; rmin[0] =  333.*Gaudi::Units::mm-1.*Gaudi::Units::mm; rmax[0] = 2077.*Gaudi::Units::mm-7.*Gaudi::Units::mm;
+		zplane[1] =  55.   *Gaudi::Units::mm; rmin[1] =  333.*Gaudi::Units::mm-1.*Gaudi::Units::mm; rmax[1] = 2077.*Gaudi::Units::mm-7.*Gaudi::Units::mm;
+		zplane[2] =  55.   *Gaudi::Units::mm; rmin[2] = 2051.*Gaudi::Units::mm-7.*Gaudi::Units::mm; rmax[2] = 2077.*Gaudi::Units::mm-7.*Gaudi::Units::mm;
+		zplane[3] =  147.  *Gaudi::Units::mm; rmin[3] = 2051.*Gaudi::Units::mm-7.*Gaudi::Units::mm; rmax[3] = 2077.*Gaudi::Units::mm-7.*Gaudi::Units::mm;
 		if(id == "BackSupportMother::Outer"){
-			rmin[0] = 687.*GeoModelKernelUnits::mm-1.*GeoModelKernelUnits::mm;
-			rmin[1] = 687.*GeoModelKernelUnits::mm-1.*GeoModelKernelUnits::mm;
+			rmin[0] = 687.*Gaudi::Units::mm-1.*Gaudi::Units::mm;
+			rmin[1] = 687.*Gaudi::Units::mm-1.*Gaudi::Units::mm;
 		}
 		if(id == "BackSupportMother::Inner"){
 			zplane.resize(2); rmin.resize(2); rmax.resize(2);
-			rmax[0] = 699.*GeoModelKernelUnits::mm;
-			rmax[1] = 699.*GeoModelKernelUnits::mm;
+			rmax[0] = 699.*Gaudi::Units::mm;
+			rmax[1] = 699.*Gaudi::Units::mm;
 		}
 	} else if(id == "WideStretchers" || id == "NarrowStretchers"){
-		double dzS = 165.*GeoModelKernelUnits::mm;
-		double dznotch = 10.*GeoModelKernelUnits::mm; // half z extent of the notch
-		double drnotch = 6.5*GeoModelKernelUnits::mm; // deepness of the noth in radial direction
-		double rmaxS = (2077. - 7.)*GeoModelKernelUnits::mm;//ROuter+116. // -7 for cold
-		double rminS = rmaxS - 26.*GeoModelKernelUnits::mm;
+		double dzS = 165.*Gaudi::Units::mm;
+		double dznotch = 10.*Gaudi::Units::mm; // half z extent of the notch
+		double drnotch = 6.5*Gaudi::Units::mm; // deepness of the noth in radial direction
+		double rmaxS = (2077. - 7.)*Gaudi::Units::mm;//ROuter+116. // -7 for cold
+		double rminS = rmaxS - 26.*Gaudi::Units::mm;
 		double rmidS = rminS + drnotch;
 		zplane.resize(6);  rmin.resize(6);    rmax.resize(6);
 		zplane[0] = -dzS ; rmin[0] = rminS; rmax[0] = rmaxS;
@@ -440,22 +440,22 @@ for(int i = 0; i < nzplanes; ++ i){
 		zplane[4] = dznotch; rmin[4] = rminS; rmax[4] = rmaxS;
 		zplane[5] = dzS  ; rmin[5] = rminS; rmax[5] = rmaxS;
 		if(id == "WideStretchers"){
-			double dfiWS = 360./3./256.*24.*GeoModelKernelUnits::deg; //this is the design variable for WS
+			double dfiWS = 360./3./256.*24.*Gaudi::Units::deg; //this is the design variable for WS
 			phi_start = m_Position - dfiWS*0.5;
 			phi_size = dfiWS;
 		}
 		if(id == "NarrowStretchers"){
-			double lengthNS = 200.*GeoModelKernelUnits::mm; // transversal length of NS
-			double dfiNS = lengthNS / rmaxS * GeoModelKernelUnits::rad;
+			double lengthNS = 200.*Gaudi::Units::mm; // transversal length of NS
+			double dfiNS = lengthNS / rmaxS * Gaudi::Units::rad;
 			phi_start = m_Position - dfiNS*0.5;
 			phi_size = dfiNS;
 		}
 	} else if(id == "OuterSupportMother"){
-		double dzS = 165.*GeoModelKernelUnits::mm;
-		double rmaxS = (2077. - 7.)*GeoModelKernelUnits::mm;//ROuter+116. // -7 for cold
-		double rminOTB = (2034. + 2.)*GeoModelKernelUnits::mm;
-		double rmaxOTB = rminOTB + 3.*GeoModelKernelUnits::mm;
-		double dzOTB = 201.*GeoModelKernelUnits::mm;
+		double dzS = 165.*Gaudi::Units::mm;
+		double rmaxS = (2077. - 7.)*Gaudi::Units::mm;//ROuter+116. // -7 for cold
+		double rminOTB = (2034. + 2.)*Gaudi::Units::mm;
+		double rmaxOTB = rminOTB + 3.*Gaudi::Units::mm;
+		double dzOTB = 201.*Gaudi::Units::mm;
 		zplane.resize(6);  rmin.resize(6);    rmax.resize(6);
 		zplane[0] = -dzOTB ; rmin[0] = rminOTB; rmax[0] = rmaxOTB;
 		zplane[1] = -dzS; rmin[1] = rminOTB; rmax[1] = rmaxOTB;
@@ -464,176 +464,176 @@ for(int i = 0; i < nzplanes; ++ i){
 		zplane[4] = dzS; rmin[4] = rminOTB; rmax[4] = rmaxOTB;
 		zplane[5] = dzOTB  ; rmin[5] = rminOTB; rmax[5] = rmaxOTB;
 	} else if(id == "FrontMiddleRing"){
-		double r0       =614.*GeoModelKernelUnits::mm-2.*GeoModelKernelUnits::mm ; // RMiddle=middle radius of the ring
+		double r0       =614.*Gaudi::Units::mm-2.*Gaudi::Units::mm ; // RMiddle=middle radius of the ring
 		zplane.resize(4);  rmin.resize(4);    rmax.resize(4);
-		zplane[0] =   0. *GeoModelKernelUnits::mm; rmin[0] = r0 - 57.*GeoModelKernelUnits::mm; rmax[0] = r0 + 57.*GeoModelKernelUnits::mm;
-		zplane[1] =  27.5*GeoModelKernelUnits::mm; rmin[1] = r0 - 57.*GeoModelKernelUnits::mm; rmax[1] = r0 + 57.*GeoModelKernelUnits::mm;
-		zplane[2] =  27.5*GeoModelKernelUnits::mm; rmin[2] = r0 - 40.*GeoModelKernelUnits::mm; rmax[2] = r0 + 40.*GeoModelKernelUnits::mm;
-		zplane[3] =  59. *GeoModelKernelUnits::mm; rmin[3] = r0 - 40.*GeoModelKernelUnits::mm; rmax[3] = r0 + 40.*GeoModelKernelUnits::mm;
+		zplane[0] =   0. *Gaudi::Units::mm; rmin[0] = r0 - 57.*Gaudi::Units::mm; rmax[0] = r0 + 57.*Gaudi::Units::mm;
+		zplane[1] =  27.5*Gaudi::Units::mm; rmin[1] = r0 - 57.*Gaudi::Units::mm; rmax[1] = r0 + 57.*Gaudi::Units::mm;
+		zplane[2] =  27.5*Gaudi::Units::mm; rmin[2] = r0 - 40.*Gaudi::Units::mm; rmax[2] = r0 + 40.*Gaudi::Units::mm;
+		zplane[3] =  59. *Gaudi::Units::mm; rmin[3] = r0 - 40.*Gaudi::Units::mm; rmax[3] = r0 + 40.*Gaudi::Units::mm;
 	} else if(id == "FrontMiddleRing::LowerHole"){
-		double r0 = 614.*GeoModelKernelUnits::mm-2.*GeoModelKernelUnits::mm; // RMiddle=middle radius of the ring
+		double r0 = 614.*Gaudi::Units::mm-2.*Gaudi::Units::mm; // RMiddle=middle radius of the ring
 		zplane.resize(6);  rmin.resize(6);    rmax.resize(6);
-		zplane[0] = 23. *GeoModelKernelUnits::mm; rmin[0] = r0 - 28.3*GeoModelKernelUnits::mm; rmax[0] = r0 - 8.*GeoModelKernelUnits::mm;
-		zplane[1] = 27.5*GeoModelKernelUnits::mm; rmin[1] = r0 - 28.3*GeoModelKernelUnits::mm; rmax[1] = r0 - 8.*GeoModelKernelUnits::mm;
-		zplane[2] = 27.5*GeoModelKernelUnits::mm; rmin[2] = r0 - 40. *GeoModelKernelUnits::mm; rmax[2] = r0 - 8.*GeoModelKernelUnits::mm;
-		zplane[3] = 48.5*GeoModelKernelUnits::mm; rmin[3] = r0 - 40. *GeoModelKernelUnits::mm; rmax[3] = r0 - 8.*GeoModelKernelUnits::mm;
-		zplane[4] = 48.5*GeoModelKernelUnits::mm; rmin[4] = r0 - 28.3*GeoModelKernelUnits::mm; rmax[4] = r0 - 8.*GeoModelKernelUnits::mm;
-		zplane[5] = 53. *GeoModelKernelUnits::mm; rmin[5] = r0 - 28.3*GeoModelKernelUnits::mm; rmax[5] = r0 - 8.*GeoModelKernelUnits::mm;
+		zplane[0] = 23. *Gaudi::Units::mm; rmin[0] = r0 - 28.3*Gaudi::Units::mm; rmax[0] = r0 - 8.*Gaudi::Units::mm;
+		zplane[1] = 27.5*Gaudi::Units::mm; rmin[1] = r0 - 28.3*Gaudi::Units::mm; rmax[1] = r0 - 8.*Gaudi::Units::mm;
+		zplane[2] = 27.5*Gaudi::Units::mm; rmin[2] = r0 - 40. *Gaudi::Units::mm; rmax[2] = r0 - 8.*Gaudi::Units::mm;
+		zplane[3] = 48.5*Gaudi::Units::mm; rmin[3] = r0 - 40. *Gaudi::Units::mm; rmax[3] = r0 - 8.*Gaudi::Units::mm;
+		zplane[4] = 48.5*Gaudi::Units::mm; rmin[4] = r0 - 28.3*Gaudi::Units::mm; rmax[4] = r0 - 8.*Gaudi::Units::mm;
+		zplane[5] = 53. *Gaudi::Units::mm; rmin[5] = r0 - 28.3*Gaudi::Units::mm; rmax[5] = r0 - 8.*Gaudi::Units::mm;
 	} else if(id == "FrontMiddleRing::LowerGTen"){
-		double r0 = 614.*GeoModelKernelUnits::mm - 2.*GeoModelKernelUnits::mm; // RMiddle=middle radius of the ring
+		double r0 = 614.*Gaudi::Units::mm - 2.*Gaudi::Units::mm; // RMiddle=middle radius of the ring
 		zplane.resize(6);  rmin.resize(6);    rmax.resize(6);
-		zplane[0] = 23.*GeoModelKernelUnits::mm; rmin[0] = r0 - 28.*GeoModelKernelUnits::mm; rmax[0] = r0 - 8.*GeoModelKernelUnits::mm;
-		zplane[1] = 28.*GeoModelKernelUnits::mm; rmin[1] = r0 - 28.*GeoModelKernelUnits::mm; rmax[1] = r0 - 8.*GeoModelKernelUnits::mm;
-		zplane[2] = 28.*GeoModelKernelUnits::mm; rmin[2] = r0 - 40.*GeoModelKernelUnits::mm; rmax[2] = r0 - 8.*GeoModelKernelUnits::mm;
-		zplane[3] = 48.*GeoModelKernelUnits::mm; rmin[3] = r0 - 40.*GeoModelKernelUnits::mm; rmax[3] = r0 - 8.*GeoModelKernelUnits::mm;
-		zplane[4] = 48.*GeoModelKernelUnits::mm; rmin[4] = r0 - 28.*GeoModelKernelUnits::mm; rmax[4] = r0 - 8.*GeoModelKernelUnits::mm;
-		zplane[5] = 53.*GeoModelKernelUnits::mm; rmin[5] = r0 - 28.*GeoModelKernelUnits::mm; rmax[5] = r0 - 8.*GeoModelKernelUnits::mm;
+		zplane[0] = 23.*Gaudi::Units::mm; rmin[0] = r0 - 28.*Gaudi::Units::mm; rmax[0] = r0 - 8.*Gaudi::Units::mm;
+		zplane[1] = 28.*Gaudi::Units::mm; rmin[1] = r0 - 28.*Gaudi::Units::mm; rmax[1] = r0 - 8.*Gaudi::Units::mm;
+		zplane[2] = 28.*Gaudi::Units::mm; rmin[2] = r0 - 40.*Gaudi::Units::mm; rmax[2] = r0 - 8.*Gaudi::Units::mm;
+		zplane[3] = 48.*Gaudi::Units::mm; rmin[3] = r0 - 40.*Gaudi::Units::mm; rmax[3] = r0 - 8.*Gaudi::Units::mm;
+		zplane[4] = 48.*Gaudi::Units::mm; rmin[4] = r0 - 28.*Gaudi::Units::mm; rmax[4] = r0 - 8.*Gaudi::Units::mm;
+		zplane[5] = 53.*Gaudi::Units::mm; rmin[5] = r0 - 28.*Gaudi::Units::mm; rmax[5] = r0 - 8.*Gaudi::Units::mm;
 	} else if(id == "FrontMiddleRing::UpperHole"){
-		double r0       =614.*GeoModelKernelUnits::mm-2.*GeoModelKernelUnits::mm ; // RMiddle=middle radius of the ring
+		double r0       =614.*Gaudi::Units::mm-2.*Gaudi::Units::mm ; // RMiddle=middle radius of the ring
 		zplane.resize(6);  rmin.resize(6);    rmax.resize(6);
-		zplane[0] = 23. *GeoModelKernelUnits::mm; rmin[0] = r0 + 8.*GeoModelKernelUnits::mm; rmax[0] = r0 + 28.3*GeoModelKernelUnits::mm;
-		zplane[1] = 27.5*GeoModelKernelUnits::mm; rmin[1] = r0 + 8.*GeoModelKernelUnits::mm; rmax[1] = r0 + 28.3*GeoModelKernelUnits::mm;
-		zplane[2] = 27.5*GeoModelKernelUnits::mm; rmin[2] = r0 + 8.*GeoModelKernelUnits::mm; rmax[2] = r0 + 40. *GeoModelKernelUnits::mm;
-		zplane[3] = 48.5*GeoModelKernelUnits::mm; rmin[3] = r0 + 8.*GeoModelKernelUnits::mm; rmax[3] = r0 + 40. *GeoModelKernelUnits::mm;
-		zplane[4] = 48.5*GeoModelKernelUnits::mm; rmin[4] = r0 + 8.*GeoModelKernelUnits::mm; rmax[4] = r0 + 28.3*GeoModelKernelUnits::mm;
-		zplane[5] = 53. *GeoModelKernelUnits::mm; rmin[5] = r0 + 8.*GeoModelKernelUnits::mm; rmax[5] = r0 + 28.3*GeoModelKernelUnits::mm;
+		zplane[0] = 23. *Gaudi::Units::mm; rmin[0] = r0 + 8.*Gaudi::Units::mm; rmax[0] = r0 + 28.3*Gaudi::Units::mm;
+		zplane[1] = 27.5*Gaudi::Units::mm; rmin[1] = r0 + 8.*Gaudi::Units::mm; rmax[1] = r0 + 28.3*Gaudi::Units::mm;
+		zplane[2] = 27.5*Gaudi::Units::mm; rmin[2] = r0 + 8.*Gaudi::Units::mm; rmax[2] = r0 + 40. *Gaudi::Units::mm;
+		zplane[3] = 48.5*Gaudi::Units::mm; rmin[3] = r0 + 8.*Gaudi::Units::mm; rmax[3] = r0 + 40. *Gaudi::Units::mm;
+		zplane[4] = 48.5*Gaudi::Units::mm; rmin[4] = r0 + 8.*Gaudi::Units::mm; rmax[4] = r0 + 28.3*Gaudi::Units::mm;
+		zplane[5] = 53. *Gaudi::Units::mm; rmin[5] = r0 + 8.*Gaudi::Units::mm; rmax[5] = r0 + 28.3*Gaudi::Units::mm;
 	} else if(id == "FrontMiddleRing::UpperGTen"){
-		double r0       =614.*GeoModelKernelUnits::mm-2.*GeoModelKernelUnits::mm ; // RMiddle=middle radius of the ring
+		double r0       =614.*Gaudi::Units::mm-2.*Gaudi::Units::mm ; // RMiddle=middle radius of the ring
 		zplane.resize(6);  rmin.resize(6);    rmax.resize(6);
-		zplane[0] = 23.*GeoModelKernelUnits::mm; rmin[0] = r0 + 8.*GeoModelKernelUnits::mm; rmax[0] = r0 + 28.*GeoModelKernelUnits::mm;
-		zplane[1] = 28.*GeoModelKernelUnits::mm; rmin[1] = r0 + 8.*GeoModelKernelUnits::mm; rmax[1] = r0 + 28.*GeoModelKernelUnits::mm;
-		zplane[2] = 28.*GeoModelKernelUnits::mm; rmin[2] = r0 + 8.*GeoModelKernelUnits::mm; rmax[2] = r0 + 40.*GeoModelKernelUnits::mm;
-		zplane[3] = 48.*GeoModelKernelUnits::mm; rmin[3] = r0 + 8.*GeoModelKernelUnits::mm; rmax[3] = r0 + 40.*GeoModelKernelUnits::mm;
-		zplane[4] = 48.*GeoModelKernelUnits::mm; rmin[4] = r0 + 8.*GeoModelKernelUnits::mm; rmax[4] = r0 + 28.*GeoModelKernelUnits::mm;
-		zplane[5] = 53.*GeoModelKernelUnits::mm; rmin[5] = r0 + 8.*GeoModelKernelUnits::mm; rmax[5] = r0 + 28.*GeoModelKernelUnits::mm;
+		zplane[0] = 23.*Gaudi::Units::mm; rmin[0] = r0 + 8.*Gaudi::Units::mm; rmax[0] = r0 + 28.*Gaudi::Units::mm;
+		zplane[1] = 28.*Gaudi::Units::mm; rmin[1] = r0 + 8.*Gaudi::Units::mm; rmax[1] = r0 + 28.*Gaudi::Units::mm;
+		zplane[2] = 28.*Gaudi::Units::mm; rmin[2] = r0 + 8.*Gaudi::Units::mm; rmax[2] = r0 + 40.*Gaudi::Units::mm;
+		zplane[3] = 48.*Gaudi::Units::mm; rmin[3] = r0 + 8.*Gaudi::Units::mm; rmax[3] = r0 + 40.*Gaudi::Units::mm;
+		zplane[4] = 48.*Gaudi::Units::mm; rmin[4] = r0 + 8.*Gaudi::Units::mm; rmax[4] = r0 + 28.*Gaudi::Units::mm;
+		zplane[5] = 53.*Gaudi::Units::mm; rmin[5] = r0 + 8.*Gaudi::Units::mm; rmax[5] = r0 + 28.*Gaudi::Units::mm;
 	} else if(id == "FrontInnerRing"){
-		double r0 = 335.5*GeoModelKernelUnits::mm-1.*GeoModelKernelUnits::mm;  // RInner = reference radius of the inner ring
+		double r0 = 335.5*Gaudi::Units::mm-1.*Gaudi::Units::mm;  // RInner = reference radius of the inner ring
 		zplane.resize(5);  rmin.resize(5);    rmax.resize(5);
-		zplane[0] =  0. *GeoModelKernelUnits::mm; rmin[0] = r0 - 22.5*GeoModelKernelUnits::mm; rmax[0] = r0 + 51.5*GeoModelKernelUnits::mm;
-		zplane[1] =  6. *GeoModelKernelUnits::mm; rmin[1] = r0 - 28.5*GeoModelKernelUnits::mm; rmax[1] = r0 + 51.5*GeoModelKernelUnits::mm;
-		zplane[2] = 27.5*GeoModelKernelUnits::mm; rmin[2] = r0 - 28.5*GeoModelKernelUnits::mm; rmax[2] = r0 + 51.5*GeoModelKernelUnits::mm;
-		zplane[3] = 27.5*GeoModelKernelUnits::mm; rmin[3] = r0 - 43.5*GeoModelKernelUnits::mm; rmax[3] = r0 + 40.5*GeoModelKernelUnits::mm;
-		zplane[4] = 59. *GeoModelKernelUnits::mm; rmin[4] = r0 - 43.5*GeoModelKernelUnits::mm; rmax[4] = r0 + 40.5*GeoModelKernelUnits::mm;
+		zplane[0] =  0. *Gaudi::Units::mm; rmin[0] = r0 - 22.5*Gaudi::Units::mm; rmax[0] = r0 + 51.5*Gaudi::Units::mm;
+		zplane[1] =  6. *Gaudi::Units::mm; rmin[1] = r0 - 28.5*Gaudi::Units::mm; rmax[1] = r0 + 51.5*Gaudi::Units::mm;
+		zplane[2] = 27.5*Gaudi::Units::mm; rmin[2] = r0 - 28.5*Gaudi::Units::mm; rmax[2] = r0 + 51.5*Gaudi::Units::mm;
+		zplane[3] = 27.5*Gaudi::Units::mm; rmin[3] = r0 - 43.5*Gaudi::Units::mm; rmax[3] = r0 + 40.5*Gaudi::Units::mm;
+		zplane[4] = 59. *Gaudi::Units::mm; rmin[4] = r0 - 43.5*Gaudi::Units::mm; rmax[4] = r0 + 40.5*Gaudi::Units::mm;
 	} else if(id == "FrontInnerRing::Hole"){
-		double r0 = 335.5*GeoModelKernelUnits::mm-1.*GeoModelKernelUnits::mm;  // RInner = reference radius of the inner ring
+		double r0 = 335.5*Gaudi::Units::mm-1.*Gaudi::Units::mm;  // RInner = reference radius of the inner ring
 		zplane.resize(6);  rmin.resize(6);    rmax.resize(6);
-		zplane[0] = 23. *GeoModelKernelUnits::mm; rmin[0] = r0 + 6.5*GeoModelKernelUnits::mm; rmax[0] = r0 + 29.5*GeoModelKernelUnits::mm;
-		zplane[1] = 27.5*GeoModelKernelUnits::mm; rmin[1] = r0 + 6.5*GeoModelKernelUnits::mm; rmax[1] = r0 + 29.5*GeoModelKernelUnits::mm;
-		zplane[2] = 27.5*GeoModelKernelUnits::mm; rmin[2] = r0 + 6.5*GeoModelKernelUnits::mm; rmax[2] = r0 + 40.5*GeoModelKernelUnits::mm;
-		zplane[3] = 48.5*GeoModelKernelUnits::mm; rmin[3] = r0 + 6.5*GeoModelKernelUnits::mm; rmax[3] = r0 + 40.5*GeoModelKernelUnits::mm;
-		zplane[4] = 48.5*GeoModelKernelUnits::mm; rmin[4] = r0 + 6.5*GeoModelKernelUnits::mm; rmax[4] = r0 + 29.5*GeoModelKernelUnits::mm;
-		zplane[5] = 53. *GeoModelKernelUnits::mm; rmin[5] = r0 + 6.5*GeoModelKernelUnits::mm; rmax[5] = r0 + 29.5*GeoModelKernelUnits::mm;
+		zplane[0] = 23. *Gaudi::Units::mm; rmin[0] = r0 + 6.5*Gaudi::Units::mm; rmax[0] = r0 + 29.5*Gaudi::Units::mm;
+		zplane[1] = 27.5*Gaudi::Units::mm; rmin[1] = r0 + 6.5*Gaudi::Units::mm; rmax[1] = r0 + 29.5*Gaudi::Units::mm;
+		zplane[2] = 27.5*Gaudi::Units::mm; rmin[2] = r0 + 6.5*Gaudi::Units::mm; rmax[2] = r0 + 40.5*Gaudi::Units::mm;
+		zplane[3] = 48.5*Gaudi::Units::mm; rmin[3] = r0 + 6.5*Gaudi::Units::mm; rmax[3] = r0 + 40.5*Gaudi::Units::mm;
+		zplane[4] = 48.5*Gaudi::Units::mm; rmin[4] = r0 + 6.5*Gaudi::Units::mm; rmax[4] = r0 + 29.5*Gaudi::Units::mm;
+		zplane[5] = 53. *Gaudi::Units::mm; rmin[5] = r0 + 6.5*Gaudi::Units::mm; rmax[5] = r0 + 29.5*Gaudi::Units::mm;
 	} else if(id == "FrontInnerRing::GTen"){
-		double r0 = 335.5*GeoModelKernelUnits::mm-1.*GeoModelKernelUnits::mm;  // RInner = reference radius of the inner ring
+		double r0 = 335.5*Gaudi::Units::mm-1.*Gaudi::Units::mm;  // RInner = reference radius of the inner ring
 		zplane.resize(6);  rmin.resize(6);    rmax.resize(6);
-		zplane[0] = 23.*GeoModelKernelUnits::mm; rmin[0] = r0 + 8.5*GeoModelKernelUnits::mm; rmax[0] = r0 + 28.5*GeoModelKernelUnits::mm;
-		zplane[1] = 28.*GeoModelKernelUnits::mm; rmin[1] = r0 + 8.5*GeoModelKernelUnits::mm; rmax[1] = r0 + 28.5*GeoModelKernelUnits::mm;
-		zplane[2] = 28.*GeoModelKernelUnits::mm; rmin[2] = r0 + 8.5*GeoModelKernelUnits::mm; rmax[2] = r0 + 40.5*GeoModelKernelUnits::mm;
-		zplane[3] = 48.*GeoModelKernelUnits::mm; rmin[3] = r0 + 8.5*GeoModelKernelUnits::mm; rmax[3] = r0 + 40.5*GeoModelKernelUnits::mm;
-		zplane[4] = 48.*GeoModelKernelUnits::mm; rmin[4] = r0 + 8.5*GeoModelKernelUnits::mm; rmax[4] = r0 + 28.5*GeoModelKernelUnits::mm;
-		zplane[5] = 53.*GeoModelKernelUnits::mm; rmin[5] = r0 + 8.5*GeoModelKernelUnits::mm; rmax[5] = r0 + 28.5*GeoModelKernelUnits::mm;
+		zplane[0] = 23.*Gaudi::Units::mm; rmin[0] = r0 + 8.5*Gaudi::Units::mm; rmax[0] = r0 + 28.5*Gaudi::Units::mm;
+		zplane[1] = 28.*Gaudi::Units::mm; rmin[1] = r0 + 8.5*Gaudi::Units::mm; rmax[1] = r0 + 28.5*Gaudi::Units::mm;
+		zplane[2] = 28.*Gaudi::Units::mm; rmin[2] = r0 + 8.5*Gaudi::Units::mm; rmax[2] = r0 + 40.5*Gaudi::Units::mm;
+		zplane[3] = 48.*Gaudi::Units::mm; rmin[3] = r0 + 8.5*Gaudi::Units::mm; rmax[3] = r0 + 40.5*Gaudi::Units::mm;
+		zplane[4] = 48.*Gaudi::Units::mm; rmin[4] = r0 + 8.5*Gaudi::Units::mm; rmax[4] = r0 + 28.5*Gaudi::Units::mm;
+		zplane[5] = 53.*Gaudi::Units::mm; rmin[5] = r0 + 8.5*Gaudi::Units::mm; rmax[5] = r0 + 28.5*Gaudi::Units::mm;
 	} else if(id == "BackMiddleRing"){
-		double r0       =  699.*GeoModelKernelUnits::mm-2.5*GeoModelKernelUnits::mm; // RMiddle radius of the ring
+		double r0       =  699.*Gaudi::Units::mm-2.5*Gaudi::Units::mm; // RMiddle radius of the ring
 		zplane.resize(4);  rmin.resize(4);    rmax.resize(4);
-		zplane[0] =   0. *GeoModelKernelUnits::mm; rmin[0] = r0 - 57.*GeoModelKernelUnits::mm; rmax[0] = r0 + 57.*GeoModelKernelUnits::mm;
-		zplane[1] =  21. *GeoModelKernelUnits::mm; rmin[1] = r0 - 57.*GeoModelKernelUnits::mm; rmax[1] = r0 + 57.*GeoModelKernelUnits::mm;
-		zplane[2] =  21. *GeoModelKernelUnits::mm; rmin[2] = r0 - 40.*GeoModelKernelUnits::mm; rmax[2] = r0 + 40.*GeoModelKernelUnits::mm;
-		zplane[3] =  52.5*GeoModelKernelUnits::mm; rmin[3] = r0 - 40.*GeoModelKernelUnits::mm; rmax[3] = r0 + 40.*GeoModelKernelUnits::mm;
+		zplane[0] =   0. *Gaudi::Units::mm; rmin[0] = r0 - 57.*Gaudi::Units::mm; rmax[0] = r0 + 57.*Gaudi::Units::mm;
+		zplane[1] =  21. *Gaudi::Units::mm; rmin[1] = r0 - 57.*Gaudi::Units::mm; rmax[1] = r0 + 57.*Gaudi::Units::mm;
+		zplane[2] =  21. *Gaudi::Units::mm; rmin[2] = r0 - 40.*Gaudi::Units::mm; rmax[2] = r0 + 40.*Gaudi::Units::mm;
+		zplane[3] =  52.5*Gaudi::Units::mm; rmin[3] = r0 - 40.*Gaudi::Units::mm; rmax[3] = r0 + 40.*Gaudi::Units::mm;
 	} else if(id == "BackMiddleRing::LowerHole"){
-		double r0       =  699.*GeoModelKernelUnits::mm-2.5*GeoModelKernelUnits::mm; // RMiddle radius of the ring
+		double r0       =  699.*Gaudi::Units::mm-2.5*Gaudi::Units::mm; // RMiddle radius of the ring
 		zplane.resize(6);  rmin.resize(6);    rmax.resize(6);
-		zplane[0] = 16.5*GeoModelKernelUnits::mm; rmin[0] = r0 - 28.3*GeoModelKernelUnits::mm; rmax[0] = r0 - 8.*GeoModelKernelUnits::mm;
-		zplane[1] = 21. *GeoModelKernelUnits::mm; rmin[1] = r0 - 28.3*GeoModelKernelUnits::mm; rmax[1] = r0 - 8.*GeoModelKernelUnits::mm;
-		zplane[2] = 21. *GeoModelKernelUnits::mm; rmin[2] = r0 - 40. *GeoModelKernelUnits::mm; rmax[2] = r0 - 8.*GeoModelKernelUnits::mm;
-		zplane[3] = 42. *GeoModelKernelUnits::mm; rmin[3] = r0 - 40. *GeoModelKernelUnits::mm; rmax[3] = r0 - 8.*GeoModelKernelUnits::mm;
-		zplane[4] = 42. *GeoModelKernelUnits::mm; rmin[4] = r0 - 28.3*GeoModelKernelUnits::mm; rmax[4] = r0 - 8.*GeoModelKernelUnits::mm;
-//		zplane[5] = 56.5*GeoModelKernelUnits::mm; rmin[5] = r0 - 28.3*GeoModelKernelUnits::mm; rmax[5] = r0 - 8.*GeoModelKernelUnits::mm;
-		zplane[5] = 46.5*GeoModelKernelUnits::mm; rmin[5] = r0 - 28.3*GeoModelKernelUnits::mm; rmax[5] = r0 - 8.*GeoModelKernelUnits::mm;
+		zplane[0] = 16.5*Gaudi::Units::mm; rmin[0] = r0 - 28.3*Gaudi::Units::mm; rmax[0] = r0 - 8.*Gaudi::Units::mm;
+		zplane[1] = 21. *Gaudi::Units::mm; rmin[1] = r0 - 28.3*Gaudi::Units::mm; rmax[1] = r0 - 8.*Gaudi::Units::mm;
+		zplane[2] = 21. *Gaudi::Units::mm; rmin[2] = r0 - 40. *Gaudi::Units::mm; rmax[2] = r0 - 8.*Gaudi::Units::mm;
+		zplane[3] = 42. *Gaudi::Units::mm; rmin[3] = r0 - 40. *Gaudi::Units::mm; rmax[3] = r0 - 8.*Gaudi::Units::mm;
+		zplane[4] = 42. *Gaudi::Units::mm; rmin[4] = r0 - 28.3*Gaudi::Units::mm; rmax[4] = r0 - 8.*Gaudi::Units::mm;
+//		zplane[5] = 56.5*Gaudi::Units::mm; rmin[5] = r0 - 28.3*Gaudi::Units::mm; rmax[5] = r0 - 8.*Gaudi::Units::mm;
+		zplane[5] = 46.5*Gaudi::Units::mm; rmin[5] = r0 - 28.3*Gaudi::Units::mm; rmax[5] = r0 - 8.*Gaudi::Units::mm;
 	} else if(id == "BackMiddleRing::LowerGTen"){
-		double r0       =  699.*GeoModelKernelUnits::mm-2.5*GeoModelKernelUnits::mm; // RMiddle radius of the ring
+		double r0       =  699.*Gaudi::Units::mm-2.5*Gaudi::Units::mm; // RMiddle radius of the ring
 		zplane.resize(6);  rmin.resize(6);    rmax.resize(6);
-		zplane[0] = 16.5*GeoModelKernelUnits::mm; rmin[0] = r0 - 28.*GeoModelKernelUnits::mm; rmax[0] = r0 - 8.*GeoModelKernelUnits::mm;
-		zplane[1] = 21.5*GeoModelKernelUnits::mm; rmin[1] = r0 - 28.*GeoModelKernelUnits::mm; rmax[1] = r0 - 8.*GeoModelKernelUnits::mm;
-		zplane[2] = 21.5*GeoModelKernelUnits::mm; rmin[2] = r0 - 40.*GeoModelKernelUnits::mm; rmax[2] = r0 - 8.*GeoModelKernelUnits::mm;
-		zplane[3] = 41.5*GeoModelKernelUnits::mm; rmin[3] = r0 - 40.*GeoModelKernelUnits::mm; rmax[3] = r0 - 8.*GeoModelKernelUnits::mm;
-		zplane[4] = 41.5*GeoModelKernelUnits::mm; rmin[4] = r0 - 28.*GeoModelKernelUnits::mm; rmax[4] = r0 - 8.*GeoModelKernelUnits::mm;
-		zplane[5] = 46.5*GeoModelKernelUnits::mm; rmin[5] = r0 - 28.*GeoModelKernelUnits::mm; rmax[5] = r0 - 8.*GeoModelKernelUnits::mm;
+		zplane[0] = 16.5*Gaudi::Units::mm; rmin[0] = r0 - 28.*Gaudi::Units::mm; rmax[0] = r0 - 8.*Gaudi::Units::mm;
+		zplane[1] = 21.5*Gaudi::Units::mm; rmin[1] = r0 - 28.*Gaudi::Units::mm; rmax[1] = r0 - 8.*Gaudi::Units::mm;
+		zplane[2] = 21.5*Gaudi::Units::mm; rmin[2] = r0 - 40.*Gaudi::Units::mm; rmax[2] = r0 - 8.*Gaudi::Units::mm;
+		zplane[3] = 41.5*Gaudi::Units::mm; rmin[3] = r0 - 40.*Gaudi::Units::mm; rmax[3] = r0 - 8.*Gaudi::Units::mm;
+		zplane[4] = 41.5*Gaudi::Units::mm; rmin[4] = r0 - 28.*Gaudi::Units::mm; rmax[4] = r0 - 8.*Gaudi::Units::mm;
+		zplane[5] = 46.5*Gaudi::Units::mm; rmin[5] = r0 - 28.*Gaudi::Units::mm; rmax[5] = r0 - 8.*Gaudi::Units::mm;
 	} else if(id == "BackMiddleRing::UpperHole"){
-		double r0       =  699.*GeoModelKernelUnits::mm-2.5*GeoModelKernelUnits::mm; // RMiddle radius of the ring
+		double r0       =  699.*Gaudi::Units::mm-2.5*Gaudi::Units::mm; // RMiddle radius of the ring
 		zplane.resize(6);  rmin.resize(6);    rmax.resize(6);
-		zplane[0] = 16.5*GeoModelKernelUnits::mm; rmin[0] = r0 + 8.*GeoModelKernelUnits::mm; rmax[0] = r0 + 28.3*GeoModelKernelUnits::mm;
-		zplane[1] = 21. *GeoModelKernelUnits::mm; rmin[1] = r0 + 8.*GeoModelKernelUnits::mm; rmax[1] = r0 + 28.3*GeoModelKernelUnits::mm;
-		zplane[2] = 21. *GeoModelKernelUnits::mm; rmin[2] = r0 + 8.*GeoModelKernelUnits::mm; rmax[2] = r0 + 40. *GeoModelKernelUnits::mm;
-		zplane[3] = 42. *GeoModelKernelUnits::mm; rmin[3] = r0 + 8.*GeoModelKernelUnits::mm; rmax[3] = r0 + 40. *GeoModelKernelUnits::mm;
-		zplane[4] = 42. *GeoModelKernelUnits::mm; rmin[4] = r0 + 8.*GeoModelKernelUnits::mm; rmax[4] = r0 + 28.3*GeoModelKernelUnits::mm;
-		zplane[5] = 46.5*GeoModelKernelUnits::mm; rmin[5] = r0 + 8.*GeoModelKernelUnits::mm; rmax[5] = r0 + 28.3*GeoModelKernelUnits::mm;
+		zplane[0] = 16.5*Gaudi::Units::mm; rmin[0] = r0 + 8.*Gaudi::Units::mm; rmax[0] = r0 + 28.3*Gaudi::Units::mm;
+		zplane[1] = 21. *Gaudi::Units::mm; rmin[1] = r0 + 8.*Gaudi::Units::mm; rmax[1] = r0 + 28.3*Gaudi::Units::mm;
+		zplane[2] = 21. *Gaudi::Units::mm; rmin[2] = r0 + 8.*Gaudi::Units::mm; rmax[2] = r0 + 40. *Gaudi::Units::mm;
+		zplane[3] = 42. *Gaudi::Units::mm; rmin[3] = r0 + 8.*Gaudi::Units::mm; rmax[3] = r0 + 40. *Gaudi::Units::mm;
+		zplane[4] = 42. *Gaudi::Units::mm; rmin[4] = r0 + 8.*Gaudi::Units::mm; rmax[4] = r0 + 28.3*Gaudi::Units::mm;
+		zplane[5] = 46.5*Gaudi::Units::mm; rmin[5] = r0 + 8.*Gaudi::Units::mm; rmax[5] = r0 + 28.3*Gaudi::Units::mm;
 	} else if(id == "BackMiddleRing::UpperGTen"){
-		double r0       =  699.*GeoModelKernelUnits::mm-2.5*GeoModelKernelUnits::mm; // RMiddle radius of the ring
+		double r0       =  699.*Gaudi::Units::mm-2.5*Gaudi::Units::mm; // RMiddle radius of the ring
 		zplane.resize(6);  rmin.resize(6);    rmax.resize(6);
-		zplane[0] = 16.5*GeoModelKernelUnits::mm; rmin[0] = r0 + 8.*GeoModelKernelUnits::mm; rmax[0] = r0 + 28.*GeoModelKernelUnits::mm;
-		zplane[1] = 21.5*GeoModelKernelUnits::mm; rmin[1] = r0 + 8.*GeoModelKernelUnits::mm; rmax[1] = r0 + 28.*GeoModelKernelUnits::mm;
-		zplane[2] = 21.5*GeoModelKernelUnits::mm; rmin[2] = r0 + 8.*GeoModelKernelUnits::mm; rmax[2] = r0 + 40.*GeoModelKernelUnits::mm;
-		zplane[3] = 41.5*GeoModelKernelUnits::mm; rmin[3] = r0 + 8.*GeoModelKernelUnits::mm; rmax[3] = r0 + 40.*GeoModelKernelUnits::mm;
-		zplane[4] = 41.5*GeoModelKernelUnits::mm; rmin[4] = r0 + 8.*GeoModelKernelUnits::mm; rmax[4] = r0 + 28.*GeoModelKernelUnits::mm;
-		zplane[5] = 46.5*GeoModelKernelUnits::mm; rmin[5] = r0 + 8.*GeoModelKernelUnits::mm; rmax[5] = r0 + 28.*GeoModelKernelUnits::mm;
+		zplane[0] = 16.5*Gaudi::Units::mm; rmin[0] = r0 + 8.*Gaudi::Units::mm; rmax[0] = r0 + 28.*Gaudi::Units::mm;
+		zplane[1] = 21.5*Gaudi::Units::mm; rmin[1] = r0 + 8.*Gaudi::Units::mm; rmax[1] = r0 + 28.*Gaudi::Units::mm;
+		zplane[2] = 21.5*Gaudi::Units::mm; rmin[2] = r0 + 8.*Gaudi::Units::mm; rmax[2] = r0 + 40.*Gaudi::Units::mm;
+		zplane[3] = 41.5*Gaudi::Units::mm; rmin[3] = r0 + 8.*Gaudi::Units::mm; rmax[3] = r0 + 40.*Gaudi::Units::mm;
+		zplane[4] = 41.5*Gaudi::Units::mm; rmin[4] = r0 + 8.*Gaudi::Units::mm; rmax[4] = r0 + 28.*Gaudi::Units::mm;
+		zplane[5] = 46.5*Gaudi::Units::mm; rmin[5] = r0 + 8.*Gaudi::Units::mm; rmax[5] = r0 + 28.*Gaudi::Units::mm;
 	} else if(id == "BackInnerRing"){
-		double r0       =357.5*GeoModelKernelUnits::mm-1.*GeoModelKernelUnits::mm;  // RInner = reference radius of the ring
+		double r0       =357.5*Gaudi::Units::mm-1.*Gaudi::Units::mm;  // RInner = reference radius of the ring
 		zplane.resize(4);  rmin.resize(4);    rmax.resize(4);
-		zplane[0] =   0. *GeoModelKernelUnits::mm; rmin[0] = r0 - 22.5*GeoModelKernelUnits::mm; rmax[0] = r0 + 53.5*GeoModelKernelUnits::mm;
-		zplane[1] =  22.5*GeoModelKernelUnits::mm; rmin[1] = r0 - 22.5*GeoModelKernelUnits::mm; rmax[1] = r0 + 53.5*GeoModelKernelUnits::mm;
-		zplane[2] =  22.5*GeoModelKernelUnits::mm; rmin[2] = r0 - 24.5*GeoModelKernelUnits::mm; rmax[2] = r0 + 40.5*GeoModelKernelUnits::mm;
-		zplane[3] =  54. *GeoModelKernelUnits::mm; rmin[3] = r0 - 24.5*GeoModelKernelUnits::mm; rmax[3] = r0 + 40.5*GeoModelKernelUnits::mm;
+		zplane[0] =   0. *Gaudi::Units::mm; rmin[0] = r0 - 22.5*Gaudi::Units::mm; rmax[0] = r0 + 53.5*Gaudi::Units::mm;
+		zplane[1] =  22.5*Gaudi::Units::mm; rmin[1] = r0 - 22.5*Gaudi::Units::mm; rmax[1] = r0 + 53.5*Gaudi::Units::mm;
+		zplane[2] =  22.5*Gaudi::Units::mm; rmin[2] = r0 - 24.5*Gaudi::Units::mm; rmax[2] = r0 + 40.5*Gaudi::Units::mm;
+		zplane[3] =  54. *Gaudi::Units::mm; rmin[3] = r0 - 24.5*Gaudi::Units::mm; rmax[3] = r0 + 40.5*Gaudi::Units::mm;
 	} else if(id == "BackInnerRing::Hole"){
-		double r0       =357.5*GeoModelKernelUnits::mm-1.*GeoModelKernelUnits::mm;  // RInner = reference radius of the ring
+		double r0       =357.5*Gaudi::Units::mm-1.*Gaudi::Units::mm;  // RInner = reference radius of the ring
  		zplane.resize(6);  rmin.resize(6);    rmax.resize(6);
-		zplane[0] = 18. *GeoModelKernelUnits::mm; rmin[0] = r0 + 6.5*GeoModelKernelUnits::mm; rmax[0] = r0 + 29.5*GeoModelKernelUnits::mm;
-		zplane[1] = 22.5*GeoModelKernelUnits::mm; rmin[1] = r0 + 6.5*GeoModelKernelUnits::mm; rmax[1] = r0 + 29.5*GeoModelKernelUnits::mm;
-		zplane[2] = 22.5*GeoModelKernelUnits::mm; rmin[2] = r0 + 6.5*GeoModelKernelUnits::mm; rmax[2] = r0 + 40.5*GeoModelKernelUnits::mm;
-		zplane[3] = 43.5*GeoModelKernelUnits::mm; rmin[3] = r0 + 6.5*GeoModelKernelUnits::mm; rmax[3] = r0 + 40.5*GeoModelKernelUnits::mm;
-		zplane[4] = 43.5*GeoModelKernelUnits::mm; rmin[4] = r0 + 6.5*GeoModelKernelUnits::mm; rmax[4] = r0 + 29.5*GeoModelKernelUnits::mm;
-		zplane[5] = 48. *GeoModelKernelUnits::mm; rmin[5] = r0 + 6.5*GeoModelKernelUnits::mm; rmax[5] = r0 + 29.5*GeoModelKernelUnits::mm;
+		zplane[0] = 18. *Gaudi::Units::mm; rmin[0] = r0 + 6.5*Gaudi::Units::mm; rmax[0] = r0 + 29.5*Gaudi::Units::mm;
+		zplane[1] = 22.5*Gaudi::Units::mm; rmin[1] = r0 + 6.5*Gaudi::Units::mm; rmax[1] = r0 + 29.5*Gaudi::Units::mm;
+		zplane[2] = 22.5*Gaudi::Units::mm; rmin[2] = r0 + 6.5*Gaudi::Units::mm; rmax[2] = r0 + 40.5*Gaudi::Units::mm;
+		zplane[3] = 43.5*Gaudi::Units::mm; rmin[3] = r0 + 6.5*Gaudi::Units::mm; rmax[3] = r0 + 40.5*Gaudi::Units::mm;
+		zplane[4] = 43.5*Gaudi::Units::mm; rmin[4] = r0 + 6.5*Gaudi::Units::mm; rmax[4] = r0 + 29.5*Gaudi::Units::mm;
+		zplane[5] = 48. *Gaudi::Units::mm; rmin[5] = r0 + 6.5*Gaudi::Units::mm; rmax[5] = r0 + 29.5*Gaudi::Units::mm;
 	} else if(id == "BackInnerRing::GTen"){
-		double r0       =357.5*GeoModelKernelUnits::mm-1.*GeoModelKernelUnits::mm;  // RInner = reference radius of the ring
+		double r0       =357.5*Gaudi::Units::mm-1.*Gaudi::Units::mm;  // RInner = reference radius of the ring
 		zplane.resize(6);  rmin.resize(6);    rmax.resize(6);
-		zplane[0] = 18.*GeoModelKernelUnits::mm; rmin[0] = r0 + 8.5*GeoModelKernelUnits::mm; rmax[0] = r0 + 28.5*GeoModelKernelUnits::mm;
-		zplane[1] = 23.*GeoModelKernelUnits::mm; rmin[1] = r0 + 8.5*GeoModelKernelUnits::mm; rmax[1] = r0 + 28.5*GeoModelKernelUnits::mm;
-		zplane[2] = 23.*GeoModelKernelUnits::mm; rmin[2] = r0 + 8.5*GeoModelKernelUnits::mm; rmax[2] = r0 + 40.5*GeoModelKernelUnits::mm;
-		zplane[3] = 43.*GeoModelKernelUnits::mm; rmin[3] = r0 + 8.5*GeoModelKernelUnits::mm; rmax[3] = r0 + 40.5*GeoModelKernelUnits::mm;
-		zplane[4] = 43.*GeoModelKernelUnits::mm; rmin[4] = r0 + 8.5*GeoModelKernelUnits::mm; rmax[4] = r0 + 28.5*GeoModelKernelUnits::mm;
-		zplane[5] = 48.*GeoModelKernelUnits::mm; rmin[5] = r0 + 8.5*GeoModelKernelUnits::mm; rmax[5] = r0 + 28.5*GeoModelKernelUnits::mm;
+		zplane[0] = 18.*Gaudi::Units::mm; rmin[0] = r0 + 8.5*Gaudi::Units::mm; rmax[0] = r0 + 28.5*Gaudi::Units::mm;
+		zplane[1] = 23.*Gaudi::Units::mm; rmin[1] = r0 + 8.5*Gaudi::Units::mm; rmax[1] = r0 + 28.5*Gaudi::Units::mm;
+		zplane[2] = 23.*Gaudi::Units::mm; rmin[2] = r0 + 8.5*Gaudi::Units::mm; rmax[2] = r0 + 40.5*Gaudi::Units::mm;
+		zplane[3] = 43.*Gaudi::Units::mm; rmin[3] = r0 + 8.5*Gaudi::Units::mm; rmax[3] = r0 + 40.5*Gaudi::Units::mm;
+		zplane[4] = 43.*Gaudi::Units::mm; rmin[4] = r0 + 8.5*Gaudi::Units::mm; rmax[4] = r0 + 28.5*Gaudi::Units::mm;
+		zplane[5] = 48.*Gaudi::Units::mm; rmin[5] = r0 + 8.5*Gaudi::Units::mm; rmax[5] = r0 + 28.5*Gaudi::Units::mm;
 	} else if(id == "FrontOuterRing"){
-		double r0 = 1961.*GeoModelKernelUnits::mm-7.*GeoModelKernelUnits::mm; // ROuter = inner radius of the outer ring
+		double r0 = 1961.*Gaudi::Units::mm-7.*Gaudi::Units::mm; // ROuter = inner radius of the outer ring
 		zplane.resize(7);  rmin.resize(7);    rmax.resize(7);
-		zplane[0] =   0. *GeoModelKernelUnits::mm; rmin[0] = r0 +  0.*GeoModelKernelUnits::mm; rmax[0] = r0 + 111.*GeoModelKernelUnits::mm;
-		zplane[1] =   5. *GeoModelKernelUnits::mm; rmin[1] = r0 +  0.*GeoModelKernelUnits::mm; rmax[1] = r0 + 116.*GeoModelKernelUnits::mm;
-		zplane[2] =  20. *GeoModelKernelUnits::mm; rmin[2] = r0 +  0.*GeoModelKernelUnits::mm; rmax[2] = r0 + 116.*GeoModelKernelUnits::mm;
-		zplane[3] =  20. *GeoModelKernelUnits::mm; rmin[3] = r0 + 62.*GeoModelKernelUnits::mm; rmax[3] = r0 + 116.*GeoModelKernelUnits::mm;
-		zplane[4] =  63.3*GeoModelKernelUnits::mm; rmin[4] = r0 + 62.*GeoModelKernelUnits::mm; rmax[4] = r0 + 116.*GeoModelKernelUnits::mm;
-		zplane[5] = 115.2*GeoModelKernelUnits::mm; rmin[5] = r0 + 90.*GeoModelKernelUnits::mm; rmax[5] = r0 + 116.*GeoModelKernelUnits::mm;
-		zplane[6] = 144. *GeoModelKernelUnits::mm; rmin[6] = r0 + 90.*GeoModelKernelUnits::mm; rmax[6] = r0 + 116.*GeoModelKernelUnits::mm;
+		zplane[0] =   0. *Gaudi::Units::mm; rmin[0] = r0 +  0.*Gaudi::Units::mm; rmax[0] = r0 + 111.*Gaudi::Units::mm;
+		zplane[1] =   5. *Gaudi::Units::mm; rmin[1] = r0 +  0.*Gaudi::Units::mm; rmax[1] = r0 + 116.*Gaudi::Units::mm;
+		zplane[2] =  20. *Gaudi::Units::mm; rmin[2] = r0 +  0.*Gaudi::Units::mm; rmax[2] = r0 + 116.*Gaudi::Units::mm;
+		zplane[3] =  20. *Gaudi::Units::mm; rmin[3] = r0 + 62.*Gaudi::Units::mm; rmax[3] = r0 + 116.*Gaudi::Units::mm;
+		zplane[4] =  63.3*Gaudi::Units::mm; rmin[4] = r0 + 62.*Gaudi::Units::mm; rmax[4] = r0 + 116.*Gaudi::Units::mm;
+		zplane[5] = 115.2*Gaudi::Units::mm; rmin[5] = r0 + 90.*Gaudi::Units::mm; rmax[5] = r0 + 116.*Gaudi::Units::mm;
+		zplane[6] = 144. *Gaudi::Units::mm; rmin[6] = r0 + 90.*Gaudi::Units::mm; rmax[6] = r0 + 116.*Gaudi::Units::mm;
 	} else if(id == "FrontOuterLongBar"){
 		zplane.resize(4);  rmin.resize(4);    rmax.resize(4);
-		zplane[0] =  0.*GeoModelKernelUnits::mm; rmin[0] = 1969.7*GeoModelKernelUnits::mm; rmax[0] = 2016.*GeoModelKernelUnits::mm;
-		zplane[1] =  1.*GeoModelKernelUnits::mm; rmin[1] = 1969.7*GeoModelKernelUnits::mm; rmax[1] = 2016.*GeoModelKernelUnits::mm;
-		zplane[2] =  1.*GeoModelKernelUnits::mm; rmin[2] =  652. *GeoModelKernelUnits::mm; rmax[2] = 2016.*GeoModelKernelUnits::mm;
-		zplane[3] = 21.*GeoModelKernelUnits::mm; rmin[3] =  652. *GeoModelKernelUnits::mm; rmax[3] = 2016.*GeoModelKernelUnits::mm;
+		zplane[0] =  0.*Gaudi::Units::mm; rmin[0] = 1969.7*Gaudi::Units::mm; rmax[0] = 2016.*Gaudi::Units::mm;
+		zplane[1] =  1.*Gaudi::Units::mm; rmin[1] = 1969.7*Gaudi::Units::mm; rmax[1] = 2016.*Gaudi::Units::mm;
+		zplane[2] =  1.*Gaudi::Units::mm; rmin[2] =  652. *Gaudi::Units::mm; rmax[2] = 2016.*Gaudi::Units::mm;
+		zplane[3] = 21.*Gaudi::Units::mm; rmin[3] =  652. *Gaudi::Units::mm; rmax[3] = 2016.*Gaudi::Units::mm;
                     //2020-46.3 ; RMiddle+40.//RMiddle+8+(lengthofbar=1398)
 	} else if(id == "BackOuterRing"){
-		double r0 = 1961.*GeoModelKernelUnits::mm-7.*GeoModelKernelUnits::mm;
+		double r0 = 1961.*Gaudi::Units::mm-7.*Gaudi::Units::mm;
 		zplane.resize(7);  rmin.resize(7);    rmax.resize(7);
-		zplane[0] =   0.*GeoModelKernelUnits::mm; rmin[0] = r0 +  0.*GeoModelKernelUnits::mm; rmax[0] = r0 + 111.*GeoModelKernelUnits::mm;
-		zplane[1] =   5.*GeoModelKernelUnits::mm; rmin[1] = r0 +  0.*GeoModelKernelUnits::mm; rmax[1] = r0 + 116.*GeoModelKernelUnits::mm;
-		zplane[2] =  15.*GeoModelKernelUnits::mm; rmin[2] = r0 +  0.*GeoModelKernelUnits::mm; rmax[2] = r0 + 116.*GeoModelKernelUnits::mm;
-		zplane[3] =  15.*GeoModelKernelUnits::mm; rmin[3] = r0 + 62.*GeoModelKernelUnits::mm; rmax[3] = r0 + 116.*GeoModelKernelUnits::mm;
-		zplane[4] =  41.*GeoModelKernelUnits::mm; rmin[4] = r0 + 62.*GeoModelKernelUnits::mm; rmax[4] = r0 + 116.*GeoModelKernelUnits::mm;
-		zplane[5] =  41.*GeoModelKernelUnits::mm; rmin[5] = r0 + 90.*GeoModelKernelUnits::mm; rmax[5] = r0 + 116.*GeoModelKernelUnits::mm;
-		zplane[6] = 139.*GeoModelKernelUnits::mm; rmin[6] = r0 + 90.*GeoModelKernelUnits::mm; rmax[6] = r0 + 116.*GeoModelKernelUnits::mm;
+		zplane[0] =   0.*Gaudi::Units::mm; rmin[0] = r0 +  0.*Gaudi::Units::mm; rmax[0] = r0 + 111.*Gaudi::Units::mm;
+		zplane[1] =   5.*Gaudi::Units::mm; rmin[1] = r0 +  0.*Gaudi::Units::mm; rmax[1] = r0 + 116.*Gaudi::Units::mm;
+		zplane[2] =  15.*Gaudi::Units::mm; rmin[2] = r0 +  0.*Gaudi::Units::mm; rmax[2] = r0 + 116.*Gaudi::Units::mm;
+		zplane[3] =  15.*Gaudi::Units::mm; rmin[3] = r0 + 62.*Gaudi::Units::mm; rmax[3] = r0 + 116.*Gaudi::Units::mm;
+		zplane[4] =  41.*Gaudi::Units::mm; rmin[4] = r0 + 62.*Gaudi::Units::mm; rmax[4] = r0 + 116.*Gaudi::Units::mm;
+		zplane[5] =  41.*Gaudi::Units::mm; rmin[5] = r0 + 90.*Gaudi::Units::mm; rmax[5] = r0 + 116.*Gaudi::Units::mm;
+		zplane[6] = 139.*Gaudi::Units::mm; rmin[6] = r0 + 90.*Gaudi::Units::mm; rmax[6] = r0 + 116.*Gaudi::Units::mm;
 	} else if(id == "BackOuterLongBar"){
 		zplane.resize(4);  rmin.resize(4);    rmax.resize(4);
-		zplane[0] =  0.*GeoModelKernelUnits::mm; rmin[0] = 1969.7*GeoModelKernelUnits::mm; rmax[0] = 2016.*GeoModelKernelUnits::mm;
-		zplane[1] =  1.*GeoModelKernelUnits::mm; rmin[1] = 1969.7*GeoModelKernelUnits::mm; rmax[1] = 2016.*GeoModelKernelUnits::mm;
-		zplane[2] =  1.*GeoModelKernelUnits::mm; rmin[2] =  736.5*GeoModelKernelUnits::mm; rmax[2] = 2016.*GeoModelKernelUnits::mm;
-		zplane[3] = 21.*GeoModelKernelUnits::mm; rmin[3] =  736.5*GeoModelKernelUnits::mm; rmax[3] = 2016.*GeoModelKernelUnits::mm;
+		zplane[0] =  0.*Gaudi::Units::mm; rmin[0] = 1969.7*Gaudi::Units::mm; rmax[0] = 2016.*Gaudi::Units::mm;
+		zplane[1] =  1.*Gaudi::Units::mm; rmin[1] = 1969.7*Gaudi::Units::mm; rmax[1] = 2016.*Gaudi::Units::mm;
+		zplane[2] =  1.*Gaudi::Units::mm; rmin[2] =  736.5*Gaudi::Units::mm; rmax[2] = 2016.*Gaudi::Units::mm;
+		zplane[3] = 21.*Gaudi::Units::mm; rmin[3] =  736.5*Gaudi::Units::mm; rmax[3] = 2016.*Gaudi::Units::mm;
 	} else {
 		throw std::runtime_error("EMECSupportConstruction: wrong Pcone id");
 	}
@@ -710,10 +710,10 @@ void EMECSupportConstruction::put_front_outer_barettes(GeoPhysVol *motherPhysica
 	motherPhysical->add(physFOB);
 
 	const int number_of_modules = 8;
-	const double moduldfi = GeoModelKernelUnits::twopi / number_of_modules;
+	const double moduldfi = Gaudi::Units::twopi / number_of_modules;
 	const int nofabs = (*m_DB_EmecWheelParameters)[1]->getInt("NABS");
 	const int nofdiv = nofabs / number_of_modules;
-	const double dfi = GeoModelKernelUnits::twopi / nofabs;
+	const double dfi = Gaudi::Units::twopi / nofabs;
   //define a fi section including one absorber and electrode
 	name = m_BaseName + "FrontOuterBarrette::Module::Phidiv";
 	GeoTubs *shapeFOBMP = new GeoTubs(rminFOB, rmaxFOB, dzFOB, -dfi/4., dfi);
@@ -808,10 +808,10 @@ void EMECSupportConstruction::put_front_inner_barettes(GeoPhysVol *motherPhysica
 	motherPhysical->add(physFIB);
 
 	const int number_of_modules = 8;
-	const double moduldfi = GeoModelKernelUnits::twopi / number_of_modules;
+	const double moduldfi = Gaudi::Units::twopi / number_of_modules;
 	const int nofabs = (*m_DB_EmecWheelParameters)[0]->getInt("NABS");
 	const int nofdiv = nofabs / number_of_modules;
-	const double dfi = GeoModelKernelUnits::twopi / nofabs;
+	const double dfi = Gaudi::Units::twopi / nofabs;
 
 	name = m_BaseName + "FrontInnerBarrette::Module::Phidiv";
 	GeoTubs *shapeFIBMP = new GeoTubs(rminFIB,rmaxFIB,dzFIB, -dfi/4., dfi);
@@ -905,10 +905,10 @@ void EMECSupportConstruction::put_back_outer_barettes(GeoPhysVol *motherPhysical
 	motherPhysical->add(physBOB);
 
 	const int number_of_modules = 8;
-	const double moduldfi = GeoModelKernelUnits::twopi / number_of_modules;
+	const double moduldfi = Gaudi::Units::twopi / number_of_modules;
 	int nofabs = (*m_DB_EmecWheelParameters)[1]->getInt("NABS");
 	int nofdiv = nofabs / number_of_modules;
-	double dfi = GeoModelKernelUnits::twopi / nofabs;
+	double dfi = Gaudi::Units::twopi / nofabs;
 
 	name = m_BaseName + "BackOuterBarrette::Module::Phidiv";
 	GeoTubs *shapeBOBMP = new GeoTubs(rminBOB, rmaxBOB, dzBOB, -dfi/4., dfi);
@@ -992,7 +992,7 @@ void EMECSupportConstruction::put_back_inner_barettes(GeoPhysVol *motherPhysical
 	map_t numbers = getNumbersMap(m_DB_numbers, id);
 
 	std::string name = m_BaseName + id;
-	double rminBIB = getNumber(m_DB_tubes, tubes, id, "RMIN", 357.5-1.+40.5);    //RInner +40.5// -1.GeoModelKernelUnits::mm for cold
+	double rminBIB = getNumber(m_DB_tubes, tubes, id, "RMIN", 357.5-1.+40.5);    //RInner +40.5// -1.Gaudi::Units::mm for cold
 	double rmaxBIB = getNumber(m_DB_tubes, tubes, id, "RMAX", 699.-2.5-40.);     //RMiddle-40   //-2.5mm for cold
 	double dzBIB = getNumber(m_DB_tubes, tubes, id, "DZ", 11. / 2);
 	double zposBIB = getNumber(m_DB_numbers, numbers, "Z0", "PARVALUE", 44.) + dzBIB;
@@ -1003,10 +1003,10 @@ void EMECSupportConstruction::put_back_inner_barettes(GeoPhysVol *motherPhysical
 	motherPhysical->add(physBIB);
 
 	const int number_of_modules = 8;
-	const double moduldfi = GeoModelKernelUnits::twopi / number_of_modules;
+	const double moduldfi = Gaudi::Units::twopi / number_of_modules;
 	const int nofabs = (*m_DB_EmecWheelParameters)[0]->getInt("NABS");
 	const int nofdiv = nofabs / number_of_modules;
-	const double dfi = GeoModelKernelUnits::twopi / nofabs;
+	const double dfi = Gaudi::Units::twopi / nofabs;
 
 	name = m_BaseName + "BackInnerBarrette::Module::Phidiv";
 	GeoTubs *shapeBIBMP = new GeoTubs(rminBIB, rmaxBIB, dzBIB, -dfi/4., dfi);
@@ -1101,9 +1101,9 @@ GeoPhysVol* EMECSupportConstruction::outer_envelope(void) const
 	map_t tubes = getMap(m_DB_tubes, "TUBENAME");
 	std::string id = "OuterTransversalBars";
 	std::string name = m_BaseName + id;
-	double rminOTB = getNumber(m_DB_tubes, tubes, id, "RMIN", (2034. + 2.)*GeoModelKernelUnits::mm);
-	double rmaxOTB = getNumber(m_DB_tubes, tubes, id, "RMAX", rminOTB + 3.*GeoModelKernelUnits::mm);
-	double dzOTB = getNumber(m_DB_tubes, tubes, id, "DZ", 201.*GeoModelKernelUnits::mm);
+	double rminOTB = getNumber(m_DB_tubes, tubes, id, "RMIN", (2034. + 2.)*Gaudi::Units::mm);
+	double rmaxOTB = getNumber(m_DB_tubes, tubes, id, "RMAX", rminOTB + 3.*Gaudi::Units::mm);
+	double dzOTB = getNumber(m_DB_tubes, tubes, id, "DZ", 201.*Gaudi::Units::mm);
 	GeoTubs* shapeOTB = new GeoTubs(rminOTB, rmaxOTB, dzOTB, m_PhiStart, m_PhiSize);
 	GeoLogVol* logicalOTB = new GeoLogVol(name, shapeOTB, m_Gten);
 	GeoPhysVol* physOTB = new GeoPhysVol(logicalOTB);
@@ -1111,16 +1111,16 @@ GeoPhysVol* EMECSupportConstruction::outer_envelope(void) const
 	id = "TopIndexingRing";
 	name = m_BaseName + id;
 	double rminTIR = getNumber(m_DB_tubes, tubes, id, "RMIN", rmaxOTB);
-	double rmaxTIR = getNumber(m_DB_tubes, tubes, id, "RMAX", rminTIR + 9.*GeoModelKernelUnits::mm);
-	double dzTIR = getNumber(m_DB_tubes, tubes, id, "DZ", 10.*GeoModelKernelUnits::mm);
+	double rmaxTIR = getNumber(m_DB_tubes, tubes, id, "RMAX", rminTIR + 9.*Gaudi::Units::mm);
+	double dzTIR = getNumber(m_DB_tubes, tubes, id, "DZ", 10.*Gaudi::Units::mm);
 	GeoTubs* shapeTIR = new GeoTubs(rminTIR, rmaxTIR, dzTIR, m_PhiStart, m_PhiSize);
 	GeoLogVol* logicalTIR = new GeoLogVol(name, shapeTIR, m_Alu);
 	GeoPhysVol* physTIR = new GeoPhysVol(logicalTIR);
 	id += "::Hole";
 	name = m_BaseName + id;
-	double dzTIRH = getNumber(m_DB_tubes, tubes, id, "DZ", 4.5*GeoModelKernelUnits::mm);
+	double dzTIRH = getNumber(m_DB_tubes, tubes, id, "DZ", 4.5*Gaudi::Units::mm);
 	double rmaxTIRH = getNumber(m_DB_tubes, tubes, id, "RMAX", rmaxTIR);
-	double rminTIRH = getNumber(m_DB_tubes, tubes, id, "RMIN", rmaxTIRH - 2.*GeoModelKernelUnits::mm);
+	double rminTIRH = getNumber(m_DB_tubes, tubes, id, "RMIN", rmaxTIRH - 2.*Gaudi::Units::mm);
 	GeoTubs* shapeTIRH = new GeoTubs(rminTIRH, rmaxTIRH, dzTIRH, m_PhiStart, m_PhiSize);
 	GeoLogVol* logicalTIRH = new GeoLogVol(name, shapeTIRH, m_LAr);
 	GeoPhysVol* physTIRH = new GeoPhysVol(logicalTIRH);
@@ -1161,7 +1161,7 @@ GeoPhysVol* EMECSupportConstruction::outer_envelope(void) const
 		motherPhysical->add(new GeoTransform(GeoTrf::RotateZ3D(-dfi + dfiNS*0.5)));
 		motherPhysical->add(physNS);
 	} else {
-		double dfi = GeoModelKernelUnits::twopi / number_of_stretchers;
+		double dfi = Gaudi::Units::twopi / number_of_stretchers;
 		int copyno = 0;
 		for(int i = 0; i < number_of_stretchers; ++ i, ++ copyno){
 			double fiW = i * dfi;
@@ -1184,26 +1184,26 @@ GeoPhysVol* EMECSupportConstruction::inner_envelope(void) const
 	map_t numbers = getNumbersMap(m_DB_numbers, id);
 	std::string name0 = m_BaseName + id;
 
-//	double dz = LArWheelCalculator::GetWheelThickness() * 0.5; //257.*GeoModelKernelUnits::mm;     //zWheelThickness/2.
-	double dz = 0.5 * (*m_DB_mn)[0]->getDouble("ACTIVELENGTH")*GeoModelKernelUnits::mm;
+//	double dz = LArWheelCalculator::GetWheelThickness() * 0.5; //257.*Gaudi::Units::mm;     //zWheelThickness/2.
+	double dz = 0.5 * (*m_DB_mn)[0]->getDouble("ACTIVELENGTH")*Gaudi::Units::mm;
 	try {
-		dz += (*m_DB_mn)[0]->getDouble("STRAIGHTSTARTSECTION")*GeoModelKernelUnits::mm;
+		dz += (*m_DB_mn)[0]->getDouble("STRAIGHTSTARTSECTION")*Gaudi::Units::mm;
 	}
 	catch(...){
-		dz += 2.*GeoModelKernelUnits::mm;
+		dz += 2.*Gaudi::Units::mm;
 		std::ostringstream tmp("cannot get STRAIGHTSTARTSECTION from DB");
 		printWarning(tmp);
 	}
 
-	double r1min = getNumber(m_DB_numbers, numbers, "R1MIN", "PARVALUE", (292.-1.)*GeoModelKernelUnits::mm); //lower radius of front inner ring, -1mm for cold
-	double r2min = getNumber(m_DB_numbers, numbers, "R2MIN", "PARVALUE", (333.-1.)*GeoModelKernelUnits::mm); //lower radius of back  inner ring, -1mm for cold
+	double r1min = getNumber(m_DB_numbers, numbers, "R1MIN", "PARVALUE", (292.-1.)*Gaudi::Units::mm); //lower radius of front inner ring, -1mm for cold
+	double r2min = getNumber(m_DB_numbers, numbers, "R2MIN", "PARVALUE", (333.-1.)*Gaudi::Units::mm); //lower radius of back  inner ring, -1mm for cold
                                   //RInnerFront-43.5;RInnerBack-24.5
 	const double talpha = (r2min - r1min)*0.5/dz;
 	const double calpha = 2.*dz/sqrt(pow(2.*dz,2.)+pow(r2min-r1min,2.));
         const double inv_calpha = 1. / calpha;
 	const double alpha = atan(talpha);
-	double surfthick = getNumber(m_DB_numbers, numbers, "surfthick", "PARVALUE", 1.*GeoModelKernelUnits::mm);       // thickness of the cone shell
-	double barthick = getNumber(m_DB_numbers, numbers, "barthick", "PARVALUE", 5.*GeoModelKernelUnits::mm);       // thickness of the Alu bars
+	double surfthick = getNumber(m_DB_numbers, numbers, "surfthick", "PARVALUE", 1.*Gaudi::Units::mm);       // thickness of the cone shell
+	double barthick = getNumber(m_DB_numbers, numbers, "barthick", "PARVALUE", 5.*Gaudi::Units::mm);       // thickness of the Alu bars
 	double r1max     = pow(barthick/2.,2.)+ pow(r1min+(surfthick+barthick)*inv_calpha,2.);
 			r1max     = sqrt(r1max)+surfthick*inv_calpha;
 	double r2max     = r2min+(r1max-r1min);
@@ -1243,7 +1243,7 @@ GeoPhysVol* EMECSupportConstruction::inner_envelope(void) const
 //-------------------------/
 
 	const int    nofmodul  =   8;
-	const double moduldphi = GeoModelKernelUnits::twopi / nofmodul;
+	const double moduldphi = Gaudi::Units::twopi / nofmodul;
   GeoCons*     shapeIACP  = new GeoCons(
        	                      r1min+surfthick*inv_calpha,r2min+surfthick*inv_calpha,
                               r1max-surfthick*inv_calpha,r2max-surfthick*inv_calpha,
@@ -1260,7 +1260,7 @@ GeoPhysVol* EMECSupportConstruction::inner_envelope(void) const
   GeoLogVol* logicalIACAB= new GeoLogVol (name,shapeIACAB, m_Alu);
   GeoPhysVol*   physIACAB= new GeoPhysVol(logicalIACAB);
 
-  const double dphi = GeoModelKernelUnits::twopi / 256.;
+  const double dphi = Gaudi::Units::twopi / 256.;
   const int    nbar = 9;
   const double phi[9]={-15.,-11.,-7.5,-4.,0.,4.,7.5,11.,15.}; // phipos of the bars
   const double r0=r1min+(surfthick+barthick/2.)*inv_calpha+dz*talpha;
@@ -1287,9 +1287,9 @@ GeoPhysVol* EMECSupportConstruction::inner_envelope(void) const
 //!!!!
 GeoPhysVol* EMECSupportConstruction::middle_envelope(void) const
 {
-	double dMechFocaltoWRP = (*m_DB_EmecGeometry)[0]->getDouble("Z1") *GeoModelKernelUnits::cm;
-	double LArEMECHalfCrack = (*m_DB_EmecGeometry)[0]->getDouble("DCRACK") *GeoModelKernelUnits::cm;
-	double LArTotalThickness = (*m_DB_EmecGeometry)[0]->getDouble("ETOT") *GeoModelKernelUnits::cm;
+	double dMechFocaltoWRP = (*m_DB_EmecGeometry)[0]->getDouble("Z1") *Gaudi::Units::cm;
+	double LArEMECHalfCrack = (*m_DB_EmecGeometry)[0]->getDouble("DCRACK") *Gaudi::Units::cm;
+	double LArTotalThickness = (*m_DB_EmecGeometry)[0]->getDouble("ETOT") *Gaudi::Units::cm;
 
 	double eta_mid = (*m_DB_EmecWheelParameters)[0]->getDouble("ETAEXT");
 
@@ -1298,8 +1298,8 @@ GeoPhysVol* EMECSupportConstruction::middle_envelope(void) const
         const double inv_cosThetaMid = 1. / cosThetaMid;
 
 	double z0 = LArTotalThickness * 0.5 + dMechFocaltoWRP;
-	double length = 462.*GeoModelKernelUnits::mm;
-	double rthickness = 1.5*GeoModelKernelUnits::mm * inv_cosThetaMid;
+	double length = 462.*Gaudi::Units::mm;
+	double rthickness = 1.5*Gaudi::Units::mm * inv_cosThetaMid;
 
 	std::string name = m_BaseName + "InnerTransversalBars";
 	double dz = length * cosThetaMid * 0.5;

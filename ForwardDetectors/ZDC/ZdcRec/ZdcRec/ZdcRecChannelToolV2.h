@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -42,15 +42,15 @@ class ZdcRecChannelToolV2: public asg::AsgTool, virtual public IIncidentListener
   ZdcRecChannelToolV2(const std::string& name);
   virtual ~ZdcRecChannelToolV2() {};
   
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
-  virtual void handle( const Incident& );
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
+  virtual void handle( const Incident& ) override;
 
-  int convertTT2ZM(const xAOD::TriggerTowerContainer* ttCollection, xAOD::ZdcModuleContainer* zdcModules);
-  int makeRawFromDigits(xAOD::ZdcModuleContainer& zdcModules); // NOT const -- we're going to modify the objects to add signal processing
-  int makeWaveformFromDigits(xAOD::ZdcModule& module);
-  int splitWaveform(std::map<int,float>& waveform, std::vector<float>& times, std::vector<float>& adcs);
-  int getPeakProperties(std::vector<float>& times, std::vector<float>& adcs, float& time, float& amp, float& qual, float& presamp);
+  int convertTT2ZM(const xAOD::TriggerTowerContainer* ttCollection, xAOD::ZdcModuleContainer* zdcModules) const;
+  int makeRawFromDigits(xAOD::ZdcModuleContainer& zdcModules) const; // NOT const -- we're going to modify the objects to add signal processing
+  int makeWaveformFromDigits(xAOD::ZdcModule& module) const;
+  int splitWaveform(std::map<int,float>& waveform, std::vector<float>& times, std::vector<float>& adcs) const;
+  int getPeakProperties(std::vector<float>& times, std::vector<float>& adcs, float& time, float& amp, float& qual, float& presamp) const;
 
 private:
 

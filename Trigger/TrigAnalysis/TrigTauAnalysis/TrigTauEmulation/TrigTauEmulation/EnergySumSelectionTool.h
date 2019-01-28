@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // vim: ts=2 sw=2
@@ -25,14 +25,16 @@ class EnergySumSelectionTool : public virtual IEnergySumSelectionTool, public Le
     virtual ~EnergySumSelectionTool() {};
 
     // Tool initialization
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
+
+    virtual const asg::AcceptInfo& getAcceptInfo() const override;
 
     // Get the decision for a specific EnergySumRoI
-    virtual const Root::TAccept& accept(const xAOD::EnergySumRoI& l1xe) const;
+    virtual asg::AcceptData accept(const xAOD::EnergySumRoI& l1xe) const override;
 
   private:
 
-    mutable Root::TAccept m_accept;
+    asg::AcceptInfo m_accept;
     double m_MET_cut;
 
   protected:

@@ -5,7 +5,7 @@
 #ifndef TRIGBYTESTREAMCNVSVC_H
 #define TRIGBYTESTREAMCNVSVC_H
 
-#include "ByteStreamCnvSvcBase/ByteStreamCnvSvcBase.h"
+#include "ByteStreamCnvSvc/ByteStreamCnvSvc.h"
 
 // Forward declarations
 class StoreGateSvc;
@@ -13,8 +13,14 @@ class IROBDataProviderSvc;
 
 /** @class TrigByteStreamCnvSvc
  *  @brief A ByteStreamCnvSvc implementation for online use
+ *
+ *  It overrides the connectOutput and commitOutput methods of the base class. In this implementation, they create
+ *  the specific online HLT output and send it out directly to the TDAQ infrastructure without using an output service.
+ *
+ *  It needs to inherit from ByteStreamCnvSvc rather than ByteStreamCnvSvcBase, because some elements of the athena
+ *  framework (particularly converters) rely on the properties or functionality of the offline ByteStreamCnvSvc.
  **/
-class TrigByteStreamCnvSvc : public ByteStreamCnvSvcBase {
+class TrigByteStreamCnvSvc : public ByteStreamCnvSvc {
 public:
   /// Standard constructor
   TrigByteStreamCnvSvc(const std::string& name, ISvcLocator* svcLoc);

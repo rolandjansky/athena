@@ -33,8 +33,8 @@ static const char* strsig[3]= { "N/A", "WireGroup", "Strip" };
 
 //////////////////////
 TGCASDOut::TGCASDOut()
-  : tgcReadoutIndex(),
-    signalType(WIRE), hitID(0), channel(0), hitToF(0.0)
+  : m_tgcReadoutIndex(),
+    m_signalType(WIRE), m_hitID(0), m_channel(0), m_hitToF(0.0)
 //////////////////////
 {
 }
@@ -42,8 +42,8 @@ TGCASDOut::TGCASDOut()
 ///////////////////////////////////////////////////////////////
 TGCASDOut::TGCASDOut(TGCIndex tgcindex, int ilyr,
 		     TGCSignalType sigtype, int id, double tof)
-  : tgcReadoutIndex(tgcindex, ilyr),
-    signalType(sigtype), hitID(id), channel(0), hitToF(tof)
+  : m_tgcReadoutIndex(tgcindex, ilyr),
+    m_signalType(sigtype), m_hitID(id), m_channel(0), m_hitToF(tof)
 ///////////////////////////////////////////////////////////////
 {
 }
@@ -51,8 +51,8 @@ TGCASDOut::TGCASDOut(TGCIndex tgcindex, int ilyr,
 ///////////////////////////////////////////////////////////////
 TGCASDOut::TGCASDOut(TGCReadoutIndex tgcrindex, 
 		     TGCSignalType sigtype, int id, double tof)
-  : tgcReadoutIndex(tgcrindex),
-    signalType(sigtype), hitID(id), channel(0), hitToF(tof)
+  : m_tgcReadoutIndex(tgcrindex),
+    m_signalType(sigtype), m_hitID(id), m_channel(0), m_hitToF(tof)
 ///////////////////////////////////////////////////////////////
 {
 }
@@ -70,11 +70,11 @@ TGCASDOut& TGCASDOut::operator=(const TGCASDOut& right)
 /////////////////////////////////////////////////////////////
 {
   if (this != &right) {
-    tgcReadoutIndex= right.tgcReadoutIndex;
-    signalType= right.signalType;
-    hitID= right.hitID;
-    channel= right.channel;
-    hitToF= right.hitToF;
+    m_tgcReadoutIndex= right.m_tgcReadoutIndex;
+    m_signalType= right.m_signalType;
+    m_hitID= right.m_hitID;
+    m_channel= right.m_channel;
+    m_hitToF= right.m_hitToF;
   }
   return *this;
 }
@@ -85,9 +85,9 @@ TGCASDOut& TGCASDOut::operator=(const TGCASDOut& right)
 void TGCASDOut::SetParams(TGCSignalType signal_type, int id, double tof)
 ////////////////////////////////////////////////////////////////////////
 {
-  signalType= signal_type;
-  hitID= id;
-  hitToF= tof;
+  m_signalType= signal_type;
+  m_hitID= id;
+  m_hitToF= tof;
 }
 
 
@@ -95,10 +95,10 @@ void TGCASDOut::SetParams(TGCSignalType signal_type, int id, double tof)
 void TGCASDOut::Print() const
 /////////////////////////////
 {
-  tgcReadoutIndex.Print(); 
-  std::cout << "::" << std::setw(9) << strsig[signalType] 
-            << ":: ID=" << std::setw(3) << hitID
-            << ", tof=" << std::setw(5) << std::setprecision(1) << hitToF/CLHEP::ns << "ns"
+  m_tgcReadoutIndex.Print(); 
+  std::cout << "::" << std::setw(9) << strsig[m_signalType] 
+            << ":: ID=" << std::setw(3) << m_hitID
+            << ", tof=" << std::setw(5) << std::setprecision(1) << m_hitToF/CLHEP::ns << "ns"
             << std::setprecision(6) << std::endl;
 }
 

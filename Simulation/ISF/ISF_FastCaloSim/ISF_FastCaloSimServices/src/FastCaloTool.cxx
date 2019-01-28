@@ -186,10 +186,13 @@ StatusCode ISF::FastCaloTool::commonSetup()
   for ( auto tool : m_caloCellMakerTools_simulate) {
     FastShowerCellBuilderTool* fcs=dynamic_cast< FastShowerCellBuilderTool* >(&(*tool));
     if(fcs) {
-      if(fcs->setupEvent().isFailure()) {
+      const EventContext& ctx = Gaudi::Hive::currentContext();
+      if(fcs->setupEvent(ctx, m_rndm).isFailure()) {
         ATH_MSG_ERROR( "Error executing tool " << tool->name() << " in setupEvent");
         return StatusCode::FAILURE;
       }
+      // Don't need to seed m_rndm more than once.
+      break;
     }
   }
 
@@ -269,7 +272,7 @@ StatusCode ISF::FastCaloTool::processOneParticle( const ISF::ISFParticle& isfp) 
     //sc = tool->process(m_theContainer);
     if(fcs->process_particle(m_theContainer,hitVector,
                              isfp.momentum(),isfp.mass(),isfp.pdgCode(),isfp.barcode(),
-                             nullptr, stats, ctx).isFailure()) {
+                             nullptr, m_rndm, stats, ctx).isFailure()) {
       ATH_MSG_WARNING( "simulation of particle pdgid=" << isfp.pdgCode()<< " failed" );
       return StatusCode::FAILURE;
     }

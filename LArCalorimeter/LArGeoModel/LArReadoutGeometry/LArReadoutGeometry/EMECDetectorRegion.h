@@ -8,7 +8,7 @@
 #include "LArReadoutGeometry/EMECDetDescr.h"
 #include "GeoModelKernel/GeoVDetectorElement.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "CLHEP/Geometry/Point3D.h"
 
@@ -39,7 +39,7 @@ class EMECDetectorRegion : public GeoVDetectorElement
   EMECDetectorRegion(const GeoVFullPhysVol *physVol
 		     , const EMECDetDescr *emecDescriptor
 		     , DetectorSide endcap
-		     , double projectivityDisplacement = 4*GeoModelKernelUnits::cm);
+		     , double projectivityDisplacement = 4*Gaudi::Units::cm);
 
   /**
    * @brief    Destructor    

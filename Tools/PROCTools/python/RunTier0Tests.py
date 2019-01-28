@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## RunTier0Tests.py - Brief description of the purpose of this script (Has to be in PROC tools)
 # $Id$
@@ -12,6 +12,7 @@ import time
 import uuid
 import logging
 import glob
+from PROCTools.RunTier0TestsTools import ciRefFileMap
 
 ### Setup global logging
 logging.basicConfig(level=logging.INFO,
@@ -300,17 +301,17 @@ def RunFrozenTier0PolicyTest(q,inputFormat,maxEvents,CleanRunHeadDir,UniqID,RunP
     clean_dir = CleanRunHeadDir+"/clean_run_"+q+"_"+UniqID
 
     if RunPatchedOnly: #overwrite
-        # Resolve the subfolder first. Results are stored like: main_folder/q-test/branch/.
+        # Resolve the subfolder first. Results are stored like: main_folder/q-test/branch/version/.
         # This should work both in standalone and CI
         subfolder = os.environ['AtlasVersion'][0:4]
         # Use EOS if mounted, otherwise CVMFS
-        clean_dir = '/eos/atlas/atlascerngroupdisk/data-art/grid-input/Tier0ChainTests/{0}/{1}'.format(q,subfolder)
+        clean_dir = '/eos/atlas/atlascerngroupdisk/data-art/grid-input/Tier0ChainTests/{0}/{1}/{2}'.format(q,subfolder,ciRefFileMap['{0}-{1}'.format(q,subfolder)])
         if(glob.glob(clean_dir)):
             logging.info("EOS is mounted, going to read the reference files from there instead of CVMFS")
             clean_dir = 'root://eosatlas.cern.ch/'+clean_dir # In case outside CERN
         else:
             logging.info("EOS is not mounted, going to read the reference files from CVMFS")
-            clean_dir = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/{0}/{1}'.format(q,subfolder)
+            clean_dir = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/{0}/{1}/{2}'.format(q,subfolder,ciRefFileMap['{0}-{1}'.format(q,subfolder)])
 
     logging.info("Reading the reference file from location "+clean_dir)
 

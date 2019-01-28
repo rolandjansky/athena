@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // IOVDbTestCoolDCS.cxx
@@ -50,7 +50,7 @@ StatusCode IOVDbTestCoolDCS::execute() {
   }
 
   // print all the AthenaAttributeList
-  const AthenaAttributeList* atrlist;
+  const AthenaAttributeList* atrlist = nullptr;;
   for (std::vector<std::string>::const_iterator itr=m_par_atrlist.begin();
        itr!=m_par_atrlist.end();++itr) {
     if (StatusCode::SUCCESS==detStore()->retrieve(atrlist,*itr)) {

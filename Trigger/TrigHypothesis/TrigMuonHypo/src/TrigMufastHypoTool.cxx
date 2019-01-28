@@ -7,7 +7,7 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
-#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/Monitored.h"
 
 #include "DecisionHandling/Combinators.h"
 
@@ -85,19 +85,18 @@ StatusCode TrigMufastHypoTool::initialize()
 
 bool TrigMufastHypoTool::decideOnSingleObject(TrigMufastHypoTool::MuonClusterInfo& input, size_t cutIndex) const
 {
-   using namespace Monitored;
 
-   auto fexPt 		= MonitoredScalar::declare("Pt", -9999.);
-   auto fexEta 		= MonitoredScalar::declare("Eta", -9999.);
-   auto fexPhi 		= MonitoredScalar::declare("Phi", -9999.);
-   auto fexPtFL		= MonitoredScalar::declare("PtFL", -9999.);
-   auto xatStation	= MonitoredScalar::declare("XatSt", -9999.);
-   auto yatStation	= MonitoredScalar::declare("YatSt", -9999.);
-   auto zatStation	= MonitoredScalar::declare("ZatSt", -9999.);
-   auto xatBeam		= MonitoredScalar::declare("XatBe", -9999.);
-   auto zatBeam		= MonitoredScalar::declare("ZatBe", -9999.);
+   auto fexPt 		= Monitored::Scalar("Pt", -9999.);
+   auto fexEta 		= Monitored::Scalar("Eta", -9999.);
+   auto fexPhi 		= Monitored::Scalar("Phi", -9999.);
+   auto fexPtFL		= Monitored::Scalar("PtFL", -9999.);
+   auto xatStation	= Monitored::Scalar("XatSt", -9999.);
+   auto yatStation	= Monitored::Scalar("YatSt", -9999.);
+   auto zatStation	= Monitored::Scalar("ZatSt", -9999.);
+   auto xatBeam		= Monitored::Scalar("XatBe", -9999.);
+   auto zatBeam		= Monitored::Scalar("ZatBe", -9999.);
 
-   auto monitorIt	= MonitoredScope::declare(m_monTool, fexPt, fexEta, fexPhi, fexPtFL,
+   auto monitorIt	= Monitored::Group(m_monTool, fexPt, fexEta, fexPhi, fexPtFL,
    					          xatStation, yatStation, zatStation, 
 					          xatBeam, zatBeam);
 

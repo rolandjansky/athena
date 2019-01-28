@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
@@ -47,11 +47,6 @@ namespace InDetDD {
   SCT_DetectorManager::~SCT_DetectorManager()
   {
     // Clean up
-    SiDetectorElementCollection::iterator iter;
-    for (iter = m_elementCollection.begin(); iter != m_elementCollection.end(); ++iter){
-      delete *iter;
-    }
-
     for (size_t i=0; i < m_volume.size(); i++) {
       m_volume[i]->unref();
     }

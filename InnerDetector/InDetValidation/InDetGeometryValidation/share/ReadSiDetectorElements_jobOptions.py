@@ -57,50 +57,34 @@ job += ReadSCTElements;
 from AthenaCommon.AppMgr import ServiceMgr
 
 #
-# Both pixel and SCT
-#
-from SiLorentzAngleSvc.LorentzAngleSvcSetup import lorentzAngleSvc
-from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc
-
-#
 # Pixel
 #
 # Load DCS service
-include( "PixelConditionsServices/PixelDCSSvc_jobOptions.py" )
+from PixelConditionsTools.PixelDCSConditionsToolSetup import PixelDCSConditionsToolSetup
+pixelDCSConditionsToolSetup = PixelDCSConditionsToolSetup()
+pixelDCSConditionsToolSetup.setup()
+pixelDCSConditionsTool = pixelDCSConditionsToolSetup.getTool()
+from SiPropertiesSvc.PixelSiPropertiesToolSetup import PixelSiPropertiesToolSetup
+pixelSiPropertiesToolSetup = PixelSiPropertiesToolSetup()
+pixelSiPropertiesToolSetup.setup()
+pixelSiPropertiesTool = pixelSiPropertiesToolSetup.getTool()
+from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
+pixelLorentzAngleTool = pixelLorentzAngleToolSetup.PixelLorentzAngleTool
 
-## Silicon conditions service (set up by LorentzAngleSvcSetup)
-pixelSiliconConditionsSvc = lorentzAngleSvc.PixelSiliconConditionsSvc
-## Or directly from ServiceMgr (its the same instance)
-#pixelSiliconConditionsSvc=ServiceMgr.PixelSiliconConditionsSvc
-## Or if you want a different instance than used by LorentzAngleSvcSetup
-#from PixelConditionsServices.PixelConditionsServicesConf import PixelSiliconConditionsSvc
-#pixelSiliconConditionsSvc = PixelSiliconConditionsSvc("OtherPixel_SiliconConditionsSvc")
-#ServiceMgr += pixelSiliconConditionsSvc
-
-# Silicon properties service
-pixelSiPropertiesSvc = SiPropertiesSvc(name = "PixelSiPropertiesSvc",
-                                     DetectorName="Pixel",
-                                     SiConditionsServices = pixelSiliconConditionsSvc)
-ServiceMgr += pixelSiPropertiesSvc
-
-ReadPixelElements.SiLorentzAngleTool = lorentzAngleSvc.pixel
-ReadPixelElements.SiPropertiesSvc   = pixelSiPropertiesSvc
-ReadPixelElements.SiConditionsSvc   = pixelSiliconConditionsSvc
-# ReadPixelElements.DetEleCollKey = "PixelDetectorElementCollection"
-
-ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleSvc=lorentzAngleSvc.pixel
+ReadPixelElements.UseConditionsTools = True
+ReadPixelElements.SiLorentzAngleTool = pixelLorentzAngleTool
+ReadPixelElements.SiPropertiesTool   = pixelSiPropertiesTool
+ReadPixelElements.SiConditionsTool   = pixelDCSConditionsTool
 
 #
 # SCT
 #
-# Load DCS Tool
-from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
-sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
-sct_DCSConditionsToolSetup.setup()
-InDetSCT_DCSConditionsTool = sct_DCSConditionsToolSetup.getTool()
-
-## Silicon conditions tool (set up by LorentzAngleSvcSetup)
-sctSiliconConditionsTool = lorentzAngleSvc.SCT_SiliconConditionsTool
+# Silicon Lorentz angle tool
+from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
+sctLorentzAngleTool = sctLorentzAngleToolSetup.SCTLorentzAngleTool
+sctSiliconConditionsTool = sctLorentzAngleToolSetup.sctSiliconConditionsTool
 
 # Silicon properties tool
 from SiPropertiesSvc.SCT_SiPropertiesToolSetup import SCT_SiPropertiesToolSetup
@@ -110,18 +94,18 @@ sct_SiPropertiesToolSetup.setup()
 sctSiPropertiesTool = sct_SiPropertiesToolSetup.getTool()
 
 ReadSCTElements.UseConditionsTools = True
-ReadSCTElements.SiLorentzAngleTool = lorentzAngleSvc.sct
+ReadSCTElements.SiLorentzAngleTool = sctLorentzAngleTool
 ReadSCTElements.SiPropertiesTool = sctSiPropertiesTool
 ReadSCTElements.SiConditionsTool = sctSiliconConditionsTool
 ReadSCTElements.DetEleCollKey = "SCT_DetectorElementCollection"
 
 print ReadPixelElements
-print lorentzAngleSvc.pixel
-print pixelSiliconConditionsSvc
-print pixelSiPropertiesSvc
+print pixelLorentzAngleTool
+print pixelDCSConditionsTool
+print pixelSiPropertiesTool
 
 print ReadSCTElements
-print lorentzAngleSvc.sct
+print sctLorentzAngleTool
 print sctSiliconConditionsTool
 print sctSiPropertiesTool
 

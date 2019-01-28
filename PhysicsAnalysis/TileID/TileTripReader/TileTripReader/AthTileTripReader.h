@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -12,10 +12,10 @@
 #ifndef ATHTILETRIPREADER_H
 #define	ATHTILETRIPREADER_H
 
-#include "PATCore/IAthSelectorTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "PATCore/TAccept.h"
+#include "PATCore/AcceptInfo.h"
+#include "PATCore/AcceptData.h"
 #include "TileTripReader/TTileTripReader.h"
 
 
@@ -23,8 +23,7 @@ class INavigable4Momentum;
 
 static const InterfaceID IID_AthTileTripReader("AthTileTripReader", 1 , 0);
 
-class AthTileTripReader : virtual public IAthSelectorTool,
-        public AthAlgTool
+class AthTileTripReader : public AthAlgTool
 {
 public:
     static const inline InterfaceID& interfaceID() { return IID_AthTileTripReader; }
@@ -35,11 +34,11 @@ public:
     
     virtual ~AthTileTripReader();
     
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
     
-    virtual StatusCode finalize();
+    virtual StatusCode finalize() override;
     
-    const Root::TAccept& accept(const INavigable4Momentum* part=0);
+    asg::AcceptData accept(const INavigable4Momentum* part=0);
     
     float calculate(const INavigable4Momentum* part);
     
@@ -47,8 +46,8 @@ public:
     
     inline Root::TTileTripReader* getRootTool(){return m_tripReader;}
     
-    inline virtual const Root::TAccept& getTAccept(){
-        return getRootTool()->getTAccept();
+    inline virtual const asg::AcceptInfo getAcceptInfo(){
+        return getRootTool()->getAcceptInfo();
     }
     
     //static const InterfaceID& interfaceID(){return  IID_AthTileTripReader;}
@@ -65,7 +64,6 @@ public:
 private:
     std::string m_tripFile;
     Root::TTileTripReader* m_tripReader;
-    Root::TAccept m_acceptDummy;
     double m_dR;
 };
 

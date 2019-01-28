@@ -112,7 +112,6 @@ sTgcDigitizationTool::sTgcDigitizationTool(const std::string& type, const std::s
     m_inputHitCollectionName("sTGCSensitiveDetector"),
     m_outputDigitCollectionName("sTGC_DIGITS"),
     m_outputSDO_CollectionName("sTGC_SDO"),
-	m_outputDigitInfoCollectionName("sTGC_DIGIT_INFO"),
     m_doToFCorrection(0),
     m_doChannelTypes(3),
     m_readoutThreshold(0),
@@ -154,7 +153,6 @@ sTgcDigitizationTool::sTgcDigitizationTool(const std::string& type, const std::s
   declareProperty("InputObjectName",         m_inputHitCollectionName    = "sTGCSensitiveDetector", "name of the input object");
   declareProperty("OutputObjectName",        m_outputDigitCollectionName = "sTGC_DIGITS",           "name of the output object");
   declareProperty("OutputSDOName",           m_outputSDO_CollectionName  = "sTGC_SDO"); 
-  declareProperty("OutputDigitInfoName",     m_outputDigitInfoCollectionName = "sTGC_DIGIT_INFO");
   declareProperty("doToFCorrection",         m_doToFCorrection); 
   declareProperty("doChannelTypes",          m_doChannelTypes); 
   declareProperty("DeadtimeElectronicsStrip",m_deadtimeStrip); 
@@ -451,17 +449,6 @@ StatusCode sTgcDigitizationTool::recordDigitAndSdoContainers() {
     ATH_MSG_DEBUG("sTgcSDOCollection recorded in StoreGate.");
   }
 
-  m_digitInfoCollection = new sTgcDigitInfoCollection();
-
-  status = m_sgSvc->record(m_digitInfoCollection, m_outputDigitInfoCollectionName);
-  if(status.isFailure())  {
-      ATH_MSG_FATAL("Unable to record digit info collection in StoreGate");
-      return status;
-  } else {
-	  ATH_MSG_DEBUG("Digit info collection recorded in StoreGate.");
-  }
-
-
   return status;
 }
 /*******************************************************************************/
@@ -540,8 +527,6 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 
   sTgcDigitCollection* digitCollection = 0;  //output digits
 
-  m_digitInfoCollection->clear();
-
   ATH_MSG_DEBUG("create PRD container of size " << m_idHelper->detectorElement_hash_max());
 
   IdContext tgcContext = m_idHelper->module_context();
@@ -563,10 +548,10 @@ StatusCode sTgcDigitizationTool::doDigitization() {
           ATH_MSG_VERBOSE("Hit Particle ID : " << hit.particleEncoding() );
           float eventTime = phit.eventTime(); 
           if(eventTime < earliestEventTime) earliestEventTime = eventTime;
-	  // Cut on energy deposit of the particle
-	  if(hit.depositEnergy() < m_energyDepositThreshold) {
-	    ATH_MSG_VERBOSE("Hit with Energy Deposit of " << hit.depositEnergy() << " less than 300.eV  Skip this hit." );
-	    continue;
+	      // Cut on energy deposit of the particle
+	      if(hit.depositEnergy() < m_energyDepositThreshold) {
+	        ATH_MSG_VERBOSE("Hit with Energy Deposit of " << hit.depositEnergy() << " less than 300.eV  Skip this hit." );
+	        continue;
           }
           if(eventTime != 0){
              msg(MSG::DEBUG) << "Updated hit global time to include off set of " << eventTime << " ns from OOT bunch." << endmsg;

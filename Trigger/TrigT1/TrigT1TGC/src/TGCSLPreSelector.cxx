@@ -12,47 +12,47 @@ namespace LVL1TGCTrigger {
 
 TGCSLPreSelector::TGCSLPreSelector(const TGCSLPreSelector& right)
 {
-  sectorLogic = right.sectorLogic;
-  for( int i=0; i<MaxNumberOfSubSectorCluster; i+=1) coincidenceOut[i]=0;
-  for( int i=0; i<sectorLogic->getNumberOfSubSectorCluster(); i+=1){
-    coincidenceOut[i] = new TGCRPhiCoincidenceOut();
-    *coincidenceOut[i]=*right.coincidenceOut[i];
+  m_sectorLogic = right.m_sectorLogic;
+  for( int i=0; i<MaxNumberOfSubSectorCluster; i+=1) m_coincidenceOut[i]=0;
+  for( int i=0; i<m_sectorLogic->getNumberOfSubSectorCluster(); i+=1){
+    m_coincidenceOut[i] = new TGCRPhiCoincidenceOut();
+    *m_coincidenceOut[i]=*right.m_coincidenceOut[i];
   }
 }
 
 TGCSLPreSelector& TGCSLPreSelector::operator=(const TGCSLPreSelector& right)
 {
   if(this!=&right){
-    sectorLogic = right.sectorLogic;
+    m_sectorLogic = right.m_sectorLogic;
     init();
-    for( int i=0; i<sectorLogic->getNumberOfSubSectorCluster(); i+=1){
-      coincidenceOut[i] = new TGCRPhiCoincidenceOut();
-      *coincidenceOut[i]=*right.coincidenceOut[i];
+    for( int i=0; i<m_sectorLogic->getNumberOfSubSectorCluster(); i+=1){
+      m_coincidenceOut[i] = new TGCRPhiCoincidenceOut();
+      *m_coincidenceOut[i]=*right.m_coincidenceOut[i];
     }
   }
   return *this;
 }
 
 TGCSLPreSelector::TGCSLPreSelector(const TGCSectorLogic* sL): 
-  sectorLogic(sL) 
+  m_sectorLogic(sL) 
 {
-  for( int i=0; i<MaxNumberOfSubSectorCluster; i+=1) coincidenceOut[i]=0;
+  for( int i=0; i<MaxNumberOfSubSectorCluster; i+=1) m_coincidenceOut[i]=0;
 }
 
 TGCSLPreSelector::~TGCSLPreSelector()
 {
-  for( int i=0; i<sectorLogic->getNumberOfSubSectorCluster(); i+=1){
-    if(coincidenceOut[i]!=0) delete  coincidenceOut[i];
-    coincidenceOut[i]=0;
+  for( int i=0; i<m_sectorLogic->getNumberOfSubSectorCluster(); i+=1){
+    if(m_coincidenceOut[i]!=0) delete  m_coincidenceOut[i];
+    m_coincidenceOut[i]=0;
   }
-  sectorLogic=0;
+  m_sectorLogic=0;
 }
 
 void TGCSLPreSelector::init()
 {
   for (int i=0; i<MaxNumberOfSubSectorCluster; ++i) {
-    if(coincidenceOut[i]!=0) delete  coincidenceOut[i];
-    coincidenceOut[i]=0;
+    if(m_coincidenceOut[i]!=0) delete  m_coincidenceOut[i];
+    m_coincidenceOut[i]=0;
   }
 }
 
@@ -64,12 +64,12 @@ void TGCSLPreSelector::input(TGCRPhiCoincidenceOut* rPhiOut)
     rPhiOut->print();
 #endif
     if(rPhiOut->hasHit()){
-      coincidenceOut[rPhiOut->getIdSSC()]=rPhiOut;
+      m_coincidenceOut[rPhiOut->getIdSSC()]=rPhiOut;
 #ifdef TGCDEBUG
       std::cout<<"input: sscid="<<rPhiOut->getIdSSC()<<std::endl;
 #endif
     }else{
-      coincidenceOut[rPhiOut->getIdSSC()]=0;
+      m_coincidenceOut[rPhiOut->getIdSSC()]=0;
       // delete RPhiCoincidenceOut
       delete  rPhiOut;
     }
@@ -84,22 +84,22 @@ TGCSLPreSelectorOut* TGCSLPreSelector::select()
   for(int i=1; i<=NumberOfPtLevel; i+=1) nCan[i]=0;
 
   int pt,ssc;
-  for( ssc=0;ssc<sectorLogic->getNumberOfSubSectorCluster(); ssc+=1){
-    if(coincidenceOut[ssc]!=0){
+  for( ssc=0;ssc<m_sectorLogic->getNumberOfSubSectorCluster(); ssc+=1){
+    if(m_coincidenceOut[ssc]!=0){
       for( pt=1; pt<=NumberOfPtLevel; pt+=1){
-	if((coincidenceOut[ssc]->getHit(pt))
+	if((m_coincidenceOut[ssc]->getHit(pt))
 	   &&(nCan[pt]<NCandidateInSLPreSelector)){
 	  out->setIdSSC(pt, nCan[pt], ssc);
-	  out->setR(pt, nCan[pt], coincidenceOut[ssc]->getR());
-	  out->setPhi(pt, nCan[pt], coincidenceOut[ssc]->getPhi());
-	  out->setDR(pt, nCan[pt], coincidenceOut[ssc]->getDR());
-	  out->setDPhi(pt, nCan[pt], coincidenceOut[ssc]->getDPhi());
-	  out->setInnerVeto(pt, nCan[pt], coincidenceOut[ssc]->getInnerVeto());
+	  out->setR(pt, nCan[pt], m_coincidenceOut[ssc]->getR());
+	  out->setPhi(pt, nCan[pt], m_coincidenceOut[ssc]->getPhi());
+	  out->setDR(pt, nCan[pt], m_coincidenceOut[ssc]->getDR());
+	  out->setDPhi(pt, nCan[pt], m_coincidenceOut[ssc]->getDPhi());
+	  out->setInnerVeto(pt, nCan[pt], m_coincidenceOut[ssc]->getInnerVeto());
 	  nCan[pt]+=1;
 	}
       }
-      delete coincidenceOut[ssc];
-      coincidenceOut[ssc]=0;
+      delete m_coincidenceOut[ssc];
+      m_coincidenceOut[ssc]=0;
     }
   }
   return out;
@@ -110,10 +110,10 @@ void TGCSLPreSelector::dumpInput() const
 #ifdef TGCCOUT
   int ssc;
   std::cout<<std::endl<<"TGCSLPreSelector::dumpInput() begin"<<std::endl;
-  for( ssc=0; ssc<sectorLogic->getNumberOfSubSectorCluster(); ssc+=1)
-    if(coincidenceOut[ssc]!=0){
+  for( ssc=0; ssc<m_sectorLogic->getNumberOfSubSectorCluster(); ssc+=1)
+    if(m_coincidenceOut[ssc]!=0){
       std::cout<<" #SSC= "<<ssc<<" "<<std::endl;
-      coincidenceOut[ssc]->print();
+      m_coincidenceOut[ssc]->print();
     }
   std::cout<<"TGCSLPreSelector::dumpInput() end"<<std::endl;
 #endif

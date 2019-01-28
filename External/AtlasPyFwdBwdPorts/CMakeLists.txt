@@ -124,14 +124,14 @@ _setup_python_package( jsonpickle
 
 # Install pyflakes:
 _setup_python_package( pyflakes
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/pyflakes-1.5.0.tar.gz
-   84a99f05e5409f8196325dda3f5a1b9a
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/pyflakes-2.0.0.tar.gz
+   06310b7c7a288c6c8e8f955da5f985ca
    SINGLE_VERSION )
 
 # Install flake8:
 _setup_python_package( flake8
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/flake8-3.3.0.tar.gz
-   3df622aac9bad27c04f34164609bbed8
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/flake8-3.6.0.tar.gz
+   178485aed0799655d0cbf2e3bdcfaddc
    DEPENDS pyflakes
    SINGLE_VERSION )
 
@@ -155,8 +155,8 @@ _setup_python_package( mccabe
 
 # Install :
 _setup_python_package( pycodestyle 
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/pycodestyle-2.3.1.tar.gz
-   240e342756af30cae0983b16303a2055
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/pycodestyle-2.4.0.tar.gz
+   85bbebd2c90d2f833c1db467d4d0e9a3
    SINGLE_VERSION )
 
 # Install pyinotify:

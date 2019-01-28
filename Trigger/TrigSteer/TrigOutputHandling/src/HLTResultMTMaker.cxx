@@ -3,7 +3,7 @@
 */
 
 #include "TrigOutputHandling/HLTResultMTMaker.h"
-#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/Monitored.h"
 
 // =============================================================================
 // Standard constructor
@@ -45,23 +45,22 @@ StatusCode HLTResultMTMaker::makeResult(const EventContext& eventContext) const 
   ATH_MSG_DEBUG("Recorded HLTResultMT with key " << m_hltResultWHKey.key());
 
   // Fill the object using the result maker tools
-  using namespace Monitored;
-  auto time =  MonitoredTimer::declare("TIME_build" );
+  auto time =  Monitored::Timer("TIME_build" );
   for (auto& maker: m_makerTools) {
     ATH_CHECK(maker->fill(*hltResult));
   }
   time.stop();
 
   // Fill monitoring histograms
-  auto nstreams = MonitoredScalar::declare("nstreams", hltResult->getStreamTags().size());
-  auto bitWords = MonitoredScalar::declare("bitWords", hltResult->getHltBits().size());
-  auto nfrags   = MonitoredScalar::declare("nfrags",   hltResult->getSerialisedData().size());
-  auto sizeMain = MonitoredScalar::declare("sizeMain", -1.);
+  auto nstreams = Monitored::Scalar("nstreams", hltResult->getStreamTags().size());
+  auto bitWords = Monitored::Scalar("bitWords", hltResult->getHltBits().size());
+  auto nfrags   = Monitored::Scalar("nfrags",   hltResult->getSerialisedData().size());
+  auto sizeMain = Monitored::Scalar("sizeMain", -1.);
   auto iter = hltResult->getSerialisedData().find(0); // this is the main fragment of the HLT result
   if (iter != hltResult->getSerialisedData().end())
     sizeMain = double(iter->second.size()*sizeof(uint32_t))/1024;
 
-  MonitoredScope::declare(m_monTool, time, nstreams, nfrags, sizeMain, bitWords);
+  Monitored::Group(m_monTool, time, nstreams, nfrags, sizeMain, bitWords);
 
   return StatusCode::SUCCESS;
 }

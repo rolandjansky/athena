@@ -34,7 +34,6 @@ namespace TrigCostRootAnalysis {
     m_PSWeight(1. / m_PS), // Reciprocal of the prescale - this is the basic weight quantity for this ChainItem
     m_PSReduced(1.),
     m_PSReducedWeight(1.),
-    m_PSExpress(PSExpress),
     m_PSExpressWeight(1. / PSExpress),
     m_extraEfficiency(1.),
     m_R(++s_chainCount),
@@ -370,7 +369,7 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
-   * @param _eventTOBs A TOBAccumulator of all TOBs in this event or pseudo-event (simulated high pileup TOB overlay).
+   * @param eventTOBs A TOBAccumulator of all TOBs in this event or pseudo-event (simulated high pileup TOB overlay).
    * Note - this function call requires a TriggerLogic pointer to be set, this logic will be used against the set of
    *TOBs
    */

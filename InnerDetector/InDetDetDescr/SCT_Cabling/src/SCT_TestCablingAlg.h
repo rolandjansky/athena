@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_TestCablingAlg_h
@@ -11,7 +11,7 @@
  * @date 20 October, 2008
  **/
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 //package includes
 #include "SCT_Cabling/ISCT_CablingTool.h"
@@ -29,19 +29,19 @@ class SCT_ID;
 /**
  * SCT_TestCablingAlg exercises the routines of the SCT cabling service
  **/
-class SCT_TestCablingAlg:public AthAlgorithm {
+class SCT_TestCablingAlg:public AthReentrantAlgorithm {
  public:
   SCT_TestCablingAlg(const std::string& name, ISvcLocator* pSvcLocator);
   ~SCT_TestCablingAlg() = default;
   // Standard Gaudi functions
   StatusCode initialize(); //!< Gaudi initialiser
-  StatusCode execute();    //!< Gaudi executer
-  StatusCode finalize();   //!< Gaudi finaliser
+  StatusCode execute(const EventContext& ctx) const; //!< Gaudi executer
+  StatusCode finalize(); //!< Gaudi finaliser
 
  private:
   ToolHandle<ISCT_CablingTool> m_cablingTool{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
   const SCT_ID* m_idHelper; //!< helper for offlineId/hash conversions
-  std::string coordString(const Identifier& offlineId);
+  std::string coordString(const Identifier& offlineId) const;
 
 };
 #endif // SCT_TestCablingAlg_h

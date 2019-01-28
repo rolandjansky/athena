@@ -296,11 +296,14 @@ StatusCode ISF::FastCaloSimSvcPU::setupEvent()
     FastShowerCellBuilderTool* fcs=dynamic_cast< FastShowerCellBuilderTool* >(&(*(*itrTool)));
     if(fcs)
     {
-      if(fcs->setupEvent().isFailure())
+      const EventContext& ctx = Gaudi::Hive::currentContext();
+      if(fcs->setupEvent(ctx, m_rndm).isFailure())
       {
         ATH_MSG_ERROR( m_screenOutputPrefix << "Error executing tool " << itrTool->name() << " in setupEvent");
         return StatusCode::FAILURE;
-      }  
+      }
+      // Don't need to seed m_rndm more than once.
+      break;
     }
   }
 
@@ -583,7 +586,7 @@ StatusCode ISF::FastCaloSimSvcPU::processOneParticle( const ISF::ISFParticle& is
     
     //->PU Development:
     ATH_MSG_INFO(m_screenOutputPrefix<<" now call fcs->process_particle with [bcid-1]="<<bcid-1<<" for pdgid "<<isfp.pdgCode());
-    if(fcs->process_particle(m_puCellContainer[bcid-1],hitVector,isfp.momentum(),isfp.mass(),isfp.pdgCode(),isfp.barcode(), nullptr, stats, ctx).isFailure())
+    if(fcs->process_particle(m_puCellContainer[bcid-1],hitVector,isfp.momentum(),isfp.mass(),isfp.pdgCode(),isfp.barcode(), nullptr, m_rndm, stats, ctx).isFailure())
     {
      ATH_MSG_WARNING( m_screenOutputPrefix << "simulation of particle pdgid=" << isfp.pdgCode()<< " in bcid "<<bcid<<" failed" );   
      return StatusCode::FAILURE;

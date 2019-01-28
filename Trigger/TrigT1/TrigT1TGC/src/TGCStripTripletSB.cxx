@@ -17,42 +17,42 @@ TGCStripTripletSB::TGCStripTripletSB():TGCSlaveBoard()
 
 void TGCStripTripletSB::createSlaveBoardOut()
 {
-  if ( slaveBoardOut!=0 ) {
-    delete slaveBoardOut;
-    slaveBoardOut =0;
+  if ( m_slaveBoardOut!=0 ) {
+    delete m_slaveBoardOut;
+    m_slaveBoardOut =0;
   } 
 
-  if(coincidenceOut!=0){
-    slaveBoardOut = new  TGCSlaveBoardOut(this, bid);
-    if ( !slaveBoardOut ) {
+  if(m_coincidenceOut!=0){
+    m_slaveBoardOut = new  TGCSlaveBoardOut(this, m_bid);
+    if ( !m_slaveBoardOut ) {
       std::cerr << "TGCStripTripletSB::createSlaveBoardOut: Memory allocation failure.";
       exit(1);
     }
-    slaveBoardOut->clear();
-    slaveBoardOut->setNumberOfData(NumberOfStripTripletSBData);
+    m_slaveBoardOut->clear();
+    m_slaveBoardOut->setNumberOfData(NumberOfStripTripletSBData);
 
     // fill SlaveBoardOut.
     // select largest R hit in each sections.
-    int lengthOfSection = lengthOfCoincidenceOut/NumberOfStripTripletSBData;
+    int lengthOfSection = m_lengthOfCoincidenceOut/NumberOfStripTripletSBData;
     int i,j;
 #ifdef TGCDEBUG
-    std::cout <<" lengthOfCoincidenceOut= "<< lengthOfCoincidenceOut<<std::endl
+    std::cout <<" lengthOfCoincidenceOut= "<< m_lengthOfCoincidenceOut<<std::endl
          <<" NumberOfStripTripletSBData= "<<NumberOfStripTripletSBData<<std::endl
          <<" lengthOfSection= "<<lengthOfSection<<std::endl;
 #endif
     for( i=0; i<NumberOfStripTripletSBData; i+=1){// i=3:d 2:c 1:b 0:a, 7:d 6:c 5:b 4:a
-      slaveBoardOut->setHit(i,false);
+      m_slaveBoardOut->setHit(i,false);
       for( j=0; j<lengthOfSection; j+=1) {
-        if(coincidenceOut->getChannel(j+i*lengthOfSection)){
-          slaveBoardOut->setPos(i,j);
-          slaveBoardOut->setHit(i,true);
+        if(m_coincidenceOut->getChannel(j+i*lengthOfSection)){
+          m_slaveBoardOut->setPos(i,j);
+          m_slaveBoardOut->setHit(i,true);
           break;
         }
       }
-      if(slaveBoardOut->getHit(i)){
-          slaveBoardOut->setbPos(i, slaveBoardOut->getPos(i));
+      if(m_slaveBoardOut->getHit(i)){
+          m_slaveBoardOut->setbPos(i, m_slaveBoardOut->getPos(i));
 #ifdef TGCCOUT
-          slaveBoardOut->getbPos(i)->printb();
+          m_slaveBoardOut->getbPos(i)->printb();
 	  std::cout << " " << i << std::endl;
 #endif
       }
@@ -63,8 +63,8 @@ void TGCStripTripletSB::createSlaveBoardOut()
 void TGCStripTripletSB::doCoincidence()
 {
   TGCHitPattern* pattern[2];
-  pattern[0] = patchPanelOut->getHitPattern(0);
-  pattern[1] = patchPanelOut->getHitPattern(1);
+  pattern[0] = m_patchPanelOut->getHitPattern(0);
+  pattern[1] = m_patchPanelOut->getHitPattern(1);
 
   int length;
   if(pattern[0]!=0){
@@ -74,18 +74,18 @@ void TGCStripTripletSB::doCoincidence()
   }else{
     length = -1;
   }
-  if(coincidenceOut!=0) delete coincidenceOut;
-  coincidenceOut =0;
+  if(m_coincidenceOut!=0) delete m_coincidenceOut;
+  m_coincidenceOut =0;
 
   if(length>0){
-    lengthOfCoincidenceOut = 2*length;
-    coincidenceOut = new TGCHitPattern(lengthOfCoincidenceOut);
+    m_lengthOfCoincidenceOut = 2*length;
+    m_coincidenceOut = new TGCHitPattern(m_lengthOfCoincidenceOut);
 
     // rearrange bit pattern for coincidence.
-    bool* b = new bool [lengthOfCoincidenceOut];
+    bool* b = new bool [m_lengthOfCoincidenceOut];
 
     int j;
-    for( j=0; j<lengthOfCoincidenceOut; j+=1){
+    for( j=0; j<m_lengthOfCoincidenceOut; j+=1){
       b[j]=false;
     }
 
@@ -114,28 +114,28 @@ void TGCStripTripletSB::doCoincidence()
 
       if(g_STRICTST){
 	for(int i=base+1; i<base+length; i++){
-	  coincidenceOut->setChannel(i,( b[i-1] & b[i] ));
+	  m_coincidenceOut->setChannel(i,( b[i-1] & b[i] ));
 	}
       } else {
 
 	int i=base;
-	coincidenceOut->setChannel(i,( b[i] & !b[i+1] ));
+	m_coincidenceOut->setChannel(i,( b[i] & !b[i+1] ));
 	
 	i=base+1;
-	coincidenceOut->setChannel(i,(( b[i-1] &  b[i] )|
+	m_coincidenceOut->setChannel(i,(( b[i-1] &  b[i] )|
 				      ( b[i-1] & !b[i] )|
 				      ( b[i]   & !b[i-1] & !b[i+1] )|
 				      ( b[i-1] &  b[i+1] & !b[i] )));
 	
 	for( i=base+2; i<base+length-1; i+=1){
-	  coincidenceOut->setChannel(i,(( b[i-1] &  b[i] )|
+	  m_coincidenceOut->setChannel(i,(( b[i-1] &  b[i] )|
 					( b[i-1] & !b[i-2] & !b[i] )|
 					( b[i-2] &  b[i]   & !b[i-1] )|
 					( b[i]   & !b[i-1] & !b[i+1] )|
 					( b[i-1] &  b[i+1] & !b[i] )));
 	}
 	i=base+length-1;
-	coincidenceOut->setChannel(i,(( b[i-1] &  b[i] )|
+	m_coincidenceOut->setChannel(i,(( b[i-1] &  b[i] )|
 				      ( b[i-1] & !b[i-2] & !b[i] )|
 				      ( b[i-2] &  b[i]   & !b[i-1] )|
 				      ( b[i]   & !b[i-1] )));
@@ -144,7 +144,7 @@ void TGCStripTripletSB::doCoincidence()
 
 #ifdef TGCCOUT
       std::cout << "StripTripletCoincidence OUT ";
-      coincidenceOut->printb();
+      m_coincidenceOut->printb();
       std::cout << std::endl;
 #endif
 	

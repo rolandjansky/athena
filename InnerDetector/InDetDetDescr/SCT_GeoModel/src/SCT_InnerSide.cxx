@@ -33,7 +33,7 @@
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <cmath>
 
@@ -141,8 +141,8 @@ SCT_InnerSide::preBuild()
   //
   // Shown is the outer side. The inner side is the same but with a rotation of 180 deg around the z-axis.       
   // 
-  //GeoModelKernelUnits::HepRotation rotSensor;
-  //rotSensor.rotateZ(180*GeoModelKernelUnits::deg);
+  //Gaudi::Units::HepRotation rotSensor;
+  //rotSensor.rotateZ(180*Gaudi::Units::deg);
   //m_outerSidePos = new GeoTrf::Transform3D(rotOuter, GeoTrf::Vector3D(0.5 * (m_sensorGap + sectThickness), 0., 0.));
   //m_sensorPos = new GeoTransform(GeoTrf::Transform3D(rotSensor, GeoTrf::Vector3D(sensorPosX, sensorPosY, sensorPosZ)));
   m_sensorPos             = new GeoTransform(GeoTrf::Translate3D(sensorPosX, sensorPosY, sensorPosZ));

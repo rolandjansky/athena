@@ -90,6 +90,7 @@ StatusCode TileMuRcvContByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObje
   }
 
   auto cont = std::make_unique<TileMuonReceiverContainer>();
+
   StatusCode sc=m_decoder->convertTMDBDecision(re,cont.get());
   if (sc!=StatusCode::SUCCESS) {
     ATH_MSG_WARNING( "Conversion tool returned an error. TileMuonReceiverContainer might be empty." );
@@ -134,4 +135,3 @@ StatusCode TileMuRcvContByteStreamCnv::finalize()
 {
   return Converter::finalize();
 }
-

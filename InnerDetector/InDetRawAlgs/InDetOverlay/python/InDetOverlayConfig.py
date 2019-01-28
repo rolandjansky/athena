@@ -34,9 +34,14 @@ def getPixelSDOOverlay(name="PixelSDOOverlay", **kwargs):
 def getSCTOverlay(name="SCTOverlay", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
-    kwargs.setdefault("BkgInputKey", overlayFlags.dataStore() + "+SCT_RDOs");
-    kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+SCT_RDOs");
-    kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+SCT_RDOs");
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("BkgInputKey", "StoreGateSvc+" + overlayFlags.bkgPrefix() + "SCT_RDOs");
+        kwargs.setdefault("SignalInputKey", "StoreGateSvc+" + overlayFlags.sigPrefix() + "SCT_RDOs");
+        kwargs.setdefault("OutputKey", "StoreGateSvc+SCT_RDOs");
+    else:
+        kwargs.setdefault("BkgInputKey", overlayFlags.dataStore() + "+SCT_RDOs");
+        kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+SCT_RDOs");
+        kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+SCT_RDOs");
 
     kwargs.setdefault("includeBkg", True);
 

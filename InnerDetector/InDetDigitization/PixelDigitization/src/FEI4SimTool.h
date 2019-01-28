@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELDIGITIZATION_FEI4SimTool_H
@@ -16,7 +16,7 @@ class FEI4SimTool:public FrontEndSimTool {
     virtual StatusCode initialize();
     virtual StatusCode finalize();
     virtual ~FEI4SimTool();
-    virtual void process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Collection &rdoCollection);
+    virtual void process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Collection &rdoCollection, CLHEP::HepRandomEngine *rndmEngine);
 
   private:
     FEI4SimTool();

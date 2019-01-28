@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -59,7 +59,7 @@ public:
 //         );
 
     /** Destructor */
-    virtual ~TauFeature();
+    ~TauFeature() = default;
 
     /** returns the value of the feature given by its name*/
     double value(const std::string& ItsName, bool& isValid) const;

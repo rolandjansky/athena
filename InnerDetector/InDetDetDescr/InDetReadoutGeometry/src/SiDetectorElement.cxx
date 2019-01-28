@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -48,7 +48,7 @@ using Trk::distDepth;
 SiDetectorElement::SiDetectorElement(const Identifier &id,
                                      const SiDetectorDesign *design,
                                      const GeoVFullPhysVol *geophysvol,
-                                     SiCommonItems * commonItems,
+                                     const SiCommonItems * commonItems,
                                      const GeoAlignmentStore* geoAlignStore) :
   TrkDetElementBase(geophysvol),
   m_id(id),

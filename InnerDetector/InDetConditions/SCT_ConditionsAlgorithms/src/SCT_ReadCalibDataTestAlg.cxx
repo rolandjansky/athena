@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file SCT_ReadCalibDataTestAlg.cxx Implementation file for SCT_ReadCalibDataTestAlg class
@@ -22,7 +22,7 @@
 
 //----------------------------------------------------------------------
 SCT_ReadCalibDataTestAlg::SCT_ReadCalibDataTestAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
+  AthReentrantAlgorithm(name, pSvcLocator),
   m_id_sct{nullptr},
   m_moduleId{0},
   m_waferId{0},
@@ -91,7 +91,7 @@ StatusCode SCT_ReadCalibDataTestAlg::processProperties()
 } // SCT_ReadCalibDataTestAlg::processProperties()
 
 //----------------------------------------------------------------------
-StatusCode SCT_ReadCalibDataTestAlg::execute()
+StatusCode SCT_ReadCalibDataTestAlg::execute(const EventContext& /*ctx*/) const
 {
   //This method is only used to test the summary service, and only used within this package,
   // so the INFO level messages have no impact on performance of these services when used by clients

@@ -17,7 +17,6 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetConditions/InDetCondServices
                           InnerDetector/InDetConditions/PixelConditionsServices
                           InnerDetector/InDetConditions/PixelConditionsTools
-                          InnerDetector/InDetConditions/SiPropertiesSvc
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRawEvent/InDetSimData
                           InnerDetector/InDetRecEvent/InDetPrepRawData

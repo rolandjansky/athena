@@ -27,7 +27,7 @@
 HLT::HLTResultMTByteStreamCnv::HLTResultMTByteStreamCnv(ISvcLocator* svcLoc) :
   Converter(ByteStream_StorageType, classID(), svcLoc),
   AthMessaging(msgSvc(), "HLTResultMTByteStreamCnv"),
-  m_ByteStreamEventAccess("TrigByteStreamCnvSvc", "HLTResultMTByteStreamCnv") {
+  m_ByteStreamEventAccess("ByteStreamCnvSvc", "HLTResultMTByteStreamCnv") {
     m_fullEventAssembler.idMap().setDetId(eformat::TDAQ_HLT);
   }
 

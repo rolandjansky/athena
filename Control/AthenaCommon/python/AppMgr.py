@@ -993,3 +993,4 @@ topSequence  = AlgSequence.AlgSequence( "TopAlg" )     # for backward compatibil
 # execution of the AthAlgSeq sequence
 # this is mainly for backward compatibility reasons
 athAlgSeq.StopOverride=True
+athOutSeq.StopOverride=True

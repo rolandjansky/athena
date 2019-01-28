@@ -32,7 +32,7 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "GaudiKernel/Bootstrap.h"
 
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/PhysicalConstants.h"
 
 #include <iostream>
 
@@ -91,26 +91,26 @@ void InDetServMatFactoryFS::create(GeoPhysVol *world )
   const IRDBRecord *envelopes = (*servEnvelopeTable)[0];
 
 
-  double safety = 0.001 * GeoModelKernelUnits::mm;
+  double safety = 0.001 * Gaudi::Units::mm;
 
-  double ZMaxBrlTRT =        envelopes->getDouble("ZMAXBRLTRT") * GeoModelKernelUnits::mm;
-  double ZMaxBrlSCT =        envelopes->getDouble("ZMAXBRLSCT") * GeoModelKernelUnits::mm;
-  double ZMinFwdSCTandTRT =  envelopes->getDouble("ZMINFWDSCTANDTRT") * GeoModelKernelUnits::mm;
-  double ZMinSCTServInTRT =  envelopes->getDouble("ZMINSCTSERVINTRT") * GeoModelKernelUnits::mm;
-  double ZMaxSCTServInTRT =  envelopes->getDouble("ZMAXSCTSERVINTRT") * GeoModelKernelUnits::mm;
-  double ZMinPixServ    =    envelopes->getDouble("ZMINPIXSERV") * GeoModelKernelUnits::mm;
-  double ZMaxFwdTRTC =       envelopes->getDouble("ZMAXFWDTRTC") * GeoModelKernelUnits::mm;
-  double ZMaxIDet =          (*atls)[0]->getDouble("IDETZMX") * GeoModelKernelUnits::cm + safety;  // 3470 mm
+  double ZMaxBrlTRT =        envelopes->getDouble("ZMAXBRLTRT") * Gaudi::Units::mm;
+  double ZMaxBrlSCT =        envelopes->getDouble("ZMAXBRLSCT") * Gaudi::Units::mm;
+  double ZMinFwdSCTandTRT =  envelopes->getDouble("ZMINFWDSCTANDTRT") * Gaudi::Units::mm;
+  double ZMinSCTServInTRT =  envelopes->getDouble("ZMINSCTSERVINTRT") * Gaudi::Units::mm;
+  double ZMaxSCTServInTRT =  envelopes->getDouble("ZMAXSCTSERVINTRT") * Gaudi::Units::mm;
+  double ZMinPixServ    =    envelopes->getDouble("ZMINPIXSERV") * Gaudi::Units::mm;
+  double ZMaxFwdTRTC =       envelopes->getDouble("ZMAXFWDTRTC") * Gaudi::Units::mm;
+  double ZMaxIDet =          (*atls)[0]->getDouble("IDETZMX") * Gaudi::Units::cm + safety;  // 3470 mm
 
-  double RMinBrlSCT =        envelopes->getDouble("RMINBRLSCT") * GeoModelKernelUnits::mm;
-  double RMaxBrlTRT =        envelopes->getDouble("RMAXBRLTRT") * GeoModelKernelUnits::mm;
-  double RMinBrlTRT =        envelopes->getDouble("RMINBRLTRT") * GeoModelKernelUnits::mm;
-  double RMaxFwdTRT =        envelopes->getDouble("RMAXFWDTRT") * GeoModelKernelUnits::mm;
-  double RMaxFwdSCT =        envelopes->getDouble("RMAXFWDSCT") * GeoModelKernelUnits::mm;
-  double RMaxFwdTRTC =       envelopes->getDouble("RMAXFWDTRTC") * GeoModelKernelUnits::mm;
-  double RMinPixServ =       envelopes->getDouble("RMINPIXSERV") * GeoModelKernelUnits::mm;
-  double RMaxPixServ =       envelopes->getDouble("RMAXPIXSERV") * GeoModelKernelUnits::mm;
-  double RMaxIDet =          (*atls)[0]->getDouble("IDETOR") * GeoModelKernelUnits::cm + safety; // 1147 mm
+  double RMinBrlSCT =        envelopes->getDouble("RMINBRLSCT") * Gaudi::Units::mm;
+  double RMaxBrlTRT =        envelopes->getDouble("RMAXBRLTRT") * Gaudi::Units::mm;
+  double RMinBrlTRT =        envelopes->getDouble("RMINBRLTRT") * Gaudi::Units::mm;
+  double RMaxFwdTRT =        envelopes->getDouble("RMAXFWDTRT") * Gaudi::Units::mm;
+  double RMaxFwdSCT =        envelopes->getDouble("RMAXFWDSCT") * Gaudi::Units::mm;
+  double RMaxFwdTRTC =       envelopes->getDouble("RMAXFWDTRTC") * Gaudi::Units::mm;
+  double RMinPixServ =       envelopes->getDouble("RMINPIXSERV") * Gaudi::Units::mm;
+  double RMaxPixServ =       envelopes->getDouble("RMAXPIXSERV") * Gaudi::Units::mm;
+  double RMaxIDet =          (*atls)[0]->getDouble("IDETOR") * Gaudi::Units::cm + safety; // 1147 mm
 
   // Since the TRT Wheel C space is not used in some versions and is used by some 
   // other services we simplify the volume.
@@ -125,12 +125,12 @@ void InDetServMatFactoryFS::create(GeoPhysVol *world )
   bool join1 = false; 
   bool join2 = false; 
 
-  if (std::abs(RMaxFwdTRTC - RMinPixServ) <= 1*GeoModelKernelUnits::mm){
+  if (std::abs(RMaxFwdTRTC - RMinPixServ) <= 1*Gaudi::Units::mm){
     join1 = true;
     join2 = true;
     RMaxFwdTRTC = RMinPixServ;
     RMaxPixServ = RMinPixServ;
-  } else if ((RMaxFwdTRTC - 1*GeoModelKernelUnits::mm) <=  RMaxPixServ) {
+  } else if ((RMaxFwdTRTC - 1*Gaudi::Units::mm) <=  RMaxPixServ) {
     join1 = true;
     RMaxPixServ = RMaxFwdTRTC;
   }
@@ -144,8 +144,8 @@ void InDetServMatFactoryFS::create(GeoPhysVol *world )
   GeoPcon* pixServM = 0;
     
   if (!join1) { 
-    pixServP = new GeoPcon(0.,2*GeoModelKernelUnits::pi);
-    pixServM = new GeoPcon(0.,2*GeoModelKernelUnits::pi);
+    pixServP = new GeoPcon(0.,2*Gaudi::Units::pi);
+    pixServM = new GeoPcon(0.,2*Gaudi::Units::pi);
     
     // Plane 1: Start at the end of the SCT endcap
     pixServP->addPlane(ZMinPixServ,  RMinPixServ, RMaxPixServ);
@@ -163,8 +163,8 @@ void InDetServMatFactoryFS::create(GeoPhysVol *world )
   }
 
   // This is the volume for the TRT/SCT services
-  GeoPcon *sctTrtServP = new GeoPcon(0.,2*GeoModelKernelUnits::pi);
-  GeoPcon *sctTrtServM = new GeoPcon(0.,2*GeoModelKernelUnits::pi);
+  GeoPcon *sctTrtServP = new GeoPcon(0.,2*Gaudi::Units::pi);
+  GeoPcon *sctTrtServM = new GeoPcon(0.,2*Gaudi::Units::pi);
   
   // Pixel Services
   if (join1) {

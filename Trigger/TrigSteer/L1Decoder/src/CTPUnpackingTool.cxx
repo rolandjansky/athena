@@ -3,7 +3,7 @@
 */
 #include "DecisionHandling/HLTIdentifier.h"
 #include "TrigT1Result/RoIBResult.h"
-#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/Monitored.h"
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/TriggerItem.h"
 #include "CTPUnpackingTool.h"
@@ -54,10 +54,9 @@ StatusCode CTPUnpackingTool::updateConfiguration( const std::map<std::string, st
 
 
 StatusCode CTPUnpackingTool::decode( const ROIB::RoIBResult& roib,  HLT::IDVec& enabledChains ) const {
-  using namespace Monitored;
-  auto nTAVItems = MonitoredScalar::declare( "TAVItems", 0 );
-  auto nChains   = MonitoredScalar::declare( "Chains", 0 );
-  auto monitorit = MonitoredScope::declare( m_monTool, nTAVItems, nChains );
+  auto nTAVItems = Monitored::Scalar( "TAVItems", 0 );
+  auto nChains   = Monitored::Scalar( "Chains", 0 );
+  auto monitorit = Monitored::Group( m_monTool, nTAVItems, nChains );
   auto tav = roib.cTPResult().TAV();
   const size_t tavSize = tav.size();
 

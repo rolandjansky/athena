@@ -1057,7 +1057,7 @@ namespace TrigCostRootAnalysis {
         break;
 
       case '1':
-        // I'm setting the _patternsNoLumiWeight strings
+        // I'm setting the patternsNoLumiWeight strings
         patternsNoLumiWeight.push_back(std::string(optarg));
         while (optind < argc) {
           if (std::string(argv[optind]).substr(0, 1) == "-") { //We're back to arguments
@@ -1068,7 +1068,7 @@ namespace TrigCostRootAnalysis {
         break;
 
       case '2':
-        // I'm setting the _patternsNoMuLumiWeight strings
+        // I'm setting the patternsNoMuLumiWeight strings
         patternsNoMuLumiWeight.push_back(std::string(optarg));
         while (optind < argc) {
           if (std::string(argv[optind]).substr(0, 1) == "-") { //We're back to arguments
@@ -1079,7 +1079,7 @@ namespace TrigCostRootAnalysis {
         break;
 
       case '3':
-        // I'm setting the _patternsNoBunchLumiWeight strings
+        // I'm setting the patternsNoBunchLumiWeight strings
         patternsNoBunchLumiWeight.push_back(std::string(optarg));
         while (optind < argc) {
           if (std::string(argv[optind]).substr(0, 1) == "-") { //We're back to arguments

@@ -203,6 +203,8 @@ private: // properties
    StringProperty m_writeCatalog;
    /// ReadCatalog, the list of additional POOL input file catalogs to consult: default = empty vector.
    StringArrayProperty m_readCatalog;
+   /// Use ROOT Implicit MultiThreading, default = true.
+   BooleanProperty m_useROOTIMT;
    /// AttemptCatalogPatch, option to create catalog: default = false.
    BooleanProperty m_attemptCatalogPatch;
    /// ConnectionRetrialPeriod, retry period for CORAL Connection Service: default = 30 seconds

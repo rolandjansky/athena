@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // METMakerAlg.cxx
@@ -31,12 +31,6 @@ namespace met {
   METMakerAlg::METMakerAlg(const std::string& name,
 			   ISvcLocator* pSvcLocator )
     : ::AthAlgorithm( name, pSvcLocator ),
-    m_ElectronContainerKey(""),
-    m_PhotonContainerKey(""),
-    m_TauJetContainerKey(""),
-    m_MuonContainerKey(""),
-    m_JetContainerKey(""), 
-    m_CoreMetKey(""),
     m_metKey(""),
     m_metMap("METAssoc"),
     m_muonSelTool(""),
@@ -45,18 +39,18 @@ namespace met {
     m_tauSelTool("")
  {
     declareProperty( "Maker",          m_metmaker                        );
-    declareProperty( "METCoreName",    m_corename  = "MET_Core"          );
+    declareProperty( "METCoreName",    m_CoreMetKey  = "MET_Core"        );
     declareProperty("METName",         m_metKey = std::string("MET_Reference"),"MET container");
     declareProperty("METMapName",      m_metMap );
 
     declareProperty( "METSoftClName",  m_softclname  = "SoftClus"        );
     declareProperty( "METSoftTrkName", m_softtrkname = "PVSoftTrk"       );
 
-    declareProperty( "InputJets",      m_jetColl   = "AntiKt4LCTopoJets" );
-    declareProperty( "InputElectrons", m_eleColl   = "Electrons"         );
-    declareProperty( "InputPhotons",   m_gammaColl = "Photons"           );
-    declareProperty( "InputTaus",      m_tauColl   = "TauJets"           );
-    declareProperty( "InputMuons",     m_muonColl  = "Muons"             );
+    declareProperty( "InputJets",      m_JetContainerKey      = "AntiKt4LCTopoJets" );
+    declareProperty( "InputElectrons", m_ElectronContainerKey = "Electrons" );
+    declareProperty( "InputPhotons",   m_PhotonContainerKey   = "Photons"   );
+    declareProperty( "InputTaus",      m_TauJetContainerKey   = "TauJets"   );
+    declareProperty( "InputMuons",     m_MuonContainerKey     = "Muons"     );
 
     declareProperty( "MuonSelectionTool",        m_muonSelTool           );
     declareProperty( "ElectronLHSelectionTool",  m_elecSelLHTool         );
@@ -102,17 +96,11 @@ namespace met {
       ATH_MSG_ERROR("Failed to retrieve tool: " << m_tauSelTool->name());
       return StatusCode::FAILURE;
     };
-    ATH_CHECK( m_ElectronContainerKey.assign(m_eleColl) );
     ATH_CHECK( m_ElectronContainerKey.initialize() );
-    ATH_CHECK( m_PhotonContainerKey.assign(m_gammaColl) );
     ATH_CHECK( m_PhotonContainerKey.initialize() );
-    ATH_CHECK( m_TauJetContainerKey.assign(m_tauColl) );
     ATH_CHECK( m_TauJetContainerKey.initialize() );
-    ATH_CHECK( m_MuonContainerKey.assign(m_muonColl) );
     ATH_CHECK( m_MuonContainerKey.initialize() );
-    ATH_CHECK( m_JetContainerKey.assign(m_jetColl) );
     ATH_CHECK( m_JetContainerKey.initialize() );
-    ATH_CHECK( m_CoreMetKey.assign(m_corename) );
     ATH_CHECK( m_CoreMetKey.initialize() );
     ATH_CHECK( m_metKey.initialize() );
 
@@ -191,7 +179,7 @@ namespace met {
     MissingETBase::UsageHandler::Policy objScale = MissingETBase::UsageHandler::PhysicsObject;
     if(m_doTruthLep) objScale = MissingETBase::UsageHandler::TruthParticle;
     // Electrons
-    if(!m_eleColl.empty()) {
+    if(!m_ElectronContainerKey.empty()) {
       ConstDataVector<ElectronContainer> metElectrons(SG::VIEW_ELEMENTS);
       for(const auto& el : *Electrons) {
     	if(accept(el)) {
@@ -209,7 +197,7 @@ namespace met {
     }
 
     // Photons
-    if(!m_gammaColl.empty()) {
+    if(!m_PhotonContainerKey.empty()) {
       ConstDataVector<PhotonContainer> metPhotons(SG::VIEW_ELEMENTS);
       for(const auto& ph : *Gamma) {
     	if(accept(ph)) {
@@ -226,7 +214,7 @@ namespace met {
     }
 
     // Taus
-    if(!m_tauColl.empty()) {
+    if(!m_TauJetContainerKey.empty()) {
       ConstDataVector<TauJetContainer> metTaus(SG::VIEW_ELEMENTS);
       for(const auto& tau : *TauJets) {
     	if(accept(tau)) {
@@ -243,7 +231,7 @@ namespace met {
     }
 
     // Muons
-    if(!m_muonColl.empty()) {
+    if(!m_MuonContainerKey.empty()) {
       ConstDataVector<MuonContainer> metMuons(SG::VIEW_ELEMENTS);
       for(const auto& mu : *Muons) {
     	if(accept(mu)) {
@@ -288,7 +276,7 @@ namespace met {
   bool METMakerAlg::accept(const xAOD::Muon* mu)
   {
     if( mu->pt()<2.5e3 || mu->pt()/cosh(mu->eta())<4e3 ) return false;
-    return m_muonSelTool->accept(*mu);
+    return static_cast<bool>(m_muonSelTool->accept(*mu));
   }
 
   bool METMakerAlg::accept(const xAOD::Electron* el)
@@ -307,6 +295,7 @@ namespace met {
   { 
   // std::cout<<"Just checking this works -> tau pt is "<<tau->pt()<<std::endl;
 
-   return m_tauSelTool->accept( *tau ); }
+    return static_cast<bool>(m_tauSelTool->accept( *tau ));
+  }
 
 }

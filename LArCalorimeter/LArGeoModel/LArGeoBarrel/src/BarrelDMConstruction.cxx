@@ -30,6 +30,7 @@
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
+#include "GeoModelKernel/Units.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
@@ -44,7 +45,7 @@
 #include "CLHEP/Vector/Rotation.h"
 
 // For units:
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "GaudiKernel/PhysicalConstants.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
 
@@ -71,7 +72,7 @@ namespace BarrelDM {
 
 
 static const unsigned int NCrates=16;
-static const double Alfa=360*GeoModelKernelUnits::deg/NCrates;
+static const double Alfa=360*Gaudi::Units::deg/NCrates;
 static const double Enda=1155;
 static const double Endb=1695.2;
 static const double Endc=2771.6;
@@ -176,8 +177,8 @@ createSectorEnvelopes2FromDB (GeoFullPhysVol* envelope,
   const GeoMaterial *alu               = materialManager.getMaterial("std::Aluminium"); //2.7 g/cm3
   const GeoMaterial *air               = materialManager.getMaterial("std::Air"); //0.001214 g/cm3
 
-  GeoTrf::Transform3D Cut3Boxe  = GeoTrf::Translate3D(Boxxtr, Boxytr, Boxztr)*GeoTrf::RotateX3D(-20*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  GeoTrf::Transform3D Cut4Boxe  = GeoTrf::Translate3D(Boxxtr, -Boxytr,Boxztr)*GeoTrf::RotateX3D(20*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
+  GeoTrf::Transform3D Cut3Boxe  = GeoTrf::Translate3D(Boxxtr, Boxytr, Boxztr)*GeoTrf::RotateX3D(-20*Gaudi::Units::deg)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  GeoTrf::Transform3D Cut4Boxe  = GeoTrf::Translate3D(Boxxtr, -Boxytr,Boxztr)*GeoTrf::RotateX3D(20*Gaudi::Units::deg)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
 
   // build 5 instances of SectorEnvelopes1 with 3 different materials!
   GeoTrd   *Trdair2  = new GeoTrd(SecE2xhlen1, SecE2xhlen2, DYb, DYc, (Endc-Endb)/2);
@@ -195,28 +196,28 @@ createSectorEnvelopes2FromDB (GeoFullPhysVol* envelope,
   GeoPhysVol *sectorenvelopes2l    = new GeoPhysVol(lvse2l);  // for left-handed splice boxes
     
   GeoLogVol  *lvse2h          = new GeoLogVol("LAr::DM::SectorEnvelopes2h",&SectorEnvelopes,matLArServices19);
-  GeoPhysVol *sectorenvelopes2h    = new GeoPhysVol(lvse2h);  // no splice boxes horizontal at 0 & 180 GeoModelKernelUnits::deg.
+  GeoPhysVol *sectorenvelopes2h    = new GeoPhysVol(lvse2h);  // no splice boxes horizontal at 0 & 180 Gaudi::Units::deg.
     
   GeoLogVol  *lvse2vup          = new GeoLogVol("LAr::DM::SectorEnvelopes2vup",&SectorEnvelopes,matLArServices17);
-  GeoPhysVol *sectorenvelopes2vup    = new GeoPhysVol(lvse2vup);  // no splice boxes vertical up at 90 GeoModelKernelUnits::deg
+  GeoPhysVol *sectorenvelopes2vup    = new GeoPhysVol(lvse2vup);  // no splice boxes vertical up at 90 Gaudi::Units::deg
     
   GeoLogVol  *lvse2vd          = new GeoLogVol("LAr::DM::SectorEnvelopes2Vd",&SectorEnvelopes,matLArServices18);
-  GeoPhysVol *sectorenvelopes2vd    = new GeoPhysVol(lvse2vd);  // no splice boxes vertical down at 270 GeoModelKernelUnits::deg
+  GeoPhysVol *sectorenvelopes2vd    = new GeoPhysVol(lvse2vd);  // no splice boxes vertical down at 270 Gaudi::Units::deg
 
   //---------- Build Splice boxes for InDet optical fibers--------
     
   GeoTrap  *GeoTrap1  = new GeoTrap(Spb1zhlen, Spb1theta, Spb1phi, Spb1yzn, Spb1xynzn, Spb1xypzn, Spb1angn, Spb1yzp, Spb1xynzp, Spb1xypzp, Spb1angp);
   GeoBox   *Box1   = new GeoBox(SplBoxhlen, SplBoxhwdt, SplBoxhhgt);  
   const GeoShape & SpliceBox = ((*GeoTrap1).
-                                subtract(*Box1 << GeoTrf::TranslateZ3D(SplBoxztr)*GeoTrf::TranslateY3D(-SplBoxytr)*GeoTrf::RotateX3D(SplBoxxrot*GeoModelKernelUnits::deg)));
+                                subtract(*Box1 << GeoTrf::TranslateZ3D(SplBoxztr)*GeoTrf::TranslateY3D(-SplBoxytr)*GeoTrf::RotateX3D(SplBoxxrot*Gaudi::Units::deg)));
     
-  GeoTransform *xtr = new GeoTransform (GeoTrf::TranslateZ3D(Spb1ztr)*GeoTrf::TranslateY3D(-Spb1ytr)*GeoTrf::TranslateX3D(Spb1xtr)*GeoTrf::RotateX3D(Spb1xrot*GeoModelKernelUnits::deg));
+  GeoTransform *xtr = new GeoTransform (GeoTrf::TranslateZ3D(Spb1ztr)*GeoTrf::TranslateY3D(-Spb1ytr)*GeoTrf::TranslateX3D(Spb1xtr)*GeoTrf::RotateX3D(Spb1xrot*Gaudi::Units::deg));
   sectorenvelopes2r->add(xtr);
   GeoLogVol  *lvspbr     = new GeoLogVol("LAr::DM::SPliceBoxr",&SpliceBox,alu); 
   GeoPhysVol *spliceboxr       = new GeoPhysVol(lvspbr);
   sectorenvelopes2r->add(spliceboxr);
     
-  GeoTransform *xtl = new GeoTransform (GeoTrf::TranslateZ3D(Spb1ztr)*GeoTrf::TranslateY3D(-Spb1ytr)*GeoTrf::TranslateX3D(Spb1xtr)*GeoTrf::RotateY3D(-180*GeoModelKernelUnits::deg)*GeoTrf::RotateX3D(-(Alfa/2)));
+  GeoTransform *xtl = new GeoTransform (GeoTrf::TranslateZ3D(Spb1ztr)*GeoTrf::TranslateY3D(-Spb1ytr)*GeoTrf::TranslateX3D(Spb1xtr)*GeoTrf::RotateY3D(-180*Gaudi::Units::deg)*GeoTrf::RotateX3D(-(Alfa/2)));
   sectorenvelopes2l->add(xtl);
   GeoLogVol  *lvspbl     = new GeoLogVol("LAr::DM::SpliceBoxl",&SpliceBox,alu);  
   GeoPhysVol *spliceboxl       = new GeoPhysVol(lvspbl);
@@ -227,7 +228,7 @@ createSectorEnvelopes2FromDB (GeoFullPhysVol* envelope,
   GeoTrap  *GeoTrap2  = new GeoTrap(Spb2zhlen, Spb2theta, Spb2phi, Spb2yzn, Spb2xynzn, Spb2xypzn, Spb2angn, Spb2yzp, Spb2xynzp, Spb2xypzp, Spb2angp);
   GeoTrap  *GeoTrap3  = new GeoTrap(Spb3zhlen, Spb3theta, Spb3phi, Spb3yzn, Spb3xynzn, Spb3xypzn, Spb3angn, Spb3yzp, Spb3xynzp, Spb3xypzp, Spb3angp);
     
-  GeoTransform *xt1 = new GeoTransform (GeoTrf::TranslateY3D(-Spb0ytr)*GeoTrf::RotateX3D(Spb0xrot*GeoModelKernelUnits::deg));
+  GeoTransform *xt1 = new GeoTransform (GeoTrf::TranslateY3D(-Spb0ytr)*GeoTrf::RotateX3D(Spb0xrot*Gaudi::Units::deg));
   spliceboxr->add(xt1);
   spliceboxl->add(xt1);
   GeoLogVol  *lt1     = new GeoLogVol("LAr::DM::TBox1",Trd1,air);
@@ -253,16 +254,16 @@ createSectorEnvelopes2FromDB (GeoFullPhysVol* envelope,
 
   //-------------- Place volumes in LAr Envelope -------------------
 
-  TRANSFUNCTION seA2r = Pow(GeoTrf::RotateZ3D(1.0),8*f-(3*Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(SecE2ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seA2l = Pow(GeoTrf::RotateZ3D(1.0),8*f+(5*Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(SecE2ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seC2r = Pow(GeoTrf::RotateZ3D(1.0),8*f-(3*Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(-SecE2ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seC2l = Pow(GeoTrf::RotateZ3D(1.0),8*f+(5*Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(-SecE2ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seA2Vup = Pow(GeoTrf::RotateZ3D(1.0),f+(9*Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(SecE2ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seA2Vd = Pow(GeoTrf::RotateZ3D(1.0),f-(7*Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(SecE2ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seA2H = Pow(GeoTrf::RotateZ3D(1.0),8*f+(Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(SecE2ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seC2Vup = Pow(GeoTrf::RotateZ3D(1.0),f+(9*Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(-SecE2ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seC2Vd = Pow(GeoTrf::RotateZ3D(1.0),f-(7*Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(-SecE2ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seC2H = Pow(GeoTrf::RotateZ3D(1.0),8*f+(Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(-SecE2ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
+  TRANSFUNCTION seA2r = Pow(GeoTrf::RotateZ3D(1.0),8*f-(3*Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(SecE2ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seA2l = Pow(GeoTrf::RotateZ3D(1.0),8*f+(5*Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(SecE2ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seC2r = Pow(GeoTrf::RotateZ3D(1.0),8*f-(3*Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(-SecE2ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seC2l = Pow(GeoTrf::RotateZ3D(1.0),8*f+(5*Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(-SecE2ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seA2Vup = Pow(GeoTrf::RotateZ3D(1.0),f+(9*Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(SecE2ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seA2Vd = Pow(GeoTrf::RotateZ3D(1.0),f-(7*Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(SecE2ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seA2H = Pow(GeoTrf::RotateZ3D(1.0),8*f+(Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(SecE2ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seC2Vup = Pow(GeoTrf::RotateZ3D(1.0),f+(9*Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(-SecE2ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seC2Vd = Pow(GeoTrf::RotateZ3D(1.0),f-(7*Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(-SecE2ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seC2H = Pow(GeoTrf::RotateZ3D(1.0),8*f+(Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(-SecE2ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
     
   GeoSerialTransformer *setA2r = new GeoSerialTransformer(sectorenvelopes2r,&seA2r, 2);
   GeoSerialTransformer *setA2l = new GeoSerialTransformer(sectorenvelopes2l,&seA2l, 2);
@@ -311,12 +312,12 @@ createBridgeEnvelopesFromDB (GeoFullPhysVol* envelope,
   double BridgeExtr = r->getDouble("XTR");
   double BridgeEztr = r->getDouble("ZTR");
 
-  GeoTrap  *Trapair  = new GeoTrap(BridgeEzhlen, BridgeEtheta*GeoModelKernelUnits::deg, BridgeEphi, BridgeEyzn, BridgeExynzn, BridgeExypzn, BridgeEangn, BridgeEyzp, BridgeExynzp, BridgeExypzp, BridgeEangp);
+  GeoTrap  *Trapair  = new GeoTrap(BridgeEzhlen, BridgeEtheta*Gaudi::Units::deg, BridgeEphi, BridgeEyzn, BridgeExynzn, BridgeExypzn, BridgeEangn, BridgeEyzp, BridgeExynzp, BridgeExypzp, BridgeEangp);
   GeoLogVol  *lvbre        = new GeoLogVol("LAr::DM::BridgeEnvelopes",Trapair,matLArServices8);//In the end Density at least >= than SE1 because of Cryo Pipes
   GeoPhysVol *bridgeenvelopes    = new GeoPhysVol(lvbre);
 
-  TRANSFUNCTION breA = Pow(GeoTrf::RotateZ3D(1.0),f-(Alfa/2))*GeoTrf::TranslateX3D(BridgeExtr)*GeoTrf::TranslateZ3D(BridgeEztr)*GeoTrf::RotateZ3D(90*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg)*GeoTrf::RotateX3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION breC = Pow(GeoTrf::RotateZ3D(1.0),f-(Alfa/2))*GeoTrf::TranslateX3D(BridgeExtr)*GeoTrf::TranslateZ3D(-BridgeEztr)*GeoTrf::RotateZ3D(-90*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg)*GeoTrf::RotateX3D(-90*GeoModelKernelUnits::deg);
+  TRANSFUNCTION breA = Pow(GeoTrf::RotateZ3D(1.0),f-(Alfa/2))*GeoTrf::TranslateX3D(BridgeExtr)*GeoTrf::TranslateZ3D(BridgeEztr)*GeoTrf::RotateZ3D(90*Gaudi::Units::deg)*GeoTrf::RotateY3D(90*Gaudi::Units::deg)*GeoTrf::RotateX3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION breC = Pow(GeoTrf::RotateZ3D(1.0),f-(Alfa/2))*GeoTrf::TranslateX3D(BridgeExtr)*GeoTrf::TranslateZ3D(-BridgeEztr)*GeoTrf::RotateZ3D(-90*Gaudi::Units::deg)*GeoTrf::RotateY3D(-90*Gaudi::Units::deg)*GeoTrf::RotateX3D(-90*Gaudi::Units::deg);
   GeoSerialTransformer *bretA = new GeoSerialTransformer(bridgeenvelopes,&breA, NCrates);
   GeoSerialTransformer *bretC = new GeoSerialTransformer(bridgeenvelopes,&breC, NCrates);
   envelope->add(bretA);
@@ -345,8 +346,8 @@ createBaseEnvelopesFromDB (GeoFullPhysVol* envelope,
   GeoLogVol  *lvbe          = new GeoLogVol("LAr::DM::BaseEnvelopes",Trd1air,matLArServices8); //In the end Density at least >= than SE1 because of Cryo Pipes
   GeoPhysVol *baseenvelopes    = new GeoPhysVol(lvbe);
 
-  TRANSFUNCTION beA = Pow(GeoTrf::RotateZ3D(1.0),f-(Alfa/2))*GeoTrf::TranslateX3D(BaseExtr)*GeoTrf::TranslateZ3D(BaseEztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg); 
-  TRANSFUNCTION beC = Pow(GeoTrf::RotateZ3D(1.0),f+(Alfa/2))*GeoTrf::TranslateX3D(BaseExtr)*GeoTrf::TranslateZ3D(-BaseEztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
+  TRANSFUNCTION beA = Pow(GeoTrf::RotateZ3D(1.0),f-(Alfa/2))*GeoTrf::TranslateX3D(BaseExtr)*GeoTrf::TranslateZ3D(BaseEztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg); 
+  TRANSFUNCTION beC = Pow(GeoTrf::RotateZ3D(1.0),f+(Alfa/2))*GeoTrf::TranslateX3D(BaseExtr)*GeoTrf::TranslateZ3D(-BaseEztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
   GeoSerialTransformer *betA = new GeoSerialTransformer(baseenvelopes,&beA, NCrates);
   GeoSerialTransformer *betC = new GeoSerialTransformer(baseenvelopes,&beC, NCrates);
   envelope->add(betA);
@@ -476,9 +477,9 @@ void createFromDB (GeoFullPhysVol* envelope,
   GeoTube    *Ped2     = new GeoTube(ped2minr, ped2maxr, ped2zhlen);
   GeoTube    *Ped3     = new GeoTube(ped3minr,ped3maxr , ped3zhlen);  
   const GeoShape & CratePed=((*Pedestal).subtract(*Ped1).
-                             subtract((*Ped2)  <<GeoTrf::TranslateY3D(-ped2ytr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg)).
+                             subtract((*Ped2)  <<GeoTrf::TranslateY3D(-ped2ytr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg)).
                              subtract((*Ped3)  <<GeoTrf::TranslateX3D(-ped3xtr)).
-                             subtract((*Ped2)  <<GeoTrf::TranslateY3D(ped2ytr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg)));
+                             subtract((*Ped2)  <<GeoTrf::TranslateY3D(ped2ytr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg)));
   
   GeoLogVol  *lvped   = new GeoLogVol("LAr::DM::Ped",&CratePed,alu);
   GeoPhysVol *pedestal   = new GeoPhysVol(lvped);
@@ -568,8 +569,8 @@ void createFromDB (GeoFullPhysVol* envelope,
   // transforms
   GeoBox   *Box   = new GeoBox(Boxhlen, Boxhwdt, Boxhhgt);
  
-  GeoTrf::Transform3D Cut3Boxp  = GeoTrf::Translate3D(Boxxtr, Boxytr, Boxxrot)*GeoTrf::RotateX3D(-20*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  GeoTrf::Transform3D Cut4Boxp  = GeoTrf::Translate3D(Boxxtr, -Boxytr,Boxxrot)*GeoTrf::RotateX3D(20*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
+  GeoTrf::Transform3D Cut3Boxp  = GeoTrf::Translate3D(Boxxtr, Boxytr, Boxxrot)*GeoTrf::RotateX3D(-20*Gaudi::Units::deg)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  GeoTrf::Transform3D Cut4Boxp  = GeoTrf::Translate3D(Boxxtr, -Boxytr,Boxxrot)*GeoTrf::RotateX3D(20*Gaudi::Units::deg)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
     
   // ----- build sector envelopes -----
   // build 16 instances of SectorEnvelopes1 each with its own material!
@@ -723,7 +724,7 @@ void createFromDB (GeoFullPhysVol* envelope,
   GeoPhysVol *baseplates    = new GeoPhysVol(lvbp);
     
   // ----- build bridge plates -----
-  GeoTrap  *Trapalu  = new GeoTrap(BridgePzhlen, BridgePtheta*GeoModelKernelUnits::deg, BridgePphi, BridgePyzn, BridgePxynzn, BridgePxypzn, BridgePangn, BridgePyzp, BridgePxynzp, BridgePxypzp, BridgePangp); 
+  GeoTrap  *Trapalu  = new GeoTrap(BridgePzhlen, BridgePtheta*Gaudi::Units::deg, BridgePphi, BridgePyzn, BridgePxynzn, BridgePxypzn, BridgePangn, BridgePyzp, BridgePxynzp, BridgePxypzp, BridgePangp); 
   GeoLogVol  *lvbrp          = new GeoLogVol("LAr::DM::BridgePlates",Trapalu,alu);
   GeoPhysVol *bridgeplates    = new GeoPhysVol(lvbrp);
     
@@ -740,18 +741,18 @@ void createFromDB (GeoFullPhysVol* envelope,
   //-------------- Place volumes in LAr Envelope -------------------
     
   //sectorPlates
-  TRANSFUNCTION spA = Pow(GeoTrf::RotateZ3D(1.0),f-(Alfa/2))*GeoTrf::TranslateX3D(SecPxtr)*GeoTrf::TranslateZ3D(SecPztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);///
-  TRANSFUNCTION spC = Pow(GeoTrf::RotateZ3D(1.0),f+(Alfa/2))*GeoTrf::TranslateX3D(SecPxtr)*GeoTrf::TranslateZ3D(-SecPztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);///
+  TRANSFUNCTION spA = Pow(GeoTrf::RotateZ3D(1.0),f-(Alfa/2))*GeoTrf::TranslateX3D(SecPxtr)*GeoTrf::TranslateZ3D(SecPztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);///
+  TRANSFUNCTION spC = Pow(GeoTrf::RotateZ3D(1.0),f+(Alfa/2))*GeoTrf::TranslateX3D(SecPxtr)*GeoTrf::TranslateZ3D(-SecPztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);///
   GeoSerialTransformer *sptA = new GeoSerialTransformer(sectorplates,&spA, NCrates);
   GeoSerialTransformer *sptC = new GeoSerialTransformer(sectorplates,&spC, NCrates);
   envelope->add(sptA);
   envelope->add(sptC);
     
   //bridgePlates
-  TRANSFUNCTION brpA1 = Pow(GeoTrf::RotateZ3D(1.0),f-(5*Alfa/2))*GeoTrf::TranslateX3D(BridgePxtr)*GeoTrf::TranslateZ3D(BridgePztr)*GeoTrf::RotateZ3D(90*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg)*GeoTrf::RotateX3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION brpA2 = Pow(GeoTrf::RotateZ3D(1.0),f+(13*Alfa/2))*GeoTrf::TranslateX3D(BridgePxtr)*GeoTrf::TranslateZ3D(BridgePztr)*GeoTrf::RotateZ3D(90*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg)*GeoTrf::RotateX3D(90*GeoModelKernelUnits::deg); 
-  TRANSFUNCTION brpC1 = Pow(GeoTrf::RotateZ3D(1.0),f-(5*Alfa/2))*GeoTrf::TranslateX3D(BridgePxtr)*GeoTrf::TranslateZ3D(-BridgePztr)*GeoTrf::RotateZ3D(-90*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg)*GeoTrf::RotateX3D(-90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION brpC2 = Pow(GeoTrf::RotateZ3D(1.0),f+(13*Alfa/2))*GeoTrf::TranslateX3D(BridgePxtr)*GeoTrf::TranslateZ3D(-BridgePztr)*GeoTrf::RotateZ3D(-90*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg)*GeoTrf::RotateX3D(-90*GeoModelKernelUnits::deg);   GeoSerialTransformer *brptA1 = new GeoSerialTransformer(bridgeplates,&brpA1, 5);
+  TRANSFUNCTION brpA1 = Pow(GeoTrf::RotateZ3D(1.0),f-(5*Alfa/2))*GeoTrf::TranslateX3D(BridgePxtr)*GeoTrf::TranslateZ3D(BridgePztr)*GeoTrf::RotateZ3D(90*Gaudi::Units::deg)*GeoTrf::RotateY3D(90*Gaudi::Units::deg)*GeoTrf::RotateX3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION brpA2 = Pow(GeoTrf::RotateZ3D(1.0),f+(13*Alfa/2))*GeoTrf::TranslateX3D(BridgePxtr)*GeoTrf::TranslateZ3D(BridgePztr)*GeoTrf::RotateZ3D(90*Gaudi::Units::deg)*GeoTrf::RotateY3D(90*Gaudi::Units::deg)*GeoTrf::RotateX3D(90*Gaudi::Units::deg); 
+  TRANSFUNCTION brpC1 = Pow(GeoTrf::RotateZ3D(1.0),f-(5*Alfa/2))*GeoTrf::TranslateX3D(BridgePxtr)*GeoTrf::TranslateZ3D(-BridgePztr)*GeoTrf::RotateZ3D(-90*Gaudi::Units::deg)*GeoTrf::RotateY3D(-90*Gaudi::Units::deg)*GeoTrf::RotateX3D(-90*Gaudi::Units::deg);
+  TRANSFUNCTION brpC2 = Pow(GeoTrf::RotateZ3D(1.0),f+(13*Alfa/2))*GeoTrf::TranslateX3D(BridgePxtr)*GeoTrf::TranslateZ3D(-BridgePztr)*GeoTrf::RotateZ3D(-90*Gaudi::Units::deg)*GeoTrf::RotateY3D(-90*Gaudi::Units::deg)*GeoTrf::RotateX3D(-90*Gaudi::Units::deg);   GeoSerialTransformer *brptA1 = new GeoSerialTransformer(bridgeplates,&brpA1, 5);
   GeoSerialTransformer *brptA2 = new GeoSerialTransformer(bridgeplates,&brpA2, 5);
   GeoSerialTransformer *brptC1 = new GeoSerialTransformer(bridgeplates,&brpC1, 5);
   GeoSerialTransformer *brptC2 = new GeoSerialTransformer(bridgeplates,&brpC2, 5);
@@ -761,8 +762,8 @@ void createFromDB (GeoFullPhysVol* envelope,
   envelope->add(brptC2);
     
   //basePlates
-  TRANSFUNCTION bpA = Pow(GeoTrf::RotateZ3D(1.0),f-(Alfa/2))*GeoTrf::TranslateX3D(BasePxtr)*GeoTrf::TranslateZ3D(BasePztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg); 
-  TRANSFUNCTION bpC = Pow(GeoTrf::RotateZ3D(1.0),f+(Alfa/2))*GeoTrf::TranslateX3D(BasePxtr)*GeoTrf::TranslateZ3D(-BasePztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
+  TRANSFUNCTION bpA = Pow(GeoTrf::RotateZ3D(1.0),f-(Alfa/2))*GeoTrf::TranslateX3D(BasePxtr)*GeoTrf::TranslateZ3D(BasePztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg); 
+  TRANSFUNCTION bpC = Pow(GeoTrf::RotateZ3D(1.0),f+(Alfa/2))*GeoTrf::TranslateX3D(BasePxtr)*GeoTrf::TranslateZ3D(-BasePztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
   GeoSerialTransformer *bptA = new GeoSerialTransformer(baseplates,&bpA, NCrates);
   GeoSerialTransformer *bptC = new GeoSerialTransformer(baseplates,&bpC, NCrates);
   envelope->add(bptA);
@@ -770,39 +771,39 @@ void createFromDB (GeoFullPhysVol* envelope,
     
   //sectorEnvelopes1
   //counter-clockwise from top if taking sideA for reference (clockwise for sideC)
-  TRANSFUNCTION seA1G5 = Pow(GeoTrf::RotateZ3D(1.0),f+(9*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seC1G5 = Pow(GeoTrf::RotateZ3D(1.0),f+(9*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seA1G6 = Pow(GeoTrf::RotateZ3D(1.0),f+(11*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seC1G6 = Pow(GeoTrf::RotateZ3D(1.0),f+(11*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seA1G7 = Pow(GeoTrf::RotateZ3D(1.0),f+(13*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seC1G7 = Pow(GeoTrf::RotateZ3D(1.0),f+(13*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seA1G8 = Pow(GeoTrf::RotateZ3D(1.0),f+(15*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seC1G8 = Pow(GeoTrf::RotateZ3D(1.0),f+(15*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seA1G9 = Pow(GeoTrf::RotateZ3D(1.0),f+(17*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seC1G9 = Pow(GeoTrf::RotateZ3D(1.0),f+(17*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seA1G10 = Pow(GeoTrf::RotateZ3D(1.0),f+(19*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seC1G10 = Pow(GeoTrf::RotateZ3D(1.0),f+(19*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seA1G11 = Pow(GeoTrf::RotateZ3D(1.0),f+(21*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seC1G11 = Pow(GeoTrf::RotateZ3D(1.0),f+(21*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seA1G12 = Pow(GeoTrf::RotateZ3D(1.0),f+(23*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seC1G12 = Pow(GeoTrf::RotateZ3D(1.0),f+(23*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
+  TRANSFUNCTION seA1G5 = Pow(GeoTrf::RotateZ3D(1.0),f+(9*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seC1G5 = Pow(GeoTrf::RotateZ3D(1.0),f+(9*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seA1G6 = Pow(GeoTrf::RotateZ3D(1.0),f+(11*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seC1G6 = Pow(GeoTrf::RotateZ3D(1.0),f+(11*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seA1G7 = Pow(GeoTrf::RotateZ3D(1.0),f+(13*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seC1G7 = Pow(GeoTrf::RotateZ3D(1.0),f+(13*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seA1G8 = Pow(GeoTrf::RotateZ3D(1.0),f+(15*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seC1G8 = Pow(GeoTrf::RotateZ3D(1.0),f+(15*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seA1G9 = Pow(GeoTrf::RotateZ3D(1.0),f+(17*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seC1G9 = Pow(GeoTrf::RotateZ3D(1.0),f+(17*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seA1G10 = Pow(GeoTrf::RotateZ3D(1.0),f+(19*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seC1G10 = Pow(GeoTrf::RotateZ3D(1.0),f+(19*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seA1G11 = Pow(GeoTrf::RotateZ3D(1.0),f+(21*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seC1G11 = Pow(GeoTrf::RotateZ3D(1.0),f+(21*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seA1G12 = Pow(GeoTrf::RotateZ3D(1.0),f+(23*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seC1G12 = Pow(GeoTrf::RotateZ3D(1.0),f+(23*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
   //clockwise from top if taking sideA for reference (counter-clockwise for sideC)
-  TRANSFUNCTION seA1G4 = Pow(GeoTrf::RotateZ3D(1.0),f+(7*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seC1G4 = Pow(GeoTrf::RotateZ3D(1.0),f+(7*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seA1G3 = Pow(GeoTrf::RotateZ3D(1.0),f+(5*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seC1G3 = Pow(GeoTrf::RotateZ3D(1.0),f+(5*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seA1G2 = Pow(GeoTrf::RotateZ3D(1.0),f+(3*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seC1G2 = Pow(GeoTrf::RotateZ3D(1.0),f+(3*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seA1G1 = Pow(GeoTrf::RotateZ3D(1.0),f+(1*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seC1G1 = Pow(GeoTrf::RotateZ3D(1.0),f+(1*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seA1G16 = Pow(GeoTrf::RotateZ3D(1.0),f-(1*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seC1G16 = Pow(GeoTrf::RotateZ3D(1.0),f-(1*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seA1G15 = Pow(GeoTrf::RotateZ3D(1.0),f-(3*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seC1G15 = Pow(GeoTrf::RotateZ3D(1.0),f-(3*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seA1G14 = Pow(GeoTrf::RotateZ3D(1.0),f-(5*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seC1G14 = Pow(GeoTrf::RotateZ3D(1.0),f-(5*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seA1G13 = Pow(GeoTrf::RotateZ3D(1.0),f-(7*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seC1G13 = Pow(GeoTrf::RotateZ3D(1.0),f-(7*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
+  TRANSFUNCTION seA1G4 = Pow(GeoTrf::RotateZ3D(1.0),f+(7*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seC1G4 = Pow(GeoTrf::RotateZ3D(1.0),f+(7*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seA1G3 = Pow(GeoTrf::RotateZ3D(1.0),f+(5*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seC1G3 = Pow(GeoTrf::RotateZ3D(1.0),f+(5*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seA1G2 = Pow(GeoTrf::RotateZ3D(1.0),f+(3*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seC1G2 = Pow(GeoTrf::RotateZ3D(1.0),f+(3*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seA1G1 = Pow(GeoTrf::RotateZ3D(1.0),f+(1*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seC1G1 = Pow(GeoTrf::RotateZ3D(1.0),f+(1*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seA1G16 = Pow(GeoTrf::RotateZ3D(1.0),f-(1*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seC1G16 = Pow(GeoTrf::RotateZ3D(1.0),f-(1*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seA1G15 = Pow(GeoTrf::RotateZ3D(1.0),f-(3*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seC1G15 = Pow(GeoTrf::RotateZ3D(1.0),f-(3*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seA1G14 = Pow(GeoTrf::RotateZ3D(1.0),f-(5*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seC1G14 = Pow(GeoTrf::RotateZ3D(1.0),f-(5*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seA1G13 = Pow(GeoTrf::RotateZ3D(1.0),f-(7*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seC1G13 = Pow(GeoTrf::RotateZ3D(1.0),f-(7*Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-SecE1ztr)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
     
   GeoSerialTransformer *setA1G5 = new GeoSerialTransformer(sectorenvelopes1g5,&seA1G5, 1);
   GeoSerialTransformer *setC1G5 = new GeoSerialTransformer(sectorenvelopes1g5,&seC1G5, 1);
@@ -976,13 +977,13 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     
     // Define some custom materials - That will move to the GeomDB
     //Fiberglass
-    GeoMaterial *matFiberglass = new GeoMaterial("SiO2",2.20*GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3);
+    GeoMaterial *matFiberglass = new GeoMaterial("SiO2",2.20*GeoModelKernelUnits::gram/Gaudi::Units::cm3);
     matFiberglass->add(silicon,silicon->getA()/(silicon->getA()+2*oxygen->getA()));
     matFiberglass->add(oxygen,2*oxygen->getA()/(silicon->getA()+2*oxygen->getA()));
     matFiberglass->lock();
     
     //Epoxy Resin
-    GeoMaterial *matEpoxyResin = new GeoMaterial("Epoxy", 1.9*GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3);
+    GeoMaterial *matEpoxyResin = new GeoMaterial("Epoxy", 1.9*GeoModelKernelUnits::gram/Gaudi::Units::cm3);
     matEpoxyResin->add(hydrogen,     14*hydrogen->getA()   / (14*hydrogen->getA() + 4*oxygen->getA()+ 8*carbon->getA()));
     matEpoxyResin->add(oxygen,        4*oxygen->getA()     / (14*hydrogen->getA() + 4*oxygen->getA()+ 8*carbon->getA()));
     matEpoxyResin->add(carbon,        8*carbon->getA()     / (14*hydrogen->getA() + 4*oxygen->getA()+ 8*carbon->getA()));
@@ -990,7 +991,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     matEpoxyResin->lock();
 
     //FEBBoards
-    GeoMaterial *matFEBBoards = new GeoMaterial("FEBBoards", 4.03*GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3);
+    GeoMaterial *matFEBBoards = new GeoMaterial("FEBBoards", 4.03*GeoModelKernelUnits::gram/Gaudi::Units::cm3);
     matFEBBoards->add(matFiberglass, 0.52);
     matFEBBoards->add(copper, 0.28);
     matFEBBoards->add(matEpoxyResin, 0.20);
@@ -999,13 +1000,13 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     //SERVICES:CABLES, TUBES ETC...//
     
     //Water
-    GeoMaterial *matWater = new GeoMaterial("Water", 1*GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3);
+    GeoMaterial *matWater = new GeoMaterial("Water", 1*GeoModelKernelUnits::gram/Gaudi::Units::cm3);
     matWater->add(hydrogen,     2*hydrogen->getA()   / (2*hydrogen->getA() + 1*oxygen->getA()));
     matWater->add(oxygen,       1*oxygen->getA()     / (2*hydrogen->getA() + 1*oxygen->getA()));
     matWater->lock();
     
     //InDetServices
-    GeoMaterial* matLArServices = new GeoMaterial("LArServices", 4.03*GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3);
+    GeoMaterial* matLArServices = new GeoMaterial("LArServices", 4.03*GeoModelKernelUnits::gram/Gaudi::Units::cm3);
     matLArServices->add(shieldSteel, 0.20);
     matLArServices->add(copper, 0.60);
     matLArServices->add(matRubber, 0.10);
@@ -1021,16 +1022,16 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     GeoBox     *Pedestal = new GeoBox(71, 400.05, 248.65);
     GeoBox     *Ped1     = new GeoBox(67, 397.05, 245.65);
     GeoTube    *Ped2     = new GeoTube(0, 150, 75);
-    GeoTube    *Ped3     = new GeoTube(0, 2775, 300);   //, -75*GeoModelKernelUnits::deg, 150*GeoModelKernelUnits::deg); // 0, 2775, 300, -8.2*GeoModelKernelUnits::deg, 16.4*GeoModelKernelUnits::deg)
+    GeoTube    *Ped3     = new GeoTube(0, 2775, 300);   //, -75*Gaudi::Units::deg, 150*Gaudi::Units::deg); // 0, 2775, 300, -8.2*Gaudi::Units::deg, 16.4*Gaudi::Units::deg)
     
     //GeoLogVol  *lvped3   = new GeoLogVol("LAr::DM::PED3",Ped3,air);
     //GeoPhysVol *ped3   = new GeoPhysVol(lvped3);
     //envelope->add(ped3);
     
     const GeoShape & CratePed=((*Pedestal).subtract(*Ped1).
-			       subtract((*Ped2)  <<GeoTrf::TranslateY3D(-200.025)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg)).
+			       subtract((*Ped2)  <<GeoTrf::TranslateY3D(-200.025)*GeoTrf::RotateY3D(90*Gaudi::Units::deg)).
 			       subtract((*Ped3)  <<GeoTrf::TranslateX3D(-2815)).
-			       subtract((*Ped2)  <<GeoTrf::TranslateY3D(200.025)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg)));
+			       subtract((*Ped2)  <<GeoTrf::TranslateY3D(200.025)*GeoTrf::RotateY3D(90*Gaudi::Units::deg)));
     
     
     GeoLogVol  *lvped   = new GeoLogVol("LAr::DM::PED",&CratePed,air);
@@ -1072,9 +1073,9 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     
     const unsigned int NCrates=16;
     Variable       i;
-    GENFUNCTION    f = (360*GeoModelKernelUnits::deg/NCrates)*i;
-    GENFUNCTION    f1 = (360*GeoModelKernelUnits::deg/NCrates)*i+315*GeoModelKernelUnits::deg;
-    GENFUNCTION    f2 = (360*GeoModelKernelUnits::deg/NCrates)*i+157.5*GeoModelKernelUnits::deg;
+    GENFUNCTION    f = (360*Gaudi::Units::deg/NCrates)*i;
+    GENFUNCTION    f1 = (360*Gaudi::Units::deg/NCrates)*i+315*Gaudi::Units::deg;
+    GENFUNCTION    f2 = (360*Gaudi::Units::deg/NCrates)*i+157.5*Gaudi::Units::deg;
     GENFUNCTION    g = i*19.685;
     
     //(f=22.5|| f=45|| f=67.5|| f=180|| f=203.5|| f=225|| f=247.5|| f=270|| f=337.5|| f=360)
@@ -1133,16 +1134,16 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     //----------- Building envelope for Cables and Tubes --------------
     
     GeoTrd   *Trd1air  = new GeoTrd(123.5, 123.5, 167, 245.43, 117.65);
-    GeoTrap  *Trapair  = new GeoTrap(178.33, 39.596*GeoModelKernelUnits::deg, 0, 167, 53.5, 53.5, 0, 167, 123.5, 123.5, 0);
+    GeoTrap  *Trapair  = new GeoTrap(178.33, 39.596*Gaudi::Units::deg, 0, 167, 53.5, 53.5, 0, 167, 123.5, 123.5, 0);
     GeoTrd   *Trd2air  = new GeoTrd(53.5, 53.5, 280, 548, 677.5); 
     GeoBox   *Box   = new GeoBox(280, 280, 100); 
     
     GeoTrd   *Trd1alu  = new GeoTrd(5, 5, 167, 245.43, 117.65);
-    GeoTrap  *Trapalu  = new GeoTrap(178.33, 45.5*GeoModelKernelUnits::deg, 0, 167, 5, 5, 0, 167, 5, 5, 0);
+    GeoTrap  *Trapalu  = new GeoTrap(178.33, 45.5*Gaudi::Units::deg, 0, 167, 5, 5, 0, 167, 5, 5, 0);
     GeoTrd   *Trd2alu  = new GeoTrd(5, 5, 280, 548, 677.5);
     
-    GeoTrf::Transform3D Cut1Box  = GeoTrf::Translate3D(-295.5, 500, -473.563)*GeoTrf::RotateX3D(-20*GeoModelKernelUnits::deg);
-    GeoTrf::Transform3D Cut2Box  = GeoTrf::Translate3D(-295.5, -500, -473.563)*GeoTrf::RotateX3D(20*GeoModelKernelUnits::deg);
+    GeoTrf::Transform3D Cut1Box  = GeoTrf::Translate3D(-295.5, 500, -473.563)*GeoTrf::RotateX3D(-20*Gaudi::Units::deg);
+    GeoTrf::Transform3D Cut2Box  = GeoTrf::Translate3D(-295.5, -500, -473.563)*GeoTrf::RotateX3D(20*Gaudi::Units::deg);
     
     
     
@@ -1167,31 +1168,31 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     
     
     //envelopes
-    TRANSFUNCTION xf3a = Pow(GeoTrf::RotateZ3D(1.0),f)*GeoTrf::TranslateY3D(-631.63)*GeoTrf::TranslateX3D(3175.44)*GeoTrf::TranslateZ3D(3165.5)*GeoTrf::RotateZ3D(-11.25*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-    TRANSFUNCTION xf4a = Pow(GeoTrf::RotateZ3D(1.0),f)*GeoTrf::TranslateY3D(631.63)*GeoTrf::TranslateX3D(-3175.44)*GeoTrf::TranslateZ3D(-3165.5)*GeoTrf::RotateZ3D(-11.25*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg);
+    TRANSFUNCTION xf3a = Pow(GeoTrf::RotateZ3D(1.0),f)*GeoTrf::TranslateY3D(-631.63)*GeoTrf::TranslateX3D(3175.44)*GeoTrf::TranslateZ3D(3165.5)*GeoTrf::RotateZ3D(-11.25*Gaudi::Units::deg)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+    TRANSFUNCTION xf4a = Pow(GeoTrf::RotateZ3D(1.0),f)*GeoTrf::TranslateY3D(631.63)*GeoTrf::TranslateX3D(-3175.44)*GeoTrf::TranslateZ3D(-3165.5)*GeoTrf::RotateZ3D(-11.25*Gaudi::Units::deg)*GeoTrf::RotateY3D(-90*Gaudi::Units::deg);
     GeoSerialTransformer *st3 = new GeoSerialTransformer(envelopes,&xf3a, NCrates);
     GeoSerialTransformer *st4 = new GeoSerialTransformer(envelopes,&xf4a, NCrates);
     envelope->add(st3);
     envelope->add(st4);
     
     //baseplates
-    TRANSFUNCTION xf3b = Pow(GeoTrf::RotateZ3D(1.0),f1)*GeoTrf::TranslateY3D(-631.63)*GeoTrf::TranslateX3D(3175.44)*GeoTrf::TranslateZ3D(3044.5)*GeoTrf::RotateZ3D(-11.25*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-    TRANSFUNCTION xf4b = Pow(GeoTrf::RotateZ3D(1.0),(f1+22.5*GeoModelKernelUnits::deg))*GeoTrf::TranslateY3D(631.63)*GeoTrf::TranslateX3D(-3175.44)*GeoTrf::TranslateZ3D(-3044.5)*GeoTrf::RotateZ3D(-11.25*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg);
+    TRANSFUNCTION xf3b = Pow(GeoTrf::RotateZ3D(1.0),f1)*GeoTrf::TranslateY3D(-631.63)*GeoTrf::TranslateX3D(3175.44)*GeoTrf::TranslateZ3D(3044.5)*GeoTrf::RotateZ3D(-11.25*Gaudi::Units::deg)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+    TRANSFUNCTION xf4b = Pow(GeoTrf::RotateZ3D(1.0),(f1+22.5*Gaudi::Units::deg))*GeoTrf::TranslateY3D(631.63)*GeoTrf::TranslateX3D(-3175.44)*GeoTrf::TranslateZ3D(-3044.5)*GeoTrf::RotateZ3D(-11.25*Gaudi::Units::deg)*GeoTrf::RotateY3D(-90*Gaudi::Units::deg);
     GeoSerialTransformer *st3bis = new GeoSerialTransformer(baseplates,&xf3b, (NCrates-11));
     GeoSerialTransformer *st4bis = new GeoSerialTransformer(baseplates,&xf4b, (NCrates-11));
     envelope->add(st3bis);
     envelope->add(st4bis);
     
-    TRANSFUNCTION xf5b = Pow(GeoTrf::RotateZ3D(1.0),f2)*GeoTrf::TranslateY3D(-631.63)*GeoTrf::TranslateX3D(3175.44)*GeoTrf::TranslateZ3D(3044.5)*GeoTrf::RotateZ3D(-11.25*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-    TRANSFUNCTION xf6b = Pow(GeoTrf::RotateZ3D(1.0),(f2-22.5*GeoModelKernelUnits::deg))*GeoTrf::TranslateY3D(631.63)*GeoTrf::TranslateX3D(-3175.44)*GeoTrf::TranslateZ3D(-3044.5)*GeoTrf::RotateZ3D(-11.25*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg);
+    TRANSFUNCTION xf5b = Pow(GeoTrf::RotateZ3D(1.0),f2)*GeoTrf::TranslateY3D(-631.63)*GeoTrf::TranslateX3D(3175.44)*GeoTrf::TranslateZ3D(3044.5)*GeoTrf::RotateZ3D(-11.25*Gaudi::Units::deg)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+    TRANSFUNCTION xf6b = Pow(GeoTrf::RotateZ3D(1.0),(f2-22.5*Gaudi::Units::deg))*GeoTrf::TranslateY3D(631.63)*GeoTrf::TranslateX3D(-3175.44)*GeoTrf::TranslateZ3D(-3044.5)*GeoTrf::RotateZ3D(-11.25*Gaudi::Units::deg)*GeoTrf::RotateY3D(-90*Gaudi::Units::deg);
     GeoSerialTransformer *st5bis = new GeoSerialTransformer(baseplates,&xf5b, (NCrates-11));
     GeoSerialTransformer *st6bis = new GeoSerialTransformer(baseplates,&xf6b, (NCrates-11));
     envelope->add(st5bis);
     envelope->add(st6bis);
     
     //sectorplates
-    TRANSFUNCTION xf3bb = Pow(GeoTrf::RotateZ3D(1.0),f)*GeoTrf::TranslateY3D(-631.63)*GeoTrf::TranslateX3D(3175.44)*GeoTrf::TranslateZ3D(3044.5)*GeoTrf::RotateZ3D(-11.25*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-    TRANSFUNCTION xf4bb = Pow(GeoTrf::RotateZ3D(1.0),f)*GeoTrf::TranslateY3D(631.63)*GeoTrf::TranslateX3D(-3175.44)*GeoTrf::TranslateZ3D(-3044.5)*GeoTrf::RotateZ3D(-11.25*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg);
+    TRANSFUNCTION xf3bb = Pow(GeoTrf::RotateZ3D(1.0),f)*GeoTrf::TranslateY3D(-631.63)*GeoTrf::TranslateX3D(3175.44)*GeoTrf::TranslateZ3D(3044.5)*GeoTrf::RotateZ3D(-11.25*Gaudi::Units::deg)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+    TRANSFUNCTION xf4bb = Pow(GeoTrf::RotateZ3D(1.0),f)*GeoTrf::TranslateY3D(631.63)*GeoTrf::TranslateX3D(-3175.44)*GeoTrf::TranslateZ3D(-3044.5)*GeoTrf::RotateZ3D(-11.25*Gaudi::Units::deg)*GeoTrf::RotateY3D(-90*Gaudi::Units::deg);
     GeoSerialTransformer *st3biss = new GeoSerialTransformer(sectorplates,&xf3bb, NCrates);
     GeoSerialTransformer *st4biss = new GeoSerialTransformer(sectorplates,&xf4bb, NCrates);
     envelope->add(st3biss);
@@ -1220,30 +1221,30 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
 
   
   //C6F14
-  GeoMaterial *matC6F14 = new GeoMaterial("C6F14",1.68*GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3);
+  GeoMaterial *matC6F14 = new GeoMaterial("C6F14",1.68*GeoModelKernelUnits::gram/Gaudi::Units::cm3);
   matC6F14->add(carbon,   6*carbon->getA()   / (6*carbon->getA() + 14*fluorine->getA()));
   matC6F14->add(fluorine, 14*fluorine->getA() / (6*carbon->getA() + 14*fluorine->getA()));
   matC6F14->lock();
     
   //Water
-  GeoMaterial *matWater = new GeoMaterial("Water", 1*GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3);
+  GeoMaterial *matWater = new GeoMaterial("Water", 1*GeoModelKernelUnits::gram/Gaudi::Units::cm3);
   matWater->add(hydrogen,     2*hydrogen->getA()   / (2*hydrogen->getA() + 1*oxygen->getA()));
   matWater->add(oxygen,       1*oxygen->getA()     / (2*hydrogen->getA() + 1*oxygen->getA()));
   matWater->lock();
 
   //Nitrogen
-  GeoMaterial *matN2 = new GeoMaterial("N2", 0.0012506*GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3);
+  GeoMaterial *matN2 = new GeoMaterial("N2", 0.0012506*GeoModelKernelUnits::gram/Gaudi::Units::cm3);
   matN2->add(nitrogen,1);
   matN2->lock();
 
   //Fiberglass
-  GeoMaterial *matFiberglass = new GeoMaterial("SiO2",2.20*GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3);
+  GeoMaterial *matFiberglass = new GeoMaterial("SiO2",2.20*GeoModelKernelUnits::gram/Gaudi::Units::cm3);
   matFiberglass->add(silicon,silicon->getA()/(silicon->getA()+2*oxygen->getA()));
   matFiberglass->add(oxygen,2*oxygen->getA()/(silicon->getA()+2*oxygen->getA()));
   matFiberglass->lock();
 
   //Epoxy Resin
-  GeoMaterial *matEpoxyResin = new GeoMaterial("Epoxy:C8H14O4Si", 1.9*GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3);
+  GeoMaterial *matEpoxyResin = new GeoMaterial("Epoxy:C8H14O4Si", 1.9*GeoModelKernelUnits::gram/Gaudi::Units::cm3);
   matEpoxyResin->add(hydrogen,     14*hydrogen->getA()   / (14*hydrogen->getA() + 4*oxygen->getA()+ 8*carbon->getA()+ 1*silicon->getA()));
   matEpoxyResin->add(oxygen,        4*oxygen->getA()     / (14*hydrogen->getA() + 4*oxygen->getA()+ 8*carbon->getA()+ 1*silicon->getA()));
   matEpoxyResin->add(carbon,        8*carbon->getA()     / (14*hydrogen->getA() + 4*oxygen->getA()+ 8*carbon->getA()+ 1*silicon->getA()));
@@ -1251,14 +1252,14 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   matEpoxyResin->lock();
 
   //FEBoards
-  GeoMaterial *matFEBoards = new GeoMaterial("FEBoards", 4.03*GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3);
+  GeoMaterial *matFEBoards = new GeoMaterial("FEBoards", 4.03*GeoModelKernelUnits::gram/Gaudi::Units::cm3);
   matFEBoards->add(matFiberglass, 0.52);
   matFEBoards->add(copper, 0.28);
   matFEBoards->add(matEpoxyResin, 0.20);
   matFEBoards->lock();
 
   //BoardsEnvelope (FEBoards + Cooling Plates + Water + Air)
-  GeoMaterial* matBoardsEnvelope = new GeoMaterial("BoardsEnvelope", 0.932*GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3);
+  GeoMaterial* matBoardsEnvelope = new GeoMaterial("BoardsEnvelope", 0.932*GeoModelKernelUnits::gram/Gaudi::Units::cm3);
   matBoardsEnvelope->add(matFEBoards, 0.4147);
   matBoardsEnvelope->add(matWater, 0.0736);
   matBoardsEnvelope->add(air, 0.0008);
@@ -1266,8 +1267,8 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   matBoardsEnvelope->lock();
   
   //InDetServices !!! Provisoire !!!
-  double density1 = 1.*GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3;
-  if (strDMTopTag=="LArBarrelDM-02") density1 = 1.7*GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3;
+  double density1 = 1.*GeoModelKernelUnits::gram/Gaudi::Units::cm3;
+  if (strDMTopTag=="LArBarrelDM-02") density1 = 1.7*GeoModelKernelUnits::gram/Gaudi::Units::cm3;
   GeoMaterial* matLArServices1 = new GeoMaterial("LArServices1", density1);
   matLArServices1->add(copper, .60);
   matLArServices1->add(shieldSteel, .05);
@@ -1280,8 +1281,8 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   matLArServices1->lock();
 
   //InDetServices !!! Provisoire !!!
-  double density2 = 2.*GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3;
-  if (strDMTopTag=="LArBarrelDM-02") density2 = 3.4*GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3;
+  double density2 = 2.*GeoModelKernelUnits::gram/Gaudi::Units::cm3;
+  if (strDMTopTag=="LArBarrelDM-02") density2 = 3.4*GeoModelKernelUnits::gram/Gaudi::Units::cm3;
   GeoMaterial* matLArServices2 = new GeoMaterial("LArServices2", density2);
   matLArServices2->add(copper, .60);
   matLArServices2->add(shieldSteel, .05);
@@ -1299,7 +1300,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
 //     << matLArServices2->getRadLength() << " " << matLArServices2->getIntLength() << std::endl;
   
   const unsigned int NCrates=16;
-  const double Alfa=360*GeoModelKernelUnits::deg/NCrates;
+  const double Alfa=360*Gaudi::Units::deg/NCrates;
   const double Enda=1155;
   const double Endb=1695.2;
   const double Endc=2771.6;
@@ -1318,9 +1319,9 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   GeoTube    *Ped2     = new GeoTube(0, 150, 75);
   GeoTube    *Ped3     = new GeoTube(0, 2775, 300);  
   const GeoShape & CratePed=((*Pedestal).subtract(*Ped1).
-			     subtract((*Ped2)  <<GeoTrf::TranslateY3D(-200.025)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg)).
+			     subtract((*Ped2)  <<GeoTrf::TranslateY3D(-200.025)*GeoTrf::RotateY3D(90*Gaudi::Units::deg)).
 			     subtract((*Ped3)  <<GeoTrf::TranslateX3D(-2800)).
-		             subtract((*Ped2)  <<GeoTrf::TranslateY3D(200.025)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg)));
+		             subtract((*Ped2)  <<GeoTrf::TranslateY3D(200.025)*GeoTrf::RotateY3D(90*Gaudi::Units::deg)));
   
   GeoLogVol  *lvped   = new GeoLogVol("LAr::DM::Ped",&CratePed,alu);
   GeoPhysVol *pedestal   = new GeoPhysVol(lvped);
@@ -1377,10 +1378,10 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   // transforms
   GeoBox   *Box   = new GeoBox(280, 280, 100);
  
-  GeoTrf::Transform3D Cut3Boxe  = GeoTrf::Translate3D(0, 548, 711)*GeoTrf::RotateX3D(-20*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  GeoTrf::Transform3D Cut4Boxe  = GeoTrf::Translate3D(0, -548,711)*GeoTrf::RotateX3D(20*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  GeoTrf::Transform3D Cut3Boxp  = GeoTrf::Translate3D(0, 548, 850)*GeoTrf::RotateX3D(-20*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  GeoTrf::Transform3D Cut4Boxp  = GeoTrf::Translate3D(0, -548,850)*GeoTrf::RotateX3D(20*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
+  GeoTrf::Transform3D Cut3Boxe  = GeoTrf::Translate3D(0, 548, 711)*GeoTrf::RotateX3D(-20*Gaudi::Units::deg)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  GeoTrf::Transform3D Cut4Boxe  = GeoTrf::Translate3D(0, -548,711)*GeoTrf::RotateX3D(20*Gaudi::Units::deg)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  GeoTrf::Transform3D Cut3Boxp  = GeoTrf::Translate3D(0, 548, 850)*GeoTrf::RotateX3D(-20*Gaudi::Units::deg)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  GeoTrf::Transform3D Cut4Boxp  = GeoTrf::Translate3D(0, -548,850)*GeoTrf::RotateX3D(20*Gaudi::Units::deg)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
 
   // ----- build base envelopes -----
   GeoTrd   *Trd1air  = new GeoTrd(123.5, 123.5, 167, 305, 287.5); 
@@ -1388,7 +1389,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   GeoPhysVol *baseenvelopes    = new GeoPhysVol(lvbe);
 
   // ----- build bridge envelopes -----
-  GeoTrap  *Trapair  = new GeoTrap(201.70, 45.35*GeoModelKernelUnits::deg, 0, 160, 52.95, 52.95, 0, 160, 123.5, 123.5, 0);
+  GeoTrap  *Trapair  = new GeoTrap(201.70, 45.35*Gaudi::Units::deg, 0, 160, 52.95, 52.95, 0, 160, 123.5, 123.5, 0);
   GeoLogVol  *lvbre          = new GeoLogVol("LAr::DM::BridgeEnvelopes",Trapair,matLArServices1);
   GeoPhysVol *bridgeenvelopes    = new GeoPhysVol(lvbre);
 
@@ -1421,7 +1422,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   GeoPhysVol *baseplates    = new GeoPhysVol(lvbp);
 
   // ----- build bridge plates -----
-  GeoTrap  *Trapalu  = new GeoTrap(201.70, 49.92*GeoModelKernelUnits::deg, 0, 160, 5, 5, 0, 160, 5, 5, 0); 
+  GeoTrap  *Trapalu  = new GeoTrap(201.70, 49.92*Gaudi::Units::deg, 0, 160, 5, 5, 0, 160, 5, 5, 0); 
   GeoLogVol  *lvbrp          = new GeoLogVol("LAr::DM::BridgePlates",Trapalu,alu);
   GeoPhysVol *bridgeplates    = new GeoPhysVol(lvbrp);
   
@@ -1439,15 +1440,15 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   GeoTrap  *GeoTrap1  = new GeoTrap(237.5, 0, 0, 307, 47.5, 47.5, 0, 259.17, 47.5, 47.5, 0);
   GeoBox   *Box1   = new GeoBox(50, 244.80, 150);  
   const GeoShape & SpliceBox = ((*GeoTrap1).
-				subtract(*Box1 << GeoTrf::TranslateZ3D(193.88)*GeoTrf::TranslateY3D(-223.49)*GeoTrf::RotateX3D(41.592*GeoModelKernelUnits::deg)));
+				subtract(*Box1 << GeoTrf::TranslateZ3D(193.88)*GeoTrf::TranslateY3D(-223.49)*GeoTrf::RotateX3D(41.592*Gaudi::Units::deg)));
 
-  GeoTransform *xtr = new GeoTransform (GeoTrf::TranslateZ3D(39.57)*GeoTrf::TranslateY3D(-452.12)*GeoTrf::TranslateX3D(5.40)*GeoTrf::RotateX3D(191.25*GeoModelKernelUnits::deg));
+  GeoTransform *xtr = new GeoTransform (GeoTrf::TranslateZ3D(39.57)*GeoTrf::TranslateY3D(-452.12)*GeoTrf::TranslateX3D(5.40)*GeoTrf::RotateX3D(191.25*Gaudi::Units::deg));
   sectorenvelopes2r->add(xtr);
   GeoLogVol  *lvspbr     = new GeoLogVol("LAr::DM::SPliceBoxr",&SpliceBox,alu); 
   GeoPhysVol *spliceboxr       = new GeoPhysVol(lvspbr);
   sectorenvelopes2r->add(spliceboxr);
   
-  GeoTransform *xtl = new GeoTransform (GeoTrf::TranslateZ3D(39.57)*GeoTrf::TranslateY3D(-452.12)*GeoTrf::TranslateX3D(5.40)*GeoTrf::RotateY3D(-180*GeoModelKernelUnits::deg)*GeoTrf::RotateX3D(-(Alfa/2)));
+  GeoTransform *xtl = new GeoTransform (GeoTrf::TranslateZ3D(39.57)*GeoTrf::TranslateY3D(-452.12)*GeoTrf::TranslateX3D(5.40)*GeoTrf::RotateY3D(-180*Gaudi::Units::deg)*GeoTrf::RotateX3D(-(Alfa/2)));
   sectorenvelopes2l->add(xtl);
   GeoLogVol  *lvspbl     = new GeoLogVol("LAr::DM::SpliceBoxl",&SpliceBox,alu);  
   GeoPhysVol *spliceboxl       = new GeoPhysVol(lvspbl);
@@ -1459,7 +1460,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   GeoTrap  *GeoTrap2  = new GeoTrap(149, 0, 0, 126.215, 44.5, 44.5, 0, 95, 44.5, 44.5, 0);
   GeoTrap  *GeoTrap3  = new GeoTrap(72, 0, 0, 294.5, 44.5, 44.5, 0, 279.396, 44.5, 44.5, 0);
   
-  GeoTransform *xt1 = new GeoTransform (GeoTrf::TranslateY3D(-53)*GeoTrf::RotateX3D(42.25*GeoModelKernelUnits::deg));
+  GeoTransform *xt1 = new GeoTransform (GeoTrf::TranslateY3D(-53)*GeoTrf::RotateX3D(42.25*Gaudi::Units::deg));
   spliceboxr->add(xt1);
   spliceboxl->add(xt1);
   GeoLogVol  *lt1     = new GeoLogVol("LAr::DM::TBox1",Trd1,air);
@@ -1487,18 +1488,18 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   //-------------- Place volumes in LAr Envelope -------------------
  
   //sectorPlates
-  TRANSFUNCTION spA = Pow(GeoTrf::RotateZ3D(1.0),f-(Alfa/2))*GeoTrf::TranslateX3D(2095)*GeoTrf::TranslateZ3D(3410.1)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION spC = Pow(GeoTrf::RotateZ3D(1.0),f+(Alfa/2))*GeoTrf::TranslateX3D(2095)*GeoTrf::TranslateZ3D(-3410.1)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
+  TRANSFUNCTION spA = Pow(GeoTrf::RotateZ3D(1.0),f-(Alfa/2))*GeoTrf::TranslateX3D(2095)*GeoTrf::TranslateZ3D(3410.1)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION spC = Pow(GeoTrf::RotateZ3D(1.0),f+(Alfa/2))*GeoTrf::TranslateX3D(2095)*GeoTrf::TranslateZ3D(-3410.1)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
   GeoSerialTransformer *sptA = new GeoSerialTransformer(sectorplates,&spA, NCrates);
   GeoSerialTransformer *sptC = new GeoSerialTransformer(sectorplates,&spC, NCrates);
   envelope->add(sptA);
   envelope->add(sptC);
 
   //bridgePlates
-  TRANSFUNCTION brpA1 = Pow(GeoTrf::RotateZ3D(1.0),f-(5*Alfa/2))*GeoTrf::TranslateX3D(2974.5)*GeoTrf::TranslateZ3D(3170.1)*GeoTrf::RotateZ3D(90*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg)*GeoTrf::RotateX3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION brpA2 = Pow(GeoTrf::RotateZ3D(1.0),f+(13*Alfa/2))*GeoTrf::TranslateX3D(2974.5)*GeoTrf::TranslateZ3D(3170.1)*GeoTrf::RotateZ3D(90*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg)*GeoTrf::RotateX3D(90*GeoModelKernelUnits::deg); 
-  TRANSFUNCTION brpC1 = Pow(GeoTrf::RotateZ3D(1.0),f-(5*Alfa/2))*GeoTrf::TranslateX3D(2974.5)*GeoTrf::TranslateZ3D(-3170.1)*GeoTrf::RotateZ3D(-90*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg)*GeoTrf::RotateX3D(-90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION brpC2 = Pow(GeoTrf::RotateZ3D(1.0),f+(13*Alfa/2))*GeoTrf::TranslateX3D(2974.5)*GeoTrf::TranslateZ3D(-3170.1)*GeoTrf::RotateZ3D(-90*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg)*GeoTrf::RotateX3D(-90*GeoModelKernelUnits::deg);   GeoSerialTransformer *brptA1 = new GeoSerialTransformer(bridgeplates,&brpA1, 5);
+  TRANSFUNCTION brpA1 = Pow(GeoTrf::RotateZ3D(1.0),f-(5*Alfa/2))*GeoTrf::TranslateX3D(2974.5)*GeoTrf::TranslateZ3D(3170.1)*GeoTrf::RotateZ3D(90*Gaudi::Units::deg)*GeoTrf::RotateY3D(90*Gaudi::Units::deg)*GeoTrf::RotateX3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION brpA2 = Pow(GeoTrf::RotateZ3D(1.0),f+(13*Alfa/2))*GeoTrf::TranslateX3D(2974.5)*GeoTrf::TranslateZ3D(3170.1)*GeoTrf::RotateZ3D(90*Gaudi::Units::deg)*GeoTrf::RotateY3D(90*Gaudi::Units::deg)*GeoTrf::RotateX3D(90*Gaudi::Units::deg); 
+  TRANSFUNCTION brpC1 = Pow(GeoTrf::RotateZ3D(1.0),f-(5*Alfa/2))*GeoTrf::TranslateX3D(2974.5)*GeoTrf::TranslateZ3D(-3170.1)*GeoTrf::RotateZ3D(-90*Gaudi::Units::deg)*GeoTrf::RotateY3D(-90*Gaudi::Units::deg)*GeoTrf::RotateX3D(-90*Gaudi::Units::deg);
+  TRANSFUNCTION brpC2 = Pow(GeoTrf::RotateZ3D(1.0),f+(13*Alfa/2))*GeoTrf::TranslateX3D(2974.5)*GeoTrf::TranslateZ3D(-3170.1)*GeoTrf::RotateZ3D(-90*Gaudi::Units::deg)*GeoTrf::RotateY3D(-90*Gaudi::Units::deg)*GeoTrf::RotateX3D(-90*Gaudi::Units::deg);   GeoSerialTransformer *brptA1 = new GeoSerialTransformer(bridgeplates,&brpA1, 5);
   GeoSerialTransformer *brptA2 = new GeoSerialTransformer(bridgeplates,&brpA2, 5);
   GeoSerialTransformer *brptC1 = new GeoSerialTransformer(bridgeplates,&brpC1, 5);
   GeoSerialTransformer *brptC2 = new GeoSerialTransformer(bridgeplates,&brpC2, 5);
@@ -1508,27 +1509,27 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   envelope->add(brptC2);
 
   //basePlates
-  TRANSFUNCTION bpA = Pow(GeoTrf::RotateZ3D(1.0),f-(Alfa/2))*GeoTrf::TranslateX3D(3464)*GeoTrf::TranslateZ3D(2930.6)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg); 
-  TRANSFUNCTION bpC = Pow(GeoTrf::RotateZ3D(1.0),f+(Alfa/2))*GeoTrf::TranslateX3D(3464)*GeoTrf::TranslateZ3D(-2930.6)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
+  TRANSFUNCTION bpA = Pow(GeoTrf::RotateZ3D(1.0),f-(Alfa/2))*GeoTrf::TranslateX3D(3464)*GeoTrf::TranslateZ3D(2930.6)*GeoTrf::RotateY3D(90*Gaudi::Units::deg); 
+  TRANSFUNCTION bpC = Pow(GeoTrf::RotateZ3D(1.0),f+(Alfa/2))*GeoTrf::TranslateX3D(3464)*GeoTrf::TranslateZ3D(-2930.6)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
   GeoSerialTransformer *bptA = new GeoSerialTransformer(baseplates,&bpA, NCrates);
   GeoSerialTransformer *bptC = new GeoSerialTransformer(baseplates,&bpC, NCrates);
   envelope->add(bptA);
   envelope->add(bptC);
 
   //sectorEnvelopes
-  TRANSFUNCTION seA1 = Pow(GeoTrf::RotateZ3D(1.0),f-(Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(3468.05)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seC1 = Pow(GeoTrf::RotateZ3D(1.0),f-(Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-3468.05)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
+  TRANSFUNCTION seA1 = Pow(GeoTrf::RotateZ3D(1.0),f-(Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(3468.05)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seC1 = Pow(GeoTrf::RotateZ3D(1.0),f-(Alfa/2))*GeoTrf::TranslateX3D((Endb+Enda)/2)*GeoTrf::TranslateZ3D(-3468.05)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
   GeoSerialTransformer *setA1 = new GeoSerialTransformer(sectorenvelopes1,&seA1, NCrates);
   GeoSerialTransformer *setC1 = new GeoSerialTransformer(sectorenvelopes1,&seC1, NCrates);
   envelope->add(setA1); 
   envelope->add(setC1);
   
-  TRANSFUNCTION seA2r = Pow(GeoTrf::RotateZ3D(1.0),8*f-(3*Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(3468.05)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seA2l = Pow(GeoTrf::RotateZ3D(1.0),8*f+(5*Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(3468.05)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seA2 = Pow(GeoTrf::RotateZ3D(1.0),4*f+(Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(3468.05)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seC2 = Pow(GeoTrf::RotateZ3D(1.0),4*f+(Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(-3468.05)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seC2r = Pow(GeoTrf::RotateZ3D(1.0),8*f-(3*Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(-3468.05)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION seC2l = Pow(GeoTrf::RotateZ3D(1.0),8*f+(5*Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(-3468.05)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
+  TRANSFUNCTION seA2r = Pow(GeoTrf::RotateZ3D(1.0),8*f-(3*Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(3468.05)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seA2l = Pow(GeoTrf::RotateZ3D(1.0),8*f+(5*Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(3468.05)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seA2 = Pow(GeoTrf::RotateZ3D(1.0),4*f+(Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(3468.05)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seC2 = Pow(GeoTrf::RotateZ3D(1.0),4*f+(Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(-3468.05)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seC2r = Pow(GeoTrf::RotateZ3D(1.0),8*f-(3*Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(-3468.05)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION seC2l = Pow(GeoTrf::RotateZ3D(1.0),8*f+(5*Alfa/2))*GeoTrf::TranslateX3D((Endb+Endc)/2)*GeoTrf::TranslateZ3D(-3468.05)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
   GeoSerialTransformer *setA2r = new GeoSerialTransformer(sectorenvelopes2r,&seA2r, 2);
   GeoSerialTransformer *setA2l = new GeoSerialTransformer(sectorenvelopes2l,&seA2l, 2);
   GeoSerialTransformer *setA2 = new GeoSerialTransformer(sectorenvelopes2,&seA2, 4);
@@ -1543,16 +1544,16 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   envelope->add(setC2l);
 
   //bridgeEnvelopes
-  TRANSFUNCTION breA = Pow(GeoTrf::RotateZ3D(1.0),f-(Alfa/2))*GeoTrf::TranslateX3D(2974.532)*GeoTrf::TranslateZ3D(3263.65)*GeoTrf::RotateZ3D(90*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg)*GeoTrf::RotateX3D(90*GeoModelKernelUnits::deg);
-  TRANSFUNCTION breC = Pow(GeoTrf::RotateZ3D(1.0),f-(Alfa/2))*GeoTrf::TranslateX3D(2974.532)*GeoTrf::TranslateZ3D(-3263.65)*GeoTrf::RotateZ3D(-90*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg)*GeoTrf::RotateX3D(-90*GeoModelKernelUnits::deg);
+  TRANSFUNCTION breA = Pow(GeoTrf::RotateZ3D(1.0),f-(Alfa/2))*GeoTrf::TranslateX3D(2974.532)*GeoTrf::TranslateZ3D(3263.65)*GeoTrf::RotateZ3D(90*Gaudi::Units::deg)*GeoTrf::RotateY3D(90*Gaudi::Units::deg)*GeoTrf::RotateX3D(90*Gaudi::Units::deg);
+  TRANSFUNCTION breC = Pow(GeoTrf::RotateZ3D(1.0),f-(Alfa/2))*GeoTrf::TranslateX3D(2974.532)*GeoTrf::TranslateZ3D(-3263.65)*GeoTrf::RotateZ3D(-90*Gaudi::Units::deg)*GeoTrf::RotateY3D(-90*Gaudi::Units::deg)*GeoTrf::RotateX3D(-90*Gaudi::Units::deg);
   GeoSerialTransformer *bretA = new GeoSerialTransformer(bridgeenvelopes,&breA, NCrates);
   GeoSerialTransformer *bretC = new GeoSerialTransformer(bridgeenvelopes,&breC, NCrates);
   envelope->add(bretA);
   envelope->add(bretC);
 
   //baseEnvelopes
-  TRANSFUNCTION beA = Pow(GeoTrf::RotateZ3D(1.0),f-(Alfa/2))*GeoTrf::TranslateX3D(3464)*GeoTrf::TranslateZ3D(3059.2)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg); 
-  TRANSFUNCTION beC = Pow(GeoTrf::RotateZ3D(1.0),f+(Alfa/2))*GeoTrf::TranslateX3D(3464)*GeoTrf::TranslateZ3D(-3059.2)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::deg);
+  TRANSFUNCTION beA = Pow(GeoTrf::RotateZ3D(1.0),f-(Alfa/2))*GeoTrf::TranslateX3D(3464)*GeoTrf::TranslateZ3D(3059.2)*GeoTrf::RotateY3D(90*Gaudi::Units::deg); 
+  TRANSFUNCTION beC = Pow(GeoTrf::RotateZ3D(1.0),f+(Alfa/2))*GeoTrf::TranslateX3D(3464)*GeoTrf::TranslateZ3D(-3059.2)*GeoTrf::RotateY3D(90*Gaudi::Units::deg);
   GeoSerialTransformer *betA = new GeoSerialTransformer(baseenvelopes,&beA, NCrates);
   GeoSerialTransformer *betC = new GeoSerialTransformer(baseenvelopes,&beC, NCrates);
   envelope->add(betA);

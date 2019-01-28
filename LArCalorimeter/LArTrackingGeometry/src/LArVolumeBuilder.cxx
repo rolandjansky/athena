@@ -22,7 +22,6 @@
 #include "GeoModelKernel/GeoTrd.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoPVConstLink.h"
-#include "GeoModelKernel/Units.h"
 #include "GeoModelUtilities/StoredPhysVol.h"
 // Trk
 #include "TrkDetDescrInterfaces/ITrackingVolumeHelper.h"
@@ -49,8 +48,9 @@
 #include "TrkGeometrySurfaces/SlidingDiscSurface.h"
 // StoreGate
 #include "StoreGate/StoreGateSvc.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
-using GeoModelKernelUnits::mm;
+using Gaudi::Units::mm;
 
 // constructor
 LAr::LArVolumeBuilder::LArVolumeBuilder(const std::string& t, const std::string& n, const IInterface* p) :

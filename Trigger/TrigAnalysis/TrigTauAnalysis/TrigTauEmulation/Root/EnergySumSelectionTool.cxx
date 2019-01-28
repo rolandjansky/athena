@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // vim: ts=2 sw=2
@@ -25,18 +25,24 @@ StatusCode EnergySumSelectionTool::initialize()
   return StatusCode::SUCCESS;
 }
 
+const asg::AcceptInfo& EnergySumSelectionTool::getAcceptInfo() const
+{
+  return m_accept;
+}
+
+
 // Accept method
-const Root::TAccept& EnergySumSelectionTool::accept(const xAOD::EnergySumRoI& l1xe) const
+asg::AcceptData EnergySumSelectionTool::accept(const xAOD::EnergySumRoI& l1xe) const
 
 {
-  m_accept.clear();
-  m_accept.setCutResult("EnergySumRoI", false);
+  asg::AcceptData acceptData (&m_accept);
+  acceptData.setCutResult("EnergySumRoI", false);
 
   if (calculate_MET(l1xe) < m_MET_cut)
-    return m_accept;
+    return acceptData;
 
-  m_accept.setCutResult("EnergySumRoI", true);
-  return m_accept;
+  acceptData.setCutResult("EnergySumRoI", true);
+  return acceptData;
 }
 
 double EnergySumSelectionTool::calculate_MET(const xAOD::EnergySumRoI& l1xe) const{

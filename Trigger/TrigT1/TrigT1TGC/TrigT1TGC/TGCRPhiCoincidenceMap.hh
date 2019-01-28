@@ -57,9 +57,9 @@ protected:
   enum {DR_offset=-15, DPhi_offset=-7};
 
 private:
-  std::map<int, std::map<int,int> > mapDB[N_PT_THRESH];
+  std::map<int, std::map<int,int> > m_mapDB[N_PT_THRESH];
 
-  int numberOfDR,numberOfDPhi;
+  int m_numberOfDR,m_numberOfDPhi;
   std::string m_verName;
   int m_side;
   int m_octant;

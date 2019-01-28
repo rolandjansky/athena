@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // vim: ts=2 sw=2
@@ -97,17 +97,23 @@ bool FastTrackSelection::trackSelection(const xAOD::TauJet *hlt_tau, const xAOD:
   return false;
 }
 
+const asg::AcceptInfo& FastTrackSelection::getAcceptInfo() const
+{
+  return m_accept;
+}
+
+
 // Accept method for EDM tau and TauIso and TauCore tracks from FTF
-const Root::TAccept& FastTrackSelection::accept(const xAOD::TauJet *hlt_tau, const DataVector<xAOD::TrackParticle> *preselTracksIso, const DataVector<xAOD::TrackParticle> *preselTracksCore) const
+asg::AcceptData FastTrackSelection::accept(const xAOD::TauJet *hlt_tau, const DataVector<xAOD::TrackParticle> *preselTracksIso, const DataVector<xAOD::TrackParticle> *preselTracksCore) const
 {
   // NOTE: this methods wants to be passed a CaloOnly tau
-  m_accept.clear();
-  m_accept.setCutResult("FastTrackSel", false);
+  asg::AcceptData acceptData (&m_accept);
+  acceptData.setCutResult("FastTrackSel", false);
 
   if (not m_use_fasttracking) {
     // passthrough mode
-    m_accept.setCutResult("FastTrackSel", true);
-    return m_accept;
+    acceptData.setCutResult("FastTrackSel", true);
+    return acceptData;
   }
 
   std::cout << "Checking tracks for HLT tau with pT=" << hlt_tau->pt() << " eta=" << hlt_tau->eta() << " phi=" << hlt_tau->phi() << std::endl;
@@ -116,13 +122,13 @@ const Root::TAccept& FastTrackSelection::accept(const xAOD::TauJet *hlt_tau, con
   if(!coreLeadingTrack){
     // TauCore container doesn't have a leading track -> means it's empty for this tau
     std::cout << "no core leading track found" << std::endl;
-    return m_accept;
+    return acceptData;
   }
 
   bool passCoreCut = trackSelection(hlt_tau, coreLeadingTrack, preselTracksCore);
   if(!passCoreCut){
     std::cout << "did not pass trackSelection() for core" << std::endl;
-    return m_accept;
+    return acceptData;
   }
   std::cout << "passed trackSelection() for core" << std::endl;
 
@@ -135,25 +141,25 @@ const Root::TAccept& FastTrackSelection::accept(const xAOD::TauJet *hlt_tau, con
 
   bool passIsoCut = trackSelection(hlt_tau, isoLeadingTrack, preselTracksIso);
   if(passIsoCut){
-    m_accept.setCutResult("FastTrackSel", true);
+    acceptData.setCutResult("FastTrackSel", true);
     std::cout << "passed trackSelection() for core & iso" << std::endl;
   } else {
     std::cout << "did not pass trackSelection() for iso" << std::endl;
   }
 
-  return m_accept;
+  return acceptData;
 }
 
 // Accept method for EDM tau and associated track container
-const Root::TAccept& FastTrackSelection::accept(const xAOD::TauJet * hltau, const DataVector<xAOD::TrackParticle> * tracks) const
+asg::AcceptData FastTrackSelection::accept(const xAOD::TauJet * hltau, const DataVector<xAOD::TrackParticle> * tracks) const
 {
-  m_accept.clear();
-  m_accept.setCutResult("FastTrackSel", false);
+  asg::AcceptData acceptData (&m_accept);
+  acceptData.setCutResult("FastTrackSel", false);
 
   if (not m_use_fasttracking) {
     // passthrough mode
-    m_accept.setCutResult("FastTrackSel", true);
-    return m_accept;
+    acceptData.setCutResult("FastTrackSel", true);
+    return acceptData;
   }
 
   //  Lead Track Finding                                                                                                              
@@ -249,25 +255,25 @@ const Root::TAccept& FastTrackSelection::accept(const xAOD::TauJet * hltau, cons
   //std::cout << "NcoreBound = " << m_ncore_bound << " NisoBound = " << m_niso_bound << std::endl;
 
   if (Ncore > 0 && Ncore < m_ncore_bound && Niso < m_niso_bound) {
-    m_accept.setCutResult("FastTrackSel", true);
+    acceptData.setCutResult("FastTrackSel", true);
     // std::cout << "ACCEPTING FastTrackSel CUT" << std::endl;
   } else {
-    m_accept.setCutResult("FastTrackSel", false);
+    acceptData.setCutResult("FastTrackSel", false);
     // std::cout << "REJECTING FastTrackSel CUT" << std::endl;
   }
   
-  return m_accept;
+  return acceptData;
 }
 
-const Root::TAccept& FastTrackSelection::accept(const xAOD::TauJet * presel_tau) const {
-  m_accept.clear();
-  m_accept.setCutResult("FastTrackSel", false);
+asg::AcceptData FastTrackSelection::accept(const xAOD::TauJet * presel_tau) const {
+  asg::AcceptData acceptData (&m_accept);
+  acceptData.setCutResult("FastTrackSel", false);
 
   if (not m_use_fasttracking) {
     // passthrough mode
     //std::cout << "passthrough mode - accept candidate regardless of tracks" << std::endl;
-    m_accept.setCutResult("FastTrackSel", true);
-    return m_accept;
+    acceptData.setCutResult("FastTrackSel", true);
+    return acceptData;
   }
 
   // Track Counting
@@ -285,11 +291,11 @@ const Root::TAccept& FastTrackSelection::accept(const xAOD::TauJet * presel_tau)
 
   if (Ncore > 0 && Ncore < m_ncore_bound && Niso < m_niso_bound) {
     //std::cout << "accepting nCore = " << Ncore << " and nIso = " << Niso << " (bounds " << m_ncore_bound << " and " << m_niso_bound << ")" << std::endl;
-    m_accept.setCutResult("FastTrackSel", true);
+    acceptData.setCutResult("FastTrackSel", true);
   } else {
     //std::cout << "NOT accepting nCore = " << Ncore << " and nIso = " << Niso << " (bounds " << m_ncore_bound << " and " << m_niso_bound << ")" << std::endl;
   }
 
-  return m_accept;
+  return acceptData;
 }
 

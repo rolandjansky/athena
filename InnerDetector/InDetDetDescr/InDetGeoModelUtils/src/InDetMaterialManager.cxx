@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "InDetGeoModelUtils/InDetMaterialManager.h"
@@ -9,6 +9,7 @@
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoElement.h"
 #include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "GeometryDBSvc/IGeometryDBSvc.h"
@@ -142,8 +143,8 @@ InDetMaterialManager::getCompositeMaterialForVolume(const std::string& newMatNam
   baseMaterials.reserve(2);
   fracWeight.reserve(2);
 
-  msg(MSG::DEBUG) << "Composite material : " << volumeTot / GeoModelKernelUnits::cm3 << " = " << volume1 / GeoModelKernelUnits::cm3 << " + " <<
-    volume2 / GeoModelKernelUnits::cm3 << endmsg;
+  msg(MSG::DEBUG) << "Composite material : " << volumeTot / Gaudi::Units::cm3 << " = " << volume1 / Gaudi::Units::cm3 << " + " <<
+    volume2 / Gaudi::Units::cm3 << endmsg;
   msg(MSG::DEBUG) << "Composite material : " << matName1 << " " << matName2 << endmsg;
 
   double density1, density2;
@@ -152,21 +153,21 @@ InDetMaterialManager::getCompositeMaterialForVolume(const std::string& newMatNam
   if ((iter = m_weightMap.find(matName1)) != m_weightMap.end()) {
     const GeoMaterial* mat1 = getMaterialForVolume(matName1, volume1);
     density1 = mat1->getDensity();
-    msg(MSG::DEBUG) << "Composite material 1 - weight : " << density1 / (GeoModelKernelUnits::gram / GeoModelKernelUnits::cm3) << endmsg;
+    msg(MSG::DEBUG) << "Composite material 1 - weight : " << density1 / (GeoModelKernelUnits::gram / Gaudi::Units::cm3) << endmsg;
   } else {
     const GeoMaterial* mat1 = getMaterial(matName1);
     density1 = mat1->getDensity();
-    msg(MSG::DEBUG) << "Composite material 1 - standard : " << density1 / (GeoModelKernelUnits::gram / GeoModelKernelUnits::cm3) << endmsg;
+    msg(MSG::DEBUG) << "Composite material 1 - standard : " << density1 / (GeoModelKernelUnits::gram / Gaudi::Units::cm3) << endmsg;
   }
 
   if ((iter = m_weightMap.find(matName2)) != m_weightMap.end()) {
     const GeoMaterial* mat2 = getMaterialForVolume(matName2, volume2);
     density2 = mat2->getDensity();
-    msg(MSG::DEBUG) << "Composite material 2 - weight : " << density2 / (GeoModelKernelUnits::gram / GeoModelKernelUnits::cm3) << endmsg;
+    msg(MSG::DEBUG) << "Composite material 2 - weight : " << density2 / (GeoModelKernelUnits::gram / Gaudi::Units::cm3) << endmsg;
   } else {
     const GeoMaterial* mat2 = getMaterial(matName2);
     density2 = mat2->getDensity();
-    msg(MSG::DEBUG) << "Composite material 2 - standard : " << density2 / (GeoModelKernelUnits::gram / GeoModelKernelUnits::cm3) << endmsg;
+    msg(MSG::DEBUG) << "Composite material 2 - standard : " << density2 / (GeoModelKernelUnits::gram / Gaudi::Units::cm3) << endmsg;
   }
 
   double weight1 = density1 * volume1;
@@ -180,8 +181,8 @@ InDetMaterialManager::getCompositeMaterialForVolume(const std::string& newMatNam
   double density_2 = 1.0 / (frac1 / density1 + frac2 / density2);
   double density_3 = (weight1 + weight2) / (volume1 + volume2);
   msg(MSG::DEBUG) << "-> weights : " << weight1 / (GeoModelKernelUnits::gram) << " " << weight2 / (GeoModelKernelUnits::gram) << endmsg;
-  msg(MSG::DEBUG) << "-> density : " << density / (GeoModelKernelUnits::gram / GeoModelKernelUnits::cm3) << "  " << density_2 /
-  (GeoModelKernelUnits::gram / GeoModelKernelUnits::cm3) << " " << density_3 / (GeoModelKernelUnits::gram / GeoModelKernelUnits::cm3) << endmsg;
+  msg(MSG::DEBUG) << "-> density : " << density / (GeoModelKernelUnits::gram / Gaudi::Units::cm3) << "  " << density_2 /
+  (GeoModelKernelUnits::gram / Gaudi::Units::cm3) << " " << density_3 / (GeoModelKernelUnits::gram / Gaudi::Units::cm3) << endmsg;
 
 
   baseMaterials.push_back(matName1);
@@ -228,8 +229,8 @@ InDetMaterialManager::getMaterialInternal(const std::string& origMaterialName,
   if (material) {
     if (!compareDensity(material->getDensity(), density)) {
       msg(MSG::WARNING) << "Density is not consistent for material " << newName2
-                        << "  " << material->getDensity() / (GeoModelKernelUnits::gram / GeoModelKernelUnits::cm3)
-                        << " / " << density / (GeoModelKernelUnits::gram / GeoModelKernelUnits::cm3) << endmsg;
+                        << "  " << material->getDensity() / (GeoModelKernelUnits::gram / Gaudi::Units::cm3)
+                        << " / " << density / (GeoModelKernelUnits::gram / Gaudi::Units::cm3) << endmsg;
     }
     newMaterial = material;
   } else {
@@ -311,7 +312,7 @@ InDetMaterialManager::addMaterial(GeoMaterial* material) {
     m_store[name] = material;
 
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Created new material: " << name << ", " << material->getDensity() /
-      (GeoModelKernelUnits::g / GeoModelKernelUnits::cm3) << " g/cm3" << endmsg;
+      (Gaudi::Units::g / Gaudi::Units::cm3) << " g/cm3" << endmsg;
   }
 }
 
@@ -496,8 +497,8 @@ InDetMaterialManager::getMaterialForVolume(const std::string& materialName, doub
         << materialName << ", "
         << materialBase << ", "
         << weight / GeoModelKernelUnits::gram << ", "
-        << volume / GeoModelKernelUnits::cm3 << ", "
-        << density / (GeoModelKernelUnits::g / GeoModelKernelUnits::cm3) << endmsg;
+        << volume / Gaudi::Units::cm3 << ", "
+        << density / (Gaudi::Units::g / Gaudi::Units::cm3) << endmsg;
     }
 
     if (materialBase.empty()) {
@@ -516,7 +517,7 @@ InDetMaterialManager::getMaterialForVolume(const std::string& materialName, doub
       msg(MSG::VERBOSE)
         << "Material not in weight table, using standard material: "
         << materialName
-        << ", volume(cm3) = " << volume / GeoModelKernelUnits::cm3
+        << ", volume(cm3) = " << volume / Gaudi::Units::cm3
         << endmsg;
     return getMaterial(materialName);
   }
@@ -586,7 +587,7 @@ InDetMaterialManager::getMaterialForVolumeLength(const std::string& materialName
       msg(MSG::VERBOSE)
         << "Material not in weight table, using standard material: "
         << materialName
-        << ", volume(cm3) = " << volume / GeoModelKernelUnits::cm3
+        << ", volume(cm3) = " << volume / Gaudi::Units::cm3
         << endmsg;
     return getMaterial(materialName);
   }
@@ -681,7 +682,7 @@ InDetMaterialManager::getMaterialForVolumeLength(const std::string& name,
     msg(MSG::VERBOSE) << "Creating material from multiple components: " << name << endmsg;
     for (unsigned int i = 0; i < materialComponents.size(); ++i) {
       msg(MSG::VERBOSE) << " Component " << i << ": Name = " << baseMaterials[i]
-                        << " Weight(g) = " << fracWeight[i] / GeoModelKernelUnits::g << endmsg;
+                        << " Weight(g) = " << fracWeight[i] / Gaudi::Units::g << endmsg;
     }
   }
 
@@ -799,7 +800,7 @@ InDetMaterialManager::addTextFileMaterials() {
   // read in material table
   for (unsigned int iMat = 0; iMat < db()->getTableSize(materialTable); iMat++) {
     std::string materialName = db()->getString(materialTable, "NAME", iMat);
-    double density = db()->getDouble(materialTable, "DENSITY", iMat) * GeoModelKernelUnits::g / GeoModelKernelUnits::cm3;
+    double density = db()->getDouble(materialTable, "DENSITY", iMat) * Gaudi::Units::g / Gaudi::Units::cm3;
     materials[materialName] = MaterialDef(materialName, density);
   }
 
@@ -899,7 +900,7 @@ InDetMaterialManager::createMaterial(const MaterialDef& material) {
   // Now build the material
   GeoMaterial* newMaterial = new GeoMaterial(material.name(), material.density());
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Creating material: " << material.name()
-                                          << " with density: " << material.density() / (GeoModelKernelUnits::g / GeoModelKernelUnits::cm3) <<
+                                          << " with density: " << material.density() / (Gaudi::Units::g / Gaudi::Units::cm3) <<
     endmsg;
   for (unsigned int i = 0; i < material.numComponents(); i++) {
     double fracWeight = material.fraction(i) / totWeight;

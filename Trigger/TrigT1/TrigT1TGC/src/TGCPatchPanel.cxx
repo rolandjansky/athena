@@ -26,60 +26,60 @@ void TGCPatchPanel::showResult() const
   IMessageSvc* msgSvc = 0;
   ISvcLocator* svcLocator = Gaudi::svcLocator();
   if (svcLocator->service("MessageSvc", msgSvc) == StatusCode::FAILURE) return ;
-  MsgStream m_log(msgSvc, "LVL1TGCTrigger::TGCPatchPanel");
+  MsgStream log(msgSvc, "LVL1TGCTrigger::TGCPatchPanel");
 
   int i,j,k;
-  if(hasASDOut){
-    m_log << MSG::INFO
-	  <<"#PP I "<<getTypeName(type)<<" Rgn: "<<region<<" PPID: "<<id
+  if(m_hasASDOut){
+    log << MSG::INFO
+	  <<"#PP I "<<getTypeName(m_type)<<" Rgn: "<<m_region<<" PPID: "<<m_id
 	  <<endmsg;
     for( i=0; i<MaxNumberOfConnector; i+=1){
       for( j=0; j<NChOfPPOutputConnector; j+=1){
-        if(ASDOut[j][i]!=0){
-          m_log << MSG::INFO   <<"\t "
-		<<ASDOut[j][i]->GetSignalType()<<" "
-		<<ASDOut[j][i]->GetTGCReadoutIndex().GetLayerNumber()<<" "
-		<<ASDOut[j][i]->GetTGCReadoutIndex().GetRNumber()<<" "
-		<<ASDOut[j][i]->GetHitID()<<" "
-		<<id<<" "<<i<<" "<<j;
+        if(m_ASDOut[j][i]!=0){
+          log << MSG::INFO   <<"\t "
+		<<m_ASDOut[j][i]->GetSignalType()<<" "
+		<<m_ASDOut[j][i]->GetTGCReadoutIndex().GetLayerNumber()<<" "
+		<<m_ASDOut[j][i]->GetTGCReadoutIndex().GetRNumber()<<" "
+		<<m_ASDOut[j][i]->GetHitID()<<" "
+		<<m_id<<" "<<i<<" "<<j;
         }
       }
     }
-    m_log  << endmsg;
+    log  << endmsg;
   }
 
-  if(hasBIDOut){
-    m_log << MSG::INFO   
-	  <<"#PP B "<<getTypeName(type)<<" Rgn: "<<region<<" PPID: "<<id;
+  if(m_hasBIDOut){
+    log << MSG::INFO   
+	  <<"#PP B "<<getTypeName(m_type)<<" Rgn: "<<m_region<<" PPID: "<<m_id;
     for( i=0; i<MaxNumberOfConnector; i+=1){
       for( j=0; j<NChOfPPOutputConnector; j+=1)
-          if(BIDOut[j][i][0]!=0) m_log <<"\t con: "<<i<<" ch: "<<j;
+          if(m_BIDOut[j][i][0]!=0) log <<"\t con: "<<i<<" ch: "<<j;
     }
-    m_log  << endmsg;
+    log  << endmsg;
   }
 
-  if(nHit>0){ // 18-Jan-01 Added by KH
-     m_log << MSG::INFO   
-	   << "#PP O "<< getTypeName(type)<<" Rgn: "<<region<<" PPID: "<<id;
+  if(m_nHit>0){ // 18-Jan-01 Added by KH
+     log << MSG::INFO   
+	   << "#PP O "<< getTypeName(m_type)<<" Rgn: "<<m_region<<" PPID: "<<m_id;
     for( i=0; i<NumberOfPatchPanelOut; i+=1) {
-      if(PPOut[i]!=0){
+      if(m_PPOut[i]!=0){
         for( k=0; k<NumberOfConnectorPerPPOut; k+=1) {
-          const TGCHitPattern* pattern = PPOut[i]->getHitPattern(k);
+          const TGCHitPattern* pattern = m_PPOut[i]->getHitPattern(k);
           if(pattern!=0){
-            int nCh = connectionInPP
+            int nCh = m_connectionInPP
               ->getNumberOfChannel(NumberOfConnectorPerPPOut*i+k);
             for( j=0; j<nCh; j+=1)
               if(pattern->getChannel(j))
-                m_log <<"\t con: "<<NumberOfConnectorPerPPOut*i+k<<" ch: "<<j;
+                log <<"\t con: "<<NumberOfConnectorPerPPOut*i+k<<" ch: "<<j;
             pattern = 0;
           }
         }
       }
     }
-    m_log << endmsg;
+    log << endmsg;
   } else {
-    m_log << MSG::INFO 
-	  <<"#PP O "<<getTypeName(type)<<" Rgn: "<<region<<" PPID: "<<id
+    log << MSG::INFO 
+	  <<"#PP O "<<getTypeName(m_type)<<" Rgn: "<<m_region<<" PPID: "<<m_id
 	  << "  NO HIT " << endmsg;
   }
 }
@@ -87,33 +87,33 @@ void TGCPatchPanel::showResult() const
 
 std::string TGCPatchPanel::getTypeName(int /*typeIn*/) const
 {
-  if(type==WTPP) return "WT";
-  if(type==WDPP) return "WD";
-  if(type==STPP) return "ST";
-  if(type==SDPP) return "SD";
-  if(type==WIPP) return "WI";
-  if(type==SIPP) return "SI";
+  if(m_type==WTPP) return "WT";
+  if(m_type==WDPP) return "WD";
+  if(m_type==STPP) return "ST";
+  if(m_type==SDPP) return "SD";
+  if(m_type==WIPP) return "WI";
+  if(m_type==SIPP) return "SI";
   return "NOT DEF";
 }
 
 TGCPatchPanel::TGCPatchPanel()
-  :id(0), type(0), region(FORWARD),
-   bunchCounter(0), hasASDOut(false), hasBIDOut(false), nHit(0)
+  :m_id(0), m_type(0), m_region(FORWARD),
+   m_bunchCounter(0), m_hasASDOut(false), m_hasBIDOut(false), m_nHit(0)
 {
   for(int i=0; i<NumberOfPatchPanelOut; i+=1) {
-    idSlaveBoard[i] = 0;
-    PPOut[i]=0;
+    m_idSlaveBoard[i] = 0;
+    m_PPOut[i]=0;
   }
   for(int i=0; i<NChOfPPOutputConnector; i+=1){
     for(int j=0; j<MaxNumberOfConnector; j+=1){
-      ASDOut[i][j]=0;
+      m_ASDOut[i][j]=0;
       for(int k=0; k<NumberOfBunchKeptInPP; k+=1){
-        BIDOut[i][j][k] = 0;
+        m_BIDOut[i][j][k] = 0;
       }
     }
   }
-  for(int i=0; i<2; i+=1) PPAdj[i] = 0;
-  connectionInPP = 0;
+  for(int i=0; i<2; i+=1) m_PPAdj[i] = 0;
+  m_connectionInPP = 0;
 }
 
 void TGCPatchPanel::connect()
@@ -122,65 +122,65 @@ void TGCPatchPanel::connect()
 
 TGCPatchPanel::TGCPatchPanel(const TGCPatchPanel& right)
 {
-  id = right.id;
-  type = right.type;
-  region = right.region;
-  bunchCounter = right.bunchCounter;
-  hasASDOut = right.hasASDOut; 
-  hasBIDOut = right.hasBIDOut;
-  nHit = right.nHit;
+  m_id = right.m_id;
+  m_type = right.m_type;
+  m_region = right.m_region;
+  m_bunchCounter = right.m_bunchCounter;
+  m_hasASDOut = right.m_hasASDOut; 
+  m_hasBIDOut = right.m_hasBIDOut;
+  m_nHit = right.m_nHit;
 
   for(int i=0; i<NumberOfPatchPanelOut; i+=1){
-    idSlaveBoard[i] = right.idSlaveBoard[i];
-    PPOut[i] = new TGCPatchPanelOut(*right.PPOut[i]);
+    m_idSlaveBoard[i] = right.m_idSlaveBoard[i];
+    m_PPOut[i] = new TGCPatchPanelOut(*right.m_PPOut[i]);
   }
 
   for(int i=0; i<NChOfPPOutputConnector; i+=1){
     for(int j=0; j<MaxNumberOfConnector; j+=1){
-      ASDOut[i][j] = new TGCASDOut(*right.ASDOut[i][j]);
+      m_ASDOut[i][j] = new TGCASDOut(*right.m_ASDOut[i][j]);
       for(int k=0; k<NumberOfBunchKeptInPP; k+=1){
-        BIDOut[i][j][k] = new TGCBIDOut(*right.BIDOut[i][j][k]);
+        m_BIDOut[i][j][k] = new TGCBIDOut(*right.m_BIDOut[i][j][k]);
       }
     }
   }
 
-  for(int i=0; i<2; i+=1) PPAdj[i] = right.PPAdj[i];
+  for(int i=0; i<2; i+=1) m_PPAdj[i] = right.m_PPAdj[i];
 
-  connectionInPP = new TGCConnectionInPP(*right.connectionInPP);
+  m_connectionInPP = new TGCConnectionInPP(*right.m_connectionInPP);
 }
 
 TGCPatchPanel&
 TGCPatchPanel::operator=(const TGCPatchPanel& right)
 {
   if (this != &right) {
-    id = right.id;
-    type = right.type;
-    region = right.region;
-    bunchCounter = right.bunchCounter;
-    hasASDOut = right.hasASDOut; 
-    hasBIDOut = right.hasBIDOut;
+    m_id = right.m_id;
+    m_type = right.m_type;
+    m_region = right.m_region;
+    m_bunchCounter = right.m_bunchCounter;
+    m_hasASDOut = right.m_hasASDOut; 
+    m_hasBIDOut = right.m_hasBIDOut;
 
     for(int i=0; i<NumberOfPatchPanelOut; i+=1){
-      idSlaveBoard[i] = right.idSlaveBoard[i];
-      if ( PPOut[i] != 0 ) delete PPOut[i];
-      PPOut[i] = new TGCPatchPanelOut(*right.PPOut[i]);
+      m_idSlaveBoard[i] = right.m_idSlaveBoard[i];
+      if ( m_PPOut[i] != 0 ) delete m_PPOut[i];
+      m_PPOut[i] = new TGCPatchPanelOut(*right.m_PPOut[i]);
     }
     
     for(int i=0; i<NChOfPPOutputConnector; i+=1){
       for(int j=0; j<MaxNumberOfConnector; j+=1){
-	if (ASDOut[i][j] !=0) delete ASDOut[i][j];
-	ASDOut[i][j] = new TGCASDOut(*right.ASDOut[i][j]);
+	if (m_ASDOut[i][j] !=0) delete m_ASDOut[i][j];
+	m_ASDOut[i][j] = new TGCASDOut(*right.m_ASDOut[i][j]);
 	for(int k=0; k<NumberOfBunchKeptInPP; k+=1){
-	  if(BIDOut[i][j][k]!=0) delete BIDOut[i][j][k];
-	  BIDOut[i][j][k] = new TGCBIDOut(*right.BIDOut[i][j][k]);
+	  if(m_BIDOut[i][j][k]!=0) delete m_BIDOut[i][j][k];
+	  m_BIDOut[i][j][k] = new TGCBIDOut(*right.m_BIDOut[i][j][k]);
 	}
       }
     }
 
-    for(int i=0; i<2; i+=1) PPAdj[i] = right.PPAdj[i];
+    for(int i=0; i<2; i+=1) m_PPAdj[i] = right.m_PPAdj[i];
     
-    if(connectionInPP!=0) delete connectionInPP;
-    connectionInPP = new TGCConnectionInPP(*right.connectionInPP);
+    if(m_connectionInPP!=0) delete m_connectionInPP;
+    m_connectionInPP = new TGCConnectionInPP(*right.m_connectionInPP);
   }
   return *this;
 }
@@ -188,47 +188,47 @@ TGCPatchPanel::operator=(const TGCPatchPanel& right)
 TGCPatchPanel::~TGCPatchPanel()
 {
   for(int i=0; i<NumberOfPatchPanelOut; i+=1){
-    if ( PPOut[i] != 0 ) delete PPOut[i];
-    PPOut[i] = 0;
+    if ( m_PPOut[i] != 0 ) delete m_PPOut[i];
+    m_PPOut[i] = 0;
   }
 
   for(int i=0; i<NChOfPPOutputConnector; i+=1)
     for(int j=0; j<MaxNumberOfConnector; j+=1){
-      ASDOut[i][j] = 0;
+      m_ASDOut[i][j] = 0;
       for(int k=0; k<NumberOfBunchKeptInPP; k+=1){
-        if(BIDOut[i][j][k]!=0) delete BIDOut[i][j][k];
-        BIDOut[i][j][k] = 0;
+        if(m_BIDOut[i][j][k]!=0) delete m_BIDOut[i][j][k];
+        m_BIDOut[i][j][k] = 0;
       }
     }
 
-  for(int i=0; i<2; i+=1) PPAdj[i] = 0;
+  for(int i=0; i<2; i+=1) m_PPAdj[i] = 0;
 
-  if(connectionInPP!=0) delete connectionInPP;
-  connectionInPP = 0;
+  if(m_connectionInPP!=0) delete m_connectionInPP;
+  m_connectionInPP = 0;
 }
 
 void TGCPatchPanel::clockIn(int bunch, TGCDatabaseManager* db)
 {
 #ifdef TGCDEBUG
-  std::cout << " Clock In " << getTypeName(type) << " " << id << std::endl;
+  std::cout << " Clock In " << getTypeName(m_type) << " " << m_id << std::endl;
 #endif
 
-  if(!connectionInPP){
+  if(!m_connectionInPP){
     // Check if this PatchPanel is registered in TGCDatabaseManager 
-    if(db) connectionInPP = db->getConnectionInPP(this);
+    if(db) m_connectionInPP = db->getConnectionInPP(this);
     // If this PatchPanel is not found in TGCDatabaseManager, create new TGCConnectionInPP 
-    if(!connectionInPP) {
-      connectionInPP = new TGCConnectionInPP();
-      connectionInPP->readConnectionTable(this);
+    if(!m_connectionInPP) {
+      m_connectionInPP = new TGCConnectionInPP();
+      m_connectionInPP->readConnectionTable(this);
       // Register PatchPanel and ConnectionInPP in TGCDatabaseManager
-      if(db) db->addConnectionInPP(this, connectionInPP);
+      if(db) db->addConnectionInPP(this, m_connectionInPP);
     }
   }
 
- if(bunchCounter!=bunch){
-   bunchCounter = bunch;
-   if(hasBIDOut) deleteBIDOut();
-   if(hasASDOut){
+ if(m_bunchCounter!=bunch){
+   m_bunchCounter = bunch;
+   if(m_hasBIDOut) deleteBIDOut();
+   if(m_hasASDOut){
      doBID();
 #ifdef TGCDEBUG
      showResult();
@@ -237,13 +237,13 @@ void TGCPatchPanel::clockIn(int bunch, TGCDatabaseManager* db)
      return;
     }
   }else{
-    nHit=createOutput();
-    if(connectionInPP->existOredSignal()) nHit+=doOrLogic();
+    m_nHit=createOutput();
+    if(m_connectionInPP->existOredSignal()) m_nHit+=doOrLogic();
     // 18-Jan-01 Fixed by KH
-    if( g_DEBUGLEVEL && ( (nHit>0) || hasBIDOut || hasASDOut) ) showResult();
+    if( g_DEBUGLEVEL && ( (m_nHit>0) || m_hasBIDOut || m_hasASDOut) ) showResult();
 
 #ifdef TGCDEBUG
-    if  ( (nHit>0) || hasBIDOut || hasASDOut)  showResult();
+    if  ( (m_nHit>0) || m_hasBIDOut || m_hasASDOut)  showResult();
 #endif
     
   }
@@ -257,14 +257,14 @@ void TGCPatchPanel::deleteBIDOut()
   for( i=0; i<MaxNumberOfConnector; i+=1)
     for( j=0; j<NChOfPPOutputConnector; j+=1){
       for ( l=0; l<NumberOfBunchKeptInPP; l+=1){
-        if(BIDOut[j][i][l]!=0){
-          delete BIDOut[j][i][l];
-          BIDOut[j][i][l]=0;
+        if(m_BIDOut[j][i][l]!=0){
+          delete m_BIDOut[j][i][l];
+          m_BIDOut[j][i][l]=0;
         }
       }
     }
 
-  hasBIDOut=false;
+  m_hasBIDOut=false;
 }
 
 void TGCPatchPanel::clearASDOut()
@@ -273,28 +273,28 @@ void TGCPatchPanel::clearASDOut()
 
   for( i=0; i<MaxNumberOfConnector; i+=1)
     for( j=0; j<NChOfPPOutputConnector; j+=1)
-      ASDOut[j][i]=0;
-  hasASDOut=false;
+      m_ASDOut[j][i]=0;
+  m_hasASDOut=false;
 }
 
 void TGCPatchPanel::dumpPPOut()
 {
   int i; 
   for( i=0; i<NumberOfPatchPanelOut; i+=1) 
-    if(PPOut[i]!=0) PPOut[i]->print(); 
+    if(m_PPOut[i]!=0) m_PPOut[i]->print(); 
 }
 
 void TGCPatchPanel::dumpPPOut(int i)
 {
-  if(PPOut[i]!=0) PPOut[i]->print(); 
+  if(m_PPOut[i]!=0) m_PPOut[i]->print(); 
 }
 
 void TGCPatchPanel::showProperty()
 {
-  std::cout<<" PPID= "<<id<<" type= "<<type<<" Region= "<<region;
+  std::cout<<" PPID= "<<m_id<<" type= "<<m_type<<" Region= "<<m_region;
   int i;
   for( i=0; i<NumberOfPatchPanelOut; i+=1)
-    std::cout<<" SBID["<<i<<"]= "<<idSlaveBoard[i];
+    std::cout<<" SBID["<<i<<"]= "<<m_idSlaveBoard[i];
   std::cout<<std::endl;
 }
 
@@ -304,41 +304,41 @@ int TGCPatchPanel::createOutput()
   int nCount=0;
 
   for( i=0; i<NumberOfPatchPanelOut; i+=1){
-    if ( PPOut[i] != 0 ) delete PPOut[i];
-    PPOut[i] = 0;
+    if ( m_PPOut[i] != 0 ) delete m_PPOut[i];
+    m_PPOut[i] = 0;
   }
 
 #ifdef TGCDEBUG
   std::cerr << "TGCPatchPanel::createOutput() "
-	    << getTypeName(type)<<" Rgn: "<<region<<" PPID: "<<id << std::endl;
+	    << getTypeName(m_type)<<" Rgn: "<<m_region<<" PPID: "<<m_id << std::endl;
 #endif
 
   for( i=0; i<NumberOfPatchPanelOut; i+=1) {
     for ( k=0; k<NumberOfConnectorPerPPOut; k+=1) {
       con=NumberOfConnectorPerPPOut*i+k;
-      int nCh = connectionInPP->getNumberOfChannel(con);   
+      int nCh = m_connectionInPP->getNumberOfChannel(con);   
       for( l=0; l<NumberOfBunchKeptInPP; l+=1){
         for( j=0; j<nCh; j+=1){
 #ifdef TGCDEBUG
 	  std::cerr << i << ":" << con << ":" << j <<": ";
 #endif
-          if(connectionInPP->getPPIn(con,j)!=0){
-            if(connectionInPP->getPPIn(con,j)
-               ->getBIDOut(connectionInPP->getChannelIn(con,j)
-                   ,connectionInPP->getConnectorIn(con,j),l)!=0){
-              if(PPOut[i]==0){
-                PPOut[i]=new TGCPatchPanelOut;
-                PPOut[i]->setOrigin(this);
-                PPOut[i]->setBid(bunchCounter);
+          if(m_connectionInPP->getPPIn(con,j)!=0){
+            if(m_connectionInPP->getPPIn(con,j)
+               ->getBIDOut(m_connectionInPP->getChannelIn(con,j)
+                   ,m_connectionInPP->getConnectorIn(con,j),l)!=0){
+              if(m_PPOut[i]==0){
+                m_PPOut[i]=new TGCPatchPanelOut;
+                m_PPOut[i]->setOrigin(this);
+                m_PPOut[i]->setBid(m_bunchCounter);
               }
-              if(PPOut[i]->getHitPattern(k)==0){
+              if(m_PPOut[i]->getHitPattern(k)==0){
                 TGCHitPattern* pattern = new TGCHitPattern(nCh);
-                PPOut[i]->setHitPattern(k,pattern);
+                m_PPOut[i]->setHitPattern(k,pattern);
                 pattern = 0;
               }
-              PPOut[i]->getHitPattern(k)->onChannel(j);
+              m_PPOut[i]->getHitPattern(k)->onChannel(j);
 #ifdef TGCDEBUG
-	      PPOut[i]->getHitPattern(k)->print(64);
+	      m_PPOut[i]->getHitPattern(k)->print(64);
 #endif
               nCount+=1;
             } else {
@@ -366,31 +366,31 @@ int TGCPatchPanel::doOrLogic()
   for( i=0; i<NumberOfPatchPanelOut; i+=1) {
     for ( k=0; k<NumberOfConnectorPerPPOut; k+=1) {
       con=2*i+k;
-      int nCh = connectionInPP->getNumberOfChannel(con);   
+      int nCh = m_connectionInPP->getNumberOfChannel(con);   
       for ( l=0; l<NumberOfBunchKeptInPP; l+=1){
         for ( j=0; j<nCh; j+=1)
-          if(connectionInPP->getOredPPIn(con,j)!=0){
-            if(connectionInPP->getOredPPIn(con,j)
-               ->getBIDOut(connectionInPP->getOredChannelIn(con,j)
-                           ,connectionInPP->getOredConnectorIn(con,j),l)!=0){
+          if(m_connectionInPP->getOredPPIn(con,j)!=0){
+            if(m_connectionInPP->getOredPPIn(con,j)
+               ->getBIDOut(m_connectionInPP->getOredChannelIn(con,j)
+                           ,m_connectionInPP->getOredConnectorIn(con,j),l)!=0){
 #ifdef TGCDEBUG_CONNECTION
               std::cout << "#PP Oring:PPOutID= " << i
                    << " ConID= " << con << " ChID= " << j
-                   << " ORConID= " << connectionInPP->getOredConnectorIn(con,j)
-                   << " ORChID= " << connectionInPP->getOredChannelIn(con,j)
+                   << " ORConID= " << m_connectionInPP->getOredConnectorIn(con,j)
+                   << " ORChID= " << m_connectionInPP->getOredChannelIn(con,j)
                    << std::endl;
 #endif 
-              if(PPOut[i]==0){
-                PPOut[i] = new TGCPatchPanelOut;
-                PPOut[i]->setOrigin(this);
-                PPOut[i]->setBid(bunchCounter);
+              if(m_PPOut[i]==0){
+                m_PPOut[i] = new TGCPatchPanelOut;
+                m_PPOut[i]->setOrigin(this);
+                m_PPOut[i]->setBid(m_bunchCounter);
               }
-              if(PPOut[i]->getHitPattern(k)==0){
+              if(m_PPOut[i]->getHitPattern(k)==0){
                 TGCHitPattern* pattern = new TGCHitPattern(nCh);
-                PPOut[i]->setHitPattern(k,pattern);
+                m_PPOut[i]->setHitPattern(k,pattern);
                 pattern = 0;
               }
-              PPOut[i]->getHitPattern(k)->onChannel(j);
+              m_PPOut[i]->getHitPattern(k)->onChannel(j);
               nCount+=1;
             }
           }
@@ -405,11 +405,11 @@ TGCBIDOut* TGCPatchPanel::getBIDOut(int ch, int connector, int bunch)
    int index = getInputConnectorIndex(connector);
 
 #ifdef TGCDEBUG
-   //   if(BIDOut[ch][index][bunch]!=0){
+   //   if(m_BIDOut[ch][index][bunch]!=0){
    //     std::cout <<"getBIDOut: ch = "<<ch<<" index = "<<index<<" bunch  = "<<bunch<<std::endl;
    //   }
 #endif 
-   return BIDOut[ch][index][bunch];
+   return m_BIDOut[ch][index][bunch];
 }
 
 void TGCPatchPanel::doBID()
@@ -418,43 +418,43 @@ void TGCPatchPanel::doBID()
   for ( i=0; i<NChOfPPOutputConnector; i+=1) 
     for( j=0; j<MaxNumberOfConnector; j+=1){
 
-      if(BIDOut[i][j][0]!=0) delete BIDOut[i][j][0];
-      BIDOut[i][j][0]=0;
+      if(m_BIDOut[i][j][0]!=0) delete m_BIDOut[i][j][0];
+      m_BIDOut[i][j][0]=0;
 
-      if(ASDOut[i][j]!=0){
-        BIDOut[i][j][0] = new TGCBIDOut (ASDOut[i][j]);
-              hasBIDOut=true;
-              BIDOut[i][j][0]->setBid(bunchCounter);
+      if(m_ASDOut[i][j]!=0){
+        m_BIDOut[i][j][0] = new TGCBIDOut (m_ASDOut[i][j]);
+              m_hasBIDOut=true;
+              m_BIDOut[i][j][0]->setBid(m_bunchCounter);
       }
     }
 }
 
 int TGCPatchPanel::getIdSlaveBoard(int port) const
 {
-  return idSlaveBoard[port];
+  return m_idSlaveBoard[port];
 }
 
 void TGCPatchPanel::setIdSlaveBoard(int port, int idIn)
 {
-  idSlaveBoard[port] = idIn;
+  m_idSlaveBoard[port] = idIn;
 }
 
 int TGCPatchPanel::getId() const
 {
-  return id;
+  return m_id;
 }
 
 void TGCPatchPanel::setId(int idIn)
 {
-  id = idIn;
+  m_id = idIn;
 }
 
 TGCPatchPanelOut* TGCPatchPanel::getOutput(int SBId) 
 {
   int i;
   for( i=0; i<NumberOfPatchPanelOut; i+=1){
-    if( idSlaveBoard[i]==SBId ) 
-      return PPOut[i];
+    if( m_idSlaveBoard[i]==SBId ) 
+      return m_PPOut[i];
   }
   std::cerr << "TGCPatchPanel::getOutput:  illeagal SBID "<< SBId << std::endl; 
   return 0; 
@@ -464,25 +464,25 @@ void TGCPatchPanel::eraseOutput(int SBId)
 {
   int i;
   for( i=0; i<NumberOfPatchPanelOut; i+=1) 
-    if ( idSlaveBoard[i]==SBId )
-      PPOut[i]=0;
+    if ( m_idSlaveBoard[i]==SBId )
+      m_PPOut[i]=0;
 }
 
 void TGCPatchPanel::setASDOut(int ch, int connector, TGCASDOut* asdOut)
 {
 #ifdef TGCDEBUG
   std::cout << "TGCPatchPanel::setASDOut  "
-	    <<"#PP B "<<getTypeName(type)<<" Rgn: "<<region<<" PPID: "<<id
+	    <<"#PP B "<<getTypeName(m_type)<<" Rgn: "<<m_region<<" PPID: "<<m_id
 	    << std::endl;
   std::cout <<"setASDOut0: ch= "<<ch<<" con= "<<connector
 	    <<" index= "<<getInputConnectorIndex(connector)<<std::endl;
-  if(ASDOut[ch][getInputConnectorIndex(connector)]!=0) {
+  if(m_ASDOut[ch][getInputConnectorIndex(connector)]!=0) {
     std::cout<<"setASDOut: Double Count.";
   }
 #endif
  
-  hasASDOut=true;
-  ASDOut[ch][getInputConnectorIndex(connector)] = (TGCASDOut*)asdOut;
+  m_hasASDOut=true;
+  m_ASDOut[ch][getInputConnectorIndex(connector)] = (TGCASDOut*)asdOut;
    
 }
 
@@ -504,7 +504,7 @@ int TGCPatchPanel::getInputConnectorIndex(const int connectorId) const
 
 void TGCPatchPanel::setAdjacentPP(int side, TGCPatchPanel* PP)
 {
-  PPAdj[side]=PP; 
+  m_PPAdj[side]=PP; 
 #ifdef TGCDEBUG
   std::cout<<"TGCPatchPanel::setAdjacentPP: connect PP(type="<<PP->getType()<<",ID="<<PP->getId()<<")to Side"<<side<<" PP(type="<<this->getType()<<",ID="<<this->getId()<<")"<<std::endl;
 #endif

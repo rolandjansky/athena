@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -290,7 +290,7 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr < SiHit > & phit, SiC
 
     ATH_MSG_VERBOSE("Applying 3D sensor simulation.");
     double sensorThickness = Module.design().thickness();
-    const InDet::SiliconProperties & siProperties = m_siPropertiesSvc->getSiProperties(Module.identifyHash());
+    const InDet::SiliconProperties & siProperties = m_siPropertiesTool->getSiProperties(Module.identifyHash());
     double eleholePairEnergy = siProperties.electronHolePairsPerEnergy();   //  = 1 / 3.6 eV -> expressed in MeV^-1 = 276243 MeV^-1
 
     // Charge Collection Probability Map bin size

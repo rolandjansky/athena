@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_DetailedSurfaceChargesGenerator.h"
@@ -66,9 +66,7 @@ SCT_DetailedSurfaceChargesGenerator::SCT_DetailedSurfaceChargesGenerator(const s
   // Did this code *ever* work? Has it *ever* been used?
   m_stripCharge_iymax{285-1},
   m_stripCharge_dx{1.},
-  m_stripCharge_dy{1.},
-  m_rndmEngine{nullptr},
-  m_rndmEngineName{"SCT_Digitization"}
+  m_stripCharge_dy{1.}
   {
     declareProperty("FixedTime", m_tfix=-999.); //!< fixed timing
     declareProperty("SubtractTime", m_tsubtract=-999.); //!< substract drift time
@@ -305,18 +303,18 @@ float SCT_DetailedSurfaceChargesGenerator::SurfaceDriftTime(float ysurf) const {
 //-------------------------------------------------------------------------------------------
 // create a list of surface charges from a hit - called from SCT_Digitization AthAlgorithm
 //-------------------------------------------------------------------------------------------
-void SCT_DetailedSurfaceChargesGenerator::process(const SiDetectorElement* element, const TimedHitPtr<SiHit>& phit, const ISiSurfaceChargesInserter& inserter) const {
+void SCT_DetailedSurfaceChargesGenerator::process(const SiDetectorElement* element, const TimedHitPtr<SiHit>& phit, const ISiSurfaceChargesInserter& inserter, CLHEP::HepRandomEngine * rndmEngine) const {
   ATH_MSG_VERBOSE("SCT_DetailedSurfaceChargesGenerator::process starts");
   const float p_eventTime{phit.eventTime()};
   const unsigned short p_eventId{phit.eventId()};
-  processSiHit(element, *phit, inserter, p_eventTime, p_eventId);
+  processSiHit(element, *phit, inserter, p_eventTime, p_eventId, rndmEngine);
   return;
 }
 
 //-------------------------------------------------------------------------------------------
 // create a list of surface charges from a hit - called from both AthAlgorithm and PileUpTool
 //-------------------------------------------------------------------------------------------
-void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiDetectorElement* element, const SiHit& phit, const ISiSurfaceChargesInserter& inserter, float p_eventTime, unsigned short p_eventId) const {
+void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiDetectorElement* element, const SiHit& phit, const ISiSurfaceChargesInserter& inserter, float p_eventTime, unsigned short p_eventId, CLHEP::HepRandomEngine * rndmEngine) const {
   const SCT_ModuleSideDesign* p_design{dynamic_cast<const SCT_ModuleSideDesign*>(&(element->design()))};
   if (p_design==nullptr) {
     ATH_MSG_ERROR("SCT_DetailedSurfaceChargesGenerator::process can not get " << p_design);
@@ -426,9 +424,9 @@ void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiDetectorElement* 
         y1 += tanLorentz*zReadout; //!< Taking into account the magnetic field
         float diffusionSigma{DiffusionSigma(zReadout, element)};
         for (int i{0}; i<m_numberOfCharges; ++i) {
-          float rx{CLHEP::RandGaussZiggurat::shoot(m_rndmEngine)};
+          float rx{CLHEP::RandGaussZiggurat::shoot(rndmEngine)};
           double xd{x1+diffusionSigma*rx};
-          float ry{CLHEP::RandGaussZiggurat::shoot(m_rndmEngine)};
+          float ry{CLHEP::RandGaussZiggurat::shoot(rndmEngine)};
           double yd{y1+diffusionSigma*ry};
 
           SiLocalPosition position{element->hitLocalToLocal(xd, yd)};
@@ -489,8 +487,8 @@ void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiDetectorElement* 
         }
 
         // Electron and hole transportation starting at x0 and y0
-        holeTransport    (x0, y0, Q_m2, Q_m1, Q_00, Q_p1, Q_p2);
-        electronTransport(x0, y0, Q_m2, Q_m1, Q_00, Q_p1, Q_p2);
+        holeTransport    (x0, y0, Q_m2, Q_m1, Q_00, Q_p1, Q_p2, rndmEngine);
+        electronTransport(x0, y0, Q_m2, Q_m1, Q_00, Q_p1, Q_p2, rndmEngine);
 
         //Loop over the strips and add the surface charges from each step and strip
         for (int strip{-2}; strip<=2; strip++) {
@@ -885,7 +883,7 @@ double SCT_DetailedSurfaceChargesGenerator::mud_h(double E) const {
 //---------------------------------------------------------------------
 //  holeTransport
 //---------------------------------------------------------------------
-void SCT_DetailedSurfaceChargesGenerator::holeTransport(double& x0, double& y0, double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2) const {
+void SCT_DetailedSurfaceChargesGenerator::holeTransport(double& x0, double& y0, double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2, CLHEP::HepRandomEngine * rndmEngine) const {
   // transport holes in the bulk 
   // T. Kondo, 2010.9.9
   // External parameters to be specified
@@ -934,8 +932,8 @@ void SCT_DetailedSurfaceChargesGenerator::holeTransport(double& x0, double& y0, 
 
     x += vx*dt*1.E-9;
     double diffusion{sqrt(2.*D*dt*1.E-9)};
-    y += diffusion * CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
-    x += diffusion * CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+    y += diffusion * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
+    x += diffusion * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
     if (y > m_bulk_depth) {
       y = m_bulk_depth;
       isInBulk = false;
@@ -978,7 +976,7 @@ void SCT_DetailedSurfaceChargesGenerator::holeTransport(double& x0, double& y0, 
 //---------------------------------------------------------------------
 //  electronTransport
 //---------------------------------------------------------------------
-void SCT_DetailedSurfaceChargesGenerator::electronTransport(double& x0, double& y0, double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2) const {
+void SCT_DetailedSurfaceChargesGenerator::electronTransport(double& x0, double& y0, double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2, CLHEP::HepRandomEngine * rndmEngine) const {
   // transport electrons in the bulk
   // T. Kondo, 2010.9.10
   // External parameters to be specified
@@ -1026,8 +1024,8 @@ void SCT_DetailedSurfaceChargesGenerator::electronTransport(double& x0, double& 
 
     x += vx * dt *1.E-9;
     double diffusion{sqrt(2.* D * dt*1.E-9)};
-    y += diffusion * CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
-    x += diffusion * CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+    y += diffusion * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
+    x += diffusion * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
     if (y < m_y_origin_min) {
       y = m_y_origin_min;
       isInBulk = false;

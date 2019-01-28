@@ -16,6 +16,7 @@
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoTransform.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 // Satisfy interface
 
@@ -113,7 +114,7 @@ void GeoPixelOldFrame::BuildInBarrel(GeoFullPhysVol * parent) {
   
   // First part
   m_legacyManager->setBarrelInSFrame();
-  double alpha = 45.*GeoModelKernelUnits::deg;
+  double alpha = 45.*Gaudi::Units::deg;
   double w1    = m_legacyManager->PixelBarrelBFrameWidth();
   double w2    = m_legacyManager->PixelBarrelTFrameWidth();
   double off   = m_legacyManager->PixelBarrelFrameOffset();
@@ -206,7 +207,7 @@ void GeoPixelOldFrame::BuildOutBarrel(GeoFullPhysVol * parent) {
   // Add the pixel frame inside the endcap volume
   //
   m_legacyManager->setEndcapInSFrame();
-  double alpha = 45.*GeoModelKernelUnits::deg;
+  double alpha = 45.*Gaudi::Units::deg;
   double w1    = m_legacyManager->PixelEndcapBFrameWidth();
   double w2    = m_legacyManager->PixelEndcapTFrameWidth();
   double off   = m_legacyManager->PixelEndcapFrameOffset()+m_legacyManager->PixelEndcapFrameLength();

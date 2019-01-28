@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**   
@@ -58,7 +58,7 @@ namespace {
 
 // Constructor
 SCT_CablingCondAlgFromText::SCT_CablingCondAlgFromText(const std::string& name, ISvcLocator* pSvcLocator):
-  AthAlgorithm(name, pSvcLocator),
+  AthReentrantAlgorithm(name, pSvcLocator),
   m_condSvc{"CondSvc", name}
 {
 }
@@ -96,9 +96,9 @@ SCT_CablingCondAlgFromText::finalize() {
 
 //
 StatusCode
-SCT_CablingCondAlgFromText::execute() {
+SCT_CablingCondAlgFromText::execute(const EventContext& ctx) const {
   // Write Cond Handle
-  SG::WriteCondHandle<SCT_CablingData> writeHandle{m_writeKey};
+  SG::WriteCondHandle<SCT_CablingData> writeHandle{m_writeKey, ctx};
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
                   << ". In theory this should not be called, but may happen"
@@ -238,7 +238,7 @@ SCT_CablingCondAlgFromText::execute() {
 
 //
 bool
-SCT_CablingCondAlgFromText::insert(const IdentifierHash& hash, const SCT_OnlineId& onlineId, const SCT_SerialNumber& sn, SCT_CablingData* data) {
+SCT_CablingCondAlgFromText::insert(const IdentifierHash& hash, const SCT_OnlineId& onlineId, const SCT_SerialNumber& sn, SCT_CablingData* data) const {
   if (not sn.isWellFormed()) {
     ATH_MSG_FATAL("Serial number is not in correct format");
     return false;

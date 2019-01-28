@@ -29,9 +29,6 @@ def BCM_DigitizationTool(name="BCM_DigitizationTool",**kwargs):
     kwargs.setdefault("MIPDeposit", 0.33) # BCM with diamond
     #kwargs.setdefault("MIPDeposit", 0.25) # BCM with graphite
  
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc() )
-    digitizationFlags.rndmSeedList.addSeed("BCM_Digitization", 49261510, 105132394)
-   
     if digitizationFlags.doXingByXingPileUp():
         kwargs.setdefault("FirstXing", BCM_FirstXing() )
         kwargs.setdefault("LastXing",  BCM_LastXing()  ) 

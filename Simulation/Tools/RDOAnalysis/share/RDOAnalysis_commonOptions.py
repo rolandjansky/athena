@@ -83,24 +83,3 @@ include("RecExCond/AllDet_detDescr.py")
 
 import MuonCnvExample.MuonCablingConfig
 
-# Update Pixel conditions services
-include("PixelConditionsServices/PixelDCSSvc_jobOptions.py")
-from SiLorentzAngleSvc.LorentzAngleSvcSetup import lorentzAngleSvc
-from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc
-pixelSiPropertiesSvc = SiPropertiesSvc(name = "PixelSiPropertiesSvc",DetectorName="Pixel",SiConditionsServices=lorentzAngleSvc.pixelSiliconConditionsSvc)
-ServiceMgr += pixelSiPropertiesSvc
-
-# Add conditions database folders
-from IOVDbSvc.CondDB import conddb
-conddb.addFolder("DCS_OFL","/SCT/DCS/CHANSTAT")
-conddb.addFolder("DCS_OFL","/SCT/DCS/MODTEMP")
-conddb.addFolder("DCS_OFL","/SCT/DCS/HV")
-
-# Set the SCT conditions services for `lorentzAngleSvc`
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsSvc
-InDetSCT_DCSConditionsSvc = SCT_DCSConditionsSvc(name="InDetSCT_DCSConditionsSvc")
-ServiceMgr += InDetSCT_DCSConditionsSvc
-sctSiPropertiesSvc = SiPropertiesSvc(name = "SCT_SiPropertiesSvc", DetectorName="SCT", SiConditionsServices=lorentzAngleSvc.sctSiliconConditionsSvc)
-ServiceMgr += sctSiPropertiesSvc
-
-

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -15,7 +15,7 @@
 #define SCT_MajorityConditionsTestAlg_H 
 
 //Athena
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "SCT_ConditionsTools/ISCT_DetectorLevelConditionsTool.h"
 
 //Gaudi
@@ -25,13 +25,13 @@
 #include <string>
 
 ///Example class to show calling the SCT_MajorityConditionsSvc
-class SCT_MajorityConditionsTestAlg : public AthAlgorithm {
+class SCT_MajorityConditionsTestAlg : public AthReentrantAlgorithm {
  public:
   SCT_MajorityConditionsTestAlg(const std::string& name,ISvcLocator* pSvcLocator);
   virtual ~SCT_MajorityConditionsTestAlg() = default;
 
   StatusCode initialize() override;
-  StatusCode execute() override;
+  StatusCode execute(const EventContext& ctx) const override;
   StatusCode finalize() override;
    
  private:

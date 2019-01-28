@@ -26,12 +26,12 @@ public:
   void startSectorLogic(TGCSector* sector);
 //  void startSectorLogic(TGCSector* sector,double eta);//for test
 
-  void setBunchCounter(int bc){ bunchCounter = bc;};
-  int getBunchCounter(){ return bunchCounter; }
-  void increaseBunchCounter(){ bunchCounter++;};
+  void setBunchCounter(int bc){ m_bunchCounter = bc;};
+  int getBunchCounter(){ return m_bunchCounter; }
+  void increaseBunchCounter(){ m_bunchCounter++;};
 
 private:
-  int bunchCounter;
+  int m_bunchCounter;
   const SG::ReadCondHandleKey<TGCTriggerData>& m_readCondKey;
 };
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -14,7 +14,6 @@ D2PDSelectorBase< T, CT >::D2PDSelectorBase( const std::string& name,
   m_kinSelectorTool( "KinematicSelector", this ),
   m_filterTool( "FilterTool", this ),
   m_selectionTools(this),
-  m_selectorTools(this),
   m_associationTools(this),
   m_inputIsLinkColl(false),
   m_doPt(false),
@@ -116,7 +115,6 @@ D2PDSelectorBase< T, CT >::D2PDSelectorBase( const std::string& name,
 
 
   declareProperty("iSelectorToolList",       m_selectionTools, "List of ISelector tools to be used for selection" );
-  declareProperty("selectorToolList",        m_selectorTools, "List of ObejectSelectorCore tools to be used for selection" );
 
 
   declareProperty("associationToolList",     m_associationTools, "List of AssociationTools to be used for matching" );
@@ -192,7 +190,6 @@ StatusCode D2PDSelectorBase< T, CT >::initialize()
       ATH_MSG_INFO( " using kinematicSelectorTool          = " << m_kinSelectorTool );
 
       ATH_MSG_INFO( " using iSelectorToolList              = " << m_selectionTools );
-      ATH_MSG_INFO( " using SelectorToolList               = " << m_selectorTools );
 
       ATH_MSG_INFO( " using associationToolList            = " << m_associationTools );
       ATH_MSG_INFO( " using outputAssociationContainerList = " << m_outAssoCollKeys );
@@ -215,9 +212,6 @@ StatusCode D2PDSelectorBase< T, CT >::initialize()
 
   // Get all the ISelector tools
   ATH_CHECK( m_selectionTools.retrieve() );
-
-  // Get all the PATCore tools
-  ATH_CHECK( m_selectorTools.retrieve() );
 
   // Get all the Association tools
   ATH_CHECK( m_associationTools.retrieve() );
@@ -330,7 +324,6 @@ StatusCode D2PDSelectorBase< T, CT >::initialize()
 
   // Determine which cut tools to run
   if ( m_selectionTools.size() > 0 )   m_doSelectionTools   = true;
-  if ( m_selectorTools.size() > 0 )    m_doSelectorTools    = true;
   if ( m_assoMinCutList.size() > 0 )   m_doAssociationTools = true;
 
   // Setup the internal cutflow stuff
@@ -417,21 +410,6 @@ StatusCode D2PDSelectorBase< T, CT >::initialize()
             {
               m_objCutFlow.push_back(0);
               m_eventCutFlow.push_back( std::make_pair( m_selectionTools[i].name(), std::make_pair(0,0) ) );
-            }
-        }
-      if ( m_doSelectorTools )
-        {
-          m_idxSelectorTools = m_objCutFlow.size();
-          for ( unsigned int i=0; i<m_selectorTools.size(); ++i )
-            {
-              const std::string toolName = m_selectorTools[i].name();
-              const Root::TAccept& tAccept = m_selectorTools[i]->getTAccept();
-              for ( unsigned int cutIdx=0; cutIdx<tAccept.getNCuts(); ++cutIdx )
-                {
-                  std::string cutDescr = (tAccept.getCutDescription(cutIdx)).Data();
-                  m_objCutFlow.push_back(0);
-                  m_eventCutFlow.push_back( std::make_pair( toolName+":"+cutDescr, std::make_pair(0,0) ) );
-                }
             }
         }
       if ( m_doAssociationTools )
@@ -809,48 +787,6 @@ StatusCode D2PDSelectorBase< T, CT >::execute()
 
 
           //----------------------------------------------------------
-          // Now, execute the selections based on provided PATCore tools
-          //----------------------------------------------------------
-          if ( m_doSelectorTools && passAll )
-            {
-              ATH_MSG_VERBOSE ( "Object going into running the selector tools" );
-              // Loop over all PATCore tools that the user provided
-              // and check if this inav is accepted by the ISelector tools
-              ToolHandleArray<IAthSelectorTool>::iterator toolItr    = m_selectorTools.begin();
-              ToolHandleArray<IAthSelectorTool>::iterator toolItrEnd = m_selectorTools.end();
-              unsigned int idxToolPlusCut(0);
-              for ( ; toolItr != toolItrEnd; ++toolItr )
-                {
-                  if ( passAll )
-                    {
-                      if ( !m_printInternalCutflow )
-                        {
-                          if ( passAll )
-                            {
-                              passAll = passAll && (*toolItr)->accept( inav );
-                            }
-                        }
-                      else
-                        {
-                          const Root::TAccept& tAccept = (*toolItr)->accept( inav );
-                          unsigned int nCuts = tAccept.getNCuts();
-                          ATH_MSG_VERBOSE ( "Found " << nCuts << " cuts for tool with name: " << (*toolItr)->name() );
-                          for ( unsigned int cutIdx=0; cutIdx<nCuts; ++cutIdx )
-                            {
-                              passAll = passAll && tAccept.getCutResult(cutIdx);
-                              if ( passAll ) { m_objCutFlow[m_idxSelectorTools+idxToolPlusCut] += 1; }
-                              ++idxToolPlusCut;
-                            }
-                        }
-                      ATH_MSG_VERBOSE ( "Object passes the " << (*toolItr)->name() << " tool cut: " << passAll );
-                    }
-                } // End: loop over PATCore tools
-            } // End: if passAll
-
-
-
-
-          //----------------------------------------------------------
           // Now, execute the selections based on how many associations (matches) were made
           //----------------------------------------------------------
           if ( m_doAssociationTools && passAll )
@@ -1089,7 +1025,6 @@ StatusCode D2PDSelectorBase< T, CT >::finalize()
   ATH_CHECK( m_kinSelectorTool.release() );
   ATH_CHECK( m_filterTool.release() );
   ATH_CHECK( m_selectionTools.release() );
-  ATH_CHECK( m_selectorTools.release() );
   ATH_CHECK( m_associationTools.release() );
 
   return StatusCode::SUCCESS;

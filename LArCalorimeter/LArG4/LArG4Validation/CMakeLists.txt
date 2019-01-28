@@ -6,16 +6,14 @@
 atlas_subdir( LArG4Validation )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
+atlas_depends_on_subdirs( PRIVATE
                           GaudiKernel
-                          PRIVATE
                           Calorimeter/CaloDetDescr
                           Calorimeter/CaloIdentifier
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/StoreGate
                           DetectorDescription/GeoModel/GeoAdaptors
-                          Event/EventInfo
                           Generators/GeneratorObjects
                           LArCalorimeter/LArSimEvent
                           MagneticField/MagFieldInterfaces
@@ -32,10 +30,9 @@ atlas_add_component( LArG4Validation
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel CaloDetDescrLib CaloIdentifier AthenaBaseComps StoreGateLib SGtests GeoAdaptors EventInfo GeneratorObjects LArSimEvent MagFieldInterfaces egammaEvent )
+                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel CaloDetDescrLib CaloIdentifier AthenaBaseComps StoreGateLib SGtests GeoAdaptors GeneratorObjects LArSimEvent MagFieldInterfaces egammaEvent )
 
 # Install files from the package:
-atlas_install_headers( LArG4Validation )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( test/*.xml )

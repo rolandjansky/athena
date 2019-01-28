@@ -24,7 +24,7 @@ namespace LArGeo {
     // Accessor for pointer to the singleton.
     static EndcapPresamplerGeometryHelper* GetInstance();
 
-    // "zShift" is the z-distance (GeoModelKernelUnits::cm) that the EM endcap is shifted
+    // "zShift" is the z-distance (cm) that the EM endcap is shifted
     // (due to cabling, etc.)
     float zShift() const { return m_zShift; }
 

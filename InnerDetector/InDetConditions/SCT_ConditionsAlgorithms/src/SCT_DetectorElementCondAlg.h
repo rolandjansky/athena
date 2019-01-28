@@ -1,35 +1,32 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_CONDITIONSALGORITHMS_SCT_DETECTORELEMENTCONDALG_H
 #define SCT_CONDITIONSALGORITHMS_SCT_DETECTORELEMENTCONDALG_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelUtilities/GeoAlignmentStore.h"
-#include "InDetReadoutGeometry/SiCommonItems.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 
 #include "GaudiKernel/ICondSvc.h"
 
-#include <memory>
-
 namespace InDetDD {
   class SCT_DetectorManager;
 }
 
-class SCT_DetectorElementCondAlg : public AthAlgorithm
+class SCT_DetectorElementCondAlg : public AthReentrantAlgorithm
 {
  public:
   SCT_DetectorElementCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~SCT_DetectorElementCondAlg() override = default;
 
   virtual StatusCode initialize() override;
-  virtual StatusCode execute() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
   virtual StatusCode finalize() override;
 
  private:
@@ -38,7 +35,6 @@ class SCT_DetectorElementCondAlg : public AthAlgorithm
 
   ServiceHandle<ICondSvc> m_condSvc;
   const InDetDD::SCT_DetectorManager* m_detManager;
-  std::unique_ptr<InDetDD::SiCommonItems> m_commonItems;
 };
 
 #endif // SCT_CONDITIONSALGORITHMS_SCT_DETECTORELEMENTCONDALG_H

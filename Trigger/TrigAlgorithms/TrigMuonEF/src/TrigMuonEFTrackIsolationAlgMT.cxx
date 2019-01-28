@@ -3,7 +3,7 @@
 */
 
 #include "TrigMuonEFTrackIsolationAlgMT.h"
-#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/Monitored.h"
 
 
 TrigMuonEFTrackIsolationAlgMT::TrigMuonEFTrackIsolationAlgMT( const std::string& name, 
@@ -79,7 +79,6 @@ StatusCode TrigMuonEFTrackIsolationAlgMT::execute()
 
   auto ctx = getContext();
 
-  using namespace Monitored;
   // variables to initialize and keep values for monitoring variables
   std::vector<double> ini_cone2(0);
   std::vector<double> ini_cone3(0);
@@ -91,16 +90,16 @@ StatusCode TrigMuonEFTrackIsolationAlgMT::execute()
   std::vector<int> ini_ntrks(0);
 
   // Monitoring histogram
-  auto trkptiso_cone2  = MonitoredCollection::declare("trks_trkptiso_cone2", ini_cone2);
-  auto trkptiso_cone3  = MonitoredCollection::declare("trks_trkptiso_cone3", ini_cone3);
-  auto trkdz           = MonitoredCollection::declare("trks_trkdz", ini_trkdz);
-  auto trkdr           = MonitoredCollection::declare("trks_trksdr", ini_trkdr);
-  auto muon_selfpt     = MonitoredCollection::declare("muon_selfpt", ini_selfpt);
-  auto muon_removedpt  = MonitoredCollection::declare("muon_removedpt", ini_removedpt);
-  auto muon_combinedpt = MonitoredCollection::declare("muon_combinedpt", ini_combinedpt);
-  auto n_trks          = MonitoredCollection::declare("n_trks", ini_ntrks);
+  auto trkptiso_cone2  = Monitored::Collection("trks_trkptiso_cone2", ini_cone2);
+  auto trkptiso_cone3  = Monitored::Collection("trks_trkptiso_cone3", ini_cone3);
+  auto trkdz           = Monitored::Collection("trks_trkdz", ini_trkdz);
+  auto trkdr           = Monitored::Collection("trks_trksdr", ini_trkdr);
+  auto muon_selfpt     = Monitored::Collection("muon_selfpt", ini_selfpt);
+  auto muon_removedpt  = Monitored::Collection("muon_removedpt", ini_removedpt);
+  auto muon_combinedpt = Monitored::Collection("muon_combinedpt", ini_combinedpt);
+  auto n_trks          = Monitored::Collection("n_trks", ini_ntrks);
 
-  auto monitorIt = MonitoredScope::declare( m_monTool, trkptiso_cone2, trkptiso_cone3, trkdz, trkdr, 
+  auto monitorIt = Monitored::Group( m_monTool, trkptiso_cone2, trkptiso_cone3, trkdz, trkdr, 
                                             muon_selfpt, muon_removedpt, muon_combinedpt, n_trks );
 
   // get input objects

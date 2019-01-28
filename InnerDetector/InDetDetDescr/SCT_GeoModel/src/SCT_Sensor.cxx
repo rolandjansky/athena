@@ -20,8 +20,7 @@
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
 #include "InDetReadoutGeometry/SiCommonItems.h"
 
-
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 using namespace InDetDD;
 
@@ -122,10 +121,10 @@ SCT_Sensor::makeDesign()
   // This is the default and no action is required. 
   // Can force axes not to be swapped by setting to false.
   // 
-  // bool phiSyGeoModelKernelUnits::mmetric = true;
-  // bool etaSyGeoModelKernelUnits::mmetric = true; 
-  // bool depthSyGeoModelKernelUnits::mmetric = true;
-  // m_design->setSyGeoModelKernelUnits::mmetry(phiSyGeoModelKernelUnits::mmetric, etaSyGeoModelKernelUnits::mmetric, depthSyGeoModelKernelUnits::mmetric,
+  // bool phiSyGaudi::Units::mmetric = true;
+  // bool etaSyGaudi::Units::mmetric = true; 
+  // bool depthSyGaudi::Units::mmetric = true;
+  // m_design->setSyGaudi::Units::mmetry(phiSyGaudi::Units::mmetric, etaSyGaudi::Units::mmetric, depthSyGaudi::Units::mmetric,
   //
 }
 

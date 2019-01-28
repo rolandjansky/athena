@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_RandomDisabledCellGenerator.h"
@@ -8,15 +8,12 @@
 
 #include "SiDigitization/SiHelper.h"
 
-// random number service includes
-#include "AthenaKernel/IAtRndmGenSvc.h"
-
+#include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandFlat.h"
 
 // constructor
 SCT_RandomDisabledCellGenerator::SCT_RandomDisabledCellGenerator(const std::string& type, const std::string& name, const IInterface* parent)
-  : base_class(type, name, parent),
-    m_rndmEngine{nullptr}
+  : base_class(type, name, parent)
 {
   declareProperty("TotalBadChannels", m_disableProbability=0.01);
 }
@@ -33,11 +30,11 @@ StatusCode SCT_RandomDisabledCellGenerator::finalize() {
 }
 
 // process the collection 
-void SCT_RandomDisabledCellGenerator::process(SiChargedDiodeCollection& collection) const {
+void SCT_RandomDisabledCellGenerator::process(SiChargedDiodeCollection& collection, CLHEP::HepRandomEngine * rndmEngine) const {
   // disabling is applied to all cells even unconnected or below threshold ones to be able to use these cells as well
   // loop on all charged diodes
   for (std::pair<const InDetDD::SiCellId, SiChargedDiode>& chargedDiode: collection) {
-    if (CLHEP::RandFlat::shoot(m_rndmEngine)<m_disableProbability) {
+    if (CLHEP::RandFlat::shoot(rndmEngine)<m_disableProbability) {
       SiHelper::disconnected(chargedDiode.second, true, false);
     }
   }

@@ -3,7 +3,7 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// IL1EtTools.h, (c) ATLAS Detector software
+// IL1EtTools.h
 ///////////////////////////////////////////////////////////////////
 #ifndef ILVL1L1ETTOOLS_H
 #define ILVL1L1ETTOOLS_H
@@ -15,7 +15,7 @@
 //#include "TrigT1CaloUtils/CrateEnergy.h"
 //#include "TrigT1CaloUtils/SystemEnergy.h"
 
-namespace LVL1 
+namespace LVL1
 {
 class ModuleEnergy;
 class CrateEnergy;
@@ -48,14 +48,14 @@ Interface definition for L1EtTools
     virtual SystemEnergy systemSums(const DataVector<CrateEnergy>* crates) const = 0;
     virtual SystemEnergy systemSums(const xAOD::JetElementContainer* jetelements, int slice = -1, uint32_t maskXE = 0xff, uint32_t maskTE = 0xff, bool restricted = false) const = 0;
     virtual SystemEnergy systemSums(const xAOD::JetElementMap_t* jemap, int slice = -1, uint32_t maskXE = 0xff, uint32_t maskTE = 0xff, bool restricted = false) const = 0;
-  
+
   };
 
   inline const InterfaceID& LVL1::IL1EtTools::interfaceID()
-    { 
+    {
       return IID_IL1EtTools;
     }
 
 } // end of namespace
 
-#endif 
+#endif

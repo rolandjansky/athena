@@ -11,75 +11,75 @@ namespace LVL1TGCTrigger {
 TGCStripHighPtBoard::TGCStripHighPtBoard():
   TGCHighPtBoard()   
 {
-  maxDev = 15;
-  maxDevOred = 20;
-  nChOfTSBOut = 64;
-  nChInTSBRegion = nChOfTSBOut/4;
-  nChOfDSBOut = 64;
-  nChOfDSBHit = 3*nChOfDSBOut;
-  nChOfTSBHit = 3*nChOfTSBOut;
+  m_maxDev = 15;
+  m_maxDevOred = 20;
+  m_nChOfTSBOut = 64;
+  m_nChInTSBRegion = m_nChOfTSBOut/4;
+  m_nChOfDSBOut = 64;
+  m_nChOfDSBHit = 3*m_nChOfDSBOut;
+  m_nChOfTSBHit = 3*m_nChOfTSBOut;
 }
   
 
 void TGCStripHighPtBoard::setDecoderIn()
 {
-  if(region == Endcap){
-      decoderInDSB[ChipA][0] = DSBOut[ChipA][0];
-      decoderInDSB[ChipA][1] = DSBOut[ChipA][1];
-      decoderInDSB[ChipA][2] = DSBOut[ChipA][2];
+  if(m_region == Endcap){
+      m_decoderInDSB[ChipA][0] = m_DSBOut[ChipA][0];
+      m_decoderInDSB[ChipA][1] = m_DSBOut[ChipA][1];
+      m_decoderInDSB[ChipA][2] = m_DSBOut[ChipA][2];
 
-      decoderInDSB[ChipB][0] = DSBOut[ChipB][0];
-      decoderInDSB[ChipB][1] = DSBOut[ChipB][1];
-      decoderInDSB[ChipB][2] = DSBOut[ChipB][2];
+      m_decoderInDSB[ChipB][0] = m_DSBOut[ChipB][0];
+      m_decoderInDSB[ChipB][1] = m_DSBOut[ChipB][1];
+      m_decoderInDSB[ChipB][2] = m_DSBOut[ChipB][2];
 
-      decoderInTSB[ChipA][0] = divideTSBOut(1,TSBOut[ChipA][1]);
-      decoderInTSB[ChipA][1] = divideTSBOut(0,TSBOut[ChipA][1]);
-      decoderInTSB[ChipA][2] = divideTSBOut(1,TSBOut[ChipB][0]);
-      decoderInTSB[ChipA][3] = 0;
+      m_decoderInTSB[ChipA][0] = divideTSBOut(1,m_TSBOut[ChipA][1]);
+      m_decoderInTSB[ChipA][1] = divideTSBOut(0,m_TSBOut[ChipA][1]);
+      m_decoderInTSB[ChipA][2] = divideTSBOut(1,m_TSBOut[ChipB][0]);
+      m_decoderInTSB[ChipA][3] = 0;
       
-      decoderInTSB[ChipB][0] = divideTSBOut(1,TSBOut[ChipB][0]);
-      decoderInTSB[ChipB][1] = divideTSBOut(0,TSBOut[ChipB][0]);
-      decoderInTSB[ChipB][2] = 0;
-      decoderInTSB[ChipB][3] = 0;
+      m_decoderInTSB[ChipB][0] = divideTSBOut(1,m_TSBOut[ChipB][0]);
+      m_decoderInTSB[ChipB][1] = divideTSBOut(0,m_TSBOut[ChipB][0]);
+      m_decoderInTSB[ChipB][2] = 0;
+      m_decoderInTSB[ChipB][3] = 0;
 
   }
   
-  if(region == Forward) {
-      decoderInDSB[ChipA][0] = 0;
-      decoderInDSB[ChipA][1] = DSBOut[ChipA][1];
-      decoderInDSB[ChipA][2] = 0;
+  if(m_region == Forward) {
+      m_decoderInDSB[ChipA][0] = 0;
+      m_decoderInDSB[ChipA][1] = m_DSBOut[ChipA][1];
+      m_decoderInDSB[ChipA][2] = 0;
       
-      decoderInDSB[ChipB][0] = 0;
-      decoderInDSB[ChipB][1] = 0;
-      decoderInDSB[ChipB][2] = 0;
+      m_decoderInDSB[ChipB][0] = 0;
+      m_decoderInDSB[ChipB][1] = 0;
+      m_decoderInDSB[ChipB][2] = 0;
 
 
-      decoderInTSB[ChipA][0] = 0; 
-      decoderInTSB[ChipA][1] = TSBOut[ChipA][1];
-      decoderInTSB[ChipA][2] = 0;
-      decoderInTSB[ChipA][3] = 0;
+      m_decoderInTSB[ChipA][0] = 0; 
+      m_decoderInTSB[ChipA][1] = m_TSBOut[ChipA][1];
+      m_decoderInTSB[ChipA][2] = 0;
+      m_decoderInTSB[ChipA][3] = 0;
       
-      decoderInTSB[ChipB][0] = 0;
-      decoderInTSB[ChipB][1] = 0;
-      decoderInTSB[ChipB][2] = 0;
-      decoderInTSB[ChipB][3] = 0;
+      m_decoderInTSB[ChipB][0] = 0;
+      m_decoderInTSB[ChipB][1] = 0;
+      m_decoderInTSB[ChipB][2] = 0;
+      m_decoderInTSB[ChipB][3] = 0;
       
   }
 }
 
 void TGCStripHighPtBoard::clearDecoderIn()
 {
-  if(region == Endcap){
-      if(decoderInTSB[ChipA][0]) delete decoderInTSB[ChipA][0];
-      if(decoderInTSB[ChipA][1]) delete decoderInTSB[ChipA][1];
-      if(decoderInTSB[ChipA][2]) delete decoderInTSB[ChipA][2];
-      if(decoderInTSB[ChipB][0]) delete decoderInTSB[ChipB][0];
-      if(decoderInTSB[ChipB][1]) delete decoderInTSB[ChipB][1];
+  if(m_region == Endcap){
+      if(m_decoderInTSB[ChipA][0]) delete m_decoderInTSB[ChipA][0];
+      if(m_decoderInTSB[ChipA][1]) delete m_decoderInTSB[ChipA][1];
+      if(m_decoderInTSB[ChipA][2]) delete m_decoderInTSB[ChipA][2];
+      if(m_decoderInTSB[ChipB][0]) delete m_decoderInTSB[ChipB][0];
+      if(m_decoderInTSB[ChipB][1]) delete m_decoderInTSB[ChipB][1];
   }
   int chip,j;
   for( chip=0; chip<NumberOfChip; chip+=1){
-    for( j=0; j<NDecoderInTSB; j+=1) decoderInTSB[chip][j]=0;
-    for( j=0; j<NDecoderInDSB; j+=1) decoderInDSB[chip][j]=0;
+    for( j=0; j<NDecoderInTSB; j+=1) m_decoderInTSB[chip][j]=0;
+    for( j=0; j<NDecoderInDSB; j+=1) m_decoderInDSB[chip][j]=0;
   }
 }
 
@@ -133,19 +133,19 @@ void TGCStripHighPtBoard::decodeSlaveBoardOut(int chip,
 #endif
 
   for( j=0; j<NDecoderInSTSB; j+=1) {
-    if(decoderInTSB[chip][j]!=0) {
+    if(m_decoderInTSB[chip][j]!=0) {
 #ifdef TGCCOUT
       std::cout << "index:" << j << "/" << NDecoderInSTSB-1 << " in a chip  ";
       std::cout<<"SHPB:decoderInTSB["<<chip<<"]["<<j<<"]:";
-      decoderInTSB[chip][j]->print();
+      m_decoderInTSB[chip][j]->print();
 #endif
-      for( block=0; block<decoderInTSB[chip][j]->getNumberOfData(); block+=1) {
-	if(decoderInTSB[chip][j]->getHit(block)) {
+      for( block=0; block<m_decoderInTSB[chip][j]->getNumberOfData(); block+=1) {
+	if(m_decoderInTSB[chip][j]->getHit(block)) {
 	  // input to the 2nd Decoder.
 	  if(j>0) {
-	    ch=(j-1)*nChOfTSBOut+block*nChInTSBRegion
-	      +decoderInTSB[chip][j]->getPos(block);
-	    if((ch>=0)&&(ch<nChOfTSBHit))
+	    ch=(j-1)*m_nChOfTSBOut+block*m_nChInTSBRegion
+	      +m_decoderInTSB[chip][j]->getPos(block);
+	    if((ch>=0)&&(ch<m_nChOfTSBHit))
 	      tHit->onChannel(ch);
 #ifdef TGCCOUT
 	    else
@@ -154,9 +154,9 @@ void TGCStripHighPtBoard::decodeSlaveBoardOut(int chip,
 	  }
 	  
 	  // input to the 2nd Decoder.
-	  ch=j*nChOfTSBOut+block*nChInTSBRegion
-	    +decoderInTSB[chip][j]->getPos(block);
-	  if((ch>=0)&&(ch<nChOfTSBHit))
+	  ch=j*m_nChOfTSBOut+block*m_nChInTSBRegion
+	    +m_decoderInTSB[chip][j]->getPos(block);
+	  if((ch>=0)&&(ch<m_nChOfTSBHit))
 	    tHit->onChannel(ch);
 #ifdef TGCCOUT
 	  else
@@ -164,9 +164,9 @@ void TGCStripHighPtBoard::decodeSlaveBoardOut(int chip,
 #endif		  
 	  // input to the 1st Decoder.
 	  if(j<NDecoderInSTSB){
-	      ch=(j+1)*nChOfTSBOut+block*nChInTSBRegion
-		+decoderInTSB[chip][j]->getPos(block);
-	      if((ch>=0)&&(ch<nChOfTSBHit))
+	      ch=(j+1)*m_nChOfTSBOut+block*m_nChInTSBRegion
+		+m_decoderInTSB[chip][j]->getPos(block);
+	      if((ch>=0)&&(ch<m_nChOfTSBHit))
 		tHit->onChannel(ch);
 #ifdef TGCCOUT
 	      else
@@ -183,16 +183,16 @@ void TGCStripHighPtBoard::decodeSlaveBoardOut(int chip,
   std::cout << "Doublet" << std::endl;
 #endif
   for( j=0; j<NDecoderInDSB; j+=1){
-    if(decoderInDSB[chip][j]!=0) {
+    if(m_decoderInDSB[chip][j]!=0) {
 #ifdef TGCCOUT
       std::cout << "index:" << j << "/" << NDecoderInDSB-1 << " in a chip  ";
       std::cout<<"SHPB:decoderInDSB["<<chip<<"]["<<j<<"]:";
-      decoderInDSB[chip][j]->print();
+      m_decoderInDSB[chip][j]->print();
 #endif
-      for( block=0; block<decoderInDSB[chip][j]->getNumberOfData(); block+=1) {
-	if(decoderInDSB[chip][j]->getHit(block))
-	  dHit->onChannel(j*nChOfDSBOut+nChOfDSBOut/2*block
-			  +decoderInDSB[chip][j]->getPos(block));
+      for( block=0; block<m_decoderInDSB[chip][j]->getNumberOfData(); block+=1) {
+	if(m_decoderInDSB[chip][j]->getHit(block))
+	  dHit->onChannel(j*m_nChOfDSBOut+m_nChOfDSBOut/2*block
+			  +m_decoderInDSB[chip][j]->getPos(block));
       }
     }
   }
@@ -203,13 +203,13 @@ void TGCStripHighPtBoard::doCoincidenceMatrix(int chip,
 					      const TGCHitPattern* tHit, 
 					      const TGCHitPattern* dHit)
 {
-  int nChUnitOfDSBHit=nChOfDSBHit/NBlockOfDSBChannel;
+  int nChUnitOfDSBHit=m_nChOfDSBHit/NBlockOfDSBChannel;
   int maxTSBCh=(block+1)*nChUnitOfDSBHit;
   int minTSBCh=block*nChUnitOfDSBHit;
 #ifdef TGCCOUT
   std::cout << "# Strip doCoincidenceMatrix() chip:" << chip << " block:" << block << std::endl;
 #endif
-  for(int dev=0; dev<=maxDev; dev+=1) {
+  for(int dev=0; dev<=m_maxDev; dev+=1) {
     // convert Nonlinear dPhi
     int dp = getNonLinearDelta(dev);
     if (dp<0) continue;
@@ -220,31 +220,31 @@ void TGCStripHighPtBoard::doCoincidenceMatrix(int chip,
       if ( (dev==0) && (isgn==-1) ) continue;
       for(int i=0; i<nChUnitOfDSBHit; i+=1) {
 	//total ch from doublet in a block
-	if(dev>2*maxDev-maxDevOred){
+	if(dev>2*m_maxDev-m_maxDevOred){
 	  Oring = 1;
-	  DevOrg = 2*maxDev-maxDevOred + (dev - (2*maxDev-maxDevOred))*2 - 1;
+	  DevOrg = 2*m_maxDev-m_maxDevOred + (dev - (2*m_maxDev-m_maxDevOred))*2 - 1;
 	} else {
 	  Oring = 0;
 	  DevOrg = dev;
 	}
 	for(int ior = 0; ior <= Oring; ior++) {
 	  DSBCh = nChUnitOfDSBHit*block + i;
-	  TSBCh = DSBCh + isgn*priorSign*(DevOrg + ior);
+	  TSBCh = DSBCh + isgn*m_priorSign*(DevOrg + ior);
           if ( ((isgn>0) && ( (block%2==0)||((block%2==1)&&(TSBCh<maxTSBCh))  ) ) ||  // dphi>=0
                ((isgn<0) && ( (block%2==1)||((block%2==0)&&(TSBCh>=minTSBCh)) ) ) ){  // dphi<0
 	    if(tHit->getChannel(TSBCh) && dHit->getChannel(DSBCh)) {
 #ifdef TGCDEBUG
 	      std::cout<< "HighPt" << std::endl 
-		       << " th&&dh==1 priorSign*dev:" << priorSign 
+		       << " th&&dh==1 priorSign*dev:" << m_priorSign 
 		       << "*" << dev
 		       << " DSBCh:" << DSBCh
 		       << " TSBCh:" << TSBCh << std::endl;
 #endif
-	      highPtBoardOut->setPt(chip,block,PtHigh);
-	      highPtBoardOut->setHit(chip,block,true);
-	      highPtBoardOut->setDev(chip,block,isgn*priorSign*dp);
+	      m_highPtBoardOut->setPt(chip,block,PtHigh);
+	      m_highPtBoardOut->setHit(chip,block,true);
+	      m_highPtBoardOut->setDev(chip,block,isgn*m_priorSign*dp);
 	      // assume that a unit of position is quarter of nch of DSB. 
-	      highPtBoardOut->setPos(chip,block,i/(nChOfDSBOut/4)); // !
+	      m_highPtBoardOut->setPos(chip,block,i/(m_nChOfDSBOut/4)); // !
 	      return;
 	    }
 	  }
@@ -253,7 +253,7 @@ void TGCStripHighPtBoard::doCoincidenceMatrix(int chip,
     } //loop isgn
     
   } //loop dev
-  highPtBoardOut->setHit(chip,block,false);
+  m_highPtBoardOut->setHit(chip,block,false);
 }
 
 void TGCStripHighPtBoard::highLowSelector(int chip)
@@ -266,7 +266,7 @@ void TGCStripHighPtBoard::highLowSelector(int chip)
   highPt1stBlock = -1;
   highPt2ndBlock = -1;
   for(iblock=0;iblock<NBlockOfDSBChannel;iblock+=1){
-    switch (highPtBoardOut->getSel(chip,iblock)){
+    switch (m_highPtBoardOut->getSel(chip,iblock)){
       case 0:	// No Hit
         break;
       case 1:   // 1st candidate
@@ -283,7 +283,7 @@ void TGCStripHighPtBoard::highLowSelector(int chip)
   lowPt1stBlock = -1;
   lowPt2ndBlock = -1;
   for(iblock=0;iblock<NBlockOfDSBChannel;iblock+=1){
-    switch (lowPtBoardOut->getSel(chip,iblock)){
+    switch (m_lowPtBoardOut->getSel(chip,iblock)){
       case 0:	// No Hit
         break;
       case 1:   // 1st candidate
@@ -300,83 +300,83 @@ void TGCStripHighPtBoard::highLowSelector(int chip)
   if (highPt1stBlock < 0){		//No HPT Matrix Output
     if (lowPt1stBlock >= 0){
       // LPT 1st
-      pos=lowPtBoardOut->getPos(chip,lowPt1stBlock);
-      dev=lowPtBoardOut->getDev(chip,lowPt1stBlock);
-      highPtChipOut->setPt(chip,FirstCandidate,PtLow);
-      highPtChipOut->setSel(chip,FirstCandidate,1);
-      highPtChipOut->setDev(chip,FirstCandidate,dev);
-      highPtChipOut->setPos(chip,FirstCandidate,pos);
-      highPtChipOut->setHitID(chip,FirstCandidate,lowPt1stBlock);
+      pos=m_lowPtBoardOut->getPos(chip,lowPt1stBlock);
+      dev=m_lowPtBoardOut->getDev(chip,lowPt1stBlock);
+      m_highPtChipOut->setPt(chip,FirstCandidate,PtLow);
+      m_highPtChipOut->setSel(chip,FirstCandidate,1);
+      m_highPtChipOut->setDev(chip,FirstCandidate,dev);
+      m_highPtChipOut->setPos(chip,FirstCandidate,pos);
+      m_highPtChipOut->setHitID(chip,FirstCandidate,lowPt1stBlock);
     }
     if (lowPt2ndBlock >= 0){
       // LPT 2nd
-      pos=lowPtBoardOut->getPos(chip,lowPt2ndBlock);
-      dev=lowPtBoardOut->getDev(chip,lowPt2ndBlock);
-      highPtChipOut->setPt(chip,SecondCandidate,PtLow);
-      highPtChipOut->setSel(chip,SecondCandidate,2);
-      highPtChipOut->setDev(chip,SecondCandidate,dev);
-      highPtChipOut->setPos(chip,SecondCandidate,pos);
-      highPtChipOut->setHitID(chip,SecondCandidate,lowPt2ndBlock);
+      pos=m_lowPtBoardOut->getPos(chip,lowPt2ndBlock);
+      dev=m_lowPtBoardOut->getDev(chip,lowPt2ndBlock);
+      m_highPtChipOut->setPt(chip,SecondCandidate,PtLow);
+      m_highPtChipOut->setSel(chip,SecondCandidate,2);
+      m_highPtChipOut->setDev(chip,SecondCandidate,dev);
+      m_highPtChipOut->setPos(chip,SecondCandidate,pos);
+      m_highPtChipOut->setHitID(chip,SecondCandidate,lowPt2ndBlock);
     }
     return;
   } else if (highPt2ndBlock < 0){	// 1 HPT Matrix Output
     // HPT 1st
-    pos=highPtBoardOut->getPos(chip,highPt1stBlock);
-    dev=highPtBoardOut->getDev(chip,highPt1stBlock);
+    pos=m_highPtBoardOut->getPos(chip,highPt1stBlock);
+    dev=m_highPtBoardOut->getDev(chip,highPt1stBlock);
     if ((dev>-8) && (dev<8)) { // check if |dev|<8
-      highPtChipOut->setPt(chip,FirstCandidate,PtHigh);
-      highPtChipOut->setSel(chip,FirstCandidate,1);
-      highPtChipOut->setDev(chip,FirstCandidate,dev);
-      highPtChipOut->setPos(chip,FirstCandidate,pos);
-      highPtChipOut->setHitID(chip,FirstCandidate,highPt1stBlock);
+      m_highPtChipOut->setPt(chip,FirstCandidate,PtHigh);
+      m_highPtChipOut->setSel(chip,FirstCandidate,1);
+      m_highPtChipOut->setDev(chip,FirstCandidate,dev);
+      m_highPtChipOut->setPos(chip,FirstCandidate,pos);
+      m_highPtChipOut->setHitID(chip,FirstCandidate,highPt1stBlock);
     }
 
     if ((lowPt1stBlock >= 0) &&
-	!((lowPt1stBlock == highPt1stBlock) && ((lowPtBoardOut->getPos(chip,lowPt1stBlock)) == (highPtBoardOut->getPos(chip,highPt1stBlock))))
+	!((lowPt1stBlock == highPt1stBlock) && ((m_lowPtBoardOut->getPos(chip,lowPt1stBlock)) == (m_highPtBoardOut->getPos(chip,highPt1stBlock))))
 	){			//for vi }
       // LPT 1st (as 2nd candidate)
-      pos=lowPtBoardOut->getPos(chip,lowPt1stBlock);
-      dev=lowPtBoardOut->getDev(chip,lowPt1stBlock);
-      highPtChipOut->setPt(chip,SecondCandidate,PtLow);
-      highPtChipOut->setSel(chip,SecondCandidate,2);
-      highPtChipOut->setDev(chip,SecondCandidate,dev);
-      highPtChipOut->setPos(chip,SecondCandidate,pos);
-      highPtChipOut->setHitID(chip,SecondCandidate,lowPt1stBlock);
+      pos=m_lowPtBoardOut->getPos(chip,lowPt1stBlock);
+      dev=m_lowPtBoardOut->getDev(chip,lowPt1stBlock);
+      m_highPtChipOut->setPt(chip,SecondCandidate,PtLow);
+      m_highPtChipOut->setSel(chip,SecondCandidate,2);
+      m_highPtChipOut->setDev(chip,SecondCandidate,dev);
+      m_highPtChipOut->setPos(chip,SecondCandidate,pos);
+      m_highPtChipOut->setHitID(chip,SecondCandidate,lowPt1stBlock);
       return;
     } else if ((lowPt2ndBlock >= 0) &&
-	       !((lowPt2ndBlock == highPt1stBlock) && ((lowPtBoardOut->getPos(chip,lowPt2ndBlock)) == (highPtBoardOut->getPos(chip,highPt1stBlock))))
+	       !((lowPt2ndBlock == highPt1stBlock) && ((m_lowPtBoardOut->getPos(chip,lowPt2ndBlock)) == (m_highPtBoardOut->getPos(chip,highPt1stBlock))))
 	       ){
       
       // LPT 2nd (as 2nd candidate)
-      pos=lowPtBoardOut->getPos(chip,lowPt2ndBlock);
-      dev=lowPtBoardOut->getDev(chip,lowPt2ndBlock);
-      highPtChipOut->setPt(chip,SecondCandidate,PtLow);
-      highPtChipOut->setSel(chip,SecondCandidate,2);
-      highPtChipOut->setDev(chip,SecondCandidate,dev);
-      highPtChipOut->setPos(chip,SecondCandidate,pos);
-      highPtChipOut->setHitID(chip,SecondCandidate,lowPt2ndBlock);
+      pos=m_lowPtBoardOut->getPos(chip,lowPt2ndBlock);
+      dev=m_lowPtBoardOut->getDev(chip,lowPt2ndBlock);
+      m_highPtChipOut->setPt(chip,SecondCandidate,PtLow);
+      m_highPtChipOut->setSel(chip,SecondCandidate,2);
+      m_highPtChipOut->setDev(chip,SecondCandidate,dev);
+      m_highPtChipOut->setPos(chip,SecondCandidate,pos);
+      m_highPtChipOut->setHitID(chip,SecondCandidate,lowPt2ndBlock);
       return;
     }
   } else {				// 2 HPT Matrix Outputs
     // HPT 1st
-    pos=highPtBoardOut->getPos(chip,highPt1stBlock);
-    dev=highPtBoardOut->getDev(chip,highPt1stBlock);
+    pos=m_highPtBoardOut->getPos(chip,highPt1stBlock);
+    dev=m_highPtBoardOut->getDev(chip,highPt1stBlock);
     if ((dev>-8) && (dev<8)) { // check if |dev|<8
-      highPtChipOut->setPt(chip,FirstCandidate,PtHigh);
-      highPtChipOut->setSel(chip,FirstCandidate,1);
-      highPtChipOut->setDev(chip,FirstCandidate,dev);
-      highPtChipOut->setPos(chip,FirstCandidate,pos);
-      highPtChipOut->setHitID(chip,FirstCandidate,highPt1stBlock);
+      m_highPtChipOut->setPt(chip,FirstCandidate,PtHigh);
+      m_highPtChipOut->setSel(chip,FirstCandidate,1);
+      m_highPtChipOut->setDev(chip,FirstCandidate,dev);
+      m_highPtChipOut->setPos(chip,FirstCandidate,pos);
+      m_highPtChipOut->setHitID(chip,FirstCandidate,highPt1stBlock);
     }
     // HPT 2nd
-    pos=highPtBoardOut->getPos(chip,highPt2ndBlock);
-    dev=highPtBoardOut->getDev(chip,highPt2ndBlock);
+    pos=m_highPtBoardOut->getPos(chip,highPt2ndBlock);
+    dev=m_highPtBoardOut->getDev(chip,highPt2ndBlock);
     if ((dev>-8) && (dev<8)) { // check if |dev|<8
-      highPtChipOut->setPt(chip,SecondCandidate,PtHigh);
-      highPtChipOut->setSel(chip,SecondCandidate,2);
-      highPtChipOut->setDev(chip,SecondCandidate,dev);
-      highPtChipOut->setPos(chip,SecondCandidate,pos);
-      highPtChipOut->setHitID(chip,SecondCandidate,highPt2ndBlock);
+      m_highPtChipOut->setPt(chip,SecondCandidate,PtHigh);
+      m_highPtChipOut->setSel(chip,SecondCandidate,2);
+      m_highPtChipOut->setDev(chip,SecondCandidate,dev);
+      m_highPtChipOut->setPos(chip,SecondCandidate,pos);
+      m_highPtChipOut->setHitID(chip,SecondCandidate,highPt2ndBlock);
     }
   }
 }

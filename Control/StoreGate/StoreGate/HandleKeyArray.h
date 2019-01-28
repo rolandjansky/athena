@@ -102,7 +102,7 @@ namespace SG {
       for (itr = this->begin(); itr != this->end(); ++itr) {
         hndl.push_back ( T_Handle( *itr) );
       }
-      return ( std::move( hndl ) );
+      return hndl;
     }
 
     /**
@@ -116,7 +116,7 @@ namespace SG {
       for (itr = this->begin(); itr != this->end(); ++itr) {
         hndl.push_back ( T_Handle( *itr, ctx) );
       }
-      return ( std::move( hndl ) );
+      return hndl;
     }
 
   };

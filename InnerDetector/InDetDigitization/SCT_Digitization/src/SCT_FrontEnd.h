@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -74,16 +74,15 @@ class  SCT_FrontEnd : public AthAlgTool, virtual public ISCT_FrontEnd {
    * process the collection of pre digits: needed to go through all single-strip pre-digits to calculate
    * the amplifier response add noise (this could be moved elsewhere later) apply threshold do clustering
    */
-  virtual void process(SiChargedDiodeCollection& collection) const;
-  void setRandomEngine(CLHEP::HepRandomEngine* rndmEngine) { m_rndmEngine = rndmEngine; };
+  virtual void process(SiChargedDiodeCollection& collection, CLHEP::HepRandomEngine * rndmEngine) const;
   StatusCode doSignalChargeForHits(SiChargedDiodeCollection& collectione) const;
   StatusCode doThresholdCheckForRealHits(SiChargedDiodeCollection& collectione) const;
   StatusCode doThresholdCheckForCrosstalkHits(SiChargedDiodeCollection& collection) const;
   StatusCode doClustering(SiChargedDiodeCollection& collection) const;
-  StatusCode prepareGainAndOffset(SiChargedDiodeCollection& collection, const Identifier& moduleId) const;
-  StatusCode prepareGainAndOffset(SiChargedDiodeCollection& collection, int side, const Identifier& moduleId) const;
-  StatusCode randomNoise(SiChargedDiodeCollection& collection, const Identifier& moduleId) const;
-  StatusCode randomNoise(SiChargedDiodeCollection& collection, const Identifier& moduleId, int side) const;
+  StatusCode prepareGainAndOffset(SiChargedDiodeCollection& collection, const Identifier& moduleId, CLHEP::HepRandomEngine * rndmEngine) const;
+  StatusCode prepareGainAndOffset(SiChargedDiodeCollection& collection, int side, const Identifier& moduleId, CLHEP::HepRandomEngine * rndmEngine) const;
+  StatusCode randomNoise(SiChargedDiodeCollection& collection, const Identifier& moduleId, CLHEP::HepRandomEngine * rndmEngine) const;
+  StatusCode randomNoise(SiChargedDiodeCollection& collection, const Identifier& moduleId, int side, CLHEP::HepRandomEngine * rndmEngine) const;
   StatusCode addNoiseDiode(SiChargedDiodeCollection& collection, int strip, int tbin) const;
   float meanValue(std::vector<float>& calibDataVect) const;
   StatusCode initVectors(int strips) const;
@@ -125,7 +124,6 @@ class  SCT_FrontEnd : public AthAlgTool, virtual public ISCT_FrontEnd {
   ToolHandle<ISCT_Amp> m_sct_amplifier{this, "SCT_Amp", "SCT_Amp", "Handle the Amplifier tool"}; //!< Handle the Amplifier tool
   ToolHandle<ISCT_ReadCalibChipDataTool> m_ReadCalibChipDataTool{this, "SCT_ReadCalibChipDataTool", "SCT_ReadCalibChipDataTool", "Tool to retrieve chip calibration information"}; //!< Handle to the Calibration ConditionsTool
 
-  CLHEP::HepRandomEngine* m_rndmEngine;        //!< Random number generation engine
 };
 
 #endif //SCT_FRONTEND_H

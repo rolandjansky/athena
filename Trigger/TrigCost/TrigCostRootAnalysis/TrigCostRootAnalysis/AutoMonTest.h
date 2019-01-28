@@ -64,7 +64,6 @@ namespace TrigCostRootAnalysis {
   private:
     ConfKey_t m_Varname;
     VariableOption_t m_variable_option;
-    Float_t m_total_result;
     bool m_doFractional;
     const std::string m_test_name;
     AutoMonResult* m_result;

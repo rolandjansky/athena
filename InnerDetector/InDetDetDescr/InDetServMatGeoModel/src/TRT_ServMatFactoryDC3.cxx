@@ -23,7 +23,7 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
-
+#include "GaudiKernel/SystemOfUnits.h"
 
 #define NUMBEROFPANEL 2
 #define TRTELEMENTSINEL 9  // VK - now number of record is determined automatically
@@ -63,8 +63,8 @@ void TRT_ServMatFactoryDC3::create(GeoPhysVol *mother)
 
 
 //VVK  10/09/2005 Construct a gap for rails
-    double outROfIDet =       (*atls)[0]->getDouble("IDETOR")*GeoModelKernelUnits::cm;
-    double endZOfIDet =       (*atls)[0]->getDouble("IDETZMX")*GeoModelKernelUnits::cm;
+    double outROfIDet =       (*atls)[0]->getDouble("IDETOR")*Gaudi::Units::cm;
+    double endZOfIDet =       (*atls)[0]->getDouble("IDETZMX")*Gaudi::Units::cm;
     double minRofGap  =       1050.0;
     double phiWid=70./outROfIDet;    double safetyGap=1.;
     const GeoShape* railGap1=new GeoTubs( minRofGap, outROfIDet+safetyGap ,endZOfIDet+safetyGap , 
@@ -78,10 +78,10 @@ void TRT_ServMatFactoryDC3::create(GeoPhysVol *mother)
   
   for (int ii=0; ii<NUMBEROFPANEL; ii++) {
     const GeoMaterial* cylMat = materialManager()->getMaterial("trt::PatchOut");
-    double rmin = (*ipan)[ii]->getFloat("RMIN")*GeoModelKernelUnits::cm;
-    double rmax = (*ipan)[ii]->getFloat("RMAX")*GeoModelKernelUnits::cm;
-    double zmin = (*ipan)[ii]->getFloat("ZMIN")*GeoModelKernelUnits::cm;
-    double zmax = (*ipan)[ii]->getFloat("ZMAX")*GeoModelKernelUnits::cm;
+    double rmin = (*ipan)[ii]->getFloat("RMIN")*Gaudi::Units::cm;
+    double rmax = (*ipan)[ii]->getFloat("RMAX")*Gaudi::Units::cm;
+    double zmin = (*ipan)[ii]->getFloat("ZMIN")*Gaudi::Units::cm;
+    double zmax = (*ipan)[ii]->getFloat("ZMAX")*Gaudi::Units::cm;
 
     double halflength = (zmax-zmin)/2.-2*epsilon;
     double zpos = zmin + halflength+2*epsilon;
@@ -133,12 +133,12 @@ void TRT_ServMatFactoryDC3::create(GeoPhysVol *mother)
     o << irecold++;
     std::string logName = "TrtInel"+o.str();  
     int volType = (int) (*inel)[ii]->getFloat("VOLTYP");
-    double RMIN1=(*inel)[ii]->getFloat("RMIN1")*GeoModelKernelUnits::cm;
-    double RMAX1=(*inel)[ii]->getFloat("RMAX1")*GeoModelKernelUnits::cm;
-    double RMIN2=(*inel)[ii]->getFloat("RMIN2")*GeoModelKernelUnits::cm;
-    double RMAX2=(*inel)[ii]->getFloat("RMAX2")*GeoModelKernelUnits::cm;
-    double ZMAX= (*inel)[ii]->getFloat("ZMAX")*GeoModelKernelUnits::cm;
-    double ZMIN= (*inel)[ii]->getFloat("ZMIN")*GeoModelKernelUnits::cm;
+    double RMIN1=(*inel)[ii]->getFloat("RMIN1")*Gaudi::Units::cm;
+    double RMAX1=(*inel)[ii]->getFloat("RMAX1")*Gaudi::Units::cm;
+    double RMIN2=(*inel)[ii]->getFloat("RMIN2")*Gaudi::Units::cm;
+    double RMAX2=(*inel)[ii]->getFloat("RMAX2")*Gaudi::Units::cm;
+    double ZMAX= (*inel)[ii]->getFloat("ZMAX")*Gaudi::Units::cm;
+    double ZMIN= (*inel)[ii]->getFloat("ZMIN")*Gaudi::Units::cm;
 
 //VK Change of TRT barrel cables definition
 //    if(ii == 3) { RMIN1 += 0; RMAX1=RMIN1+0.589; ZMIN=950.; ZMAX=3250;}
@@ -207,7 +207,7 @@ void TRT_ServMatFactoryDC3::create(GeoPhysVol *mother)
 						double rmax2=0.) 
   
 {
-  const double epsilon = 0.001*GeoModelKernelUnits::mm;
+  const double epsilon = 0.001*Gaudi::Units::mm;
   enum VOLTYPE{Tube=1, Cone, ICone};
   const GeoShape* IDShape = 0;
   if(volType == Tube) {

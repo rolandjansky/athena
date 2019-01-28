@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file SCT_SensorsTestAlg.h Header file for SCT_SensorsTestAlg class.
@@ -11,7 +11,7 @@
 #define SCT_SensorsTestAlg_H
 
 // Include Athena stuff
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "SCT_ConditionsTools/ISCT_SensorsTool.h"
 
@@ -23,7 +23,7 @@
 
 /** This class acts as a test/sample client the ConditionsParameter class. 
  */
-class SCT_SensorsTestAlg : public AthAlgorithm {
+class SCT_SensorsTestAlg : public AthReentrantAlgorithm {
  public:
   // Structors
   SCT_SensorsTestAlg (const std::string& name, ISvcLocator* pSvcLocator); 
@@ -31,7 +31,7 @@ class SCT_SensorsTestAlg : public AthAlgorithm {
     
   // Standard Gaudi functions
   StatusCode initialize() override; //!< Gaudi initialiser
-  StatusCode execute() override;    //!< Gaudi executer
+  StatusCode execute(const EventContext& ctx) const override;    //!< Gaudi executer
   StatusCode finalize() override;   //!< Gaudi finaliser
     
  private:

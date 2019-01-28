@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///*****************************************************************************
@@ -31,7 +31,6 @@
 #include "TileEvent/TileContainer.h"
 #include "TileEvent/TileLaserObject.h"
 #include "TileEvent/TileMuonReceiverContainer.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileByteStream/TileBeamElemContByteStreamCnv.h"
 #include "TileL2Algs/TileL2Builder.h"
 
@@ -44,9 +43,11 @@
 //Atlas include
 #include "AthenaKernel/errorcheck.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadHandleKey.h"
 
 // Gaudi includes
 #include "GaudiKernel/ITHistSvc.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "TTree.h"
 #include <iomanip>
@@ -188,7 +189,6 @@ TileAANtuple::TileAANtuple(std::string name, ISvcLocator* pSvcLocator)
 , m_tileMgr(0)
 , m_tileBadChanTool("TileBadChanTool")
 , m_tileToolEmscale("TileCondToolEmscale")
-, m_beamInfo("TileBeamInfoProvider/TileBeamInfoProvider")
 , m_beamCnv(0)
 , m_l2Builder()
 , m_sumEt_xx()
@@ -203,21 +203,22 @@ TileAANtuple::TileAANtuple(std::string name, ISvcLocator* pSvcLocator)
 , m_bad()
 {
   declareProperty("TileCondToolEmscale", m_tileToolEmscale);
-  declareProperty("TileDigitsContainer", m_digitsContainer = "TileDigitsCnt");
-  declareProperty("TileDigitsContainerFlt", m_fltDigitsContainer = "" /* "TileDigitsFlt" */);
-  declareProperty("TileBeamElemContainer", m_beamElemContainer = "TileBeamElemCnt");
-  declareProperty("TileRawChannelContainer", m_rawChannelContainer = "TileRawChannelCnt");
-  declareProperty("TileRawChannelContainerFit", m_fitRawChannelContainer = "");      //
-  declareProperty("TileRawChannelContainerFitCool", m_fitcRawChannelContainer = ""); // don't create
-  declareProperty("TileRawChannelContainerOpt", m_optRawChannelContainer = "");      // by default
-  declareProperty("TileRawChannelContainerQIE", m_qieRawChannelContainer = "");      // processed QIE data
-  declareProperty("TileRawChannelContainerOF1", m_of1RawChannelContainer = "");      //
-  declareProperty("TileRawChannelContainerDsp", m_dspRawChannelContainer = "");      //
-  declareProperty("TileRawChannelContainerMF", m_mfRawChannelContainer = "");      //
-  declareProperty("TileMuRcvRawChannelContainer", m_tileMuRcvRawChannelContainer = "MuRcvRawChCnt");// TMDB
-  declareProperty("TileMuRcvDigitsContainer", m_tileMuRcvDigitsContainer = "MuRcvDigitsCnt");// TMDB
-  declareProperty("TileMuRcvContainer", m_tileMuRcvContainer = "TileMuRcvCnt");// TMDB
-  declareProperty("TileLaserObject", m_laserObject = "" /* "TileLaserObj" */);       //
+  declareProperty("TileDigitsContainer", m_digitsContainerKey = "TileDigitsCnt");
+  declareProperty("TileDigitsContainerFlt", m_fltDigitsContainerKey = "" /* "TileDigitsFlt" */);
+  declareProperty("TileBeamElemContainer", m_beamElemContainerKey = "TileBeamElemCnt");
+  declareProperty("TileRawChannelContainer", m_rawChannelContainerKey = "TileRawChannelCnt");
+  declareProperty("TileRawChannelContainerFit", m_fitRawChannelContainerKey = "");      //
+  declareProperty("TileRawChannelContainerFitCool", m_fitcRawChannelContainerKey = ""); // don't create
+  declareProperty("TileRawChannelContainerOpt", m_optRawChannelContainerKey = "");      // by default
+  declareProperty("TileRawChannelContainerQIE", m_qieRawChannelContainerKey = "");      // processed QIE data
+  declareProperty("TileRawChannelContainerOF1", m_of1RawChannelContainerKey = "");      //
+  declareProperty("TileRawChannelContainerDsp", m_dspRawChannelContainerKey = "");      //
+  declareProperty("TileRawChannelContainerMF", m_mfRawChannelContainerKey = "");      //
+  declareProperty("TileMuRcvRawChannelContainer", m_tileMuRcvRawChannelContainerKey = "MuRcvRawChCnt");// TMDB
+  declareProperty("TileMuRcvDigitsContainer", m_tileMuRcvDigitsContainerKey = "MuRcvDigitsCnt");// TMDB
+  declareProperty("TileMuRcvContainer", m_tileMuRcvContainerKey = "TileMuRcvCnt");// TMDB
+  declareProperty("TileLaserObject", m_laserObjectKey = "" /* "TileLaserObj" */);       //
+  declareProperty("TileL2Cnt", m_l2CntKey = "TileL2Cnt");
   declareProperty("CalibrateEnergy", m_calibrateEnergy = true);
   declareProperty("UseDspUnits", m_useDspUnits = false);
   declareProperty("OfflineUnits", m_finalUnit = TileRawChannelUnit::MegaElectronVolts);
@@ -298,34 +299,42 @@ StatusCode TileAANtuple::initialize() {
   //=== get TileCondToolEmscale
   ATH_CHECK( m_tileToolEmscale.retrieve() );
   
-  //=== get TileBeamInfo
-  ATH_CHECK( m_beamInfo.retrieve() );
-  
   //=== get TileL2Builder
   if (m_compareMode) {
     ATH_CHECK( m_l2Builder.retrieve() );
   }
-  
-  //=== change properties of TileBeamInfo - to make sure that all parameters are consistent
-  if (m_beamElemContainer.size() > 0) {
-    ATH_CHECK( m_beamInfo->setProperty("TileBeamElemContainer",m_beamElemContainer) );
+
+  ATH_CHECK( m_DQstatusKey.initialize() );
+
+  if (m_dspRawChannelContainerKey.empty() && m_bsInput) {
+    m_dspRawChannelContainerKey = "TileRawChannelCnt"; // try DSP container name to read DQ status
   }
-  
-  if (m_digitsContainer.size() > 0) {
-    ATH_CHECK( m_beamInfo->setProperty("TileDigitsContainer",m_digitsContainer) );
-  }
-  
-  if (m_dspRawChannelContainer.size() > 0) {
-    ATH_CHECK( m_beamInfo->setProperty("TileRawChannelContainer",m_dspRawChannelContainer) );
-  }
+
+  ATH_CHECK( m_beamElemContainerKey.initialize(m_bsInput) );
+  ATH_CHECK( m_digitsContainerKey.initialize(SG::AllowEmpty) );
+  ATH_CHECK( m_fltDigitsContainerKey.initialize(SG::AllowEmpty) );
+  ATH_CHECK( m_laserObjectKey.initialize(SG::AllowEmpty) );
+  ATH_CHECK( m_tileMuRcvContainerKey.initialize(SG::AllowEmpty) );
+  ATH_CHECK( m_tileMuRcvDigitsContainerKey.initialize(SG::AllowEmpty) );
+  ATH_CHECK( m_tileMuRcvRawChannelContainerKey.initialize(SG::AllowEmpty) );
+  ATH_CHECK( m_mfRawChannelContainerKey.initialize(SG::AllowEmpty) );
+  ATH_CHECK( m_rawChannelContainerKey.initialize(SG::AllowEmpty) );
+  ATH_CHECK( m_fitRawChannelContainerKey.initialize(SG::AllowEmpty) );
+  ATH_CHECK( m_fitcRawChannelContainerKey.initialize(SG::AllowEmpty) );
+  ATH_CHECK( m_optRawChannelContainerKey.initialize(SG::AllowEmpty) );
+  ATH_CHECK( m_qieRawChannelContainerKey.initialize(SG::AllowEmpty) );
+  ATH_CHECK( m_dspRawChannelContainerKey.initialize(SG::AllowEmpty) );
+  ATH_CHECK( m_of1RawChannelContainerKey.initialize(SG::AllowEmpty) );
+  ATH_CHECK( m_l2CntKey.initialize(m_compareMode) );
   
   ATH_MSG_INFO( "initialization completed" ) ;
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode TileAANtuple::ntuple_initialize() {
-  
+StatusCode TileAANtuple::ntuple_initialize(const EventContext& ctx,
+                                           const TileDQstatus& DQstatus)
+{
   if (m_bsInput) {
     ServiceHandle<IConversionSvc> cnvSvc("ByteStreamCnvSvc", "");
     if (cnvSvc.retrieve().isFailure()) {
@@ -346,7 +355,7 @@ StatusCode TileAANtuple::ntuple_initialize() {
     m_beamCnv = NULL;
   }
   
-  uint32_t calib = m_beamInfo->calibMode();
+  uint32_t calib = DQstatus.calibMode();
   bool calibMode  = (calib == 1);
   if ( calibMode != m_calibMode && calib!=0xFFFFFFFF ) {
     ATH_MSG_INFO( "Calib mode from data is " << calibMode );
@@ -379,7 +388,7 @@ StatusCode TileAANtuple::ntuple_initialize() {
   
   ATH_CHECK( m_thistSvc.retrieve() );
   
-  if(initNTuple().isFailure()) {
+  if(initNTuple(ctx).isFailure()) {
     ATH_MSG_ERROR( " Error during ntuple initialization" );
   }
   
@@ -389,9 +398,11 @@ StatusCode TileAANtuple::ntuple_initialize() {
 
 
 StatusCode TileAANtuple::execute() {
-  
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  const TileDQstatus* DQstatus = SG::makeHandle (m_DQstatusKey, ctx).get();
+
   if (m_evtNr < 0) {
-    if (ntuple_initialize().isFailure()) {
+    if (ntuple_initialize(ctx, *DQstatus).isFailure()) {
       ATH_MSG_ERROR( "ntuple_initialize failed" );
     }
   }
@@ -407,37 +418,38 @@ StatusCode TileAANtuple::execute() {
   bool empty = true;
   
   // store BeamElements
-  if (m_beamElemContainer.size() > 0) {
-    empty &= storeBeamElements().isFailure();
+  if (!m_beamElemContainerKey.key().empty()) {
+    empty &= storeBeamElements(*DQstatus).isFailure();
   }
   
   //store Laser Object
-  if (m_laserObject.size() > 0) {
-    empty &= storeLaser().isFailure();
+  if (!m_laserObjectKey.empty()) {
+    empty &= storeLaser(ctx).isFailure();
   }
   
   // store TileDigits
-  empty &= storeDigits(m_fltDigitsContainer,m_sampleFlt,m_gainFlt,false).isFailure();
-  empty &= storeDigits(m_digitsContainer,   m_sample,   m_gain,   true ).isFailure();
+  empty &= storeDigits(ctx, m_fltDigitsContainerKey,m_sampleFlt,m_gainFlt,false).isFailure();
+  empty &= storeDigits(ctx, m_digitsContainerKey,   m_sample,   m_gain,   true ).isFailure();
   
   // store TileRawChannels
   // start from DSP channels - so we can find out what is the DSP units
-  empty &= storeRawChannels(m_dspRawChannelContainer,  m_eDsp,  m_tDsp,  m_chi2Dsp, m_pedDsp, true ).isFailure();
-  empty &= storeRawChannels(m_rawChannelContainer,     m_ene,   m_time,  m_chi2,    m_ped,    false).isFailure();
-  empty &= storeMFRawChannels(m_mfRawChannelContainer, m_eMF,   m_tMF,   m_chi2MF,  m_pedMF,  false).isFailure();
-  empty &= storeRawChannels(m_fitRawChannelContainer,  m_eFit,  m_tFit,  m_chi2Fit, m_pedFit, false).isFailure();
-  empty &= storeRawChannels(m_fitcRawChannelContainer, m_eFitc, m_tFitc, m_chi2Fitc,m_pedFitc,false).isFailure();
-  empty &= storeRawChannels(m_optRawChannelContainer,  m_eOpt,  m_tOpt,  m_chi2Opt, m_pedOpt, false).isFailure();
-  empty &= storeRawChannels(m_qieRawChannelContainer,  m_eQIE,  m_tQIE,  m_chi2QIE, m_pedQIE, false).isFailure();
-  empty &= storeRawChannels(m_of1RawChannelContainer,  m_eOF1,  m_tOF1,  m_chi2OF1, m_pedOF1, false).isFailure();
+  empty &= storeRawChannels(ctx, m_dspRawChannelContainerKey,  m_eDsp,  m_tDsp,  m_chi2Dsp, m_pedDsp, true ).isFailure();
+  empty &= storeRawChannels(ctx, m_rawChannelContainerKey,     m_ene,   m_time,  m_chi2,    m_ped,    false).isFailure();
+  empty &= storeMFRawChannels(ctx, m_mfRawChannelContainerKey, m_eMF,   m_tMF,   m_chi2MF,  m_pedMF,  false).isFailure();
+  empty &= storeRawChannels(ctx, m_fitRawChannelContainerKey,  m_eFit,  m_tFit,  m_chi2Fit, m_pedFit, false).isFailure();
+  empty &= storeRawChannels(ctx, m_fitcRawChannelContainerKey, m_eFitc, m_tFitc, m_chi2Fitc,m_pedFitc,false).isFailure();
+  empty &= storeRawChannels(ctx, m_optRawChannelContainerKey,  m_eOpt,  m_tOpt,  m_chi2Opt, m_pedOpt, false).isFailure();
+  empty &= storeRawChannels(ctx, m_qieRawChannelContainerKey,  m_eQIE,  m_tQIE,  m_chi2QIE, m_pedQIE, false).isFailure();
+  empty &= storeRawChannels(ctx, m_of1RawChannelContainerKey,  m_eOF1,  m_tOF1,  m_chi2OF1, m_pedOF1, false).isFailure();
   
   // store TMDB data
   //
-  empty &= storeTMDBDecision().isFailure();
-  empty &= storeTMDBDigits().isFailure();
-  empty &= storeTMDBRawChannel().isFailure();
+  empty &= storeTMDBDecision(ctx).isFailure();
+  empty &= storeTMDBDigits(ctx).isFailure();
+  empty &= storeTMDBRawChannel(ctx).isFailure();
 
   if (m_beamCnv) {
+    SG::makeHandle (m_beamElemContainerKey, ctx).get();
     m_evTime = m_beamCnv->eventFragment()->bc_time_seconds();
     m_evt = m_beamCnv->eventFragment()->global_id();
     if ( m_beamCnv->validBeamFrag() )
@@ -451,23 +463,17 @@ StatusCode TileAANtuple::execute() {
   }
   m_lumiBlock = -1; // placeholder
   
-  // new way to set run/event/lumi block
-  // Retrieve eventInfo from StoreGate
-  const xAOD::EventInfo* eventInfo(0);
-  if (evtStore()->retrieve(eventInfo).isSuccess()){
+  //Get run and event numbers
+  m_run = ctx.eventID().run_number();
+  m_evt = ctx.eventID().event_number();
     
-    //Get run and event numbers
-    m_run = eventInfo->runNumber();
-    m_evt = eventInfo->eventNumber();
+  if ( ctx.eventID().lumi_block() ){
+    m_lumiBlock = ctx.eventID().lumi_block();
+  }
     
-    if ( eventInfo->lumiBlock() ){
-      m_lumiBlock = eventInfo->lumiBlock();
-    }
-    
-    //Get timestamp of the event
-    if (eventInfo->timeStamp() > 0) {
-      m_evTime = eventInfo->timeStamp();
-    }
+  //Get timestamp of the event
+  if (ctx.eventID().time_stamp() > 0) {
+    m_evTime = ctx.eventID().time_stamp();
   }
   
   if (m_evTime>0) {
@@ -539,12 +545,11 @@ StatusCode TileAANtuple::execute() {
 //
 // Here the LASER object is opened and corresponding variable are stored
 //
-StatusCode TileAANtuple::storeLaser() {
+StatusCode TileAANtuple::storeLaser (const EventContext& ctx) {
   
   ATH_MSG_DEBUG("TileAANtuple::storeLaser()");
   
-  const TileLaserObject* laserObj;
-  ATH_CHECK( evtStore()->retrieve(laserObj, m_laserObject) );
+  const TileLaserObject* laserObj = SG::makeHandle(m_laserObjectKey, ctx).get();
   
   m_las_BCID = laserObj->getBCID();
   
@@ -648,9 +653,9 @@ StatusCode TileAANtuple::storeLaser() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TileAANtuple::storeBeamElements() {
+StatusCode TileAANtuple::storeBeamElements(const TileDQstatus& DQstatus) {
   
-  static const uint32_t* cispar = m_beamInfo->cispar();
+  const uint32_t* cispar = DQstatus.cispar();
   
   uint32_t oldval = 0;
   int last = 0;
@@ -702,25 +707,22 @@ StatusCode TileAANtuple::storeBeamElements() {
  /// Fill ntuple with data from TRC.
  */
 StatusCode
-TileAANtuple::storeRawChannels(std::string containerId
+TileAANtuple::storeRawChannels(const EventContext& ctx
+                               , const SG::ReadHandleKey<TileRawChannelContainer>& containerKey
                                , float ene[N_ROS2][N_MODULES][N_CHANS]
                                , float time[N_ROS2][N_MODULES][N_CHANS]
                                , float chi2[N_ROS2][N_MODULES][N_CHANS]
                                , float ped[N_ROS2][N_MODULES][N_CHANS]
                                , bool fillAll)
 {
-  if (containerId.size() == 0) {// empty name, nothing to do
-    if (fillAll && m_bsInput) {
-      containerId = "TileRawChannelCnt"; // try DSP container name to read DQ status
-    } else {
-      return StatusCode::FAILURE;
-    }
+  if (containerKey.empty()) {// empty name, nothing to do
+    return StatusCode::FAILURE;
   }
   
   // get named container
-  const TileRawChannelContainer* rcCnt;
-  ATH_CHECK( evtStore()->retrieve(rcCnt, containerId) );
-  ATH_MSG_VERBOSE( "Conteiner ID " << containerId );
+  const TileRawChannelContainer* rcCnt =
+    SG::makeHandle (containerKey, ctx).get();
+  ATH_MSG_VERBOSE( "Container ID " << containerKey.key() );
   
   TileRawChannelUnit::UNIT rChUnit = rcCnt->get_unit();
   ATH_MSG_VERBOSE( "RawChannel unit is " << rChUnit );
@@ -770,7 +772,7 @@ TileAANtuple::storeRawChannels(std::string containerId
     int rosL = rosI;
     int rosH = rosI + N_ROS;
     
-    ATH_MSG_VERBOSE( "TRC ("<< containerId
+    ATH_MSG_VERBOSE( "TRC ("<< containerKey.key()
                     <<") Event# "<< m_evtNr
                     << " Frag id 0x" << MSG::hex << fragId << MSG::dec
                     << " ROS " << ROS
@@ -887,8 +889,7 @@ TileAANtuple::storeRawChannels(std::string containerId
   
   if (m_compareMode && dspCont) {
     
-    const TileL2Container* l2Cnt;
-    ATH_CHECK( evtStore()->retrieve(l2Cnt, "TileL2Cnt") );
+    const TileL2Container* l2Cnt = SG::makeHandle(m_l2CntKey, ctx).get();
     
     TileL2Container::const_iterator it = l2Cnt->begin();
     TileL2Container::const_iterator end= l2Cnt->end();
@@ -904,24 +905,21 @@ TileAANtuple::storeRawChannels(std::string containerId
 }
 
 StatusCode
-TileAANtuple::storeMFRawChannels(std::string containerId
+TileAANtuple::storeMFRawChannels(const EventContext& ctx
+                                 , const SG::ReadHandleKey<TileRawChannelContainer>& containerKey
                                  , float ene[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES]
                                  , float time[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES]
                                  , float chi2[N_ROS2][N_MODULES][N_CHANS]
                                  , float ped[N_ROS2][N_MODULES][N_CHANS]
                                  , bool fillAll)
 {
-  if (containerId.size() == 0) {// empty name, nothing to do
-    if (fillAll && m_bsInput) {
-      containerId = "TileRawChannelCnt"; // try DSP container name to read DQ status
-    } else {
-      return StatusCode::FAILURE;
-    }
+  if (containerKey.empty()) {// empty name, nothing to do
+    return StatusCode::FAILURE;
   }
   
   // get named container
-  const TileRawChannelContainer* rcCnt;
-  ATH_CHECK( evtStore()->retrieve(rcCnt, containerId) );
+  const TileRawChannelContainer* rcCnt = \
+    SG::makeHandle (containerKey, ctx).get();
   
   TileRawChannelUnit::UNIT rChUnit = rcCnt->get_unit();
   ATH_MSG_VERBOSE( "RawChannel unit is " << rChUnit );
@@ -971,7 +969,7 @@ TileAANtuple::storeMFRawChannels(std::string containerId
     int rosL = rosI;
     int rosH = rosI + N_ROS;
     
-    ATH_MSG_VERBOSE( "TRC ("<< containerId
+    ATH_MSG_VERBOSE( "TRC ("<< containerKey.key()
                     <<") Event# "<< m_evtNr
                     << " Frag id 0x" << MSG::hex << fragId << MSG::dec
                     << " ROS " << ROS
@@ -1091,8 +1089,7 @@ TileAANtuple::storeMFRawChannels(std::string containerId
   
   if (m_compareMode && dspCont) {
     
-    const TileL2Container* l2Cnt;
-    ATH_CHECK( evtStore()->retrieve(l2Cnt, "TileL2Cnt") );
+    const TileL2Container* l2Cnt = SG::makeHandle(m_l2CntKey, ctx).get();
     
     TileL2Container::const_iterator it = l2Cnt->begin();
     TileL2Container::const_iterator end= l2Cnt->end();
@@ -1113,17 +1110,18 @@ TileAANtuple::storeMFRawChannels(std::string containerId
  /// Return true if the collection is empty
  */
 StatusCode
-TileAANtuple::storeDigits(std::string containerId
+TileAANtuple::storeDigits(const EventContext& ctx
+                          , const SG::ReadHandleKey<TileDigitsContainer>& containerKey
                           , short a_sample[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES]
                           , short a_gain[N_ROS2][N_MODULES][N_CHANS]
                           , bool fillAll)
 {
-  if (containerId.size() == 0) // empty name, nothing to do
+  if (containerKey.empty()) // empty name, nothing to do
     return StatusCode::FAILURE;
   
   // Read Digits from TES
-  const TileDigitsContainer* digitsCnt;
-  ATH_CHECK( evtStore()->retrieve(digitsCnt, containerId) );
+  const TileDigitsContainer* digitsCnt =
+    SG::makeHandle (containerKey, ctx).get();
   
   bool emptyColl = true;
   
@@ -1291,18 +1289,18 @@ TileAANtuple::storeDigits(std::string containerId
   else return StatusCode::SUCCESS;
 }
 
-StatusCode TileAANtuple::storeTMDBDecision() {
+StatusCode TileAANtuple::storeTMDBDecision(const EventContext& ctx) {
 
   const char * part[4] = {"LBA","LBC","EBA","EBC"};
 
   // Read Decision from TES
   //
-  if (m_tileMuRcvContainer.size()>0){
+  if (!m_tileMuRcvContainerKey.empty()){
 
-    ATH_MSG_VERBOSE( "reading TMDB decision from " << m_tileMuRcvContainer ); 
+    ATH_MSG_VERBOSE( "reading TMDB decision from " << m_tileMuRcvContainerKey.key() ); 
 
-    const TileMuonReceiverContainer *decisionCnt;
-    ATH_CHECK( evtStore()->retrieve(decisionCnt, m_tileMuRcvContainer) );
+    const TileMuonReceiverContainer *decisionCnt =
+      SG::makeHandle (m_tileMuRcvContainerKey, ctx).get();
   
     TileMuonReceiverContainer::const_iterator it = decisionCnt->begin();
     TileMuonReceiverContainer::const_iterator itLast = decisionCnt->end();
@@ -1347,18 +1345,18 @@ StatusCode TileAANtuple::storeTMDBDecision() {
   return StatusCode::SUCCESS;
 }
  
-StatusCode TileAANtuple::storeTMDBDigits() {
+StatusCode TileAANtuple::storeTMDBDigits(const EventContext& ctx) {
 
   const char * part[4] = {"LBA","LBC","EBA","EBC"};
 
   // Read Digits from TES
   //
-  if (m_tileMuRcvDigitsContainer.size()>0){
+  if (!m_tileMuRcvDigitsContainerKey.empty()){
 
-    ATH_MSG_VERBOSE( "reading TMDB digits from " << m_tileMuRcvDigitsContainer ); 
+    ATH_MSG_VERBOSE( "reading TMDB digits from " << m_tileMuRcvDigitsContainerKey.key() ); 
 
-    const TileDigitsContainer* digitsCnt;
-    ATH_CHECK( evtStore()->retrieve(digitsCnt, m_tileMuRcvDigitsContainer) );
+    const TileDigitsContainer* digitsCnt =
+      SG::makeHandle (m_tileMuRcvDigitsContainerKey, ctx).get();
   
     TileDigitsContainer::const_iterator itColl1 = (*digitsCnt).begin();
     TileDigitsContainer::const_iterator itCollEnd1 = (*digitsCnt).end();
@@ -1419,18 +1417,18 @@ StatusCode TileAANtuple::storeTMDBDigits() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TileAANtuple::storeTMDBRawChannel() {
+StatusCode TileAANtuple::storeTMDBRawChannel(const EventContext& ctx) {
 
   const char * part[4] = {"LBA","LBC","EBA","EBC"};
 
   // Read Raw Channels from TDS
   //
-  if (m_tileMuRcvRawChannelContainer.size()>0){
+  if (!m_tileMuRcvRawChannelContainerKey.empty()){
 
-    ATH_MSG_VERBOSE( "reading TMDB energies from " << m_tileMuRcvRawChannelContainer ); 
+    ATH_MSG_VERBOSE( "reading TMDB energies from " << m_tileMuRcvRawChannelContainerKey.key() ); 
 
-    const TileRawChannelContainer* rcCnt;
-    ATH_CHECK( evtStore()->retrieve(rcCnt, m_tileMuRcvRawChannelContainer) );
+    const TileRawChannelContainer* rcCnt =
+      SG::makeHandle (m_tileMuRcvRawChannelContainerKey, ctx).get();
 
     TileRawChannelContainer::const_iterator itColl2 = (*rcCnt).begin();
     TileRawChannelContainer::const_iterator itCollEnd2 = (*rcCnt).end();
@@ -1493,7 +1491,7 @@ TileAANtuple::ntuple_clear() {
 }
 
 StatusCode
-TileAANtuple::initNTuple(void) {
+TileAANtuple::initNTuple(const EventContext& ctx) {
   //Aux Ntuple creation
   
   if (m_ntupleID.size() > 0) {
@@ -1516,9 +1514,9 @@ TileAANtuple::initNTuple(void) {
     
     TRIGGER_addBranch();
     CISPAR_addBranch();
-    if (m_laserObject.size() > 0) {
-      const TileLaserObject* laserObj;
-      ATH_CHECK( evtStore()->retrieve(laserObj, m_laserObject) );
+    if (!m_laserObjectKey.empty()) {
+      const TileLaserObject* laserObj =
+        SG::makeHandle(m_laserObjectKey, ctx).get();
       m_las_version = laserObj->getVersion();
       LASER_addBranch();
     }
@@ -1715,7 +1713,7 @@ void TileAANtuple::TRIGGER_clearBranch(void) {
  //////////////////////////////////////////////////////////////////////////////
  */
 void TileAANtuple::CISPAR_addBranch(void) {
-  if (m_beamElemContainer.size() > 0) {
+  if (!m_beamElemContainerKey.key().empty()) {
     m_ntuplePtr->Branch("cispar",m_cispar,"cispar[110]/i");
   }
 }
@@ -1728,7 +1726,7 @@ void TileAANtuple::CISPAR_addBranch(void) {
  //////////////////////////////////////////////////////////////////////////////
  */
 void TileAANtuple::CISPAR_clearBranch(void) {
-  if (m_beamElemContainer.size() > 0) {
+  if (!m_beamElemContainerKey.key().empty()) {
     CLEAR(m_cispar);
   }
 }
@@ -1742,7 +1740,7 @@ void TileAANtuple::CISPAR_clearBranch(void) {
  */
 void TileAANtuple::LASER_addBranch(void) {
   
-  if (m_laserObject.size() > 0) {
+  if (!m_laserObjectKey.empty()) {
     
     const char* gainnames[2]  = {"LG","HG"};
     const char* channames[16] = {"Diode0","Diode1","Diode2","Diode3","Diode4","Diode5","Diode6","Diode7",
@@ -2015,7 +2013,7 @@ void TileAANtuple::LASER_addBranch(void) {
  */
 void TileAANtuple::LASER_clearBranch(void) {
   
-  if (m_laserObject.size() > 0) {
+  if (!m_laserObjectKey.empty()) {
     
     m_las_BCID = 0;
     
@@ -2088,35 +2086,35 @@ void TileAANtuple::DIGI_addBranch(void)
     
     std::string f_suf(suf[i]);
     
-    if (m_fltDigitsContainer.size() == 0 && m_digitsContainer.size() == 0
-        && (m_rawChannelContainer.size() > 0
-            || m_fitRawChannelContainer.size() > 0
-            || m_fitcRawChannelContainer.size() > 0
-            || m_optRawChannelContainer.size() > 0
-            || m_qieRawChannelContainer.size() > 0
-            || m_dspRawChannelContainer.size() > 0
-            || m_mfRawChannelContainer.size() > 0
-            || m_of1RawChannelContainer.size() > 0
-            || m_bsInput) ) {
+    if (m_fltDigitsContainerKey.empty() && m_digitsContainerKey.empty()
+        && (!m_rawChannelContainerKey.empty()
+            || !m_fitRawChannelContainerKey.empty()
+            || !m_fitcRawChannelContainerKey.empty()
+            || !m_optRawChannelContainerKey.empty()
+            || !m_qieRawChannelContainerKey.empty()
+            || !m_dspRawChannelContainerKey.empty()
+            || !m_mfRawChannelContainerKey.empty()
+            || !m_of1RawChannelContainerKey.empty()
+            || !m_bsInput) ) {
           
           m_ntuplePtr->Branch(NAME2("gain",f_suf),            m_gain[ir],          NAME3("gain",         f_suf,"[4][64][48]/S"));    // short
           
         } else {
           
-          if (m_fltDigitsContainer.size() > 0) {
-            if (m_digitsContainer.size() > 0) { // should use different names for two containers
+          if (!m_fltDigitsContainerKey.empty()) {
+            if (!m_digitsContainerKey.empty()) { // should use different names for two containers
               
               m_ntuplePtr->Branch(NAME2("sampleFlt",f_suf),   m_sampleFlt[ir],     NAME3("sampleFlt",    f_suf,"[4][64][48][7]/S")); // short
               m_ntuplePtr->Branch(NAME2("gainFlt",f_suf),     m_gainFlt[ir],       NAME3("gainFlt",      f_suf,"[4][64][48]/S"));    // short
             } else {
               m_ntuplePtr->Branch(NAME2("sample",f_suf),      m_sampleFlt[ir],     NAME3("sampleFlt",    f_suf,"[4][64][48][7]/S")); // short
-              if (m_rawChannelContainer.size() > 0
-                  || m_fitRawChannelContainer.size() > 0
-                  || m_fitcRawChannelContainer.size() > 0
-                  || m_optRawChannelContainer.size() > 0
-                  || m_qieRawChannelContainer.size() > 0
-                  || m_of1RawChannelContainer.size() > 0
-                  || m_dspRawChannelContainer.size() > 0
+              if (!m_rawChannelContainerKey.empty()
+                  || !m_fitRawChannelContainerKey.empty()
+                  || !m_fitcRawChannelContainerKey.empty()
+                  || !m_optRawChannelContainerKey.empty()
+                  || !m_qieRawChannelContainerKey.empty()
+                  || !m_of1RawChannelContainerKey.empty()
+                  || !m_dspRawChannelContainerKey.empty()
                   || m_bsInput) {
                 
                 m_ntuplePtr->Branch(NAME2("gain",f_suf),      m_gain[ir],          NAME3("gain",         f_suf,"[4][64][48]/S"));    // short
@@ -2126,7 +2124,7 @@ void TileAANtuple::DIGI_addBranch(void)
             }
           }
           
-          if (m_digitsContainer.size() > 0) {
+          if (!m_digitsContainerKey.empty()) {
             m_ntuplePtr->Branch(NAME2("sample",f_suf),          m_sample[ir],        NAME3("sample",       f_suf,"[4][64][48][7]/S")); // short
             m_ntuplePtr->Branch(NAME2("gain",f_suf),            m_gain[ir],          NAME3("gain",         f_suf,"[4][64][48]/S"));    // short
             
@@ -2152,56 +2150,56 @@ void TileAANtuple::DIGI_addBranch(void)
           }
         }
     
-    if (m_rawChannelContainer.size() > 0) {
+    if (!m_rawChannelContainerKey.empty()) {
       m_ntuplePtr->Branch(NAME2("ene",f_suf),     m_ene[ir],          NAME3("ene",f_suf,"[4][64][48]/F")); // float
       m_ntuplePtr->Branch(NAME2("time",f_suf),    m_time[ir],        NAME3("time",f_suf,"[4][64][48]/F")); // float
       m_ntuplePtr->Branch(NAME2("ped",f_suf),     m_ped[ir],          NAME3("ped",f_suf,"[4][64][48]/F")); // float
       m_ntuplePtr->Branch(NAME2("chi2",f_suf),    m_chi2[ir],        NAME3("chi2",f_suf,"[4][64][48]/F")); // float
     }
     
-    if (m_fitRawChannelContainer.size() > 0) {
+    if (!m_fitRawChannelContainerKey.empty()) {
       m_ntuplePtr->Branch(NAME2("eFit",f_suf),    m_eFit[ir],        NAME3("eFit",f_suf,"[4][64][48]/F")); // float
       m_ntuplePtr->Branch(NAME2("tFit",f_suf),    m_tFit[ir],        NAME3("tFit",f_suf,"[4][64][48]/F")); // float
       m_ntuplePtr->Branch(NAME2("pedFit",f_suf),  m_pedFit[ir],    NAME3("pedFit",f_suf,"[4][64][48]/F")); // float
       m_ntuplePtr->Branch(NAME2("chi2Fit",f_suf), m_chi2Fit[ir],  NAME3("chi2Fit",f_suf,"[4][64][48]/F")); // float
     }
     
-    if (m_fitcRawChannelContainer.size() > 0) {
+    if (!m_fitcRawChannelContainerKey.empty()) {
       m_ntuplePtr->Branch(NAME2("eFitc",f_suf),   m_eFitc[ir],      NAME3("eFitc",f_suf,"[4][64][48]/F")); // float
       m_ntuplePtr->Branch(NAME2("tFitc",f_suf),   m_tFitc[ir],      NAME3("tFitc",f_suf,"[4][64][48]/F")); // float
       m_ntuplePtr->Branch(NAME2("pedFitc",f_suf), m_pedFitc[ir],  NAME3("pedFitc",f_suf,"[4][64][48]/F")); // float
       m_ntuplePtr->Branch(NAME2("chi2Fitc",f_suf),m_chi2Fitc[ir],NAME3("chi2Fitc",f_suf,"[4][64][48]/F")); // float
     }
     
-    if (m_optRawChannelContainer.size() > 0) {
+    if (!m_optRawChannelContainerKey.empty()) {
       m_ntuplePtr->Branch(NAME2("eOpt",f_suf),    m_eOpt[ir],        NAME3("eOpt",f_suf,"[4][64][48]/F")); // float
       m_ntuplePtr->Branch(NAME2("tOpt",f_suf),    m_tOpt[ir],        NAME3("tOpt",f_suf,"[4][64][48]/F")); // float
       m_ntuplePtr->Branch(NAME2("pedOpt",f_suf),  m_pedOpt[ir],    NAME3("pedOpt",f_suf,"[4][64][48]/F")); // float
       m_ntuplePtr->Branch(NAME2("chi2Opt",f_suf), m_chi2Opt[ir],  NAME3("chi2Opt",f_suf,"[4][64][48]/F")); // float
     }
     
-    if (m_qieRawChannelContainer.size() > 0) {
+    if (!m_qieRawChannelContainerKey.empty()) {
       m_ntuplePtr->Branch(NAME2("eQIE",f_suf),    m_eQIE[ir],        NAME3("eQIE",f_suf,"[4][64][48]/F")); // float
       m_ntuplePtr->Branch(NAME2("tQIE",f_suf),    m_tQIE[ir],        NAME3("tQIE",f_suf,"[4][64][48]/F")); // float
       m_ntuplePtr->Branch(NAME2("pedQIE",f_suf),  m_pedQIE[ir],    NAME3("pedQIE",f_suf,"[4][64][48]/F")); // float
       m_ntuplePtr->Branch(NAME2("chi2QIE",f_suf), m_chi2QIE[ir],  NAME3("chi2QIE",f_suf,"[4][64][48]/F")); // float
     }
 
-    if (m_of1RawChannelContainer.size() > 0) {
+    if (!m_of1RawChannelContainerKey.empty()) {
       m_ntuplePtr->Branch(NAME2("eOF1",f_suf),    m_eOF1[ir],        NAME3("eOF1",f_suf,"[4][64][48]/F")); // float
       m_ntuplePtr->Branch(NAME2("tOF1",f_suf),    m_tOF1[ir],        NAME3("tOF1",f_suf,"[4][64][48]/F")); // float
       m_ntuplePtr->Branch(NAME2("pedOF1",f_suf),  m_pedOF1[ir],    NAME3("pedOF1",f_suf,"[4][64][48]/F")); // float
       m_ntuplePtr->Branch(NAME2("chi2OF1",f_suf), m_chi2OF1[ir],  NAME3("chi2OF1",f_suf,"[4][64][48]/F")); // float
     }
     
-    if (m_dspRawChannelContainer.size() > 0) {
+    if (!m_dspRawChannelContainerKey.empty()) {
       m_ntuplePtr->Branch(NAME2("eDsp",f_suf),    m_eDsp[ir],        NAME3("eDsp",f_suf,"[4][64][48]/F")); // float
       m_ntuplePtr->Branch(NAME2("tDsp",f_suf),    m_tDsp[ir],        NAME3("tDsp",f_suf,"[4][64][48]/F")); // float
       m_ntuplePtr->Branch(NAME2("pedDsp",f_suf),  m_pedDsp[ir],    NAME3("pedDsp",f_suf,"[4][64][48]/F")); // float
       m_ntuplePtr->Branch(NAME2("chi2Dsp",f_suf), m_chi2Dsp[ir],  NAME3("chi2Dsp",f_suf,"[4][64][48]/F")); // float
     }
     
-    if (m_mfRawChannelContainer.size() > 0) {
+    if (!m_mfRawChannelContainerKey.empty()) {
       m_ntuplePtr->Branch(NAME2("eMF",f_suf),    m_eMF[ir],        NAME3("eMF",f_suf,"[4][64][48][7]/F")); // float
       m_ntuplePtr->Branch(NAME2("tMF",f_suf),    m_tMF[ir],        NAME3("tMF",f_suf,"[4][64][48][7]/F")); // float
       m_ntuplePtr->Branch(NAME2("chi2MF",f_suf), m_chi2MF[ir],     NAME3("chi2MF",f_suf,"[4][64][48]/F")); // float
@@ -2252,12 +2250,12 @@ void TileAANtuple::DIGI_clearBranch(void) {
   
   CLEAR3(m_gain, size);
   
-  if (m_fltDigitsContainer.size() > 0) {
+  if (!m_fltDigitsContainerKey.empty()) {
     CLEAR3(m_sampleFlt, size);
     CLEAR3(m_gainFlt, size);
   }
   
-  if (m_digitsContainer.size() > 0) {
+  if (!m_digitsContainerKey.empty()) {
     CLEAR3(m_sample, size);
     
     if (m_bsInput) {
@@ -2280,28 +2278,28 @@ void TileAANtuple::DIGI_clearBranch(void) {
     
   }
   
-  if (m_rawChannelContainer.size() > 0) {
+  if (!m_rawChannelContainerKey.empty()) {
     CLEAR2(m_ene, size);
     CLEAR2(m_time, size);
     CLEAR2(m_ped, size);
     CLEAR2(m_chi2, size);
   }
   
-  if (m_fitRawChannelContainer.size() > 0) {
+  if (!m_fitRawChannelContainerKey.empty()) {
     CLEAR2(m_eFit, size);
     CLEAR2(m_tFit, size);
     CLEAR2(m_pedFit, size);
     CLEAR2(m_chi2Fit, size);
   }
   
-  if (m_fitcRawChannelContainer.size() > 0) {
+  if (!m_fitcRawChannelContainerKey.empty()) {
     CLEAR2(m_eFitc, size);
     CLEAR2(m_tFitc, size);
     CLEAR2(m_pedFitc, size);
     CLEAR2(m_chi2Fitc, size);
   }
   
-  if (m_optRawChannelContainer.size() > 0) {
+  if (!m_optRawChannelContainerKey.empty()) {
     CLEAR2(m_eOpt, size);
     CLEAR2(m_tOpt, size);
     CLEAR2(m_pedOpt, size);
@@ -2309,28 +2307,28 @@ void TileAANtuple::DIGI_clearBranch(void) {
   }
   
 
-  if (m_qieRawChannelContainer.size() > 0) {
+  if (!m_qieRawChannelContainerKey.empty()) {
     CLEAR2(m_eQIE, size);
     CLEAR2(m_tQIE, size);
     CLEAR2(m_pedQIE, size);
     CLEAR2(m_chi2QIE, size);
   }
 
-  if (m_of1RawChannelContainer.size() > 0) {
+  if (!m_of1RawChannelContainerKey.empty()) {
     CLEAR2(m_eOF1, size);
     CLEAR2(m_tOF1, size);
     CLEAR2(m_pedOF1, size);
     CLEAR2(m_chi2OF1, size);
   }
   
-  if (m_dspRawChannelContainer.size() > 0) {
+  if (!m_dspRawChannelContainerKey.empty()) {
     CLEAR2(m_eDsp, size);
     CLEAR2(m_tDsp, size);
     CLEAR2(m_pedDsp, size);
     CLEAR2(m_chi2Dsp, size);
   }
   
-  if (m_mfRawChannelContainer.size() > 0) {
+  if (!m_mfRawChannelContainerKey.empty()) {
     CLEAR2(m_eMF, size);
     CLEAR2(m_tMF, size);
     CLEAR2(m_chi2MF, size);
@@ -2363,15 +2361,15 @@ void TileAANtuple::DIGI_clearBranch(void) {
 void TileAANtuple::TMDB_addBranch(void)
 {
 
-  if (m_tileMuRcvRawChannelContainer.size()>0) {
+  if (!m_tileMuRcvRawChannelContainerKey.empty()) {
     m_ntuplePtr->Branch("eTMDB", m_eTMDB, "eTMDB[4][64][8]/F");  // float m_eTMDB[N_ROS][N_MODULES][N_TMDBCHANS]
   }
 
-  if (m_tileMuRcvDigitsContainer.size()>0) {
+  if (!m_tileMuRcvDigitsContainerKey.empty()) {
     m_ntuplePtr->Branch("sampleTMDB", m_sampleTMDB, "sampleTMDB[4][64][8][7]/b"); // unsigned char m_sampleTMDB[N_ROS][N_MODULES][N_TMDBCHANS][N_SAMPLES]
   }
 
-  if (m_tileMuRcvContainer.size()>0) {
+  if (!m_tileMuRcvContainerKey.empty()) {
     m_ntuplePtr->Branch("decisionTMDB", m_decisionTMDB, "decisionTMDB[4][64][4]/b"); // unsigned char m_decisionTMDB[N_ROS][N_MODULES][N_TMDBDECISIONS]
   }
 
@@ -2379,9 +2377,9 @@ void TileAANtuple::TMDB_addBranch(void)
 
 void TileAANtuple::TMDB_clearBranch(void)
 {
-  if (m_tileMuRcvRawChannelContainer.size()>0) CLEAR(m_eTMDB);
-  if (m_tileMuRcvDigitsContainer.size()>0) CLEAR(m_sampleTMDB);
-  if (m_tileMuRcvContainer.size()>0) CLEAR(m_decisionTMDB);
+  if (!m_tileMuRcvRawChannelContainerKey.empty()) CLEAR(m_eTMDB);
+  if (!m_tileMuRcvDigitsContainerKey.empty()) CLEAR(m_sampleTMDB);
+  if (!m_tileMuRcvContainerKey.empty()) CLEAR(m_decisionTMDB);
 }
 
 /*/////////////////////////////////////////////////////////////////////////////

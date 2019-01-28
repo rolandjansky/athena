@@ -1,4 +1,5 @@
 #include "../HLTEDMCreator.h"
+#include "../HLTEDMCreatorAlg.h"
 #include "../StreamTagMakerTool.h"
 #include "../HLTResultMTMakerAlg.h"
 #include "TrigOutputHandling/HLTResultMTMaker.h"
@@ -8,6 +9,7 @@
 #include "../TriggerEDMDeserialiserAlg.h"
 
 DECLARE_COMPONENT( HLTEDMCreator )
+DECLARE_COMPONENT( HLTEDMCreatorAlg )
 DECLARE_COMPONENT( HLTResultMTMakerAlg )
 DECLARE_COMPONENT( HLTResultMTMaker )
 DECLARE_COMPONENT( StreamTagMakerTool )

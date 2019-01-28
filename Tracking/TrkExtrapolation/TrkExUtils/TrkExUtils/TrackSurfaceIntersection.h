@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -31,16 +31,22 @@ namespace Trk {
 	  /**Constructor*/
 	  TrackSurfaceIntersection(const Amg::Vector3D& pos, const Amg::Vector3D& dir, double path);
 	  /**Destructor*/
-	  virtual ~TrackSurfaceIntersection();
+	  virtual ~TrackSurfaceIntersection() = default;
+
+          TrackSurfaceIntersection (const TrackSurfaceIntersection& other);
+          TrackSurfaceIntersection& operator= (const TrackSurfaceIntersection& other) = default;
 
 	  /** Method to retrieve the position of the Intersection */
 	  const Amg::Vector3D& position() const;
+	        Amg::Vector3D& position();
         
 	  /** Method to retrieve the direction at the Intersection */
 	  const Amg::Vector3D& direction() const;
+	        Amg::Vector3D& direction();
         
 	  /** Method to retrieve the pathlength propagated till the Intersection */
-	  double pathlength() const;
+	  double  pathlength() const;
+	  double& pathlength();
         
 	  /** Method to retrieve the object serial number (needed for speed optimization) */
 	  unsigned long long serialNumber() const;
@@ -57,10 +63,19 @@ namespace Trk {
   inline const Amg::Vector3D& TrackSurfaceIntersection::position() const
   { return m_position; }
 
+  inline Amg::Vector3D& TrackSurfaceIntersection::position()
+  { return m_position; }
+
   inline const Amg::Vector3D& TrackSurfaceIntersection::direction() const
   { return m_direction; }
 
+  inline Amg::Vector3D& TrackSurfaceIntersection::direction()
+  { return m_direction; }
+
   inline double TrackSurfaceIntersection::pathlength() const
+  { return m_pathlength; }
+  
+  inline double& TrackSurfaceIntersection::pathlength()
   { return m_pathlength; }
   
   inline unsigned long long TrackSurfaceIntersection::serialNumber() const

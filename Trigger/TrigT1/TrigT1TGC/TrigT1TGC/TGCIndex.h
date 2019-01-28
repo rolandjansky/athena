@@ -25,12 +25,12 @@ namespace LVL1TGCTrigger {
 
 class TGCIndex {
 protected:
-  TGCZDirection zDirection;
-  TGCStationType stationType;
-  int octantNumber;
-  TGCRegionType regionType;
-  int moduleNumber;
-  int rNumber;
+  TGCZDirection m_zDirection;
+  TGCStationType m_stationType;
+  int m_octantNumber;
+  TGCRegionType m_regionType;
+  int m_moduleNumber;
+  int m_rNumber;
 
 public:
   TGCIndex();
@@ -47,12 +47,12 @@ public:
   TGCIndex& operator=(const TGCIndex& right)
   {
     if (this != &right) {
-      zDirection= right.zDirection;
-      stationType= right.stationType;
-      octantNumber= right.octantNumber;
-      regionType= right.regionType;
-      moduleNumber= right.moduleNumber;
-      rNumber= right.rNumber;
+      m_zDirection= right.m_zDirection;
+      m_stationType= right.m_stationType;
+      m_octantNumber= right.m_octantNumber;
+      m_regionType= right.m_regionType;
+      m_moduleNumber= right.m_moduleNumber;
+      m_rNumber= right.m_rNumber;
     }
     return *this;
   }
@@ -72,12 +72,12 @@ public:
 		TGCRegionType irgn, int imd, int ir);
 
   // get functions
-  TGCZDirection GetZDirection() const { return zDirection; }
-  TGCStationType GetStationType() const { return stationType; }
-  int GetOctantNumber() const { return octantNumber; }
-  TGCRegionType GetRegionType() const { return regionType; }
-  int GetModuleNumber() const { return moduleNumber; }
-  int GetRNumber() const { return rNumber; }
+  TGCZDirection GetZDirection() const { return m_zDirection; }
+  TGCStationType GetStationType() const { return m_stationType; }
+  int GetOctantNumber() const { return m_octantNumber; }
+  TGCRegionType GetRegionType() const { return m_regionType; }
+  int GetModuleNumber() const { return m_moduleNumber; }
+  int GetRNumber() const { return m_rNumber; }
 
   // operations
   void Print() const;

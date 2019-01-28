@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "../TrigL2BMuMuXHypo.h"
 #include "../TrigL2BMuMuXFex.h"
 #include "../TrigL2BMuMuHypo.h"

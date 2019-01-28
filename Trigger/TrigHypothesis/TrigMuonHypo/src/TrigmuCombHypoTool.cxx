@@ -7,7 +7,7 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
-#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/Monitored.h"
 
 #include "DecisionHandling/Combinators.h"
 
@@ -74,18 +74,17 @@ StatusCode TrigmuCombHypoTool::initialize()
 
 bool TrigmuCombHypoTool::decideOnSingleObject(TrigmuCombHypoTool::CombinedMuonInfo& input, size_t cutIndex) const
 {
-   using namespace Monitored;
  
    // defined Monitoring variables
-   auto fexPt	= MonitoredScalar::declare("Pt", -9999.);
-   auto ptFL	= MonitoredScalar::declare("PtFL", -9999.);
-   auto Strategy	= MonitoredScalar::declare("StrategyFlag", 0);
-   auto idEta 	= MonitoredScalar::declare("Eta", -9999.);
-   auto idPhi 	= MonitoredScalar::declare("Phi", -9999.);
-   auto idZ0 	= MonitoredScalar::declare("Z0", -9999.);
-   auto idA0 	= MonitoredScalar::declare("A0", -9999.);
+   auto fexPt	= Monitored::Scalar("Pt", -9999.);
+   auto ptFL	= Monitored::Scalar("PtFL", -9999.);
+   auto Strategy	= Monitored::Scalar("StrategyFlag", 0);
+   auto idEta 	= Monitored::Scalar("Eta", -9999.);
+   auto idPhi 	= Monitored::Scalar("Phi", -9999.);
+   auto idZ0 	= Monitored::Scalar("Z0", -9999.);
+   auto idA0 	= Monitored::Scalar("A0", -9999.);
  
-   auto monitorIt = MonitoredScope::declare(m_monTool, fexPt, ptFL, Strategy, 
+   auto monitorIt = Monitored::Group(m_monTool, fexPt, ptFL, Strategy, 
  					   idEta, idPhi, idZ0, idA0);
 
    ATH_MSG_VERBOSE( "Cut index " << cutIndex );

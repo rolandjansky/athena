@@ -67,8 +67,18 @@ atlas_add_test( IDRunData SCRIPT test/test_id_run_data.sh
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaRunData )
 atlas_add_test( egammaRunData
    SCRIPT test/test_egamma_run_data.sh
-   PROPERTIES TIMEOUT 1000
+   PROPERTIES TIMEOUT 1000   
+   EXTRA_PATTERNS "-s TrigSignatureMoniMT.*HLT_.*|Payload size after inserting"
    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaRunData
+   )
+
+
+atlas_add_test( decodeBS
+   SCRIPT test/test_decodeBS.sh
+   PROPERTIES TIMEOUT 1000
+   EXTRA_PATTERNS "-s .*absent.*|.*present.*|.*fragment: clid, type, key.*"
+   PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaRunData
+   DEPENDS egammaRunData
    )
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_photonMenu )
@@ -100,6 +110,15 @@ atlas_add_test( muMenu
    EXTRA_PATTERNS "-s TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"
    PROPERTIES TIMEOUT 1000
    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_muMenu
+   )
+
+
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_tauMenu )
+atlas_add_test( tauMenu
+   SCRIPT test/test_tau_menu.sh
+   EXTRA_PATTERNS "-s TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"
+   PROPERTIES TIMEOUT 1000
+   PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_tauMenu
    )
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_jet )

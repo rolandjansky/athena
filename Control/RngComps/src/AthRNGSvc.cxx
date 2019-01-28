@@ -7,6 +7,7 @@
 #include "AthenaKernel/SlotSpecificObj.h"
 
 #include "AtlasCLHEP_RandomGenerators/dSFMTEngine.h"
+#include "CLHEP/Random/MixMaxRng.h"
 #include "CLHEP/Random/Ranlux64Engine.h"
 #include "CLHEP/Random/RanecuEngine.h"
 
@@ -32,8 +33,12 @@ StatusCode AthRNGSvc::initialize()
     m_fact = [](void)->CLHEP::HepRandomEngine*{
       return new CLHEP::RanecuEngine();
     };
+  } else if(m_rngType == "MixMax") {
+    m_fact = [](void)->CLHEP::HepRandomEngine*{
+      return new CLHEP::MixMaxRng();
+    };
   } else {
-    ATH_MSG_WARNING("Supported Generator types are 'dSFMT', 'Ranlux64', 'Ranecu'");
+    ATH_MSG_WARNING("Supported Generator types are 'dSFMT', 'Ranlux64', 'Ranecu', 'MixMax'");
     ATH_MSG_FATAL("Generator type \"" << m_rngType << "\" is not known. Check Joboptions");
     return StatusCode::FAILURE;
   }

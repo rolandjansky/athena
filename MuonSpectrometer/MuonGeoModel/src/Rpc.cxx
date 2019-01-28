@@ -20,7 +20,7 @@
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 #include "GeoModelKernel/GeoShapeIntersection.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <iomanip>
 #include <cassert>
@@ -281,7 +281,7 @@ GeoFullPhysVol* Rpc::build(int minimalgeo, int cutoutson,
      GeoTransform* tugg = new GeoTransform(GeoTrf::TranslateX3D(newpos) );
      if (RPCprint) std::cout<< " Rpc:: put upper RPC layer at " << newpos
                             << " from centre " << std::endl;
-     GeoTransform* rugg = new GeoTransform(GeoTrf::RotateY3D(180*GeoModelKernelUnits::deg) );
+     GeoTransform* rugg = new GeoTransform(GeoTrf::RotateY3D(180*Gaudi::Units::deg) );
      if (!skip_rpc) {
        prpc->add(new GeoIdentifierTag(2));
        prpc->add(tugg);

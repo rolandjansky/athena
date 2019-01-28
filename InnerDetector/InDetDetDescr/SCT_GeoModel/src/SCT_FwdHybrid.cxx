@@ -28,11 +28,9 @@
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoMaterial.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include "GeoModelKernel/GeoDefinitions.h"
-
-
 
 #include <cmath>
 
@@ -54,9 +52,9 @@ SCT_FwdHybrid::getParameters()
 
   m_materialName  = parameters->fwdHybridMaterial();
 
-  //double GeoModelKernelUnits::radlength;
-  //GeoModelKernelUnits::radlength = 18.8 * GeoModelKernelUnits::cm;
-  // [GeoModelKernelUnits::cm] for carbon (Partickle Physics Booklet)
+  //double Gaudi::Units::radlength;
+  //Gaudi::Units::radlength = 18.8 * Gaudi::Units::cm;
+  // [Gaudi::Units::cm] for carbon (Partickle Physics Booklet)
 
   m_thickness  = parameters->fwdHybridThickness();
   m_thickness2 = m_thickness;
@@ -105,7 +103,7 @@ GeoVPhysVol * SCT_FwdHybrid::build()
     position = -1 * position;  };
   
   double rotation = 0.;
-  if (m_ringType == 0)  rotation = 180. * GeoModelKernelUnits::deg;  
+  if (m_ringType == 0)  rotation = 180. * Gaudi::Units::deg;  
   
   const GeoShape & hybridPos2 = (*hybridShape1 << GeoTrf::RotateX3D(rotation)
                       << GeoTrf::TranslateZ3D(position) );
@@ -114,7 +112,6 @@ GeoVPhysVol * SCT_FwdHybrid::build()
   SCT_MaterialManager materials;
   const GeoShapeUnion & hybridShape = hybridPos1.add(hybridPos2);
   // error getting volume directly.
-  //m_material = materials.getMaterialForVolume(m_materialName, hybridShape.volume());
   m_material = materials.getMaterialForVolume(m_materialName, hybridShape1->volume()+hybridShape2->volume());
   const GeoLogVol * hybridLog = new GeoLogVol(getName(), &hybridShape, m_material);
   GeoPhysVol * hybrid = new GeoPhysVol(hybridLog);

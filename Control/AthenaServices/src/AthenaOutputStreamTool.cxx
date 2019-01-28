@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file AthenaOutputStreamTool.cxx
@@ -244,13 +244,12 @@ StatusCode AthenaOutputStreamTool::connectOutput(const std::string& outputName) 
       }
    }
 
-   if (!m_attrListKey.key().empty()) {
-     auto attrListHandle = SG::makeHandle(m_attrListKey);
-
-     if (!attrListHandle.isValid()) {
-       ATH_MSG_WARNING("Unable to retrieve AttributeList with key " << m_attrListKey.key());
+   if (!m_attrListKey.key().empty() && m_store->storeID() == StoreID::EVENT_STORE) {
+      auto attrListHandle = SG::makeHandle(m_attrListKey);
+      if (!attrListHandle.isValid()) {
+         ATH_MSG_WARNING("Unable to retrieve AttributeList with key " << m_attrListKey.key());
       } else {
-       m_dataHeader->setAttributeList(attrListHandle.cptr());
+         m_dataHeader->setAttributeList(attrListHandle.cptr());
       }
    }
 

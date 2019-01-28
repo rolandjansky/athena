@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // vim: ts=2 sw=2
@@ -30,15 +30,17 @@ class EmTauSelectionTool : public virtual IEmTauSelectionTool, public Level1Sele
     virtual ~EmTauSelectionTool() {};
 
     // Tool initialization
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
+
+    virtual const asg::AcceptInfo& getAcceptInfo() const override;
 
     // Get the decision for a specific EmTauRoI
-    virtual const Root::TAccept& accept(const xAOD::EmTauRoI& l1tau) const;
+    virtual asg::AcceptData accept(const xAOD::EmTauRoI& l1tau) const override;
 
 
   private:
 
-    mutable Root::TAccept m_accept;
+    asg::AcceptInfo m_accept;
 
     double m_roi_pt_cut;
     double m_roi_eta_cut;

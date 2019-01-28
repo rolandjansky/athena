@@ -66,16 +66,9 @@ class TileLaserObjByteStreamCnv
     /** Pointer to TileROD_Decoder */
     ToolHandle<TileROD_Decoder> m_decoder;
 
-    const eformat::ROBFragment<const uint32_t*>* m_robFrag;
-    
     std::vector<uint32_t> m_ROBID;
 
     /** Pointer to TileHid2RESrcID */
     const TileHid2RESrcID* m_hid2re;
-
-    /* Pointer to TileLaserObject */
-    TileLaserObject* m_container;
-
-
 };
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DITAUREC_TRACKFINDER_H
@@ -8,6 +8,7 @@
 #include "DiTauToolBase.h"
 
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
@@ -31,12 +32,10 @@ public:
  //-------------------------------------------------------------
  virtual ~DiTauTrackFinder();
 
- virtual StatusCode initialize();
+ virtual StatusCode initialize() override;
 
- virtual StatusCode execute(DiTauCandidateData * data);
-
- virtual StatusCode eventFinalize(DiTauCandidateData *data);
-
+ virtual StatusCode execute(DiTauCandidateData * data,
+                            const EventContext& ctx) const override;
 
  virtual void cleanup(DiTauCandidateData *) { }
  
@@ -55,11 +54,11 @@ public:
                        const xAOD::Vertex*,
                        std::vector<const xAOD::TrackParticle*>&,
                        std::vector<const xAOD::TrackParticle*>&,
-                       std::vector<const xAOD::TrackParticle*>& );
+                       std::vector<const xAOD::TrackParticle*>& ) const;
 
  DiTauTrackType diTauTrackType( const DiTauCandidateData*,
                                 const xAOD::TrackParticle*,
-                                const xAOD::Vertex* );
+                                const xAOD::Vertex* ) const;
 
 
 
@@ -67,7 +66,8 @@ public:
 private:
  float m_MaxDrJet;
  float m_MaxDrSubjet;
- std::string m_TrackParticleContainerName;
+ SG::ReadHandleKey<xAOD::TrackParticleContainer> m_TrackParticleContainerName
+ { this, "TrackParticleContainer", "InDetTrackParticles", "" };
  ToolHandle<Trk::ITrackSelectorTool> m_TrackSelectorTool;
  // ToolHandle< Trk::IParticleCaloExtensionTool > m_ParticleCaloExtensionTool;
 
