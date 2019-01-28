@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_ITAUONSELECTIONTOOL_H
@@ -19,7 +19,8 @@
 
 // Framework include(s):
 #include "AsgTools/IAsgTool.h"
-#include "PATCore/TAccept.h"
+#include "PATCore/AcceptInfo.h"
+#include "PATCore/AcceptData.h"
 
 // EDM include(s):
 #include "xAODTau/TauJet.h"
@@ -46,13 +47,13 @@ public:
   virtual StatusCode initializeEvent() __attribute__ ((deprecated("This function is deprecated. Please remove it from your code.\nFor further information please refer to the README:\nhttps://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauSelectionTool.rst"))) = 0;
 
   /// Get an object describing the "selection steps" of the tool
-  virtual const Root::TAccept& getTAccept() const = 0;
+  virtual const asg::AcceptInfo& getAcceptInfo() const = 0;
 
   /// Get the decision using a generic IParticle pointer
-  virtual const Root::TAccept& accept( const xAOD::IParticle* p ) const = 0;
+  virtual asg::AcceptData accept( const xAOD::IParticle* p ) const = 0;
 
   /// Get the decision for a specific TauJet object
-  virtual const Root::TAccept& accept( const xAOD::TauJet& tau ) const = 0;
+  virtual asg::AcceptData accept( const xAOD::TauJet& tau ) const = 0;
 
   /// Set output file for histograms
   virtual void setOutFile( TFile* fOutFile ) = 0;

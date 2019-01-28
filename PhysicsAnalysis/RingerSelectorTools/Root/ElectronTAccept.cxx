@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ElectronTAccept.cxx 704615 2015-10-29 18:50:12Z wsfreund $
@@ -19,7 +19,7 @@ DEFINE_COUNTER( ElectronNBits )
 
 // =============================================================================
 /// Define the ElectronTAcceptHolder_v1 holden TAccept:
-Root::TAccept ElectronTAccept_v1::m_accept("ElectronDecisionMask");
+asg::AcceptInfo ElectronTAccept_v1::m_accept("ElectronDecisionMask");
 
 // =============================================================================
 // Define the bit counter:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: RingerCommonSelector.h 668868 2015-05-20 20:26:18Z wsfreund $
@@ -18,7 +18,7 @@
 #include "xAODTracking/TrackParticleFwd.h"
 
 // ROOT includes:
-#include "PATCore/TAccept.h"
+#include "PATCore/AcceptData.h"
 
 namespace Ringer {
 
@@ -39,7 +39,6 @@ class RingerCommonSelector : public RedirectMsgStream
     RingerCommonSelector(
       const Ringer::IDiscrWrapperCollection *discrWrapperCol,
       const Ringer::IThresWrapper *thresWrapper,
-      Root::TAccept *partDecMsk,
       const Ringer::RingerConfStruct& fileConf );
 
     /**
@@ -53,7 +52,8 @@ class RingerCommonSelector : public RedirectMsgStream
     StatusCode execute(
         const DepVarStruct &depVar,
         const xAOD::CaloRings* clRings,
-        const TrackPatternsHolder *trackPat);
+        const TrackPatternsHolder *trackPat,
+        asg::AcceptData& acceptData);
 
     /**
      * @brief Get output space
@@ -66,7 +66,6 @@ class RingerCommonSelector : public RedirectMsgStream
     /// @{
     const Ringer::IDiscrWrapperCollection *m_discrWrapperCol;
     const Ringer::IThresWrapper *m_thresWrapper;
-    Root::TAccept *m_partDecMsk;
     const bool m_useTrackPat;
     const bool m_useRawTrackPat;
     const bool m_useCaloCommittee;
