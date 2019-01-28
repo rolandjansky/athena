@@ -176,7 +176,6 @@ namespace CP {
             Error("EfficiencyScaleFactor()", "Could not load the SF pt-dependent systematic for %s and systematic %s", EfficiencyTypeName(m_measurement).c_str(), sysname().c_str() );
             return false;
         }
-        
         if (m_NominalFallBack.get() == this) {
             Error("EfficiencyScaleFactor()", "The EfficiencyScaleFactor %s has itself as Nominal Fall back.", EfficiencyTypeName(m_measurement).c_str());
             m_NominalFallBack.reset();
@@ -190,6 +189,30 @@ namespace CP {
         }
         if (firstRun() > lastRun()){
             Error("EfficiencyScaleFactor()", "Invalid run number range. Since the map is ranging from %u to %u.", firstRun(), lastRun());
+            return false;
+        }
+        std::function<bool(const std::unique_ptr<HistHandler>&)> consistent_histo = [](const std::unique_ptr<HistHandler>& histo)->bool{
+            /// The histogram is simply not loaded which is fine since only
+            /// the scale-factor is required
+            if (!histo) return true;
+            for ( int i = 1; i <= histo->NBins(); ++i){
+                if (std::isnan(histo->GetBinContent(i)) || std::isinf(histo->GetBinContent(i))){
+                    Error("EfficiencyScaleFactor()", "The bin %s has not a number.", histo->GetBinName(i).c_str());
+                    return false;
+                }
+            }
+            return true;
+        };
+        if (!consistent_histo(m_sf)){
+            Error("EfficiencyScaleFactor()", "Invalid scalefactor in %s", sysname().c_str());
+            return false;
+        }
+        if (!consistent_histo(m_eff)){
+            Error("EfficiencyScaleFactor()", "Data-efficiency in %s", sysname().c_str());
+            return false;
+        }
+        if (!consistent_histo(m_mc_eff)){
+            Error("EfficiencyScaleFactor()", "Invalid MC-efficiency in %s", sysname().c_str());
             return false;
         }
         return true;

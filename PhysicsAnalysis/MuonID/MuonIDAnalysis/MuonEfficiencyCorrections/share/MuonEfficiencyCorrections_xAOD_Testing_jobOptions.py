@@ -23,11 +23,11 @@ alg.ValidationRelease="cMoriond2019"
 
 WPs = [
          # reconstruction WPs
-        "LowPt",
-         "Loose", 
-         "Medium", 
-         "Tight", 
-       #  "HighPt",
+       # "LowPt",
+       #  "Loose", 
+       # "Medium", 
+       #  "Tight", 
+         "HighPt",
          # track-to-vertex-association WPs
        #  "TTVA",
          # BadMuon veto SFs
