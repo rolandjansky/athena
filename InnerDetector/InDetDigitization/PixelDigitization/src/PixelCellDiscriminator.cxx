@@ -35,13 +35,15 @@ PixelCellDiscriminator::PixelCellDiscriminator(const std::string& type, const st
   m_rndmSvc("AtDSFMTGenSvc",name),
   m_rndmEngineName("PixelDigitization"),
   m_rndmEngine(0),
-  m_timingTune(2015)
+  m_timingTune(2015),
+  m_disableTimeSim(false)
 {  
 	declareInterface< PixelCellDiscriminator >( this );
 	declareProperty("RndmSvc",m_rndmSvc,"Random Number Service used in Pixel digitization");
 	declareProperty("RndmEngine",m_rndmEngineName,"Random engine name");
 	declareProperty("TimeSvc",m_TimeSvc);
 	declareProperty("TimingTune",m_timingTune,"Version of the timing tune");	
+  declareProperty("DisableTimeSim",m_disableTimeSim);
 }
 
 // Destructor:
@@ -128,21 +130,23 @@ void PixelCellDiscriminator::process(SiChargedDiodeCollection &collection) const
       // compute the relative bunch number 
       // if hit comes from track or Xtalk calculates Bunch Crossing with TimeWalk (timing algoritm)
       // else (i.e. is a noise hit or ...) assigns a random BC
-      int bunch;
-      if( (*i_chargedDiode).second.totalCharge().fromTrack()){
-        if (m_timingTune==2015) {
-          // Timing tune from 2015 collision data.
-          int bec      = pixelId->barrel_ec(collection.element()->identify());
-          int layerID  = pixelId->layer_disk(collection.element()->identify());
-          int moduleID = pixelId->eta_module(collection.element()->identify());
-          bunch = m_TimeSvc->relativeBunch2015((*i_chargedDiode).second.totalCharge(),bec,layerID,moduleID);
+      int bunch = 0;
+      if (!m_disableTimeSim) {
+        if( (*i_chargedDiode).second.totalCharge().fromTrack()){
+          if (m_timingTune==2015) {
+            // Timing tune from 2015 collision data.
+            int bec      = pixelId->barrel_ec(collection.element()->identify());
+            int layerID  = pixelId->layer_disk(collection.element()->identify());
+            int moduleID = pixelId->eta_module(collection.element()->identify());
+            bunch = m_TimeSvc->relativeBunch2015((*i_chargedDiode).second.totalCharge(),bec,layerID,moduleID);
+          }
+          else {
+            // Old tune from 2010 cosmic data.
+            bunch=m_TimeSvc->relativeBunch(threshold, intimethreshold, (*i_chargedDiode).second.totalCharge(), ComputeTW);
+          }
+        } else {
+          bunch=CLHEP::RandFlat::shootInt(m_rndmEngine,BCN);
         }
-        else {
-          // Old tune from 2010 cosmic data.
-          bunch=m_TimeSvc->relativeBunch(threshold, intimethreshold, (*i_chargedDiode).second.totalCharge(), ComputeTW);
-        }
-      } else {
-        bunch=CLHEP::RandFlat::shootInt(m_rndmEngine,BCN);
       }
       if (bunch<0 || bunch>BCN) { //If bunch is out of range, set below threshold (keep hits with +1 BC, for hit duplication). 
         SiHelper::belowThreshold((*i_chargedDiode).second,true,true);
