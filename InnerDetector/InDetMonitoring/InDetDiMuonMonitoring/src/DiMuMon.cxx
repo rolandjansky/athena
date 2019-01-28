@@ -6,7 +6,7 @@
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/PhysicalConstants.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "InDetDiMuonMonitoring/DiMuMon.h"
@@ -103,10 +103,10 @@ StatusCode DiMuMon::initialize(){
 
   //resonance independent
   // for eta these are filled as the histograms are declared due to the dependence between region and eta
-  m_varRanges["phi"] = std::make_pair(-GeoModelKernelUnits::pi,GeoModelKernelUnits::pi);
-  m_varRanges["phiAll"] = std::make_pair(-GeoModelKernelUnits::pi,GeoModelKernelUnits::pi);
-  m_varRanges["phiPos"] = std::make_pair(-GeoModelKernelUnits::pi,GeoModelKernelUnits::pi);
-  m_varRanges["phiNeg"] = std::make_pair(-GeoModelKernelUnits::pi,GeoModelKernelUnits::pi);
+  m_varRanges["phi"] = std::make_pair(-Gaudi::Units::pi,Gaudi::Units::pi);
+  m_varRanges["phiAll"] = std::make_pair(-Gaudi::Units::pi,Gaudi::Units::pi);
+  m_varRanges["phiPos"] = std::make_pair(-Gaudi::Units::pi,Gaudi::Units::pi);
+  m_varRanges["phiNeg"] = std::make_pair(-Gaudi::Units::pi,Gaudi::Units::pi);
   m_varRanges["etaSumm"] = std::make_pair(-5.,5.);
 
   //resonance dependent
@@ -121,7 +121,7 @@ StatusCode DiMuMon::initialize(){
     ptMax = 18.;
   } else if (m_resonName=="Zmumu") {
     m_varRanges["eta"] = std::make_pair(-5.,5.);
-    m_varRanges["phiDiff"] = std::make_pair(0.,GeoModelKernelUnits::pi);
+    m_varRanges["phiDiff"] = std::make_pair(0.,Gaudi::Units::pi);
     m_varRanges["etaDiff"] = std::make_pair(-3.,3.);
     m_varRanges["crtDiff"] = std::make_pair(-0.03,0.03);
     m_varRanges["phiSumm"] = std::make_pair(-3.5,3.5);
@@ -262,7 +262,7 @@ StatusCode DiMuMon::fillHistograms()
 
   //  if (m_lumiBlockNum<402 || m_lumiBlockNum>1330) return StatusCode::SUCCESS;
 
-  double muonMass = 105.66*GeoModelKernelUnits::MeV;
+  double muonMass = 105.66*Gaudi::Units::MeV;
   //retrieve all muons
   const xAOD::MuonContainer* muons(0);
   StatusCode sc = evtStore()->retrieve(muons, m_muonCollection);
@@ -357,15 +357,15 @@ StatusCode DiMuMon::fillHistograms()
 	double phiNeg = idNeg->phi();
 	m_varValues["phiNeg"] = phiNeg;
 	m_varValues["pt"] = getPt(idPos,idNeg);
-	double ptPos = idPos->pt()/GeoModelKernelUnits::GeV;
+	double ptPos = idPos->pt()/Gaudi::Units::GeV;
 	m_varValues["ptPos"] = ptPos;
-	double ptNeg = idNeg->pt()/GeoModelKernelUnits::GeV;
+	double ptNeg = idNeg->pt()/Gaudi::Units::GeV;
 	m_varValues["ptNeg"] = ptNeg;
 
 	m_varValues["crtDiff"] = getCrtDiff(idPos,idNeg);
 	m_varValues["etaDiff"] = etaPos - etaNeg;
 	double phiDiff = fabs(phiPos - phiNeg);
-	if (phiDiff>GeoModelKernelUnits::pi) phiDiff = 2*(GeoModelKernelUnits::pi) - phiDiff;
+	if (phiDiff>Gaudi::Units::pi) phiDiff = 2*(Gaudi::Units::pi) - phiDiff;
 	m_varValues["phiDiff"] = phiDiff;
 	m_varValues["etaSumm"] = etaPos + etaNeg;
 	m_varValues["phiSumm"] = phiPos + phiNeg;
@@ -662,7 +662,7 @@ double DiMuMon::getInvmass(const xAOD::TrackParticle* id1, const xAOD::TrackPart
   particle1.SetPtEtaPhiE(id1->pt(),id1->eta(),id1->phi(),sqrt(pow(Mass,2)+pow(id1->p4().Px(),2)+pow(id1->p4().Py(),2)+pow(id1->p4().Pz(),2)));
   particle2.SetPtEtaPhiE(id2->pt(),id2->eta(),id2->phi(),sqrt(pow(Mass,2)+pow(id2->p4().Px(),2)+pow(id2->p4().Py(),2)+pow(id2->p4().Pz(),2)));
   v=particle1+particle2;
-  double invmass = v.Mag()/GeoModelKernelUnits::GeV;
+  double invmass = v.Mag()/Gaudi::Units::GeV;
   return invmass;
 }
 
@@ -671,7 +671,7 @@ double DiMuMon::getPt(const xAOD::TrackParticle* id1, const xAOD::TrackParticle*
   double px = id1->p4().Px()+id2->p4().Px();
   double py = id1->p4().Py()+id2->p4().Py();
   transmom=sqrt(px*px+py*py);
-  return transmom/GeoModelKernelUnits::GeV;  //Gev
+  return transmom/Gaudi::Units::GeV;  //Gev
 }
 
 double DiMuMon::getEta(const xAOD::TrackParticle* id1, const xAOD::TrackParticle* id2 ) const {

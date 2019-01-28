@@ -8,8 +8,8 @@
 #include "MuonGeoModel/StandardComponent.h"
 #include "MuonGeoModel/SupComponent.h"
 #include "MuonGeoModel/TgcComponent.h"
-#include "GeoModelKernel/Units.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include <iostream>
 #include <algorithm>
@@ -687,7 +687,7 @@ GeoTrf::Transform3D Station::native_to_tsz_frame( const Position & p ) const {
     {
         if (m_name[0]=='B' )
         {
-            mirrsym = GeoTrf::RotateX3D(180.*GeoModelKernelUnits::deg);
+            mirrsym = GeoTrf::RotateX3D(180.*Gaudi::Units::deg);
         }
     }
 
@@ -732,10 +732,10 @@ GeoTrf::Transform3D Station::native_to_tsz_frame( const Position & p ) const {
     }
 
     // // define the rotations by alpha, beta, gamma
-    // GeoTrf::Rotate3D ralpha = GeoTrf::RotateX3D(p.alpha*GeoModelKernelUnits::deg);
-    // GeoTrf::Rotate3D rbeta  = GeoTrf::RotateZ3D(p.beta*GeoModelKernelUnits::deg);
+    // GeoTrf::Rotate3D ralpha = GeoTrf::RotateX3D(p.alpha*Gaudi::Units::deg);
+    // GeoTrf::Rotate3D rbeta  = GeoTrf::RotateZ3D(p.beta*Gaudi::Units::deg);
     // GeoTrf::Rotate3D rgamma;
-    // rgamma = GeoTrf::RotateY3D(p.gamma*GeoModelKernelUnits::deg);
+    // rgamma = GeoTrf::RotateY3D(p.gamma*Gaudi::Units::deg);
     // log<<MSG::VERBOSE<<" gamma is not changing sign - original "<<p.gamma<<" new one "<<p.gamma<<endmsg;
     // log<<MSG::VERBOSE<<" alpha / beta "<<p.alpha<<" "<<p.beta<<endmsg;
 
@@ -768,10 +768,10 @@ GeoTrf::Transform3D Station::tsz_to_global_frame( const Position & p ) const {
       }
     else
         RAD=p.radius;
-    vec.x() = RAD*cos(p.phi*GeoModelKernelUnits::deg);
-    vec.x() = vec.x()-p.shift*sin((p.phi)*GeoModelKernelUnits::deg);
-    vec.y() = RAD*sin(p.phi*GeoModelKernelUnits::deg);
-    vec.y() = vec.y()+p.shift*cos((p.phi)*GeoModelKernelUnits::deg);
+    vec.x() = RAD*cos(p.phi*Gaudi::Units::deg);
+    vec.x() = vec.x()-p.shift*sin((p.phi)*Gaudi::Units::deg);
+    vec.y() = RAD*sin(p.phi*Gaudi::Units::deg);
+    vec.y() = vec.y()+p.shift*cos((p.phi)*Gaudi::Units::deg);
     // 
     if (p.isMirrored)
         if ( (p.isBarrelLike) || (m_name[0]=='B') )
@@ -805,9 +805,9 @@ GeoTrf::Transform3D Station::tsz_to_global_frame( const Position & p ) const {
 
     /////// NEWEWEWWEWEWEWEWEWEWEWEWEW
     // // define the rotations by alpha, beta, gamma
-    GeoTrf::RotateX3D ralpha(p.alpha*GeoModelKernelUnits::deg);
-    GeoTrf::RotateZ3D rbeta(p.beta*GeoModelKernelUnits::deg);
-    GeoTrf::RotateY3D rgamma(p.gamma*GeoModelKernelUnits::deg);
+    GeoTrf::RotateX3D ralpha(p.alpha*Gaudi::Units::deg);
+    GeoTrf::RotateZ3D rbeta(p.beta*Gaudi::Units::deg);
+    GeoTrf::RotateY3D rgamma(p.gamma*Gaudi::Units::deg);
     if (pLvl) {
       log<<MSG::VERBOSE<<" gamma is not changing sign - original "<<p.gamma<<" new one "<<p.gamma<<endmsg;
       log<<MSG::VERBOSE<<" alpha / beta "<<p.alpha<<" "<<p.beta<<endmsg;
@@ -824,29 +824,29 @@ GeoTrf::Transform3D Station::tsz_to_global_frame( const Position & p ) const {
     if ( m_name[0]=='B' || p.isBarrelLike )
     {    
         // here all Barrel chambers 
-        nominalTransf =  GeoTrf::RotateZ3D(p.phi*GeoModelKernelUnits::deg);
+        nominalTransf =  GeoTrf::RotateZ3D(p.phi*Gaudi::Units::deg);
     }
     else
     {
 // replace this with the folowing lines 8/06/2006 SS because, EC not mirrored chambers have anyway to be rotated
 // by 180deg around z to mov ecoherently their local reference frame and the tube-layer numbering
 //         if ( p.z>=0 || ( p.z<0 && !(p.isMirrored) ) ){
-//             nominalTransf =  GeoTrf::Transform3D(GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg)*
-// 					    GeoTrf::RotateX3D(p.phi*GeoModelKernelUnits::deg-180*GeoModelKernelUnits::deg));
+//             nominalTransf =  GeoTrf::Transform3D(GeoTrf::RotateY3D(-90*Gaudi::Units::deg)*
+// 					    GeoTrf::RotateX3D(p.phi*Gaudi::Units::deg-180*Gaudi::Units::deg));
 //         }
 //         else if (p.z<0 && p.isMirrored){
-//             nominalTransf =  GeoTrf::Transform3D(GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg)*
-//                                             GeoTrf::RotateX3D(p.phi*GeoModelKernelUnits::deg-180*GeoModelKernelUnits::deg)*
-//                                             GeoTrf::RotateZ3D(180*GeoModelKernelUnits::deg));
+//             nominalTransf =  GeoTrf::Transform3D(GeoTrf::RotateY3D(-90*Gaudi::Units::deg)*
+//                                             GeoTrf::RotateX3D(p.phi*Gaudi::Units::deg-180*Gaudi::Units::deg)*
+//                                             GeoTrf::RotateZ3D(180*Gaudi::Units::deg));
 //         }
         if ( p.z>=0 ){
-            nominalTransf =  GeoTrf::Transform3D(GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg)*
-					    GeoTrf::RotateX3D(p.phi*GeoModelKernelUnits::deg-180*GeoModelKernelUnits::deg));
+            nominalTransf =  GeoTrf::Transform3D(GeoTrf::RotateY3D(-90*Gaudi::Units::deg)*
+					    GeoTrf::RotateX3D(p.phi*Gaudi::Units::deg-180*Gaudi::Units::deg));
         }
         else if ( p.z<0 ){
-            nominalTransf =  GeoTrf::Transform3D(GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg)*
-                                            GeoTrf::RotateX3D(p.phi*GeoModelKernelUnits::deg-180*GeoModelKernelUnits::deg)*
-                                            GeoTrf::RotateZ3D(180*GeoModelKernelUnits::deg));
+            nominalTransf =  GeoTrf::Transform3D(GeoTrf::RotateY3D(-90*Gaudi::Units::deg)*
+                                            GeoTrf::RotateX3D(p.phi*Gaudi::Units::deg-180*Gaudi::Units::deg)*
+                                            GeoTrf::RotateZ3D(180*Gaudi::Units::deg));
         }
 	else log << MSG::WARNING<<" AAAAAA problem here p.z, mirrored "
 		    <<p.z<<" "<<p.isMirrored<<endmsg;
@@ -1038,13 +1038,13 @@ double Station::getAmdbOrigine_along_thickness() const
 //     if (m_name[0]=='B') {
 //         // defining the position of the centre of any station
 //         // here using the stations in DBSC (described in amdb + the ones at z<0)
-//         vec.setX((p.radius+GetThickness()/2.)*cos(p.phi*GeoModelKernelUnits::deg));
-//         vec.setX(vec.x()-p.shift*sin((p.phi)*GeoModelKernelUnits::deg));
-//         vec.setY((p.radius+GetThickness()/2.)*sin(p.phi*GeoModelKernelUnits::deg));
-//         vec.setY(vec.y()+p.shift*cos((p.phi)*GeoModelKernelUnits::deg));
+//         vec.setX((p.radius+GetThickness()/2.)*cos(p.phi*Gaudi::Units::deg));
+//         vec.setX(vec.x()-p.shift*sin((p.phi)*Gaudi::Units::deg));
+//         vec.setY((p.radius+GetThickness()/2.)*sin(p.phi*Gaudi::Units::deg));
+//         vec.setY(vec.y()+p.shift*cos((p.phi)*Gaudi::Units::deg));
 //         vec.setZ(p.z+GetLength()/2.);
-//         AMDBorgTranslation = GeoTrf::Translate3D(GetThickness()*cos(p.phi*GeoModelKernelUnits::deg)/2.,
-//                                             GetThickness()*sin(p.phi*GeoModelKernelUnits::deg)/2.,
+//         AMDBorgTranslation = GeoTrf::Translate3D(GetThickness()*cos(p.phi*Gaudi::Units::deg)/2.,
+//                                             GetThickness()*sin(p.phi*Gaudi::Units::deg)/2.,
 //                                             GetLength()/2.);
 //     }
 //     else {      // if (m_name[0]=='T')
@@ -1057,18 +1057,18 @@ double Station::getAmdbOrigine_along_thickness() const
 //             RAD=p.radius;
 //         if (m_name[0]!='C')
 //         {
-//             vec.setX((RAD+GetLength()/2.)*cos(p.phi*GeoModelKernelUnits::deg));
-//             vec.setX(vec.x()-p.shift*sin((p.phi)*GeoModelKernelUnits::deg));
-//             vec.setY((RAD+GetLength()/2.)*sin(p.phi*GeoModelKernelUnits::deg));
-//             vec.setY(vec.y()+p.shift*cos((p.phi)*GeoModelKernelUnits::deg));
+//             vec.setX((RAD+GetLength()/2.)*cos(p.phi*Gaudi::Units::deg));
+//             vec.setX(vec.x()-p.shift*sin((p.phi)*Gaudi::Units::deg));
+//             vec.setY((RAD+GetLength()/2.)*sin(p.phi*Gaudi::Units::deg));
+//             vec.setY(vec.y()+p.shift*cos((p.phi)*Gaudi::Units::deg));
 //             vec.setZ(p.z+GetThickness()/2.);
 //         }
 //         else
 //         {
-//             vec.setX(RAD*cos(p.phi*GeoModelKernelUnits::deg));
-//             vec.setX(vec.x()-p.shift*sin((p.phi)*GeoModelKernelUnits::deg));
-//             vec.setY(RAD*sin(p.phi*GeoModelKernelUnits::deg));
-//             vec.setY(vec.y()+p.shift*cos((p.phi)*GeoModelKernelUnits::deg));
+//             vec.setX(RAD*cos(p.phi*Gaudi::Units::deg));
+//             vec.setX(vec.x()-p.shift*sin((p.phi)*Gaudi::Units::deg));
+//             vec.setY(RAD*sin(p.phi*Gaudi::Units::deg));
+//             vec.setY(vec.y()+p.shift*cos((p.phi)*Gaudi::Units::deg));
 //             if (p.z>0) vec.setZ(p.z);
 //             else vec.setZ(p.z+GetThickness());
 //         }
@@ -1082,31 +1082,31 @@ double Station::getAmdbOrigine_along_thickness() const
 //     const HepVector3D phiaxis = HepVector3D(-raxis.y(), raxis.x(), 0.); // phi = z cross r
 //     // order of extra rotations is alpha(r), then beta(z), then gamma(phi)
 //     GeoTrf::Rotate3D ralpha, rbeta, rgamma;
-//     ralpha = GeoTrf::Rotate3D(p.alpha*GeoModelKernelUnits::deg, raxis);
-//     rbeta  = GeoTrf::Rotate3D(p.beta*GeoModelKernelUnits::deg,  zaxis);
+//     ralpha = GeoTrf::Rotate3D(p.alpha*Gaudi::Units::deg, raxis);
+//     rbeta  = GeoTrf::Rotate3D(p.beta*Gaudi::Units::deg,  zaxis);
 //     if ( p.zindex<0 && !(m_name[0] == 'B') ) {
-//         rgamma = GeoTrf::Rotate3D(p.gamma*GeoModelKernelUnits::deg, phiaxis);
+//         rgamma = GeoTrf::Rotate3D(p.gamma*Gaudi::Units::deg, phiaxis);
 //         //            if (m_name[0]=='C') log << MSG::DEBUG <<"zi,fi  gamma applied "<<m_name<<" "<<p.zindex<<" "<<p.phiindex<<" "<<p.gamma<<endmsg;
 //     }
 //     else {
-//         rgamma = GeoTrf::Rotate3D(-p.gamma*GeoModelKernelUnits::deg, phiaxis);
+//         rgamma = GeoTrf::Rotate3D(-p.gamma*Gaudi::Units::deg, phiaxis);
 //         //            if (m_name[0]=='C') log << MSG::DEBUG<<"zi,fi  gamma applied "<<m_name<<" "<<p.zindex<<" "<<p.phiindex<<" "<<-p.gamma<<endmsg;
 //     }
 //     if (m_name[0]=='B' || p.isBarrelLike)
 //     {
 //         // here all Barrel chambers
-//         if (p.isMirrored) nominalTransf = GeoTrf::RotateZ3D(p.phi*GeoModelKernelUnits::deg)*GeoTrf::RotateX3D(180.*GeoModelKernelUnits::deg);
-//         else nominalTransf =  GeoTrf::RotateZ3D(p.phi*GeoModelKernelUnits::deg);
+//         if (p.isMirrored) nominalTransf = GeoTrf::RotateZ3D(p.phi*Gaudi::Units::deg)*GeoTrf::RotateX3D(180.*Gaudi::Units::deg);
+//         else nominalTransf =  GeoTrf::RotateZ3D(p.phi*Gaudi::Units::deg);
 //     }
 //     else
 //     {
 //         if ( p.z>=0 || ( p.z<0 && !(p.isMirrored) ) ){
-//             nominalTransf =  GeoTrf::Transform3D(GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg)*GeoTrf::RotateX3D(p.phi*GeoModelKernelUnits::deg-180*GeoModelKernelUnits::deg));
+//             nominalTransf =  GeoTrf::Transform3D(GeoTrf::RotateY3D(-90*Gaudi::Units::deg)*GeoTrf::RotateX3D(p.phi*Gaudi::Units::deg-180*Gaudi::Units::deg));
 //         }
 //         else if (p.z<0 && p.isMirrored){
-//             nominalTransf =  GeoTrf::Transform3D(GeoTrf::RotateY3D(-90*GeoModelKernelUnits::deg)*
-//                                             GeoTrf::RotateX3D(p.phi*GeoModelKernelUnits::deg-180*GeoModelKernelUnits::deg)*
-//                                             GeoTrf::RotateZ3D(180*GeoModelKernelUnits::deg));
+//             nominalTransf =  GeoTrf::Transform3D(GeoTrf::RotateY3D(-90*Gaudi::Units::deg)*
+//                                             GeoTrf::RotateX3D(p.phi*Gaudi::Units::deg-180*Gaudi::Units::deg)*
+//                                             GeoTrf::RotateZ3D(180*Gaudi::Units::deg));
 //         }
 //         else log << MSG::WARNING<<" AAAAAA problem here p.z, mirrored "
 // 	        <<p.z<<" "<<p.isMirrored<<endmsg;
@@ -1114,7 +1114,7 @@ double Station::getAmdbOrigine_along_thickness() const
 //     GeoTrf::Transform3D transf;
 //     if (m_name[0]!='C') transf = GeoTrf::Translate3D(vec)*rgamma*rbeta*ralpha*nominalTransf;
 //     else transf = GeoTrf::Translate3D(vec)*nominalTransf*
-//                   GeoTrf::RotateY3D(p.gamma*GeoModelKernelUnits::deg)*
+//                   GeoTrf::RotateY3D(p.gamma*Gaudi::Units::deg)*
 //                   GeoTrf::Translate3D(GetThickness()/2.,0.,GetLength()/2.);
 //     return transf;
 // }

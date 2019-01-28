@@ -25,10 +25,15 @@ class GenericMonitoringTool(_GenericMonitoringTool):
 #  @param title    Histogram title and optional axis title (same syntax as in TH constructor)
 #  @param opt      Histrogram options (see GenericMonitoringTool)
 #  @param labels   List of bin labels (for a 2D histogram, sequential list of x- and y-axis labels)
-def defineHistogram(varname, type='TH1F', path='EXPERT',
+def defineHistogram(varname, type='TH1F', path=None,
                     title=None,
                     xbins=100, xmin=0, xmax=1,
                     ybins=None, ymin=None, ymax=None, zmin=None, zmax=None, opt='', labels=None):
+
+    if path is None:
+        import warnings
+        warnings.warn("Calling defineHistrogram without path is deprecated. Specify e.g. path='EXPERT'", stacklevel=2)
+        path = 'EXPERT'
 
     if title is None: title=varname
     coded = "%s, %s, %s, %s, %d, %f, %f" % (path, type, varname, title, xbins, xmin, xmax)

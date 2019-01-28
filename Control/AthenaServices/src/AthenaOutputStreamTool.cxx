@@ -244,20 +244,12 @@ StatusCode AthenaOutputStreamTool::connectOutput(const std::string& outputName) 
       }
    }
 
-   if (!m_attrListKey.key().empty()) {
-     auto attrListHandle = SG::makeHandle(m_attrListKey);
-
-     if (!attrListHandle.isValid()) {
-       if (m_store->storeID() == StoreID::SIMPLE_STORE ||
-           m_store->storeID() == StoreID::METADATA_STORE)
-       {
-         // Avoid spurious WARNING during stop().
-       }
-       else {
+   if (!m_attrListKey.key().empty() && m_store->storeID() == StoreID::EVENT_STORE) {
+      auto attrListHandle = SG::makeHandle(m_attrListKey);
+      if (!attrListHandle.isValid()) {
          ATH_MSG_WARNING("Unable to retrieve AttributeList with key " << m_attrListKey.key());
-       }
       } else {
-       m_dataHeader->setAttributeList(attrListHandle.cptr());
+         m_dataHeader->setAttributeList(attrListHandle.cptr());
       }
    }
 

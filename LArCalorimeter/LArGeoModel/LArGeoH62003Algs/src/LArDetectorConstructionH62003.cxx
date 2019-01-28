@@ -49,17 +49,18 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <string>
 #include <cmath>
 #include <iostream>
 
 using GeoModelKernelUnits::g;
-using GeoModelKernelUnits::cm3;
-using GeoModelKernelUnits::mm;
-using GeoModelKernelUnits::cm;
-using GeoModelKernelUnits::m;
-using GeoModelKernelUnits::deg;
+using Gaudi::Units::cm3;
+using Gaudi::Units::mm;
+using Gaudi::Units::cm;
+using Gaudi::Units::m;
+using Gaudi::Units::deg;
 using GeoTrf::Vector3D;
 using GeoTrf::Transform3D;
 using GeoTrf::Translate3D;

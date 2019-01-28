@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERECUTILS_TILECELLBUILDER_H
@@ -77,12 +77,12 @@ class TileDQstatus;
  */
 class TileDrawerEvtStatus {
   public:
-    int nChannels;
-    int nMaskedChannels;
-    int nBadQuality;
-    int nOverflow;
-    int nUnderflow;
-    int nSomeSignal;
+    int nChannels = 0;
+    int nMaskedChannels = 0;
+    int nBadQuality = 0;
+    int nOverflow = 0;
+    int nUnderflow = 0;
+    int nSomeSignal = 0;
 };
 
 /**
@@ -102,47 +102,32 @@ class TileDrawerRunStatus {
  @brief This class creates Cells from RawChannels and stores them in a container
  
  */
-class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
-    friend class DoubleVectorIterator;
+class TileCellBuilder
+  : public extends<AthAlgTool, ICaloCellMakerTool>
+{
   public:
     TileCellBuilder(const std::string& type, const std::string& name, const IInterface* parent); //!< Contructor
 
     virtual ~TileCellBuilder(); //!< Destructor
 
-    virtual StatusCode initialize();                     //!< initialize mehtod
+    virtual StatusCode initialize() override;
+
+    virtual StatusCode finalize() override;
+
+    /// method to process all raw channels and store them in container
+    virtual StatusCode process(CaloCellContainer* theCellContainer) override;
 
     void reset(bool fullSizeCont, bool printReset = true); //!< Method to reset the options of the TileCellContainer
 
-    /**
-     This method sets the type and unit for the TileRAwChannels. It
-     might be called from TileROD_Decoder
-     otherwise it isn't needed - type and unit are available from 
-     TileRawChannelContainer itself (see TileCellBuilder::process() below)
-     */
-    void set_type_and_unit(TileFragHash::TYPE type = TileFragHash::Default
-        , TileRawChannelUnit::UNIT unit = TileRawChannelUnit::ADCcounts);
-
-    virtual StatusCode finalize(); //!< finalize method
-
-    virtual StatusCode process(CaloCellContainer* theCellContainer); // method to process all raw channels and store them in container
-
-    template<class ITERATOR, class COLLECTION>
-    void build(const EventContext& ctx,
-               const ITERATOR & begin, const ITERATOR & end, COLLECTION * coll); //!< method to process raw channels from a given vector and store them in collection
-
-    /** method to check if channels are good or bad. Puts zero if both channels are bad
-     or recovers from single-channel failure. It returns true if cell was changed, false otherwise
-     */
-    bool maskBadChannel(TileCell* pCell, HWIdentifier hwid);
-    bool maskBadChannels(TileCell* pCell);
-
     //AlgTool InterfaceID
     static const InterfaceID& interfaceID();
-    //static const InterfaceID& interfaceID() { return ICaloCellMakerTool; };
 
-  protected:
+private:
     // FIXME: Get rid of this abomination.
     friend class TileHid2RESrcID;
+
+    /// status of every drawer
+    typedef TileDrawerEvtStatus TileDrawerEvtStatusArray[5][64];
 
     // properties
     SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this, "TileRawChannelContainer", 
@@ -153,8 +138,11 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
                                                                            "TileRawChannelCnt", 
                                                                            "Input Tile DSP raw channel container key"};
 
-    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfo",
-                                                      "EventInfo", "Input Event info key"};
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfo", 
+                                                      "EventInfo", 
+                                                      "EventInfo key"};
+
+
 
     SG::ReadHandleKey<TileDQstatus> m_DQstatusKey{this, "TileDQstatus", 
                                                   "TileDQstatus", 
@@ -205,7 +193,6 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
     const TileTBID* m_tileTBID; //!< Pointer to TileTBID
     const TileHWID* m_tileHWID; //!< Pointer to TileHWID
     const TileCablingService* m_cabling; //!< TileCabling instance
-    const TileDQstatus* m_DQstatus;
 
     ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
         "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
@@ -224,63 +211,104 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
     const TileDetDescrManager* m_tileMgr; //!< Pointer to TileDetDescrManager
     const MbtsDetDescrManager* m_mbtsMgr; //!< Pointer to MbtsDetDescrManager
 
-    std::vector<TileCell*> m_allCells;  //!< vector to of pointers to TielCells
-    std::unique_ptr<TileCellContainer> m_MBTSCells;     //!< Pointer to MBTS cell container
-    std::unique_ptr<TileCellContainer> m_E4prCells;     //!< Pointer to E4'  cell container
-
-    TileFragHash::TYPE m_RChType;        //!< Type of TileRawChannels (Fit, OF2, etc.)
-    TileRawChannelUnit::UNIT m_RChUnit;  //!< Unit for TileRawChannels (ADC, pCb, etc.)
     //unsigned int m_bsflags;              //!< other flags stored in TileRawChannelContainer
-    float m_maxTimeCorr;                 //!< max possible time when time correction is applied
 
-    TileDrawerEvtStatus m_drawerEvtStatus[5][64]; //!< status of every drawer in every event
-    TileDrawerRunStatus m_drawerRunStatus[5][64]; //!< overall status of drawer in whole run
-    int m_eventErrorCounter[4]; //!< number of events with no errors(0), warnings(1), error(2), total(3)
+    // These were accumulated, but never actually used.
+    // They also spoil reentrancy, so leave them commented-out for now.
+    // If this information is needed in the future, these can be changed
+    // to use atomics.
+    //TileDrawerRunStatus m_drawerRunStatus[5][64]; //!< overall status of drawer in whole run
+    //int m_eventErrorCounter[4]; //!< number of events with no errors(0), warnings(1), error(2), total(3)
 
     std::vector<CaloAffectedRegionInfo> m_affectedRegionInfo_global;
     std::vector<CaloAffectedRegionInfo> m_affectedRegionInfo_current_run;
 
-    void correctCell(TileCell* pCell, int correction, int pmt, int gain, float ener, float time,
-        unsigned char iqual, unsigned char qbit, int ch_type); //!< Compute calibrated energy, time, etc. for TileCell and adjust it.
+   
+    struct VecParams
+    {
+      // Type of TileRawChannels (Fit, OF2, etc.)
+      TileFragHash::TYPE m_RChType;      
+ 
+      // Unit for TileRawChannels (ADC, pCb, etc.)
+      TileRawChannelUnit::UNIT m_RChUnit;
 
-    unsigned char iquality(float qual)  {//!< method to compute the cell quality
+      // max possible time when time correction is applied
+      float m_maxTimeCorr = 75.0;
+
+      // If true, amplitude is corrected by parabolic function (needed for OF without iterations)
+      bool m_correctAmplitude; 
+
+      // should time be corrected (deltat added from CondDB)
+      bool m_correctTime;          
+
+      // If true, assume OF2 method for amplitude correction, otherwise - OF1
+      bool m_of2;
+    };
+ 
+    /// < method to process raw channels from a given vector and store them in collection
+    template<class ITERATOR, class COLLECTION>
+    void build (const EventContext& ctx,
+                TileDrawerEvtStatusArray& drawerEvtStatus,
+                VecParams& params,
+                const ITERATOR & begin,
+                const ITERATOR & end,
+                COLLECTION* coll,
+                TileCellContainer* MBTSCells,
+                TileCellContainer* E4prCells) const;
+
+    /** method to check if channels are good or bad. Puts zero if both channels are bad
+     or recovers from single-channel failure. It returns true if cell was changed, false otherwise
+     */
+    bool maskBadChannel (TileDrawerEvtStatusArray& drawerEvtStatus,
+                         const TileDQstatus* DQstatus,
+                         TileCell* pCell, HWIdentifier hwid) const;
+    bool maskBadChannels (TileDrawerEvtStatusArray& drawerEvtStatus,
+                          const TileDQstatus* DQstatus,
+                          TileCell* pCell) const;
+
+    void correctCell(TileCell* pCell, int correction, int pmt, int gain, float ener, float time,
+        unsigned char iqual, unsigned char qbit, int ch_type) const; //!< Compute calibrated energy, time, etc. for TileCell and adjust it.
+
+    unsigned char iquality(float qual) const {//!< method to compute the cell quality
          return std::min(255, abs((int) qual));
     } // keep quality within 8 bits make it "unsigned char"
 
-    unsigned char qbits(int ros, int drawer, bool count_over, bool good_time, bool good_ener,
-        bool overflow, bool underflow, bool good_overflowfit); //!< method to compute the cell quality bits
+
+    /// method to compute the cell quality bits
+    unsigned char qbits (TileDrawerEvtStatusArray& drawerEvtStatus,
+                         TileFragHash::TYPE RChType,
+                         int ros, int drawer,
+                         bool count_over, bool good_time, bool good_ener,
+                         bool overflow, bool underflow,
+                         bool good_overflowfit) const;
 
     bool isChanDCSgood (int ros, int drawer, int channel) const;
 
     template<typename T, typename V>
     class DoubleVectorIterator {
+        VecParams& m_params;
         T* m_first;
-        TileFragHash::TYPE m_typ1;
-        TileRawChannelUnit::UNIT m_uni1;
-        float m_cut1;
-        bool m_amp1;
-        bool m_tim1;
-        bool m_of21;
+        const VecParams& m_params1;
         T* m_second;
-        TileFragHash::TYPE m_typ2;
-        TileRawChannelUnit::UNIT m_uni2;
-        float m_cut2;
-        bool m_amp2;
-        bool m_tim2;
-        bool m_of22;
-        TileCellBuilder* m_ptr;
+        const VecParams& m_params2;
         int m_pos;
         typedef typename T::iterator itr_type;
         itr_type m_itr;
 
       public:
 
-        DoubleVectorIterator(T* f, TileFragHash::TYPE y1, TileRawChannelUnit::UNIT u1, float c1, bool a1, bool t1, bool o1
-                           , T* s, TileFragHash::TYPE y2, TileRawChannelUnit::UNIT u2, float c2, bool a2, bool t2, bool o2
-                           , TileCellBuilder* b, int p)
-            : m_first(f), m_typ1(y1), m_uni1(u1), m_cut1(c1), m_amp1(a1), m_tim1(t1), m_of21(o1)
-            , m_second(s), m_typ2(y2), m_uni2(u2), m_cut2(c2), m_amp2(a2), m_tim2(t2), m_of22(o2)
-            , m_ptr(b), m_pos(p) {
+        DoubleVectorIterator(VecParams& params,
+                             T* f,
+                             const VecParams& params1,
+                             T* s,
+                             const VecParams& params2,
+                             int p)
+          : m_params(params),
+            m_first(f),
+              m_params1(params1),
+              m_second(s),
+              m_params2(params2),
+              m_pos(p) {
 
           if (m_first->begin() != m_first->end() && m_pos < 1) {
             m_pos = 0;
@@ -289,12 +317,7 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
             m_pos = 1;
             m_itr = m_second->begin();
             // set parameters for second vector
-            m_ptr->m_RChType = m_typ2;
-            m_ptr->m_RChUnit = m_uni2;
-            m_ptr->m_maxTimeCorr = m_cut2;
-            m_ptr->m_correctAmplitude = m_amp2;
-            m_ptr->m_correctTime = m_tim2;
-            m_ptr->m_of2 = m_of22;
+            m_params = m_params2;
           } else {
             m_pos = 2;
             m_itr = m_second->end();
@@ -321,33 +344,18 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
               m_itr = m_second->begin();
               m_pos = 1;
               // set parameters for second vector
-              m_ptr->m_RChType = m_typ2;
-              m_ptr->m_RChUnit = m_uni2;
-              m_ptr->m_maxTimeCorr = m_cut2;
-              m_ptr->m_correctAmplitude = m_amp2;
-              m_ptr->m_correctTime = m_tim2;
-              m_ptr->m_of2 = m_of22;
+              m_params = m_params2;
               if (m_itr != m_second->end()) break;
               m_pos = 2;
               // recover parameters for first vector
-              m_ptr->m_RChType = m_typ1;
-              m_ptr->m_RChUnit = m_uni1;
-              m_ptr->m_maxTimeCorr = m_cut1;
-              m_ptr->m_correctAmplitude = m_amp1;
-              m_ptr->m_correctTime = m_tim1;
-              m_ptr->m_of2 = m_of21;
+              m_params = m_params1;
               break;
             case 1:
               if (m_itr != m_second->end()) ++m_itr;
               if (m_itr != m_second->end()) break;
               m_pos = 2;
               // recover parameters for first vector
-              m_ptr->m_RChType = m_typ1;
-              m_ptr->m_RChUnit = m_uni1;
-              m_ptr->m_maxTimeCorr = m_cut1;
-              m_ptr->m_correctAmplitude = m_amp1;
-              m_ptr->m_correctTime = m_tim1;
-              m_ptr->m_of2 = m_of21;
+              m_params = m_params1;
               break;
             default:
               break;

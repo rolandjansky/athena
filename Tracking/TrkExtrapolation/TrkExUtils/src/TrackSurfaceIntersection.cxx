@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -36,10 +36,6 @@ Trk::TrackSurfaceIntersection::TrackSurfaceIntersection(const TrackSurfaceInters
 {
     m_serialNumber	= ++s_serialNumber;
 }
-
-// destructor
-Trk::TrackSurfaceIntersection::~TrackSurfaceIntersection()
-{}
 
 //Overload of << operator for both, MsgStream and std::ostream for debug output
 MsgStream& Trk::operator << ( MsgStream& sl, const Trk::TrackSurfaceIntersection& tsfi)

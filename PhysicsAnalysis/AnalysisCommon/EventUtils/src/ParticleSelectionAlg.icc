@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -12,7 +12,8 @@
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODCutFlow/CutBookkeeperContainer.h"
-#include "PATCore/TAccept.h"
+#include "PATCore/AcceptInfo.h"
+#include "PATCore/AcceptData.h"
 
 
 
@@ -80,75 +81,6 @@ StatusCode ParticleSelectionAlg::selectParticles(const xAOD::IParticleContainer*
     // The default object pass value. As soon as one cut is not passed, then
     // the remainder of the cuts will not even be tried
     bool passEverything = true;
-
-    //------------- for the AsgSelectionTools --------------
-    // Loop over all selection tools
-    ATH_MSG_VERBOSE("Loop over all selection tools");
-    for ( std::size_t toolIdx=0; toolIdx < m_selTools.size(); ++toolIdx ){
-      if (passEverything){
-        ATH_MSG_VERBOSE("Now going to try AsgSelectionTools number " << toolIdx );
-        const Root::TAccept& tAccept = m_selTools[toolIdx]->accept(part);
-        if (!m_doCutFlow){ passEverything &= static_cast<bool>(tAccept); }
-        else {
-          const std::size_t cbkStartIdx = m_selToolIdxOffset[toolIdx];
-          const unsigned int nCuts = tAccept.getNCuts();
-          for ( unsigned int iCut=0; iCut<nCuts; ++iCut ){
-            passEverything &= tAccept.getCutResult(iCut);
-            if (passEverything){
-              const std::size_t currentCBKIdx = cbkStartIdx + iCut;
-              xAOD::CutBookkeeper* cutBK = cutBKCont->at(currentCBKIdx);
-              cutBK->addNAcceptedEvents(1);
-              cutBK->addSumOfEventWeights(eventWeight);
-              cutBK->addSumOfEventWeightsSquared(eventWeight*eventWeight);
-            }
-          }
-        } // Done doing detailed particle cut-flow for this tool
-        ATH_MSG_VERBOSE("AsgSelectionTools number " << toolIdx << " passed/failed: " << passEverything );
-      }
-    }
-
-    //------------- for the AsgSelectionWithVertexTools --------------
-    // If we have at least one, we have to get the primary vertex
-    if ( m_selWVtxTools.size() ){
-      // Get the primary vertex container
-      const xAOD::VertexContainer* primVtxCont = nullptr;
-      ATH_CHECK( evtStore()->retrieve( primVtxCont, m_inPrimVtxCont.value() ) );
-      const xAOD::Vertex* primVtx = nullptr;
-      for ( const xAOD::Vertex* vtx  :  *primVtxCont ) {
-        // Get THE primary vertex
-        if ( vtx->vertexType() == xAOD::VxType::PriVtx ) {
-          primVtx = vtx;
-          break;
-        }
-      }
-      if ( !primVtx ) {
-        ATH_MSG_WARNING("Couldn't find a primary vertex in this event!");
-      }
-      // Now, we go ahead and loop over the tools
-      ATH_MSG_VERBOSE("Loop over all selection with vertex tools: " << passEverything);
-      for ( std::size_t toolIdx=0; toolIdx < m_selWVtxTools.size(); ++toolIdx ){
-        if (passEverything){
-          ATH_MSG_VERBOSE("Now going to try AsgSelectionWithVertexTools number " << toolIdx );
-          const Root::TAccept& tAccept = m_selWVtxTools[toolIdx]->accept(part,primVtx);
-          if (!m_doCutFlow){ passEverything &= static_cast<bool>(tAccept); }
-          else {
-            const std::size_t cbkStartIdx = m_selWPVToolIdxOffset[toolIdx];
-            const unsigned int nCuts = tAccept.getNCuts();
-            for ( unsigned int iCut=0; iCut<nCuts; ++iCut ){
-              passEverything &= tAccept.getCutResult(iCut);
-              if (passEverything){
-                const std::size_t currentCBKIdx = cbkStartIdx + iCut;
-                xAOD::CutBookkeeper* cutBK = cutBKCont->at(currentCBKIdx);
-                cutBK->addNAcceptedEvents(1);
-                cutBK->addSumOfEventWeights(eventWeight);
-                cutBK->addSumOfEventWeightsSquared(eventWeight*eventWeight);
-              }
-            }
-          } // Done doing detailed particle cut-flow for this tool
-          ATH_MSG_VERBOSE("AsgSelectionWithVertexTools number " << toolIdx << " passed/failed: " << passEverything );
-        }
-      }// Done looping over the selection tools
-    } // End: if ( m_selWVtxTools.size() ){
 
     //------------- for the ExpressionParsing in this algorithm --------------
     ATH_MSG_VERBOSE("Looking at expression parser result: " << passEverything);

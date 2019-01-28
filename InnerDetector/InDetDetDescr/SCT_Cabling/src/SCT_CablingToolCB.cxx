@@ -21,7 +21,6 @@
 //Gaudi includes
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/IIncidentSvc.h"
-#include "EventInfo/EventIncident.h"
 
 //constants in file scope
 static const std::string coracool("CORACOOL");

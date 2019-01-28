@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkExtrapolation/TrkExUtils
                           PRIVATE
                           GaudiKernel
+                          AtlasTest/TestTools
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/TrkParameters )
 
@@ -28,3 +29,6 @@ atlas_add_component( TrkExStraightLineIntersector
 # Install files from the package:
 atlas_install_headers( TrkExStraightLineIntersector )
 
+atlas_add_test( StraightLineIntersector_test
+                SOURCES test/StraightLineIntersector_test.cxx
+                LINK_LIBRARIES TrkExUtils TestTools GaudiKernel )

@@ -242,7 +242,6 @@ C                Error return
 }
 
 void ParticleEnergyParametrization::DiceParticle(ParticleEnergyShape& p,TRandom& rand) const {
-  TRandom& rand2 = *gRandom;
   if(!m_Ecal_vs_dist) {
     p.E=0;
     p.Ecal=0;
@@ -250,7 +249,7 @@ void ParticleEnergyParametrization::DiceParticle(ParticleEnergyShape& p,TRandom&
     p.dist000=0;
     return;
   }
-  GetRandom2 (rand2, *m_Ecal_vs_dist, p.dist_in, p.Ecal);
+  GetRandom2 (rand, *m_Ecal_vs_dist, p.dist_in, p.Ecal);
   int distbin=m_Ecal_vs_dist->FindBin(p.dist_in);
   if(distbin<1) distbin=1;
   if(distbin>m_Ecal_vs_dist->GetNbinsX()) distbin=m_Ecal_vs_dist->GetNbinsX();
@@ -258,11 +257,11 @@ void ParticleEnergyParametrization::DiceParticle(ParticleEnergyShape& p,TRandom&
   double xmin= m_Ecal_vs_dist->GetXaxis()->GetBinLowEdge(distbin);
   double xmax= m_Ecal_vs_dist->GetXaxis()->GetBinUpEdge(distbin);
 
-  //p.dist_in = GetRandomInBinRange(rand2, xmin,xmax ,(TH1F*)m_h_layer_d_fine);
+  //p.dist_in = GetRandomInBinRange(rand, xmin,xmax ,(TH1F*)m_h_layer_d_fine);
   if(m_h_layer_d_fine) {
     //cout<<" fine hist ptr="<<m_h_layer_d_fine<<endl;
     //cout<<" fine hist="<<m_h_layer_d_fine->GetName()<<" : "<<m_h_layer_d_fine->GetTitle()<<endl;
-    p.dist_in = GetRandomInBinRange(rand2, xmin,xmax ,(TH1*) m_h_layer_d_fine);
+    p.dist_in = GetRandomInBinRange(rand, xmin,xmax ,(TH1*) m_h_layer_d_fine);
   }
 
   const ParticleEnergyParametrizationInDistbin* shapeindist=DistPara(distbin);
@@ -320,7 +319,7 @@ void ParticleEnergyParametrization::DiceParticle(ParticleEnergyShape& p,TRandom&
       p.fcal_layer[i]=0;
       TH1* h1=shapeindist->m_ElayerProp[i];
       if(h1) {
-        double f=GetRandom(rand2, *h1)+shapeindist->m_mean(i);
+        double f=GetRandom(rand, *h1)+shapeindist->m_mean(i);
         if(f<0) f=0;
         p.fcal_layer[i]=f;
         p.fcal_tot+=f;
@@ -333,7 +332,7 @@ void ParticleEnergyParametrization::DiceParticle(ParticleEnergyShape& p,TRandom&
 //    p.fcal_layer[i]=0;
     TH1* h1=shapeindist->m_ElayerProp[i];
     if(h1) {
-      double f=GetRandom(rand2, *h1)+shapeindist->m_mean(i);
+      double f=GetRandom(rand, *h1)+shapeindist->m_mean(i);
       if(f<0) f=0;
 //        p.fcal_layer[i]=f;
       p.fcal_tot_uncor+=f;

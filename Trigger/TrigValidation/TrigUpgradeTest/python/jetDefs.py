@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
 def jetRecoSequence(RoIs):
@@ -23,16 +23,20 @@ def jetRecoSequence(RoIs):
     mon = GenericMonitoringTool("CaloDataAccessSvcMon")
     mon.Histograms += [
         defineHistogram("TIME_locking_LAr_RoI",
+                        path="EXPERT",
                         title="Time spent in unlocking the LAr collection",
                         xbins=100, xmin=0, xmax=100 ),
         defineHistogram("roiROBs_LAr",
+                        path="EXPERT",
                         title="Number of ROBs unpacked in RoI requests",
                         xbins=20, xmin=0, xmax=20 ),
         defineHistogram("TIME_locking_LAr_FullDet",
+                        path="EXPERT",
                         title="Time spent in unlocking the LAr collection",
                         xbins=100, xmin=0, xmax=100 ),
         defineHistogram("roiEta_LAr,roiPhi_LAr",
                         type="TH2F",
+                        path="EXPERT",
                         title="Geometric usage",
                         xbins=50, xmin=-5, xmax=5,
                         ybins=64, ymin=-math.pi, ymax=math.pi )]

@@ -24,6 +24,7 @@
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 #include "GeoModelKernel/GeoShapeIntersection.h"
 #include "GeoModelKernel/GeoShapeShift.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #define skip_tgc false
 
@@ -119,11 +120,11 @@ Tgc::build(int minimalgeo, int cutoutson, std::vector<Cutout*> vcutdef)
 
 	// wire supports
 	GeoTrd* strdsup = new GeoTrd(t->tck[i]/2, t->tck[i]/2, t->widthWireSupport/2,
-                                     t->widthWireSupport/2, lengthActive/2-0.1*GeoModelKernelUnits::mm);
+                                     t->widthWireSupport/2, lengthActive/2-0.1*Gaudi::Units::mm);
 	// button supports
 	GeoTube* stubesup = new GeoTube(0., t->radiusButton,
-					    t->tck[i]/2.+0.005*GeoModelKernelUnits::mm);
-	GeoTrf::RotateY3D rotY(3.14159264/2.*GeoModelKernelUnits::rad);
+					    t->tck[i]/2.+0.005*Gaudi::Units::mm);
+	GeoTrf::RotateY3D rotY(3.14159264/2.*Gaudi::Units::rad);
 	  
 	int iymin = int( -(widthActive/2. + lengthActive*tan(t->angleTilt) - t->widthWireSupport/2.
 			  + t->offsetWireSupport[iSenLyr])/t->distanceWireSupport );
@@ -188,7 +189,7 @@ Tgc::build(int minimalgeo, int cutoutson, std::vector<Cutout*> vcutdef)
                 GeoTrd* strdsupex = new GeoTrd(t->tck[i]/2, t->tck[i]/2,
                                                t->widthWireSupport/2,
                                                t->widthWireSupport/2,
-                                               lengthWireSupportEx/2-0.1*GeoModelKernelUnits::mm);
+                                               lengthWireSupportEx/2-0.1*Gaudi::Units::mm);
                 GeoTrf::Translate3D vtrans(0.,
 					   t->offsetWireSupport[iSenLyr]+t->distanceWireSupport*isupy + lengthActive/2.*tan(sign*t->angleTilt),
 					   (lengthActive-lengthWireSupportEx)/2.);
@@ -202,7 +203,7 @@ Tgc::build(int minimalgeo, int cutoutson, std::vector<Cutout*> vcutdef)
 	  			 + t->offsetWireSupport[iSenLyr]
 				       +lengthActive*tan( t->angleTilt))
 		                      -(-widthActive/2.);
-            if (widthLeftTrd > 8.*GeoModelKernelUnits::cm) {
+            if (widthLeftTrd > 8.*Gaudi::Units::cm) {
               double yLongBase;
               if ((name == "TGC01" || name == "TGC06" || name == "TGC12") &&
 	   	      t->distanceWireSupport*(iymin-1)+t->offsetWireSupport[iSenLyr]
@@ -230,7 +231,7 @@ Tgc::build(int minimalgeo, int cutoutson, std::vector<Cutout*> vcutdef)
 					+t->offsetWireSupport[iSenLyr]
 					+lengthActive*tan(-t->angleTilt));
 	      
-            if (widthRightTrd > 8.*GeoModelKernelUnits::cm) {
+            if (widthRightTrd > 8.*Gaudi::Units::cm) {
               double yLongBase;
               if ((name == "TGC01" || name == "TGC06" || name == "TGC12") &&
 		      t->distanceWireSupport*(iymax+1)+t->offsetWireSupport[iSenLyr]
