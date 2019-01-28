@@ -14,14 +14,14 @@
 #define DEFINE_ACCESSOR(TYPE, NAME )                               \
    case xAOD::NAME:                                                \
    {                                                               \
-      static SG::AuxElement::Accessor< TYPE > a( #NAME );          \
+      static const SG::AuxElement::Accessor< TYPE > a( #NAME );          \
       return &a;                                                   \
    }                                                               \
    break;
 
 namespace xAOD {
 
-   SG::AuxElement::Accessor< uint8_t >*
+   const SG::AuxElement::Accessor< uint8_t >*
    muonTrackSummaryAccessorV1( xAOD::MuonSummaryType type ) {
 
       switch( type ) {
@@ -105,23 +105,23 @@ namespace xAOD {
         DEFINE_ACCESSOR( uint8_t, etaLayer3TGCHoles );
         DEFINE_ACCESSOR( uint8_t, etaLayer4TGCHoles );
 
-	DEFINE_ACCESSOR( uint8_t, innerClosePrecisionHits );
-	DEFINE_ACCESSOR( uint8_t, middleClosePrecisionHits );
-	DEFINE_ACCESSOR( uint8_t, outerClosePrecisionHits );
-	DEFINE_ACCESSOR( uint8_t, extendedClosePrecisionHits );
+        DEFINE_ACCESSOR( uint8_t, innerClosePrecisionHits );
+        DEFINE_ACCESSOR( uint8_t, middleClosePrecisionHits );
+        DEFINE_ACCESSOR( uint8_t, outerClosePrecisionHits );
+        DEFINE_ACCESSOR( uint8_t, extendedClosePrecisionHits );
 
-	DEFINE_ACCESSOR( uint8_t, innerOutBoundsPrecisionHits );
+        DEFINE_ACCESSOR( uint8_t, innerOutBoundsPrecisionHits );
         DEFINE_ACCESSOR( uint8_t, middleOutBoundsPrecisionHits );
-	DEFINE_ACCESSOR( uint8_t, outerOutBoundsPrecisionHits );
+        DEFINE_ACCESSOR( uint8_t, outerOutBoundsPrecisionHits );
         DEFINE_ACCESSOR( uint8_t, extendedOutBoundsPrecisionHits );
 
-	DEFINE_ACCESSOR( uint8_t, combinedTrackOutBoundsPrecisionHits );
+        DEFINE_ACCESSOR( uint8_t, combinedTrackOutBoundsPrecisionHits );
 
-	DEFINE_ACCESSOR( uint8_t, isEndcapGoodLayers );
-	DEFINE_ACCESSOR( uint8_t, isSmallGoodSectors );
+        DEFINE_ACCESSOR( uint8_t, isEndcapGoodLayers );
+        DEFINE_ACCESSOR( uint8_t, isSmallGoodSectors );
 
-	DEFINE_ACCESSOR( uint8_t, cscEtaHits );
-	DEFINE_ACCESSOR( uint8_t, cscUnspoiledEtaHits );
+        DEFINE_ACCESSOR( uint8_t, cscEtaHits );
+        DEFINE_ACCESSOR( uint8_t, cscUnspoiledEtaHits );
 
       default:                  
          std::cerr << "xAOD::MuonTrackParticle_v1 ERROR Unknown MuonSummaryType ("
