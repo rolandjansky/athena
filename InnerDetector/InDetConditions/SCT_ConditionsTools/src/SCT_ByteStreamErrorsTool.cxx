@@ -103,9 +103,7 @@ SCT_ByteStreamErrorsTool::canReportAbout(InDetConditions::Hierarchy h) const {
  * result in bad hits or no hits for that event */
  
 bool 
-SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash) const {
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
-  
+SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash, const EventContext& ctx) const {
   if (m_checkRODSimulatedData and isRODSimulatedData(elementIdHash)) return false;
   
   bool result{true};
@@ -137,19 +135,33 @@ SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash) const {
   return result;
 }
 
+bool
+SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  return isGood(elementIdHash, ctx);
+}
+
 bool 
-SCT_ByteStreamErrorsTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+SCT_ByteStreamErrorsTool::isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h) const {
   if (not canReportAbout(h)) return true;
   
   if (h==InDetConditions::SCT_SIDE) {
     const IdentifierHash elementIdHash{m_sct_id->wafer_hash(elementId)};
-    return isGood(elementIdHash);
+    return isGood(elementIdHash, ctx);
   }
   if (h==InDetConditions::SCT_CHIP) {
     return isGoodChip(elementId);
   }
 
   return true;
+}
+
+bool
+SCT_ByteStreamErrorsTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  return isGood(elementId, ctx, h);
 }
 
 bool

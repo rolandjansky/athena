@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -99,7 +99,7 @@ SCT_ModuleVetoTool::canReportAbout(InDetConditions::Hierarchy h) const {
 }
 
 bool 
-SCT_ModuleVetoTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+SCT_ModuleVetoTool::isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h) const {
   if (not canReportAbout(h)) return true;
 
   // Bad wafer in properties
@@ -107,7 +107,6 @@ SCT_ModuleVetoTool::isGood(const Identifier& elementId, InDetConditions::Hierarc
   // If database is not used, all wafer IDs here should be good.
   if (not m_useDatabase) return true;
 
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_ModuleVetoCondData* condData{getCondData(ctx)};
   // If database cannot be retrieved, all wafer IDs are good.
   if (condData==nullptr) return true;
@@ -117,9 +116,23 @@ SCT_ModuleVetoTool::isGood(const Identifier& elementId, InDetConditions::Hierarc
 }
 
 bool 
-SCT_ModuleVetoTool::isGood(const IdentifierHash& hashId) const {
+SCT_ModuleVetoTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  return isGood(elementId, ctx, h);
+}
+
+bool 
+SCT_ModuleVetoTool::isGood(const IdentifierHash& hashId, const EventContext& ctx) const {
   Identifier elementId{m_pHelper->wafer_id(hashId)};
-  return isGood(elementId);
+  return isGood(elementId, ctx);
+}
+
+bool
+SCT_ModuleVetoTool::isGood(const IdentifierHash& hashId) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  return isGood(hashId, ctx);
 }
 
 StatusCode 

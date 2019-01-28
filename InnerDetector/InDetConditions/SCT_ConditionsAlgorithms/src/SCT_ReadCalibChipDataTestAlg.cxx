@@ -113,7 +113,7 @@ StatusCode SCT_ReadCalibChipDataTestAlg::execute(const EventContext& ctx) const 
     // Test summmary, ask status of strip in module
     Identifier IdM{m_moduleId};
     Identifier IdS{m_waferId};
-    bool Sok{m_ReadCalibChipDataTool->isGood(IdS, InDetConditions::SCT_SIDE)};
+    bool Sok{m_ReadCalibChipDataTool->isGood(IdS, ctx, InDetConditions::SCT_SIDE)};
     ATH_MSG_INFO("Side " << IdS << " on module " << IdM << " is " << (Sok ? "good" : "bad"));
   }
 
