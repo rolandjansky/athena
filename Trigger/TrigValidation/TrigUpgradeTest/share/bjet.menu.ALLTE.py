@@ -11,7 +11,8 @@ include("TrigUpgradeTest/testHLT_MT.py")
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
 
 # We should retrieve all the steps here
-from TrigUpgradeTest.bjetMenuDefs import getBJetSequence
+from TrigUpgradeTest.bjetMenuDefs import getBJetSequence, inDetSetup
+inDetSetup()
 step1 = ChainStep("Step1ALLTE_bjet", [getBJetSequence('jALLTE')])
 step2 = ChainStep("Step2ALLTE_bjet", [getBJetSequence('gscALLTE')])
 
