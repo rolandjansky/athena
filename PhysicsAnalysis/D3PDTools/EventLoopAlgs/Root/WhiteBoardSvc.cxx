@@ -20,7 +20,7 @@
 
 #include <memory>
 #include <RootCoreUtils/Assert.h>
-#include <EventLoop/Worker.h>
+#include <EventLoop/IWorker.h>
 #include <SampleHandler/MetaData.h>
 #include <SampleHandler/MetaVector.h>
 
@@ -32,7 +32,7 @@ ClassImp (EL::WhiteBoardSvc)
 
 namespace EL
 {
-  WhiteBoardSvc *getWhiteBoardSvc (Worker *worker)
+  WhiteBoardSvc *getWhiteBoardSvc (IWorker *worker)
   {
     RCU_REQUIRE_SOFT (worker != 0);
     WhiteBoardSvc *const result

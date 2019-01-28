@@ -22,7 +22,7 @@
 #include <TH3.h>
 #include <TProfile.h>
 #include <EventLoop/StatusCode.h>
-#include <EventLoop/Worker.h>
+#include <EventLoop/IWorker.h>
 #include <MultiDraw/Formula.h>
 #include <MultiDraw/FormulaSvc.h>
 #include <RootCoreUtils/Assert.h>
