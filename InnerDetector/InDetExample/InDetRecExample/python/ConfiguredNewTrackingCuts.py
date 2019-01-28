@@ -267,8 +267,8 @@ class ConfiguredNewTrackingCuts :
       self.__extension               = "SLHC"
       if self.__indetflags.useEtaDependentCuts():
         self.__maxEta                  = 4.0
-        self.__etaBins                 = [-1.0, 2.4, 2.6, 4.0]
-        self.__minPT                   = [0.9 * Units.GeV, 0.9 * Units.GeV, 0.4 * Units.GeV]
+        self.__etaBins                 = [-1.0, 2.0, 2.6, 4.0]
+        self.__minPT                   = [0.9 * Units.GeV, 0.4 * Units.GeV, 0.4 * Units.GeV]
      
         # --- cluster cuts
         self.__minClusters             = [9, 8, 7]
@@ -276,7 +276,7 @@ class ConfiguredNewTrackingCuts :
         self.__maxShared               = [2]
         self.__minPixel                = [1]
         self.__maxHoles                = [2]
-        self.__maxPixelHoles           = [1]
+        self.__maxPixelHoles           = [2]
         self.__maxSctHoles             = [2]
         self.__maxDoubleHoles          = [1]
         self.__maxPrimaryImpact        = [2.0 * Units.mm, 2.0 * Units.mm, 10.0 * Units.mm]
