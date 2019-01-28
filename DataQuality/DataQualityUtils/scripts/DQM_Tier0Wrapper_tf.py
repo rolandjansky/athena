@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 #########################################################################
 ##
@@ -13,7 +13,7 @@
 ##    2. at the end of a run, to obtain the final statistics/results
 ##       (replaces all temporary histograms/results) 
 ##
-##  - input parameter: file containing a pickled dictionary consisting of the key/value pairs
+##  - input parameter: file containing a json dictionary consisting of the key/value pairs
 ##     1) 'inputHistFiles': python list 
 ##         ['datasetname#filename1', 'datasetname#filename2', ...] (input HIST_TMP dataset + file names)
 ##        or list of file dictionaries
@@ -50,9 +50,12 @@
 ##     (April 2008 - July 2010)
 ##    Modified for dumping resource log in case of problems
 ##    S. Kama (March 2011)
+##    Transformed into accepting argJSON as input 
+##    and reporting new format of jobReport.json
+##    J. Guenther (February 2017)
 #########################################################################
 
-import sys, string, commands, os.path, os, pickle, time, pprint, xmlrpclib
+import sys, string, commands, os.path, os, json, time, pprint, xmlrpclib, traceback
 #sami
 import hashlib
 
@@ -60,25 +63,21 @@ import hashlib
 
 # Utility function
 
-def getFileMap(fname, dsname, nevts=0) :
-  if os.path.isfile(fname) :
-    sz = os.path.getsize(fname)
-    map = { 'lfn': fname,
-            'dataset' : dsname,
-            'size' : sz,
-            'events' : nevts
-          }
-  else : 
-    map = {}
-  return map
+def getSubFileMap(fname, nevts=0) :
+    if os.path.isfile(fname) :
+        sz = os.path.getsize(fname)
+        map = { 'name': fname,
+                'file_size' : sz,
+                'nentries' : nevts,
+              }
+    else : 
+        map = {}
+    return map
 
 def publish_success_to_mq(run, ptag, stream, incr, ami, procpass, hcfg, isprod):
   import stomp, json, os, ssl
   from DataQualityUtils import stompconfig
   dest='/topic/atlas.dqm.progress'
-  #conn=stomp.Connection([('atlas-mb.cern.ch', 61023)], use_ssl=True,
-  #                      ssl_cert_file=os.environ['X509_USER_PROXY'],
-  #                      ssl_version=ssl.PROTOCOL_TLSv1)
   conn=stomp.Connection([('atlas-mb.cern.ch', 61013)], **stompconfig.config())
   conn.start()
   conn.connect(wait=True)
@@ -119,51 +118,46 @@ def genmd5sum(filename):
   print "md5 sum of the \"%s\" is %s"%(filename,md5summer.hexdigest())
   return
       
-def dq_combined_trf(picklefile):
-  
-  tstart = time.time()
-
-  print "\n##################################################################"
-  print   "##              ATLAS Tier-0 Offline DQM Processing             ##"
-  print   "##################################################################\n"
+def dq_combined_trf(jsonfile, outmap):
 
   print "\n##################################################################"
   print   "## STEP 1: creating file with list of root files ..."
   print   "##################################################################\n"
-
-  # extract parameters from pickle file
-  print "Using pickled file ", picklefile, " for input parameters"
-  f = open(picklefile, 'r')
-  parmap = pickle.load(f)
-  f.close()
-
-  print "\nFull Tier-0 run options:\n"
-  pprint.pprint(parmap)
-
-  inputfilelist = parmap.get('inputHistFiles', [])
-  nfiles = len(inputfilelist) 
-  histMergeCompressionLevel=parmap.get('histMergeCompressionLevel', 1)
-  histMergeDebugLevel=parmap.get('histMergeDebugLevel', 0)
   
-  if not nfiles :   # problem with job definition or reading pickle file
-    dt = int(time.time() - tstart) 
-    retcode = 1
-    acronym = 'TRF_NOINPUT'
-    txt = 'empty input file list'  
-    reportmap = { 'prodsys': { 'trfCode': retcode,
-                            'trfAcronym': acronym,  
-                            'jobOutputs': [],
-                            'jobInputs': [],
-                            'nevents': 0,              
-                            'more': { 'num1': 0, 'num2': dt, 'txt1': txt }
-                          }
-             }              
-  
-  else : 
-    histtmpflist = []
-    nevts = 0
+  nfiles=0
 
-    if isinstance(inputfilelist[0], str) :  
+  try:
+    # extract parameters from json file
+    print "Using json file ", jsonfile, " for input parameters"
+    f = open(jsonfile, 'r')
+    parmap = json.load(f)
+    f.close()
+
+    print "\nFull Tier-0 run options:\n"
+    pprint.pprint(parmap)
+
+    inputfilelist = parmap.get('inputHistFiles', [])
+    nfiles = len(inputfilelist) 
+    histMergeCompressionLevel=parmap.get('histMergeCompressionLevel', 1)
+    histMergeDebugLevel=parmap.get('histMergeDebugLevel', 0)
+  except: 
+    outmap['exitCode'] = 101
+    outmap['exitAcronym'] = 'TRF_NOINPUT'
+    outmap['exitMsg'] = 'Trouble reading json input dict.'
+    traceback.print_exc()
+    return
+  
+  if not nfiles :   # problem with job definition or reading json file
+    outmap['exitCode'] = 102
+    outmap['exitAcronym'] = 'TRF_NOINPUT'
+    outmap['exitMsg'] = 'Empty input file list.'
+    return
+
+  histtmpflist = []
+  nevts = 0
+
+  try:
+    if isinstance(inputfilelist[0], unicode) :  
       histtmpdsname = (inputfilelist[0]).split('#')[0]
       for val in inputfilelist :
         histtmpflist.append(val.split('#')[1])
@@ -175,7 +169,7 @@ def dq_combined_trf(picklefile):
         nevt = fdict.get('events', 0)
         if nevt is None:
           nevt=0
-          print "WARNING Can't get number of events from input pickle file"
+          print "WARNING Can't get number of events from input json file"
         nevts+=nevt
   
     f = open('hist_merge.list', 'w')
@@ -189,8 +183,14 @@ def dq_combined_trf(picklefile):
     (s,o) = commands.getstatusoutput(cmd)
     print "\nContents of file hist_merge.list:\n"
     print o
-    
+  except:
+    outmap['exitCode'] = 103
+    outmap['exitAcronym'] = 'TRF_INPUTINFO'
+    outmap['exitMsg'] = 'ERROR: crash in assembling input file list (STEP 1)'
+    traceback.print_exc()
+    return
 
+  try:
     print "\n##################################################################"
     print   "## STEP 2: determining job parameters..."
     print   "##################################################################\n"
@@ -292,19 +292,27 @@ def dq_combined_trf(picklefile):
     print "  Post-processing: ", postproc
     print "  COOL uploads:    ", allowCOOLUpload
     print "  Production mode: ", productionMode
-    
 
+  except:
+    outmap['exitCode'] = 104
+    outmap['exitAcronym'] = 'TRF_JOBPARS'
+    outmap['exitMsg'] = 'Error in determining job parameters (STEP 2).'
+    traceback.print_exc()
+    return
+
+  try:
     print "\n##################################################################"
     print   "## STEP 3: running histogram merging procedure ..."
     print   "##################################################################\n"
 
     # environment setting
     os.environ['DQPRODUCTION'] = '1' if productionMode == 'True' else '0'
-    os.environ['DQ_STREAM'] = stream
     print "Setting env variable DQPRODUCTION to %s\n" % os.environ['DQPRODUCTION']
+    os.environ['DQ_STREAM'] = stream
+    print "Setting env variable DQ_STREAM to %s\n" % os.environ['DQ_STREAM']
     os.environ['COOLUPLOADS'] = '1' if allowCOOLUpload == 'True' and productionMode == 'True' else '0'
     print "Setting env variable COOLUPLOADS to %s\n" % os.environ['COOLUPLOADS']
-    
+
     if postproc == 'True' :
       if incr == 'True':
         cmd = "python -u `which DQHistogramMerge.py` hist_merge.list %s 1 1 %d %d " % (histfile,histMergeCompressionLevel,histMergeDebugLevel)
@@ -319,6 +327,7 @@ def dq_combined_trf(picklefile):
     
     print "## ... logfile from DQHistogramMerge.py: "
     print "--------------------------------------------------------------------------------"
+    tstart = time.time()
     # execute command
     retcode1 = os.system(cmd)
     print "--------------------------------------------------------------------------------"
@@ -328,89 +337,92 @@ def dq_combined_trf(picklefile):
     print "\n## DQHistogramMerge.py finished with retcode = %s" % retcode1
     print   "## ... elapsed time: ", dt1, " sec"
 
-    if retcode1 == 0 :
-      if postproc == 'True' and incr == 'False':
-        print "\n##################################################################"
-        print "## STEP 3b: copying postprocessing output to AFS ..."
-        print "##################################################################\n"
+    if retcode1 != 0 :
+      outmap['exitCode'] = retcode1
+      outmap['exitAcronym'] = 'TRF_DQMHISTMERGE_EXE'
+      outmap['exitMsg'] = 'ERROR: DQHistogramMerge.py execution problem! (STEP 3).'
+      print "ERROR: DQHistogramMerge.py execution problem!"
+      retcode = retcode1
+      txt = 'DQHistogramMerge.py execution problem'
+      try:
+        try:
+          infilelist=open('hist_merge.list','r')
+          for infname in infilelist:
+            genmd5sum(infname.rstrip(os.linesep))
+        finally:
+            infilelist.close()
+        genmd5sum(histfile)
+        DQResFile="DQResourceUtilization.txt"
+        if os.path.exists(DQResFile):
+          print "dumping resource utilization log"
+          with open(DQResFile) as resfile:
+            for resline in resfile:
+              print resline,
+      except:
+        outmap['exitMsg'] = 'ERROR: DQHistogramMerge.py execution problem + problem dumping DQResourceUtilization! (STEP 3).'
+        traceback.print_exc()
+        print "ERROR: DQHistogramMerge.py execution problem + problem dumping DQResourceUtilization!"
+      return
 
-        cmd = "python -u `which DQFileMove.py` %s %s_%s_%s" % (dqproject, runnr, stream, procnumber)
+    if postproc == 'True' and incr == 'False':
+      print "\n##################################################################"
+      print "## STEP 3b: copying postprocessing output to AFS ..."
+      print "##################################################################\n"
 
-        print "File move command:\n"
-        print cmd
-        print "\n##################################################################\n"
+      cmd = "python -u `which DQFileMove.py` %s %s_%s_%s" % (dqproject, runnr, stream, procnumber)
 
-        print "## ... logfile from DQFileMove.py: "
-        print "--------------------------------------------------------------------------------"
-        # execute command
-        retcode1b = os.system(cmd)
-        print "--------------------------------------------------------------------------------"
-        t1b = time.time()
-        dt1b = int(t1b - t1)
-        t1 = t1b
+      print "File move command:\n"
+      print cmd
+      print "\n##################################################################\n"
 
-        print "\n## DQFileMove.py finished with retcode = %s" % retcode1b
-        print   "## ... elapsed time: ", dt1b, " sec"
+      print "## ... logfile from DQFileMove.py: "
+      print "--------------------------------------------------------------------------------"
+      # execute command
+      retcode1b = os.system(cmd)
+      print "--------------------------------------------------------------------------------"
+      t1b = time.time()
+      dt1b = int(t1b - t1)
+      t1 = t1b
 
-      if doWebDisplay == 'True':
-        print "\n##################################################################"
-        print   "## STEP 4: running web-display creation procedure ..."
-        print   "##################################################################\n"
+      print "\n## DQFileMove.py finished with retcode = %s" % retcode1b
+      print   "## ... elapsed time: ", dt1b, " sec"
+  except:
+      outmap['exitCode'] = 105
+      outmap['exitAcronym'] = 'TRF_DQMHISTMERGE_EXE'
+      outmap['exitMsg'] = 'ERROR: Failure in histogram merging or copying postprocessing output to AFS (STEP 3/3b).'
+      traceback.print_exc()
+      return
 
-        cmd = "python -u `which DQWebDisplay.py` %s %s %s %s stream=%s" % (histfile, dqproject, procnumber, incr, stream)
+  try:
+    retcode2 = 0
+    dt2 = 0
+    if doWebDisplay == 'True':
+      print "\n##################################################################"
+      print   "## STEP 4: running web-display creation procedure ..."
+      print   "##################################################################\n"
 
-        print "Web display creation command:\n"
-        print cmd
-        print "\n##################################################################\n"
+      cmd = "python -u `which DQWebDisplay.py` %s %s %s %s stream=%s" % (histfile, dqproject, procnumber, incr, stream)
 
-        print "## ... logfile from DQWebDisplay.py: "
-        print "--------------------------------------------------------------------------------"
-        # execute command
-        retcode2 = os.system(cmd)
-        print 'DO NOT REPORT "Error in TH1: cannot merge histograms" ERRORS! THESE ARE IRRELEVANT!'
-        print "--------------------------------------------------------------------------------"
-        t2 = time.time()
-        dt2 = int(t2 - t1)
+      print "Web display creation command:\n"
+      print cmd
+      print "\n##################################################################\n"
 
-        print "\n## DQWebDisplay.py finished with retcode = %s" % retcode2
-        print   "## ... elapsed time: ", dt2, " sec"
-      else:
-        print "\n##################################################################"
-        print   "## WEB DISPLAY CREATION SKIPPED BY USER REQUEST"
-        print   "##################################################################\n"
-        retcode2 = 0
-        dt2 = 0
+      print "## ... logfile from DQWebDisplay.py: "
+      print "--------------------------------------------------------------------------------"
+      # execute command
+      retcode2 = os.system(cmd)
+      print 'DO NOT REPORT "Error in TH1: cannot merge histograms" ERRORS! THESE ARE IRRELEVANT!'
+      print "--------------------------------------------------------------------------------"
+      t2 = time.time()
+      dt2 = int(t2 - t1)
 
-    print "\n##################################################################"
-    print   "## STEP 5: finishing the job ..."
-    print   "##################################################################\n"
-
-    # assemble report gpickle file
-    outfiles = []
-    infiles = []
-    
-    retcode = 0
-    acronym = 'OK'
-    txt = 'trf finished OK'  
-    
-    # get info for report gpickle file
-    if retcode1 == 0 :
-      dt = dt1
-      if (retcode2 >> 8) in (0, 5) :
-        # if success, or if unable to acquire cache lock
-        histmap = getFileMap(histfile, histdsname, nevts=nevts)
-        outfiles = [histmap]
-        dt += dt2
-        if doWebDisplay == 'True':
-          print 'Publishing to message service'
-          publish_success_to_mq(runnr, dqproject, stream, incr=(incr=='True'), ami=amitag, procpass=procnumber, hcfg=filepaths, isprod=(productionMode=='True'))
-        else:
-          print 'Web display off, not publishing to message service'
-      else :
-        txt = 'DQWebDisplay.py execution problem'  
+      print "\n## DQWebDisplay.py finished with retcode = %s" % retcode2
+      print   "## ... elapsed time: ", dt2, " sec"
+      if not (retcode2 >> 8) in (0, 5) :
         print "ERROR: DQWebDisplay.py execution problem!"
-        retcode = retcode2
-        acronym = 'TRF_DQMDISPLAY_EXE'
+        outmap['exitCode'] = retcode2
+        outmap['exitAcronym'] = 'TRF_DQMDISPLAY_EXE'
+        outmap['exitMsg'] = 'ERROR: DQWebDisplay.py execution problem! (STEP 4).'
         try:
           infilelist=open('hist_merge.list','r')
           for infname in infilelist:
@@ -418,44 +430,80 @@ def dq_combined_trf(picklefile):
         finally:
           infilelist.close()
         genmd5sum(histfile)
-    else :
-      print "ERROR: DQHistogramMerge.py execution problem!"
-      retcode = retcode1
-      acronym = 'TRF_DQMHISTMERGE_EXE'
-      dt = 0
-      txt = 'DQHistogramMerge.py execution problem'
-      try:
-        infilelist=open('hist_merge.list','r')
-        for infname in infilelist:
-          genmd5sum(infname.rstrip(os.linesep))
-      finally:
-          infilelist.close()
-      genmd5sum(histfile)
-      DQResFile="DQResourceUtilization.txt"
-      if os.path.exists(DQResFile):
-        print "dumping resource utilization log"
-        with open(DQResFile) as resfile:
-          for resline in resfile:
-            print resline,
-                  
+        return
+      if productionMode == 'True': 
+          try:
+              print 'Publishing to message service'
+              publish_success_to_mq(runnr, dqproject, stream, incr=(incr=='True'), ami=amitag, procpass=procnumber, hcfg=filepaths, isprod=(productionMode=='True'))
+          except:
+              outmap['exitCode'] = 106
+              outmap['exitAcronym'] = 'TRF_DQMDISPLAY_EXE'
+              outmap['exitMsg'] = 'ERROR: Failure in publishing info to messaging service (STEP 4).'
+              traceback.print_exc()
+              return
+    else:
+      print "\n##################################################################"
+      print   "## WEB DISPLAY CREATION SKIPPED BY USER REQUEST"
+      print   "##################################################################\n"
+      print 'Web display off, not publishing to message service'
+  except: 
+    outmap['exitCode'] = 106
+    outmap['exitAcronym'] = 'TRF_DQMDISPLAY_EXE'
+    outmap['exitMsg'] = 'ERROR: Failure in web-display creation procedure (STEP 4).'
+    print 'ERROR: Failure in web-display creation procedure (STEP 4).'
+    traceback.print_exc()
+    return
+  
+  print "\n##################################################################"
+  print   "## STEP 5: finishing the job ..."
+  print   "##################################################################\n"
+        
+  # get info for report json file
+  try:
+    outfiles = [getSubFileMap(histfile, nevts=nevts)]
     # assemble job report map
-    reportmap = { 'prodsys': { 'trfCode': retcode,
-                               'trfAcronym': acronym,  
-                               'jobOutputs': outfiles,
-                               'jobInputs': infiles,
-                               'nevents': int(nevts),              
-                               'more': { 'num1': int(nevts), 'num2': int(dt), 'txt1': txt }
-                             }
-                }              
+    outmap['files']['output'][0]['dataset'] = histdsname
+    outmap['files']['output'][0]['subFiles'] = outfiles
+    outmap['resource']['transform']['processedEvents'] = long(nevts)
+    return
+  except: 
+    outmap['exitCode'] = 107
+    outmap['exitAcronym'] = 'TRF_JOBREPORT'
+    outmap['exitMsg'] = 'ERROR: in job report creation (STEP 5)'
+    print "ERROR: in job report creation (STEP 5) !"
+    traceback.print_exc()
+    return
 
-  # pickle report map
-  f = open('jobReport.gpickle', 'w')
-  pickle.dump(reportmap, f)
+def dq_trf_wrapper(jsonfile):
+  print "\n##################################################################"
+  print   "##              ATLAS Tier-0 Offline DQM Processing             ##"
+  print   "##################################################################\n"
+
+  outmap = { 'exitAcronym' : 'OK',
+               'exitCode' : 0,
+               'exitMsg' : 'trf finished OK',
+               'files' : { 'output' : [{ 'dataset' : '',
+                                         'subFiles' : [ {},
+                                                      ]}
+                                    ] },
+                'resource' : { 'transform' : { 'processedEvents' : 0L } }
+                 }
+
+  # dq_combined_trf will update outmap
+  tstart = time.time()
+  dq_combined_trf(jsonfile, outmap)
+  outmap['resource']['transform']['wallTime'] = int(time.time() - tstart) 
+   
+  # dump json report map
+  f = open('jobReport.json', 'w')
+  json.dump(outmap, f)
   f.close()
 
-  print "\n## ... job finished with retcode : %s" % reportmap['prodsys']['trfCode']
-  print   "## ... error acronym: ", reportmap['prodsys']['trfAcronym']
-  print   "## ... elapsed time: ", reportmap['prodsys']['more']['num2'], "sec"
+  # summarize status
+  print "\n## ... job finished with retcode : %s" % outmap['exitCode']
+  print   "## ... error acronym: ", outmap['exitAcronym']
+  print   "## ... job status message: ", outmap['exitMsg']
+  print   "## ... elapsed time: ", outmap['resource']['transform']['wallTime'], "sec"
   print   "##"
   print   "##################################################################"
   print   "## End of job."
@@ -468,9 +516,9 @@ def dq_combined_trf(picklefile):
 
 if __name__ == "__main__":
 
-  if (len(sys.argv) != 2) and (not sys.argv[1].startswith('--argdict=')) :
+  if (len(sys.argv) != 2) and (not sys.argv[1].startswith('--argJSON=')) :
     print "Input format wrong --- use "
-    print "   --argdict=<pickled-dictionary containing input info> "
+    print "   --argJSON=<json-dictionary containing input info> "
     print "   with key/value pairs: "
     print "     1) 'inputHistFiles': python list "
     print "          ['datasetname#filename1', 'datasetname#filename2',...] (input dataset + file names) "
@@ -496,6 +544,6 @@ if __name__ == "__main__":
     sys.exit(-1)
   
   else :
-    picklefile = sys.argv[1][len('--argdict='):]
-    dq_combined_trf(picklefile)
+    jsonfile = sys.argv[1][len('--argJSON='):]
+    dq_trf_wrapper(jsonfile)
   

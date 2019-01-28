@@ -1,5 +1,8 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+# None of this works, but keep it around in case someone wants to resurrect it later...
+# - PO 20180419
+
 import unittest
 import sys, os, shutil
 

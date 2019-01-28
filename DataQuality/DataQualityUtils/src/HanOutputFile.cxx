@@ -10,6 +10,7 @@
 #include "DataQualityInterfaces/HanUtils.h"
 
 #include <sstream>
+#include <fstream>
 #include <cstdlib>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/lexical_cast.hpp>
@@ -31,6 +32,10 @@
 #include <TF1.h>
 #include <TMath.h>
 #include <THStack.h>
+#include <TImage.h>
+#include <TBufferJSON.h>
+#include <TString.h>
+#include <TEfficiency.h>
 
 #define BINLOEDGE(h,n) h->GetXaxis()->GetBinLowEdge(n)
 #define BINWIDTH(h,n) h->GetXaxis()->GetBinWidth(n)
@@ -164,8 +169,7 @@ getAllAssessments( AssMap_t& dirmap, TDirectory* dir )
   TKey* key;
   while( (key = dynamic_cast<TKey*>( next() )) != 0 ) {
     TObject* obj = key->ReadObj();
-    //TH1* h = dynamic_cast<TH1*>( obj );
-    if( dynamic_cast<TH1*>(obj) || dynamic_cast<TGraph*>(obj) ) {
+    if( dynamic_cast<TH1*>(obj) || dynamic_cast<TGraph*>(obj) || dynamic_cast<TEfficiency*>(obj) ) {
       const char * path(dir->GetPath() ); 
       std::string assName( obj->GetName() );
       AssMap_t::value_type AssmapVal(assName, path);
@@ -260,6 +264,12 @@ getNEntries( std::string location, std::string histname )
     Nentries = g->GetN();
     delete g;
   }
+  TEfficiency* e(0);
+  gDirectory->GetObject( histname.c_str(),e );
+  if ( e != 0 ) {
+    Nentries = e->GetCopyTotalHisto()->GetEntries();
+    delete e;
+  }
   
   return Nentries;
 }
@@ -272,6 +282,8 @@ getNEntries( const TObject* obj )
     return h->GetEntries();
   } else if (const TGraph* g = dynamic_cast<const TGraph*>(obj)) {
     return g->GetN();
+  } else if (const TEfficiency* e = dynamic_cast<const TEfficiency*>(obj)) {
+    return e->GetCopyTotalHisto()->GetEntries();
   } else {
     std::cerr << "HanOutputFile::getNEntries(): "
 	      << "provided object is not a histogram or graph\n";
@@ -787,7 +799,7 @@ streamAllHistograms( std::ostream& o, bool streamAll )
 
 int
 HanOutputFile::
-saveAllHistograms( std::string location, bool drawRefs, std::string run_min_LB ) 
+saveAllHistograms( std::string location, bool drawRefs, std::string run_min_LB ,int cnvsType)
 {
   if( m_file == 0 ) {
     std::cerr << "HanOutputFile::saveAllHistograms(): "
@@ -824,7 +836,7 @@ saveAllHistograms( std::string location, bool drawRefs, std::string run_min_LB )
       completeDir += "/";
       std::cout << "Saving " << completeDir << " " << hisName << "\n" << std::flush;
       bool isSaved = saveHistogramToFile(hisName,completeDir,idir->second,drawRefs,run_min_LB,
-                                         (hisPath + "/" + hisName));
+                                         (hisPath + "/" + hisName),cnvsType);
       if( isSaved )
         ++nSaved;
     }
@@ -832,10 +844,46 @@ saveAllHistograms( std::string location, bool drawRefs, std::string run_min_LB )
   return nSaved;
 }
 
+void getImageBuffer(TImage* img, TCanvas* myC, char** x, int* y){
+  img->FromPad(myC);
+  img->GetImageBuffer(x, y, TImage::kPng);
+}
 
-bool
+bool HanOutputFile::saveHistogramToFile( std::string nameHis, std::string location, TDirectory* groupDir, bool drawRefs,std::string run_min_LB, std::string pathName,int cnvsType){
+  std::pair<std::string,std::string> pngAndJson = getHistogram(nameHis,groupDir,drawRefs,run_min_LB,pathName,cnvsType);
+  //std::string tosave = getHistogramPNG(nameHis, groupDir, drawRefs, run_min_LB, pathName);
+  if (pngAndJson.first== "") {
+    return false;
+  }
+  std::string namePNG   = nameHis;
+  std::string nameJSON  = nameHis;
+
+  namePNG   +=".png";
+  nameJSON  +=".json";
+
+  std::string::size_type i = location.find_last_of( '/' );
+  if( i != (location.size()-1) ) {
+    location+="/";
+  }
+  namePNG   = location + namePNG;
+  nameJSON  = location + nameJSON;
+
+  return saveFile(cnvsType, namePNG,pngAndJson.first,nameJSON,pngAndJson.second);
+}
+
+std::string
 HanOutputFile::
-saveHistogramToFile( std::string nameHis, std::string location, TDirectory* groupDir, bool drawRefs,std::string run_min_LB, std::string pathName){
+getHistogramPNG( std::string nameHis, TDirectory* groupDir, bool drawRefs,std::string run_min_LB, std::string pathName){
+    int cnvsType = 0;
+    return getHistogram(nameHis, groupDir,drawRefs,run_min_LB,pathName,cnvsType).first;
+}
+
+std::pair<std::string,std::string> HanOutputFile:: getHistogramJSON( std::string nameHis, TDirectory* groupDir, bool drawRefs,std::string run_min_LB, std::string pathName){
+    int cnvsType = 1;
+    return getHistogram(nameHis, groupDir,drawRefs,run_min_LB,pathName,cnvsType);
+}
+
+std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nameHis, TDirectory* groupDir, bool drawRefs, std::string run_min_LB, std::string pathName,int cnvsType){
   dqi::DisableMustClean disabled;
   groupDir->cd();
  
@@ -860,6 +908,10 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
   gStyle->SetStatW(0.2);
   gStyle->SetStatH(0.1);
   
+  char* x;
+  int y;
+  std::string json;
+  TImage* img = TImage::Create();  
 
   gROOT->SetBatch();
   std::string pathname( groupDir->GetPath() );
@@ -935,7 +987,7 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
   TKey* hkey = groupDir->FindKey( nameHis.c_str() );
   if( hkey == 0 ) {
     std::cerr << "Did not find TKey for \"" << nameHis << "\", will not save this histogram.\n";
-    return false;
+    return std::pair<std::string,std::string>{"",""};
   }
   TLegend* legend(0);
   TObject* hobj = hkey->ReadObj();
@@ -947,14 +999,15 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
   TH1* h = dynamic_cast<TH1*>( hobj );
   TH2* h2 = dynamic_cast<TH2*>( h );
   TGraph* g = dynamic_cast<TGraph*>( hobj );
+  TEfficiency* e = dynamic_cast<TEfficiency*>( hobj );
 
   std::string name=nameHis;
-  name+=".png";
+  /*  name+=".png";
   std::string::size_type i = location.find_last_of( '/' );
   if( i != (location.size()-1) ) {
     location+="/";
   }
-  name=location + name;
+  name=location + name; */
   std::string AlgoName=getStringName(pathname+"/"+nameHis+"_/Config/name");
   int ww = 550;
   int wh = 490;
@@ -967,7 +1020,6 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
   }
 
   if( h!=0 ){     
-
     TCanvas *myC = new TCanvas( nameHis.c_str(), "myC", ww, wh );
 
     // if(  h->GetMinimum() >= 0) {
@@ -1002,26 +1054,26 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
       std::size_t fpos1,fpos2,fpos;
       fpos=display.find("MinStat");
       if (fpos!= std::string::npos){
-	fpos1=display.find("(",fpos+1);
-	if (fpos1!=std::string::npos) {
-	  fpos2 = display.find(")",fpos1+1);
-	  if (fpos2!=std::string::npos) {
-	    std::string s_minstat=display.substr(fpos1+1,fpos2-fpos1-1);
-	    minstat=std::strtod(s_minstat.c_str(),NULL);
-    	  }
+  fpos1=display.find("(",fpos+1);
+  if (fpos1!=std::string::npos) {
+    fpos2 = display.find(")",fpos1+1);
+    if (fpos2!=std::string::npos) {
+      std::string s_minstat=display.substr(fpos1+1,fpos2-fpos1-1);
+      minstat=std::strtod(s_minstat.c_str(),NULL);
+        }
     
-	}
+  }
       }
       std::string fitopt("");
       fpos=display.find("FitOption");
       if (fpos!= std::string::npos){
-	  fpos1=display.find("(",fpos+1);
-	  if (fpos1!=std::string::npos) {
-	    fpos2 = display.find(")",fpos1+1);
-	    if (fpos2!=std::string::npos) {
-	      fitopt=display.substr(fpos1+1,fpos2-fpos1-1);
-	    }    
-	  }
+          fpos1=display.find("(",fpos+1);
+          if (fpos1!=std::string::npos) {
+              fpos2 = display.find(")",fpos1+1);
+              if (fpos2!=std::string::npos) {
+                  fitopt=display.substr(fpos1+1,fpos2-fpos1-1);
+              }    
+          }
       }
       //plot double gaus
       std::size_t found1 = display.find("doublegaus");
@@ -1157,14 +1209,14 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
                   << "Inconsistent x-axis settings:  min=" << h->GetXaxis()->GetXmin() << ", "
                   << "max=" << h->GetXaxis()->GetXmax() << ", "
                   << "Will not save this histogram.\n";
-        return false;
+        return std::pair<std::string,std::string>{"",""};
       }
       if( h->GetYaxis()->GetXmin() >= h->GetYaxis()->GetXmax() ) {
         std::cerr << "HanOutputFile::saveHistogramToFile(): "
                   << "Inconsistent y-axis settings:  min=" << h->GetYaxis()->GetXmin() << ", "
                   << "max=" << h->GetYaxis()->GetXmax() << ", "
                   << "Will not save this histogram.\n";
-        return false;
+        return std::pair<std::string,std::string>{"",""};
       }
       axisOption(display,h2);
       if (drawopt =="") {
@@ -1201,8 +1253,8 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
       tt.SetNDC();
       tt.SetTextSize(0.03);
       tt.DrawLatex(0.02,0.01,pathName.c_str());
-
-      myC->SaveAs( name.c_str() );
+      
+      convertToGraphics(cnvsType,myC,json,img,&x,&y);
 
     } else if( h != 0 ){
       formatTH1( myC, h );
@@ -1214,7 +1266,7 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
                   << "Inconsistent x-axis settings:  min=" << h->GetXaxis()->GetXmin() << ", "
                   << "max=" << h->GetXaxis()->GetXmax() << ", "
                   << "Will not save this histogram.\n";
-        return false;
+        return std::pair<std::string,std::string>{"",""};
       }
       h->SetLineColor(kBlack);
       h->SetMarkerColor(1);
@@ -1390,9 +1442,7 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
       displayExtra(myC,display);
       myC->RedrawAxis();
 
-      if (hRef) {
-	ratioplot(myC ,h,hRef,display);      //RatioPad
-      }
+      ratioplot(myC ,h,hRef,display);      //RatioPad
       myC->cd();//might be unnecessary
       polynomial(myC,display,h); //draw polynome for TH1
 
@@ -1404,7 +1454,9 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
       tt.SetNDC();
       tt.SetTextSize(0.03);
       tt.DrawLatex(0.02,0.01,pathName.c_str());
-      myC->SaveAs(name.c_str());
+
+      convertToGraphics(cnvsType,myC,json,img,&x,&y);
+
     }
     delete myC;
     gStyle->Reset();
@@ -1435,20 +1487,49 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
     tt.SetNDC();
     tt.SetTextSize(0.03);
     tt.DrawLatex(0.02,0.01,pathName.c_str());
-    myC->SaveAs( name.c_str() );
+    //myC->SaveAs( name.c_str() );
+   
+    convertToGraphics(cnvsType,myC,json,img,&x,&y);
+
     delete myC;
     gStyle->Reset();
   }
 
+  /*************************************************************************************************************/
+  if( e != 0 ) {
+    TCanvas *myC = new TCanvas( nameHis.c_str(), "myC", ww, wh );
+    myC->cd();
+    formatTEfficiency( myC, e );
+    e->Draw((std::string("AP") + drawopt).c_str());
+    displayExtra(myC,display);
+    TLatex t;
+    t.SetNDC();
+    t.SetTextSize(0.03);
+    t.DrawLatex(0.02,0.04,run_min_LB.c_str());
+    TLatex tt;
+    tt.SetNDC();
+    tt.SetTextSize(0.03);
+    tt.DrawLatex(0.02,0.01,pathName.c_str());
+    convertToGraphics(cnvsType,myC,json,img,&x,&y);
+    delete myC;
+    gStyle->Reset();
+  }
+
+
+  std::string rv(x, y);
+  std::pair<std::string,std::string>rvPair{rv,json};
+
+  delete img;
   delete hobj;
   delete hRef;
   delete legend;
-  return true;
+  return rvPair;
+  
 }
 
 bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::string location, 
 				 TDirectory* groupDir1, TDirectory* groupDir2, 
-				 bool drawRefs,std::string run_min_LB, std::string pathName){
+				 bool drawRefs,std::string run_min_LB, std::string pathName,int cnvsType){
   dqi::DisableMustClean disabled;
   groupDir1->cd();
   gStyle->SetFrameBorderMode(0);
@@ -1509,14 +1590,19 @@ bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::s
   TH1* h(0),*hist2(0);
   TH2* h2(0),*h2_2(0),*h2Diff(0);
   TGraph* g(0),*g2(0);
+  TEfficiency *e(0), *e2(0);
 
-  std::string name=nameHis;
-  name+=".png";
+  std::string json;
+  std::string nameJSON  = nameHis;
+  std::string namePNG   = nameHis;
+  namePNG+=".png";
+  nameJSON+=".json";
   std::string::size_type i = location.find_last_of( '/' );
   if( i != (location.size()-1) ) {
     location+="/";
   }
-  name=location + name;
+  namePNG   =location + namePNG;
+  nameJSON  =location + nameJSON;
   std::string AlgoName=getStringName(pathname+"/"+nameHis+"_/Config/name");
   int ww = 550;
   int wh = 490;
@@ -1562,7 +1648,8 @@ bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::s
       tt.SetTextSize(0.03);
       tt.DrawLatex(0.02,0.01,pathName.c_str());
 
-      myC->SaveAs( name.c_str() );
+      convertToGraphics(cnvsType,myC,namePNG,nameJSON);
+
     } else if( h != 0 && hist2!=0){
       h->SetMarkerColor(1);
       h->SetFillStyle(0);
@@ -1599,7 +1686,9 @@ bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::s
       tt.SetNDC();
       tt.SetTextSize(0.03);
       tt.DrawLatex(0.02,0.01,pathName.c_str());
-      myC->SaveAs(name.c_str());
+
+      convertToGraphics(cnvsType,myC,namePNG,nameJSON);
+
     } //end histogram drawing
     delete myC;
     delete h2Diff;
@@ -1628,7 +1717,35 @@ bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::s
     tt.SetNDC();
     tt.SetTextSize(0.03);
     tt.DrawLatex(0.02,0.01,pathName.c_str());
-    myC->SaveAs( name.c_str() );
+
+    convertToGraphics(cnvsType,myC,namePNG,nameJSON);
+    
+    delete myC;
+    gStyle->Reset();
+  }
+
+  if(((e = dynamic_cast<TEfficiency*>(hobj))!=0 ) && ((e2=dynamic_cast<TEfficiency*>(hobj2))!=0) ){
+    TCanvas *myC = new TCanvas( nameHis.c_str(), "myC", ww, wh );
+    myC->cd();
+
+    formatTEfficiency( myC, e );
+    formatTEfficiency( myC, e2 );
+    e->Draw((std::string("AP") + drawopt).c_str());
+    displayExtra(myC,display);
+    e2->SetMarkerColor(2);
+    e2->SetLineColor(2);
+    e2->Draw((std::string("P") + drawopt+" same").c_str());
+    TLatex t;
+    t.SetNDC();
+    t.SetTextSize(0.03);
+    t.DrawLatex(0.02,0.04,run_min_LB.c_str());
+    TLatex tt;
+    tt.SetNDC();
+    tt.SetTextSize(0.03);
+    tt.DrawLatex(0.02,0.01,pathName.c_str());
+    
+    convertToGraphics(cnvsType,myC,namePNG,nameJSON);
+    
     delete myC;
     gStyle->Reset();
   }
@@ -2127,16 +2244,13 @@ void HanOutputFile::ratioplot (TCanvas* myC_upperpad ,TH1* h,TH1* hRef,std::stri
     TProfile* ph    = dynamic_cast<TProfile*>( h );
     TH1F *clonehist   ;
     TH1F *clonehistref;
-    //transform if profiles
-    if( ph != 0 ) {
+    if( ph != 0 ) {//profile
+      std::cout<<"it is a TProfile\n";
       clonehist=(TH1F*)ph->ProjectionX();
-    } else {
-      clonehist=(TH1F*)h->Clone();
-      clonehist->Sumw2();
-    }
-    if ( phRef != 0 ) {
       clonehistref=(TH1F*)phRef->ProjectionX();
     }else{
+      clonehist=(TH1F*)h->Clone();
+      clonehist->Sumw2();
       clonehistref=(TH1F*)hRef->Clone();
       clonehistref->Sumw2();
     }
@@ -2146,7 +2260,14 @@ void HanOutputFile::ratioplot (TCanvas* myC_upperpad ,TH1* h,TH1* hRef,std::stri
     
     formatTH1( myC_ratiopad, clonehist);
     clonehist->SetTitle("");
-    clonehist->SetAxisRange(0.25,1.75,"Y");
+
+    // extract delta value from string that holds the draw options
+    double delta = 0.75;
+    if (display.find("delta(") != std::string::npos) {
+      delta = std::stod(display.substr(display.find("delta(") + 6));
+    }
+    clonehist->SetAxisRange(1. - delta, 1. + delta, "Y");
+
     clonehist->GetYaxis()->SetNdivisions(3, true);
     clonehist->SetMarkerStyle(1);
     clonehist->Draw("E");
@@ -2576,6 +2697,14 @@ formatTGraph( TCanvas* c, TGraph* g ) const
   g->SetMarkerStyle(20);
 }
 
+void HanOutputFile::formatTEfficiency( TCanvas* c, TEfficiency* e ) const {
+  if( c == 0 || e == 0 ) return;
+  c->SetLeftMargin(0.15);
+  c->SetRightMargin(0.13);
+  c->SetBottomMargin(0.15);
+  c->SetTopMargin(0.12);
+}
+
 // *********************************************************************
 // Protected Methods
 // *********************************************************************
@@ -2603,6 +2732,69 @@ clearData()
 //   gROOT->SetMustClean(useRecursiveDelete);
 }
 
+bool
+HanOutputFile::
+writeToFile(std::string fname ,std::string content)
+{
+    std::ofstream outfile(fname);
+    if (!outfile.is_open()){
+        std::cerr << "Error writing file to " << fname <<std::endl;
+        return false;
+    }
+    outfile<<content;
+    outfile.close();
+    return true;
+}
+
+void HanOutputFile::
+convertToGraphics(int cnvsType, TCanvas* myC,std::string &json, TImage *img,char **x, int *y)
+{
+    int GENERATE_PNG        = 1; // Make PNG with TImage
+    int GENERATE_JSON       = 2; // Make JSON
+    if (cnvsType & GENERATE_PNG) 
+    {
+        if(img) getImageBuffer(img,myC,x,y);
+    }
+    if (cnvsType & GENERATE_JSON)
+    {
+        json = TBufferJSON::ConvertToJSON(myC);
+    }
+}
+
+void HanOutputFile::
+convertToGraphics(int cnvsType, TCanvas* myC,std::string namePNG,std::string nameJSON)
+{
+    int GENERATE_PNG        = 1; // Make PNG with TImage
+    int GENERATE_JSON       = 2; // Make JSON
+    if (cnvsType & GENERATE_PNG) 
+    {
+        myC->SaveAs(namePNG.c_str());
+    }
+    if (cnvsType & GENERATE_JSON)
+    {
+        std::string json = std::string(TBufferJSON::ConvertToJSON(myC));
+        writeToFile(nameJSON,json);
+    }
+}
+
+bool HanOutputFile::
+saveFile(int cnvsType, std::string pngfName,std::string pngContent, std::string jsonfName, std::string jsonfContent)
+{
+    int GENERATE_PNG        = 1; // Make PNG with TImage
+    int GENERATE_JSON       = 2; // Make JSON
+
+    bool png =false;
+    bool json=false;
+    if (cnvsType & GENERATE_PNG) 
+    {
+      png   = writeToFile(pngfName,pngContent);
+    }
+    if (cnvsType & GENERATE_JSON) 
+    {
+      json  = writeToFile(jsonfName,jsonfContent);
+    }
+    return (png || json);
+}
 
 } // namespace dqutils
 

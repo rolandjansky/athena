@@ -37,6 +37,7 @@
 #include <TKey.h>
 #include <TROOT.h>
 #include <TTree.h>
+#include <TEfficiency.h>
 
 ClassImp(dqutils::MonitoringFile)
 
@@ -570,6 +571,7 @@ mergeDirectory( TDirectory* outputDir, const std::vector<TFile*>& inputFiles, bo
 
          TH1* h(0);
          TGraph* g(0);
+         TEfficiency* e(0);
          TDirectory* d(0);
          TTree* t(0);
          TObject* targetObj(0);
@@ -579,9 +581,13 @@ mergeDirectory( TDirectory* outputDir, const std::vector<TFile*>& inputFiles, bo
 //          g = dynamic_cast<TGraph*>( obj.get() );
 //          t = dynamic_cast<TTree*>( obj.get() );
 
-         if((targetDir)&&((h = dynamic_cast<TH1*>( obj.get() )) ||  //merge only objects below target directory
-	     (g = dynamic_cast<TGraph*>( obj.get() ))|| 
-		((keyName != "metadata") && (t = dynamic_cast<TTree*>( obj.get() )))))  {
+         //merge only objects below target directory
+         if ( (targetDir) && (  (h = dynamic_cast<TH1*>(obj.get()))
+                             || (g = dynamic_cast<TGraph*>(obj.get()))
+                             ||((t = dynamic_cast<TTree*>(obj.get())) && (keyName!="metadata"))
+                             || (e = dynamic_cast<TEfficiency*>(obj.get()))
+                             ) 
+            ) {
 	   //skip cases where regexp doesn't match object name, all directories are processed by default
 	   if(m_useRE){
 	     if(!boost::regex_search(keyName,*m_mergeMatchHistoRE)){
@@ -614,6 +620,12 @@ mergeDirectory( TDirectory* outputDir, const std::vector<TFile*>& inputFiles, bo
                      << "In directory \"" << inputDir->GetPath() << "\",\n"
                         << "  TTree \"" << keyName << "\" requests merging type " << mergeType
                         << " but only default merging implemented for TTrees\n";
+               }
+               if( e && (md.merge != "<default>") ) {
+                  std::cerr << "MonitoringFile::mergeDirectory(): "
+                        << "In directory \"" << inputDir->GetPath() << "\",\n"
+                        << "  TEfficiency \"" << keyName << "\" requests merging type " << mergeType
+                        << " but only default merging implemented for TEfficiency\n";
                }
             }else {
                std::cerr << "MonitoringFile::mergeDirectory(): "
@@ -742,7 +754,7 @@ void
 MonitoringFile::
 mergeFiles( std::string outFileName, const std::vector<std::string>& files )
 {
-  //dqi::DisableMustClean disabled;
+  dqi::DisableMustClean disabled;
   TH1::AddDirectory(false);
   if(m_useRE){
     std::cout<<" ========== Using regular expressions for selective merging ========== "<<std::endl;
@@ -1401,6 +1413,12 @@ execute( TGraph* graph )
   return true;
 }
 
+bool MonitoringFile::CopyHistogram::execute( TEfficiency* eff ) {
+  m_target->cd();
+  eff->Write();
+  return true;
+}
+
 
 bool
 MonitoringFile::CopyHistogram::
@@ -1433,6 +1451,18 @@ executeMD( TGraph* graph, const MetaData& md )
   copyString( m_mergeData, md.merge );
   m_metadata->Fill();
   
+  return true;
+}
+
+
+bool MonitoringFile::CopyHistogram::executeMD( TEfficiency* eff, const MetaData& md ) {
+  m_target->cd();
+  eff->Write();
+  copyString( m_nameData, md.name );
+  copyString( m_intervalData, md.interval );
+  copyString( m_chainData, md.chain );
+  copyString( m_mergeData, md.merge );
+  m_metadata->Fill();
   return true;
 }
 
@@ -1490,6 +1520,22 @@ execute( TGraph* graph )
 }
 
 
+bool MonitoringFile::GatherStatistics::execute( TEfficiency* eff ) {
+  ++m_nEfficiency;
+  
+  TH1* h_total = eff->GetCopyPassedHisto();
+  TH2* h_total2D = dynamic_cast<TH2*>( h_total );
+
+  if( h_total2D != 0 ) {
+    m_nEfficiencyBins += (h_total2D->GetNbinsX() * h_total2D->GetNbinsY());
+    return true;
+  } else {
+    m_nEfficiencyBins += h_total->GetNbinsX();
+    return true;
+  }
+}
+
+
 MonitoringFile::GatherNames::
 GatherNames()
 {
@@ -1510,6 +1556,12 @@ MonitoringFile::GatherNames::
 execute( TGraph* graph )
 {
   m_names.push_back( std::string(graph->GetName()) );
+  return true;
+}
+
+
+bool MonitoringFile::GatherNames::execute( TEfficiency* eff ) {
+  m_names.push_back( std::string(eff->GetName()) );
   return true;
 }
 
@@ -1582,15 +1634,15 @@ loopOnHistograms( HistogramOperation& fcn, TDirectory* dir )
   TKey* key;
   while( (key = dynamic_cast<TKey*>( next() )) != 0 ) {
     TObject* obj = key->ReadObj();
-    TH1* h = dynamic_cast<TH1*>( obj );
-    if( h != 0 ) {
+    TH1* h(0);
+    TGraph* g(0);
+    TEfficiency* e(0);
+    if ((h = dynamic_cast<TH1*>(obj))) {
       fcn.execute( h );
-    }
-    else {
-      TGraph* g = dynamic_cast<TGraph*>( obj );
-      if( g != 0 ) {
-        fcn.execute( g );
-      }
+    } else if ((g = dynamic_cast<TGraph*>(obj))) {
+      fcn.execute( g );
+    } else if ((e = dynamic_cast<TEfficiency*>(obj))) {
+      fcn.execute( e );
     }
     delete obj;
   }
@@ -1738,6 +1790,7 @@ int MonitoringFile::mergeObjs(TObject *objTarget, TObject *obj, std::string merg
    TH2 *h2=0, *nextH2=0;
    TGraph *g=0; 
    TTree *t=0;
+   TEfficiency *e=0;
 
 //    h = dynamic_cast<TH1*>( objTarget );
 //    g = dynamic_cast<TGraph*>( objTarget );
@@ -1794,6 +1847,16 @@ int MonitoringFile::mergeObjs(TObject *objTarget, TObject *obj, std::string merg
      listG.Add( nextG );
      g->Merge( &listG );
      listG.Clear();
+   }else if( (e = dynamic_cast<TEfficiency*>( objTarget )) ) {  // TEfficiencies
+     if( mergeType != "<default>" ) {
+       std::cerr << name << ": TEfficiency " << obj->GetName() << " request mergeType = " << mergeType
+     << " but only default merging implemented for TEfficiencies.\n";              
+     }
+     TEfficiency *nextE = dynamic_cast<TEfficiency*>( obj );
+     TList listE;
+     listE.Add( nextE );
+     e->Merge( &listE );
+     listE.Clear();
    }else if ((t = dynamic_cast<TTree*>( objTarget ))) { // TTrees
      if ( debugLevel >= VERBOSE) {
        std::cout << "Merging Tree " << obj->GetName() << std::endl;
@@ -1908,7 +1971,8 @@ int MonitoringFile::mergeLB_createListOfHistos(TDirectory *dir_top, TDirectory *
       std::string keyClassName(key->GetClassName());
       if( ( (keyClassName.size() > 2) && ( (keyClassName.substr(0,3) == "TH1") || (keyClassName.substr(0,3) == "TH2")  ) ) ||
           ( (keyClassName.size() > 7) && ( (keyClassName.substr(0,8) == "TProfile") ) ) || 
-          ( (keyClassName.size() > 5) && ( (keyClassName.substr(0,6) == "TGraph") ) ) ) {
+          ( (keyClassName.size() > 5) && ( (keyClassName.substr(0,6) == "TGraph") ) ) ||
+          ( (keyClassName.size() > 10) && ( (keyClassName.substr(0,11) == "TEfficiency") ) ) ) {
          if( debugLevel >= VERBOSE )
             std::cout << name << ": found object: " << key->GetName();  
 
@@ -2178,7 +2242,7 @@ void MonitoringFile::buildLBToIntervalMap(std::vector<TDirectory*>& v_dirLBs, st
 					<< v_splits[1] << std::endl;
     try {
       v_ranges.push_back(std::make_pair(*dirit, std::make_pair(boost::lexical_cast<int>(v_splits[0]), boost::lexical_cast<int>(v_splits[1]))));
-    } catch (const boost::bad_lexical_cast& e) {
+    } catch (boost::bad_lexical_cast e) {
       std::cerr << "Unable to cast to integers: " << v_splits[0] << " " 
 		<< v_splits[1] << std::endl;
     }
