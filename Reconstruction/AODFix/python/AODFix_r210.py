@@ -3,10 +3,12 @@
 
 from AthenaCommon.Logging import logging
 from AthenaCommon import CfgMgr
+import PyJobTransforms.trfJobOptions
 
 logAODFix_r210 = logging.getLogger( 'AODFix_r210' )
 
 from AODFix_base import AODFix_base
+import os
 
 class AODFix_r210(AODFix_base):
     ''' This class just performs AODFix on 21.0.X releases
@@ -38,14 +40,14 @@ class AODFix_r210(AODFix_base):
 
             logAODFix_r210.debug("Executing AODFix_r210_postSystemRec")
 
-            print '---------->>>>> Running r21 AOD fix ************************************************************** '
-
             from AthenaCommon.AlgSequence import AlgSequence
             topSequence = AlgSequence()
 
             oldMetadataList = self.prevAODFix.split("-")
             
-            self.evtInfo_postSystemRec(topSequence)
+            if "evtRunNum" not in oldMetadataList;
+                self.evtRunNum_postSystemRec(topSequence)
+                pass
 
             if "trklinks" not in oldMetadataList:
                 self.trklinks_postSystemRec(topSequence)
@@ -91,14 +93,23 @@ class AODFix_r210(AODFix_base):
     # Below are the individual AODfixes, split up and documented
     # Name must follow format: <fixID>_<whereCalled>
 
-    def evtInfo_postSystemRec(self, topSequence): 
+    def evtRunNum_postSystemRec(self, topSequence): 
 
-        print 'Running evtInfo_postSystemRec fix !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
-        # This needs to grab the correct number; and check metadata for differences
-        from xAODEventInfoCnv.xAODEventInfoCnvConf import xAOD__EventInfoRunNumberFixAlg 
-        EventInfoRunNumberFixAlg = xAOD__EventInfoRunNumberFixAlg(RunNumber = 366032)
-        topSequence+=EventInfoRunNumberFixAlg
+        """ This fixes the wrong run number arising from buggy EVNT-to-EVNT transform
+             workflows. JIRA: https://its.cern.ch/jira/browse/AGENE-1655"""
+        
+        variables = {}
+        runNumber = None
+        if os.access('runargs.AODtoDAOD.py',os.R_OK):
+          execfile('runargs.AODtoDAOD.py',variables)
 
+        if 'runArgs' in variables and hasattr(variables['runArgs'],'runNumber'):
+          runNumber = variables['runArgs'].runNumber
+
+        if runNumber is not None:
+          from xAODEventInfoCnv.xAODEventInfoCnvConf import xAOD__EventInfoRunNumberFixAlg 
+          EventInfoRunNumberFixAlg = xAOD__EventInfoRunNumberFixAlg( RunNumber = int(runNumber) )
+          topSequence+=EventInfoRunNumberFixAlg
 
     def trklinks_postSystemRec(self, topSequence):
         """This fixes the links to tracks in muons and btagging
