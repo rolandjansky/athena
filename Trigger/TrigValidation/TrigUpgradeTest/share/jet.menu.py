@@ -9,9 +9,9 @@ include("TrigUpgradeTest/testHLT_MT.py")
 # menu
 ##########################################
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
-from TrigUpgradeTest.jetMenuDefs import jetSequence
+from TrigUpgradeTest.jetMenuDefs import jetMenuSequence
 
-jetSeq1 = jetSequence()
+jetSeq1 = jetMenuSequence()
 step1=ChainStep("Step1_jet", [jetSeq1])
 
 testChains  = [

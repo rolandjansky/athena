@@ -39,8 +39,9 @@ if  TriggerFlags.doMuon==True:
     ##########################################
 
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
-    from TrigUpgradeTest.muMenuDefs import muFastStep, muCombStep, muEFMSStep, muEFSAStep, muIsoStep, muEFCBStep
+    from TrigUpgradeTest.muMenuDefs import muFastStep, muCombStep, muEFMSStep, muEFSAStep, muIsoStep, muEFCBStep, inDetSetup
 
+    inDetSetup()
 
     MenuChains  = []
 

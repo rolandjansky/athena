@@ -36,7 +36,7 @@ def electronSequence(ConfigFlags):
     """ second step:  tracking....."""
 
     # is this needed?
-    inDetSetup()
+#    inDetSetup()
     
     from TrigUpgradeTest.InDetSetup import makeInDetAlgs
     (viewAlgs, eventAlgs) = makeInDetAlgs()

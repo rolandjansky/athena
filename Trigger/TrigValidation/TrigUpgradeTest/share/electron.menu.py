@@ -11,9 +11,9 @@ include("TrigUpgradeTest/testHLT_MT.py")
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
 
 from TrigUpgradeTest.CaloMenuDefs import fastCaloMenuSequence
-from TrigUpgradeTest.electronMenuDefs import electronMenuSequence
+from TrigUpgradeTest.electronMenuDefs import electronMenuSequence,  inDetSetup
 
-
+inDetSetup()
 
 fastCaloStep= fastCaloMenuSequence("Ele")
 electronStep= electronMenuSequence()

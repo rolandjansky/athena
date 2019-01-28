@@ -18,18 +18,33 @@ include("TrigUpgradeTest/testHLT_MT.py")
 doElectron = True
 doPhoton = True
 doMuon   = True
-doJet    = False
+doJet    = True
+doBJet   = False
 doCombo  = True
 
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
 
-EnabledElChains = []
-EnabledMuChains = []
-EnabledMuComboChains = []
-EnabledElComboChains = []
-
 testChains = []
 
+
+def inDetSetup():
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    InDetFlags.doCaloSeededBrem = False
+    InDetFlags.InDet25nsec = True 
+    InDetFlags.doPrimaryVertex3DFinding = False 
+    InDetFlags.doPrintConfigurables = False
+    InDetFlags.doResolveBackTracks = True 
+    InDetFlags.doSiSPSeededTrackFinder = True
+    InDetFlags.doTRTPhaseCalculation = True
+    InDetFlags.doTRTSeededTrackFinder = True
+    InDetFlags.doTruth = False
+    InDetFlags.init()
+
+    ### PixelLorentzAngleSvc and SCTLorentzAngleSvc ###
+    include("InDetRecExample/InDetRecConditionsAccess.py")
+
+
+inDetSetup()
 
 
 ##################################################################
@@ -59,8 +74,8 @@ if (doPhoton):
     from TrigUpgradeTest.CaloMenuDefs import fastCaloMenuSequence
     from TrigUpgradeTest.photonMenuDefs import photonMenuSequence
 
-    fastCaloStep=fastCaloMenuSequence("Gamma")
-    photonstep= photonMenuSequence()
+    fastCaloStep = fastCaloMenuSequence("Gamma")
+    photonstep   = photonMenuSequence()
 
     photonChains = [
         Chain(name='HLT_g5_etcut', Seed="L1_EM3",  ChainSteps=[ ChainStep("Step1_g5_etcut", [fastCaloStep]),  ChainStep("Step2_g5_etcut", [photonstep])]  )
@@ -96,9 +111,9 @@ if (doMuon):
 # jet chains
 ##################################################################
 if (doJet):
-    from TrigUpgradeTest.jetMenuDefs import jetSequence
+    from TrigUpgradeTest.jetMenuDefs import jetMenuSequence
 
-    jetSeq1 = jetSequence()
+    jetSeq1 = jetMenuSequence()
     jetstep1=ChainStep("Step1_jet", [jetSeq1])
     
     jetChains  = [
@@ -107,15 +122,33 @@ if (doJet):
         ]
     testChains += jetChains
 
+
+
+
+##################################################################
+# jet chains
+##################################################################
+if (doBJet):
+    from TrigUpgradeTest.bjetMenuDefs import getBJetSequence
+
+    step1 = ChainStep("Step1_bjet", [getBJetSequence('j')])
+    step2 = ChainStep("Step2_bjet", [getBJetSequence('gsc')])
+
+    bjetChains  = [                                                                                                                                                                         
+        Chain(name='HLT_j35_gsc45_boffperf_split' , Seed="L1_J20",  ChainSteps=[step1] ),
+       # Chain(name='HLT_j35_gsc45_bmv2c1070_split', Seed="L1_J20",  ChainSteps=[step1,step2] ),
+       # Chain(name='HLT_j35_gsc45_bmv2c1070'      , Seed="L1_J20",  ChainSteps=[step1,step2] )
+        ]
+    testChains += bjetChains
+    
 ##################################################################
 # combined chains
 ##################################################################
 if (doCombo):
     # combo chains
-    comboChains= []
-
     comboStep=ChainStep("Step1_mufast_et", [fastCaloStep,muFastStep1])
-    comboChains +=  [Chain(name='HLT_e3_etcut_mu6', Seed="L1_EM8I_MU10",  ChainSteps=[comboStep ])]
+
+    comboChains =  [Chain(name='HLT_e3_etcut_mu6', Seed="L1_EM8I_MU10",  ChainSteps=[comboStep ])]
     testChains += comboChains
 
 
