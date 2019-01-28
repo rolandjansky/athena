@@ -33,6 +33,9 @@
 // Local include(s):
 #include "xAODTracking/TrackingPrimitives.h"
 
+//MT CachedValue
+#include "CxxUtils/CachedValue.h"
+
 namespace xAOD {
 
    /// Class describing a Vertex.
@@ -179,13 +182,9 @@ namespace xAOD {
 
    private:
       /// Cached position of the vertex
-      mutable Amg::Vector3D m_position;
-      /// Cache status of the position object
-      mutable bool m_positionCached;
+      CxxUtils::CachedValue<Amg::Vector3D> m_position;
       /// Cached covariance of the vertex
-      mutable AmgSymMatrix(3) m_covariance;
-      /// Cache status of the covariance object
-      mutable bool m_covarianceCached;
+      CxxUtils::CachedValue<AmgSymMatrix(3)> m_covariance;
 
    }; // end of the Vertex_v1 class definitions
 
