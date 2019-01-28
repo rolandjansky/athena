@@ -32,10 +32,11 @@ if ( "streamAOD" in dir() ):
   StreamAOD.ItemList+=["CaloCellContainer#AllCalo"]
   StreamAOD.ItemList+=["CaloCellContainer#SCell"]
   StreamAOD.ItemList+=["xAOD::TriggerTowerContainer#xAODTriggerTowers","xAOD::TriggerTowerAuxContainer#xAODTriggerTowersAux."];
-  StreamAOD.ItemList+=["xAOD::JGTowerContainer#JTower"] # This might need to be controlled later to avoid increase of AOD size
-  StreamAOD.ItemList+=["xAOD::JGTowerAuxContainer#JTowerAux.*"]         # This might need to be controlled later to avoid increase of AOD size
-  StreamAOD.ItemList+=["xAOD::JGTowerContainer#GTower"] # This might need to be controlled later to avoid increase of AOD size
-  StreamAOD.ItemList+=["xAOD::JGTowerAuxContainer#GTowerAux.*"]         # This might need to be controlled later to avoid increase of AOD size
+  StreamAOD.ItemList+=["JGTowerContainer#JTower"] # This might need to be controlled later to avoid increase of AOD size
+  StreamAOD.ItemList+=["JGTowerAuxContainer#JTowerAux.*"]         # This might need to be controlled later to avoid increase of AOD size
+  StreamAOD.ItemList+=["JGTowerContainer#GTower"] # This might need to be controlled later to avoid increase of AOD size
+  StreamAOD.ItemList+=["JGTowerAuxContainer#GTowerAux.*"]         # This might need to be controlled later to avoid increase of AOD size
+
 #  StreamAOD.TakeItemsFromInput = True
   #topSequence.remove(streamAOD)
   topSequence += StreamAOD
