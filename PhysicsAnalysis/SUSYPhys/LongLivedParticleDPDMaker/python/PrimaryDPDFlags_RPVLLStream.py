@@ -13,7 +13,6 @@
 ##
 ##=============================================================================
 
-
 __doc__ = """Here, all necessary job flags for the RPV/LL SUSY  DESD are defined."""
 
 __version__ = "0.0.1"
@@ -74,7 +73,7 @@ primRPVLLDESDM.add_JobProperty(doKinkedTrack)
 class doEmerging(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
-    StoredValue = True # FIXME: Set True to turn this on
+    StoredValue = True 
     pass
 primRPVLLDESDM.add_JobProperty(doEmerging)
     
