@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -54,27 +54,6 @@ TileLaserDefaultCalibTool::TileLaserDefaultCalibTool(const std::string& type, co
   m_flow(0),
   m_head_temp(0),
   m_las_time(0),
-  m_ratio_LASERII(),
-  m_ratio_S_LASERII(),
-  m_ratio_LASERII_good(),
-  m_ratio_S_LASERII_good(),
-  m_rs_ratio_LASERII(),
-  m_rs_ratio_LASERII_good(),
-  m_PMT_LASERII(),
-  m_PMT_S_LASERII(),
-  m_rs_PMT_signal_LASERII(),
-  m_diode_LASERII(),
-  m_diode_S_LASERII(),
-  m_entries_diode_LASERII(),
-  m_rs_diode_signal_LASERII(),
-  m_diode_Ped_LASERII(),
-  m_diode_Ped_S_LASERII(),
-  m_diode_Alpha_LASERII(),
-  m_diode_Alpha_S_LASERII(),
-  m_diode_Led_LASERII(),
-  m_diode_Led_S_LASERII(),
-  m_PMT_Ped_LASERII(),
-  m_PMT_Ped_S_LASERII(),
   m_PMT(),
   m_PMT_S(),
   m_diode(),
@@ -83,49 +62,133 @@ TileLaserDefaultCalibTool::TileLaserDefaultCalibTool(const std::string& type, co
   m_diode_Alpha(),
   m_diode_SPed(),
   m_diode_SAlpha(),
-  m_ratio(),
-  m_ratio_S(),
-  m_ratio_good(),
-  m_ratio_good_S(),
-  m_pmt_ratios(),
-  m_pmt_S_ratios(),
   m_rs_diode_signal(),
   m_rs_PMT_signal(),
-  m_rs_ratio(),
-  m_rs_pmt_ratios(),
-  m_meantime(),
-  m_time(),
-  m_time_S(),
-  m_mean(),
-  m_mean_S(),
-  m_raw_mean(),
-  m_raw_mean_S(),
-  m_entries(),
-  m_kappa(),
-  m_mean_slice(),
-  m_variance_slice(),
-  m_status(),
-  m_HV(),
-  m_HVSet(),
   m_PMT1_ADC_prev(),
   m_PMT2_ADC_prev(),
   m_LASERII(0),
-  m_evtNr(0),
-  m_rs_meantime(),
-  m_rs_time(),
-  m_rs_signal(),
-  m_rs_raw_signal(),
-  m_rs_reducedKappa()
+  m_evtNr(0)
 {
   declareInterface<ITileCalibTool>( this );
   declareProperty("toolNtuple", m_toolNtuple="h3000");
   declareProperty("pisaMethod2", m_pisaMethod2=true);
   declareProperty("StuckBitsProbsTool", m_stuckBitsProbs);
   declareProperty("TileDQstatus", m_dqStatusKey = "TileDQstatus");
+  
+  //creating multi-dim arrays on the heap and initialize all elements to zeros
+  m_ratio_LASERII = new float[NDIODES][NGAINS][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_ratio_S_LASERII = new float[NDIODES][NGAINS][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_ratio_LASERII_good = new float[NDIODES][NGAINS][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_ratio_S_LASERII_good = new float[NDIODES][NGAINS][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+
+  m_rs_ratio_LASERII = new RunningStat*[NDIODES][NGAINS][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_rs_ratio_LASERII_good = new RunningStat*[NDIODES][NGAINS][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+
+  m_PMT_LASERII = new float[NPMTS][NGAINS]();
+  m_PMT_S_LASERII = new float[NPMTS][NGAINS]();
+  m_rs_PMT_signal_LASERII = new RunningStat*[NPMTS][NGAINS]();
+
+  m_diode_LASERII = new float[NDIODES][NGAINS]();
+  m_diode_S_LASERII = new float[NDIODES][NGAINS]();
+  m_entries_diode_LASERII = new int[NDIODES][NGAINS]();
+
+  m_rs_diode_signal_LASERII = new RunningStat*[NDIODES][NGAINS]();
+
+  m_diode_Ped_LASERII = new float[NDIODES+1][NGAINS]();
+  m_diode_Ped_S_LASERII = new float[NDIODES+1][NGAINS]();
+  m_diode_Alpha_LASERII = new float[NDIODES+1][NGAINS]();
+  m_diode_Alpha_S_LASERII = new float[NDIODES+1][NGAINS]();
+  m_diode_Led_LASERII = new float[NDIODES+1][NGAINS]();
+  m_diode_Led_S_LASERII = new float[NDIODES+1][NGAINS]();
+  m_PMT_Ped_LASERII = new float[NPMTS][NGAINS]();
+  m_PMT_Ped_S_LASERII = new float[NPMTS][NGAINS]();
+
+  m_ratio = new float[NDIODES_LASER1][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_ratio_S = new float[NDIODES_LASER1][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_ratio_good = new float[NDIODES_LASER1][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_ratio_good_S = new float[NDIODES_LASER1][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_pmt_ratios = new float[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_pmt_S_ratios = new float[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_rs_ratio = new RunningStat*[NDIODES_LASER1][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_rs_ratio_good = new RunningStat*[NDIODES_LASER1][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_rs_pmt_ratios = new RunningStat*[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+ 
+  m_meantime = new float[NPARTITIONS][NGAINS]();
+  m_time = new float[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_time_S = new float[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+
+  m_mean = new float[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_mean_S = new float[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_raw_mean = new float[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_raw_mean_S = new float[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_entries = new int[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();   
+  m_kappa = new float[NPARTITIONS][NDRAWERS][NFIBERS][NGAINS]();
+  m_mean_slice = new float[NPARTITIONS][NDRAWERS][NCHANNELS][NSLICES][NGAINS]();
+  m_variance_slice = new float[NPARTITIONS][NDRAWERS][NCHANNELS][NSLICES][NGAINS]();
+  m_status = new short[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_HV = new float[NPARTITIONS][NDRAWERS][NCHANNELS]();
+  m_HVSet = new float[NPARTITIONS][NDRAWERS][NCHANNELS]();
+
+  m_rs_meantime = new RunningStat*[NPARTITIONS][NGAINS]();
+  m_rs_time = new RunningStat*[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_rs_signal = new RunningStat*[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_rs_raw_signal = new RunningStat*[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS]();
+  m_rs_reducedKappa = new RunningStat*[NPARTITIONS][NDRAWERS][NCOUPLES-1][NCOUPLES][NGAINS][NFIBERS]();
+
 } // TileLaserDefaultCalibTool::TileLaserDefaultCalibTool
 
 TileLaserDefaultCalibTool::~TileLaserDefaultCalibTool()
-{}
+{
+  delete[] m_ratio_LASERII;
+  delete[] m_ratio_S_LASERII;
+  delete[] m_ratio_LASERII_good;
+  delete[] m_ratio_S_LASERII_good;
+  delete[] m_rs_ratio_LASERII;
+  delete[] m_rs_ratio_LASERII_good;
+  delete[] m_PMT_LASERII;
+  delete[] m_PMT_S_LASERII;
+  delete[] m_rs_PMT_signal_LASERII;
+  delete[] m_diode_LASERII;
+  delete[] m_diode_S_LASERII;
+  delete[] m_entries_diode_LASERII;
+  delete[] m_rs_diode_signal_LASERII;
+  delete[] m_diode_Ped_LASERII;
+  delete[] m_diode_Ped_S_LASERII;
+  delete[] m_diode_Alpha_LASERII;
+  delete[] m_diode_Alpha_S_LASERII;
+  delete[] m_diode_Led_LASERII;
+  delete[] m_diode_Led_S_LASERII;
+  delete[] m_PMT_Ped_LASERII;
+  delete[] m_PMT_Ped_S_LASERII;
+  delete[] m_ratio;
+  delete[] m_ratio_S;
+  delete[] m_ratio_good;
+  delete[] m_ratio_good_S;
+  delete[] m_pmt_ratios;
+  delete[] m_pmt_S_ratios;
+  delete[] m_rs_ratio;
+  delete[] m_rs_ratio_good;
+  delete[] m_rs_pmt_ratios;
+  delete[] m_meantime;
+  delete[] m_time;
+  delete[] m_time_S;
+  delete[] m_mean;
+  delete[] m_mean_S;
+  delete[] m_raw_mean;
+  delete[] m_raw_mean_S;
+  delete[] m_entries;   
+  delete[] m_kappa;
+  delete[] m_mean_slice;
+  delete[] m_variance_slice;
+  delete[] m_status;
+  delete[] m_HV;
+  delete[] m_HVSet;
+  delete[] m_rs_meantime;
+  delete[] m_rs_time;
+  delete[] m_rs_signal;
+  delete[] m_rs_raw_signal;
+  delete[] m_rs_reducedKappa;
+}
 
 
 StatusCode TileLaserDefaultCalibTool::initialize(){
@@ -232,11 +295,7 @@ StatusCode TileLaserDefaultCalibTool::initialize(){
           for(int diode=0; diode<NDIODES; ++diode){
 	    for (int diode_gain=0; diode_gain<NGAINS; diode_gain++) {
 	      m_rs_ratio_LASERII[diode][diode_gain][part][drawer][channel][gain]  = new RunningStat();
-	      m_ratio_LASERII[diode][diode_gain][part][drawer][channel][gain]   = 0;
-	      m_ratio_S_LASERII[diode][diode_gain][part][drawer][channel][gain] = 0;
 	      m_rs_ratio_LASERII_good[diode][diode_gain][part][drawer][channel][gain]  = new RunningStat();
-	      m_ratio_LASERII_good[diode][diode_gain][part][drawer][channel][gain]   = 0;
-	      m_ratio_S_LASERII_good[diode][diode_gain][part][drawer][channel][gain] = 0;
 	    }
           } // FOR
 	  

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECALIBALG_TILELASERLINEARITYCALIBTOOL_H
@@ -73,25 +73,25 @@ class TileLaserLinearityCalibTool : public AthAlgTool, virtual public ITileCalib
   double m_flow;                     // Gas flow in diodes box (in L/h)
   double m_head_temp;                // Temperature of the LASER head
   double m_las_time;                 // Event time
-  double m_LG_PMT[8][2];                // Mean value for box PMTs
-  double m_LG_PMT_S[8][2];              // Corresponding RMS
-  double m_LG_diode[8][10];              // Mean value for box Photodiodes
-  double m_LG_diode_S[8][10];            // Corresponding RMS
-  double m_HG_PMT[8][2];                // Mean value for box PMTs
-  double m_HG_PMT_S[8][2];              // Corresponding RMS
-  double m_HG_diode[8][10];              // Mean value for box Photodiodes
-  double m_HG_diode_S[8][10];            // Corresponding RMS
-  double m_mean[8][4][64][48][2];       // Mean signal computed for this run
-  double m_mean_S[8][4][64][48][2];     // Corresponding RMS
-  double m_LG_ratio[8][4][64][48][2];      // Calib coefficients computed for this run (for all diodes)
-  double m_LG_ratio_S[8][4][64][48][2];    // Corresponding RMS
-  double m_LG_ratio2[8][4][64][48][2];      // Calib coefficients computed for this run (for all diodes)
-  double m_LG_ratio2_S[8][4][64][48][2];    // Corresponding RMS
-  double m_HG_ratio[8][4][64][48][2];      // Calib coefficients computed for this run (for all diodes)
-  double m_HG_ratio_S[8][4][64][48][2];    // Corresponding RMS
-  double m_HG_ratio2[8][4][64][48][2];      // Calib coefficients computed for this run (for all diodes)
-  double m_HG_ratio2_S[8][4][64][48][2];    // Corresponding RMS
-  int    m_entries[8][4][64][48][2];    // Number of LASER events collected for one channel (and a particular gain)
+  double (*m_LG_PMT)[2];                // Mean value for box PMTs
+  double (*m_LG_PMT_S)[2];              // Corresponding RMS
+  double (*m_LG_diode)[10];              // Mean value for box Photodiodes
+  double (*m_LG_diode_S)[10];            // Corresponding RMS
+  double (*m_HG_PMT)[2];                // Mean value for box PMTs
+  double (*m_HG_PMT_S)[2];              // Corresponding RMS
+  double (*m_HG_diode)[10];              // Mean value for box Photodiodes
+  double (*m_HG_diode_S)[10];            // Corresponding RMS
+  double (*m_mean)[4][64][48][2];       // Mean signal computed for this run
+  double (*m_mean_S)[4][64][48][2];     // Corresponding RMS
+  double (*m_LG_ratio)[4][64][48][2];      // Calib coefficients computed for this run (for all diodes)
+  double (*m_LG_ratio_S)[4][64][48][2];    // Corresponding RMS
+  double (*m_LG_ratio2)[4][64][48][2];      // Calib coefficients computed for this run (for all diodes)
+  double (*m_LG_ratio2_S)[4][64][48][2];    // Corresponding RMS
+  double (*m_HG_ratio)[4][64][48][2];      // Calib coefficients computed for this run (for all diodes)
+  double (*m_HG_ratio_S)[4][64][48][2];    // Corresponding RMS
+  double (*m_HG_ratio2)[4][64][48][2];      // Calib coefficients computed for this run (for all diodes)
+  double (*m_HG_ratio2_S)[4][64][48][2];    // Corresponding RMS
+  int    (*m_entries)[4][64][48][2];    // Number of LASER events collected for one channel (and a particular gain)
 
  
   // Local results - not sent to ROOTuple
@@ -106,15 +106,15 @@ class TileLaserLinearityCalibTool : public AthAlgTool, virtual public ITileCalib
 
   bool m_complete_turn;
 
-  RunningStat* m_HG_diode_signal[8][10];
-  RunningStat* m_HG_PMT_signal[8][2];
-  RunningStat* m_LG_diode_signal[8][10];
-  RunningStat* m_LG_PMT_signal[8][2];
-  RunningStat* m_signal[8][4][64][48][2];
-  RunningStat* m_LG_ratio_stat[8][4][64][48][2];
-  RunningStat* m_LG_ratio2_stat[8][4][64][48][2];
-  RunningStat* m_HG_ratio_stat[8][4][64][48][2];
-  RunningStat* m_HG_ratio2_stat[8][4][64][48][2];
+  RunningStat* (*m_HG_diode_signal)[10];
+  RunningStat* (*m_HG_PMT_signal)[2];
+  RunningStat* (*m_LG_diode_signal)[10];
+  RunningStat* (*m_LG_PMT_signal)[2];
+  RunningStat* (*m_signal)[4][64][48][2];
+  RunningStat* (*m_LG_ratio_stat)[4][64][48][2];
+  RunningStat* (*m_LG_ratio2_stat)[4][64][48][2];
+  RunningStat* (*m_HG_ratio_stat)[4][64][48][2];
+  RunningStat* (*m_HG_ratio2_stat)[4][64][48][2];
 
   // Functions
   inline int chanIsConnected(int ros, int chan) {

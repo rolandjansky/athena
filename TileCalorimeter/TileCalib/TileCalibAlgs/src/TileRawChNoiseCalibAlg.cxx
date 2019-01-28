@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ****** **************************************************************
@@ -159,8 +159,8 @@ TileRawChNoiseCalibAlg::TileRawChNoiseCalibAlg(const std::string& name, ISvcLoca
 
 TileRawChNoiseCalibAlg::~TileRawChNoiseCalibAlg()
 { 
-  //delete[] m_histAmp;
-  //delete[] m_histCellAmp;
+  delete[] m_histAmp;
+  delete[] m_histCellAmp;
   delete[] m_evt;
   delete[] m_ros;
   delete[] m_drawer;

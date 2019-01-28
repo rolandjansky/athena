@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Athena includes
@@ -149,9 +149,108 @@ TileLaserTimingTool::TileLaserTimingTool(const std::string& type, const std::str
   m_PulseShapeHigh = new TProfile("pulse_shape_HG", "pulse shape HG", 400, -200., 300., 0, 100000.);
   m_PulseShapeLow = new TProfile("pulse_shape_LG", "pulse shape LG", 400, -200., 300., 0, 100000.);
 #endif
+
+  // creating multi-dim arrays on the heap and initialize all elements to zeros
+  m_drawerData = new DrawerData*[4][64]();
+
+  m_DrawerOffset = new float[NROS][64]();
+  m_DrawerOffsetError = new float[NROS][64]();
+
+  m_ChannelOffset = new float[NROS][64][48]();
+  m_ChannelOffsetError = new float[NROS][64][48]();
+
+  m_ADCAmplitude = new float[NROS][64][48]();
+
+  m_PedestalMean = new float[NROS][64][48]();
+  m_PedestalSigma = new float[NROS][64][48]();
+
+  m_TimeDiffMean = new float[NROS][64][48]();
+  m_TimeDiffMeanError = new float[NROS][64][48]();
+  m_TimeDiffSigma = new float[NROS][64][48]();
+
+  m_MeanOddPmtTdiffPMT0 = new float[NROS][64]();
+  m_OddPmtCounterPMT0 = new int[NROS][64]();
+  m_MeanEvenPmtTdiffPMT0 = new float[NROS][64]();
+  m_EvenPmtCounterPMT0 = new int[NROS][64]();
+  m_EvenOddTimeDiffPMT0 = new float[NROS][64]();
+
+#ifdef TileLaserTimingPMT0Mon
+  m_TimeDiffHighMean = new float[NROS][64][48]();
+  m_TimeDiffHighMeanError = new float[NROS][64][48]();
+  m_TimeDiffHighSigma = new float[NROS][64][48]();
+
+  m_TimeDiffLowMean = new float[NROS][64][48]();
+  m_TimeDiffLowMeanError = new float[NROS][64][48]();
+  m_TimeDiffLowSigma = new float[NROS][64][48]();
+
+  m_TimeDiffNoCFCorrMean = new float[NROS][64][48]();
+  m_TimeDiffNoCFCorrMeanError = new float[NROS][64][48]();
+  m_TimeDiffNoCFCorrSigma = new float[NROS][64][48]();
+#endif
+
+  m_FiberLength = new float[NROS][64][48]();
+
+#ifdef TileLaserTimingMon
+  m_TimeDiffPMTDigi0 = new float[NROS][64][48]();
+  m_FiberCorrection = new float[NROS][64][48]();
+  m_IsConnected = new int[NROS][64][48]();
+
+  m_MeanOddPmtTdiff = new float[NROS][64]();
+  m_OddPmtCounter = new int[NROS][64]();
+  m_MeanEvenPmtTdiff = new float[NROS][64]();
+  m_EvenPmtCounter = new int[NROS][64]();
+
+  m_EvenOddTimeDiff = new float[NROS][64]();
+#endif
+
+  m_DSkewSet = new float[NROS][64][8]();
+  m_DigiMean = new float[NROS][64][8]();
 }
 
 TileLaserTimingTool::~TileLaserTimingTool() {
+
+  delete[] m_drawerData;
+  delete[] m_DrawerOffset;
+  delete[] m_DrawerOffsetError;
+  delete[] m_ChannelOffset;
+  delete[] m_ChannelOffsetError;
+  delete[] m_ADCAmplitude;
+  delete[] m_PedestalMean;
+  delete[] m_PedestalSigma;
+  delete[] m_TimeDiffMean;
+  delete[] m_TimeDiffMeanError;
+  delete[] m_TimeDiffSigma;
+  delete[] m_MeanOddPmtTdiffPMT0;
+  delete[] m_OddPmtCounterPMT0;
+  delete[] m_MeanEvenPmtTdiffPMT0;
+  delete[] m_EvenPmtCounterPMT0;
+  delete[] m_EvenOddTimeDiffPMT0;
+#ifdef TileLaserTimingPMT0Mon
+  delete[] m_TimeDiffHighMean;
+  delete[] m_TimeDiffHighMeanError;
+  delete[] m_TimeDiffHighSigma;
+  delete[] m_TimeDiffLowMean;
+  delete[] m_TimeDiffLowMeanError;
+  delete[] m_TimeDiffLowSigma;
+  delete[] m_TimeDiffNoCFCorrMean;
+  delete[] m_TimeDiffNoCFCorrMeanError;
+  delete[] m_TimeDiffNoCFCorrSigma;
+#endif
+
+  delete[] m_FiberLength;
+
+#ifdef TileLaserTimingMon
+  delete[] m_TimeDiffPMTDigi0;
+  delete[] m_FiberCorrection;
+  delete[] m_IsConnected;
+  delete[] m_MeanOddPmtTdiff;
+  delete[] m_OddPmtCounter;
+  delete[] m_MeanEvenPmtTdiff;
+  delete[] m_EvenPmtCounter;
+  delete[] m_EvenOddTimeDiff;
+#endif
+  delete[] m_DSkewSet;
+  delete[] m_DigiMean;
 }
 
 
@@ -170,71 +269,6 @@ StatusCode TileLaserTimingTool::initialize() {
   m_cabling = TileCablingService::getInstance();
 
   m_nevts = 0;
-
-  // clear drawer data
-  ::memset(m_drawerData, 0, sizeof(m_drawerData));
-
-  for (unsigned int ros = 0; ros < TileCalibUtils::MAX_ROS; ++ros) {
-    for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
-#ifdef TileLaserTimingMon
-      m_MeanOddPmtTdiff[ros][drawer] = 0.0;
-      m_OddPmtCounter[ros][drawer] = 0;
-      m_MeanEvenPmtTdiff[ros][drawer] = 0.0;
-      m_EvenPmtCounter[ros][drawer] = 0;
-      m_EvenOddTimeDiff[ros][drawer] = 0;
-#endif
-
-      // mon-->
-      m_MeanOddPmtTdiffPMT0[ros][drawer] = 0;
-      m_OddPmtCounterPMT0[ros][drawer] = 0;
-      m_MeanEvenPmtTdiffPMT0[ros][drawer] = 0;
-      m_EvenPmtCounterPMT0[ros][drawer] = 0;
-      m_EvenOddTimeDiffPMT0[ros][drawer] = 0;
-      // <--
-
-      for (int pmt = 0; pmt < 48; ++pmt) {
-        m_DrawerOffset[ros][drawer] = 0;
-        m_DrawerOffsetError[ros][drawer] = 0;
-
-        m_ChannelOffset[ros][drawer][pmt] = 0;
-        m_ChannelOffsetError[ros][drawer][pmt] = 0;
-
-        m_ADCAmplitude[ros][drawer][pmt] = 0;
-
-        m_PedestalMean[ros][drawer][pmt] = 0;
-        m_PedestalSigma[ros][drawer][pmt] = 0;
-
-        m_FiberCorrection[ros][drawer][pmt] = 0.0;
-#ifdef TileLaserTimingMon
-        m_FiberLength[ros][drawer][pmt] = 0.0;
-        m_IsConnected[ros][drawer][pmt] = 0;
-        m_TimeDiffPMTDigi0[ros][drawer][pmt] = 0.0;
-#endif
-        m_TimeDiffMean[ros][drawer][pmt] = 0;
-        m_TimeDiffSigma[ros][drawer][pmt] = 0;
-        m_TimeDiffMeanError[ros][drawer][pmt] = 0;
-
-#ifdef TileLaserTimingPMT0	
-        m_TimeDiffNoCFCorrMean[ros][drawer][pmt] = 0;
-        m_TimeDiffNoCFCorrSigma[ros][drawer][pmt] = 0;
-        m_TimeDiffNoCFCorrMeanError[ros][drawer][pmt] = 0;
-
-        m_TimeDiffLowMean[ros][drawer][pmt] = 0;
-        m_TimeDiffLowSigma[ros][drawer][pmt] = 0;
-        m_TimeDiffLowMeanError[ros][drawer][pmt] = 0;
-
-        m_TimeDiffHighMean[ros][drawer][pmt] = 0;
-        m_TimeDiffHighSigma[ros][drawer][pmt] = 0;
-        m_TimeDiffHighMeanError[ros][drawer][pmt] = 0;
-#endif
-      }
-
-      for (int digi = 0; digi < 8; ++digi) {
-        m_DSkewSet[ros][drawer][digi] = 0.0;
-        m_DigiMean[ros][drawer][digi] = 0.0;
-      }
-    }
-  }
 
   ATH_CHECK( m_eventInfoKey.initialize() );
   ATH_CHECK( m_rawChannelContainerKey.initialize() );
