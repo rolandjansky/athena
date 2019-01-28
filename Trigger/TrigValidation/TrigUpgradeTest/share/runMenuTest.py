@@ -18,7 +18,7 @@ g.doEgammaChains=True
 
 g.generateMT()
 
-allChainConfigs = g.getChainsFromMenu()
+#allChainConfigs = g.getChainsFromMenu()
 #EnabledChainNamesToCTP = dict([ (c[0], c[1])  for c in allChainConfigs])
 #topSequence.L1DecoderTest.ChainToCTPMapping = EnabledChainNamesToCTP
  
