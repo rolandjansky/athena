@@ -84,29 +84,44 @@ TileDigiNoiseCalibAlg::TileDigiNoiseCalibAlg(const std::string& name, ISvcLocato
 
   m_run = 0;
   m_evtNr = -1;
+
+  m_sumPed2 = new double[5][64][48][2]();
+  m_sumRms2 = new double[5][64][48][2]();
+  m_meanAmp = new double[5][64][48][2]();
+  m_meanAmp_ij = new double[5][64][48][48][2]();
+  m_evt = new int[5][64][48][2]();
+  m_ros = new uint8_t[5][64][48][2]();
+  m_drawer = new uint8_t[5][64][48][2]();
+  m_channel = new uint8_t[5][64][48][2]();
+  m_gain = new bool[5][64][48][2]();
+  m_ped = new float[5][64][48][2]();
+  m_lfn = new float[5][64][48][2]();
+  m_hfn = new float[5][64][48][2]();
+  m_noise_cov = new float[5][64][2]();
+  m_auto_corr = new float[5][64][48][2][36]();
 }
 
 TileDigiNoiseCalibAlg::~TileDigiNoiseCalibAlg() {
+
+  delete[] m_sumPed2;
+  delete[] m_sumRms2;
+  delete[] m_meanAmp;
+  delete[] m_meanAmp_ij;
+  delete[] m_evt;
+  delete[] m_ros;
+  delete[] m_drawer;
+  delete[] m_channel;
+  delete[] m_gain;
+  delete[] m_ped;
+  delete[] m_lfn;
+  delete[] m_hfn;
+  delete[] m_noise_cov;
+  delete[] m_auto_corr;
 }
 
 /// Only array initialization is done here
 /// All the helpers initialization is done at the first event
 StatusCode TileDigiNoiseCalibAlg::initialize() {
-
-  memset(m_SumPed2, 0, sizeof(m_SumPed2));
-  memset(m_SumRms2, 0, sizeof(m_SumRms2));
-  memset(m_MeanAmp, 0, sizeof(m_MeanAmp));
-  memset(m_MeanAmp_ij, 0, sizeof(m_MeanAmp_ij));
-  memset(m_evt, 0, sizeof(m_evt));
-  memset(m_ros, 0, sizeof(m_ros));
-  memset(m_drawer, 0, sizeof(m_drawer));
-  memset(m_channel, 0, sizeof(m_channel));
-  memset(m_gain, 0, sizeof(m_gain));
-  memset(m_ped, 0, sizeof(m_ped));
-  memset(m_lfn, 0, sizeof(m_lfn));
-  memset(m_hfn, 0, sizeof(m_hfn));
-  memset(m_noise_cov, 0, sizeof(m_noise_cov));
-  memset(m_auto_corr, 0, sizeof(m_auto_corr));
 
   CHECK( m_dqStatusKey.initialize() );
 
@@ -436,7 +451,7 @@ StatusCode TileDigiNoiseCalibAlg::fillDigits (const TileDQstatus* theDQstatus) {
         }
         if (dsize > 0) {
           m_ped[ros][drawer][chan][gain] += vdigits[0];
-          m_SumPed2[ros][drawer][chan][gain] += vdigits[0] * vdigits[0];
+          m_sumPed2[ros][drawer][chan][gain] += vdigits[0] * vdigits[0];
 
           if (dsize > 1) {
             m_evt[ros][drawer][chan][gain]++;
@@ -444,7 +459,7 @@ StatusCode TileDigiNoiseCalibAlg::fillDigits (const TileDQstatus* theDQstatus) {
             rmssamp = rmssamp / dsize - meansamp * meansamp;
             rmssamp = (rmssamp > 0.0) ? sqrt(rmssamp * dsize / (dsize - 1)) : 0.0;
             m_hfn[ros][drawer][chan][gain] += rmssamp;
-            m_SumRms2[ros][drawer][chan][gain] += rmssamp * rmssamp;
+            m_sumRms2[ros][drawer][chan][gain] += rmssamp * rmssamp;
           }
         }
 
@@ -460,9 +475,9 @@ StatusCode TileDigiNoiseCalibAlg::fillDigits (const TileDQstatus* theDQstatus) {
       for (int sample = 0; sample < m_nSamples; ++sample) {
         for (unsigned int gain = 0; gain < TileCalibUtils::MAX_GAIN; ++gain) {
           for (unsigned int chan_i = 0; chan_i < TileCalibUtils::MAX_CHAN; ++chan_i) {
-            m_MeanAmp[ros][drawer][chan_i][gain] += mean_tmp[chan_i][sample][gain];
+            m_meanAmp[ros][drawer][chan_i][gain] += mean_tmp[chan_i][sample][gain];
             for (unsigned int chan_j = 0; chan_j < TileCalibUtils::MAX_CHAN; ++chan_j)
-              m_MeanAmp_ij[ros][drawer][chan_i][chan_j][gain] += mean_tmp[chan_i][sample][gain] * mean_tmp[chan_j][sample][gain];
+              m_meanAmp_ij[ros][drawer][chan_i][chan_j][gain] += mean_tmp[chan_i][sample][gain] * mean_tmp[chan_j][sample][gain];
           }
         }
       }
@@ -508,8 +523,8 @@ void TileDigiNoiseCalibAlg::finalDigits() {
             m_hfn[ros][drawer][chan][gain] /= nev;
 
             if (nev > 1) {
-              double PedRMS = m_SumPed2[ros][drawer][chan][gain] / nev - Ped * Ped;
-              PedRMS = m_SumPed2[ros][drawer][chan][gain] / nev - Ped * Ped;
+              double PedRMS = m_sumPed2[ros][drawer][chan][gain] / nev - Ped * Ped;
+              PedRMS = m_sumPed2[ros][drawer][chan][gain] / nev - Ped * Ped;
               PedRMS = (PedRMS > 0.0) ? sqrt(PedRMS * nev / (nev - 1)) : 0.0;
               m_lfn[ros][drawer][chan][gain] = PedRMS;
             }
@@ -547,9 +562,9 @@ void TileDigiNoiseCalibAlg::finalDigits() {
           //replace m_evtNr with sqrt(m_evt[ch_i]*m_evt[ch_j])
 
           for (unsigned int chan_i = 0; chan_i < TileCalibUtils::MAX_CHAN; ++chan_i) {
-            m_MeanAmp[ros][drawer][chan_i][gain] /= m_evtNr * m_nSamples;
+            m_meanAmp[ros][drawer][chan_i][gain] /= m_evtNr * m_nSamples;
             for (unsigned int chan_j = 0; chan_j < TileCalibUtils::MAX_CHAN; ++chan_j)
-              m_MeanAmp_ij[ros][drawer][chan_i][chan_j][gain] /= m_evtNr * m_nSamples;
+              m_meanAmp_ij[ros][drawer][chan_i][chan_j][gain] /= m_evtNr * m_nSamples;
           }
 
           double covar[48][48];
@@ -558,7 +573,7 @@ void TileDigiNoiseCalibAlg::finalDigits() {
 
           for (unsigned int chan_i = 0; chan_i < TileCalibUtils::MAX_CHAN; ++chan_i) {
             for (unsigned int chan_j = 0; chan_j < TileCalibUtils::MAX_CHAN; ++chan_j) {
-              covar[chan_i][chan_j] = m_MeanAmp_ij[ros][drawer][chan_i][chan_j][gain] - m_MeanAmp[ros][drawer][chan_i][gain] * m_MeanAmp[ros][drawer][chan_j][gain];
+              covar[chan_i][chan_j] = m_meanAmp_ij[ros][drawer][chan_i][chan_j][gain] - m_meanAmp[ros][drawer][chan_i][gain] * m_meanAmp[ros][drawer][chan_j][gain];
 
               if (chan_j < chan_i) {
                 mean_cov_ij += covar[chan_i][chan_j]; //LF: we take C_ij with its sign

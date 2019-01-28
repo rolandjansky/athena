@@ -117,14 +117,14 @@ class TileDigiNoiseCalibAlg: public AthAlgorithm {
      std::string m_optRawChannelContainer;*/
     std::string m_dspRawChannelContainer;
 
-    double m_SumPed2[5][64][48][2];
-    double m_SumRms2[5][64][48][2];
-    double m_MeanAmp[5][64][48][2];
-    double m_MeanAmp_ij[5][64][48][48][2];
+    double (*m_sumPed2)[64][48][2];
+    double (*m_sumRms2)[64][48][2];
+    double (*m_meanAmp)[64][48][2];
+    double (*m_meanAmp_ij)[64][48][48][2];
 
     // event number
     int m_evtNr;
-    int m_evt[5][64][48][2];
+    int (*m_evt)[64][48][2];
 
     // Trigger items
     int m_time;
@@ -136,15 +136,15 @@ class TileDigiNoiseCalibAlg: public AthAlgorithm {
     int m_min;
     int m_run;
     int m_trigType;
-    uint8_t m_ros[5][64][48][2];
-    uint8_t m_drawer[5][64][48][2];
-    uint8_t m_channel[5][64][48][2];
-    bool m_gain[5][64][48][2];
-    float m_ped[5][64][48][2];
-    float m_lfn[5][64][48][2];
-    float m_hfn[5][64][48][2];
-    float m_noise_cov[5][64][2];
-    float m_auto_corr[5][64][48][2][36];
+    uint8_t (*m_ros)[64][48][2];
+    uint8_t (*m_drawer)[64][48][2];
+    uint8_t (*m_channel)[64][48][2];
+    bool (*m_gain)[64][48][2];
+    float (*m_ped)[64][48][2];
+    float (*m_lfn)[64][48][2];
+    float (*m_hfn)[64][48][2];
+    float (*m_noise_cov)[64][2];
+    float (*m_auto_corr)[64][48][2][36];
 };
 
 #endif // TILENOISECALIBALG_H

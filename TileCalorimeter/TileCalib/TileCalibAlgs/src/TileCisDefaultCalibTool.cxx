@@ -66,28 +66,40 @@ TileCisDefaultCalibTool::TileCisDefaultCalibTool(const std::string& type, const 
   declareProperty("doSampleChecking", m_doSampleChecking = true); // do sample checking by default
   declareProperty("StuckBitsProbsTool", m_stuckBitsProbs);
   declareProperty("TileDQstatus", m_dqStatusKey = "TileDQstatus");
+
+  // Initialize arrays for results
+  m_calib = new float[5][64][48][2]();
+  m_qflag = new int[5][64][48][2]();
+  m_nDAC = new int[5][64][48][2]();
+  m_nDigitalErrors = new int[5][64][48][2]();
+  m_chi2 = new float[5][64][48][2]();
+
+  // Initialize sample check arrays
+  m_edgeSample = new int[5][64][48][2]();
+  m_nextToEdgeSample = new int[5][64][48][2]();
+
+  m_sampleBit = new int[5][64][48][2][10]();
+  m_bitStatus = new unsigned short[5][64][48][2][4]();
+  m_numSamp = new int[5][64][48][2]();
 }
 
 TileCisDefaultCalibTool::~TileCisDefaultCalibTool() {
+
+  delete[] m_calib;
+  delete[] m_qflag;
+  delete[] m_nDAC;
+  delete[] m_nDigitalErrors;
+  delete[] m_chi2;
+  delete[] m_edgeSample;
+  delete[] m_nextToEdgeSample;
+  delete[] m_sampleBit;
+  delete[] m_bitStatus;
+  delete[] m_numSamp;
+
 }
 
 StatusCode TileCisDefaultCalibTool::initialize() {
   ATH_MSG_INFO( "initialize()" );
-
-  // Initialize arrays for results
-  memset(m_calib, 0, sizeof(m_calib));
-  memset(m_qflag, 0, sizeof(m_qflag));
-  memset(m_nDAC, 0, sizeof(m_nDAC));
-  memset(m_nDigitalErrors, 0, sizeof(m_nDigitalErrors));
-  memset(m_chi2, 0, sizeof(m_chi2));
-
-  // Initialize sample check arrays
-  memset(m_edgeSample, 0, sizeof(m_edgeSample));
-  memset(m_nextToEdgeSample, 0, sizeof(m_nextToEdgeSample));
-
-  memset(m_SampleBit, 0, sizeof(m_SampleBit));
-  memset(m_BitStatus, 0, sizeof(m_BitStatus));
-  memset(m_NumSamp, 0, sizeof(m_NumSamp));
 
   // get TileHWID helper
   CHECK( detStore()->retrieve(m_tileHWID) );
@@ -99,7 +111,7 @@ StatusCode TileCisDefaultCalibTool::initialize() {
   CHECK( m_dqStatusKey.initialize() );
 
   ATH_CHECK( m_rawChannelContainerKey.initialize() );
-  ATH_CHECK( m_digitsContainerKey.initialize() );
+  ATH_CHECK( m_digitsContainerKey.initialize(m_doSampleChecking) );
 
   return StatusCode::SUCCESS;
 }
@@ -271,7 +283,7 @@ StatusCode TileCisDefaultCalibTool::execute() {
             for(unsigned int sampNum = 0; sampNum < theDigits.size(); sampNum++) {
 
               // Count the total number of samples taken by an ADC
-              m_NumSamp[ros][drawer][chan][gain] += 1;
+              m_numSamp[ros][drawer][chan][gain] += 1;
               int k = 0;
               int quotient = theDigits[sampNum];
               
@@ -279,7 +291,7 @@ StatusCode TileCisDefaultCalibTool::execute() {
               while(quotient!=0) {
                 if((quotient % 2) == 1) {
                   // If the bit is one, store info in the array
-                  m_SampleBit[ros][drawer][chan][gain][k] += 1;
+                  m_sampleBit[ros][drawer][chan][gain][k] += 1;
                 }
                 
                 quotient = quotient / 2;
@@ -557,19 +569,19 @@ StatusCode TileCisDefaultCalibTool::finalizeCalculations() {
       int NoStuckBit = 1; 
       for(int i = 0; i < 10; i++) {
         // If a bit is stuck at zero...
-        if(m_SampleBit[ros][drawer][chan][gain][i] == 0  && (m_NumSamp[ros][drawer][chan][gain] != 0)) {
-          // write information to m_BitStatus array of shorts
+        if(m_sampleBit[ros][drawer][chan][gain][i] == 0  && (m_numSamp[ros][drawer][chan][gain] != 0)) {
+          // write information to m_bitStatus array of shorts
           // each bit in short corresponds to a bit in an adc
           // with 6 short bits left over
-          m_BitStatus[ros][drawer][chan][gain][0] += pow(2, i);
+          m_bitStatus[ros][drawer][chan][gain][0] += pow(2, i);
           NoStuckBit = 0;
           ATH_MSG_DEBUG( "\n\nBIT STUCK AT ZERO: "
                   << ros << "   " << drawer << "   " << chan << "   " << gain <<  " " << i << "\n");
 
         }
        // Same for a bit stuck at one
-        else if (m_SampleBit[ros][drawer][chan][gain][i] == m_NumSamp[ros][drawer][chan][gain] && (m_NumSamp[ros][drawer][chan][gain] != 0)) {
-          m_BitStatus[ros][drawer][chan][gain][1] += pow(2, i);
+        else if (m_sampleBit[ros][drawer][chan][gain][i] == m_numSamp[ros][drawer][chan][gain] && (m_numSamp[ros][drawer][chan][gain] != 0)) {
+          m_bitStatus[ros][drawer][chan][gain][1] += pow(2, i);
           NoStuckBit = 0;
           ATH_MSG_DEBUG( "\n\nBIT STUCK AT ONE: "
                   << ros << "   " << drawer << "   " << chan << "   " << gain <<  " " << i << "\n");
@@ -603,7 +615,7 @@ StatusCode TileCisDefaultCalibTool::writeNtuple(int runNumber, int runType, TFil
   t->Branch("nDAC", *m_nDAC, "nDAC[5][64][48][2]/I");
   t->Branch("nDigitalErrors", *m_nDigitalErrors, "nDigitalErrors[5][64][48][2]/I");
   t->Branch("chi2", *m_chi2, "chi2[5][64][48][2]/F");
-  t->Branch("BitStatus", *m_BitStatus, "BitStatus[5][64][48][2][4]/s");
+  t->Branch("BitStatus", *m_bitStatus, "BitStatus[5][64][48][2][4]/s");
 
   if (!m_stuckBitsProbs.empty()) {
     if (m_stuckBitsProbs.retrieve().isFailure()) {

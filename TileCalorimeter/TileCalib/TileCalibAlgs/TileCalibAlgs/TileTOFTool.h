@@ -43,7 +43,7 @@ class TileTOFTool : public AthAlgTool, virtual public ITileCalibTool
 
   float timeCor(int mod_ref1, int mod_ref2, int part_ref1, int part_ref2);
 
-  float m_TimeCor[4][64];
+  float (*m_timeCor)[64];
 
   float m_LBA_LBC[4];
   float m_LBA_EBA[4];
@@ -56,8 +56,8 @@ class TileTOFTool : public AthAlgTool, virtual public ITileCalibTool
   float m_LA_LC;
   float m_LA_EC;
 
-  float m_tcor[4][32][32];
-  int m_Npair[4][32][32];
+  float (*m_tcor)[32][32];
+  int (*m_nPair)[32][32];
 };
 
 #endif

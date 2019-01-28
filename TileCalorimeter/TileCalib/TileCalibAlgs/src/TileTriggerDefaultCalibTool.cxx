@@ -56,24 +56,6 @@ TileTriggerDefaultCalibTool::TileTriggerDefaultCalibTool(const std::string& type
   , m_tileID(nullptr)
   , m_tileCablingService(nullptr)
   , m_tileToolEmscale("TileCondToolEmscale")
-  , m_meanTile()
-  , m_rmsTile()
-  , m_meanTileDAC()
-  , m_rmsTileDAC()
-  , m_ietaTile()
-  , m_iphiTile()
-  , m_ipmtTile()
-  , m_nEvtTile()
-  , m_meanL1Calo()
-  , m_rmsL1Calo()
-  , m_meanL1CaloDAC()
-  , m_rmsL1CaloDAC()
-  , m_ietaL1Calo()
-  , m_iphiL1Calo()
-  , m_ipmtL1Calo()
-  , m_nEvtL1Calo()
-  , m_meanTileL1Calo()
-  , m_rmsTileL1Calo()
   , m_DACvalue(0)
   , m_charge(0)
   , m_ipmt(0)
@@ -95,10 +77,50 @@ TileTriggerDefaultCalibTool::TileTriggerDefaultCalibTool(const std::string& type
   declareProperty("TileCondToolEmscale", m_tileToolEmscale);
   declareProperty("TileDQstatus", m_dqStatusKey = "TileDQstatus");
   //  declareProperty("L1TriggerTowerTool", m_ttTool);
+  
+  m_meanTile = new float[5][64][48]();
+  m_rmsTile = new float[5][64][48]();
+  m_meanTileDAC = new float[5][64][48]();
+  m_rmsTileDAC = new float[5][64][48]();
+  m_ietaTile = new int[5][64][48]();
+  m_iphiTile = new int[5][64][48]();
+  m_ipmtTile = new int[5][64][48]();
+  m_nEvtTile = new int[5][64][48]();
+
+  m_meanL1Calo = new float[5][64][48]();
+  m_rmsL1Calo = new float[5][64][48]();
+  m_meanL1CaloDAC = new float[5][64][48]();
+  m_rmsL1CaloDAC = new float[5][64][48]();
+  m_ietaL1Calo = new int[5][64][48]();
+  m_iphiL1Calo = new int[5][64][48]();
+  m_ipmtL1Calo = new int[5][64][48]();
+  m_nEvtL1Calo = new int[5][64][48]();
+
+  m_meanTileL1Calo = new float[5][64][48]();
+  m_rmsTileL1Calo = new float[5][64][48]();
 }
 
 TileTriggerDefaultCalibTool::~TileTriggerDefaultCalibTool()
-{}      
+{
+  delete[] m_meanTile;
+  delete[] m_rmsTile;
+  delete[] m_meanTileDAC;
+  delete[] m_rmsTileDAC;
+  delete[] m_ietaTile;
+  delete[] m_iphiTile;
+  delete[] m_ipmtTile;
+  delete[] m_nEvtTile;
+  delete[] m_meanL1Calo;
+  delete[] m_rmsL1Calo;
+  delete[] m_meanL1CaloDAC;
+  delete[] m_rmsL1CaloDAC;
+  delete[] m_ietaL1Calo;
+  delete[] m_iphiL1Calo;
+  delete[] m_ipmtL1Calo;
+  delete[] m_nEvtL1Calo;
+  delete[] m_meanTileL1Calo;
+  delete[] m_rmsTileL1Calo;
+}      
 
 StatusCode TileTriggerDefaultCalibTool::initialize()
 {

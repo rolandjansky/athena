@@ -66,27 +66,27 @@ class TileTriggerDefaultCalibTool : public AthAlgTool, virtual public ITileCalib
       "TriggerTowerContainer", "xAODTriggerTowers", "Trigger Tower container"};
  
   // Results Tile
-  float m_meanTile[5][64][48];
-  float m_rmsTile[5][64][48];
-  float m_meanTileDAC[5][64][48];
-  float m_rmsTileDAC[5][64][48];
-  int   m_ietaTile[5][64][48];
-  int   m_iphiTile[5][64][48];
-  int   m_ipmtTile[5][64][48];
-  int   m_nEvtTile[5][64][48];
+  float (*m_meanTile)[64][48];
+  float (*m_rmsTile)[64][48];
+  float (*m_meanTileDAC)[64][48];
+  float (*m_rmsTileDAC)[64][48];
+  int   (*m_ietaTile)[64][48];
+  int   (*m_iphiTile)[64][48];
+  int   (*m_ipmtTile)[64][48];
+  int   (*m_nEvtTile)[64][48];
 
   // Results L1Calo
-  float m_meanL1Calo[5][64][48];
-  float m_rmsL1Calo[5][64][48];
-  float m_meanL1CaloDAC[5][64][48];
-  float m_rmsL1CaloDAC[5][64][48];
-  int   m_ietaL1Calo[5][64][48];
-  int   m_iphiL1Calo[5][64][48];
-  int   m_ipmtL1Calo[5][64][48];
-  int   m_nEvtL1Calo[5][64][48];
+  float (*m_meanL1Calo)[64][48];
+  float (*m_rmsL1Calo)[64][48];
+  float (*m_meanL1CaloDAC)[64][48];
+  float (*m_rmsL1CaloDAC)[64][48];
+  int   (*m_ietaL1Calo)[64][48];
+  int   (*m_iphiL1Calo)[64][48];
+  int   (*m_ipmtL1Calo)[64][48];
+  int   (*m_nEvtL1Calo)[64][48];
 
-  float m_meanTileL1Calo[5][64][48];
-  float m_rmsTileL1Calo[5][64][48];
+  float (*m_meanTileL1Calo)[64][48];
+  float (*m_rmsTileL1Calo)[64][48];
 
   float m_DACvalue;
 

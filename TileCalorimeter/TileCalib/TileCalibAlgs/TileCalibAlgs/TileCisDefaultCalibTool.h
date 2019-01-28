@@ -124,27 +124,27 @@ class TileCisDefaultCalibTool: public AthAlgTool
     bool m_doSampleChecking;
 
     // Results
-    float m_calib[5][64][48][2];
-    int m_qflag[5][64][48][2];
-    int m_nDAC[5][64][48][2]; // This is now deprecated since you can get this form the TGraph
-    int m_nDigitalErrors[5][64][48][2];
-    float m_chi2[5][64][48][2];
+    float (*m_calib)[64][48][2];
+    int (*m_qflag)[64][48][2];
+    int (*m_nDAC)[64][48][2]; // This is now deprecated since you can get this form the TGraph
+    int (*m_nDigitalErrors)[64][48][2];
+    float (*m_chi2)[64][48][2];
 
     // These will not be saved to the ntuple
     // They are for the sample check that gets written to qflag
     // Mike Miller - 4 June 2009
-    int m_edgeSample[5][64][48][2];
-    int m_nextToEdgeSample[5][64][48][2];
+    int (*m_edgeSample)[64][48][2];
+    int (*m_nextToEdgeSample)[64][48][2];
 
     // these arrays are used to contain information about stuck bits in adc's
     // this array pertains to the "stuck bit" quality flag; it is not written to
     // the ntuple
-    int m_SampleBit[5][64][48][2][10];
+    int (*m_sampleBit)[64][48][2][10];
     // This array contains information about each bit in the adc
     // it IS written into the ntuple
-    unsigned short m_BitStatus[5][64][48][2][4];
+    unsigned short (*m_bitStatus)[64][48][2][4];
     // used to count the number of injection samples analyzed for odd bit behavior
-    int m_NumSamp[5][64][48][2];
+    int (*m_numSamp)[64][48][2];
 
     //  TList *scanList;  // This is now deprecated and replaced by the map for speed -CT March 09
     TMap* m_scanMap;

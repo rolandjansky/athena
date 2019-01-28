@@ -107,63 +107,111 @@ TileRawChNoiseCalibAlg::TileRawChNoiseCalibAlg(const std::string& name, ISvcLoca
 
   m_fillidx=false;
 
+  m_histAmp = new TH1F*[RCnum][5][64][48][2]();
+  m_histCellAmp = new TH1F*[2][64][4][17][6]();
+  m_evt = new int[5][64][48][2]();
+  m_ros = new uint8_t[5][64][48][2]();
+  m_drawer = new uint8_t[5][64][48][2]();
+  m_channel = new uint8_t[5][64][48][2]();
+  m_gain = new bool[5][64][48][2]();
+  m_rc_mean = new float[RCnum][5][64][48][2]();
+  m_rc_sigma = new float[RCnum][5][64][48][2]();
+  m_rc_av = new float[RCnum][5][64][48][2]();
+  m_rc_rms = new float[RCnum][5][64][48][2]();
+  m_rc_skewness = new float[RCnum][5][64][48][2]();
+  m_rc_kurtosis = new float[RCnum][5][64][48][2]();
+  m_rc_mean_err = new float[RCnum][5][64][48][2]();
+  m_rc_sigma_err = new float[RCnum][5][64][48][2]();
+  m_rc_chi2 = new float[RCnum][5][64][48][2]();
+  m_rc_ndf = new float[RCnum][5][64][48][2]();
+  m_rc_probC2 = new float[RCnum][5][64][48][2]();
+  m_rc_ggpar = new float[RCnum][5][64][48][2][8]();
+  m_rc_gsigma1 = new float[RCnum][5][64][48][2]();
+  m_rc_gsigma2 = new float[RCnum][5][64][48][2]();
+  m_rc_gnorm = new float[RCnum][5][64][48][2]();
+  m_rc_gchi2 = new float[RCnum][5][64][48][2]();
+  m_rc_gerrsigma1= new float[RCnum][5][64][48][2]();
+  m_rc_gerrsigma2 = new float[RCnum][5][64][48][2]();
+  m_rc_gerrnorm = new float[RCnum][5][64][48][2]();
+  m_rc_gcorrsigma1sigma2 = new float[RCnum][5][64][48][2]();
+
+  m_side = new bool[2][64][4][17][6]();
+  m_phi = new uint8_t[2][64][4][17][6]();
+  m_sample = new uint8_t[2][64][4][17][6]();
+  m_tower = new uint8_t[2][64][4][17][6]();
+  m_gg = new uint8_t[2][64][4][17][6]();
+  m_ecell_av = new float[2][64][4][17][6]();
+  m_ecell_rms= new float[2][64][4][17][6]();
+  m_ecell_hash= new uint32_t[2][64][4][17]();
+  
+  m_cell_nch = new int[2][64][4][17][2]();
+  m_ecell_ene = new float[2][64][4][17][2]();
+  m_ggpar = new float[2][64][4][17][6][8]();
+  m_gsigma1 = new float[2][64][4][17][6]();
+  m_gsigma2 = new float[2][64][4][17][6]();
+  m_gnorm = new float[2][64][4][17][6]();
+  m_gchi2 = new float[2][64][4][17][6]();
+  m_gerrsigma1 = new float[2][64][4][17][6]();
+  m_gerrsigma2 = new float[2][64][4][17][6]();
+  m_gerrnorm = new float[2][64][4][17][6]();
+  m_gcorrsigma1sigma2 = new float[2][64][4][17][6]();
 }
 
 TileRawChNoiseCalibAlg::~TileRawChNoiseCalibAlg()
-{ }
+{ 
+  //delete[] m_histAmp;
+  //delete[] m_histCellAmp;
+  delete[] m_evt;
+  delete[] m_ros;
+  delete[] m_drawer;
+  delete[] m_channel;
+  delete[] m_gain;
+  delete[] m_rc_mean;
+  delete[] m_rc_sigma;
+  delete[] m_rc_av;
+  delete[] m_rc_rms;
+  delete[] m_rc_skewness;
+  delete[] m_rc_kurtosis;
+  delete[] m_rc_mean_err;
+  delete[] m_rc_sigma_err;
+  delete[] m_rc_chi2;
+  delete[] m_rc_ndf;
+  delete[] m_rc_probC2;
+  delete[] m_rc_ggpar;
+  delete[] m_rc_gsigma1;
+  delete[] m_rc_gsigma2;
+  delete[] m_rc_gnorm;
+  delete[] m_rc_gchi2;
+  delete[] m_rc_gerrsigma1;
+  delete[] m_rc_gerrsigma2;
+  delete[] m_rc_gerrnorm;
+  delete[] m_rc_gcorrsigma1sigma2;
+
+  delete[] m_side;
+  delete[] m_phi;
+  delete[] m_sample;
+  delete[] m_tower;
+  delete[] m_gg;
+  delete[] m_ecell_av;
+  delete[] m_ecell_rms;
+  delete[] m_ecell_hash;
+   
+  delete[] m_cell_nch;
+  delete[] m_ecell_ene;
+  delete[] m_ggpar;
+  delete[] m_gsigma1;
+  delete[] m_gsigma2;
+  delete[] m_gnorm;
+  delete[] m_gchi2;
+  delete[] m_gerrsigma1;
+  delete[] m_gerrsigma2;
+  delete[] m_gerrnorm;
+  delete[] m_gcorrsigma1sigma2;
+}
 
 /// Only array initialization is done here
 /// All the helpers initialization is done at the first event
 StatusCode TileRawChNoiseCalibAlg::initialize() {
-
-  memset(m_rc_mean      ,0,          sizeof(m_rc_mean      ));
-  memset(m_rc_av        ,0,          sizeof(m_rc_av        ));
-  memset(m_rc_rms       ,0,          sizeof(m_rc_rms       ));
-  memset(m_rc_kurtosis  ,0,          sizeof(m_rc_kurtosis  ));
-  memset(m_rc_skewness  ,0,          sizeof(m_rc_skewness  ));
-  memset(m_rc_sigma     ,0,          sizeof(m_rc_sigma     ));
-  memset(m_rc_mean_err  ,0,          sizeof(m_rc_mean_err  ));
-  memset(m_rc_sigma_err ,0,          sizeof(m_rc_sigma_err ));
-  memset(m_rc_chi2      ,0,          sizeof(m_rc_chi2      ));
-  memset(m_rc_ndf       ,0,          sizeof(m_rc_ndf       ));
-  memset(m_rc_probC2    ,0,          sizeof(m_rc_probC2    ));
-  memset(m_ros        ,0,          sizeof(m_ros        ));
-  memset(m_drawer     ,0,          sizeof(m_drawer     ));
-  memset(m_channel    ,0,          sizeof(m_channel    ));
-  memset(m_gain       ,0,          sizeof(m_gain       ));
-
-  memset(m_rc_ggpar     ,0,          sizeof(m_rc_ggpar     ));
-  memset(m_rc_gsigma1   ,0,          sizeof(m_rc_gsigma1   ));
-  memset(m_rc_gsigma2   ,0,          sizeof(m_rc_gsigma2   ));
-  memset(m_rc_gnorm     ,0,          sizeof(m_rc_gnorm     ));
-  memset(m_rc_gchi2     ,0,          sizeof(m_rc_gchi2     ));
-  memset(m_rc_gerrsigma1,0,          sizeof(m_rc_gerrsigma1));
-  memset(m_rc_gerrnorm  ,0,          sizeof(m_rc_gerrnorm  ));
-  memset(m_rc_gerrsigma2,0,          sizeof(m_rc_gerrsigma2));
-  memset(m_rc_gcorrsigma1sigma2 ,0,  sizeof(m_rc_gcorrsigma1sigma2 ));
-
-
-  memset(m_ecell_av     ,0,          sizeof(m_ecell_av     ));
-  memset(m_ecell_rms    ,0,          sizeof(m_ecell_rms    ));
-  memset(m_ecell_hash   ,0xFF,       sizeof(m_ecell_hash   ));
-  memset(m_side       ,0,          sizeof(m_side       ));
-  memset(m_phi        ,0,          sizeof(m_phi        ));
-  memset(m_sample     ,0,          sizeof(m_sample     ));
-  memset(m_tower      ,0,          sizeof(m_tower      ));
-  memset(m_gg         ,0,          sizeof(m_gg         ));
-  memset(m_ggpar        ,0,          sizeof(m_ggpar        ));
-  memset(m_gsigma1      ,0,          sizeof(m_gsigma1      ));
-  memset(m_gsigma2      ,0,          sizeof(m_gsigma2      ));
-  memset(m_gnorm        ,0,          sizeof(m_gnorm        ));
-  memset(m_gchi2        ,0,          sizeof(m_gchi2        ));
-  memset(m_gerrsigma1   ,0,          sizeof(m_gerrsigma1   ));
-  memset(m_gerrnorm     ,0,          sizeof(m_gerrnorm     ));
-  memset(m_gerrsigma2   ,0,          sizeof(m_gerrsigma2   ));
-  memset(m_gcorrsigma1sigma2 ,0,     sizeof(m_gcorrsigma1sigma2 ));
-//  memset(gcorrsigma1norm ,0,       sizeof(gcorrsigma1norm));
-//  memset(gcorrsigma2norm ,0,       sizeof(gcorrsigma2norm));
-
-  memset(m_histAmp       ,0,  sizeof(m_histAmp        ));
 
   int nbin = 151;
   float binwidth[2] = { 0.125, 0.25 }; // in ADC
@@ -192,7 +240,6 @@ StatusCode TileRawChNoiseCalibAlg::initialize() {
   nbin = 301;
   float cellbin[2] = { 80., 2.5 }; //in MeV
   float xcellmax[2] = { (float) nbin * cellbin[0] / 2.F, (float) nbin * cellbin[1] / 2.F }; //in MeV
-  memset(m_histCellAmp   ,0,  sizeof(m_histCellAmp    ));
 
   for (int side = 0; side < 2; side++) {
     for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
@@ -304,8 +351,8 @@ StatusCode TileRawChNoiseCalibAlg::execute() {
     StoreRunInfo(dqStatus); // done only once
   }
 
-  memset(m_ecell_ene     ,0,          sizeof(m_ecell_ene     ));
-  memset(m_cell_nch      ,0,          sizeof(m_cell_nch      ));
+  memset(m_ecell_ene     ,0,          2 * sizeof( *m_ecell_ene     ));
+  memset(m_cell_nch      ,0,          2 * sizeof( *m_cell_nch      ));
 
   m_cispar = dqStatus->cispar();
   if (m_evtNr % 1000 == 0) ATH_MSG_INFO( " events processed so far " << m_evtNr );

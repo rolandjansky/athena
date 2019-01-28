@@ -131,8 +131,6 @@ TileLaserTimingTool::TileLaserTimingTool(const std::string& type, const std::str
   declareInterface<ITileCalibTool>( this );
 
   declareProperty("TileCondToolTiming", m_tileToolTiming);
-  //declareProperty("RawChannelContainer", m_rawChannelContainerName = "TileRawChannelFit");
-  //declareProperty("DigitsContainer", m_digitsContainerName = "TileDigitsCnt");
   declareProperty("NtupleID", m_ntupleID = "h3000");
   declareProperty("FiberLightSpeed", m_fiberLightSpeed);
   declareProperty("NSamples", m_nSamples = 9);

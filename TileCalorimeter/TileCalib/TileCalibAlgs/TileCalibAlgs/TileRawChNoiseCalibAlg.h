@@ -71,7 +71,6 @@ class TileRawChNoiseCalibAlg: public AthAlgorithm {
                      const SG::ReadHandleKey<TileRawChannelContainer>& rawChannelContainerKey,
                      RCtype rctype); // raw chans variables is done here
     void StoreRunInfo(const TileDQstatus* dqStatus); // called only at the first event. General variables
-    void removeRC(RCtype rctype); // if a RawChannel container doesn't exist, it is removed from the list
 
     void fillCell(TileRawChannelUnit::UNIT RChUnit, const TileRawChannel * rch);
     void fillCellHist(); //fill HGHG and LGLG histograms
@@ -156,16 +155,16 @@ class TileRawChNoiseCalibAlg: public AthAlgorithm {
     std::string m_OF1RawChannelContainer;
     std::string m_MFRawChannelContainer;
 
-    TH1F* m_histAmp[RCnum][5][64][48][2];
-    TH1F* m_histCellAmp[2][64][4][17][6];
+    TH1F* (*m_histAmp)[5][64][48][2];
+    TH1F* (*m_histCellAmp)[64][4][17][6];
 
     // event number
     int m_evtNr;
-    int m_evt[5][64][48][2];
-    uint8_t m_ros[5][64][48][2];
-    uint8_t m_drawer[5][64][48][2];
-    uint8_t m_channel[5][64][48][2];
-    bool m_gain[5][64][48][2];
+    int (*m_evt)[64][48][2];
+    uint8_t (*m_ros)[64][48][2];
+    uint8_t (*m_drawer)[64][48][2];
+    uint8_t (*m_channel)[64][48][2];
+    bool (*m_gain)[64][48][2];
     // Trigger items
     int m_time;
     int m_year;
@@ -179,27 +178,27 @@ class TileRawChNoiseCalibAlg: public AthAlgorithm {
     //int m_nsamples;
 
     // RawCh items
-    float m_rc_mean[RCnum][5][64][48][2];
-    float m_rc_sigma[RCnum][5][64][48][2];
-    float m_rc_av[RCnum][5][64][48][2];
-    float m_rc_rms[RCnum][5][64][48][2];
-    float m_rc_skewness[RCnum][5][64][48][2];
-    float m_rc_kurtosis[RCnum][5][64][48][2];
-    float m_rc_mean_err[RCnum][5][64][48][2];
-    float m_rc_sigma_err[RCnum][5][64][48][2];
-    float m_rc_chi2[RCnum][5][64][48][2];
-    float m_rc_ndf[RCnum][5][64][48][2];
-    float m_rc_probC2[RCnum][5][64][48][2];
+    float (*m_rc_mean)[5][64][48][2];
+    float (*m_rc_sigma)[5][64][48][2];
+    float (*m_rc_av)[5][64][48][2];
+    float (*m_rc_rms)[5][64][48][2];
+    float (*m_rc_skewness)[5][64][48][2];
+    float (*m_rc_kurtosis)[5][64][48][2];
+    float (*m_rc_mean_err)[5][64][48][2];
+    float (*m_rc_sigma_err)[5][64][48][2];
+    float (*m_rc_chi2)[5][64][48][2];
+    float (*m_rc_ndf)[5][64][48][2];
+    float (*m_rc_probC2)[5][64][48][2];
 
-    float m_rc_ggpar[RCnum][5][64][48][2][8]; // sigma gauss1, rel normalization of the gaussians, sigma gauss2, chi2/ndf, error in sigma1, sigma2 and normalization, correlation between sigma1 and sigma2
-    float m_rc_gsigma1[RCnum][5][64][48][2];
-    float m_rc_gsigma2[RCnum][5][64][48][2];
-    float m_rc_gnorm[RCnum][5][64][48][2];
-    float m_rc_gchi2[RCnum][5][64][48][2];
-    float m_rc_gerrsigma1[RCnum][5][64][48][2];
-    float m_rc_gerrsigma2[RCnum][5][64][48][2];
-    float m_rc_gerrnorm[RCnum][5][64][48][2];
-    float m_rc_gcorrsigma1sigma2[RCnum][5][64][48][2];
+    float (*m_rc_ggpar)[5][64][48][2][8]; // sigma gauss1, rel normalization of the gaussians, sigma gauss2, chi2/ndf, error in sigma1, sigma2 and normalization, correlation between sigma1 and sigma2
+    float (*m_rc_gsigma1)[5][64][48][2];
+    float (*m_rc_gsigma2)[5][64][48][2];
+    float (*m_rc_gnorm)[5][64][48][2];
+    float (*m_rc_gchi2)[5][64][48][2];
+    float (*m_rc_gerrsigma1)[5][64][48][2];
+    float (*m_rc_gerrsigma2)[5][64][48][2];
+    float (*m_rc_gerrnorm)[5][64][48][2];
+    float (*m_rc_gcorrsigma1sigma2)[5][64][48][2];
 
     //Cell items
     //structure is side:             A=0 C=1,
@@ -207,27 +206,27 @@ class TileRawChNoiseCalibAlg: public AthAlgorithm {
     //		 sample:           A=0, BC=1, D=2, E=3
     //             tower:            0-16,
     //             gain combination: LGLG, LG-, -LG, HGHG, HG-, -HG
-    bool m_side[2][64][4][17][6];
-    uint8_t m_phi[2][64][4][17][6];
-    uint8_t m_sample[2][64][4][17][6];
-    uint8_t m_tower[2][64][4][17][6];
-    uint8_t m_gg[2][64][4][17][6];
+    bool (*m_side)[64][4][17][6];
+    uint8_t (*m_phi)[64][4][17][6];
+    uint8_t (*m_sample)[64][4][17][6];
+    uint8_t (*m_tower)[64][4][17][6];
+    uint8_t (*m_gg)[64][4][17][6];
 
-    float m_ecell_av[2][64][4][17][6];
-    float m_ecell_rms[2][64][4][17][6];
-    uint32_t m_ecell_hash[2][64][4][17];
+    float (*m_ecell_av)[64][4][17][6];
+    float (*m_ecell_rms)[64][4][17][6];
+    uint32_t (*m_ecell_hash)[64][4][17];
 
-    int m_cell_nch[2][64][4][17][2]; // number of good channels in given cell in given event - 0 or 1 or 2
-    float m_ecell_ene[2][64][4][17][2];
-    float m_ggpar[2][64][4][17][6][8]; // sigma gauss1, rel normalization of the gaussians, sigma gauss2, chi2/ndf, error in sigma1, sigma2 and normalization, correlation between sigma1 and sigma2
-    float m_gsigma1[2][64][4][17][6];
-    float m_gsigma2[2][64][4][17][6];
-    float m_gnorm[2][64][4][17][6];
-    float m_gchi2[2][64][4][17][6];
-    float m_gerrsigma1[2][64][4][17][6];
-    float m_gerrsigma2[2][64][4][17][6];
-    float m_gerrnorm[2][64][4][17][6];
-    float m_gcorrsigma1sigma2[2][64][4][17][6];
+    int (*m_cell_nch)[64][4][17][2]; // number of good channels in given cell in given event - 0 or 1 or 2
+    float (*m_ecell_ene)[64][4][17][2];
+    float (*m_ggpar)[64][4][17][6][8]; // sigma gauss1, rel normalization of the gaussians, sigma gauss2, chi2/ndf, error in sigma1, sigma2 and normalization, correlation between sigma1 and sigma2
+    float (*m_gsigma1)[64][4][17][6];
+    float (*m_gsigma2)[64][4][17][6];
+    float (*m_gnorm)[64][4][17][6];
+    float (*m_gchi2)[64][4][17][6];
+    float (*m_gerrsigma1)[64][4][17][6];
+    float (*m_gerrsigma2)[64][4][17][6];
+    float (*m_gerrnorm)[64][4][17][6];
+    float (*m_gcorrsigma1sigma2)[64][4][17][6];
 
     enum CELL_CHANNEL {OUTER_MBTS_CHANNEL = 4, SPECIAL_C10_CHANNEL = 5, E1_CHANNEL = 12};
 };
