@@ -23,7 +23,7 @@
 #include <TTreeFormulaManager.h>
 #include <EventLoop/Job.h>
 #include <EventLoop/StatusCode.h>
-#include <EventLoop/Worker.h>
+#include <EventLoop/IWorker.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/ThrowMsg.h>
 
