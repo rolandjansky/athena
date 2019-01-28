@@ -45,7 +45,7 @@ class AODFix_r210(AODFix_base):
 
             oldMetadataList = self.prevAODFix.split("-")
             
-            if "evtRunNum" not in oldMetadataList;
+            if "evtRunNum" not in oldMetadataList:
                 self.evtRunNum_postSystemRec(topSequence)
                 pass
 
