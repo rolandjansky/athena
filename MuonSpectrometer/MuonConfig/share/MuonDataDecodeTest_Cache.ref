@@ -27,8 +27,6 @@ Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderS
 Py:ComponentAccumulator   DEBUG Adding component ByteStreamAttListMetadataSvc/ByteStreamAttListMetadataSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component IOVDbMetaDataTool/IOVDbMetaDataTool to the job
 Py:ComponentAccumulator   DEBUG Adding component ByteStreamMetadataTool/ByteStreamMetadataTool to the job
-Py:ComponentAccumulator   DEBUG   Merging algorithm MuonCacheCreator to a sequence AthAlgSeq
-Py:Configurable     ERROR attempt to add a duplicate (AthAlgSeq.MuonCacheCreator) ... dupe ignored
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
@@ -394,7 +392,9 @@ Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component ROBDataProviderSvc/ROBDataProviderSvc to the job
+Py:ComponentAccumulator   DEBUG   Merging algorithm MuonCacheCreator to a sequence AthAlgSeq
 Py:ComponentAccumulator   DEBUG Adding component Muon::MDT_RawDataProviderTool/MDT_RawDataProviderTool to the job
+Py:ComponentAccumulator   DEBUG   Merging algorithm MuonCacheCreator to a sequence AthAlgSeq
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
 Py:ComponentAccumulator   DEBUG Adding component MuonMDT_CablingAlg/MuonMDT_CablingAlg to the job
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
@@ -471,6 +471,7 @@ Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component ROBDataProviderSvc/ROBDataProviderSvc to the job
+Py:ComponentAccumulator   DEBUG   Merging algorithm MuonCacheCreator to a sequence AthAlgSeq
 Py:ComponentAccumulator   DEBUG Adding component Muon::CSC_RawDataProviderTool/CSC_RawDataProviderTool to the job
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
@@ -1098,27 +1099,6 @@ Py:Athena            INFO Print Config
 |-Sequential                              = False
 |-StopOverride                            = False
 |-TimeOut                                 = 0.0
-|=/***** Algorithm MuonCacheCreator/MuonCacheCreator *************************************************
-| |-AuditAlgorithms                         = False
-| |-AuditBeginRun                           = False
-| |-AuditEndRun                             = False
-| |-AuditExecute                            = False
-| |-AuditFinalize                           = False
-| |-AuditInitialize                         = False
-| |-AuditReinitialize                       = False
-| |-AuditRestart                            = False
-| |-AuditStart                              = False
-| |-AuditStop                               = False
-| |-DisableViewWarning                      = False
-| |-Enable                                  = True
-| |-ErrorCounter                            = 0
-| |-ErrorMax                                = 1
-| |-FilterCircularDependencies              = True
-| |-IsIOBound                               = False
-| |-MonitorService                          = 'MonitorSvc'
-| |-OutputLevel                             = 0
-| |-RegisterForContextService               = False
-| \----- (End of Algorithm MuonCacheCreator/MuonCacheCreator) ----------------------------------------
 |=/***** Algorithm Muon::RpcRawDataProvider/RpcRawDataProvider ***************************************
 | |-AuditAlgorithms                         = False
 | |-AuditBeginRun                           = False
@@ -1216,6 +1196,27 @@ Py:Athena            INFO Print Config
 | | | \----- (End of Private AlgTool Muon::TGC_RodDecoderReadout/TgcRawDataProvider.TGC_RawDataProviderTool.TgcROD_Decoder) -----
 | | \----- (End of Private AlgTool Muon::TGC_RawDataProviderTool/TgcRawDataProvider.TGC_RawDataProviderTool) -----
 | \----- (End of Algorithm Muon::TgcRawDataProvider/TgcRawDataProvider) ------------------------------
+|=/***** Algorithm MuonCacheCreator/MuonCacheCreator *************************************************
+| |-AuditAlgorithms                         = False
+| |-AuditBeginRun                           = False
+| |-AuditEndRun                             = False
+| |-AuditExecute                            = False
+| |-AuditFinalize                           = False
+| |-AuditInitialize                         = False
+| |-AuditReinitialize                       = False
+| |-AuditRestart                            = False
+| |-AuditStart                              = False
+| |-AuditStop                               = False
+| |-DisableViewWarning                      = False
+| |-Enable                                  = True
+| |-ErrorCounter                            = 0
+| |-ErrorMax                                = 1
+| |-FilterCircularDependencies              = True
+| |-IsIOBound                               = False
+| |-MonitorService                          = 'MonitorSvc'
+| |-OutputLevel                             = 0
+| |-RegisterForContextService               = False
+| \----- (End of Algorithm MuonCacheCreator/MuonCacheCreator) ----------------------------------------
 |=/***** Algorithm Muon::MdtRawDataProvider/MdtRawDataProvider ***************************************
 | |-AuditAlgorithms                         = False
 | |-AuditBeginRun                           = False
