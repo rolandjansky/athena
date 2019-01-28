@@ -2,11 +2,11 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-// TrackAssist.cxx
+// TrackAssistHelper.cxx
 
-#include "JetRecTools/TrackAssistTool.h"
+#include "JetRecTools/TrackAssistHelper.h"
 
-TrackAssistTool::TrackAssistTool() 
+TrackAssistHelper::TrackAssistHelper() 
 : m_assocTracksInName(""),
   m_vertexColl(""),
   m_trackVtxAssoc(""),
@@ -15,7 +15,7 @@ TrackAssistTool::TrackAssistTool()
 {
 }
 
-StatusCode TrackAssistTool::initialize()
+StatusCode TrackAssistHelper::initialize()
 {
 
   // If no VertexContainer is given, give warning but proceed without it
@@ -43,20 +43,20 @@ StatusCode TrackAssistTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrackAssistTool::rescaleTracks( const xAOD::JetContainer *jets, xAOD::TrackParticleContainer *tracks) const {
+StatusCode TrackAssistHelper::rescaleTracks( const xAOD::JetContainer *jets, xAOD::TrackParticleContainer *tracks) const {
 
-  for(auto jet : *jets) {
+  for( const xAOD::Jet* jet : *jets ) {
     // Get track rescale weights
     ANA_CHECK( getRescaleFactors(*jet, *tracks) );
   }
 
-  for(auto track : *tracks) {
+  for( xAOD::TrackParticle* track : *tracks ) {
     
     // Get the scales
     float scale = track->auxdata< float >("TAScale");
 
     // Include this to preserve the pT of any unmatched tracks
-    if(!scale) scale = 1.0;
+    if( !scale ) scale = 1.0;
 
     // Rescale track pT
     track->setDefiningParameters( track->d0(), track->z0(), track->phi0(), track->theta(), track->qOverP() / scale );
@@ -66,21 +66,21 @@ StatusCode TrackAssistTool::rescaleTracks( const xAOD::JetContainer *jets, xAOD:
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrackAssistTool::getRescaleFactors( const xAOD::Jet &jet, xAOD::TrackParticleContainer &tracks) const {
+StatusCode TrackAssistHelper::getRescaleFactors( const xAOD::Jet &jet, xAOD::TrackParticleContainer &tracks) const {
 
   float trackPt = 0;
 
   // Get weighted sum of track pTs for jet
-  for(auto track : tracks) {
+  for( xAOD::TrackParticle* track : tracks ) {
 
     // Get associations and weights
     std::vector< std::pair<int, float> > associations = track->auxdata< std::vector< std::pair<int, float> > >("JetAssociations");
 
     // Loop over associations
-    for(auto association : associations) {
+    for( std::pair<int, float> association : associations ) {
 
       // Skip track if it isn't associated to the jet
-      if(unsigned(association.first) != jet.index()) continue;
+      if( unsigned(association.first) != jet.index() ) continue;
 
       // Add weighted pT to total      
       float weight = association.second;
@@ -94,7 +94,7 @@ StatusCode TrackAssistTool::getRescaleFactors( const xAOD::Jet &jet, xAOD::Track
   }
 
   // Save rescale factor for each track
-  for(auto track : tracks) {
+  for( xAOD::TrackParticle* track : tracks ) {
 
     float scale = 0.0;
 
@@ -102,10 +102,10 @@ StatusCode TrackAssistTool::getRescaleFactors( const xAOD::Jet &jet, xAOD::Track
     std::vector< std::pair<int, float> > associations = track->auxdata< std::vector< std::pair<int, float> > >("JetAssociations");
 
     // Loop over associations
-    for(auto association : associations) {
+    for( std::pair<int, float> association : associations ) {
 
       // Skip track if it isn't associated to the jet
-      if(unsigned(association.first) != jet.index()) continue;
+      if( unsigned(association.first) != jet.index() ) continue;
 
       // Get factor to scale 
       float weight = association.second;
@@ -124,7 +124,7 @@ StatusCode TrackAssistTool::getRescaleFactors( const xAOD::Jet &jet, xAOD::Track
   return StatusCode::SUCCESS;
 }
 
-bool TrackAssistTool::isGoodTrack( const xAOD::TrackParticle &track, const xAOD::Vertex &pvx, const jet::TrackVertexAssociation &tva ) const {
+bool TrackAssistHelper::isGoodTrack( const xAOD::TrackParticle &track, const xAOD::Vertex &pvx, const jet::TrackVertexAssociation &tva ) const {
 
   // Do TrackVertexAssociation check if configured to do so
   if ( m_doTrackVtxAssoc ) {
@@ -141,7 +141,7 @@ bool TrackAssistTool::isGoodTrack( const xAOD::TrackParticle &track, const xAOD:
   return true;
 }
 
-StatusCode TrackAssistTool::getVertexInfo( const xAOD::Vertex *&pvx, const jet::TrackVertexAssociation *&tva ) const {
+StatusCode TrackAssistHelper::getVertexInfo( const xAOD::Vertex *&pvx, const jet::TrackVertexAssociation *&tva ) const {
   
   // Get primary vertex and vertex association if configured to do so
   if( m_doTrackVtxAssoc ) { 
@@ -151,8 +151,8 @@ StatusCode TrackAssistTool::getVertexInfo( const xAOD::Vertex *&pvx, const jet::
   return StatusCode::SUCCESS;
 }
 
-void TrackAssistTool::print() const {
-  ANA_MSG_INFO("Properties inherited from TrackAssistTool");
+void TrackAssistHelper::print() const {
+  ANA_MSG_INFO("Properties inherited from TrackAssistHelper");
   ANA_MSG_INFO("   InputAssociatedTracks: " << m_assocTracksInName);
   ANA_MSG_INFO("         VertexContainer: " << m_vertexColl);
   ANA_MSG_INFO("  TrackVertexAssociation: " << m_trackVtxAssoc);

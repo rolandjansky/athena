@@ -8,7 +8,7 @@
 
 SATScaleTool::SATScaleTool(const std::string& myname)
 : AsgTool(myname),
-  TrackAssistTool(),
+  TrackAssistHelper(),
   m_inTrackColl(""),
   m_inJetColl(""),
   m_outTrackColl(""),
@@ -36,7 +36,7 @@ StatusCode SATScaleTool::initialize()
 {
 
   ATH_MSG_INFO("Initializing SATScaleTool " << name() << ".");
-  ATH_CHECK( TrackAssistTool::initialize() );
+  ATH_CHECK( TrackAssistHelper::initialize() );
   print();
 
   return StatusCode::SUCCESS;
@@ -69,6 +69,7 @@ StatusCode SATScaleTool::makeSATTracks() const {
   // Get vertex objects
   const xAOD::Vertex *pvx = nullptr;
   const jet::TrackVertexAssociation *tva = nullptr;
+  // NB: getVertexInfo is defined in TrackAssistHelper.cxx
   ATH_CHECK( getVertexInfo(pvx,tva) );
 
   // Make shallow copy of tracks
@@ -77,8 +78,9 @@ StatusCode SATScaleTool::makeSATTracks() const {
   std::unique_ptr<xAOD::ShallowAuxContainer> outTracksAux (trackShallowCopy.second);
 
   // Get list of all tracks
-  for( auto track : *inTracks ) {
+  for( const xAOD::TrackParticle* track : *inTracks ) {
     // Make sure only tracks that pass selection are used
+    // NB: isGoodTrack is defined in TrackAssistHelper.cxx
     if( !isGoodTrack(*track,*pvx,*tva) ) continue;
     allGoodTrackIndices.push_back( track->index() );
   }
@@ -87,15 +89,20 @@ StatusCode SATScaleTool::makeSATTracks() const {
   ATH_CHECK( flagJetsToMerge(inJets) );
 
   // Loop over input jets
-  for( auto jet : *inJets ) {
+  for( const xAOD::Jet* jet : *inJets ) {
 
     // Get ghost-associated tracks
-    std::vector<const xAOD::TrackParticle*> myMatchedTracks = jet->getAssociatedObjects<xAOD::TrackParticle>(m_assocTracksInName);
+    std::vector<const xAOD::TrackParticle*> myMatchedTracks;
+    jet->getAssociatedObjects<xAOD::TrackParticle>(m_assocTracksInName,myMatchedTracks);
 
     // Loop over ghost-associated tracks
-    for( auto track : myMatchedTracks ) {
+    for( const xAOD::TrackParticle* track : myMatchedTracks ) {
+
+      // Skip if link is broken
+      if( !track ) continue;
 
       // Make sure only tracks that pass selection are used
+      // NB: isGoodTrack is defined in TrackAssistHelper.cxx
       if( !isGoodTrack(*track,*pvx,*tva) ) continue;
 
       // Add to list of matched tracks      
@@ -110,7 +117,7 @@ StatusCode SATScaleTool::makeSATTracks() const {
     if( mergeIdx >= 0 ) {
       int jetIdx = jet->index();
       // Loop up the chain in case a nearest neighbor is also a jet to merge
-      while(inJets->at(mergeIdx)->auxdata< int >("mergeIndex") >= 0 ) {
+      while( inJets->at(mergeIdx)->auxdata< int >("mergeIndex") >= 0 ) {
         mergeIdx = inJets->at(mergeIdx)->auxdata< int >("mergeIndex");
       } 
       JetMergeMap[mergeIdx].push_back(jetIdx);
@@ -125,23 +132,23 @@ StatusCode SATScaleTool::makeSATTracks() const {
   std::set_difference(allGoodTrackIndices.begin(), allGoodTrackIndices.end(), matchedTrackIndices.begin(), matchedTrackIndices.end(), std::inserter(unmatchedTrackIndices,unmatchedTrackIndices.begin()));
 
   // dR-match all remaining tracks
-  for( auto trackIdx : unmatchedTrackIndices ) {
+  for( int trackIdx : unmatchedTrackIndices ) {
    
     // Get input track 
-    auto track = inTracks->at(trackIdx);
+    const xAOD::TrackParticle* track = inTracks->at(trackIdx);
 
     float dRmin = 9999999;
     int jetIdx = -1;
-    for(auto jet : *inJets) {
+    for( const xAOD::Jet* jet : *inJets ) {
       // Find nearest jet to track
-      if(track->p4().DeltaR(jet->p4()) < dRmin) {
+      if( track->p4().DeltaR(jet->p4()) < dRmin ) {
         dRmin = track->p4().DeltaR(jet->p4());
         jetIdx = jet->index();
       }
     }
 
     // Check if dR matching criteria is met
-    if(dRmin < m_dRmatch) {
+    if( dRmin < m_dRmatch ) {
       // Record which jet the track belongs to
       JetTrackMap[jetIdx].push_back(track->index());
     }
@@ -154,7 +161,7 @@ StatusCode SATScaleTool::makeSATTracks() const {
   auto combinedJetsAux = std::make_unique<xAOD::JetAuxContainer>();
   combinedJets->setStore( combinedJetsAux.get() );
 
-  for(auto jet : *inJets) {
+  for( const xAOD::Jet* jet : *inJets ) {
 
     int mergeIndex = jet->auxdata< int >("mergeIndex");
 
@@ -166,7 +173,7 @@ StatusCode SATScaleTool::makeSATTracks() const {
       combinedJets->push_back (combinedJet);
       *combinedJet = *jet;
 
-      for( auto trackIdx : JetTrackMap[jet->index()] ) {
+      for( int trackIdx : JetTrackMap[jet->index()] ) {
         // Set jet associations for associated tracks
         // Nominally, each track is associated to a single jet, but this construction
         // allows each track to be associated to multiple jets with a weight for each
@@ -175,12 +182,12 @@ StatusCode SATScaleTool::makeSATTracks() const {
       }
 
       // Check if there are any jets to merge
-      for( auto mergeIdx : JetMergeMap[jet->index()]) {
+      for( int mergeIdx : JetMergeMap[jet->index()] ) {
 
         // Add jet 4-vectors together
         combinedJet->setJetP4(combinedJet->jetP4() + inJets->at(mergeIdx)->jetP4());
 
-        for( auto trackIdx : JetTrackMap[mergeIdx] ) {
+        for( int trackIdx : JetTrackMap[mergeIdx] ) {
           // Set merged jet track associations to combined jet
           outTracks->at(trackIdx)->auxdata< std::vector< std::pair<int, float> > >("JetAssociations").emplace_back(combinedJet->index(),1.0);
         }
@@ -194,10 +201,10 @@ StatusCode SATScaleTool::makeSATTracks() const {
   ATH_CHECK( rescaleTracks(inJets,outTracks.get())  );
 
   // Create view container to store only selected tracks
-  std::unique_ptr< ConstDataVector<xAOD::TrackParticleContainer> > outSelTracks = std::make_unique< ConstDataVector< xAOD::TrackParticleContainer> >(SG::VIEW_ELEMENTS);
+  auto outSelTracks = std::make_unique< ConstDataVector< xAOD::TrackParticleContainer> >(SG::VIEW_ELEMENTS);
 
   // Fill view container if track passes selection requirements
-  for(auto goodIdx : allGoodTrackIndices) {
+  for( int goodIdx : allGoodTrackIndices ) {
     outSelTracks->push_back(outTracks->at(goodIdx));
   }
   
@@ -216,10 +223,10 @@ StatusCode SATScaleTool::flagJetsToMerge( const xAOD::JetContainer *jets ) const
 
   ATH_MSG_DEBUG("In SATScaleTool::flagJetsToMerge");
 
-  for( auto *jet : *jets ) {
+  for( const xAOD::Jet* jet : *jets ) {
     
     // Don't merge if flag is set to false
-    if(!m_doMerge) {
+    if( !m_doMerge ) {
       jet->auxdecor< int >("mergeIndex") = -1;
       continue;
     }
@@ -228,7 +235,7 @@ StatusCode SATScaleTool::flagJetsToMerge( const xAOD::JetContainer *jets ) const
     float ptRatioDR = -1;
     int neighborIndex = -1;
 
-    for ( auto *jet2 : *jets ) {
+    for ( const xAOD::Jet* jet2 : *jets ) {
 
       // Don't use jet as its own nearest neighbor
       if( jet == jet2 ) continue;
@@ -286,7 +293,7 @@ StatusCode SATScaleTool::getPrimaryVertex( const xAOD::Vertex *&pvx ) const {
   }
 
   // Find the first primary vertex in the container
-  for ( const auto& vx : *vtxContainer ) {
+  for ( const xAOD::Vertex* vx : *vtxContainer ) {
     if ( vx->vertexType() == xAOD::VxType::PriVtx ) {
       pvx = vx;
       break;
@@ -312,7 +319,7 @@ void SATScaleTool::print() const {
   ATH_MSG_INFO("             DoMergeJets: " << smerge);
   ATH_MSG_INFO("             MergeDeltaR: " << m_dRmerge);
   ATH_MSG_INFO("       MergePtOverDeltaR: " << m_pTdRmerge);
-  TrackAssistTool::print();
+  TrackAssistHelper::print();
   return;
 }
 
