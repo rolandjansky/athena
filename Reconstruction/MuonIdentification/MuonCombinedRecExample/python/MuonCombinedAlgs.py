@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
 
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from AthenaCommon.CfgGetter import getPublicTool, getAlgorithm,getPublicToolClone
@@ -82,8 +82,32 @@ def MuonCombinedAlg( name="MuonCombinedAlg",**kwargs ):
     kwargs.setdefault("CombinedTagMaps", tagmaps)
     return CfgMgr.MuonCombinedAlg(name,**kwargs)
 
+def recordMuonCreatorAlgObjs (kw):
+    Alg = CfgMgr.MuonCreatorAlg
+    def val (prop):
+        d = kw.get (prop)
+        if d == None:
+            d = Alg.__dict__[prop].default
+        return d
+    objs = {'xAOD::MuonContainer': val('MuonContainerLocation'),
+            'xAOD::TrackParticleContainer': (val('CombinedLocation')+'TrackParticles',
+                                             val('ExtrapolatedLocation')+'TrackParticles',
+                                             val('MSOnlyExtrapolatedLocation')+'TrackParticles'),
+            'xAOD::MuonSegmentContainer': val('SegmentContainerName'),
+            }
+    if val('BuildSlowMuon'):
+        objs['xAOD::SlowMuonContainer'] = val('SlowMuonContainerLocation')
+    if val('MakeClusters'):
+        objs['CaloClusterCellLinkContainer'] =  val('CaloClusterCellLinkName') + '_links'
+        objs['xAOD::CaloClusterContainer'] =  val('ClusterContainerName')
+        
+    from RecExConfig.ObjKeyStore import objKeyStore
+    objKeyStore.addManyTypesTransient (objs)
+    return
+    
 def MuonCreatorAlg( name="MuonCreatorAlg",**kwargs ):
     kwargs.setdefault("MuonCreatorTool",getPublicTool("MuonCreatorTool"))
+    recordMuonCreatorAlgObjs (kwargs)
     return CfgMgr.MuonCreatorAlg(name,**kwargs)
 
 def StauCreatorAlg( name="StauCreatorAlg", **kwargs ):
@@ -97,6 +121,7 @@ def StauCreatorAlg( name="StauCreatorAlg", **kwargs ):
     kwargs.setdefault("BuildSlowMuon",1)
     kwargs.setdefault("ClusterContainerName", "SlowMuonClusterCollection")
     kwargs.setdefault("TagMaps",["stauTagMap"])
+    recordMuonCreatorAlgObjs (kwargs)
     return MuonCreatorAlg(name,**kwargs)
 
 class MuonCombinedReconstruction(ConfiguredMuonRec):
