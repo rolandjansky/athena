@@ -4,16 +4,12 @@
 
 #ifndef get_MaterialResolutionEffect_H
 #define get_MaterialResolutionEffect_H
-#include <stdlib.h>
-#include <math.h>
 #include <memory>
+#include <cstdlib>
+#include <cmath>
+#include <array>
 
 #include "AsgTools/AsgMessaging.h"
-
-#include "TH1.h"
-#include "TH2D.h"
-#include "TFile.h"
-#include "TArrayD.h"
 
 /**
   @class get_MaterialResolutionEffect
@@ -23,6 +19,12 @@
    are available
 
 */
+
+class TH1;
+class TH2;
+class TFile;
+class TArrayD;
+
 
 class get_MaterialResolutionEffect : public asg::AsgMessaging {
 
@@ -44,12 +46,11 @@ class get_MaterialResolutionEffect : public asg::AsgMessaging {
  private:
 
   // histograms to store resolution parameters
-  TH1D* m_hSystPeak[4][8][3];
-  TH1D* m_hSystResol[4][8][3];
-  TH2D* m_hsyst_IBL_PP0[3];
+  std::array<std::array<std::array<std::unique_ptr<TH1>, 3>, 8>,4> m_hSystPeak;
+  std::array<std::array<std::array<std::unique_ptr<TH1>, 3>, 8>,4> m_hSystResol;
+  std::array<std::unique_ptr<TH2>, 3> m_hsyst_IBL_PP0;
   std::unique_ptr <TFile> m_file0;
-  //const TArrayD* m_etaBins;
-  const TArrayD* m_etBins;
+  const TArrayD* m_etBins; //A xistogram will own this
 
 
 };
