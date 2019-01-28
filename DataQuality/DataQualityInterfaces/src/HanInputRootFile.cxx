@@ -7,6 +7,7 @@
 #include "TH1.h"
 #include "TGraph.h"
 #include "TDirectoryFile.h"
+#include "TEfficiency.h"
 #include <iostream>
 #include <cstring>
 
@@ -108,7 +109,7 @@ addListener( const boost::regex& regex, dqm_core::InputListener* listener )
       if (boost::regex_match(*str, regex)) {
         // is this actually a histogram/graph?
         TObject* temp = m_basedir->Get(str->c_str());
-        if (dynamic_cast<TH1*>(temp) || dynamic_cast<TGraph*>(temp)) {
+        if (dynamic_cast<TH1*>(temp) || dynamic_cast<TGraph*>(temp) || dynamic_cast<TEfficiency*>(temp) ) {
           std::cout << "Regular expression " << regex << " matches " << *str << std::endl;
           addListener(*str, listener);
         }
