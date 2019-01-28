@@ -56,7 +56,7 @@ ISF::DNNCaloSimSvc::DNNCaloSimSvc(const std::string& name, ISvcLocator* svc) :
   m_caloDetDescrManager(nullptr),
   m_caloGeo(nullptr)
 {
-  declareProperty("ParamsInputFilename"            ,       m_paramsFilename,"twoCritic_nn.json");
+  declareProperty("ParamsInputFilename"            ,       m_paramsFilename,"DNNCaloSim/DNNCaloSim_GAN_nn_v0.json");
   //  declareProperty("ParamsInputObject"              ,       m_paramsObject,"SelPDGID");
   declareProperty("CaloCellsOutputName"            ,       m_caloCellsOutputName) ;
   declareProperty("CaloCellMakerTools_setup"       ,       m_caloCellMakerToolsSetup) ;
@@ -401,7 +401,7 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
 
   // FIXME do once, what can be done once
   // get neural net JSON file as an std::istream object
-  std::string inputFile=PathResolverFindDataFile(m_paramsFilename);
+  std::string inputFile=PathResolverFindCalibFile(m_paramsFilename);
   if (inputFile==""){
     ATH_MSG_ERROR("Could not find json file " << m_paramsFilename );
     return StatusCode::FAILURE;
