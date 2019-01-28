@@ -1,15 +1,18 @@
 from AthenaCommon.Constants import ERROR, DEBUG
-from AthenaCommon.CFElements import seqAND
+from AthenaCommon.CFElements import seqAND, parOR
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
 def setMinimalCaloSetup() :
-
   from AthenaCommon.AppMgr import ServiceMgr as svcMgr
   if not hasattr(svcMgr,'TrigCaloDataAccessSvc'):
     from TrigT2CaloCommon.TrigT2CaloCommonConf import TrigCaloDataAccessSvc
     svcMgr+=TrigCaloDataAccessSvc()
     svcMgr.TrigCaloDataAccessSvc.OutputLevel=ERROR
 
+
+########################
+## ALGORITHMS
+########################
 
 def algoHLTCaloCell(inputEDM='FSRoI', outputEDM='CellsClusters', RoIMode=True, OutputLevel=ERROR) :
    setMinimalCaloSetup();
@@ -38,6 +41,10 @@ def algoL2Egamma(inputEDM="EMRoIs",OutputLevel=ERROR):
     return algo
 
 
+####################################
+##### SEQUENCES
+####################################
+
 def fastCaloRecoSequence(InViewRoIs):
     from TrigT2CaloCommon.CaloDef import algoL2Egamma
     fastCaloAlg = algoL2Egamma(OutputLevel=DEBUG,inputEDM=InViewRoIs)
@@ -47,7 +54,6 @@ def fastCaloRecoSequence(InViewRoIs):
 
 
 def fastCaloEVCreator():
-
     InViewRoIs="EMCaloRoIs"     
     fastCaloViewsMaker = EventViewCreatorAlgorithm( "fastCaloViewsMaker", OutputLevel=DEBUG)
     fastCaloViewsMaker.ViewFallThrough = True
@@ -56,11 +62,11 @@ def fastCaloEVCreator():
     fastCaloViewsMaker.Views = "EMCaloViews"
     fastCaloViewsMaker.ViewNodeName = "fastCaloInViewSequence"
     return (fastCaloViewsMaker, InViewRoIs)
-    
-def createFastCaloSequence(EMRoIDecisions):
 
+
+def createFastCaloSequence(EMRoIDecisions):
     (fastCaloViewsMaker, InViewRoIs) = fastCaloEVCreator()
-    # connect 
+    # connect to RoIs
     fastCaloViewsMaker.InputMakerInputDecisions =  [ EMRoIDecisions ]         
     fastCaloViewsMaker.InputMakerOutputDecisions = [ EMRoIDecisions + "IMOUTPUT"]
 
@@ -71,3 +77,13 @@ def createFastCaloSequence(EMRoIDecisions):
 
 
  
+def HLTCaloCellRecoSequence(RoIs):
+    CellsClusters = 'CellsClusters'
+    algo1= algoHLTCaloCell(RoIs, outputEDM=CellsClusters, RoIMode=True, OutputLevel=DEBUG)
+    algo2= algoHLTTopoCluster(inputEDM=CellsClusters, OutputLevel=DEBUG) 
+    RecoSequence = parOR("ClusterRecoSequence", [algo1, algo2])
+    print algo2
+    for tool in algo2.ClusterMakerTools:
+        print tool
+
+    return RecoSequence

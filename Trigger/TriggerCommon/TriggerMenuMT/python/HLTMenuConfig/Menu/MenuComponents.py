@@ -313,6 +313,9 @@ class MenuSequence():
         #### Add input/output Decision to Hypo
         self.hypo.setPreviousDecision( input_maker_output)
         hypo_output = CFNaming.hypoAlgOutName(self.hypo.Alg.name(), input_maker_output)
+        if len(self.hypo.getOutputList()):
+            log.error("Hypo %s has already an output configured: you may want to duplicate the Hypo!")
+            sys.exit("ERROR, in chain configuration") 
         self.hypo.addOutput(hypo_output)
 
         # needed for drawing

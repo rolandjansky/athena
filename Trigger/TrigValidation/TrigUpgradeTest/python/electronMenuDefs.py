@@ -99,6 +99,7 @@ def electronMenuSequence():
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2ElectronHypoAlgMT
     theElectronHypo = TrigL2ElectronHypoAlgMT()
     theElectronHypo.Electrons = sequenceOut
+
     theElectronHypo.RunInView=True
     theElectronHypo.OutputLevel = VERBOSE
 

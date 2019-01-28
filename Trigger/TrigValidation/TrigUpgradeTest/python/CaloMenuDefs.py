@@ -25,13 +25,15 @@ def fastCaloSequence(ConfigFlags):
     return (fastCaloSequence, fastCaloViewsMaker, sequenceOut)
 
 
-def fastCaloMenuSequence():
-    """ Creates L2 Fast Calo  MENU sequence"""
+def fastCaloMenuSequence(name):
+    """ Creates L2 Fast Calo  MENU sequence
+    The Hypo name changes depending on name, so for different implementations (Electron, Gamma,....)
+    """
     (sequence, fastCaloViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(fastCaloSequence, ConfigFlags)
 
     # hypo    
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlgMT
-    theFastCaloHypo = TrigL2CaloHypoAlgMT("L2CaloHypo", OutputLevel = DEBUG)
+    theFastCaloHypo = TrigL2CaloHypoAlgMT(name+"L2CaloHypo", OutputLevel = DEBUG)
     theFastCaloHypo.CaloClusters = sequenceOut
     CaloMenuDefs.L2CaloClusters = sequenceOut
 

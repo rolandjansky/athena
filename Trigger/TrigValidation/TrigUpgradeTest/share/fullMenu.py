@@ -16,7 +16,7 @@ include("TrigUpgradeTest/testHLT_MT.py")
 ##########################################
 
 doElectron = True
-doPhoton = False
+doPhoton = True
 doMuon   = True
 doJet    = False
 doCombo  = True
@@ -38,7 +38,7 @@ testChains = []
 if (doElectron):
     from TrigUpgradeTest.CaloMenuDefs import fastCaloMenuSequence
     from TrigUpgradeTest.electronMenuDefs import electronMenuSequence
-    fastCaloStep=fastCaloMenuSequence()
+    fastCaloStep=fastCaloMenuSequence("Ele")
     electronStep=electronMenuSequence()
 
     step1=ChainStep("Step1_etcut", [fastCaloStep])
@@ -59,7 +59,7 @@ if (doPhoton):
     from TrigUpgradeTest.CaloMenuDefs import fastCaloMenuSequence
     from TrigUpgradeTest.photonMenuDefs import photonMenuSequence
 
-    fastCaloStep=fastCaloMenuSequence()
+    fastCaloStep=fastCaloMenuSequence("Gamma")
     photonstep= photonMenuSequence()
 
     photonChains = [

@@ -13,7 +13,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
 # fragments generating configuration will be functions in New JO, so let's make them functions already now
 def fastCaloSequenceCfg( flags ):
     from TrigUpgradeTest.CaloMenuDefs import fastCaloMenuSequence
-    return fastCaloMenuSequence()
+    return fastCaloMenuSequence("Electron")
 
     
 def electronSequenceCfg( flags ):

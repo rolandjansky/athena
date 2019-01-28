@@ -12,7 +12,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
 from TrigUpgradeTest.CaloMenuDefs import fastCaloMenuSequence
 from TrigUpgradeTest.photonMenuDefs import photonMenuSequence
 
-calostep=fastCaloMenuSequence()
+calostep=fastCaloMenuSequence("Gamma")
 photonstep= photonMenuSequence()
 
 

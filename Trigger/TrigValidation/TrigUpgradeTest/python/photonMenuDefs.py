@@ -13,6 +13,8 @@ from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
 
+
+
 def photonMenuSequence():
     """ Creates secpond step photon sequence"""
     

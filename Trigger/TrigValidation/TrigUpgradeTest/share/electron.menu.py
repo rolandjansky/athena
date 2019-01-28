@@ -15,7 +15,7 @@ from TrigUpgradeTest.electronMenuDefs import electronMenuSequence
 
 
 
-fastCaloStep= fastCaloMenuSequence()
+fastCaloStep= fastCaloMenuSequence("Ele")
 electronStep= electronMenuSequence()
 
 step1=ChainStep("Step1_etcut", [fastCaloStep])
