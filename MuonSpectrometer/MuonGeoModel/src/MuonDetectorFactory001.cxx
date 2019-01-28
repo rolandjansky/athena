@@ -52,11 +52,11 @@
 #include "GeoModelKernel/GeoIdentifierTag.h"
 #include "GeoModelKernel/GeoPerfUtils.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 
 #include "StoreGate/StoreGateSvc.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include "GeoGenericFunctions/Variable.h"
 
@@ -95,15 +95,15 @@ namespace MuonGM {
   {
     MsgStream log(Athena::getMessageSvc(), "MuonGeoModel");
     m_muon = new MuonSystemDescription( "MuonSystem" );
-    m_muon->barrelInnerRadius =  4.30*GeoModelKernelUnits::m;
-    m_muon->innerRadius       =  0.07*GeoModelKernelUnits::m;
-    m_muon->outerRadius       = 13.00*GeoModelKernelUnits::m;
-    m_muon->endcapFrontFace   =  6.74*GeoModelKernelUnits::m;
-    m_muon->length            = 22.03*GeoModelKernelUnits::m;
-    m_muon->barreLength       =  6.53*GeoModelKernelUnits::m; 
-    m_muon->barrelInterRadius =  3.83*GeoModelKernelUnits::m;
-    m_muon->extraZ = 12.9*GeoModelKernelUnits::m;
-    m_muon->extraR = 12.5*GeoModelKernelUnits::m;
+    m_muon->barrelInnerRadius =  4.30*Gaudi::Units::m;
+    m_muon->innerRadius       =  0.07*Gaudi::Units::m;
+    m_muon->outerRadius       = 13.00*Gaudi::Units::m;
+    m_muon->endcapFrontFace   =  6.74*Gaudi::Units::m;
+    m_muon->length            = 22.03*Gaudi::Units::m;
+    m_muon->barreLength       =  6.53*Gaudi::Units::m; 
+    m_muon->barrelInterRadius =  3.83*Gaudi::Units::m;
+    m_muon->extraZ = 12.9*Gaudi::Units::m;
+    m_muon->extraR = 12.5*Gaudi::Units::m;
 
     m_selectedStations = std::vector<std::string>(0);
     m_selectedStEta    = std::vector<int>(0);
@@ -470,7 +470,7 @@ namespace MuonGM {
   
     const GeoMaterial* m4 = theMaterialManager->getMaterial( "std::Air" );
     GeoLogVol*  l4;
-    GeoPcon* c4 = new GeoPcon( 0, 360*GeoModelKernelUnits::deg );
+    GeoPcon* c4 = new GeoPcon( 0, 360*Gaudi::Units::deg );
     //--- --- --- CREATE ENVELOPE --- --- ---
     // First try to get data from the GeomDB
     IRDBRecordset_ptr muonSysRec = m_pRDBAccess->getRecordsetPtr("MuonSystem",OracleTag,OracleNode);
@@ -552,7 +552,7 @@ namespace MuonGM {
   
     // Cannot (yet) cope with this:
     // G4UserLimits *ul=new G4UserLimits;
-    // ul->SetMaxAllowedStep(5*GeoModelKernelUnits::cm);
+    // ul->SetMaxAllowedStep(5*Gaudi::Units::cm);
     // lv->GetLogicalVolume()->SetUserLimits(ul);
   
     m_manager->addTreeTop(p4); // This is the top!

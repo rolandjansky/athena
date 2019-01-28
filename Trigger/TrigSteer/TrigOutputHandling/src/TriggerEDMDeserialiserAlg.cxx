@@ -51,6 +51,9 @@ StatusCode TriggerEDMDeserialiserAlg::execute(const EventContext& context) const
 		};
     
   auto resultHandle = SG::makeHandle( m_resultKey, context );
+  if ( resultHandle.isValid() )
+    ATH_MSG_DEBUG("Obtained HLTResultMT " << m_resultKey.key() );
+  
   const Payload* dataptr = nullptr;
   // TODO: revise if there are use cases where result may be not available in some events
   if ( resultHandle->getSerialisedData( m_moduleID, dataptr ).isFailure() ) {
@@ -66,7 +69,7 @@ StatusCode TriggerEDMDeserialiserAlg::execute(const EventContext& context) const
     std::string transientType;
     ATH_CHECK( m_clidSvc->getTypeNameOfID( clid, transientType ) );
     const std::string actualTypeName{ name.substr(0, name.find('#')) };
-    const std::string key{ name.substr( name.find('#') ) };
+    const std::string key{ name.substr( name.find('#')+1 ) };
         
     ATH_MSG_DEBUG( "fragment: clid, type, key, size " << clid << " " << transientType<< " " << actualTypeName << " " << key << " " << bsize );
     resize( bsize );

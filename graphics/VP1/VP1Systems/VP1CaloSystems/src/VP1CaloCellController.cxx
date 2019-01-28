@@ -39,9 +39,7 @@
 */
 
 #include <QVector>
-
-#include "CLHEP/Units/SystemOfUnits.h"
-
+#include "GaudiKernel/SystemOfUnits.h"
 #include <map>
 
 // -------------------- Imp -------------------------------
@@ -1137,7 +1135,7 @@ VP1CCIntervalMap VP1CaloCellController::selectionIntervals() const
 
 QPair<bool,double> VP1CaloCellController::scale() const
 {
-	double scl = m_d->ui_visopts.chbxLogscale->isChecked() ? m_d->ui_visopts.dspbxScale->value()*GeoModelKernelUnits::m/log(1+10*GeoModelKernelUnits::GeV) : m_d->ui_visopts.dspbxScale->value()*GeoModelKernelUnits::m/(10*GeoModelKernelUnits::GeV);
+	double scl = m_d->ui_visopts.chbxLogscale->isChecked() ? m_d->ui_visopts.dspbxScale->value()*Gaudi::Units::m/log(1+10*Gaudi::Units::GeV) : m_d->ui_visopts.dspbxScale->value()*Gaudi::Units::m/(10*Gaudi::Units::GeV);
 	return QPair<bool,double>(m_d->ui_visopts.chbxLogscale->isChecked(),scl);
 }
 

@@ -183,7 +183,7 @@ StatusCode HLTEDMCreator::fixLinks( const ConstHandlesGroup< xAOD::TrigComposite
       }
 
       // Store the remapped TCs
-      SG::WriteHandle<xAOD::TrigCompositeContainer> writeHandle( "remap_" + writeHandleKey.key() );
+      SG::WriteHandle<xAOD::TrigCompositeContainer> writeHandle( m_remapKey + writeHandleKey.key() );
       CHECK(output.record( writeHandle ));
     }
   }
@@ -195,12 +195,14 @@ template<typename T, typename G, typename M>
 StatusCode HLTEDMCreator::createIfMissing( const EventContext& context, const ConstHandlesGroup<T>& handles, G& generator, M merger ) const {
 
   for ( auto writeHandleKey : handles.out ) {
+    
     SG::ReadHandle<T> readHandle( writeHandleKey.key() );
-
+    ATH_MSG_DEBUG( "Checking " << writeHandleKey.key() );
+    
     if ( readHandle.isValid() ) {
       ATH_MSG_DEBUG( "The " << writeHandleKey.key() << " already present" );
     } else {      
-      ATH_MSG_DEBUG( "The " << writeHandleKey.key() << " was absent, creating it, possibly filling with content from views" );
+      ATH_MSG_DEBUG( "The " << writeHandleKey.key() << " was absent, creating it" );
       generator.create();      
       if ( handles.views.size() != 0 ) {
 
@@ -264,7 +266,8 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
   CREATE_XAOD( MuonContainer, MuonAuxContainer );
 
   // After view collections are merged, need to update collection links
-  CHECK( fixLinks( ConstHandlesGroup<xAOD::TrigCompositeContainer>( m_TrigCompositeContainer, m_TrigCompositeContainerInViews, m_TrigCompositeContainerViews ) ) );
+  if ( m_fixLinks )
+    ATH_CHECK( fixLinks( ConstHandlesGroup<xAOD::TrigCompositeContainer>( m_TrigCompositeContainer, m_TrigCompositeContainerInViews, m_TrigCompositeContainerViews ) ) );
 
 #undef CREATE_XAOD
 #undef CREATE_XAOD_NO_MERGE

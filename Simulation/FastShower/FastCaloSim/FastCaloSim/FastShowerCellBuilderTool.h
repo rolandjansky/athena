@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FASTSHOWER_CELLBUILDERTOOL_H
@@ -12,7 +12,7 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 #include "FastCaloSim/BasicCellBuilderTool.h"
 //#include "TruthHelper/GenAccessIO.h"
 #include "FastSimulationEvent/GenParticleEnergyDepositMap.h"
@@ -148,8 +148,8 @@ private:
     FastShower::LongitudinalShape* m_longshape;
   */
   ServiceHandle<IPartPropSvc>    m_partPropSvc;
-  ServiceHandle<IAtRndmGenSvc>   m_rndmSvc;
-  CLHEP::HepRandomEngine*        m_randomEngine{};
+  ServiceHandle<IAthRNGSvc>      m_rndmSvc;
+  ATHRNG::RNGWrapper*            m_randomEngine = nullptr;
   std::string                    m_randomEngineName{"FastCaloSimRnd"};         //!< Name of the random number stream
 
   //CaloDepthTool*                 m_calodepth;

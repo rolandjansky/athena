@@ -12,7 +12,7 @@ namespace xAOD {
 
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(SCTRawHitValidation_v1, uint64_t, identifier, setIdentifier)
 
-  static SG::AuxElement::Accessor<uint32_t> word_acc("dataword");
+  static const SG::AuxElement::Accessor<uint32_t> word_acc("dataword");
   void SCTRawHitValidation_v1::setWord(uint32_t new_word) {
     word_acc(*this) = new_word;
   }

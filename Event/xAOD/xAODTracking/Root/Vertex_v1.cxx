@@ -151,8 +151,8 @@ namespace xAOD {
 
    void Vertex_v1::setFitQuality( float chiSquared, float numberDoF ) {
 
-      static Accessor< float > acc1( "chiSquared" );
-      static Accessor< float > acc2( "numberDoF" );
+      static const Accessor< float > acc1( "chiSquared" );
+      static const Accessor< float > acc2( "numberDoF" );
       acc1( *this ) = chiSquared;
       acc2( *this ) = numberDoF;
 
@@ -169,7 +169,7 @@ namespace xAOD {
 
 #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
    /// Helper object for implementing the vxTrackAtVertex functions
-   static SG::AuxElement::Accessor< std::vector< Trk::VxTrackAtVertex > >
+   static const SG::AuxElement::Accessor< std::vector< Trk::VxTrackAtVertex > >
    vxVertAcc( "vxTrackAtVertex" );
 
    /// This function can be used to attach an Athena-only, reconstruction
@@ -220,17 +220,17 @@ namespace xAOD {
    //
 
    /// Accessor for the track links
-   static SG::AuxElement::Accessor< Vertex_v1::TrackParticleLinks_t >
+   static const SG::AuxElement::Accessor< Vertex_v1::TrackParticleLinks_t >
       trackAcc( "trackParticleLinks" );
    /// Accessor for the track weights
-   static SG::AuxElement::Accessor< std::vector< float > >
+   static const SG::AuxElement::Accessor< std::vector< float > >
       weightTrackAcc( "trackWeights" );
 
    /// Accessor for the neutral links
-   static SG::AuxElement::Accessor< Vertex_v1::NeutralParticleLinks_t >
+   static const SG::AuxElement::Accessor< Vertex_v1::NeutralParticleLinks_t >
       neutralAcc( "neutralParticleLinks" );
    /// Accessor for the neutral weights
-   static SG::AuxElement::Accessor< std::vector< float > >
+   static const SG::AuxElement::Accessor< std::vector< float > >
       weightNeutralAcc( "neutralWeights" );
 
    AUXSTORE_OBJECT_SETTER_AND_GETTER( Vertex_v1,

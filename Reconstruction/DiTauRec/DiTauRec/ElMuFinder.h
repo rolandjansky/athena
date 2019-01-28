@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DITAUREC_ELMUFINDER_H
@@ -7,11 +7,14 @@
 
 #include "DiTauToolBase.h"
 
+#include "StoreGate/ReadHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
 // #include "MuonSelectorTools/IMuonSelectionTool.h"
 // #include "MuonSelectorTools/errorcheck.h"
 #include "MuonSelectorTools/MuonSelectionTool.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODMuon/MuonContainer.h"
 
 class ElMuFinder : public DiTauToolBase {
 public:
@@ -28,21 +31,21 @@ public:
  //-------------------------------------------------------------
  virtual ~ElMuFinder();
 
- virtual StatusCode initialize();
+ virtual StatusCode initialize() override;
 
- virtual StatusCode execute(DiTauCandidateData * data);
+ virtual StatusCode execute(DiTauCandidateData * data,
+                            const EventContext& ctx) const override;
 
- virtual StatusCode eventFinalize(DiTauCandidateData *data);
-
-
- virtual void cleanup(DiTauCandidateData *) { }
+ virtual void cleanup(DiTauCandidateData *) override { }
  
 
 private:
-  std::string m_elContName;
+  SG::ReadHandleKey<xAOD::ElectronContainer> m_elContName
+  { this, "ElectronContainer", "Electrons", "" };
   float m_elMinPt;
   float m_elMaxEta;
-  std::string m_muContName;
+  SG::ReadHandleKey<xAOD::MuonContainer> m_muContName
+  { this, "MuonContainer", "Muons", "" };
   float m_muMinPt;
   float m_muMaxEta;
   int m_muQual;

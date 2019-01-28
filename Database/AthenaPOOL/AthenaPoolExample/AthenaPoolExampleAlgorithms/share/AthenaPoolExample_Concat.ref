@@ -77,7 +77,7 @@ Stream1             DEBUG Registering all Tools in ToolHandleArray HelperTools
 Stream1             DEBUG Adding private ToolHandle tool Stream1.Stream1_MakeEventStreamInfo (MakeEventStreamInfo) from ToolHandleArray HelperTools
 Stream1             DEBUG Adding private ToolHandle tool Stream1.Stream1Tool (AthenaOutputStreamTool)
 Stream1             DEBUG Data Deps for Stream1
-  + INPUT IGNORED  ( 'AthenaAttributeList' , '' ) 
+  + INPUT IGNORED  ( 'AthenaAttributeList' , '' )
 MakeInputDataHe...   INFO Initializing MakeInputDataHeader - package version OutputStreamAthenaPool-00-00-00
 MakeInputDataHe...   INFO Name of Stream to be made Input: Stream1
 ReWriteData         DEBUG Property update for OutputLevel : new value = 2
@@ -111,7 +111,7 @@ Stream2             DEBUG Registering all Tools in ToolHandleArray HelperTools
 Stream2             DEBUG Adding private ToolHandle tool Stream2.Stream2_MakeEventStreamInfo (MakeEventStreamInfo) from ToolHandleArray HelperTools
 Stream2             DEBUG Adding private ToolHandle tool Stream2.Stream2Tool (AthenaOutputStreamTool)
 Stream2             DEBUG Data Deps for Stream2
-  + INPUT IGNORED  ( 'AthenaAttributeList' , '' ) 
+  + INPUT IGNORED  ( 'AthenaAttributeList' , '' )
 HistogramPersis...WARNING Histograms saving not required.
 EventSelector        INFO  Enter McEventSelector Initialization 
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector

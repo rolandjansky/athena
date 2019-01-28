@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 from GaudiKernel.Constants import INFO
@@ -233,9 +233,7 @@ def getMETAssocAlg(algName='METAssociation',configs={},tools=[],msglvl=INFO):
         assocTools.append(assoctool)
         metFlags.METAssocTools()[key] = assoctool
 
-    from AthenaCommon.AppMgr import ToolSvc
     for tool in assocTools:
-        ToolSvc += tool
         print prefix, 'Added METAssocTool \''+tool.name()+'\' to alg '+algName
 
     assocAlg = CfgMgr.met__METRecoAlg(name=algName,

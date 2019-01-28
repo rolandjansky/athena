@@ -124,7 +124,7 @@ namespace xAOD {
     // @todo ?Could further optimise the below, to see first if the SummaryType value is one of the ones we write to Muons?
     // @todo ?Is there a better way than catching the exception?
     try {
-      Muon_v1::Accessor< uint8_t >* acc = trackSummaryAccessorV1<uint8_t>( information ); 
+      const Muon_v1::Accessor< uint8_t >* acc = trackSummaryAccessorV1<uint8_t>( information ); 
       value = ( *acc )( *this );
       return true;
     } catch ( SG::ExcBadAuxVar& ) {}
@@ -136,7 +136,7 @@ namespace xAOD {
   }  
 
   void Muon_v1::setSummaryValue( uint8_t  value, const SummaryType 	information ) {
-    Muon_v1::Accessor< uint8_t >* acc = trackSummaryAccessorV1<uint8_t>( information ); ///FIXME!
+    const Muon_v1::Accessor< uint8_t >* acc = trackSummaryAccessorV1<uint8_t>( information ); ///FIXME!
     // Set the value:
     ( *acc )( *this ) = value;
   }
@@ -150,12 +150,12 @@ namespace xAOD {
   }  
   
   float Muon_v1::floatSummaryValue(const SummaryType information) const {
-    Muon_v1::Accessor< float >* acc = trackSummaryAccessorV1< float >( information );
+    const Muon_v1::Accessor< float >* acc = trackSummaryAccessorV1< float >( information );
   	return ( *acc )( *this );
   }
 
   uint8_t Muon_v1::uint8SummaryValue(const SummaryType information) const{
-    Muon_v1::Accessor< uint8_t >* acc = trackSummaryAccessorV1< uint8_t >( information );
+    const Muon_v1::Accessor< uint8_t >* acc = trackSummaryAccessorV1< uint8_t >( information );
     return ( *acc )( *this );  	
   }
   

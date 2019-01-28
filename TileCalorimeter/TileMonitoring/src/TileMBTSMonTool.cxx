@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************//
@@ -94,10 +94,6 @@ TileMBTSMonTool::TileMBTSMonTool(	const std::string & type, const std::string & 
 {
   declareInterface<IMonitorToolBase>(this);
   declareProperty("LVL1ConfigSvc", m_lvl1ConfigSvc, "LVL1 Config Service");
-  declareProperty("MBTSContainerName", m_MBTSCellContainerID = "MBTSContainer");
-  declareProperty("TileDigitsContainerName", m_TileDigitsContainerID = "TileDigitsCnt");
-  declareProperty("TileDSPRawChannelContainerName", m_TileDSPRawChannelContainerID = "TileRawChannelCnt");
-  declareProperty("TileBeamElemContainerName", m_TileBeamElemContainerID = "TileBeamElemCnt");
   declareProperty("readTrigger", m_readTrigger = true); // Switch for CTP config
   declareProperty("doOnline", m_isOnline = false); // Switch for online running
   declareProperty("UseTrigger", m_useTrigger = true); // Switch for using trigger information
@@ -164,6 +160,8 @@ StatusCode TileMBTSMonTool:: initialize(){
     }
   }
 	
+  CHECK( m_TileDigitsContainerID.initialize() );
+  CHECK( m_MBTSCellContainerID.initialize() );
   CHECK( m_DQstatusKey.initialize() );
 
   return StatusCode::SUCCESS;
@@ -525,6 +523,7 @@ StatusCode TileMBTSMonTool::bookHistograms() {
 StatusCode TileMBTSMonTool::fillHistograms() {
 
   ATH_MSG_DEBUG( "in fillHistograms()" );
+  const EventContext& ctx = Gaudi::Hive::currentContext();
 
   memset(m_hasEnergyHit, false, sizeof(m_hasEnergyHit));
   memset(m_hasPIT, false, sizeof(m_hasPIT));
@@ -724,8 +723,8 @@ StatusCode TileMBTSMonTool::fillHistograms() {
   // CELL LEVEL INFORMATION
   //==============================================================================
   //Retrieve MBTS container collection from SG
-  const TileCellContainer* theMBTScontainer;
-  CHECK(evtStore()->retrieve(theMBTScontainer, m_MBTSCellContainerID));
+  SG::ReadHandle<TileCellContainer> theMBTScontainer
+    (m_MBTSCellContainerID, ctx);
   ATH_MSG_VERBOSE( "Retrieval of MBTS container " << m_MBTSCellContainerID << " succeeded" );
 
   double energy[32], time[32];
@@ -860,9 +859,8 @@ StatusCode TileMBTSMonTool::fillHistograms() {
   //=======================================================================
 
   //Retrieve TileDigits container collection from SG
-  const TileDigitsContainer* theDigitsContainer;
-  CHECK(evtStore()->retrieve(theDigitsContainer, m_TileDigitsContainerID));
-  ATH_MSG_VERBOSE("Retrieval of Tile Digits container " << m_TileDigitsContainerID << " succeeded");
+  SG::ReadHandle<TileDigitsContainer> theDigitsContainer
+    (m_TileDigitsContainerID, ctx);
 
   // Create instance of TileDQstatus used to check for readout errors in Tile
   const TileDQstatus * theDQstatus = SG::makeHandle (m_DQstatusKey).get();

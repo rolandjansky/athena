@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -57,7 +57,8 @@
  //-------------------------------------------------------------------------
  // Execute
  //-------------------------------------------------------------------------
- StatusCode DiTauToolBase :: execute( DiTauCandidateData * )
+ StatusCode DiTauToolBase :: execute( DiTauCandidateData *,
+                                      const EventContext& /*ctx*/) const
  {
      return StatusCode :: SUCCESS;
  }
@@ -67,14 +68,6 @@
  //-------------------------------------------------------------------------
  void DiTauToolBase :: cleanup( DiTauCandidateData * )
  {
- }
- 
- //-------------------------------------------------------------------------
- // Finalizer
- //-------------------------------------------------------------------------
- StatusCode DiTauToolBase :: eventFinalize( DiTauCandidateData * )
- {
-     return StatusCode :: SUCCESS;
  }
  
  //-------------------------------------------------------------------------

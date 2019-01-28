@@ -42,6 +42,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <string>
 #include <cmath>
@@ -88,7 +89,7 @@ GeoPhysVol* LArGeo::ExcluderConstruction::GetEnvelope()
   const GeoElement*  H=materialManager->getElement("Hydrogen");
   const GeoElement*  O=materialManager->getElement("Oxygen");
   const GeoElement*  N=materialManager->getElement("Nitrogen");
-  GeoMaterial* Rohacell = new GeoMaterial(name="Rohacell", density=0.11*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
+  GeoMaterial* Rohacell = new GeoMaterial(name="Rohacell", density=0.11*GeoModelKernelUnits::g/Gaudi::Units::cm3);
   Rohacell->add(C,0.6465);
   Rohacell->add(H,0.07836);
   Rohacell->add(O,0.19137);
@@ -111,25 +112,25 @@ GeoPhysVol* LArGeo::ExcluderConstruction::GetEnvelope()
 
   // It is a Union out of a GeoBox and a GeoTubs.
   // Box Dimensions:
-  double   xbox  =  300.0 *GeoModelKernelUnits::mm;
-  double   ybox  =  160.0 *GeoModelKernelUnits::mm;
-  double   zbox  =  300.7 *GeoModelKernelUnits::mm;
+  double   xbox  =  300.0 *Gaudi::Units::mm;
+  double   ybox  =  160.0 *Gaudi::Units::mm;
+  double   zbox  =  300.7 *Gaudi::Units::mm;
   //
   // Tubs Dimensions:
-  double   ztubs =  300.0 *GeoModelKernelUnits::mm;
-  double  phitubs=   76.2 *GeoModelKernelUnits::deg;
-  double  delphi =   27.6 *GeoModelKernelUnits::deg;
-  double   rcold = 1249.5 *GeoModelKernelUnits::mm;
-  double   rmin  = 1220.0 *GeoModelKernelUnits::mm;
+  double   ztubs =  300.0 *Gaudi::Units::mm;
+  double  phitubs=   76.2 *Gaudi::Units::deg;
+  double  delphi =   27.6 *Gaudi::Units::deg;
+  double   rcold = 1249.5 *Gaudi::Units::mm;
+  double   rmin  = 1220.0 *Gaudi::Units::mm;
 
-  // The radius of the cryostat cold wall is: 1250 GeoModelKernelUnits::mm
+  // The radius of the cryostat cold wall is: 1250 Gaudi::Units::mm
   // Before we make the union, we have to shift the box in y (that actually along the beam axis)
   //        and there, positive y goes from the cryostat centre towards the beam window.
 
   std::string ExcluderName = "LAr::H6::Cryostat::Excluder";
 
   GeoBox* rohaBox   = new GeoBox(xbox, ybox, zbox);                      //  The rectangular part of the excluder
-  const GeoShapeShift & rohaBoxShift = (*rohaBox << GeoTrf::TranslateY3D(1062.85*GeoModelKernelUnits::mm) );
+  const GeoShapeShift & rohaBoxShift = (*rohaBox << GeoTrf::TranslateY3D(1062.85*Gaudi::Units::mm) );
   GeoTubs* rohaTubs = new GeoTubs(rmin, rcold, ztubs, phitubs, delphi);  //  The round part of the excluder  
 
   // Combine the two parts to make one excluder of the correct shape:

@@ -28,18 +28,18 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_GETTER( TrackMeasurementValidation_v1, float, localXYCorrelation )
   
   void TrackMeasurementValidation_v1::setLocalPosition(float localX, float localY) {
-    static Accessor< float > acc1( "localX" );
+    static const Accessor< float > acc1( "localX" );
     acc1( *this ) = localX;
-    static Accessor< float > acc2( "localY" );
+    static const Accessor< float > acc2( "localY" );
     acc2( *this ) = localY;
   }
 
   void TrackMeasurementValidation_v1::setLocalPositionError(float localXError, float localYError, float localXYCorrelation) {
-    static Accessor< float > acc1( "localXError" );
+    static const Accessor< float > acc1( "localXError" );
     acc1( *this ) = localXError;
-    static Accessor< float > acc2( "localYError" );
+    static const Accessor< float > acc2( "localYError" );
     acc2( *this ) = localYError;
-    static Accessor< float > acc3( "localXYCorrelation" );
+    static const Accessor< float > acc3( "localXYCorrelation" );
     acc3( *this ) = localXYCorrelation;
   }
 
@@ -48,11 +48,11 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_GETTER( TrackMeasurementValidation_v1, float, globalZ )
   
   void TrackMeasurementValidation_v1::setGlobalPosition(float globalX, float globalY, float globalZ) {
-    static Accessor< float > acc1( "globalX" );
+    static const Accessor< float > acc1( "globalX" );
     acc1( *this ) = globalX;
-    static Accessor< float > acc2( "globalY" );
+    static const Accessor< float > acc2( "globalY" );
     acc2( *this ) = globalY;
-    static Accessor< float > acc3( "globalZ" );
+    static const Accessor< float > acc3( "globalZ" );
     acc3( *this ) = globalZ;
   }
 

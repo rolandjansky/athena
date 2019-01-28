@@ -55,6 +55,7 @@
 // For units:
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include <string>
 #include <cmath>
 #include <cfloat>
@@ -214,13 +215,13 @@ GeoVFullPhysVol* LArGeo::FCALConstructionH62004::GetEnvelope()
   std::string baseName = "LAr::FCAL::";
 
   double fcalHalfDepth=0;
-  double startZFCal1 = (*m_fcalMod)[0]->getDouble("STARTPOSITION"); //466.85 * GeoModelKernelUnits::cm;
-  double startZFCal2 = (*m_fcalMod)[1]->getDouble("STARTPOSITION"); //512.83 * GeoModelKernelUnits::cm;
-  double startZFCal3 = (*m_fcalMod)[2]->getDouble("STARTPOSITION"); //560.28 * GeoModelKernelUnits::cm;
+  double startZFCal1 = (*m_fcalMod)[0]->getDouble("STARTPOSITION"); //466.85 * Gaudi::Units::cm;
+  double startZFCal2 = (*m_fcalMod)[1]->getDouble("STARTPOSITION"); //512.83 * Gaudi::Units::cm;
+  double startZFCal3 = (*m_fcalMod)[2]->getDouble("STARTPOSITION"); //560.28 * Gaudi::Units::cm;
 
   // Should go to Db (change FCalNominals ????)
-  double fcalstartPhi = 90.*GeoModelKernelUnits::deg;
-  double fcaldeltaPhi = 90.*GeoModelKernelUnits::deg;
+  double fcalstartPhi = 90.*Gaudi::Units::deg;
+  double fcaldeltaPhi = 90.*Gaudi::Units::deg;
   // FCAL VOLUME.  IT DOES NOT INCLUDE THE COPPER PLUG, ONLY THE LAR AND MODS 1-3
   {
 
@@ -275,17 +276,17 @@ GeoVFullPhysVol* LArGeo::FCALConstructionH62004::GetEnvelope()
       // 16 Troughs representing  Cable Harnesses:
       if(m_absPhysical1==0)
 	{
-	  double troughDepth       = 0.9999 * GeoModelKernelUnits::cm;
+	  double troughDepth       = 0.9999 * Gaudi::Units::cm;
 	  double outerRadius       = fcalData[0].outerModuleRadius;
 	  double innerRadius       = outerRadius - troughDepth;
 	  double halfLength        = fcalData[0].fullModuleDepth/ 2.0;
-	  double deltaPhi          = 5.625 * GeoModelKernelUnits::deg;
-	  double startPhi          = 11.25 * GeoModelKernelUnits::deg - deltaPhi/2.0;
+	  double deltaPhi          = 5.625 * Gaudi::Units::deg;
+	  double startPhi          = 11.25 * Gaudi::Units::deg - deltaPhi/2.0;
 	  GeoTubs * tubs = new GeoTubs(innerRadius,outerRadius,halfLength,startPhi,deltaPhi );
 	  GeoLogVol *logVol = new GeoLogVol(baseName+"Module1::CableTrough",tubs,FCalCableHarness);
 	  GeoPhysVol *physVol = new GeoPhysVol(logVol);
 	  GeoGenfun::Variable i;
-	  GeoGenfun::GENFUNCTION rotationAngle = fcalstartPhi + 22.5*GeoModelKernelUnits::deg*i;
+	  GeoGenfun::GENFUNCTION rotationAngle = fcalstartPhi + 22.5*Gaudi::Units::deg*i;
 	  GeoXF::TRANSFUNCTION xf = GeoXF::Pow(GeoTrf::RotateZ3D(1.0),rotationAngle);
 	  GeoSerialTransformer *st = new GeoSerialTransformer(physVol,&xf,4);
 	  modPhysical->add(st);
@@ -296,7 +297,7 @@ GeoVFullPhysVol* LArGeo::FCALConstructionH62004::GetEnvelope()
 	  double halfDepth    = fcalData[0].fullGapDepth/2.0;
 	  double innerRadius  = fcalData[0].innerGapRadius;
 	  double outerRadius  = fcalData[0].outerGapRadius;
-	  GeoTubs *tubs       = new GeoTubs(innerRadius,outerRadius,halfDepth, 0.*GeoModelKernelUnits::deg, 360.*GeoModelKernelUnits::deg);
+	  GeoTubs *tubs       = new GeoTubs(innerRadius,outerRadius,halfDepth, 0.*Gaudi::Units::deg, 360.*Gaudi::Units::deg);
 	  GeoLogVol *logVol   = new GeoLogVol(baseName + "Module1::Gap",tubs, LAr);
 	  GeoPhysVol *physVol = new GeoPhysVol(logVol);
 	  
@@ -327,7 +328,7 @@ GeoVFullPhysVol* LArGeo::FCALConstructionH62004::GetEnvelope()
 	      if (m_VisLimit != -1 && (counter++ > m_VisLimit)) continue;
 	      //std::cout<<thisTileStr<<" "<<thisTubeX<<" "<<thisTubeY<<std::endl;
 	      
-	      GeoTransform *xf = new GeoTransform(GeoTrf::Translate3D(thisTubeX*GeoModelKernelUnits::cm, thisTubeY*GeoModelKernelUnits::cm,0));
+	      GeoTransform *xf = new GeoTransform(GeoTrf::Translate3D(thisTubeX*Gaudi::Units::cm, thisTubeY*Gaudi::Units::cm,0));
 	      modPhysical->add(xf);
 	      modPhysical->add(physVol);
 	    }
@@ -371,17 +372,17 @@ GeoVFullPhysVol* LArGeo::FCALConstructionH62004::GetEnvelope()
       // 16 Troughs representing  Cable Harnesses:
       if(m_absPhysical2==0)
 	{
-	  double troughDepth       = 1.0 * GeoModelKernelUnits::cm;
+	  double troughDepth       = 1.0 * Gaudi::Units::cm;
 	  double outerRadius       = fcalData[1].outerModuleRadius;
 	  double innerRadius       = outerRadius - troughDepth;
 	  double halfLength        = fcalData[1].fullModuleDepth/ 2.0;
-	  double deltaPhi          = 5.625 * GeoModelKernelUnits::deg;
-	  double startPhi          = 11.25 * GeoModelKernelUnits::deg - deltaPhi/2.0;
+	  double deltaPhi          = 5.625 * Gaudi::Units::deg;
+	  double startPhi          = 11.25 * Gaudi::Units::deg - deltaPhi/2.0;
 	  GeoTubs * tubs = new GeoTubs(innerRadius,outerRadius,halfLength,startPhi,deltaPhi );
 	  GeoLogVol *logVol = new GeoLogVol(baseName+"Module2::CableTrough",tubs,FCalCableHarness);
 	  GeoPhysVol *physVol = new GeoPhysVol(logVol);
 	  GeoGenfun::Variable i;
-	  GeoGenfun::GENFUNCTION rotationAngle = fcalstartPhi + 22.5*GeoModelKernelUnits::deg*i;
+	  GeoGenfun::GENFUNCTION rotationAngle = fcalstartPhi + 22.5*Gaudi::Units::deg*i;
 	  GeoXF::TRANSFUNCTION xf = GeoXF::Pow(GeoTrf::RotateZ3D(1.0),rotationAngle);
 	  GeoSerialTransformer *st = new GeoSerialTransformer(physVol,&xf,4);
 	  modPhysical->add(st);
@@ -431,7 +432,7 @@ GeoVFullPhysVol* LArGeo::FCALConstructionH62004::GetEnvelope()
 	    
 	    if (m_VisLimit!=-1 && (counter++ > m_VisLimit)) continue;
 	    
-	    GeoTransform *xf = new GeoTransform(GeoTrf::Translate3D(thisTubeX*GeoModelKernelUnits::cm, thisTubeY*GeoModelKernelUnits::cm,0));
+	    GeoTransform *xf = new GeoTransform(GeoTrf::Translate3D(thisTubeX*Gaudi::Units::cm, thisTubeY*Gaudi::Units::cm,0));
 	    modPhysical->add(xf);
 	    modPhysical->add(gapPhys);
 	  }
@@ -452,7 +453,7 @@ GeoVFullPhysVol* LArGeo::FCALConstructionH62004::GetEnvelope()
 
 	// We need few more materials
 	// ColdTC effective absorber: Cu with a little bit of inactive argon
-	GeoMaterial *thisAbsorber = new GeoMaterial("ColdTCAbsorber",8.701*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3);
+	GeoMaterial *thisAbsorber = new GeoMaterial("ColdTCAbsorber",8.701*GeoModelKernelUnits::g/Gaudi::Units::cm3);
 	thisAbsorber->add(Copper,0.994);
 	thisAbsorber->add(LAr,0.006);
 	thisAbsorber->lock();
@@ -487,8 +488,8 @@ GeoVFullPhysVol* LArGeo::FCALConstructionH62004::GetEnvelope()
 	double outerRadius     = fcalData[2].outerGapRadius;
 
 	// Where in DB should go this ?
-	double ElectrodeDepth = 0.85*GeoModelKernelUnits::cm;
-        double ActiveDepth = 0.2*GeoModelKernelUnits::cm;
+	double ElectrodeDepth = 0.85*Gaudi::Units::cm;
+        double ActiveDepth = 0.2*Gaudi::Units::cm;
 
 	// big argon gap solid
 	GeoTubs *gapSolid = new GeoTubs(innerRadius,outerRadius,halfDepth, fcalstartPhi, fcaldeltaPhi);
@@ -506,13 +507,13 @@ GeoVFullPhysVol* LArGeo::FCALConstructionH62004::GetEnvelope()
 
 	// active gaps in electrode
 	int iCopy = 1;
-	double zPos = -ElectrodeDepth/2. + 1.5 * GeoModelKernelUnits::mm + ActiveDepth/2.;
+	double zPos = -ElectrodeDepth/2. + 1.5 * Gaudi::Units::mm + ActiveDepth/2.;
 	GeoTransform *t1 = new GeoTransform(GeoTrf::Translate3D(0.,0.,zPos));
 	electrodePhys->add(new GeoSerialIdentifier(iCopy));
 	electrodePhys->add(t1);
 	electrodePhys->add(activePhys);
 	++iCopy;
-	zPos += 3.5 * GeoModelKernelUnits::mm;
+	zPos += 3.5 * Gaudi::Units::mm;
 	electrodePhys->add(new GeoSerialIdentifier(iCopy));
 	electrodePhys->add(t1);
 	electrodePhys->add(activePhys);
@@ -523,12 +524,12 @@ GeoVFullPhysVol* LArGeo::FCALConstructionH62004::GetEnvelope()
 	gapPhys->add(t2);
 	gapPhys->add(electrodePhys);
 	// big gaps in copper block
-        zPos = -fcalData[2].fullModuleDepth/2. + 2.2 * GeoModelKernelUnits::cm + halfDepth; 
+        zPos = -fcalData[2].fullModuleDepth/2. + 2.2 * Gaudi::Units::cm + halfDepth; 
         for ( iCopy = 1; iCopy < 9; ++iCopy ){
 	  modPhysical->add(new GeoSerialIdentifier(iCopy)); 
 	  modPhysical->add(new GeoTransform(GeoTrf::Translate3D(0.,0.,zPos)));
 	  modPhysical->add(gapPhys);
-	  zPos += 3.5*GeoModelKernelUnits::cm;
+	  zPos += 3.5*Gaudi::Units::cm;
 	}
 	m_absPhysical3 = modPhysical;
      }

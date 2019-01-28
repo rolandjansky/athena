@@ -13,6 +13,7 @@
 #include "TileIdentifier/TileHWID.h"
 
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "boost/io/ios_state.hpp"
 
@@ -489,7 +490,7 @@ void TileDetDescrManager::create_elements()
                 // come out to ~ 1e-14, the exact value varying depending
                 // on platform.  For reproducibility, force very small
                 // numbers to 0.
-                if (std::abs(z) < 1e-8 * GeoModelKernelUnits::mm) z = 0;
+                if (std::abs(z) < 1e-8 * Gaudi::Units::mm) z = 0;
 
                 double dz = 0.5 * fabs(cell_dim->getZMax(0)     // special 
                                        -cell_dim->getZMin(0)    // calculations
@@ -570,7 +571,7 @@ void TileDetDescrManager::create_elements()
 		    m_dbManager->SetCurrentSection(TileID::EXTBAR);
 		    double epThickness = 0.0; // only used for tower == 15
 		    double epVolume    = 0.0; // only used for tower == 15
-		    if ( tower == 15 ) epThickness = m_dbManager->TILBdzend2() * GeoModelKernelUnits::cm;
+		    if ( tower == 15 ) epThickness = m_dbManager->TILBdzend2() * Gaudi::Units::cm;
 		    
 		    double volumeInRow[5];  // book large array
 		    for (int iRow = 0; iRow < 5; iRow++) volumeInRow[iRow] = 0.;
@@ -648,12 +649,12 @@ void TileDetDescrManager::create_elements()
 				  {
 				    rowVolume = radMax + radMin;
 				    rowVolume *= (radMax - radMin);
-				    rowVolume -= 0.5*radMin*(27*GeoModelKernelUnits::mm);
+				    rowVolume -= 0.5*radMin*(27*Gaudi::Units::mm);
 				    rowVolume *= Radius2HL *  ( deltaZ + epThickness ); // adding volume of cutted endplate
 				  }
 				else
 				  {
-				    rowVolume = radMax - radMin - 35*GeoModelKernelUnits::mm;
+				    rowVolume = radMax - radMin - 35*Gaudi::Units::mm;
 				    rowVolume *= (radMax + radMin);
 				    rowVolume *= Radius2HL * deltaZ;
 				  }
@@ -666,8 +667,8 @@ void TileDetDescrManager::create_elements()
 			
 			if ( (ModuleNcp == 60) || (ModuleNcp == 37) )
 			  {
-			    double deltax = 38.7*std::cos(25.3125*GeoModelKernelUnits::deg); 
-			    double pstan  = std::tan(25.3125*GeoModelKernelUnits::deg);
+			    double deltax = 38.7*std::cos(25.3125*Gaudi::Units::deg); 
+			    double pstan  = std::tan(25.3125*Gaudi::Units::deg);
                             double inv_pstan = 1. / pstan;
 			    if ( ( 15 == tower ) )
 			      {
@@ -734,7 +735,7 @@ void TileDetDescrManager::create_elements()
 		    m_dbManager->SetCurrentSection(Id4);
 		    
 		    double standardD4dz = elt->dz();
-		    double specialD4dz = m_dbManager->TILBdzmodul()*GeoModelKernelUnits::cm;
+		    double specialD4dz = m_dbManager->TILBdzmodul()*Gaudi::Units::cm;
 		    if ( Id4 == 8 ) specialD4dz = 0.;
 
 		    elt->set_dz(specialD4dz);
@@ -812,7 +813,7 @@ void TileDetDescrManager::create_elements()
 		    if ( Id4 == 8 )
 		      {
 			double standardD5dz = elt->dz();
-			double specialD4dz = m_dbManager->TILBdzmodul()*GeoModelKernelUnits::cm; 
+			double specialD4dz = m_dbManager->TILBdzmodul()*Gaudi::Units::cm; 
 			elt->set_dz(specialD4dz + standardD5dz);
 			elt->set_volume(elt->volume()* (1. + specialD4dz/standardD5dz));
 			

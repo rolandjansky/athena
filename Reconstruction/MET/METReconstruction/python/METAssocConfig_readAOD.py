@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 
@@ -231,7 +231,6 @@ def getMETAssocAlg(algName='METAssociation',configs={},tools=[]):
 
     from AthenaCommon.AppMgr import ToolSvc
     for tool in assocTools:
-        ToolSvc += tool
         print prefix, 'Added METAssocTool \''+tool.name()+'\' to alg '+algName
 
     assocAlg = CfgMgr.met__METRecoAlg(name=algName,

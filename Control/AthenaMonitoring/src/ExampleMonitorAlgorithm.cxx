@@ -31,8 +31,8 @@ StatusCode ExampleMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     lb = GetEventInfo(ctx)->lumiBlock();
     run = GetEventInfo(ctx)->runNumber();
     if (m_doRandom) {
-        TRandom r;
-        random = r.Rndm();
+      TRandom r(ctx.eventID().event_number());
+      random = r.Rndm();
     }
 
     // Fill. First argument is the tool name, all others are the variables to be saved.
