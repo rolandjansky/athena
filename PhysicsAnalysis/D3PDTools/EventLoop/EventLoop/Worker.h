@@ -418,6 +418,11 @@ namespace EL
     /// \brief the name of the segment we are processing
   private:
     std::string m_segmentName;
+
+
+    /// \brief whether we are still to process the first event
+  private:
+    bool m_firstEvent {true};
   };
 }
 
