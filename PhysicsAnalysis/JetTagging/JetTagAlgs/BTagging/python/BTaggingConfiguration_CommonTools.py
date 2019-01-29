@@ -184,6 +184,8 @@ def toolBTagTrackToVertexTool(name, useBTagFlagsDefaults = True, **options):
                   **options: Python dictionary with options for the tool.
     output: The actual tool, which can then be added to ToolSvc via ToolSvc += output."""
     options['name'] = name
+    atlasExtrapolator = toolAtlasExtrapolator('AtlasExtrapolator')
+    options.setdefault('Extrapolator', atlasExtrapolator)
     from TrackToVertex.TrackToVertexConf import Reco__TrackToVertex
     return Reco__TrackToVertex(**options)
 
