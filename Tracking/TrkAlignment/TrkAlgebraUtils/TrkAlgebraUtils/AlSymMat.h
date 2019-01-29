@@ -83,7 +83,7 @@ class AlSymMat : public AlSymMatBase {
   virtual void copy(const AlSpaMat&  m);
   virtual void copy(const AlMat&  m);
 
-  double*     ptr_data;
+  double*     m_ptr_data;
 
   std::string m_pathbin;
   std::string m_pathtxt;
@@ -94,10 +94,10 @@ class AlSymMat : public AlSymMatBase {
 
 inline long int AlSymMat::elem(long int i,long int j) const {
 #ifdef _DEBUG
-  if( i<0 )     { std::cerr << "AlSymMat::elem: Index 1 < zero! " << i << std::endl;  return *(ptr_data); };
-  if( i>=size() ) { std::cerr << "AlSymMat::elem: Index 1 too large! " << i << std::endl;  return *(ptr_data); };
-  if( j<0 )     { std::cerr << "AlSymMat::elem: Index 2 < zero! " << j << std::endl;  return *(ptr_data);  };
-  if( j>=size() ) { std::cerr << "AlSymMat::elem: Index 2 too large! " << j << std::endl;  return *(ptr_data); };
+  if( i<0 )     { throw std::out_of_range( "AlSymMat::elem: Index 1 < zero! " ); };
+  if( i>=size() ) { throw std::out_of_range( "AlSymMat::elem: Index 1 too large! " ); };
+  if( j<0 )     { throw std::out_of_range( "AlSymMat::elem: Index 2 < zero! " );  };
+  if( j>=size() ) { throw std::out_of_range( "AlSymMat::elem: Index 2 too large! " ); };
 #endif
   if( j<=i ) {
     return  ((i+1)*i/2+j);
@@ -108,7 +108,7 @@ inline long int AlSymMat::elem(long int i,long int j) const {
 }
 
 inline double* AlSymMat::ptrData() const {
-  return ptr_data;
+  return m_ptr_data;
 }
 
 inline std::string AlSymMat::pathBin() const {

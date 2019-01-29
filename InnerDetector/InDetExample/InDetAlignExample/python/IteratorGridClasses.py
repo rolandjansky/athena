@@ -418,7 +418,7 @@ class writeScriptGridForTFile :
 				("pixelAlignmentLevel"        in self.AlignmentOptions and self.AlignmentOptions["pixelAlignmentLevel"]        == 3)  or 
 				("pixelAlignmentLevelBarrel"  in self.AlignmentOptions and self.AlignmentOptions["pixelAlignmentLevelBarrel"]  == 3)  or 
 				("pixelAlignmentLevelEndcaps" in self.AlignmentOptions and self.AlignmentOptions["pixelAlignmentLevelEndcaps"] == 3) ) :
-				print "hmn, you are going to run L3 alignment, ***REMOVED*** is using, so no eigen informations!!! "
+				print "hmn, you are going to run L3 alignment, Eigen is being used, so no eigen value information!!! "
 			 
 			else : 
 
@@ -1103,7 +1103,7 @@ class writeScriptGrid :
 				("pixelAlignmentLevel"        in self.AlignmentOptions and self.AlignmentOptions["pixelAlignmentLevel"]        == 3)  or 
 				("pixelAlignmentLevelBarrel"  in self.AlignmentOptions and self.AlignmentOptions["pixelAlignmentLevelBarrel"]  == 3)  or 
 				("pixelAlignmentLevelEndcaps" in self.AlignmentOptions and self.AlignmentOptions["pixelAlignmentLevelEndcaps"] == 3) ) : 
-				print "hmn, you are going to run L3 alignment, ***REMOVED*** is using, so no eigen informations!!! "
+				print "hmn, you are going to run L3 alignment, Eigen is going to be used, so no eigen value information!!! "
 
 			else : 
 				if ( "writeEigenMat"      in self.GridOptions  and self.GridOptions["writeEigenMat"]    == True  ) and ( self.AlignmentOptions["runLocal"] == False ):

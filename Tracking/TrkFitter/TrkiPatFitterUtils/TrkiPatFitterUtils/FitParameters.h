@@ -64,7 +64,7 @@ public:
     void			d0 (double value);
     double			difference (int param) const;
     const Amg::VectorX&  	differences (void) const;
-    const AlVec&		differences***REMOVED*** (void) const;
+    const AlVec&		differencesAlSpaMat (void) const;
     Amg::Vector3D		direction (void) const;
     bool			extremeMomentum (void) const;
     void			extremeMomentum (bool value);
@@ -136,7 +136,7 @@ private:
     double			m_cotTheta;
     double			m_d0;
     Amg::VectorX*		m_differences;
-    AlVec*			m_differences***REMOVED***;
+    AlVec*			m_differencesAlSpaMat;
     bool			m_eigen;
     bool			m_extremeMomentum;
     Amg::MatrixX*		m_finalCovariance;
@@ -212,8 +212,8 @@ FitParameters::difference (int param) const
     }
     else
     {
-	// if (! m_differences***REMOVED***)  return 0.;
-	return (*m_differences***REMOVED***)[param];
+	// if (! m_differencesAlSpaMat)  return 0.;
+	return (*m_differencesAlSpaMat)[param];
     }	
 }
 
@@ -222,8 +222,8 @@ FitParameters::differences (void) const
 { return *m_differences; }
 
 inline const AlVec&
-FitParameters::differences***REMOVED*** (void) const
-{ return *m_differences***REMOVED***; }
+FitParameters::differencesAlSpaMat (void) const
+{ return *m_differencesAlSpaMat; }
 
 inline Amg::Vector3D
 FitParameters::direction (void) const

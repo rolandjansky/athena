@@ -14,49 +14,50 @@
 #include <fstream>
 #include <sstream>
 #include <stdint.h>
+#include <exception>
 
 namespace Trk {
 
 AlMat::AlMat() {
-  _ncol = 0; _nrow = 0; _nele = 0;
-  ptr_data = 0;  // set pointer to null
-  transpose = false;
+  m_ncol = 0; m_nrow = 0; m_nele = 0;
+  m_ptr_data = 0;  // set pointer to null
+  m_transpose = false;
   m_pathbin="./";
   m_pathtxt="./";
 }
 
 AlMat::AlMat(int N, int M) {
-  _nrow = N;
-  _ncol = M;
-  _nele = N*M;
-  ptr_data = new double[_nele];
-  transpose = false;
+  m_nrow = N;
+  m_ncol = M;
+  m_nele = N*M;
+  m_ptr_data = new double[m_nele];
+  m_transpose = false;
   m_pathbin="./";
   m_pathtxt="./";
 
-  double*  p = ptr_data + _nele;
-  while (p > ptr_data) *(--p) = 0.;
+  double*  p = m_ptr_data + m_nele;
+  while (p > m_ptr_data) *(--p) = 0.;
 
 }
 
 AlMat::AlMat(const AlMat& m) {
-  _nrow = m.nrow(); _ncol = m.ncol(); _nele = _nrow*_ncol;
-  ptr_data = new double[_nele];
-  transpose = false;
+  m_nrow = m.nrow(); m_ncol = m.ncol(); m_nele = m_nrow*m_ncol;
+  m_ptr_data = new double[m_nele];
+  m_transpose = false;
   m_pathbin = m.m_pathbin;
   m_pathtxt = m.m_pathtxt;
   copy(m);
 }
 
 AlMat::~AlMat()
-{if( ptr_data != NULL) delete [] ptr_data;}
+{if( m_ptr_data != nullptr ) delete [] m_ptr_data;}
 
 void AlMat::copy(const AlMat&  m) {
   int  nr = nrow();
   int  nc = ncol();
   if( nr != m.nrow() || nc != m.ncol() ) {
-    std::cerr << "AlMat::copy: sizes do not match!" << std::endl;
-    return; }
+    throw std::range_error( "AlMat::copy: sizes do not match!" );
+  }
 
   for( int i=0; i<nr; i++ ) {
     for( int j=0; j<nc; j++ ) {
@@ -68,57 +69,57 @@ void AlMat::copy(const AlMat&  m) {
 void AlMat::copy(const AlSymMatBase&  m) {
   long int  n = m.size();
   if( nrow() != n || ncol() != n ) {
-    std::cerr << "AlMat::copy: sizes do not match!" << std::endl;
-    return; }
+    throw std::range_error( "AlMat::copy: sizes do not match!" );
+  }
 
   for( int i=0; i<n; i++ ) {
     for( int j=0; j<n; j++ ) {
-      *(ptr_data+i*_ncol+j) = m.elemc(i, j);
+      *(m_ptr_data+i*m_ncol+j) = m.elemc(i, j);
     }
   }
 }
 
 double& AlMat::elemr(long int i,long int j) {
 #ifdef _DEBUG
-  if( i<0 )     { std::cerr << "AlMat::elemr: Index 1 < zero! " << i << std::endl;  return *(ptr_data); };
-  if( i>=size ) { std::cerr << "AlMat::elemr: Index 1 too large! " << i << std::endl;  return *(ptr_data); };
-  if( j<0 )     { std::cerr << "AlMat::elemr: Index 2 < zero! " << j << std::endl;  return *(ptr_data);  };
-  if( j>=size ) { std::cerr << "AlMat::elemr: Index 2 too large! " << j << std::endl;  return *(ptr_data); };
+  if( i<0 )     { throw std::out_of_range( "AlMat::elemr: Index 1 < zero! " ); };
+  if( i>=size ) { throw std::out_of_range( "AlMat::elemr: Index 1 too large!" ); };
+  if( j<0 )     { throw std::out_of_range( "AlMat::elemr: Index 2 < zero! " ); };
+  if( j>=size ) { throw std::out_of_range( "AlMat::elemr: Index 2 too large!" );  };
 #endif
 
-  if( transpose )   return  *(ptr_data+j*_ncol+i);
-  return  *(ptr_data+i*_ncol+j);
+  if( m_transpose )   return  *(m_ptr_data+j*m_ncol+i);
+  return  *(m_ptr_data+i*m_ncol+j);
 }
 
 double AlMat::elemc(long int i,long int j) const {
 #ifdef _DEBUG
-  if( i<0 )     { std::cerr << "AlMat::elemc: Index 1 < zero! " << i << std::endl;  return *(ptr_data); };
-  if( i>=size ) { std::cerr << "AlMat::elemc: Index 1 too large! " << i << std::endl;  return *(ptr_data); };
-  if( j<0 )     { std::cerr << "AlMat::elemc: Index 2 < zero! " << j << std::endl;  return *(ptr_data);  };
-  if( j>=size ) { std::cerr << "AlMat::elemc: Index 2 too large! " << j << std::endl;  return *(ptr_data); };
+  if( i<0 )     { throw std::out_of_range( "AlMat::elemr: Index 1 < zero! " ); };
+  if( i>=size ) { throw std::out_of_range( "AlMat::elemr: Index 1 too large!" ); };
+  if( j<0 )     { throw std::out_of_range( "AlMat::elemr: Index 2 < zero! " ); };
+  if( j>=size ) { throw std::out_of_range( "AlMat::elemr: Index 2 too large!" );  };
 #endif
 
-  if( transpose )   return  *(ptr_data+j*_ncol+i);
-  return  *(ptr_data+i*_ncol+j);
+  if( m_transpose )   return  *(m_ptr_data+j*m_ncol+i);
+  return  *(m_ptr_data+i*m_ncol+j);
 }
 
 long int AlMat::elem(long int i,long int j) const {
 #ifdef _DEBUG
-  if( i<0 )     { std::cerr << "AlMat::elem: Index 1 < zero! " << i << std::endl;  return *(ptr_data); };
-  if( i>=size ) { std::cerr << "AlMat::elem: Index 1 too large! " << i << std::endl;  return *(ptr_data); };
-  if( j<0 )     { std::cerr << "AlMat::elem: Index 2 < zero! " << j << std::endl;  return *(ptr_data);  };
-  if( j>=size ) { std::cerr << "AlMat::elem: Index 2 too large! " << j << std::endl;  return *(ptr_data); };
+  if( i<0 )     { throw std::out_of_range( "AlMat::elemr: Index 1 < zero! " ); };
+  if( i>=size ) { throw std::out_of_range( "AlMat::elemr: Index 1 too large!" ); };
+  if( j<0 )     { throw std::out_of_range( "AlMat::elemr: Index 2 < zero! " ); };
+  if( j>=size ) { throw std::out_of_range( "AlMat::elemr: Index 2 too large!" );  };
 #endif
 
-  if( transpose )   return  (j*_ncol+i);
-  return  (i*_ncol+j);
+  if( m_transpose )   return  (j*m_ncol+i);
+  return  (i*m_ncol+j);
 }
 
 
 AlMat&  AlMat::operator=(const double& d) {
 
-  double*  p = ptr_data + _nele;
-  while (p > ptr_data) *(--p) = d;
+  double*  p = m_ptr_data + m_nele;
+  while (p > m_ptr_data) *(--p) = d;
 
   return *this;
 }
@@ -126,10 +127,12 @@ AlMat&  AlMat::operator=(const double& d) {
 AlMat& AlMat::operator=(const AlMat& m) {
   if (this==&m) return *this;
 
-  if(( _nrow!=0 || _ncol!=0) && (_nrow != m.nrow() || _ncol != m.ncol() ))
-    { std::cerr << "AlMat=AlMat Assignment: size do not match!" << std::endl; return *this; }
+  if(( m_nrow!=0 || m_ncol!=0) && (m_nrow != m.nrow() || m_ncol != m.ncol() ))
+  { 
+    throw std::range_error( "AlMat=AlMat Assignment: size do not match!" );
+  }
 
-  if ( ptr_data != m.ptr_data ) {
+  if ( m_ptr_data != m.m_ptr_data ) {
     reSize(m.nrow(), m.ncol());
     copy(m);
   };
@@ -137,10 +140,12 @@ AlMat& AlMat::operator=(const AlMat& m) {
 }
 
 AlMat&  AlMat::operator=(const AlSymMat& m) {
-  if( ( _nrow!=0 || _ncol!=0) && (_nrow != m.size() || _ncol != m.size() ))
-    { std::cerr << "AlMat=AlSymMatBase Assignment: size do not match!" << std::endl; return *this; }
+  if( ( m_nrow!=0 || m_ncol!=0) && (m_nrow != m.size() || m_ncol != m.size() ))
+  {
+    throw std::range_error( "AlMat=AlSymMatBase Assignment: size do not match!" ); 
+  }
 
-  if ( ptr_data != m.ptrData() ) {
+  if ( m_ptr_data != m.ptrData() ) {
     reSize(m.size(), m.size());
     copy(m);
   }
@@ -148,59 +153,69 @@ AlMat&  AlMat::operator=(const AlSymMat& m) {
 }
 
 AlMat AlMat::operator+(const AlMat& m) const {
-  if( _nrow != m._nrow || _ncol != m._ncol )
-    { std::cerr << "AlMat: operator+: size do not match!" << std::endl; return *this; }
+  if( m_nrow != m.m_nrow || m_ncol != m.m_ncol )
+  { 
+    throw std::range_error( "AlMat: operator+: size do not match!" );
+  }
 
-  AlMat b( _nrow, _ncol );
+  AlMat b( m_nrow, m_ncol );
 
-  double*  p = ptr_data + _nele;
-  double*  q = m.ptr_data + _nele;
-  double*  r = b.ptr_data + _nele;
-  while (p > ptr_data) *(--r) = (*(--p))+(*(--q));
+  double*  p = m_ptr_data + m_nele;
+  double*  q = m.m_ptr_data + m_nele;
+  double*  r = b.m_ptr_data + m_nele;
+  while (p > m_ptr_data) *(--r) = (*(--p))+(*(--q));
 
   return b;
 }
 
 AlMat&  AlMat::operator+=(const AlMat& m) {
 
-  if( _nrow != m._nrow || _ncol != m._ncol )
-    { std::cerr << "AlMat: operator+=: size do not match!" << std::endl; return *this; }
+  if( m_nrow != m.m_nrow || m_ncol != m.m_ncol )
+  {  
+    throw std::range_error( "AlMat: operator+=: size do not match!" ); 
+  }
 
-  double*  p = ptr_data + _nele;
-  double*  q = m.ptr_data + _nele;
-  while (p > ptr_data) *(--p) += *(--q);
+  double*  p = m_ptr_data + m_nele;
+  double*  q = m.m_ptr_data + m_nele;
+  while (p > m_ptr_data) *(--p) += *(--q);
 
   return *this;
 }
 
 AlMat   AlMat::operator-(const AlMat& m) const {
-  if( _nrow != m._nrow || _ncol != m._ncol )
-    { std::cerr << "AlMat: operator-: size do not match!" << std::endl; return *this; }
+  if( m_nrow != m.m_nrow || m_ncol != m.m_ncol )
+  {  
+    throw std::range_error( "AlMat: operator-: size do not match!" ); 
+  }
 
-  AlMat b( _nrow, _ncol );
+  AlMat b( m_nrow, m_ncol );
 
-  double*  p = ptr_data + _nele;
-  double*  q = m.ptr_data + _nele;
-  double*  r = b.ptr_data + _nele;
-  while (p > ptr_data) *(--r) = (*(--p))-(*(--q));
+  double*  p = m_ptr_data + m_nele;
+  double*  q = m.m_ptr_data + m_nele;
+  double*  r = b.m_ptr_data + m_nele;
+  while (p > m_ptr_data) *(--r) = (*(--p))-(*(--q));
 
   return b;
 }
 
 AlMat&  AlMat::operator-=(const AlMat& m) {
-  if( _nrow != m._nrow || _ncol != m._ncol )
-    { std::cerr << "AlMat: operator-=: size do not match!" << std::endl; return *this; }
+  if( m_nrow != m.m_nrow || m_ncol != m.m_ncol )
+  { 
+    throw std::range_error( "AlMat: operator-=: size do not match!"); 
+  }
 
-  double*  p = ptr_data + _nele;
-  double*  q = m.ptr_data + _nele;
-  while (p > ptr_data) *(--p) -= *(--q);
+  double*  p = m_ptr_data + m_nele;
+  double*  q = m.m_ptr_data + m_nele;
+  while (p > m_ptr_data) *(--p) -= *(--q);
 
   return *this;
 }
 
 AlMat AlMat::operator*(const AlMat& m) const {
-  if( ncol() != m.nrow() ) {  std::cerr << "AlMat: operator*: size do not match!" << std::endl;
-  return m; }
+  if( ncol() != m.nrow() ) 
+  {  
+    throw std::range_error( "AlMat: operator*: size do not match!" );
+  }
 
   int k(nrow());
   int l(m.ncol());
@@ -216,8 +231,10 @@ AlMat AlMat::operator*(const AlMat& m) const {
 }
 
 AlMat AlMat::operator*(const AlSymMatBase& m) const {
-  if( ncol() != m.size()) {  std::cerr << "AlMat: operator*: size do not match!" << std::endl;
-  return *this; }
+  if( ncol() != m.size()) 
+  { 
+    throw std::range_error( "AlMat: operator*: size do not match!" ); 
+  }
 
   int k(nrow());
   int l(m.size());
@@ -234,7 +251,9 @@ AlMat AlMat::operator*(const AlSymMatBase& m) const {
 
 AlVec AlMat::operator*(const AlVec& v) const {
   if( ncol() != v.size() )
-    { std::cerr << "AlMat: operator*: size do not match! " << std::endl; return v; }
+  {  
+    throw std::range_error( "AlMat: operator*: size do not match! " );
+  }
 
   int k(nrow());
   int l(ncol());
@@ -244,7 +263,7 @@ AlVec AlMat::operator*(const AlVec& v) const {
   AlVec b(k);
   for( int i=0; i<k; i++ ) {
     p = b.ptrData()+i;
-    q = ptr_data+i*l;
+    q = m_ptr_data+i*l;
     for( int j=0; j<l; j++ )  *p += (*(q+j))*(*(v.ptrData()+j));
   }
 
@@ -252,8 +271,8 @@ AlVec AlMat::operator*(const AlVec& v) const {
 }
 
 AlMat&   AlMat::operator*=(const double& d) {
-  double*  p = ptr_data+_nele;
-  while (p > ptr_data)
+  double*  p = m_ptr_data+m_nele;
+  while (p > m_ptr_data)
     *(--p) *= d;
 
   return *this;
@@ -261,10 +280,10 @@ AlMat&   AlMat::operator*=(const double& d) {
 
 // transposition
 AlMat AlMat::T() const {
-  AlMat b(_ncol,_nrow);
-  for( int i=0; i<b._nrow; i++ ) {
-    for( int j=0; j<b._ncol; j++ ) {
-      b[i][j]= *(ptr_data+j*_ncol+i);
+  AlMat b(m_ncol,m_nrow);
+  for( int i=0; i<b.m_nrow; i++ ) {
+    for( int j=0; j<b.m_ncol; j++ ) {
+      b[i][j]= *(m_ptr_data+j*m_ncol+i);
     }
   }
   return b;
@@ -273,7 +292,7 @@ AlMat AlMat::T() const {
 // transposition
 AlMat& AlMat::Transpose() {
 
-  transpose = true;
+  m_transpose = true;
 
   return *this;
 }
@@ -281,7 +300,7 @@ AlMat& AlMat::Transpose() {
 // normal position
 AlMat& AlMat::Normal() {
 
-  transpose = false;
+  m_transpose = false;
 
   return *this;
 }
@@ -289,12 +308,11 @@ AlMat& AlMat::Normal() {
 
 //invert sym matrix declared as non-symetric for convenience
 void AlMat::invertS(int& ierr, double Norm = 1.) {
-  if(_nrow!=_ncol) {
-    std::cerr << "AlMat invertS: non-square matrix!" << std::endl;
-    return;
+  if(m_nrow!=m_ncol) {
+    throw std::range_error( "AlMat invertS: non-square matrix!" );
   }
 
-  AlSymMat b(_nrow);
+  AlSymMat b(m_nrow);
   for( int i=0; i<b.size(); i++ ) {
     for( int j=0; j<=i; j++ ) {
       b.elemr(i, j) = elemc(i, j);
@@ -311,23 +329,23 @@ void AlMat::invertS(int& ierr, double Norm = 1.) {
 
 // reSize
 void AlMat::reSize(int Nnew, int Mnew) {
-  if ( Nnew != _nrow || Mnew != _ncol ) {
+  if ( Nnew != m_nrow || Mnew != m_ncol ) {
 
-    double*  p = ptr_data;
-    _nele = Nnew*Mnew;
-    ptr_data = new double[_nele];
-    int _nrow_old = _nrow;
-    int _ncol_old = _ncol;
-    transpose = false;
+    double*  p = m_ptr_data;
+    m_nele = Nnew*Mnew;
+    m_ptr_data = new double[m_nele];
+    int m_nrow_old = m_nrow;
+    int m_ncol_old = m_ncol;
+    m_transpose = false;
 
-    _nrow = Nnew;
-    _ncol = Mnew;
-    int k = _nrow <= _nrow_old ? _nrow : _nrow_old;
-    int l = _ncol <= _ncol_old ? _ncol : _ncol_old;
+    m_nrow = Nnew;
+    m_ncol = Mnew;
+    int k = m_nrow <= m_nrow_old ? m_nrow : m_nrow_old;
+    int l = m_ncol <= m_ncol_old ? m_ncol : m_ncol_old;
 
     for( int i=0; i<k; i++ ) {
       for( int j=0; j<l; j++ ) {
-        *(ptr_data+i*_ncol+j) = *(p+i*_ncol_old+j);
+        *(m_ptr_data+i*m_ncol+j) = *(p+i*m_ncol_old+j);
       }
     }
 
@@ -341,25 +359,25 @@ StatusCode AlMat::ReadScalaPack(const std::string &filename){
   if(inmat.fail())
     return StatusCode::FAILURE;
 
-  int32_t mNrow = _nrow;
+  int32_t mNrow = m_nrow;
   inmat.read((char*)&mNrow, sizeof (mNrow));
-  int32_t mNcol = _ncol;
+  int32_t mNcol = m_ncol;
   inmat.read((char*)&mNcol, sizeof (mNcol));
 
-  _nrow=abs(mNrow);
-  _ncol=abs(mNcol);
-  _nele=_ncol*_nrow;
-  transpose = false;
+  m_nrow=abs(mNrow);
+  m_ncol=abs(mNcol);
+  m_nele=m_ncol*m_nrow;
+  m_transpose = false;
 
-  // printf("ALMat::nrow: %d \n",_nrow);
-  // printf("ALMat::ncol: %d \n",_ncol);
-  // printf("ALMat::nele: %d \n",_nele);
+  // printf("ALMat::nrow: %d \n",m_nrow);
+  // printf("ALMat::ncol: %d \n",m_ncol);
+  // printf("ALMat::nele: %d \n",m_nele);
 
   double melem=0;
-  for(int i=0; i<_nrow; i++) {
-    for(int j=0; j<_ncol; j++) {
+  for(int i=0; i<m_nrow; i++) {
+    for(int j=0; j<m_ncol; j++) {
       inmat.read((char*)&melem, sizeof (melem));
-      *(ptr_data+i*_ncol+j) = melem;
+      *(m_ptr_data+i*m_ncol+j) = melem;
       // printf("(%d,%d) = %.16lf \n",i,j,melem);
     }
   }
@@ -390,9 +408,9 @@ StatusCode AlMat::Write(const std::string &filename, bool binary, unsigned int p
     if(outmat.fail())
       return StatusCode::FAILURE;
 
-    int32_t mNrow = _nrow;
+    int32_t mNrow = m_nrow;
     outmat.write((char*)&mNrow, sizeof (mNrow));
-    int32_t mNcol = _ncol;
+    int32_t mNcol = m_ncol;
     outmat.write((char*)&mNcol, sizeof (mNcol));
   }
   else {
@@ -407,9 +425,9 @@ StatusCode AlMat::Write(const std::string &filename, bool binary, unsigned int p
 
   double melem=0;
 
-  for( int i=0; i<_nrow; i++) {
-    for( int j=0; j<_ncol; j++) {
-      melem =  *(ptr_data+i*_ncol+j);
+  for( int i=0; i<m_nrow; i++) {
+    for( int j=0; j<m_ncol; j++) {
+      melem =  *(m_ptr_data+i*m_ncol+j);
       if(binary)
         outmat.write((char*)&(melem), sizeof (melem));
       else
@@ -455,7 +473,7 @@ const std::string AlMat::Print(const int NColsPerSet)
     for (int row=0; row<nrow(); row++) {
       textmatrix << " |" << std::setw(6) << row << " | ";
       for (int col=FirstCol; col<LastCol; col++) {
-    double melem =  *(ptr_data+row*ncol()+col);
+    double melem =  *(m_ptr_data+row*ncol()+col);
     textmatrix << std::setprecision(5) << std:: setw(6) << melem << " | ";
       }
       textmatrix << std::endl;

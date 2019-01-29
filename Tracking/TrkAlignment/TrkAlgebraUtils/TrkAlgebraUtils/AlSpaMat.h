@@ -7,7 +7,7 @@
 
 #include "TrkAlgebraUtils/AlSymMatBase.h"
 
-#include <iostream>
+#include <exception>
 
 class StatusCode;
 template<class Element> class TMatrixTSparse;
@@ -50,7 +50,7 @@ class AlSpaMat : public AlSymMatBase {
     virtual  AlSpaMat&  operator*=(const double&);
 
   // ADVANCED:
-    int ***REMOVED***Solve(AlVec& RHS);
+    int SolveWithEigen(AlVec& RHS);
     virtual  void RemoveModule( int);
     virtual  void RemoveAlignPar(int, int);
     virtual  void RemoveDoF( int, int nelem=1);
@@ -85,8 +85,8 @@ class AlSpaMat : public AlSymMatBase {
     std::string m_pathbin;
     std::string m_pathtxt;
 
-    int* ptr_row;
-    int* ptr_col;
+    int* m_ptr_row;
+    int* m_ptr_col;
 
 };
 
@@ -95,15 +95,15 @@ class AlSpaMat : public AlSymMatBase {
 inline void AlSpaMat::elem(const indices& key, long int& i, long int& j) const {
   i = key.first;
   j = key.second;
-  if(j>i) std::cerr << "AlSpaMat::elem: i<j ! " << std::endl;
+  if(j>i) throw std::out_of_range( "AlSpaMat::elem: i<j ! " );
   return;
 }
 
 inline long int AlSpaMat::nele() {
   // first check for intrinsic consistency:
-  if( int(ptr_map.size()) != _nele ) std::cerr << "AlSpaMat::_nele has been corrupted!" << std::endl;
-  _nele = ptr_map.size();
-  return _nele;
+  if( int(m_ptr_map.size()) != m_nele ) throw std::range_error( "AlSpaMat::m_nele has been corrupted!" );
+  m_nele = m_ptr_map.size();
+  return m_nele;
 }
 
 inline std::string AlSpaMat::pathBin() const {
