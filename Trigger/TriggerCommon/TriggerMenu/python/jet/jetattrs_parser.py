@@ -6,7 +6,6 @@ default values from dictionary. Raise an exception if this fails.
 
 
 import re
-import sys
 
 
 def parse(s, vals):
