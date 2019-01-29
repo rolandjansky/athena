@@ -399,6 +399,11 @@ namespace EL
     /// yet been connected to the algorithms)
   private:
     bool m_newInputFile {false};
+
+
+    /// \brief whether we are still to process the first event
+  private:
+    bool m_firstEvent {true};
   };
 }
 

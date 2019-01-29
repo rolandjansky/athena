@@ -694,9 +694,9 @@ namespace EL
       return ::StatusCode::FAILURE;
     }
 
-    if (!m_algs.empty() &&
-        m_algs.back().m_executeCount == m_algs.back().m_skipCount + 1)
+    if (m_firstEvent)
     {
+      m_firstEvent = false;
       for (auto& module : m_modules)
         ANA_CHECK (module->postFirstEvent (*this));
     }
