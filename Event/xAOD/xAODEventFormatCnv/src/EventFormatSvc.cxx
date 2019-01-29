@@ -108,12 +108,20 @@ namespace xAODMaker {
       // Create the object if it doesn't exist yet:
       if( ! m_ef ) {
          m_ef = new xAOD::EventFormat();
-         if( m_metaStore->record( m_ef, m_objectName ).isFailure() ) {
-            REPORT_MESSAGE( MSG::ERROR )
-               << "Couldn't record xAOD::EventFormat object into the "
-               << "metadata store with key: " << m_objectName;
-            delete m_ef; m_ef = 0;
-            return;
+         if (!m_metaStore->contains(ClassID_traits<xAOD::EventFormat>::ID(),m_objectName ) ) {
+            if( m_metaStore->record( m_ef, m_objectName ).isFailure() ) {
+               REPORT_MESSAGE( MSG::ERROR )
+                  << "Couldn't record xAOD::EventFormat object into the "
+                  << "metadata store with key: " << m_objectName;
+               delete m_ef; m_ef = 0;
+               return;
+            }
+         } else {
+            StatusCode sc = m_metaStore->retrieve(m_ef,m_objectName);
+            if (sc.isFailure()) {
+               REPORT_MESSAGE( MSG::ERROR ) 
+                   << "Couldn't retrieve xAOD::EventFormat object wit key: " << m_objectName;
+            }
          }
       }
 

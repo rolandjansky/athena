@@ -211,7 +211,7 @@ StatusCode MetaDataSvc::stop() {
    m_incSvc->fireIncident(metaDataStopIncident);
    
    // finalizing tools via metaDataStop
-   ATH_CHECK(this->prepareOutput());
+   //ATH_CHECK(this->prepareOutput());
        
    return(StatusCode::SUCCESS);
 }
