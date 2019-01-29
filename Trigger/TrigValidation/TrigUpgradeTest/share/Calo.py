@@ -34,10 +34,12 @@ steps += topSequence.L1DecoderTest
 if TriggerFlags.doCalo:
 
   if ( doHLTCaloTopo ) :
-
-     from TrigT2CaloCommon.CaloDef import algoHLTCaloCell, algoHLTTopoCluster
-     steps+=algoHLTCaloCell(OutputLevel=DEBUG)    
-     steps+=algoHLTTopoCluster(OutputLevel=DEBUG)    
+    from TrigT2CaloCommon.CaloDef import HLTCaloTopoRecoSequence
+    recosequence= HLTCaloTopoRecoSequence()
+    steps+=recosequence
+    #    from TrigT2CaloCommon.CaloDef import algoHLTCaloCell, algoHLTTopoCluster
+#     steps+=algoHLTCaloCell(OutputLevel=DEBUG)    
+#     steps+=algoHLTTopoCluster(OutputLevel=DEBUG)    
 
   if ( doL2Egamma ) :
 

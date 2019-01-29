@@ -19,6 +19,7 @@ doElectron = True
 doPhoton = True
 doMuon   = True
 doJet    = True
+doMET    = True
 doBJet   = False
 doCombo  = True
 
@@ -141,6 +142,22 @@ if (doBJet):
         ]
     testChains += bjetChains
     
+
+##################################################################
+# MET chains
+##################################################################
+if (doMET):
+    from TrigUpgradeTest.metMenuDefs import metCellSequence
+
+    metCellSeq = metCellSequence()
+    metCellStep = ChainStep("Step1_met_cell", [metCellSeq])
+    metChains = [
+        Chain(name="HLT_xe65_L1XE50", Seed="L1_XE50", ChainSteps=[metCellStep]),
+        Chain(name="HLT_xe30_L1XE10", Seed="L1_XE10", ChainSteps=[metCellStep])
+        ]
+
+    testChains += metChains
+
 ##################################################################
 # combined chains
 ##################################################################

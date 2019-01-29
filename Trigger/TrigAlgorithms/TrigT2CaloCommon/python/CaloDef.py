@@ -12,29 +12,31 @@ def setMinimalCaloSetup() :
 
 ########################
 ## ALGORITHMS
+# defined as private within this module, so that they can be configured only in functions in this module
 ########################
 
-def algoHLTCaloCell(inputEDM='FSRoI', outputEDM='CellsClusters', RoIMode=True, OutputLevel=ERROR) :
+def _algoHLTCaloCell(name="HLTCaloCellMaker", inputEDM='FSRoI', outputEDM='CellsClusters', RoIMode=True, OutputLevel=ERROR) :
    setMinimalCaloSetup();
    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
    from TrigCaloRec.TrigCaloRecConfig import HLTCaloCellMaker
-   algo=HLTCaloCellMaker("HLTCaloCellMaker");
+   algo=HLTCaloCellMaker(name)
+   #"HLTCaloCellMaker"
    algo.RoIs=inputEDM
    algo.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
    algo.OutputLevel=OutputLevel
    algo.CellsName=outputEDM
    return algo;
 
-def algoHLTTopoCluster(inputEDM="CellsClusters", OutputLevel=ERROR) :
+def _algoHLTTopoCluster(inputEDM="CellsClusters", OutputLevel=ERROR) :
    from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
    algo = TrigCaloClusterMakerMT_topo(doMoments=True, doLC=False, cells=inputEDM)
    algo.OutputLevel=OutputLevel
    return algo
 
-def algoL2Egamma(inputEDM="EMRoIs",OutputLevel=ERROR):
+def _algoL2Egamma(inputEDM="EMRoIs",OutputLevel=ERROR):
     setMinimalCaloSetup();
     from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
-    algo=T2CaloEgamma_ReFastAlgo("FastCaloAlgo")
+    algo=T2CaloEgamma_ReFastAlgo("FastCaloL2EgammaAlg")
     algo.RoIs=inputEDM
     algo.ClustersName="L2CaloClusters" # defalut value, added for debugging
     algo.OutputLevel=OutputLevel
@@ -46,8 +48,7 @@ def algoL2Egamma(inputEDM="EMRoIs",OutputLevel=ERROR):
 ####################################
 
 def fastCaloRecoSequence(InViewRoIs):
-    from TrigT2CaloCommon.CaloDef import algoL2Egamma
-    fastCaloAlg = algoL2Egamma(OutputLevel=DEBUG,inputEDM=InViewRoIs)
+    fastCaloAlg = _algoL2Egamma(OutputLevel=DEBUG,inputEDM=InViewRoIs)
     fastCaloInViewSequence = seqAND( 'fastCaloInViewSequence', [fastCaloAlg] )
     sequenceOut = fastCaloAlg.ClustersName
     return (fastCaloInViewSequence, sequenceOut)
@@ -65,6 +66,7 @@ def fastCaloEVCreator():
 
 
 def createFastCaloSequence(EMRoIDecisions):
+    """Used for standalone testing"""
     (fastCaloViewsMaker, InViewRoIs) = fastCaloEVCreator()
     # connect to RoIs
     fastCaloViewsMaker.InputMakerInputDecisions =  [ EMRoIDecisions ]         
@@ -77,13 +79,17 @@ def createFastCaloSequence(EMRoIDecisions):
 
 
  
-def HLTCaloCellRecoSequence(RoIs):
+def HLTCaloTopoRecoSequence(RoIs='FSRoI'):
     CellsClusters = 'CellsClusters'
-    algo1= algoHLTCaloCell(RoIs, outputEDM=CellsClusters, RoIMode=True, OutputLevel=DEBUG)
-    algo2= algoHLTTopoCluster(inputEDM=CellsClusters, OutputLevel=DEBUG) 
-    RecoSequence = parOR("ClusterRecoSequence", [algo1, algo2])
+    algo1= _algoHLTCaloCell(name="HLTCaloCellMakerForJet", inputEDM=RoIs, outputEDM=CellsClusters, RoIMode=True, OutputLevel=DEBUG)
+    algo2= _algoHLTTopoCluster(inputEDM=CellsClusters, OutputLevel=DEBUG) 
+    RecoSequence = parOR("TopoClusterRecoSequence", [algo1, algo2])
     print algo2
     for tool in algo2.ClusterMakerTools:
         print tool
 
     return RecoSequence
+
+def HLTCellMakerMET(RoIs):
+     cellMakerAlgo = _algoHLTCaloCell(name="HLTCaloCellMakerForMET", inputEDM=RoIs, outputEDM='CaloCells')
+     return cellMakerAlgo

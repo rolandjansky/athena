@@ -24,10 +24,10 @@ def jetAthSequence(ConfigFlags):
     return (JetAthSequence, InputMakerAlg, sequenceOut)
 
     
-def jetRecoSequence(RoIs):    
+def jetRecoSequence(RoIs = 'FSJETRoI'):    
     # calo Cluster reco    
-    from TrigT2CaloCommon.CaloDef import HLTCaloCellRecoSequence
-    jetRecoSequence = HLTCaloCellRecoSequence(RoIs)
+    from TrigT2CaloCommon.CaloDef import HLTCaloTopoRecoSequence
+    jetRecoSequence = HLTCaloTopoRecoSequence(RoIs)
 
     from AthenaCommon.AppMgr import ToolSvc
     # Jet Reco:
