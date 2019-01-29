@@ -38,7 +38,7 @@ StatusCode SCT_RODVetoCondAlg::execute(const EventContext& ctx) const {
   ATH_MSG_INFO(m_badRODElementsInput.value().size() <<" RODs were declared bad");
 
   std::vector<unsigned int> allRods;
-  m_cabling->getAllRods(allRods);
+  m_cabling->getAllRods(allRods, ctx);
   
   SG::WriteHandle<IdentifierSet> badIds{m_badIds, ctx};
   ATH_CHECK(badIds.record(std::make_unique<IdentifierSet>()));
@@ -53,7 +53,7 @@ StatusCode SCT_RODVetoCondAlg::execute(const EventContext& ctx) const {
     }
 
     std::vector<IdentifierHash> listOfHashes;
-    m_cabling->getHashesForRod(listOfHashes, thisRod);
+    m_cabling->getHashesForRod(listOfHashes, thisRod, ctx);
     // Two consecutive hashes may produce the same module id, since they will be two sides
     // of the same module. We avoid invalid inserts by guarding against this.
     Identifier previousId; //constructor produces an invalid one

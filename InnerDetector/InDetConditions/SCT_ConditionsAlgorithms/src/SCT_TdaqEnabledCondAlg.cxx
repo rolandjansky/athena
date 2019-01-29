@@ -128,7 +128,7 @@ StatusCode SCT_TdaqEnabledCondAlg::execute(const EventContext& ctx) const
       tmpIdVec.reserve(s_modulesPerRod);
       for (const auto& thisRod : writeCdo->getGoodRods()) {
         tmpIdVec.clear();
-        m_cablingTool->getHashesForRod(tmpIdVec, thisRod);
+        m_cablingTool->getHashesForRod(tmpIdVec, thisRod, ctx);
         writeCdo->setGoodModules(tmpIdVec);
       }
       writeCdo->setFilled(true);

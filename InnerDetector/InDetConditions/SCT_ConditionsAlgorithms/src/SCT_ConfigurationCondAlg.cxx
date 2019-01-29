@@ -203,7 +203,7 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* 
     // Get SN and identifiers (the channel number is serial number+1 for the CoraCool folders but =serial number 
     // for Cool Vector Payload ; i.e. Run 1 and Run 2 resp.)
     const unsigned int truncatedSerialNumber{run1 ? (itr->first-1) : (itr->first)};
-    const IdentifierHash& hash{m_cablingTool->getHashFromSerialNumber(truncatedSerialNumber)};
+    const IdentifierHash& hash{m_cablingTool->getHashFromSerialNumber(truncatedSerialNumber, ctx)};
     if (not hash.is_valid()) continue;
     const Identifier waferId{m_pHelper->wafer_id(hash)};
     const Identifier moduleId{m_pHelper->module_id(waferId)};
@@ -255,7 +255,7 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* 
         thisChip->appendBadStripsToVector(badStripsVec);
         // Loop over bad strips and insert strip ID into set
         for (const auto& thisBadStrip:badStripsVec) {
-          const Identifier stripId{getStripId(truncatedSerialNumber, thisChip->id(), thisBadStrip, elements)};
+          const Identifier stripId{getStripId(truncatedSerialNumber, thisChip->id(), thisBadStrip, elements, ctx)};
           // If in rough order, may be better to call with itr of previous insertion as a suggestion    
           if (stripId.is_valid()) writeCdo->setBadStripId(stripId, // strip Identifier
                                                           thisChip->id()<6 ? hash : oppWaferHash, // wafer IdentifierHash
@@ -336,14 +336,14 @@ StatusCode SCT_ConfigurationCondAlg::fillModuleData(SCT_ConfigurationCondData* w
     // Get SN and identifiers (the channel number is serial number+1 for the CoraCool folders but =serial number 
     //  for Cool Vector Payload ; i.e. Run 1 and Run 2 resp.)
     const unsigned int truncatedSerialNumber{run1 ? (itr->first-1) : (itr->first)};
-    const IdentifierHash& hash{m_cablingTool->getHashFromSerialNumber(truncatedSerialNumber)};
+    const IdentifierHash& hash{m_cablingTool->getHashFromSerialNumber(truncatedSerialNumber, ctx)};
     ++totalNumberOfModules;
     if (not hash.is_valid()) continue;
 
     Identifier waferId{m_pHelper->wafer_id(hash)};
     ++totalNumberOfValidModules;
     IdentifierHash oppWaferHash;
-    m_pHelper->get_other_side(m_cablingTool->getHashFromSerialNumber(truncatedSerialNumber), oppWaferHash);
+    m_pHelper->get_other_side(m_cablingTool->getHashFromSerialNumber(truncatedSerialNumber, ctx), oppWaferHash);
     const Identifier oppWaferId{m_pHelper->wafer_id(oppWaferHash)};
     const Identifier moduleId{m_pHelper->module_id(waferId)};
     // Get AttributeList from second (see https://svnweb.cern.ch/trac/lcgcoral/browser/coral/trunk/src/CoralBase/CoralBase/AttributeList.h )
@@ -412,7 +412,7 @@ StatusCode SCT_ConfigurationCondAlg::fillLinkStatus(SCT_ConfigurationCondData* w
     const SCT_SerialNumber serialNumber{ullSerialNumber};
     if (not serialNumber.is_valid()) continue;
     // Check module hash
-    const IdentifierHash& hash{m_cablingTool->getHashFromSerialNumber(serialNumber.to_uint())};
+    const IdentifierHash& hash{m_cablingTool->getHashFromSerialNumber(serialNumber.to_uint(), ctx)};
     if (not hash.is_valid()) continue;
 
     int link0{run1 ? (itr->second[link0Index].data<int>()) : static_cast<int>(itr->second[link0Index].data<unsigned char>())};
@@ -430,7 +430,7 @@ StatusCode SCT_ConfigurationCondAlg::fillLinkStatus(SCT_ConfigurationCondData* w
 // Construct the strip ID from the module SN, chip number and strip number
 Identifier 
 SCT_ConfigurationCondAlg::getStripId(const unsigned int truncatedSerialNumber, const unsigned int chipNumber, const unsigned int stripNumber,
-                                     const InDetDD::SiDetectorElementCollection* elements) const {
+                                     const InDetDD::SiDetectorElementCollection* elements, const EventContext& ctx) const {
   Identifier waferId;
   const Identifier invalidIdentifier; //initialiser creates invalid Id
   unsigned int strip{0};
@@ -443,11 +443,11 @@ SCT_ConfigurationCondAlg::getStripId(const unsigned int truncatedSerialNumber, c
   // returns the side 0 hash, so we use the helper for side 1
 
   if (chipNumber<6) {
-    waferHash = m_cablingTool->getHashFromSerialNumber(truncatedSerialNumber);
+    waferHash = m_cablingTool->getHashFromSerialNumber(truncatedSerialNumber, ctx);
     strip = chipNumber * stripsPerChip + stripNumber;
     if (waferHash.is_valid()) waferId = m_pHelper->wafer_id(waferHash);
   } else {
-    m_pHelper->get_other_side(m_cablingTool->getHashFromSerialNumber(truncatedSerialNumber), waferHash);
+    m_pHelper->get_other_side(m_cablingTool->getHashFromSerialNumber(truncatedSerialNumber, ctx), waferHash);
     strip = (chipNumber - 6) * stripsPerChip + stripNumber;
     if (waferHash.is_valid()) waferId = m_pHelper->wafer_id(waferHash);
   }
