@@ -37,7 +37,6 @@
 
 #include "PathResolver/PathResolver.h"
 
-#include "lwtnn/LightweightGraph.hh"
 #include "lwtnn/parse_json.hh"
 
 #include "TFile.h"
@@ -50,6 +49,7 @@ using std::atan2;
 /** Constructor **/
 ISF::DNNCaloSimSvc::DNNCaloSimSvc(const std::string& name, ISvcLocator* svc) :
   BaseSimulationSvc(name, svc),
+  m_graph(nullptr),
   m_theContainer(nullptr),
   m_rndGenSvc("AtRndmGenSvc", name),
   m_randomEngine(nullptr),
@@ -94,27 +94,14 @@ StatusCode ISF::DNNCaloSimSvc::initialize()
   if(!m_caloGeo->LoadFCalChannelMapFromFCalDDM(fcalManager) )ATH_MSG_FATAL("Found inconsistency between FCal_Channel map and GEO file. Please, check if they are configured properly.");
 
 
-  // FIXME should open the json file here
+  // initialize DNN 
+  if (initializeNetwork().isFailure())
+    {
+      ATH_MSG_ERROR("Could not initialize network ");
+      return StatusCode::FAILURE;
 
+    }
 
-  // std::unique_ptr<TFile> paramsFile(TFile::Open( inputFile.c_str(), "READ" ));
-  // if (paramsFile == nullptr) {
-  //   ATH_MSG_ERROR("file = "<<m_paramsFilename<< " not found");
-  //   return StatusCode::FAILURE;
-  // }
-  // ATH_MSG_INFO("Opened parametrization file = "<<m_paramsFilename);
-  // paramsFile->ls();
-  // m_param=(TFCSParametrizationBase*)paramsFile->Get(m_paramsObject.c_str());
-  // if(!m_param) {
-  //   ATH_MSG_WARNING("file = "<<m_paramsFilename<< ", object "<< m_paramsObject<<" not found");
-  //   return StatusCode::FAILURE;
-  // }
-  
-  // paramsFile->Close();
-  
-  // m_param->set_geometry(m_caloGeo);
-  // m_param->Print("short");
-  // m_param->setLevel(MSG::DEBUG);
   
   // Get FastCaloSimCaloExtrapolation
   if(m_FastCaloSimCaloExtrapolation.retrieve().isFailure())
@@ -123,6 +110,30 @@ StatusCode ISF::DNNCaloSimSvc::initialize()
    return StatusCode::FAILURE;
   }
   
+  return StatusCode::SUCCESS;
+}
+
+// initialize lwtnn network 
+StatusCode ISF::DNNCaloSimSvc::initializeNetwork()
+{
+
+  // FIXME do once, what can be done once
+  // get neural net JSON file as an std::istream object
+  std::string inputFile=PathResolverFindCalibFile(m_paramsFilename);
+  if (inputFile==""){
+    ATH_MSG_ERROR("Could not find json file " << m_paramsFilename );
+    return StatusCode::FAILURE;
+  } 
+
+  ATH_MSG_DEBUG("Using json file " << m_paramsFilename );
+  std::ifstream input(inputFile);
+  // build the graph
+  m_graph=new lwt::LightweightGraph(lwt::parse_json_graph(input));
+  if (m_graph==nullptr){
+    ATH_MSG_ERROR("Could not create LightWeightGraph from  " << m_paramsFilename );
+    return StatusCode::FAILURE;
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -399,21 +410,6 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
 
   ATH_MSG_INFO("start neural network part");
 
-  // FIXME do once, what can be done once
-  // get neural net JSON file as an std::istream object
-  std::string inputFile=PathResolverFindCalibFile(m_paramsFilename);
-  if (inputFile==""){
-    ATH_MSG_ERROR("Could not find json file " << m_paramsFilename );
-    return StatusCode::FAILURE;
-  } 
-
-  ATH_MSG_DEBUG("Using json file " << m_paramsFilename );
-  
-
-  std::ifstream input(inputFile);
-  // build the graph
-  lwt::LightweightGraph graph(lwt::parse_json_graph(input));
-
   // fill a map of input nodes
   std::map<std::string, std::map<std::string, double> > inputs;
   double riImpactEta;
@@ -477,7 +473,7 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
     inputs["ripos"].insert ( std::pair<std::string,double>("1", riImpactPhi ) );
 
   // compute the output values
-  std::map<std::string, double> outputs = graph.compute(inputs);
+  std::map<std::string, double> outputs = m_graph->compute(inputs);
   ATH_MSG_DEBUG("neural network output = "<<outputs);
 
 

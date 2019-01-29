@@ -30,6 +30,8 @@
 #include "CaloIdentifier/TileID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 
+#include "lwtnn/LightweightGraph.hh"
+
 
 namespace CLHEP
 {
@@ -61,6 +63,9 @@ namespace ISF {
       StatusCode  initialize();
       StatusCode  finalize();
       
+      /** helper for initialize */
+      StatusCode initializeNetwork();
+
       /** Simulation Call */
       StatusCode simulate(const ISFParticle& isp);
       
@@ -71,7 +76,7 @@ namespace ISF {
       StatusCode releaseEvent();
       
       std::string m_paramsFilename;
-
+      lwt::LightweightGraph * m_graph ;
       
       ToolHandleArray<ICaloCellMakerTool> m_caloCellMakerToolsSetup ;
       ToolHandleArray<ICaloCellMakerTool> m_caloCellMakerToolsRelease ;
