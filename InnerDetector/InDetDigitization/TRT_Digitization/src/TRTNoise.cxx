@@ -33,7 +33,9 @@ struct TRTDigitSorter {
 //_____________________________________________________________________________
 TRTNoise::TRTNoise( const TRTDigSettings* digset,
 		    const InDetDD::TRT_DetectorManager* detmgr,
-		    ServiceHandle <IAtRndmGenSvc> atRndmGenSvc,
+                    CLHEP::HepRandomEngine* noiseRndmEngine,
+                    CLHEP::HepRandomEngine* elecNoiseRndmEngine,
+                    CLHEP::HepRandomEngine* elecProcRndmEngine,
 		    TRTDigCondBase* digcond,
 		    TRTElectronicsProcessing * ep,
 		    TRTElectronicsNoise * electronicsnoise,
@@ -54,9 +56,8 @@ TRTNoise::TRTNoise( const TRTDigSettings* digset,
     m_sumSvc(sumSvc)
 {
   if (msgLevel(MSG::VERBOSE)) { msg(MSG::VERBOSE) << "TRTNoise::Constructor begin" << endmsg; }
-  m_noise_randengine = atRndmGenSvc->GetEngine("TRT_Noise");
-  InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool();
-  if ( m_settings->noiseInSimhits() ) m_pElectronicsNoise->reinitElectronicsNoise( 1000 );
+  InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool(noiseRndmEngine,elecNoiseRndmEngine,elecProcRndmEngine);
+  if ( m_settings->noiseInSimhits() ) m_pElectronicsNoise->reinitElectronicsNoise( 1000, elecNoiseRndmEngine );
   if (msgLevel(MSG::VERBOSE)) { msg(MSG::VERBOSE) << "Constructor done" << endmsg; }
 }
 
@@ -67,7 +68,9 @@ TRTNoise::~TRTNoise() {
 }
 
 //_____________________________________________________________________________
-void TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool() {
+void TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool(CLHEP::HepRandomEngine* noiseRndmEngine,
+                                                                          CLHEP::HepRandomEngine* elecNoiseRndmEngine,
+                                                                          CLHEP::HepRandomEngine* elecProcRndmEngine) {
 
   /////////////////////////////////////////////////////////////////////
   //Strategy:                                                        //
@@ -98,7 +101,7 @@ void TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool() {
   ///////////////////////////////////////////////////////////////////
   // According to Anatoli, the noise shaping function is not very different for Argon and Xenon(and Krypton).
   std::vector<float> maxLTOverNoiseAmp;
-  m_pElectronicsNoise->getSamplesOfMaxLTOverNoiseAmp(maxLTOverNoiseAmp,10000);
+  m_pElectronicsNoise->getSamplesOfMaxLTOverNoiseAmp(maxLTOverNoiseAmp,10000,elecNoiseRndmEngine);
 
   std::stable_sort( maxLTOverNoiseAmp.begin(), maxLTOverNoiseAmp.end() );
   reverse(          maxLTOverNoiseAmp.begin(), maxLTOverNoiseAmp.end() );
@@ -259,7 +262,7 @@ void TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool() {
   // Step 4 - Produce pool of pure noise digits                    //
   ///////////////////////////////////////////////////////////////////
   if ( m_settings->noiseInUnhitStraws() ) {
-    ProduceNoiseDigitPool( actual_LTs, actual_noiseamps, strawTypes );
+    ProduceNoiseDigitPool( actual_LTs, actual_noiseamps, strawTypes, noiseRndmEngine, elecNoiseRndmEngine, elecProcRndmEngine );
   }
   if (msgLevel(MSG::VERBOSE)) { msg(MSG::VERBOSE)
       << "TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool Done" << endmsg;
@@ -270,7 +273,10 @@ void TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool() {
 //_____________________________________________________________________________
 void TRTNoise::ProduceNoiseDigitPool( const std::vector<float>& lowthresholds,
 				      const std::vector<float>& noiseamps,
-				      const std::vector<int>& strawType ) {
+				      const std::vector<int>& strawType,
+                                      CLHEP::HepRandomEngine* noiseRndmEngine,
+                                      CLHEP::HepRandomEngine* elecNoiseRndmEngine,
+                                      CLHEP::HepRandomEngine* elecProcRndmEngine) {
 
   unsigned int nstraw = lowthresholds.size();
   unsigned int istraw;
@@ -291,14 +297,14 @@ void TRTNoise::ProduceNoiseDigitPool( const std::vector<float>& lowthresholds,
     // These are used as inputs to TRTElectronicsProcessing::ProcessDeposits
     // to create noise digits
     if ( ntries%400==0 ) {
-      m_pElectronicsNoise->reinitElectronicsNoise(200);
+      m_pElectronicsNoise->reinitElectronicsNoise(200, elecNoiseRndmEngine);
     }
     // Initialize stuff (is that necessary)?
     digit = TRTDigit();
     deposits.clear();
 
     // Choose straw to simulate
-    istraw = CLHEP::RandFlat::shootInt(m_noise_randengine, nstraw );
+    istraw = CLHEP::RandFlat::shootInt(noiseRndmEngine, nstraw );
 
     // Process deposits this straw. Since there are no deposits, only noise will contrinute
     m_pElectronicsProcessing->ProcessDeposits( deposits,
@@ -306,7 +312,9 @@ void TRTNoise::ProduceNoiseDigitPool( const std::vector<float>& lowthresholds,
 					       digit,
 					       lowthresholds.at(istraw),
 					       noiseamps.at(istraw),
-					       strawType.at(istraw)
+					       strawType.at(istraw),
+                                               elecProcRndmEngine,
+                                               elecNoiseRndmEngine
  					    );
 
     // If this process produced a digit, store in pool
@@ -331,7 +339,8 @@ void TRTNoise::ProduceNoiseDigitPool( const std::vector<float>& lowthresholds,
 }
 
 //_____________________________________________________________________________
-void TRTNoise::appendPureNoiseToProperDigits( std::vector<TRTDigit>& digitVect, const std::set<int>& sim_hitids )
+void TRTNoise::appendPureNoiseToProperDigits( std::vector<TRTDigit>& digitVect, const std::set<int>& sim_hitids,
+                                              CLHEP::HepRandomEngine* noiseRndmEngine )
 {
 
   const std::set<int>::const_iterator sim_hitids_end(sim_hitids.end());
@@ -340,11 +349,11 @@ void TRTNoise::appendPureNoiseToProperDigits( std::vector<TRTDigit>& digitVect, 
   int hitid;
   float noiselevel;
 
-  while (m_pDigConditions->getNextNoisyStraw(m_noise_randengine,hitid,noiselevel) ) {
+  while (m_pDigConditions->getNextNoisyStraw(noiseRndmEngine,hitid,noiselevel) ) {
     //returned noiselevel not used for anything right now (fixme?).
     // If this strawID does not have a sim_hit, add a pure noise digit
     if ( sim_hitids.find(hitid) == sim_hitids_end ) {
-      const int ndigit(m_digitPool[CLHEP::RandFlat::shootInt(m_noise_randengine,m_digitPoolLength)]);
+      const int ndigit(m_digitPool[CLHEP::RandFlat::shootInt(noiseRndmEngine,m_digitPoolLength)]);
       digitVect.push_back(TRTDigit(hitid,ndigit));
     }
   };
@@ -358,7 +367,8 @@ void TRTNoise::appendPureNoiseToProperDigits( std::vector<TRTDigit>& digitVect, 
 
 void TRTNoise::appendCrossTalkNoiseToProperDigits(std::vector<TRTDigit>& digitVect,
 						  const std::set<Identifier>& simhitsIdentifiers,
-						  ServiceHandle<ITRT_StrawNeighbourSvc> TRTStrawNeighbourSvc) {
+						  ServiceHandle<ITRT_StrawNeighbourSvc> TRTStrawNeighbourSvc,
+                                                  CLHEP::HepRandomEngine* noiseRndmEngine) {
 
   //id helper:
   TRTHitIdHelper* hitid_helper = TRTHitIdHelper::GetHelper();
@@ -388,8 +398,8 @@ void TRTNoise::appendCrossTalkNoiseToProperDigits(std::vector<TRTDigit>& digitVe
     for (unsigned int i=0;i<CrossTalkIds.size();++i) {
 
       if ( simhitsIdentifiers.find(CrossTalkIds[i]) == simhitsIdentifiers_end )  {
-	if (m_pDigConditions->crossTalkNoise(m_noise_randengine)==1 ) {
-	  const int ndigit(m_digitPool[CLHEP::RandFlat::shootInt(m_noise_randengine,
+	if (m_pDigConditions->crossTalkNoise(noiseRndmEngine)==1 ) {
+	  const int ndigit(m_digitPool[CLHEP::RandFlat::shootInt(noiseRndmEngine,
 							  m_digitPoolLength)]);
 	  int barrel_endcap, isneg;
 	  switch ( m_id_helper->barrel_ec(CrossTalkIds[i]) ) {
@@ -414,9 +424,9 @@ void TRTNoise::appendCrossTalkNoiseToProperDigits(std::vector<TRTDigit>& digitVe
 
     for (unsigned int i=0;i<CrossTalkIdsOtherEnd.size();++i) {
       if ( simhitsIdentifiers.find(CrossTalkIdsOtherEnd[i]) == simhitsIdentifiers_end )  {
-	if (m_pDigConditions->crossTalkNoiseOtherEnd(m_noise_randengine)==1 ) {
+	if (m_pDigConditions->crossTalkNoiseOtherEnd(noiseRndmEngine)==1 ) {
 
-	  const int ndigit(m_digitPool[CLHEP::RandFlat::shootInt(m_noise_randengine,m_digitPoolLength)]);
+	  const int ndigit(m_digitPool[CLHEP::RandFlat::shootInt(noiseRndmEngine,m_digitPoolLength)]);
 
 	  int barrel_endcap, isneg;
 	  switch ( m_id_helper->barrel_ec(CrossTalkIdsOtherEnd[i]) ) {

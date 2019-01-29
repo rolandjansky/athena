@@ -8,7 +8,7 @@
 // For the Athena-based random numbers.
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "CLHEP/Random/RandomEngine.h"
 
 // Units
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -22,7 +22,6 @@
 //________________________________________________________________________________
 TRTDigCondFakeMap::TRTDigCondFakeMap( const TRTDigSettings* digset,
 				      const InDetDD::TRT_DetectorManager* detmgr,
-				      ServiceHandle <IAtRndmGenSvc> atRndmGenSvc,
 				      const TRT_ID* trt_id,
 				      int UseGasMix,
 				      ServiceHandle<ITRT_StrawStatusSummarySvc> sumSvc
@@ -30,7 +29,6 @@ TRTDigCondFakeMap::TRTDigCondFakeMap( const TRTDigSettings* digset,
   : TRTDigCondBase(digset, detmgr, trt_id, UseGasMix, sumSvc)
 {
   m_average_noiselevel = m_settings->averageNoiseLevel();
-  m_pHRengine = atRndmGenSvc->GetEngine("TRT_FakeConditions");
 }
 
 
@@ -38,13 +36,14 @@ TRTDigCondFakeMap::TRTDigCondFakeMap( const TRTDigSettings* digset,
 void TRTDigCondFakeMap::setStrawStateInfo(Identifier& TRT_Identifier,
                                           const double& strawlength,
 					  double& noiselevel,
-					  double& relative_noiseamplitude ) {
+					  double& relative_noiseamplitude,
+                                          CLHEP::HepRandomEngine* rndmEngine) {
 
   noiselevel = m_average_noiselevel; // Not used here, but returned to caller
 
   // 5% relative fluctuation is hard-coded here
-  double                       relnoiseamp = CLHEP::RandGaussZiggurat::shoot(m_pHRengine, 1.00, 0.05 );
-  while (relnoiseamp < 0.10) { relnoiseamp = CLHEP::RandGaussZiggurat::shoot(m_pHRengine, 1.00, 0.05 ); }
+  double                       relnoiseamp = CLHEP::RandGaussZiggurat::shoot(rndmEngine, 1.00, 0.05 );
+  while (relnoiseamp < 0.10) { relnoiseamp = CLHEP::RandGaussZiggurat::shoot(rndmEngine, 1.00, 0.05 ); }
 
   // Anatoli says we need to scale the noise amplitude of Kr,Ar according to LT_(Kr,Ar)/LT_Xe
   int strawGasType = StrawGasType(TRT_Identifier);

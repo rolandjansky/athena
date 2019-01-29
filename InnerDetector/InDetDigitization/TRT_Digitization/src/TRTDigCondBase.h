@@ -42,7 +42,7 @@ public:
   /**
    * @note Must be called exactly once before the class is used for anything.
    */
-  void initialize();
+  void initialize(CLHEP::HepRandomEngine* rndmEngine);
 
   /** Get average noise level in straw */
   float strawAverageNoiseLevel() const;         //[first time slow, else fast]
@@ -138,7 +138,8 @@ public:
   virtual void setStrawStateInfo(Identifier& TRT_Identifier,
 				  const double& strawlength,
 				  double& noiselevel,
-				  double& relative_noiseamplitude ) = 0;
+                                 double& relative_noiseamplitude,
+                                 CLHEP::HepRandomEngine *rndmEngine) = 0;
 
 protected:
   const TRTDigSettings* m_settings;
