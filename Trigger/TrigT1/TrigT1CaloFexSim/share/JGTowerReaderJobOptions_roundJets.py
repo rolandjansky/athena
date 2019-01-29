@@ -3,7 +3,7 @@
 theApp.EvtMax=1                                      #says how many events to run over. Set to -1 for all events
 
 debug = False
-# debug = True
+debug = True
 
 #Input file
 from PyUtils import AthFile
@@ -80,7 +80,7 @@ algseq = CfgMgr.AthSequencer("AthAlgSeq")        # gets the main AthSequencer
 algseq += CfgMgr.JGTowerReader(                  # adds an instance of your alg to it
     outputNoise = False,
     debugJetAlg = debug,
-    noise_file = "noise_r9813.root", # "/eos/user/c/cylin/public/L1Calo/noise_r10684.root", - this is not generally accessible (I can see it but not open it)
+    noise_file = "/eos/user/c/cylin/public/L1Calo/noise_r10684.root",
     plotSeeds = True,
     dumpTowerInfo = True,
 
@@ -88,30 +88,30 @@ algseq += CfgMgr.JGTowerReader(                  # adds an instance of your alg 
     jJet_seed_size = 0.2,
     jJet_r = 0.4,
     jJet_max_r = 0.4,
-    jJet_seed_tower_noise_multiplier = 1.0,
-    jJet_seed_total_noise_multiplier = 1.0,
+    jJet_seed_tower_noise_multiplier = 0.0, #1.0, 
+    jJet_seed_total_noise_multiplier = 0.0, #1.0,
     jJet_seed_min_ET_MeV = 500,
-    jJet_jet_tower_noise_multiplier = 1.0,
-    jJet_jet_total_noise_multiplier = 0.0,
+    jJet_jet_tower_noise_multiplier = 0.0, #1.0,
+    jJet_jet_total_noise_multiplier = 0.0, #0.0,
     jJet_jet_min_ET_MeV = 500,
 
     makeRoundJets = True,
-    jJetRound_seed_size=0.2,  # wants to be 0.3 I think
-    jJetRound_max_r=0.4,     # not really sure, maybe 0.6
-    jJetRound_r=0.4,
-    jJetRound_seed_tower_noise_multiplier = 1.0,
-    jJetRound_seed_total_noise_multiplier = 1.0,
+    jJetRound_seed_size = 0.31, # seed square of side this. 0.3 for 3x3 towers, but floating point fun times
+    jJetRound_max_r = 0.39,     # distance within which other seeds will be counted in local max 0.4 but floating point (don't want exactly 0.4)
+    jJetRound_r=0.39,           # jet radius. 0.4, but don't want == 0.4
+    jJetRound_seed_tower_noise_multiplier = 0.0, #1.0,
+    jJetRound_seed_total_noise_multiplier = 0.0, #1.0,
     jJetRound_seed_min_ET_MeV = 500,
-    jJetRound_jet_tower_noise_multiplier = 1.0,
-    jJetRound_jet_total_noise_multiplier = 0.0,
-    jJetRound_jet_min_ET_MeV = 5000,
+    jJetRound_jet_tower_noise_multiplier = 0.0, #1.0,
+    jJetRound_jet_total_noise_multiplier = 0.0, #0.0,
+    jJetRound_jet_min_ET_MeV = 500,
 
     makeJetsFromMap = True,
-    towerMap = '/afs/cern.ch/user/c/ckaldero/trigger/L1Calo/L1CaloSim/source/athena/Trigger/TrigT1/TrigT1CaloFexSim/JetTowerLists/jFexJet_towerMap_2019-01-08.txt',
-    map_seed_tower_noise_multiplier = 1.0,
-    map_seed_total_noise_multiplier = 1.0,
+    towerMap = 'jetTowerMaps/jFexJet_towerMap_2019-01-29.txt',
+    map_seed_tower_noise_multiplier = 0.0, #1.0,
+    map_seed_total_noise_multiplier = 0.0, #1.0,
     map_seed_min_ET_MeV = 500,
-    map_jet_tower_noise_multiplier = 1.0,
+    map_jet_tower_noise_multiplier = 0.0, #1.0,
     map_jet_total_noise_multiplier = 0.0,
     map_jet_min_ET_MeV = 500,
 
