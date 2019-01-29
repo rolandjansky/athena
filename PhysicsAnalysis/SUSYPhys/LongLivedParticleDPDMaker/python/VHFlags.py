@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        VHFlags.py
@@ -36,11 +36,11 @@ class VHLowTrackJet_FilterFlags(JobProperty):
         'HLT_mu26_ivarmedium'
         ]
     debug=False
-    cutJet=20000#MeV
+    cutJet=20000*Units.MeV
     cutJetEta=2.1
     nJets=1
-    cutEl=27000 #MeV
-    cutMu=25000 #MeV
+    cutEl=27000*Units.MeV
+    cutMu=25000*Units.MeV
     pass
 primRPVLLDESDM.add_JobProperty(VHLowTrackJet_FilterFlags)
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -30,14 +30,14 @@ namespace DerivationFramework {
     VHLowTrackJetFilterTool( const std::string& t, const std::string& n, const IInterface* p );
     
     /** Destructor */
-    ~VHLowTrackJetFilterTool();
+    virtual ~VHLowTrackJetFilterTool();
     
     // Athena algtool's Hooks
-    StatusCode  initialize();
-    StatusCode  finalize();
+    StatusCode  initialize() override;
+    StatusCode  finalize() override;
     
     /** Check that the current event passes this filter */
-    virtual bool eventPassesFilter() const;
+    virtual bool eventPassesFilter() const override;
     
   private:
     mutable unsigned int m_nEventsTotal;

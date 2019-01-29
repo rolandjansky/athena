@@ -1,5 +1,5 @@
  /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 /////////////////////////////////////////////////////////////////
@@ -7,21 +7,15 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "LongLivedParticleDPDMaker/VHLowTrackJetFilterTool.h"
-#include <vector>
-#include <string>
-#include "xAODJet/JetContainer.h"
-#include "xAODMissingET/MissingETContainer.h"
-#include "xAODMuon/MuonContainer.h"
+
 #include "xAODEgamma/ElectronContainer.h"
-#include "xAODTracking/TrackParticleContainer.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "xAODJet/JetContainer.h"
+#include "xAODMuon/MuonContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackingPrimitives.h"
 #include "xAODTracking/TrackParticlexAODHelpers.h"
-#include "TLorentzVector.h"
 #include "xAODTracking/VertexContainer.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include <math.h>
 
 
 // Constructor
@@ -239,7 +233,7 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
   const xAOD::JetContainer* jets(0);
   sc=evtStore()->retrieve(jets,m_jetSGKey);
   if( sc.isFailure() || !jets ) {
-    msg(MSG::WARNING) << "No Jet container found, will skip this event" << endmsg;
+    ATH_MSG_WARNING("No Jet container found, will skip this event");
     return StatusCode::FAILURE;
   }
   
@@ -254,14 +248,9 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
       TLorentzVector VElec=electron->p4();
       float deltaR = VJet.DeltaR(VElec);
       if (deltaR<minDeltaR) minDeltaR=deltaR;
-      std::cout<<"Delta R: "<<minDeltaR<<std::endl;
     }
-    
-    std::cout<<"LooseDR="<<minDeltaR<<std::endl;
     if (minDeltaR<0.2) continue;
-    
     goodJets.push_back(jet);
-    std::cout<<"jet passed LooseDR"<<std::endl;
   }
   
   
