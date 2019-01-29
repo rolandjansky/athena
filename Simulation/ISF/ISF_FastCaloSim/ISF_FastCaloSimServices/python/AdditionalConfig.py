@@ -716,7 +716,7 @@ def getTimedExtrapolator(name="TimedExtrapolator", **kwargs):
 def getDefaultFastShowerCellBuilderTool(name, **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     from ISF_FastCaloSimServices.ISF_FastCaloSimJobProperties import ISF_FastCaloSimFlags
-    kwargs.setdefault("RandomService", simFlags.RandomSvc() )
+    kwargs.setdefault("RandomService", simFlags.RandomSvcMT() )
     kwargs.setdefault("RandomStreamName", ISF_FastCaloSimFlags.RandomStreamName() )
     kwargs.setdefault("DoSimulWithInnerDetectorTruthOnly", True )
     kwargs.setdefault("ID_cut_off_r",                      [1150] )
