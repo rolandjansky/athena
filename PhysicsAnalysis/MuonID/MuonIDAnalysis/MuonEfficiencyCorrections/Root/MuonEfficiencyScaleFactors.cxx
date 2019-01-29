@@ -75,7 +75,7 @@ namespace CP {
         return m_efficiency_decoration_name_data.empty() ? std::string("DataEffi") + m_wp : m_efficiency_decoration_name_data;
     }
     std::string MuonEfficiencyScaleFactors::mc_effi_decoration() const{
-        return m_efficiency_decoration_name_mc.empty() ? std::string("MC`Effi") + m_wp : m_efficiency_decoration_name_mc;
+        return m_efficiency_decoration_name_mc.empty() ? std::string("MCEffi") + m_wp : m_efficiency_decoration_name_mc;
     }    
     std::string MuonEfficiencyScaleFactors::sf_replica_decoration() const {
         return std::string("Replica") + sf_decoration();
@@ -99,7 +99,7 @@ namespace CP {
     }
     StatusCode MuonEfficiencyScaleFactors::initialize() {
         if (m_init) {
-            ATH_MSG_INFO("The tool using working point" << m_wp << " is already initialized.");
+            ATH_MSG_INFO("The tool using working point " << m_wp << " is already initialized.");
             return StatusCode::SUCCESS;
         }
         if (m_wp.find("Iso") != std::string::npos) {
@@ -350,6 +350,7 @@ namespace CP {
         /// We've at least the stat and sys errors and nothing went wrong
         /// during loading the files
         if (systematics.empty()){
+            ATH_MSG_FATAL("No valid systematic could be loaded. Not even the statistical uncertainties");
             return StatusCode::FAILURE;
         }
         
@@ -377,7 +378,10 @@ namespace CP {
             }
         }
         for(auto& sf: m_sf_sets){
-            if (!sf->CheckConsistency()) return StatusCode::FAILURE;
+            if (!sf->CheckConsistency()) {
+                ATH_MSG_FATAL("Inconsistent scalefactor maps have been found for "<<(sf->getSystSet() ?sf->getSystSet()->name() : "UNKOWN"));
+                return StatusCode::FAILURE;
+            }
         }
         return StatusCode::SUCCESS;
     }
