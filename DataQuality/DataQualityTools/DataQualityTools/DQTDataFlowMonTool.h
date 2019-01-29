@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -19,6 +19,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include <stdint.h>
 
+#include "StoreGate/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 
 #include "DataQualityTools/DataQualityFatherMonTool.h"
@@ -32,15 +33,15 @@ class DQTDataFlowMonTool: public DataQualityFatherMonTool
   
   DQTDataFlowMonTool(const std::string & type, const std::string & name, const IInterface* parent);
 
-  ~DQTDataFlowMonTool();
+  virtual ~DQTDataFlowMonTool();
 
-  //StatusCode initialize();
+  virtual StatusCode initialize() override;
     
-  StatusCode bookHistogramsRecurrent( );
-  StatusCode bookHistograms( );
-  StatusCode fillHistograms( );
-  StatusCode procHistograms( );
-  StatusCode checkHists(bool fromFinalize);
+  virtual StatusCode bookHistogramsRecurrent( ) override;
+  virtual StatusCode bookHistograms( ) override;
+  virtual StatusCode fillHistograms( ) override;
+  virtual StatusCode procHistograms( ) override;
+  virtual StatusCode checkHists(bool fromFinalize) override;
 
 private:
 
@@ -61,6 +62,8 @@ private:
   typedef std::pair<unsigned int, unsigned int> EvFlagPt_t;
   //std::vector<EvFlagPt_t>* m_eventflag_vec[xAOD::EventInfo::nDets];
 
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey
+  { this, "EventInfoKey", "EventInfo", "" };
 };
 
 #endif

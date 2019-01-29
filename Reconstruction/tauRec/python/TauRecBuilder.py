@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -42,7 +42,12 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
     PhotonConversion will be run here too.
     """
   
-    _output     = { _outputType:_outputKey , _outputAuxType:_outputAuxKey }
+    _output     = { _outputType:_outputKey , _outputAuxType:_outputAuxKey,
+                    'xAOD::TauTrackContainer' : 'TauTracks',
+                    'xAOD::CaloClusterContainer' : 'TauShotClusters',
+                    'xAOD::PFOContainer' : 'TauShotParticleFlowObjects',
+                    'CaloCellContainer' : 'TauCommonPi0Cells',
+                    }
     
     def __init__(self, name = "TauCoreBuilder",doPi0Clus=False, doTJVA=False):
         self.name = name
@@ -59,10 +64,10 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
         
         from RecExConfig.RecFlags import rec    
         
-        # xxx ToDo: still needed?        
         from RecExConfig.ObjKeyStore import objKeyStore
         objKeyStore.addManyTypesStreamESD(self._output)
         objKeyStore.addManyTypesStreamAOD(self._output)              
+        objKeyStore.addManyTypesTransient(self._output)              
         
         import tauRec.TauAlgorithmsHolder as taualgs
         from tauRec.tauRecFlags import tauFlags

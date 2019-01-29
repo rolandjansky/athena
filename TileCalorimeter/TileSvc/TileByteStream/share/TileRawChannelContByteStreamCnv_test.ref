@@ -1,14 +1,14 @@
-Sat Jan 26 19:51:16 CET 2019
+Mon Jan 28 10:13:24 CET 2019
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-22.0.1] [x86_64-slc6-gcc62-opt] [atlas-work3/5e0c78d866] -- built on [2019-01-26T1705]
+Py:Athena            INFO using release [WorkDir-22.0.1] [x86_64-slc6-gcc62-opt] [master-tile-bytestream-tmdb-refactor/3f1c952aef] -- built on [2019-01-28T1010]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "TileByteStream/TileRawChannelContByteStreamCnv_test.py"
-[?1034hSetGeometryVersion.py obtained major release version 22
+SetGeometryVersion.py obtained major release version 22
 Py:Athena            INFO including file "IdDictDetDescrCnv/IdDictDetDescrCnv_joboptions.py"
-Py:ConfigurableDb    INFO Read module info for 5456 configurables from 76 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5455 configurables from 4 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 EventInfoMgtInit: Got release version  Athena-22.0.1
 Py:IOVDbSvc.CondDB    INFO Setting up conditions DB access to instance OFLP200
@@ -34,7 +34,7 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v30r5)
-                                          running on lxplus062.cern.ch on Sat Jan 26 19:51:38 2019
+                                          running on pcatl12 on Mon Jan 28 10:13:31 2019
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -51,8 +51,8 @@ PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.x
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-25T2258/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus062.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-27T2257/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host pcatl12.dyndns.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc           WARNING Unable to locate catalog for prfile:poolcond/PoolCat_oflcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
@@ -86,6 +86,7 @@ ByteStreamAddre...   INFO -- Will fill Store with id =  0
 IOVDbSvc             INFO preLoadAddresses: Removing folder /TagInfo. It should only be in the file meta data and was not found.
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_LAR/OFLP200
 ClassIDSvc           INFO  getRegistryEntries: read 3073 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 792 CLIDRegistry entries for module ALL
 IOVSvc               INFO No IOVSvcTool associated with store "StoreGateSvc"
 IOVSvcTool           INFO IOVRanges will be checked at every Event
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_TILE/OFLP200
@@ -104,7 +105,6 @@ IOVDbSvc             INFO Added taginfo remove for /TILE/OFL02/STATUS/ADC
 IOVDbSvc             INFO Added taginfo remove for /TILE/OFL02/TIME/CHANNELOFFSET/PHY
 IOVDbSvc             INFO Added taginfo remove for /TILE/ONL01/STATUS/ADC
 IOVDbSvc             INFO Added taginfo remove for /LAR/LArCellPositionShift
-ClassIDSvc           INFO  getRegistryEntries: read 792 CLIDRegistry entries for module ALL
 ClassIDSvc           INFO  getRegistryEntries: read 17 CLIDRegistry entries for module ALL
 DetDescrCnvSvc       INFO  initializing 
 DetDescrCnvSvc       INFO Found DetectorStore service
@@ -193,7 +193,7 @@ EndcapDMConstru...   INFO Start building EC electronics geometry
   multi-layered version of absorbers activated, mlabs == 1
 ================================================
 EndcapDMConstru...   INFO Start building EC electronics geometry
-GeoModelSvc          INFO GeoModelSvc.LArDetectorToolNV	 SZ= 23964Kb 	 Time = 0.69S
+GeoModelSvc          INFO GeoModelSvc.LArDetectorToolNV	 SZ= 22940Kb 	 Time = 0.51S
 GeoModelSvc.Til...   INFO  Entering TileDetectorTool::create()
 TileDddbManager      INFO m_tag = ATLAS-R2-2016-01-00-01
 TileDddbManager      INFO n_tiglob = 5
@@ -205,7 +205,7 @@ TileDddbManager      INFO n_tileSwitches = 1
 ClassIDSvc           INFO  getRegistryEntries: read 213 CLIDRegistry entries for module ALL
 CaloIDHelper_ID...   INFO in createObj: creating a TileID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-TileNeighbour        INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-25T2258/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/TileNeighbour_reduced.txt
+TileNeighbour        INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-27T2257/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/TileNeighbour_reduced.txt
 TileHWIDDetDesc...   INFO in createObj: creating a TileHWID helper object in the detector store
 TileHWID             INFO initialize_from_dictionary 
 AtlasDetectorID      INFO initialize_from_dictionary - OK
@@ -217,9 +217,9 @@ CaloIDHelper_ID...   INFO in createObj: creating a LArHEC_ID helper object in th
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 CaloIDHelper_ID...   INFO in createObj: creating a LArFCAL_ID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-25T2258/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCal2DNeighbors-April2011.txt
-LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-25T2258/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCal3DNeighborsNext-April2011.txt
-LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-25T2258/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCal3DNeighborsPrev-April2011.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-27T2257/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCal2DNeighbors-April2011.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-27T2257/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCal3DNeighborsNext-April2011.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-27T2257/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCal3DNeighborsPrev-April2011.txt
 CaloIDHelper_ID...   INFO in createObj: creating a LArMiniFCAL_ID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 LArMiniFCAL_ID       INFO  initialize_from_dict - LArCalorimeter dictionary does NOT contain miniFCAL description. Unable to initialize LArMiniFCAL_ID.
@@ -254,7 +254,7 @@ GeoModelSvc.Til...   INFO  Global positioning of barrel with rotation (0,0,0)) a
 GeoModelSvc.Til...   INFO  Global positioning of positive ext.barrel with rotation (0,0,0)) and translation (0,0,0) Gaudi::Units::cm
 GeoModelSvc.Til...   INFO  Global positioning of negative ext.barrel with rotation (0,0,0)) and translation (0,0,1) Gaudi::Units::cm
 TileDetDescrMan...   INFO Entering create_elements()
-GeoModelSvc          INFO GeoModelSvc.TileDetectorTool	 SZ= 3568Kb 	 Time = 0.26S
+GeoModelSvc          INFO GeoModelSvc.TileDetectorTool	 SZ= 4592Kb 	 Time = 0.16S
 ClassIDSvc           INFO  getRegistryEntries: read 65 CLIDRegistry entries for module ALL
 TileInfoLoader       INFO Initializing....TileInfoLoader
 TileInfoLoader       INFO New ATLAS geometry detected: ATLAS-R2-2016-01-00-01 (010001) version 10001
@@ -276,11 +276,11 @@ TileInfoLoader       INFO Sampling fraction for E2 cells 1/107
 TileInfoLoader       INFO Sampling fraction for E3 cells 1/97
 TileInfoLoader       INFO Sampling fraction for E4 cells 1/75
 TileInfoLoader       INFO Sampling fraction for E4' cells 1/75
-TileInfoLoader       INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-25T2258/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/pulsehi_physics.dat
-TileInfoLoader       INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-25T2258/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/pulselo_physics.dat
-TileInfoLoader       INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-25T2258/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/pulse_adder_tower_physics.dat
-TileInfoLoader       INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-25T2258/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/pulse_adder_muonRcv_physics.dat
-TileInfoLoader       INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-25T2258/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/pulse_adder_muon_physics.dat
+TileInfoLoader       INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-27T2257/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/pulsehi_physics.dat
+TileInfoLoader       INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-27T2257/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/pulselo_physics.dat
+TileInfoLoader       INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-27T2257/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/pulse_adder_tower_physics.dat
+TileInfoLoader       INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-27T2257/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/pulse_adder_muonRcv_physics.dat
+TileInfoLoader       INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-27T2257/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/pulse_adder_muon_physics.dat
 CaloIDHelper_ID...   INFO in createObj: creating a CaloLVL1_ID helper object in the detector store
 CaloLVL1_ID          INFO initialize_from_dictionary
 AtlasDetectorID      INFO initialize_from_dictionary - OK
@@ -388,12 +388,12 @@ CaloIDHelper_ID...   INFO in createObj: creating a LArHEC_SuperCell_ID helper ob
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 CaloIDHelper_ID...   INFO in createObj: creating a LArFCAL_SuperCell_ID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-25T2258/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCalSuperCells2DNeighborsNew-April2014.txt
-LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-25T2258/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCalSuperCells3DNeighborsNextNew-April2014.txt
-LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-25T2258/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCalSuperCells3DNeighborsPrevNew-April2014.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-27T2257/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCalSuperCells2DNeighborsNew-April2014.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-27T2257/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCalSuperCells3DNeighborsNextNew-April2014.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-27T2257/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCalSuperCells3DNeighborsPrevNew-April2014.txt
 CaloIDHelper_ID...   INFO in createObj: creating a Tile_SuperCell_ID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-TileNeighbour        INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-25T2258/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/TileSuperCellNeighbour.txt
+TileNeighbour        INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-27T2257/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/TileSuperCellNeighbour.txt
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 CaloIdMgrDetDes...   INFO  Finished 
 CaloIdMgrDetDes...   INFO Initializing CaloIdMgr from values in CaloIdMgrDetDescrCnv 
@@ -641,23 +641,23 @@ IncidentProcAlg2     INFO Finalize
 EventInfoByteSt...   INFO finalize 
 PyComponentMgr       INFO Finalizing PyComponentMgr...
 IdDictDetDescrCnv    INFO in finalize
-IOVDbFolder          INFO Folder /LAR/Align (PoolRef) db-read 1/1 objs/chan/bytes 1/1/340 ((     0.15 ))s
-IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/CES (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/104132 ((     0.16 ))s
-IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/CIS/FIT/LIN (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/108 ((     0.08 ))s
-IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/CIS/FIT/NLN (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/108 ((     0.04 ))s
-IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/EMS (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/116 ((     0.05 ))s
-IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/LAS/FIBER (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/964 ((     0.03 ))s
-IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/LAS/LIN (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/96 ((     0.14 ))s
-IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/LAS/NLN (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/104 ((     0.06 ))s
-IOVDbFolder          INFO Folder /TILE/OFL02/NOISE/SAMPLE (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/643828 ((     0.20 ))s
-IOVDbFolder          INFO Folder /TILE/OFL02/STATUS/ADC (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/93084 ((     0.10 ))s
+IOVDbFolder          INFO Folder /LAR/Align (PoolRef) db-read 1/1 objs/chan/bytes 1/1/340 ((     1.62 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/CES (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/104132 ((     2.12 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/CIS/FIT/LIN (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/108 ((     1.65 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/CIS/FIT/NLN (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/108 ((     2.37 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/EMS (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/116 ((     1.31 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/LAS/FIBER (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/964 ((     1.15 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/LAS/LIN (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/96 ((     1.04 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/LAS/NLN (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/104 ((     0.95 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/NOISE/SAMPLE (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/643828 ((     1.38 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/STATUS/ADC (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/93084 ((     0.06 ))s
 IOVDbFolder          INFO Folder /TILE/OFL02/TIME/CHANNELOFFSET/PHY (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/120 ((     0.05 ))s
-IOVDbFolder          INFO Folder /TILE/ONL01/STATUS/ADC (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/100 ((     0.01 ))s
-IOVDbFolder          INFO Folder /LAR/LArCellPositionShift (PoolRef) db-read 1/1 objs/chan/bytes 1/1/390 ((     0.03 ))s
-IOVDbSvc             INFO  bytes in ((      1.10 ))s
+IOVDbFolder          INFO Folder /TILE/ONL01/STATUS/ADC (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/100 ((     0.02 ))s
+IOVDbFolder          INFO Folder /LAR/LArCellPositionShift (PoolRef) db-read 1/1 objs/chan/bytes 1/1/390 ((     1.42 ))s
+IOVDbSvc             INFO  bytes in ((     15.15 ))s
 IOVDbSvc             INFO Connection sqlite://;schema=mycool.db;dbname=OFLP200 : nConnect: 0 nFolders: 0 ReadTime: ((     0.00 ))s
-IOVDbSvc             INFO Connection COOLOFL_LAR/OFLP200 : nConnect: 2 nFolders: 2 ReadTime: ((     0.17 ))s
-IOVDbSvc             INFO Connection COOLOFL_TILE/OFLP200 : nConnect: 2 nFolders: 11 ReadTime: ((     0.93 ))s
+IOVDbSvc             INFO Connection COOLOFL_LAR/OFLP200 : nConnect: 2 nFolders: 2 ReadTime: ((     3.04 ))s
+IOVDbSvc             INFO Connection COOLOFL_TILE/OFLP200 : nConnect: 2 nFolders: 11 ReadTime: ((    12.10 ))s
 TileInfoLoader       INFO TileInfoLoader::finalize()
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
@@ -667,27 +667,27 @@ ToolSvc.TileROD...   INFO Finalizing
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-cObjR_ALL            INFO Time User   : Tot=  460 [ms] Ave/Min/Max=  230(+-  220)/   10/  450 [ms] #=  2
-cObj_ALL             INFO Time User   : Tot= 0.56  [s] Ave/Min/Max=0.0431(+-0.128)/    0/ 0.48  [s] #= 13
-ChronoStatSvc        INFO Time User   : Tot= 13.4  [s]                                             #=  1
+cObjR_ALL            INFO Time User   : Tot=  280 [ms] Ave/Min/Max=  140(+-  130)/   10/  270 [ms] #=  2
+cObj_ALL             INFO Time User   : Tot=  340 [ms] Ave/Min/Max= 26.2(+- 77.3)/    0/  290 [ms] #= 13
+ChronoStatSvc        INFO Time User   : Tot=  8.9  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully
 ApplicationMgr       INFO Application Manager Terminated successfully
 Py:Athena            INFO leaving with code 0: "successful run"
-Sat Jan 26 19:52:09 CET 2019
+Mon Jan 28 10:14:05 CET 2019
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-22.0.1] [x86_64-slc6-gcc62-opt] [atlas-work3/5e0c78d866] -- built on [2019-01-26T1705]
+Py:Athena            INFO using release [WorkDir-22.0.1] [x86_64-slc6-gcc62-opt] [master-tile-bytestream-tmdb-refactor/3f1c952aef] -- built on [2019-01-28T1010]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO configuring AthenaHive with [4] concurrent threads and [4] concurrent events
 Py:AlgScheduler      INFO setting up AvalancheSchedulerSvc/AvalancheSchedulerSvc with 4 threads
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "TileByteStream/TileRawChannelContByteStreamCnv_test.py"
-[?1034hSetGeometryVersion.py obtained major release version 22
+SetGeometryVersion.py obtained major release version 22
 Py:Athena            INFO including file "IdDictDetDescrCnv/IdDictDetDescrCnv_joboptions.py"
-Py:ConfigurableDb    INFO Read module info for 5456 configurables from 76 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5455 configurables from 4 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 EventInfoMgtInit: Got release version  Athena-22.0.1
 Py:IOVDbSvc.CondDB    INFO Setting up conditions DB access to instance OFLP200
@@ -714,7 +714,7 @@ MessageSvc           INFO Activating in a separate thread
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v30r5)
-                                          running on lxplus062.cern.ch on Sat Jan 26 19:52:27 2019
+                                          running on pcatl12 on Mon Jan 28 10:14:13 2019
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -730,8 +730,8 @@ PoolSvc                                            INFO io_register[PoolSvc](xml
 PoolSvc                                            INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc                                            INFO Frontier compression level set to 5
 DBReplicaSvc                                       INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc                                       INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-25T2258/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
-DBReplicaSvc                                       INFO Total of 10 servers found for host lxplus062.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc                                       INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-27T2257/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
+DBReplicaSvc                                       INFO Total of 10 servers found for host pcatl12.dyndns.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc                                            INFO Successfully setup replica sorting algorithm
 PoolSvc                                            INFO Setting up APR FileCatalog and Streams
 PoolSvc                                         WARNING Unable to locate catalog for prfile:poolcond/PoolCat_oflcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
@@ -873,7 +873,7 @@ EndcapDMConstruction                               INFO Start building EC electr
   multi-layered version of absorbers activated, mlabs == 1
 ================================================
 EndcapDMConstruction                               INFO Start building EC electronics geometry
-GeoModelSvc                                        INFO GeoModelSvc.LArDetectorToolNV	 SZ= 22940Kb 	 Time = 0.68S
+GeoModelSvc                                        INFO GeoModelSvc.LArDetectorToolNV	 SZ= 22940Kb 	 Time = 0.55S
 GeoModelSvc.TileDetectorTool                       INFO  Entering TileDetectorTool::create()
 TileDddbManager                                    INFO m_tag = ATLAS-R2-2016-01-00-01
 TileDddbManager                                    INFO n_tiglob = 5
@@ -885,7 +885,7 @@ TileDddbManager                                    INFO n_tileSwitches = 1
 ClassIDSvc                                         INFO  getRegistryEntries: read 213 CLIDRegistry entries for module ALL
 CaloIDHelper_IDDetDescrCnv                         INFO in createObj: creating a TileID helper object in the detector store
 AtlasDetectorID                                    INFO initialize_from_dictionary - OK
-TileNeighbour                                      INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-25T2258/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/TileNeighbour_reduced.txt
+TileNeighbour                                      INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-27T2257/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/TileNeighbour_reduced.txt
 TileHWIDDetDescrCnv                                INFO in createObj: creating a TileHWID helper object in the detector store
 TileHWID                                           INFO initialize_from_dictionary 
 AtlasDetectorID                                    INFO initialize_from_dictionary - OK
@@ -897,9 +897,9 @@ CaloIDHelper_IDDetDescrCnv                         INFO in createObj: creating a
 AtlasDetectorID                                    INFO initialize_from_dictionary - OK
 CaloIDHelper_IDDetDescrCnv                         INFO in createObj: creating a LArFCAL_ID helper object in the detector store
 AtlasDetectorID                                    INFO initialize_from_dictionary - OK
-LArFCAL_Base_ID                                    INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-25T2258/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCal2DNeighbors-April2011.txt
-LArFCAL_Base_ID                                    INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-25T2258/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCal3DNeighborsNext-April2011.txt
-LArFCAL_Base_ID                                    INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-25T2258/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCal3DNeighborsPrev-April2011.txt
+LArFCAL_Base_ID                                    INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-27T2257/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCal2DNeighbors-April2011.txt
+LArFCAL_Base_ID                                    INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-27T2257/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCal3DNeighborsNext-April2011.txt
+LArFCAL_Base_ID                                    INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-27T2257/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCal3DNeighborsPrev-April2011.txt
 CaloIDHelper_IDDetDescrCnv                         INFO in createObj: creating a LArMiniFCAL_ID helper object in the detector store
 AtlasDetectorID                                    INFO initialize_from_dictionary - OK
 LArMiniFCAL_ID                                     INFO  initialize_from_dict - LArCalorimeter dictionary does NOT contain miniFCAL description. Unable to initialize LArMiniFCAL_ID.
@@ -934,7 +934,7 @@ GeoModelSvc.TileDetectorTool                       INFO  Global positioning of b
 GeoModelSvc.TileDetectorTool                       INFO  Global positioning of positive ext.barrel with rotation (0,0,0)) and translation (0,0,0) Gaudi::Units::cm
 GeoModelSvc.TileDetectorTool                       INFO  Global positioning of negative ext.barrel with rotation (0,0,0)) and translation (0,0,1) Gaudi::Units::cm
 TileDetDescrManager                                INFO Entering create_elements()
-GeoModelSvc                                        INFO GeoModelSvc.TileDetectorTool	 SZ= 4592Kb 	 Time = 0.22S
+GeoModelSvc                                        INFO GeoModelSvc.TileDetectorTool	 SZ= 3568Kb 	 Time = 0.17S
 ClassIDSvc                                         INFO  getRegistryEntries: read 65 CLIDRegistry entries for module ALL
 TileInfoLoader                                     INFO Initializing....TileInfoLoader
 TileInfoLoader                                     INFO New ATLAS geometry detected: ATLAS-R2-2016-01-00-01 (010001) version 10001
@@ -956,11 +956,11 @@ TileInfoLoader                                     INFO Sampling fraction for E2
 TileInfoLoader                                     INFO Sampling fraction for E3 cells 1/97
 TileInfoLoader                                     INFO Sampling fraction for E4 cells 1/75
 TileInfoLoader                                     INFO Sampling fraction for E4' cells 1/75
-TileInfoLoader                                     INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-25T2258/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/pulsehi_physics.dat
-TileInfoLoader                                     INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-25T2258/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/pulselo_physics.dat
-TileInfoLoader                                     INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-25T2258/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/pulse_adder_tower_physics.dat
-TileInfoLoader                                     INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-25T2258/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/pulse_adder_muonRcv_physics.dat
-TileInfoLoader                                     INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-25T2258/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/pulse_adder_muon_physics.dat
+TileInfoLoader                                     INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-27T2257/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/pulsehi_physics.dat
+TileInfoLoader                                     INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-27T2257/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/pulselo_physics.dat
+TileInfoLoader                                     INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-27T2257/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/pulse_adder_tower_physics.dat
+TileInfoLoader                                     INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-27T2257/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/pulse_adder_muonRcv_physics.dat
+TileInfoLoader                                     INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-27T2257/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/pulse_adder_muon_physics.dat
 CaloIDHelper_IDDetDescrCnv                         INFO in createObj: creating a CaloLVL1_ID helper object in the detector store
 CaloLVL1_ID                                        INFO initialize_from_dictionary
 AtlasDetectorID                                    INFO initialize_from_dictionary - OK
@@ -1023,7 +1023,6 @@ AvalancheSchedulerSvc                       0      INFO Will attribute the follo
    o  ( 'TileRawChannelContainer' , 'StoreGateSvc+MuRcvRawChCnt' )     required by Algorithm: 
        * MuRcvRawChannelCntDumper
    o  ( 'TileRawChannelContainer' , 'StoreGateSvc+TileRawChannelCnt' )     required by Algorithm: 
-       * MuRcvRawChannelCntDumper
        * TileRawChannelCntDumper
 PrecedenceSvc                               0      INFO Assembling CF and DF task precedence rules
 PrecedenceRulesGraph                        0      INFO CondSvc found. DF precedence rules will be augmented with 'Conditions'
@@ -1083,12 +1082,12 @@ CaloIDHelper_IDDetDescrCnv              0   0      INFO in createObj: creating a
 AtlasDetectorID                         0   0      INFO initialize_from_dictionary - OK
 CaloIDHelper_IDDetDescrCnv              0   0      INFO in createObj: creating a LArFCAL_SuperCell_ID helper object in the detector store
 AtlasDetectorID                         0   0      INFO initialize_from_dictionary - OK
-LArFCAL_Base_ID                         0   0      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-25T2258/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCalSuperCells2DNeighborsNew-April2014.txt
-LArFCAL_Base_ID                         0   0      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-25T2258/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCalSuperCells3DNeighborsNextNew-April2014.txt
-LArFCAL_Base_ID                         0   0      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-25T2258/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCalSuperCells3DNeighborsPrevNew-April2014.txt
+LArFCAL_Base_ID                         0   0      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-27T2257/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCalSuperCells2DNeighborsNew-April2014.txt
+LArFCAL_Base_ID                         0   0      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-27T2257/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCalSuperCells3DNeighborsNextNew-April2014.txt
+LArFCAL_Base_ID                         0   0      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-27T2257/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/FCalSuperCells3DNeighborsPrevNew-April2014.txt
 CaloIDHelper_IDDetDescrCnv              0   0      INFO in createObj: creating a Tile_SuperCell_ID helper object in the detector store
 AtlasDetectorID                         0   0      INFO initialize_from_dictionary - OK
-TileNeighbour                           0   0      INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-25T2258/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/TileSuperCellNeighbour.txt
+TileNeighbour                           0   0      INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-27T2257/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/TileSuperCellNeighbour.txt
 AtlasDetectorID                         0   0      INFO initialize_from_dictionary - OK
 CaloIdMgrDetDescrCnv                    0   0      INFO  Finished 
 CaloIdMgrDetDescrCnv                    0   0      INFO Initializing CaloIdMgr from values in CaloIdMgrDetDescrCnv 
@@ -1097,214 +1096,210 @@ Domain[ROOT_All]                        0   0      INFO                         
 RootDatabase.open                       0   0      INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond08/cond08_mc.000003.gen.COND/cond08_mc.000003.gen.COND._0064.pool.root File version:52200
 AthenaHiveEventLoopMgr                  0   0      INFO   ===>>>  start processing event #1129572, run #204073 on slot 0,  0 events processed so far  <<<===
 ClassIDSvc                              0   0      INFO  getRegistryEntries: read 670 CLIDRegistry entries for module ALL
-SGInputLoader                           0   0   WARNING unable to find proxy for  ( 'TileRawChannelContainer' , 'StoreGateSvc+MuRcvRawChCnt' ) 
 ClassIDSvc                              0   0      INFO  getRegistryEntries: read 1757 CLIDRegistry entries for module ALL
 ClassIDSvc                              0   0      INFO  getRegistryEntries: read 89 CLIDRegistry entries for module ALL
 ToolSvc.TileROD_Decoder.TileROD_L2Bui...0   0      INFO TileL2Builder initialization completed
 ToolSvc.TileRawChannelContByteStreamTool0   0      INFO Initializing TileRawChannelContByteStreamTool
 AthenaHiveEventLoopMgr                  1   1      INFO   ===>>>  start processing event #1129665, run #204073 on slot 1,  0 events processed so far  <<<===
-SGInputLoader                           1   1   WARNING unable to find proxy for  ( 'TileRawChannelContainer' , 'StoreGateSvc+MuRcvRawChCnt' ) 
 AthenaHiveEventLoopMgr                  2   2      INFO   ===>>>  start processing event #1131212, run #204073 on slot 2,  0 events processed so far  <<<===
-SGInputLoader                           2   2   WARNING unable to find proxy for  ( 'TileRawChannelContainer' , 'StoreGateSvc+MuRcvRawChCnt' ) 
 AthenaHiveEventLoopMgr                  3   3      INFO   ===>>>  start processing event #1131086, run #204073 on slot 3,  0 events processed so far  <<<===
-SGInputLoader                           3   3   WARNING unable to find proxy for  ( 'TileRawChannelContainer' , 'StoreGateSvc+MuRcvRawChCnt' ) 
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1129572, run #204073 on slot 0,  1 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  4   0      INFO   ===>>>  start processing event #1130272, run #204073 on slot 0,  1 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1129665, run #204073 on slot 1,  2 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1131212, run #204073 on slot 2,  3 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  4   0      INFO   ===>>>  start processing event #1130272, run #204073 on slot 0,  3 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  5   1      INFO   ===>>>  start processing event #1131269, run #204073 on slot 1,  3 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  6   2      INFO   ===>>>  start processing event #1130716, run #204073 on slot 2,  3 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1131086, run #204073 on slot 3,  4 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  5   1      INFO   ===>>>  start processing event #1131269, run #204073 on slot 1,  4 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  6   2      INFO   ===>>>  start processing event #1130716, run #204073 on slot 2,  4 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  7   3      INFO   ===>>>  start processing event #1132019, run #204073 on slot 3,  4 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1130272, run #204073 on slot 0,  5 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  8   0      INFO   ===>>>  start processing event #1132092, run #204073 on slot 0,  5 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1131269, run #204073 on slot 1,  6 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  7   0      INFO   ===>>>  start processing event #1132019, run #204073 on slot 0,  6 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  8   1      INFO   ===>>>  start processing event #1132092, run #204073 on slot 1,  6 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  9   3      INFO   ===>>>  start processing event #1130238, run #204073 on slot 3,  6 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1130716, run #204073 on slot 2,  7 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  9   1      INFO   ===>>>  start processing event #1130238, run #204073 on slot 1,  7 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  10  2      INFO   ===>>>  start processing event #1134553, run #204073 on slot 2,  7 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1132019, run #204073 on slot 3,  8 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1132092, run #204073 on slot 0,  9 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  11  0      INFO   ===>>>  start processing event #1130999, run #204073 on slot 0,  9 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  12  3      INFO   ===>>>  start processing event #1133461, run #204073 on slot 3,  9 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1130238, run #204073 on slot 1,  10 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1134553, run #204073 on slot 2,  11 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1130999, run #204073 on slot 0,  12 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1132019, run #204073 on slot 0,  8 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1132092, run #204073 on slot 1,  9 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  10  0      INFO   ===>>>  start processing event #1134553, run #204073 on slot 0,  9 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  11  1      INFO   ===>>>  start processing event #1130999, run #204073 on slot 1,  9 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  12  2      INFO   ===>>>  start processing event #1133461, run #204073 on slot 2,  9 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1130238, run #204073 on slot 3,  10 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1134553, run #204073 on slot 0,  11 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1130999, run #204073 on slot 1,  12 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  13  0      INFO   ===>>>  start processing event #1131152, run #204073 on slot 0,  12 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  14  1      INFO   ===>>>  start processing event #1130142, run #204073 on slot 1,  12 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  15  2      INFO   ===>>>  start processing event #1132770, run #204073 on slot 2,  12 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1133461, run #204073 on slot 3,  13 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  15  3      INFO   ===>>>  start processing event #1132770, run #204073 on slot 3,  12 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1133461, run #204073 on slot 2,  13 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1131152, run #204073 on slot 0,  14 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  16  0      INFO   ===>>>  start processing event #1132365, run #204073 on slot 0,  14 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  17  3      INFO   ===>>>  start processing event #1136791, run #204073 on slot 3,  14 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1130142, run #204073 on slot 1,  15 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1132770, run #204073 on slot 2,  16 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  16  0      INFO   ===>>>  start processing event #1132365, run #204073 on slot 0,  15 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  17  1      INFO   ===>>>  start processing event #1136791, run #204073 on slot 1,  15 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  18  2      INFO   ===>>>  start processing event #1133781, run #204073 on slot 2,  15 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1132770, run #204073 on slot 3,  16 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1132365, run #204073 on slot 0,  17 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  18  0      INFO   ===>>>  start processing event #1133781, run #204073 on slot 0,  17 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  19  1      INFO   ===>>>  start processing event #1132067, run #204073 on slot 1,  17 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  20  2      INFO   ===>>>  start processing event #1138637, run #204073 on slot 2,  17 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1136791, run #204073 on slot 3,  18 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1133781, run #204073 on slot 0,  19 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1132067, run #204073 on slot 1,  20 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  21  0      INFO   ===>>>  start processing event #1139495, run #204073 on slot 0,  20 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  22  1      INFO   ===>>>  start processing event #1140193, run #204073 on slot 1,  20 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  23  3      INFO   ===>>>  start processing event #1142953, run #204073 on slot 3,  20 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1138637, run #204073 on slot 2,  21 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1139495, run #204073 on slot 0,  22 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  24  0      INFO   ===>>>  start processing event #1139127, run #204073 on slot 0,  22 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  25  2      INFO   ===>>>  start processing event #1141272, run #204073 on slot 2,  22 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1140193, run #204073 on slot 1,  23 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1142953, run #204073 on slot 3,  24 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1136791, run #204073 on slot 1,  18 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  19  0      INFO   ===>>>  start processing event #1132067, run #204073 on slot 0,  18 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  20  1      INFO   ===>>>  start processing event #1138637, run #204073 on slot 1,  18 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  21  3      INFO   ===>>>  start processing event #1139495, run #204073 on slot 3,  18 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1133781, run #204073 on slot 2,  19 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1132067, run #204073 on slot 0,  20 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1138637, run #204073 on slot 1,  21 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  22  0      INFO   ===>>>  start processing event #1140193, run #204073 on slot 0,  21 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  23  1      INFO   ===>>>  start processing event #1142953, run #204073 on slot 1,  21 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  24  2      INFO   ===>>>  start processing event #1139127, run #204073 on slot 2,  21 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1139495, run #204073 on slot 3,  22 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1140193, run #204073 on slot 0,  23 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1142953, run #204073 on slot 1,  24 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  25  0      INFO   ===>>>  start processing event #1141272, run #204073 on slot 0,  24 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  26  1      INFO   ===>>>  start processing event #1137117, run #204073 on slot 1,  24 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  27  3      INFO   ===>>>  start processing event #1139599, run #204073 on slot 3,  24 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1139127, run #204073 on slot 0,  25 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1141272, run #204073 on slot 2,  26 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  28  0      INFO   ===>>>  start processing event #1140314, run #204073 on slot 0,  26 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  29  2      INFO   ===>>>  start processing event #1133685, run #204073 on slot 2,  26 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1139127, run #204073 on slot 2,  25 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1141272, run #204073 on slot 0,  26 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1137117, run #204073 on slot 1,  27 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  28  0      INFO   ===>>>  start processing event #1140314, run #204073 on slot 0,  27 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  29  1      INFO   ===>>>  start processing event #1133685, run #204073 on slot 1,  27 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  30  2      INFO   ===>>>  start processing event #1143279, run #204073 on slot 2,  27 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1139599, run #204073 on slot 3,  28 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  30  1      INFO   ===>>>  start processing event #1143279, run #204073 on slot 1,  28 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  31  3      INFO   ===>>>  start processing event #1137563, run #204073 on slot 3,  28 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1140314, run #204073 on slot 0,  29 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1133685, run #204073 on slot 2,  30 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1143279, run #204073 on slot 1,  31 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  32  0      INFO   ===>>>  start processing event #1139927, run #204073 on slot 0,  31 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  33  1      INFO   ===>>>  start processing event #1141197, run #204073 on slot 1,  31 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  34  2      INFO   ===>>>  start processing event #1140039, run #204073 on slot 2,  31 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1137563, run #204073 on slot 3,  32 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1139927, run #204073 on slot 0,  33 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  35  0      INFO   ===>>>  start processing event #1142531, run #204073 on slot 0,  33 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  36  3      INFO   ===>>>  start processing event #1139475, run #204073 on slot 3,  33 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1141197, run #204073 on slot 1,  34 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1140039, run #204073 on slot 2,  35 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1142531, run #204073 on slot 0,  36 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1133685, run #204073 on slot 1,  30 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  31  0      INFO   ===>>>  start processing event #1137563, run #204073 on slot 0,  30 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  32  1      INFO   ===>>>  start processing event #1139927, run #204073 on slot 1,  30 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  33  3      INFO   ===>>>  start processing event #1141197, run #204073 on slot 3,  30 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1143279, run #204073 on slot 2,  31 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1137563, run #204073 on slot 0,  32 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1139927, run #204073 on slot 1,  33 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  34  0      INFO   ===>>>  start processing event #1140039, run #204073 on slot 0,  33 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  35  1      INFO   ===>>>  start processing event #1142531, run #204073 on slot 1,  33 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  36  2      INFO   ===>>>  start processing event #1139475, run #204073 on slot 2,  33 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1141197, run #204073 on slot 3,  34 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1140039, run #204073 on slot 0,  35 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1142531, run #204073 on slot 1,  36 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  37  0      INFO   ===>>>  start processing event #1139958, run #204073 on slot 0,  36 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  38  1      INFO   ===>>>  start processing event #1143765, run #204073 on slot 1,  36 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  39  2      INFO   ===>>>  start processing event #1143097, run #204073 on slot 2,  36 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1139475, run #204073 on slot 3,  37 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  39  3      INFO   ===>>>  start processing event #1143097, run #204073 on slot 3,  36 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1139475, run #204073 on slot 2,  37 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1139958, run #204073 on slot 0,  38 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1143765, run #204073 on slot 1,  39 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  40  0      INFO   ===>>>  start processing event #1134147, run #204073 on slot 0,  39 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  41  1      INFO   ===>>>  start processing event #1137156, run #204073 on slot 1,  39 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  42  3      INFO   ===>>>  start processing event #1136377, run #204073 on slot 3,  39 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1143097, run #204073 on slot 2,  40 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  42  2      INFO   ===>>>  start processing event #1136377, run #204073 on slot 2,  39 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1143097, run #204073 on slot 3,  40 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1134147, run #204073 on slot 0,  41 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1137156, run #204073 on slot 1,  42 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  43  0      INFO   ===>>>  start processing event #1137842, run #204073 on slot 0,  42 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  44  1      INFO   ===>>>  start processing event #1141705, run #204073 on slot 1,  42 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  45  2      INFO   ===>>>  start processing event #1143410, run #204073 on slot 2,  42 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1136377, run #204073 on slot 3,  43 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  45  3      INFO   ===>>>  start processing event #1143410, run #204073 on slot 3,  42 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1136377, run #204073 on slot 2,  43 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1137842, run #204073 on slot 0,  44 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1141705, run #204073 on slot 1,  45 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  46  0      INFO   ===>>>  start processing event #1144170, run #204073 on slot 0,  45 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  47  1      INFO   ===>>>  start processing event #1145987, run #204073 on slot 1,  45 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  48  3      INFO   ===>>>  start processing event #1145633, run #204073 on slot 3,  45 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1143410, run #204073 on slot 2,  46 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  48  2      INFO   ===>>>  start processing event #1145633, run #204073 on slot 2,  45 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1143410, run #204073 on slot 3,  46 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1144170, run #204073 on slot 0,  47 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1145987, run #204073 on slot 1,  48 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  49  0      INFO   ===>>>  start processing event #1135005, run #204073 on slot 0,  48 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  50  1      INFO   ===>>>  start processing event #1142167, run #204073 on slot 1,  48 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  51  2      INFO   ===>>>  start processing event #1144646, run #204073 on slot 2,  48 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1145633, run #204073 on slot 3,  49 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  52  3      INFO   ===>>>  start processing event #1145027, run #204073 on slot 3,  49 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  51  3      INFO   ===>>>  start processing event #1144646, run #204073 on slot 3,  48 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1145633, run #204073 on slot 2,  49 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1135005, run #204073 on slot 0,  50 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1142167, run #204073 on slot 1,  51 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1144646, run #204073 on slot 2,  52 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  53  0      INFO   ===>>>  start processing event #1144112, run #204073 on slot 0,  52 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  54  1      INFO   ===>>>  start processing event #1138485, run #204073 on slot 1,  52 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  55  2      INFO   ===>>>  start processing event #1144565, run #204073 on slot 2,  52 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1145027, run #204073 on slot 3,  53 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1144112, run #204073 on slot 0,  54 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  56  0      INFO   ===>>>  start processing event #1139498, run #204073 on slot 0,  54 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  52  0      INFO   ===>>>  start processing event #1145027, run #204073 on slot 0,  51 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  53  1      INFO   ===>>>  start processing event #1144112, run #204073 on slot 1,  51 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  54  2      INFO   ===>>>  start processing event #1138485, run #204073 on slot 2,  51 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1144646, run #204073 on slot 3,  52 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1145027, run #204073 on slot 0,  53 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1144112, run #204073 on slot 1,  54 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  55  0      INFO   ===>>>  start processing event #1144565, run #204073 on slot 0,  54 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  56  1      INFO   ===>>>  start processing event #1139498, run #204073 on slot 1,  54 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  57  3      INFO   ===>>>  start processing event #1136546, run #204073 on slot 3,  54 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1138485, run #204073 on slot 1,  55 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1144565, run #204073 on slot 2,  56 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  58  1      INFO   ===>>>  start processing event #1143799, run #204073 on slot 1,  56 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  59  2      INFO   ===>>>  start processing event #1142877, run #204073 on slot 2,  56 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1139498, run #204073 on slot 0,  57 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1138485, run #204073 on slot 2,  55 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1144565, run #204073 on slot 0,  56 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1139498, run #204073 on slot 1,  57 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  58  0      INFO   ===>>>  start processing event #1143799, run #204073 on slot 0,  57 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  59  1      INFO   ===>>>  start processing event #1142877, run #204073 on slot 1,  57 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  60  2      INFO   ===>>>  start processing event #1149894, run #204073 on slot 2,  57 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1136546, run #204073 on slot 3,  58 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1143799, run #204073 on slot 1,  59 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  60  0      INFO   ===>>>  start processing event #1149894, run #204073 on slot 0,  59 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  61  1      INFO   ===>>>  start processing event #1145364, run #204073 on slot 1,  59 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  62  3      INFO   ===>>>  start processing event #1143770, run #204073 on slot 3,  59 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1142877, run #204073 on slot 2,  60 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1149894, run #204073 on slot 0,  61 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1145364, run #204073 on slot 1,  62 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  63  0      INFO   ===>>>  start processing event #1148361, run #204073 on slot 0,  62 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  64  1      INFO   ===>>>  start processing event #1148167, run #204073 on slot 1,  62 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  65  2      INFO   ===>>>  start processing event #1138948, run #204073 on slot 2,  62 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1143770, run #204073 on slot 3,  63 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1148361, run #204073 on slot 0,  64 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  66  0      INFO   ===>>>  start processing event #1144808, run #204073 on slot 0,  64 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  67  3      INFO   ===>>>  start processing event #1145832, run #204073 on slot 3,  64 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1148167, run #204073 on slot 1,  65 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1138948, run #204073 on slot 2,  66 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1144808, run #204073 on slot 0,  67 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  68  0      INFO   ===>>>  start processing event #1153100, run #204073 on slot 0,  67 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  69  1      INFO   ===>>>  start processing event #1142524, run #204073 on slot 1,  67 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  70  2      INFO   ===>>>  start processing event #1138294, run #204073 on slot 2,  67 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1145832, run #204073 on slot 3,  68 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1153100, run #204073 on slot 0,  69 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1142524, run #204073 on slot 1,  70 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  71  0      INFO   ===>>>  start processing event #1138350, run #204073 on slot 0,  70 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  72  1      INFO   ===>>>  start processing event #1149424, run #204073 on slot 1,  70 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  73  3      INFO   ===>>>  start processing event #1151102, run #204073 on slot 3,  70 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1138294, run #204073 on slot 2,  71 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1138350, run #204073 on slot 0,  72 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  74  0      INFO   ===>>>  start processing event #1152242, run #204073 on slot 0,  72 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  75  2      INFO   ===>>>  start processing event #1148416, run #204073 on slot 2,  72 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1149424, run #204073 on slot 1,  73 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1151102, run #204073 on slot 3,  74 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1152242, run #204073 on slot 0,  75 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1143799, run #204073 on slot 0,  59 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1142877, run #204073 on slot 1,  60 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  61  0      INFO   ===>>>  start processing event #1145364, run #204073 on slot 0,  60 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  62  1      INFO   ===>>>  start processing event #1143770, run #204073 on slot 1,  60 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  63  3      INFO   ===>>>  start processing event #1148361, run #204073 on slot 3,  60 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1149894, run #204073 on slot 2,  61 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1145364, run #204073 on slot 0,  62 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1143770, run #204073 on slot 1,  63 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  64  0      INFO   ===>>>  start processing event #1148167, run #204073 on slot 0,  63 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  65  1      INFO   ===>>>  start processing event #1138948, run #204073 on slot 1,  63 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  66  2      INFO   ===>>>  start processing event #1144808, run #204073 on slot 2,  63 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1148361, run #204073 on slot 3,  64 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1148167, run #204073 on slot 0,  65 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1138948, run #204073 on slot 1,  66 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  67  0      INFO   ===>>>  start processing event #1145832, run #204073 on slot 0,  66 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  68  1      INFO   ===>>>  start processing event #1153100, run #204073 on slot 1,  66 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  69  3      INFO   ===>>>  start processing event #1142524, run #204073 on slot 3,  66 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1144808, run #204073 on slot 2,  67 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1145832, run #204073 on slot 0,  68 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1153100, run #204073 on slot 1,  69 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  70  0      INFO   ===>>>  start processing event #1138294, run #204073 on slot 0,  69 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  71  1      INFO   ===>>>  start processing event #1138350, run #204073 on slot 1,  69 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  72  2      INFO   ===>>>  start processing event #1149424, run #204073 on slot 2,  69 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1142524, run #204073 on slot 3,  70 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1138294, run #204073 on slot 0,  71 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1138350, run #204073 on slot 1,  72 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  73  0      INFO   ===>>>  start processing event #1151102, run #204073 on slot 0,  72 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  74  1      INFO   ===>>>  start processing event #1152242, run #204073 on slot 1,  72 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  75  3      INFO   ===>>>  start processing event #1148416, run #204073 on slot 3,  72 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1149424, run #204073 on slot 2,  73 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1151102, run #204073 on slot 0,  74 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1152242, run #204073 on slot 1,  75 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  76  0      INFO   ===>>>  start processing event #1142753, run #204073 on slot 0,  75 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  77  1      INFO   ===>>>  start processing event #1149997, run #204073 on slot 1,  75 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  78  3      INFO   ===>>>  start processing event #1151617, run #204073 on slot 3,  75 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1148416, run #204073 on slot 2,  76 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  78  2      INFO   ===>>>  start processing event #1151617, run #204073 on slot 2,  75 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1148416, run #204073 on slot 3,  76 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1142753, run #204073 on slot 0,  77 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  79  0      INFO   ===>>>  start processing event #1149794, run #204073 on slot 0,  77 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  80  2      INFO   ===>>>  start processing event #1152504, run #204073 on slot 2,  77 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1149997, run #204073 on slot 1,  78 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1151617, run #204073 on slot 3,  79 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  81  1      INFO   ===>>>  start processing event #1142485, run #204073 on slot 1,  79 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  82  3      INFO   ===>>>  start processing event #1151364, run #204073 on slot 3,  79 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  79  0      INFO   ===>>>  start processing event #1149794, run #204073 on slot 0,  78 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  80  1      INFO   ===>>>  start processing event #1152504, run #204073 on slot 1,  78 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  81  3      INFO   ===>>>  start processing event #1142485, run #204073 on slot 3,  78 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1151617, run #204073 on slot 2,  79 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1149794, run #204073 on slot 0,  80 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1152504, run #204073 on slot 2,  81 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  83  0      INFO   ===>>>  start processing event #1143901, run #204073 on slot 0,  81 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1152504, run #204073 on slot 1,  81 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  82  0      INFO   ===>>>  start processing event #1151364, run #204073 on slot 0,  81 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  83  1      INFO   ===>>>  start processing event #1143901, run #204073 on slot 1,  81 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  84  2      INFO   ===>>>  start processing event #1153979, run #204073 on slot 2,  81 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1142485, run #204073 on slot 1,  82 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1151364, run #204073 on slot 3,  83 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  85  1      INFO   ===>>>  start processing event #1150212, run #204073 on slot 1,  83 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  86  3      INFO   ===>>>  start processing event #1152633, run #204073 on slot 3,  83 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1143901, run #204073 on slot 0,  84 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1142485, run #204073 on slot 3,  82 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1151364, run #204073 on slot 0,  83 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1143901, run #204073 on slot 1,  84 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  85  0      INFO   ===>>>  start processing event #1150212, run #204073 on slot 0,  84 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  86  1      INFO   ===>>>  start processing event #1152633, run #204073 on slot 1,  84 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  87  3      INFO   ===>>>  start processing event #1155482, run #204073 on slot 3,  84 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1153979, run #204073 on slot 2,  85 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  87  0      INFO   ===>>>  start processing event #1155482, run #204073 on slot 0,  85 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  88  2      INFO   ===>>>  start processing event #1150472, run #204073 on slot 2,  85 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1150212, run #204073 on slot 1,  86 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1152633, run #204073 on slot 3,  87 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1150212, run #204073 on slot 0,  86 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1152633, run #204073 on slot 1,  87 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  88  0      INFO   ===>>>  start processing event #1150472, run #204073 on slot 0,  87 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  89  1      INFO   ===>>>  start processing event #1140275, run #204073 on slot 1,  87 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  90  3      INFO   ===>>>  start processing event #1145882, run #204073 on slot 3,  87 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1155482, run #204073 on slot 0,  88 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1150472, run #204073 on slot 2,  89 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  91  0      INFO   ===>>>  start processing event #1151732, run #204073 on slot 0,  89 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  92  2      INFO   ===>>>  start processing event #1137896, run #204073 on slot 2,  89 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  90  2      INFO   ===>>>  start processing event #1145882, run #204073 on slot 2,  87 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1155482, run #204073 on slot 3,  88 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1150472, run #204073 on slot 0,  89 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1140275, run #204073 on slot 1,  90 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1145882, run #204073 on slot 3,  91 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  91  0      INFO   ===>>>  start processing event #1151732, run #204073 on slot 0,  90 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  92  1      INFO   ===>>>  start processing event #1137896, run #204073 on slot 1,  90 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  93  3      INFO   ===>>>  start processing event #1156381, run #204073 on slot 3,  90 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1145882, run #204073 on slot 2,  91 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1151732, run #204073 on slot 0,  92 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  93  0      INFO   ===>>>  start processing event #1156381, run #204073 on slot 0,  92 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  94  1      INFO   ===>>>  start processing event #1149161, run #204073 on slot 1,  92 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  95  3      INFO   ===>>>  start processing event #1153794, run #204073 on slot 3,  92 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1137896, run #204073 on slot 2,  93 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1156381, run #204073 on slot 0,  94 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1149161, run #204073 on slot 1,  95 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  96  0      INFO   ===>>>  start processing event #1151312, run #204073 on slot 0,  95 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  97  1      INFO   ===>>>  start processing event #1148893, run #204073 on slot 1,  95 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  98  2      INFO   ===>>>  start processing event #1156938, run #204073 on slot 2,  95 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1153794, run #204073 on slot 3,  96 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1151312, run #204073 on slot 0,  97 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1148893, run #204073 on slot 1,  98 events processed so far  <<<===
-AthenaHiveEventLoopMgr                  99  0      INFO   ===>>>  start processing event #1156351, run #204073 on slot 0,  98 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1156938, run #204073 on slot 2,  99 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1156351, run #204073 on slot 0,  100 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO ---> Loop Finished (seconds): 9.61478
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1137896, run #204073 on slot 1,  93 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  94  0      INFO   ===>>>  start processing event #1149161, run #204073 on slot 0,  93 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  95  1      INFO   ===>>>  start processing event #1153794, run #204073 on slot 1,  93 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  96  2      INFO   ===>>>  start processing event #1151312, run #204073 on slot 2,  93 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1156381, run #204073 on slot 3,  94 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1149161, run #204073 on slot 0,  95 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1153794, run #204073 on slot 1,  96 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  97  0      INFO   ===>>>  start processing event #1148893, run #204073 on slot 0,  96 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  98  1      INFO   ===>>>  start processing event #1156938, run #204073 on slot 1,  96 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  99  3      INFO   ===>>>  start processing event #1156351, run #204073 on slot 3,  96 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1151312, run #204073 on slot 2,  97 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1148893, run #204073 on slot 0,  98 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1156938, run #204073 on slot 1,  99 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1156351, run #204073 on slot 3,  100 events processed so far  <<<===
+AthenaHiveEventLoopMgr                             INFO ---> Loop Finished (seconds): 7.06755
 /cvmfs/atlas-condb.cern.ch/repo/condi...           INFO Database being retired...
 Domain[ROOT_All]                                   INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 06C9EAE8-6F5B-E011-BAAA-003048F0E7AC
 /cvmfs/atlas-condb.cern.ch/repo/condi...           INFO Database being retired...
@@ -1317,14 +1312,12 @@ Finalizer                                          INFO Finalizing Finalizer...
 Finalize: compared 20 dumps
 CondInputLoader                                    INFO Finalizing CondInputLoader...
 IncidentProcAlg2                                   INFO Finalize
-StoreGateSvc                                    WARNING Called record() on these objects in a MT store
-StoreGateSvc                                    WARNING TileRawChannelContainer/MuRcvRawChCnt [TileRawChannelDumper/MuRcvRawChannelCntDumper]
 EventInfoByteStreamCnv                             INFO finalize 
 AvalancheSchedulerSvc                              INFO Joining Scheduler thread
 PyComponentMgr                                     INFO Finalizing PyComponentMgr...
 IdDictDetDescrCnv                                  INFO in finalize
 EventDataSvc                                       INFO Finalizing EventDataSvc - package version StoreGate-00-00-00
-IOVDbFolder                                        INFO Folder /LAR/Align (PoolRef) db-read 1/1 objs/chan/bytes 1/1/340 ((     0.19 ))s
+IOVDbFolder                                        INFO Folder /LAR/Align (PoolRef) db-read 1/1 objs/chan/bytes 1/1/340 ((     1.30 ))s
 IOVDbFolder                                        INFO Folder /TILE/OFL02/CALIB/CES (AttrListColl) db-read 0/0 objs/chan/bytes 0/277/0 ((     0.00 ))s
 IOVDbFolder                                        INFO Folder /TILE/OFL02/CALIB/CIS/FIT/LIN (AttrListColl) db-read 0/0 objs/chan/bytes 0/277/0 ((     0.00 ))s
 IOVDbFolder                                        INFO Folder /TILE/OFL02/CALIB/CIS/FIT/NLN (AttrListColl) db-read 0/0 objs/chan/bytes 0/277/0 ((     0.00 ))s
@@ -1336,10 +1329,10 @@ IOVDbFolder                                        INFO Folder /TILE/OFL02/NOISE
 IOVDbFolder                                        INFO Folder /TILE/OFL02/STATUS/ADC (AttrListColl) db-read 0/0 objs/chan/bytes 0/277/0 ((     0.00 ))s
 IOVDbFolder                                        INFO Folder /TILE/OFL02/TIME/CHANNELOFFSET/PHY (AttrListColl) db-read 0/0 objs/chan/bytes 0/277/0 ((     0.00 ))s
 IOVDbFolder                                        INFO Folder /TILE/ONL01/STATUS/ADC (AttrListColl) db-read 0/0 objs/chan/bytes 0/277/0 ((     0.00 ))s
-IOVDbFolder                                        INFO Folder /LAR/LArCellPositionShift (PoolRef) db-read 1/1 objs/chan/bytes 1/1/390 ((     0.03 ))s
-IOVDbSvc                                           INFO  bytes in ((      0.22 ))s
+IOVDbFolder                                        INFO Folder /LAR/LArCellPositionShift (PoolRef) db-read 1/1 objs/chan/bytes 1/1/390 ((     0.90 ))s
+IOVDbSvc                                           INFO  bytes in ((      2.20 ))s
 IOVDbSvc                                           INFO Connection sqlite://;schema=mycool.db;dbname=OFLP200 : nConnect: 0 nFolders: 0 ReadTime: ((     0.00 ))s
-IOVDbSvc                                           INFO Connection COOLOFL_LAR/OFLP200 : nConnect: 2 nFolders: 2 ReadTime: ((     0.22 ))s
+IOVDbSvc                                           INFO Connection COOLOFL_LAR/OFLP200 : nConnect: 2 nFolders: 2 ReadTime: ((     2.20 ))s
 IOVDbSvc                                           INFO Connection COOLOFL_TILE/OFLP200 : nConnect: 1 nFolders: 11 ReadTime: ((     0.00 ))s
 TileInfoLoader                                     INFO TileInfoLoader::finalize()
 AthDictLoaderSvc                                   INFO in finalize...
@@ -1348,11 +1341,12 @@ ToolSvc.ByteStreamMetadataTool                     INFO in finalize()
 ToolSvc.TileRawChannelContByteStreamTool           INFO Finalizing TileRawChannelContByteStreamTool successfuly
 ToolSvc.TileROD_Decoder.TileROD_L2Bui...           INFO Finalizing
 *****Chrono*****                                   INFO ****************************************************************************************************
+*****Chrono*****                                   INFO WARNING: MT job; statistics are unreliable
 *****Chrono*****                                   INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****                                   INFO ****************************************************************************************************
-cObjR_ALL                                          INFO Time User   : Tot= 0.69  [s] Ave/Min/Max=0.345(+-0.335)/ 0.01/ 0.68  [s] #=  2
-cObj_ALL                                           INFO Time User   : Tot= 0.84  [s] Ave/Min/Max= 0.42(+- 0.33)/ 0.09/ 0.75  [s] #=  2
-ChronoStatSvc                                      INFO Time User   : Tot=   12  [s]                                             #=  1
+cObjR_ALL                                          INFO Time User   : Tot=  270 [ms] Ave/Min/Max=  135(+-  135)/    0/  270 [ms] #=  2
+cObj_ALL                                           INFO Time User   : Tot=  360 [ms] Ave/Min/Max=  180(+-  130)/   50/  310 [ms] #=  2
+ChronoStatSvc                                      INFO Time User   : Tot= 8.19  [s]                                             #=  1
 *****Chrono*****                                   INFO ****************************************************************************************************
 ChronoStatSvc.finalize()                           INFO  Service finalized successfully 
 ApplicationMgr                                     INFO Application Manager Finalized successfully

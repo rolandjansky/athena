@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ElectronTAccept.h 670599 2015-05-28 14:15:35Z wsfreund $
@@ -9,7 +9,7 @@
 #define RINGERSELECTORTOOLS_ELECTRONTACCEPT_H
 
 // Athena includes:
-#include "PATCore/TAccept.h"
+#include "PATCore/AcceptInfo.h"
 
 // Local includes:
 #include "RingerSelectorTools/RingerSelectorToolsDefs.h"
@@ -33,7 +33,7 @@ class ElectronTAccept_v1 {
 #ifdef XAOD_ANALYSIS
     typedef std::bitset<32> bitMskWord;
 #else
-    typedef std::bitset<Root::TAccept::NBITS> bitMskWord;
+    typedef std::bitset<asg::AcceptInfo::NBITS> bitMskWord;
 #endif
 
     // Grant access to m_accept for BitdefElectron_v1
@@ -49,7 +49,7 @@ class ElectronTAccept_v1 {
     /**
      * @brief Retrieve copy of the ElectronTAccept_v1 template
      **/
-    static Root::TAccept retrieveTAcceptTemplate(){ return m_accept;}
+    static const asg::AcceptInfo& retrieveTAcceptTemplate(){ return m_accept;}
     /// @}
 
 
@@ -84,7 +84,7 @@ class ElectronTAccept_v1 {
     ElectronTAccept_v1();
 
     /// The TAccept:
-    static Root::TAccept m_accept;
+    static asg::AcceptInfo m_accept;
 };
 
 /**

@@ -1404,17 +1404,13 @@ StatusCode HLTMuonMonTool::fillCommonDQA()
   // updated for real config: 15.02.11
   std::vector<std::string> vs_ESstd;
   if( !m_HI_pp_mode ){
-    vs_ESstd.push_back("HLT_noalg_L1MU4"); 
-    vs_ESstd.push_back("HLT_noalg_L1MU6"); 
-    vs_ESstd.push_back("HLT_noalg_L1MU10"); 
-    //vs_ESstd.push_back("HLT_noalg_L1MU11"); 
+    vs_ESstd.push_back("HLT_mu8"); // increasing stat for muZTP, which requests now ES bits
   }else{
     vs_ESstd.push_back("HLT_mu26_ivarmedium"); // increasing stat for muZTP, which requests now ES bits
   }
-  // vs_ESstd.push_back("HLT_mu18i4_tight"); // for test
-  // vs_ESstd.push_back("HLT_mu22_medium"); // for test
 
   std::vector<std::string> vs_ESnoniso;
+  vs_ESnoniso.push_back("HLT_mu8");   // for HI, but HI does not use iso
   vs_ESnoniso.push_back("HLT_mu14");  // for EnhancedBias
   vs_ESnoniso.push_back("HLT_mu26");
   vs_ESnoniso.push_back("HLT_mu24");      

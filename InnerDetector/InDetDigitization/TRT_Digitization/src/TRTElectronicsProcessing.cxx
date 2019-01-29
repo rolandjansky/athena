@@ -7,9 +7,9 @@
 #include "TRTElectronicsNoise.h"
 #include "TRTDigit.h"
 
-#include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandomEngine.h"
 
 #include "TRTDigSettings.h"
 
@@ -18,14 +18,12 @@
 
 //___________________________________________________________________________
 TRTElectronicsProcessing::TRTElectronicsProcessing( const TRTDigSettings* digset,
-						    ServiceHandle <IAtRndmGenSvc> atRndmGenSvc,
 						    TRTElectronicsNoise * electronicsnoise )
   : m_settings(digset),
     m_pElectronicsNoise(electronicsnoise),
     m_msg("TRTElectronicsProcessing")
 {
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"TRTElectronicsProcessing::Constructor begin" << endmsg;
-  m_pHRengine  = atRndmGenSvc->GetEngine("TRT_ThresholdFluctuations");
   Initialize();
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"TRTElectronicsProcessing::Constructor done" << endmsg;
 }
@@ -221,6 +219,8 @@ void TRTElectronicsProcessing::ProcessDeposits( const std::vector<TRTElectronics
 						double lowthreshold,
 						const double& noiseamplitude,
 						int strawGasType,
+                                                CLHEP::HepRandomEngine* rndmEngine,
+                                                CLHEP::HepRandomEngine* elecNoiseRndmEngine,
 						double highthreshold
 					      ) {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -245,11 +245,11 @@ void TRTElectronicsProcessing::ProcessDeposits( const std::vector<TRTElectronics
 
   const double low_threshold_fluctuation(m_settings->relativeLowThresholdFluctuation());
   if ( low_threshold_fluctuation > 0 ) {
-    lowthreshold = lowthreshold*CLHEP::RandGaussZiggurat::shoot(m_pHRengine, 1.0, low_threshold_fluctuation );
+    lowthreshold = lowthreshold*CLHEP::RandGaussZiggurat::shoot(rndmEngine, 1.0, low_threshold_fluctuation );
   }
   const double high_threshold_fluctuation(m_settings->relativeHighThresholdFluctuation());
   if ( high_threshold_fluctuation > 0 ) {
-    highthreshold = highthreshold*CLHEP::RandGaussZiggurat::shoot(m_pHRengine, 1.0, high_threshold_fluctuation );
+    highthreshold = highthreshold*CLHEP::RandGaussZiggurat::shoot(rndmEngine, 1.0, high_threshold_fluctuation );
   }
 
   //Null out arrays: m_totalNumberOfBins=160(125ns)
@@ -278,7 +278,7 @@ void TRTElectronicsProcessing::ProcessDeposits( const std::vector<TRTElectronics
   // Add noise; LT only
   // (though both LT and HT also get fluctuations elsewhere which gives similar effect to noise).
   if ( m_pElectronicsNoise && noiseamplitude>0 ) {
-    m_pElectronicsNoise->addElectronicsNoise(m_lowThresholdSignal,noiseamplitude); // LT signal only
+    m_pElectronicsNoise->addElectronicsNoise(m_lowThresholdSignal,noiseamplitude, elecNoiseRndmEngine); // LT signal only
   }
 
   // Discriminator response (in what fine time bins are the thresholds exceeded)

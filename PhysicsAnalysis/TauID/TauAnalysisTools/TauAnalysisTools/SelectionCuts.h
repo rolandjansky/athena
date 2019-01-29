@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_SELECTIONCUTS_H
@@ -19,7 +19,8 @@
 
 // Framework include(s):
 #include "xAODTau/TauJet.h"
-#include "PATCore/TAccept.h"
+#include "PATCore/AcceptData.h"
+#include "PATCore/AcceptInfo.h"
 
 // ROOT include(s):
 #include "TH1F.h"
@@ -42,7 +43,9 @@ public:
   void writeControlHistograms();
   void fillHistogramCutPre(const xAOD::TauJet& xTau);
   void fillHistogramCut(const xAOD::TauJet& xTau);
-  virtual bool accept(const xAOD::TauJet& xTau) = 0;
+  virtual void setAcceptInfo (asg::AcceptInfo& info) const = 0;
+  virtual bool accept(const xAOD::TauJet& xTau,
+                      asg::AcceptData& accept) = 0;
   TH1F* CreateControlPlot(const char* sName, const char* sTitle, int iBins, double dXLow, double dXUp);
 
   std::string getName()
@@ -73,7 +76,9 @@ class SelectionCutPt
 {
 public:
   SelectionCutPt(TauSelectionTool* tTST);
-  bool accept(const xAOD::TauJet& xTau);
+  virtual void setAcceptInfo (asg::AcceptInfo& info) const override;
+  virtual bool accept(const xAOD::TauJet& xTau,
+                      asg::AcceptData& accept) override;
 private:
   void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
 };
@@ -83,7 +88,9 @@ class SelectionCutAbsEta
 {
 public:
   SelectionCutAbsEta(TauSelectionTool* tTST);
-  bool accept(const xAOD::TauJet& xTau);
+  virtual void setAcceptInfo (asg::AcceptInfo& info) const override;
+  virtual bool accept(const xAOD::TauJet& xTau,
+                      asg::AcceptData& accept) override;
 private:
   void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
 };
@@ -93,7 +100,9 @@ class SelectionCutAbsCharge
 {
 public:
   SelectionCutAbsCharge(TauSelectionTool* tTST);
-  bool accept(const xAOD::TauJet& xTau);
+  virtual void setAcceptInfo (asg::AcceptInfo& info) const override;
+  virtual bool accept(const xAOD::TauJet& xTau,
+                      asg::AcceptData& accept) override;
 private:
   void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
 };
@@ -103,7 +112,9 @@ class SelectionCutNTracks
 {
 public:
   SelectionCutNTracks(TauSelectionTool* tTST);
-  bool accept(const xAOD::TauJet& xTau);
+  virtual void setAcceptInfo (asg::AcceptInfo& info) const override;
+  virtual bool accept(const xAOD::TauJet& xTau,
+                      asg::AcceptData& accept) override;
 private:
   void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
 };
@@ -113,7 +124,9 @@ class SelectionCutBDTJetScore
 {
 public:
   SelectionCutBDTJetScore(TauSelectionTool* tTST);
-  bool accept(const xAOD::TauJet& xTau);
+  virtual void setAcceptInfo (asg::AcceptInfo& info) const override;
+  virtual bool accept(const xAOD::TauJet& xTau,
+                      asg::AcceptData& accept) override;
 private:
   void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
 };
@@ -123,7 +136,9 @@ class SelectionCutJetIDWP
 {
 public:
   SelectionCutJetIDWP(TauSelectionTool* tTST);
-  bool accept(const xAOD::TauJet& xTau);
+  virtual void setAcceptInfo (asg::AcceptInfo& info) const override;
+  virtual bool accept(const xAOD::TauJet& xTau,
+                      asg::AcceptData& accept) override;
 private:
   void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
 };
@@ -133,7 +148,9 @@ class SelectionCutBDTEleScore
 {
 public:
   SelectionCutBDTEleScore(TauSelectionTool* tTST);
-  bool accept(const xAOD::TauJet& xTau);
+  virtual void setAcceptInfo (asg::AcceptInfo& info) const override;
+  virtual bool accept(const xAOD::TauJet& xTau,
+                      asg::AcceptData& accept) override;
 private:
   std::string m_sEleBDTDecorationName;
   void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
@@ -144,7 +161,9 @@ class SelectionCutEleBDTWP
 {
 public:
   SelectionCutEleBDTWP(TauSelectionTool* tTST);
-  bool accept(const xAOD::TauJet& xTau);
+  virtual void setAcceptInfo (asg::AcceptInfo& info) const override;
+  virtual bool accept(const xAOD::TauJet& xTau,
+                      asg::AcceptData& accept) override;
 private:
   std::string m_sEleBDTDecorationName;
   void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
@@ -155,8 +174,10 @@ class SelectionCutEleOLR
 {
 public:
   SelectionCutEleOLR(TauSelectionTool* tTST);
-  bool accept(const xAOD::TauJet& xTau);
-  ~SelectionCutEleOLR();
+  virtual ~SelectionCutEleOLR();
+  virtual void setAcceptInfo (asg::AcceptInfo& info) const override;
+  virtual bool accept(const xAOD::TauJet& xTau,
+                      asg::AcceptData& accept) override;
 
   bool getEvetoPass(const xAOD::TauJet& xTau);
 private:
@@ -176,7 +197,9 @@ class SelectionCutMuonVeto
 {
 public:
   SelectionCutMuonVeto(TauSelectionTool* tTST);
-  bool accept(const xAOD::TauJet& xTau);
+  virtual void setAcceptInfo (asg::AcceptInfo& info) const override;
+  virtual bool accept(const xAOD::TauJet& xTau,
+                      asg::AcceptData& accept) override;
 private:
   void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
 };
@@ -188,7 +211,9 @@ class SelectionCutMuonOLR
 {
 public:
   SelectionCutMuonOLR(TauSelectionTool* tTST);
-  bool accept(const xAOD::TauJet& xTau);
+  virtual void setAcceptInfo (asg::AcceptInfo& info) const override;
+  virtual bool accept(const xAOD::TauJet& xTau,
+                      asg::AcceptData& accept) override;
 private:
   bool m_bTauMuonOLR; //False: overlapped, the tau is not kept. True: not overlapped, the tau is kept.)
   const xAOD::MuonContainer* m_xMuonContainer;

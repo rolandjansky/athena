@@ -291,12 +291,12 @@ std::list<Identifier> SCT_ReadCalibDataTool::defectList(const std::string& defec
   
   //Loop over all wafers using hashIds from the cabling service
   std::vector<boost::uint32_t> listOfRODs;
-  m_cabling->getAllRods(listOfRODs);
+  m_cabling->getAllRods(listOfRODs, ctx);
   std::vector<boost::uint32_t>::iterator rodIter{listOfRODs.begin()};
   std::vector<boost::uint32_t>::iterator rodEnd{listOfRODs.end()};
   for (; rodIter!=rodEnd; ++rodIter) {
     std::vector<IdentifierHash> listOfHashes;
-    m_cabling->getHashesForRod(listOfHashes, *rodIter);
+    m_cabling->getHashesForRod(listOfHashes, *rodIter, ctx);
     std::vector<IdentifierHash>::iterator hashIt{listOfHashes.begin()};
     std::vector<IdentifierHash>::iterator hashEnd{listOfHashes.end()};
     for (; hashIt != hashEnd; ++hashIt) {

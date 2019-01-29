@@ -429,6 +429,9 @@ ToolSvc += maketool ('tool1', bct1)
 ToolSvc += maketool ('tool2', bct2, maskBadChannels = True)
 ToolSvc += maketool ('tool3', bct1, noise = 0.1)
 
+from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+topSequence += xAODMaker__EventInfoCnvAlg (DoBeginRun = False)
+
 testalg1 = TestAlg ('testalg1')
 topSequence += testalg1
 

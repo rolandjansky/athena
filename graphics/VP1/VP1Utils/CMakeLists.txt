@@ -42,13 +42,8 @@ find_package( CLHEP )
 find_package( Coin3D )
 find_package( Eigen )
 find_package( HepPDT )
-find_package( Qt5 COMPONENTS Core HINTS ${QT5_ROOT} )
+find_package( Qt5 COMPONENTS Core )
 find_package( GeoModel )
-
-# CLHEP definitions:
-add_definitions( -DCLHEP_MAX_MIN_DEFINED
-                 -DCLHEP_ABS_DEFINED
-                 -DCLHEP_SQR_DEFINED )
 
 # Generate MOC files automatically:
 set( CMAKE_AUTOMOC TRUE )
@@ -59,6 +54,7 @@ atlas_add_library( VP1Utils VP1Utils/*.h src/*.cxx src/*.cpp
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${COIN3D_INCLUDE_DIRS}
    ${EIGEN_INCLUDE_DIRS}
+   DEFINITIONS ${CLHEP_DEFINITIONS}
    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${GEOMODEL_LIBRARIES} EventPrimitives
    GaudiKernel VP1Base StoreGateLib SGtests AthDSoCallBacks MuonIdHelpersLib
    GeoPrimitives Qt5::Core

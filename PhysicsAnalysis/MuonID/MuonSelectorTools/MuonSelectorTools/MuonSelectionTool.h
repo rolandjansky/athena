@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: MuonSelectionTool.h 299883 2014-03-28 17:34:16Z krasznaa $
@@ -48,7 +48,7 @@ namespace CP {
       /// @{
 
       /// Function initialising the tool
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
 
       /// @}
 
@@ -56,10 +56,10 @@ namespace CP {
       /// @{
 
       /// Get an object describing the "selection steps" of the tool
-      virtual const Root::TAccept& getTAccept() const;
+      virtual const asg::AcceptInfo& getAcceptInfo() const override;
 
       /// Get the decision using a generic IParticle pointer
-      virtual const Root::TAccept& accept( const xAOD::IParticle* p ) const;
+      virtual asg::AcceptData accept( const xAOD::IParticle* p ) const override;
 
       /// @}
 
@@ -67,47 +67,47 @@ namespace CP {
       /// @{
 
       /// Get the decision for a specific Muon object
-      virtual const Root::TAccept& accept( const xAOD::Muon& mu ) const;
+      virtual asg::AcceptData accept( const xAOD::Muon& mu ) const override;
 
       /// set the passes ID cuts variable of the muon 
-      void setPassesIDCuts(xAOD::Muon&) const;
+      virtual void setPassesIDCuts(xAOD::Muon&) const override;
 	  
       /// set the passes high pT cuts variable of the muon 
-      void setPassesHighPtCuts( xAOD::Muon& mu ) const;
+      virtual void setPassesHighPtCuts( xAOD::Muon& mu ) const override;
 
       /// set the passes low pT cuts variable of the muon
       //void setPassesLowPtEfficiencyCuts( xAOD::Muon& mu ) const;
      
       /// set the passes quality variable of the muon 
-      void setQuality( xAOD::Muon& mu ) const;
+      virtual void setQuality( xAOD::Muon& mu ) const override;
 
       /// Returns true if the muon passes the standard MCP ID cuts. To set the value on the muon, instead call setPassesIDCuts(xAOD::Muon&) const
-      bool passedIDCuts(const xAOD::Muon&) const;
+      virtual bool passedIDCuts(const xAOD::Muon&) const override;
  
       /// Returns true if the muon passes a standardized loose preselection.
-      bool passedMuonCuts(const xAOD::Muon&) const;
+      virtual bool passedMuonCuts(const xAOD::Muon&) const override;
 
       /// Returns true if the track particle passes the standard MCP ID cuts.
-      bool passedIDCuts(const xAOD::TrackParticle&) const;
+      virtual bool passedIDCuts(const xAOD::TrackParticle&) const override;
      
       /// Returns true if the muon passes the standard MCP High Pt cuts. To set the value on the muon, instead call setPassesHighPtCuts(xAOD::Muon&) const
-      bool passedHighPtCuts(const xAOD::Muon&) const;
+      virtual bool passedHighPtCuts(const xAOD::Muon&) const override;
 
       /// Returns true if the muon passes the standard MCP low pt cuts. To set the value on the muon, instead call setPassesLowPtEfficiencyCuts(xAOD::Muon&) const
-      bool passedLowPtEfficiencyCuts(const xAOD::Muon&) const;
-      bool passedLowPtEfficiencyCuts(const xAOD::Muon&, xAOD::Muon::Quality thisMu_quality) const;
+      virtual bool passedLowPtEfficiencyCuts(const xAOD::Muon&) const override;
+      virtual bool passedLowPtEfficiencyCuts(const xAOD::Muon&, xAOD::Muon::Quality thisMu_quality) const override;
 
       /// Returns true if a CB muon fails a pt- and eta-dependent cut on the relative CB q/p error
-      bool passedErrorCutCB(const xAOD::Muon&) const;
+      virtual bool passedErrorCutCB(const xAOD::Muon&) const override;
 
       /// Returns true if a CB muon fails some loose quaility requirements designed to remove pathological tracks
-      bool isBadMuon(const xAOD::Muon&) const;
+      virtual bool isBadMuon(const xAOD::Muon&) const override;
 
       /// Returns the quality of the muon. To set the value on the muon, instead call setQuality(xAOD::Muon&) const
-      xAOD::Muon::Quality getQuality( const xAOD::Muon& mu ) const;
+      virtual xAOD::Muon::Quality getQuality( const xAOD::Muon& mu ) const override;
 
       /// Returns true if the muon passed additional calo-tag quality cuts
-      bool passedCaloTagQuality (const xAOD::Muon& mu) const;
+      virtual bool passedCaloTagQuality (const xAOD::Muon& mu) const override;
 
       /// Returns true if the muon passed the tight working point cuts    
       bool passTight(const xAOD::Muon& mu, float rho, float oneOverPSig) const;
@@ -125,8 +125,8 @@ namespace CP {
      int  m_quality;
      bool m_isSimulation;
      
-     /// Object used to store the last decision
-     mutable Root::TAccept m_accept;
+     /// Store selection information.
+     asg::AcceptInfo m_acceptInfo;
      
      bool m_toroidOff;
      bool m_developMode;

@@ -36,6 +36,11 @@ for unpack in topSequence.L1DecoderTest.rerunRoiUnpackers:
 # Menu and CF construction
 ##########################################
 
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+TriggerFlags.triggerMenuSetup = "LS2_v1"
+
+
+
 from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
 g = GenerateMenuMT()
 g.generateMT()

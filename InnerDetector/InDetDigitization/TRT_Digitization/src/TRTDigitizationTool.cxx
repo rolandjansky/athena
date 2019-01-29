@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -39,10 +39,6 @@
 #include "InDetRawData/TRT_LoLumRawData.h"
 #include "InDetRawData/TRT_RDO_Collection.h"
 
-// Other includes
-#include "PileUpTools/PileUpMergeSvc.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
-
 // particle table
 #include "HepPDT/ParticleDataTable.hh"
 #include "GaudiKernel/IPartPropSvc.h"
@@ -63,6 +59,9 @@
 static constexpr unsigned int crazyParticleBarcode(std::numeric_limits<int32_t>::max());
 //Barcodes at the HepMC level are int
 
+// Random Number Generation
+#include "AthenaKernel/RNGWrapper.h"
+#include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
 
 //#include "driftCircle.h" // local copy for debugging and development
@@ -81,7 +80,6 @@ TRTDigitizationTool::TRTDigitizationTool(const std::string& type,
     m_pProcessingOfStraw(NULL),
     m_pDigConditions(NULL),
     m_pNoise(NULL),
-    m_atRndmGenSvc ("AtDSFMTGenSvc", name),
     m_TRTStrawNeighbourSvc("TRT_StrawNeighbourSvc",name),
     m_manager(NULL),
     m_trt_id(NULL),
@@ -115,7 +113,6 @@ TRTDigitizationTool::TRTDigitizationTool(const std::string& type,
   declareProperty("PrintDigSettings", m_printUsedDigSettings = true, "Print ditigization settings" );
   m_settings = new TRTDigSettings();
   m_settings->addPropertiesForOverrideableParameters(static_cast<AlgTool*>(this));
-  declareProperty("RndmSvc",                       m_atRndmGenSvc, "Random Number Service used in TRT digitization" );
   declareProperty("TRT_StrawNeighbourSvc",         m_TRTStrawNeighbourSvc);
   declareProperty("InDetTRTStrawStatusSummarySvc", m_sumSvc);
   declareProperty("UseGasMix",                     m_UseGasMix);
@@ -198,12 +195,7 @@ StatusCode TRTDigitizationTool::initialize()
   ATH_CHECK(m_outputSDOCollName.initialize());
 
   // Get Random Service
-  if (!m_atRndmGenSvc.retrieve().isSuccess()) {
-    ATH_MSG_FATAL ( "Could not initialize Random Number Service." );
-    return StatusCode::FAILURE;
-  }
-
-  m_pHRengine = m_atRndmGenSvc->GetEngine("TRT_DigitizationTool"); // For cosmic event phase
+  ATH_CHECK(m_rndmSvc.retrieve());
 
   // Get the Particle Properties Service
   IPartPropSvc* p_PartPropSvc = 0;
@@ -321,7 +313,10 @@ StatusCode TRTDigitizationTool::processBunchXing(int bunchXing,
 }
 
 //_____________________________________________________________________________
-StatusCode TRTDigitizationTool::lateInitialize() {
+StatusCode TRTDigitizationTool::lateInitialize(CLHEP::HepRandomEngine* noiseRndmEngine,
+                                               CLHEP::HepRandomEngine* elecNoiseRndmEngine,
+                                               CLHEP::HepRandomEngine* elecProcRndmEngine,
+                                               CLHEP::HepRandomEngine* fakeCondRndmEngine) {
 
   m_first_event=false;
 
@@ -342,20 +337,19 @@ StatusCode TRTDigitizationTool::lateInitialize() {
 
   TRTElectronicsNoise *electronicsNoise(NULL);
   if ( m_settings->noiseInUnhitStraws() || m_settings->noiseInSimhits() ) {
-    electronicsNoise = new TRTElectronicsNoise(m_settings, m_atRndmGenSvc);
+    electronicsNoise = new TRTElectronicsNoise(m_settings, elecNoiseRndmEngine);
   }
   // ElectronicsProcessing is needed for the regular straw processing,
   // but also for the noise (it assumes ownership of electronicsnoise )
-  m_pElectronicsProcessing = new TRTElectronicsProcessing( m_settings, m_atRndmGenSvc, electronicsNoise );
+  m_pElectronicsProcessing = new TRTElectronicsProcessing( m_settings, electronicsNoise );
 
   m_pDigConditions = new TRTDigCondFakeMap(m_settings,
 					   m_manager,
-					   m_atRndmGenSvc,
 					   m_trt_id,
 					   m_UseGasMix,
 					   m_sumSvc);
 
-  m_pDigConditions->initialize();
+  m_pDigConditions->initialize(fakeCondRndmEngine);
 
   if ( m_settings->noiseInUnhitStraws() || m_settings->noiseInSimhits() ) {
 
@@ -366,7 +360,9 @@ StatusCode TRTDigitizationTool::lateInitialize() {
     //        straw noise-frequencies:
     m_pNoise = new TRTNoise( m_settings,
 			     m_manager,
-			     m_atRndmGenSvc,
+			     noiseRndmEngine,
+                             elecNoiseRndmEngine,
+                             elecProcRndmEngine,
 			     m_pDigConditions,
 			     m_pElectronicsProcessing,
 			     electronicsNoise,
@@ -391,7 +387,6 @@ StatusCode TRTDigitizationTool::lateInitialize() {
 			      m_manager,
 			      TRTpaiToolXe,
 			      pTRTsimdrifttimetool,
-			      m_atRndmGenSvc,
 			      m_pElectronicsProcessing,
 			      m_pNoise,
 			      m_pDigConditions,
@@ -406,7 +401,11 @@ StatusCode TRTDigitizationTool::lateInitialize() {
 }
 
 //_____________________________________________________________________________
-StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::set<Identifier>& simhitsIdentifiers) {
+StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::set<Identifier>& simhitsIdentifiers,
+                                              CLHEP::HepRandomEngine *rndmEngine,
+                                              CLHEP::HepRandomEngine *strawRndmEngine,
+                                              CLHEP::HepRandomEngine *elecProcRndmEngine,
+                                              CLHEP::HepRandomEngine *elecNoiseRndmEngine) {
 
   // Create a map for the SDO
   SG::WriteHandle<InDetSimDataCollection> simDataMap(m_outputSDOCollName);
@@ -423,7 +422,7 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
 
   m_cosmicEventPhase = 0.0;
   if (m_settings->doCosmicTimingPit()) {
-    m_cosmicEventPhase = getCosmicEventPhase();
+    m_cosmicEventPhase = getCosmicEventPhase(rndmEngine);
   };
 
   // Create  a vector of deposits
@@ -508,7 +507,10 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
                                        m_cosmicEventPhase, //m_ComTime,
                                        StrawGasType(idStraw),
 				       emulateArFlag,
-				       emulateKrFlag);
+				       emulateKrFlag,
+                                       strawRndmEngine,
+                                       elecProcRndmEngine,
+                                       elecNoiseRndmEngine);
 
     // Print out the digits etc (for debugging)
     //int          mstrw = digit_straw.GetStrawID();
@@ -531,8 +533,16 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
 //_____________________________________________________________________________
 StatusCode TRTDigitizationTool::processAllSubEvents() {
 
+  // Set the RNGs to use for this event.
+  CLHEP::HepRandomEngine *rndmEngine = getRandomEngine("");
+  CLHEP::HepRandomEngine *fakeCondRndmEngine = getRandomEngine("TRT_FakeConditions");
+  CLHEP::HepRandomEngine *elecNoiseRndmEngine = getRandomEngine("TRT_ElectronicsNoise");
+  CLHEP::HepRandomEngine *noiseRndmEngine = getRandomEngine("TRT_Noise");
+  CLHEP::HepRandomEngine *strawRndmEngine = getRandomEngine("TRT_ProcessStraw");
+  CLHEP::HepRandomEngine *elecProcRndmEngine = getRandomEngine("TRT_ThresholdFluctuations");
+
   if (m_first_event) {
-    if(this->lateInitialize().isFailure()) {
+    if(this->lateInitialize(noiseRndmEngine,elecNoiseRndmEngine,elecProcRndmEngine,fakeCondRndmEngine).isFailure()) {
       ATH_MSG_FATAL ( "lateInitialize method failed!" );
       return StatusCode::FAILURE;
     }
@@ -593,10 +603,7 @@ StatusCode TRTDigitizationTool::processAllSubEvents() {
   m_thpctrt = &thpctrt;
 
   // Process the Hits straw by straw: get the iterator pairs for given straw
-  if(this->processStraws(sim_hitids, simhitsIdentifiers).isFailure()) {
-    ATH_MSG_FATAL ( "processStraws method failed!" );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(this->processStraws(sim_hitids, simhitsIdentifiers, rndmEngine, strawRndmEngine, elecProcRndmEngine, elecNoiseRndmEngine));
 
   // no more hits
 
@@ -604,9 +611,9 @@ StatusCode TRTDigitizationTool::processAllSubEvents() {
   if (m_settings->noiseInUnhitStraws()) {
     const int numberOfDigitsBeforeNoise(m_vDigits.size());
 
-    m_pNoise->appendPureNoiseToProperDigits(m_vDigits, sim_hitids);
+    m_pNoise->appendPureNoiseToProperDigits(m_vDigits, sim_hitids, noiseRndmEngine);
     if (m_settings->doCrosstalk()) {
-      m_pNoise->appendCrossTalkNoiseToProperDigits(m_vDigits, simhitsIdentifiers,m_TRTStrawNeighbourSvc);
+      m_pNoise->appendCrossTalkNoiseToProperDigits(m_vDigits, simhitsIdentifiers,m_TRTStrawNeighbourSvc, noiseRndmEngine);
     }
 
     ATH_MSG_DEBUG ( " Number of digits " << m_vDigits.size() << " (" << m_vDigits.size()-numberOfDigitsBeforeNoise << " of those are pure noise)" );
@@ -631,6 +638,14 @@ StatusCode TRTDigitizationTool::processAllSubEvents() {
   return StatusCode::SUCCESS;
 }
 
+CLHEP::HepRandomEngine* TRTDigitizationTool::getRandomEngine(const std::string& streamName) const
+{
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this, streamName);
+  std::string rngName = name()+streamName;
+  rngWrapper->setSeed( rngName, Gaudi::Hive::currentContext() );
+  return *rngWrapper;
+}
+
 //_____________________________________________________________________________
 StatusCode TRTDigitizationTool::mergeEvent() {
   std::vector<std::pair<unsigned int, int> >::iterator ii(m_seen.begin());
@@ -640,8 +655,16 @@ StatusCode TRTDigitizationTool::mergeEvent() {
     ++ii;
   }
 
+  // Set the RNGs to use for this event.
+  CLHEP::HepRandomEngine *rndmEngine = getRandomEngine("");
+  CLHEP::HepRandomEngine *fakeCondRndmEngine = getRandomEngine("TRT_FakeConditions");
+  CLHEP::HepRandomEngine *elecNoiseRndmEngine = getRandomEngine("TRT_ElectronicsNoise");
+  CLHEP::HepRandomEngine *noiseRndmEngine = getRandomEngine("TRT_Noise");
+  CLHEP::HepRandomEngine *strawRndmEngine = getRandomEngine("TRT_ProcessStraw");
+  CLHEP::HepRandomEngine *elecProcRndmEngine = getRandomEngine("TRT_ThresholdFluctuations");
+
   if (m_first_event) {
-    if(this->lateInitialize().isFailure()) {
+    if(this->lateInitialize(noiseRndmEngine,elecNoiseRndmEngine,elecProcRndmEngine,fakeCondRndmEngine).isFailure()) {
       ATH_MSG_FATAL ( "lateInitialize method failed!" );
       return StatusCode::FAILURE;
     }
@@ -667,10 +690,7 @@ StatusCode TRTDigitizationTool::mergeEvent() {
 
   // Process the Hits straw by straw:
   //   get the iterator pairs for given straw
-  if(this->processStraws(sim_hitids, simhitsIdentifiers).isFailure()) {
-    ATH_MSG_FATAL ( "processStraws method failed!" );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(this->processStraws(sim_hitids, simhitsIdentifiers, rndmEngine, strawRndmEngine, elecProcRndmEngine, elecNoiseRndmEngine));
 
   delete m_thpctrt;
   std::list<TRTUncompressedHitCollection*>::iterator trtHitColl(m_trtHitCollList.begin());
@@ -687,9 +707,9 @@ StatusCode TRTDigitizationTool::mergeEvent() {
   if (m_settings->noiseInUnhitStraws()) {
     const unsigned int numberOfDigitsBeforeNoise(m_vDigits.size());
 
-    m_pNoise->appendPureNoiseToProperDigits(m_vDigits, sim_hitids);
+    m_pNoise->appendPureNoiseToProperDigits(m_vDigits, sim_hitids, noiseRndmEngine);
     if (m_settings->doCrosstalk()) {
-      m_pNoise->appendCrossTalkNoiseToProperDigits(m_vDigits, simhitsIdentifiers,m_TRTStrawNeighbourSvc);
+      m_pNoise->appendCrossTalkNoiseToProperDigits(m_vDigits, simhitsIdentifiers,m_TRTStrawNeighbourSvc, noiseRndmEngine);
     }
 
     ATH_MSG_DEBUG ( " Number of digits " << m_vDigits.size() << " (" << m_vDigits.size()-numberOfDigitsBeforeNoise << " of those are pure noise)" );
@@ -978,9 +998,9 @@ unsigned int TRTDigitizationTool::getRegion(int hitID) {
 
 }
 
-double TRTDigitizationTool::getCosmicEventPhase() {
+double TRTDigitizationTool::getCosmicEventPhase(CLHEP::HepRandomEngine *rndmEngine) {
   // 13th February 2015: replace ComTime with a hack (fixme) based on an
   // event phase distribution from Alex (alejandro.alonso@cern.ch) that
   // is modelled as a Guassian of mean 5.48 ns and sigma 8.91 ns.
-  return CLHEP::RandGaussZiggurat::shoot(m_pHRengine, 5.48, 8.91);
+  return CLHEP::RandGaussZiggurat::shoot(rndmEngine, 5.48, 8.91);
 }
