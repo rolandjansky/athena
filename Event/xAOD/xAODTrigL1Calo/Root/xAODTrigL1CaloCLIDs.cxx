@@ -44,5 +44,7 @@
 #include "xAODTrigL1Calo/L1TopoRawDataContainer.h"
 #include "xAODTrigL1Calo/RODHeaderAuxContainer.h"
 #include "xAODTrigL1Calo/RODHeaderContainer.h"
+#include "xAODTrigL1Calo/JGTowerAuxContainer.h"
+#include "xAODTrigL1Calo/JGTowerContainer.h"
 #include "xAODTrigL1Calo/TriggerTowerAuxContainer.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
