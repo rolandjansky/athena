@@ -3,8 +3,6 @@
 */
 
 #include <algorithm>
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 #include "TestPileUpTool.h"
 
