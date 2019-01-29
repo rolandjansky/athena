@@ -62,7 +62,7 @@ class EFMissingETFromHelper : public EFMissingETBaseTool
     void setMET(xAOD::TrigMissingET *met, TrigEFMissingEtHelper *metHelper, 
                 unsigned char comp_i);
     void setMETComp(xAOD::TrigMissingET *met, TrigEFMissingEtHelper *metHelper, 
-                    unsigned char comp_i, char add_i=-1);
+                    unsigned char comp_i, signed char add_i=-1);
 
 };
 

@@ -98,7 +98,7 @@ void EFMissingETFromHelper::setMET(xAOD::TrigMissingET *const met, TrigEFMissing
 
 
 void EFMissingETFromHelper::setMETComp(xAOD::TrigMissingET *const met, TrigEFMissingEtHelper *metHelper, 
-                                        const unsigned char comp_i, const char add_i)
+                                        const unsigned char comp_i, const signed char add_i)
 {
   TrigEFMissingEtComponent* metComp = metHelper->GetComponent(comp_i);
 
