@@ -74,8 +74,6 @@ log_setup(FTAG5StringSkimmingTool)
 # Thinning tools
 #=====================================================================
 
-thinningTools = []
-
 FTAG5ThinningHelper = ThinningHelper( "FTAG5ThinningHelper" )
 FTAG5ThinningHelper.TriggerChains = ''
 FTAG5ThinningHelper.AppendToStream( FTAG5Stream )
@@ -84,35 +82,17 @@ FTAG5ThinningHelper.AppendToStream( FTAG5Stream )
 from DerivationFrameworkFlavourTag.DerivationFrameworkFlavourTagConf import (
     DerivationFramework__HbbTrackThinner as HbbThinner )
 FTAG5HbbThinningTool = HbbThinner(
-    name              = "FTAG5HbbThinningTool",
-    thinningService   = FTAG5ThinningHelper.ThinningSvc(),
-    largeJetPtCut     = 200e3,
-    largeJetEtaCut    = 2.1,
-    smallJetPtCut     = 7e3,
-    nLeadingSubjets   = 3,
-    addSubjetGhosts   = True,
-    addConstituents   = True,
+    name = "FTAG5HbbThinningTool",
+    thinningService = FTAG5ThinningHelper.ThinningSvc(),
+    largeJetPtCut = 200e3,
+    largeJetEtaCut = 2.1,
+    smallJetPtCut = 7e3,
+    nLeadingSubjets = 3,
+    addSubjetGhosts = True,
+    addConstituents = True,
     addConeAssociated = True)
 ToolSvc += FTAG5HbbThinningTool
-thinningTools.append(FTAG5HbbThinningTool)
 log_setup(FTAG5HbbThinningTool)
-
-
-# Tracks and CaloClusters associated with TCCs
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TCCTrackParticleThinning
-FTAG5TCCTPThinningTool = DerivationFramework__TCCTrackParticleThinning(
-    name                         = "FTAG5TCCTPThinningTool",
-    ThinningService              = FTAG5ThinningHelper.ThinningSvc(),
-    JetKey                       = "AntiKt10TrackCaloClusterJets",
-    TCCKey                       = "TrackCaloClustersCombinedAndNeutral",
-    InDetTrackParticlesKey       = "InDetTrackParticles",
-    CaloCalTopoClustersKey       = "CaloCalTopoClusters",
-    ThinOriginCorrectedClusters  = True,
-    OriginCaloCalTopoClustersKey = "LCOriginTopoClusters")
-ToolSvc += FTAG5TCCTPThinningTool
-thinningTools.append(FTAG5TCCTPThinningTool)
-log_setup(FTAG5TCCTPThinningTool)
-
 
 #====================================================================
 # TRUTH SETUP
@@ -139,21 +119,6 @@ log_setup(FTAG5IPETool)
 FTAG5Seq = CfgMgr.AthSequencer("FTAG5Sequence");
 DerivationFrameworkJob += FTAG5Seq
 
-
-
-#=======================================
-# JETS
-#=======================================
-# Create TCC objects
-from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
-# Set up geometry and BField
-import AthenaCommon.AtlasUnixStandardJob
-include("RecExCond/AllDet_detDescr.py")
-runTCCReconstruction(FTAG5Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
-
-
-
-
 #====================================================================
 # Basic Jet Collections
 #====================================================================
@@ -174,16 +139,7 @@ OutputJets["FTAG5"] = FTAG5BTaggedJets[:]
 reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets", # <- Crashes without this,
                   "AntiKt10LCTopoJets", # <- while building this collection
-                  "AntiKt10TrackCaloClusterJets",
                   "AntiKt4TruthJets"]
-
-
-#AntiKt10*PtFrac5SmallR20Jets must be scheduled *AFTER* the other collections are replaced
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets, addTCCTrimmedJets
-addDefaultTrimmedJets(FTAG5Seq,"FTAG5")
-addTCCTrimmedJets(FTAG5Seq,"FTAG5")
-
-
 
 extendedFlag = 0 # --- = 0 for Standard Taggers & =1 for ExpertTaggers
 replaceAODReducedJets(reducedJetList,FTAG5Seq,"FTAG5", extendedFlag)
@@ -222,12 +178,11 @@ addExKtCoM(FTAG5Seq, ToolSvc, ExKtJetCollection__FatJet, 3, doTrackSubJet=False)
 
 addExKtCoM(FTAG5Seq, ToolSvc, ExKtJetCollection__FatJet, 2, doTrackSubJet=False, subjetAlgName = "CoM")
 
-BTaggingFlags.CalibrationChannelAliases += [
-    "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
-    "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
-    "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2GASub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
-    "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3GASub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
-    "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo"]
+BTaggingFlags.CalibrationChannelAliases += ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
+                                            "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
+                                            "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2GASub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
+                                            "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3GASub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
+                                            "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo"]
 
 #==================================================================
 # Augment tracks and jets with additional information
@@ -260,7 +215,7 @@ addRecommendedXbbTaggers(FTAG5Seq, ToolSvc, ftag5_log)
 FTAG5Seq += CfgMgr.DerivationFramework__DerivationKernel(
     "FTAG5Kernel",
     SkimmingTools = [FTAG5StringSkimmingTool],
-    ThinningTools = thinningTools,
+    ThinningTools = [FTAG5HbbThinningTool],
     AugmentationTools = []
 )
 
@@ -274,7 +229,6 @@ FTAG5SlimmingHelper = SlimmingHelper("FTAG5SlimmingHelper")
 fatJetCollections = [
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
     "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets",
-    "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
 ]
 FTAG5SlimmingHelper.SmartCollections = [
     "Muons",

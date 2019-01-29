@@ -5,7 +5,7 @@
 # art-input: user.khoo.mc16_13TeV.410389.MadGraphPythia8EvtGen_A14NNPDF23_ttgamma_nonallhadronic.recon.AOD.e6155_s3126_r10201.DAOD_PHYSVAL_ART
 # art-include: 21.2/AthDerivation
 # art-input-nfiles: 10
-# art-cores: 4
+# art-cores: 5
 # art-output: art_core_*
 # art-output: PHYSVAL_WEB
 # art-output: DAOD_PHYSVAL.part1.*

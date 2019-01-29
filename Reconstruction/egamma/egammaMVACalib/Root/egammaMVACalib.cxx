@@ -208,12 +208,6 @@ egammaMVACalib::~egammaMVACalib()
   ATH_MSG_DEBUG("deleting m_hPoly at " << m_hPoly);
   delete m_hPoly;
 
-  // Delete shift formulae
-  ATH_MSG_DEBUG("deleting m_shiftMap");
-  ShiftMap::iterator itS;
-  for (itS = m_shiftMap.begin(); itS != m_shiftMap.end(); ++itS)
-    delete itS->second;
-
   ATH_MSG_DEBUG("deleting clusterFormula");
   delete m_clusterFormula;
 
@@ -1378,7 +1372,8 @@ void egammaMVACalib::defineShiftFormula(ReaderID key)
     //  ATH_MSG_DEBUG("Defining shift for bin " << key.bin << ": " << expr);
     TString name = Form("shift_%d_%d_%s", key.particleType, key.bin, shift_name.Data());
     //  TTreeFormula* formula = defineFormula(name, expr, m_tree);
-    m_shiftMap[std::make_pair(key, shift)] = new TF1(name, expr);
+    std::unique_ptr<TF1> formula(new TF1(name, expr));
+    m_shiftMap[std::make_pair(key, shift)] = std::move(formula);
   }
 }
 

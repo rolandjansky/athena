@@ -488,30 +488,85 @@ namespace top {
                     systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_TTVA_SYST_DOWN,  "weight_indiv_SF_MU_TTVA_SYST_DOWN");
 
                     if (m_config->useTaus()) {
-                      systematicTree->makeOutputVariable(m_weight_tauSF_ELEOLR_UP,
-                                                         "weight_tauSF_ELEOLR_UP");
-                      systematicTree->makeOutputVariable(m_weight_tauSF_ELEOLR_DOWN,
-                                                         "weight_tauSF_ELEOLR_DOWN");
-                      systematicTree->makeOutputVariable(m_weight_tauSF_TRUEELECTRON_ELEOLR_UP,
-                                                         "weight_tauSF_TRUEELECTRON_ELEOLR_UP");
-                      systematicTree->makeOutputVariable(m_weight_tauSF_TRUEELECTRON_ELEOLR_DOWN,
-                                                         "weight_tauSF_TRUEELECTRON_ELEOLR_DOWN");
-                      systematicTree->makeOutputVariable(m_weight_tauSF_JETID_UP,
-                                                         "weight_tauSF_JETID_UP");
-                      systematicTree->makeOutputVariable(m_weight_tauSF_JETID_DOWN,
-                                                         "weight_tauSF_JETID_DOWN");
-                      systematicTree->makeOutputVariable(m_weight_tauSF_JETID_HIGHPT_UP,
-                                                         "weight_tauSF_JETID_HIGHPT_UP");
+                      // Tau-electron overlap removal
+                      systematicTree->makeOutputVariable(m_weight_tauSF_ELEOLR_TOTAL_DOWN,
+                                                         "weight_tauSF_ELEOLR_TOTAL_DOWN");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_ELEOLR_TOTAL_UP,
+                                                         "weight_tauSF_ELEOLR_TOTAL_UP");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_TRUEELECTRON_ELEOLR_HIGHMU_DOWN,
+                                                         "weight_tauSF_TRUEELECTRON_ELEOLR_HIGHMU_DOWN");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_TRUEELECTRON_ELEOLR_HIGHMU_UP,
+                                                         "weight_tauSF_TRUEELECTRON_ELEOLR_HIGHMU_UP");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_TRUEELECTRON_ELEOLR_LOWMU_DOWN,
+                                                         "weight_tauSF_TRUEELECTRON_ELEOLR_LOWMU_DOWN");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_TRUEELECTRON_ELEOLR_LOWMU_UP,
+                                                         "weight_tauSF_TRUEELECTRON_ELEOLR_LOWMU_UP");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_TRUEELECTRON_ELEOLR_SYST_DOWN,
+                                                         "weight_tauSF_TRUEELECTRON_ELEOLR_SYST_DOWN");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_TRUEELECTRON_ELEOLR_SYST_UP,
+                                                         "weight_tauSF_TRUEELECTRON_ELEOLR_SYST_UP");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_TRUEELECTRON_ELEBDT_MC16A_DOWN,
+                                                         "weight_tauSF_TRUEELECTRON_ELEBDT_MC16A_DOWN");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_TRUEELECTRON_ELEBDT_MC16A_UP,
+                                                         "weight_tauSF_TRUEELECTRON_ELEBDT_MC16A_UP");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_TRUEELECTRON_ELEBDT_MC16D_DOWN,
+                                                         "weight_tauSF_TRUEELECTRON_ELEBDT_MC16D_DOWN");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_TRUEELECTRON_ELEBDT_MC16D_UP,
+                                                         "weight_tauSF_TRUEELECTRON_ELEBDT_MC16D_UP");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_TRUEELECTRON_ELEBDT_SYST_DOWN,
+                                                         "weight_tauSF_TRUEELECTRON_ELEBDT_SYST_DOWN");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_TRUEELECTRON_ELEBDT_SYST_UP,
+                                                         "weight_tauSF_TRUEELECTRON_ELEBDT_SYST_UP");
+                      // Tau Jet IDWP
+                      systematicTree->makeOutputVariable(m_weight_tauSF_JETID_1P2025_DOWN,
+                                                         "weight_tauSF_JETID_1P2025_DOWN");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_JETID_1P2025_UP,
+                                                         "weight_tauSF_JETID_1P2025_UP");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_JETID_1P2530_DOWN,
+                                                         "weight_tauSF_JETID_1P2530_DOWN");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_JETID_1P2530_UP,
+                                                         "weight_tauSF_JETID_1P2530_UP");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_JETID_1P3040_DOWN,
+                                                         "weight_tauSF_JETID_1P3040_DOWN");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_JETID_1P3040_UP,
+                                                         "weight_tauSF_JETID_1P3040_UP");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_JETID_1PGE40_DOWN,
+                                                         "weight_tauSF_JETID_1PGE40_DOWN");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_JETID_1PGE40_UP,
+                                                         "weight_tauSF_JETID_1PGE40_UP");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_JETID_3P2030_DOWN,
+                                                         "weight_tauSF_JETID_3P2030_DOWN");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_JETID_3P2030_UP,
+                                                         "weight_tauSF_JETID_3P2030_UP");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_JETID_3PGE30_DOWN,
+                                                         "weight_tauSF_JETID_3PGE30_DOWN");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_JETID_3PGE30_UP,
+                                                         "weight_tauSF_JETID_3PGE30_UP");
                       systematicTree->makeOutputVariable(m_weight_tauSF_JETID_HIGHPT_DOWN,
                                                          "weight_tauSF_JETID_HIGHPT_DOWN");
-                      systematicTree->makeOutputVariable(m_weight_tauSF_RECO_UP,
-                                                         "weight_tauSF_RECO_UP");
-                      systematicTree->makeOutputVariable(m_weight_tauSF_RECO_DOWN,
-                                                         "weight_tauSF_RECO_DOWN");
-                      systematicTree->makeOutputVariable(m_weight_tauSF_RECO_HIGHPT_UP,
-                                                         "weight_tauSF_RECO_HIGHPT_UP");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_JETID_HIGHPT_UP,
+                                                         "weight_tauSF_JETID_HIGHPT_UP");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_JETID_SYST_DOWN,
+                                                         "weight_tauSF_JETID_SYST_DOWN");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_JETID_SYST_UP,
+                                                         "weight_tauSF_JETID_SYST_UP");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_JETID_AF2_DOWN,
+                                                         "weight_tauSF_JETID_AF2_DOWN");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_JETID_AF2_UP,
+                                                         "weight_tauSF_JETID_AF2_UP");
+                      // Tau reconstruction
+                      systematicTree->makeOutputVariable(m_weight_tauSF_RECO_TOTAL_DOWN,
+                                                         "weight_tauSF_RECO_TOTAL_DOWN");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_RECO_TOTAL_UP,
+                                                         "weight_tauSF_RECO_TOTAL_UP");
                       systematicTree->makeOutputVariable(m_weight_tauSF_RECO_HIGHPT_DOWN,
                                                          "weight_tauSF_RECO_HIGHPT_DOWN");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_RECO_HIGHPT_UP,
+                                                         "weight_tauSF_RECO_HIGHPT_UP");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_RECO_AF2_DOWN,
+                                                         "weight_tauSF_RECO_AF2_DOWN");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_RECO_AF2_UP,
+                                                         "weight_tauSF_RECO_AF2_UP");
                     }
 
                     if (m_config->usePhotons()) {
@@ -1668,20 +1723,47 @@ namespace top {
 
                 if (m_config->useTaus()) {
                   // Tau-electron overlap removal
-                  m_weight_tauSF_ELEOLR_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_ELEOLR_TOTAL_UP);
-                  m_weight_tauSF_ELEOLR_DOWN = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_ELEOLR_TOTAL_DOWN);
-                  m_weight_tauSF_TRUEELECTRON_ELEOLR_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_TRUEELECTRON_ELEOLR_TOTAL_UP);
-                  m_weight_tauSF_TRUEELECTRON_ELEOLR_DOWN = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_TRUEELECTRON_ELEOLR_TOTAL_DOWN);
+                  m_weight_tauSF_ELEOLR_TOTAL_DOWN = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_ELEOLR_TOTAL_DOWN);
+                  m_weight_tauSF_ELEOLR_TOTAL_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_ELEOLR_TOTAL_UP);
+                  m_weight_tauSF_TRUEELECTRON_ELEOLR_HIGHMU_DOWN = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_TRUEELECTRON_ELEOLR_HIGHMU_DOWN);
+                  m_weight_tauSF_TRUEELECTRON_ELEOLR_HIGHMU_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_TRUEELECTRON_ELEOLR_HIGHMU_UP);
+                  m_weight_tauSF_TRUEELECTRON_ELEOLR_LOWMU_DOWN = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_TRUEELECTRON_ELEOLR_LOWMU_DOWN);
+                  m_weight_tauSF_TRUEELECTRON_ELEOLR_LOWMU_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_TRUEELECTRON_ELEOLR_LOWMU_UP);
+                  m_weight_tauSF_TRUEELECTRON_ELEOLR_SYST_DOWN = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_TRUEELECTRON_ELEOLR_SYST_DOWN);
+                  m_weight_tauSF_TRUEELECTRON_ELEOLR_SYST_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_TRUEELECTRON_ELEOLR_SYST_UP);
+                  m_weight_tauSF_TRUEELECTRON_ELEBDT_MC16A_DOWN = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_TRUEELECTRON_ELEBDT_MC16A_DOWN);
+                  m_weight_tauSF_TRUEELECTRON_ELEBDT_MC16A_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_TRUEELECTRON_ELEBDT_MC16A_UP);
+                  m_weight_tauSF_TRUEELECTRON_ELEBDT_MC16D_DOWN = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_TRUEELECTRON_ELEBDT_MC16D_DOWN);
+                  m_weight_tauSF_TRUEELECTRON_ELEBDT_MC16D_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_TRUEELECTRON_ELEBDT_MC16D_UP);
+                  m_weight_tauSF_TRUEELECTRON_ELEBDT_SYST_DOWN = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_TRUEELECTRON_ELEBDT_SYST_DOWN);
+                  m_weight_tauSF_TRUEELECTRON_ELEBDT_SYST_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_TRUEELECTRON_ELEBDT_SYST_UP);
                   // Tau Jet IDWP
-                  m_weight_tauSF_JETID_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_JETID_TOTAL_UP);
-                  m_weight_tauSF_JETID_DOWN = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_JETID_TOTAL_DOWN);
-                  m_weight_tauSF_JETID_HIGHPT_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_JETID_HIGHPT_UP);
+                  m_weight_tauSF_JETID_1P2025_DOWN = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_JETID_1P2025_DOWN);
+                  m_weight_tauSF_JETID_1P2025_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_JETID_1P2025_UP);
+                  m_weight_tauSF_JETID_1P2530_DOWN = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_JETID_1P2530_DOWN);
+                  m_weight_tauSF_JETID_1P2530_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_JETID_1P2530_UP);
+                  m_weight_tauSF_JETID_1P3040_DOWN = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_JETID_1P3040_DOWN);
+                  m_weight_tauSF_JETID_1P3040_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_JETID_1P3040_UP);
+                  m_weight_tauSF_JETID_1PGE40_DOWN = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_JETID_1PGE40_DOWN);
+                  m_weight_tauSF_JETID_1PGE40_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_JETID_1PGE40_UP);
+                  m_weight_tauSF_JETID_3P2030_DOWN = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_JETID_3P2030_DOWN);
+                  m_weight_tauSF_JETID_3P2030_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_JETID_3P2030_UP);
+                  m_weight_tauSF_JETID_3PGE30_DOWN = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_JETID_3PGE30_DOWN);
+                  m_weight_tauSF_JETID_3PGE30_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_JETID_3PGE30_UP);
                   m_weight_tauSF_JETID_HIGHPT_DOWN = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_JETID_HIGHPT_DOWN);
+                  m_weight_tauSF_JETID_HIGHPT_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_JETID_HIGHPT_UP);
+                  m_weight_tauSF_JETID_SYST_DOWN = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_JETID_SYST_DOWN);
+                  m_weight_tauSF_JETID_SYST_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_JETID_SYST_UP);
+                  m_weight_tauSF_JETID_AF2_DOWN = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_JETID_AF2_DOWN);
+                  m_weight_tauSF_JETID_AF2_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_JETID_AF2_UP);
                   // Tau reconstruction
-                  m_weight_tauSF_RECO_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_RECO_TOTAL_UP);
-                  m_weight_tauSF_RECO_DOWN = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_RECO_TOTAL_DOWN);
-                  m_weight_tauSF_RECO_HIGHPT_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_RECO_HIGHPT_UP);
+                  m_weight_tauSF_RECO_TOTAL_DOWN = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_RECO_TOTAL_DOWN);
+                  m_weight_tauSF_RECO_TOTAL_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_RECO_TOTAL_UP);
                   m_weight_tauSF_RECO_HIGHPT_DOWN = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_RECO_HIGHPT_DOWN);
+                  m_weight_tauSF_RECO_HIGHPT_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_RECO_HIGHPT_UP);
+                  m_weight_tauSF_RECO_AF2_DOWN = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_RECO_AF2_DOWN);
+                  m_weight_tauSF_RECO_AF2_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_RECO_AF2_UP);
+
                 }
 
                 if (m_config->usePhotons()) {

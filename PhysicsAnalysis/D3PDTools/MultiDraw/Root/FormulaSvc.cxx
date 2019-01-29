@@ -23,7 +23,7 @@
 #include <TTreeFormulaManager.h>
 #include <EventLoop/Job.h>
 #include <EventLoop/StatusCode.h>
-#include <EventLoop/Worker.h>
+#include <EventLoop/IWorker.h>
 #include <MultiDraw/Formula.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/ThrowMsg.h>
@@ -59,7 +59,7 @@ namespace MD
 
 
 
-  FormulaSvc *formulas (EL::Worker *worker)
+  FormulaSvc *formulas (EL::IWorker *worker)
   {
     RCU_REQUIRE_SOFT (worker != 0);
 

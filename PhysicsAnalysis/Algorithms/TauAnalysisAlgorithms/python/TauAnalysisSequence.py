@@ -33,16 +33,16 @@ def makeTauAnalysisSequence( dataType, workingPoint,
 
     sfWorkingPoint = splitWP[0]
     if splitWP[0] == 'Tight' :
-        inputfile = 'SUSYTools/tau_selection_tight.conf'
+        inputfile = 'TauAnalysisAlgorithms/tau_selection_tight.conf'
         pass
     elif splitWP[0] == 'Medium' :
-        inputfile = 'SUSYTools/tau_selection_medium.conf'
+        inputfile = 'TauAnalysisAlgorithms/tau_selection_medium.conf'
         pass
     elif splitWP[0] == 'Loose' :
-        inputfile = 'SUSYTools/tau_selection_loose.conf'
+        inputfile = 'TauAnalysisAlgorithms/tau_selection_loose.conf'
         pass
     elif splitWP[0] == 'VeryLoose' :
-        inputfile = 'SUSYTools/tau_selection_veryloose.conf'
+        inputfile = 'TauAnalysisAlgorithms/tau_selection_veryloose.conf'
         pass
     else :
         raise ValueError ("invalid tau quality: \"" + splitWP[0] +

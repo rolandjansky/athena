@@ -96,7 +96,7 @@
 #include <string>                       // for string
 #include <vector>                       // for vector
 #include "SafeTH1.h"
-
+#include "memory"
 class TFile;
 class TH1F;
 namespace Root { class TAccept; }
@@ -345,7 +345,7 @@ namespace Root {
     static const unsigned int  s_fnVariables      = 13;
     //Allowed variables 
     static const std::string   s_fVariables [s_fnVariables];
-    EGSelectors::SafeTH1* m_fPDFbins  [2][s_IP_BINS][s_fnEtBinsHist][s_fnEtaBins][s_fnVariables]; // [sig(0)/bkg(1)][ip][et][eta][variable]
+    std::unique_ptr<EGSelectors::SafeTH1> m_fPDFbins  [2][s_IP_BINS][s_fnEtBinsHist][s_fnEtaBins][s_fnVariables]; // [sig(0)/bkg(1)][ip][et][eta][variable]
   };
 } // End: namespace Root
 
