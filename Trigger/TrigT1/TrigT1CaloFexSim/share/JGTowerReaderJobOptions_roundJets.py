@@ -3,7 +3,7 @@
 theApp.EvtMax=1                                      #says how many events to run over. Set to -1 for all events
 
 debug = False
-debug = True
+# debug = True
 
 #Input file
 from PyUtils import AthFile
@@ -107,7 +107,8 @@ algseq += CfgMgr.JGTowerReader(                  # adds an instance of your alg 
     jJetRound_jet_min_ET_MeV = 500,
 
     makeJetsFromMap = True,
-    towerMap = 'jetTowerMaps/jFexJet_towerMap_2019-01-29.txt',
+    towerMap = '/afs/cern.ch/work/c/ckaldero/L1Calo/L1CaloSim/source/athena/Trigger/TrigT1/TrigT1CaloFexSim/share/jetTowerMaps/jFexJet_towerMap_2019-01-29.txt',
+    # towerMap = 'jetTowerMaps/jFexJet_towerMap_2019-01-29.txt',
     map_seed_tower_noise_multiplier = 0.0, #1.0,
     map_seed_total_noise_multiplier = 0.0, #1.0,
     map_seed_min_ET_MeV = 500,

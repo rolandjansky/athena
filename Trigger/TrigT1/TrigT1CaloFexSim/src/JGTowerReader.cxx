@@ -32,7 +32,7 @@
 #include "xAODTrigger/EnergySumRoI.h"
 #include "xAODTrigger/EnergySumRoIAuxInfo.h"
 #include "TFile.h"
-
+//#include "PathResolver/PathResolver.h"
 
 
 JGTowerReader::JGTowerReader( const std::string& name, ISvcLocator* pSvcLocator ) : 
@@ -304,66 +304,67 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
 
 
 StatusCode JGTowerReader::ProcessObjects(){
-
+  
   // Ouptut Jets
   for ( auto it = JetAlg::m_JetMap.begin(); it != JetAlg::m_JetMap.end(); it++ ){
-      xAOD::JetRoIAuxContainer* JetContAux = new xAOD::JetRoIAuxContainer();
-      xAOD::JetRoIContainer* JetCont = new xAOD::JetRoIContainer();
-      JetCont->setStore(JetContAux);
-      for(unsigned j=0;j<it->second.size();j++){
-         std::shared_ptr<JetAlg::L1Jet> jet = it->second.at(j);
-         float et = jet.get()->et;
-         float eta = jet.get()->eta;
-         float phi = jet.get()->phi;
-         CHECK(HistBookFill(Form("%s_et",it->first.Data()),50,0,500,et/1000.,1.));
-         CHECK(HistBookFill(Form("%s_eta",it->first.Data()),49,-4.9,4.9,eta,1.));
-         CHECK(HistBookFill(Form("%s_phi",it->first.Data()),31,-3.1416,3.1416,phi,1.));
-         xAOD::JetRoI* Jet = new xAOD::JetRoI;
-         JetCont->push_back(Jet);
-         Jet->initialize(0x0,eta,phi);
-         Jet->setEt8x8(et);    
-      }
-      CHECK(evtStore()->record(JetCont,it->first.Data()));
-      CHECK(evtStore()->record(JetContAux,Form("%sAux.",it->first.Data())));
+    ATH_MSG_DEBUG("Adding collection " << it->first << " with size " << it->second.size());
+    xAOD::JetRoIAuxContainer* JetContAux = new xAOD::JetRoIAuxContainer();
+    xAOD::JetRoIContainer* JetCont = new xAOD::JetRoIContainer();
+    JetCont->setStore(JetContAux);
+    for(unsigned j=0;j<it->second.size();j++){
+      std::shared_ptr<JetAlg::L1Jet> jet = it->second.at(j);
+      float et = jet.get()->et;
+      float eta = jet.get()->eta;
+      float phi = jet.get()->phi;
+      CHECK(HistBookFill(Form("%s_et",it->first.Data()),50,0,500,et/1000.,1.));
+      CHECK(HistBookFill(Form("%s_eta",it->first.Data()),49,-4.9,4.9,eta,1.));
+      CHECK(HistBookFill(Form("%s_phi",it->first.Data()),31,-3.1416,3.1416,phi,1.));
+      xAOD::JetRoI* Jet = new xAOD::JetRoI;
+      JetCont->push_back(Jet);
+      Jet->initialize(0x0,eta,phi);
+      Jet->setEt8x8(et);    
+    }
+    CHECK(evtStore()->record(JetCont,it->first.Data()));
+    CHECK(evtStore()->record(JetContAux,Form("%sAux.",it->first.Data())));
   }
-
+  
   // Output Seeds
   if(m_plotSeeds) {
     for ( auto it = JetAlg::m_SeedMap.begin(); it != JetAlg::m_SeedMap.end(); it++ ){     
-        for(unsigned iseed_eta=0; iseed_eta<it->second->eta.size(); iseed_eta++){
-           for(unsigned iseed_phi=0; iseed_phi<it->second->phi.at(iseed_eta).size(); iseed_phi++){
-              if(it->second->local_max.at(iseed_eta).at(iseed_phi)) {
-                CHECK(HistBookFill(Form("%s_et",it->first.Data()),50,0,500,it->second->et.at(iseed_eta).at(iseed_phi)/1000.,1.));
-                CHECK(HistBookFill(Form("%s_eta",it->first.Data()),49,-4.9,4.9,it->second->eta.at(iseed_eta),1.));
-                CHECK(HistBookFill(Form("%s_phi",it->first.Data()),31,-3.1416,3.1416,it->second->phi.at(iseed_eta).at(iseed_phi),1.));
-              }
-           }
+      for(unsigned iseed_eta=0; iseed_eta<it->second->eta.size(); iseed_eta++){
+        for(unsigned iseed_phi=0; iseed_phi<it->second->phi.at(iseed_eta).size(); iseed_phi++){
+          if(it->second->local_max.at(iseed_eta).at(iseed_phi)) {
+            CHECK(HistBookFill(Form("%s_et",it->first.Data()),50,0,500,it->second->et.at(iseed_eta).at(iseed_phi)/1000.,1.));
+            CHECK(HistBookFill(Form("%s_eta",it->first.Data()),49,-4.9,4.9,it->second->eta.at(iseed_eta),1.));
+            CHECK(HistBookFill(Form("%s_phi",it->first.Data()),31,-3.1416,3.1416,it->second->phi.at(iseed_eta).at(iseed_phi),1.));
+          }
         }
+      }
     }
   }
-
-  // Output Jets
+  
+  // Output MET
   for ( auto it = METAlg::m_METMap.begin(); it != METAlg::m_METMap.end(); it++ ){
-      xAOD::EnergySumRoIAuxInfo* METContAux = new xAOD::EnergySumRoIAuxInfo();
-      xAOD::EnergySumRoI* METCont = new xAOD::EnergySumRoI();
-      METCont->setStore(METContAux);
-      
-      std::shared_ptr<METAlg::MET> met = it->second;
-      CHECK(HistBookFill(Form("MET_%s_et",it->first.Data()), 50, 0, 500, met->et*1e-3, 1.));
-      CHECK(HistBookFill(Form("MET_%s_phi",it->first.Data()), 31, -3.1416, 3.1416, met->phi, 1.));
-      METCont->setEnergyX(met->et*cos(met->phi));
-      METCont->setEnergyY(met->et*sin(met->phi));
-      METCont->setEnergyT(met->et);
-      CHECK(evtStore()->record(METCont,Form("%s_MET",it->first.Data())));
-      CHECK(evtStore()->record(METContAux,Form("%s_METAux",it->first.Data())));
+    xAOD::EnergySumRoIAuxInfo* METContAux = new xAOD::EnergySumRoIAuxInfo();
+    xAOD::EnergySumRoI* METCont = new xAOD::EnergySumRoI();
+    METCont->setStore(METContAux);
+    
+    std::shared_ptr<METAlg::MET> met = it->second;
+    CHECK(HistBookFill(Form("MET_%s_et",it->first.Data()), 50, 0, 500, met->et*1e-3, 1.));
+    CHECK(HistBookFill(Form("MET_%s_phi",it->first.Data()), 31, -3.1416, 3.1416, met->phi, 1.));
+    METCont->setEnergyX(met->et*cos(met->phi));
+    METCont->setEnergyY(met->et*sin(met->phi));
+    METCont->setEnergyT(met->et);
+    CHECK(evtStore()->record(METCont,Form("%s_MET",it->first.Data())));
+    CHECK(evtStore()->record(METContAux,Form("%s_METAux",it->first.Data())));
   }
-
+  
 
   METAlg::m_METMap.clear();
   JetAlg::m_JetMap.clear();
   for ( auto it = JetAlg::m_SeedMap.begin(); it != JetAlg::m_SeedMap.end(); it++ ){
-      it->second->local_max.clear();
-      it->second->et.clear();
+    it->second->local_max.clear();
+    it->second->et.clear();
   }
 
   return StatusCode::SUCCESS;
@@ -378,14 +379,12 @@ StatusCode JGTowerReader::HistBookFill(const TString name, Int_t nbinsx, const D
     hName[name]=h;
     hName[name]->Fill(xvalue,wei);
     hists.push_back(name);
-
   }
   else hName[name]->Fill(xvalue,wei);
   return StatusCode::SUCCESS;
 }
 
 StatusCode JGTowerReader::HistBookFill(const TString name, Int_t nbinsx, Double_t xbin_down, Double_t xbin_up, float xvalue,float wei){
-
 
   if(std::find(hists.begin(),hists.end(),name)==hists.end()) {
     TH1F*h=new TH1F( name, name, nbinsx, xbin_down,xbin_up);
@@ -395,7 +394,6 @@ StatusCode JGTowerReader::HistBookFill(const TString name, Int_t nbinsx, Double_
     hName[name]->Fill(xvalue,wei);
     hists.push_back(name);
   }
-
   else  hName[name]->Fill(xvalue,wei);
   return StatusCode::SUCCESS;
 }
@@ -422,7 +420,27 @@ std::vector<std::string> splitString(std::string parentString, std::string sep, 
 
 StatusCode JGTowerReader::ReadTowerMap() {
   ATH_MSG_INFO("Reading tower map from " << m_towerMap);
-  std::ifstream infileStream(m_towerMap);
+
+  // path resolver is being difficult
+  // std::string towerMapPath = PathResolver::find_file(m_towerMap);
+  // error: no matching function for call to 'PathResolver::find_file(std::__cxx11::string&)'
+  // std::string towerMapPath = PathResolver::find_file(m_towerMap);
+  // ^
+  // In file included from /afs/cern.ch/work/c/ckaldero/L1Calo/L1CaloSim/source/athena/Trigger/TrigT1/TrigT1CaloFexSim/src/JGTowerReader.cxx:35:0:
+  // /cvmfs/atlas-nightlies.cern.ch/repo/sw/21.3/2019-01-28T2150/Athena/21.3.10/InstallArea/x86_64-slc6-gcc62-opt/src/Tools/PathResolver/PathResolver/PathResolver.h:47:22: note: candidate: static std::__cxx11::string PathResolver::find_file(const string&, const string&, PathResolver::SearchType)
+  // so clearly it has found something........
+  
+  // std::string towerMapPath = PathResolverFindDataFile(m_towerMap);
+  // undefined reference to `PathResolverFindDataFile(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)'
+
+  // if(towerMapPath == "") {
+    // ATH_MSG_DEBUG("Could not resolve " << m_towerMap);
+    // return StatusCode::FAILURE;
+  // }
+  // ATH_MSG_INFO("Resolved at " << towerMapPath);
+  std::string towerMapPath = m_towerMap;
+
+  std::ifstream infileStream(towerMapPath);
   std::string line;
 
   bool inTowerBlock = false;
@@ -459,7 +477,7 @@ StatusCode JGTowerReader::ReadTowerMap() {
           
         // check size of vector vs this entry
         int towerNum = std::stoi(splitLine[0]);
-        if(towerMap_towerEta.size() != towerNum) {
+        if(int(towerMap_towerEta.size()) != towerNum) {
           ATH_MSG_ERROR("tower map being parsed incorrectly: have " << towerMap_towerEta.size() << " and expect " << towerNum);
           return StatusCode::FAILURE;
         }
@@ -504,7 +522,7 @@ StatusCode JGTowerReader::ReadTowerMap() {
           
         // check size of vector vs this entry
         int seedNum = std::stoi(splitLine[0]);
-        if(towerMap_seedEta.size() != seedNum) {
+        if(int(towerMap_seedEta.size()) != seedNum) {
           ATH_MSG_ERROR("tower map being parsed incorrectly: have " << towerMap_seedEta.size() << " and expect " << seedNum);
           return StatusCode::FAILURE;
         }
@@ -546,7 +564,7 @@ StatusCode JGTowerReader::ReadTowerMap() {
           
         // check size of vector vs this entry
         int jetNum = std::stoi(splitLine[0]);
-        if(towerMap_jetEta.size() != jetNum) {
+        if(int(towerMap_jetEta.size()) != jetNum) {
           ATH_MSG_ERROR("tower map being parsed incorrectly: have " << towerMap_jetEta.size() << " and expect " << jetNum);
           return StatusCode::FAILURE;
         }
@@ -587,7 +605,43 @@ StatusCode JGTowerReader::ReadTowerMap() {
       
     sublinecount += 1;
   }
-  ATH_MSG_INFO("successfully read in tower map from " << m_towerMap);
+
+
+  // print the outcome
+  ATH_MSG_DEBUG("Tower map sizes: eta " << towerMap_towerEta.size() << ", phi " << towerMap_towerPhi.size() << ", layers " << towerMap_towerLayers.size() << ", sampling " << towerMap_towerSampling.size());
+  ATH_MSG_DEBUG("Seed map sizes: eta " << towerMap_seedEta.size() << ", phi " << towerMap_seedPhi.size() << ", towers " << towerMap_seedTowers.size() << ", localMaxSeeds " << towerMap_seedLocalMaxSeeds.size());
+  ATH_MSG_DEBUG("Jet map sizes: eta " << towerMap_jetEta.size() << ", phi " << towerMap_jetPhi.size() << ", towers " << towerMap_jetTowers.size() << ", seed " << towerMap_jetSeed.size());
+
+  // check the outcome
+  if(towerMap_towerEta.size() == 0) {
+    ATH_MSG_ERROR("Read no towers from map!");
+    return StatusCode::FAILURE;
+  }
+  if(towerMap_towerEta.size() != towerMap_towerPhi.size() || towerMap_towerEta.size() != towerMap_towerLayers.size() || towerMap_towerEta.size() != towerMap_towerSampling.size() ) {
+    ATH_MSG_ERROR("Different number of tower eta entries to one of phi, layers or sampling!");
+    return StatusCode::FAILURE;
+  }
+
+  if(towerMap_seedEta.size() == 0) {
+    ATH_MSG_ERROR("Read in no seeds!");
+    return StatusCode::FAILURE;
+  }
+  if(towerMap_seedEta.size() != towerMap_seedPhi.size() || towerMap_seedEta.size() != towerMap_seedTowers.size() || towerMap_seedEta.size() != towerMap_seedLocalMaxSeeds.size() ) {
+    ATH_MSG_ERROR("Different number of seed eta entries to one of phi, towers or localMaxSeeds!");
+    return StatusCode::FAILURE;
+  }
+
+  if(towerMap_jetEta.size() == 0) {
+    ATH_MSG_ERROR("Read in no jets!");
+    return StatusCode::FAILURE;
+  }
+  if(towerMap_jetEta.size() != towerMap_jetPhi.size() || towerMap_jetEta.size() != towerMap_jetTowers.size() || towerMap_jetEta.size() != towerMap_jetSeed.size() ) {
+    ATH_MSG_ERROR("Different number of jet eta entries to one of phi, towers or seed!");
+    return StatusCode::FAILURE;
+  }
+
+
+  ATH_MSG_INFO("successfully read in tower map from " << towerMapPath);
   return StatusCode::SUCCESS;
 }
 
@@ -625,8 +679,11 @@ StatusCode JGTowerReader::CheckTowerMap(const xAOD::JGTowerContainer*jTs) {
 
 StatusCode JGTowerReader::BuildJetsFromMap(const xAOD::JGTowerContainer*jTs) {
 
+  ATH_MSG_DEBUG("BuildJetsFromMap: starting");
+
   // step 1, make all the seeds
   for(int i_seed = 0; i_seed < int(towerMap_seedEta.size()); i_seed++) {
+    // ATH_MSG_DEBUG("BuildJetsFromMap: making seed " << i_seed);
     float seed_ET = 0;
     float seed_totalNoise = 0;
     for(auto tower_index : towerMap_seedTowers.at(i_seed)) {
@@ -639,10 +696,14 @@ StatusCode JGTowerReader::BuildJetsFromMap(const xAOD::JGTowerContainer*jTs) {
         seed_ET += tower->et();
       }
       seed_totalNoise += tower->et();
+      // ATH_MSG_DEBUG("BuildJetsFromMap: adding to seed " << i_seed << " with tower " << tower_index);
     }
     // set seed ET to 0 if it has less ET than N times the total noise over the seed towers
     if(seed_ET < seed_totalNoise * m_map_seed_total_noise_multiplier)
       seed_ET = 0;
+    else
+      // ATH_MSG_DEBUG("adding a non-zero seed " << i_seed << " at (eta,phi)=" << towerMap_seedEta[i_seed] << "," << towerMap_seedPhi[i_seed] << ") with ET " << seed_ET);
+      ;
 
     towerMapSeed_ET.push_back(seed_ET);
   }
@@ -657,14 +718,16 @@ StatusCode JGTowerReader::BuildJetsFromMap(const xAOD::JGTowerContainer*jTs) {
         break;
       }
     }
-    // don't count seed if below minimum ET threshold
-    if (towerMapSeed_ET.at(i_seed) < m_map_seed_min_ET_MeV)
-      isLocalMax = false;
-    towerMapSeed_isLocalMax.push_back(isLocalMax);
+    if(isLocalMax)
+      ATH_MSG_DEBUG("BuildJetFromMap: found a local max seed at (eta,phi)=(" << towerMap_seedEta[i_seed] << "," << towerMap_seedPhi[i_seed] << ")");
 
-    if(isLocalMax) {
-      ATH_MSG_DEBUG( "I have a local max! Seed " << i_seed << ", eta = " << towerMap_seedEta.at(i_seed) << ", phi = " << towerMap_seedPhi.at(i_seed) << ", ET = " << towerMapSeed_ET.at(i_seed) );
+    // don't count seed if below minimum ET threshold
+    if (towerMapSeed_ET.at(i_seed) < m_map_seed_min_ET_MeV) {
+      isLocalMax = false;
+      ATH_MSG_DEBUG("  below ET threshold");
     }
+
+    towerMapSeed_isLocalMax.push_back(isLocalMax);
   }
   
   
@@ -700,10 +763,12 @@ StatusCode JGTowerReader::BuildJetsFromMap(const xAOD::JGTowerContainer*jTs) {
     
   }
   
-  
+  ATH_MSG_DEBUG("BuildJetFromMap: built " << JetAlg::m_JetMap[jetname].size() << " jets:");
+  for(int i=0; i < int(JetAlg::m_JetMap[jetname].size()); i++) {
+    ATH_MSG_DEBUG("  " << i << ": eta = " << (*JetAlg::m_JetMap[jetname][i]).eta << ", phi = " << (*JetAlg::m_JetMap[jetname][i]).phi << ", et = " << (*JetAlg::m_JetMap[jetname][i]).et );
+  }    
 
   return StatusCode::SUCCESS;
-
 }
 
 
