@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ConfigurationConditionsTool.h"
@@ -53,10 +53,9 @@ bool SCT_ConfigurationConditionsTool::canReportAbout(InDetConditions::Hierarchy 
 }
 
 // Is an element with this Identifier and hierachy good?
-bool SCT_ConfigurationConditionsTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+bool SCT_ConfigurationConditionsTool::isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h) const {
   if (not canReportAbout(h)) return true;
 
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_ConfigurationCondData* condData{getCondData(ctx)};
   if (condData==nullptr) {
     ATH_MSG_ERROR("In isGood, SCT_ConfigurationCondData pointer cannot be retrieved");
@@ -79,10 +78,22 @@ bool SCT_ConfigurationConditionsTool::isGood(const Identifier& elementId, InDetC
   return result;
 }
 
+bool SCT_ConfigurationConditionsTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  return isGood(elementId, ctx, h);
+}
+
 // Is a wafer with this IdentifierHash good?
-bool SCT_ConfigurationConditionsTool::isGood(const IdentifierHash& hashId) const {
+bool SCT_ConfigurationConditionsTool::isGood(const IdentifierHash& hashId, const EventContext& ctx) const {
   const Identifier elementId{m_pHelper->wafer_id(hashId)};
-  return isGood(elementId);
+  return isGood(elementId, ctx);
+}
+
+bool SCT_ConfigurationConditionsTool::isGood(const IdentifierHash& hashId) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  return isGood(hashId, ctx);
 }
 
 // Is a chip with this Identifier good?

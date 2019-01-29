@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file SCT_ReadCalibDataTool.cxx Implementation file for SCT_ReadCalibDataTool.
@@ -58,7 +58,7 @@ bool SCT_ReadCalibDataTool::canReportAbout(InDetConditions::Hierarchy h) const {
 
 //----------------------------------------------------------------------
 // Returns a bool summary of the data
-bool SCT_ReadCalibDataTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+bool SCT_ReadCalibDataTool::isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h) const {
   // Status of the compId
   bool status{true};
   // Extract the moduleId from the comp identifier
@@ -94,7 +94,6 @@ bool SCT_ReadCalibDataTool::isGood(const Identifier& elementId, InDetConditions:
       int strip{m_id_sct->strip(elementId)};
       // Retrieve isGood Wafer data
 
-      const EventContext& ctx{Gaudi::Hive::currentContext()};
       const SCT_AllGoodStripInfo* condDataInfo{getCondDataInfo(ctx)};
       if (condDataInfo==nullptr) {
         ATH_MSG_ERROR("In isGood, SCT_AllGoodStripInfo cannot be retrieved");
@@ -115,6 +114,11 @@ bool SCT_ReadCalibDataTool::isGood(const Identifier& elementId, InDetConditions:
   return status;
 } //SCT_ReadCalibDataTool::summary()
 
+bool SCT_ReadCalibDataTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  return isGood(elementId, ctx, h);
+}
 
 //----------------------------------------------------------------------
 // Returns a defect summary of a defect strip, scan, type and value

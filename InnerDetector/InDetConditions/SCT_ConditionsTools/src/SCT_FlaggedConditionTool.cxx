@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_FlaggedConditionTool.h"
@@ -53,15 +53,21 @@ bool SCT_FlaggedConditionTool::canReportAbout(InDetConditions::Hierarchy h) cons
 }
 
 // Is this element good (by Identifier)?
-bool SCT_FlaggedConditionTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+bool SCT_FlaggedConditionTool::isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h) const {
   if (not canReportAbout(h)) return true;
-  const IdentifierHash hashId = m_sctID->wafer_hash(elementId);
-  return isGood(hashId);
+  const IdentifierHash hashId{m_sctID->wafer_hash(elementId)};
+  return isGood(hashId, ctx);
+}
+
+bool SCT_FlaggedConditionTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  return isGood(elementId, ctx, h);
 }
 
 // Is this element good (by IdentifierHash)?
-bool SCT_FlaggedConditionTool::isGood(const IdentifierHash& hashId) const {
-  const SCT_FlaggedCondData* badIds{getCondData()};
+bool SCT_FlaggedConditionTool::isGood(const IdentifierHash& hashId, const EventContext& ctx) const {
+  const SCT_FlaggedCondData* badIds{getCondData(ctx)};
   if (badIds==nullptr) {
     ATH_MSG_ERROR("SCT_FlaggedCondData cannot be retrieved. (isGood)");
     return false;
@@ -70,12 +76,20 @@ bool SCT_FlaggedConditionTool::isGood(const IdentifierHash& hashId) const {
   return (badIds->find(hashId) == badIds->end());
 }
 
+bool SCT_FlaggedConditionTool::isGood(const IdentifierHash& hashId) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  return isGood(hashId, ctx);
+}
+
 // Retrieve the reason why the wafer is flagged as bad (by IdentifierHash)
 // If wafer is not found return a null string
 const std::string& SCT_FlaggedConditionTool::details(const IdentifierHash& hashId) const {
   static const std::string nullString;
 
-  const SCT_FlaggedCondData* badIds{getCondData()};
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  const SCT_FlaggedCondData* badIds{getCondData(ctx)};
   if (badIds==nullptr) {
     ATH_MSG_ERROR("SCT_FlaggedCondData cannot be retrieved. (details)");
     return nullString;
@@ -93,7 +107,9 @@ const std::string& SCT_FlaggedConditionTool::details(const Identifier& Id) const
 }
 
 int SCT_FlaggedConditionTool::numBadIds() const {
-  const SCT_FlaggedCondData* badIds{getCondData()};
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  const SCT_FlaggedCondData* badIds{getCondData(ctx)};
   if (badIds==nullptr) {
     ATH_MSG_ERROR("SCT_FlaggedCondData cannot be retrieved. (numBadIds)");
     return -1;
@@ -103,11 +119,13 @@ int SCT_FlaggedConditionTool::numBadIds() const {
 }
 
 const SCT_FlaggedCondData* SCT_FlaggedConditionTool::getBadIds() const {
-  return getCondData();
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  return getCondData(ctx);
 }
 
-const SCT_FlaggedCondData* SCT_FlaggedConditionTool::getCondData() const {
-  SG::ReadHandle<SCT_FlaggedCondData> condData{m_badIds};
+const SCT_FlaggedCondData* SCT_FlaggedConditionTool::getCondData(const EventContext& ctx) const {
+  SG::ReadHandle<SCT_FlaggedCondData> condData{m_badIds, ctx};
   if (not condData.isValid()) {
     ATH_MSG_ERROR("Failed to get " << m_badIds.key());
     return nullptr;
