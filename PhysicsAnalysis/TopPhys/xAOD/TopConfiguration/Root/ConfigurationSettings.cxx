@@ -291,6 +291,8 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("PRWConfigFiles",    "List of PU config files, seperated by spaces (nothing by default) - Not compatible with FS/AF options", " ");
     registerParameter("PRWConfigFiles_FS", "List of PU config files only for full sim samples, seperated by spaces (nothing by default)", " ");
     registerParameter("PRWConfigFiles_AF", "List of PU config files only for fast sim samples, seperated by spaces (nothing by default)", " ");
+    registerParameter("PRWActualMu_FS", "List of actual mu files for full sim samples, seperated by spaces (nothing by default)", " ");
+    registerParameter("PRWActualMu_AF", "List of actual mu files only for fast sim samples, seperated by spaces (nothing by default)", " ");
     registerParameter("PRWLumiCalcFiles", "List of PU lumicalc files, seperated by spaces (nothing by default)", " ");
     registerParameter("PRWUseGRLTool", "Pass the GRL tool to the PU reweighting tool (False by default)", "False");
     registerParameter("PRWMuDependent",

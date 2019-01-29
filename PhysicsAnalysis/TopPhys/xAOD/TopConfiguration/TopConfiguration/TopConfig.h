@@ -784,6 +784,8 @@ class TopConfig final {
   // Update for R21
   const std::vector<std::string>& PileupConfig_FS(){ return m_pileup_reweighting.config_files_FS; };
   const std::vector<std::string>& PileupConfig_AF(){ return m_pileup_reweighting.config_files_AF; };
+  const std::vector<std::string>& PileupActualMu_FS(){ return m_pileup_reweighting.actual_mu_FS; };
+  const std::vector<std::string>& PileupActualMu_AF(){ return m_pileup_reweighting.actual_mu_AF; };
   inline virtual  float PileupDataTolerance() const { return m_pileup_reweighting.unrepresented_data_tol; };
   
   const std::vector<double>& PileUpCustomScaleFactors(){ return m_pileup_reweighting.custom_SF; };
@@ -1329,6 +1331,8 @@ class TopConfig final {
     // R21 - Need to allow configuration for FS and AF2
     std::vector<std::string> config_files_FS = {};
     std::vector<std::string> config_files_AF = {};
+    std::vector<std::string> actual_mu_FS = {};
+    std::vector<std::string> actual_mu_AF = {};
     float unrepresented_data_tol = 0.05;
 
     bool apply = false;
