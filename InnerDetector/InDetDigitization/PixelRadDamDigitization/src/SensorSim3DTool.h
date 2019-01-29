@@ -19,13 +19,14 @@
 #ifndef PIXELDIGITIZATION_SensorSim3DTool_H
 #define PIXELDIGITIZATION_SensorSim3DTool_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/WriteHandle.h"
-
 #include "SensorSimTool.h"
 #include "RadDamageUtil.h"
 #include "IChargeCollProbSvc.h"
+#include <utility>
+#include <vector>
+
+class TH2F;
+class TH3F;
 
 namespace RadDam{
 
@@ -48,19 +49,6 @@ class SensorSim3DTool : public SensorSimTool {
     virtual double getTrappingPositionY(double initX, double initY, double driftTime, bool isHoleBit); 
     virtual double getRamoPotential(double x, double y);
 
-
-    //Maps
-    std::map<std::pair<int, int>, TH3F* > ramoPotentialMap;
-    std::map<std::pair<int, int>, TH2F*> eFieldMap;
-    std::map<std::pair<int, int>, TH3F*> xPositionMap_e;
-    std::map<std::pair<int, int>, TH3F*> xPositionMap_h;
-    std::map<std::pair<int, int>, TH3F*> yPositionMap_e;
-    std::map<std::pair<int, int>, TH3F*> yPositionMap_h;
-    std::map<std::pair<int, int>, TH2F*> timeMap_e;
-    std::map<std::pair<int, int>, TH2F*> timeMap_h;
-    TH2F* avgChargeMap_e;
-    TH2F* avgChargeMap_h;
-
     ToolHandle<RadDamageUtil>                     m_radDamageUtil;
   
   private:
@@ -76,11 +64,25 @@ class SensorSim3DTool : public SensorSimTool {
     bool m_doChunkCorrection;
     double m_fluence; //eventually, this should be pulled from the conditions.
 
-    std::vector<double> fluence_layers;
-    std::map<std::pair<int, int>, double> fluence_layersMaps;
+    double fluence;
     double m_trappingTimeElectrons;
     double m_trappingTimeHoles;
     ServiceHandle<IChargeCollProbSvc> m_chargeCollSvc;
+
+    //Maps
+    TH3F* ramoPotentialMap;
+    TH2F* eFieldMap;
+    TH3F* xPositionMap_e;
+    TH3F* xPositionMap_h;
+    TH3F* yPositionMap_e;
+    TH3F* yPositionMap_h;
+    TH2F* timeMap_e;
+    TH2F* timeMap_h;
+    TH2F* avgChargeMap_e;
+    TH2F* avgChargeMap_h;
+
+
+
 };
 
 }
