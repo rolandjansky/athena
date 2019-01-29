@@ -15,7 +15,6 @@ class TriggerConfigHLT:
         return TriggerConfigHLT.sCurrentTriggerConfig
     currentTriggerConfig = staticmethod(currentTriggerConfig)
 
-
     def __init__(self, hltfile=None):
         self.menuName = 'TestMenu'
         self.__HLTFile = hltfile
