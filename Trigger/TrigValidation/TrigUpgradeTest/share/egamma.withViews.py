@@ -39,7 +39,7 @@ CTPToChainMapping = {"HLT_e3_etcut": "L1_EM3",
                      "HLT_e5_etcut":  "L1_EM3",
                      "HLT_e7_etcut":  "L1_EM7",
                      "HLT_2e3_etcut": "L1_2EM3",
-                     "HLT_e3e5_etcut":"L1_2EM3"}
+                     "HLT_e3_e5_etcut":"L1_2EM3"}
 
 topSequence.L1DecoderTest.prescaler.Prescales = ["HLT_e3_etcut:2", "HLT_2e3_etcut:2.5"]
 
