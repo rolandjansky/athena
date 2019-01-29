@@ -4,9 +4,7 @@
   <!-- Vertex_v1 dictionaries: -->
   <class name="xAOD::Vertex_v1" >
     <field name="m_position" transient="true" />
-    <field name="m_positionCached" transient="true" />
     <field name="m_covariance" transient="true" />
-    <field name="m_covarianceCached" transient="true" />
   </class>
   <read sourceClass="xAOD::Vertex_v1" version="[1-]"
         targetClass="xAOD::Vertex_v1" source="" target="" >

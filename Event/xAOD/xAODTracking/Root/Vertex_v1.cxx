@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Vertex_v1.cxx 575751 2013-12-16 16:45:36Z krasznaa $
 
 // System include(s):
 #include <cmath>
@@ -19,18 +18,15 @@ namespace xAOD {
 
    Vertex_v1::Vertex_v1()
       : SG::AuxElement(),
-        m_position(), m_positionCached( false ),
-        m_covariance(), m_covarianceCached( false ) {
+        m_position(), 
+        m_covariance() {
 
    }
 
    Vertex_v1::Vertex_v1( const Vertex_v1& other ) 
       : SG::AuxElement(),
         m_position( other.m_position ),
-        m_positionCached( other.m_positionCached ),
-        m_covariance( other.m_covariance ),
-        m_covarianceCached( other.m_covarianceCached ) {
-
+        m_covariance( other.m_covariance ){
       //copy aux store content (only the stuffs already loaded in memory!)
       this->makePrivateStore( other );
    }
@@ -84,15 +80,16 @@ namespace xAOD {
    const Amg::Vector3D& Vertex_v1::position() const {
 
       // Cache the position if necessary:
-      if( ! m_positionCached ) {
-         m_position( 0 ) = x();
-         m_position( 1 ) = y();
-         m_position( 2 ) = z();
-         m_positionCached = true;
+      if( ! m_position.isValid() ) {
+         Amg::Vector3D tmpPosition;
+         tmpPosition( 0 ) = x();
+         tmpPosition( 1 ) = y();
+         tmpPosition( 2 ) = z();
+         m_position.set(tmpPosition);
       }
 
       // Return the object:
-      return m_position;
+      return *(m_position.ptr());
    }
 
    void Vertex_v1::setPosition( const Amg::Vector3D& position ) {
@@ -101,25 +98,22 @@ namespace xAOD {
       setX( position( 0 ) );
       setY( position( 1 ) );
       setZ( position( 2 ) );
-
-      // Update the cache:
-      m_position = position;
-      m_positionCached = true;
-
+      // Reset the cache
+      m_position.reset();
       return;
    }
 
    const AmgSymMatrix(3)& Vertex_v1::covariancePosition() const {
 
       // Cache the covariance matrix if necessary:
-      if( ! m_covarianceCached ) {
+      if( ! m_covariance.isValid() ) {
          // The matrix is now cached:
-	      Amg::expand(covariance().begin(),covariance().end(),m_covariance);
-	      m_covarianceCached = true;
+        AmgSymMatrix(3) tmpCovariance;
+	      Amg::expand(covariance().begin(),covariance().end(),tmpCovariance);
+	      m_covariance.set(tmpCovariance);
       }
-
       // Return the cached object:
-      return m_covariance;
+      return *(m_covariance.ptr());
    }
 
    void Vertex_v1::setCovariancePosition( const AmgSymMatrix(3)& cov ) {
@@ -130,11 +124,7 @@ namespace xAOD {
 
      // Set the persistent variable:
      setCovariance( vec );
-
-     // Cache the variable:
-     m_covariance = cov;
-     m_covarianceCached = true;
-
+     m_covariance.reset();
      return;
    }
 
@@ -344,17 +334,12 @@ namespace xAOD {
       return;
    }
 
-   //
-   /////////////////////////////////////////////////////////////////////////////
-
-   /// This function is used by ROOT to reset the object after a new object
-   /// was read into an existing memory location.
-   ///
+   /*
+    * Reset the cache
+    */
    void Vertex_v1::resetCache() {
-
-      m_positionCached = false;
-      m_covarianceCached = false;
-
+      m_position.reset();
+      m_covariance.reset();
       return;
    }
 
