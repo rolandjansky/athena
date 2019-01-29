@@ -42,6 +42,10 @@ namespace EL
       // private interface
       //
 
+      /// \brief number of skipped events
+    private:
+      uint64_t m_skippedEvents = 0; //!
+
       /// \brief Amount of resident memory used after initialisation in kB
     private:
       Long_t m_initMemResident = -1; //!
