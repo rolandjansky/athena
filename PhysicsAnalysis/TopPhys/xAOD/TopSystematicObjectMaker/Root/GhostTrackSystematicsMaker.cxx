@@ -1,9 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TopSystematicObjectMaker/GhostTrackSystematicsMaker.h"
@@ -123,8 +119,8 @@ namespace top {
             std::vector<const xAOD::IParticle *> newGhosts;
 
 	    if( std::find(ghostTracks.begin(),ghostTracks.end(), nullptr ) !=  ghostTracks.end()){
-		std::cout << "Warning in GhostTrackSystematicsMaker: Found nullptr in ghostTrack vector. Systematic variations won't be calculated for this jet." << std::endl;
-		std::cout << "Jet pt: " << jet->pt() << " eta: " << jet->eta() << std::endl;
+		ATH_MSG_WARNING( "Warning in GhostTrackSystematicsMaker: Found nullptr in ghostTrack vector. Systematic variations won't be calculated for this jet.");
+		ATH_MSG_WARNING("Jet pt: " << jet->pt() << " eta: " << jet->eta());
 		continue;
 	    }
 
@@ -162,8 +158,8 @@ namespace top {
             std::vector<const xAOD::IParticle *> newGhosts;
 
 	    if( std::find(ghostTracks.begin(),ghostTracks.end(), nullptr ) !=  ghostTracks.end()){
-		std::cout << "Warning in GhostTrackSystematicsMaker: Found nullptr in ghostTrack vector. Systematic variations won't be calculated for this jet." << std::endl;
-		std::cout << "Jet pt: " << jet->pt() << " eta: " << jet->eta() << std::endl;
+		ATH_MSG_WARNING("Warning in GhostTrackSystematicsMaker: Found nullptr in ghostTrack vector. Systematic variations won't be calculated for this jet.");
+		ATH_MSG_WARNING("Jet pt: " << jet->pt() << " eta: " << jet->eta());
 		continue;
 	    }
 
@@ -215,8 +211,8 @@ namespace top {
             std::vector<const xAOD::IParticle *> newGhosts;
 	    
 	    if( std::find(ghostTracks.begin(),ghostTracks.end(), nullptr ) !=  ghostTracks.end()){
-		std::cout << "Warning in GhostTrackSystematicsMaker: Found nullptr in ghostTrack vector. Systematic variations won't be calculated for this jet." << std::endl;
-		std::cout << "Jet pt: " << jet->pt() << " eta: " << jet->eta() << std::endl;
+		ATH_MSG_WARNING("Warning in GhostTrackSystematicsMaker: Found nullptr in ghostTrack vector. Systematic variations won't be calculated for this jet.");
+		ATH_MSG_WARNING("Jet pt: " << jet->pt() << " eta: " << jet->eta());
 		continue;
 	    }
 
@@ -270,8 +266,8 @@ namespace top {
             std::vector<const xAOD::IParticle *> newGhosts;
 	    	    
 	    if( std::find(ghostTracks.begin(),ghostTracks.end(), nullptr ) !=  ghostTracks.end()){
-		std::cout << "Warning in GhostTrackSystematicsMaker: Found nullptr in ghostTrack vector. Systematic variations won't be calculated for this jet." << std::endl;
-		std::cout << "Jet pt: " << jet->pt() << " eta: " << jet->eta() << std::endl;
+		ATH_MSG_WARNING("Warning in GhostTrackSystematicsMaker: Found nullptr in ghostTrack vector. Systematic variations won't be calculated for this jet.");
+		ATH_MSG_WARNING("Jet pt: " << jet->pt() << " eta: " << jet->eta());
 		continue;
 	    }
 
