@@ -14,7 +14,7 @@
 # art-output: *.root
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
-# art-output: *.regtest
+# art-output: *.regtest.new
 # art-output: *stdout*
 
 export NAME="athenaHLT_prescaled_PhysicsV7"
