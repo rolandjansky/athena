@@ -256,5 +256,6 @@ class GenerateMenuMT:
                 print step
 
         makeHLTTree(finalListOfChainConfigs)
+        # the return values used for debugging, might be removed later
         return finalListOfChainConfigs
             
