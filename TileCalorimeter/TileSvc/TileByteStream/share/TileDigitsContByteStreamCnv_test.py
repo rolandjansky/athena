@@ -65,6 +65,7 @@ globalflags.InputFormat.set_Value_and_Lock('bytestream')
 
 svcMgr.ByteStreamAddressProviderSvc.TypeNames += [
     'TileDigitsContainer/TileDigitsCnt',
+    'TileDigitsContainer/MuRcvDigitsCnt',
     ]
 
 include('TileConditions/TileConditions_jobOptions.py')
@@ -92,7 +93,6 @@ topSequence += TileDigitsDumper ('TileDigitsCntDumper',
                                  Prefix = dumpdir + '/')
 topSequence += TileDigitsDumper ('MuRcvDigitsCntDumper',
                                  TileDigitsContainer = 'MuRcvDigitsCnt',
-                                 AltTileDigitsContainer = 'TileDigitsCnt',
                                  Prefix = dumpdir + '/')
 
 
