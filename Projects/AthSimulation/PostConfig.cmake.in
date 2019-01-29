@@ -4,7 +4,11 @@
 #
 
 # Find Gaudi:
-find_package( Gaudi REQUIRED )
+if( AthSimulation_FIND_QUIETLY )
+   find_package( Gaudi REQUIRED QUIET )
+else()
+   find_package( Gaudi REQUIRED )
+endif()
 
 # Temporarily setting additional compile flags here:
 add_definitions( -DSIMULATIONBASE )
@@ -21,7 +25,7 @@ foreach( _external ${_externals} )
    get_filename_component( _extName ${_external} NAME_WE )
    string( TOUPPER ${_extName} _extNameUpper )
    if( NOT AthSimulation_FIND_QUIETLY )
-      message( STATUS "Taking ${_extName} from: ${${_extNameUpper}_ROOT}" )
+      message( STATUS "Taking ${_extName} from: ${${_extNameUpper}_LCGROOT}" )
    endif()
    unset( _extName )
    unset( _extNameUpper )

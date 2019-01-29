@@ -1,5 +1,6 @@
+
 # The minimum required CMake version:
-cmake_minimum_required( VERSION 3.2 FATAL_ERROR )
+cmake_minimum_required( VERSION 3.6 )
 
 # Read in the project's version from a file called version.txt. But let it be
 # overridden from the command line if necessary.
@@ -65,7 +66,7 @@ foreach( _external ${_externals} )
    include( ${_external} )
    get_filename_component( _extName ${_external} NAME_WE )
    string( TOUPPER ${_extName} _extNameUpper )
-   message( STATUS "Taking ${_extName} from: ${${_extNameUpper}_ROOT}" )
+   message( STATUS "Taking ${_extName} from: ${${_extNameUpper}_LCGROOT}" )
    unset( _extName )
    unset( _extNameUpper )
 endforeach()
@@ -77,7 +78,7 @@ atlas_ctest_setup()
 
 # Declare project name and version
 atlas_project( Athena ${ATHENA_PROJECT_VERSION}
-   USE AthenaExternals 0.0.1
+   USE AthenaExternals ${AthenaExternals_VERSION}
    PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../../
    FORTRAN )
 
@@ -107,19 +108,19 @@ install( FILES ${CMAKE_BINARY_DIR}/env_setup_install.sh
 
 # Configure and install the post-configuration file:
 string( REPLACE "$ENV{TDAQ_RELEASE_BASE}" "\$ENV{TDAQ_RELEASE_BASE}"
-   TDAQ-COMMON_ROOT "${TDAQ-COMMON_ROOT}" )
+   TDAQ-COMMON_ATROOT "${TDAQ-COMMON_ATROOT}" )
 string( REPLACE "${TDAQ-COMMON_VERSION}" "\${TDAQ-COMMON_VERSION}"
-   TDAQ-COMMON_ROOT "${TDAQ-COMMON_ROOT}" )
+   TDAQ-COMMON_ATROOT "${TDAQ-COMMON_ATROOT}" )
 string( REPLACE "$ENV{TDAQ_RELEASE_BASE}" "\$ENV{TDAQ_RELEASE_BASE}"
-   DQM-COMMON_ROOT "${DQM-COMMON_ROOT}" )
+   DQM-COMMON_ATROOT "${DQM-COMMON_ATROOT}" )
 string( REPLACE "${DQM-COMMON_VERSION}" "\${DQM-COMMON_VERSION}"
-   DQM-COMMON_ROOT "${DQM-COMMON_ROOT}" )
+   DQM-COMMON_ATROOT "${DQM-COMMON_ATROOT}" )
 
 # Temporarily add tdaq dependency to Athena build:
 string( REPLACE "$ENV{TDAQ_RELEASE_BASE}" "\$ENV{TDAQ_RELEASE_BASE}"
-   TDAQ_ROOT "${TDAQ_ROOT}" )
+   TDAQ_ATROOT "${TDAQ_ATROOT}" )
 string( REPLACE "${TDAQ_VERSION}" "\${TDAQ_VERSION}"
-   TDAQ_ROOT "${TDAQ_ROOT}" )
+   TDAQ_ATROOT "${TDAQ_ATROOT}" )
 
 configure_file( ${CMAKE_SOURCE_DIR}/PostConfig.cmake.in
    ${CMAKE_BINARY_DIR}/PostConfig.cmake @ONLY )
