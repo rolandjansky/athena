@@ -14,7 +14,7 @@ topSequence += decoder
 
 
 from TrigOutputHandling.TrigOutputHandlingConf import TriggerEDMDeserialiserAlg
-deserialiser = TriggerEDMDeserialiserAlg()
+deserialiser = TriggerEDMDeserialiserAlg("TrigDeserialiser")
 deserialiser.OutputLevel=DEBUG
 topSequence += deserialiser
 
