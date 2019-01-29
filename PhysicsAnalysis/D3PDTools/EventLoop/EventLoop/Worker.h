@@ -392,13 +392,18 @@ namespace EL
 
     /// \brief the list of modules we hold
   private:
-    std::vector<std::unique_ptr<Detail::Module> > m_modules;
+    std::vector<std::unique_ptr<Detail::Module> > m_modules; //!
 
 
     /// \brief whether this is a new input file (i.e. one that has not
     /// yet been connected to the algorithms)
   private:
     bool m_newInputFile {false};
+
+
+    /// \brief whether we are still to process the first event
+  private:
+    bool m_firstEvent {true};
   };
 }
 

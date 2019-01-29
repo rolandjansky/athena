@@ -46,6 +46,12 @@ namespace EL
       return ::StatusCode::SUCCESS;
     }
 
+    ::StatusCode Module ::
+    postFirstEvent (ModuleData& /*data*/)
+    {
+      return ::StatusCode::SUCCESS;
+    }
+
     void Module ::
     reportInputFailure (ModuleData& /*data*/)
     {}

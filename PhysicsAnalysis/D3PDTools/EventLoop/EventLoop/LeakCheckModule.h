@@ -28,7 +28,7 @@ namespace EL
       //
 
     public:
-      virtual ::StatusCode postInitialize (ModuleData& data) override;
+      virtual ::StatusCode postFirstEvent (ModuleData& data) override;
 
     public:
       virtual ::StatusCode onWorkerEnd (ModuleData& data) override;
@@ -41,6 +41,10 @@ namespace EL
       //
       // private interface
       //
+
+      /// \brief number of skipped events
+    private:
+      uint64_t m_skippedEvents = 0; //!
 
       /// \brief Amount of resident memory used after initialisation in kB
     private:

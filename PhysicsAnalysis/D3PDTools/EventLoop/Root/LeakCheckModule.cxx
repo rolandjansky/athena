@@ -30,9 +30,11 @@ namespace EL
   namespace Detail
   {
     ::StatusCode LeakCheckModule ::
-    postInitialize (ModuleData& /*data*/)
+    postFirstEvent (ModuleData& data)
     {
       using namespace msgEventLoop;
+
+      m_skippedEvents = data.m_eventsProcessed + 1;
 
       // Get the memory usage of the process after initialisation.
       ::ProcInfo_t pinfo;
@@ -42,6 +44,7 @@ namespace EL
       }
       m_initMemResident = pinfo.fMemResident;
       m_initMemVirtual = pinfo.fMemVirtual;
+      ANA_MSG_DEBUG ("starting memory: " << pinfo.fMemResident << " " << pinfo.fMemVirtual);
       return ::StatusCode::SUCCESS;
     }
 
@@ -52,7 +55,7 @@ namespace EL
     {
       using namespace msgEventLoop;
 
-      {
+      if (m_skippedEvents > 0) {
         // Get the memory usage of the process after finalisation.
         ::ProcInfo_t pinfo;
         if (gSystem->GetProcInfo (&pinfo) != 0) {
@@ -61,6 +64,7 @@ namespace EL
         }
         m_finMemResident = pinfo.fMemResident;
         m_finMemVirtual = pinfo.fMemVirtual;
+        ANA_MSG_DEBUG ("finishing memory: " << pinfo.fMemResident << " " << pinfo.fMemVirtual);
 
         // Save the memory increase values into the job statistics tree.
         RCU_ASSERT (data.m_jobStats != nullptr);
@@ -86,7 +90,8 @@ namespace EL
       using namespace msgEventLoop;
 
       // Perform a memory leak check in case at least one event was processed.
-      if (data.m_eventsProcessed > 0) {
+      if (m_skippedEvents > 0 &&
+          data.m_eventsProcessed > m_skippedEvents) {
 
         // Extract the limits for producing an error.
         const int absResidentLimit =
@@ -106,11 +111,11 @@ namespace EL
         const Long_t resLeak = memIncreaseResident();
         const Double_t resLeakPerEv =
           (static_cast< Double_t > (resLeak) /
-           static_cast< Double_t > (data.m_eventsProcessed));
+           static_cast< Double_t > (data.m_eventsProcessed-m_skippedEvents));
         const Long_t virtLeak = memIncreaseVirtual();
         const Double_t virtLeakPerEv =
           (static_cast< Double_t > (virtLeak) /
-           static_cast< Double_t > (data.m_eventsProcessed) );
+           static_cast< Double_t > (data.m_eventsProcessed-m_skippedEvents) );
         ANA_MSG_INFO ("Memory increase/change during the job:");
         ANA_MSG_INFO ("  - resident: " << resLeakPerEv << " kB/event ("
                       << resLeak << " kB total)");
