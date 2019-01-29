@@ -100,9 +100,9 @@ namespace xAOD {
       /// @brief Returns a SVector of the Perigee track parameters. 
       /// i.e. a vector of
       ///  \f$\left(\begin{array}{c}d_0\\z_0\\\phi_0\\\theta\\q/p\end{array}\right)\f$
-      const DefiningParameters_t& definingParameters() const;
+      const DefiningParameters_t definingParameters() const;
       /// Returns the 5x5 symmetric matrix containing the defining parameters covariance matrix.
-      const ParametersCovMatrix_t& definingParametersCovMatrix() const;  
+      const ParametersCovMatrix_t definingParametersCovMatrix() const;  
       /// Returns the vector of the covariance values - 15 elements
       const std::vector<float>& definingParametersCovMatrixVec() const;
       
