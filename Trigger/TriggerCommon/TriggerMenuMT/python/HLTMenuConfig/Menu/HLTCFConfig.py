@@ -107,43 +107,50 @@ def createCFTree(CFseq):
 
 def makeHLTTree(HLTChains):
     """ creates the full HLT tree"""
-    #    TopHLTRootSeq = seqAND("TopHLTRoot") # Root
-    # main HLT top sequence
-    hltTop = seqOR("hltTop")
+
+    # lock flags
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.lock()
+
+    # get totpSequnece
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
 
     #add the L1Upcacking
-#    TopHLTRootSeq += L1UnpackingSeq
+    #    TopHLTRootSeq += L1UnpackingSeq
 
+    # connect to L1Decoder
+    l1decoder = [ d for d in topSequence.getChildren() if d.getType() == "L1Decoder" ]
+    if len(l1decoder)  != 1 :
+        raise RuntimeError(" Can't find 1 instance of L1Decoder in topSequence, instead found this in topSequence "+str(topSequence.getChildren()) )
+
+
+    # set CTP chains before creating the full tree (and the monitor)
+    EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in HLTChains])
+    l1decoder[0].ChainToCTPMapping = EnabledChainNamesToCTP
+
+    # main HLT top sequence
+    hltTop = seqOR("hltTop")
+ 
     # add the HLT steps Node
     steps = seqAND("HLTAllSteps")
     hltTop +=  steps
     
     # make CF tree
     finalDecisions = decisionTree_From_Chains(steps, HLTChains)
-    EnabledChainNames = [c.name for c in HLTChains]
     
-
+    # make Summary
     flatDecisions=[]
     for step in finalDecisions: flatDecisions.extend (step)
     summary= makeSummary("TriggerSummaryFinal", flatDecisions)
     #from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
-    #edmCreator = HLTEDMCreator()
-    
+    #edmCreator = HLTEDMCreator()    
     #edmCreator.TrigCompositeContainer = flatDecisions
     #summary.OutputTools= [ edmCreator ]
     hltTop += summary
 
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
-
+    # add some more monitor
     from TriggerJobOpts.TriggerConfig import collectHypos, triggerMonitoringCfg, triggerSummaryCfg
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    ConfigFlags.lock()
-    
-    l1decoder = [ d for d in topSequence.getChildren() if d.getType() == "L1Decoder" ]
-    if len(l1decoder)  != 1 :
-        raise RuntimeError(" Can't find 1 instance of L1Decoder in topSequence, instead found this in topSequence "+str(topSequence.getChildren()) )
-
     hypos = collectHypos(steps)
     summaryAcc, summaryAlg = triggerSummaryCfg( ConfigFlags, hypos )
     hltTop += summaryAlg

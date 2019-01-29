@@ -13,6 +13,7 @@ AlgScheduler.ShowDataFlow( True )
 
 from AthenaCommon.CFElements import parOR, seqAND, stepSeq
 from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
+from AthenaCommon.Constants import VERBOSE,INFO,DEBUG
 
 from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT  import TriggerConfigHLT
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import *
@@ -28,12 +29,14 @@ import os, traceback, operator, commands, time
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT' )
 
+
 _func_to_modify_the_menu = None
 _func_to_modify_signatures = None
 
 class GenerateMenuMT:   
     
-    def __init__(self):
+    def __init__(self, logLevel=DEBUG):
+        log.setLevel(logLevel)
         self.triggerConfigHLT = None
         self.chains = []
         self.chainDefs = []
@@ -253,4 +256,5 @@ class GenerateMenuMT:
                 print step
 
         makeHLTTree(finalListOfChainConfigs)
+        return finalListOfChainConfigs
             

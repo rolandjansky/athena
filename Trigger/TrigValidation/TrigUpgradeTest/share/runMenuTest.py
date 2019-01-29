@@ -5,23 +5,23 @@
 # import flags
 include("TrigUpgradeTest/testHLT_MT.py")
 
+from AthenaCommon.Constants import VERBOSE,INFO,DEBUG
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 TriggerFlags.triggerMenuSetup = "LS2_v1"
 
 from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
-g = GenerateMenuMT()
+menu = GenerateMenuMT(DEBUG)
 
 
 
 # set some flags
-g.doEgammaChains=True
+menu.doEgammaChains      = True
+menu.doJetChains         = False
+menu.doMuonChains        = False
+menu.doCombinedChains    = False
 
-g.generateMT()
-
-#allChainConfigs = g.getChainsFromMenu()
-#EnabledChainNamesToCTP = dict([ (c[0], c[1])  for c in allChainConfigs])
-#topSequence.L1DecoderTest.ChainToCTPMapping = EnabledChainNamesToCTP
- 
+# generate the Chains from the Menu Dictionary
+allChainConfigs = menu.generateMT()
 
 
 ##########################################  

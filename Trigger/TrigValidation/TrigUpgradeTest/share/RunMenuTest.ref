@@ -1,41 +1,9 @@
 TrigSignatureMoniMT                                INFO Chains passing step (1st row events & 2nd row decision counts
 TrigSignatureMoniMT                                INFO Chain name                   L1,      AfterPS, [... steps ...], Output
 TrigSignatureMoniMT                                INFO All                           20        20        0         0         17        
-TrigSignatureMoniMT                                INFO HLT_2e3_etcut                 20        20        0         0         0         
-TrigSignatureMoniMT                                INFO HLT_2e3_etcut decisions                           0         0         
-TrigSignatureMoniMT                                INFO HLT_2mu6                      20        20        0         0         0         
-TrigSignatureMoniMT                                INFO HLT_2mu6 decisions                                0         0         
-TrigSignatureMoniMT                                INFO HLT_e15mu24                   20        20        0         0         0         
-TrigSignatureMoniMT                                INFO HLT_e15mu24 decisions                             0         0         
 TrigSignatureMoniMT                                INFO HLT_e3_etcut                  20        20        18        17        17        
 TrigSignatureMoniMT                                INFO HLT_e3_etcut decisions                            54        262       
-TrigSignatureMoniMT                                INFO HLT_e3e5_etcut                20        20        0         0         0         
-TrigSignatureMoniMT                                INFO HLT_e3e5_etcut decisions                          0         0         
 TrigSignatureMoniMT                                INFO HLT_e5_etcut                  20        20        17        16        16        
 TrigSignatureMoniMT                                INFO HLT_e5_etcut decisions                            50        251       
-TrigSignatureMoniMT                                INFO HLT_e7_etcut                  20        20        11        11        11        
-TrigSignatureMoniMT                                INFO HLT_e7_etcut decisions                            17        117       
-TrigSignatureMoniMT                                INFO HLT_g5_etcut                  20        20        0         0         0         
-TrigSignatureMoniMT                                INFO HLT_g5_etcut decisions                            0         0         
-TrigSignatureMoniMT                                INFO HLT_j35_gsc45_bmv2c1070       20        20        0         0         0         
-TrigSignatureMoniMT                                INFO HLT_j35_gsc45_bmv2c1070 decisions                    0         0         
-TrigSignatureMoniMT                                INFO HLT_j35_gsc45_bmv2c1070_split 20        20        0         0         0         
-TrigSignatureMoniMT                                INFO HLT_j35_gsc45_bmv2c1070_split decisions                    0         0         
-TrigSignatureMoniMT                                INFO HLT_j35_gsc45_boffperf_split  20        20        0         0         0         
-TrigSignatureMoniMT                                INFO HLT_j35_gsc45_boffperf_split decisions                    0         0         
-TrigSignatureMoniMT                                INFO HLT_j60                       20        20        0         0         0         
-TrigSignatureMoniMT                                INFO HLT_j60 decisions                                 0         0         
-TrigSignatureMoniMT                                INFO HLT_j85                       20        20        0         0         0         
-TrigSignatureMoniMT                                INFO HLT_j85 decisions                                 0         0         
-TrigSignatureMoniMT                                INFO HLT_mu20                      20        20        0         0         0         
-TrigSignatureMoniMT                                INFO HLT_mu20 decisions                                0         0         
-TrigSignatureMoniMT                                INFO HLT_mu6                       20        20        0         0         0         
-TrigSignatureMoniMT                                INFO HLT_mu6 decisions                                 0         0         
-TrigSignatureMoniMT                                INFO HLT_mu6idperf                 20        20        0         0         0         
-TrigSignatureMoniMT                                INFO HLT_mu6idperf decisions                           0         0         
-TrigSignatureMoniMT                                INFO HLT_te15                      20        20        0         0         0         
-TrigSignatureMoniMT                                INFO HLT_te15 decisions                                0         0         
-TrigSignatureMoniMT                                INFO HLT_xe10                      20        20        0         0         0         
-TrigSignatureMoniMT                                INFO HLT_xe10 decisions                                0         0         
-TrigSignatureMoniMT                                INFO HLT_xs20                      20        20        0         0         0         
-TrigSignatureMoniMT                                INFO HLT_xs20 decisions                                0         0         
+TrigSignatureMoniMT                                INFO HLT_e7_etcut                  20        20        15        14        14        
+TrigSignatureMoniMT                                INFO HLT_e7_etcut decisions                            36        205       
