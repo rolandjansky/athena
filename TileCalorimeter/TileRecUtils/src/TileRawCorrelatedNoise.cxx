@@ -5,6 +5,7 @@
 // Tile includes
 #include "TileRecUtils/TileRawCorrelatedNoise.h"
 #include "TileEvent/TileDigits.h"
+#include "TileEvent/TileMutableDigitsContainer.h"
 #include "TileIdentifier/TileHWID.h"
 
 // Atlas includes
@@ -382,8 +383,9 @@ StatusCode TileRawCorrelatedNoise::execute() {
 
   // create new container
   TileDigits* NewDigits[4][64][48];
-  SG::WriteHandle<TileDigitsContainer> outputDigitsContainer(m_outputDigitsContainerKey);
-  ATH_CHECK( outputDigitsContainer.record( std::make_unique<TileDigitsContainer>() ) );
+
+  auto outputDigitsContainer = std::make_unique<TileMutableDigitsContainer>();
+  ATH_CHECK( outputDigitsContainer->status() );
 
   // fill new container
   for (int Ros = 1; Ros < 5; ++Ros) {
@@ -402,6 +404,9 @@ StatusCode TileRawCorrelatedNoise::execute() {
       }
     }
   }
+
+  SG::WriteHandle<TileDigitsContainer> outputDigitsCnt(m_outputDigitsContainerKey);
+  ATH_CHECK( outputDigitsCnt.record(std::move(outputDigitsContainer)) );
 
 
   ATH_MSG_DEBUG( "execute completed successfully" );
