@@ -20,7 +20,7 @@
 
 #include <QuickAna/ValidationHists.h>
 
-#include <EventLoop/Worker.h>
+#include <EventLoop/IWorker.h>
 #include <QuickAna/IEventObjects.h>
 #include <QuickAna/InternalConfiguration.h>
 #include <RootCoreUtils/Assert.h>
@@ -41,7 +41,7 @@ namespace ana
 
 
   ValidationHists ::
-  ValidationHists (EL::Worker *val_worker,
+  ValidationHists (EL::IWorker *val_worker,
 		   const InternalConfiguration& configuration)
     : m_worker (val_worker),
       m_selectionAccessor (configuration.selectionName (SelectionStep::ANALYSIS))

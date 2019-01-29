@@ -584,7 +584,7 @@ int BTaggingSelectionTool::getQuantile( const xAOD::IParticle* p ) const {
 
 int BTaggingSelectionTool::getQuantile( const xAOD::Jet& jet ) const{
   double pT = jet.pt();
-  double eta = jet.eta();
+  double eta = std::fabs( jet.eta() );
   // Retrieve the tagger weight which was assigned to the jet
   double weight_mv2(-10.);
   if (getTaggerWeight(jet, weight_mv2)==CorrectionCode::Error){

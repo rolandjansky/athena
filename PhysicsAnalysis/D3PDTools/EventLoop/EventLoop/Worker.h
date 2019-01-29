@@ -17,23 +17,16 @@
 
 #include <EventLoop/Global.h>
 
-#include <AnaAlgorithm/IFilterWorker.h>
-#include <AnaAlgorithm/IHistogramWorker.h>
-#include <AnaAlgorithm/ITreeWorker.h>
+#include <EventLoop/IWorker.h>
 #include <EventLoop/ModuleData.h>
-#include <Rtypes.h>
 #include <map>
+#include <memory>
 
-namespace xAOD
-{
-  class TEvent;
-  class TStore;
-}
+class TList;
 
 namespace EL
 {
-  class Worker : public IFilterWorker, public IHistogramWorker,
-                 public ITreeWorker, private Detail::ModuleData
+  class Worker : public IWorker, private Detail::ModuleData
   {
     //
     // public interface
@@ -76,7 +69,7 @@ namespace EL
     ///   be collected from EventLoop jobs, but it can be used for any
     ///   kind of output that can not or should not be merged.
   public:
-    void addOutputList (const std::string& name, TObject *output_swallow);
+    void addOutputList (const std::string& name, TObject *output_swallow) override;
 
 
     /// \brief get the output histogram with the given name
@@ -102,7 +95,7 @@ namespace EL
     /// note: the default value for the argument corresponds to the
     ///   default label value in the OutputInfo class.
   public:
-    TFile *getOutputFile (const std::string& label) const;
+    TFile *getOutputFile (const std::string& label) const override;
 
 
     /// effects: get the output file that goes into the dataset with
@@ -119,7 +112,7 @@ namespace EL
     ///   just checks whether the output file is there. if so it fills
     ///   it, otherwise it ignores it.
   public:
-    TFile *getOutputFileNull (const std::string& label) const;
+    TFile *getOutputFileNull (const std::string& label) const override;
 
 
     /// effects: adds a tree to an output file specified by the stream/label
@@ -142,25 +135,25 @@ namespace EL
     /// invariant: metaData != 0
     /// rationale: this can be used for accessing sample meta-data
   public:
-    const SH::MetaObject *metaData () const;
+    const SH::MetaObject *metaData () const override;
 
 
     /// description: the tree we are running on
     /// guarantee: no-fail
   public:
-    TTree *tree () const;
+    TTree *tree () const override;
 
 
     /// description: the entry in the tree we are reading
     /// guarantee: no-fail
   public:
-    Long64_t treeEntry () const;
+    Long64_t treeEntry () const override;
 
 
     /// description: the file we are reading the current tree from
     /// guarantee: no-fail
   public:
-    TFile *inputFile () const;
+    TFile *inputFile () const override;
 
 
     /// \brief the name of the file we are reading the current tree
@@ -168,7 +161,7 @@ namespace EL
     /// \par Guarantee
     ///   no-fail
   public:
-    std::string inputFileName () const;
+    std::string inputFileName () const override;
 
 
     /// description: the trigger config tree from the input file, or
@@ -176,7 +169,7 @@ namespace EL
     /// guarantee: strong
     /// failures: i/o errors
   public:
-    TTree *triggerConfig () const;
+    TTree *triggerConfig () const override;
 
 
     /// description: the xAOD event and store
@@ -185,8 +178,8 @@ namespace EL
     /// failures: TEventSvc not configured
     /// postcondition: result != 0
   public:
-    xAOD::TEvent *xaodEvent () const;
-    xAOD::TStore *xaodStore () const;
+    xAOD::TEvent *xaodEvent () const override;
+    xAOD::TStore *xaodStore () const override;
 
 
     /// effects: returns the algorithms with the given name or NULL if
@@ -194,7 +187,7 @@ namespace EL
     /// guarantee: strong
     /// failures: out of memory II
   public:
-    EL::Algorithm *getAlg (const std::string& name) const;
+    EL::Algorithm *getAlg (const std::string& name) const override;
 
 
     /// effects: skip the current event, i.e. skip the rest of the
@@ -205,7 +198,7 @@ namespace EL
     ///   dedicated algorithms for event selection that then skip
     ///   later algorithms that fill histograms
   public:
-    void skipEvent ();
+    void skipEvent () override;
 
 
     /// \brief whether the current algorithm passed its filter
@@ -399,13 +392,18 @@ namespace EL
 
     /// \brief the list of modules we hold
   private:
-    std::vector<std::unique_ptr<Detail::Module> > m_modules;
+    std::vector<std::unique_ptr<Detail::Module> > m_modules; //!
 
 
     /// \brief whether this is a new input file (i.e. one that has not
     /// yet been connected to the algorithms)
   private:
     bool m_newInputFile {false};
+
+
+    /// \brief whether we are still to process the first event
+  private:
+    bool m_firstEvent {true};
   };
 }
 

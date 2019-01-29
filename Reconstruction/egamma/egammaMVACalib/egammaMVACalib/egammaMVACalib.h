@@ -74,7 +74,7 @@ class egammaMVACalib : public asg::AsgMessaging
     };
 
     typedef std::map<TString, TString> AdditionalInfoMap;
-    typedef std::map< std::pair< egammaMVACalib::ReaderID, egammaMVACalib::ShiftType>, TF1* > ShiftMap;
+    typedef std::map< std::pair< egammaMVACalib::ReaderID, egammaMVACalib::ShiftType>, std::unique_ptr<TF1> > ShiftMap;
 
     /** struct to store the formula, the expression, the type and
      * a float associated to each variable **/

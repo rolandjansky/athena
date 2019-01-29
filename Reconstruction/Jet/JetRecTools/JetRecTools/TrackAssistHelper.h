@@ -2,10 +2,10 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-// TrackAssist.h
+// TrackAssistHelper.h
 
-#ifndef TRACKASSISTTOOL_H
-#define TRACKASSISTTOOL_H
+#ifndef TRACKASSISTHELPER_H
+#define TRACKASSISTHELPER_H
 
 // Jason Veatch (jason.veatch@cern.ch)
 // November 2018
@@ -33,13 +33,13 @@
 
 using namespace asg::msgUserCode;
 
-class TrackAssistTool
+class TrackAssistHelper
 {
 
   public:
 
     // Destructor.
-    virtual ~TrackAssistTool() { }
+    virtual ~TrackAssistHelper() noexcept = default;
 
     // Rescale tracks using jets with pre-determined scaling weights
     StatusCode rescaleTracks( const xAOD::JetContainer *jets, xAOD::TrackParticleContainer *tracks) const;
@@ -57,7 +57,7 @@ class TrackAssistTool
     bool isGoodTrack( const xAOD::TrackParticle &track, const xAOD::Vertex &pvx, const jet::TrackVertexAssociation &tva ) const;
 
     // Constructor 
-    TrackAssistTool();
+    TrackAssistHelper();
 
     // Initialize function
     virtual StatusCode initialize();
@@ -81,4 +81,4 @@ class TrackAssistTool
 
 };
 
-#endif // TRACKASSISTTOOL_H
+#endif // TRACKASSISTHELPER_H
