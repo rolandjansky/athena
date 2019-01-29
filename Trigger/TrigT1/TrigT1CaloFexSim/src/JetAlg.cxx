@@ -110,7 +110,7 @@ StatusCode JetAlg::SeedFinding(const xAOD::JGTowerContainer*towers, TString seed
   // ATH_MSG_DEBUG("How can I get ATH_MSG_DEBUG to compile???") 
 
   if(m_debug)
-    std::cout << "JetAlg::SeedFinding: getting seeds with " << seed_size << " and " << range << std::endl;
+    std::cout << "JetAlg::SeedFinding: getting " << seedname << " with size " << seed_size << " and local max range " << range << std::endl;
   for(unsigned i=0; i<m_SeedMap[seedname]->eta.size(); i++){
     std::vector<float> tmp_et;
     tmp_et.clear();
@@ -127,8 +127,8 @@ StatusCode JetAlg::SeedFinding(const xAOD::JGTowerContainer*towers, TString seed
           return StatusCode::FAILURE;
         }
         if( tower->et() > noise.at(t) * seed_tower_noise_multiplier ) {
-          if(m_debug)
-            std::cout << "found a tower with high et = " << tower->et() << " at " << tower->eta() << ", " << tower->phi() << std::endl;
+          // if(m_debug)
+            // std::cout << "found a tower with high et = " << tower->et() << " at " << tower->eta() << ", " << tower->phi() << std::endl;
           et+= tower->et();
         }
         thr += noise.at(t);
@@ -137,7 +137,7 @@ StatusCode JetAlg::SeedFinding(const xAOD::JGTowerContainer*towers, TString seed
         et = 0;
       tmp_et.push_back(et);
       if (et > 0 && m_debug)
-        std::cout << eta << ", " << phi << " - pushed back tmp_et " << i << " with et = " << et << " after thr = " << thr << std::endl;
+        std::cout << eta << ", " << phi << " - adding a seed " << i << " with et = " << et << " after thr = " << thr*seed_total_noise_multiplier << std::endl;
     }
     m_SeedMap[seedname]->et.push_back(tmp_et);
   }
@@ -292,7 +292,11 @@ StatusCode JetAlg::BuildJet(const xAOD::JGTowerContainer*towers, TString seednam
            if(!inBox(eta,tower->eta(),jet_r, phi, tower->phi(),jet_r)) continue;
            j_et += tower->et();
            j_totalnoise += noise.at(t);
+           if(m_debug)
+             std::cout << "   adding tower at (eta,phi)=("<<tower->eta()<<","<<tower->phi()<<")" << std::endl;
         }
+        if(m_debug)
+          std::cout << " final jet has et = " << j_et << std::endl;
         if(j_et<jet_min_ET_MeV) continue;
         if(j_et<j_totalnoise*jet_total_noise_multiplier) continue;
         std::shared_ptr<JetAlg::L1Jet> j = std::make_shared<JetAlg::L1Jet>(eta, phi, j_et);
@@ -300,6 +304,12 @@ StatusCode JetAlg::BuildJet(const xAOD::JGTowerContainer*towers, TString seednam
      }
   }
   m_JetMap[jetname] = js;
+  if(m_debug) {
+    std::cout << "BuildJet: built " << js.size() << " jets:" << std::endl;
+    for(int i=0; i < int(js.size()); i++) {
+      std::cout << "  " << i << ": eta = " << (*js[i]).eta << ", phi = " << (*js[i]).phi << ", et = " << (*js[i]).et << std::endl;
+    }
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -331,7 +341,7 @@ StatusCode JetAlg::BuildRoundJet(const xAOD::JGTowerContainer*towers, TString se
              std::cout << "   adding tower at (eta,phi)=("<<tower->eta()<<","<<tower->phi()<<")" << std::endl;
         }
         if(m_debug)
-          std::cout << "   final jet has et = " << j_et << std::endl;
+          std::cout << " final jet has et = " << j_et << std::endl;
         if(j_et<jet_min_ET_MeV) continue;
         if(j_et<j_totalnoise*jet_total_noise_multiplier) continue;
 
@@ -339,6 +349,13 @@ StatusCode JetAlg::BuildRoundJet(const xAOD::JGTowerContainer*towers, TString se
 
         js.push_back(j);
      }
+  }
+  m_JetMap[jetname] = js;
+  if(m_debug) {
+    std::cout << "BuildRoundJet: built " << js.size() << " jets:" << std::endl;
+    for(int i=0; i < int(js.size()); i++) {
+      std::cout << "  " << i << ": eta = " << (*js[i]).eta << ", phi = " << (*js[i]).phi << ", et = " << (*js[i]).et << std::endl;
+    }
   }
   return StatusCode::SUCCESS;
 }

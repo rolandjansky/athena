@@ -667,7 +667,7 @@ StatusCode JGTowerReader::BuildJetsFromMap(const xAOD::JGTowerContainer*jTs) {
     }
   }
   
-
+  
   // Step 3, if seed is local max then make jet
   std::vector<std::shared_ptr<JetAlg::L1Jet>> js;
   TString jetname = "jJetFromMap";
