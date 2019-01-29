@@ -60,9 +60,9 @@ FitMatrices::FitMatrices(bool constrainedAlignmentEffects, bool eigenMatrixTreat
 	m_rowsDM			(0),
 	m_usePerigee			(false),
 	m_weight			(0),
-	m_weight***REMOVED***			(0),
+	m_weightAlSpaMat			(0),
 	m_weightedDifference		(0),
-	m_weightedDifference***REMOVED***	(0)
+	m_weightedDifferenceAlSpaMat	(0)
 {
     if (m_eigen)
     {
@@ -71,8 +71,8 @@ FitMatrices::FitMatrices(bool constrainedAlignmentEffects, bool eigenMatrixTreat
     }
     else
     {
-	m_weight***REMOVED***			= new AlSpaMat(mxparam);
-	m_weightedDifference***REMOVED***	= new AlVec(mxparam);
+	m_weightAlSpaMat			= new AlSpaMat(mxparam);
+	m_weightedDifferenceAlSpaMat	= new AlVec(mxparam);
     }
 }
 
@@ -82,9 +82,9 @@ FitMatrices::~FitMatrices(void)
     delete m_finalCovariance;
     delete m_residuals;
     delete m_weight;
-    delete m_weight***REMOVED***;
+    delete m_weightAlSpaMat;
     delete m_weightedDifference;
-    delete m_weightedDifference***REMOVED***;
+    delete m_weightedDifferenceAlSpaMat;
 }
 
 //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
@@ -124,8 +124,8 @@ double
 FitMatrices::chiSquaredChange (void) const
 {
     // not applicable when matrix has been inverted already
-    if (! m_numberDoF || ! m_weight***REMOVED*** || m_covariance) return 0.;
-    AlVec diffAl	= m_parameters->differences***REMOVED***();
+    if (! m_numberDoF || ! m_weightAlSpaMat || m_covariance) return 0.;
+    AlVec diffAl	= m_parameters->differencesAlSpaMat();
     Amg::VectorX diff(m_columnsDM);
     for (int i = 0; i != m_columnsDM; ++i) diff[i] = diffAl[i];
     if (m_matrixFromCLHEP)
@@ -138,7 +138,7 @@ FitMatrices::chiSquaredChange (void) const
 	Amg::MatrixX weight(m_columnsDM,m_columnsDM);
 	for (int i = 0; i != m_columnsDM; ++i)
 	{
-	    for (int j = 0; j != m_columnsDM; ++j) weight(i,j) = (*m_weight***REMOVED***)[j][i];
+	    for (int j = 0; j != m_columnsDM; ++j) weight(i,j) = (*m_weightAlSpaMat)[j][i];
 	}
 	return (diff * weight * diff.transpose())(0,0) / static_cast<double>(m_numberDoF);
     }
@@ -195,13 +195,13 @@ FitMatrices::fullCovariance (void)
 	}
 	else
 	{   
-	    avoidMomentumSingularity***REMOVED***();
+	    avoidMomentumSingularityAlSpaMat();
 
 	    // copy to AlSymMat for inversion
 	    AlSymMat weight(m_columnsDM);
 	    for (int i = 0; i != m_columnsDM; ++i)
 	    {
-		for (int j = 0; j <= i; ++j)		weight[i][j] = (*m_weight***REMOVED***)[i][j];
+		for (int j = 0; j <= i; ++j)		weight[i][j] = (*m_weightAlSpaMat)[i][j];
 	    }
 	    failure = weight.invert();
 	    for (int i = 0; i != m_columnsDM; ++i)
@@ -389,7 +389,7 @@ FitMatrices::printWeightMatrix (void)
 	    else
 	    {
 		std::cout << std::setiosflags(std::ios::scientific) << std::setbase(10)
-			  <<  std::setw(10) << (*m_weight***REMOVED***)[row][col] << "  ";
+			  <<  std::setw(10) << (*m_weightAlSpaMat)[row][col] << "  ";
             }	    
 	    if ((col+1)%13 == 0 && col < row)
 		std::cout << std::endl << std::setiosflags(std::ios::fixed)
@@ -709,10 +709,10 @@ FitMatrices::setDimensions (std::list<FitMeasurement*>&	measurements,
 	}
 	else
 	{
-	    delete m_weight***REMOVED***;
-	    m_weight***REMOVED***		= new AlSpaMat(m_columnsDM);
-	    delete m_weightedDifference***REMOVED***;
-	    m_weightedDifference***REMOVED***	= new AlVec(m_columnsDM);
+	    delete m_weightAlSpaMat;
+	    m_weightAlSpaMat		= new AlSpaMat(m_columnsDM);
+	    delete m_weightedDifferenceAlSpaMat;
+	    m_weightedDifferenceAlSpaMat	= new AlVec(m_columnsDM);
 	}
     }
     
@@ -722,7 +722,7 @@ FitMatrices::setDimensions (std::list<FitMeasurement*>&	measurements,
 bool
 FitMatrices::solveEquations(void)
 {
-    // use eigen or ***REMOVED*** methods
+    // use eigen or AlSpaMat methods
     if (m_eigen)
     {
     	return solveEquationsEigen();
@@ -731,21 +731,21 @@ FitMatrices::solveEquations(void)
     {
 //       bool debugEigen = false;
 //       if (debugEigen) {
-//         std::cout << " cols " << m_columnsDM << " rows " << m_rowsDM << " vector size " <<  m_weightedDifference***REMOVED***->size() << std::endl;
+//         std::cout << " cols " << m_columnsDM << " rows " << m_rowsDM << " vector size " <<  m_weightedDifferenceAlSpaMat->size() << std::endl;
 //         for (int row = 0; row < m_columnsDM; ++row) {
-//           (*m_weightedDifference)(row) = (*m_weightedDifference***REMOVED***)[row];
-//           std::cout << " row " << row << "  ***REMOVED*** = Eigen start " << (*m_weightedDifference***REMOVED***)[row] << std::endl;
+//           (*m_weightedDifference)(row) = (*m_weightedDifferenceAlSpaMat)[row];
+//           std::cout << " row " << row << "  AlSpaMat = Eigen start " << (*m_weightedDifferenceAlSpaMat)[row] << std::endl;
 //           for (int col = 0; col <= row; ++col) {
-//             (*m_weight)(row,col) = (*m_weight***REMOVED***)[row][col];
-//             (*m_weight)(col,row) = (*m_weight***REMOVED***)[row][col];
+//             (*m_weight)(row,col) = (*m_weightAlSpaMat)[row][col];
+//             (*m_weight)(col,row) = (*m_weightAlSpaMat)[row][col];
 //           } 
 //         } 
 //       }
-       bool OK = solveEquations***REMOVED***();
+       bool OK = solveEquationsAlSpaMat();
 //       if (OK&&debugEigen) {
 //          for (int col = 0; col < m_columnsDM; ++col) {
-//            double ***REMOVED***  = (*m_weightedDifference***REMOVED***)[col]; 
-//            std::cout << " col " << col << "  ***REMOVED*** " << ***REMOVED*** << std::endl;
+//            double AlSpaMat  = (*m_weightedDifferenceAlSpaMat)[col]; 
+//            std::cout << " col " << col << "  AlSpaMat " << AlSpaMat << std::endl;
 //          }  
 //          m_eigen = true;
 //          OK = solveEquationsEigen();
@@ -792,10 +792,10 @@ FitMatrices::addPerigeeMeasurement (void)
 }
 
 void
-FitMatrices::avoidMomentumSingularity***REMOVED***(void)
+FitMatrices::avoidMomentumSingularityAlSpaMat(void)
 {
     // fix momentum if line-fit or fit attempted with negligible field integral
-    AlSpaMat& weight		= *m_weight***REMOVED***;
+    AlSpaMat& weight		= *m_weightAlSpaMat;
     if (m_parameters->fitEnergyDeposit() && weight[5][5] < 1./Gaudi::Units::TeV)
     {
 	for (int i = 0; i != m_columnsDM; ++i)
@@ -971,13 +971,13 @@ FitMatrices::solveEquationsEigen(void)
 }
 
 bool
-FitMatrices::solveEquations***REMOVED***(void)
+FitMatrices::solveEquationsAlSpaMat(void)
 {
     // using alignment matrix package
     //  Note: multiplication using for loops is much faster than CLHEP ...
     //        and fastest of all using an array from a struct !
     //  first loop to fill off-diagonal symmetric weight matrix
-    AlSpaMat& weight		= *m_weight***REMOVED***;
+    AlSpaMat& weight		= *m_weightAlSpaMat;
     for (int row = 0; row < m_columnsDM; ++row)
     {
 	for (int col = 0; col < row; ++col)
@@ -995,7 +995,7 @@ FitMatrices::solveEquations***REMOVED***(void)
     }
 
     //  second loop fills diagonal and weightedDifference vector
-    AlVec& weightedDifference	= *m_weightedDifference***REMOVED***;
+    AlVec& weightedDifference	= *m_weightedDifferenceAlSpaMat;
     for (int row = 0; row < m_columnsDM; ++row)
     {
 	double element	= 0.;
@@ -1011,11 +1011,11 @@ FitMatrices::solveEquations***REMOVED***(void)
 
 //    bool debugEigen = false; 
 //    for (int col = 0; col < m_columnsDM; ++col) {
-//      double ***REMOVED*** = weightedDifference[col];
-//      if(debugEigen) std::cout << " col " << col  << " ***REMOVED*** weightedDifference input " << ***REMOVED*** << std::endl;
+//      double AlSpaMat = weightedDifference[col];
+//      if(debugEigen) std::cout << " col " << col  << " AlSpaMat weightedDifference input " << AlSpaMat << std::endl;
 //    }
 
-    // AlVec& weightedDifference	= *m_weightedDifference***REMOVED***;
+    // AlVec& weightedDifference	= *m_weightedDifferenceAlSpaMat;
     // for (int row = 0; row < m_columnsDM; ++row)
     // {
     // 	for (int col = 0; col <= row; ++col)
@@ -1042,12 +1042,12 @@ FitMatrices::solveEquations***REMOVED***(void)
     if (m_parameters->phiInstability()) weight[0][0] += m_largePhiWeight;
 
     // avoid some possible singularities in matrix inversion
-    avoidMomentumSingularity***REMOVED***();
+    avoidMomentumSingularityAlSpaMat();
     
     // solve is faster than inverse: wait for explicit request for covariance before inversion
-    // checked with O(50) param   (SA OK with invert; ***REMOVED*** much faster for CB)
+    // checked with O(50) param   (SA OK with invert; AlSpaMat much faster for CB)
     // trap singular matrix
-    int failure		= weight.***REMOVED***Solve(weightedDifference);
+    int failure		= weight.SolveWithEigen(weightedDifference);
     if (failure)
     {
 	return false;

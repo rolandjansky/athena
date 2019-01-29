@@ -328,7 +328,7 @@ runLocal = True
 ## solving option
 ##   0 - No global solving
 ##   1 - Lapack
-##   2 - ***REMOVED***
+##   2 - Eigen
 ##   6 - ROOT
 ##   7 - CLHEP
 solvingOption = 1
