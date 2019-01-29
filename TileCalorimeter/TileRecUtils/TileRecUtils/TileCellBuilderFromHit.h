@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERECUTILS_TILECELLBUILDERFROMHIT_H
@@ -74,41 +74,38 @@ class IAtRndmGenSvc;
  @brief This class creates Cells from RawChannels and stores them in a container
  
  */
-class TileCellBuilderFromHit: public AthAlgTool, virtual public ICaloCellMakerTool {
+class TileCellBuilderFromHit
+  : public extends<AthAlgTool, ICaloCellMakerTool>
+{
   public:
     TileCellBuilderFromHit(const std::string& type, const std::string& name, const IInterface* parent); //!< Contructor
 
     virtual ~TileCellBuilderFromHit(); //!< Destructor
 
-    virtual StatusCode initialize();                     //!< initialize mehtod
+    virtual StatusCode initialize() override;
 
-    virtual StatusCode finalize(); //!< finalize method
+    virtual StatusCode finalize() override;
 
-    virtual StatusCode process(CaloCellContainer* theCellContainer); // method to process all raw channels and store them in container
-
-    template<class ITERATOR, class COLLECTION>
-    void build(const ITERATOR & begin, const ITERATOR & end, COLLECTION * coll); //!< method to process raw channels from a given vector and store them in collection
-
-    /** method to check if channels are good or bad. Puts zero if both channels are bad
-     or recovers from single-channel failure. It returns true if cell was changed, false otherwise
-     */
-    bool maskBadChannel(TileCell* pCell);
-    bool maskBadChannels(TileCell* pCell, bool single_PMT_C10, bool Ecell);
+    /// method to process all raw channels and store them in container
+    virtual StatusCode process(CaloCellContainer* theCellContainer) override;
 
     //AlgTool InterfaceID
     static const InterfaceID& interfaceID();
     //static const InterfaceID& interfaceID() { return ICaloCellMakerTool; };
 
   private:
+    /// status of every drawer
+    typedef TileDrawerEvtStatus TileDrawerEvtStatusArray[5][64];
 
-    // properties
     // properties
     SG::ReadHandleKey<TileHitContainer> m_hitContainerKey{this, "TileHitContainer", 
                                                           "TileHitCnt", 
                                                           "Input Tile hit container key"};
 
-    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfo",
-                                                      "EventInfo", "Input Event info key"};
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfo", 
+                                                      "EventInfo", 
+                                                      "EventInfo key"};
+
 
     SG::WriteHandleKey<TileCellContainer> m_MBTSContainerKey{this, "MBTSContainer", 
                                                              "MBTSContainer", 
@@ -152,31 +149,47 @@ class TileCellBuilderFromHit: public AthAlgTool, virtual public ICaloCellMakerTo
     const TileDetDescrManager* m_tileMgr; //!< Pointer to TileDetDescrManager
     const MbtsDetDescrManager* m_mbtsMgr; //!< Pointer to MbtsDetDescrManager
 
-    std::vector<TileCell*> m_allCells;  //!< vector to of pointers to TielCells
-    std::vector<TileCell*> m_MBTSVec;   //!< vector to of pointers to MBTS cells
-    std::vector<TileCell*> m_E4prVec;   //!< vector to of pointers to E4' cells
-    std::unique_ptr<TileCellContainer> m_MBTSCells;     //!< Pointer to MBTS cell container
-    std::unique_ptr<TileCellContainer> m_E4prCells;     //!< Pointer to E4'  cell container
-
     TileFragHash::TYPE m_RChType;        //!< Type of TileRawChannels (Fit, OF2, etc.)
     //unsigned int m_bsflags;              //!< other flags stored in TileRawChannelContainer
 
-    TileDrawerEvtStatus m_drawerEvtStatus[5][64]; //!< status of every drawer in every event
-    TileDrawerRunStatus m_drawerRunStatus[5][64]; //!< overall status of drawer in whole run
-    int m_eventErrorCounter[4]; //!< number of events with no errors(0), warnings(1), error(2), total(3)
+    // These were accumulated, but never actually used.
+    // They also spoil reentrancy, so leave them commented-out for now.
+    // If this information is needed in the future, these can be changed
+    // to use atomics.
+    ///TileDrawerRunStatus m_drawerRunStatus[5][64]; //!< overall status of drawer in whole run
+    //int m_eventErrorCounter[4]; //!< number of events with no errors(0), warnings(1), error(2), total(3)
 
     std::vector<CaloAffectedRegionInfo> m_affectedRegionInfo_global;
     std::vector<CaloAffectedRegionInfo> m_affectedRegionInfo_current_run;
 
-    void correctCell(TileCell* pCell, int correction, int pmt, int gain, float ener, float time,
-        unsigned char iqual, unsigned char qbit); //!< Compute calibrated energy, time, etc. for TileCell and adjust it.
+    //!< method to process raw channels from a given vector and store them in collection
+    template<class ITERATOR, class COLLECTION>
+    void build(TileDrawerEvtStatusArray& drawerEvtStatus,
+               const ITERATOR & begin,
+               const ITERATOR & end,
+               COLLECTION * coll,
+               TileCellContainer* MBTSCells,
+               TileCellContainer* E4prCells) const;
+               
 
-    unsigned char iquality(float qual)  {//!< method to compute the cell quality
+    /** method to check if channels are good or bad. Puts zero if both channels are bad
+     or recovers from single-channel failure. It returns true if cell was changed, false otherwise
+     */
+    bool maskBadChannel (TileDrawerEvtStatusArray& drawerEvtStatus,
+                         TileCell* pCell) const;
+    bool maskBadChannels (TileDrawerEvtStatusArray& drawerEvtStatus,
+                          TileCell* pCell, bool single_PMT_C10, bool Ecell) const;
+
+    void correctCell(TileCell* pCell, int correction, int pmt, int gain, float ener, float time,
+        unsigned char iqual, unsigned char qbit) const; //!< Compute calibrated energy, time, etc. for TileCell and adjust it.
+
+    unsigned char iquality(float qual) const  {//!< method to compute the cell quality
          return std::min(255, abs((int) qual));
     } // keep quality within 8 bits make it "unsigned char"
 
-    unsigned char qbits(int ros, int drawer, bool count_over, bool good_time, bool good_ener,
-        bool overflow, bool underflow, bool good_overflowfit); //!< method to compute the cell quality bits
+    unsigned char qbits(TileDrawerEvtStatusArray& drawerEvtStatus,
+                        int ros, int drawer, bool count_over, bool good_time, bool good_ener,
+        bool overflow, bool underflow, bool good_overflowfit) const; //!< method to compute the cell quality bits
 
     int m_RUN2;
     int m_E1_TOWER;

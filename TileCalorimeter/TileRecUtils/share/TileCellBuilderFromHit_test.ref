@@ -1,14 +1,14 @@
-Mon Dec 17 02:35:03 CET 2018
+Mon Jan 14 15:46:49 EST 2019
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AthenaWorkDir-22.0.1] [x86_64-slc6-gcc62-dbg] [atlas-work3/d6d3116653c] -- built on [2018-12-16T1848]
+Py:Athena            INFO using release [WorkDir-22.0.1] [x86_64-slc6-gcc8-opt] [master-mt/7f37c8e33ff] -- built on [2019-01-11T2041]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "TileRecUtils/TileCellBuilderFromHit_test.py"
-[?1034hSetGeometryVersion.py obtained major release version 22
+SetGeometryVersion.py obtained major release version 22
 Py:Athena            INFO including file "IdDictDetDescrCnv/IdDictDetDescrCnv_joboptions.py"
-Py:ConfigurableDb    INFO Read module info for 5459 configurables from 51 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5435 configurables from 52 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 EventInfoMgtInit: Got release version  Athena-22.0.1
 Py:IOVDbSvc.CondDB    INFO Setting up conditions DB access to instance OFLP200
@@ -28,7 +28,7 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v30r5)
-                                          running on lxplus073.cern.ch on Mon Dec 17 02:35:26 2018
+                                          running on spar0101.usatlas.bnl.gov on Mon Jan 14 15:47:18 2019
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -36,7 +36,7 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 6864 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 7343 CLIDRegistry entries for module ALL
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
@@ -44,9 +44,9 @@ AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version Athena
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-12-15T2259/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-dbg/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus073.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://frontier-atlas.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-07T2353/Athena/22.0.1/InstallArea/x86_64-slc6-gcc8-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 1 servers found for host spar0101.usatlas.bnl.gov [ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc           WARNING Unable to locate catalog for prfile:poolcond/PoolCat_oflcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
@@ -83,7 +83,7 @@ IOVDbSvc             INFO Added taginfo remove for /TILE/OFL02/STATUS/ADC
 IOVDbSvc             INFO Added taginfo remove for /TILE/OFL02/TIME/CHANNELOFFSET/PHY
 IOVDbSvc             INFO Added taginfo remove for /TILE/ONL01/STATUS/ADC
 IOVDbSvc             INFO Added taginfo remove for /LAR/LArCellPositionShift
-ClassIDSvc           INFO  getRegistryEntries: read 1919 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1595 CLIDRegistry entries for module ALL
 ClassIDSvc           INFO  getRegistryEntries: read 17 CLIDRegistry entries for module ALL
 DetDescrCnvSvc       INFO  initializing 
 DetDescrCnvSvc       INFO Found DetectorStore service
@@ -137,7 +137,7 @@ BarrelConstruction   INFO   Use sagging in geometry  ? 0
   multi-layered version of absorbers activated, mlabs == 1
 ================================================
 EventPersistenc...   INFO Added successfully Conversion service:DetDescrCnvSvc
-ClassIDSvc           INFO  getRegistryEntries: read 2398 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 2389 CLIDRegistry entries for module ALL
 CaloIDHelper_ID...   INFO in createObj: creating a TileTBID helper object in the detector store
 IdDictDetDescrCnv    INFO in initialize
 IdDictDetDescrCnv    INFO in createObj: creating a IdDictManager object in the detector store
@@ -176,7 +176,7 @@ TileDddbManager      INFO n_tileSwitches = 1
 ClassIDSvc           INFO  getRegistryEntries: read 213 CLIDRegistry entries for module ALL
 CaloIDHelper_ID...   INFO in createObj: creating a TileID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-TileNeighbour        INFO Reading file  /afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-dbg/x86_64-slc6-gcc62-dbg/share/TileNeighbour_reduced.txt
+TileNeighbour        INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-07T2353/Athena/22.0.1/InstallArea/x86_64-slc6-gcc8-opt/share/TileNeighbour_reduced.txt
 TileHWIDDetDesc...   INFO in createObj: creating a TileHWID helper object in the detector store
 TileHWID             INFO initialize_from_dictionary 
 AtlasDetectorID      INFO initialize_from_dictionary - OK
@@ -188,9 +188,9 @@ CaloIDHelper_ID...   INFO in createObj: creating a LArHEC_ID helper object in th
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 CaloIDHelper_ID...   INFO in createObj: creating a LArFCAL_ID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-LArFCAL_Base_ID      INFO Reading file /afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-dbg/x86_64-slc6-gcc62-dbg/share/FCal2DNeighbors-April2011.txt
-LArFCAL_Base_ID      INFO Reading file /afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-dbg/x86_64-slc6-gcc62-dbg/share/FCal3DNeighborsNext-April2011.txt
-LArFCAL_Base_ID      INFO Reading file /afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-dbg/x86_64-slc6-gcc62-dbg/share/FCal3DNeighborsPrev-April2011.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-07T2353/Athena/22.0.1/InstallArea/x86_64-slc6-gcc8-opt/share/FCal2DNeighbors-April2011.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-07T2353/Athena/22.0.1/InstallArea/x86_64-slc6-gcc8-opt/share/FCal3DNeighborsNext-April2011.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-07T2353/Athena/22.0.1/InstallArea/x86_64-slc6-gcc8-opt/share/FCal3DNeighborsPrev-April2011.txt
 CaloIDHelper_ID...   INFO in createObj: creating a LArMiniFCAL_ID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 LArMiniFCAL_ID       INFO  initialize_from_dict - LArCalorimeter dictionary does NOT contain miniFCAL description. Unable to initialize LArMiniFCAL_ID.
@@ -217,11 +217,11 @@ TileInfoLoader       INFO Sampling fraction for E2 cells 1/107
 TileInfoLoader       INFO Sampling fraction for E3 cells 1/97
 TileInfoLoader       INFO Sampling fraction for E4 cells 1/75
 TileInfoLoader       INFO Sampling fraction for E4' cells 1/75
-TileInfoLoader       INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-12-15T2259/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-dbg/share/pulsehi_physics.dat
-TileInfoLoader       INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-12-15T2259/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-dbg/share/pulselo_physics.dat
-TileInfoLoader       INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-12-15T2259/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-dbg/share/pulse_adder_tower_physics.dat
-TileInfoLoader       INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-12-15T2259/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-dbg/share/pulse_adder_muonRcv_physics.dat
-TileInfoLoader       INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-12-15T2259/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-dbg/share/pulse_adder_muon_physics.dat
+TileInfoLoader       INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-07T2353/Athena/22.0.1/InstallArea/x86_64-slc6-gcc8-opt/share/pulsehi_physics.dat
+TileInfoLoader       INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-07T2353/Athena/22.0.1/InstallArea/x86_64-slc6-gcc8-opt/share/pulselo_physics.dat
+TileInfoLoader       INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-07T2353/Athena/22.0.1/InstallArea/x86_64-slc6-gcc8-opt/share/pulse_adder_tower_physics.dat
+TileInfoLoader       INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-07T2353/Athena/22.0.1/InstallArea/x86_64-slc6-gcc8-opt/share/pulse_adder_muonRcv_physics.dat
+TileInfoLoader       INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-07T2353/Athena/22.0.1/InstallArea/x86_64-slc6-gcc8-opt/share/pulse_adder_muon_physics.dat
 CaloIDHelper_ID...   INFO in createObj: creating a CaloLVL1_ID helper object in the detector store
 CaloLVL1_ID          INFO initialize_from_dictionary
 AtlasDetectorID      INFO initialize_from_dictionary - OK
@@ -276,9 +276,17 @@ TileSampleNoise...   INFO Creating TileCondProxyCool(TileSampleNoiseCondAlg.Tile
 TileTimingCondA...   INFO Creating TileCondProxyCool(TileTimingCondAlg.TileCondProxyCool_AdcOffset) for folder: "/TILE/OFL02/TIME/CHANNELOFFSET/PHY"
 tilecellbuilder...   INFO ProxyOnlBch and ProxyOflBch will be used for bad channel status
 tilecellbuilder...   INFO ProxyOnlBch and ProxyOflBch will be used for bad channel status
+ClassIDSvc           INFO  getRegistryEntries: read 504 CLIDRegistry entries for module ALL
+xAODMaker::Even...   INFO Initializing - Package version: xAODEventInfoCnv-00-00-00
+xAODMaker::Even...   INFO Initializing - Package version: xAODEventInfoCnv-00-00-00
+xAODMaker::Even...WARNING Beam conditions service not available
+xAODMaker::Even...WARNING Will not fill beam spot information into xAOD::EventInfo
+xAODMaker::Even...   INFO Luminosity information not available
+xAODMaker::Even...   INFO Will take information from the EventInfo object
+ClassIDSvc           INFO  getRegistryEntries: read 319 CLIDRegistry entries for module ALL
 PyComponentMgr       INFO Initializing PyComponentMgr...
 testalg1             INFO Initializing testalg1...
-ClassIDSvc           INFO  getRegistryEntries: read 5265 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 4849 CLIDRegistry entries for module ALL
 ToolSvc.tool1        INFO Storing MBTS cells in MBTSContainer
 ToolSvc.tool1        INFO Noise Sigma 0 MeV is selected!
 AtRndmGenSvc         INFO Initializing AtRndmGenSvc - package version RngComps-00-00-00
@@ -287,7 +295,6 @@ AtRndmGenSvc         INFO will be reseeded for every event
 AtRndmGenSvc      WARNING  INITIALISING Tile_DigitsMaker stream with DEFAULT seeds 3591  2309736
 ToolSvc.tool1        INFO max time thr  25 ns
 ToolSvc.tool1        INFO min time thr  -25 ns
-ToolSvc.tool1        INFO size of temp vector set to 5184
 ToolSvc.tool1        INFO taking hits from 'TileHitCnt'
 ToolSvc.tool1        INFO Storing E4'  cells in E4prContainer
 ToolSvc.tool1        INFO TileCellBuilderFromHit initialization completed
@@ -296,7 +303,6 @@ ToolSvc.tool2        INFO Storing MBTS cells in MBTSContainer
 ToolSvc.tool2        INFO Noise Sigma 0 MeV is selected!
 ToolSvc.tool2        INFO max time thr  25 ns
 ToolSvc.tool2        INFO min time thr  -25 ns
-ToolSvc.tool2        INFO size of temp vector set to 5184
 ToolSvc.tool2        INFO taking hits from 'TileHitCnt'
 ToolSvc.tool2        INFO Storing E4'  cells in E4prContainer
 ToolSvc.tool2        INFO TileCellBuilderFromHit initialization completed
@@ -304,7 +310,6 @@ ToolSvc.tool3        INFO Storing MBTS cells in MBTSContainer
 ToolSvc.tool3        INFO Noise Sigma 0.1 MeV is selected!
 ToolSvc.tool3        INFO max time thr  25 ns
 ToolSvc.tool3        INFO min time thr  -25 ns
-ToolSvc.tool3        INFO size of temp vector set to 5184
 ToolSvc.tool3        INFO taking hits from 'TileHitCnt'
 ToolSvc.tool3        INFO Storing E4'  cells in E4prContainer
 ToolSvc.tool3        INFO TileCellBuilderFromHit initialization completed
@@ -349,18 +354,19 @@ CaloIDHelper_ID...   INFO in createObj: creating a LArHEC_SuperCell_ID helper ob
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 CaloIDHelper_ID...   INFO in createObj: creating a LArFCAL_SuperCell_ID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-LArFCAL_Base_ID      INFO Reading file /afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-dbg/x86_64-slc6-gcc62-dbg/share/FCalSuperCells2DNeighborsNew-April2014.txt
-LArFCAL_Base_ID      INFO Reading file /afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-dbg/x86_64-slc6-gcc62-dbg/share/FCalSuperCells3DNeighborsNextNew-April2014.txt
-LArFCAL_Base_ID      INFO Reading file /afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-dbg/x86_64-slc6-gcc62-dbg/share/FCalSuperCells3DNeighborsPrevNew-April2014.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-07T2353/Athena/22.0.1/InstallArea/x86_64-slc6-gcc8-opt/share/FCalSuperCells2DNeighborsNew-April2014.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-07T2353/Athena/22.0.1/InstallArea/x86_64-slc6-gcc8-opt/share/FCalSuperCells3DNeighborsNextNew-April2014.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-07T2353/Athena/22.0.1/InstallArea/x86_64-slc6-gcc8-opt/share/FCalSuperCells3DNeighborsPrevNew-April2014.txt
 CaloIDHelper_ID...   INFO in createObj: creating a Tile_SuperCell_ID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-TileNeighbour        INFO Reading file  /afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-dbg/x86_64-slc6-gcc62-dbg/share/TileSuperCellNeighbour.txt
+TileNeighbour        INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-07T2353/Athena/22.0.1/InstallArea/x86_64-slc6-gcc8-opt/share/TileSuperCellNeighbour.txt
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 CaloIdMgrDetDes...   INFO  Finished 
 CaloIdMgrDetDes...   INFO Initializing CaloIdMgr from values in CaloIdMgrDetDescrCnv 
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 8667C6F2-1559-DE11-A611-000423D9A21A
 Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond08/cond08_mc.000003.gen.COND/cond08_mc.000003.gen.COND._0064.pool.root
 RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond08/cond08_mc.000003.gen.COND/cond08_mc.000003.gen.COND._0064.pool.root File version:52200
+xAODMaker::Even...WARNING Algorithm::BeginRun is deprecated. Use Start instead
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #1 0 events processed so far  <<<===
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_TILE/OFLP200
 IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to TileOfl02CalibCes-SIM-06 for folder /TILE/OFL02/CALIB/CES
@@ -383,8 +389,8 @@ TileBadChannels...   INFO TileBchStatus::isNoisy() is defined by: Large HF noise
 TileBadChannels...   INFO TileBchStatus::isNoGainL1() is defined by: ADC dead; No PMT connected; No HV; Channel masked for LV1 (unspecified); LV1 channel no gain; LV1 channel noisy; Channel disabled for LV1; 
 TileBadChannels...   INFO TileBchStatus::isBadTiming() is defined by: Bad timing; Online bad timing; 
 TileBadChannels...   INFO No drawer trips probabilities found in DB
-tilecellbuilder...   INFO Creating TileCondProxyFile(tilecellbuilder_bct1Cond.tilecellbuilder_bct1_onl) for ASCII file name: "/cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-12-15T2259/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-dbg/share/TileNoBad.oflBch"
-tilecellbuilder...   INFO Creating TileCondProxyFile(tilecellbuilder_bct1Cond.tilecellbuilder_bct1_ofl) for ASCII file name: "/cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-12-15T2259/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-dbg/share/TileNoBad.oflBch"
+tilecellbuilder...   INFO Creating TileCondProxyFile(tilecellbuilder_bct1Cond.tilecellbuilder_bct1_onl) for ASCII file name: "/cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-07T2353/Athena/22.0.1/InstallArea/x86_64-slc6-gcc8-opt/share/TileNoBad.oflBch"
+tilecellbuilder...   INFO Creating TileCondProxyFile(tilecellbuilder_bct1Cond.tilecellbuilder_bct1_ofl) for ASCII file name: "/cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-07T2353/Athena/22.0.1/InstallArea/x86_64-slc6-gcc8-opt/share/TileNoBad.oflBch"
 tilecellbuilder...   INFO No TileBchStatus::isBad() definition found in DB, using defaults
 tilecellbuilder...   INFO No TileBchStatus::isNoisy() definition found in DB, using defaults
 tilecellbuilder...   INFO No TileBchStatus::isNoGainL1() definition found in DB, using defaults
@@ -394,8 +400,8 @@ tilecellbuilder...   INFO TileBchStatus::isNoisy() is defined by: Large HF noise
 tilecellbuilder...   INFO TileBchStatus::isNoGainL1() is defined by: ADC dead; No PMT connected; No HV; Channel masked for LV1 (unspecified); LV1 channel no gain; LV1 channel noisy; Channel disabled for LV1; 
 tilecellbuilder...   INFO TileBchStatus::isBadTiming() is defined by: Bad timing; Online bad timing; 
 tilecellbuilder...   INFO No drawer trips probabilities found in DB
-tilecellbuilder...   INFO Creating TileCondProxyFile(tilecellbuilder_bct2Cond.tilecellbuilder_bct2_onl) for ASCII file name: "/cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-12-15T2259/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-dbg/share/TileNoBad.oflBch"
-tilecellbuilder...   INFO Creating TileCondProxyFile(tilecellbuilder_bct2Cond.tilecellbuilder_bct2_ofl) for ASCII file name: "/afs/cern.ch/work/s/ssnyder/builds/atlas-work3/build-x86_64-slc6-gcc62-dbg/TileCalorimeter/TileRecUtils/unitTestRun/tilecellbuilder_bct2.bch"
+tilecellbuilder...   INFO Creating TileCondProxyFile(tilecellbuilder_bct2Cond.tilecellbuilder_bct2_onl) for ASCII file name: "/cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-07T2353/Athena/22.0.1/InstallArea/x86_64-slc6-gcc8-opt/share/TileNoBad.oflBch"
+tilecellbuilder...   INFO Creating TileCondProxyFile(tilecellbuilder_bct2Cond.tilecellbuilder_bct2_ofl) for ASCII file name: "/gpfs/mnt/atlasgpfs01/usatlas/data/snyder/atlas-master-mt/build-x86_64-slc6-gcc8-opt/TileCalorimeter/TileRecUtils/unitTestRun/tilecellbuilder_bct2.bch"
 tilecellbuilder...   INFO No TileBchStatus::isBad() definition found in DB, using defaults
 tilecellbuilder...   INFO No TileBchStatus::isNoisy() definition found in DB, using defaults
 tilecellbuilder...   INFO No TileBchStatus::isNoGainL1() definition found in DB, using defaults
@@ -406,12 +412,6 @@ tilecellbuilder...   INFO TileBchStatus::isNoGainL1() is defined by: ADC dead; N
 tilecellbuilder...   INFO TileBchStatus::isBadTiming() is defined by: Bad timing; Online bad timing; 
 tilecellbuilder...   INFO No drawer trips probabilities found in DB
 ClassIDSvc           INFO  getRegistryEntries: read 650 CLIDRegistry entries for module ALL
-IncrementalExecutor::executeFunction: symbol '_ZNK7TileHitcvNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEEv' unresolved while linking function '__cxx_global_var_initcling_module_5164_'!
-You are probably missing the definition of TileHit::operator std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >() const
-Maybe you need to load the corresponding shared library?
-IncrementalExecutor::executeFunction: symbol '_ZNK7TileHitcvNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEEv' unresolved while linking function '__cxx_global_var_initcling_module_5179_'!
-You are probably missing the definition of TileHit::operator std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >() const
-Maybe you need to load the corresponding shared library?
 ClassIDSvc           INFO  getRegistryEntries: read 194 CLIDRegistry entries for module ALL
 ClassIDSvc           INFO  getRegistryEntries: read 8 CLIDRegistry entries for module ALL
 AtRndmGenSvc         INFO  Stream =  Tile_DigitsMaker, Seed1 =  288581169, Seed2 = 758068585
@@ -437,23 +437,23 @@ IncidentProcAlg2     INFO Finalize
 AtRndmGenSvc         INFO  FINALISING 
 PyComponentMgr       INFO Finalizing PyComponentMgr...
 IdDictDetDescrCnv    INFO in finalize
-IOVDbFolder          INFO Folder /LAR/Align (PoolRef) db-read 1/1 objs/chan/bytes 1/1/170 ((     3.13 ))s
-IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/CES (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/103344 ((     1.60 ))s
-IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/CIS/FIT/LIN (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/80 ((     1.00 ))s
-IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/CIS/FIT/NLN (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/80 ((     1.00 ))s
-IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/EMS (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/92 ((     0.99 ))s
-IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/LAS/FIBER (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/940 ((     0.94 ))s
-IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/LAS/LIN (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/72 ((     0.97 ))s
-IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/LAS/NLN (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/76 ((     0.78 ))s
-IOVDbFolder          INFO Folder /TILE/OFL02/NOISE/SAMPLE (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/641476 ((     1.62 ))s
-IOVDbFolder          INFO Folder /TILE/OFL02/STATUS/ADC (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/97884 ((     0.55 ))s
-IOVDbFolder          INFO Folder /TILE/OFL02/TIME/CHANNELOFFSET/PHY (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/96 ((     0.58 ))s
-IOVDbFolder          INFO Folder /TILE/ONL01/STATUS/ADC (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/76 ((     0.07 ))s
-IOVDbFolder          INFO Folder /LAR/LArCellPositionShift (PoolRef) db-read 1/1 objs/chan/bytes 1/1/195 ((     1.08 ))s
-IOVDbSvc             INFO  bytes in ((     14.30 ))s
+IOVDbFolder          INFO Folder /LAR/Align (PoolRef) db-read 1/1 objs/chan/bytes 1/1/170 ((     1.84 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/CES (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/103344 ((     2.10 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/CIS/FIT/LIN (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/80 ((     1.83 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/CIS/FIT/NLN (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/80 ((     1.83 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/EMS (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/92 ((     1.48 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/LAS/FIBER (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/940 ((     1.65 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/LAS/LIN (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/72 ((     1.65 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/LAS/NLN (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/76 ((     1.65 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/NOISE/SAMPLE (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/641476 ((     2.60 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/STATUS/ADC (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/97884 ((     1.48 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/TIME/CHANNELOFFSET/PHY (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/96 ((     1.65 ))s
+IOVDbFolder          INFO Folder /TILE/ONL01/STATUS/ADC (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/76 ((     0.09 ))s
+IOVDbFolder          INFO Folder /LAR/LArCellPositionShift (PoolRef) db-read 1/1 objs/chan/bytes 1/1/195 ((     1.11 ))s
+IOVDbSvc             INFO  bytes in ((     20.96 ))s
 IOVDbSvc             INFO Connection sqlite://;schema=mycool.db;dbname=OFLP200 : nConnect: 0 nFolders: 0 ReadTime: ((     0.00 ))s
-IOVDbSvc             INFO Connection COOLOFL_LAR/OFLP200 : nConnect: 2 nFolders: 2 ReadTime: ((     4.21 ))s
-IOVDbSvc             INFO Connection COOLOFL_TILE/OFLP200 : nConnect: 2 nFolders: 11 ReadTime: ((    10.10 ))s
+IOVDbSvc             INFO Connection COOLOFL_LAR/OFLP200 : nConnect: 2 nFolders: 2 ReadTime: ((     2.95 ))s
+IOVDbSvc             INFO Connection COOLOFL_TILE/OFLP200 : nConnect: 2 nFolders: 11 ReadTime: ((    18.01 ))s
 TileInfoLoader       INFO TileInfoLoader::finalize()
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
@@ -463,9 +463,9 @@ ToolSvc.tool1        INFO Finalizing
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-cObjR_ALL            INFO Time User   : Tot= 0.86  [s] Ave/Min/Max= 0.43(+- 0.41)/ 0.02/ 0.84  [s] #=  2
-cObj_ALL             INFO Time User   : Tot= 1.11  [s] Ave/Min/Max=0.0854(+-0.251)/    0/ 0.94  [s] #= 13
-ChronoStatSvc        INFO Time User   : Tot= 66.1  [s]                                             #=  1
+cObjR_ALL            INFO Time User   : Tot= 0.55  [s] Ave/Min/Max=0.275(+-0.265)/ 0.01/ 0.54  [s] #=  2
+cObj_ALL             INFO Time User   : Tot= 0.66  [s] Ave/Min/Max=0.0508(+-0.152)/    0/ 0.57  [s] #= 13
+ChronoStatSvc        INFO Time User   : Tot= 43.7  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully
