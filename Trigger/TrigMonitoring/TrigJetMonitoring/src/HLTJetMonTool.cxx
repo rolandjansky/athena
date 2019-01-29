@@ -1359,7 +1359,9 @@ StatusCode HLTJetMonTool::retrieveContainers() {
     m_OFJetC.push_back(jetcoll);
   } // end for
 
-  return sc;
+  // Override SC failure on retrieve, because we may want to run on files
+  // without every single chain activated!?
+  return StatusCode::SUCCESS;
 
 } // end retrieveContainers
 
