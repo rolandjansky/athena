@@ -68,6 +68,13 @@ if __name__ == "__main__":
     menu = generateMenu( ConfigFlags )
 
     acc.merge(menu)
+    # print all hypo algs and their hypo tools for debugging
+    from AthenaCommon.CFElements import flatAlgorithmSequences    
+    fs = flatAlgorithmSequences( menu.getSequence('HLTAllSteps') )
+    for seq, algs in fs.iteritems():
+        for alg in algs:
+            if 'HypoTools' in alg.getProperties():
+                print alg.getName(), [ t.getFullName() for t in alg.HypoTools ]
 
     f = open('newJOMenu.pkl', 'wb')
     acc.store(f)
