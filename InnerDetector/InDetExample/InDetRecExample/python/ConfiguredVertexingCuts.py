@@ -182,15 +182,15 @@ class ConfiguredVertexingCuts :
 
    if mode == "SLHC":  
 
-      self.__minPT               = 500. * Units.MeV
+      self.__minPT               = 900. * Units.MeV
       self.__IPd0Max             = 1.
       self.__sigIPd0Max          = 0.35
       self.__sigIPz0Max          = 2.5
       self.__d0significanceMax   = 4.
 
      #cluster and track quality cuts   
-
-      self.__nHitSct             = 5
+      self.__nHitPix             = 3
+      self.__nHitSct             = 0
       self.__nHitSi              = 7
       self.__useTrackQualityInfo = True      
 
