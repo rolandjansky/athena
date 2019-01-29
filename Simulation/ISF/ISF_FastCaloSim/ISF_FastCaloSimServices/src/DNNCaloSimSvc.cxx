@@ -117,7 +117,6 @@ StatusCode ISF::DNNCaloSimSvc::initialize()
 StatusCode ISF::DNNCaloSimSvc::initializeNetwork()
 {
 
-  // FIXME do once, what can be done once
   // get neural net JSON file as an std::istream object
   std::string inputFile=PathResolverFindCalibFile(m_paramsFilename);
   if (inputFile==""){
@@ -261,7 +260,6 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
     return StatusCode::SUCCESS;
   }
 
-  ATH_MSG_DEBUG(" particle: " << isfp.pdgCode() << " Ekin: " << isfp.ekin() << " position eta: " << particle_position.eta() << " direction eta: " << particle_direction.eta() << " position phi: " << particle_position.phi() << "direction phi: " << particle_direction.phi() );
 
   TFCSTruthState truth(isfp.momentum().x(),isfp.momentum().y(),isfp.momentum().z(),sqrt(isfp.momentum().mag2()+pow(isfp.mass(),2)),isfp.pdgCode());
   truth.set_vertex(particle_position[Amg::x], particle_position[Amg::y], particle_position[Amg::z]);
@@ -269,10 +267,7 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
   TFCSExtrapolationState extrapol;
   //FIXME this is extrapolating to many layers, when we only need middle layer middle surface
   //FIXME could have dedicated extrapolation to save time 
-  //FIXME check which surface was used to generate the training file
   m_FastCaloSimCaloExtrapolation->extrapolate(extrapol,&truth);
-  ATH_MSG_DEBUG(" calo surface eta " << extrapol.CaloSurface_eta() <<
-		" phi " << extrapol.CaloSurface_phi() );
   //  extrapol.Print();
  
 
@@ -283,7 +278,7 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
 
 	for (int isubpos=0; isubpos< 3 ; isubpos++){
       
-	  ATH_MSG_DEBUG("EXTRAPO isam=" << isam <<
+	  ATH_MSG_VERBOSE("EXTRAPO isam=" << isam <<
 			" isubpos=" << isubpos <<
 			" OK="    << extrapol.OK(isam,isubpos) <<
 			" eta="  << extrapol.eta(isam,isubpos) <<
@@ -304,7 +299,7 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
     phiExtrap=extrapol.phi(isam,isubpos);
   }
 
-  ATH_MSG_DEBUG("Will use isam=" << isam <<
+  ATH_MSG_VERBOSE("Will use isam=" << isam <<
 		" isubpos=" << isubpos <<
 		" eta="  << etaExtrap << 
 		" phi="  << phiExtrap );
@@ -331,7 +326,7 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
 
   }
 
-  ATH_MSG_DEBUG("impact cell calohash=" << caloHashImpactCell <<
+  ATH_MSG_VERBOSE("impact cell calohash=" << caloHashImpactCell <<
 		" eta="  << etaImpactCell << 
 		" phi="  << phiImpactCell <<
 		" eta raw="  << etaRawImpactCell << 
@@ -341,25 +336,27 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
   int impactEtaIndex = m_emID->eta(impactCellDDE->identify());
   int impactPhiIndex = m_emID->phi(impactCellDDE->identify());
 
-    ATH_MSG_DEBUG("rrr impact eta_index " << m_emID->eta(impactCellDDE->identify()) << " phi_index " << m_emID->phi(impactCellDDE->identify()) <<
-    " sampling " << m_emID->sampling(impactCellDDE->identify()));
+  ATH_MSG_VERBOSE("rrr impact eta_index " << m_emID->eta(impactCellDDE->identify()) 
+		  << " phi_index " << m_emID->phi(impactCellDDE->identify()) 
+		  << " sampling " << m_emID->sampling(impactCellDDE->identify()));
 
 
-
-  //FIXME remove ?
+  //FIXME move to initialize
   TFCSSimulationState simulstate(m_randomEngine);
 
 
-  // note that m_theCellContainer has all the calorimeter cells
 
-  //for(const auto& theCell : * m_theCellContainer) {
+
+
   int n_sqCuts = 0;
   double vall, valll;
+
+  // FIXME create in intialize
   std::vector<CaloCell*> windowCells;
   windowCells.reserve(266);
 
 
-
+  // note that m_theCellContainer has all the calorimeter cells
   CaloCell_ID::CaloSample sampling;
   for(const auto& theCell : * m_theContainer) {
    //theCaloDDE=theCell->caloDDE();
@@ -371,44 +368,46 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
       else{
         continue;
       }
-  }
-  else{
-    continue;
-  }
+    }
+    else{
+      continue;
+    }
       
-  if ((sampling == 0) || (sampling == 1) ){
-    if ((theCell->caloDDE()->eta_raw() < etaRawImpactCell + m_EtaRawMiddleCut_const) && (theCell->caloDDE()->eta_raw() > etaRawImpactCell - m_EtaRawMiddleCut_const)) {
-    n_sqCuts ++;
-    windowCells.push_back(theCell);
-    // add to vector
-  }
-  }
-  else if((sampling == 2)) {
-    if ((theCell->caloDDE()->phi_raw() < phiRawImpactCell + m_PhiRawMiddleCut_const) && (theCell->caloDDE()->phi_raw() > phiRawImpactCell - m_PhiRawMiddleCut_const)) {
+    if ((sampling == 0) || (sampling == 1) ){
       if ((theCell->caloDDE()->eta_raw() < etaRawImpactCell + m_EtaRawMiddleCut_const) && (theCell->caloDDE()->eta_raw() > etaRawImpactCell - m_EtaRawMiddleCut_const)) {
-        n_sqCuts ++;
-        windowCells.push_back(theCell);
+	n_sqCuts ++;
+	windowCells.push_back(theCell);
+	// add to vector
       }
     }
+    else if((sampling == 2)) {
+      if ((theCell->caloDDE()->phi_raw() < phiRawImpactCell + m_PhiRawMiddleCut_const) && (theCell->caloDDE()->phi_raw() > phiRawImpactCell - m_PhiRawMiddleCut_const)) {
+	if ((theCell->caloDDE()->eta_raw() < etaRawImpactCell + m_EtaRawMiddleCut_const) && (theCell->caloDDE()->eta_raw() > etaRawImpactCell - m_EtaRawMiddleCut_const)) {
+	  n_sqCuts ++;
+	  windowCells.push_back(theCell);
+	}
+      }
+    }
+
+    else if(sampling == 3){
+      if ((theCell->caloDDE()->phi_raw() < phiRawImpactCell + m_PhiRawMiddleCut_const) && (theCell->caloDDE()->phi_raw() > phiRawImpactCell - m_PhiRawMiddleCut_const)) {
+	n_sqCuts ++;
+	windowCells.push_back(theCell);
+      }
+
+    }
+    vall = theCell->caloDDE()->eta_raw();
+    valll = theCell->caloDDE()->phi_raw();
   }
 
-  else if(sampling == 3){
-  if ((theCell->caloDDE()->phi_raw() < phiRawImpactCell + m_PhiRawMiddleCut_const) && (theCell->caloDDE()->phi_raw() > phiRawImpactCell - m_PhiRawMiddleCut_const)) {
-    n_sqCuts ++;
-    windowCells.push_back(theCell);
-  }
-
-}
- vall = theCell->caloDDE()->eta_raw();
- valll = theCell->caloDDE()->phi_raw();
-  }
+  // FIXME at this point check 266 cells or bail out
 
   // FIXME std::stable_sort by phi, eta, layer in that order to get 266 in right order
 
-  ATH_MSG_DEBUG("NNN total cells passing cuts     " << n_sqCuts << "        eta phi raw " << vall << " and " << valll<< " sampling " << sampling);
+  ATH_MSG_VERBOSE("NNN total cells passing cuts     " << n_sqCuts << "        eta phi raw " << vall << " and " << valll<< " sampling " << sampling);
 
 
-  ATH_MSG_INFO("start neural network part");
+  // start neural network part
 
   // fill a map of input nodes
   std::map<std::string, std::map<std::string, double> > inputs;
@@ -422,43 +421,44 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
   int pconf = impactPhiIndex % 4 ;
   int econf = (impactEtaIndex + 1) % 2 ; // ofset corresponds to difference in index calculated for neural net preprocessing
     
-    riImpactEta = ((etaExtrap - etaRawImpactCell) - m_riImpactEtaMean_const)/m_riImpactEtaScale_const; // ??? or imact - extrap?
-    riImpactPhi = ((phiExtrap - phiRawImpactCell) - m_riImpactPhiMean_const);
-    // keep phi in -pi to pi
-    if (riImpactPhi > CLHEP::pi){
-      riImpactPhi -= 2 * CLHEP::pi;
-    }
-    else if (riImpactPhi < - CLHEP::pi){
-      riImpactPhi += 2 * CLHEP::pi;
-    }
-    riImpactPhi = riImpactPhi/m_riImpactPhiScale_const;
+  riImpactEta = ((etaExtrap - etaRawImpactCell) - m_riImpactEtaMean_const)/m_riImpactEtaScale_const; // ??? or imact - extrap?
+  riImpactPhi = ((phiExtrap - phiRawImpactCell) - m_riImpactPhiMean_const);
+  // keep phi in -pi to pi
+  if (riImpactPhi > CLHEP::pi){
+    riImpactPhi -= 2 * CLHEP::pi;
+  }
+  else if (riImpactPhi < - CLHEP::pi){
+    riImpactPhi += 2 * CLHEP::pi;
+  }
+  riImpactPhi = riImpactPhi/m_riImpactPhiScale_const;
 
+  // fill randomize latent space
   for (int in_var = 0; in_var< 300; in_var ++)
-   {
-    randGaussz = CLHEP::RandGauss::shoot(simulstate.randomEngine(), 0., 1.);
-    inputs["Z"].insert ( std::pair<std::string,double>(std::to_string(in_var), randGaussz) );
-    sum+= randGaussz;
-    sqsum += std::pow(randGaussz,2);
+    {
+      randGaussz = CLHEP::RandGauss::shoot(simulstate.randomEngine(), 0., 1.);
+      inputs["Z"].insert ( std::pair<std::string,double>(std::to_string(in_var), randGaussz) );
+      sum+= randGaussz;
+      sqsum += std::pow(randGaussz,2);
 
     }
-    sum /=300.;
-    sqsum /= 300.;
-    sd = std::sqrt(sqsum - std::pow(sum, 2));
-    ATH_MSG_DEBUG("mean std of gaussian = "<<sum << " and " << sd);
+  sum /=300.;
+  sqsum /= 300.;
+  sd = std::sqrt(sqsum - std::pow(sum, 2));
+  ATH_MSG_VERBOSE("mean std of gaussian = "<<sum << " and " << sd);
 
-
+  // fill configuration one-hot vector
   for (int in_var = 0; in_var< 1; in_var ++)
-   {
-    inputs["E_true"].insert ( std::pair<std::string,double>(std::to_string(in_var), (std::log(trueEnergy) - m_logTrueEnergyMean_const)/m_logTrueEnergyScale_const) );
+    {
+      inputs["E_true"].insert ( std::pair<std::string,double>(std::to_string(in_var), (std::log(trueEnergy) - m_logTrueEnergyMean_const)/m_logTrueEnergyScale_const) );
     }
   for (int in_var = 0; in_var< 4; in_var ++)
-   {
-    if (in_var == pconf){
-      inputs["pconfig"].insert ( std::pair<std::string,double>(std::to_string(in_var),1.) );
-    }
-    else{
-      inputs["pconfig"].insert ( std::pair<std::string,double>(std::to_string(in_var),0.) );
-    }
+    {
+      if (in_var == pconf){
+	inputs["pconfig"].insert ( std::pair<std::string,double>(std::to_string(in_var),1.) );
+      }
+      else{
+	inputs["pconfig"].insert ( std::pair<std::string,double>(std::to_string(in_var),0.) );
+      }
     }
   for (int in_var = 0; in_var< 2; in_var ++){
     if (in_var == econf){
@@ -469,12 +469,12 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
     }
   }
 
-    inputs["ripos"].insert ( std::pair<std::string,double>("0", riImpactEta) ); 
-    inputs["ripos"].insert ( std::pair<std::string,double>("1", riImpactPhi ) );
+  inputs["ripos"].insert ( std::pair<std::string,double>("0", riImpactEta) ); 
+  inputs["ripos"].insert ( std::pair<std::string,double>("1", riImpactPhi ) );
 
   // compute the output values
   std::map<std::string, double> outputs = m_graph->compute(inputs);
-  ATH_MSG_DEBUG("neural network output = "<<outputs);
+  ATH_MSG_VERBOSE("neural network output = "<<outputs);
 
 
   std::vector<CaloCell*>::iterator windowCell;
@@ -482,6 +482,8 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
   double myPhiIndex = -999.;
   double myEtaIndex = -999.;
 
+
+  // sort cells withing the cluster
   if (etaRawImpactCell < 0){
     std::sort(windowCells.begin(), windowCells.end(), &compCellsForDNNSortMirror);
   }
@@ -493,58 +495,29 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
   for ( windowCell = windowCells.begin(); windowCell != windowCells.end(); ++windowCell ) {
     (*windowCell)->addEnergy(trueEnergy * outputs[std::to_string(i)]);
 
-      ATH_MSG_DEBUG("NNN ImactEtaRaw" << etaRawImpactCell << " cell eta_raw " << (*windowCell)->caloDDE()->eta_raw() << " phi_raw " << (*windowCell)->caloDDE()->phi_raw() << " sampling " <<
-              (*windowCell)->caloDDE()->getSampling() << "energy " << (*windowCell)->energy());
-     myPhiIndex = (*windowCell)->caloDDE()->phi_raw() - (-3.1323888); // phi_right
-     //myPhiIndex = (*windowCell)->caloDDE()->phi_raw() - (-3.126253); // phi_left
+    ATH_MSG_VERBOSE("NNN ImpactEtaRaw" << etaRawImpactCell << " cell eta_raw " << (*windowCell)->caloDDE()->eta_raw() << " phi_raw " << (*windowCell)->caloDDE()->phi_raw() << " sampling " <<
+		  (*windowCell)->caloDDE()->getSampling() << "energy " << (*windowCell)->energy());
+    myPhiIndex = (*windowCell)->caloDDE()->phi_raw() - (-3.1323888); // phi_right
+    //myPhiIndex = (*windowCell)->caloDDE()->phi_raw() - (-3.126253); // phi_left
 
-     //myEtaIndex = (*windowCell)->caloDDE()->eta_raw() - (-1.4375); // eta_left
-     myEtaIndex = (*windowCell)->caloDDE()->eta_raw() - (1.4375); // eta_right
+    //myEtaIndex = (*windowCell)->caloDDE()->eta_raw() - (-1.4375); // eta_left
+    myEtaIndex = (*windowCell)->caloDDE()->eta_raw() - (1.4375); // eta_right
 
-     if (myPhiIndex > CLHEP::pi){
+    if (myPhiIndex > CLHEP::pi){
       myPhiIndex -= 2 * CLHEP::pi;
-     }
-     myPhiIndex /= m_MiddleCellWidthPhi_const;
-     myEtaIndex /= m_MiddleCellWidthEta_const;
+    }
+    myPhiIndex /= m_MiddleCellWidthPhi_const;
+    myEtaIndex /= m_MiddleCellWidthEta_const;
     //if (((*windowCell)->caloDDE()->eta_raw() < 0) && (*windowCell)->caloDDE()->getSampling() == 2) {
     // if (((*windowCell)->caloDDE()->eta_raw() > 0) && (*windowCell)->caloDDE()->getSampling() == 2) {
-      ATH_MSG_DEBUG("lll cell eta_index " << m_emID->eta((*windowCell)->caloDDE()->identify()) << " phi_index " << m_emID->phi((*windowCell)->caloDDE()->identify()) <<
-        "  sampling " << m_emID->sampling((*windowCell)->caloDDE()->identify()) << 
-        "  myPhiIndex(right) " << myPhiIndex <<
-      "  myEtaIndex(right) " << myEtaIndex);
-     // }
+    ATH_MSG_VERBOSE("lll cell eta_index " << m_emID->eta((*windowCell)->caloDDE()->identify()) << " phi_index " << m_emID->phi((*windowCell)->caloDDE()->identify()) <<
+		  "  sampling " << m_emID->sampling((*windowCell)->caloDDE()->identify()) << 
+		  "  myPhiIndex(right) " << myPhiIndex <<
+		  "  myEtaIndex(right) " << myEtaIndex);
+    // }
       
-      i++;
+    i++;
   }
-
-
-  // step 1 : gather all inputs
-  // given extrapolation find the impact cell in the middle layer,
-  // we need : icalohash, ieta, iphi of the middle layer cell impact
-  // we need : the eta and phi impact parameter
-  // energy 
-  // from icalohash, ieta, iphi we need theconfiguration
-   // fill the short array of cell calo_hash, and reset the energy in the short array of cell calo_hash
-
-  // step 2 : run the network
-  // generate the latent space
-  // run the network => output short vector of energies
-
-  // step 3 finalise
-  // add the energies from the short vector to full CaloCellContainer
-
-
-
-  // ATH_MSG_DEBUG("Energy returned: " << simulstate.E());
-  // ATH_MSG_VERBOSE("Energy fraction for layer: ");
-  // for (int s = 0; s < CaloCell_ID_FCS::MaxSample; s++)
-  // ATH_MSG_VERBOSE(" Sampling " << s << " energy " << simulstate.E(s));
-
-  // //Now deposit all cell energies into the CaloCellContainer
-  // for(const auto& iter : simulstate.cells()) {
-  //   CaloCell* theCell = (CaloCell*)m_theContainer->findCell(iter.first->calo_hash());
-  //   theCell->addEnergy(iter.second);
-  // }
 
 
   
