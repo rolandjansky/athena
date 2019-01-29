@@ -55,7 +55,6 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
-#include "JetInterface/IJetTrackSelector.h"
 #include "JetRec/JetModifierBase.h"
 #include "JetEDM/TrackVertexAssociation.h"
 #include "JetInterface/IJetModifier.h"
@@ -106,15 +105,11 @@ private:  // data
 
   // Configurable parameters
   std::string m_verticesName;
-  std::string m_assocTracksName;
-  std::string m_tvaName;
-  std::string m_tracksName;
   std::string m_jvfCorrName;
   std::string m_sumPtTrkName;
   std::string m_jvtlikelihoodHistName;
   std::string m_jvtfileName;
   std::string m_jvtName;
-  ToolHandle<IJetTrackSelector> m_htsel;
   TString m_fn;
   TFile * m_jvtfile;
   TH2F * m_jvthisto;

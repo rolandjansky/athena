@@ -21,7 +21,6 @@ JetVertexTaggerTool::JetVertexTaggerTool(const std::string& name)
 : asg::AsgTool(name)
 , m_jvtlikelihoodHistName("")
 , m_jvtfileName("")
-, m_htsel("")
 {
     declareProperty("JVFCorrName", m_jvfCorrName="JVFCorr");
     declareProperty("SumPtTrkName", m_sumPtTrkName="SumPtTrkPt500");
@@ -29,7 +28,6 @@ JetVertexTaggerTool::JetVertexTaggerTool(const std::string& name)
 
     declareProperty("JVTFileName",m_jvtfileName = "JVTlikelihood_20140805.root");
     declareProperty("JVTLikelihoodHistName",m_jvtlikelihoodHistName = "JVTRootCore_kNN100trim_pt20to50_Likelihood");
-    declareProperty("TrackSelector", m_htsel);
     declareProperty("JVTName", m_jvtName ="Jvt");
 }
 
@@ -37,12 +35,6 @@ JetVertexTaggerTool::JetVertexTaggerTool(const std::string& name)
 
 StatusCode JetVertexTaggerTool::initialize() {
   ATH_MSG_INFO("Initializing JetVertexTaggerTool " << name());
-
-  if ( m_htsel.empty() ) {
-    ATH_MSG_INFO("  No track selector.");
-  } else {
-    ATH_MSG_INFO("  Track selector: " << m_htsel->name());
-  }
 
   // Use the Path Resolver to find the jvt file and retrieve the likelihood histogram
   m_fn =  PathResolverFindCalibFile(m_jvtfileName);	
