@@ -31,6 +31,8 @@ def collectHypos( steps ):
                 if 'HypoInputDecisions'  in alg.getProperties():
                     __log.info( "found hypo " + alg.name() + " in " +stepSeq.name() )
                     hypos[stepSeq.name()].append( alg )
+                else:
+                    __log.info("DID NOT FIND HYPO" + alg.name())
     return hypos
 
 def __decisionsFromHypo( hypo ):

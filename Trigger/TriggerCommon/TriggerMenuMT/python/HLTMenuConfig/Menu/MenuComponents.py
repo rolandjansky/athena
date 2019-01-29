@@ -209,7 +209,7 @@ class ComboMaker(AlgNode):
 
     def addChain(self, chain):
         log.debug("ComboMaker %s adding chain %s"%(self.Alg.name(),chain))
-        from MenuChains import getConfFromChainName
+        from TriggerMenuMT.HLTMenuConfig.Menu.MenuChains import getConfFromChainName
         confs=getConfFromChainName(chain)
         for conf in confs:
             seed=conf.replace("HLT_", "")
@@ -380,7 +380,7 @@ class Chain:
     def decodeHypoToolConfs(self):
         """ This is extrapolating the hypotool configuration from the (combined) chain name"""
         from TriggerMenuMT.HLTMenuConfig.Menu.MenuChains import getConfFromChainName
-        signatures = getConfFromChainName(self.name)
+        signatures = getConfFromChainName(self.name) #currently a lis of chainPart names
         for step in self.steps:
             if len(signatures) != len(step.sequences):
                 log.error("Error in step %s: found %d signatures and %d sequences"%(step.name, len(signatures), len(step.sequences)))
