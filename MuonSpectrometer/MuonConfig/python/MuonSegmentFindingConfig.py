@@ -813,7 +813,7 @@ if __name__=="__main__":
     from AthenaCommon.Logging import log
     log.debug('About to set up Segment Finding.')
     
-    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.3/myESD.pool.root"]
+    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.3/v1/myESD.pool.root"]
     ConfigFlags.Input.isMC = True
     ConfigFlags.Muon.doCSCs = False 
     ConfigFlags.lock()
