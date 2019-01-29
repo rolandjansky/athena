@@ -314,7 +314,7 @@ class MenuSequence():
         self.hypo.setPreviousDecision( input_maker_output)
         hypo_output = CFNaming.hypoAlgOutName(self.hypo.Alg.name(), input_maker_output)
         if len(self.hypo.getOutputList()):
-            log.error("Hypo %s has already an output configured: you may want to duplicate the Hypo!")
+            log.error("Hypo " + self.hypo.name() +" has already an output configured: you may want to duplicate the Hypo!")
             sys.exit("ERROR, in chain configuration") 
         self.hypo.addOutput(hypo_output)
 
@@ -332,7 +332,30 @@ class MenuSequence():
     def __str__(self):
         return "MenuSequence::%s \n Hypo::%s \n Maker::%s \n Sequence::%s"%(self.name, self.hypo, self.maker, self.sequence)
 
-    
+
+#################################################
+#### CONFIGURATION FOR L1DECODER
+#################################################
+## It might be moved somewhere in the cofiguration later one
+# This is amp between the L1 items and the name of teh Decisions in the L1Decoder unpacking tools
+mapSeedToL1Decoder = {  "EM" : "L1EM",
+                        "MU" : "L1MU",
+                        "J"  : "L1J",
+                        "TAU": "L1TAU",
+                        "XE" : "L1MET",
+                        "XS" : "L1MET",
+                        "TE" : "L1MET"}
+
+def DoMapSeedToL1Decoder(seed):
+    # remove actual threshold value from L1 seed string
+    strip_seed  = filter(lambda x: x.isalpha(), seed)
+    if strip_seed not in mapSeedToL1Decoder:
+        log.error("Wrong mapping of L1 seeds. "+ strip_seed + " not found in dictionary")
+        sys.exit("ERROR, in chain configuration") 
+    return (mapSeedToL1Decoder[strip_seed])   
+
+#################################################
+
 class Chain:
     """Basic class to define the trigger menu """
     def __init__(self, name, Seed, ChainSteps=[]):
@@ -352,7 +375,8 @@ class Chain:
             for m in range(0,mult): self.vseeds.append(single) 
             
         # group_seed is used to se tthe seed type (EM, MU,JET), removing the actual threshold
-        self.group_seed  = ["L1"+filter(lambda x: x.isalpha(), stri) for stri in self.vseeds]
+        # in practice it is the L1Decoder Decision output
+        self.group_seed = [DoMapSeedToL1Decoder(stri) for stri in self.vseeds]
         self.setSeedsToSequences() # save seed of each menuseq
         log.debug("Chain " + name + " with seeds: %s "%str( self.vseeds))
 

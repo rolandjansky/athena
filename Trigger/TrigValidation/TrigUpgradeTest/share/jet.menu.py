@@ -20,25 +20,6 @@ testChains  = [
     ]
     
 
-
-
-#################################
-# Configure L1Decoder
-#################################
-
-# provide a minimal menu information
-if globalflags.InputFormat.is_bytestream():
-   topSequence.L1DecoderTest.ctpUnpacker.OutputLevel=DEBUG
-   topSequence.L1DecoderTest.roiUnpackers[0].OutputLevel=DEBUG
-
-
-        
-# this is a temporary hack to include new test chains
-EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in testChains])
-topSequence.L1DecoderTest.ChainToCTPMapping = EnabledChainNamesToCTP
-
-
-
 ##########################################
 # CF construction
 ##########################################

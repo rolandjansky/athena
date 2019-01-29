@@ -112,7 +112,7 @@ def makeHLTTree(HLTChains):
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.lock()
 
-    # get totpSequnece
+    # get topSequnece
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
 
@@ -139,7 +139,7 @@ def makeHLTTree(HLTChains):
     # make CF tree
     finalDecisions = decisionTree_From_Chains(steps, HLTChains)
     
-    # make Summary
+    # make Final Summary
     flatDecisions=[]
     for step in finalDecisions: flatDecisions.extend (step)
     summary= makeSummary("TriggerSummaryFinal", flatDecisions)
@@ -149,7 +149,7 @@ def makeHLTTree(HLTChains):
     #summary.OutputTools= [ edmCreator ]
     hltTop += summary
 
-    # add some more monitor
+    # add signature monitor
     from TriggerJobOpts.TriggerConfig import collectHypos, triggerMonitoringCfg, triggerSummaryCfg
     hypos = collectHypos(steps)
     summaryAcc, summaryAlg = triggerSummaryCfg( ConfigFlags, hypos )

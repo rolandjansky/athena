@@ -152,16 +152,6 @@ if (doCombo):
     testChains += comboChains
 
 
-#################################
-# Configure L1Decoder
-#################################
-
-# this is a temporary hack to include new test chains
-EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in testChains])
-topSequence.L1DecoderTest.ChainToCTPMapping = EnabledChainNamesToCTP
-
-
-
 ##########################################
 # CF construction
 ##########################################

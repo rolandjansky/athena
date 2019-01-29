@@ -25,15 +25,6 @@ testChains  = [
 #################################
 # Configure L1Decoder
 #################################
-
-
-      
-# this is a temporary hack to include new test chains
-EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in testChains])
-topSequence.L1DecoderTest.ChainToCTPMapping = EnabledChainNamesToCTP
-
-#################################
-
 topSequence.L1DecoderTest.prescaler.Prescales = ["HLT_j35_gsc45_boffperf_split:1",
                                                  "HLT_j35_gsc45_bmv2c1070_split:1",
                                                  "HLT_j35_gsc45_bmv2c1070:1"]
