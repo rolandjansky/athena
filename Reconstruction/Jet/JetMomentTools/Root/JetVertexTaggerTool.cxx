@@ -90,7 +90,7 @@ int JetVertexTaggerTool::modify(xAOD::JetContainer& jetCont) const {
       // Default JVFcorr to -1 when no tracks are associated.
       float jvfcorr = jet->getAttribute<float>(m_jvfCorrName);
       std::vector<float> sumpttrkpt500 = jet->getAttribute<std::vector<float> >(m_sumPtTrkName);
-      const float rpt = sumpttrkpt500[HSvertex->index()]/jet->pt();
+      const float rpt = sumpttrkpt500[HSvertex->index() - (*vertices)[0]->index()]/jet->pt();
       float jvt = evaluateJvt(rpt, jvfcorr);
       
       jet->setAttribute(m_jvtName+"Rpt",rpt);
