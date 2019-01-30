@@ -29,7 +29,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/StoreGate.h"
 
-#include "CaloEvent/CaloCellContainer.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloIdManager.h"
@@ -109,6 +108,8 @@ StatusCode ISF::DNNCaloSimSvc::initialize()
    ATH_MSG_ERROR("FastCaloSimCaloExtrapolation not found ");
    return StatusCode::FAILURE;
   }
+
+  m_windowCells.reserve(m_numberOfCellsForDNN_const);
   
   return StatusCode::SUCCESS;
 }
@@ -359,14 +360,10 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
 		  << " sampling " << m_emID->sampling(impactCellDDE->identify()));
 
 
-  //FIXME move to initialize
+  //FIXME move to initialize?
   TFCSSimulationState simulstate(m_randomEngine);
 
   int n_sqCuts = 0;
-
-  // FIXME create in intialize
-  std::vector<CaloCell*> windowCells;
-  windowCells.reserve(m_numberOfCellsForDNN_const);
 
 
   // select the cells DNN will simulate 
@@ -390,7 +387,7 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
       if ((theCell->caloDDE()->eta_raw() < etaRawImpactCell + m_EtaRawMiddleCut_const) && (theCell->caloDDE()->eta_raw() > etaRawImpactCell - m_EtaRawMiddleCut_const)) {
 	n_sqCuts ++;
 	// add to vector
-	windowCells.push_back(theCell);
+	m_windowCells.push_back(theCell);
 	
       }
     }
@@ -398,7 +395,7 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
       if ((theCell->caloDDE()->phi_raw() < phiRawImpactCell + m_PhiRawMiddleCut_const) && (theCell->caloDDE()->phi_raw() > phiRawImpactCell - m_PhiRawMiddleCut_const)) {
 	if ((theCell->caloDDE()->eta_raw() < etaRawImpactCell + m_EtaRawMiddleCut_const) && (theCell->caloDDE()->eta_raw() > etaRawImpactCell - m_EtaRawMiddleCut_const)) {
 	  n_sqCuts ++;
-	  windowCells.push_back(theCell);
+	  m_windowCells.push_back(theCell);
 	}
       }
     }
@@ -406,7 +403,7 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
     else if(sampling == 3){
       if ((theCell->caloDDE()->phi_raw() < phiRawImpactCell + m_PhiRawMiddleCut_const) && (theCell->caloDDE()->phi_raw() > phiRawImpactCell - m_PhiRawMiddleCut_const)) {
 	n_sqCuts ++;
-	windowCells.push_back(theCell);
+	m_windowCells.push_back(theCell);
       }
 
     }
@@ -482,10 +479,10 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
 
  // sort cells within the cluster like they are fed to DNN
   if (etaRawImpactCell < 0){
-    std::sort(windowCells.begin(), windowCells.end(), &compCellsForDNNSortMirror);
+    std::sort(m_windowCells.begin(), m_windowCells.end(), &compCellsForDNNSortMirror);
   }
   else{
-    std::sort(windowCells.begin(), windowCells.end(), &compCellsForDNNSort);
+    std::sort(m_windowCells.begin(), m_windowCells.end(), &compCellsForDNNSort);
   }
 
   std::vector<CaloCell*>::iterator windowCell;
@@ -493,7 +490,7 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
   // double preprocessedPhiIndex = -999.;
   // double preprocessedEtaIndex = -999.;
 
-  for ( windowCell = windowCells.begin(); windowCell != windowCells.end(); ++windowCell ) {
+  for ( windowCell = m_windowCells.begin(); windowCell != m_windowCells.end(); ++windowCell ) {
     (*windowCell)->addEnergy(trueEnergy * outputs[std::to_string(itr)]);
     itr++;
 
@@ -515,6 +512,7 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
 		  // "  preprocessedPhiIndex(right) " << preprocessedPhiIndex <<
 		  // "  preprocessedEtaIndex(right) " << preprocessedEtaIndex);
   }
+  m_windowCells.clear();
 
 
   

@@ -31,6 +31,7 @@
 #include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include "lwtnn/LightweightGraph.hh"
+#include "CaloEvent/CaloCellContainer.h"
 
 
 namespace CLHEP
@@ -94,6 +95,7 @@ namespace ISF {
       const CaloDetDescrManager* m_caloDetDescrManager;
       CaloGeometryFromCaloDDM* m_caloGeo;
       const LArEM_ID* m_emID;
+      std::vector<CaloCell*> m_windowCells;
       const double m_logTrueEnergyMean_const = 9.70406053;
       const double m_logTrueEnergyScale_const = 1.76099569;
       const double m_riImpactEtaMean_const = 3.47603256e-05;
