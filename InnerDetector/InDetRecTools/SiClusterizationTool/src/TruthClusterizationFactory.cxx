@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -100,7 +100,7 @@ namespace InDet {
    }  
   }
 
-  std::vector<double> TruthClusterizationFactory::estimateNumberOfParticles(const InDet::PixelCluster& pCluster)
+  std::vector<double> TruthClusterizationFactory::estimateNumberOfParticles(const InDet::PixelCluster& pCluster) const
   {
 	std::vector<double> probabilities(3,0.);
 	auto rdos = pCluster.rdoList();
@@ -172,7 +172,7 @@ namespace InDet {
 	
   }
 
-   std::vector<Amg::Vector2D> TruthClusterizationFactory::estimatePositions(const InDet::PixelCluster& )
+  std::vector<Amg::Vector2D> TruthClusterizationFactory::estimatePositions(const InDet::PixelCluster& ) const
   { 
 	ATH_MSG_ERROR("TruthClusterizationFactory::estimatePositions called for ITk ambiguity setup, should never happen! Digital clustering should be run for positions & errors.");
     return std::vector<Amg::Vector2D>(2,Amg::Vector2D (2,0.));
