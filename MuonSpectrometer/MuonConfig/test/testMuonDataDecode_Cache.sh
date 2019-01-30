@@ -10,5 +10,5 @@ else
     echo
     echo "JOs reading stage finished, launching Athena from pickle file"
     echo 
-    athena --threads=1 --evtMax=20 MuonRdoDecode.pkl
+    athena --threads=1 --evtMax=20 MuonRdoDecode_Cache.pkl
 fi
