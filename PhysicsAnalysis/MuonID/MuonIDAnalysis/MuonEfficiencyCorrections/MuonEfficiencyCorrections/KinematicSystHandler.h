@@ -48,8 +48,7 @@ namespace CP {
             
             /// Initialize method to load the inputs and check that everything will work as expected.
             virtual bool initialize() = 0;
-            virtual ~IKinematicSystHandler() {
-            }
+            virtual ~IKinematicSystHandler() =default;
             
             /// Typedef to prepare function pointers to the muon
             typedef float (IKinematicSystHandler::*KinVariable)(const xAOD::Muon &mu) const;

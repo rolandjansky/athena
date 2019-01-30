@@ -40,7 +40,6 @@ namespace CP {
             /// Contains histograms for Efficiency, Scale Factor and Systematic errors
             /// Handles loading from files and manages the histos
             /// The user should not have to interact with this directly!
-
         public:
             /// Nominal constructor to use having the measurement (Reco/TTVA/Iso/BadMuon)
             /// path to the scale-factor map & the time unit to consider

@@ -545,8 +545,9 @@ namespace CP {
     
     std::string MuonEfficiencyScaleFactors::getUncorrelatedSysBinName(unsigned int Bin) const {
         if (!m_current_sf){
-           ATH_MSG_WARNING("No systematic has been loaded. Cannot return any syst-bin");
-           return "It's not my wallet";
+          throw std::runtime_error("No systematic has been loaded. Cannot return any syst-bin") ;
+           ATH_MSG_FATAL("No systematic has been loaded. Cannot return any syst-bin");
+          
         }        
         return m_current_sf->GetBinName(Bin);
     }

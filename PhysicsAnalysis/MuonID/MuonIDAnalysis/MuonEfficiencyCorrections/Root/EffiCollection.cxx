@@ -114,7 +114,7 @@ return m_central_eff;
             m_syst_set = std::make_unique<CP::SystematicSet>();
             size_t glob_sys = m_ref_tool.getPosition(this);
             if (glob_sys > m_ref_tool.getNCollections()){
-                Error("EffiCollection()", "Whaat?! How could it be that I'm not part of this game?");
+                Error("EffiCollection()", "Invalid position in the list of systematics. It seems that I'm not part of the referring ScaleFactorTool.");
                 return false;
             }
             for (const auto& file_type: {EffiCollection::Central, EffiCollection::Calo, EffiCollection::Forward,  

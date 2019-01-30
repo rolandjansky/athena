@@ -97,7 +97,10 @@ namespace CP {
     class HistHandler_TH2: public HistHandler {
 
         public:
-
+            /// The HistHandler TH2 handles 2D histograms which are not TH2Poly, since TH2 inhertis from TH1,
+            /// a TH1* object is parsed avoiding the dynamic cast. Via the GetDimension() method of the TH1 
+            /// the class ensures that the histogram has actual dimension 2. No specific TH2 method is required 
+            /// in all considered usecases of TH1.
             HistHandler_TH2(TH1* hist);
             HistHandler_TH2(const HistHandler_TH2 & other);
             virtual HistHandler_TH2 & operator =(const HistHandler_TH2 & other);
@@ -115,7 +118,10 @@ namespace CP {
     class HistHandler_TH3: public HistHandler {
 
         public:
-
+            /// The HistHandler TH3 handles 3D histograms, since TH3 inhertis from TH1,a TH1* object is parsed avoiding the dynamic cast. 
+            /// Via the GetDimension() method of the TH1 the class ensures that the histogram has actual dimension 3. No specific TH3 method
+            /// is required in all use-caes of the class.
+            
             HistHandler_TH3(TH1* hist);
             HistHandler_TH3(const HistHandler_TH3 & other);
             virtual HistHandler_TH3 & operator =(const HistHandler_TH3 & other);
@@ -135,7 +141,9 @@ namespace CP {
     class HistHandler_TH2Poly: public HistHandler {
 
         public:
-
+            /// The HistHandler_TH2Poly handles the TH2Poly histograms of the scale-factor maps. Since the bin-finding,
+            /// algoritihms of the TH2Poly differ from the ones of TH1, TH2 & TH3 explicit methods of TH2Poly are needed
+            /// to pick-up the proper bin.
             HistHandler_TH2Poly(TH2Poly* hist);
             HistHandler_TH2Poly(const HistHandler_TH2Poly & other);
             virtual HistHandler_TH2Poly & operator =(const HistHandler_TH2Poly & other);

@@ -21,11 +21,14 @@ namespace CP {
     class EfficiencyScaleFactor;
     class SystematicSet;
     class SystematicVariation;
-    
-    class EffiCollection {
+    /// The EffiCollection class handles the 5 different scale-factor maps binned in time. Each muon is piped to the correct map based 
+    /// whether it's a calo-tag muon, belongs to the high-eta region or has low-pt. 
+    /// There exists one instance of the EffiCollection foreach systematic variation and nominal. Scale-factor maps which are not affected by 
+    /// a systematic, especially in the case of common vs. low-pt, are taken from the Nominal maps.
+    class EffiCollection final {
         public:
-            EffiCollection(const MuonEfficiencyScaleFactors& ref_tool);
-            //Constructor with nominal as fallback..
+            explicit EffiCollection(const MuonEfficiencyScaleFactors& ref_tool);
+            ///Constructor with nominal as fallback..
             EffiCollection(const EffiCollection* Nominal, const MuonEfficiencyScaleFactors& ref_tool, const std::string& syst, int syst_bit_map, bool is_up);
           
             /// return the correct SF type to provide, depending on eta and the author
@@ -90,7 +93,10 @@ namespace CP {
             bool  isAffectedBySystematic(const SystematicSet& set) const;
             
         protected:
-            class CollectionContainer {
+            
+            /// The collection container manages the time binning of a particular scale-factor map. For a given runNumber,
+            /// it pipes the right map to the upstream tools.
+            class CollectionContainer final {
                 public:
                     /// Nominal constructor... Only needs to know about it's type and the file to load
                     CollectionContainer(const MuonEfficiencyScaleFactors& ref_tool, EffiCollection::CollectionType FileType);
