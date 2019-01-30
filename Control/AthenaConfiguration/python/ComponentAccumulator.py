@@ -2,7 +2,7 @@
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.Configurable import Configurable,ConfigurableService,ConfigurableAlgorithm,ConfigurableAlgTool
-from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,flatSequencers,findOwningSequence
+from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,flatSequencers,findOwningSequence,checkSequenceConsistency
 from AthenaCommon.AlgSequence import AthSequencer
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
@@ -126,9 +126,8 @@ class ComponentAccumulator(object):
             if parent is None:
                 raise ConfigurationError("Missing sequence %s to add new sequence to" % parentName )
 
-        if findSubSequence( parent, newseq.name() ):
-            raise ConfigurationError("Sequence %s already present" % newseq.name() )
         parent += newseq
+        checkSequenceConsistency(self._sequence)
         return newseq 
 
 
@@ -148,6 +147,7 @@ class ComponentAccumulator(object):
 
         owner.remove( seq )
         dest += seq
+        checkSequenceConsistency(self._sequence)
         return seq
 
 
@@ -442,6 +442,7 @@ class ComponentAccumulator(object):
                     else: # absent, adding
                         self._msg.debug("  Merging algorithm %s to a sequence %s", c.name(), dest.name() )
                         dest += c
+            checkSequenceConsistency(self._sequence)
                         
 
         #Merge sequences:
@@ -877,7 +878,7 @@ class TestHLTCF( unittest.TestCase ):
         self.assertNotEqual( s['hltSteps']['Members'], '[]', "Empty set of members in hltSteps, Sequences recording order metters" )
 
 
-class MultipleParrentsInSequences( unittest.TestCase ):
+class MultipleParentsInSequences( unittest.TestCase ):
     def runTest( self ):
        # test if an algorithm (or sequence) can be controlled by more than one sequence
         Configurable.configurableRun3Behavior=1
@@ -900,7 +901,7 @@ class MultipleParrentsInSequences( unittest.TestCase ):
         accTop.merge( acc1 )
         accTop.merge( acc2 )
                 
-        accTop.printConfig()
+        #accTop.printConfig()
 
         self.assertIsNotNone( findAlgorithm( accTop.getSequence( "seq1" ), "recoAlg" ), "Algorithm missing in the first sequence" )
         self.assertIsNotNone( findAlgorithm( accTop.getSequence( "seq2" ), "recoAlg" ), "Algorithm missing in the second sequence" )
@@ -917,6 +918,81 @@ class MultipleParrentsInSequences( unittest.TestCase ):
             self.assertEquals( s['seq1']["Members"], "['AthSequencer/seqReco']", "After pickling recoSeq missing in seq1 " + s['seq1']["Members"])
             self.assertEquals( s['seq2']["Members"], "['AthSequencer/seqReco']", "After pickling recoSeq missing in seq2 " + s['seq2']["Members"])
             self.assertEquals( s['seqReco']["Members"], "['ConfigurablePyAlgorithm/recoAlg']", "After pickling seqReco is corrupt " + s['seqReco']["Members"] )
+
+class ForbidRecursiveSequences( unittest.TestCase ):
+    def runTest( self ):
+        #Can't add a sequence with the same name below itself, e.g.
+        # \__ AthAlgSeq (seq: PAR AND)
+        #    \__ seq1 (seq: SEQ AND)
+        #       \__ seq1 (seq: SEQ AND)
+        def selfSequence():
+            Configurable.configurableRun3Behavior=1
+            from AthenaCommon.CFElements import seqAND
+            accTop = ComponentAccumulator()
+            accTop.store( open("test.pkl", "w") )#silence RuntimeError
+            seq1 = seqAND("seq1")
+            seq1_again = seqAND("seq1")
+            accTop.addSequence(seq1)
+            accTop.addSequence(seq1_again, parentName = "seq1")
+
+        #Allowed to add a sequence with the same name at same depth, e.g.
+        # \__ AthAlgSeq (seq: PAR AND)
+        #    \__ seq1 (seq: SEQ AND)
+        #       \__ seq2 (seq: SEQ AND)
+        #       \__ seq2 (seq: SEQ AND)
+        # should not raise any exceptions
+        def selfTwinSequence():
+            Configurable.configurableRun3Behavior=1
+            from AthenaCommon.CFElements import seqAND
+            accTop = ComponentAccumulator()
+            accTop.store( open("test.pkl", "w") )#silence RuntimeError
+            seq1 = seqAND("seq1")
+            seq2 = seqAND("seq2")
+            seq2_again = seqAND("seq1")
+            accTop.addSequence(seq1)
+            accTop.addSequence(seq2, parentName = "seq1")
+            accTop.addSequence(seq2_again, parentName = "seq1")
+            accTop.store( open("test.pkl", "w") )
+            
+
+        #Can't add a sequence with the same name two steps below itself, e.g.
+        # \__ AthAlgSeq (seq: PAR AND)
+        #    \__ seq1 (seq: SEQ AND)
+        #       \__ seq2 (seq: SEQ AND)
+        #          \__ seq1 (seq: SEQ AND)
+        def selfGrandParentSequence():
+            Configurable.configurableRun3Behavior=1
+            from AthenaCommon.CFElements import seqAND
+            accTop = ComponentAccumulator()
+            accTop.store( open("test.pkl", "w") )#silence RuntimeError
+            seq1 = seqAND("seq1")
+            seq2 = seqAND("seq2")
+            seq1_again = seqAND("seq1")
+            accTop.addSequence(seq1)
+            accTop.addSequence(seq2, parentName = "seq1")
+            accTop.addSequence(seq1_again, parentName = "seq2")
+            accTop.store(open("test.pkl", "w"))
+
+        #Can't merge sequences with the same name two steps below itself, e.g.
+        # \__ AthAlgSeq (seq: PAR AND)
+        #    \__ seq1 (seq: SEQ AND)
+        #       \__ seq2 (seq: SEQ AND)
+        #          \__ seq1 (seq: SEQ AND)
+        def selfMergedGrandParentSequence():
+            Configurable.configurableRun3Behavior=1
+            from AthenaCommon.CFElements import seqAND
+            acc1=ComponentAccumulator()
+            acc1.store( open("test.pkl", "w") )#silence RuntimeError
+            acc1.addSequence(seqAND("seq1"))
+            acc2=ComponentAccumulator()
+            acc2.store( open("test.pkl", "w") )#silence RuntimeError
+            acc2.addSequence(seqAND("seq2"))
+            acc2.addSequence(seqAND("seq1"), "seq2")
+            acc1.merge(acc2)
+
+        self.assertRaises(RuntimeError, selfSequence )
+        self.assertRaises(RuntimeError, selfGrandParentSequence )
+        self.assertRaises(RuntimeError, selfMergedGrandParentSequence )
 
 class FailedMerging( unittest.TestCase ):
     def runTest( self ):
@@ -944,8 +1020,12 @@ class MergeMovingAlgorithms( unittest.TestCase ):
 
         destinationCA.merge( sourceCA, sequenceName="dest"  )
         #destinationCA.merge( sourceCA ) 
+        destinationCA.store(open("test.pkl", "w"))#silence RuntimeError
+        sourceCA.store(open("test.pkl", "w"))#silence RuntimeError
         self.assertIsNotNone( findAlgorithm( destinationCA.getSequence("dest"), "alg1" ), "Algorithm not placed in sub-sequence" )
         self.assertIsNotNone( findSubSequence( destinationCA.getSequence(), "innerSeq" ), "The sequence is not added" )
         self.assertIsNotNone( findAlgorithm( destinationCA.getSequence("dest"), "alg3" ), "Algorithm deep in thesource CA not placed in sub-sequence of destiantion CA" )
 
         
+if __name__ == "__main__":
+    unittest.main()
