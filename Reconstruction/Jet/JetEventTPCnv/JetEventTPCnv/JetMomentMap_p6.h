@@ -1,7 +1,7 @@
 // emacs , this -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETEVENTTPCNV_JETMOMENTMAP_p6_H
@@ -16,7 +16,7 @@ class JetMomentMap_p6
 public:
 
   JetMomentMap_p6() { };
-  virtual ~JetMomentMap_p6() { };
+  virtual ~JetMomentMap_p6() = default;
   
   // this limit the number of persified moments to 256
   typedef unsigned char mom_num_t;
