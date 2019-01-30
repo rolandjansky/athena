@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AlgA.h"
@@ -17,7 +17,7 @@
 
 AlgA::AlgA( const std::string& name, 
 		    ISvcLocator* pSvcLocator ) : 
-  ::AthAlgorithm( name, pSvcLocator ), m_i(1)
+  ::AthAlgorithm( name, pSvcLocator )
 {
 }
 
@@ -50,24 +50,25 @@ StatusCode AlgA::execute() {
 
   SG::ReadHandle<EventInfo> evt(m_evt);
   ATH_MSG_INFO("   EventInfo:  r: " << evt->event_ID()->run_number()
-               << " e: " << evt->event_ID()->event_number() );
+               << " e: " << evt->event_ID()->event_number()
+               << " evt: " << Gaudi::Hive::currentContextEvt() );
 
+
+  unsigned int i = Gaudi::Hive::currentContextEvt() + 1;
 
   SG::WriteHandle<HiveDataObj> wh1(m_wrh1);
   ATH_CHECK( wh1.record( std::make_unique<HiveDataObj> 
                          ( HiveDataObj(10000 + 
                                        evt->event_ID()->event_number()*100 + 
-                                       m_i) ) )
+                                       i) ) )
              );
   ATH_MSG_INFO("  write: " << wh1.key() << " = " << wh1->val() );
 
 
   SG::WriteHandle<HiveDataObj> wh2(m_wrh2);
-  ATH_CHECK( wh2.record( std::make_unique< HiveDataObj >( HiveDataObj(10050+m_i) ) ) );
+  ATH_CHECK( wh2.record( std::make_unique< HiveDataObj >( HiveDataObj(10050+i) ) ) );
   ATH_MSG_INFO("  write: " << wh2.key() << " = " << wh2->val() );
     
-  m_i += 1;
-
   return StatusCode::SUCCESS;
 
 }
