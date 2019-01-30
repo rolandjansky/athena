@@ -1,3 +1,7 @@
+// Dear emacs, this is -*- c++ -*-
+//
+// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef ASG_TOOLS__UNIT_TEST_H
 #define ASG_TOOLS__UNIT_TEST_H
 
@@ -46,7 +50,7 @@ namespace asg
   EXPECT_EQ (asg::CheckHelper<decltype(x)>::failureCode(), x)
 
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
 #define ASSERT_FAILURE_REGEX(x,regex)                           \
   ASSERT_FAILURE(x)
 #define EXPECT_FAILURE_REGEX(x,regex)                           \

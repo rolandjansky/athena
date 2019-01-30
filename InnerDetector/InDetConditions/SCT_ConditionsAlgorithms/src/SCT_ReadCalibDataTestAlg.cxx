@@ -104,7 +104,7 @@ StatusCode SCT_ReadCalibDataTestAlg::execute(const EventContext& ctx) const
     // Test summmary, ask status of strip in module
     Identifier IdM{m_moduleId};
     Identifier IdS{m_stripId};
-    bool Sok{m_ReadCalibDataTool->isGood(IdS, InDetConditions::SCT_STRIP)};
+    bool Sok{m_ReadCalibDataTool->isGood(IdS, ctx, InDetConditions::SCT_STRIP)};
     ATH_MSG_INFO("Strip " << IdS << " on module " << IdM << " is " << (Sok?"good":"bad"));
   }
 
@@ -129,7 +129,7 @@ StatusCode SCT_ReadCalibDataTestAlg::execute(const EventContext& ctx) const
           Identifier IdS{m_id_sct->strip_id(waferId,stripIndex)};
           const int stripId{m_id_sct->strip(IdS)};
           const int side{m_id_sct->side(IdS)};
-          const bool stripOk{m_ReadCalibDataTool->isGood(IdS, InDetConditions::SCT_STRIP)};
+          const bool stripOk{m_ReadCalibDataTool->isGood(IdS, ctx, InDetConditions::SCT_STRIP)};
           if (stripOk) ++ngood;
 	  else ++nbad; 
           if (not stripOk) { // Print info on all bad strips

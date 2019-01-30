@@ -1,4 +1,6 @@
-// $Id: SgTEvent.cxx 687011 2015-08-03 09:25:07Z krasznaa $
+//
+// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+//
 
 // System include(s):
 #include <iostream>
@@ -7,10 +9,10 @@
 #include "AsgTools/SgTEvent.h"
 
 // RootCore include(s):
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 #   include "xAODRootAccessInterfaces/TActiveEvent.h"
 #   include "xAODRootAccess/TActiveStore.h"
-#endif
+#endif // XAOD_STANDALONE
 
 namespace asg {
 

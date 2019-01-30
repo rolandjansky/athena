@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -23,16 +23,20 @@
 //Gaudi includes
 #include "GaudiKernel/IAppMgrUI.h"
 #include "GaudiKernel/SmartIF.h"
+#include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IProperty.h"
+#include "GaudiKernel/EventContext.h"
 
 // Tested AthAlgTool
 #include "../src/SCT_RODVetoTool.h"
 
 // ATLAS C++
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "SCT_ConditionsTools/ISCT_ConditionsTool.h"
 #include "InDetIdentifier/SCT_ID.h"
+#include "StoreGate/StoreGateSvc.h"
 
 namespace SCT_test {
 
@@ -58,9 +62,15 @@ protected:
     m_svcMgr = m_appMgr;
     ASSERT_TRUE( m_svcMgr.isValid() );
 
+    m_sg = nullptr;
+    ASSERT_TRUE( m_svcLoc->service ("StoreGateSvc", m_sg).isSuccess() );
+
+    m_evtSel = m_svcLoc->service("EventSelector");
+    ASSERT_TRUE( m_evtSel.isValid() );
+
     m_propMgr = m_appMgr;
     ASSERT_TRUE( m_propMgr.isValid() );
-    ASSERT_TRUE( m_propMgr->setProperty("EvtSel", "NONE").isSuccess() );
+    ASSERT_TRUE( m_propMgr->setProperty("EvtSel", "EventSelector").isSuccess() );
     ASSERT_TRUE( m_propMgr->setProperty("JobOptionsType", "NONE").isSuccess() );
 
     m_toolSvc = m_svcLoc->service("ToolSvc");
@@ -99,7 +109,9 @@ protected:
   SmartIF<ISvcLocator> m_svcLoc;
   SmartIF<ISvcManager> m_svcMgr;
   SmartIF<IToolSvc> m_toolSvc;
+  SmartIF<IEvtSelector> m_evtSel;
   SmartIF<IProperty> m_propMgr;
+  StoreGateSvc* m_sg{nullptr};
 };
 
 class SCT_RODVetoTool_test: public ::testing::Test, public GaudiFixture {
@@ -159,7 +171,9 @@ TEST_F(SCT_RODVetoTool_test, isGood_Hash) {
 TEST_F(SCT_RODVetoTool_test, isGood_Id) {
   m_tool->initialize(); 
   const Identifier elementId{0};
-  ASSERT_TRUE( m_tool->isGood(elementId, InDetConditions::DEFAULT) );
+  EventContext ctx{0, 0};
+  ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
+  ASSERT_TRUE( m_tool->isGood(elementId, ctx, InDetConditions::DEFAULT) );
 }
 
 } // namespace SCT_test

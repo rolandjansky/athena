@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TrigMuonHypo.TrigMuonHypoConf import TrigMufastHypoAlg, TrigMufastHypoTool, TrigmuCombHypoAlg, TrigmuCombHypoTool, TrigMuonEFMSonlyHypoAlg, TrigMuonEFMSonlyHypoTool, TrigMuisoHypoAlg, TrigMuisoHypoTool
+from TrigMuonHypo.TrigMuonHypoConf import TrigMufastHypoAlg, TrigMufastHypoTool, TrigmuCombHypoAlg, TrigmuCombHypoTool, TrigMuonEFMSonlyHypoAlg, TrigMuonEFMSonlyHypoTool, TrigMuisoHypoAlg, TrigMuisoHypoTool, TrigMuonEFCombinerHypoTool
 from TrigMuonHypo.TrigMuonHypoMonitoringMT import *
 from AthenaCommon.SystemOfUnits import GeV
 from MuonByteStream.MuonByteStreamFlags import muonByteStreamFlags
@@ -387,47 +387,40 @@ muFastThresholdsForECWeakBRegion = {
     }
 
 
-def TrigMufastHypoToolFromName( toolName,  thresholdHLT ):	
-        
-    name = "TrigMufastHypoTool"
-    config = TrigMufastHypoConfig()
-    
-    # Separete HLT_NmuX to bname[0]=HLT and bname[1]=NmuX
-    bname = thresholdHLT.split('_') 
-    threshold = bname[1]
-    thresholds = config.decodeThreshold( threshold )
-    print "TrigMufastHypoConfig: Decoded ", thresholdHLT, " to ", thresholds
-
-    tool=config.ConfigurationHypoTool( toolName, thresholds )
-    
-    # Setup MonTool for monitored variables in AthenaMonitoring package
-    TriggerFlags.enableMonitoring = ["Validation"]
-
+def addMonitoring(tool, monClass, name, thresholdHLT ):
     try:
-            if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
-                tool.MonTool = TrigMufastHypoMonitoring( name + "Monitoring_" + thresholdHLT ) 
+        if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
+            tool.MonTool = monClass( name + "Monitoring_" + thresholdHLT ) 
     except AttributeError:
-            tool.MonTool = ""
-            print name, ' Monitoring Tool failed'
+        tool.MonTool = ""
+        print name, ' Monitoring Tool failed'
 
+
+def getThresholdsFromDict( chainDict ):    
+    return sum( [ [part['threshold']]*int(part['multiplicity']) for part in chainDict['chainParts']], [])
+
+
+def TrigMufastHypoToolFromDict( chainDict ):	
+
+    thresholds = getThresholdsFromDict( chainDict )
+    config = TrigMufastHypoConfig()
+    tool=config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
+    # # Setup MonTool for monitored variables in AthenaMonitoring package
+    TriggerFlags.enableMonitoring = ['Validation']
+    addMonitoring( tool, TrigMufastHypoMonitoring, 'TrigMufastHypoTool', chainDict['chainName'] )
+    
     return tool
 
 
+def TrigMufastHypoToolFromName( name,  thresholdHLT ):	
+    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName   
+    decoder = DictFromChainName()    
+    decodedDict = decoder.analyseShortName(thresholdHLT, [], "") # no L1 info    
+    decodedDict['chainName'] = name # override
+    return TrigMufastHypoToolFromDict( decodedDict )
+
+
 class TrigMufastHypoConfig():
-
-    def decodeThreshold( self, threshold ):
-        """ decodes the thresholds of the form mu6, 2mu6, ... """
-        print "decoding ", threshold
-
-        if threshold[0].isdigit():  # If the form is NmuX, return as list [X,X,X...N times...]
-            assert threshold[1:3] == "mu", "Two digit multiplicity not supported"
-            return [ threshold[3:] ] * int( threshold[0] )
-    
-        if threshold.count('mu') > 1:  # If theform is muXmuY, return as [X,Y]
-            return threshold.strip('mu').split('mu')
-    
-        # If the form is muX(inclusive), return as 1 element list
-        return [ threshold[2:] ]        
     
     def ConfigurationHypoTool( self, thresholdHLT, thresholds ): 
         
@@ -481,35 +474,27 @@ class TrigMufastHypoConfig():
                     raise Exception('MuFast Hypo Misconfigured: threshold %r not supported' % thvaluename)
 
         return tool
-    
 
-def TrigmuCombHypoToolFromName( toolName, thresholdHLT ):	
-        
-    name = "TrigmuCombHypoTool"
+def TrigmuCombHypoToolFromDict( chainDict ):
+    print chainDict
+
+    thresholds = getThresholdsFromDict( chainDict )
     config = TrigmuCombHypoConfig()
     
-    # Separete HLT_NmuX to bname[0]=HLT and bname[1]=NmuX
-    bname = thresholdHLT.split('_') 
-    threshold = bname[1]
-    thresholds = config.decodeThreshold( threshold )
-    print "TrigmuCombHypoConfig: Decoded ", thresholdHLT, " to ", thresholds
+    tight = False # can be probably decoded from some of the proprties of the chain, expert work
+    tool=config.ConfigurationHypoTool( chainDict['chainName'], thresholds, tight )
 
-    tight = False
-    tool=config.ConfigurationHypoTool( toolName, thresholds, tight )
-    
-    # Setup MonTool for monitored variables in AthenaMonitoring package
-    TriggerFlags.enableMonitoring = ["Validation"]
-
-    try:
-            if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
-                tool.MonTool = TrigmuCombHypoMonitoring( name + "Monitoring_" + thresholdHLT ) 
-    except AttributeError:
-            tool.MonTool = ""
-            print name, ' Monitoring Tool failed'
+    addMonitoring( tool, TrigmuCombHypoMonitoring, "TrigmuCombHypoTool", chainDict['chainName'] )
 
     return tool
 
-
+def TrigmuCombHypoToolFromName( name, thresholdsHLT ):	
+    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName   
+    decoder = DictFromChainName()    
+    decodedDict = decoder.analyseShortName(thresholdsHLT, [], "") # no L1 info    
+    decodedDict['chainName'] = name # override
+    return TrigmuCombHypoToolFromDict( decodedDict )
+        
 class TrigmuCombHypoConfig():
 
     def decodeThreshold( self, threshold ):
@@ -566,46 +551,36 @@ class TrigmuCombHypoConfig():
         return tool 
 
 
+
 ### for TrigMuisoHypo
-def TrigMuisoHypoToolFromName( toolName, thresholdHLT ):
+def TrigMuisoHypoToolFromDict( chainDict ):
 
-    name = "TrigMuisoHypoTool"
     config = TrigMuisoHypoConfig()
-
-    # Separete HLT_NmuX to bname[0]=HLT and bname[1]=NmuX
-    bnames = thresholdHLT.split('_') 
-
-    print "TrigMuisoHypoConfig: Decoded ", thresholdHLT 
-
-    tool = config.ConfigurationHypoTool( toolName, bnames )
-
-
-    # Setup MonTool for monitored variables in AthenaMonitoring package
-    TriggerFlags.enableMonitoring = ["Validation"]
-
-    try:
-        if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
-            tool.MonTool = TrigMuisoHypoMonitoring( name + "Monitoring_" + thresholdHLT ) 
-    except AttributeError:
-        tool.MonTool = ""
-        print name, ' Monitoring Tool failed'
-
+    tool = config.ConfigurationHypoTool( chainDict['chainName'] )
+    addMonitoring( tool, TrigMuisoHypoMonitoring,  "TrigMuisoHypoTool", chainDict['chainName'])
     return tool
+    
+
+def TrigMuisoHypoToolFromName( name, thresholdHLT ):
+
+    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName   
+    decoder = DictFromChainName()    
+    decodedDict = decoder.analyseShortName(thresholdHLT, [], "") # no L1 info    
+    decodedDict['chainName'] = name # override
+    return TrigMuisoHypoToolFromDict( decodedDict )
 
 
 class TrigMuisoHypoConfig() :
 
-
-    def ConfigurationHypoTool( self, toolName, bnames ):	
+    def ConfigurationHypoTool( self, toolName ):	
 
         tool = TrigMuisoHypoTool( toolName )  
         
-        # If configured with passthrough, set AcceptAll flag on
+        # If configured with passthrough, set AcceptAll flag on, not quite there in the menu
         tool.AcceptAll = False
-        for bname in bnames:
-            if 'passthrough' in bname:
-                tool.AcceptAll = True
-                print 'MuisoHypoConfig configured in pasthrough mode'
+        if 'passthrough' in toolName:                    
+            tool.AcceptAll = True
+            print 'MuisoHypoConfig configured in pasthrough mode'
 
         if "FTK" in toolName: # allows us to use different working points in FTK mode
             tool.IDConeSize   = 2;
@@ -623,30 +598,21 @@ class TrigMuisoHypoConfig() :
         return tool
 
 
-def TrigMuonEFMSonlyHypoToolFromName( toolName, thresholdHLT ) :
-
-    name = "TrigMuonEFMSonlyHypoTool"
+def TrigMuonEFMSonlyHypoToolFromDict( chainDict ) :
+    thresholds = getThresholdsFromDict( chainDict ) 
     config = TrigMuonEFMSonlyHypoConfig()
-
-    # Separete HLT_NmuX to bname[0]=HLT and bname[1]=NmuX
-    bname = thresholdHLT.split('_') 
-    threshold = bname[1]
-    thresholds = config.decodeThreshold( threshold )
-    print "TrigMuonEFMSonlyHypoConfig: Decoded ", thresholdHLT, " to ", thresholds
-
-    tool = config.ConfigurationHypoTool( toolName, thresholds )
- 
-    # Setup MonTool for monitored variables in AthenaMonitoring package
-    TriggerFlags.enableMonitoring = ["Validation"]
-
-    try:
-            if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
-                tool.MonTool = TrigMuonEFMSonlyHypoMonitoring( name + "Monitoring_" + thresholdHLT ) 
-    except AttributeError:
-            tool.MonTool = ""
-            print name, ' Monitoring Tool failed'
-    
+    tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
+    addMonitoring( tool, TrigMuonEFMSonlyHypoMonitoring, "TrigMuonEFMSonlyHypoTool", chainDict['chainName'] )
     return tool
+
+    
+def TrigMuonEFMSonlyHypoToolFromName( name, thresholdHLT ) :
+
+    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName   
+    decoder = DictFromChainName()    
+    decodedDict = decoder.analyseShortName(thresholdHLT, [], "") # no L1 info    
+    decodedDict['chainName'] = name # override
+    return TrigMuonEFMSonlyHypoToolFromDict( decodedDict )
     
 class TrigMuonEFMSonlyHypoConfig(): 
         
@@ -694,30 +660,22 @@ class TrigMuonEFMSonlyHypoConfig():
 
         return tool
 
-def TrigMuonEFCombinerHypoToolFromName( toolName, thresholdHLT ) :
-
-    name = "TrigMuonEFCombinerHypoTool"
-    config = TrigMuonEFCombinerHypoConfig()
-
-    # Separete HLT_NmuX to bname[0]=HLT and bname[1]=NmuX
-    bname = thresholdHLT.split('_') 
-    threshold = bname[1]
-    thresholds = config.decodeThreshold( threshold )
-    print "TrigMuonEFCombinerHypoConfig: Decoded ", thresholdHLT, " to ", thresholds
-
-    tool = config.ConfigurationHypoTool( toolName, thresholds )
- 
-    # Setup MonTool for monitored variables in AthenaMonitoring package
-    TriggerFlags.enableMonitoring = ["Validation"]
-
-    try:
-            if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
-                tool.MonTool = TrigMuonEFCombinerHypoMonitoring( name + "Monitoring_" + thresholdHLT ) 
-    except AttributeError:
-            tool.MonTool = ""
-            print name, ' Monitoring Tool failed'
     
+def TrigMuonEFCombinerHypoToolFromDict( chainDict ) :
+    thresholds = getThresholdsFromDict( chainDict ) 
+    config = TrigMuonEFCombinerHypoConfig()
+    tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
+    addMonitoring( tool, TrigMuonEFCombinerHypoMonitoring, "TrigMuonEFCombinerHypoTool", chainDict['chainName'] )
     return tool
+    
+def TrigMuonEFCombinerHypoToolFromName( name, thresholdHLT ) :
+
+    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName   
+    decoder = DictFromChainName()    
+    decodedDict = decoder.analyseShortName(thresholdHLT, [], "") # no L1 info    
+    decodedDict['chainName'] = name # override
+    return TrigMuonEFCombinerHypoToolFromDict( decodedDict )
+
 
 class TrigMuonEFCombinerHypoConfig(): 
         
@@ -764,3 +722,33 @@ class TrigMuonEFCombinerHypoConfig():
 
         return tool
 
+
+
+
+if __name__ == '__main__':
+    # normaly this tools are private and have no clash in naming, for the test we create them and never assign so they are like public,
+    # in Run3 config this is checked in a different way so having Run 3 JO behaviour solves test issue
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=1 
+
+    configToTest = [ 'HLT_mu6fast',
+                     'HLT_mu6Comb',
+                     'HLT_mu6'                    
+                     'HLT_mu20_ivar',
+                     'HLT_2mu6Comb',
+                     'HLT_2mu6']
+                    
+    for c in configToTest:
+        print "testing config ", c
+        toolMufast = TrigMufastHypoToolFromName(c, c)
+        assert toolMufast
+        toolmuComb = TrigmuCombHypoToolFromName(c, c)
+        assert toolmuComb
+        toolMuiso = TrigMuisoHypoToolFromName(c, c)
+        assert toolMuiso
+        toolEFMSonly = TrigMuonEFMSonlyHypoToolFromName(c, c)
+        assert toolEFMSonly
+        toolEFCombiner = TrigMuonEFCombinerHypoToolFromName(c, c)
+        assert toolEFCombiner
+        
+    print "All OK"

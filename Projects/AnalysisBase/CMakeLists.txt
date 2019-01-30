@@ -4,7 +4,7 @@
 #
 
 # The minimum required CMake version:
-cmake_minimum_required( VERSION 3.2 FATAL_ERROR )
+cmake_minimum_required( VERSION 3.6 FATAL_ERROR )
 
 # Read in the project's version from a file called version.txt. But let it be
 # overridden from the command line if necessary.
@@ -22,20 +22,6 @@ find_package( AnalysisBaseExternals REQUIRED )
 # against Python to correct it.
 find_package( PythonInterp )
 
-# Add the project's modules directory to CMAKE_MODULE_PATH:
-list( INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/modules )
-list( REMOVE_DUPLICATES CMAKE_MODULE_PATH )
-
-# Install the files from modules/:
-install( DIRECTORY ${CMAKE_SOURCE_DIR}/modules/
-   DESTINATION cmake/modules
-   USE_SOURCE_PERMISSIONS
-   PATTERN ".svn" EXCLUDE
-   PATTERN "*~" EXCLUDE )
-
-# Include the AnalysisBase specific function(s):
-include( AnalysisBaseFunctions )
-
 # Set up the build/runtime environment:
 set( AnalysisBaseReleaseEnvironment_DIR ${CMAKE_SOURCE_DIR} )
 find_package( AnalysisBaseReleaseEnvironment REQUIRED )
@@ -51,15 +37,6 @@ atlas_ctest_setup()
 atlas_project( AnalysisBase ${ANALYSISBASE_PROJECT_VERSION}
    USE AnalysisBaseExternals ${AnalysisBaseExternals_VERSION}
    PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../../ )
-
-# Generate the RootCore/Packages.h header:
-analysisbase_generate_release_header()
-
-# Set up the load_packages.C script:
-configure_file( ${CMAKE_SOURCE_DIR}/scripts/load_packages.C.in
-   ${CMAKE_SCRIPT_OUTPUT_DIRECTORY}/load_packages.C @ONLY )
-install( FILES ${CMAKE_SCRIPT_OUTPUT_DIRECTORY}/load_packages.C
-   DESTINATION ${CMAKE_INSTALL_SCRIPTDIR} )
 
 # Configure and install the post-configuration file:
 configure_file( ${CMAKE_SOURCE_DIR}/PostConfig.cmake.in

@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MuonAccessors_v1.icc 745098 2016-05-05 15:47:04Z wleight $
 
 // System include(s):
 #include <iostream>
@@ -13,7 +12,7 @@
 #define DEFINE_ACCESSOR(TYPE, NAME )                               \
    case xAOD::Muon_v1::NAME:                                                \
    {                                                               \
-      static SG::AuxElement::Accessor< TYPE > a( #NAME );          \
+      static const SG::AuxElement::Accessor< TYPE > a( #NAME );          \
       return &a;                                                   \
    }                                                               \
    break;
@@ -22,12 +21,12 @@ namespace xAOD {
 
   // Generic case. Maybe return warning?
   template<class T>
-   SG::AuxElement::Accessor< T >*
+   const SG::AuxElement::Accessor< T >*
    parameterAccessorV1( Muon_v1::ParamDef /*type*/ )
    {}
    
   template<>
-   SG::AuxElement::Accessor< float >*
+   const SG::AuxElement::Accessor< float >*
    parameterAccessorV1<float>( Muon_v1::ParamDef type ) {
       switch( type ) {
         DEFINE_ACCESSOR( float, spectrometerFieldIntegral        );
@@ -45,11 +44,8 @@ namespace xAOD {
         DEFINE_ACCESSOR( float, midAngle                         );
         DEFINE_ACCESSOR( float, msInnerMatchChi2                 );
         DEFINE_ACCESSOR( float, msOuterMatchChi2                 );
-        // DEFINE_ACCESSOR( float, msInnerMatchDOF                  ); These ParamDefs are INT and defined below.
-        // DEFINE_ACCESSOR( float, msOuterMatchDOF                  );
         DEFINE_ACCESSOR( float, meanDeltaADCCountsMDT            );		
         DEFINE_ACCESSOR( float, CaloLRLikelihood                 );		
-        // DEFINE_ACCESSOR( float, CaloMuonIDTag                    ); INT
         DEFINE_ACCESSOR( float, FSR_CandidateEnergy              );		
         DEFINE_ACCESSOR( float, EnergyLoss                       );		
         DEFINE_ACCESSOR( float, ParamEnergyLoss                  );		
@@ -58,13 +54,7 @@ namespace xAOD {
         DEFINE_ACCESSOR( float, ParamEnergyLossSigmaPlus         );		
         DEFINE_ACCESSOR( float, ParamEnergyLossSigmaMinus        );		
         DEFINE_ACCESSOR( float, MeasEnergyLossSigma              );		
-	//DEFINE_ACCESSOR( float, d0_sa                            );
-	//DEFINE_ACCESSOR( float, z0_sa                            );
-	//DEFINE_ACCESSOR( float, phi0_sa                          );
-	//DEFINE_ACCESSOR( float, theta_sa                         );
-	//DEFINE_ACCESSOR( float, qOverP_sa                        );
-	//DEFINE_ACCESSOR( float, Eloss_sa                         );
-      default:                  
+    default:                  
          std::cerr << "xAOD::Muon::parameterAccessorV1 ERROR Unknown float ParamDef ("
                    << type << ") requested.";
          if (type == Muon_v1::msInnerMatchDOF || type == Muon_v1::msOuterMatchDOF || type == Muon_v1::CaloMuonIDTag) 
@@ -75,7 +65,7 @@ namespace xAOD {
    }
    
    template<>
-    SG::AuxElement::Accessor< int >*
+    const SG::AuxElement::Accessor< int >*
     parameterAccessorV1<int>( Muon_v1::ParamDef type ) {
        switch( type ) {
          DEFINE_ACCESSOR( int,   msInnerMatchDOF                  );

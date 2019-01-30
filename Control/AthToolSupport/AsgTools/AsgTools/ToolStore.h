@@ -1,5 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: ToolStore.h 802972 2017-04-15 18:13:17Z krumnack $
+//
+// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef ASGTOOLS_TOOLSTORE_H
 #define ASGTOOLS_TOOLSTORE_H
 
@@ -60,7 +62,7 @@ namespace asg {
       /// Remove a tool with a given name from the store
       static StatusCode remove( const std::string& name );
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
      /// dump the tool configuration for all tools to std::cout
      static void dumpToolConfig ();
 #endif
