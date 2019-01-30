@@ -416,7 +416,6 @@ def setupMenu():
         ['j100_a10t_lcw_jes_30smcINF',      'L1_J20', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
 
 
-
         #####
         ######################### Multi-jet small-R trigger chains
         #####

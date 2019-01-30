@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """ This module sets up the algorithm lists for sequences, and supplies
 the list with a name (alias) which will be used later in the construction
