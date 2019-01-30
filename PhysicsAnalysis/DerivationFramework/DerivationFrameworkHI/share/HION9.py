@@ -10,6 +10,7 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkHI.HIJetDerivationTools import *
 from DerivationFrameworkHI.HISkimmingTools import *
 from DerivationFrameworkHI.HIDerivationFlags import HIDerivationFlags
+from HIJetRec.HIJetRecUtils import HasCollection
 
 #====================================================================
 #Read and set conditions
@@ -45,6 +46,8 @@ if not HIDerivationFlags.isSimulation():
 	    #Event selection based on DF jets for HI
 	    expression = expression + '(' + key + ' && count(DFAntiKt10HIJets.pt >' + str(largeRThreshold) + '*GeV) >=1 ) '
 	    expression = expression + '|| (' + key + ' && count(DFAntiKt8HIJets.pt >' + str(largeRThreshold) + '*GeV) >=1 ) '
+	    if HIDerivationFlags.isPP() and HasCollection("AntiKt8HIJets"): expression + '|| (' + key + ' && count(AntiKt8HIJets.pt >' + str(largeRThreshold) + '*GeV) >=1 ) '
+	    if HIDerivationFlags.isPP() and HasCollection("AntiKt10HIJets"): expression + '|| (' + key + ' && count(AntiKt10HIJets.pt >' + str(largeRThreshold) + '*GeV) >=1 ) '
 	    #Event selection based also on non-DF jets for pp
 	    if not i == len(TriggerDict) - 1:
 		    expression = expression + ' || ' 
@@ -66,11 +69,6 @@ for t in skimmingTools : ToolSvc+=t
 
 
 #########Thinning#########
-
-thinningTools=[]
-thinningTools.append(addJetClusterThinningTool('DFAntiKt10HIJets',DerivationName,largeRThreshold))
-thinningTools.append(addJetClusterThinningTool('DFAntiKt8HIJets',DerivationName,largeRThreshold))
-
 
 #track thinning
 #Version without track selector: 
@@ -95,9 +93,18 @@ TPThinningTool=DerivationFramework__HITrackParticleThinningTool(name='%sTPThinni
 ToolSvc+=TPThinningTool
 thinningTools=[TPThinningTool]
 
-#Jet thinning
-# if not HIDerivationFlags.isSimulation() : 
-#     for collection in ["DFAntiKt2HIJets","DFAntiKt4HIJets"] : thinningTools.append(addJetThinningTool(collection,DerivationName,100.)
+#Jet thinning only for PbPb data
+largeRcollections =  ["DFAntiKt8HIJets", "DFAntiKt10HIJets"]
+if HIDerivationFlags.isPP() and HasCollection("AntiKt8HIJets"): largeRcollections+=["AntiKt8HIJets"]
+if HIDerivationFlags.isPP() and HasCollection("AntiKt10HIJets"): largeRcollections+=["AntiKt10HIJets"]
+
+
+for collection in largeRcollections :
+    #Only clusters associated with jets (high pT)
+    thinningTools.append(addJetClusterThinningTool(collection,DerivationName,largeRThreshold))
+    #Jet thinning to 35 GeV 
+    thinningTools.append(addJetThinningTool(collection,DerivationName,35))
+
 
 if HIDerivationFlags.isSimulation() :
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
@@ -114,7 +121,8 @@ if HIDerivationFlags.isSimulation() :
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 SlimmingHelper = SlimmingHelper("%sSlimmingHelper" % DerivationName)
 
-AllVarContent=["AntiKt4HITrackJets","DFAntiKt8HIJets","DFAntiKt10HIJets"]
+AllVarContent=["AntiKt4HITrackJets"]
+AllVarContent+=largeRcollections
 AllVarContent+=HIGlobalVars
 
 extra_jets=["DFAntiKt2HIJets","DFAntiKt4HIJets","DFAntiKt8HIJets","DFAntiKt10HIJets"]

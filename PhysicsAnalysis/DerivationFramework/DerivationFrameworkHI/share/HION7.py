@@ -54,7 +54,7 @@ if not HIDerivationFlags.isSimulation():
     print "=============================================="
 
 #Thinning threshods for jets is applied only in data
-JetThinningThreshold = {'AntiKt2HIJets': 35, 'AntiKt4HIJets': 35,'DFAntiKt2HIJets': 35, 'DFAntiKt4HIJets': 35} #in GeV
+JetThinningThreshold = {'AntiKt2HIJets': 20, 'AntiKt4HIJets': 20,'DFAntiKt2HIJets': 20, 'DFAntiKt4HIJets': 20} #in GeV
 
 
 #########Skimming#########
@@ -100,15 +100,18 @@ ToolSvc+=TPThinningTool
 thinningTools=[TPThinningTool]
 
 #Jet collections to be stored
-CollectionList=['DFAntiKt2HIJets','DFAntiKt4HIJets']
-if HIDerivationFlags.isPP() :CollectionList=['AntiKt2HIJets','AntiKt4HIJets','DFAntiKt2HIJets','DFAntiKt4HIJets'] 
+CollectionList=['DFAntiKt2HIJets','DFAntiKt4HIJets','AntiKt2HIJets_Seed1']
+if HIDerivationFlags.isPP() :CollectionList=['AntiKt2HIJets','AntiKt4HIJets','DFAntiKt2HIJets','DFAntiKt4HIJets','AntiKt2HIJets_Seed1'] 
 BtaggedCollectionList=['BTagging_DFAntiKt4HI']
 if HIDerivationFlags.isPP() and HasCollection("BTagging_AntiKt4HI"): BtaggedCollectionList.append('BTagging_AntiKt4HI')
 
 #Jet thinning only for PbPb data
 if not HIDerivationFlags.isSimulation() and not HIDerivationFlags.doMinBiasSelection() and not HIDerivationFlags.isPP() : 
     for collection in BtaggedCollectionList :thinningTools.append(addBtaggThinningTool(collection, collection.split("_",1)[1]+"Jets", DerivationName, JetThinningThreshold[collection.split("_",1)[1]+"Jets"]))
-    for collection in CollectionList : thinningTools.append(addJetThinningTool(collection,DerivationName,JetThinningThreshold[collection]))
+    for collection in CollectionList :
+        if "Seed" not in collection:
+            thinningTools.append(addJetThinningTool(collection,DerivationName,JetThinningThreshold[collection]))    
+            thinningTools.append(addJetClusterThinningTool(collection,DerivationName,20))
 
 if HIDerivationFlags.isSimulation() :
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
@@ -140,11 +143,10 @@ SlimmingHelper.SmartCollections = [ "InDetTrackParticles",
                                     "Electrons",
                                     "Muons",
                                     "Photons",
-                                    "PrimaryVertices",
-                                    "BTagging_DFAntiKt4HI"]
-if HIDerivationFlags.isPP() and HasCollection("BTagging_AntiKt4HI"): SlimmingHelper.SmartCollections.append('BTagging_AntiKt4HI')
+                                    "PrimaryVertices"]
 ##AllVariables
-AllVarContent=["AntiKt4HITrackJets"]
+AllVarContent=["AntiKt4HITrackJets","BTagging_DFAntiKt4HI"]
+if HIDerivationFlags.isPP() and HasCollection("BTagging_AntiKt4HI"): AllVarContent+=["BTagging_AntiKt4HI"]
 AllVarContent+=HIGlobalVars
 if HIDerivationFlags.isSimulation() : 
     AllVarContent+=["AntiKt2TruthJets","AntiKt4TruthJets","TruthEvents","TruthParticles"]
@@ -156,11 +158,16 @@ ExtraVars=[]
 #else ExtraVars+=ppJetTriggerVars
 
 for collection in CollectionList :  
-    for j in HIJetBranches: 
-        ExtraVars.append(collection+'.'+j)
+    if "Seed" not in collection:    
+        for j in HIJetBranches: 
+            ExtraVars.append(collection+'.'+j)
+    else:
+        for j in HISeedBranches: 
+            ExtraVars.append(collection+'.'+j)
 
 ExtraVars.append("InDetTrackParticles.truthMatchProbability")
 SlimmingHelper.ExtraVariables=ExtraVars
+for v in HIClusterVars : SlimmingHelper.ExtraVariables.append(v)
 
 
 augToolList=[]
