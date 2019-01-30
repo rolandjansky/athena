@@ -1,5 +1,5 @@
 from AthenaCommon.AlgSequence import AthSequencer
-
+import collections
 
 def parOR(name, subs=[]):
     """ parallel OR sequencer """
@@ -21,6 +21,39 @@ def seqAND(name, subs=[]):
     for s in subs:
         seq += s
     return seq
+
+def getAllSequenceNames(seq, depth=0):
+    """ Generate a list of sequence names and depths in the graph, e.g.
+    [('AthAlgSeq', 0), ('seq1', 1), ('seq2', 1), ('seq1', 2)]
+    represents
+    \\__ AthAlgSeq (seq: PAR AND)
+        \\__ seq1 (seq: SEQ AND)
+           \\__ seq2 (seq: SEQ AND)
+    """
+
+    seqNameList = [(seq.name(), depth)]
+    for c in seq.getChildren():
+      if isSequence(c):
+        seqNameList +=  getAllSequenceNames(c, depth+1)
+
+    return seqNameList
+
+def checkSequenceConsistency( seq ):
+    """ Enforce rules for sequence graph - identical items can only appear at same depth """
+    seqNameList = getAllSequenceNames(seq)
+    names = [sNL[0] for sNL in seqNameList]
+
+    for item, count in collections.Counter(names).items():
+        if count > 1:
+            depths = set()
+            for (name, depth) in seqNameList:
+                if name == item:
+                  depths.add(depth)
+            if len(depths) > 1:
+                if names[0] == name:
+                    raise RuntimeError("Sequence %s contains sub-sequence %s" %(name, name) )
+                else:
+                    raise RuntimeError("Sequence %s contains sub-sequence %s at different depths" %(names[0], item,) )
 
 def seqOR(name, subs=[]):
     """ sequential OR sequencer, used when a barrier needs to be set but all subs reached irrespective of the decision """
