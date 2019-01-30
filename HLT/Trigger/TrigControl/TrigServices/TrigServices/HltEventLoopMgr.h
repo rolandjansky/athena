@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGSERVICES_HLTEVENTLOOPMGR_H
@@ -74,7 +74,6 @@ public:
   /// @name Gaudi state transitions (overriden from AthService)
   ///@{
   virtual StatusCode initialize() override;
-  virtual StatusCode start() override;
   virtual StatusCode stop() override;
   virtual StatusCode finalize() override;
   virtual StatusCode reinitialize() override;
@@ -124,7 +123,7 @@ private:
   void updateDFProps();
 
   /// Do whatever is necessary with RunParams (prepare) ptree
-  const CondAttrListCollection* processRunParams(const boost::property_tree::ptree& pt);
+  StatusCode processRunParams(const boost::property_tree::ptree& pt);
 
   // Update internally kept data from new sor
   void updateInternal(const coral::AttributeList & sor_attrlist);
@@ -139,7 +138,7 @@ private:
   void updateDetMask(const std::pair<uint64_t, uint64_t>& dm);
 
   /// Extract the single attr list off the SOR CondAttrListCollection
-  const coral::AttributeList& getSorAttrList(const CondAttrListCollection* sor) const;
+  const coral::AttributeList& getSorAttrList() const;
 
   /// Print the SOR record
   void printSORAttrList(const coral::AttributeList& atr) const;
@@ -234,6 +233,8 @@ private:
   SG::ReadHandleKey<EventInfo> m_eventInfoRHKey;
   /// StoreGate key for reading the HLT result
   SG::ReadHandleKey<HLT::HLTResultMT> m_hltResultRHKey;
+  /// Path to SOR parameters
+  StringProperty m_sorPath;
 
   // ------------------------- Other private members ---------------------------
   /// typedef used for detector mask fields
@@ -244,8 +245,8 @@ private:
    */
   std::tuple<numt, numt, numt, numt> m_detector_mask;
 
-  /// Current run number
-  EventID::number_type m_currentRun{0};
+  /// "Event" context of current run (invalid event/slot)
+  EventContext m_currentRunCtx;
   /// Event counter used for local bookkeeping; incremental per instance of HltEventLoopMgr, unrelated to global_id
   size_t m_localEventNumber;
   /// Current run number
