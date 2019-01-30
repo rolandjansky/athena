@@ -51,22 +51,28 @@ public:
   //returns the module ID (int), or returns 9999 (not a valid module number) if not able to report
   virtual Identifier getModuleID(const Identifier& elementId, InDetConditions::Hierarchy h) const;
   ///Summarise the result from the service as good/bad
-  virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   virtual bool isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
+  virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   ///is it good?, using wafer hash
-  virtual bool isGood(const IdentifierHash& hashId) const override;
   virtual bool isGood(const IdentifierHash& hashId, const EventContext& ctx) const override;
+  virtual bool isGood(const IdentifierHash& hashId) const override;
   //Returns HV (0 if there is no information)
+  virtual float modHV(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   virtual float modHV(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   //Does the same for hashIds
+  virtual float modHV(const IdentifierHash& hashId, const EventContext& ctx) const override;
   virtual float modHV(const IdentifierHash& hashId) const override;
   //Returns temp0 (0 if there is no information)
+  virtual float hybridTemperature(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   virtual float hybridTemperature(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   //Does the same for hashIds
+  virtual float hybridTemperature(const IdentifierHash& hashId, const EventContext& ctx) const override;
   virtual float hybridTemperature(const IdentifierHash& hashId) const override;
   //Returns temp0 + correction for Lorentz angle calculation (0 if there is no information)
+  virtual float sensorTemperature(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   virtual float sensorTemperature(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   //Does the same for hashIds
+  virtual float sensorTemperature(const IdentifierHash& hashId, const EventContext& ctx) const override;
   virtual float sensorTemperature(const IdentifierHash& hashId) const override;
   //@}
     

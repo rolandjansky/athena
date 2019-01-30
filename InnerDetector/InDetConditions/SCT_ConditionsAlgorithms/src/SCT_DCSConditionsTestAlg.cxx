@@ -41,7 +41,7 @@ StatusCode SCT_DCSConditionsTestAlg::execute(const EventContext& ctx) const {
   ATH_MSG_INFO(m_DCSConditionsTool);
   
   try {
-    gettempworks = (m_DCSConditionsTool->sensorTemperature(Identifier{141015041}, InDetConditions::SCT_STRIP));
+    gettempworks = (m_DCSConditionsTool->sensorTemperature(Identifier{141015041}, ctx, InDetConditions::SCT_STRIP));
     isgoodworks =(m_DCSConditionsTool->isGood(Identifier{208584704}, ctx, InDetConditions::SCT_SIDE));
     module = (m_DCSConditionsTool->canReportAbout(InDetConditions::SCT_MODULE));
     strip = (m_DCSConditionsTool->canReportAbout(InDetConditions::SCT_STRIP));
@@ -55,14 +55,14 @@ StatusCode SCT_DCSConditionsTestAlg::execute(const EventContext& ctx) const {
   ATH_MSG_INFO("gettemp(141015041,Strip) " << gettempworks);
 
   try {
-    gethvworks = (m_DCSConditionsTool->modHV(Identifier{141015041}, InDetConditions::SCT_STRIP));
+    gethvworks = (m_DCSConditionsTool->modHV(Identifier{141015041}, ctx, InDetConditions::SCT_STRIP));
   } catch(...) {
     ATH_MSG_FATAL("Exception caught while trying to the modHV method");
     return StatusCode::FAILURE;
   }
 
   ATH_MSG_INFO("gethv(141015041,Strip) " << (gethvworks ? "successful" : "failed"));
-  ATH_MSG_INFO("gethv(141015041,Strip) " << (m_DCSConditionsTool->modHV(Identifier{141015041}, InDetConditions::SCT_STRIP)));
+  ATH_MSG_INFO("gethv(141015041,Strip) " << (m_DCSConditionsTool->modHV(Identifier{141015041}, ctx, InDetConditions::SCT_STRIP)));
 
   try {
     isgoodworks = (m_DCSConditionsTool->isGood(Identifier{208584704}, ctx, InDetConditions::SCT_SIDE));

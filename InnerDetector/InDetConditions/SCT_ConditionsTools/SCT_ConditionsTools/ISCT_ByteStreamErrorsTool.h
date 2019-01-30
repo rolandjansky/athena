@@ -43,15 +43,21 @@ class ISCT_ByteStreamErrorsTool: virtual public ISCT_ConditionsTool {
   virtual const std::set<IdentifierHash>* getErrorSet(int errorType, const EventContext& ctx) const =0;
 
   virtual bool isRODSimulatedData() const =0;
+  virtual bool isRODSimulatedData(const EventContext& ctx) const =0;
   virtual bool isRODSimulatedData(const IdentifierHash& elementIdHash) const =0;
+  virtual bool isRODSimulatedData(const IdentifierHash& elementIdHash, const EventContext& ctx) const =0;
 
   virtual bool isCondensedReadout() const =0;
-  virtual bool HVisOn() const =0;
+  virtual bool isCondensedReadout(const EventContext& ctx) const =0;
+  virtual bool isHVOn() const =0;
+  virtual bool isHVOn(const EventContext& ctx) const =0;
 
   /** Temporary status of chips for a particular module (packed as 1st 12 bits of unsigned int) */
   virtual unsigned int tempMaskedChips(const Identifier& moduleId) const =0;
+  virtual unsigned int tempMaskedChips(const Identifier& moduleId, const EventContext& ctx) const =0;
   /** Status ABCD errors of chips for a particular module (packed as 1st 12 bits of unsigned int) */
   virtual unsigned int abcdErrorChips(const Identifier& moduleId) const =0;
+  virtual unsigned int abcdErrorChips(const Identifier& moduleId, const EventContext& ctx) const =0;
 
  private:
 

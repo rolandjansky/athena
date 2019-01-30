@@ -29,15 +29,15 @@ StatusCode SCT_ConfigurationConditionsTestAlg::initialize() {
   return StatusCode::SUCCESS;
 } 
 
-StatusCode SCT_ConfigurationConditionsTestAlg::execute(const EventContext& /*ctx*/) const {
+StatusCode SCT_ConfigurationConditionsTestAlg::execute(const EventContext& ctx) const {
   ATH_MSG_INFO("in execute()");
 
   // Bad modules
-  unsigned int nBadMods{static_cast<unsigned int>(m_configConditions->badModules()->size())};
+  unsigned int nBadMods{static_cast<unsigned int>(m_configConditions->badModules(ctx)->size())};
 
   // Bad links
   unsigned int nBadLink0{0}, nBadLink1{0}, nBadLinkBoth{0};
-  const std::map<IdentifierHash, std::pair<bool, bool>>* badLinks{m_configConditions->badLinks()};
+  const std::map<IdentifierHash, std::pair<bool, bool>>* badLinks{m_configConditions->badLinks(ctx)};
   std::map<IdentifierHash, std::pair<bool, bool>>::const_iterator linkItr{badLinks->begin()};
   std::map<IdentifierHash, std::pair<bool, bool>>::const_iterator linkEnd{badLinks->end()};
   while (linkItr != linkEnd) {
@@ -50,7 +50,7 @@ StatusCode SCT_ConfigurationConditionsTestAlg::execute(const EventContext& /*ctx
 
   // Bad chips
   unsigned int nBadChips{0};
-  const std::map<Identifier, unsigned int>* badChips{m_configConditions->badChips()};
+  const std::map<Identifier, unsigned int>* badChips{m_configConditions->badChips(ctx)};
   std::map<Identifier, unsigned int>::const_iterator chipItr{badChips->begin()};
   std::map<Identifier, unsigned int>::const_iterator chipEnd{badChips->end()};
   while (chipItr != chipEnd) {
@@ -61,12 +61,12 @@ StatusCode SCT_ConfigurationConditionsTestAlg::execute(const EventContext& /*ctx
 
   // Bad strips 
   std::set<Identifier> badStripsAll;
-  m_configConditions->badStrips(badStripsAll);
+  m_configConditions->badStrips(badStripsAll, ctx);
   unsigned int nBadStrips{static_cast<unsigned int>(badStripsAll.size())};
 
   // Bad strips (w/o bad modules and chips)
   std::set<Identifier> badStripsExclusive;
-  m_configConditions->badStrips(badStripsExclusive, true, true);
+  m_configConditions->badStrips(badStripsExclusive, ctx, true, true);
   unsigned int nBadStripsExclusive{static_cast<unsigned int>(badStripsExclusive.size())};
   unsigned int nBadStripsExclusiveBEC[]{0,0,0};
 
