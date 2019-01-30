@@ -43,8 +43,6 @@ StatusCode AthRNGSvc::initialize()
     return StatusCode::FAILURE;
   }
   
-  ATH_MSG_INFO("Selected random engine: \"" << m_rngType << "\"");
-
   return StatusCode::SUCCESS;
 }
 
