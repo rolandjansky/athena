@@ -556,6 +556,30 @@ namespace xAOD {
 
       return;
    }
+   
+   const std::string& EventInfo_v1::PileUpType2Name(PileUpType typ)
+   {
+      static std::string typNam[PileUp_NTYPES+1] = {
+         "Unknown" /*99*/,
+         "Signal" /*0*/,
+         "MinimumBias" /*1*/,
+         "Cavern" /*2*/,
+         "HaloGas"/*3*/,
+         "ZeroBias"/*4*/ };
+      int  t = (typ==Unknown)? 0: (int)typ+1;
+      assert( t <= PileUp_NTYPES );
+      return typNam[t];
+   } 
+
+   EventInfo_v1::PileUpType EventInfo_v1::PileUpInt2Type(unsigned short typ)
+   {
+      static PileUpType typEnum[PileUp_NTYPES+1] = {
+         Unknown /*99*/, Signal /*0*/, MinimumBias /*1*/, Cavern /*2*/, HaloGas /*3*/, ZeroBias /*4*/
+      };
+      int t = (typ==99)? 0: (int)typ+1;
+      assert( t <= PileUp_NTYPES );
+      return typEnum[t];
+   } 
 
    //
    /////////////////////////////////////////////////////////////////////////////

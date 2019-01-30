@@ -257,10 +257,7 @@ const xAOD::EventInfo* PileUpMergeSvc::getPileUpEvent( StoreGateSvc* sg, const s
       }
    }
 
-   if( xAODEventInfo ) {
-      ATH_MSG_INFO("Dumping xAOD::EventInfo");
-      xAOD::dump( *xAODEventInfo );
-   } else {
+   if( !xAODEventInfo ) {
       ATH_MSG_DEBUG("Could not find EventInfo '" << einame << "' in store " << sg->name());
    }
    return xAODEventInfo;

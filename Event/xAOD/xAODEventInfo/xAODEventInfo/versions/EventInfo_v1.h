@@ -250,8 +250,15 @@ namespace xAOD {
          MinimumBias =  1, ///< Minimum bias pileup event
          Cavern      =  2, ///< Cavern background pileup event
          HaloGas     =  3, ///< Halo-gas non-collision background
-         ZeroBias    =  4  ///< Zero bias pileup event
+         ZeroBias    =  4, ///< Zero bias pileup event
+         PileUp_NTYPES
       }; // enum PileUpType
+
+      /// Convert PileUpType enum value to string
+      static const std::string& PileUpType2Name(PileUpType typ);
+
+      /// Convert int to PileUpType enum value
+      static PileUpType PileUpInt2Type(unsigned short typ);
 
       /// Class describing the properties of one pileup sub-event
       ///
