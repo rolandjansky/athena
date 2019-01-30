@@ -109,8 +109,8 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_GETTER(NeutralParticle_v1, float, theta)
   AUXSTORE_PRIMITIVE_GETTER(NeutralParticle_v1, float, oneOverP)
 
-  const DefiningParameters_t& NeutralParticle_v1::definingParameters() const{
-      static DefiningParameters_t tmp;
+  const DefiningParameters_t NeutralParticle_v1::definingParameters() const{
+      DefiningParameters_t tmp;
       tmp << d0(),z0(),phi0(),theta(),oneOverP();
       return tmp;
   }
@@ -154,11 +154,12 @@ namespace xAOD {
             v.push_back(cov(icol,irow));
   }
 
-  const xAOD::ParametersCovMatrix_t& NeutralParticle_v1::definingParametersCovMatrix() const {
+  const xAOD::ParametersCovMatrix_t NeutralParticle_v1::definingParametersCovMatrix() const {
     static const Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
     std::vector<float> v = acc(*this);
     std::vector<float>::const_iterator it = v.begin();
-    static xAOD::ParametersCovMatrix_t cov; cov.setZero();
+    xAOD::ParametersCovMatrix_t cov; 
+    cov.setZero();
     for (size_t irow = 0; irow<5; ++irow)
         for (size_t icol =0; icol<=irow; ++icol)
             cov.fillSymmetric(icol,irow, *it++);
