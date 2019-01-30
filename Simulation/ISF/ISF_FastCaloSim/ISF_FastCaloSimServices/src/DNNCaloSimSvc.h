@@ -107,6 +107,9 @@ namespace ISF {
       const double m_EtaRawBackCut_const = m_MiddleCellWidthEta_const * 4.;
       const double m_PhiRawMiddleCut_const = m_MiddleCellWidthPhi_const * 3.5;
       const double m_PhiRawStripCut_const = m_MiddleCellWidthPhi_const * 6.0;
+
+      const int m_numberOfCellsForDNN_const = 266;
+      const int m_GANLatentSize_const = 300;
       
       std::string  m_caloCellsOutputName;
   };
