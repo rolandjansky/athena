@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #define  ATHENASERVICES_ATHENAHIVEEVENTLOOPMGR_CPP
@@ -600,9 +600,8 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
   // Leave the interface intact and swallow this C trick.
   int& createdEvts = *((int*)createdEvts_IntPtr);
 
-  EventContext* evtContext(nullptr);
-
-  if ( createEventContext(evtContext,createdEvts).isFailure() ){
+  std::unique_ptr<EventContext> evtContext = createEventContext(createdEvts);
+  if ( !evtContext ){
     fatal() << "Impossible to create event context" << endmsg;
     return StatusCode::FAILURE;
   }
@@ -619,12 +618,12 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
   // Make sure context with slot is set before calling es->next().
   Gaudi::Hive::setCurrentContext (*evtContext);
 
-  int declEvtRootSc = declareEventRootAddress(evtContext);
+  int declEvtRootSc = declareEventRootAddress(*evtContext);
   if (declEvtRootSc == 0 ) { // We ran out of events!
     createdEvts = -1;  // Set created event to a negative value: we finished!
     return StatusCode::SUCCESS;
   } else if ( declEvtRootSc == -1) {
-    error() << "declareEventRootAddress for context " << evtContext << " failed"
+    error() << "declareEventRootAddress for context " << *evtContext << " failed"
 	    << endmsg;
     return StatusCode::FAILURE;
   }
@@ -693,7 +692,7 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
   // Make sure context global context has event id
   Gaudi::Hive::setCurrentContext (*evtContext);
 
-  // Record EventContext in current whiteboard
+  // Record a copy of the EventContext in current whiteboard
   if (eventStore()->record(std::make_unique<EventContext> (*evtContext),
                            "EventContext").isFailure())
   {
@@ -723,6 +722,9 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
 
 
     CHECK( m_conditionsCleaner->event (*evtContext, true) );
+
+    // Remember the last event context for after event processing finishes.
+    m_lastEventContext = *evtContext;
     
     // Now add event to the scheduler 
     debug() << "Adding event " << evtContext->evt() 
@@ -731,7 +733,7 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
     
     m_incidentSvc->fireIncident(Incident(name(), IncidentType::BeginProcessing, 
 					 *evtContext));
-    StatusCode addEventStatus = m_schedulerSvc->pushNewEvent(evtContext);
+    StatusCode addEventStatus = m_schedulerSvc->pushNewEvent(evtContext.release());
     
     // If this fails, we need to wait for something to complete
     if (!addEventStatus.isSuccess()){
@@ -783,6 +785,19 @@ StatusCode AthenaHiveEventLoopMgr::stopRun() {
   }
   m_scheduledStop = true;
   return StatusCode::SUCCESS;
+}
+
+
+//-----------------------------------------------------------------------------
+// Implementation of IService::stop()
+//-----------------------------------------------------------------------------
+StatusCode AthenaHiveEventLoopMgr::stop()
+{
+  // Need to be sure we have a valid EventContext during stop()))).
+  Gaudi::Hive::setCurrentContext( m_lastEventContext );
+  StatusCode sc = MinimalEventLoopMgr::stop();
+  Gaudi::Hive::setCurrentContext( EventContext() );
+  return sc;
 }
 
 
@@ -1054,7 +1069,7 @@ StatusCode AthenaHiveEventLoopMgr::getEventRoot(IOpaqueAddress*& refpAddr)  {
 
 //---------------------------------------------------------------------------
 
-int AthenaHiveEventLoopMgr::declareEventRootAddress(const EventContext* ctx){
+int AthenaHiveEventLoopMgr::declareEventRootAddress(const EventContext& ctx){
 
   // return codes:
   //   -1 : error
@@ -1135,9 +1150,9 @@ int AthenaHiveEventLoopMgr::declareEventRootAddress(const EventContext* ctx){
 
     m_pEvent = pEvent;
 
-    debug() << "selecting store: " << ctx->slot() << endmsg;
+    debug() << "selecting store: " << ctx.slot() << endmsg;
 
-    m_whiteboard->selectStore( ctx->slot() ).ignore();
+    m_whiteboard->selectStore( ctx.slot() ).ignore();
 
     debug() << "recording EventInfo " << *pEvent->event_ID() << " in "
             << eventStore()->name() << endmsg;
@@ -1153,8 +1168,8 @@ int AthenaHiveEventLoopMgr::declareEventRootAddress(const EventContext* ctx){
 
 //---------------------------------------------------------------------------
 
-StatusCode  AthenaHiveEventLoopMgr::createEventContext(EventContext*& evtContext, int createdEvts){
-  evtContext = new EventContext(createdEvts, m_whiteboard->allocateStore(createdEvts));
+std::unique_ptr<EventContext>  AthenaHiveEventLoopMgr::createEventContext(int createdEvts){
+  auto evtContext = std::make_unique<EventContext>(createdEvts, m_whiteboard->allocateStore(createdEvts));
 
   // evtContext->m_evt_num = createdEvts;
   // evtContext->m_evt_slot = m_whiteboard->allocateStore(createdEvts);
@@ -1168,13 +1183,14 @@ StatusCode  AthenaHiveEventLoopMgr::createEventContext(EventContext*& evtContext
   if (sc.isFailure()){
     warning() << "Slot " << evtContext->slot()
               << " could not be selected for the WhiteBoard" << endmsg;
+    evtContext.reset();
   } else {
     evtContext->setExtension( Atlas::ExtendedEventContext( eventStore()->hiveProxyDict() ) );
 
     debug() << "created EventContext, num: " << evtContext->evt()  << "  in slot: " 
 	    << evtContext->slot() << endmsg;
   }
-  return sc;
+  return evtContext;
 }
 
 //---------------------------------------------------------------------------
@@ -1314,12 +1330,4 @@ StatusCode AthenaHiveEventLoopMgr::clearWBSlot(int evtSlot)  {
   return m_whiteboard->freeStore(evtSlot);  
 }
 //---------------------------------------------------------------------------
-
-
-
-
-
-
-
-
 
