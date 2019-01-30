@@ -60,8 +60,8 @@ class JetAlg{
   static StatusCode SeedFinding(const xAOD::JGTowerContainer*towers, TString seedname, float seed_size, float range, std::vector<float> noise, float seed_tower_noise_multiplier, float seed_total_noise_multiplier, float seed_min_ET_MeV, bool m_debug = false);
 
   static StatusCode BuildFatJet(const xAOD::JGTowerContainer towers, TString jetname, float jet_r, std::vector<float> noise, float jet_tower_noise_multiplier, float jet_total_noise_multiplier, float jet_min_ET_MeV); 
-  static StatusCode BuildJet(const xAOD::JGTowerContainer*towers, TString seedname, TString jetname, float jet_size, std::vector<float> noise, float jet_tower_noise_multiplier, float jet_total_noise_multiplier, float jet_min_ET_MeV, bool m_debug = false);
-  static StatusCode BuildRoundJet(const xAOD::JGTowerContainer*towers, TString seedname, TString jetname, float jet_size, std::vector<float> noise, float jet_tower_noise_multiplier, float jet_total_noise_multiplier, float jet_min_ET_MeV, bool m_debug = false);
+  static StatusCode BuildJet(const xAOD::JGTowerContainer*towers, TString seedname, TString jetname, float jet_size, std::vector<float> noise, float jet_tower_noise_multiplier, float jet_total_noise_multiplier, float jet_min_ET_MeV, bool m_debug = false, bool m_saveSeeds = false);
+  static StatusCode BuildRoundJet(const xAOD::JGTowerContainer*towers, TString seedname, TString jetname, float jet_size, std::vector<float> noise, float jet_tower_noise_multiplier, float jet_total_noise_multiplier, float jet_min_ET_MeV, bool m_debug = false, bool m_saveSeeds = false);
 
 };
 #endif

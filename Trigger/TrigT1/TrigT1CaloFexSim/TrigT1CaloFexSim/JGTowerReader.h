@@ -83,6 +83,7 @@ class JGTowerReader: public ::AthAlgorithm {
   float m_map_jet_min_ET_MeV;
 
   bool m_plotSeeds;
+  bool m_saveSeeds;
 
   float m_gJet_seed_size;
   float m_gJet_max_r;

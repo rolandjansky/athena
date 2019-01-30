@@ -245,11 +245,10 @@ StatusCode JetAlg::BuildFatJet(const xAOD::JGTowerContainer towers, TString jetn
   float pt_cone_cut = 25*Gaudi::Units::GeV;
 
   for(unsigned b = 0; b < blocks.size(); b++){
-    const xAOD::JGTower* seed = towers.at(blocks[b].seedIndex());
+    // const xAOD::JGTower* seed = towers.at(blocks[b].seedIndex());
     float block_phi = blocks[b].Phi();
     float block_eta = blocks[b].Eta();
     float pt_cone = blocks[b].Pt();
-    float seed_Et = seed->et();
 
     float j_Et = 0;
     float j_totalnoise = 0;
@@ -270,12 +269,19 @@ StatusCode JetAlg::BuildFatJet(const xAOD::JGTowerContainer towers, TString jetn
   return StatusCode::SUCCESS;
 }
 
-StatusCode JetAlg::BuildJet(const xAOD::JGTowerContainer*towers, TString seedname, TString jetname, float jet_r, std::vector<float> noise, float jet_tower_noise_multiplier, float jet_total_noise_multiplier, float jet_min_ET_MeV, bool m_debug){
+StatusCode JetAlg::BuildJet(const xAOD::JGTowerContainer*towers, TString seedname, TString jetname, float jet_r, std::vector<float> noise, float jet_tower_noise_multiplier, float jet_total_noise_multiplier, float jet_min_ET_MeV, bool m_debug, bool m_saveSeeds){
 
   std::shared_ptr<JetAlg::Seed> seeds = m_SeedMap[seedname];
   std::vector<std::shared_ptr<JetAlg::L1Jet>> js;
   if(m_JetMap.find(jetname)!=m_JetMap.end())  js = m_JetMap[jetname];
   else m_JetMap[jetname] = js;
+
+  // save seeds
+  std::vector<std::shared_ptr<JetAlg::L1Jet>> ss;
+  if(m_saveSeeds) {
+    if(m_JetMap.find(seedname)!=m_JetMap.end()) ss = m_JetMap[seedname];
+    else m_JetMap[seedname] = ss;
+  }
 
   for(unsigned eta_ind=0; eta_ind<seeds->eta.size(); eta_ind++){
      for(unsigned phi_ind=0; phi_ind<seeds->phi.at(eta_ind).size(); phi_ind++){
@@ -284,6 +290,13 @@ StatusCode JetAlg::BuildJet(const xAOD::JGTowerContainer*towers, TString seednam
         float phi = seeds->phi.at(eta_ind).at(phi_ind);
         if(m_debug)
           std::cout << "BuildJet: found a local max seed at (eta,phi)=("<<eta<<","<<phi<<")" << std::endl;
+
+        if(m_saveSeeds) {
+          float et = seeds->et.at(eta_ind).at(phi_ind);
+          std::shared_ptr<JetAlg::L1Jet> s = std::make_shared<JetAlg::L1Jet>(eta, phi, et);
+          ss.push_back(s);
+        }
+
         float j_et = 0;
         float j_totalnoise = 0;
         for(unsigned t=0; t<towers->size(); t++){
@@ -304,6 +317,8 @@ StatusCode JetAlg::BuildJet(const xAOD::JGTowerContainer*towers, TString seednam
      }
   }
   m_JetMap[jetname] = js;
+  if(m_saveSeeds)
+    m_JetMap[seedname] = ss;
   if(m_debug) {
     std::cout << "BuildJet: built " << js.size() << " jets:" << std::endl;
     for(int i=0; i < int(js.size()); i++) {
@@ -314,13 +329,19 @@ StatusCode JetAlg::BuildJet(const xAOD::JGTowerContainer*towers, TString seednam
 }
 
 
-StatusCode JetAlg::BuildRoundJet(const xAOD::JGTowerContainer*towers, TString seedname, TString jetname, float jet_r, std::vector<float> noise, float jet_tower_noise_multiplier, float jet_total_noise_multiplier, float jet_min_ET_MeV, bool m_debug){
+StatusCode JetAlg::BuildRoundJet(const xAOD::JGTowerContainer*towers, TString seedname, TString jetname, float jet_r, std::vector<float> noise, float jet_tower_noise_multiplier, float jet_total_noise_multiplier, float jet_min_ET_MeV, bool m_debug, bool m_saveSeeds){
 
   std::vector<std::shared_ptr<JetAlg::L1Jet>> js;
   std::shared_ptr<JetAlg::Seed> seeds = m_SeedMap[seedname];
   if(m_JetMap.find(jetname)!=m_JetMap.end())  js = m_JetMap[jetname];
   else m_JetMap[jetname] = js;
 
+  // save seeds
+  std::vector<std::shared_ptr<JetAlg::L1Jet>> ss;
+  if(m_saveSeeds) {
+    if(m_JetMap.find(seedname)!=m_JetMap.end()) ss = m_JetMap[seedname];
+    else m_JetMap[seedname] = ss;
+  }
 
   for(unsigned eta_ind=0; eta_ind<seeds->eta.size(); eta_ind++){
      for(unsigned phi_ind=0; phi_ind<seeds->phi.at(eta_ind).size(); phi_ind++){
@@ -331,6 +352,13 @@ StatusCode JetAlg::BuildRoundJet(const xAOD::JGTowerContainer*towers, TString se
         float j_totalnoise = 0;
         if(m_debug)
           std::cout << "BuildRoundJet: found a local max seed at (eta,phi)=("<<eta<<","<<phi<<")" << std::endl;
+
+        if(m_saveSeeds) {
+          float et = seeds->et.at(eta_ind).at(phi_ind);
+          std::shared_ptr<JetAlg::L1Jet> s = std::make_shared<JetAlg::L1Jet>(eta, phi, et);
+          ss.push_back(s);
+        }
+
         for(unsigned t=0; t<towers->size(); t++){
            const xAOD::JGTower* tower = towers->at(t);
            if(fabs(tower->et()) < noise.at(t)*jet_tower_noise_multiplier) continue;
@@ -351,6 +379,8 @@ StatusCode JetAlg::BuildRoundJet(const xAOD::JGTowerContainer*towers, TString se
      }
   }
   m_JetMap[jetname] = js;
+  if(m_saveSeeds)
+    m_JetMap[seedname] = ss;
   if(m_debug) {
     std::cout << "BuildRoundJet: built " << js.size() << " jets:" << std::endl;
     for(int i=0; i < int(js.size()); i++) {

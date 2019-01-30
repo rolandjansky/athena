@@ -77,6 +77,7 @@ histSvc("THistSvc",name){
   declareProperty("map_jet_min_ET_MeV", m_map_jet_min_ET_MeV = 2000.0);
 
   declareProperty("plotSeeds", m_plotSeeds = false);
+  declareProperty("saveSeeds", m_saveSeeds = false);
 
   declareProperty("gJet_seed_size", m_gJet_seed_size=0.2);
   declareProperty("gJet_max_r", m_gJet_max_r=1.0);  //gFEX constructs large radius jets
@@ -248,7 +249,7 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
     ATH_MSG_DEBUG("JFexAlg: SeedFinding with jSeeds; m_jJet_seed_size = " << m_jJet_seed_size << ", m_jJet_max_r = " << m_jJet_max_r);
     CHECK( JetAlg::SeedFinding(jTs, "jSeeds", m_jJet_seed_size, m_jJet_max_r, jT_noise, m_jJet_seed_tower_noise_multiplier, m_jJet_seed_total_noise_multiplier, m_jJet_seed_min_ET_MeV, m_debugJetAlg) );
     ATH_MSG_DEBUG("JFexAlg: BuildJet");
-    CHECK( JetAlg::BuildJet(jTs, "jSeeds", "jL1Jet", m_jJet_r, jT_noise, m_jJet_jet_tower_noise_multiplier, m_jJet_jet_total_noise_multiplier, m_jJet_jet_min_ET_MeV, m_debugJetAlg) );
+    CHECK( JetAlg::BuildJet(jTs, "jSeeds", "jJets", m_jJet_r, jT_noise, m_jJet_jet_tower_noise_multiplier, m_jJet_jet_total_noise_multiplier, m_jJet_jet_min_ET_MeV, m_debugJetAlg, m_saveSeeds) );
   }
   if(m_makeRoundJets) {
     if( JetAlg::m_SeedMap.find("jRoundSeeds") == JetAlg::m_SeedMap.end() )
@@ -256,7 +257,7 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
     ATH_MSG_DEBUG("JFexAlg: SeedFinding with jJetSeeds; m_jJet_seed_size = " << m_jJet_seed_size << ", m_jJet_max_r = " << m_jJet_max_r);
     CHECK( JetAlg::SeedFinding(jTs, "jRoundSeeds", m_jJetRound_seed_size, m_jJetRound_max_r, jT_noise, m_jJetRound_seed_tower_noise_multiplier, m_jJetRound_seed_total_noise_multiplier, m_jJetRound_seed_min_ET_MeV, m_debugJetAlg) );
     ATH_MSG_DEBUG("JFexAlg: BuildRoundJet");
-    CHECK( JetAlg::BuildRoundJet(jTs, "jRoundSeeds", "jRoundJet", m_jJetRound_r, jT_noise, m_jJetRound_jet_tower_noise_multiplier, m_jJetRound_jet_total_noise_multiplier, m_jJetRound_jet_min_ET_MeV, m_debugJetAlg) );
+    CHECK( JetAlg::BuildRoundJet(jTs, "jRoundSeeds", "jRoundJets", m_jJetRound_r, jT_noise, m_jJetRound_jet_tower_noise_multiplier, m_jJetRound_jet_total_noise_multiplier, m_jJetRound_jet_min_ET_MeV, m_debugJetAlg, m_saveSeeds) );
   }
   if(m_makeJetsFromMap) {
     ATH_MSG_DEBUG("JFexAlg: Build jets from map");
@@ -710,8 +711,9 @@ StatusCode JGTowerReader::BuildJetsFromMap(const xAOD::JGTowerContainer*jTs) {
 
     // don't count seed if below minimum ET threshold
     if (towerMapSeed_ET.at(i_seed) < m_map_seed_min_ET_MeV) {
+      if(isLocalMax)
+        ATH_MSG_DEBUG("  below ET threshold");
       isLocalMax = false;
-      ATH_MSG_DEBUG("  below ET threshold");
     }
 
     towerMapSeed_isLocalMax.push_back(isLocalMax);
@@ -720,13 +722,26 @@ StatusCode JGTowerReader::BuildJetsFromMap(const xAOD::JGTowerContainer*jTs) {
   
   // Step 3, if seed is local max then make jet
   std::vector<std::shared_ptr<JetAlg::L1Jet>> js;
-  TString jetname = "jJetFromMap";
+  TString jetname = "jJetsFromMap";
   if(JetAlg::m_JetMap.find(jetname) == JetAlg::m_JetMap.end() )
     JetAlg::m_JetMap[jetname] = js;
+
+  std::vector<std::shared_ptr<JetAlg::L1Jet>> ss;
+  TString seedname = "jSeedsFromMap";
+  if(m_saveSeeds) {
+    if(JetAlg::m_JetMap.find(seedname) == JetAlg::m_JetMap.end() )
+      JetAlg::m_JetMap[seedname] = ss;
+  }
 
   for(int i_jet = 0; i_jet < int(towerMap_jetEta.size()); i_jet++) {
     if( ! towerMapSeed_isLocalMax.at( towerMap_jetSeed.at(i_jet) ) )
       continue;
+
+    if(m_saveSeeds) {
+      towerMapSeed_ET.at(i_jet);
+      std::shared_ptr<JetAlg::L1Jet> s = std::make_shared<JetAlg::L1Jet>(towerMap_jetEta.at(i_jet), towerMap_jetPhi.at(i_jet), towerMapSeed_ET.at(i_jet));
+      JetAlg::m_JetMap[seedname].push_back(s);
+    }
 
     float jet_ET = 0;
     float jet_totalNoise = 0;

@@ -3,7 +3,7 @@
 theApp.EvtMax=1                                      #says how many events to run over. Set to -1 for all events
 
 debug = False
-# debug = True
+debug = True
 
 #Input file
 from PyUtils import AthFile
@@ -82,6 +82,7 @@ algseq += CfgMgr.JGTowerReader(                  # adds an instance of your alg 
     debugJetAlg = debug,
     noise_file = "/eos/user/c/cylin/public/L1Calo/noise_r10684.root",
     plotSeeds = True,
+    saveSeeds = True,
     dumpTowerInfo = True,
 
     makeSquareJets = True,
