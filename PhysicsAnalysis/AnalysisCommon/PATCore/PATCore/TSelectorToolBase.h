@@ -27,9 +27,6 @@
 // don't just comment out this line
 #ifdef ROOTCORE
 #include <RootCore/Packages.h>
-#ifdef ROOTCORE_PACKAGE_D3PDReader
-#define PAT_CORE_D3PDREADER
-#endif
 #endif
 
 class TObject;
@@ -72,12 +69,6 @@ namespace Root {
       return m_accept;
     }
 
-#ifdef PAT_CORE_D3PDREADER
-    /** The generic D3PDReader accept method */
-    virtual asg::AcceptData accept( const TObject& /*d3pd*/ ) {return asg::AcceptData (&m_accept);}
-#endif
-
-
 #ifdef ROOTCORE 
     /** For convenient PROOF support */
     ClassDef(TSelectorToolBase,1); 
@@ -90,7 +81,7 @@ namespace Root {
     TString m_name;
 
     /** The return AcceptInfo object */
-    mutable asg::AcceptInfo m_accept;//!
+    asg::AcceptInfo m_accept;//!
     
 
   }; // End: class definition
