@@ -1,15 +1,15 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    TIDAEvent.h        
-//
-//            Basic event class to contain a vector of
-//            chains for trigger analysis                   
-// 
-//
-//   $Id: TIDAEvent.h, v0.0   Mon  1 Feb 2010 11:43:51 GMT sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    TIDAEvent.h
+ **
+ **     @brief   Basic event class to contain a vector of
+ **              chains for trigger analysis                   
+ **
+ **     @author  mark sutton
+ **     @date    Mon  1 Feb 2010 11:43:51 GMT 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #ifndef TRIGINDETANALYSIS_TIDAEVENT_H

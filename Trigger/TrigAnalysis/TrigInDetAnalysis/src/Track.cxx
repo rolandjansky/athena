@@ -1,8 +1,12 @@
-// emacs: this is -*- c++ -*- 
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-/** @file Track.cxx */
+/**
+ **     @file    Track.cxx
+ **
+ **     @author  mark sutton
+ **     @date    Fri 11 Jan 2019 07:41:25 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
+
 
 #include "TrigInDetAnalysis/Track.h"
 

@@ -1,18 +1,16 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    SigAnalysis.h        
-//
-//                   
-// 
-//
-//   $Id: SigAnalysis.h, v0.0   Wed 28 Oct 2009 02:41:51 CET sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    SigAnalysis.h
+ **
+ **     @author  mark sutton
+ **     @date    Wed 28 Oct 2009 02:41:51 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
-#ifndef TRIGINDETANALYSISEXAMPLE_SIGANALYSIS_H
-#define TRIGINDETANALYSISEXAMPLE_SIGANALYSIS_H
+#ifndef TIDAEXAMPLE_SIGANALYSIS_H
+#define TIDAEXAMPLE_SIGANALYSIS_H
 
 #include <iostream>
 #include <vector>
@@ -28,9 +26,10 @@
 
 
 class SigAnalysis : public TrackAnalysis { 
-  
-  //  private:
-  //     typedef std::map<std::string, TH1F*> maptype; 
+   
+public:
+
+  using TrackAnalysis::execute;
 
 public:
   
@@ -125,7 +124,7 @@ inline std::ostream& operator<<( std::ostream& s, const SigAnalysis& /*_s*/ ) {
 
 
 
-#endif  // TRIGINDETANALYSISEXAMPLE_SIGANALYSIS_H 
+#endif  // TIDAEXAMPLE_SIGANALYSIS_H 
 
 
 

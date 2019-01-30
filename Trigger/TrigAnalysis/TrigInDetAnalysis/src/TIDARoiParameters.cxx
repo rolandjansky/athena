@@ -1,14 +1,11 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    TIDARoiParameters.cxx         
-//   
-//
-//   @author M.Sutton
-// 
-//
-//   $Id: TIDARoiParameters.cxx, v0.0   Wed  4 Mar 2015 16:22:25 CET sutt $
+/**
+ **     @file    TIDARoiParameters.cxx
+ **
+ **     @author  mark sutton
+ **     @date    Wed  4 Mar 2015 16:22:25 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 #include <cmath>
 

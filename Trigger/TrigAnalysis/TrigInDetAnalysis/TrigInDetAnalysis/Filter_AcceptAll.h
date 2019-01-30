@@ -1,18 +1,16 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    Filter_AcceptAll.h        
-//
-//                   
-// 
-//
-//   $Id: Filter_AcceptAll.h, v0.0   Wed 28 Oct 2009 02:44:40 CET sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    Filter_AcceptAll.h
+ **
+ **     @author  mark sutton
+ **     @date    Wed 28 Oct 2009 02:44:40 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
-#ifndef __FILTER_ACCEPTALL_H
-#define __FILTER_ACCEPTALL_H
+#ifndef TIDA_FILTER_ACCEPTALL_H
+#define TIDA_FILTER_ACCEPTALL_H
 
 // #include <iostream>
 // #include <cmath>
@@ -38,7 +36,7 @@ public:
 
 };
 
-#endif  // __FILTER_ACCEPTALL_H 
+#endif  // TIDA_FILTER_ACCEPTALL_H 
 
 
 

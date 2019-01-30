@@ -1,19 +1,19 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   TFileString.h        
-//
-//    root TObject std::string std::vector class for writing std::string std::vectors
-//    to root files               
-// 
-//
-//   $Id: TFileString.h, v0.0   Sat Mar 15 19:49:16 GMT 2008 sutt
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    TFileString.h
+ **
+ **     @brief   root TObject std::string std::vector class for 
+ **              writing std::string std::vectors to root files               
+ **   
+ **     @author  mark sutton
+ **     @date    Sat Mar 15 19:49:16 GMT 2008 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
-#ifndef __TFILESTRING_H
-#define __TFILESTRING_H
+#ifndef TIDA_TFILESTRING_H
+#define TIDA_TFILESTRING_H
 
 #include <iostream>
 
@@ -64,7 +64,7 @@ std::ostream& operator<<(std::ostream& s, const TFileString& fs);
 
 
 
-#endif  // __TFILESTRING_H 
+#endif  // TIDA_TFILESTRING_H 
 
 
 

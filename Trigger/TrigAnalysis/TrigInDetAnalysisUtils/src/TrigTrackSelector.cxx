@@ -1,14 +1,11 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    TrigTrackSelector.cxx         
-//   
-//
-//   @author M.Sutton
-// 
-//
-//   $Id: TrigTrackSelector.cxx, v0.0   Sun  2 Nov 2014 11:10:06 CET sutt $
+/**
+ **     @file    TrigTrackSelector.cxx
+ **
+ **     @author  mark sutton
+ **     @date    Sun  2 Nov 2014 11:10:06 CET 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
 #include "TrigInDetAnalysisUtils/TrigTrackSelector.h"
@@ -785,6 +782,7 @@ bool TrigTrackSelector::selectTrack( const xAOD::TrackParticle* track, void* ) {
       uint8_t sum_nBlayerHits = 0;
       track->summaryValue( sum_nBlayerHits, xAOD::numberOfInnermostPixelLayerHits);
       int nBlayerHits = 2*sum_nBlayerHits;
+
       uint8_t  sum_nPixelHits = 0;
       track->summaryValue( sum_nPixelHits, xAOD::numberOfPixelHits);
       int nPixelHits = 2*sum_nPixelHits;
@@ -841,32 +839,6 @@ bool TrigTrackSelector::selectTrack( const xAOD::TrackParticle* track, void* ) {
       
       if ( xbeam!=getBeamX() || ybeam!=getBeamY() || zbeam!=getBeamZ() ) setBeamline( xbeam, ybeam, zbeam );
 	
-     
-
-#if 0
-#ifndef XAOD_STANDALONE
-      // NB: this doesn't work yet
-
-      static int hpmap[20] = { 0, 1, 2,  7, 8, 9,  3, 4, 5, 6, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 };
-
-      //      const Trk::Track*    _track =  track->track();
-      const Trk::Track*   _track =  track->track().getDataPtr();
-      if ( _track ) { 
-      
-	const Trk::TrackSummary*  summary = _track->trackSummary();
-	
-	if(summary==0){
-	  std::cerr << "Could not create TrackSummary  - Track will likely fail hits requirements" << std::endl;
-	}
-	else{
-	  for ( int ih=0 ; ih<21 ; ih++ ) {
-	    if ( summary->isHit(Trk::DetectorType(ih)) ) bitmap |= ( 1<<hpmap[ih] );
-	  }
-	}
-      }
-#endif
-#endif
-
       int trackAuthor = 0;
 
       int fitter = track->trackFitter();
