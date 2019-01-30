@@ -1158,10 +1158,32 @@ if TriggerFlags.doFTK():
 ps_larnoiseburst_rerun_list = []
 
 ps_perform_list = [
-    'mu4_j15_dr05' ,
-    'mu4_j35_dr05'  ,
-    'mu6_j85_dr05' ,
-    'e5_lhloose_nod0_idperf'
+    #'mu4_j15_dr05' ,
+    #'mu4_j35_dr05'  ,
+    #'mu6_j85_dr05' ,
+    #'e5_lhloose_nod0_idperf',
+    'xe50',
+    'tau35_perf_tracktwo_tau25_perf_tracktwo',
+    'tau160_idperf_tracktwo_L1TAU100',
+    'tau160_idperf_tracktwo_L1TAU100',
+    'tau160_idperf_tracktwoEF_L1TAU100',
+    'tau160_idperf_tracktwoMVA_L1TAU100',
+    'tau160_perf_tracktwo_L1TAU100',
+    'tau160_perf_tracktwo_L1TAU100',
+    'tau160_perf_tracktwoEF_L1TAU100',
+    'tau160_perf_tracktwoMVA_L1TAU100',
+    'tau125_medium1_tracktwo',
+    'tau160_idperf_track_L1TAU100',
+    'tau160_idperf_track_L1TAU100',
+    'tau160_perf_tracktwo_L1TAU100',
+    'tau25_idperf_track',
+    'tau25_medium1_tracktwo',
+    'tau25_perf_tracktwo',
+    'tau25_perf_tracktwo_L1TAU12',
+    'tau35_medium1_tracktwoMVA_L1TAU12IM',
+    'tau80_medium1_tracktwoMVA_L1TAU60',
+    'e5_lhmedium_nod0',
+    'e5_lhloose_nod0_idperf',
     ]
 
 ps_Jpsi_list = []
@@ -1171,9 +1193,23 @@ ps_ftk_list = []
 ps_Bphys_list = []
 
 if TriggerFlags.doFTK():
-    ps_ftk_list = []       
+    ps_ftk_list = [
+          'mu6_idperf_FTK_L1MU6_FTK',
+          'mu24_idperf_FTK_L1MU20MU21_FTK',
+          'mu6_idperf_FTKRefit_L1MU6_FTK',
+          'mu24_idperf_FTKRefit_L1MU20MU21_FTK',
+          'j35_boffperf_split_FTK_L1J15_FTK',
+          'j150_boffperf_split_FTK_L1J40_FTK',
+          'j35_boffperf_split_FTKVtx_L1J15_FTK',
+          'j150_boffperf_split_FTKVtx_L1J40_FTK',
+          'j35_boffperf_split_FTKRefit_L1J15_FTK',
+          'j150_boffperf_split_FTKRefit_L1J40_FTK',
+          'j225_boffperf_split_FTK_L1J100_FTK',
+          'j225_boffperf_split_FTKVtx_L1J100_FTK',
+          'j225_boffperf_split_FTKRefit_L1J100_FTK',
+          ]       
 
-ps_streamers_list = []
+    ps_streamers_list = []
 
 #-----------------------------------------------------
 
