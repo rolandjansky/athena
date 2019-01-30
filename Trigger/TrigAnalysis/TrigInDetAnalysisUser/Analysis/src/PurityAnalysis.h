@@ -1,18 +1,16 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    PurityAnalysis.h        
-//
-//                   
-// 
-//
-//   $Id: PurityAnalysis.h 688225 2015-08-07 20:12:06Z sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    PurityAnalysis.h
+ **
+ **     @author  mark sutton
+ **     @date    $Id: PurityAnalysis.h 688225 2015-08-07 20:12:06Z 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
-#ifndef __PURITYANALYSIS_H
-#define __PURITYANALYSIS_H
+#ifndef ANALYSIS_PURITYANALYSIS_H
+#define ANALYSIS_PURITYANALYSIS_H
 
 #include <iostream>
 #include <vector>
@@ -22,6 +20,7 @@
 #include "TrigInDetAnalysis/Track.h"
 #include "TrigInDetAnalysis/TIDDirectory.h"
 #include "TrigInDetAnalysis/Efficiency.h"
+
 // #include "TrigInDetAnalysis/Efficiency2D.h"
 
 #include "Resplot.h"
@@ -33,9 +32,10 @@
 
 
 class PurityAnalysis : public TrackAnalysis { 
-  
-  //  private:
-  //     typedef std::map<std::string, TH1F*> maptype; 
+
+public:
+
+  using TrackAnalysis::execute;
 
 public:
   
@@ -136,7 +136,7 @@ inline std::ostream& operator<<( std::ostream& s, const PurityAnalysis& _s ) {
 
 
 
-#endif  // __PURITYANALYSIS_H 
+#endif  // ANALYSIS_PURITYANALYSIS_H 
 
 
 

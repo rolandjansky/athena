@@ -1,18 +1,16 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    event_selector.h        
-//
-//                   
-//  
-//
-//   $Id: event_selector.h 513250 2012-08-10 14:35:11Z sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    event_selector.h
+ **
+ **     @author  mark sutton
+ **     @date    $Id: event_selector.h 513250 2012-08-10 14:35:11Z 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
-#ifndef __EVENT_SELECTOR_H
-#define __EVENT_SELECTOR_H
+#ifndef ANALYSIS_EVENT_SELECTOR_H
+#define ANALYSIS_EVENT_SELECTOR_H
 
 #include <iostream>
 #include <set>
@@ -48,7 +46,7 @@ inline std::ostream& operator<<( std::ostream& s, const event_selector& _e ) {
 }
 
 
-#endif  // __EVENT_SELECTOR_H 
+#endif  // ANALYSIS_EVENT_SELECTOR_H 
 
 
 

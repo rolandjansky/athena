@@ -1,18 +1,19 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//
-//   @file    lumiList.h        
-//            standalone implementation of a good lumi 
-//            block list       
-//  
-//
-//   $Id: lumiList.h 780225 2016-10-25 10:04:58Z sutt $
+/* emacs: this is -*- c++ -*- */
+/**
+ **     @file    lumiList.h
+ **
+ **     @brief   standalone implementation of a good lumi 
+ **              block list       
+ **
+ **     @author  mark sutton
+ **     @date    $Id: lumiList.h 780225 2016-10-25 10:04:58Z 
+ **
+ **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **/
 
 
-#ifndef __LUMILIST_H
-#define __LUMILIST_H
+#ifndef ANALYSIS_LUMILIST_H
+#define ANALYSIS_LUMILIST_H
 
 #include <iostream>
 #include <map>
@@ -148,7 +149,7 @@ inline std::ostream& operator<<( std::ostream& s, const lumiList& _l ) {
 }
 
 
-#endif  // __LUMILIST_H 
+#endif  // ANALYSIS_LUMILIST_H 
 
 
 
