@@ -25,7 +25,8 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArElecCalib 
                           Reconstruction/Jet/JetCalibTools
                           Reconstruction/Jet/JetInterface
-                          Trigger/TrigAnalysis/TrigAnalysisInterfaces)
+                          Trigger/TrigAnalysis/TrigAnalysisInterfaces
+                          Tools/PathResolver )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist Matrix RIO pthread)
@@ -36,9 +37,10 @@ atlas_add_component( TrigT1CaloFexSim
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} TrigAnalysisInterfaces JetInterface JetCalibToolsLib xAODEventInfo CaloEvent xAODTrigL1Calo xAODMissingET xAODJet xAODBase xAODCore CaloDetDescrLib CaloIdentifier AthenaBaseComps AthAnalysisBaseCompsLib GaudiKernel LArToolsLib CaloTriggerToolLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} TrigAnalysisInterfaces JetInterface JetCalibToolsLib xAODEventInfo CaloEvent xAODTrigL1Calo xAODMissingET xAODJet xAODBase xAODCore CaloDetDescrLib CaloIdentifier AthenaBaseComps AthAnalysisBaseCompsLib GaudiKernel LArToolsLib CaloTriggerToolLib PathResolver )
 
 # Install files from the package:
 atlas_install_data( data/* )
+atlas_install_data( share/jetTowerMaps )
 atlas_install_joboptions( share/*.py )
 atlas_install_headers( TrigT1CaloFexSim )

@@ -32,7 +32,7 @@
 #include "xAODTrigger/EnergySumRoI.h"
 #include "xAODTrigger/EnergySumRoIAuxInfo.h"
 #include "TFile.h"
-//#include "PathResolver/PathResolver.h"
+#include "PathResolver/PathResolver.h"
 
 
 JGTowerReader::JGTowerReader( const std::string& name, ISvcLocator* pSvcLocator ) : 
@@ -419,26 +419,13 @@ std::vector<std::string> splitString(std::string parentString, std::string sep, 
 
 
 StatusCode JGTowerReader::ReadTowerMap() {
-  ATH_MSG_INFO("Reading tower map from " << m_towerMap);
-
-  // path resolver is being difficult
-  // std::string towerMapPath = PathResolver::find_file(m_towerMap);
-  // error: no matching function for call to 'PathResolver::find_file(std::__cxx11::string&)'
-  // std::string towerMapPath = PathResolver::find_file(m_towerMap);
-  // ^
-  // In file included from /afs/cern.ch/work/c/ckaldero/L1Calo/L1CaloSim/source/athena/Trigger/TrigT1/TrigT1CaloFexSim/src/JGTowerReader.cxx:35:0:
-  // /cvmfs/atlas-nightlies.cern.ch/repo/sw/21.3/2019-01-28T2150/Athena/21.3.10/InstallArea/x86_64-slc6-gcc62-opt/src/Tools/PathResolver/PathResolver/PathResolver.h:47:22: note: candidate: static std::__cxx11::string PathResolver::find_file(const string&, const string&, PathResolver::SearchType)
-  // so clearly it has found something........
-  
-  // std::string towerMapPath = PathResolverFindDataFile(m_towerMap);
-  // undefined reference to `PathResolverFindDataFile(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)'
-
-  // if(towerMapPath == "") {
-    // ATH_MSG_DEBUG("Could not resolve " << m_towerMap);
-    // return StatusCode::FAILURE;
-  // }
-  // ATH_MSG_INFO("Resolved at " << towerMapPath);
-  std::string towerMapPath = m_towerMap;
+  ATH_MSG_INFO("Looking for tower map at " << m_towerMap);
+  std::string towerMapPath = PathResolverFindDataFile(m_towerMap);
+  if(towerMapPath == "") {
+    ATH_MSG_DEBUG("Could not resolve " << m_towerMap);
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_INFO("Resolved at " << towerMapPath);
 
   std::ifstream infileStream(towerMapPath);
   std::string line;
