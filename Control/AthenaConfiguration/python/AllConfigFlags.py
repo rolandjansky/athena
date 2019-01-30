@@ -44,10 +44,28 @@ def _createCfgFlags():
     acf.addFlag('Output.HISTFileName','myHIST.root')
 
 
+#Detector Flags:
+    acf.addFlag('Detector.SimulatePixel', False)
+    acf.addFlag("Detector.SimulateSCT",   False)
+    acf.addFlag("Detector.SimulateTRT",   False)
+    acf.addFlag("Detector.SimulateMuon",  False)
+    acf.addFlag("Detector.SimulateCavern",False)
+    acf.addFlag("Detector.Simulate", lambda prevFlags : (prevFlags.Detector.SimulatePixel or prevFlags.Detector.SimulateSCT or
+                                                         prevFlags.Detector.SimulateTRT or prevFlags.Detector.SimulateMuon or
+                                                         prevFlags.Detector.SimulateCavern))
+    acf.addFlag("Detector.OverlayPixel", False)
+    acf.addFlag("Detector.OverlaySCT",   False)
+    acf.addFlag("Detector.OverlayTRT",   False)
+    acf.addFlag("Detector.OverlayMuon",  False)
+    acf.addFlag("Detector.Overlay", lambda prevFlags : (prevFlags.Detector.OverlayPixel or prevFlags.Detector.OverlaySCT or
+                                                        prevFlags.Detector.OverlayTRT or prevFlags.Detector.OverlayMuon ))
+
 #Geo Model Flags:
     acf.addFlag('GeoModel.Layout', 'atlas') # replaces global.GeoLayout
     acf.addFlag("GeoModel.AtlasVersion", lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("Geometry","ATLAS-R2-2016-01-00-01")) #
-
+    acf.addFlag("GeoModel.Align.Dynamic", lambda prevFlags : (not prevFlags.Detector.Simulate))
+    acf.addFlag("GeoModel.StripGeoType", "GMX") # Based on CommonGeometryFlags.StripGeoType
+    acf.addFlag("GeoModel.Run","RUN2") # Based on CommonGeometryFlags.Run (InDetGeometryFlags.isSLHC replaced by GeoModel.Run=="RUN4")
 
 #IOVDbSvc Flags:
     acf.addFlag("IOVDb.GlobalTag",lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("ConditionsTag","CONDBR2-BLKPA-2017-05"))
