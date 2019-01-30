@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGINFO_IPTRACKINFO
@@ -29,7 +29,6 @@ namespace Analysis {
                   bool isFromV0,
                   double d0val, double d0sig,
                   double z0val, double z0sig);
-      virtual ~IPTrackInfo();
       inline void setTrackWeight2D(double w) { m_trackWeight2D = w; }
       inline void setTrackWeight3D(double w) { m_trackWeight3D = w; }
       inline void setTrackProbJP(double p) { m_trackProbJP = p; }

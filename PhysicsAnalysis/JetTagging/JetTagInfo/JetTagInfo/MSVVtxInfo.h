@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGINFO_MSVVTXINFO_H
@@ -18,7 +18,6 @@ namespace Analysis
   public:
 
     MSVVtxInfo();
-    virtual ~MSVVtxInfo();
 
     /** Set methods */
     void setRecSvx(const Trk::RecVertex&); 
