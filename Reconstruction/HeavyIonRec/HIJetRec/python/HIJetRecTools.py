@@ -199,8 +199,8 @@ if jetFlags.useTracks():
     hi_modifiers += [jtm.trkmoms, jtm.jvf, jtm.jvt]
 #    hi_modifiers += [jtm.jvf, jtm.jvt, jtm.trkmoms]
 if jetFlags.useTruth():
-    hi_modifiers += [jtm.truthpartondr,jtm.partontruthlabel]
-    hi_trk_modifiers += [jtm.truthpartondr,jtm.partontruthlabel]
+    hi_modifiers += [jtm.truthpartondr,jtm.partontruthlabel,jtm.jetdrlabeler]
+    hi_trk_modifiers += [jtm.truthpartondr,jtm.partontruthlabel,jtm.jetdrlabeler]
 
 
 
