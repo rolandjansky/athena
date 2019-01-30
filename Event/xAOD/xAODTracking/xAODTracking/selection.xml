@@ -72,16 +72,8 @@
 
   <!-- NeutralParticle_v1 dictionaries: -->
   <class name="xAOD::NeutralParticle_v1">
-         <field name="m_perigeeCached" transient="true"/>
+         <field name="m_perigeeParameters" transient="true"/>
   </class>
-  
-  <read sourceClass="xAOD::NeutralParticle_v1" version="[1-]"
-        targetClass="xAOD::NeutralParticle_v1"
-        source="" target="m_perigeeCached">
-    <![CDATA[
-      m_perigeeCached = false;
-     ]]>
-  </read>
   
   <class name="xAOD::NeutralParticleAuxContainer_v1"
          id="006862BC-5CEB-11E3-9FB4-02163E00A92F"/>
