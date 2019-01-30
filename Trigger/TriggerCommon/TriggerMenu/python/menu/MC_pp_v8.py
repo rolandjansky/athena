@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 import TriggerMenu.menu.Physics_pp_v8 as physics_menu
@@ -392,6 +392,13 @@ def setupMenu():
         ['j85_cleanT',          'L1_J20',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['j85_cleanLLP',        'L1_J20',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['j70_j50_0eta490_invm1100j70_dphi20_deta45_L1MJJ-500-NFF', 'L1_MJJ-500-NFF',[], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        # Large-R jets with jet moment cuts - for testing JetAttrs hypo (Aug. 2018, AS)
+        ['j0_a10t_lcw_jes_subj360Iwidth',            'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+        ['j0_a10t_lcw_jes_subj360I0width5',          'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+        ['j0_a10t_lcw_jes_subj360I0ktdr5',           'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+        ['j0_a10t_lcw_jes_subj360Iktdr',             'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+        ['j0_a10t_lcw_jes_subj360Iktdr3Iwidth2',     'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1], #inclusive trigger
+        ['j0_a10t_lcw_jes_subj360IktdrI9width',      'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
 
 			 ]
 

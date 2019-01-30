@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGJETHLTHYPO_CONDITIONSFACTORY2_H
@@ -76,6 +76,16 @@ Conditions conditionsFactoryTLA(const std::vector<double>& etasMin,
 
 Conditions conditionsFactoryHT(double htMin);
 
+//added A. Steinhebel, April 2018
+Conditions conditionsFactoryJetAttrsWidth(double limitMin,
+                          double limitMax); 
+Conditions conditionsFactoryJetAttrsKtDR(double limitMin,
+                          double limitMax); 
+Conditions conditionsFactoryFalse(double limitMin,
+                          double limitMax); 
 
+Conditions conditionsFactoryJetAttrs(const std::vector<std::string>& jetVars,
+                      const std::vector<double>& limitMins,
+                      const std::vector<double>& limitMaxs);
 
 #endif
