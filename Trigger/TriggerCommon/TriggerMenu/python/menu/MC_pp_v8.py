@@ -1143,7 +1143,7 @@ Prescales.L1Prescales = dict([(ctpid,1) for ctpid in Prescales.L1Prescales])  # 
 ps_online_list=[]
 ps_cosmic_list=[]
 ps_calibmon_list=[
-    'idpsl1_L1IDprescaled'
+    #'idpsl1_L1IDprescaled'
     ]    
 ps_eb_list=[]
 ps_beamspot_list=[]
@@ -1265,7 +1265,8 @@ Prescales.HLTPrescales_TriggerValidation_mc_prescale = deepcopy(Prescales.HLTPre
 ######################################################
 Prescales.L1Prescales_tight_mc_prescale  = deepcopy(Prescales.L1Prescales)
 Prescales.HLTPrescales_tight_mc_prescale = deepcopy(Prescales.HLTPrescales_tightperf_mc_prescale)
-chain_list=ps_streamers_list + ps_perform_list + ps_Bphys_list#+ps_Jpsi_list # enabling JPSI ee again ATR-15162
+#chain_list=ps_streamers_list + ps_perform_list + ps_Bphys_list#+ps_Jpsi_list # enabling JPSI ee again ATR-15162
+chain_list=ps_perform_list + ps_Bphys_list#+ps_Jpsi_list # enabling JPSI ee again ATR-15162
 
 #Prescales.HLTPrescales_tight_mc_prescale = deepcopy(Prescales.HLTPrescales_loose_mc_prescale)
 #chain_list=ps_eb_list+ps_fwdphys_list+ps_minb_list+ps_ftk_list+ps_perform_list
