@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************
@@ -243,12 +243,12 @@ bool TrigEgammaNavTPNtuple::executeProbesItemDump(){
         }
 
 
-        setAccept(feat,info);
-        m_trig_L1_accept       = getAccept().getCutResult("L1Calo"); 
-        m_trig_L2_calo_accept  = getAccept().getCutResult("L2Calo"); 
-        m_trig_L2_el_accept    = getAccept().getCutResult("L2"); 
-        m_trig_EF_calo_accept  = getAccept().getCutResult("EFCalo");  
-        m_trig_EF_el_accept    = getAccept().getCutResult("HLT");   
+        asg::AcceptData acceptData = setAccept(feat,info);
+        m_trig_L1_accept       = acceptData.getCutResult("L1Calo"); 
+        m_trig_L2_calo_accept  = acceptData.getCutResult("L2Calo"); 
+        m_trig_L2_el_accept    = acceptData.getCutResult("L2"); 
+        m_trig_EF_calo_accept  = acceptData.getCutResult("EFCalo");  
+        m_trig_EF_el_accept    = acceptData.getCutResult("HLT");   
 
         ATH_MSG_DEBUG("L1Calo: "  << int(m_trig_L1_accept)); 
         ATH_MSG_DEBUG("L2Calo: "  << int(m_trig_L2_calo_accept));

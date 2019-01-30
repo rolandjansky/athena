@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaCommon.SystemOfUnits import TeV
@@ -40,6 +40,7 @@ def _createCfgFlags():
     acf.addFlag('Output.RDOFileName','myROD.pool.root')
     acf.addFlag('Output.ESDFileName','myESD.pool.root')
     acf.addFlag('Output.AODFileName','myAOD.pool.root')
+    acf.addFlag('Output.HISTFileName','myHIST.root')
 
 
 #Geo Model Flags:
@@ -96,6 +97,18 @@ def _createCfgFlags():
     if haveMuonConfig:
         from MuonConfig.MuonConfigFlags import createMuonConfigFlags
         acf.join( createMuonConfigFlags() )
+
+# DQ
+    try:
+        import AthenaMonitoring # Suppress flake8 unused import warning: # noqa: F401
+        haveDQConfig = True
+    except ImportError:
+        haveDQConfig = False
+
+    if haveDQConfig:
+        from AthenaMonitoring.DQConfigFlags import createDQConfigFlags, createComplexDQConfigFlags
+        acf.join( createDQConfigFlags() )
+        createComplexDQConfigFlags(acf)
 
     return acf
 

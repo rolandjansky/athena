@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 
@@ -135,8 +135,6 @@ def getBuilder(config,suffix,doTracks,doCells,doTriggerMET,doOriginCorrClus):
         else:
             tool.MissingETKey = config.outputKey
     from AthenaCommon.AppMgr import ToolSvc
-    if not hasattr(ToolSvc,tool.name()):
-       ToolSvc += tool
     return tool
 
 #################################################################################
@@ -169,8 +167,6 @@ def getRefiner(config,suffix,trkseltool=None,trkvxtool=None,trkisotool=None,calo
     if config.type == 'MuonEloss':
         tool = CfgMgr.met__METMuonElossTool('MET_MuonElossTool_'+suffix)
     tool.MissingETKey = config.outputKey
-    if not hasattr(ToolSvc,tool.name()):
-        ToolSvc += tool
     return tool
 
 #################################################################################
@@ -185,8 +181,6 @@ def getRegions(config,suffix):
     tool.InputMETKey = config.outputKey
     tool.RegionValues = [ 1.5, 3.2, 10 ]
     from AthenaCommon.AppMgr import ToolSvc
-    if not hasattr(ToolSvc,tool.name()):
-        ToolSvc += tool
     return tool
 
 #################################################################################
@@ -338,7 +332,6 @@ def getMETRecoAlg(algName='METReconstruction',configs={},tools=[]):
 
     from AthenaCommon.AppMgr import ToolSvc
     for tool in recoTools:
-        ToolSvc += tool
         print prefix, 'Added METRecoTool \''+tool.name()+'\' to alg '+algName
 
     recoAlg = CfgMgr.met__METRecoAlg(name=algName,

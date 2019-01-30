@@ -14,10 +14,9 @@
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoShapeShift.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <cmath>
-#include <iostream>
 
 SCT_FwdModuleConnector::SCT_FwdModuleConnector(const std::string & name, int ringType)
   : SCT_SharedComponentFactory(name), m_ringType(ringType)
@@ -47,8 +46,6 @@ SCT_FwdModuleConnector::build()
   // Construct box
   const GeoBox * moduleConnShape = new GeoBox(0.5 * m_thickness, 0.5 * m_rphi, 0.5 * m_deltaR);
   m_material = materials.getMaterialForVolume(m_materialName, moduleConnShape->volume());
-  //  std::cout << "Material = " << m_material->getName() << std::endl;
-  //  std::cout << "Density = " << m_material->getDensity()/(gram/GeoModelKernelUnits::cm3) << std::endl;
 
   // Shift to correct position within module
   double xposition = 0.5 * (parameters->fwdHybridThickness() + m_thickness);

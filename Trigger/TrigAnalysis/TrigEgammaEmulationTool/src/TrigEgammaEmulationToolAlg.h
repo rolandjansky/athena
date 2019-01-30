@@ -19,10 +19,10 @@ namespace Trig {
   class TrigEgammaEmulationToolAlg : public AthAlgorithm {
     public:
       TrigEgammaEmulationToolAlg(const std::string& name, ISvcLocator* pSvcLocator);
-      ~TrigEgammaEmulationToolAlg();
-      StatusCode initialize();
-      StatusCode execute();
-      StatusCode finalize();
+      virtual ~TrigEgammaEmulationToolAlg();
+      virtual StatusCode initialize() override;
+      virtual StatusCode execute() override;
+      virtual StatusCode finalize() override;
     private:
       //
       std::vector<std::string>   m_triggerList;

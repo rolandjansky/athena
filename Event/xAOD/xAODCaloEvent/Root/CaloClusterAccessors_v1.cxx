@@ -14,13 +14,13 @@
 #define DEFINE_ACCESSOR( NAME )                                   \
    case xAOD::CaloCluster_v1::NAME:                               \
    {                                                              \
-      static SG::AuxElement::Accessor< float > a( #NAME );        \
+      static const SG::AuxElement::Accessor< float > a( #NAME );        \
       return &a;                                                  \
    }                                                              \
    break
 namespace xAOD {
 
-   SG::AuxElement::Accessor< float >*
+   const SG::AuxElement::Accessor< float >*
    momentAccessorV1( xAOD::CaloCluster_v1::MomentType moment ) {
 
       switch( moment ) {
@@ -65,14 +65,14 @@ namespace xAOD {
          DEFINE_ACCESSOR( OOC_WEIGHT );
          DEFINE_ACCESSOR( DM_WEIGHT );
          DEFINE_ACCESSOR( TILE_CONFIDENCE_LEVEL );
-	 DEFINE_ACCESSOR( VERTEX_FRACTION );
-	 DEFINE_ACCESSOR( NVERTEX_FRACTION );
+         DEFINE_ACCESSOR( VERTEX_FRACTION );
+         DEFINE_ACCESSOR( NVERTEX_FRACTION );
          DEFINE_ACCESSOR( ETACALOFRAME );
          DEFINE_ACCESSOR( PHICALOFRAME ); 
-	 DEFINE_ACCESSOR( ETA1CALOFRAME );
-	 DEFINE_ACCESSOR( PHI1CALOFRAME );
-	 DEFINE_ACCESSOR( ETA2CALOFRAME );
-	 DEFINE_ACCESSOR( PHI2CALOFRAME );
+         DEFINE_ACCESSOR( ETA1CALOFRAME );
+         DEFINE_ACCESSOR( PHI1CALOFRAME );
+         DEFINE_ACCESSOR( ETA2CALOFRAME );
+         DEFINE_ACCESSOR( PHI2CALOFRAME );
          DEFINE_ACCESSOR( ENG_CALIB_TOT );
          DEFINE_ACCESSOR( ENG_CALIB_OUT_L );
          DEFINE_ACCESSOR( ENG_CALIB_OUT_M );

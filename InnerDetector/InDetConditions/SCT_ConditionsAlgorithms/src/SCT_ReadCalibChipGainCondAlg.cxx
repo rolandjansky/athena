@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ReadCalibChipGainCondAlg.h"
@@ -17,7 +17,7 @@ using namespace SCT_ConditionsData;
 using namespace SCT_ReadCalibChipUtilities;
 
 SCT_ReadCalibChipGainCondAlg::SCT_ReadCalibChipGainCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
-  : ::AthAlgorithm(name, pSvcLocator)
+  : ::AthReentrantAlgorithm(name, pSvcLocator)
   , m_condSvc{"CondSvc", name}
   , m_id_sct{nullptr}
 {
@@ -44,21 +44,21 @@ StatusCode SCT_ReadCalibChipGainCondAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_ReadCalibChipGainCondAlg::execute() {
+StatusCode SCT_ReadCalibChipGainCondAlg::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("execute " << name());
 
   // Write Cond Handle
-  SG::WriteCondHandle<SCT_GainCalibData> writeHandle{m_writeKey};
+  SG::WriteCondHandle<SCT_GainCalibData> writeHandle{m_writeKey, ctx};
   // Do we have a valid Write Cond Handle for current time?
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
                   << ". In theory this should not be called, but may happen"
                   << " if multiple concurrent events are being processed out of order.");
-    return StatusCode::SUCCESS; 
+    return StatusCode::SUCCESS;
   }
 
   // Read Cond Handle
-  SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey};
+  SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey, ctx};
   const CondAttrListCollection* readCdo{*readHandle}; 
   if (readCdo==nullptr) {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
@@ -120,7 +120,7 @@ StatusCode SCT_ReadCalibChipGainCondAlg::finalize() {
 }
 
 void 
-SCT_ReadCalibChipGainCondAlg::insertNptGainFolderData(SCT_ModuleGainCalibData& theseCalibData, const coral::AttributeList& folderData) {
+SCT_ReadCalibChipGainCondAlg::insertNptGainFolderData(SCT_ModuleGainCalibData& theseCalibData, const coral::AttributeList& folderData) const {
   for (int i{0}; i!=N_NPTGAIN; ++i) {
     SCT_ModuleCalibParameter& datavec{theseCalibData[i]};
     const std::string &dbData{((folderData)[nPtGainDbParameterNames[i]]).data<std::string>()};

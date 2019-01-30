@@ -33,6 +33,15 @@
 #include "TrigT1CaloCalibConditions/L1CaloPprDisabledChannelContainer.h"
 #include "TrigT1CaloCalibConditions/L1CaloPprDisabledChannelContainerRun2.h"
 
+#include "TrigT1CaloCalibConditions/L1CaloDerivedRunPars.h"
+#include "TrigT1CaloCalibConditions/L1CaloDerivedRunParsContainer.h"
+
+#include "TrigT1CaloCalibConditions/L1CaloPprChanStrategy.h"
+#include "TrigT1CaloCalibConditions/L1CaloPprChanStrategyContainer.h"
+
+#include "TrigT1CaloCalibConditions/L1CaloRunParameters.h"
+#include "TrigT1CaloCalibConditions/L1CaloRunParametersContainer.h"
+
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloTTIdTools.h"
 #include "TrigT1CaloMappingToolInterfaces/IL1CaloMappingTool.h"
 #include "TrigT1CaloToolInterfaces/IL1DynamicPedestalProvider.h"
@@ -181,6 +190,15 @@ namespace { // helper function
     target = C;
     return StatusCode::SUCCESS;
   }
+
+  template<class T, class FolderMap>
+  StatusCode retrieveGenericWithFolders(ServiceHandle<L1CaloCondSvc>& svc, const FolderMap& fmap, boost::any& target) {
+    T* C = nullptr;
+    CHECK_WITH_CONTEXT(svc->retrieve(C, fmap), "L1TriggerTowerTool");
+    target = C;
+    return StatusCode::SUCCESS;
+  }
+
 } // anonymous namespace
 
 /** Retrieve pointers to the L1Calo conditions containers */
@@ -192,16 +210,76 @@ StatusCode L1TriggerTowerTool::retrieveConditions()
     bool verbose = msgLvl(MSG::VERBOSE);
 
     if(m_isRun2) {
-      CHECK(retrieveGeneric<L1CaloPprConditionsContainerRun2>(m_l1CondSvc, m_conditionsContainer));
+      CHECK_WITH_CONTEXT(m_l1CondSvc->retrieve(m_derivedRunParsContainer), "L1TriggerTowerTool");
+      if (std::cbegin(*m_derivedRunParsContainer) == std::cend(*m_derivedRunParsContainer)) {
+        ATH_MSG_WARNING("Empty L1CaloDerivedRunParsContainer");
+        return StatusCode::FAILURE;
+      }
+
+      CHECK_WITH_CONTEXT(m_l1CondSvc->retrieve(m_runParametersContainer), "L1TriggerTowerTool");
+      if (std::cbegin(*m_runParametersContainer) == std::cend(*m_runParametersContainer)) {
+        ATH_MSG_WARNING("Empty L1CaloRunParametersContainer");
+        return StatusCode::FAILURE;
+      }
+
+
+      std::string timingRegime = std::cbegin(*m_derivedRunParsContainer)->timingRegime();
+
+      CHECK_WITH_CONTEXT(m_l1CondSvc->retrieve(m_strategyContainer), "L1TriggerTowerTool");
+      
+      std::string strategy;
+      for(const auto& it: *m_strategyContainer){
+        if (it.timingRegime() == timingRegime){
+          strategy = it.strategy();
+        }
+      }
+
+      std::map<L1CaloPprConditionsContainerRun2::eCoolFolders, std::string> 
+        coolFoldersKeysMap = {
+           {
+            L1CaloPprConditionsContainerRun2::ePprChanDefaults,
+            "/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults"
+           }
+         };
+      
+      if (strategy.empty()){
+        coolFoldersKeysMap[L1CaloPprConditionsContainerRun2::ePprChanCalib] 
+          = "/TRIGGER/L1Calo/V2/Calibration/" + timingRegime + "/PprChanCalib";
+      } else {
+        coolFoldersKeysMap[L1CaloPprConditionsContainerRun2::ePprChanCalibCommon] = 
+            "/TRIGGER/L1Calo/V2/Calibration/" + timingRegime + "/PprChanCommon";
+        coolFoldersKeysMap[L1CaloPprConditionsContainerRun2::ePprChanCalibStrategy] =  
+            "/TRIGGER/L1Calo/V2/Calibration/" + timingRegime + "/PprChan" + strategy;
+      }
+
+      CHECK(retrieveGenericWithFolders<L1CaloPprConditionsContainerRun2>(
+          m_l1CondSvc, coolFoldersKeysMap, m_conditionsContainer));
+
       CHECK(retrieveGeneric<L1CaloPprDisabledChannelContainerRun2>(m_l1CondSvc, m_disabledChannelContainer));
     } else {
       CHECK(retrieveGeneric<L1CaloPprConditionsContainer>(m_l1CondSvc, m_conditionsContainer));
       CHECK(retrieveGeneric<L1CaloPprDisabledChannelContainer>(m_l1CondSvc, m_disabledChannelContainer));
     }
-    ATH_MSG_VERBOSE( "Retrieved ConditionsContainer" );
+
+    
     if(verbose) {
-      if(m_isRun2) boost::any_cast<L1CaloPprConditionsContainerRun2*>(m_conditionsContainer)->dump();
-      else boost::any_cast<L1CaloPprConditionsContainer*>(m_conditionsContainer)->dump();
+      ATH_MSG_VERBOSE( "Retrieved ConditionsContainer" );
+      if(m_isRun2){
+        boost::any_cast<L1CaloPprConditionsContainerRun2*>(m_conditionsContainer)->dump();
+      } else{
+        boost::any_cast<L1CaloPprConditionsContainer*>(m_conditionsContainer)->dump();
+      }
+    }
+
+    if(verbose) {
+      if(m_isRun2){
+        ATH_MSG_VERBOSE( "Retrieved DerivedRunParsContainer" );
+        m_derivedRunParsContainer->dump();
+	ATH_MSG_VERBOSE( "Retrieved RunParametersContainer" );
+	m_runParametersContainer->dump();
+        ATH_MSG_VERBOSE( "Retrieved StrategyContainer" );
+        m_strategyContainer->dump();
+      }
     }
 
     ATH_MSG_VERBOSE( "Retrieved DisabledChannelContainer" );
@@ -298,7 +376,7 @@ template <typename DST, typename SRC>
 std::vector<DST> convertVectorType(const std::vector<SRC>& s) {
    std::vector<DST> d(s.size());
    std::transform(std::begin(s), std::end(s), std::begin(d),
-		  [](SRC v){return static_cast<DST>(v);});
+      [](SRC v){return static_cast<DST>(v);});
    return d;
 } 
 }
@@ -306,7 +384,46 @@ std::vector<DST> convertVectorType(const std::vector<SRC>& s) {
 /** All-in-one routine - give it the TT identifier, and  it returns the results */
 void L1TriggerTowerTool::simulateChannel(const xAOD::TriggerTower& tt, std::vector<int>& outCpLut, std::vector<int>& outJepLut, std::vector<int>& bcidResults, std::vector<int>& bcidDecisions)
 {
-  const auto& digits = convertVectorType<int>(tt.adc());
+
+  //If we have 80 MHz readout, we need to extract the 40 MHz samples. The central 80 MHz sample is always a 40 MHz sample. We use the cool database (runParameters folder) to understand if we are in 80MHz readout
+
+  unsigned int readoutConfigID   = std::cbegin(*m_runParametersContainer)->readoutConfigID();
+
+  if(m_debug){
+    ATH_MSG_VERBOSE("ReadoutConfigID = " << readoutConfigID );
+  }
+
+  std::vector<uint16_t> digits40;
+
+  if(readoutConfigID == 5 or readoutConfigID == 6){
+
+    if(m_debug){
+      ATH_MSG_VERBOSE("80 MHz readout detected, emulating 40 MHz samples");
+    }
+ 
+    int nSlices = tt.adc().size();
+
+    if((nSlices%4)==3){
+      for (int i=0 ; i < (nSlices-1)/2 ; i++ ){
+	digits40.push_back(tt.adc().at(2*i+1));
+      }
+    }
+    else if((nSlices%4)==1){
+      for (int i=0 ; i <= (nSlices-1)/2 ; i++){
+	digits40.push_back(tt.adc().at(2*i));
+      }
+    }
+
+
+  }else{
+    if(m_debug){
+      ATH_MSG_VERBOSE("40 MHz readout detected");
+    }
+    digits40 = tt.adc();
+  }
+  
+  const auto& digits = convertVectorType<int>(digits40);
+
   L1CaloCoolChannelId channelId {tt.coolId()}; 
 
   if (m_debug) {
@@ -785,12 +902,17 @@ void L1TriggerTowerTool::lut(const std::vector<int> &fir, const L1CaloCoolChanne
 // TODO implement scale
 void L1TriggerTowerTool::cpLut(const std::vector<int> &fir, const L1CaloCoolChannelId& channelId, std::vector<int> &output)
 {   
+  int startBit = 0;
   int strategy = 0;
   int offset   = 0;
+  double offsetReal = 0;
   int slope    = 0;
   int cut      = 0;
   unsigned short scale = 0;
+  double pedMean = 0;
   int ped      = 0;
+  int hwCoeffSum = 0;
+  const std::vector<short int>* hwCoeffs;
 
   if(!m_isRun2) {
     // assert instead ?!
@@ -801,12 +923,31 @@ void L1TriggerTowerTool::cpLut(const std::vector<int> &fir, const L1CaloCoolChan
     auto conditionsContainer = boost::any_cast<L1CaloPprConditionsContainerRun2*>(m_conditionsContainer);
     const L1CaloPprConditionsRun2* settings = conditionsContainer->pprConditions(channelId.id());
     if (settings) {
+      startBit = settings->firStartBit();
       strategy = settings->lutCpStrategy();
-      offset   = settings->lutCpOffset();
       slope    = settings->lutCpSlope();
       cut      = settings->lutCpNoiseCut();
       scale    = settings->lutCpScale();
       ped      = settings->pedValue();
+      pedMean  = settings->pedMean();
+
+      hwCoeffs = getFirCoefficients<L1CaloPprConditionsContainerRun2>(channelId.id(), m_conditionsContainer);
+
+      for (unsigned int i = 0; i < hwCoeffs->size(); i++){
+        hwCoeffSum += hwCoeffs->at(i);
+      }
+      
+      if (strategy == 0){
+        offsetReal = pedMean * hwCoeffSum / pow(2.,startBit);
+      }
+      else{
+        offsetReal = pedMean * hwCoeffSum * slope / pow(2.,startBit) - slope/2.;
+      }
+      offset = static_cast<unsigned short>( offsetReal < 0. ? 0 : offsetReal + 0.5 );
+
+      ATH_MSG_VERBOSE( "::cpLut: Offset: offset/strategy/pedMean/firCoeffSum/startBit/slope: "
+		       << offset << " " << strategy << " " << " " << pedMean << " " << hwCoeffSum << " " << startBit << " " << slope );
+      
     } else ATH_MSG_WARNING( "::cpLut: No L1CaloPprConditions found" );
   } else ATH_MSG_WARNING( "::cpLut: No Conditions Container retrieved" );
 
@@ -826,13 +967,18 @@ void L1TriggerTowerTool::cpLut(const std::vector<int> &fir, const L1CaloCoolChan
 
 void L1TriggerTowerTool::jepLut(const std::vector<int> &fir, const L1CaloCoolChannelId& channelId, std::vector<int> &output)
 {   
+  int startBit = 0;
   int strategy   = 0;
   int offset     = 0;
+  double offsetReal = 0;
   int slope      = 0;
   int cut        = 0;
   unsigned short scale_db   = 0;
   unsigned short scale_menu = 0;
   int ped        = 0;
+  double pedMean = 0;
+  int hwCoeffSum = 0;
+  const std::vector<short int>* hwCoeffs;
   short par1     = 0;
   short par2     = 0;
   short par3     = 0;
@@ -847,11 +993,12 @@ void L1TriggerTowerTool::jepLut(const std::vector<int> &fir, const L1CaloCoolCha
     auto conditionsContainer = boost::any_cast<L1CaloPprConditionsContainerRun2*>(m_conditionsContainer);
     const L1CaloPprConditionsRun2* settings = conditionsContainer->pprConditions(channelId.id());
     if (settings) {
+      startBit = settings->firStartBit();
       strategy   = settings->lutJepStrategy();
-      offset     = settings->lutJepOffset();
       slope      = settings->lutJepSlope();
       cut        = settings->lutJepNoiseCut();
       ped        = settings->pedValue();
+      pedMean    = settings->pedMean();
       scale_db   = settings->lutJepScale();
       scale_menu = m_configSvc->thresholdConfig()->caloInfo().globalJetScale(); // Retrieve scale param from menu instead of coolDB
       if (strategy == 3) {
@@ -860,6 +1007,24 @@ void L1TriggerTowerTool::jepLut(const std::vector<int> &fir, const L1CaloCoolCha
         par3  = settings->lutJepPar3();
         par4  = settings->lutJepPar4();
       }
+
+      hwCoeffs = getFirCoefficients<L1CaloPprConditionsContainerRun2>(channelId.id(), m_conditionsContainer);
+
+      for (unsigned int i = 0; i < hwCoeffs->size(); i++){
+        hwCoeffSum += hwCoeffs->at(i);
+      }
+      
+      if (strategy == 0){
+        offsetReal = pedMean * hwCoeffSum / pow(2.,startBit);
+      }
+      else{
+        offsetReal = pedMean * hwCoeffSum * slope / pow(2.,startBit) - slope/2.;
+      }
+      offset = static_cast<unsigned short>( offsetReal < 0. ? 0 : offsetReal + 0.5 );
+
+      ATH_MSG_VERBOSE( "::jepLut: Offset: offset/strategy/pedMean/firCoeffSum/startBit/slope: "
+		       << offset << " " << strategy << " " << " " << pedMean << " " << hwCoeffSum << " " << startBit << " " << slope );
+
     } else ATH_MSG_WARNING( "::jepLut: No L1CaloPprConditions found" );
   } else ATH_MSG_WARNING( "::jepLut: No Conditions Container retrieved" );
 
@@ -1196,11 +1361,14 @@ void L1TriggerTowerTool::cpLutParams(const L1CaloCoolChannelId& channelId, int& 
   startBit = 0;
   strategy = 0;
   offset   = 0;
+  double offsetReal = 0;
   slope    = 0;
   cut      = 0;
   pedValue = 0;
   pedMean  = 0.;
   disabled = true;
+  int hwCoeffSum = 0;
+  const std::vector<short int>* hwCoeffs;
   
   if(!m_isRun2) {
     // assert instead ?!
@@ -1214,11 +1382,27 @@ void L1TriggerTowerTool::cpLutParams(const L1CaloCoolChannelId& channelId, int& 
     if(settings) {
       startBit = settings->firStartBit();
       strategy = settings->lutCpStrategy();
-      offset   = settings->lutCpOffset();
       slope    = settings->lutCpSlope();
       cut      = settings->lutCpNoiseCut();
       pedValue = settings->pedValue();
       pedMean  = settings->pedMean();
+
+      hwCoeffs = getFirCoefficients<L1CaloPprConditionsContainerRun2>(channelId.id(), m_conditionsContainer);
+      for (unsigned int i = 0; i < hwCoeffs->size(); i++){
+	hwCoeffSum += hwCoeffs->at(i);
+      }
+      
+      if (strategy == 0){
+	offsetReal = pedMean * hwCoeffSum / pow(2.,startBit);
+      }
+      else{
+	offsetReal = pedMean * hwCoeffSum * slope / pow(2.,startBit) - slope/2.;
+      }
+      offset = static_cast<unsigned short>( offsetReal < 0. ? 0 : offsetReal + 0.5 );
+      
+      ATH_MSG_VERBOSE( "::jepLutParams: Offset: offset/strategy/pedMean/firCoeffSum/startBit/slope: "
+		     << offset << " " << strategy << " " << " " << pedMean << " " << hwCoeffSum << " " << startBit << " " << slope );
+
     } else ATH_MSG_WARNING( "::cpLutParams: No L1CaloPprConditions found" );
   } else ATH_MSG_WARNING( "::cpLutParams: No Conditions Container retrieved" );
 
@@ -1234,11 +1418,14 @@ void L1TriggerTowerTool::jepLutParams(const L1CaloCoolChannelId& channelId, int&
   startBit = 0;
   strategy = 0;
   offset   = 0;
+  double offsetReal = 0;
   slope    = 0;
   cut      = 0;
   pedValue = 0;
   pedMean  = 0.;
   disabled = true;
+  int hwCoeffSum = 0;
+  const std::vector<short int>* hwCoeffs;
   
   if(!m_isRun2) {
     // assert instead ?!
@@ -1252,11 +1439,28 @@ void L1TriggerTowerTool::jepLutParams(const L1CaloCoolChannelId& channelId, int&
     if(settings) {
       startBit = settings->firStartBit();
       strategy = settings->lutJepStrategy();
-      offset   = settings->lutJepOffset();
       slope    = settings->lutJepSlope();
       cut      = settings->lutJepNoiseCut();
       pedValue = settings->pedValue();
       pedMean  = settings->pedMean();
+
+      hwCoeffs = getFirCoefficients<L1CaloPprConditionsContainerRun2>(channelId.id(), m_conditionsContainer);
+
+      for (unsigned int i = 0; i < hwCoeffs->size(); i++){
+	hwCoeffSum += hwCoeffs->at(i);
+      }
+      
+      if (strategy == 0){
+	offsetReal = pedMean * hwCoeffSum / pow(2.,startBit);
+      }
+      else{
+	offsetReal = pedMean * hwCoeffSum * slope / pow(2.,startBit) - slope/2.;
+      }
+      offset = static_cast<unsigned short>( offsetReal < 0. ? 0 : offsetReal + 0.5 );
+      
+      ATH_MSG_VERBOSE( "::jepLutParams: Offset: offset/strategy/pedMean/firCoeffSum/startBit/slope: "
+		     << offset << " " << strategy << " " << " " << pedMean << " " << hwCoeffSum << " " << startBit << " " << slope );
+
     } else ATH_MSG_WARNING( "::jepLutParams: No L1CaloPprConditions found" );
   } else ATH_MSG_WARNING( "::jepLutParams: No Conditions Container retrieved" );
 

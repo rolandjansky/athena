@@ -28,6 +28,7 @@
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoTubs.h"
+#include "GaudiKernel/PhysicalConstants.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "Identifier/Identifier.h"
@@ -152,19 +153,19 @@ double GeoPixelCable::Length() {
 
 double GeoPixelCable::Thickness() {
   //
-  // This is calculated from the GeoModelKernelUnits::rad length of the cables and their mass
+  // This is calculated from the Gaudi::Units::rad length of the cables and their mass
   // I have to go back on this later when I'll have defined a material
   // manager, for the time being I get the thickness by atlsim, using dtree
   // anf hardwire the numbers in the code...
   // I have to come back on the thickness using the cables recipes
   //
-  if(m_moduleNumber == 0) return 2.*0.0028412*GeoModelKernelUnits::cm;
-  if(m_moduleNumber == 1) return 2.*0.0056795*GeoModelKernelUnits::cm;
-  if(m_moduleNumber == 2) return 2.*0.0056830*GeoModelKernelUnits::cm;
-  if(m_moduleNumber == 3) return 2.*0.0056763*GeoModelKernelUnits::cm;
-  if(m_moduleNumber == 4) return 2.*0.0056752*GeoModelKernelUnits::cm;
-  if(m_moduleNumber == 5) return 2.*0.0057058*GeoModelKernelUnits::cm;
-  if(m_moduleNumber == 6) return 2.*0.0056818*GeoModelKernelUnits::cm;
+  if(m_moduleNumber == 0) return 2.*0.0028412*Gaudi::Units::cm;
+  if(m_moduleNumber == 1) return 2.*0.0056795*Gaudi::Units::cm;
+  if(m_moduleNumber == 2) return 2.*0.0056830*Gaudi::Units::cm;
+  if(m_moduleNumber == 3) return 2.*0.0056763*Gaudi::Units::cm;
+  if(m_moduleNumber == 4) return 2.*0.0056752*Gaudi::Units::cm;
+  if(m_moduleNumber == 5) return 2.*0.0057058*Gaudi::Units::cm;
+  if(m_moduleNumber == 6) return 2.*0.0056818*Gaudi::Units::cm;
 
   return 0.;
 
@@ -249,7 +250,7 @@ GeoVPhysVol* GeoPixelDisk::Build( ) {
   //
   GeoPixelSubDisk psd(theSensor);
   double zpos = -m_gmt_mgr->PixelECSiDz1()/2.;
-  double angle = 360.*GeoModelKernelUnits::deg/ (float) m_gmt_mgr->PixelECNSectors1();
+  double angle = 360.*Gaudi::Units::deg/ (float) m_gmt_mgr->PixelECNSectors1();
   GeoTrf::Translation3D pos(0.,0.,zpos);
 
   // Set numerology
@@ -261,7 +262,7 @@ GeoVPhysVol* GeoPixelDisk::Build( ) {
   m_gmt_mgr->SetEta(0);
   for (int ii = 0; ii <  m_gmt_mgr->PixelECNSectors1(); ii++) {
     m_gmt_mgr->SetPhi(ii);
-    GeoTrf::Transform3D rm = GeoTrf::RotateZ3D(ii*angle+angle/2.)*GeoTrf::RotateX3D(180.*GeoModelKernelUnits::deg);
+    GeoTrf::Transform3D rm = GeoTrf::RotateZ3D(ii*angle+angle/2.)*GeoTrf::RotateX3D(180.*Gaudi::Units::deg);
     GeoAlignableTransform* xform = new GeoAlignableTransform(GeoTrf::Transform3D(pos*rm));
     GeoVPhysVol * modulePhys = psd.Build();
     GeoNameTag* tag = new GeoNameTag("DiskSector");
@@ -328,7 +329,7 @@ double GeoPixelDisk::Thickness() {
   // 7-1 I switch to the minimum thickness possible as the cables are right
   // outside this volume.
   //
-  //  return 10*GeoModelKernelUnits::mm;
+  //  return 10*Gaudi::Units::mm;
   double tck = 2*(m_gmt_mgr->PixelBoardThickness()
                   +std::max(m_gmt_mgr->PixelHybridThickness(),m_gmt_mgr->PixelChipThickness()));
   tck += std::max(m_gmt_mgr->PixelECSiDz1(),m_gmt_mgr->PixelECSiDz2());
@@ -593,7 +594,7 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
   envelopePhys->add(xform);
   envelopePhys->add(pec.Build() );
   m_gmt_mgr->SetNeg();
-  GeoTrf::RotateX3D rm(180.*GeoModelKernelUnits::deg);
+  GeoTrf::RotateX3D rm(180.*Gaudi::Units::deg);
   xform = new GeoTransform(GeoTrf::Transform3D(GeoTrf::Translation3D(0.,0.,-zpos)*rm));
   tag  = new GeoNameTag("EndCap 2");
   envelopePhys->add(tag);
@@ -828,7 +829,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   //
   // This is the maximum possible w/o going out of the mother volume!
   //
-  double LayerThickness = 8.499*GeoModelKernelUnits::mm;
+  double LayerThickness = 8.499*Gaudi::Units::mm;
   const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   //
   // Layer dimensions from the geometry manager
@@ -849,7 +850,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   GeoPixelLadder pl(theSensor);
   GeoPixelTubeCables ptc;
   int nsectors = m_gmt_mgr->NPixelSectors();
-  double angle=360./nsectors*GeoModelKernelUnits::deg;
+  double angle=360./nsectors*Gaudi::Units::deg;
   double layerradius = m_gmt_mgr->PixelLayerRadius();
   double xcblpos =  layerradius + (pl.Thickness()/2.+ptc.Thickness()/2)/cos(m_gmt_mgr->PixelLadderTilt());
   GeoTrf::Vector3D posladder(layerradius, 0.,0.);
@@ -1343,7 +1344,7 @@ m_theSensor(theSensor)
   double rmax = RMax();
   double halflength = Thickness()/2.;
   const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
-  const GeoTubs* SDTubs = new GeoTubs(rmin,rmax,halflength,-180.*GeoModelKernelUnits::deg/m_gmt_mgr->PixelECNSectors1()+0.000005,360.*GeoModelKernelUnits::deg/m_gmt_mgr->PixelECNSectors1()-0.00001);
+  const GeoTubs* SDTubs = new GeoTubs(rmin,rmax,halflength,-180.*Gaudi::Units::deg/m_gmt_mgr->PixelECNSectors1()+0.000005,360.*Gaudi::Units::deg/m_gmt_mgr->PixelECNSectors1()-0.00001);
   m_theSubDisk = new GeoLogVol("SubDiskLog",SDTubs,air);
   m_theSubDisk->ref();
 }
@@ -1359,7 +1360,7 @@ GeoVPhysVol* GeoPixelSubDisk::Build( ) {
   //
   double xpos = RMin()+m_gmt_mgr->PixelBoardLength()/2.;
   GeoNameTag* tag = new GeoNameTag("SiCrystal");
-  GeoTrf::Transform3D rm = GeoTrf::RotateX3D(180.*GeoModelKernelUnits::deg)*GeoTrf::RotateY3D(90.*GeoModelKernelUnits::deg);
+  GeoTrf::Transform3D rm = GeoTrf::RotateX3D(180.*Gaudi::Units::deg)*GeoTrf::RotateY3D(90.*Gaudi::Units::deg);
   GeoTrf::Translation3D pos(xpos,0.,0.);
   GeoAlignableTransform* xformsi = new GeoAlignableTransform(GeoTrf::Transform3D(pos*rm));
   SDPhys->add(tag);
@@ -1763,29 +1764,29 @@ double OraclePixGeoManager::CalculateThickness(double tck,string mat) {
 /////////////////////////////////////////////////////////
 double OraclePixGeoManager::PixelBoardWidth() 
 {
-  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("BOARDWIDTH")*GeoModelKernelUnits::cm;
-  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("BOARDWIDTH")*GeoModelKernelUnits::cm;
+  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("BOARDWIDTH")*Gaudi::Units::cm;
+  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("BOARDWIDTH")*Gaudi::Units::cm;
   return 0.;
 }
 double OraclePixGeoManager::PixelBoardLength() 
 {
-  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("BOARDLENGTH")*GeoModelKernelUnits::cm;
-  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("BOARDLENGTH")*GeoModelKernelUnits::cm;
+  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("BOARDLENGTH")*Gaudi::Units::cm;
+  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("BOARDLENGTH")*Gaudi::Units::cm;
   return 0.;
 }
 double OraclePixGeoManager::PixelBoardThickness() 
 {
   if (m_dc1Geometry && isBarrel() && (m_currentLD == 0)) {
-    return 200*GeoModelKernelUnits::micrometer;
+    return 200*Gaudi::Units::micrometer;
   }
-  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("BOARDTHICK")*GeoModelKernelUnits::cm;
-  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("BOARDTHICK")*GeoModelKernelUnits::cm;
+  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("BOARDTHICK")*Gaudi::Units::cm;
+  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("BOARDTHICK")*Gaudi::Units::cm;
   return 0.;
 }
 double  OraclePixGeoManager::PixelBoardActiveLen() 
 {
-  if(isEndcap()) return (*m_pxei)[m_currentLD]->getDouble("DRACTIVE")*GeoModelKernelUnits::cm;
-  if(isBarrel()) return (*m_pxbi)[m_currentLD]->getDouble("DZELEB")*GeoModelKernelUnits::cm;
+  if(isEndcap()) return (*m_pxei)[m_currentLD]->getDouble("DRACTIVE")*Gaudi::Units::cm;
+  if(isBarrel()) return (*m_pxbi)[m_currentLD]->getDouble("DZELEB")*Gaudi::Units::cm;
   return 0.;
 }
 /////////////////////////////////////////////////////////
@@ -1795,14 +1796,14 @@ double  OraclePixGeoManager::PixelBoardActiveLen()
 /////////////////////////////////////////////////////////
 double OraclePixGeoManager::PixelHybridWidth() 
 {
-  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("HYBRIDWIDTH")*GeoModelKernelUnits::cm;
-  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("HYBRIDWIDTH")*GeoModelKernelUnits::cm;
+  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("HYBRIDWIDTH")*Gaudi::Units::cm;
+  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("HYBRIDWIDTH")*Gaudi::Units::cm;
   return 0.;
 }
 double OraclePixGeoManager::PixelHybridLength() 
 {
-  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("HYBRIDLENGTH")*GeoModelKernelUnits::cm;
-  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("HYBRIDLENGTH")*GeoModelKernelUnits::cm;
+  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("HYBRIDLENGTH")*Gaudi::Units::cm;
+  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("HYBRIDLENGTH")*Gaudi::Units::cm;
   return 0.;
 }
 double OraclePixGeoManager::PixelHybridThickness() 
@@ -1820,7 +1821,7 @@ double OraclePixGeoManager::PixelHybridThickness()
   }
   // if it is negative is given in % of r.l.
   if(thick > 0.) { 
-    return thick*GeoModelKernelUnits::cm;
+    return thick*Gaudi::Units::cm;
   }
   return CalculateThickness(thick,mat);
 
@@ -1833,20 +1834,20 @@ double OraclePixGeoManager::PixelHybridThickness()
 
 double OraclePixGeoManager::PixelChipWidth()
 {
-  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("CHIPWIDTH")*GeoModelKernelUnits::cm;
-  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("CHIPWIDTH")*GeoModelKernelUnits::cm;
+  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("CHIPWIDTH")*Gaudi::Units::cm;
+  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("CHIPWIDTH")*Gaudi::Units::cm;
   return 0.;
 }
 double OraclePixGeoManager::PixelChipLength()
 {
-  if(isBarrel())return (*m_PixelModule)[m_currentLD]->getDouble("CHIPLENGTH")*GeoModelKernelUnits::cm;
-  if(isEndcap())return (*m_PixelModule)[m_currentLD+3]->getDouble("CHIPLENGTH")*GeoModelKernelUnits::cm;
+  if(isBarrel())return (*m_PixelModule)[m_currentLD]->getDouble("CHIPLENGTH")*Gaudi::Units::cm;
+  if(isEndcap())return (*m_PixelModule)[m_currentLD+3]->getDouble("CHIPLENGTH")*Gaudi::Units::cm;
   return 0.;
 }
 double OraclePixGeoManager::PixelChipGap()
 {
-  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("CHIPGAP")*GeoModelKernelUnits::cm;
-  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("CHIPGAP")*GeoModelKernelUnits::cm;
+  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("CHIPGAP")*Gaudi::Units::cm;
+  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("CHIPGAP")*Gaudi::Units::cm;
   return 0.;
 }
 double OraclePixGeoManager::PixelChipThickness() {
@@ -1862,7 +1863,7 @@ double OraclePixGeoManager::PixelChipThickness() {
   } 
   // if it is negative is given in % of r.l.
   if(thick > 0.) { 
-    return thick*GeoModelKernelUnits::cm;
+    return thick*Gaudi::Units::cm;
   } 
   return CalculateThickness(thick,mat);
 
@@ -1875,20 +1876,20 @@ double OraclePixGeoManager::PixelChipThickness() {
 /////////////////////////////////////////////////////////
 double OraclePixGeoManager::PixelECCarbonRMin(string a) {
   if(a == "Inner") {
-    return (*m_PixelDisk)[m_currentLD]->getDouble("SUP1RMIN")*GeoModelKernelUnits::cm;
+    return (*m_PixelDisk)[m_currentLD]->getDouble("SUP1RMIN")*Gaudi::Units::cm;
   } else if (a == "Central") {
-    return (*m_PixelDisk)[m_currentLD]->getDouble("SUP2RMIN")*GeoModelKernelUnits::cm;
+    return (*m_PixelDisk)[m_currentLD]->getDouble("SUP2RMIN")*Gaudi::Units::cm;
   }
-  return (*m_PixelDisk)[m_currentLD]->getDouble("SUP3RMIN")*GeoModelKernelUnits::cm;
+  return (*m_PixelDisk)[m_currentLD]->getDouble("SUP3RMIN")*Gaudi::Units::cm;
 }
 
 double OraclePixGeoManager::PixelECCarbonRMax(string a) {
   if(a == "Inner") {
-    return (*m_PixelDisk)[m_currentLD]->getDouble("SUP1RMAX")*GeoModelKernelUnits::cm;
+    return (*m_PixelDisk)[m_currentLD]->getDouble("SUP1RMAX")*Gaudi::Units::cm;
   } else if (a == "Central") {
-    return (*m_PixelDisk)[m_currentLD]->getDouble("SUP2RMAX")*GeoModelKernelUnits::cm;
+    return (*m_PixelDisk)[m_currentLD]->getDouble("SUP2RMAX")*Gaudi::Units::cm;
   } else {
-    return (*m_PixelDisk)[m_currentLD]->getDouble("SUP3RMAX")*GeoModelKernelUnits::cm;
+    return (*m_PixelDisk)[m_currentLD]->getDouble("SUP3RMAX")*Gaudi::Units::cm;
   }
 }
 
@@ -1907,7 +1908,7 @@ double OraclePixGeoManager::PixelECCarbonThickness(string a) {
     imat =(*m_PixelDisk)[m_currentLD]->getInt("SUP3MAT")-1;
   }
   if(tck>0.) {
-    return tck*GeoModelKernelUnits::cm;
+    return tck*Gaudi::Units::cm;
   } 
   return CalculateThickness(tck,mat[imat]);
 }
@@ -1979,12 +1980,12 @@ double*  OraclePixGeoManager::PixelServiceR(string a, int n) {
     }
   }
   // If this is negative this is the thickness of the cyl in % of r.l.
-  r[0] = rmin*GeoModelKernelUnits::cm;
+  r[0] = rmin*Gaudi::Units::cm;
   if(rmax > 0) {
-    r[1] = rmax*GeoModelKernelUnits::cm;
+    r[1] = rmax*Gaudi::Units::cm;
   } else {
     string material = PixelServiceMaterial(a,n);
-    r[1] = fabs(rmin*GeoModelKernelUnits::cm)+CalculateThickness(rmax,material);
+    r[1] = fabs(rmin*Gaudi::Units::cm)+CalculateThickness(rmax,material);
   }
   return r;
 }
@@ -2012,15 +2013,15 @@ double* OraclePixGeoManager::PixelServiceZ(string a,int n) {
       z[1] = (*m_PixelEndcapService)[n+m_endcapInFrames]->getDouble("ZOUT");
     }
   }
-  z[0] = z[0] *GeoModelKernelUnits::cm;
+  z[0] = z[0] *Gaudi::Units::cm;
   if(z[0]*(z[1]) > -0.000000001) { // same sign and z[0] > 0.
-    z[1] = z[1] *GeoModelKernelUnits::cm;
+    z[1] = z[1] *Gaudi::Units::cm;
   } else {
     string material = PixelServiceMaterial(a,n);
     z[1] = z[0] * (1 + CalculateThickness(z[1],material)/fabs(z[0]));
   }
   if(isEndcap() && a == "Inside" ) { // Translate to the ecnter of EndCap
-    double center = ((*m_PixelEndcapGeneral)[0]->getDouble("ZMAX")+(*m_PixelEndcapGeneral)[0]->getDouble("ZMIN"))/2.*GeoModelKernelUnits::cm;
+    double center = ((*m_PixelEndcapGeneral)[0]->getDouble("ZMAX")+(*m_PixelEndcapGeneral)[0]->getDouble("ZMIN"))/2.*Gaudi::Units::cm;
     z[0] = z[0]-center;
     z[1] = z[1]-center;
   }
@@ -2148,7 +2149,7 @@ double OraclePixGeoManager::PixelLadderThickness()
 {
   double tck = (*m_PixelStave)[0]->getDouble("SUPPORTTHICK");
   if( tck > 0.) {
-    return tck*GeoModelKernelUnits::cm;
+    return tck*Gaudi::Units::cm;
   } else {
     return CalculateThickness(tck,"pix::Ladder");
   }
@@ -2158,7 +2159,7 @@ double OraclePixGeoManager::PixelECCablesThickness()
 {
   double tck =  (*m_PixelDisk)[m_currentLD]->getDouble("CABLETHICK");
   if( tck > 0.) {
-    return tck*GeoModelKernelUnits::cm;
+    return tck*Gaudi::Units::cm;
   } else {
     return CalculateThickness(tck,"pix::ECCables");
   }
@@ -2219,14 +2220,14 @@ double OraclePixGeoManager::Voltage(bool isBLayer){
   // override B-layer voltage for DC1 geometry by 
   // value in old DB (approx ratio of thicknesses (200/250 = 0.8)
   // 97.1*0.8 = 77.68. In Nova its 77.7.
-  if (isBLayer && m_dc1Geometry) return 77.7*GeoModelKernelUnits::volt; 
-  if(isBLayer) { return (*m_plor)[0]->getDouble("VOLTAGE")*GeoModelKernelUnits::volt;}
-  return (*m_plor)[1]->getDouble("VOLTAGE")*GeoModelKernelUnits::volt;
+  if (isBLayer && m_dc1Geometry) return 77.7*Gaudi::Units::volt; 
+  if(isBLayer) { return (*m_plor)[0]->getDouble("VOLTAGE")*Gaudi::Units::volt;}
+  return (*m_plor)[1]->getDouble("VOLTAGE")*Gaudi::Units::volt;
 }
 
 double OraclePixGeoManager::Temperature(bool isBLayer){
-  if(isBLayer) { return (*m_plor)[0]->getDouble("TEMPC")*GeoModelKernelUnits::kelvin+GeoModelKernelUnits::STP_Temperature;}
-  return (*m_plor)[1]->getDouble("TEMPC")*GeoModelKernelUnits::kelvin+GeoModelKernelUnits::STP_Temperature;
+  if(isBLayer) { return (*m_plor)[0]->getDouble("TEMPC")*Gaudi::Units::kelvin+Gaudi::Units::STP_Temperature;}
+  return (*m_plor)[1]->getDouble("TEMPC")*Gaudi::Units::kelvin+Gaudi::Units::STP_Temperature;
 }
 
 const GeoTrf::Vector3D & 
@@ -2234,9 +2235,9 @@ OraclePixGeoManager::magneticField(bool isBLayer) const
 {
   if (m_magFieldFromNova) {
     if(isBLayer) { 
-      m_magField = GeoTrf::Vector3D(0, 0, (*m_plrn)[0]->getDouble("BFIELD") * GeoModelKernelUnits::tesla);
+      m_magField = GeoTrf::Vector3D(0, 0, (*m_plrn)[0]->getDouble("BFIELD") * Gaudi::Units::tesla);
     } else {
-      m_magField = GeoTrf::Vector3D(0, 0, (*m_plrn)[1]->getDouble("BFIELD") * GeoModelKernelUnits::tesla);
+      m_magField = GeoTrf::Vector3D(0, 0, (*m_plrn)[1]->getDouble("BFIELD") * Gaudi::Units::tesla);
     }
   }
   return m_magField;

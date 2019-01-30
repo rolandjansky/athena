@@ -70,6 +70,8 @@ if DetFlags.overlay.Tile_on():
        ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileDigitsContainer/TileDigitsCnt"]
        ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileL2Container/TileL2Cnt"]
        ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileLaserObject/TileLaserObj"]
+       ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileRawChannelContainer/MuRcvRawChCnt"]
+       ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileDigitsContainer/MuRcvDigitsCnt"]
 
     from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
     dqstatus = TileDQstatusAlgDefault()

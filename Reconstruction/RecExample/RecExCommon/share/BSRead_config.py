@@ -51,6 +51,8 @@ if DetFlags.readRDOBS.LAr_on():
 if DetFlags.readRDOBS.Tile_on():
     svcMgr.ByteStreamAddressProviderSvc.TypeNames += [
         "TileRawChannelContainer/TileRawChannelCnt",
+        "TileRawChannelContainer/MuRcvRawChCnt",
+        "TileDigitsContainer/MuRcvDigitsCnt",
         "TileL2Container/TileL2Cnt"
       ]
 

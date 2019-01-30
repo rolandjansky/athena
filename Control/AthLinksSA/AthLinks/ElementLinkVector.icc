@@ -51,6 +51,28 @@ ElementLinkVector< CONTAINER >::operator=( const ElemLinkVec& rhs ) {
    return *this;
 }
 
+template< class CONTAINER >
+bool ElementLinkVector< CONTAINER >::
+operator==( const ElementLinkVector& rhs ) const {
+
+   if( m_elVec.size() != rhs.m_elVec.size() ) {
+      return false;
+   }
+   for( std::size_t i = 0; i < m_elVec.size(); ++i ) {
+      if( m_elVec[ i ] != rhs.m_elVec[ i ] ) {
+         return false;
+      }
+   }
+   return true;
+}
+
+template< class CONTAINER >
+bool ElementLinkVector< CONTAINER >::
+operator!=( const ElementLinkVector& rhs ) const {
+
+   return ( ! ( *this == rhs ) );
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 //              Implementation of the vector capacity functions

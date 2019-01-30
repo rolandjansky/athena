@@ -110,7 +110,7 @@ namespace dqutils {
       TString muon_dir = run_dir + "/HLT/MuonMon/";
 
       TString cm_dir = muon_dir + "Common/";
-      TString mf_dir = muon_dir + "muFast/";
+      TString mf_dir = muon_dir + "L2MuonSA/";
       TString mc_dir = muon_dir + "muComb/";
       TString mi_dir = muon_dir + "muIso/";
       TString tm_dir = muon_dir + "TileMu/";
@@ -136,10 +136,11 @@ namespace dqutils {
       TH1F* h1num(0);
       TH1F* h1den(0);
       TH1F* h1sumeff(0); // new YY
+      TH1F *h1effsum(nullptr);
       TGraphAsymmErrors* h1tmpg;
 
       //==Efficiency
-      //  muFast efficiency
+      //  L2MuonSA efficiency
       TDirectory* dir = mf.GetDirectory(eff_dir);
       if(!dir){
 	std::cerr<< "HLTMuonHistogramDivision: directory "<<eff_dir<<" not found"<<std::endl;
@@ -147,11 +148,11 @@ namespace dqutils {
       }
 
       std::vector<TString> effnames;
-      effnames.push_back("muFast_effi_toRecMuonCB_pt");
-      effnames.push_back("muFast_effi_toRecMuonCB_pt_barrel");
-      effnames.push_back("muFast_effi_toRecMuonCB_pt_endcap");
-      effnames.push_back("muFast_effi_toRecMuonCB_eta");
-      effnames.push_back("muFast_effi_toRecMuonCB_phi");
+      effnames.push_back("L2MuonSA_effi_toRecMuonCB_pt");
+      effnames.push_back("L2MuonSA_effi_toRecMuonCB_pt_barrel");
+      effnames.push_back("L2MuonSA_effi_toRecMuonCB_pt_endcap");
+      effnames.push_back("L2MuonSA_effi_toRecMuonCB_eta");
+      effnames.push_back("L2MuonSA_effi_toRecMuonCB_phi");
 
       for( std::vector<TString>::iterator it = effnames.begin(); it != effnames.end(); it++ ){
 	seff = eff_dir + (*it);
@@ -491,8 +492,10 @@ namespace dqutils {
 	//iSTDL = 54;  // 15 GeV
 	iSTDH = 75; // 25 GeV
       }else{
-	iSTDL = 91;  // 40 GeV
+	iSTDL = 105;  // 60 GeV
+	//iSTDL = 91;  // 40 GeV
 	iSTDH = 120; // 100 GeV
+	//iSTDH = 120; // 100 GeV
       }
       int iMSL = 105;  // 60 GeV
       int iMSH = 120;  // 100 GeV
@@ -503,7 +506,7 @@ namespace dqutils {
       }
       // YY added:
       enum ieffAlgo {
-	iMuFast = 0,   // StdAlgo
+	iL2MuonSA = 0,   // StdAlgo
 	iMuComb = 1,   // StdAlgo
 	iEFCB   = 2,   // StdAlgo
 	iMuGirl = 3,   // StdAlgo
@@ -512,8 +515,8 @@ namespace dqutils {
       };
 
       //  Standard Chains
-      //TString m_alg[5] = {"_MuFast", "_MuComb", "_MuonEFMS", "_MuonEFSA", "_MuonEFCB"};
-      //TString m_wrtalg[5] = {"_L1", "_MuFast", "_MuComb", "_MuComb", "_MuComb"};
+      //TString alg[5] = {"_L2MuonSA", "_MuComb", "_MuonEFMS", "_MuonEFSA", "_MuonEFCB"};
+      //TString wrtalg[5] = {"_L1", "_L2MuonSA", "_MuComb", "_MuComb", "_MuComb"};
 
       // ******************************************************//
       // start the code add by Yuan //
@@ -673,14 +676,14 @@ namespace dqutils {
 	  continue;
 	}
 
-	int iSTDL = 39;
+	int iSTDL = 75;//25GeV
 	int iSTDH = 120;
 	if(HI_pp_key){//HI run 4-25GeV
 	  iSTDL = 17;
 	  iSTDH = 75;				
 	}
 	double sumeff, sumerr;
-	double sumn = h1numb->Integral(iSTDL, iSTDH); // 10-100 GeV
+	double sumn = h1numb->Integral(iSTDL, iSTDH); // 60-100 GeV
 	double sumd = h1denb->Integral(iSTDL, iSTDH);
 	if (sumd == 0.) {
 	  sumeff = 0.;
@@ -702,6 +705,7 @@ namespace dqutils {
 	  sumeff = (double)sumn / (double) sumd;
 	  sumerr = sqrt((double)sumn * (1.-sumeff)) / (double)sumd;
 	}
+	h1sumL->GetYaxis()->SetTitle("Efficiency");     				  
 	h1sumL->SetBinContent(2, sumeff);
 	h1sumL->SetBinError(2, sumerr);
         h1sumL->SetMinimum(0.0);
@@ -774,7 +778,7 @@ namespace dqutils {
 	  continue;
 	}
 
-	sumn = h1num_mu0_15->Integral(iSTDL, iSTDH); // 10-100 GeV
+	sumn = h1num_mu0_15->Integral(iSTDL, iSTDH); // 25-100 GeV
 	sumd = h1den_mu0_15->Integral(iSTDL, iSTDH);
 	if (sumd == 0.) {
 	  sumeff = 0.;
@@ -808,16 +812,19 @@ namespace dqutils {
 	  sumeff = (double)sumn / (double) sumd;
 	  sumerr = sqrt((double)sumn * (1.-sumeff)) / (double)sumd;
 	}
+	h1sum_mu->GetYaxis()->SetTitle("Efficiency");     				  
 	h1sum_mu->SetBinContent(3, sumeff);
 	h1sum_mu->SetBinError(3, sumerr);
+	h1sum_mu->SetMaximum(1.05);
+	h1sum_mu->SetMinimum(0.0);
 	dir->cd();
 	h1sum_mu->Write("",TObject::kOverwrite);
 	mf.Write();
       }
       //  end of the code add by Yuan //
       // ******************************************************//
-      TString alg2[3] = {"_MuFast", "_MuonEFMS", "_MuonEFSA"};
-      TString wrtalg2[3] = {"_L1", "_MuFast", "_MuFast"};
+      TString alg2[3] = {"_L2MuonSA", "_MuonEFMS", "_MuonEFSA"};
+      TString wrtalg2[3] = {"_L1", "_L2MuonSA", "_L2MuonSA"};
 
       // ******************************************************//
       // ******************  MSonly Chains ********************//
@@ -888,7 +895,7 @@ namespace dqutils {
 		  }
 		  int iholx = -1;
 		  if (0 == alg) {
-		    iholx = static_cast<int>(iMuFast);
+		    iholx = static_cast<int>(iL2MuonSA);
 		  } else if (2 == alg) {
 		    iholx = static_cast<int>(iEFSA);
 		  }
@@ -905,6 +912,7 @@ namespace dqutils {
 		    }
 		    h1sumeff->SetBinContent(iholx+1, sumeff);
 		    h1sumeff->SetBinError(iholx+1, sumerr);
+                    h1sumeff->GetYaxis()->SetTitleOffset(1.3);
                     h1sumeff->SetMinimum(0.0);
 	            h1sumeff->SetMaximum(1.05);
 		    // saving
@@ -979,7 +987,7 @@ namespace dqutils {
 	      }
 	      int iholx = -1;
 	      if (0 == alg) {
-		iholx = static_cast<int>(iMuFast);
+		iholx = static_cast<int>(iL2MuonSA);
 	      } else if (2 == alg) {
 		iholx = static_cast<int>(iEFSA);
 	      }
@@ -994,6 +1002,7 @@ namespace dqutils {
 		  }
 		  continue;
 		}
+                h1sumeff->GetYaxis()->SetTitleOffset(1.3);
 		h1sumeff->SetBinContent(iholx+1, sumeff);
 		h1sumeff->SetBinError(iholx+1, sumerr);
   	        h1sumeff->SetMinimum(0.0);
@@ -1013,7 +1022,7 @@ namespace dqutils {
 	    // for ES, L1 ------------------------------------------------------------
 	    if (0 == alg) {
 	      sden = nd_dir + chainName + triggerES[ies] + "_Turn_On_Curve_wrt_MuidSA_Denominator";
-	      snum = nd_dir + chainName + triggerES[ies] + "_MuFast" + "_Turn_On_Curve_wrt" + "_L1" + "_Denominator";
+	      snum = nd_dir + chainName + triggerES[ies] + "_L2MuonSA" + "_Turn_On_Curve_wrt" + "_L1" + "_Denominator";
 	      seff = eff_dir + chainName + triggerES[ies] + "_L1" + "_Turn_On_Curve_wrt_MuidSA";
 	      seffg = seff + "_Fit";
 	      stmp = chainName + triggerES[alg] + "_L1"+"_Turn_On_Curve_wrt_MuidSA";
@@ -1060,7 +1069,7 @@ namespace dqutils {
 
 	      for (int be = 0; be < 2; be++) {
 		sden = nd_dir + chainName + triggerES[ies] + "_Turn_On_Curve_wrt_MuidSA" + bestr[be] + "_Denominator";
-		snum = nd_dir + chainName + triggerES[ies] + "_MuFast" + "_Turn_On_Curve_wrt" + "_L1" + bestr[be] + "_Denominator";
+		snum = nd_dir + chainName + triggerES[ies] + "_L2MuonSA" + "_Turn_On_Curve_wrt" + "_L1" + bestr[be] + "_Denominator";
 		seff  = eff_dir + chainName + triggerES[ies] + "_L1" + bestr[be] + "_Turn_On_Curve_wrt_MuidSA";
 		seffg = seff + "_Fit";
 		stmp = chainName + triggerES[ies] + "_L1" + bestr[be] + "_Turn_On_Curve_wrt_MuidSA";
@@ -1167,7 +1176,7 @@ namespace dqutils {
 		  }
 		  int iholx = -1;
 		  if (0 == alg) {
-		    iholx = static_cast<int>(iMuFast);
+		    iholx = static_cast<int>(iL2MuonSA);
 		  } else if (2 == alg) {
 		    iholx = static_cast<int>(iEFSA);
 		  }
@@ -1182,6 +1191,7 @@ namespace dqutils {
 		      }
 		      continue;
 		    }
+                    h1sumeff->GetYaxis()->SetTitleOffset(1.3);
 		    h1sumeff->SetBinContent(iholx+1, sumeff);
 		    h1sumeff->SetBinError(iholx+1, sumerr);
                     h1sumeff->SetMinimum(0.0);
@@ -1779,14 +1789,14 @@ namespace dqutils {
 	    }
 
 	    if(h1num && h1den){
-	      h1tmp = (TH1F*)h1den->Clone();
-	      h1tmp->SetName(stmp);                          				
-	      h1tmp->SetTitle(stmp);                         			  
-	      h1tmp->GetYaxis()->SetTitle("Efficiency");     				  
-	      h1tmp->Reset();                                				  
-	      h1tmp->Divide(h1num, h1den, 1., 1., "B");      				  
-	      dir->cd();                                    				  
-	      h1tmp->Write();
+	     // h1tmp = (TH1F*)h1den->Clone();
+	     // h1tmp->SetName(stmp);                          				
+	     // h1tmp->SetTitle(stmp);                         			  
+	    //  h1tmp->GetYaxis()->SetTitle("Efficiency");     				  
+	    //  h1tmp->Reset();                                				  
+	    //  h1tmp->Divide(h1num, h1den, 1., 1., "B");      				  
+	    //  dir->cd();                                    				  
+	    //  h1tmp->Write();
 	      h1tmpg = new TGraphAsymmErrors();
 	      h1tmpg->SetName(stmpg);
 	      h1tmpg->SetMarkerStyle(20);
@@ -1795,7 +1805,7 @@ namespace dqutils {
 	      h1tmpg->BayesDivide(h1num, h1den);
 	      h1tmpg->GetYaxis()->SetTitle("Efficiency");     				  
 	      h1tmpg->GetXaxis()->SetTitle(h1den->GetXaxis()->GetTitle());     				  
-	      dir->cd();
+	      ztpdir->cd();
 	      h1tmpg->Write();
 	      delete h1tmpg;
 	    }
@@ -1933,7 +1943,7 @@ namespace dqutils {
 	//const int MAXARR = 3;
 	//std::string charr[MAXARR] = {"mu36_tight", "mu24i_tight", "mu50_MSonly_barrel_tight"};
 	//std::string monarr[MAXARR] = {"_EFmuon", "_EFmuon", "_MuonEFSA"};
-	//std::string monL2arr[MAXARR] = {"_MuFast", "_MuFast", "_MuFast"};
+	//std::string monL2arr[MAXARR] = {"_L2MuonSA", "_L2MuonSA", "_L2MuonSA"};
 	//bool isBarrelMon[MAXARR] = {false, false, true}; // enable MSonly
 	//bool isMSbMon[MAXARR] = {true, false, false}; // Skip isol and MSonly
 	//bool monL1[MAXARR] = {true, true, false}; // Skip MSonly
@@ -1943,7 +1953,7 @@ namespace dqutils {
 	const int MAXARR = 6;
 	std::string charr[MAXARR] = {"muChain1", "muChain2", "muChainEFiso1", "muChainEFiso2","muChainMSonly1","muChainMSonly2"};
 	std::string monarr[MAXARR] = {"_EFmuon", "_EFmuon", "_EFmuon", "_EFmuon", "_MuonEFSA", "_MuonEFSA"};
-	std::string monL2arr[MAXARR] = {"_MuFast", "_MuFast", "_MuFast", "_MuFast", "_MuFast", "_MuFast"};
+	std::string monL2arr[MAXARR] = {"_L2MuonSA", "_L2MuonSA", "_L2MuonSA", "_L2MuonSA", "_L2MuonSA", "_L2MuonSA"};
 	bool isBarrelMon[MAXARR] = {false, false, false, false, true, true}; // enable MSonly
 	bool isMSbMon[MAXARR] = {true, true,false, false,false, false}; // Skip isol and MSonly
 	bool monL1[MAXARR] = {true, true, true, true, false, false}; // Skip MSonly
@@ -2006,6 +2016,7 @@ namespace dqutils {
 		sumeff = (double)sumn / (double) sumd;
 		sumerr = sqrt((double)sumn * (1.-sumeff)) / (double)sumd;
 	      }
+	      h1eff->GetYaxis()->SetTitle("Efficiency");     				  
 	      h1eff->SetBinContent(ibin-1, sumeff);  ////
 	      h1eff->SetBinError(ibin-1, sumerr);    ////
 	      h1eff->SetMinimum(0.0);
@@ -2016,8 +2027,8 @@ namespace dqutils {
 	  /* 3. Picking up chainDQ MSonly graph   abandoned !!!*/
 	  /* EF efficiency wrt L1, as for the ztp graph = overall HLT efficiency wrt L1: not possible, wrt offline 
 	     if (isMSbMon[ialg]) {  // skip muIso and MSonly !!!
-	     TString histChNum = nd_dir + chainName + m_MSchainName + MoniAlg + "_Turn_On_Curve_Numerator";
-	     TString histChDen = nd_dir + chainName + m_MSchainName + MoniL2Alg + "_Turn_On_Curve_wrt_L1_Denominator";
+	     TString histChNum = nd_dir + chainName + MSchainName + MoniAlg + "_Turn_On_Curve_Numerator";
+	     TString histChDen = nd_dir + chainName + MSchainName + MoniL2Alg + "_Turn_On_Curve_wrt_L1_Denominator";
 
 	     h1num = 0; mf.get(histChNum, h1num);
 	     if (!h1num) {
@@ -2100,9 +2111,11 @@ namespace dqutils {
 
 	    double sumeff, sumerr;
 	    double sumn = h1numb->Integral(13, 25); // 12-25 GeV
-	    if(HI_pp_key)sumn = h1numb->Integral(7, 10); // 30-50 GeV
+	    if(HI_pp_key)sumn = h1numb->Integral(13, 20); // 60-100 GeV
+	    //if(HI_pp_key)sumn = h1numb->Integral(7, 10); // 30-50 GeV
 	    double sumd = h1denb->Integral(13, 25);
-	    if(HI_pp_key)sumd = h1denb->Integral(7, 10);
+	    if(HI_pp_key)sumd = h1denb->Integral(13, 20);
+	    //if(HI_pp_key)sumd = h1denb->Integral(7, 10);
 	    if (sumd == 0.) {
 	      sumeff = 0.;
 	      sumerr = 0.;
@@ -2114,9 +2127,11 @@ namespace dqutils {
 	    h1sumL->SetBinError(1, sumerr);
 
 	    sumn = h1nume->Integral(13, 25);
-	    if(HI_pp_key)sumn = h1numb->Integral(7, 10); // 30-50 GeV
+	    if(HI_pp_key)sumn = h1numb->Integral(13, 20); // 60-100 GeV
+	    //if(HI_pp_key)sumn = h1numb->Integral(7, 10); // 30-50 GeV
 	    sumd = h1dene->Integral(13, 25);
-	    if(HI_pp_key)sumd = h1denb->Integral(7, 10);
+	    if(HI_pp_key)sumd = h1denb->Integral(13, 20);
+	    //if(HI_pp_key)sumd = h1denb->Integral(7, 10);
 	    if (sumd == 0.) {
 	      sumeff = 0.;
 	      sumerr = 0.;
@@ -2124,6 +2139,7 @@ namespace dqutils {
 	      sumeff = (double)sumn / (double) sumd;
 	      sumerr = sqrt((double)sumn * (1.-sumeff)) / (double)sumd;
 	    }
+	    h1sumL->GetYaxis()->SetTitle("Efficiency");     				  
 	    h1sumL->SetBinContent(2, sumeff);
 	    h1sumL->SetBinError(2, sumerr);
 	    h1sumL->SetMinimum(0.0);
@@ -2139,8 +2155,8 @@ namespace dqutils {
       // ******************************************************//
       // *********************  generic ***********************//
       // ******************************************************//
-      TString monalg[3]={"_MuFast", "_MuComb", "_EFmuon"};
-      TString wrtalg[3]={"_L1", "_MuFast", "_MuComb"};
+      TString monalg[3]={"_L2MuonSA", "_MuComb", "_EFmuon"};
+      TString wrtalg[3]={"_L1", "_L2MuonSA", "_MuComb"};
       TString numer, denom, effi;
       TString histdireff = eff_dir;
 
@@ -2194,14 +2210,14 @@ namespace dqutils {
 	      // L1 efficiency: new for 2011 HI runs and afterward
 	      // only division once since it is "the zero-th" algorithm
 	      denom = chainName + triggerES[i] + "_Turn_On_Curve_wrt_MuidCB_Denominator";
-	      numer = chainName + triggerES[i] + "_MuFast" + "_Turn_On_Curve_wrt" + "_L1" + "_Denominator";
+	      numer = chainName + triggerES[i] + "_L2MuonSA" + "_Turn_On_Curve_wrt" + "_L1" + "_Denominator";
 	      effi  = chainName + triggerES[i] + "_L1" + "_Turn_On_Curve_wrt_MuidCB";
 	      HLTMuonHDiv(mf, histdireff, numer, denom, effi, "_Fit");
 
 	      // Need to implement barrel and endcap ...
 	      for (int be = 0; be < 2; be++) {
 		denom = chainName + triggerES[i] + "_Turn_On_Curve_wrt_MuidCB" + bestr[be] + "_Denominator";
-		numer = chainName + triggerES[i] + "_MuFast" + "_Turn_On_Curve_wrt" + "_L1" + bestr[be] + "_Denominator";
+		numer = chainName + triggerES[i] + "_L2MuonSA" + "_Turn_On_Curve_wrt" + "_L1" + bestr[be] + "_Denominator";
 		effi  = chainName + triggerES[i] + "_L1" + bestr[be] + "_Turn_On_Curve_wrt_MuidCB";
 		HLTMuonHDiv(mf, histdireff, numer, denom, effi, "_Fit");
 
@@ -2225,7 +2241,7 @@ namespace dqutils {
 		if (ESINDEP == i) {
 		  // integrating over and fill in a summary histogram
 		  double sumeff, sumerr;
-		  double sumn = h1num->Integral(iSTDL, iSTDH); // 40-80 GeV
+		  double sumn = h1num->Integral(iSTDL, iSTDH); // 60-100 GeV
 		  double sumd = h1den->Integral(iSTDL, iSTDH);
 		  if (sumd == 0.) {
 		    sumeff = 0.;
@@ -2290,7 +2306,7 @@ namespace dqutils {
 	      }
 	      int iholx = -1;
 	      if (0 == alg) {
-		iholx = static_cast<int>(iMuFast);
+		iholx = static_cast<int>(iL2MuonSA);
 	      } else if (1 == alg) {
 		iholx = static_cast<int>(iMuComb);
 	      } else if (2 == alg) {
@@ -2298,14 +2314,14 @@ namespace dqutils {
 	      }
 
 	      TString s = histdireff + chainName + "_highpt_effsummary_by" + triggerES[i];
-	      TH1F *h1effsum = 0;
 	      mf.get(s, h1effsum);
 	      if (!h1effsum) {
 		if (fdbg) {
-		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< sden << std::endl;
+		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< s << std::endl;
 		}
 		continue;
 	      }
+              h1effsum->GetYaxis()->SetTitleOffset(1.3);
 	      h1effsum->SetBinContent(iholx+1, sumeff);
 	      h1effsum->SetBinError(iholx+1, sumerr);
 	      h1effsum->SetMinimum(0.0);
@@ -2366,7 +2382,7 @@ namespace dqutils {
       TH1F* h1tmpf(0);
       TH1F* h1num(0);
       TH1F* h1den(0);
-      TGraphAsymmErrors* h1tmpfg = new TGraphAsymmErrors();
+      TGraphAsymmErrors* h1tmpfg = new TGraphAsymmErrors();;
       TString stmp = seff + seffg;
       h1num = 0;
       mf.get(sdir + "NumDenom/" + snum, h1num);
@@ -2394,6 +2410,10 @@ namespace dqutils {
 	h1tmpf->GetYaxis()->SetTitle("Efficiency");     				  
 	h1tmpf->Reset();                                				  
 	h1tmpf->Divide(h1num, h1den, 1., 1., "B");      				  
+	h1tmpf->GetXaxis()->SetTitle(h1den->GetXaxis()->GetTitle());     				  
+	h1tmpf->SetMinimum(0.0);
+	h1tmpfg->SetMaximum(1.05);
+	h1tmpf->SetName(stmp);
 	dir->cd();                                    				  
 	h1tmpf->Write();                                				  
 	h1tmpfg->SetMarkerStyle(20);
@@ -2404,7 +2424,7 @@ namespace dqutils {
 	h1tmpfg->GetXaxis()->SetTitle(h1den->GetXaxis()->GetTitle());     				  
 	dir->cd();
 	h1tmpfg->SetName(stmp);
-	h1tmpfg->Write();
+        h1tmpfg->Write();
 	delete h1tmpfg;
       }
     }

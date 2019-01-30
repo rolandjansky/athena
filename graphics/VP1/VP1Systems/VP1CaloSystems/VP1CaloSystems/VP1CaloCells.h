@@ -12,7 +12,7 @@
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <map>
 #include <set>
@@ -187,7 +187,7 @@ class VP1CaloCell
             const VP1CC_GlobalCuts& ) = 0;
 
   double cellDepth(const QPair<bool,double>& scale, const double& energy)
-  { return std::max(1.0*GeoModelKernelUnits::mm,scale.second*(scale.first?log(1+fabs(energy)):fabs(energy))); }
+  { return std::max(1.0*Gaudi::Units::mm,scale.second*(scale.first?log(1+fabs(energy)):fabs(energy))); }
 
   virtual bool isInsideClipVolume(const VP1CC_GlobalCuts&  globalCuts) ; // by default uses radius to determine this
   

@@ -10,6 +10,7 @@
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoLogVol.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 double BLM_Wall::s_width = 18;
 double BLM_Wall::s_length = 22;
@@ -29,7 +30,7 @@ GeoPhysVol* BLM_Wall::BuildClamp(const GeoMaterial* material)
   const GeoBox* blmWallBox = new GeoBox(s_width/2, s_clamp_thickness/2, s_clamp_length/2);
   const GeoTube* blmWallHole = new GeoTube(0, s_hole_r, s_clamp_thickness);
   //rotations
-  GeoTrf::RotateX3D rm(90.*GeoModelKernelUnits::deg);
+  GeoTrf::RotateX3D rm(90.*Gaudi::Units::deg);
   //position of holes
   GeoTrf::Translation3D pos1(s_width/2-s_hole_position, 0, s_clamp_length/2-2.5);
   GeoTrf::Translation3D pos2(s_hole_position-s_width/2, 0, s_clamp_length/2-2.5);
@@ -76,7 +77,7 @@ GeoPhysVol* BLM_Wall::BuildHolder(const GeoMaterial* material)
   const GeoTube* blmWallHole = new GeoTube(0, s_hole_r, s_holder_thickness);
   const GeoBox* blmWallHole1 = new GeoBox(s_holder_spacing/2, s_holder_height, (s_holder_spacing_length+s_holder_thickness)/2+1);
   //rotations
-  GeoTrf::RotateX3D rm(90.*GeoModelKernelUnits::deg);
+  GeoTrf::RotateX3D rm(90.*Gaudi::Units::deg);
   //position of holes
   GeoTrf::Translation3D pos1(s_width/2-s_hole_position, 0, s_holder_length/2-s_hole_position);
   GeoTrf::Translation3D pos2(s_hole_position-s_width/2, 0, s_holder_length/2-s_hole_position);
@@ -124,8 +125,8 @@ GeoPhysVol* BLM_Wall::BuildLayerI(double thick, const GeoMaterial* material, boo
       const GeoShape* blmWallHole1 = new GeoBox(s_width/2-3.5, thick, 5.9);
       const GeoShape* blmWallHole2 = new GeoBox(s_width/2-6.1, thick, 4);
       const GeoShape* blmWallHole3 = new GeoBox(3.89, thick, 3.89);
-      GeoTrf::RotateX3D rm(90.*GeoModelKernelUnits::deg);
-      GeoTrf::RotateY3D rm1(45.*GeoModelKernelUnits::deg);
+      GeoTrf::RotateX3D rm(90.*Gaudi::Units::deg);
+      GeoTrf::RotateY3D rm1(45.*Gaudi::Units::deg);
       GeoTrf::Translation3D pos1(s_width/2-s_hole_position, 0, s_extended_length/2-s_hole_position);
       GeoTrf::Translation3D pos2(s_hole_position-s_width/2, 0, s_extended_length/2-s_hole_position);
       GeoTrf::Translation3D pos3(s_width/2-s_hole_position, 0, s_extended_length/2-s_length+s_hole_position);
@@ -162,7 +163,7 @@ GeoPhysVol* BLM_Wall::BuildLayerI(double thick, const GeoMaterial* material, boo
     {
       const GeoShape* blmWallBox = new GeoBox(s_width/2, thick/2, s_extended_length/2);
       const GeoShape* blmWallHole = new GeoTube(0, s_hole_r, thick);
-      GeoTrf::RotateX3D rm(90.*GeoModelKernelUnits::deg);
+      GeoTrf::RotateX3D rm(90.*Gaudi::Units::deg);
       GeoTrf::Translation3D pos1(s_width/2-s_hole_position, 0, s_extended_length/2-s_hole_position);
       GeoTrf::Translation3D pos2(s_hole_position-s_width/2, 0, s_extended_length/2-s_hole_position);
       GeoTrf::Translation3D pos3(s_width/2-s_hole_position, 0, s_extended_length/2-s_length+s_hole_position);
@@ -197,8 +198,8 @@ GeoPhysVol* BLM_Wall::BuildLayerII(double thick, const GeoMaterial* material)
   const GeoShape* blmWallHole2 = new GeoBox(s_width/2-6.1, thick, 4);
   //const GeoShape* blmWallHole3 = new GeoBox(1.76777, thick, 1.76777);
   const GeoShape* blmWallHole3 = new GeoBox(3.9, thick, 3.9);
-  GeoTrf::RotateX3D rm(90.*GeoModelKernelUnits::deg);
-  GeoTrf::RotateY3D rm1(45.*GeoModelKernelUnits::deg);
+  GeoTrf::RotateX3D rm(90.*Gaudi::Units::deg);
+  GeoTrf::RotateY3D rm1(45.*Gaudi::Units::deg);
   GeoTrf::Translation3D pos1(s_width/2-s_hole_position, 0, s_length/2-s_hole_position);
   GeoTrf::Translation3D pos2(s_hole_position-s_width/2, 0, s_length/2-s_hole_position);
   GeoTrf::Translation3D pos3(s_width/2-s_hole_position, 0, s_hole_position-s_length/2);
@@ -235,7 +236,7 @@ GeoPhysVol* BLM_Wall::BuildLayerIII(double thick, const GeoMaterial* material)
   const GeoShape* blmWallBox = new GeoBox(s_width/2, thick/2, s_length/2);
   const GeoShape* blmWallHole = new GeoTube(0, s_hole_r, thick);
   const GeoShape* blmWallHole1 = new GeoBox(s_width/2-3.5, thick, 5.425);
-  GeoTrf::RotateX3D rm(90.*GeoModelKernelUnits::deg);
+  GeoTrf::RotateX3D rm(90.*Gaudi::Units::deg);
   GeoTrf::Translation3D pos1(s_width/2-s_hole_position, 0, s_length/2-s_hole_position);
   GeoTrf::Translation3D pos2(s_hole_position-s_width/2, 0, s_length/2-s_hole_position);
   GeoTrf::Translation3D pos3(s_width/2-s_hole_position, 0, s_hole_position-s_length/2);
@@ -263,7 +264,7 @@ GeoPhysVol* BLM_Wall::BuildLayerIV(double thick, const GeoMaterial* material)
   const GeoShape* blmWallHole = new GeoTube(0, s_hole_r, thick);
   const GeoShape* blmWallHole1 = new GeoBox(s_width/2-3.5, thick, 5.425);
   const GeoShape* blmWallHole2 = new GeoBox(s_width/2-8.1, thick, 4);
-  GeoTrf::RotateX3D rm(90.*GeoModelKernelUnits::deg);
+  GeoTrf::RotateX3D rm(90.*Gaudi::Units::deg);
   GeoTrf::Translation3D pos1(s_width/2-s_hole_position, 0, s_length/2-s_hole_position);
   GeoTrf::Translation3D pos2(s_hole_position-s_width/2, 0, s_length/2-s_hole_position);
   GeoTrf::Translation3D pos3(s_width/2-s_hole_position, 0, s_hole_position-s_length/2);
@@ -291,7 +292,7 @@ GeoPhysVol* BLM_Wall::BuildLayerV(double thick, const GeoMaterial* material)
 {
   const GeoShape* blmWallBox = new GeoBox(s_width/2, thick/2, s_length/2);
   const GeoShape* blmWallHole = new GeoTube(0, s_hole_r, thick);
-  GeoTrf::RotateX3D rm(90.*GeoModelKernelUnits::deg);
+  GeoTrf::RotateX3D rm(90.*Gaudi::Units::deg);
   GeoTrf::Translation3D pos1(s_width/2-s_hole_position, 0, s_length/2-s_hole_position);
   GeoTrf::Translation3D pos2(s_hole_position-s_width/2, 0, s_length/2-s_hole_position);
   GeoTrf::Translation3D pos3(s_width/2-s_hole_position, 0, s_hole_position-s_length/2);

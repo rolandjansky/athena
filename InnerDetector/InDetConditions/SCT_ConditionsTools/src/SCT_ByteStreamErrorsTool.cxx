@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -103,16 +103,14 @@ SCT_ByteStreamErrorsTool::canReportAbout(InDetConditions::Hierarchy h) const {
  * result in bad hits or no hits for that event */
  
 bool 
-SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash) const {
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
-  
+SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash, const EventContext& ctx) const {
   if (m_checkRODSimulatedData and isRODSimulatedData(elementIdHash)) return false;
   
   bool result{true};
 
   for (SCT_ByteStreamErrors::errorTypes badError: SCT_ByteStreamErrors::BadErrors) {
-    const std::set<IdentifierHash>& errorSet{getErrorSet(badError, ctx)};
-    result = (errorSet.count(elementIdHash)==0);
+    const std::set<IdentifierHash>* errorSet{getErrorSet(badError, ctx)};
+    result = (errorSet->count(elementIdHash)==0);
     if (not result) return result;
   }
   
@@ -137,19 +135,33 @@ SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash) const {
   return result;
 }
 
+bool
+SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  return isGood(elementIdHash, ctx);
+}
+
 bool 
-SCT_ByteStreamErrorsTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+SCT_ByteStreamErrorsTool::isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h) const {
   if (not canReportAbout(h)) return true;
   
   if (h==InDetConditions::SCT_SIDE) {
     const IdentifierHash elementIdHash{m_sct_id->wafer_hash(elementId)};
-    return isGood(elementIdHash);
+    return isGood(elementIdHash, ctx);
   }
   if (h==InDetConditions::SCT_CHIP) {
     return isGoodChip(elementId);
   }
 
   return true;
+}
+
+bool
+SCT_ByteStreamErrorsTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  return isGood(elementId, ctx, h);
 }
 
 bool
@@ -265,9 +277,9 @@ const std::set<IdentifierHash>*
 SCT_ByteStreamErrorsTool::getErrorSet(int errorType) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   if (errorType>=0 and errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES) {
-    return &getErrorSet(static_cast<SCT_ByteStreamErrors::errorTypes>(errorType), ctx);
+    return getErrorSet(errorType, ctx);
   }
-  return 0;
+  return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -383,8 +395,8 @@ SCT_ByteStreamErrorsTool::isRODSimulatedData() const {
 bool
 SCT_ByteStreamErrorsTool::isRODSimulatedData(const IdentifierHash& elementIdHash) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
-  const std::set<IdentifierHash>& errorSet{getErrorSet(SCT_ByteStreamErrors::RODSimulatedData, ctx)};
-  return (errorSet.count(elementIdHash)!=0);
+  const std::set<IdentifierHash>* errorSet{getErrorSet(SCT_ByteStreamErrors::RODSimulatedData, ctx)};
+  return (errorSet->count(elementIdHash)!=0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -436,13 +448,13 @@ const InDetDD::SiDetectorElement* SCT_ByteStreamErrorsTool::getDetectorElement(c
   return m_detectorElements->getDetectorElement(waferHash);
 }
 
-const std::set<IdentifierHash>& SCT_ByteStreamErrorsTool::getErrorSet(SCT_ByteStreamErrors::errorTypes errorType, const EventContext& ctx) const {
+const std::set<IdentifierHash>* SCT_ByteStreamErrorsTool::getErrorSet(int errorType, const EventContext& ctx) const {
   StatusCode sc{fillData(ctx)};
   if (sc.isFailure()) {
     ATH_MSG_ERROR("fillData in getErrorSet fails");
   }
 
-  return m_bsErrors[errorType][ctx.slot()];
+  return &m_bsErrors[errorType][ctx.slot()];
 }
 
 const std::map<Identifier, unsigned int>& SCT_ByteStreamErrorsTool::getTempMaskedChips(const EventContext& ctx) const { 

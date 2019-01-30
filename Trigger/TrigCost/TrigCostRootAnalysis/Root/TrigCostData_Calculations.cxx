@@ -632,13 +632,13 @@ namespace TrigCostRootAnalysis {
   /**
    * As algs are already stored under sequences (hence - vector<vector<stuff>>) we cannot go deeper.
    * But algs can have many ROI. So we use a linking index to connect seq_alg_roi_index() with a location in seq_roi().
-   * At this location we find a vector with size getSeqAlgNRoI(_seq, _alg) which contains a list of ROI ID
-   * These can be accessed in the D3PD by calling getRoIIndexFromId( _roiID ) and then looking at the returned D3PD
+   * At this location we find a vector with size getSeqAlgNRoI(seq, alg) which contains a list of ROI ID
+   * These can be accessed in the D3PD by calling getRoIIndexFromId( roiID ) and then looking at the returned D3PD
    *index location.
    *
    * Given this complexity, it is probably better to look at the example below.
    *
-   * @see getRoIIndexFromId( _roiID )
+   * @see getRoIIndexFromId( roiID )
    * @param n Sequence index in D3PD.
    * @param a Algorithm index in sequence.
    * @param roi Which ROI to get the ID for - this still needs to be mapped to the location in the D3PD using

@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 728071 2016-03-07 10:51:32Z krasznaa $
 #
 # Package setting up Pythia8 to be used in the ATLAS offline software.
 #
@@ -21,7 +20,7 @@ if( NOT PYTHIA8_FOUND )
 endif()
 
 # Install the files from the xmldoc directory into the offline release.
-set( xmldoc_dir "${PYTHIA8_ROOT}/share/Pythia8/xmldoc" )
+set( xmldoc_dir "${PYTHIA8_LCGROOT}/share/Pythia8/xmldoc" )
 if( NOT IS_DIRECTORY ${xmldoc_dir} )
    message( WARNING "Can't access ${xmldoc_dir}" )
    return()

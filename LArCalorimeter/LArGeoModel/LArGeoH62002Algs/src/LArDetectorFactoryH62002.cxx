@@ -27,7 +27,6 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"  
 #include "GeoModelKernel/GeoSerialTransformer.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
 #include "GeoGenericFunctions/AbsFunction.h"
 #include "GeoGenericFunctions/Variable.h"
 #include "GeoGenericFunctions/Sin.h"
@@ -43,6 +42,7 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
@@ -128,8 +128,8 @@ void LArGeo::LArDetectorFactoryH62002::getSimulationParameters()
   }
 
  (*log)<< MSG::INFO<< endmsg;
- (*log)<< MSG::INFO << " Use cryo X : " <<  m_cryoXpos << " GeoModelKernelUnits::mm" << endmsg;
- (*log)<< MSG::INFO << " Use table Y : " <<  m_tableYpos << " GeoModelKernelUnits::mm" << endmsg;
+ (*log)<< MSG::INFO << " Use cryo X : " <<  m_cryoXpos << " Gaudi::Units::mm" << endmsg;
+ (*log)<< MSG::INFO << " Use table Y : " <<  m_tableYpos << " Gaudi::Units::mm" << endmsg;
 
 
 }
@@ -162,13 +162,13 @@ void LArGeo::LArDetectorFactoryH62002::create(GeoPhysVol *world)
 
   // 4databa :  // numbers taken from LArCalorimeter/LArG4TB/LArG4TBExpHall/src/LArG4TBEmecHecDetectorConstruction.cc
   // (That's a mighty big hall.....)
-  double expHallX = 14000.*GeoModelKernelUnits::mm;
-  double expHallY = 14000.*GeoModelKernelUnits::mm;
-  double expHallZ = 50000.*GeoModelKernelUnits::mm;
-  //double cryoZpos = 12250.*GeoModelKernelUnits::mm;
-  //double cryoXrot = -90.*GeoModelKernelUnits::deg; 
-  //double cryoXpos = m_cryoXpos * GeoModelKernelUnits::mm ;
-  //double cryoXpos = 0.*GeoModelKernelUnits::mm;  // <-- Should be made available in RunOptions! (Perhaps default in DB...)
+  double expHallX = 14000.*Gaudi::Units::mm;
+  double expHallY = 14000.*Gaudi::Units::mm;
+  double expHallZ = 50000.*Gaudi::Units::mm;
+  //double cryoZpos = 12250.*Gaudi::Units::mm;
+  //double cryoXrot = -90.*Gaudi::Units::deg; 
+  //double cryoXpos = m_cryoXpos * Gaudi::Units::mm ;
+  //double cryoXpos = 0.*Gaudi::Units::mm;  // <-- Should be made available in RunOptions! (Perhaps default in DB...)
 
   //-----------------------------------------------------------------------------------//  
   // Next make the box that describes the shape of the expHall volume:                 //  
@@ -193,11 +193,11 @@ void LArGeo::LArDetectorFactoryH62002::create(GeoPhysVol *world)
   // the element we want to position in the following order:
 
 
-  double Theta = -90. * GeoModelKernelUnits::deg;
-  double Phi   = 0.  * GeoModelKernelUnits::deg;
+  double Theta = -90. * Gaudi::Units::deg;
+  double Phi   = 0.  * Gaudi::Units::deg;
 
   GeoTrf::Transform3D Mrot(GeoTrf::RotateZ3D(Phi)*GeoTrf::RotateX3D(Theta));
-  GeoTrf::Translate3D pos3Vector(    m_cryoXpos*GeoModelKernelUnits::mm,    0.*GeoModelKernelUnits::mm,   12250.*GeoModelKernelUnits::mm );
+  GeoTrf::Translate3D pos3Vector(    m_cryoXpos*Gaudi::Units::mm,    0.*Gaudi::Units::mm,   12250.*Gaudi::Units::mm );
 
   H6CryostatConstruction  H6CryoCons;
   GeoVPhysVol* Envelope = 0;
@@ -211,7 +211,7 @@ void LArGeo::LArDetectorFactoryH62002::create(GeoPhysVol *world)
 
   //Add the walls in front of the cryostat:
   {
-    const double H62002WallsPos = 10182.*GeoModelKernelUnits::mm;  // A wild guess at the moment.....
+    const double H62002WallsPos = 10182.*Gaudi::Units::mm;  // A wild guess at the moment.....
     WallsConstruction  WallsConstruction2002;
     GeoVPhysVol* frontwalls = WallsConstruction2002.GetEnvelope();
     if(frontwalls !=0 && expHallPhys !=0){
@@ -224,7 +224,7 @@ void LArGeo::LArDetectorFactoryH62002::create(GeoPhysVol *world)
 
   //Add the table instrumentation:
   {    
-    const double H62002TablePos = 8320.*GeoModelKernelUnits::mm;  
+    const double H62002TablePos = 8320.*Gaudi::Units::mm;  
     TableConstructionH62002  TableConstruction;
     GeoVPhysVol* table = TableConstruction.GetEnvelope();
     if(table !=0 && expHallPhys !=0){
@@ -237,8 +237,8 @@ void LArGeo::LArDetectorFactoryH62002::create(GeoPhysVol *world)
 
   //Add the front beam instrumentation:
   {
-    const double H62002FrontBeamPos = -20215.5*GeoModelKernelUnits::mm;  // (Use this to get the Front dets. in Peter Schacht's position)   
-    //const double H62002FrontBeamPos = -20439.*GeoModelKernelUnits::mm; // (according to old code: [-21600+801+350]*GeoModelKernelUnits::mm)   
+    const double H62002FrontBeamPos = -20215.5*Gaudi::Units::mm;  // (Use this to get the Front dets. in Peter Schacht's position)   
+    //const double H62002FrontBeamPos = -20439.*Gaudi::Units::mm; // (according to old code: [-21600+801+350]*Gaudi::Units::mm)   
     // (with 350=1/2 length of FrontBeam volume)
     FrontBeamConstructionH62002  FrontBeamConstruction;
     GeoVPhysVol* front = FrontBeamConstruction.GetEnvelope();
@@ -263,10 +263,10 @@ void LArGeo::LArDetectorFactoryH62002::create(GeoPhysVol *world)
   // For the moment it is still commented out until I have
   // its true geometry confirmed; But really it is ready to go:
   // Add Rohacell Excluder 
-  // double ThetaRoha = 0. * GeoModelKernelUnits::deg;
-  // double PhiRoha   = 0.  * GeoModelKernelUnits::deg;
+  // double ThetaRoha = 0. * Gaudi::Units::deg;
+  // double PhiRoha   = 0.  * Gaudi::Units::deg;
   // GeoTrf::Transform3D MrotRoha(GeoTrf::RotateZ3D(PhiRoha)*GeoTrf::RotateX3D(ThetaRoha));
-  // GeoTrf::Translate3D pos3Roha(    0*GeoModelKernelUnits::mm,   0.0*GeoModelKernelUnits::mm ,   0.*GeoModelKernelUnits::mm);
+  // GeoTrf::Translate3D pos3Roha(    0*Gaudi::Units::mm,   0.0*Gaudi::Units::mm ,   0.*Gaudi::Units::mm);
 
   {    
     ExcluderConstruction excluderConstruction;
@@ -286,12 +286,12 @@ void LArGeo::LArDetectorFactoryH62002::create(GeoPhysVol *world)
   EMECDetectorManager *emecDetectorManager  = new EMECDetectorManager();
 
 
-  double ThetaEmec = -90. * GeoModelKernelUnits::deg;
-  double PhiEmec   = 180.  * GeoModelKernelUnits::deg;
+  double ThetaEmec = -90. * Gaudi::Units::deg;
+  double PhiEmec   = 180.  * Gaudi::Units::deg;
 
   GeoTrf::Transform3D MrotEmec(GeoTrf::RotateZ3D(PhiEmec)*GeoTrf::RotateX3D(ThetaEmec));
-  //  GeoTrf::Vector3D pos3Emec(    0*GeoModelKernelUnits::mm,   869.0*GeoModelKernelUnits::mm ,   1720.*GeoModelKernelUnits::mm);
-  GeoTrf::Translate3D pos3Emec(    0*GeoModelKernelUnits::mm,   808.0*GeoModelKernelUnits::mm ,   1720.*GeoModelKernelUnits::mm);
+  //  GeoTrf::Vector3D pos3Emec(    0*Gaudi::Units::mm,   869.0*Gaudi::Units::mm ,   1720.*Gaudi::Units::mm);
+  GeoTrf::Translate3D pos3Emec(    0*Gaudi::Units::mm,   808.0*Gaudi::Units::mm ,   1720.*Gaudi::Units::mm);
 
   //use this line for physical construction of the EMEC outer wheel only:
   EMECConstruction emecConstruction(true, true, true);
@@ -392,11 +392,11 @@ void LArGeo::LArDetectorFactoryH62002::create(GeoPhysVol *world)
   }
   
   
-  double ThetaPS = -90. * GeoModelKernelUnits::deg;
-  double PhiPS   = 180.  * GeoModelKernelUnits::deg;
+  double ThetaPS = -90. * Gaudi::Units::deg;
+  double PhiPS   = 180.  * Gaudi::Units::deg;
   GeoTrf::Transform3D MrotPS(GeoTrf::RotateZ3D(PhiPS)*GeoTrf::RotateX3D(ThetaPS));
-  //GeoTrf::Vector3D pos3PS(    0*GeoModelKernelUnits::mm,   945.5*GeoModelKernelUnits::mm ,   1720.*GeoModelKernelUnits::mm);
-  GeoTrf::Translate3D pos3PS(    0*GeoModelKernelUnits::mm,   888.5*GeoModelKernelUnits::mm ,   1720.*GeoModelKernelUnits::mm);
+  //GeoTrf::Vector3D pos3PS(    0*Gaudi::Units::mm,   945.5*Gaudi::Units::mm ,   1720.*Gaudi::Units::mm);
+  GeoTrf::Translate3D pos3PS(    0*Gaudi::Units::mm,   888.5*Gaudi::Units::mm ,   1720.*Gaudi::Units::mm);
   
   //double zPSpos = -869. -(61. +2. +13.5);
   //std::string PresamplerName = baseName + "::Presampler::";
@@ -420,10 +420,10 @@ void LArGeo::LArDetectorFactoryH62002::create(GeoPhysVol *world)
 
 
   // Add HEC 
-  double ThetaHec = 90. * GeoModelKernelUnits::deg;
-  double PhiHec   = 0.  * GeoModelKernelUnits::deg;
+  double ThetaHec = 90. * Gaudi::Units::deg;
+  double PhiHec   = 0.  * Gaudi::Units::deg;
   GeoTrf::Transform3D MrotHec(GeoTrf::RotateZ3D(PhiHec)*GeoTrf::RotateX3D(ThetaHec));
-  GeoTrf::Translate3D pos3Hec(    0*GeoModelKernelUnits::mm,   233.0*GeoModelKernelUnits::mm ,   1720.*GeoModelKernelUnits::mm);
+  GeoTrf::Translate3D pos3Hec(    0*Gaudi::Units::mm,   233.0*Gaudi::Units::mm ,   1720.*Gaudi::Units::mm);
 
   {    
     HECConstructionH62002 hecConstruction;

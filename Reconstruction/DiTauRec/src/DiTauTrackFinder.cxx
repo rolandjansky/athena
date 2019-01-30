@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -17,6 +17,7 @@
 
 #include "tauRecTools/TrackSort.h"
 #include "tauRecTools/KineUtils.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "fastjet/PseudoJet.hh"
 
@@ -31,14 +32,12 @@ DiTauTrackFinder::DiTauTrackFinder(const std::string& type,
     DiTauToolBase(type, name, parent),
     m_MaxDrJet(1.0),
     m_MaxDrSubjet(0.2),
-    m_TrackParticleContainerName("InDetTrackParticles"),
     m_TrackSelectorTool("")
     // m_ParticleCaloExtensionTool("")
 {
     declareInterface<DiTauToolBase > (this);
     declareProperty("MaxDrJet", m_MaxDrJet);
     declareProperty("MaxDrSubjet", m_MaxDrSubjet);
-    declareProperty("TrackParticleContainer", m_TrackParticleContainerName);
     declareProperty("TrackSelectorTool", m_TrackSelectorTool);
     // declareProperty("ParticleCaloExtensionTool", m_ParticleCaloExtensionTool);
 }
@@ -56,33 +55,18 @@ DiTauTrackFinder::~DiTauTrackFinder() {
 
 StatusCode DiTauTrackFinder::initialize() {
 
-    if (m_TrackSelectorTool.retrieve().isFailure()) {
-        ATH_MSG_FATAL("could not retrieve track TrackSelectorTool");
-        return StatusCode::FAILURE;
-    }
-    // if (m_ParticleCaloExtensionTool.retrieve().isFailure()) {
-        // ATH_MSG_FATAL("could not retrieve track ParticleCaloExtensionTool");
-        // return StatusCode::FAILURE;
-    // }
-
-    return StatusCode::SUCCESS;
-}
-
-//-------------------------------------------------------------------------
-// Event Finalize
-//-------------------------------------------------------------------------
-
-StatusCode DiTauTrackFinder::eventFinalize(DiTauCandidateData * ) {
-
-    return StatusCode::SUCCESS;
+  ATH_CHECK( m_TrackSelectorTool.retrieve() );
+  ATH_CHECK( m_TrackParticleContainerName.initialize() );
+  return StatusCode::SUCCESS;
 }
 
 //-------------------------------------------------------------------------
 // execute
 //-------------------------------------------------------------------------
 
-StatusCode DiTauTrackFinder::execute(DiTauCandidateData * data) {
-
+StatusCode DiTauTrackFinder::execute(DiTauCandidateData * data,
+                                     const EventContext& ctx) const
+{
     ATH_MSG_DEBUG("execute DiTauTrackFinder...");
 
     xAOD::DiTauJet *pDiTau = data->xAODDiTau;
@@ -92,15 +76,9 @@ StatusCode DiTauTrackFinder::execute(DiTauCandidateData * data) {
         return StatusCode::FAILURE;
     }
 
-    StatusCode sc;
-
     // retrieve track container
-    const xAOD::TrackParticleContainer* pTrackParticleCont = 0;
-    sc = evtStore()->retrieve(pTrackParticleCont, m_TrackParticleContainerName);
-    if (sc.isFailure() || !pTrackParticleCont) {
-        ATH_MSG_WARNING("could not find seed jets with key:" << m_TrackParticleContainerName);        
-        return StatusCode::FAILURE;
-    }
+    SG::ReadHandle<xAOD::TrackParticleContainer> pTrackParticleCont
+      (m_TrackParticleContainerName, ctx);
 
     std::vector<const xAOD::TrackParticle*> tauTracks;    // good tracks in subjets
     std::vector<const xAOD::TrackParticle*> isoTracks;    // good tracks in isolation region
@@ -117,7 +95,7 @@ StatusCode DiTauTrackFinder::execute(DiTauCandidateData * data) {
     }
 
     // get tracks
-    getTracksFromPV(data, pTrackParticleCont, pVertex, tauTracks, isoTracks, otherTracks);
+    getTracksFromPV(data, pTrackParticleCont.get(), pVertex, tauTracks, isoTracks, otherTracks);
 
     // clear track links before association
     pDiTau->clearTrackLinks();
@@ -164,19 +142,19 @@ StatusCode DiTauTrackFinder::execute(DiTauCandidateData * data) {
     // associate tau tracks
     for (const auto& track : tauTracks ) {
         ATH_MSG_DEBUG("adding subjet track. eta: " << track->eta() << " phi: " << track->phi());
-        pDiTau->addTrack(pTrackParticleCont, track);
+        pDiTau->addTrack(pTrackParticleCont.get(), track);
     }
 
     // associate isolation tracks
     for (const auto& track : isoTracks ) {
         ATH_MSG_DEBUG("adding iso track. eta: " << track->eta() << " phi: " << track->phi());
-        pDiTau->addIsoTrack(pTrackParticleCont, track);
+        pDiTau->addIsoTrack(pTrackParticleCont.get(), track);
     }
 
     // associate other tracks
     for (const auto& track : otherTracks ) {
         ATH_MSG_DEBUG("adding other track. eta: " << track->eta() << " phi: " << track->phi());
-        pDiTau->addOtherTrack(pTrackParticleCont, track);
+        pDiTau->addOtherTrack(pTrackParticleCont.get(), track);
     }
 
 
@@ -189,7 +167,7 @@ void DiTauTrackFinder::getTracksFromPV( const DiTauCandidateData* data,
                                    const xAOD::Vertex* pVertex,
                                    std::vector<const xAOD::TrackParticle*> &tauTracks,
                                    std::vector<const xAOD::TrackParticle*> &isoTracks,
-                                   std::vector<const xAOD::TrackParticle*> &otherTracks) {
+                                   std::vector<const xAOD::TrackParticle*> &otherTracks) const {
     
     for (const auto& track : *pTrackParticleCont ) {
         DiTauTrackType type = diTauTrackType(data, track, pVertex);
@@ -211,7 +189,7 @@ void DiTauTrackFinder::getTracksFromPV( const DiTauCandidateData* data,
 
 DiTauTrackFinder::DiTauTrackType DiTauTrackFinder::diTauTrackType(const DiTauCandidateData* data,
                                                         const xAOD::TrackParticle* track,
-                                                        const xAOD::Vertex* pVertex) {
+                                                        const xAOD::Vertex* pVertex) const {
 
     xAOD::DiTauJet *pDiTau = data->xAODDiTau;
 

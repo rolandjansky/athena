@@ -13,6 +13,7 @@
 #include <string>
 #include "MuonRDO/RpcCoinMatrix.h"
 #include "MuonRDO/RpcPad.h"
+#include "MuonRDO/RpcPad_Cache.h"
 //#include "MuonRDO/RpcPadIdHash.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include "EventContainers/IdentifiableContainer.h" 
@@ -26,6 +27,8 @@ class RpcPadContainer
 
 public:  
    RpcPadContainer(unsigned int hashmax) ; 
+   RpcPadContainer(RpcPad_Cache* cache) ; 
+
   ~RpcPadContainer() ; 
 
   typedef RpcPad::size_type size_type ; 

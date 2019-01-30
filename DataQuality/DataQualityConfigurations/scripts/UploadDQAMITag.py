@@ -314,4 +314,4 @@ if __name__ == '__main__':
     elif args[0].lower() == 'release':
         update_dict_for_release(cfgdict, args[1])
 
-    #upload_new_config(amiclient, nextTag, cfgdict)
+    upload_new_config(amiclient, nextTag, cfgdict)

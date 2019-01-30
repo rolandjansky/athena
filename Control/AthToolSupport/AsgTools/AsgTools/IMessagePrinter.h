@@ -1,3 +1,7 @@
+// Dear emacs, this is -*- c++ -*-
+//
+// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef ASG_TOOLS__I_MESSAGE_PRINTER_H
 #define ASG_TOOLS__I_MESSAGE_PRINTER_H
 
@@ -14,7 +18,7 @@
 #include <AsgTools/MsgLevel.h>
 #include <sstream>
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 
 namespace asg
 {

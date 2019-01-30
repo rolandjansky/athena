@@ -34,7 +34,6 @@
 //#include "HepPDT/ParticleDataTable.hh"
 
 // For the Athena-based random numbers.
-#include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CLHEP/Random/RandPoisson.h"//randpoissonq? (fixme)
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandBinomial.h"
@@ -54,7 +53,6 @@ TRTProcessingOfStraw::TRTProcessingOfStraw(const TRTDigSettings* digset,
                                            const InDetDD::TRT_DetectorManager* detmgr,
                                            ITRT_PAITool* paitoolXe,
                                            ITRT_SimDriftTimeTool* simdrifttool,
-                                           ServiceHandle <IAtRndmGenSvc> atRndmGenSvc,
                                            TRTElectronicsProcessing * ep,
                                            TRTNoise * noise,
                                            TRTDigCondBase* digcond,
@@ -83,7 +81,7 @@ TRTProcessingOfStraw::TRTProcessingOfStraw(const TRTDigSettings* digset,
 
 {
   ATH_MSG_VERBOSE ( "TRTProcessingOfStraw::Constructor begin" );
-  Initialize(atRndmGenSvc);
+  Initialize();
   ATH_MSG_VERBOSE ( "Constructor done" );
 }
 
@@ -96,7 +94,7 @@ TRTProcessingOfStraw::~TRTProcessingOfStraw()
 }
 
 //________________________________________________________________________________
-void TRTProcessingOfStraw::Initialize(ServiceHandle <IAtRndmGenSvc> atRndmGenSvc)
+void TRTProcessingOfStraw::Initialize()
 {
 
   m_useMagneticFieldMap    = m_settings->useMagneticFieldMap();
@@ -144,9 +142,6 @@ void TRTProcessingOfStraw::Initialize(ServiceHandle <IAtRndmGenSvc> atRndmGenSvc
   m_minCrossingTime = - (intervalBetweenCrossings * 2. + 1.*CLHEP::ns);
   m_maxCrossingTime =    intervalBetweenCrossings * 3. + 1.*CLHEP::ns;
   m_shiftOfZeroPoint = static_cast<double>( m_settings->numberOfCrossingsBeforeMain() ) * intervalBetweenCrossings;
-
-  //Create our own engine with own seeds:
-  m_pHRengine = atRndmGenSvc->GetEngine("TRT_ProcessStraw");
 
   // Tabulate exp(-dist/m_attenuationLength) as a function of dist = time*m_signalPropagationSpeed [0.0 mm, 1500 mm)
   // otherwise we are doing an exp() for every cluster! > 99.9% of output digits are the same, saves 13% CPU time.
@@ -228,7 +223,8 @@ void TRTProcessingOfStraw::addClustersFromStep ( const double& scaledKineticEner
 						 const double& timeOfHit,
 						 const double& prex, const double& prey, const double& prez,
 						 const double& postx, const double& posty, const double& postz,
-						 std::vector<cluster>& clusterlist, int strawGasType)
+						 std::vector<cluster>& clusterlist, int strawGasType,
+                                                 CLHEP::HepRandomEngine* rndmEngine)
 {
 
   // Choose the appropriate ITRT_PAITool for this straw
@@ -247,14 +243,14 @@ void TRTProcessingOfStraw::addClustersFromStep ( const double& scaledKineticEner
   const double meanFreePath(activePAITool->GetMeanFreePath( scaledKineticEnergy, particleCharge*particleCharge ));
 
   //How many clusters did we actually create:
-  const unsigned int numberOfClusters(CLHEP::RandPoisson::shoot(m_pHRengine,stepLength / meanFreePath));
+  const unsigned int numberOfClusters(CLHEP::RandPoisson::shoot(rndmEngine,stepLength / meanFreePath));
   //fixme: use RandPoissionQ?
 
   //Position each of those randomly along the step, and use PAI to get their energies:
   for (unsigned int iclus(0); iclus<numberOfClusters; ++iclus)
     {
       //How far along the step did the cluster get produced:
-      const double lambda(CLHEP::RandFlat::shoot(m_pHRengine));
+      const double lambda(CLHEP::RandFlat::shoot(rndmEngine));
 
       //Append cluster (the energy is given by the PAI model):
       double clusE(activePAITool->GetEnergyTransfer(scaledKineticEnergy));
@@ -276,7 +272,10 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
                                           double cosmicEventPhase, // const ComTime* m_ComTime,
                                           int strawGasType,
 					  bool emulationArflag,
-					  bool emulationKrflag)
+					  bool emulationKrflag,
+                                          CLHEP::HepRandomEngine* rndmEngine,
+                                          CLHEP::HepRandomEngine* elecProcRndmEngine,
+                                          CLHEP::HepRandomEngine* elecNoiseRndmEngine)
 {
 
   //////////////////////////////////////////////////////////
@@ -386,7 +385,7 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
 	      // scale down the TR efficiency if we are emulating
 	      if ( strawGasType == 0 && emulationArflag ) { m_trEfficiencyBarrel = m_trEfficiencyBarrel*ArEmulationScaling_BA; }
 	      if ( strawGasType == 0 && emulationKrflag ) { m_trEfficiencyBarrel = m_trEfficiencyBarrel*KrEmulationScaling_BA; }
-              if ( CLHEP::RandFlat::shoot(m_pHRengine) > m_trEfficiencyBarrel ) continue; // Skip this photon
+              if ( CLHEP::RandFlat::shoot(rndmEngine) > m_trEfficiencyBarrel ) continue; // Skip this photon
             } // close if barrel
 	    else { // Endcap - no eta dependence here.
 	      if (isECA) {
@@ -394,14 +393,14 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
 		// scale down the TR efficiency if we are emulating
 		if ( strawGasType == 0 && emulationArflag ) { m_trEfficiencyEndCapA = m_trEfficiencyEndCapA*ArEmulationScaling_ECA; }
 		if ( strawGasType == 0 && emulationKrflag ) { m_trEfficiencyEndCapA = m_trEfficiencyEndCapA*KrEmulationScaling_ECA; }
-                if ( CLHEP::RandFlat::shoot(m_pHRengine) > m_trEfficiencyEndCapA ) continue; // Skip this photon
+                if ( CLHEP::RandFlat::shoot(rndmEngine) > m_trEfficiencyEndCapA ) continue; // Skip this photon
 	      }
 	      if (isECB) {
                 m_trEfficiencyEndCapB = m_settings->trEfficiencyEndCapB(strawGasType);
 		// scale down the TR efficiency if we are emulating
 		if ( strawGasType == 0 && emulationArflag ) { m_trEfficiencyEndCapB = m_trEfficiencyEndCapB*ArEmulationScaling_ECB; }
 		if ( strawGasType == 0 && emulationKrflag ) { m_trEfficiencyEndCapB = m_trEfficiencyEndCapB*KrEmulationScaling_ECB; }
-                if ( CLHEP::RandFlat::shoot(m_pHRengine) > m_trEfficiencyEndCapB ) continue; // Skip this photon
+                if ( CLHEP::RandFlat::shoot(rndmEngine) > m_trEfficiencyEndCapB ) continue; // Skip this photon
 	      }
             } // close else (end caps)
           } // energyDeposit < 30.0
@@ -500,7 +499,7 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
 	  addClustersFromStep ( scaledKineticEnergy, particleCharge, timeOfHit,
 				(*theHit)->GetPreStepX(),(*theHit)->GetPreStepY(),(*theHit)->GetPreStepZ(),
 				(*theHit)->GetPostStepX(),(*theHit)->GetPostStepY(),(*theHit)->GetPostStepZ(),
-				m_clusterlist, strawGasType);
+				m_clusterlist, strawGasType, rndmEngine);
 
 	}
     }//end of hit loop
@@ -522,7 +521,7 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
 
   m_depositList.clear();
   // ClustersToDeposits( hitID, m_clusterlist, m_depositList, TRThitGlobalPos, m_ComTime, strawGasType );
-  ClustersToDeposits( hitID, m_clusterlist, m_depositList, TRThitGlobalPos, cosmicEventPhase, strawGasType );
+  ClustersToDeposits( hitID, m_clusterlist, m_depositList, TRThitGlobalPos, cosmicEventPhase, strawGasType, rndmEngine );
 
   //////////////////////////////////////////////////////////
   //======================================================//
@@ -553,7 +552,7 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
   }
 
   //Electronics processing:
-  m_pElectronicsProcessing->ProcessDeposits( m_depositList, hitID, outdigit, lowthreshold, noiseamplitude, strawGasType );
+  m_pElectronicsProcessing->ProcessDeposits( m_depositList, hitID, outdigit, lowthreshold, noiseamplitude, strawGasType, elecProcRndmEngine, elecNoiseRndmEngine );
   return;
 }
 
@@ -563,7 +562,8 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
 					       std::vector<TRTElectronicsProcessing::Deposit>& deposits,
 					       Amg::Vector3D TRThitGlobalPos,
 					       double cosmicEventPhase, // was const ComTime* m_ComTime,
-                                               int strawGasType)
+                                               int strawGasType,
+                                               CLHEP::HepRandomEngine* rndmEngine)
 {
 
   //
@@ -679,18 +679,18 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
 
       if (nprimaryelectrons<m_maxelectrons) // Use the detailed Binomial and Exponential treatment at this low energy.
         {
-          unsigned int nsurvivingprimaryelectrons = static_cast<unsigned int>(CLHEP::RandBinomial::shoot(m_pHRengine,nprimaryelectrons,m_smearingFactor) + 0.5);
+          unsigned int nsurvivingprimaryelectrons = static_cast<unsigned int>(CLHEP::RandBinomial::shoot(rndmEngine,nprimaryelectrons,m_smearingFactor) + 0.5);
           if (nsurvivingprimaryelectrons==0) continue; // no electrons survived; move on to the next cluster.
           const double meanElectronEnergy(m_ionisationPotential/m_smearingFactor);
           for (unsigned int ielec(0); ielec<nsurvivingprimaryelectrons; ++ielec) {
-            depositEnergy += CLHEP::RandExpZiggurat::shoot(m_pHRengine, meanElectronEnergy);
+            depositEnergy += CLHEP::RandExpZiggurat::shoot(rndmEngine, meanElectronEnergy);
           }
         }
       else // Use a Gaussian approximation
         {
           const double fluctSigma(sqrt(cluster_E*m_ionisationPotential*(2-m_smearingFactor)/m_smearingFactor));
           do {
-            depositEnergy = CLHEP::RandGaussZiggurat::shoot(m_pHRengine, cluster_E, fluctSigma);
+            depositEnergy = CLHEP::RandGaussZiggurat::shoot(rndmEngine, cluster_E, fluctSigma);
           } while(depositEnergy<0.0); // very rare.
         }
 
@@ -735,8 +735,8 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
 
       if ( m_settings->doCosmicTimingPit() )
         { // make (x,y) dependent? i.e: + f(x,y).
-          // clusterTime = clusterTime - m_time_y_eq_zero + m_settings->jitterTimeOffset()*( CLHEP::RandFlat::shoot(m_pHRengine) );
-          clusterTime = clusterTime + cosmicEventPhase + m_settings->jitterTimeOffset()*( CLHEP::RandFlat::shoot(m_pHRengine) );
+          // clusterTime = clusterTime - m_time_y_eq_zero + m_settings->jitterTimeOffset()*( CLHEP::RandFlat::shoot(rndmEngine) );
+          clusterTime = clusterTime + cosmicEventPhase + m_settings->jitterTimeOffset()*( CLHEP::RandFlat::shoot(rndmEngine) );
           // yes it is a '+' now. Ask Alex Alonso.
         }
 

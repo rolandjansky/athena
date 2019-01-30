@@ -18,12 +18,13 @@
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include "InDetGeoModelUtils/InDetMaterialManager.h"
 
 GeoVPhysVol* DBM_Telescope::Build() {
 
-  double safety = 0.005*GeoModelKernelUnits::mm;
+  double safety = 0.005*Gaudi::Units::mm;
 
   // telescope tilting angle in degree
   double angle = m_gmt_mgr->DBMAngle();
@@ -83,14 +84,14 @@ GeoVPhysVol* DBM_Telescope::Build() {
   const GeoLogVol* telescopeLog = new GeoLogVol("dbmTelescopeLog", telescopeBox, air);
   GeoPhysVol* telescopePhys = new GeoPhysVol(telescopeLog);
 
-  GeoTrf::RotateX3D rmX10(-10.*GeoModelKernelUnits::deg);
+  GeoTrf::RotateX3D rmX10(-10.*Gaudi::Units::deg);
 
   DBM_ModuleCage moduleCage;
   GeoVPhysVol* moduleCagePhys = moduleCage.Build();
 
   // parameters for rotating the 3-layer unit
   double lyRadius = sqrt(layerUnitY*layerUnitY/4 + layerUnitZ*layerUnitZ/4);
-  double lyAngle = atan(layerUnitY/layerUnitZ);//21.6444*GeoModelKernelUnits::deg; // arctan(DBM3LayersY / DBM3LayersZ)
+  double lyAngle = atan(layerUnitY/layerUnitZ);//21.6444*Gaudi::Units::deg; // arctan(DBM3LayersY / DBM3LayersZ)
   // position of bottom tip of the 3-layers unit, which is the rotation point
   double layerUnitPos_Y = (trapBackY/cos(angle) - coolingSidePlateY)*cos(angle);
   double layerUnitPos_Z = coolingSidePlateY*sin(angle) + trapBackShortZ + bracketZ - brcktLockZ; 
@@ -107,7 +108,7 @@ GeoVPhysVol* DBM_Telescope::Build() {
   
   // back trapezoid block with window, will be rotated by 90 degree along the x-axis
 
-  const GeoTrap* trapBack = new GeoTrap(trapBackY/2., trapBack_theta, 90.0*GeoModelKernelUnits::deg, trapBackShortZ/2., trapBackX/2., trapBackX/2, 0.0, (trapBackShortZ+trapBackY*tan(angle))/2., trapBackX/2., trapBackX/2., 0.0);
+  const GeoTrap* trapBack = new GeoTrap(trapBackY/2., trapBack_theta, 90.0*Gaudi::Units::deg, trapBackShortZ/2., trapBackX/2., trapBackX/2, 0.0, (trapBackShortZ+trapBackY*tan(angle))/2., trapBackX/2., trapBackX/2., 0.0);
 
   double brWindowPosY = brcktWindow_offset + brcktWindow_centerZ * tan(angle) + brcktWindowY/(2 * cos(angle));
   const GeoBox* brWindow = new GeoBox(brcktWindowX/2., trapBackShortZ, brcktWindowY/2.);
@@ -120,7 +121,7 @@ GeoVPhysVol* DBM_Telescope::Build() {
   const GeoLogVol* trapBackLog = new GeoLogVol("bracketLog", &trapBack1, dbmPeek4);
   GeoPhysVol* trapBackPhys = new GeoPhysVol(trapBackLog);
 
-  GeoTrf::RotateX3D rmX90(90.*GeoModelKernelUnits::deg);
+  GeoTrf::RotateX3D rmX90(90.*Gaudi::Units::deg);
   double trapBackPos_Z = -telescopeZ/2. + bracketZ - brcktLockZ + ( (trapBackShortZ+trapBackY*tan(angle))/2. + trapBackY/2.*sin(trapBack_theta) - trapBackY*tan(trapBack_theta) );
   GeoTrf::Translation3D trapBackPos(0.0, -telescopeY/2. + trapBackY/2. + safety, trapBackPos_Z + 3*safety);
   xform = new GeoTransform(GeoTrf::Transform3D(trapBackPos*rmX90));
@@ -182,7 +183,7 @@ GeoVPhysVol* DBM_Telescope::Build() {
   const GeoLogVol* sidePlateLog = new GeoLogVol("sidePlateLog", sidePlate, dbmAluminium2);
   GeoPhysVol* sidePlatePhys = new GeoPhysVol(sidePlateLog);
 
-  double spAngle = angle + 17.57126*GeoModelKernelUnits::deg;
+  double spAngle = angle + 17.57126*Gaudi::Units::deg;
   double spRadius = 1/2. * sqrt(coolingSidePlateZ*coolingSidePlateZ + coolingSidePlateY*coolingSidePlateY);
 
   GeoTrf::Translation3D sidePlatePos1( mainPlateX/2. + coolingSidePlateX/2. + 2*safety, - telescopeY/2. + spRadius * sin(spAngle), -telescopeZ/2. + layerUnitPos_Z - coolingSidePlatePos*cos(angle) + spRadius * cos(spAngle));
@@ -200,19 +201,19 @@ GeoVPhysVol* DBM_Telescope::Build() {
   telescopePhys->add(sidePlatePhys);
 
   //cooling plates next to the bracket unit
-  const GeoTrap* coolingFin = new GeoTrap(coolingFinHeight/2., trapBack_theta, 90.0*GeoModelKernelUnits::deg, (coolingFinLongZ - coolingFinHeight*tan(angle))/2., coolingFinThick/2., coolingFinThick/2, 0.0, coolingFinLongZ/2., coolingFinThick/2., coolingFinThick/2., 0.0);
+  const GeoTrap* coolingFin = new GeoTrap(coolingFinHeight/2., trapBack_theta, 90.0*Gaudi::Units::deg, (coolingFinLongZ - coolingFinHeight*tan(angle))/2., coolingFinThick/2., coolingFinThick/2, 0.0, coolingFinLongZ/2., coolingFinThick/2., coolingFinThick/2., 0.0);
   const GeoMaterial* dbmAluminium3 = m_mat_mgr->getMaterialForVolume("pix::DBMAluminium3", coolingFin->volume());
   const GeoLogVol* finLog = new GeoLogVol("finLog", coolingFin, dbmAluminium3);
   GeoPhysVol* coolingFinPhys = new GeoPhysVol(finLog);
 
-  GeoTrf::Translation3D finPos1( mainPlateX/2. - coolingFinThick/2. + safety, -telescopeY/2. +  coolingFinHeight/2. + 4*safety, -telescopeZ/2. + coolingFinPos + 0.05*GeoModelKernelUnits::mm);
+  GeoTrf::Translation3D finPos1( mainPlateX/2. - coolingFinThick/2. + safety, -telescopeY/2. +  coolingFinHeight/2. + 4*safety, -telescopeZ/2. + coolingFinPos + 0.05*Gaudi::Units::mm);
   xform = new GeoTransform(GeoTrf::Transform3D(finPos1*rmX90));
   tag = new GeoNameTag("finPlate");
   telescopePhys->add(tag);
   telescopePhys->add(xform);
   telescopePhys->add(coolingFinPhys);
 
-  GeoTrf::Translation3D finPos2( -mainPlateX/2. + coolingFinThick/2. - safety, -telescopeY/2. +  coolingFinHeight/2. + 4*safety, -telescopeZ/2. + coolingFinPos + 0.05*GeoModelKernelUnits::mm);
+  GeoTrf::Translation3D finPos2( -mainPlateX/2. + coolingFinThick/2. - safety, -telescopeY/2. +  coolingFinHeight/2. + 4*safety, -telescopeZ/2. + coolingFinPos + 0.05*Gaudi::Units::mm);
   xform = new GeoTransform(GeoTrf::Transform3D(finPos2*rmX90));
   tag = new GeoNameTag("finPlate");
   telescopePhys->add(tag);

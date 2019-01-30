@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file SCT_ReadCalibChipDataTestAlg.cxx Implementation file for SCT_ReadCalibChipDataTestAlg class
@@ -21,7 +21,7 @@
 
 //----------------------------------------------------------------------
 SCT_ReadCalibChipDataTestAlg::SCT_ReadCalibChipDataTestAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
+  AthReentrantAlgorithm(name, pSvcLocator),
   m_id_sct{nullptr},
   m_moduleId{0},
   m_waferId{0},
@@ -89,7 +89,7 @@ StatusCode SCT_ReadCalibChipDataTestAlg::processProperties()
 } // SCT_ReadCalibChipDataTestAlg::processProperties()
 
 //----------------------------------------------------------------------
-StatusCode SCT_ReadCalibChipDataTestAlg::execute() {
+StatusCode SCT_ReadCalibChipDataTestAlg::execute(const EventContext& ctx) const {
   //This method is only used to test the summary service, and only used within this package,
   // so the INFO level messages have no impact on performance of these services when used by clients
 
@@ -97,7 +97,7 @@ StatusCode SCT_ReadCalibChipDataTestAlg::execute() {
   ATH_MSG_DEBUG("in execute()");
 
   // Get the current event
-  SG::ReadHandle<xAOD::EventInfo> currentEvent{m_currentEventKey};
+  SG::ReadHandle<xAOD::EventInfo> currentEvent{m_currentEventKey, ctx};
   if (not currentEvent.isValid()) {
     ATH_MSG_FATAL("Could not get event info");
     return StatusCode::FAILURE;
@@ -113,7 +113,7 @@ StatusCode SCT_ReadCalibChipDataTestAlg::execute() {
     // Test summmary, ask status of strip in module
     Identifier IdM{m_moduleId};
     Identifier IdS{m_waferId};
-    bool Sok{m_ReadCalibChipDataTool->isGood(IdS, InDetConditions::SCT_SIDE)};
+    bool Sok{m_ReadCalibChipDataTool->isGood(IdS, ctx, InDetConditions::SCT_SIDE)};
     ATH_MSG_INFO("Side " << IdS << " on module " << IdM << " is " << (Sok ? "good" : "bad"));
   }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_DCSConditionsHVCondAlg.h"
@@ -11,7 +11,7 @@
 #include <memory>
 
 SCT_DCSConditionsHVCondAlg::SCT_DCSConditionsHVCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
-  : ::AthAlgorithm(name, pSvcLocator)
+  : ::AthReentrantAlgorithm(name, pSvcLocator)
   , m_condSvc{"CondSvc", name}
 {
 }
@@ -36,7 +36,7 @@ StatusCode SCT_DCSConditionsHVCondAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_DCSConditionsHVCondAlg::execute() {
+StatusCode SCT_DCSConditionsHVCondAlg::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("execute " << name());
 
   if (not m_returnHVTemp.value()) {
@@ -44,7 +44,7 @@ StatusCode SCT_DCSConditionsHVCondAlg::execute() {
   }
 
   // Write Cond Handle
-  SG::WriteCondHandle<SCT_DCSFloatCondData> writeHandle{m_writeKey};
+  SG::WriteCondHandle<SCT_DCSFloatCondData> writeHandle{m_writeKey, ctx};
   // Do we have a valid Write Cond Handle for current time?
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
@@ -54,7 +54,7 @@ StatusCode SCT_DCSConditionsHVCondAlg::execute() {
   }
 
   // Read Cond Handle
-  SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey};
+  SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey, ctx};
   const CondAttrListCollection* readCdo{*readHandle}; 
   if (readCdo==nullptr) {
     ATH_MSG_FATAL("Null pointer to the read conditions object");

@@ -168,6 +168,8 @@ bool fillExplcitelyWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc
   resetHists( histSvc );
   auto roiPhi = Monitored::Scalar( "Phi", -99.0 );
   auto roiEta = Monitored::Scalar( "Eta", -99.0 );
+
+  // Check disabling of filling
   {
     auto monitorIt = Monitored::Group( monTool, roiEta, roiPhi );
     monitorIt.setAutoFill( false );
@@ -178,15 +180,25 @@ bool fillExplcitelyWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc
   VALUE( getHist( histSvc, "/EXPERT/TestGroup/Eta" )->GetEntries() ) EXPECTED( 0 ); //  auto filling was disabled so no entries
   VALUE( getHist( histSvc, "/EXPERT/TestGroup/Phi" )->GetEntries() ) EXPECTED( 0 ); //  auto filling was disabled so no entries  
 
-  auto monitorIt = Monitored::Group( monTool, roiEta, roiPhi );
-  monitorIt.setAutoFill( false );
-  for ( size_t i = 0; i < 3; ++i ) {
-    monitorIt.fill();
+  // Check explicit fill in loops
+  {
+    auto monitorIt = Monitored::Group( monTool, roiEta, roiPhi );
+    for ( size_t i = 0; i < 3; ++i ) {
+      monitorIt.fill();   // this will fill and disable autoFill
+    }
   }
   VALUE( getHist( histSvc, "/EXPERT/TestGroup/Eta_vs_Phi" )->GetEntries() ) EXPECTED( 3 ); 
   VALUE( getHist( histSvc, "/EXPERT/TestGroup/Eta" )->GetEntries() ) EXPECTED( 3 ); 
   VALUE( getHist( histSvc, "/EXPERT/TestGroup/Phi" )->GetEntries() ) EXPECTED( 3 ); 
-  
+
+  // Check explicit one-time fill via temporary Group instance
+  {
+    Monitored::Group( monTool, roiEta, roiPhi ).fill();
+  }
+  VALUE( getHist( histSvc, "/EXPERT/TestGroup/Eta_vs_Phi" )->GetEntries() ) EXPECTED( 4 );
+  VALUE( getHist( histSvc, "/EXPERT/TestGroup/Eta" )->GetEntries() ) EXPECTED( 4 );
+  VALUE( getHist( histSvc, "/EXPERT/TestGroup/Phi" )->GetEntries() ) EXPECTED( 4 );
+
   return true;
 }
 

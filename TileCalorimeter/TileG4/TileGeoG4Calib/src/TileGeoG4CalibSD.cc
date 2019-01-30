@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -60,7 +60,7 @@
 
 //CONSTRUCTOR
 TileGeoG4CalibSD::TileGeoG4CalibSD(const G4String& name, const std::vector<std::string>& outputCollectionNames, ITileCalculator* tileCalculator,
-                                   ServiceHandle<StoreGateSvc> &detStore)
+                                   const ServiceHandle<StoreGateSvc> &detStore)
 : G4VSensitiveDetector(name),
   m_tileActiveCellCalibHits(outputCollectionNames[1]),
   m_tileInactiveCellCalibHits(outputCollectionNames[2]),

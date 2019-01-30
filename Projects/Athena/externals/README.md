@@ -12,9 +12,9 @@ the external in question.
 The files should define all the variables expected by the Find<Bla> modules,
 which normally boil down to variables:
 
-`EXTNAME_ROOT`
-`EXTNAME_VERSION`
+  - `EXTNAME_LCGROOT`
+  - `EXTNAME_LCGVERSION`
 
-But some modules may require other variables. In which case the `_ROOT`
+But some modules may require other variables. In which case the `_LCGROOT`
 variable should still be set, to get a nice printout from the Athena
 project during the build about the location of the used external.

@@ -45,7 +45,7 @@
 #include "RDBAccessSvc/IRDBRecord.h"
 
 #include "GeoModelKernel/GeoDefinitions.h"
-
+#include "GaudiKernel/PhysicalConstants.h"
 #include "GeoModelKernel/Units.h"
 
 #include <iostream> 
@@ -169,7 +169,7 @@ void SCT_DetectorFactory::create(GeoPhysVol *world){
     sctEnvelope = sctEnvelopeTmp;
   } else {
     // Build as PCon    
-    GeoPcon* sctEnvelopeTmp  = new GeoPcon(0.,2*GeoModelKernelUnits::pi);
+    GeoPcon* sctEnvelopeTmp  = new GeoPcon(0.,2*Gaudi::Units::pi);
     // table contains +ve z values only and envelope is assumed to be symmetric around z.
     int numPlanes = generalParameters->envelopeNumPlanes();
     for (int i = 0; i < numPlanes * 2; i++) {
@@ -238,7 +238,7 @@ void SCT_DetectorFactory::create(GeoPhysVol *world){
     idFwdMinus.setBarrelEC(-2);
     GeoVPhysVol* forwardMinus = sctForward.build(idFwdMinus);
     GeoTrf::Transform3D rot;
-    rot = GeoTrf::RotateY3D(180*GeoModelKernelUnits::degree);
+    rot = GeoTrf::RotateY3D(180*Gaudi::Units::degree);
     GeoTrf::Transform3D fwdTransformMinus = rot*fwdTransformPlus;
     GeoAlignableTransform* fwdGeoTransformMinus = new GeoAlignableTransform(fwdTransformMinus);
     sct->add(new GeoNameTag("ForwardMinus"));
@@ -246,7 +246,7 @@ void SCT_DetectorFactory::create(GeoPhysVol *world){
     sct->add(forwardMinus);
   
     //services material between barrel and endcap 
-    double safety = 1*GeoModelKernelUnits::mm;//1mm, just to avoid any clash
+    double safety = 1*Gaudi::Units::mm;//1mm, just to avoid any clash
     double length = sctForward.zCenter()-0.5*sctForward.length()-0.5*sctBarrel.length()-safety;//
     double barrelServicesCylinderLength  = barrelParameters->barrelServicesMaterialCylinderLength();
     //use user lenght paramters only if small than the gap
@@ -264,11 +264,11 @@ void SCT_DetectorFactory::create(GeoPhysVol *world){
     double materialIncreaseFactor              = barrelParameters->barrelServicesMaterialIncreaseFactor();
 
     if (barrelServicesCylinderLength > 0 && materialIncreaseFactor > 0 && !barrelParameters->barrelServicesMaterial().empty()) {
-      //double cf_density                          = 0.189*materialIncreaseFactor*GeoModelKernelUnits::g/GeoModelKernelUnits::cm3;
-      //msg(MSG::INFO) <<"----length "<<barrelServicesCylinderLength<<" material "<<barrelParameters->barrelServicesMaterial()<<" IncreaseFactor "<<materialIncreaseFactor<<" cf_density (GeoModelKernelUnits::g/GeoModelKernelUnits::cm3) "<<cf_density/(GeoModelKernelUnits::g/GeoModelKernelUnits::cm3) << endmsg;
+      //double cf_density                          = 0.189*materialIncreaseFactor*GeoModelKernelUnits::g/Gaudi::Units::cm3;
+      //msg(MSG::INFO) <<"----length "<<barrelServicesCylinderLength<<" material "<<barrelParameters->barrelServicesMaterial()<<" IncreaseFactor "<<materialIncreaseFactor<<" cf_density (GeoModelKernelUnits::g/Gaudi::Units::cm3) "<<cf_density/(GeoModelKernelUnits::g/Gaudi::Units::cm3) << endmsg;
       //const GeoMaterial* barrel_serivesMaterial = materials->getMaterial(barrelParameters->barrelServicesMaterial(), cf_density, "UpgradeSCTBarrel_ServicesMaterial");
       const GeoMaterial* barrel_serivesMaterial = materials->getMaterialScaled(barrelParameters->barrelServicesMaterial(), materialIncreaseFactor, "UpgradeSCTBarrel_ServicesMaterial");
-      msg(MSG::INFO) <<"----length "<<barrelServicesCylinderLength<<" material "<<barrelParameters->barrelServicesMaterial()<<" IncreaseFactor "<<materialIncreaseFactor<<" density (GeoModelKernelUnits::g/GeoModelKernelUnits::cm3) "<< barrel_serivesMaterial->getDensity()/(GeoModelKernelUnits::g/GeoModelKernelUnits::cm3) << endmsg;
+      msg(MSG::INFO) <<"----length "<<barrelServicesCylinderLength<<" material "<<barrelParameters->barrelServicesMaterial()<<" IncreaseFactor "<<materialIncreaseFactor<<" density (GeoModelKernelUnits::g/Gaudi::Units::cm3) "<< barrel_serivesMaterial->getDensity()/(GeoModelKernelUnits::g/Gaudi::Units::cm3) << endmsg;
   
     
       const GeoTube*   barrelPos_servicesMaterialShape    = new GeoTube(inner_radius, outer_radius, 0.5*barrelServicesCylinderLength);

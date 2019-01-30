@@ -7,7 +7,6 @@
 #define ITrigEgammaSelectorBaseTool_H_
 
 #include "AsgTools/IAsgTool.h"
-#include "PATCore/TAccept.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
 //xAOD include(s)

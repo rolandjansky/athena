@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -15,6 +15,8 @@
 #include "MuonSelectorTools/MuonSelectionTool.h"
 
 #include "tauRecTools/KineUtils.h"
+
+#include "StoreGate/ReadHandle.h"
 //-------------------------------------------------------------------------
 // Constructor
 //-------------------------------------------------------------------------
@@ -23,19 +25,15 @@ ElMuFinder::ElMuFinder(const std::string& type,
     const std::string& name,
     const IInterface * parent) :
     DiTauToolBase(type, name, parent),
-    m_elContName("Electrons"),
     m_elMinPt(7000),
     m_elMaxEta(2.47),
-    m_muContName("Muons"),
     m_muMinPt(7000),
     m_muMaxEta(2.47),
     m_muQual(2)
 {
     declareInterface<DiTauToolBase > (this);
-    declareProperty("ElectronContainer", m_elContName);
     declareProperty("ElectronMinPt", m_elMinPt);
     declareProperty("ElectronMaxEta", m_elMaxEta);
-    declareProperty("MuonContainer", m_muContName);
     declareProperty("MuonMinPt", m_muMinPt);
     declareProperty("MuonMaxEta", m_muMaxEta);
     declareProperty("MuonQuality", m_muQual);
@@ -54,23 +52,17 @@ ElMuFinder::~ElMuFinder() {
 
 StatusCode ElMuFinder::initialize() {
 
-    return StatusCode::SUCCESS;
-}
-
-//-------------------------------------------------------------------------
-// Event Finalize
-//-------------------------------------------------------------------------
-
-StatusCode ElMuFinder::eventFinalize(DiTauCandidateData * ) {
-
-    return StatusCode::SUCCESS;
+  ATH_CHECK( m_elContName.initialize() );
+  ATH_CHECK( m_muContName.initialize() );
+  return StatusCode::SUCCESS;
 }
 
 //-------------------------------------------------------------------------
 // execute
 //-------------------------------------------------------------------------
 
-StatusCode ElMuFinder::execute(DiTauCandidateData * data) {
+StatusCode ElMuFinder::execute(DiTauCandidateData * data,
+                               const EventContext& ctx) const {
 
     ATH_MSG_DEBUG("execute ElMuFinder...");
 
@@ -81,24 +73,8 @@ StatusCode ElMuFinder::execute(DiTauCandidateData * data) {
         return StatusCode::FAILURE;
     }
 
-    StatusCode sc;
-
-    const xAOD::ElectronContainer* pElCont = 0;
-    sc = evtStore()->retrieve(pElCont, m_elContName);
-    if (sc.isFailure() || !pElCont) {
-        ATH_MSG_WARNING("could not find electrons with key:" << m_elContName <<
-                        " Continue without electron and muon finding.");
-        return StatusCode::SUCCESS;
-    }
-
-    const xAOD::MuonContainer* pMuCont = 0;
-    sc = evtStore()->retrieve(pMuCont, m_muContName);
-    if (sc.isFailure() || !pMuCont) {        
-        ATH_MSG_WARNING("could not find muons with key:" << m_muContName <<
-                        " Continue without electron and muon finding.");
-        return StatusCode::SUCCESS;
-    }
-
+    SG::ReadHandle<xAOD::ElectronContainer> pElCont (m_elContName, ctx);
+    SG::ReadHandle<xAOD::MuonContainer> pMuCont (m_muContName, ctx);
 
     // select electrons
     data->electrons.clear();

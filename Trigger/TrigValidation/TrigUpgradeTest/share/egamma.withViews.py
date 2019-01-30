@@ -39,7 +39,7 @@ CTPToChainMapping = {"HLT_e3_etcut": "L1_EM3",
                      "HLT_e5_etcut":  "L1_EM3",
                      "HLT_e7_etcut":  "L1_EM7",
                      "HLT_2e3_etcut": "L1_2EM3",
-                     "HLT_e3e5_etcut":"L1_2EM3"}
+                     "HLT_e3_e5_etcut":"L1_2EM3"}
 
 topSequence.L1DecoderTest.prescaler.Prescales = ["HLT_e3_etcut:2", "HLT_2e3_etcut:2.5"]
 
@@ -247,7 +247,7 @@ summary = TriggerSummaryAlg( "TriggerSummaryAlg" )
 summary.InputDecision = "L1DecoderSummary"
 summary.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions" ]
 
-from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
+from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator, HLTEDMCreatorAlg
 egammaViewsMerger = HLTEDMCreator("egammaViewsMerger")
 egammaViewsMerger.TrigCompositeContainer = [ "filterCaloRoIsAlg", "EgammaCaloDecisions","ElectronL2Decisions", "MuonL2Decisions", "EMRoIDecisions", "METRoIDecisions", "MURoIDecisions", "L1DecoderSummary", "JRoIDecisions", "MonitoringSummaryStep1", "RerunEMRoIDecisions", "RerunMURoIDecisions", "TAURoIDecisions", "L2CaloLinks", "FilteredEMRoIDecisions", "FilteredEgammaCaloDecisions" ]
 
@@ -269,10 +269,9 @@ egammaViewsMerger.OutputLevel = VERBOSE
 svcMgr.StoreGateSvc.OutputLevel = INFO
 
 
-summary.OutputTools = [ egammaViewsMerger ]
+edmMakerAlg = HLTEDMCreatorAlg("EDMMaker")
+edmMakerAlg.OutputTools = [ egammaViewsMerger ]
 
-
-summary.OutputLevel = DEBUG
 
 step0filter = parOR("step0filter", [ findAlgorithm( egammaCaloStep, "filterL1RoIsAlg") ] )
 step1filter = parOR("step1filter", [ findAlgorithm(egammaIDStep, "filterCaloRoIsAlg") ] )
@@ -392,8 +391,8 @@ deserialiser = TriggerEDMDeserialiserAlg()
 deserialiser.Prefix="SERIALISED_"
 deserialiser.OutputLevel=DEBUG
 
-# add prefix + remove version to class name
-l = [ c.split("#")[0].split("_")[0] + "#" + deserialiser.Prefix + c.split("#")[1] for c in serialiser.CollectionsToSerialize ] 
+# # add prefix + remove version to class name
+# l = [ c.split("#")[0].split("_")[0] + "#" + deserialiser.Prefix + c.split("#")[1] for c in serialiser.CollectionsToSerialize ] 
 #StreamESD.ItemList += l
 
 
@@ -408,8 +407,9 @@ svcMgr.ByteStreamAddressProviderSvc.TypeNames = ["ROIB::RoIBResult/RoIBResult", 
 
 from ByteStreamCnvSvc import WriteByteStream
 streamBS = WriteByteStream.getStream("EventStorage","StreamBSFileOutput")
+streamBS.OutputLevel=DEBUG
 ServiceMgr.ByteStreamCnvSvc.OutputLevel = VERBOSE
-ServiceMgr.ByteStreamCnvSvc.IsSimulation = True
+ServiceMgr.ByteStreamCnvSvc.IsSimulation = False
 ServiceMgr.ByteStreamCnvSvc.InitCnvs += ["HLT::HLTResultMT"]
 streamBS.ItemList += ["HLT::HLTResultMT#HLTResultMT"]
 
@@ -421,7 +421,7 @@ svcMgr.ByteStreamEventStorageOutputSvc.OutputLevel = VERBOSE
 
 ################################################################################
 # assemble top list of algorithms
-hltTop = seqOR( "hltTop", [ steps,  summary,  summMaker, mon, hltResultMakerAlg, deserialiser, StreamESD, streamBS ] )
+hltTop = seqOR( "hltTop", [ steps,  summMaker, mon, edmMakerAlg, hltResultMakerAlg, StreamESD, streamBS, deserialiser ] )
 
 
 

@@ -14,13 +14,14 @@
 #include "GeoModelKernel/GeoTube.h"
 
 #include "GeoModelKernel/GeoPhysVol.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 
 GeoVPhysVol* DBM_ModuleCage::Build() {
 
   // safety, to make sure volumes don't overlap
-  double safety = 0.005*GeoModelKernelUnits::mm;
+  double safety = 0.005*Gaudi::Units::mm;
 
   // Telescope dimension
   double layerUnitY = m_gmt_mgr->DBMModuleCageY();

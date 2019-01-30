@@ -16,8 +16,8 @@ from TrigUpgradeTest.metMenuDefs import metCellSequence
 metCellSeq = metCellSequence()
 metCellStep = ChainStep("Step1_met_cell", [metCellSeq])
 testChains = [
-    Chain(name="HLT_xe65_L1XE50", Seed="L1_XE50", ChainSteps=[metCellStep]),
-	Chain(name="HLT_xe30_L1XE10", Seed="L1_XE10", ChainSteps=[metCellStep])
+   Chain(name="HLT_xe65_L1XE50", Seed="L1_XE50", ChainSteps=[metCellStep]),
+   Chain(name="HLT_xe30_L1XE10", Seed="L1_XE10", ChainSteps=[metCellStep])
 ]
 
 #################################

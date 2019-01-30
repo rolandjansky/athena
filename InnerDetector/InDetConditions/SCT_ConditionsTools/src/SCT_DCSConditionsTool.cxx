@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // New SCT_DCSConditions Tool, based on existing tool in SCT_ConditionsAlgs
@@ -86,12 +86,11 @@ Identifier SCT_DCSConditionsTool::getModuleID(const Identifier& elementId, InDet
 }
 
 //Returns if element Id is good or bad
-bool SCT_DCSConditionsTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+bool SCT_DCSConditionsTool::isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h) const {
   Identifier moduleId=getModuleID(elementId, h);
   if (not moduleId.is_valid()) return true; // not canreportabout
 
   if ((m_readAllDBFolders and m_returnHVTemp) or (not m_readAllDBFolders and not m_returnHVTemp)) {
-    const EventContext& ctx{Gaudi::Hive::currentContext()};
     const SCT_DCSStatCondData* condDataState{getCondDataState(ctx)};
     if (!condDataState) return false; // no cond data
     else if (condDataState->output(castId(moduleId))==0) return true; //No params are listed as bad
@@ -101,11 +100,23 @@ bool SCT_DCSConditionsTool::isGood(const Identifier& elementId, InDetConditions:
   }
 }
 
+bool SCT_DCSConditionsTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  return isGood(elementId, ctx, h);
+}
+
 //Does the same for hashIds
+bool SCT_DCSConditionsTool::isGood(const IdentifierHash& hashId, const EventContext& ctx) const {
+  Identifier waferId{m_pHelper->wafer_id(hashId)};
+  Identifier moduleId{m_pHelper->module_id(waferId)};
+  return isGood(moduleId, ctx, InDetConditions::SCT_MODULE);
+}
+
 bool SCT_DCSConditionsTool::isGood(const IdentifierHash& hashId) const {
-  Identifier waferId = m_pHelper->wafer_id(hashId);
-  Identifier moduleId = m_pHelper->module_id(waferId);
-  return isGood(moduleId, InDetConditions::SCT_MODULE);
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  return isGood(hashId, ctx);
 }
 
 /////////////////////////////////// 

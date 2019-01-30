@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: EventInfo_v1.cxx 729717 2016-03-14 18:52:01Z ssnyder $
@@ -54,14 +54,14 @@ namespace xAOD {
    using xAODEventInfoPrivate::operator<<;
 
    EventInfo_v1::EventInfo_v1()
-      : SG::AuxElement(), m_streamTags(), m_updateStreamTags( false ),
-        m_subEvents(), m_updateSubEvents( false ), m_evtStore( 0 ) {
+      : SG::AuxElement(), m_streamTags(),
+        m_subEvents(), m_evtStore( 0 ) {
 
    }
 
    EventInfo_v1::EventInfo_v1( const EventInfo_v1& parent )
       : SG::AuxElement(), m_streamTags(),
-        m_updateStreamTags( true ), m_subEvents(), m_updateSubEvents( true ),
+        m_subEvents(),
         m_evtStore( parent.m_evtStore ) {
 
       makePrivateStore( parent );
@@ -71,8 +71,10 @@ namespace xAOD {
 
       if (&rhs != this) {
         // Clear out the caches:
-        m_streamTags.clear(); m_updateStreamTags = true;
-        m_subEvents.clear(); m_updateSubEvents = true;
+        m_streamTags.store (std::vector< StreamTag >());
+        m_streamTags.reset();
+        m_subEvents.store (std::vector< SubEvent >());
+        m_subEvents.reset();
 
         // Copy the event store pointer:
         m_evtStore = rhs.m_evtStore;
@@ -240,24 +242,24 @@ namespace xAOD {
    //
    // Accessor objects for the stream properties:
    //
-   static EventInfo_v1::Accessor< std::vector< std::string > >
+   static const EventInfo_v1::Accessor< std::vector< std::string > >
       names( "streamTagNames" );
-   static EventInfo_v1::Accessor< std::vector< std::string > >
+   static const EventInfo_v1::Accessor< std::vector< std::string > >
       types( "streamTagTypes" );
-   static EventInfo_v1::Accessor< std::vector< char > >
+   static const EventInfo_v1::Accessor< std::vector< char > >
       olb( "streamTagObeysLumiblock" );
-   static EventInfo_v1::Accessor< std::vector< std::set< uint32_t > > >
+   static const EventInfo_v1::Accessor< std::vector< std::set< uint32_t > > >
       robsets( "streamTagRobs" );
-   static EventInfo_v1::Accessor< std::vector< std::set< uint32_t > > >
+   static const EventInfo_v1::Accessor< std::vector< std::set< uint32_t > > >
       detsets( "streamTagDets" );
 
    const std::vector< EventInfo_v1::StreamTag >&
    EventInfo_v1::streamTags() const {
 
       // Cache the new information if necessary:
-      if( m_updateStreamTags ) {
-         // The cache will be up to date after this:
-         m_updateStreamTags = false;
+      if( !m_streamTags.isValid() ) {
+         std::vector< StreamTag > tags;
+
          // A little sanity check:
          if( ( names( *this ).size() != types( *this ).size() ) ||
              ( names( *this ).size() != olb( *this ).size() ) ||
@@ -285,33 +287,36 @@ namespace xAOD {
             } else {
                std::cerr << detsets( *this ) << std::endl;
             }
-            return m_streamTags;
          }
-         // Clear the current cache:
-         m_streamTags.clear();
-         // Fill up the cache:
-         for( size_t i = 0; i < names( *this ).size(); ++i ) {
-            static const std::set< uint32_t > dummySet;
-            m_streamTags.push_back( StreamTag( names( *this )[ i ],
-                                               types( *this )[ i ],
-                                               olb( *this )[ i ],
-                                               ( robsets.isAvailable( *this ) ?
-                                                 robsets( *this )[ i ] :
-                                                 dummySet ),
-                                               ( detsets.isAvailable( *this ) ?
-                                                 detsets( *this )[ i ] :
-                                                 dummySet ) ) );
+
+         else {
+           // Fill the tags.
+           for( size_t i = 0; i < names( *this ).size(); ++i ) {
+             static const std::set< uint32_t > dummySet;
+             tags.emplace_back( names( *this )[ i ],
+                                types( *this )[ i ],
+                                olb( *this )[ i ],
+                                ( robsets.isAvailable( *this ) ?
+                                  robsets( *this )[ i ] :
+                                  dummySet ),
+                                ( detsets.isAvailable( *this ) ?
+                                  detsets( *this )[ i ] :
+                                  dummySet ) );
+           }
          }
+
+         // Set the cache.
+         m_streamTags.set (std::move (tags));
       }
 
       // Return the cached object:
-      return m_streamTags;
+      return *m_streamTags.ptr();
    }
 
    void EventInfo_v1::setStreamTags( const std::vector< StreamTag >& value ) {
 
       // Update the cached information:
-      m_streamTags = value;
+      m_streamTags.store (value);
 
       // Clear the persistent information:
       names( *this ).clear(); types( *this ).clear(); olb( *this ).clear();
@@ -327,9 +332,6 @@ namespace xAOD {
          robsets( *this ).push_back( itr->robs() );
          detsets( *this ).push_back( itr->dets() );
       }
-
-      // The cache is now up to date:
-      m_updateStreamTags = false;
 
       return;
    }
@@ -416,97 +418,104 @@ namespace xAOD {
    //
    // Accessor objects for the sub-event properties:
    //
-   static SG::AuxElement::Accessor< std::vector< int16_t > >
+   static const SG::AuxElement::Accessor< std::vector< int16_t > >
       timeAcc( "subEventTime" );
-   static SG::AuxElement::Accessor< std::vector< uint16_t > >
+   static const SG::AuxElement::Accessor< std::vector< uint16_t > >
       indexAcc( "subEventIndex" );
-   static SG::AuxElement::Accessor< std::vector< ElementLink< EventInfoContainer_v1 > > >
+   static const SG::AuxElement::Accessor< std::vector< ElementLink< EventInfoContainer_v1 > > >
       linkAcc( "subEventLink" );
-   static SG::AuxElement::Accessor< std::vector< uint16_t > >
+   static const SG::AuxElement::Accessor< std::vector< uint16_t > >
       typeAcc( "subEventType" );
+
+   std::vector< EventInfo_v1::SubEvent >
+   EventInfo_v1::makeSubEvents() const
+   {
+     std::vector< SubEvent > subEvents;
+
+     // Check if any of the information is available:
+     if( ( ! timeAcc.isAvailable( *this ) ) &&
+         ( ! indexAcc.isAvailable( *this ) ) &&
+         ( ! linkAcc.isAvailable( *this ) ) &&
+         ( ! typeAcc.isAvailable( *this ) ) )
+     {
+       // If not, return right away:
+       return subEvents;
+     }
+     // A little sanity check:
+     size_t size = 0;
+     if( timeAcc.isAvailable( *this ) ) {
+       size = timeAcc( *this ).size();
+     } else if( indexAcc.isAvailable( *this ) ) {
+       size = indexAcc( *this ).size();
+     } else if( linkAcc.isAvailable( *this ) ) {
+       size = linkAcc( *this ).size();
+     } else if( typeAcc.isAvailable( *this ) ) {
+       size = typeAcc( *this ).size();
+     } else {
+       std::cerr << "xAOD::EventInfo_v1 ERROR Logic error in subEvents()"
+                 << std::endl;
+       return subEvents;
+     }
+     if( ( timeAcc.isAvailable( *this ) &&
+           ( size != timeAcc( *this ).size() ) ) ||
+         ( indexAcc.isAvailable( *this ) &&
+           ( size != indexAcc( *this ).size() ) ) ||
+         ( linkAcc.isAvailable( *this ) &&
+           ( size != linkAcc( *this ).size() ) ) ||
+         ( typeAcc.isAvailable( *this ) &&
+           ( size != typeAcc( *this ).size() ) ) ) {
+       std::cerr << "xAOD::EventInfo_v1 ERROR Data corruption found in "
+                 << "the sub-event information" << std::endl;
+       std::cerr << "subEventTime  = "
+                 << ( timeAcc.isAvailable( *this ) ? timeAcc( *this ) :
+                      std::vector< int16_t >() ) << std::endl;
+       std::cerr << "subEventIndex  = "
+                 << ( indexAcc.isAvailable( *this ) ? indexAcc( *this ) :
+                      std::vector< uint16_t >() ) << std::endl;
+       std::cerr << "subEventLink = "
+                 << ( linkAcc.isAvailable( *this ) ? linkAcc( *this ) :
+                      std::vector< ElementLink< EventInfoContainer_v1 > >() )
+                 << std::endl;
+       std::cerr << "subEventType  = "
+                 << ( typeAcc.isAvailable( *this ) ? typeAcc( *this ) :
+                      std::vector< uint16_t >() ) << std::endl;
+       return subEvents;
+     }
+     // Fill up the cache:
+     for( size_t i = 0; i < size; ++i ) {
+       const int16_t time =
+         timeAcc.isAvailable( *this ) ? timeAcc( *this )[ i ] : 0;
+       const uint16_t index =
+         indexAcc.isAvailable( *this ) ? indexAcc( *this )[ i ] : 0;
+       const ElementLink< EventInfoContainer_v1 > link =
+         linkAcc.isAvailable( *this ) ? linkAcc( *this )[ i ] :
+         ElementLink< EventInfoContainer_v1 >();
+       const PileUpType type =
+         ( typeAcc.isAvailable( *this ) ?
+           static_cast< PileUpType >( typeAcc( *this )[ i ] ) :
+           Unknown );
+       subEvents.emplace_back( time, index, type, link );
+     }
+
+     return subEvents;
+   }
 
    const std::vector< EventInfo_v1::SubEvent >&
    EventInfo_v1::subEvents() const {
 
       // Cache the new information if necessary:
-      if( m_updateSubEvents ) {
-         // The cache will be up to date after this:
-         m_updateSubEvents = false;
-         // Clear the current cache:
-         m_subEvents.clear();
-         // Check if any of the information is available:
-         if( ( ! timeAcc.isAvailable( *this ) ) &&
-             ( ! indexAcc.isAvailable( *this ) ) &&
-             ( ! linkAcc.isAvailable( *this ) ) &&
-             ( ! typeAcc.isAvailable( *this ) ) ) {
-            // If not, return right away:
-            return m_subEvents;
-         }
-         // A little sanity check:
-         size_t size = 0;
-         if( timeAcc.isAvailable( *this ) ) {
-            size = timeAcc( *this ).size();
-         } else if( indexAcc.isAvailable( *this ) ) {
-            size = indexAcc( *this ).size();
-         } else if( linkAcc.isAvailable( *this ) ) {
-            size = linkAcc( *this ).size();
-         } else if( typeAcc.isAvailable( *this ) ) {
-            size = typeAcc( *this ).size();
-         } else {
-            std::cerr << "xAOD::EventInfo_v1 ERROR Logic error in subEvents()"
-                      << std::endl;
-            return m_subEvents;
-         }
-         if( ( timeAcc.isAvailable( *this ) &&
-               ( size != timeAcc( *this ).size() ) ) ||
-             ( indexAcc.isAvailable( *this ) &&
-               ( size != indexAcc( *this ).size() ) ) ||
-             ( linkAcc.isAvailable( *this ) &&
-               ( size != linkAcc( *this ).size() ) ) ||
-             ( typeAcc.isAvailable( *this ) &&
-               ( size != typeAcc( *this ).size() ) ) ) {
-            std::cerr << "xAOD::EventInfo_v1 ERROR Data corruption found in "
-                      << "the sub-event information" << std::endl;
-            std::cerr << "subEventTime  = "
-                      << ( timeAcc.isAvailable( *this ) ? timeAcc( *this ) :
-                           std::vector< int16_t >() ) << std::endl;
-            std::cerr << "subEventIndex  = "
-                      << ( indexAcc.isAvailable( *this ) ? indexAcc( *this ) :
-                           std::vector< uint16_t >() ) << std::endl;
-            std::cerr << "subEventLink = "
-                      << ( linkAcc.isAvailable( *this ) ? linkAcc( *this ) :
-                           std::vector< ElementLink< EventInfoContainer_v1 > >() )
-                      << std::endl;
-            std::cerr << "subEventType  = "
-                      << ( typeAcc.isAvailable( *this ) ? typeAcc( *this ) :
-                           std::vector< uint16_t >() ) << std::endl;
-            return m_subEvents;
-         }
-         // Fill up the cache:
-         for( size_t i = 0; i < size; ++i ) {
-            const int16_t time =
-               timeAcc.isAvailable( *this ) ? timeAcc( *this )[ i ] : 0;
-            const uint16_t index =
-               indexAcc.isAvailable( *this ) ? indexAcc( *this )[ i ] : 0;
-            const ElementLink< EventInfoContainer_v1 > link =
-               linkAcc.isAvailable( *this ) ? linkAcc( *this )[ i ] :
-               ElementLink< EventInfoContainer_v1 >();
-            const PileUpType type =
-               ( typeAcc.isAvailable( *this ) ?
-                 static_cast< PileUpType >( typeAcc( *this )[ i ] ) :
-                 Unknown );
-            m_subEvents.push_back( SubEvent( time, index, type, link ) );
-         }
+      if( !m_subEvents.isValid() ) {
+        m_subEvents.set (makeSubEvents());
       }
 
       // Return the cached vector:
-      return m_subEvents;
+      return *m_subEvents.ptr();
    }
 
    void EventInfo_v1::setSubEvents( const std::vector< SubEvent >& value ) {
 
       // Update the cached information:
-      m_subEvents = value;
+      m_subEvents.store (value);
 
       // Clear the persistent information:
       timeAcc( *this ).clear(); indexAcc( *this ).clear();
@@ -522,9 +531,6 @@ namespace xAOD {
          linkAcc( *this ).push_back( itr->link() );
       }
 
-      // The cache is now up to date:
-      m_updateSubEvents = false;
-
       return;
    }
 
@@ -535,7 +541,9 @@ namespace xAOD {
       subEvents();
 
       // Now, add the new sub-event:
-      m_subEvents.push_back( subEvent );
+      std::vector<SubEvent> subEvents = *m_subEvents.ptr();
+      subEvents.push_back( subEvent );
+      m_subEvents.store (std::move (subEvents));
       timeAcc( *this ).push_back( subEvent.time() );
       indexAcc( *this ).push_back( subEvent.index() );
       typeAcc( *this ).push_back( static_cast< uint16_t >( subEvent.type() ) );
@@ -547,12 +555,10 @@ namespace xAOD {
    void EventInfo_v1::clearSubEvents() {
 
       // Clear both the transient and persistent variables:
-      m_subEvents.clear();
+      m_subEvents.store (std::vector<SubEvent>());
+      m_subEvents.reset();
       timeAcc( *this ).clear(); indexAcc( *this ).clear();
       typeAcc( *this ).clear(); linkAcc( *this ).clear();
-
-      // Things are definitely in sync right now:
-      m_updateSubEvents = false;
 
       return;
    }
@@ -799,9 +805,9 @@ namespace xAOD {
    void EventInfo_v1::setBeamPos( float x, float y, float z ) {
 
       // The accessor objects:
-      static Accessor< float > accX( "beamPosX" );
-      static Accessor< float > accY( "beamPosY" );
-      static Accessor< float > accZ( "beamPosZ" );
+      static const Accessor< float > accX( "beamPosX" );
+      static const Accessor< float > accY( "beamPosY" );
+      static const Accessor< float > accZ( "beamPosZ" );
 
       // Set the variables:
       accX( *this ) = x;
@@ -818,9 +824,9 @@ namespace xAOD {
    void EventInfo_v1::setBeamPosSigma( float x, float y, float z ) {
 
       // The accessor objects:
-      static Accessor< float > accX( "beamPosSigmaX" );
-      static Accessor< float > accY( "beamPosSigmaY" );
-      static Accessor< float > accZ( "beamPosSigmaZ" );
+      static const Accessor< float > accX( "beamPosSigmaX" );
+      static const Accessor< float > accY( "beamPosSigmaY" );
+      static const Accessor< float > accZ( "beamPosSigmaZ" );
 
       // Set the variables:
       accX( *this ) = x;
@@ -879,8 +885,8 @@ namespace xAOD {
    ///
    void EventInfo_v1::toTransient() {
 
-      m_updateStreamTags = true;
-      m_updateSubEvents = true;
+      m_streamTags.reset();
+      m_subEvents.reset();
       m_evtStore = 0;
 
       if( usingStandaloneStore() ) {

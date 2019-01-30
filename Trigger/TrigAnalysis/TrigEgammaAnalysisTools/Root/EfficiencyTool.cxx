@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************
@@ -153,7 +153,8 @@ bool EfficiencyTool::analyseIsEM(const xAOD::Electron *eg, const std::string pid
     return failisem;
 }
 
-void EfficiencyTool::fillInefficiency(const std::string& pid, const std::string dir,const xAOD::Electron *selEF,const xAOD::Photon *selPh,const xAOD::CaloCluster *clus,const xAOD::TrackParticle *trk)
+void EfficiencyTool::fillInefficiency(const std::string& pid, const std::string dir,const xAOD::Electron *selEF,const xAOD::Photon *selPh,const xAOD::CaloCluster *clus,const xAOD::TrackParticle *trk,
+                                      const asg::AcceptData& acceptData)
 {
     cd(dir);
     ATH_MSG_DEBUG("REGTEST::Inefficiency");
@@ -192,23 +193,23 @@ void EfficiencyTool::fillInefficiency(const std::string& pid, const std::string 
     float lastbin = hist1(ineff)->GetNbinsX() - 0.5;
     float sumbin = lastbin - 1;
 
-    if (!getAccept().getCutResult("L2Calo")) {
+    if (!acceptData.getCutResult("L2Calo")) {
         hist1(ineff)->Fill(0.5, 1);
         hist1(ineff)->Fill(sumbin, 1);
     }
-    else if (!getAccept().getCutResult("L2")) {
+    else if (!acceptData.getCutResult("L2")) {
         hist1(ineff)->Fill(1.5, 1);
         hist1(ineff)->Fill(sumbin, 1);
     }
-    else if (!getAccept().getCutResult("EFCalo")) {
+    else if (!acceptData.getCutResult("EFCalo")) {
         hist1(ineff)->Fill(2.5, 1);
         hist1(ineff)->Fill(sumbin, 1);
     }
-    // else if (!getAccept().getCutResult("EFTrack")) {
+    // else if (!acceptData.getCutResult("EFTrack")) {
     //     hist1(ineff)->Fill(3.5, 1);
     //     hist1(ineff)->Fill(13.5, 1);
     // }
-    else if (!getAccept().getCutResult("HLT")) {
+    else if (!acceptData.getCutResult("HLT")) {
         if (reco.test(0)) {
             if (boost::contains(pid, "LH")) failbits = analyseIsEMLH(selEF, pid);
             else failbits = analyseIsEM(selEF, pid);
@@ -297,7 +298,8 @@ void EfficiencyTool::fillInefficiency(const std::string& pid, const std::string 
 }
 
 void EfficiencyTool::inefficiency(const std::string& pid, const std::string basePath,const float etthr, 
-                                  std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj)
+                                  std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj,
+                                  const asg::AcceptData& acceptData)
 {
     ATH_MSG_DEBUG("INEFF::Start Inefficiency Analysis ======================= " << basePath);
     cd(basePath);
@@ -327,17 +329,17 @@ void EfficiencyTool::inefficiency(const std::string& pid, const std::string base
     const std::string ineff = "Ineff" + pidword;
 
     // Ensure L1 passes and offline passes et cut
-    if(getAccept().getCutResult("L1Calo") && et > etthr) {
+    if(acceptData.getCutResult("L1Calo") && et > etthr) {
         ATH_MSG_DEBUG("INEFF::Passed L1 and offline et");
-        hist1("eff_triggerstep")->Fill("L2Calo",getAccept().getCutResult("L2Calo"));
-        hist1("eff_triggerstep")->Fill("L2",getAccept().getCutResult("L2"));
-        hist1("eff_triggerstep")->Fill("EFCalo",getAccept().getCutResult("EFCalo"));
-        hist1("eff_triggerstep")->Fill("EFTrack",getAccept().getCutResult("EFTrack"));
-        hist1("eff_triggerstep")->Fill("HLT",getAccept().getCutResult("HLT"));
+        hist1("eff_triggerstep")->Fill("L2Calo",acceptData.getCutResult("L2Calo"));
+        hist1("eff_triggerstep")->Fill("L2",acceptData.getCutResult("L2"));
+        hist1("eff_triggerstep")->Fill("EFCalo",acceptData.getCutResult("EFCalo"));
+        hist1("eff_triggerstep")->Fill("EFTrack",acceptData.getCutResult("EFTrack"));
+        hist1("eff_triggerstep")->Fill("HLT",acceptData.getCutResult("HLT"));
 
         // Fill efficiency plot for HLT trigger steps
-        if(!getAccept().getCutResult("HLT")/* || !getAccept().getCutResult("EFTrack")*/ || !getAccept().getCutResult("EFCalo") || 
-           !getAccept().getCutResult("L2") || !getAccept().getCutResult("L2Calo")) {
+        if(!acceptData.getCutResult("HLT")/* || !acceptData.getCutResult("EFTrack")*/ || !acceptData.getCutResult("EFCalo") || 
+           !acceptData.getCutResult("L2") || !acceptData.getCutResult("L2Calo")) {
             ATH_MSG_DEBUG("INEFF::Retrieve features for EF containers only ");
             ATH_MSG_DEBUG("INEFF::Retrieve EF Electron");
             const auto* EFEl = getFeature<xAOD::ElectronContainer>(feat);
@@ -356,7 +358,7 @@ void EfficiencyTool::inefficiency(const std::string& pid, const std::string base
             selPh = closestObject<xAOD::Photon,xAOD::PhotonContainer>(pairObj, dRmax, false);
             selClus = closestObject<xAOD::CaloCluster,xAOD::CaloClusterContainer>(pairObj, dRmax, false,"TrigEFCaloCalibFex");
             selTrk = closestObject<xAOD::TrackParticle,xAOD::TrackParticleContainer>(pairObj, dRmax, false, "InDetTrigTrackingxAODCnv_Electron_IDTrig");
-            fillInefficiency(pid, basePath, selEF, selPh, selClus, selTrk);
+            fillInefficiency(pid, basePath, selEF, selPh, selClus, selTrk, acceptData);
             if (EFClus == nullptr){
                 hist1("eff_hltreco")->Fill("ClusterCont", 0);
                 hist1("eff_hltreco")->Fill("Cluster", 0);
@@ -578,11 +580,12 @@ StatusCode EfficiencyTool::toolExecute(const std::string basePath,const TrigInfo
           
           // ialg = 0 is decision from TDT tool (Efficency dir) [default]
           // ialg = 1 is decision from emulator tool (Emulation dir)
+          asg::AcceptData acceptData (&getAccept());
           if(ialg==0){
-            setAccept(pairObj.second,info); //Sets the trigger accepts
+            acceptData = setAccept(pairObj.second,info); //Sets the trigger accepts
           }else{// ialg==1
             ATH_MSG_DEBUG("Fill efficiency from Emulation tool");
-            setAccept(emulation()->executeTool(pairObj.second, info.trigName));
+            acceptData = emulation()->executeTool(pairObj.second, info.trigName);
           }
 
           if (pairObj.second!=nullptr) {
@@ -590,30 +593,30 @@ StatusCode EfficiencyTool::toolExecute(const std::string basePath,const TrigInfo
               if(!info.trigL1){
                   if(pairObj.first->type()==xAOD::Type::Electron){
                       if(pairObj.first->auxdecor<bool>(pidword)){
-                          inefficiency(pid,dir+"/"+algname+"/HLT",etthr,pairObj);
+                        inefficiency(pid,dir+"/"+algname+"/HLT",etthr,pairObj, acceptData);
                       }
                   }
               }
           } // Features
 
           if(info.trigL1)
-              this->fillEfficiency(dir+"/"+algname+"/L1Calo",getAccept().getCutResult("L1Calo"),etthr,pidword,pairObj.first);
+              this->fillEfficiency(dir+"/"+algname+"/L1Calo",acceptData.getCutResult("L1Calo"),etthr,pidword,pairObj.first);
           else {
-              this->fillEfficiency(dir+"/"+algname+"/HLT",getAccept().getCutResult("HLT"),etthr,pidword,pairObj.first);
-              this->fillEfficiency(dir+"/"+algname+"/L2Calo",getAccept().getCutResult("L2Calo"),etthr,pidword,pairObj.first,m_detailedHists); 
-              this->fillEfficiency(dir+"/"+algname+"/L2",getAccept().getCutResult("L2"),etthr,pidword,pairObj.first,m_detailedHists);
-              this->fillEfficiency(dir+"/"+algname+"/EFCalo",getAccept().getCutResult("EFCalo"),etthr,pidword,pairObj.first,m_detailedHists);
-              this->fillEfficiency(dir+"/"+algname+"/L1Calo",getAccept().getCutResult("L1Calo"),etthr,pidword,pairObj.first);
+              this->fillEfficiency(dir+"/"+algname+"/HLT",acceptData.getCutResult("HLT"),etthr,pidword,pairObj.first);
+              this->fillEfficiency(dir+"/"+algname+"/L2Calo",acceptData.getCutResult("L2Calo"),etthr,pidword,pairObj.first,m_detailedHists); 
+              this->fillEfficiency(dir+"/"+algname+"/L2",acceptData.getCutResult("L2"),etthr,pidword,pairObj.first,m_detailedHists);
+              this->fillEfficiency(dir+"/"+algname+"/EFCalo",acceptData.getCutResult("EFCalo"),etthr,pidword,pairObj.first,m_detailedHists);
+              this->fillEfficiency(dir+"/"+algname+"/L1Calo",acceptData.getCutResult("L1Calo"),etthr,pidword,pairObj.first);
               if(m_detailedHists){
                   for(const auto pid : m_isemname) {
-                      this->fillEfficiency(dir+"/"+algname+"/HLT/"+pid,getAccept().getCutResult("HLT"),etthr,"is"+pid,pairObj.first);
+                      this->fillEfficiency(dir+"/"+algname+"/HLT/"+pid,acceptData.getCutResult("HLT"),etthr,"is"+pid,pairObj.first);
                       if( pairObj.first->auxdecor<bool>("Isolated") ) fillEfficiency(dir+"/"+algname+"/HLT/"+pid+"Iso",
-                          getAccept().getCutResult("HLT"),etthr,"is"+pid,pairObj.first);
+                          acceptData.getCutResult("HLT"),etthr,"is"+pid,pairObj.first);
                   }
                   for(const auto pid : m_lhname) {
-                      this->fillEfficiency(dir+"/"+algname+"/HLT/"+pid,getAccept().getCutResult("HLT"),etthr,"is"+pid,pairObj.first);
+                      this->fillEfficiency(dir+"/"+algname+"/HLT/"+pid,acceptData.getCutResult("HLT"),etthr,"is"+pid,pairObj.first);
                       if( pairObj.first->auxdecor<bool>("Isolated") ) fillEfficiency(dir+"/"+algname+"/HLT/"+pid+"Iso",
-                          getAccept().getCutResult("HLT"),etthr,"is"+pid,pairObj.first);
+                          acceptData.getCutResult("HLT"),etthr,"is"+pid,pairObj.first);
                   }
               }
               ATH_MSG_DEBUG("Complete efficiency");

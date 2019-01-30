@@ -3,7 +3,7 @@
 */
 
 #include "SCT_GeoModel/SCT_ComponentFactory.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <sstream>
 #include <string>
@@ -13,7 +13,7 @@ using InDetDD::SCT_DetectorManager;
 SCT_DetectorManager * SCT_ComponentFactory::s_detectorManager = 0;
 const SCT_GeometryManager * SCT_ComponentFactory::s_geometryManager = 0;
 
-double SCT_ComponentFactory::s_epsilon = 1.0e-6 * GeoModelKernelUnits::mm;
+double SCT_ComponentFactory::s_epsilon = 1.0e-6 * Gaudi::Units::mm;
 
 SCT_ComponentFactory::SCT_ComponentFactory(const std::string & name) 
   : m_name(name)

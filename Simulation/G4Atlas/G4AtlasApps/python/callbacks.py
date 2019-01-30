@@ -51,3 +51,9 @@ def add_EnergyConservationTest():
     # Enable the energy conservation test action
     simFlags.OptionalUserActionList.addAction(
         'G4UA::EnergyConservationTestTool')
+
+## Range cuts for gamma processes (conv, phot, compt)
+## these are off by default in Geant4
+def turn_on_gamma_range_cuts():
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.G4Commands += ['/process/em/applyCuts true']

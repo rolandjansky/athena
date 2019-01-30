@@ -24,7 +24,6 @@
 #include "GeoModelKernel/GeoIdentifierTag.h"  
 #include "GeoModelKernel/GeoSerialDenominator.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
@@ -41,6 +40,7 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <string>
 #include <cmath>
@@ -114,13 +114,13 @@ GeoVPhysVol* LArGeo::MiddleBeamConstructionH62004::GetEnvelope()
   //
   // Define dimension of Middle part & position of Front part
   //
-  double bmtb_x = 12.0*GeoModelKernelUnits::cm;
-  double bmtb_y = 12.0*GeoModelKernelUnits::cm;
-  double bmtb_z = 25.0*GeoModelKernelUnits::cm;
-  //double bmtb_pos = 10.0*GeoModelKernelUnits::cm;
-  double bpco_pos[4] =  {1.*GeoModelKernelUnits::cm, 1.*GeoModelKernelUnits::cm, 15.3*GeoModelKernelUnits::cm, 15.3*GeoModelKernelUnits::cm};
-  double bpco_shift[4] =  {0.*GeoModelKernelUnits::cm, 7.8*GeoModelKernelUnits::cm, 0.*GeoModelKernelUnits::cm, 7.5*GeoModelKernelUnits::cm};
-  double bpc_old_z = (5.100/2)*GeoModelKernelUnits::cm;
+  double bmtb_x = 12.0*Gaudi::Units::cm;
+  double bmtb_y = 12.0*Gaudi::Units::cm;
+  double bmtb_z = 25.0*Gaudi::Units::cm;
+  //double bmtb_pos = 10.0*Gaudi::Units::cm;
+  double bpco_pos[4] =  {1.*Gaudi::Units::cm, 1.*Gaudi::Units::cm, 15.3*Gaudi::Units::cm, 15.3*Gaudi::Units::cm};
+  double bpco_shift[4] =  {0.*Gaudi::Units::cm, 7.8*Gaudi::Units::cm, 0.*Gaudi::Units::cm, 7.5*Gaudi::Units::cm};
+  double bpc_old_z = (5.100/2)*Gaudi::Units::cm;
 
   GeoBox* H62004MiddleBeamShape = new GeoBox( bmtb_x, bmtb_y, bmtb_z );   
   const GeoLogVol* H62004MiddleBeamLogical = new GeoLogVol( H62004MiddleBeamName, H62004MiddleBeamShape, Air );
@@ -137,11 +137,11 @@ GeoVPhysVol* LArGeo::MiddleBeamConstructionH62004::GetEnvelope()
      m_H62004MiddleBeamPhysical->add( new GeoIdentifierTag((3+i/2)*10+i) );
      switch(i) {
 	  case 0: case 2: {
-			     m_H62004MiddleBeamPhysical->add( new GeoTransform(GeoTrf::Translate3D( 0.*GeoModelKernelUnits::cm, 0.*GeoModelKernelUnits::cm, bpco_pos[i]+bpco_shift[i]+bpc_old_z-bmtb_z) ) );
+			     m_H62004MiddleBeamPhysical->add( new GeoTransform(GeoTrf::Translate3D( 0.*Gaudi::Units::cm, 0.*Gaudi::Units::cm, bpco_pos[i]+bpco_shift[i]+bpc_old_z-bmtb_z) ) );
                             m_H62004MiddleBeamPhysical->add(BPCPhysical);
 			    break;}
 	  case 1: case 3: { 
-                            m_H62004MiddleBeamPhysical->add( new GeoTransform(GeoTrf::RotateZ3D(90.*GeoModelKernelUnits::deg) *  GeoTrf::Translate3D( 0.*GeoModelKernelUnits::cm, 0.*GeoModelKernelUnits::cm, bpco_pos[i]+bpco_shift[i]+bpc_old_z-bmtb_z) ) );
+                            m_H62004MiddleBeamPhysical->add( new GeoTransform(GeoTrf::RotateZ3D(90.*Gaudi::Units::deg) *  GeoTrf::Translate3D( 0.*Gaudi::Units::cm, 0.*Gaudi::Units::cm, bpco_pos[i]+bpco_shift[i]+bpc_old_z-bmtb_z) ) );
                             m_H62004MiddleBeamPhysical->add(BPCPhysical);
 			    break;}
     }

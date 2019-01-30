@@ -80,8 +80,8 @@ protected:
 
   /// Reference to the Event Selector
   IEvtSelector*     m_evtSelector;
-  /// Gaudi event selector Context (may be used as a cursor by the evt selector)
-  EvtContext*       m_evtContext;
+  /// Gaudi EventSelector Context (may be used as a cursor by the evt selector)
+  IEvtSelector::Context* m_evtSelCtxt;
   /// @property Event selector Name. If empty string (default) take value from ApplicationMgr
   StringProperty    m_evtsel;
 

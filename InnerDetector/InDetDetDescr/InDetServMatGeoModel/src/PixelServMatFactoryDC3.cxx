@@ -22,6 +22,8 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
+#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include <iostream>
 
 #define SKIPCYLINDER 3
@@ -74,14 +76,14 @@ void PixelServMatFactoryDC3::create(GeoPhysVol *mother)
   std::cout << "Test Material std::Copper density="<<testMat->getDensity()
       <<" Rad.length="<<testMat->getRadLength()<<" Int.length="<<testMat->getIntLength()<<'\n';
 
-      GeoMaterial* TIN = new GeoMaterial("Sn", 7.31*GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3);
-//        GeoElement *testMat   = new GeoElement("Tin",  "Sn", 50.0, 118.69*GeoModelKernelUnits::amu_c2);
+      GeoMaterial* TIN = new GeoMaterial("Sn", 7.31*GeoModelKernelUnits::gram/Gaudi::Units::cm3);
+//        GeoElement *testMat   = new GeoElement("Tin",  "Sn", 50.0, 118.69*Gaudi::Units::amu_c2);
       const GeoElement *tin   = materialManager->getElement("Tin");
       TIN->add(const_cast<GeoElement *>(tin),1.);
       TIN->lock(); testMat=TIN;
   std::cout << "Test Material Tin density="<<testMat->getDensity()
       <<" Rad.length="<<testMat->getRadLength()<<" Int.length="<<testMat->getIntLength()<<'\n';
-  std::cout << "Atomic mass unit="<<GeoModelKernelUnits::amu_c2<<'\n';
+  std::cout << "Atomic mass unit="<<Gaudi::Units::amu_c2<<'\n';
   std::cout << "gram/cm3 ="<<gram/cm3<<'\n';
 */
  
@@ -101,8 +103,8 @@ void PixelServMatFactoryDC3::create(GeoPhysVol *mother)
 //      <<" Rad.length="<<cylMat->getRadLength()<<'\n';
 
 
-    double rmin = (*pbfi)[jj]->getFloat("RIN")*GeoModelKernelUnits::cm;
-    double rmax = (*pbfi)[jj]->getFloat("ROUT")*GeoModelKernelUnits::cm;
+    double rmin = (*pbfi)[jj]->getFloat("RIN")*Gaudi::Units::cm;
+    double rmax = (*pbfi)[jj]->getFloat("ROUT")*Gaudi::Units::cm;
     double zmin = (*pbfi)[jj]->getFloat("ZIN");
     double zmax = (*pbfi)[jj]->getFloat("ZOUT");
 
@@ -115,7 +117,7 @@ void PixelServMatFactoryDC3::create(GeoPhysVol *mother)
       double rl = cylMat->getRadLength();
       halflength = fabs(zmax) * rl /200. ;
     } else {
-      halflength = fabs(zmax-zmin)*GeoModelKernelUnits::cm;
+      halflength = fabs(zmax-zmin)*Gaudi::Units::cm;
     }
 
 //VK Temporary!!!  To bring thickness to nominal values
@@ -125,7 +127,7 @@ void PixelServMatFactoryDC3::create(GeoPhysVol *mother)
 //    if( ii == 0 ) zmin += 0.7;   // in cm!
 //std::cout << "New="<<halflength<<", "<<zmin<<", "<<ii<<'\n';
 
-    double zpos = fabs(zmin*GeoModelKernelUnits::cm)+halflength+epsilon;
+    double zpos = fabs(zmin*Gaudi::Units::cm)+halflength+epsilon;
     // Build the Phys Vol
     std::ostringstream o;
     o << ii;

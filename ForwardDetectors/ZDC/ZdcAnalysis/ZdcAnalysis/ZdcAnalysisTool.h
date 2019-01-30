@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ZDCANALYSIS_ZDCANALYSISTOOL_H
@@ -30,15 +30,14 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
   virtual ~ZdcAnalysisTool();
 
   //interface from AsgTool
-  StatusCode initializeTool();
-  StatusCode initialize() {return initializeTool();}
+  virtual StatusCode initializeTool() override;
+  virtual StatusCode initialize() override {return initializeTool();}
   void initialize80MHz();
   void initialize40MHz();
   void initializeTriggerEffs(unsigned int runNumber);
 
-  StatusCode recoZdcModule(const xAOD::ZdcModule& module);
-  StatusCode recoZdcModules(const xAOD::ZdcModuleContainer& moduleContainer);
-  StatusCode reprocessZdc();
+  virtual StatusCode recoZdcModule(const xAOD::ZdcModule& module) override;
+  virtual StatusCode recoZdcModules(const xAOD::ZdcModuleContainer& moduleContainer) override;
 
   // methods for processing, used for decoration
   bool sigprocMaxFinder(const std::vector<unsigned short>& adc, float deltaT, float& amp, float& time, float& qual);
@@ -95,7 +94,6 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
   TF1* m_tf1SincInterp;
 
   SG::ReadHandleKey<xAOD::EventInfo>           m_eventInfoKey;
-  SG::ReadHandleKey<xAOD::ZdcModuleContainer>  m_zdcModuleContainerName;
   SG::WriteHandleKey<xAOD::ZdcModuleContainer> m_ZdcModuleWriteKey;
   bool m_flipEMDelay;
   bool m_lowGainOnly;

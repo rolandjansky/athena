@@ -12,6 +12,9 @@
 #include "GeoModelKernel/GeoNameTag.h"
 #include "GeoModelKernel/GeoIdentifierTag.h"
 
+#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
+
 GeoPhysVol* BLM_Module::Build(const AbsMaterialManager* mat_mgr, const BLM_ModuleParameters* parameters, MsgStream* msg)
 {
   double CuThick = 0.015;
@@ -47,7 +50,7 @@ GeoPhysVol* BLM_Module::Build(const AbsMaterialManager* mat_mgr, const BLM_Modul
   {     
   	if(msg)
   		(*msg) << "BLM _ PEEK _ MISSING." << endmsg;
-	GeoMaterial* peektmp = new GeoMaterial("PEEK", 1.3*GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3);
+	GeoMaterial* peektmp = new GeoMaterial("PEEK", 1.3*GeoModelKernelUnits::gram/Gaudi::Units::cm3);
 	GeoElement* hydrogen = new GeoElement("Hydrogen", "H", 1.0, 1.010);
 	GeoElement* oxygen = new GeoElement("Oxygen", "O", 8.0, 16.000);
 	GeoElement* carbon = new GeoElement("Carbon", "C", 6.0, 12.010);
@@ -200,8 +203,8 @@ GeoPhysVol* BLM_Module::Build(const AbsMaterialManager* mat_mgr, const BLM_Modul
   GeoPhysVol* screw6 = wall.BuildScrew(10, stainless_steel);
   GeoPhysVol* screw7 = wall.BuildScrew(BLM_Wall::s_holder_thickness, stainless_steel);
   GeoPhysVol* screw8 = wall.BuildScrew(BLM_Wall::s_holder_thickness, stainless_steel);
-  GeoTrf::RotateX3D screwRot(90.*GeoModelKernelUnits::deg);
-  GeoTrf::RotateX3D screwRot1(180.*GeoModelKernelUnits::deg);  
+  GeoTrf::RotateX3D screwRot(90.*Gaudi::Units::deg);
+  GeoTrf::RotateX3D screwRot1(180.*Gaudi::Units::deg);  
   GeoTrf::Translation3D screwPos1(ModWidth/2-BLM_Wall::s_hole_position, BLM_Wall::s_holder_height-ModHeight/2+10*CuThick+2*LamelThick15+3*LamelThick234+1, ModLength/2-BLM_Wall::s_hole_position);
   GeoTrf::Translation3D screwPos2(BLM_Wall::s_hole_position-ModWidth/2, BLM_Wall::s_holder_height-ModHeight/2+10*CuThick+2*LamelThick15+3*LamelThick234+1, ModLength/2-BLM_Wall::s_hole_position);
   GeoTrf::Translation3D screwPos3(ModWidth/2-BLM_Wall::s_hole_position, BLM_Wall::s_holder_height-ModHeight/2+10*CuThick+2*LamelThick15+3*LamelThick234+1, ModLength/2-BLM_Wall::s_length+BLM_Wall::s_hole_position);

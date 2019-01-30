@@ -36,7 +36,7 @@
 #include "GeoModelKernel/GeoPara.h"
 #include "GeoModelKernel/GeoVolumeCursor.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 // #define DEBUG
 #ifdef DEBUG
@@ -50,7 +50,7 @@ namespace {
 	//commonly used axes
 	const Amg::Vector3D gXAxis(1.0, 0.0, 0.0), gYAxis(0.0, 1.0, 0.0), gZAxis(0.0, 0.0, 1.0);
 	//commonly used angles, ±90°, 180°
-	const double p90deg(90.0 * GeoModelKernelUnits::deg), m90deg(-90.0 * GeoModelKernelUnits::deg), p180deg(180.0 * GeoModelKernelUnits::deg);
+	const double p90deg(90.0 * Gaudi::Units::deg), m90deg(-90.0 * Gaudi::Units::deg), p180deg(180.0 * Gaudi::Units::deg);
 }
 
 

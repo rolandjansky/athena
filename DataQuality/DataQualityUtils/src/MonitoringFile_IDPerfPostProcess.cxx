@@ -371,18 +371,18 @@ fitMergedFile_IDPerfMonKshort( TFile* f, std::string run_dir, std::string Trigge
     h_rate->SetBinError(1,rate_error);
     h_rate->Write("",TObject::kOverwrite);
   }
-//   TH1F* m_mass_scaled = (TH1F*)(f->Get((path+"/ks_mass").c_str())->Clone("ks_mass_scaled_copy"));
-//   TString title(m_mass_scaled->GetTitle());
+//   TH1F* h_mass_scaled = (TH1F*)(f->Get((path+"/ks_mass").c_str())->Clone("ks_mass_scaled_copy"));
+//   TString title(h_mass_scaled->GetTitle());
 //   if (CheckHistogram(f,(path+"/ks_mass_scaled").c_str())) {
 //     if (CheckHistogram(f,(path+"/Nevents").c_str())) {
-//       TH1F* Nevents=(TH1F*)f->Get((path+"/Nevents").c_str());
-//       double Ntot =Nevents->GetEntries();
-//       if (Ntot!=0.) m_mass_scaled->Scale(1./Ntot);
-//       m_mass_scaled->SetTitle(title+" (per event)");
-//       m_mass_scaled->Write("ks_mass_scaled",TObject::kOverwrite);
+//       TH1F* h_Nevents=(TH1F*)f->Get((path+"/Nevents").c_str());
+//       double Ntot =h_Nevents->GetEntries();
+//       if (Ntot!=0.) h_mass_scaled->Scale(1./Ntot);
+//       h_mass_scaled->SetTitle(title+" (per event)");
+//       h_mass_scaled->Write("ks_mass_scaled",TObject::kOverwrite);
 //     }  
 //   }
-//   delete m_mass_scaled;
+//   delete h_mass_scaled;
 
   h_massVPtBinFittedHistos[0] = (TH1F*)(f->Get((path+"/MassVptBinFitted0").c_str())->Clone());
   h_massVPtBinFittedHistos[1] = (TH1F*)(f->Get((path+"/MassVptBinFitted1").c_str())->Clone());
@@ -796,19 +796,19 @@ fitMergedFile_IDPerfMonJpsi( TFile* f, std::string run_dir, std::string TriggerN
     h_rate->SetBinError(1,rate_error);
     h_rate->Write("",TObject::kOverwrite);
   }
-//   TH1F* m_mass_scaled = (TH1F*)(f->Get((path+"/Jpsi_invmass").c_str())->Clone("Jpsi_invmass_scaled_copy"));
-//   m_mass_scaled->SetMarkerStyle(21);
-//   TString title(m_mass_scaled->GetTitle());
+//   TH1F* h_mass_scaled = (TH1F*)(f->Get((path+"/Jpsi_invmass").c_str())->Clone("Jpsi_invmass_scaled_copy"));
+//   h_mass_scaled->SetMarkerStyle(21);
+//   TString title(h_mass_scaled->GetTitle());
 //   if (CheckHistogram(f,(path+"/Jpsi_invmass_scaled").c_str())) {
 //     if (CheckHistogram(f,(path+"/Nevents").c_str())) {
-//       TH1F* Nevents=(TH1F*)f->Get((path+"/Nevents").c_str());
-//       double Ntot =Nevents->GetEntries();
-//       if (Ntot!=0.) m_mass_scaled->Scale(1./Ntot);
-//       m_mass_scaled->SetTitle(title+" (per event)");
-//       m_mass_scaled->Write("Jpsi_invmass_scaled",TObject::kOverwrite);
+//       TH1F* h_Nevents=(TH1F*)f->Get((path+"/Nevents").c_str());
+//       double Ntot =h_Nevents->GetEntries();
+//       if (Ntot!=0.) h_mass_scaled->Scale(1./Ntot);
+//       h_mass_scaled->SetTitle(title+" (per event)");
+//       h_mass_scaled->Write("Jpsi_invmass_scaled",TObject::kOverwrite);
 //     }  
 //   }
-//   delete m_mass_scaled;
+//   delete h_mass_scaled;
   if (CheckHistogram( f,(path+"/Jpsi_invmass").c_str())) {
     TH1F* h_mass_rebin = (TH1F*)(f->Get((path+"/Jpsi_invmass").c_str())->Clone("Jpsi_invmass_rebin"));
     TString title = h_mass_rebin->GetTitle();
@@ -910,7 +910,7 @@ fitMergedFile_IDPerfMonJpsi( TFile* f, std::string run_dir, std::string TriggerN
   TCanvas *myCanvas = new TCanvas("MyCanvas");
   myCanvas->cd();
   
-//   mass->Fit(f1,"RQMN");
+//   h_mass->Fit(f1,"RQMN");
 
   fitJpsiHistograms(h_jpsi_invmass_vs_pt,h_jpsi_width_vs_pt,hpt,nbins);
   fitJpsiHistograms(h_jpsi_invmass_vs_z0,h_jpsi_width_vs_z0,hz0,nbins);
@@ -1117,19 +1117,19 @@ fitMergedFile_IDPerfMonUpsilon( TFile* f, std::string run_dir, std::string Trigg
     h_rate->SetBinError(1,rate_error);
     h_rate->Write("",TObject::kOverwrite);
   }
-//   TH1F* m_mass_scaled = (TH1F*)(f->Get((path+"/Upsilon_invmass").c_str())->Clone("Upsilon_invmass_scaled_copy"));
-//   m_mass_scaled->SetMarkerStyle(21);
-//   TString title(m_mass_scaled->GetTitle());
+//   TH1F* h_mass_scaled = (TH1F*)(f->Get((path+"/Upsilon_invmass").c_str())->Clone("Upsilon_invmass_scaled_copy"));
+//   h_mass_scaled->SetMarkerStyle(21);
+//   TString title(h_mass_scaled->GetTitle());
 //   if (CheckHistogram(f,(path+"/Upsilon_invmass_scaled").c_str())) {
 //     if (CheckHistogram(f,(path+"/Nevents").c_str())) {
-//       TH1F* Nevents=(TH1F*)f->Get((path+"/Nevents").c_str());
-//       double Ntot =Nevents->GetEntries();
-//       if (Ntot!=0.) m_mass_scaled->Scale(1./Ntot);
-//       m_mass_scaled->SetTitle(title+" (per event)");
-//       m_mass_scaled->Write("Upsilon_invmass_scaled",TObject::kOverwrite);
+//       TH1F* h_Nevents=(TH1F*)f->Get((path+"/Nevents").c_str());
+//       double Ntot =h_Nevents->GetEntries();
+//       if (Ntot!=0.) h_mass_scaled->Scale(1./Ntot);
+//       h_mass_scaled->SetTitle(title+" (per event)");
+//       h_mass_scaled->Write("Upsilon_invmass_scaled",TObject::kOverwrite);
 //     }  
 //   }
-//   delete m_mass_scaled;
+//   delete h_mass_scaled;
   if (CheckHistogram( f,(path+"/Upsilon_invmass").c_str())) {
     TH1F* h_mass_rebin = (TH1F*)(f->Get((path+"/Upsilon_invmass").c_str())->Clone("Upsilon_invmass_rebin"));
     TString title = h_mass_rebin->GetTitle();
@@ -1216,7 +1216,7 @@ fitMergedFile_IDPerfMonUpsilon( TFile* f, std::string run_dir, std::string Trigg
   TCanvas *myCanvas = new TCanvas("MyCanvas");
   myCanvas->cd();
   
-//   mass->Fit(f1,"RQMN");
+//   h_mass->Fit(f1,"RQMN");
 
 
   fitUpsilonHistograms(h_upsilon_invmass_vs_pt,h_upsilon_width_vs_pt,hpt,nbins);
@@ -1346,20 +1346,20 @@ fitMergedFile_IDPerfMonZee ( TFile* f, std::string run_dir,std::string TriggerNa
     h_rate->SetBinError(1,rate_error);
     h_rate->Write("",TObject::kOverwrite);
   }
-//   TH1F* m_mass_scaled = (TH1F*)(f->Get((path+"/Zee_trk_invmass").c_str())->Clone("Zee_trk_invmass_scaled_copy"));
-//   TString title(m_mass_scaled->GetTitle());
+//   TH1F* h_mass_scaled = (TH1F*)(f->Get((path+"/Zee_trk_invmass").c_str())->Clone("Zee_trk_invmass_scaled_copy"));
+//   TString title(h_mass_scaled->GetTitle());
 //   if (CheckHistogram(f,(path+"/Zee_trk_invmass_scaled").c_str())) {
 //     if (CheckHistogram(f,(path+"/Nevents").c_str())) {
-//       TH1F* Nevents=(TH1F*)f->Get((path+"/Nevents").c_str());
-//       double Ntot =Nevents->GetEntries();
-//       if (Ntot!=0.) m_mass_scaled->Scale(1./Ntot);
-//       m_mass_scaled->SetTitle(title+" (per event)");
-//       m_mass_scaled->Write("Zee_trk_invmass_scaled",TObject::kOverwrite);
+//       TH1F* h_Nevents=(TH1F*)f->Get((path+"/Nevents").c_str());
+//       double Ntot =h_Nevents->GetEntries();
+//       if (Ntot!=0.) h_mass_scaled->Scale(1./Ntot);
+//       h_mass_scaled->SetTitle(title+" (per event)");
+//       h_mass_scaled->Write("Zee_trk_invmass_scaled",TObject::kOverwrite);
 //     }  
 //   }
-//   delete m_mass_scaled;
+//   delete h_mass_scaled;
 
-  enum m_eta_region { incl, barrel, eca, ecc, Nregions };
+  enum eta_region { incl, barrel, eca, ecc, Nregions };
   std::vector<std::string> region_strings;
   region_strings.push_back("incl");
   region_strings.push_back("barrel");
@@ -1529,20 +1529,20 @@ fitMergedFile_IDPerfMonWenu ( TFile* f, std::string run_dir,std::string TriggerN
     h_rate->SetBinError(1,rate_error);
     h_rate->Write("",TObject::kOverwrite);
   }
-//   TH1F* m_mass_scaled = (TH1F*)(f->Get((path+"/Wenu_trk_transmass_sel").c_str())->Clone("Wenu_trk_transmass_sel_scaled_copy"));
-//   TString title(m_mass_scaled->GetTitle());
+//   TH1F* h_mass_scaled = (TH1F*)(f->Get((path+"/Wenu_trk_transmass_sel").c_str())->Clone("Wenu_trk_transmass_sel_scaled_copy"));
+//   TString title(h_mass_scaled->GetTitle());
 //   if (CheckHistogram(f,(path+"/Wenu_trk_transmass_sel_scaled").c_str())) {
 //     if (CheckHistogram(f,(path+"/Nevents").c_str())) {
-//       TH1F* Nevents=(TH1F*)f->Get((path+"/Nevents").c_str());
-//       double Ntot =Nevents->GetEntries();
-//       if (Ntot!=0.) m_mass_scaled->Scale(1./Ntot);
-//       m_mass_scaled->SetTitle(title+" (per event)");
-//       m_mass_scaled->Write("Wenu_trk_transmass_sel_scaled",TObject::kOverwrite);
+//       TH1F* h_Nevents=(TH1F*)f->Get((path+"/Nevents").c_str());
+//       double Ntot =h_Nevents->GetEntries();
+//       if (Ntot!=0.) h_mass_scaled->Scale(1./Ntot);
+//       h_mass_scaled->SetTitle(title+" (per event)");
+//       h_mass_scaled->Write("Wenu_trk_transmass_sel_scaled",TObject::kOverwrite);
 //     }  
 //   }
-//   delete m_mass_scaled;
+//   delete h_mass_scaled;
 
-  enum m_eta_region { incl, barrel, eca, ecc, Nregions };
+  enum eta_region { incl, barrel, eca, ecc, Nregions };
   std::vector<std::string> region_strings;
   region_strings.push_back("incl");
   region_strings.push_back("barrel");

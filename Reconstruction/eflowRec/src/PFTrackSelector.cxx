@@ -143,7 +143,6 @@ bool PFTrackSelector::isMuon(const xAOD::TrackParticle* track){
 	  const xAOD::TrackParticle* ID_track = *theLink;
 	  if (ID_track){
 	    if (track == ID_track) return true;
-	    return false;
 	  }
 	  else ATH_MSG_WARNING("This muon has a NULL pointer to the track");
 	}

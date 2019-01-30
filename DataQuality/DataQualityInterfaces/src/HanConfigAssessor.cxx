@@ -421,7 +421,10 @@ GetList( TDirectory* basedir, std::map<std::string,TSeqCollection*>& mp )
     TKey* key = getObjKey( basedir, GetHistPath() );
     if( key != 0 ) {
       const char* className = key->GetClassName();
-      if( (strncmp(className, "TH", 2) == 0) || (strncmp(className, "TGraph", 6) == 0) || (strncmp(className, "TProfile", 8) == 0) ) {
+      if( (strncmp(className, "TH", 2) == 0) 
+       || (strncmp(className, "TGraph", 6) == 0) 
+       || (strncmp(className, "TProfile", 8) == 0)
+       || (strncmp(className, "TEfficiency", 11) == 0) ) {
 	// TNamed* transobj = dynamic_cast<TNamed*>(key->ReadObj());
 	// if (transobj != NULL) {
 	std::string::size_type rslash = nameString.rfind("/");

@@ -1,3 +1,6 @@
+//
+// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+//
 //        
 //                  Author: Nils Krumnack
 // Distributed under the Boost Software License, Version 1.0.
@@ -16,7 +19,7 @@
 
 #include <stdexcept>
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
 #include <GaudiKernel/Bootstrap.h>
 #include <GaudiKernel/ISvcLocator.h>
 #endif
@@ -33,7 +36,7 @@ namespace asg
 
   namespace detail
   {
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
     // Get the Athena message service
     IMessageSvc* getMessageSvcAthena()
     {

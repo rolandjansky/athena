@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_MajorityCondAlg.h"
@@ -11,7 +11,7 @@
 #include <memory>
 
 SCT_MajorityCondAlg::SCT_MajorityCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
-  : ::AthAlgorithm(name, pSvcLocator)
+  : ::AthReentrantAlgorithm(name, pSvcLocator)
   , m_condSvc{"CondSvc", name}
 {
 }
@@ -37,12 +37,12 @@ StatusCode SCT_MajorityCondAlg::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_MajorityCondAlg::execute()
+StatusCode SCT_MajorityCondAlg::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG("execute " << name());
 
   // Write Cond Handle
-  SG::WriteCondHandle<SCT_MajorityCondData> writeHandle{m_writeKey};
+  SG::WriteCondHandle<SCT_MajorityCondData> writeHandle{m_writeKey, ctx};
 
   // Do we have a valid Write Cond Handle for current time?
   if (writeHandle.isValid()) {
@@ -53,7 +53,7 @@ StatusCode SCT_MajorityCondAlg::execute()
   }
 
   // Read Cond Handle 
-  SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey};
+  SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey, ctx};
   const CondAttrListCollection* readCdo{*readHandle}; 
   if (readCdo==nullptr) {
     ATH_MSG_FATAL("Null pointer to the read conditions object");

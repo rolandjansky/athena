@@ -32,13 +32,13 @@
 #include "GeoModelKernel/GeoSerialIdentifier.h"
 #include "GeoModelKernel/GeoXF.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoModelKernel/Units.h"
 #include "GeoGenericFunctions/Variable.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "AthenaKernel/getMessageSvc.h"
 
 
@@ -51,9 +51,9 @@
 #include <cmath>
 #include <iostream>
 
-using GeoModelKernelUnits::cm;
-using GeoModelKernelUnits::mm;
-using GeoModelKernelUnits::deg;
+using Gaudi::Units::cm;
+using Gaudi::Units::mm;
+using Gaudi::Units::deg;
 using GeoTrf::RotateZ3D;
 using GeoTrf::Translate3D;
 using GeoTrf::TranslateZ3D;

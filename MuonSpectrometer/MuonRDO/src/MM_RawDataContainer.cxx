@@ -16,6 +16,11 @@ Muon::MM_RawDataContainer::MM_RawDataContainer(unsigned int hashmax)
 {
 }
 
+Muon::MM_RawDataContainer::MM_RawDataContainer(MM_RawDataCollection_Cache* cache)
+: IdentifiableContainer<MM_RawDataCollection>(cache) 
+{
+}
+
 // Destructor.
 Muon::MM_RawDataContainer::~MM_RawDataContainer() {
 

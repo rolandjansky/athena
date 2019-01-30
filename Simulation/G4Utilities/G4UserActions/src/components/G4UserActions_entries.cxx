@@ -15,6 +15,7 @@
 #include "G4UserActions/ScoringPlaneTool.h"
 #include "G4UserActions/RadiationMapsMakerTool.h"
 #include "G4UserActions/RadLengthActionTool.h"
+#include "G4UserActions/LooperThresholdSetTool.h"
 #include "../TestActionTool.h"
 
 DECLARE_COMPONENT( G4UA::G4SimTimerTool )
@@ -34,4 +35,5 @@ DECLARE_COMPONENT( G4UA::FluxRecorderTool )
 DECLARE_COMPONENT( G4UA::ScoringPlaneTool )
 DECLARE_COMPONENT( G4UA::RadiationMapsMakerTool )
 DECLARE_COMPONENT( G4UA::RadLengthActionTool )
+DECLARE_COMPONENT( G4UA::LooperThresholdSetTool )
 DECLARE_COMPONENT( G4UA::TestActionTool )

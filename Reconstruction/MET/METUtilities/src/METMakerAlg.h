@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // METMakerAlg.h
@@ -47,12 +47,12 @@ namespace met {
     METMakerAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
     /// Destructor:
-    ~METMakerAlg(); 
+    virtual ~METMakerAlg(); 
 
     /// Athena algorithm's Hooks
-    StatusCode  initialize();
-    StatusCode  execute();
-    StatusCode  finalize();
+    virtual StatusCode  initialize() override;
+    virtual StatusCode  execute() override;
+    virtual StatusCode  finalize() override;
 
   private: 
 
@@ -63,8 +63,6 @@ namespace met {
     bool accept(const xAOD::Photon* ph);
     bool accept(const xAOD::TauJet* tau);
     bool accept(const xAOD::Muon* muon);
-
-    std::string m_corename;
 
     std::string m_softclname;
     std::string m_softtrkname;
@@ -77,12 +75,6 @@ namespace met {
     SG::ReadHandleKey<xAOD::JetContainer>           m_JetContainerKey;
 
     SG::ReadHandleKey<xAOD::MissingETContainer>           m_CoreMetKey;
-
-    std::string m_eleColl;
-    std::string m_gammaColl;
-    std::string m_tauColl;
-    std::string m_jetColl;
-    std::string m_muonColl;
 
     SG::WriteHandleKey<xAOD::MissingETContainer> m_metKey;
     SG::ReadHandle<xAOD::MissingETAssociationMap> m_metMap;

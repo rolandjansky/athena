@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file TestDCSConditions.h  Header file for TestDCSConditions class.
@@ -11,7 +11,7 @@
 #define SCT_TestDCSConditions_H
 
 // Include Athena stuff
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "SCT_ConditionsTools/ISCT_DCSConditionsTool.h"
 
 // Include Gaudi stuff
@@ -22,15 +22,15 @@
 
 /** This class acts as a test/sample client the DCSConditions class. 
  */
-class SCT_DCSConditionsTestAlg : public AthAlgorithm {
+class SCT_DCSConditionsTestAlg : public AthReentrantAlgorithm {
  public:
   // Structors
-  SCT_DCSConditionsTestAlg (const std::string& name, ISvcLocator* pSvcLocator); 
+  SCT_DCSConditionsTestAlg(const std::string& name, ISvcLocator* pSvcLocator); 
   virtual ~SCT_DCSConditionsTestAlg() = default;
     
   // Standard Gaudi functions
   StatusCode initialize() override; //!< Gaudi initialiser
-  StatusCode execute() override;    //!< Gaudi executer
+  StatusCode execute(const EventContext& ctx) const override;    //!< Gaudi executer
   StatusCode finalize() override;   //!< Gaudi finaliser
     
  private:

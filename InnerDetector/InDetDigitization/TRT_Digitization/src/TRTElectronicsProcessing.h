@@ -9,7 +9,6 @@
 
 class TRTDigit;
 class TRTElectronicsNoise;
-class IAtRndmGenSvc;
 #include "CLHEP/Random/RandomEngine.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/MsgStreamMember.h"
@@ -22,7 +21,6 @@ class TRTDigSettings;
 class TRTElectronicsProcessing {
 public:
   TRTElectronicsProcessing( const TRTDigSettings* digset,
-			    ServiceHandle <IAtRndmGenSvc> atRndmGenSvc,
 			    TRTElectronicsNoise * electronicsnoise );
   ~TRTElectronicsProcessing();
 
@@ -69,6 +67,8 @@ public:
 			double lowthreshold,
 			const double& noiseamplitude,
 			int strawGasType,
+                        CLHEP::HepRandomEngine* rndmEngine,
+                        CLHEP::HepRandomEngine* elecNoiseRndmEngine,
 			double highthreshold = -1.0
 		      );
 
@@ -129,7 +129,6 @@ private:
   const TRTDigSettings* m_settings;
 
   TRTElectronicsNoise * m_pElectronicsNoise;
-  CLHEP::HepRandomEngine * m_pHRengine;
 
   double m_timeInterval;       /**< Time interval covered by digit [75 ns] */
 

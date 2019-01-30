@@ -32,34 +32,34 @@ SCT_ModuleVetoTestAlg::initialize() {
 
 //Execute
 StatusCode 
-SCT_ModuleVetoTestAlg::execute(const EventContext& /*ctx*/) const {
+SCT_ModuleVetoTestAlg::execute(const EventContext& ctx) const {
   //This method is only used to test the summary service, and only used within this package,
   // so the INFO level messages have no impact on performance of these services when used by clients
 
   ATH_MSG_INFO("Calling execute");
 
   ATH_MSG_INFO("Dummy call to module id 0: module is ");
-  bool result{m_pModuleVetoTool->isGood(Identifier{0})};
+  bool result{m_pModuleVetoTool->isGood(Identifier{0}, ctx)};
   ATH_MSG_INFO((result ? "good" : "bad"));
 
   ATH_MSG_INFO("Dummy call to module id 1:  module is ");
-  result=m_pModuleVetoTool->isGood(Identifier{1});
+  result=m_pModuleVetoTool->isGood(Identifier{1}, ctx);
   ATH_MSG_INFO((result ? "good" : "bad"));
 
   ATH_MSG_INFO("Dummy call to module id 2:  module is ");
-  result=m_pModuleVetoTool->isGood(Identifier{2});
+  result=m_pModuleVetoTool->isGood(Identifier{2}, ctx);
   ATH_MSG_INFO((result ? "good" : "bad"));
 
   ATH_MSG_INFO("Dummy call to module id 3:  module is ");
-  result=m_pModuleVetoTool->isGood(Identifier{3});
+  result=m_pModuleVetoTool->isGood(Identifier{3}, ctx);
   ATH_MSG_INFO((result ? "good" : "bad"));
 
   ATH_MSG_INFO("Dummy call to module id 151040000:  module is ");
-  result=m_pModuleVetoTool->isGood(Identifier{151040000});
+  result=m_pModuleVetoTool->isGood(Identifier{151040000}, ctx);
   ATH_MSG_INFO((result ? "good" : "bad"));
 
   ATH_MSG_INFO("Using Identifier Hash method:  with number 2137 ");
-  result=m_pModuleVetoTool->isGood(IdentifierHash{2137});
+  result=m_pModuleVetoTool->isGood(IdentifierHash{2137}, ctx);
   ATH_MSG_INFO((result ? "good" : "bad"));
 
   return StatusCode::SUCCESS;

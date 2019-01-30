@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_TdaqEnabledCondAlg.h"
@@ -13,7 +13,7 @@
 #include <memory>
 
 SCT_TdaqEnabledCondAlg::SCT_TdaqEnabledCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
-  : ::AthAlgorithm(name, pSvcLocator)
+  : ::AthReentrantAlgorithm(name, pSvcLocator)
   , m_condSvc{"CondSvc", name}
 {
 }
@@ -44,12 +44,12 @@ StatusCode SCT_TdaqEnabledCondAlg::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_TdaqEnabledCondAlg::execute()
+StatusCode SCT_TdaqEnabledCondAlg::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG("execute " << name());
 
   // Write Cond Handle
-  SG::WriteCondHandle<SCT_TdaqEnabledCondData> writeHandle{m_writeKey};
+  SG::WriteCondHandle<SCT_TdaqEnabledCondData> writeHandle{m_writeKey, ctx};
 
   // Do we have a valid Write Cond Handle for current time?
   if (writeHandle.isValid()) {
@@ -68,7 +68,7 @@ StatusCode SCT_TdaqEnabledCondAlg::execute()
   EventIDRange rangeW;
 
   // check whether we expect valid data at this time
-  if (unfilledRun()) {
+  if (unfilledRun(ctx)) {
     EventIDBase unfilledStart{0, 0, 0, 0}; // run 0, event 0, timestamp 0, timestamp_ns 0
     EventIDBase unfilledStop{s_earliestRunForFolder, 0, s_earliestTimeStampForFolder, 0}; // run 119253, event 0, timestamp 1245064619, timestamp_ns 0
     EventIDRange unfilledRange{unfilledStart, unfilledStop};
@@ -77,7 +77,7 @@ StatusCode SCT_TdaqEnabledCondAlg::execute()
     writeCdo->setFilled(true);
   } else {
     // Read Cond Handle 
-    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey};
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey, ctx};
     const CondAttrListCollection* readCdo{*readHandle}; 
     if (readCdo==nullptr) {
       ATH_MSG_FATAL("Null pointer to the read conditions object");
@@ -128,7 +128,7 @@ StatusCode SCT_TdaqEnabledCondAlg::execute()
       tmpIdVec.reserve(s_modulesPerRod);
       for (const auto& thisRod : writeCdo->getGoodRods()) {
         tmpIdVec.clear();
-        m_cablingTool->getHashesForRod(tmpIdVec, thisRod);
+        m_cablingTool->getHashesForRod(tmpIdVec, thisRod, ctx);
         writeCdo->setGoodModules(tmpIdVec);
       }
       writeCdo->setFilled(true);
@@ -157,8 +157,8 @@ StatusCode SCT_TdaqEnabledCondAlg::finalize()
   return StatusCode::SUCCESS;
 }
 
-bool SCT_TdaqEnabledCondAlg::unfilledRun() const {
-  SG::ReadHandle<EventInfo> event{m_eventInfoKey};
+bool SCT_TdaqEnabledCondAlg::unfilledRun(const EventContext& ctx) const {
+  SG::ReadHandle<EventInfo> event{m_eventInfoKey, ctx};
   if (event.isValid()) {
     const unsigned int runNumber{event->event_ID()->run_number()};
     const bool noDataExpected{runNumber < s_earliestRunForFolder};

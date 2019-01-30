@@ -5,7 +5,7 @@
 #ifndef SCT_CONDITIONSALGORITHMS_SCT_DETECTORELEMENTCONDALG_H
 #define SCT_CONDITIONSALGORITHMS_SCT_DETECTORELEMENTCONDALG_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelUtilities/GeoAlignmentStore.h"
@@ -19,14 +19,14 @@ namespace InDetDD {
   class SCT_DetectorManager;
 }
 
-class SCT_DetectorElementCondAlg : public AthAlgorithm
+class SCT_DetectorElementCondAlg : public AthReentrantAlgorithm
 {
  public:
   SCT_DetectorElementCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~SCT_DetectorElementCondAlg() override = default;
 
   virtual StatusCode initialize() override;
-  virtual StatusCode execute() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
   virtual StatusCode finalize() override;
 
  private:

@@ -58,29 +58,36 @@ namespace Monitored {
       }
 
       /**
-       * @brief explicitely fill the monitoring output
-       **/
-      virtual void fill() {
-        for (auto filler : m_histogramsFillers) {
-          filler->fill();
-        }
-      }
-      /**
-       * @brief enables/disables filling when Monitored::Group leaves the scope
+       * @brief Explicitly fill the monitoring histograms and disable autoFill
        *
-       * By default Monitored::Group will perform a one time fill each time it goes
-       * out of scope. In tight loops one may want to re-use the same Monitored::Group
-       * and instead trigger the filling manually:
+       * This will fill the monitoring histograms and also call setAutoFill(false)
+       * in order to disable the automatic filling when the Monitored::Group goes
+       * out of scope. A typical use-pattern is in tight loops in order not to
+       * re-create the Monitored::Group object many times:
        *
        * \code
        *   auto pt = Monitored::Scalar("pt");
        *   auto mon = Monitored::Group(m_monTool, pt);
-       *   mon.setAutoFill(false);
        *   for (...) {
-       *      // fill pt
-       *      mon.fill();
+       *      pt = ...;    // assign pt
+       *      mon.fill();  // fill pt histogram
        *   }
        * \endcode
+       *
+       **/
+      virtual void fill() {
+        setAutoFill(false);
+        for (auto filler : m_histogramsFillers) {
+          filler->fill();
+        }
+      }
+
+      /**
+       * @brief enables/disables filling when Monitored::Group leaves the scope
+       *
+       * By default Monitored::Group will perform a one time fill each time it goes
+       * out of scope. This feature can be disabled by calling setAutoFill(false).
+       * The same is achieved by calling fill() manually.
        **/
       void setAutoFill(bool isEnabled) { m_autoFill = isEnabled; }
 
