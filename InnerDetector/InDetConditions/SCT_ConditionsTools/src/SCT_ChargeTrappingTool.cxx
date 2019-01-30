@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -89,17 +89,30 @@ StatusCode SCT_ChargeTrappingTool::finalize()
   return StatusCode::SUCCESS;
 }
 
-SCT_ChargeTrappingCondData SCT_ChargeTrappingTool::getCondData(const IdentifierHash& elementHash, double pos) const
+SCT_ChargeTrappingCondData SCT_ChargeTrappingTool::getCondData(const IdentifierHash& elementHash, double pos, const EventContext& ctx) const
 {
-  return calculate(elementHash, pos);
+  return calculate(elementHash, pos, ctx);
 }
 
-void SCT_ChargeTrappingTool::getHoleTransport(double& x0, double& y0, double& xfin, double& yfin, double& Q_m2, double& Q_m1, double& Q_00, double& Q_p1, double& Q_p2) const
+SCT_ChargeTrappingCondData SCT_ChargeTrappingTool::getCondData(const IdentifierHash& elementHash, double pos) const
+{
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return getCondData(elementHash, pos, ctx);
+}
+
+void SCT_ChargeTrappingTool::getHoleTransport(double& x0, double& y0, double& xfin, double& yfin, double& Q_m2, double& Q_m1, double& Q_00, double& Q_p1, double& Q_p2, const EventContext& /*ctx*/) const
 {
   holeTransport(x0, y0, xfin, yfin, Q_m2, Q_m1, Q_00, Q_p1, Q_p2);
 }
 
-SCT_ChargeTrappingCondData SCT_ChargeTrappingTool::calculate(const IdentifierHash& elementHash, double pos) const
+void SCT_ChargeTrappingTool::getHoleTransport(double& x0, double& y0, double& xfin, double& yfin, double& Q_m2, double& Q_m1, double& Q_00, double& Q_p1, double& Q_p2) const
+{
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  getHoleTransport(x0, y0, xfin, yfin, Q_m2, Q_m1, Q_00, Q_p1, Q_p2, ctx);
+}
+
+
+SCT_ChargeTrappingCondData SCT_ChargeTrappingTool::calculate(const IdentifierHash& elementHash, double pos, const EventContext& ctx) const
 {
   ATH_MSG_VERBOSE("Updating cache  for elementHash = " << elementHash);
   
@@ -113,7 +126,7 @@ SCT_ChargeTrappingCondData SCT_ChargeTrappingTool::calculate(const IdentifierHas
   
   SCT_ChargeTrappingCondData condData;
 
-  const InDetDD::SiDetectorElement* element{getDetectorElement(elementHash)};
+  const InDetDD::SiDetectorElement* element{getDetectorElement(elementHash, ctx)};
   
   double temperature{0.};
   double deplVoltage{0.};
@@ -339,9 +352,7 @@ void SCT_ChargeTrappingTool::holeTransport(double& x0, double& y0, double& xfin,
   return;
 }
 
-const InDetDD::SiDetectorElement* SCT_ChargeTrappingTool::getDetectorElement(const IdentifierHash& waferHash) const {
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
-
+const InDetDD::SiDetectorElement* SCT_ChargeTrappingTool::getDetectorElement(const IdentifierHash& waferHash, const EventContext& ctx) const {
   static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
   EventContext::ContextID_t slot{ctx.slot()};
   EventContext::ContextEvt_t evt{ctx.evt()};

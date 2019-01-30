@@ -60,20 +60,28 @@ class SCT_ConfigurationConditionsTool: public extends<AthAlgTool, ISCT_Configura
   virtual bool                          isGood(const IdentifierHash& hashId, const EventContext& ctx) const override;
 
   /**List of bad modules*/
+  virtual const std::set<Identifier>*   badModules(const EventContext& ctx) const override;
   virtual const std::set<Identifier>*   badModules() const override;
   /**List of bad strips*/
+  virtual void                          badStrips(std::set<Identifier>& strips, const EventContext& ctx, bool ignoreBadModules=false, bool ignoreBadChips=false) const override;
   virtual void                          badStrips(std::set<Identifier>& strips, bool ignoreBadModules=false, bool ignoreBadChips=false) const override;
   /**List of bad strips for a given module*/
+  virtual void                          badStrips(const Identifier& moduleId, std::set<Identifier>& strips, const EventContext& ctx, bool ignoreBadModules=false, bool ignoreBadChips=false) const override;
   virtual void                          badStrips(const Identifier& moduleId, std::set<Identifier>& strips, bool ignoreBadModules=false, bool ignoreBadChips=false) const override;
   /**List of bad links*/
+  virtual std::pair<bool, bool>         badLinks(const IdentifierHash& hash, const EventContext& ctx) const override;
   virtual std::pair<bool, bool>         badLinks(const IdentifierHash& hash) const override;
   /**Bad links for a given module*/
+  virtual const std::map<IdentifierHash, std::pair<bool, bool>>* badLinks(const EventContext& ctx) const override;
   virtual const std::map<IdentifierHash, std::pair<bool, bool>>* badLinks() const override;
   /**List of bad chips*/
+  virtual const std::map<Identifier, unsigned int>* badChips(const EventContext& ctx) const override;
   virtual const std::map<Identifier, unsigned int>* badChips() const override;
   /**Bad chips for a given module*/
+  virtual unsigned int                  badChips(const Identifier& moduleId, const EventContext& ctx) const override;
   virtual unsigned int                  badChips(const Identifier& moduleId) const override;
   /** Get the chip number containing a particular strip*/
+  virtual int                           getChip(const Identifier& stripId, const EventContext& ctx) const override;
   virtual int                           getChip(const Identifier& stripId) const override;
 
  private:
@@ -93,18 +101,18 @@ class SCT_ConfigurationConditionsTool: public extends<AthAlgTool, ISCT_Configura
   bool                                  m_checkStripsInsideModules; //!< Do we want to check if a strip is bad because it is inside a bad module
 
   /** Is a strip within a bad module*/
-  bool                                  isStripInBadModule(const Identifier& stripId) const;
+  bool                                  isStripInBadModule(const Identifier& stripId, const EventContext& ctx) const;
   /** Is a wafer in a bad module*/
-  bool                                  isWaferInBadModule(const Identifier& waferId) const;
+  bool                                  isWaferInBadModule(const Identifier& waferId, const EventContext& ctx) const;
   
   /**Is a chip with this Identifier good?*/
-  bool isGoodChip(const Identifier& stripId) const;
+  bool isGoodChip(const Identifier& stripId, const EventContext& ctx) const;
 
   /** enum for constants*/
   enum {stripsPerChip=128, lastStrip=767, invalidChipNumber=-1};
 
   const SCT_ConfigurationCondData* getCondData(const EventContext& ctx) const;
-  const InDetDD::SiDetectorElement* getDetectorElement(const IdentifierHash& waferHash) const;
+  const InDetDD::SiDetectorElement* getDetectorElement(const IdentifierHash& waferHash, const EventContext& ctx) const;
 };
 
 #endif // SCT_ConfigurationConditionsTool_h
