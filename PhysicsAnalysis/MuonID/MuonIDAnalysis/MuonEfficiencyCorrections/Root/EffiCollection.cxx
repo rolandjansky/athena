@@ -117,7 +117,7 @@ return m_central_eff;
                 Error("EffiCollection()", "Invalid position in the list of systematics. It seems that I'm not part of the referring ScaleFactorTool.");
                 return false;
             }
-            for (const auto& file_type: {EffiCollection::Central, EffiCollection::Calo, EffiCollection::Forward,  
+            for (const EffiCollection::CollectionType& file_type: {EffiCollection::Central, EffiCollection::Calo, EffiCollection::Forward,  
                                          EffiCollection::CentralLowPt, EffiCollection::CaloLowPt}){
                     
                 std::shared_ptr<EffiCollection::CollectionContainer> container = retrieveContainer(file_type);
@@ -215,10 +215,10 @@ return m_central_eff;
         EffiCollection::CollectionContainer* Cont = FindContainer(bin);
         if (Cont) {
             std::string BinName = FileTypeName(Cont->type()) + Cont->GetBinName(bin);
-            for (auto R : ToRemove) {
+            for (const std::string& R : ToRemove) {
                 BinName = ReplaceExpInString(BinName, R, "");
             }
-            for (auto R : ToReplace) {
+            for (const std::string& R : ToReplace) {
                 BinName = ReplaceExpInString(BinName, R, "_");
             }
             return BinName;
@@ -239,7 +239,7 @@ return m_central_eff;
     }
     bool  EffiCollection::isAffectedBySystematic(const SystematicSet& set) const{
         if (set.empty()) return m_syst_set->empty();
-        for (const auto& variation: set){
+        for (const SystematicVariation& variation: set){
             if (isAffectedBySystematic(variation)) return true;
         }
         return false;
@@ -353,7 +353,7 @@ return m_central_eff;
         return m_currentSF;
     }
     bool EffiCollection::CollectionContainer::SetSystematicBin(unsigned int Bin) {
-        for (auto& Period : m_SF) {
+        for ( std::shared_ptr<EfficiencyScaleFactor>& Period : m_SF) {
             if (!Period->SetSystematicBin(Bin- m_binOffSet)) {
                 return false;
             }
