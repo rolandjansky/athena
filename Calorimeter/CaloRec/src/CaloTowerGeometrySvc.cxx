@@ -267,7 +267,7 @@ StatusCode CaloTowerGeometrySvc::access(IdentifierHash cellHash,std::vector<std:
 }
 
 CaloTowerGeometrySvc::elementvector_t CaloTowerGeometrySvc::getTowers(const CaloCell* pCell) const
-{ return this->getTowers(f_caloDDE(pCell)->calo_hash()); }
+{ return pCell != 0 ? this->getTowers(f_caloDDE(pCell)->calo_hash()) : elementvector_t(); }
 
 CaloTowerGeometrySvc::elementvector_t CaloTowerGeometrySvc::getTowers(IdentifierHash cellHash) const
 {
