@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -18,6 +18,7 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ITHistSvc.h"
+#include "StoreGate/ReadHandle.h"
 
 static const char* envstrings[AthenaMonManager::altprod+1] = { "user", "noOutput", "online", "tier0", 
 							       "tier0Raw", "tier0ESD", "AOD", "altprod" };
@@ -68,9 +69,17 @@ DQTDataFlowMonTool::~DQTDataFlowMonTool()
 }
 
 //----------------------------------------------------------------------------------
+StatusCode DQTDataFlowMonTool::initialize()
+{
+  ATH_CHECK( DataQualityFatherMonTool::initialize() );
+  ATH_CHECK( m_eventInfoKey.initialize() );
+  return StatusCode::SUCCESS;
+}
+//----------------------------------------------------------------------------------
 StatusCode DQTDataFlowMonTool::bookHistograms(  )
 //----------------------------------------------------------------------------------
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   bool failure(false);
 
   if (m_releaseStageString == "") {
@@ -99,15 +108,9 @@ StatusCode DQTDataFlowMonTool::bookHistograms(  )
     m_release_stage_lowStat->GetXaxis()->SetBinLabel(m_environment+1, m_releaseStageString.c_str());
   }
 
-  const EventInfo* evtinfo;
-  StatusCode sc(evtStore()->retrieve(evtinfo));
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("Unable to retrieve EventInfo object");
-    failure = true;
-  } else {
-    if (evtinfo->eventType(xAOD::EventInfo::IS_SIMULATION)) {
-      failure |= rolling_hists.regHist(m_sumweights = new TH1D("m_sumweights", "Sum of MC event weights", 50, 0.5, 50.5)).isFailure();
-    }
+  SG::ReadHandle<xAOD::EventInfo> evtinfo (m_eventInfoKey, ctx);
+  if (evtinfo->eventType(xAOD::EventInfo::IS_SIMULATION)) {
+    failure |= rolling_hists.regHist(m_sumweights = new TH1D("m_sumweights", "Sum of MC event weights", 50, 0.5, 50.5)).isFailure();
   }
 
   if (failure) {return  StatusCode::FAILURE;}

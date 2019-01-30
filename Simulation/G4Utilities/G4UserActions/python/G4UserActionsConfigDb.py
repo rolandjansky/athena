@@ -25,4 +25,4 @@ addTool("G4UserActions.G4UserActionsConfig.getScoringPlaneTool", "G4UA::ScoringP
 addTool("G4UserActions.G4UserActionsConfig.getRadiationMapsMakerTool", "G4UA::RadiationMapsMakerTool")
 addTool("G4UserActions.G4UserActionsConfig.getStoppedParticleActionTool", "G4UA::StoppedParticleActionTool")
 addTool("G4UserActions.G4UserActionsConfig.getRadLengthActionTool", "G4UA::RadLengthActionTool")
-
+addTool("G4UserActions.G4UserActionsConfig.getLooperThresholdSetTool", "G4UA::LooperThresholdSetTool")

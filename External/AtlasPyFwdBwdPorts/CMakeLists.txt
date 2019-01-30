@@ -79,30 +79,6 @@ function( _setup_python_package name file md5 )
 
 endfunction( _setup_python_package )
 
-# Install Beaker:
-_setup_python_package( Beaker
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/Beaker-1.5.4.tar.gz
-   de84e7511119dc0b8eb4ac177d3e2512
-   )
-
-# Install affinity:
-_setup_python_package( affinity
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/affinity-0.1.0.tar.gz
-   cc610cdb05ca675b4089ce2f05796f57
-   )
-
-# Install bunch:
-_setup_python_package( bunch
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/bunch-1.0.0.tar.gz
-   944d2e8f222ed032961daa34c5b5151c
-   )
-
-# Install datadiff:
-_setup_python_package( datadiff
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/datadiff-1.1.1.tar.gz
-   48a2e9b85332b8252c8401205ff02756
-   )
-
 # Install extensions:
 _setup_python_package( extensions
    ${CMAKE_CURRENT_SOURCE_DIR}/src/extensions-0.4.tar.gz
@@ -115,13 +91,6 @@ _setup_python_package( futures
    a6fa247e3c5fe3d60d8e12f1b873cc88
    )
 
-# Install jsonpickle:
-_setup_python_package( jsonpickle
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/jsonpickle-0.4.0.tar.gz
-   63916228294218ca6e53fd1b16b626fa
-   DEPENDS simplejson
-   SINGLE_VERSION )
-
 # Install pyflakes:
 _setup_python_package( pyflakes
    ${CMAKE_CURRENT_SOURCE_DIR}/src/pyflakes-2.0.0.tar.gz
@@ -132,13 +101,7 @@ _setup_python_package( pyflakes
 _setup_python_package( flake8
    ${CMAKE_CURRENT_SOURCE_DIR}/src/flake8-3.6.0.tar.gz
    178485aed0799655d0cbf2e3bdcfaddc
-   DEPENDS pyflakes
-   SINGLE_VERSION )
-
-# Install configparser:
-_setup_python_package( configparser
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/configparser-3.5.0.tar.gz
-   cfdd915a5b7a6c09917a64a573140538
+   DEPENDS pyflakes pycodestyle mccabe enum34
    SINGLE_VERSION )
 
 # Install enum34:
@@ -153,16 +116,10 @@ _setup_python_package( mccabe
    723df2f7b1737b8887475bac4c763e1e
    SINGLE_VERSION )
 
-# Install :
+# Install pycodestyle:
 _setup_python_package( pycodestyle 
    ${CMAKE_CURRENT_SOURCE_DIR}/src/pycodestyle-2.4.0.tar.gz
    85bbebd2c90d2f833c1db467d4d0e9a3
-   SINGLE_VERSION )
-
-# Install pyinotify:
-_setup_python_package( pyinotify
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/pyinotify-0.9.1.tar.gz
-   bd06a9feac312414e57d92c781bda539
    SINGLE_VERSION )
 
 # Install pyyaml:
@@ -170,18 +127,6 @@ _setup_python_package( pyyaml
    ${CMAKE_CURRENT_SOURCE_DIR}/src/pyyaml-3.10.tar.gz
    45e5b429265d7815699be439adc8b37e
    EXTRA_ARGS --without-libyaml
-   SINGLE_VERSION )
-
-# Install simplejson:
-_setup_python_package( simplejson
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/simplejson-2.1.6.tar.gz
-   2f8351f6e6fe7ef25744805dfa56c0d5
-   )
-
-# Install gcovr:
-_setup_python_package( gcovr
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/gcovr-3.4.tar.gz
-   0e8aece2bd438530853e7e10968efd56
    SINGLE_VERSION )
 
 # Install scandir:

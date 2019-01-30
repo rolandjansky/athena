@@ -36,7 +36,7 @@ StatusCode SCT_StripVetoTestAlg::initialize() {
 }
 
 //Execute
-StatusCode SCT_StripVetoTestAlg::execute(const EventContext& /*ctx*/) const {
+StatusCode SCT_StripVetoTestAlg::execute(const EventContext& ctx) const {
   std::vector<Identifier::value_type> stripIds{576522359582752768ULL,
                                                576522475009998848ULL,
                                                576522475278434304ULL,
@@ -45,7 +45,7 @@ StatusCode SCT_StripVetoTestAlg::execute(const EventContext& /*ctx*/) const {
                                                576522475815305216ULL};
 
   for (Identifier::value_type stripId : stripIds) {
-    ATH_MSG_INFO("Strip " << stripId << " " << (m_stripVetoTool->isGood(Identifier{stripId}, InDetConditions::SCT_STRIP) ? "not vetoed" : "vetoed"));
+    ATH_MSG_INFO("Strip " << stripId << " " << (m_stripVetoTool->isGood(Identifier{stripId}, ctx, InDetConditions::SCT_STRIP) ? "not vetoed" : "vetoed"));
   }
 
   return StatusCode::SUCCESS;

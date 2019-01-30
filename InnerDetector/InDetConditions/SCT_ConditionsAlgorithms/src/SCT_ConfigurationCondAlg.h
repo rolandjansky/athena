@@ -42,7 +42,7 @@ class SCT_ConfigurationCondAlg : public AthReentrantAlgorithm
   StatusCode fillModuleData(SCT_ConfigurationCondData* writeCdo, EventIDRange& rangeModule, const EventContext& ctx) const;
   StatusCode fillLinkStatus(SCT_ConfigurationCondData* writeCdo, EventIDRange& rangeMur, const EventContext& ctx) const;
   Identifier getStripId(const unsigned int truncatedSerialNumber, const unsigned int chipNumber, const unsigned int stripNumber,
-                        const InDetDD::SiDetectorElementCollection* elements) const;
+                        const InDetDD::SiDetectorElementCollection* elements, const EventContext& ctx) const;
 
   static const std::string s_coolChannelFolderName;
   static const std::string s_coolChannelFolderName2;

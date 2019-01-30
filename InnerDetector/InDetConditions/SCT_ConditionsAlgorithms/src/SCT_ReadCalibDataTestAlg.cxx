@@ -91,7 +91,7 @@ StatusCode SCT_ReadCalibDataTestAlg::processProperties()
 } // SCT_ReadCalibDataTestAlg::processProperties()
 
 //----------------------------------------------------------------------
-StatusCode SCT_ReadCalibDataTestAlg::execute(const EventContext& /*ctx*/) const
+StatusCode SCT_ReadCalibDataTestAlg::execute(const EventContext& ctx) const
 {
   //This method is only used to test the summary service, and only used within this package,
   // so the INFO level messages have no impact on performance of these services when used by clients
@@ -104,7 +104,7 @@ StatusCode SCT_ReadCalibDataTestAlg::execute(const EventContext& /*ctx*/) const
     // Test summmary, ask status of strip in module
     Identifier IdM{m_moduleId};
     Identifier IdS{m_stripId};
-    bool Sok{m_ReadCalibDataTool->isGood(IdS, InDetConditions::SCT_STRIP)};
+    bool Sok{m_ReadCalibDataTool->isGood(IdS, ctx, InDetConditions::SCT_STRIP)};
     ATH_MSG_INFO("Strip " << IdS << " on module " << IdM << " is " << (Sok?"good":"bad"));
   }
 
@@ -114,12 +114,12 @@ StatusCode SCT_ReadCalibDataTestAlg::execute(const EventContext& /*ctx*/) const
     int nbad{0};
     //Loop over all wafers using hashIds from the cabling service
     std::vector<boost::uint32_t> listOfRODs;
-    m_cabling->getAllRods(listOfRODs);
+    m_cabling->getAllRods(listOfRODs, ctx);
     std::vector<boost::uint32_t>::iterator rodIter{listOfRODs.begin()};
     std::vector<boost::uint32_t>::iterator rodEnd{listOfRODs.end()};
     for (; rodIter != rodEnd; ++rodIter) {
       std::vector<IdentifierHash> listOfHashes;
-      m_cabling->getHashesForRod(listOfHashes, *rodIter);
+      m_cabling->getHashesForRod(listOfHashes, *rodIter, ctx);
       std::vector<IdentifierHash>::iterator hashIt{listOfHashes.begin()};
       std::vector<IdentifierHash>::iterator hashEnd{listOfHashes.end()};
       for (; hashIt != hashEnd; ++hashIt) {
@@ -129,7 +129,7 @@ StatusCode SCT_ReadCalibDataTestAlg::execute(const EventContext& /*ctx*/) const
           Identifier IdS{m_id_sct->strip_id(waferId,stripIndex)};
           const int stripId{m_id_sct->strip(IdS)};
           const int side{m_id_sct->side(IdS)};
-          const bool stripOk{m_ReadCalibDataTool->isGood(IdS, InDetConditions::SCT_STRIP)};
+          const bool stripOk{m_ReadCalibDataTool->isGood(IdS, ctx, InDetConditions::SCT_STRIP)};
           if (stripOk) ++ngood;
 	  else ++nbad; 
           if (not stripOk) { // Print info on all bad strips

@@ -6,11 +6,9 @@
 #define TRTELECTRONICSNOISE_H
 
 #include <vector>
-#include "GaudiKernel/ServiceHandle.h"
 
 #include "AthenaKernel/MsgStreamMember.h"
 
-class IAtRndmGenSvc;
 #include "CLHEP/Random/RandomEngine.h"
 class TRTDigSettings;
 
@@ -25,7 +23,7 @@ public:
    * Constructor: Calls tabulateNoiseSignalShape()
    */
   TRTElectronicsNoise( const TRTDigSettings*,
-		       ServiceHandle <IAtRndmGenSvc> atRndmGenSvc );
+		       CLHEP::HepRandomEngine *rndmEngine );
   /** Destructor */
   ~TRTElectronicsNoise();
 
@@ -43,7 +41,8 @@ public:
   bool msgLevel (MSG::Level lvl)    { return m_msg.get().level() <= lvl; }
 
   void getSamplesOfMaxLTOverNoiseAmp(std::vector<float>& maxLTOverNoiseAmp,
-				     unsigned long nsamplings);
+				     unsigned long nsamplings,
+                                     CLHEP::HepRandomEngine *rndmEngine);
 
   /**
    * Re-initialize electronics noise table.
@@ -62,7 +61,8 @@ public:
    *                              noise for
    */
   void reinitElectronicsNoise(const unsigned int& numberOfDigitLengths
-			      /*number of 75ns timeslices*/ );
+			      /*number of 75ns timeslices*/,
+                              CLHEP::HepRandomEngine *rndmEngine);
 
   /** Set electronics noise amplitude */
   void setElectronicsNoiseAmplitude(const double&);
@@ -76,13 +76,12 @@ public:
    * @param noiseamplitude: noise amplitude
    */
   void addElectronicsNoise(std::vector<double>& signal,
-			   const double& noiseamplitude /*= 1.0*/ );
+			   const double& noiseamplitude /*= 1.0*/,
+                           CLHEP::HepRandomEngine *rndmEngine);
 
 private:
 
   const TRTDigSettings* m_settings;
-
-  CLHEP::HepRandomEngine * m_pHRengine;
 
   /**
    * Tabulate noise signal shape. Extract signal shape from NoiseShape(time)

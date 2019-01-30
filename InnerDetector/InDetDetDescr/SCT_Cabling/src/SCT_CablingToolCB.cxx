@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -118,10 +118,20 @@ SCT_CablingToolCB::size() const {
   return m_data.getHashEntries();
 }
 
+unsigned int
+SCT_CablingToolCB::size(const EventContext& /*ctx*/) const {
+  return size();
+}
+
 //
 bool
 SCT_CablingToolCB::empty() const {
   return (size()==0);
+}
+
+bool
+SCT_CablingToolCB::empty(const EventContext& /*ctx*/) const {
+  return empty();
 }
 
 //
@@ -142,10 +152,20 @@ SCT_CablingToolCB::getHashFromOnlineId(const SCT_OnlineId& onlineId, const bool 
   return m_data.getHashFromOnlineId(onlineId);
 }
 
+IdentifierHash 
+SCT_CablingToolCB::getHashFromOnlineId(const SCT_OnlineId& onlineId, const EventContext& /*ctx*/, const bool withWarnings) const {
+  return getHashFromOnlineId(onlineId, withWarnings);
+}
+
 //
 SCT_OnlineId 
 SCT_CablingToolCB::getOnlineIdFromHash(const IdentifierHash& hash) const {
   return m_data.getOnlineIdFromHash(hash);
+}
+
+SCT_OnlineId 
+SCT_CablingToolCB::getOnlineIdFromHash(const IdentifierHash& hash, const EventContext& /*ctx*/) const {
+  return getOnlineIdFromHash(hash);
 }
 
 //
@@ -156,11 +176,43 @@ SCT_CablingToolCB::getOnlineIdFromOfflineId(const Identifier& offlineId) const {
   return getOnlineIdFromHash(hash);
 }
 
+SCT_OnlineId
+SCT_CablingToolCB::getOnlineIdFromOfflineId(const Identifier& offlineId, const EventContext& /*ctx*/) const {
+  return getOnlineIdFromOfflineId(offlineId);
+}
+
+//
+std::uint32_t
+SCT_CablingToolCB::getRobIdFromHash(const IdentifierHash& hash) const {
+  return getOnlineIdFromHash(hash).rod();
+}
+
+std::uint32_t
+SCT_CablingToolCB::getRobIdFromHash(const IdentifierHash& hash, const EventContext& /*ctx*/) const {
+  return getRobIdFromHash(hash);
+}
+
+//
+std::uint32_t
+SCT_CablingToolCB::getRobIdFromOfflineId(const Identifier& offlineId) const {
+  return getOnlineIdFromOfflineId(offlineId).rod();
+}
+
+std::uint32_t
+SCT_CablingToolCB::getRobIdFromOfflineId(const Identifier& offlineId, const EventContext& /*ctx*/) const {
+  return getRobIdFromOfflineId(offlineId);
+}
+
 //
 IdentifierHash
 SCT_CablingToolCB::getHashFromSerialNumber(const SCT_SerialNumber& sn) const {
   if (not sn.isWellFormed()) return invalidHash;
   return m_data.getHashFromSerialNumber(sn);
+}
+
+IdentifierHash
+SCT_CablingToolCB::getHashFromSerialNumber(const SCT_SerialNumber& sn, const EventContext& /*ctx*/) const {
+  return getHashFromSerialNumber(sn);
 }
 
 SCT_SerialNumber
@@ -169,6 +221,21 @@ SCT_CablingToolCB::getSerialNumberFromHash(const IdentifierHash& hash) const {
   //hash must be even
   IdentifierHash evenHash{even(hash)};
   return m_data.getSerialNumberFromHash(evenHash);
+}
+
+SCT_SerialNumber
+SCT_CablingToolCB::getSerialNumberFromHash(const IdentifierHash& hash, const EventContext& /*ctx*/) const {
+  return getSerialNumberFromHash(hash);
+}
+
+void
+SCT_CablingToolCB::getAllRods(std::vector<std::uint32_t>& usersVector) const {
+  m_data.getRods(usersVector);
+}
+
+void
+SCT_CablingToolCB::getAllRods(std::vector<std::uint32_t>& usersVector, const EventContext& /*ctx*/) const {
+  getAllRods(usersVector);
 }
 
 void
@@ -181,4 +248,9 @@ SCT_CablingToolCB::getHashesForRod(std::vector<IdentifierHash>& usersVector, con
       usersVector.push_back(thisHash);
     }
   }
+}
+
+void
+SCT_CablingToolCB::getHashesForRod(std::vector<IdentifierHash>& usersVector, const std::uint32_t rodId, const EventContext& /*ctx*/) const {
+  getHashesForRod(usersVector, rodId);
 }

@@ -1,5 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: SgTEvent.icc 687011 2015-08-03 09:25:07Z krasznaa $
+//
+// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef ASGTOOLS_SGTEVENT_ICC
 #define ASGTOOLS_SGTEVENT_ICC
 
@@ -7,10 +9,10 @@
 #include <iostream>
 
 // xAOD include(s):
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 #   include "xAODRootAccess/TEvent.h"
 #   include "xAODRootAccess/TStore.h"
-#endif // ROOTCORE
+#endif // XAOD_STANDALONE
 
 namespace asg {
 

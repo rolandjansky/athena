@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -50,9 +50,11 @@ class SCT_ModuleVetoTool: public extends<AthAlgTool, ISCT_ConditionsTool> {
   
   ///Is the detector element good?
   virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
+  virtual bool isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   
   ///is it good?, using wafer hash
   virtual bool isGood(const IdentifierHash& hashId) const override;
+  virtual bool isGood(const IdentifierHash& hashId, const EventContext& ctx) const override;
 
  private:
   StringArrayProperty m_badElements; //list of bad detector elements (= module sides)

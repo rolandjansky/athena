@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -20,7 +20,6 @@ class DataObject;
 class StatusCode;
 class IAddressCreator;
 class IByteStreamEventAccess;
-class ActiveStoreSvc;
 class MsgStream; 
 class TileDigitsContainer; 
 class TileDigitsContByteStreamTool;
@@ -75,9 +74,6 @@ class TileDigitsContByteStreamCnv
     
     ServiceHandle<IByteStreamEventAccess> m_byteStreamEventAccess;
     ByteStreamCnvSvc* m_byteStreamCnvSvc;
-    
-    /** Pointer to StoreGateSvc */
-    ServiceHandle<ActiveStoreSvc> m_activeStore; 
     
     /** Pointer to IROBDataProviderSvc */
     ServiceHandle<IROBDataProviderSvc> m_robSvc;

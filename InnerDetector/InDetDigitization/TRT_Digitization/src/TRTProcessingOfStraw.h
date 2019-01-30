@@ -33,7 +33,6 @@ class TRTNoise;
 class TRTDigCondBase;
 
 class TRTUncompressedHit;
-class IAtRndmGenSvc;
 class ITRT_PAITool;
 class ITRT_SimDriftTimeTool;
 
@@ -55,7 +54,6 @@ public:
 			const InDetDD::TRT_DetectorManager*,
 			ITRT_PAITool*,
 			ITRT_SimDriftTimeTool*,
-			ServiceHandle <IAtRndmGenSvc> atRndmGenSvc,
 			TRTElectronicsProcessing * ep,
 			TRTNoise * noise,
 			TRTDigCondBase* digcond,
@@ -95,7 +93,10 @@ public:
 		     double m_cosmicEventPhase, //const ComTime* m_ComTime,
                      int strawGasType,
 		     bool emulationArflag,
-		     bool emulationKrflag );
+		     bool emulationKrflag,
+                     CLHEP::HepRandomEngine* rndmEngine,
+                     CLHEP::HepRandomEngine* elecProcRndmEngine,
+                     CLHEP::HepRandomEngine* elecNoiseRndmEngine );
 
   MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
   bool msgLvl (MSG::Level lvl) { return m_msg.get().level() <= lvl; }
@@ -107,7 +108,7 @@ private:
   TRTProcessingOfStraw& operator= (const TRTProcessingOfStraw&);
 
   /** Initialize */
-  void Initialize(ServiceHandle <IAtRndmGenSvc> atRndmGenSvc) ;
+  void Initialize();
 
   const TRTDigSettings* m_settings;
   const InDetDD::TRT_DetectorManager* m_detmgr;
@@ -196,7 +197,8 @@ private:
 			     const double& posty,
 			     const double& postz,
 			     std::vector<cluster>& clusterlist,
-			     int strawGasType);
+			     int strawGasType,
+                             CLHEP::HepRandomEngine* rndmEngine);
   /**
    * Transform the ioniation clusters along the particle trajectory inside a
    * straw to energy deposits (i.e. potential fluctuations) reaching the
@@ -218,13 +220,12 @@ private:
 			   std::vector<TRTElectronicsProcessing::Deposit>& deposits,
 			   Amg::Vector3D TRThitGlobalPos,
                            double m_cosmicEventPhase, // const ComTime* m_ComTime
-                           int strawGasType);
+                           int strawGasType,
+                           CLHEP::HepRandomEngine* rndmEngine);
 
   std::vector<double> m_drifttimes;     // electron drift times
   std::vector<double> m_expattenuation; // tabulation of exp()
   unsigned int  m_maxelectrons;         // maximum number of them (minmum is 100 for the Gaussian approx to be ok);
-
-  CLHEP::HepRandomEngine * m_pHRengine;
 
   bool m_alreadywarnedagainstpdg0;
 

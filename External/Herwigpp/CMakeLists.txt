@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 742924 2016-04-26 11:53:36Z krasznaa $
 #
 # Package installing files from the Herwig++ generator into the offline
 # release.
@@ -23,7 +22,7 @@ if( NOT HERWIG3_FOUND )
 endif()
 
 # Install files from the package:
-set( herwig_datadir "${HERWIG3_ROOT}/share/Herwig" )
+set( herwig_datadir "${HERWIG3_LCGROOT}/share/Herwig" )
 if( NOT IS_DIRECTORY ${herwig_datadir} )
    message( WARNING "Can't access directory ${herwig_datadir}" )
    return()

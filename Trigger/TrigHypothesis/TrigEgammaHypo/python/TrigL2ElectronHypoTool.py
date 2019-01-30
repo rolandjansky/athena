@@ -2,7 +2,9 @@
 
 def TrigL2ElectronHypoToolFromDict( chainDict ):
     """ Use menu decoded chain dictionary to configure the tool """
+
     thresholds = sum([ [cpart['threshold']]*int(cpart['multiplicity']) for cpart in chainDict['chainParts']], [])
+
 
     name = chainDict['chainName']
     
@@ -38,8 +40,7 @@ def TrigL2ElectronHypoToolFromDict( chainDict ):
     tool.TRTRatio = [ -999. ] * nt
 
 
-    for th, thvalue in enumerate(thresholds):
-        print th, thvalue
+    for th, thvalue in enumerate(thresholds):        
         if float(thvalue) < 15:
             tool.TrackPt[ th ] = 1.0 * GeV 
         elif float(thvalue) >= 15 and float(thvalue) < 20:
@@ -73,6 +74,10 @@ if __name__ == "__main__":
     assert tool, "Not configured simple tool"
 
     tool = TrigL2ElectronHypoToolFromName("HLT_2e3_etcut", "HLT_2e3_etcut")    
+    assert tool, "Not configured simple tool"
+    assert len(tool.TrackPt) == 2, "Multiplicity missonfigured, set "+ str( len( tool.TrackPt ) )
+
+    tool = TrigL2ElectronHypoToolFromName("HLT_e3_e5_etcut", "HLT_e3_e5_etcut")    
     assert tool, "Not configured simple tool"
     assert len(tool.TrackPt) == 2, "Multiplicity missonfigured, set "+ str( len( tool.TrackPt ) )
 

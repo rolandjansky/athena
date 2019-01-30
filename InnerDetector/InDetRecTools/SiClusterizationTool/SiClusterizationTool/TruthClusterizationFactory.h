@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
  #ifndef SICLUSTERIZATIONTOOL_TruthClusterizationFactory_C
@@ -65,9 +65,9 @@ namespace InDet {
 	/** handle for incident service */
     virtual void handle(const Incident& inc); 
      
-    std::vector<double> estimateNumberOfParticles(const InDet::PixelCluster& pCluster);
+    std::vector<double> estimateNumberOfParticles(const InDet::PixelCluster& pCluster) const;
 
-    std::vector<Amg::Vector2D> estimatePositions(const InDet::PixelCluster&);
+    std::vector<Amg::Vector2D> estimatePositions(const InDet::PixelCluster&) const;
                                                       
    private:
 	/** IncidentSvc to catch begining of event and end of event */   

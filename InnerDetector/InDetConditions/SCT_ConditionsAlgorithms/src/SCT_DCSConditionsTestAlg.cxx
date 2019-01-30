@@ -28,7 +28,7 @@ StatusCode SCT_DCSConditionsTestAlg::initialize() {
 } // SCT_DCSConditionsTestAlg::execute()
 
 //----------------------------------------------------------------------
-StatusCode SCT_DCSConditionsTestAlg::execute(const EventContext& /*ctx*/) const {
+StatusCode SCT_DCSConditionsTestAlg::execute(const EventContext& ctx) const {
   //This method is only used to test the summary service, and only used within this package,
   // so the INFO level messages have no impact on performance of these services when used by clients
   ATH_MSG_DEBUG("in execute()");
@@ -42,7 +42,7 @@ StatusCode SCT_DCSConditionsTestAlg::execute(const EventContext& /*ctx*/) const 
   
   try {
     gettempworks = (m_DCSConditionsTool->sensorTemperature(Identifier{141015041}, InDetConditions::SCT_STRIP));
-    isgoodworks =(m_DCSConditionsTool->isGood(Identifier{208584704}, InDetConditions::SCT_SIDE));
+    isgoodworks =(m_DCSConditionsTool->isGood(Identifier{208584704}, ctx, InDetConditions::SCT_SIDE));
     module = (m_DCSConditionsTool->canReportAbout(InDetConditions::SCT_MODULE));
     strip = (m_DCSConditionsTool->canReportAbout(InDetConditions::SCT_STRIP));
   } catch(...) {
@@ -65,8 +65,8 @@ StatusCode SCT_DCSConditionsTestAlg::execute(const EventContext& /*ctx*/) const 
   ATH_MSG_INFO("gethv(141015041,Strip) " << (m_DCSConditionsTool->modHV(Identifier{141015041}, InDetConditions::SCT_STRIP)));
 
   try {
-    isgoodworks = (m_DCSConditionsTool->isGood(Identifier{208584704}, InDetConditions::SCT_SIDE));
-    isgoodworks = (m_DCSConditionsTool->isGood(Identifier{141015041}, InDetConditions::SCT_STRIP));
+    isgoodworks = (m_DCSConditionsTool->isGood(Identifier{208584704}, ctx, InDetConditions::SCT_SIDE));
+    isgoodworks = (m_DCSConditionsTool->isGood(Identifier{141015041}, ctx, InDetConditions::SCT_STRIP));
   } catch(...) {
     ATH_MSG_FATAL("Exception caught while trying to the isGood method");
     return StatusCode::FAILURE;

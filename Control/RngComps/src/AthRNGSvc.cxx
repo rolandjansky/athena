@@ -42,6 +42,8 @@ StatusCode AthRNGSvc::initialize()
     ATH_MSG_FATAL("Generator type \"" << m_rngType << "\" is not known. Check Joboptions");
     return StatusCode::FAILURE;
   }
+  
+  ATH_MSG_INFO("Selected random engine: \"" << m_rngType << "\"");
 
   return StatusCode::SUCCESS;
 }

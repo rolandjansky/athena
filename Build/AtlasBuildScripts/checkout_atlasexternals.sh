@@ -23,8 +23,8 @@ usage() {
     echo "  AtlasExternals_URL and AtlasExternals_REF to override"
     echo "  other values (even those on the command line)."
     echo "  If AtlasExternals_URL is set to 'current' then"
-	echo "  no clone or checkout is done and the working copy"
-	echo "  in the source directory is left untouched."
+    echo "  no clone or checkout is done and the working copy"
+    echo "  in the source directory is left untouched."
 }
 
 _max_retry_=5
@@ -46,7 +46,7 @@ _retry_ () {
 # Parse the command line arguments:
 TAGBRANCH=""
 SOURCEDIR=""
-EXTERNALSURL="https://:@gitlab.cern.ch:8443/atlas/atlasexternals.git"
+EXTERNALSURL="https://gitlab.cern.ch/atlas/atlasexternals.git"
 while getopts ":t:o:s:e:h" opt; do
     case $opt in
         t)

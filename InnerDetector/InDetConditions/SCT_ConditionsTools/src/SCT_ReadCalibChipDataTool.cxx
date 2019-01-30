@@ -1,5 +1,5 @@
- /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file SCT_ReadCalibChipDataTool.cxx Implementation file for SCT_ReadCalibChipDataTool.
@@ -62,9 +62,8 @@ SCT_ReadCalibChipDataTool::canReportAbout(InDetConditions::Hierarchy h) const {
 //----------------------------------------------------------------------
 // Returns a bool summary of the data
 bool
-SCT_ReadCalibChipDataTool::isGood(const IdentifierHash& elementHashId) const {
+SCT_ReadCalibChipDataTool::isGood(const IdentifierHash& elementHashId, const EventContext& ctx) const {
   // Retrieve SCT_NoiseCalibData pointer
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_NoiseCalibData* condDataNoise{getCondDataNoise(ctx)};
   if (condDataNoise==nullptr) {
     ATH_MSG_ERROR("In isGood, SCT_NoiseCalibData cannot be retrieved");
@@ -103,18 +102,32 @@ SCT_ReadCalibChipDataTool::isGood(const IdentifierHash& elementHashId) const {
   return (meanNoiseValue < m_noiseLevel);
 } //SCT_ReadCalibChipDataTool::summary()
 
+bool
+SCT_ReadCalibChipDataTool::isGood(const IdentifierHash& elementHashId) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  return isGood(elementHashId, ctx);
+}
+
 //----------------------------------------------------------------------
 // Returns a bool summary of the data
 bool
-SCT_ReadCalibChipDataTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+SCT_ReadCalibChipDataTool::isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h) const {
   if (h==InDetConditions::SCT_SIDE) { //Could do by chip too
     const IdentifierHash elementIdHash{m_id_sct->wafer_hash(elementId)};
-    return isGood(elementIdHash);
+    return isGood(elementIdHash, ctx);
   } else{
     // Not applicable for Calibration data
     ATH_MSG_WARNING("summary(): " << h << "good/bad is not applicable for Calibration data");
     return true;
   }
+}
+
+bool
+SCT_ReadCalibChipDataTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  return isGood(elementId, ctx, h);
 }
 
 //----------------------------------------------------------------------

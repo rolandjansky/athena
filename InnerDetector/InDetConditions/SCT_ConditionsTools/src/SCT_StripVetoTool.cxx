@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -60,8 +60,18 @@ SCT_StripVetoTool::isGood(const Identifier& elementId, InDetConditions::Hierarch
 }
 
 bool 
+SCT_StripVetoTool::isGood(const Identifier& elementId, const EventContext& /*ctx*/, InDetConditions::Hierarchy h) const {
+  return isGood(elementId, h);
+}
+
+bool 
 SCT_StripVetoTool::isGood(const IdentifierHash& /*hashId*/) const { //comment out unused parameter to prevent compiler warning
   return true; //cant answer questions about the module side
+}
+
+bool 
+SCT_StripVetoTool::isGood(const IdentifierHash& hashId, const EventContext& /*ctx*/) const {
+  return isGood(hashId);
 }
 
 StatusCode 

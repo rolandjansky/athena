@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MuonAccessors_v1.h 647346 2015-02-17 10:24:03Z emoyse $
 #ifndef XAODMUON_MUONACCESSORS_V1_H
 #define XAODMUON_MUONACCESSORS_V1_H
 
@@ -22,7 +21,7 @@ namespace xAOD {
    /// Muon_v1 object at runtime to get/set parameter values on themselves.
    ///
    template <class T>
-   SG::AuxElement::Accessor< T >*
+   const SG::AuxElement::Accessor< T >*
    parameterAccessorV1( Muon_v1::ParamDef type );
    
 } // namespace xAOD

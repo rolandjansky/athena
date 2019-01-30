@@ -299,7 +299,7 @@ class SCTCalib : public AthAlgorithm {
       StatusCode
       writeModuleListToCool( const std::map< Identifier, std::set<Identifier> >& moduleListAll,
                              const std::map< Identifier, std::set<Identifier> >& moduleListNew,
-                             const std::map< Identifier, std::set<Identifier> >& moduleListRef ) const;
+                             const std::map< Identifier, std::set<Identifier> >& moduleListRef );
       std::string
       getStripList( const std::set<Identifier>& stripIdList ) const;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi includes
@@ -20,7 +20,6 @@
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 #include "ByteStreamData/RawEvent.h" 
 
-#include "StoreGate/ActiveStoreSvc.h"
 #include "StoreGate/StoreClearedIncident.h"
 #include "AthenaKernel/CLASS_DEF.h"
 
@@ -42,7 +41,6 @@ TileRawChannelContByteStreamCnv::TileRawChannelContByteStreamCnv(ISvcLocator* sv
   , m_tool("TileRawChannelContByteStreamTool")
   , m_byteStreamEventAccess("ByteStreamCnvSvc", m_name)
   , m_byteStreamCnvSvc(0)
-  , m_activeStore("ActiveStoreSvc", m_name)
   , m_robSvc("ROBDataProviderSvc", m_name)
   , m_decoder("TileROD_Decoder")
   , m_hid2re(0)
@@ -69,8 +67,6 @@ StatusCode TileRawChannelContByteStreamCnv::initialize() {
 
   ATH_CHECK( m_robSvc.retrieve() );
 
-  ATH_CHECK( m_activeStore.retrieve() );
-
   return StatusCode::SUCCESS;
 }
 
@@ -86,66 +82,61 @@ StatusCode TileRawChannelContByteStreamCnv::createObj(IOpaqueAddress* pAddr, Dat
     return StatusCode::FAILURE;    
   }
 
+  const std::string containerName(*(pRE_Addr->par()));
+  bool isTMDB(containerName == "MuRcvRawChCnt");
+
   uint32_t newrob = 0x0;
 
-  for (int icnt = 0; icnt < 2; ++icnt) {
-
-    bool isTMDB = (icnt == 1);
     
-    std::vector<uint32_t> robid(1); 
-    robid[0] = 0;
-    std::vector<const ROBDataProviderSvc::ROBF*> robf;
+  std::vector<uint32_t> robid(1);
+  robid[0] = 0;
+  std::vector<const ROBDataProviderSvc::ROBF*> robf;
 
-    TileMutableRawChannelContainer* cont = m_queue.get (true);
-    ATH_CHECK( cont->status() );
+  TileMutableRawChannelContainer* cont = m_queue.get (true);
+  ATH_CHECK( cont->status() );
 
+  if (isTMDB) {
+    cont->set_type (TileFragHash::MF);
+  } else {
+    cont->set_type (TileFragHash::OptFilterDsp);
+  }
+
+  // iterate over all collections in a container and fill them
+  for (IdentifierHash hash : cont->GetAllCurrentHashes()) {
+    TileRawChannelCollection* rawChannelCollection = cont->indexFindPtr (hash);
+    rawChannelCollection->clear();
+    TileRawChannelCollection::ID collID = rawChannelCollection->identify();
+
+    // find ROB
     if (isTMDB) {
-      cont->set_type (TileFragHash::MF);
-    }
-    else {
-      cont->set_type (TileFragHash::OptFilterDsp);
-    }
-
-    // iterate over all collections in a container and fill them
-    for (IdentifierHash hash : cont->GetAllCurrentHashes()) {
-      TileRawChannelCollection* rawChannelCollection = cont->indexFindPtr (hash);
-      rawChannelCollection->clear();
-      TileRawChannelCollection::ID collID = rawChannelCollection->identify();  
-
-      // find ROB
-      if (isTMDB) {
-        newrob = m_hid2re->getRobFromTileMuRcvFragID(collID);
-      } else {
-        newrob = m_hid2re->getRobFromFragID(collID);
-      }
-
-      if (newrob != robid[0]) {
-        robid[0] = newrob;
-        robf.clear();
-        m_robSvc->getROBData(robid, robf);
-      }
-    
-      // unpack ROB data
-      if (robf.size() > 0 ) {
-        if (isTMDB) {// reid for TMDB 0x5x010x
-	  m_decoder->fillCollection_TileMuRcv_RawChannel(robf[0], *rawChannelCollection);
-        } else {
-          m_decoder->fillCollection(robf[0], *rawChannelCollection, cont);
-        }
-      } else {
-        rawChannelCollection->setFragGlobalCRC(TileROD_Decoder::NO_ROB);
-      }
-    }
-
-    ATH_MSG_DEBUG( "Creating Container " << *(pRE_Addr->par()) );  
-
-    TileRawChannelContainer* basecont = cont;
-    if (isTMDB) {
-      ATH_CHECK( m_activeStore->activeStore()->record( basecont, "MuRcvRawChCnt" ) );
+      newrob = m_hid2re->getRobFromTileMuRcvFragID(collID);
     } else {
-      pObj = SG::asStorable( basecont );
+      newrob = m_hid2re->getRobFromFragID(collID);
+    }
+
+    if (newrob != robid[0]) {
+      robid[0] = newrob;
+      robf.clear();
+      m_robSvc->getROBData(robid, robf);
+    }
+    
+    // unpack ROB data
+    if (robf.size() > 0 ) {
+      if (isTMDB) {// reid for TMDB 0x5x010x
+        m_decoder->fillCollection_TileMuRcv_RawChannel(robf[0], *rawChannelCollection);
+      } else {
+        m_decoder->fillCollection(robf[0], *rawChannelCollection, cont);
+      }
+    } else {
+      rawChannelCollection->setFragGlobalCRC(TileROD_Decoder::NO_ROB);
     }
   }
+
+  ATH_MSG_DEBUG( "Creating raw channel container: " << containerName );
+
+  TileRawChannelContainer* basecont = cont;
+  pObj = SG::asStorable( basecont );
+
 
   return StatusCode::SUCCESS;  
 }

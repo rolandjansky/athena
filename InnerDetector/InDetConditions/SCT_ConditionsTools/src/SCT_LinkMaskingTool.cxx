@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_LinkMaskingTool.h"
@@ -45,10 +45,9 @@ bool SCT_LinkMaskingTool::canReportAbout(InDetConditions::Hierarchy h) const {
 }
 
 // Is an element with this Identifier and hierachy good?
-bool SCT_LinkMaskingTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+bool SCT_LinkMaskingTool::isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h) const {
   if (not canReportAbout(h)) return true;
 
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_ModuleVetoCondData* condData{getCondData(ctx)};
   // If database cannot be retrieved, all wafer IDs are good.
   if (condData==nullptr) return true;
@@ -57,10 +56,22 @@ bool SCT_LinkMaskingTool::isGood(const Identifier& elementId, InDetConditions::H
   return (not condData->isBadWaferId(elementId));
 }
 
+bool SCT_LinkMaskingTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  return isGood(elementId, ctx, h);
+}
+
 // Is a wafer with this IdentifierHash good?
-bool SCT_LinkMaskingTool::isGood(const IdentifierHash& hashId) const {
+bool SCT_LinkMaskingTool::isGood(const IdentifierHash& hashId, const EventContext& ctx) const {
   Identifier elementId{m_sctHelper->wafer_id(hashId)};
-  return isGood(elementId);
+  return isGood(elementId, ctx);
+}
+
+bool SCT_LinkMaskingTool::isGood(const IdentifierHash& hashId) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  return isGood(hashId, ctx);
 }
 
 const SCT_ModuleVetoCondData*
