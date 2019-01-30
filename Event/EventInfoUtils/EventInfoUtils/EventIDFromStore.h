@@ -7,7 +7,7 @@
 /**
  * @file  SGTools/EventIDFromStore.h
  * @author Marcin Nowak
- * @date Nov 2019
+ * @date Nov 2018
  * @brief Helper method to get EventID from an Event Store
  */
 

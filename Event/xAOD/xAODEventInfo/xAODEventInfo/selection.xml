@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 682504 2019-07-13 11:53:50Z krasznaa $ -->
+<!-- $Id: selection.xml 682504 2015-07-13 11:53:50Z krasznaa $ -->
 <lcgdict>
 
   <class name="xAOD::EventInfo_v1"
