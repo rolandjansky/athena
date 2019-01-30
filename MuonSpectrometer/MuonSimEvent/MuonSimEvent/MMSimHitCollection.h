@@ -8,10 +8,7 @@
 #include "MuonSimEvent/MMSimHit.h"
 #include "HitManagement/AtlasHitsVector.h"
 #include "HitManagement/AthenaHitsVector.h"
-
-#ifndef __CINT__
-  #include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 
 typedef AthenaHitsVector<MMSimHit> OldMMSimHitCollection;
 
