@@ -322,3 +322,80 @@ class TauRecAODProcessor_FTau ( TauRecConfigured ) :
 
     def TauProcessorHandle(self):
         return self._TauProcessorHandle
+
+class TauRecAODProcessor_EleBDTFix ( TauRecConfigured ) :
+    """Recalculate the EleBDT scores with BDT retrained on proper mc16 samples.
+    Sets the BDTEleScore, BDTEleScoreSigTrans, and all three working points."""
+    _outputType = "xAOD::TauJetContainer"
+    _outputKey = "TauJets"
+    _outputDetailsType = "xAOD::TauJetAuxContainer"
+    _outputDetailsKey = "TauJetsAux."
+
+    def __init__(self, name = "TauRecAODProcessor_EleBDTFix"):
+        TauRecConfigured.__init__(self, name)
+
+    def configure(self):
+        mlog = logging.getLogger ('TauRecAODProcessor_EleBDTFix::configure:')
+        mlog.info('entering')
+
+        import tauRec.TauAlgorithmsHolder as taualgs
+        ########################################################################
+        # Tau Modifier Algos
+        ########################################################################
+        try:
+            from tauRecTools.tauRecToolsConf import TauProcessorTool
+            self._TauProcessorHandle = TauProcessorTool(
+                name = self.name,
+                TauContainer                 = self._outputKey,
+                TauAuxContainer              = self._outputDetailsKey,
+                deepCopyChargedPFOContainer  = False,
+                deepCopyHadronicPFOContainer = False,
+                deepCopyNeutralPFOContainer  = False,
+                deepCopyTauTrackContainer    = False,
+                runOnAOD                     = True,
+                )
+
+        except Exception:
+            mlog.error("could not get handle to TauProcessor")
+            print traceback.format_exc()
+            return False
+
+        tools = []
+        try:
+            taualgs.setAODmode(True)
+
+            # Calculate the EleBDT scores
+            tools.append(taualgs.getTauJetBDTEvaluator(suffix="TauEleBDT_def", weightsFile="", outputVarName="BDTEleScore_retuned"))
+            tools.append(taualgs.getTauJetBDTEvaluator(suffix="TauEleBDT_bar", 
+                                                       weightsFile="EleBDTBar_fix20190108.root", minNTracks=1, maxAbsTrackEta=1.37, 
+                                                       outputVarName="BDTEleScore_retuned"))
+            tools.append(taualgs.getTauJetBDTEvaluator(suffix="TauEleBDT_end1", 
+                                                       weightsFile="EleBDTEnd1_fix20190108.root", minNTracks=1, minAbsTrackEta=1.37, 
+                                                       maxAbsTrackEta=2.0, outputVarName="BDTEleScore_retuned"))
+            tools.append(taualgs.getTauJetBDTEvaluator(suffix="TauEleBDT_end23", 
+                                                       weightsFile="EleBDTEnd23_fix20190108.root", minNTracks=1, minAbsTrackEta=2.0, 
+                                                       maxAbsTrackEta=3.0, outputVarName="BDTEleScore_retuned"))
+
+            # Decorate working points
+            tools.append(taualgs.getTauWPDecoratorEleBDT("EleBDTFlat_fix20190108.root",
+                                                         "EleBDTFlat_fix20190108.root",
+                                                         retuned=True))
+
+            TauRecConfigured.AddToolsToToolSvc(self, tools)
+            self.TauProcessorHandle().Tools = tools
+
+        except Exception:
+            mlog.error("could not append tools to TauProcessor")
+            print traceback.format_exc()
+            return False
+
+        TauRecConfigured.WrapTauRecToolExecHandle(self, tool=self.TauProcessorHandle())
+        return True
+
+    #############################################################################################
+    # Helpers
+    #############################################################################################
+
+    def TauProcessorHandle(self):
+        return self._TauProcessorHandle
+

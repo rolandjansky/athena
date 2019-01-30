@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSystematicsTools/InDetTrackBiasingTool.h"
@@ -44,6 +44,8 @@ namespace InDet {
     declareProperty("calibFileData16_postTS1", m_calibFileData16_postTS1 = "InDetTrackSystematicsTools/CalibData_21.2_2018-v18/data16_13TeV_preTS1_CorrectionResult.root");
     declareProperty("calibFileData17_preFire", m_calibFileData17_preFire = "InDetTrackSystematicsTools/CalibData_21.2_2018-v18/data17_13TeV_preFire_CorrectionResult.root");
     declareProperty("calibFileData17_postFire", m_calibFileData17_postFire = "InDetTrackSystematicsTools/CalibData_21.2_2018-v18/data17_13TeV_postFire_CorrectionResult.root");
+    
+    m_firstTime=true;
   }
 
   InDetTrackBiasingTool::~InDetTrackBiasingTool() = default;
@@ -96,9 +98,8 @@ namespace InDet {
     float phi = track.phi0();
     float eta = track.eta();
 
-    static bool firstTime = true;
-    if (firstTime) {
-      firstTime = false; // don't try to do this again
+    if (m_firstTime) {
+      m_firstTime = false; // don't try to do this again
       if ( ! firstCall().isSuccess() ) { // this will check data vs. MC and run number.
 	return CP::CorrectionCode::Error;
       }
@@ -145,6 +146,7 @@ namespace InDet {
 
   StatusCode InDetTrackBiasingTool::initHistograms(int runNumber)
   {
+    
     string rootfileName;
     if (runNumber <= 0) {
       ATH_MSG_WARNING( "Run number not set." );

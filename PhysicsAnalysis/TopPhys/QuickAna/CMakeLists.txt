@@ -58,7 +58,9 @@ atlas_depends_on_subdirs(
    Tools/PathResolver
    Trigger/TrigAnalysis/TrigDecisionTool
    Trigger/TrigAnalysis/TriggerMatchingTool
-   Trigger/TrigConfiguration/TrigConfxAOD )
+   Trigger/TrigConfiguration/TrigConfxAOD
+   PRIVATE
+   Control/AthToolSupport/AsgTools )
 
 # External(s) used by the package:
 find_package( Boost COMPONENTS program_options )
@@ -137,12 +139,12 @@ endif()
 atlas_add_test( gt_KinSelect
    SOURCES test/gt_KinSelect.cxx
    INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-   LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools xAODJet QuickAnaLib )
+   LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools AsgTestingLib xAODJet QuickAnaLib )
 
 atlas_add_test( it_BaseTools_test
    SOURCES test/it_BaseTools_test.cxx
    INCLUDE_DIRS ${GTEST_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES ${GTEST_LIBRARIES} ${Boost_LIBRARIES} AsgTools
+   LINK_LIBRARIES ${GTEST_LIBRARIES} ${Boost_LIBRARIES} AsgTools AsgTestingLib
    AssociationUtilsLib ElectronEfficiencyCorrectionLib
    ElectronPhotonFourMomentumCorrectionLib ElectronPhotonSelectorToolsLib
    IsolationCorrectionsLib IsolationSelectionLib JetCalibToolsLib

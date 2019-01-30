@@ -24,6 +24,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODTracking
    PhysicsAnalysis/D3PDTools/AnaAlgorithm
    PRIVATE
+   Control/AthToolSupport/AsgTesting
    Control/CxxUtils
    Event/FourMomUtils
    Event/xAOD/xAODEventInfo
@@ -82,7 +83,7 @@ endmacro( _add_gtest )
 # Define the google unit tests.
 # Disabling some which don't work in Athena.
 foreach( test gt_AnaToolHandle_test ) # gt_OverlapRemovalInit_test gt_toolbox_test
-   _add_gtest( ${test} )
+   _add_gtest( ${test} LINK_LIBRARIES AsgTestingLib )
 endforeach()
 
 if( XAOD_STANDALONE )
