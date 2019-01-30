@@ -222,79 +222,13 @@ StatusCode IOVDbTestAlg::readWithBeginRun(){
     MsgStream log(msgSvc(), name());
     log <<MSG::INFO <<"in readWithBeginRun()" <<endmsg;
 
-    // Get Run/Event/Time from EventSelector
+    // As a result of the restructuring the EventIncident class (dropping the reference to EventInfo)
+    // the old mechanism of overriding run&event&time is no longer working.
+    // If we need this functionality, then we need to find a new way of implementing it.
+    // For the time being this function simply fires a BeginRun incident using the EventContext, without overriding anything
 
-    IProperty* propertyServer(0); 
-    // Access EventSelector to check if run/event/time are being
-    // explicitly set. This may be true for simulation
-    status = serviceLocator()->service("EventSelector", propertyServer); 
-    if (status != StatusCode::SUCCESS ) {
-	log << MSG::ERROR 
-	    << " Cannot get EventSelector " 
-	    << endmsg; 
-	return status ;
-    }
-
-    // Get run/event/time if OverrideRunNumber flag is set
-    BooleanProperty 	boolProperty("OverrideRunNumber", false);
-    status = propertyServer->getProperty(&boolProperty);
-    if (!status.isSuccess()) {
-	log << MSG::ERROR << "unable to get OverrideRunNumber flag: found " 
-	    << boolProperty.value()
-	    << endmsg;
-	return status;
-    }
-
-    uint32_t event, run;
-    uint64_t time;
-    if (boolProperty.value()) {
-	// Overriding run number, get run/event/time from EventSelector
-	IntegerProperty  intProp("RunNumber", 0);
-	status = propertyServer->getProperty(&intProp);
-	if (!status.isSuccess()) {
-	    log << MSG::ERROR << "unable to get RunNumber: found " 
-		<< intProp.value()
-		<< endmsg;
-	    return status;
-	}
-	else {
-	    run = intProp.value();
-	}
-	intProp = IntegerProperty("FirstEvent", 0);
-	status = propertyServer->getProperty(&intProp);
-	if (!status.isSuccess()) {
-	    log << MSG::ERROR << "unable to get event number: found " 
-		<< intProp.value()
-		<< endmsg;
-	    return status;
-	}
-	else {
-	    event = intProp.value();
-	}
-	intProp = IntegerProperty("InitialTimeStamp", 0);
-	status = propertyServer->getProperty(&intProp);
-	if (!status.isSuccess()) {
-	    log << MSG::ERROR << "unable to get time stamp: found " 
-		<< intProp.value()
-		<< endmsg;
-	    return status;
-	}
-	else {
-	    time = intProp.value();
-	}
-    }
-    else {
-	log << MSG::DEBUG << "Override run number NOT set" << endmsg;
-	return StatusCode::SUCCESS;
-    }
-
-    // Now send BeginRun incident
-    IIncidentSvc* incSvc;
-    status = service( "IncidentSvc", incSvc );
-    if (status.isFailure()) {
-	log << MSG::ERROR << "Unable to get the IncidentSvc" << endmsg;
-	return status;
-    }
+    ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", name() );
+    ATH_CHECK( incSvc.retrieve() );
 
     EventIncident evtInc(name(), "BeginRun",getContext());
     incSvc->fireIncident( evtInc );

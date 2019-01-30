@@ -11,9 +11,6 @@
 #include "CLHEP/Random/Ranlux64Engine.h"
 #include "CLHEP/Random/RandGauss.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
 #include "interpretSeeds.h"
 #include "AtRanluxGenSvc.h"
 #include "crc_combine.h" 

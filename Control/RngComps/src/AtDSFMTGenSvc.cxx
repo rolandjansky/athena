@@ -8,9 +8,6 @@
 #include "GaudiKernel/DataIncident.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
 #include "interpretSeeds.h"
 #include "AtDSFMTGenSvc.h"
 #include "crc_combine.h"

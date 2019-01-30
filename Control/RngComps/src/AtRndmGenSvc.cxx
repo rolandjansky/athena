@@ -11,9 +11,6 @@
 #include "CLHEP/Random/RanecuEngine.h"
 #include "CLHEP/Random/RandGauss.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
 #include "interpretSeeds.h"
 #include "AtRndmGenSvc.h"
 #include "crc_combine.h"

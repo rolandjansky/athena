@@ -98,63 +98,15 @@ StatusCode PixeldEdxTestAlg::readWithBeginRun(){
     StatusCode status;
     ATH_MSG_INFO ( "in readWithBeginRun()"  );
 
-    // Get Run/Event/Time from EventSelector
+    // As a result of the restructuring the EventIncident class (dropping the reference to EventInfo)
+    // the old mechanism of overriding run&event&time is no longer working.
+    // If we need this functionality, then we need to find a new way of implementing it.
+    // For the time being this function simply fires a BeginRun incident using the EventContext, without overriding anything
 
-    // Access EventSelector to check if run/event/time are being
-    // explicitly set. This may be true for simulation
-    ServiceHandle<IProperty> propertyServer("EventSelector",name() );
-    ATH_CHECK( propertyServer.retrieve() );
-
-    // Get run/event/time if OverrideRunNumber flag is set
-    BooleanProperty 	boolProperty("OverrideRunNumber", false);
-    status = propertyServer->getProperty(&boolProperty);
-    if (!status.isSuccess()) {
-	ATH_MSG_ERROR ( "unable to get OverrideRunNumber flag: found "  << boolProperty.value()  );
-	return status;
-    }
-
-    uint32_t event, run;
-    uint64_t time;
-    if (boolProperty.value()) {
-	// Overriding run number, get run/event/time from EventSelector
-	IntegerProperty  intProp("RunNumber", 0);
-	status = propertyServer->getProperty(&intProp);
-	if (!status.isSuccess()) {
-	    ATH_MSG_ERROR ( "unable to get RunNumber: found " << intProp.value()  );
-	    return status;
-	}
-	else {
-	    run = intProp.value();
-	}
-	intProp = IntegerProperty("FirstEvent", 0);
-	status = propertyServer->getProperty(&intProp);
-	if (!status.isSuccess()) {
-	    ATH_MSG_ERROR ( "unable to get event number: found "  << intProp.value()  );
-	    return status;
-	}
-	else {
-	    event = intProp.value();
-	}
-	intProp = IntegerProperty("InitialTimeStamp", 0);
-	status = propertyServer->getProperty(&intProp);
-	if (!status.isSuccess()) {
-	    ATH_MSG_ERROR ( "unable to get time stamp: found "  << intProp.value()  );
-	    return status;
-	}
-	else {
-	    time = intProp.value();
-	}
-    }
-    else {
-	ATH_MSG_DEBUG ( "Override run number NOT set"  );
-	return StatusCode::SUCCESS;
-    }
-
-    // Now send BeginRun incident
     ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", name() );
     ATH_CHECK( incSvc.retrieve() );
 
-    EventIncident evtInc(name(), "BeginRun",Gaudi::Hive::currentContext());
+    EventIncident evtInc(name(), "BeginRun", getContext());
     incSvc->fireIncident( evtInc );
 
     return StatusCode::SUCCESS;
