@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -1000,7 +1000,7 @@ TagInfoMgr::createObj(IOpaqueAddress* addr, DataObject*& dataObj) {
     // Fill TagInfo from (file meta data) conditions if they exist. If
     // they are empty, we restore from the saved TagInfo
     // information. Otherwise we fill from from event info (OLD and
-    // most likely not used anymore. RDS 08/2012).
+    // most likely not used anymore. RDS 08/2019).
     if (attrListColl && attrListColl->size() == 0) {
         tagInfo = CxxUtils::make_unique<TagInfo>(m_lastTagInfo);
         if (m_log.level() <= MSG::DEBUG) {
