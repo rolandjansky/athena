@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTSAVERFLATNTUPLE_H_
@@ -559,6 +559,16 @@ private:
     std::vector<int>   m_jet_HadronConeExclExtendedTruthLabelID; // Newer jet truth flavour label
     std::unordered_map<std::string, std::vector<char>>  m_jet_isbtagged;//one vector per jet per WP
     std::unordered_map<std::string, std::vector<int>>   m_jet_tagWeightBin;// one vector per jet per tag-weight bin in case Continuous WP is used
+    
+    // ghost tracks
+    std::vector<std::vector<float> > m_jet_ghostTrack_pt;
+    std::vector<std::vector<float> > m_jet_ghostTrack_eta;
+    std::vector<std::vector<float> > m_jet_ghostTrack_phi;
+    std::vector<std::vector<float> > m_jet_ghostTrack_e;
+    std::vector<std::vector<float> > m_jet_ghostTrack_d0;
+    std::vector<std::vector<float> > m_jet_ghostTrack_z0;
+    std::vector<std::vector<float> > m_jet_ghostTrack_qOverP;
+    
     // R21 b-tagging
     std::vector<float> m_jet_MV2r;
     std::vector<float> m_jet_MV2rmu;
