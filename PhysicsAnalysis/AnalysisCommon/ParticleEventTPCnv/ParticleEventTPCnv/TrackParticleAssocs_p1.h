@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TrackParticleAssocs_p1.h 
@@ -54,7 +54,7 @@ class TrackParticleAssocs_p1
 
   /** Destructor: 
    */
-  ~TrackParticleAssocs_p1(); 
+  ~TrackParticleAssocs_p1() = default;
 
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 
@@ -81,9 +81,6 @@ inline
 TrackParticleAssocs_p1::TrackParticleAssocs_p1() :
   m_assocs(),
   m_assocStores()
-{}
-
-inline TrackParticleAssocs_p1::~TrackParticleAssocs_p1()
 {}
 
 #endif //> PARTICLEEVENTTPCNV_INAV4MOMASSOCS_p3_H

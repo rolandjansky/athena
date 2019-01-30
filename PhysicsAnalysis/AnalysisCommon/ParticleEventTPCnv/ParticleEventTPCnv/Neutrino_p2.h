@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Neutrino_p2.h 
@@ -44,7 +44,7 @@ public:
 
   /** Destructor: 
    */
-  ~Neutrino_p2();
+  ~Neutrino_p2() = default;
 
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 

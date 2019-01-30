@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ParticleBase_p1.h 
@@ -43,7 +43,7 @@ class ParticleBase_p1
 
   /** Destructor: 
    */
-  ~ParticleBase_p1() {}
+  ~ParticleBase_p1() = default;
 
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 
