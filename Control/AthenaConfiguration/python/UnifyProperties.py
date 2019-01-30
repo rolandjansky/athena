@@ -43,7 +43,6 @@ def unifySetOfPairs(prop1,prop2):
 
 
 
-
 _propsToUnify={"GeoModelSvc.DetectorTools":unifySet,
                "CondInputLoader.Load":unifySet,
                "IOVDbSvc.Folders":unifySet,
@@ -96,6 +95,10 @@ def getUnificationFunc(propname):
 
 def unifyProperty(propname,prop1,prop2):
     unificationFunc = getUnificationFunc(propname)
+    print "HHHH", propname
+    if  "HypoTools" in propname:
+        print "HHHHHH unifying", str(prop1), str(prop2)
+        
     if unificationFunc is None:
         from AthenaConfiguration.ComponentAccumulator import DeduplicationFailed
         raise DeduplicationFailed("List property %s defined multiple times with conflicting values.\n " % propname \
@@ -116,3 +119,4 @@ class BasicTest( unittest.TestCase ):
         log.setLevel(7)
         unified = unifyProperty("Alg.HypoTools", ["a", "b"], ["c", "b"])
         self.assertEqual( sorted(unified), sorted(["a", "b", "c"]), "Hypo tools unification failed" )
+

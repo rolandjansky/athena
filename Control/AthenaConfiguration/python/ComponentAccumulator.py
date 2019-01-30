@@ -159,7 +159,6 @@ class ComponentAccumulator(object):
             return findSubSequence(self._sequence,sequenceName)
 
 
-
     def addEventAlgo(self, algorithms,sequenceName=None):
         if not isinstance(algorithms,collections.Sequence):
             #Swallow both single algorithms as well as lists or tuples of algorithms
@@ -179,6 +178,7 @@ class ComponentAccumulator(object):
 
             existingAlg = findAlgorithm(seq, algo.getName())
             if existingAlg:
+                print "RRRR", existingAlg, algo
                 self._deduplicateComponent(algo, existingAlg)
             else:
                 seq+=algo #TODO: Deduplication necessary?
@@ -262,6 +262,7 @@ class ComponentAccumulator(object):
     def _deduplicateComponent(self,newComp,comp):
         #print "Checking ", comp, comp.getType(), comp.getJobOptName()
         allProps=frozenset(comp.getValuedProperties().keys()+newComp.getValuedProperties().keys())
+        print "KKK", str(allProps)
         for prop in allProps:
             if not prop.startswith('_'):
                 try:
@@ -272,7 +273,7 @@ class ComponentAccumulator(object):
                     newprop=getattr(newComp,prop)
                 except AttributeError:
                     newprop=None
-
+                # both are defined but with distinct type
                 if type(oldprop) != type(newprop):
                     raise DeduplicationFailed("Property  '%s' of component '%s' defined multiple times with conflicting types %s and %s" % \
                                                   (prop,comp.getJobOptName(),type(oldprop),type(newprop)))
@@ -549,6 +550,9 @@ class ComponentAccumulator(object):
         for ch in confElem.getAllChildren():
             self.appendConfigurable(ch)
         return
+
+    def wasMerged(self):
+        self._wasMerged=True
 
 
     def store(self,outfile,nEvents=10):
@@ -1039,4 +1043,4 @@ class MergeMovingAlgorithms( unittest.TestCase ):
 if __name__ == "__main__":
     unittest.main()
 
-        
+

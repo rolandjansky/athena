@@ -70,21 +70,29 @@ def generateMenu( flags ):
 
             # call generating function and pass to CF builder
 
-            chainAcc, chain = signatureToGenerator[signature](flags, chainDict)
+            chain = signatureToGenerator[signature](flags, chainDict)
+            print "CCC", chain
             menuChains.append( chain )
-            chainAccumulators.append( chainAcc )
-            #            menuAcc.merge(chainAcc)
 
 
     _log.info('Obtained Menu Chain objects')
 
     # pass all menuChain to CF builder    
 
-    generateDecisionTree(menuAcc.getSequence(mainSequenceName), menuChains)
-    for chainAcc in chainAccumulators:
-        menuAcc.merge(chainAcc)
-    
+    chainsAcc = generateDecisionTree(menuAcc.getSequence(mainSequenceName), menuChains)    
+    # for chainAcc in chainAccumulators:
+    #     print "GGG"        
+    #     chainAcc.printConfig()
+    #     print "TOOOO"
+    #     menuAcc.printConfig()
+    #     menuAcc.merge(chainAcc)
+
+    chainsAcc.printConfig()
+
+    menuAcc.merge( chainsAcc )
     menuAcc.printConfig()
+
+    # kaboom
 
     _log.info('CF is built')
 

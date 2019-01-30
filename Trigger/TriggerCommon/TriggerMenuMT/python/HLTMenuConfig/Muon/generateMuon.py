@@ -4,8 +4,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, ChainS
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from TrigUpgradeTest.MuonMenuConfig import l2MuFastRecoCfg, l2MuFastHypoCfg
-from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromName
-from TrigMuonHypo.TrigMuonHypoConf import TrigMufastHypoAlg
+from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromDict
 
 
 def generateChains( flags, chainDict ):
@@ -13,16 +12,11 @@ def generateChains( flags, chainDict ):
     acc = ComponentAccumulator()
 
     ### Set muon step1 ###
-    # l2muFastHypo = RecoFragmentsPool.retrieve( l2MuFastHypoCfg,
-    #                                            flags,
-    #                                            name = "TrigL2MuFastHypo",
-    #                                            muFastInfo = "MuonL2SAInfo" )
+    l2muFastHypo = l2MuFastHypoCfg( flags,
+                                    name = 'TrigL2MuFastHypo',
+                                    muFastInfo = 'MuonL2SAInfo' )
 
-    l2muFastHypo = TrigMufastHypoAlg('TrigL2MuFastHypo')
-    l2muFastHypo.MuonL2SAInfoFromMuFastAlg = 'MuonL2SAInfo'
-
-    l2muFastHypoTool = TrigMufastHypoToolFromName(chainDict['chainName'], chainDict['chainName'])
-    l2muFastHypo.HypoTools = [l2muFastHypoTool]
+    l2muFastHypo.HypoTools = [ TrigMufastHypoToolFromDict(chainDict) ]
 
     l2muFastReco = RecoFragmentsPool.retrieve( l2MuFastRecoCfg, flags )
     # l2muFastReco.addHypoAlg(l2muFastHypo)
@@ -31,7 +25,10 @@ def generateChains( flags, chainDict ):
     l2muFastSequence = MenuSequence( Sequence = l2muFastReco.sequence(),
                                      Maker = l2muFastReco.inputMaker(),
                                      Hypo = l2muFastHypo, 
-                                     HypoToolGen = None)
+                                     HypoToolGen = None,
+                                     CA = acc )
+
+    # del acc
 
     l2muFastStep = ChainStep( getChainStepName('Muon', 1), [l2muFastSequence] )
 
@@ -44,4 +41,4 @@ def generateChains( flags, chainDict ):
 
     chain = Chain( chainDict['chainName'], chainDict['L1item'], [ l2muFastStep ] )
 
-    return acc, chain
+    return chain
