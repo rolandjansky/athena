@@ -50,6 +50,12 @@ namespace top{
     top::check(m_pileupReweightingTool->apply(*eventInfo, m_mu_dependent_PRW),
 	       "Failed to apply pileup weight");
 
+    // Apply correction to actual mu for data
+    if (!m_config->isMC()) {
+      float actualMu = m_pileupReweightingTool->getCorrectedActualInteractionsPerCrossing( *eventInfo );
+      eventInfo->auxdecor<float>("corrected_actualInteractionsPerCrossing") = actualMu;
+    }
+
     // Get hash value which can be used later for reweighting
     if (m_config->isMC()) {
       unsigned long long prw_hash = m_pileupReweightingTool->getPRWHash(*eventInfo);

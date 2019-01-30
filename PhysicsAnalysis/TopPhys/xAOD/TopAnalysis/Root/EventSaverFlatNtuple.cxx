@@ -135,6 +135,8 @@ namespace top {
 
     m_mu_original(0.),
     m_mu(0.),
+    m_mu_actual_original(0.),
+    m_mu_actual(0.),
 
     m_backgroundFlags(0),
     m_hasBadMuon(0),
@@ -270,6 +272,7 @@ namespace top {
       m_truthTreeManager->makeOutputVariable(m_eventNumber, "eventNumber");
       m_truthTreeManager->makeOutputVariable(m_runNumber, "runNumber");
       m_truthTreeManager->makeOutputVariable(m_mu, "mu");
+      m_truthTreeManager->makeOutputVariable(m_mu_actual, "mu_actual");
       m_truthTreeManager->makeOutputVariable(m_weight_pileup, "weight_pileup");
       if (m_config->isMC() && m_config->doPileupReweighting()) m_truthTreeManager->makeOutputVariable(m_randomRunNumber, "randomRunNumber");
       m_truthTreeManager->makeOutputVariable(m_mcChannelNumber, "mcChannelNumber");
@@ -662,8 +665,10 @@ namespace top {
       if (m_config->isMC() && m_config->doPileupReweighting()) systematicTree->makeOutputVariable(m_randomRunNumber, "randomRunNumber");
       systematicTree->makeOutputVariable(m_mcChannelNumber, "mcChannelNumber");
       systematicTree->makeOutputVariable(m_mu,              "mu");
+      systematicTree->makeOutputVariable(m_mu_actual,       "mu_actual");
       if (!m_config->isMC()) {
         systematicTree->makeOutputVariable(m_mu_original,       "mu_original_xAOD");
+        systematicTree->makeOutputVariable(m_mu_actual_original,"mu_actual_original_xAOD");
       }
       systematicTree->makeOutputVariable(m_backgroundFlags, "backgroundFlags");
       if (m_config->useMuons())
@@ -1195,6 +1200,7 @@ namespace top {
     if (m_config->isMC() && m_config->doPileupReweighting()) m_particleLevelTreeManager->makeOutputVariable(m_randomRunNumber, "randomRunNumber");
     m_particleLevelTreeManager->makeOutputVariable(m_mcChannelNumber, "mcChannelNumber");
     m_particleLevelTreeManager->makeOutputVariable(m_mu, "mu");
+    m_particleLevelTreeManager->makeOutputVariable(m_mu_actual, "mu_actual");
     m_particleLevelTreeManager->makeOutputVariable(m_weight_pileup, "weight_pileup");
 
     if (m_config->doPseudoTop()) {
@@ -1459,6 +1465,7 @@ namespace top {
     m_upgradeTreeManager->makeOutputVariable(m_runNumber, "runNumber");
     m_upgradeTreeManager->makeOutputVariable(m_mcChannelNumber, "mcChannelNumber");
     m_upgradeTreeManager->makeOutputVariable(m_mu, "mu");
+    m_upgradeTreeManager->makeOutputVariable(m_mu_actual, "mu_actual");
 
     // electrons
     m_upgradeTreeManager->makeOutputVariable(m_el_pt, "el_pt");
@@ -1876,17 +1883,23 @@ namespace top {
 
     // mu values (original and corrected by pileup reweighting tool)
     m_mu_original = event.m_info->averageInteractionsPerCrossing();
+    m_mu_actual_original = event.m_info->actualInteractionsPerCrossing();
 
     // set these all to zero (maybe not the most sensible value...)
     m_mu = 0;
+    m_mu_actual = 0;
 
-    if (m_config->isMC())
+    if (m_config->isMC()) {
       m_mu = m_mu_original;
+      m_mu_actual = m_mu_actual_original;
+    }
     if (!m_config->isMC()) {
       // If we have the corrected mu value from pileup reweighting then save that
       // instead of mu value in (d)xAOD.
       if( event.m_info->isAvailable<float>("corrected_averageInteractionsPerCrossing") )
         m_mu = event.m_info->auxdataConst<float>("corrected_averageInteractionsPerCrossing");
+      if( event.m_info->isAvailable<float>("corrected_actualInteractionsPerCrossing") )
+        m_mu_actual = event.m_info->auxdataConst<float>("corrected_actualInteractionsPerCrossing");
     }
 
     ATH_MSG_DEBUG(" mu = "<<m_mu_original<<" -> "<<m_mu);
@@ -3209,6 +3222,7 @@ namespace top {
     m_runNumber       = eventInfo -> runNumber();
     m_mcChannelNumber = eventInfo -> mcChannelNumber();
     m_mu = eventInfo->averageInteractionsPerCrossing();
+    m_mu_actual = eventInfo->actualInteractionsPerCrossing();
 
     if (m_config->doPileupReweighting() && !m_config->isTruthDxAOD()) {
       m_weight_pileup = eventInfo->auxdataConst<float>("PileupWeight");
@@ -3344,6 +3358,7 @@ namespace top {
     m_mcChannelNumber = plEvent.m_info->mcChannelNumber();
 
     m_mu = plEvent.m_info->averageInteractionsPerCrossing();
+    m_mu_actual = plEvent.m_info->actualInteractionsPerCrossing();
 
     if (m_config->doPileupReweighting() && !m_config->isTruthDxAOD()) {
       m_weight_pileup = plEvent.m_info->auxdataConst<float>("PileupWeight");
@@ -3990,6 +4005,7 @@ namespace top {
     m_mcChannelNumber = upgradeEvent.m_info->mcChannelNumber();
 
     m_mu = upgradeEvent.m_info->averageInteractionsPerCrossing();
+    m_mu_actual = upgradeEvent.m_info->actualInteractionsPerCrossing();
 
     // save electrons
     unsigned int i = 0;
