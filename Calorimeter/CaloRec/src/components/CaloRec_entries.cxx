@@ -33,6 +33,7 @@
 #include "CaloRec/CaloTowerxAODAlgoBase.h"
 #include "CaloRec/CaloTopoClusterFromTowerMaker.h"
 #include "CaloRec/CaloTopoClusterFromTowerCalibrator.h"
+#include "CaloRec/CaloTowerGeometrySvc.h"
  
 
 
@@ -116,3 +117,6 @@ DECLARE_FACTORY_ENTRIES(CaloRec) {
     DECLARE_TOOL( CaloCellFastCopyTool ) 
     DECLARE_TOOL( CaloClusterSnapshot )
 }
+
+DECLARE_COMPONENT( CaloTowerGeometrySvc )
+

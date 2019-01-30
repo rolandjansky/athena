@@ -2,15 +2,13 @@
 #ifndef CALOREC_CALOTOWERGEOMETRYSVC_H
 #define CALOREC_CALOTOWERGEOMETRYSVC_H
 
-#include "GaudiKernel/ServiceHandle.h"
-
-#include "StoreGate/StoreGateSvc.h"
+/* Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration */
 
 #include "AthenaBaseComps/AthService.h"
 
 #include "Identifier/IdentifierHash.h"
 
-#include "CaloGeoHelper/CaloPhiRange.h"
+#include "CaloGeoHelpers/CaloPhiRange.h"
 
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
@@ -74,12 +72,14 @@
 /// @todo Allow regional grids (varying segmentation as function of @f$ \eta @f$ . This requires additional interfaces (or interface changes) and 
 ///       and modifications of the index construction.
 ///
+/// @author Peter Loch <loch@physics.arizona.edu>
+///
 class CaloTowerGeometrySvc : public AthService
 {
 public:
 
   ///@{
-  typedef IdentifierHash::value_t      index_t;          ///< Type for scalar (pseudorapidity,azimuth) index
+  typedef IdentifierHash::value_type   index_t;          ///< Type for scalar (pseudorapidity,azimuth) index (is an unsigned int type)
   typedef std::tuple<index_t,index_t>  towerindex_t;     ///< Type for composite (tower) index 
   typedef std::tuple<index_t,double>   element_t;        ///< Type storing tower index and geometrical weight
   typedef std::vector<element_t>       elementvector_t;  ///< Type for list of elements holding tower index and list of weights
@@ -105,25 +105,25 @@ public:
   // --- Full documentation of this block after end of class definition!
   ///@name Retrieve towers for cells
   ///@{
-  StatusCode      access(const CaloCell* pCell,std::vector<size_t>& towerIdx,std::vector<double>& towerWghts)   const;
-  StatusCode      access(IdentifierHash cellHash,std::vector<size_t>& towerIdx,std::vector<double>& towerWghts) const;
+  StatusCode      access(const CaloCell* pCell,std::vector<std::size_t>& towerIdx,std::vector<double>& towerWghts)   const;
+  StatusCode      access(IdentifierHash cellHash,std::vector<std::size_t>& towerIdx,std::vector<double>& towerWghts) const;
   elementvector_t getTowers(const CaloCell* pCell)                                                              const;
   elementvector_t getTowers(IdentifierHash cellHash)                                                            const; 
   ///@}
 
   ///@name Tower bin descriptors and other size information
   ///@{
-  size_t maxCellHash() const; ///< Maximum cell hash value
-  int    etaBins()     const; ///< Number of pseudorapidity bins
-  double etaMin()      const; ///< Lower boundary of pseudorapidity range
-  double etaMax()      const; ///< Upper boundary of pseudorapidity range 
-  double etaWidth()    const; ///< Width of pseudorapidity bin  
-  int    phiBins()     const; ///< Number of azimuth bins
-  double phiMin()      const; ///< Lower boundary of azimuth
-  double phiMax()      const; ///< Upper boundary of azimuth
-  double phiWidth()    const; ///< Width of azimuth bin
-  size_t towerBins()   const; ///< Total number of towers
-  double towerArea()   const; ///< Area of individual tower 
+  std::size_t maxCellHash() const; ///< Maximum cell hash value
+  std::size_t etaBins()     const; ///< Number of pseudorapidity bins
+  double      etaMin()      const; ///< Lower boundary of pseudorapidity range
+  double      etaMax()      const; ///< Upper boundary of pseudorapidity range 
+  double      etaWidth()    const; ///< Width of pseudorapidity bin  
+  std::size_t phiBins()     const; ///< Number of azimuth bins
+  double      phiMin()      const; ///< Lower boundary of azimuth
+  double      phiMax()      const; ///< Upper boundary of azimuth
+  double      phiWidth()    const; ///< Width of azimuth bin
+  std::size_t towerBins()   const; ///< Total number of towers
+  double      towerArea()   const; ///< Area of individual tower 
   ///@}
 
   ///@name Tower index calculators, translaters, manipulators and converters
@@ -131,9 +131,11 @@ public:
   index_t etaIndex(const CaloCell* pCell)            const; ///< Get tower @f$ \eta @f$ bin index for a calorimeter cell referenced by a pointer
   index_t etaIndex(IdentifierHash cellHash)          const; ///< Get tower @f$ \eta @f$ bin index for a calorimeter cell referenced by its hash identifier
   index_t etaIndex(double eta)                       const; ///< Get tower @f$ \eta @f$ bin index for a given value of @f$ \eta @f$
+  index_t etaIndexFromTowerIndex(index_t towerIdx)   const; ///< Get tower @f$ \eta @f$ bin index for a given global tower index
   index_t phiIndex(const CaloCell* pCell)            const; ///< Get tower @f$ \phi @f$ bin index for a calorimeter cell referenced by a pointer
   index_t phiIndex(IdentifierHash cellHash)          const; ///< Get tower @f$ \phi @f$ bin index for a calorimeter cell referenced by its hash identifier
   index_t phiIndex(double phi)                       const; ///< Get tower @f$ \phi @f$ bin index for a given value of @f$ \phi @f$
+  index_t phiIndexFromTowerIndex(index_t towerIdx)   const; ///< Get tower @f$ \phi @f$ bin index for a given global tower index
   index_t towerIndex(const CaloCell* pCell)          const; ///< Get global tower index for a calorimeter cell referenced by a pointer
   index_t towerIndex(IdentifierHash cellHash)        const; ///< Get global tower index for a calorimeter cell referenced by its hash identifier
   index_t towerIndex(double eta,double phi)          const; ///< Get global tower index for a pair of @f$ (\eta,\phi) @f$ values
@@ -151,8 +153,10 @@ public:
   ///@{
   double towerEtaLocal(index_t etaIndex)    const; ///< Return pseudorapdity from local index (bin center) 
   double towerPhiLocal(index_t phiIndex)    const; ///< Return azimuth from local index (bin center)
-  double towerEtaGlobal(index_t towerIndex) const; ///< Return pseudorapidity from global tower index (bin center)
-  double towerPhiGlobal(index_t towerIndex) const; ///< Return azimuth from global tower index (bin center)
+  double towerEta(index_t towerIndex)       const; ///< Return pseudorapidity from global tower index (bin center)
+  double towerPhi(index_t towerIndex)       const; ///< Return azimuth from global tower index (bin center)
+  double invalidValue()                     const; ///< Return invalid value
+  bool   isInvalidValue(double val)         const; ///< Return @c true if given value is invalid
   ///@}
 
   ///@name Helper functions
@@ -166,16 +170,15 @@ private:
 
   ///@name Helpers
   ///@{
-  StatusCode f_setupTowerGrid();                                         ///< Internally used function setting up the lookup store
-  StatusCode f_setupTowerGridFCal(const CaloDetDescrElement* pCaloDDE);  ///< Internally used function mapping an FCal cell onto the tower grid
-  StatusCode f_setupTowerGridProj(const CaloDetDescrElement* pCaloDDE);  ///< Internally used function mapping a projective cell onto the tower grid
+  StatusCode f_setupSvc();                                                  ///< Internally used function setting up other services needed by this service
+  StatusCode f_setupTowerGrid();                                            ///< Internally used function setting up the lookup store
+  StatusCode f_setupTowerGridFCal(const CaloDetDescrElement* pCaloDDE);     ///< Internally used function mapping an FCal cell onto the tower grid
+  StatusCode f_setupTowerGridProj(const CaloDetDescrElement* pCaloDDE);     ///< Internally used function mapping a projective cell onto the tower grid
+  double     f_assign(IdentifierHash cellHash,index_t towerIdx,double wgt); ///< Internally used function assigning tower to cell with update of weight if same tower is already assigned
   ///@}
 
   ///@name Access to detector store and other services and stores
   ///@{
-  typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t; ///< StoreGate handle type
-  StoreGateSvc_t m_detectorStore;                     ///< Pointer to detector store
-  StoreGateSvc_t& detStore() const;                   ///< Accessor to detector store
   const CaloDetDescrManager* m_caloDDM;               ///< Pointer to calorimeter detector description 
   ///@}
 
@@ -187,30 +190,31 @@ protected:
   double       m_towerEtaWidth; ///< Width of tower bin in pseudorapidity
   double       m_towerPhiWidth; ///< Width of tower bin in azimuth 
   double       m_towerArea;     ///< Area of individual tower
-  size_t       m_towerBins;     ///< Maximum number of towers
-  size_t       m_maxCellHash;   ///< Maximum cell hash value
+  std::size_t  m_towerBins;     ///< Maximum number of towers
+  std::size_t  m_maxCellHash;   ///< Maximum cell hash value
   ///@}
   
   ///@name Properties
   ///@{
   ///@brief Internally stored tower grid descriptors
-  size_t m_towerEtaBins; ///< Number of @f$ \eta @f$ bins 
-  double m_towerEtaMin;  ///< Lower boundary @f$ \eta_{\rm min} @f$
-  double m_towerEtaMax;  ///< Upper boundary @f$ \eta_{\rm max} @f$
-  size_t m_towerPhiBins; ///< Number of @f$ \phi @f$ bins 
-  double m_towerPhiMin;  ///< Lower boundary @f$ \phi_{\rm min} @f$
-  double m_towerPhiMax;  ///< Upper boundary @f$ \phi_{\rm max} @f$
-  double m_fcal1Xslice;  ///< Number of x slices for cells in FCal1
-  double m_fcal1Yslice;  ///< Number of y slices for cells in FCal1
-  double m_fcal2Xslice;  ///< Number of x slices for cells in FCal2
-  double m_fcal2Yslice;  ///< Number of y slices for cells in FCal2
-  double m_fcal3Xslice;  ///< Number of x slices for cells in FCal3
-  double m_fcal3Yslice;  ///< Number of y slices for cells in FCal3
+  std::size_t m_towerEtaBins; ///< Number of @f$ \eta @f$ bins 
+  double      m_towerEtaMin;  ///< Lower boundary @f$ \eta_{\rm min} @f$
+  double      m_towerEtaMax;  ///< Upper boundary @f$ \eta_{\rm max} @f$
+  std::size_t m_towerPhiBins; ///< Number of @f$ \phi @f$ bins 
+  double      m_towerPhiMin;  ///< Lower boundary @f$ \phi_{\rm min} @f$
+  double      m_towerPhiMax;  ///< Upper boundary @f$ \phi_{\rm max} @f$
+  double      m_fcal1Xslice;  ///< Number of x slices for cells in FCal1
+  double      m_fcal1Yslice;  ///< Number of y slices for cells in FCal1
+  double      m_fcal2Xslice;  ///< Number of x slices for cells in FCal2
+  double      m_fcal2Yslice;  ///< Number of y slices for cells in FCal2
+  double      m_fcal3Xslice;  ///< Number of x slices for cells in FCal3
+  double      m_fcal3Yslice;  ///< Number of y slices for cells in FCal3
   ///@} 
 
   ///@name Process flags, helpers and numerical constants
   ///@{
   static index_t m_invalidIndex;                                       ///< Invalid index indicator
+  static double  m_invalidValue;                                       ///< Return value for out-of-range indices andother invalid conversions to a physical quantity
   const CaloDetDescrManager* f_caloDDM()                        const; ///< Pointer to calorimeter detector description manager
   const CaloDetDescrElement* f_caloDDE(const CaloCell* pCell)   const; ///< Retrieve calorimeter detector description element for a cell object referenced by a pointer
   const CaloDetDescrElement* f_caloDDE(IdentifierHash cellHash) const; ///< Retrieve calorimeter detector description element for a given cell hash identifier
@@ -234,7 +238,7 @@ protected:
 // formatting by doxygen in html).                 //
 //-------------------------------------------------//
 
-///@fn StatusCode CaloTowerGeometrySvc::access(const CaloCell* pCell,std::vector<size_t>& towerIdx,std::vector<double>& towerWghts) const
+///@fn StatusCode CaloTowerGeometrySvc::access(const CaloCell* pCell,std::vector<std::size_t>& towerIdx,std::vector<double>& towerWghts) const
 ///
 ///@brief Retrieve the list of towers associated with a calorimeter cell referenced by a pointer
 ///
@@ -244,10 +248,10 @@ protected:
 ///@return Returns @c StatusCode::SUCCESS if list of towers found, else @s StatusCode::FAILURE.
 ///
 ///@param[in] pCell      pointer to non-modifiable @c CaloCell object.
-///@param[in] towerIdx   reference to modifiable vector of indices (payload type @c size_t ); vector is filled if cell is successfully mapped. 
+///@param[in] towerIdx   reference to modifiable vector of indices (payload type @c std::size_t ); vector is filled if cell is successfully mapped. 
 ///@param[in] towerWghts reference to modifiable vector of weights (payload type @c double ); vector is filled if cell is successfully mapped. 
 
-///@fn StatusCode CaloTowerGeometrySvc::access(IdentifierHash cellHash,std::vector<size_t>& towerIdx,std::vector<double>& towerWghts) const;
+///@fn StatusCode CaloTowerGeometrySvc::access(IdentifierHash cellHash,std::vector<std::size_t>& towerIdx,std::vector<double>& towerWghts) const;
 ///
 ///@brief Retrieve the list of towers associated with a calorimeter cell referenced its hash identifier
 ///
@@ -257,7 +261,7 @@ protected:
 ///@return Returns @c StatusCode::SUCCESS if list of towers found, else @s StatusCode::FAILURE.
 ///
 ///@param[in] cellHash   hash identifier referencing a calorimeter cell.
-///@param[in] towerIdx   reference to modifiable vector of indices (payload type @c size_t ); vector is filled if cell is successfully mapped. 
+///@param[in] towerIdx   reference to modifiable vector of indices (payload type @c std::size_t ); vector is filled if cell is successfully mapped. 
 ///@param[in] towerWghts reference to modifiable vector of weights (payload type @c double ); vector is filled if cell is successfully mapped.
 
 ///@fn CaloTowerGeometrySvc::elementvector_t CaloTowerGeometrySvc::getTowers(const CaloCell* pCell) const;
@@ -285,26 +289,29 @@ protected:
 //---------------------------//
 // Control and configuration //
 //---------------------------//
-inline CaloTowerGeometrySvc::StoreGateSvc_t& CaloTowerGeometrySvc::detStore() const { return m_detectorStore; }
 inline CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::invalidIndex() const { return m_invalidIndex; }
+inline StatusCode CaloTowerGeometrySvc::f_setupSvc() { 
+  m_caloDDM = CaloDetDescrManager::instance(); 
+  return f_caloDDM() != 0 ? StatusCode::SUCCESS : StatusCode::FAILURE; 
+}
 
 //------------------------------------//
 // Public access to tower descriptors //
 //------------------------------------//
-inline size_t CaloTowerGeometrySvc::maxCellHash() const { return m_maxCellHash;   }
+inline std::size_t CaloTowerGeometrySvc::maxCellHash() const { return m_maxCellHash;   }
 
-inline size_t CaloTowerGeometrySvc::etaBins()     const { return m_towerEtaBins;  }
-inline double CaloTowerGeometrySvc::etaMin()      const { return m_towerEtaMin;   }
-inline double CaloTowerGeometrySvc::etaMax()      const { return m_towerEtaMax;   }
-inline double CaloTowerGeometrySvc::etaWidth()    const { return m_towerEtaWidth; }
+inline std::size_t CaloTowerGeometrySvc::etaBins()   const { return m_towerEtaBins;  }
+inline double CaloTowerGeometrySvc::etaMin()         const { return m_towerEtaMin;   }
+inline double CaloTowerGeometrySvc::etaMax()         const { return m_towerEtaMax;   }
+inline double CaloTowerGeometrySvc::etaWidth()       const { return m_towerEtaWidth; }
 
-inline size_t CaloTowerGeometrySvc::phiBins()     const { return m_towerPhiBins;  }
-inline double CaloTowerGeometrySvc::phiMin()      const { return m_towerPhiMin;   }
-inline double CaloTowerGeometrySvc::phiMax()      const { return m_towerPhiMax;   }
-inline double CaloTowerGeometrySvc::phiWidth()    const { return m_towerPhiWidth; }
+inline std::size_t CaloTowerGeometrySvc::phiBins()   const { return m_towerPhiBins;  }
+inline double CaloTowerGeometrySvc::phiMin()         const { return m_towerPhiMin;   }
+inline double CaloTowerGeometrySvc::phiMax()         const { return m_towerPhiMax;   }
+inline double CaloTowerGeometrySvc::phiWidth()       const { return m_towerPhiWidth; }
 
-inline size_t CaloTowerGeometrySvc::towerBins()   const { return m_towerBins;     }
-inline double CaloTowerGeometrySvc::towerArea()   const { return m_towerArea;     } 
+inline std::size_t CaloTowerGeometrySvc::towerBins() const { return m_towerBins;     }
+inline double CaloTowerGeometrySvc::towerArea()      const { return m_towerArea;     } 
 
 //----------------//
 // Index checking //
@@ -318,14 +325,28 @@ inline bool CaloTowerGeometrySvc::isInvalidTowerIndex(index_t idx)           con
 //------------------------------//
 // Index retrieval/construction //
 //------------------------------// 
-inline CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::etaIndex(const CaloCell* pCell)   const { return etaIndex(pCell->eta()); }
-inline CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::phiIndex(const CaloCell* pCell)   const { return phiIndex(pCell->phi()); }
+inline CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::etaIndex(const CaloCell* pCell)           const { return etaIndex(pCell->eta()); }
+inline CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::phiIndex(const CaloCell* pCell)           const { return phiIndex(pCell->phi()); }
 
 inline CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::towerIndex(IdentifierHash cellHash)       const { return towerIndex(etaIndex(cellHash),phiIndex(cellHash)); }
 inline CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::towerIndex(double eta,double phi)         const { return towerIndex(etaIndex(eta),phiIndex(phi)); }
-inline CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::towerIndex(index_t etaIdx,index_t phiIdx) const { return !isInValidEtaIndex(etaIdx) && !isInvalidPhiIndex(phiIdx) ? etaIdx+phiIdx*m_towerPhiBins :  invalidIndex(); } 
+inline CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::towerIndex(index_t etaIdx,index_t phiIdx) const { return !isInvalidEtaIndex(etaIdx) && !isInvalidPhiIndex(phiIdx) ? phiIdx+etaIdx*m_towerPhiBins :  invalidIndex(); } 
 inline CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::towerIndex(const CaloCell* pCell)         const { return towerIndex(pCell->eta(),pCell->phi()); }
 inline CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::towerIndex(const element_t& elm)          const { return std::get<0>(elm); }
+
+inline CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::etaIndexFromTowerIndex(index_t towerIdx)  const { return (index_t)(towerIdx/phiBins()); }
+inline CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::phiIndexFromTowerIndex(index_t towerIdx)  const { return (index_t)(towerIdx%phiBins()); } 
+
+//-----------------------------//
+// Access to tower description //
+//-----------------------------//
+
+inline double CaloTowerGeometrySvc::invalidValue()                const { return m_invalidValue; }
+inline bool   CaloTowerGeometrySvc::isInvalidValue(double val)    const { return val == invalidValue(); }
+inline double CaloTowerGeometrySvc::towerEtaLocal(index_t etaIdx) const { return !isInvalidEtaIndex(etaIdx) ? etaMin()+(static_cast<double>(etaIdx)+0.5)*etaWidth() : invalidValue(); }
+inline double CaloTowerGeometrySvc::towerPhiLocal(index_t phiIdx) const { return !isInvalidPhiIndex(phiIdx) ? phiMin()+(static_cast<double>(phiIdx)+0.5)*phiWidth() : invalidValue(); }
+inline double CaloTowerGeometrySvc::towerEta(index_t towerIdx)    const { return towerEtaLocal(etaIndexFromTowerIndex(towerIdx)); }
+inline double CaloTowerGeometrySvc::towerPhi(index_t towerIdx)    const { return towerPhiLocal(phiIndexFromTowerIndex(towerIdx)); }  
 
 //-------------------//
 // Other data access //
@@ -337,9 +358,9 @@ inline double CaloTowerGeometrySvc::cellWeight(const element_t& elm)            
 //----------------------------------//
 // Internal functions and accessors //
 //----------------------------------//
-inline const CaloDetDescrManager* f_caloDDM()                        const { return m_caloDDM; } 
-inline const CaloDetDescrElement* f_caloDDE(const CaloCell* pCell)   const { return pCell->caloDDE(); }
-inline const CaloDetDescrElement* f_caloDDE(IdentifierHash cellHash) const { return f_caloDDM()->get_element(cellHash); }
+inline const CaloDetDescrManager* CaloTowerGeometrySvc::f_caloDDM()                        const { return m_caloDDM; } 
+inline const CaloDetDescrElement* CaloTowerGeometrySvc::f_caloDDE(const CaloCell* pCell)   const { return pCell->caloDDE(); }
+inline const CaloDetDescrElement* CaloTowerGeometrySvc::f_caloDDE(IdentifierHash cellHash) const { return f_caloDDM()->get_element(cellHash); }
 
 inline double CaloTowerGeometrySvc::f_cellEta(IdentifierHash cellHash) const { return f_caloDDE(cellHash)->eta(); }
 inline double CaloTowerGeometrySvc::f_cellEta(const CaloCell* pCell)   const { return pCell->eta(); } 
