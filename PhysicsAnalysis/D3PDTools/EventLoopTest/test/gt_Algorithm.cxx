@@ -21,7 +21,7 @@
 #include <AsgTools/IMessagePrinter.h>
 #include <AsgTools/MessagePrinterMock.h>
 #include <AsgTools/MessagePrinterOverlay.h>
-#include <AsgTools/UnitTest.h>
+#include <AsgTesting/UnitTest.h>
 #include <cmath>
 #include <gtest/gtest.h>
 #include <gtest/gtest-spi.h>

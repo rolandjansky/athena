@@ -17,7 +17,7 @@
 //
 
 #include <AsgTools/MessageCheck.h>
-#include <AsgTools/UnitTest.h>
+#include <AsgTesting/UnitTest.h>
 #include <QuickAna/KinObjectSelect.h>
 #include <QuickAna/MessageCheck.h>
 #include <gtest/gtest.h>

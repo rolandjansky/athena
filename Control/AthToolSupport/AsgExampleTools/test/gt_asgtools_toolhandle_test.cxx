@@ -7,7 +7,7 @@
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/AsgMetadataTool.h"
-#include "AsgTools/UnitTest.h"
+#include "AsgTesting/UnitTest.h"
 
 using namespace testing;
 
