@@ -50,13 +50,20 @@
 #define TILESIMALGS_TILEDIGITSFROMPULSE_H
 
 // Tile includes
+#include "TileEvent/TileDigitsContainer.h"
+#include "TileEvent/TileRawChannelContainer.h"
 #include "TileConditions/TileCondToolNoiseSample.h"
 
+// Athena includes
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "CLHEP/Random/RandomEngine.h"
+#include "StoreGate/WriteHandleKey.h"
+
+// Gaudi includes
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+
+#include "CLHEP/Random/RandomEngine.h"
 
 #include <string>
 
@@ -100,6 +107,12 @@ private:
     
     ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample{this,
         "TileCondToolNoiseSample", "TileCondToolNoiseSample", "Tile sample noise tool"};
+
+    SG::WriteHandleKey<TileDigitsContainer> m_digitsContainerKey{this,
+        "TileDigitsContainer", "TileDigitsCnt", "Output Tile digits container key"};
+
+    SG::WriteHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this,
+        "TileRawChannelContainer", "TrueAmp", "Output Tile raw channel container key"};
     
     CLHEP::HepRandomEngine * m_pHRengine; //!< Random number generator engine to use
     ServiceHandle <IAtRndmGenSvc> m_rndmSvc;  //!< Random number service to use
