@@ -40,6 +40,8 @@ atlas_add_component( Rivet_i
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${YODA_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS} ${RIVET_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS}
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${GSL_LIBRARIES} ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} ${YODA_LIBRARIES} ${FASTJET_LIBRARIES} ${RIVET_LIBRARIES} AthenaBaseComps GaudiKernel AthenaKernel GeneratorObjects PathResolver Rivet_iLib )
 
+atlas_install_scripts(share/*.sh)
+
 set( RivetEnvironment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
    CACHE PATH "Location of RivetEnvironment.cmake" )
 find_package( RivetEnvironment )
