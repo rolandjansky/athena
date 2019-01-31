@@ -56,7 +56,7 @@ namespace ISF {
     public:
       /** Constructor with parameters */
       DNNCaloSimSvc(const std::string& name, ISvcLocator* pSvcLocator);
-      
+       
       /** Destructor */
       virtual ~DNNCaloSimSvc();
       
@@ -69,6 +69,10 @@ namespace ISF {
 
       /** Simulation Call */
       StatusCode simulate(const ISFParticle& isp);
+      // type of input requested by lwtnn
+      typedef std::map<std::string, std::map<std::string, double> >  NetworkInputs ;
+      typedef std::map<std::string, double> NetworkOutputs;
+      StatusCode fillNetworkInputs(const ISF::ISFParticle& isfp, NetworkInputs  & inputs, double & trueEnergy);
       
       /** Setup Event chain - in case of a begin-of event action is needed */
       StatusCode setupEvent();
@@ -77,6 +81,8 @@ namespace ISF {
       StatusCode releaseEvent();
       
       std::string m_paramsFilename;
+      std::string m_paramsInputArchitecture;
+
       lwt::LightweightGraph * m_graph ;
       
       ToolHandleArray<ICaloCellMakerTool> m_caloCellMakerToolsSetup ;
@@ -96,22 +102,26 @@ namespace ISF {
       CaloGeometryFromCaloDDM* m_caloGeo;
       const LArEM_ID* m_emID;
       std::vector<CaloCell*> m_windowCells;
-      const double m_logTrueEnergyMean_const = 9.70406053;
-      const double m_logTrueEnergyScale_const = 1.76099569;
-      const double m_riImpactEtaMean_const = 3.47603256e-05;
-      const double m_riImpactEtaScale_const = 0.00722316;
-      const double m_riImpactPhiMean_const = -5.42153684e-05;
-      const double m_riImpactPhiScale_const = 0.00708241;
 
-      const double m_MiddleCellWidthEta_const = 0.025;
-      const double m_MiddleCellWidthPhi_const = CLHEP::pi / pow(2,7);
-      const double m_EtaRawMiddleCut_const = m_MiddleCellWidthEta_const * 3.5;
-      const double m_EtaRawBackCut_const = m_MiddleCellWidthEta_const * 4.;
-      const double m_PhiRawMiddleCut_const = m_MiddleCellWidthPhi_const * 3.5;
-      const double m_PhiRawStripCut_const = m_MiddleCellWidthPhi_const * 6.0;
+      // specific to architecture
+      // preprocessing of input
+      int m_GANLatentSize = 300;
+      double m_logTrueEnergyMean = 0.;
+      double m_logTrueEnergyScale = 0.;
+      double m_riImpactEtaMean = 0.;
+      double m_riImpactEtaScale = 0.;
+      double m_riImpactPhiMean = 0.;
+      double m_riImpactPhiScale = 0.;
 
-      const int m_numberOfCellsForDNN_const = 266;
-      const int m_GANLatentSize_const = 300;
+      // building of the 266 cells cluster
+      const int m_numberOfCellsForDNN = 266;
+      const double m_middleCellWidthEta = 0.025;
+      const double m_middleCellWidthPhi = CLHEP::pi / pow(2,7);
+      const double m_etaRawMiddleCut = m_middleCellWidthEta * 3.5;
+      const double m_etaRawBackCut = m_middleCellWidthEta * 4.;
+      const double m_phiRawMiddleCut = m_middleCellWidthPhi * 3.5;
+      const double m_phiRawStripCut = m_middleCellWidthPhi * 6.0;
+
       
       std::string  m_caloCellsOutputName;
   };
