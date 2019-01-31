@@ -86,16 +86,16 @@ namespace CP {
   StatusCode MuonTriggerScaleFactors::LoadTriggerMap(unsigned int year) {
         std::string fileName = m_fileName;
         if (fileName.empty() && !m_useRel207) {
-	  if (year == 2015) fileName = "muontrigger_sf_2015_mc16a_v03.root";
-	  else if (year == 2016) fileName = "muontrigger_sf_2016_mc16a_v04.root";
+	  if (year == 2015) fileName = "muontrigger_sf_2015_mc16a_v04.root";
+	  else if (year == 2016) fileName = "muontrigger_sf_2016_mc16a_v05.root";
 	  else if (year == 2017){
 	    if(m_useMC16c)
 	      fileName = "muontrigger_sf_2017_mc16c_v02.root";
 	    else
-	      fileName = "muontrigger_sf_2017_mc16d_v02.root";
+	      fileName = "muontrigger_sf_2017_mc16d_v03.root";
 	  }
 	  else if (year == 2018)
-	    fileName = "muontrigger_sf_2018_mc16e_v01.root";
+	    fileName = "muontrigger_sf_2018_mc16e_v02.root";
 	  else{
 	    ATH_MSG_WARNING("There is no SF file for year " << year << " yet");
 	    return StatusCode::SUCCESS;
@@ -157,8 +157,6 @@ namespace CP {
                 if (not triggerKey->IsFolder()) continue;
                 TDirectory* triggerDirectory = periodDirectory->GetDirectory(triggerKey->GetName());
                 std::string triggerName = std::string(triggerKey->GetName());
-		if (std::set<std::string>{"HLT_mu10", "HLT_mu14", "HLT_mu20", "HLT_mu22"}.count(triggerName) && year == 2018)
-		  continue;
 		if(!std::set<std::string>{"HLT_mu26_ivarmedium", "HLT_mu50", "HLT_mu26_ivarmedium_OR_HLT_mu50"}.count(triggerName) && m_binning == "coarse"){
 		  ATH_MSG_DEBUG("Coarse binning not supported for di-muon trigger legs at the moment");
 		  continue;
@@ -494,12 +492,6 @@ namespace CP {
             ATH_MSG_FATAL("MuonTriggerScaleFactors::GetTriggerSF;Currently dimuon trigger chains only implemented for events with exactly 2 muons.");
         }
 	unsigned int run = getRunNumber();            
-	auto year = getYear(run);
-	if(year == 2018){
-	  ATH_MSG_WARNING("You tried to access di-muon trigger SFs for 2018 which are currently not available. SF will be set to one");
-	  TriggerSF = 1.;
-	  return CorrectionCode::Ok;
-	}
         ATH_MSG_DEBUG("The trigger that you choose : " << trigger);
 
         Double_t eff_data = 0;
