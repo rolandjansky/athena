@@ -1,11 +1,15 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 
 //Local includes
 #include "TrigT1NSWSimTools/PadOfflineData.h"
 #include "TrigT1NSWSimTools/sTGCenumeration.h"
+#include "TrkSurfaces/PlaneSurface.h"
+#include "MuonReadoutGeometry/sTgcReadoutElement.h"
+
+#include "TVector3.h"
 
 #include <string>
 
@@ -20,9 +24,10 @@ namespace NSWL1 {
     PadOfflineData::~PadOfflineData() {
         // PaddOfflineData doesn't own the helper, so nothing to do here
     }
-
+ 
     //! methods for retrieving the bare data
     uint32_t   PadOfflineData::id()       const { return m_id.get_identifier32().get_compact(); }
+    Identifier PadOfflineData::Id()     const {return m_id;}
     uint16_t   PadOfflineData::BC_Tag()   const { return m_bc_tag; }
     float      PadOfflineData::time()     const { return m_time; }
 

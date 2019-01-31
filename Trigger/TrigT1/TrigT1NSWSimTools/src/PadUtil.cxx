@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi/Athena basic includes
@@ -11,6 +11,7 @@
 #include "TrigT1NSWSimTools/PadOfflineData.h"
 
 #include "TMath.h"
+#include "TRotation.h"
 #include "TVector3.h"
 
 #include <utility>
@@ -152,6 +153,14 @@ namespace NSWL1 {
 
     result.first  = ieta;
     result.second = iphi;
+    //result.ieta   = ieta;
+    //result.iphi   = iphi;
+    //result.det    = sdt;
+    //result.stgc   = st;
+    //result.layer  = lt;
+    //result.sector = sn;
+    //result.side   = side;
+    //result.setLowPhi(loPhi).setHighPhi(hiPhi).setLowH(loHei).setHighH(hiHei).fillCornerCoords(pos.Z(), phiSectorFive - phiCenterSector);
     return true;
   }
 

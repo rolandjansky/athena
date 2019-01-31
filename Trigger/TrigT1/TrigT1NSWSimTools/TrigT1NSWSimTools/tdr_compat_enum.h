@@ -7,25 +7,19 @@
 
 #ifndef NSW_TDR_COMPAT_ENUM_H
 #define NSW_TDR_COMPAT_ENUM_H
-
+#include <vector>
 namespace NSWL1 {
-    /**
-    @defgroup tdr_compat_enum "enum values needed for compatibility with TDR code"
 
-    In the TDR study we had several enum and constants (from
-    sTGCenumeration.h and sTGCgeometry.h). We got rid of most of
-    them, but we still need the ones below.
-
-    Note that the enum values might have changed with the new AGDD geometry.
-
-    \todo check enum values DG-2015-10-07 (in particular 0->1 shifts)
-    */
     const double c_inverse = 3.33564095198e-3;  // unit here is  [ns/mm]
     const float PI=3.14159265;
     const int STGC_LAYER_1=1, STGC_LAYER_2=2, STGC_LAYER_3=3, STGC_LAYER_4=4;
     const int SMALL_PIVOT=0, SMALL_CONFIRM=1, LARGE_PIVOT=2, LARGE_CONFIRM=3;
     const int MAXLAYERSHIT=4;
     enum SECTYPE{SMALL,LARGE};
+    
+    const std::vector<size_t>  SECTORS={0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+    const std::vector<size_t> SIDES={0,1};
+    
 }
 
 #endif

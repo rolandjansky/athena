@@ -6,6 +6,9 @@
 //Local includes
 #include "TrigT1NSWSimTools/StripOfflineData.h"
 
+#include <string>
+
+
 namespace NSWL1 {
 
   StripOfflineData::StripOfflineData(Identifier id, const sTgcIdHelper* helper, const sTgcDigit* digit) : 
@@ -25,7 +28,9 @@ namespace NSWL1 {
     void StripOfflineData::setTrigBCID(int bcid) {
         m_trig_bcid = bcid;
     }
-
+    void StripOfflineData::setTrigIndex(int idx){
+        m_padTrigIndex=idx;
+    }
     void StripOfflineData::setStripCharge_6bit(int charge) {
         m_strip_charge_6bit = charge;
     }
@@ -54,6 +59,8 @@ namespace NSWL1 {
     float StripOfflineData::time()     const { return m_strip_time; }
     Identifier StripOfflineData::Identity()     const { return m_id; }
     int StripOfflineData::trig_BCID()        const { return m_trig_bcid; }
+    int StripOfflineData:: trigIndex() const { return m_padTrigIndex;}
+    
     float StripOfflineData::strip_charge()    const {return  m_strip_charge;} 
     int StripOfflineData::strip_charge_6bit()    const {return  m_strip_charge_6bit;} 
     int StripOfflineData::strip_charge_10bit()    const {return  m_strip_charge_10bit;} 
@@ -74,7 +81,10 @@ namespace NSWL1 {
 
     int StripOfflineData::sectorId()    const {
       if (m_helper) {
+	//      std::string stName = m_helper->stationNameString(m_helper->stationName(m_id));
+        //    bool isSmall = stName[2]=='S';
 	return  m_helper->stationPhi(m_id);
+	    //    return (isSmall)? m_helper->stationPhi(m_id)*2 - 1 : m_helper->stationPhi(m_id)*2 - 2;
       }
       return -1;
     }
@@ -104,7 +114,9 @@ namespace NSWL1 {
       bool isSmall = stName[2]=='S';
       return isSmall;
         }
-    return -1;
+    //return -1;
+    //S.I to be consistent with pads
+    return 0;
   }
 
 

@@ -7,6 +7,7 @@
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
+#include "TrkSurfaces/PlaneSurface.h"
 #include <vector>
 
 
@@ -14,7 +15,7 @@
  author :   Serhat Istin / S.I
  */ 
  
-namespace NSWL1{ 
+namespace NSWL1{
     using Vertex=boost::geometry::model::d2::point_xy<double>;
     using Polygon=boost::geometry::model::polygon<Vertex>;
     using Vertices=std::vector<Vertex>;
@@ -31,7 +32,7 @@ namespace NSWL1{
         
         
     //Print something on the screen in a well defined format
-     Polygon buildPolygon(const Vertices);
+     Polygon buildPolygon(const Vertices&);//hm
      
     template <class T>
      void print(const T& t){std::cout<<boost::geometry::wkt(t)<<std::endl;}
@@ -80,7 +81,10 @@ namespace NSWL1{
         return std::make_pair(values[0],values.back());
    }
         
-        
+    
+    Polygon globalToLocal(const Polygon& ,float z,const Trk::PlaneSurface & );//use Z-depth of the given polygon in 3D
+    
+    
     //Absorbing  Element : a closed loop made up of 4 points (0,0)
      Polygon NilPolygon();
         

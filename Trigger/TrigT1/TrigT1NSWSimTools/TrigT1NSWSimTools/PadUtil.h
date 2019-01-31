@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 // -*-c++-*-
@@ -10,7 +10,7 @@
 
 // forward declarations
 class MsgStream;
-class TVector3;
+class TVcetor3;
 class PadOfflineData;
 
 namespace std {

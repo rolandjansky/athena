@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -15,7 +15,7 @@
 
 /*!
 
-A trigger candidate for a stgc sector
+A trigger trigger candidate for a stgc sector
 
 davide.gerbaudo@gmail.com, April 2013
 */
@@ -28,7 +28,6 @@ namespace NSWL1 {
     SectorTriggerCandidate(const SingleWedgePadTrigger &inner,
                            const SingleWedgePadTrigger &outer);
     SectorTriggerCandidate(const SingleWedgePadTrigger &innerOrOuterInTransition);
-    std::string pickle() const; //!< simple dict-like representation
     const std::vector< SingleWedgePadTrigger >& wedgeTrigs() const { return m_wedgeTrigs;}
     Polygon triggerRegion3() const;
 

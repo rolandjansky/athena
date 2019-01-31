@@ -1,12 +1,17 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STRIPCLUSTEROFFLINEDATA_H
 #define STRIPCLUSTEROFFLINEDATA_H
 
+// Identifier includes
+#include "Identifier/Identifier.h"
+#include "MuonIdHelpers/sTgcIdHelper.h"
+#include "MuonDigitContainer/sTgcDigit.h"
 // local includes
 #include "TrigT1NSWSimTools/StripClusterData.h"
+#include <string.h>
 
 // namespace for the NSW LVL1 related classes
 

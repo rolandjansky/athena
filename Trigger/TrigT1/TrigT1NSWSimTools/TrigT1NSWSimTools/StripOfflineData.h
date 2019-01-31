@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STRIPOFFLINEDATA_H
@@ -11,7 +11,7 @@
 #include "MuonDigitContainer/sTgcDigit.h"
 // local includes
 #include "TrigT1NSWSimTools/StripData.h"
-#include <string>
+#include <string.h>
 
 // namespace for the NSW LVL1 related classes
 
@@ -37,6 +37,7 @@ namespace NSWL1 {
     const Identifier    m_id;            //!< offline identifier of the strip hit
     const sTgcIdHelper* m_helper;        //!< helper for the identifier decoding
     int                 m_trig_bcid;     //!< trig BCID 
+    int m_padTrigIndex;
     float               m_strip_charge;  //!< strip charge
     float               m_strip_time;  //!< strip time
     int               m_strip_charge_10bit;  //!< strip 10 bit charge
@@ -46,12 +47,14 @@ namespace NSWL1 {
     float               m_x,m_y,m_z=0;
     float               m_lx,m_ly,m_lz=0;
     bool                m_read_strip;
+    
 
   public:
     StripOfflineData(Identifier id, const sTgcIdHelper* helper, const sTgcDigit* digit);
     ~StripOfflineData();
 
     void setTrigBCID(int bcid);          //!< set the trig BCID
+    void setTrigIndex(int );
     void setStripCharge(float charge);   //!< set the strip charge
     void setStripCharge_6bit(int charge);   //!< set the 6bit strip charge
     void setStripCharge_10bit(int charge);   //!< set the 10 bit strip charge
@@ -64,6 +67,7 @@ namespace NSWL1 {
     float time()     const;
     Identifier Identity()     const;  //!< return indentifier
     int BCID()        const;  //!< get the BCID
+    int trigIndex() const;
     float charge()     const;  //!< get the charge
     int trig_BCID()    const;  //!< get the BCID
     float strip_charge()   const;  //!< get the charge

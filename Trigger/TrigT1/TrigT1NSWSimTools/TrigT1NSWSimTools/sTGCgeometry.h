@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+//1234567890123901234 123456789023456 123456789023456123123456789023456123 1234567890123 1234567890123 1234565 4444412344326567890
 #ifndef STGCgeometry_h
 #define STGCgeometry_h
 
-// NSW STGC
+// NSW STGC (c) Daniel.Lellouch@cern.ch April 11, 2013
 
 static const float H1[STGC_TYPES][STGC_DETECTORS][STGC_LAYERS]={
 { // SMALL_PIVOT
@@ -229,6 +230,8 @@ static const float B[STGC_TYPES][STGC_DETECTORS][STGC_LAYERS]={
 , { UNDEF , UNDEF , UNDEF , UNDEF }
 }
 };
+
+
 
 static const float H1_ACTIVE[STGC_TYPES][STGC_DETECTORS][STGC_LAYERS]={
 { // SMALL_PIVOT

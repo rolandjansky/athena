@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef NSW_L1TDRSTGCTRIGGERLOGIC_H
@@ -12,12 +12,12 @@
 #include "TrigT1NSWSimTools/SingleWedgePadTrigger.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "AthenaKernel/MsgStreamMember.h"
+
+
 #include <string>
 #include <vector>
 #include "TRandom.h"
 
-//forward declarations
-class MsgStream;
 
 namespace NSWL1 {
     
@@ -29,7 +29,7 @@ namespace NSWL1 {
   In particular, the naming convention and the trigger logic are
   described in ATL-MUON-INT-2014-003 https://cds.cern.ch/record/1694727.
 
-  This class requires the input data to be formatted as a vector<PadWithHits>,
+  This class requires the input data to be formatted as a vector<PadOfflineData>,
   and it provides as output a vector<SectorTriggerCandidate>.
 
   Imported from
@@ -42,6 +42,7 @@ namespace NSWL1 {
  
   Based on the original implementation by Shikma, sTGCTriggerLogic.
  
+  davide.gerbaudo@gmail.com
   April 2013
 */
 class L1TdrStgcTriggerLogic {
@@ -61,7 +62,7 @@ class L1TdrStgcTriggerLogic {
 
         */
         
-        bool buildSectorTriggers(const std::vector<PadWithHits> &pads);
+        bool buildSectorTriggers(const std::vector<std::shared_ptr<PadOfflineData>> &pads);
         /// access cached output of buildSectorTriggers()
         const std::vector< SectorTriggerCandidate >& candidates() const {return m_secTrigCand;}
         /// simulate efficiency by dropping random pads (their indices)
@@ -81,41 +82,48 @@ class L1TdrStgcTriggerLogic {
         static std::vector<std::string> sTGC_triggerPatternsPhiDownUp();
         static std::vector<std::string> sTGC_triggerPatternsPhiUpDown();
 
-        static bool hitPattern(const Pad &firstPad, const Pad &otherPad,
+        static bool hitPattern(const std::shared_ptr<PadOfflineData>  &firstPad, const std::shared_ptr<PadOfflineData> &otherPad,
                             std::string &pattern);
         static bool hitPattern(const int &iEta0, const int &iPhi0,
                             const int &iEta1, const int &iPhi1,
                             std::string &pattern);
-        static std::vector< SingleWedgePadTrigger > buildSingleWedgeTriggers(const std::vector<PadWithHits> &pads,
+        static std::vector< SingleWedgePadTrigger > buildSingleWedgeTriggers(const std::vector<std::shared_ptr<PadOfflineData>> &pads,
                                                         const std::vector< size_t > &padIndicesLayer0,
                                                         const std::vector< size_t > &padIndicesLayer1,
                                                         const std::vector< size_t > &padIndicesLayer2,
                                                         const std::vector< size_t > &padIndicesLayer3,
                                                         bool isLayer1, bool isLayer2,
                                                         bool isLayer3, bool isLayer4);
-        static std::vector< SingleWedgePadTrigger > build34swt(const std::vector<PadWithHits> &pads,
+        static std::vector< SingleWedgePadTrigger > build34swt(const std::vector<std::shared_ptr<PadOfflineData>> &pads,
                                                             const std::vector< size_t > &padIndicesLayer0,
                                                             const std::vector< size_t > &padIndicesLayer1,
                                                             const std::vector< size_t > &padIndicesLayer2,
                                                             const std::vector< size_t > &padIndicesLayer3);
-        static std::vector< SingleWedgePadTrigger > build44swt(const std::vector<PadWithHits> &pads,
+        static std::vector< SingleWedgePadTrigger > build44swt(const std::vector<std::shared_ptr<PadOfflineData>> &pads,
                                                             const std::vector< size_t > &padIndicesLayer0,
                                                             const std::vector< size_t > &padIndicesLayer1,
                                                             const std::vector< size_t > &padIndicesLayer2,
                                                             const std::vector< size_t > &padIndicesLayer3);
-
     protected:
         /// Log a message using the Athena controlled logging system
         MsgStream& msg(MSG::Level lvl) const { return m_msg.get() << lvl; }
-   
         /// Check whether the logging system is active at the provided verbosity level
         bool msgLvl(MSG::Level lvl) { return m_msg.get().level() <= lvl; }
-   
         /// Private message stream member
         mutable Athena::MsgStreamMember m_msg;
+
+
+
         
+   
+
     private:
-        TRandom m_rand;
+       std::vector<size_t> filterByLayer(const std::vector<std::shared_ptr<PadOfflineData>> &pads,
+                                         const std::vector<size_t> &padSelectedIndices,
+                                         int layer);
+       std::vector<size_t> filterByMultiplet(const std::vector<std::shared_ptr<PadOfflineData>> &pads,
+                                             const std::vector<size_t> &padSelectedIndices,
+                                             int multiplet);
         std::vector< SectorTriggerCandidate > m_secTrigCand;        
         bool m_writePickle; /// after computing the triggers, write the canditates to 'pickle' files (for event display)
         std::string m_picklePrefix; /// path where the pickle files will be written
