@@ -32,7 +32,6 @@
 #include "xAODEventInfo/EventInfoAuxContainer.h" // NEW EDM
 
 // xAOD include(s):
-#include "xAODCore/tools/PrintHelpers.h"
 #include "EventInfoUtils/EventInfoFromxAOD.h"
 
 // Gaudi headers
@@ -406,7 +405,6 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
                                    std::max( pEventSignal->errorState(xAOD::EventInfo::Core),
                                              pEvent->errorState(xAOD::EventInfo::Core) ) );
       }
-      ATH_MSG_VERBOSE ( "BCID =" << pOverEvent->bcid() );
 
       // when doing overlay add the hard-scatter event as sub-event
       if( m_isEventOverlayJob ) {

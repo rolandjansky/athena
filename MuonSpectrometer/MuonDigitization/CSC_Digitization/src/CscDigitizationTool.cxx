@@ -214,9 +214,6 @@ StatusCode CscDigitizationTool::processAllSubEvents() {
 
 }
 
-#include <iostream>
-using namespace std;
-
 StatusCode CscDigitizationTool::CoreDigitization(CscDigitContainer* cscDigits,CscSimDataCollection* cscSimData) {
   
   // get the iterator pairs for this DetEl

@@ -25,7 +25,6 @@
 #include "AthenaKernel/errorcheck.h"
 
 #include "BkgStreamsCache.h"
-#define DEBUG_PILEUP
 
 BkgStreamsCache::BkgStreamsCache( const std::string& type,
                                   const std::string& name,

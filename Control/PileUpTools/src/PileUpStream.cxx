@@ -26,9 +26,6 @@
 
 class IOpaqueAddress;
 
-#include <iostream>
-using namespace std;
-
 /// Structors
 PileUpStream::PileUpStream():
   m_name("INVALID"), p_svcLoc(0), p_sel(0), p_SG(0), p_iter(0), 
@@ -87,9 +84,9 @@ PileUpStream::PileUpStream(const std::string& name,
          serviceLocator()->service("ActiveStoreSvc", p_activeStore).isSuccess() &&
          serviceLocator()->service("PileUpMergeSvc", p_mergeSvc, true).isSuccess() ) ) {
 
-    const string errMsg("PileUpStream:: can not create stream");
+    const std::string errMsg("PileUpStream:: can not create stream");
     ATH_MSG_ERROR ( errMsg );
-    throw runtime_error(errMsg);
+    throw std::runtime_error(errMsg);
   } else  m_ownEvtIterator=true;
 }
 
@@ -107,9 +104,9 @@ PileUpStream::PileUpStream(const std::string& name,
 	serviceLocator()->service(selecName, p_sel).isSuccess() &&
         serviceLocator()->service("PileUpMergeSvc", p_mergeSvc, true).isSuccess() &&
 	p_sel->createContext(p_iter).isSuccess() )) {
-    const string errMsg("PileUpStream: can not create stream");
+    const std::string errMsg("PileUpStream: can not create stream");
     ATH_MSG_ERROR ( errMsg );
-    throw runtime_error(errMsg);
+    throw std::runtime_error(errMsg);
   } else  m_ownEvtIterator=true;
 }
 
@@ -186,9 +183,9 @@ bool PileUpStream::setupStore()
 void PileUpStream::setActiveStore()
 {
   if (0 == p_activeStore) {
-    const string errMsg("PileUpStream::setActiveStore(): no ActiveStoreSvc ptr set, INVALID STREAM STATE ");
+    const std::string errMsg("PileUpStream::setActiveStore(): no ActiveStoreSvc ptr set, INVALID STREAM STATE ");
     ATH_MSG_ERROR ( errMsg );
-    throw runtime_error(errMsg);
+    throw std::runtime_error(errMsg);
   }
   p_activeStore->setStore(&store());
   return;

@@ -432,11 +432,6 @@ StatusCode IOVDbSvc::loadAddresses(StoreID::type /*storeID*/, tadList& /*list*/ 
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-#include "CxxUtils/SealDebug.h"
-#include <iostream>
-using namespace std;
-#include "AthenaKernel/EventContextClid.h"
-
 StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* tad,
                                    const EventContext& /*ctx*/)
 {

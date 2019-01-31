@@ -16,7 +16,6 @@
 #include "StoreGate/ActiveStoreSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/ClassID_traits.h"
-//#include "EventInfo/EventID.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 namespace {

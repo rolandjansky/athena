@@ -4,7 +4,6 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfoCnvTool.h 793565 2017-01-23 22:00:14Z leggett $
 #ifndef EVENTINFOFROMXAOD_H
 #define EVENTINFOFROMXAOD_H
 
