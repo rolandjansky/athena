@@ -16,9 +16,6 @@
 #include "TrigInterfaces/IMonitoredAlgo.h"
 
 
-//Muon RDOs for trigger EDM
-#include "MuonRDO/NSW_TrigRawDataContainer.h"
-
 
 // NSWL1SimTools includes
 #include "TrigT1NSWSimTools/IPadTdsTool.h"
@@ -111,7 +108,6 @@ namespace NSWL1 {
     
     
     protected:
-        SG::WriteHandleKey<Muon::NSW_TrigRawDataContainer> m_trigRdoContainer;
     
 
   };  // end of NSWL1Simulation class

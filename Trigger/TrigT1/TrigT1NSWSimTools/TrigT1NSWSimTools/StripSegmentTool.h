@@ -12,6 +12,10 @@
 
 #include "GaudiKernel/Property.h"
 
+//Muon RDOs for trigger EDM
+#include "MuonRDO/NSW_TrigRawDataContainer.h"
+
+
 //local includes
 #include "TrigT1NSWSimTools/IStripSegmentTool.h"
 #include "TrigT1NSWSimTools/PadTrigger.h"
@@ -64,6 +68,7 @@ namespace NSWL1 {
     virtual void handle (const Incident& inc);
     StatusCode find_segments(std::vector< std::unique_ptr<StripClusterData> >& clusters);
 
+    
   private:
     // methods implementing the internal data processing
 
@@ -100,6 +105,9 @@ namespace NSWL1 {
     std::vector<float> *m_seg_dir_r;
     std::vector<float> *m_seg_dir_y;
     std::vector<float> *m_seg_dir_z; 
+    
+    protected:
+        SG::WriteHandleKey<Muon::NSW_TrigRawDataContainer> m_trigRdoContainer;
     
 				   };  // end of StripSegmentTool class
 } // namespace NSWL1

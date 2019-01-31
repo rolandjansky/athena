@@ -72,7 +72,10 @@ namespace NSWL1 {
     ATH_MSG_INFO( "initializing " << name() ); 
     
     ATH_MSG_INFO( name() << " configuration:"); 
-
+    declareProperty("NSWTrigRawDataContainerName", m_trigRdoContainer = "NSWTRGRDO");
+    ATH_CHECK( m_trigRdoContainer.initialize() );   
+    
+    
       const IInterface* parent = this->parent();
       const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);
       std::string algo_name = pnamed->name();
@@ -151,8 +154,14 @@ namespace NSWL1 {
   
     StatusCode StripSegmentTool::find_segments(std::vector< std::unique_ptr<StripClusterData> >& clusters){
       
+      SG::WriteHandle<Muon::NSW_TrigRawDataContainer> trgRdos (m_trigRdoContainer);
       
-
+      auto p_record=std::make_unique<Muon::NSW_TrigRawDataContainer>( );
+      ATH_CHECK( trgRdos.record(std::move(p_record)));
+      
+      //TODO : put  sector Id and BCID in the ctor of NSW_TrigRawData below
+      Muon::NSW_TrigRawData trgRawData;//like vector<trigger segment>
+      
       std::map<int, std::vector<std::unique_ptr<StripClusterData>>[2] > cluster_map; // gather clusters by bandID and seperate in wedge
 
 
@@ -166,8 +175,11 @@ namespace NSWL1 {
 	    }
       }
       
-      for(const auto& band : cluster_map){
-	    int bandId=band.first;
+      for(const auto& band : cluster_map){//main cluster loop
+	    
+          
+          
+       int bandId=band.first;
 	    if ((band.second[0].size() == 0) || (band.second[1].size() == 0)) continue;
   
 	    float glx1=0;
@@ -196,78 +208,93 @@ namespace NSWL1 {
 	    float r2=0;
 	    float z2=0;
 	    for( const auto& cl : band.second[1] ){
-	        r2+=sqrt(pow(cl->globX()*cl->charge(),2)+pow(cl->globY()*cl->charge(),2));
-	        z2+=cl->globZ()*cl->charge();
-	        glx2+=cl->globX()*cl->charge();
-	        gly2+=cl->globY()*cl->charge();
+            r2+=sqrt(pow(cl->globX()*cl->charge(),2)+pow(cl->globY()*cl->charge(),2));
+            z2+=cl->globZ()*cl->charge();
+            glx2+=cl->globX()*cl->charge();
+            gly2+=cl->globY()*cl->charge();
             charge2+=cl->charge();
-	    }
-	    if(charge1!=0){
-	        r1=r1/charge1;
-	        z1=z1/charge1;
-	        glx1=glx1/charge1;
-	        gly1=gly1/charge1;
-	    }
-	    if(charge2!=0){
-	        r2=r2/charge2;
-	        z2=z2/charge2;
-	        glx2=glx2/charge2;
-	        gly2=gly2/charge2;
-	    }
-	    glx=(glx1+glx2)/2.;
-	    gly=(gly1+gly2)/2.;
+        }
+        if(charge1!=0){
+            r1=r1/charge1;
+            z1=z1/charge1;
+            glx1=glx1/charge1;
+            gly1=gly1/charge1;
+        }
+        if(charge2!=0){
+            r2=r2/charge2;
+            z2=z2/charge2;
+            glx2=glx2/charge2;
+            gly2=gly2/charge2;
+        }
+        glx=(glx1+glx2)/2.;
+        gly=(gly1+gly2)/2.;
 
-	    float slope=(r2-r1)/(z2-z1);
-	    float avg_r=(r1+r2)/2.;
-	    float avg_z=(z1+z2)/2.;
-	    float inf_slope=(avg_r/avg_z);
-	    //float dR=slope-inf_slope;
-	    float theta_inf=atan(inf_slope);
-	    float theta=atan(slope);
-	    float dtheta=(theta_inf-theta)*1000;//In Milliradian
-	    if(avg_z>0){
-	      eta=-log(tan(theta/2));
-	    }
-	    else if(avg_z<0){
-	      eta=log(tan(-theta/2));
-	   }
-	   else{
-	      ATH_MSG_ERROR("Segment Global Z at IP");
-       }
-	   if(glx>=0 && gly>=0){
-	     phi=atan(gly/glx);
-	   }
-	   else if(glx<0 && gly>0){
-	     phi=PI-atan(abs(gly/glx));
-	   }
-	   else if(glx<0 && gly<0){
-	      phi=-1*PI+atan(gly/glx);
-	   }
-	   else if(glx>0 && gly<0){
-	      phi=-atan(abs(gly/glx));
-	   }
-	   else{
-	  ATH_MSG_ERROR("Unexpected error, global x or global y are not a number");
-	  }
+        float slope=(r2-r1)/(z2-z1);
+        float avg_r=(r1+r2)/2.;
+        float avg_z=(z1+z2)/2.;
+        float inf_slope=(avg_r/avg_z);
+        //float dR=slope-inf_slope;
+        float theta_inf=atan(inf_slope);
+        float theta=atan(slope);
+        float dtheta=(theta_inf-theta)*1000;//In Milliradian
+        if(avg_z>0){
+            eta=-log(tan(theta/2));
+        }
+        else if(avg_z<0){
+            eta=log(tan(-theta/2));
+        }
+        else{
+            ATH_MSG_ERROR("Segment Global Z at IP");
+        }
+        
+        if(glx>=0 && gly>=0){
+            phi=atan(gly/glx);
+        }
+        else if(glx<0 && gly>0){
+            phi=PI-atan(abs(gly/glx));
+        }
+        else if(glx<0 && gly<0){
+            phi=-1*PI+atan(gly/glx);
+        }
+        else if(glx>0 && gly<0){
+            phi=-atan(abs(gly/glx));
+        }
+        else{
+            ATH_MSG_ERROR("Unexpected error, global x or global y are not a number");
+        }
 
-	 m_seg_wedge1_size->push_back(band.second[0].size());
-	 m_seg_wedge2_size->push_back(band.second[1].size());
+        m_seg_wedge1_size->push_back(band.second[0].size());
+        m_seg_wedge2_size->push_back(band.second[1].size());
 
-	 m_seg_bandId->push_back(bandId);
-	 m_seg_theta->push_back(theta);
-	 m_seg_dtheta->push_back(dtheta);
-	 m_seg_eta->push_back(eta);
-	 m_seg_phi->push_back(phi);
-	 m_seg_global_r->push_back(avg_r); 
-     m_seg_global_x->push_back(glx);
-	 m_seg_global_y->push_back(gly); 
-	 m_seg_global_z->push_back(avg_z); 
-     m_seg_dir_r->push_back(slope); 
-	 m_seg_dir_y->push_back(-99); 
-	 m_seg_dir_z->push_back(-99); 
-     }
+        m_seg_bandId->push_back(bandId);
+        m_seg_theta->push_back(theta);
+        m_seg_dtheta->push_back(dtheta);
+        m_seg_eta->push_back(eta);
+        m_seg_phi->push_back(phi);
+        m_seg_global_r->push_back(avg_r); 
+        m_seg_global_x->push_back(glx);
+        m_seg_global_y->push_back(gly); 
+        m_seg_global_z->push_back(avg_z); 
+        m_seg_dir_r->push_back(slope); 
+        m_seg_dir_y->push_back(-99); 
+        m_seg_dir_z->push_back(-99); 
+       
+        
+        
+       //Use these only for salt.... True values will be provided later 
+       bool phiRes=true;
+       bool lowRes=false;
+       uint8_t rIndex=53;
+       uint8_t phiIndex=13;
+       uint8_t deltaTheta=uint8_t(dtheta);
+       //S.I As far as I understand memory is handled by the DataVector so we shoul not delete the pointer
+       auto* rdo_segment= new Muon::NSW_TrigRawDataSegment( deltaTheta,  phiIndex,  rIndex, lowRes,  phiRes);      
+       trgRawData.push_back(rdo_segment);
+      
+     
 
-
+     
+     }//end of clmap loop
 
       return StatusCode::SUCCESS;
     }
