@@ -1,11 +1,13 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODTRACKING_VERSIONS_NEUTRALPARTICLE_V1_H
 #define XAODTRACKING_VERSIONS_NEUTRALPARTICLE_V1_H
+
+#include "CxxUtils/CachedValue.h"
 
 // Athena includes
 #include "AthLinks/ElementLink.h"
@@ -27,6 +29,7 @@
 
 // ROOT include(s):
 #include "Math/Vector4D.h"
+
 
 namespace xAOD {
   /// Class describing a NeutralParticle.
@@ -137,14 +140,10 @@ namespace xAOD {
       //  void setVertex(const ElementLink< VertexContainer >& vertex);
 
     private:
-      /// Set to false if anything related to the perigee was changed
-      /// (and so it needs updating);  *** NEEDS TO CHANGE FOR ATHENAMT ***
-      mutable bool m_perigeeCached;
-
 #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) ) && ( ! defined(__GCCXML__) ) && !defined(__CLING__)
       /// @brief Cached NeutralPerigee, built from this object.
       /// @note This is only available in Athena.
-      mutable Trk::NeutralPerigee* m_perigeeParameters;
+      CxxUtils::CachedValue<Trk::NeutralPerigee> m_perigeeParameters;
 #endif // not XAOD_STANDALONE and not XAOD_MANACORE and not __GCCXML__
 
     }; // class NeutralParticle_v1
