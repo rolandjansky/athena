@@ -75,13 +75,6 @@ namespace Analysis {
 
   StatusCode TrackSelector::initialize() {
     for(int i=0;i<numCuts;i++) m_ntrc[i]=0;
-    /** retrieving ToolSvc: */
-    IToolSvc* toolSvc;
-    StatusCode sc = service("ToolSvc", toolSvc);
-    if (StatusCode::SUCCESS != sc) {
-      ATH_MSG_ERROR("#BTAG# Can't get ToolSvc");
-      return StatusCode::FAILURE;
-    }
     /** retrieving TrackToVertex: */
     if ( m_trackToVertexTool.retrieve().isFailure() ) {
       ATH_MSG_FATAL("#BTAG# Failed to retrieve tool " << m_trackToVertexTool);
