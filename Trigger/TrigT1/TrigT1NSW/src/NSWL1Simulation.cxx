@@ -54,7 +54,7 @@ namespace NSWL1 {
     declareProperty( "PadTriggerTool",  m_pad_trigger, "Tool that simulates the pad trigger logic");
     declareProperty( "StripTdsTool",    m_strip_tds,  "Tool that simulates the functionalities of the Strip TDS");
     declareProperty( "StripClusterTool",m_strip_cluster,  "Tool that simulates the Strip Clustering");
-    declareProperty( "StripSegmentTool",m_strip_cluster,  "Tool that simulates the Segment finding");
+    declareProperty( "StripSegmentTool",m_strip_segment,  "Tool that simulates the Segment finding");
     declareProperty( "MMStripTdsTool",  m_mmstrip_tds,  "Tool that simulates the functionalities of the MM STRIP TDS");
     declareProperty( "MMTriggerTool",   m_mmtrigger,    "Tool that simulates the MM Trigger");
 

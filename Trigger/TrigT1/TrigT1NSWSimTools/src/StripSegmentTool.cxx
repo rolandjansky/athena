@@ -72,7 +72,7 @@ namespace NSWL1 {
     ATH_MSG_INFO( "initializing " << name() ); 
     
     ATH_MSG_INFO( name() << " configuration:"); 
-    declareProperty("NSWTrigRawDataContainerName", m_trigRdoContainer = "NSWTRGRDO");
+    declareProperty("NSWTrigRDOContainerName", m_trigRdoContainer = "NSWTRGRDO");
     ATH_CHECK( m_trigRdoContainer.initialize() );   
     
     
