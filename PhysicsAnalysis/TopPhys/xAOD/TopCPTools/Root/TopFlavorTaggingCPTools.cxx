@@ -108,7 +108,7 @@ StatusCode FlavorTaggingCPTools::initialize() {
     BTaggingSelectionTool* btagsel = new BTaggingSelectionTool(btagsel_tool_name);
     top::check(btagsel->setProperty("TaggerName", alg),
 	       "Failed to set b-tagging selecton tool TaggerName");
-    top::check(btagsel->setProperty("JetAuthor", m_config->sgKeyJets()),
+    top::check(btagsel->setProperty("JetAuthor", caloJets_collection),
 	       "Failed to set b-tagging selection JetAuthor");
     top::check(btagsel->setProperty("FlvTagCutDefinitionsFileName",
 				    m_cdi_file),
