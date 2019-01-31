@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Jet_p6.cxx
@@ -12,14 +12,4 @@
 
 // JetEventTPCnv includes
 #include "JetEventTPCnv/Jet_p6.h"
-
-/////////////////////////////////////////////////////////////////// 
-/// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-
-
-// Delete the pointed-to objects, if we own them.
-Jet_p6::~Jet_p6()
-{ }
 

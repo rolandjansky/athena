@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETEVENTTPCNV_JETMOMENTMAP_P1_H
@@ -18,7 +18,7 @@ class JetMomentMap_p1
 public:
 
   JetMomentMap_p1() { };
-  virtual ~JetMomentMap_p1() { };
+  virtual ~JetMomentMap_p1() = default;
   
  protected:
   
