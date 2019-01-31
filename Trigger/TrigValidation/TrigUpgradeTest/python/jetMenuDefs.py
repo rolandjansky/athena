@@ -10,18 +10,8 @@ def jetMenuSequence():
     """ Function to create the jet Menu Sequence"""
     
     ## RoIs = 'FSJETRoI'
-    
-    ## #input maker
-    ## from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-    ## InputMakerAlg = InputMakerForRoI("JetInputMaker", OutputLevel = DEBUG, RoIsLink="initialRoI")
-    ## InputMakerAlg.RoIs=RoIs
-    
     #reco sequence
     from TrigUpgradeTest.jetDefs import jetAthSequence
-
-    #(recoSequence, sequenceOut) = jetRecoSequence(InputMakerAlg.RoIs)
-#    (recoSequence, sequenceOut, InputMakerAlg) = RecoFragmentsPool.retrieve(jetRecoSequence, ConfigFlags, RoIs=jetIM.RoIs)
-
     (JetAthSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(jetAthSequence,ConfigFlags)
      
     #hypo
@@ -31,8 +21,6 @@ def jetMenuSequence():
     hypo.OutputLevel = DEBUG
     hypo.Jets = sequenceOut
 
-    # sequence
-    #JetAthSequence =  seqAND("jetAthSequence",[InputMakerAlg, recoSequence ])
 
     return  MenuSequence( Sequence    = JetAthSequence,
                           Maker       = InputMakerAlg,

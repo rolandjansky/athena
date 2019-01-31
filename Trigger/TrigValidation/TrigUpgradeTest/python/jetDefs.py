@@ -7,27 +7,30 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaCommon.Constants import VERBOSE,DEBUG,INFO
 from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
 
-def jetInputMaker( RoIs = 'FSJETRoI'):
-  """ Creates the jet inputMaker"""
-  
-  from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-  InputMakerAlg = InputMakerForRoI("JetInputMaker", OutputLevel = DEBUG, RoIsLink="initialRoI")
-  InputMakerAlg.RoIs=RoIs
-  return InputMakerAlg
+
+
+## def jetFSInputMaker( ):
+##   """ Creates the jet inputMaker for FS"""
+##   RoIs = jetCollections.L1RoIs
+##   #'FSJETRoI'
+##   from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
+##   InputMakerAlg = InputMakerForRoI("JetInputMaker", OutputLevel = DEBUG, RoIsLink="initialRoI")
+##   InputMakerAlg.RoIs=RoIs
+##   return InputMakerAlg
 
 
 def jetAthSequence(ConfigFlags):
-    InputMakerAlg= jetInputMaker()
-    (recoSequence, sequenceOut) = jetRecoSequence(InputMakerAlg.RoIs)
+    from TrigT2CaloCommon.CaloDef import clusterFSInputMaker
+    InputMakerAlg= clusterFSInputMaker()
+    (recoSequence, sequenceOut) = jetRecoSequence()
 
     JetAthSequence =  seqAND("jetAthSequence",[InputMakerAlg, recoSequence ])
     return (JetAthSequence, InputMakerAlg, sequenceOut)
 
     
-def jetRecoSequence(RoIs = 'FSJETRoI'):    
-    # calo Cluster reco    
-    from TrigT2CaloCommon.CaloDef import HLTCaloTopoRecoSequence
-    jetRecoSequence = HLTCaloTopoRecoSequence(RoIs)
+def jetRecoSequence(RoIs = 'FSJETRoI'):
+    from TrigT2CaloCommon.CaloDef import HLTFSTopoRecoSequence
+    (jetRecoSequence, caloclusters) = HLTFSTopoRecoSequence(RoIs)
 
     from AthenaCommon.AppMgr import ToolSvc
     # Jet Reco:
@@ -41,8 +44,8 @@ def jetRecoSequence(RoIs = 'FSJETRoI'):
 
 
     pseudoJetGetter = PseudoJetGetter('simpleJobPJGetter')
-    pseudoJetGetter.InputContainer = 'StoreGateSvc+caloclusters'
-    pseudoJetGetter.OutputContainer = 'StoreGateSvc+PseudoJetEMTopo'
+    pseudoJetGetter.InputContainer = caloclusters
+    pseudoJetGetter.OutputContainer = 'PseudoJetEMTopo'
     pseudoJetGetter.Label = ''
 #    pseudoJetGetter.OutputLevel = DEBUG
 

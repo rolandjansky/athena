@@ -11,9 +11,9 @@ include("TrigUpgradeTest/testHLT_MT.py")
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
 
 
-from TrigUpgradeTest.metMenuDefs import metCellSequence
+from TrigUpgradeTest.metMenuDefs import metCellMenuSequence
 
-metCellSeq = metCellSequence()
+metCellSeq = metCellMenuSequence()
 metCellStep = ChainStep("Step1_met_cell", [metCellSeq])
 testChains = [
    Chain(name="HLT_xe65_L1XE50", Seed="L1_XE50", ChainSteps=[metCellStep]),

@@ -248,17 +248,24 @@ def decisionTree_From_Chains(HLTNode, chains):
                 log.debug("Seeds added; having in the filter now: %s", filter_input)
             else:
                 prev = chain.steps[nstep-1].sequences
-                 # previous filter name
+                ## for seq in prev:                   
+                ##     filter_input.extend(seq.outputs)
+                ## log.debug("Connect to previous sequence through these filter inputs: %s" %str( filter_input) )
+
+
+                # previous filter name
                 pre_filter_name = CFNaming.filterName(chain.steps[nstep-1].name)
-#                print "Searching %s in %d sequences: "%(pre_filter_name, len(prev))
+                # searching the correct sequence outut to connect to the filter
                 for seq in prev:
                     for out in seq.outputs:
                         if pre_filter_name in out:
                             filter_input.append(out)
-                            #filter_input.extend(newinput)
                             log.debug("Connect to previous sequence through these filter inputs: %s" %str( filter_input) )
-                if len(filter_input) == 0:
-                    log.error("")
+
+            if len(filter_input) == 0 or (len(filter_input) != 1 and not chain_step.isCombo):
+                log.error("ERROR: Filter for step %s has %d inputs! One is expected"%(chain_step.name, len(filter_input)))
+                sys.exit("ERROR, in configuration of sequence "+seq.name)
+                    
 
             # get the filter:
             filter_name = CFNaming.filterName(chain_step.name)

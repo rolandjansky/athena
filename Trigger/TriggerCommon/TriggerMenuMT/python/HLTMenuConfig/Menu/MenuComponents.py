@@ -338,21 +338,21 @@ class MenuSequence():
 #################################################
 ## It might be moved somewhere in the cofiguration later one
 # This is amp between the L1 items and the name of teh Decisions in the L1Decoder unpacking tools
-mapSeedToL1Decoder = {  "EM" : "L1EM",
-                        "MU" : "L1MU",
-                        "J"  : "L1J",
-                        "TAU": "L1TAU",
-                        "XE" : "L1MET",
-                        "XS" : "L1MET",
-                        "TE" : "L1MET"}
-
 def DoMapSeedToL1Decoder(seed):
+    mapSeedToL1Decoder = {  "EM" : "L1EM",
+                            "MU" : "L1MU",
+                            "J"  : "L1J",
+                            "TAU": "L1TAU",
+                            "XE" : "L1MET",
+                            "XS" : "L1MET",
+                            "TE" : "L1MET"}
+
     # remove actual threshold value from L1 seed string
-    strip_seed  = filter(lambda x: x.isalpha(), seed)
-    if strip_seed not in mapSeedToL1Decoder:
-        log.error("Wrong mapping of L1 seeds. "+ strip_seed + " not found in dictionary")
+    stripSeed  = filter(lambda x: x.isalpha(), seed)
+    if stripSeed not in mapSeedToL1Decoder:
+        log.error("Seed "+ seed + " not mapped to any Decision objects! Available are: " + str(mapSeedToL1Decoder.values()))
         sys.exit("ERROR, in chain configuration") 
-    return (mapSeedToL1Decoder[strip_seed])   
+    return (mapSeedToL1Decoder[stripSeed])   
 
 #################################################
 

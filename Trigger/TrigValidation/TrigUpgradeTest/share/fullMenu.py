@@ -147,9 +147,9 @@ if (doBJet):
 # MET chains
 ##################################################################
 if (doMET):
-    from TrigUpgradeTest.metMenuDefs import metCellSequence
+    from TrigUpgradeTest.metMenuDefs import metCellMenuSequence
 
-    metCellSeq = metCellSequence()
+    metCellSeq = metCellMenuSequence()
     metCellStep = ChainStep("Step1_met_cell", [metCellSeq])
     metChains = [
         Chain(name="HLT_xe65_L1XE50", Seed="L1_XE50", ChainSteps=[metCellStep]),
