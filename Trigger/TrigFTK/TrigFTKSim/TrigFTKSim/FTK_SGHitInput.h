@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FTK_SGHITINPUT_H
@@ -32,7 +32,7 @@
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkParameters/TrackParameters.h"
-#include "InDetCondServices/ISiLorentzAngleTool.h"
+#include "InDetCondTools/ISiLorentzAngleTool.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetDetDescrExample_ReadSiDetectorElements_h
@@ -15,7 +15,7 @@
 #include "SiPropertiesSvc/ISiPropertiesTool.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
-#include "InDetCondServices/ISiLorentzAngleTool.h"
+#include "InDetCondTools/ISiLorentzAngleTool.h"
 
 #include <vector>
 

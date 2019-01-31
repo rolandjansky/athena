@@ -23,7 +23,6 @@ atlas_depends_on_subdirs(
    Control/StoreGate
    DetectorDescription/DetDescrCond/DetDescrConditions
    DetectorDescription/GeometryDBSvc
-   InnerDetector/InDetConditions/InDetCondServices
    InnerDetector/InDetDetDescr/InDetIdentifier )
 
 # External dependencies:
@@ -39,7 +38,7 @@ atlas_add_library( PixelGeoModelLib
    GeoModelUtilities Identifier GaudiKernel InDetGeoModelUtils
    InDetReadoutGeometry
    PRIVATE_LINK_LIBRARIES SGTools StoreGateLib DetDescrConditions
-   InDetCondServices InDetIdentifier
+   InDetIdentifier
    PRIVATE_DEFINITIONS "-DGEOTORUS=1" )
 
 atlas_add_component( PixelGeoModel

@@ -21,7 +21,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "SensorSimTool.h"
-#include "InDetCondServices/ISiLorentzAngleTool.h"
+#include "InDetCondTools/ISiLorentzAngleTool.h"
 
 class SensorSimPlanarTool : public SensorSimTool {
 
