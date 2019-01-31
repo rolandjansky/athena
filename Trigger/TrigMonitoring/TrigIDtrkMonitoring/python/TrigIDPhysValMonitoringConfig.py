@@ -18,7 +18,7 @@ def TrigIDPhysValMonitoringTool():
     from AthenaCommon.AppMgr import release_metadata
     d = release_metadata()
 
-    def makePhysvalMon(name, pdgid, chainnames, useHighestPT, cosmic = False ):
+    def makePhysvalMon(name, pdgid, chainnames, useHighestPT, cosmic = False, useOffline = False ):
       Monname = "TestIDPhysValMon" + name
       TestIDPhysValMon = TrigTestPhysValMon(name=Monname)
       TestIDPhysValMon.SliceTag = "HLT/IDMon/" + name
@@ -34,7 +34,13 @@ def TrigIDPhysValMonitoringTool():
       TestIDPhysValMon.AnalysisConfig = "Tier0" #T0 Analysis
       # TestIDPhysValMon.AnalysisConfig = "nTuple" #nTuple Analysis
 
-      if (rec.doTruth == True):
+      if (useOffline or rec.doTruth == False):
+        TestIDPhysValMon.mcTruth = False
+        TestIDPhysValMon.ntupleChainNames = ['Offline',name]
+#       use default values ? 
+#       TestIDPhysValMon.sctHitsOffline = 1
+#       TestIDPhysValMon.pixHitsOffline = 1
+      elif (rec.doTruth == True):        
         TestIDPhysValMon.mcTruth = True
         TestIDPhysValMon.ntupleChainNames = ['Truth']
         TestIDPhysValMon.sctHitsOffline = -1
@@ -45,12 +51,7 @@ def TrigIDPhysValMonitoringTool():
         TestIDPhysValMon.ntupleChainNames = ['Offline']
         TestIDPhysValMon.sctHitsOffline = -1
         TestIDPhysValMon.pixHitsOffline = -1
-      else:
-        TestIDPhysValMon.mcTruth = False
-        TestIDPhysValMon.ntupleChainNames = ['Offline',name]
-#       use default values ? 
-#       TestIDPhysValMon.sctHitsOffline = 1
-#       TestIDPhysValMon.pixHitsOffline = 1
+
 
 
       TestIDPhysValMon.ntupleChainNames += chainnames
@@ -158,6 +159,38 @@ def TrigIDPhysValMonitoringTool():
     ]
 
     outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT)]
+
+
+    ################################################
+    # FTK monitoring wrt offline              
+    ################################################
+
+    name = "FTK_offline"
+    pdgid = 0
+    useHighestPT = False
+    useOffline = True
+    cosmic = False
+    
+    chainnames = [
+       #jets                   
+      "HLT_j.*perf_.*FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit:roi=SplitJet",
+      "HLT_j.*perf_.*FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig:roi=SplitJet",
+      "HLT_j.*perf_.*FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK:roi=SplitJet",
+      "HLT_j.*perf_.*FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig:roi=SplitJet",
+      #taus
+      "HLT_tau.*idperf_.*FTK:key=InDetTrigTrackingxAODCnv_Tau_FTK",
+      "HLT_tau.*idperf_.*FTK:key=InDetTrigTrackingxAODCnv_Tau_FTK_IDTrig",
+      "HLT_tau.*FTKNoPrec:key=InDetTrigTrackingxAODCnv_Tau_FTK",
+      "HLT_tau.*FTKRefit:key=InDetTrigTrackingxAODCnv_Tau_FTKRefit",
+      "HLT_tau.*FTKRefit:key=InDetTrigTrackingxAODCnv_Tau_FTKRefit_IDTrig",
+      #muons 
+      "HLT_mu.*idperf_FTK:key=InDetTrigTrackingxAODCnv_Muon_FTK",
+      "HLT_mu.*idperf_FTK:key=InDetTrigTrackingxAODCnv_Muon_FTK_IDTrig",
+      "HLT_mu.*idperf_FTKRefit:key=InDetTrigTrackingxAODCnv_Muon_FTKRefit",
+      "HLT_mu.*idperf_FTKRefit:key=InDetTrigTrackingxAODCnv_Muon_FTKRefit_IDTrig"
+    ]
+
+    outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT, cosmic, useOffline)]
 
     ################################################
     # FTK fullscan monitoring              
