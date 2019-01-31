@@ -10,7 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/PileUpTools
                           GaudiKernel
-                          InnerDetector/InDetConditions/InDetCondServices
+                          InnerDetector/InDetConditions/InDetCondTools
                           Tools/PyJobTransforms
                           Tracking/TrkEvent/TrkEventPrimitives
                           Trigger/TrigFTK/FTK_DataProviderInterfaces

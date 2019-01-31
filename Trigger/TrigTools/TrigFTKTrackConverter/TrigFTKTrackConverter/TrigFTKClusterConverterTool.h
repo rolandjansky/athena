@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //implementation
@@ -10,7 +10,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigFTKToolInterfaces/ITrigFTKClusterConverterTool.h"
 
-#include "InDetCondServices/ISiLorentzAngleTool.h"
+#include "InDetCondTools/ISiLorentzAngleTool.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "PixelConditionsData/PixelOfflineCalibData.h"
 #include "StoreGate/ReadCondHandleKey.h"
