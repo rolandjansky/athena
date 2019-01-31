@@ -27,7 +27,7 @@
 #include "AthenaBaseComps/AthFilterAlgorithm.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/ReadHandleKey.h"
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "AthenaPoolTestData/FauxTriggerMap.h"
 
 class string;
@@ -45,7 +45,7 @@ public:
 private:
   unsigned int m_l1bits;    /// level 1 bit mask 
   unsigned int m_l2bits;    /// level 2 bit mask 
-  SG::ReadHandleKey<EventInfo> m_evt;
+  SG::ReadHandleKey<xAOD::EventInfo> m_evt;
   SG::ReadHandleKey<FauxTriggerMap> m_rftm;
 };
 #endif
