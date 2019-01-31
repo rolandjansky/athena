@@ -25,8 +25,7 @@ find_package( ROOT COMPONENTS Core )
 # In the standalone build create a "CINT dictionary":
 if( XAOD_STANDALONE )
    atlas_add_root_dictionary( PATCoreLib PATCoreLibDictSource
-      ROOT_HEADERS PATCore/TAccept.h 
-      PATCore/TSelectorToolBase.h Root/LinkDef.h
+      ROOT_HEADERS PATCore/TSelectorToolBase.h Root/LinkDef.h
       EXTERNAL_PACKAGES ROOT )
 endif()
 
