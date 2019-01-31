@@ -12,9 +12,24 @@
 #from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 #GeoModelSvc = GeoModelSvc()
 #GeoModelSvc.MuonVersionOverride="MuonSpectrometer-R.08.01-NSW"
+#serhat
+import glob
+import os
+#serhat 
+if 'customInput' not in locals() or 'customInput' not in globals():
+    print("customInput not defined yet setting the default as input.rdo.pool.root")
+    customInput='input.rdo.pool.root'
 
+if(not os.path.isdir(customInput) and not os.path.isfile(customInput) ):
+    checklist=glob.glob(customInput)
+    if len(checklist)==0:
+        print("Invalid INPUT : "+customInput)
+        os.sys.exit()
+if(os.path.isdir(customInput)):
+    customInput+="/*.root"
+#eof serhat
 
-MessageSvc.defaultLimit=500
+MessageSvc.defaultLimit=10000
 MessageSvc.useColors = True
 MessageSvc.Format = "% F%30W%S%7W%R%T %0W%M"
 
@@ -34,8 +49,15 @@ athenaCommonFlags.EvtMax = -1
 athenaCommonFlags.SkipEvents = 0
 
 
+
+
 import AthenaPoolCnvSvc.ReadAthenaPool
-svcMgr.EventSelector.InputCollections = [ "input.rdo.pool.root" ]
+
+
+svcMgr.EventSelector.InputCollections=glob.glob(customInput)
+
+
+#svcMgr.EventSelector.InputCollections = [ "input.rdo.pool.root" ]
 
 from AthenaCommon.DetFlags import DetFlags
 
@@ -95,6 +117,10 @@ topSequence.NSWL1Simulation.DoNtuple=True
 topSequence.NSWL1Simulation.PadTdsTool.DoNtuple=True
 topSequence.NSWL1Simulation.PadTriggerTool.DoNtuple=True
 topSequence.NSWL1Simulation.StripTdsTool.DoNtuple=True
+topSequence.NSWL1Simulation.StripSegmentTool.DoNtuple=True
+topSequence.NSWL1Simulation.StripSegmentTool.NSWTrigRDOContainerName="dummyRDO"
+
+
 
 
 #Tools' Messaging Levels

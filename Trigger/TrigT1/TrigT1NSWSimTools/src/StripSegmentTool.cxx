@@ -54,6 +54,8 @@ namespace NSWL1 {
 
       declareProperty("DoNtuple", m_doNtuple = true, "input the StripTds branches into the analysis ntuple"); 
       declareProperty("sTGC_SdoContainerName", m_sTgcSdoContainer = "sTGC_SDO", "the name of the sTGC SDO container");
+      declareProperty("NSWTrigRDOContainerName", m_trigRdoContainer = "NSWTRGRDO");
+
     }
 
     StripSegmentTool::~StripSegmentTool() {
@@ -72,7 +74,6 @@ namespace NSWL1 {
     ATH_MSG_INFO( "initializing " << name() ); 
     
     ATH_MSG_INFO( name() << " configuration:"); 
-    declareProperty("NSWTrigRDOContainerName", m_trigRdoContainer = "NSWTRGRDO");
     ATH_CHECK( m_trigRdoContainer.initialize() );   
     
     
