@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -92,7 +92,6 @@
 #include "TrkToolInterfaces/ITruthToTrack.h"
 #include "TrigCaloEvent/TrigT2MbtsBits.h"
 #include "TileIdentifier/TileTBID.h"
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "VxVertex/VxContainer.h"
 //#include "TrkTruthToTrack/TruthToTrack.h" 
 #include "TrkToolInterfaces/ITruthToTrack.h"
