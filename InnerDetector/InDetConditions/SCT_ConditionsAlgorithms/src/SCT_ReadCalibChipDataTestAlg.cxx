@@ -126,7 +126,7 @@ StatusCode SCT_ReadCalibChipDataTestAlg::execute(const EventContext& ctx) const 
     // Try to get some NPtGain data
     // GainByChip, GainRMSByChip, NoiseByChip, NoiseRMSByChip, OffsetByChip, OffsetRMSByChip
     std::string whatNPdata{"GainByChip"};
-    std::vector<float> NPdata{m_ReadCalibChipDataTool->getNPtGainData(Id, side, whatNPdata)};
+    std::vector<float> NPdata{m_ReadCalibChipDataTool->getNPtGainData(Id, side, whatNPdata, ctx)};
     for (unsigned int i{0}; i<NPdata.size(); i++) {
       ATH_MSG_INFO("The " << whatNPdata << " for chip number " << i << " on side " << side << " is: " << NPdata[i]);
     }
@@ -134,7 +134,7 @@ StatusCode SCT_ReadCalibChipDataTestAlg::execute(const EventContext& ctx) const 
     // Try to get some NO data
     // occupancy, occupancyRMS, noise, offset
     std::string whatNOdata{"OccupancyRMSByChip"};
-    std::vector<float> NOdata{m_ReadCalibChipDataTool->getNoiseOccupancyData(Id, side, whatNOdata)};
+    std::vector<float> NOdata{m_ReadCalibChipDataTool->getNoiseOccupancyData(Id, side, whatNOdata, ctx)};
     ATH_MSG_INFO("Size of returned data: "<<NOdata.size());
     for (unsigned int i{0}; i<NOdata.size(); i++) {
       ATH_MSG_INFO("The " << whatNOdata << " for chip number " << i << " on side " << side << " is: " << NOdata[i]);
@@ -144,7 +144,7 @@ StatusCode SCT_ReadCalibChipDataTestAlg::execute(const EventContext& ctx) const 
     // GainByChip, GainRMSByChip, NoiseByChip, NoiseRMSByChip, OffsetByChip, OffsetRMSByChip
     Identifier invalidId;//constructor forms invalid Id
     ATH_MSG_INFO("Trying to retrieve invalid data");
-    std::vector<float> nvNPdata{m_ReadCalibChipDataTool->getNPtGainData(invalidId, 0, whatNPdata)};
+    std::vector<float> nvNPdata{m_ReadCalibChipDataTool->getNPtGainData(invalidId, 0, whatNPdata, ctx)};
     const long unsigned int sizeOfInvalidNPData{nvNPdata.size()};
     ATH_MSG_INFO("Size of returned data: " << sizeOfInvalidNPData);
     for (long unsigned int i{0}; i!=sizeOfInvalidNPData; ++i) {

@@ -132,13 +132,12 @@ SCT_ReadCalibChipDataTool::isGood(const Identifier& elementId, InDetConditions::
 
 //----------------------------------------------------------------------
 std::vector<float> 
-SCT_ReadCalibChipDataTool::getNPtGainData(const Identifier& moduleId, const int side, const std::string& datatype) const {
+SCT_ReadCalibChipDataTool::getNPtGainData(const Identifier& moduleId, const int side, const std::string& datatype, const EventContext& ctx) const {
   // Print where you are
   ATH_MSG_DEBUG("in getNPtGainData()");
   std::vector<float> waferData;
 
   // Retrieve SCT_GainCalibData pointer
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_GainCalibData* condDataGain{getCondDataGain(ctx)};
   if (condDataGain==nullptr) {
     ATH_MSG_ERROR("In getNPtGainData, SCT_GainCalibData cannot be retrieved");
@@ -174,15 +173,20 @@ SCT_ReadCalibChipDataTool::getNPtGainData(const Identifier& moduleId, const int 
   }
 } //SCT_ReadCalibChipDataTool::getNPtGainData()
 
+std::vector<float> 
+SCT_ReadCalibChipDataTool::getNPtGainData(const Identifier& moduleId, const int side, const std::string& datatype) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return getNPtGainData(moduleId, side, datatype, ctx);
+}
+
 //----------------------------------------------------------------------
 std::vector<float>
-SCT_ReadCalibChipDataTool::getNoiseOccupancyData(const Identifier& moduleId, const int side, const std::string& datatype) const {
+SCT_ReadCalibChipDataTool::getNoiseOccupancyData(const Identifier& moduleId, const int side, const std::string& datatype, const EventContext& ctx) const {
   // Print where you are
   ATH_MSG_DEBUG("in getNoiseOccupancyData()");
   std::vector<float> waferData;
 
   // Retrieve SCT_NoiseCalibData pointer
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_NoiseCalibData* condDataNoise{getCondDataNoise(ctx)};
   if (condDataNoise==nullptr) {
     ATH_MSG_ERROR("In getNPtNoiseData, SCT_NoiseCalibData cannot be retrieved");
@@ -216,6 +220,12 @@ SCT_ReadCalibChipDataTool::getNoiseOccupancyData(const Identifier& moduleId, con
     return waferData;
   }
 } // SCT_ReadCalibChipDataTool::getNoiseOccupancyData()
+
+std::vector<float>
+SCT_ReadCalibChipDataTool::getNoiseOccupancyData(const Identifier& moduleId, const int side, const std::string& datatype) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return getNoiseOccupancyData(moduleId, side, datatype, ctx);
+}
 
 int
 SCT_ReadCalibChipDataTool::nPtGainIndex(const std::string& dataName) const {

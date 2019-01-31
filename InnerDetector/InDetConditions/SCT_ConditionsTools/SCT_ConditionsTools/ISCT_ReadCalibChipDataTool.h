@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file ISCT_ReadCalibDataTool.h Interface file for SCT_ReadCalibDataTool.
@@ -29,7 +29,9 @@ class ISCT_ReadCalibChipDataTool: virtual public ISCT_ConditionsTool {
 
   // Methods to return calibration data 
   //PJ change to wafer hash id?!
+  virtual std::vector<float> getNPtGainData(const Identifier& moduleId, const int side, const std::string& datatype, const EventContext& ctx) const =0; //!<Get NPtGain data per wafer
   virtual std::vector<float> getNPtGainData(const Identifier& moduleId, const int side, const std::string& datatype) const =0; //!<Get NPtGain data per wafer
+  virtual std::vector<float> getNoiseOccupancyData(const Identifier& moduleId, const int side, const std::string& datatype, const EventContext& ctx) const =0; //!<Get NoiseOccupancy data wafer
   virtual std::vector<float> getNoiseOccupancyData(const Identifier& moduleId, const int side, const std::string& datatype) const =0; //!<Get NoiseOccupancy data wafer
 
 };
