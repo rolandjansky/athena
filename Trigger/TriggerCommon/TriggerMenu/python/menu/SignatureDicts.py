@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
@@ -149,6 +149,7 @@ JetChainParts = {
     'bMatching'    : ['antimatchdr05mu'],
     'dataScouting' : ['ds1', 'ds2'],
     'smc'          : ['30smcINF', '35smcINF', '40smcINF', '50smcINF', '60smcINF', 'nosmc'],
+    'jetattrs'     : ['subj360Iktdr2I3width6IIsubj300Iwidth','subj360Iktdr3IIsubj300Iwidth2','subj360Iktdr3Iwidth2','subj360Iktdr','subj360I0ktdr5','subj360Iwidth','subj360I0width5','subj360IktdrI9width'],
     'trkopt'       : ['notrk', 'ftk', 'ftkrefit'],
     # Et cut by the jet build tool (ptmin)
     'recoCutUncalib': ['rcuDefault', 'rcu0', 'rcu4' ,'rcu5'],
@@ -184,6 +185,7 @@ JetChainParts_Default = {
     'bMatching'    : [],
     'dataScouting' : '',
     'smc'          : 'nosmc',
+    'jetattrs'     : 'nojetattrs',
     'trkopt'       : 'notrk',
     'recoCutUncalib': 'rcuDefault',
     'recoCutCalib': 'rccDefault',

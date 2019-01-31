@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -21,6 +21,10 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/DijetCondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HTCondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TLACondition.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/JetAttrsCondition.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/JetAttrsWidthCondition.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/JetAttrsKtDRCondition.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/FalseCondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/conditionsFactory2.h"
 
 Conditions conditionsFactoryEtaEt(const std::vector<double>& etaMins,
@@ -173,4 +177,65 @@ Conditions conditionsFactoryHT(double htMin){
 }
 
 
+//added A. Steinhebel, April 2018
+Conditions conditionsFactoryJetAttrsWidth(double limitMin,
+                      double limitMax){
+  Conditions conditions;
 
+  std::shared_ptr<ICondition> 
+    pCondition(new JetAttrsWidthCondition(limitMin,
+                      limitMax));
+
+  conditions.push_back(ConditionBridge(pCondition));
+  return conditions;
+}
+
+Conditions conditionsFactoryJetAttrsKtDR(double limitMin,
+                        double limitMax){
+  Conditions conditions;
+
+  std::shared_ptr<ICondition> 
+    pCondition(new JetAttrsKtDRCondition(limitMin,
+                      limitMax));
+
+  conditions.push_back(ConditionBridge(pCondition));
+  return conditions;
+}
+
+Conditions conditionsFactoryJetAttrs(const std::vector<std::string>& jetVars,
+                      const std::vector<double>& limitMins,
+                      const std::vector<double>& limitMaxs){
+  Conditions conditions;
+
+  /*
+  for(std::size_t i = 0; i < limitMins.size(); ++i){
+      std::shared_ptr<ICondition>
+      pCondition(new JetAttrsCondition(jetVars[i],
+                                    Es[i],
+                                    limitMins[i],
+                                    limitMaxs[i]));
+
+    conditions.push_back(ConditionBridge(pCondition));
+  }
+  */
+  std::shared_ptr<ICondition> 
+    pCondition(new JetAttrsCondition(jetVars,
+                    limitMins,
+                    limitMaxs));
+
+  conditions.push_back(ConditionBridge(pCondition));
+
+  return conditions;
+}
+
+Conditions conditionsFactoryFalse(double limitMin,
+                  double limitMax){
+  Conditions conditions;
+
+  std::shared_ptr<ICondition> 
+    pCondition(new FalseCondition(limitMin,
+                  limitMax));
+
+  conditions.push_back(ConditionBridge(pCondition));
+  return conditions;
+}

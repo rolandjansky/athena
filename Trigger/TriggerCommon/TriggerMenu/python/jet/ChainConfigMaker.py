@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """Reformat input dictionary. Dictionary structure at
 https://svnweb.cern.ch/trac/atlasoff/browser/Trigger/TriggerCommon/ \
@@ -13,6 +13,9 @@ from fexparams_factory import fexparams_factory
 from hypo_factory import hypo_factory
 from dijet_parser3 import (dijet_parser,
                            dijet_re)
+
+#import singlejmom_parser
+import jetattrs_parser
 
 # from lxml import etree as et
 from ChainConfig import ChainConfig
@@ -74,17 +77,17 @@ class JetAttributes(object):
             self.smc_max
         )
 
-
-hypo_type_dict = {
-    ('j', False, False, False, False, False, False): 'HLThypo2_etaet',
-    ('ht', False, False, False, False, False, False):'HLThypo2_ht',
-    ('j', True, False, False, False, False, False): 'HLThypo2_singlemass',
-    ('j', False, True, False, False, False, False): 'HLThypo2_tla',
-    ('j', False, False, True, False, False, False): 'HLThypo2_dimass_deta',
-    ('j', False, False, True, True, False, False): 'HLThypo2_dimass_deta_dphi',
-    ('j', False, False, False, False, True, False): 'HLThypo2_dijet',
-    ('j', False, False, False, False, False, True): 'HLThypo2_test',
-}
+#
+#hypo_type_dict = {
+#    ('j', False, False, False, False, False, False): 'HLThypo2_etaet',
+#    ('ht', False, False, False, False, False, False):'HLThypo2_ht',
+#    ('j', True, False, False, False, False, False): 'HLThypo2_singlemass',
+#    ('j', False, True, False, False, False, False): 'HLThypo2_tla',
+#    ('j', False, False, True, False, False, False): 'HLThypo2_dimass_deta',
+#    ('j', False, False, True, True, False, False): 'HLThypo2_dimass_deta_dphi',
+#    ('j', False, False, False, False, True, False): 'HLThypo2_dijet',
+#    ('j', False, False, False, False, False, True): 'HLThypo2_test',
+#}
 
     
 cleaner_names = {
@@ -232,6 +235,23 @@ def _get_tla_string(parts):
 
     msg = '%s: multiple TLA string set' % err_hdr
     raise RuntimeError(msg)
+
+#Added A. Steinhebel, June 2018
+def _get_jetattrs_string(parts):
+
+    x = cache.get('jetattrs_string')
+    if x: return x
+
+    vals = set([part['jetattrs'] for part in parts])
+    if len(vals) == 1:
+        s = vals.pop()
+        _update_cache('jetattrs_string', s)
+        if s == 'nojetattrs': return ''
+        return s
+
+    msg = '%s: multiple single jet moment string set' % err_hdr
+    raise RuntimeError(msg)
+
 
 
 def _get_dijet_string(parts):
@@ -402,6 +422,7 @@ def _get_hypo_type(parts):
     test_flag = _get_test_flag(parts)
     tla_flag = bool(_get_tla_string(parts))
     dijet_flag = bool(_get_dijet_string3(parts))
+    jetattrs_flag = bool(_get_jetattrs_string(parts))
 
     invm_string = _get_invm_string(parts)
     deta_string = _get_deta_string(parts)
@@ -414,36 +435,82 @@ def _get_hypo_type(parts):
         dimass_deta_dphi_flag = dimass_deta_flag and bool(dphi_string)
     jetmass_flag = _get_jetmass_flag(parts)
     trig_type = _get_trig_type(parts)
-    
-    htype =  hypo_type_dict.get((trig_type,
-                                 jetmass_flag,
-                                 tla_flag,
-                                 dimass_deta_flag,
-                                 dimass_deta_dphi_flag,
-                                 dijet_flag,
-                                 test_flag), None)
 
-    if htype is None:
-        msg = '%s: cannot determine hypo type from\n' \
-            'trigger type: %s \n'\
-            'jetmass_flag %s \n'\
-            'test flag: %s \n' \
-            'TLA: %s \n' \
-            'dimass_eta: %s \n'\
-            'dimass_deta_dphi: %s \n' \
-            'dijet flag: %s' % (err_hdr,
-                                str(trig_type),
-                                str(jetmass_flag),
-                                str(test_flag),
-                                str(tla_flag),
-                                str(dimass_deta_flag),
-                                str(dimass_deta_dphi_flag),
-                                str(dijet_flag),
-                                )
+    def hypo_type_fn(trig_type, flags):
+        """Return hypo type name according to boolean flags"""
+
+        # for now, at most one flag is set true
+        ntrue = flags.values().count(True)
+        if ntrue > 1:
+            msg = '%s: cannot determine hypo type from\n' % err_hdr
+            for i in flags.items(): msg += '%s: %s\n' %i
+            raise RuntimeError(msg)
+
+        def findkey():
+            for k, v in flags.items():
+                if v: return k
+
+        if ntrue == 1:
+            key = findkey()
+            try:
+                return {'jetmass': 'HLThypo2_singlemass',
+                        'tla': 'HLThypo2_tla',
+                        'dimass_deta': 'HLThypo2_dimass_deta', 
+                        'dmass_deta_dphi': 'HLThypo2_dimass_deta_dphi',
+                        'dijet': 'HLThypo2_dijet',
+                        'test': 'HLThypo2_test',
+                        'jetattrs': 'HLThypo2_jetattrs'}[key]
+            except:
+                msg = err_hdr + ' unknown hypo key ' + key
+                raise RuntimeError(msg)
+        else:
+            if trig_type == 'j':
+                return 'HLThypo2_etaet'
+            if trig_type == 'ht':
+                return 'HLThypo2_ht'
+            msg = err_hdr + ' unknown trigger type ' + trig_type
+            raise RuntimeError(msg)
             
-        raise RuntimeError(msg)
+            
+            
+    # htype =  hypo_type_dict.get((trig_type,
+    #                             jetmass_flag,
+    #                             tla_flag,
+    #                             dimass_deta_flag,
+    #                             dimass_deta_dphi_flag,
+    #                             dijet_flag,
+    #                             test_flag), None)
 
-    return htype
+    return  hypo_type_fn(trig_type,
+                         {'jetmass':jetmass_flag,
+                          'tla': tla_flag,
+                          'dimass_deta': dimass_deta_flag,
+                          'dimass_deta_dphi': dimass_deta_dphi_flag,
+                          'dijet': dijet_flag,
+                          'test':test_flag,
+                          'jetattrs':jetattrs_flag,})
+
+    # if htype is None:
+    #     msg = '%s: cannot determine hypo type from\n' \
+    #         'trigger type: %s \n'\
+    #         'jetmass_flag %s \n'\
+    #         'test flag: %s \n' \
+    #         'TLA: %s \n' \
+    #         'dimass_eta: %s \n'\
+    #         'dimass_deta_dphi: %s \n' \
+    #         'dijet flag: %s' % (err_hdr,
+    #                             str(trig_type),
+    #                             str(jetmass_flag),
+    #                             str(test_flag),
+    #                             str(tla_flag),
+    #                             str(dimass_deta_flag),
+    #                             str(dimass_deta_dphi_flag),
+    #                             str(dijet_flag),
+    #                             )
+    #         
+    #     raise RuntimeError(msg)
+
+    # return htype
 
 def _get_data_type(parts):
     """ return the data type from which jets are made -
@@ -899,6 +966,23 @@ def _setup_tla_vars(parts):
 
     return hypo_factory('HLThypo2_tla', args)
 
+#Added A. Steinhebel, June 2018
+def _setup_jetattrs_vars(parts):
+
+    jetattrs_string = _get_jetattrs_string(parts)
+
+    args = {}
+    try:
+        jetattrs_parser.parse(jetattrs_string, args)
+    except Exception, e:
+        raise RuntimeError(
+            'error passing jetattrs string ' + jetattrs_string + ' ' + str(e))
+
+    args['chain_name'] = cache['chain_name']
+    args['jetattrs_string'] = jetattrs_string
+
+    hypo = hypo_factory('HLThypo2_jetattrs', args)
+    return hypo
 
             
 def _setup_dijet_vars(parts):
@@ -928,7 +1012,8 @@ def _get_hypo_params(parts):
         'HLThypo2_singlemass': _setup_singlemass_vars,
         'HLThypo2_tla': _setup_tla_vars,
         'HLThypo2_ht': _setup_ht_vars,
-        'HLThypo2_dijet': _setup_dijet_vars,}.get(hypo_type, None)
+        'HLThypo2_dijet': _setup_dijet_vars,
+        'HLThypo2_jetattrs': _setup_jetattrs_vars,}.get(hypo_type, None)
 
     if hypo_setup_fn is None:
         msg = '%s: unknown hypo type (JetDef bug) %s' % (

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from collections import defaultdict
 
@@ -12,6 +12,7 @@ def hypo_factory(key, args):
         'HLThypo2_dimass_deta': HLThypo2_dimass_deta,
         'HLThypo2_dimass_deta_dphi': HLThypo2_dimass_deta_dphi,
         'HLThypo2_dijet': HLThypo2_dijet,
+        'HLThypo2_jetattrs': HLThypo2_jetattrs,
          }.get(key)
 
     if klass == None:
@@ -381,6 +382,35 @@ class HLThypo2_dijet(HypoAlg):
 
         return s
 
+#Added A. Steinhebel, June 2018
+class HLThypo2_jetattrs(HypoAlg):
+    # Store parameters for the TrigHLTJetRec using the jet attributes scenario
+
+    def __init__(self, ddict):
+        print "Amanda hypo_factory dictionary "+str(ddict)
+        HypoAlg.__init__(self, ddict)
+        self.hypo_type = 'HLThypo2_jetattrs'
+
+    def _check_args(self, ddict):
+        #check the constructor args
+        
+        must_have = (
+            'momentstr',
+            'E',
+            'jetVars',
+            'has',
+            'limit_mins',
+            'limit_maxs',
+        )
+
+        HypoAlg.check_missing_args(self, must_have, ddict)
+
+    def attributes_toString(self):
+        # str used in the Algorithm name
+        return self.momentstr
+    
+
+
 if __name__ == '__main__':
     d =  {'m_mins': [900.0], 'm_maxs': [-1.0], 'beta_maxs': [-1.0],
           'chain_name': 'HLT_j70_j50_0eta490_invm900j50_dPhi24_L1MJJ-500-NFF',
@@ -389,4 +419,8 @@ if __name__ == '__main__':
           'dphi_mins': [0.0], 'aet_mins': [50.0], 'dphi_maxs': [2.4000000000000004],
           'bet_maxs': [-1.0], 'aeta_maxs': [-1.0], 'bet_mins': [50.0]}
 
-    print hypo_factory('HLThypo2_dijet', d)
+    # print hypo_factory('HLThypo2_dijet', d)
+
+    d = {'jetVars': ['ktdr'], 'momentstr': 'subj360Iktdr', 'limit_maxs': ['10'], 'E': [360], 'limit_mins': ['0'], 'chain_name': 'j0_subj360Iktdr', 'has': ['yes'], 'jetattrs_string': 'subj360Iktdr'}
+
+    print hypo_factory('HLThypo2_jetattrs', d)
