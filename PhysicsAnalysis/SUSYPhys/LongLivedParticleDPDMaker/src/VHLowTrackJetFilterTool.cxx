@@ -73,19 +73,8 @@ m_muonPtCut(0)
   
 }
 
-// Destructor
-DerivationFramework::VHLowTrackJetFilterTool::~VHLowTrackJetFilterTool() {
-}
+// Athena finalize
 
-// Athena initialize and finalize
-StatusCode DerivationFramework::VHLowTrackJetFilterTool::initialize()
-{
-  ATH_MSG_VERBOSE("initialize() ...");
-  
-  
-  return StatusCode::SUCCESS;
-  
-}
 StatusCode DerivationFramework::VHLowTrackJetFilterTool::finalize()
 {
   ATH_MSG_VERBOSE("finalize() ...");
@@ -103,6 +92,7 @@ StatusCode DerivationFramework::VHLowTrackJetFilterTool::finalize()
 // The filter itself
 bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
 {
+
   typedef std::vector<const xAOD::TrackParticle*> Particles;
   typedef ElementLink<xAOD::TrackParticleContainer> TrackLink;
   typedef std::vector<TrackLink> TrackLinks;
@@ -227,7 +217,6 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
   //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   
   //Jet portion
-  ATH_MSG_INFO("Jet");
   
   int nJetsPassed=0;
   const xAOD::JetContainer* jets(0);

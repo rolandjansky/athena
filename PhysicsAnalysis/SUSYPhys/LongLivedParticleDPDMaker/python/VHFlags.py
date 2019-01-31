@@ -36,11 +36,11 @@ class VHLowTrackJet_FilterFlags(JobProperty):
         'HLT_mu26_ivarmedium'
         ]
     debug=False
-    cutJet=20000*Units.MeV
+    cutJet=20*Units.GeV
     cutJetEta=2.1
     nJets=1
-    cutEl=27000*Units.MeV
-    cutMu=25000*Units.MeV
+    cutEl=27*Units.GeV
+    cutMu=25*Units.GeV
     pass
 primRPVLLDESDM.add_JobProperty(VHLowTrackJet_FilterFlags)
 

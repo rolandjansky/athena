@@ -30,10 +30,9 @@ namespace DerivationFramework {
     VHLowTrackJetFilterTool( const std::string& t, const std::string& n, const IInterface* p );
     
     /** Destructor */
-    virtual ~VHLowTrackJetFilterTool();
+    virtual ~VHLowTrackJetFilterTool() = default;
     
     // Athena algtool's Hooks
-    StatusCode  initialize() override;
     StatusCode  finalize() override;
     
     /** Check that the current event passes this filter */
