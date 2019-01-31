@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 def addJetThinningTool(collection="AntiKt4HIJets",deriv="HION7",jet_pt_threshold=15) :
     from AthenaCommon.AppMgr import ToolSvc
@@ -80,9 +80,9 @@ HI_trigger_collections=["HLT_xAOD__JetContainer_a4ionemsubjesISFS","HLT_xAOD__Je
 largeR_pp_trigger_collections=pp_trigger_collections+["HLT_xAOD__JetContainer_a10tclcwsubjesFS"]
 
 
-def makeHITriggerJetBasicBranchList(isPP, deriv) :
+def makeHITriggerJetBasicBranchList(isPP, largeR) :
     HITriggerBranches=["pt","eta","phi","m"]
-    if isPP and deriv=="HION9": trigger_collections = largeR_pp_trigger_collections
+    if isPP and largeR=="HION9": trigger_collections = largeR_pp_trigger_collections
     elif isPP: trigger_collections = pp_trigger_collections
     else: trigger_collections = HI_trigger_collections 
     TriggerVars = []

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DERIVATIONFRAMEWORKTOOLS_BTAGGEDOBJECTTHINNING_H
@@ -20,12 +20,11 @@
 
 namespace DerivationFramework {
 
-   /// Tool performing a string based thinning on any @c xAOD::IParticle container
-   ///
+
    /// This tool is used in derivation jobs to thin an
-   /// @c xAOD::IParticleContainer based on a string expression.
+   /// @c xAOD::BTaggingContainer based on a string expression.
    ///
-   /// @author James Catmore (James.Catmore@cern.ch)
+   /// @author Martin Rybar (martin.rybar@cern.ch)
    ///
    class BtaggedObjectThinning : public AthAlgTool, public IThinningTool {
 

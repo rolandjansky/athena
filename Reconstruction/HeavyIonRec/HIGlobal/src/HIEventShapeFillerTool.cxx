@@ -106,6 +106,7 @@ StatusCode HIEventShapeFillerTool::FillCollectionFromClusterContainer(const xAOD
   std::unique_ptr<std::vector<float> > weight_vector(new std::vector<float>());
   weight_vector->reserve(theClusters->size());
   SG::AuxElement::Decorator< float > decorator("HIEtaPhiWeight");
+
   
   
   std::unique_ptr<std::vector<float> > cm_vector(new std::vector<float>());
