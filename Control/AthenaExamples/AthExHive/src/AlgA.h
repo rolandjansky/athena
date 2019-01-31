@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CONDALGS_ALGA_H
@@ -33,8 +33,5 @@ private:
   SG::WriteHandleKey<HiveDataObj> m_wrh2 {this, "Key_W2", "a2", "write key 2"};
   SG::ReadHandleKey<EventInfo>    m_evt  {this, "EvtInfo", "McEventInfo", 
       "EventInfo name"};
-
-  std::atomic<int> m_i {1};
-  
 };
 #endif
