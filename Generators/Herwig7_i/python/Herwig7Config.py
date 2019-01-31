@@ -11,6 +11,7 @@ class Hw7Config(object):
   ## Constructor
   def __init__(self, genSeq, runArgs, run_name="Herwig"):
 
+
     self.genSeq   = genSeq
     self.runArgs  = runArgs
 
@@ -44,6 +45,12 @@ set /Herwig/Shower/GammatoQQbarSplitFn:AngularOrdered Yes
 ## fix for GeV-mass photon radiation until released with Herwig7 itself
 set /Herwig/Shower/GammatoQQbarSudakov:Alpha /Herwig/Shower/AlphaQED
 
+## fix for initial-state (backward evolution) splitting (AGENE-1384)
+set /Herwig/Shower/QtoGammaQSudakov:Alpha /Herwig/Shower/AlphaQED
+
+## fix for QED lepton radiation scale (ATLMCPROD-5138)
+set /Herwig/Shower/LtoLGammaSudakov:pTmin 0.000001
+
 ## ensure JetFinder uses AntiKt with R=0.4
 set /Herwig/Cuts/JetFinder:Variant AntiKt
 set /Herwig/Cuts/JetFinder:ConeRadius 0.4
@@ -64,6 +71,32 @@ set /Herwig/Cuts/JetFinder:ConeRadius 0.4
 set /Herwig/Random:Seed {}
 """.format(self.runArgs.randomSeed))
 
+  ## Commands specific to certain beam / collision types
+  def beam_commands(self):
+
+    if self.beams == "EE":
+      return("""
+## Commands for lepton-lepton collisions
+read snippets/EECollider.in
+set /Herwig/Shower/PartnerFinder:QEDPartner IIandFF
+set /Herwig/Shower/ShowerHandler:MPIHandler NULL
+set /Herwig/DipoleShower/DipoleShowerHandler:MPIHandler NULL
+set /Herwig/Shower/PowhegShowerHandler:MPIHandler NULL
+""")
+    elif self.beams == "EP":
+      return("""
+## Commands for proton-lepton collisions
+read snippets/EPCollider.in
+do /Herwig/Shower/SplittingGenerator:DeleteFinalSplitting e-->e-,gamma; /Herwig/Shower/LtoLGammaSudakov
+do /Herwig/Shower/SplittingGenerator:DeleteFinalSplitting mu-->mu-,gamma; /Herwig/Shower/LtoLGammaSudakov
+do /Herwig/Shower/SplittingGenerator:DeleteFinalSplitting tau-->tau-,gamma; /Herwig/Shower/LtoLGammaSudakov
+set /Herwig/Shower/KinematicsReconstructor:ReconstructionOption Colour
+""")
+    else:
+      return("""
+## Commands for proton-proton collisions
+read snippets/PPCollider.in
+""")
 
   ## Sets center-of-mass energy sqrts(s) in GeV
   ##
@@ -80,8 +113,8 @@ set /Herwig/Random:Seed {}
 
     return("""
 ## Center-of-mass energy
-set /Herwig/Generators/{}:EventHandler:LuminosityFunction:Energy {}
-""".format(self.event_generator, self.runArgs.ecmEnergy))
+set /Herwig/Generators/EventGenerator:EventHandler:LuminosityFunction:Energy {}
+""".format(self.runArgs.ecmEnergy))
 
 
   ## Sets printout verbosity and error tolerance
@@ -91,15 +124,15 @@ set /Herwig/Generators/{}:EventHandler:LuminosityFunction:Energy {}
 
     return("""
 ## Verbosity and printout settings
-set /Herwig/Generators/{0}:DebugLevel 1
-set /Herwig/Generators/{0}:PrintEvent 2
-set /Herwig/Generators/{0}:UseStdout Yes
-set /Herwig/Generators/{0}:NumberOfEvents 1000000000
-set /Herwig/Generators/{0}:MaxErrors 1000000
+set /Herwig/Generators/EventGenerator:DebugLevel 1
+set /Herwig/Generators/EventGenerator:PrintEvent 2
+set /Herwig/Generators/EventGenerator:UseStdout Yes
+set /Herwig/Generators/EventGenerator:NumberOfEvents 1000000000
+set /Herwig/Generators/EventGenerator:MaxErrors 1000000
 
 ## Make sampler print out cross sections for each subprocess
-set /Herwig/Samplers/Sampler:Verbose On
-""".format(self.event_generator))
+set /Herwig/Samplers/Sampler:Verbose Yes
+""")
 
 
   ## ATLAS MC15 default parameters for particle masses and widths and Weinberg angle
@@ -187,8 +220,8 @@ set /Herwig/Partons/Hard{0}PDF:MaxFlav {3}
 set /Herwig/Partons/Hard{0}PDF:RemnantHandler /Herwig/Partons/HadronRemnants
 set /Herwig/Particles/p+:PDF /Herwig/Partons/Hard{0}PDF
 set /Herwig/Particles/pbar-:PDF /Herwig/Partons/Hard{0}PDF
-set /Herwig/Partons/QCDExtractor:FirstPDF  /Herwig/Partons/Hard{0}PDF
-set /Herwig/Partons/QCDExtractor:SecondPDF /Herwig/Partons/Hard{0}PDF
+set /Herwig/Partons/PPExtractor:FirstPDF  /Herwig/Partons/Hard{0}PDF
+set /Herwig/Partons/PPExtractor:SecondPDF /Herwig/Partons/Hard{0}PDF
 """.format(order, name, member, max_flav)
 
 
@@ -332,8 +365,8 @@ set /Herwig/Partons/RemnantPDF:MaxFlav {}
 
   def get_dpdf_path(self):
     import os
-    cmt_path = os.environ.get("CMTPATH")
-    cmt_dir = os.environ.get("CMTCONFIG")
+    cmt_path = os.environ.get("CMAKE_PREFIX_PATH")
+    cmt_dir = os.environ.get("BINARY_TAG")
     
     cmtPaths = cmt_path.split(':')
     
@@ -365,15 +398,15 @@ set /Herwig/Partons/RemnantPDF:MaxFlav {}
 set /Herwig/Particles/pomeron:PDF /Herwig/Partons/PomeronPDF
 
 # Technical parameters for this run
-set /Herwig/Generators/LHCGenerator:EventHandler:Sampler:Ntry 100000
-set /Herwig/Generators/LHCGenerator:MaxErrors 100000
+set /Herwig/Generators/EventGenerator:EventHandler:Sampler:Ntry 100000
+set /Herwig/Generators/EventGenerator:MaxErrors 100000
 
 # MPI doesn't work
 # TODO: Is this a problem?
-set /Herwig/Generators/LHCGenerator:EventHandler:CascadeHandler:MPIHandler NULL
+set /Herwig/Generators/EventGenerator:EventHandler:CascadeHandler:MPIHandler NULL
 
 # Choice of phase-space generation for PDFs
-set /Herwig/Partons/QCDExtractor:FlatSHatY 0
+set /Herwig/Partons/PPExtractor:FlatSHatY 0
 
 """
     return cmds
@@ -386,10 +419,10 @@ set /Herwig/Partons/QCDExtractor:FlatSHatY 0
     return """
 
 # Technical parameters for this run
-set /Herwig/Generators/LHCGenerator:EventHandler:Sampler:Ntry 100000
+set /Herwig/Generators/EventGenerator:EventHandler:Sampler:Ntry 100000
 
 # Choice of phase-space generation for PDFs
-set /Herwig/Partons/QCDExtractor:FlatSHatY 0
+set /Herwig/Partons/PPExtractor:FlatSHatY 0
 
 # Change the proton PDFs to those for photon radiation
 set /Herwig/Particles/p+:PDF    /Herwig/Partons/BudnevPDF
@@ -397,6 +430,6 @@ set /Herwig/Particles/pbar-:PDF /Herwig/Partons/BudnevPDF
 
 # MPI doesn't work
 # TODO: Is this a problem?
-set /Herwig/Generators/LHCGenerator:EventHandler:CascadeHandler:MPIHandler NULL
+set /Herwig/Generators/EventGenerator:EventHandler:CascadeHandler:MPIHandler NULL
 
 """
