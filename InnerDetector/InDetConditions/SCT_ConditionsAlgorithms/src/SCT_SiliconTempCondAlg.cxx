@@ -99,7 +99,7 @@ StatusCode SCT_SiliconTempCondAlg::execute(const EventContext& ctx) const {
   std::unique_ptr<SCT_DCSFloatCondData> writeCdo{std::make_unique<SCT_DCSFloatCondData>()};
   const SCT_ID::size_type wafer_hash_max{m_pHelper->wafer_hash_max()};
   for (SCT_ID::size_type hash{0}; hash<wafer_hash_max; hash++) {
-    writeCdo->setValue(hash, m_sctDCSTool->sensorTemperature(IdentifierHash(hash)));
+    writeCdo->setValue(hash, m_sctDCSTool->sensorTemperature(IdentifierHash(hash), ctx));
   }
 
   // Record the output cond object
