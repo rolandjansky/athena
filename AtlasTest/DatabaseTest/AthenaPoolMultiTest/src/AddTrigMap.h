@@ -27,7 +27,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandleKey.h"
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 
 //#include "AthenaPoolTestData/TrigPath.h"
 #include "AthenaPoolTestData/FauxTriggerMap.h"
@@ -47,7 +47,7 @@ public:
   virtual StatusCode finalize();
 
 private:
-  SG::ReadHandleKey<EventInfo> m_evt;
+  SG::ReadHandleKey<xAOD::EventInfo> m_evt;
   SG::WriteHandleKey<FauxTriggerMap> m_wftm;
   SG::WriteHandleKey<FauxTriggerMap> m_wftm2;
 

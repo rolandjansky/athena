@@ -19,7 +19,6 @@
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandleKey.h"
 
-#include "EventInfo/EventInfo.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "PersistentDataModel/AthenaAttributeList.h"
 
@@ -31,12 +30,6 @@ namespace coral
 }
 class AthenaAttributeListSpecification; 
 class AthenaAttributeList; 
-class EventInfo;
-
-//namespace xAOD
-//{
-//  class EventInfo;
-//}
 
 /**
  * @class RunEventTagWriter
@@ -82,11 +75,9 @@ class RunEventTagWriter : public AthAlgorithm
 
   private:
 
-    StatusCode fillTag(const EventInfo*, AthenaAttributeList*);
     StatusCode fillTag(const xAOD::EventInfo*, AthenaAttributeList*);
 
-    SG::ReadHandleKey<EventInfo> m_evt;
-    SG::ReadHandleKey<xAOD::EventInfo> m_evtx;
+    SG::ReadHandleKey<xAOD::EventInfo> m_evt;
     SG::WriteHandleKey<AthenaAttributeList> m_attribList;
 
     /// Specification of the event tag metadata schema
