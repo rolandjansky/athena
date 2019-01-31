@@ -68,7 +68,7 @@ SingleLepton_2018 = [
 
 MultiBJet_2018 = [
     'HLT_2j45_gsc55_bmv2c1060_split_2j45_gsc55_boffperf_split_L14J15.0ETA25',
-    'HLT_2j35_bmv2c1040_split_2j35_L14J15.0ETA25',
+    'HLT_2j35_bmv2c1060_split_2j35_L14J15.0ETA25',
     'HLT_2j35_gsc45_bmv2c1050_split_2j35_gsc45_boffperf_split_L14J15.0ETA25',
     'HLT_j150_gsc175_bmv2c1060_split_j45_gsc60_bmv2c1060_split',
     'HLT_j110_gsc150_boffperf_split_2j45_gsc55_bmv2c1070_split_L1J85_3J30',

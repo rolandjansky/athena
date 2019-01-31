@@ -42,7 +42,7 @@ namespace EL
 
 
 
-  Worker *Algorithm ::
+  IWorker *Algorithm ::
   wk () const
   {
     RCU_READ_INVARIANT (this);

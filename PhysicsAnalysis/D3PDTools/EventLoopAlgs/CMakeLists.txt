@@ -39,7 +39,9 @@ atlas_add_test( ut_DuplicateChecker
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AsgTools RootCoreUtils
    SampleHandler EventLoop xAODEventInfo xAODRootAccess EventLoopAlgs )
+set_tests_properties (EventLoopAlgs_ut_DuplicateChecker_ctest PROPERTIES LABELS "EventLoopAlgs;EventLoop;SampleHandler" )
 
 atlas_add_test( ut_alg_skim
    SOURCES test/ut_alg_skim.cxx
    LINK_LIBRARIES EventLoop RootCoreUtils SampleHandler EventLoopAlgs )
+set_tests_properties (EventLoopAlgs_ut_alg_skim_ctest PROPERTIES LABELS "EventLoopAlgs;EventLoop;SampleHandler" )

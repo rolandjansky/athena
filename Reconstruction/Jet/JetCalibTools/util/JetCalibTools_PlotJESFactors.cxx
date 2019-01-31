@@ -41,9 +41,9 @@ namespace jet
 int main (int argc, char* argv[])
 {
     // Check argument usage
-    if (argc < 4 || argc > 6)
+    if (argc < 4 || argc > 7)
     {
-        std::cout << "USAGE: " << argv[0] << " <JetCollection> <ConfigFile> <OutputFile> (dev mode switch) (JES_vs_E switch)" << std::endl;
+        std::cout << "USAGE: " << argv[0] << " <JetCollection> <ConfigFile> <OutputFile> (dev mode switch) (JES_vs_E switch) (pT above 20GeV switch)" << std::endl;
         return 1;
     }
 
@@ -53,7 +53,11 @@ int main (int argc, char* argv[])
     const TString outFile = argv[3];
     const bool isDevMode  = ( argc > 4 && (TString(argv[4]) == "true" || TString(argv[4]) == "dev") ) ? true : false;
     const bool vsE        = ( argc > 5 && (TString(argv[5]) == "true") ) ? true : false;
-    
+    const bool pTabove20  = ( argc > 6 && (TString(argv[6]) == "true") ) ? true : false;
+
+    // Minimum pT if vsE and pTabove20
+    double minpT = 20000.; // MeV
+
     // Derived information
     const bool outFileIsExtensible = outFile.EndsWith(".pdf") || outFile.EndsWith(".ps") || outFile.EndsWith(".root");
 
@@ -140,6 +144,8 @@ int main (int argc, char* argv[])
         {
             const double eta = hist_pt_eta->GetYaxis()->GetBinCenter(yBin);
 
+	    bool fill = false; // only used if vsE
+
             // Set the main 4-vector and scale 4-vector
 	    if ( !vsE ){
               jet->setJetP4(xAOD::JetFourMom_t(pt,eta,0,massForScan));
@@ -148,6 +154,11 @@ int main (int argc, char* argv[])
 	    } else {
               const double E = pt; // pt is actually E if vsE
 	      const double pT = sqrt((E*E)-(massForScan*massForScan))/cosh(eta);
+              if ( pTabove20 ){
+	        if ( pT >= minpT ) fill = true;
+	      } else {
+	        fill = true;
+	      }
               jet->setJetP4(xAOD::JetFourMom_t(pT,eta,0,massForScan));
               detectorEta(*jet) = eta;
               startingScale.setAttribute(*jet,xAOD::JetFourMom_t(pT,eta,0,massForScan));
@@ -161,7 +172,10 @@ int main (int argc, char* argv[])
             const double JES     = calibJet->e()/startingScale(*jet).e();
 
             // JMS retrieved, fill the plot(s)
-            hist_pt_eta->SetBinContent(xBin,yBin,JES);
+	    if ( !vsE ) hist_pt_eta->SetBinContent(xBin,yBin,JES);
+	    else { // JES_vs_E
+	      if ( fill ) hist_pt_eta->SetBinContent(xBin,yBin,JES);
+	    }
             
             // Clean up
             delete calibJet;

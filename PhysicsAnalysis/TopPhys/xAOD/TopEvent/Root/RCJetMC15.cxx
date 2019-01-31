@@ -49,7 +49,7 @@ RCJetMC15::RCJetMC15( const std::string& name ) :
   m_useAdditionalJSS(false),
   m_egamma("EG_"),
   m_jetsyst("JET_"),
-  m_muonsyst("MUONS_"),
+  m_muonsyst("MUON_"),
   m_InJetContainerBase( "AntiKt4EMTopoJets_RC"),
   m_OutJetContainerBase("AntiKtRCJets"),
   m_InputJetContainer(  "AntiKt4EMTopoJets_RC"),

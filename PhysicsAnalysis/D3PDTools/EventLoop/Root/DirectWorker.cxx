@@ -18,11 +18,14 @@
 #include <EventLoop/DirectWorker.h>
 
 #include <EventLoop/Algorithm.h>
+#include <EventLoop/EventRange.h>
 #include <EventLoop/Job.h>
+#include <EventLoop/MessageCheck.h>
 #include <EventLoop/OutputStream.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/ThrowMsg.h>
 #include <SampleHandler/DiskOutput.h>
+#include <SampleHandler/DiskWriter.h>
 #include <SampleHandler/Sample.h>
 #include <SampleHandler/ToolsOther.h>
 #include <TFile.h>
@@ -49,12 +52,14 @@ namespace EL
 		const SH::MetaObject *meta)
     : Worker (meta, output), m_sample (sample), m_location (location)
   {
+    using namespace msgEventLoop;
+
     setJobConfig (JobConfig (job.jobConfig()));
 
     for (Job::outputIter out = job.outputBegin(),
 	   end = job.outputEnd(); out != end; ++ out)
     {
-      addOutputWriter (out->label(), out->output()->makeWriter (sample->name(), "", -1, ".root"));
+      ANA_CHECK_THROW (addOutputWriter (out->label(), std::unique_ptr<SH::DiskWriter> (out->output()->makeWriter (sample->name(), "", -1, ".root"))));
     }
 
     RCU_NEW_INVARIANT (this);
@@ -65,9 +70,12 @@ namespace EL
   void DirectWorker ::
   run ()
   {
+    using namespace msgEventLoop;
+
     RCU_CHANGE_INVARIANT (this);
 
-    Long64_t count = 0;
+    ANA_CHECK_THROW (initialize ());
+
     const Long64_t maxEvents
       = metaData()->castDouble (Job::optMaxEvents, -1);
     Long64_t skipEvents
@@ -76,83 +84,32 @@ namespace EL
     std::vector<std::string> files = m_sample->makeFileList();
     for (std::vector<std::string>::const_iterator fileName = files.begin(),
 	   end = files.end();
-	 fileName != end && count != maxEvents; ++ fileName)
+	 fileName != end && Long64_t (eventsProcessed()) != maxEvents; ++ fileName)
     {
-      std::cout << "Processing File: " << *fileName << std::endl;
-      std::unique_ptr<TFile> inFile = SH::openFile (*fileName, *metaData());
-      setInputFile (inFile.get());
-      Long64_t inTreeEntries = inputFileNumEntries();
-
-      if (skipEvents > inTreeEntries)
+      EventRange eventRange;
+      eventRange.m_url = *fileName;
+      if (skipEvents == 0 && maxEvents == -1)
       {
-	skipEvents -= inTreeEntries;
-	continue;
-      }
-
-      treeEntry (0);
-      algsChangeInput ();
-      for (Long64_t entry = skipEvents, num = inTreeEntries;
-	   entry != num && count != maxEvents; ++ entry)
+        ANA_CHECK_THROW (processEvents (eventRange));
+      } else
       {
-	treeEntry (entry);
-	algsExecute ();
+        // just open the input file to inspect it
+        ANA_CHECK_THROW (openInputFile (*fileName));
+        const Long64_t inTreeEntries = inputFileNumEntries();
 
-	if (++ count % 10000 == 0)
-	  std::cout << "Processed " << count << " events" << std::endl;
+        if (skipEvents >= inTreeEntries)
+        {
+          skipEvents -= inTreeEntries;
+          continue;
+        }
+        eventRange.m_beginEvent = skipEvents;
+
+        if (maxEvents != -1 &&
+            inTreeEntries > maxEvents + eventRange.m_beginEvent)
+          eventRange.m_endEvent = maxEvents + eventRange.m_beginEvent;
+        ANA_CHECK_THROW (processEvents (eventRange));
       }
-      algsEndOfFile ();
-      skipEvents = 0;
     }
-    algsFinalize ();
-
-    // Perform a memory leak check in case at least one event was processed.
-    if (count > 0) {
-
-       // Extract the limits for producing an error.
-       const int absResidentLimit =
-          metaData()->castInteger (Job::optMemResidentIncreaseLimit,
-                                   10000);
-       const int absVirtualLimit =
-          metaData()->castInteger (Job::optMemVirtualIncreaseLimit,
-                                   0);
-       const int perEvResidentLimit =
-          metaData()->castInteger (Job::optMemResidentPerEventIncreaseLimit,
-                                   10);
-       const int perEvVirtualLimit =
-          metaData()->castInteger (Job::optMemVirtualPerEventIncreaseLimit,
-                                   0);
-
-       // Calculate and print the memory increase of the job.
-       const Long_t resLeak = memIncreaseResident();
-       const Double_t resLeakPerEv =
-          (static_cast< Double_t > (resLeak) /
-           static_cast< Double_t > (count));
-       const Long_t virtLeak = memIncreaseVirtual();
-       const Double_t virtLeakPerEv =
-          (static_cast< Double_t > (virtLeak) /
-           static_cast< Double_t > (count) );
-       std::cout << "Memory increase/change during the job:" << std::endl;
-       std::cout << "  - resident: " << resLeakPerEv << " kB/event ("
-                 << resLeak << " kB total)" << std::endl;
-       std::cout << "  - virtual : " << virtLeakPerEv << " kB/event ("
-                 << virtLeak << " kB total)" << std::endl;
-
-       // Decide if this acceptable or not.
-       if ((resLeak > absResidentLimit) &&
-           (resLeakPerEv > perEvResidentLimit) &&
-           (virtLeak > absVirtualLimit) &&
-           (virtLeakPerEv > perEvVirtualLimit)) {
-
-          // If not, decide what to do about it.
-          if (metaData()->castBool (Job::optMemFailOnLeak, false)) {
-             RCU_THROW_MSG ("A significant memory leak was detected");
-          } else {
-             std::cerr << "WARNING *" << std::endl
-                       << "WARNING * A significant memory leak was detected"
-                       << std::endl
-                       << "WARNING *" << std::endl;
-          }
-       }
-    }
+    ANA_CHECK_THROW (finalize ());
   }
 }

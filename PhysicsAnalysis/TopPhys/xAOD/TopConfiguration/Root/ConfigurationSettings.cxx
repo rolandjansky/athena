@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TopConfiguration/ConfigurationSettings.h"
@@ -78,6 +78,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("JetEta", "Absolute Jet eta cut for object selection. Default 2.5.", "2.5" );
     registerParameter("FwdJetAndMET", "Forward jet selection and corresponding MET calculation."
                                                "Default (does nothing on forward jets), fJVT (apply fJVT cut if pT<50GeV and |eta|>2.5), Tight (requires pT>30GeV if |eta|>2.5).", "Default");
+    registerParameter("JetPtGhostTracks", "Jet pT threshold for ghost track systematic variations calculation (in MeV). Default 17 GeV.", "17000.");
     registerParameter("JetUncertainties_BunchSpacing",
                       "25ns (default) or 50ns - for JetUncertainties",
                       "25ns");
@@ -291,6 +292,8 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("PRWConfigFiles",    "List of PU config files, seperated by spaces (nothing by default) - Not compatible with FS/AF options", " ");
     registerParameter("PRWConfigFiles_FS", "List of PU config files only for full sim samples, seperated by spaces (nothing by default)", " ");
     registerParameter("PRWConfigFiles_AF", "List of PU config files only for fast sim samples, seperated by spaces (nothing by default)", " ");
+    registerParameter("PRWActualMu_FS", "List of actual mu files for full sim samples, seperated by spaces (nothing by default)", " ");
+    registerParameter("PRWActualMu_AF", "List of actual mu files only for fast sim samples, seperated by spaces (nothing by default)", " ");
     registerParameter("PRWLumiCalcFiles", "List of PU lumicalc files, seperated by spaces (nothing by default)", " ");
     registerParameter("PRWUseGRLTool", "Pass the GRL tool to the PU reweighting tool (False by default)", "False");
     registerParameter("PRWMuDependent",

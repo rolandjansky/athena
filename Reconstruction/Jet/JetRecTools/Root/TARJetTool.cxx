@@ -8,7 +8,7 @@
 
 TARJetTool::TARJetTool(const std::string& myname)
 : AsgTool(myname),
-  TrackAssistTool(),
+  TrackAssistHelper(),
   m_inTrackColl(""),
   m_outTrackColl(""),
   m_assocTracksOutName(""),
@@ -30,7 +30,7 @@ StatusCode TARJetTool::initialize()
 {
 
   ATH_MSG_INFO("Initializing TARJetTool " << name() << ".");
-  ATH_CHECK( TrackAssistTool::initialize() );
+  ATH_CHECK( TrackAssistHelper::initialize() );
   print();
 
   return StatusCode::SUCCESS;
@@ -53,6 +53,7 @@ int TARJetTool::modify( xAOD::JetContainer& inJets ) const {
   // Get vertex objects
   const xAOD::Vertex *pvx = nullptr;
   const jet::TrackVertexAssociation *tva = nullptr;
+  // NB: getVertexInfo is defined in TrackAssistHelper.cxx
   ATH_CHECK( getVertexInfo(pvx,tva) );
 
   // Make container for constituent jets
@@ -66,17 +67,18 @@ int TARJetTool::modify( xAOD::JetContainer& inJets ) const {
   std::unique_ptr<xAOD::ShallowAuxContainer> outTracksAux (trackShallowCopy.second);
 
   // Get list of all tracks
-  for( auto track : *inTracks ) {
+  for( const xAOD::TrackParticle* track : *inTracks ) {
     // Make sure only tracks that pass selection are used
+    // NB: isGoodTrack is defined in TrackAssistHelper.cxx
     if( !isGoodTrack(*track,*pvx,*tva) ) continue;
     allGoodTrackIndices.push_back( track->index() );
   }
 
   // Loop over RC jets
-  for(auto jet : inJets) {
+  for( xAOD::Jet* jet : inJets ) {
 
     // Loop over constituent jets
-    for (unsigned int iConstit = 0; iConstit < jet->numConstituents(); iConstit++){
+    for ( unsigned int iConstit = 0; iConstit < jet->numConstituents(); iConstit++ ){
 
       // Get constituent jet
       const xAOD::Jet *constit = dynamic_cast< const xAOD::Jet* >( jet->rawConstituent(iConstit) );
@@ -90,12 +92,17 @@ int TARJetTool::modify( xAOD::JetContainer& inJets ) const {
       ConstitJetMap[constitJet->index()] = jet->index();
 
       // Get ghost-associated tracks
-      std::vector<const xAOD::TrackParticle*> myMatchedTracks = constitJet->getAssociatedObjects<xAOD::TrackParticle>(m_assocTracksInName);
+      std::vector<const xAOD::TrackParticle*> myMatchedTracks;
+      constitJet->getAssociatedObjects<xAOD::TrackParticle>(m_assocTracksInName,myMatchedTracks);
 
       // Loop over ghost-associated tracks
-      for( auto track : myMatchedTracks ) {
+      for( const xAOD::TrackParticle* track : myMatchedTracks ) {
+
+        // Skip if link is broken
+        if( !track ) continue;
 
         // Make sure only tracks that pass selection are used
+        // NB: isGoodTrack is defined in TrackAssistHelper.cxx
         if( !isGoodTrack(*track,*pvx,*tva) ) continue;
 
         // Add to list of matched tracks
@@ -117,24 +124,24 @@ int TARJetTool::modify( xAOD::JetContainer& inJets ) const {
   std::set_difference(allGoodTrackIndices.begin(), allGoodTrackIndices.end(), matchedTrackIndices.begin(), matchedTrackIndices.end(), std::inserter(unmatchedTrackIndices,unmatchedTrackIndices.begin()));
 
   // Loop over all remaining tracks
-  for( auto trackIdx : unmatchedTrackIndices ) {
+  for( int trackIdx : unmatchedTrackIndices ) {
 
     // Get input track
-    auto track = inTracks->at(trackIdx);
+    const xAOD::TrackParticle* track = inTracks->at(trackIdx);
 
     float dRmin = 9999999;
     int jetIdx = -1;
 
-    for(auto constitJet : *constitJets) {
+    for( xAOD::Jet* constitJet : *constitJets ) {
       // Find nearest small-R jet to track
-      if(track->p4().DeltaR(constitJet->p4()) < dRmin) {
+      if( track->p4().DeltaR(constitJet->p4()) < dRmin ) {
         dRmin = track->p4().DeltaR(constitJet->p4());
         jetIdx = constitJet->index();
       }
     }
 
     // Check if dR matching criteria is met
-    if(dRmin < m_dRmatch) {
+    if( dRmin < m_dRmatch ) {
       // Record which constituent jet and RC jet track belongs to
       ConstitTrackMap[jetIdx].push_back(track->index());
       JetTrackMap[ConstitJetMap[jetIdx]].push_back(track->index());
@@ -143,9 +150,9 @@ int TARJetTool::modify( xAOD::JetContainer& inJets ) const {
 
   // Loop over all constituent jets to assign jet associations to tracks
   // NB: This is being done in a separate loop to make future modifications easier
-  for(auto constitJet : *constitJets) {
+  for( xAOD::Jet* constitJet : *constitJets ) {
 
-    for( auto trackIdx : ConstitTrackMap[constitJet->index()] ) {
+    for( int trackIdx : ConstitTrackMap[constitJet->index()] ) {
       // Set jet associations for associated tracks
       // Nominally, each track is associated to a single jet, but this construction
       // allows each track to be associated to multiple jets with a weight for each
@@ -159,10 +166,10 @@ int TARJetTool::modify( xAOD::JetContainer& inJets ) const {
   ATH_CHECK( rescaleTracks(constitJets.get(),outTracks.get())  );
 
   // Create view container to store only selected tracks
-  std::unique_ptr< ConstDataVector<xAOD::TrackParticleContainer> > outSelTracks = std::make_unique< ConstDataVector< xAOD::TrackParticleContainer> >(SG::VIEW_ELEMENTS);
+  auto outSelTracks = std::make_unique< ConstDataVector< xAOD::TrackParticleContainer> >(SG::VIEW_ELEMENTS);
 
   // Fill view container if track passes selection requirements
-  for(auto goodIdx : allGoodTrackIndices) {
+  for( int goodIdx : allGoodTrackIndices ) {
     outSelTracks->push_back(outTracks->at(goodIdx));
   }
   
@@ -171,14 +178,14 @@ int TARJetTool::modify( xAOD::JetContainer& inJets ) const {
   ATH_CHECK( evtStore()->record(outSelTracks.release(),"Sel"+m_outTrackColl) );
 
   // Get bare pointer for post-record operations
-  auto pOutTracks = outTracks.get();
+  xAOD::TrackParticleContainer* pOutTracks = outTracks.get();
 
   // Record output tracks
   ATH_CHECK( evtStore()->record(outTracks.release(), m_outTrackColl) );
   ATH_CHECK( evtStore()->record(outTracksAux.release(), m_outTrackColl+"Aux.") );
 
   // Loop over input jets to link tracks
-  for(auto jet : inJets) {
+  for( xAOD::Jet* jet : inJets ) {
 
     std::vector<const xAOD::TrackParticle*> TARTracks;
 
@@ -186,7 +193,7 @@ int TARJetTool::modify( xAOD::JetContainer& inJets ) const {
     TLorentzVector TARJet;
 
     // Collect all tracks associated to RC jet
-    for( auto trackIdx : JetTrackMap[jet->index()] ) {
+    for( int trackIdx : JetTrackMap[jet->index()] ) {
       TARTracks.push_back(pOutTracks->at(trackIdx));
       TARJet += pOutTracks->at(trackIdx)->p4();
     }
@@ -234,7 +241,7 @@ StatusCode TARJetTool::getPrimaryVertex( const xAOD::Vertex *&pvx ) const {
   }
 
   // Find the first primary vertex in the container
-  for ( const auto& vx : *vtxContainer ) {
+  for ( const xAOD::Vertex* vx : *vtxContainer ) {
     if ( vx->vertexType() == xAOD::VxType::PriVtx ) {
       pvx = vx;
       break;
@@ -256,7 +263,7 @@ void TARJetTool::print() const {
   ATH_MSG_INFO("    OutputTrackContainer: " << m_outTrackColl);
   ATH_MSG_INFO("  OutputAssociatedTracks: " << m_assocTracksOutName);
   ATH_MSG_INFO("             MatchDeltaR: " << m_dRmatch);
-  TrackAssistTool::print();
+  TrackAssistHelper::print();
   return;
 }
 

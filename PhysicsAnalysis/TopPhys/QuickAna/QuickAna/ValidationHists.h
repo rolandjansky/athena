@@ -50,7 +50,7 @@ namespace ana
     /// guarantee: strong
     /// failures: out of memory I
   public:
-    ValidationHists (EL::Worker *val_worker,
+    ValidationHists (EL::IWorker *val_worker,
 		     const InternalConfiguration& configuration);
 
 
@@ -89,7 +89,7 @@ namespace ana
 
     /// description: the worker we are using
   private:
-    EL::Worker *m_worker;
+    EL::IWorker *m_worker;
 
     /// description: the actual histograms we are using
   private:

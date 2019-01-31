@@ -61,7 +61,7 @@ namespace EL
     /// description: the worker that is controlling us
     /// guarantee: no-fail
   public:
-    Worker *wk () const;
+    IWorker *wk () const;
 
 
     /// \brief book the given histogram
@@ -301,10 +301,11 @@ namespace EL
     ///   algorithm.  this allows it to do it without having to
     ///   duplicate most of the interface.
     friend class Worker;
+    friend class Detail::AlgorithmStateModule;
 
     // description: members directly corresponding to accessors
   private:
-    Worker *m_wk; //!
+    IWorker *m_wk; //!
 
     /// \brief the value of \ref evtStore
   private:

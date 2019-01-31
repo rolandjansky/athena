@@ -20,7 +20,7 @@
 #pragma link C++ class MD::Formula+;
 #pragma link C++ class MD::FormulaSvc+;
 
-#pragma link C++ function MD::formulas (EL::Worker*);
+#pragma link C++ function MD::formulas (EL::IWorker*);
 #pragma link C++ function MD::useFormulas (EL::Job&);
 
 #endif

@@ -7,7 +7,7 @@ from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool, \
 
 def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
                              runJvtEfficiency = True, runJvtSelection = False,
-                             runGhostMuonAssociation = True ):
+                             runGhostMuonAssociation = True, deepCopyOutput = False ):
     """Create a jet analysis algorithm sequence
 
     Keyword arguments:
@@ -133,6 +133,16 @@ def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
     alg = createAlgorithm( 'CP::KinematicHistAlg', 'JetKinematicDumperAlg' )
     alg.histPattern = 'jet_%VAR%_%SYS%'
     seq.append( alg, inputPropName = 'input' )
+
+    # Set up a final deep copy making algorithm if requested:
+    if deepCopyOutput:
+        alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
+                               'JetDeepCopyMaker' )
+        alg.deepCopy = True
+        seq.append( alg, inputPropName = 'input', outputPropName = 'output',
+                    stageName = 'selection' )
+        pass
+    
 
     # Return the sequence:
     return seq

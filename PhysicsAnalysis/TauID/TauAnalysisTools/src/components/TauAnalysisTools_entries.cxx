@@ -16,10 +16,13 @@
 #include "TauAnalysisTools/TauEfficiencyJetIDTool.h"
 #include "TauAnalysisTools/TauEfficiencyTriggerTool.h"
 #include "TauAnalysisTools/TauOverlappingElectronLLHDecorator.h"
+#include "TauAnalysisTools/CommonDiTauEfficiencyTool.h"
+#include "TauAnalysisTools/DiTauEfficiencyCorrectionsTool.h"
+#include "TauAnalysisTools/CommonDiTauSmearingTool.h"
+#include "TauAnalysisTools/DiTauSmearingTool.h"
 #include "TauAnalysisTools/DiTauTruthMatchingTool.h"
 #include "../TauAnalysisToolsExampleAthena.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY( TauAnalysisTools , DiTauTruthMatchingTool )
 
 DECLARE_NAMESPACE_TOOL_FACTORY( TauAnalysisTools, CommonEfficiencyTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( TauAnalysisTools, CommonSmearingTool )
@@ -34,6 +37,11 @@ DECLARE_NAMESPACE_TOOL_FACTORY( TauAnalysisTools, TauEfficiencyEleIDTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( TauAnalysisTools, TauEfficiencyJetIDTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( TauAnalysisTools, TauEfficiencyTriggerTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( TauAnalysisTools, TauOverlappingElectronLLHDecorator )
+DECLARE_NAMESPACE_TOOL_FACTORY( TauAnalysisTools, CommonDiTauEfficiencyTool )
+DECLARE_NAMESPACE_TOOL_FACTORY( TauAnalysisTools, DiTauEfficiencyCorrectionsTool )
+DECLARE_NAMESPACE_TOOL_FACTORY( TauAnalysisTools, CommonDiTauSmearingTool )
+DECLARE_NAMESPACE_TOOL_FACTORY( TauAnalysisTools, DiTauSmearingTool )
+DECLARE_NAMESPACE_TOOL_FACTORY( TauAnalysisTools, DiTauTruthMatchingTool )
 
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( TauAnalysisTools, TauAnalysisToolsExampleAthena )
 
@@ -52,8 +60,11 @@ DECLARE_FACTORY_ENTRIES( TauAnalysisTools )
   DECLARE_NAMESPACE_TOOL( TauAnalysisTools, TauEfficiencyJetIDTool )
   DECLARE_NAMESPACE_TOOL( TauAnalysisTools, TauEfficiencyTriggerTool )
   DECLARE_NAMESPACE_TOOL( TauAnalysisTools, TauOverlappingElectronLLHDecorator )
-
-  DECLARE_NAMESPACE_TOOL( TauAnalysisTools , DiTauTruthMatchingTool )
+  DECLARE_NAMESPACE_TOOL( TauAnalysisTools, CommonDiTauEfficiencyTool )
+  DECLARE_NAMESPACE_TOOL( TauAnalysisTools, DiTauEfficiencyCorrectionsTool )
+  DECLARE_NAMESPACE_TOOL( TauAnalysisTools, CommonDiTauSmearingTool )
+  DECLARE_NAMESPACE_TOOL( TauAnalysisTools, DiTauSmearingTool )
+  DECLARE_NAMESPACE_TOOL( TauAnalysisTools, DiTauTruthMatchingTool )
 
   DECLARE_NAMESPACE_ALGORITHM( TauAnalysisTools, TauAnalysisToolsExampleAthena )
   
