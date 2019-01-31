@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TopCorrections/PileupScaleFactorCalculator.h"
@@ -71,7 +71,14 @@ namespace top{
       eventInfo->auxdecor<float>("PileupWeight_UP") = pileupWeight;
     }
     else {
-      float lumiBlockMu = m_pileupReweightingTool->getCorrectedAverageInteractionsPerCrossing( *eventInfo );
+      float lumiBlockMu{1};
+      if (m_config->isAFII() && m_config->PileupActualMu_AF().size() > 0) {
+        lumiBlockMu = m_pileupReweightingTool->getCorrectedActualInteractionsPerCrossing( *eventInfo );
+      } else if (!m_config->isAFII() && m_config->PileupActualMu_FS().size() > 0) {
+        lumiBlockMu = m_pileupReweightingTool->getCorrectedActualInteractionsPerCrossing( *eventInfo );
+      } else {
+        lumiBlockMu = m_pileupReweightingTool->getCorrectedAverageInteractionsPerCrossing( *eventInfo );
+      }
       eventInfo->auxdecor<float>("corrected_averageInteractionsPerCrossing_UP") = lumiBlockMu;
     }
     
@@ -84,7 +91,14 @@ namespace top{
       eventInfo->auxdecor<float>("PileupWeight_DOWN") = pileupWeight;
     }
     else {
-      float lumiBlockMu = m_pileupReweightingTool->getCorrectedAverageInteractionsPerCrossing( *eventInfo );
+      float lumiBlockMu{1};
+      if (m_config->isAFII() && m_config->PileupActualMu_AF().size() > 0) {
+        lumiBlockMu = m_pileupReweightingTool->getCorrectedActualInteractionsPerCrossing( *eventInfo );
+      } else if (!m_config->isAFII() && m_config->PileupActualMu_FS().size() > 0) {
+        lumiBlockMu = m_pileupReweightingTool->getCorrectedActualInteractionsPerCrossing( *eventInfo );
+      } else {
+        lumiBlockMu = m_pileupReweightingTool->getCorrectedAverageInteractionsPerCrossing( *eventInfo );
+      }
       eventInfo->auxdecor<float>("corrected_averageInteractionsPerCrossing_DOWN") = lumiBlockMu;
     }
     
