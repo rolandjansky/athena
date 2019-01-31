@@ -27,8 +27,6 @@ Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderS
 Py:ComponentAccumulator   DEBUG Adding component ByteStreamAttListMetadataSvc/ByteStreamAttListMetadataSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component IOVDbMetaDataTool/IOVDbMetaDataTool to the job
 Py:ComponentAccumulator   DEBUG Adding component ByteStreamMetadataTool/ByteStreamMetadataTool to the job
-Py:ComponentAccumulator   DEBUG   Merging algorithm MuonCacheCreator to a sequence AthAlgSeq
-Py:Configurable     ERROR attempt to add a duplicate (AthAlgSeq.MuonCacheCreator) ... dupe ignored
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
@@ -394,7 +392,9 @@ Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component ROBDataProviderSvc/ROBDataProviderSvc to the job
+Py:ComponentAccumulator   DEBUG   Merging algorithm MuonCacheCreator to a sequence AthAlgSeq
 Py:ComponentAccumulator   DEBUG Adding component Muon::MDT_RawDataProviderTool/MDT_RawDataProviderTool to the job
+Py:ComponentAccumulator   DEBUG   Merging algorithm MuonCacheCreator to a sequence AthAlgSeq
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
 Py:ComponentAccumulator   DEBUG Adding component MuonMDT_CablingAlg/MuonMDT_CablingAlg to the job
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
@@ -471,6 +471,7 @@ Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component ROBDataProviderSvc/ROBDataProviderSvc to the job
+Py:ComponentAccumulator   DEBUG   Merging algorithm MuonCacheCreator to a sequence AthAlgSeq
 Py:ComponentAccumulator   DEBUG Adding component Muon::CSC_RawDataProviderTool/CSC_RawDataProviderTool to the job
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
@@ -1098,27 +1099,6 @@ Py:Athena            INFO Print Config
 |-Sequential                              = False
 |-StopOverride                            = False
 |-TimeOut                                 = 0.0
-|=/***** Algorithm MuonCacheCreator/MuonCacheCreator *************************************************
-| |-AuditAlgorithms                         = False
-| |-AuditBeginRun                           = False
-| |-AuditEndRun                             = False
-| |-AuditExecute                            = False
-| |-AuditFinalize                           = False
-| |-AuditInitialize                         = False
-| |-AuditReinitialize                       = False
-| |-AuditRestart                            = False
-| |-AuditStart                              = False
-| |-AuditStop                               = False
-| |-DisableViewWarning                      = False
-| |-Enable                                  = True
-| |-ErrorCounter                            = 0
-| |-ErrorMax                                = 1
-| |-FilterCircularDependencies              = True
-| |-IsIOBound                               = False
-| |-MonitorService                          = 'MonitorSvc'
-| |-OutputLevel                             = 0
-| |-RegisterForContextService               = False
-| \----- (End of Algorithm MuonCacheCreator/MuonCacheCreator) ----------------------------------------
 |=/***** Algorithm Muon::RpcRawDataProvider/RpcRawDataProvider ***************************************
 | |-AuditAlgorithms                         = False
 | |-AuditBeginRun                           = False
@@ -1216,6 +1196,27 @@ Py:Athena            INFO Print Config
 | | | \----- (End of Private AlgTool Muon::TGC_RodDecoderReadout/TgcRawDataProvider.TGC_RawDataProviderTool.TgcROD_Decoder) -----
 | | \----- (End of Private AlgTool Muon::TGC_RawDataProviderTool/TgcRawDataProvider.TGC_RawDataProviderTool) -----
 | \----- (End of Algorithm Muon::TgcRawDataProvider/TgcRawDataProvider) ------------------------------
+|=/***** Algorithm MuonCacheCreator/MuonCacheCreator *************************************************
+| |-AuditAlgorithms                         = False
+| |-AuditBeginRun                           = False
+| |-AuditEndRun                             = False
+| |-AuditExecute                            = False
+| |-AuditFinalize                           = False
+| |-AuditInitialize                         = False
+| |-AuditReinitialize                       = False
+| |-AuditRestart                            = False
+| |-AuditStart                              = False
+| |-AuditStop                               = False
+| |-DisableViewWarning                      = False
+| |-Enable                                  = True
+| |-ErrorCounter                            = 0
+| |-ErrorMax                                = 1
+| |-FilterCircularDependencies              = True
+| |-IsIOBound                               = False
+| |-MonitorService                          = 'MonitorSvc'
+| |-OutputLevel                             = 0
+| |-RegisterForContextService               = False
+| \----- (End of Algorithm MuonCacheCreator/MuonCacheCreator) ----------------------------------------
 |=/***** Algorithm Muon::MdtRawDataProvider/MdtRawDataProvider ***************************************
 | |-AuditAlgorithms                         = False
 | |-AuditBeginRun                           = False
@@ -1598,7 +1599,7 @@ JOs reading stage finished, launching Athena from pickle file
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO configuring AthenaHive with [1] concurrent threads and [1] concurrent events
 Py:AlgScheduler      INFO setting up AvalancheSchedulerSvc/AvalancheSchedulerSvc with 1 threads
-Py:Athena            INFO now loading MuonRdoDecode.pkl  ... 
+Py:Athena            INFO now loading MuonRdoDecode_Cache.pkl  ... 
 ApplicationMgr       INFO Application Manager Configured successfully
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
@@ -2109,10 +2110,6 @@ IOVDbFolder          INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to MDTCablingMe
 IOVDbSvc             INFO Disconnecting from COOLONL_MDT/CONDBR2
 MuonMDT_CablingAlg   INFO Size of CondAttrListCollection  ( 'CondAttrListCollection' , 'ConditionStore+/MDT/CABLING/MEZZANINE_SCHEMA' )  readCdoMez->size()= 24
 MuonMDT_CablingAlg   INFO Size of CondAttrListCollection  ( 'CondAttrListCollection' , 'ConditionStore+/MDT/CABLING/MAP_SCHEMA' )  readCdoMap->size()= 2312
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG fillCollection: starting
@@ -2935,10 +2932,6 @@ CscRawDataProvi...WARNING DEBUG message limit (500) reached for CscRawDataProvid
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186525031, run #327265 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186524665, run #327265 1 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -2950,10 +2943,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186524665, run #327265 2 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186542447, run #327265 2 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -2965,10 +2954,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186542447, run #327265 3 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186543405, run #327265 3 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -2980,10 +2965,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186543405, run #327265 4 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186548387, run #327265 4 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -2995,10 +2976,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186548387, run #327265 5 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186515186, run #327265 5 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -3010,10 +2987,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186515186, run #327265 6 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186556019, run #327265 6 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -3025,10 +2998,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186556019, run #327265 7 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186542866, run #327265 7 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -3040,10 +3009,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186542866, run #327265 8 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186537901, run #327265 8 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -3055,10 +3020,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186537901, run #327265 9 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186517811, run #327265 9 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -3070,10 +3031,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186517811, run #327265 10 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186534221, run #327265 10 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -3085,10 +3042,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186534221, run #327265 11 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186540986, run #327265 11 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -3100,10 +3053,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186540986, run #327265 12 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186535104, run #327265 12 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -3115,10 +3064,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186535104, run #327265 13 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186539903, run #327265 13 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -3130,10 +3075,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186539903, run #327265 14 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186552713, run #327265 14 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -3145,10 +3086,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186552713, run #327265 15 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186524730, run #327265 15 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -3160,10 +3097,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186524730, run #327265 16 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186547632, run #327265 16 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -3175,10 +3108,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186547632, run #327265 17 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186555621, run #327265 17 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -3190,10 +3119,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186555621, run #327265 18 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186568452, run #327265 18 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -3205,10 +3130,6 @@ CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186568452, run #327265 19 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186580451, run #327265 19 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136

@@ -4,6 +4,13 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.Constants import VERBOSE, DEBUG, INFO
 
+## Small class to hold the names for cache containers, should help to avoid copy / paste errors
+class MuonCacheNames:
+    MdtCsmCache = "MdtCsmCache"
+    CscCache    = "CscCache"
+    RpcCache    = "RpcCache"
+    TgcCache    = "TgcCache"
+
 ## This configuration function creates the IdentifiableCaches for RDO
 #
 # The function returns a ComponentAccumulator which should be loaded first
@@ -12,10 +19,10 @@ def MuonCacheCfg():
     acc = ComponentAccumulator()
 
     from MuonByteStream.MuonByteStreamConf import MuonCacheCreator
-    cacheCreator = MuonCacheCreator(MdtCsmCacheKey = "MdtCsmCache",
-                                    CscCacheKey    = "CscCache",
-                                    RpcCacheKey    = "RpcCache",
-                                    TgcCacheKey    = "TgcCache")
+    cacheCreator = MuonCacheCreator(MdtCsmCacheKey = MuonCacheNames.MdtCsmCache,
+                                    CscCacheKey    = MuonCacheNames.CscCache,
+                                    RpcCacheKey    = MuonCacheNames.RpcCache,
+                                    TgcCacheKey    = MuonCacheNames.TgcCache)
     acc.addEventAlgo( cacheCreator )
     return acc, cacheCreator
 
@@ -123,7 +130,11 @@ def MdtBytestreamDecodeCfg(flags, forTrigger=False):
     MuonMdtRawDataProviderTool = Muon__MDT_RawDataProviderTool(name    = "MDT_RawDataProviderTool",
                                                                Decoder = MDTRodDecoder)
     if forTrigger:
-        MuonMdtRawDataProviderTool.CsmContainerCacheKey = "MdtCsmCache"
+        # Trigger the creation of cache containers
+        cacheAcc,cacheAlg = MuonCacheCfg()
+        acc.merge( cacheAcc )
+        # tell the raw data provider tool to use the cache
+        MuonMdtRawDataProviderTool.CsmContainerCacheKey = MuonCacheNames.MdtCsmCache
 
     acc.addPublicTool( MuonMdtRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
@@ -159,7 +170,11 @@ def CscBytestreamDecodeCfg(flags, forTrigger=False):
     MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderTool(name    = "CSC_RawDataProviderTool",
                                                                Decoder = CSCRodDecoder)
     if forTrigger:
-        MuonCscRawDataProviderTool.CscContainerCacheKey = "CscCache"
+        # Trigger the creation of cache containers
+        cacheAcc,cacheAlg = MuonCacheCfg()
+        acc.merge( cacheAcc )
+        # tell the raw data provider tool to use the cache
+        MuonCscRawDataProviderTool.CscContainerCacheKey = MuonCacheNames.CscCache
 
     acc.addPublicTool( MuonCscRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
@@ -198,11 +213,6 @@ if __name__=="__main__":
     # Seem to need this to read BS properly
     from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
     cfg.merge(TrigBSReadCfg(ConfigFlags ))
-
-    # Setup IdentifiableCaches before anything else
-    muoncacheacc, muoncachealg = MuonCacheCfg()
-    cfg.merge( muoncacheacc )
-    cfg.addEventAlgo( muoncachealg )
 
     # Schedule Rpc data decoding - once mergeAll is working can simplify these lines
     rpcdecodingAcc, rpcdecodingAlg = RpcBytestreamDecodeCfg( ConfigFlags ) 

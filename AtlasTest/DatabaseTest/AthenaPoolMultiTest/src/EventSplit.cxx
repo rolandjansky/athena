@@ -19,9 +19,6 @@
 
 #include "GaudiKernel/MsgStream.h"
 
-//#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
 #include "StoreGate/StoreGateSvc.h"
 
 //___________________________________________________________________________
@@ -29,7 +26,7 @@ EventSplit::EventSplit(const std::string& name, ISvcLocator* pSvcLocator) :
    AthFilterAlgorithm(name, pSvcLocator), 
    m_l1bits(0),
    m_l2bits(0),
-   m_evt("McEventInfo"),
+   m_evt("EventInfo"),
    m_rftm("MultiTestTrigMap")
 {
    // Declare the properties
@@ -53,13 +50,13 @@ StatusCode EventSplit::execute()
    ATH_MSG_DEBUG( "in execute()"  );
 
    // Get the event header, print out event and run number
-   SG::ReadHandle<EventInfo> evt (m_evt);
+   SG::ReadHandle<xAOD::EventInfo> evt (m_evt);
    if (!evt.isValid()) {
-      ATH_MSG_FATAL( "Could not find event"  );
+      ATH_MSG_FATAL( "Could not find event info"  );
       return(StatusCode::FAILURE);
    }
-   ATH_MSG_INFO( "EventInfo event: " << evt->event_ID()->event_number() 
-                         << " run: " << evt->event_ID()->run_number()  );
+   ATH_MSG_INFO( "EventInfo event: " << evt->eventNumber() 
+                         << " run: " << evt->runNumber()  );
    
    this->setFilterPassed(false);
    // Let's look for the TriggerMap information

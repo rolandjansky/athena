@@ -27,8 +27,6 @@ Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderS
 Py:ComponentAccumulator   DEBUG Adding component ByteStreamAttListMetadataSvc/ByteStreamAttListMetadataSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component IOVDbMetaDataTool/IOVDbMetaDataTool to the job
 Py:ComponentAccumulator   DEBUG Adding component ByteStreamMetadataTool/ByteStreamMetadataTool to the job
-Py:ComponentAccumulator   DEBUG   Merging algorithm MuonCacheCreator to a sequence AthAlgSeq
-Py:Configurable     ERROR attempt to add a duplicate (AthAlgSeq.MuonCacheCreator) ... dupe ignored
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
@@ -36,15 +34,12 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
@@ -63,7 +58,6 @@ Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader
 Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component RPCCablingDbTool/RPCCablingDbTool to the job
 Py:ComponentAccumulator   DEBUG Adding component MuonRPC_CablingSvc/MuonRPC_CablingSvc to the job
@@ -88,37 +82,25 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component ROBDataProviderSvc/ROBDataProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component Muon::RPC_RawDataProviderTool/RPC_RawDataProviderTool to the job
 Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
 Py:ComponentAccumulator   DEBUG Adding component RPCcablingServerSvc/RPCcablingServerSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component MuonRPC_CablingSvc/MuonRPC_CablingSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ROBDataProviderSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
 Py:ComponentAccumulator   DEBUG Adding component RPCCablingDbTool/RPCCablingDbTool to the job
 Py:ComponentAccumulator   DEBUG Adding component Muon::RPC_RawDataProviderTool/RPC_RawDataProviderTool to the job
@@ -129,15 +111,12 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
@@ -157,7 +136,6 @@ Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader
 Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
@@ -179,38 +157,17 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component ROBDataProviderSvc/ROBDataProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component Muon::TGC_RawDataProviderTool/TGC_RawDataProviderTool to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
 Py:ComponentAccumulator   DEBUG Adding component LVL1TGC::TGCRecRoiSvc/LVL1TGC::TGCRecRoiSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TGCcablingServerSvc/TGCcablingServerSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ROBDataProviderSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component Muon::TGC_RawDataProviderTool/TGC_RawDataProviderTool to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
@@ -219,15 +176,12 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
@@ -247,10 +201,8 @@ Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader
 Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component AthenaPoolCnvSvc/AthenaPoolCnvSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component MuonMDT_CablingAlg/MuonMDT_CablingAlg to the job
 Py:ComponentAccumulator   DEBUG Adding component MDTCablingDbTool/MDTCablingDbTool to the job
 Py:ComponentAccumulator   DEBUG Adding component MuonMDT_CablingSvc/MuonMDT_CablingSvc to the job
@@ -291,12 +243,6 @@ Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderS
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component AthenaPoolCnvSvc/AthenaPoolCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
 Py:ComponentAccumulator   DEBUG Adding component AthenaPoolCnvSvc/AthenaPoolCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component MagField::AtlasFieldSvc/AtlasFieldSvc to the job
@@ -349,23 +295,9 @@ Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderS
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component MuonCalib::MdtCalibDbCoolStrTool/MuonCalib::MdtCalibDbCoolStrTool to the job
 Py:ComponentAccumulator   DEBUG Adding component MdtCalibrationDbSvc/MdtCalibrationDbSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
 Py:ComponentAccumulator   DEBUG Adding component MdtCalibrationDbSvc/MdtCalibrationDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component MuonCalib::MdtCalibDbCoolStrTool/MuonCalib::MdtCalibDbCoolStrTool to the job
 Py:ComponentAccumulator   DEBUG Adding component MdtCalibrationSvc/MdtCalibrationSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component AthenaPoolCnvSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component MagField::AtlasFieldSvc/AtlasFieldSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component MdtCalibrationDbSvc/MdtCalibrationDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component MdtCalibrationSvc/MdtCalibrationSvc to the job
@@ -377,42 +309,21 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component ROBDataProviderSvc/ROBDataProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component Muon::MDT_RawDataProviderTool/MDT_RawDataProviderTool to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
 Py:ComponentAccumulator   DEBUG Adding component MuonMDT_CablingAlg/MuonMDT_CablingAlg to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
 Py:ComponentAccumulator   DEBUG Adding component AthenaPoolCnvSvc/AthenaPoolCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component MuonMDT_CablingSvc/MuonMDT_CablingSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component MagField::AtlasFieldSvc/AtlasFieldSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component MdtCalibrationDbSvc/MdtCalibrationDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component MdtCalibrationSvc/MdtCalibrationSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ROBDataProviderSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component MDTCablingDbTool/MDTCablingDbTool to the job
 Py:ComponentAccumulator   DEBUG Adding component MuonCalib::MdtCalibDbCoolStrTool/MuonCalib::MdtCalibDbCoolStrTool to the job
 Py:ComponentAccumulator   DEBUG Adding component Muon::MDT_RawDataProviderTool/MDT_RawDataProviderTool to the job
@@ -423,15 +334,12 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
@@ -454,32 +362,16 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component ROBDataProviderSvc/ROBDataProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component Muon::CSC_RawDataProviderTool/CSC_RawDataProviderTool to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
 Py:ComponentAccumulator   DEBUG Adding component CSCcablingSvc/CSCcablingSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ROBDataProviderSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component Muon::CSC_RawDataProviderTool/CSC_RawDataProviderTool to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
@@ -488,15 +380,12 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
@@ -515,7 +404,6 @@ Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader
 Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component RPCCablingDbTool/RPCCablingDbTool to the job
 Py:ComponentAccumulator   DEBUG Adding component MuonRPC_CablingSvc/MuonRPC_CablingSvc to the job
@@ -540,37 +428,14 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component Muon::RpcRdoToPrepDataTool/RpcRdoToRpcPrepDataTool to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component RPCcablingServerSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component MuonRPC_CablingSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.RPCCablingDbTool
 Py:ComponentAccumulator   DEBUG Adding component Muon::RpcRdoToPrepDataTool/RpcRdoToRpcPrepDataTool to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
@@ -579,15 +444,12 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
@@ -607,7 +469,6 @@ Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader
 Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
@@ -629,36 +490,14 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepDataTool to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component LVL1TGC::TGCRecRoiSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TGCcablingServerSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepDataTool to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
@@ -667,15 +506,12 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
@@ -695,10 +531,8 @@ Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader
 Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component AthenaPoolCnvSvc/AthenaPoolCnvSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component MuonMDT_CablingAlg/MuonMDT_CablingAlg to the job
 Py:ComponentAccumulator   DEBUG Adding component MDTCablingDbTool/MDTCablingDbTool to the job
 Py:ComponentAccumulator   DEBUG Adding component MuonMDT_CablingSvc/MuonMDT_CablingSvc to the job
@@ -737,12 +571,6 @@ Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderS
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component AthenaPoolCnvSvc/AthenaPoolCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
 Py:ComponentAccumulator   DEBUG Adding component AthenaPoolCnvSvc/AthenaPoolCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component MagField::AtlasFieldSvc/AtlasFieldSvc to the job
@@ -782,23 +610,9 @@ Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderS
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component MuonCalib::MdtCalibDbCoolStrTool/MuonCalib::MdtCalibDbCoolStrTool to the job
 Py:ComponentAccumulator   DEBUG Adding component MdtCalibrationDbSvc/MdtCalibrationDbSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
 Py:ComponentAccumulator   DEBUG Adding component MdtCalibrationDbSvc/MdtCalibrationDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component MuonCalib::MdtCalibDbCoolStrTool/MuonCalib::MdtCalibDbCoolStrTool to the job
 Py:ComponentAccumulator   DEBUG Adding component MdtCalibrationSvc/MdtCalibrationSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component AthenaPoolCnvSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component MagField::AtlasFieldSvc/AtlasFieldSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component MdtCalibrationDbSvc/MdtCalibrationDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component MdtCalibrationSvc/MdtCalibrationSvc to the job
@@ -810,42 +624,14 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component Muon::MdtRdoToPrepDataTool/MdtRdoToMdtPrepDataTool to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component MuonMDT_CablingAlg
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component AthenaPoolCnvSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component MuonMDT_CablingSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component AtlasFieldSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component MdtCalibrationDbSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component MdtCalibrationSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.MDTCablingDbTool
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.MuonCalib::MdtCalibDbCoolStrTool
 Py:ComponentAccumulator   DEBUG Adding component Muon::MdtRdoToPrepDataTool/MdtRdoToMdtPrepDataTool to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
@@ -854,15 +640,12 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
@@ -909,12 +692,6 @@ Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
 Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader to the job
 Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
@@ -927,12 +704,6 @@ Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
 Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader to the job
 Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
@@ -945,12 +716,6 @@ Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
 Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader to the job
 Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
@@ -963,12 +728,6 @@ Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
 Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader to the job
 Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
@@ -981,12 +740,6 @@ Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
 Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader to the job
 Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
@@ -999,12 +752,6 @@ Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
 Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader to the job
 Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
@@ -1017,18 +764,11 @@ Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
 Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader to the job
 Py:ComponentAccumulator   DEBUG Adding component MuonCalib::CscCoolStrSvc/MuonCalib::CscCoolStrSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
@@ -1037,40 +777,18 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepDataTool to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CSCcablingSvc
 Py:ComponentAccumulator   DEBUG Adding component MuonCalib::CscCoolStrSvc/MuonCalib::CscCoolStrSvc to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepDataTool to the job
 Py:ComponentAccumulator   DEBUG Adding component CscThresholdClusterBuilderTool/CscThesholdClusterBuilderTool to the job
 Py:ComponentAccumulator   DEBUG Adding component CscThresholdClusterBuilderTool/CscThesholdClusterBuilderTool to the job
-Py:ComponentAccumulator   DEBUG Reconciled configuration of component AthenaPoolCnvSvc
 Py:Athena            INFO Print Config
 |-Atomic                                  = False
 |-AuditAlgorithms                         = False
@@ -1098,27 +816,6 @@ Py:Athena            INFO Print Config
 |-Sequential                              = False
 |-StopOverride                            = False
 |-TimeOut                                 = 0.0
-|=/***** Algorithm MuonCacheCreator/MuonCacheCreator *************************************************
-| |-AuditAlgorithms                         = False
-| |-AuditBeginRun                           = False
-| |-AuditEndRun                             = False
-| |-AuditExecute                            = False
-| |-AuditFinalize                           = False
-| |-AuditInitialize                         = False
-| |-AuditReinitialize                       = False
-| |-AuditRestart                            = False
-| |-AuditStart                              = False
-| |-AuditStop                               = False
-| |-DisableViewWarning                      = False
-| |-Enable                                  = True
-| |-ErrorCounter                            = 0
-| |-ErrorMax                                = 1
-| |-FilterCircularDependencies              = True
-| |-IsIOBound                               = False
-| |-MonitorService                          = 'MonitorSvc'
-| |-OutputLevel                             = 0
-| |-RegisterForContextService               = False
-| \----- (End of Algorithm MuonCacheCreator/MuonCacheCreator) ----------------------------------------
 |=/***** Algorithm Muon::RpcRawDataProvider/RpcRawDataProvider ***************************************
 | |-AuditAlgorithms                         = False
 | |-AuditBeginRun                           = False
@@ -2102,124 +1799,44 @@ IOVDbFolder          INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to MDTCablingMe
 IOVDbSvc             INFO Disconnecting from COOLONL_MDT/CONDBR2
 MuonMDT_CablingAlg   INFO Size of CondAttrListCollection  ( 'CondAttrListCollection' , 'ConditionStore+/MDT/CABLING/MEZZANINE_SCHEMA' )  readCdoMez->size()= 24
 MuonMDT_CablingAlg   INFO Size of CondAttrListCollection  ( 'CondAttrListCollection' , 'ConditionStore+/MDT/CABLING/MAP_SCHEMA' )  readCdoMap->size()= 2312
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186525031, run #327265 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186524665, run #327265 1 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186524665, run #327265 2 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186542447, run #327265 2 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186542447, run #327265 3 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186543405, run #327265 3 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186543405, run #327265 4 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186548387, run #327265 4 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186548387, run #327265 5 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186515186, run #327265 5 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186515186, run #327265 6 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186556019, run #327265 6 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186556019, run #327265 7 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186542866, run #327265 7 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186542866, run #327265 8 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186537901, run #327265 8 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186537901, run #327265 9 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186517811, run #327265 9 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186517811, run #327265 10 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186534221, run #327265 10 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186534221, run #327265 11 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186540986, run #327265 11 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186540986, run #327265 12 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186535104, run #327265 12 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186535104, run #327265 13 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186539903, run #327265 13 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186539903, run #327265 14 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186552713, run #327265 14 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186552713, run #327265 15 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186524730, run #327265 15 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186524730, run #327265 16 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186547632, run #327265 16 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186547632, run #327265 17 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186555621, run #327265 17 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186555621, run #327265 18 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186568452, run #327265 18 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186568452, run #327265 19 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186580451, run #327265 19 events processed so far  <<<===
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+MdtCsmCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+CscCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+RpcCache'
-MuonCacheCreator     INFO Created cache container 'StoreGateSvc+TgcCache'
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186580451, run #327265 20 events processed so far  <<<===
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully

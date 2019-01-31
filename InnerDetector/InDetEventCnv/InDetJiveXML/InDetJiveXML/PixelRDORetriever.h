@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JIVEXML_PIXELRDORETRIEVER_H
 #define JIVEXML_PIXELRDORETRIEVER_H
 
-#include "InDetCondServices/ISiLorentzAngleTool.h"
+#include "InDetCondTools/ISiLorentzAngleTool.h"
 #include "JiveXML/IDataRetriever.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetJiveXML/IInDetGeoModelTool.h"

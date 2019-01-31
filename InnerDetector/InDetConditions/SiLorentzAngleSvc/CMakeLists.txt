@@ -12,7 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           DetectorDescription/GeoPrimitives
                           GaudiKernel
-                          InnerDetector/InDetConditions/InDetCondServices
+                          InnerDetector/InDetConditions/InDetCondTools
                           InnerDetector/InDetConditions/SiPropertiesSvc
                           InnerDetector/InDetConditions/PixelConditionsData
                           InnerDetector/InDetConditions/PixelConditionsTools
@@ -33,7 +33,7 @@ atlas_add_component( SiLorentzAngleSvc
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests GeoPrimitives GaudiKernel InDetCondServices SiPropertiesSvcLib MagFieldInterfaces AthenaPoolUtilities Identifier InDetIdentifier InDetReadoutGeometry )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests GeoPrimitives GaudiKernel InDetCondTools SiPropertiesSvcLib MagFieldInterfaces AthenaPoolUtilities Identifier InDetIdentifier InDetReadoutGeometry )
 
 # Install files from the package:
 atlas_install_headers( SiLorentzAngleSvc )

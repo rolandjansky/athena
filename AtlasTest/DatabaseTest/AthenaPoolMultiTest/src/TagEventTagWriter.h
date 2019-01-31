@@ -14,8 +14,9 @@
 
 //#include "GaudiKernel/Algorithm.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandle.h"
 #include "StoreGate/StoreGateSvc.h"
-
+#include "xAODEventInfo/EventInfo.h"
 #include <string>
 
 class AthenaAttributeListSpecification;
@@ -63,6 +64,8 @@ class TagEventTagWriter : public AthAlgorithm
     virtual StatusCode finalize();
 
   private:
+    SG::ReadHandleKey<xAOD::EventInfo> m_evt;
+
     /// Specification of event tag metadata schema
     AthenaAttributeListSpecification* m_attribListSpec;
 

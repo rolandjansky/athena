@@ -72,12 +72,12 @@ atlas_add_test( egammaRunData
    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaRunData
    )
 
-
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_decodeBS )
 atlas_add_test( decodeBS
    SCRIPT test/test_decodeBS.sh
    PROPERTIES TIMEOUT 1000
-   EXTRA_PATTERNS "-s .*absent.*|.*present.*|.*fragment: clid, type, key.*"
-   PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaRunData
+   EXTRA_PATTERNS "-s FillMissingEDM.*(present|absent)"
+   PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_decodeBS
    DEPENDS egammaRunData
    )
 

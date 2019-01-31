@@ -71,19 +71,19 @@ StatusCode SCT_ConditionsParameterTestAlg::execute(const EventContext& ctx) cons
   ATH_MSG_INFO(m_conditionsParameterTool);
   
   try {
-    paramFilled =(m_conditionsParameterTool->filled());
+    paramFilled =(m_conditionsParameterTool->filled(ctx));
   } catch (...) {
     ATH_MSG_FATAL("Exception caught while trying to determine whether the data object was filled");
     return StatusCode::FAILURE;
   }
 
   try {
-    float maxval{m_conditionsParameterTool->max(SCT_CondParameterData::AVG_THRESHOLD)};
-    float minval{m_conditionsParameterTool->min(SCT_CondParameterData::AVG_THRESHOLD)};
-    float avg{m_conditionsParameterTool->avg(SCT_CondParameterData::AVG_THRESHOLD)};
-    float sd{m_conditionsParameterTool->sd(SCT_CondParameterData::AVG_THRESHOLD)};
-    unsigned int n{m_conditionsParameterTool->n(SCT_CondParameterData::AVG_THRESHOLD)};
-    float thresh{m_conditionsParameterTool->value(IdentifierHash{1760}, SCT_CondParameterData::AVG_THRESHOLD)};
+    float maxval{m_conditionsParameterTool->max(SCT_CondParameterData::AVG_THRESHOLD, ctx)};
+    float minval{m_conditionsParameterTool->min(SCT_CondParameterData::AVG_THRESHOLD, ctx)};
+    float avg{m_conditionsParameterTool->avg(SCT_CondParameterData::AVG_THRESHOLD, ctx)};
+    float sd{m_conditionsParameterTool->sd(SCT_CondParameterData::AVG_THRESHOLD, ctx)};
+    unsigned int n{m_conditionsParameterTool->n(SCT_CondParameterData::AVG_THRESHOLD, ctx)};
+    float thresh{m_conditionsParameterTool->value(IdentifierHash{1760}, SCT_CondParameterData::AVG_THRESHOLD, ctx)};
     ATH_MSG_INFO("   value element 1760: " << thresh);
     ATH_MSG_INFO("        max threshold: " << maxval);
     ATH_MSG_INFO("        min threshold: " << minval);
@@ -98,7 +98,7 @@ StatusCode SCT_ConditionsParameterTestAlg::execute(const EventContext& ctx) cons
   SCT_ConditionsAlgorithms::S_t histo;
   init(histo, 0.0, 8.0, 100);
   std::vector<float> values;
-  m_conditionsParameterTool->getValues(values, SCT_CondParameterData::AVG_THRESHOLD);
+  m_conditionsParameterTool->getValues(values, SCT_CondParameterData::AVG_THRESHOLD, ctx);
   for (float i: values) {
     fill(histo, i);
   }

@@ -107,7 +107,13 @@ if (InDetFlags.doPrintConfigurables()):
 #InDetSCTMonMan.AthenaMonTools += [SCTTimeDependentMonTool]
 
 from SCT_Monitoring.SCT_MonitoringConf import SCTLorentzMonTool
-InDetSCTLorentzMonTool = SCTLorentzMonTool ( name             = "InDetSCTLorentzMonTool",
+from BTagging.BTaggingConfiguration_CommonTools import toolAtlasExtrapolator
+atlasExtrapolator = toolAtlasExtrapolator('AtlasExtrapolator')
+options = {}
+options.setdefault('Extrapolator', atlasExtrapolator)
+from TrackToVertex.TrackToVertexConf import Reco__TrackToVertex
+trackToVertex = Reco__TrackToVertex(**options)
+InDetSCTLorentzMonTool = SCTLorentzMonTool ( name             = "InDetSCTLorentzMonTool", TrackToVertexTool = trackToVertex,
                                              OutputLevel      = 4)
 
 InDetSCTLorentzMonTool.tracksName = InDetKeys.SCTTracks() if  InDetFlags.doTrackSegmentsSCT() else InDetKeys.UnslimmedTracks()

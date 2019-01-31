@@ -11,17 +11,14 @@
 
 // the user data-class defintions
 #include "AthenaPoolTestData/TrigPath.h"
-//#include "AthenaPoolTestData/FauxTriggerMap.h"
 
 #include <string>
-//#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "CxxUtils/make_unique.h"
     
 AddTrigMap::AddTrigMap(const std::string& name, 
 			ISvcLocator* pSvcLocator) :
               AthAlgorithm(name, pSvcLocator),
-              m_evt("McEventInfo"),
+              m_evt("EventInfo"),
               m_wftm("MultiTestTrigMap"),
               m_wftm2("ExcludeTestTrigMap")
 {}
@@ -43,18 +40,18 @@ StatusCode AddTrigMap::execute()
    ATH_MSG_DEBUG( "in execute()"  );
    
    // Check for event header
-   SG::ReadHandle<EventInfo> evt (m_evt);
+   SG::ReadHandle<xAOD::EventInfo> evt (m_evt);
    if (!evt.isValid()) {
-       ATH_MSG_FATAL( "Could not find event"  );
+       ATH_MSG_FATAL( "Could not find event info"  );
        return(StatusCode::FAILURE);
    }
 
-   ATH_MSG_INFO( "EventInfo event: " << evt->event_ID()->event_number() 
-                         << " run: " << evt->event_ID()->run_number()  );
+   ATH_MSG_INFO( "EventInfo event: " << evt->eventNumber() 
+                         << " run: " << evt->runNumber()  );
    //
    // Since we have an event, add the dummy trigger object
    // 
-   int event = evt->event_ID()->event_number();
+   int event = evt->eventNumber();
    auto ftm = std::make_unique<FauxTriggerMap>();
    // Add some paths
    ftm->addPath(TrigPath(event%3, 2,event%6)); // repeats with period 3

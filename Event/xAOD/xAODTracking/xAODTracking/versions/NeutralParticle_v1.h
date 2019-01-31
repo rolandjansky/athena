@@ -1,11 +1,13 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODTRACKING_VERSIONS_NEUTRALPARTICLE_V1_H
 #define XAODTRACKING_VERSIONS_NEUTRALPARTICLE_V1_H
+
+#include "CxxUtils/CachedValue.h"
 
 // Athena includes
 #include "AthLinks/ElementLink.h"
@@ -27,6 +29,7 @@
 
 // ROOT include(s):
 #include "Math/Vector4D.h"
+
 
 namespace xAOD {
   /// Class describing a NeutralParticle.
@@ -100,9 +103,9 @@ namespace xAOD {
       /// @brief Returns a SVector of the Perigee track parameters. 
       /// i.e. a vector of
       ///  \f$\left(\begin{array}{c}d_0\\z_0\\\phi_0\\\theta\\q/p\end{array}\right)\f$
-      const DefiningParameters_t& definingParameters() const;
+      const DefiningParameters_t definingParameters() const;
       /// Returns the 5x5 symmetric matrix containing the defining parameters covariance matrix.
-      const ParametersCovMatrix_t& definingParametersCovMatrix() const;  
+      const ParametersCovMatrix_t definingParametersCovMatrix() const;  
       /// Returns the vector of the covariance values - 15 elements
       const std::vector<float>& definingParametersCovMatrixVec() const;
       
@@ -137,14 +140,10 @@ namespace xAOD {
       //  void setVertex(const ElementLink< VertexContainer >& vertex);
 
     private:
-      /// Set to false if anything related to the perigee was changed
-      /// (and so it needs updating);  *** NEEDS TO CHANGE FOR ATHENAMT ***
-      mutable bool m_perigeeCached;
-
 #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) ) && ( ! defined(__GCCXML__) ) && !defined(__CLING__)
       /// @brief Cached NeutralPerigee, built from this object.
       /// @note This is only available in Athena.
-      mutable Trk::NeutralPerigee* m_perigeeParameters;
+      CxxUtils::CachedValue<Trk::NeutralPerigee> m_perigeeParameters;
 #endif // not XAOD_STANDALONE and not XAOD_MANACORE and not __GCCXML__
 
     }; // class NeutralParticle_v1

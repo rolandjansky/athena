@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JIVEXML_SCTRDORETRIEVER_H
@@ -8,7 +8,7 @@
 #include "JiveXML/IDataRetriever.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "InDetCondServices/ISiLorentzAngleTool.h"
+#include "InDetCondTools/ISiLorentzAngleTool.h"
 #include "InDetJiveXML/IInDetGeoModelTool.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"

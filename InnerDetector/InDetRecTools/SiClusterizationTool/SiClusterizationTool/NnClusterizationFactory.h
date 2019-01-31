@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
  #ifndef BTAGTOOL_NnClusterizationFactory_C
@@ -35,7 +35,7 @@
 #include "TrkParameters/TrackParameters.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
-#include "InDetCondServices/ISiLorentzAngleTool.h"
+#include "InDetCondTools/ISiLorentzAngleTool.h"
 #include "SiClusterizationTool/TTrainedNetworkCollection.h"
 #include "PixelConditionsServices/IPixelCalibSvc.h"
 

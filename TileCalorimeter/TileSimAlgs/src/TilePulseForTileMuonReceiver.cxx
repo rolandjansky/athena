@@ -31,6 +31,8 @@
 
 // Tile includes
 #include "TileSimAlgs/TilePulseForTileMuonReceiver.h"
+#include "TileEvent/TileMutableDigitsContainer.h"
+#include "TileEvent/TileMutableRawChannelContainer.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileConditions/TileInfo.h"
 #include "TileConditions/TileCablingService.h"
@@ -243,17 +245,18 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
 
   // Get a container for the digits
   //
-  SG::WriteHandle<TileDigitsContainer> muRcvDigitsContainer(m_muRcvDigitsContainerKey);
-  ATH_CHECK( muRcvDigitsContainer.record(std::make_unique<TileDigitsContainer>(true)) );
+  auto muRcvDigitsContainer = std::make_unique<TileMutableDigitsContainer>(true,
+                                                                           TileFragHash::Digitizer,
+                                                                           TileRawChannelUnit::ADCcounts);
+  ATH_CHECK( muRcvDigitsContainer->status() );
     
   // Get a container for the raw channels
   //
-  SG::WriteHandle<TileRawChannelContainer> muRcvRawChannelContainer(m_muRcvRawChannelContainerKey);
-  ATH_CHECK( muRcvRawChannelContainer.record(std::make_unique<TileRawChannelContainer>(true, 
-                                                                                       TileFragHash::MF, 
-                                                                                       TileRawChannelUnit::MegaElectronVolts, 
-                                                                                       SG::VIEW_ELEMENTS)) );
-  
+  auto muRcvRawChannelContainer = std::make_unique<TileMutableRawChannelContainer>(true,
+                                                                                   TileFragHash::MF,
+                                                                                   TileRawChannelUnit::MegaElectronVolts,
+                                                                                   SG::VIEW_ELEMENTS);
+  ATH_CHECK( muRcvRawChannelContainer->status() );
 
 
   // Vector of digits to set into the container
@@ -583,8 +586,8 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
       std::unique_ptr<TileDigits> muonReceiverDigits = std::make_unique<TileDigits>(adc_id, digitsBuffer);
       ATH_MSG_VERBOSE( "(D.05)   Create a TileRawChannelObject object and set it into a container " );
       TileRawChannel* muRcvRawChannel = m_MuRcvBuildTool->rawChannel(muonReceiverDigits.get());
-      muRcvDigitsContainer->push_back(muonReceiverDigits.release());
-      muRcvRawChannelContainer->push_back(muRcvRawChannel);
+      ATH_CHECK( muRcvDigitsContainer->push_back(std::move(muonReceiverDigits)) );
+      ATH_CHECK( muRcvRawChannelContainer->push_back(muRcvRawChannel) );
       if (msgLvl(MSG::DEBUG)){
         ATH_MSG_DEBUG( " Channel " << m_tileHWID->to_string(adc_id,-1) 
                        << " Digitized pulse [ADC] "<< digitsBuffer[0]
@@ -605,6 +608,13 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
   // (b) Register the digits container in the TES
   //
   ATH_MSG_VERBOSE ( "(A.05)   Send to event store all collected objects " );
+
+
+  SG::WriteHandle<TileDigitsContainer> muRcvDigitsCnt(m_muRcvDigitsContainerKey);
+  ATH_CHECK( muRcvDigitsCnt.record(std::move(muRcvDigitsContainer)) );
+
+  SG::WriteHandle<TileRawChannelContainer> muRcvRawChannelCnt(m_muRcvRawChannelContainerKey);
+  ATH_CHECK( muRcvRawChannelCnt.record(std::move(muRcvRawChannelContainer)) );
 
   ATH_MSG_VERBOSE( "TilePulseForTileMuonReceiver execution completed" );
 

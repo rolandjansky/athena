@@ -110,4 +110,4 @@ atlas_add_component( JetTagTools
 
 # Install files from the package:
 atlas_install_runtime( share/*.root share/*.txt )
-
+atlas_install_python_modules( python/*.py )

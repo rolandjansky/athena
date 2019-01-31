@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -43,7 +43,7 @@ namespace Analysis
     public:
       TrackConstituents() ;      //!< constructor
       TrackConstituents(NameType& name) ;      //!< constructor
-      ~TrackConstituents() ;      //!< destructor
+      ~TrackConstituents() = default;
 
       typedef Navigable<Rec::TrackParticleContainer,double>::object_iter  iterator;
 

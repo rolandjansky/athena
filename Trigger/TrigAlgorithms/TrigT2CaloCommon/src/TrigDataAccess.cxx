@@ -21,8 +21,6 @@
 #include "CaloIdentifier/LArEM_ID.h"
 #include "LArRecEvent/LArCell.h"
 #include "LArRecEvent/LArFebEnergyCollection.h"
-// #include "Identifier/IdentifierHash.h"
-// #include "LArRawUtils/LArTT_Selector.h"
 
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloEvent/CaloCluster.h"
@@ -46,6 +44,10 @@
 #include "LArElecCalib/ILArMCSymTool.h"
 #include "LArIdentifier/LArIdManager.h"
 #include "LArIdentifier/LArOnlineID.h"
+
+// Event Incident to get Event Info
+#include "GaudiKernel/IIncidentSvc.h"
+#include "EventInfo/EventIncident.h"
 
 // Initialize method for all tools
 // Retrieval of all Tools to be used during run
@@ -1351,11 +1353,10 @@ void TrigDataAccess::handle(const Incident & inc ) {
              return;
          }
          else {
-	     const EventInfo* evt;
-	     evt = &eventInc->eventInfo();
-             m_larcell->eventNumber(evt->event_ID()->event_number());
-	     if (m_applyOffsetCorrection) m_larcell->lumiBlock_BCID(evt->event_ID()->lumi_block(), evt->event_ID()->bunch_crossing_id());
-             m_tilecell->eventNumber(evt->event_ID()->event_number());
+	   EventContext context = inc.context();
+	   m_larcell->eventNumber(context.eventID().event_number());
+	     if (m_applyOffsetCorrection) m_larcell->lumiBlock_BCID(context.eventID().lumi_block(), context.eventID().bunch_crossing_id());
+             m_tilecell->eventNumber(context.eventID().event_number());
              m_d0cells.clear();
              //m_full_vrodid32.clear();
              m_present_roi = 0;

@@ -58,15 +58,16 @@ namespace Analysis {
     /* ----------------------------------------------------------------------------------- */
     /*                        RETRIEVE SERVICES FROM STOREGATE                             */
     /* ----------------------------------------------------------------------------------- */
-    //std::cout << "AARON in BTagTool::initialize" << std::endl;
-    /* new for ToolHandleArray 
-       retrieve tag tools
-    */
-    if ( m_bTagToolHandleArray.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("#BTAG# Failed to retreive " << m_bTagToolHandleArray);
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_DEBUG("#BTAG# Retrieved " << m_bTagToolHandleArray);
+    if ( m_bTagToolHandleArray.empty() ) {
+      ATH_MSG_DEBUG("#BTAG# No tagging tools defined. Please revisit configuration.");
+    }
+    else {
+      if ( m_bTagToolHandleArray.retrieve().isFailure() ) {
+        ATH_MSG_ERROR("#BTAG# Failed to retrieve " << m_bTagToolHandleArray);
+        return StatusCode::FAILURE;
+      } else {
+        ATH_MSG_DEBUG("#BTAG# Retrieved " << m_bTagToolHandleArray);
+      }
     }
 
     // get BJetTagTools

@@ -12,14 +12,18 @@ atlas_install_data( share/*.ref )
 
 # Configure unit tests
 # Cache alignment will change depending on whether FRONTIER_SERVER is defined.
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_MuonDataDecodeTest )
 atlas_add_test( MuonDataDecodeTest
                 PROPERTIES TIMEOUT 1000
+                PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_MuonDataDecodeTest
                 EXTRA_PATTERNS "GeoModelSvc.MuonDetectorTool.*SZ=|Cache alignment|Range of input|recorded new|map from|DEBUG Reconciled configuration"
                 SCRIPT test/testMuonDataDecode.sh )
 
 # Adding an identical test for the ByteStream identifiable caches (and future RDO caches)
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_MuonDataDecodeTest_Cache )
 atlas_add_test( MuonDataDecodeTest_Cache
                 PROPERTIES TIMEOUT 1000
+                PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_MuonDataDecodeTest_Cache
                 EXTRA_PATTERNS "GeoModelSvc.MuonDetectorTool.*SZ=|Cache alignment|Range of input|recorded new|map from"
                 SCRIPT test/testMuonDataDecode_Cache.sh )
 

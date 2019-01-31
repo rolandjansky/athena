@@ -21,8 +21,12 @@ topSequence = AthSequencer("AthAlgSeq")
 athOutSeq = AthSequencer("AthOutSeq")
 athRegSeq = AthSequencer("AthRegSeq")
 
-from AthenaCommon.AppMgr import theApp
+from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+alg = xAODMaker__EventInfoCnvAlg()
+topSequence += alg
 
+
+from AthenaCommon.AppMgr import theApp
 theApp.EvtMax = 200000
 
 #--------------------------------------------------------------

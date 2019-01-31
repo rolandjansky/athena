@@ -64,9 +64,12 @@ class SCT_ReadCalibDataTool: public extends<AthAlgTool, ISCT_ReadCalibDataTool> 
   //@}
   
   // Methods to return calibration defect type and summary
-  virtual SCT_ReadCalibDataTool::CalibDefectType defectType(const Identifier& stripId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const; //!<Return summary of defect type and values for a strip
-  virtual SCT_CalibDefectData::CalibModuleDefects defectsSummary(const Identifier& moduleId, const std::string& scan) const; //!<Returns module summary of defect
-  virtual std::list<Identifier> defectList(const std::string& defect) const; //!<Returns module summary of defect
+  virtual ISCT_ReadCalibDataTool::CalibDefectType defectType(const Identifier& stripId, const EventContext& ctx, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override; //!<Return summary of defect type and values for a strip
+  virtual ISCT_ReadCalibDataTool::CalibDefectType defectType(const Identifier& stripId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override; //!<Return summary of defect type and values for a strip
+  virtual SCT_CalibDefectData::CalibModuleDefects defectsSummary(const Identifier& moduleId, const std::string& scan, const EventContext& ctx) const override; //!<Returns module summary of defect
+  virtual SCT_CalibDefectData::CalibModuleDefects defectsSummary(const Identifier& moduleId, const std::string& scan) const override; //!<Returns module summary of defect
+  virtual std::list<Identifier> defectList(const std::string& defect, const EventContext& ctx) const override; //!<Returns module summary of defect
+  virtual std::list<Identifier> defectList(const std::string& defect) const override; //!<Returns module summary of defect
 
  private:
   // Mutex to protect the contents.
