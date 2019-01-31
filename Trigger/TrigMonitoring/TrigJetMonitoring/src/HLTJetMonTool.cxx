@@ -699,7 +699,7 @@ void HLTJetMonTool::bookJetHists() {
 
   // HLT Chains
   // HLT basic histograms
-  varlist="et;leading_et;high_et;eta;phi;phi_vs_eta;emfrac;hecfrac;jvt;sumpttrk500;e_vs_eta;e_vs_phi;sigma_vs_lb;n;";
+  varlist="et;leading_et;high_et;eta;phi;emfrac;hecfrac;jvt;sumpttrk500;phi_vs_eta;e_vs_eta;e_vs_phi;sigma_vs_lb;n;";
   nvar = basicKineVar(varlist,bookvars);
   levels.clear(); levels.push_back("HLT"); /*levels.push_back("L1");*/
   for(JetSigIter k= m_basicHLTTrig.begin(); k != m_basicHLTTrig.end(); ++k ) {
@@ -741,7 +741,7 @@ void HLTJetMonTool::bookJetHists() {
     k = 0; // FIXME
     for(JetSigIter ofj= m_OFJetKeys.begin(); ofj != m_OFJetKeys.end(); ++ofj, k++) {
       // book histograms for each offline jet container 
-      varlist = "n;et;eta;phi;emfrac;hecfrac;jvt;sumpttrk500phi_vs_eta;e_vs_eta;e_vs_phi;phi_vs_eta_lar;sigma_vs_lb;";
+      varlist = "n;et;eta;phi;emfrac;hecfrac;jvt;sumpttrk500;phi_vs_eta;e_vs_eta;e_vs_phi;phi_vs_eta_lar;sigma_vs_lb;";
       nvar = basicKineVar(varlist,bookvars);
       if(nvar==0) ATH_MSG_INFO("Error in bookKineVars - variable list not tokenized!");
 
@@ -1546,21 +1546,21 @@ StatusCode HLTJetMonTool::fillBasicHists() {
 	
       	if(/*m_debuglevel*/1) {
 	  //checks jet variables
-	  ATH_MSG_DEBUG( "REGTEST Looking at jet " << n_HLTJet);
-	  ATH_MSG_DEBUG( "REGTEST    pt: " << thisjet->pt() );
-	  ATH_MSG_DEBUG( "REGTEST    eta: " << thisjet->eta() );
-	  ATH_MSG_DEBUG( "REGTEST    phi: " << thisjet->phi() );
-	  ATH_MSG_DEBUG( "REGTEST    m: " << thisjet->m() );
-	  ATH_MSG_DEBUG( "REGTEST    e: " << thisjet->e() );
-	  ATH_MSG_DEBUG( "REGTEST    px: " << thisjet->px() );
-	  ATH_MSG_DEBUG( "REGTEST    py: " << thisjet->py() );
-	  ATH_MSG_DEBUG( "REGTEST    pz: " << thisjet->pz() );
-	  ATH_MSG_DEBUG( "REGTEST    type: " << thisjet->type() );
-	  ATH_MSG_DEBUG( "REGTEST    algorithm (kt: 0, cam: 1, antikt: 2, ...): " << thisjet->getAlgorithmType() );
-	  ATH_MSG_DEBUG( "REGTEST    size parameter: " << thisjet->getSizeParameter() );
-	  ATH_MSG_DEBUG( "REGTEST    input (LCTopo: 0, EMTopo: 1, ...): " << thisjet->getInputType() );
-	  ATH_MSG_DEBUG( "REGTEST    constituents signal state (uncalibrated: 0, calibrated: 1): " << thisjet->getConstituentsSignalState() );
-	  ATH_MSG_DEBUG( "REGTEST    number of constituents: " << thisjet->numConstituents() );      
+	  ATH_MSG_VERBOSE( "REGTEST Looking at jet " << n_HLTJet);
+	  ATH_MSG_VERBOSE( "REGTEST    pt: " << thisjet->pt() );
+	  ATH_MSG_VERBOSE( "REGTEST    eta: " << thisjet->eta() );
+	  ATH_MSG_VERBOSE( "REGTEST    phi: " << thisjet->phi() );
+	  ATH_MSG_VERBOSE( "REGTEST    m: " << thisjet->m() );
+	  ATH_MSG_VERBOSE( "REGTEST    e: " << thisjet->e() );
+	  ATH_MSG_VERBOSE( "REGTEST    px: " << thisjet->px() );
+	  ATH_MSG_VERBOSE( "REGTEST    py: " << thisjet->py() );
+	  ATH_MSG_VERBOSE( "REGTEST    pz: " << thisjet->pz() );
+	  ATH_MSG_VERBOSE( "REGTEST    type: " << thisjet->type() );
+	  ATH_MSG_VERBOSE( "REGTEST    algorithm (kt: 0, cam: 1, antikt: 2, ...): " << thisjet->getAlgorithmType() );
+	  ATH_MSG_VERBOSE( "REGTEST    size parameter: " << thisjet->getSizeParameter() );
+	  ATH_MSG_VERBOSE( "REGTEST    input (LCTopo: 0, EMTopo: 1, ...): " << thisjet->getInputType() );
+	  ATH_MSG_VERBOSE( "REGTEST    constituents signal state (uncalibrated: 0, calibrated: 1): " << thisjet->getConstituentsSignalState() );
+	  ATH_MSG_VERBOSE( "REGTEST    number of constituents: " << thisjet->numConstituents() );      
 	}
 	
         // for basic hists, don't cut eta/pt
@@ -1578,8 +1578,8 @@ StatusCode HLTJetMonTool::fillBasicHists() {
 	if (m_isPP || m_isCosmic || m_isMC){
 	  emfrac  = thisjet->getAttribute<float>(xAOD::JetAttribute::EMFrac); 
 	  hecfrac = thisjet->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
-	  ATH_MSG_DEBUG( "REGTEST    emfrac: " << emfrac ); 
-	  ATH_MSG_DEBUG( "REGTEST    hecfrac: " << hecfrac ); 
+	  ATH_MSG_VERBOSE( "REGTEST    emfrac: " << emfrac ); 
+	  ATH_MSG_VERBOSE( "REGTEST    hecfrac: " << hecfrac ); 
 	}
 
 	double  jvt  = -0.1;
@@ -1587,12 +1587,12 @@ StatusCode HLTJetMonTool::fillBasicHists() {
 	if (thisjet->isAvailable<float>("Jvt")){
 	  jvt = thisjet->getAttribute<float>("Jvt"); 
  	  sumpttrk500 = thisjet->getAttribute<std::vector<float> >("SumPtTrkPt500")[0]/CLHEP::GeV;
-	  ATH_MSG_DEBUG( "REGTEST    JVT: " << jvt ); 
-	  ATH_MSG_DEBUG( "REGTEST    SumPtTrk500: " << sumpttrk500 ); 
+	  ATH_MSG_VERBOSE( "REGTEST    JVT: " << jvt ); 
+	  ATH_MSG_VERBOSE( "REGTEST    SumPtTrk500: " << sumpttrk500 ); 
 	}
 
         if(m_debuglevel) ATH_MSG_DEBUG( lvl << " et =  " << et <<  "\teta = " << eta << "\temfrac = " << emfrac <<"\thecfrac");
-	
+
         if((h  = hist(Form("%sJet_Et",lvl.c_str()))))           h->Fill(et,m_lumi_weight);
 	if((h  = hist(Form("%sJet_HighEt",lvl.c_str()))))       h->Fill(et,m_lumi_weight);
         if((h  = hist(Form("%sJet_eta",lvl.c_str()))))          h->Fill(eta,m_lumi_weight);
