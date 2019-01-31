@@ -55,8 +55,8 @@ ISF::DNNCaloSimSvc::DNNCaloSimSvc(const std::string& name, ISvcLocator* svc) :
   m_caloDetDescrManager(nullptr),
   m_caloGeo(nullptr)
 {
-  declareProperty("ParamsInputFilename"            ,       m_paramsFilename,"DNNCaloSim/DNNCaloSim_GAN_nn_v0.json");
-  declareProperty("ParamsInputArchitecture"        ,       m_paramsInputArchitecture,"GANv0");
+  declareProperty("ParamsInputFilename"            ,       m_paramsFilename="DNNCaloSim/DNNCaloSim_GAN_nn_v0.json"," lwtnn json output describing the trained network");
+  declareProperty("ParamsInputArchitecture"        ,       m_paramsInputArchitecture="GANv0","tag describing additional parameters necessary for the network");
   declareProperty("CaloCellsOutputName"            ,       m_caloCellsOutputName) ;
   declareProperty("CaloCellMakerTools_setup"       ,       m_caloCellMakerToolsSetup) ;
   declareProperty("CaloCellMakerTools_release"     ,       m_caloCellMakerToolsRelease) ;
@@ -127,9 +127,23 @@ StatusCode ISF::DNNCaloSimSvc::initializeNetwork()
     return StatusCode::FAILURE;
   } 
 
+
+
+  ATH_MSG_INFO("Using json file " << inputFile );
+  std::ifstream input(inputFile);
+  // build the graph
+  m_graph=new lwt::LightweightGraph(lwt::parse_json_graph(input));
+  if (m_graph==nullptr){
+    ATH_MSG_ERROR("Could not create LightWeightGraph from  " << m_paramsFilename );
+    return StatusCode::FAILURE;
+  }
+
+
+
   // initialize all necessary constants
   // FIXME eventually all these could be stored in the .json file
 
+  ATH_MSG_INFO("Using ParamsInputArchitecture: " << m_paramsInputArchitecture );
   if (m_paramsInputArchitecture=="GANv0") // GAN then VAE etc...
     {
       m_GANLatentSize = 300;
@@ -141,14 +155,8 @@ StatusCode ISF::DNNCaloSimSvc::initializeNetwork()
       m_riImpactPhiScale = 0.00708241;
     }
 
-
-
-  ATH_MSG_DEBUG("Using json file " << m_paramsFilename );
-  std::ifstream input(inputFile);
-  // build the graph
-  m_graph=new lwt::LightweightGraph(lwt::parse_json_graph(input));
-  if (m_graph==nullptr){
-    ATH_MSG_ERROR("Could not create LightWeightGraph from  " << m_paramsFilename );
+  if (m_GANLatentSize==0){
+    ATH_MSG_ERROR("m_GANLatentSize uninitialized!.ParamsInputArchitecture= " << m_paramsInputArchitecture );
     return StatusCode::FAILURE;
   }
 
@@ -303,6 +311,7 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
  
 
   // compute the network output values
+  ATH_MSG_VERBOSE("neural network input = "<<inputs);
   NetworkOutputs outputs = m_graph->compute(inputs);
   ATH_MSG_VERBOSE("neural network output = "<<outputs);
 

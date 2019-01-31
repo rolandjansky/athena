@@ -105,7 +105,7 @@ namespace ISF {
 
       // specific to architecture
       // preprocessing of input
-      int m_GANLatentSize = 300;
+      int m_GANLatentSize = 0;
       double m_logTrueEnergyMean = 0.;
       double m_logTrueEnergyScale = 0.;
       double m_riImpactEtaMean = 0.;
