@@ -15,6 +15,11 @@
 // monitoring from HLT
 #include "TrigInterfaces/IMonitoredAlgo.h"
 
+
+//Muon RDOs for trigger EDM
+#include "MuonRDO/NSW_TrigRawDataContainer.h"
+
+
 // NSWL1SimTools includes
 #include "TrigT1NSWSimTools/IPadTdsTool.h"
 #include "TrigT1NSWSimTools/IStripTdsTool.h"
@@ -103,6 +108,11 @@ namespace NSWL1 {
     bool        m_doMM;                                     //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink 
     bool        m_dosTGC;                                   //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
     bool        m_doPadTrigger;                             //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
+    
+    
+    protected:
+        SG::WriteHandleKey<Muon::NSW_TrigRawDataContainer> m_trigRdoContainer;
+    
 
   };  // end of NSWL1Simulation class
 

@@ -13,7 +13,6 @@
 
 // root includes
 #include "TTree.h"
-
 // Local includes
 #include "TrigT1NSW/NSWL1Simulation.h"
 
@@ -56,6 +55,8 @@ namespace NSWL1 {
     declareProperty( "StripSegmentTool",m_strip_cluster,  "Tool that simulates the Segment finding");
     declareProperty( "MMStripTdsTool",  m_mmstrip_tds,  "Tool that simulates the functionalities of the MM STRIP TDS");
     declareProperty( "MMTriggerTool",   m_mmtrigger,    "Tool that simulates the MM Trigger");
+    declareProperty("NSWTrigRawDataContainerName", m_trigRdoContainer = "NSWTRGRDO");
+
 
     // declare monitoring variables
     declareMonitoredStdContainer("COUNTERS", m_counters); // custom monitoring: number of processed events    
@@ -68,8 +69,11 @@ namespace NSWL1 {
 
   StatusCode NSWL1Simulation::initialize() {
     ATH_MSG_INFO( "initialize " << name() );
-
     StatusCode sc;
+    
+    //S.I you can consider  switch on and off trig rdo later by implementing a new flag 
+    ATH_CHECK( m_trigRdoContainer.initialize() );
+    
     // Create an register the ntuple if requested, add branch for event and run number
     if ( m_doNtuple ) {
       ITHistSvc* tHistSvc;
@@ -233,6 +237,12 @@ namespace NSWL1 {
       strips.clear();
       ATH_CHECK( m_strip_segment->find_segments(clusters) );
       clusters.clear();
+      
+      SG::WriteHandle<Muon::NSW_TrigRawDataContainer> trgRdos (m_trigRdoContainer);
+      ATH_CHECK( trgRdos.record(std::unique_ptr<Muon::NSW_TrigRawDataContainer>(new NSW_TrigRawDataContainer()) ) );
+      
+      //Loop Over Segments
+      
     } // if(dosTGC)
 
 
