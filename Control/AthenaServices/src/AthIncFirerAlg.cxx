@@ -4,7 +4,6 @@
 #include "AthIncFirerAlg.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
-#include "EventInfo/EventInfo.h"
 #include "EventInfo/EventIncident.h"
 #include "AthenaKernel/errorcheck.h"
 
@@ -29,10 +28,8 @@ StatusCode AthIncFirerAlg::execute(const EventContext& ctx)const {
     ATH_MSG_VERBOSE("Firing incident "<<i);
 
     if((i=="BeginEvent")||(i=="EndEvent")){
-      const EventInfo* event(0);
-      evtStore()->retrieve(event).ignore();
-      m_incSvc->fireIncident(std::make_unique<EventIncident>(*event, name(),i,ctxcp));
-      if(m_Serial.value())m_incSvc->fireIncident(EventIncident(*event, name(),i,ctxcp));
+      m_incSvc->fireIncident(std::make_unique<EventIncident>(name(),i,ctxcp));
+      if(m_Serial.value())m_incSvc->fireIncident(EventIncident(name(),i,ctxcp));
     }else{
       m_incSvc->fireIncident(std::make_unique<Incident>(name(),i,ctxcp));
       if(m_Serial.value())m_incSvc->fireIncident(Incident( name(),i,ctxcp));

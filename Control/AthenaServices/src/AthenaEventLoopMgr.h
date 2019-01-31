@@ -14,7 +14,6 @@
 
 #include <string>
 #include <vector>
-
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -149,8 +148,8 @@ protected:
   /// Run the algorithms for the current event
   virtual StatusCode executeAlgorithms(const EventContext&);
 
-  /// Fire BeginRun EventIncident, run the algorithms beginRun hook
-  StatusCode beginRunAlgorithms(const EventInfo&);
+  /// Fire BeginRun Incident, run the algorithms beginRun hook
+  StatusCode beginRunAlgorithms();
 
   /// Fire EndEvtLoop,EndRun, run the algorithms endRun hook
   StatusCode endRunAlgorithms();

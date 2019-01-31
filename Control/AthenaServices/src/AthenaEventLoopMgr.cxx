@@ -500,10 +500,10 @@ StatusCode AthenaEventLoopMgr::writeHistograms(bool force) {
 //=========================================================================
 // Run the algorithms beginRun hook
 //=========================================================================
-StatusCode AthenaEventLoopMgr::beginRunAlgorithms(const EventInfo& event) {
+StatusCode AthenaEventLoopMgr::beginRunAlgorithms() {
 
   // Fire BeginRun "Incident"
-  m_incidentSvc->fireIncident(EventIncident(event, name(),"BeginRun"));
+  m_incidentSvc->fireIncident(EventIncident(name(),IncidentType::BeginRun,m_eventContext));
 
   // Call the execute() method of all top algorithms 
   for ( ListAlg::iterator ita = m_topAlgList.begin(); 
@@ -528,7 +528,7 @@ StatusCode AthenaEventLoopMgr::beginRunAlgorithms(const EventInfo& event) {
 StatusCode AthenaEventLoopMgr::endRunAlgorithms() {
 
   // Fire EndRun Incident
-  m_incidentSvc->fireIncident(Incident(name(),"EndRun"));
+  m_incidentSvc->fireIncident(Incident(name(),IncidentType::EndRun));
 
   // Call the execute() method of all top algorithms 
   for ( ListAlg::iterator ita = m_topAlgList.begin(); 
@@ -701,7 +701,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
     info() << "  ===>>>  start of run " << m_currentRun << "    <<<==="
            << endmsg;
  
-    if (!(this->beginRunAlgorithms(*pEvent)).isSuccess()) return (StatusCode::FAILURE);
+    if (!(this->beginRunAlgorithms()).isSuccess()) return (StatusCode::FAILURE);
   }
 
   bool toolsPassed=true;
@@ -1107,7 +1107,7 @@ void AthenaEventLoopMgr::handle(const Incident& inc)
     return;
   }
 
-  sc = beginRunAlgorithms(*pEvent);
+  sc = beginRunAlgorithms();
   if (!sc.isSuccess()) {
     error() << "beginRunAlgorithms() failed" << endmsg;
     return;

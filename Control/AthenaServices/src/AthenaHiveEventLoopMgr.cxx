@@ -555,10 +555,7 @@ StatusCode AthenaHiveEventLoopMgr::writeHistograms(bool force) {
 //=========================================================================
 // Run the algorithms beginRun hook
 //=========================================================================
-StatusCode AthenaHiveEventLoopMgr::beginRunAlgorithms(const EventInfo& /*event */) {
-
-  // Fire BeginRun "Incident"
-  //  m_incidentSvc->fireIncident(EventIncident(event, name(),"BeginRun"));
+StatusCode AthenaHiveEventLoopMgr::beginRunAlgorithms() {
 
   return StatusCode::SUCCESS;
 }
@@ -567,9 +564,6 @@ StatusCode AthenaHiveEventLoopMgr::beginRunAlgorithms(const EventInfo& /*event *
 // Run the algorithms endRun hook
 //=========================================================================
 StatusCode AthenaHiveEventLoopMgr::endRunAlgorithms() {
-
-  // Fire EndRun Incident
-  //  m_incidentSvc->fireIncident(Incident(name(),"EndRun"));
 
   return StatusCode::SUCCESS;
 }
@@ -652,8 +646,7 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
            << endmsg;
 
     // FIXME!!! Fire BeginRun "Incident"
-    m_incidentSvc->fireIncident(EventIncident(*pEvent, name(),
-                                              IncidentType::BeginRun));
+    m_incidentSvc->fireIncident(EventIncident(name(),IncidentType::BeginRun,*evtContext));
 
   }
 

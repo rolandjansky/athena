@@ -17,13 +17,13 @@
 #include "GaudiKernel/INamedInterface.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/IIOVDbSvc.h"
 #include "AthenaKernel/IIOVSvc.h"
 #include "AthenaKernel/IOVTime.h"
 #include "AthenaKernel/IOVRange.h"
-#include "EventInfo/EventIncident.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventType.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -276,11 +276,11 @@ StatusCode TrigCOOLUpdateHelper::hltCoolUpdate(EventID::number_type currentLB,
                                                EventID::number_type sor_time_nsec)
 {
   bool checkIOV_done = false;
-  
+
   // Loop over folders to be updated
   std::map<CTPfragment::FolderIndex, FolderUpdate>::iterator f = m_folderUpdates.begin();
   for (; f!=m_folderUpdates.end(); ++f) {
-          
+
     if (f->second.needsUpdate) {
       string folderName;
       if (getFolderName(f->second.folderIndex, folderName).isFailure()) {
@@ -291,21 +291,21 @@ StatusCode TrigCOOLUpdateHelper::hltCoolUpdate(EventID::number_type currentLB,
       CHECK(evtStore()->retrieve(currentEvent));
       ATH_MSG_INFO("Reload of COOL folder " << folderName << " for IOV change in lumiblock " << f->second.lumiBlock
                    << ". Current event: "  << *currentEvent->event_ID());
-              
+
       if ( hltCoolUpdate(folderName, currentLB, currentRun,
-                         sor_time_sec, sor_time_nsec).isFailure() ) { 
+                         sor_time_sec, sor_time_nsec).isFailure() ) {
         ATH_MSG_FATAL("COOL update failed for " << folderName << ". Aborting.");
         throw ers::HLTAbort(ERS_HERE, name()+": Failure during COOL update of "+folderName);
       }
       // All OK
       checkIOV_done = true;
       f->second.needsUpdate = false;
-    }      
+    }
   }
-  
+
   // Needs to be done on every LB change
   if (!checkIOV_done) checkIOV(currentLB, currentRun, sor_time_sec, sor_time_nsec);
-  
+
   return StatusCode::SUCCESS;
 }
 
@@ -325,7 +325,7 @@ StatusCode TrigCOOLUpdateHelper::hltCoolUpdate(const std::string& folderName,
   longlong t1_ms = System::currentTime(System::milliSec);
 
   // Reset folder and make IOVDbSvc drop objects
-  
+
   if (resetFolder(folderName, currentRun, true).isFailure()) {
     ATH_MSG_ERROR("Reset of " << folderName << " failed");
     return StatusCode::FAILURE;
@@ -341,18 +341,15 @@ StatusCode TrigCOOLUpdateHelper::hltCoolUpdate(const std::string& folderName,
 }
 
 void TrigCOOLUpdateHelper::checkIOV(EventID::number_type currentLB,
-                                    EventID::number_type currentRun,                           
+                                    EventID::number_type currentRun,
                                     EventID::number_type sor_time_sec,
                                     EventID::number_type sor_time_nsec)
 {
-  // Force IOVSvc to check IOV ranges    
-  EventInfo eventInfo(new EventID(currentRun, /*event*/ 0, 
+  // Force IOVSvc to check IOV ranges
+  EventInfo eventInfo(new EventID(currentRun, /*event*/ 0,
                                   sor_time_sec, sor_time_nsec,
                                   currentLB, /*bcid*/ 0),
                       new EventType());
-
-  EventIncident incident(eventInfo, name(), "CheckIOV");  
-  m_incidentSvc->fireIncident(incident);
 }
 
 

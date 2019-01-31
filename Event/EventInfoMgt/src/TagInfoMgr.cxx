@@ -20,7 +20,6 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventType.h"
-#include "EventInfo/EventIncident.h"
 #include "EventInfo/TriggerInfo.h"
 
 // IOVDbSvc
@@ -674,12 +673,11 @@ TagInfoMgr::handle(const Incident& inc) {
         m_newFileIncidentSeen = false;
 
         // Print out EventInfo
-        const EventIncident* eventInc  = dynamic_cast<const EventIncident*>(&inc);
-        if(!eventInc) {
-            m_log << MSG::ERROR << "handle:  Unable to get EventInfo from BeginRun incident" << endmsg;
-            throw GaudiException( "Unable to get EventInfo from BeginRun incident", "TagInfoMgr::handle", StatusCode::FAILURE );
+	const EventInfo* evt{nullptr};
+	if (StatusCode::SUCCESS != m_storeGate->retrieve(evt)) {
+	  m_log << MSG::ERROR << "handle:  Unable to get EventInfo from BeginRun incident" << endmsg;
+	  throw GaudiException( "Unable to get EventInfo from BeginRun incident handler", "TagInfoMgr::handle", StatusCode::FAILURE );
         }
-        const EventInfo* evt = &eventInc->eventInfo();
         if (m_log.level() <= MSG::DEBUG) {
             m_log << MSG::DEBUG << "handle: BeginRun incident - Event info: " << endmsg;
             m_log << MSG::DEBUG << "handle: Event ID: ["
