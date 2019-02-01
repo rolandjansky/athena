@@ -121,7 +121,7 @@ def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
             "Unsupported input type '{0}' for large-R jets!".format(jet_input) )
       if jet_input == "TrackCaloCluster":
         # Only one mass definition supported
-        if largeRMass != "calo":
+        if largeRMass != "Calo":
           raise ValueError(
               "Unsupported large-R TCC jet mass '{0}'!".format(largeRMass) )
         configFile = "JES_MC16recommendation_FatJet_TCC_JMS_calo_30Oct2018.config"
