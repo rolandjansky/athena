@@ -27,12 +27,15 @@
 #include "TileConditions/TileCablingService.h"
 #include "TileEvent/TileDQstatus.h"
 #include "TileEvent/TileDigitsContainer.h"
+#include "TileCalibBlobObjs/TileCalibUtils.h"
 
 #include <cmath>
 #include <vector>
 #include <string>
 #include <map>
 #include <stdint.h>
+
+#define NVALS 36
 
 // Forward declaration
 class TileHWID;
@@ -117,14 +120,16 @@ class TileDigiNoiseCalibAlg: public AthAlgorithm {
      std::string m_optRawChannelContainer;*/
     std::string m_dspRawChannelContainer;
 
-    double (*m_sumPed2)[64][48][2];
-    double (*m_sumRms2)[64][48][2];
-    double (*m_meanAmp)[64][48][2];
-    double (*m_meanAmp_ij)[64][48][48][2];
+    using Tile = TileCalibUtils;
+
+    double (*m_sumPed2)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    double (*m_sumRms2)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    double (*m_meanAmp)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    double (*m_meanAmp_ij)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_CHAN][Tile::MAX_GAIN];
 
     // event number
     int m_evtNr;
-    int (*m_evt)[64][48][2];
+    int (*m_evt)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
 
     // Trigger items
     int m_time;
@@ -136,15 +141,15 @@ class TileDigiNoiseCalibAlg: public AthAlgorithm {
     int m_min;
     int m_run;
     int m_trigType;
-    uint8_t (*m_ros)[64][48][2];
-    uint8_t (*m_drawer)[64][48][2];
-    uint8_t (*m_channel)[64][48][2];
-    bool (*m_gain)[64][48][2];
-    float (*m_ped)[64][48][2];
-    float (*m_lfn)[64][48][2];
-    float (*m_hfn)[64][48][2];
-    float (*m_noise_cov)[64][2];
-    float (*m_auto_corr)[64][48][2][36];
+    uint8_t (*m_ros)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    uint8_t (*m_drawer)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    uint8_t (*m_channel)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    bool (*m_gain)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    float (*m_ped)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    float (*m_lfn)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    float (*m_hfn)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    float (*m_noise_cov)[Tile::MAX_DRAWER][Tile::MAX_GAIN];
+    float (*m_auto_corr)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NVALS];
 };
 
 #endif // TILENOISECALIBALG_H

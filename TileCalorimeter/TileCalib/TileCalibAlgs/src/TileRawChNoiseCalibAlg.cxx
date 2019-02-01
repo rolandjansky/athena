@@ -54,10 +54,6 @@
 #   define CAN_REBIN(hist)  hist->SetBit(TH1::kCanRebin)
 #endif
 
-#define MAX_DRAWERS 256
-#define N_CHANS 48
-#define N_DMUS 16
-
 
 TileRawChNoiseCalibAlg::TileRawChNoiseCalibAlg(const std::string& name, ISvcLocator* pSvcLocator)
  : AthAlgorithm(name,pSvcLocator)
@@ -107,54 +103,54 @@ TileRawChNoiseCalibAlg::TileRawChNoiseCalibAlg(const std::string& name, ISvcLoca
 
   m_fillidx=false;
 
-  m_histAmp = new TH1F*[RCnum][5][64][48][2]();
-  m_histCellAmp = new TH1F*[2][64][4][17][6]();
-  m_evt = new int[5][64][48][2]();
-  m_ros = new uint8_t[5][64][48][2]();
-  m_drawer = new uint8_t[5][64][48][2]();
-  m_channel = new uint8_t[5][64][48][2]();
-  m_gain = new bool[5][64][48][2]();
-  m_rc_mean = new float[RCnum][5][64][48][2]();
-  m_rc_sigma = new float[RCnum][5][64][48][2]();
-  m_rc_av = new float[RCnum][5][64][48][2]();
-  m_rc_rms = new float[RCnum][5][64][48][2]();
-  m_rc_skewness = new float[RCnum][5][64][48][2]();
-  m_rc_kurtosis = new float[RCnum][5][64][48][2]();
-  m_rc_mean_err = new float[RCnum][5][64][48][2]();
-  m_rc_sigma_err = new float[RCnum][5][64][48][2]();
-  m_rc_chi2 = new float[RCnum][5][64][48][2]();
-  m_rc_ndf = new float[RCnum][5][64][48][2]();
-  m_rc_probC2 = new float[RCnum][5][64][48][2]();
-  m_rc_ggpar = new float[RCnum][5][64][48][2][8]();
-  m_rc_gsigma1 = new float[RCnum][5][64][48][2]();
-  m_rc_gsigma2 = new float[RCnum][5][64][48][2]();
-  m_rc_gnorm = new float[RCnum][5][64][48][2]();
-  m_rc_gchi2 = new float[RCnum][5][64][48][2]();
-  m_rc_gerrsigma1= new float[RCnum][5][64][48][2]();
-  m_rc_gerrsigma2 = new float[RCnum][5][64][48][2]();
-  m_rc_gerrnorm = new float[RCnum][5][64][48][2]();
-  m_rc_gcorrsigma1sigma2 = new float[RCnum][5][64][48][2]();
+  m_histAmp = new TH1F*[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_histCellAmp = new TH1F*[2][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
+  m_evt = new int[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_ros = new uint8_t[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_drawer = new uint8_t[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_channel = new uint8_t[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_gain = new bool[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_mean = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_sigma = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_av = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_rms = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_skewness = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_kurtosis = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_mean_err = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_sigma_err = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_chi2 = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_ndf = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_probC2 = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_ggpar = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NPARS]();
+  m_rc_gsigma1 = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_gsigma2 = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_gnorm = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_gchi2 = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_gerrsigma1= new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_gerrsigma2 = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_gerrnorm = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_rc_gcorrsigma1sigma2 = new float[RCnum][Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
 
-  m_side = new bool[2][64][4][17][6]();
-  m_phi = new uint8_t[2][64][4][17][6]();
-  m_sample = new uint8_t[2][64][4][17][6]();
-  m_tower = new uint8_t[2][64][4][17][6]();
-  m_gg = new uint8_t[2][64][4][17][6]();
-  m_ecell_av = new float[2][64][4][17][6]();
-  m_ecell_rms= new float[2][64][4][17][6]();
-  m_ecell_hash= new uint32_t[2][64][4][17]();
+  m_side = new bool[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
+  m_phi = new uint8_t[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
+  m_sample = new uint8_t[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
+  m_tower = new uint8_t[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
+  m_gg = new uint8_t[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
+  m_ecell_av = new float[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
+  m_ecell_rms= new float[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
+  m_ecell_hash= new uint32_t[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS]();
   
-  m_cell_nch = new int[2][64][4][17][2]();
-  m_ecell_ene = new float[2][64][4][17][2]();
-  m_ggpar = new float[2][64][4][17][6][8]();
-  m_gsigma1 = new float[2][64][4][17][6]();
-  m_gsigma2 = new float[2][64][4][17][6]();
-  m_gnorm = new float[2][64][4][17][6]();
-  m_gchi2 = new float[2][64][4][17][6]();
-  m_gerrsigma1 = new float[2][64][4][17][6]();
-  m_gerrsigma2 = new float[2][64][4][17][6]();
-  m_gerrnorm = new float[2][64][4][17][6]();
-  m_gcorrsigma1sigma2 = new float[2][64][4][17][6]();
+  m_cell_nch = new int[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][Tile::MAX_GAIN]();
+  m_ecell_ene = new float[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][Tile::MAX_GAIN]();
+  m_ggpar = new float[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS][NPARS]();
+  m_gsigma1 = new float[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
+  m_gsigma2 = new float[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
+  m_gnorm = new float[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
+  m_gchi2 = new float[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
+  m_gerrsigma1 = new float[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
+  m_gerrsigma2 = new float[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
+  m_gerrnorm = new float[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
+  m_gcorrsigma1sigma2 = new float[NSIDES][Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS]();
 }
 
 TileRawChNoiseCalibAlg::~TileRawChNoiseCalibAlg()
@@ -241,11 +237,11 @@ StatusCode TileRawChNoiseCalibAlg::initialize() {
   float cellbin[2] = { 80., 2.5 }; //in MeV
   float xcellmax[2] = { (float) nbin * cellbin[0] / 2.F, (float) nbin * cellbin[1] / 2.F }; //in MeV
 
-  for (int side = 0; side < 2; side++) {
+  for (int side = 0; side < NSIDES; side++) {
     for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
-      for (int sample = 0; sample < 4; sample++) {
-        for (int tower = 0; tower < 17; tower++) {
-          for (int gg = 0; gg < 6; gg++) {
+      for (int sample = 0; sample < NSAMPLES; sample++) {
+        for (int tower = 0; tower < NTOWERS; tower++) {
+          for (int gg = 0; gg < NCELLGAINS; gg++) {
             sStr.str("");
             sStr << "CellAmplitude_Side_" << side << "_Drawer_" << drawer << "_Sample_" << sample << "_Tower_" << tower << "_Gains_" << gg;
             nam = sStr.str();
@@ -622,11 +618,11 @@ StatusCode TileRawChNoiseCalibAlg::finalize() {
       }
     }
     
-    for (int side = 0; side < 2; side++) {
+    for (int side = 0; side < NSIDES; side++) {
       for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
-        for (int sample = 0; sample < 4; ++sample) {
-          for (int tower = 0; tower < 17; ++tower) {
-            for (int gg = 0; gg < 6; ++gg) {
+        for (int sample = 0; sample < NSAMPLES; ++sample) {
+          for (int tower = 0; tower < NTOWERS; ++tower) {
+            for (int gg = 0; gg < NCELLGAINS; ++gg) {
               m_histCellAmp[side][drawer][sample][tower][gg]->Write();
             }
           }

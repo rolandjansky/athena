@@ -42,10 +42,6 @@
 #include <cmath>
 #include <ctime>
 
-#define MAX_DRAWERS 256
-#define N_CHANS 48
-#define N_DMUS 16
-
 TileDigiNoiseCalibAlg::TileDigiNoiseCalibAlg(const std::string& name, ISvcLocator* pSvcLocator)
     : AthAlgorithm(name, pSvcLocator)
   , m_adderFilterAlgTool("TileRawChannelBuilderFlatFilter/TileAdderFlatFilter", this)
@@ -85,20 +81,20 @@ TileDigiNoiseCalibAlg::TileDigiNoiseCalibAlg(const std::string& name, ISvcLocato
   m_run = 0;
   m_evtNr = -1;
 
-  m_sumPed2 = new double[5][64][48][2]();
-  m_sumRms2 = new double[5][64][48][2]();
-  m_meanAmp = new double[5][64][48][2]();
-  m_meanAmp_ij = new double[5][64][48][48][2]();
-  m_evt = new int[5][64][48][2]();
-  m_ros = new uint8_t[5][64][48][2]();
-  m_drawer = new uint8_t[5][64][48][2]();
-  m_channel = new uint8_t[5][64][48][2]();
-  m_gain = new bool[5][64][48][2]();
-  m_ped = new float[5][64][48][2]();
-  m_lfn = new float[5][64][48][2]();
-  m_hfn = new float[5][64][48][2]();
-  m_noise_cov = new float[5][64][2]();
-  m_auto_corr = new float[5][64][48][2][36]();
+  m_sumPed2 = new double[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_sumRms2 = new double[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_meanAmp = new double[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_meanAmp_ij = new double[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_evt = new int[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_ros = new uint8_t[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_drawer = new uint8_t[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_channel = new uint8_t[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_gain = new bool[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_ped = new float[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_lfn = new float[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_hfn = new float[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_noise_cov = new float[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_GAIN]();
+  m_auto_corr = new float[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NVALS]();
 }
 
 TileDigiNoiseCalibAlg::~TileDigiNoiseCalibAlg() {

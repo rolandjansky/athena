@@ -20,12 +20,16 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileDigitsContainer.h"
+#include "TileCalibBlobObjs/TileCalibUtils.h"
 
 
 #include "TString.h"
 #include <stdint.h>
 #include <string> 
 #include <map>
+
+#define NBITS 10
+#define NBSTATUS 4
 
 // Forward declaration
 class TileHWID;
@@ -123,28 +127,29 @@ class TileCisDefaultCalibTool: public AthAlgTool
 
     bool m_doSampleChecking;
 
+    using Tile = TileCalibUtils;
     // Results
-    float (*m_calib)[64][48][2];
-    int (*m_qflag)[64][48][2];
-    int (*m_nDAC)[64][48][2]; // This is now deprecated since you can get this form the TGraph
-    int (*m_nDigitalErrors)[64][48][2];
-    float (*m_chi2)[64][48][2];
+    float (*m_calib)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    int (*m_qflag)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    int (*m_nDAC)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]; // This is now deprecated since you can get this form the TGraph
+    int (*m_nDigitalErrors)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    float (*m_chi2)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
 
     // These will not be saved to the ntuple
     // They are for the sample check that gets written to qflag
     // Mike Miller - 4 June 2009
-    int (*m_edgeSample)[64][48][2];
-    int (*m_nextToEdgeSample)[64][48][2];
+    int (*m_edgeSample)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    int (*m_nextToEdgeSample)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
 
     // these arrays are used to contain information about stuck bits in adc's
     // this array pertains to the "stuck bit" quality flag; it is not written to
     // the ntuple
-    int (*m_sampleBit)[64][48][2][10];
+    int (*m_sampleBit)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NBITS];
     // This array contains information about each bit in the adc
     // it IS written into the ntuple
-    unsigned short (*m_bitStatus)[64][48][2][4];
+    unsigned short (*m_bitStatus)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NBSTATUS];
     // used to count the number of injection samples analyzed for odd bit behavior
-    int (*m_numSamp)[64][48][2];
+    int (*m_numSamp)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
 
     //  TList *scanList;  // This is now deprecated and replaced by the map for speed -CT March 09
     TMap* m_scanMap;

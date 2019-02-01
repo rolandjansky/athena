@@ -68,19 +68,19 @@ TileCisDefaultCalibTool::TileCisDefaultCalibTool(const std::string& type, const 
   declareProperty("TileDQstatus", m_dqStatusKey = "TileDQstatus");
 
   // Initialize arrays for results
-  m_calib = new float[5][64][48][2]();
-  m_qflag = new int[5][64][48][2]();
-  m_nDAC = new int[5][64][48][2]();
-  m_nDigitalErrors = new int[5][64][48][2]();
-  m_chi2 = new float[5][64][48][2]();
+  m_calib = new float[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_qflag = new int[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_nDAC = new int[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_nDigitalErrors = new int[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_chi2 = new float[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
 
   // Initialize sample check arrays
-  m_edgeSample = new int[5][64][48][2]();
-  m_nextToEdgeSample = new int[5][64][48][2]();
+  m_edgeSample = new int[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_nextToEdgeSample = new int[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
 
-  m_sampleBit = new int[5][64][48][2][10]();
-  m_bitStatus = new unsigned short[5][64][48][2][4]();
-  m_numSamp = new int[5][64][48][2]();
+  m_sampleBit = new int[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NBITS]();
+  m_bitStatus = new unsigned short[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NBSTATUS]();
+  m_numSamp = new int[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
 }
 
 TileCisDefaultCalibTool::~TileCisDefaultCalibTool() {
@@ -567,7 +567,7 @@ StatusCode TileCisDefaultCalibTool::finalizeCalculations() {
       // And store information about bits in an array
       // which will be written to the ntuple
       int NoStuckBit = 1; 
-      for(int i = 0; i < 10; i++) {
+      for(int i = 0; i < NBITS; i++) {
         // If a bit is stuck at zero...
         if(m_sampleBit[ros][drawer][chan][gain][i] == 0  && (m_numSamp[ros][drawer][chan][gain] != 0)) {
           // write information to m_bitStatus array of shorts

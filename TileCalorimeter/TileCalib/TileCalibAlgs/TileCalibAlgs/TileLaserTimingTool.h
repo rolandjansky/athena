@@ -55,6 +55,17 @@
 #include <map>
 #include <sstream>
 
+#define NDIODES 10
+#define NDIODES_LASER1 4
+#define NMONITORS 4
+#define NPMTS 2
+
+#define NGAINS 2
+#define NPARTITIONS 4 
+#define NDRAWERS 64
+#define NCHANNELS 48
+#define NDIGI 8
+
 class TileHWID;
 class TileRawChannelContainer;
 
@@ -143,7 +154,7 @@ class TileLaserTimingTool: public AthAlgTool, virtual public ITileCalibTool {
 
     struct DrawerData {
         DrawerData(const std::string &id);
-        PMTData* pmtd[48];
+        PMTData* pmtd[NCHANNELS];
         DigitizerData digid[8];
 
         // Time difference for Inter module timing
@@ -160,69 +171,69 @@ class TileLaserTimingTool: public AthAlgTool, virtual public ITileCalibTool {
         float FarDigitizerMeanTime;
     };
 
-    DrawerData* (*m_drawerData)[64];
+    DrawerData* (*m_drawerData)[NDRAWERS];
 
     static const int NROS = 5;
 
     // ---- Ntuple data ----
 
     // mean of Gaussian fit to DrawerData.Digi0TimeDiffHisto
-    float (*m_DrawerOffset)[64];
-    float (*m_DrawerOffsetError)[64];
+    float (*m_DrawerOffset)[NDRAWERS];
+    float (*m_DrawerOffsetError)[NDRAWERS];
 
     // time diff wrt Digi0
-    float (*m_ChannelOffset)[64][48];
-    float (*m_ChannelOffsetError)[64][48];
+    float (*m_ChannelOffset)[NDRAWERS][NCHANNELS];
+    float (*m_ChannelOffsetError)[NDRAWERS][NCHANNELS];
     // Maximum ADC amplitude
-    float (*m_ADCAmplitude)[64][48];
+    float (*m_ADCAmplitude)[NDRAWERS][NCHANNELS];
 
-    float (*m_PedestalMean)[64][48];
-    float (*m_PedestalSigma)[64][48];
+    float (*m_PedestalMean)[NDRAWERS][NCHANNELS];
+    float (*m_PedestalSigma)[NDRAWERS][NCHANNELS];
 
     // time diff wrt PMT0
-    float (*m_TimeDiffMean)[64][48];
-    float (*m_TimeDiffMeanError)[64][48];
-    float (*m_TimeDiffSigma)[64][48];
+    float (*m_TimeDiffMean)[NDRAWERS][NCHANNELS];
+    float (*m_TimeDiffMeanError)[NDRAWERS][NCHANNELS];
+    float (*m_TimeDiffSigma)[NDRAWERS][NCHANNELS];
 
     // mon-->
-    float (*m_MeanOddPmtTdiffPMT0)[64];
-    int (*m_OddPmtCounterPMT0)[64];
-    float (*m_MeanEvenPmtTdiffPMT0)[64];
-    int (*m_EvenPmtCounterPMT0)[64];
-    float (*m_EvenOddTimeDiffPMT0)[64];
+    float (*m_MeanOddPmtTdiffPMT0)[NDRAWERS];
+    int (*m_OddPmtCounterPMT0)[NDRAWERS];
+    float (*m_MeanEvenPmtTdiffPMT0)[NDRAWERS];
+    int (*m_EvenPmtCounterPMT0)[NDRAWERS];
+    float (*m_EvenOddTimeDiffPMT0)[NDRAWERS];
     // <-- mon
 
 #ifdef TileLaserTimingPMT0Mon
-    float (*m_TimeDiffHighMean)[64][48];
-    float (*m_TimeDiffHighMeanError)[64][48];
-    float (*m_TimeDiffHighSigma)[64][48];
+    float (*m_TimeDiffHighMean)[NDRAWERS][NCHANNELS];
+    float (*m_TimeDiffHighMeanError)[NDRAWERS][NCHANNELS];
+    float (*m_TimeDiffHighSigma)[NDRAWERS][NCHANNELS];
 
-    float (*m_TimeDiffLowMean)[64][48];
-    float (*m_TimeDiffLowMeanError)[64][48];
-    float (*m_TimeDiffLowSigma)[64][48];
+    float (*m_TimeDiffLowMean)[NDRAWERS][NCHANNELS];
+    float (*m_TimeDiffLowMeanError)[NDRAWERS][NCHANNELS];
+    float (*m_TimeDiffLowSigma)[NDRAWERS][NCHANNELS];
 
-    float (*m_TimeDiffNoCFCorrMean)[64][48];
-    float (*m_TimeDiffNoCFCorrMeanError)[64][48];
-    float (*m_TimeDiffNoCFCorrSigma)[64][48];
+    float (*m_TimeDiffNoCFCorrMean)[NDRAWERS][NCHANNELS];
+    float (*m_TimeDiffNoCFCorrMeanError)[NDRAWERS][NCHANNELS];
+    float (*m_TimeDiffNoCFCorrSigma)[NDRAWERS][NCHANNELS];
 #endif
 
-    float (*m_FiberLength)[64][48]; // Not needed
+    float (*m_FiberLength)[NDRAWERS][NCHANNELS]; // Not needed
 
 #ifdef TileLaserTimingMon
-    float (*m_TimeDiffPMTDigi0)[64][48]; // Not needed
-    float (*m_FiberCorrection)[64][48]; // Not needed
-    int (*m_IsConnected)[64][48]; // Not needed
+    float (*m_TimeDiffPMTDigi0)[NDRAWERS][NCHANNELS]; // Not needed
+    float (*m_FiberCorrection)[NDRAWERS][NCHANNELS]; // Not needed
+    int (*m_IsConnected)[NDRAWERS][NCHANNELS]; // Not needed
 
-    float (*m_MeanOddPmtTdiff)[64];
-    int (*m_OddPmtCounter)[64];
-    float (*m_MeanEvenPmtTdiff)[64];
-    int (*m_EvenPmtCounter)[64];
+    float (*m_MeanOddPmtTdiff)[NDRAWERS];
+    int (*m_OddPmtCounter)[NDRAWERS];
+    float (*m_MeanEvenPmtTdiff)[NDRAWERS];
+    int (*m_EvenPmtCounter)[NDRAWERS];
 
-    float (*m_EvenOddTimeDiff)[64];
+    float (*m_EvenOddTimeDiff)[NDRAWERS];
 #endif
 
-    float (*m_DSkewSet)[64][8];
-    float (*m_DigiMean)[64][8];
+    float (*m_DSkewSet)[NDRAWERS][NDIGI];
+    float (*m_DigiMean)[NDRAWERS][NDIGI];
 
     /** @return drawer data */
     inline DrawerData* drawerData(int ros, int drawer) {
@@ -339,9 +350,9 @@ class TileLaserTimingTool: public AthAlgTool, virtual public ITileCalibTool {
      */
     void fitGauss2(TH1F &hi, float &p1, float &p2, float &chi2, float &p1_err, float w1, float w2);
 
-    typedef float (*TPMTArray)[64][48];
-    typedef float (*TDrawerArrayF)[64];
-    typedef int (*TDrawerArrayI)[64];
+    typedef float (*TPMTArray)[NDRAWERS][NCHANNELS];
+    typedef float (*TDrawerArrayF)[NDRAWERS];
+    typedef int (*TDrawerArrayI)[NDRAWERS];
 
     /**
      * Correct for differences between even and odd PMTs

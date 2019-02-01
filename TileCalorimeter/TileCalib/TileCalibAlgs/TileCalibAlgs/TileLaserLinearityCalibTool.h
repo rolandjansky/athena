@@ -19,6 +19,20 @@
 #include "TileEvent/TileLaserObject.h"
 #include "StoreGate/ReadHandleKey.h"
 
+#define NFILTERS 10
+#define NDIODES 10
+#define NDIODES_LASER1 4
+#define NMONITORS 4
+#define NPMTS 2
+
+#define NGAINS 2
+#define NPARTITIONS 4 
+#define NDRAWERS 64
+#define NCOUPLES 22 
+#define NCHANNELS 48
+#define NSLICES 100
+#define NFIBERS 2
+
 class TileRawChannelContainer;
 class TileLaserObject;
 class TileHWID;
@@ -73,25 +87,25 @@ class TileLaserLinearityCalibTool : public AthAlgTool, virtual public ITileCalib
   double m_flow;                     // Gas flow in diodes box (in L/h)
   double m_head_temp;                // Temperature of the LASER head
   double m_las_time;                 // Event time
-  double (*m_LG_PMT)[2];                // Mean value for box PMTs
-  double (*m_LG_PMT_S)[2];              // Corresponding RMS
-  double (*m_LG_diode)[10];              // Mean value for box Photodiodes
-  double (*m_LG_diode_S)[10];            // Corresponding RMS
-  double (*m_HG_PMT)[2];                // Mean value for box PMTs
-  double (*m_HG_PMT_S)[2];              // Corresponding RMS
-  double (*m_HG_diode)[10];              // Mean value for box Photodiodes
-  double (*m_HG_diode_S)[10];            // Corresponding RMS
-  double (*m_mean)[4][64][48][2];       // Mean signal computed for this run
-  double (*m_mean_S)[4][64][48][2];     // Corresponding RMS
-  double (*m_LG_ratio)[4][64][48][2];      // Calib coefficients computed for this run (for all diodes)
-  double (*m_LG_ratio_S)[4][64][48][2];    // Corresponding RMS
-  double (*m_LG_ratio2)[4][64][48][2];      // Calib coefficients computed for this run (for all diodes)
-  double (*m_LG_ratio2_S)[4][64][48][2];    // Corresponding RMS
-  double (*m_HG_ratio)[4][64][48][2];      // Calib coefficients computed for this run (for all diodes)
-  double (*m_HG_ratio_S)[4][64][48][2];    // Corresponding RMS
-  double (*m_HG_ratio2)[4][64][48][2];      // Calib coefficients computed for this run (for all diodes)
-  double (*m_HG_ratio2_S)[4][64][48][2];    // Corresponding RMS
-  int    (*m_entries)[4][64][48][2];    // Number of LASER events collected for one channel (and a particular gain)
+  double (*m_LG_PMT)[NPMTS];                // Mean value for box PMTs
+  double (*m_LG_PMT_S)[NPMTS];              // Corresponding RMS
+  double (*m_LG_diode)[NDIODES];              // Mean value for box Photodiodes
+  double (*m_LG_diode_S)[NDIODES];            // Corresponding RMS
+  double (*m_HG_PMT)[NPMTS];                // Mean value for box PMTs
+  double (*m_HG_PMT_S)[NPMTS];              // Corresponding RMS
+  double (*m_HG_diode)[NDIODES];              // Mean value for box Photodiodes
+  double (*m_HG_diode_S)[NDIODES];            // Corresponding RMS
+  double (*m_mean)[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];       // Mean signal computed for this run
+  double (*m_mean_S)[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];     // Corresponding RMS
+  double (*m_LG_ratio)[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];      // Calib coefficients computed for this run (for all diodes)
+  double (*m_LG_ratio_S)[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];    // Corresponding RMS
+  double (*m_LG_ratio2)[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];      // Calib coefficients computed for this run (for all diodes)
+  double (*m_LG_ratio2_S)[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];    // Corresponding RMS
+  double (*m_HG_ratio)[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];      // Calib coefficients computed for this run (for all diodes)
+  double (*m_HG_ratio_S)[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];    // Corresponding RMS
+  double (*m_HG_ratio2)[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];      // Calib coefficients computed for this run (for all diodes)
+  double (*m_HG_ratio2_S)[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];    // Corresponding RMS
+  int    (*m_entries)[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];    // Number of LASER events collected for one channel (and a particular gain)
 
  
   // Local results - not sent to ROOTuple
@@ -106,15 +120,15 @@ class TileLaserLinearityCalibTool : public AthAlgTool, virtual public ITileCalib
 
   bool m_complete_turn;
 
-  RunningStat* (*m_HG_diode_signal)[10];
-  RunningStat* (*m_HG_PMT_signal)[2];
-  RunningStat* (*m_LG_diode_signal)[10];
-  RunningStat* (*m_LG_PMT_signal)[2];
-  RunningStat* (*m_signal)[4][64][48][2];
-  RunningStat* (*m_LG_ratio_stat)[4][64][48][2];
-  RunningStat* (*m_LG_ratio2_stat)[4][64][48][2];
-  RunningStat* (*m_HG_ratio_stat)[4][64][48][2];
-  RunningStat* (*m_HG_ratio2_stat)[4][64][48][2];
+  RunningStat* (*m_HG_diode_signal)[NDIODES];
+  RunningStat* (*m_HG_PMT_signal)[NPMTS];
+  RunningStat* (*m_LG_diode_signal)[NDIODES];
+  RunningStat* (*m_LG_PMT_signal)[NPMTS];
+  RunningStat* (*m_signal)[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];
+  RunningStat* (*m_LG_ratio_stat)[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];
+  RunningStat* (*m_LG_ratio2_stat)[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];
+  RunningStat* (*m_HG_ratio_stat)[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];
+  RunningStat* (*m_HG_ratio2_stat)[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];
 
   // Functions
   inline int chanIsConnected(int ros, int chan) {

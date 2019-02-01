@@ -151,60 +151,60 @@ TileLaserTimingTool::TileLaserTimingTool(const std::string& type, const std::str
 #endif
 
   // creating multi-dim arrays on the heap and initialize all elements to zeros
-  m_drawerData = new DrawerData*[4][64]();
+  m_drawerData = new DrawerData*[NPARTITIONS][NDRAWERS]();
 
-  m_DrawerOffset = new float[NROS][64]();
-  m_DrawerOffsetError = new float[NROS][64]();
+  m_DrawerOffset = new float[NROS][NDRAWERS]();
+  m_DrawerOffsetError = new float[NROS][NDRAWERS]();
 
-  m_ChannelOffset = new float[NROS][64][48]();
-  m_ChannelOffsetError = new float[NROS][64][48]();
+  m_ChannelOffset = new float[NROS][NDRAWERS][NCHANNELS]();
+  m_ChannelOffsetError = new float[NROS][NDRAWERS][NCHANNELS]();
 
-  m_ADCAmplitude = new float[NROS][64][48]();
+  m_ADCAmplitude = new float[NROS][NDRAWERS][NCHANNELS]();
 
-  m_PedestalMean = new float[NROS][64][48]();
-  m_PedestalSigma = new float[NROS][64][48]();
+  m_PedestalMean = new float[NROS][NDRAWERS][NCHANNELS]();
+  m_PedestalSigma = new float[NROS][NDRAWERS][NCHANNELS]();
 
-  m_TimeDiffMean = new float[NROS][64][48]();
-  m_TimeDiffMeanError = new float[NROS][64][48]();
-  m_TimeDiffSigma = new float[NROS][64][48]();
+  m_TimeDiffMean = new float[NROS][NDRAWERS][NCHANNELS]();
+  m_TimeDiffMeanError = new float[NROS][NDRAWERS][NCHANNELS]();
+  m_TimeDiffSigma = new float[NROS][NDRAWERS][NCHANNELS]();
 
-  m_MeanOddPmtTdiffPMT0 = new float[NROS][64]();
-  m_OddPmtCounterPMT0 = new int[NROS][64]();
-  m_MeanEvenPmtTdiffPMT0 = new float[NROS][64]();
-  m_EvenPmtCounterPMT0 = new int[NROS][64]();
-  m_EvenOddTimeDiffPMT0 = new float[NROS][64]();
+  m_MeanOddPmtTdiffPMT0 = new float[NROS][NDRAWERS]();
+  m_OddPmtCounterPMT0 = new int[NROS][NDRAWERS]();
+  m_MeanEvenPmtTdiffPMT0 = new float[NROS][NDRAWERS]();
+  m_EvenPmtCounterPMT0 = new int[NROS][NDRAWERS]();
+  m_EvenOddTimeDiffPMT0 = new float[NROS][NDRAWERS]();
 
 #ifdef TileLaserTimingPMT0Mon
-  m_TimeDiffHighMean = new float[NROS][64][48]();
-  m_TimeDiffHighMeanError = new float[NROS][64][48]();
-  m_TimeDiffHighSigma = new float[NROS][64][48]();
+  m_TimeDiffHighMean = new float[NROS][NDRAWERS][NCHANNELS]();
+  m_TimeDiffHighMeanError = new float[NROS][NDRAWERS][NCHANNELS]();
+  m_TimeDiffHighSigma = new float[NROS][NDRAWERS][NCHANNELS]();
 
-  m_TimeDiffLowMean = new float[NROS][64][48]();
-  m_TimeDiffLowMeanError = new float[NROS][64][48]();
-  m_TimeDiffLowSigma = new float[NROS][64][48]();
+  m_TimeDiffLowMean = new float[NROS][NDRAWERS][NCHANNELS]();
+  m_TimeDiffLowMeanError = new float[NROS][NDRAWERS][NCHANNELS]();
+  m_TimeDiffLowSigma = new float[NROS][NDRAWERS][NCHANNELS]();
 
-  m_TimeDiffNoCFCorrMean = new float[NROS][64][48]();
-  m_TimeDiffNoCFCorrMeanError = new float[NROS][64][48]();
-  m_TimeDiffNoCFCorrSigma = new float[NROS][64][48]();
+  m_TimeDiffNoCFCorrMean = new float[NROS][NDRAWERS][NCHANNELS]();
+  m_TimeDiffNoCFCorrMeanError = new float[NROS][NDRAWERS][NCHANNELS]();
+  m_TimeDiffNoCFCorrSigma = new float[NROS][NDRAWERS][NCHANNELS]();
 #endif
 
-  m_FiberLength = new float[NROS][64][48]();
+  m_FiberLength = new float[NROS][NDRAWERS][NCHANNELS]();
 
 #ifdef TileLaserTimingMon
-  m_TimeDiffPMTDigi0 = new float[NROS][64][48]();
-  m_FiberCorrection = new float[NROS][64][48]();
-  m_IsConnected = new int[NROS][64][48]();
+  m_TimeDiffPMTDigi0 = new float[NROS][NDRAWERS][NCHANNELS]();
+  m_FiberCorrection = new float[NROS][NDRAWERS][NCHANNELS]();
+  m_IsConnected = new int[NROS][NDRAWERS][NCHANNELS]();
 
-  m_MeanOddPmtTdiff = new float[NROS][64]();
-  m_OddPmtCounter = new int[NROS][64]();
-  m_MeanEvenPmtTdiff = new float[NROS][64]();
-  m_EvenPmtCounter = new int[NROS][64]();
+  m_MeanOddPmtTdiff = new float[NROS][NDRAWERS]();
+  m_OddPmtCounter = new int[NROS][NDRAWERS]();
+  m_MeanEvenPmtTdiff = new float[NROS][NDRAWERS]();
+  m_EvenPmtCounter = new int[NROS][NDRAWERS]();
 
-  m_EvenOddTimeDiff = new float[NROS][64]();
+  m_EvenOddTimeDiff = new float[NROS][NDRAWERS]();
 #endif
 
-  m_DSkewSet = new float[NROS][64][8]();
-  m_DigiMean = new float[NROS][64][8]();
+  m_DSkewSet = new float[NROS][NDRAWERS][NDIGI]();
+  m_DigiMean = new float[NROS][NDRAWERS][NDIGI]();
 }
 
 TileLaserTimingTool::~TileLaserTimingTool() {
@@ -520,7 +520,7 @@ StatusCode TileLaserTimingTool::execute() {
           //============================================================================
           //=== Calculate residuals. Fill histos with time diff b/w PMT i and digi 1 ===
           //============================================================================
-          for (int ipmt = 0; ipmt < 48; ipmt++) {
+          for (int ipmt = 0; ipmt < NCHANNELS; ipmt++) {
             if (isConnectedPMT(ros, ipmt)) {
               ChannelOffset = -(ddata->pmtd[ipmt]->time - fiberCorrection(ros, ipmt) - ddata->FarDigitizerMeanTime);
               ddata->pmtd[ipmt]->TimeDiffResHis.Fill(ChannelOffset);
@@ -569,7 +569,7 @@ StatusCode TileLaserTimingTool::finalizeCalculations() {
     for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
       DrawerData &drawerd = *drawerData(ros, drawer);
 
-      for (int ipmt = 0; ipmt < 48; ++ipmt) {
+      for (int ipmt = 0; ipmt < NCHANNELS; ++ipmt) {
         PMTData &pmtd = *drawerd.pmtd[ipmt];
         // to simplify the root analysis, store the fiber length, not really neccessary
         m_FiberLength[ros][drawer][ipmt] = fiberLength(ros, ipmt);
@@ -718,7 +718,7 @@ StatusCode TileLaserTimingTool::finalizeCalculations() {
       //==================================================================
       //=== Calculate Dskews                                           ===
       //==================================================================
-      for (int ipmt = 0; ipmt < 48; ++ipmt) {
+      for (int ipmt = 0; ipmt < NCHANNELS; ++ipmt) {
         // LBA and LBC
         if (isBarrel(ros)) {
           if (isConnectedPMT(ros, ipmt) && (timeDiffs[ros][drawer][ipmt] < 300)) {
@@ -758,7 +758,7 @@ StatusCode TileLaserTimingTool::finalizeCalculations() {
         } // end isExtBarrel
       } // end PMT loop
 
-      for (int digi = 0; digi < 8; ++digi) {
+      for (int digi = 0; digi < NDIGI; ++digi) {
         m_DigiMean[ros][drawer][digi] = drawerd.digid[digi].GetDigiTime();
         m_DSkewSet[ros][drawer][digi] = (m_DigiMean[ros][drawer][digi] - m_DigiMean[ros][drawer][0]) * 240. / 25.;
 
@@ -854,7 +854,7 @@ StatusCode TileLaserTimingTool::writeNtuple(int runNumber, int runType, TFile* r
 #ifdef TileLaserTimingMon
         dd->Digi0Time.Write();
 #endif
-        for (int ipmt = 0; ipmt < 48; ++ipmt) {
+        for (int ipmt = 0; ipmt < NCHANNELS; ++ipmt) {
           if (isConnectedPMT(ros, ipmt)) {
             /*dd->pmtd[ipmt]->TimeDiffHisto.Write();
              dd->pmtd[ipmt]->TimeDiffNoCFCorrHisto.Write();*/
@@ -967,7 +967,7 @@ void TileLaserTimingTool::correctEvenOddPMT(int ros, int drawer, TPMTArray& Chan
   //=== determine overall shift between odd and even fibers ===
   //=== for this take only into account channels with connected PMT
   //=== don't take into the mean the value of tdiff when it is too far from zero
-  for (int ipmt = 0; ipmt < 48; ++ipmt) {
+  for (int ipmt = 0; ipmt < NCHANNELS; ++ipmt) {
     if (isConnectedPMT(ros, ipmt)) {
       if (ipmt % 2 == 1) {
         // odd PMTs
@@ -1016,7 +1016,7 @@ void TileLaserTimingTool::correctEvenOddPMT(int ros, int drawer, TPMTArray& Chan
   //==================================================================
   //=== Correct for overall shift b/w odd and even fibers          ===
   //==================================================================
-  for (int ipmt = 0; ipmt < 48; ++ipmt) {
+  for (int ipmt = 0; ipmt < NCHANNELS; ++ipmt) {
     if (isConnectedPMT(ros, ipmt)) {
       if (ipmt % 2 == 1)
         ChannelOffset[ros][drawer][ipmt] -= DeltaParity;

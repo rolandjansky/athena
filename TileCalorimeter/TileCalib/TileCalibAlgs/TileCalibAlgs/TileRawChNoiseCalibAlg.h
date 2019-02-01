@@ -30,12 +30,19 @@
 #include "TileConditions/ITileBadChanTool.h"
 #include "TileEvent/TileDQstatus.h"
 #include "TileEvent/TileRawChannelContainer.h"
+#include "TileCalibBlobObjs/TileCalibUtils.h"
 
 #include <cmath>
 #include <vector>
 #include <string>
 #include <map>
 #include <stdint.h>
+
+#define NSIDES 2
+#define NSAMPLES 4
+#define NTOWERS 17
+#define NCELLGAINS 6
+#define NPARS 8
 
 class TileHWID;
 class TileBeamElemContByteStreamCnv;
@@ -155,16 +162,18 @@ class TileRawChNoiseCalibAlg: public AthAlgorithm {
     std::string m_OF1RawChannelContainer;
     std::string m_MFRawChannelContainer;
 
-    TH1F* (*m_histAmp)[5][64][48][2];
-    TH1F* (*m_histCellAmp)[64][4][17][6];
+    using Tile = TileCalibUtils;
+
+    TH1F* (*m_histAmp)[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    TH1F* (*m_histCellAmp)[Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS];
 
     // event number
     int m_evtNr;
-    int (*m_evt)[64][48][2];
-    uint8_t (*m_ros)[64][48][2];
-    uint8_t (*m_drawer)[64][48][2];
-    uint8_t (*m_channel)[64][48][2];
-    bool (*m_gain)[64][48][2];
+    int (*m_evt)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    uint8_t (*m_ros)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    uint8_t (*m_drawer)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    uint8_t (*m_channel)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    bool (*m_gain)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
     // Trigger items
     int m_time;
     int m_year;
@@ -178,27 +187,27 @@ class TileRawChNoiseCalibAlg: public AthAlgorithm {
     //int m_nsamples;
 
     // RawCh items
-    float (*m_rc_mean)[5][64][48][2];
-    float (*m_rc_sigma)[5][64][48][2];
-    float (*m_rc_av)[5][64][48][2];
-    float (*m_rc_rms)[5][64][48][2];
-    float (*m_rc_skewness)[5][64][48][2];
-    float (*m_rc_kurtosis)[5][64][48][2];
-    float (*m_rc_mean_err)[5][64][48][2];
-    float (*m_rc_sigma_err)[5][64][48][2];
-    float (*m_rc_chi2)[5][64][48][2];
-    float (*m_rc_ndf)[5][64][48][2];
-    float (*m_rc_probC2)[5][64][48][2];
+    float (*m_rc_mean)[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    float (*m_rc_sigma)[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    float (*m_rc_av)[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    float (*m_rc_rms)[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    float (*m_rc_skewness)[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    float (*m_rc_kurtosis)[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    float (*m_rc_mean_err)[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    float (*m_rc_sigma_err)[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    float (*m_rc_chi2)[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    float (*m_rc_ndf)[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    float (*m_rc_probC2)[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
 
-    float (*m_rc_ggpar)[5][64][48][2][8]; // sigma gauss1, rel normalization of the gaussians, sigma gauss2, chi2/ndf, error in sigma1, sigma2 and normalization, correlation between sigma1 and sigma2
-    float (*m_rc_gsigma1)[5][64][48][2];
-    float (*m_rc_gsigma2)[5][64][48][2];
-    float (*m_rc_gnorm)[5][64][48][2];
-    float (*m_rc_gchi2)[5][64][48][2];
-    float (*m_rc_gerrsigma1)[5][64][48][2];
-    float (*m_rc_gerrsigma2)[5][64][48][2];
-    float (*m_rc_gerrnorm)[5][64][48][2];
-    float (*m_rc_gcorrsigma1sigma2)[5][64][48][2];
+    float (*m_rc_ggpar)[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NPARS]; // sigma gauss1, rel normalization of the gaussians, sigma gauss2, chi2/ndf, error in sigma1, sigma2 and normalization, correlation between sigma1 and sigma2
+    float (*m_rc_gsigma1)[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    float (*m_rc_gsigma2)[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    float (*m_rc_gnorm)[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    float (*m_rc_gchi2)[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    float (*m_rc_gerrsigma1)[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    float (*m_rc_gerrsigma2)[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    float (*m_rc_gerrnorm)[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
+    float (*m_rc_gcorrsigma1sigma2)[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
 
     //Cell items
     //structure is side:             A=0 C=1,
@@ -206,27 +215,27 @@ class TileRawChNoiseCalibAlg: public AthAlgorithm {
     //		 sample:           A=0, BC=1, D=2, E=3
     //             tower:            0-16,
     //             gain combination: LGLG, LG-, -LG, HGHG, HG-, -HG
-    bool (*m_side)[64][4][17][6];
-    uint8_t (*m_phi)[64][4][17][6];
-    uint8_t (*m_sample)[64][4][17][6];
-    uint8_t (*m_tower)[64][4][17][6];
-    uint8_t (*m_gg)[64][4][17][6];
+    bool (*m_side)[Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS];
+    uint8_t (*m_phi)[Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS];
+    uint8_t (*m_sample)[Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS];
+    uint8_t (*m_tower)[Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS];
+    uint8_t (*m_gg)[Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS];
 
-    float (*m_ecell_av)[64][4][17][6];
-    float (*m_ecell_rms)[64][4][17][6];
-    uint32_t (*m_ecell_hash)[64][4][17];
+    float (*m_ecell_av)[Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS];
+    float (*m_ecell_rms)[Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS];
+    uint32_t (*m_ecell_hash)[Tile::MAX_DRAWER][NSAMPLES][NTOWERS];
 
-    int (*m_cell_nch)[64][4][17][2]; // number of good channels in given cell in given event - 0 or 1 or 2
-    float (*m_ecell_ene)[64][4][17][2];
-    float (*m_ggpar)[64][4][17][6][8]; // sigma gauss1, rel normalization of the gaussians, sigma gauss2, chi2/ndf, error in sigma1, sigma2 and normalization, correlation between sigma1 and sigma2
-    float (*m_gsigma1)[64][4][17][6];
-    float (*m_gsigma2)[64][4][17][6];
-    float (*m_gnorm)[64][4][17][6];
-    float (*m_gchi2)[64][4][17][6];
-    float (*m_gerrsigma1)[64][4][17][6];
-    float (*m_gerrsigma2)[64][4][17][6];
-    float (*m_gerrnorm)[64][4][17][6];
-    float (*m_gcorrsigma1sigma2)[64][4][17][6];
+    int (*m_cell_nch)[Tile::MAX_DRAWER][NSAMPLES][NTOWERS][Tile::MAX_GAIN]; // number of good channels in given cell in given event - 0 or 1 or 2
+    float (*m_ecell_ene)[Tile::MAX_DRAWER][NSAMPLES][NTOWERS][Tile::MAX_GAIN];
+    float (*m_ggpar)[Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS][NPARS]; // sigma gauss1, rel normalization of the gaussians, sigma gauss2, chi2/ndf, error in sigma1, sigma2 and normalization, correlation between sigma1 and sigma2
+    float (*m_gsigma1)[Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS];
+    float (*m_gsigma2)[Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS];
+    float (*m_gnorm)[Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS];
+    float (*m_gchi2)[Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS];
+    float (*m_gerrsigma1)[Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS];
+    float (*m_gerrsigma2)[Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS];
+    float (*m_gerrnorm)[Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS];
+    float (*m_gcorrsigma1sigma2)[Tile::MAX_DRAWER][NSAMPLES][NTOWERS][NCELLGAINS];
 
     enum CELL_CHANNEL {OUTER_MBTS_CHANNEL = 4, SPECIAL_C10_CHANNEL = 5, E1_CHANNEL = 12};
 };

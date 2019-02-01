@@ -78,26 +78,26 @@ TileTriggerDefaultCalibTool::TileTriggerDefaultCalibTool(const std::string& type
   declareProperty("TileDQstatus", m_dqStatusKey = "TileDQstatus");
   //  declareProperty("L1TriggerTowerTool", m_ttTool);
   
-  m_meanTile = new float[5][64][48]();
-  m_rmsTile = new float[5][64][48]();
-  m_meanTileDAC = new float[5][64][48]();
-  m_rmsTileDAC = new float[5][64][48]();
-  m_ietaTile = new int[5][64][48]();
-  m_iphiTile = new int[5][64][48]();
-  m_ipmtTile = new int[5][64][48]();
-  m_nEvtTile = new int[5][64][48]();
+  m_meanTile = new float[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+  m_rmsTile = new float[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+  m_meanTileDAC = new float[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+  m_rmsTileDAC = new float[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+  m_ietaTile = new int[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+  m_iphiTile = new int[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+  m_ipmtTile = new int[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+  m_nEvtTile = new int[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
 
-  m_meanL1Calo = new float[5][64][48]();
-  m_rmsL1Calo = new float[5][64][48]();
-  m_meanL1CaloDAC = new float[5][64][48]();
-  m_rmsL1CaloDAC = new float[5][64][48]();
-  m_ietaL1Calo = new int[5][64][48]();
-  m_iphiL1Calo = new int[5][64][48]();
-  m_ipmtL1Calo = new int[5][64][48]();
-  m_nEvtL1Calo = new int[5][64][48]();
+  m_meanL1Calo = new float[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+  m_rmsL1Calo = new float[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+  m_meanL1CaloDAC = new float[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+  m_rmsL1CaloDAC = new float[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+  m_ietaL1Calo = new int[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+  m_iphiL1Calo = new int[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+  m_ipmtL1Calo = new int[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+  m_nEvtL1Calo = new int[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
 
-  m_meanTileL1Calo = new float[5][64][48]();
-  m_rmsTileL1Calo = new float[5][64][48]();
+  m_meanTileL1Calo = new float[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
+  m_rmsTileL1Calo = new float[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
 }
 
 TileTriggerDefaultCalibTool::~TileTriggerDefaultCalibTool()

@@ -39,12 +39,38 @@ TileOFCorrelation::TileOFCorrelation()
 {
   memset(m_corr2,0,sizeof(m_corr2));
   memset(m_corr,0,sizeof(m_corr));
+
+  m_SS = new double[NPARTITIONS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NDIG][NDIG]();
+  m_S = new double[NPARTITIONS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NDIG]();
+  m_R = new double[NPARTITIONS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NDIG][NDIG]();
+
+  m_corr_sum = new double[NPARTITIONS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NDIG]();
+  m_corr_sum_sq = new double[NPARTITIONS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NDIG]();
+  m_N = new int[NPARTITIONS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN]();
+  m_N_pairs = new int[NPARTITIONS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NDIG]();
+  m_S1 = new double[NPARTITIONS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NDIG]();
+  m_S2 = new double[NPARTITIONS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NDIG]();
+  m_S11 = new double[NPARTITIONS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NDIG]();
+  m_S12 = new double[NPARTITIONS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NDIG]();
+  m_S22 = new double[NPARTITIONS][Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN][NDIG]();
 }
 
 
 ////////////////////////////////////////
 TileOFCorrelation::~TileOFCorrelation()
 {
+  delete[] m_SS;
+  delete[] m_S;
+  delete[] m_R;
+  delete[] m_corr_sum;
+  delete[] m_corr_sum_sq;
+  delete[] m_N;
+  delete[] m_N_pairs;
+  delete[] m_S1;
+  delete[] m_S2;
+  delete[] m_S11;
+  delete[] m_S12;
+  delete[] m_S22;
 }
 
 
