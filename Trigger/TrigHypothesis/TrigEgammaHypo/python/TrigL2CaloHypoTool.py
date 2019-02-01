@@ -30,12 +30,9 @@ def _IncTool(name, threshold, sel):
         cuts=['Input','has one TrigEMCluster', '#Delta #eta L2-L1', '#Delta #phi L2-L1','eta','rCore',
               'eRatio','E_{T}^{EM}', 'E_{T}^{Had}','f_{1}','Weta2','Wstot','F3']
 
-        labelsDescription = ''
-        for c in cuts:
-            labelsDescription +=  c+':'
             
         monTool.Histograms += [ defineHistogram('CutCounter', type='TH1I', path='EXPERT', title="L2Calo Hypo Passed Cuts;Cut",
-                                             xbins=13, xmin=-1.5, xmax=12.5,  opt="kCumulative", labels=labelsDescription) ]
+                                             xbins=13, xmin=-1.5, xmax=12.5,  opt="kCumulative", labels=cuts) ]
 
         if 'Validation' in TriggerFlags.enableMonitoring():
             monTool.Histograms += [ defineHistogram('Et_had', type='TH1F', path='EXPERT', title="L2Calo Hypo E_{T}^{had} in first layer;E_{T}^{had} [MeV]", xbins=50, xmin=-2000, xmax=100000),
