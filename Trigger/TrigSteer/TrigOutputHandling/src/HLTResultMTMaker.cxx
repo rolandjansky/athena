@@ -51,6 +51,8 @@ StatusCode HLTResultMTMaker::makeResult(const EventContext& eventContext) const 
   }
   time.stop();
 
+  ATH_MSG_DEBUG(*hltResult);
+
   // Fill monitoring histograms
   auto nstreams = Monitored::Scalar("nstreams", hltResult->getStreamTags().size());
   auto bitWords = Monitored::Scalar("bitWords", hltResult->getHltBits().size());
