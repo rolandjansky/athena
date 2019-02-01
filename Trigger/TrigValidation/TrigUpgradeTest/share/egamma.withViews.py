@@ -355,11 +355,14 @@ serialiser.CollectionsToSerialize = [ "xAOD::TrigCompositeContainer_v1#remap_Ega
                                       "xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux.pt.eta.phi.rawEnergy.rawEt.rawEta.nCells.energy.et.e237.e277.fracs1.weta2.ehad1.e232.wstot"  ]
                                       #"xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux."  ]
 
+streamPhysicsMain = ['Main', 'physics', "True", "True"]
+streamPhotonPerf = ['PhotonPerf', 'calibration', "True", "True"] # just made up the name
+
 stmaker = StreamTagMakerTool()
 stmaker.OutputLevel = DEBUG
 stmaker.ChainDecisions = "HLTSummary"
-stmaker.ChainToStream = dict( [(c, "Main") for c in testChains ] )
-stmaker.ChainToStream["HLT_e5_etcut"] = "PhotonPerf"  # just made up the name
+stmaker.ChainToStream = dict( [(c, streamPhysicsMain) for c in testChains ] )
+stmaker.ChainToStream["HLT_e5_etcut"] = streamPhotonPerf
 bitsmaker = TriggerBitsMakerTool()
 bitsmaker.ChainDecisions = "HLTSummary"
 bitsmaker.ChainToBit = dict( [ (chain, 10*num) for num,chain in enumerate(testChains) ] ) 

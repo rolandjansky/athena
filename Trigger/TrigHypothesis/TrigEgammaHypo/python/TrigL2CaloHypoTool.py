@@ -116,7 +116,7 @@ def _MultTool(name):
 
 def TrigL2CaloHypoToolFromDict( d ):
     """ Use menu decoded chain dictionary to configure the tool """
-    cparts = d['chainParts'][0]
+    cparts = [i for i in d['chainParts'] if ((i['signature'] is 'Electron') or (i['signature'] is 'Photon'))]
     
     def __mult(cpart):
         return int( cpart['multiplicity'] )
@@ -131,15 +131,15 @@ def TrigL2CaloHypoToolFromDict( d ):
 
     
     # do we need to configure high multiplicity selection, either NeX or ex_ey_ez etc...?
-    if len(d['chainParts']) > 1 or __mult(d['chainParts'][0]) > 1:
+    if len(cparts) > 1 or __mult(cparts[0]) > 1:
         tool = _MultTool(name)
-        for cpart in d['chainParts']:
+        for cpart in cparts:
             for cutNumber in range( __mult( cpart ) ):
                 tool.SubTools += [ _IncTool( cpart['chainPartName']+"_"+str(cutNumber), __th( cpart ), __sel( cpart) ) ]
 
         return tool
     else:        
-        return _IncTool( name, __th( d['chainParts'][0]),  __sel( d['chainParts'][0] ) )
+        return _IncTool( name, __th( cparts[0]),  __sel( cparts[0] ) )
                     
 
 def TrigL2CaloHypoToolFromName( name, conf ):

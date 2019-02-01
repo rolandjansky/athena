@@ -1,0 +1,256 @@
+TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep2                     0   0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryStep2                     0   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep2                     0   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep3                     0   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep3                     0   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryFinal                     0   0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryFinal                     0   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryFinal                     0   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+HLTRMakerAlg.MKTool.StreamTagMakerTool  0   0     DEBUG Chain HLT_e5_etcut_pebtestone ID#2665696149 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+HLTRMakerAlg.MKTool.StreamTagMakerTool  0   0     DEBUG Chain HLT_e3_etcut_pebtestone ID#3649724623 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+--> Stream tags  = {Main, physics, obeysLB=1, robs=[], dets = []}
+                   {pebtestone, calibration, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 ], dets = []}
+TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep3                     1   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep3                     1   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryFinal                     1   0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryFinal                     1   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryFinal                     1   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+HLTRMakerAlg.MKTool.StreamTagMakerTool  1   0     DEBUG Chain HLT_e5_etcut_pebtestone ID#2665696149 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+HLTRMakerAlg.MKTool.StreamTagMakerTool  1   0     DEBUG Chain HLT_e3_etcut_pebtestone ID#3649724623 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+--> Stream tags  = {Main, physics, obeysLB=1, robs=[], dets = []}
+                   {pebtestone, calibration, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 ], dets = []}
+TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep2                     2   0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryStep2                     2   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep2                     2   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep3                     2   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep3                     2   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryFinal                     2   0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryFinal                     2   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryFinal                     2   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+HLTRMakerAlg.MKTool.StreamTagMakerTool  2   0     DEBUG Chain HLT_e5_etcut_pebtestone ID#2665696149 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+HLTRMakerAlg.MKTool.StreamTagMakerTool  2   0     DEBUG Chain HLT_e3_etcut_pebtestone ID#3649724623 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+--> Stream tags  = {Main, physics, obeysLB=1, robs=[], dets = []}
+                   {pebtestone, calibration, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 ], dets = []}
+TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep2                     3   0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryStep2                     3   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep2                     3   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep3                     3   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep3                     3   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryFinal                     3   0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryFinal                     3   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryFinal                     3   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+HLTRMakerAlg.MKTool.StreamTagMakerTool  3   0     DEBUG Chain HLT_e5_etcut_pebtestone ID#2665696149 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+HLTRMakerAlg.MKTool.StreamTagMakerTool  3   0     DEBUG Chain HLT_e3_etcut_pebtestone ID#3649724623 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+--> Stream tags  = {Main, physics, obeysLB=1, robs=[], dets = []}
+                   {pebtestone, calibration, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 ], dets = []}
+TriggerSummaryStep1                     4   0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryStep1                     4   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep1                     4   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep2                     4   0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryStep2                     4   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep2                     4   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep3                     4   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep3                     4   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryFinal                     4   0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryFinal                     4   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryFinal                     4   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+HLTRMakerAlg.MKTool.StreamTagMakerTool  4   0     DEBUG Chain HLT_e5_etcut_pebtestone ID#2665696149 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+HLTRMakerAlg.MKTool.StreamTagMakerTool  4   0     DEBUG Chain HLT_e3_etcut_pebtestone ID#3649724623 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+--> Stream tags  = {Main, physics, obeysLB=1, robs=[], dets = []}
+                   {pebtestone, calibration, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 ], dets = []}
+TriggerSummaryStep1                     5   0     DEBUG  +++ HLT_mu6_pebtesttwo ID#1084648233
+TriggerSummaryStep1                     5   0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryStep1                     5   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep1                     5   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep2                     5   0     DEBUG  +++ HLT_mu6_pebtesttwo ID#1084648233
+TriggerSummaryStep2                     5   0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryStep2                     5   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep2                     5   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep3                     5   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep3                     5   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryFinal                     5   0     DEBUG  +++ HLT_mu6_pebtesttwo ID#1084648233
+TriggerSummaryFinal                     5   0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryFinal                     5   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryFinal                     5   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+HLTRMakerAlg.MKTool.StreamTagMakerTool  5   0     DEBUG Chain HLT_mu6_pebtesttwo ID#1084648233 adds PEBInfo ROBs = [], SubDets = [0x65, 0x66] to stream calibration_pebtesttwo
+HLTRMakerAlg.MKTool.StreamTagMakerTool  5   0     DEBUG Chain HLT_e5_etcut_pebtestone ID#2665696149 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+HLTRMakerAlg.MKTool.StreamTagMakerTool  5   0     DEBUG Chain HLT_e3_etcut_pebtestone ID#3649724623 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+--> Stream tags  = {pebtesttwo, calibration, obeysLB=1, robs=[], dets = [0x65 0x66 ]}
+                   {Main, physics, obeysLB=1, robs=[], dets = []}
+                   {pebtestone, calibration, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 ], dets = []}
+TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_mu6_pebtesttwo ID#1084648233
+TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep2                     6   0     DEBUG  +++ HLT_mu6_pebtesttwo ID#1084648233
+TriggerSummaryStep2                     6   0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryStep2                     6   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep2                     6   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep3                     6   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep3                     6   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryFinal                     6   0     DEBUG  +++ HLT_mu6_pebtesttwo ID#1084648233
+TriggerSummaryFinal                     6   0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryFinal                     6   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryFinal                     6   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+HLTRMakerAlg.MKTool.StreamTagMakerTool  6   0     DEBUG Chain HLT_mu6_pebtesttwo ID#1084648233 adds PEBInfo ROBs = [], SubDets = [0x65, 0x66] to stream calibration_pebtesttwo
+HLTRMakerAlg.MKTool.StreamTagMakerTool  6   0     DEBUG Chain HLT_e5_etcut_pebtestone ID#2665696149 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+HLTRMakerAlg.MKTool.StreamTagMakerTool  6   0     DEBUG Chain HLT_e3_etcut_pebtestone ID#3649724623 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+--> Stream tags  = {pebtesttwo, calibration, obeysLB=1, robs=[], dets = [0x65 0x66 ]}
+                   {Main, physics, obeysLB=1, robs=[], dets = []}
+                   {pebtestone, calibration, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 ], dets = []}
+TriggerSummaryStep1                     7   0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryStep1                     7   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep1                     7   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep2                     7   0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryStep2                     7   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep2                     7   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep3                     7   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep3                     7   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryFinal                     7   0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryFinal                     7   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryFinal                     7   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+HLTRMakerAlg.MKTool.StreamTagMakerTool  7   0     DEBUG Chain HLT_e5_etcut_pebtestone ID#2665696149 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+HLTRMakerAlg.MKTool.StreamTagMakerTool  7   0     DEBUG Chain HLT_e3_etcut_pebtestone ID#3649724623 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+--> Stream tags  = {Main, physics, obeysLB=1, robs=[], dets = []}
+                   {pebtestone, calibration, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 ], dets = []}
+TriggerSummaryStep1                     8   0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryStep1                     8   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep1                     8   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep2                     8   0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryStep2                     8   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep2                     8   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep3                     8   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep3                     8   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryFinal                     8   0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryFinal                     8   0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryFinal                     8   0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+HLTRMakerAlg.MKTool.StreamTagMakerTool  8   0     DEBUG Chain HLT_e5_etcut_pebtestone ID#2665696149 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+HLTRMakerAlg.MKTool.StreamTagMakerTool  8   0     DEBUG Chain HLT_e3_etcut_pebtestone ID#3649724623 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+--> Stream tags  = {Main, physics, obeysLB=1, robs=[], dets = []}
+                   {pebtestone, calibration, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 ], dets = []}
+TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep2                     10  0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryStep2                     10  0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep2                     10  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep3                     10  0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep3                     10  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryFinal                     10  0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryFinal                     10  0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryFinal                     10  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+HLTRMakerAlg.MKTool.StreamTagMakerTool  10  0     DEBUG Chain HLT_e5_etcut_pebtestone ID#2665696149 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+HLTRMakerAlg.MKTool.StreamTagMakerTool  10  0     DEBUG Chain HLT_e3_etcut_pebtestone ID#3649724623 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+--> Stream tags  = {Main, physics, obeysLB=1, robs=[], dets = []}
+                   {pebtestone, calibration, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 ], dets = []}
+TriggerSummaryStep1                     11  0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep1                     11  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep2                     11  0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep2                     11  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep3                     11  0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep3                     11  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryFinal                     11  0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryFinal                     11  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+HLTRMakerAlg.MKTool.StreamTagMakerTool  11  0     DEBUG Chain HLT_e5_etcut_pebtestone ID#2665696149 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+HLTRMakerAlg.MKTool.StreamTagMakerTool  11  0     DEBUG Chain HLT_e3_etcut_pebtestone ID#3649724623 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+--> Stream tags  = {pebtestone, calibration, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 ], dets = []}
+TriggerSummaryStep1                     12  0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryStep1                     12  0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep1                     12  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep2                     12  0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryStep2                     12  0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep2                     12  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep3                     12  0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep3                     12  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryFinal                     12  0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryFinal                     12  0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryFinal                     12  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+HLTRMakerAlg.MKTool.StreamTagMakerTool  12  0     DEBUG Chain HLT_e5_etcut_pebtestone ID#2665696149 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+HLTRMakerAlg.MKTool.StreamTagMakerTool  12  0     DEBUG Chain HLT_e3_etcut_pebtestone ID#3649724623 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+--> Stream tags  = {Main, physics, obeysLB=1, robs=[], dets = []}
+                   {pebtestone, calibration, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 ], dets = []}
+TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep2                     13  0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryStep2                     13  0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep2                     13  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep3                     13  0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep3                     13  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryFinal                     13  0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryFinal                     13  0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryFinal                     13  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+HLTRMakerAlg.MKTool.StreamTagMakerTool  13  0     DEBUG Chain HLT_e5_etcut_pebtestone ID#2665696149 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+HLTRMakerAlg.MKTool.StreamTagMakerTool  13  0     DEBUG Chain HLT_e3_etcut_pebtestone ID#3649724623 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+--> Stream tags  = {Main, physics, obeysLB=1, robs=[], dets = []}
+                   {pebtestone, calibration, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 ], dets = []}
+TriggerSummaryStep1                     14  0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep1                     14  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep2                     14  0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep2                     14  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep3                     14  0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep3                     14  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryFinal                     14  0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryFinal                     14  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+HLTRMakerAlg.MKTool.StreamTagMakerTool  14  0     DEBUG Chain HLT_e5_etcut_pebtestone ID#2665696149 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+HLTRMakerAlg.MKTool.StreamTagMakerTool  14  0     DEBUG Chain HLT_e3_etcut_pebtestone ID#3649724623 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+--> Stream tags  = {pebtestone, calibration, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 ], dets = []}
+TriggerSummaryStep1                     15  0     DEBUG  +++ HLT_mu6_pebtesttwo ID#1084648233
+TriggerSummaryStep2                     15  0     DEBUG  +++ HLT_mu6_pebtesttwo ID#1084648233
+TriggerSummaryFinal                     15  0     DEBUG  +++ HLT_mu6_pebtesttwo ID#1084648233
+HLTRMakerAlg.MKTool.StreamTagMakerTool  15  0     DEBUG Chain HLT_mu6_pebtesttwo ID#1084648233 adds PEBInfo ROBs = [], SubDets = [0x65, 0x66] to stream calibration_pebtesttwo
+--> Stream tags  = {pebtesttwo, calibration, obeysLB=1, robs=[], dets = [0x65 0x66 ]}
+TriggerSummaryStep1                     16  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep2                     16  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep3                     16  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryFinal                     16  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+HLTRMakerAlg.MKTool.StreamTagMakerTool  16  0     DEBUG Chain HLT_e3_etcut_pebtestone ID#3649724623 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+--> Stream tags  = {pebtestone, calibration, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 ], dets = []}
+TriggerSummaryStep1                     17  0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryStep1                     17  0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep1                     17  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep2                     17  0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryStep2                     17  0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep2                     17  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep3                     17  0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep3                     17  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryFinal                     17  0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryFinal                     17  0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryFinal                     17  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+HLTRMakerAlg.MKTool.StreamTagMakerTool  17  0     DEBUG Chain HLT_e5_etcut_pebtestone ID#2665696149 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+HLTRMakerAlg.MKTool.StreamTagMakerTool  17  0     DEBUG Chain HLT_e3_etcut_pebtestone ID#3649724623 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+--> Stream tags  = {Main, physics, obeysLB=1, robs=[], dets = []}
+                   {pebtestone, calibration, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 ], dets = []}
+TriggerSummaryStep1                     18  0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryStep1                     18  0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep1                     18  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryStep3                     19  0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryStep3                     19  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+TriggerSummaryFinal                     19  0     DEBUG  +++ HLT_e7_etcut ID#2430733989
+TriggerSummaryFinal                     19  0     DEBUG  +++ HLT_e5_etcut_pebtestone ID#2665696149
+TriggerSummaryFinal                     19  0     DEBUG  +++ HLT_e3_etcut_pebtestone ID#3649724623
+HLTRMakerAlg.MKTool.StreamTagMakerTool  19  0     DEBUG Chain HLT_e5_etcut_pebtestone ID#2665696149 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+HLTRMakerAlg.MKTool.StreamTagMakerTool  19  0     DEBUG Chain HLT_e3_etcut_pebtestone ID#3649724623 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064], SubDets = [] to stream calibration_pebtestone
+--> Stream tags  = {Main, physics, obeysLB=1, robs=[], dets = []}
+                   {pebtestone, calibration, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 ], dets = []}
