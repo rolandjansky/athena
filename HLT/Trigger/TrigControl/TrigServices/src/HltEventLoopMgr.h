@@ -9,10 +9,13 @@
 #include "TrigKernel/ITrigEventLoopMgr.h"
 #include "TrigKernel/HltPscErrorCode.h"
 #include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
+#include "TrigOutputHandling/HLTResultMTMaker.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthService.h"
+#include "AthenaKernel/EventContextClid.h"
 #include "AthenaKernel/Timeout.h"
+#include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h" // number_type
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
@@ -20,6 +23,7 @@
 // Gaudi includes
 #include "GaudiKernel/IEventProcessor.h"
 #include "GaudiKernel/IEvtSelector.h"
+#include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/SmartIF.h"
 
 // TDAQ includes
@@ -34,13 +38,9 @@
 
 // Forward declarations
 class CondAttrListCollection;
-class EventContext;
-class EventInfo;
-class HLTResultMTMaker;
 class IAlgExecStateSvc;
 class IAlgorithm;
 class IAlgResourcePool;
-class IConversionSvc;
 class IHiveWhiteBoard;
 class IIncidentSvc;
 class IROBDataProviderSvc;
@@ -60,7 +60,7 @@ namespace HLT {
 /** @class HltEventLoopMgr
  *  @brief AthenaMT event loop manager for running HLT online
  **/
-class HltEventLoopMgr : public extends2<AthService, ITrigEventLoopMgr, IEventProcessor>,
+class HltEventLoopMgr : public extends<AthService, ITrigEventLoopMgr, IEventProcessor>,
                         public Athena::TimeoutMaster
 {
 
@@ -173,68 +173,73 @@ private:
   ServiceHandle<StoreGateSvc>        m_inputMetaDataStore;
   ServiceHandle<IROBDataProviderSvc> m_robDataProviderSvc;
   ServiceHandle<ITHistSvc>           m_THistSvc;
-  ServiceHandle<IEvtSelector>        m_evtSelector;
-  ServiceHandle<IConversionSvc>      m_outputCnvSvc;
   ServiceHandle<IIoComponentMgr>     m_ioCompMgr;
+  ServiceHandle<IEvtSelector>        m_evtSelector{this, "EvtSel", "EvtSel"};
+  ServiceHandle<IConversionSvc>      m_outputCnvSvc{this, "OutputCnvSvc", "OutputCnvSvc"};
+  ToolHandle<TrigCOOLUpdateHelper>   m_coolHelper{this, "CoolUpdateTool", "TrigCOOLUpdateHelper"};
+  ToolHandle<HLTResultMTMaker>       m_hltResultMaker{this, "ResultMaker", "HLTResultMTMaker"};
 
-  /// Reference to the Whiteboard interface
   SmartIF<IHiveWhiteBoard> m_whiteboard;
-  /// Reference to the Algorithm resource pool
   SmartIF<IAlgResourcePool> m_algResourcePool;
-  /// Reference to the Algorithm Execution State Svc
   SmartIF<IAlgExecStateSvc> m_aess;
-  /// A shortcut for the scheduler
   SmartIF<IScheduler> m_schedulerSvc;
-
-  /// Helper tool for COOL updates
-  ToolHandle<TrigCOOLUpdateHelper> m_coolHelper;
-
-  /// Tool to create HLTResult
-  ToolHandle<HLTResultMTMaker> m_hltResultMaker;
-
-  // ------------------------- Optional services/tools -------------------------
-  /// Reference to a ROBDataProviderSvc which implements also the Hlt additions
   SmartIF<ITrigROBDataProviderSvc> m_hltROBDataProviderSvc;
 
-  // ------------------------- Properties --------------------------------------
-  /// Application Name (="None" or "athenaHLT" for simulated data, "HLTMPPU-xx"? in online environment)
-  StringProperty m_applicationName;
-  /// Partition Name (="None" for offline, real partion name in online environment)
-  StringProperty m_partitionName;
-  /// JobOptions type (="NONE" or "DB", same as in PSC)
-  StringProperty m_jobOptionsType;
-  /// Name of the scheduler to be used
-  StringProperty m_schedulerName;
-  /// Name of the Whiteboard to be used
-  StringProperty m_whiteboardName;
-  /// Vector of top level algorithm names
-  Gaudi::Property<std::vector<std::string> > m_topAlgNames;
+  // ------------------------- Other properties --------------------------------------
+  Gaudi::Property<std::string> m_jobOptionsType{
+    this, "JobOptionsType", "NONE", "'NONE' or 'DB'"};
 
-  /// list of all enabled ROBs which can be retrieved
-  SimpleProperty<std::vector<uint32_t> > m_enabledROBs;
-  /// list of all enabled Sub Detectors which can be retrieved
-  SimpleProperty<std::vector<uint32_t> > m_enabledSubDetectors;
+  Gaudi::Property<std::string> m_applicationName{
+    this, "ApplicationName", "None",
+    "Application Name (='None' or 'athenaHLT' for simulated data, 'HLTMPPU-xx' in online environment)"};
 
-  /// Hard event processing timeout
-  FloatProperty m_hardTimeout;
-  /// Hard event processing timeout
-  FloatProperty m_softTimeoutFraction;
+  Gaudi::Property<std::string> m_partitionName{
+    this, "PartitionName", "None",
+    "Partition Name (='None' for offline, real partition name in online environment)"};
 
-  /// Tolerable number of recovered framework errors
-  IntegerProperty m_maxFrameworkErrors;
-  /// Name of the debug stream for events with HLT framework errors
-  StringProperty m_fwkErrorDebugStreamName;
-  /// Name of the debug stream for events with HLT algorithm errors
-  StringProperty m_algErrorDebugStreamName;
+  Gaudi::Property<std::string> m_schedulerName{
+    this, "SchedulerSvc", "AvalancheSchedulerSvc", "Name of the scheduler"};
 
-  /// StoreGate key for recording EventContext
-  SG::WriteHandleKey<EventContext> m_eventContextWHKey;
-  /// StoreGate key for reading EventInfo
-  SG::ReadHandleKey<EventInfo> m_eventInfoRHKey;
-  /// StoreGate key for reading the HLT result
-  SG::ReadHandleKey<HLT::HLTResultMT> m_hltResultRHKey;
-  /// Path to SOR parameters
-  StringProperty m_sorPath;
+  Gaudi::Property<std::string> m_whiteboardName{
+    this, "WhiteboardSvc", "EventDataSvc", "Name of the Whiteboard"};
+
+  Gaudi::Property<std::vector<std::string> > m_topAlgNames{
+    this, "TopAlg", {}, "List of top level algorithms names"};
+
+  Gaudi::Property<std::vector<uint32_t>> m_enabledROBs{
+    this, "enabledROBs", {}, "list of all enabled ROBs which can be retrieved"};
+
+  Gaudi::Property<std::vector<uint32_t>> m_enabledSubDetectors{
+    this, "enabledSubDetectors", {}, "list of enabled Subdetectors"};
+
+  Gaudi::Property<float> m_hardTimeout{
+    this, "HardTimeout", 10*60*1000/*=10min*/, "Hard event processing timeout in milliseconds"};
+
+  Gaudi::Property<float> m_softTimeoutFraction{
+    this, "SoftTimeoutFraction", 0.8, "Fraction of the hard timeout to be set as the soft timeout"};
+
+  Gaudi::Property<int> m_maxFrameworkErrors{
+    this, "MaxFrameworkErrors", 0,
+    "Tolerable number of recovered framework errors before exiting (<0 means all are tolerated)"};
+
+  Gaudi::Property<std::string> m_fwkErrorDebugStreamName{
+    this, "FwkErrorDebugStreamName", "HLTMissingData",
+    "Debug stream name for events with HLT framework errors"};
+
+  Gaudi::Property<std::string> m_algErrorDebugStreamName{
+    this, "AlgErrorDebugStreamName", "HLTError",
+    "Debug stream name for events with HLT algorithm errors"};
+
+  SG::WriteHandleKey<EventContext> m_eventContextWHKey{
+    this, "EventContextWHKey", "EventContext", "StoreGate key for recording EventContext"};
+
+  SG::ReadHandleKey<EventInfo> m_eventInfoRHKey{
+    this, "EventInfoRHKey", "ByteStreamEventInfo", "StoreGate key for reading EventInfo"};
+
+  Gaudi::Property<std::string> m_sorPath{
+    this, "SORPath", "/TDAQ/RunCtrl/SOR_Params", "Path to StartOfRun parameters in detector store"};
+
+  SG::ReadHandleKey<HLT::HLTResultMT> m_hltResultRHKey;    ///< StoreGate key for reading the HLT result
 
   // ------------------------- Other private members ---------------------------
   /// typedef used for detector mask fields
@@ -243,21 +248,16 @@ private:
    * Detector mask0,1,2,3 - bit field indicating which TTC zones have been built into the event,
    * one bit per zone, 128 bit total, significance increases from first to last
    */
-  std::tuple<numt, numt, numt, numt> m_detector_mask;
+  std::tuple<numt, numt, numt, numt> m_detector_mask{0xffffffff, 0xffffffff, 0, 0};
 
   /// "Event" context of current run (invalid event/slot)
   EventContext m_currentRunCtx;
   /// Event counter used for local bookkeeping; incremental per instance of HltEventLoopMgr, unrelated to global_id
   size_t m_localEventNumber;
-  /// Current run number
-  int m_threadPoolSize;
-
   /// Event selector context
   IEvtSelector::Context* m_evtSelContext;
-
   /// Vector of top level algorithms
   std::vector<SmartIF<IAlgorithm> > m_topAlgList;
-
   /// Vector of event start-processing time stamps in each slot
   std::vector<std::chrono::steady_clock::time_point> m_eventTimerStartPoint;
   /// Vector of flags to tell if a slot is idle or processing
