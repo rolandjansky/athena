@@ -50,9 +50,9 @@ def makeDiTauAnalysisSequence( dataType, workingPoint,
 
     # Set up the tau 4-momentum smearing algorithm:
     alg = createAlgorithm( 'CP::DiTauSmearingAlg', 'DiTauSmearingAlg' + postfix )
-    addPrivateTool( alg, 'smearingTool', 'TauAnalysisTools::CommonDiTauSmearingTool' )
+    addPrivateTool( alg, 'smearingTool', 'TauAnalysisTools::DiTauSmearingTool' )
     seq.append( alg, inputPropName = 'taus', outputPropName = 'tausOut',
-                affectingSystematics = '(^$)',
+                affectingSystematics = '(^TAUS_TRUEHADDITAU_SME_TES_.*)',
                 stageName = 'calibration' )
 
     # Set up an algorithm dumping the properties of the taus, for debugging:

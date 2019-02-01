@@ -22,7 +22,7 @@ namespace CP
   DiTauSmearingAlg (const std::string& name, 
                      ISvcLocator* pSvcLocator)
     : AnaAlgorithm (name, pSvcLocator)
-    , m_smearingTool ("TauAnalysisTools::CommonDiTauSmearingTool", this)
+    , m_smearingTool ("TauAnalysisTools::DiTauSmearingTool", this)
   {
     declareProperty ("smearingTool", m_smearingTool, "the calibration and smearing tool we apply");
   }
