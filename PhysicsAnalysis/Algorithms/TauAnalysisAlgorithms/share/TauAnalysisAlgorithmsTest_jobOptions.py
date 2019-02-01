@@ -39,7 +39,8 @@ diTauSequence.configure( inputName = 'DiTauJets', outputName = 'AnalysisDiTauJet
 print( diTauSequence ) # For debugging
 
 # Add the sequence to the job:
-algSeq += diTauSequence
+# disabling this, the standard test files don't have DiTauJets
+# algSeq += diTauSequence
 
 # Set up a histogram output file for the job:
 ServiceMgr += CfgMgr.THistSvc()

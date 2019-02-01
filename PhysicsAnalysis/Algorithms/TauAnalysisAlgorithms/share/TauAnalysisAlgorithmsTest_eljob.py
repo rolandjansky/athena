@@ -86,7 +86,8 @@ print( diTauSequence ) # For debugging
 
 # Add all algorithms to the job:
 for alg in diTauSequence:
-    job.algsAdd( alg )
+    # disabling this, the standard test files don't have DiTauJets
+    # job.algsAdd( alg )
     pass
 
 # Find the right output directory:
