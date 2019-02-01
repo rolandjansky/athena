@@ -17,7 +17,7 @@
 #include <gtest/gtest.h>
 #include <gtest/gtest-spi.h>
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 #include <xAODRootAccess/Init.h>
 #endif
 
@@ -96,7 +96,7 @@ namespace asg
     EXPECT_FAILURE_REGEX (functionFailure("match"),".*match.*");
   }
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
   TEST (AssertTest, failure_regex_failure_missmatch)
 #else
   TEST (AssertTest, DISABLED_failure_regex_failure_missmatch)
@@ -105,7 +105,7 @@ namespace asg
     EXPECT_FATAL_FAILURE (ASSERT_FAILURE_REGEX (functionFailure("text 1"),".*different text.*"), "functionFailure");
   }
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
   TEST (AssertTest, failure_regex_failure_missing)
 #else
   TEST (AssertTest, DISABLED_failure_regex_failure_missing)
@@ -201,7 +201,7 @@ namespace asg
     EXPECT_FAILURE_REGEX (functionFailure("match"),".*match.*");
   }
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
   TEST (ExpectTest, failure_regex_failure_missmatch)
 #else
   TEST (ExpectTest, DISABLED_failure_regex_failure_missmatch)
@@ -210,7 +210,7 @@ namespace asg
     EXPECT_NONFATAL_FAILURE (EXPECT_FAILURE_REGEX (functionFailure("text 1"),".*different text.*"), "functionFailure");
   }
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
   TEST (ExpectTest, failure_regex_failure_missing)
 #else
   TEST (ExpectTest, DISABLED_failure_regex_failure_missing)
@@ -264,7 +264,7 @@ namespace asg
 
 int main (int argc, char **argv)
 {
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
   StatusCode::enableFailure();
   ANA_CHECK (xAOD::Init ());
 #endif

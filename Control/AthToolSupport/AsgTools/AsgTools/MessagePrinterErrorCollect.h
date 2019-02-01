@@ -9,7 +9,7 @@
 #ifndef ASG_TOOLS__MESSAGE_PRINTER_ERROR_COLLECT_H
 #define ASG_TOOLS__MESSAGE_PRINTER_ERROR_COLLECT_H
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 
 #include <AsgTools/IMessagePrinter.h>
 #include <vector>

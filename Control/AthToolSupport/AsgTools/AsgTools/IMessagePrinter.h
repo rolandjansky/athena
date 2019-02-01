@@ -12,7 +12,7 @@
 #include <AsgTools/MsgLevel.h>
 #include <sstream>
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 
 namespace asg
 {

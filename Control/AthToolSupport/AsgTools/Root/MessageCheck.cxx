@@ -14,7 +14,7 @@
 
 #include <stdexcept>
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
 #include <GaudiKernel/Bootstrap.h>
 #include <GaudiKernel/ISvcLocator.h>
 #endif
@@ -31,7 +31,7 @@ namespace asg
 
   namespace detail
   {
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
     // Get the Athena message service
     IMessageSvc* getMessageSvcAthena()
     {

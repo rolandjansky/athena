@@ -17,7 +17,7 @@
 #include <gtest/gtest.h>
 #include <gtest/gtest-spi.h>
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 #include <xAODRootAccess/Init.h>
 #endif
 

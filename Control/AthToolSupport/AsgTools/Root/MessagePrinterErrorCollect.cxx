@@ -18,7 +18,7 @@
 // method implementations
 //
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 
 namespace asg
 {
