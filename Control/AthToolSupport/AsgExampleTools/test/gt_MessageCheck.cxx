@@ -1,3 +1,6 @@
+//
+// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+//
 //        Copyright Iowa State University 2017.
 //                  Author: Nils Krumnack
 // Distributed under the Boost Software License, Version 1.0.
@@ -23,7 +26,7 @@
 #include <gtest/gtest-spi.h>
 #include <gmock/gmock.h>
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 #include <xAODRootAccess/Init.h>
 #endif
 
