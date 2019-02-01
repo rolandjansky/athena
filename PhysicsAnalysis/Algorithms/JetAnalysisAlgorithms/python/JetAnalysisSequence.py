@@ -35,7 +35,7 @@ jvtSysts = "|".join([
 def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
                              runJvtEfficiency = True, runJvtSelection = False,
                              runGhostMuonAssociation = True, deepCopyOutput = False,
-                             largeRMass = "Comb", namePrefix="", nameSuffix="",
+                             largeRMass = "Comb", postfix=''
                              reduction = "Global", JEROption = "Simple"):
     """Create a jet analysis algorithm sequence
 
@@ -48,14 +48,17 @@ def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
                           efficiency
       runJvtSelection -- Determines whether or not to run the JVT selection
       largeRMass -- Which large-R mass definition to use. Ignored if not running on large-R jets ("Comb", "Calo", "TA")
-      namePrefix -- Prefix to be added to the start of all public configurable names
-      nameSuffix -- Suffix to be added to the end of all public configurable names
+      postfix -- String to be added to the end of all public names to avoid clashes.
       reduction -- Which NP reduction scheme should be used (All, Global, Category, Scenario)
       JEROption -- Which variant of the reduction should be used (All, Full, Simple). Note that not all combinations of reduction and JEROption are valid!
     """
 
     if not dataType in ["data", "mc", "afii"] :
         raise ValueError ("invalid data type: " + dataType)
+
+    # Process the postfix
+    if postfix != '':
+      postfix = '_' + postfix
 
     # interpret the jet collection
     collection_pattern = re.compile(
@@ -74,7 +77,7 @@ def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
       raise ValueError ("Invalid large-R mass defintion {0}!".format(largeRMass) )
 
     # Create the analysis algorithm sequence object:
-    seq = AnaAlgSequence( namePrefix+"JetAnalysisSequence"+nameSuffix )
+    seq = AnaAlgSequence( "JetAnalysisSequence"+postfix )
 
     # Set up the jet calibration algorithm:
     # Set isData first, given that some of the calibrations require this to
@@ -137,12 +140,12 @@ def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
     # Set up the jet ghost muon association algorithm:
     if runGhostMuonAssociation:
         alg = createAlgorithm( 'CP::JetGhostMuonAssociationAlg', 
-            namePrefix+'JetGhostMuonAssociationAlg'+nameSuffix )
+            'JetGhostMuonAssociationAlg'+postfix )
         seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut' )
 
     # Set up the jet calibration algorithm:
     alg = createAlgorithm( 'CP::JetCalibrationAlg', 
-        namePrefix+'JetCalibrationAlg'+nameSuffix )
+        'JetCalibrationAlg'+postfix )
     addPrivateTool( alg, 'calibrationTool', 'JetCalibrationTool' )
     alg.calibrationTool.JetCollection = jetCollection[ 0 : -4 ]
     alg.calibrationTool.ConfigFile = configFile
@@ -191,7 +194,7 @@ def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
         # Large-R jets have a limited region of validity so have to be
         # preselected
         presel_alg = createAlgorithm( 'CP::AsgSelectionAlg',
-            namePrefix+'JetPreselectionAlg'+nameSuffix )
+            'JetPreselectionAlg'+postfix )
         presel_alg.selectionDecoration = 'fatjetpreselection,as_char'
         addPrivateTool( presel_alg, 'selectionTool', 'CP::AsgPtEtaSelectionTool' )
         presel_alg.selectionTool.minPt = 150e3
@@ -205,7 +208,7 @@ def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
        
       # Set up the jet uncertainty calculation algorithm:
       alg = createAlgorithm( 'CP::JetUncertaintiesAlg', 
-          namePrefix+'JetUncertaintiesAlg'+nameSuffix )
+          'JetUncertaintiesAlg'+postfix )
       # Allow the tool to ignore fat jets outside of validity
       if radius == 10:
         alg.outOfValidity = 2 # SILENT
@@ -226,11 +229,11 @@ def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
     if radius == 4:
       # Set up the JVT update algorithm:
       if runJvtUpdate :
-          alg = createAlgorithm( 'CP::JvtUpdateAlg', namePrefix+'JvtUpdateAlg'+nameSuffix )
+          alg = createAlgorithm( 'CP::JvtUpdateAlg', 'JvtUpdateAlg'+postfix )
           addPrivateTool( alg, 'jvtTool', 'JetVertexTaggerTool' )
           seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut' )
 
-          alg = createAlgorithm( 'CP::JetModifierAlg', namePrefix+'JetModifierAlg'+nameSuffix )
+          alg = createAlgorithm( 'CP::JetModifierAlg', 'JetModifierAlg'+postfix )
           addPrivateTool( alg, 'modifierTool', 'JetForwardJvtTool')
           alg.modifierTool.OutputDec = "passFJVT" #Output decoration
           # fJVT WPs depend on the MET WP
@@ -244,7 +247,7 @@ def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
       # Set up the jet efficiency scale factor calculation algorithm
       # Change the truthJetCollection property to AntiKt4TruthWZJets if preferred
       if runJvtEfficiency:
-          alg = createAlgorithm( 'CP::JvtEfficiencyAlg', namePrefix+'JvtEfficiencyAlg'+nameSuffix )
+          alg = createAlgorithm( 'CP::JvtEfficiencyAlg', 'JvtEfficiencyAlg'+postfix )
           addPrivateTool( alg, 'efficiencyTool', 'CP::JetJvtEfficiency' )
           alg.selection = 'jvt_selection' if runJvtSelection else 'jvt_selection,as_char'
           alg.efficiency = 'jvt_efficiency'
@@ -264,27 +267,27 @@ def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
           pass
 
     # Set up an algorithm used for debugging the jet selection:
-    alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', namePrefix+'JetCutFlowDumperAlg'+nameSuffix )
-    alg.histPattern = namePrefix+'jet_cflow_%SYS%'+nameSuffix
+    alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'JetCutFlowDumperAlg'+postfix )
+    alg.histPattern = 'jet_cflow_%SYS%'+postfix
     alg.selection = cutlist
     alg.selectionNCuts = cutlength
     seq.append( alg, inputPropName = 'input' )
 
     # Set up an algorithm that makes a view container using the selections
     # performed previously:
-    alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg', namePrefix+'JetViewFromSelectionAlg'+nameSuffix )
+    alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg', 'JetViewFromSelectionAlg'+postfix )
     alg.selection = cutlist
     seq.append( alg, inputPropName = 'input', outputPropName = 'output' )
 
     # Set up an algorithm dumping the properties of the jets, for debugging:
-    alg = createAlgorithm( 'CP::KinematicHistAlg', namePrefix+'JetKinematicDumperAlg'+nameSuffix )
-    alg.histPattern = namePrefix+'jet_%VAR%_%SYS%'+nameSuffix
+    alg = createAlgorithm( 'CP::KinematicHistAlg', 'JetKinematicDumperAlg'+postfix )
+    alg.histPattern = 'jet_%VAR%_%SYS%'+postfix
     seq.append( alg, inputPropName = 'input' )
 
     # Set up a final deep copy making algorithm if requested:
     if deepCopyOutput:
         alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
-                               namePrefix+'JetDeepCopyMaker'+nameSuffix )
+                               'JetDeepCopyMaker'+postfix )
         alg.deepCopy = True
         seq.append( alg, inputPropName = 'input', outputPropName = 'output',
                     stageName = 'selection' )
