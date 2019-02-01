@@ -35,7 +35,7 @@ jvtSysts = "|".join([
 def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
                              runJvtEfficiency = True, runJvtSelection = False,
                              runGhostMuonAssociation = True, deepCopyOutput = False,
-                             largeRMass = "Comb", postfix=''
+                             largeRMass = "Comb", postfix='',
                              reduction = "Global", JEROption = "Simple"):
     """Create a jet analysis algorithm sequence
 
