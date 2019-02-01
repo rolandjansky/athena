@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetEvent/JetINav4MomAssociation.h"
@@ -13,9 +13,6 @@ JetINav4MomAssociation::JetINav4MomAssociation(NameType& name)
 {
   this->setName(name);
 }  
-  
-JetINav4MomAssociation::~JetINav4MomAssociation()
-{  }  
   
 JetAssociationBase* JetINav4MomAssociation::clone() const
 {
