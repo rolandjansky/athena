@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloJiveXML/CaloTileRetriever.h"
@@ -22,8 +22,6 @@
 #include "TileIdentifier/TileTBID.h"
 #include "TileConditions/TileInfo.h"
 #include "TileConditions/TileCablingService.h"
-#include "TileConditions/ITileBadChanTool.h"
-#include "TileConditions/TileCondToolEmscale.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 
 using Athena::Units::GeV;
@@ -63,7 +61,16 @@ namespace JiveXML {
 
   StatusCode CaloTileRetriever::initialize() {
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endmsg;
+    ATH_MSG_DEBUG( "Initialising Tool" );
+
+    //=== get TileCondToolTiming
+    ATH_CHECK( m_tileToolTiming.retrieve() );
+
+    //=== get TileCondToolEmscale
+    ATH_CHECK( m_tileToolEmscale.retrieve() );
+
+    //=== get TileBadChanTool
+    ATH_CHECK( m_tileBadChanTool.retrieve() );
 
     return StatusCode::SUCCESS;
   }
@@ -147,8 +154,6 @@ namespace JiveXML {
     const TileHWID* tileHWID;
     const TileInfo* tileInfo;
     const TileCablingService* cabling=nullptr;
-    ToolHandle<ITileBadChanTool> tileBadChanTool("TileBadChanTool"); //!< Tile Bad Channel tool
-    ToolHandle<TileCondToolEmscale> tileToolEmscale("TileCondToolEmscale"); //!< main Tile Calibration tool
     const TileDigitsContainer *tileDigits = nullptr;
     const TileRawChannelContainer* RawChannelCnt;
     TileRawChannelUnit::UNIT RChUnit = TileRawChannelUnit::ADCcounts;  //!< Unit for TileRawChannels (ADC, pCb, etc.)
@@ -185,16 +190,6 @@ namespace JiveXML {
     sc = detStore()->retrieve(tileInfo, "TileInfo");
     if (sc.isFailure())
         if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getCaloTileData(), Could not retrieve TileInfo"<< endmsg;
-
-    //=== get TileBadChanTool
-    sc = tileBadChanTool.retrieve();
-    if ( sc.isFailure() )
-        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getCaloTileData(), Could not retrieve " << tileBadChanTool << endmsg;
-
-    //=== get TileCondToolEmscale
-    sc = tileToolEmscale.retrieve();
-    if (sc.isFailure())
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getCaloTileData(), Could not retrieve " << tileToolEmscale << endmsg;
 
 
     if (m_doTileDigit) {
@@ -264,15 +259,15 @@ namespace JiveXML {
           int ros       = tileHWID->ros(hwid);
           int PMT = abs( cabling->channel2hole(ros,channel) );
           int drawerIdx = TileCalibUtils::getDrawerIdx(ros,drawer);
-          uint32_t tileAdcStatus = tileBadChanTool->encodeStatus(tileBadChanTool->getAdcStatus(drawerIdx,channel,adc));
+          uint32_t tileAdcStatus = m_tileBadChanTool->encodeStatus(m_tileBadChanTool->getAdcStatus(drawerIdx,channel,adc));
 
           amplitude = (*chItr)->amplitude();
           //Change amplitude units to ADC counts
           if (TileRawChannelUnit::ADCcounts < RChUnit && RChUnit < TileRawChannelUnit::OnlineADCcounts) {
-            amplitude /= tileToolEmscale->channelCalib(drawerIdx, channel, adc, 1.0, TileRawChannelUnit::ADCcounts, RChUnit);
+            amplitude /= m_tileToolEmscale->channelCalib(drawerIdx, channel, adc, 1.0, TileRawChannelUnit::ADCcounts, RChUnit);
           } else if (RChUnit > TileRawChannelUnit::OnlineADCcounts) {
             // Should never get here due to offlineRch test above.
-            //amplitude = tileToolEmscale->undoOnlCalib(drawerIdx, channel, adc, amplitude, RChUnit);
+            //amplitude = m_tileToolEmscale->undoOnlCalib(drawerIdx, channel, adc, amplitude, RChUnit);
             std::abort();
           }
 
@@ -463,15 +458,17 @@ namespace JiveXML {
             int ros       = tileHWID->ros(hwid);
             int PMT = abs( cabling->channel2hole(ros,channel) );
             int drawerIdx = TileCalibUtils::getDrawerIdx(ros,drawer);
-            float scale = tileToolEmscale->channelCalib(drawerIdx, channel, adc, 1.0,
+            float scale = m_tileToolEmscale->channelCalib(drawerIdx, channel, adc, 1.0,
                                                           TileRawChannelUnit::ADCcounts, TileRawChannelUnit::MegaElectronVolts);
             float amp = theTileCell->ene1() / scale;
             float time = theTileCell->time1();
 
             int qbit = (theTileCell->qbit1() & TileCell::MASK_TIME);
-            if ((qual1 != 0 || qbit != 0 || amp != 0.0) && (fabs(time) < maxTime && time != 0.0)) time -= tileInfo->TimeCalib(hwid,0.0);
+            if ((qual1 != 0 || qbit != 0 || amp != 0.0) && (fabs(time) < maxTime && time != 0.0)) {
+              time += m_tileToolTiming->getSignalPhase(drawerIdx, channel, adc);
+            }
 
-            uint32_t tileAdcStatus = tileBadChanTool->encodeStatus(tileBadChanTool->getAdcStatus(drawerIdx,channel,adc));
+            uint32_t tileAdcStatus = m_tileBadChanTool->encodeStatus(m_tileBadChanTool->getAdcStatus(drawerIdx,channel,adc));
             if (badch1) tileAdcStatus += 10;
 
             pmt1RawAmplitude.push_back(DataType(amp));
@@ -496,15 +493,17 @@ namespace JiveXML {
             int ros       = tileHWID->ros(hwid);
             int PMT = abs( cabling->channel2hole(ros,channel) );
             int drawerIdx = TileCalibUtils::getDrawerIdx(ros,drawer);
-            float scale = tileToolEmscale->channelCalib(drawerIdx, channel, adc, 1.0,
-                                                            TileRawChannelUnit::ADCcounts, TileRawChannelUnit::MegaElectronVolts);
+            float scale = m_tileToolEmscale->channelCalib(drawerIdx, channel, adc, 1.0,
+                                                          TileRawChannelUnit::ADCcounts, TileRawChannelUnit::MegaElectronVolts);
             float amp = theTileCell->ene2() / scale;
             float time = theTileCell->time2();
 
             int qbit = (theTileCell->qbit2() & TileCell::MASK_TIME);
-            if ((qual2 != 0 || qbit != 0 || amp != 0.0) && (fabs(time) < maxTime && time != 0.0)) time -= tileInfo->TimeCalib(hwid,0.0);
+            if ((qual2 != 0 || qbit != 0 || amp != 0.0) && (fabs(time) < maxTime && time != 0.0)) {
+              time += m_tileToolTiming->getSignalPhase(drawerIdx, channel, adc);
+            }
 
-            uint32_t tileAdcStatus = tileBadChanTool->encodeStatus(tileBadChanTool->getAdcStatus(drawerIdx,channel,adc));
+            uint32_t tileAdcStatus = m_tileBadChanTool->encodeStatus(m_tileBadChanTool->getAdcStatus(drawerIdx,channel,adc));
             if (badch2) tileAdcStatus += 10;
 
             pmt2RawAmplitude.push_back(DataType(amp));
