@@ -182,7 +182,7 @@ if HIJetFlags.ApplyEtaJESCalibration() :
         calib_seq='EtaJES'
         JES_is_data=True
         if jetFlags.useTruth(): JES_is_data=False
-        elif R is 0.4 : calib_seq='EtaJES_Insitu' #only do in situ for R=0.4 jets in data
+        elif int(10*R) is 4 : calib_seq='EtaJES_Insitu' #only do in situ for R=0.4 jets in data
         #elif R is 1.0 : R = 0.4
         calib_tool=JetCalibrationTool('HICalibToolR%d' % int(10*R),JetCollection='AntiKt%dHI' % int(10*R),
                                       ConfigFile='JES_MC15c_HI_Nov2016.config',CalibSequence=calib_seq,IsData=JES_is_data)
