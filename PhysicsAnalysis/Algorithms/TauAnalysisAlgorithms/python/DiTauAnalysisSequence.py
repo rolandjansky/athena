@@ -61,6 +61,30 @@ def makeDiTauAnalysisSequence( dataType, workingPoint,
     seq.append( alg, inputPropName = 'input',
                 stageName = 'selection' )
 
+    # Set up the algorithm calculating the efficiency scale factors for the
+    # taus:
+    alg = createAlgorithm( 'CP::DiTauEfficiencyCorrectionsAlg',
+                           'DiTauEfficiencyCorrectionsAlg' + postfix )
+    addPrivateTool( alg, 'efficiencyCorrectionsTool',
+                    'TauAnalysisTools::DiTauEfficiencyCorrectionsTool' )
+    alg.efficiencyDecoration = 'tau_eff' + postfix
+    # alg.outOfValidity = 2 #silent
+    # alg.outOfValidityDeco = "bad_eff"
+    seq.append( alg, inputPropName = 'taus', outputPropName = 'tausOut',
+                affectingSystematics = '(^TAUS_TRUEHADDITAU_EFF_JETID_.*)',
+                stageName = 'efficiency' )
+
+    # Set up the tau truth matching algorithm:
+    if dataType != 'data':
+        alg = createAlgorithm( 'CP::DiTauTruthMatchingAlg',
+                               'DiTauTruthMatchingAlg' + postfix )
+        addPrivateTool( alg, 'matchingTool',
+                        'TauAnalysisTools::DiTauTruthMatchingTool' )
+        alg.matchingTool.WriteTruthTaus = 1
+        seq.append( alg, inputPropName = 'taus', outputPropName = 'tausOut',
+                    stageName = 'selection' )
+        pass
+
     # Set up a final deep copy making algorithm if requested:
     if deepCopyOutput:
         alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
