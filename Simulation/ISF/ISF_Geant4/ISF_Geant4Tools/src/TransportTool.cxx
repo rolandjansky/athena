@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // class header
@@ -8,6 +8,8 @@
 //package includes
 #include "G4AtlasAlg/G4AtlasRunManager.h"
 #include "ISFFluxRecorder.h"
+
+#include "AthenaKernel/RNGWrapper.h"
 
 // ISF classes
 #include "ISF_Event/ISFParticle.h"
@@ -53,7 +55,6 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& type,
   declareProperty("Dll",                   m_libList);
   declareProperty("Physics",               m_physList);
   declareProperty("FieldMap",              m_fieldMap);
-  declareProperty("RandomGenerator",       m_rndmGen);
   declareProperty("ReleaseGeoModel",       m_releaseGeoModel);
   declareProperty("RecordFlux",            m_recordFlux);
   declareProperty("McEventCollection",     m_mcEventCollectionName);
@@ -93,6 +94,8 @@ StatusCode iGeant4::G4TransportTool::initialize()
     ATH_MSG_ERROR("Failure in iGeant4::G4TransportTool::initializeOnce: " << e.what());
     return StatusCode::FAILURE;
   }
+
+  ATH_CHECK( m_rndmGenSvc.retrieve() );
   ATH_CHECK( m_userActionSvc.retrieve() );
 
   ATH_CHECK(m_g4atlasSvc.retrieve());
@@ -155,19 +158,6 @@ void iGeant4::G4TransportTool::initializeOnce()
     std::string temp="/MagneticField/Select "+m_fieldMap;
     ui->ApplyCommand(temp);
     ui->ApplyCommand("/MagneticField/Initialize");
-  }
-
-  if (m_rndmGen=="athena" || m_rndmGen=="ranecu")     {
-    // Set the random number generator to AtRndmGen
-    if (m_rndmGenSvc.retrieve().isFailure()) {
-      throw std::runtime_error("Could not initialize ATLAS Random Generator Service");
-    }
-    CLHEP::HepRandomEngine* engine = m_rndmGenSvc->GetEngine("AtlasG4");
-    CLHEP::HepRandom::setTheEngine(engine);
-    ATH_MSG_DEBUG("Random nr. generator is set to Athena");
-  }
-  else if (m_rndmGen=="geant4" || m_rndmGen.empty()) {
-    ATH_MSG_INFO("Random nr. generator is set to Geant4");
   }
 
   // Send UI commands
@@ -297,6 +287,12 @@ StatusCode iGeant4::G4TransportTool::simulateVector( const ISF::ConstISFParticle
 StatusCode iGeant4::G4TransportTool::setupEvent()
 {
   ATH_MSG_DEBUG ( "setup Event" );
+
+  // Set the RNG to use for this event. We need to reset it for MT jobs
+  // because of the mismatch between Gaudi slot-local and G4 thread-local RNG.
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this);
+  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
+  G4Random::setTheEngine(*rngWrapper);
 
   ATH_CHECK(m_senDetTool->BeginOfAthenaEvent());
 
