@@ -157,8 +157,9 @@ namespace NSWL1 {
       
       SG::WriteHandle<Muon::NSW_TrigRawDataContainer> trgRdos (m_trigRdoContainer);
       
-      auto p_record=std::make_unique<Muon::NSW_TrigRawDataContainer>( );
-      ATH_CHECK( trgRdos.record(std::move(p_record)));
+      
+      auto p=std::make_unique<Muon::NSW_TrigRawDataContainer>();
+      
       
       //TODO : put  sector Id and BCID in the ctor of NSW_TrigRawData below
       Muon::NSW_TrigRawData trgRawData;//like vector<trigger segment>
@@ -291,12 +292,11 @@ namespace NSWL1 {
        //S.I As far as I understand memory is handled by the DataVector so we shoul not delete the pointer
        auto* rdo_segment= new Muon::NSW_TrigRawDataSegment( deltaTheta,  phiIndex,  rIndex, lowRes,  phiRes);      
        trgRawData.push_back(rdo_segment);
-      
-     
-
      
      }//end of clmap loop
-
+     p->push_back(std::make_unique< Muon::NSW_TrigRawData>(trgRawData));
+    ATH_CHECK( trgRdos.record( std::move(p)));
+    
       return StatusCode::SUCCESS;
     }
 
