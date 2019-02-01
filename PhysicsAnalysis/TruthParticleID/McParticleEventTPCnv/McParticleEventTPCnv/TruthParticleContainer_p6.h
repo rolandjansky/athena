@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TruthParticleContainer_p6.h 
@@ -44,7 +44,7 @@ class TruthParticleContainer_p6
 
   /** Destructor: 
    */
-  ~TruthParticleContainer_p6();
+  ~TruthParticleContainer_p6() = default;
 
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 
@@ -78,10 +78,6 @@ class TruthParticleContainer_p6
 inline TruthParticleContainer_p6::TruthParticleContainer_p6() :
   m_genEvent    ( ),
   m_etIsolations( )
-{}
-
-inline
-TruthParticleContainer_p6::~TruthParticleContainer_p6()
 {}
 
 #endif //> MCPARTICLEEVENTTPCNV_TRUTHPARTICLECONTAINER_P6_H
