@@ -4,78 +4,39 @@
 from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool, \
                                        createPublicTool
-from PathResolver.PathResolver import FindCalibFile
-import ROOT
 import re
 
-def getFullListOfSystematics(configFile, mcType, jetDefinition):
-  """Get the list of systematics defined in a configuration file.
-
-    Keyword arguments:
-      configFile -- The full path to the configuration file
-      mcType -- The type of MC being used
-      jetDefinition -- The jet definition being used. This is only used to make sure the config file is valid.
-  """
-  # Get the ROOT TEnv
-  env = ROOT.TEnv(configFile)
-  # Check the mcType and jetDefinition are supported
-  supportedJetDefs = env.Lookup("SupportedJetDefs")
-  if supportedJetDefs:
-    # Case-blind comparison, stripping out any spaces to make sure that they
-    # don't interfere
-    if jetDefinition.lower() not in [
-      value.strip().lower() for value in supportedJetDefs.GetValue().split(',')]:
-      raise ValueError( (
-          "Requested jet definition {0} not supported by config {1}! " +
-          "Supported definitions are {2}").format(
-            jetDefinition, configFile, supportedJetDefs.GetValue() ) )
-  supportedMCs = env.Lookup("SupportedMCTypes")
-  if supportedMCs:
-    # Case-blind comparison, stripping out any spaces to make sure that they
-    # don't interfere
-    supportedValues = [v.strip() for v in supportedMCs.GetValue().split(',')]
-    try:
-      idx = [v.lower() for v in supportedValues].index(mcType.lower() )
-    except ValueError:
-      raise ValueError( (
-          "Requested mc type {0} not supported by config {1}! " +
-          "Supported types are {2}").format(
-            mcType, configFile, supportedValues) )
-    # make sure that mcType is in the right format for the systematic names
-    mcType = supportedValues[idx]
-
-
-  # To iterate through the TEnv we can iterate through its hash table
-  names = []
-  for resource in env.GetTable():
-    # We want to extract the names of JESComponents/JESGroups which look like
-    # JESComponent|JESGroup.number.Name
-    split = resource.GetName().split(".")
-    if len(split) != 3 or \
-       split[0] not in ["JESComponent", "JESGroup"] or \
-       not split[1].isdigit() or \
-       split[2] != "Name":
-      continue
-
-    # unpack the list
-    resType, number, prop = split
-    # See if this is part of a group
-    group = env.GetValue("{0}.{1}.Group".format(resType, number), 0)
-    if group == 0 or (resType == "JESGroup" and group == int(number) ):
-      # The group field either isn't present, is set to 0 (which counts as null
-      # here) or this is a JESGroup whose group number is set to be itself.
-      # In all of these cases this is one of the affected systematics
-      names.append(resource.GetValue() )
-
-  # Now we need to return them in the right format
-  return ["JET_{0}__continuous".format(name.replace("MCTYPE", mcType) ) for name in names]
+# Keep the different possible sets of systematics here.
+# All possible large-R jet systematics
+largeRSysts = "|".join([
+    "(^JET_Rtrk_.*)",
+    "(^JET_TAM_.*)",
+    "(^JET_MassRes_.*)",
+    "(^JET_Comb_.*_mass.*)"])
+smallRSysts = "|".join([
+    "(^JET_BJES_Response$)",
+    "(^JET_EtaIntercalibration_.*)",
+    "(^JET_Flavor_.*)",
+    "(^JET_Gjet_.*)",
+    "(^JET_JER_.*)",
+    "(^JET_MJB_.*)",
+    "(^JET_Pileup_.*)",
+    "(^JET_PunchThrough_.*)",
+    "(^JET_RelativeNonClosure_.*)",
+    "(^JET_SingleParticle_HighPt$)",
+    "(^JET_Zjet_.*)",
+    "(^JET_EffectiveNP_.*)",
+    "(^JET_GroupedNP_.*)"])
+jvtSysts = "|".join([
+    "(^JET_JvtEfficiency$)",
+    "(^JET_fJvtEfficiency$)"])
 
 
 def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
                              runJvtEfficiency = True, runJvtSelection = False,
                              runGhostMuonAssociation = True, deepCopyOutput = False,
                              largeRMass = "Comb", namePrefix="", nameSuffix="",
-                             reduction = "Global", JEROption = "Simple", variablesToShift=[] ):
+                             reduction = "Global", JEROption = "Simple"):
     """Create a jet analysis algorithm sequence
 
     Keyword arguments:
@@ -91,7 +52,6 @@ def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
       nameSuffix -- Suffix to be added to the end of all public configurable names
       reduction -- Which NP reduction scheme should be used (All, Global, Category, Scenario)
       JEROption -- Which variant of the reduction should be used (All, Full, Simple). Note that not all combinations of reduction and JEROption are valid!
-      variablesToShift -- The subset of large-R jet variables to shift. If left empty all of them will be used.
     """
 
     if not dataType in ["data", "mc", "afii"] :
@@ -190,6 +150,11 @@ def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
     alg.calibrationTool.IsData = isDataParam
     seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut' )
 
+    # Define a list of cuts to apply later on and the
+    # number of bits in the corresponding TAccept
+    cutlist = []
+    cutlength = []
+
     # Jet uncertainties
     if radius in [2, 6]:
       # TODO we need a central logging mechanism I think (i.e. set up the
@@ -219,43 +184,40 @@ def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
         # add the correct directory on the front
         configFile = "rel21/Fall2018/"+configFile
         mcType = "AFII" if dataType == 'afii' else "MC16"
+        affectingSystematics = smallRSysts
       else:
         # Large-R version
+
+        # Large-R jets have a limited region of validity so have to be
+        # preselected
+        presel_alg = createAlgorithm( 'CP::AsgSelectionAlg',
+            namePrefix+'JetPreselectionAlg'+nameSuffix )
+        presel_alg.selectionDecoration = 'fatjetpreselection,as_char'
+        addPrivateTool( presel_alg, 'selectionTool', 'CP::AsgPtEtaSelectionTool' )
+        presel_alg.selectionTool.minPt = 150e3
+        presel_alg.selectionTool.maxEta = 2
+        seq.append( presel_alg, inputPropName = 'particles', outputPropName = 'particlesOut')
         configFile = "rel21/Moriond2018/R10_{0}Mass_all.config".format(largeRMass)
         mcType = "MC16a"
+        affectingSystematics = largeRSysts
+        cutlist.append('fatjetpreselection,as_char')
+        cutlength.append(1)
        
       # Set up the jet uncertainty calculation algorithm:
       alg = createAlgorithm( 'CP::JetUncertaintiesAlg', 
           namePrefix+'JetUncertaintiesAlg'+nameSuffix )
+      # Allow the tool to ignore fat jets outside of validity
+      if radius == 10:
+        alg.outOfValidity = 2 # SILENT
+        alg.outOfValidityDeco = 'outOfValidity'
       addPrivateTool( alg, 'uncertaintiesTool', 'JetUncertaintiesTool' )
       alg.uncertaintiesTool.JetDefinition = jetCollection[ 0 : -4 ]
       alg.uncertaintiesTool.ConfigFile = configFile
       alg.uncertaintiesTool.MCType = mcType
-      if radius == 10 and variablesToShift:
-        alg.uncertaintiesTool.VariablesToShift = variablesToShift
-      # Get the full list of systematics
-      try:
-        calibArea = alg.uncertaintiesTool.CalibArea
-      except AttributeError:
-        calibArea = alg.uncertaintiesTool.getDefaultProperty("CalibArea")
-      fullPath = FindCalibFile("JetUncertainties/"+calibArea+"/"+configFile)
-      if not fullPath:
-        raise ValueError("Unable to locate config file {0}.".format(configFile) )
-      affectedSysts = getFullListOfSystematics(fullPath, mcType, jetCollection[:-4])
-
-      if radius == 10 and variablesToShift:
-        # Only report systematics for the variables that we shift
-        affectedSysts = [s for s in affectedSysts if any(
-            s.endswith(v+"__continuous") for v in variablesToShift)]
+      alg.uncertaintiesTool.IsData = (dataType == 'data')
       seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut',
-                  affectingSystematics = "^("+"|".join(affectedSysts)+")")
+                  affectingSystematics = affectingSystematics )
 
-      
-
-    # Define a list of cuts to apply later on and the
-    # number of bits in the corresponding TAccept
-    cutlist = []
-    cutlength = []
 
     # The following pieces only make sense for R=0.4 jet collections. It might
     # be a good idea to make this function throw an error or warning if the JVT
