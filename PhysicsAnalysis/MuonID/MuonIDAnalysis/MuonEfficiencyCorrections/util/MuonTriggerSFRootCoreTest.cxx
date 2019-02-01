@@ -172,7 +172,6 @@ public:
 	m_warningsCount++;
       }
     }
-
     return 0;
   }
 
@@ -374,7 +373,7 @@ int main(int argc, char* argv[]) {
     Info(APP_NAME, "Number of events in the file: %i",  static_cast<int>(event.getEntries()));
 
     // Decide how many events to run over:
-    int nrOfEntriesToRunOver = event.getEntries();
+    int nrOfEntriesToRunOver = 1000;//event.getEntries();
     if (!std::string(nrOfEntries).empty()) {
         int e = atoll(nrOfEntries);
         if (e < nrOfEntriesToRunOver) {
